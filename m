@@ -1,150 +1,271 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B32031A2C28
-	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 02:17:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E1C11A2C28
+	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 02:19:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715134651; cv=none; b=cq2IMHBJM3pKnfrQnnVommVk/uqR19vZUOzYI3H9fsC4LBkSZR2uodNI6k/pnngTk76lXf3NwT1va+iOD49o/6fM3wFsn3r1qQCxU98/rh9FVkM6WNeUrE8PNjEfSnnkb0Ei5r/MkZJeuJ7bi4xqZg6a6tL4I+orFyfiFPADHmQ=
+	t=1715134765; cv=none; b=Qxlylm9Hy5DHiTSZeV2oZ4hhF/TZzBRG3hpbOe6xeMk+EwqzxJHJ7FZRxGcC3Iy3ciEeKaWkTn1FjLFsHRszrvvV5edNdl1Ajym10zxOwUHAfS9FRClHx+rYL9IVt2aN8Y9N7pG4ZHjSmWcL3ay+gOySQ+HQ4W6up8h40hrCOdU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715134651; c=relaxed/simple;
-	bh=e4Skb1zcazTmbd2ABCs+2c3geMZFVDrf2HyBtVbfMEk=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=bkJ62/N3TKjuK+ryyIsOs4PWhhZjmdUigfciLR+EfJz6eW0tV/8JwhhNDMZcDeOnnAsnmfei3m+FBfGLmec5UYKcRvFSaQI8yFJdynIpKBgOkEXwD4nwTxJ1TGG7yLO3NPovufLHr37V80RHTsn28+5cT0fRx9m6/SVUM+Ytwx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JACDCQsO; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1715134765; c=relaxed/simple;
+	bh=UXWE5og41l4b6b2YVTVHSkJpeQzxkxzzK+70Oy9Hsk0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lD9d95SNWhoyXUefMq1XIeI+cZudyWYqBBWWr+Iqi1BufdgkOAnmGAO6dN9vXF9XwDMpHp9LkXPOUgX9sg+hv1RL7Byct12qTJ5khAK2S7W+c+eixD2iqdq41w2WD5EOlbn8R/iZt3qKAsy7Bcd2E4bhErbGZs+0YgS9hFoZHCY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B99NTBLJ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JACDCQsO"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715134646; h=Message-ID:Subject:Date:From:To;
-	bh=3Ho4GaPz2hVraaqdqkPV5F+6+sh2fpR1POxYAhY84QE=;
-	b=JACDCQsOMiunlo6EDkiMa4Yr9Cm5C3NA191JtMQJ6xrfyX01ANEm6aFKOfOtTOXvrL30+YFa9GB4DAqomKxTt5Fn4JnDMrxc4kpd+qHP0ZOicRNEFd7JdkNwRh10UV64lvXFyHCt59cupFlnLvL3qgds6WTiCJZrnAgbNGl71p8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W61qTti_1715134643;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W61qTti_1715134643)
-          by smtp.aliyun-inc.com;
-          Wed, 08 May 2024 10:17:24 +0800
-Message-ID: <1715134355.2261543-3-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next v12 0/4] ethtool: provide the dim profile fine-tuning channel
-Date: Wed, 8 May 2024 10:12:35 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: Jakub Kicinski <kuba@kernel.org>,
- "David S . Miller" <davem@davemloft.net>,
- Paolo Abeni <pabeni@redhat.com>,
- Eric Dumazet <edumazet@google.com>,
- Jason Wang <jasowang@redhat.com>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Brett Creeley <bcreeley@amd.com>,
- Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Tal Gilboa <talgi@nvidia.com>,
- Jonathan Corbet <corbet@lwn.net>,
- linux-doc@vger.kernel.org,
- Maxime Chevallier <maxime.chevallier@bootlin.com>,
- Jiri Pirko <jiri@resnulli.us>,
- Paul Greenwalt <paul.greenwalt@intel.com>,
- Ahmed Zaki <ahmed.zaki@intel.com>,
- Vladimir Oltean <vladimir.oltean@nxp.com>,
- Kory Maincent <kory.maincent@bootlin.com>,
- Andrew Lunn <andrew@lunn.ch>,
- justinstitt@google.com,
- Simon Horman <horms@kernel.org>,
- virtualization@lists.linux.dev
-References: <20240504064447.129622-1-hengqi@linux.alibaba.com>
-In-Reply-To: <20240504064447.129622-1-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B99NTBLJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715134762;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=H6/myYjmxuu8WGxOZGerbp+45oc0xhd9Aifc530Op7E=;
+	b=B99NTBLJLcbkSaMkl89Fh8EZ6t4KnmG/omCqDeUl+wtj07NbXUW0ONRZ0EV4ddoTzmdl3q
+	0edlNDhkvt103p7lJzlBhaKMMgcCUrKMy/xfIKebz/SDTEQyulLeDm/13exxtO7zUNPW6J
+	kOrNpZMwSxvpgZaMlB46CuclO7uSV4I=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-384-sNqDiEcyOxCNngSrgqm94w-1; Tue, 07 May 2024 22:19:19 -0400
+X-MC-Unique: sNqDiEcyOxCNngSrgqm94w-1
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5c66a69ec8eso3789679a12.3
+        for <virtualization@lists.linux.dev>; Tue, 07 May 2024 19:19:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715134758; x=1715739558;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=H6/myYjmxuu8WGxOZGerbp+45oc0xhd9Aifc530Op7E=;
+        b=H51uJyrSyEg3FNAcdEQpjQjyjWsVUAAPDuE6rnaGmjvJTuoWNEFiwCec9Nz4BUNesB
+         X2YQ9oxTDTlgAzgmnb0WIDPm59QL3lboeNN+m6mpiH5Er0TK5wB/BlPlHfHJ7f2p9JjB
+         CWu47xmX60mvYEKPu/LJbldS2CcdNOHwMTpQAjtRnq9T6hFcfZNw3MEcnCS1tJE9BB4a
+         Cz3p0tUHpPva9725p0yttGmRIOvSG7gLU1nhZzAN1OZmmnzdVfnKefLwrbK3JNBQFUSh
+         51Q58BCP+u88QA3O9t2sqOEi58IwP1UxNDTRus0XhWesaBzyrmw0/Z1CoBFqoEhxMSsJ
+         z3yg==
+X-Forwarded-Encrypted: i=1; AJvYcCV470PIV+fDYaB6MC6fdpgsfgJw7gC6+Lxvk9FVwh91MD4YA47zFW3V++DVC4wTYDiEbAx9uNTMZ1pjWXsDDvNDVrf0EBt8jzAITapUV7g=
+X-Gm-Message-State: AOJu0YwyZTGeLOynyjStHjQiVgzD9OGrDD7H2aODhXcbYYVLv6Tyf5c9
+	U5h0dtWYyFko9gcwjUdIXHKwuNXTkdcH7mB9N3eIgBWst+fTxSd0ze4dnyxrqCvOOpgZ+Ykrky+
+	m5Fi5331oYgfeO7PaEMgz21wKuLZC4tV4uPfMQ0NpSn3nkPjas6tY/TUx0wUFjMsWqnQe3/ZTvA
+	Otnph2kE8uXd4NyDywqo9sVgLj2qlJmX7xbQqw/NI=
+X-Received: by 2002:a05:6a20:9496:b0:1aa:92b3:acd0 with SMTP id adf61e73a8af0-1afc8d3ce82mr1684837637.25.1715134758563;
+        Tue, 07 May 2024 19:19:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHqeuBJo8cXWEDWMoYPEUKuVAQIU3TyYIXKqDdUFb7J8dunKy9SY8bE7aDO8yQfZlFLyAUklT63b6Scv84DieU=
+X-Received: by 2002:a05:6a20:9496:b0:1aa:92b3:acd0 with SMTP id
+ adf61e73a8af0-1afc8d3ce82mr1684824637.25.1715134758227; Tue, 07 May 2024
+ 19:19:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240425125855.87025-1-hengqi@linux.alibaba.com>
+ <20240425125855.87025-2-hengqi@linux.alibaba.com> <CACGkMEtpy0ZDcGQReaPVtJy4hDcqdKQwEF2Uhf5W4+7g=jts-Q@mail.gmail.com>
+ <1715054136.4593592-1-hengqi@linux.alibaba.com> <CACGkMEtkH+O+cQQ_3Ar=6-tJyRurzr6ZrGf6mtWZW4VjAt4Hfw@mail.gmail.com>
+ <1715063231.736974-2-hengqi@linux.alibaba.com>
+In-Reply-To: <1715063231.736974-2-hengqi@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 8 May 2024 10:19:06 +0800
+Message-ID: <CACGkMEse44QCQ16z9K=+73U57OXYLY3qF7_yraN1UcQHe8jyfQ@mail.gmail.com>
+Subject: Re: [PATCH net-next 1/3] virtio_net: enable irq for the control vq
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	"Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eric Dumazet <edumazet@google.com>, "David S . Miller" <davem@davemloft.net>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat,  4 May 2024 14:44:43 +0800, Heng Qi <hengqi@linux.alibaba.com> wrote:
-> The NetDIM library provides excellent acceleration for many modern
-> network cards. However, the default profiles of DIM limits its maximum
-> capabilities for different NICs, so providing a way which the NIC can
-> be custom configured is necessary.
-> 
-> Currently, the way is based on the commonly used "ethtool -C".
-> 
-> Please review, thank you very much!
+On Tue, May 7, 2024 at 2:33=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> w=
+rote:
+>
+> On Tue, 7 May 2024 14:24:16 +0800, Jason Wang <jasowang@redhat.com> wrote=
+:
+> > On Tue, May 7, 2024 at 12:03=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.c=
+om> wrote:
+> > >
+> > > On Tue, 7 May 2024 11:15:22 +0800, Jason Wang <jasowang@redhat.com> w=
+rote:
+> > > > On Thu, Apr 25, 2024 at 8:59=E2=80=AFPM Heng Qi <hengqi@linux.aliba=
+ba.com> wrote:
+> > > > >
+> > > > > Control vq polling request results consume more CPU.
+> > > > > Especially when dim issues more control requests to the device,
+> > > > > it's beneficial to the guest to enable control vq's irq.
+> > > > >
+> > > > > Suggested-by: Jason Wang <jasowang@redhat.com>
+> > > > > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> > > > > ---
+> > > > >  drivers/net/virtio_net.c | 45 ++++++++++++++++++++++++++++++----=
+------
+> > > > >  1 file changed, 34 insertions(+), 11 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > > index a4d3c76654a4..79a1b30c173c 100644
+> > > > > --- a/drivers/net/virtio_net.c
+> > > > > +++ b/drivers/net/virtio_net.c
+> > > > > @@ -287,6 +287,12 @@ struct virtnet_info {
+> > > > >         bool has_cvq;
+> > > > >         struct mutex cvq_lock;
+> > > > >
+> > > > > +       /* Wait for the device to complete the request */
+> > > > > +       struct completion completion;
+> > > > > +
+> > > > > +       /* Work struct for acquisition of cvq processing results.=
+ */
+> > > > > +       struct work_struct get_cvq;
+> > > > > +
+> > > > >         /* Host can handle any s/g split between our header and p=
+acket data */
+> > > > >         bool any_header_sg;
+> > > > >
+> > > > > @@ -520,6 +526,13 @@ static bool virtqueue_napi_complete(struct n=
+api_struct *napi,
+> > > > >         return false;
+> > > > >  }
+> > > > >
+> > > > > +static void virtnet_cvq_done(struct virtqueue *cvq)
+> > > > > +{
+> > > > > +       struct virtnet_info *vi =3D cvq->vdev->priv;
+> > > > > +
+> > > > > +       schedule_work(&vi->get_cvq);
+> > > > > +}
+> > > > > +
+> > > > >  static void skb_xmit_done(struct virtqueue *vq)
+> > > > >  {
+> > > > >         struct virtnet_info *vi =3D vq->vdev->priv;
+> > > > > @@ -2036,6 +2049,20 @@ static bool try_fill_recv(struct virtnet_i=
+nfo *vi, struct receive_queue *rq,
+> > > > >         return !oom;
+> > > > >  }
+> > > > >
+> > > > > +static void virtnet_get_cvq_work(struct work_struct *work)
+> > > > > +{
+> > > > > +       struct virtnet_info *vi =3D
+> > > > > +               container_of(work, struct virtnet_info, get_cvq);
+> > > > > +       unsigned int tmp;
+> > > > > +       void *res;
+> > > > > +
+> > > > > +       mutex_lock(&vi->cvq_lock);
+> > > > > +       res =3D virtqueue_get_buf(vi->cvq, &tmp);
+> > > > > +       if (res)
+> > > > > +               complete(&vi->completion);
+> > > > > +       mutex_unlock(&vi->cvq_lock);
+> > > > > +}
+> > > > > +
+> > > > >  static void skb_recv_done(struct virtqueue *rvq)
+> > > > >  {
+> > > > >         struct virtnet_info *vi =3D rvq->vdev->priv;
+> > > > > @@ -2531,7 +2558,7 @@ static bool virtnet_send_command(struct vir=
+tnet_info *vi, u8 class, u8 cmd,
+> > > > >                                  struct scatterlist *out)
+> > > > >  {
+> > > > >         struct scatterlist *sgs[4], hdr, stat;
+> > > > > -       unsigned out_num =3D 0, tmp;
+> > > > > +       unsigned out_num =3D 0;
+> > > > >         int ret;
+> > > > >
+> > > > >         /* Caller should know better */
+> > > > > @@ -2566,16 +2593,10 @@ static bool virtnet_send_command(struct v=
+irtnet_info *vi, u8 class, u8 cmd,
+> > > > >                 return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
+> > > > >         }
+> > > > >
+> > > > > -       /* Spin for a response, the kick causes an ioport write, =
+trapping
+> > > > > -        * into the hypervisor, so the request should be handled =
+immediately.
+> > > > > -        */
+> > > > > -       while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> > > > > -              !virtqueue_is_broken(vi->cvq)) {
+> > > > > -               cond_resched();
+> > > > > -               cpu_relax();
+> > > > > -       }
+> > > > > -
+> > > > >         mutex_unlock(&vi->cvq_lock);
+> > > > > +
+> > > > > +       wait_for_completion(&vi->completion);
+> > > > > +
+> > > >
+> > > > A question here, can multiple cvq requests be submitted to the devi=
+ce?
+> > > > If yes, what happens if the device completes them out of order?
+> > >
+> > > For user commands (such as ethtool cmds), multiple cvq requests is no=
+t allowed.
+> > > because it holds the netlink lock when waiting for the response.
+> > >
+> > > For multiple dim commands and a user command allowed to be sent simul=
+taneously
+> > > , the corresponding command-specific information(desc_state) will be =
+used to
+> > > distinguish different responses.
+> >
+> > Just to make sure we are on the same page. I meant at least we are
+> > still use the global completion which seems to be problematic.
+> >
+> > wait_for_completion(&vi->completion);
+>
+>
+> This completion is only used by the ethtool command, so it is the global =
+one.
+>
+> dim commands use specific coal_free_list and coal_wait_list to complete
+> multiple command issuance (please see patch 3).
 
-Hi,
+If I was not wrong, at least for this patch the global completion will
+be used by both dim and rtnl. If yes, it's not good to introduce a bug
+in patch 1 and fix it in patch 3.
 
-I would like to confirm if there are still comments on the current version,
-since the current series and the just merged "Remove RTNL lock protection of
-CVQ" conflict with a line of code with the fourth patch, if I can collect
-other comments or ack/review tags, then release the new version seems better.
+Thanks
 
-Thank you very much!
+>
+> Thanks.
+>
+> >
+> > Thanks
+> >
+> >
+> > >
+> > > Thanks.
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > > > >         return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
+> > > > >  }
+> > > > >
+> > > > > @@ -4433,7 +4454,7 @@ static int virtnet_find_vqs(struct virtnet_=
+info *vi)
+> > > > >
+> > > > >         /* Parameters for control virtqueue, if any */
+> > > > >         if (vi->has_cvq) {
+> > > > > -               callbacks[total_vqs - 1] =3D NULL;
+> > > > > +               callbacks[total_vqs - 1] =3D virtnet_cvq_done;
+> > > > >                 names[total_vqs - 1] =3D "control";
+> > > > >         }
+> > > > >
+> > > > > @@ -4952,6 +4973,8 @@ static int virtnet_probe(struct virtio_devi=
+ce *vdev)
+> > > > >         if (vi->has_rss || vi->has_rss_hash_report)
+> > > > >                 virtnet_init_default_rss(vi);
+> > > > >
+> > > > > +       INIT_WORK(&vi->get_cvq, virtnet_get_cvq_work);
+> > > > > +       init_completion(&vi->completion);
+> > > > >         enable_rx_mode_work(vi);
+> > > > >
+> > > > >         /* serialize netdev register + virtio_device_ready() with=
+ ndo_open() */
+> > > > > --
+> > > > > 2.32.0.3.g01195cf9f
+> > > > >
+> > > >
+> > >
+> >
+>
 
-> 
-> Changelog
-> =====
-> v11->v12:
->   - Remove the use of IS_ENABLED(DIMLIB).
->   - Update Simon's htmldoc hint.
-> 
-> v10->v11:
->   - Fix and clean up some issues from Kuba, thanks.
->   - Rebase net-next/main
-> 
-> v9->v10:
->   - Collect dim related flags/mode/work into one place.
->   - Use rx_profile + tx_profile instead of four profiles.
->   - Add several helps.
->   - Update commit logs.
-> 
-> v8->v9:
->   - Fix the compilation error of conflicting names of rx_profile in
->     dim.h and ice driver: in dim.h, rx_profile is replaced with
->     dim_rx_profile. So does tx_profile.
-> 
-> v7->v8:
->   - Use kmemdup() instead of kzalloc()/memcpy() in dev_dim_profile_init().
-> 
-> v6->v7:
->   - A new wrapper struct pointer is used in struct net_device.
->   - Add IS_ENABLED(CONFIG_DIMLIB) to avoid compiler warnings.
->   - Profile fields changed from u16 to u32.
-> 
-> v5->v6:
->   - Place the profile in netdevice to bypass the driver.
->     The interaction code of ethtool <-> kernel has not changed at all,
->     only the interaction part of kernel <-> driver has changed.
-> 
-> v4->v5:
->   - Update some snippets from Kuba.
-> 
-> v3->v4:
->   - Some tiny updates and patch 1 only add a new comment.
-> 
-> v2->v3:
->   - Break up the attributes to avoid the use of raw c structs.
->   - Use per-device profile instead of global profile in the driver.
-> 
-> v1->v2:
->   - Use ethtool tool instead of net-sysfs.
-> 
-> Heng Qi (4):
->   linux/dim: move useful macros to .h file
->   ethtool: provide customized dim profile management
->   dim: add new interfaces for initialization and getting results
->   virtio-net: support dim profile fine-tuning
-> 
->  Documentation/netlink/specs/ethtool.yaml     |  31 +++
->  Documentation/networking/ethtool-netlink.rst |   4 +
->  drivers/net/virtio_net.c                     |  47 +++-
->  include/linux/dim.h                          | 114 ++++++++
->  include/linux/ethtool.h                      |   4 +-
->  include/linux/netdevice.h                    |   3 +
->  include/uapi/linux/ethtool_netlink.h         |  22 ++
->  lib/dim/net_dim.c                            | 145 ++++++++++-
->  net/ethtool/coalesce.c                       | 259 ++++++++++++++++++-
->  9 files changed, 613 insertions(+), 16 deletions(-)
-> 
-> -- 
-> 2.32.0.3.g01195cf9f
-> 
-> 
