@@ -1,70 +1,226 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F5E311C85;
-	Wed,  8 May 2024 03:01:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7A858F68
+	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 03:16:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715137264; cv=none; b=WyGRQLNK6BJ5QN7AifXtKsDrP+kug2H3nOe6/vWgYCCI25UqwfL/ikzzEUFsG7P/pVGl54JeGWa2LjwQoOxLdcJUv5Ap92XnOJ2nypsjjtdCMna3dzBAGCwBlYX6uZ2oladty2AhW+ctRCtIvaxqhu1BmJauUrmrsnhA2o2xDlA=
+	t=1715138221; cv=none; b=JjAjMNEolmbrXe2jl3X6sP1qQ3KjUeSfUMSqtw4mgsI6grw2AbYSckq/YihpJeDO3DQiOQzf5aFdCWXkkzoVTeQqC+NgM8VldVRafud8NCSH9iUu49DrE/WcUXPZQBNNgc/xAcOCipCsNKkymxx6I+v0AeGEMukmVrH709N5hd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715137264; c=relaxed/simple;
-	bh=3XcmFQWPXKv5Kihd7gCtibMQ533I8P2tVJwuOcJHAEg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sZtyf8GwSZBavN/RU9p832GITiwhmpcepjXbd5JSvTRCr9GhvV0IO6dZhEjGssGJluiTXV9O0OlDn1hsT59+BqnlYc11erJI687w9J1OZx+e/JgpHYOFkiFQW8dF93OR7ptlSKN51XxcvGqmH/19YwVij2G0pw8L6XjB5QaC6FI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X4uMgHu+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715138221; c=relaxed/simple;
+	bh=5YlwT9+AGYtpgGE+ZaBdfrjkfWqqNSM9whMdgyvPNy8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=f4XcK0UWWUGmJ8rstM1mswK5jjf+ekeHDfS/ivBgfLqzUzKP+FAyMQDHgGMS0UxABhqmnmOh6GR8JxvwQJYQf0+u2Ew1EM94vefwvaAL3KJLHABLA+9k1pzML8iNL2cODaPycFD+Ylpw6HsuqVX1NdglIqvaWKPxnNw0qXtMUbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GHkePrNb; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X4uMgHu+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86797C2BBFC;
-	Wed,  8 May 2024 03:01:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715137263;
-	bh=3XcmFQWPXKv5Kihd7gCtibMQ533I8P2tVJwuOcJHAEg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=X4uMgHu+/1S96pk9T9TQN3M46ygaXr3NrI0h2pIoDWP8Yl1dmBeUTk9sxk+L6JTHE
-	 urCDKGMDb/aoPF4LSBlTYzI+2l2dUi0PpNjIU/vAcy4s5CAkvwhQDksxJp2G8YwYlX
-	 wAMX6MXaGxNFOgGcRm+LqBOK4z7n8BHZJ3uSoiMWtFJWpgbR2+rLt0DJCZ3KzX8BYT
-	 SxLJL1OTwqntcyMoYP9BQoqhOVWgA5ejRvbYweI9kgdbS3XmRxLAhyexHWRvuRRA4X
-	 gYfZryvy4KamvkYgK/fH+0fbdQ3LgMp9t48YXfyFDOysVDio0jYs1FtblLPJlKbqMq
-	 31B+TnMEnImlg==
-Date: Tue, 7 May 2024 20:01:01 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, "David S .
- Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, Eric
- Dumazet <edumazet@google.com>, Jason Wang <jasowang@redhat.com>, "Michael S
- . Tsirkin" <mst@redhat.com>, Brett Creeley <bcreeley@amd.com>, Ratheesh
- Kannoth <rkannoth@marvell.com>, Alexander Lobakin
- <aleksander.lobakin@intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal
- Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
- linux-doc@vger.kernel.org, Maxime Chevallier
- <maxime.chevallier@bootlin.com>, Jiri Pirko <jiri@resnulli.us>, Paul
- Greenwalt <paul.greenwalt@intel.com>, Ahmed Zaki <ahmed.zaki@intel.com>,
- Vladimir Oltean <vladimir.oltean@nxp.com>, Kory Maincent
- <kory.maincent@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
- justinstitt@google.com, Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH net-next v12 0/4] ethtool: provide the dim profile
- fine-tuning channel
-Message-ID: <20240507200101.21f82c9d@kernel.org>
-In-Reply-To: <20240504064447.129622-1-hengqi@linux.alibaba.com>
-References: <20240504064447.129622-1-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GHkePrNb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715138218;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HBNdbtmMlMYW2VGt8wlb8qF8b+bm09hg0o22wzkONDk=;
+	b=GHkePrNbdfEq31ltp0MNctD+0tOKoUp1AqC6fUZ4+iqJRUcEEeEYsfKhM+Gtseo7umfMau
+	I2cBLL7ltfcx54Qvs8KK9UOikn7xy1pRVmDVCVpKNnj727coJ9EBmVJZjocP6NqltdJ0jR
+	hAO8KeUXqqn2/uceu/O/o1lSA7+NaFI=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-103-XkwxiWmNPyO_qqMkBXVt-g-1; Tue, 07 May 2024 23:16:56 -0400
+X-MC-Unique: XkwxiWmNPyO_qqMkBXVt-g-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-61b7d7c293cso3442841a12.0
+        for <virtualization@lists.linux.dev>; Tue, 07 May 2024 20:16:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715138216; x=1715743016;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HBNdbtmMlMYW2VGt8wlb8qF8b+bm09hg0o22wzkONDk=;
+        b=KbmPvTjPbErsSSzdasCWF7OtDR67jTYb8fyByoPkddh/gPA9qMK2qnVJZmE9iJLi5g
+         igDZwS9lAHWkIBKMYNtCde3FtDnpKx0ZCoH+S4g4XXXKHIEjcwBXuVqrD9TweDL/3mK9
+         uS6sy3elzxKyJhg/5w+b39Ozds/mSE9QRwUgEap6hGgPdHagA5UGxcJke+VbKY80CGCe
+         0MMM9K2BgTM7CrV2yzgihFiQQfzThwYyXiBRHSEbl2y0hCklbgrjawQjaKD24ItNFIRc
+         8sSRCLOAGqHpCh9lNMjduFOqrxbD0tNK6TUIv/fm1U7kD6AVEMxlvxt+iKMTMiybghgV
+         PjGw==
+X-Forwarded-Encrypted: i=1; AJvYcCV3RRQfCs/S5QXDi/E2zbSz2rd1MUQYJ8JKXGfb0WzIRs/4/md2TEWcKZca4Zw42gw+wIciQdkVG3iGriGXrjeHbYcZDrS80omSj/JitEY=
+X-Gm-Message-State: AOJu0YwAAsrpHEYKjEQolrW4WlkCs3SNjkgu8hU7yII9eN12fCSRzV5F
+	IXu3KD+2fMlODeyT1lKn6VpMhyBgqWAPsjjc02MLg5tj50l2cXupi8GlpEjEg01vuqZklbd4QSR
+	6L0sAryJcPzXscIRAKr9dfQIvZS/raj0cEjR4MChcP/W3XImHpW8w7O2yB3YA35AHWZziakgJaM
+	xMjHcnpjaL2HH7+7lGB7URvpSvc4khYy3PKAKT820=
+X-Received: by 2002:a05:6a20:5650:b0:1af:9fba:e38f with SMTP id adf61e73a8af0-1afc8dbe1a2mr1293211637.40.1715138215703;
+        Tue, 07 May 2024 20:16:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHxDOC735IPszmwWjv/69v3XVXMSRDjdHX5DPxTzIUvCa7YY6od05dUxOllqrbkdMrT7Or8GsjKBzpgK2Lakl0=
+X-Received: by 2002:a05:6a20:5650:b0:1af:9fba:e38f with SMTP id
+ adf61e73a8af0-1afc8dbe1a2mr1293201637.40.1715138215262; Tue, 07 May 2024
+ 20:16:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <0DC02AF7-2555-4BBB-847E-A235BCCF7069@gmail.com>
+In-Reply-To: <0DC02AF7-2555-4BBB-847E-A235BCCF7069@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 8 May 2024 11:16:43 +0800
+Message-ID: <CACGkMEuxb9LEaYETrO9bow4Fw=FCT0emOs9S2mqCtkb3O7_P1Q@mail.gmail.com>
+Subject: Re: Virtio Net driver crash in latest version of kernel 6.8.4>
+To: Martin Zaharinov <micron10@gmail.com>
+Cc: netdev <netdev@vger.kernel.org>, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat,  4 May 2024 14:44:43 +0800 Heng Qi wrote:
-> The NetDIM library provides excellent acceleration for many modern
-> network cards. However, the default profiles of DIM limits its maximum
-> capabilities for different NICs, so providing a way which the NIC can
-> be custom configured is necessary.
-> 
-> Currently, the way is based on the commonly used "ethtool -C".
-> 
-> Please review, thank you very much!
+On Sat, May 4, 2024 at 3:32=E2=80=AFPM Martin Zaharinov <micron10@gmail.com=
+> wrote:
+>
+> Hi all
+>
+> This is bug report with lastes version of kernel 6.8.4 > start getting th=
+is crash .
 
-Good progress! Please make sure to also update
-Documentation/networking/net_dim.rst in the next version.
+How did you reproduce this and Could you reproduce this with the
+latest net.git? (I have a smoking test on net.git and it doesn't seem
+to trigger).
+
+Thanks
+
+>
+> If any find fix patch please add me.
+>
+> May  4 09:22:50 [  257.064343][    C5] BUG: unable to handle page fault f=
+or address: ffff889c54c225c0
+> May  4 09:22:50 [  257.064923][    C5] #PF: supervisor write access in ke=
+rnel mode
+> May  4 09:22:50 [  257.064923][    C5] #PF: error_code(0x0003) - permissi=
+ons violation
+> May  4 09:22:50 [  257.064923][    C5] PGD 255c01067 P4D 255c01067 PUD 10=
+008b063 PMD 8000000254c001a1
+> May  4 09:22:50 [  257.064923][    C5] Oops: 0003 [#1] SMP
+> May  4 09:22:50 [  257.064923][    C5] CPU: 5 PID: 0 Comm: swapper/5 Tain=
+ted: G           O       6.8.9 #1
+> May  4 09:22:50 [  257.064923][    C5] Hardware name: QEMU Standard PC (Q=
+35 + ICH9, 2009), BIOS rel-1.16.2-0-gea1b7a073390-prebuilt.qemu.org 04/01/2=
+014
+> May  4 09:22:50 [  257.064923][    C5] RIP: 0010:__build_skb_around+0x87/=
+0x100
+> May  4 09:22:50 [  257.064923][    C5] Code: 24 b8 00 00 00 66 41 89 94 2=
+4 b2 00 00 00 66 41 89 8c 24 ae 00 00 00 65 8b 15 d1 ae 86 58 48 01 d8 66 4=
+1 89 94 24 86 00 00 00 <48> c7 00 00 00 00 00 48 c7 40 08 00 00 00 00 48 c7=
+ 40 10 00 00 00
+> May  4 09:22:50 [  257.064923][    C5] RSP: 0018:ffffa012c021cc58 EFLAGS:=
+ 00010286
+> May  4 09:22:50 [  257.064923][    C5] RAX: ffff889c54c225c0 RBX: ffff889=
+b54c22800 RCX: 00000000ffffffff
+> May  4 09:22:50 [  257.064923][    C5] RDX: 0000000000000005 RSI: ffff889=
+b54c22800 RDI: ffff889b03273800
+> May  4 09:22:50 [  257.064923][    C5] RBP: 00000000000001c0 R08: 0000000=
+000000000 R09: 000000000000000c
+> May  4 09:22:50 [  257.064923][    C5] R10: 0000000000000002 R11: 0000000=
+000000800 R12: ffff889b03273800
+> May  4 09:22:50 [  257.064923][    C5] R13: ffff889b00e52e48 R14: 0000000=
+0000000c0 R15: ffff889c77d62fa0
+> May  4 09:22:50 [  257.064923][    C5] FS:  0000000000000000(0000) GS:fff=
+f889c77d40000(0000) knlGS:0000000000000000
+> May  4 09:22:50 [  257.064923][    C5] CS:  0010 DS: 0000 ES: 0000 CR0: 0=
+000000080050033
+> May  4 09:22:50 [  257.081266][    C5] CR2: ffff889c54c225c0 CR3: 0000000=
+10e8b7000 CR4: 00000000003506f0
+> May  4 09:22:50 [  257.081266][    C5] Call Trace:
+> May  4 09:22:50 [  257.081266][    C5]  <IRQ>
+> May  4 09:22:50 [  257.081266][    C5]  ? __die+0xe4/0xf0
+> May  4 09:22:50 [  257.081266][    C5]  ? page_fault_oops+0x144/0x3e0
+> May  4 09:22:50 [  257.081266][    C5]  ? search_exception_tables+0x42/0x=
+50
+> May  4 09:22:50 [  257.081266][    C5]  ? fixup_exception+0x1d/0x2d0
+> May  4 09:22:50 [  257.081266][    C5]  ? exc_page_fault+0x92/0xa0
+> May  4 09:22:50 [  257.081266][    C5]  ? asm_exc_page_fault+0x22/0x30
+> May  4 09:22:50 [  257.081266][    C5]  ? __build_skb_around+0x87/0x100
+> May  4 09:22:50 [  257.081266][    C5]  __napi_alloc_skb+0x1d8/0x3e0
+> May  4 09:22:50 [  257.081266][    C5]  page_to_skb+0x19d/0x5d0 [virtio_n=
+et]
+> May  4 09:22:50 [  257.081266][    C5]  receive_mergeable+0x10b/0x560 [vi=
+rtio_net]
+> May  4 09:22:50 [  257.081266][    C5]  receive_buf+0x4df/0xda0 [virtio_n=
+et]
+> May  4 09:22:50 [  257.081266][    C5]  ? detach_buf_split+0xab/0x1a0 [vi=
+rtio_ring]
+> May  4 09:22:50 [  257.093416][    C5]  virtnet_poll+0x20b/0x690 [virtio_=
+net]
+> May  4 09:22:50 [  257.093416][    C5]  __napi_poll+0x20/0x190
+> May  4 09:22:50 [  257.093416][    C5]  net_rx_action+0x29f/0x380
+> May  4 09:22:50 [  257.093416][    C5]  __do_softirq+0xcd/0x1f8
+> May  4 09:22:50 [  257.093416][    C5]  irq_exit_rcu+0x82/0xa0
+> May  4 09:22:50 [  257.093416][    C5]  common_interrupt+0x7a/0xa0
+> May  4 09:22:50 [  257.093416][    C5]  </IRQ>
+> May  4 09:22:50 [  257.093416][    C5]  <TASK>
+> May  4 09:22:50 [  257.093416][    C5]  asm_common_interrupt+0x22/0x40
+> May  4 09:22:50 [  257.093416][    C5] RIP: 0010:default_idle+0xb/0x10
+> May  4 09:22:50 [  257.093416][    C5] Code: 07 76 e7 48 89 07 49 c7 c0 0=
+8 00 00 00 4d 29 c8 4c 01 c7 4c 29 c2 e9 72 ff ff ff cc cc cc cc eb 07 0f 0=
+0 2d 37 3a 3e 00 fb f4 <fa> c3 0f 1f 00 65 48 8b 04 25 40 38 02 00 f0 80 48=
+ 02 20 48 8b 10
+> May  4 09:22:50 [  257.093416][    C5] RSP: 0018:ffffa012c00cfef0 EFLAGS:=
+ 00000206
+> May  4 09:22:50 [  257.093416][    C5] RAX: ffff889c77d61268 RBX: 0000000=
+000000005 RCX: 0000000000000000
+> May  4 09:22:50 [  257.093416][    C5] RDX: 0000000000000000 RSI: 0000000=
+000000083 RDI: 0000000000091294
+> May  4 09:22:50 [  257.093416][    C5] RBP: ffff889b0032dd00 R08: 0000000=
+00001f340 R09: ffff889c77d5f340
+> May  4 09:22:50 [  257.093416][    C5] R10: ffff889c77d5f340 R11: 0000000=
+000100000 R12: 0000000000000000
+> May  4 09:22:50 [  257.093416][    C5] R13: 0000000000000000 R14: ffff889=
+b0032dd00 R15: 0000000000000000
+> May  4 09:22:50 [  257.093416][    C5]  default_idle_call+0x1f/0x30
+> May  4 09:22:50 [  257.093416][    C5]  do_idle+0x1df/0x210
+> May  4 09:22:50 [  257.110747][    C5]  cpu_startup_entry+0x20/0x30
+> May  4 09:22:50 [  257.110747][    C5]  start_secondary+0xe1/0xf0
+> May  4 09:22:50 [  257.110747][    C5]  secondary_startup_64_no_verify+0x=
+170/0x17b
+> May  4 09:22:50 [  257.110747][    C5]  </TASK>
+> May  4 09:22:50 [  257.110747][    C5] Modules linked in: xsk_diag unix_d=
+iag pppoe pppox ppp_generic slhc nf_conntrack_sip nf_conntrack_ftp nf_connt=
+rack_pptp nft_ct nft_nat nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 n=
+f_defrag_ipv4 nf_tables netconsole virtio_net net_failover failover virtio_=
+pci virtio_pci_legacy_dev virtio_pci_modern_dev virtio virtio_ring vmxnet3 =
+aesni_intel crypto_simd cryptd
+> May  4 09:22:50 [  257.110747][    C5] CR2: ffff889c54c225c0
+> May  4 09:22:50 [  257.110747][    C5] ---[ end trace 0000000000000000 ]-=
+--
+> May  4 09:22:50 [  257.110747][    C5] RIP: 0010:__build_skb_around+0x87/=
+0x100
+> May  4 09:22:50 [  257.110747][    C5] Code: 24 b8 00 00 00 66 41 89 94 2=
+4 b2 00 00 00 66 41 89 8c 24 ae 00 00 00 65 8b 15 d1 ae 86 58 48 01 d8 66 4=
+1 89 94 24 86 00 00 00 <48> c7 00 00 00 00 00 48 c7 40 08 00 00 00 00 48 c7=
+ 40 10 00 00 00
+> May  4 09:22:50 [  257.110747][    C5] RSP: 0018:ffffa012c021cc58 EFLAGS:=
+ 00010286
+> May  4 09:22:50 [  257.110747][    C5] RAX: ffff889c54c225c0 RBX: ffff889=
+b54c22800 RCX: 00000000ffffffff
+> May  4 09:22:50 [  257.110747][    C5] RDX: 0000000000000005 RSI: ffff889=
+b54c22800 RDI: ffff889b03273800
+> May  4 09:22:50 [  257.110747][    C5] RBP: 00000000000001c0 R08: 0000000=
+000000000 R09: 000000000000000c
+> May  4 09:22:50 [  257.126458][    C5] R10: 0000000000000002 R11: 0000000=
+000000800 R12: ffff889b03273800
+> May  4 09:22:50 [  257.126458][    C5] R13: ffff889b00e52e48 R14: 0000000=
+0000000c0 R15: ffff889c77d62fa0
+> May  4 09:22:50 [  257.126458][    C5] FS:  0000000000000000(0000) GS:fff=
+f889c77d40000(0000) knlGS:0000000000000000
+> May  4 09:22:50 [  257.126458][    C5] CS:  0010 DS: 0000 ES: 0000 CR0: 0=
+000000080050033
+> May  4 09:22:50 [  257.126458][    C5] CR2: ffff889c54c225c0 CR3: 0000000=
+10e8b7000 CR4: 00000000003506f0
+> May  4 09:22:50 [  257.126458][    C5] Kernel panic - not syncing: Fatal =
+exception in interrupt
+> May  4 09:22:50 [  257.126458][    C5] Kernel Offset: 0x26000000 from 0xf=
+fffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> May  4 09:22:50 [  257.126458][    C5] Rebooting in 10 seconds..
+>
+
