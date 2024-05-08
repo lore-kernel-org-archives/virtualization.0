@@ -1,252 +1,91 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAEA39470
-	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 02:22:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C5BF1A2C25
+	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 02:23:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715134941; cv=none; b=Kf3sANObS4U2iS6A4DKFHx5Q6rlh07Th5tlaKcxvQQ8P5CirtHHJnIDWVz+nbpNcCYB11+xW9TxmBrZcT7mn47eQ9LmlGywaoEm/PY/ZhGc6OY5Wojeg4Bbwqi1M3PWDRjYFVopLWzK+VUMsCEmuj73YTh+8mrKMKNaIIQ5mdaE=
+	t=1715135018; cv=none; b=bUjx5SdyjO0ZDxZ4788dF9u/W1WfX7LeDlaGeOY9qQdpIP1tYX+bygulgOKqdqXVc3Tgjkes9m0FHWkeiYUazpsn/t24tdLWKP4zHg38syEGCjC+IKgf3K9q8ZCM996/iyFjvmRlPrRR3wcr6Vop7cOYs92IsdDHmfttlzMa/4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715134941; c=relaxed/simple;
-	bh=e9zqP3FRcYUtKl8zb8P8omFnhTOKBVZk+nPaB51sXiM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CbrL2Dcqp8P0SlP5eaSC7ZUTu0lYRTUi1JPsNSDAgYq7bX5pR5tpmateIV35gB5dHAn27GMWs1sKC2WbOy1fz14C8OBsTC7Ay5M1WxMrBaJ24DyXp6biA31PkHo2wE4VoNw5ArCWLyUaFkQJt3E2GAwuSUsV47qW26f2XFf6TBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ecMjqA2g; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1715135018; c=relaxed/simple;
+	bh=sG/5CfdEuGFt2qXUIXDQ9Iph/PZ5SPBnkvic3k5LFAY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=nyo8oW9TS7XlaTVONoi2UfsMLFM7PNMzgbRNH20R4puGULASFKb0bzMEFbtuAkpPc2Aso0s7heSwM9VMZyHYnnaBmVaPRSuMSs2ApNPCZgyT5NZ/3LTioxdTF1TEkPCu3PXyfNF+9jiWMNdfD+pDcT9k/k8Q6qBqKf5JVb1cCjE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RcD5Fp46; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ecMjqA2g"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715134938;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Z1JVE46JhsDjFTnbufVQCHxndRpyxDZpzIlRi1kXzqQ=;
-	b=ecMjqA2gCkzlOjxh+hpxZAsHWZvsZDPED6I0pWEijiq4wEnDZHOKcExSNU0kxsVsGHwddG
-	QkE3vMwkvoydjWbMPO3gypqGbnqDXK6llHIXYLK0WnRdUXwxL2xfq1hObcDYA/msj04Iii
-	6863EG2CZ3XBIxIxNCBspZ7l8KoljBw=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-608-oisb_UwGNLi8CXRBflaBBA-1; Tue, 07 May 2024 22:22:16 -0400
-X-MC-Unique: oisb_UwGNLi8CXRBflaBBA-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2b38f8cac9dso301737a91.1
-        for <virtualization@lists.linux.dev>; Tue, 07 May 2024 19:22:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715134936; x=1715739736;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Z1JVE46JhsDjFTnbufVQCHxndRpyxDZpzIlRi1kXzqQ=;
-        b=m7YZyMvoyxkD5+OHSZaeGQu3GUGmOqH4eKw4jc9vo3uFb2IuMxr7UdkfySDwSsUKuD
-         vqhuOz/qMp4p5HezahVBxhP9fy5Tye9H8El/W1UJR3FKsUBl9HRcscUYDQR8KluBV+Vm
-         YUMJ/TtUXZNl9fYSpY7B2Az+tInjtJR64pifQytnyNetI1l+5DBUzXafE7/HPbBzyhYl
-         RzUEQOT0NEj2+8YibFadnjFLLrvcpC9MrSBUgRsmB+IA8d+Qo079zCnC2d4lwBnQDGCX
-         1VohPpKeWzUD1/egxP+LogzZ6jGqkCMsELJNREGo1iPHcyu9Re8pQ3hxCD6Cjl1MrYFU
-         JlAw==
-X-Forwarded-Encrypted: i=1; AJvYcCUgPUn9XXd+6xH0XoUS8fgZpmb3sQudZ6zwvB0aINeuSVgkz0k/WhsPIiDKC38/kP3q/14dxrfb8KXIN7ETZv62DKGNc1abn07/0Zttnxs=
-X-Gm-Message-State: AOJu0YyohyMkEAzfQX83i66tuiavH47oX9ul//vlbPE4ceMZSw08CL4V
-	GeWeNDiWDy2+/Lq7Xx/va+I9u2SsCX1KzRzIZMajrIBxYvITfXSYW5HLi8t2gC8+9sJsTIIfXbw
-	R7/lM9LY6suo4+PbANaxHvv+2Au9h/j2AUrFT/j5Szg1VKN4h8YyI2yLI7VSIprr7g2JL4+vrPh
-	WDjTj/6ZXpXmRPcS8uASk43VQptE4wI3WOG+ChbE4=
-X-Received: by 2002:a17:90b:1948:b0:2b0:e497:56f2 with SMTP id 98e67ed59e1d1-2b611696c1emr2327500a91.10.1715134935684;
-        Tue, 07 May 2024 19:22:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF+GdCgOx/SHzSNGRJLsXBp1V1/u80BZIwN8SAE4KV2A9bEsjroJeoko+rrUgx4G2fExC3P0tUSQlREaUygRfM=
-X-Received: by 2002:a17:90b:1948:b0:2b0:e497:56f2 with SMTP id
- 98e67ed59e1d1-2b611696c1emr2327473a91.10.1715134935281; Tue, 07 May 2024
- 19:22:15 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RcD5Fp46"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715135014; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=CHRizpqvv8zGKVGFHnosxx03lv56lVLD4Vx5MAGSMNk=;
+	b=RcD5Fp46t08+mnDXX/1U33ARwWbHTZy++IRFoCUyFSxKXN9eDNH4F1GoDIJLTZj0jUIax0Q4mudR7Zx9to4799zMo8X1SCCxgRmTPVsP4tpzWrmhifE4spX3ccgDy9ZJz7p6Q4Gilr3OebOvAbw0CnJAZFwyuaA9/hSBWAzr5Pc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W61t.Sk_1715135012;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W61t.Sk_1715135012)
+          by smtp.aliyun-inc.com;
+          Wed, 08 May 2024 10:23:33 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	netdev@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: [PATCH vhost 0/5] virtio_net: introduce api to enable/disable premapped mode for sq
+Date: Wed,  8 May 2024 10:23:26 +0800
+Message-Id: <20240508022331.63751-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240426065441.120710-1-hengqi@linux.alibaba.com>
- <20240426065441.120710-3-hengqi@linux.alibaba.com> <CACGkMEs9nrFTjLa18XN9ZAokgLsw4MtXM3O3kVmQv=ofP49coA@mail.gmail.com>
- <1715065002.9314177-2-hengqi@linux.alibaba.com>
-In-Reply-To: <1715065002.9314177-2-hengqi@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 8 May 2024 10:22:04 +0800
-Message-ID: <CACGkMEuQuzy9Mn1JN-phAW+bk64yZsM1xoKTKP+B9R8KP36K2w@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 2/2] virtio_net: get init coalesce value when probe
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	"Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eric Dumazet <edumazet@google.com>, "David S . Miller" <davem@davemloft.net>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Git-Hash: a0fef46c457b
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 7, 2024 at 3:01=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> w=
-rote:
->
-> On Tue, 7 May 2024 14:24:12 +0800, Jason Wang <jasowang@redhat.com> wrote=
-:
-> > On Fri, Apr 26, 2024 at 2:54=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.c=
-om> wrote:
-> > >
-> > > Currently, virtio-net lacks a way to obtain the default coalesce
-> > > values of the device during the probe phase. That is, the device
-> > > may have default experience values, but the user uses "ethtool -c"
-> > > to query that the values are still 0.
-> > >
-> > > Therefore, we reuse VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET to complete the =
-goal.
-> > >
-> > > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> > > ---
-> > >  drivers/net/virtio_net.c | 68 +++++++++++++++++++++++++++++++++++---=
+As discussed:
+
+http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com
+
+If virtio is in pre-mapped mode, the driver should manage the DMA info itself.
+
+However, due to the indirect feature, the virtio-net driver may need to maintain
+an excessive amount of DMA info. Therefore, we only enable pre-mapped mode for
+the send queue (SQ) when af-xdp is bound to it. We have set a limit on the
+amount of DMA info we manage. If the kernel stack or xdp tx/redirect attempts to
+use more descriptors than this limit, virtnet_add_outbuf() will return an
+-ENOMEM error. However, AF-XDP can continue working.
+
+The last patch aims to demonstrate the logic of enabling pre-mapped mode when
+af-xdp is bound to the SQ, and we can discuss it further.
+
+Although the APIs are not used, this patch might belong in the final patch set
+(virtio-net supports AF_XDP). But I hope the first four patches can be merged
+first to reduce the number of patches in the final set.
+
+Thanks.
+
+Xuan Zhuo (5):
+  virtio_ring: introduce vring_need_unmap_buffer
+  virtio_ring: introduce dma map api for page
+  virtio_ring: introduce virtqueue_dma_map_sg_attrs
+  virtio_ring: virtqueue_set_dma_premapped() support to disable
+  virtio_net: sq support premapped mode
+
+ drivers/net/virtio_net.c     | 212 ++++++++++++++++++++++++++++++++++-
+ drivers/virtio/virtio_ring.c | 118 ++++++++++++++++---
+ include/linux/virtio.h       |  12 +-
+ 3 files changed, 319 insertions(+), 23 deletions(-)
+
 --
-> > >  1 file changed, 61 insertions(+), 7 deletions(-)
-> > >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 3bc9b1e621db..fe0c15819dd3 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -4623,6 +4623,46 @@ static int virtnet_validate(struct virtio_devi=
-ce *vdev)
-> > >         return 0;
-> > >  }
-> > >
-> > > +static int virtnet_get_coal_init_value(struct virtnet_info *vi,
-> > > +                                      u16 _vqn, bool is_tx)
-> > > +{
-> > > +       struct virtio_net_ctrl_coal *coal =3D &vi->ctrl->coal_vq.coal=
-;
-> > > +       __le16 *vqn =3D &vi->ctrl->coal_vq.vqn;
-> > > +       struct scatterlist sgs_in, sgs_out;
-> > > +       u32 usecs, pkts, i;
-> > > +       bool ret;
-> > > +
-> > > +       *vqn =3D cpu_to_le16(_vqn);
-> > > +
-> > > +       sg_init_one(&sgs_out, vqn, sizeof(*vqn));
-> > > +       sg_init_one(&sgs_in, coal, sizeof(*coal));
-> > > +       ret =3D virtnet_send_command_reply(vi, VIRTIO_NET_CTRL_NOTF_C=
-OAL,
-> > > +                                        VIRTIO_NET_CTRL_NOTF_COAL_VQ=
-_GET,
-> > > +                                        &sgs_out, &sgs_in);
-> > > +       if (!ret)
-> > > +               return ret;
-> > > +
-> > > +       usecs =3D le32_to_cpu(coal->max_usecs);
-> > > +       pkts =3D le32_to_cpu(coal->max_packets);
-> > > +       if (is_tx) {
-> > > +               vi->intr_coal_tx.max_usecs =3D usecs;
-> > > +               vi->intr_coal_tx.max_packets =3D pkts;
-> > > +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> > > +                       vi->sq[i].intr_coal.max_usecs =3D usecs;
-> > > +                       vi->sq[i].intr_coal.max_packets =3D pkts;
-> > > +               }
-> > > +       } else {
-> > > +               vi->intr_coal_rx.max_usecs =3D usecs;
-> > > +               vi->intr_coal_rx.max_packets =3D pkts;
-> > > +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> > > +                       vi->rq[i].intr_coal.max_usecs =3D usecs;
-> > > +                       vi->rq[i].intr_coal.max_packets =3D pkts;
-> > > +               }
-> > > +       }
-> > > +
-> > > +       return 0;
-> > > +}
-> > > +
-> > >  static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
-> > >  {
-> > >         return virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) =
-||
-> > > @@ -4885,13 +4925,6 @@ static int virtnet_probe(struct virtio_device =
-*vdev)
-> > >                         vi->intr_coal_tx.max_packets =3D 0;
-> > >         }
-> > >
-> > > -       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) =
-{
-> > > -               /* The reason is the same as VIRTIO_NET_F_NOTF_COAL. =
-*/
-> > > -               for (i =3D 0; i < vi->max_queue_pairs; i++)
-> > > -                       if (vi->sq[i].napi.weight)
-> > > -                               vi->sq[i].intr_coal.max_packets =3D 1=
-;
-> > > -       }
-> > > -
-> > >  #ifdef CONFIG_SYSFS
-> > >         if (vi->mergeable_rx_bufs)
-> > >                 dev->sysfs_rx_queue_group =3D &virtio_net_mrg_rx_grou=
-p;
-> > > @@ -4926,6 +4959,27 @@ static int virtnet_probe(struct virtio_device =
-*vdev)
-> > >
-> > >         virtio_device_ready(vdev);
-> > >
-> > > +       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) =
-{
-> > > +               /* The reason is the same as VIRTIO_NET_F_NOTF_COAL. =
-*/
-> > > +               for (i =3D 0; i < vi->max_queue_pairs; i++)
-> > > +                       if (vi->sq[i].napi.weight)
-> > > +                               vi->sq[i].intr_coal.max_packets =3D 1=
-;
-> > > +
-> > > +               /* The loop exits if the default value from any
-> > > +                * queue is successfully read.
-> > > +                */
-> >
-> > So this assumes the default values are the same. Is this something
-> > required by the spec? If not, we probably need to iterate all the
-> > queues.
-> >
->
-> From internal practice, and from the default behavior of other existing d=
-rivers,
-> the queues all have the same value at the beginning, so here it seems fea=
-sible
-> that we get the value of queue 0 to represent the global value instead of=
- using
-> a loop.
-
-Well, unless the spec says the values are equal, the driver needs to iterat=
-e.
-
->
-> Moreover, obtaining the value once for each queue initially does not seem=
- to be
-> very friendly for devices with a large number of queues.
-
-We probably don't care too much about the time spent on the probe. For
-example, there would be a lot of registers read/write as well.
-
-Thanks
-
->
-> Thanks.
->
-> > Thanks
-> >
-> >
-> > > +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> > > +                       err =3D virtnet_get_coal_init_value(vi, rxq2v=
-q(i), false);
-> > > +                       if (!err)
-> > > +                               break;
-> > > +               }
-> > > +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> > > +                       err =3D virtnet_get_coal_init_value(vi, txq2v=
-q(i), true);
-> > > +                       if (!err)
-> > > +                               break;
-> > > +               }
-> > > +       }
-> > > +
-> > >         _virtnet_set_queues(vi, vi->curr_queue_pairs);
-> > >
-> > >         /* a random MAC address has been assigned, notify the device.
-> > > --
-> > > 2.32.0.3.g01195cf9f
-> > >
-> >
->
+2.32.0.3.g01195cf9f
 
