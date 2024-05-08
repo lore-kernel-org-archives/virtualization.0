@@ -1,71 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 544A61A2C05;
-	Wed,  8 May 2024 15:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF5D31A2C05
+	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 15:53:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715181602; cv=none; b=WEF2vigJkz4MawjidLzcHttVEovk7+UrGA5lKvzPahbHk8u750A7r8OwaTkZinY/Co/efPG7HU3PLSNstAJm+pMmOo73Ebp3W2ZA5TFbdcW4lSnr1AGddOFE3UOYV3tRoEkrQBOFmD1ipYx9rEhYCv9FpO3yCt4uraJyOKK3eKw=
+	t=1715183606; cv=none; b=OVgE+54l73TmDy/zqnwav+asKFDedTPAl7chO2SsPhFlS6B41nEsRjSHROFXnWXjqiaXNGrhRgZykQ+cTyjrlGgzPzx6Ljd5Y81aEhrQecAbVGkLLqI7eAUj5ZqDABbw1cQFS8uQqDhLdhWGaxK50pi96GoysZ9tan5BswrmiBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715181602; c=relaxed/simple;
-	bh=kPkA9p7uZs1VyeX10od+xbCvAiD3OqwenuDPcZ6dfeg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=HsQznUK9oXayVkN5zvaOSwbyJB4mjUDc8etVZ06pYghPl845I9pmxkPLsST1QPE3TIYrAYW7cr2CvoQgRqwlVOGH6xSlWM/eI223NaPFHgpC86euAwvDfhF4BvYDrG5J7oNVlifK0gWWQgb7aVf575xM+pjbKi9SZnhnk5zQwcY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hv7rDTLH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715183606; c=relaxed/simple;
+	bh=blXBDFniuX+5PbDGWWQnYwb4VIxupmq1l9wrvD6U1+A=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=YEl7l4tL2Cxi8VfHv3J+5248vG/CQGz0IKhqmdNYUU6VQAqiERJU1cQETMFqhvfQbGmNxUlQH7YNn2NIt8KxhROGLSWWppGa+MKviV7nNfoIhaeqRPQPSRvD8fkdGTGQTagudcbZsd+CY8Cn9O2RQ8kAiWRM9AhU24eaigi+5pg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OXeIhA6C; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hv7rDTLH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5115BC113CC;
-	Wed,  8 May 2024 15:20:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715181601;
-	bh=kPkA9p7uZs1VyeX10od+xbCvAiD3OqwenuDPcZ6dfeg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Hv7rDTLHrcFLeA+kc75PxtnGB+/1C149EkYbwJoC6QJhT2kY77UTruqDPYDhniKNh
-	 AC2jmRlQ6a3WcJwql/Kwa7dnFN1TTtRaswNL8MYpxuidODebY1Ej6YtZatbyRKXKIr
-	 sDC4BEmeTWWRC7oHCKj2XjJ2juIKuCqrX8GQZ4NGM+M5y6YFLG1HI5qvlcZKmowTeC
-	 r/IG77OY9dZ2TdsFK0mWqHwIPFIlho6w8WpFcFcIdiOlv3dLMndAigICQlU8WiRqF5
-	 X7nwlzMrlJcKp3YuQhJtOAE5sQdl9qsPWc3ICse+xXNaddUUpsqfQzM/BOE3W1t4sx
-	 EOjxhIZ+cK1iA==
-Date: Wed, 8 May 2024 08:20:00 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Simon Horman <horms@kernel.org>, netdev@vger.kernel.org, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason
- Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-Subject: Re: [PATCH net-next 0/7] virtnet_net: prepare for af-xdp
-Message-ID: <20240508082000.4938fb56@kernel.org>
-In-Reply-To: <20240508085308.GA1736038@kernel.org>
-References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
-	<20240508085308.GA1736038@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OXeIhA6C"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715183600; h=Message-ID:Subject:Date:From:To;
+	bh=4Hv1i7knTXV0jVDzONFoH620SU1ZuBVwrX2QxekucVk=;
+	b=OXeIhA6CRMfloJ7ee3ZAAIwchpagyVHpt9l5AUUFih+Q6+4YiXhILnC9iWOUJbxtXj6FZ3GE7HTq31uL05kvSa7cpfQnUtuCvm5VRxjQ7Kz+HIadHSqZjbbHZWSFFa66gN2nqT3HhQI8y/RSakjS26CnFuuKdDI/5oCGACGMbgI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W64-EyS_1715183596;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W64-EyS_1715183596)
+          by smtp.aliyun-inc.com;
+          Wed, 08 May 2024 23:53:17 +0800
+Message-ID: <1715183551.9560893-2-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v12 2/4] ethtool: provide customized dim profile management
+Date: Wed, 8 May 2024 23:52:31 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ "David S .   Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Eric   Dumazet <edumazet@google.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "Michael S   . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>,
+ Ratheesh   Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Tal   Gilboa <talgi@nvidia.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Paul   Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>,
+ Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com,
+ Simon Horman <horms@kernel.org>
+References: <20240504064447.129622-1-hengqi@linux.alibaba.com>
+ <20240504064447.129622-3-hengqi@linux.alibaba.com>
+ <20240507195752.7275cb63@kernel.org>
+ <1715174806.2456756-1-hengqi@linux.alibaba.com>
+ <20240508081139.0a620321@kernel.org>
+In-Reply-To: <20240508081139.0a620321@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Wed, 8 May 2024 09:53:08 +0100 Simon Horman wrote:
-> On Wed, May 08, 2024 at 04:05:07PM +0800, Xuan Zhuo wrote:
-> > This patch set prepares for supporting af-xdp zerocopy.
-> > There is no feature change in this patch set.
-> > I just want to reduce the patch num of the final patch set,
-> > so I split the patch set.
+On Wed, 8 May 2024 08:11:39 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Wed, 8 May 2024 21:26:46 +0800 Heng Qi wrote:
+> > On Tue, 7 May 2024 19:57:52 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> > > On Sat,  4 May 2024 14:44:45 +0800 Heng Qi wrote:  
+> > > > @@ -1325,6 +1354,8 @@ operations:
+> > > >              - tx-aggr-max-bytes
+> > > >              - tx-aggr-max-frames
+> > > >              - tx-aggr-time-usecs
+> > > > +            - rx-profile
+> > > > +            - tx-profil
+> > > >        dump: *coalesce-get-op
+> > > >      -
+> > > >        name: coalesce-set  
+> > > 
+> > > set probably needs to get the new attributes, too?  
 > > 
-> > #1-#3 add independent directory for virtio-net
-> > #4-#7 do some refactor, the sub-functions will be used by the subsequent commits  
+> > I looked at other similar use cases (such as wol, debug) and it doesn't
+> > seem to be needed?
 > 
-> Hi Xuan Zhuo,
+> Sorry, you're right, they are propagated using a YAML alias.
 > 
-> This patch is targeted at net-next,
-> but unfortunately it does not apply to current net-next.
-> Please rebase and repost taking care to observe the 24h rule.
+> > > > +static int ethnl_update_profile(struct net_device *dev,
+> > > > +				struct dim_cq_moder __rcu **dst,
+> > > > +				const struct nlattr *nests,
+> > > > +				struct netlink_ext_ack *extack)  
+> > >   
+> > > > +	rcu_assign_pointer(*dst, new_profile);
+> > > > +	kfree_rcu(old_profile, rcu);
+> > > > +
+> > > > +	return 0;  
+> > > 
+> > > Don't we need to inform DIM somehow that profile has switched
+> > > and it should restart itself?  
+> > 
+> > When the profile is modified, dim itself is a dynamic adjustment mechanism
+> > and will quickly adjust to the appropriate value according to the new profile.
+> > This is also seen in practice.
+> 
+> Okay, perhaps add a comment to that effect?
 
-Also - is this going to conflict with your premapped DMA work in the
-vhost tree? If it does - just wait, please, the merge window is in 
-a week..
+Ok. Will add in the next version.
+
+Thanks.
