@@ -1,30 +1,30 @@
 Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F145240BE6
-	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 08:05:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D178E5338D
+	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 08:05:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715155527; cv=none; b=GDvIYp/9ZB4KU3D/Pp3rZjp4HGZNPP+dsBYM6pgOn13lgWXRYdu110ptSzMdRUszO5Nwg8pUVMPw2CX9KHAAxBZbPvPfiIFLdsnG1rJTUjdffr1TsY2PUUI6QT6XCJlzDpPhS3yX4xL0+KCeiE24EqOV2fcFOY2VzQP4LXceEXI=
+	t=1715155531; cv=none; b=dUvUpm9woGoZXkUwGpm5KauGxfI+kywijNRLD0okZsBmjFVjoiHysRqJAcpbh9k2Jcvi+wbI+Ji04KpBE+Qa+vLSHo+l+cOMDaC1l4cMryRj+m4TBSPuzJOoc77f4Z2IEcvEj1XD7jn6X0hIWQk7lvx+0K7yoI8q8MguUBAgGqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715155527; c=relaxed/simple;
-	bh=VMUxWSl8uUVpLwAHa7JqMJtkdB/te4DfTUeCmh/Veps=;
+	s=arc-20240116; t=1715155531; c=relaxed/simple;
+	bh=M6IHOKJRRYPsEuLZjQBxmT2ckffgMam5ZaDdxoQvWNM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=j7l3QOBIOcQcxDc0n0kbemCmNTgHH4EmnA5B88ppBXzuMsPVpGrR6vpxrzRK3iYNHO3RJtT3raPCPyLtyjLZ2XjeK9Z3nZmpZtejxsxQkPHgJ5ijqCcv88XrkQP1uX7FMKesrLD7DHfEq6B2Txsnwt+5I7Jk4CKMbiGGx3l17YQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=s4Hiev37; arc=none smtp.client-ip=115.124.30.101
+	 MIME-Version; b=abLlQmGNTUnnJNZuylTNV5bFYRexEPqsPpUIfd0zOQ43N4fHI87Bz62GjbofgsjjPz7QuY1aDcLc1yJ+o3HYbNIV/FuxaehCgJYUNTuTXsCs7oegw0ll1Mc6VKC3Sebh+9ZS8GLha8fMwT9RuAT/lyZE+pZ2Pc4GP1IKeRT0IcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Es6mZe+B; arc=none smtp.client-ip=115.124.30.101
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="s4Hiev37"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Es6mZe+B"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1715155522; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=numEyLfKrc8BrggaD6w89XqKLobUp/B878FtwYeJTmA=;
-	b=s4Hiev379bDMbNedmBwFwoz5aD/bQV2mbXlZWFdbKL3YYIg4KupKJPr1YM81+PtimYUAAJ3WVyC+mwvENQBuDx+4aR0PX007PgAJS/x4oNOw3qN6xrbK3h8bmjAwi6TGa1QTWz2U/CBY842WUYP8MpXkK4GMmjZYMC2sDtrgW7k=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W62sQgk_1715155520;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W62sQgk_1715155520)
+	t=1715155527; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=UGAOD3aYJgOA6zditqst7wDseYupZpLflTPjPNcQfuc=;
+	b=Es6mZe+BtYmCruvElm0epdu9Wl+5ScmeAfC4lXaoQHXFQaccTISglEo4s1Dry1rdceqYb2AmlkgSmxcx7qpwgPEW2VE7fPVjqVGaol34cZ+eQquPAuvBEU7vFqLMgvl4QBIpJ0IJqdDlO4zgwdT4UkzpoB8YbLDHeRvzMwvDK68=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W62uyxT_1715155525;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W62uyxT_1715155525)
           by smtp.aliyun-inc.com;
-          Wed, 08 May 2024 16:05:21 +0800
+          Wed, 08 May 2024 16:05:26 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -40,9 +40,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next 4/7] virtio_net: separate virtnet_rx_resize()
-Date: Wed,  8 May 2024 16:05:11 +0800
-Message-Id: <20240508080514.99458-5-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next 7/7] virtio_net: separate receive_buf
+Date: Wed,  8 May 2024 16:05:14 +0800
+Message-Id: <20240508080514.99458-8-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
 References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
@@ -55,86 +55,91 @@ MIME-Version: 1.0
 X-Git-Hash: 7cdcbabd0b89
 Content-Transfer-Encoding: 8bit
 
-This patch separates two sub-functions from virtnet_rx_resize():
-
-* virtnet_rx_pause
-* virtnet_rx_resume
-
-Then the subsequent reset rx for xsk can share these two functions.
+This commit separates the function receive_buf(), then we wrap the logic
+of handling the skb to an independent function virtnet_receive_done().
+The subsequent commit will reuse it.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio/virtnet.h      |  3 +++
- drivers/net/virtio/virtnet_main.c | 29 +++++++++++++++++++++--------
- 2 files changed, 24 insertions(+), 8 deletions(-)
+ drivers/net/virtio/virtnet_main.c | 56 ++++++++++++++++++-------------
+ 1 file changed, 32 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/virtio/virtnet.h b/drivers/net/virtio/virtnet.h
-index 4d902a79bde7..f95a75751a9b 100644
---- a/drivers/net/virtio/virtnet.h
-+++ b/drivers/net/virtio/virtnet.h
-@@ -234,4 +234,7 @@ struct virtnet_info {
- 
- 	u64 device_stats_cap;
- };
-+
-+void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq);
-+void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq);
- #endif
 diff --git a/drivers/net/virtio/virtnet_main.c b/drivers/net/virtio/virtnet_main.c
-index f9f01c10dff6..aa382fbc52d6 100644
+index fcfe190300a6..abb8989d2e0a 100644
 --- a/drivers/net/virtio/virtnet_main.c
 +++ b/drivers/net/virtio/virtnet_main.c
-@@ -2358,28 +2358,41 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return NETDEV_TX_OK;
+@@ -1713,32 +1713,11 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+ 	skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_type);
  }
  
--static int virtnet_rx_resize(struct virtnet_info *vi,
--			     struct virtnet_rq *rq, u32 ring_num)
-+void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq)
+-static void receive_buf(struct virtnet_info *vi, struct virtnet_rq *rq,
+-			void *buf, unsigned int len, void **ctx,
+-			unsigned int *xdp_xmit,
+-			struct virtnet_rq_stats *stats)
++static void virtnet_receive_done(struct virtnet_info *vi, struct virtnet_rq *rq,
++				 struct sk_buff *skb)
  {
- 	bool running = netif_running(vi->dev);
--	int err, qindex;
+-	struct net_device *dev = vi->dev;
+-	struct sk_buff *skb;
+ 	struct virtio_net_common_hdr *hdr;
 -
--	qindex = rq - vi->rq;
+-	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+-		pr_debug("%s: short packet %i\n", dev->name, len);
+-		DEV_STATS_INC(dev, rx_length_errors);
+-		virtnet_rq_free_buf(vi, rq, buf);
+-		return;
+-	}
+-
+-	if (vi->mergeable_rx_bufs)
+-		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
+-					stats);
+-	else if (vi->big_packets)
+-		skb = receive_big(dev, vi, rq, buf, len, stats);
+-	else
+-		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
+-
+-	if (unlikely(!skb))
+-		return;
++	struct net_device *dev = vi->dev;
  
- 	if (running) {
- 		napi_disable(&rq->napi);
- 		cancel_work_sync(&rq->dim.work);
- 	}
-+}
- 
--	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_unmap_free_buf);
--	if (err)
--		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
-+void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq)
-+{
-+	bool running = netif_running(vi->dev);
- 
- 	if (!try_fill_recv(vi, rq, GFP_KERNEL))
- 		schedule_delayed_work(&vi->refill, 0);
- 
- 	if (running)
- 		virtnet_napi_enable(rq->vq, &rq->napi);
-+}
-+
-+static int virtnet_rx_resize(struct virtnet_info *vi,
-+			     struct virtnet_rq *rq, u32 ring_num)
-+{
-+	int err, qindex;
-+
-+	qindex = rq - vi->rq;
-+
-+	virtnet_rx_pause(vi, rq);
-+
-+	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_unmap_free_buf);
-+	if (err)
-+		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
-+
-+	virtnet_rx_resume(vi, rq);
- 	return err;
+ 	hdr = skb_vnet_common_hdr(skb);
+ 	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
+@@ -1768,6 +1747,35 @@ static void receive_buf(struct virtnet_info *vi, struct virtnet_rq *rq,
+ 	dev_kfree_skb(skb);
  }
  
++static void receive_buf(struct virtnet_info *vi, struct virtnet_rq *rq,
++			void *buf, unsigned int len, void **ctx,
++			unsigned int *xdp_xmit,
++			struct virtnet_rq_stats *stats)
++{
++	struct net_device *dev = vi->dev;
++	struct sk_buff *skb;
++
++	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
++		pr_debug("%s: short packet %i\n", dev->name, len);
++		DEV_STATS_INC(dev, rx_length_errors);
++		virtnet_rq_free_buf(vi, rq, buf);
++		return;
++	}
++
++	if (vi->mergeable_rx_bufs)
++		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
++					stats);
++	else if (vi->big_packets)
++		skb = receive_big(dev, vi, rq, buf, len, stats);
++	else
++		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
++
++	if (unlikely(!skb))
++		return;
++
++	virtnet_receive_done(vi, rq, skb);
++}
++
+ /* Unlike mergeable buffers, all buffers are allocated to the
+  * same size, except for the headroom. For this reason we do
+  * not need to use  mergeable_len_to_ctx here - it is enough
 -- 
 2.32.0.3.g01195cf9f
 
