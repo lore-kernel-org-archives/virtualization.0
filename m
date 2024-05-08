@@ -1,251 +1,582 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DFE61426E
-	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 03:47:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DF491A2C1E;
+	Wed,  8 May 2024 05:00:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715140033; cv=none; b=RZkQRdOFZeUtc/mmUtiYB50H9ZB/StD8agiDfCKNL8eYORJLDrbUSvDTDO5qVE3zDEqveo7Wfaje0ryP84UXmJrvTXTfBwIZ+Y8aPfLCAkN5voaan4WM7wScO06qRp/V/PhlKc4KPAw4GVmxiS6prI2sacqrfnFB1g5o8BBZ6p4=
+	t=1715144452; cv=none; b=VyKpsYfJURqr/JISMmPvEhwVaUXA3ifyXxWevUV49r9UcGZRdO2jycsLOSo/MkPv5rRtaXsjGJQVv21j553ec6S0K7pHNjq/ueccMIZgTqRKrLczlzNAuuiLVtOhO/EhPmhRQ9+P1BogYOEKmut8yfA/jbaKcBDrDP+dMsv4M1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715140033; c=relaxed/simple;
-	bh=IEhIMwzlleMdiPD0IwjVOrDr8XORmwHHazEMOOKBDNw=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=FHe9lCOfUlaibzPc8uPV/IjE5jDr1jtif+VX0n2xTIJWlTN42xVOFwAu04LZFaVLyzaWqqoPZ1oRv+cSb23zUB/1RUKZKNoSN6psMbEaH26dzmtS6biZY6i8soyoJj9ow2/JEpoTrHNu/aei8viAnyLiTBIVavk3SmcIQAm7jLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rhm4+OO1; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1715144452; c=relaxed/simple;
+	bh=OXF6Fusvs7Rs0sSKH9XZ0PosmXVke0wopSWgCOviSJM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=GSRw6C64/XsniVlEmiwFgCUIxRpQlPxNCOCBoi4lE2S5nzgV7eNDgfmTsNE1vQQPKRAPEbGDVuGv8iQh/3eWuvjeNmk6JblmMjBZdb9kcuNBjv2jc3bzPsrcdlPDaYUjq1gOvIpEJWQhIAmvXug995IxcFdEKtpn/90qaKmNkzI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fE+YGupj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rhm4+OO1"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715140027; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=w1hKNu1eY8HncZ9Q+tRuXsbA9JXQ4KPHtkSt8TfeS1I=;
-	b=rhm4+OO1KZ+nN1v8cAtFw0vLdor9w4GFAMzaelATQc1PLanVELQWRZFeOQPAoTwYpG28YJxWr77P6G6XrtBhGrfPNAEUrTMLlfJMfIlRncYOWtMb/2ObUoVdB3n7T7Peg5Sn4c08eo6hkg+FqWM5cKTgBHYUrUS/kB/27FKy67s=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W629eDn_1715140024;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W629eDn_1715140024)
-          by smtp.aliyun-inc.com;
-          Wed, 08 May 2024 11:47:05 +0800
-Message-ID: <1715139832.2284784-6-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next 1/3] virtio_net: enable irq for the control vq
-Date: Wed, 8 May 2024 11:43:52 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Eric Dumazet <edumazet@google.com>,
- "David S . Miller" <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-References: <20240425125855.87025-1-hengqi@linux.alibaba.com>
- <20240425125855.87025-2-hengqi@linux.alibaba.com>
- <CACGkMEtpy0ZDcGQReaPVtJy4hDcqdKQwEF2Uhf5W4+7g=jts-Q@mail.gmail.com>
- <1715054136.4593592-1-hengqi@linux.alibaba.com>
- <CACGkMEtkH+O+cQQ_3Ar=6-tJyRurzr6ZrGf6mtWZW4VjAt4Hfw@mail.gmail.com>
- <1715063231.736974-2-hengqi@linux.alibaba.com>
- <CACGkMEse44QCQ16z9K=+73U57OXYLY3qF7_yraN1UcQHe8jyfQ@mail.gmail.com>
-In-Reply-To: <CACGkMEse44QCQ16z9K=+73U57OXYLY3qF7_yraN1UcQHe8jyfQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fE+YGupj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA683C4AF66;
+	Wed,  8 May 2024 05:00:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715144451;
+	bh=OXF6Fusvs7Rs0sSKH9XZ0PosmXVke0wopSWgCOviSJM=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=fE+YGupjlBL5Ni1HShkEujx5S0gpLmo9GckyWvdo474NS0UThyh5YK9Chh0CTP8Vr
+	 Wl3LvZKt4BQnxd0baMthSMHfi7rz9B+OqoURH6PM41M5+KsalZ86Bdct0vxgg2187s
+	 N/H6ybUSUDtpTh8gksEnOwbYQCL2qNX+BvOCkP5lu3eLPqZsiB9SuQeHtwQFs8tUen
+	 upSi+L131HMe/S4KA+oqw4LI0r2V8NCQLv2zmNh502R8+g12KwmChFIbChhLAsC0h1
+	 6Ug7fuzXRSj21U4t3L5NENnvbDOHgo5w2h6YBN3Cjw4fNrX84+2jF3js7qvUZcrgBk
+	 N8is2uBJLf4qA==
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-a59a8f0d941so1022136966b.2;
+        Tue, 07 May 2024 22:00:51 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWy3gbU18WzJX9B7X+8Ikvy6la1+8QcMBBXJh5NWsGDXuiddIjKVcvru+4TNO38JxOJKoQkA6ydb9V/MBY1a+QZWugMQQ22yVAqNWRBRedPruWmi+dZR4I24gWD0+CbkjHJFKAv3cDApOE=
+X-Gm-Message-State: AOJu0Yxc9ddd3nu73VL4MtSc8uHLG2uiNr/8x5wkATvD1SyLIzDLvlLL
+	P6M0ctoRlISxQe3H3YhvIMh7CYO6mADTSnNAxaYq/Vj9dOhaRAQx+sJF+dTdsOpwnlpUoFwWUMH
+	FRL0E4wSEY8D4V7aVgzMp3C9fiSc=
+X-Google-Smtp-Source: AGHT+IFx0M7kUKx8A1wHLdY7MkIifQy3OWyOOe41k91KL7hvQAUFK0AdJBoOc+nKXy/d6dfoOYJoVRwhNNlQN9tuqwM=
+X-Received: by 2002:a17:906:37ce:b0:a59:a639:55c4 with SMTP id
+ a640c23a62f3a-a59fb94ba7cmr73564366b.1.1715144450187; Tue, 07 May 2024
+ 22:00:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240428100518.1642324-1-maobibo@loongson.cn> <20240428100518.1642324-5-maobibo@loongson.cn>
+ <CAAhV-H6kBO_RTTHoLfKdAtLO1Aqb0KmAJ6wn0wZrvbCkzMszDQ@mail.gmail.com>
+ <7335dcde-1b3a-1260-ac62-d2d9fcbd6a78@loongson.cn> <CAAhV-H5WJ0o3bJZBq2zx7ejjFkFwYVTyVJEzJuAHEs+uMg-sxw@mail.gmail.com>
+ <b10b46ce-8219-8863-470f-9bfa173b22b0@loongson.cn> <CAAhV-H7fbrOXTtSwBmR3kyTW7yhsifycjynky4HPrUJiS9s=cg@mail.gmail.com>
+ <540aa8dd-eada-1f77-0a20-38196fb5472a@loongson.cn> <CAAhV-H7o3oG2KXc2Ou0aWXTLPSNiM3evSB5Z-5dH4bLRd_P_0Q@mail.gmail.com>
+ <61670353-90c6-6d0c-4430-7655b5251e17@loongson.cn> <CAAhV-H5wNmgxGincGE7cJ8WvrpKFauAJvMHrPttW-LrKB4UeHg@mail.gmail.com>
+ <a6d49710-1580-809d-5dcf-ea4207257ae7@loongson.cn> <CAAhV-H4ir++y+46-g43-9bLvY8cv79fB6bKbWgkhDzDV7QQg9g@mail.gmail.com>
+ <7f16cac7-c712-40d4-a3f4-cc761e0dea93@loongson.cn>
+In-Reply-To: <7f16cac7-c712-40d4-a3f4-cc761e0dea93@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Wed, 8 May 2024 13:00:37 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H7ZwhrBma0mwFnuWBHXqH5gsJSz2hPL3jxHqfQVakh+SQ@mail.gmail.com>
+Message-ID: <CAAhV-H7ZwhrBma0mwFnuWBHXqH5gsJSz2hPL3jxHqfQVakh+SQ@mail.gmail.com>
+Subject: Re: [PATCH v8 4/6] LoongArch: KVM: Add vcpu search support from
+ physical cpuid
+To: maobibo <maobibo@loongson.cn>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, loongarch@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 8 May 2024 10:19:06 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, May 7, 2024 at 2:33=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com>=
- wrote:
-> >
-> > On Tue, 7 May 2024 14:24:16 +0800, Jason Wang <jasowang@redhat.com> wro=
-te:
-> > > On Tue, May 7, 2024 at 12:03=E2=80=AFPM Heng Qi <hengqi@linux.alibaba=
-.com> wrote:
-> > > >
-> > > > On Tue, 7 May 2024 11:15:22 +0800, Jason Wang <jasowang@redhat.com>=
- wrote:
-> > > > > On Thu, Apr 25, 2024 at 8:59=E2=80=AFPM Heng Qi <hengqi@linux.ali=
-baba.com> wrote:
-> > > > > >
-> > > > > > Control vq polling request results consume more CPU.
-> > > > > > Especially when dim issues more control requests to the device,
-> > > > > > it's beneficial to the guest to enable control vq's irq.
-> > > > > >
-> > > > > > Suggested-by: Jason Wang <jasowang@redhat.com>
-> > > > > > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> > > > > > ---
-> > > > > >  drivers/net/virtio_net.c | 45 ++++++++++++++++++++++++++++++--=
---------
-> > > > > >  1 file changed, 34 insertions(+), 11 deletions(-)
-> > > > > >
-> > > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > > index a4d3c76654a4..79a1b30c173c 100644
-> > > > > > --- a/drivers/net/virtio_net.c
-> > > > > > +++ b/drivers/net/virtio_net.c
-> > > > > > @@ -287,6 +287,12 @@ struct virtnet_info {
-> > > > > >         bool has_cvq;
-> > > > > >         struct mutex cvq_lock;
-> > > > > >
-> > > > > > +       /* Wait for the device to complete the request */
-> > > > > > +       struct completion completion;
-> > > > > > +
-> > > > > > +       /* Work struct for acquisition of cvq processing result=
-s. */
-> > > > > > +       struct work_struct get_cvq;
-> > > > > > +
-> > > > > >         /* Host can handle any s/g split between our header and=
- packet data */
-> > > > > >         bool any_header_sg;
-> > > > > >
-> > > > > > @@ -520,6 +526,13 @@ static bool virtqueue_napi_complete(struct=
- napi_struct *napi,
-> > > > > >         return false;
-> > > > > >  }
-> > > > > >
-> > > > > > +static void virtnet_cvq_done(struct virtqueue *cvq)
-> > > > > > +{
-> > > > > > +       struct virtnet_info *vi =3D cvq->vdev->priv;
-> > > > > > +
-> > > > > > +       schedule_work(&vi->get_cvq);
-> > > > > > +}
-> > > > > > +
-> > > > > >  static void skb_xmit_done(struct virtqueue *vq)
-> > > > > >  {
-> > > > > >         struct virtnet_info *vi =3D vq->vdev->priv;
-> > > > > > @@ -2036,6 +2049,20 @@ static bool try_fill_recv(struct virtnet=
-_info *vi, struct receive_queue *rq,
-> > > > > >         return !oom;
-> > > > > >  }
-> > > > > >
-> > > > > > +static void virtnet_get_cvq_work(struct work_struct *work)
-> > > > > > +{
-> > > > > > +       struct virtnet_info *vi =3D
-> > > > > > +               container_of(work, struct virtnet_info, get_cvq=
-);
-> > > > > > +       unsigned int tmp;
-> > > > > > +       void *res;
-> > > > > > +
-> > > > > > +       mutex_lock(&vi->cvq_lock);
-> > > > > > +       res =3D virtqueue_get_buf(vi->cvq, &tmp);
-> > > > > > +       if (res)
-> > > > > > +               complete(&vi->completion);
-> > > > > > +       mutex_unlock(&vi->cvq_lock);
-> > > > > > +}
-> > > > > > +
-> > > > > >  static void skb_recv_done(struct virtqueue *rvq)
-> > > > > >  {
-> > > > > >         struct virtnet_info *vi =3D rvq->vdev->priv;
-> > > > > > @@ -2531,7 +2558,7 @@ static bool virtnet_send_command(struct v=
-irtnet_info *vi, u8 class, u8 cmd,
-> > > > > >                                  struct scatterlist *out)
-> > > > > >  {
-> > > > > >         struct scatterlist *sgs[4], hdr, stat;
-> > > > > > -       unsigned out_num =3D 0, tmp;
-> > > > > > +       unsigned out_num =3D 0;
-> > > > > >         int ret;
-> > > > > >
-> > > > > >         /* Caller should know better */
-> > > > > > @@ -2566,16 +2593,10 @@ static bool virtnet_send_command(struct=
- virtnet_info *vi, u8 class, u8 cmd,
-> > > > > >                 return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
-> > > > > >         }
-> > > > > >
-> > > > > > -       /* Spin for a response, the kick causes an ioport write=
-, trapping
-> > > > > > -        * into the hypervisor, so the request should be handle=
-d immediately.
-> > > > > > -        */
-> > > > > > -       while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> > > > > > -              !virtqueue_is_broken(vi->cvq)) {
-> > > > > > -               cond_resched();
-> > > > > > -               cpu_relax();
-> > > > > > -       }
-> > > > > > -
-> > > > > >         mutex_unlock(&vi->cvq_lock);
-> > > > > > +
-> > > > > > +       wait_for_completion(&vi->completion);
-> > > > > > +
-> > > > >
-> > > > > A question here, can multiple cvq requests be submitted to the de=
-vice?
-> > > > > If yes, what happens if the device completes them out of order?
-> > > >
-> > > > For user commands (such as ethtool cmds), multiple cvq requests is =
-not allowed.
-> > > > because it holds the netlink lock when waiting for the response.
-> > > >
-> > > > For multiple dim commands and a user command allowed to be sent sim=
-ultaneously
-> > > > , the corresponding command-specific information(desc_state) will b=
-e used to
-> > > > distinguish different responses.
-> > >
-> > > Just to make sure we are on the same page. I meant at least we are
-> > > still use the global completion which seems to be problematic.
-> > >
-> > > wait_for_completion(&vi->completion);
-> >
-> >
-> > This completion is only used by the ethtool command, so it is the globa=
-l one.
-> >
-> > dim commands use specific coal_free_list and coal_wait_list to complete
-> > multiple command issuance (please see patch 3).
->=20
-> If I was not wrong, at least for this patch the global completion will
-> be used by both dim and rtnl. If yes, it's not good to introduce a bug
-> in patch 1 and fix it in patch 3.
+On Tue, May 7, 2024 at 11:06=E2=80=AFAM maobibo <maobibo@loongson.cn> wrote=
+:
+>
+>
+>
+> On 2024/5/7 =E4=B8=8A=E5=8D=8810:05, Huacai Chen wrote:
+> > On Tue, May 7, 2024 at 9:40=E2=80=AFAM maobibo <maobibo@loongson.cn> wr=
+ote:
+> >>
+> >>
+> >>
+> >> On 2024/5/6 =E4=B8=8B=E5=8D=8810:17, Huacai Chen wrote:
+> >>> On Mon, May 6, 2024 at 6:05=E2=80=AFPM maobibo <maobibo@loongson.cn> =
+wrote:
+> >>>>
+> >>>>
+> >>>>
+> >>>> On 2024/5/6 =E4=B8=8B=E5=8D=885:40, Huacai Chen wrote:
+> >>>>> On Mon, May 6, 2024 at 5:35=E2=80=AFPM maobibo <maobibo@loongson.cn=
+> wrote:
+> >>>>>>
+> >>>>>>
+> >>>>>>
+> >>>>>> On 2024/5/6 =E4=B8=8B=E5=8D=884:59, Huacai Chen wrote:
+> >>>>>>> On Mon, May 6, 2024 at 4:18=E2=80=AFPM maobibo <maobibo@loongson.=
+cn> wrote:
+> >>>>>>>>
+> >>>>>>>>
+> >>>>>>>>
+> >>>>>>>> On 2024/5/6 =E4=B8=8B=E5=8D=883:06, Huacai Chen wrote:
+> >>>>>>>>> Hi, Bibo,
+> >>>>>>>>>
+> >>>>>>>>> On Mon, May 6, 2024 at 2:36=E2=80=AFPM maobibo <maobibo@loongso=
+n.cn> wrote:
+> >>>>>>>>>>
+> >>>>>>>>>>
+> >>>>>>>>>>
+> >>>>>>>>>> On 2024/5/6 =E4=B8=8A=E5=8D=889:49, Huacai Chen wrote:
+> >>>>>>>>>>> Hi, Bibo,
+> >>>>>>>>>>>
+> >>>>>>>>>>> On Sun, Apr 28, 2024 at 6:05=E2=80=AFPM Bibo Mao <maobibo@loo=
+ngson.cn> wrote:
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> Physical cpuid is used for interrupt routing for irqchips su=
+ch as
+> >>>>>>>>>>>> ipi/msi/extioi interrupt controller. And physical cpuid is s=
+tored
+> >>>>>>>>>>>> at CSR register LOONGARCH_CSR_CPUID, it can not be changed o=
+nce vcpu
+> >>>>>>>>>>>> is created and physical cpuid of two vcpus cannot be the sam=
+e.
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> Different irqchips have different size declaration about phy=
+sical cpuid,
+> >>>>>>>>>>>> max cpuid value for CSR LOONGARCH_CSR_CPUID on 3A5000 is 512=
+, max cpuid
+> >>>>>>>>>>>> supported by IPI hardware is 1024, 256 for extioi irqchip, a=
+nd 65536
+> >>>>>>>>>>>> for MSI irqchip.
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> The smallest value from all interrupt controllers is selecte=
+d now,
+> >>>>>>>>>>>> and the max cpuid size is defines as 256 by KVM which comes =
+from
+> >>>>>>>>>>>> extioi irqchip.
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+> >>>>>>>>>>>> ---
+> >>>>>>>>>>>>        arch/loongarch/include/asm/kvm_host.h | 26 ++++++++
+> >>>>>>>>>>>>        arch/loongarch/include/asm/kvm_vcpu.h |  1 +
+> >>>>>>>>>>>>        arch/loongarch/kvm/vcpu.c             | 93 ++++++++++=
+++++++++++++++++-
+> >>>>>>>>>>>>        arch/loongarch/kvm/vm.c               | 11 ++++
+> >>>>>>>>>>>>        4 files changed, 130 insertions(+), 1 deletion(-)
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/lo=
+ongarch/include/asm/kvm_host.h
+> >>>>>>>>>>>> index 2d62f7b0d377..3ba16ef1fe69 100644
+> >>>>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_host.h
+> >>>>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_host.h
+> >>>>>>>>>>>> @@ -64,6 +64,30 @@ struct kvm_world_switch {
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>        #define MAX_PGTABLE_LEVELS     4
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> +/*
+> >>>>>>>>>>>> + * Physical cpu id is used for interrupt routing, there are=
+ different
+> >>>>>>>>>>>> + * definitions about physical cpuid on different hardwares.
+> >>>>>>>>>>>> + *  For LOONGARCH_CSR_CPUID register, max cpuid size if 512
+> >>>>>>>>>>>> + *  For IPI HW, max dest CPUID size 1024
+> >>>>>>>>>>>> + *  For extioi interrupt controller, max dest CPUID size is=
+ 256
+> >>>>>>>>>>>> + *  For MSI interrupt controller, max supported CPUID size =
+is 65536
+> >>>>>>>>>>>> + *
+> >>>>>>>>>>>> + * Currently max CPUID is defined as 256 for KVM hypervisor=
+, in future
+> >>>>>>>>>>>> + * it will be expanded to 4096, including 16 packages at mo=
+st. And every
+> >>>>>>>>>>>> + * package supports at most 256 vcpus
+> >>>>>>>>>>>> + */
+> >>>>>>>>>>>> +#define KVM_MAX_PHYID          256
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +struct kvm_phyid_info {
+> >>>>>>>>>>>> +       struct kvm_vcpu *vcpu;
+> >>>>>>>>>>>> +       bool            enabled;
+> >>>>>>>>>>>> +};
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +struct kvm_phyid_map {
+> >>>>>>>>>>>> +       int max_phyid;
+> >>>>>>>>>>>> +       struct kvm_phyid_info phys_map[KVM_MAX_PHYID];
+> >>>>>>>>>>>> +};
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>>        struct kvm_arch {
+> >>>>>>>>>>>>               /* Guest physical mm */
+> >>>>>>>>>>>>               kvm_pte_t *pgd;
+> >>>>>>>>>>>> @@ -71,6 +95,8 @@ struct kvm_arch {
+> >>>>>>>>>>>>               unsigned long invalid_ptes[MAX_PGTABLE_LEVELS]=
+;
+> >>>>>>>>>>>>               unsigned int  pte_shifts[MAX_PGTABLE_LEVELS];
+> >>>>>>>>>>>>               unsigned int  root_level;
+> >>>>>>>>>>>> +       spinlock_t    phyid_map_lock;
+> >>>>>>>>>>>> +       struct kvm_phyid_map  *phyid_map;
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>               s64 time_offset;
+> >>>>>>>>>>>>               struct kvm_context __percpu *vmcs;
+> >>>>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/lo=
+ongarch/include/asm/kvm_vcpu.h
+> >>>>>>>>>>>> index 0cb4fdb8a9b5..9f53950959da 100644
+> >>>>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
+> >>>>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
+> >>>>>>>>>>>> @@ -81,6 +81,7 @@ void kvm_save_timer(struct kvm_vcpu *vcpu)=
+;
+> >>>>>>>>>>>>        void kvm_restore_timer(struct kvm_vcpu *vcpu);
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>        int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu, s=
+truct kvm_interrupt *irq);
+> >>>>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int=
+ cpuid);
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>        /*
+> >>>>>>>>>>>>         * Loongarch KVM guest interrupt handling
+> >>>>>>>>>>>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/=
+vcpu.c
+> >>>>>>>>>>>> index 3a8779065f73..b633fd28b8db 100644
+> >>>>>>>>>>>> --- a/arch/loongarch/kvm/vcpu.c
+> >>>>>>>>>>>> +++ b/arch/loongarch/kvm/vcpu.c
+> >>>>>>>>>>>> @@ -274,6 +274,95 @@ static int _kvm_getcsr(struct kvm_vcpu =
+*vcpu, unsigned int id, u64 *val)
+> >>>>>>>>>>>>               return 0;
+> >>>>>>>>>>>>        }
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> +static inline int kvm_set_cpuid(struct kvm_vcpu *vcpu, u64 =
+val)
+> >>>>>>>>>>>> +{
+> >>>>>>>>>>>> +       int cpuid;
+> >>>>>>>>>>>> +       struct loongarch_csrs *csr =3D vcpu->arch.csr;
+> >>>>>>>>>>>> +       struct kvm_phyid_map  *map;
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       if (val >=3D KVM_MAX_PHYID)
+> >>>>>>>>>>>> +               return -EINVAL;
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT)=
+;
+> >>>>>>>>>>>> +       map =3D vcpu->kvm->arch.phyid_map;
+> >>>>>>>>>>>> +       spin_lock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
+> >>>>>>>>>>>> +               /*
+> >>>>>>>>>>>> +                * Cpuid is already set before
+> >>>>>>>>>>>> +                * Forbid changing different cpuid at runtim=
+e
+> >>>>>>>>>>>> +                */
+> >>>>>>>>>>>> +               if (cpuid !=3D val) {
+> >>>>>>>>>>>> +                       /*
+> >>>>>>>>>>>> +                        * Cpuid 0 is initial value for vcpu=
+, maybe invalid
+> >>>>>>>>>>>> +                        * unset value for vcpu
+> >>>>>>>>>>>> +                        */
+> >>>>>>>>>>>> +                       if (cpuid) {
+> >>>>>>>>>>>> +                               spin_unlock(&vcpu->kvm->arch=
+.phyid_map_lock);
+> >>>>>>>>>>>> +                               return -EINVAL;
+> >>>>>>>>>>>> +                       }
+> >>>>>>>>>>>> +               } else {
+> >>>>>>>>>>>> +                        /* Discard duplicated cpuid set */
+> >>>>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_m=
+ap_lock);
+> >>>>>>>>>>>> +                       return 0;
+> >>>>>>>>>>>> +               }
+> >>>>>>>>>>>> +       }
+> >>>>>>>>>>> I have changed the logic and comments when I apply, you can d=
+ouble
+> >>>>>>>>>>> check whether it is correct.
+> >>>>>>>>>> I checkout the latest version, the modification in function
+> >>>>>>>>>> kvm_set_cpuid() is good for me.
+> >>>>>>>>> Now the modified version is like this:
+> >>>>>>>>>
+> >>>>>>>>> + if (map->phys_map[cpuid].enabled) {
+> >>>>>>>>> + /* Discard duplicated CPUID set operation */
+> >>>>>>>>> + if (cpuid =3D=3D val) {
+> >>>>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>>>>>>> + return 0;
+> >>>>>>>>> + }
+> >>>>>>>>> +
+> >>>>>>>>> + /*
+> >>>>>>>>> + * CPUID is already set before
+> >>>>>>>>> + * Forbid changing different CPUID at runtime
+> >>>>>>>>> + * But CPUID 0 is the initial value for vcpu, so allow
+> >>>>>>>>> + * changing from 0 to others
+> >>>>>>>>> + */
+> >>>>>>>>> + if (cpuid) {
+> >>>>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>>>>>>> + return -EINVAL;
+> >>>>>>>>> + }
+> >>>>>>>>> + }
+> >>>>>>>>> But I still doubt whether we should allow changing from 0 to ot=
+hers
+> >>>>>>>>> while map->phys_map[cpuid].enabled is 1.
+> >>>>>>>> It is necessary since the default sw cpuid is zero :-( And we ca=
+n
+> >>>>>>>> optimize it in later, such as set INVALID cpuid in function
+> >>>>>>>> kvm_arch_vcpu_create() and logic will be simple in function kvm_=
+set_cpuid().
+> >>>>>>> In my opinion, if a vcpu with a uninitialized default physid=3D0,=
+ then
+> >>>>>>> map->phys_map[cpuid].enabled should be 0, then code won't come he=
+re.
+> >>>>>>> And if a vcpu with a real physid=3D0, then map->phys_map[cpuid].e=
+nabled
+> >>>>>>> is 1, but we shouldn't allow it to change physid in this case.
+> >>>>>> yes, that is actually a problem.
+> >>>>>>
+> >>>>>> vcpu0 firstly set physid=3D0, and vcpu0 set physid=3D1 again is no=
+t allowed.
+> >>>>>> vcpu0 firstly set physid=3D0, and vcpu1 set physid=3D1 is allowed.
+> >>>>>
+> >>>>> So can we simply drop the if (cpuid) checking? That means:
+> >>>>> + if (map->phys_map[cpuid].enabled) {
+> >>>>> + /* Discard duplicated CPUID set operation */
+> >>>>> + if (cpuid =3D=3D val) {
+> >>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>>> + return 0;
+> >>>>> + }
+> >>>>> +
+> >>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>>> + return -EINVAL;
+> >>>>> + }
+> >>>> yes, the similar modification such as following, since the secondary
+> >>>> scenario should be allowed.
+> >>>>     "vcpu0 firstly set physid=3D0, and vcpu1 set physid=3D1 is allow=
+ed though
+> >>>> default sw cpuid is zero"
+> >>>>
+> >>>> --- a/arch/loongarch/kvm/vcpu.c
+> >>>> +++ b/arch/loongarch/kvm/vcpu.c
+> >>>> @@ -272,7 +272,7 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
+> >>>> *vcpu, u64 val)
+> >>>>            cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_CPUID);
+> >>>>
+> >>>>            spin_lock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>> -       if (map->phys_map[cpuid].enabled) {
+> >>>> +       if ((cpuid !=3D KVM_MAX_PHYID) && map->phys_map[cpuid].enabl=
+ed) {
+> >>>>                    /* Discard duplicated CPUID set operation */
+> >>>>                    if (cpuid =3D=3D val) {
+> >>>>                            spin_unlock(&vcpu->kvm->arch.phyid_map_lo=
+ck);
+> >>>> @@ -282,13 +282,9 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
+> >>>> *vcpu, u64 val)
+> >>>>                    /*
+> >>>>                     * CPUID is already set before
+> >>>>                     * Forbid changing different CPUID at runtime
+> >>>> -                * But CPUID 0 is the initial value for vcpu, so all=
+ow
+> >>>> -                * changing from 0 to others
+> >>>>                     */
+> >>>> -               if (cpuid) {
+> >>>> -                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock)=
+;
+> >>>> -                       return -EINVAL;
+> >>>> -               }
+> >>>> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>> +               return -EINVAL;
+> >>>>            }
+> >>>>
+> >>>>            if (map->phys_map[val].enabled) {
+> >>>> @@ -1029,6 +1025,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu=
+)
+> >>>>
+> >>>>            /* Set cpuid */
+> >>>>            kvm_write_sw_gcsr(csr, LOONGARCH_CSR_TMID, vcpu->vcpu_id)=
+;
+> >>>> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, KVM_MAX_PHYID);
+> >>>>
+> >>>>            /* Start with no pending virtual guest interrupts */
+> >>>>            csr->csrs[LOONGARCH_CSR_GINTC] =3D 0;
+> >>> Very nice, but I think kvm_drop_cpuid() should also set to KVM_MAX_PH=
+YID.
+> >>> Now I update my loongarch-kvm branch, you can test it again, and hope
+> >>> it is in the perfect status.
+> >> I sync and test the latest code from loongarch-kvm, pv ipi works well
+> >> with 256 vcpus. And the code looks good to me, thanks for your review =
+in
+> >> short time.
+> > OK, if SWDBG also works well, I will send PR to Paolo tomorrow.
+> yes, sw debug works well with patch from qemu. And I will refresh patch
+> to qemu after it is merged.
+>
+> https://lore.kernel.org/all/20240218070025.218680-1-maobibo@loongson.cn/
+>
+> --- a/configs/targets/loongarch64-softmmu.mak
+> +++ b/configs/targets/loongarch64-softmmu.mak
+> @@ -1,5 +1,6 @@
+>   TARGET_ARCH=3Dloongarch64
+>   TARGET_BASE_ARCH=3Dloongarch
+>   TARGET_SUPPORTS_MTTCG=3Dy
+> +TARGET_KVM_HAVE_GUEST_DEBUG=3Dy
+>   TARGET_XML_FILES=3D gdb-xml/loongarch-base32.xml
+> gdb-xml/loongarch-base64.xml gdb-xml/loongarch-fpu.xml
+>   TARGET_NEED_FDT=3Dy
+Not enough, we need kvm_arch_update_guest_debug() and some other functions.
 
-Ok, patches 1 and 3 will be refactored.
+Huacai
 
-Thanks.
-
->=20
-> Thanks
->=20
+>
+> Regards
+> Bibo Mao
 > >
-> > Thanks.
+> > Huacai
 > >
-> > >
-> > > Thanks
-> > >
-> > >
-> > > >
-> > > > Thanks.
-> > > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > >         return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
-> > > > > >  }
-> > > > > >
-> > > > > > @@ -4433,7 +4454,7 @@ static int virtnet_find_vqs(struct virtne=
-t_info *vi)
-> > > > > >
-> > > > > >         /* Parameters for control virtqueue, if any */
-> > > > > >         if (vi->has_cvq) {
-> > > > > > -               callbacks[total_vqs - 1] =3D NULL;
-> > > > > > +               callbacks[total_vqs - 1] =3D virtnet_cvq_done;
-> > > > > >                 names[total_vqs - 1] =3D "control";
-> > > > > >         }
-> > > > > >
-> > > > > > @@ -4952,6 +4973,8 @@ static int virtnet_probe(struct virtio_de=
-vice *vdev)
-> > > > > >         if (vi->has_rss || vi->has_rss_hash_report)
-> > > > > >                 virtnet_init_default_rss(vi);
-> > > > > >
-> > > > > > +       INIT_WORK(&vi->get_cvq, virtnet_get_cvq_work);
-> > > > > > +       init_completion(&vi->completion);
-> > > > > >         enable_rx_mode_work(vi);
-> > > > > >
-> > > > > >         /* serialize netdev register + virtio_device_ready() wi=
-th ndo_open() */
-> > > > > > --
-> > > > > > 2.32.0.3.g01195cf9f
-> > > > > >
-> > > > >
-> > > >
-> > >
-> >
->=20
+> >>
+> >> Regards
+> >> Bibo Mao
+> >>>
+> >>> Huacai
+> >>>>
+> >>>>
+> >>>>>
+> >>>>> Huacai
+> >>>>>
+> >>>>>>
+> >>>>>>
+> >>>>>>>
+> >>>>>>> Huacai
+> >>>>>>>
+> >>>>>>>>
+> >>>>>>>> Regards
+> >>>>>>>> Bibo Mao
+> >>>>>>>>
+> >>>>>>>>>
+> >>>>>>>>> Huacai
+> >>>>>>>>>
+> >>>>>>>>>>>
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       if (map->phys_map[val].enabled) {
+> >>>>>>>>>>>> +               /*
+> >>>>>>>>>>>> +                * New cpuid is already set with other vcpu
+> >>>>>>>>>>>> +                * Forbid sharing the same cpuid between dif=
+ferent vcpus
+> >>>>>>>>>>>> +                */
+> >>>>>>>>>>>> +               if (map->phys_map[val].vcpu !=3D vcpu) {
+> >>>>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_m=
+ap_lock);
+> >>>>>>>>>>>> +                       return -EINVAL;
+> >>>>>>>>>>>> +               }
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +               /* Discard duplicated cpuid set operation*/
+> >>>>>>>>>>>> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock)=
+;
+> >>>>>>>>>>>> +               return 0;
+> >>>>>>>>>>>> +       }
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, val);
+> >>>>>>>>>>>> +       map->phys_map[val].enabled      =3D true;
+> >>>>>>>>>>>> +       map->phys_map[val].vcpu         =3D vcpu;
+> >>>>>>>>>>>> +       if (map->max_phyid < val)
+> >>>>>>>>>>>> +               map->max_phyid =3D val;
+> >>>>>>>>>>>> +       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+> >>>>>>>>>>>> +       return 0;
+> >>>>>>>>>>>> +}
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int=
+ cpuid)
+> >>>>>>>>>>>> +{
+> >>>>>>>>>>>> +       struct kvm_phyid_map  *map;
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       if (cpuid >=3D KVM_MAX_PHYID)
+> >>>>>>>>>>>> +               return NULL;
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       map =3D kvm->arch.phyid_map;
+> >>>>>>>>>>>> +       if (map->phys_map[cpuid].enabled)
+> >>>>>>>>>>>> +               return map->phys_map[cpuid].vcpu;
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       return NULL;
+> >>>>>>>>>>>> +}
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +static inline void kvm_drop_cpuid(struct kvm_vcpu *vcpu)
+> >>>>>>>>>>>> +{
+> >>>>>>>>>>>> +       int cpuid;
+> >>>>>>>>>>>> +       struct loongarch_csrs *csr =3D vcpu->arch.csr;
+> >>>>>>>>>>>> +       struct kvm_phyid_map  *map;
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       map =3D vcpu->kvm->arch.phyid_map;
+> >>>>>>>>>>>> +       cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT)=
+;
+> >>>>>>>>>>>> +       if (cpuid >=3D KVM_MAX_PHYID)
+> >>>>>>>>>>>> +               return;
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
+> >>>>>>>>>>>> +               map->phys_map[cpuid].vcpu =3D NULL;
+> >>>>>>>>>>>> +               map->phys_map[cpuid].enabled =3D false;
+> >>>>>>>>>>>> +               kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, =
+0);
+> >>>>>>>>>>>> +       }
+> >>>>>>>>>>>> +}
+> >>>>>>>>>>> While kvm_set_cpuid() is protected by a spinlock, do kvm_drop=
+_cpuid()
+> >>>>>>>>>>> and kvm_get_vcpu_by_cpuid() also need it?
+> >>>>>>>>>>>
+> >>>>>>>>>> It is good to me that spinlock is added in function kvm_drop_c=
+puid().
+> >>>>>>>>>> And thinks for the efforts.
+> >>>>>>>>>>
+> >>>>>>>>>> Regards
+> >>>>>>>>>> Bibo Mao
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>>        static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigne=
+d int id, u64 val)
+> >>>>>>>>>>>>        {
+> >>>>>>>>>>>>               int ret =3D 0, gintc;
+> >>>>>>>>>>>> @@ -291,7 +380,8 @@ static int _kvm_setcsr(struct kvm_vcpu *=
+vcpu, unsigned int id, u64 val)
+> >>>>>>>>>>>>                       kvm_set_sw_gcsr(csr, LOONGARCH_CSR_EST=
+AT, gintc);
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>                       return ret;
+> >>>>>>>>>>>> -       }
+> >>>>>>>>>>>> +       } else if (id =3D=3D LOONGARCH_CSR_CPUID)
+> >>>>>>>>>>>> +               return kvm_set_cpuid(vcpu, val);
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>               kvm_write_sw_gcsr(csr, id, val);
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> @@ -943,6 +1033,7 @@ void kvm_arch_vcpu_destroy(struct kvm_v=
+cpu *vcpu)
+> >>>>>>>>>>>>               hrtimer_cancel(&vcpu->arch.swtimer);
+> >>>>>>>>>>>>               kvm_mmu_free_memory_cache(&vcpu->arch.mmu_page=
+_cache);
+> >>>>>>>>>>>>               kfree(vcpu->arch.csr);
+> >>>>>>>>>>>> +       kvm_drop_cpuid(vcpu);
+> >>>>>>>>>>> I think this line should be before the above kfree(), otherwi=
+se you
+> >>>>>>>>>>> get a "use after free".
+> >>>>>>>>>>>
+> >>>>>>>>>>> Huacai
+> >>>>>>>>>>>
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>               /*
+> >>>>>>>>>>>>                * If the vCPU is freed and reused as another =
+vCPU, we don't want the
+> >>>>>>>>>>>> diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm=
+.c
+> >>>>>>>>>>>> index 0a37f6fa8f2d..6006a28653ad 100644
+> >>>>>>>>>>>> --- a/arch/loongarch/kvm/vm.c
+> >>>>>>>>>>>> +++ b/arch/loongarch/kvm/vm.c
+> >>>>>>>>>>>> @@ -30,6 +30,14 @@ int kvm_arch_init_vm(struct kvm *kvm, uns=
+igned long type)
+> >>>>>>>>>>>>               if (!kvm->arch.pgd)
+> >>>>>>>>>>>>                       return -ENOMEM;
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> +       kvm->arch.phyid_map =3D kvzalloc(sizeof(struct kvm_p=
+hyid_map),
+> >>>>>>>>>>>> +                               GFP_KERNEL_ACCOUNT);
+> >>>>>>>>>>>> +       if (!kvm->arch.phyid_map) {
+> >>>>>>>>>>>> +               free_page((unsigned long)kvm->arch.pgd);
+> >>>>>>>>>>>> +               kvm->arch.pgd =3D NULL;
+> >>>>>>>>>>>> +               return -ENOMEM;
+> >>>>>>>>>>>> +       }
+> >>>>>>>>>>>> +
+> >>>>>>>>>>>>               kvm_init_vmcs(kvm);
+> >>>>>>>>>>>>               kvm->arch.gpa_size =3D BIT(cpu_vabits - 1);
+> >>>>>>>>>>>>               kvm->arch.root_level =3D CONFIG_PGTABLE_LEVELS=
+ - 1;
+> >>>>>>>>>>>> @@ -44,6 +52,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsi=
+gned long type)
+> >>>>>>>>>>>>               for (i =3D 0; i <=3D kvm->arch.root_level; i++=
+)
+> >>>>>>>>>>>>                       kvm->arch.pte_shifts[i] =3D PAGE_SHIFT=
+ + i * (PAGE_SHIFT - 3);
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> +       spin_lock_init(&kvm->arch.phyid_map_lock);
+> >>>>>>>>>>>>               return 0;
+> >>>>>>>>>>>>        }
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> @@ -51,7 +60,9 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+> >>>>>>>>>>>>        {
+> >>>>>>>>>>>>               kvm_destroy_vcpus(kvm);
+> >>>>>>>>>>>>               free_page((unsigned long)kvm->arch.pgd);
+> >>>>>>>>>>>> +       kvfree(kvm->arch.phyid_map);
+> >>>>>>>>>>>>               kvm->arch.pgd =3D NULL;
+> >>>>>>>>>>>> +       kvm->arch.phyid_map =3D NULL;
+> >>>>>>>>>>>>        }
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>        int kvm_vm_ioctl_check_extension(struct kvm *kvm, lon=
+g ext)
+> >>>>>>>>>>>> --
+> >>>>>>>>>>>> 2.39.3
+> >>>>>>>>>>>>
+> >>>>>>>>>>
+> >>>>>>>>
+> >>>>>>
+> >>>>
+> >>
+> >>
+>
+>
