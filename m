@@ -1,218 +1,160 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D54A823746
-	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 06:37:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E4BD3DB97
+	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 08:05:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715150255; cv=none; b=Pt7I3yBpS96kdWZggB1BGX+Iu1Jl7hHs4ohb6Qc5n0WUn3b3iFWgGyWS6PJcKsRmhWOnhHCXjtVsIlFwfsOGJb1ucxIMrs+RHS/IjgBbmZxvjr7aVtFcwNRksfEZjxPntTg16FqGBxEtZJFucloViKxBWGOL9hmtlbZoWlSoN6Y=
+	t=1715155524; cv=none; b=SvjGVsXOKRSG1y7YOsitA/7MFCTPiUXesCno00W26ZNn8JgLN/Pc2Mzxffu4+g19mx2xYg5ED88tnVwRiX5CqWiLT5bPdCYas4wk0bzhFDZV0PaWIKhfkeVXhmMEELuTfyFxonxuq1DAxt9ftPk5SoBM/Ja572RlKvQ7XfWHNM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715150255; c=relaxed/simple;
-	bh=HDb4PbLMUg1RK3VejNEk0r1KQZXbbmBa0nLMGHClu5k=;
+	s=arc-20240116; t=1715155524; c=relaxed/simple;
+	bh=1K0nNQgHUmhCQQud9QmWgPa8j3wkF2GJA1yDKVZTcCE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=bKfNVhVp7EYkE1aieHaH7IIMxlS8V59ndM3FLM7PipzBe7ThwnGfYrd2y+W66fJ673Vn0d1DiAlVOEEtr9920ZiQou8I2D9Txy19fxOwanWI9MxAgLST7COBEzeRAJZ35KiKvGwjyBnUbTENf6kFL1ZZkWBZnDr+F8M4VdMqZTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=v4PNWiJb; arc=none smtp.client-ip=115.124.30.119
+	 MIME-Version; b=L8pj1TDY56o/vDaCdX+hmu8mYYH3LiChLi3sspnnmmkM3Zdbkj1N5RocJJCU4xOjin4AgL/cH5Qk8IzyYuT9cGcszHU+cSB57KMObo+Cfrhyqi05Sh96kBavuneX+e8s2pIvNxyVNL17cBw4+AQ89LlmPehE9574klRj64G2bX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=H5h5FW9e; arc=none smtp.client-ip=115.124.30.101
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="v4PNWiJb"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="H5h5FW9e"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1715150246; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=Fylms54Nmetg+epT1tOMGSO7rloPqJteA5WcopihoD0=;
-	b=v4PNWiJbDX1Oi9Tuv3tuSMhUwSdIM2ktsAAUbNbqH+CuWSvDLml4O/MuRmr5JdwWo5fwV/+i6wa96bH78ZCu8yyTK/d2/MHBcd9E1++pD8XoKSNEJ7Ogn/EvPcewuti7ZpnC7soHY+iIykOja6boysIn/bqwRMhKDsP+QNUh/34=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W62Y4vQ_1715150242;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W62Y4vQ_1715150242)
+	t=1715155518; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=AO7Rn6OtrHdAVvLcDKsYGgcK+Ff9asY2tSYZHaN9CRc=;
+	b=H5h5FW9eDYRnlLEBcUhUFc2A8RCu8hyZxWDKdB3c8S8gTeKq7C5BbLOqz3PfbWGKHYKlR1l5aYMVsTABx0J8k6eER3S7/qCiyeTT6bpohCKG1xn80SreBCJYjBQZiDDIq78WX0/U+UiUmIV1dyEIaAPdcVbKJvlxQldEAwom9CE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W62slys_1715155516;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W62slys_1715155516)
           by smtp.aliyun-inc.com;
-          Wed, 08 May 2024 14:37:23 +0800
+          Wed, 08 May 2024 16:05:17 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
+Cc: "David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH net-next v4 3/4] virtio_net: rx remove premapped failover code
-Date: Wed,  8 May 2024 14:37:17 +0800
-Message-Id: <20240508063718.69806-4-xuanzhuo@linux.alibaba.com>
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org
+Subject: [PATCH net-next 1/7] virtio_net: independent directory
+Date: Wed,  8 May 2024 16:05:08 +0800
+Message-Id: <20240508080514.99458-2-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240508063718.69806-1-xuanzhuo@linux.alibaba.com>
-References: <20240508063718.69806-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
+References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: cadd21343bbc
+X-Git-Hash: 7cdcbabd0b89
 Content-Transfer-Encoding: 8bit
 
-Now, the premapped mode can be enabled unconditionally.
-
-So we can remove the failover code for merge and small mode.
+Create a separate directory for virtio-net. AF_XDP support will be added
+later, then a separate xsk.c file will be added, so we should create a
+directory for virtio-net.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 85 +++++++++++++++++-----------------------
- 1 file changed, 35 insertions(+), 50 deletions(-)
+ MAINTAINERS                                         |  2 +-
+ drivers/net/Kconfig                                 |  9 +--------
+ drivers/net/Makefile                                |  2 +-
+ drivers/net/virtio/Kconfig                          | 12 ++++++++++++
+ drivers/net/virtio/Makefile                         |  8 ++++++++
+ drivers/net/{virtio_net.c => virtio/virtnet_main.c} |  0
+ 6 files changed, 23 insertions(+), 10 deletions(-)
+ create mode 100644 drivers/net/virtio/Kconfig
+ create mode 100644 drivers/net/virtio/Makefile
+ rename drivers/net/{virtio_net.c => virtio/virtnet_main.c} (100%)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a2452d35bb93..070a6ed0d812 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -344,9 +344,6 @@ struct receive_queue {
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 294e472d7de8..56c50e512c8c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -23457,7 +23457,7 @@ F:	Documentation/devicetree/bindings/virtio/
+ F:	Documentation/driver-api/virtio/
+ F:	drivers/block/virtio_blk.c
+ F:	drivers/crypto/virtio/
+-F:	drivers/net/virtio_net.c
++F:	drivers/net/virtio/
+ F:	drivers/vdpa/
+ F:	drivers/virtio/
+ F:	include/linux/vdpa.h
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 9920b3a68ed1..b80793a0bd17 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -443,14 +443,7 @@ config VETH
+ 	  When one end receives the packet it appears on its pair and vice
+ 	  versa.
  
- 	/* Record the last dma info to free after new pages is allocated. */
- 	struct virtnet_rq_dma *last_dma;
--
--	/* Do dma by self */
--	bool do_dma;
- };
+-config VIRTIO_NET
+-	tristate "Virtio network driver"
+-	depends on VIRTIO
+-	select NET_FAILOVER
+-	select DIMLIB
+-	help
+-	  This is the virtual network driver for virtio.  It can be used with
+-	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
++source "drivers/net/virtio/Kconfig"
  
- /* This structure can contain rss message with maximum settings for indirection table and keysize
-@@ -846,7 +843,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
- 	void *buf;
- 
- 	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
--	if (buf && rq->do_dma)
-+	if (buf)
- 		virtnet_rq_unmap(rq, buf, *len);
- 
- 	return buf;
-@@ -859,11 +856,6 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
- 	u32 offset;
- 	void *head;
- 
--	if (!rq->do_dma) {
--		sg_init_one(rq->sg, buf, len);
--		return;
--	}
--
- 	head = page_address(rq->alloc_frag.page);
- 
- 	offset = buf - head;
-@@ -889,44 +881,42 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
- 
- 	head = page_address(alloc_frag->page);
- 
--	if (rq->do_dma) {
--		dma = head;
--
--		/* new pages */
--		if (!alloc_frag->offset) {
--			if (rq->last_dma) {
--				/* Now, the new page is allocated, the last dma
--				 * will not be used. So the dma can be unmapped
--				 * if the ref is 0.
--				 */
--				virtnet_rq_unmap(rq, rq->last_dma, 0);
--				rq->last_dma = NULL;
--			}
-+	dma = head;
- 
--			dma->len = alloc_frag->size - sizeof(*dma);
-+	/* new pages */
-+	if (!alloc_frag->offset) {
-+		if (rq->last_dma) {
-+			/* Now, the new page is allocated, the last dma
-+			 * will not be used. So the dma can be unmapped
-+			 * if the ref is 0.
-+			 */
-+			virtnet_rq_unmap(rq, rq->last_dma, 0);
-+			rq->last_dma = NULL;
-+		}
- 
--			addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
--							      dma->len, DMA_FROM_DEVICE, 0);
--			if (virtqueue_dma_mapping_error(rq->vq, addr))
--				return NULL;
-+		dma->len = alloc_frag->size - sizeof(*dma);
- 
--			dma->addr = addr;
--			dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
-+		addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
-+						      dma->len, DMA_FROM_DEVICE, 0);
-+		if (virtqueue_dma_mapping_error(rq->vq, addr))
-+			return NULL;
- 
--			/* Add a reference to dma to prevent the entire dma from
--			 * being released during error handling. This reference
--			 * will be freed after the pages are no longer used.
--			 */
--			get_page(alloc_frag->page);
--			dma->ref = 1;
--			alloc_frag->offset = sizeof(*dma);
-+		dma->addr = addr;
-+		dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
- 
--			rq->last_dma = dma;
--		}
-+		/* Add a reference to dma to prevent the entire dma from
-+		 * being released during error handling. This reference
-+		 * will be freed after the pages are no longer used.
-+		 */
-+		get_page(alloc_frag->page);
-+		dma->ref = 1;
-+		alloc_frag->offset = sizeof(*dma);
- 
--		++dma->ref;
-+		rq->last_dma = dma;
- 	}
- 
-+	++dma->ref;
+ config NLMON
+ 	tristate "Virtual netlink monitoring device"
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index 9c053673d6b2..9d31802cc3ba 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -32,7 +32,7 @@ obj-$(CONFIG_NET_TEAM) += team/
+ obj-$(CONFIG_TUN) += tun.o
+ obj-$(CONFIG_TAP) += tap.o
+ obj-$(CONFIG_VETH) += veth.o
+-obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
++obj-$(CONFIG_VIRTIO_NET) += virtio/
+ obj-$(CONFIG_VXLAN) += vxlan/
+ obj-$(CONFIG_GENEVE) += geneve.o
+ obj-$(CONFIG_BAREUDP) += bareudp.o
+diff --git a/drivers/net/virtio/Kconfig b/drivers/net/virtio/Kconfig
+new file mode 100644
+index 000000000000..e162535ca213
+--- /dev/null
++++ b/drivers/net/virtio/Kconfig
+@@ -0,0 +1,12 @@
++# SPDX-License-Identifier: GPL-2.0-only
++#
++# virtio-net device configuration
++#
++config VIRTIO_NET
++	tristate "Virtio network driver"
++	depends on VIRTIO
++	select NET_FAILOVER
++	select DIMLIB
++	help
++	  This is the virtual network driver for virtio.  It can be used with
++	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
+diff --git a/drivers/net/virtio/Makefile b/drivers/net/virtio/Makefile
+new file mode 100644
+index 000000000000..c4602337c78c
+--- /dev/null
++++ b/drivers/net/virtio/Makefile
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: GPL-2.0
++#
++# Makefile for the virtio network device drivers.
++#
 +
- 	buf = head + alloc_frag->offset;
- 
- 	get_page(alloc_frag->page);
-@@ -943,12 +933,9 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
- 	if (!vi->mergeable_rx_bufs && vi->big_packets)
- 		return;
- 
--	for (i = 0; i < vi->max_queue_pairs; i++) {
--		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
--			continue;
--
--		vi->rq[i].do_dma = true;
--	}
-+	for (i = 0; i < vi->max_queue_pairs; i++)
-+		/* error never happen */
-+		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
- }
- 
- static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
-@@ -2020,8 +2007,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
- 
- 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0) {
--		if (rq->do_dma)
--			virtnet_rq_unmap(rq, buf, 0);
-+		virtnet_rq_unmap(rq, buf, 0);
- 		put_page(virt_to_head_page(buf));
- 	}
- 
-@@ -2135,8 +2121,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
- 	ctx = mergeable_len_to_ctx(len + room, headroom);
- 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0) {
--		if (rq->do_dma)
--			virtnet_rq_unmap(rq, buf, 0);
-+		virtnet_rq_unmap(rq, buf, 0);
- 		put_page(virt_to_head_page(buf));
- 	}
- 
-@@ -5206,7 +5191,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
- 	int i;
- 	for (i = 0; i < vi->max_queue_pairs; i++)
- 		if (vi->rq[i].alloc_frag.page) {
--			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
-+			if (vi->rq[i].last_dma)
- 				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
- 			put_page(vi->rq[i].alloc_frag.page);
- 		}
++obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
++
++virtio_net-y := virtnet_main.o
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio/virtnet_main.c
+similarity index 100%
+rename from drivers/net/virtio_net.c
+rename to drivers/net/virtio/virtnet_main.c
 -- 
 2.32.0.3.g01195cf9f
 
