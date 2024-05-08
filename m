@@ -1,29 +1,30 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B8740870
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F145240BE6
 	for <virtualization@lists.linux.dev>; Wed,  8 May 2024 08:05:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715155527; cv=none; b=VRuawusmzu/WldgL2vIBK07Ib06fYS2OvwhEdcj0jd8XEni1x21sNoPOtjZFliw5lv+nVfgmQthnOTYN7hm/Jdi60udt5Bn4nGMsbjIWo/YfM03jQBgiYX7M9ucO1KcZwL5Yw839KI1OAWoY51vuC/p1Z6E5BxT2uThSYRTJrDA=
+	t=1715155527; cv=none; b=GDvIYp/9ZB4KU3D/Pp3rZjp4HGZNPP+dsBYM6pgOn13lgWXRYdu110ptSzMdRUszO5Nwg8pUVMPw2CX9KHAAxBZbPvPfiIFLdsnG1rJTUjdffr1TsY2PUUI6QT6XCJlzDpPhS3yX4xL0+KCeiE24EqOV2fcFOY2VzQP4LXceEXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1715155527; c=relaxed/simple;
-	bh=qqR83agXQEbmzafh3HB2HlPzpaNWEvj6q1H708qTSE8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=QhqWZf5IfZdKOJFRlXjBf1/IOnkt5EHDMZViP06HiIxRMFw5AP4dbDOymCC5qSzSVfUAWuc/2WraLI9HFUDidRqZsB/BH9oPtr822gxQ34s8hismegREbRRpINBqJwKQmN+M7OsA60P4xISol/LhwzCRUOlm8OOAjVfpCUk0XEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=p86g6H+C; arc=none smtp.client-ip=115.124.30.131
+	bh=VMUxWSl8uUVpLwAHa7JqMJtkdB/te4DfTUeCmh/Veps=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=j7l3QOBIOcQcxDc0n0kbemCmNTgHH4EmnA5B88ppBXzuMsPVpGrR6vpxrzRK3iYNHO3RJtT3raPCPyLtyjLZ2XjeK9Z3nZmpZtejxsxQkPHgJ5ijqCcv88XrkQP1uX7FMKesrLD7DHfEq6B2Txsnwt+5I7Jk4CKMbiGGx3l17YQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=s4Hiev37; arc=none smtp.client-ip=115.124.30.101
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="p86g6H+C"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="s4Hiev37"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1715155517; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=PxiVd3BF1kBoCEVSaQqLLnUPkQgw448lFPoX54SUZ0E=;
-	b=p86g6H+CfXOTBmlnh2P4iKEkGuIq4uumZdHU4CLpErYCtv5sKFiapkLX4ddsYbN7IePJQ+RMFNlN8tpqx3VxDPKMg7ejS+ETVxSwLYrPq9cG6vSKbH9Iw8r6EMC9YplsMV8BWfF8oboo6gVKHcEY+i22MRyNCqdYwQv3zQs2IJE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W62uyrm_1715155515;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W62uyrm_1715155515)
+	t=1715155522; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=numEyLfKrc8BrggaD6w89XqKLobUp/B878FtwYeJTmA=;
+	b=s4Hiev379bDMbNedmBwFwoz5aD/bQV2mbXlZWFdbKL3YYIg4KupKJPr1YM81+PtimYUAAJ3WVyC+mwvENQBuDx+4aR0PX007PgAJS/x4oNOw3qN6xrbK3h8bmjAwi6TGa1QTWz2U/CBY842WUYP8MpXkK4GMmjZYMC2sDtrgW7k=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W62sQgk_1715155520;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W62sQgk_1715155520)
           by smtp.aliyun-inc.com;
-          Wed, 08 May 2024 16:05:16 +0800
+          Wed, 08 May 2024 16:05:21 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -39,10 +40,12 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next 0/7] virtnet_net: prepare for af-xdp
-Date: Wed,  8 May 2024 16:05:07 +0800
-Message-Id: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next 4/7] virtio_net: separate virtnet_rx_resize()
+Date: Wed,  8 May 2024 16:05:11 +0800
+Message-Id: <20240508080514.99458-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
+References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -52,38 +55,86 @@ MIME-Version: 1.0
 X-Git-Hash: 7cdcbabd0b89
 Content-Transfer-Encoding: 8bit
 
-This patch set prepares for supporting af-xdp zerocopy.
-There is no feature change in this patch set.
-I just want to reduce the patch num of the final patch set,
-so I split the patch set.
+This patch separates two sub-functions from virtnet_rx_resize():
 
-#1-#3 add independent directory for virtio-net
-#4-#7 do some refactor, the sub-functions will be used by the subsequent commits
+* virtnet_rx_pause
+* virtnet_rx_resume
 
-Thanks.
+Then the subsequent reset rx for xsk can share these two functions.
 
-Xuan Zhuo (7):
-  virtio_net: independent directory
-  virtio_net: move core structures to virtio_net.h
-  virtio_net: add prefix virtnet to all struct inside virtio_net.h
-  virtio_net: separate virtnet_rx_resize()
-  virtio_net: separate virtnet_tx_resize()
-  virtio_net: separate receive_mergeable
-  virtio_net: separate receive_buf
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio/virtnet.h      |  3 +++
+ drivers/net/virtio/virtnet_main.c | 29 +++++++++++++++++++++--------
+ 2 files changed, 24 insertions(+), 8 deletions(-)
 
- MAINTAINERS                                   |   2 +-
- drivers/net/Kconfig                           |   9 +-
- drivers/net/Makefile                          |   2 +-
- drivers/net/virtio/Kconfig                    |  12 +
- drivers/net/virtio/Makefile                   |   8 +
- drivers/net/virtio/virtnet.h                  | 246 ++++++++
- .../{virtio_net.c => virtio/virtnet_main.c}   | 534 ++++++------------
- 7 files changed, 452 insertions(+), 361 deletions(-)
- create mode 100644 drivers/net/virtio/Kconfig
- create mode 100644 drivers/net/virtio/Makefile
- create mode 100644 drivers/net/virtio/virtnet.h
- rename drivers/net/{virtio_net.c => virtio/virtnet_main.c} (94%)
-
---
+diff --git a/drivers/net/virtio/virtnet.h b/drivers/net/virtio/virtnet.h
+index 4d902a79bde7..f95a75751a9b 100644
+--- a/drivers/net/virtio/virtnet.h
++++ b/drivers/net/virtio/virtnet.h
+@@ -234,4 +234,7 @@ struct virtnet_info {
+ 
+ 	u64 device_stats_cap;
+ };
++
++void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq);
++void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq);
+ #endif
+diff --git a/drivers/net/virtio/virtnet_main.c b/drivers/net/virtio/virtnet_main.c
+index f9f01c10dff6..aa382fbc52d6 100644
+--- a/drivers/net/virtio/virtnet_main.c
++++ b/drivers/net/virtio/virtnet_main.c
+@@ -2358,28 +2358,41 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	return NETDEV_TX_OK;
+ }
+ 
+-static int virtnet_rx_resize(struct virtnet_info *vi,
+-			     struct virtnet_rq *rq, u32 ring_num)
++void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq)
+ {
+ 	bool running = netif_running(vi->dev);
+-	int err, qindex;
+-
+-	qindex = rq - vi->rq;
+ 
+ 	if (running) {
+ 		napi_disable(&rq->napi);
+ 		cancel_work_sync(&rq->dim.work);
+ 	}
++}
+ 
+-	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_unmap_free_buf);
+-	if (err)
+-		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
++void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq)
++{
++	bool running = netif_running(vi->dev);
+ 
+ 	if (!try_fill_recv(vi, rq, GFP_KERNEL))
+ 		schedule_delayed_work(&vi->refill, 0);
+ 
+ 	if (running)
+ 		virtnet_napi_enable(rq->vq, &rq->napi);
++}
++
++static int virtnet_rx_resize(struct virtnet_info *vi,
++			     struct virtnet_rq *rq, u32 ring_num)
++{
++	int err, qindex;
++
++	qindex = rq - vi->rq;
++
++	virtnet_rx_pause(vi, rq);
++
++	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_unmap_free_buf);
++	if (err)
++		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
++
++	virtnet_rx_resume(vi, rq);
+ 	return err;
+ }
+ 
+-- 
 2.32.0.3.g01195cf9f
 
