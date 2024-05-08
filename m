@@ -1,79 +1,79 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E333372
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 May 2024 00:18:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B4F438D
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 May 2024 00:22:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715127526; cv=none; b=rcaqnSGzZzvZjGrFm3KSQtqNW0CWWgCnkN7h4apapFOoGankleJ6iKeM8NVP+Mpgp978HqZ96qe9rK1pRTYhjRjBJZqICEGyzQeZsuZR+TDF8Bve5a+ArinMUW0ci0lcum/CsECHpA8ugzFlGTJVWXd0iGNAjfsMvwM6JuykMPY=
+	t=1715127767; cv=none; b=gwaYOBbPv33ACOOhmeMfM/kiITSZR5s//DkGNYtMPrSC8zRWHFXm4MsSY6mYvzjU2W29zmmTRxxMFHoADOE93mNR0h9wqfdedmy/+EJD95qJiLzaDwCT73Ii/DSKH4GWubKW1Prt+70dsue6HdNpII0XJdbwBb32Ek2ziyoJGaU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715127526; c=relaxed/simple;
-	bh=yYyTvuGPY9Yh5W/zUy0ZLLfIboxNn47n/XUpWdPEdkI=;
+	s=arc-20240116; t=1715127767; c=relaxed/simple;
+	bh=WGmcAoiIYkBzYTcnI6cjBMVdcLKjLO/t8etJMyy0xdM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FnRwVulVsw/xAvHiqcsEAzqUrz8fZlSQFDMK049OYKabbqQ99zArS0GSQFf9Zc47/cfGQJbMIezn/7ew1qnRwep/SIYwypXolCloyucQ1eNnfIFf+qCiAUNa+FC3t0IGD8rOuAUAIvdzs0900YBcf5hMEpJWkyWQbvO+8Lmh/gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=VaL7umq/; arc=none smtp.client-ip=140.211.166.136
+	 Content-Type:Content-Disposition:In-Reply-To; b=FsOsj3tsV6Qk+23tR7qLtFssgBXxXPtP8FMbY6NS9aATmmbLz6f/87lJwsFM4Ull6I6/1bm0E8GaHAWF0NChaOuCEM/rmQGe69HgLUGeEf0Nv0wZPlRgy5M//4st+4rsxm0C69NU4O3R9x668wzaLYieCvWV9FRAaS+XiFQ5qxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Gzz7AN6H; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="VaL7umq/"
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Gzz7AN6H"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D23DE605E8
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 May 2024 00:18:44 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 392EA406D4
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 May 2024 00:22:46 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id BE5RKTnQnPCq for <virtualization@lists.linux-foundation.org>;
- Wed,  8 May 2024 00:18:43 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::735; helo=mail-qk1-x735.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 56EC2605D0
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 56EC2605D0
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=VaL7umq/
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 56EC2605D0
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 May 2024 00:18:43 +0000 (UTC)
-Received: by mail-qk1-x735.google.com with SMTP id af79cd13be357-7928ec5308cso28743985a.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 07 May 2024 17:18:43 -0700 (PDT)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id D6x4FvKA3dvU for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 May 2024 00:22:45 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::92f; helo=mail-ua1-x92f.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2B45540698
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B45540698
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=Gzz7AN6H
+Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2B45540698
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 May 2024 00:22:44 +0000 (UTC)
+Received: by mail-ua1-x92f.google.com with SMTP id a1e0cc1a2514c-7f170dc5f70so976354241.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 07 May 2024 17:22:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1715127522; x=1715732322; darn=lists.linux-foundation.org;
+        d=ziepe.ca; s=google; t=1715127763; x=1715732563; darn=lists.linux-foundation.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=xz9j1cB4bE9JnQUPVM/3p943nBzNMqY3vx9jMGSHBwA=;
-        b=VaL7umq/YRqLYop8ltVRcMKKwpnVBlwHYaaBTFig1z+8bF5xN8k7TjF1aHEWJR2FPH
-         XCGdteaJhTyNGXfBsSJkpU/yE8bj9wYHA9YvmQJL18dMwESVnAECbF6+WY3ueqBOCzmP
-         lrZmQHHSPTQnLDsLiTrI2/H2jmk5qTqqeCySfZ+/MHep9SJl1tNHKZ0SDZGEzXoSvgy/
-         2Nn+miPq33IM2x5maapALWZ34yUC4gCwUoLnHLgn4+dkBDp78hjRh59LwgkhpAzQuyYM
-         gIAaTjqCg2VKVr9Rm818SM33nuoQ9gUpXDqOIvsLV6WYN5mLot34hMm5wJtDaYxXBr3m
-         m1Sw==
+        bh=0vVlsRAg17DQsgwypHbQum2UTPFFlE+iz9hu2GQEt7A=;
+        b=Gzz7AN6H86YOoXK8YtKnVZofHgQssSMqYZmmaU+cmRQoH8w2OJq7I8iTjQa+6ZF3Jp
+         QUU3sF7NjtYrF28WEcwQTVXsu4uvhDVGiHKHWXx+OfirYAEBJhaT/thRIwR37JON+Bh4
+         EtV/XP0rZkZrGa76taf4XcoyDVQGU2x1BzVngKQEgwy6h/k8lAnjjKD7I5sAfv8bbXBw
+         ynjSdm+NwacwHl59GTyOBaxwpQ7WcGYU+p/7LhRC+Au/kZbTcuoqYui2TVgkoR28duDI
+         dyNFQir8/bmcatF/1kxuA3nXIlRZMsuloGPqFvx+3NU+AWELPR4tTz0F6jPknUGGQ+xN
+         gnxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715127522; x=1715732322;
+        d=1e100.net; s=20230601; t=1715127763; x=1715732563;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xz9j1cB4bE9JnQUPVM/3p943nBzNMqY3vx9jMGSHBwA=;
-        b=Y46jYM6iLhDnIkhGpjrQvSNH8b9LXNvJk8mGx2/zKPOLPYMoOQfvTkt3tmnzB9xw7m
-         OVAWiUlCyncFsrmnPwLTQFI/Let6qShBRvtEeZ2KMrtHotBPPV+eOxfzUi5Pa78TmJym
-         4Ojx0ESRkySU+gV/SuKUb/xTBDJcO0vSzplYk7Vt+pPa7Zn9ILVTAzoGBgbO0/OWGD0k
-         P1e/MoGp6Ckpsjvd1gF0pBreBm0j0w0O2Z2ffW1FTeH1yKj5CtEZA/nUXLeoEKm5MdGb
-         tFIyzr1wbaCvkBhy6hLavlnujLNhgaB55vrTD42m6JkX9KUle2ks79XzMD6ow1MOupxf
-         H93g==
-X-Forwarded-Encrypted: i=1; AJvYcCVem8zejumO132KoBleLiufpbpZ6xGpUDQ3dBEbI6JAgJwor0+jejm2u4UpfDCSJjXLnmVTrbGGeUiy/AEBuVUwWEKCEqR9dLbz6XSaisVm7d9gKMdydUO5Tw==
-X-Gm-Message-State: AOJu0YwdGZzsxxEH+i61bHpWo2gL4N654r15rJmzGm0Vm+AHsYnNxUbe
-	4HL3WT8b/cZ7gfVLrej0Mu/Opowgb2rM/j7XmHn3dYJPewdPoKBZzUMH8Ac3ouw=
-X-Google-Smtp-Source: AGHT+IH/oKAJDpiDkQ/SfwUCo/HBUUtNt6FLW2j+wSJ+9VeCJKucyFKqJPPS4SU5qDn89BCTBGrk9w==
-X-Received: by 2002:a05:620a:1901:b0:790:ec77:4c1a with SMTP id af79cd13be357-792a64cdb96mr636436685a.39.1715127522026;
-        Tue, 07 May 2024 17:18:42 -0700 (PDT)
+        bh=0vVlsRAg17DQsgwypHbQum2UTPFFlE+iz9hu2GQEt7A=;
+        b=b5nRNO006aMOWyaMNwOt449STdeZ1K4yoUx9D/+MsL7UZVHNj3Mav82lNHuwk5oSDP
+         aQcuDyW+695dPXOWbIxLFJPuTYPz1MPmHHnBqL739myi71arO3254OC+Vk0SN5zSlgXU
+         tAPNCExRnIp08RV/VG+16UjC0yV4a73ZaLlcyOAelkYyOnZkeUEftbfoeRk0XJm3hKyo
+         2VbjN7EiCy1sNywGgEcjAn1TQuCiSiazDBxzpI6zkrq/spioZXA7wCnvXF/h2wmkdcND
+         QlqGVlAss/DyqFEnIUXWFlSpULEW+SxlMLfHJV4pS4LtJLc/JctPlVUHeWfTxNeC+giK
+         cDsQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVble2/jhGWMBojn5daLRE2oCy2a3CmcUQJQODnmWGRZ2H2j7FMIITQ4XnTPt/clKbhR2IvtpWOpRyeBh4VEEDyKC2QiMeZA04R9pTzC1DzicPd9hPqTXIBNg==
+X-Gm-Message-State: AOJu0Yyk8CFLJ0ccu8KgpJw0ZNZjEMFWnn//AxYYzcy6VB4jRzA8Cgsg
+	2uKAADzMUGZSfbHbPyJ0bf/1AfClvr5OsBIaqvxW9HKuXed4Tn7R6I7qLQ1/gfE=
+X-Google-Smtp-Source: AGHT+IECNvqKHwlIYvkCbsFT5xd8nj9nklkhaiaz6B3Vn7SJl6jIjBbaZQht1v4nImwi8swZj3JkDQ==
+X-Received: by 2002:a67:f554:0:b0:47b:d787:9ca6 with SMTP id ada2fe7eead31-47f3c2f99d9mr1007624137.18.1715127763605;
+        Tue, 07 May 2024 17:22:43 -0700 (PDT)
 Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id y7-20020a05620a44c700b007929ca64e0fsm2160454qkp.5.2024.05.07.17.18.41
+        by smtp.gmail.com with ESMTPSA id o6-20020a0ccb06000000b006a13cf08fd4sm1804740qvk.66.2024.05.07.17.22.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 May 2024 17:18:41 -0700 (PDT)
+        Tue, 07 May 2024 17:22:43 -0700 (PDT)
 Received: from jgg by wakko with local (Exim 4.95)
 	(envelope-from <jgg@ziepe.ca>)
-	id 1s4V16-0004sp-PU;
-	Tue, 07 May 2024 21:18:40 -0300
-Date: Tue, 7 May 2024 21:18:40 -0300
+	id 1s4V50-00059G-L2;
+	Tue, 07 May 2024 21:22:42 -0300
+Date: Tue, 7 May 2024 21:22:42 -0300
 From: Jason Gunthorpe <jgg@ziepe.ca>
 To: Lu Baolu <baolu.lu@linux.intel.com>
 Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
@@ -84,10 +84,10 @@ Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
 	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 6/9] iommufd: Fault-capable hwpt attach/detach/replace
-Message-ID: <20240508001840.GO4718@ziepe.ca>
+Subject: Re: [PATCH v5 5/9] iommufd: Add iommufd fault object
+Message-ID: <20240508002242.GP4718@ziepe.ca>
 References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
- <20240430145710.68112-7-baolu.lu@linux.intel.com>
+ <20240430145710.68112-6-baolu.lu@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -96,38 +96,64 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240430145710.68112-7-baolu.lu@linux.intel.com>
+In-Reply-To: <20240430145710.68112-6-baolu.lu@linux.intel.com>
 
-On Tue, Apr 30, 2024 at 10:57:07PM +0800, Lu Baolu wrote:
-> diff --git a/drivers/iommu/iommufd/fault.c b/drivers/iommu/iommufd/fault.c
-> index 13125c0feecb..6357229bf3b4 100644
-> --- a/drivers/iommu/iommufd/fault.c
-> +++ b/drivers/iommu/iommufd/fault.c
-> @@ -15,6 +15,124 @@
->  #include "../iommu-priv.h"
->  #include "iommufd_private.h"
->  
-> +static int iommufd_fault_iopf_enable(struct iommufd_device *idev)
+On Tue, Apr 30, 2024 at 10:57:06PM +0800, Lu Baolu wrote:
+> +static ssize_t iommufd_fault_fops_read(struct file *filep, char __user *buf,
+> +				       size_t count, loff_t *ppos)
 > +{
-> +	int ret;
+> +	size_t fault_size = sizeof(struct iommu_hwpt_pgfault);
+> +	struct iommufd_fault *fault = filep->private_data;
+> +	struct iommu_hwpt_pgfault data;
+> +	struct iommufd_device *idev;
+> +	struct iopf_group *group;
+> +	struct iopf_fault *iopf;
+> +	size_t done = 0;
+> +	int rc;
 > +
-> +	if (idev->iopf_enabled)
-> +		return 0;
+> +	if (*ppos || count % fault_size)
+> +		return -ESPIPE;
 > +
-> +	ret = iommu_dev_enable_feature(idev->dev, IOMMU_DEV_FEAT_IOPF);
-> +	if (ret)
-> +		return ret;
+> +	mutex_lock(&fault->mutex);
+> +	while (!list_empty(&fault->deliver) && count > done) {
+> +		group = list_first_entry(&fault->deliver,
+> +					 struct iopf_group, node);
 > +
-> +	idev->iopf_enabled = true;
-> +
-> +	return 0;
-> +}
+> +		if (list_count_nodes(&group->faults) * fault_size > count - done)
+> +			break;
 
-I would greatly prefer we remove this from the drivers :\ I guess it
-is Ok for now
+Can this list_count be precomputed when we build the fault group?
 
-Doesn't this need a counter? We can have many fault capable PASIDs?
-That will get changed in the PASID series?
+> +
+> +		idev = group->attach_handle->idev;
+> +		if (!idev)
+> +			break;
+
+This check should be done before adding the fault to the linked
+list. See my other note about the race.
+
+> +
+> +		rc = xa_alloc(&idev->faults, &group->cookie, group,
+> +			      xa_limit_32b, GFP_KERNEL);
+> +		if (rc)
+> +			break;
+
+This error handling is not quite right, if done == 0 then this should
+return rc.
+
+
+> +
+> +		list_for_each_entry(iopf, &group->faults, list) {
+> +			iommufd_compose_fault_message(&iopf->fault,
+> +						      &data, idev,
+> +						      group->cookie);
+> +			rc = copy_to_user(buf + done, &data, fault_size);
+> +			if (rc) {
+> +				xa_erase(&idev->faults, group->cookie);
+> +				break;
+
+Same here
+
+(same comment on the write side too)
 
 Jason
-
