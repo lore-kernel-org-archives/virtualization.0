@@ -1,29 +1,30 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EA8310E5
-	for <virtualization@lists.linux.dev>; Thu,  9 May 2024 04:47:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B62F1494C3
+	for <virtualization@lists.linux.dev>; Thu,  9 May 2024 04:48:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715230081; cv=none; b=K469ISpwMPCgXXDgw5qtEgXJcEGm4bXjlREzyyL03NPoIVv+y1AzAoM7bdJd5Qkbn/V7gVHCMFep7h+fmQ0imk1HJQIVsoaIsoyIzCkNHV7SkeQ5e9LSFyql1z9eIzgn0vtqzlRKZHO+HHAmo45UN5J5NvmfaBRCkXvH+Hdo9Uo=
+	t=1715230083; cv=none; b=HSZOR7IUfJCWVZ8rYzAfa+3MQHMS06Pa9wPOo1+B7PjaHKV4XZZo+h/ztuJBg9gcjav7ObbYYjkADBdZFUvEzKgHiDFRtoGKSIi7xv4rYf4/DB8ouKhiWQJkpnRKxDmIN9bZrp2YHE9+hnUapj8uratTS8O1FY21YR9wc4focDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715230081; c=relaxed/simple;
-	bh=yn6z4Xu9XJe8+P4siS+L9oLNEb1Nb0vrz6xd5dESRII=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aZ43Vhzh5Yy2nWIScbe/PPP7C5aiP2RAVHcUASQWgFnsDupb51lW61ZKfL1aBQqZnzKrf99hRHguv7euHuYGQiOwwcl2RpZsSNsPPEMe9QUmYxAVOUSejMJDy9UZVSUTiVRtOpDFzMvpdD0l1qRl/EbYwPZUFbEGuun/iy2T79w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FrVVIXEj; arc=none smtp.client-ip=115.124.30.100
+	s=arc-20240116; t=1715230083; c=relaxed/simple;
+	bh=5nFbI7Upd2hpda5RW2EE/j0+rNTNKwpdyiOklTx6Nug=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=SDnnARCLRa1T9ulrJ06XQ7ePwRefcyUygqhcvQmtqTBUh3EvWfNSae9/i+ixy49ON/111QCZctVg+qLgeFCKsuzWQWolrA5rvjAx1HZzQwhO+srVL5K9/Jaj/hlMXT7yXkLPqJ2PTjUJYCyjJVFD9kVsHLh6lUm2laAwobOAVYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=DlB2iPSH; arc=none smtp.client-ip=115.124.30.97
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FrVVIXEj"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="DlB2iPSH"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1715230069; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=biTs5kQqplTbXx0OlRbtoUu3wlnUGsDxGs20ybVbVGY=;
-	b=FrVVIXEjnik0zUVqH3RpCW5YjDHceiAOgyrg/XK6bwRL5g7kI+ulp3JlORv8Kc/Mcz21fEYyQ+CZYeh3TJX2y1HzfogtvXbKMYXLDvB1SnZvYw4F17fHHWGTDGAnNuSkWcy+Y/6adD/9v6MZR/EHfa6bqagR8l88EesEeflgpdc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W65g812_1715230067;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W65g812_1715230067)
+	t=1715230072; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=8pxCpWS62jn7IeclhGIjU+cXuR/s1kYqZ8blq+PFmUc=;
+	b=DlB2iPSHV5TbEI4autgrum7UgsiNwRVD3MdefXja7qJQesfttSm0Ca5TQZhtj9329r1OGca4PH1q68eucCROXbeBpYGPlP5bK8J+aXaigxaX1px1fF5NA5aTgYrPRqt5DIIOW7Hen4TeCexkyK19BN5yHujjUDMeOME1ZIVN/R4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W65g81R_1715230068;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W65g81R_1715230068)
           by smtp.aliyun-inc.com;
-          Thu, 09 May 2024 12:47:48 +0800
+          Thu, 09 May 2024 12:47:50 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -49,10 +50,12 @@ Cc: Jakub Kicinski <kuba@kernel.org>,
 	Andrew Lunn <andrew@lunn.ch>,
 	justinstitt@google.com,
 	donald.hunter@gmail.com
-Subject: [PATCH net-next v13 0/4] ethtool: provide the dim profile fine-tuning channel
-Date: Thu,  9 May 2024 12:47:43 +0800
-Message-Id: <20240509044747.101237-1-hengqi@linux.alibaba.com>
+Subject: [PATCH net-next v13 1/4] linux/dim: move useful macros to .h file
+Date: Thu,  9 May 2024 12:47:44 +0800
+Message-Id: <20240509044747.101237-2-hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240509044747.101237-1-hengqi@linux.alibaba.com>
+References: <20240509044747.101237-1-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,86 +64,50 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The NetDIM library provides excellent acceleration for many modern
-network cards. However, the default profiles of DIM limits its maximum
-capabilities for different NICs, so providing a way which the NIC can
-be custom configured is necessary.
+Useful macros will be used effectively elsewhere.
+These will be utilized in subsequent patches.
 
-Currently, the way is based on the commonly used "ethtool -C".
+Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+---
+ include/linux/dim.h | 7 +++++++
+ lib/dim/net_dim.c   | 6 ------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-Please review, thank you very much!
-
-Changelog
-=====
-v12->v13:
-  - Rebase net-next to fix the one-line conflict.
-  - Update tiny comments.
-  - Config ETHTOOL_NETLINK to select DIMLIB.
-
-v11->v12:
-  - Remove the use of IS_ENABLED(DIMLIB).
-  - Update Simon's htmldoc hint.
-
-v10->v11:
-  - Fix and clean up some issues from Kuba, thanks.
-  - Rebase net-next/main
-
-v9->v10:
-  - Collect dim related flags/mode/work into one place.
-  - Use rx_profile + tx_profile instead of four profiles.
-  - Add several helps.
-  - Update commit logs.
-
-v8->v9:
-  - Fix the compilation error of conflicting names of rx_profile in
-    dim.h and ice driver: in dim.h, rx_profile is replaced with
-    dim_rx_profile. So does tx_profile.
-
-v7->v8:
-  - Use kmemdup() instead of kzalloc()/memcpy() in dev_dim_profile_init().
-
-v6->v7:
-  - A new wrapper struct pointer is used in struct net_device.
-  - Add IS_ENABLED(CONFIG_DIMLIB) to avoid compiler warnings.
-  - Profile fields changed from u16 to u32.
-
-v5->v6:
-  - Place the profile in netdevice to bypass the driver.
-    The interaction code of ethtool <-> kernel has not changed at all,
-    only the interaction part of kernel <-> driver has changed.
-
-v4->v5:
-  - Update some snippets from Kuba.
-
-v3->v4:
-  - Some tiny updates and patch 1 only add a new comment.
-
-v2->v3:
-  - Break up the attributes to avoid the use of raw c structs.
-  - Use per-device profile instead of global profile in the driver.
-
-v1->v2:
-  - Use ethtool tool instead of net-sysfs.
-
-Heng Qi (4):
-  linux/dim: move useful macros to .h file
-  ethtool: provide customized dim profile management
-  dim: add new interfaces for initialization and getting results
-  virtio-net: support dim profile fine-tuning
-
- Documentation/netlink/specs/ethtool.yaml     |  31 +++
- Documentation/networking/ethtool-netlink.rst |   4 +
- Documentation/networking/net_dim.rst         |  42 +++
- drivers/net/virtio_net.c                     |  47 +++-
- include/linux/dim.h                          | 113 ++++++++
- include/linux/ethtool.h                      |   4 +-
- include/linux/netdevice.h                    |   3 +
- include/uapi/linux/ethtool_netlink.h         |  22 ++
- lib/dim/net_dim.c                            | 144 +++++++++-
- net/Kconfig                                  |   1 +
- net/ethtool/coalesce.c                       | 263 ++++++++++++++++++-
- 11 files changed, 658 insertions(+), 16 deletions(-)
-
+diff --git a/include/linux/dim.h b/include/linux/dim.h
+index f343bc9aa2ec..43398f5eade2 100644
+--- a/include/linux/dim.h
++++ b/include/linux/dim.h
+@@ -10,6 +10,13 @@
+ #include <linux/types.h>
+ #include <linux/workqueue.h>
+ 
++/* Number of DIM profiles and period mode. */
++#define NET_DIM_PARAMS_NUM_PROFILES 5
++#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
++#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
++#define NET_DIM_DEF_PROFILE_CQE 1
++#define NET_DIM_DEF_PROFILE_EQE 1
++
+ /*
+  * Number of events between DIM iterations.
+  * Causes a moderation of the algorithm run.
+diff --git a/lib/dim/net_dim.c b/lib/dim/net_dim.c
+index 4e32f7aaac86..67d5beb34dc3 100644
+--- a/lib/dim/net_dim.c
++++ b/lib/dim/net_dim.c
+@@ -11,12 +11,6 @@
+  *        There are different set of profiles for RX/TX CQs.
+  *        Each profile size must be of NET_DIM_PARAMS_NUM_PROFILES
+  */
+-#define NET_DIM_PARAMS_NUM_PROFILES 5
+-#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
+-#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
+-#define NET_DIM_DEF_PROFILE_CQE 1
+-#define NET_DIM_DEF_PROFILE_EQE 1
+-
+ #define NET_DIM_RX_EQE_PROFILES { \
+ 	{.usec = 1,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
+ 	{.usec = 8,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
 -- 
 2.32.0.3.g01195cf9f
 
