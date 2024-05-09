@@ -1,167 +1,87 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2306457C80;
-	Wed,  8 May 2024 23:55:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57F4713CF90
+	for <virtualization@lists.linux.dev>; Thu,  9 May 2024 02:01:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715212555; cv=none; b=KVg5t1cFIXu5n2tXx6QrpCqeckMJ7oKYltsDdfyVf/qa8mhrXNUxtwka2fNXbDYgbTCnriZZxmdgdYza0g79KF7zNq2yx6iZJ3Px6w9X5uSfb33S+Dfa+xZFaU2kez7Uu9wKv3gYZyYfNkDNoMM27fN74tijFi3GAkwx37SO1/I=
+	t=1715220082; cv=none; b=L+Ot0E7F/OgWv72028lVzkwStsNWL4aChScgaMqNvIKPPYVLvQ1FFUBSZFOUY4BPSZn11IlBl9PmOQfFgyX0BaN6Xz6UDQqNcg2k/kVPQPpMGfAvJj3kV5JENQzgbkw7R6yym8WnW+LpTjuFOM7IpnYl+CFyZx9x7EOVdBrgWHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715212555; c=relaxed/simple;
-	bh=9rINs3VyCm6tAEZfoaCS30hypmdP4mKel8NcCO8rrfs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=k8hCZ44nQ5WHByRhtCiUGrmeXkNc7thxy4fZciiQy39cIG+qiO1OkqgPzI8NkuKTqufe5pNBifQeiy+LSwFhaOoBV4KCCyMpscNEAHH3D12n93nieAG4/Gs+4STQW7cIQajZ0o7pUXr1kA9Y0EjMj5lo/e76/PHLOGn9L4QWSVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mRT8jxVP; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1715220082; c=relaxed/simple;
+	bh=Htat2MyTse7a++9pWJqbBAP7hMj1nNpg55KHQ5NcWBM=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=o0lKW3vZ2q6hs5h6HMxJyQfeW+Wf3nRxu5ij5ABq16E4vtmYw/VnQsE3vz3fzEmUY+1nmnAsAfbt77hKdk76/LzTl288X13SxULu0Hqy3HoEN/rHgbXmwHepneWhRxWi5uPzt75OshYetpiQ2HRoelveWIFrUjz9//taaK7/QWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=x0fHOcq7; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mRT8jxVP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1715212552; x=1746748552;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=9rINs3VyCm6tAEZfoaCS30hypmdP4mKel8NcCO8rrfs=;
-  b=mRT8jxVPPJ0MTZwryu8M2YteIB4z8p/RHW4fqJ+8jvlDJqiK3nAbUm90
-   53S9YIwjpgFGprn0cWf90EDipX0DoEHrKrS0Mg1B+zgjoIimueTndW6wD
-   IbXYTxR7/d13tCkzSlM7DYv8a6w1dP/CIZN6H23ysmEHBlwiYMgzV2qsK
-   BHPCHrTG54+EG4nFcbauPSbnOT0btw536fc5gadDeSBRq7GpwOFfWHq5p
-   UxQiw2JRwQHwI/5nrUleCq2Z+VwowFlwCYICb6x7mmHT+EIYgBLOeqGpO
-   M+/ECX+6J2GQ6g3eo9ZyWV52c+p9sKjBo1CZqdW8zUh4CQR5i7fxeyH7Z
-   A==;
-X-CSE-ConnectionGUID: K/PCRoQOTge1JA3vqzPV/A==
-X-CSE-MsgGUID: Tbj1kGSHTJKxn6iMsJ4mLQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11067"; a="10956798"
-X-IronPort-AV: E=Sophos;i="6.08,146,1712646000"; 
-   d="scan'208";a="10956798"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 May 2024 16:55:52 -0700
-X-CSE-ConnectionGUID: X/OteO3aRomYYA8wFp2YLg==
-X-CSE-MsgGUID: f5oQNoN6QmeVs2GRYmxOeg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,146,1712646000"; 
-   d="scan'208";a="28936000"
-Received: from lkp-server01.sh.intel.com (HELO f8b243fe6e68) ([10.239.97.150])
-  by orviesa010.jf.intel.com with ESMTP; 08 May 2024 16:55:48 -0700
-Received: from kbuild by f8b243fe6e68 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1s4r8T-0004F6-1w;
-	Wed, 08 May 2024 23:55:45 +0000
-Date: Thu, 9 May 2024 07:55:43 +0800
-From: kernel test robot <lkp@intel.com>
-To: Weishi Li <liweishi@kylinos.cn>, airlied@redhat.com, kraxel@redhat.com,
-	gurchetansingh@chromium.org, olvaffe@gmail.com,
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-	tzimmermann@suse.de, daniel@ffwll.ch
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, liweishi@kylinos.cn
-Subject: Re: [PATCH] [PATCH RESEND] drm/virtio: fix memory leak of vbuf
-Message-ID: <202405090747.y8ofUE7r-lkp@intel.com>
-References: <20240507033814.57906-1-liweishi@kylinos.cn>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="x0fHOcq7"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715220070; h=Message-ID:Subject:Date:From:To;
+	bh=cQQB8y7lyMs6fyaeOrFr4e4tsBpA8NP9fB/55KyIbmA=;
+	b=x0fHOcq7OuXr0jHj7EWurbzBYzPATTvLNjJvNR/5OQHIdyTD9HtT3t+rvUfQFuJ/4ZF95gL5nXhkW8rG4Eb1C/+qUDbFgMQQYhe7vz6aJXDDjMvfVHRIOpqL1w1gYavKhB0+XV+JEXCP7kRGzVS04AqnK7u/tveNNLJSOjOL/i4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R461e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W650tlQ_1715220068;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W650tlQ_1715220068)
+          by smtp.aliyun-inc.com;
+          Thu, 09 May 2024 10:01:09 +0800
+Message-ID: <1715219893.9627535-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 0/7] virtnet_net: prepare for af-xdp
+Date: Thu, 9 May 2024 09:58:13 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Simon Horman <horms@kernel.org>,
+ netdev@vger.kernel.org,
+ "David S.  Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Paolo  Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason  Wang <jasowang@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel  Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux.dev,
+ bpf@vger.kernel.org
+References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
+ <20240508085308.GA1736038@kernel.org>
+ <20240508082000.4938fb56@kernel.org>
+In-Reply-To: <20240508082000.4938fb56@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240507033814.57906-1-liweishi@kylinos.cn>
 
-Hi Weishi,
+On Wed, 8 May 2024 08:20:00 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Wed, 8 May 2024 09:53:08 +0100 Simon Horman wrote:
+> > On Wed, May 08, 2024 at 04:05:07PM +0800, Xuan Zhuo wrote:
+> > > This patch set prepares for supporting af-xdp zerocopy.
+> > > There is no feature change in this patch set.
+> > > I just want to reduce the patch num of the final patch set,
+> > > so I split the patch set.
+> > >
+> > > #1-#3 add independent directory for virtio-net
+> > > #4-#7 do some refactor, the sub-functions will be used by the subsequent commits
+> >
+> > Hi Xuan Zhuo,
+> >
+> > This patch is targeted at net-next,
+> > but unfortunately it does not apply to current net-next.
+> > Please rebase and repost taking care to observe the 24h rule.
+>
+> Also - is this going to conflict with your premapped DMA work in the
+> vhost tree? If it does - just wait, please, the merge window is in
+> a week..
 
-kernel test robot noticed the following build warnings:
+NO.
 
-[auto build test WARNING on drm-misc/drm-misc-next]
-[also build test WARNING on drm/drm-next linus/master v6.9-rc7 next-20240508]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+This is on the top of
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Weishi-Li/drm-virtio-fix-memory-leak-of-vbuf/20240507-114452
-base:   git://anongit.freedesktop.org/drm/drm-misc drm-misc-next
-patch link:    https://lore.kernel.org/r/20240507033814.57906-1-liweishi%40kylinos.cn
-patch subject: [PATCH] [PATCH RESEND] drm/virtio: fix memory leak of vbuf
-config: i386-buildonly-randconfig-001-20240508 (https://download.01.org/0day-ci/archive/20240509/202405090747.y8ofUE7r-lkp@intel.com/config)
-compiler: clang version 18.1.4 (https://github.com/llvm/llvm-project e6c3289804a67ea0bb6a86fadbe454dd93b8d855)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240509/202405090747.y8ofUE7r-lkp@intel.com/reproduce)
+	http://lore.kernel.org/all/20240508063718.69806-1-xuanzhuo@linux.alibaba.com
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202405090747.y8ofUE7r-lkp@intel.com/
+That is targeted to net-next.
 
-All warnings (new ones prefixed by >>):
+I will wait until it is merged to repost.
 
->> drivers/gpu/drm/virtio/virtgpu_vq.c:474:13: warning: variable 'notify' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-     474 |         } else if (ret < 0) {
-         |                    ^~~~~~~
-   drivers/gpu/drm/virtio/virtgpu_vq.c:487:6: note: uninitialized use occurs here
-     487 |         if (notify)
-         |             ^~~~~~
-   drivers/gpu/drm/virtio/virtgpu_vq.c:474:9: note: remove the 'if' if its condition is always false
-     474 |         } else if (ret < 0) {
-         |                ^~~~~~~~~~~~~~
-     475 |                 free_vbuf(vgdev, vbuf);
-         |                 ~~~~~~~~~~~~~~~~~~~~~~~
-     476 |         } else {
-         |         ~~~~~~
-   drivers/gpu/drm/virtio/virtgpu_vq.c:455:13: note: initialize the variable 'notify' to silence this warning
-     455 |         bool notify;
-         |                    ^
-         |                     = 0
-   1 warning generated.
+Thanks.
 
-
-vim +474 drivers/gpu/drm/virtio/virtgpu_vq.c
-
-   448	
-   449	static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
-   450					    struct virtio_gpu_vbuffer *vbuf)
-   451	{
-   452		struct virtqueue *vq = vgdev->cursorq.vq;
-   453		struct scatterlist *sgs[1], ccmd;
-   454		int idx, ret, outcnt;
-   455		bool notify;
-   456	
-   457		if (!drm_dev_enter(vgdev->ddev, &idx)) {
-   458			free_vbuf(vgdev, vbuf);
-   459			return;
-   460		}
-   461	
-   462		sg_init_one(&ccmd, vbuf->buf, vbuf->size);
-   463		sgs[0] = &ccmd;
-   464		outcnt = 1;
-   465	
-   466		spin_lock(&vgdev->cursorq.qlock);
-   467	retry:
-   468		ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
-   469		if (ret == -ENOSPC) {
-   470			spin_unlock(&vgdev->cursorq.qlock);
-   471			wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
-   472			spin_lock(&vgdev->cursorq.qlock);
-   473			goto retry;
- > 474		} else if (ret < 0) {
-   475			free_vbuf(vgdev, vbuf);
-   476		} else {
-   477			vbuf->seqno = ++vgdev->cursorq.seqno;
-   478			trace_virtio_gpu_cmd_queue(vq,
-   479				virtio_gpu_vbuf_ctrl_hdr(vbuf),
-   480				vbuf->seqno);
-   481	
-   482			notify = virtqueue_kick_prepare(vq);
-   483		}
-   484	
-   485		spin_unlock(&vgdev->cursorq.qlock);
-   486	
-   487		if (notify)
-   488			virtqueue_notify(vq);
-   489	
-   490		drm_dev_exit(idx);
-   491	}
-   492	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
