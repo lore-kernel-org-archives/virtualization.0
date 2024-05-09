@@ -1,161 +1,90 @@
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 306F414A4EE
-	for <virtualization@lists.linux.dev>; Thu,  9 May 2024 12:03:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3943D13AD38
+	for <virtualization@lists.linux.dev>; Thu,  9 May 2024 12:40:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715256204; cv=none; b=NCyHECS7gU2sFRKos6cN6rOuCJHYY/wOO69gtyVR9v3Eu8+l73ckpOALSNzmSEY+sUtmAbvX1NcCCUr/UrE1qsiCiujo4d1mwOY7exSsbgqPrbEQ8e6IrInXVZddd3oXxaSYx4Er27XiWqNGgAdHp2kG17CDmVYQyxuZNvlLG10=
+	t=1715258430; cv=none; b=TlzxhU/b6qunideb4dvwLxIkZFNL5Zpz+3Ufem9doOYRsHdRnvlRCjuv6UegfL0wl7oqKKIgVVzy1pA5qC25BHTgnaCCzrXrB4aV07/UiNgfXIiJ8d4gH6Csp8njDxMx2ncwuvBa2pFVOho/x0OpFDqmusBGn4/wSOvERWmv/sk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715256204; c=relaxed/simple;
-	bh=LFIKne37m5ppkm20OELeLYK/6qANJ1qo2vx4CvX4qZU=;
+	s=arc-20240116; t=1715258430; c=relaxed/simple;
+	bh=6QAgBGpnLp/Yoi//FhBMNhfCa8BdSTvxkzjMnZW5DAQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OK1f2onwv1cxCzA/L3J6aMT/UVezyVOir/A7jCr9RzH2Dm6Gu2Tm+dk8oxW8b62LQbTbwth2wIUdYur5i/WAzTKR76BogeDZ9vqdNG6+/2VdxGzKWcbOMml4XJndeOJgbwAgPc5JvDnI3hwfIbj7J5njhb5N+oD59Yeo4DfQDgw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=2WYJ2GfG; arc=none smtp.client-ip=209.85.208.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	 In-Reply-To:Content-Type:Content-Disposition; b=sfzSDzTm6ykYYJXnYNFB6FwC6JUTO6MPn0/hHmasj238oQY8jgfbO1ot7a8Dbit9KYBa3whKMYslN/7w1BbeurD+m117FZSO/brzm2E07+pWt6z2U/2CwSO+HpyOo8byiTfecg18lIZnvI3lYr/rY7sJ5Vfeyor8HkDZ51DoM2Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P116S2//; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="2WYJ2GfG"
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-2e1fa824504so11139261fa.0
-        for <virtualization@lists.linux.dev>; Thu, 09 May 2024 05:03:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1715256200; x=1715861000; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=VgzpFX64Iw5TdA0yzKF0Gswj46pbTZj7PjEo78f2Xbs=;
-        b=2WYJ2GfGYnBfAc6d1O8QQUV7uoUtVWxQdr+C2j/ZEd2wF2TRcENHdWixHqr73KY8Zw
-         Z8jTSuOMxfeoeRO83odYoZd5PoHa6AZycYyinmPouPRwLX6NN8FqW2V/zoH67USoqepO
-         J6hT/M1lO0SUzyuM8WEXBTp/49CuWLg7gm/Q2oDSx2l/DiGNoep5McCO8KXkVfag+gs2
-         w0NzxJaJzmXrLyzCE6K4ctpqy22hU7xOK+UuPl8bBO3J5uznE/kXsHu4/okCWKEOX8AD
-         vt5hzXDsgUO/0LyNEw2sTute53LTHBlqv3tSxfHub6p+SBxJbtR+6l5QkOvul2SNm2od
-         6U7g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P116S2//"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715258427;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Zq1Bp+XS7zEC6kWJequgultx82349U3M21yYOS7MKek=;
+	b=P116S2//te80Ct6ZnUXHupQuZ9d+r57PMUwJffxwye2L5gDo103+ZVgToFG1WkS977paPP
+	u1YUtSF6VhcLrvyejtlC9Wm+i8cNMJriIXRJ3vHWe/B2iPaXyic64kRN80cxvnZanfS5B5
+	+GGuwQouX3BMwabQnKoCF+QJVzooDS0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-410-IeQjd5RSPEi4-wIw7YTskg-1; Thu, 09 May 2024 08:40:25 -0400
+X-MC-Unique: IeQjd5RSPEi4-wIw7YTskg-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-41a14cb009eso5625165e9.3
+        for <virtualization@lists.linux.dev>; Thu, 09 May 2024 05:40:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715256200; x=1715861000;
+        d=1e100.net; s=20230601; t=1715258425; x=1715863225;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VgzpFX64Iw5TdA0yzKF0Gswj46pbTZj7PjEo78f2Xbs=;
-        b=DSTU5iGeRVm5ZSYKYps251fctTG04584l5kCSUo5BTHdgEZOpOwF5rzFVGPMmXVkLs
-         EHOAbbcQmdUrTQ0k1CKaws7plKIbTLMUdQOJtJHqYFy/liW9udTaHOmspheY0vj8qHpK
-         sKFunj59+dmldHnjDFjSKfUqkAy/lXq+sHd3bGvsji4HJLRSO+ojo/7uIm+4NuY5rKGW
-         DpSnMts3VQnlXGXwrvGiolfWiQTKsFXpge5z00iiNYkZV5v40Y+ehAjostOdSlvJYcaM
-         h5rg3Ke+B5j7YKRwg/om96bPM6osHVs3NYRkNczqIGK3w6ch7F6OMXuOFwIbmJg9KeTE
-         Q3Qw==
-X-Gm-Message-State: AOJu0YwRwEj9//SkylzyA5Dpj9t/x5xIVUHoFa32jfDV8zb2+wUcWRaB
-	8UiDw+lbNGnH+VzmxA1+BhqmLYy8XxQKmmsl6iBWxjrwwsWlEM174o/uuCGEZDCytJ5oSsyQcB2
-	V
-X-Google-Smtp-Source: AGHT+IFVIopUjT3AvlZCeyZ6REENWGHQLFf3FOpdrdHFyz97CnZ9ur/4It8xdBC5T2YqeuVTKaz9sQ==
-X-Received: by 2002:a05:651c:4d0:b0:2e1:adc4:47f6 with SMTP id 38308e7fff4ca-2e446d82b3emr42857761fa.6.1715256200095;
-        Thu, 09 May 2024 05:03:20 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502b8a777dsm1527399f8f.50.2024.05.09.05.03.18
+        bh=Zq1Bp+XS7zEC6kWJequgultx82349U3M21yYOS7MKek=;
+        b=Qrrdqyd6+JdngdzT7KDKRWUl1GiOKFIQ5dQ7FvXumgKvePeEPvT883mu92K9O5VPgr
+         h+jI1m4kks7G1rubZNwFH6/pFuIj4N4JVgsEYwZFiNXlaLEGsw0Tzj4wgj6RYzRA3PA9
+         dg6aFZy4zErHHkUyYCFxwDn9EZ/qtZqWLBae65pjSjkL3hLYg9mElAkG4Mg0h1wh6jJP
+         w0/DHHqB+61QpFQBhqieI928vsi0vPasp7YNVqYo9mpStDup6xWyibMs7Th+xDeJIwZb
+         404hzUtFOM/yNi6ayrVtT7cKvEHG2DWq6VEq9Qa6zMXqB3ndhuIaQNMSZsLF4DQfsqZN
+         9ipA==
+X-Gm-Message-State: AOJu0YwfH9BvhULCclWqKyUmd8Om4sTNY+huIu6/pDQ/fi/ik92FTU10
+	FKLXDpmUGMsBrwN4Fjj6qgVnowRBc6dsNEhTT2ecv2BtJ7/YTVVijVdNtjbccZ0tvPjfCQW9y0t
+	trt/BN2gMw0/2q9TNc0b7pR83wNh1m4je6OZCXZ6zcpFbEYIoIOMFuUDSppsE19/q
+X-Received: by 2002:a05:600c:3c89:b0:41c:23f3:65fa with SMTP id 5b1f17b1804b1-41f719d6025mr52694975e9.28.1715258424708;
+        Thu, 09 May 2024 05:40:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEyVg+QJeYPewtRkSBNzWWmfGgOUdx+56uyfHf2/Z5aHyN1ArmPyyp4xMgmEXBIVBnrnczVyA==
+X-Received: by 2002:a05:600c:3c89:b0:41c:23f3:65fa with SMTP id 5b1f17b1804b1-41f719d6025mr52694725e9.28.1715258424140;
+        Thu, 09 May 2024 05:40:24 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f6:3cda:4bef:a79:3f22:9a36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-41f8811110asm60824735e9.35.2024.05.09.05.40.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 May 2024 05:03:19 -0700 (PDT)
-Date: Thu, 9 May 2024 14:03:15 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: virtualization@lists.linux.dev
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com
+        Thu, 09 May 2024 05:40:23 -0700 (PDT)
+Date: Thu, 9 May 2024 08:40:19 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
 Subject: Re: [patch virtio] virtio: delete vq in vp_find_vqs_msix() when
  request_irq() fails
-Message-ID: <Zjy7g0diPulvEnae@nanopsycho.orion>
+Message-ID: <20240509083909-mutt-send-email-mst@kernel.org>
 References: <20240426150845.3999481-1-jiri@resnulli.us>
+ <Zjy7g0diPulvEnae@nanopsycho.orion>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <Zjy7g0diPulvEnae@nanopsycho.orion>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240426150845.3999481-1-jiri@resnulli.us>
 
-Hi, I'm new in sending patches to virtio tree directly. Do I need to do
-anything more in order to get this fix applied?
+On Thu, May 09, 2024 at 02:03:15PM +0200, Jiri Pirko wrote:
+> Hi, I'm new in sending patches to virtio tree directly. Do I need to do
+> anything more in order to get this fix applied?
+> 
+> Thanks!
 
+I never had patches with "patch" in lowercase so missed it ;)
+Queued now and I'd prefer [PATCH virtio] in the future.
 Thanks!
 
-Fri, Apr 26, 2024 at 05:08:45PM CEST, jiri@resnulli.us wrote:
->From: Jiri Pirko <jiri@nvidia.com>
->
->When request_irq() fails, error path calls vp_del_vqs(). There, as vq is
->present in the list, free_irq() is called for the same vector. That
->causes following splat:
->
->[    0.414355] Trying to free already-free IRQ 27
->[    0.414403] WARNING: CPU: 1 PID: 1 at kernel/irq/manage.c:1899 free_irq+0x1a1/0x2d0
->[    0.414510] Modules linked in:
->[    0.414540] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.9.0-rc4+ #27
->[    0.414540] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.3-1.fc39 04/01/2014
->[    0.414540] RIP: 0010:free_irq+0x1a1/0x2d0
->[    0.414540] Code: 1e 00 48 83 c4 08 48 89 e8 5b 5d 41 5c 41 5d 41 5e 41 5f c3 cc cc cc cc 90 8b 74 24 04 48 c7 c7 98 80 6c b1 e8 00 c9 f7 ff 90 <0f> 0b 90 90 48 89 ee 4c 89 ef e8 e0 20 b8 00 49 8b 47 40 48 8b 40
->[    0.414540] RSP: 0000:ffffb71480013ae0 EFLAGS: 00010086
->[    0.414540] RAX: 0000000000000000 RBX: ffffa099c2722000 RCX: 0000000000000000
->[    0.414540] RDX: 0000000000000000 RSI: ffffb71480013998 RDI: 0000000000000001
->[    0.414540] RBP: 0000000000000246 R08: 00000000ffffdfff R09: 0000000000000001
->[    0.414540] R10: 00000000ffffdfff R11: ffffffffb18729c0 R12: ffffa099c1c91760
->[    0.414540] R13: ffffa099c1c916a4 R14: ffffa099c1d2f200 R15: ffffa099c1c91600
->[    0.414540] FS:  0000000000000000(0000) GS:ffffa099fec40000(0000) knlGS:0000000000000000
->[    0.414540] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->[    0.414540] CR2: 0000000000000000 CR3: 0000000008e3e001 CR4: 0000000000370ef0
->[    0.414540] Call Trace:
->[    0.414540]  <TASK>
->[    0.414540]  ? __warn+0x80/0x120
->[    0.414540]  ? free_irq+0x1a1/0x2d0
->[    0.414540]  ? report_bug+0x164/0x190
->[    0.414540]  ? handle_bug+0x3b/0x70
->[    0.414540]  ? exc_invalid_op+0x17/0x70
->[    0.414540]  ? asm_exc_invalid_op+0x1a/0x20
->[    0.414540]  ? free_irq+0x1a1/0x2d0
->[    0.414540]  vp_del_vqs+0xc1/0x220
->[    0.414540]  vp_find_vqs_msix+0x305/0x470
->[    0.414540]  vp_find_vqs+0x3e/0x1a0
->[    0.414540]  vp_modern_find_vqs+0x1b/0x70
->[    0.414540]  init_vqs+0x387/0x600
->[    0.414540]  virtnet_probe+0x50a/0xc80
->[    0.414540]  virtio_dev_probe+0x1e0/0x2b0
->[    0.414540]  really_probe+0xc0/0x2c0
->[    0.414540]  ? __pfx___driver_attach+0x10/0x10
->[    0.414540]  __driver_probe_device+0x73/0x120
->[    0.414540]  driver_probe_device+0x1f/0xe0
->[    0.414540]  __driver_attach+0x88/0x180
->[    0.414540]  bus_for_each_dev+0x85/0xd0
->[    0.414540]  bus_add_driver+0xec/0x1f0
->[    0.414540]  driver_register+0x59/0x100
->[    0.414540]  ? __pfx_virtio_net_driver_init+0x10/0x10
->[    0.414540]  virtio_net_driver_init+0x90/0xb0
->[    0.414540]  do_one_initcall+0x58/0x230
->[    0.414540]  kernel_init_freeable+0x1a3/0x2d0
->[    0.414540]  ? __pfx_kernel_init+0x10/0x10
->[    0.414540]  kernel_init+0x1a/0x1c0
->[    0.414540]  ret_from_fork+0x31/0x50
->[    0.414540]  ? __pfx_kernel_init+0x10/0x10
->[    0.414540]  ret_from_fork_asm+0x1a/0x30
->[    0.414540]  </TASK>
->
->Fix this by calling deleting the current vq when request_irq() fails.
->
->Fixes: 0b0f9dc52ed0 ("Revert "virtio_pci: use shared interrupts for virtqueues"")
->Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->---
-> drivers/virtio/virtio_pci_common.c | 4 +++-
-> 1 file changed, 3 insertions(+), 1 deletion(-)
->
->diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
->index b655fccaf773..584af7816532 100644
->--- a/drivers/virtio/virtio_pci_common.c
->+++ b/drivers/virtio/virtio_pci_common.c
->@@ -348,8 +348,10 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
-> 				  vring_interrupt, 0,
-> 				  vp_dev->msix_names[msix_vec],
-> 				  vqs[i]);
->-		if (err)
->+		if (err) {
->+			vp_del_vq(vqs[i]);
-> 			goto error_find;
->+		}
-> 	}
-> 	return 0;
-> 
->-- 
->2.44.0
->
