@@ -1,87 +1,122 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57F4713CF90
-	for <virtualization@lists.linux.dev>; Thu,  9 May 2024 02:01:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA07213C9C9
+	for <virtualization@lists.linux.dev>; Thu,  9 May 2024 02:18:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715220082; cv=none; b=L+Ot0E7F/OgWv72028lVzkwStsNWL4aChScgaMqNvIKPPYVLvQ1FFUBSZFOUY4BPSZn11IlBl9PmOQfFgyX0BaN6Xz6UDQqNcg2k/kVPQPpMGfAvJj3kV5JENQzgbkw7R6yym8WnW+LpTjuFOM7IpnYl+CFyZx9x7EOVdBrgWHY=
+	t=1715221120; cv=none; b=uLJtpOdcQdetaDIsJq2dPNAU9C+Pnqx99s+KeWgOiKg0gd853Vp7EYSQ/4ABX4CD8n05Y2oKZurN7RwpM6YqA4KOFT5Ihrl9Y8uwY6a2hY+FLIswucTbgqvvRGIoNAw8Hxs+ZJhBggAFoSiISnOvtPZKWCg3eyqMMOireweSbpc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715220082; c=relaxed/simple;
-	bh=Htat2MyTse7a++9pWJqbBAP7hMj1nNpg55KHQ5NcWBM=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=o0lKW3vZ2q6hs5h6HMxJyQfeW+Wf3nRxu5ij5ABq16E4vtmYw/VnQsE3vz3fzEmUY+1nmnAsAfbt77hKdk76/LzTl288X13SxULu0Hqy3HoEN/rHgbXmwHepneWhRxWi5uPzt75OshYetpiQ2HRoelveWIFrUjz9//taaK7/QWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=x0fHOcq7; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="x0fHOcq7"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715220070; h=Message-ID:Subject:Date:From:To;
-	bh=cQQB8y7lyMs6fyaeOrFr4e4tsBpA8NP9fB/55KyIbmA=;
-	b=x0fHOcq7OuXr0jHj7EWurbzBYzPATTvLNjJvNR/5OQHIdyTD9HtT3t+rvUfQFuJ/4ZF95gL5nXhkW8rG4Eb1C/+qUDbFgMQQYhe7vz6aJXDDjMvfVHRIOpqL1w1gYavKhB0+XV+JEXCP7kRGzVS04AqnK7u/tveNNLJSOjOL/i4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R461e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W650tlQ_1715220068;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W650tlQ_1715220068)
-          by smtp.aliyun-inc.com;
-          Thu, 09 May 2024 10:01:09 +0800
-Message-ID: <1715219893.9627535-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 0/7] virtnet_net: prepare for af-xdp
-Date: Thu, 9 May 2024 09:58:13 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Simon Horman <horms@kernel.org>,
- netdev@vger.kernel.org,
- "David S.  Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Paolo  Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Jason  Wang <jasowang@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel  Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
- <20240508085308.GA1736038@kernel.org>
- <20240508082000.4938fb56@kernel.org>
-In-Reply-To: <20240508082000.4938fb56@kernel.org>
+	s=arc-20240116; t=1715221120; c=relaxed/simple;
+	bh=b4x2StJjDGXWYMl11hb3SNY+I3gmk55FoDFhh7uOoVo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pLy1NHdNBTPMf350qfGrcqzgSnqskU5vdvknnR7fvAgkJQF+JPPuFzNaY0Pa1Vx2aImSeqc5GKH3LzwTvnifB26Y4CHWm44wTTeO3GCrCLtIUzAyYecBX1hD0epOoUaycen419zANHescrQOVj5R0kS1q4xybO6Q7DtAQ0C0Zeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: b32305160da611ef9305a59a3cc225df-20240509
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.37,REQID:d4e9c9e7-be4c-42f5-9076-be0cb2d8f9ae,IP:15,
+	URL:0,TC:0,Content:0,EDM:25,RT:0,SF:-11,FILE:0,BULK:0,RULE:Release_Ham,ACT
+	ION:release,TS:29
+X-CID-INFO: VERSION:1.1.37,REQID:d4e9c9e7-be4c-42f5-9076-be0cb2d8f9ae,IP:15,UR
+	L:0,TC:0,Content:0,EDM:25,RT:0,SF:-11,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+	N:release,TS:29
+X-CID-META: VersionHash:6f543d0,CLOUDID:6f405a4b03c2efc3573f107fc9420644,BulkI
+	D:240429110502VVCX1UY7,BulkQuantity:2,Recheck:0,SF:66|38|25|17|19|44|102,T
+	C:nil,Content:0,EDM:5,IP:-2,URL:0,File:nil,RT:nil,Bulk:40,QS:nil,BEC:nil,C
+	OL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
+X-CID-BVR: 0
+X-CID-BAS: 0,_,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI
+X-CTIC-Tags:
+	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NO_NAME, HR_CTE_8B, HR_CTT_MISS
+	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
+	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
+	HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NO_NAME, IP_TRUSTED
+	SRC_TRUSTED, DN_TRUSTED, SA_EXISTED, SN_EXISTED, SPF_NOPASS
+	DKIM_NOPASS, DMARC_NOPASS, CIE_BAD, CIE_GOOD, CIE_GOOD_SPF
+	GTI_FG_BS, GTI_RG_INFO, GTI_C_BU, AMN_T1, AMN_GOOD
+	AMN_C_TI, AMN_C_BU, ABX_MISS_RDNS
+X-UUID: b32305160da611ef9305a59a3cc225df-20240509
+X-User: liweishi@kylinos.cn
+Received: from localhost.localdomain [(116.128.244.171)] by mailgw.kylinos.cn
+	(envelope-from <liweishi@kylinos.cn>)
+	(Generic MTA)
+	with ESMTP id 761512348; Thu, 09 May 2024 09:51:49 +0800
+From: Weishi Li <liweishi@kylinos.cn>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	gurchetansingh@chromium.org,
+	olvaffe@gmail.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	daniel@ffwll.ch
+Cc: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	liweishi@kylinos.cn
+Subject: [PATCH] [PATCH RESEND] drm/virtio: fix memory leak of vbuf
+Date: Thu,  9 May 2024 09:52:25 +0800
+Message-Id: <20240509015225.38669-1-liweishi@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Wed, 8 May 2024 08:20:00 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> On Wed, 8 May 2024 09:53:08 +0100 Simon Horman wrote:
-> > On Wed, May 08, 2024 at 04:05:07PM +0800, Xuan Zhuo wrote:
-> > > This patch set prepares for supporting af-xdp zerocopy.
-> > > There is no feature change in this patch set.
-> > > I just want to reduce the patch num of the final patch set,
-> > > so I split the patch set.
-> > >
-> > > #1-#3 add independent directory for virtio-net
-> > > #4-#7 do some refactor, the sub-functions will be used by the subsequent commits
-> >
-> > Hi Xuan Zhuo,
-> >
-> > This patch is targeted at net-next,
-> > but unfortunately it does not apply to current net-next.
-> > Please rebase and repost taking care to observe the 24h rule.
->
-> Also - is this going to conflict with your premapped DMA work in the
-> vhost tree? If it does - just wait, please, the merge window is in
-> a week..
+Both virtio_gpu_queue_ctrl_buffer and virtio_gpu_queue_cursor use
+virtqueue_add_sgs to upload the structure virtio_gpu_vbuffer * vbuf
+to virtqueue. However, when the vbuf fails to upload and virtqueue_add_sgs
+returns -EIO or -ENOMEM, the vbuf will not be able to be free by
+virtio_gpu_dequeue_*_func, resulting in a continuous increase
+in memory allocated to vgdev ->vbufs.
 
-NO.
+Therefore, make virtio_gpu_queue_ctrl_sgs and virtio_gpu_queue_cursor
+free vbuf directly after virtqueue_add_sgs returns -EIO or -ENOMEM.
 
-This is on the top of
+Signed-off-by: Weishi Li <liweishi@kylinos.cn>
+---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-	http://lore.kernel.org/all/20240508063718.69806-1-xuanzhuo@linux.alibaba.com
-
-That is targeted to net-next.
-
-I will wait until it is merged to repost.
-
-Thanks.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index b1a00c0c25a7..6701ce9d0ee8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -356,12 +356,14 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 
+ 	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
+ 	WARN_ON(ret);
++	if (ret < 0 && ret != -ENOSPC) {
++		free_vbuf(vgdev, vbuf);
++	} else {
++		vbuf->seqno = ++vgdev->ctrlq.seqno;
++		trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
+ 
+-	vbuf->seqno = ++vgdev->ctrlq.seqno;
+-	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
+-
+-	atomic_inc(&vgdev->pending_commands);
+-
++		atomic_inc(&vgdev->pending_commands);
++	}
+ 	spin_unlock(&vgdev->ctrlq.qlock);
+ 
+ 	drm_dev_exit(idx);
+@@ -469,6 +471,9 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
+ 		spin_lock(&vgdev->cursorq.qlock);
+ 		goto retry;
++	} else if (ret < 0) {
++		free_vbuf(vgdev, vbuf);
++		notify = false;
+ 	} else {
+ 		vbuf->seqno = ++vgdev->cursorq.seqno;
+ 		trace_virtio_gpu_cmd_queue(vq,
+-- 
+2.25.1
 
