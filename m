@@ -1,139 +1,331 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2066.outbound.protection.outlook.com [40.107.101.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C93D812EBED
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 16:28:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715358539; cv=none; b=dKsalrsaEgphH1uG+vZ+woqvyR1nWSrSSxVrVi2n0UrPIofyoIPYPFokcWKAH/0EvkdtJju17V4cXllEuwmZYUfRMuNCoZdR4rPdf6WSWiQdrEXWUu4V073FSM0+V7qUSvnHNsTyQokCPCcpJNLlrQj4uHAeHTmMS5JizJkFah0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715358539; c=relaxed/simple;
-	bh=qRAfYIuRtk26fUbO0g/YhxEfQgubTQ5I5K3SO5qx7O0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KHD4zQHFdbkklQrN3n6AFNrKS7bHOhVgXgEBzsbOgNmtCRxgvfRuYf19zww7Ngexs3Dbw5IGx/IyMqCsxTocr3La3dGE/x2vJZlCI4XSuBmZPY1isEQZIqatDUUhSVDAVAjBvfGiBRdq7BqvweDvGqelv0j9148qL1KTkcE1Knw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=V8PyujCi; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9553615E86
+	for <virtualization@lists.linux.dev>; Fri, 10 May 2024 16:56:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.101.66
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1715360170; cv=fail; b=droOceqk/yPmF5NSrEFVHd8LvJ1RtEsJvrKoAgXSBucEsIrbsnD5TLIBptC2bvK7OEZV5fNTXBSKzuE/wRGa5ETSHEACEkhvgL6PxlUY3p3hHrTd6QVEhe5kE8WA8gk1DDOphYowimbOd4DVuNhajBiFMTJ6d3oCw4nqYFCjjYg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1715360170; c=relaxed/simple;
+	bh=wmKOpdSBkDeNHYlv2P5kDnDpacD/A4ptvKNvRmbwswM=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=hx3kAfdF1W7ZTTWlD6bW/iONXJjHRqCbMsvEy8TVLOgYvPijkNqzJDQu5xvW+Fny91yWUt4tyT+fc5z+P4apwrD9G5ijRTzTvZ/1AxJ5f8vkucnuJUk08K3V6+b0LvjvnA3BWYq6hQYxk+q01U33150pNV3gGF4HVAo7qVeaQh8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qKjwNOsE; arc=fail smtp.client-ip=40.107.101.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="V8PyujCi"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6BE7641EBE
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 16:28:58 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id SLBLcTeDDAaP for <virtualization@lists.linux-foundation.org>;
- Fri, 10 May 2024 16:28:57 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::733; helo=mail-qk1-x733.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2BE3741E99
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2BE3741E99
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=V8PyujCi
-Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2BE3741E99
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 16:28:56 +0000 (UTC)
-Received: by mail-qk1-x733.google.com with SMTP id af79cd13be357-792b8c9046bso172721685a.3
-        for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 09:28:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1715358535; x=1715963335; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YgVJGtSdSQoxiH/JwZGPbdmDn+FTEW1VhqEVzZ5vcs0=;
-        b=V8PyujCi+68/RMSe4AobBgwFvvVstt29ZhqhGcWatLcdJ1W4WuluMqDAaCCicL7vjl
-         0Z0hfEBMRe5EuC0HKUIrM79/xokzz4RnCh4XHQpyOxQ4CI9/PnYNPscQjiQkyIZwcKnC
-         eCtUEsscxnJyMsPAAAgxy5Ldx/8twKyX/YiJTqrZtMGn+Ft82qHMj73wxmy8O3dbP0Zz
-         A+Aoa9M10RUNoGpifDQgx6QtjKfogyNGNqdyTpI/fq3HBaONhL6jLDNRMGjOawpqWCT5
-         adI3ymUBrM337aqNHJ+x2Pbx3XwIdhJVwgblBhT8LNw0G48NOqmvKkGTnKSdr21baICX
-         wn0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715358535; x=1715963335;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YgVJGtSdSQoxiH/JwZGPbdmDn+FTEW1VhqEVzZ5vcs0=;
-        b=YlKCCGOAKEvfyFCSu5UuWFCV4E2lxhsLhJs1w1kf3bwEiDXyh3NzAV+64Rabxg+K8b
-         /m71R6UsNvXhaZt7aRVRAK3dKnpLGz7/6yjGfIQ5KQtwu7DUn6dEvAI3A/fqgUlVTDyv
-         M9dMNGuPQTITYpMLYm/8EThF1aCXhpMJroCN20sme/s/9+di5tFAP7Z/eNascueZAMoO
-         DjYnUUhPgzB/IW6mIz/hsYR8D3na3XTtaxUcjguya8z4Xo6STwcAeEBW3f999jDbA13e
-         IwQ7Av+jmVJ4UaEVSuj+mHLPjR7GgwvprceSa/WONFDTmwphZSBRKPClP0M1jLctNubZ
-         uBJA==
-X-Forwarded-Encrypted: i=1; AJvYcCUTOmzt47lT6mYbXmfb9pNmWIdn4PL8KdZdDlE8jeW+auhvMVhXNDgVTSLefmOQnIDZvKWkKxwRcwNkie31fbA6rbtTOhTqqwTPBLOe4evo/QTm6GuWfbwSMw==
-X-Gm-Message-State: AOJu0YyXZeDjwsdU1ha8PiZyH0E2DfvHTOVRHF8M78Q7n5FaxM0nEHlH
-	L8qyV9Ux1NcZaU713X+hvLXiZoETkGr0q5lMwsznK1Vw0ocYeaDlsTOjCklTnHo=
-X-Google-Smtp-Source: AGHT+IEBNBZwJ7UY/w207T6liKWy0qcUwPh16uAcjxrCG90REmApCaJsv6Dn931r+vPN21G8/a76Hw==
-X-Received: by 2002:a05:6214:3186:b0:6a0:ae8a:e8ba with SMTP id 6a1803df08f44-6a168141010mr32027096d6.10.1715358535647;
-        Fri, 10 May 2024 09:28:55 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6a15f1cd35bsm18630826d6.87.2024.05.10.09.28.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 May 2024 09:28:55 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1s5T78-006c0p-B6;
-	Fri, 10 May 2024 13:28:54 -0300
-Date: Fri, 10 May 2024 13:28:54 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Baolu Lu <baolu.lu@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 3/9] iommu: Add attachment handle to struct iopf_group
-Message-ID: <20240510162854.GY4718@ziepe.ca>
-References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
- <20240430145710.68112-4-baolu.lu@linux.intel.com>
- <20240508000454.GM4718@ziepe.ca>
- <21ffbcc7-1103-4481-af14-5ee8856b9625@linux.intel.com>
- <20240510133824.GW4718@ziepe.ca>
- <0de7c71f-571a-4800-8f2b-9eda0c6b75de@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qKjwNOsE"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IW7w83+Ezrrvh33vppjkYn+PQIaNlQNCm3ygAa7cqLNUhdBHUt0JKFr1eVTlXAhOAOhlylTL7/1SkjiF3F3nvLrSMcW+BOMZd3ux6wOYcauanbEFTt1UNNx2jH5uae6rd5194pNIJ+W8L9bE/RTuZcPKLRM4TlmJUvRpNVu/wmcruBylqaPiPpshGMEEZFlqxXJlLCwHysfzK9AJF9BW3PsSh4+uFhXse0gj7FPzN/ZzSXv48bfZO8pc/h0dhkDqMXnY/Em7XuEKBnUV2i8dRgnS3yHE/RzCr2AZfGWWg3YK54aWtY36BKTZHmGtFa4YTWDqWFIQGON7khTrJP5rDA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=e2vUEZMhjAj+tBO/YpGZfqYQM/n6yJ2OzLqJ0ZvHwjk=;
+ b=ne4b6Z70z2eHysDvzmjj4u0I+YeQ8w1jlnQo+lm7Uo3lolcDP7ReC9Hp4Sv/k4CH8L0n/n/X8rxEaHXUDc6X1nzfgspOHbvOTZqysxWn/YHmCxpgJ3/fzvl6njnhjv325hOH2d95MB9m0yhgU/yjlTuw1z9x0U50Aq1Ro/TZ5a6ZbBQ7ltYYsZjrYRVHG2nwUqvHuzLhs2tXvQQNbz9KqcCyXuu5OpbMejwoT+okEZKjVM5+z47UoxAeNj3BfUBHxl1frtKsAdHVFaDe+kqlnRHiUN7mcLXczUEi5E9gA/8v3brBrci6CT/wW11h47IQf61Es+G4MbiCrCV2QisCwA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=e2vUEZMhjAj+tBO/YpGZfqYQM/n6yJ2OzLqJ0ZvHwjk=;
+ b=qKjwNOsE5t+TgXlFgyVctw3sK9eWfjajuQdU4nhZBWVKdSyUV3H282TOcIncD+W+nyIoh74DBE+dnayYiaXuOsdXRS98Cc+WeyDix5i1gzdPKP1g12FntIjQeutkie62DKF93DajZursBZ5a4s0JTVbXhodsc3ypWT14RzUWBZLY8gPPnXkrJR/ObywTfHO8f7Ha/UsglBwCvhL9k1mPekk6HnRPKkLaPyud5SGxphQ7C995Zy0VLBgKBI52kdRMZ3q2J9FzVJ5FFVNPMEpHkOJvhsBMMsufuLQlDW7VM6rkG0kYZptR+9lwjtsULEckA/4tvY4Xnxsw+2IG8QdJqA==
+Received: from CH0PR12MB8580.namprd12.prod.outlook.com (2603:10b6:610:192::6)
+ by LV2PR12MB5797.namprd12.prod.outlook.com (2603:10b6:408:17b::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.47; Fri, 10 May
+ 2024 16:56:04 +0000
+Received: from CH0PR12MB8580.namprd12.prod.outlook.com
+ ([fe80::ff67:b47c:7721:3cd4]) by CH0PR12MB8580.namprd12.prod.outlook.com
+ ([fe80::ff67:b47c:7721:3cd4%4]) with mapi id 15.20.7544.046; Fri, 10 May 2024
+ 16:56:04 +0000
+From: Dan Jurgens <danielj@nvidia.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+CC: "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "davem@davemloft.net"
+	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
+	"kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
+	Jiri Pirko <jiri@nvidia.com>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>
+Subject: RE: RE: [PATCH net-next 2/2] virtio_net: Add TX stopped and wake
+ counters
+Thread-Topic: RE: [PATCH net-next 2/2] virtio_net: Add TX stopped and wake
+ counters
+Thread-Index: AQHaoi6J6tLvGll9VU+Q5A4TKtcS4bGPrG8AgAAlEKCAADYxAIAAhXgg
+Date: Fri, 10 May 2024 16:56:04 +0000
+Message-ID:
+ <CH0PR12MB8580B042F111420724BD1625C9E72@CH0PR12MB8580.namprd12.prod.outlook.com>
+References: <20240509163216.108665-1-danielj@nvidia.com>
+ <20240509163216.108665-3-danielj@nvidia.com>
+ <1715304096.399735-3-xuanzhuo@linux.alibaba.com>
+ <CH0PR12MB858086B1DEB3F5D4015D937EC9E72@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <1715323692.749715-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1715323692.749715-1-xuanzhuo@linux.alibaba.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CH0PR12MB8580:EE_|LV2PR12MB5797:EE_
+x-ms-office365-filtering-correlation-id: b0428198-7cea-465a-4cbc-08dc71121479
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230031|376005|1800799015|366007|38070700009;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?XKnr7byIs4bdxOcTepCbYS6cDB6/Stqr+BlFBkYFHsMStimvnDMU2dpMPFcu?=
+ =?us-ascii?Q?JuvKBewmcdGpxK7Yk2cae4+XROq1r6aWBAFHbAX+WfcWadWcIpCeko7Qs8il?=
+ =?us-ascii?Q?lGtFEdcA2udJh6aha4H+/6XYaTjOi4MpzsAx+2syW5azT3g3l5y5Pvtrytpk?=
+ =?us-ascii?Q?pHZDb8lezuEDIqEYj0kKcx8twM1bNALh21w4PKIzjulhMuo2b5rIAxDBf5XA?=
+ =?us-ascii?Q?w5rb4B1w/S5SZcfYBQAvgsnmwgQEyS05YGryIXTm2Rq6YXg+tS6mlsF9Pex1?=
+ =?us-ascii?Q?A2dq4SPF1VIlIFVpEALLTOfRtTzaj21j5waPu8XP6W5B79N/Tck635cCbvTH?=
+ =?us-ascii?Q?uSR2TdG0x9UC1IWjaHo7s0tf5GHTzycvKJaF3X8/fRct0iHinfjgLLBxKSHG?=
+ =?us-ascii?Q?JvW92OULwsETWzyWAvw31HNcpuooWd3VOohbFi7V3a1QJnLvDwgnErBGpLAF?=
+ =?us-ascii?Q?LflAfqtHcGDwsTg5sEf3rfkXQj6+gSmD/WrlcC6eBenY6alV184LMxxrShZP?=
+ =?us-ascii?Q?lBOUgnUtANASmI9UAdY+VJ5SvkQXx9TlejU0/fii/DbgTH4gxN/kto9657gG?=
+ =?us-ascii?Q?LfqEAeHFOk4ltIaR8nItZPYceMlQ4HEV4iFDRU557PjMhMGy0usOhzP4Kvl8?=
+ =?us-ascii?Q?w4H/XXqA1SwtTjIGCDnn39rCgnEGIkD/9wKosUBihB/NxS9pw2pz+7BV6jlt?=
+ =?us-ascii?Q?Ha9HWnEJ5CiOmQi5kpKVQNGNzVdnJtFtcdd61g7qWNXhsapN9rttqzvioC9C?=
+ =?us-ascii?Q?D8nI6jM5k6aLZ/SNELjat9KCaJ1/ko1WusQvuT1PxVvJtlOYVEs9D5VhZxgJ?=
+ =?us-ascii?Q?jeln0iv5Ab1SA5tAdYn+xjsXNuRpm7dbwagCHslcsEb0RR4FSGKnwzSUq1s1?=
+ =?us-ascii?Q?JdLtDtObKEZGc5qUhKKgJ/v56RWwXFBOm5aW5on6sAZM9iuyJVK3RQj7QSzP?=
+ =?us-ascii?Q?fxzzraNgLJMoj5K7m9xQParJ02Mjwl40MzQJWC8sZGXVivxeFyJGdmOKLa3d?=
+ =?us-ascii?Q?NgiObg+NgI9jCh6PLor4+5O/0yvFvW0fkcRdlEPUvzio5EDQBl933vh4hiAT?=
+ =?us-ascii?Q?ne6C2jmlxNZM/H7fymk4iStdFFfLli6PuDRxVAKG5h+PQUhr5yNxJMxOkH7s?=
+ =?us-ascii?Q?6TJWWrWrUYNnRCZMleowli0KjpZkK0eBxi16MEbKLdrTHRUFejUub+gjxNGi?=
+ =?us-ascii?Q?i6aS8u6UVewlwgVwNCpb5pH7GUiKnrf0fb6in18mN/FW0knPlSJP1dMIGL+P?=
+ =?us-ascii?Q?PIWTkbQUdVDAbmt7PgvvJ2b5pGR6ah9PEzvv8swKB42he13kHOG3gg5+Xdgs?=
+ =?us-ascii?Q?YGysQCLbzCf4s91JNZRtf0iQjAt8NT8UYpBqush/Z/XCmQ=3D=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR12MB8580.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(366007)(38070700009);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?kkBSXJlcYwVlxCxXjtTbBXngJbzVDwGY+6r29m1/UPYHfGPuug1OAVDLwOak?=
+ =?us-ascii?Q?mdxgu8zrx/BZFLaAF2P9ZmSjD5ezmTujXw2AyBFzPDQvfhcpZzQnGe/oTR9r?=
+ =?us-ascii?Q?e8Ge7Kq/64TZdrO//m7s+F8ncnSwaycscYm07ZfmyG0zhIIivM35j8MU3lcN?=
+ =?us-ascii?Q?nob4oUiLaJ7Tjlq6YGnCYXtSEh1SARcA7gu5qOiJHHeB0COpkqJIB7GI+KZI?=
+ =?us-ascii?Q?gGvu161pSCt9r+bykcgeAJVBOd/XlZzdSoUY9HAV/PMS/+QrsenI0+tqNuZ/?=
+ =?us-ascii?Q?ME/5GW921FO0o15gQUOKt2VRcSrdJKXtHkw3cTABs5qcTikndPpivC3ZVWYL?=
+ =?us-ascii?Q?hjxOhRnEKdbIstnXMnYqpRxwQStOti0T57K973/XsJNZxETAEnOQEqfO8+62?=
+ =?us-ascii?Q?iHgdgqTrFdYZZyS20seNoJSnxyH42+6vEaL5ufQBZOcKsYZYZLNgsrthMaf8?=
+ =?us-ascii?Q?Xl+ffEks3wsewoE5U3XIDCwjNcFFgeXdh6B+kpbLUdz3PE7suiN3HUziYOcn?=
+ =?us-ascii?Q?Xsa6FOikNnd81YQl5l7SfErxxP8QrGgnNGEzJHL2UvTO15a+KV1QAsuTiLKm?=
+ =?us-ascii?Q?Ou9aHp6o73lhR7Xqy4+pwdQ+aqDB7KeyJIKftRQc+s2sQ9KWcTqzAXxQ5adC?=
+ =?us-ascii?Q?M6a3SZF6iv6L2larhhu/3g5X7qbJmTI+K8PkWSGIHJDsj98QnM7xqxmwS+Zp?=
+ =?us-ascii?Q?3fMi8x+/Vv3SZ2G/v89qSU5HYjek50b2tjuSrZWdvjlJpv83Dd/1wPVnB80b?=
+ =?us-ascii?Q?mgi6kkYG4qErDfLX5D0b4sXO7JGQPm93LO9RGUBY4rqJbFj5hNnRt+rhTozr?=
+ =?us-ascii?Q?WP4pTzAn6P37Tdh+EYVhM7JnEs4IQgVJW240GNY/cilraWRkGfDhstohED/B?=
+ =?us-ascii?Q?hIWaR/FJGHyFq5TphipQ8wBw79IiLn4XrIc4DmDVQKMlmblUkxKenkWV3Wdw?=
+ =?us-ascii?Q?a1z0NGLByjif6BNj8n2xA5B35iCB3JX92IBr0AheiAiLAhfQQSZPoDR2uCJZ?=
+ =?us-ascii?Q?yc8O6GNN5PTffocYfKqOVLUfG3fO//kWhwaJcKLQJHxjis8cu/KNFDgBTKBL?=
+ =?us-ascii?Q?uYN2K+qrcShltjuboJYpFh06AVy8JA8vNFFsZfoZHj8E/6V0TJco5IdJQd3w?=
+ =?us-ascii?Q?F4hM25v31M66VsC1l/o0Qd32a1Ultdgq4R8f4IAqz1bFEVuq/q4uiRKSaeHn?=
+ =?us-ascii?Q?2alsSnkp1jzMgT2Fni9P3BQ3Fz+9lspZtEyAqnYgMs1DLE+4WCmgriLlH+MX?=
+ =?us-ascii?Q?7jrLbIydP2P2DfGlMsQlOnaMytmSNjp/yZbYQHyT8Lt0myvvVjSoA1N/3vyl?=
+ =?us-ascii?Q?O88Enmtl8NMJT/rF8uE5Do+4YhzNJn4XkBkc5+PlaOBzWtloobtz11lrrLH7?=
+ =?us-ascii?Q?/gJK29tiFoqk9SUhfkCZo32GCUFgvngqUqxm0xLi9pLiYCvcYx2Qy+xI82/B?=
+ =?us-ascii?Q?mOfR1D/KpJwkw7o7EwV+L7JDb1YdXOqCxCjFIksWdopwaIeeZMMwrqZ3OIx9?=
+ =?us-ascii?Q?iCInja76uYSrYazhzJngaKDfGtaAiLzAbza4ckscsx10knDX3tBwWMCipEK4?=
+ =?us-ascii?Q?mNQ3BVg/54cAieFI81Y=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0de7c71f-571a-4800-8f2b-9eda0c6b75de@linux.intel.com>
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH0PR12MB8580.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b0428198-7cea-465a-4cbc-08dc71121479
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 May 2024 16:56:04.6013
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: F69UGIMBI9A7ehjEVvaF28Avzcw/a0COl3REFM1iRLju6t43q+STTYUZnDKkLPVgjcdaLC7PW4Sq2HcpDhtn3g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5797
 
-On Fri, May 10, 2024 at 10:30:10PM +0800, Baolu Lu wrote:
+> From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Sent: Friday, May 10, 2024 1:48 AM
+> To: Dan Jurgens <danielj@nvidia.com>
+> Cc: mst@redhat.com; jasowang@redhat.com; virtualization@lists.linux.dev;
+> davem@davemloft.net; edumazet@google.com; kuba@kernel.org;
+> pabeni@redhat.com; Jiri Pirko <jiri@nvidia.com>; netdev@vger.kernel.org
+> Subject: Re: RE: [PATCH net-next 2/2] virtio_net: Add TX stopped and wake
+> counters
+>=20
+> On Fri, 10 May 2024 03:35:51 +0000, Dan Jurgens <danielj@nvidia.com>
+> wrote:
+> > > From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > Sent: Thursday, May 9, 2024 8:22 PM
+> > > To: Dan Jurgens <danielj@nvidia.com>
+> > > Cc: mst@redhat.com; jasowang@redhat.com;
+> xuanzhuo@linux.alibaba.com;
+> > > virtualization@lists.linux.dev; davem@davemloft.net;
+> > > edumazet@google.com; kuba@kernel.org; pabeni@redhat.com; Jiri
+> Pirko
+> > > <jiri@nvidia.com>; Dan Jurgens <danielj@nvidia.com>;
+> > > netdev@vger.kernel.org
+> > > Subject: Re: [PATCH net-next 2/2] virtio_net: Add TX stopped and
+> > > wake counters
+> > >
+> > > On Thu, 9 May 2024 11:32:16 -0500, Daniel Jurgens
+> > > <danielj@nvidia.com>
+> > > wrote:
+> > > > Add a tx queue stop and wake counters, they are useful for debuggin=
+g.
+> > > >
+> > > > $ ./tools/net/ynl/cli.py --spec netlink/specs/netdev.yaml \ --dump
+> > > > qstats-get --json '{"scope": "queue"}'
+> > > > ...
+> > > >  {'ifindex': 13,
+> > > >   'queue-id': 0,
+> > > >   'queue-type': 'tx',
+> > > >   'tx-bytes': 14756682850,
+> > > >   'tx-packets': 226465,
+> > > >   'tx-stop': 113208,
+> > > >   'tx-wake': 113208},
+> > > >  {'ifindex': 13,
+> > > >   'queue-id': 1,
+> > > >   'queue-type': 'tx',
+> > > >   'tx-bytes': 18167675008,
+> > > >   'tx-packets': 278660,
+> > > >   'tx-stop': 8632,
+> > > >   'tx-wake': 8632}]
+> > > >
+> > > > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> > > > Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> > > > ---
+> > > >  drivers/net/virtio_net.c | 28 ++++++++++++++++++++++++++--
+> > > >  1 file changed, 26 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index 218a446c4c27..df6121c38a1b 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -95,6 +95,8 @@ struct virtnet_sq_stats {
+> > > >  	u64_stats_t xdp_tx_drops;
+> > > >  	u64_stats_t kicks;
+> > > >  	u64_stats_t tx_timeouts;
+> > > > +	u64_stats_t stop;
+> > > > +	u64_stats_t wake;
+> > > >  };
+> > > >
+> > > >  struct virtnet_rq_stats {
+> > > > @@ -145,6 +147,8 @@ static const struct virtnet_stat_desc
+> > > > virtnet_rq_stats_desc[] =3D {  static const struct virtnet_stat_des=
+c
+> > > virtnet_sq_stats_desc_qstat[] =3D {
+> > > >  	VIRTNET_SQ_STAT_QSTAT("packets", packets),
+> > > >  	VIRTNET_SQ_STAT_QSTAT("bytes",   bytes),
+> > > > +	VIRTNET_SQ_STAT_QSTAT("stop",	 stop),
+> > > > +	VIRTNET_SQ_STAT_QSTAT("wake",	 wake),
+> > > >  };
+> > > >
+> > > >  static const struct virtnet_stat_desc
+> > > > virtnet_rq_stats_desc_qstat[] =3D { @@ -1014,6 +1018,9 @@ static
+> > > > void check_sq_full_and_disable(struct
+> > > virtnet_info *vi,
+> > > >  	 */
+> > > >  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+> > > >  		netif_stop_subqueue(dev, qnum);
+> > > > +		u64_stats_update_begin(&sq->stats.syncp);
+> > > > +		u64_stats_inc(&sq->stats.stop);
+> > > > +		u64_stats_update_end(&sq->stats.syncp);
+> > >
+> > > How about introduce two helpers to wrap netif_tx_queue_stopped and
+> > > netif_start_subqueue?
+> > >
+> > > >  		if (use_napi) {
+> > > >  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
+> > > >  				virtqueue_napi_schedule(&sq->napi, sq- vq);
+> @@ -1022,6
+> > > >+1029,9 @@  static void check_sq_full_and_disable(struct
+> > > >virtnet_info *vi,
+> > > >  			free_old_xmit(sq, false);
+> > > >  			if (sq->vq->num_free >=3D 2+MAX_SKB_FRAGS) {
+> > > >  				netif_start_subqueue(dev, qnum);
+> > > > +				u64_stats_update_begin(&sq->stats.syncp);
+> > > > +				u64_stats_inc(&sq->stats.wake);
+> > > > +				u64_stats_update_end(&sq->stats.syncp);
+> > >
+> > > If we start the queue immediately, should we update the counter?
+> >
+> > I intentionally only counted the wakes on restarts after stopping the
+> queue.
+> > I don't think counting the initial wake adds any value since it always
+> happens.
+>=20
+> Here, we start the queue immediately after the queue is stopped.
+> So for the upper layer, the queue "has not" changed the status, I think w=
+e do
+> not need to update the wake counter.
 
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index 35ae9a6f73d3..09b4e671dcee 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -173,6 +173,8 @@ struct iommu_domain_geometry {
-> 
->  #define __IOMMU_DOMAIN_NESTED  (1U << 6)  /* User-managed address space
-> nested
->                                               on a stage-2 translation
-> */
-> +#define __IOMMU_DOMAIN_PASID   (1U << 7)  /* User-managed domain for a
-> +                                             specific PASID*/
-> 
->  #define IOMMU_DOMAIN_ALLOC_FLAGS ~__IOMMU_DOMAIN_DMA_FQ
->  /*
-> @@ -204,6 +206,9 @@ struct iommu_domain_geometry {
->  #define IOMMU_DOMAIN_SVA       (__IOMMU_DOMAIN_SVA)
->  #define IOMMU_DOMAIN_PLATFORM  (__IOMMU_DOMAIN_PLATFORM)
->  #define IOMMU_DOMAIN_NESTED    (__IOMMU_DOMAIN_NESTED)
-> +#define IOMMU_DOMAIN_NESTED_PASID                              \
-> +                               (__IOMMU_DOMAIN_NESTED |        \
-> +                                __IOMMU_DOMAIN_PASID)
+I think we should. We incremented the stop counter. If they get out sync wa=
+ke loses any functionality.
 
-Yeah, something like that, I don't know about naming though..
-
-How about
-
-DOMAIN_NESTED = Attachment to RID or PASID
-DOMAIN_NESTED_PASID_TABLE = RID and the entire PASID space
-
-?
-
-Jason
+>=20
+> Thanks.
+>=20
+>=20
+> >
+> > >
+> > > Thanks.
+> > >
+> > > >  				virtqueue_disable_cb(sq->vq);
+> > > >  			}
+> > > >  		}
+> > > > @@ -2322,8 +2332,14 @@ static void virtnet_poll_cleantx(struct
+> > > receive_queue *rq)
+> > > >  			free_old_xmit(sq, true);
+> > > >  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+> > > >
+> > > > -		if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS)
+> > > > +		if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS) {
+> > > > +			if (netif_tx_queue_stopped(txq)) {
+> > > > +				u64_stats_update_begin(&sq->stats.syncp);
+> > > > +				u64_stats_inc(&sq->stats.wake);
+> > > > +				u64_stats_update_end(&sq->stats.syncp);
+> > > > +			}
+> > > >  			netif_tx_wake_queue(txq);
+> > > > +		}
+> > > >
+> > > >  		__netif_tx_unlock(txq);
+> > > >  	}
+> > > > @@ -2473,8 +2489,14 @@ static int virtnet_poll_tx(struct
+> > > > napi_struct
+> > > *napi, int budget)
+> > > >  	virtqueue_disable_cb(sq->vq);
+> > > >  	free_old_xmit(sq, true);
+> > > >
+> > > > -	if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS)
+> > > > +	if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS) {
+> > > > +		if (netif_tx_queue_stopped(txq)) {
+> > > > +			u64_stats_update_begin(&sq->stats.syncp);
+> > > > +			u64_stats_inc(&sq->stats.wake);
+> > > > +			u64_stats_update_end(&sq->stats.syncp);
+> > > > +		}
+> > > >  		netif_tx_wake_queue(txq);
+> > > > +	}
+> > > >
+> > > >  	opaque =3D virtqueue_enable_cb_prepare(sq->vq);
+> > > >
+> > > > @@ -4790,6 +4812,8 @@ static void virtnet_get_base_stats(struct
+> > > > net_device *dev,
+> > > >
+> > > >  	tx->bytes =3D 0;
+> > > >  	tx->packets =3D 0;
+> > > > +	tx->stop =3D 0;
+> > > > +	tx->wake =3D 0;
+> > > >
+> > > >  	if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_TX_BASIC) {
+> > > >  		tx->hw_drops =3D 0;
+> > > > --
+> > > > 2.44.0
+> > > >
+> >
