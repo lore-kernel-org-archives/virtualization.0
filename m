@@ -1,153 +1,90 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A66D16E893
-	for <virtualization@lists.linux.dev>; Fri, 10 May 2024 11:36:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 345B312AAC0
+	for <virtualization@lists.linux.dev>; Fri, 10 May 2024 11:42:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715341002; cv=none; b=n5oEusKhMl2+8FpemggUFZAMssK7jBNkUs87EFAoRwwt5/dZmuBjdcm3TtiAUI9dO7trGTfJK4WvkRWLL7mryO49PTylQf7EUGjM9C9f24SZY8GIJwCDaYdghrJaEjhR/qmWOotdZkDiGYrE+JYoNkPMHdfyS65vCz5yC9cmPr0=
+	t=1715341329; cv=none; b=LXqCRZ/tsc9qf/1V3G5JHdza/Wjhv50Mn0MZGfsj1hE3PoyJRE2hmSom9AGOmYZ1WnYxnkjw4dZj+nKpOXKNtm8Zw0yep4F1u2s1c43CVJBD0XyGJ5Q85wiKsCv4Etl65stFhN5wrcYYexfZeRnttUt9bCXgd1LF77OpKHRHiRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715341002; c=relaxed/simple;
-	bh=APYGCt/t12JvzC3mlthjHTMtKtcsux0i+ZWcP2cHJXs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dfkN11N9brzLwDNTNgF4YV41L7/SXR2QXkIcbhspjzwfApMovmTgVgmd54paHQeB9DUjqLekpTFWto/QaiRC1uyc6s/tP15MtvSfLb80MjZZOev/yBU8dNhPwpz1OpMoLZYjr/ImvHwda5H84i0KhbIcYo0O8NUmXo57dvSOLHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=zeagodcH; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1715341329; c=relaxed/simple;
+	bh=Ha0+NpzhkqUz1q/3RALaO2DoQ9/lzrevw2pudc7Szgk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XFfeg73GHRss4ovzra+ivFY3CxcNleAXyQsIlUu7iLjHBS01oshBW2PSiK8LuW9se/WJi0dTQx6kflk/ROei3bIAUVbbkfiXU/ZVk8itOMo+Lp7WLTH0/J1BL1X9PbZpiAI+obwRDboCmIPwv7+PX0c4tXZcD1tBFgPdBL1YxbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=cej8VFUo; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="zeagodcH"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-41c1b75ca31so13603105e9.2
-        for <virtualization@lists.linux.dev>; Fri, 10 May 2024 04:36:40 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="cej8VFUo"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a59a8f0d941so463623066b.2
+        for <virtualization@lists.linux.dev>; Fri, 10 May 2024 04:42:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1715340999; x=1715945799; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=hEpawp0jLL5YJD1E03t9v4CSTSHHxAczOaB7wWjUuH4=;
-        b=zeagodcHtl7LatpFSkfWteB38u1oY4ar+bJBmlwIXPtIay1PzhtVlhV2H3rXWWNJTY
-         KxWua1AxWvrPOP+KT/Ny25ZuJpwHyBWjzjkGMyPmiCp9/kMpIyrFQsJ6kbJdLdaMhza7
-         91+ziK10iVyIgGiFzXFTg1f9lCAyt7lujax6fkYi+IWxqxWiuj+CTHkus1SXlcFh8+mD
-         mbX5xHPRTQmBNkuNGCAFyDTVfzR3W12a7N6TYldO/8xk29w2umE3lQxqLXHwKOJ9uI61
-         tMriMWn8c9QSCOAy29GU37PN6ZFFA8yozwX99Wrg/EsaJsGsfPbWrPdBj0teZjqUVh7D
-         DzHg==
+        d=szeredi.hu; s=google; t=1715341326; x=1715946126; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ha0+NpzhkqUz1q/3RALaO2DoQ9/lzrevw2pudc7Szgk=;
+        b=cej8VFUonMfizIKQnrmh7TZNj/L19vk4i0mEU5q+givlBOgRbvZrE3DqsdEpYeNSby
+         NmMRTdLk5I8WKbRGVKYRRBXWwGiiUL/36zMrAY1Xy6MSf4UCVZ2FdhBzISWz1EvCltPd
+         EkGyqmOxb/zcwYlPFUycahNJWfuF89AvMWb18=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715340999; x=1715945799;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hEpawp0jLL5YJD1E03t9v4CSTSHHxAczOaB7wWjUuH4=;
-        b=Hev3Ju6BBFYvSVfng36XVGKbw9lyfOeJKFCfJZxIzq++l4AhPqN9aOBbRL5UfNaSba
-         xVs8EaHerVm4lCkxoi9Y2Se0IFBJwVtHzFPvlDNs9lFZu1sxadg5TPRfEYD2kv43ybHv
-         R2C/wQbrYcxJYVejowUCFxHjDng6TT4HPvdX8lRR7lz04tUDbbbYs76hkU3crpJXTWKw
-         13Oqj2HkpiL4GSPwwfi2052KJTv8GAJsCt8YN9p6fDEn38tKEDwRZXWR8HkZQrfuToZE
-         Vg/RnU8ta8MIDPka5BN9Gn0ANkuurW9foKuIXVk2ArVLZYb8YvrMijAgmaX2gN0fmgoe
-         UtyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUNjOogeQtg+yG9tAeU8W1W4Ic2LgHCLjNZTzVIMZxQD2Xh7gF1B0KA4d0lH59AADCRbYmJtVz1Tf3BBr9B8rWprqNndfYx2hd/uLNFiDk=
-X-Gm-Message-State: AOJu0YxySnl17UjTqi2LfVJi1oKf/LFpwiv5CCQpUn0val0adMPdZKrW
-	Mfq1b1DMkIdTE9lNP1RSmBy4AiKNivq2DYaYnVVN4CO9e0XDnTRiYgXa119MEOY=
-X-Google-Smtp-Source: AGHT+IHZfCGuk+GqlIdc8CMNcbdW9LHfDq0A6ImdoUAGoHpo+I5oeBh0k6qw8nyb9ibHRimM3FHEPA==
-X-Received: by 2002:a05:600c:154d:b0:41f:c1af:835d with SMTP id 5b1f17b1804b1-41feaa30876mr22384945e9.12.1715340998802;
-        Fri, 10 May 2024 04:36:38 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-41fccfe1532sm59667175e9.46.2024.05.10.04.36.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 May 2024 04:36:38 -0700 (PDT)
-Date: Fri, 10 May 2024 13:36:35 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
-	john.fastabend@gmail.com
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-Message-ID: <Zj4Gw52pTbg01vvR@nanopsycho.orion>
-References: <20240509114615.317450-1-jiri@resnulli.us>
- <20240509084050-mutt-send-email-mst@kernel.org>
- <ZjzQTFq5lJIoeSqM@nanopsycho.orion>
- <20240509102643-mutt-send-email-mst@kernel.org>
- <Zj3425_gSqHByw-R@nanopsycho.orion>
- <20240510065121-mutt-send-email-mst@kernel.org>
- <Zj4A9XY7z-TzEpdz@nanopsycho.orion>
- <20240510072431-mutt-send-email-mst@kernel.org>
+        d=1e100.net; s=20230601; t=1715341326; x=1715946126;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ha0+NpzhkqUz1q/3RALaO2DoQ9/lzrevw2pudc7Szgk=;
+        b=Lh2bVdbGxlOAojjvuiGLrcmVNu/Ns8OP2a0p7VkighgHu50yBI9lElv1Z/KsXhg/We
+         +s5+pZHgG+3dC0R8fvUikxDW6uL4aCHCGUvVojuYWqWUhadY95vMK6emSxDpzgMeI8mL
+         512Gj8TlO20IvOdg43WS1S0OceAY3SZnKmn7hE8QrRg5yMhzbxQOo76EXWtBsAZ0f0Vf
+         cFecvheTi+QjC8cTzZKKjwkBobIiqsw+4jCTDWalsRYaHUc+NRbvRZsD8X6s/+rsqq3H
+         gWB/j5bx5ZdvInKpqOXkBywco8vSAcAEReYYSAdk2oiSMTffo3Uk38jjW96LBMrj5bwa
+         VBlA==
+X-Forwarded-Encrypted: i=1; AJvYcCWM+KQlhfrbG8Ra3BepiqAWI+6N8DlEOBtwWAh3UFmheFS8uU6IP61cf3K1E6YDnyrNNj1r44BJ0PrRiDtjSE6e5PtANvrgDVrN0At4vjk=
+X-Gm-Message-State: AOJu0Yw4o+zJ48pL/EapGMXqs/MYLosKp645g9bFLuPAUFxGwo/05DlE
+	32tL5JgRip6tKefMp5aEiJSUYbgY81D3vfYaMs3r3y1rBTu7ET5HQqL/qr59Aek2uJat9SiAt/r
+	EUgtxeyfxt+DMjDfkTqLSp2FOq+iT4rycHypSmQ==
+X-Google-Smtp-Source: AGHT+IHWwbmKStyyTxP46uRw65XGTGV9bbtL+cxTu4gfnrmA+dijWGPRf64AlJAlDtewnSqwfvUppGUd6QQeoTIxIwg=
+X-Received: by 2002:a17:906:53d7:b0:a59:d6ab:7889 with SMTP id
+ a640c23a62f3a-a5a2d65ecddmr154187966b.47.1715341326195; Fri, 10 May 2024
+ 04:42:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240510072431-mutt-send-email-mst@kernel.org>
+References: <20240501153817.540855-1-pgootzen@nvidia.com> <20240510070542-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240510070542-mutt-send-email-mst@kernel.org>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 10 May 2024 13:41:55 +0200
+Message-ID: <CAJfpegsv9cpPnACOShW0FNddBEwSWAhyW-V565rfh7-UWt9njQ@mail.gmail.com>
+Subject: Re: [PATCH 0/2] virtio-fs: introduce multi-queue support
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter-Jan Gootzen <pgootzen@nvidia.com>, virtualization@lists.linux.dev, vgoyal@redhat.com, 
+	stefanha@redhat.com, dgilbert@redhat.com, yorayz@nvidia.comm, 
+	gurtovoy@nvidia.com
+Content-Type: text/plain; charset="UTF-8"
 
-Fri, May 10, 2024 at 01:27:08PM CEST, mst@redhat.com wrote:
->On Fri, May 10, 2024 at 01:11:49PM +0200, Jiri Pirko wrote:
->> Fri, May 10, 2024 at 12:52:52PM CEST, mst@redhat.com wrote:
->> >On Fri, May 10, 2024 at 12:37:15PM +0200, Jiri Pirko wrote:
->> >> Thu, May 09, 2024 at 04:28:12PM CEST, mst@redhat.com wrote:
->> >> >On Thu, May 09, 2024 at 03:31:56PM +0200, Jiri Pirko wrote:
->> >> >> Thu, May 09, 2024 at 02:41:39PM CEST, mst@redhat.com wrote:
->> >> >> >On Thu, May 09, 2024 at 01:46:15PM +0200, Jiri Pirko wrote:
->> >> >> >> From: Jiri Pirko <jiri@nvidia.com>
->> >> >> >> 
->> >> >> >> Add support for Byte Queue Limits (BQL).
->> >> >> >> 
->> >> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> >> >> >
->> >> >> >Can we get more detail on the benefits you observe etc?
->> >> >> >Thanks!
->> >> >> 
->> >> >> More info about the BQL in general is here:
->> >> >> https://lwn.net/Articles/469652/
->> >> >
->> >> >I know about BQL in general. We discussed BQL for virtio in the past
->> >> >mostly I got the feedback from net core maintainers that it likely won't
->> >> >benefit virtio.
->> >> 
->> >> Do you have some link to that, or is it this thread:
->> >> https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com/
->> >
->> >
->> >A quick search on lore turned up this, for example:
->> >https://lore.kernel.org/all/a11eee78-b2a1-3dbc-4821-b5f4bfaae819@gmail.com/
->> 
->> Says:
->> "Note that NIC with many TX queues make BQL almost useless, only adding extra
->>  overhead."
->> 
->> But virtio can have one tx queue, I guess that could be quite common
->> configuration in lot of deployments.
+On Fri, 10 May 2024 at 13:05, Michael S. Tsirkin <mst@redhat.com> wrote:
 >
->Not sure we should worry about performance for these though.
-
-Well, queues may be scarce resource sometimes, even in those cases, you
-want to perform.
-
->What I am saying is this should come with some benchmarking
->results.
-
-Sure, I got the message.
-
+> On Wed, May 01, 2024 at 05:38:15PM +0200, Peter-Jan Gootzen wrote:
+> > In this patch set we are adding multi-queue support in the virtio-fs
+> > driver to enhance performance.
+> > While multi-queue functionality has been in the virtio-fs specification
+> > since its inception, the current implementation in the Linux kernel
+> > creates multiple queues, but only enqueues requests on the first request
+> > queue.
+> >
+> > The first commit in this patch set limits the number of request queues
+> > to the number of CPUs in the system, to reduce unnecessary resource
+> > consumption on the device-side.
+> > The second commit adds a multi queue mapping to the virtio-fs device
+> > driver that is created using MSI-X affinity mappings or, in case of no
+> > existing mappings, by evenly grouping the CPUs and dividing the queues
+> > over these groups.
 >
 >
->> 
->> >
->> >
->> >
->> >
->> >> I don't see why virtio should be any different from other
->> >> drivers/devices that benefit from bql. HOL blocking is the same here are
->> >> everywhere.
->> >> 
->> >> >
->> >> >So I'm asking, what kind of benefit do you observe?
->> >> 
->> >> I don't have measurements at hand, will attach them to v2.
->> >> 
->> >> Thanks!
->> >> 
->> >> >
->> >> >-- 
->> >> >MST
->> >> >
->> >
->
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Applied, thanks.
+
+Miklos
