@@ -1,86 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26BB13A3E3;
-	Fri, 10 May 2024 01:31:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB6A3149005
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 03:16:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715304664; cv=none; b=aoQ+Td/3KB2uQDD9c7CpKfmOl3uhjmzrQGlbnL/hx70VkHPO0oZprJi/sxFDhDbgbDEMTJA5BDaD9IzZCwm2lsILMGD4NNGVO2jqDAjoTOWjEIqFi7HMZWw7PSiNAOkqz/Ql8QM1Oii7QGumHgv2qhQ81l6CyIoHTpF2nok9azs=
+	t=1715310968; cv=none; b=OgTLEg4nuVTDudwsES4FeZZ75YXIpgfO+LLlttkybcapiUSaYa+i+Wj1ADHSmwE2exFTIZz5wGQHWKFmCOI4PnpR7XbXrHQaNxvA4AnXmSPot/kFmAQfA7pa28XZYH2RxOlGMeO/NDft8eQLE8NWo+2v7cp7+2lzjFugHLnzKWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715304664; c=relaxed/simple;
-	bh=5dVzQx35gUbAAlIMFfqYviXSk3Ia0Y2lTQJTkV1hVGY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oBKGy8VLFXmueTxe2rV3qsBqGF+XZ8Cr63dkMXVyXptCGlEo3/r7lun3xp9oEOpckfpMSnohQIy5gDWvVg4GNI8HSPUlXYwjdDvouefM32U2KCRBpGPGkdhgB+RyhULysAvDbK3OeUalKU1AtoEUQFzM2tecX9KikuJpyAoWclI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XxIKFcmT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715310968; c=relaxed/simple;
+	bh=pDWGi20NXI+FF8nL+CvvJf3mfQcL2cl7VqETYXjiX7k=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=KD6h1ExCqbJzBpcwmeDwE7z9o9ojRTZUicHC+eghB1aRgmbJwqZtyVXHanrwpEWmX16ZpW0PEk/ceadrY/Jd1PH6XDRA9Vw4repOaNd3p+qhULeUGMTJzXfSI+ooRGwCaajSzMnp8jGzc7ihNrxF4+9Y9DnVorGrkZgcryZr/Do=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MSEW/QLt; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XxIKFcmT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0BEAC116B1;
-	Fri, 10 May 2024 01:31:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715304664;
-	bh=5dVzQx35gUbAAlIMFfqYviXSk3Ia0Y2lTQJTkV1hVGY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=XxIKFcmTAsKdpmrLRvHH+Q83NzQBseEX/Tjhklj+8RPUc00xzy5Qx2qjBTA5iqdfH
-	 1gazVBq6razWM8DSWBemiRbWtIQeJZ0hTqZpIV27GFEkHy91tuQqVxfO3tLLE8DJIs
-	 378nfD929SDHQ4f1579D9wFfA4GecQEKbsHDQRL8sl+UdkQE1Bmxr7PXS2XN6aEcOj
-	 3tes81vRxuvyeNhaiI1kIk8hJey1PJtL/eMn45WR1nFLL7TA/1P8K08TN2u9NPMC5P
-	 XAHljLA59cC3lFxo53m7MyzjsSFLpPDyZAR/BEo6B7xcPpL1Nk+DHDii5nvTUu8ff3
-	 /Smw3bNXZstsw==
-Date: Thu, 9 May 2024 18:31:02 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
- <xuanzhuo@linux.alibaba.com>, <virtualization@lists.linux.dev>,
- <davem@davemloft.net>, <edumazet@google.com>, <pabeni@redhat.com>,
- <jiri@nvidia.com>
-Subject: Re: [PATCH net-next 1/2] netdev: Add queue stats for TX stop and
- wake
-Message-ID: <20240509183102.7c337c2c@kernel.org>
-In-Reply-To: <20240509163216.108665-2-danielj@nvidia.com>
-References: <20240509163216.108665-1-danielj@nvidia.com>
-	<20240509163216.108665-2-danielj@nvidia.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MSEW/QLt"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5DEF261477
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 03:16:06 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id MW46OFA-KC4S for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 May 2024 03:16:05 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.21; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 7E3246125E
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E3246125E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MSEW/QLt
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7E3246125E
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 03:16:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1715310966; x=1746846966;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=pDWGi20NXI+FF8nL+CvvJf3mfQcL2cl7VqETYXjiX7k=;
+  b=MSEW/QLtSsLaB49uZFjY6QSD97wRNGT5AFt1JkABUAKpPXsvIgP6Po15
+   j08YK2PE10QakhrJb3+BkbMiXC2k+tsOK/yq590qepl3zkZZZMo3Y0iTe
+   sML2Xx1BOaOGrFOzXXS3F05LJ4nloz85wfLRHxVe+At20FNMLMWtZHqip
+   DbWb3iQC44kAOOvTNgSBUwobAT6Jv+/gM6LqOp9SfrY2s/7fLgrrCh/rC
+   sPVAdp/C1b9vKLb7vOgf5i8dNcj8PZ/esrlHuSKpluPn4Tc05jzXS6Hsg
+   1NToL/fyhUmGmqG3W9fA4Gpke0hz7KLQ9gaPRFpPHkN9Fc52hmFR7k6aK
+   A==;
+X-CSE-ConnectionGUID: 4gCpC/MjSgC3Qt218v+Nbw==
+X-CSE-MsgGUID: 6fKDF2aSTv6QLaPLLTuozA==
+X-IronPort-AV: E=McAfee;i="6600,9927,11068"; a="11209006"
+X-IronPort-AV: E=Sophos;i="6.08,149,1712646000"; 
+   d="scan'208";a="11209006"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2024 20:16:05 -0700
+X-CSE-ConnectionGUID: 6k3t8mu3T5CHeD2PV0HUGg==
+X-CSE-MsgGUID: yA5s8BzaQkajU6Im3Oq7sA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,149,1712646000"; 
+   d="scan'208";a="34324289"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa004.jf.intel.com with ESMTP; 09 May 2024 20:16:01 -0700
+Message-ID: <21ffbcc7-1103-4481-af14-5ee8856b9625@linux.intel.com>
+Date: Fri, 10 May 2024 11:14:20 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5 3/9] iommu: Add attachment handle to struct iopf_group
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
+ <20240430145710.68112-4-baolu.lu@linux.intel.com>
+ <20240508000454.GM4718@ziepe.ca>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20240508000454.GM4718@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Thu, 9 May 2024 11:32:15 -0500 Daniel Jurgens wrote:
-> diff --git a/tools/include/uapi/linux/netdev.h b/tools/include/uapi/linux/netdev.h
-> index cf24f1d9adf8..ccf6976b1693 100644
-> --- a/tools/include/uapi/linux/netdev.h
-> +++ b/tools/include/uapi/linux/netdev.h
-> @@ -164,7 +164,8 @@ enum {
->  	NETDEV_A_QSTATS_TX_HW_GSO_BYTES,
->  	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS,
->  	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES,
-> -	NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS,
+On 5/8/24 8:04 AM, Jason Gunthorpe wrote:
+> On Tue, Apr 30, 2024 at 10:57:04PM +0800, Lu Baolu wrote:
+>> @@ -206,8 +197,11 @@ void iommu_report_device_fault(struct device *dev, struct iopf_fault *evt)
+>>   	if (group == &abort_group)
+>>   		goto err_abort;
+>>   
+>> -	group->domain = get_domain_for_iopf(dev, fault);
+>> -	if (!group->domain)
+>> +	if (!(fault->prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) ||
+>> +	    get_attach_handle_for_iopf(dev, fault->prm.pasid, group))
+>> +		get_attach_handle_for_iopf(dev, IOMMU_NO_PASID, group);
+> That seems a bit weird looking?
 
-Looks like an accidental removal?
+Agreed.
 
-> +	NETDEV_A_QSTATS_TX_STOP,
-> +	NETDEV_A_QSTATS_TX_WAKE,
+> get_attach_handle_for_iopf(dev,
+>     (fault->prm.flags &
+>     IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) ? fault->prm.pasid : IOMMU_NO_PASID,
+>     group);
 
-Since you'll have to respin let me nit pick on the docs, as I'm hoping
-that those will be comprehensible to users not only devs.
+The logic here is that it tries the PASID domain and if it doesn't
+exist, then tries the RID domain as well. I explained this in the commit
+message:
 
-> +        name: tx-stop
-> +        doc: |
-> +          Number of times the tx queue was stopped.
+"
+... if the pasid table of a device is wholly managed by user space,
+there is no domain attached to the PASID of the device ...
+"
 
-How about:
+Perhaps I can improve it like this,
 
-	Number of times driver paused accepting new tx packets
-	from the stack to this queue, because the queue was full.
-	Note that if BQL is supported and enabled on the device
-	the networking stack will avoid queuing a lot of data at once.
+	int rc = -EINVAL;
+	...
+	if (fault->prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID)
+		rc = get_attach_handle_for_iopf(dev, fault->prm.pasid, group);
+	if (rc)
+		rc = get_attach_handle_for_iopf(dev, IOMMU_NO_PASID, group);
 
-> +        name: tx-wake
-> +        doc: |
-> +          Number of times the tx queue was restarted.
+	if (rc || !group->attach_handle->domain->iopf_handler)
+		goto err_abort;
 
-	Number of times driver re-started accepting send
-	requests to this queue from the stack.
+Best regards,
+baolu
