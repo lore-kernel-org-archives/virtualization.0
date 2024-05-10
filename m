@@ -1,161 +1,142 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 779021635B2
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 09:13:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07B92168AE2
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 10:07:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715332418; cv=none; b=cxh2yU1IOSbM3Ite1HcG7uuUt1CqNb9ykx7nsORhGD3huFt1n8gh8TfPfD+plWV7Ub7S+8UgxGizzd3k37smL6A1rhmmaDBpifRbac0/BBWKu5FVdFJms6ZouI/BZKsSiUH6ImI9QkKHZ0EyaYlcxsFYfr2V/8Jz9XWL7fGrDig=
+	t=1715335643; cv=none; b=V4ZYZmp65GQGA8m1MPIzBl6Y5nP+txzqSj8aBAUpqYI+yufFhSt8qruKAfC1KjnNx+AMm7MbN1bO8fWVERIC8ipXGe9TGtzW18iWdFY1SsXH13oOpHdhRctf4LUe33M0GZWm5of9ibuxhaOSgFgA+sohkg1MycLx9wl7GmUkeUg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715332418; c=relaxed/simple;
-	bh=TF+PTbkgSx0ZnPRn+1LyMRtzCYZzLtwMrn37b5euxao=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=TMsY56tjlGj8lXfVXjMgVsdoxJypqFlfnAAWi5q9Vnf+si4o+nlpckFqfet/dH8zBgGWLqVmeFtfPnLpHwIkDCEi7HmNoREfIbyl+ttwcl4R9opGd2Ork/OpqDoiwcRZQME0RbBQFvz6l8enyHfZ5E/5/zZ63UGurSA1m9i9kF4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ew/A8Iwj; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1715335643; c=relaxed/simple;
+	bh=ifYU/c+8V7OWSd9aaCKHF7gpCqv7cSdHzl7rv5oFs0w=;
+	h=MIME-Version:Content-Type:Date:Message-ID:Subject:From:To:CC:
+	 References:In-Reply-To; b=uduIBGJgDU2LektEjl74N89etFVSwcBsrB7BX8EqSnQdgTrk0TL8Tg0rVxluRcbXJyWInkkUe6giWJLX/sdqeMDzjrZqA6TQFzoYVVSWLy42hOT2RYt+qRWXRAxsfOOl5+V0DUOTUTWYA3GpLvIVPiehuDKDeKGMWHSbxeDXz+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=srCcEsP8; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ew/A8Iwj"
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="srCcEsP8"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1A6B1426BF
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 09:13:37 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9D965615D2
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 10:07:21 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.999
+X-Spam-Score: -4.049
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id h_9p7zN5FFTw for <virtualization@lists.linux-foundation.org>;
- Fri, 10 May 2024 09:13:35 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.11; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 82CB5404B5
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 82CB5404B5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Ew/A8Iwj
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 82CB5404B5
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 09:13:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1715332416; x=1746868416;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=TF+PTbkgSx0ZnPRn+1LyMRtzCYZzLtwMrn37b5euxao=;
-  b=Ew/A8IwjmxCmLHMR1IS8HOj1LbhrXl4s0RhwsqoAuM1xlu60La9oI/Bz
-   JeYUvJs2I8Bz0xAqK/7RmLZSwiSQ2hwd+DTiVk/4WMlnYZWPCNyVJ+t2d
-   C7g9n2LC/qTOGP/tHQXrM/eWiZUOIZLNQ6/9dlDOBNAV4/zlnhR5NBYxA
-   +1FKq+iiR28oYP3XTkzlJjS9mXvmicbmnc+7n07ipgQjS/kM8grYpoxkL
-   6SMf3ZYb1JPV4gMC4Hc4qGAOWKKaaLZChgr1dPQkbBM3wdxJ88F9qkjPm
-   VbbGTMqMyaEh50691I6vPgnHjb1dx4Lku0Gj338GhDyI8nnR/HYz5P9jf
-   A==;
-X-CSE-ConnectionGUID: 6aQztw3QScSAwRYtGqvNBw==
-X-CSE-MsgGUID: iEFuennkSsOGbP1DGTLdXg==
-X-IronPort-AV: E=McAfee;i="6600,9927,11068"; a="21879088"
-X-IronPort-AV: E=Sophos;i="6.08,150,1712646000"; 
-   d="scan'208";a="21879088"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2024 02:13:35 -0700
-X-CSE-ConnectionGUID: HlxxGN5LQIqbfopkgkxtpA==
-X-CSE-MsgGUID: rZ7SJb6RSguTrlxaCy7EDA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,150,1712646000"; 
-   d="scan'208";a="29555229"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.124.237.100]) ([10.124.237.100])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2024 02:13:30 -0700
-Message-ID: <b510a556-a8fe-4328-9917-e50ef074dfee@linux.intel.com>
-Date: Fri, 10 May 2024 17:13:29 +0800
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 80EEw-m4cViG for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 May 2024 10:07:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=99.78.197.220; helo=smtp-fw-80009.amazon.com; envelope-from=prvs=8538b48ee=nsaenz@amazon.es; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 40F61615EE
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 40F61615EE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amazon.com header.i=@amazon.com header.a=rsa-sha256 header.s=amazon201209 header.b=srCcEsP8
+Received: from smtp-fw-80009.amazon.com (smtp-fw-80009.amazon.com [99.78.197.220])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 40F61615EE
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 May 2024 10:07:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1715335640; x=1746871640;
+  h=mime-version:content-transfer-encoding:date:message-id:
+   subject:from:to:cc:references:in-reply-to;
+  bh=ODj1UcfgLsilkOJ93AaBzpY+nLn2txKitmtJHEr2EDY=;
+  b=srCcEsP82fTwwumE+0CjGUWuDlfSeB+m343HVOYqsEzWOd24KIhsmt6h
+   Rrt96Gt//NwyyE80cRksnxjItGWO9Y48dgXFp24NyhKKVmhD5JTMdMimZ
+   W59GCl8l2j0HniOIr3evl2M/G23PsUoWgDofHp9bZT2YRJw3q4FFyLEAk
+   I=;
+X-IronPort-AV: E=Sophos;i="6.08,150,1712620800"; 
+   d="scan'208";a="88359429"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-east-1.prod.farcaster.email.amazon.dev) ([10.25.36.210])
+  by smtp-border-fw-80009.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2024 10:07:15 +0000
+Received: from EX19MTAEUC002.ant.amazon.com [10.0.10.100:54770]
+ by smtpin.naws.eu-west-1.prod.farcaster.email.amazon.dev [10.0.14.131:2525] with esmtp (Farcaster)
+ id 0c298036-b7a6-49e7-b4ba-4e0b449ad4e5; Fri, 10 May 2024 10:07:14 +0000 (UTC)
+X-Farcaster-Flow-ID: 0c298036-b7a6-49e7-b4ba-4e0b449ad4e5
+Received: from EX19D004EUC001.ant.amazon.com (10.252.51.190) by
+ EX19MTAEUC002.ant.amazon.com (10.252.51.245) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Fri, 10 May 2024 10:07:13 +0000
+Received: from localhost (10.13.235.138) by EX19D004EUC001.ant.amazon.com
+ (10.252.51.190) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.28; Fri, 10 May
+ 2024 10:07:03 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 5/9] iommufd: Add iommufd fault object
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
- <20240430145710.68112-6-baolu.lu@linux.intel.com>
- <20240508002242.GP4718@ziepe.ca>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240508002242.GP4718@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 10 May 2024 10:07:00 +0000
+Message-ID: <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com>
+Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
+ configuration and violation
+From: Nicolas Saenz Julienne <nsaenz@amazon.com>
+To: Sean Christopherson <seanjc@google.com>,
+	=?utf-8?q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+CC: Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, "Kees
+ Cook" <keescook@chromium.org>, Paolo Bonzini <pbonzini@redhat.com>, "Thomas
+ Gleixner" <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Wanpeng Li <wanpengli@tencent.com>, Rick P Edgecombe
+	<rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>, Angelina Vu
+	<angelinavu@linux.microsoft.com>, Anna Trikalinou
+	<atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>,
+	"Forrest Yuan Yu" <yuanyu@google.com>, James Gowans <jgowans@amazon.com>,
+	James Morris <jamorris@linux.microsoft.com>, John Andersen
+	<john.s.andersen@intel.com>, "Madhavan T . Venkataraman"
+	<madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>,
+	=?utf-8?q?Mihai_Don=C8=9Bu?= <mdontu@bitdefender.com>,
+	=?utf-8?q?Nicu=C8=99or_C=C3=AE=C8=9Bu?= <nicu.citu@icloud.com>, Thara
+ Gopinath <tgopinath@microsoft.com>, "Trilok Soni" <quic_tsoni@quicinc.com>,
+	Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, Yu Zhang
+	<yu.c.zhang@linux.intel.com>, =?utf-8?q?=C8=98tefan_=C8=98icleru?=
+	<ssicleru@bitdefender.com>, <dev@lists.cloudhypervisor.org>,
+	<kvm@vger.kernel.org>, <linux-hardening@vger.kernel.org>,
+	<linux-hyperv@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-security-module@vger.kernel.org>, <qemu-devel@nongnu.org>,
+	<virtualization@lists.linux-foundation.org>, <x86@kernel.org>,
+	<xen-devel@lists.xenproject.org>
+X-Mailer: aerc 0.16.0-127-gec0f4a50cf77
+References: <20240503131910.307630-1-mic@digikod.net>
+ <20240503131910.307630-4-mic@digikod.net> <ZjTuqV-AxQQRWwUW@google.com>
+ <20240506.ohwe7eewu0oB@digikod.net> <ZjmFPZd5q_hEBdBz@google.com>
+ <20240507.ieghomae0UoC@digikod.net> <ZjpTxt-Bxia3bRwB@google.com>
+In-Reply-To: <ZjpTxt-Bxia3bRwB@google.com>
+X-ClientProxiedBy: EX19D036UWC002.ant.amazon.com (10.13.139.242) To
+ EX19D004EUC001.ant.amazon.com (10.252.51.190)
 
-On 2024/5/8 8:22, Jason Gunthorpe wrote:
-> On Tue, Apr 30, 2024 at 10:57:06PM +0800, Lu Baolu wrote:
->> +static ssize_t iommufd_fault_fops_read(struct file *filep, char __user *buf,
->> +				       size_t count, loff_t *ppos)
->> +{
->> +	size_t fault_size = sizeof(struct iommu_hwpt_pgfault);
->> +	struct iommufd_fault *fault = filep->private_data;
->> +	struct iommu_hwpt_pgfault data;
->> +	struct iommufd_device *idev;
->> +	struct iopf_group *group;
->> +	struct iopf_fault *iopf;
->> +	size_t done = 0;
->> +	int rc;
->> +
->> +	if (*ppos || count % fault_size)
->> +		return -ESPIPE;
->> +
->> +	mutex_lock(&fault->mutex);
->> +	while (!list_empty(&fault->deliver) && count > done) {
->> +		group = list_first_entry(&fault->deliver,
->> +					 struct iopf_group, node);
->> +
->> +		if (list_count_nodes(&group->faults) * fault_size > count - done)
->> +			break;
-> 
-> Can this list_count be precomputed when we build the fault group?
+On Tue May 7, 2024 at 4:16 PM UTC, Sean Christopherson wrote:
+> > If yes, that would indeed require a *lot* of work for something we're n=
+ot
+> > sure will be accepted later on.
+>
+> Yes and no.  The AWS folks are pursuing VSM support in KVM+QEMU, and SVSM=
+ support
+> is trending toward the paired VM+vCPU model.  IMO, it's entirely feasible=
+ to
+> design KVM support such that much of the development load can be shared b=
+etween
+> the projects.  And having 2+ use cases for a feature (set) makes it _much=
+_ more
+> likely that the feature(s) will be accepted.
 
-Yes. Done.
+Since Sean mentioned our VSM efforts, a small update. We were able to
+validate the concept of one KVM VM per VTL as discussed in LPC. Right
+now only for single CPU guests, but are in the late stages of bringing
+up MP support. The resulting KVM code is small, and most will be
+uncontroversial (I hope). If other obligations allow it, we plan on
+having something suitable for review in the coming months.
 
-> 
->> +
->> +		idev = group->attach_handle->idev;
->> +		if (!idev)
->> +			break;
-> 
-> This check should be done before adding the fault to the linked
-> list. See my other note about the race.
+Our implementation aims to implement all the VSM spec necessary to run
+with Microsoft Credential Guard. But note that some aspects necessary
+for HVCI are not covered, especially the ones that depend on MBEC
+support, or some categories of secure intercepts.
 
-Done.
+Development happens
+https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-next
+branch, but I'd advice against looking into it until we add some order
+to the rework. Regardless, feel free to get in touch.
 
-> 
->> +
->> +		rc = xa_alloc(&idev->faults, &group->cookie, group,
->> +			      xa_limit_32b, GFP_KERNEL);
->> +		if (rc)
->> +			break;
-> 
-> This error handling is not quite right, if done == 0 then this should
-> return rc.
-> 
-> 
->> +
->> +		list_for_each_entry(iopf, &group->faults, list) {
->> +			iommufd_compose_fault_message(&iopf->fault,
->> +						      &data, idev,
->> +						      group->cookie);
->> +			rc = copy_to_user(buf + done, &data, fault_size);
->> +			if (rc) {
->> +				xa_erase(&idev->faults, group->cookie);
->> +				break;
-> 
-> Same here
-> 
-> (same comment on the write side too)
-
-All fixed. Thank you!
-
-Best regards,
-baolu
-
+Nicolas
