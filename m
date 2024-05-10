@@ -1,120 +1,205 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8584A1527AB;
-	Fri, 10 May 2024 05:25:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 110431361
+	for <virtualization@lists.linux.dev>; Fri, 10 May 2024 06:50:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715318756; cv=none; b=NylzxKJuokfdXvAF83xRgCmuMcJeZJSzL9ai6RWryPHhILzf1GCEQA0LXTQf6hHt18jRe31Kq05YoZtprBIpkmTmMn/QF08O+COkhqp91xP1Gr0s367NhxdWFC7XSwNS1QBfA5viYj+Ko8GFvFxwLeGEDUM63idvGMMmwYOBj7c=
+	t=1715323809; cv=none; b=cLHY8ZGZjJAxod1gu1RmYZ5Eh7Gq6R0ZxN6kDyWuKzwvJrrQ9iHSiMm0MDeiNCcXMO6jSAFJPLCAU9C0Cca8E6IKBTvXJcPQJopmNUS4M3v/UjYFBaloXYHeD6RvAiNoPmrdZGafc3/FM4aCidSieVN8CLgty4Bb9zizb93ckPc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715318756; c=relaxed/simple;
-	bh=FkGLtnlZ8fZVob3oYQ/PzCDEhIp08hyLY4qDOsXcQKI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=W5Y85bKT69DZhMimt5IbnkDiQrCHQcBAnHn4Q4SK5Yw8iEFcDJYjVk+2EykDPRVHPDXn+dLIGbk/NJ0nNaJv+UCvgYkqNYRBczvUsu/kVfaIhFRob63DbgYXUvG2buDjznHgirjMx78pppFZx/zEaA1qmi4Mqzsf887txWI1vdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VNyDCe8M; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1715323809; c=relaxed/simple;
+	bh=at2lnNgiXNrdTa5JV/yNDZYavo9jvs+VSjr7gNOeMQ8=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=XqHfXNcmiBG+jZuQJhIq3Eifp8lljLS8AoI49fsegtdkxL9eyvzowuh5aYsndPHE1W51ZZjzmaCfc5/bYWndmYcht7h+CjGuoVUFBTF9KfsAJTbFDIMY7z+nEHTHRyCdqya80Dfkj+dYz0ddkmyaAOjBYZrSGFOV/phevfGCdRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iZXNPv6z; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VNyDCe8M"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1715318755; x=1746854755;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=FkGLtnlZ8fZVob3oYQ/PzCDEhIp08hyLY4qDOsXcQKI=;
-  b=VNyDCe8M13HL3tGr8BrTLRTMZUlF1qKpwyrDRsw2YK8F2CNE6/CkJzZR
-   fE7lx12Erbyg1QnlHs2Y24d4ZaoRPTICHVeEn7jrNFhRFqAwXfCWjx4fW
-   1nQ10QtLIqodAEhI+VZ6IE9MFkCPQsfxhJgQz0eGGLSuqoY66c6owcZce
-   h8ueINClmEHjv6Fdd2WWWeqLCoZyDbe/JsFLkced4xPB+AaiMIABdSgu7
-   M546Y8XaI8BcP0zysxGYAbv1YlzzI9iVEXg+V+eEn/2IW/SrvmO7nt2iS
-   u3vwPhUxgfu+Oj5Xt77iC2f7mmMMJsrrlGbIhP7mlS6t9uGfqdWp1F8r/
-   Q==;
-X-CSE-ConnectionGUID: sNFqMKDORn2gJQJt6wGb1g==
-X-CSE-MsgGUID: ID14Lr6MQo6ZQNKjHLtCoQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11068"; a="15089630"
-X-IronPort-AV: E=Sophos;i="6.08,150,1712646000"; 
-   d="scan'208";a="15089630"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2024 22:25:54 -0700
-X-CSE-ConnectionGUID: 7XnWVU9sTXid/yjQ40wPAQ==
-X-CSE-MsgGUID: mLOqxVP1SeScPTOAxiYdZw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,150,1712646000"; 
-   d="scan'208";a="34151806"
-Received: from lkp-server01.sh.intel.com (HELO f8b243fe6e68) ([10.239.97.150])
-  by orviesa003.jf.intel.com with ESMTP; 09 May 2024 22:25:48 -0700
-Received: from kbuild by f8b243fe6e68 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1s5IlN-0005lZ-0v;
-	Fri, 10 May 2024 05:25:45 +0000
-Date: Fri, 10 May 2024 13:24:50 +0800
-From: kernel test robot <lkp@intel.com>
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com,
-	mingo@redhat.com, tglx@linutronix.de
-Cc: oe-kbuild-all@lists.linux.dev, x86@kernel.org, netdev@vger.kernel.org,
-	richardcochran@gmail.com, linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com, zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
-	timothym@vmware.com, akaher@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, horms@kernel.org,
-	kirill.shutemov@linux.intel.com,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Nadav Amit <nadav.amit@gmail.com>, Jeff Sipek <jsipek@vmware.com>
-Subject: Re: [PATCH v9 3/8] x86/vmware: Introduce VMware hypercall API
-Message-ID: <202405101333.vdlWwpgr-lkp@intel.com>
-References: <20240506215305.30756-4-alexey.makhalov@broadcom.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iZXNPv6z"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715323803; h=Message-ID:Subject:Date:From:To;
+	bh=rV8GXyrJ07GSYwwl1SJfRsZvo+s7i6qK5asbBHBEaKM=;
+	b=iZXNPv6z1LPEYuza8niG9XxC+Iuu0gSgmZX065Rt9izdZWiCFQKCsyeEhasYyChQPPGEt1MmFuGZjKmWQJCm9SdP1bUGtiPPQQEGJ/kMMnObSh+5NBLdTPOw9VYXpYGzPVzFmqCViHvhL3hyrix7r5BowvGunW9uyfdMRcc/xk8=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W69bk6G_1715323801;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W69bk6G_1715323801)
+          by smtp.aliyun-inc.com;
+          Fri, 10 May 2024 14:50:02 +0800
+Message-ID: <1715323692.749715-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: RE: [PATCH net-next 2/2] virtio_net: Add TX stopped and wake counters
+Date: Fri, 10 May 2024 14:48:12 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Dan Jurgens <danielj@nvidia.com>
+Cc: "mst@redhat.com" <mst@redhat.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "davem@davemloft.net" <davem@davemloft.net>,
+ "edumazet@google.com" <edumazet@google.com>,
+ "kuba@kernel.org" <kuba@kernel.org>,
+ "pabeni@redhat.com" <pabeni@redhat.com>,
+ Jiri Pirko <jiri@nvidia.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+References: <20240509163216.108665-1-danielj@nvidia.com>
+ <20240509163216.108665-3-danielj@nvidia.com>
+ <1715304096.399735-3-xuanzhuo@linux.alibaba.com>
+ <CH0PR12MB858086B1DEB3F5D4015D937EC9E72@CH0PR12MB8580.namprd12.prod.outlook.com>
+In-Reply-To: <CH0PR12MB858086B1DEB3F5D4015D937EC9E72@CH0PR12MB8580.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240506215305.30756-4-alexey.makhalov@broadcom.com>
 
-Hi Alexey,
+On Fri, 10 May 2024 03:35:51 +0000, Dan Jurgens <danielj@nvidia.com> wrote:
+> > From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Sent: Thursday, May 9, 2024 8:22 PM
+> > To: Dan Jurgens <danielj@nvidia.com>
+> > Cc: mst@redhat.com; jasowang@redhat.com; xuanzhuo@linux.alibaba.com;
+> > virtualization@lists.linux.dev; davem@davemloft.net;
+> > edumazet@google.com; kuba@kernel.org; pabeni@redhat.com; Jiri Pirko
+> > <jiri@nvidia.com>; Dan Jurgens <danielj@nvidia.com>;
+> > netdev@vger.kernel.org
+> > Subject: Re: [PATCH net-next 2/2] virtio_net: Add TX stopped and wake
+> > counters
+> >
+> > On Thu, 9 May 2024 11:32:16 -0500, Daniel Jurgens <danielj@nvidia.com>
+> > wrote:
+> > > Add a tx queue stop and wake counters, they are useful for debugging.
+> > >
+> > > $ ./tools/net/ynl/cli.py --spec netlink/specs/netdev.yaml \ --dump
+> > > qstats-get --json '{"scope": "queue"}'
+> > > ...
+> > >  {'ifindex': 13,
+> > >   'queue-id': 0,
+> > >   'queue-type': 'tx',
+> > >   'tx-bytes': 14756682850,
+> > >   'tx-packets': 226465,
+> > >   'tx-stop': 113208,
+> > >   'tx-wake': 113208},
+> > >  {'ifindex': 13,
+> > >   'queue-id': 1,
+> > >   'queue-type': 'tx',
+> > >   'tx-bytes': 18167675008,
+> > >   'tx-packets': 278660,
+> > >   'tx-stop': 8632,
+> > >   'tx-wake': 8632}]
+> > >
+> > > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> > > Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> > > ---
+> > >  drivers/net/virtio_net.c | 28 ++++++++++++++++++++++++++--
+> > >  1 file changed, 26 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
+> > > 218a446c4c27..df6121c38a1b 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -95,6 +95,8 @@ struct virtnet_sq_stats {
+> > >  	u64_stats_t xdp_tx_drops;
+> > >  	u64_stats_t kicks;
+> > >  	u64_stats_t tx_timeouts;
+> > > +	u64_stats_t stop;
+> > > +	u64_stats_t wake;
+> > >  };
+> > >
+> > >  struct virtnet_rq_stats {
+> > > @@ -145,6 +147,8 @@ static const struct virtnet_stat_desc
+> > > virtnet_rq_stats_desc[] = {  static const struct virtnet_stat_desc
+> > virtnet_sq_stats_desc_qstat[] = {
+> > >  	VIRTNET_SQ_STAT_QSTAT("packets", packets),
+> > >  	VIRTNET_SQ_STAT_QSTAT("bytes",   bytes),
+> > > +	VIRTNET_SQ_STAT_QSTAT("stop",	 stop),
+> > > +	VIRTNET_SQ_STAT_QSTAT("wake",	 wake),
+> > >  };
+> > >
+> > >  static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] =
+> > > { @@ -1014,6 +1018,9 @@ static void check_sq_full_and_disable(struct
+> > virtnet_info *vi,
+> > >  	 */
+> > >  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+> > >  		netif_stop_subqueue(dev, qnum);
+> > > +		u64_stats_update_begin(&sq->stats.syncp);
+> > > +		u64_stats_inc(&sq->stats.stop);
+> > > +		u64_stats_update_end(&sq->stats.syncp);
+> >
+> > How about introduce two helpers to wrap
+> > netif_tx_queue_stopped and netif_start_subqueue?
+> >
+> > >  		if (use_napi) {
+> > >  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
+> > >  				virtqueue_napi_schedule(&sq->napi, sq-
+> > >vq); @@ -1022,6 +1029,9 @@
+> > > static void check_sq_full_and_disable(struct virtnet_info *vi,
+> > >  			free_old_xmit(sq, false);
+> > >  			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+> > >  				netif_start_subqueue(dev, qnum);
+> > > +				u64_stats_update_begin(&sq->stats.syncp);
+> > > +				u64_stats_inc(&sq->stats.wake);
+> > > +				u64_stats_update_end(&sq->stats.syncp);
+> >
+> > If we start the queue immediately, should we update the counter?
+>
+> I intentionally only counted the wakes on restarts after stopping the queue.
+> I don't think counting the initial wake adds any value since it always happens.
 
-kernel test robot noticed the following build errors:
+Here, we start the queue immediately after the queue is stopped.
+So for the upper layer, the queue "has not" changed the status,
+I think we do not need to update the wake counter.
 
-[auto build test ERROR on drm-misc/drm-misc-next]
-[also build test ERROR on dtor-input/next dtor-input/for-linus linus/master v6.9-rc7 next-20240509]
-[cannot apply to tip/x86/vmware]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Thanks.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Alexey-Makhalov/x86-vmware-Move-common-macros-to-vmware-h/20240507-055606
-base:   git://anongit.freedesktop.org/drm/drm-misc drm-misc-next
-patch link:    https://lore.kernel.org/r/20240506215305.30756-4-alexey.makhalov%40broadcom.com
-patch subject: [PATCH v9 3/8] x86/vmware: Introduce VMware hypercall API
-config: x86_64-buildonly-randconfig-003-20240510 (https://download.01.org/0day-ci/archive/20240510/202405101333.vdlWwpgr-lkp@intel.com/config)
-compiler: gcc-11 (Ubuntu 11.4.0-4ubuntu1) 11.4.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240510/202405101333.vdlWwpgr-lkp@intel.com/reproduce)
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202405101333.vdlWwpgr-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   ld: drivers/gpu/drm/vmwgfx/vmwgfx_msg.o: in function `vmw_close_channel':
->> vmwgfx_msg.c:(.text+0xaf): undefined reference to `vmware_hypercall_mode'
-   ld: drivers/gpu/drm/vmwgfx/vmwgfx_msg.o: in function `vmw_port_hb_in':
-   vmwgfx_msg.c:(.text+0x2c4): undefined reference to `vmware_hypercall_mode'
-   ld: drivers/gpu/drm/vmwgfx/vmwgfx_msg.o: in function `vmw_port_hb_out':
-   vmwgfx_msg.c:(.text+0x604): undefined reference to `vmware_hypercall_mode'
-   ld: drivers/gpu/drm/vmwgfx/vmwgfx_msg.o: in function `vmw_send_msg':
-   vmwgfx_msg.c:(.text+0x8b0): undefined reference to `vmware_hypercall_mode'
-   ld: drivers/gpu/drm/vmwgfx/vmwgfx_msg.o: in function `vmw_open_channel.constprop.0':
-   vmwgfx_msg.c:(.text+0x9e8): undefined reference to `vmware_hypercall_mode'
-   ld: drivers/gpu/drm/vmwgfx/vmwgfx_msg.o:vmwgfx_msg.c:(.text+0xc3c): more undefined references to `vmware_hypercall_mode' follow
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+>
+> >
+> > Thanks.
+> >
+> > >  				virtqueue_disable_cb(sq->vq);
+> > >  			}
+> > >  		}
+> > > @@ -2322,8 +2332,14 @@ static void virtnet_poll_cleantx(struct
+> > receive_queue *rq)
+> > >  			free_old_xmit(sq, true);
+> > >  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+> > >
+> > > -		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+> > > +		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+> > > +			if (netif_tx_queue_stopped(txq)) {
+> > > +				u64_stats_update_begin(&sq->stats.syncp);
+> > > +				u64_stats_inc(&sq->stats.wake);
+> > > +				u64_stats_update_end(&sq->stats.syncp);
+> > > +			}
+> > >  			netif_tx_wake_queue(txq);
+> > > +		}
+> > >
+> > >  		__netif_tx_unlock(txq);
+> > >  	}
+> > > @@ -2473,8 +2489,14 @@ static int virtnet_poll_tx(struct napi_struct
+> > *napi, int budget)
+> > >  	virtqueue_disable_cb(sq->vq);
+> > >  	free_old_xmit(sq, true);
+> > >
+> > > -	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+> > > +	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+> > > +		if (netif_tx_queue_stopped(txq)) {
+> > > +			u64_stats_update_begin(&sq->stats.syncp);
+> > > +			u64_stats_inc(&sq->stats.wake);
+> > > +			u64_stats_update_end(&sq->stats.syncp);
+> > > +		}
+> > >  		netif_tx_wake_queue(txq);
+> > > +	}
+> > >
+> > >  	opaque = virtqueue_enable_cb_prepare(sq->vq);
+> > >
+> > > @@ -4790,6 +4812,8 @@ static void virtnet_get_base_stats(struct
+> > > net_device *dev,
+> > >
+> > >  	tx->bytes = 0;
+> > >  	tx->packets = 0;
+> > > +	tx->stop = 0;
+> > > +	tx->wake = 0;
+> > >
+> > >  	if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_TX_BASIC) {
+> > >  		tx->hw_drops = 0;
+> > > --
+> > > 2.44.0
+> > >
+>
