@@ -1,32 +1,32 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEACE13A89A
-	for <virtualization@lists.linux.dev>; Fri, 10 May 2024 01:19:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BC6213A886
+	for <virtualization@lists.linux.dev>; Fri, 10 May 2024 01:25:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715303971; cv=none; b=gLMUmhqz9ruVo7MKYBaiNM+lKRSYoMR2epEkrQlNUug+GbshIEHETKkb/KrmtWOohC2PopwCXOnphjidUEA7lPhbqbNTtJUsz6yHtzT0FobbI3Uf0l5vyeyGgw051te144IxUFlkVD44hsxncNIDi+m4upTRrGLb9Rp7X4yfUrY=
+	t=1715304322; cv=none; b=AeGcczljxj9wuqIsiaMnWjUc7fvuCVQu9QmLRWZY8e75j2ej+7lRAJc/hnd5Y2lt7vx6fVmMmUQ+On8hoDfzDJuPhuPx1qXfaI9qt4ux6rED3N3nQg8ASZ2kDKaRAFh9PHfOGl03DagOCeoVOE3RR0la1i5MWunijjvloqcfFmI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715303971; c=relaxed/simple;
-	bh=OES0ocJOGOCNOUpdz2lxGQKJI6TmFx00t08hjU1Cp9Q=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=GksvT5do93Z4i0v0R/ZRCCpz1Mu9m9IXQomFE3uV141lc4QmGvjadS42lxc2F+rJrGSBoITb/B0ynxrxmtvm0tEz/s8yBAOF4ycA49V5GyavaobfosRwn1Ivb50ld9BHQdSt1N4waGBUJJlNtKgNuI7mYgARgwjwPtCMvTOiiY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=F4gvb67y; arc=none smtp.client-ip=115.124.30.118
+	s=arc-20240116; t=1715304322; c=relaxed/simple;
+	bh=Oe5f/zedF4yt+G9FpAe91BUv8KzE6jf5kUtuhsJIRns=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Rr1qVAWSmye4kgkFM2x0bRLeA80f+rqQWGA/OXXTU4I+YU6TZHxjXrgQVcrsWAJxx4POelyYjDsTSCBtQZFZkxOX77KwCzg+I/BwbcBwZE/qOSKG/J5UtH+3gHMFerYbitMAEJwhvpxWG4BJXYyn0c0i3chnBipgdgX6hN0qSdU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=J74WtZIa; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="F4gvb67y"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="J74WtZIa"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1715303960; h=Message-ID:Subject:Date:From:To;
-	bh=6tUqBykojlPtOa+QazN2Fepll1KlXCkQkFGlBoxMAGY=;
-	b=F4gvb67yYotk/9tM/cOZomF3wnPPCUh1noN/WRJURLahEaJCajcaaH2zzSb5OazluTxnHPMt4qX2fXT4nlMoZ6CfemEEp5RwXi0bBnF/TWVOO3MxC6yYHJCTdjpo0jwv0lAcQSWzAmp7prRjlpZVtjRDwDSeOsKmyPccKK75qGg=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W68Tgkt_1715303957;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W68Tgkt_1715303957)
+	t=1715304311; h=Message-ID:Subject:Date:From:To;
+	bh=c5sALY6ZcbL1IWlcHacdLYDGE+th34wKqm3+Kz6E6/M=;
+	b=J74WtZIay50ab/Tegun4CrgmsX30grBdPNelOTbnruz1NM9RJG1PJ/h+g888jEI96aRLQw3bQXXXLTYfY2a7ciAyF6YwhKTE8EI7aJ9y1vj+UAwNEpMEoPpknulzHvqe2MdpBx8o2N/qlLp7HXGlk29nAMsC/Z0fWTX+l+BY1Ec=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W68Tj0F_1715304309;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W68Tj0F_1715304309)
           by smtp.aliyun-inc.com;
-          Fri, 10 May 2024 09:19:18 +0800
-Message-ID: <1715303950.5769324-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio_net: Fix memory leak in virtnet_rx_mod_work
-Date: Fri, 10 May 2024 09:19:10 +0800
+          Fri, 10 May 2024 09:25:10 +0800
+Message-ID: <1715304096.399735-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 2/2] virtio_net: Add TX stopped and wake counters
+Date: Fri, 10 May 2024 09:21:36 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Daniel Jurgens <danielj@nvidia.com>
 Cc: <mst@redhat.com>,
@@ -38,57 +38,136 @@ Cc: <mst@redhat.com>,
  <kuba@kernel.org>,
  <pabeni@redhat.com>,
  <jiri@nvidia.com>,
- <axboe@kernel.dk>,
  Daniel Jurgens <danielj@nvidia.com>,
  <netdev@vger.kernel.org>
-References: <20240509183634.143273-1-danielj@nvidia.com>
-In-Reply-To: <20240509183634.143273-1-danielj@nvidia.com>
+References: <20240509163216.108665-1-danielj@nvidia.com>
+ <20240509163216.108665-3-danielj@nvidia.com>
+In-Reply-To: <20240509163216.108665-3-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Thu, 9 May 2024 13:36:34 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
-> The pointer delcaration was missing the __free(kfree).
+On Thu, 9 May 2024 11:32:16 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
+> Add a tx queue stop and wake counters, they are useful for debugging.
 >
-> Fixes: ff7c7d9f5261 ("virtio_net: Remove command data from control_buf")
-> Reported-by: Jens Axboe <axboe@kernel.dk>
-> Closes: https://lore.kernel.org/netdev/0674ca1b-020f-4f93-94d0-104964566e3f@kernel.dk/
+> $ ./tools/net/ynl/cli.py --spec netlink/specs/netdev.yaml \
+> --dump qstats-get --json '{"scope": "queue"}'
+> ...
+>  {'ifindex': 13,
+>   'queue-id': 0,
+>   'queue-type': 'tx',
+>   'tx-bytes': 14756682850,
+>   'tx-packets': 226465,
+>   'tx-stop': 113208,
+>   'tx-wake': 113208},
+>  {'ifindex': 13,
+>   'queue-id': 1,
+>   'queue-type': 'tx',
+>   'tx-bytes': 18167675008,
+>   'tx-packets': 278660,
+>   'tx-stop': 8632,
+>   'tx-wake': 8632}]
+>
 > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
-
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 > ---
->  drivers/net/virtio_net.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  drivers/net/virtio_net.c | 28 ++++++++++++++++++++++++++--
+>  1 file changed, 26 insertions(+), 2 deletions(-)
 >
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index df6121c38a1b..42da535913ed 100644
+> index 218a446c4c27..df6121c38a1b 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -2884,7 +2884,6 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+> @@ -95,6 +95,8 @@ struct virtnet_sq_stats {
+>  	u64_stats_t xdp_tx_drops;
+>  	u64_stats_t kicks;
+>  	u64_stats_t tx_timeouts;
+> +	u64_stats_t stop;
+> +	u64_stats_t wake;
+>  };
 >
->  static int virtnet_close(struct net_device *dev)
->  {
-> -	u8 *promisc_allmulti  __free(kfree) = NULL;
->  	struct virtnet_info *vi = netdev_priv(dev);
->  	int i;
+>  struct virtnet_rq_stats {
+> @@ -145,6 +147,8 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
+>  static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
+>  	VIRTNET_SQ_STAT_QSTAT("packets", packets),
+>  	VIRTNET_SQ_STAT_QSTAT("bytes",   bytes),
+> +	VIRTNET_SQ_STAT_QSTAT("stop",	 stop),
+> +	VIRTNET_SQ_STAT_QSTAT("wake",	 wake),
+>  };
 >
-> @@ -2905,11 +2904,11 @@ static void virtnet_rx_mode_work(struct work_struct *work)
->  {
->  	struct virtnet_info *vi =
->  		container_of(work, struct virtnet_info, rx_mode_work);
-> +	u8 *promisc_allmulti  __free(kfree) = NULL;
->  	struct net_device *dev = vi->dev;
->  	struct scatterlist sg[2];
->  	struct virtio_net_ctrl_mac *mac_data;
->  	struct netdev_hw_addr *ha;
-> -	u8 *promisc_allmulti;
->  	int uc_count;
->  	int mc_count;
->  	void *buf;
+>  static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
+> @@ -1014,6 +1018,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+>  	 */
+>  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+>  		netif_stop_subqueue(dev, qnum);
+> +		u64_stats_update_begin(&sq->stats.syncp);
+> +		u64_stats_inc(&sq->stats.stop);
+> +		u64_stats_update_end(&sq->stats.syncp);
+
+How about introduce two helpers to wrap
+netif_tx_queue_stopped and netif_start_subqueue?
+
+>  		if (use_napi) {
+>  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
+>  				virtqueue_napi_schedule(&sq->napi, sq->vq);
+> @@ -1022,6 +1029,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+>  			free_old_xmit(sq, false);
+>  			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+>  				netif_start_subqueue(dev, qnum);
+> +				u64_stats_update_begin(&sq->stats.syncp);
+> +				u64_stats_inc(&sq->stats.wake);
+> +				u64_stats_update_end(&sq->stats.syncp);
+
+If we start the queue immediately, should we update the counter?
+
+Thanks.
+
+>  				virtqueue_disable_cb(sq->vq);
+>  			}
+>  		}
+> @@ -2322,8 +2332,14 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>  			free_old_xmit(sq, true);
+>  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>
+> -		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+> +		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+> +			if (netif_tx_queue_stopped(txq)) {
+> +				u64_stats_update_begin(&sq->stats.syncp);
+> +				u64_stats_inc(&sq->stats.wake);
+> +				u64_stats_update_end(&sq->stats.syncp);
+> +			}
+>  			netif_tx_wake_queue(txq);
+> +		}
+>
+>  		__netif_tx_unlock(txq);
+>  	}
+> @@ -2473,8 +2489,14 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+>  	virtqueue_disable_cb(sq->vq);
+>  	free_old_xmit(sq, true);
+>
+> -	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+> +	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+> +		if (netif_tx_queue_stopped(txq)) {
+> +			u64_stats_update_begin(&sq->stats.syncp);
+> +			u64_stats_inc(&sq->stats.wake);
+> +			u64_stats_update_end(&sq->stats.syncp);
+> +		}
+>  		netif_tx_wake_queue(txq);
+> +	}
+>
+>  	opaque = virtqueue_enable_cb_prepare(sq->vq);
+>
+> @@ -4790,6 +4812,8 @@ static void virtnet_get_base_stats(struct net_device *dev,
+>
+>  	tx->bytes = 0;
+>  	tx->packets = 0;
+> +	tx->stop = 0;
+> +	tx->wake = 0;
+>
+>  	if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_TX_BASIC) {
+>  		tx->hw_drops = 0;
 > --
-> 2.45.0
+> 2.44.0
 >
