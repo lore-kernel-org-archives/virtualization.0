@@ -1,173 +1,86 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BC6213A886
-	for <virtualization@lists.linux.dev>; Fri, 10 May 2024 01:25:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26BB13A3E3;
+	Fri, 10 May 2024 01:31:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715304322; cv=none; b=AeGcczljxj9wuqIsiaMnWjUc7fvuCVQu9QmLRWZY8e75j2ej+7lRAJc/hnd5Y2lt7vx6fVmMmUQ+On8hoDfzDJuPhuPx1qXfaI9qt4ux6rED3N3nQg8ASZ2kDKaRAFh9PHfOGl03DagOCeoVOE3RR0la1i5MWunijjvloqcfFmI=
+	t=1715304664; cv=none; b=aoQ+Td/3KB2uQDD9c7CpKfmOl3uhjmzrQGlbnL/hx70VkHPO0oZprJi/sxFDhDbgbDEMTJA5BDaD9IzZCwm2lsILMGD4NNGVO2jqDAjoTOWjEIqFi7HMZWw7PSiNAOkqz/Ql8QM1Oii7QGumHgv2qhQ81l6CyIoHTpF2nok9azs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715304322; c=relaxed/simple;
-	bh=Oe5f/zedF4yt+G9FpAe91BUv8KzE6jf5kUtuhsJIRns=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Rr1qVAWSmye4kgkFM2x0bRLeA80f+rqQWGA/OXXTU4I+YU6TZHxjXrgQVcrsWAJxx4POelyYjDsTSCBtQZFZkxOX77KwCzg+I/BwbcBwZE/qOSKG/J5UtH+3gHMFerYbitMAEJwhvpxWG4BJXYyn0c0i3chnBipgdgX6hN0qSdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=J74WtZIa; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1715304664; c=relaxed/simple;
+	bh=5dVzQx35gUbAAlIMFfqYviXSk3Ia0Y2lTQJTkV1hVGY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oBKGy8VLFXmueTxe2rV3qsBqGF+XZ8Cr63dkMXVyXptCGlEo3/r7lun3xp9oEOpckfpMSnohQIy5gDWvVg4GNI8HSPUlXYwjdDvouefM32U2KCRBpGPGkdhgB+RyhULysAvDbK3OeUalKU1AtoEUQFzM2tecX9KikuJpyAoWclI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XxIKFcmT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="J74WtZIa"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715304311; h=Message-ID:Subject:Date:From:To;
-	bh=c5sALY6ZcbL1IWlcHacdLYDGE+th34wKqm3+Kz6E6/M=;
-	b=J74WtZIay50ab/Tegun4CrgmsX30grBdPNelOTbnruz1NM9RJG1PJ/h+g888jEI96aRLQw3bQXXXLTYfY2a7ciAyF6YwhKTE8EI7aJ9y1vj+UAwNEpMEoPpknulzHvqe2MdpBx8o2N/qlLp7HXGlk29nAMsC/Z0fWTX+l+BY1Ec=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W68Tj0F_1715304309;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W68Tj0F_1715304309)
-          by smtp.aliyun-inc.com;
-          Fri, 10 May 2024 09:25:10 +0800
-Message-ID: <1715304096.399735-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 2/2] virtio_net: Add TX stopped and wake counters
-Date: Fri, 10 May 2024 09:21:36 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XxIKFcmT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0BEAC116B1;
+	Fri, 10 May 2024 01:31:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715304664;
+	bh=5dVzQx35gUbAAlIMFfqYviXSk3Ia0Y2lTQJTkV1hVGY=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=XxIKFcmTAsKdpmrLRvHH+Q83NzQBseEX/Tjhklj+8RPUc00xzy5Qx2qjBTA5iqdfH
+	 1gazVBq6razWM8DSWBemiRbWtIQeJZ0hTqZpIV27GFEkHy91tuQqVxfO3tLLE8DJIs
+	 378nfD929SDHQ4f1579D9wFfA4GecQEKbsHDQRL8sl+UdkQE1Bmxr7PXS2XN6aEcOj
+	 3tes81vRxuvyeNhaiI1kIk8hJey1PJtL/eMn45WR1nFLL7TA/1P8K08TN2u9NPMC5P
+	 XAHljLA59cC3lFxo53m7MyzjsSFLpPDyZAR/BEo6B7xcPpL1Nk+DHDii5nvTUu8ff3
+	 /Smw3bNXZstsw==
+Date: Thu, 9 May 2024 18:31:02 -0700
+From: Jakub Kicinski <kuba@kernel.org>
 To: Daniel Jurgens <danielj@nvidia.com>
-Cc: <mst@redhat.com>,
- <jasowang@redhat.com>,
- <xuanzhuo@linux.alibaba.com>,
- <virtualization@lists.linux.dev>,
- <davem@davemloft.net>,
- <edumazet@google.com>,
- <kuba@kernel.org>,
- <pabeni@redhat.com>,
- <jiri@nvidia.com>,
- Daniel Jurgens <danielj@nvidia.com>,
- <netdev@vger.kernel.org>
+Cc: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+ <xuanzhuo@linux.alibaba.com>, <virtualization@lists.linux.dev>,
+ <davem@davemloft.net>, <edumazet@google.com>, <pabeni@redhat.com>,
+ <jiri@nvidia.com>
+Subject: Re: [PATCH net-next 1/2] netdev: Add queue stats for TX stop and
+ wake
+Message-ID: <20240509183102.7c337c2c@kernel.org>
+In-Reply-To: <20240509163216.108665-2-danielj@nvidia.com>
 References: <20240509163216.108665-1-danielj@nvidia.com>
- <20240509163216.108665-3-danielj@nvidia.com>
-In-Reply-To: <20240509163216.108665-3-danielj@nvidia.com>
+	<20240509163216.108665-2-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, 9 May 2024 11:32:16 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
-> Add a tx queue stop and wake counters, they are useful for debugging.
->
-> $ ./tools/net/ynl/cli.py --spec netlink/specs/netdev.yaml \
-> --dump qstats-get --json '{"scope": "queue"}'
-> ...
->  {'ifindex': 13,
->   'queue-id': 0,
->   'queue-type': 'tx',
->   'tx-bytes': 14756682850,
->   'tx-packets': 226465,
->   'tx-stop': 113208,
->   'tx-wake': 113208},
->  {'ifindex': 13,
->   'queue-id': 1,
->   'queue-type': 'tx',
->   'tx-bytes': 18167675008,
->   'tx-packets': 278660,
->   'tx-stop': 8632,
->   'tx-wake': 8632}]
->
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> ---
->  drivers/net/virtio_net.c | 28 ++++++++++++++++++++++++++--
->  1 file changed, 26 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 218a446c4c27..df6121c38a1b 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -95,6 +95,8 @@ struct virtnet_sq_stats {
->  	u64_stats_t xdp_tx_drops;
->  	u64_stats_t kicks;
->  	u64_stats_t tx_timeouts;
-> +	u64_stats_t stop;
-> +	u64_stats_t wake;
->  };
->
->  struct virtnet_rq_stats {
-> @@ -145,6 +147,8 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
->  static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
->  	VIRTNET_SQ_STAT_QSTAT("packets", packets),
->  	VIRTNET_SQ_STAT_QSTAT("bytes",   bytes),
-> +	VIRTNET_SQ_STAT_QSTAT("stop",	 stop),
-> +	VIRTNET_SQ_STAT_QSTAT("wake",	 wake),
->  };
->
->  static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
-> @@ -1014,6 +1018,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
->  	 */
->  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
->  		netif_stop_subqueue(dev, qnum);
-> +		u64_stats_update_begin(&sq->stats.syncp);
-> +		u64_stats_inc(&sq->stats.stop);
-> +		u64_stats_update_end(&sq->stats.syncp);
+On Thu, 9 May 2024 11:32:15 -0500 Daniel Jurgens wrote:
+> diff --git a/tools/include/uapi/linux/netdev.h b/tools/include/uapi/linux/netdev.h
+> index cf24f1d9adf8..ccf6976b1693 100644
+> --- a/tools/include/uapi/linux/netdev.h
+> +++ b/tools/include/uapi/linux/netdev.h
+> @@ -164,7 +164,8 @@ enum {
+>  	NETDEV_A_QSTATS_TX_HW_GSO_BYTES,
+>  	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS,
+>  	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES,
+> -	NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS,
 
-How about introduce two helpers to wrap
-netif_tx_queue_stopped and netif_start_subqueue?
+Looks like an accidental removal?
 
->  		if (use_napi) {
->  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
->  				virtqueue_napi_schedule(&sq->napi, sq->vq);
-> @@ -1022,6 +1029,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
->  			free_old_xmit(sq, false);
->  			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
->  				netif_start_subqueue(dev, qnum);
-> +				u64_stats_update_begin(&sq->stats.syncp);
-> +				u64_stats_inc(&sq->stats.wake);
-> +				u64_stats_update_end(&sq->stats.syncp);
+> +	NETDEV_A_QSTATS_TX_STOP,
+> +	NETDEV_A_QSTATS_TX_WAKE,
 
-If we start the queue immediately, should we update the counter?
+Since you'll have to respin let me nit pick on the docs, as I'm hoping
+that those will be comprehensible to users not only devs.
 
-Thanks.
+> +        name: tx-stop
+> +        doc: |
+> +          Number of times the tx queue was stopped.
 
->  				virtqueue_disable_cb(sq->vq);
->  			}
->  		}
-> @@ -2322,8 +2332,14 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
->  			free_old_xmit(sq, true);
->  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
->
-> -		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-> +		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
-> +			if (netif_tx_queue_stopped(txq)) {
-> +				u64_stats_update_begin(&sq->stats.syncp);
-> +				u64_stats_inc(&sq->stats.wake);
-> +				u64_stats_update_end(&sq->stats.syncp);
-> +			}
->  			netif_tx_wake_queue(txq);
-> +		}
->
->  		__netif_tx_unlock(txq);
->  	}
-> @@ -2473,8 +2489,14 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
->  	virtqueue_disable_cb(sq->vq);
->  	free_old_xmit(sq, true);
->
-> -	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-> +	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
-> +		if (netif_tx_queue_stopped(txq)) {
-> +			u64_stats_update_begin(&sq->stats.syncp);
-> +			u64_stats_inc(&sq->stats.wake);
-> +			u64_stats_update_end(&sq->stats.syncp);
-> +		}
->  		netif_tx_wake_queue(txq);
-> +	}
->
->  	opaque = virtqueue_enable_cb_prepare(sq->vq);
->
-> @@ -4790,6 +4812,8 @@ static void virtnet_get_base_stats(struct net_device *dev,
->
->  	tx->bytes = 0;
->  	tx->packets = 0;
-> +	tx->stop = 0;
-> +	tx->wake = 0;
->
->  	if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_TX_BASIC) {
->  		tx->hw_drops = 0;
-> --
-> 2.44.0
->
+How about:
+
+	Number of times driver paused accepting new tx packets
+	from the stack to this queue, because the queue was full.
+	Note that if BQL is supported and enabled on the device
+	the networking stack will avoid queuing a lot of data at once.
+
+> +        name: tx-wake
+> +        doc: |
+> +          Number of times the tx queue was restarted.
+
+	Number of times driver re-started accepting send
+	requests to this queue from the stack.
