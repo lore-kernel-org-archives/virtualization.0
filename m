@@ -1,156 +1,111 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99FB3134A9
-	for <virtualization@lists.linux.dev>; Sun, 12 May 2024 16:02:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF0701109;
+	Sun, 12 May 2024 16:39:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715529729; cv=none; b=qbMtseHhPZQFRicIVT+zZKhRP2qVc+O9eVYH50rmG29XRhQ2HM0l9vzznE23YjZzf5VhSnNwpV96kWuAgAW+Uy9hEOgJ9yw0XC8AbXtw1IzFx285bNWLXEYB43gXAFm1mAHvEeALCp0yLwHPYM+b5jUKuOQJTO4IV1OtPui760g=
+	t=1715531946; cv=none; b=WIJFXXwhXlhM9nprcaIM7ORfpp+Zi76/cmk6/lLPReBwzQOhmz79n2cTjhmiZdB/SzijUA+hBbPcRBvfSn7uPPME/Kw07Q8/i64IRF8F2hmcNvqVa/c69m+bzoOACx5Mmf/jxUYrxgwE4jfr3jTZdILwwbLDhBIfxrvgL8zn2Dw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715529729; c=relaxed/simple;
-	bh=RxSDTegW7CO/59WWa4N5BIOvsZNO4JGLYbZ0l9O8rwk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=UwFYHQz/5E5HzR6TGLdi9NJvhejEX+bigWggp1GqnQzlFc4BbSPHLbek62ufR+0pVcXrSrgefV+dDPDZsw8YmQ2ytiha0JDi+4MW/Rh05WyRYQw+Dytu6T1/bLa31rFl6IZinKtGeKe+ad3yCDpS9AvNdZfNP68l+amdc2xhgfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iHbcPriN; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1715531946; c=relaxed/simple;
+	bh=IWReFbWnSG11vlPQ92I5R2T/g5Ucy9dLLkzpOWm7rMs=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=ZEas1Eks/AJW/8ZFx/Ry40g7/YS5ndZ4aZZexDyIsOgSidZ/UBv/BIzDi6k1ChmtYDh0L4aidqS8fUlBXQ+NwqxT4OI9RL3NJvALjUkKQxaRDigCogn0ZafXf6FIM4JJAzUIBh48W6WYP57gvDukPI3gyvsnhQiKhrkRBXyZ/zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ugrDOLiA; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iHbcPriN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715529726;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AxLpy9sLIlZS5JyNf+AGoRDlBshQGmESMZNZDTclcZQ=;
-	b=iHbcPriNanALp+OLxsD4SNNopdTs4ja5WfF1PZGv78NmeUC9g3g88yelbNJZ+6lGbINCeb
-	bDf8RlTNjrmuz2pOZG/uC5b0ypDRtJO/+/SL7AmXq+lUO+iA5QNheQ8HWRu6/tC1OTSqLQ
-	lBBSxpHpVA3me2ksvSRSToE8xdk6Nic=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-381-9g5eV50KOfmgEBmxJd8Psw-1; Sun, 12 May 2024 12:02:04 -0400
-X-MC-Unique: 9g5eV50KOfmgEBmxJd8Psw-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a59a0d2280cso282540266b.1
-        for <virtualization@lists.linux.dev>; Sun, 12 May 2024 09:02:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715529723; x=1716134523;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AxLpy9sLIlZS5JyNf+AGoRDlBshQGmESMZNZDTclcZQ=;
-        b=hicGQ/OzTo+l2xCZ84rGOvyrxvC1j9K11oBAAdkDnpJfXOuxfDTXs+kUgQtsGMjbNB
-         MuP63sUXDivQBgKbL3T/LwbUGi/5LiFPuzbig4981R3SSvTy5I8KAbYQP1A6CQbdiz4t
-         cEijptvdvGh8YQ4kDMabEA5LWDPYNALWgtI48sVy0ni96EniYyyizOWSLLsefy+FnEq/
-         G38duJZ8kV2Yrthhg2/jhfXt2zJKKJQLKv3QYaHDEqi7gulVP1CX2Gb7mzbXXN+9HMSf
-         mk8woO1ScAEUK2VO5w4+LTj3dbRA74xZwetzWt6LaYcTeiEfrHHj49wYBe1uadCoKa5/
-         ezZA==
-X-Forwarded-Encrypted: i=1; AJvYcCVjMYCfCCHUo1PSwVKUF38KEGw7kcxI2ww1y2PbS6nvOjpL6IAF+gGvscktf+wxeZknuQqpCd7gOnoICbovVqszut+Kf6J18EkSFwnSi68=
-X-Gm-Message-State: AOJu0YwPuY5IX9y/DSqTTiIh/twmp7exbCZaxPguzwDaXg0ZE2Gu+oFs
-	42rOQZOvoc96bwqnKs6Re9YYoIs4VvxkcXa7Mn27o9ZINQWbi0SybKWDUEa/P6ngTeuwzheqtuO
-	2E4qdinq21X8fqpJ8gf7PCBFr+csjJhufoNEkY3w3Ej52AjOdJkcviRJ6Gnq5YriI
-X-Received: by 2002:a17:906:c405:b0:a59:c319:f1e0 with SMTP id a640c23a62f3a-a5a2d681e12mr464656266b.75.1715529723223;
-        Sun, 12 May 2024 09:02:03 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFRCDOgxb5kjSSoH51C64l7LHObzt/SMo/s+DeV5DWeoHqnDcKMdPA3OGfhMkwQa5PjbfnFNQ==
-X-Received: by 2002:a17:906:c405:b0:a59:c319:f1e0 with SMTP id a640c23a62f3a-a5a2d681e12mr464653366b.75.1715529722576;
-        Sun, 12 May 2024 09:02:02 -0700 (PDT)
-Received: from redhat.com ([31.187.78.166])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a5a1b602b39sm455227466b.50.2024.05.12.09.01.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 May 2024 09:02:01 -0700 (PDT)
-Date: Sun, 12 May 2024 12:01:55 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dan Carpenter <dan.carpenter@linaro.org>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH net-next] virtio_net: Fix error code in
- __virtnet_get_hw_stats()
-Message-ID: <20240512115645-mutt-send-email-mst@kernel.org>
-References: <3762ac53-5911-4792-b277-1f1ead2e90a3@moroto.mountain>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ugrDOLiA"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715531935; h=Message-ID:Subject:Date:From:To;
+	bh=o40wkv9PATkuaNIfkNpU6m7tz6qpatklvvAUQQFo1aM=;
+	b=ugrDOLiA2noYnrbZyOf7Y7XDMv7zW358TJQqBvpcVOSDgbpqZXvfK78KvlcoPLrk7ON+pEeNvqvN2Hjn/39ybMtsl03cEFMuY7MGtmTh2KWQPCues5OdirTMSPSLI8hUbRN/W/OJ2koZrBINIq9vz9q2Of0QX9+EHA3Jpq3kZO0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=27;SR=0;TI=SMTPD_---0W6FsCq4_1715531932;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W6FsCq4_1715531932)
+          by smtp.aliyun-inc.com;
+          Mon, 13 May 2024 00:38:53 +0800
+Message-ID: <1715531818.6973832-3-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v13 2/4] ethtool: provide customized dim profile management
+Date: Mon, 13 May 2024 00:36:58 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: kernel test robot <lkp@intel.com>
+Cc: llvm@lists.linux.dev,
+ oe-kbuild-all@lists.linux.dev,
+ Jakub Kicinski <kuba@kernel.org>,
+ "David S . Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Tal Gilboa <talgi@nvidia.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Paul Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>,
+ Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com,
+ donald.hunter@gmail.com,
+ netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20240509044747.101237-1-hengqi@linux.alibaba.com>
+ <20240509044747.101237-3-hengqi@linux.alibaba.com>
+ <202405100654.5PbLQXnL-lkp@intel.com>
+In-Reply-To: <202405100654.5PbLQXnL-lkp@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <3762ac53-5911-4792-b277-1f1ead2e90a3@moroto.mountain>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Fri, May 10, 2024 at 03:50:45PM +0300, Dan Carpenter wrote:
-> The virtnet_send_command_reply() function returns true on success or
-> false on failure.  The "ok" variable is true/false depending on whether
-> it succeeds or not.  It's up to the caller to translate the true/false
-> into -EINVAL on failure or zero for success.
+On Fri, 10 May 2024 07:09:52 +0800, kernel test robot <lkp@intel.com> wrote:
+> Hi Heng,
 > 
-> The bug is that __virtnet_get_hw_stats() returns false for both
-> errors and success.  It's not a bug, but it is confusing that the caller
-> virtnet_get_hw_stats() uses an "ok" variable to store negative error
-> codes.
-
-The bug is ... It's not a bug ....
-
-I think what you are trying to say is that the error isn't
-really handled anyway, except for printing a warning,
-so it's not a big deal.
-
-Right?
-
-I don't know why can't get_ethtool_stats fail - we should
-probably fix that.
-
-
-> Fix the bug and clean things up so that it's clear that
-> __virtnet_get_hw_stats() returns zero on success or negative error codes
-> on failure.
+> kernel test robot noticed the following build errors:
 > 
-> Fixes: 941168f8b40e ("virtio_net: support device stats")
-> Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
-> ---
->  drivers/net/virtio_net.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+> [auto build test ERROR on net-next/main]
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 218a446c4c27..4fc0fcdad259 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -4016,7 +4016,7 @@ static int __virtnet_get_hw_stats(struct virtnet_info *vi,
->  					&sgs_out, &sgs_in);
->  
->  	if (!ok)
-> -		return ok;
-> +		return -EINVAL;
->  
->  	for (p = reply; p - reply < res_size; p += le16_to_cpu(hdr->size)) {
->  		hdr = p;
-> @@ -4053,7 +4053,7 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
->  	struct virtio_net_ctrl_queue_stats *req;
->  	bool enable_cvq;
->  	void *reply;
-> -	int ok;
-> +	int err;
->  
->  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS))
->  		return 0;
-> @@ -4100,12 +4100,12 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
->  	if (enable_cvq)
->  		virtnet_make_stat_req(vi, ctx, req, vi->max_queue_pairs * 2, &j);
->  
-> -	ok = __virtnet_get_hw_stats(vi, ctx, req, sizeof(*req) * j, reply, res_size);
-> +	err = __virtnet_get_hw_stats(vi, ctx, req, sizeof(*req) * j, reply, res_size);
->  
->  	kfree(req);
->  	kfree(reply);
->  
-> -	return ok;
-> +	return err;
->  }
->  
->  static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+> url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/linux-dim-move-useful-macros-to-h-file/20240509-125007
+> base:   net-next/main
+> patch link:    https://lore.kernel.org/r/20240509044747.101237-3-hengqi%40linux.alibaba.com
+> patch subject: [PATCH net-next v13 2/4] ethtool: provide customized dim profile management
+> config: arm-randconfig-002-20240510 (https://download.01.org/0day-ci/archive/20240510/202405100654.5PbLQXnL-lkp@intel.com/config)
+> compiler: clang version 19.0.0git (https://github.com/llvm/llvm-project b910bebc300dafb30569cecc3017b446ea8eafa0)
+> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240510/202405100654.5PbLQXnL-lkp@intel.com/reproduce)
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202405100654.5PbLQXnL-lkp@intel.com/
+> 
+> All errors (new ones prefixed by >>):
+> 
+> >> ld.lld: error: undefined symbol: lockdep_rtnl_is_held
 
+This failed use case seems to come from this series triggering a problem that
+has not been triggered historically, namely lockdep_rtnl_is_held() is not called
+in an environment where CONFIG_NET is not configured and CONFIG_PROVE_LOCKING is
+configured:
+  If CONFIG_PROVE_LOCKING is configured as Y and CONFIG_NET is n, then
+  lockdep_rtnl_is_held is in an undefined state at this time.
+
+So I think we should declare "CONFIG_PROVE_LOCKING depends on CONFIG_NET".
+How do you think?
+
+Thanks!
+
+>    >>> referenced by net_dim.c
+>    >>>               lib/dim/net_dim.o:(net_dim_free_irq_moder) in archive vmlinux.a
+>    >>> referenced by net_dim.c
+>    >>>               lib/dim/net_dim.o:(net_dim_free_irq_moder) in archive vmlinux.a
+> 
+> -- 
+> 0-DAY CI Kernel Test Service
+> https://github.com/intel/lkp-tests/wiki
