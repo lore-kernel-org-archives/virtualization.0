@@ -1,107 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B85B56B77;
-	Sun, 12 May 2024 19:37:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B30B24C9F
+	for <virtualization@lists.linux.dev>; Mon, 13 May 2024 02:19:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715542626; cv=none; b=ayRICXZ+d0gPqYj0VnLTX+4IfLIRIhg2d+q+uAYPvVQATNfp/qArAr+9fc1NL52MRMAk2/5lWQvyDZkuSeWRemLc+QSLxN18r13rcLPjCd2qsTy8dt+fnBz4DRvYQYb6B/LikQykBBYpYvFOy69d3lc5NpxuSlQ+E9XhHMmFark=
+	t=1715566797; cv=none; b=nJKi5Hr72GF4QJDCmW6GfNeVgVg3vqPt1KGue2i0cu96/ohR/BM/xpfnm8BLcvqXiabKBFiX6KiyLnmfAXOcXETePxqVQWa7c6Gf/bBtvPPASO9AQFYz8tjd8h+4cHk/TOFWj2Lb0i+4gjco+jtDUbwqh6wnl1S6Mxd2jpAWpN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715542626; c=relaxed/simple;
-	bh=qXYTRSugt7rwl/3A7n+cY924/FHphURhvhYWI9AMXzs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=C0voVWm4ciAjzFJCyEZj2amQXfZ0ORNwk8cFg/q6K+dh3646afWG6I1EnW/S8QEQglDAjzSNGTd8T4gjAazL1ZZeZBNWP2QUha9QZ4II8xSiU8ffVjIyHbVraVREUzEAocvhKW8cfQGt9ynyW8xbdsTJVk7ZGKo/9nYUTRFgUTE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e+J22fH/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715566797; c=relaxed/simple;
+	bh=nLF3UxM7MjtqZfnysVw+O3InSkNqMGsxV6LviZSaZnY=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=hy1MxmZEeb1Vk8yuwYK6PPkq8TiljBCJPdscXZzypw7edqONTBleeBDSxYsTj60HQyGLPhe+tuJxu/VyO3TgPe9cy8qRXBnt4W4sQw2gLQo//LjitADE9IQZz9SRDlSGmzuQ84KDTfNAqlcFx8DAMfi8YsW7ujYH7YWo/f9Wfxg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hSYrJAIc; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e+J22fH/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081B8C32783;
-	Sun, 12 May 2024 19:37:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715542625;
-	bh=qXYTRSugt7rwl/3A7n+cY924/FHphURhvhYWI9AMXzs=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=e+J22fH/4YnyP8x5FrAEpo47lsNbj13oV2jS+1bItSJLZScow+ISz0erPzyq51tDX
-	 omRw3NzuQiO1RBpqmHWxZkNdG/C3JpIBRCJRCbdigcjcQA99HuS1zHzIBjLEjyvLM/
-	 kwq3wZLGlKZW9tGsCgDmoFB0XF9ZVchI0zsqHmkv96mGBGcdzYb+wpO4wWv7zIZLUT
-	 e0crt2XhymhE1BsA7nONdVsfepGmV7Jk3FLLgaOEUqReDaQPf3eJt2SsfUKoYypJLN
-	 FXf9Xgi9xcMVJdrj3qSs3ai2k7adxPQmN4NKNo1MKgwJi/TTmrrNUkoh3eJ0gORigB
-	 +mWlKI7cGWgbg==
-From: SeongJae Park <sj@kernel.org>
-To: 
-Cc: SeongJae Park <sj@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	damon@lists.linux.dev,
-	linux-mm@kvack.org
-Subject: [RFC IDEA v2 6/6] drivers/virtio/virtio_balloon: integrate ACMA and ballooning
-Date: Sun, 12 May 2024 12:36:57 -0700
-Message-Id: <20240512193657.79298-7-sj@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240512193657.79298-1-sj@kernel.org>
-References: <20240512193657.79298-1-sj@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hSYrJAIc"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715566786; h=Message-ID:Subject:Date:From:To;
+	bh=+Ibcgk1wyvyT1sLlBJMhxYkwNZUy81Vb4Yk6knvBeK0=;
+	b=hSYrJAIch7ALWRr6LJwU9cKteYSF4qkbwNW4QOfTU/jmKS1wlcmAGQUuWzJwdtKTrlCrBe3XPB+VckXTmNOVPtkre9/MBwej6CMjO6iN6ezVS2Hao820MTDwHjLE7rscF/kYDQR5SRCPYNs8T2lR6XHUwdLH672RyzVc7vc+hQ0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W6Gqhnu_1715566783;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W6Gqhnu_1715566783)
+          by smtp.aliyun-inc.com;
+          Mon, 13 May 2024 10:19:45 +0800
+Message-ID: <1715566739.6868987-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next] virtio_net: Fix error code in __virtnet_get_hw_stats()
+Date: Mon, 13 May 2024 10:18:59 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Dan Carpenter <dan.carpenter@linaro.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev,
+ netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ kernel-janitors@vger.kernel.org
+References: <3762ac53-5911-4792-b277-1f1ead2e90a3@moroto.mountain>
+In-Reply-To: <3762ac53-5911-4792-b277-1f1ead2e90a3@moroto.mountain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Let the host effectively inflate the balloon in access/contiguity-aware
-way when the guest kernel is compiled with specific kernel config.  When
-the config is enabled and the host requests balloon size change,
-virtio-balloon adjusts ACMA's max-mem parameter instead of allocating
-guest pages and put it into the balloon.  As a result, the host can use
-the requested amount of guest memory, so from the host's perspective,
-the ballooning just works, but in transparent and
-access/contiguity-aware way.
+On Fri, 10 May 2024 15:50:45 +0300, Dan Carpenter <dan.carpenter@linaro.org> wrote:
+> The virtnet_send_command_reply() function returns true on success or
+> false on failure.  The "ok" variable is true/false depending on whether
+> it succeeds or not.  It's up to the caller to translate the true/false
+> into -EINVAL on failure or zero for success.
+>
+> The bug is that __virtnet_get_hw_stats() returns false for both
+> errors and success.  It's not a bug, but it is confusing that the caller
+> virtnet_get_hw_stats() uses an "ok" variable to store negative error
+> codes.
+>
+> Fix the bug and clean things up so that it's clear that
+> __virtnet_get_hw_stats() returns zero on success or negative error codes
+> on failure.
+>
+> Fixes: 941168f8b40e ("virtio_net: support device stats")
+> Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
 
-Signed-off-by: SeongJae Park <sj@kernel.org>
----
- drivers/virtio/virtio_balloon.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+That confused me too.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 1f5b3dd31fcf..a954d75789ae 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -472,6 +472,32 @@ static void virtballoon_changed(struct virtio_device *vdev)
- 	struct virtio_balloon *vb = vdev->priv;
- 	unsigned long flags;
- 
-+#ifdef CONFIG_ACMA_BALLOON
-+	s64 target;
-+	u32 num_pages;
-+
-+
-+	/* Legacy balloon config space is LE, unlike all other devices. */
-+	virtio_cread_le(vb->vdev, struct virtio_balloon_config, num_pages,
-+			&num_pages);
-+
-+	/*
-+	 * Aligned up to guest page size to avoid inflating and deflating
-+	 * balloon endlessly.
-+	 */
-+	target = ALIGN(num_pages, VIRTIO_BALLOON_PAGES_PER_PAGE);
-+
-+	/*
-+	 * If the given new max mem size is larger than current acma's max mem
-+	 * size, same to normal max mem adjustment.
-+	 * If the given new max mem size is smaller than current acma's max mem
-+	 * size, strong aggressiveness is applied while memory for meeting the
-+	 * new max mem is met is stolen.
-+	 */
-+	acma_set_max_mem_aggressive(totalram_pages() - target);
-+	return;
-+#endif
-+
- 	spin_lock_irqsave(&vb->stop_update_lock, flags);
- 	if (!vb->stop_update) {
- 		start_update_balloon_size(vb);
--- 
-2.39.2
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
+Thanks.
+
+
+> ---
+>  drivers/net/virtio_net.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 218a446c4c27..4fc0fcdad259 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -4016,7 +4016,7 @@ static int __virtnet_get_hw_stats(struct virtnet_info *vi,
+>  					&sgs_out, &sgs_in);
+>
+>  	if (!ok)
+> -		return ok;
+> +		return -EINVAL;
+>
+>  	for (p = reply; p - reply < res_size; p += le16_to_cpu(hdr->size)) {
+>  		hdr = p;
+> @@ -4053,7 +4053,7 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
+>  	struct virtio_net_ctrl_queue_stats *req;
+>  	bool enable_cvq;
+>  	void *reply;
+> -	int ok;
+> +	int err;
+>
+>  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS))
+>  		return 0;
+> @@ -4100,12 +4100,12 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
+>  	if (enable_cvq)
+>  		virtnet_make_stat_req(vi, ctx, req, vi->max_queue_pairs * 2, &j);
+>
+> -	ok = __virtnet_get_hw_stats(vi, ctx, req, sizeof(*req) * j, reply, res_size);
+> +	err = __virtnet_get_hw_stats(vi, ctx, req, sizeof(*req) * j, reply, res_size);
+>
+>  	kfree(req);
+>  	kfree(reply);
+>
+> -	return ok;
+> +	return err;
+>  }
+>
+>  static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+>
