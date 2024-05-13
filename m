@@ -1,90 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CBFC14C59D;
-	Mon, 13 May 2024 11:32:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFD67A3F
+	for <virtualization@lists.linux.dev>; Mon, 13 May 2024 12:44:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715599954; cv=none; b=Cd2KsA5noNMdENr+Z0WexqnixgQXJjZCugUGIJGPNUY0nDfj9Su3P6dwhQ/ORLJLZjqdJsiQ0VJ7ioOTtgKO1d+27bbu04Pgaq3GxnIjxiHr7AF/2dHi4dNmyRSU/4agnZKaaOGwwuwHsCvcJft2C+gTpL7vOT1DEg4Ut3Jzkvo=
+	t=1715604259; cv=none; b=dHHggqGRGta6aZ9CdywdtlsGOcCOfBofGtMD3jT9uWIKw+AjnBEJiFuPFKwUwnDazzJS3q0onr7iapivLghxycoks7vFSIBKMxz7+IgM77duu/6U8eLc3YfH4/MDRgDyXj8fmqsN05EfpmD0LHKYpwQ7iqKm0wiVvL0GFy7Q5Uk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715599954; c=relaxed/simple;
-	bh=5Q7SvryTCkzI9i/Yhjm3yvtskbQvHGoyG+prJzmV6EA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Eo7On/VamYK5pP9aZv5l2tiRycglpKh9+EKY5dlCh0f0noKaJ6z5tfej5XLdl1FmdmzyXun4cs2UegWSZkaYcm8NcXlFwJZVzjpUYDlAqwA9CwBCSRXN8h+jIhYlq2uBxqR+0Fkc9MAXKifY8MQ1NdaooOHiT2paDibC+CT2u00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=Qdlm8FPk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715604259; c=relaxed/simple;
+	bh=8KSUVzTvqxp7OIdS+GOnbv91geAiKRiZv1Q7eZCzMQc=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=IBrB4nW1bDM+P3an98D+dytbsuHODCHG8mDagCjj9WNeobMarA6X9+g9WfxEH45nEewGARy+fhZkxa5NwatGjr55At2YxE4CYRVdiVywRFAhVriBDn5oGbrHKtFwzMFFCkdOT6BZuArgZnwtt2qIwmQHPCUCw2Vs8me/x/tvLQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=kL6heHlS; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=8PQOmpRe; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Qdlm8FPk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C740C113CC;
-	Mon, 13 May 2024 11:32:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1715599954;
-	bh=5Q7SvryTCkzI9i/Yhjm3yvtskbQvHGoyG+prJzmV6EA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Qdlm8FPkdFGhDn47egt8X7tUXbgywLQZMqliFak8Bqx5vK/s4QUWAtE+8k5Vd3AJq
-	 vj7N3p1X1b7+aK3LYX9o8/jF2zcI+78oDC0vorFQaUfS+u5hjCN8urYZvDUTo5573W
-	 qa4kcDv7DZx/eo5xXJnrNCHIsLO3p2pgO1dwT6QI=
-Date: Mon, 13 May 2024 13:32:31 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Linux regressions mailing list <regressions@lists.linux.dev>
-Cc: stable@vger.kernel.org, airlied@gmail.com, airlied@redhat.com,
-	daniel@ffwll.ch, dreaming.about.electric.sheep@gmail.com,
-	dri-devel@lists.freedesktop.org, kraxel@redhat.com,
-	linux-kernel@vger.kernel.org, maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org, spice-devel@lists.freedesktop.org,
-	tzimmermann@suse.de, virtualization@lists.linux.dev,
-	Anders Blomdell <anders.blomdell@gmail.com>,
-	David Wang <00107082@163.com>
-Subject: Re: [Regression] 6.9.0: WARNING: workqueue: WQ_MEM_RECLAIM
- ttm:ttm_bo_delayed_delete [ttm] is flushing !WQ_MEM_RECLAIM
- events:qxl_gc_work [qxl]
-Message-ID: <2024051324-unfitted-levitator-cae6@gregkh>
-References: <20240430061337.764633-1-00107082@163.com>
- <20240506143003.4855-1-00107082@163.com>
- <ac41c761-27c9-48c3-bd80-d94d4db291e8@leemhuis.info>
- <b57f8ede-5de6-4d3d-96a0-d2fdc6c31174@gmail.com>
- <7e3fdac4-e0bc-42f4-9bb3-a6b16f323491@leemhuis.info>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="kL6heHlS";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="8PQOmpRe"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1715604255;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oAB6AC0uf4kU0wwIw6N445hCMYVKJ7r1lOXf9S9Bb5c=;
+	b=kL6heHlSPMN/pHLoNZnqKMl30/S5c6EGVaohafb3ZLJrndk7gd3/VWYn5uZ8OL45HoZiMP
+	YTPtp8yQG9+LQCEa8uFjPBXUZMKGKpHAqB07i3LanfCAtgLtIh9NaIPyM7PnAEUVSmIlNt
+	oExT8knvUv0siYIwnr1SAMd3RUqGdF95IVYFRstmi3VJVbS4O0RlixfaJYX7CJrdA+3s7V
+	9UiGJczxrBP7Ojxm0XvQ/75cbhTzK923acjp83pMIpH+UXjqLkAWg4VtdehvDcbbH618ak
+	4il4PoaqgI5nr0Ei8SZ7g2EWNaWbaQUbyxNnqsinpo/jWMNxMqaI+3mqZLUBmg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1715604255;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oAB6AC0uf4kU0wwIw6N445hCMYVKJ7r1lOXf9S9Bb5c=;
+	b=8PQOmpReg3DfXxCsRL+7m3s8iwztutKUd+RWc0d4ypaxfy6pMG9iUjllvTSzqaQCTGBu1X
+	ESvttDPH+iekbdDw==
+To: Dongli Zhang <dongli.zhang@oracle.com>, x86@kernel.org
+Cc: mingo@redhat.com, Borislavbp@alien8.de, dave.hansen@linux.intel.com,
+ hpa@zytor.com, joe.jin@oracle.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH 1/1] x86/vector: Fix vector leak during CPU offline
+In-Reply-To: <20240510190623.117031-1-dongli.zhang@oracle.com>
+References: <20240510190623.117031-1-dongli.zhang@oracle.com>
+Date: Mon, 13 May 2024 14:44:15 +0200
+Message-ID: <87msotnaow.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7e3fdac4-e0bc-42f4-9bb3-a6b16f323491@leemhuis.info>
+Content-Type: text/plain
 
-On Wed, May 08, 2024 at 02:51:10PM +0200, Linux regression tracking (Thorsten Leemhuis) wrote:
-> On 08.05.24 14:35, Anders Blomdell wrote:
-> > On 2024-05-07 07:04, Linux regression tracking (Thorsten Leemhuis) wrote:
-> >> On 06.05.24 16:30, David Wang wrote:
-> >>>> On 30.04.24 08:13, David Wang wrote:
-> >>
-> >>>> And confirmed that the warning is caused by
-> >>>> 07ed11afb68d94eadd4ffc082b97c2331307c5ea and reverting it can fix.
-> >>>
-> >>> The kernel warning still shows up in 6.9.0-rc7.
-> >>> (I think 4 high load processes on a 2-Core VM could easily trigger
-> >>> the kernel warning.)
-> >>
-> >> Thx for the report. Linus just reverted the commit 07ed11afb68 you
-> >> mentioned in your initial mail (I put that quote in again, see above):
-> >>
-> >> 3628e0383dd349 ("Reapply "drm/qxl: simplify qxl_fence_wait"")
-> >> https://git.kernel.org/torvalds/c/3628e0383dd349f02f882e612ab6184e4bb3dc10
-> >>
-> >> So this hopefully should be history now.
-> >>
-> > Since this affects the 6.8 series (6.8.7 and onwards), I made a CC to
-> > stable@vger.kernel.org
-> 
-> Ohh, good idea, I thought Linus had added a stable tag, but that is not
-> the case. Adding Greg as well and making things explicit:
-> 
-> @Greg: you might want to add 3628e0383dd349 ("Reapply "drm/qxl: simplify
-> qxl_fence_wait"") to all branches that received 07ed11afb68d94 ("Revert
-> "drm/qxl: simplify qxl_fence_wait"") (which afaics went into v6.8.7,
-> v6.6.28, v6.1.87, and v5.15.156).
+On Fri, May 10 2024 at 12:06, Dongli Zhang wrote:
+> The absence of IRQD_MOVE_PCNTXT prevents immediate effectiveness of
+> interrupt affinity reconfiguration via procfs. Instead, the change is
+> deferred until the next instance of the interrupt being triggered on the
+> original CPU.
+>
+> When the interrupt next triggers on the original CPU, the new affinity is
+> enforced within __irq_move_irq(). A vector is allocated from the new CPU,
+> but if the old vector on the original CPU remains online, it is not
+> immediately reclaimed. Instead, apicd->move_in_progress is flagged, and the
+> reclaiming process is delayed until the next trigger of the interrupt on
+> the new CPU.
+>
+> Upon the subsequent triggering of the interrupt on the new CPU,
+> irq_complete_move() adds a task to the old CPU's vector_cleanup list if it
+> remains online. Subsequently, the timer on the old CPU iterates over its
+> vector_cleanup list, reclaiming vectors.
+>
+> However, if the old CPU is offline before the interrupt triggers again on
+> the new CPU, irq_complete_move() simply resets both apicd->move_in_progress
+> and apicd->prev_vector to 0. Consequently, the vector remains unreclaimed
+> in vector_matrix, resulting in a CPU vector leak.
 
-Now queued up, thanks.
+I doubt that.
 
-greg k-h
+Any interrupt which is affine to an outgoing CPU is migrated and
+eventually pending moves are enforced:
+
+cpu_down()
+  ...
+  cpu_disable_common()
+    fixup_irqs()
+      irq_migrate_all_off_this_cpu()
+        migrate_one_irq()
+          irq_force_complete_move()
+            free_moved_vector();
+
+No?
+
+In fact irq_complete_move() should never see apicd->move_in_progress
+with apicd->prev_cpu pointing to an offline CPU.
+
+The CPU offline case in __vector_schedule_cleanup() should not even
+exist or at least just emit a warning.
+
+If you can trigger that case, then there is something fundamentally
+wrong with the CPU hotplug interrupt migration code and that needs to be
+investigated and fixed.
+
+Thanks,
+
+        tglx
+
