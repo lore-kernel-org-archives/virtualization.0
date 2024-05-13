@@ -1,115 +1,92 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D076C1534EC
-	for <virtualization@lists.linux.dev>; Mon, 13 May 2024 13:39:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3837153BC0;
+	Mon, 13 May 2024 14:22:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715607579; cv=none; b=Tr6U6zrFsYoSu3IKoV0cIRE9aos+DM1cRq8hoI1yQhV9Lv5sfwHQznYBw+F5F9V+WNVLTgB0RdB4tPirC/0PZKdySxUcZ7FjXhttE7cD32GI9500tiBiHPUfgIvg6InNzUZ+gtiHibc+ma9A6ZYqmFxIpAmcq4wYIDJdmtaln5k=
+	t=1715610172; cv=none; b=tcO0eNFsUinYc/lzWail3KRMttre6haCGe1GYLBeuFYvl2Y05oam0AIzU8gJckg64wExLiMpH5nVvI7IVIq5CXzbAgBtZW/4kBTxu5/eEgp8j6Kbm/GQ0OqlT2N/TfkxGqNLuyz0viMCQ9AF6Af+bmkzFU7KSU1Ha1B4wD3M7XY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715607579; c=relaxed/simple;
-	bh=oyWkZmzN25DnCf2cGtg1tNTh9mf5fsurFjBPhTmFJag=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=XZPI66HeZqrdKIl3R7jDM0ei0bg9QQTGH9zzNxcz+Uzu+5cb8UuwGBAyZohbXpnaMgAbrB8xMmvJjCdhmYa2SSVpP+sjmo/aWAYsdkFxt8kZ09l9JcQuEZJT8kJ462+H+ViMh/TePynVNBpf/oFyQxFXGW3oqCLZYwFnTJgdit4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YN5voYXU; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1715610172; c=relaxed/simple;
+	bh=tI/WvQv46AJugXtuNIipq8toujNOpRvVaAr7krEGAnI=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ELjeg1ptSJYglhTrLYBbbNUDGxDtYrlfph+QgCig6O54Yf8P18oDDVo3W77lcwR7FKSDtBZP8g3wQBa9TsOrkvMzGt7frw/LjauWOmbcEJ9bH6PKo/EoQL7J5rdJSK6LLKbZpt376SkKR4sEp9Ajs4JXO2K1MoBAbB9iKW230SQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MpFbeQBA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YN5voYXU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715607576;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YwO8ckBzkYExsFiY1VM1Bv3gnPhOQlut+2ALR7qDN3E=;
-	b=YN5voYXUhzkYdSiJ1ih0snt7XBd7WdiJnNQe6Q93HWk9+HY1R5ex76qsNvrzhdstykZuWf
-	LmFOBLnJRtXmg5euQD39s2MDqu7p8ZQszVruAf8KfnxA5qNKWtyq88HzbyRIVkU2R5je0k
-	ojIL/QhCfPoUD9afX4Shq7A/SLQFH9U=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-611-gdGPVAGcNAawKdoEbVKYpw-1; Mon, 13 May 2024 09:39:25 -0400
-X-MC-Unique: gdGPVAGcNAawKdoEbVKYpw-1
-Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-522362e8317so2217630e87.0
-        for <virtualization@lists.linux.dev>; Mon, 13 May 2024 06:39:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715607563; x=1716212363;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YwO8ckBzkYExsFiY1VM1Bv3gnPhOQlut+2ALR7qDN3E=;
-        b=EPQZrCk5BeVXVLUITPUCSiXbsYJyBZMevzUQropf+1K71GIYqgmGS7YkgLR7yVvmY7
-         RgJ+shguitgieaJhL92pGVL6NUiKQ8IZBtxPJSVBKaCJYv9HhXekAccW3ojttNBJGJ76
-         sXQdnX1Is+f0cMJb5gIMQI7C8UtCCUnzadWvWtynQmccYeX+Qg3aCwsEXx0lajoxveN9
-         px8zOJsz8X0wLrsCVOLqEhQtpy/QTlGHoojoq0yWoBV003GBOCOUQqq1V8nbww4RgqHu
-         GrdA7M2sAjh5UwERurVBkU7nEhw7DLgTYa8mptYQWaeK0xMuqFpNTsUVID94nSMpILpb
-         51+g==
-X-Forwarded-Encrypted: i=1; AJvYcCVvWEEI7taDZdRZImYRS7hlJ5QR31b+hVGewDgmDxn0Q/a5MmuF6sHm6TfZyJAzKXtG+JgaymPTCGsBYNa1BTzmWlFVpdj/Dy+jxkRsRY8=
-X-Gm-Message-State: AOJu0YxoWFRnTipb+lr2j55PSO44vIemjs996CqDjb1JT6MaSoCTfcRN
-	i+dlcS9EbZMy8InKXO35lp7h6HglwPTpuWhtEwB/6kVs4fd63snuUOkCUbgHd5w/9szqfFKj8Nu
-	sztk6tfm9hfV+PRGQwwG8RIFkcvMf2RHxshcyM6n5oFTztCEnrZdj9G7SLQeRyD0+++YPJDTS
-X-Received: by 2002:a05:6512:3d24:b0:51d:5f0a:8839 with SMTP id 2adb3069b0e04-5220fc7c529mr10998410e87.5.1715607563421;
-        Mon, 13 May 2024 06:39:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHacgcpABYf4m0DczOYCAPIGCCE3LJxjeOM2RM9xqPNfLVH9gyM66AT6SzBI22fy20MUZhT+Q==
-X-Received: by 2002:a05:6512:3d24:b0:51d:5f0a:8839 with SMTP id 2adb3069b0e04-5220fc7c529mr10998380e87.5.1715607562736;
-        Mon, 13 May 2024 06:39:22 -0700 (PDT)
-Received: from redhat.com ([31.187.78.17])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a5a1781cfb2sm596464566b.24.2024.05.13.06.39.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 May 2024 06:39:22 -0700 (PDT)
-Date: Mon, 13 May 2024 09:39:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: jasowang@redhat.com, lingshan.zhu@kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH] MAINTAINERS: Change lingshan's email to kernel.org
-Message-ID: <20240513093842-mutt-send-email-mst@kernel.org>
-References: <20240513212750.10158-1-lingshan.zhu@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MpFbeQBA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 498C4C4AF16;
+	Mon, 13 May 2024 14:22:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715610171;
+	bh=tI/WvQv46AJugXtuNIipq8toujNOpRvVaAr7krEGAnI=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=MpFbeQBA5dmJRcc8KkY9woVXu4e6RFP1wuGqPDI/UFeb8VGMy9Rhm2gxGSxP47VrW
+	 LK2BGQqqY3MhZLT1P3WXQISPRCqQaGHem2z3aCDhZKf5JMWGdNrg943mosK7hXDhCP
+	 /jraukPs7LRGbQwH/iWA8I9GM+TOtkP7ylmDUSdy5KUnQZWs+BdcTYKvkljpiUeKwp
+	 P5IzxWZEsW05YsWlfVKXqOAUD2YM7iCQ+T0z8kbbRjHHY4AyIq4fSq5VweynkrTPY9
+	 np161T+Nin8f5+nAgd5+oKunYx/YqDeWPi/+cHcqaWOYduFlKd1OOBbaoz0TYYzTbQ
+	 U/odJW3UbdhQg==
+Date: Mon, 13 May 2024 07:22:49 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: kernel test robot <lkp@intel.com>, llvm@lists.linux.dev,
+ oe-kbuild-all@lists.linux.dev, "David S . Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>, Jason
+ Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Brett
+ Creeley <bcreeley@amd.com>, Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Tal Gilboa <talgi@nvidia.com>, Jonathan
+ Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Maxime Chevallier
+ <maxime.chevallier@bootlin.com>, Jiri Pirko <jiri@resnulli.us>, Paul
+ Greenwalt <paul.greenwalt@intel.com>, Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>, Kory Maincent
+ <kory.maincent@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com, donald.hunter@gmail.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v13 2/4] ethtool: provide customized dim
+ profile management
+Message-ID: <20240513072249.7b0513b0@kernel.org>
+In-Reply-To: <1715531818.6973832-3-hengqi@linux.alibaba.com>
+References: <20240509044747.101237-1-hengqi@linux.alibaba.com>
+	<20240509044747.101237-3-hengqi@linux.alibaba.com>
+	<202405100654.5PbLQXnL-lkp@intel.com>
+	<1715531818.6973832-3-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240513212750.10158-1-lingshan.zhu@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 14, 2024 at 05:27:50AM +0800, Zhu Lingshan wrote:
-> This commit changes lingshan's email from intel.com
-> to kernel.org.
+On Mon, 13 May 2024 00:36:58 +0800 Heng Qi wrote:
+> This failed use case seems to come from this series triggering a problem that
+> has not been triggered historically, namely lockdep_rtnl_is_held() is not called
+> in an environment where CONFIG_NET is not configured and CONFIG_PROVE_LOCKING is
+> configured:
+>   If CONFIG_PROVE_LOCKING is configured as Y and CONFIG_NET is n, then
+>   lockdep_rtnl_is_held is in an undefined state at this time.
 > 
-> This commit also changes the title since ifcvf drives
-> standard virtio pci devices now.
-> 
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> ---
->  MAINTAINERS | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index d75527f7bb0d..b69239cf30a3 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -10465,8 +10465,8 @@ F:	include/net/nl802154.h
->  F:	net/ieee802154/
->  F:	net/mac802154/
->  
-> -Intel VIRTIO DATA PATH ACCELERATOR
-> -M:	Zhu Lingshan <lingshan.zhu@intel.com>
-> +Intel AND STANDARD VIRTIO DATA PATH ACCELERATOR
-> +M:	Zhu Lingshan <lingshan.zhu@kernel.org>
+> So I think we should declare "CONFIG_PROVE_LOCKING depends on CONFIG_NET".
+> How do you think?
 
-Confused. Isn't it still for intel devices?
+Doesn't sound right, can we instead make building lib/dim/net_dim.c
+dependent on CONFIG_NET? Untested but I'm thinking something like:
 
-We have drivers for standard virtio devices already.
+diff --git a/lib/dim/Makefile b/lib/dim/Makefile
+index c4cc4026c451..c02c306e2975 100644
+--- a/lib/dim/Makefile
++++ b/lib/dim/Makefile
+@@ -4,4 +4,8 @@
+ 
+ obj-$(CONFIG_DIMLIB) += dimlib.o
+ 
+-dimlib-objs := dim.o net_dim.o rdma_dim.o
++dimlib-objs := dim.o rdma_dim.o
++
++ifeq ($(CONFIG_NET),y)
++dimlib-objs += net_dim.o
++endif
 
-
->  L:	virtualization@lists.linux.dev
->  S:	Supported
->  F:	drivers/vdpa/ifcvf/
-> -- 
-> 2.43.0
 
