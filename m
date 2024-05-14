@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D0D284E17;
-	Mon, 13 May 2024 22:50:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ADC8191;
+	Tue, 14 May 2024 00:20:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715640629; cv=none; b=WnPv8pEGi8BhqAkTyuLbY9dYvo4s///2aQlqNxDtSs5IHjucg32x/7XyNPIWQEEPaE5U0H7ncunG9VjQQYqFY3hliBABZvS5NlO/vseW6p9GUm45cSxDrnw/psIL2aT0EpNR9WJYa8wfVZc9x9qhjzWf5zA7jbNUIMkLr09Uh7g=
+	t=1715646029; cv=none; b=YXEqqTd2UC5mGZZYhKxwFD/6nKS2xVVV1sJyiJcJlzSUdIEs7HlXQNa+2H6jX8Zl+/Hokj0kaVvvmK6QTwZVz1eI2SLv2N6gh0C767gKj/8NJT4Fz4ruv9e7F/SAQwtI251IwAWZcLjbc9UcbSm8Qj0EupYKrOYb7LpUTzJUCnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715640629; c=relaxed/simple;
-	bh=A8F0aLeTOkEVQsYb3Ruds4GUVKytrjaVyrUlAwe2LYQ=;
+	s=arc-20240116; t=1715646029; c=relaxed/simple;
+	bh=kEv2P8VEAhzSpPP4oNzBwxUgCk18mS9kUZsVlSL24S8=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=rxvVf4X5JlcmcPHGHjckESlLKaxNUGBKe4+yzLmETFqfOpiwnMDkQcYJGgd/p6rpmtC9jXtcmKr/TedhajLOQm3YqESVISG5hU3xY91QwrUbDEEK+jrxasS79U2k0Yn0IDT/aGuHVYW77BtRXUVcioZ057LMRiWTEKk3en9zz20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hcKnbC1o; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=ddroGpfqWHpz+OnU9guxVsmb2/Dne3gnp8nStXDDIWv8DHk+d/bngoSN3UxgiLfU/+JTN+6JzlsD8wc7AJvQo4Jz6yO+/YRMPOW4VY0IkkXO1ETAjHK23cfRbqGEAnmnOyr5F/RVmxAKGIHs5dwMrbqGMOMV1vYcZGxptMjLSX8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QB3j1u5R; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hcKnbC1o"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 10046C4AF0D;
-	Mon, 13 May 2024 22:50:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QB3j1u5R"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id DC133C32781;
+	Tue, 14 May 2024 00:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715640629;
-	bh=A8F0aLeTOkEVQsYb3Ruds4GUVKytrjaVyrUlAwe2LYQ=;
+	s=k20201202; t=1715646028;
+	bh=kEv2P8VEAhzSpPP4oNzBwxUgCk18mS9kUZsVlSL24S8=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=hcKnbC1oCTRS2Y5rent0/h2FqHJE+HTwqroLF1381GE/8OmZHPDIUWJ3EbACtXb5K
-	 EIooOm5YfEnH/X8+wZ//tvX5B/uspm4GHp4Dq08dJykKzpFPD2kZHoE6Mu46RCNlOX
-	 BK4ge80PuM0z+QfXjAi9Yp7LuzLtmmTlEEfC4UrN20WqS/a4chOWzHBWsEBvc2OS2M
-	 DRAGXBc1N5taW7gZ4OgkOd+yShak9IKinDF138Pq9PNvPvAAn8UKYAPdrGc5Q7EGjG
-	 Wkn4biUuXc2QE3TVunNNOu2h0YjoFhTjSSbqZgXpKUU+FxTcs0CPW2hMiAqpLYyalE
-	 DLBnYNzsXIF1w==
+	b=QB3j1u5RZ2mK2m5yQQzvxT3C7T9gm3KyfXKDT9LpG7/do85GuaIIFK5tjFtVQiLUr
+	 HyqttZMBGHPAHwntuM/kQJ3xyf8+PndFqef7Jt9sqkx8AsXbb+bwpz4uGadLu/4mTZ
+	 kex4aY2UuD7mdwpTxi+IHttxO21XIthFPHMLZSkJePQ/+S3wGAVWieeQUjzYM2HiZ0
+	 MHTpCT9CPgF6NSjyct8vbXmzFoF7zw/1t4KFCT4jguGxjm+z6sxf/n8ICWxxqCkIqo
+	 qxIso4ZIET8v+GA3H62zcxWXmngOPm1Vut7XSQo7zXIbxPk1jYhWHuJ0suBGjG3WIL
+	 oq+PPELN3aj3Q==
 Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id EC85FC433F2;
-	Mon, 13 May 2024 22:50:28 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C6CDCC433F2;
+	Tue, 14 May 2024 00:20:28 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -37,39 +37,43 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next 0/2] Add TX stop/wake counters
+Subject: Re: [PATCH net-next v5 0/4] virtio_net: rx enable premapped mode by
+ default
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <171564062896.28873.12862899277990003394.git-patchwork-notify@kernel.org>
-Date: Mon, 13 May 2024 22:50:28 +0000
-References: <20240510201927.1821109-1-danielj@nvidia.com>
-In-Reply-To: <20240510201927.1821109-1-danielj@nvidia.com>
-To: Dan Jurgens <danielj@nvidia.com>
+ <171564602881.15402.11255289410552772554.git-patchwork-notify@kernel.org>
+Date: Tue, 14 May 2024 00:20:28 +0000
+References: <20240511031404.30903-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240511031404.30903-1-xuanzhuo@linux.alibaba.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
  davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- jiri@nvidia.com
+ virtualization@lists.linux.dev
 
 Hello:
 
 This series was applied to netdev/net-next.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Fri, 10 May 2024 23:19:25 +0300 you wrote:
-> Several drivers provide TX stop and wake counters via ethtool stats. Add
-> those to the netdev queue stats, and use them in virtio_net.
+On Sat, 11 May 2024 11:14:00 +0800 you wrote:
+> Actually, for the virtio drivers, we can enable premapped mode whatever
+> the value of use_dma_api. Because we provide the virtio dma apis.
+> So the driver can enable premapped mode unconditionally.
 > 
-> v2:
-> 	- Fixed an accidental line deletion
-> 	- Enhanced documentation
+> This patch set makes the big mode of virtio-net to support premapped mode.
+> And enable premapped mode for rx by default.
 > 
 > [...]
 
 Here is the summary with links:
-  - [net-next,v2,1/2] netdev: Add queue stats for TX stop and wake
-    https://git.kernel.org/netdev/net-next/c/b56035101e1c
-  - [net-next,v2,2/2] virtio_net: Add TX stopped and wake counters
-    https://git.kernel.org/netdev/net-next/c/c39add9b2423
+  - [net-next,v5,1/4] virtio_ring: enable premapped mode whatever use_dma_api
+    https://git.kernel.org/netdev/net-next/c/f9dac92ba908
+  - [net-next,v5,2/4] virtio_net: big mode skip the unmap check
+    https://git.kernel.org/netdev/net-next/c/a377ae542d8d
+  - [net-next,v5,3/4] virtio_net: rx remove premapped failover code
+    https://git.kernel.org/netdev/net-next/c/defd28aa5acb
+  - [net-next,v5,4/4] virtio_net: remove the misleading comment
+    https://git.kernel.org/netdev/net-next/c/9719f039d328
 
 You are awesome, thank you!
 -- 
