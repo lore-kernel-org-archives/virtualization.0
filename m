@@ -1,131 +1,100 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49CAD47F5D
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 12:23:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD0EA13E030
+	for <virtualization@lists.linux.dev>; Tue, 14 May 2024 13:44:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715689434; cv=none; b=Fb9Uea7TDm+7S64pWcrf5SEHGDtQR5XtwxDuq2KKrwSq/2dspLtAVYJoIJhe68t4yajJc7bR8TE/IGgfmCt+lg77Rl2gZIQKmcu8IxV4nd1Clat3xWRUm0xnLomVnHfeecXjs/K1VAgxm5nMKL/dKc+aboqAzXDLkeDg/Q636z4=
+	t=1715694285; cv=none; b=rLuygbr/aydzBZQFYooPw9+IAsUlY0kCb1gtgNX9Dw1GuVk21WVtgNHhRQEDnqH65xLbXQOHN/DnXSQXgP2HV7rAjcje7Ye3apPqtaUlSGtF3se4dfZX0V9fa5WxcJh8gjPPl0mtQy7JGzkvzidbSfskrTpnOqvgppwWqbfZmao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715689434; c=relaxed/simple;
-	bh=bRkarWPZPXCcGNKnN/GFmEsDu3L8Us8oWBdG536diIA=;
+	s=arc-20240116; t=1715694285; c=relaxed/simple;
+	bh=hBFyXmfU0NivrcJfXUfTEh4K3NW+BkCzpf+LUGEdWKQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Vswe2fpVbzIqh2A2nr1wu8WPLpfiunfNcPzhTczdQQRuXdDZO6La2TnnUy+RjIdFKqNrQ8rpTzKIWBR6pjTp7xtZ4I9n7gC6BY74oEq/gmNfqQAsIpckFm2aFjdMzrTw1EHZA1JnGsN9BUD+CKqv/1+4jkFCPeR4NYGdXhQfO34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=HUYIhJQS; arc=none smtp.client-ip=140.211.166.133
+	 In-Reply-To:Content-Type:Content-Disposition; b=VzPzDsxSf1/KJUOXQnFxRxHplIdGwApkxlHEDH1vIHy1n3BauMdXv/C3iMgUiDe15Dno3MKS8LH+1FADaiLFv/0boKRre7cCrvg4523BpcgzR0ccOiNRtecjFuhqjJyiGhhkrGHku5KtvZ/j8cj8MDm4/bfXh6vGpX/ohU4RojE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dz/3QimZ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="HUYIhJQS"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EA1864018A
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 12:23:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.802
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 9l9wFPg-Kqzm for <virtualization@lists.linux-foundation.org>;
- Tue, 14 May 2024 12:23:51 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:1600:4:17::8fac; helo=smtp-8fac.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C22494013C
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C22494013C
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=HUYIhJQS
-Received: from smtp-8fac.mail.infomaniak.ch (smtp-8fac.mail.infomaniak.ch [IPv6:2001:1600:4:17::8fac])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C22494013C
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 12:23:50 +0000 (UTC)
-Received: from smtp-4-0001.mail.infomaniak.ch (smtp-4-0001.mail.infomaniak.ch [10.7.10.108])
-	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VdwWP64pbzTXk;
-	Tue, 14 May 2024 14:23:45 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1715689425;
-	bh=I0eZWdP4Q+KPu4Hx3s3mpwHuoQ0UvkeO9/nafOAr82w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=HUYIhJQSGxJF3jwUizanlmonUX7sygOvcV8noUaAFzN0V3a3iKwuGB8/GEum6Clxq
-	 EcKo1qBH3Un5VS8jWoGkoTi3TiKlCjIcaIL1kB+8poVzqExKvp5IQ2ywDDPeKqlugY
-	 OVZlyAPCKt5gtA5k6143lcqKUer3NgtqPGvwYp+A=
-Received: from unknown by smtp-4-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4VdwWN5tzlzF2L;
-	Tue, 14 May 2024 14:23:44 +0200 (CEST)
-Date: Tue, 14 May 2024 14:23:42 +0200
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Nicolas Saenz Julienne <nsaenz@amazon.com>
-Cc: Sean Christopherson <seanjc@google.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, 
-	Kees Cook <keescook@chromium.org>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Wanpeng Li <wanpengli@tencent.com>, Rick P Edgecombe <rick.p.edgecombe@intel.com>, 
-	Alexander Graf <graf@amazon.com>, Angelina Vu <angelinavu@linux.microsoft.com>, 
-	Anna Trikalinou <atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>, 
-	Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>, 
-	James Morris <jamorris@linux.microsoft.com>, John Andersen <john.s.andersen@intel.com>, 
-	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, 
-	Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>, =?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>, 
-	Thara Gopinath <tgopinath@microsoft.com>, Trilok Soni <quic_tsoni@quicinc.com>, 
-	Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, 
-	Yu Zhang <yu.c.zhang@linux.intel.com>, =?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>, 
-	dev@lists.cloudhypervisor.org, kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, 
-	x86@kernel.org, xen-devel@lists.xenproject.org
-Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
- configuration and violation
-Message-ID: <20240514.mai3Ahdoo2qu@digikod.net>
-References: <20240503131910.307630-1-mic@digikod.net>
- <20240503131910.307630-4-mic@digikod.net>
- <ZjTuqV-AxQQRWwUW@google.com>
- <20240506.ohwe7eewu0oB@digikod.net>
- <ZjmFPZd5q_hEBdBz@google.com>
- <20240507.ieghomae0UoC@digikod.net>
- <ZjpTxt-Bxia3bRwB@google.com>
- <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dz/3QimZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715694282;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=z7rBDn6ackmq48NY+VVpR1hlizGR4TMUhaAeJeRy02k=;
+	b=dz/3QimZjFs6HZju+1Lx27RcDgmSmcFIKcSEoEG6dHgIIQjACKvlfAZIWcweOkP1Wfe6Ha
+	LOUWo2rtSMVQ7mvN8I05BvE7h3wn9ZVYVSNhzjMc6EKuAACMX6TMO8BFrsIQbee6YgiICi
+	hO/1hOLIyVBW2NeGCQxW/F1RhYH7XuQ=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-416--sPhpv7aMlW8L5nl6gcAQw-1; Tue, 14 May 2024 09:44:41 -0400
+X-MC-Unique: -sPhpv7aMlW8L5nl6gcAQw-1
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-51fb0ba9f6aso3785182e87.0
+        for <virtualization@lists.linux.dev>; Tue, 14 May 2024 06:44:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715694279; x=1716299079;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=z7rBDn6ackmq48NY+VVpR1hlizGR4TMUhaAeJeRy02k=;
+        b=dNQnhw9vQlOR7HkJwZrRwfwvlDsKy6bc4X1OQgtEdSp3kmq6smIo8Bz4DxHUSe/xw1
+         ysQzjKmpOO9gUsoqoVVJaD5DcjTg2A9te36v19NFlGsww/8CNf9U0ISM+fNUz7Eot5DF
+         P0jLPAGpSjpARL/jNtrFRiizewrHhcMG5WdFClzn/jVoJHhT60x4dUfHaiJnQRN//jiL
+         /wJZUeOga/P8FKJSKXnHWn2nxXVAarH89CZxklhCrwKxNrata+/F/sQHMAfIn8ZJ53NN
+         tTfpUc6nute2nASyj3Yh2sPjxg7c+KKdzmjBYEBdlnPDDTD/UWYBRwClFYFUcPFOFXWQ
+         fkcg==
+X-Forwarded-Encrypted: i=1; AJvYcCXirJUj89mv8HS5ImcthrsdZ6JeSTnGwfcSHy47PENntXqXNdYG+6aKcelRNRXfjVgfbAj5kPNHOKE/J3UHz4R35OI82AKvesgCB5FLH8M=
+X-Gm-Message-State: AOJu0Yxj0T004qQ/nBXmmusJ0lA4HfWWQ/3wbhu9S4ENsUD8fQkvUWWN
+	NVkO65E6yHqZG2vKq73uyE+H2RHTDFbEsL7VaaGrmr4Ezdm+LKpzZ8rYaL2TRCc7OXOKKc1nqRU
+	6pXhqun2WxL48/IfUJ2Z4eM19aLvWFKAeX9wUtrCAlEGIBY4nn0peOiLWPzdK94X//r+tXykB
+X-Received: by 2002:a05:6512:33d2:b0:51f:5c3:2d6e with SMTP id 2adb3069b0e04-5220fc7815dmr10524984e87.17.1715694279064;
+        Tue, 14 May 2024 06:44:39 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE6SNwl8ryLQ7RX7MpO+8yYmkYBKvpFt7W9I2TMrFktk7EVRVITL776DZiRvOVarItmov3Rpg==
+X-Received: by 2002:a05:6512:33d2:b0:51f:5c3:2d6e with SMTP id 2adb3069b0e04-5220fc7815dmr10524954e87.17.1715694278224;
+        Tue, 14 May 2024 06:44:38 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:55e:463:726a:3c7c:48d4:74fe])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-41fccce1912sm196348555e9.11.2024.05.14.06.44.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 May 2024 06:44:37 -0700 (PDT)
+Date: Tue, 14 May 2024 09:44:33 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: jasowang@redhat.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH] ifcvf/vDPA: ifcvf drives standard virtio pci devices
+Message-ID: <20240514094234-mutt-send-email-mst@kernel.org>
+References: <20240513212707.9894-1-lingshan.zhu@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20240513212707.9894-1-lingshan.zhu@intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com>
-X-Infomaniak-Routing: alpha
 
-On Fri, May 10, 2024 at 10:07:00AM +0000, Nicolas Saenz Julienne wrote:
-> On Tue May 7, 2024 at 4:16 PM UTC, Sean Christopherson wrote:
-> > > If yes, that would indeed require a *lot* of work for something we're not
-> > > sure will be accepted later on.
-> >
-> > Yes and no.  The AWS folks are pursuing VSM support in KVM+QEMU, and SVSM support
-> > is trending toward the paired VM+vCPU model.  IMO, it's entirely feasible to
-> > design KVM support such that much of the development load can be shared between
-> > the projects.  And having 2+ use cases for a feature (set) makes it _much_ more
-> > likely that the feature(s) will be accepted.
-> 
-> Since Sean mentioned our VSM efforts, a small update. We were able to
-> validate the concept of one KVM VM per VTL as discussed in LPC. Right
-> now only for single CPU guests, but are in the late stages of bringing
-> up MP support. The resulting KVM code is small, and most will be
-> uncontroversial (I hope). If other obligations allow it, we plan on
-> having something suitable for review in the coming months.
+On Tue, May 14, 2024 at 05:27:07AM +0800, Zhu Lingshan wrote:
+> @@ -880,7 +881,9 @@ static struct pci_device_id ifcvf_pci_ids[] = {
+>  			 VIRTIO_TRANS_ID_BLOCK,
+>  			 PCI_VENDOR_ID_INTEL,
+>  			 VIRTIO_ID_BLOCK) },
+> -
+> +	/* standard virtio pci devices */
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET,
+> +		     PCI_ANY_ID) },
+>  	{ 0 },
 
-Looks good!
 
-> 
-> Our implementation aims to implement all the VSM spec necessary to run
-> with Microsoft Credential Guard. But note that some aspects necessary
-> for HVCI are not covered, especially the ones that depend on MBEC
-> support, or some categories of secure intercepts.
+To summarize, I don't think ifcvf should drive standard virtio devices.
+If it can then it sounds more like a reason to try to reuse more code
+from virtio core.
 
-We already implemented support for MBEC, so that should not be an issue.
-We just need to find the best interface to configure it.
 
-> 
-> Development happens
-> https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-next
-> branch, but I'd advice against looking into it until we add some order
-> to the rework. Regardless, feel free to get in touch.
+>  };
+>  MODULE_DEVICE_TABLE(pci, ifcvf_pci_ids);
+> -- 
+> 2.43.0
 
-Thanks for the update.
-
-Could we schedule a PUCK meeting to synchronize and help each other?
-What about June 12?
