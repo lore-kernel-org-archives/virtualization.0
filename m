@@ -1,197 +1,88 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58575365
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:34:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 524E71E4A0;
+	Tue, 14 May 2024 16:36:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715704496; cv=none; b=DiszwD/TDx3kW9l6G4osXL5JctSjXHc5yNDXfILqJcVf6uyrDxqOmt+ce+/6MFu0EubyJlSmXs1Tyt7zXXYRPFlfzfxIZbYperza8TZSxpTMj66csBLJjJ7sWAGUvKxCQWltcJdXUqS7i+vMhHAI9KvYK32YMZ3ytWqMifDcMek=
+	t=1715704618; cv=none; b=A3hdNVNN/TJMZbexS8Jsr/248kvDEVSb2Vl436+y+vlRmvRsWSoC07Hd1/VjRP7z/dgv/gNYsZs6E7UYBsCt7ZXDWoSl85AJw3hXk2zjRxO48xIua6aVyXr5YJFgEVFfce2GNt+V/8B3QTjRIyr9BJ2Oyi3IxjYxfXztQi7IAJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715704496; c=relaxed/simple;
-	bh=bquuasHCV5I/L0YtYX6erf/Sqf5ntgz+jwR6bM97uoI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=s2KSNInZYciCMs3S6eyvoMbTFXIIbt84+rk0QVZOzASB6OqzzadGVDGwxbfKMeL7n6EQpkjDqNyBMIJRVOtl9g6DGv+g2MpXVPNWJpz4FzffRb2lntlNUvC98QBzf14qj3RgBPloVGkJZAt/HmrPpem1tjV0KBkkIaXTYM8U3nc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FYMEDT0v; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1715704618; c=relaxed/simple;
+	bh=nqcFAEXxwiPw3in3vd/H7/+fYyvOU8CLAGLOLtfVL9Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=m/glMmzYLDwXtCjyN9YGcWtEtY5IdVjToZFl1QALQ553wMA1Ksl+xQO3NaqLqdqp8Br+MnpDZlqomTGIq9WO10NVtMGBhn9z3BE5V1y5e6QUFBWsB7z5rO6+FwXBio9asGJ91R7hssuiN5BXJEy1CcOLfsX/sVl66NtTYhtP6EE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=TeaGyAij; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FYMEDT0v"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0A962410DC
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:34:55 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ColEe2w1_eUB for <virtualization@lists.linux-foundation.org>;
- Tue, 14 May 2024 16:34:54 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8ED2D409FA
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8ED2D409FA
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=FYMEDT0v
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8ED2D409FA
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:34:53 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 3593ACE0A3C;
-	Tue, 14 May 2024 16:34:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3170C2BD10;
-	Tue, 14 May 2024 16:34:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715704490;
-	bh=bquuasHCV5I/L0YtYX6erf/Sqf5ntgz+jwR6bM97uoI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=FYMEDT0vkpzQD1yVnU2etV+jk/xcPPcRTnjJp1dXIe/kvA6wjKMmb83lmvnh8j5Dn
-	 FwLVn5mOCLtsTAdqA8e9IKWDT8E1G/31jkuFdgTQUCFVqcwxZht7KJGKevoP0JH57J
-	 zIBXGFM5s+eE2aQNps/yAwPufE7fmtUFgh5S+pdLnqdIwIE0yH8pddlodbrR/Hh68c
-	 J+fx3cQBjp5VlcuCQVssVUXpZBD4CM8gk4ClcVRitd++N7JJMo/HaUn7xM2sRhbxoc
-	 Y6npf+jqNIb0LcL/u5Ot+hkLv2CRV/M1fhsdaJAuwPjh2aZYzFqDbdqvwGc5WIeaJ4
-	 ZKaBEjhF8DWgw==
-From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
-To: David Hildenbrand <david@redhat.com>, Alexandre Ghiti
- <alexghiti@rivosinc.com>, Albert Ou <aou@eecs.berkeley.edu>, Palmer
- Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
- linux-riscv@lists.infradead.org
-Cc: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>, Andrew Bresticker
- <abrestic@rivosinc.com>, Chethan Seshadri
- <Chethan.Seshadri@catalinasystems.io>, Lorenzo Stoakes
- <lstoakes@gmail.com>, Oscar Salvador <osalvador@suse.de>, Santosh Mamila
- <santosh.mamila@catalinasystems.io>, Sivakumar Munnangi
- <siva.munnangi@catalinasystems.io>, Sunil V L <sunilvl@ventanamicro.com>,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 4/8] riscv: mm: Add memory hotplugging support
-In-Reply-To: <267be75e-ed4a-45d0-883f-51c7324c30f1@redhat.com>
-References: <20240514140446.538622-1-bjorn@kernel.org>
- <20240514140446.538622-5-bjorn@kernel.org>
- <267be75e-ed4a-45d0-883f-51c7324c30f1@redhat.com>
-Date: Tue, 14 May 2024 18:34:46 +0200
-Message-ID: <87r0e4tkrd.fsf@all.your.base.are.belong.to.us>
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="TeaGyAij"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=YcukAh0HocjCtBqiwt2lxfdiQZRo1TjafRxTMWwqbQ8=; b=TeaGyAijbpaaSRoUjduMd0DyiP
+	hElXRqvwXTs8NCYUjPp3uFgpEw7yqxTHiFCzDnbp9ax1AwkRt2gJ0SdUhzrYt9zOhngNPnPvSdJ48
+	AWLT42F74JmUCQM2FtLRWccuSc+dbxXF1W7e8Ed/Z3BNG9FV2moA+oi0zTFQSQ0+xbHE=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1s6v8a-00FOvA-TE; Tue, 14 May 2024 18:36:24 +0200
+Date: Tue, 14 May 2024 18:36:24 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, kernel test robot <lkp@intel.com>,
+	llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	"David S . Miller" <davem@davemloft.net>,
+	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Brett Creeley <bcreeley@amd.com>,
+	Ratheesh Kannoth <rkannoth@marvell.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Tal Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org,
+	Maxime Chevallier <maxime.chevallier@bootlin.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Paul Greenwalt <paul.greenwalt@intel.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Vladimir Oltean <vladimir.oltean@nxp.com>,
+	Kory Maincent <kory.maincent@bootlin.com>, justinstitt@google.com,
+	donald.hunter@gmail.com, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v13 2/4] ethtool: provide customized dim profile
+ management
+Message-ID: <87bbcd23-e837-477f-99b6-affe8199ce16@lunn.ch>
+References: <20240509044747.101237-1-hengqi@linux.alibaba.com>
+ <20240509044747.101237-3-hengqi@linux.alibaba.com>
+ <202405100654.5PbLQXnL-lkp@intel.com>
+ <1715531818.6973832-3-hengqi@linux.alibaba.com>
+ <20240513072249.7b0513b0@kernel.org>
+ <1715611933.2264705-1-hengqi@linux.alibaba.com>
+ <20240513082412.2a27f965@kernel.org>
+ <1715614744.0497134-3-hengqi@linux.alibaba.com>
+ <20240513114233.6eb8799e@kernel.org>
+ <1715652495.6335685-4-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1715652495.6335685-4-hengqi@linux.alibaba.com>
 
-David Hildenbrand <david@redhat.com> writes:
+> One more friendly request, I see net-next is closed today, but our downstream
+> kernel release deadline is 5.20, so I want to test and release the new v14 today,
+> is it ok?
 
-> On 14.05.24 16:04, Bj=C3=B6rn T=C3=B6pel wrote:
->> From: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
->>=20
->> For an architecture to support memory hotplugging, a couple of
->> callbacks needs to be implemented:
->>=20
->>   arch_add_memory()
->>    This callback is responsible for adding the physical memory into the
->>    direct map, and call into the memory hotplugging generic code via
->>    __add_pages() that adds the corresponding struct page entries, and
->>    updates the vmemmap mapping.
->>=20
->>   arch_remove_memory()
->>    This is the inverse of the callback above.
->>=20
->>   vmemmap_free()
->>    This function tears down the vmemmap mappings (if
->>    CONFIG_SPARSEMEM_VMEMMAP is enabled), and also deallocates the
->>    backing vmemmap pages. Note that for persistent memory, an
->>    alternative allocator for the backing pages can be used; The
->>    vmem_altmap. This means that when the backing pages are cleared,
->>    extra care is needed so that the correct deallocation method is
->>    used.
->>=20
->>   arch_get_mappable_range()
->>    This functions returns the PA range that the direct map can map.
->>    Used by the MHP internals for sanity checks.
->>=20
->> The page table unmap/teardown functions are heavily based on code from
->> the x86 tree. The same remove_pgd_mapping() function is used in both
->> vmemmap_free() and arch_remove_memory(), but in the latter function
->> the backing pages are not removed.
->>=20
->> Signed-off-by: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
->> ---
->>   arch/riscv/mm/init.c | 242 +++++++++++++++++++++++++++++++++++++++++++
->>   1 file changed, 242 insertions(+)
->>=20
->> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
->> index 6f72b0b2b854..7f0b921a3d3a 100644
->> --- a/arch/riscv/mm/init.c
->> +++ b/arch/riscv/mm/init.c
->> @@ -1493,3 +1493,245 @@ void __init pgtable_cache_init(void)
->>   	}
->>   }
->>   #endif
->> +
->> +#ifdef CONFIG_MEMORY_HOTPLUG
->> +static void __meminit free_pte_table(pte_t *pte_start, pmd_t *pmd)
->> +{
->> +	pte_t *pte;
->> +	int i;
->> +
->> +	for (i =3D 0; i < PTRS_PER_PTE; i++) {
->> +		pte =3D pte_start + i;
->> +		if (!pte_none(*pte))
->> +			return;
->> +	}
->> +
->> +	free_pages((unsigned long)page_address(pmd_page(*pmd)), 0);
->> +	pmd_clear(pmd);
->> +}
->> +
->> +static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
->> +{
->> +	pmd_t *pmd;
->> +	int i;
->> +
->> +	for (i =3D 0; i < PTRS_PER_PMD; i++) {
->> +		pmd =3D pmd_start + i;
->> +		if (!pmd_none(*pmd))
->> +			return;
->> +	}
->> +
->> +	free_pages((unsigned long)page_address(pud_page(*pud)), 0);
->> +	pud_clear(pud);
->> +}
->> +
->> +static void __meminit free_pud_table(pud_t *pud_start, p4d_t *p4d)
->> +{
->> +	pud_t *pud;
->> +	int i;
->> +
->> +	for (i =3D 0; i < PTRS_PER_PUD; i++) {
->> +		pud =3D pud_start + i;
->> +		if (!pud_none(*pud))
->> +			return;
->> +	}
->> +
->> +	free_pages((unsigned long)page_address(p4d_page(*p4d)), 0);
->> +	p4d_clear(p4d);
->> +}
->> +
->> +static void __meminit free_vmemmap_storage(struct page *page, size_t si=
-ze,
->> +					   struct vmem_altmap *altmap)
->> +{
->> +	if (altmap)
->> +		vmem_altmap_free(altmap, size >> PAGE_SHIFT);
->> +	else
->> +		free_pages((unsigned long)page_address(page), get_order(size));
->
-> If you unplug a DIMM that was added during boot (can happen on x86-64,=20
-> can it happen on riscv?), free_pages() would not be sufficient. You'd be=
-=20
-> freeing a PG_reserved page that has to be freed differently.
+5.20? Didn't Linus run out of fingers and thumbs and went from 5.19 to
+6.0?
 
-I'd say if it can happen on x86-64, it probably can on RISC-V. I'll look
-into this for the next spin!
+Anyway, this is your internal issue, since netdev only accepts new
+features patches for the next kernel release, not stable kernels. If
+you are forced to do upstream first, you are going to have to wait
+until the next cycle starts, and net-next reopens.
 
-Thanks for spending time on the series!
-
-
-Cheers,
-Bj=C3=B6rn
+      Andrew
