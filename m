@@ -1,100 +1,85 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD0EA13E030
-	for <virtualization@lists.linux.dev>; Tue, 14 May 2024 13:44:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF45C135A40;
+	Tue, 14 May 2024 13:46:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715694285; cv=none; b=rLuygbr/aydzBZQFYooPw9+IAsUlY0kCb1gtgNX9Dw1GuVk21WVtgNHhRQEDnqH65xLbXQOHN/DnXSQXgP2HV7rAjcje7Ye3apPqtaUlSGtF3se4dfZX0V9fa5WxcJh8gjPPl0mtQy7JGzkvzidbSfskrTpnOqvgppwWqbfZmao=
+	t=1715694389; cv=none; b=kErFygxB9XKPbUC7BLddBRW6EnsgTKfGE0VNYy3bxf9qUrXiYdr79u46ZBo5ScI/lMK076s6262nBXddbfceSd6nkvTkjSCLInXjMWJ8rr2gJqgOCBJS3Lo2sHUF/HtFuQ30C6gENiSUyZUdEOpobCC1OzhVBxNZYsVOwCQ6eQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715694285; c=relaxed/simple;
-	bh=hBFyXmfU0NivrcJfXUfTEh4K3NW+BkCzpf+LUGEdWKQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VzPzDsxSf1/KJUOXQnFxRxHplIdGwApkxlHEDH1vIHy1n3BauMdXv/C3iMgUiDe15Dno3MKS8LH+1FADaiLFv/0boKRre7cCrvg4523BpcgzR0ccOiNRtecjFuhqjJyiGhhkrGHku5KtvZ/j8cj8MDm4/bfXh6vGpX/ohU4RojE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dz/3QimZ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1715694389; c=relaxed/simple;
+	bh=zBSGEEVkAYXfxfHKmHO3J9UMnIn9Z43RNoE8U8/JUJs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cXT1sNrOGL/2b7UZwGHW3lbIlnJdMmY4xTjb79DninaNE7IrqD7qZ9mM7MwfT4T7eHo3mOUttWGPK09GJmFfk66Ll8jC9fCWN8f+l0ouB4ExJVN7toodN8CIMh9bhB0EFjFbJ6jo7S7RWdnmg2FtD4B9K1ia8pvXrjBdhaYrKBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l+nwBFyI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dz/3QimZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715694282;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=z7rBDn6ackmq48NY+VVpR1hlizGR4TMUhaAeJeRy02k=;
-	b=dz/3QimZjFs6HZju+1Lx27RcDgmSmcFIKcSEoEG6dHgIIQjACKvlfAZIWcweOkP1Wfe6Ha
-	LOUWo2rtSMVQ7mvN8I05BvE7h3wn9ZVYVSNhzjMc6EKuAACMX6TMO8BFrsIQbee6YgiICi
-	hO/1hOLIyVBW2NeGCQxW/F1RhYH7XuQ=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-416--sPhpv7aMlW8L5nl6gcAQw-1; Tue, 14 May 2024 09:44:41 -0400
-X-MC-Unique: -sPhpv7aMlW8L5nl6gcAQw-1
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-51fb0ba9f6aso3785182e87.0
-        for <virtualization@lists.linux.dev>; Tue, 14 May 2024 06:44:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715694279; x=1716299079;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=z7rBDn6ackmq48NY+VVpR1hlizGR4TMUhaAeJeRy02k=;
-        b=dNQnhw9vQlOR7HkJwZrRwfwvlDsKy6bc4X1OQgtEdSp3kmq6smIo8Bz4DxHUSe/xw1
-         ysQzjKmpOO9gUsoqoVVJaD5DcjTg2A9te36v19NFlGsww/8CNf9U0ISM+fNUz7Eot5DF
-         P0jLPAGpSjpARL/jNtrFRiizewrHhcMG5WdFClzn/jVoJHhT60x4dUfHaiJnQRN//jiL
-         /wJZUeOga/P8FKJSKXnHWn2nxXVAarH89CZxklhCrwKxNrata+/F/sQHMAfIn8ZJ53NN
-         tTfpUc6nute2nASyj3Yh2sPjxg7c+KKdzmjBYEBdlnPDDTD/UWYBRwClFYFUcPFOFXWQ
-         fkcg==
-X-Forwarded-Encrypted: i=1; AJvYcCXirJUj89mv8HS5ImcthrsdZ6JeSTnGwfcSHy47PENntXqXNdYG+6aKcelRNRXfjVgfbAj5kPNHOKE/J3UHz4R35OI82AKvesgCB5FLH8M=
-X-Gm-Message-State: AOJu0Yxj0T004qQ/nBXmmusJ0lA4HfWWQ/3wbhu9S4ENsUD8fQkvUWWN
-	NVkO65E6yHqZG2vKq73uyE+H2RHTDFbEsL7VaaGrmr4Ezdm+LKpzZ8rYaL2TRCc7OXOKKc1nqRU
-	6pXhqun2WxL48/IfUJ2Z4eM19aLvWFKAeX9wUtrCAlEGIBY4nn0peOiLWPzdK94X//r+tXykB
-X-Received: by 2002:a05:6512:33d2:b0:51f:5c3:2d6e with SMTP id 2adb3069b0e04-5220fc7815dmr10524984e87.17.1715694279064;
-        Tue, 14 May 2024 06:44:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE6SNwl8ryLQ7RX7MpO+8yYmkYBKvpFt7W9I2TMrFktk7EVRVITL776DZiRvOVarItmov3Rpg==
-X-Received: by 2002:a05:6512:33d2:b0:51f:5c3:2d6e with SMTP id 2adb3069b0e04-5220fc7815dmr10524954e87.17.1715694278224;
-        Tue, 14 May 2024 06:44:38 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:55e:463:726a:3c7c:48d4:74fe])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-41fccce1912sm196348555e9.11.2024.05.14.06.44.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 May 2024 06:44:37 -0700 (PDT)
-Date: Tue, 14 May 2024 09:44:33 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: jasowang@redhat.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH] ifcvf/vDPA: ifcvf drives standard virtio pci devices
-Message-ID: <20240514094234-mutt-send-email-mst@kernel.org>
-References: <20240513212707.9894-1-lingshan.zhu@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l+nwBFyI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49328C2BD10;
+	Tue, 14 May 2024 13:46:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715694388;
+	bh=zBSGEEVkAYXfxfHKmHO3J9UMnIn9Z43RNoE8U8/JUJs=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=l+nwBFyIporfF0UR4fTxoN8Lx4/bsH7hRvZEErPJk897JJ3CMiUBYxZKLILVJY5is
+	 pTOtImxqbpf50N34AaIr58fAovsJ3UZeVT6U49wtDBhi7qyd4XSQRyEPKjYMwdt9Uz
+	 g7RQ+0I7lkvQimxMs9+w3cdebdI0Wbv+SrbxI6S1DBEc+V8Kn/m1y7XoLn+dpRwTm+
+	 p/lfrJFNQPkOZm+ZkwmPeYH3kU9o2CzYBj2NLd6XoCY6FRqoera6YlYyvylZN04hiH
+	 wzt/rhaBxz1IZuXW6/NsZ5uzEGPq5MF9oVTKVEEpZx0spfVYDpKLMIfzFObhT6k9Lp
+	 WT2ozW4nGRFYw==
+Date: Tue, 14 May 2024 06:46:26 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: kernel test robot <lkp@intel.com>, llvm@lists.linux.dev,
+ oe-kbuild-all@lists.linux.dev, "David S . Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>, Jason
+    Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett    Creeley <bcreeley@amd.com>, Ratheesh Kannoth
+ <rkannoth@marvell.com>, Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal Gilboa <talgi@nvidia.com>,
+ Jonathan    Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Maxime
+ Chevallier <maxime.chevallier@bootlin.com>, Jiri Pirko <jiri@resnulli.us>,
+ Paul    Greenwalt <paul.greenwalt@intel.com>, Ahmed Zaki
+ <ahmed.zaki@intel.com>, Vladimir Oltean <vladimir.oltean@nxp.com>, Kory
+ Maincent <kory.maincent@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com, donald.hunter@gmail.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v13 2/4] ethtool: provide customized dim
+ profile management
+Message-ID: <20240514064626.44778d98@kernel.org>
+In-Reply-To: <1715652495.6335685-4-hengqi@linux.alibaba.com>
+References: <20240509044747.101237-1-hengqi@linux.alibaba.com>
+	<20240509044747.101237-3-hengqi@linux.alibaba.com>
+	<202405100654.5PbLQXnL-lkp@intel.com>
+	<1715531818.6973832-3-hengqi@linux.alibaba.com>
+	<20240513072249.7b0513b0@kernel.org>
+	<1715611933.2264705-1-hengqi@linux.alibaba.com>
+	<20240513082412.2a27f965@kernel.org>
+	<1715614744.0497134-3-hengqi@linux.alibaba.com>
+	<20240513114233.6eb8799e@kernel.org>
+	<1715652495.6335685-4-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240513212707.9894-1-lingshan.zhu@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 14, 2024 at 05:27:07AM +0800, Zhu Lingshan wrote:
-> @@ -880,7 +881,9 @@ static struct pci_device_id ifcvf_pci_ids[] = {
->  			 VIRTIO_TRANS_ID_BLOCK,
->  			 PCI_VENDOR_ID_INTEL,
->  			 VIRTIO_ID_BLOCK) },
-> -
-> +	/* standard virtio pci devices */
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET,
-> +		     PCI_ANY_ID) },
->  	{ 0 },
+On Tue, 14 May 2024 10:08:15 +0800 Heng Qi wrote:
+> > We can't make lockdep dependent on NET.
+> > People working on other subsystems should be able to use LOCKDEP 
+> > with minimal builds.  
+> 
+> Got it. Then I declare "DIMLIB depends on NET" and clean up other places.
 
+I'm not sure if there's any legit DIM (but not net_dim) user, if there
+isn't that SGTM. The RDMA is fine to depend on NET.
 
-To summarize, I don't think ifcvf should drive standard virtio devices.
-If it can then it sounds more like a reason to try to reuse more code
-from virtio core.
+> One more friendly request, I see net-next is closed today, but our downstream
+> kernel release deadline is 5.20, so I want to test and release the new v14 today,
+> is it ok?
 
-
->  };
->  MODULE_DEVICE_TABLE(pci, ifcvf_pci_ids);
-> -- 
-> 2.43.0
-
+You'll need to post as RFC since it can't be applied but you can post
+to continue review. Please wait a day or two tho, I'm currently swamped
+trying to go thru the PR preparations.
