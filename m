@@ -1,75 +1,74 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F4D9365
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:33:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58575365
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:34:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715704400; cv=none; b=S95Set6ZoQQaxmql8OWXdtSjdmeIFFghfujmJ1KpFvYzYptFkWz7lIhZcNBiYNWRg0Uy/Lhajgz9VqwfsRdB6sbfw6eSdprwtL2PSzUDCYQ3G3Z8aPyLeW/5rqqIB79goPTPfV5KZ4Gr5MZcYbXAy/V3YzOSdCOYH5jyR0F353s=
+	t=1715704496; cv=none; b=DiszwD/TDx3kW9l6G4osXL5JctSjXHc5yNDXfILqJcVf6uyrDxqOmt+ce+/6MFu0EubyJlSmXs1Tyt7zXXYRPFlfzfxIZbYperza8TZSxpTMj66csBLJjJ7sWAGUvKxCQWltcJdXUqS7i+vMhHAI9KvYK32YMZ3ytWqMifDcMek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715704400; c=relaxed/simple;
-	bh=2O3FVoVp95G4P4aUBtb5SLdBJuD22ckBazyVVu22ZDA=;
+	s=arc-20240116; t=1715704496; c=relaxed/simple;
+	bh=bquuasHCV5I/L0YtYX6erf/Sqf5ntgz+jwR6bM97uoI=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=OphAaiyMq2aGkeDZLte17PHaz9sPPT1uahoAUBHsifte7qXrOwEhQAx46MU+xr5LPzvKUvlBivm5M174QEiep+EEoGVi34Llq6Ghd2q1pk+FBv0AL33tOyG4skOY8qSnPmwMkLzoO0tA2qE3blVct/GG329z12OBL8h/w02qZog=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WTI29hSi; arc=none smtp.client-ip=140.211.166.133
+	 MIME-Version:Content-Type; b=s2KSNInZYciCMs3S6eyvoMbTFXIIbt84+rk0QVZOzASB6OqzzadGVDGwxbfKMeL7n6EQpkjDqNyBMIJRVOtl9g6DGv+g2MpXVPNWJpz4FzffRb2lntlNUvC98QBzf14qj3RgBPloVGkJZAt/HmrPpem1tjV0KBkkIaXTYM8U3nc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FYMEDT0v; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WTI29hSi"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FYMEDT0v"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BDF94400F5
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:33:18 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0A962410DC
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:34:55 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id TEwLZS7OgTqM for <virtualization@lists.linux-foundation.org>;
- Tue, 14 May 2024 16:33:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 75829405B8
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 75829405B8
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=WTI29hSi
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 75829405B8
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:33:17 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ColEe2w1_eUB for <virtualization@lists.linux-foundation.org>;
+ Tue, 14 May 2024 16:34:54 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8ED2D409FA
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8ED2D409FA
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=FYMEDT0v
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8ED2D409FA
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 16:34:53 +0000 (UTC)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 80B22CE12A5;
-	Tue, 14 May 2024 16:33:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F1BC2BD10;
-	Tue, 14 May 2024 16:33:12 +0000 (UTC)
+	by sin.source.kernel.org (Postfix) with ESMTP id 3593ACE0A3C;
+	Tue, 14 May 2024 16:34:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3170C2BD10;
+	Tue, 14 May 2024 16:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715704392;
-	bh=2O3FVoVp95G4P4aUBtb5SLdBJuD22ckBazyVVu22ZDA=;
+	s=k20201202; t=1715704490;
+	bh=bquuasHCV5I/L0YtYX6erf/Sqf5ntgz+jwR6bM97uoI=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=WTI29hSiyDCBZ/ISmRKtXANpO+MIhVZR4JWCVcJqN9/o+DiUQ5X0GEXAdrgRbrqyZ
-	 b+wMqcBFG+zX/Kql95Loc0oVKFWI3aDu/VsJ6sUjSCyxr34W2VMnjPBg7uvGlV/hZf
-	 58sTwPUhjQ7JMumSjb2rr2cwE1QWDF6sGQYy+c8i5MpLLEcO/yEfjel9AzUt4f9Ndw
-	 iHHJc31d3f817J5K1WR8DjMU2QpBKILOiQ3F5iJ+kPtnSXMw28vI/Wyx4ymQyRvfsG
-	 S0fOOCFPj7SWbYL/SpOwoFMZPh2UYXNv3uMEs0lkKg9UHfVRQRY8cPajbAQF84TznI
-	 /HHuZ+HKrZCgw==
+	b=FYMEDT0vkpzQD1yVnU2etV+jk/xcPPcRTnjJp1dXIe/kvA6wjKMmb83lmvnh8j5Dn
+	 FwLVn5mOCLtsTAdqA8e9IKWDT8E1G/31jkuFdgTQUCFVqcwxZht7KJGKevoP0JH57J
+	 zIBXGFM5s+eE2aQNps/yAwPufE7fmtUFgh5S+pdLnqdIwIE0yH8pddlodbrR/Hh68c
+	 J+fx3cQBjp5VlcuCQVssVUXpZBD4CM8gk4ClcVRitd++N7JJMo/HaUn7xM2sRhbxoc
+	 Y6npf+jqNIb0LcL/u5Ot+hkLv2CRV/M1fhsdaJAuwPjh2aZYzFqDbdqvwGc5WIeaJ4
+	 ZKaBEjhF8DWgw==
 From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
-To: Alexandre Ghiti <alexghiti@rivosinc.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, David Hildenbrand <david@redhat.com>,
- Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley
- <paul.walmsley@sifive.com>, linux-riscv@lists.infradead.org,
- =?utf-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@rivosinc.com>, Andrew Bresticker <abrestic@rivosinc.com>, Chethan
- Seshadri <Chethan.Seshadri@catalinasystems.io>, Lorenzo Stoakes
+To: David Hildenbrand <david@redhat.com>, Alexandre Ghiti
+ <alexghiti@rivosinc.com>, Albert Ou <aou@eecs.berkeley.edu>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-riscv@lists.infradead.org
+Cc: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>, Andrew Bresticker
+ <abrestic@rivosinc.com>, Chethan Seshadri
+ <Chethan.Seshadri@catalinasystems.io>, Lorenzo Stoakes
  <lstoakes@gmail.com>, Oscar Salvador <osalvador@suse.de>, Santosh Mamila
  <santosh.mamila@catalinasystems.io>, Sivakumar Munnangi
  <siva.munnangi@catalinasystems.io>, Sunil V L <sunilvl@ventanamicro.com>,
  linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 1/8] riscv: mm: Pre-allocate vmemmap/direct map PGD
- entries
-In-Reply-To: <CAHVXubhfsvDZrw_Cvg8AnEm00P0TQvrSOV_jVSBRckmJLp6EFQ@mail.gmail.com>
+Subject: Re: [PATCH v2 4/8] riscv: mm: Add memory hotplugging support
+In-Reply-To: <267be75e-ed4a-45d0-883f-51c7324c30f1@redhat.com>
 References: <20240514140446.538622-1-bjorn@kernel.org>
- <20240514140446.538622-2-bjorn@kernel.org>
- <CAHVXubhfsvDZrw_Cvg8AnEm00P0TQvrSOV_jVSBRckmJLp6EFQ@mail.gmail.com>
-Date: Tue, 14 May 2024 18:33:09 +0200
-Message-ID: <87wmnwtku2.fsf@all.your.base.are.belong.to.us>
+ <20240514140446.538622-5-bjorn@kernel.org>
+ <267be75e-ed4a-45d0-883f-51c7324c30f1@redhat.com>
+Date: Tue, 14 May 2024 18:34:46 +0200
+Message-ID: <87r0e4tkrd.fsf@all.your.base.are.belong.to.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,112 +78,120 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-Alexandre Ghiti <alexghiti@rivosinc.com> writes:
+David Hildenbrand <david@redhat.com> writes:
 
-> Hi Bj=C3=B6rn,
->
-> On Tue, May 14, 2024 at 4:05=E2=80=AFPM Bj=C3=B6rn T=C3=B6pel <bjorn@kern=
-el.org> wrote:
->>
+> On 14.05.24 16:04, Bj=C3=B6rn T=C3=B6pel wrote:
 >> From: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
->>
->> The RISC-V port copies the PGD table from init_mm/swapper_pg_dir to
->> all userland page tables, which means that if the PGD level table is
->> changed, other page tables has to be updated as well.
->>
->> Instead of having the PGD changes ripple out to all tables, the
->> synchronization can be avoided by pre-allocating the PGD entries/pages
->> at boot, avoiding the synchronization all together.
->>
->> This is currently done for the bpf/modules, and vmalloc PGD regions.
->> Extend this scheme for the PGD regions touched by memory hotplugging.
->>
->> Prepare the RISC-V port for memory hotplug by pre-allocate
->> vmemmap/direct map entries at the PGD level. This will roughly waste
->> ~128 worth of 4K pages when memory hotplugging is enabled in the
->> kernel configuration.
->>
+>>=20
+>> For an architecture to support memory hotplugging, a couple of
+>> callbacks needs to be implemented:
+>>=20
+>>   arch_add_memory()
+>>    This callback is responsible for adding the physical memory into the
+>>    direct map, and call into the memory hotplugging generic code via
+>>    __add_pages() that adds the corresponding struct page entries, and
+>>    updates the vmemmap mapping.
+>>=20
+>>   arch_remove_memory()
+>>    This is the inverse of the callback above.
+>>=20
+>>   vmemmap_free()
+>>    This function tears down the vmemmap mappings (if
+>>    CONFIG_SPARSEMEM_VMEMMAP is enabled), and also deallocates the
+>>    backing vmemmap pages. Note that for persistent memory, an
+>>    alternative allocator for the backing pages can be used; The
+>>    vmem_altmap. This means that when the backing pages are cleared,
+>>    extra care is needed so that the correct deallocation method is
+>>    used.
+>>=20
+>>   arch_get_mappable_range()
+>>    This functions returns the PA range that the direct map can map.
+>>    Used by the MHP internals for sanity checks.
+>>=20
+>> The page table unmap/teardown functions are heavily based on code from
+>> the x86 tree. The same remove_pgd_mapping() function is used in both
+>> vmemmap_free() and arch_remove_memory(), but in the latter function
+>> the backing pages are not removed.
+>>=20
 >> Signed-off-by: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
 >> ---
->>  arch/riscv/include/asm/kasan.h | 4 ++--
->>  arch/riscv/mm/init.c           | 7 +++++++
->>  2 files changed, 9 insertions(+), 2 deletions(-)
->>
->> diff --git a/arch/riscv/include/asm/kasan.h b/arch/riscv/include/asm/kas=
-an.h
->> index 0b85e363e778..e6a0071bdb56 100644
->> --- a/arch/riscv/include/asm/kasan.h
->> +++ b/arch/riscv/include/asm/kasan.h
->> @@ -6,8 +6,6 @@
->>
->>  #ifndef __ASSEMBLY__
->>
->> -#ifdef CONFIG_KASAN
->> -
->>  /*
->>   * The following comment was copied from arm64:
->>   * KASAN_SHADOW_START: beginning of the kernel virtual addresses.
->> @@ -34,6 +32,8 @@
->>   */
->>  #define KASAN_SHADOW_START     ((KASAN_SHADOW_END - KASAN_SHADOW_SIZE) =
-& PGDIR_MASK)
->>  #define KASAN_SHADOW_END       MODULES_LOWEST_VADDR
->> +
->> +#ifdef CONFIG_KASAN
->>  #define KASAN_SHADOW_OFFSET    _AC(CONFIG_KASAN_SHADOW_OFFSET, UL)
->>
->>  void kasan_init(void);
+>>   arch/riscv/mm/init.c | 242 +++++++++++++++++++++++++++++++++++++++++++
+>>   1 file changed, 242 insertions(+)
+>>=20
 >> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
->> index 2574f6a3b0e7..5b8cdfafb52a 100644
+>> index 6f72b0b2b854..7f0b921a3d3a 100644
 >> --- a/arch/riscv/mm/init.c
 >> +++ b/arch/riscv/mm/init.c
->> @@ -27,6 +27,7 @@
->>
->>  #include <asm/fixmap.h>
->>  #include <asm/io.h>
->> +#include <asm/kasan.h>
->>  #include <asm/numa.h>
->>  #include <asm/pgtable.h>
->>  #include <asm/sections.h>
->> @@ -1488,10 +1489,16 @@ static void __init preallocate_pgd_pages_range(u=
-nsigned long start, unsigned lon
->>         panic("Failed to pre-allocate %s pages for %s area\n", lvl, area=
-);
->>  }
->>
->> +#define PAGE_END KASAN_SHADOW_START
+>> @@ -1493,3 +1493,245 @@ void __init pgtable_cache_init(void)
+>>   	}
+>>   }
+>>   #endif
 >> +
->>  void __init pgtable_cache_init(void)
->>  {
->>         preallocate_pgd_pages_range(VMALLOC_START, VMALLOC_END, "vmalloc=
-");
->>         if (IS_ENABLED(CONFIG_MODULES))
->>                 preallocate_pgd_pages_range(MODULES_VADDR, MODULES_END, =
-"bpf/modules");
->> +       if (IS_ENABLED(CONFIG_MEMORY_HOTPLUG)) {
->> +               preallocate_pgd_pages_range(VMEMMAP_START, VMEMMAP_END, =
-"vmemmap");
->> +               preallocate_pgd_pages_range(PAGE_OFFSET, PAGE_END, "dire=
-ct map");
->> +       }
->>  }
->>  #endif
->> --
->> 2.40.1
->>
+>> +#ifdef CONFIG_MEMORY_HOTPLUG
+>> +static void __meminit free_pte_table(pte_t *pte_start, pmd_t *pmd)
+>> +{
+>> +	pte_t *pte;
+>> +	int i;
+>> +
+>> +	for (i =3D 0; i < PTRS_PER_PTE; i++) {
+>> +		pte =3D pte_start + i;
+>> +		if (!pte_none(*pte))
+>> +			return;
+>> +	}
+>> +
+>> +	free_pages((unsigned long)page_address(pmd_page(*pmd)), 0);
+>> +	pmd_clear(pmd);
+>> +}
+>> +
+>> +static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
+>> +{
+>> +	pmd_t *pmd;
+>> +	int i;
+>> +
+>> +	for (i =3D 0; i < PTRS_PER_PMD; i++) {
+>> +		pmd =3D pmd_start + i;
+>> +		if (!pmd_none(*pmd))
+>> +			return;
+>> +	}
+>> +
+>> +	free_pages((unsigned long)page_address(pud_page(*pud)), 0);
+>> +	pud_clear(pud);
+>> +}
+>> +
+>> +static void __meminit free_pud_table(pud_t *pud_start, p4d_t *p4d)
+>> +{
+>> +	pud_t *pud;
+>> +	int i;
+>> +
+>> +	for (i =3D 0; i < PTRS_PER_PUD; i++) {
+>> +		pud =3D pud_start + i;
+>> +		if (!pud_none(*pud))
+>> +			return;
+>> +	}
+>> +
+>> +	free_pages((unsigned long)page_address(p4d_page(*p4d)), 0);
+>> +	p4d_clear(p4d);
+>> +}
+>> +
+>> +static void __meminit free_vmemmap_storage(struct page *page, size_t si=
+ze,
+>> +					   struct vmem_altmap *altmap)
+>> +{
+>> +	if (altmap)
+>> +		vmem_altmap_free(altmap, size >> PAGE_SHIFT);
+>> +	else
+>> +		free_pages((unsigned long)page_address(page), get_order(size));
 >
-> As you asked, with
-> https://lore.kernel.org/linux-riscv/20240514133614.87813-1-alexghiti@rivo=
-sinc.com/T/#u,
-> you will be able to remove the usage of KASAN_SHADOW_START.
+> If you unplug a DIMM that was added during boot (can happen on x86-64,=20
+> can it happen on riscv?), free_pages() would not be sufficient. You'd be=
+=20
+> freeing a PG_reserved page that has to be freed differently.
 
-Very nice -- consistency! I'll need to respin, so I'll clean this up for
-the next version.
+I'd say if it can happen on x86-64, it probably can on RISC-V. I'll look
+into this for the next spin!
 
-> But anyhow, you can add:
->
-> Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Thanks for spending time on the series!
 
 
-Thank you!
+Cheers,
 Bj=C3=B6rn
