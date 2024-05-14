@@ -1,85 +1,85 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE4E17B4E5
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:58:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A009617B4E5
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:59:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715702335; cv=none; b=Rd4AtFj4PwuQ1mwu9OHRNNKyS4RYCSoUYiesEW+94xWfqjLj9W010yXHttffDnDigJEp+XeUDjccKfPOwz30tFhCJwhEBo+equa9U+O57ViOEo6Qe6O0wQWQo8oSlo0WqHXH/NUX+fxNElDr68MMQRhdEB3VrU3kjRXb2lqZwFM=
+	t=1715702384; cv=none; b=rkVqDkgR+7rDfj63eTxEFJLiIapiwZ8XhKPilILLbxIP2WVAzO9q758cWmnorOOvMSrsckqguHRxuDRw/9eqmamVh3qzgDnsO03mc41vmMD1dhuSXkIOAuEI43/TqnsF0uqzfhaqscwd/kr+1xMcztlLGJfnAXRXQrpmSfF4jpM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715702335; c=relaxed/simple;
-	bh=T/7tNw3OCSBexRio3ZeLhVbYRbHi05hyDMHnz4+jW6A=;
+	s=arc-20240116; t=1715702384; c=relaxed/simple;
+	bh=Dc2DerwYBgozxyxgZxW1isfyEue8tCw/P3yLn9i7qKw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pX1BXJjbCjrC5cCeX7aXIWbrIK8U3vjMgVBBndL+5ZuQMRsaFXJstY1RKeraltVgDedVW7bkJGJhEZJoUtfNAiPJXn+N+GRBALYHkmbpQgXmTTy70TZqWY4rDo5DuqENLme8QTyhlKoDY50GIO1Wkp4gK9T9WUu17snmwYbVoC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QXE2POuO; arc=none smtp.client-ip=140.211.166.136
+	 In-Reply-To:Content-Type; b=f6ygHan3yPCh7qQKUgFkSloLP8qUv8n3BPwnWyMxgj8+YTytJXQ6ILMu+YE0yeHcaiNsA3SEv5r18V5RCJ4IUn3KzNjiI+rV9i52BvhXTNa8NcZ296LpN4rrujBTOsSmiz44HwrQ743+EXvg5h+tw8KjTRn3koATChx/7HjWeBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NICjIw8k; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QXE2POuO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NICjIw8k"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D30CF60697
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:58:53 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3ACE460B5D
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:59:43 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id NlYGX5kPda64 for <virtualization@lists.linux-foundation.org>;
- Tue, 14 May 2024 15:58:53 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=david@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 0550E605FA
+ id Zi5TXLyT0nIu for <virtualization@lists.linux-foundation.org>;
+ Tue, 14 May 2024 15:59:42 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=david@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 5E27760B1D
 Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0550E605FA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5E27760B1D
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QXE2POuO
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0550E605FA
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:58:52 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NICjIw8k
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5E27760B1D
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715702331;
+	s=mimecast20190719; t=1715702381;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=kvyD+47vDiVZ1HqZCWc8GW6dp7A4/9KWl6vG9zgnVfU=;
-	b=QXE2POuOnHHskgdYzMmBcwemIBVfydDvAHHeSPEqUezxHQdQPvNBOjYkZVLVW1nKnQ3Lwe
-	n3Yxl0lA3pXeimmiLuONWgPmPIOrV+WgJj/86YiEURWFKE067zZvrcdb4jlzqVgsRL2rW6
-	aIdUNp5V5xNKhuipabhZjSG5C6z9yvs=
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
- [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=FziVE3UcEfelvdfJHO++cS7G6lDOTnc3Onquu2wEMDc=;
+	b=NICjIw8kbeuhRyi6gyZND49N2X6WfGh/KBEn1541AxMtnQAxnpT9t4a8R85EkNtBQjqSxj
+	KOT4xLkPKVYD0wriv/fbMRoFGygIOwxmu1fUeOitzKNsyPKbCWZJa2I6Yh3kimUuRbZt/l
+	GL96x4LxoyL6WVNR6Ra7pDoQq9JnI4M=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-490-6hyDfq1HOj-heu5Fk1QL3Q-1; Tue, 14 May 2024 11:58:50 -0400
-X-MC-Unique: 6hyDfq1HOj-heu5Fk1QL3Q-1
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-6f4739ba7dcso2550796b3a.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 08:58:50 -0700 (PDT)
+ us-mta-449-dPMEmuvSPlyMCvcQ3WVE0w-1; Tue, 14 May 2024 11:59:39 -0400
+X-MC-Unique: dPMEmuvSPlyMCvcQ3WVE0w-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6f475e364b7so2870658b3a.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 08:59:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715702329; x=1716307129;
+        d=1e100.net; s=20230601; t=1715702378; x=1716307178;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=kvyD+47vDiVZ1HqZCWc8GW6dp7A4/9KWl6vG9zgnVfU=;
-        b=T74qqQ69Vp1VWMo9TOEOUyFoFJjiN/6qOUcOGGHNsXEk0N6escxWoPM5Aqh2HR2SL8
-         GlezfN1BcGU/EjfYuScqD7IsRCoLbJ6i1EWTaMDc8WXq4sxAQnJfauHxGRVj7IhCehIj
-         kTnCuM6uYn4sqttsn8t8ENGMTfrrbKQmvASuBS/nQqzl8tt2a0JQmm4S0bEd5EIP95Qb
-         MiIK6eg+j3TWarZ17pMUQ7njwv/tpla3emF/8q/OsJlUKewConGRmLK99GwgxY5Ypkha
-         ZVyov60oC4uRNXuwma8b6sJzcSLTGicHKrDvVF2SQp3kWDZXEBvyeSKiLty74aYwy77h
-         hJYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW0ORlPqHgirL4bgpvOYNUma9mM9kLuLUTCwTgaEMnW0zGDIhgSAySy+BlEM8Qf2apEP/kUmEu7o/V79PWcrZBh/FdJMD4tuAeK4GJYQdyZoaujlO9up5uwqQ==
-X-Gm-Message-State: AOJu0YxssXkuksuU6NokGeSthUi92jpxh8liBfPH1rfYUK268pIoltQK
-	B9dzvXvL6saNwSY+yCWh5aBOOYBR3c2tROsa34YJovn50bv1SA88MqYioCxUnL8eZCrqtO2Yiid
-	Z5mysT//J6lgXFikkt/iF8zIzCzabdmMNAOcgDPgQ7TKoQAYcEHnVVa24jEMUJ/NqxpVL6lWtJY
-	DC80w=
-X-Received: by 2002:a05:6a00:4f86:b0:6f3:e6ac:1a3f with SMTP id d2e1a72fcca58-6f4e02ad970mr15828922b3a.11.1715702329009;
-        Tue, 14 May 2024 08:58:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGQISvA42hinyusbGdUd1dvzSXFpQXpfUwTKAu99wTKU0rBBgYY71Nyic/65cySNe0tBJdx5g==
-X-Received: by 2002:a05:6a00:4f86:b0:6f3:e6ac:1a3f with SMTP id d2e1a72fcca58-6f4e02ad970mr15828889b3a.11.1715702328570;
-        Tue, 14 May 2024 08:58:48 -0700 (PDT)
+        bh=FziVE3UcEfelvdfJHO++cS7G6lDOTnc3Onquu2wEMDc=;
+        b=SIWkpguWdbotJtl/Rl9V3C6guG7o+dGuIyaFtKDtuPPv5Z100f/Al+Ch2XcJy/ycgb
+         /heIhD2yV+dqKvY2CRAC0G79tdB7xDQCAi6f4d9W9lQ/JcWPe8oaE30P99UvCCwzAjAJ
+         iU/9AhSzbId99KUYLJt7qwuF/uk7JwHX0s2nBlaWXqyzxz8tUHV+4jNo/WmCi9l/oFZK
+         94KwBTep5uZtmWwKresZr3lj9ADXKjUia6yzkU4GojH+kPlsxf6KMyIJZJKnCforxZSw
+         putkUaV1ZwyRqvAN43z6Y9uFUo9PylFSqTgPbXAcP24+oW1Cqt1FGDhvKiTb0Kmesnju
+         QLJw==
+X-Forwarded-Encrypted: i=1; AJvYcCXFpPW1JAQ/Gbf8wWiJwwzGiQCx0B/t+1dQAgbftKjDafzTYUNWQfcPD8zyhw+d8Q82xHF8+8KT/LttODy+SXsqDGOvcxPoATCXbTQgKvV4JKUkwl3DUNtg3w==
+X-Gm-Message-State: AOJu0Yx6NYzKu+pkQnX/kp4lhzYkduJIl9/QcNOUweiv0PKvPju2GBKf
+	Vc51b4qTQvoETY48wccAsAOdSR+AlAglkvg++LZDQqRwkK5OiNZomKk3oxHuUq8hYaZ4rYYkYwx
+	srYV7D8BfottzBke0Y5jglGmFONW0GVWuZUuHNWRCC+gTl+7QtEhvmrbW36M37AGcFJVDtzkKTH
+	TNSFM=
+X-Received: by 2002:a05:6a20:dda5:b0:1af:cf63:3df3 with SMTP id adf61e73a8af0-1afde0dbff0mr11112798637.14.1715702377746;
+        Tue, 14 May 2024 08:59:37 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHSNd/Htfdc4/rdZ1uK+BHQ4z/KWKOxdfhUlRcb1GSDkMKoVb5DPdGteWX7De0DfR/0THKowg==
+X-Received: by 2002:a05:6a20:dda5:b0:1af:cf63:3df3 with SMTP id adf61e73a8af0-1afde0dbff0mr11112771637.14.1715702377262;
+        Tue, 14 May 2024 08:59:37 -0700 (PDT)
 Received: from [172.21.1.2] ([50.204.89.31])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-6f4d2a66590sm9695600b3a.1.2024.05.14.08.58.47
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-63a917264d6sm6709968a12.73.2024.05.14.08.59.36
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 May 2024 08:58:48 -0700 (PDT)
-Message-ID: <8b7de899-4150-4da0-8242-507977169bbc@redhat.com>
-Date: Tue, 14 May 2024 17:58:46 +0200
+        Tue, 14 May 2024 08:59:36 -0700 (PDT)
+Message-ID: <4551ca95-8ca2-49d5-92ff-15f490640ed9@redhat.com>
+Date: Tue, 14 May 2024 17:59:35 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,7 +87,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/8] virtio-mem: Enable virtio-mem for RISC-V
+Subject: Re: [PATCH v2 2/8] riscv: mm: Change attribute from __init to
+ __meminit for page functions
 To: =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
  Alexandre Ghiti <alexghiti@rivosinc.com>, Albert Ou <aou@eecs.berkeley.edu>,
  Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley
@@ -101,7 +102,7 @@ Cc: =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>,
  Sunil V L <sunilvl@ventanamicro.com>, linux-kernel@vger.kernel.org,
  linux-mm@kvack.org, virtualization@lists.linux-foundation.org
 References: <20240514140446.538622-1-bjorn@kernel.org>
- <20240514140446.538622-8-bjorn@kernel.org>
+ <20240514140446.538622-3-bjorn@kernel.org>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -148,7 +149,7 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20240514140446.538622-8-bjorn@kernel.org>
+In-Reply-To: <20240514140446.538622-3-bjorn@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
@@ -158,32 +159,23 @@ Content-Transfer-Encoding: 8bit
 On 14.05.24 16:04, Björn Töpel wrote:
 > From: Björn Töpel <bjorn@rivosinc.com>
 > 
-> Now that RISC-V has memory hotplugging support, virtio-mem can be used
-> on the platform.
+> Prepare for memory hotplugging support by changing from __init to
+> __meminit for the page table functions that are used by the upcoming
+> architecture specific callbacks.
+> 
+> Changing the __init attribute to __meminit, avoids that the functions
+> are removed after init. The __meminit attribute makes sure the
+> functions are kept in the kernel text post init, but only if memory
+> hotplugging is enabled for the build.
+> 
+> Also, make sure that the altmap parameter is properly passed on to
+> vmemmap_populate_hugepages().
 > 
 > Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
 > ---
->   drivers/virtio/Kconfig | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> index c17193544268..4e5cebf1b82a 100644
-> --- a/drivers/virtio/Kconfig
-> +++ b/drivers/virtio/Kconfig
-> @@ -122,7 +122,7 @@ config VIRTIO_BALLOON
->   
->   config VIRTIO_MEM
->   	tristate "Virtio mem driver"
-> -	depends on X86_64 || ARM64
-> +	depends on X86_64 || ARM64 || RISCV
->   	depends on VIRTIO
->   	depends on MEMORY_HOTPLUG
->   	depends on MEMORY_HOTREMOVE
 
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-Nice!
-
-Acked-by: David Hildenbrand <david@redhat.com>
 -- 
 Cheers,
 
