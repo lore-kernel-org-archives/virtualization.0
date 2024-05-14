@@ -1,103 +1,92 @@
-Received: from mail-yb1-f202.google.com (mail-yb1-f202.google.com [209.85.219.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FFE9469D
-	for <virtualization@lists.linux.dev>; Tue, 14 May 2024 02:03:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 220E14C8D;
+	Tue, 14 May 2024 02:15:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715652194; cv=none; b=Gc+sHcTZJC0LzS16GeVlSQHS/ilWO7TSHpw7RoUWDnoDdR0JA62TLKbvbxhhA/2PlgcijqtrraHcvZXtUfZ79UvAyTCEdJGoF8ToUiiVuIusazzkBzUUVF43vfsS1Wk06LMl5flrs7TcYRzAS6g06/keV4Qw2ui1e8RdgvHgHBY=
+	t=1715652926; cv=none; b=KCmFlKJl6vSTmmDnTFxgpBd4+u/Z5u2FAAVscRs/6r394u3Jb+GPnC0ckVWmTcm6mrUWzhbPQkeKQhtkhS18m0pFzRZgB/yqCOpQYPqB3YKi7uD4xrk+rAEsch5TYbhmHpQP1pTsd+yVf1OVoFYSAdItjcLSAehZC1f+PwRRqfA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715652194; c=relaxed/simple;
-	bh=6KOrme8o9PGJN5Tbk8Ru6CkgrB3HbHtOupbevpkmW6M=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=JFg1mK5+thVsrsD6ik9QEQRzbEMMlJavdEMrwpHAyZbdkGU7r7dAsR2PlFh4CleJ2B9kAeHUgsICV+5eTB/PuQJNo6UDxu5Qen5FhQNqWRkzzGYAAFANPMh9tviZPMoxaFOtu8J/5XFcl7Tvs4Iv0uY4zrEx8lVh4cObBhVjgvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=0Wbq4X+r; arc=none smtp.client-ip=209.85.219.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com
+	s=arc-20240116; t=1715652926; c=relaxed/simple;
+	bh=z6Lm5ompKBHeHZuRba98YUM44pCmPMVjPqmvhRHI+r8=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Q/7ZehtqlHuAkmfzkseqCNQUsTKuxDgfQ1h3hFzmooyTcxG3NG+iWErr1RbxAzFlDm3sVjSiIsOTF60FtEqnzUtfYf/r5Q+hYWrlb1i18cfxT9EEeWLzPFjj3DbX7jHKDrKBP3oLS++01aOhnoViyv1tVC7AfRYw4k6Yc6zHw7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HX6C6XO3; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="0Wbq4X+r"
-Received: by mail-yb1-f202.google.com with SMTP id 3f1490d57ef6-dc6b269686aso7639027276.1
-        for <virtualization@lists.linux.dev>; Mon, 13 May 2024 19:03:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1715652191; x=1716256991; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=V6LZX8B3NAwKdOpyzwg2nERNshi+/Z+TgchSBTbrUTg=;
-        b=0Wbq4X+r72bWrQhHlo4jNJEQUx438oTFaatYLSeFlDfnr5v0oV4ET+wRL/m4n3nuDg
-         JFHhDTq7SpVgkZa+16Y+gDGtZW1HMvHBdzzJMSIzykelhfTb4GwWFLCXoxnW0tpztzcW
-         JJ2NteKl2MvAcrZKR3BLEmb4PFWFbT1831PoLD5d12xdTAEh3rKQU9bJpSuCtv/hB6J0
-         x+8TFDjzdQSs8mRbWnTd1oT9fXJdg12Y18zz9vrKAS88ryhB+x/spx1Mrg1caL9X2Wy4
-         MyLqNF5Es5ZWTXTIQQG+1CT271PKges9pwt9O+GEskowPUZ8xvegLW2A/hWjkI8J//sJ
-         vgHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715652191; x=1716256991;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=V6LZX8B3NAwKdOpyzwg2nERNshi+/Z+TgchSBTbrUTg=;
-        b=qoHJE7Dc4nU7imkC1Giho+p/eovIzcW+giJt2krBYR/6bbFXfPcs2mAyRHDe5bsH28
-         oR6GPn9Pyto6ciJjD+7WnbUSIoA8L2XMtwJE/uJPtr29PAxUGWzwLmGozdVv937IX/7q
-         pJn10TklMoIkzOgmj9VbtVWPMxkEO4Iv9Ttu0NQDbwZCsTk66gXdSTZvDwo+VxSoDy/Y
-         voMcgYgAykS1TM8FxJx5wx8hiwXBwQlYBXHROr4wlBb56kdWNjOV2JxYUHgPEwonjI4A
-         5Pfipxq2adh+n8n27zIzlbdwLGGZ2MXW9tq11x62+N8kwn4dr3vhOsLD/KjVBYG7ejYC
-         nuTQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUjPgnFnNJsXUenBblqIqGLVfGgYfIuM00O162HpY2GMAs8kZHgGVxmiujg4dVp2puUVbc9l8mCyP+dpQZqryv9Upbr0qRsehai4smMvOw=
-X-Gm-Message-State: AOJu0Yxp+2c3dQ3o6BdhY8mAXrIQLWHc0KkRwtAIw1EZ2iEm8bQQxkHI
-	qCqUEdWwyt7lxr7rdsuSmcpbLLo8ez+6EsCSpRL/LnOmmoIXkgLKPOvTVIPT0KxlA25N6nmxzYp
-	C4MeK9g==
-X-Google-Smtp-Source: AGHT+IFnKyUwV1sRfhj14Ul5g8vZ0XrMokIFRTN8GZG8T8GmdeJC1X9cXXIfOTYT+lTmG0FuwmA11eBeJunc
-X-Received: from yuanchu-desktop.svl.corp.google.com ([2620:15c:2a3:200:c98c:5a45:8674:49c2])
- (user=yuanchu job=sendgmr) by 2002:a05:6902:c09:b0:de5:5304:3206 with SMTP id
- 3f1490d57ef6-dee4f52d715mr1019538276.11.1715652191073; Mon, 13 May 2024
- 19:03:11 -0700 (PDT)
-Date: Mon, 13 May 2024 19:03:01 -0700
-In-Reply-To: <20240514020301.1835794-1-yuanchu@google.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HX6C6XO3"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715652920; h=Message-ID:Subject:Date:From:To;
+	bh=iPnEEWKQuTa1Y1rNnIiTQTNWYIOeu95k7A0SXh7Y2lk=;
+	b=HX6C6XO34O2I/hfWlUuchuDpRLl9ZvjejNuALQipzee6s4t7+Q70GtCnW9I73jbzqGjWZVNr59x6it/RFvhQ7Hb/fqgCoGOInqHhD6t4zm7CFp8Ri1fp0t53PgUpqalhFzy6YjXS7i5vg3YRNxBFq9IZXcBcgieIRNz2kJmqV+Q=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=27;SR=0;TI=SMTPD_---0W6TQv3T_1715652917;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W6TQv3T_1715652917)
+          by smtp.aliyun-inc.com;
+          Tue, 14 May 2024 10:15:18 +0800
+Message-ID: <1715652495.6335685-4-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v13 2/4] ethtool: provide customized dim profile management
+Date: Tue, 14 May 2024 10:08:15 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: kernel test robot <lkp@intel.com>,
+ llvm@lists.linux.dev,
+ oe-kbuild-all@lists.linux.dev,
+ "David S . Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>,
+ Jason    Wang <jasowang@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett    Creeley <bcreeley@amd.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Tal Gilboa <talgi@nvidia.com>,
+ Jonathan    Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Paul    Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>,
+ Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com,
+ donald.hunter@gmail.com,
+ netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20240509044747.101237-1-hengqi@linux.alibaba.com>
+ <20240509044747.101237-3-hengqi@linux.alibaba.com>
+ <202405100654.5PbLQXnL-lkp@intel.com>
+ <1715531818.6973832-3-hengqi@linux.alibaba.com>
+ <20240513072249.7b0513b0@kernel.org>
+ <1715611933.2264705-1-hengqi@linux.alibaba.com>
+ <20240513082412.2a27f965@kernel.org>
+ <1715614744.0497134-3-hengqi@linux.alibaba.com>
+ <20240513114233.6eb8799e@kernel.org>
+In-Reply-To: <20240513114233.6eb8799e@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20240514020301.1835794-1-yuanchu@google.com>
-X-Mailer: git-send-email 2.45.0.rc1.225.g2a3ae87e7f-goog
-Message-ID: <20240514020301.1835794-2-yuanchu@google.com>
-Subject: [RFC PATCH v1 2/2] virt: memctl: add Yuanchu and Pasha as maintainers
-From: Yuanchu Xie <yuanchu@google.com>
-To: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Dan Williams <dan.j.williams@intel.com>, 
-	Tom Lendacky <thomas.lendacky@amd.com>, 
-	Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, virtualization@lists.linux.dev, 
-	dev@lists.cloudhypervisor.org, Yuanchu Xie <yuanchu@google.com>
-Content-Type: text/plain; charset="UTF-8"
 
-The memctl driver lives under drivers/virt/memctl. We specify
-maintainers for the driver.
+On Mon, 13 May 2024 11:42:33 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Mon, 13 May 2024 23:39:04 +0800 Heng Qi wrote:
+> >  config PROVE_LOCKING
+> >         bool "Lock debugging: prove locking correctness"
+> > -       depends on DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT
+> > +       depends on DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT && NET
+> 
+> We can't make lockdep dependent on NET.
+> People working on other subsystems should be able to use LOCKDEP 
+> with minimal builds.
 
-Signed-off-by: Yuanchu Xie <yuanchu@google.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 61117c3afa80..5793df2b2f5e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -14057,6 +14057,13 @@ F:	mm/memblock.c
- F:	mm/mm_init.c
- F:	tools/testing/memblock/
- 
-+MEMCTL GUEST DRIVER
-+M:	Yuanchu Xie <yuanchu@google.com>
-+M:	Pasha Tatashin <pasha.tatashin@soleen.com>
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+F:	drivers/virt/memctl/
-+
- MEMORY CONTROLLER DRIVERS
- M:	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
- L:	linux-kernel@vger.kernel.org
--- 
-2.45.0.rc1.225.g2a3ae87e7f-goog
+Got it. Then I declare "DIMLIB depends on NET" and clean up other places.
 
+One more friendly request, I see net-next is closed today, but our downstream
+kernel release deadline is 5.20, so I want to test and release the new v14 today,
+is it ok?
+
+Thanks!
