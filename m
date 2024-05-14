@@ -1,195 +1,199 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B57E14D42C
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 14:05:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59E6717EBB9
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:57:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715695543; cv=none; b=D2zB13w9Uah3Fr1r09SPV7cWaY2dNaoHn+FwQ7EOeSD2jy9rCVfnXDG+K6TpZZWBj06GNeHGfGH9gThqzR8Ik+sVNJZRD8v0HDi4N/IiF0hsg7AIo+5tNHbZFhT/Fvcdae4S96udqo6e6s4mBLQC4ZDSA7YTBK2NZF2Fef30oEE=
+	t=1715702279; cv=none; b=fLx9Fc21uB/DuyBrmdDnMzSEbxCOphsFhwK+Vh7T54c9bAJfzlO6Elaw4qw5EcQAh0F1WgKvXtF1aYJjQWENMbr3rgc8Rl/YjBOafCHZP2xfzlOBq1qp/sgRuXwBp9Bk8RGFXKoeFvZg6uixLh1p81PzlyOJMnKfBmPBXv5jalI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715695543; c=relaxed/simple;
-	bh=ID0c8KED4MaRAhJEPecqve06L1MFkX8CguX3Z8emb34=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BXnEfu097YFBo0F+RsQvfPhB/YePH10wHfRMLL8DU7YQYMpqx05Rj6WIEUs5Fhj/5w7VZ7XSYJ/evACYC2PvSDHof2kTfPLAuQirdXF/9r++wesyGdx1uI7ywT0FknBAwe4cwf5mQnCi/QuCwrihrZo7QY07j7ovSyjQxU0NmwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DocwhOPM; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1715702279; c=relaxed/simple;
+	bh=ZRZC+ewraM3sNSDTKtcy7um+e8MQrAqS8SrqujW4WhA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ss/wO0otVRchRnpLMB5nsO+ZVwQ8cA5XwdOFsQEp0Mp17YcB1vYIn8xt2jVEnVLW/VST9afdQGOWQumdm1X9cXhVBs5iVNX4zloESwNwDF6cylnXBHuppfo0Gwdyd/ZPC1gagZ6SHpVKUvh3er8NiU5c9yf712iiN07cyquKXaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=06/tvfA+; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DocwhOPM"
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="06/tvfA+"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DB318402E8
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 14:05:41 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id ECFE7402E4
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:57:57 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -7.101
+X-Spam-Score: -1.9
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id t-kf3yLsXRco for <virtualization@lists.linux-foundation.org>;
- Tue, 14 May 2024 14:05:40 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 79AA8403C7
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 79AA8403C7
+ id iiNEmLwengnv for <virtualization@lists.linux-foundation.org>;
+ Tue, 14 May 2024 15:57:56 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::52f; helo=mail-ed1-x52f.google.com; envelope-from=alexghiti@rivosinc.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org BB245400F5
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BB245400F5
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=DocwhOPM
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 79AA8403C7
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 14:05:40 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id C6ECE61277;
-	Tue, 14 May 2024 14:05:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7AD3C32782;
-	Tue, 14 May 2024 14:05:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715695539;
-	bh=ID0c8KED4MaRAhJEPecqve06L1MFkX8CguX3Z8emb34=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DocwhOPMzvezJPtOLEyIs2TIRSDK1iKYiQIktTqvDEydUXhzyMFEVIe4w7rEBUoLH
-	 s1Aip/eIuRLs0LXxRO2MMKQduZjZ4DBOo06roaRsDYMD4/V0p/WrJ1lfcdUWNFUWwn
-	 ODSRdACvCftCwaJk1JNzfbi3KPDD6bOSxG75Dty41GwFFUJmy5m2JNOYIkDK9lRWK4
-	 +67Ojs55jbeazXTVY+CfQswUJQMXyrqtCucl7p6pKvQpAHUytS7hU/8LLSnmhoiUR/
-	 8vk20MjslNrDRrN0YMhL+gaxgJaWiumVfcpTRg8PMQDoBY6o9yqd75mDcjXratHavn
-	 aZt3F8dpoR/bA==
-From: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>
-To: Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	David Hildenbrand <david@redhat.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	linux-riscv@lists.infradead.org
-Cc: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-	Andrew Bresticker <abrestic@rivosinc.com>,
-	Chethan Seshadri <Chethan.Seshadri@catalinasystems.io>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Oscar Salvador <osalvador@suse.de>,
-	Santosh Mamila <santosh.mamila@catalinasystems.io>,
-	Sivakumar Munnangi <siva.munnangi@catalinasystems.io>,
-	Sunil V L <sunilvl@ventanamicro.com>,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 8/8] riscv: mm: Add support for ZONE_DEVICE
-Date: Tue, 14 May 2024 16:04:46 +0200
-Message-Id: <20240514140446.538622-9-bjorn@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20240514140446.538622-1-bjorn@kernel.org>
-References: <20240514140446.538622-1-bjorn@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=06/tvfA+
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BB245400F5
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 15:57:55 +0000 (UTC)
+Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-572d2461001so396565a12.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 08:57:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1715702274; x=1716307074; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8YVPz8d9fNN7RmoGRWLz27p194UlG1xw9/YZRFhtwc4=;
+        b=06/tvfA+xMsjSExOAVuZtiT8NAnBQOrQr2ITLhG7tqKUaLLdpSoNDYlIJ0iq4LSi2n
+         3xeLaDqLMN7wIilZ5GgzEEKs2MLa6sNGCgv5avGe5kXXkIMp/qAuRaQQ4+6GH/8gmrt9
+         KbvvyqkvNVIiKk/rEMI9CdauLe3KIvs6A3V05O4W4IHNDb1763ggGftwG8JhU9C1q4BK
+         6kb08G81bwhU7Xwm03ldzGN4hEJ8phoPrndhKKVC1z/a5yGVujLztMMbGo5v6TEWytcb
+         XO1D3vmgoQ2nCxc4+HNHX8UeDJQZmN2EEjc8iuvLGUE+2iHJlzDhORt7qYHtdNJG5utH
+         hkNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715702274; x=1716307074;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8YVPz8d9fNN7RmoGRWLz27p194UlG1xw9/YZRFhtwc4=;
+        b=Gb2NKoEiXWoqqNYCDDrbtRcEkIWdi8AFHhkpJvidy41j6JsttJTWcvtwEcWkiXlmP2
+         8mCP0SuyKcxhOSJbj2MpbGv9nhNlbH6yg2d3NoqUl2C9IEkwWnokt/SVo+zooybV94Mh
+         YspsodtuOYmCdJSuoY8fF7nWBwDweKLEkgS6TLeMBIXzLE6UFmkcZvvMPQwWS43LOJ+h
+         korSATXoS9tZoNTK8cdrh+C19GMEamS4l9cuVVAw4d4zW2ZIwCof5S/f9JM3n3+agRQ5
+         HwTjK7xxffbg9nhai0EFr0eInKmMMKgBGp82eMR7yXdrc1VZ8fGIduNkmJsk2xOfjgq1
+         EkqA==
+X-Forwarded-Encrypted: i=1; AJvYcCVdN5VBGsImNAobeBrXisoQU53Vb/IdqCOwPuLmAz3CE0GZ5lVaCd6N9PnutZZIPhF6nIGx414m7+38NWRx47ZCp1vuTFPaZRNl8md3AdFldRCJp2APxA42sA==
+X-Gm-Message-State: AOJu0YwotvqB7BbtX4qKuh4VF0wQg/naYaJnKawLvavDOA1s2kZskRoT
+	TtFle9hOTh2JEXODNRb7SY33rghrrvmONracf70vtoMVxeQP3orFtWh34gmrlbIK7zT+aHaPRNJ
+	/L6IzYABdj0c4WuObyCudGZcpVhPt4JKJgdOD9g==
+X-Google-Smtp-Source: AGHT+IGpm9BtgF2gQRgKdtEpvWTCkNaf/J7ULsUq4SiDnv5BQvS5Vo6yygT4W4ORsVjJhPMMfM/u6EKEY/mm3nAcHd8=
+X-Received: by 2002:a17:907:9705:b0:a5a:7cd3:b2e7 with SMTP id
+ a640c23a62f3a-a5a7cd3b463mr311306266b.11.1715702273691; Tue, 14 May 2024
+ 08:57:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20240514140446.538622-1-bjorn@kernel.org> <20240514140446.538622-2-bjorn@kernel.org>
+In-Reply-To: <20240514140446.538622-2-bjorn@kernel.org>
+From: Alexandre Ghiti <alexghiti@rivosinc.com>
+Date: Tue, 14 May 2024 17:57:42 +0200
+Message-ID: <CAHVXubhfsvDZrw_Cvg8AnEm00P0TQvrSOV_jVSBRckmJLp6EFQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/8] riscv: mm: Pre-allocate vmemmap/direct map PGD entries
+To: =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, David Hildenbrand <david@redhat.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
+	linux-riscv@lists.infradead.org, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>, 
+	Andrew Bresticker <abrestic@rivosinc.com>, 
+	Chethan Seshadri <Chethan.Seshadri@catalinasystems.io>, Lorenzo Stoakes <lstoakes@gmail.com>, 
+	Oscar Salvador <osalvador@suse.de>, Santosh Mamila <santosh.mamila@catalinasystems.io>, 
+	Sivakumar Munnangi <siva.munnangi@catalinasystems.io>, Sunil V L <sunilvl@ventanamicro.com>, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
+	virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Björn Töpel <bjorn@rivosinc.com>
+Hi Bj=C3=B6rn,
 
-ZONE_DEVICE pages need DEVMAP PTEs support to function
-(ARCH_HAS_PTE_DEVMAP). Claim another RSW (reserved for software) bit
-in the PTE for DEVMAP mark, add the corresponding helpers, and enable
-ARCH_HAS_PTE_DEVMAP for riscv64.
+On Tue, May 14, 2024 at 4:05=E2=80=AFPM Bj=C3=B6rn T=C3=B6pel <bjorn@kernel=
+.org> wrote:
+>
+> From: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
+>
+> The RISC-V port copies the PGD table from init_mm/swapper_pg_dir to
+> all userland page tables, which means that if the PGD level table is
+> changed, other page tables has to be updated as well.
+>
+> Instead of having the PGD changes ripple out to all tables, the
+> synchronization can be avoided by pre-allocating the PGD entries/pages
+> at boot, avoiding the synchronization all together.
+>
+> This is currently done for the bpf/modules, and vmalloc PGD regions.
+> Extend this scheme for the PGD regions touched by memory hotplugging.
+>
+> Prepare the RISC-V port for memory hotplug by pre-allocate
+> vmemmap/direct map entries at the PGD level. This will roughly waste
+> ~128 worth of 4K pages when memory hotplugging is enabled in the
+> kernel configuration.
+>
+> Signed-off-by: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
+> ---
+>  arch/riscv/include/asm/kasan.h | 4 ++--
+>  arch/riscv/mm/init.c           | 7 +++++++
+>  2 files changed, 9 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/riscv/include/asm/kasan.h b/arch/riscv/include/asm/kasa=
+n.h
+> index 0b85e363e778..e6a0071bdb56 100644
+> --- a/arch/riscv/include/asm/kasan.h
+> +++ b/arch/riscv/include/asm/kasan.h
+> @@ -6,8 +6,6 @@
+>
+>  #ifndef __ASSEMBLY__
+>
+> -#ifdef CONFIG_KASAN
+> -
+>  /*
+>   * The following comment was copied from arm64:
+>   * KASAN_SHADOW_START: beginning of the kernel virtual addresses.
+> @@ -34,6 +32,8 @@
+>   */
+>  #define KASAN_SHADOW_START     ((KASAN_SHADOW_END - KASAN_SHADOW_SIZE) &=
+ PGDIR_MASK)
+>  #define KASAN_SHADOW_END       MODULES_LOWEST_VADDR
+> +
+> +#ifdef CONFIG_KASAN
+>  #define KASAN_SHADOW_OFFSET    _AC(CONFIG_KASAN_SHADOW_OFFSET, UL)
+>
+>  void kasan_init(void);
+> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+> index 2574f6a3b0e7..5b8cdfafb52a 100644
+> --- a/arch/riscv/mm/init.c
+> +++ b/arch/riscv/mm/init.c
+> @@ -27,6 +27,7 @@
+>
+>  #include <asm/fixmap.h>
+>  #include <asm/io.h>
+> +#include <asm/kasan.h>
+>  #include <asm/numa.h>
+>  #include <asm/pgtable.h>
+>  #include <asm/sections.h>
+> @@ -1488,10 +1489,16 @@ static void __init preallocate_pgd_pages_range(un=
+signed long start, unsigned lon
+>         panic("Failed to pre-allocate %s pages for %s area\n", lvl, area)=
+;
+>  }
+>
+> +#define PAGE_END KASAN_SHADOW_START
+> +
+>  void __init pgtable_cache_init(void)
+>  {
+>         preallocate_pgd_pages_range(VMALLOC_START, VMALLOC_END, "vmalloc"=
+);
+>         if (IS_ENABLED(CONFIG_MODULES))
+>                 preallocate_pgd_pages_range(MODULES_VADDR, MODULES_END, "=
+bpf/modules");
+> +       if (IS_ENABLED(CONFIG_MEMORY_HOTPLUG)) {
+> +               preallocate_pgd_pages_range(VMEMMAP_START, VMEMMAP_END, "=
+vmemmap");
+> +               preallocate_pgd_pages_range(PAGE_OFFSET, PAGE_END, "direc=
+t map");
+> +       }
+>  }
+>  #endif
+> --
+> 2.40.1
+>
 
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
----
- arch/riscv/Kconfig                    |  1 +
- arch/riscv/include/asm/pgtable-64.h   | 20 ++++++++++++++++++++
- arch/riscv/include/asm/pgtable-bits.h |  1 +
- arch/riscv/include/asm/pgtable.h      | 15 +++++++++++++++
- 4 files changed, 37 insertions(+)
+As you asked, with
+https://lore.kernel.org/linux-riscv/20240514133614.87813-1-alexghiti@rivosi=
+nc.com/T/#u,
+you will be able to remove the usage of KASAN_SHADOW_START.
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index b9398b64bb69..6d426afdd904 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -36,6 +36,7 @@ config RISCV
- 	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
- 	select ARCH_HAS_PMEM_API
- 	select ARCH_HAS_PREPARE_SYNC_CORE_CMD
-+	select ARCH_HAS_PTE_DEVMAP if 64BIT && MMU
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_SET_DIRECT_MAP if MMU
- 	select ARCH_HAS_SET_MEMORY if MMU
-diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
-index 221a5c1ee287..c67a9bbfd010 100644
---- a/arch/riscv/include/asm/pgtable-64.h
-+++ b/arch/riscv/include/asm/pgtable-64.h
-@@ -400,4 +400,24 @@ static inline struct page *pgd_page(pgd_t pgd)
- #define p4d_offset p4d_offset
- p4d_t *p4d_offset(pgd_t *pgd, unsigned long address);
- 
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+static inline int pte_devmap(pte_t pte);
-+static inline pte_t pmd_pte(pmd_t pmd);
-+
-+static inline int pmd_devmap(pmd_t pmd)
-+{
-+	return pte_devmap(pmd_pte(pmd));
-+}
-+
-+static inline int pud_devmap(pud_t pud)
-+{
-+	return 0;
-+}
-+
-+static inline int pgd_devmap(pgd_t pgd)
-+{
-+	return 0;
-+}
-+#endif
-+
- #endif /* _ASM_RISCV_PGTABLE_64_H */
-diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
-index 179bd4afece4..a8f5205cea54 100644
---- a/arch/riscv/include/asm/pgtable-bits.h
-+++ b/arch/riscv/include/asm/pgtable-bits.h
-@@ -19,6 +19,7 @@
- #define _PAGE_SOFT      (3 << 8)    /* Reserved for software */
- 
- #define _PAGE_SPECIAL   (1 << 8)    /* RSW: 0x1 */
-+#define _PAGE_DEVMAP    (1 << 9)    /* RSW, devmap */
- #define _PAGE_TABLE     _PAGE_PRESENT
- 
- /*
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 7933f493db71..216de1db3cd0 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -387,6 +387,11 @@ static inline int pte_special(pte_t pte)
- 	return pte_val(pte) & _PAGE_SPECIAL;
- }
- 
-+static inline int pte_devmap(pte_t pte)
-+{
-+	return pte_val(pte) & _PAGE_DEVMAP;
-+}
-+
- /* static inline pte_t pte_rdprotect(pte_t pte) */
- 
- static inline pte_t pte_wrprotect(pte_t pte)
-@@ -428,6 +433,11 @@ static inline pte_t pte_mkspecial(pte_t pte)
- 	return __pte(pte_val(pte) | _PAGE_SPECIAL);
- }
- 
-+static inline pte_t pte_mkdevmap(pte_t pte)
-+{
-+	return __pte(pte_val(pte) | _PAGE_DEVMAP);
-+}
-+
- static inline pte_t pte_mkhuge(pte_t pte)
- {
- 	return pte;
-@@ -711,6 +721,11 @@ static inline pmd_t pmd_mkdirty(pmd_t pmd)
- 	return pte_pmd(pte_mkdirty(pmd_pte(pmd)));
- }
- 
-+static inline pmd_t pmd_mkdevmap(pmd_t pmd)
-+{
-+	return pte_pmd(pte_mkdevmap(pmd_pte(pmd)));
-+}
-+
- static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
- 				pmd_t *pmdp, pmd_t pmd)
- {
--- 
-2.40.1
+But anyhow, you can add:
 
+Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+
+Thanks,
+
+Alex
