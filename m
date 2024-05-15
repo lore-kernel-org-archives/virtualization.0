@@ -1,165 +1,268 @@
-Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28B2941C84
-	for <virtualization@lists.linux.dev>; Wed, 15 May 2024 07:34:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715758458; cv=none; b=uqbryRhcBjgvhDY8D2pKibRzBvC6FRND6fwdIEy9wWBxjQUbZ4Sa8yIBtM9lSyqtSEwjO9QWn87IB8hnAccN0z2fbJqwhC1Y1fXMi4juq3YTXIW+0JaIlNI64fiM+3ihADjie38dno/x18dK8YfqmCC9dsBye3O3zNwKNlkt5AQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715758458; c=relaxed/simple;
-	bh=QrPNpXvWtBe6xHxCSukZbnvU65TQ0fHmMLbaLO3xAOg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZfVIhTuBj/CtJS8gCIwo1pwD3hmCUBRlUMBzMlXn9BVOmEykHbhCMfFHfDSdZWNQ4N8oI+hT6PhWupqnCRZVPyYDpRQTJhgm7K3C34C9Cz+2k5sN07oSEWxwaDVy7A7YNmCjpTI/k3bKp5QqaElkjBMG2NK3zfs8OHwC9DNMoz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=P5+QFomu; arc=none smtp.client-ip=209.85.208.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A518247F7F
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 07:43:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1715759016; cv=fail; b=XS2QINQaZlC0jlxvEpVTIoajtvGrhCYQLsc2eY4AoqgwW+ZRnAwF7iw26wlpRg4KBTCGQp0B2f73Nh7ZKXuuBw7Dn3yGaB3V15u1iaNkCqEOcJPv0JhkXYoytJjF8WniQMhBRSWRVld/0qQsVKf5Vcaur1aZguN9szcs5NYrs+0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1715759016; c=relaxed/simple;
+	bh=XL9UUDFoJe+KaX4MmvNB2/GDp5fsNVY8Lz3UXPNwUnw=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Z2slIJMLtrfmpIci40Jjj8HV0Hhzyfl8cVMo6KmV6QfyR8dMh+EbvGgAfzt4PSge7GX2rIPkx/1yQ8Koh80U7+ovh3RK6EI9ZCEWs8SjhP61jnZOuHS4dNV6RweEObWrlGMdP7YbJlN9j+XJ9+CE/VpE5i0eBIGRGvgJAN1Mwu0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QOofavcZ; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="P5+QFomu"
-Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-2e0b2ddc5d1so94595051fa.3
-        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 00:34:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1715758454; x=1716363254; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=kD8/1Qg80X1Lu2w9XeEJiUVipNk99bLcKl/O4FD4s+U=;
-        b=P5+QFomuxgiw1Y8dh4PO/4Dj6QFAk1K7PoHnem2Rub4Ap8tE4NTNWGxJWR5X1SDhQf
-         xGjD19/PQxnkwf5Kd6r44nPzwTbPCl/caRvFSMgOiRCSXCVTdboNPAmNUnRZ0yJIJsIv
-         9M1epMI/LNcWtP4bOnvLtBx1ob/Rt/KtPuhl6JNILJZCJ5vdJA/d5MAjITHI/kKh0Kbf
-         Wtdf1j9qnihZd/pKwpI6zr5U1MsSalwDwbjbkU+BfL0lq2GApQJtlI3NCzhTQhuOaqiI
-         1vLeeoBbG25tgF3AypCkLvtZXqEkNG9h7spfyITPIS9ZChLd3WjPSSjayPx5e2QvWvDY
-         AQ4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715758454; x=1716363254;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kD8/1Qg80X1Lu2w9XeEJiUVipNk99bLcKl/O4FD4s+U=;
-        b=SpG6Un1LWdhbiqNZBw5MAl2SmpDHl+ElWiH2r9PIgB/Knpg+SaLHuz93MxB7Z56X0v
-         WQx/G8wnN/s47SL2qHIvV3EANqFJ4VwGePJidQwOZ22sB7lkj8DrC+L2fCLnRwMIX7PM
-         ocPhoqCc/6HO5zp88N/J82+Y0GkekCDQuud4F7wj/Jbv9YcRdsz0aDoAL+Jq4JdiEhdQ
-         6tjF+EILN/K0fA4/Cuz0foju7xYDchim8cFvl6zqvaVSXC7f+PfPY1tensnJdjtHtC0E
-         goNT+xX2J7a0gso9wY7NmUA033F5h6ZkV4tFZxqJOWCqHHkEJMv0ce6VAIRaLOEELVuG
-         3pcw==
-X-Forwarded-Encrypted: i=1; AJvYcCXJVYE3svQcUEFSoXPwHdBO7Ol/ALac1jjzUTpxn9qPN17jikyBCJbBAn+jTBC1e7seIghJeTClwGNP/YJc2UsqWnhazY9ZGNudZt1Itmg=
-X-Gm-Message-State: AOJu0YzVG37byisq8vFF/ZYk292BVMNUcBeT1mtKE4g0SGI9ZvyR/tRm
-	+izbhYIpu6/HjjcypXreIjoAl6BXBv78cDSqJjZE1ypXBEtbmjgj9yoEnSG5tdE=
-X-Google-Smtp-Source: AGHT+IGqKKl0cYTL0wrQzzLOxVpGGYXpsmUrxwQj9LAhg/ZB7zM77qtac7G3ooq+SI3f8B3O1F/AWg==
-X-Received: by 2002:a2e:a98a:0:b0:2e6:f769:5124 with SMTP id 38308e7fff4ca-2e6f769532emr7988691fa.39.1715758453984;
-        Wed, 15 May 2024 00:34:13 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-41fccbe8f8asm222070475e9.10.2024.05.15.00.34.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 May 2024 00:34:12 -0700 (PDT)
-Date: Wed, 15 May 2024 09:34:08 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
-	john.fastabend@gmail.com
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-Message-ID: <ZkRlcBU0Nb3O-Kg1@nanopsycho.orion>
-References: <20240509114615.317450-1-jiri@resnulli.us>
- <20240509084050-mutt-send-email-mst@kernel.org>
- <ZjzQTFq5lJIoeSqM@nanopsycho.orion>
- <20240509102643-mutt-send-email-mst@kernel.org>
- <Zj3425_gSqHByw-R@nanopsycho.orion>
- <20240510065121-mutt-send-email-mst@kernel.org>
- <Zj4A9XY7z-TzEpdz@nanopsycho.orion>
- <20240510072431-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QOofavcZ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 43A7841850
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 07:43:35 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id etbgAIadzWqg for <virtualization@lists.linux-foundation.org>;
+ Wed, 15 May 2024 07:43:34 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.11; helo=mgamail.intel.com; envelope-from=kevin.tian@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 4B76A405E2
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B76A405E2
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=QOofavcZ
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4B76A405E2
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 07:43:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1715759014; x=1747295014;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=XL9UUDFoJe+KaX4MmvNB2/GDp5fsNVY8Lz3UXPNwUnw=;
+  b=QOofavcZXcu2ssmS/5quc8TXgTX84y97NdoOhV/9hnlVkBZy5GTyFPdh
+   ONoqoWq88YdvxjzU7HK1L6o3Dkpuynpgyge+OA+x4WPpBXuC1KkLrvfjO
+   mKFsEVHi/DZkA9xodoI54XqfYf944ocFsFVpEuDFn4ZukE6VURrUIzx0R
+   3Mom/OwaUuj2ev/v72+YffWU1HFIB6xpEDIhhg2mA6NS55vG+y2d9sDMr
+   fAtspc9xneWCB/MOt64+xPDJaiqmfyxq3FtBhj2VlqYY8ifrvsQDzXAdF
+   kXy8E7EXo14zlFqhVMo95S4LND8Z8pv4zG9h2/eOeMWJ8h0aitO1oDpoT
+   Q==;
+X-CSE-ConnectionGUID: U+BXkCxkTd+A8GJuzPQqQw==
+X-CSE-MsgGUID: 7MJNgmebSoWk/TBnjR1dSw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11073"; a="22393176"
+X-IronPort-AV: E=Sophos;i="6.08,161,1712646000"; 
+   d="scan'208";a="22393176"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2024 00:43:33 -0700
+X-CSE-ConnectionGUID: pJzZO3NySt6qWVUxrWblBg==
+X-CSE-MsgGUID: EtdW4eheTmGy4drrubtCEg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,161,1712646000"; 
+   d="scan'208";a="31076262"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by orviesa009.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 15 May 2024 00:43:32 -0700
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Wed, 15 May 2024 00:43:32 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Wed, 15 May 2024 00:43:31 -0700
+Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Wed, 15 May 2024 00:43:31 -0700
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.169)
+ by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Wed, 15 May 2024 00:43:31 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=U165PDbKwR0bsiQlFAoWei7r+Q5s0zYMTHk07p8LTYl1y5Rh8Umowhy2nGcNehTl2I023nWSgNCQHWj7negd3ZaSYe+vTtme9QFDIwgmFClOS/0Mgaeq1Qes9jaoE7mLXjr7SH7gzsrHgxOvWMccMb6C/ApAEDPJ2m/Y6UkPb9sHRPWolwivfCvyP+rMtaDWBNcYFjXHaX2rthH1AdSgJR7fpkkfU2MxJARS6J1r87NP72fVk7RhvQaZHBG4m/IaJ3qC9yzyWPirKeEH0I9fhU8UoyhMk0Pnjjq38IlIADSqJ9bNMk57oijGzUdzjyj+9+cmJL/jFNu9EnFYQo3/3Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=GJx225mHJbTMM2cGLxd9PIGxsftsBPQbb/4GqUjzf/Y=;
+ b=F/fOE/hKTt4rtNwVW4PvKD0JYdrr2eMTUAxLI8indxnn6EzW1hCrw/NIHXkwW88xi/zOr3uZyd92wWrbKb1zEkzjdotMFqjBjn9jWyJGDEfkbsWA6h883bT1AJgQ6oeiYnhCxPYSvg/jOKrzeEBighB6CBWGI9FKvvEnaFXWICwXcO12ezvhC3PI2VanuxMFE6dZkPY72zoyOiufOGQlV3taAfxtqsdrHux3t7Rlj8ufOwELqxw7gtn09tW06N6A1xsglKOTbXWYxvyeceEWHTHhATVWaX0BtcxlGNUVGHCD01Dwyy0WW+bCD4pQxFJgmbrYLmTAEMKrIxoSizk9EQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by SN7PR11MB7115.namprd11.prod.outlook.com (2603:10b6:806:29a::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7587.27; Wed, 15 May
+ 2024 07:43:29 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1%5]) with mapi id 15.20.7587.026; Wed, 15 May 2024
+ 07:43:28 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: Lu Baolu <baolu.lu@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	"Joerg Roedel" <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
+	<robin.murphy@arm.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>, "Jacob
+ Pan" <jacob.jun.pan@linux.intel.com>, Joel Granados <j.granados@samsung.com>
+CC: "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v5 4/9] iommufd: Add fault and response message
+ definitions
+Thread-Topic: [PATCH v5 4/9] iommufd: Add fault and response message
+ definitions
+Thread-Index: AQHamw8bLYtOgdprmEKnPZxoJChdq7GX/cMw
+Date: Wed, 15 May 2024 07:43:28 +0000
+Message-ID: <BN9PR11MB52762F2AF16AA5833D61AFF68CEC2@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
+ <20240430145710.68112-5-baolu.lu@linux.intel.com>
+In-Reply-To: <20240430145710.68112-5-baolu.lu@linux.intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SN7PR11MB7115:EE_
+x-ms-office365-filtering-correlation-id: fe715f36-1a74-4555-3306-08dc74b2b60e
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230031|366007|376005|7416005|1800799015|921011|38070700009;
+x-microsoft-antispam-message-info: =?us-ascii?Q?ZCEcuFgvJtVWSEcVSOU4vYjARQfYOZtXM4/D5Qw6eHb49dlqghlcTw6GsCQh?=
+ =?us-ascii?Q?lsgGo4XDXXyfUDmxIJqsINziQq83Hoq/mV655NJSA91bxxnS3KVYH0DcA3B7?=
+ =?us-ascii?Q?ZRyoJu9rrf+XBcm3uSrkja4SiG9eeY/NCWVqvSPtI/pVKVZesX2aGgLgTci1?=
+ =?us-ascii?Q?VDqXpULZ/D6WY4iyWf7ifW+YahNil7zHbo4IdbfYUo7C0n5w5a9JVmPQfNg2?=
+ =?us-ascii?Q?hoPU19uV9Le3uMrDJ1lIrltQk9TzjDKbYXJUHp1pU7oZwUbdvlq6v2A6tqpj?=
+ =?us-ascii?Q?wZ3qO7Hf/tu/m75tTpNCCq7iX/xeC4AyWd8UG64bmM/o4e07BQlToqOfLBdz?=
+ =?us-ascii?Q?i/oZd3KZ3b3XFM1Q0W5MrFZOhdjoxklE9OUf4XdMTfqqmt8OnRduN/ucledH?=
+ =?us-ascii?Q?XoyihjItAgaa/7XKKVqLoOH8J6bTD5K+AF4w+H34wmFgvcSPcmUPLYJcCihi?=
+ =?us-ascii?Q?TE0RUF9iRkTy+ed4IVx1RH/5e+X3m89pop/9ykjpavTKB39PVWXAtKB5XH42?=
+ =?us-ascii?Q?hK3Q480mfJMLI6Mg2XQCBtEV72MWbqmI+uiMD1MtvNDOK/Cw85kRWnrWtcZ+?=
+ =?us-ascii?Q?6+uRjK6NtbGKk5eqkK7i2XC6p5VsLMODLAQut75CvVz9ryOsm3IYvrqKrCzj?=
+ =?us-ascii?Q?EnF8mpcQm0R69MopSamwqguu63Zpe7EApv0KSmTUGPvHwaW2apBLiUVBZsgk?=
+ =?us-ascii?Q?SO0U38lsFqmRfXTUnylKnOzCb/iu5ytmtOsyQ8wi3pgPji5cLZToU8yXQ4T9?=
+ =?us-ascii?Q?wQfWGh+AB2MBjG7G0BPxeMTAtJGvbuJyxQ3mupeYSTxOc3thMrjC9/1HV39j?=
+ =?us-ascii?Q?0PkaivfYlol4RQH8VXPg7Ka/5a8ceLLH9Zed2iwkGNbYaRJcMxnHgS+sieZs?=
+ =?us-ascii?Q?URjpUIHfrtM5NRp1A6rQw1Giya3GzbrcurJbCs25srv1TxD0U3TDlooU/G1u?=
+ =?us-ascii?Q?225DOnTbSaAAqLnSuXrebXnS40ZwPJ2U+lTIpTq1+7uUy6WCxIjj6hmn2jFO?=
+ =?us-ascii?Q?X/hCvvXarYG+ncGOpHCBEGXXog0YAFEhHQxVPrBV0v6uTueOvxmabcqo4DUg?=
+ =?us-ascii?Q?OqLhjLp9MqevMqAbkM5AQH0g5cTU18iXy6vgLiUczJ95PGFlbttkGbCrLOdd?=
+ =?us-ascii?Q?V0k0KKFQu7rhCjHztwhRr9AN08bST9QAPrUa23h6toRo2VroTlN3iMSaGr4O?=
+ =?us-ascii?Q?3p8Fm3O+3Jc0WhpXEv1MOWCsDVvruqM0Uv699TD8GZ5PbPpDpK/EvNSL4kyI?=
+ =?us-ascii?Q?nP4v5tMQvDwplEtmgQBcuMnghy/E3IfMK9+emlniEojA8FzhKM9P4MsXXIqh?=
+ =?us-ascii?Q?D/wvLsutCpcMBwUF90CZwGYbXDJ5joS1u1KBsGCjXqqmgIGyxL9As4b06MG0?=
+ =?us-ascii?Q?hoSJSrg=3D?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(376005)(7416005)(1800799015)(921011)(38070700009);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?NdLG9ZCFofhKqR/L+u5+rUKWFdI311sjeAFkipe2IfP8EZOPIYoLQGTonE5u?=
+ =?us-ascii?Q?ItS4sAXpDH54N5qD9QduEQy6PnS5ySV7kTTEgnpYPiOCFJ/gzFDMCDKo72kC?=
+ =?us-ascii?Q?GAcXv3pe6OpzSES/lGN2QPTWQWQKCMZHEY7miATFrabhOPfUn8dcQrewP2OK?=
+ =?us-ascii?Q?0c/LzHkGW+HLLmaZMMExAMGa7eWSNMV1lzNCeRr2mD858aCN1AkNlkCdaIj3?=
+ =?us-ascii?Q?pmajkdOBhePlZjVDU9lccLcjlqvj/Z4ngYLNGN9rWGbMMoITBrCkeKfCGGXE?=
+ =?us-ascii?Q?lmD/hg7I3Bo1jMqfqDI0htzBL7nI9VWRXejo4Sgzg+BgpvFr65osCg4UzrMQ?=
+ =?us-ascii?Q?2oaa0+E/BGZU50nF+wvwXGTn+YNi6KL6DdaBSTJyZz3aUrwzM1Q58G1fUG1E?=
+ =?us-ascii?Q?f4l+Om1YF07ZC28AO9upWFW+A3prpWJym/xQ/TVb1p+oMmtCtekvBASSICoF?=
+ =?us-ascii?Q?+c+o2ElJdVY7vElzmjvER6zYzwSSfguERe2cqGWI4RyhaxtpKAOvhDTepVDf?=
+ =?us-ascii?Q?9RqCt9kcxbVtbauP+9d3H/iulitM6NLGMwLe+nI7xKRVPoQf02ICcDo6O/aU?=
+ =?us-ascii?Q?2ehqltoNbalSmiy08IboSBYHOJyiyE3Ykc/+zag0Ul0ivF0ZJPYiPJHoYfWL?=
+ =?us-ascii?Q?jvZO9k8/IUfq3h4flL1x/lgY2CMjQs0Sl9cMrg69H3tCnrhpXbYl1mIElWlV?=
+ =?us-ascii?Q?BziFGg5XoTMJqTPsYUpJej/MfZP/DpgmtzLvTZ+SiYUdDRv/OyBM2hPkSKg2?=
+ =?us-ascii?Q?WjryLfzVKBuRGVutyA3a1zFXFlA21EbPfMaO0Ut8odXpLgjb4fcnQMx+siUe?=
+ =?us-ascii?Q?xvBFG0k0HlDXN9OARjR6RFpiMS9wrwt0jvQexG9gUnRnks/uQsZCk+SxMqaD?=
+ =?us-ascii?Q?qI7hS85P1vUpYMEFG2qgsmBwaKOVo4O9g/4x64d6D1MApx+zrwXUf1g566SQ?=
+ =?us-ascii?Q?f0ldkmOm/MjsbUAEDoVEp0dr87xEuRA/hoFqhUayYw99AFR1lZIz701sd9OQ?=
+ =?us-ascii?Q?ySBg9bcYvIoRSM78BGANb477qxmURro/di0gF+BIh5+0LHteK+M59LzR2r3v?=
+ =?us-ascii?Q?qOxqsfREpJ6WppgGt3Ub9yf2xLE4zWXL8Q9cGIrY5qmzhjc0k6VnJTVa4Xqj?=
+ =?us-ascii?Q?MEFPdYkBfHmI1wVJXkz9vLLfCuEAyuZtel3JFx1ajftOXtsPyqchMpqDWg0k?=
+ =?us-ascii?Q?1nS7zYHbW37Ef3GSD3T1RUiqKLdDg0obbmlISPKDVpejq2q7RzPfBxKSBhhN?=
+ =?us-ascii?Q?G7QOv/PJsZ5KZn4t6Oho5V4sO4WKOPjp04Gy5dbvLLLAiDhwl/P57/HdCWs7?=
+ =?us-ascii?Q?S+wicJ16huY63OQd35nAJKK0YtMqbCemK1B8Xqx8YWKw5EywfhieDPwTKjCf?=
+ =?us-ascii?Q?iFqkPg5gfEFuYC+K7OdkoQXs7NAwRNwJflDaja8gwZgjeWUBKN6/6ksoe+5+?=
+ =?us-ascii?Q?gT//+sF4lp1OhnlDMYfnSKEkkuAo6Pg28yF29G+IyxfV+yNFhbPX9v4ihe04?=
+ =?us-ascii?Q?UQcV0+68t6SwLboba2E+5u2PuZXzgBGCOa+ha2D8FyhYr0j30rcjjBCcLmUx?=
+ =?us-ascii?Q?80i3+BfhV0/ePR3qA6yfmojgS5A5ZM18ASr5Q+0F?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240510072431-mutt-send-email-mst@kernel.org>
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fe715f36-1a74-4555-3306-08dc74b2b60e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 May 2024 07:43:28.6691
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 2L17noDIg3zDNtnn9RKrrRa/dR9bVShcWsUHsLFvi0NayKI8QdNFhEVPUTHMx/rYnG62VaDt6hTWrFAZrqgdlQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB7115
+X-OriginatorOrg: intel.com
 
-Fri, May 10, 2024 at 01:27:08PM CEST, mst@redhat.com wrote:
->On Fri, May 10, 2024 at 01:11:49PM +0200, Jiri Pirko wrote:
->> Fri, May 10, 2024 at 12:52:52PM CEST, mst@redhat.com wrote:
->> >On Fri, May 10, 2024 at 12:37:15PM +0200, Jiri Pirko wrote:
->> >> Thu, May 09, 2024 at 04:28:12PM CEST, mst@redhat.com wrote:
->> >> >On Thu, May 09, 2024 at 03:31:56PM +0200, Jiri Pirko wrote:
->> >> >> Thu, May 09, 2024 at 02:41:39PM CEST, mst@redhat.com wrote:
->> >> >> >On Thu, May 09, 2024 at 01:46:15PM +0200, Jiri Pirko wrote:
->> >> >> >> From: Jiri Pirko <jiri@nvidia.com>
->> >> >> >> 
->> >> >> >> Add support for Byte Queue Limits (BQL).
->> >> >> >> 
->> >> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> >> >> >
->> >> >> >Can we get more detail on the benefits you observe etc?
->> >> >> >Thanks!
->> >> >> 
->> >> >> More info about the BQL in general is here:
->> >> >> https://lwn.net/Articles/469652/
->> >> >
->> >> >I know about BQL in general. We discussed BQL for virtio in the past
->> >> >mostly I got the feedback from net core maintainers that it likely won't
->> >> >benefit virtio.
->> >> 
->> >> Do you have some link to that, or is it this thread:
->> >> https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com/
->> >
->> >
->> >A quick search on lore turned up this, for example:
->> >https://lore.kernel.org/all/a11eee78-b2a1-3dbc-4821-b5f4bfaae819@gmail.com/
->> 
->> Says:
->> "Note that NIC with many TX queues make BQL almost useless, only adding extra
->>  overhead."
->> 
->> But virtio can have one tx queue, I guess that could be quite common
->> configuration in lot of deployments.
->
->Not sure we should worry about performance for these though.
->What I am saying is this should come with some benchmarking
->results.
+> From: Lu Baolu <baolu.lu@linux.intel.com>
+> Sent: Tuesday, April 30, 2024 10:57 PM
+>=20
+> iommu_hwpt_pgfaults represent fault messages that the userspace can
+> retrieve. Multiple iommu_hwpt_pgfaults might be put in an iopf group,
+> with the IOMMU_PGFAULT_FLAGS_LAST_PAGE flag set only for the last
+> iommu_hwpt_pgfault.
 
-I did some measurements with VDPA, backed by ConnectX6dx NIC, single
-queue pair:
+Do you envision extending the same structure to report unrecoverable
+fault in the future?
 
-super_netperf 200 -H $ip -l 45 -t TCP_STREAM &
-nice -n 20 netperf -H $ip -l 10 -t TCP_RR
+If yes this could be named more neutral e.g. iommu_hwpt_faults with
+flags to indicate it's a recoverable PRI request.
 
-RR result with no bql:
-29.95
-32.74
-28.77
+If it's only for PRI probably iommu_hwpt_pgreqs is clearer.
 
-RR result with bql:
-222.98
-159.81
-197.88
+> +
+> +/**
+> + * struct iommu_hwpt_pgfault - iommu page fault data
+> + * @size: sizeof(struct iommu_hwpt_pgfault)
+> + * @flags: Combination of enum iommu_hwpt_pgfault_flags
+> + * @dev_id: id of the originated device
+> + * @pasid: Process Address Space ID
+> + * @grpid: Page Request Group Index
+> + * @perm: Combination of enum iommu_hwpt_pgfault_perm
+> + * @addr: Page address
 
+'Fault address'
 
+> + * @length: a hint of how much data the requestor is expecting to fetch.=
+ For
+> + *          example, if the PRI initiator knows it is going to do a 10MB
+> + *          transfer, it could fill in 10MB and the OS could pre-fault i=
+n
+> + *          10MB of IOVA. It's default to 0 if there's no such hint.
 
->
->
->> 
->> >
->> >
->> >
->> >
->> >> I don't see why virtio should be any different from other
->> >> drivers/devices that benefit from bql. HOL blocking is the same here are
->> >> everywhere.
->> >> 
->> >> >
->> >> >So I'm asking, what kind of benefit do you observe?
->> >> 
->> >> I don't have measurements at hand, will attach them to v2.
->> >> 
->> >> Thanks!
->> >> 
->> >> >
->> >> >-- 
->> >> >MST
->> >> >
->> >
->
+This is not clear to me and I don't remember PCIe spec defines such
+mechanism.
+
+> +/**
+> + * enum iommufd_page_response_code - Return status of fault handlers
+> + * @IOMMUFD_PAGE_RESP_SUCCESS: Fault has been handled and the page
+> tables
+> + *                             populated, retry the access. This is the
+> + *                             "Success" defined in PCI 10.4.2.1.
+> + * @IOMMUFD_PAGE_RESP_INVALID: General error. Drop all subsequent
+> faults
+> + *                             from this device if possible. This is the
+> + *                             "Response Failure" in PCI 10.4.2.1.
+> + * @IOMMUFD_PAGE_RESP_FAILURE: Could not handle this fault, don't
+> retry the
+> + *                             access. This is the "Invalid Request" in =
+PCI
+> + *                             10.4.2.1.
+
+the comment for 'INVALID' and 'FAILURE' are misplaced. Also I'd more
+use the spec words to be accurate.
+
+> + */
+> +enum iommufd_page_response_code {
+> +	IOMMUFD_PAGE_RESP_SUCCESS =3D 0,
+> +	IOMMUFD_PAGE_RESP_INVALID,
+> +	IOMMUFD_PAGE_RESP_FAILURE,
+> +};
+> +
