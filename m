@@ -1,47 +1,75 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D73339ACD;
-	Wed, 15 May 2024 05:34:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 566AB3BBE2
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 05:40:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715751252; cv=none; b=Smhs+iWj2uoqkyvmnpcqhgWMCvg+si9Rwpvy4G5bV+3Ttowzb4D1buNbVJjKSN9DYuyXoj8sH4H4fFm5oNWSm6VhC379w5XeDAl9ViM/xxWheY+Y0i9ggEEXDyCY9kbRkYm6tCNMHFDVfpz7KSr0kpZ+x31+KxwAYPd8ctAIVP8=
+	t=1715751605; cv=none; b=JTYRbxY63jvVFfxLJg8MYZz/G61+5VRRNK/CSuACXa/vW/SPQtVfrlljM3+o2VB0JnNSyF4UCXd/GZPmxiHIizpf06FjHgzSpuiST+wWwwTaTJ5VsiSm7QcGZzwTZObSlF5VwNWaAmvgrq4IMTsoYl/NTlz4LAoQeF01kwQNz4o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715751252; c=relaxed/simple;
-	bh=wSb8ns8IYZ3jF3HlcEZvCD5f6COiy9Og6hXxxUm6NI8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LJyDS+mwTSs6/Fp3/1mkJn5B9YCY6tCxOxxUjVtAhdsTpfnJUA0iQGw2VZZkqTSgp9Fpd2EG4B6CXGnMXL4rlDNb2LNJ4uU22+O1GBT96AgwmZPotJizQOrtDftWuuWj7Rkgnwpv90+aQ9jfhC4nt0YHYrFTLxzqPYo5yKPip7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=EkXoEdxd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715751605; c=relaxed/simple;
+	bh=qFeWv8GsFEP94NiH8hpu0MILQkrgqqI5f7XEUQ/bekw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=EBwL37VpK6NpwjpmFfI9o0osU/BiE0ca+0edThAyIuAf8jdi4PkkEQx/GympLPWi9f+TFQNMNXsugYpb9gUsAuLQ5p+SuRjCHLSFSqS2hfsWSldSuALfsMXhbVo7x1bECp5w0nZWDHm2DGUdViWScA+3sPnEhzTFk+pJTwYXkHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ca5UtmZX; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="EkXoEdxd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF115C116B1;
-	Wed, 15 May 2024 05:34:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1715751251;
-	bh=wSb8ns8IYZ3jF3HlcEZvCD5f6COiy9Og6hXxxUm6NI8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=EkXoEdxdufurf2ejP3e8GacLs23Ir9io+Z1Sq4qTFZSM3vx/dnPIclnY0aKAhVf3L
-	 x+rFw38ymOqlv0+Gluk6x35UhNsJoOTE4JIqLJTsY1KDQ2lnKMZ3Q1tenbovMOq0Pd
-	 7VBdUa7hAnsACpceW24rSuCol+Ca86eL9vjc9T5U=
-Date: Wed, 15 May 2024 07:34:07 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Yuanchu Xie <yuanchu@google.com>
-Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>,
-	Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org
-Subject: Re: [RFC PATCH v1 1/2] virt: memctl: control guest physical memory
- properties
-Message-ID: <2024051533-cyclic-unshipped-5599@gregkh>
-References: <20240514020301.1835794-1-yuanchu@google.com>
- <2024051414-untie-deviant-ed35@gregkh>
- <CAJj2-QFnOjzwbsMrTcrzPsbCFchtJLM0hiJDbR-xe1HcmV+ytw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ca5UtmZX"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 783B58209F
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 05:40:03 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 33yT5CeAP6Za for <virtualization@lists.linux-foundation.org>;
+ Wed, 15 May 2024 05:40:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org AF7EB8209A
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AF7EB8209A
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ca5UtmZX
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AF7EB8209A
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 05:40:02 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 46E0461297;
+	Wed, 15 May 2024 05:40:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D1DDC116B1;
+	Wed, 15 May 2024 05:40:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715751600;
+	bh=qFeWv8GsFEP94NiH8hpu0MILQkrgqqI5f7XEUQ/bekw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=ca5UtmZXO0PHjPXUUdc+VZYnkPVpb5jib4ktCpzzV3ZhA546YhW9UHk5pBrTsB8fs
+	 5OCudtSHCOl3d3tTP3zo7RdBrJ8iHRR/KdAfFY0cca7m/EF0pacW8X7Wpz3cWwdto7
+	 QOq82dcN4g4o9WbzMkFB9Q12wjhuxcMlhN5k61iDy/Hdzzp2lWztAOY+rqK8b1NDji
+	 7PoAKLqCS0xjrsOBxo4Pjl81GboukdaMGq7BdQUF1nz0FsP8sokZnjlqgS/O9SKSKy
+	 ASyYdWBijdb1z+6/2VB4SVQs5vdkkYQlveAVRDdcnzToprQ2NzuYIZYWyPJQVwjBm2
+	 +I5sghOxb1v1A==
+From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
+To: Oscar Salvador <osalvador@suse.de>
+Cc: Alexandre Ghiti <alexghiti@rivosinc.com>, Albert Ou
+ <aou@eecs.berkeley.edu>, David Hildenbrand <david@redhat.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-riscv@lists.infradead.org, =?utf-8?B?QmrDtnJuIFTDtnBlbA==?=
+ <bjorn@rivosinc.com>, Andrew
+ Bresticker <abrestic@rivosinc.com>, Chethan Seshadri
+ <Chethan.Seshadri@catalinasystems.io>, Lorenzo Stoakes
+ <lstoakes@gmail.com>, Santosh Mamila <santosh.mamila@catalinasystems.io>,
+ Sivakumar Munnangi <siva.munnangi@catalinasystems.io>, Sunil V L
+ <sunilvl@ventanamicro.com>, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v2 2/8] riscv: mm: Change attribute from __init to
+ __meminit for page functions
+In-Reply-To: <ZkPKazeHI4CENSP3@localhost.localdomain>
+References: <20240514140446.538622-1-bjorn@kernel.org>
+ <20240514140446.538622-3-bjorn@kernel.org>
+ <ZkPKazeHI4CENSP3@localhost.localdomain>
+Date: Wed, 15 May 2024 07:39:57 +0200
+Message-ID: <87r0e3k502.fsf@all.your.base.are.belong.to.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,30 +77,49 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAJj2-QFnOjzwbsMrTcrzPsbCFchtJLM0hiJDbR-xe1HcmV+ytw@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 14, 2024 at 06:21:57PM -0700, Yuanchu Xie wrote:
-> On Tue, May 14, 2024 at 9:06 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Mon, May 13, 2024 at 07:03:00PM -0700, Yuanchu Xie wrote:
-> > > Memctl provides a way for the guest to control its physical memory
-> > > properties, and enables optimizations and security features. For
-> > > example, the guest can provide information to the host where parts of a
-> > > hugepage may be unbacked, or sensitive data may not be swapped out, etc.
-> > >...
-> > Pretty generic name for a hardware-specific driver :(
-> It's not for real hardware btw. Its use case is similar to pvpanic
-> where the device is emulated by the VMM. I can change the name if it's
-> a problem.
+Oscar Salvador <osalvador@suse.de> writes:
 
-This file is only used for a single PCI device, that is very
-hardware-specific even if that hardware is "fake" :)
+> On Tue, May 14, 2024 at 04:04:40PM +0200, Bj=C3=B6rn T=C3=B6pel wrote:
+>> From: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
+>>=20
+>> Prepare for memory hotplugging support by changing from __init to
+>> __meminit for the page table functions that are used by the upcoming
+>> architecture specific callbacks.
+>>=20
+>> Changing the __init attribute to __meminit, avoids that the functions
+>> are removed after init. The __meminit attribute makes sure the
+>> functions are kept in the kernel text post init, but only if memory
+>> hotplugging is enabled for the build.
+>>=20
+>> Also, make sure that the altmap parameter is properly passed on to
+>> vmemmap_populate_hugepages().
+>>=20
+>> Signed-off-by: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
+>
+> Reviewed-by: Oscar Salvador <osalvador@suse.de>
+>
+>> +static void __meminit create_linear_mapping_range(phys_addr_t start, ph=
+ys_addr_t end,
+>> +						  uintptr_t fixed_map_size)
+>>  {
+>>  	phys_addr_t pa;
+>>  	uintptr_t va, map_size;
+>> @@ -1435,7 +1429,7 @@ int __meminit vmemmap_populate(unsigned long start=
+, unsigned long end, int node,
+>>  	 * memory hotplug, we are not able to update all the page tables with
+>>  	 * the new PMDs.
+>>  	 */
+>> -	return vmemmap_populate_hugepages(start, end, node, NULL);
+>> +	return vmemmap_populate_hugepages(start, end, node, altmap);
+>
+> I would have put this into a separate patch.
 
-Please make the name more specific as well.
+Thanks for the review, Oscar!
 
-thanks,
+I'll split this up (also suggested by Alex!).
 
-greg k-h
+
+Cheers,
+Bj=C3=B6rn
