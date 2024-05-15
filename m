@@ -1,170 +1,78 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2331374CC
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 02:49:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D73339ACD;
+	Wed, 15 May 2024 05:34:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715741342; cv=none; b=pzRxcQWGeFBnYKjsCxE9DGDCpoftklQKqBH1IneKz3hrcPgE73ZwSPBH4e1oo0de8PzgBdtjGVimo4RJ4pQqOuKi8mt7WQ85aJe1Uyhek0vRAcwQUeYqaXeB3w20oQrS1H8vqqxviJMvul2OHKg6DusttmFyLNeANhkCs7H0BXI=
+	t=1715751252; cv=none; b=Smhs+iWj2uoqkyvmnpcqhgWMCvg+si9Rwpvy4G5bV+3Ttowzb4D1buNbVJjKSN9DYuyXoj8sH4H4fFm5oNWSm6VhC379w5XeDAl9ViM/xxWheY+Y0i9ggEEXDyCY9kbRkYm6tCNMHFDVfpz7KSr0kpZ+x31+KxwAYPd8ctAIVP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715741342; c=relaxed/simple;
-	bh=3p9V5oslK4x8aMOhrMUROLRNJj4lh4gSrktdUCFGPes=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DCVJeDz4RN5y36DUJhSwtLiidXIBnDEloql8p3tcTDjMqwV3EKf9wAl3LdDi9QL1T1Oh6pm+eKWUtkUFX/QkZ6c5ndIIKIkGMohLN2uuYRjzkL2SOCzXKEXYnNGUQdAAPRFVn8LktD52RdFAvhdVUTWWl6+hNuS+goyrYVqDeJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gy4k4Dy6; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1715751252; c=relaxed/simple;
+	bh=wSb8ns8IYZ3jF3HlcEZvCD5f6COiy9Og6hXxxUm6NI8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LJyDS+mwTSs6/Fp3/1mkJn5B9YCY6tCxOxxUjVtAhdsTpfnJUA0iQGw2VZZkqTSgp9Fpd2EG4B6CXGnMXL4rlDNb2LNJ4uU22+O1GBT96AgwmZPotJizQOrtDftWuuWj7Rkgnwpv90+aQ9jfhC4nt0YHYrFTLxzqPYo5yKPip7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=EkXoEdxd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gy4k4Dy6"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A275C6061E
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 02:49:00 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id vLDqCGQszjZz for <virtualization@lists.linux-foundation.org>;
- Wed, 15 May 2024 02:49:00 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C9F41605FD
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C9F41605FD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gy4k4Dy6
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C9F41605FD
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 02:48:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715741338;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TtHI1Bhd9NWtrp+GeDGa3Emd+Y2AqBnGkmYsic8ZRZk=;
-	b=Gy4k4Dy6sOwqf5iOPXpkWu5vuIQ+6BqxwmIcDHFXld5kfi4Y+8i58+MkbE9dmOX16/nZ4F
-	6fFxUhJKTqYv6cTztwzT+2HMyiP4fidyAcFhc/ScsVHFe9mORzPY0oPVfwQtAW5K6ELP0+
-	l+Na1KLQaYZJ4yZAJhTUCwikZRrz5XI=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-318-FUPatsY5OJ-bH-bUH7T24g-1; Tue, 14 May 2024 22:48:56 -0400
-X-MC-Unique: FUPatsY5OJ-bH-bUH7T24g-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2b4348fb84bso5186672a91.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 19:48:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715741335; x=1716346135;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TtHI1Bhd9NWtrp+GeDGa3Emd+Y2AqBnGkmYsic8ZRZk=;
-        b=alkCL9jHdT3truEtWtMg3/+SHxvmo0ajybKJYQrVRvSFh/lNps86HDo9TRrjWqSOgo
-         9Y1XAug6HPu2CMJ/Tsg16pvZm6MSOn56xa/LRG8/7IwDqDHAIls4tS/YVgDT0OL96Pk2
-         yFPgrNcZn4n5FRBbhvjWHxHn5MC8SKHejlzqOjiGdbjRMkI/L5a+3dkJuD1g3tH1URd3
-         2sCBoOSo0Zk9GJqBMylJq0Lpx7BgaD7vLK8mvBjCrVTKLS0KOn68Cg4a/QeAUDvtcRei
-         HUXr8ly4X8TFV3Ew/lUeCk4RRLjkb4FIRhO6wZrchJbLVqFvfsGC4a8czgBOh9f7DLF1
-         KXdQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXKKWgSFrd57cBySGOszqeqeEuopZUo5Q5kDX0j7jNU/nbLF0olQz0uOKYQ2ahS/Gayl8corYUbjFoCPsPS/2eIyX3Kap1jZcvuwSG6tVXqGuUX1p01xQ0fng==
-X-Gm-Message-State: AOJu0Yy02uC97ge/DIdt2MLon8PBHVDEMKAW70Tzit34DEJ5I2zPRjL/
-	JhBCkmPJ1m08h8gBWo/wUYrB4hj14dB5anzgsW+Q39i0HEXGtOWOkn7KtloOc/9rcoS6S4yXXrf
-	BYKHOKRI0VjDKUWZU1YQni38plpeqzBAMfngDF0kmp7T/MnATpQ3Ad4Lfh2mOzPKLiS7VSHvBjy
-	bx9cIHG5jJ7GSsyKHKybiRxdTvavMmwUidboFDmuKQRZNLAiJ83Yd3AeWtpu5WXRIn
-X-Received: by 2002:a17:90a:5918:b0:2b5:90f8:d590 with SMTP id 98e67ed59e1d1-2b6cc44fa48mr11618120a91.18.1715741335296;
-        Tue, 14 May 2024 19:48:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH0Q9Ab5uuZ3wtyOBfo/FOaYePVZUxA0d5QS43POWx81aX4RbzZRg25sv2e9uxsCCKq9Ex0RiLo8UJbmdsTbLo=
-X-Received: by 2002:a17:90a:5918:b0:2b5:90f8:d590 with SMTP id
- 98e67ed59e1d1-2b6cc44fa48mr11618113a91.18.1715741334886; Tue, 14 May 2024
- 19:48:54 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="EkXoEdxd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF115C116B1;
+	Wed, 15 May 2024 05:34:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1715751251;
+	bh=wSb8ns8IYZ3jF3HlcEZvCD5f6COiy9Og6hXxxUm6NI8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=EkXoEdxdufurf2ejP3e8GacLs23Ir9io+Z1Sq4qTFZSM3vx/dnPIclnY0aKAhVf3L
+	 x+rFw38ymOqlv0+Gluk6x35UhNsJoOTE4JIqLJTsY1KDQ2lnKMZ3Q1tenbovMOq0Pd
+	 7VBdUa7hAnsACpceW24rSuCol+Ca86eL9vjc9T5U=
+Date: Wed, 15 May 2024 07:34:07 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Yuanchu Xie <yuanchu@google.com>
+Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>,
+	Theodore Ts'o <tytso@mit.edu>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Tom Lendacky <thomas.lendacky@amd.com>,
+	Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org
+Subject: Re: [RFC PATCH v1 1/2] virt: memctl: control guest physical memory
+ properties
+Message-ID: <2024051533-cyclic-unshipped-5599@gregkh>
+References: <20240514020301.1835794-1-yuanchu@google.com>
+ <2024051414-untie-deviant-ed35@gregkh>
+ <CAJj2-QFnOjzwbsMrTcrzPsbCFchtJLM0hiJDbR-xe1HcmV+ytw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1710566754-3532-1-git-send-email-zhanglikernel@gmail.com>
- <CACGkMEs1t-ipP7TasHkKNKd=peVEES6Xdw1zSsJkb-bc9Etx9Q@mail.gmail.com> <CAAa-AGm1gYmeBG1QmZcdc0cPUeVGYU9UaFNdCdgu2+gG88A1Wg@mail.gmail.com>
-In-Reply-To: <CAAa-AGm1gYmeBG1QmZcdc0cPUeVGYU9UaFNdCdgu2+gG88A1Wg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 15 May 2024 10:48:43 +0800
-Message-ID: <CACGkMEth_9Baewekq862YgZwuozwG96Z3G6oYqHzyCj2JPUZ3g@mail.gmail.com>
-Subject: Re: [PATCH]virtio-pci: Check if is_avq is NULL
-To: li zhang <zhanglikernel@gmail.com>
-Cc: kvm@vger.kernel.org, 
-	virtualization <virtualization@lists.linux-foundation.org>, 
-	Michael Tsirkin <mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJj2-QFnOjzwbsMrTcrzPsbCFchtJLM0hiJDbR-xe1HcmV+ytw@mail.gmail.com>
 
-On Tue, May 14, 2024 at 11:37=E2=80=AFPM li zhang <zhanglikernel@gmail.com>=
- wrote:
->
-> Hi,
-> Two months have passed and this bug seems to have not been fixed.
-> Sincerely,
-> Li Zhang
+On Tue, May 14, 2024 at 06:21:57PM -0700, Yuanchu Xie wrote:
+> On Tue, May 14, 2024 at 9:06 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, May 13, 2024 at 07:03:00PM -0700, Yuanchu Xie wrote:
+> > > Memctl provides a way for the guest to control its physical memory
+> > > properties, and enables optimizations and security features. For
+> > > example, the guest can provide information to the host where parts of a
+> > > hugepage may be unbacked, or sensitive data may not be swapped out, etc.
+> > >...
+> > Pretty generic name for a hardware-specific driver :(
+> It's not for real hardware btw. Its use case is similar to pvpanic
+> where the device is emulated by the VMM. I can change the name if it's
+> a problem.
 
-Adding Michael and virtualization-list.
+This file is only used for a single PCI device, that is very
+hardware-specific even if that hardware is "fake" :)
 
-Please use get_maintainer.pl to make sure the patch reaches the maintainer.
+Please make the name more specific as well.
 
-Thanks
+thanks,
 
->
-> Jason Wang <jasowang@redhat.com> =E4=BA=8E2024=E5=B9=B43=E6=9C=8821=E6=97=
-=A5=E5=91=A8=E5=9B=9B 14:19=E5=86=99=E9=81=93=EF=BC=9A
-> >
-> > On Sat, Mar 16, 2024 at 1:26=E2=80=AFPM Li Zhang <zhanglikernel@gmail.c=
-om> wrote:
-> > >
-> > > [bug]
-> > > In the virtio_pci_common.c function vp_del_vqs, vp_dev->is_avq is inv=
-olved
-> > > to determine whether it is admin virtqueue, but this function vp_dev-=
->is_avq
-> > >  may be empty. For installations, virtio_pci_legacy does not assign a=
- value
-> > >  to vp_dev->is_avq.
-> > >
-> > > [fix]
-> > > Check whether it is vp_dev->is_avq before use.
-> > >
-> > > [test]
-> > > Test with virsh Attach device
-> > > Before this patch, the following command would crash the guest system
-> > >
-> > > After applying the patch, everything seems to be working fine.
-> > >
-> > > Signed-off-by: Li Zhang <zhanglikernel@gmail.com>
-> >
-> > Acked-by: Jason Wang <jasowang@redhat.com>
-> >
-> > Thanks
-> >
-> > > ---
-> > >  drivers/virtio/virtio_pci_common.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virt=
-io_pci_common.c
-> > > index b655fcc..3c18fc1 100644
-> > > --- a/drivers/virtio/virtio_pci_common.c
-> > > +++ b/drivers/virtio/virtio_pci_common.c
-> > > @@ -236,7 +236,7 @@ void vp_del_vqs(struct virtio_device *vdev)
-> > >         int i;
-> > >
-> > >         list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
-> > > -               if (vp_dev->is_avq(vdev, vq->index))
-> > > +               if (vp_dev->is_avq && vp_dev->is_avq(vdev, vq->index)=
-)
-> > >                         continue;
-> > >
-> > >                 if (vp_dev->per_vq_vectors) {
-> > > --
-> > > 1.8.3.1
-> > >
-> > >
-> >
-> >
->
-
+greg k-h
