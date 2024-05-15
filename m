@@ -1,97 +1,170 @@
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8E23A938
-	for <virtualization@lists.linux.dev>; Wed, 15 May 2024 01:22:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2331374CC
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 02:49:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715736134; cv=none; b=PkslShSrVfYMf6FQ/mOXSZw7aMcBG+lo/5NjMqh9ajGwITdGLoyG4waOO5Z9/7GBVIrDXhlaQR3puim98SLCIl24L0bR+3avwEtH3aBxcOYjOQP8JK2ewvU8i+AgiFhByO4yBoK9UuTw3vyclEFo6wSNp35aev81jJQKi0juZos=
+	t=1715741342; cv=none; b=pzRxcQWGeFBnYKjsCxE9DGDCpoftklQKqBH1IneKz3hrcPgE73ZwSPBH4e1oo0de8PzgBdtjGVimo4RJ4pQqOuKi8mt7WQ85aJe1Uyhek0vRAcwQUeYqaXeB3w20oQrS1H8vqqxviJMvul2OHKg6DusttmFyLNeANhkCs7H0BXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715736134; c=relaxed/simple;
-	bh=PjmdoL8aK6SpmWV+gcuuagXO08GZB4SplEuasH9OLnY=;
+	s=arc-20240116; t=1715741342; c=relaxed/simple;
+	bh=3p9V5oslK4x8aMOhrMUROLRNJj4lh4gSrktdUCFGPes=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=b4LAmAAs2hB4s/fztCMqMOyu19hrJAZlSqQMnwbgo4qKILxIn1I7yVv7TS0nC6gbxpIdU1s0v7welCgSc1ncxWXBORM/6loFeqofPjOOB/D0YK+SPm5rkw3pJFhZ3s/2q/jJRd66cTcdSE2CrRyFkO16mjH4KHf5ZiRjww9S8T8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=yXMSxtnU; arc=none smtp.client-ip=209.85.219.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=DCVJeDz4RN5y36DUJhSwtLiidXIBnDEloql8p3tcTDjMqwV3EKf9wAl3LdDi9QL1T1Oh6pm+eKWUtkUFX/QkZ6c5ndIIKIkGMohLN2uuYRjzkL2SOCzXKEXYnNGUQdAAPRFVn8LktD52RdFAvhdVUTWWl6+hNuS+goyrYVqDeJw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gy4k4Dy6; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="yXMSxtnU"
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-de604ca3cfcso6208637276.3
-        for <virtualization@lists.linux.dev>; Tue, 14 May 2024 18:22:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1715736132; x=1716340932; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PjmdoL8aK6SpmWV+gcuuagXO08GZB4SplEuasH9OLnY=;
-        b=yXMSxtnUgn6HQMnM6x/YiLvD4kUuQUkDUj3Lkvulk2quU5CzD9qFjsVh7eBzUOnBh6
-         aaf12ih4fm/YgBsahZhmji/UnO+kfuGPc+VBtg/AvRhrSU8CIzvSaNSGPc84+Lfr5L7I
-         WpYJjZMplCnclpLr1RdTqKJU/JqNw8DkTjQLR1lMs2O8BQINGhkPAOb4VgwUDr4l8XIY
-         X74TI6Il+GU4JTRNGyNsz7gez4/WTgPMeLrxI2nqVXovqITk3bTl7UQm3thh0AZZ+FB1
-         FoyIVWW7ljzNgTE5ip7BH1YPZfCq5Z78Luqu77kbQp+Ruj6kQgLkjmge8cg9C+JjGtdZ
-         zmVw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gy4k4Dy6"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id A275C6061E
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 02:49:00 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id vLDqCGQszjZz for <virtualization@lists.linux-foundation.org>;
+ Wed, 15 May 2024 02:49:00 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C9F41605FD
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C9F41605FD
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gy4k4Dy6
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C9F41605FD
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 May 2024 02:48:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715741338;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TtHI1Bhd9NWtrp+GeDGa3Emd+Y2AqBnGkmYsic8ZRZk=;
+	b=Gy4k4Dy6sOwqf5iOPXpkWu5vuIQ+6BqxwmIcDHFXld5kfi4Y+8i58+MkbE9dmOX16/nZ4F
+	6fFxUhJKTqYv6cTztwzT+2HMyiP4fidyAcFhc/ScsVHFe9mORzPY0oPVfwQtAW5K6ELP0+
+	l+Na1KLQaYZJ4yZAJhTUCwikZRrz5XI=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-318-FUPatsY5OJ-bH-bUH7T24g-1; Tue, 14 May 2024 22:48:56 -0400
+X-MC-Unique: FUPatsY5OJ-bH-bUH7T24g-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2b4348fb84bso5186672a91.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 14 May 2024 19:48:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715736132; x=1716340932;
+        d=1e100.net; s=20230601; t=1715741335; x=1716346135;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=PjmdoL8aK6SpmWV+gcuuagXO08GZB4SplEuasH9OLnY=;
-        b=fUhbeGgvxinsIDhTmwXkhPM0o4x125hXI3QtiaLNouFUbXt0ATtidTA6ZV+kjVXPVz
-         aODDDOSQ2dkS8FYUvOe9/AxjODqTVMfrtYfcDd6T7IA9lxx2StGLP5S0000KgYBbO9r1
-         RLg/vDDahD3TCm97/LEI0xyowkkNyFSPRzbJjdVhpcC0naZgMw2HNwSCRWIYWefLczBk
-         eqSInFRkM5f4T1kH5+Tp0mNRFMW5N9Xqhm55aOEVWLk0RafhJsfOAR9tcfUZezcLw6et
-         eSJxhFLQJXB4E57xzBXaubn5//RGqynC403oqdSrbvBCG+D2Wvlu8ZJNuBQpFD2uCvBW
-         Vdtg==
-X-Forwarded-Encrypted: i=1; AJvYcCWhN7ye6zLrq8oxUNf+J+xcWZzllDxTQwjUmE1LxdNQ+WvlPwDR8cl+5OHC/NMLhRr633nAlshrp6KcmQ3gycklfy1dbdgE6sgx3/V/6DU=
-X-Gm-Message-State: AOJu0YzvOx+yXv9kUNI4SHJ/tQLLk7Ue4YxNgQPmSYvK5ORtJPSJIVYi
-	ubzjUjimRF8UdqbNOg331gCkGoZmDduyq/qIREaKroH85nYtQQ0YJdJ8KPkAHubdKMMEKKdLDu2
-	DWN2UcgFPIQjT4f78MjWAvPaVUBvUOs/Mcv73
-X-Google-Smtp-Source: AGHT+IFWUUjU6sUNOq/Evye+BgmL3GiqmZBAyQyzUv6knnlnP8bIsfU6R8l0apQ6lQi0JL7TPW8eDB/LOqLphZSlreA=
-X-Received: by 2002:a25:b1a3:0:b0:dee:5cb6:483c with SMTP id
- 3f1490d57ef6-dee5cb64977mr12258845276.49.1715736131408; Tue, 14 May 2024
- 18:22:11 -0700 (PDT)
+        bh=TtHI1Bhd9NWtrp+GeDGa3Emd+Y2AqBnGkmYsic8ZRZk=;
+        b=alkCL9jHdT3truEtWtMg3/+SHxvmo0ajybKJYQrVRvSFh/lNps86HDo9TRrjWqSOgo
+         9Y1XAug6HPu2CMJ/Tsg16pvZm6MSOn56xa/LRG8/7IwDqDHAIls4tS/YVgDT0OL96Pk2
+         yFPgrNcZn4n5FRBbhvjWHxHn5MC8SKHejlzqOjiGdbjRMkI/L5a+3dkJuD1g3tH1URd3
+         2sCBoOSo0Zk9GJqBMylJq0Lpx7BgaD7vLK8mvBjCrVTKLS0KOn68Cg4a/QeAUDvtcRei
+         HUXr8ly4X8TFV3Ew/lUeCk4RRLjkb4FIRhO6wZrchJbLVqFvfsGC4a8czgBOh9f7DLF1
+         KXdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXKKWgSFrd57cBySGOszqeqeEuopZUo5Q5kDX0j7jNU/nbLF0olQz0uOKYQ2ahS/Gayl8corYUbjFoCPsPS/2eIyX3Kap1jZcvuwSG6tVXqGuUX1p01xQ0fng==
+X-Gm-Message-State: AOJu0Yy02uC97ge/DIdt2MLon8PBHVDEMKAW70Tzit34DEJ5I2zPRjL/
+	JhBCkmPJ1m08h8gBWo/wUYrB4hj14dB5anzgsW+Q39i0HEXGtOWOkn7KtloOc/9rcoS6S4yXXrf
+	BYKHOKRI0VjDKUWZU1YQni38plpeqzBAMfngDF0kmp7T/MnATpQ3Ad4Lfh2mOzPKLiS7VSHvBjy
+	bx9cIHG5jJ7GSsyKHKybiRxdTvavMmwUidboFDmuKQRZNLAiJ83Yd3AeWtpu5WXRIn
+X-Received: by 2002:a17:90a:5918:b0:2b5:90f8:d590 with SMTP id 98e67ed59e1d1-2b6cc44fa48mr11618120a91.18.1715741335296;
+        Tue, 14 May 2024 19:48:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH0Q9Ab5uuZ3wtyOBfo/FOaYePVZUxA0d5QS43POWx81aX4RbzZRg25sv2e9uxsCCKq9Ex0RiLo8UJbmdsTbLo=
+X-Received: by 2002:a17:90a:5918:b0:2b5:90f8:d590 with SMTP id
+ 98e67ed59e1d1-2b6cc44fa48mr11618113a91.18.1715741334886; Tue, 14 May 2024
+ 19:48:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240514020301.1835794-1-yuanchu@google.com> <2024051414-untie-deviant-ed35@gregkh>
-In-Reply-To: <2024051414-untie-deviant-ed35@gregkh>
-From: Yuanchu Xie <yuanchu@google.com>
-Date: Tue, 14 May 2024 18:21:57 -0700
-Message-ID: <CAJj2-QFnOjzwbsMrTcrzPsbCFchtJLM0hiJDbR-xe1HcmV+ytw@mail.gmail.com>
-Subject: Re: [RFC PATCH v1 1/2] virt: memctl: control guest physical memory properties
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>, 
-	"Theodore Ts'o" <tytso@mit.edu>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, 
-	Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, virtualization@lists.linux.dev, 
-	dev@lists.cloudhypervisor.org
+References: <1710566754-3532-1-git-send-email-zhanglikernel@gmail.com>
+ <CACGkMEs1t-ipP7TasHkKNKd=peVEES6Xdw1zSsJkb-bc9Etx9Q@mail.gmail.com> <CAAa-AGm1gYmeBG1QmZcdc0cPUeVGYU9UaFNdCdgu2+gG88A1Wg@mail.gmail.com>
+In-Reply-To: <CAAa-AGm1gYmeBG1QmZcdc0cPUeVGYU9UaFNdCdgu2+gG88A1Wg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 15 May 2024 10:48:43 +0800
+Message-ID: <CACGkMEth_9Baewekq862YgZwuozwG96Z3G6oYqHzyCj2JPUZ3g@mail.gmail.com>
+Subject: Re: [PATCH]virtio-pci: Check if is_avq is NULL
+To: li zhang <zhanglikernel@gmail.com>
+Cc: kvm@vger.kernel.org, 
+	virtualization <virtualization@lists.linux-foundation.org>, 
+	Michael Tsirkin <mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 14, 2024 at 9:06=E2=80=AFAM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Tue, May 14, 2024 at 11:37=E2=80=AFPM li zhang <zhanglikernel@gmail.com>=
+ wrote:
 >
-> On Mon, May 13, 2024 at 07:03:00PM -0700, Yuanchu Xie wrote:
-> > Memctl provides a way for the guest to control its physical memory
-> > properties, and enables optimizations and security features. For
-> > example, the guest can provide information to the host where parts of a
-> > hugepage may be unbacked, or sensitive data may not be swapped out, etc=
-.
-> >...
-> Pretty generic name for a hardware-specific driver :(
-It's not for real hardware btw. Its use case is similar to pvpanic
-where the device is emulated by the VMM. I can change the name if it's
-a problem.
+> Hi,
+> Two months have passed and this bug seems to have not been fixed.
+> Sincerely,
+> Li Zhang
 
-> Yup, you write this to hardware, please use proper structures and types
-> for that, otherwise you will have problems in the near future.
-Thanks for the review and comments on endianness and using proper
-types. Will do.
+Adding Michael and virtualization-list.
 
-Thanks,
-Yuanchu
+Please use get_maintainer.pl to make sure the patch reaches the maintainer.
+
+Thanks
+
+>
+> Jason Wang <jasowang@redhat.com> =E4=BA=8E2024=E5=B9=B43=E6=9C=8821=E6=97=
+=A5=E5=91=A8=E5=9B=9B 14:19=E5=86=99=E9=81=93=EF=BC=9A
+> >
+> > On Sat, Mar 16, 2024 at 1:26=E2=80=AFPM Li Zhang <zhanglikernel@gmail.c=
+om> wrote:
+> > >
+> > > [bug]
+> > > In the virtio_pci_common.c function vp_del_vqs, vp_dev->is_avq is inv=
+olved
+> > > to determine whether it is admin virtqueue, but this function vp_dev-=
+>is_avq
+> > >  may be empty. For installations, virtio_pci_legacy does not assign a=
+ value
+> > >  to vp_dev->is_avq.
+> > >
+> > > [fix]
+> > > Check whether it is vp_dev->is_avq before use.
+> > >
+> > > [test]
+> > > Test with virsh Attach device
+> > > Before this patch, the following command would crash the guest system
+> > >
+> > > After applying the patch, everything seems to be working fine.
+> > >
+> > > Signed-off-by: Li Zhang <zhanglikernel@gmail.com>
+> >
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> >
+> > Thanks
+> >
+> > > ---
+> > >  drivers/virtio/virtio_pci_common.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virt=
+io_pci_common.c
+> > > index b655fcc..3c18fc1 100644
+> > > --- a/drivers/virtio/virtio_pci_common.c
+> > > +++ b/drivers/virtio/virtio_pci_common.c
+> > > @@ -236,7 +236,7 @@ void vp_del_vqs(struct virtio_device *vdev)
+> > >         int i;
+> > >
+> > >         list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
+> > > -               if (vp_dev->is_avq(vdev, vq->index))
+> > > +               if (vp_dev->is_avq && vp_dev->is_avq(vdev, vq->index)=
+)
+> > >                         continue;
+> > >
+> > >                 if (vp_dev->per_vq_vectors) {
+> > > --
+> > > 1.8.3.1
+> > >
+> > >
+> >
+> >
+>
+
