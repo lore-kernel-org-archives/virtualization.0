@@ -1,168 +1,205 @@
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD4B27441E
-	for <virtualization@lists.linux.dev>; Wed, 15 May 2024 12:45:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E279B84D23
+	for <virtualization@lists.linux.dev>; Wed, 15 May 2024 12:54:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715777109; cv=none; b=NSwZgOgNV3Fr5TnSjSCFtNkHyGtI1shDtQDJLGQ+jOzpzGPlG28yHwxDaEeMw9OLZtUEnx3g9Y4IlrAqu9S1Wvhiw7u6p/bOLBNlPBTfceZLXt427Ze31oEXmkbH7JaF+J3NOsPWTiZyYp0GMAfm+4ED6wln8mIEZ/dfSKm6Luk=
+	t=1715777654; cv=none; b=jLVrn3t01KDHIsnT1YrLk53D3McGtmV1b+DtUMfxacvezg6o1/MHqWw2oGBG3ZfDfqreyqua5Y4t5UWt95RVHJqp5JvZbHVSDm0yKwV1RWemNdDzC+vijoNwD7oi/54VlKOB5jdag7u2k4ihfFpbtyjabWw5a+tKYEF2zlDg3Ko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715777109; c=relaxed/simple;
-	bh=dAiKwswlI9vl7Vz1knSyiBGRXl8sL2zhSzjCe6UvXcM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Zk6MKZzA7AMGWJ5YsNGtuD02FbCy6yy4S95znYyYeeYkg1giPr+FMnVbHXgwfEz7V5bxpGwYfQd5AICBJOOv1tBh8qIVyHaDno8XfDTah8ttSl+mWrSCGbA1vG5ZtzU/AXJEy+YiicAj8i98ia6a+Z24j0+x4Oj4O4G42BajGb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=lJS0vQur; arc=none smtp.client-ip=209.85.208.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1715777654; c=relaxed/simple;
+	bh=fa0lk4wrnn3s5FADJjPgnJrV+uzfIIxTSfTO+n9aVOI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TDC8id96LZrYY30nAxHK/hw+2ZI6DRcCRbxbBdfCT2U04FuHeijp+pvq/3oSMuX0cn7fOOa6J4YEY76vsp0lfBNnUH6Li04cA7lmRkCVXyhBiC4/aYGNF9rNOxPDSMvFFZoT2Qo+QVGF7tI3jY9AtsjJMMZOarRKpOi/igkiKkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=jBVE6Phd; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="lJS0vQur"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-572a1b3d6baso29839a12.1
-        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 05:45:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="jBVE6Phd"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-34e0d47bd98so4429497f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 05:54:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1715777106; x=1716381906; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gIHDT+07znPLhR2FPshSj/zmhbvnVDWs3oWxP5GgC3U=;
-        b=lJS0vQurO0WiI3Aycw8Q7cJcLSaaEQ82hZQe+Kbq+07/6XNDy5HR2HC6uJyOysNzQs
-         zVdSp57pa9Ee41sd1AzNXubX7Fnm3n+rlnQY1DJZPAeTqeWj+pozXKRUvAz47CU3F63f
-         9Q6Pm6Rua+2RotMHH7FZTDnWJt1riIuYNAu6yf361x1JfQt34VOFTEQaCTT1IHDsONVG
-         6eTIqOdbAUXmOhxA7v2XhH03R6B3gtg5YsusRdTSN0tdODhwEzicF049jpca+V9TNHbr
-         VpxjqL2mY1jm6goZis2RTsA5mZcsiNl1wUYbZvJlOBEu1XTWWHoUeMk/YpQ6gj0hk+zL
-         9kng==
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1715777650; x=1716382450; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=399YWrOQm2u/X7iwRgitAignXFxnAABjsBtmCgGDs6o=;
+        b=jBVE6PhdnSAoBjrB1JifOghUoXiqDYc+FH5PPAeUnUezHYpuYAR+YgJIT+CnPtOllf
+         bt9d3fTeb7oNu0J6Mu1bvAZk5HZfLJgFipHpB2aajPzP0UIqTYRQdCXnH9jTPYIEWpL9
+         9Ka+LWFqzZjMfqafi9xTjOTOLoB4lC/PsZL2eBM/Il48imqGfbUXUVZn6K6D8p7Aeu6m
+         669EYiSud76nD+nNLcUXGPzKfo3bcezPclKRLmLqPrgm3d65eofYOjp2l9e4xBuYWwf6
+         VTxIvRDNgyCvCCGLW+mb933wqHBgOVO8TK2iWZKglEDes3JWWbd/YP1o/NNoBvjFAxYY
+         LTPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715777106; x=1716381906;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gIHDT+07znPLhR2FPshSj/zmhbvnVDWs3oWxP5GgC3U=;
-        b=XWshAQlgQ/fqYKcrgQBGOpk73kr104NMt4wYlaOHshOrEfruNUdz0c6XjCvAMXRhsa
-         Cb14Ac7YpoQsVYoLUkbpzDuhKBJsdrg9SWxDRnNmX38hzcX2OjVsAYYQ4Tzhgjyljxbo
-         uKGYz30i7OMnffPXFbW+jaQ/Te+BkvGaa0zWlE5UAUUawoF6fd6vACW7av7K+QmEQqkH
-         AnbCzdPW7YvHtuPCDhfi+/vaBQoYTszgHly1jt6f7Yiw5o33C6R3GrtqPSEW1SD7Qe2o
-         wZILRpp+b0jD3GN2ceRrIXrNuf1XHo0j4h1LtUrYAMTl5et4eXa7DSLbi4mrG7DI3GGC
-         xN2g==
-X-Forwarded-Encrypted: i=1; AJvYcCXun2XvG4nmxw+rGpds3hQrdykQH4NIuXaHpqEcDXonOiRxN27KgE5ycxkGhZf0/CcJxk4W5uuEVoIV/hMDQOfcGqpoqSzJ/XnRI9EMgVg=
-X-Gm-Message-State: AOJu0YwC4LOxVhst8Oq65+DpYEQSDEGRr/+dnQZO961VXt6vWVmo60Re
-	Z7sflER5FE7jSvMRxkjf6wWyrEtzNRhWLgCyUaQBw3LBk7w0nDSdJA2P8yDWoQcggwy9MI6FK+q
-	sFtGZM1tDtMO63zCiZvlLAvk8dWeZIRxpPSIh
-X-Google-Smtp-Source: AGHT+IHvETyQZIEG+Vfa+gII+NQxpoDXXbq8ziKjVJ2GJyUu1Ib6RfG9WuzJxnSyPejOgjdduo9E66L6SQ/gpOSzeAs=
-X-Received: by 2002:a50:cac7:0:b0:572:a154:7081 with SMTP id
- 4fb4d7f45d1cf-57443d4db9amr718673a12.4.1715777105675; Wed, 15 May 2024
- 05:45:05 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1715777650; x=1716382450;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=399YWrOQm2u/X7iwRgitAignXFxnAABjsBtmCgGDs6o=;
+        b=Z2iuSg+E1VqvhZX8elxcRUTeVDE+3mFlGjlg7Rg/Uk/Kqy4gCee2Q73F42dTFKev47
+         Jf79IsegKvWYzvRlMfQ5ifTUVcVILMhtaCTDIIMOC9KjNaaj1k9lCo9ZoV0opGXnfoxl
+         kCT8dd0GYan88aB2n5nldG0138UwCQN6otJzLtTtOiXTRB1bXUBSAtvoW5lSopMkx/gU
+         EKcG11YCj7ZGY94d6c2oBFW9kldiisL7p/gMds9On5FlRSHHaS3yqqk4/TneiXFxnx7m
+         VoqGB0mv5k0l1bcQ5WhOLd1gFWXhAOrNXOo64AxhWD9ND44CARbCH+UE3zGXanB7XLM2
+         y3Ow==
+X-Forwarded-Encrypted: i=1; AJvYcCWcXyuDASFEc9O37rPcMZIJCwzW9+7WBka9dwXzWL3Fcxs/X16N/wlRuSq/4FLjowWIGzKznvHy7VYKk5x6EVw9qLpVCHcWyL7eGTSA6HI=
+X-Gm-Message-State: AOJu0YwUP6cKfFuAi87j6dMoM6fV6bCLUu5eUAF72Pd/QuAImyG0yF91
+	YLVx0NxqWMqYK/tHF2Lm4qFCtSMchDu3uouawxGhEHIxlSL+bd5c+ewVQu58TJc=
+X-Google-Smtp-Source: AGHT+IE4YrrtRuAFNWww2vR5w1DpfKkKPKDKWLHkD81iqzTV9ozJs4BXxNZfFL3AHXUrn1Eq821Dfw==
+X-Received: by 2002:a5d:6e0b:0:b0:34c:cae0:c989 with SMTP id ffacd0b85a97d-35049bbf662mr14131125f8f.33.1715777649820;
+        Wed, 15 May 2024 05:54:09 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502b79bc3bsm16388034f8f.13.2024.05.15.05.54.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 May 2024 05:54:09 -0700 (PDT)
+Date: Wed, 15 May 2024 14:54:05 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+	john.fastabend@gmail.com
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+Message-ID: <ZkSwbaA74z1QwwJz@nanopsycho.orion>
+References: <20240509084050-mutt-send-email-mst@kernel.org>
+ <ZjzQTFq5lJIoeSqM@nanopsycho.orion>
+ <20240509102643-mutt-send-email-mst@kernel.org>
+ <Zj3425_gSqHByw-R@nanopsycho.orion>
+ <20240510065121-mutt-send-email-mst@kernel.org>
+ <Zj4A9XY7z-TzEpdz@nanopsycho.orion>
+ <20240510072431-mutt-send-email-mst@kernel.org>
+ <ZkRlcBU0Nb3O-Kg1@nanopsycho.orion>
+ <20240515041909-mutt-send-email-mst@kernel.org>
+ <ZkSKo1npMxCVuLfT@nanopsycho.orion>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240503202445.1415560-1-danielj@nvidia.com> <20240503202445.1415560-3-danielj@nvidia.com>
-In-Reply-To: <20240503202445.1415560-3-danielj@nvidia.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Wed, 15 May 2024 14:44:54 +0200
-Message-ID: <CANn89iLazVaUCvhPm6RPJJ0owra_oFnx7Fhc8d60gV-65ad3WQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v6 2/6] virtio_net: Remove command data from control_buf
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
-	davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, jiri@nvidia.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZkSKo1npMxCVuLfT@nanopsycho.orion>
 
-On Fri, May 3, 2024 at 10:25=E2=80=AFPM Daniel Jurgens <danielj@nvidia.com>=
- wrote:
+Wed, May 15, 2024 at 12:12:51PM CEST, jiri@resnulli.us wrote:
+>Wed, May 15, 2024 at 10:20:04AM CEST, mst@redhat.com wrote:
+>>On Wed, May 15, 2024 at 09:34:08AM +0200, Jiri Pirko wrote:
+>>> Fri, May 10, 2024 at 01:27:08PM CEST, mst@redhat.com wrote:
+>>> >On Fri, May 10, 2024 at 01:11:49PM +0200, Jiri Pirko wrote:
+>>> >> Fri, May 10, 2024 at 12:52:52PM CEST, mst@redhat.com wrote:
+>>> >> >On Fri, May 10, 2024 at 12:37:15PM +0200, Jiri Pirko wrote:
+>>> >> >> Thu, May 09, 2024 at 04:28:12PM CEST, mst@redhat.com wrote:
+>>> >> >> >On Thu, May 09, 2024 at 03:31:56PM +0200, Jiri Pirko wrote:
+>>> >> >> >> Thu, May 09, 2024 at 02:41:39PM CEST, mst@redhat.com wrote:
+>>> >> >> >> >On Thu, May 09, 2024 at 01:46:15PM +0200, Jiri Pirko wrote:
+>>> >> >> >> >> From: Jiri Pirko <jiri@nvidia.com>
+>>> >> >> >> >> 
+>>> >> >> >> >> Add support for Byte Queue Limits (BQL).
+>>> >> >> >> >> 
+>>> >> >> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>>> >> >> >> >
+>>> >> >> >> >Can we get more detail on the benefits you observe etc?
+>>> >> >> >> >Thanks!
+>>> >> >> >> 
+>>> >> >> >> More info about the BQL in general is here:
+>>> >> >> >> https://lwn.net/Articles/469652/
+>>> >> >> >
+>>> >> >> >I know about BQL in general. We discussed BQL for virtio in the past
+>>> >> >> >mostly I got the feedback from net core maintainers that it likely won't
+>>> >> >> >benefit virtio.
+>>> >> >> 
+>>> >> >> Do you have some link to that, or is it this thread:
+>>> >> >> https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com/
+>>> >> >
+>>> >> >
+>>> >> >A quick search on lore turned up this, for example:
+>>> >> >https://lore.kernel.org/all/a11eee78-b2a1-3dbc-4821-b5f4bfaae819@gmail.com/
+>>> >> 
+>>> >> Says:
+>>> >> "Note that NIC with many TX queues make BQL almost useless, only adding extra
+>>> >>  overhead."
+>>> >> 
+>>> >> But virtio can have one tx queue, I guess that could be quite common
+>>> >> configuration in lot of deployments.
+>>> >
+>>> >Not sure we should worry about performance for these though.
+>>> >What I am saying is this should come with some benchmarking
+>>> >results.
+>>> 
+>>> I did some measurements with VDPA, backed by ConnectX6dx NIC, single
+>>> queue pair:
+>>> 
+>>> super_netperf 200 -H $ip -l 45 -t TCP_STREAM &
+>>> nice -n 20 netperf -H $ip -l 10 -t TCP_RR
+>>> 
+>>> RR result with no bql:
+>>> 29.95
+>>> 32.74
+>>> 28.77
+>>> 
+>>> RR result with bql:
+>>> 222.98
+>>> 159.81
+>>> 197.88
+>>> 
+>>
+>>Okay. And on the other hand, any measureable degradation with
+>>multiqueue and when testing throughput?
 >
-> Allocate memory for the data when it's used. Ideally the struct could
-> be on the stack, but we can't DMA stack memory. With this change only
-> the header and status memory are shared between commands, which will
-> allow using a tighter lock than RTNL.
->
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> ---
->  drivers/net/virtio_net.c | 124 +++++++++++++++++++++++++++------------
->  1 file changed, 85 insertions(+), 39 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 9cf93a8a4446..451879d570a8 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -368,15 +368,6 @@ struct virtio_net_ctrl_rss {
->  struct control_buf {
->         struct virtio_net_ctrl_hdr hdr;
->         virtio_net_ctrl_ack status;
-> -       struct virtio_net_ctrl_mq mq;
-> -       u8 promisc;
-> -       u8 allmulti;
-> -       __virtio16 vid;
-> -       __virtio64 offloads;
-> -       struct virtio_net_ctrl_coal_tx coal_tx;
-> -       struct virtio_net_ctrl_coal_rx coal_rx;
-> -       struct virtio_net_ctrl_coal_vq coal_vq;
-> -       struct virtio_net_stats_capabilities stats_cap;
->  };
->
->  struct virtnet_info {
-> @@ -2828,14 +2819,19 @@ static void virtnet_ack_link_announce(struct virt=
-net_info *vi)
->
->  static int _virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
->  {
-> +       struct virtio_net_ctrl_mq *mq __free(kfree) =3D NULL;
->         struct scatterlist sg;
->         struct net_device *dev =3D vi->dev;
->
->         if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ=
-))
->                 return 0;
->
-> -       vi->ctrl->mq.virtqueue_pairs =3D cpu_to_virtio16(vi->vdev, queue_=
-pairs);
-> -       sg_init_one(&sg, &vi->ctrl->mq, sizeof(vi->ctrl->mq));
-> +       mq =3D kzalloc(sizeof(*mq), GFP_KERNEL);
-> +       if (!mq)
-> +               return -ENOMEM;
-> +
-> +       mq->virtqueue_pairs =3D cpu_to_virtio16(vi->vdev, queue_pairs);
-> +       sg_init_one(&sg, mq, sizeof(*mq));
->
->         if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
->                                   VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET, &sg)) =
-{
-> @@ -2864,6 +2860,7 @@ static int virtnet_set_queues(struct virtnet_info *=
-vi, u16 queue_pairs)
->
->  static int virtnet_close(struct net_device *dev)
->  {
-> +       u8 *promisc_allmulti  __free(kfree) =3D NULL;
->         struct virtnet_info *vi =3D netdev_priv(dev);
->         int i;
->
-> @@ -2888,6 +2885,7 @@ static void virtnet_rx_mode_work(struct work_struct=
- *work)
->         struct scatterlist sg[2];
->         struct virtio_net_ctrl_mac *mac_data;
->         struct netdev_hw_addr *ha;
-> +       u8 *promisc_allmulti;
->         int uc_count;
->         int mc_count;
->         void *buf;
-> @@ -2899,22 +2897,27 @@ static void virtnet_rx_mode_work(struct work_stru=
-ct *work)
->
->         rtnl_lock();
->
-> -       vi->ctrl->promisc =3D ((dev->flags & IFF_PROMISC) !=3D 0);
-> -       vi->ctrl->allmulti =3D ((dev->flags & IFF_ALLMULTI) !=3D 0);
-> +       promisc_allmulti =3D kzalloc(sizeof(*promisc_allmulti), GFP_ATOMI=
-C);
-> +       if (!promisc_allmulti) {
+>With multiqueue it depends if the flows hits the same queue or not. If
+>they do, the same results will likely be shown.
 
-There is a missing rtnl_unlock() here ?
+RR 1q, w/o bql:
+29.95
+32.74
+28.77
 
-> +               dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n"=
-);
-> +               return;
-> +       }
+RR 1q, with bql:
+222.98
+159.81
+197.88
+
+RR 4q, w/o bql:
+355.82
+364.58
+233.47
+
+RR 4q, with bql:
+371.19
+255.93
+337.77
+
+So answer to your question is: "no measurable degradation with 4
+queues".
+
+
 >
 >
+>>
+>>
+>>> 
+>>> >
+>>> >
+>>> >> 
+>>> >> >
+>>> >> >
+>>> >> >
+>>> >> >
+>>> >> >> I don't see why virtio should be any different from other
+>>> >> >> drivers/devices that benefit from bql. HOL blocking is the same here are
+>>> >> >> everywhere.
+>>> >> >> 
+>>> >> >> >
+>>> >> >> >So I'm asking, what kind of benefit do you observe?
+>>> >> >> 
+>>> >> >> I don't have measurements at hand, will attach them to v2.
+>>> >> >> 
+>>> >> >> Thanks!
+>>> >> >> 
+>>> >> >> >
+>>> >> >> >-- 
+>>> >> >> >MST
+>>> >> >> >
+>>> >> >
+>>> >
+>>
