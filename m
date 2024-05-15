@@ -1,116 +1,172 @@
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2048.outbound.protection.outlook.com [40.107.94.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14486155723
-	for <virtualization@lists.linux.dev>; Wed, 15 May 2024 15:27:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715786881; cv=none; b=prBSLjlh7P8dxs2Nxu4Kt0ekNkTqvvRR68iFcRmvJTLSU5UQFEsii9nXGIDiksPFMbUMfx/cQ5CdrQ0ZV8I/0mdYLD8SCEg+KEAr9raCY1nHoccFOSnwQ2XYnXFkUTl/m7Sm73WWY4L2Rq7fijoYe3pO0XX6sheh394lrj4nTf8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715786881; c=relaxed/simple;
-	bh=uEvMKF3uwyKPakD5edexvI8ElbNThkFQyh0n33CBN3g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DFG0DisNG2njFQeURI9IK5M4hMzLEzBx92qz/+yC7Wq0lebuzFshgLA+WvUHVoyE6P8lZTEix5YTnA1qPttYwQJN6TJRaEmQ5fKQwUmGSkbrYxW0TVR5//i3HxMjb5n2FB07CKc5eZDDq1IJLsu2gis4Mu/dLuvj2X90bD0yHlQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vpfyoik6; arc=none smtp.client-ip=209.85.208.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC4F323D7
+	for <virtualization@lists.linux.dev>; Wed, 15 May 2024 16:32:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1715790722; cv=fail; b=t/LKR5ueS0r9mH1EervwPoS804ZW0FoE3vdisMwbviRYigbWWqPnKmSUan7DW8/5Wovgd+vR8nvzHxQ12ltghCtvdxWP3RFl8FFET1YxxFzCn8qTRzRCt/AqN6QzA7LID/l+Qdg2IzRduBH9PVzRNwo7zuMU/Kx0a1P9hkYof1w=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1715790722; c=relaxed/simple;
+	bh=MggjUVMhsZsVZIDpD0tuKk6IXs2LzRj1/MsGzF2VOCA=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Lvu+MRFmnSwgzmnPmrPXSFtPD+cQYu2lu75P8vSubxzzL4ooFyDx8QdXFKs83q3I+xRe3M9WMs3hsDwLyBmdhSc9Ai2Rov+zhaNIzCkC43LpDUtJN5gpYUiPfPTr+QJoi82crH3RphTTsdrWMDRYlt9+clH4Uxnkjgpbt+Gamrk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=BX6rxjzK; arc=fail smtp.client-ip=40.107.94.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vpfyoik6"
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-572a1b3d6baso32507a12.1
-        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 08:27:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1715786878; x=1716391678; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TmH/Ugjxp31Mi4ohhV34lW02fEsBuZ04RNA7UDSOQrM=;
-        b=vpfyoik65vTbxGfdrmnbc2DCjIfDKaxUJb28qHrxAkETA26APHhMhxo02TnsHLBuek
-         HQkfcap7fudGPA3x209IErUg+QT9ZXYHVg6W0v7xVGOF3j+vx9L3KoUS1PhrvC7LLdrc
-         D7vuh09ToiKa6FrV3ntP23OGZh6s4TfTiPJxqrwtT9iVavmRRH3/80fUjlGphkKy2KjW
-         7Tv49Yv2PsqyQvgvzHk9n0MW9U1ZwixOapU7Pjie2gVIIovYdC82ddnwY1aou7K8yoli
-         1QPA0tH/8J1ON0f8YmfA2TY+L2FyEedeNSL6nwIZPa4Fm2SeC2wRgsIMQ/O/s/JzAdMj
-         RMiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715786878; x=1716391678;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TmH/Ugjxp31Mi4ohhV34lW02fEsBuZ04RNA7UDSOQrM=;
-        b=ERC74UwtZ3RqDGRleu1tqBJFpPdxGlg8MaD4uH5xyIG8zMriVTzV4qMmBLi+ug2s0F
-         14gUu97DvFaGNJLy2ABybMxIQ3+B2tQJc35fnK4De1EGGaSZE8NEOQFKzElsQ+I2MU1A
-         XE7SiwbU07uFrVgTAKVxBzKcPlkZwDYV3gF2pjuIE/xnLB5KKDtx0fyCgKk0jU3Ytq8U
-         shfUv5Qpu/mex49J8SzcA1W0I92GAss7WPR0LEpIhpwjPq6QykYaO9EvRBG4TNqkGG9k
-         45WrICFoaglDGpIMYyHezRiG6c4su2RPFnAxhFauh01Qu7jGy8BNFm6VVgcgMHiYXEGd
-         bGlg==
-X-Forwarded-Encrypted: i=1; AJvYcCUOTAwMjBg8PNbCRzhJ0nJ9YUyE+Kg5nlVaODI3/Bg3teJ87O13c2FCituYJyrab6G78xcpeoAE51SeDgK5yzfb5Un6JfihnzNYIVMOKNw=
-X-Gm-Message-State: AOJu0YwrlUxhIDPLjGjV4pMNi4N7gW/d9qMvyH0ubFavt6+xZhdDVhHy
-	8yE7IwIhaFulIQaCvbm0zwIUoDN1k2cLJT7OHR9VQWRv2To7pwKbw+7aEcatlo02NL6tqIf106Y
-	4Skasyk9eL+omIDqKY3XGw04CrPVmtnNfr/38
-X-Google-Smtp-Source: AGHT+IHzpp6BZkotoofyDJ4SdL5oyEIvlY9OgIr2daPi3sRGR0q58ATvx4vc/z6ta2RnisKfIJytMRUBnfCNmphB9+8=
-X-Received: by 2002:a05:6402:5248:b0:574:e7e1:35bf with SMTP id
- 4fb4d7f45d1cf-574e7e13675mr480199a12.7.1715786878207; Wed, 15 May 2024
- 08:27:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="BX6rxjzK"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=c88WekXe6+wHvBeNmFzXZlF0sZ3eJHjQ9eJgmE14bf0fKQYVDG+XUxYIoObL4gr2LgYnl4mwfOHcWTTsxlOoI79hKFHfNs1QcSUIAvQJ1r9zpZGeJqEeRJEchxg9bn5ZCrP8+CQjr42LXxBjgUWlqAo5xnLvRCmu9tNdyERDr6wFdbkfy4HyOB+zg0PcppR0MwMXxr1j1PWfH/eFwqy1OnDMARofl1qoFEFZUVbrnMQ81na5Nl1Q/3VRwDGLx5H3BonowDPe8A63GR2+0tfhPXWqBT8DrRi4BST2qTIaUB0gdfYWWhYdxKwv6f1b1xn133/fVBCBDyQn0sxrufJd4Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fBIvjOs88Aj2CY6XbOtzW2LSJ5cGx3sCDIYKJJTiWfQ=;
+ b=c3bLakC6/B0EHBKsMbBbgli4xjy0ZnZXfY2X/9hGfRXc2hTDxVtrJTJkCU72yAhe35nBDocsr354AN/Z+xZ23BAQAY3vtkCUF3ne3KcxKzMoJFwTXdeY69ztNkkJaVLEC7bmz8A5Uj6r5uEG7tXfqA91mhtkTb6MJKNC1qxadwQvA3Wz0hHbbxyDDC2N4hWQ4i9ac/hIg6+8Vo6MYUlijcjIoGOMaxKItvrk2VLp6tTHLqZFZpHcPh8sr6y+AdySXX4iIUBWsbfQStYxXRRSy3bmI2g4Mw297rN7X2rdMFDhSMv6KoGT/ei2X1NDAhC+rWI8n3d8iw1Ov2whSYNdlA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fBIvjOs88Aj2CY6XbOtzW2LSJ5cGx3sCDIYKJJTiWfQ=;
+ b=BX6rxjzKHyI1xUuNCrvYnrpNoXg8TTuZzO7K2xEuxgkDMgAIaedfuL68dJuagLduXM9t6B7XAP5sQ++qNcLpsMSYcN64E4I7Ty/BjWtajqEGF3fbNOk3Dta0Q9fNLxAVgxKUp9xONkDBVZTDfjz3PYF9TRYTnjRWU30DnvYcfns76hhEbV2d5o0vGBebEvOT5bESo+G3XP9VhbCwJz9C9bHsfe0uIJZxYDfjqg8bvFiT5tntcozdJDdjQkshG0f6SBRESjuW/WbSu6XGTRcRgWVebNRo8nVtvRcTgeiKSFEyGZ4odMsC3Bqnlq4wWbcizJcy6j4UJEnAeCML8zpvEQ==
+Received: from DM6PR02CA0059.namprd02.prod.outlook.com (2603:10b6:5:177::36)
+ by PH0PR12MB7905.namprd12.prod.outlook.com (2603:10b6:510:28b::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7587.27; Wed, 15 May
+ 2024 16:31:57 +0000
+Received: from DS2PEPF00003442.namprd04.prod.outlook.com
+ (2603:10b6:5:177:cafe::e0) by DM6PR02CA0059.outlook.office365.com
+ (2603:10b6:5:177::36) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7587.27 via Frontend
+ Transport; Wed, 15 May 2024 16:31:56 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ DS2PEPF00003442.mail.protection.outlook.com (10.167.17.69) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7587.21 via Frontend Transport; Wed, 15 May 2024 16:31:56 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 15 May
+ 2024 09:31:31 -0700
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail202.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 15 May
+ 2024 09:31:30 -0700
+Received: from vdi.nvidia.com (10.127.8.13) by mail.nvidia.com (10.129.68.7)
+ with Microsoft SMTP Server id 15.2.1544.4 via Frontend Transport; Wed, 15 May
+ 2024 09:31:29 -0700
+From: Daniel Jurgens <danielj@nvidia.com>
+To: <netdev@vger.kernel.org>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<virtualization@lists.linux.dev>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<jiri@nvidia.com>, Daniel Jurgens <danielj@nvidia.com>, Eric Dumazet
+	<edumaset@google.com>
+Subject: [PATCH v3] virtio_net: Fix missed rtnl_unlock
+Date: Wed, 15 May 2024 11:31:25 -0500
+Message-ID: <20240515163125.569743-1-danielj@nvidia.com>
+X-Mailer: git-send-email 2.45.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240515151152.564085-1-danielj@nvidia.com>
-In-Reply-To: <20240515151152.564085-1-danielj@nvidia.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Wed, 15 May 2024 17:27:44 +0200
-Message-ID: <CANn89iJmr9ZtfT0jp5kcLC9BKha_QM2U0CpgeuaztMEo4nX64A@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio_net: Fix missed rtnl_unlock
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
-	davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, jiri@nvidia.com, 
-	Eric Dumazet <edumaset@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS2PEPF00003442:EE_|PH0PR12MB7905:EE_
+X-MS-Office365-Filtering-Correlation-Id: 61cbeeaf-d8b4-4753-032c-08dc74fc8992
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230031|82310400017|36860700004|376005|7416005|1800799015;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?/kBOdpb09xwpjV+aqf+mOc1PxlYd96AVXD/9cimLRKKtFd3ONlbQ+jrH88WU?=
+ =?us-ascii?Q?YNQn8jWGn1aioJ8KCYSmHQuaCI6c/eadI8XFWJymNQFsrXoH1OdgplHOeDKN?=
+ =?us-ascii?Q?HuJF2dkXFZN8v/3b9sKAMOvY/QwgNtVeVa0XQ9gVbjG/KHQ6Hhq3e4K+awDw?=
+ =?us-ascii?Q?R8K6nliC2OS5YeZre2n2T0cEwBEL8R8fLKV7JoAagw8ymLKZg+b/n6ASbLdo?=
+ =?us-ascii?Q?XSxbQFQu3sKfDN4kVRShkZn+RKfcYCx0SBWDTuzMDDMILT0ZMu+zJ1l1Pj9H?=
+ =?us-ascii?Q?cgVsgNK/0NIAPt6JCam9odSLRl02cEUtPK8pS1o3s5XY+IMF/g8pDFL8pNAn?=
+ =?us-ascii?Q?iaBbErCAKBTEPauK5PnZr4fTWuwjSZC8deD7D79piph0NZhEahInWfUr3ziw?=
+ =?us-ascii?Q?PgjSbpXmKMGTeMTu6D9tlznOe0cNnXLlwV5FouJxxggB0JnyTnW9pelFLyId?=
+ =?us-ascii?Q?l/RlFhqxShD+HRAYqa+t/Yc+jFdcvT7eylLCtbXxzeTKl2f0vaSSv2M1EAEd?=
+ =?us-ascii?Q?K/N3+9WBfiigpGugm4KrdA/FL72luaM8BZM1f1n2EPsVjpGOotjKJio5Tnwo?=
+ =?us-ascii?Q?+aH3Slzb6avs6oNjGo8JDQrAJ/vArQVKBQfDTAMRy5wiN/iz+xL4N3NDhFxp?=
+ =?us-ascii?Q?9IsSxoYPqFsz383bokRmrTTiP5lBSzACMxtDoEmqUvlnNXHaK8dkve0luVuF?=
+ =?us-ascii?Q?tVE0cbB8uBeowQzqKZBRBv9eoOhztFzq0+7wDe32HTKqfzkF6KVfq+jjJg5c?=
+ =?us-ascii?Q?swfzPxqwfDdS9PBEgZgC5/Q+UtR9ylBoLLj+k53A+wp2X28wVEJbGgSJH/zG?=
+ =?us-ascii?Q?Vm5Rta0H8kuzeTtLDG9CTLPx62eEMT0xkQcu5BWYLLG7wnUWlyuJTjnTKPiv?=
+ =?us-ascii?Q?fJG31b64efp4IajUp+AsJcWIQYvVVOTJhsSWhbd5cf2xKEmr89d1PntOM42Y?=
+ =?us-ascii?Q?6pZFfneA+Z5eMzGpoWYv7pngSrdqbol1t9JEQoaxSNyEvxKDqf7VrbOTB5J4?=
+ =?us-ascii?Q?/ljBhjG6DcEkA1gOaiTPBE0Dol4z+wuL+JbghnD+F1IM8zIABS9/J9CYgZfM?=
+ =?us-ascii?Q?vKMeD7P2n6bB9VfPf/7nm5/Ls9RykseJUsBvapkCey/OnAPCVPRU+87GuHc2?=
+ =?us-ascii?Q?8q6023g+4xXbNMpYOSyeJ/HbnCCUtS2VBCVbB7BKG4uT+zucr0vuneToQM+C?=
+ =?us-ascii?Q?YvSnsEzAXfgh1IE19tgCJ8tlLAIVAFPJJ/Dxl9EzAuYhGz5+5/ViqpRp+FyQ?=
+ =?us-ascii?Q?/r8exetLD1aOhCeS1YWOod/UZWMxbQwFLP2BIdS9NZwVCZdzJTUEjQ1lgJXP?=
+ =?us-ascii?Q?ss/AMgv3CBblw/QvDYyqKpd/8EXhZ7Wu7GaErJahqXex4pD+4mUsM4OT0fKi?=
+ =?us-ascii?Q?69mLmkb41Q3kz9zYBUIKIjUincMO?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(82310400017)(36860700004)(376005)(7416005)(1800799015);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 May 2024 16:31:56.6677
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 61cbeeaf-d8b4-4753-032c-08dc74fc8992
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS2PEPF00003442.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7905
 
-On Wed, May 15, 2024 at 5:12=E2=80=AFPM Daniel Jurgens <danielj@nvidia.com>=
- wrote:
->
-> The rtnl_lock would stay locked if allocating promisc_allmulti failed.
->
-> Fixes: ff7c7d9f5261 ("virtio_net: Remove command data from control_buf")
-> Reported-by: Eric Dumazet <edumaset@google.com>
-> Link: https://lore.kernel.org/netdev/CANn89iLazVaUCvhPm6RPJJ0owra_oFnx7Fh=
-c8d60gV-65ad3WQ@mail.gmail.com/
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> ---
->  drivers/net/virtio_net.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 19a9b50646c7..e2b7488f375e 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2902,14 +2902,14 @@ static void virtnet_rx_mode_work(struct work_stru=
-ct *work)
->         if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
->                 return;
->
-> -       rtnl_lock();
-> -
->         promisc_allmulti =3D kzalloc(sizeof(*promisc_allmulti), GFP_ATOMI=
-C);
+The rtnl_lock would stay locked if allocating promisc_allmulti failed.
+Also changed the allocation to GFP_KERNEL.
 
-While we are at this, please change GFP_ATOMIC to GFP_KERNEL here.
+Fixes: ff7c7d9f5261 ("virtio_net: Remove command data from control_buf")
+Reported-by: Eric Dumazet <edumaset@google.com>
+Link: https://lore.kernel.org/netdev/CANn89iLazVaUCvhPm6RPJJ0owra_oFnx7Fhc8d60gV-65ad3WQ@mail.gmail.com/
+Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+---
+v3:
+	- Changed to promisc_allmulti alloc to GPF_KERNEL
+v2:
+	- Added fixes tag.
+---
+ drivers/net/virtio_net.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
->         if (!promisc_allmulti) {
->                 dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n"=
-);
->                 return;
->         }
->
-> +       rtnl_lock();
-> +
->         *promisc_allmulti =3D !!(dev->flags & IFF_PROMISC);
->         sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
->
-> --
-> 2.45.0
->
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 19a9b50646c7..4e1a0fc0d555 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2902,14 +2902,14 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+ 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
+ 		return;
+ 
+-	rtnl_lock();
+-
+-	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_ATOMIC);
++	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_KERNEL);
+ 	if (!promisc_allmulti) {
+ 		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
+ 		return;
+ 	}
+ 
++	rtnl_lock();
++
+ 	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
+ 	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+ 
+-- 
+2.45.0
+
