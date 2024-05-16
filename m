@@ -1,109 +1,139 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26924145B28
-	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 13:04:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF4EB146A72
+	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 13:13:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715864642; cv=none; b=owdafXZfWYlBgG0HxLPkehrqhgDHzzJaQiQ0GS+ehjPJS67FEOlZtiA6yz1AfHL4FXSAhts//bs36+AlQ3tZy0NlWNgbUluad9YKZDEj1Tv/zWlMbnyHDisbxwuilRMLXDvfojtKOuhNzHfzO9fsFbWt3YCSk4WM6Q82HOIGK9I=
+	t=1715865207; cv=none; b=HawyKMrn0w2jN0ok6WHTpOQsAsPjHGHHCMh4QrOaSi52J1AU4GGLMxVjGLsvZbf05pFF6X6p0CH0oGk3NzB7EBDzgJKKOI+tRxkDDpjar+ru1acrhQttSKPZcBpI1aD3btam01N901xi0dABBijZK19GvSqXlqDXIR4A2kxwDn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715864642; c=relaxed/simple;
-	bh=WGVi5aGdGAHMERiHO+uuNhv6KeyDPpakxxwg5naMK3I=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=CIN9lB/O80keIhX6t0NHlw2fTu2ESy28MD/14qpy74Ysvj2YlApS6c22t25MK3XChalF5aEdV+SbjQp5dCK4uSAQgclaCGTnv9wFoTT4u5h2gQGfzrq8+Rqy1I0tyAPsD9A/zNwWvNkT5R9ACL0F2hRFv589wGx7dfVcF0nvJVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OD0cqvwS; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1715865207; c=relaxed/simple;
+	bh=dtd4iyliPDvaVoHet9Iu/w99q8VWU7+7Di+EZZbiPyU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=DdkZQOvl7gT6AoudkngY3hyNkU1PjCN0laXBkvHi99JLn1yQ29nqUKmzo5TlR5EZJKh3Zdco312bBxZbfDyZ8u1v1o59crzft/4HPx6WGvILQR5NAJN9iT6p+ZI2Ryd2la5x1RcIBRaExgFz9uSAhxr0uk8+4xo/gs24kqCwub8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TtHbuqgp; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OD0cqvwS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1715864640; x=1747400640;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=WGVi5aGdGAHMERiHO+uuNhv6KeyDPpakxxwg5naMK3I=;
-  b=OD0cqvwSmd3nqExP0glxOBjDO+drwZknMFM6r1+1ZvBxdM2CcJF4fnum
-   rDkq2fpv4yYGB9qvMVJ8CWck7O+az43dtPamLrBvViT7zKSzsIgrwOc5z
-   kRSRm+ctmr0v22AK/22foK/nu9V+Q6GYd/8+u/LkjkzT/SKxlxlWMNpKA
-   DHTpGR5ySF06Ctns50mA1TJq5rdNYPNkB0lEe0Y8tT/KfeemGAs+VF4uV
-   NjV47TcnTN0FTjo6W2PJN0+EiAPaZaWsTIGw8YZPB2eC7i1/7/1mHuMsg
-   CcfruLXrFnH/x6kS7PetcrnWMPdtY7XVXZaLWMSULYT/VVeKp9aEH8N+7
-   Q==;
-X-CSE-ConnectionGUID: 7E47N0WDT+aVuBpzrRjokw==
-X-CSE-MsgGUID: WwHdp7QJSl6HeVIZlZSQRA==
-X-IronPort-AV: E=McAfee;i="6600,9927,11074"; a="22551060"
-X-IronPort-AV: E=Sophos;i="6.08,164,1712646000"; 
-   d="scan'208";a="22551060"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2024 06:03:59 -0700
-X-CSE-ConnectionGUID: /cXk0nLgSPuffZMaA2Cp5w==
-X-CSE-MsgGUID: VZU03uQxQqOyCS3ANyZY9w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,164,1712646000"; 
-   d="scan'208";a="31523926"
-Received: from unknown (HELO chenyu-dev.sh.intel.com) ([10.239.62.107])
-  by fmviesa010.fm.intel.com with ESMTP; 16 May 2024 06:03:53 -0700
-From: Chen Yu <yu.c.chen@intel.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	x86@kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Chen Yu <yu.c.chen@intel.com>,
-	Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-	Prem Nath Dey <prem.nath.dey@intel.com>,
-	Xiaoping Zhou <xiaoping.zhou@intel.com>
-Subject: [PATCH] x86/paravirt: Disable virt spinlock when CONFIG_PARAVIRT_SPINLOCKS disabled
-Date: Thu, 16 May 2024 21:02:44 +0800
-Message-Id: <20240516130244.893573-1-yu.c.chen@intel.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TtHbuqgp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715865204;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OSy7yg6jMdWHxfxX09d5z7SmLjQyRKKO4cx1YTEDaNs=;
+	b=TtHbuqgpAXJSB/ACWVQYNbvENOmjAsTrMF+YCgdsjLpQ69vGUM1nxSK9FEZpZX4Cx2C475
+	DMUG/UPvPOT7ai5UGAbs6sPpQWnPCxO0GWwZdgRdVP9cyHo8xgLZGf+OLHi4RVT7W9UtAN
+	so9eR4begDDcMtGr9HAy80HKbYRvBvU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-150-ju5jhofzOsqUUdPl9KoSbg-1; Thu, 16 May 2024 09:13:23 -0400
+X-MC-Unique: ju5jhofzOsqUUdPl9KoSbg-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-34dce5456c3so5764233f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 16 May 2024 06:13:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715865202; x=1716470002;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=OSy7yg6jMdWHxfxX09d5z7SmLjQyRKKO4cx1YTEDaNs=;
+        b=OQlRUIekBriDY1/wd2qe8RkKfM4DdBvqienDjZ026uzYjHuA6PQVK74Ey4QNKwMVrz
+         V+16bQ5AcHhI0Oy4UrSdK7h+PuePw7ow5k+JH/kjaVTk+TxKDm0Dm80CT+0kYlJhjS6R
+         /PhjK0aCvwibB8D3neO8eq3MAY5UtGXnyaLUV7d3ap9Fg4RgRiThYaEcF9SK9wU2A9jD
+         WD2F8zFnCReDMLU31q7C79Ask0glo3WNHjMKI0krLQ5qQ/Gx/6mY28Bw3dZCA1d/t3wy
+         LpCuhLvb8UpFQ2vs6P09VBnlNr88u8Hxetza6upe5rugFppMRSFyt0JjhDV/q4CJAA3O
+         Fc3A==
+X-Forwarded-Encrypted: i=1; AJvYcCXSH0ZBir8JNRYJMy7wRT8aipIx5OgR9JWlBK+HDiqs1qLj1VkiErrBW7nz8rah3/jJcQqj4SMeVzsmUh4wnFGu1nGzcUwJ6n488/Q3vu8=
+X-Gm-Message-State: AOJu0YyGuJY08mb5POsc5ixuXgoDAk4Y6bq+uay1QjvfTGhpRAcgXcT6
+	4lGFLxNQYfHIBKJrAjn1DI3iMXx3BydnvKRvgHKsYg7pFx+CBYC5QMh0Vx/AsjOn2FcRRUEirnV
+	qA0kRuASqRlq2UkPd2c5Ub9Vif16Prz4FjE/nMeorGDf5rnHumJRVHGE05KW4r+QD
+X-Received: by 2002:adf:b1de:0:b0:351:b2ff:63a8 with SMTP id ffacd0b85a97d-351b2ff64bfmr13163039f8f.16.1715865201873;
+        Thu, 16 May 2024 06:13:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFA5A0Z4lKyhtRXL+abQQ48JwBKJ6OTwX20epAfBjFZPy6ZIE08R+/aOGNiGghuAu5Wsstb3g==
+X-Received: by 2002:adf:b1de:0:b0:351:b2ff:63a8 with SMTP id ffacd0b85a97d-351b2ff64bfmr13163013f8f.16.1715865201301;
+        Thu, 16 May 2024 06:13:21 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f0:8a3f:2db6:ab3d:a443:822c])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502b8a789asm18993930f8f.51.2024.05.16.06.13.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 May 2024 06:13:20 -0700 (PDT)
+Date: Thu, 16 May 2024 09:13:17 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Manivannan Sadhasivam <mani@kernel.org>
+Cc: Shunsuke Mie <mie@igel.co.jp>, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+Message-ID: <20240516091053-mutt-send-email-mst@kernel.org>
+References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
+ <20240516125913.GC11261@thinkpad>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20240516125913.GC11261@thinkpad>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-Performance drop is reported when running encode/decode workload and
-BenchSEE cache sub-workload.
-Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
-native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
-is disabled the virt_spin_lock_key is set to true on bare-metal.
-The qspinlock degenerates to test-and-set spinlock, which decrease the
-performance on bare-metal.
+On Thu, May 16, 2024 at 02:59:13PM +0200, Manivannan Sadhasivam wrote:
+> On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
+> > Hi virtio folks,
+> > 
+> 
+> You forgot to CC the actual Virtio folks. I've CCed them now.
+> 
+> > I'm writing to discuss finding a workaround with Virtio drivers and legacy
+> > devices with limited memory access.
+> > 
+> > # Background
+> > The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) to
+> > indicate devices requiring restricted memory access or IOMMU translation. This
+> > feature bit resides at position 33 in the 64-bit Features register on modern
+> > interfaces. When the linux virtio driver finds the flag, the driver uses DMA
+> > API that handles to use of appropriate memory.
+> > 
+> > # Problem
+> > However, legacy devices only have a 32-bit register for the features bits.
+> > Consequently, these devices cannot represent the ACCESS_PLATFORM bit. As a
+> > result, legacy devices with restricted memory access cannot function
+> > properly[1]. This is a legacy spec issue, but I'd like to find a workaround.
+> > # Proposed Solutions
+> > I know these are not ideal, but I propose the following solution.
+> > Driver-side:
+> >     - Implement special handling similar to xen_domain.
+> > In xen_domain, linux virtio driver enables to use the DMA API.
+> >     - Introduce a CONFIG option to adjust the DMA API behavior.
+> > Device-side:
+> > Due to indistinguishability from the guest's perspective, a device-side
+> > solution might be difficult.
+> > 
+> > I'm open to any comments or suggestions you may have on this issue or
+> > alternative approaches.
+> > 
+> > [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
+> > https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.co.jp/t/
+> > The Linux PCIe endpoint framework is used to implement the virtio-net device on
+> > a legacy interface. This is necessary because of the framework and hardware
+> > limitation.
+> > 
+> 
+> We can fix the endpoint framework limitation, but the problem lies with some
+> platforms where we cannot write to vendor capability registers and still have
+> IOMMU.
+> 
+> - Mani
+> 
 
-Fix this by disabling virt_spin_lock_key if CONFIG_PARAVIRT_SPINLOCKS
-is not set, or it is on bare-metal.
+virtio 1.0 was released 10 years ago.  Just implement the modern spec.
+Or if there's something wrong with the modern spec, tell us and we will
+try to fix it.
 
-Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
-Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
-Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
----
- arch/x86/kernel/paravirt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 5358d43886ad..ee51c0949ed8 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -55,7 +55,7 @@ DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
- 
- void __init native_pv_lock_init(void)
- {
--	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
-+	if (!IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) ||
- 	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
- 		static_branch_disable(&virt_spin_lock_key);
- }
--- 
-2.25.1
+> -- 
+> மணிவண்ணன் சதாசிவம்
 
