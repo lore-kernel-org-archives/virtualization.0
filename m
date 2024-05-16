@@ -1,205 +1,97 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC0B1145FF4
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 12:36:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715862981; cv=fail; b=gc0LsHX6s/+yUYINFgQGdUw2Rx2hAlk9QW4UM1NcntQx1hWstB/4pxvdcihOnDUHN8pWe6hVSYyIp9uCQwN5G0qygpX+uo/3sNfo2FT81OZpszAmOCvQLUok5d/qp0SVEeePfULQhu2XRc3FpzifpV5hJlAM9PlD9VSyiOsWOEY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715862981; c=relaxed/simple;
-	bh=SS2VZEhMVeNNmXVO8h+vS7khcN/HcODuYGNb2w4nVII=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=On+DJkh25F1UFPbT37vHKAxs9B8sYVrUzSFf3jxQ0QyCiQJGtNHJVXJoolQG6Ch2Do7j0NNRs20d/yZyRVItZ8dyZdVJnryOw9PbEJczLePaVt3ylZoz06pY2GVEW1rD8gcA+h7FthDnj3msCCmIhsMNf+vg0VuLuYv2A9mNpU0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b=eck9mCF7; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7172145B28;
+	Thu, 16 May 2024 12:59:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1715864357; cv=none; b=dSxpE5jg0laHDVcQ1liooeCokvS8e4SVKYhvT0qOT4UJT7BYYvsQMdocsfIC+WUPSJXfzDUKDkiXLEnHdoa7boprIz1LPxpKyjlmC7awFQQSmpGAzni+H7oK9xPW17FT8Yt7e1AnHzgO3vX+oRmUewVDt8E8pnVBRWXahznbvg8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1715864357; c=relaxed/simple;
+	bh=ffkwtfRAcATYYGVuq3fnxSpseSR1d1ylnA6E2Bt/nG4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mT2iLmLOR3TDmOe/lu+lkHwGZ7EvlMsss4HkyQzXM7kBs1GDMsn7c1Qnf/L+SDV2+ligYX+i3uDPGW5HoRd/Ot14thvbZnNPUiFV+0nM1+wMKtO3LqpLyZ9citltxNwXP25BgATVSignp//5bKxfAWhDH7UuFa73XT4pBIxGlK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dMXdwarB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="eck9mCF7"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C90FE60E5F
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 12:36:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.091
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id PypeX8ooC9yV for <virtualization@lists.linux-foundation.org>;
- Thu, 16 May 2024 12:36:18 +0000 (UTC)
-Received-SPF: Permerror (mailfrom) identity=mailfrom; client-ip=2a01:111:f400:fe0c::61d; helo=eur04-db3-obe.outbound.protection.outlook.com; envelope-from=peng.fan@nxp.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 5102E60E55
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5102E60E55
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=nxp.com header.i=@nxp.com header.a=rsa-sha256 header.s=selector2 header.b=eck9mCF7
-Received: from EUR04-DB3-obe.outbound.protection.outlook.com (mail-db3eur04on061d.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe0c::61d])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5102E60E55
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 12:36:18 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DcIswR23km98LJwrGTUsKr2eG9GtsRucJ3c40Be0MnfK2V3lBtqX4Gns/lHlufXxgzKd7h2Bj1lUr9/6ka6NeZSAWVzDhZveDYimz+UKp6VPVFrhoHU9Y67X7CFW+JDelFw8I6KAbzCUj81SD7GseRE4PIhAWpq8zwMYJ1neK8mrEq5mwykjXDfdZY9FoC/MEOsHtMaiGgWmdLBmFSbSmBKX+karX4EnYjIq/p2x+z2Bjv8GzUwKrdcifZcE31WAOq/0+CwZMYuu8VMFSrkHJsyHXvg9ecqX/F8plIKnvLgvQw8JJF7UTpY43o8ykYqLtFBkBvqwy+Es0CdmtiFnxQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ja95AnOuV+Z5fY8MsD6/NwB3w5GhiG2gKsA7dYQYCKs=;
- b=iDFh/ZoAcmq3wDhiyoOGRsnfDPTokCwGkhpYDqYkOaV6u1NqV04LpeCm7Cyvx0cw886c94Vb6H4oQlYEFEJo8I+w2ikfPeyiT8J5qOsHNZLdebCOr2VQUIYlIu8/4eO+e74Ym7tYbifTVXOUKTj+u37WGmGk0W+dScttAlAogpSfxjs3JCWXPaoi2cER0LGiU96nlTvtMskGXIWqGRJ3nmsIGIolCH4+W/6i8pydr2EhEy/76Fsh4zdzoJ5kbkRAyBtP0HKYDVUGJn2IxXxcQkOLXZrrw824QrW3LoldRbu/d1ZNOqtg0BCGXRygLgXGCMDBuixDQ+3v1fXJMApidw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ja95AnOuV+Z5fY8MsD6/NwB3w5GhiG2gKsA7dYQYCKs=;
- b=eck9mCF7fQC+3R7Rp927OxRFjlGCxJNH8gTShlyR+bpmoBpowhDnco0vTG5ql00eNqRNUXnIw0q+erAdcB8O3CfuuVv4Hlrda+Ld/YblV2ORjgYuew9ws3L/oJZEffRRoEnP0fRFJKpi2Us3ZBVZ8oMD7w6iAnsdOcoFuFfZj1A=
-Received: from DU0PR04MB9417.eurprd04.prod.outlook.com (2603:10a6:10:358::11)
- by DBBPR04MB7786.eurprd04.prod.outlook.com (2603:10a6:10:1e8::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7587.27; Thu, 16 May
- 2024 12:36:15 +0000
-Received: from DU0PR04MB9417.eurprd04.prod.outlook.com
- ([fe80::557f:6fcf:a5a7:981c]) by DU0PR04MB9417.eurprd04.prod.outlook.com
- ([fe80::557f:6fcf:a5a7:981c%6]) with mapi id 15.20.7587.026; Thu, 16 May 2024
- 12:36:14 +0000
-From: Peng Fan <peng.fan@nxp.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, "Peng Fan (OSS)"
-	<peng.fan@oss.nxp.com>
-CC: "jasowang@redhat.com" <jasowang@redhat.com>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "eperezma@redhat.com"
-	<eperezma@redhat.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Subject: RE: [PATCH] vhost: use pr_err for vq_err
-Thread-Topic: [PATCH] vhost: use pr_err for vq_err
-Thread-Index: AQHap2PoJC/0KTnrWkOIs9fllb1Mi7GZy6QAgAAAj2A=
-Date: Thu, 16 May 2024 12:36:14 +0000
-Message-ID:
- <DU0PR04MB94172C1079F0EEF84631700688ED2@DU0PR04MB9417.eurprd04.prod.outlook.com>
-References: <20240516074629.1785921-1-peng.fan@oss.nxp.com>
- <20240516083221-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240516083221-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DU0PR04MB9417:EE_|DBBPR04MB7786:EE_
-x-ms-office365-filtering-correlation-id: 3dfda90d-9c82-4c9c-e2d1-08dc75a4c665
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230031|1800799015|366007|376005|38070700009;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?L1qT7tebh6YGEH0dXrdI3UCE8P+gQ0fzI1b4TsUI7mKIIgRKy2ZmXuMiuB5t?=
- =?us-ascii?Q?UiWdTrigongn9sD9gak5+6n5T1x3shrjITnd19W5p754D1NyCCbn/F88QWhI?=
- =?us-ascii?Q?7d2NyPebwX2pdNLh0TBCDaQRnzYQpQ+IdQC/JNd4WnO8YNDMoRckmZjz56LV?=
- =?us-ascii?Q?z2KQIpu4cQbDNnDFyGjVf6ackzaxYM6pDtO6j8dyFkiqouOLazJ5n4zuEIKD?=
- =?us-ascii?Q?4GqaIXcxbfKZgFq7Bk6lcoX2LpVS29GEt1smpw58R6d9qe84a24DgodgHUzS?=
- =?us-ascii?Q?20whR6pKQYGvzgrbMec50uQtc2Fnti73LBX56LaPf+I3GZ4QYoGpGRWP4tkZ?=
- =?us-ascii?Q?WqmCDURlIWNBx4htvlqKlTjOvFrMTg8CJkE5eOIMeX2VCa1h8BgHH9is0Yyq?=
- =?us-ascii?Q?sDGMx3GZUQMTxvKhnSybzVOLsQrxUKtLjvxDt4i5p4tZFsqEfW2vCGhzJGys?=
- =?us-ascii?Q?cQKx2lkRyojQty1nMyCLMqTYWa6HiGNkJFmugvMN5DhltGdVEs0zG6SwrUwQ?=
- =?us-ascii?Q?DNzKtKA5CVTT9xQjl2ZlLtLdMNDT6jFyRqHlKUvNhqxTRMh0rQi7WufBTDky?=
- =?us-ascii?Q?6zqaA2S78YWkXJjOxkPdcEewwfPgBp9VGWrPzGk2hTAh7l3qOsp0+eclK1gW?=
- =?us-ascii?Q?wKlFBjZDq2Vf/AMLEl7n/MAIcbUinYxyqf+7yzSOREJcMbBunqvdZj8kvdog?=
- =?us-ascii?Q?NJFKzPNzpippZc6IFJoi/8PYE97fXVFVAioAI81w6Dotd3n16GCQqtWcvDkX?=
- =?us-ascii?Q?85QiyfIu9W51s9lMDyO3N4DCvPq1fZikDfJi2vf46jdz6AT9N6OnZz1n48ys?=
- =?us-ascii?Q?KGXKOKPx5OQ9MMi8287EfNXr06cFM/IZR7oc4vv1aTAQ0ToHu7VobDcXrFwv?=
- =?us-ascii?Q?yBCvTSmWYlnM4O0ynvdfpUG2ZhIn3sy2/3YJqrahb8EZAaoJ9iSh1xPj8jWJ?=
- =?us-ascii?Q?5lCEHOD+nY1hCSBTIaXEDhUMyAC6xmUuCCUnaM/Q/bXVniWCK+b6kdbZXgnL?=
- =?us-ascii?Q?tZfAM/HVI17CwpGNyefQxJJEC3YtV09OwJ/0cpEw/xt5+xJDeMOf62rGOs0d?=
- =?us-ascii?Q?Mu7YxT9ro9Aq+sqULqjcVagRY1y1NnaDdfw0jkwQYPYbmSKCRy7Qyri9vFc6?=
- =?us-ascii?Q?mCUm45OH+oOFvrBUvhcXcR2Rl8CtvGO8UKhim7PoUDt6MoYDLifU7BxMAhJj?=
- =?us-ascii?Q?PBDcRC/FTs9uNyVSEd+yvQwa1DnVBd1zpFcu1VpY8csgjzXuu+eBvUlUtFmc?=
- =?us-ascii?Q?NhtNMNpp32WOrqjN8dvfbR1Xmanhvjr8HkSgXF6/l0hZCO5tt48cEwFso3/l?=
- =?us-ascii?Q?ijKdAFtK3HroyJUbJUVSTkMOJKJkgrIrI2nY+oLsdmEIDw=3D=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DU0PR04MB9417.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(366007)(376005)(38070700009);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?Q7pU6ICJ5hdFwyyjyDN+QzxqMgRw8hv4Cnmcp5rRgS8gskaWe5zhFHtA+FzT?=
- =?us-ascii?Q?D2uq4pOjLn0ErGCJqUpnQjAnCueb/arG9ezxjro5tMPgXcOdwf4dtP205Mqq?=
- =?us-ascii?Q?R4Fet9UmdymD98XFdOhBUqldmKK+4tgOHZNk5drY1o04DHVSv0BLaIE6Iyfy?=
- =?us-ascii?Q?2Wzvu9m5Al2J0/BFXNelFX15c2dgLZXBh0ibevjNYqG8b3oimpzFaj9TCxJi?=
- =?us-ascii?Q?kmFY/DKMsGHLf9vg+9F0PEMAwPhe26PJaP0sgV2XtSd3uFXep7/2+SHcaYWC?=
- =?us-ascii?Q?TMT0Q0/b5ZxpLnH/CCZiUiBc0R0dQfYDplYHyIce8yM2bxQN9/8wAXMMgHUU?=
- =?us-ascii?Q?bQ6Y2sqrKfHUmgTHVrOqJBml915dE48cBQpQQYm/zVWjz7YAWGKFh8L9xLi2?=
- =?us-ascii?Q?vIwtfUZqOTD/kAZAuH4fbZ+Zb9cHbYLry7Z32c0tEeuR2fGFuXMWXMkoEOf+?=
- =?us-ascii?Q?6xlhREJhy68ZLWoov64jxYV3kYlR5PrgXv0DZpn5/ukn72p2BHmj7RKXd1PA?=
- =?us-ascii?Q?72cYwxoWEzWBt8/4j/k9CH58pHM5pf4ZWWwsLgkh6+CDOCvZvz5gZqloTW3s?=
- =?us-ascii?Q?kiO23oreQoCwJhyy2Aypi/RbUG8GK1j4C23UuS/vU0LcUvbAQ/V0oz6jlX9q?=
- =?us-ascii?Q?R8I8FpufvwU3hm+lD4+lL+eNdN9yizFCwspdGot3hUqHUauMUd6ZnIDKqvTu?=
- =?us-ascii?Q?+F6LLWpMdL6wHP3DDgdGLwGFv79s0/wmrGXhKYEOgd2pdUiSprspo9o56t3H?=
- =?us-ascii?Q?yPR1EL2wYWnxa/9ADBIf+VOUnmZ5EUVfq1siMB9kB8wcjZuKH1sN3ypOULRa?=
- =?us-ascii?Q?SptnmVc0uj8hCDspiAOJZMQhapngWa8VBQF8G179lHdRc281ehtrNkeNwYwU?=
- =?us-ascii?Q?StIAGQOc0IgdRFhxfgXCbcE9Z1U6iZuIrsyyH6R+Bvp204HOYlKlmArX/yi6?=
- =?us-ascii?Q?6Sn9k9BBbowLG1MF6d8sCIVv+el+BX8yC5FvMB2j2UQmt2diVmN+PqgFFh6v?=
- =?us-ascii?Q?EB88jv/5DxE1GsgAnlntMJ7F5kzbeuvegsOwNpb5L9WW5eJTAPE2zpWFZIwL?=
- =?us-ascii?Q?mmT7mVkrJ7X7aA906jQMi6QF8a5NnCvOiWSyPng13diQ4X3d5ifTgHvffe+D?=
- =?us-ascii?Q?eIa2Od6B245o614VigWFrQJc4YPboFHBGag8NVkB5EQ4aX22gkMfak1BZt92?=
- =?us-ascii?Q?7c4WQiF8l8Q5PjhTG8fyocRhRpsIKmgD3xfXi3bz3Til0zJLai1tvwgpSUtC?=
- =?us-ascii?Q?lA1rleDc8Mv5e73/wbRxzMH/JElh2UBJFoiVnSbOBPLnx6PJw9H4fai9rRyE?=
- =?us-ascii?Q?0Rf/81hp7IVhwrqH4qZWFyNwp+0Fj7rmwiVyVc7O0ypmKn18ltlCAZcYzm6L?=
- =?us-ascii?Q?NTPjZC/AHhtNQ9+NKNmWmpd4DXGhzZIL7FNySr/HPdIdZ4A6h/KA1xSMSjen?=
- =?us-ascii?Q?xiQsFB8onWEARextWGcGe8vI1GSG1j3xF7+t85xKEgTJRbEDcyKNx5bzxsvE?=
- =?us-ascii?Q?akTy/gX3VjnsDTOIJUIVIVIrkRJhJNd3rWlp33eA5RwPo5iLViDnPHo5KsFh?=
- =?us-ascii?Q?jPrTy0EkJK3IKpg8dwE=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dMXdwarB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE83C113CC;
+	Thu, 16 May 2024 12:59:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715864357;
+	bh=ffkwtfRAcATYYGVuq3fnxSpseSR1d1ylnA6E2Bt/nG4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=dMXdwarBN/YvsIjHd98g7mTumujPMRAmaABhG0bpcq+W/EcpSn2zbt2ZUSze1CnMR
+	 XT+x7Op9ESlE2zIsLli5A2r5RX5wLBfc8t7kv0Zwmocv7krBeZENXdNKW6tF9gIBYD
+	 J/PNXGoq1kRVL8YHbzHm5uflFe9S3l0jw3VeHNSAqXRV+8gJRm8lQqKzhu0oROmCF9
+	 vwU7GVdy6UkuBZo1eMcJd/UREohdrsURhPUpQ7JUawkgGibdG2Gi0dHnmwZvok01Tb
+	 qmPb2Cw9X/JlTY43w/viFip8hrK/ec+KVh9uiW4Oj+EpqmksoPrtE8TQcvugpDi5Uz
+	 4lAOHST9eN3Hg==
+Date: Thu, 16 May 2024 14:59:13 +0200
+From: Manivannan Sadhasivam <mani@kernel.org>
+To: Shunsuke Mie <mie@igel.co.jp>
+Cc: linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+Message-ID: <20240516125913.GC11261@thinkpad>
+References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DU0PR04MB9417.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3dfda90d-9c82-4c9c-e2d1-08dc75a4c665
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 May 2024 12:36:14.3331
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: HTFrV/Iwl3DfjuFsI+Fptx80w++54/u0cAIXNbNUhQNXGxTwr2h5SwklLJD3cQ+EqF5/GqTKLV9+mHdOlbPutQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBBPR04MB7786
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
 
-> Subject: Re: [PATCH] vhost: use pr_err for vq_err
->=20
-> On Thu, May 16, 2024 at 03:46:29PM +0800, Peng Fan (OSS) wrote:
-> > From: Peng Fan <peng.fan@nxp.com>
-> >
-> > Use pr_err to print out error message without enabling DEBUG. This
-> > could make people catch error easier.
-> >
-> > Signed-off-by: Peng Fan <peng.fan@nxp.com>
->=20
-> This isn't appropriate: pr_err must not be triggerable by userspace. If y=
-ou are
-> debugging userspace, use a debugging kernel, it's that simple.
+On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
+> Hi virtio folks,
+> 
 
-I see, then drop this patch.
+You forgot to CC the actual Virtio folks. I've CCed them now.
 
-Thanks,
-Peng.
->=20
->=20
-> > ---
-> >  drivers/vhost/vhost.h | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h index
-> > bb75a292d50c..0bff436d1ce9 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -248,7 +248,7 @@ void vhost_iotlb_map_free(struct vhost_iotlb *iotlb=
-,
-> >  			  struct vhost_iotlb_map *map);
-> >
-> >  #define vq_err(vq, fmt, ...) do {                                  \
-> > -		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
-> > +		pr_err(pr_fmt(fmt), ##__VA_ARGS__);       \
-> >  		if ((vq)->error_ctx)                               \
-> >  				eventfd_signal((vq)->error_ctx);\
-> >  	} while (0)
-> > --
-> > 2.37.1
+> I'm writing to discuss finding a workaround with Virtio drivers and legacy
+> devices with limited memory access.
+> 
+> # Background
+> The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) to
+> indicate devices requiring restricted memory access or IOMMU translation. This
+> feature bit resides at position 33 in the 64-bit Features register on modern
+> interfaces. When the linux virtio driver finds the flag, the driver uses DMA
+> API that handles to use of appropriate memory.
+> 
+> # Problem
+> However, legacy devices only have a 32-bit register for the features bits.
+> Consequently, these devices cannot represent the ACCESS_PLATFORM bit. As a
+> result, legacy devices with restricted memory access cannot function
+> properly[1]. This is a legacy spec issue, but I'd like to find a workaround.
+> 
+> # Proposed Solutions
+> I know these are not ideal, but I propose the following solution.
+> Driver-side:
+>     - Implement special handling similar to xen_domain.
+> In xen_domain, linux virtio driver enables to use the DMA API.
+>     - Introduce a CONFIG option to adjust the DMA API behavior.
+> Device-side:
+> Due to indistinguishability from the guest's perspective, a device-side
+> solution might be difficult.
+> 
+> I'm open to any comments or suggestions you may have on this issue or
+> alternative approaches.
+> 
+> [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
+> https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.co.jp/t/
+> The Linux PCIe endpoint framework is used to implement the virtio-net device on
+> a legacy interface. This is necessary because of the framework and hardware
+> limitation.
+> 
 
+We can fix the endpoint framework limitation, but the problem lies with some
+platforms where we cannot write to vendor capability registers and still have
+IOMMU.
+
+- Mani
+
+-- 
+மணிவண்ணன் சதாசிவம்
