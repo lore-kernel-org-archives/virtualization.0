@@ -1,123 +1,212 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93ED414B95B
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 14:02:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBAAE1E491
+	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 15:25:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715868156; cv=none; b=TMy8zifF1bp2RYIRPbeYfI2Y1vYb6nGsXXt3i6aQsaxx8vV0mcALqL7rcYvkzzge3rTiMLWdh3Jt2d+uI/VzprljAYrm6x0jMUePjevtIz81RjNjxU228TjNHKUFwX2zJwELF3/Nj6T3/91QgtXNFQcRoSkx76dTpL0rA95B2o8=
+	t=1715873130; cv=none; b=ifaJup5kuFMtWwT3zyyNuV8rNTqLk2pnef0FlSx63F5t4ngtweo324gF3z3DP5VOj1B0ku+OqzKZPOAliqQUN9yigkKGzeixUc91YL8YYpqwCetYg777JtS7NlOmG5j8GY3vXDVGos9RVZ9Qe8BusfaVDTjmaCgcXwwgIKxZ9qE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715868156; c=relaxed/simple;
-	bh=PII+OyY3HRsFOpjW5l++XBk5W4fZ/zADl3BCmJlUORM=;
-	h=Subject:MIME-Version:Content-Type:Date:Message-ID:CC:From:To:
-	 References:In-Reply-To; b=T1Z0HGlB3GrdsbSzbZV80pAZoC1UBTvzQh1wrdlTdLYk+9QLFclRGV2BU5laOZPBsft/bK9NiyD5GwHVY8SccUlEA/a13M7axtH1guawkltNiYLaybWg6oPwTxqQNSY+EJPJW21E4qF8uA6itA4rRi91TatVCFc1XPnKcWWM9Bc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=k+OJX8QB; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1715873130; c=relaxed/simple;
+	bh=f3SS1eFWt0ACAdjmZS/GbnlBgkVs0UinCkd30Yl50cY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TsNdaxm4uVL82VkwHjZsan/SR9yaBl2pvG7hD0+O1LBGJsCNxioJ8W5YFGfwHTESwRIQp9Q9Kt2QaIDP2v5wh2OysLcZepEnH0LGXEN7zdhN+4Q1vR3xx4gfLIKBd2Df/V8rJJ4S/qlJhlmxXJ75r+2vFgKqKn6PLvnqHjdYGBE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=UTmCFozy; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="k+OJX8QB"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B4F1F401A4
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 14:02:34 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.049
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id pNKXFPFz448l for <virtualization@lists.linux-foundation.org>;
- Thu, 16 May 2024 14:02:34 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=207.171.184.29; helo=smtp-fw-9102.amazon.com; envelope-from=prvs=85909aada=nsaenz@amazon.es; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C0E3B40153
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C0E3B40153
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amazon.com header.i=@amazon.com header.a=rsa-sha256 header.s=amazon201209 header.b=k+OJX8QB
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C0E3B40153
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 14:02:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="UTmCFozy"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-572a93890d1so3862664a12.3
+        for <virtualization@lists.linux.dev>; Thu, 16 May 2024 08:25:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1715868154; x=1747404154;
-  h=mime-version:content-transfer-encoding:date:message-id:
-   cc:from:to:references:in-reply-to:subject;
-  bh=PII+OyY3HRsFOpjW5l++XBk5W4fZ/zADl3BCmJlUORM=;
-  b=k+OJX8QBKhlhXLL+yP7jzjxSe2kwEGUIlf1RVVo8QLlDuet++05n1dC7
-   dwhyvpEbW+sLKcnNuXJDwX9Dp1D1vS6zEXehHOJDcwbUoiDoTf/1MKlFU
-   esPMfQq5KW/aAQJWLPNk5j+/JXm0kvAxHpvRtIW0QAvZOHvajT8m1wCpz
-   k=;
-X-IronPort-AV: E=Sophos;i="6.08,164,1712620800"; 
-   d="scan'208";a="419475431"
-Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
- configuration and violation
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-east-1.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2024 14:02:24 +0000
-Received: from EX19MTAEUC001.ant.amazon.com [10.0.17.79:61258]
- by smtpin.naws.eu-west-1.prod.farcaster.email.amazon.dev [10.0.38.98:2525] with esmtp (Farcaster)
- id 669cf238-0252-433a-b5ae-10131f992275; Thu, 16 May 2024 14:02:23 +0000 (UTC)
-X-Farcaster-Flow-ID: 669cf238-0252-433a-b5ae-10131f992275
-Received: from EX19D004EUC001.ant.amazon.com (10.252.51.190) by
- EX19MTAEUC001.ant.amazon.com (10.252.51.155) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.28; Thu, 16 May 2024 14:02:23 +0000
-Received: from localhost (10.13.235.138) by EX19D004EUC001.ant.amazon.com
- (10.252.51.190) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.28; Thu, 16 May
- 2024 14:02:12 +0000
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1715873126; x=1716477926; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=iMEsJHMiD/X46uJXawQgYh9V4HrqmWeXXkDDfg4vbl0=;
+        b=UTmCFozywn2wOy3aP3JJ8lHDm5XCaydkWZOolNigPwy0b8+20p9jkwf97WigBCZhUH
+         F4kNnCElIHArMaW/3NMVUYluQxC+o7rpK9b1FY1XptAE80hbv9/I0U19Di4CR+jigikx
+         /3gKC6Q7leK38hh8MSrcz7LxCJtp7RzgVVtT/8ftgIbxd3dVE9+P6ht5VBkTnpbBlYCH
+         V3+IklNykBzG2BeDe3E0DjoMYcsbuL/KDkns8YlAdp9GLEdDZQ02j0m4rM0FYod0coZ6
+         Jy+Scttf1O0a9itBMFmTWB3YIUFxgF1hQq9m0gfDc0wppGHQRb+Rxuy1hCEJIRMyKCfo
+         ckpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715873126; x=1716477926;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iMEsJHMiD/X46uJXawQgYh9V4HrqmWeXXkDDfg4vbl0=;
+        b=ikOOn13RyFZOBPCorZMS3pcjUg0laPn9Ud4jUdL0pAceBx+InEiCQIgFRVnQTyXpjq
+         UtXB7Z+CnreDIOgMb9jPoDuxw0denJ1yOnvJgTqXmgQBWVIPlKFZfIHei5FORt89vF8W
+         TRVIAHf9v028/X1lt3YuttQJLEV1jPEZOQZMorOipnSvI5fmsmovwnUys/k2AUPaGfyV
+         PBFB6f9jMUM8666RbfabS7sfYLBLxj1WM7nSfD6hmTJ1oGT9VDiiQlpHH51MpdgkicLd
+         jNPjmMwaxoKe0CgHR83vERz87/R8tCavCXUPNg4Igf8jbfwBCXZ7LMfMU66U/Xgd5Xgx
+         Ne8A==
+X-Forwarded-Encrypted: i=1; AJvYcCUXaSzPAs9+u7+LY36ZMhmfr/lUPVo0ftEm5t3l3khbyjA2PX6fzINjoab/GS99V3hVNt4bnMDG8qjtd/y/OdrvP5xm9b/H63KE1pr/qto=
+X-Gm-Message-State: AOJu0YzLR8xiqs7s1og29z1im1aToMFejPnbSaHayxO0BSSTOY+GLFS9
+	gw3CVxSzg20wGeXnd6gaGhJ1PwJJT5FYNyUYsEfTG4rp303uW/IhOOGxzRyeF8A=
+X-Google-Smtp-Source: AGHT+IH6QhUzPVp4eNTpup0OheM47LaT+Z/ki9a3NhbHKFKIi97/nvnM8TTY4J9sQHrYRWv51epAMg==
+X-Received: by 2002:a50:aade:0:b0:572:9b21:e0c9 with SMTP id 4fb4d7f45d1cf-5734d5cf9damr20696976a12.14.1715873125834;
+        Thu, 16 May 2024 08:25:25 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-573413b2ac3sm10377997a12.38.2024.05.16.08.25.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 May 2024 08:25:24 -0700 (PDT)
+Date: Thu, 16 May 2024 17:25:20 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev, ast@kernel.org,
+	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+Message-ID: <ZkYlYLFthXVmHOaQ@nanopsycho.orion>
+References: <20240510065121-mutt-send-email-mst@kernel.org>
+ <Zj4A9XY7z-TzEpdz@nanopsycho.orion>
+ <20240510072431-mutt-send-email-mst@kernel.org>
+ <ZkRlcBU0Nb3O-Kg1@nanopsycho.orion>
+ <20240515041909-mutt-send-email-mst@kernel.org>
+ <ZkSKo1npMxCVuLfT@nanopsycho.orion>
+ <ZkSwbaA74z1QwwJz@nanopsycho.orion>
+ <CACGkMEsLfLLwjfHu5MT8Ug0_tS_LASvw-raiXiYx_WHJzMcWbg@mail.gmail.com>
+ <ZkXmAjlm-A50m4dx@nanopsycho.orion>
+ <20240516083100-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 16 May 2024 14:02:09 +0000
-Message-ID: <D1B4HKJAJG21.2DH9F3E1Q6J9L@amazon.com>
-CC: Sean Christopherson <seanjc@google.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>,
-	Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, "Paolo
- Bonzini" <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "Vitaly
- Kuznetsov" <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, "Rick P
- Edgecombe" <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>,
-	Angelina Vu <angelinavu@linux.microsoft.com>, Anna Trikalinou
-	<atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>,
-	"Forrest Yuan Yu" <yuanyu@google.com>, James Gowans <jgowans@amazon.com>,
-	James Morris <jamorris@linux.microsoft.com>, John Andersen
-	<john.s.andersen@intel.com>, "Madhavan T . Venkataraman"
-	<madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>,
-	=?utf-8?q?Mihai_Don=C8=9Bu?= <mdontu@bitdefender.com>,
-	=?utf-8?q?Nicu=C8=99or_C=C3=AE=C8=9Bu?= <nicu.citu@icloud.com>, Thara
- Gopinath <tgopinath@microsoft.com>, "Trilok Soni" <quic_tsoni@quicinc.com>,
-	Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, Yu Zhang
-	<yu.c.zhang@linux.intel.com>, =?utf-8?q?=C8=98tefan_=C8=98icleru?=
-	<ssicleru@bitdefender.com>, <dev@lists.cloudhypervisor.org>,
-	<kvm@vger.kernel.org>, <linux-hardening@vger.kernel.org>,
-	<linux-hyperv@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-security-module@vger.kernel.org>, <qemu-devel@nongnu.org>,
-	<virtualization@lists.linux-foundation.org>, <x86@kernel.org>,
-	<xen-devel@lists.xenproject.org>
-From: Nicolas Saenz Julienne <nsaenz@amazon.com>
-To: =?utf-8?q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-X-Mailer: aerc 0.17.0-129-gd582ac682cdf-dirty
-References: <20240503131910.307630-1-mic@digikod.net>
- <20240503131910.307630-4-mic@digikod.net> <ZjTuqV-AxQQRWwUW@google.com>
- <20240506.ohwe7eewu0oB@digikod.net> <ZjmFPZd5q_hEBdBz@google.com>
- <20240507.ieghomae0UoC@digikod.net> <ZjpTxt-Bxia3bRwB@google.com>
- <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com> <20240514.mai3Ahdoo2qu@digikod.net>
-In-Reply-To: <20240514.mai3Ahdoo2qu@digikod.net>
-X-ClientProxiedBy: EX19D046UWA001.ant.amazon.com (10.13.139.112) To
- EX19D004EUC001.ant.amazon.com (10.252.51.190)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240516083100-mutt-send-email-mst@kernel.org>
 
-On Tue May 14, 2024 at 12:23 PM UTC, Micka=C3=ABl Sala=C3=BCn wrote:
-> > Development happens
-> > https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-next
-> > branch, but I'd advice against looking into it until we add some order
-> > to the rework. Regardless, feel free to get in touch.
+Thu, May 16, 2024 at 02:31:59PM CEST, mst@redhat.com wrote:
+>On Thu, May 16, 2024 at 12:54:58PM +0200, Jiri Pirko wrote:
+>> Thu, May 16, 2024 at 06:48:38AM CEST, jasowang@redhat.com wrote:
+>> >On Wed, May 15, 2024 at 8:54 PM Jiri Pirko <jiri@resnulli.us> wrote:
+>> >>
+>> >> Wed, May 15, 2024 at 12:12:51PM CEST, jiri@resnulli.us wrote:
+>> >> >Wed, May 15, 2024 at 10:20:04AM CEST, mst@redhat.com wrote:
+>> >> >>On Wed, May 15, 2024 at 09:34:08AM +0200, Jiri Pirko wrote:
+>> >> >>> Fri, May 10, 2024 at 01:27:08PM CEST, mst@redhat.com wrote:
+>> >> >>> >On Fri, May 10, 2024 at 01:11:49PM +0200, Jiri Pirko wrote:
+>> >> >>> >> Fri, May 10, 2024 at 12:52:52PM CEST, mst@redhat.com wrote:
+>> >> >>> >> >On Fri, May 10, 2024 at 12:37:15PM +0200, Jiri Pirko wrote:
+>> >> >>> >> >> Thu, May 09, 2024 at 04:28:12PM CEST, mst@redhat.com wrote:
+>> >> >>> >> >> >On Thu, May 09, 2024 at 03:31:56PM +0200, Jiri Pirko wrote:
+>> >> >>> >> >> >> Thu, May 09, 2024 at 02:41:39PM CEST, mst@redhat.com wrote:
+>> >> >>> >> >> >> >On Thu, May 09, 2024 at 01:46:15PM +0200, Jiri Pirko wrote:
+>> >> >>> >> >> >> >> From: Jiri Pirko <jiri@nvidia.com>
+>> >> >>> >> >> >> >>
+>> >> >>> >> >> >> >> Add support for Byte Queue Limits (BQL).
+>> >> >>> >> >> >> >>
+>> >> >>> >> >> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> >> >>> >> >> >> >
+>> >> >>> >> >> >> >Can we get more detail on the benefits you observe etc?
+>> >> >>> >> >> >> >Thanks!
+>> >> >>> >> >> >>
+>> >> >>> >> >> >> More info about the BQL in general is here:
+>> >> >>> >> >> >> https://lwn.net/Articles/469652/
+>> >> >>> >> >> >
+>> >> >>> >> >> >I know about BQL in general. We discussed BQL for virtio in the past
+>> >> >>> >> >> >mostly I got the feedback from net core maintainers that it likely won't
+>> >> >>> >> >> >benefit virtio.
+>> >> >>> >> >>
+>> >> >>> >> >> Do you have some link to that, or is it this thread:
+>> >> >>> >> >> https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com/
+>> >> >>> >> >
+>> >> >>> >> >
+>> >> >>> >> >A quick search on lore turned up this, for example:
+>> >> >>> >> >https://lore.kernel.org/all/a11eee78-b2a1-3dbc-4821-b5f4bfaae819@gmail.com/
+>> >> >>> >>
+>> >> >>> >> Says:
+>> >> >>> >> "Note that NIC with many TX queues make BQL almost useless, only adding extra
+>> >> >>> >>  overhead."
+>> >> >>> >>
+>> >> >>> >> But virtio can have one tx queue, I guess that could be quite common
+>> >> >>> >> configuration in lot of deployments.
+>> >> >>> >
+>> >> >>> >Not sure we should worry about performance for these though.
+>> >> >>> >What I am saying is this should come with some benchmarking
+>> >> >>> >results.
+>> >> >>>
+>> >> >>> I did some measurements with VDPA, backed by ConnectX6dx NIC, single
+>> >> >>> queue pair:
+>> >> >>>
+>> >> >>> super_netperf 200 -H $ip -l 45 -t TCP_STREAM &
+>> >> >>> nice -n 20 netperf -H $ip -l 10 -t TCP_RR
+>> >> >>>
+>> >> >>> RR result with no bql:
+>> >> >>> 29.95
+>> >> >>> 32.74
+>> >> >>> 28.77
+>> >> >>>
+>> >> >>> RR result with bql:
+>> >> >>> 222.98
+>> >> >>> 159.81
+>> >> >>> 197.88
+>> >> >>>
+>> >> >>
+>> >> >>Okay. And on the other hand, any measureable degradation with
+>> >> >>multiqueue and when testing throughput?
+>> >> >
+>> >> >With multiqueue it depends if the flows hits the same queue or not. If
+>> >> >they do, the same results will likely be shown.
+>> >>
+>> >> RR 1q, w/o bql:
+>> >> 29.95
+>> >> 32.74
+>> >> 28.77
+>> >>
+>> >> RR 1q, with bql:
+>> >> 222.98
+>> >> 159.81
+>> >> 197.88
+>> >>
+>> >> RR 4q, w/o bql:
+>> >> 355.82
+>> >> 364.58
+>> >> 233.47
+>> >>
+>> >> RR 4q, with bql:
+>> >> 371.19
+>> >> 255.93
+>> >> 337.77
+>> >>
+>> >> So answer to your question is: "no measurable degradation with 4
+>> >> queues".
+>> >
+>> >Thanks but I think we also need benchmarks in cases other than vDPA.
+>> >For example, a simple virtualization setup.
+>> 
+>> For virtualization setup, I get this:
+>> 
+>> VIRT RR 1q, w/0 bql:
+>> 49.18
+>> 49.75
+>> 50.07
+>> 
+>> VIRT RR 1q, with bql:
+>> 51.33
+>> 47.88
+>> 40.40
+>> 
+>> No measurable/significant difference.
 >
-> Thanks for the update.
+>Seems the results became much noisier? Also
+
+Not enough data to assume that I believe.
+
+
+>I'd expect a regression if any to be in a streaming benchmark.
+
+Can you elaborate?
+
+
 >
-> Could we schedule a PUCK meeting to synchronize and help each other?
-> What about June 12?
-
-Sounds great! June 12th works for me.
-
-Nicolas
+>-- 
+>MST
+>
