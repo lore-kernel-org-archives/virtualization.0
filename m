@@ -1,97 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7172145B28;
-	Thu, 16 May 2024 12:59:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26924145B28
+	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 13:04:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715864357; cv=none; b=dSxpE5jg0laHDVcQ1liooeCokvS8e4SVKYhvT0qOT4UJT7BYYvsQMdocsfIC+WUPSJXfzDUKDkiXLEnHdoa7boprIz1LPxpKyjlmC7awFQQSmpGAzni+H7oK9xPW17FT8Yt7e1AnHzgO3vX+oRmUewVDt8E8pnVBRWXahznbvg8=
+	t=1715864642; cv=none; b=owdafXZfWYlBgG0HxLPkehrqhgDHzzJaQiQ0GS+ehjPJS67FEOlZtiA6yz1AfHL4FXSAhts//bs36+AlQ3tZy0NlWNgbUluad9YKZDEj1Tv/zWlMbnyHDisbxwuilRMLXDvfojtKOuhNzHfzO9fsFbWt3YCSk4WM6Q82HOIGK9I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715864357; c=relaxed/simple;
-	bh=ffkwtfRAcATYYGVuq3fnxSpseSR1d1ylnA6E2Bt/nG4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mT2iLmLOR3TDmOe/lu+lkHwGZ7EvlMsss4HkyQzXM7kBs1GDMsn7c1Qnf/L+SDV2+ligYX+i3uDPGW5HoRd/Ot14thvbZnNPUiFV+0nM1+wMKtO3LqpLyZ9citltxNwXP25BgATVSignp//5bKxfAWhDH7UuFa73XT4pBIxGlK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dMXdwarB; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715864642; c=relaxed/simple;
+	bh=WGVi5aGdGAHMERiHO+uuNhv6KeyDPpakxxwg5naMK3I=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=CIN9lB/O80keIhX6t0NHlw2fTu2ESy28MD/14qpy74Ysvj2YlApS6c22t25MK3XChalF5aEdV+SbjQp5dCK4uSAQgclaCGTnv9wFoTT4u5h2gQGfzrq8+Rqy1I0tyAPsD9A/zNwWvNkT5R9ACL0F2hRFv589wGx7dfVcF0nvJVU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OD0cqvwS; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dMXdwarB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE83C113CC;
-	Thu, 16 May 2024 12:59:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715864357;
-	bh=ffkwtfRAcATYYGVuq3fnxSpseSR1d1ylnA6E2Bt/nG4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=dMXdwarBN/YvsIjHd98g7mTumujPMRAmaABhG0bpcq+W/EcpSn2zbt2ZUSze1CnMR
-	 XT+x7Op9ESlE2zIsLli5A2r5RX5wLBfc8t7kv0Zwmocv7krBeZENXdNKW6tF9gIBYD
-	 J/PNXGoq1kRVL8YHbzHm5uflFe9S3l0jw3VeHNSAqXRV+8gJRm8lQqKzhu0oROmCF9
-	 vwU7GVdy6UkuBZo1eMcJd/UREohdrsURhPUpQ7JUawkgGibdG2Gi0dHnmwZvok01Tb
-	 qmPb2Cw9X/JlTY43w/viFip8hrK/ec+KVh9uiW4Oj+EpqmksoPrtE8TQcvugpDi5Uz
-	 4lAOHST9eN3Hg==
-Date: Thu, 16 May 2024 14:59:13 +0200
-From: Manivannan Sadhasivam <mani@kernel.org>
-To: Shunsuke Mie <mie@igel.co.jp>
-Cc: linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com
-Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
-Message-ID: <20240516125913.GC11261@thinkpad>
-References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OD0cqvwS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1715864640; x=1747400640;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=WGVi5aGdGAHMERiHO+uuNhv6KeyDPpakxxwg5naMK3I=;
+  b=OD0cqvwSmd3nqExP0glxOBjDO+drwZknMFM6r1+1ZvBxdM2CcJF4fnum
+   rDkq2fpv4yYGB9qvMVJ8CWck7O+az43dtPamLrBvViT7zKSzsIgrwOc5z
+   kRSRm+ctmr0v22AK/22foK/nu9V+Q6GYd/8+u/LkjkzT/SKxlxlWMNpKA
+   DHTpGR5ySF06Ctns50mA1TJq5rdNYPNkB0lEe0Y8tT/KfeemGAs+VF4uV
+   NjV47TcnTN0FTjo6W2PJN0+EiAPaZaWsTIGw8YZPB2eC7i1/7/1mHuMsg
+   CcfruLXrFnH/x6kS7PetcrnWMPdtY7XVXZaLWMSULYT/VVeKp9aEH8N+7
+   Q==;
+X-CSE-ConnectionGUID: 7E47N0WDT+aVuBpzrRjokw==
+X-CSE-MsgGUID: WwHdp7QJSl6HeVIZlZSQRA==
+X-IronPort-AV: E=McAfee;i="6600,9927,11074"; a="22551060"
+X-IronPort-AV: E=Sophos;i="6.08,164,1712646000"; 
+   d="scan'208";a="22551060"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2024 06:03:59 -0700
+X-CSE-ConnectionGUID: /cXk0nLgSPuffZMaA2Cp5w==
+X-CSE-MsgGUID: VZU03uQxQqOyCS3ANyZY9w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,164,1712646000"; 
+   d="scan'208";a="31523926"
+Received: from unknown (HELO chenyu-dev.sh.intel.com) ([10.239.62.107])
+  by fmviesa010.fm.intel.com with ESMTP; 16 May 2024 06:03:53 -0700
+From: Chen Yu <yu.c.chen@intel.com>
+To: Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	x86@kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Chen Yu <yu.c.chen@intel.com>,
+	Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+	Prem Nath Dey <prem.nath.dey@intel.com>,
+	Xiaoping Zhou <xiaoping.zhou@intel.com>
+Subject: [PATCH] x86/paravirt: Disable virt spinlock when CONFIG_PARAVIRT_SPINLOCKS disabled
+Date: Thu, 16 May 2024 21:02:44 +0800
+Message-Id: <20240516130244.893573-1-yu.c.chen@intel.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
 
-On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
-> Hi virtio folks,
-> 
+Performance drop is reported when running encode/decode workload and
+BenchSEE cache sub-workload.
+Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
+native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
+is disabled the virt_spin_lock_key is set to true on bare-metal.
+The qspinlock degenerates to test-and-set spinlock, which decrease the
+performance on bare-metal.
 
-You forgot to CC the actual Virtio folks. I've CCed them now.
+Fix this by disabling virt_spin_lock_key if CONFIG_PARAVIRT_SPINLOCKS
+is not set, or it is on bare-metal.
 
-> I'm writing to discuss finding a workaround with Virtio drivers and legacy
-> devices with limited memory access.
-> 
-> # Background
-> The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) to
-> indicate devices requiring restricted memory access or IOMMU translation. This
-> feature bit resides at position 33 in the 64-bit Features register on modern
-> interfaces. When the linux virtio driver finds the flag, the driver uses DMA
-> API that handles to use of appropriate memory.
-> 
-> # Problem
-> However, legacy devices only have a 32-bit register for the features bits.
-> Consequently, these devices cannot represent the ACCESS_PLATFORM bit. As a
-> result, legacy devices with restricted memory access cannot function
-> properly[1]. This is a legacy spec issue, but I'd like to find a workaround.
-> 
-> # Proposed Solutions
-> I know these are not ideal, but I propose the following solution.
-> Driver-side:
->     - Implement special handling similar to xen_domain.
-> In xen_domain, linux virtio driver enables to use the DMA API.
->     - Introduce a CONFIG option to adjust the DMA API behavior.
-> Device-side:
-> Due to indistinguishability from the guest's perspective, a device-side
-> solution might be difficult.
-> 
-> I'm open to any comments or suggestions you may have on this issue or
-> alternative approaches.
-> 
-> [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
-> https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.co.jp/t/
-> The Linux PCIe endpoint framework is used to implement the virtio-net device on
-> a legacy interface. This is necessary because of the framework and hardware
-> limitation.
-> 
+Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
+Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
+Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+---
+ arch/x86/kernel/paravirt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-We can fix the endpoint framework limitation, but the problem lies with some
-platforms where we cannot write to vendor capability registers and still have
-IOMMU.
-
-- Mani
-
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 5358d43886ad..ee51c0949ed8 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -55,7 +55,7 @@ DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
+ 
+ void __init native_pv_lock_init(void)
+ {
+-	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
++	if (!IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) ||
+ 	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
+ 		static_branch_disable(&virt_spin_lock_key);
+ }
 -- 
-மணிவண்ணன் சதாசிவம்
+2.25.1
+
