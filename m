@@ -1,128 +1,96 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C748415B0E3
-	for <virtualization@lists.linux.dev>; Wed, 15 May 2024 22:17:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6FF629CE4
+	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 04:47:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715811445; cv=none; b=s4oL53g2E1UJuIieocz4u8UkGVPNmdzJDqUaL/TXZbtffOgpSnC2VYyvsz+EqE2nG5d2lJpeJix3bUP8WXgmioo93l1r4n8SvhT/msc1MXAVWO9ixVngG2ypiFA4D9vokiPDTw686el6FwQ+SlZQ+2tdBl9kOuldtmdpU1vLDOY=
+	t=1715834869; cv=none; b=nuV/e7FYKXrlBAQtYu7lR/mcYUXcUmV7grsmqmFcnjtukF5RfRe6tEF0wbmrcv0L9WfPxg+y5DQVSgrY41PXWt4YOu9AIrmgQTOHi0xJPckKsoh0bw8ZdeAcEbiyTsgNur+CM4XL5tra5g/dVaZrrQI22FiFeHW6Rk54L2JlW1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715811445; c=relaxed/simple;
-	bh=5Lb04IOxAFHZl0H1mV+xBky+LXkYjevp1pkg8SVXj0Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ohXFOTp9Eq5gJ0hXLJor5nosMRbyxCW+C+pfDIKDm5WyTTVnQQPxf1tg9kNWXzlsCU5NQ1QinadN8D6beRmqJ0T/zzSq0aBOY6sCg13nWExRU8GSGE5wQ7k8+adjvKOlEQNEP2q8BQ9Fiog6262LZDKqATBy4iPDw5gC1nGcTIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KmmB9soO; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1715834869; c=relaxed/simple;
+	bh=Y+hSQ+Eo3s4/YSUffx3V0qw21OLsNhzKiR+hK/TFgUw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rkNq1n2FPdczSMTlYqlIODzT7juxiM/uI7dnxl5myCjU1SzP5HBMs38PQoMhzKnEUWKovdVqCQxV0j+61E0sJdHXCUQ5sz80993Muqnpx5E2bNuN4I4A+quW5NSZwDuVZ8UpnR3XT9YGXf6+mgIn02W7aB72pUUb/MzmKkQnDUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IjGOq4TG; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KmmB9soO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IjGOq4TG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715811442;
+	s=mimecast20190719; t=1715834866;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EZN0wVmWs2EnG1RV9I+3ErWKTp5IW4jpo10Yojdq8Hs=;
-	b=KmmB9soO/Z56jun/aXSGvmVANSmB8rQfp4nDkpOUiD1/mF/xhybM2uN5/IbUofO3kxEPZX
-	snKKBG5cduWqNwuWZeLTbHqy41vRlIfu7Jxn5vRy6XWJiGLRy0pgo2o3U/CuE+IcoAVKOs
-	c/xJKZH9mxBXyROmuO6mpPLX1Gt73e4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Y+hSQ+Eo3s4/YSUffx3V0qw21OLsNhzKiR+hK/TFgUw=;
+	b=IjGOq4TGjZ15OUN8HmS+hZhdnfzBOxrUYdZ03YkOr1Gg3D438eqjbBhgDAC8xUiE8swxyO
+	C3t8tl5khh4xmUPNjqor9cYAmmLFmAQm+lepS5uO8e/uyUJRL59A03PzmfSBskFNGOdtOl
+	PDEoDtmQX9P+uPeIwOUojhnfBUA7q74=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-410-MIDpFTCLMHm2_-qStJl09w-1; Wed, 15 May 2024 18:17:21 -0400
-X-MC-Unique: MIDpFTCLMHm2_-qStJl09w-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4200e6a9901so27328675e9.3
-        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 15:17:21 -0700 (PDT)
+ us-mta-10-Z73NhQEGOv-RuZPFw9HFrw-1; Thu, 16 May 2024 00:47:45 -0400
+X-MC-Unique: Z73NhQEGOv-RuZPFw9HFrw-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2b9e0939124so1244859a91.0
+        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 21:47:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715811440; x=1716416240;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EZN0wVmWs2EnG1RV9I+3ErWKTp5IW4jpo10Yojdq8Hs=;
-        b=hyOTT2S3ai8NmA0fni33a/2EMFg1O6pzHhy84TXcTfQbMpp/YXg49ynaz8gZ4jsKUE
-         1Hmf0guQ7cx6aB0G65p9feZb49UYv6SB6i3GBM9G8hHX2gIlQgQ03mhjDgVsd3pA/TJ0
-         op8W4BRwNne+PN6MMGnhh4nGO+ITQTN3NzRP6q+u1IH/wcEeJVMtIoTnqjlWFB431++B
-         H9R4Z9AqCSUhFsvmsOUfwmrTuAHU7bXT7ZEB+mxblhNh35BluzUD87JOqiKASuc37uYa
-         OMymDWiVDmyokoOzyqa1wyHok4tPzfrEPsSAsQYh4ImY6ZC25QMJ48FLDj3dTah0iHRE
-         5f0A==
-X-Forwarded-Encrypted: i=1; AJvYcCUjWIWnYnD+xA0fALwDhgw9WErK/VO4QWFTQzV73vQPQfS9KSqjMXPdupkgnhfpiOUu6KWmi1M+zvaET4PRvlnZI+rnZDhoY3ovmAEnOyk=
-X-Gm-Message-State: AOJu0YwziucUZIzlSE4SMJK8xgJE4WIl0NIlWjF/ugmviJbnwW/xwiyo
-	SRVRXgVS3Y5WbHcCofUidj/RWY5b3v/qRHnB2fbsCrqLSDNud4vFBdwOe52oa6aVPhZo1UJrI5r
-	g5yk1o6spAP1Lq9mP20MPdeSi/825IPyx3hyxKkHRJ54eo7b16tl8ZzONIp82BEoN
-X-Received: by 2002:a05:600c:4705:b0:418:f5a9:b91c with SMTP id 5b1f17b1804b1-41fead65a1bmr116997825e9.33.1715811440029;
-        Wed, 15 May 2024 15:17:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE5P3/Oya1xRhWyAyXMJIMSfGyBGzEjtt1Hz1ue8IRQmpEkMwr+1aF7P3KXgLTzDOVE/m+eeA==
-X-Received: by 2002:a05:600c:4705:b0:418:f5a9:b91c with SMTP id 5b1f17b1804b1-41fead65a1bmr116997725e9.33.1715811439493;
-        Wed, 15 May 2024 15:17:19 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:443:357d:1f98:7ef8:1117:f7bb])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-41fa9dbab53sm260530495e9.13.2024.05.15.15.17.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 May 2024 15:17:19 -0700 (PDT)
-Date: Wed, 15 May 2024 18:17:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	jiri@nvidia.com, Eric Dumazet <edumaset@google.com>
-Subject: Re: [PATCH v3] virtio_net: Fix missed rtnl_unlock
-Message-ID: <20240515181647-mutt-send-email-mst@kernel.org>
-References: <20240515163125.569743-1-danielj@nvidia.com>
+        d=1e100.net; s=20230601; t=1715834864; x=1716439664;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Y+hSQ+Eo3s4/YSUffx3V0qw21OLsNhzKiR+hK/TFgUw=;
+        b=L35TPBcmDjXW+KY3wiztvfadKQP0Y5O0yViWW3YfnEeLEF97j0zpBy5QFwUD2JKr1N
+         qAgaxVwpgURKE5hbaNDXiEh/FX3ClN/P+pAt4HTFZ7Wf6r8o6aXKpeJ/W8tdUkgvHNC/
+         b6mc+Ed0mSSgl0BbKi9ZxXJUzC7zAUsyWWTS9QfM6yJMRt72nAed2ZXVPYjKo0uX6p8o
+         +GK6JFz+3XybhF/ZhOddMqSqwBq/A6H+osMoJOyV7TJfTIRPWgVxW6ARVDLbrA6UAT5f
+         z+skebK+IfjNrI5k4ghfq4vj3q+AibkEHsL4YCGNwAabWLaeDEMccLG2hM0jerRpvWU2
+         RG2g==
+X-Forwarded-Encrypted: i=1; AJvYcCXDAgWb7aqx8BaVyZdRlpushSQPaLa9EEno1efvXEin99DJV+YO7sPVzqdey1IyTw8elowK4ruCJ4VHVcoT9Go+3Wv3o3kSq0+TdjOZ9D4=
+X-Gm-Message-State: AOJu0YyiQquUxk3hErk92j4yT1i56uHjoyIXZTaHXgo90Ykvt9pcuCBA
+	SIVspu5tTa5k8Mjo7XoErGctPGuUXbStpJEztHvwftdkeLvM9JOBQ3WcfwaKDEZH4vMuwyt0U1H
+	B91WbRihfPONBp4TMK+h16EbCAtzH8H+6zkpVdbWv0AoTvQBYwKwd8KeU7K69ndpabtQO3gR1Lv
+	JoiLiQw+0Igp2GifIjtQetufOSGarQlWP1q8Lpt8Y=
+X-Received: by 2002:a17:90a:1549:b0:2b9:44f2:eca6 with SMTP id 98e67ed59e1d1-2b944f2ee4amr8182196a91.25.1715834863957;
+        Wed, 15 May 2024 21:47:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEE2c51njQXV99PnsZamB8UQqh5DsdrmFenPfs4PgLHNR0d5D/evzbeZaQRgsTeAj0DTXb4g81NcXQohepW61I=
+X-Received: by 2002:a17:90a:1549:b0:2b9:44f2:eca6 with SMTP id
+ 98e67ed59e1d1-2b944f2ee4amr8182182a91.25.1715834863559; Wed, 15 May 2024
+ 21:47:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <20240515163125.569743-1-danielj@nvidia.com>
 In-Reply-To: <20240515163125.569743-1-danielj@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 16 May 2024 12:47:32 +0800
+Message-ID: <CACGkMEs6dcPvgrscYdDyyC7i5qHZ8+BcbGMUhKOtaec_+UMyOw@mail.gmail.com>
+Subject: Re: [PATCH v3] virtio_net: Fix missed rtnl_unlock
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
+	virtualization@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, pabeni@redhat.com, jiri@nvidia.com, 
+	Eric Dumazet <edumaset@google.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 15, 2024 at 11:31:25AM -0500, Daniel Jurgens wrote:
+On Thu, May 16, 2024 at 12:32=E2=80=AFAM Daniel Jurgens <danielj@nvidia.com=
+> wrote:
+>
 > The rtnl_lock would stay locked if allocating promisc_allmulti failed.
 > Also changed the allocation to GFP_KERNEL.
-> 
+>
 > Fixes: ff7c7d9f5261 ("virtio_net: Remove command data from control_buf")
 > Reported-by: Eric Dumazet <edumaset@google.com>
-> Link: https://lore.kernel.org/netdev/CANn89iLazVaUCvhPm6RPJJ0owra_oFnx7Fhc8d60gV-65ad3WQ@mail.gmail.com/
+> Link: https://lore.kernel.org/netdev/CANn89iLazVaUCvhPm6RPJJ0owra_oFnx7Fh=
+c8d60gV-65ad3WQ@mail.gmail.com/
 > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-net tree I presume.
-
-> ---
-> v3:
-> 	- Changed to promisc_allmulti alloc to GPF_KERNEL
-> v2:
-> 	- Added fixes tag.
-> ---
->  drivers/net/virtio_net.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 19a9b50646c7..4e1a0fc0d555 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2902,14 +2902,14 @@ static void virtnet_rx_mode_work(struct work_struct *work)
->  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
->  		return;
->  
-> -	rtnl_lock();
-> -
-> -	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_ATOMIC);
-> +	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_KERNEL);
->  	if (!promisc_allmulti) {
->  		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
->  		return;
->  	}
->  
-> +	rtnl_lock();
-> +
->  	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
->  	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
->  
-> -- 
-> 2.45.0
+Thanks
 
