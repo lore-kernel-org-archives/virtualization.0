@@ -1,151 +1,123 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A67D138C
-	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 13:38:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93ED414B95B
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 14:02:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715866704; cv=none; b=MIQWHJbMmHZRO3XBWaVGujrrwYdC3FRz/udO2XvDEH/33OoM521wkkpdhYlaff0anvNNY+vqPO6AcYw4xYWBUfbVPMl8kvHg7QKjXHDVZurkKXymF3WoBXA3Soprv2eIRNy2quJ6Yc0X1Rm/NrttmzQxOdJHkDfXFzGIbfXbYe4=
+	t=1715868156; cv=none; b=TMy8zifF1bp2RYIRPbeYfI2Y1vYb6nGsXXt3i6aQsaxx8vV0mcALqL7rcYvkzzge3rTiMLWdh3Jt2d+uI/VzprljAYrm6x0jMUePjevtIz81RjNjxU228TjNHKUFwX2zJwELF3/Nj6T3/91QgtXNFQcRoSkx76dTpL0rA95B2o8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715866704; c=relaxed/simple;
-	bh=H4uJfIWjhvWKU9/lF6/ReCaGNL4KXA9cAwJNwXPUNXM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jENUV222BgPTDkhbT35OaJSwmEHAXAPHyWYYr+1CPqnQes3Qym+KqmjlXI2bbOMf2sFyUdHraJn8KwusWkPgDDy9qpLhkjjwcCGpd0V2W0UxfQxTJPXeSxTtHaO2QJrbvnpxOMLLmtixDm2TOAq5TtFemwAtvsWUc8KB/c5AJwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CbQzUSOQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1715868156; c=relaxed/simple;
+	bh=PII+OyY3HRsFOpjW5l++XBk5W4fZ/zADl3BCmJlUORM=;
+	h=Subject:MIME-Version:Content-Type:Date:Message-ID:CC:From:To:
+	 References:In-Reply-To; b=T1Z0HGlB3GrdsbSzbZV80pAZoC1UBTvzQh1wrdlTdLYk+9QLFclRGV2BU5laOZPBsft/bK9NiyD5GwHVY8SccUlEA/a13M7axtH1guawkltNiYLaybWg6oPwTxqQNSY+EJPJW21E4qF8uA6itA4rRi91TatVCFc1XPnKcWWM9Bc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=k+OJX8QB; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CbQzUSOQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715866701;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9MotCgp3e2fj15EogMUNC34bh/DK0Sdeid+nwujT2pQ=;
-	b=CbQzUSOQyoklWKj2KBBe8p70Kcp2WX4WZQL7BApCgQwD5x5kfpvBmzU2uWTIqlH0avP14t
-	83qNcPcrzBqnB+Maf+Dp4IYHf6FTf4AdrdPLz79DpGgPTFLnUMXx25ZqEfn4ZJYxxD0I+K
-	KaRmDKcfDHlyoxZJwxyxlcdAKhDuo/I=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-517-qDo_f4-pMsirX8z7M5YLgQ-1; Thu, 16 May 2024 09:38:20 -0400
-X-MC-Unique: qDo_f4-pMsirX8z7M5YLgQ-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6207c483342so143613137b3.1
-        for <virtualization@lists.linux.dev>; Thu, 16 May 2024 06:38:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715866699; x=1716471499;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9MotCgp3e2fj15EogMUNC34bh/DK0Sdeid+nwujT2pQ=;
-        b=I/AaffDz805+fKtZXRUD37mhOrTHg7fl+adFocB7dDGXIxc3XB8rGS5YjNRzUmR8wa
-         F6TPiaKDxzWoTA9RcQXjiD2jR2JFaHXTkqrOKtXsfy+s4LQDe90pjbOskh6x7RmLyLps
-         AkXI+NpBgqgAQLLuw0fjVnKz39uDP+8HhT/jKuSEJLZxduGB9nfSLFy0c9rTgpLxGoSK
-         bSPCsnoOnGLur7MbLIaqcPg3JPqhM0E6wNm8+A8SGkqdHCuRMcnqVwXFO6lq/GjA/VHx
-         WIyQFfE8vkpT+wnTv78VAgCTDllIrsr77k2GihMdXwi/se5O4+C2wkYBs+xHpSt8pVUe
-         9cVA==
-X-Forwarded-Encrypted: i=1; AJvYcCXbdqGAoG2FA+cKD5Mr93EAnthLrnVxuetJ5vQdTCGay9WrfgHucQEq7BNKbBujmirg58Ykrtcrlo6oQMDajUfpEL3Q0+AyNI4Q6k0wcE0=
-X-Gm-Message-State: AOJu0YxFS4ZTY/mtTDRJZYyERLeupl6yYI3TgV2GHI0HWWOglbNtz8Dd
-	KcFwkwgLi9ya8LVi3qpawQSIji0ExVewDS6lnfj1gQtpkPNOBA7GSiCGgLg3qoymQTcjm45+dNc
-	7tShkrCGDogyhO+xMRJL5NUnYCfTzQ+Jlb2G8kTkjG0zKxOZHEnJXKQMRM9912r2tbHYmog3kPN
-	DfgtyS/XMgN9Ri+wWN26bsYtk22cDwNo5oCsT1d60=
-X-Received: by 2002:a05:690c:b9d:b0:615:8c1:d7ec with SMTP id 00721157ae682-622b00218ccmr188220117b3.33.1715866699402;
-        Thu, 16 May 2024 06:38:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE4QKAuxEG0E9OIW18GgVRzmoNCx6cWbvCv+mq9BFFlhSCQTKIOOTMs34WnZPrmXQWnkLEbeQ4BQeEoXduizoU=
-X-Received: by 2002:a05:690c:b9d:b0:615:8c1:d7ec with SMTP id
- 00721157ae682-622b00218ccmr188219907b3.33.1715866699113; Thu, 16 May 2024
- 06:38:19 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="k+OJX8QB"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id B4F1F401A4
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 14:02:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.049
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id pNKXFPFz448l for <virtualization@lists.linux-foundation.org>;
+ Thu, 16 May 2024 14:02:34 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=207.171.184.29; helo=smtp-fw-9102.amazon.com; envelope-from=prvs=85909aada=nsaenz@amazon.es; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C0E3B40153
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C0E3B40153
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amazon.com header.i=@amazon.com header.a=rsa-sha256 header.s=amazon201209 header.b=k+OJX8QB
+Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C0E3B40153
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 May 2024 14:02:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1715868154; x=1747404154;
+  h=mime-version:content-transfer-encoding:date:message-id:
+   cc:from:to:references:in-reply-to:subject;
+  bh=PII+OyY3HRsFOpjW5l++XBk5W4fZ/zADl3BCmJlUORM=;
+  b=k+OJX8QBKhlhXLL+yP7jzjxSe2kwEGUIlf1RVVo8QLlDuet++05n1dC7
+   dwhyvpEbW+sLKcnNuXJDwX9Dp1D1vS6zEXehHOJDcwbUoiDoTf/1MKlFU
+   esPMfQq5KW/aAQJWLPNk5j+/JXm0kvAxHpvRtIW0QAvZOHvajT8m1wCpz
+   k=;
+X-IronPort-AV: E=Sophos;i="6.08,164,1712620800"; 
+   d="scan'208";a="419475431"
+Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
+ configuration and violation
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-east-1.prod.farcaster.email.amazon.dev) ([10.25.36.214])
+  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2024 14:02:24 +0000
+Received: from EX19MTAEUC001.ant.amazon.com [10.0.17.79:61258]
+ by smtpin.naws.eu-west-1.prod.farcaster.email.amazon.dev [10.0.38.98:2525] with esmtp (Farcaster)
+ id 669cf238-0252-433a-b5ae-10131f992275; Thu, 16 May 2024 14:02:23 +0000 (UTC)
+X-Farcaster-Flow-ID: 669cf238-0252-433a-b5ae-10131f992275
+Received: from EX19D004EUC001.ant.amazon.com (10.252.51.190) by
+ EX19MTAEUC001.ant.amazon.com (10.252.51.155) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Thu, 16 May 2024 14:02:23 +0000
+Received: from localhost (10.13.235.138) by EX19D004EUC001.ant.amazon.com
+ (10.252.51.190) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.28; Thu, 16 May
+ 2024 14:02:12 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <bcc17a060d93b198d8a17a9b87b593f41337ee28.1715785488.git.mst@redhat.com>
-In-Reply-To: <bcc17a060d93b198d8a17a9b87b593f41337ee28.1715785488.git.mst@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 16 May 2024 15:37:42 +0200
-Message-ID: <CAJaqyWd9-fhrxBv3gTq82bGnSVdC_vw_LXg+XVNHT3B6cD0VOg@mail.gmail.com>
-Subject: Re: [PATCH] vhost/vsock: always initialize seqpacket_allow
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, 
-	syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com, 
-	Jeongjun Park <aha310510@gmail.com>, Arseny Krasnov <arseny.krasnov@kaspersky.com>, 
-	"David S . Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 16 May 2024 14:02:09 +0000
+Message-ID: <D1B4HKJAJG21.2DH9F3E1Q6J9L@amazon.com>
+CC: Sean Christopherson <seanjc@google.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>,
+	Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, "Paolo
+ Bonzini" <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "Vitaly
+ Kuznetsov" <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, "Rick P
+ Edgecombe" <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>,
+	Angelina Vu <angelinavu@linux.microsoft.com>, Anna Trikalinou
+	<atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>,
+	"Forrest Yuan Yu" <yuanyu@google.com>, James Gowans <jgowans@amazon.com>,
+	James Morris <jamorris@linux.microsoft.com>, John Andersen
+	<john.s.andersen@intel.com>, "Madhavan T . Venkataraman"
+	<madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>,
+	=?utf-8?q?Mihai_Don=C8=9Bu?= <mdontu@bitdefender.com>,
+	=?utf-8?q?Nicu=C8=99or_C=C3=AE=C8=9Bu?= <nicu.citu@icloud.com>, Thara
+ Gopinath <tgopinath@microsoft.com>, "Trilok Soni" <quic_tsoni@quicinc.com>,
+	Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, Yu Zhang
+	<yu.c.zhang@linux.intel.com>, =?utf-8?q?=C8=98tefan_=C8=98icleru?=
+	<ssicleru@bitdefender.com>, <dev@lists.cloudhypervisor.org>,
+	<kvm@vger.kernel.org>, <linux-hardening@vger.kernel.org>,
+	<linux-hyperv@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-security-module@vger.kernel.org>, <qemu-devel@nongnu.org>,
+	<virtualization@lists.linux-foundation.org>, <x86@kernel.org>,
+	<xen-devel@lists.xenproject.org>
+From: Nicolas Saenz Julienne <nsaenz@amazon.com>
+To: =?utf-8?q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+X-Mailer: aerc 0.17.0-129-gd582ac682cdf-dirty
+References: <20240503131910.307630-1-mic@digikod.net>
+ <20240503131910.307630-4-mic@digikod.net> <ZjTuqV-AxQQRWwUW@google.com>
+ <20240506.ohwe7eewu0oB@digikod.net> <ZjmFPZd5q_hEBdBz@google.com>
+ <20240507.ieghomae0UoC@digikod.net> <ZjpTxt-Bxia3bRwB@google.com>
+ <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com> <20240514.mai3Ahdoo2qu@digikod.net>
+In-Reply-To: <20240514.mai3Ahdoo2qu@digikod.net>
+X-ClientProxiedBy: EX19D046UWA001.ant.amazon.com (10.13.139.112) To
+ EX19D004EUC001.ant.amazon.com (10.252.51.190)
 
-On Wed, May 15, 2024 at 5:05=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On Tue May 14, 2024 at 12:23 PM UTC, Micka=C3=ABl Sala=C3=BCn wrote:
+> > Development happens
+> > https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-next
+> > branch, but I'd advice against looking into it until we add some order
+> > to the rework. Regardless, feel free to get in touch.
 >
-> There are two issues around seqpacket_allow:
-> 1. seqpacket_allow is not initialized when socket is
->    created. Thus if features are never set, it will be
->    read uninitialized.
-> 2. if VIRTIO_VSOCK_F_SEQPACKET is set and then cleared,
->    then seqpacket_allow will not be cleared appropriately
->    (existing apps I know about don't usually do this but
->     it's legal and there's no way to be sure no one relies
->     on this).
+> Thanks for the update.
 >
-> To fix:
->         - initialize seqpacket_allow after allocation
->         - set it unconditionally in set_features
->
-> Reported-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
-> Reported-by: Jeongjun Park <aha310510@gmail.com>
-> Fixes: ced7b713711f ("vhost/vsock: support SEQPACKET for transport").
-> Cc: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
-> Tested-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->
+> Could we schedule a PUCK meeting to synchronize and help each other?
+> What about June 12?
 
-Reviewed-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Sounds great! June 12th works for me.
 
-Thanks!
-
-> ---
->
->
-> Reposting now it's been tested.
->
->  drivers/vhost/vsock.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index ec20ecff85c7..bf664ec9341b 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -667,6 +667,7 @@ static int vhost_vsock_dev_open(struct inode *inode, =
-struct file *file)
->         }
->
->         vsock->guest_cid =3D 0; /* no CID assigned yet */
-> +       vsock->seqpacket_allow =3D false;
->
->         atomic_set(&vsock->queued_replies, 0);
->
-> @@ -810,8 +811,7 @@ static int vhost_vsock_set_features(struct vhost_vsoc=
-k *vsock, u64 features)
->                         goto err;
->         }
->
-> -       if (features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET))
-> -               vsock->seqpacket_allow =3D true;
-> +       vsock->seqpacket_allow =3D features & (1ULL << VIRTIO_VSOCK_F_SEQ=
-PACKET);
->
->         for (i =3D 0; i < ARRAY_SIZE(vsock->vqs); i++) {
->                 vq =3D &vsock->vqs[i];
-> --
-> MST
->
-
+Nicolas
