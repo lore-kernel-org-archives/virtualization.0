@@ -1,96 +1,188 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6FF629CE4
-	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 04:47:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88BC914F78
+	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 04:49:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715834869; cv=none; b=nuV/e7FYKXrlBAQtYu7lR/mcYUXcUmV7grsmqmFcnjtukF5RfRe6tEF0wbmrcv0L9WfPxg+y5DQVSgrY41PXWt4YOu9AIrmgQTOHi0xJPckKsoh0bw8ZdeAcEbiyTsgNur+CM4XL5tra5g/dVaZrrQI22FiFeHW6Rk54L2JlW1w=
+	t=1715834951; cv=none; b=pdLTcwNC1vim4jqVfBJxc5DzvC6bkEQakDXych5iXYVFa5I3ytD6MBgNbVUiOi8gJQdCEF5qx+n7OGcw6/endixupeWopGKODtJO0NrbFZOEN1yQpYrO5jsOrbeMGig0bXczDLdTJ/d1AKon2ptb89L8yxYBugEkjbcVo6q0o+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715834869; c=relaxed/simple;
-	bh=Y+hSQ+Eo3s4/YSUffx3V0qw21OLsNhzKiR+hK/TFgUw=;
+	s=arc-20240116; t=1715834951; c=relaxed/simple;
+	bh=qLZDBF5EWCwproRuemf57u8gvHVkIMpQFM7Cuf8J1rs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rkNq1n2FPdczSMTlYqlIODzT7juxiM/uI7dnxl5myCjU1SzP5HBMs38PQoMhzKnEUWKovdVqCQxV0j+61E0sJdHXCUQ5sz80993Muqnpx5E2bNuN4I4A+quW5NSZwDuVZ8UpnR3XT9YGXf6+mgIn02W7aB72pUUb/MzmKkQnDUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IjGOq4TG; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=nfTSDNWHMkxIuy3+S0U06HcpeSbfZRvOwpX8JpZWw2/e6XJ2pot9p5KKxBoA2WQjA3Yyszii2Yj7fzf3pe80P+7IIgZI1a/tyuHzS6Zn3xJ3LOD5fksQmZBh6PHDkVrsXeMQrArNWxTPDgBEz9OcixE9Wfs1o/IlGv57OPO2drY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GJHpKd+r; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IjGOq4TG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GJHpKd+r"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715834866;
+	s=mimecast20190719; t=1715834947;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Y+hSQ+Eo3s4/YSUffx3V0qw21OLsNhzKiR+hK/TFgUw=;
-	b=IjGOq4TGjZ15OUN8HmS+hZhdnfzBOxrUYdZ03YkOr1Gg3D438eqjbBhgDAC8xUiE8swxyO
-	C3t8tl5khh4xmUPNjqor9cYAmmLFmAQm+lepS5uO8e/uyUJRL59A03PzmfSBskFNGOdtOl
-	PDEoDtmQX9P+uPeIwOUojhnfBUA7q74=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=EXGIN3lTx6JmVu73hytVZe24/+ZGwq7tQPSepFAG6Ps=;
+	b=GJHpKd+r9bjxFiTOGQC7tkZJcGFmP+yvMyYQp2cRmM/m8/67VdnyCBPAQGESR8NpT8MKwh
+	j6ZMiDxRb9gFpQBi064cXpVStVtm2ObsT5n/Vnh82UKj+LhlIEwdVuy7nxRWZI/C2S95Ti
+	2KQe6l77NzRKbEk4TIfRIXBAgrDMpBc=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-10-Z73NhQEGOv-RuZPFw9HFrw-1; Thu, 16 May 2024 00:47:45 -0400
-X-MC-Unique: Z73NhQEGOv-RuZPFw9HFrw-1
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2b9e0939124so1244859a91.0
-        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 21:47:44 -0700 (PDT)
+ us-mta-60-yRVSW4hIN-iREVis2SeHVA-1; Thu, 16 May 2024 00:48:51 -0400
+X-MC-Unique: yRVSW4hIN-iREVis2SeHVA-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2b3756e6333so7299908a91.0
+        for <virtualization@lists.linux.dev>; Wed, 15 May 2024 21:48:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715834864; x=1716439664;
+        d=1e100.net; s=20230601; t=1715834930; x=1716439730;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Y+hSQ+Eo3s4/YSUffx3V0qw21OLsNhzKiR+hK/TFgUw=;
-        b=L35TPBcmDjXW+KY3wiztvfadKQP0Y5O0yViWW3YfnEeLEF97j0zpBy5QFwUD2JKr1N
-         qAgaxVwpgURKE5hbaNDXiEh/FX3ClN/P+pAt4HTFZ7Wf6r8o6aXKpeJ/W8tdUkgvHNC/
-         b6mc+Ed0mSSgl0BbKi9ZxXJUzC7zAUsyWWTS9QfM6yJMRt72nAed2ZXVPYjKo0uX6p8o
-         +GK6JFz+3XybhF/ZhOddMqSqwBq/A6H+osMoJOyV7TJfTIRPWgVxW6ARVDLbrA6UAT5f
-         z+skebK+IfjNrI5k4ghfq4vj3q+AibkEHsL4YCGNwAabWLaeDEMccLG2hM0jerRpvWU2
-         RG2g==
-X-Forwarded-Encrypted: i=1; AJvYcCXDAgWb7aqx8BaVyZdRlpushSQPaLa9EEno1efvXEin99DJV+YO7sPVzqdey1IyTw8elowK4ruCJ4VHVcoT9Go+3Wv3o3kSq0+TdjOZ9D4=
-X-Gm-Message-State: AOJu0YyiQquUxk3hErk92j4yT1i56uHjoyIXZTaHXgo90Ykvt9pcuCBA
-	SIVspu5tTa5k8Mjo7XoErGctPGuUXbStpJEztHvwftdkeLvM9JOBQ3WcfwaKDEZH4vMuwyt0U1H
-	B91WbRihfPONBp4TMK+h16EbCAtzH8H+6zkpVdbWv0AoTvQBYwKwd8KeU7K69ndpabtQO3gR1Lv
-	JoiLiQw+0Igp2GifIjtQetufOSGarQlWP1q8Lpt8Y=
-X-Received: by 2002:a17:90a:1549:b0:2b9:44f2:eca6 with SMTP id 98e67ed59e1d1-2b944f2ee4amr8182196a91.25.1715834863957;
-        Wed, 15 May 2024 21:47:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEE2c51njQXV99PnsZamB8UQqh5DsdrmFenPfs4PgLHNR0d5D/evzbeZaQRgsTeAj0DTXb4g81NcXQohepW61I=
-X-Received: by 2002:a17:90a:1549:b0:2b9:44f2:eca6 with SMTP id
- 98e67ed59e1d1-2b944f2ee4amr8182182a91.25.1715834863559; Wed, 15 May 2024
- 21:47:43 -0700 (PDT)
+        bh=EXGIN3lTx6JmVu73hytVZe24/+ZGwq7tQPSepFAG6Ps=;
+        b=WNor9XToOvSIPseZyTZzsDzLZeTYSUGTpBhI8eOpKKRvk4ImUNFigZZ+DUdX1wSbbc
+         BymZEOJ35ywUI82qAJW910E7tJFio2Hl4V/kib+NU+2bDpMHoE19OM0jUcMDgjXIkWdk
+         j6JQ3Th1qPtcQ2JH+JD0rIuiMs+O0OXNq9yUa1Q+mAs5wDJuGGX3k6+jAGoMTPzAYh73
+         hlAxZkW0RUKPptnu79LxPQefXM49M7mffqpxTEnuQamzaqsG8gB1AHFv+fOSrtFgNvXH
+         vbx2ybVgIxAXbvFmaBgRRUN5dWmB2drjm+4NVm4WLme5PnKMHmuQpw1JgHwhW1c5FALh
+         OpIA==
+X-Forwarded-Encrypted: i=1; AJvYcCWA2TfqKqdd1/r3Kbna3G3RYX0/q948PPhzpwmQfwlzvwhxBhRhCSEM03Ld5kkrrLHmx5AW1/nUYR/t/qhJFiqqyaxm5LsfzM0OrjxtL8A=
+X-Gm-Message-State: AOJu0YwFKMuPCK8geE6cub4jPtk2xcFnRTVvL+ui59x29pyLQu/3E8NM
+	tDuttSRDo2twnvGx2RktTCWzkS5+ozhjFDhgoGH4qcwoU/+eH3Sx3gFseBPYmIowSNpGX8KGhmV
+	71RSFZb16NC01xQm5LPX2/UaxieUOnFg3P6TyQo+Of1BijzNI5iIuYy8c65fYeXOg8+lRUFNYQr
+	Ahi/YM7ZVJWcUbfxFV3M+u373vtTSNVfg2wSBEFvnZVt93wkxwMQ==
+X-Received: by 2002:a17:90b:124b:b0:2ad:af1c:4fc with SMTP id 98e67ed59e1d1-2b6cc76d23fmr15154539a91.25.1715834929990;
+        Wed, 15 May 2024 21:48:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE4IRfRXIFfQnuhk3r7xQUPBRdzs0tIxWZqixotZ5qq8Y2oueZ43GZWpesIXvDQS/HD/Dky6THvLmhbN3MZsuU=
+X-Received: by 2002:a17:90b:124b:b0:2ad:af1c:4fc with SMTP id
+ 98e67ed59e1d1-2b6cc76d23fmr15154527a91.25.1715834929585; Wed, 15 May 2024
+ 21:48:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240515163125.569743-1-danielj@nvidia.com>
-In-Reply-To: <20240515163125.569743-1-danielj@nvidia.com>
+References: <20240509084050-mutt-send-email-mst@kernel.org>
+ <ZjzQTFq5lJIoeSqM@nanopsycho.orion> <20240509102643-mutt-send-email-mst@kernel.org>
+ <Zj3425_gSqHByw-R@nanopsycho.orion> <20240510065121-mutt-send-email-mst@kernel.org>
+ <Zj4A9XY7z-TzEpdz@nanopsycho.orion> <20240510072431-mutt-send-email-mst@kernel.org>
+ <ZkRlcBU0Nb3O-Kg1@nanopsycho.orion> <20240515041909-mutt-send-email-mst@kernel.org>
+ <ZkSKo1npMxCVuLfT@nanopsycho.orion> <ZkSwbaA74z1QwwJz@nanopsycho.orion>
+In-Reply-To: <ZkSwbaA74z1QwwJz@nanopsycho.orion>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 16 May 2024 12:47:32 +0800
-Message-ID: <CACGkMEs6dcPvgrscYdDyyC7i5qHZ8+BcbGMUhKOtaec_+UMyOw@mail.gmail.com>
-Subject: Re: [PATCH v3] virtio_net: Fix missed rtnl_unlock
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
-	virtualization@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, jiri@nvidia.com, 
-	Eric Dumazet <edumaset@google.com>
+Date: Thu, 16 May 2024 12:48:38 +0800
+Message-ID: <CACGkMEsLfLLwjfHu5MT8Ug0_tS_LASvw-raiXiYx_WHJzMcWbg@mail.gmail.com>
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, ast@kernel.org, 
+	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 16, 2024 at 12:32=E2=80=AFAM Daniel Jurgens <danielj@nvidia.com=
-> wrote:
+On Wed, May 15, 2024 at 8:54=E2=80=AFPM Jiri Pirko <jiri@resnulli.us> wrote=
+:
 >
-> The rtnl_lock would stay locked if allocating promisc_allmulti failed.
-> Also changed the allocation to GFP_KERNEL.
+> Wed, May 15, 2024 at 12:12:51PM CEST, jiri@resnulli.us wrote:
+> >Wed, May 15, 2024 at 10:20:04AM CEST, mst@redhat.com wrote:
+> >>On Wed, May 15, 2024 at 09:34:08AM +0200, Jiri Pirko wrote:
+> >>> Fri, May 10, 2024 at 01:27:08PM CEST, mst@redhat.com wrote:
+> >>> >On Fri, May 10, 2024 at 01:11:49PM +0200, Jiri Pirko wrote:
+> >>> >> Fri, May 10, 2024 at 12:52:52PM CEST, mst@redhat.com wrote:
+> >>> >> >On Fri, May 10, 2024 at 12:37:15PM +0200, Jiri Pirko wrote:
+> >>> >> >> Thu, May 09, 2024 at 04:28:12PM CEST, mst@redhat.com wrote:
+> >>> >> >> >On Thu, May 09, 2024 at 03:31:56PM +0200, Jiri Pirko wrote:
+> >>> >> >> >> Thu, May 09, 2024 at 02:41:39PM CEST, mst@redhat.com wrote:
+> >>> >> >> >> >On Thu, May 09, 2024 at 01:46:15PM +0200, Jiri Pirko wrote:
+> >>> >> >> >> >> From: Jiri Pirko <jiri@nvidia.com>
+> >>> >> >> >> >>
+> >>> >> >> >> >> Add support for Byte Queue Limits (BQL).
+> >>> >> >> >> >>
+> >>> >> >> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> >>> >> >> >> >
+> >>> >> >> >> >Can we get more detail on the benefits you observe etc?
+> >>> >> >> >> >Thanks!
+> >>> >> >> >>
+> >>> >> >> >> More info about the BQL in general is here:
+> >>> >> >> >> https://lwn.net/Articles/469652/
+> >>> >> >> >
+> >>> >> >> >I know about BQL in general. We discussed BQL for virtio in th=
+e past
+> >>> >> >> >mostly I got the feedback from net core maintainers that it li=
+kely won't
+> >>> >> >> >benefit virtio.
+> >>> >> >>
+> >>> >> >> Do you have some link to that, or is it this thread:
+> >>> >> >> https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e=
+1bc3@redhat.com/
+> >>> >> >
+> >>> >> >
+> >>> >> >A quick search on lore turned up this, for example:
+> >>> >> >https://lore.kernel.org/all/a11eee78-b2a1-3dbc-4821-b5f4bfaae819@=
+gmail.com/
+> >>> >>
+> >>> >> Says:
+> >>> >> "Note that NIC with many TX queues make BQL almost useless, only a=
+dding extra
+> >>> >>  overhead."
+> >>> >>
+> >>> >> But virtio can have one tx queue, I guess that could be quite comm=
+on
+> >>> >> configuration in lot of deployments.
+> >>> >
+> >>> >Not sure we should worry about performance for these though.
+> >>> >What I am saying is this should come with some benchmarking
+> >>> >results.
+> >>>
+> >>> I did some measurements with VDPA, backed by ConnectX6dx NIC, single
+> >>> queue pair:
+> >>>
+> >>> super_netperf 200 -H $ip -l 45 -t TCP_STREAM &
+> >>> nice -n 20 netperf -H $ip -l 10 -t TCP_RR
+> >>>
+> >>> RR result with no bql:
+> >>> 29.95
+> >>> 32.74
+> >>> 28.77
+> >>>
+> >>> RR result with bql:
+> >>> 222.98
+> >>> 159.81
+> >>> 197.88
+> >>>
+> >>
+> >>Okay. And on the other hand, any measureable degradation with
+> >>multiqueue and when testing throughput?
+> >
+> >With multiqueue it depends if the flows hits the same queue or not. If
+> >they do, the same results will likely be shown.
 >
-> Fixes: ff7c7d9f5261 ("virtio_net: Remove command data from control_buf")
-> Reported-by: Eric Dumazet <edumaset@google.com>
-> Link: https://lore.kernel.org/netdev/CANn89iLazVaUCvhPm6RPJJ0owra_oFnx7Fh=
-c8d60gV-65ad3WQ@mail.gmail.com/
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> RR 1q, w/o bql:
+> 29.95
+> 32.74
+> 28.77
+>
+> RR 1q, with bql:
+> 222.98
+> 159.81
+> 197.88
+>
+> RR 4q, w/o bql:
+> 355.82
+> 364.58
+> 233.47
+>
+> RR 4q, with bql:
+> 371.19
+> 255.93
+> 337.77
+>
+> So answer to your question is: "no measurable degradation with 4
+> queues".
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
+Thanks but I think we also need benchmarks in cases other than vDPA.
+For example, a simple virtualization setup.
 
