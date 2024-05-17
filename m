@@ -1,108 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 505FD157A68
-	for <virtualization@lists.linux.dev>; Thu, 16 May 2024 19:04:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63FCA8BEC
+	for <virtualization@lists.linux.dev>; Fri, 17 May 2024 01:30:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715886293; cv=none; b=Kc4K3uJs3hBmpOBsCQLZEZeceZzhsFKqjuq56YOLzWYSHJjzu7XgBSxgrHJAo0YaRHXgMb+W2eQpywdkgOIn1XnZyAQYKsPK5WY+vEp8fbyaSLRdkU2VvNrOmrFVrm/05cuEclu60QmtxfdLD9qR7nS5k9/0kJ4VVljauVIxIAo=
+	t=1715909460; cv=none; b=bqHrNlQ8O0wwPWfw6f6Ghxfm9v0KlYGRdBwgdcw4o3jk4UrdReqQg7PYR/7CRX/QBHS7YwFaFks+qaX9s0t6CYXVs/sglL7dzlpaojpt9SiuO2hRL8fCbWMnVs5Voz58yfx9k0fPy6A3EgmOhNB4TbNIymzQlNA3gkpvxQXNGRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715886293; c=relaxed/simple;
-	bh=ELtnt8hMvirmxWy694FQQpOITSRYaHdbDyo7UvSyHWU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=S+rrMRcmRJrzABH86d1UWB7bD7+YlBY1Z6fk8hW/qWuL10zj+QNEbM4O2TRT66JebL5q4fEFhz9sywgPtJgtwdVIl4GUSmrnDPeadfW8biWQVjjz68IGSxoTnvNK6eJYFES2FDO7z3+iydz8T1Wky3jsFVNDaWq6BrjGpDJW/o4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Va3qPJQz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1715909460; c=relaxed/simple;
+	bh=aHQtSq3DOcQQu9w62vM/PGD8H1BowW3iosax14z4l7Q=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=eTUfVUhEevAEWgDHa5NYLXX4pbQhPfOK8ongB6ztKxLzs6jtm9EZk3uRvOZuG/dJIFUy+Ls9yQm0t4PzHWHjNc0ojIz5b9S+tCPjtbrMoocrLOGWvQ2jDvhq6OkcZ92eR7lts16iA3kEGCy6/o3PUhZuzgc3nQiI1PEjHiug51I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rYJzbMWB; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Va3qPJQz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715886291;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jz7L9c2ybtagPzZAI/HiPe7jF+CkWPwh/QudsghM+Bo=;
-	b=Va3qPJQzWryAgj2XpP9RwW9DRCxBD7+9Sl5bry8tWsl1EBLPtXPxzkGBGl5NSHIJ6/SBMp
-	WFHeSupM+GlDS9njmWVkaIzGFCRZWy39Ry0uHf4Q0vvR8pIBl+6llj8CAzAQnCuyTDFgVQ
-	/eTpswBmbHTiX5UWOeJwC3zvLNngWYk=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-34-rAI-1W88PciTFo40GV5mLg-1; Thu, 16 May 2024 15:04:50 -0400
-X-MC-Unique: rAI-1W88PciTFo40GV5mLg-1
-Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-51fd9c7cdd9so6862435e87.2
-        for <virtualization@lists.linux.dev>; Thu, 16 May 2024 12:04:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715886288; x=1716491088;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jz7L9c2ybtagPzZAI/HiPe7jF+CkWPwh/QudsghM+Bo=;
-        b=RoyFNOW9vkq45lOP8tinj14j30AtEFp0RRUaGQPzMY4DZkke1lzAkHcopuK6/ROpg1
-         VrN6MNn3nW9mEjM8Z3k6b1Bu4KaZmIGPDdZ3fL0EsndMuWtQJ2R7kPVlQbKe4UyUFc3h
-         cv4JFj0fHJKAGWhge3eA3Vsw2dYFlp2RZrOR1esTF8GdQ6yMx35ANJ24EM1ExGE/Xx7C
-         ozgrKNbcJVOfsogC/JjfZieB1kIt9jEhHhVvwWjw49jWuPqbcs+nuNe6pzqZR+RXtxFD
-         jMhXZzBFb1K7f4qzOjWPzaOtLr0IXfFuqkn/s9yx8WBzBSd60/AIOUg6xv/vfFEgL2af
-         QFDA==
-X-Forwarded-Encrypted: i=1; AJvYcCXfgulzgIzZi/uKv60915g22ptT7BQAwKEPzRvZJX/NViQed0kjVgu7lFdeaMRRSV658SHevDkzODnWJWb/ye15l4xdViClMk5VXUoRe5I=
-X-Gm-Message-State: AOJu0YzrVxotPqWZKla/GNbFZmqcmqc7ZdEUJPXcmNWHoOR10WRl5/KO
-	DQGzE3Vou+29GJtbuYl7V+d1f8J/cTsnykYGYSKDiYjOMp7KU+0ccV9CQDZezvVLvkWac1G9xQu
-	YAT90pFaByREYV80nC3TlB5Pj4sYBYvD0atz+Jq+9mSq2wMCuz3T3VXbwLoA8sCz/
-X-Received: by 2002:a05:6512:b8e:b0:523:d1ba:6431 with SMTP id 2adb3069b0e04-523d1ba660fmr1095652e87.66.1715886288412;
-        Thu, 16 May 2024 12:04:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEG666LZBWPCUr/LqwIyFBHcLAp4WehVEl1G2GF4vgzI3Hc5z6LWccyOB1hMi+IOAyNcwR1fA==
-X-Received: by 2002:a05:6512:b8e:b0:523:d1ba:6431 with SMTP id 2adb3069b0e04-523d1ba660fmr1095636e87.66.1715886287775;
-        Thu, 16 May 2024 12:04:47 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:17c:ab88:14c2:fc9:18f8:19ae])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-351d2df8449sm3266124f8f.12.2024.05.16.12.04.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 May 2024 12:04:47 -0700 (PDT)
-Date: Thu, 16 May 2024 15:04:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, ast@kernel.org,
-	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-Message-ID: <20240516150101-mutt-send-email-mst@kernel.org>
-References: <Zj4A9XY7z-TzEpdz@nanopsycho.orion>
- <20240510072431-mutt-send-email-mst@kernel.org>
- <ZkRlcBU0Nb3O-Kg1@nanopsycho.orion>
- <20240515041909-mutt-send-email-mst@kernel.org>
- <ZkSKo1npMxCVuLfT@nanopsycho.orion>
- <ZkSwbaA74z1QwwJz@nanopsycho.orion>
- <CACGkMEsLfLLwjfHu5MT8Ug0_tS_LASvw-raiXiYx_WHJzMcWbg@mail.gmail.com>
- <ZkXmAjlm-A50m4dx@nanopsycho.orion>
- <20240516083100-mutt-send-email-mst@kernel.org>
- <ZkYlYLFthXVmHOaQ@nanopsycho.orion>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rYJzbMWB"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715909448; h=Message-ID:Subject:Date:From:To;
+	bh=KrEPs691Td3NZbxOFWTzxJL2b3bXbcRVeAlZkrnOcRA=;
+	b=rYJzbMWB9L7DnG9Hclt8ekw7LHIcVHwATRYMNT1qt5Esec5Gb1ghh1KpVB2HYJArPNhrvyQx+eIT/we5Kusq0VmOYTqfxZKFBEboxHwbcupYuIaDyq8cibqFYHj8FmT61rvyJ02hp6Q3bjg8/ydLMyhmv8oGs9J0tXpmxxRp7Ds=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W6cslx7_1715909446;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W6cslx7_1715909446)
+          by smtp.aliyun-inc.com;
+          Fri, 17 May 2024 09:30:47 +0800
+Message-ID: <1715909158.0435698-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v9 0/6] refactor the params of find_vqs()
+Date: Fri, 17 May 2024 09:25:58 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ David Hildenbrand <david@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ linux-um@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <ZkYlYLFthXVmHOaQ@nanopsycho.orion>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Thu, May 16, 2024 at 05:25:20PM +0200, Jiri Pirko wrote:
-> 
-> >I'd expect a regression if any to be in a streaming benchmark.
-> 
-> Can you elaborate?
+Hi, Michael
 
-BQL does two things that can hurt throughput:
-- limits amount of data in the queue - can limit bandwidth
-  if we now get queue underruns
-- adds CPU overhead - can limit bandwidth if CPU bound
+I hope this in your for_linus branch to merge to Linux 6.9.
 
-So checking result of a streaming benchmark seems important.
+	https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/log/?h=linux-next
+
+And some commits from me in your branch are changed after you picked them.
+And there are merged by net-next.
+
+virtio_net: remove the misleading comment
+virtio_net: rx remove premapped failover code
+virtio_net: enable premapped by default
+virtio_net: big mode support premapped
+virtio_net: replace private by pp struct inside page
+virtio_ring: enable premapped mode whatever use_dma_api
+virtio_ring: introduce dma map api for page
+
+Thanks.
 
 
--- 
-MST
 
+On Wed, 24 Apr 2024 17:15:27 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> This pathset is splited from the
+>
+>      http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.com
+>
+> That may needs some cycles to discuss. But that notifies too many people.
+>
+> But just the four commits need to notify so many people.
+> And four commits are independent. So I split that patch set,
+> let us review these first.
+>
+> The patch set try to  refactor the params of find_vqs().
+> Then we can just change the structure, when introducing new
+> features.
+>
+> Thanks.
+>
+> v8:
+>   1. rebase the vhost branch
+>
+> v7:
+>   1. fix two bugs. @Jason
+>
+> v6:
+>   1. virtio_balloon: a single variable for both purposes.
+>   2. if names[i] is null, return error
+>
+> v5:
+>   1. virtio_balloon: follow David Hildenbrand's suggest
+>     http://lore.kernel.org/all/3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com
+>   2. fix bug of the reference of "cfg_idx"
+>     http://lore.kernel.org/all/202403222227.Sdp23Lcb-lkp@intel.com
+>
+> v4:
+>   1. remove support for names array entries being null
+>   2. remove cfg_idx from virtio_vq_config
+>
+> v3:
+>   1. fix the bug: "assignment of read-only location '*cfg.names'"
+>
+> v2:
+>   1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
+>
+> v1:
+>   1. fix some comments from ilpo.jarvinen@linux.intel.com
+>
+>
+>
+>
+>
+>
+>
+>
+>
+> Xuan Zhuo (6):
+>   virtio_balloon: remove the dependence where names[] is null
+>   virtio: remove support for names array entries being null.
+>   virtio: find_vqs: pass struct instead of multi parameters
+>   virtio: vring_create_virtqueue: pass struct instead of multi
+>     parameters
+>   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+>   virtio_ring: simplify the parameters of the funcs related to
+>     vring_create/new_virtqueue()
+>
+>  arch/um/drivers/virtio_uml.c             |  36 +++--
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |  23 +--
+>  drivers/remoteproc/remoteproc_virtio.c   |  37 +++--
+>  drivers/s390/virtio/virtio_ccw.c         |  38 ++---
+>  drivers/virtio/virtio_balloon.c          |  48 +++---
+>  drivers/virtio/virtio_mmio.c             |  36 +++--
+>  drivers/virtio/virtio_pci_common.c       |  69 ++++-----
+>  drivers/virtio/virtio_pci_common.h       |   9 +-
+>  drivers/virtio/virtio_pci_legacy.c       |  16 +-
+>  drivers/virtio/virtio_pci_modern.c       |  37 +++--
+>  drivers/virtio/virtio_ring.c             | 177 ++++++++---------------
+>  drivers/virtio/virtio_vdpa.c             |  51 +++----
+>  include/linux/virtio_config.h            |  76 +++++++---
+>  include/linux/virtio_ring.h              |  93 +++++++-----
+>  tools/virtio/virtio_test.c               |   4 +-
+>  tools/virtio/vringh_test.c               |  28 ++--
+>  16 files changed, 384 insertions(+), 394 deletions(-)
+>
+> --
+> 2.32.0.3.g01195cf9f
+>
