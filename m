@@ -1,170 +1,102 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63FCA8BEC
-	for <virtualization@lists.linux.dev>; Fri, 17 May 2024 01:30:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 585F01C32
+	for <virtualization@lists.linux.dev>; Fri, 17 May 2024 01:57:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715909460; cv=none; b=bqHrNlQ8O0wwPWfw6f6Ghxfm9v0KlYGRdBwgdcw4o3jk4UrdReqQg7PYR/7CRX/QBHS7YwFaFks+qaX9s0t6CYXVs/sglL7dzlpaojpt9SiuO2hRL8fCbWMnVs5Voz58yfx9k0fPy6A3EgmOhNB4TbNIymzQlNA3gkpvxQXNGRU=
+	t=1715911057; cv=none; b=NOVYGSMISjiCquP/n9CFiJbQfubu6WYW6mweU98I3HozJooHEGllGNxQDeazYB7k7QLf6PeZtGAhzPKrinRMh6S3Tpm2NTNMOct/YHCbkK3NmDYWdI/qON/TsHrDEEnNdR88PFKMm6rooqeI//rFmbs9aSE5m5AiSPPG5JLVzi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715909460; c=relaxed/simple;
-	bh=aHQtSq3DOcQQu9w62vM/PGD8H1BowW3iosax14z4l7Q=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=eTUfVUhEevAEWgDHa5NYLXX4pbQhPfOK8ongB6ztKxLzs6jtm9EZk3uRvOZuG/dJIFUy+Ls9yQm0t4PzHWHjNc0ojIz5b9S+tCPjtbrMoocrLOGWvQ2jDvhq6OkcZ92eR7lts16iA3kEGCy6/o3PUhZuzgc3nQiI1PEjHiug51I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rYJzbMWB; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1715911057; c=relaxed/simple;
+	bh=TeQwxcoJKMhlE7MRgBjHwcLfIU5flh55tSEr1OeVZTQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:To:CC; b=Vgx5gVy5Bc1TdCKPckpRl5WJABXC/rcP2ifRcUeEHMi49ETGbFIVOU+QrAqgK5q1dbwIyPpo+z5IaZIyKeJJXlgX41DgbDmwUcO8NtIQHNEX4aq6ydwDEWMFp/pVAL3wREpPjR0JQ+HYxhcvW1hP0sdLGls0iYEdpxHPhKY4cSw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=IwtZStbS; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rYJzbMWB"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715909448; h=Message-ID:Subject:Date:From:To;
-	bh=KrEPs691Td3NZbxOFWTzxJL2b3bXbcRVeAlZkrnOcRA=;
-	b=rYJzbMWB9L7DnG9Hclt8ekw7LHIcVHwATRYMNT1qt5Esec5Gb1ghh1KpVB2HYJArPNhrvyQx+eIT/we5Kusq0VmOYTqfxZKFBEboxHwbcupYuIaDyq8cibqFYHj8FmT61rvyJ02hp6Q3bjg8/ydLMyhmv8oGs9J0tXpmxxRp7Ds=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W6cslx7_1715909446;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W6cslx7_1715909446)
-          by smtp.aliyun-inc.com;
-          Fri, 17 May 2024 09:30:47 +0800
-Message-ID: <1715909158.0435698-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v9 0/6] refactor the params of find_vqs()
-Date: Fri, 17 May 2024 09:25:58 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- David Hildenbrand <david@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="IwtZStbS"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44GKMTnE014892;
+	Fri, 17 May 2024 01:57:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	from:date:subject:mime-version:content-type
+	:content-transfer-encoding:message-id:to:cc; s=qcppdkim1; bh=4Xn
+	mAg2zsv4MMPg4ePcXWEN4bz039q9JRraQWkgbVw0=; b=IwtZStbSk3JYJzAeF0I
+	1mIEr7hmVeHiiFavZnE5+ZnApGP7Sv+azVQpMXZ//cJrZfedETwAax8+f74sj52k
+	RrIqFEFgq688rkyDe3M735wNDvr+YFzaJQgAYdMblvUpYilBZjgpbQvrCrYX610/
+	2JOPwJn3jEroQ2zyOZmrQO0CxWBtIumawuNuzrvjRA4wNTHwUyqFDYknOoPlr4QX
+	xAa8y2UI9dYwY31GFmGxHJeSohzR+QdvbDPsYCSZFVbsVmg7wyLpjQdAShOeuL1Y
+	aqkY0kiY0jcm9C+z47rjwNgPVKfRTdCLYwK+JjwpeRiZ10RaR+mbNIoGHbHkq8V7
+	GeQ==
+Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3y5e9ct0gb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 May 2024 01:57:34 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 44H1vX5K025147
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 May 2024 01:57:33 GMT
+Received: from [169.254.0.1] (10.49.16.6) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Thu, 16 May
+ 2024 18:57:32 -0700
+From: Jeff Johnson <quic_jjohnson@quicinc.com>
+Date: Thu, 16 May 2024 18:57:32 -0700
+Subject: [PATCH] vringh: add MODULE_DESCRIPTION()
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20240516-md-vringh-v1-1-31bf37779a5a@quicinc.com>
+X-B4-Tracking: v=1; b=H4sIAIu5RmYC/x3MQQrCQAxA0auUrA1M21HEq4iLzDR2AnYsiZZK6
+ d2NLh98/gbGKmxwaTZQXsTkWR3toYFcqI6MMrihC10Mx/aE04CLSh0L5tifQ08cEkXwfla+y/p
+ /XW/uRMaYlGouv8ND6nvFiezFivPHU9j3L1yS0c+AAAAA
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>,
+        Jeff Johnson <quic_jjohnson@quicinc.com>
+X-Mailer: b4 0.13.0
+X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: yXUsnD5gIMwD8PMfWK8PGk4evjt5EaRT
+X-Proofpoint-ORIG-GUID: yXUsnD5gIMwD8PMfWK8PGk4evjt5EaRT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-16_07,2024-05-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ adultscore=0 lowpriorityscore=0 mlxscore=0 clxscore=1011 mlxlogscore=805
+ priorityscore=1501 bulkscore=0 malwarescore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405010000 definitions=main-2405170014
 
-Hi, Michael
+Fix the allmodconfig 'make w=1' issue:
 
-I hope this in your for_linus branch to merge to Linux 6.9.
+WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/vhost/vringh.o
 
-	https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/log/?h=linux-next
+Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+---
+ drivers/vhost/vringh.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-And some commits from me in your branch are changed after you picked them.
-And there are merged by net-next.
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 7b8fd977f71c..73e153f9b449 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -1614,4 +1614,5 @@ EXPORT_SYMBOL(vringh_need_notify_iotlb);
+ 
+ #endif
+ 
++MODULE_DESCRIPTION("host side of a virtio ring");
+ MODULE_LICENSE("GPL");
 
-virtio_net: remove the misleading comment
-virtio_net: rx remove premapped failover code
-virtio_net: enable premapped by default
-virtio_net: big mode support premapped
-virtio_net: replace private by pp struct inside page
-virtio_ring: enable premapped mode whatever use_dma_api
-virtio_ring: introduce dma map api for page
+---
+base-commit: 7f094f0e3866f83ca705519b1e8f5a7d6ecce232
+change-id: 20240516-md-vringh-c43803ae0ba4
 
-Thanks.
-
-
-
-On Wed, 24 Apr 2024 17:15:27 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> This pathset is splited from the
->
->      http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.com
->
-> That may needs some cycles to discuss. But that notifies too many people.
->
-> But just the four commits need to notify so many people.
-> And four commits are independent. So I split that patch set,
-> let us review these first.
->
-> The patch set try to  refactor the params of find_vqs().
-> Then we can just change the structure, when introducing new
-> features.
->
-> Thanks.
->
-> v8:
->   1. rebase the vhost branch
->
-> v7:
->   1. fix two bugs. @Jason
->
-> v6:
->   1. virtio_balloon: a single variable for both purposes.
->   2. if names[i] is null, return error
->
-> v5:
->   1. virtio_balloon: follow David Hildenbrand's suggest
->     http://lore.kernel.org/all/3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com
->   2. fix bug of the reference of "cfg_idx"
->     http://lore.kernel.org/all/202403222227.Sdp23Lcb-lkp@intel.com
->
-> v4:
->   1. remove support for names array entries being null
->   2. remove cfg_idx from virtio_vq_config
->
-> v3:
->   1. fix the bug: "assignment of read-only location '*cfg.names'"
->
-> v2:
->   1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
->
-> v1:
->   1. fix some comments from ilpo.jarvinen@linux.intel.com
->
->
->
->
->
->
->
->
->
-> Xuan Zhuo (6):
->   virtio_balloon: remove the dependence where names[] is null
->   virtio: remove support for names array entries being null.
->   virtio: find_vqs: pass struct instead of multi parameters
->   virtio: vring_create_virtqueue: pass struct instead of multi
->     parameters
->   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
->   virtio_ring: simplify the parameters of the funcs related to
->     vring_create/new_virtqueue()
->
->  arch/um/drivers/virtio_uml.c             |  36 +++--
->  drivers/platform/mellanox/mlxbf-tmfifo.c |  23 +--
->  drivers/remoteproc/remoteproc_virtio.c   |  37 +++--
->  drivers/s390/virtio/virtio_ccw.c         |  38 ++---
->  drivers/virtio/virtio_balloon.c          |  48 +++---
->  drivers/virtio/virtio_mmio.c             |  36 +++--
->  drivers/virtio/virtio_pci_common.c       |  69 ++++-----
->  drivers/virtio/virtio_pci_common.h       |   9 +-
->  drivers/virtio/virtio_pci_legacy.c       |  16 +-
->  drivers/virtio/virtio_pci_modern.c       |  37 +++--
->  drivers/virtio/virtio_ring.c             | 177 ++++++++---------------
->  drivers/virtio/virtio_vdpa.c             |  51 +++----
->  include/linux/virtio_config.h            |  76 +++++++---
->  include/linux/virtio_ring.h              |  93 +++++++-----
->  tools/virtio/virtio_test.c               |   4 +-
->  tools/virtio/vringh_test.c               |  28 ++--
->  16 files changed, 384 insertions(+), 394 deletions(-)
->
-> --
-> 2.32.0.3.g01195cf9f
->
