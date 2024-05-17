@@ -1,186 +1,128 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3826F71B27
-	for <virtualization@lists.linux.dev>; Fri, 17 May 2024 14:46:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0225D3D9E;
+	Fri, 17 May 2024 16:23:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715957196; cv=none; b=prddjMgl+uVB7vpaUE3TQxlLH89LCIm3tWOFuyfr4sOysEYNZMiM6nfTRKJp7HLKR7OnTESH4aLeGqzaSigX4z6CrtVOel9A3g7ZmKATnVp0+PJd9xm2vMuVCFC6wT3VypKzWreZIgT1jrN7buhHDLq7k0pAuPjo3EEFIQ20tUU=
+	t=1715962994; cv=none; b=JbzhVl9QqOrGn5aI3Lp2QNl3nFNFVGz2U9XaYDDV5FovgM5gKKZAXRXy1/SmO9pdi7wgxYf4Ybf2RQI7LH29HkUaLiMIMdWi2pliMj4nIRJ4+c9q0QjMzoq0sWfXOJpcHg7fErYP1NBGlj//ZNX4xSSk6r7glY0UKNAc0GOIo/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715957196; c=relaxed/simple;
-	bh=WnxVwjgYGJtcoPZ87tCxtUxpJqNACgXajD6ezrDCG4I=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Eh3ia+mZJJTMNG3+hHLTKvpUQbdfPyuufT5X0vyZSrdtkQjEuGa01fAG55onTh7SmBzRk+1zoWzrt6Za8+HO+w/uoUXGSpx8Yg59A9EQWSkUgBJQNpmvj/XQHgtvcKIklmda87vKGsI3dFPV10eRUrvyqtap3ZMx2YIw4dcEjjg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OHSBM3HE; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1715962994; c=relaxed/simple;
+	bh=uNwlZVn0k6bBYrUn2NOTbtyZjAe9hAwPUWGNLiaSzKs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MlIAnJvXoclx91HzV3KHgMAmzFsWWX7APIuqQKg6D8rdDfiO2lBWN8hNUnta8MkPvLMjbRrCzno9d+ey7uKWaxOu5yWMAIKuIS4yXd50yO6+ba4Jn3R+4XC21rSS0pTUnL9jV4xzW+y5gexohMQGsr+7nf1x4bn2gL2/M+fleQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F8J6rGhR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OHSBM3HE"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-1ee0132a6f3so11457035ad.0
-        for <virtualization@lists.linux.dev>; Fri, 17 May 2024 07:46:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1715957194; x=1716561994; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1E5gdZlICe3lq/gDwWvHR3o2K94KvkxWORr8jEuKK78=;
-        b=OHSBM3HEzH++zHzKqRfJ7s4SRktvVwc8FEJ2hZ7IIvRhmExIZSJ0cUrfw+2Ow8jsz5
-         tuZwZIXuiHYSSt5FbfAas2ZY+ILz9McAgwMkcPbaXip2F7ljNpZghQI4lM3fMHaVRO5g
-         TQyUaMrOs9sYEwc/TyP7J0y0elrEo/xDH9NnnFTzBLVREvQyrYRkCrXPw5bDL2av9lve
-         tdXAgNFYVaQyoRtymAuOmsUG6O+YbjvV64Of1FoFThMVhRxkf/A6O2hlytx7b9k5dsBX
-         Z0vzlnOTVyWPVafkI0VLtGlv1CtFZVH3ToqmkPC+V0rDoqos7ftxjMpqU8ItgUy61EKl
-         v81Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715957194; x=1716561994;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1E5gdZlICe3lq/gDwWvHR3o2K94KvkxWORr8jEuKK78=;
-        b=YUNzOULdeOHyLKn2I9cx/L9j8RqqxN3RUehdJpUrvVWvMdp1dgVuyeM5Ih9CobpIAn
-         bOn0AcaI7ZxCibUY2eBV4CFGlKmQskhY9DJ5ZMoxrB/g+PRBVIPG0eNFQTrmmY/JL9bT
-         rudZ/vLz6AmmE993CXdV24N69+TykAN5rJRnPLRqXZnnyLct3TUzeuth2NQHECbOIr/8
-         UGegUIDqTtFQBMDDdhOw8McP395kCEw+NUOHJeAQMFhJK1KCoRBhSi1FZdZuQkjK8+C9
-         dXluUIOCjqDZFo9BcbTgpJQrFEdwzyD0BxL9O1uu1PxriZ54lqs9PrLT+IvcXRFAsvJL
-         JBzg==
-X-Forwarded-Encrypted: i=1; AJvYcCV3iWai0WTGiUs70JlELB6KhBHuFLjo6NnV5CmvQKb4PPlhlif4sSJJLIZW785Nsa0Lgo73KDNSyro5UmHL1mMUSYs78lmCq4yXJMZ86hE=
-X-Gm-Message-State: AOJu0YwBNA+S9PcExs1uwFxzspSDF0PLKhp1yoGv2gDSCDvlLzLjUFfg
-	+STa+UmZBjxDFTytyVl4qKnneWv0t0ZLc1KsAPZhdf2HXPTQsbHA
-X-Google-Smtp-Source: AGHT+IGlrB2ABZOfxviKuEq2qAGBP9HT0HFRenQskQ3kOdrAUJQmjATvt0uOz+tRWRqVGbrjhLcsCA==
-X-Received: by 2002:a17:902:e889:b0:1f0:9938:d260 with SMTP id d9443c01a7336-1f09938d438mr74524725ad.50.1715957194441;
-        Fri, 17 May 2024 07:46:34 -0700 (PDT)
-Received: from devant.hz.ali.com ([47.89.83.81])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1ef0c160a1esm158504985ad.279.2024.05.17.07.46.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 May 2024 07:46:34 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: stefanha@redhat.com,
-	sgarzare@redhat.com
-Cc: mst@redhat.com,
-	davem@davemloft.net,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Subject: [RFC PATCH 5/5] vsock: Add an ioctl request to get all CIDs
-Date: Fri, 17 May 2024 22:46:07 +0800
-Message-Id: <20240517144607.2595798-6-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240517144607.2595798-1-niuxuewei.nxw@antgroup.com>
-References: <20240517144607.2595798-1-niuxuewei.nxw@antgroup.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F8J6rGhR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70342C2BD10;
+	Fri, 17 May 2024 16:23:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715962993;
+	bh=uNwlZVn0k6bBYrUn2NOTbtyZjAe9hAwPUWGNLiaSzKs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=F8J6rGhR6abMw+H3e0sNsBE3c0HR9drUMq7zelYKMTQHa0vv/MIG2W8+/hD/7XTI+
+	 9VkRoCKMyZzVY3LjQAv7zTKPKrfWjp+PaYpWL+HZIXKwJ9PpfHkWCOm8/AnprKJTiS
+	 x71fH3FEiRuBcJ7Snaffb4mCRWAYWAV32gCoEeO44TUBKDap7ZLHPJJXjD0QMTmCNO
+	 ZUj+MK/eDva4zMj4VegTwZ0y/H/lyuO2Nk/KqN8YnLbubwD8YFqugReL9OgeiAJUxc
+	 u0pTJlCPPo4/7T1+KTMYWfO14b9TwwHb+K7KeD4YmO6RNA3DpP+PsNxwbeXmOHuVhd
+	 +qE7xoo2PLRTA==
+Date: Fri, 17 May 2024 09:23:12 -0700
+From: "Darrick J. Wong" <djwong@kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux trace kernel <linux-trace-kernel@vger.kernel.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-cxl@vger.kernel.org,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org, virtualization@lists.linux.dev,
+	linux-rdma@vger.kernel.org, linux-pm@vger.kernel.org,
+	iommu@lists.linux.dev, linux-tegra@vger.kernel.org,
+	netdev@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
+	ath11k@lists.infradead.org, ath12k@lists.infradead.org,
+	brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+	linux-usb@vger.kernel.org, linux-bcachefs@vger.kernel.org,
+	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+	linux-cifs@vger.kernel.org, linux-xfs@vger.kernel.org,
+	linux-edac@vger.kernel.org, selinux@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-f2fs-devel@lists.sourceforge.net, linux-hwmon@vger.kernel.org,
+	io-uring@vger.kernel.org, linux-sound@vger.kernel.org,
+	bpf@vger.kernel.org, linux-wpan@vger.kernel.org,
+	dev@openvswitch.org, linux-s390@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net,
+	Julia Lawall <Julia.Lawall@inria.fr>
+Subject: Re: [PATCH] tracing/treewide: Remove second parameter of
+ __assign_str()
+Message-ID: <20240517162312.GZ360919@frogsfrogsfrogs>
+References: <20240516133454.681ba6a0@rorschach.local.home>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240516133454.681ba6a0@rorschach.local.home>
 
-The new request is called `IOCTL_VM_SOCKETS_GET_LOCAL_CIDS`. And the old
-one, `IOCTL_VM_SOCKETS_GET_LOCAL_CID` is retained.
+On Thu, May 16, 2024 at 01:34:54PM -0400, Steven Rostedt wrote:
+> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+> 
+> [
+>    This is a treewide change. I will likely re-create this patch again in
+>    the second week of the merge window of v6.10 and submit it then. Hoping
+>    to keep the conflicts that it will cause to a minimum.
+> ]
+> 
+> With the rework of how the __string() handles dynamic strings where it
+> saves off the source string in field in the helper structure[1], the
+> assignment of that value to the trace event field is stored in the helper
+> value and does not need to be passed in again.
+> 
+> This means that with:
+> 
+>   __string(field, mystring)
+> 
+> Which use to be assigned with __assign_str(field, mystring), no longer
+> needs the second parameter and it is unused. With this, __assign_str()
+> will now only get a single parameter.
+> 
+> There's over 700 users of __assign_str() and because coccinelle does not
+> handle the TRACE_EVENT() macro I ended up using the following sed script:
+> 
+>   git grep -l __assign_str | while read a ; do
+>       sed -e 's/\(__assign_str([^,]*[^ ,]\) *,[^;]*/\1)/' $a > /tmp/test-file;
+>       mv /tmp/test-file $a;
+>   done
+> 
+> I then searched for __assign_str() that did not end with ';' as those
+> were multi line assignments that the sed script above would fail to catch.
+> 
+> Note, the same updates will need to be done for:
+> 
+>   __assign_str_len()
+>   __assign_rel_str()
+>   __assign_rel_str_len()
+> 
+> I tested this with both an allmodconfig and an allyesconfig (build only for both).
+> 
+> [1] https://lore.kernel.org/linux-trace-kernel/20240222211442.634192653@goodmis.org/
+> 
+> Cc: Masami Hiramatsu <mhiramat@kernel.org>
+> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Julia Lawall <Julia.Lawall@inria.fr>
+> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-For the transport that supports multi-devices:
+/me finds this pretty magical, but such is the way of macros.
+Thanks for being much smarter about them than me. :)
 
-* `IOCTL_VM_SOCKETS_GET_LOCAL_CID` returns "-1";
-* `IOCTL_VM_SOCKETS_GET_LOCAL_CIDS` returns a vector of CIDS. The usage is
-shown as following.
+Acked-by: Darrick J. Wong <djwong@kernel.org>	# xfs
 
-```
-struct vsock_local_cids local_cids;
-if ((ret = ioctl(fd, IOCTL_VM_SOCKETS_GET_LOCAL_CIDS, &local_cids))) {
-    perror("failed to get cids");
-    exit(1);
-}
-for (i = 0; i<local_cids.nr; i++) {
-    if (i == (local_cids.nr - 1))
-        printf("%u", local_cids.data[i]);
-    else
-        printf("%u,", local_cids.data[i]);
-}
-```
-
-Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
----
- include/net/af_vsock.h          |  7 +++++++
- include/uapi/linux/vm_sockets.h |  8 ++++++++
- net/vmw_vsock/af_vsock.c        | 19 +++++++++++++++++++
- 3 files changed, 34 insertions(+)
-
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index 25f7dc3d602d..2febc816e388 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -264,4 +264,11 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
- {
- 	return t->msgzerocopy_allow && t->msgzerocopy_allow();
- }
-+
-+/**** IOCTL ****/
-+/* Type of return value of IOCTL_VM_SOCKETS_GET_LOCAL_CIDS. */
-+struct vsock_local_cids {
-+	int nr;
-+	unsigned int data[MAX_VSOCK_NUM];
-+};
- #endif /* __AF_VSOCK_H__ */
-diff --git a/include/uapi/linux/vm_sockets.h b/include/uapi/linux/vm_sockets.h
-index 36ca5023293a..01f73fb7af5a 100644
---- a/include/uapi/linux/vm_sockets.h
-+++ b/include/uapi/linux/vm_sockets.h
-@@ -195,8 +195,16 @@ struct sockaddr_vm {
- 
- #define MAX_VSOCK_NUM 16
- 
-+/* Return actual context id if the transport not support vsock
-+ * multi-devices. Otherwise, return `-1U`.
-+ */
-+
- #define IOCTL_VM_SOCKETS_GET_LOCAL_CID		_IO(7, 0xb9)
- 
-+/* Only available in transports that support multiple devices. */
-+
-+#define IOCTL_VM_SOCKETS_GET_LOCAL_CIDS     _IOR(7, 0xba, struct vsock_local_cids)
-+
- /* MSG_ZEROCOPY notifications are encoded in the standard error format,
-  * sock_extended_err. See Documentation/networking/msg_zerocopy.rst in
-  * kernel source tree for more details.
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 3b34be802bf2..2ea2ff52f15b 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -2454,6 +2454,7 @@ static long vsock_dev_do_ioctl(struct file *filp,
- 	u32 __user *p = ptr;
- 	u32 cid = VMADDR_CID_ANY;
- 	int retval = 0;
-+	struct vsock_local_cids local_cids;
- 
- 	switch (cmd) {
- 	case IOCTL_VM_SOCKETS_GET_LOCAL_CID:
-@@ -2469,6 +2470,24 @@ static long vsock_dev_do_ioctl(struct file *filp,
- 			retval = -EFAULT;
- 		break;
- 
-+	case IOCTL_VM_SOCKETS_GET_LOCAL_CIDS:
-+		if (!transport_g2h || !transport_g2h->get_local_cids)
-+			goto fault;
-+
-+		rcu_read_lock();
-+		local_cids.nr = transport_g2h->get_local_cids(local_cids.data);
-+		rcu_read_unlock();
-+
-+		if (local_cids.nr < 0 ||
-+		    copy_to_user(p, &local_cids, sizeof(local_cids)))
-+			goto fault;
-+
-+		break;
-+
-+fault:
-+		retval = -EFAULT;
-+		break;
-+
- 	default:
- 		retval = -ENOIOCTLCMD;
- 	}
--- 
-2.34.1
-
+--D
