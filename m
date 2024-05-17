@@ -1,65 +1,78 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51ADD8BEA;
-	Fri, 17 May 2024 02:37:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C4BDB672;
+	Fri, 17 May 2024 02:40:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715913429; cv=none; b=Tzu/bVxUmFzCtdmqkiwuCVX3QLGhTJMGwk1oQt4CM2gKY4h4HzeFrnqERdb0iRGreCcPiquTEcgbEdZRFTd4RXx+aPwI2r5TKGTcGp7G+syA5hkAJ4IhnuCRRBP8ZPfnTdEt+gE/Qg6Dk/7QA9etJTupG2XseVt0vHWKPfDN490=
+	t=1715913631; cv=none; b=SzD82KORZUnWBL1wgq8m2d0Wwbrom39BLopK13+nPnFb4uIHIjRqffsII/l6WKKEzaKD2Zec97uDOEHRdP6iPFF2v6PGHN9+AegXfFblcwKkZv4SBnVZQY47mzncok6yq3HKcOnNeC+y/C/ZJPjb6qKhAlCoYIeTt/a7G8Vzymo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715913429; c=relaxed/simple;
-	bh=vK6hDEZj6iw56d+EQlyUthdBpd/wO6dYjpHajJrlOns=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=b1uybVqfAG73MYqQlyITSdLjMQOWiHGQCI0MmQdEKCTx9p/xSaTYFk8sAxpkV2gCN5gcz7SOEhQxKitwuhZLtVoyomjU6TekI6TSohRJoDiMV8yqCzJL0gdQjyPBjpiAoq54fnji/LT0r4JeSIvh95thTFh0LISBhrywOaT9Nys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O7xex74P; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715913631; c=relaxed/simple;
+	bh=m4eWWCmy5F3msSmJSIJTtabMQJfBd0k8Q+YIpPqOhwY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=ZJKVvZ53rcd/5pKZ3Rx4TJ+cNItoh49n5zO6UUVMxESGDamWNMMTehmieEKCghnOKcP4/awmHeZIRFEk/C9q4eUwdud8XA09rEtR8h/pUFQsUgumJOxVT7zOiQWfiuaHwkkK8ii2aPSR/xfzh7/i8yerqTVtKd+Iqj9xeLTZGro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FiuzXOYf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O7xex74P"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB0BC113CC;
-	Fri, 17 May 2024 02:37:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FiuzXOYf"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id D648BC4AF12;
+	Fri, 17 May 2024 02:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715913428;
-	bh=vK6hDEZj6iw56d+EQlyUthdBpd/wO6dYjpHajJrlOns=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=O7xex74Pnf+wd1PKZW5ptyd9v1xDWGMwCTRYYlZJ/Op33bcy/GD9XbvBOelyZr3/v
-	 UTDixV625kRJV/rGW+G1jH/8iQ5MmooVbGnncQGhysFKL/L+VPR0DC8iZGIV3p205h
-	 rkYs5c6c4fnTWf8+wjVX1mY5N6+O0BB0qgsc6jAGpP6Qi8UQd6HPzVwwy2wUijIyP4
-	 GBdWBQVsozeg0wNRjdNYFYQmFjyNtHFhEZRYwyv00B1fn3eewduowtkcteVG7ih4Xi
-	 LBYMMmgwLLr7HqAwfsu2Xo7tfuzYN3kfr6M50Qs3NqbPpeqJQU3kXoml+NOHdJ6JNH
-	 B3VtYF7d0jhAA==
-Date: Thu, 16 May 2024 19:37:07 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
- syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com, Jeongjun Park
- <aha310510@gmail.com>, Arseny Krasnov <arseny.krasnov@kaspersky.com>,
- "David S . Miller" <davem@davemloft.net>, Stefan Hajnoczi
- <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Jason Wang
- <jasowang@redhat.com>, Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>,
- kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: [PATCH] vhost/vsock: always initialize seqpacket_allow
-Message-ID: <20240516193707.676ed88f@kernel.org>
-In-Reply-To: <bcc17a060d93b198d8a17a9b87b593f41337ee28.1715785488.git.mst@redhat.com>
-References: <bcc17a060d93b198d8a17a9b87b593f41337ee28.1715785488.git.mst@redhat.com>
+	s=k20201202; t=1715913630;
+	bh=m4eWWCmy5F3msSmJSIJTtabMQJfBd0k8Q+YIpPqOhwY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=FiuzXOYfYj/AE9ngbeRSR9rdck4n67SAkSUPukfi8HbYBtFTC2B5KTRNVRlyxpBU2
+	 RZGMZzaV4qpJmrSDG9ijOwHx8w52g5+guwYU2Nlluv4a0+1oUP49nUP9UIrCZeQsr5
+	 teLae+Fi6FgfG8zySEW6wWPfMl68psq4wqd90/57Q0NVr3Ia5p1mXBJmiHQBHwAiXq
+	 YZpJ6aSPR4IH3TU2uUcSwXkc60n6uLQqpQwwgCrzEFWDclVqrzen1Bhn3z1pQhls8g
+	 G2SVgcXaoPbUM6KdDCr9fB+lHEDfIgliWNhYOYzWxedy8juZf+I5aShZ/igkLnmiuw
+	 Crsso3pWsuvaQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CC197C41620;
+	Fri, 17 May 2024 02:40:30 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v3] virtio_net: Fix missed rtnl_unlock
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171591363083.2697.864988249934553931.git-patchwork-notify@kernel.org>
+Date: Fri, 17 May 2024 02:40:30 +0000
+References: <20240515163125.569743-1-danielj@nvidia.com>
+In-Reply-To: <20240515163125.569743-1-danielj@nvidia.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ jiri@nvidia.com, edumaset@google.com
 
-On Wed, 15 May 2024 11:05:43 -0400 Michael S. Tsirkin wrote:
-> There are two issues around seqpacket_allow:
-> 1. seqpacket_allow is not initialized when socket is
->    created. Thus if features are never set, it will be
->    read uninitialized.
-> 2. if VIRTIO_VSOCK_F_SEQPACKET is set and then cleared,
->    then seqpacket_allow will not be cleared appropriately
->    (existing apps I know about don't usually do this but
->     it's legal and there's no way to be sure no one relies
->     on this).
+Hello:
 
-Acked-by: Jakub Kicinski <kuba@kernel.org>
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Wed, 15 May 2024 11:31:25 -0500 you wrote:
+> The rtnl_lock would stay locked if allocating promisc_allmulti failed.
+> Also changed the allocation to GFP_KERNEL.
+> 
+> Fixes: ff7c7d9f5261 ("virtio_net: Remove command data from control_buf")
+> Reported-by: Eric Dumazet <edumaset@google.com>
+> Link: https://lore.kernel.org/netdev/CANn89iLazVaUCvhPm6RPJJ0owra_oFnx7Fhc8d60gV-65ad3WQ@mail.gmail.com/
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> 
+> [...]
+
+Here is the summary with links:
+  - [v3] virtio_net: Fix missed rtnl_unlock
+    https://git.kernel.org/netdev/net/c/fa033def4171
+
+You are awesome, thank you!
 -- 
-pw-bot: nap
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
