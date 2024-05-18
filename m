@@ -1,101 +1,111 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE115D52A
-	for <virtualization@lists.linux.dev>; Sat, 18 May 2024 07:24:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E26F5DDC1
+	for <virtualization@lists.linux.dev>; Sat, 18 May 2024 10:17:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716017086; cv=none; b=nqUFm7KjybWJ8CKUBo5SGSRi1rrd13/OOMYzETNaOqT8Ixi7jQYdJtJemcgwnXo21nmE51tE404nnPrQEa1sek2RF8HNIiOQvI+8FiYo8bY0+uZwJpzfXnAcQH0Cjv1ki39GklN2VQ1XsDtX1Pf25XCkf9Rh8+cj+vUZEJmdFv4=
+	t=1716027473; cv=none; b=sTsbY4qNLalLnNnZHJ4TbWMIlEcHAuCHUgirc6Re/YipOoGy2ZcAVB7+CAHkeUx32d5yRlZtc4nsqXaahBlKPx3zvmBd1VPFtpGIdaQyHFI/7q2465NYBVil8ssRy+SnQVUgM4wG8qPElDfdnK5Rd84x0FaSFVnC/ADi2+yVhGI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716017086; c=relaxed/simple;
-	bh=a3XvBXPOApY3RRFgdOHOwQDdLJuSEV/tLdbjK+TjgbE=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=DbA1cJ6l2xTWl3eYFFbGAOGNrkrnlc2ABLGW5SZsQ6dqFrzbJVqA/l6o3xZhsDLbAxMuwWoZJFRlgZY04ajmPjShoi084Cvjrkqyf7CmHZ0ZyICA5JMA0t4xfIGoOKJvqmo7cOrA9VaoELgSZGQb91ykyyoB+nsW7B40sjRU+VY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oCrq8i7Z; arc=none smtp.client-ip=209.85.128.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com
+	s=arc-20240116; t=1716027473; c=relaxed/simple;
+	bh=xA2Bf8n5RCyqeoXlRG/S9pgpV9kOGAQ4TBNdrifLrLg=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=iVA+hFtp0+VYSaPbSnDkJ30ljvbVvmaeo9e9boULm5MDoFBlA3TjlK6zjmO6HC8cAv1q1V92C7SbQBhhJZxxQIThOj5gIxy2PmuGZhpMPSMpJx8nltJ9ydMPfv6QQPxeYsqjvmITdN26mLQwJH7bv+gW8rD0T3+IO8/i/ZBWw0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mF0sc55i; arc=none smtp.client-ip=209.85.208.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oCrq8i7Z"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-622ccd54631so123384647b3.0
-        for <virtualization@lists.linux.dev>; Sat, 18 May 2024 00:24:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mF0sc55i"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-2e538a264f7so17775971fa.0
+        for <virtualization@lists.linux.dev>; Sat, 18 May 2024 03:17:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1716017084; x=1716621884; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Uw4IQYxb+uDF+mWfJsVcG+5UtKWGYyO2JjMy9dD17Z8=;
-        b=oCrq8i7ZFCp1aPyWnalqgcSPLpk/PR3AB1un/bL69CmlOxLYdtqxtiLX+A6p6H1E+/
-         l+D9BSeJKs2NfavgFsgxf0a3pPsX50Jfedns4Fm899R6OJ0xKihVISQpYMZz61Gizy2B
-         X1tEdixAFWwS/S+way8Nka0Xu9eTSSlHL0h/Ip7+YnhGt/NwuhlwglqYw7rvbz68Wg05
-         VdwmGW/FFx/dZ2zil0XHRpNJh8xiaMqOmX4iBaOVZlU3oJjojO3BEbCIJJlVbPxUzBEl
-         yGWR3+zbiYHuHi9McnxPBWt6C7PdCKHuzWtUQO5M/opWZjRWOpTzCRaeIQuXFNuTI+iM
-         FRzA==
+        d=gmail.com; s=20230601; t=1716027470; x=1716632270; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=xA2Bf8n5RCyqeoXlRG/S9pgpV9kOGAQ4TBNdrifLrLg=;
+        b=mF0sc55i8l6NzXtxXN00ZG3pSybL/7FtsRyr1NfsjQ7gchVQ5dLK5yVuGi6DcA6osk
+         MFlA6aClgGLoOC2t26vbJcHiswIkLkPxhX3VSo3oBG1T/2A2Jw5DC6SwUHq6Sa6lA6Lc
+         YiQ3Xi5mzmLEAY5z34sxmBoxnGkdQ8FyHbz7z0pOxnIcsGVPUbrasFqWg1iGm0PDYus7
+         75JcoNJLITNW7gnqpH06mJRNRYhQaCSqPbcJIzHlJ9GGGHczjHWBqT0OLPvSdfJ0UCtu
+         CVmgt7pf+5L5Q0ENauSrBSWVt9KQUNgbvDJHsZKQ0Xci0HnGMAwxh6gehXJrN3fGci16
+         xNcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716017084; x=1716621884;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Uw4IQYxb+uDF+mWfJsVcG+5UtKWGYyO2JjMy9dD17Z8=;
-        b=nIxf5pNjzTWEJQGAWWrrx2AL7lxRO1vNz8f+ARY4Ac2wsjQncm4QOFonTvO7HfKOUc
-         DdSoxTlncnla9UCsT6uBJmR13mHIoIv3y/n9wa49R5s1i9vVvHJeKNn7gYStgp3sBkQx
-         U+RzURXgHdezVfghNkKGftCgC/xT15gKpXytL98HBLx4qUrdoJM53KyMvjuubt01u/aC
-         tFY4jDKx686AwcP3CLmt80Bwibwhz91zo6VbYHBSzXg3HrqFdgExg9abNyi5w/JGF3AI
-         0U652xB+TZ8qDuq6/qMEG4MlVubTBFK8Sdz1/CE3OvqZ+Kave1xOBuz07JhZ4nuJMDqW
-         2sFQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWbmUqweQi/b0kzwcwZnJaP8LNyRgnxtOHHMq8yBUU9wHNvKwqWss4Ub+/w/rrLHilpGry65wwWFeHy6z61rA1jK1Tola3p/FzASF9Hyxc=
-X-Gm-Message-State: AOJu0YwWG8HUkjsosKaROXSbbbBxuwBLbSY5nhruj6X5BlrcEgKhhS0C
-	NgvsHeckcWqyWl2WsW8rb89wP0yqC0p0W41jQjhhTdUyXAul14lUd7YhVrPFSjfZWG9l6yST/L0
-	4FPuMDg==
-X-Google-Smtp-Source: AGHT+IE94WyeH6RLcAAIOJcTGdhrJI64gxY6uGfhyG5sUnknlOWcMCOVqt5FlhysOWO0+Z0nlFbjELjLHqB7
-X-Received: from yuanchu-desktop.svl.corp.google.com ([2620:15c:2a3:200:97d6:5b37:f65f:971e])
- (user=yuanchu job=sendgmr) by 2002:a05:6902:1082:b0:de5:a1c9:7a7a with SMTP
- id 3f1490d57ef6-dee4f1903fdmr1751333276.4.1716017083829; Sat, 18 May 2024
- 00:24:43 -0700 (PDT)
-Date: Sat, 18 May 2024 00:24:22 -0700
-In-Reply-To: <20240518072422.771698-1-yuanchu@google.com>
+        d=1e100.net; s=20230601; t=1716027470; x=1716632270;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xA2Bf8n5RCyqeoXlRG/S9pgpV9kOGAQ4TBNdrifLrLg=;
+        b=K9L05H6Vhr7vpSJ6qEXedSs7iSxLzRakdPw1GhVdqlsThsSXQrGhaAHl2Ihzqhd5Ej
+         6t0zHbKVSGCjSg7wzriKd/TUdenJMqkJ46tOcn2B8aPUZLqdPNK47eVcSPYxwUX6pzE6
+         x1foMDxflqzLsmuiCybYsXbCHEdcj5DtU5Jr6sDGA8Wn4VmtITn2OzSxxIHTVgX6sf7f
+         s0F1/t9BqmJXrdsCD3fGNpa/o4/VMmVTSqnj/r0F8XkS2XkbL3KdXJ9SMLUji7NdxoLj
+         5kKNUiGsQ9IbnuBoafEMUt8ThLBo7jolfQ+C+M4lP10KgMVfYZIwJN3TIwMSahmEmh8J
+         VeSQ==
+X-Gm-Message-State: AOJu0YwQt1oYDK0B+1cB/VguBmjZH17uwdi49XOLAPLRutMs75HFp/fo
+	3GuFzzrT9mCGqaMuHTHvIJKn5N4JxJifhjDFKEScPOVXjfoGhlPjUxwtpbJopsCCYeue5tU9klV
+	C3H0hH/yan2GRE52/oVQNtQmgGhG2Mluf
+X-Google-Smtp-Source: AGHT+IHdD80bucwwGfBvIzB+/cPOI8ABdlz0Zfb6O/bBatrsEmQ3rYLNrEXm0kKzesZxrgLoHZ0g9pPzIbQuxQvAe+E=
+X-Received: by 2002:a2e:9284:0:b0:2d7:1a30:e881 with SMTP id
+ 38308e7fff4ca-2e51fd4a537mr167836001fa.12.1716027469622; Sat, 18 May 2024
+ 03:17:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20240518072422.771698-1-yuanchu@google.com>
-X-Mailer: git-send-email 2.45.0.rc1.225.g2a3ae87e7f-goog
-Message-ID: <20240518072422.771698-2-yuanchu@google.com>
-Subject: [PATCH v1 2/2] virt: pvmemcontrol: add Yuanchu and Pasha as maintainers
-From: Yuanchu Xie <yuanchu@google.com>
-To: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
-	Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
-	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org, 
-	Yuanchu Xie <yuanchu@google.com>
+MIME-Version: 1.0
+From: Dorjoy Chowdhury <dorjoychy111@gmail.com>
+Date: Sat, 18 May 2024 16:17:38 +0600
+Message-ID: <CAFfO_h7xsn7Gsy7tFZU2UKcg_LCHY3M26iTuSyhFG-k-24h6_g@mail.gmail.com>
+Subject: How to implement message forwarding from one CID to another in vhost driver
+To: virtualization@lists.linux.dev
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, 
+	Alexander Graf <graf@amazon.com>, agraf@csgraf.de, stefanha@redhat.com, sgarzare@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 
-The pvmemcontrol driver lives under drivers/virt/pvmemcontrol. We
-specify maintainers for the driver.
+Hi,
 
-Signed-off-by: Yuanchu Xie <yuanchu@google.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+Hope you are doing well. I am working on adding AWS Nitro Enclave[1]
+emulation support in QEMU. Alexander Graf is mentoring me on this work. A v1
+patch series has already been posted to the qemu-devel mailing list[2].
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3fdc3b09c171..fd77ce0c1328 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18048,6 +18048,13 @@ L:	linux-wireless@vger.kernel.org
- S:	Supported
- F:	drivers/net/wireless/purelifi/plfxlc/
- 
-+PVMEMCONTROL GUEST DRIVER
-+M:	Yuanchu Xie <yuanchu@google.com>
-+M:	Pasha Tatashin <pasha.tatashin@soleen.com>
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+F:	drivers/virt/pvmemcontrol/
-+
- PVRUSB2 VIDEO4LINUX DRIVER
- M:	Mike Isely <isely@pobox.com>
- L:	pvrusb2@isely.net	(subscribers-only)
--- 
-2.45.0.rc1.225.g2a3ae87e7f-goog
+AWS nitro enclaves is an Amazon EC2[3] feature that allows creating isolated
+execution environments, called enclaves, from Amazon EC2 instances, which are
+used for processing highly sensitive data. Enclaves have no persistent storage
+and no external networking. The enclave VMs are based on Firecracker microvm
+and have a vhost-vsock device for communication with the parent EC2 instance
+that spawned it and a Nitro Secure Module (NSM) device for cryptographic
+attestation. The parent instance VM always has CID 3 while the enclave VM gets
+a dynamic CID. The enclave VMs can communicate with the parent instance over
+various ports to CID 3, for example, the init process inside an enclave sends a
+heartbeat to port 9000 upon boot, expecting a heartbeat reply, letting the
+parent instance know that the enclave VM has successfully booted.
 
+The plan is to eventually make the nitro enclave emulation in QEMU standalone
+i.e., without needing to run another VM with CID 3 with proper vsock
+communication support. For this to work, one approach could be to teach the
+vhost driver in kernel to forward CID 3 messages to another CID N
+(set to CID 2 for host) i.e., it patches CID from 3 to N on incoming messages
+and from N to 3 on responses. This will enable users of the
+nitro-enclave machine
+type in QEMU to run the necessary vsock server/clients in the host machine
+(some defaults can be implemented in QEMU as well, for example, sending a reply
+to the heartbeat) which will rid them of the cumbersome way of running another
+whole VM with CID 3. This way, users of nitro-enclave machine in QEMU, could
+potentially also run multiple enclaves with their messages for CID 3 forwarded
+to different CIDs which, in QEMU side, could then be specified using a new
+machine type option (parent-cid) if implemented. I guess in the QEMU side, this
+will be an ioctl call (or some other way) to indicate to the host kernel that
+the CID 3 messages need to be forwarded. Does this approach of
+forwarding CID 3 messages to another CID sound good?
+
+If this approach sounds good, I need some guidance on where the code
+should be written in order to achieve this. I would greatly appreciate
+any suggestions.
+
+Thanks.
+
+Regards,
+Dorjoy
+
+[1] https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html
+[2] https://mail.gnu.org/archive/html/qemu-devel/2024-05/msg03524.html
+[3] https://aws.amazon.com/ec2/
