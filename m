@@ -1,111 +1,178 @@
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E26F5DDC1
-	for <virtualization@lists.linux.dev>; Sat, 18 May 2024 10:17:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB3D381C8
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 May 2024 10:09:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716027473; cv=none; b=sTsbY4qNLalLnNnZHJ4TbWMIlEcHAuCHUgirc6Re/YipOoGy2ZcAVB7+CAHkeUx32d5yRlZtc4nsqXaahBlKPx3zvmBd1VPFtpGIdaQyHFI/7q2465NYBVil8ssRy+SnQVUgM4wG8qPElDfdnK5Rd84x0FaSFVnC/ADi2+yVhGI=
+	t=1716113381; cv=none; b=O41KNyz3ffqMYN+n5+HCbQI2eTruzLevtiap08P5Yqj//4N5hcSsraCCczZUbLA+pLqVZxUYGGdc76yPERyXM1JPa3pgmOVBhtC2ubOlXckiJ4jeiflCTXeSY9PIZsWcC6gwjGutPq5MDRmgi7e+j0G8PCGAqGQDUAzaMdBwTaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716027473; c=relaxed/simple;
-	bh=xA2Bf8n5RCyqeoXlRG/S9pgpV9kOGAQ4TBNdrifLrLg=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=iVA+hFtp0+VYSaPbSnDkJ30ljvbVvmaeo9e9boULm5MDoFBlA3TjlK6zjmO6HC8cAv1q1V92C7SbQBhhJZxxQIThOj5gIxy2PmuGZhpMPSMpJx8nltJ9ydMPfv6QQPxeYsqjvmITdN26mLQwJH7bv+gW8rD0T3+IO8/i/ZBWw0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mF0sc55i; arc=none smtp.client-ip=209.85.208.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1716113381; c=relaxed/simple;
+	bh=3pqbNvdYRhWc2XQ8kSFBcuNQeXXTsBDv7SxsX1AkypM=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=prOv7jFzCfQvBHpvhYpxm5VISnpWTlzIs/DkPk5Bb9Ejmf6bfIUSigE1+I5/xpCgU0qsRFNR2EIGcmi/oikOVujpFJ8m+JR+GIAVK6Fb4hWCBmEqS82Esps9/r8JSvLRm4dW6orzWEmzKu3M3r9rGOOI67bgHzHAO55KfxdyoII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OI8ulXXA; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mF0sc55i"
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-2e538a264f7so17775971fa.0
-        for <virtualization@lists.linux.dev>; Sat, 18 May 2024 03:17:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1716027470; x=1716632270; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=xA2Bf8n5RCyqeoXlRG/S9pgpV9kOGAQ4TBNdrifLrLg=;
-        b=mF0sc55i8l6NzXtxXN00ZG3pSybL/7FtsRyr1NfsjQ7gchVQ5dLK5yVuGi6DcA6osk
-         MFlA6aClgGLoOC2t26vbJcHiswIkLkPxhX3VSo3oBG1T/2A2Jw5DC6SwUHq6Sa6lA6Lc
-         YiQ3Xi5mzmLEAY5z34sxmBoxnGkdQ8FyHbz7z0pOxnIcsGVPUbrasFqWg1iGm0PDYus7
-         75JcoNJLITNW7gnqpH06mJRNRYhQaCSqPbcJIzHlJ9GGGHczjHWBqT0OLPvSdfJ0UCtu
-         CVmgt7pf+5L5Q0ENauSrBSWVt9KQUNgbvDJHsZKQ0Xci0HnGMAwxh6gehXJrN3fGci16
-         xNcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716027470; x=1716632270;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xA2Bf8n5RCyqeoXlRG/S9pgpV9kOGAQ4TBNdrifLrLg=;
-        b=K9L05H6Vhr7vpSJ6qEXedSs7iSxLzRakdPw1GhVdqlsThsSXQrGhaAHl2Ihzqhd5Ej
-         6t0zHbKVSGCjSg7wzriKd/TUdenJMqkJ46tOcn2B8aPUZLqdPNK47eVcSPYxwUX6pzE6
-         x1foMDxflqzLsmuiCybYsXbCHEdcj5DtU5Jr6sDGA8Wn4VmtITn2OzSxxIHTVgX6sf7f
-         s0F1/t9BqmJXrdsCD3fGNpa/o4/VMmVTSqnj/r0F8XkS2XkbL3KdXJ9SMLUji7NdxoLj
-         5kKNUiGsQ9IbnuBoafEMUt8ThLBo7jolfQ+C+M4lP10KgMVfYZIwJN3TIwMSahmEmh8J
-         VeSQ==
-X-Gm-Message-State: AOJu0YwQt1oYDK0B+1cB/VguBmjZH17uwdi49XOLAPLRutMs75HFp/fo
-	3GuFzzrT9mCGqaMuHTHvIJKn5N4JxJifhjDFKEScPOVXjfoGhlPjUxwtpbJopsCCYeue5tU9klV
-	C3H0hH/yan2GRE52/oVQNtQmgGhG2Mluf
-X-Google-Smtp-Source: AGHT+IHdD80bucwwGfBvIzB+/cPOI8ABdlz0Zfb6O/bBatrsEmQ3rYLNrEXm0kKzesZxrgLoHZ0g9pPzIbQuxQvAe+E=
-X-Received: by 2002:a2e:9284:0:b0:2d7:1a30:e881 with SMTP id
- 38308e7fff4ca-2e51fd4a537mr167836001fa.12.1716027469622; Sat, 18 May 2024
- 03:17:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OI8ulXXA"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id ED1EA605EE
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 May 2024 10:09:39 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 92mGqF9Soo9x for <virtualization@lists.linux-foundation.org>;
+ Sun, 19 May 2024 10:09:38 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.18; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 56017605E6
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 56017605E6
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=OI8ulXXA
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 56017605E6
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 May 2024 10:09:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1716113379; x=1747649379;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=3pqbNvdYRhWc2XQ8kSFBcuNQeXXTsBDv7SxsX1AkypM=;
+  b=OI8ulXXAxJZAcVRtyvpO5ZFUNqUlfdyMKg4/CS08Adk3gHhVZzRAuSIg
+   UtrTiLNVjzcFnyl00Zvlsk12cGSv2RCMqCIZOaia2F3UmfXHGxFfxwlAy
+   1h1uYm3QRvWsKz5W3aEkYS0NgadlOlZ7x9mmpyaOrIUGMVT0iElFl0Igx
+   MV0oU4RPYv3a0TbEDj46SAF4S6zYPrwEQd2PPueTF1TwgEX/5EuzOIzZY
+   haNILIXojxGum1qsT/2vbLlgBH7cPVf5kj1qAftgS8tgOOq5dsNUWRbPd
+   yNKq4n7WAeLCp4y9b0tTIhWoFfOINRrcvaMGqyBdICXjQa6tNoc3MqiZY
+   A==;
+X-CSE-ConnectionGUID: x8onXzy0SYSVH4BEMlUC6A==
+X-CSE-MsgGUID: x1JEmLzXRsueagnYbw7ydg==
+X-IronPort-AV: E=McAfee;i="6600,9927,11076"; a="12422247"
+X-IronPort-AV: E=Sophos;i="6.08,172,1712646000"; 
+   d="scan'208";a="12422247"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2024 03:09:37 -0700
+X-CSE-ConnectionGUID: Fz4KnX5YTNaXWKsOX48Lkg==
+X-CSE-MsgGUID: TmitfyhdQs++X2CiWV1/2g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,172,1712646000"; 
+   d="scan'208";a="37168261"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa004.jf.intel.com with ESMTP; 19 May 2024 03:09:33 -0700
+Message-ID: <6b0529a9-b1c6-44ba-8c45-ad233de6484e@linux.intel.com>
+Date: Sun, 19 May 2024 18:07:42 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: Dorjoy Chowdhury <dorjoychy111@gmail.com>
-Date: Sat, 18 May 2024 16:17:38 +0600
-Message-ID: <CAFfO_h7xsn7Gsy7tFZU2UKcg_LCHY3M26iTuSyhFG-k-24h6_g@mail.gmail.com>
-Subject: How to implement message forwarding from one CID to another in vhost driver
-To: virtualization@lists.linux.dev
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, 
-	Alexander Graf <graf@amazon.com>, agraf@csgraf.de, stefanha@redhat.com, sgarzare@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, "iommu@lists.linux.dev"
+ <iommu@lists.linux.dev>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v5 1/9] iommu: Introduce domain attachment handle
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>
+References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
+ <20240430145710.68112-2-baolu.lu@linux.intel.com>
+ <BN9PR11MB5276F0DAE4B5F63513C38A158CEC2@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <BN9PR11MB5276F0DAE4B5F63513C38A158CEC2@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On 5/15/24 3:17 PM, Tian, Kevin wrote:
+>> From: Lu Baolu <baolu.lu@linux.intel.com>
+>> Sent: Tuesday, April 30, 2024 10:57 PM
+>>
+>> +/* Add an attach handle to the group's pasid array. */
+>> +static struct iommu_attach_handle *
+>> +iommu_attach_handle_set(struct iommu_domain *domain,
+>> +			struct iommu_group *group, ioasid_t pasid)
+>> +{
+>> +	struct iommu_attach_handle *handle;
+>> +	void *curr;
+>> +
+>> +	handle = kzalloc(sizeof(*handle), GFP_KERNEL);
+>> +	if (!handle)
+>> +		return ERR_PTR(-ENOMEM);
+>> +
+>> +	handle->domain = domain;
+>> +	curr = xa_cmpxchg(&group->pasid_array, pasid, NULL, handle,
+>> GFP_KERNEL);
+> 
+> this could be just xa_insert() which returns -EBUSY if the entry isn't NULL.
 
-Hope you are doing well. I am working on adding AWS Nitro Enclave[1]
-emulation support in QEMU. Alexander Graf is mentoring me on this work. A v1
-patch series has already been posted to the qemu-devel mailing list[2].
+Yes, exactly.
 
-AWS nitro enclaves is an Amazon EC2[3] feature that allows creating isolated
-execution environments, called enclaves, from Amazon EC2 instances, which are
-used for processing highly sensitive data. Enclaves have no persistent storage
-and no external networking. The enclave VMs are based on Firecracker microvm
-and have a vhost-vsock device for communication with the parent EC2 instance
-that spawned it and a Nitro Secure Module (NSM) device for cryptographic
-attestation. The parent instance VM always has CID 3 while the enclave VM gets
-a dynamic CID. The enclave VMs can communicate with the parent instance over
-various ports to CID 3, for example, the init process inside an enclave sends a
-heartbeat to port 9000 upon boot, expecting a heartbeat reply, letting the
-parent instance know that the enclave VM has successfully booted.
+> 
+>> +	if (curr) {
+>> +		kfree(handle);
+>> +		return xa_err(curr) ? curr : ERR_PTR(-EBUSY);
+> 
+> 'curr' is not an error pointer. You need ERR_PTR(xa_err(curr)).
 
-The plan is to eventually make the nitro enclave emulation in QEMU standalone
-i.e., without needing to run another VM with CID 3 with proper vsock
-communication support. For this to work, one approach could be to teach the
-vhost driver in kernel to forward CID 3 messages to another CID N
-(set to CID 2 for host) i.e., it patches CID from 3 to N on incoming messages
-and from N to 3 on responses. This will enable users of the
-nitro-enclave machine
-type in QEMU to run the necessary vsock server/clients in the host machine
-(some defaults can be implemented in QEMU as well, for example, sending a reply
-to the heartbeat) which will rid them of the cumbersome way of running another
-whole VM with CID 3. This way, users of nitro-enclave machine in QEMU, could
-potentially also run multiple enclaves with their messages for CID 3 forwarded
-to different CIDs which, in QEMU side, could then be specified using a new
-machine type option (parent-cid) if implemented. I guess in the QEMU side, this
-will be an ioctl call (or some other way) to indicate to the host kernel that
-the CID 3 messages need to be forwarded. Does this approach of
-forwarding CID 3 messages to another CID sound good?
+Fixed.
 
-If this approach sounds good, I need some guidance on where the code
-should be written in order to achieve this. I would greatly appreciate
-any suggestions.
+> 
+>>   int iommu_attach_group(struct iommu_domain *domain, struct
+>> iommu_group *group)
+>>   {
+>> +	struct iommu_attach_handle *handle;
+>>   	int ret;
+>>
+>>   	mutex_lock(&group->mutex);
+>> +	handle = iommu_attach_handle_set(domain, group,
+>> IOMMU_NO_PASID);
+>> +	if (IS_ERR(handle)) {
+>> +		ret = PTR_ERR(handle);
+>> +		goto out_unlock;
+>> +	}
+>>   	ret = __iommu_attach_group(domain, group);
+>> +	if (ret)
+>> +		goto out_remove_handle;
+>>   	mutex_unlock(&group->mutex);
+> 
+> It's slightly better to set the handler after __iommu_attach_group().
+> 
+> doing so is aligned to the sequence in iommu_group_replace_domain().
 
-Thanks.
+I did it in this way because erasing an attach handle is easier than
+rolling back the group to the previous domain from the perspective of
+coding. I didn't realize attaching the group and storing the attach
+handle had to be done in a specific order.
 
-Regards,
-Dorjoy
+> 
+>> @@ -2211,13 +2307,33 @@ EXPORT_SYMBOL_GPL(iommu_attach_group);
+>>   int iommu_group_replace_domain(struct iommu_group *group,
+>>   			       struct iommu_domain *new_domain)
+>>   {
+>> +	struct iommu_domain *old_domain = group->domain;
+>> +	struct iommu_attach_handle *handle;
+>>   	int ret;
+>>
+>>   	if (!new_domain)
+>>   		return -EINVAL;
+>>
+>> +	if (new_domain == old_domain)
+>> +		return 0;
+>> +
+> 
+> __iommu_group_set_domain() already does the check.
 
-[1] https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html
-[2] https://mail.gnu.org/archive/html/qemu-devel/2024-05/msg03524.html
-[3] https://aws.amazon.com/ec2/
+Removed.
+
+Best regards,
+baolu
