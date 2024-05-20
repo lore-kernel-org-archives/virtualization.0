@@ -1,88 +1,68 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2887F524D4
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 11:05:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C47551005
+	for <virtualization@lists.linux.dev>; Mon, 20 May 2024 12:48:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716203155; cv=none; b=RuQzG4warT2spUTV3wn4nIABRjCl7VGYvIY8jFbeZRJIJbRmo75qTriRZgPSxIeOe14K8pjKaCDwsnFkJqjq6dKeENC+BJYF0KxpECl883LIh0ePvNFZp60ZLghHJluPn9zcdf3TFA7jfAuS7w9z5xklLAsYoPbx2Jq03ZRkKdQ=
+	t=1716209305; cv=none; b=WIBMxSTgkFHtKVwVNVqnf6PQoXsVaWwgAJISNDOTRWMr0JiksZIosgvFJ69bTCm2EIzkS74nGeKMlib0PfmCqNnl7p+TZD08etx8nb9dFh6mBn1zIq0aNXddEYz9/rqlopmFoeaOEXCH0SzYYLqlJ1kMoyznZnuzd+n/L7oxBtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716203155; c=relaxed/simple;
-	bh=GBt4mPPIJDyTxqyToR3FNdTwxv/CDEX8rTMDKHIH0Co=;
+	s=arc-20240116; t=1716209305; c=relaxed/simple;
+	bh=n2RFJvwuPIY0pWAVGkNT51g+Wyg/oDiKLxR0DAzZ5LY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=U431RcFZ0MiH/vchIYUFZRej7QwkPNQf6whygwJic3cU56icL9LSpIfUNJb0oUaf7eO1WLwJ1bagDVaKAaC/eBidv1CO/Y6xZ5AJm545C5PqIEKf20E9lyIr5rGXnzfj0nR0fADWVgNAxW/DsM8oHA0TaiR4z3z8hlI0sRAs3Zk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=aLnXwmAm; arc=none smtp.client-ip=140.211.166.137
+	 Content-Type:Content-Disposition:In-Reply-To; b=FodE/idNGRGoPG8Xdk9B5EkHTZkUaCFGvAl5yb7H/z+EcKaY/qm6EHA8vK+c6USCSuDyKNGmNYFtr9e/7fz8EMP3+CABs3d3Z98jldlas4dnu5h40Wj96g8GFFRElDjq84YAfXhhqAD0MLw2gvyYzD0O9zLia30RojPpzeTOSrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=SB6Klba0; arc=none smtp.client-ip=209.85.208.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="aLnXwmAm"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A3D1E40524
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 11:05:53 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Z84hkngfaYNw for <virtualization@lists.linux-foundation.org>;
- Mon, 20 May 2024 11:05:52 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::12f; helo=mail-lf1-x12f.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 18706401FB
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 18706401FB
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=aLnXwmAm
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 18706401FB
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 11:05:51 +0000 (UTC)
-Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-51f71e4970bso4758582e87.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 04:05:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="SB6Klba0"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-2e73359b8fbso2625441fa.2
+        for <virtualization@lists.linux.dev>; Mon, 20 May 2024 05:48:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1716203149; x=1716807949; darn=lists.linux-foundation.org;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1716209300; x=1716814100; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nsnKmHuBmN6J2mWJ2RFHNEE84aeXrDEHjd3h7k4ZwUU=;
-        b=aLnXwmAmqd/V8LYPvtrbk4clfgI93EGcDlnUXEmgLXFEe1A4xwh5XZ4mOSuzXgbSau
-         8aSo0dlpo/aHzzhmycA4zvpV4e9NCADDr0wHEBM6SiFpUvowbDTkpSfeo9vfQVmL0JTR
-         3S2md5dyiUJVtwsXkiAo7k6wtxzSkvMsrltdZFeRNc8SoCzA410Ah3n+8I1jciFnqUTF
-         LXQkLlCIu5ecS2De/j5s/ATGYXLpGxdg0UiECjflPnDABw7HQ+ObX0QLBGdFUKygQ3Fy
-         36ZAf7XPLECBqQjQQzLZAhnXP8zOAdDPt1Sk1yAOd2XVO67YbbZdZKi7ThYUJ9RSExZq
-         9pwg==
+        bh=edD/qHXmTSqUAHK1Fn+uFuuPgu4ZiccB5v7Y6S0pADc=;
+        b=SB6Klba0nyOLmcKhFFnYkKU03X+pE5Hj+V9mIQdZBClE1Jz2P9rbCKyIHm5MVU9ax7
+         qSGxyR1tLAJd8jA5KL5mCuQxqSAxZUWau3QwVHYdTtACL5LwfVL7Gk86TH7jhSze6KcO
+         heEhemeoj5s4i4cYjlTE03ze/72Q3IOyuAxLFdAwC63uwfA5Z1IPhrWTfrREr0UTl/OT
+         5dxX+jm0P15fFfzsUBa4vlnSCtg9zDK6uBbHQD5FxgCx2fbsJQWoAR4j8HLFCVsUVxCf
+         exE2pO3RkIqh6h5qYCE/ZeNpowRdEHfElwo2qYR5Vud1rfr+jtqPUk3CP6ATskGcQJaJ
+         cXdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716203149; x=1716807949;
+        d=1e100.net; s=20230601; t=1716209300; x=1716814100;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nsnKmHuBmN6J2mWJ2RFHNEE84aeXrDEHjd3h7k4ZwUU=;
-        b=WuhS8g+asZReu+7eGatH9K5nR8sClRQAYCMT5kF2EDLE4WtDi/1j45DySQ9ntV3+Po
-         an0MQnH9W6T49SCYUAEUsxRS64AcBUrE0lYehwru2Wyvcc2bQQNX4wJU3fCHI89tNQEn
-         O+5Tw896KeD74g7VAO1IBxyB6S7X/tEksn72+WzoYPNWWXRr0qbX3nrlbCc5ju/i5vfb
-         64a/05pIaREp9NXsW3mNyrkicVdfzoNjmuSIZkDObm/VVv7txF8yPjmjwm8kOjd4l2Wr
-         bl7tOzyX+Z4tuAmZJ+fksrysIRPNKqRPGgtwRjhhh0PRjJ5LtgjIl/2ty/7k+Ccu9kl0
-         OB8A==
-X-Forwarded-Encrypted: i=1; AJvYcCUMF6vSiv1ECUIwItPq9jhALtwOx2mbTeCLKoKdOVFGfezyTH/8N/PyMXp5K4mBa1icWnB+PfS0Iagv0xgIM1Nw95tlDEPdCTtZdjo6K98Z5kbmj95u2GTUGA==
-X-Gm-Message-State: AOJu0YzPKLO1Qw1Do2g7wvUCptco0J6D8fcSEjEDEQ+F1TLCWyTDhcYn
-	etHam/VFmM/SghDzGvrMvHZWuHhjsObcYKb+XpjqGQcY6ZSgWlgJ2NPHyI1tewA=
-X-Google-Smtp-Source: AGHT+IECc0/QGytciTsg1Ow4YOo2yweKq3yn/cTZEcTK3KUAdVVZMShgvpI1frMYPXAmC2Lq22cwUA==
-X-Received: by 2002:a19:2d09:0:b0:523:919d:302e with SMTP id 2adb3069b0e04-523919d325dmr15436572e87.7.1716203149103;
-        Mon, 20 May 2024 04:05:49 -0700 (PDT)
-Received: from eriador.lumag.spb.ru (dzdbxzyyyyyyyyyyyykxt-3.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::227])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-521f35ba912sm4180788e87.75.2024.05.20.04.05.48
+        bh=edD/qHXmTSqUAHK1Fn+uFuuPgu4ZiccB5v7Y6S0pADc=;
+        b=QWcEOx5VPTTFHcN6hkWuBFYkWqGTh8302wBe2zv4SXk1zmORDd/QJATQArVKolrX8T
+         7AIZrmRIxCA56CjF37X+pwdUdGql8G5hAiq3d1lKp6abIOwFtGRjkfi1B6D+gxMAifZH
+         9B91hYpELYQepys/P5lnMeuSYJAcmeEBXVZBjqkzlok7yHtgTjYpS2aLd5MMaINIawGo
+         a4TIBdOcCA1UbreZ29NOUwDfSM7iURQqefPrL2hGhtoxpM5hiHt5TKz76hRkCvNKsklS
+         ebe5xnGC6/3t8vSJn+whHVcH6OfKmube+QtkeFpqft6aoWnwMhm1hwrsZ2v9bERpUHe7
+         iPTA==
+X-Forwarded-Encrypted: i=1; AJvYcCX+Jt8i+Gnf7ISR24M36/WPeGaohplcfw/Djlz9EiMj1OGjebMzArhxBZCJL6TTOgfUQuDTryBvDR4FiKNLTYt3PbiCJBPBlA1wdSSEGv0=
+X-Gm-Message-State: AOJu0YzGvJmDA6nK0vOUJ8f/9aEPI5qHzxWqu1LDRliW5YCs+WWNehNj
+	RM47gFFYraNs4DBqWOz9ZGKkyLyUkDEunxxm58FDm4lkZ1uGL+izP5o4tdXm71g=
+X-Google-Smtp-Source: AGHT+IGdYPl8eqYkpqi+OilcX/LBUQkNnoyVFYuvU6/03Tx9tXlTUEOLOipwDnf8cYej2iCSODVrvw==
+X-Received: by 2002:a2e:859:0:b0:2e5:4171:1808 with SMTP id 38308e7fff4ca-2e541711898mr232419261fa.51.1716209300047;
+        Mon, 20 May 2024 05:48:20 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-41f87c235b4sm453601015e9.11.2024.05.20.05.48.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 May 2024 04:05:48 -0700 (PDT)
-Date: Mon, 20 May 2024 14:05:47 +0300
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-To: Vignesh Raman <vignesh.raman@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
-	helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch, robdclark@gmail.com, 
-	david.heidelberg@collabora.com, guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, 
-	mcanal@igalia.com, linux-mediatek@lists.infradead.org, 
-	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 6/6] drm/ci: update xfails for the new testlist
-Message-ID: <fbfo4juetokyhe6xsvxbfr3fakdushntnhlrpgbfttc22kvrc3@p3qr6qh4w3rc>
-References: <20240517092502.647420-1-vignesh.raman@collabora.com>
- <20240517092502.647420-7-vignesh.raman@collabora.com>
+        Mon, 20 May 2024 05:48:19 -0700 (PDT)
+Date: Mon, 20 May 2024 14:48:15 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+	john.fastabend@gmail.com, netdev@vger.kernel.org
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+Message-ID: <ZktGj4nDU4X0Lxtx@nanopsycho.orion>
+References: <20240509114615.317450-1-jiri@resnulli.us>
+ <1715325076.4219763-2-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -91,92 +71,168 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240517092502.647420-7-vignesh.raman@collabora.com>
+In-Reply-To: <1715325076.4219763-2-hengqi@linux.alibaba.com>
 
-On Fri, May 17, 2024 at 02:55:02PM +0530, Vignesh Raman wrote:
-> Now the testlist is used from IGT build, so update
-> xfails with the new testlist.
-> 
-> Set the timeout of all i915 jobs to 1h30m since some jobs
-> takes more than 1 hour to complete.
-> 
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
-> ---
-> 
-> v2:
->   - Set the timeout of all i915 jobs to 1h30m and updated expectations file.
-> 
-> ---
->  drivers/gpu/drm/ci/test.yml                   |   6 +-
->  .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |  41 ++--
->  .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |   6 +
->  .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt |  18 ++
->  drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |  31 ++++
->  .../gpu/drm/ci/xfails/i915-amly-flakes.txt    |   8 +
->  drivers/gpu/drm/ci/xfails/i915-amly-skips.txt |  11 ++
->  drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  |  46 +++--
->  drivers/gpu/drm/ci/xfails/i915-apl-flakes.txt |   5 +
->  drivers/gpu/drm/ci/xfails/i915-apl-skips.txt  |  15 ++
->  drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |  38 ++++
->  drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |   5 +
->  drivers/gpu/drm/ci/xfails/i915-cml-skips.txt  |  14 ++
->  drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |  41 +++-
->  drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt |   6 +
->  drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  |  15 ++
->  drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  |  42 ++---
->  drivers/gpu/drm/ci/xfails/i915-kbl-flakes.txt |   6 +-
->  drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt  |  25 +++
->  drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |  77 ++++----
->  drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt  |  16 ++
->  drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |  63 ++++---
->  drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt |   5 +
->  drivers/gpu/drm/ci/xfails/i915-whl-skips.txt  |  11 ++
->  .../drm/ci/xfails/mediatek-mt8173-fails.txt   |  30 ++-
->  .../drm/ci/xfails/mediatek-mt8173-flakes.txt  |  10 +
->  .../drm/ci/xfails/mediatek-mt8173-skips.txt   |   4 +
->  .../drm/ci/xfails/mediatek-mt8183-fails.txt   |  21 +--
->  .../drm/ci/xfails/mediatek-mt8183-skips.txt   |   4 +
->  .../gpu/drm/ci/xfails/meson-g12b-fails.txt    |  24 +--
->  .../gpu/drm/ci/xfails/meson-g12b-skips.txt    |   4 +
->  .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |  12 +-
->  .../gpu/drm/ci/xfails/msm-apq8016-skips.txt   |   4 +
->  .../gpu/drm/ci/xfails/msm-apq8096-fails.txt   |   7 +
->  .../gpu/drm/ci/xfails/msm-apq8096-flakes.txt  |   5 +
->  .../gpu/drm/ci/xfails/msm-apq8096-skips.txt   |  12 ++
->  .../msm-sc7180-trogdor-kingoftown-fails.txt   | 175 +++++++++++++++++-
->  .../msm-sc7180-trogdor-kingoftown-flakes.txt  |   7 +
->  .../msm-sc7180-trogdor-kingoftown-skips.txt   |   7 +
->  ...sm-sc7180-trogdor-lazor-limozeen-fails.txt | 175 +++++++++++++++++-
->  ...m-sc7180-trogdor-lazor-limozeen-flakes.txt |   5 +
->  ...sm-sc7180-trogdor-lazor-limozeen-skips.txt |   4 +
->  .../gpu/drm/ci/xfails/msm-sdm845-fails.txt    |  38 +---
->  .../gpu/drm/ci/xfails/msm-sdm845-flakes.txt   |  26 ++-
->  .../gpu/drm/ci/xfails/msm-sdm845-skips.txt    |   7 +
+Fri, May 10, 2024 at 09:11:16AM CEST, hengqi@linux.alibaba.com wrote:
+>On Thu,  9 May 2024 13:46:15 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> Add support for Byte Queue Limits (BQL).
+>
+>Historically both Jason and Michael have attempted to support BQL
+>for virtio-net, for example:
+>
+>https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com/
+>
+>These discussions focus primarily on:
+>
+>1. BQL is based on napi tx. Therefore, the transfer of statistical information
+>needs to rely on the judgment of use_napi. When the napi mode is switched to
+>orphan, some statistical information will be lost, resulting in temporary
+>inaccuracy in BQL.
+>
+>2. If tx dim is supported, orphan mode may be removed and tx irq will be more
+>reasonable. This provides good support for BQL.
 
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> # msm testlists
+But when the device does not support dim, the orphan mode is still
+needed, isn't it?
 
-We'd need to triage why the tests are failing, but at least it looks
-logical from my POV, no more full-test skips, etc.
-
->  .../drm/ci/xfails/rockchip-rk3288-fails.txt   |  62 +------
->  .../drm/ci/xfails/rockchip-rk3288-skips.txt   |   4 +
->  .../drm/ci/xfails/rockchip-rk3399-fails.txt   |  83 +--------
->  .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  12 +-
->  .../drm/ci/xfails/rockchip-rk3399-skips.txt   |   4 +
->  drivers/gpu/drm/ci/xfails/update-xfails.py    |   4 +-
->  .../drm/ci/xfails/virtio_gpu-none-fails.txt   |  94 +++++++---
->  .../drm/ci/xfails/virtio_gpu-none-skips.txt   |   4 +
->  53 files changed, 1010 insertions(+), 389 deletions(-)
->  create mode 100644 drivers/gpu/drm/ci/xfails/i915-amly-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/i915-apl-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8173-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/msm-apq8096-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
->  create mode 100644 drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-flakes.txt
-
--- 
-With best wishes
-Dmitry
+>
+>Thanks.
+>
+>> 
+>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> ---
+>>  drivers/net/virtio_net.c | 33 ++++++++++++++++++++-------------
+>>  1 file changed, 20 insertions(+), 13 deletions(-)
+>> 
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 218a446c4c27..c53d6dc6d332 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -84,7 +84,9 @@ struct virtnet_stat_desc {
+>>  
+>>  struct virtnet_sq_free_stats {
+>>  	u64 packets;
+>> +	u64 xdp_packets;
+>>  	u64 bytes;
+>> +	u64 xdp_bytes;
+>>  };
+>>  
+>>  struct virtnet_sq_stats {
+>> @@ -512,19 +514,19 @@ static void __free_old_xmit(struct send_queue *sq, bool in_napi,
+>>  	void *ptr;
+>>  
+>>  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+>> -		++stats->packets;
+>> -
+>>  		if (!is_xdp_frame(ptr)) {
+>>  			struct sk_buff *skb = ptr;
+>>  
+>>  			pr_debug("Sent skb %p\n", skb);
+>>  
+>> +			stats->packets++;
+>>  			stats->bytes += skb->len;
+>>  			napi_consume_skb(skb, in_napi);
+>>  		} else {
+>>  			struct xdp_frame *frame = ptr_to_xdp(ptr);
+>>  
+>> -			stats->bytes += xdp_get_frame_len(frame);
+>> +			stats->xdp_packets++;
+>> +			stats->xdp_bytes += xdp_get_frame_len(frame);
+>>  			xdp_return_frame(frame);
+>>  		}
+>>  	}
+>> @@ -965,7 +967,8 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+>>  	virtnet_rq_free_buf(vi, rq, buf);
+>>  }
+>>  
+>> -static void free_old_xmit(struct send_queue *sq, bool in_napi)
+>> +static void free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
+>> +			  bool in_napi)
+>>  {
+>>  	struct virtnet_sq_free_stats stats = {0};
+>>  
+>> @@ -974,9 +977,11 @@ static void free_old_xmit(struct send_queue *sq, bool in_napi)
+>>  	/* Avoid overhead when no packets have been processed
+>>  	 * happens when called speculatively from start_xmit.
+>>  	 */
+>> -	if (!stats.packets)
+>> +	if (!stats.packets && !stats.xdp_packets)
+>>  		return;
+>>  
+>> +	netdev_tx_completed_queue(txq, stats.packets, stats.bytes);
+>> +
+>>  	u64_stats_update_begin(&sq->stats.syncp);
+>>  	u64_stats_add(&sq->stats.bytes, stats.bytes);
+>>  	u64_stats_add(&sq->stats.packets, stats.packets);
+>> @@ -1013,13 +1018,15 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+>>  	 * early means 16 slots are typically wasted.
+>>  	 */
+>>  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+>> -		netif_stop_subqueue(dev, qnum);
+>> +		struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+>> +
+>> +		netif_tx_stop_queue(txq);
+>>  		if (use_napi) {
+>>  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
+>>  				virtqueue_napi_schedule(&sq->napi, sq->vq);
+>>  		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+>>  			/* More just got used, free them then recheck. */
+>> -			free_old_xmit(sq, false);
+>> +			free_old_xmit(sq, txq, false);
+>>  			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+>>  				netif_start_subqueue(dev, qnum);
+>>  				virtqueue_disable_cb(sq->vq);
+>> @@ -2319,7 +2326,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>>  
+>>  		do {
+>>  			virtqueue_disable_cb(sq->vq);
+>> -			free_old_xmit(sq, true);
+>> +			free_old_xmit(sq, txq, true);
+>>  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>>  
+>>  		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+>> @@ -2471,7 +2478,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+>>  	txq = netdev_get_tx_queue(vi->dev, index);
+>>  	__netif_tx_lock(txq, raw_smp_processor_id());
+>>  	virtqueue_disable_cb(sq->vq);
+>> -	free_old_xmit(sq, true);
+>> +	free_old_xmit(sq, txq, true);
+>>  
+>>  	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+>>  		netif_tx_wake_queue(txq);
+>> @@ -2553,7 +2560,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>  	struct send_queue *sq = &vi->sq[qnum];
+>>  	int err;
+>>  	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+>> -	bool kick = !netdev_xmit_more();
+>> +	bool xmit_more = netdev_xmit_more();
+>>  	bool use_napi = sq->napi.weight;
+>>  
+>>  	/* Free up any pending old buffers before queueing new ones. */
+>> @@ -2561,9 +2568,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>  		if (use_napi)
+>>  			virtqueue_disable_cb(sq->vq);
+>>  
+>> -		free_old_xmit(sq, false);
+>> +		free_old_xmit(sq, txq, false);
+>>  
+>> -	} while (use_napi && kick &&
+>> +	} while (use_napi && !xmit_more &&
+>>  	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>>  
+>>  	/* timestamp packet in software */
+>> @@ -2592,7 +2599,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>  
+>>  	check_sq_full_and_disable(vi, dev, sq);
+>>  
+>> -	if (kick || netif_xmit_stopped(txq)) {
+>> +	if (__netdev_tx_sent_queue(txq, skb->len, xmit_more)) {
+>>  		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
+>>  			u64_stats_update_begin(&sq->stats.syncp);
+>>  			u64_stats_inc(&sq->stats.kicks);
+>> -- 
+>> 2.44.0
+>> 
+>> 
