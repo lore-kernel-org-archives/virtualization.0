@@ -1,146 +1,152 @@
-Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765FB17BB4
-	for <virtualization@lists.linux.dev>; Mon, 20 May 2024 10:24:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9242E53379
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 10:43:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716200687; cv=none; b=uYL8lzlZYbDte0uJ18PJy5S4I3SurrkfyBMHrTmaWOX52LUt1y0vOFdcdjcmzOoJVU5ayIBpaGUJPB9p5zi8Aw9+1QtcUYKJWCpxLJEXPqFO/zGvnQIKiE6xfe6qWfh/tNyNg6TQqHx5RafDVOwo4FFYiFQriGy5HDlLRXQ6unQ=
+	t=1716201813; cv=none; b=byuIEUiHwt4SxYwDkUgDrIg1Y++eHm/KFYBS3U+9ZzPtrja3dCA80hFiBd+MFGkt+Qx/MtJ40QUMIpoiWvYZAiMJVwydCbYcauBhMkUamJibFxfPlhnZ/XJLJErEyS2zln9Th5KWz0k7kb4SoB/tq6HlZ8wvyBFie3ZTaS+z4X0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716200687; c=relaxed/simple;
-	bh=6A0GF0XyBkHC3K8crOLyxfeIflMd1hxalZNXXZC0v2Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UPPFOwEgpM807HRwkzcfjlSg1a2NIn5X9DCrpOAMjq3F3eDi2s0aNz7c1UUqd4IUeQWBwB9KbVlwecz7/a5J2fZy2KqTqM1NM4oHZ2gKF6vbFf1v9hwhzTUsMA4EMbpwVx2SMrVA1agpTVDJvW9aIBWVEn338YnBI696xfvyVcU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igel.co.jp; spf=pass smtp.mailfrom=igel.co.jp; dkim=pass (2048-bit key) header.d=igel-co-jp.20230601.gappssmtp.com header.i=@igel-co-jp.20230601.gappssmtp.com header.b=z/AT/smi; arc=none smtp.client-ip=209.85.221.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igel.co.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igel.co.jp
+	s=arc-20240116; t=1716201813; c=relaxed/simple;
+	bh=Iz9ztzUrzHwU28kEfAv2CoCZ/02g4GuMeMy9kUlFIHU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rnzg5SPafogrz0duB1jkdqmzt7ohBATyNbpuSsIC/L1ooZmjtjxN+oWP4BCa2WKkB/0881ebYGB9uD3jAwKoc4WQpglz37yd1xgqIXMayhJhgdVc4OrilhSkjWHVWZZ3G+FsaLbyL/cOqsFqqu/2Sjz/x8pGax8PJDPbNLdUWqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=f3fgru7M; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igel-co-jp.20230601.gappssmtp.com header.i=@igel-co-jp.20230601.gappssmtp.com header.b="z/AT/smi"
-Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-4e15ef06569so1409824e0c.1
-        for <virtualization@lists.linux.dev>; Mon, 20 May 2024 03:24:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="f3fgru7M"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 30C7A402F6
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 10:43:31 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id vLJPSCRluoHc for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 May 2024 10:43:29 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::12e; helo=mail-lf1-x12e.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 614EC401FE
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 614EC401FE
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=f3fgru7M
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 614EC401FE
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 10:43:29 +0000 (UTC)
+Received: by mail-lf1-x12e.google.com with SMTP id 2adb3069b0e04-5238fe0cfc9so2405303e87.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 03:43:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=igel-co-jp.20230601.gappssmtp.com; s=20230601; t=1716200684; x=1716805484; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iYx1MYqKriQMaf8e5K+aZLI/jP8z9alvVTBfQskYD6k=;
-        b=z/AT/smil9iAcCgcKLnkJPHfXAjxCjPd7YghnOhJv/9a1YdW1hWQ6smmIo4wm0QoUM
-         CtB0U8cMFsof38q9YWTGcnNcRL3vpxf2DORW2YVp9XpndiHuF6bmPcRcIcN+ELAZd+MQ
-         Flp5SuHJfgl2iWbkh3mH2PyO9A7gQ6TC9kX0F8N5lZNX66sKylbIIRoRdE9et8FBycV6
-         lsuTya4917oYZYze8YCu7RvITmL9zfuS6IQuoH+LjGevRSLvP34eBHHadAV7UrkolaQk
-         df2UkuQfPEf4cQ0LR2Cu5dMxzcEk7KP5WU8oYqRNWXytkrbFq5lvWZPBcUqqLqKtReZA
-         zFtA==
+        d=linaro.org; s=google; t=1716201807; x=1716806607; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=icwVF42TmZ2hZjEXcduZvhpSy5tVelIfuJSjSBSENHo=;
+        b=f3fgru7Mw5My3F3BcwUYyrqmVW2Xtkr3z/HO9XpVi45kZ8dVmRSmE8m+GOcrhp4593
+         oRic5Ny7nnzbKJxPJJMsI79yO2pwyEJI+/lHkjE+mNi7auLCYqhB9tqBFabyImr5j4ap
+         M+lvMhQnFaaIm3nC3wHnD7imiOO1C8240TQgzw2XN0vvVWNCj8cMl/kRRyRHaao7xrvG
+         jxm/cWwr35QmjR1idhL6xo6ckJLJwWciI18Ly5yI+deQsbtInd6yePnBOiFXklHdFHQl
+         TALU+2NVfh/QcT2R/yRvqV7DEbpGxBl6dTWCqD2aZ2lIwAaQDlMKfmvGrSfd0A6xayhp
+         Pt7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716200684; x=1716805484;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iYx1MYqKriQMaf8e5K+aZLI/jP8z9alvVTBfQskYD6k=;
-        b=qL9JV7MG+zFYerlarYKQdqbmqw+z3+57M8608ttrunzafN9LFngakOoDtH/oe8qolD
-         2hv0pDFBOkm4XIy0qLEXe9oexvacLqsAOWFoYIKto8Ep6oKgnf56vwz1Dwmz4julQHo/
-         HEcb661YViigaYNY7o8wES7BiWaAjCr8zasHEVZaDk8CdPJ1hdNUw76Lr79HM89j1o0c
-         KWWtbhZhrV1pPqBCJy2AmIWI5bWswhyMnV5u4FC9cZSI7/98+OX2iFDaaVrz6Zkj6jIP
-         gzb2WgQajL2EDALrfDIvsnoHXh2uJOFqya8O305xdWwxwSLhNEPYoBBvdLHC3Np16P1D
-         6vDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWfWgaNQUedZ0yMv9qpiOnr++A7bNhOT5uyze897+8wL/K8CQGzGUQQ+EnuatNU/36eJg+vHwCdW1Wfv+GgMOEjxHEtPtD69wG67Ztt0lQ=
-X-Gm-Message-State: AOJu0YzWN82IWfKZVANHFMB3NYguTUdDifFGpZBLvutkVqTwqSg4n2DF
-	l15VLFoWKASY4gB2nWIuZRH+KPNDFs5XaatHoKlJHXs3EByA8/kd7EKr4SdzeiCezLcbLY+qc2V
-	1yFvxJfeiFB0yaYsq4J0EMmZRMGZYvgkbuUCQKQ==
-X-Google-Smtp-Source: AGHT+IHZYzTMr4tU5/8wKI+9VpalGfBtdoxBWlfNPxH+/8kN5nrKIHK4l87eO9LH8BVLZVy+9n42hB4h7V93qzAV43I=
-X-Received: by 2002:a1f:ee4d:0:b0:4da:c69c:f5b2 with SMTP id
- 71dfb90a1353d-4e16d8c3421mr3523381e0c.2.1716200683719; Mon, 20 May 2024
- 03:24:43 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1716201807; x=1716806607;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=icwVF42TmZ2hZjEXcduZvhpSy5tVelIfuJSjSBSENHo=;
+        b=c5LpErcEdFKIMj+gxZGPkW5zfODNx/HGHQNdBLizYUbUuaKsCN1Ky4OBHEYPHtP3ZQ
+         hvREMqmMXks2FSyP0X1gJQ4PN4a8oEWFyd+uKt6v4c/G8ls1eCJvGlhch/c7n0HRELVf
+         nYLxgbj3GC0HGMkduw0o8MQpVgELu1nhGfD9AHatfbaVWgi1M6Da23v+chpNB8PWy2Zy
+         C+u/ypSzXuexj82g1tuZLorjpog5hca6UfmXTtFu4CvwHOVzWgBNcZCvE/FyonaW+c4m
+         Z+PunBqAaAf05AVkNMX7ikovMgDf7UkAD0RNAWwmNd7mSPcZH7NzgT1i2n30zSkllr5n
+         4GOw==
+X-Forwarded-Encrypted: i=1; AJvYcCXW2RfQrXDqmFELgH5uyH+i1IsKdQvT958sZjOehXRAimXdRCbw/R98KkE1B+p/xH0yidBXzkkRiTAUgbBBenEZLSZave7eVlh49jPBOPJcxlKriSTwKLZTbQ==
+X-Gm-Message-State: AOJu0YzFWyAHfrZs+tzLvN/aPutT3jg8QhplYJNmRqI1bnvF2PO2L3ep
+	knTXpk9e/msXKHGrhWAzqeQJin6aT8GOuhnjDr14/+SB5pIanNhi5l7/osS7CB8=
+X-Google-Smtp-Source: AGHT+IFzot8n6xHV0OHm6wH4k0sEr+LYxBLD0eD+umJwBs/mAovf2bSRWjBos0WaEoAs2a0risJ1Ww==
+X-Received: by 2002:a05:6512:4801:b0:51d:8ff3:f835 with SMTP id 2adb3069b0e04-52407cddc3fmr1595444e87.26.1716201806986;
+        Mon, 20 May 2024 03:43:26 -0700 (PDT)
+Received: from eriador.lumag.spb.ru (dzdbxzyyyyyyyyyyyykxt-3.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::227])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5238bee41afsm2044239e87.294.2024.05.20.03.43.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 May 2024 03:43:26 -0700 (PDT)
+Date: Mon, 20 May 2024 13:43:24 +0300
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+To: Vignesh Raman <vignesh.raman@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
+	helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch, robdclark@gmail.com, 
+	david.heidelberg@collabora.com, guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, 
+	mcanal@igalia.com, linux-mediatek@lists.infradead.org, 
+	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/6] drm/ci: uprev mesa version
+Message-ID: <2qzmfv3oc6feihwxu3tl37rg6w3qsj2vddu5olvqk6vhqr26cc@bxu5y6ijvtfa>
+References: <20240517092502.647420-1-vignesh.raman@collabora.com>
+ <20240517092502.647420-2-vignesh.raman@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
- <20240516125913.GC11261@thinkpad>
-In-Reply-To: <20240516125913.GC11261@thinkpad>
-From: Shunsuke Mie <mie@igel.co.jp>
-Date: Mon, 20 May 2024 19:24:32 +0900
-Message-ID: <CANXvt5rQdhS5XBnHFmFiN=fPO975jQ8dosH0L0ZP_51dd6cXag@mail.gmail.com>
-Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
-To: Manivannan Sadhasivam <mani@kernel.org>
-Cc: linux-pci@vger.kernel.org, virtualization@lists.linux.dev, mst@redhat.com, 
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240517092502.647420-2-vignesh.raman@collabora.com>
 
-2024=E5=B9=B45=E6=9C=8816=E6=97=A5(=E6=9C=A8) 21:59 Manivannan Sadhasivam <=
-mani@kernel.org>:
->
-> On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
-> > Hi virtio folks,
-> >
->
-> You forgot to CC the actual Virtio folks. I've CCed them now.
-Oops. thank you.
-> > I'm writing to discuss finding a workaround with Virtio drivers and leg=
-acy
-> > devices with limited memory access.
-> >
-> > # Background
-> > The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) t=
-o
-> > indicate devices requiring restricted memory access or IOMMU translatio=
-n. This
-> > feature bit resides at position 33 in the 64-bit Features register on m=
-odern
-> > interfaces. When the linux virtio driver finds the flag, the driver use=
-s DMA
-> > API that handles to use of appropriate memory.
-> >
-> > # Problem
-> > However, legacy devices only have a 32-bit register for the features bi=
-ts.
-> > Consequently, these devices cannot represent the ACCESS_PLATFORM bit. A=
-s a
-> > result, legacy devices with restricted memory access cannot function
-> > properly[1]. This is a legacy spec issue, but I'd like to find a workar=
-ound.
-> >
-> > # Proposed Solutions
-> > I know these are not ideal, but I propose the following solution.
-> > Driver-side:
-> >     - Implement special handling similar to xen_domain.
-> > In xen_domain, linux virtio driver enables to use the DMA API.
-> >     - Introduce a CONFIG option to adjust the DMA API behavior.
-> > Device-side:
-> > Due to indistinguishability from the guest's perspective, a device-side
-> > solution might be difficult.
-> >
-> > I'm open to any comments or suggestions you may have on this issue or
-> > alternative approaches.
-> >
-> > [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
-> > https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.=
-co.jp/t/
-> > The Linux PCIe endpoint framework is used to implement the virtio-net d=
-evice on
-> > a legacy interface. This is necessary because of the framework and hard=
-ware
-> > limitation.
-> >
->
-> We can fix the endpoint framework limitation, but the problem lies with s=
-ome
-> platforms where we cannot write to vendor capability registers and still =
-have
-> IOMMU.
-I agree, this is a problem caused by the inability to set the
-capability. I'm not sure, but are there any chips that support this?
-Also, I wasn't aware of the IOMMU issue. I thought that if the Linux
-DMA subsystem could handle IOMMU properly, there wouldn't be any
-problems. Is that incorrect?
+On Fri, May 17, 2024 at 02:54:57PM +0530, Vignesh Raman wrote:
+> zlib.net is not allowing tarball download anymore and results
+> in below error in kernel+rootfs_arm32 container build,
+> urllib.error.HTTPError: HTTP Error 403: Forbidden
+> urllib.error.HTTPError: HTTP Error 415: Unsupported Media Type
+> 
+> Uprev mesa to latest version which includes a fix for this issue.
+> https://gitlab.freedesktop.org/mesa/mesa/-/commit/908f444e
+> 
+> Use id_tokens for JWT authentication. Since s3 bucket is migrated to
+> mesa-rootfs, update the variables accordingly. Also copy helper scripts
+> to install, so that the ci jobs can use these scripts for logging.
+> 
+> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> ---
+> 
+> v2:
+>   - Uprev to recent version and use id_tokens for JWT authentication
+> 
+> ---
+>  drivers/gpu/drm/ci/build-igt.sh   |  2 +-
+>  drivers/gpu/drm/ci/build.sh       |  6 +++--
+>  drivers/gpu/drm/ci/container.yml  | 12 +++------
+>  drivers/gpu/drm/ci/gitlab-ci.yml  | 44 +++++++++++++++++++++----------
+>  drivers/gpu/drm/ci/image-tags.yml |  2 +-
+>  drivers/gpu/drm/ci/lava-submit.sh |  4 +--
+>  drivers/gpu/drm/ci/test.yml       |  2 ++
+>  7 files changed, 44 insertions(+), 28 deletions(-)
+> 
 
-Shunsuke,
-Best
-> - Mani
->
-> --
-> =E0=AE=AE=E0=AE=A3=E0=AE=BF=E0=AE=B5=E0=AE=A3=E0=AF=8D=E0=AE=A3=E0=AE=A9=
-=E0=AF=8D =E0=AE=9A=E0=AE=A4=E0=AE=BE=E0=AE=9A=E0=AE=BF=E0=AE=B5=E0=AE=AE=
-=E0=AF=8D
+[skipped]
+
+> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
+> index 8bc63912fddb..612c9ede3507 100644
+> --- a/drivers/gpu/drm/ci/test.yml
+> +++ b/drivers/gpu/drm/ci/test.yml
+> @@ -150,6 +150,8 @@ msm:sdm845:
+>      BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/cheza-kernel
+>      GPU_VERSION: sdm845
+>      RUNNER_TAG: google-freedreno-cheza
+> +    DEVICE_TYPE: sdm845-cheza-r3
+> +    FARM: google
+
+I see that this is the only user of the FARM: tag. Is it correct?
+Also we miss DEVICE_TYPE for several other boards. Should we be adding
+them?
+
+>    script:
+>      - ./install/bare-metal/cros-servo.sh
+>  
+> -- 
+> 2.40.1
+> 
+
+-- 
+With best wishes
+Dmitry
