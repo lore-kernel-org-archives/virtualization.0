@@ -1,68 +1,68 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4583D367
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:17:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817836AB8
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:26:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716167854; cv=none; b=En6XbHCMu604v1uCXyyKK9tOTC7zwdRJTf2IE9cqJ0zUjcdL679qdP2tuvCkNc3b9rgx+94ZisrFDvngnjQs0kgcVpToK9soVYgqlSH7Vutn9DCu3frW0K1KLeGoV+l3wyhD1zqrOrv+sViFVhatTOvmo7crFnEWV3DnRxhySjk=
+	t=1716168367; cv=none; b=COnlFtn56Mvudj8nGLChMMEOoJ3CBsTu1ry7W19R3Nyp5cXBBtC2Fdyr9NK6H0eOsL5HKqsXq7WN8fb7LVZH4nn/q4ieGKt/WuiqxxLPdceF6o2bMgOfnsurTapfrbSycUJLZZr0YmJBj+tPw8sy6NIONe8BMA7OFd/SbmvJIJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716167854; c=relaxed/simple;
-	bh=OBsVYV9d4GvPqYKGWaHDECvr5gkFQ/7IA+nKs2nXEZ8=;
+	s=arc-20240116; t=1716168367; c=relaxed/simple;
+	bh=TtwtjcXrrA11KTveXffexyVsNN0b1pCRGDvph290NUQ=;
 	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=DAn40xJz20shVyif3c5a/lWe/DyVPsG94xNO9SVN7jutww+78PUlLTdCNvW0dM2dCctndsUT/WiRijWhcb8wxBrhZpEKgbxnYTDcimANaihXAs22GIKq0PAt815izsFU2F/tef8JrvrT9G4gpZzCpDy6PhllWkcLq8Cf8XvuX1E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VzphQAKS; arc=none smtp.client-ip=140.211.166.133
+	 In-Reply-To:Content-Type; b=H3WhO49lai8/FO89ChqaFt1awyjBPZw7K8gqrwQDhzedjuO4aBVDKNm8SKTL5FnlFZtVf8wCgTDq9pmqj7Elt7QpUUXVnpGLgHvdKh2mq/VFXyf9/U2TDsWHMwaEDzyr4veg60mEBQiZLcZ35kmTcLAOk0we8CUBCpWKMUlnZxE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=inyhMKtt; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VzphQAKS"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="inyhMKtt"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CB95B40529
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:17:32 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0755E606C4
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:26:06 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.299
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id qfrr4i7g7Fmb for <virtualization@lists.linux-foundation.org>;
- Mon, 20 May 2024 01:17:32 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.17; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org D314D40459
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D314D40459
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=VzphQAKS
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D314D40459
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:17:31 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 0Bf6bRP3LSkn for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 May 2024 01:26:05 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.14; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 031E26066A
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 031E26066A
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=inyhMKtt
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 031E26066A
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1716167853; x=1747703853;
+  t=1716168365; x=1747704365;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=OBsVYV9d4GvPqYKGWaHDECvr5gkFQ/7IA+nKs2nXEZ8=;
-  b=VzphQAKS7IQIfogL2anxJFDR0cPdwEj2AD2I4AKGtE0qW6+v+PwCF2nZ
-   7J8s1tTdKiuWOG6G5uRnM9zLApsEt8NJJYdXIM48V4NhLJvzt6tB54zkh
-   IK5KFnKfEDq161lLwdk2KQDTsWkAsJGS0qaIdMi5r/u1paxnU2SGLWRdJ
-   IW6dFxNQi6/GhV/cf6RH1YUNgbEB1v346iJongWdJfyJqaDQoZH3JKtK4
-   /XbrOhvKd9vyyCAh+CImecrnYDkeOEYxFBiG9o45El5UNtaEybU2tmad+
-   O9G8bFxp6Dux2GDBT5ztktjDG38jux8Mxlx6Snbj63ZujgqtvoXklSHWy
+  bh=TtwtjcXrrA11KTveXffexyVsNN0b1pCRGDvph290NUQ=;
+  b=inyhMKtt40q1Cp89ck/GS8B8G48yAVjrWWwGZXt/lYA1AqVqevIdU6SF
+   Cv+XCQ+uCQ0ZcWTEapXok7b6QP4CQMp4ueLE5gFg5pkOChBqTvlu5BXAw
+   f2I77yXtReWc6HA7cTxnwcAf1GUlY8JnKkFdlBOv3Y2z994g5hfE6TvY/
+   7yZvh4NqNYTvjEaD12bWgL8I9o01QxD3Ax62ZMDCuXLw3MNibtjpTICkh
+   jOAqTT5kpJ0Szae5l2a4xzLu6wU5rqverxO2P0q1e234yxoJROSDN5/V3
+   87nVhY5S8BIwaMRHaChmpJcAu9LfnhzIQZmMhOgzk2sH90Pz2OXLaLTYk
    Q==;
-X-CSE-ConnectionGUID: 46xOoRm5QnaxHHlfyWSibg==
-X-CSE-MsgGUID: wyyRfXdET2iDDvtom/eBPQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11077"; a="12398676"
+X-CSE-ConnectionGUID: Qfh1kAkDSnqogxJSvELKkg==
+X-CSE-MsgGUID: 5WDSAQwkT7Gyg4pHSqZrkQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11077"; a="12498190"
 X-IronPort-AV: E=Sophos;i="6.08,174,1712646000"; 
-   d="scan'208";a="12398676"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2024 18:17:31 -0700
-X-CSE-ConnectionGUID: ZxRdiSnpQ7+C2n7WWTY8JA==
-X-CSE-MsgGUID: TEqOrygfTx+PwakUljXaig==
+   d="scan'208";a="12498190"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2024 18:26:04 -0700
+X-CSE-ConnectionGUID: SI+sGxD1SaWg/GFY7brOWg==
+X-CSE-MsgGUID: db5ZHzgxSsuIxnX9A7ZDYQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.08,174,1712646000"; 
-   d="scan'208";a="69805798"
+   d="scan'208";a="36786047"
 Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
-  by orviesa001.jf.intel.com with ESMTP; 19 May 2024 18:17:26 -0700
-Message-ID: <2dbfb49b-3d2e-4a3b-ad1b-e53062edbbd4@linux.intel.com>
-Date: Mon, 20 May 2024 09:15:35 +0800
+  by fmviesa005.fm.intel.com with ESMTP; 19 May 2024 18:26:01 -0700
+Message-ID: <79bacf16-dfa6-42c7-b02d-117985e38472@linux.intel.com>
+Date: Mon, 20 May 2024 09:24:09 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -93,54 +93,45 @@ Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 5/15/24 4:37 PM, Tian, Kevin wrote:
->> @@ -395,6 +396,8 @@ struct iommufd_device {
->>   	/* always the physical device */
->>   	struct device *dev;
->>   	bool enforce_cache_coherency;
->> +	/* outstanding faults awaiting response indexed by fault group id */
->> +	struct xarray faults;
-> this...
-> 
->> +struct iommufd_fault {
->> +	struct iommufd_object obj;
->> +	struct iommufd_ctx *ictx;
->> +	struct file *filep;
+>> +static ssize_t iommufd_fault_fops_write(struct file *filep, const char __user
+>> *buf,
+>> +					size_t count, loff_t *ppos)
+>> +{
+>> +	size_t response_size = sizeof(struct iommu_hwpt_page_response);
+>> +	struct iommufd_fault *fault = filep->private_data;
+>> +	struct iommu_hwpt_page_response response;
+>> +	struct iommufd_device *idev = NULL;
+>> +	struct iopf_group *group;
+>> +	size_t done = 0;
+>> +	int rc;
 >> +
->> +	/* The lists of outstanding faults protected by below mutex. */
->> +	struct mutex mutex;
->> +	struct list_head deliver;
->> +	struct list_head response;
-> ...and here worth a discussion.
-> 
-> First the response list is not used. If continuing the choice of queueing
-> faults per device it should be removed.
+>> +	if (*ppos || count % response_size)
+>> +		return -ESPIPE;
+>> +
+>> +	mutex_lock(&fault->mutex);
+>> +	while (count > done) {
+>> +		rc = copy_from_user(&response, buf + done, response_size);
+>> +		if (rc)
+>> +			break;
+>> +
+>> +		if (!idev || idev->obj.id != response.dev_id)
+>> +			idev = container_of(iommufd_get_object(fault->ictx,
+>> +							       response.dev_id,
+>> +
+>> IOMMUFD_OBJ_DEVICE),
+>> +					    struct iommufd_device, obj);
+>> +		if (IS_ERR(idev))
+>> +			break;
+>> +
+>> +		group = xa_erase(&idev->faults, response.cookie);
+>> +		if (!group)
+>> +			break;
+> is 'continue' better?
 
-You are right. I have removed the response list in the new version.
-
-> 
-> But I wonder whether it makes more sense to keep this response
-> queue per fault object. sounds simpler to me.
-> 
-> Also it's unclear why we need the response message to carry the
-> same info as the request while only id/code/cookie are used.
-> 
-> +struct iommu_hwpt_page_response {
-> +	__u32 size;
-> +	__u32 flags;
-> +	__u32 dev_id;
-> +	__u32 pasid;
-> +	__u32 grpid;
-> +	__u32 code;
-> +	__u32 cookie;
-> +	__u32 reserved;
-> +};
-> 
-> If we keep the response queue in the fault object, the response message
-> only needs to carry size/flags/code/cookie and cookie can identify the
-> pending message uniquely in the response queue.
-
-It seems fine from the code's point of view. Let's wait and see whether
-there are any concerns from the uAPI's perspective.
+If we can't find a matched iopf group here, it means userspace provided
+something wrong. The current logic is that we stop here and tell
+userspace that only part of the faults have been responded to and it
+should retry the remaining responses with the right message.
 
 Best regards,
 baolu
