@@ -1,139 +1,130 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43EE713398E
-	for <virtualization@lists.linux.dev>; Mon, 20 May 2024 13:23:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2A6136E05
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 15:21:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716211388; cv=none; b=ZXgHEYtevRt7j20h6+67eTU5wEhiK4H7htglpVMUbsTEbgDELFgBVZ0nbB1TDCNUCeXo+ketz4glPUofW0vqbNFn/O+EL98zMju4ze0vBnxTzserJzfc0qwM39XzHe2guswKoboLjNzJGPEDor3b7DbMpYfiKqd8jp3eZJNAALo=
+	t=1716218477; cv=none; b=gciJLdBb97O/LpnZ3PrRDNKGnJ89hBpiYEcSZCvIRHA7/9Dp1KjagHot2tzW6MFPCBbA97Yg6QmQ1ALvHKKbXqqtPiGVFs93RfBHC1VVEIHhpzOKFz18QKUXPLSR6Ca8sNPVuY2GQdhVAwvpTod17feagWVFIBz57tND/rgrnn8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716211388; c=relaxed/simple;
-	bh=VtzriDnmPJgFVcPERMtIx+lichjMLk1jaHjkRVNmgr0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HGyqRvTijdbh12ToPnL00LI7Qy4D2ejkt0zLKLeB2jqlHJdOSbv/B6qRrKNTFdkyZojO5B4GJZjA3fZBnchg8fxAo/OUxC2u99YOx3K5USph+R8IfhQo0c9c3GvSerZjU3yLCVKRI6Xt4Pd3td04zcEVZ8WIVnwAonasg6ZTNns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H3MeCew+; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1716218477; c=relaxed/simple;
+	bh=/3brYIh4ncfYVMXJoPhV83VZYuPd5O5RDQ/MbvSpQEU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Qml1X6/QW+Y6kCwYqdzuBDk2st/+UQ2q4trjHG0D38Qz8Xp+Oe567INXRvBJ4TjP0mdgiJrRNHQWCGMASIFQL2xbmVS5cB0jBx7JyFE2hV8/LTJ6ULVmjbhFGWgn66aF5bSOR+sJWk/s2IDGWrQuYeInh4J449OFF7MICtHW/5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=IKqncCq0; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H3MeCew+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1716211386;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=M8c4UCZlVP1N9HFMkZD0c7EJUI94ZrVHCqdtZ52aP+0=;
-	b=H3MeCew+AMRQLmI22MqMECGY/Zx+2UfoMTBwvO7bTU1FcgAZyA3QaD7MRc4mKL5eCDQyaK
-	ShvGOB0e4rSkUivDIOGzm0aos5/6rkSf0FdlXasF7SnX5ofz0UVAV53Za7uf+YCEuHB/E4
-	8CZNIpJPub+9A1ncMp9TNBGmbuO/3QI=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-284-DIcWHDbqOQKKqEvmruNtdw-1; Mon, 20 May 2024 09:23:03 -0400
-X-MC-Unique: DIcWHDbqOQKKqEvmruNtdw-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-34d7e948a41so5955920f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 20 May 2024 06:23:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716211380; x=1716816180;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=M8c4UCZlVP1N9HFMkZD0c7EJUI94ZrVHCqdtZ52aP+0=;
-        b=rk075lVrwZTkMtD0tlOLCO+fhsjH71ajgVrKxQG1KpL4QIiORv+hM79EydGV6noeqm
-         UbxQ4tsHy2wR2uBhObuHkPfAccIzTlPq6DNvZ4/KoC8DEXcksBVsKz6oJf5iaNUVRFR5
-         fIbusd1ZuHNiDCjmu0fNW0I/OHTPdza2XsxTiltPg7JuNtU0XnJ9ZA6g7E2kyDRuabLU
-         m+TrvvafjZN9TOzEJjwNpOw4bcC5wxdRo4dcexZa/0M4rc12cQOuatln4gxCe3wFJ3An
-         CivTrq7RryqFwKmte32869nqXBmRuS9CdtkY3kiao9LyKNa2W82n0mgMd0rnbvY/gSSU
-         W9hQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXnXs2sqO9r+A/oqI8s0S7Gj0vPOlS/wEV3UIU6B0B5twZPS/sCjykc9w64Fv6I6dOe4Cd1kMYZEGnon+pxiCnOwS254EQHbFBnsPrVZxg=
-X-Gm-Message-State: AOJu0YxCGIwTRvCAsIfbvOf2wn8WVQ+3SmjrZHsWp5m9FJM7sstz+YpT
-	e4q0S8dgWc2kNmYxMxwSWnQ2JvN5BX8TDYMlmTxHLB6z43JnmsKTTxGg6usB/iAWykTef0wYaev
-	2P05958KwJzEc9XAB1nkpXPmlY+BVOF7nE0oz9utNpMt5Kp9JjENflsRiCEjD09k3
-X-Received: by 2002:adf:e586:0:b0:34c:b2df:6f01 with SMTP id ffacd0b85a97d-3504a737f13mr20902221f8f.21.1716211379552;
-        Mon, 20 May 2024 06:22:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHvYYkoaNDOEOiv6UGBH49UdkV0uZVjDLOJ6mISaM0QTUkwRoAiGrdAfBIOdnKoXAedrbzI6Q==
-X-Received: by 2002:adf:e586:0:b0:34c:b2df:6f01 with SMTP id ffacd0b85a97d-3504a737f13mr20902203f8f.21.1716211378979;
-        Mon, 20 May 2024 06:22:58 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:177:b718:2429:1dc5:dc6b:7d42])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502b8a7748sm29370373f8f.49.2024.05.20.06.22.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 May 2024 06:22:58 -0700 (PDT)
-Date: Mon, 20 May 2024 09:22:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Manivannan Sadhasivam <mani@kernel.org>
-Cc: Shunsuke Mie <mie@igel.co.jp>, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
-Message-ID: <20240520090809-mutt-send-email-mst@kernel.org>
-References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
- <20240516125913.GC11261@thinkpad>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="IKqncCq0"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8E3E581CA5
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 15:21:15 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.799
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Kg9fBXarZelz for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 May 2024 15:21:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=steven.sistare@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org BDF6A81C44
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BDF6A81C44
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=IKqncCq0
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BDF6A81C44
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 15:21:14 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44KEISnf012978;
+	Mon, 20 May 2024 15:21:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2023-11-20;
+ bh=nghfDIm9aaZnyFv3eR1D94oo2A5AFx5js+8s3mtdwrM=;
+ b=IKqncCq05zoMKCpHMQL5opifFSneKn3B+g9AmKdLdHhiV3OiSTx2q9Az9a7evNNT7OCT
+ uRX0wqKVT8ZPbrO5vISzeFt+C6HZDsJJPSHZhMXVHcGLsy2UY0hfXm0M61CG64IP6kIm
+ gnTrB09scg1b+bvqygv8KzaImOhm9i80ohLCH12yJM+jqyJAhey+Vtyp2fYNuzEdA1ZK
+ qEu4o9gr8xmVyxzDDS9CMtg2ZDmr1aH2HkydjmQ/PuBWIPh/UJdJwxgfrJgDgy6RKUw4
+ fLUnthJMzZ1swsCFWJJ7oEyi34XfkNOj09+imPD149BRFJX2w09DC20cqwYu+DcnYtJc xQ== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3y6k462yb6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 May 2024 15:21:06 +0000
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 44KDofkx002667;
+	Mon, 20 May 2024 15:21:05 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3y6js6cy8c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 May 2024 15:21:05 +0000
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44KFK19Z038962;
+	Mon, 20 May 2024 15:21:04 GMT
+Received: from ca-dev63.us.oracle.com (ca-dev63.us.oracle.com [10.211.8.221])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3y6js6cy5w-2;
+	Mon, 20 May 2024 15:21:04 +0000
+From: Steve Sistare <steven.sistare@oracle.com>
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        Si-Wei Liu <si-wei.liu@oracle.com>,
+        Eugenio Perez Martin <eperezma@redhat.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Steve Sistare <steven.sistare@oracle.com>
+Subject: [PATCH V3 1/3] vhost-vdpa: flush workers on suspend
+Date: Mon, 20 May 2024 08:21:00 -0700
+Message-Id: <1716218462-84587-2-git-send-email-steven.sistare@oracle.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1716218462-84587-1-git-send-email-steven.sistare@oracle.com>
+References: <1716218462-84587-1-git-send-email-steven.sistare@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240516125913.GC11261@thinkpad>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-05-20_05,2024-05-17_03,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 bulkscore=0
+ suspectscore=0 spamscore=0 mlxscore=0 adultscore=0 mlxlogscore=999
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2405200122
+X-Proofpoint-ORIG-GUID: FEWjuJD8h_Agj9XKmCL28DK9qdJ5pDiv
+X-Proofpoint-GUID: FEWjuJD8h_Agj9XKmCL28DK9qdJ5pDiv
 
-On Thu, May 16, 2024 at 02:59:13PM +0200, Manivannan Sadhasivam wrote:
-> On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
-> > Hi virtio folks,
-> > 
-> 
-> You forgot to CC the actual Virtio folks. I've CCed them now.
-> 
-> > I'm writing to discuss finding a workaround with Virtio drivers and legacy
-> > devices with limited memory access.
-> > 
-> > # Background
-> > The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) to
-> > indicate devices requiring restricted memory access or IOMMU translation. This
-> > feature bit resides at position 33 in the 64-bit Features register on modern
-> > interfaces. When the linux virtio driver finds the flag, the driver uses DMA
-> > API that handles to use of appropriate memory.
-> > 
-> > # Problem
-> > However, legacy devices only have a 32-bit register for the features bits.
-> > Consequently, these devices cannot represent the ACCESS_PLATFORM bit. As a
-> > result, legacy devices with restricted memory access cannot function
-> > properly[1]. This is a legacy spec issue, but I'd like to find a workaround.
-> > 
-> > # Proposed Solutions
-> > I know these are not ideal, but I propose the following solution.
-> > Driver-side:
-> >     - Implement special handling similar to xen_domain.
-> > In xen_domain, linux virtio driver enables to use the DMA API.
-> >     - Introduce a CONFIG option to adjust the DMA API behavior.
-> > Device-side:
-> > Due to indistinguishability from the guest's perspective, a device-side
-> > solution might be difficult.
-> > 
-> > I'm open to any comments or suggestions you may have on this issue or
-> > alternative approaches.
-> > 
-> > [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
-> > https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.co.jp/t/
-> > The Linux PCIe endpoint framework is used to implement the virtio-net device on
-> > a legacy interface. This is necessary because of the framework and hardware
-> > limitation.
-> > 
-> 
-> We can fix the endpoint framework limitation, but the problem lies with some
-> platforms where we cannot write to vendor capability registers and still have
-> IOMMU.
-> 
-> - Mani
+Flush to guarantee no workers are running when suspend returns.
 
-What are vendor capability registers and what do they have to do
-with the IOMMU?
+Fixes: f345a0143b4d ("vhost-vdpa: uAPI to suspend the device")
+Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+Acked-by: Eugenio Pérez <eperezma@redhat.com>
+---
+ drivers/vhost/vdpa.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-
-> -- 
-> மணிவண்ணன் சதாசிவம்
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ba52d128aeb7..189596caaec9 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -594,6 +594,7 @@ static long vhost_vdpa_suspend(struct vhost_vdpa *v)
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 	int ret;
++	struct vhost_dev *vdev = &v->vdev;
+ 
+ 	if (!(ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK))
+ 		return 0;
+@@ -601,6 +602,8 @@ static long vhost_vdpa_suspend(struct vhost_vdpa *v)
+ 	if (!ops->suspend)
+ 		return -EOPNOTSUPP;
+ 
++	vhost_dev_flush(vdev);
++
+ 	ret = ops->suspend(vdpa);
+ 	if (!ret)
+ 		v->suspended = true;
+-- 
+2.39.3
 
