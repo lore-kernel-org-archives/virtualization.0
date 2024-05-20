@@ -1,176 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5F9AA2D
-	for <virtualization@lists.linux.dev>; Mon, 20 May 2024 08:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765FB17BB4
+	for <virtualization@lists.linux.dev>; Mon, 20 May 2024 10:24:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716195337; cv=none; b=sxAlGS0gAMXvHGwP+2HgUj51miEiHENU0dDBXzYYJUN0s2uO48HQoJ5YA0rY4ww3MarXhAAlAXnbQv3euxwCbI1Ie3lh+j/G/ImzFmoc7M/PM5mzJ7OB1VC/nfD88X1A39y2zH6st4XW67cWxSt8vWXj0nVMGHL7uQOXY2SOdGA=
+	t=1716200687; cv=none; b=uYL8lzlZYbDte0uJ18PJy5S4I3SurrkfyBMHrTmaWOX52LUt1y0vOFdcdjcmzOoJVU5ayIBpaGUJPB9p5zi8Aw9+1QtcUYKJWCpxLJEXPqFO/zGvnQIKiE6xfe6qWfh/tNyNg6TQqHx5RafDVOwo4FFYiFQriGy5HDlLRXQ6unQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716195337; c=relaxed/simple;
-	bh=zOveTwTANzAYimu3FBsiFyK8fzKWl7a/ASIdBtEaTDI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Cbj0S+z7PwUaRmLdenh4D478Z+eX+PgXSuZr+U1dMTnVmVrEQ6kCUOO35nSoL3uN8M8GDvh5YSF2pkIgHlieCpY8b4hW0SO0Mq8DYqPrW1ff2zmTVZN5Ix5E5K+a+IbdB85xPqQGTrvIwMt/5CpO+/0oQxjRtTDGuT5UU77My/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PPLSaFYE; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1716200687; c=relaxed/simple;
+	bh=6A0GF0XyBkHC3K8crOLyxfeIflMd1hxalZNXXZC0v2Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UPPFOwEgpM807HRwkzcfjlSg1a2NIn5X9DCrpOAMjq3F3eDi2s0aNz7c1UUqd4IUeQWBwB9KbVlwecz7/a5J2fZy2KqTqM1NM4oHZ2gKF6vbFf1v9hwhzTUsMA4EMbpwVx2SMrVA1agpTVDJvW9aIBWVEn338YnBI696xfvyVcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igel.co.jp; spf=pass smtp.mailfrom=igel.co.jp; dkim=pass (2048-bit key) header.d=igel-co-jp.20230601.gappssmtp.com header.i=@igel-co-jp.20230601.gappssmtp.com header.b=z/AT/smi; arc=none smtp.client-ip=209.85.221.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igel.co.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igel.co.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PPLSaFYE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1716195334;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Ude2J6/YxYo8bNsBtIomuhFYlpHiE03QinnQpgm+Mes=;
-	b=PPLSaFYEObnLfVw/xENIYpquSU1MtGVnKtZHCWkCE5DHer3YVuTtP5/DYelCO09rnEAqGY
-	vvTtKp5Br0YF3gEWkh5nLzfS19jXeatJ7K9Tbq6IyjCiTgoa5/ZOSmyzdyeX36UR9X/8cQ
-	qNKMhyHlERCqBRe0utxHBfnJlkIi3lQ=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-410-Z0sAH95XMTiGtataq2SmvA-1; Mon, 20 May 2024 04:55:33 -0400
-X-MC-Unique: Z0sAH95XMTiGtataq2SmvA-1
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6a137f8fc62so143225416d6.0
-        for <virtualization@lists.linux.dev>; Mon, 20 May 2024 01:55:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716195333; x=1716800133;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=igel-co-jp.20230601.gappssmtp.com header.i=@igel-co-jp.20230601.gappssmtp.com header.b="z/AT/smi"
+Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-4e15ef06569so1409824e0c.1
+        for <virtualization@lists.linux.dev>; Mon, 20 May 2024 03:24:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=igel-co-jp.20230601.gappssmtp.com; s=20230601; t=1716200684; x=1716805484; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Ude2J6/YxYo8bNsBtIomuhFYlpHiE03QinnQpgm+Mes=;
-        b=wEnSWWeMpvUFGQjhcpennfMNtxVVm7QIRtJQpJEMF8lnnag1AoEeAj+ew8esTHUIJ8
-         ZlRvFUb3rVoKz6hGUixtaDumN+Ojvg/SZlXflZe3le83cLUBKlhcQ4nUrM9kIkx7iMga
-         28hVmMrlfBhPjbniQybkh7gLsY/Xu7lIbK54d3ZSfNInQyNjNC/7DKytfgCaBtLqUT/6
-         sPFVLSMFOdVhrYfVIqGwQyUgKZkzI+MDYrkkYhhJ84MiKGV0XpI0GHxDBCSPQYdRbekZ
-         paL26GJ576YwDe6igMD+5ON9EcWf83EQvNiQF/pyq4paae7hsYIh/S99Xk+tRdsG+iKF
-         mBSw==
-X-Gm-Message-State: AOJu0YwzOX+GnxKhAILgHQADN5vTrr7GHzrOXWvQ5mcbm2Zw5pSnA5nV
-	EXUJctzXQFUyegZBwmh6kYq8RseAtXZbu+8XW/RfOIA/XF6oZ3WScvtrGCwaKsZ7pxgHKbcTiBX
-	yO8vysHEUocFLzQxn5mDjeiiVWozeBBPMH5baS+U4NYN9MIu/shE/t2k+epq5qx7S
-X-Received: by 2002:a05:6214:5d05:b0:69b:2523:fcd3 with SMTP id 6a1803df08f44-6a16825d79dmr338328376d6.60.1716195332725;
-        Mon, 20 May 2024 01:55:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFR8gdnVof1nmsWGREGF+KmJcs+xK22+zO3SVF1/gM6fpWReTV080ow/jA5YNvO2eD5VdzcYw==
-X-Received: by 2002:a05:6214:5d05:b0:69b:2523:fcd3 with SMTP id 6a1803df08f44-6a16825d79dmr338328186d6.60.1716195332350;
-        Mon, 20 May 2024 01:55:32 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-25-77.business.telecomitalia.it. [87.12.25.77])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6a15f194da1sm109949106d6.67.2024.05.20.01.55.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 May 2024 01:55:31 -0700 (PDT)
-Date: Mon, 20 May 2024 10:55:26 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Dorjoy Chowdhury <dorjoychy111@gmail.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	netdev@vger.kernel.org, Alexander Graf <graf@amazon.com>, agraf@csgraf.de, 
-	stefanha@redhat.com
-Subject: Re: How to implement message forwarding from one CID to another in
- vhost driver
-Message-ID: <4i525r6irzjgibqqtrs3qzofqfifws2k3fmzotg37pyurs5wkd@js54ugamyyin>
-References: <CAFfO_h7xsn7Gsy7tFZU2UKcg_LCHY3M26iTuSyhFG-k-24h6_g@mail.gmail.com>
+        bh=iYx1MYqKriQMaf8e5K+aZLI/jP8z9alvVTBfQskYD6k=;
+        b=z/AT/smil9iAcCgcKLnkJPHfXAjxCjPd7YghnOhJv/9a1YdW1hWQ6smmIo4wm0QoUM
+         CtB0U8cMFsof38q9YWTGcnNcRL3vpxf2DORW2YVp9XpndiHuF6bmPcRcIcN+ELAZd+MQ
+         Flp5SuHJfgl2iWbkh3mH2PyO9A7gQ6TC9kX0F8N5lZNX66sKylbIIRoRdE9et8FBycV6
+         lsuTya4917oYZYze8YCu7RvITmL9zfuS6IQuoH+LjGevRSLvP34eBHHadAV7UrkolaQk
+         df2UkuQfPEf4cQ0LR2Cu5dMxzcEk7KP5WU8oYqRNWXytkrbFq5lvWZPBcUqqLqKtReZA
+         zFtA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716200684; x=1716805484;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iYx1MYqKriQMaf8e5K+aZLI/jP8z9alvVTBfQskYD6k=;
+        b=qL9JV7MG+zFYerlarYKQdqbmqw+z3+57M8608ttrunzafN9LFngakOoDtH/oe8qolD
+         2hv0pDFBOkm4XIy0qLEXe9oexvacLqsAOWFoYIKto8Ep6oKgnf56vwz1Dwmz4julQHo/
+         HEcb661YViigaYNY7o8wES7BiWaAjCr8zasHEVZaDk8CdPJ1hdNUw76Lr79HM89j1o0c
+         KWWtbhZhrV1pPqBCJy2AmIWI5bWswhyMnV5u4FC9cZSI7/98+OX2iFDaaVrz6Zkj6jIP
+         gzb2WgQajL2EDALrfDIvsnoHXh2uJOFqya8O305xdWwxwSLhNEPYoBBvdLHC3Np16P1D
+         6vDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWfWgaNQUedZ0yMv9qpiOnr++A7bNhOT5uyze897+8wL/K8CQGzGUQQ+EnuatNU/36eJg+vHwCdW1Wfv+GgMOEjxHEtPtD69wG67Ztt0lQ=
+X-Gm-Message-State: AOJu0YzWN82IWfKZVANHFMB3NYguTUdDifFGpZBLvutkVqTwqSg4n2DF
+	l15VLFoWKASY4gB2nWIuZRH+KPNDFs5XaatHoKlJHXs3EByA8/kd7EKr4SdzeiCezLcbLY+qc2V
+	1yFvxJfeiFB0yaYsq4J0EMmZRMGZYvgkbuUCQKQ==
+X-Google-Smtp-Source: AGHT+IHZYzTMr4tU5/8wKI+9VpalGfBtdoxBWlfNPxH+/8kN5nrKIHK4l87eO9LH8BVLZVy+9n42hB4h7V93qzAV43I=
+X-Received: by 2002:a1f:ee4d:0:b0:4da:c69c:f5b2 with SMTP id
+ 71dfb90a1353d-4e16d8c3421mr3523381e0c.2.1716200683719; Mon, 20 May 2024
+ 03:24:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAFfO_h7xsn7Gsy7tFZU2UKcg_LCHY3M26iTuSyhFG-k-24h6_g@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
+ <20240516125913.GC11261@thinkpad>
+In-Reply-To: <20240516125913.GC11261@thinkpad>
+From: Shunsuke Mie <mie@igel.co.jp>
+Date: Mon, 20 May 2024 19:24:32 +0900
+Message-ID: <CANXvt5rQdhS5XBnHFmFiN=fPO975jQ8dosH0L0ZP_51dd6cXag@mail.gmail.com>
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+To: Manivannan Sadhasivam <mani@kernel.org>
+Cc: linux-pci@vger.kernel.org, virtualization@lists.linux.dev, mst@redhat.com, 
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Dorjoy,
-
-On Sat, May 18, 2024 at 04:17:38PM GMT, Dorjoy Chowdhury wrote:
->Hi,
+2024=E5=B9=B45=E6=9C=8816=E6=97=A5(=E6=9C=A8) 21:59 Manivannan Sadhasivam <=
+mani@kernel.org>:
 >
->Hope you are doing well. I am working on adding AWS Nitro Enclave[1]
->emulation support in QEMU. Alexander Graf is mentoring me on this work. A v1
->patch series has already been posted to the qemu-devel mailing list[2].
+> On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
+> > Hi virtio folks,
+> >
 >
->AWS nitro enclaves is an Amazon EC2[3] feature that allows creating isolated
->execution environments, called enclaves, from Amazon EC2 instances, which are
->used for processing highly sensitive data. Enclaves have no persistent storage
->and no external networking. The enclave VMs are based on Firecracker microvm
->and have a vhost-vsock device for communication with the parent EC2 instance
->that spawned it and a Nitro Secure Module (NSM) device for cryptographic
->attestation. The parent instance VM always has CID 3 while the enclave VM gets
->a dynamic CID. The enclave VMs can communicate with the parent instance over
->various ports to CID 3, for example, the init process inside an enclave sends a
->heartbeat to port 9000 upon boot, expecting a heartbeat reply, letting the
->parent instance know that the enclave VM has successfully booted.
+> You forgot to CC the actual Virtio folks. I've CCed them now.
+Oops. thank you.
+> > I'm writing to discuss finding a workaround with Virtio drivers and leg=
+acy
+> > devices with limited memory access.
+> >
+> > # Background
+> > The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) t=
+o
+> > indicate devices requiring restricted memory access or IOMMU translatio=
+n. This
+> > feature bit resides at position 33 in the 64-bit Features register on m=
+odern
+> > interfaces. When the linux virtio driver finds the flag, the driver use=
+s DMA
+> > API that handles to use of appropriate memory.
+> >
+> > # Problem
+> > However, legacy devices only have a 32-bit register for the features bi=
+ts.
+> > Consequently, these devices cannot represent the ACCESS_PLATFORM bit. A=
+s a
+> > result, legacy devices with restricted memory access cannot function
+> > properly[1]. This is a legacy spec issue, but I'd like to find a workar=
+ound.
+> >
+> > # Proposed Solutions
+> > I know these are not ideal, but I propose the following solution.
+> > Driver-side:
+> >     - Implement special handling similar to xen_domain.
+> > In xen_domain, linux virtio driver enables to use the DMA API.
+> >     - Introduce a CONFIG option to adjust the DMA API behavior.
+> > Device-side:
+> > Due to indistinguishability from the guest's perspective, a device-side
+> > solution might be difficult.
+> >
+> > I'm open to any comments or suggestions you may have on this issue or
+> > alternative approaches.
+> >
+> > [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
+> > https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.=
+co.jp/t/
+> > The Linux PCIe endpoint framework is used to implement the virtio-net d=
+evice on
+> > a legacy interface. This is necessary because of the framework and hard=
+ware
+> > limitation.
+> >
 >
->The plan is to eventually make the nitro enclave emulation in QEMU standalone
->i.e., without needing to run another VM with CID 3 with proper vsock
+> We can fix the endpoint framework limitation, but the problem lies with s=
+ome
+> platforms where we cannot write to vendor capability registers and still =
+have
+> IOMMU.
+I agree, this is a problem caused by the inability to set the
+capability. I'm not sure, but are there any chips that support this?
+Also, I wasn't aware of the IOMMU issue. I thought that if the Linux
+DMA subsystem could handle IOMMU properly, there wouldn't be any
+problems. Is that incorrect?
 
-If you don't have to launch another VM, maybe we can avoid vhost-vsock 
-and emulate virtio-vsock in user-space, having complete control over the 
-behavior.
-
-So we could use this opportunity to implement virtio-vsock in QEMU [4] 
-or use vhost-user-vsock [5] and customize it somehow.
-(Note: vhost-user-vsock already supports sibling communication, so maybe 
-with a few modifications it fits your case perfectly)
-
-[4] https://gitlab.com/qemu-project/qemu/-/issues/2095
-[5] https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock
-
->communication support. For this to work, one approach could be to teach the
->vhost driver in kernel to forward CID 3 messages to another CID N
-
-So in this case both CID 3 and N would be assigned to the same QEMU
-process?
-
-Do you have to allocate 2 separate virtio-vsock devices, one for the 
-parent and one for the enclave?
-
->(set to CID 2 for host) i.e., it patches CID from 3 to N on incoming messages
->and from N to 3 on responses. This will enable users of the
-
-Will these messages have the VMADDR_FLAG_TO_HOST flag set?
-
-We don't support this in vhost-vsock yet, if supporting it helps, we 
-might, but we need to better understand how to avoid security issues, so 
-maybe each device needs to explicitly enable the feature and specify 
-from which CIDs it accepts packets.
-
->nitro-enclave machine
->type in QEMU to run the necessary vsock server/clients in the host machine
->(some defaults can be implemented in QEMU as well, for example, sending a reply
->to the heartbeat) which will rid them of the cumbersome way of running another
->whole VM with CID 3. This way, users of nitro-enclave machine in QEMU, could
->potentially also run multiple enclaves with their messages for CID 3 forwarded
->to different CIDs which, in QEMU side, could then be specified using a new
->machine type option (parent-cid) if implemented. I guess in the QEMU side, this
->will be an ioctl call (or some other way) to indicate to the host kernel that
->the CID 3 messages need to be forwarded. Does this approach of
-
-What if there is already a VM with CID = 3 in the system?
-
->forwarding CID 3 messages to another CID sound good?
-
-It seems too specific a case, if we can generalize it maybe we could 
-make this change, but we would like to avoid complicating vhost-vsock 
-and keep it as simple as possible to avoid then having to implement 
-firewalls, etc.
-
-So first I would see if vhost-user-vsock or the QEMU built-in device is 
-right for this use-case.
-
-Thanks,
-Stefano
-
+Shunsuke,
+Best
+> - Mani
 >
->If this approach sounds good, I need some guidance on where the code
->should be written in order to achieve this. I would greatly appreciate
->any suggestions.
->
->Thanks.
->
->Regards,
->Dorjoy
->
->[1] https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html
->[2] https://mail.gnu.org/archive/html/qemu-devel/2024-05/msg03524.html
->[3] https://aws.amazon.com/ec2/
->
-
+> --
+> =E0=AE=AE=E0=AE=A3=E0=AE=BF=E0=AE=B5=E0=AE=A3=E0=AF=8D=E0=AE=A3=E0=AE=A9=
+=E0=AF=8D =E0=AE=9A=E0=AE=A4=E0=AE=BE=E0=AE=9A=E0=AE=BF=E0=AE=B5=E0=AE=AE=
+=E0=AF=8D
