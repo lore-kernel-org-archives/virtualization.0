@@ -1,267 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9167A55
-	for <virtualization@lists.linux.dev>; Mon, 20 May 2024 01:03:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4583D367
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:17:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716166995; cv=none; b=pKNPii7ailUgZExRS5bg2CgJzanffujT43Wcaj8b1LsOdydlktAfUDdOEXiCH/92/EJpe5kCLMd8UI1L7rjU0gCQ6tAFG/YlDQYP43fgl4M30ELTv4qSTbrzsQvOZvmsTsLWgkZr+jxYi0VL3qTMVmT1yyQoM6cvPc767civHS4=
+	t=1716167854; cv=none; b=En6XbHCMu604v1uCXyyKK9tOTC7zwdRJTf2IE9cqJ0zUjcdL679qdP2tuvCkNc3b9rgx+94ZisrFDvngnjQs0kgcVpToK9soVYgqlSH7Vutn9DCu3frW0K1KLeGoV+l3wyhD1zqrOrv+sViFVhatTOvmo7crFnEWV3DnRxhySjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716166995; c=relaxed/simple;
-	bh=zQjXWBFUiV81Bx9HjP7OyWJ94btoRbpRTBB0A3n8U4E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VO0lHch2YZUdxXrm11Nb+e9sT/VMjPJNZebZ5DX72nFSfGR3zdTvUG/qcrmOrd4lkGcu9sqE3cWKzWhSokAvAsqsj5a1jgzDDLRN4Mr/NYGmW7yMnDF9LJsB8FrXE40TlY1aqwuMLMRAfXUDZ4EkhzInyT+C2kGDJ89S9Y4/MFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cotfkmlh; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1716167854; c=relaxed/simple;
+	bh=OBsVYV9d4GvPqYKGWaHDECvr5gkFQ/7IA+nKs2nXEZ8=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=DAn40xJz20shVyif3c5a/lWe/DyVPsG94xNO9SVN7jutww+78PUlLTdCNvW0dM2dCctndsUT/WiRijWhcb8wxBrhZpEKgbxnYTDcimANaihXAs22GIKq0PAt815izsFU2F/tef8JrvrT9G4gpZzCpDy6PhllWkcLq8Cf8XvuX1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VzphQAKS; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cotfkmlh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1716166992;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=qn41Uy1YoQfud8iR6KJ9CHfyBSSmlhEf4jWjDUL22j0=;
-	b=Cotfkmlh/1la4R6Eka3YfKg8+Mz4PEIqK24eVRVwPESEgEK4PeeeJfvQz6fEOWup+8Ws9s
-	EEbcxYKy1CCACSpIkmtnK/f/eyeNGqgC7b+PIX2GeH6I1aq36/mZLkSI085/4iLV7FfTxt
-	Z6AkhSRGXYiXJlzBudRHX5lmFHIDidA=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-44-6J8o_wedPiOX6l8ZtBRw4A-1; Sun, 19 May 2024 21:03:10 -0400
-X-MC-Unique: 6J8o_wedPiOX6l8ZtBRw4A-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6D448801780;
-	Mon, 20 May 2024 01:03:09 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.72.112.58])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 4651CC15BB1;
-	Mon, 20 May 2024 01:03:04 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com
-Cc: davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
-	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
-Subject: [PATCH net-next] virtio-net: synchronize operstate with admin state on up/down
-Date: Mon, 20 May 2024 09:03:02 +0800
-Message-ID: <20240520010302.68611-1-jasowang@redhat.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VzphQAKS"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id CB95B40529
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:17:32 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id qfrr4i7g7Fmb for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 May 2024 01:17:32 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.17; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org D314D40459
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D314D40459
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=VzphQAKS
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D314D40459
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 01:17:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1716167853; x=1747703853;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=OBsVYV9d4GvPqYKGWaHDECvr5gkFQ/7IA+nKs2nXEZ8=;
+  b=VzphQAKS7IQIfogL2anxJFDR0cPdwEj2AD2I4AKGtE0qW6+v+PwCF2nZ
+   7J8s1tTdKiuWOG6G5uRnM9zLApsEt8NJJYdXIM48V4NhLJvzt6tB54zkh
+   IK5KFnKfEDq161lLwdk2KQDTsWkAsJGS0qaIdMi5r/u1paxnU2SGLWRdJ
+   IW6dFxNQi6/GhV/cf6RH1YUNgbEB1v346iJongWdJfyJqaDQoZH3JKtK4
+   /XbrOhvKd9vyyCAh+CImecrnYDkeOEYxFBiG9o45El5UNtaEybU2tmad+
+   O9G8bFxp6Dux2GDBT5ztktjDG38jux8Mxlx6Snbj63ZujgqtvoXklSHWy
+   Q==;
+X-CSE-ConnectionGUID: 46xOoRm5QnaxHHlfyWSibg==
+X-CSE-MsgGUID: wyyRfXdET2iDDvtom/eBPQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11077"; a="12398676"
+X-IronPort-AV: E=Sophos;i="6.08,174,1712646000"; 
+   d="scan'208";a="12398676"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2024 18:17:31 -0700
+X-CSE-ConnectionGUID: ZxRdiSnpQ7+C2n7WWTY8JA==
+X-CSE-MsgGUID: TEqOrygfTx+PwakUljXaig==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,174,1712646000"; 
+   d="scan'208";a="69805798"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa001.jf.intel.com with ESMTP; 19 May 2024 18:17:26 -0700
+Message-ID: <2dbfb49b-3d2e-4a3b-ad1b-e53062edbbd4@linux.intel.com>
+Date: Mon, 20 May 2024 09:15:35 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, "iommu@lists.linux.dev"
+ <iommu@lists.linux.dev>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v5 5/9] iommufd: Add iommufd fault object
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>
+References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
+ <20240430145710.68112-6-baolu.lu@linux.intel.com>
+ <BN9PR11MB52769AC595B6BDA8FB4639258CEC2@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <BN9PR11MB52769AC595B6BDA8FB4639258CEC2@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This patch synchronize operstate with admin state per RFC2863.
+On 5/15/24 4:37 PM, Tian, Kevin wrote:
+>> @@ -395,6 +396,8 @@ struct iommufd_device {
+>>   	/* always the physical device */
+>>   	struct device *dev;
+>>   	bool enforce_cache_coherency;
+>> +	/* outstanding faults awaiting response indexed by fault group id */
+>> +	struct xarray faults;
+> this...
+> 
+>> +struct iommufd_fault {
+>> +	struct iommufd_object obj;
+>> +	struct iommufd_ctx *ictx;
+>> +	struct file *filep;
+>> +
+>> +	/* The lists of outstanding faults protected by below mutex. */
+>> +	struct mutex mutex;
+>> +	struct list_head deliver;
+>> +	struct list_head response;
+> ...and here worth a discussion.
+> 
+> First the response list is not used. If continuing the choice of queueing
+> faults per device it should be removed.
 
-This is done by trying to toggle the carrier upon open/close and
-synchronize with the config change work. This allows propagate status
-correctly to stacked devices like:
+You are right. I have removed the response list in the new version.
 
-ip link add link enp0s3 macvlan0 type macvlan
-ip link set link enp0s3 down
-ip link show
+> 
+> But I wonder whether it makes more sense to keep this response
+> queue per fault object. sounds simpler to me.
+> 
+> Also it's unclear why we need the response message to carry the
+> same info as the request while only id/code/cookie are used.
+> 
+> +struct iommu_hwpt_page_response {
+> +	__u32 size;
+> +	__u32 flags;
+> +	__u32 dev_id;
+> +	__u32 pasid;
+> +	__u32 grpid;
+> +	__u32 code;
+> +	__u32 cookie;
+> +	__u32 reserved;
+> +};
+> 
+> If we keep the response queue in the fault object, the response message
+> only needs to carry size/flags/code/cookie and cookie can identify the
+> pending message uniquely in the response queue.
 
-Before this patch:
+It seems fine from the code's point of view. Let's wait and see whether
+there are any concerns from the uAPI's perspective.
 
-3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
-    link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-......
-5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-    link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-
-After this patch:
-
-3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
-    link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-...
-5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
-    link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-
-Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 94 +++++++++++++++++++++++++++-------------
- 1 file changed, 63 insertions(+), 31 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4e1a0fc0d555..24d880a5023d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -433,6 +433,12 @@ struct virtnet_info {
- 	/* The lock to synchronize the access to refill_enabled */
- 	spinlock_t refill_lock;
- 
-+	/* Is config change enabled? */
-+	bool config_change_enabled;
-+
-+	/* The lock to synchronize the access to config_change_enabled */
-+	spinlock_t config_change_lock;
-+
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
- 
-@@ -623,6 +629,20 @@ static void disable_delayed_refill(struct virtnet_info *vi)
- 	spin_unlock_bh(&vi->refill_lock);
- }
- 
-+static void enable_config_change(struct virtnet_info *vi)
-+{
-+	spin_lock_irq(&vi->config_change_lock);
-+	vi->config_change_enabled = true;
-+	spin_unlock_irq(&vi->config_change_lock);
-+}
-+
-+static void disable_config_change(struct virtnet_info *vi)
-+{
-+	spin_lock_irq(&vi->config_change_lock);
-+	vi->config_change_enabled = false;
-+	spin_unlock_irq(&vi->config_change_lock);
-+}
-+
- static void enable_rx_mode_work(struct virtnet_info *vi)
- {
- 	rtnl_lock();
-@@ -2421,6 +2441,25 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
- 	return err;
- }
- 
-+static void virtnet_update_settings(struct virtnet_info *vi)
-+{
-+	u32 speed;
-+	u8 duplex;
-+
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
-+		return;
-+
-+	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
-+
-+	if (ethtool_validate_speed(speed))
-+		vi->speed = speed;
-+
-+	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
-+
-+	if (ethtool_validate_duplex(duplex))
-+		vi->duplex = duplex;
-+}
-+
- static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -2439,6 +2478,18 @@ static int virtnet_open(struct net_device *dev)
- 			goto err_enable_qp;
- 	}
- 
-+	/* Assume link up if device can't report link status,
-+	   otherwise get link status from config. */
-+	netif_carrier_off(dev);
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-+		enable_config_change(vi);
-+		schedule_work(&vi->config_work);
-+	} else {
-+		vi->status = VIRTIO_NET_S_LINK_UP;
-+		virtnet_update_settings(vi);
-+		netif_carrier_on(dev);
-+	}
-+
- 	return 0;
- 
- err_enable_qp:
-@@ -2875,12 +2926,19 @@ static int virtnet_close(struct net_device *dev)
- 	disable_delayed_refill(vi);
- 	/* Make sure refill_work doesn't re-enable napi! */
- 	cancel_delayed_work_sync(&vi->refill);
-+	/* Make sure config notification doesn't schedule config work */
-+	disable_config_change(vi);
-+	/* Make sure status updating is cancelled */
-+	cancel_work_sync(&vi->config_work);
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		virtnet_disable_queue_pair(vi, i);
- 		cancel_work_sync(&vi->rq[i].dim.work);
- 	}
- 
-+	vi->status &= ~VIRTIO_NET_S_LINK_UP;
-+	netif_carrier_off(dev);
-+
- 	return 0;
- }
- 
-@@ -4583,25 +4641,6 @@ static void virtnet_init_settings(struct net_device *dev)
- 	vi->duplex = DUPLEX_UNKNOWN;
- }
- 
--static void virtnet_update_settings(struct virtnet_info *vi)
--{
--	u32 speed;
--	u8 duplex;
--
--	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
--		return;
--
--	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
--
--	if (ethtool_validate_speed(speed))
--		vi->speed = speed;
--
--	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
--
--	if (ethtool_validate_duplex(duplex))
--		vi->duplex = duplex;
--}
--
- static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
- {
- 	return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
-@@ -5163,7 +5202,10 @@ static void virtnet_config_changed(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
- 
--	schedule_work(&vi->config_work);
-+	spin_lock_irq(&vi->config_change_lock);
-+	if (vi->config_change_enabled)
-+		schedule_work(&vi->config_work);
-+	spin_unlock_irq(&vi->config_change_lock);
- }
- 
- static void virtnet_free_queues(struct virtnet_info *vi)
-@@ -5706,6 +5748,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
- 	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
- 	spin_lock_init(&vi->refill_lock);
-+	spin_lock_init(&vi->config_change_lock);
- 
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
- 		vi->mergeable_rx_bufs = true;
-@@ -5901,17 +5944,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		goto free_unregister_netdev;
- 	}
- 
--	/* Assume link up if device can't report link status,
--	   otherwise get link status from config. */
--	netif_carrier_off(dev);
--	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
--		schedule_work(&vi->config_work);
--	} else {
--		vi->status = VIRTIO_NET_S_LINK_UP;
--		virtnet_update_settings(vi);
--		netif_carrier_on(dev);
--	}
--
- 	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
- 		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
- 			set_bit(guest_offloads[i], &vi->guest_offloads);
--- 
-2.31.1
-
+Best regards,
+baolu
