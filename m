@@ -1,199 +1,146 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C8EC1643A
-	for <virtualization@lists.linux.dev>; Mon, 20 May 2024 10:45:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEF46225AE
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 11:00:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716201928; cv=none; b=bGjEzFxEdmz2iX3MdCoyp7sn66QiyGgm0/Df2RVuFPyfribt1ZyZRnuapZdPps1/pTHB9x8ibMJO3rkJET3mjZnoSeulTm3LD8IKLamNFKpHIrH11cLXRGnZJk7AWWdz+qHXzfO5Nvw49IEUpcdG87quPb5+UOZrg13Xp9nDS48=
+	t=1716202847; cv=none; b=Oj28zCXCPpR3SZyVfackdEA5M2PLISJrMfJVUHB/oZq99I5AZmzYsi4/Ad+8ZI7qaakuxRmn8ZoROn9IS9jRudRDUIXkYN1JpHUXzdrRzcPdi30PaNdrKjCsQHKRL9UnhyG3E6PnqgonJsYLytosSOW9pnO1AsjEGIKS5McTQDM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716201928; c=relaxed/simple;
-	bh=EZgcxZYosWTpjlDGG28pfLwDr3xap2F3W7fPcx1epbM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PQipyAa7WDM4c2/V/dAsMsy6oZw4nmcTLvXQLdBifUTvj3KZ5zCSIGkHDtJ2LJDO4DgoU6BAsY4wk1DgTLH1bOgjjXRXkiO5PGmZyvlWRgj40eSjVS3ApdUEkE9Ao9UJretrF2yK1pDKxN1UvV9h4lo1firkuJKoBKCZjua8cH4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bjCXEGdx; arc=none smtp.client-ip=209.85.208.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1716202847; c=relaxed/simple;
+	bh=opqwwImqcKJM//Av+ypRrBQEF3Ht3H8zS8zbCZiPUdY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=H6Bezdm/8oCa8LEYd7T1wTqPOWBLf5jhnIG6rbMVPlZQVXBY3TdztkOVvTYBP6kRGyMN0In/lue0FnHyu6dt6m38bheXRQBzFd0BOHx1fv7L1ynC4YN1CWcljUlPEeiPCH+bnaoiQyCNshJKBhXqMZHu1Y3HY7nsZvO39T0LRYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=j20xmqpB; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bjCXEGdx"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2e428242a38so55445971fa.2
-        for <virtualization@lists.linux.dev>; Mon, 20 May 2024 03:45:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="j20xmqpB"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4C30D401FE
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 11:00:46 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id RvKdbdGOm4SF for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 May 2024 11:00:45 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::12a; helo=mail-lf1-x12a.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 594F940173
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 594F940173
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=j20xmqpB
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 594F940173
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 11:00:45 +0000 (UTC)
+Received: by mail-lf1-x12a.google.com with SMTP id 2adb3069b0e04-51ffff16400so6604167e87.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 20 May 2024 04:00:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1716201925; x=1716806725; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=EZgcxZYosWTpjlDGG28pfLwDr3xap2F3W7fPcx1epbM=;
-        b=bjCXEGdx7i7RSyrtWTXWxnalhPaS8DSc1BY7qkaL5W7hdomRernfuVNXMuo4ZCKiFN
-         /yqZXOpKVDKMmIuonx1QZ7VBx9kK9NmOtX58nOdVd36hkN6lbi0dSeJGze2z/QHn8T7T
-         XMz+TciTgywL3WBYA89g6Z9l9ZpbEA5chHr8LuSdhSZQmkj8e/IfpX/i7X3SsVQNt9YZ
-         F6D18VOewH50rhnuPgWNP0Yu+GNfjomnE/SiXP4m+lhAfQjWsRpz0V4TQaZkeHPU69ZV
-         OgT+D3JgBh2it3gJfn1WOJ67BNz/iOZT5JDSZ1O1Dz66EHGLe4K3Reco88lEm8bF1EyF
-         yAYQ==
+        d=linaro.org; s=google; t=1716202843; x=1716807643; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=zbU3zeRUyfJhQipGYR6FKYCuEp6+mBicTADebou1jyQ=;
+        b=j20xmqpBmf7HJGp/QveZlALzu8rFylFNrMAeU+x5sgm3peTo1ywguIRzRmuuitOTUj
+         Arhm2SU3i6BnM8K4FeF7u0F8KAwhlP42A5XVmK4E5/8569OdytpsDEe99wMHmo9Rp9bb
+         auKwgfFdqtn3d8YgyIjpcdoz2U3C3O7uZocuY8Zs1UO3sSxwS7ssIsCpMqZiWKepwGac
+         2UXAktR7gkiIyzDa/PN02okkoGzy0d7Gpf7KlvAfsEkH/QMv+9QBh7P2YgUmI2T8ohG1
+         o4IuH9KDpDu9oClq3O0ZRZuXlsZitRnm1hsS5kOUzu+yK7RfWGQXK2r3oJukJXwzb372
+         hQMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716201925; x=1716806725;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EZgcxZYosWTpjlDGG28pfLwDr3xap2F3W7fPcx1epbM=;
-        b=OEVE23wM0/shbmYNLGx/Vur6Yw2xnGrMCqIx43XJweDy/j6S+375XSF94Ey20KGCD5
-         tLlw/f+vDYRQEQDIiGocOnJQOBKbECDXiKYMIbNYjuslc6T6NSh+T7F1ApeiMQ6g39lN
-         eJxJrBNUklH8IQUDuSfjzNzvPNKhq7m6dGS4Jh6aTz7DnW3XtpY2KV3VN5ZyNUkFXOEM
-         oeFLklc8sWTHb/Y4Lf8T3Xv7JuVm2dgwRfTi6A3XLtQxX1O9A/Ldi4jmFlyNDAfZjoFS
-         0nU2wu/xmPJaAELXCcCeczeClfs3I94PMvZD8exQOOw2numte4FWsWOzF6Iyp4ez6zTh
-         Vv2w==
-X-Gm-Message-State: AOJu0Yzz7pPpnJ1IsDNFVsAFjmn2CXlT6tMRzaddKSFBh3rZPQdDyM8M
-	uIwOpf+8mmI/ckgsfk9IEBXMD9S8bFdxGfwfqcXvALlrTBAF822Hao7IOj6u5sSvNroWnosJye5
-	6gWkFGrEhK2RjOzVKmzsWDdZJzFw=
-X-Google-Smtp-Source: AGHT+IHwR1xkxC2pVcRW4nJIcn0EzHCZRjgzP18BRB06fBmjFhDjrdkXtVR4LSyfOFUQGtpombpgh+2M0nfqSJXjnSc=
-X-Received: by 2002:a2e:8404:0:b0:2e7:b9d:31da with SMTP id
- 38308e7fff4ca-2e70b9d327fmr80018311fa.16.1716201924904; Mon, 20 May 2024
- 03:45:24 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1716202843; x=1716807643;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zbU3zeRUyfJhQipGYR6FKYCuEp6+mBicTADebou1jyQ=;
+        b=gnbKOe0QqJXvmwkzBRHkYFtk6SpxAYDlaXfFLcicTseZkVjbQXWVCAHhkNztzvgb67
+         9m7htKRWytzAYRrMeeDNtKJMdjEukrwd4Ng/WYQRs6c7WL3Vjjx4KkTLD5zJxzvnDO5O
+         lomJTjRnS+ju2BxgW3ZGxRNwp3EFZHa9RfV/6gr/7XW6rwwM7xEOlmiONjYDHzphMzdo
+         nWD68LofJnoQMoKakDIzlF6w3DIBmxup5eR2YKeFrNbkQi449aPS5uVROtjjI+bd4oSQ
+         1xWC4avZa1/BCV2dvZa+SLDygEVXL+s1mmmS0aHtqsi8D3PG3eKpbYNESxjNh1iunVeP
+         Ku+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWAshhXvA0m84TTw5FjouBRmI5VAxZhuZv2EkffsKO3h1qrpoLbCBcdR7Ci0w34jyzeNQVvtWxXqpHaBO99rOvU5YWD0QdZN7AC5qr6Lmao4zlL4Nx9u6QX1w==
+X-Gm-Message-State: AOJu0YwP8bB/XGtGGzHomMdI6/BwMtyDsWMDzAvtS3JfAYTErmwaFyWb
+	r5O8ocm5lQQ2sBMKWY86Lutl07Yug6JEMu88juT8Y9Oh247HM/sIEOHGdMlmDQY=
+X-Google-Smtp-Source: AGHT+IEoP2+bL0oMFj4P0Aa7CMuek/Wx23WK1fJZHUBxVQUK6n4Or8upEK0eOTuockV49z8ZJoyWZA==
+X-Received: by 2002:ac2:504c:0:b0:51a:df97:cc8d with SMTP id 2adb3069b0e04-5220fd7cc70mr18338046e87.26.1716202842997;
+        Mon, 20 May 2024 04:00:42 -0700 (PDT)
+Received: from eriador.lumag.spb.ru (dzdbxzyyyyyyyyyyyykxt-3.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::227])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-521f35ad5fdsm4253446e87.24.2024.05.20.04.00.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 May 2024 04:00:42 -0700 (PDT)
+Date: Mon, 20 May 2024 14:00:40 +0300
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+To: Vignesh Raman <vignesh.raman@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
+	helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch, robdclark@gmail.com, 
+	david.heidelberg@collabora.com, guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, 
+	mcanal@igalia.com, linux-mediatek@lists.infradead.org, 
+	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/6] drm/ci: generate testlist from build
+Message-ID: <o363vir3dqz2znrnifo6enbdwudalmxqbigdkci2ykxf5qjbnx@2ngllflxotgk>
+References: <20240517092502.647420-1-vignesh.raman@collabora.com>
+ <20240517092502.647420-3-vignesh.raman@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CAFfO_h7xsn7Gsy7tFZU2UKcg_LCHY3M26iTuSyhFG-k-24h6_g@mail.gmail.com>
- <4i525r6irzjgibqqtrs3qzofqfifws2k3fmzotg37pyurs5wkd@js54ugamyyin>
-In-Reply-To: <4i525r6irzjgibqqtrs3qzofqfifws2k3fmzotg37pyurs5wkd@js54ugamyyin>
-From: Dorjoy Chowdhury <dorjoychy111@gmail.com>
-Date: Mon, 20 May 2024 16:44:59 +0600
-Message-ID: <CAFfO_h7iNYc3jrDvnAxTyaGWMxM9YK29DAGYux9s1ve32tuEBw@mail.gmail.com>
-Subject: Re: How to implement message forwarding from one CID to another in
- vhost driver
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	netdev@vger.kernel.org, Alexander Graf <graf@amazon.com>, agraf@csgraf.de, 
-	stefanha@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240517092502.647420-3-vignesh.raman@collabora.com>
 
-Hey Stefano,
+On Fri, May 17, 2024 at 02:54:58PM +0530, Vignesh Raman wrote:
+> Stop vendoring the testlist into the kernel. Instead, use the
+> testlist from the IGT build to ensure we do not miss renamed
+> or newly added tests.
+> 
+> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> ---
+> 
+> v2:
+>   - Fix testlist generation for arm and arm64 builds.
+> 
+> ---
+>  drivers/gpu/drm/ci/build-igt.sh  |   34 +
+>  drivers/gpu/drm/ci/igt_runner.sh |    9 +-
+>  drivers/gpu/drm/ci/testlist.txt  | 2761 ------------------------------
+>  3 files changed, 39 insertions(+), 2765 deletions(-)
+>  delete mode 100644 drivers/gpu/drm/ci/testlist.txt
+> 
+> diff --git a/drivers/gpu/drm/ci/build-igt.sh b/drivers/gpu/drm/ci/build-igt.sh
+> index 7859554756c4..e62244728613 100644
+> --- a/drivers/gpu/drm/ci/build-igt.sh
+> +++ b/drivers/gpu/drm/ci/build-igt.sh
 
-Thanks for the reply.
+[...]
 
+> @@ -26,6 +50,16 @@ meson build $MESON_OPTIONS $EXTRA_MESON_ARGS
+>  ninja -C build -j${FDO_CI_CONCURRENT:-4} || ninja -C build -j 1
+>  ninja -C build install
+>  
+> +if [[ "$KERNEL_ARCH" = "arm64" ]]; then
+> +    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/igt/lib/aarch64-linux-gnu
+> +elif [[ "$KERNEL_ARCH" = "arm" ]]; then
+> +    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/igt/lib
+> +else
+> +    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/igt/lib64
 
-On Mon, May 20, 2024, 2:55 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
->
-> Hi Dorjoy,
->
-> On Sat, May 18, 2024 at 04:17:38PM GMT, Dorjoy Chowdhury wrote:
-> >Hi,
-> >
-> >Hope you are doing well. I am working on adding AWS Nitro Enclave[1]
-> >emulation support in QEMU. Alexander Graf is mentoring me on this work. A v1
-> >patch series has already been posted to the qemu-devel mailing list[2].
-> >
-> >AWS nitro enclaves is an Amazon EC2[3] feature that allows creating isolated
-> >execution environments, called enclaves, from Amazon EC2 instances, which are
-> >used for processing highly sensitive data. Enclaves have no persistent storage
-> >and no external networking. The enclave VMs are based on Firecracker microvm
-> >and have a vhost-vsock device for communication with the parent EC2 instance
-> >that spawned it and a Nitro Secure Module (NSM) device for cryptographic
-> >attestation. The parent instance VM always has CID 3 while the enclave VM gets
-> >a dynamic CID. The enclave VMs can communicate with the parent instance over
-> >various ports to CID 3, for example, the init process inside an enclave sends a
-> >heartbeat to port 9000 upon boot, expecting a heartbeat reply, letting the
-> >parent instance know that the enclave VM has successfully booted.
-> >
-> >The plan is to eventually make the nitro enclave emulation in QEMU standalone
-> >i.e., without needing to run another VM with CID 3 with proper vsock
->
-> If you don't have to launch another VM, maybe we can avoid vhost-vsock
-> and emulate virtio-vsock in user-space, having complete control over the
-> behavior.
->
-> So we could use this opportunity to implement virtio-vsock in QEMU [4]
-> or use vhost-user-vsock [5] and customize it somehow.
-> (Note: vhost-user-vsock already supports sibling communication, so maybe
-> with a few modifications it fits your case perfectly)
->
-> [4] https://gitlab.com/qemu-project/qemu/-/issues/2095
-> [5] https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock
+Could you please clarify this part? The arm64 vs arm don't look logical
+from my point of view.
 
+The rest LGTM.
 
-
-Thanks for letting me know. Right now I don't have a complete picture
-but I will look into them. Thank you.
->
->
->
-> >communication support. For this to work, one approach could be to teach the
-> >vhost driver in kernel to forward CID 3 messages to another CID N
->
-> So in this case both CID 3 and N would be assigned to the same QEMU
-> process?
-
-
-
-CID N is assigned to the enclave VM. CID 3 was supposed to be the
-parent VM that spawns the enclave VM (this is how it is in AWS, where
-an EC2 instance VM spawns the enclave VM from inside it and that
-parent EC2 instance always has CID 3). But in the QEMU case as we
-don't want a parent VM (we want to run enclave VMs standalone) we
-would need to forward the CID 3 messages to host CID. I don't know if
-it means CID 3 and CID N is assigned to the same QEMU process. Sorry.
-
->
-> Do you have to allocate 2 separate virtio-vsock devices, one for the
-> parent and one for the enclave?
-
-
-
-If there is a parent VM, then I guess both parent and enclave VMs need
-virtio-vsock devices.
-
->
-> >(set to CID 2 for host) i.e., it patches CID from 3 to N on incoming messages
-> >and from N to 3 on responses. This will enable users of the
->
-> Will these messages have the VMADDR_FLAG_TO_HOST flag set?
->
-> We don't support this in vhost-vsock yet, if supporting it helps, we
-> might, but we need to better understand how to avoid security issues, so
-> maybe each device needs to explicitly enable the feature and specify
-> from which CIDs it accepts packets.
-
-
-
-I don't know about the flag. So I don't know if it will be set. Sorry.
-
-
->
-> >nitro-enclave machine
-> >type in QEMU to run the necessary vsock server/clients in the host machine
-> >(some defaults can be implemented in QEMU as well, for example, sending a reply
-> >to the heartbeat) which will rid them of the cumbersome way of running another
-> >whole VM with CID 3. This way, users of nitro-enclave machine in QEMU, could
-> >potentially also run multiple enclaves with their messages for CID 3 forwarded
-> >to different CIDs which, in QEMU side, could then be specified using a new
-> >machine type option (parent-cid) if implemented. I guess in the QEMU side, this
-> >will be an ioctl call (or some other way) to indicate to the host kernel that
-> >the CID 3 messages need to be forwarded. Does this approach of
->
-> What if there is already a VM with CID = 3 in the system?
-
-
-
-Good question! I don't know what should happen in this case.
-
-
->
-> >forwarding CID 3 messages to another CID sound good?
->
-> It seems too specific a case, if we can generalize it maybe we could
-> make this change, but we would like to avoid complicating vhost-vsock
-> and keep it as simple as possible to avoid then having to implement
-> firewalls, etc.
->
-> So first I would see if vhost-user-vsock or the QEMU built-in device is
-> right for this use-case.
-
-
-
-Thanks you! I will check everything out and reach out if I need
-further guidance about what needs to be done. And sorry as I wasn't
-able to answer some of your questions.
-
-Regards,
-Dorjoy
+> +fi
+> +
+> +generate_testlist
+> +
+>  mkdir -p artifacts/
+>  tar -cf artifacts/igt.tar /igt
+>  
+-- 
+With best wishes
+Dmitry
