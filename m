@@ -1,194 +1,290 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 920754AEC8
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 07:09:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 409322B9C0
+	for <virtualization@lists.linux.dev>; Tue, 21 May 2024 07:43:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716275369; cv=none; b=ljHANGZyTDm9Zvb4wwv4qwhKqQ+I+fZqf93r2j+esNC+3RP10Ikbp19lcC08T5ps0vIv6Z7FDk8mstnpeCkElWoKD11SfVlkdcNA/wVJUR/CTnPvwj+cX1XhmyqwdF7YCuxaJOPe3MM5zrNurRhQdjhWKyYKAb2uDNjW1IjgNSs=
+	t=1716277391; cv=none; b=uWIW+aONO5lFwpXzk/gsng+zGJQivDCpE/tytusIKMurkV1ESeSM9B+zW1bsI4nOwWHBat/kP9+koVyTvBd0VcmJmv0h7dMK28oA8S2tDyl1GvyUxEMNE6MEsuewlvOX5WJATvNr79H3yGNUDhYrP+O9LwG0p5ljM6QtYD2qoDE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716275369; c=relaxed/simple;
-	bh=2kRe9Ce8rakW5lnoclVrGvOqgAaS9QJgR7+JBCR7qys=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iWZ29YEjIP2qwZr1IZF1bd7E4afgussz8YFKflhlmrxMODbZX1fYbDozuWyngWLi+/M4DgxOj1sL5JLJgR2c8HXLdNU+S/js0numL9kO6o64iXu8flN6J+pZ5Oswd1yKLv48/dMQ1tGMHpmcuFEuw6g3MKyIK2s7vRq12vVTQ9c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=dMb57hvR; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1716277391; c=relaxed/simple;
+	bh=ch4oGfjHl91KjHkzPadPQD0wi7M17UfQKr5G4CxvkbQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=S+/ekx4k8ESgjHv/rNvL4rZbQMyDknBg2AzzQf6EYk3gXkWT+V5wHVLl0ea1hUqUsBOE9X7Dl9EM5PovC7ZMSTl+mQS5pTtIGSGb0XiRkJlFxLyG+zPn5FwCNtTGqVprpkVIphUYQ5cV3JMGcf4Kbb6vKzhtaQCYP+de0w1BbWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AK0FpUDz; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="dMb57hvR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 37F80414C4
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 07:09:28 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 2SZGnMKsRCL7 for <virtualization@lists.linux-foundation.org>;
- Tue, 21 May 2024 07:09:27 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=46.235.227.194; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 5782D414C1
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5782D414C1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=dMb57hvR
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5782D414C1
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 07:09:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1716275365;
-	bh=2kRe9Ce8rakW5lnoclVrGvOqgAaS9QJgR7+JBCR7qys=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=dMb57hvRLq5Ogx/eVkr0GikvvOOcmA5elS88vCrGss1/i4ZaMGyJDakkzpsPqdKT0
-	 orLLIzRjSegeeBGqdqT+YLzJOOqeU4I3VEw+Wyz6V/8JUomxmKVqURakWOBdWDGMhc
-	 a8uCQLH53IZiJhwL5OhP7wuPoxDUYVsSHadDZiP0iwDeoqLby10l9/7WR9H1v92C4z
-	 GO4BQg9kw2QgpPDnELBL9rBKXBR05jMVNEwyv7QDoC9dNX7xJ579aMYDO0a3pLAUBx
-	 e4xY/BitVag16MsRrKACbRbrpr6Ufokn02bNWB4NaOnAPDNsq22TPAVjmswEHYFEQY
-	 Uo90BDiUZNPUQ==
-Received: from [100.66.96.193] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 97C6B378202E;
-	Tue, 21 May 2024 07:09:21 +0000 (UTC)
-Message-ID: <f3646d66-01f0-476c-8b7f-5df102790fcb@collabora.com>
-Date: Tue, 21 May 2024 12:39:19 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AK0FpUDz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1716277389;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BZtp98ZfVx6NwFSDvaEFw7gJ/PNxdR3lx8VEW78mLjY=;
+	b=AK0FpUDzPbAtQJlKoj/5Aum7ddowIB5MqHq0bf4Xs1SM3ct68tnL9smkUSJ18igbM7oTtT
+	qrtCEDoPwdcrYP0y9XwUg0KI8exn6AnFCKy1eRO/LkEGJ8AsjRDTmQ/mTNGPi0lU1UB2bc
+	6BZlw2dLRTRtxEEGXV5NlqBR7d5xpy4=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-657-6ONMneF3PH6uQNHmCDd6gg-1; Tue, 21 May 2024 03:43:07 -0400
+X-MC-Unique: 6ONMneF3PH6uQNHmCDd6gg-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-35044e65060so7181413f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 21 May 2024 00:43:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716277387; x=1716882187;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BZtp98ZfVx6NwFSDvaEFw7gJ/PNxdR3lx8VEW78mLjY=;
+        b=VrwQRBiDmB/rba6qzMjHHg94Ms4lWYkaAeYwwIoqgoiVXEbBkX19YdPRpwa6C9qtjM
+         LlCNRLgwrWR9fD2nZ6PgOy4KZLM583Xf1f5kkGE9KqBxeX48wlXtFUs1fS4yGS6Wr6RU
+         BtUoNdSt6GBlD1TLh77ZDRF77xwVFntKhKptZKmF81BVNYNF77OA8s2jnbGEf78x2XPU
+         AfB91XEkgKpIefgUmxXe8zJwPSbVELDFUoPDYbmwAUMTbBVolJYq15AXNXCAfrK99FHa
+         XE+GkT1BWKGjgEkd+vuVjek+DabeG2nUpUV87PaA8WfTRA8He3JJEgjVNzy5Ko3iNN76
+         Pk7Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXIx+qaWfoiZAsRVhUX42YRkd4XrGkC5vQ6ZmbhAxN3tBvUfFDkkl2vB64+GiLqS42vAbwbDCm1JgZ4H5GpsEJGmG5CV930eZWE3l4aCO8=
+X-Gm-Message-State: AOJu0Yw3YOEmuyfoQ1CCSVhtOU5XwLvAoO7rSoK4tBWqtg3xttfLGyV/
+	BCF1mk3XeETyk7FZLKBfHytgoj0U+UX6KLkKDS42c5VLTon6fH6x+QIZ7XkiEvfDeSbIsgPXavX
+	wzHcPDwhREQk5OkUZ2uVJXbCZ1CLz1SxN7e+SMSZg1tD7ni3Dn3Bv48HVM08FFSuS
+X-Received: by 2002:a5d:4402:0:b0:34e:bdf9:3301 with SMTP id ffacd0b85a97d-3504a61c6f4mr22147954f8f.8.1716277386555;
+        Tue, 21 May 2024 00:43:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE+zxcpMBld81ADTjhroUOZkiTwlIMC9dAnNZlYvPceMPnNbWKg4u5ZQk9a9XTLSY2Qzg7Z5A==
+X-Received: by 2002:a5d:4402:0:b0:34e:bdf9:3301 with SMTP id ffacd0b85a97d-3504a61c6f4mr22147931f8f.8.1716277386036;
+        Tue, 21 May 2024 00:43:06 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:240:5a20:b565:3672:6f2b:3d2d])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502b895887sm31050009f8f.40.2024.05.21.00.43.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 May 2024 00:43:05 -0700 (PDT)
+Date: Tue, 21 May 2024 03:43:01 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
+	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+Subject: Re: [PATCH net-next] virtio-net: synchronize operstate with admin
+ state on up/down
+Message-ID: <20240521034255-mutt-send-email-mst@kernel.org>
+References: <20240520010302.68611-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/6] drm/ci: build virtual GPU driver as module
-Content-Language: en-US
-To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
- robdclark@gmail.com, david.heidelberg@collabora.com,
- guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
- mcanal@igalia.com, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org
-References: <20240517092502.647420-1-vignesh.raman@collabora.com>
- <20240517092502.647420-4-vignesh.raman@collabora.com>
- <elftuzsd7lhz6y5ow6rb5uu5fb5b5jcprxtvxtxtojo774rnyr@swpeg4vkgtnc>
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <elftuzsd7lhz6y5ow6rb5uu5fb5b5jcprxtvxtxtojo774rnyr@swpeg4vkgtnc>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20240520010302.68611-1-jasowang@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Dmitry,
+On Mon, May 20, 2024 at 09:03:02AM +0800, Jason Wang wrote:
+> This patch synchronize operstate with admin state per RFC2863.
+> 
+> This is done by trying to toggle the carrier upon open/close and
+> synchronize with the config change work. This allows propagate status
+> correctly to stacked devices like:
+> 
+> ip link add link enp0s3 macvlan0 type macvlan
+> ip link set link enp0s3 down
+> ip link show
+> 
+> Before this patch:
+> 
+> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+>     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> ......
+> 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+>     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> 
+> After this patch:
+> 
+> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+>     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> ...
+> 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
+>     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> 
+> Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+> Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-On 20/05/24 16:32, Dmitry Baryshkov wrote:
-> On Fri, May 17, 2024 at 02:54:59PM +0530, Vignesh Raman wrote:
->> With latest IGT, the tests tries to load the module and it
->> fails. So build the virtual GPU driver for virtio as module.
-> 
-> Why? If the test fails on module loading (if the driver is built-in)
-> then it's the test that needs to be fixed, not the kerenel config.
-> 
-> It's fine as a temporal workaround, but please include a link to the
-> patch posted to fix the issue.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-I will recheck this issue and post a link to the fix.
+> ---
+>  drivers/net/virtio_net.c | 94 +++++++++++++++++++++++++++-------------
+>  1 file changed, 63 insertions(+), 31 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 4e1a0fc0d555..24d880a5023d 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -433,6 +433,12 @@ struct virtnet_info {
+>  	/* The lock to synchronize the access to refill_enabled */
+>  	spinlock_t refill_lock;
+>  
+> +	/* Is config change enabled? */
+> +	bool config_change_enabled;
+> +
+> +	/* The lock to synchronize the access to config_change_enabled */
+> +	spinlock_t config_change_lock;
+> +
+>  	/* Work struct for config space updates */
+>  	struct work_struct config_work;
+>  
+> @@ -623,6 +629,20 @@ static void disable_delayed_refill(struct virtnet_info *vi)
+>  	spin_unlock_bh(&vi->refill_lock);
+>  }
+>  
+> +static void enable_config_change(struct virtnet_info *vi)
+> +{
+> +	spin_lock_irq(&vi->config_change_lock);
+> +	vi->config_change_enabled = true;
+> +	spin_unlock_irq(&vi->config_change_lock);
+> +}
+> +
+> +static void disable_config_change(struct virtnet_info *vi)
+> +{
+> +	spin_lock_irq(&vi->config_change_lock);
+> +	vi->config_change_enabled = false;
+> +	spin_unlock_irq(&vi->config_change_lock);
+> +}
+> +
+>  static void enable_rx_mode_work(struct virtnet_info *vi)
+>  {
+>  	rtnl_lock();
+> @@ -2421,6 +2441,25 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>  	return err;
+>  }
+>  
+> +static void virtnet_update_settings(struct virtnet_info *vi)
+> +{
+> +	u32 speed;
+> +	u8 duplex;
+> +
+> +	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> +		return;
+> +
+> +	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+> +
+> +	if (ethtool_validate_speed(speed))
+> +		vi->speed = speed;
+> +
+> +	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+> +
+> +	if (ethtool_validate_duplex(duplex))
+> +		vi->duplex = duplex;
+> +}
+> +
+>  static int virtnet_open(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -2439,6 +2478,18 @@ static int virtnet_open(struct net_device *dev)
+>  			goto err_enable_qp;
+>  	}
+>  
+> +	/* Assume link up if device can't report link status,
+> +	   otherwise get link status from config. */
+> +	netif_carrier_off(dev);
+> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> +		enable_config_change(vi);
+> +		schedule_work(&vi->config_work);
+> +	} else {
+> +		vi->status = VIRTIO_NET_S_LINK_UP;
+> +		virtnet_update_settings(vi);
+> +		netif_carrier_on(dev);
+> +	}
+> +
+>  	return 0;
+>  
+>  err_enable_qp:
+> @@ -2875,12 +2926,19 @@ static int virtnet_close(struct net_device *dev)
+>  	disable_delayed_refill(vi);
+>  	/* Make sure refill_work doesn't re-enable napi! */
+>  	cancel_delayed_work_sync(&vi->refill);
+> +	/* Make sure config notification doesn't schedule config work */
+> +	disable_config_change(vi);
+> +	/* Make sure status updating is cancelled */
+> +	cancel_work_sync(&vi->config_work);
+>  
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		virtnet_disable_queue_pair(vi, i);
+>  		cancel_work_sync(&vi->rq[i].dim.work);
+>  	}
+>  
+> +	vi->status &= ~VIRTIO_NET_S_LINK_UP;
+> +	netif_carrier_off(dev);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -4583,25 +4641,6 @@ static void virtnet_init_settings(struct net_device *dev)
+>  	vi->duplex = DUPLEX_UNKNOWN;
+>  }
+>  
+> -static void virtnet_update_settings(struct virtnet_info *vi)
+> -{
+> -	u32 speed;
+> -	u8 duplex;
+> -
+> -	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> -		return;
+> -
+> -	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+> -
+> -	if (ethtool_validate_speed(speed))
+> -		vi->speed = speed;
+> -
+> -	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+> -
+> -	if (ethtool_validate_duplex(duplex))
+> -		vi->duplex = duplex;
+> -}
+> -
+>  static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
+>  {
+>  	return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
+> @@ -5163,7 +5202,10 @@ static void virtnet_config_changed(struct virtio_device *vdev)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
+>  
+> -	schedule_work(&vi->config_work);
+> +	spin_lock_irq(&vi->config_change_lock);
+> +	if (vi->config_change_enabled)
+> +		schedule_work(&vi->config_work);
+> +	spin_unlock_irq(&vi->config_change_lock);
+>  }
+>  
+>  static void virtnet_free_queues(struct virtnet_info *vi)
+> @@ -5706,6 +5748,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+>  	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
+>  	spin_lock_init(&vi->refill_lock);
+> +	spin_lock_init(&vi->config_change_lock);
+>  
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
+>  		vi->mergeable_rx_bufs = true;
+> @@ -5901,17 +5944,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		goto free_unregister_netdev;
+>  	}
+>  
+> -	/* Assume link up if device can't report link status,
+> -	   otherwise get link status from config. */
+> -	netif_carrier_off(dev);
+> -	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> -		schedule_work(&vi->config_work);
+> -	} else {
+> -		vi->status = VIRTIO_NET_S_LINK_UP;
+> -		virtnet_update_settings(vi);
+> -		netif_carrier_on(dev);
+> -	}
+> -
+>  	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
+>  		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
+>  			set_bit(guest_offloads[i], &vi->guest_offloads);
+> -- 
+> 2.31.1
 
-Regards,
-Vignesh
-
-> 
->>
->> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->> ---
->>
->> v2:
->>    - No changes.
->>
->> ---
->>   drivers/gpu/drm/ci/build.sh       | 1 -
->>   drivers/gpu/drm/ci/igt_runner.sh  | 6 +++---
->>   drivers/gpu/drm/ci/image-tags.yml | 4 ++--
->>   drivers/gpu/drm/ci/test.yml       | 1 +
->>   drivers/gpu/drm/ci/x86_64.config  | 2 +-
->>   5 files changed, 7 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/ci/build.sh b/drivers/gpu/drm/ci/build.sh
->> index a67871fdcd3f..e938074ac8e7 100644
->> --- a/drivers/gpu/drm/ci/build.sh
->> +++ b/drivers/gpu/drm/ci/build.sh
->> @@ -157,7 +157,6 @@ fi
->>   
->>   mkdir -p artifacts/install/lib
->>   mv install/* artifacts/install/.
->> -rm -rf artifacts/install/modules
->>   ln -s common artifacts/install/ci-common
->>   cp .config artifacts/${CI_JOB_NAME}_config
->>   
->> diff --git a/drivers/gpu/drm/ci/igt_runner.sh b/drivers/gpu/drm/ci/igt_runner.sh
->> index 20026612a9bd..55532f79fbdc 100755
->> --- a/drivers/gpu/drm/ci/igt_runner.sh
->> +++ b/drivers/gpu/drm/ci/igt_runner.sh
->> @@ -30,10 +30,10 @@ case "$DRIVER_NAME" in
->>               export IGT_FORCE_DRIVER="panfrost"
->>           fi
->>           ;;
->> -    amdgpu)
->> +    amdgpu|virtio_gpu)
->>           # Cannot use HWCI_KERNEL_MODULES as at that point we don't have the module in /lib
->> -        mv /install/modules/lib/modules/* /lib/modules/.
->> -        modprobe amdgpu
->> +        mv /install/modules/lib/modules/* /lib/modules/. || true
->> +        modprobe --first-time $DRIVER_NAME
->>           ;;
->>   esac
->>   
->> diff --git a/drivers/gpu/drm/ci/image-tags.yml b/drivers/gpu/drm/ci/image-tags.yml
->> index 60323ebc7304..328f5c560742 100644
->> --- a/drivers/gpu/drm/ci/image-tags.yml
->> +++ b/drivers/gpu/drm/ci/image-tags.yml
->> @@ -4,9 +4,9 @@ variables:
->>      DEBIAN_BASE_TAG: "${CONTAINER_TAG}"
->>   
->>      DEBIAN_X86_64_BUILD_IMAGE_PATH: "debian/x86_64_build"
->> -   DEBIAN_BUILD_TAG: "2023-10-08-config"
->> +   DEBIAN_BUILD_TAG: "2024-05-09-virtio"
->>   
->> -   KERNEL_ROOTFS_TAG: "2023-10-06-amd"
->> +   KERNEL_ROOTFS_TAG: "2024-05-09-virtio"
->>   
->>      DEBIAN_X86_64_TEST_BASE_IMAGE: "debian/x86_64_test-base"
->>      DEBIAN_X86_64_TEST_IMAGE_GL_PATH: "debian/x86_64_test-gl"
->> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
->> index 612c9ede3507..864ac3809d84 100644
->> --- a/drivers/gpu/drm/ci/test.yml
->> +++ b/drivers/gpu/drm/ci/test.yml
->> @@ -350,6 +350,7 @@ virtio_gpu:none:
->>     script:
->>       - ln -sf $CI_PROJECT_DIR/install /install
->>       - mv install/bzImage /lava-files/bzImage
->> +    - mkdir -p /lib/modules
-> 
-> Is it necessary to create it manually here?
-> 
->>       - mkdir -p $CI_PROJECT_DIR/results
->>       - ln -sf $CI_PROJECT_DIR/results /results
->>       - install/crosvm-runner.sh install/igt_runner.sh
->> diff --git a/drivers/gpu/drm/ci/x86_64.config b/drivers/gpu/drm/ci/x86_64.config
->> index 1cbd49a5b23a..78479f063e8e 100644
->> --- a/drivers/gpu/drm/ci/x86_64.config
->> +++ b/drivers/gpu/drm/ci/x86_64.config
->> @@ -91,7 +91,7 @@ CONFIG_KVM=y
->>   CONFIG_KVM_GUEST=y
->>   CONFIG_VIRT_DRIVERS=y
->>   CONFIG_VIRTIO_FS=y
->> -CONFIG_DRM_VIRTIO_GPU=y
->> +CONFIG_DRM_VIRTIO_GPU=m
->>   CONFIG_SERIAL_8250_CONSOLE=y
->>   CONFIG_VIRTIO_NET=y
->>   CONFIG_VIRTIO_CONSOLE=y
->> -- 
->> 2.40.1
->>
-> 
