@@ -1,203 +1,258 @@
-Received: from zulu616.server4you.de (mail.csgraf.de [85.25.223.15])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 12E31200C1
-	for <virtualization@lists.linux.dev>; Tue, 21 May 2024 05:58:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.25.223.15
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D014F5E6
+	for <virtualization@lists.linux.dev>; Tue, 21 May 2024 06:23:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716271121; cv=none; b=c5n5HTMEEB8PP3wmvV4NLLjgHNxBaNqYOl469L+vPg3sLcqJvwJenDqRru2phxrtJMUmIEghw4vokyB2Z6Cy2aECQI568X0GxFsGPcnnKqAZYSddLHPsItINmQ8SeHU97XywuoBN75jJzL7RJ1BE1ZUtP2sedOm0z3M5W5HpcAM=
+	t=1716272635; cv=none; b=JCga39g0xWgC9QXHm6skzyDF8pwrYHRYOnCMWbK1cQQ0cxe7F/HXlFg6Azs965fnwnmvyOPVwR0vGxqF+q8YiU+UEzbTvw6Ns9P3BmsZaUhr4O+5foSvo+3hUHM9SebZmF9VYvHF/5BT1TLVGR0o0fhybkGAICeokCGfdIWCWVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716271121; c=relaxed/simple;
-	bh=2tBIfekw7EOyeqfZj5XyURtUTH8bntiRehCEAfN9lRI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IrGoLnDxBIefyDJS9IkVk+Q8rlhANyY8FUTqtYIMbPF1FKqWD131U2o5SGXQN5McAdTkYp9tRTKQqPKT0dXzMs8h2zor+AiWNsMjaeelxs2IRWbke1qu1bIdvhaZOBHfzvfHDJjaNo/vwdqQ2ZKp89fhRKYL9RrLlNVqkWJF2/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=csgraf.de; spf=pass smtp.mailfrom=csgraf.de; arc=none smtp.client-ip=85.25.223.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=csgraf.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgraf.de
-Received: from [172.16.45.73] (unknown [195.142.177.30])
-	by csgraf.de (Postfix) with ESMTPSA id 57BE460800CF;
-	Tue, 21 May 2024 07:50:25 +0200 (CEST)
-Message-ID: <3a62a9d1-5864-4f00-bcf0-2c64552ee90c@csgraf.de>
-Date: Tue, 21 May 2024 08:50:22 +0300
+	s=arc-20240116; t=1716272635; c=relaxed/simple;
+	bh=XdPY4gjUwA1NE+duK1+PdXwvwNKmDcz5+eP3xPTua60=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=L/4zKLlu5ffnQaj+/EVzHNQ5MyjvX/pVvBrQfy3u8r3iUg1StwcFCUqsrI/kCxLzh8US3yUFLoxmm/1PJ2kI4wklVuASNA+CvV7qNwHxT3sRW9pv21p5u6XG6xUfyTI2IQf+OAs5Ov6eXdGTGS1G5PDSYJ6eSh7XT5Fqsi2Spzs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rMva/OrY; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rMva/OrY"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1716272630; h=Message-ID:Subject:Date:From:To;
+	bh=jiBqV3uNX+LvaujZ+2ncVHB5kL3I+N85pKIYKn0YHNo=;
+	b=rMva/OrYm9fBSk0dVQz7zsnttTAHiFuDtMziZ76Gc2vrEYxDYcNPlEFh7iLycHgUslmG92jPC7+ZMI1T1882JDkV73M75arlGz4oGNKHIIlokNhREMtKgUto55N1s62Afz5lChHeogm2XnJTIV3N/0486CsjCSvXZomOIPVa96I=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R641e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W6wiHx-_1716272628;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W6wiHx-_1716272628)
+          by smtp.aliyun-inc.com;
+          Tue, 21 May 2024 14:23:49 +0800
+Message-ID: <1716272619.4598048-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next] virtio-net: synchronize operstate with admin state on up/down
+Date: Tue, 21 May 2024 14:23:39 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: davem@davemloft.net,
+ edumazet@google.com,
+ kuba@kernel.org,
+ pabeni@redhat.com,
+ virtualization@lists.linux.dev,
+ netdev@vger.kernel.org,
+ Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
+ "Gia-Khanh Nguyen" <gia-khanh.nguyen@oracle.com>,
+ mst@redhat.com,
+ jasowang@redhat.com
+References: <20240520010302.68611-1-jasowang@redhat.com>
+In-Reply-To: <20240520010302.68611-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: How to implement message forwarding from one CID to another in
- vhost driver
-To: Dorjoy Chowdhury <dorjoychy111@gmail.com>,
- Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org,
- netdev@vger.kernel.org, Alexander Graf <graf@amazon.com>, stefanha@redhat.com
-References: <CAFfO_h7xsn7Gsy7tFZU2UKcg_LCHY3M26iTuSyhFG-k-24h6_g@mail.gmail.com>
- <4i525r6irzjgibqqtrs3qzofqfifws2k3fmzotg37pyurs5wkd@js54ugamyyin>
- <CAFfO_h7iNYc3jrDvnAxTyaGWMxM9YK29DAGYux9s1ve32tuEBw@mail.gmail.com>
-Content-Language: en-US
-From: Alexander Graf <agraf@csgraf.de>
-In-Reply-To: <CAFfO_h7iNYc3jrDvnAxTyaGWMxM9YK29DAGYux9s1ve32tuEBw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
-Howdy,
-
-On 20.05.24 14:44, Dorjoy Chowdhury wrote:
-> Hey Stefano,
+On Mon, 20 May 2024 09:03:02 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> This patch synchronize operstate with admin state per RFC2863.
 >
-> Thanks for the reply.
+> This is done by trying to toggle the carrier upon open/close and
+> synchronize with the config change work. This allows propagate status
+> correctly to stacked devices like:
 >
+> ip link add link enp0s3 macvlan0 type macvlan
+> ip link set link enp0s3 down
+> ip link show
 >
-> On Mon, May 20, 2024, 2:55 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
->> Hi Dorjoy,
->>
->> On Sat, May 18, 2024 at 04:17:38PM GMT, Dorjoy Chowdhury wrote:
->>> Hi,
->>>
->>> Hope you are doing well. I am working on adding AWS Nitro Enclave[1]
->>> emulation support in QEMU. Alexander Graf is mentoring me on this work. A v1
->>> patch series has already been posted to the qemu-devel mailing list[2].
->>>
->>> AWS nitro enclaves is an Amazon EC2[3] feature that allows creating isolated
->>> execution environments, called enclaves, from Amazon EC2 instances, which are
->>> used for processing highly sensitive data. Enclaves have no persistent storage
->>> and no external networking. The enclave VMs are based on Firecracker microvm
->>> and have a vhost-vsock device for communication with the parent EC2 instance
->>> that spawned it and a Nitro Secure Module (NSM) device for cryptographic
->>> attestation. The parent instance VM always has CID 3 while the enclave VM gets
->>> a dynamic CID. The enclave VMs can communicate with the parent instance over
->>> various ports to CID 3, for example, the init process inside an enclave sends a
->>> heartbeat to port 9000 upon boot, expecting a heartbeat reply, letting the
->>> parent instance know that the enclave VM has successfully booted.
->>>
->>> The plan is to eventually make the nitro enclave emulation in QEMU standalone
->>> i.e., without needing to run another VM with CID 3 with proper vsock
->> If you don't have to launch another VM, maybe we can avoid vhost-vsock
->> and emulate virtio-vsock in user-space, having complete control over the
->> behavior.
->>
->> So we could use this opportunity to implement virtio-vsock in QEMU [4]
->> or use vhost-user-vsock [5] and customize it somehow.
->> (Note: vhost-user-vsock already supports sibling communication, so maybe
->> with a few modifications it fits your case perfectly)
->>
->> [4] https://gitlab.com/qemu-project/qemu/-/issues/2095
->> [5] https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock
+> Before this patch:
 >
+> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+>     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> ......
+> 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+>     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
 >
-> Thanks for letting me know. Right now I don't have a complete picture
-> but I will look into them. Thank you.
->>
->>
->>> communication support. For this to work, one approach could be to teach the
->>> vhost driver in kernel to forward CID 3 messages to another CID N
->> So in this case both CID 3 and N would be assigned to the same QEMU
->> process?
+> After this patch:
 >
+> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+>     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> ...
+> 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
+>     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
 >
-> CID N is assigned to the enclave VM. CID 3 was supposed to be the
-> parent VM that spawns the enclave VM (this is how it is in AWS, where
-> an EC2 instance VM spawns the enclave VM from inside it and that
-> parent EC2 instance always has CID 3). But in the QEMU case as we
-> don't want a parent VM (we want to run enclave VMs standalone) we
-> would need to forward the CID 3 messages to host CID. I don't know if
-> it means CID 3 and CID N is assigned to the same QEMU process. Sorry.
+> Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+> Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-There are 2 use cases here:
+Thanks.
 
-1) Enclave wants to treat host as parent (default). In this scenario, 
-the "parent instance" that shows up as CID 3 in the Enclave doesn't 
-really exist. Instead, when the Enclave attempts to talk to CID 3, it 
-should really land on CID 0 (hypervisor). When the hypervisor tries to 
-connect to the Enclave on port X, it should look as if it originates 
-from CID 3, not CID 0.
-
-2) Multiple parent VMs. Think of an actual cloud hosting scenario. Here, 
-we have multiple "parent instances". Each of them thinks it's CID 3. 
-Each can spawn an Enclave that talks to CID 3 and reach the parent. For 
-this case, I think implementing all of virtio-vsock in user space is the 
-best path forward. But in theory, you could also swizzle CIDs to make 
-random "real" CIDs appear as CID 3.
-
-
+> ---
+>  drivers/net/virtio_net.c | 94 +++++++++++++++++++++++++++-------------
+>  1 file changed, 63 insertions(+), 31 deletions(-)
 >
->> Do you have to allocate 2 separate virtio-vsock devices, one for the
->> parent and one for the enclave?
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 4e1a0fc0d555..24d880a5023d 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -433,6 +433,12 @@ struct virtnet_info {
+>  	/* The lock to synchronize the access to refill_enabled */
+>  	spinlock_t refill_lock;
 >
+> +	/* Is config change enabled? */
+> +	bool config_change_enabled;
+> +
+> +	/* The lock to synchronize the access to config_change_enabled */
+> +	spinlock_t config_change_lock;
+> +
+>  	/* Work struct for config space updates */
+>  	struct work_struct config_work;
 >
-> If there is a parent VM, then I guess both parent and enclave VMs need
-> virtio-vsock devices.
+> @@ -623,6 +629,20 @@ static void disable_delayed_refill(struct virtnet_info *vi)
+>  	spin_unlock_bh(&vi->refill_lock);
+>  }
 >
->>> (set to CID 2 for host) i.e., it patches CID from 3 to N on incoming messages
->>> and from N to 3 on responses. This will enable users of the
->> Will these messages have the VMADDR_FLAG_TO_HOST flag set?
->>
->> We don't support this in vhost-vsock yet, if supporting it helps, we
->> might, but we need to better understand how to avoid security issues, so
->> maybe each device needs to explicitly enable the feature and specify
->> from which CIDs it accepts packets.
+> +static void enable_config_change(struct virtnet_info *vi)
+> +{
+> +	spin_lock_irq(&vi->config_change_lock);
+> +	vi->config_change_enabled = true;
+> +	spin_unlock_irq(&vi->config_change_lock);
+> +}
+> +
+> +static void disable_config_change(struct virtnet_info *vi)
+> +{
+> +	spin_lock_irq(&vi->config_change_lock);
+> +	vi->config_change_enabled = false;
+> +	spin_unlock_irq(&vi->config_change_lock);
+> +}
+> +
+>  static void enable_rx_mode_work(struct virtnet_info *vi)
+>  {
+>  	rtnl_lock();
+> @@ -2421,6 +2441,25 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>  	return err;
+>  }
 >
+> +static void virtnet_update_settings(struct virtnet_info *vi)
+> +{
+> +	u32 speed;
+> +	u8 duplex;
+> +
+> +	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> +		return;
+> +
+> +	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+> +
+> +	if (ethtool_validate_speed(speed))
+> +		vi->speed = speed;
+> +
+> +	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+> +
+> +	if (ethtool_validate_duplex(duplex))
+> +		vi->duplex = duplex;
+> +}
+> +
+>  static int virtnet_open(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -2439,6 +2478,18 @@ static int virtnet_open(struct net_device *dev)
+>  			goto err_enable_qp;
+>  	}
 >
-> I don't know about the flag. So I don't know if it will be set. Sorry.
-
-
- From the guest's point of view, the parent (CID 3) is just another VM. 
-Since Linux as of
-
-  https://patchwork.ozlabs.org/project/netdev/patch/20201204170235.84387-4-andraprs@amazon.com/#2594117
-
-always sets VMADDR_FLAG_TO_HOST when local_CID > 0 && remote_CID > 0, I 
-would say the message has the flag set.
-
-How would you envision the host to implement the flag? Would the host 
-allow user space to listen on any CID and hence receive the respective 
-target connections? And wouldn't listening on CID 0 then mean you're 
-effectively listening to "any" other CID? Thinking about that a bit 
-more, that may be just what we need, yes :)
-
-
+> +	/* Assume link up if device can't report link status,
+> +	   otherwise get link status from config. */
+> +	netif_carrier_off(dev);
+> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> +		enable_config_change(vi);
+> +		schedule_work(&vi->config_work);
+> +	} else {
+> +		vi->status = VIRTIO_NET_S_LINK_UP;
+> +		virtnet_update_settings(vi);
+> +		netif_carrier_on(dev);
+> +	}
+> +
+>  	return 0;
 >
+>  err_enable_qp:
+> @@ -2875,12 +2926,19 @@ static int virtnet_close(struct net_device *dev)
+>  	disable_delayed_refill(vi);
+>  	/* Make sure refill_work doesn't re-enable napi! */
+>  	cancel_delayed_work_sync(&vi->refill);
+> +	/* Make sure config notification doesn't schedule config work */
+> +	disable_config_change(vi);
+> +	/* Make sure status updating is cancelled */
+> +	cancel_work_sync(&vi->config_work);
 >
->>> nitro-enclave machine
->>> type in QEMU to run the necessary vsock server/clients in the host machine
->>> (some defaults can be implemented in QEMU as well, for example, sending a reply
->>> to the heartbeat) which will rid them of the cumbersome way of running another
->>> whole VM with CID 3. This way, users of nitro-enclave machine in QEMU, could
->>> potentially also run multiple enclaves with their messages for CID 3 forwarded
->>> to different CIDs which, in QEMU side, could then be specified using a new
->>> machine type option (parent-cid) if implemented. I guess in the QEMU side, this
->>> will be an ioctl call (or some other way) to indicate to the host kernel that
->>> the CID 3 messages need to be forwarded. Does this approach of
->> What if there is already a VM with CID = 3 in the system?
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		virtnet_disable_queue_pair(vi, i);
+>  		cancel_work_sync(&vi->rq[i].dim.work);
+>  	}
 >
+> +	vi->status &= ~VIRTIO_NET_S_LINK_UP;
+> +	netif_carrier_off(dev);
+> +
+>  	return 0;
+>  }
 >
-> Good question! I don't know what should happen in this case.
-
-
-See case 2 above :). In a nutshell, I don't think it'd be legal to have 
-a real CID 3 in that scenario.
-
-
+> @@ -4583,25 +4641,6 @@ static void virtnet_init_settings(struct net_device *dev)
+>  	vi->duplex = DUPLEX_UNKNOWN;
+>  }
 >
+> -static void virtnet_update_settings(struct virtnet_info *vi)
+> -{
+> -	u32 speed;
+> -	u8 duplex;
+> -
+> -	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> -		return;
+> -
+> -	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+> -
+> -	if (ethtool_validate_speed(speed))
+> -		vi->speed = speed;
+> -
+> -	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+> -
+> -	if (ethtool_validate_duplex(duplex))
+> -		vi->duplex = duplex;
+> -}
+> -
+>  static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
+>  {
+>  	return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
+> @@ -5163,7 +5202,10 @@ static void virtnet_config_changed(struct virtio_device *vdev)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
 >
->>> forwarding CID 3 messages to another CID sound good?
->> It seems too specific a case, if we can generalize it maybe we could
->> make this change, but we would like to avoid complicating vhost-vsock
->> and keep it as simple as possible to avoid then having to implement
->> firewalls, etc.
->>
->> So first I would see if vhost-user-vsock or the QEMU built-in device is
->> right for this use-case.
-> Thanks you! I will check everything out and reach out if I need
-> further guidance about what needs to be done. And sorry as I wasn't
-> able to answer some of your questions.
-
-
-As mentioned above, I think there is merit for both. I personally care a 
-lot more for case 1 over case 2: We already have a working 
-implementation of Nitro Enclaves in a Cloud setup. What is missing is a 
-way to easily run a Nitro Enclave locally for development.
-
-
-Alex
-
+> -	schedule_work(&vi->config_work);
+> +	spin_lock_irq(&vi->config_change_lock);
+> +	if (vi->config_change_enabled)
+> +		schedule_work(&vi->config_work);
+> +	spin_unlock_irq(&vi->config_change_lock);
+>  }
+>
+>  static void virtnet_free_queues(struct virtnet_info *vi)
+> @@ -5706,6 +5748,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+>  	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
+>  	spin_lock_init(&vi->refill_lock);
+> +	spin_lock_init(&vi->config_change_lock);
+>
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
+>  		vi->mergeable_rx_bufs = true;
+> @@ -5901,17 +5944,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		goto free_unregister_netdev;
+>  	}
+>
+> -	/* Assume link up if device can't report link status,
+> -	   otherwise get link status from config. */
+> -	netif_carrier_off(dev);
+> -	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> -		schedule_work(&vi->config_work);
+> -	} else {
+> -		vi->status = VIRTIO_NET_S_LINK_UP;
+> -		virtnet_update_settings(vi);
+> -		netif_carrier_on(dev);
+> -	}
+> -
+>  	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
+>  		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
+>  			set_bit(guest_offloads[i], &vi->guest_offloads);
+> --
+> 2.31.1
+>
