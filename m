@@ -1,197 +1,94 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F2977D07F
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 11:49:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2517C524B4
+	for <virtualization@lists.linux.dev>; Tue, 21 May 2024 12:00:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716292168; cv=none; b=pHDidqwapwSx5a1JgGleZepblPa5cExWZMBMXx/u//r/pDmvL0JaAqk1BAMsCRZWFzuErSnPtEgCfAm5qpPJErGKfO2eeP/wwrFMgMCDhJqzWmQwZw8gaXW3kk+3+WYMgTRGb1eZaqwoOvsDRsGFf2nuY6YUuU4ykPQTEsmOhIc=
+	t=1716292857; cv=none; b=fln2QNgspE1BQYufyrlgAILTcwqZsCaZ9EQcI9BzHC6leXoFmMqRjEDoPNDiTFniSJSm/3nL3ZYNfNxSJ+UdFbsKQ1xQ2s+GYVHAGPSpUurJNwj1XRD7+bYXma9gY9gcsPG3iPZzUzO8QLi1HTsy5CbLBTJwccnLmsABtXXB/3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716292168; c=relaxed/simple;
-	bh=UfTTCJAd6gAR/W/+kWuHX2+0dwTK25Vi11SpkX7YGOg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kCklxum3Gd0kxsy9lGP3/r96q22pXwC91e+Pjv77W6bUmlPbhYBcCWCvsgte30wqN4nUVH/YaH1Kx42qUVw8OEzjQIMFxBzVNxiitsVREUG8XEqxYJvb32n1QODuJgIgNmz8toXQjFyGMS70Yl4GvTnomwWPH9Lbc2RNWf4PPDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rESFWlwt; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1716292857; c=relaxed/simple;
+	bh=2+hxZ4gWqxErB7umts2EDcT/gPEgYlbtK771GFDB2lY=;
+	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:MIME-Version:
+	 Content-Type; b=i4EzjggjZspbk5RVd7J7vaCqW2bSFYl3+/9G3SAWvsv+dr8F6zQ7fbLFmD08KXbvcvqY7n1dK/jzJjLFeyObJ2zofl1gmoX5OuQM/WvCtxCEC7HeGR+CjJrvNe/lw+KfDQwRSTbjhfV4eUL8xzcwlCVFzF+jVU4/qYZ/7xK2umk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=FIDBnUJ3; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Spr7JNRi; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rESFWlwt"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id BDB4640313
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 11:49:26 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -7.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id UVXfvymB7LL4 for <virtualization@lists.linux-foundation.org>;
- Tue, 21 May 2024 11:49:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org BBB07401C5
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BBB07401C5
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=rESFWlwt
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BBB07401C5
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 11:49:25 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 157E162210;
-	Tue, 21 May 2024 11:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6F4EC2BD11;
-	Tue, 21 May 2024 11:49:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716292164;
-	bh=UfTTCJAd6gAR/W/+kWuHX2+0dwTK25Vi11SpkX7YGOg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=rESFWlwtcK7rvFv8Um9btQJZUwRB2RdO8MjvUB2BICQEPh/EbugiTsxumyL5292hX
-	 SaghKnmizBA/pp7A+Dtlq+qwqNSRixbwdlsADGbs6CIn15dyBN0k28FwBbMS8aiTPI
-	 Kp1INLM1FgGFhmvmSsgoX0Ju3Cx9yzirSxLHZ/7IJ7s8WGmxnG22tVNZm7926LBz6M
-	 m49b2985aSBi87GawTioSdpHQvEIGdWaOc7nHUaGWvtz6CXRNKEfKQBtE6tGfFo5qO
-	 sEpBR+MlOfCff/Ge6iR1CKDRfbGBh0FxjrF7lgu/xXIUY28Ntlxfpz6GDjZg2lyHDr
-	 N+eN0jCwq4bcw==
-From: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>
-To: Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	David Hildenbrand <david@redhat.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	linux-riscv@lists.infradead.org,
-	Oscar Salvador <osalvador@suse.de>
-Cc: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-	Andrew Bresticker <abrestic@rivosinc.com>,
-	Chethan Seshadri <Chethan.Seshadri@catalinasystems.io>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Santosh Mamila <santosh.mamila@catalinasystems.io>,
-	Sivakumar Munnangi <siva.munnangi@catalinasystems.io>,
-	Sunil V L <sunilvl@ventanamicro.com>,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	virtualization@lists.linux-foundation.org
-Subject: [PATCH v3 9/9] riscv: mm: Add support for ZONE_DEVICE
-Date: Tue, 21 May 2024 13:48:30 +0200
-Message-Id: <20240521114830.841660-10-bjorn@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20240521114830.841660-1-bjorn@kernel.org>
-References: <20240521114830.841660-1-bjorn@kernel.org>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="FIDBnUJ3";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Spr7JNRi"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1716292852;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to; bh=vvJ0f2sUP/26j4faAiu+S+86UTdCTwt5gHLn8LGtfCc=;
+	b=FIDBnUJ3tNa2A87zGFoilcQ4NW/ggJY5l+gygYNhzfpPj0KyyuYxcXa3VTu04ASRNisSJ8
+	guaI8L20xI8Y+TRBhm/6NJCPsWIZm2iJTp76YYRkPr/xcf+EXXzlZ7VcJIVUUj1EXvfZwj
+	j1PXDAYtX1qKNXnBGyayXWHkYDQQZxmWXdzz2hBCpMfUzfV9+ehA+5GChi4mPXREyzk+w7
+	mRTyx8OnTRn7JEvrI6vDGnrlyl7gC0kVpo+XEWbK+a9YwLhcGjsuwBN5b6nFgXx4ZGqiG4
+	65PApQBXsuKuBS47mElardI3u3kJKnGyGZaEa+OhA/EvtEyl9p57JZPvoI8AHQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1716292852;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to; bh=vvJ0f2sUP/26j4faAiu+S+86UTdCTwt5gHLn8LGtfCc=;
+	b=Spr7JNRi3mmNDcs/K+u7ptTiyPb7qefZdIkH59E9tIl8jW9Bgp2+3hGyy6nd3Ajd5By1Ie
+	ATxdF3CVO32NqwAA==
+To: Dongli Zhang <dongli.zhang@oracle.com>, x86@kernel.org
+Cc: mingo@redhat.com, dave.hansen@linux.intel.com, hpa@zytor.com,
+ joe.jin@oracle.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH 1/1] x86/vector: Fix vector leak during CPU offline
+In-Reply-To: <954040a2-435d-48d9-b5de-9ce46ffba238@oracle.com>
+Date: Tue, 21 May 2024 14:00:52 +0200
+Message-ID: <875xv7idcb.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
-From: Björn Töpel <bjorn@rivosinc.com>
+On Wed, May 15 2024 at 12:51, Dongli Zhang wrote:
+> On 5/13/24 3:46 PM, Thomas Gleixner wrote:
+>> So yes, moving the invocation of irq_force_complete_move() before the
+>> irq_needs_fixup() call makes sense, but it wants this to actually work
+>> correctly:
+>> @@ -1097,10 +1098,11 @@ void irq_force_complete_move(struct irq_
+>>  		goto unlock;
+>>  
+>>  	/*
+>> -	 * If prev_vector is empty, no action required.
+>> +	 * If prev_vector is empty or the descriptor was previously
+>> +	 * not on the outgoing CPU no action required.
+>>  	 */
+>>  	vector = apicd->prev_vector;
+>> -	if (!vector)
+>> +	if (!vector || apicd->prev_cpu != smp_processor_id())
+>>  		goto unlock;
+>>  
+>
+> The above may not work. migrate_one_irq() relies on irq_force_complete_move() to
+> always reclaim the apicd->prev_vector. Otherwise, the call of
+> irq_do_set_affinity() later may return -EBUSY.
 
-ZONE_DEVICE pages need DEVMAP PTEs support to function
-(ARCH_HAS_PTE_DEVMAP). Claim another RSW (reserved for software) bit
-in the PTE for DEVMAP mark, add the corresponding helpers, and enable
-ARCH_HAS_PTE_DEVMAP for riscv64.
+You're right. But that still can be handled in irq_force_complete_move()
+with a single unconditional invocation in migrate_one_irq():
 
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
----
- arch/riscv/Kconfig                    |  1 +
- arch/riscv/include/asm/pgtable-64.h   | 20 ++++++++++++++++++++
- arch/riscv/include/asm/pgtable-bits.h |  1 +
- arch/riscv/include/asm/pgtable.h      | 17 +++++++++++++++++
- 4 files changed, 39 insertions(+)
+	cpu = smp_processor_id();
+	if (!vector || (apicd->cur_cpu != cpu && apicd->prev_cpu != cpu))
+		goto unlock;
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 2724dc2af29f..0b74698c63c7 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -36,6 +36,7 @@ config RISCV
- 	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
- 	select ARCH_HAS_PMEM_API
- 	select ARCH_HAS_PREPARE_SYNC_CORE_CMD
-+	select ARCH_HAS_PTE_DEVMAP if 64BIT && MMU
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_SET_DIRECT_MAP if MMU
- 	select ARCH_HAS_SET_MEMORY if MMU
-diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
-index 221a5c1ee287..c67a9bbfd010 100644
---- a/arch/riscv/include/asm/pgtable-64.h
-+++ b/arch/riscv/include/asm/pgtable-64.h
-@@ -400,4 +400,24 @@ static inline struct page *pgd_page(pgd_t pgd)
- #define p4d_offset p4d_offset
- p4d_t *p4d_offset(pgd_t *pgd, unsigned long address);
- 
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+static inline int pte_devmap(pte_t pte);
-+static inline pte_t pmd_pte(pmd_t pmd);
-+
-+static inline int pmd_devmap(pmd_t pmd)
-+{
-+	return pte_devmap(pmd_pte(pmd));
-+}
-+
-+static inline int pud_devmap(pud_t pud)
-+{
-+	return 0;
-+}
-+
-+static inline int pgd_devmap(pgd_t pgd)
-+{
-+	return 0;
-+}
-+#endif
-+
- #endif /* _ASM_RISCV_PGTABLE_64_H */
-diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
-index 179bd4afece4..a8f5205cea54 100644
---- a/arch/riscv/include/asm/pgtable-bits.h
-+++ b/arch/riscv/include/asm/pgtable-bits.h
-@@ -19,6 +19,7 @@
- #define _PAGE_SOFT      (3 << 8)    /* Reserved for software */
- 
- #define _PAGE_SPECIAL   (1 << 8)    /* RSW: 0x1 */
-+#define _PAGE_DEVMAP    (1 << 9)    /* RSW, devmap */
- #define _PAGE_TABLE     _PAGE_PRESENT
- 
- /*
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 7933f493db71..02fadc276064 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -387,6 +387,13 @@ static inline int pte_special(pte_t pte)
- 	return pte_val(pte) & _PAGE_SPECIAL;
- }
- 
-+#ifdef CONFIG_ARCH_HAS_PTE_DEVMAP
-+static inline int pte_devmap(pte_t pte)
-+{
-+	return pte_val(pte) & _PAGE_DEVMAP;
-+}
-+#endif
-+
- /* static inline pte_t pte_rdprotect(pte_t pte) */
- 
- static inline pte_t pte_wrprotect(pte_t pte)
-@@ -428,6 +435,11 @@ static inline pte_t pte_mkspecial(pte_t pte)
- 	return __pte(pte_val(pte) | _PAGE_SPECIAL);
- }
- 
-+static inline pte_t pte_mkdevmap(pte_t pte)
-+{
-+	return __pte(pte_val(pte) | _PAGE_DEVMAP);
-+}
-+
- static inline pte_t pte_mkhuge(pte_t pte)
- {
- 	return pte;
-@@ -711,6 +723,11 @@ static inline pmd_t pmd_mkdirty(pmd_t pmd)
- 	return pte_pmd(pte_mkdirty(pmd_pte(pmd)));
- }
- 
-+static inline pmd_t pmd_mkdevmap(pmd_t pmd)
-+{
-+	return pte_pmd(pte_mkdevmap(pmd_pte(pmd)));
-+}
-+
- static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
- 				pmd_t *pmdp, pmd_t pmd)
- {
--- 
-2.40.1
+because there are only two cases when a cleanup is required:
 
+   1) The outgoing CPU is the current target
+
+   2) The outgoing CPU was the previous target
+
+No?
+
+Thanks,
+
+        tglx
