@@ -1,122 +1,73 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC61712F389
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 14:20:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED356208D0
+	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 16:09:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716301241; cv=none; b=aZqfkHhCuKZV697Nj9342reubd0rYerLGcwI3VaFi+yBMJ7MxmH/Jc+3JZulbbnSbCL18ux+8wsJeZgV71I+6WhKUbfjGInn8D9XS9zSSFc0BlvSJPomJSK3WkknKoW5I4NDKR47olWpzYhNGUAzyQipNVjMEnEBnGbF5qVVBEc=
+	t=1716307773; cv=none; b=FnhbrVY2vfZ+u3iy7heRNPn+kSa0YhdD2bJAZDIWT6pyqUYs8qjoV13vQq3DOr+XKnAv0r01POp5LWGDMlFydTReP0xUE3WBahCyVeDIij3pwGF23lpTEmLRhtHp4T3O8GQo5KVNz016Vj5X/8JDbhx8UqK1kDeVry0arum+NyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716301241; c=relaxed/simple;
-	bh=su20utJpl4Q5+4WEWl0JIpZRFLQjyxPG8Dy7FgaLppQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I64unKMbkM0ug66Xv5PgWpho2NaeMGmK53BastB92zU9T1gbYIxbLiiK1app4f++wuyeHH5Fd/CEWHUHUuWRItmzZlE8szci2ER+EL4sXpiJScVwKTqSrbdUw80ssmlexm7Iatv43+tay7TdHGqeD1hGhlBIECtE3qRykhnn/1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rO2eJGX2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=RLmDzPRI; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rO2eJGX2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=RLmDzPRI; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1716307773; c=relaxed/simple;
+	bh=RkSBxB1mPmJZ/DR8Fr08TnX1zxdKqejkPexNssbR7dQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=jvo/srwa/IZUmB8FbUnzfAf4NlcXqPW4IL7ys7a4VXzm+ANKKlN8jkd78wFj9RJa+pjDDICF8uk8QS1xbynAuPqjGzRZT453ZvbLK9xLFNWgg0MEQJ0W0dyUExHStYf5Z0b4pCWN3TQXl+SC9/oq8GkhqH4QNaQqcGXYyzLUC8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YCo9ASI2; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rO2eJGX2";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="RLmDzPRI";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rO2eJGX2";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="RLmDzPRI"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YCo9ASI2"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7AE8F4060B
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 14:20:39 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id A198D607AD
+	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 16:09:31 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.4
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id YIcHAyfZE2IP for <virtualization@lists.linux-foundation.org>;
- Tue, 21 May 2024 14:20:38 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=195.135.223.130; helo=smtp-out1.suse.de; envelope-from=osalvador@suse.de; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 5D8A740603
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=suse.de
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5D8A740603
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=rO2eJGX2;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=RLmDzPRI;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=rO2eJGX2;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=RLmDzPRI
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5D8A740603
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 14:20:38 +0000 (UTC)
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 38F19342D8;
-	Tue, 21 May 2024 14:20:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1716301234; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D2gl6IIKZoaIcIf/VQk1wtsxiVEKAJnwFVp8xEUBBLc=;
-	b=rO2eJGX2DCJrhuV+yZ3rMgnlKH+er2PdvSaY9aJKC/k8tQiX0sB1kwl5fRblWX1Lpm2Nlf
-	grAAgFgARm88tcvB9VMdVY52e5DDA07n+cAxv6yUz9gShNiBcXKpDbotyF/HMvfjt9EXvl
-	fBq/X2Kyo2xaVnUhaLJq1R6MyAbqgKM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1716301234;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D2gl6IIKZoaIcIf/VQk1wtsxiVEKAJnwFVp8xEUBBLc=;
-	b=RLmDzPRIx+fhV+XYlKEzah51idE+LCMoIzIxbs59YgHiyMR7BXn6s/ds/Ll/ivLWuobT4k
-	UGFf0v2KQ4F3SXBQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=rO2eJGX2;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=RLmDzPRI
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1716301234; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D2gl6IIKZoaIcIf/VQk1wtsxiVEKAJnwFVp8xEUBBLc=;
-	b=rO2eJGX2DCJrhuV+yZ3rMgnlKH+er2PdvSaY9aJKC/k8tQiX0sB1kwl5fRblWX1Lpm2Nlf
-	grAAgFgARm88tcvB9VMdVY52e5DDA07n+cAxv6yUz9gShNiBcXKpDbotyF/HMvfjt9EXvl
-	fBq/X2Kyo2xaVnUhaLJq1R6MyAbqgKM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1716301234;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D2gl6IIKZoaIcIf/VQk1wtsxiVEKAJnwFVp8xEUBBLc=;
-	b=RLmDzPRIx+fhV+XYlKEzah51idE+LCMoIzIxbs59YgHiyMR7BXn6s/ds/Ll/ivLWuobT4k
-	UGFf0v2KQ4F3SXBQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4D5DE13A1E;
-	Tue, 21 May 2024 14:20:33 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id yy4lELGtTGaZAQAAD6G6ig
-	(envelope-from <osalvador@suse.de>); Tue, 21 May 2024 14:20:33 +0000
-Date: Tue, 21 May 2024 16:20:31 +0200
-From: Oscar Salvador <osalvador@suse.de>
-To: Alexandre Ghiti <alexghiti@rivosinc.com>
-Cc: =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	David Hildenbrand <david@redhat.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	linux-riscv@lists.infradead.org,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@rivosinc.com>,
-	Andrew Bresticker <abrestic@rivosinc.com>,
-	Chethan Seshadri <Chethan.Seshadri@catalinasystems.io>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Santosh Mamila <santosh.mamila@catalinasystems.io>,
-	Sivakumar Munnangi <siva.munnangi@catalinasystems.io>,
-	Sunil V L <sunilvl@ventanamicro.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v3 5/9] riscv: mm: Add memory hotplugging support
-Message-ID: <ZkytryG_cAhjLaQT@localhost.localdomain>
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id R-vMTy5sSynQ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 May 2024 16:09:31 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org E34DE6074E
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E34DE6074E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YCo9ASI2
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E34DE6074E
+	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 16:09:30 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id A8CA861BFE;
+	Tue, 21 May 2024 16:09:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E5AC2BD11;
+	Tue, 21 May 2024 16:09:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1716307769;
+	bh=RkSBxB1mPmJZ/DR8Fr08TnX1zxdKqejkPexNssbR7dQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=YCo9ASI2Js2y0lYzH+ndmKVe0VBlFTGkycxT7Zujt14aad9AwhyXNS7KaKggq6hOZ
+	 CjqBuMvBipIHRI0dSeAnRaGdIWq9dw+lco9sDto8ytsjwHOsLdjahwZxFEMUyF2PJo
+	 rsSN3ldZuKLPl165ORt4ogze7omXIAaPwrKrmNWACeG75cOkrx5NAC189ciVuC4xpg
+	 Dh8KVRkGsbWFABrokxiEiOf/Gc1ifElhhLSV1S7Fye8UgqFZ5Ir1yPlX4Yr65gHiyY
+	 28FCxQDb2DcdZ6d5HsyVkKt/PaQmniprxTRaBhweDbGOnULeN9u2tGzvd6gEdrMkEp
+	 /B4suKzHDu8yg==
+From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
+To: Alexandre Ghiti <alexghiti@rivosinc.com>, Albert Ou
+ <aou@eecs.berkeley.edu>, David Hildenbrand <david@redhat.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-riscv@lists.infradead.org, Oscar Salvador <osalvador@suse.de>
+Cc: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>, Andrew Bresticker
+ <abrestic@rivosinc.com>, Chethan Seshadri
+ <Chethan.Seshadri@catalinasystems.io>, Lorenzo Stoakes
+ <lstoakes@gmail.com>, Santosh Mamila <santosh.mamila@catalinasystems.io>,
+ Sivakumar Munnangi <siva.munnangi@catalinasystems.io>, Sunil V L
+ <sunilvl@ventanamicro.com>, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v3 2/9] riscv: mm: Pre-allocate vmemmap/direct map PGD
+ entries
+In-Reply-To: <20240521114830.841660-3-bjorn@kernel.org>
 References: <20240521114830.841660-1-bjorn@kernel.org>
- <20240521114830.841660-6-bjorn@kernel.org>
- <CAHVXubi_yQ6L5g4dODoHMNvgO6kHy8i6YskRXSPoTU4N2P8rUA@mail.gmail.com>
+ <20240521114830.841660-3-bjorn@kernel.org>
+Date: Tue, 21 May 2024 18:09:25 +0200
+Message-ID: <87frubdu4q.fsf@all.your.base.are.belong.to.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -124,68 +75,89 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHVXubi_yQ6L5g4dODoHMNvgO6kHy8i6YskRXSPoTU4N2P8rUA@mail.gmail.com>
-X-Rspamd-Action: no action
-X-Rspamd-Queue-Id: 38F19342D8
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCPT_COUNT_TWELVE(0.00)[17];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	TO_DN_SOME(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[kernel.org,eecs.berkeley.edu,redhat.com,dabbelt.com,sifive.com,lists.infradead.org,rivosinc.com,catalinasystems.io,gmail.com,ventanamicro.com,vger.kernel.org,kvack.org,lists.linux-foundation.org];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_TRACE(0.00)[suse.de:+];
-	MISSING_XM_UA(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 21, 2024 at 03:19:37PM +0200, Alexandre Ghiti wrote:
-> On Tue, May 21, 2024 at 1:49 PM Björn Töpel <bjorn@kernel.org> wrote:
-> > +       if (PageReserved(page)) {
-> > +               __ClearPageReserved(page);
-> 
-> What's the difference between __ClearPageReserved() and
-> ClearPageReserved()? Because it seems like free_reserved_page() calls
-> the latter already, so why would you need to call
-> __ClearPageReserved() on the first page?
+Bj=C3=B6rn T=C3=B6pel <bjorn@kernel.org> writes:
 
-__{Set,Clear}Page are the non-atomic version.
-Usually used when you know that no one else can fiddle with the page, which
-should be the case here since we are removing the memory.
+> From: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
+>
+> The RISC-V port copies the PGD table from init_mm/swapper_pg_dir to
+> all userland page tables, which means that if the PGD level table is
+> changed, other page tables has to be updated as well.
+>
+> Instead of having the PGD changes ripple out to all tables, the
+> synchronization can be avoided by pre-allocating the PGD entries/pages
+> at boot, avoiding the synchronization all together.
+>
+> This is currently done for the bpf/modules, and vmalloc PGD regions.
+> Extend this scheme for the PGD regions touched by memory hotplugging.
+>
+> Prepare the RISC-V port for memory hotplug by pre-allocate
+> vmemmap/direct map entries at the PGD level. This will roughly waste
+> ~128 worth of 4K pages when memory hotplugging is enabled in the
+> kernel configuration.
+>
+> Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+> Signed-off-by: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
+> ---
+>  arch/riscv/include/asm/kasan.h | 4 ++--
+>  arch/riscv/mm/init.c           | 7 +++++++
+>  2 files changed, 9 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/riscv/include/asm/kasan.h b/arch/riscv/include/asm/kasa=
+n.h
+> index 0b85e363e778..e6a0071bdb56 100644
+> --- a/arch/riscv/include/asm/kasan.h
+> +++ b/arch/riscv/include/asm/kasan.h
+> @@ -6,8 +6,6 @@
+>=20=20
+>  #ifndef __ASSEMBLY__
+>=20=20
+> -#ifdef CONFIG_KASAN
+> -
+>  /*
+>   * The following comment was copied from arm64:
+>   * KASAN_SHADOW_START: beginning of the kernel virtual addresses.
+> @@ -34,6 +32,8 @@
+>   */
+>  #define KASAN_SHADOW_START	((KASAN_SHADOW_END - KASAN_SHADOW_SIZE) & PGD=
+IR_MASK)
+>  #define KASAN_SHADOW_END	MODULES_LOWEST_VADDR
+> +
+> +#ifdef CONFIG_KASAN
+>  #define KASAN_SHADOW_OFFSET	_AC(CONFIG_KASAN_SHADOW_OFFSET, UL)
+>=20=20
+>  void kasan_init(void);
+> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+> index b66f846e7634..c98010ede810 100644
+> --- a/arch/riscv/mm/init.c
+> +++ b/arch/riscv/mm/init.c
+> @@ -27,6 +27,7 @@
+>=20=20
+>  #include <asm/fixmap.h>
+>  #include <asm/io.h>
+> +#include <asm/kasan.h>
+>  #include <asm/numa.h>
+>  #include <asm/pgtable.h>
+>  #include <asm/sections.h>
+> @@ -1488,10 +1489,16 @@ static void __init preallocate_pgd_pages_range(un=
+signed long start, unsigned lon
+>  	panic("Failed to pre-allocate %s pages for %s area\n", lvl, area);
+>  }
+>=20=20
+> +#define PAGE_END KASAN_SHADOW_START
+> +
+>  void __init pgtable_cache_init(void)
+>  {
+>  	preallocate_pgd_pages_range(VMALLOC_START, VMALLOC_END, "vmalloc");
+>  	if (IS_ENABLED(CONFIG_MODULES))
+>  		preallocate_pgd_pages_range(MODULES_VADDR, MODULES_END, "bpf/modules");
+> +	if (IS_ENABLED(CONFIG_MEMORY_HOTPLUG)) {
+> +		preallocate_pgd_pages_range(VMEMMAP_START, VMEMMAP_END, "vmemmap");
+> +		preallocate_pgd_pages_range(PAGE_OFFSET, PAGE_END, "direct map");
 
-As to why we have __ClearPageReserved and then having
-free_reserved_page() call ClearPageReserved I do not really know.
-Looking at the history, it has always been like this.
+Alex pointed out that KASAN PGDs should be preallocated as well! I'll
+address this in the next revision.
 
-I remember I looked at this a few years ago but I cannot remember the outcome
-of that.
 
-Maybe David remembers better, but I think we could remove that
-__ClearPageReserved.
-Looking at powerpc implementation code, it does not do the
-__ClearPageReserved and relies only on free_reserved_page().
-
-I will have a look.
-
--- 
-Oscar Salvador
-SUSE Labs
+Bj=C3=B6rn
