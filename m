@@ -1,163 +1,97 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED356208D0
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 16:09:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF78915C0;
+	Wed, 22 May 2024 02:27:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716307773; cv=none; b=FnhbrVY2vfZ+u3iy7heRNPn+kSa0YhdD2bJAZDIWT6pyqUYs8qjoV13vQq3DOr+XKnAv0r01POp5LWGDMlFydTReP0xUE3WBahCyVeDIij3pwGF23lpTEmLRhtHp4T3O8GQo5KVNz016Vj5X/8JDbhx8UqK1kDeVry0arum+NyQ=
+	t=1716344869; cv=none; b=cK3SOd54Eg2Ce4VLFCkLo8s+BzNlOMRAuH4dtwthhSzrKSgsDJXN8xCLJbe9Z7udthstKgrsUZQ3orcdl4VU5uxtG6MeBIU5phedpt6T3iAerQtZxkwK0cfsgj7kGECVi9W5ztLIhA1EINeCltgdrf3YbsRPtyAHEoEc4V33pE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716307773; c=relaxed/simple;
-	bh=RkSBxB1mPmJZ/DR8Fr08TnX1zxdKqejkPexNssbR7dQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=jvo/srwa/IZUmB8FbUnzfAf4NlcXqPW4IL7ys7a4VXzm+ANKKlN8jkd78wFj9RJa+pjDDICF8uk8QS1xbynAuPqjGzRZT453ZvbLK9xLFNWgg0MEQJ0W0dyUExHStYf5Z0b4pCWN3TQXl+SC9/oq8GkhqH4QNaQqcGXYyzLUC8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YCo9ASI2; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1716344869; c=relaxed/simple;
+	bh=zv1bDCgDyK66NAyyXA3qwyVKDI4Dj0TjLmGIr7Tt64o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PAGqhCU6PaFFl9rzZASadptlAUIH5Iu/KxmXS64qD0rnTRPAUZ1dePpgPjQ5/byTXYL0vS0Ssklrnl0hNMu2JlKHHEeOQ6vjFMowZcS827c5CPPhbl27r4rKbU24lPB2p6KgIMLUgN6T5K4+cQ7d5b2xAUVg8EKDmaxSbCWuydY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lYTrk8eK; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YCo9ASI2"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A198D607AD
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 16:09:31 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id R-vMTy5sSynQ for <virtualization@lists.linux-foundation.org>;
- Tue, 21 May 2024 16:09:31 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org E34DE6074E
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E34DE6074E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YCo9ASI2
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E34DE6074E
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 16:09:30 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id A8CA861BFE;
-	Tue, 21 May 2024 16:09:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E5AC2BD11;
-	Tue, 21 May 2024 16:09:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716307769;
-	bh=RkSBxB1mPmJZ/DR8Fr08TnX1zxdKqejkPexNssbR7dQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=YCo9ASI2Js2y0lYzH+ndmKVe0VBlFTGkycxT7Zujt14aad9AwhyXNS7KaKggq6hOZ
-	 CjqBuMvBipIHRI0dSeAnRaGdIWq9dw+lco9sDto8ytsjwHOsLdjahwZxFEMUyF2PJo
-	 rsSN3ldZuKLPl165ORt4ogze7omXIAaPwrKrmNWACeG75cOkrx5NAC189ciVuC4xpg
-	 Dh8KVRkGsbWFABrokxiEiOf/Gc1ifElhhLSV1S7Fye8UgqFZ5Ir1yPlX4Yr65gHiyY
-	 28FCxQDb2DcdZ6d5HsyVkKt/PaQmniprxTRaBhweDbGOnULeN9u2tGzvd6gEdrMkEp
-	 /B4suKzHDu8yg==
-From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
-To: Alexandre Ghiti <alexghiti@rivosinc.com>, Albert Ou
- <aou@eecs.berkeley.edu>, David Hildenbrand <david@redhat.com>, Palmer
- Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
- linux-riscv@lists.infradead.org, Oscar Salvador <osalvador@suse.de>
-Cc: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>, Andrew Bresticker
- <abrestic@rivosinc.com>, Chethan Seshadri
- <Chethan.Seshadri@catalinasystems.io>, Lorenzo Stoakes
- <lstoakes@gmail.com>, Santosh Mamila <santosh.mamila@catalinasystems.io>,
- Sivakumar Munnangi <siva.munnangi@catalinasystems.io>, Sunil V L
- <sunilvl@ventanamicro.com>, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v3 2/9] riscv: mm: Pre-allocate vmemmap/direct map PGD
- entries
-In-Reply-To: <20240521114830.841660-3-bjorn@kernel.org>
-References: <20240521114830.841660-1-bjorn@kernel.org>
- <20240521114830.841660-3-bjorn@kernel.org>
-Date: Tue, 21 May 2024 18:09:25 +0200
-Message-ID: <87frubdu4q.fsf@all.your.base.are.belong.to.us>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lYTrk8eK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1716344867; x=1747880867;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=zv1bDCgDyK66NAyyXA3qwyVKDI4Dj0TjLmGIr7Tt64o=;
+  b=lYTrk8eKeLtf80E21RKOHmaD7A+opYgD5RwJD4Rwv+WjGta5kdprMAIR
+   H3JWtIE+G0k7PQnjWeGFlwXeOtG5dKJ6MW93NXW2YPz8KhbQ5Pcc+v2RG
+   ao3PnlfC4j0DdgD/9hSr4fxlRXoq5pAEfbSHYnH7FkItK1JcuVzmEgH0y
+   6f7HMrgEJWapWBelsqoTmndLMRXyt1RISDMS6tg6u4jbEwoQqCZvC2MG7
+   xG5q5ReFDrkmhUBuCTbsSQ6LrMLB2zbNdepqZhsC5ZKh+qAUsZeykcYPC
+   dC8E4bXpy3iDO0QswD5ynhIkHzqlpqkCBakobQK5nK2Tq7Q/UhugshGAS
+   A==;
+X-CSE-ConnectionGUID: 9sj72GMES/yPio9s3M2EgQ==
+X-CSE-MsgGUID: cT4yFYDZTnyzze/9ZetsQA==
+X-IronPort-AV: E=McAfee;i="6600,9927,11079"; a="16401382"
+X-IronPort-AV: E=Sophos;i="6.08,179,1712646000"; 
+   d="scan'208";a="16401382"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2024 19:27:46 -0700
+X-CSE-ConnectionGUID: U4Z1vXzYTO6PdadMS/6+jQ==
+X-CSE-MsgGUID: KPgYSKr4TyeyHIP7REqcFw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,179,1712646000"; 
+   d="scan'208";a="33107201"
+Received: from unknown (HELO 0610945e7d16) ([10.239.97.151])
+  by fmviesa008.fm.intel.com with ESMTP; 21 May 2024 19:27:43 -0700
+Received: from kbuild by 0610945e7d16 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1s9bhb-0000xN-2q;
+	Wed, 22 May 2024 02:27:40 +0000
+Date: Wed, 22 May 2024 10:26:54 +0800
+From: kernel test robot <lkp@intel.com>
+To: Bibo Mao <maobibo@loongson.cn>, Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Huacai Chen <chenhuacai@kernel.org>
+Cc: Paul Gazzillo <paul@pgazz.com>,
+	Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+	oe-kbuild-all@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+	kvm@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org, x86@kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v3 2/2] LoongArch: Add steal time support in guest side
+Message-ID: <202405221028.QrCEdMNQ-lkp@intel.com>
+References: <20240521024556.419436-3-maobibo@loongson.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240521024556.419436-3-maobibo@loongson.cn>
 
-Bj=C3=B6rn T=C3=B6pel <bjorn@kernel.org> writes:
+Hi Bibo,
 
-> From: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
->
-> The RISC-V port copies the PGD table from init_mm/swapper_pg_dir to
-> all userland page tables, which means that if the PGD level table is
-> changed, other page tables has to be updated as well.
->
-> Instead of having the PGD changes ripple out to all tables, the
-> synchronization can be avoided by pre-allocating the PGD entries/pages
-> at boot, avoiding the synchronization all together.
->
-> This is currently done for the bpf/modules, and vmalloc PGD regions.
-> Extend this scheme for the PGD regions touched by memory hotplugging.
->
-> Prepare the RISC-V port for memory hotplug by pre-allocate
-> vmemmap/direct map entries at the PGD level. This will roughly waste
-> ~128 worth of 4K pages when memory hotplugging is enabled in the
-> kernel configuration.
->
-> Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-> Signed-off-by: Bj=C3=B6rn T=C3=B6pel <bjorn@rivosinc.com>
-> ---
->  arch/riscv/include/asm/kasan.h | 4 ++--
->  arch/riscv/mm/init.c           | 7 +++++++
->  2 files changed, 9 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/riscv/include/asm/kasan.h b/arch/riscv/include/asm/kasa=
-n.h
-> index 0b85e363e778..e6a0071bdb56 100644
-> --- a/arch/riscv/include/asm/kasan.h
-> +++ b/arch/riscv/include/asm/kasan.h
-> @@ -6,8 +6,6 @@
->=20=20
->  #ifndef __ASSEMBLY__
->=20=20
-> -#ifdef CONFIG_KASAN
-> -
->  /*
->   * The following comment was copied from arm64:
->   * KASAN_SHADOW_START: beginning of the kernel virtual addresses.
-> @@ -34,6 +32,8 @@
->   */
->  #define KASAN_SHADOW_START	((KASAN_SHADOW_END - KASAN_SHADOW_SIZE) & PGD=
-IR_MASK)
->  #define KASAN_SHADOW_END	MODULES_LOWEST_VADDR
-> +
-> +#ifdef CONFIG_KASAN
->  #define KASAN_SHADOW_OFFSET	_AC(CONFIG_KASAN_SHADOW_OFFSET, UL)
->=20=20
->  void kasan_init(void);
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index b66f846e7634..c98010ede810 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -27,6 +27,7 @@
->=20=20
->  #include <asm/fixmap.h>
->  #include <asm/io.h>
-> +#include <asm/kasan.h>
->  #include <asm/numa.h>
->  #include <asm/pgtable.h>
->  #include <asm/sections.h>
-> @@ -1488,10 +1489,16 @@ static void __init preallocate_pgd_pages_range(un=
-signed long start, unsigned lon
->  	panic("Failed to pre-allocate %s pages for %s area\n", lvl, area);
->  }
->=20=20
-> +#define PAGE_END KASAN_SHADOW_START
-> +
->  void __init pgtable_cache_init(void)
->  {
->  	preallocate_pgd_pages_range(VMALLOC_START, VMALLOC_END, "vmalloc");
->  	if (IS_ENABLED(CONFIG_MODULES))
->  		preallocate_pgd_pages_range(MODULES_VADDR, MODULES_END, "bpf/modules");
-> +	if (IS_ENABLED(CONFIG_MEMORY_HOTPLUG)) {
-> +		preallocate_pgd_pages_range(VMEMMAP_START, VMEMMAP_END, "vmemmap");
-> +		preallocate_pgd_pages_range(PAGE_OFFSET, PAGE_END, "direct map");
+kernel test robot noticed the following build warnings:
 
-Alex pointed out that KASAN PGDs should be preallocated as well! I'll
-address this in the next revision.
+[auto build test WARNING on 3c999d1ae3c75991902a1a7dad0cb62c2a3008b4]
 
+url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Add-steal-time-support-in-kvm-side/20240521-104902
+base:   3c999d1ae3c75991902a1a7dad0cb62c2a3008b4
+patch link:    https://lore.kernel.org/r/20240521024556.419436-3-maobibo%40loongson.cn
+patch subject: [PATCH v3 2/2] LoongArch: Add steal time support in guest side
+config: loongarch-kismet-CONFIG_PARAVIRT-CONFIG_PARAVIRT_TIME_ACCOUNTING-0-0 (https://download.01.org/0day-ci/archive/20240522/202405221028.QrCEdMNQ-lkp@intel.com/config)
+reproduce: (https://download.01.org/0day-ci/archive/20240522/202405221028.QrCEdMNQ-lkp@intel.com/reproduce)
 
-Bj=C3=B6rn
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202405221028.QrCEdMNQ-lkp@intel.com/
+
+kismet warnings: (new ones prefixed by >>)
+>> kismet: WARNING: unmet direct dependencies detected for PARAVIRT when selected by PARAVIRT_TIME_ACCOUNTING
+   
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
