@@ -1,97 +1,214 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF78915C0;
-	Wed, 22 May 2024 02:27:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCE7C6BB5B
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 May 2024 03:39:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716344869; cv=none; b=cK3SOd54Eg2Ce4VLFCkLo8s+BzNlOMRAuH4dtwthhSzrKSgsDJXN8xCLJbe9Z7udthstKgrsUZQ3orcdl4VU5uxtG6MeBIU5phedpt6T3iAerQtZxkwK0cfsgj7kGECVi9W5ztLIhA1EINeCltgdrf3YbsRPtyAHEoEc4V33pE0=
+	t=1716349200; cv=none; b=C96GWKNZd4z5DOGTIXDLxM10nXoEdgYgkw3McfHnlUaGMOd7IVrGmBSiRGftR5R+fMi/UMa3ZLzTzxxus7pbgPnQ21HE1+fgNKJ+RXiSj+vTbHXrq+pXz2P/FUq+23Qa5oYFKoR2oIYFyWSH8A7TCQffY1GtBSJTR320pJfKmgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716344869; c=relaxed/simple;
-	bh=zv1bDCgDyK66NAyyXA3qwyVKDI4Dj0TjLmGIr7Tt64o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PAGqhCU6PaFFl9rzZASadptlAUIH5Iu/KxmXS64qD0rnTRPAUZ1dePpgPjQ5/byTXYL0vS0Ssklrnl0hNMu2JlKHHEeOQ6vjFMowZcS827c5CPPhbl27r4rKbU24lPB2p6KgIMLUgN6T5K4+cQ7d5b2xAUVg8EKDmaxSbCWuydY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lYTrk8eK; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1716349200; c=relaxed/simple;
+	bh=rsad/eQ6DWGheNrhJpEzrqphxiW82XXKQz+YNf64b9U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lJPzEEWhrNNW9ov4dRsqVeMT6U0jRbBlR5dVPrejtd2pUPNgUECupPZLZfb+yeIjFc4TdEXrexwqcageWuvX+E0AjfSDEheiIgZzMw0AakKkGlRVWUZ4W30tNmvryOsqATDLQMozvgIYd923CbZEg0b3oQt4lSQ75TgkbeHXlFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gqdJs16o; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lYTrk8eK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1716344867; x=1747880867;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=zv1bDCgDyK66NAyyXA3qwyVKDI4Dj0TjLmGIr7Tt64o=;
-  b=lYTrk8eKeLtf80E21RKOHmaD7A+opYgD5RwJD4Rwv+WjGta5kdprMAIR
-   H3JWtIE+G0k7PQnjWeGFlwXeOtG5dKJ6MW93NXW2YPz8KhbQ5Pcc+v2RG
-   ao3PnlfC4j0DdgD/9hSr4fxlRXoq5pAEfbSHYnH7FkItK1JcuVzmEgH0y
-   6f7HMrgEJWapWBelsqoTmndLMRXyt1RISDMS6tg6u4jbEwoQqCZvC2MG7
-   xG5q5ReFDrkmhUBuCTbsSQ6LrMLB2zbNdepqZhsC5ZKh+qAUsZeykcYPC
-   dC8E4bXpy3iDO0QswD5ynhIkHzqlpqkCBakobQK5nK2Tq7Q/UhugshGAS
-   A==;
-X-CSE-ConnectionGUID: 9sj72GMES/yPio9s3M2EgQ==
-X-CSE-MsgGUID: cT4yFYDZTnyzze/9ZetsQA==
-X-IronPort-AV: E=McAfee;i="6600,9927,11079"; a="16401382"
-X-IronPort-AV: E=Sophos;i="6.08,179,1712646000"; 
-   d="scan'208";a="16401382"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2024 19:27:46 -0700
-X-CSE-ConnectionGUID: U4Z1vXzYTO6PdadMS/6+jQ==
-X-CSE-MsgGUID: KPgYSKr4TyeyHIP7REqcFw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,179,1712646000"; 
-   d="scan'208";a="33107201"
-Received: from unknown (HELO 0610945e7d16) ([10.239.97.151])
-  by fmviesa008.fm.intel.com with ESMTP; 21 May 2024 19:27:43 -0700
-Received: from kbuild by 0610945e7d16 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1s9bhb-0000xN-2q;
-	Wed, 22 May 2024 02:27:40 +0000
-Date: Wed, 22 May 2024 10:26:54 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bibo Mao <maobibo@loongson.cn>, Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Huacai Chen <chenhuacai@kernel.org>
-Cc: Paul Gazzillo <paul@pgazz.com>,
-	Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-	oe-kbuild-all@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-	kvm@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org, x86@kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v3 2/2] LoongArch: Add steal time support in guest side
-Message-ID: <202405221028.QrCEdMNQ-lkp@intel.com>
-References: <20240521024556.419436-3-maobibo@loongson.cn>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gqdJs16o"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 736A740178
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 May 2024 03:39:58 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id jGVBNdULkT2S for <virtualization@lists.linux-foundation.org>;
+ Wed, 22 May 2024 03:39:57 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2438E4015C
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2438E4015C
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gqdJs16o
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2438E4015C
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 May 2024 03:39:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1716349195;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ahfb/G0D4ZbkGUdB/34uH7SDNYvGMH6beGMeu1yJFi4=;
+	b=gqdJs16oELEWpN82uY28xO1QvpVaT+wgQGSDQBkdMx5LfNahvSGkM3UM85rBXYaQe/Hm9K
+	zjZxOPZY5izu4ik3iM9dx7dNG2v3j1Rqy3Son3KyZXSEwf+boK17aRS5y94lYNj4l7bMrm
+	WwQa7Goo3cH2VJprF8jPDxAB0m4Qqzs=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-623-19tNWeyDM9eH8j-zCSAKNw-1; Tue, 21 May 2024 23:39:54 -0400
+X-MC-Unique: 19tNWeyDM9eH8j-zCSAKNw-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2b4330e57b6so13289342a91.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 21 May 2024 20:39:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716349193; x=1716953993;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ahfb/G0D4ZbkGUdB/34uH7SDNYvGMH6beGMeu1yJFi4=;
+        b=Buy696HLLkjVWRN8t90GnjnvZjYU6Y+4OppcEVrL2qXCg1AurK/0cdq4T5whAamopv
+         LKFLEP1ZoMyxQquBF8BgnoLt+KkwAMJpMLVemK2YAYAdRojn5RIfs6r6pPae82I0m1So
+         mLMkQCSOJzbA/8pE8XZ0XVw4wmv6euXU2WqdGOjGfnCN81/shNV5DCBThkuB0Eg6Xe/S
+         kRkzLJkGW0cWuLyNm3F14s+rNUhWK1Y3jbi7Fzkiew5m/rU98FHFSfYbRIxVOCrXyUdW
+         jE2sFuQbHwHDpghArmULuQ2x3lHX4I+SQFYb2tTOcu9yy8r3ULPRy0+IYXi9g30rIsY/
+         /9RQ==
+X-Gm-Message-State: AOJu0YwvvAEcb4j4NnfNOPGOrMsmRT1hXvA3iGzOVJYpICxRmJLFLn9V
+	r5JPnHgiyZz1VfhFIOeSbn+vOYWkbovz0xgA53NMm3f0I1QD4+fgmKwkKOoY3NWjv5YPiHn8BDp
+	M1WCWoSN7x4cQWCrXqifh2ksMEgn0kAVuHYmafCT7mxqPsYSIgfZhEITd496DrxkrvgAG0rTiQG
+	FQU8YiU6sSWWZLnApGHjWtSiGY5uPZPQ3TlI4tcc/Zj6jtltr6GI5hpA==
+X-Received: by 2002:a17:90a:2ca1:b0:2b6:c4d7:fc31 with SMTP id 98e67ed59e1d1-2bd9f5bc52emr1191156a91.40.1716349192785;
+        Tue, 21 May 2024 20:39:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG8sphTEf2DYNIvycHgNVTAqOYPL463d5Bg/hLWjrc2NJXKaACBiVW4Y6g7W/u0hk1gVqaiG+1JL0LQ1v/2zrA=
+X-Received: by 2002:a17:90a:2ca1:b0:2b6:c4d7:fc31 with SMTP id
+ 98e67ed59e1d1-2bd9f5bc52emr1191138a91.40.1716349192371; Tue, 21 May 2024
+ 20:39:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240521024556.419436-3-maobibo@loongson.cn>
+References: <1716218462-84587-1-git-send-email-steven.sistare@oracle.com>
+ <1716218462-84587-4-git-send-email-steven.sistare@oracle.com>
+ <CACGkMEur=CoU1GgxNdweu-SfuutSN-a+LaHLkdtoWYJMnE+LOg@mail.gmail.com> <46f91e76-6f88-4f83-8854-10baed4e82c9@oracle.com>
+In-Reply-To: <46f91e76-6f88-4f83-8854-10baed4e82c9@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 22 May 2024 11:39:41 +0800
+Message-ID: <CACGkMEtVt+W4jmBxaXAytreXjJUHxmo+zzAw0wsrLw97pJmW-A@mail.gmail.com>
+Subject: Re: [PATCH V3 3/3] vdpa_sim: flush workers on suspend
+To: Steven Sistare <steven.sistare@oracle.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	Eugenio Perez Martin <eperezma@redhat.com>, Xie Yongji <xieyongji@bytedance.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Bibo,
+On Tue, May 21, 2024 at 9:39=E2=80=AFPM Steven Sistare
+<steven.sistare@oracle.com> wrote:
+>
+> On 5/20/2024 10:32 PM, Jason Wang wrote:
+> > On Mon, May 20, 2024 at 11:21=E2=80=AFPM Steve Sistare
+> > <steven.sistare@oracle.com> wrote:
+> >>
+> >> Flush to guarantee no workers are running when suspend returns.
+> >> Add a lock to enforce ordering between clearing running, flushing,
+> >> and posting new work in vdpasim_kick_vq.  It must be a spin lock
+> >> because vdpasim_kick_vq may be reached va eventfd_write.
+> >>
+> >> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+> >> ---
+> >>   drivers/vdpa/vdpa_sim/vdpa_sim.c | 16 ++++++++++++++--
+> >>   drivers/vdpa/vdpa_sim/vdpa_sim.h |  1 +
+> >>   2 files changed, 15 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/=
+vdpa_sim.c
+> >> index 8ffea8430f95..67ed49d95bf0 100644
+> >> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> >> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> >> @@ -322,7 +322,7 @@ static u16 vdpasim_get_vq_size(struct vdpa_device =
+*vdpa, u16 idx)
+> >>                  return VDPASIM_QUEUE_MAX;
+> >>   }
+> >>
+> >> -static void vdpasim_kick_vq(struct vdpa_device *vdpa, u16 idx)
+> >> +static void vdpasim_do_kick_vq(struct vdpa_device *vdpa, u16 idx)
+> >>   {
+> >>          struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
+> >>          struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[idx];
+> >> @@ -337,6 +337,15 @@ static void vdpasim_kick_vq(struct vdpa_device *v=
+dpa, u16 idx)
+> >>                  vdpasim_schedule_work(vdpasim);
+> >>   }
+> >>
+> >> +static void vdpasim_kick_vq(struct vdpa_device *vdpa, u16 idx)
+> >> +{
+> >> +       struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
+> >> +
+> >> +       spin_lock(&vdpasim->kick_lock);
+> >> +       vdpasim_do_kick_vq(vdpa, idx);
+> >> +       spin_unlock(&vdpasim->kick_lock);
+> >> +}
+> >> +
+> >>   static void vdpasim_set_vq_cb(struct vdpa_device *vdpa, u16 idx,
+> >>                                struct vdpa_callback *cb)
+> >>   {
+> >> @@ -520,8 +529,11 @@ static int vdpasim_suspend(struct vdpa_device *vd=
+pa)
+> >>          struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
+> >>
+> >>          mutex_lock(&vdpasim->mutex);
+> >> +       spin_lock(&vdpasim->kick_lock);
+> >>          vdpasim->running =3D false;
+> >> +       spin_unlock(&vdpasim->kick_lock);
+> >>          mutex_unlock(&vdpasim->mutex);
+> >> +       kthread_flush_work(&vdpasim->work);
+> >>
+> >>          return 0;
+> >>   }
+> >> @@ -537,7 +549,7 @@ static int vdpasim_resume(struct vdpa_device *vdpa=
+)
+> >>          if (vdpasim->pending_kick) {
+> >>                  /* Process pending descriptors */
+> >>                  for (i =3D 0; i < vdpasim->dev_attr.nvqs; ++i)
+> >> -                       vdpasim_kick_vq(vdpa, i);
+> >> +                       vdpasim_do_kick_vq(vdpa, i);
+> >>
+> >>                  vdpasim->pending_kick =3D false;
+> >>          }
+> >> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/=
+vdpa_sim.h
+> >> index bb137e479763..5eb6ca9c5ec5 100644
+> >> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> >> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> >> @@ -75,6 +75,7 @@ struct vdpasim {
+> >>          bool pending_kick;
+> >>          /* spinlock to synchronize iommu table */
+> >>          spinlock_t iommu_lock;
+> >> +       spinlock_t kick_lock;
+> >
+> > It looks to me this is not initialized?
+>
+> Yup, I lost that line while fiddling with different locking schemes.
+> Thanks, will fix in V4.
+>
+> @@ -236,6 +236,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_att=
+r
+> *dev_attr,
+>
+>          mutex_init(&vdpasim->mutex);
+>          spin_lock_init(&vdpasim->iommu_lock);
+> +       spin_lock_init(&vdpasim->kick_lock);
+>
+> With that fix, does this patch earn your RB?
 
-kernel test robot noticed the following build warnings:
+Yes.
 
-[auto build test WARNING on 3c999d1ae3c75991902a1a7dad0cb62c2a3008b4]
+Thanks
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Add-steal-time-support-in-kvm-side/20240521-104902
-base:   3c999d1ae3c75991902a1a7dad0cb62c2a3008b4
-patch link:    https://lore.kernel.org/r/20240521024556.419436-3-maobibo%40loongson.cn
-patch subject: [PATCH v3 2/2] LoongArch: Add steal time support in guest side
-config: loongarch-kismet-CONFIG_PARAVIRT-CONFIG_PARAVIRT_TIME_ACCOUNTING-0-0 (https://download.01.org/0day-ci/archive/20240522/202405221028.QrCEdMNQ-lkp@intel.com/config)
-reproduce: (https://download.01.org/0day-ci/archive/20240522/202405221028.QrCEdMNQ-lkp@intel.com/reproduce)
+>
+> - Steve
+>
+> >>   };
+> >>
+> >>   struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *attr,
+> >> --
+> >> 2.39.3
+> >>
+> >
+>
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202405221028.QrCEdMNQ-lkp@intel.com/
-
-kismet warnings: (new ones prefixed by >>)
->> kismet: WARNING: unmet direct dependencies detected for PARAVIRT when selected by PARAVIRT_TIME_ACCOUNTING
-   
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
