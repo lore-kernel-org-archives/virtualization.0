@@ -1,327 +1,185 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB5BF130E3E
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 May 2024 11:41:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2738113D623
+	for <virtualization@lists.linux.dev>; Wed, 22 May 2024 12:28:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716378115; cv=none; b=fFnzwbKsYrqKdmVkU7nsLBPsmuq4fprJErnkaOaiCpfJ4UmTNB0zGWw6+L5p3wvI3zO9DXGqS4VD3qvHrP7uCyAMBoJyWst7sIUqOF3VqUbxuh8DQa8grwGTfKczjz7S2ZjcYvSYWLYww1z5//2f+Mt9K660AMu4F7dBwRq1wyw=
+	t=1716380937; cv=none; b=iybkR8WXcY83S3/Ww99897efYGwEfrr/Ln/jHYg7zAf2+nq9qGeDq6uUEZW4m36yfl3VXQD6q6nhXZMdAocsutWv8BsVA1RI4WQD8o0aZlVF+PMyQxKJAQeKrXWbHkchzLTxQm9C183MN2YEUdx93S4sU0ihD4MvEdyI7ypg0AY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716378115; c=relaxed/simple;
-	bh=6kOScnqq1f3Lup96PmP+FiM2VqT68vsjDqx1Kl8E/3Y=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=FgtVr+GEzJdjVHwA2wbmKwBLtJev2pqCVcYKk9qPeMPHZTtZKJgre3qdWT08odaTe86Yv2FoOBYxT/gtXgCt+08oyR4j+R2Z62qXN1c47r7qd5G/XvMBZSAqmZsBnnxHDtsPo7LRXcaZi1ex/MCfytryAYUPGarY/Yq3TlwI5Ko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=pdNtC6Up; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1716380937; c=relaxed/simple;
+	bh=IjhE+2UdQAnuXtlylaE+JoyaTsfKnza85kdSkCPXqCs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=uBU8LsX4TjllSHcAEb/Qj5A/FxXAKBcvMlV0LiqAdxUl06tPcNPrLBBkTwu1rAkFWe8kcs3PYYobkpMuQdbdEOORDlyu+04Ur81WjT2X8EgV/MAPr5oaJnqPT/J8AjYnvMdxtBv/JZzWJxxWReuhkfZfEkMZJIH+9b5ssnijj0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Qds0YO0+; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="pdNtC6Up"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3F53840103
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 May 2024 11:41:53 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -17.499
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id nV49Q-tAyo7g for <virtualization@lists.linux-foundation.org>;
- Wed, 22 May 2024 11:41:52 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=xuanzhuo@linux.alibaba.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EBD1840102
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EBD1840102
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=pdNtC6Up
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EBD1840102
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 May 2024 11:41:49 +0000 (UTC)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1716378105; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=G7AvbOTwQvGlz5AgqSfZcaQhKwQJQMPhSdT/huU+DmE=;
-	b=pdNtC6UpgncQRCBpzKJ+5d/WPi/NyfRU7FQ9PsobvwSjci0GcHrkJ+ijA+IPZNPIaE6f+mRVAGspfzN3jEMVHcE9RLUto4tWHsSgqLZxmjPZX1goARyWkq9Rv1KQkEfwmy2qfqWvdHvdKsehJ5N+qTCeRDtSkMYumWN451k91MY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=32;SR=0;TI=SMTPD_---0W7.TVQP_1716378101;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7.TVQP_1716378101)
-          by smtp.aliyun-inc.com;
-          Wed, 22 May 2024 19:41:42 +0800
-Message-ID: <1716377965.6866436-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [GIT PULL] virtio: features, fixes, cleanups
-Date: Wed, 22 May 2024 19:39:25 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- anton.yakovlev@opensynergy.com,
- bartosz.golaszewski@linaro.org,
- christophe.jaillet@wanadoo.fr,
- dave.jiang@intel.com,
- david@redhat.com,
- eperezma@redhat.com,
- herbert@gondor.apana.org.au,
- jasowang@redhat.com,
- jiri@nvidia.com,
- jiri@resnulli.us,
- johannes@sipsolutions.net,
- krzysztof.kozlowski@linaro.org,
- lingshan.zhu@intel.com,
- linus.walleij@linaro.org,
- lizhijian@fujitsu.com,
- martin.petersen@oracle.com,
- maxime.coquelin@redhat.com,
- michael.christie@oracle.com,
- sgarzare@redhat.com,
- stevensd@chromium.org,
- sudeep.holla@arm.com,
- syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com,
- u.kleine-koenig@pengutronix.de,
- viresh.kumar@linaro.org,
- yuxue.liu@jaguarmicro.com,
- Srujana Challa <schalla@marvell.com>,
- Linus Torvalds <torvalds@linux-foundation.org>,Jason Wang <jasowang@redhat.com>
-References: <20240522060301-mutt-send-email-mst@kernel.org>
- <1716373365.1499481-1-xuanzhuo@linux.alibaba.com>
- <20240522073727-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240522073727-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qds0YO0+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1716380935;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=a+cu2mi6DrTCATyynjShlX3nyC2W5Pcy/CJyML1HBmE=;
+	b=Qds0YO0+JqDsQm2ufPGkIWdTqt2K5G4Lz39qw6me2gHUrprn5tECSLMLJoLccAwJR/6RM3
+	8zd6MLL/HMdoCrIov/JzKejUfYOa8VlbcGYuL63RtQXfsJcnUgb7SbMIRhp3vvCJ2qwUYT
+	n46ZLWWZ28C/vaBZjW5VpEQl44U3Aw4=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-554-1GcixycKMA2F84R3L4fNIQ-1; Wed, 22 May 2024 08:28:53 -0400
+X-MC-Unique: 1GcixycKMA2F84R3L4fNIQ-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-354df3e1b0fso281007f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 22 May 2024 05:28:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716380932; x=1716985732;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=a+cu2mi6DrTCATyynjShlX3nyC2W5Pcy/CJyML1HBmE=;
+        b=LI0DrES/VKhVwA6Jc8pjQrwjSfG1WTsJ9vhy1E9EumBd5PwH4pdbtZyJyF6JXLzwvh
+         lgTDtBDJiwu+scPsLbVmbeX+tT/BZbKremFvwVXBYiYaGfR7j5ZOscz/4zeEuuWyEfQE
+         ncnOsnHGek4QgcKJjHsUG4TFVVy8LaSdWKIkmG8TsTYG61pNAIdJ7EIEFgpJTi0Jlu4j
+         u16965z8aSkMfMFD7GT/M8o+0GkMBRhG3f+AVjXAODV3ftbjPB+ROOxXIWaik4mjcxyT
+         PkKi+x/lfT8pp7DaA+VNx1p6+qHtQvn/CwVH7ro0Mhtf/iS2ceSocLPE/082axASUdhY
+         0Swg==
+X-Gm-Message-State: AOJu0YyGJkRoFZZPO4wHd4KvwdeV8O8sDa0z16D/1mhHSniiGIcBaXWb
+	Jzn+xOHxhDE9lT6sy6u7aMLSWI2Ei9uTeiJoy5XQlwkQvH/z+W0zWM6fN/ChpYBjtGR2945NyYK
+	C0G2E3ZvU+WzMQk/zAItlRwJQkRcmIwhmTqity8JJTOIouqC1arWoN4XA5AJAe3uN
+X-Received: by 2002:adf:e60a:0:b0:354:e22c:ea86 with SMTP id ffacd0b85a97d-354e22cebaemr1323585f8f.9.1716380932415;
+        Wed, 22 May 2024 05:28:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGzJHem68umXpabzX/QCksQommVuGzFjAE3Wqkqn0Byb8srELzLVtz9M/YE9lepG/jLnJp0Rg==
+X-Received: by 2002:adf:e60a:0:b0:354:e22c:ea86 with SMTP id ffacd0b85a97d-354e22cebaemr1323532f8f.9.1716380931656;
+        Wed, 22 May 2024 05:28:51 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:55d:e862:558a:a573:a176:1825])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502b79bdc7sm34184149f8f.22.2024.05.22.05.28.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 May 2024 05:28:50 -0700 (PDT)
+Date: Wed, 22 May 2024 08:28:43 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH vhost v9 0/6] refactor the params of find_vqs()
+Message-ID: <20240522082732-mutt-send-email-mst@kernel.org>
+References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 22 May 2024 07:38:01 -0400, "Michael S. Tsirkin" <mst@redhat.com> w=
-rote:
-> On Wed, May 22, 2024 at 06:22:45PM +0800, Xuan Zhuo wrote:
-> > On Wed, 22 May 2024 06:03:01 -0400, "Michael S. Tsirkin" <mst@redhat.co=
-m> wrote:
-> > > Things to note here:
-> > >
-> > > - the new Marvell OCTEON DPU driver is not here: latest v4 keeps caus=
-ing
-> > >   build failures on mips. I deferred the pull hoping to get it in
-> > >   and I might merge a new version post rc1
-> > >   (supposed to be ok for new drivers as they can't cause regressions),
-> > >   but we'll see.
-> > > - there are also a couple bugfixes under review, to be merged after r=
-c1
-> > > - I merged a trivial patch (removing a comment) that also got
-> > >   merged through net.
-> > >   git handles this just fine and it did not seem worth it
-> > >   rebasing to drop it.
-> > > - there is a trivial conflict in the header file. Shouldn't be any
-> > >   trouble to resolve, but fyi the resolution by Stephen is here
-> > > 	diff --cc drivers/virtio/virtio_mem.c
-> > > 	index e8355f55a8f7,6d4dfbc53a66..000000000000
-> > > 	--- a/drivers/virtio/virtio_mem.c
-> > > 	+++ b/drivers/virtio/virtio_mem.c
-> > > 	@@@ -21,7 -21,7 +21,8 @@@
-> > > 	  #include <linux/bitmap.h>
-> > > 	  #include <linux/lockdep.h>
-> > > 	  #include <linux/log2.h>
-> > > 	 +#include <linux/vmalloc.h>
-> > > 	+ #include <linux/suspend.h>
-> > >   Also see it here:
-> > >   https://lore.kernel.org/all/20240423145947.142171f6@canb.auug.org.a=
-u/
-> > >
-> > >
-> > >
-> > > The following changes since commit 18daea77cca626f590fb140fc11e3a43c5=
-d41354:
-> > >
-> > >   Merge tag 'for-linus' of git://git.kernel.org/pub/scm/virt/kvm/kvm =
-(2024-04-30 12:40:41 -0700)
-> > >
-> > > are available in the Git repository at:
-> > >
-> > >   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/=
-for_linus
-> > >
-> > > for you to fetch changes up to 0b8dbbdcf2e42273fbac9b752919e2e5b2abac=
-21:
-> > >
-> > >   Merge tag 'for_linus' into vhost (2024-05-12 08:15:28 -0400)
-> > >
-> > > ----------------------------------------------------------------
-> > > virtio: features, fixes, cleanups
-> > >
-> > > Several new features here:
-> > >
-> > > - virtio-net is finally supported in vduse.
-> > >
-> > > - Virtio (balloon and mem) interaction with suspend is improved
-> > >
-> > > - vhost-scsi now handles signals better/faster.
-> > >
-> > > - virtio-net now supports premapped mode by default,
-> > >   opening the door for all kind of zero copy tricks.
-> > >
-> > > Fixes, cleanups all over the place.
-> > >
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
-> > > ----------------------------------------------------------------
-> > > Christophe JAILLET (1):
-> > >       vhost-vdpa: Remove usage of the deprecated ida_simple_xx() API
-> > >
-> > > David Hildenbrand (1):
-> > >       virtio-mem: support suspend+resume
-> > >
-> > > David Stevens (2):
-> > >       virtio_balloon: Give the balloon its own wakeup source
-> > >       virtio_balloon: Treat stats requests as wakeup events
-> > >
-> > > Eugenio P=E9=96=9Eez (2):
-> > >       MAINTAINERS: add Eugenio P=E9=96=9Eez as reviewer
-> > >       MAINTAINERS: add Eugenio P=E9=96=9Eez as reviewer
-> > >
-> > > Jiri Pirko (1):
-> > >       virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
-> > >
-> > > Krzysztof Kozlowski (24):
-> > >       virtio: balloon: drop owner assignment
-> > >       virtio: input: drop owner assignment
-> > >       virtio: mem: drop owner assignment
-> > >       um: virt-pci: drop owner assignment
-> > >       virtio_blk: drop owner assignment
-> > >       bluetooth: virtio: drop owner assignment
-> > >       hwrng: virtio: drop owner assignment
-> > >       virtio_console: drop owner assignment
-> > >       crypto: virtio - drop owner assignment
-> > >       firmware: arm_scmi: virtio: drop owner assignment
-> > >       gpio: virtio: drop owner assignment
-> > >       drm/virtio: drop owner assignment
-> > >       iommu: virtio: drop owner assignment
-> > >       misc: nsm: drop owner assignment
-> > >       net: caif: virtio: drop owner assignment
-> > >       net: virtio: drop owner assignment
-> > >       net: 9p: virtio: drop owner assignment
-> > >       vsock/virtio: drop owner assignment
-> > >       wifi: mac80211_hwsim: drop owner assignment
-> > >       nvdimm: virtio_pmem: drop owner assignment
-> > >       rpmsg: virtio: drop owner assignment
-> > >       scsi: virtio: drop owner assignment
-> > >       fuse: virtio: drop owner assignment
-> > >       sound: virtio: drop owner assignment
-> > >
-> > > Li Zhijian (1):
-> > >       vdpa: Convert sprintf/snprintf to sysfs_emit
-> > >
-> > > Maxime Coquelin (6):
-> > >       vduse: validate block features only with block devices
-> > >       vduse: Temporarily fail if control queue feature requested
-> > >       vduse: enable Virtio-net device type
-> > >       vduse: validate block features only with block devices
-> > >       vduse: Temporarily fail if control queue feature requested
-> > >       vduse: enable Virtio-net device type
-> > >
-> > > Michael S. Tsirkin (2):
-> > >       Merge tag 'stable/vduse-virtio-net' into vhost
-> > >       Merge tag 'for_linus' into vhost
-> > >
-> > > Mike Christie (9):
-> > >       vhost-scsi: Handle vhost_vq_work_queue failures for events
-> > >       vhost-scsi: Handle vhost_vq_work_queue failures for cmds
-> > >       vhost-scsi: Use system wq to flush dev for TMFs
-> > >       vhost: Remove vhost_vq_flush
-> > >       vhost_scsi: Handle vhost_vq_work_queue failures for TMFs
-> > >       vhost: Use virtqueue mutex for swapping worker
-> > >       vhost: Release worker mutex during flushes
-> > >       vhost_task: Handle SIGKILL by flushing work and exiting
-> > >       kernel: Remove signal hacks for vhost_tasks
-> > >
-> > > Uwe Kleine-K=E9=B0=8Aig (1):
-> > >       virtio-mmio: Convert to platform remove callback returning void
-> > >
-> > > Xuan Zhuo (7):
-> > >       virtio_ring: introduce dma map api for page
-> > >       virtio_ring: enable premapped mode whatever use_dma_api
-> > >       virtio_net: replace private by pp struct inside page
-> > >       virtio_net: big mode support premapped
-> > >       virtio_net: enable premapped by default
-> > >       virtio_net: rx remove premapped failover code
-> > >       virtio_net: remove the misleading comment
-> >
-> > Hi Michael,
-> >
-> > As we discussed here:
-> >
-> > 	http://lore.kernel.org/all/CACGkMEuyeJ9mMgYnnB42=3Dhw6umNuo=3Dagn7VBqB=
-qYPd7GN=3D+39Q@mail.gmail.com
-> >
-> > This patch set has been abandoned.
->
-> You mean I should drop it? OK.
+On Wed, Apr 24, 2024 at 05:15:27PM +0800, Xuan Zhuo wrote:
+> This pathset is splited from the
+> 
+>      http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.com
+> 
+> That may needs some cycles to discuss. But that notifies too many people.
+> 
+> But just the four commits need to notify so many people.
+> And four commits are independent. So I split that patch set,
+> let us review these first.
+> 
+> The patch set try to  refactor the params of find_vqs().
+> Then we can just change the structure, when introducing new
+> features.
+> 
+> Thanks.
 
-YES. As I discussed with Jason.
+It's nice but I'd like to see something that uses this before I bother
+merging. IIUC premapped is dropped - are we going to use this in practice?
 
->
-> > And you miss
-> >
-> > 	https://lore.kernel.org/all/20240424091533.86949-1-xuanzhuo@linux.alib=
-aba.com/
+> v8:
+>   1. rebase the vhost branch
+> 
+> v7:
+>   1. fix two bugs. @Jason
+> 
+> v6:
+>   1. virtio_balloon: a single variable for both purposes.
+>   2. if names[i] is null, return error
+> 
+> v5:
+>   1. virtio_balloon: follow David Hildenbrand's suggest
+>     http://lore.kernel.org/all/3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com
+>   2. fix bug of the reference of "cfg_idx"
+>     http://lore.kernel.org/all/202403222227.Sdp23Lcb-lkp@intel.com
+> 
+> v4:
+>   1. remove support for names array entries being null
+>   2. remove cfg_idx from virtio_vq_config
+> 
+> v3:
+>   1. fix the bug: "assignment of read-only location '*cfg.names'"
+> 
+> v2:
+>   1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
+> 
+> v1:
+>   1. fix some comments from ilpo.jarvinen@linux.intel.com
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> Xuan Zhuo (6):
+>   virtio_balloon: remove the dependence where names[] is null
+>   virtio: remove support for names array entries being null.
+>   virtio: find_vqs: pass struct instead of multi parameters
+>   virtio: vring_create_virtqueue: pass struct instead of multi
+>     parameters
+>   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+>   virtio_ring: simplify the parameters of the funcs related to
+>     vring_create/new_virtqueue()
+> 
+>  arch/um/drivers/virtio_uml.c             |  36 +++--
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |  23 +--
+>  drivers/remoteproc/remoteproc_virtio.c   |  37 +++--
+>  drivers/s390/virtio/virtio_ccw.c         |  38 ++---
+>  drivers/virtio/virtio_balloon.c          |  48 +++---
+>  drivers/virtio/virtio_mmio.c             |  36 +++--
+>  drivers/virtio/virtio_pci_common.c       |  69 ++++-----
+>  drivers/virtio/virtio_pci_common.h       |   9 +-
+>  drivers/virtio/virtio_pci_legacy.c       |  16 +-
+>  drivers/virtio/virtio_pci_modern.c       |  37 +++--
+>  drivers/virtio/virtio_ring.c             | 177 ++++++++---------------
+>  drivers/virtio/virtio_vdpa.c             |  51 +++----
+>  include/linux/virtio_config.h            |  76 +++++++---
+>  include/linux/virtio_ring.h              |  93 +++++++-----
+>  tools/virtio/virtio_test.c               |   4 +-
+>  tools/virtio/vringh_test.c               |  28 ++--
+>  16 files changed, 384 insertions(+), 394 deletions(-)
+> 
+> -- 
+> 2.32.0.3.g01195cf9f
 
-And this.
-
-Thanks.
-
-
-> >
-> > Thanks.
-> >
-> > >
-> > > Yuxue Liu (2):
-> > >       vp_vdpa: Fix return value check vp_vdpa_request_irq
-> > >       vp_vdpa: don't allocate unused msix vectors
-> > >
-> > > Zhu Lingshan (1):
-> > >       MAINTAINERS: apply maintainer role of Intel vDPA driver
-> > >
-> > >  MAINTAINERS                                   |  10 +-
-> > >  arch/um/drivers/virt-pci.c                    |   1 -
-> > >  drivers/block/virtio_blk.c                    |   1 -
-> > >  drivers/bluetooth/virtio_bt.c                 |   1 -
-> > >  drivers/char/hw_random/virtio-rng.c           |   1 -
-> > >  drivers/char/virtio_console.c                 |   2 -
-> > >  drivers/crypto/virtio/virtio_crypto_core.c    |   1 -
-> > >  drivers/firmware/arm_scmi/virtio.c            |   1 -
-> > >  drivers/gpio/gpio-virtio.c                    |   1 -
-> > >  drivers/gpu/drm/virtio/virtgpu_drv.c          |   1 -
-> > >  drivers/iommu/virtio-iommu.c                  |   1 -
-> > >  drivers/misc/nsm.c                            |   1 -
-> > >  drivers/net/caif/caif_virtio.c                |   1 -
-> > >  drivers/net/virtio_net.c                      | 248 ++++++++++++++++=
-+---------
-> > >  drivers/net/wireless/virtual/mac80211_hwsim.c |   1 -
-> > >  drivers/nvdimm/virtio_pmem.c                  |   1 -
-> > >  drivers/rpmsg/virtio_rpmsg_bus.c              |   1 -
-> > >  drivers/scsi/virtio_scsi.c                    |   1 -
-> > >  drivers/vdpa/vdpa.c                           |   2 +-
-> > >  drivers/vdpa/vdpa_user/vduse_dev.c            |  24 ++-
-> > >  drivers/vdpa/virtio_pci/vp_vdpa.c             |  27 ++-
-> > >  drivers/vhost/scsi.c                          |  70 +++++---
-> > >  drivers/vhost/vdpa.c                          |   6 +-
-> > >  drivers/vhost/vhost.c                         | 130 ++++++++++----
-> > >  drivers/vhost/vhost.h                         |   3 +-
-> > >  drivers/virtio/virtio_balloon.c               |  85 +++++----
-> > >  drivers/virtio/virtio_input.c                 |   1 -
-> > >  drivers/virtio/virtio_mem.c                   |  69 ++++++-
-> > >  drivers/virtio/virtio_mmio.c                  |   6 +-
-> > >  drivers/virtio/virtio_pci_common.c            |   4 +-
-> > >  drivers/virtio/virtio_ring.c                  |  59 +++++-
-> > >  fs/coredump.c                                 |   4 +-
-> > >  fs/fuse/virtio_fs.c                           |   1 -
-> > >  include/linux/sched/vhost_task.h              |   3 +-
-> > >  include/linux/virtio.h                        |   7 +
-> > >  include/uapi/linux/virtio_mem.h               |   2 +
-> > >  kernel/exit.c                                 |   5 +-
-> > >  kernel/signal.c                               |   4 +-
-> > >  kernel/vhost_task.c                           |  53 ++++--
-> > >  net/9p/trans_virtio.c                         |   1 -
-> > >  net/vmw_vsock/virtio_transport.c              |   1 -
-> > >  sound/virtio/virtio_card.c                    |   1 -
-> > >  42 files changed, 578 insertions(+), 265 deletions(-)
-> > >
->
