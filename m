@@ -1,179 +1,179 @@
-Received: from mail-ed1-f65.google.com (mail-ed1-f65.google.com [209.85.208.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 227FD5B5B8
-	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 09:09:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D913C13D899
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 May 2024 09:59:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716455357; cv=none; b=oUv5mre6abrYARUBOLeRGA4X470e2j1CBn9y05LIoH+xClaq2pz+VkRXXj1ADcFIhr3+w1SDhIViONH/cj+Nj9xKqplW7HVIYg3oDr4+0hxv83JCurjsw0PzxpB8BK7U6XHhV5dBNrcpbH4zxmJAzdKOAj+y1Qw4bT1AwNVSVBE=
+	t=1716458392; cv=none; b=iCKt4HP3OvoYLtVn3+1RcnObmicE7MX9DEIqaOSioEug+PsicSfbMCEOjmB0d++sdJenKTRPKMzM0Ur5BjF4O8gnW3r3lUugUdqnEnrvLtiWj+slqi0qcrPpJcK+Njwqulpp8FDFEKORxupkRAicIOBiSSdzwkCLh5zS1WagmgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716455357; c=relaxed/simple;
-	bh=2JYubz4Ps7KPt7XXfcnmfocab4Yao251kcNtVlyrwQg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t96cwkgTJ7HQNX/HyBUACWsHvgWCSUNwIRv2MfvQKQZehkvwbefKGBJJM8STouMfLgga+kz0NBA3QwBqFg9VAP0HpU4wC0Y9w5Rg9Yxbbmv1IW2NXludrfVELF8OoStcxWueiUaIBjxM74Wfc+ejF613OWaUzVoXUuR4WLaK8MQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=aQ6DnZ6v; arc=none smtp.client-ip=209.85.208.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1716458392; c=relaxed/simple;
+	bh=+59I1LMHz5513L5Tt9Gn+0+i8+g532fE4EtvdMuItaE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ug7zsOxEvpZoCRhioySxCq2GmCgEvduBIEncZ+ZljF05vXHeeXpCPAJHDNjOq68A6UX8lsTaYJr4Rx68HE3x1aAK73A0tiKdbZjw9fQnIY70ilHeUINhgMWnsRf3klbsbbJcRoszwa9piWeRfZUNjMehryQK+SLTbLm26YrLozY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=NvKZkGmU; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="aQ6DnZ6v"
-Received: by mail-ed1-f65.google.com with SMTP id 4fb4d7f45d1cf-573061776e8so11250942a12.1
-        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 02:09:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="NvKZkGmU"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 80FAE60762
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 May 2024 09:59:50 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id dw_Ki_QRVu4k for <virtualization@lists.linux-foundation.org>;
+ Thu, 23 May 2024 09:59:49 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b2e; helo=mail-yb1-xb2e.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 0C95D60678
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0C95D60678
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=NvKZkGmU
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0C95D60678
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 May 2024 09:59:48 +0000 (UTC)
+Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-df457d734abso1955506276.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 23 May 2024 02:59:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1716455353; x=1717060153; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=b5SD+2Q/n2VCUhgMsXmzgdogRkao4DuVxoUJaRKE3zs=;
-        b=aQ6DnZ6vvEay3wiqnani8A1v5Eu2iEZjEiExNRYuqhTC6B63zkRzDUyB/2x/2FfJUc
-         DOHlssWVClWjTpA2tx0g0X+SXiMukUmO8R+EEWq6DV2v22Kdu+GO4dxFw4NyZywO9MYc
-         Uao2OnhjcE80ez9hwILSyHd/Yb2Dyvu/OdWwxqXYuY6J+tamTo7qn6n9W9+S4AqPSnBj
-         MEfOPFQhj/9HZGwW5IunKh3OrLJ++g0i7ca1v/pxsFGA11Yj1Hn42FJ1zVMlUU+mar+9
-         MXeic2LiKSGzssdilPqOcccvyVyzTpqAeP+hsevSB1r4LRJZiwO3ngQe5VM1IiSgoxUB
-         gXxQ==
+        d=linaro.org; s=google; t=1716458387; x=1717063187; darn=lists.linux-foundation.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=4eLg5W63v6nyWYGdaPlQGL+64DpELLePyMxWT5qrNUU=;
+        b=NvKZkGmUo0OcU/FLaZlclFE6H5ONCaLxR4dCGmH/FfXBfPPe93pm8OxP5DQtzIB2dk
+         wBhtbqgKtxk2Qy9EruxzDY1Q9z5egKlNsRvEPJFYIGaI4ZJueRwHza1qRUps6lxcIbfb
+         1Z2pjwSoadoXSEfvp91w751emxuMWpkKGReOjB8q6TWml+Ts+FfasLo0XXWnQzsiVbHk
+         nogg87Ew2POKVYs40L65vkCqgDmovIA4bLd0IDygojNwS4I+KnKsP56j16mEsPh8oFur
+         eHxR3rCllRP23CJeVOlt0Xe1k8EHUC0KSwrIG4lRmgCgCmWw4PxR0sicOxNWvPDxeYn3
+         el5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716455353; x=1717060153;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=b5SD+2Q/n2VCUhgMsXmzgdogRkao4DuVxoUJaRKE3zs=;
-        b=X0TnAifLn4pu29U9T0PMRZUkqZYa44EvgrWC7NVaeqQtOqTUeIBSUI7RGFq9Y0CujX
-         BYPeRgqFnBxQTv3xt/obaS7SPU1mI2oFIoVwgyAImn8qBFDjwjiTpPIBqyXPjEQHDLj8
-         GprDbgacmL622fKYVDGBbp2hDBgQC1ieGDzqSdip99zu96bIY1IFhrRInG3Sr74Eg4qQ
-         DJN3O/er5eCkHRVdT57UJJHQHMYXS/7YzQIdwhbBbqXNhrZPe0kqjyrtr34bz0U3a4gL
-         r/poxJwQrcoSuhy1i4M1WM4sTI8XyN9TTFhtyXkcVs/O/ZtEWy5UbIGWJ8zj+setInxO
-         3jtA==
-X-Forwarded-Encrypted: i=1; AJvYcCU2mwVINMCb2mCAxUCtnFRNpr3zOt+YlRaQ4wrR8eKpb5hVw9GLTL+ckTF49w2bByC+T1CInAz7f8PlSzq9OTHBzcjTOwgl2dWsR3tj+rI=
-X-Gm-Message-State: AOJu0Yyo95v/hjNLQnJKBrF2cCCRKzYD6v1cjoNh0QyXh2QfX3xebash
-	lpJHOlFTDsqRQ7M2uHlGNpdmyKaV9A/wpQlUt6LRNUNCVz2mGCeLlO0CRJ6AWXg=
-X-Google-Smtp-Source: AGHT+IGIKGAZV9XaKjWzU+vREJX1dK+rJPHwqt9SCZ2GLUEZ7Q56Oak3zmq8tVmP7jrz5tuX6zi6zA==
-X-Received: by 2002:a17:906:ae41:b0:a59:f3f9:d24c with SMTP id a640c23a62f3a-a6228171dafmr272969466b.76.1716455353073;
-        Thu, 23 May 2024 02:09:13 -0700 (PDT)
-Received: from localhost (78-80-19-19.customers.tmcz.cz. [78.80.19.19])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a5a691870absm1444913866b.124.2024.05.23.02.09.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 May 2024 02:09:12 -0700 (PDT)
-Date: Thu, 23 May 2024 11:09:10 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net v2 2/2] Revert "virtio_net: Add a lock for per queue
- RX coalesce"
-Message-ID: <Zk8Hts3HrzFMV0p9@nanopsycho.orion>
-References: <20240523074651.3717-1-hengqi@linux.alibaba.com>
- <20240523074651.3717-3-hengqi@linux.alibaba.com>
+        d=1e100.net; s=20230601; t=1716458387; x=1717063187;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4eLg5W63v6nyWYGdaPlQGL+64DpELLePyMxWT5qrNUU=;
+        b=BE9ONay16gsS+nQNCDB5Ah1qasZ+A5DXr3UFSLaUcVMG4XO9LWweF+GSKlDnlvQl/P
+         1axhiD3gA2Pwjm1oO3UMQfSKlQs3BTV7iCKUx6iu5bbvFmUBm3rVsCfoIjiB//R4TJ/u
+         PiamUzVRRNFD1lXKQzxtL5vczBSWGSwg9Z0SqOzZg9g1japwiPTrfkQz5cMCrrYPCqwt
+         PJfyRpL1WJ0ZfdlleuV3d/dEaxVQViuCZlbYT+ITaOkYvzJrlfsZYFO0FIyJYPU7mNht
+         0s1se8miXTYKqIH0hoL03Fm0DQ6EADKj6DaESD+gsIdrirx8bB36Upf9eJSj5+9GwN6q
+         iCuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXpRpKW4wmOpyfOwIgf/8GYw7BNNCWUNNh8JhXZCJseM7YJuW1xzN6RzdiGCb1TTsR+ppHa3pOOnbIHtl6siITeDLekCQQmW8MV3tAFN0njgEpCYYoQO6WEAQ==
+X-Gm-Message-State: AOJu0YzVdCu2A2SqG3M94n/Ihp3nQU56rBgXbSGHMSQlMNWANiF4UjK/
+	j7HqWONWsUD1VeKE8xOGdo6/6gGbgkGJwForADWj6McrLgREdHI9jpMiefth/6l3aKxHXb33nH+
+	DxVJOdba9DyD/aRztOwcrczCi2VPqUwRelOuWoQ==
+X-Google-Smtp-Source: AGHT+IEH2bet0vxbyQkGUI55R017CbgvtHVbrVup5m0zjkPeCkh3N7ZUjMndzd5BhJJAs4TMZp+oQ52G6r3Sss4urHM=
+X-Received: by 2002:a25:b181:0:b0:dee:607c:3528 with SMTP id
+ 3f1490d57ef6-df4e0a9cfa9mr4821493276.3.1716458387642; Thu, 23 May 2024
+ 02:59:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240523074651.3717-3-hengqi@linux.alibaba.com>
+References: <20240517092502.647420-1-vignesh.raman@collabora.com>
+ <20240517092502.647420-2-vignesh.raman@collabora.com> <2qzmfv3oc6feihwxu3tl37rg6w3qsj2vddu5olvqk6vhqr26cc@bxu5y6ijvtfa>
+ <9cd0667a-12ee-4d45-80e8-dc34259bf01d@collabora.com>
+In-Reply-To: <9cd0667a-12ee-4d45-80e8-dc34259bf01d@collabora.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Date: Thu, 23 May 2024 12:59:36 +0300
+Message-ID: <CAA8EJprVVkQO7aPkehwL2zhYkGRkm4Foc13ErfuY6ikBA_4nLQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] drm/ci: uprev mesa version
+To: Vignesh Raman <vignesh.raman@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
+	helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch, 
+	robdclark@gmail.com, david.heidelberg@collabora.com, 
+	guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, 
+	mcanal@igalia.com, linux-mediatek@lists.infradead.org, 
+	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
+	intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thu, May 23, 2024 at 09:46:51AM CEST, hengqi@linux.alibaba.com wrote:
->This reverts commit 4d4ac2ececd3c42a08dd32a6e3a4aaf25f7efe44.
+On Thu, 23 May 2024 at 09:07, Vignesh Raman <vignesh.raman@collabora.com> wrote:
 >
->When the following snippet is run, lockdep will report a deadlock[1].
+> Hi Dmitry,
 >
->  /* Acquire all queues dim_locks */
->  for (i = 0; i < vi->max_queue_pairs; i++)
->          mutex_lock(&vi->rq[i].dim_lock);
+> On 20/05/24 16:13, Dmitry Baryshkov wrote:
+> > On Fri, May 17, 2024 at 02:54:57PM +0530, Vignesh Raman wrote:
+> >> zlib.net is not allowing tarball download anymore and results
+> >> in below error in kernel+rootfs_arm32 container build,
+> >> urllib.error.HTTPError: HTTP Error 403: Forbidden
+> >> urllib.error.HTTPError: HTTP Error 415: Unsupported Media Type
+> >>
+> >> Uprev mesa to latest version which includes a fix for this issue.
+> >> https://gitlab.freedesktop.org/mesa/mesa/-/commit/908f444e
+> >>
+> >> Use id_tokens for JWT authentication. Since s3 bucket is migrated to
+> >> mesa-rootfs, update the variables accordingly. Also copy helper scripts
+> >> to install, so that the ci jobs can use these scripts for logging.
+> >>
+> >> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> >> ---
+> >>
+> >> v2:
+> >>    - Uprev to recent version and use id_tokens for JWT authentication
+> >>
+> >> ---
+> >>   drivers/gpu/drm/ci/build-igt.sh   |  2 +-
+> >>   drivers/gpu/drm/ci/build.sh       |  6 +++--
+> >>   drivers/gpu/drm/ci/container.yml  | 12 +++------
+> >>   drivers/gpu/drm/ci/gitlab-ci.yml  | 44 +++++++++++++++++++++----------
+> >>   drivers/gpu/drm/ci/image-tags.yml |  2 +-
+> >>   drivers/gpu/drm/ci/lava-submit.sh |  4 +--
+> >>   drivers/gpu/drm/ci/test.yml       |  2 ++
+> >>   7 files changed, 44 insertions(+), 28 deletions(-)
+> >>
+> >
+> > [skipped]
+> >
+> >> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
+> >> index 8bc63912fddb..612c9ede3507 100644
+> >> --- a/drivers/gpu/drm/ci/test.yml
+> >> +++ b/drivers/gpu/drm/ci/test.yml
+> >> @@ -150,6 +150,8 @@ msm:sdm845:
+> >>       BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/cheza-kernel
+> >>       GPU_VERSION: sdm845
+> >>       RUNNER_TAG: google-freedreno-cheza
+> >> +    DEVICE_TYPE: sdm845-cheza-r3
+> >> +    FARM: google
+> >
+> > I see that this is the only user of the FARM: tag. Is it correct?
 >
->There's no deadlock here because the vq locks are always taken
->in the same order, but lockdep can not figure it out, and we
->can not make each lock a separate class because there can be more
->than MAX_LOCKDEP_SUBCLASSES of vqs.
->
->However, dropping the lock is harmless:
->  1. If dim is enabled, modifications made by dim worker to coalescing
->     params may cause the user's query results to be dirty data.
->  2. In scenarios (a) and (b), a spurious dim worker is scheduled,
->     but this can be handled correctly:
->     (a)
->       1. dim is on
->       2. net_dim call schedules a worker
->       3. dim is turning off
->       4. The worker checks that dim is off and then exits after
->          restoring dim's state.
->       5. The worker will not be scheduled until the next time dim is on.
->
->     (b)
->       1. dim is on
->       2. net_dim call schedules a worker
->       3. The worker checks that dim is on and keeps going
->       4. dim is turning off
->       5. The worker successfully configure this parameter to the device.
->       6. The worker will not be scheduled until the next time dim is on.
->
->[1]
->========================================================
->WARNING: possible recursive locking detected
->6.9.0-rc7+ #319 Not tainted
->--------------------------------------------
->ethtool/962 is trying to acquire lock:
->
->but task is already holding lock:
->
->other info that might help us debug this:
->Possible unsafe locking scenario:
->
->      CPU0
->      ----
-> lock(&vi->rq[i].dim_lock);
-> lock(&vi->rq[i].dim_lock);
->
->*** DEADLOCK ***
->
-> May be due to missing lock nesting notation
->
->3 locks held by ethtool/962:
-> #0: ffffffff82dbaab0 (cb_lock){++++}-{3:3}, at: genl_rcv+0x19/0x40
-> #1: ffffffff82dad0a8 (rtnl_mutex){+.+.}-{3:3}, at:
->				ethnl_default_set_doit+0xbe/0x1e0
->
->stack backtrace:
->CPU: 6 PID: 962 Comm: ethtool Not tainted 6.9.0-rc7+ #319
->Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
->	   rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
->Call Trace:
-> <TASK>
-> dump_stack_lvl+0x79/0xb0
-> check_deadlock+0x130/0x220
-> __lock_acquire+0x861/0x990
-> lock_acquire.part.0+0x72/0x1d0
-> ? lock_acquire+0xf8/0x130
-> __mutex_lock+0x71/0xd50
-> virtnet_set_coalesce+0x151/0x190
-> __ethnl_set_coalesce.isra.0+0x3f8/0x4d0
-> ethnl_set_coalesce+0x34/0x90
-> ethnl_default_set_doit+0xdd/0x1e0
-> genl_family_rcv_msg_doit+0xdc/0x130
-> genl_family_rcv_msg+0x154/0x230
-> ? __pfx_ethnl_default_set_doit+0x10/0x10
-> genl_rcv_msg+0x4b/0xa0
-> ? __pfx_genl_rcv_msg+0x10/0x10
-> netlink_rcv_skb+0x5a/0x110
-> genl_rcv+0x28/0x40
-> netlink_unicast+0x1af/0x280
-> netlink_sendmsg+0x20e/0x460
-> __sys_sendto+0x1fe/0x210
-> ? find_held_lock+0x2b/0x80
-> ? do_user_addr_fault+0x3a2/0x8a0
-> ? __lock_release+0x5e/0x160
-> ? do_user_addr_fault+0x3a2/0x8a0
-> ? lock_release+0x72/0x140
-> ? do_user_addr_fault+0x3a7/0x8a0
-> __x64_sys_sendto+0x29/0x30
-> do_syscall_64+0x78/0x180
-> entry_SYSCALL_64_after_hwframe+0x76/0x7e
->
->Fixes: 4d4ac2ececd3 ("virtio_net: Add a lock for per queue RX coalesce")
->Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> No, we need to add FARM variable for other jobs as well.
 
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Why? Even if we have to, we don't have them now and the change doesn't
+seem to be related to the uprev'ing of mesa. So this probably should
+go to a separate commit.
+
+>
+> > Also we miss DEVICE_TYPE for several other boards. Should we be adding
+> > them?
+>
+> Yes, device type needs to be added for msm:apq8016, msm:apq8096, virtio_gpu.
+>
+> I will add this. Thanks.
+
+I'd guess, separate commit too.
+
+>
+> Regards,
+> Vignesh
+>
+> >
+> >>     script:
+> >>       - ./install/bare-metal/cros-servo.sh
+> >>
+> >> --
+> >> 2.40.1
+> >>
+> >
+
+
+
+-- 
+With best wishes
+Dmitry
