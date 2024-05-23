@@ -1,55 +1,54 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97EFE84FCF
-	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:15:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E60E82892
+	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:15:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716491740; cv=none; b=suaCnqt01nIoSMyRLuBjx7syPwQ/nnKeSsjvyDDBKR3g3QybS2p0D+wszDngLaiU9sXr8xxdTiRN5xQDRHgUdzTEyB8jUoWWwkZHeSM34Bp7pxqMQj1PKLK0PKgUOc9pQW+pf4Mq9/Syb6qFLn9EYm8GiGm7/Q872IUBLxcM5Dg=
+	t=1716491745; cv=none; b=VPa/Yn1VkO6IkWXTINJ3D9gKZf+m/2NSWRamLcP0VL5f3hW5z8Vgs/lFZXvohhFy2gKFn4YFgAFpCEBvum5mGutzUtOBfJ0I7ZNb17oarPu2yB/L/SlhyUAlhpcPCRF1RmoCI2ZZwUF4+YyCEmeZmAjlXU7FDR10YJWzX38NhQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716491740; c=relaxed/simple;
-	bh=cwPi0cwLaudKiJrBxIwug/LIGv5XW3nEwzrdc3S5Ovs=;
+	s=arc-20240116; t=1716491745; c=relaxed/simple;
+	bh=M704MWHwyyg4r3sYtIOpDT3E8SyShb3NiouS2fvBgek=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=F8Cq3PgPcyfQz2E0NsXjoSxr/4xG75bnkmnGWeVItpbR89vE846B+9CpfYAhQEiaYz1P20mSS67dt/RknKGohqAQ89JnWePxZCR35TRVsR3y8HZr9KEaKZCdOgwnxPOxo7CFyDlwT8zuecvkq1wbkrQ6+sh3BtF39aSDtmlkwps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=NN54n4Rf; arc=none smtp.client-ip=209.85.222.177
+	 MIME-Version; b=NbuzDdGPHN4FlfMo2KX9tdMaXEwyzXSsz48iH9I0BDu+ZX9yZ2zYr+P61oD7BF/WD/lM0Sq/bztbwbMya2bdw2GR7edpNIgI1VNNw+9v7PwhP42Rg3pL2WrwDSPhcP+G3TgjFOH8pi1PVh2iOYu4KdpUQbT/E7c6mVgGgwW1IsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=aPH/BMiP; arc=none smtp.client-ip=209.85.219.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="NN54n4Rf"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-7930504b2e2so150233985a.3
-        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 12:15:38 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="aPH/BMiP"
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-6aa93d19a25so20299676d6.3
+        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 12:15:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1716491738; x=1717096538; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1716491743; x=1717096543; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KZPMIYqCPOQ9lUONW9JG6SX+420+rT4m9cGMXu5m3VI=;
-        b=NN54n4Rfh2+I//sy9HZkXJ7pfvPRXExjQjt1R86c6eCepvj5b98sEwLQVu3leXNnQK
-         aoi03bIYwdDUwjgKZUdxteVngmSgMePPS/NPIwMGicY8LF4V19JCmK7FP8ew7bdcPoF+
-         l+RMy4c3f5y8HXGvgxeWruqCYxhCYTd5xemMM=
+        bh=4QGCJNvGWko8B9wup6iwCm4c9keuD69o33VzvSan8uM=;
+        b=aPH/BMiPARRWYexuh3djeMWDz5Z/ofgRkuaIYBTE9zrLALjVSFLDGlK1GuWqo16l1T
+         DyaA7FRgOZYlY97hQOG5XOuLL3m5KHlRHJCrxLh51mDGJlfwoJI9n6AKy6jSzAL32lzY
+         LtDMICnX3J5yb9K1zE9QPNZKLB0u5ckLvF9Lg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716491738; x=1717096538;
+        d=1e100.net; s=20230601; t=1716491743; x=1717096543;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=KZPMIYqCPOQ9lUONW9JG6SX+420+rT4m9cGMXu5m3VI=;
-        b=v+SYX3pO0b3UDKcNgNSfpZssDCjFQ/PNj1dKQTBjQnxrr2G03C57wVmqI3aeWZPtcR
-         RfNdim3t0qiDJIhcbCz9ml3zWVjPyQKwCrd14aMdb1gdJesP8acGkxpHUE2aVzQLcnLI
-         KCeumYMpSJhGlyODRnr45XcudsMcAGV6mWiEi9NM939H2sc68Li0Nw8oRJx02chzCWFZ
-         ePItITgtChe2fsbGL22otiQejG5VGVHeTMZHwYlLJZb3l3HthaOjXXUVdiev9V5dkU1D
-         7yL+HeRKvyCkcUm37MQkbeVmJAGVNKnlhkZfu+nMMxXiVi5ApMOzllEBmQH/7b+u1Hvt
-         706g==
-X-Forwarded-Encrypted: i=1; AJvYcCVeDr5LfUsveGj8tJ3/0bMhJFqsR3B+ioNqncE/Uv2ibHqjewRll379lf+jbLhyj9RJu409ZDYGijmGQbMx0iSeh9c32r/p/iU7xizkeaE=
-X-Gm-Message-State: AOJu0YzHJN3FTZuGmh1KVTKW7fjK4iSotuu82KdDsz2sVqSLjECI+oUh
-	sjHrsuV6VPLzc6Ri1bVLCBwr1wadD/l1QU4rKLzXswtFWuHj95zuySaAk3Op+w9jOizX1jM7Bnw
-	=
-X-Google-Smtp-Source: AGHT+IG2JzfPFZy3xWsQUnDD6DVaCv75DpVNO+T61rq9vujIHdvBjciczesgyKtATQ7tmpk6hsg4FQ==
-X-Received: by 2002:a05:620a:5608:b0:792:9d32:d37f with SMTP id af79cd13be357-794aaf8eeccmr19545485a.0.1716491737788;
-        Thu, 23 May 2024 12:15:37 -0700 (PDT)
+        bh=4QGCJNvGWko8B9wup6iwCm4c9keuD69o33VzvSan8uM=;
+        b=Si4TC4HSfID0l1Y2sz0Wig+bPTCQc/zoi6GeM4wuwlEGTZCQ9OP//J29N+8icmEZpE
+         3Ojlg1RUvkL3yPLiQyrNGqaJxtfCcqUbTdOLj3dibXce7umPVCrGP0ErPcBIQWOFLyFs
+         iFlW2Y4RAANwnGQJRoAw0L4t9xil44+emRVixXHBy7qhSeV2MwcjTqDI90eTes7I7bOG
+         R5A/ArmezGT0qjeZd185p+JBV6qLZjuwknw64ArF1VcJhy6tn+oWiMQ1dSKdbApFjf3Y
+         8dpMgrlfOnJeiaTCvr+ePpaViyRZYgDXHGJllVqU43IThg6e6oJGD+f8DVyAY6Q/ZGLY
+         UmsA==
+X-Forwarded-Encrypted: i=1; AJvYcCUC+zoWqxvchjQvmTIt1dXJO4wwMNh/xsJEIVTODdcjjqatl78kY6fq1na4wxbXMAxoeWKcSdSHA0jNx4CXkVzgfFsq2vmHjwHxv3lOCPU=
+X-Gm-Message-State: AOJu0Yxu+OT4jgwzogIejgbNJF5oS76uP21nB+RJi7e7f9tZuiTj7yof
+	yXwQnafd0UMjX5QHgQJot9LLnNWxrtBVFHdl2HsHcS3XAqj/q8J4mlOiez/G5g==
+X-Google-Smtp-Source: AGHT+IGCAtfhhWo6Rlq59zoTSeJjZRf1YXbHOspqfLPOVEnivKrPPVuS9RVtKABc8sYtmtvtPHf0hQ==
+X-Received: by 2002:a05:6214:4888:b0:6a0:cbeb:c5c0 with SMTP id 6a1803df08f44-6abcd0d7813mr50266d6.55.1716491743143;
+        Thu, 23 May 2024 12:15:43 -0700 (PDT)
 Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43e4a89b61dsm21219821cf.45.2024.05.23.12.15.32
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43e4a89b61dsm21219821cf.45.2024.05.23.12.15.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 May 2024 12:15:37 -0700 (PDT)
+        Thu, 23 May 2024 12:15:42 -0700 (PDT)
 From: Alexey Makhalov <alexey.makhalov@broadcom.com>
 To: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
@@ -77,9 +76,9 @@ Cc: x86@kernel.org,
 	horms@kernel.org,
 	kirill.shutemov@linux.intel.com,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>
-Subject: [PATCH v10 6/8] x86/vmware: Correct macro names
-Date: Thu, 23 May 2024 12:14:44 -0700
-Message-Id: <20240523191446.54695-7-alexey.makhalov@broadcom.com>
+Subject: [PATCH v10 7/8] x86/vmware: Remove legacy VMWARE_HYPERCALL* macros
+Date: Thu, 23 May 2024 12:14:45 -0700
+Message-Id: <20240523191446.54695-8-alexey.makhalov@broadcom.com>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
 References: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
@@ -91,42 +90,50 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-VCPU_RESERVED and LEGACY_X2APIC are not VMware hypercall commands.
-These are bits in return value of VMWARE_CMD_GETVCPU_INFO command.
-Change VMWARE_CMD_ prefix to GETVCPU_INFO_ one. And move bit-shift
-operation to the macro body.
+No more direct use of these macros should be allowed.
+vmware_hypercallX api still use new implementation of VMWARE_HYPERCALL
+macro internally, but it is not exposed outside of the vmware.h.
 
 Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
 ---
- arch/x86/kernel/cpu/vmware.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/vmware.h | 26 --------------------------
+ 1 file changed, 26 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 6796425eaaa1..58442c2581e7 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -42,8 +42,8 @@
- #define CPUID_VMWARE_INFO_LEAF               0x40000000
- #define CPUID_VMWARE_FEATURES_LEAF           0x40000010
+diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
+index 5114f4c75c54..78567920b23f 100644
+--- a/arch/x86/include/asm/vmware.h
++++ b/arch/x86/include/asm/vmware.h
+@@ -274,30 +274,4 @@ unsigned long vmware_hypercall_hb_in(unsigned long cmd, unsigned long in2,
+ #undef VMW_BP_CONSTRAINT
+ #undef VMWARE_HYPERCALL
  
--#define VMWARE_CMD_LEGACY_X2APIC  3
--#define VMWARE_CMD_VCPU_RESERVED 31
-+#define GETVCPU_INFO_LEGACY_X2APIC           BIT(3)
-+#define GETVCPU_INFO_VCPU_RESERVED           BIT(31)
- 
- #define STEALCLOCK_NOT_AVAILABLE (-1)
- #define STEALCLOCK_DISABLED        0
-@@ -424,8 +424,8 @@ static bool __init vmware_legacy_x2apic_available(void)
- 	u32 eax;
- 
- 	eax = vmware_hypercall1(VMWARE_CMD_GETVCPU_INFO, 0);
--	return !(eax & BIT(VMWARE_CMD_VCPU_RESERVED)) &&
--		(eax & BIT(VMWARE_CMD_LEGACY_X2APIC));
-+	return !(eax & GETVCPU_INFO_VCPU_RESERVED) &&
-+		(eax & GETVCPU_INFO_LEGACY_X2APIC);
- }
- 
- #ifdef CONFIG_AMD_MEM_ENCRYPT
+-/* The low bandwidth call. The low word of edx is presumed clear. */
+-#define VMWARE_HYPERCALL						\
+-	ALTERNATIVE_2("movw $" __stringify(VMWARE_HYPERVISOR_PORT) ", %%dx; " \
+-		      "inl (%%dx), %%eax",				\
+-		      "vmcall", X86_FEATURE_VMCALL,			\
+-		      "vmmcall", X86_FEATURE_VMW_VMMCALL)
+-
+-/*
+- * The high bandwidth out call. The low word of edx is presumed to have the
+- * HB and OUT bits set.
+- */
+-#define VMWARE_HYPERCALL_HB_OUT						\
+-	ALTERNATIVE_2("movw $" __stringify(VMWARE_HYPERVISOR_PORT_HB) ", %%dx; " \
+-		      "rep outsb",					\
+-		      "vmcall", X86_FEATURE_VMCALL,			\
+-		      "vmmcall", X86_FEATURE_VMW_VMMCALL)
+-
+-/*
+- * The high bandwidth in call. The low word of edx is presumed to have the
+- * HB bit set.
+- */
+-#define VMWARE_HYPERCALL_HB_IN						\
+-	ALTERNATIVE_2("movw $" __stringify(VMWARE_HYPERVISOR_PORT_HB) ", %%dx; " \
+-		      "rep insb",					\
+-		      "vmcall", X86_FEATURE_VMCALL,			\
+-		      "vmmcall", X86_FEATURE_VMW_VMMCALL)
+ #endif
 -- 
 2.39.0
 
