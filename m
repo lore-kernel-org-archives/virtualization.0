@@ -1,768 +1,165 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E61DD1411F7
-	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 10:44:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552FE144309
+	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 10:44:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716461052; cv=none; b=i3kM7ebe4JiQ1r9IvtT9a6xf+fgegTNiHVkQHLyzCKHLLhe/pZPVxkMx123+l+SihKFrHF9iQ1nbgaQSgmc2QvwbrGvudZ1gMSRvHgFXpoAlfZCCF9Ee5uSFvtzz+EHNqwpPX6rMlBRDUNI2e9K6K2HVLjbT+3PWHzwRPNetmeM=
+	t=1716461070; cv=none; b=k9aLYYFUtpsGduPJbJDRIFQXaY4md8DxVMYa209JCE17KJp3MB+cy+2/91L9B8RhVMYfupiU7sCQA1YQr/VM6omuwNQ+9XG+skLdnMEreYGsDrdJm2jywYknOTsg/SB3A5RTIWeeScGXnn4E7GhKpNjjc9KSuaOXLGGbHtBtzD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716461052; c=relaxed/simple;
-	bh=2nA6Acq97RppG8Rj9ntCO9z8r4SdCF6LPtZIBAFjOIk=;
+	s=arc-20240116; t=1716461070; c=relaxed/simple;
+	bh=5hx2fSiT2DY4uOpmEnaz0dH8rVhtHW/XCwPNtgDvYrg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=L8t0V9bC0H5jHdUJzwPoZiNkzpo+ZEyDDNe6aN0pw0UGPhzOk+jIllXoUGaN7nzGiENBy0zzB88hv26S7W7jFRQRRRfrLzf2UkGHAiFRKLI0FIsKXGQDNdTUNgGsewoFWharf+sjF9nQaTgioHwFWTLVhXzp0HA4TqXpu2UKqc8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B+MeHszy; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=EMhN/bOGAZtU3OZwgdjecpK8V9gF5njc+tKPP/6ERiig+v0tU5NtPQ+NG7jARhTR6xGgLtjAeesQH+wCvIXwmDSun929QX4xGINt+xx8kiQUPEX/PKH9s7AgINVaZjwWR/n6b+RUR7BXDyzPPqY+QUaZqeHE9wJJx5NmO/NVfbw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RKMVk7Rm; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B+MeHszy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RKMVk7Rm"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1716461048;
+	s=mimecast20190719; t=1716461068;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6Zygmvij6H+uk7ZnSf89NRhWTU85rHPhmCFN5vmlOF4=;
-	b=B+MeHszym3u58AI7UI1KLbJmoaKBJufbv/Fl/y1LLfY7xkZxH7x56wmjMDj0OoEoMsrZMq
-	il0cZIzNU8ylXN4ge7o+qxt7hHri+0JPj5C+qlXB2Xd41FPv345FMMvcSgqZo8P4lu6hQF
-	a1SMTwIrv/uXcQxVz61ocXFiQCz3v3s=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=+b8FaGjpy1m/+RszNBOW0Osd/3HyG6oUQQPlglChFwA=;
+	b=RKMVk7RmTG1hNUhWzAfHc6aReLM3f8oR64C70RfxHI2uB23uFYMt3+isvpoz75jFgkO9ST
+	H2+g4E8PKh1X8C4T33avuDQkEjxJITnMmsuMrt0rVbWgfI8RRpymhYl+3tXWWFWSa1wz4V
+	zoslFU/EgNZC55+xVDir93t+//c47Y8=
+Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com
+ [209.85.217.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-592-yGb4REs0ONKDvV0BCirC4A-1; Thu, 23 May 2024 06:44:07 -0400
-X-MC-Unique: yGb4REs0ONKDvV0BCirC4A-1
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-794a0a73d75so129125085a.0
-        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 03:44:07 -0700 (PDT)
+ us-mta-658-zfVf1PFsNkmru0YZpsD6XQ-1; Thu, 23 May 2024 06:44:25 -0400
+X-MC-Unique: zfVf1PFsNkmru0YZpsD6XQ-1
+Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-48a33435f58so110831137.3
+        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 03:44:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716461047; x=1717065847;
+        d=1e100.net; s=20230601; t=1716461065; x=1717065865;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6Zygmvij6H+uk7ZnSf89NRhWTU85rHPhmCFN5vmlOF4=;
-        b=w/efWQqgi1ZYEvSylTiFF6SCUm5k0ZVn/3k+spB0wAj84Jh6S6nadbtJHsTwuRxiJE
-         BB2+B3VYclmMKxY0FDnnPdA+WE0bsMX8RXWUe0Vo5xD91HgXHj+pDQF1qO8h8BVmo4fE
-         54OWSgPpkvqRU3dRDAxy5KYx+VYSp5OhXFgBdWSzwKMewlTFPwNRNmmw4FlC7KpVH/uZ
-         Z/q331eNC3dnhMRqqebO83/mVeFDyT5fk+3syJ3YggvI4eVXORTRDFZbcr2U8YrWqseG
-         y0YhkwrFMfOXmwE1yGj1QChkSL4kuDSEZIcJ65GJkcqef0xXThIi3ExC6tKLmB+35ygF
-         DBqg==
-X-Forwarded-Encrypted: i=1; AJvYcCU/Ae9nUwnt6d1e+EEOKBUMAJNP4zXtrfwp1fsqPXiV0ZhYDS9VMwtOkvx6mOAyKl1DU2v2iyaKjiRr8Jg3Uyo+F6UqG0FKUdAbvqU3OtA=
-X-Gm-Message-State: AOJu0YwklEY0jqWFUbZp8NIWGedLEL8OXa2aQGO37R47TBmKJdD7jVlX
-	fsDSFdmIEFt0jf65zFDR5BDmGnMObaHiBp6j1Hzs9SyfwfeX9q4PVDGIGYANwGGhQ4IkiyopbVU
-	NmfBQGzs6R7uZcd+jgD9x3ppXmy3m2R6ayV2B7qIV5Wqil0E9B+xyeR2/TdE9MsxL
-X-Received: by 2002:a05:620a:430f:b0:790:f382:23ec with SMTP id af79cd13be357-794a0960f11mr317504885a.16.1716461046771;
-        Thu, 23 May 2024 03:44:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEGE+YoRZpX1JPznYvw+pWz0mAgeBbmvtKpmODy2eLi+FNZfpuiEIDnHy3GnbOeUX4KmibDTg==
-X-Received: by 2002:a05:620a:430f:b0:790:f382:23ec with SMTP id af79cd13be357-794a0960f11mr317502285a.16.1716461046268;
-        Thu, 23 May 2024 03:44:06 -0700 (PDT)
+        bh=+b8FaGjpy1m/+RszNBOW0Osd/3HyG6oUQQPlglChFwA=;
+        b=LxMkuJ/1YSOiCiMbyoqR9b+3JFF1E3bwSk/O/9bKyEzXbCI8srB2PfAn80EzxDEGvA
+         84qOshX5mpdqU76Z4IMwqZqH+ft1s9J11L6mdUeUWK8zeK1lEbzDD8FVbOJCy7KjlVAA
+         I5ASNz/bAL24RtMg6b6eYtKKgvpXKQCz0/81mH6DmFSR8afImLM1oy38Z59wabWWJjq/
+         Q1tQJ/4R/Ql7Df09Nq5mFze6JJk9VFv5w6Cr7OKdZrHCF3mg4H+0s0UzYRFsb4dx7FkJ
+         0+GubdLnaSn8GarEpdb7nZ3d3gVWMQA19CrdAVpMV6KdU3DgnSPF5CYzZqmjtLlMNLlj
+         doAA==
+X-Forwarded-Encrypted: i=1; AJvYcCVq6YJnxnDIzebuFtxeUiJpdxS3yaakgQZmUxLd58msXxMkQnkO+kIR4KIeMZl7a1UnGp56oNv84O5Aj8tM4QORM+5iqzV0gAtpHHVBgC8=
+X-Gm-Message-State: AOJu0YzshQcTLJMk7bLFcOPtynWwHTBjGrCI70LRe6e9MEGNc8lnv9lc
+	Q1zvJqr/6V3c+xCF/1wt5dyF+sC9E+KwyEAotFVMQfJ41zcx/1QEJR1Pv7GD95tM+SJyXoH3BHA
+	Xl1HrrFo/QJWmBJLwu9XTb/CV/UP6eWtnmdEUfCZqvUAS1RVsjWJEeCXQ3U1L9ie/
+X-Received: by 2002:a05:6102:6ce:b0:47e:ee4d:8431 with SMTP id ada2fe7eead31-48900956d84mr4979035137.3.1716461065128;
+        Thu, 23 May 2024 03:44:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHdYH7eg5e7F0lmFvh+zqemu/wAXsYnj8cJrd8nRmIqAi48RSdPDX0vAHPDdTcHVnbmyC6Ojw==
+X-Received: by 2002:a05:6102:6ce:b0:47e:ee4d:8431 with SMTP id ada2fe7eead31-48900956d84mr4979019137.3.1716461064769;
+        Thu, 23 May 2024 03:44:24 -0700 (PDT)
 Received: from sgarzare-redhat (host-79-53-30-109.retail.telecomitalia.it. [79.53.30.109])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7930f124416sm675768085a.119.2024.05.23.03.44.04
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43f991bb19dsm25568231cf.63.2024.05.23.03.44.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 May 2024 03:44:05 -0700 (PDT)
-Date: Thu, 23 May 2024 12:43:59 +0200
+        Thu, 23 May 2024 03:44:24 -0700 (PDT)
+Date: Thu, 23 May 2024 12:44:20 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Xuewei Niu <niuxuewei97@gmail.com>
 Cc: stefanha@redhat.com, mst@redhat.com, davem@davemloft.net, 
 	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Subject: Re: [RFC PATCH 2/5] vsock/virtio: Add support for multi-devices
-Message-ID: <4ogioby7q4togpjupcjwhu7gupggghneo7kzlfei3q5padjm6z@7edcp65wl4oy>
+Subject: Re: [RFC PATCH 3/5] vsock/virtio: can_msgzerocopy adapts to
+ multi-devices
+Message-ID: <dv6zyjbcl7zlkyzxc5q67zyq6sef6a5dz2nslb4ezscruhvi4d@pxjvo5t7zftk>
 References: <20240517144607.2595798-1-niuxuewei.nxw@antgroup.com>
- <20240517144607.2595798-3-niuxuewei.nxw@antgroup.com>
+ <20240517144607.2595798-4-niuxuewei.nxw@antgroup.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240517144607.2595798-3-niuxuewei.nxw@antgroup.com>
+In-Reply-To: <20240517144607.2595798-4-niuxuewei.nxw@antgroup.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Fri, May 17, 2024 at 10:46:04PM GMT, Xuewei Niu wrote:
->The maximum number of devices is limited by `MAX_VSOCK_NUM`.
->
->Extends `vsock_transport` struct with 4 methods to support multi-devices:
->
->* `get_virtio_vsock()`: It receives a CID, and returns a struct of virtio
->  vsock. This method is designed to select a vsock device by its CID.
->* `get_default_cid()`: It receives nothing, returns the default CID of the
->  first vsock device registered to the kernel.
->* `get_local_cids()`: It returns a vector of vsock devices' CIDs.
->* `compare_order()`: It receives two different CIDs, named "left" and
->  "right" respectively. It returns "-1" while the "left" is behind the
->  "right". Otherwise, return "1".
->
->`get_local_cid()` is retained, but returns "-1" if the transport supports
->multi-devices.
->
->Replaces the single instance of `virtio_vsock` with a list, named
->`virtio_vsock_list`. The devices are inserted into the list when probing.
->
->The kernel will deny devices from being registered if there are conflicts
->existing in CIDs or orders.
+On Fri, May 17, 2024 at 10:46:05PM GMT, Xuewei Niu wrote:
+>Adds a new argument, named "cid", to let them know which `virtio_vsock` to
+>be selected.
 >
 >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 >---
-> include/net/af_vsock.h                  |  16 ++
-> include/uapi/linux/vm_sockets.h         |   6 +
-> net/vmw_vsock/af_vsock.c                |  82 ++++++--
-> net/vmw_vsock/virtio_transport.c        | 246 ++++++++++++++++++------
-> net/vmw_vsock/virtio_transport_common.c |  10 +-
-> 5 files changed, 293 insertions(+), 67 deletions(-)
->
->diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index 535701efc1e5..0151296a0bc5 100644
->--- a/include/net/af_vsock.h
->+++ b/include/net/af_vsock.h
->@@ -174,6 +174,22 @@ struct vsock_transport {
->
-> 	/* Addressing. */
-> 	u32 (*get_local_cid)(void);
->+	/* Held rcu read lock by the caller. */
+> include/linux/virtio_vsock.h            | 2 +-
+> net/vmw_vsock/virtio_transport.c        | 5 ++---
+> net/vmw_vsock/virtio_transport_common.c | 6 +++---
+> 3 files changed, 6 insertions(+), 7 deletions(-)
 
-We should also explain why the rcu is needed.
-
->+	struct virtio_vsock *(*get_virtio_vsock)(unsigned int cid);
-
-af_vsock supports several transports (i.e. HyperV, VMCI, VIRTIO/VHOST,
-loobpack), so we need to be generic here.
-
-In addition, the pointer returned by this function is never used, so
-why we need this?
-
->+	unsigned int (*get_default_cid)(void);
->+	/* Get an list containing all the CIDs of registered vsock.   Return
->+	 * the length of the list.
->+	 *
->+	 * Held rcu read lock by the caller.
->+	 */
->+	int (*get_local_cids)(unsigned int *local_cids);
-
-Why int? get_local_cid() returns an u32, we should do the same.
-
-In addition, can we remove get_local_cid() and implement 
-get_local_cids() for all the transports?
-
->+	/* Compare the order of two devices.  Given the guest CIDs of two
->+	 * different devices, returns -1 while the left is behind the right.
->+	 * Otherwise, return 1.
->+	 *
->+	 * Held rcu read lock by the caller.
->+	 */
->+	int (*compare_order)(unsigned int left, unsigned int right);
-
-Please check better the type for CIDs all over the place.
+Every commit in linux must be working to support bisection. So these 
+changes should be made before adding multi-device support.
 
 >
-> 	/* Read a single skb */
-> 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
->diff --git a/include/uapi/linux/vm_sockets.h b/include/uapi/linux/vm_sockets.h
->index ed07181d4eff..36ca5023293a 100644
->--- a/include/uapi/linux/vm_sockets.h
->+++ b/include/uapi/linux/vm_sockets.h
->@@ -189,6 +189,12 @@ struct sockaddr_vm {
-> 			       sizeof(__u8)];
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index c82089dee0c8..21bfd5e0c2e7 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -168,7 +168,7 @@ struct virtio_transport {
+> 	 * extra checks and can perform zerocopy transmission by
+> 	 * default.
+> 	 */
+>-	bool (*can_msgzerocopy)(int bufs_num);
+>+	bool (*can_msgzerocopy)(u32 cid, int bufs_num);
 > };
 >
->+/* The maximum number of vsock devices.  Each vsock device has an exclusive
->+ * context id.
->+ */
->+
->+#define MAX_VSOCK_NUM 16
-
-This is used internally in AF_VSOCK, I don't think we should expose it
-in the UAPI.
-
-
->+
-> #define IOCTL_VM_SOCKETS_GET_LOCAL_CID		_IO(7, 0xb9)
->
-> /* MSG_ZEROCOPY notifications are encoded in the standard error format,
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 54ba7316f808..da06ddc940cd 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -234,19 +234,45 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
->
-> static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
-> {
->-	struct vsock_sock *vsk;
->+	struct vsock_sock *vsk, *any_vsk = NULL;
->
->+	rcu_read_lock();
-
-Why the rcu is needed?
-
-> 	list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) 
-> 	{
->+		/* The highest priority: full match. */
-> 		if (vsock_addr_equals_addr(addr, &vsk->local_addr))
->-			return sk_vsock(vsk);
->+			goto out;
->
->-		if (addr->svm_port == vsk->local_addr.svm_port &&
->-		    (vsk->local_addr.svm_cid == VMADDR_CID_ANY ||
->-		     addr->svm_cid == VMADDR_CID_ANY))
->-			return sk_vsock(vsk);
->+		/* Port match */
->+		if (addr->svm_port == vsk->local_addr.svm_port) {
->+			/* The second priority: local cid is VMADDR_CID_ANY. */
->+			if (vsk->local_addr.svm_cid == VMADDR_CID_ANY)
->+				goto out;
->+
->+			/* The third priority: local cid isn't VMADDR_CID_ANY. */
->+			if (addr->svm_cid == VMADDR_CID_ANY) {
->+				if (!any_vsk) {
->+					any_vsk = vsk;
->+					continue;
->+				}
->+				// Use the device with smaller order
->+				if (vsk->transport->compare_order(any_vsk->local_addr.svm_cid,
->+								  vsk->local_addr.svm_cid) < 0)
->+					any_vsk = vsk;
->+			}
->+		}
->+	}
->+	rcu_read_unlock();
->+
->+	if (any_vsk) {
->+		pr_debug("matched a any_vsk at %p\n", any_vsk);
->+		return sk_vsock(any_vsk);
-> 	}
->
-> 	return NULL;
->+
->+out:
->+	rcu_read_unlock();
->+	return sk_vsock(vsk);
-> }
->
-> static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
->@@ -408,7 +434,11 @@ static bool vsock_use_local_transport(unsigned int remote_cid)
-> 		return true;
->
-> 	if (transport_g2h) {
->-		return remote_cid == transport_g2h->get_local_cid();
->+		if (transport_g2h->get_virtio_vsock)
->+			return transport_g2h->get_virtio_vsock(remote_cid) !=
->+			       NULL;
->+		else
->+			return remote_cid == transport_g2h->get_local_cid();
-> 	} else {
-> 		return remote_cid == VMADDR_CID_HOST;
-> 	}
->@@ -516,9 +546,26 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
-> }
-> EXPORT_SYMBOL_GPL(vsock_assign_transport);
->
->+bool transport_g2h_verify_cid(unsigned int cid)
->+{
->+	/* transports that support multi devices */
->+	rcu_read_lock();
->+	if (transport_g2h->get_virtio_vsock &&
->+	    (cid == VMADDR_CID_ANY || transport_g2h->get_virtio_vsock(cid))) {
->+		rcu_read_unlock();
->+		return true;
->+	}
->+	rcu_read_unlock();
->+	/* other transports */
->+	if (cid == transport_g2h->get_local_cid())
->+		return true;
->+
->+	return false;
->+}
->+
-> bool vsock_find_cid(unsigned int cid)
-> {
->-	if (transport_g2h && cid == transport_g2h->get_local_cid())
->+	if (transport_g2h && transport_g2h_verify_cid(cid))
-> 		return true;
->
-> 	if (transport_h2g && cid == VMADDR_CID_HOST)
->@@ -697,7 +744,9 @@ static int __vsock_bind(struct sock *sk, struct sockaddr_vm *addr)
-> 	/* Now bind to the provided address or select appropriate values if
-> 	 * none are provided (VMADDR_CID_ANY and VMADDR_PORT_ANY).  Note that
-> 	 * like AF_INET prevents binding to a non-local IP address (in most
->-	 * cases), we only allow binding to a local CID.
->+	 * cases), we only allow binding to a local CID. In the cases of
->+	 * multi-devices, only CIDs of vsock devices registered in the kernel
->+	 * are allowed.
-> 	 */
-> 	if (addr->svm_cid != VMADDR_CID_ANY && !vsock_find_cid(addr->svm_cid))
-> 		return -EADDRNOTAVAIL;
->@@ -825,7 +874,6 @@ static void __vsock_release(struct sock *sk, int level)
-> 			__vsock_release(pending, SINGLE_DEPTH_NESTING);
-> 			sock_put(pending);
-> 		}
->-
-
-Unrelated change.
-
-> 		release_sock(sk);
-> 		sock_put(sk);
-> 	}
->@@ -1181,7 +1229,12 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
-> 		 */
->
-> 		if (remote_addr->svm_cid == VMADDR_CID_ANY)
->-			remote_addr->svm_cid = transport->get_local_cid();
->+			if (transport->get_default_cid)
->+				remote_addr->svm_cid =
->+					transport->get_default_cid();
->+			else
->+				remote_addr->svm_cid =
->+					transport->get_local_cid();
->
-> 		if (!vsock_addr_bound(remote_addr)) {
-> 			err = -EINVAL;
->@@ -1191,7 +1244,12 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
-> 		remote_addr = &vsk->remote_addr;
->
-> 		if (remote_addr->svm_cid == VMADDR_CID_ANY)
->-			remote_addr->svm_cid = transport->get_local_cid();
->+			if (transport->get_default_cid)
->+				remote_addr->svm_cid =
->+					transport->get_default_cid();
->+			else
->+				remote_addr->svm_cid =
->+					transport->get_local_cid();
->
-> 		/* XXX Should connect() or this function ensure remote_addr is
-> 		 * bound?
+> ssize_t
 >diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index ee5d306a96d0..93d25aeafb83 100644
+>index 93d25aeafb83..998b22e5ce36 100644
 >--- a/net/vmw_vsock/virtio_transport.c
 >+++ b/net/vmw_vsock/virtio_transport.c
->@@ -22,8 +22,8 @@
-> #include <net/af_vsock.h>
+>@@ -521,14 +521,13 @@ static void virtio_vsock_rx_done(struct virtqueue *vq)
+> 	queue_work(virtio_vsock_workqueue, &vsock->rx_work);
+> }
 >
-> static struct workqueue_struct *virtio_vsock_workqueue;
->-static struct virtio_vsock __rcu *the_virtio_vsock;
->-static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
->+static LIST_HEAD(virtio_vsock_list); /* vsock multi-devices */
->+static DEFINE_MUTEX(virtio_vsock_list_mutex); /* protects virtio_vsock_list */
-> static struct virtio_transport virtio_transport; /* forward declaration */
->
-> struct virtio_vsock {
->@@ -62,6 +62,7 @@ struct virtio_vsock {
-> 	struct virtio_vsock_event event_list[8];
->
-> 	u32 guest_cid;
->+	u32 order;
-> 	bool seqpacket_allow;
->
-> 	/* These fields are used only in tx path in function
->@@ -74,24 +75,70 @@ struct virtio_vsock {
-> 	 */
-> 	struct scatterlist *out_sgs[MAX_SKB_FRAGS + 1];
-> 	struct scatterlist out_bufs[MAX_SKB_FRAGS + 1];
->+
->+	struct list_head node;
->+	struct rcu_head rcu;
-> };
->
-> static u32 virtio_transport_get_local_cid(void)
->+{
->+	return VMADDR_CID_ANY;
->+}
->+
->+/* Held rcu read lock by the caller. */
->+static struct virtio_vsock *virtio_transport_get_virtio_vsock(unsigned int cid)
+>-static bool virtio_transport_can_msgzerocopy(int bufs_num)
+>+static bool virtio_transport_can_msgzerocopy(u32 cid, int bufs_num)
 > {
 > 	struct virtio_vsock *vsock;
->-	u32 ret;
->+	list_for_each_entry(vsock, &virtio_vsock_list, node) {
->+		if (vsock->guest_cid == cid)
->+			return vsock;
->+	}
->+	return NULL;
->+}
->
->-	rcu_read_lock();
->-	vsock = rcu_dereference(the_virtio_vsock);
->-	if (!vsock) {
->-		ret = VMADDR_CID_ANY;
->-		goto out_rcu;
->+static unsigned int virtio_transport_get_default_cid(void)
->+{
->+	struct virtio_vsock *vsock;
->+
->+	vsock = list_first_or_null_rcu(&virtio_vsock_list, struct virtio_vsock,
->+				       node);
->+	if (!vsock)
->+		return VMADDR_CID_ANY;
->+
->+	return vsock->guest_cid;
->+}
->+
->+/* Held rcu read lock by the caller. */
->+static int virtio_transport_get_local_cids(u32 *cids)
->+{
->+	int count = 0;
->+	struct virtio_vsock *vsock;
->+
->+	if (!cids)
->+		return -EFAULT;
->+
->+	list_for_each_entry(vsock, &virtio_vsock_list, node) {
->+		cids[count++] = vsock->guest_cid;
-> 	}
->+	return count;
->+}
->
->-	ret = vsock->guest_cid;
->-out_rcu:
->-	rcu_read_unlock();
->-	return ret;
->+/* Held rcu read lock by the caller. */
->+static int virtio_transport_compare_order(unsigned int left, unsigned int right)
->+{
->+	struct virtio_vsock *vsock;
->+
->+	if (left == right)
->+		return 0;
->+
->+	list_for_each_entry(vsock, &virtio_vsock_list, node) {
->+		if (right == vsock->guest_cid)
->+			return -1;
->+		if (left == vsock->guest_cid)
->+			return 1;
->+	}
->+
->+	return 0;
-> }
->
-> static void
->@@ -201,12 +248,16 @@ virtio_transport_send_pkt(struct sk_buff *skb)
-> 	struct virtio_vsock_hdr *hdr;
-> 	struct virtio_vsock *vsock;
-> 	int len = skb->len;
->+	unsigned int src_cid;
->
-> 	hdr = virtio_vsock_hdr(skb);
->+	src_cid = le64_to_cpu(hdr->src_cid);
+> 	bool res = false;
 >
 > 	rcu_read_lock();
->-	vsock = rcu_dereference(the_virtio_vsock);
->+	vsock = virtio_transport_get_virtio_vsock(src_cid);
-> 	if (!vsock) {
->+		pr_debug("pkt sending has been failed, as vsock with cid %u not found\n",
->+			 src_cid);
-> 		kfree_skb(skb);
-> 		len = -ENODEV;
-> 		goto out_rcu;
->@@ -236,13 +287,17 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
-> 	int cnt = 0, ret;
->
-> 	rcu_read_lock();
->-	vsock = rcu_dereference(the_virtio_vsock);
->-	if (!vsock) {
->+	if (list_empty(&virtio_vsock_list)) {
-> 		ret = -ENODEV;
-> 		goto out_rcu;
-> 	}
->
->-	cnt = virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
->+	list_for_each_entry(vsock, &virtio_vsock_list, node) {
->+		cnt = virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
->+		/* Skbs for the vsk belong to one virtio_vsock */
->+		if (cnt)
->+			break;
->+	}
->
-> 	if (cnt) {
-> 		struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
->@@ -385,6 +440,16 @@ static void virtio_vsock_update_guest_cid(struct virtio_vsock *vsock)
-> 	vsock->guest_cid = le64_to_cpu(guest_cid);
-> }
->
->+static void virtio_vsock_update_order(struct virtio_vsock *vsock)
->+{
->+	struct virtio_device *vdev = vsock->vdev;
->+	__le64 order;
->+
->+	vdev->config->get(vdev, offsetof(struct virtio_vsock_config, order),
->+			  &order, sizeof(order));
->+	vsock->order = le64_to_cpu(order);
->+}
->+
-> /* event_lock must be held */
-> static void virtio_vsock_event_handle(struct virtio_vsock *vsock,
-> 				      struct virtio_vsock_event *event)
->@@ -492,13 +557,17 @@ static bool virtio_transport_msgzerocopy_allow(void)
-> 	return true;
-> }
->
->-static bool virtio_transport_seqpacket_allow(u32 remote_cid);
->+static bool virtio_transport_seqpacket_allow(u32 src_cid, u32 remote_cid);
->
-> static struct virtio_transport virtio_transport = {
-> 	.transport = {
-> 		.module                   = THIS_MODULE,
->
-> 		.get_local_cid            = virtio_transport_get_local_cid,
->+		.get_virtio_vsock         = virtio_transport_get_virtio_vsock,
->+		.get_default_cid          = virtio_transport_get_default_cid,
->+		.get_local_cids           = virtio_transport_get_local_cids,
->+		.compare_order            = virtio_transport_compare_order,
->
-> 		.init                     = virtio_transport_do_socket_init,
-> 		.destruct                 = virtio_transport_destruct,
->@@ -617,7 +686,38 @@ static void virtio_transport_rx_work(struct work_struct *work)
-> static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
-> {
-> 	struct virtio_device *vdev = vsock->vdev;
->-	static const char * const names[] = {
->+	struct virtio_vsock *_vsock = NULL;
->+	int i;
->+	unsigned int guest_cid, order;
->+
->+	virtio_vsock_update_guest_cid(vsock);
->+	virtio_vsock_update_order(vsock);
->+	guest_cid = vsock->guest_cid;
->+	order = vsock->order;
->+
->+	i = 0;
->+	list_for_each_entry(_vsock, &virtio_vsock_list, node) {
->+		if (++i > MAX_VSOCK_NUM) {
->+			pr_debug("vsock num reaches limit %d\n", MAX_VSOCK_NUM);
->+			return -ENOMEM;
->+		}
->+
->+		/* Check for guest_cid conflicts */
->+		if (unlikely(guest_cid == _vsock->guest_cid)) {
->+			pr_debug("conflict exists in vsock's guest_cid %u\n",
->+				 guest_cid);
->+			return -EBUSY;
->+		}
->+
->+		/* Check for order conflicts */
->+		if (unlikely(order == _vsock->order)) {
->+			pr_debug("conflict exists in vsock's order %u\n",
->+				 order);
->+			return -EBUSY;
->+		}
->+	}
->+
->+	static const char *const names[] = {
-> 		"rx",
-> 		"tx",
-> 		"event",
->@@ -634,8 +734,6 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
-> 	if (ret < 0)
-> 		return ret;
->
->-	virtio_vsock_update_guest_cid(vsock);
 >-
-> 	virtio_device_ready(vdev);
+>-	vsock = rcu_dereference(the_virtio_vsock);
+>+	vsock = virtio_transport_get_virtio_vsock(cid);
+> 	if (vsock) {
+> 		struct virtqueue *vq = vsock->vqs[VSOCK_VQ_TX];
 >
-> 	return 0;
->@@ -716,21 +814,14 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
->
-> static int virtio_vsock_probe(struct virtio_device *vdev)
-> {
->-	struct virtio_vsock *vsock = NULL;
->-	int ret;
->-	int i;
->+	struct virtio_vsock *vsock, *_vsock, *first_vsock;
->+	int ret, i;
->+	unsigned int guest_cid, order;
->
->-	ret = mutex_lock_interruptible(&the_virtio_vsock_mutex);
->+	ret = mutex_lock_interruptible(&virtio_vsock_list_mutex);
-> 	if (ret)
-> 		return ret;
->
->-	/* Only one virtio-vsock device per guest is supported */
->-	if (rcu_dereference_protected(the_virtio_vsock,
->-				lockdep_is_held(&the_virtio_vsock_mutex))) {
->-		ret = -EBUSY;
->-		goto out;
->-	}
->-
-> 	vsock = kzalloc(sizeof(*vsock), GFP_KERNEL);
-> 	if (!vsock) {
-> 		ret = -ENOMEM;
->@@ -764,28 +855,56 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
-> 	for (i = 0; i < ARRAY_SIZE(vsock->out_sgs); i++)
-> 		vsock->out_sgs[i] = &vsock->out_bufs[i];
->
->-	rcu_assign_pointer(the_virtio_vsock, vsock);
->+	order = vsock->order;
->+	guest_cid = vsock->guest_cid;
->+	first_vsock =
->+		list_first_entry(&virtio_vsock_list, struct virtio_vsock, node);
->+	/* Insert virtio-vsock device into a proper location. */
->+	if (list_empty(&virtio_vsock_list) || first_vsock->order > order) {
->+		list_add_rcu(&vsock->node, &virtio_vsock_list);
->+	} else {
->+		list_for_each_entry(_vsock, &virtio_vsock_list, node) {
->+			struct virtio_vsock *next = container_of(_vsock->node.next,
->+				struct virtio_vsock, node);
->+			if (&next->node != &virtio_vsock_list &&
->+			    next->order < order)
->+				continue;
->+			list_add_rcu(&vsock->node, &_vsock->node);
->+			break;
->+		}
->+	}
->+
->+	pr_debug("virtio_vsock@%p registered (cid = %u, order = %u)\n", vsock, guest_cid, order);
->+
-> 	virtio_vsock_vqs_start(vsock);
->
->-	mutex_unlock(&the_virtio_vsock_mutex);
->+	mutex_unlock(&virtio_vsock_list_mutex);
->
-> 	return 0;
->
-> out:
-> 	kfree(vsock);
->-	mutex_unlock(&the_virtio_vsock_mutex);
->+	mutex_unlock(&virtio_vsock_list_mutex);
-> 	return ret;
-> }
->
-> static void virtio_vsock_remove(struct virtio_device *vdev)
-> {
->-	struct virtio_vsock *vsock = vdev->priv;
->+	struct virtio_vsock *vsock, *_vsock;
->
->-	mutex_lock(&the_virtio_vsock_mutex);
->+	vsock = vdev->priv;
->+
->+	mutex_lock(&virtio_vsock_list_mutex);
->
-> 	vdev->priv = NULL;
->-	rcu_assign_pointer(the_virtio_vsock, NULL);
->-	synchronize_rcu();
->+	/* Remove virtio-vsock device from the list. */
->+	list_for_each_entry(_vsock, &virtio_vsock_list, node) {
->+		if (vsock == _vsock) {
->+			list_del_rcu(&vsock->node);
->+			synchronize_rcu();
->+			break;
->+		}
->+	}
->
-> 	virtio_vsock_vqs_del(vsock);
->
->@@ -797,7 +916,7 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
-> 	flush_work(&vsock->event_work);
-> 	flush_work(&vsock->send_pkt_work);
->
->-	mutex_unlock(&the_virtio_vsock_mutex);
->+	mutex_unlock(&virtio_vsock_list_mutex);
->
-> 	kfree(vsock);
-> }
->@@ -805,43 +924,62 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
-> #ifdef CONFIG_PM_SLEEP
-> static int virtio_vsock_freeze(struct virtio_device *vdev)
-> {
->-	struct virtio_vsock *vsock = vdev->priv;
->+	struct virtio_vsock *vsock, *_vsock;
->
->-	mutex_lock(&the_virtio_vsock_mutex);
->+	vsock = vdev->priv;
->
->-	rcu_assign_pointer(the_virtio_vsock, NULL);
->-	synchronize_rcu();
->+	mutex_lock(&virtio_vsock_list_mutex);
->+
->+	list_for_each_entry(_vsock, &virtio_vsock_list, node) {
->+		if (vsock == _vsock) {
->+			list_del_rcu(&vsock->node);
->+			synchronize_rcu();
->+			break;
->+		}
->+	}
->
-> 	virtio_vsock_vqs_del(vsock);
->
->-	mutex_unlock(&the_virtio_vsock_mutex);
->+	mutex_unlock(&virtio_vsock_list_mutex);
->
-> 	return 0;
-> }
->
-> static int virtio_vsock_restore(struct virtio_device *vdev)
-> {
->-	struct virtio_vsock *vsock = vdev->priv;
->+	struct virtio_vsock *vsock, *_vsock, *first_vsock;
-> 	int ret;
->+	unsigned int order;
->
->-	mutex_lock(&the_virtio_vsock_mutex);
->+	vsock = vdev->priv;
->
->-	/* Only one virtio-vsock device per guest is supported */
->-	if (rcu_dereference_protected(the_virtio_vsock,
->-				lockdep_is_held(&the_virtio_vsock_mutex))) {
->-		ret = -EBUSY;
->-		goto out;
->-	}
->+	mutex_lock(&virtio_vsock_list_mutex);
->
-> 	ret = virtio_vsock_vqs_init(vsock);
-> 	if (ret < 0)
-> 		goto out;
->
->-	rcu_assign_pointer(the_virtio_vsock, vsock);
->+	order = vsock->order;
->+	first_vsock =
->+		list_first_entry(&virtio_vsock_list, struct virtio_vsock, node);
->+	/* Insert virtio-vsock device into a proper location. */
->+	if (list_empty(&virtio_vsock_list) || first_vsock->order > order) {
->+		list_add_rcu(&vsock->node, &virtio_vsock_list);
->+	} else {
->+		list_for_each_entry(_vsock, &virtio_vsock_list, node) {
->+			struct virtio_vsock *next = container_of(_vsock->node.next,
->+				struct virtio_vsock, node);
->+			if (&next->node != &virtio_vsock_list &&
->+			    next->order < order)
->+				continue;
->+			list_add_rcu(&vsock->node, &_vsock->node);
->+			break;
->+		}
->+	}
-> 	virtio_vsock_vqs_start(vsock);
->
-> out:
->-	mutex_unlock(&the_virtio_vsock_mutex);
->+	mutex_unlock(&virtio_vsock_list_mutex);
-> 	return ret;
-> }
-> #endif /* CONFIG_PM_SLEEP */
 >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 16ff976a86e3..bed75a41419e 100644
+>index bed75a41419e..e7315d7b9af1 100644
 >--- a/net/vmw_vsock/virtio_transport_common.c
 >+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -340,7 +340,15 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
-> 	if (unlikely(!t_ops))
-> 		return -EFAULT;
+>@@ -39,7 +39,7 @@ virtio_transport_get_ops(struct vsock_sock *vsk)
 >
->-	src_cid = t_ops->transport.get_local_cid();
->+	if (vsk->local_addr.svm_cid == VMADDR_CID_ANY) {
->+		if (t_ops->transport.get_default_cid)
->+			src_cid = t_ops->transport.get_default_cid();
->+		else
->+			src_cid = t_ops->transport.get_local_cid();
-
-Can get_local_cid() be used for this case instead of adding 
-get_default_cid()?
-
-What happen if get_default_cid() returns VMADDR_CID_ANY?
-Should we fallback to get_local_cid()?
-
->+	} else {
->+		src_cid = vsk->local_addr.svm_cid;
->+	}
->+
-> 	src_port = vsk->local_addr.svm_port;
-> 	if (!info->remote_cid) {
-> 		dst_cid	= vsk->remote_addr.svm_cid;
+> static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
+> 				       struct virtio_vsock_pkt_info *info,
+>-				       size_t pkt_len)
+>+				       size_t pkt_len, unsigned int cid)
+> {
+> 	struct iov_iter *iov_iter;
+>
+>@@ -62,7 +62,7 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
+> 		int pages_to_send = iov_iter_npages(iov_iter, MAX_SKB_FRAGS);
+>
+> 		/* +1 is for packet header. */
+>-		return t_ops->can_msgzerocopy(pages_to_send + 1);
+>+		return t_ops->can_msgzerocopy(cid, pages_to_send + 1);
+> 	}
+>
+> 	return true;
+>@@ -375,7 +375,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+> 			info->msg->msg_flags &= ~MSG_ZEROCOPY;
+>
+> 		if (info->msg->msg_flags & MSG_ZEROCOPY)
+>-			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
+>+			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len, src_cid);
+>
+> 		if (can_zcopy)
+> 			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
 >-- 
 >2.34.1
 >
