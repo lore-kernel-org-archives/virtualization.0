@@ -1,146 +1,194 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45BC5537FF
-	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 18:45:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25AEF2C684
+	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:15:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716489901; cv=none; b=HBq7e5Hu0f6H+kR4d1z/VOdtiWVqwSV1d2/fcXmUNEPj9OnFZlVLx+MV/yb/1GmzUXdNI24rHfpduIEijptrFtSbjYkX3uVB21ZRUgT0tInnl6UQ4hBLvfWDcucZKLDvun8TxzfaRIgP9nQokbpK7ETsSpAx1Z3amRyUoQqI1bE=
+	t=1716491707; cv=none; b=t80h6btSp9u0YVnysyMWao/eP9W105V5e8S14MLc3btWHBYOkPHyokF7a4ifexA1i8Zn0EFzpBL4hJH5bD8a3yKMo/NAiwy2LXBL7XWiI04BEQ6YJ1WIIMSFfiwLyIwmEMl2xZKi5/oT9nNq/YnLfWdcofVzQH/fkWOVxWzDv0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716489901; c=relaxed/simple;
-	bh=TI3pdmAKg+5yVM5dLTNR68lA0tJx6Al4lndldRk3nlc=;
-	h=Content-Type:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To; b=XC4znufZ0KdlKagksvTRZDuMAn1Y3moFqkwCSkucjf/NVXtKOckna9noGUwbOwzI6y0AdSq/POuskZkNJqwA3lFgFKi0x6MVW2RpDo1upBWeD2dCfZXrYcdyrgYpp76jqKBKpisYrkaetYDY9WWJH3A6CyiV6s32b8rY7pCnjLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nNfVPlq3; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1716491707; c=relaxed/simple;
+	bh=1TBF/VNkoH1JflS/P6I+j9LKBPOuIDfXCd97BmtR6mc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=BaEEdgB27uCr+I6CE6PA+voLHWC96jVQBewDP9fTUewHWDQb9FbnGNChfEZFLS1BPUpKxjyUnnDmDKFzFe3LagEJST7c7/TnLgU4Kvoi21+el/09/eqNK7pLpvuvyvdXokh573ZuEBwihmqzDBmaTKTrw75UMXCNfzJ0kL3L+qY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Cf98rd96; arc=none smtp.client-ip=209.85.167.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nNfVPlq3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1716489900; x=1748025900;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to;
-  bh=TI3pdmAKg+5yVM5dLTNR68lA0tJx6Al4lndldRk3nlc=;
-  b=nNfVPlq3RqustLDBCiUq5et/b3xFDnDrD3WhEux2Vexab0g91cFxwMYa
-   5m9FJhW9/ILgrvnW7cpNNo30Tv4z+yMtBnGfigNvy3SXwzK8gcs+v6lYf
-   PL2i7oHIJ4FTa69bozr0roR8IIJuC//e5pxz0aECk4xkfU0pEhwB8KNMv
-   XVoe9uAu6o1bUrjkFRnRqmAY16SvnFbPGLkiMJ71pGpqEwj7mKEv6NzAZ
-   6A6QO8Ch9/f1wyQN2ec9WuHxRyok/PuUPpF1NmCT+S0Q1X51q+k3Tpdp6
-   pZeJxQHpOc5fkdPOKM5ZD/MUhi1DAk/N2IRMQ1aROfi0RM0Iw2vX1qjRD
-   A==;
-X-CSE-ConnectionGUID: hNt75RgnQ7++5zrg0KQLXA==
-X-CSE-MsgGUID: DaWQ/y+gROCS5RWjoh50Vg==
-X-IronPort-AV: E=McAfee;i="6600,9927,11081"; a="38212101"
-X-IronPort-AV: E=Sophos;i="6.08,183,1712646000"; 
-   d="scan'208";a="38212101"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 May 2024 11:45:00 -0700
-X-CSE-ConnectionGUID: lKO59ISPQGOMy5xKHNmM0Q==
-X-CSE-MsgGUID: Xeja5Z5GSBudXxWMVrrtog==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,183,1712646000"; 
-   d="scan'208";a="33836181"
-Received: from kinlongk-desk.amr.corp.intel.com (HELO [10.125.110.49]) ([10.125.110.49])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 May 2024 11:44:59 -0700
-Content-Type: multipart/mixed; boundary="------------A4UK60YqxMGh0ck0hw0N0zV1"
-Message-ID: <23454ac4-1dbc-4c03-9df2-fcf35da493e4@intel.com>
-Date: Thu, 23 May 2024 11:44:58 -0700
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Cf98rd96"
+Received: by mail-oi1-f180.google.com with SMTP id 5614622812f47-3c99d0521cbso3881807b6e.1
+        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 12:15:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1716491704; x=1717096504; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=neX9Rj9kbD2Mta30BndIslB9399YLTZUQPcD/TShwW8=;
+        b=Cf98rd96UO8pVDnO8rzG+a58sM/ehlZ0OhziElSXXiJe/gvr5RzfMRZO7B67DLjhrM
+         la3IfV4RUKJZtjnjiKvAduU2XVL7eQvfqXIUqwZDBN0/jeA+J6xax13Ou6ZSnPooBwXj
+         5UIkxloWmsiNg39ZLJxYc4jp5zgd6Oga+RfdE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716491704; x=1717096504;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=neX9Rj9kbD2Mta30BndIslB9399YLTZUQPcD/TShwW8=;
+        b=rNg7n6qqS7KYYYJqGPg4eebgVx/nJlAYpRZ6kUxW420B5Fm9Smi9hRoQbhGbNfDQeA
+         aEb44gxoYL+qRWIuei8iQUNSr2F+F4eh5L2dfjRpWyyNSoqJzEigYMg6+xR0+2oVbfls
+         2/L+0S322t7OLbp28w64icUoKiI72DwD5v/xPa+8KLVWZUCv29Ts4n3dLCsBCsCu4UDP
+         b+U3LbdzKnHhZNlldNwxJSwHz7l62EdaAXKoDMy3HkizRR/rzeYlMQZ9zZBk9XRFd0ye
+         K9mIwdc23kD1s98L+sGCutNDiB8sTbgbN3wHY5J9UVxd8xlw8Amr66JAVvc7b2deYmIZ
+         974g==
+X-Forwarded-Encrypted: i=1; AJvYcCVCRLw+plPkUWJ55fOCHgtJpWZtJ+CkF26JiPISZyzRgLoSkyyos4EYXvIc0oVg0+1LbMBH4SyrCOcB6aDVLGyGVNrPy0iWZx5ilg5LevY=
+X-Gm-Message-State: AOJu0YwYxjskpMXardp2Et9GqdkWbHKzo2C1fyzHcus3aMKKqDakY2Xn
+	EQR2FJKLfweMX4pL9e7zlnqE+igH90TC5tDG3VSUOREGw7VlEUoAP/Ln7ismAg==
+X-Google-Smtp-Source: AGHT+IH/Ysnno2TkFzRL2UNNhoEarRPKJ9VjuR8XSFIlVnpcZKrEaxTEc2+rptviFCowPSempZ9ABw==
+X-Received: by 2002:a05:6808:10d4:b0:3c7:366b:980a with SMTP id 5614622812f47-3d1a54835c7mr396574b6e.5.1716491704120;
+        Thu, 23 May 2024 12:15:04 -0700 (PDT)
+Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43e4a89b61dsm21219821cf.45.2024.05.23.12.14.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 May 2024 12:15:03 -0700 (PDT)
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+To: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bp@alien8.de,
+	hpa@zytor.com,
+	dave.hansen@linux.intel.com,
+	mingo@redhat.com,
+	tglx@linutronix.de
+Cc: x86@kernel.org,
+	netdev@vger.kernel.org,
+	richardcochran@gmail.com,
+	linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com,
+	pv-drivers@vmware.com,
+	timothym@vmware.com,
+	akaher@vmware.com,
+	dri-devel@lists.freedesktop.org,
+	daniel@ffwll.ch,
+	airlied@gmail.com,
+	tzimmermann@suse.de,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	horms@kernel.org,
+	kirill.shutemov@linux.intel.com,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>
+Subject: [PATCH v10 0/8] VMware hypercalls enhancements
+Date: Thu, 23 May 2024 12:14:38 -0700
+Message-Id: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
+X-Mailer: git-send-email 2.39.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] x86/paravirt: Disable virt spinlock when
- CONFIG_PARAVIRT_SPINLOCKS disabled
-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
- Chen Yu <yu.c.chen@intel.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.amakhalov@broadcom.com>,
- Arnd Bergmann <arnd@arndb.de>, "H. Peter Anvin" <hpa@zytor.com>,
- x86@kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
- Prem Nath Dey <prem.nath.dey@intel.com>,
- Xiaoping Zhou <xiaoping.zhou@intel.com>
-References: <20240516130244.893573-1-yu.c.chen@intel.com>
- <7b8d1dd6-3913-45fe-941e-aac2c15916dc@intel.com>
- <ec8b5d13-3034-4255-ace3-cf1564646da9@suse.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <ec8b5d13-3034-4255-ace3-cf1564646da9@suse.com>
-
-This is a multi-part message in MIME format.
---------------A4UK60YqxMGh0ck0hw0N0zV1
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 5/23/24 11:39, Jürgen Groß wrote:
->>
->> Let's just keep it simple.  How about the attached patch?
-> 
-> Simple indeed. The attachment is empty. 😛
+VMware hypercalls invocations were all spread out across the kernel
+implementing same ABI as in-place asm-inline. With encrypted memory
+and confidential computing it became harder to maintain every changes
+in these hypercall implementations.
 
-Let's try this again.
---------------A4UK60YqxMGh0ck0hw0N0zV1
-Content-Type: text/x-patch; charset=UTF-8; name="pv.patch"
-Content-Disposition: attachment; filename="pv.patch"
-Content-Transfer-Encoding: base64
+Intention of this patchset is to introduce arch independent VMware
+hypercall API layer other subsystems such as device drivers can call
+to, while hiding architecture specific implementation behind.
 
-ZGlmZiAtLWdpdCBhL2FyY2gveDg2L2tlcm5lbC9wYXJhdmlydC5jIGIvYXJjaC94ODYva2Vy
-bmVsL3BhcmF2aXJ0LmMKaW5kZXggNTM1OGQ0Mzg4NmFkLi5jMTkzYzllNjBhMWIgMTAwNjQ0
-Ci0tLSBhL2FyY2gveDg2L2tlcm5lbC9wYXJhdmlydC5jCisrKyBiL2FyY2gveDg2L2tlcm5l
-bC9wYXJhdmlydC5jCkBAIC01NSw4ICs1NSw3IEBAIERFRklORV9TVEFUSUNfS0VZX1RSVUUo
-dmlydF9zcGluX2xvY2tfa2V5KTsKIAogdm9pZCBfX2luaXQgbmF0aXZlX3B2X2xvY2tfaW5p
-dCh2b2lkKQogewotCWlmIChJU19FTkFCTEVEKENPTkZJR19QQVJBVklSVF9TUElOTE9DS1Mp
-ICYmCi0JICAgICFib290X2NwdV9oYXMoWDg2X0ZFQVRVUkVfSFlQRVJWSVNPUikpCisJaWYg
-KCFib290X2NwdV9oYXMoWDg2X0ZFQVRVUkVfSFlQRVJWSVNPUikpCiAJCXN0YXRpY19icmFu
-Y2hfZGlzYWJsZSgmdmlydF9zcGluX2xvY2tfa2V5KTsKIH0KIAo=
+First patch introduces the vmware_hypercall low and high bandwidth
+families of functions, with little enhancements there. And the last
+patch adds tdx hypercall support
 
---------------A4UK60YqxMGh0ck0hw0N0zV1--
+arm64 implementation of vmware_hypercalls is in drivers/gpu/drm/
+vmwgfx/vmwgfx_msg_arm64.h and going to be moved to arch/arm64 with
+a separate patchset with the introduction of VMware Linux guest
+support for arm64.
+
+No functional changes in drivers/input/mouse/vmmouse.c and
+drivers/ptp/ptp_vmw.c
+
+v9->v10 changes:
+- Restructure the patchset as was suggested by Borislav Petkov to
+  introduce vmware_hypercalls API first, then move callers to use this
+  API, and then remove the old mechanism.  
+- Reduce alternative portion of VMWARE_HYPERCALL by moving common code
+  outside of alternative block. Suggested by Borislav Petkov.
+- Use u32 instead of uint32_t in vmware_hypercall API and across vmware.c
+  as was suggested by Simon Horman.
+- Remove previous Reviewed-by and Acked-by.
+- Fix typos in comments and commit descriptions.
+- No major changes in patches 2,3,4,8 compare to v9.
+
+v8->v9 change:
+First patch "x86/vmware: Move common macros to vmware.h" was split on 2 pieces:
+  "x86/vmware: Move common macros to vmware.h" - just code movement, and
+  "x86/vmware: Correct macro names" - macro renaming.
+
+v7->v8 no functional changes. Updated authors and reviewers emails to
+@broadcom.com
+
+v6->v7 changes (only in patch 7):
+- Addressed comments from H. Peter Anvin:
+  1. Removed vmware_tdx_hypercall_args(), moved args handling inside
+     vmware_tdx_hypercall().
+  2. Added pr_warn_once() for !hypervisor_is_type(X86_HYPER_VMWARE) case.
+- Added ack by Dave Hansen.
+
+v5->v6 change:
+- Added ack by Kirill A. Shutemov in patch 7. 
+
+v4->v5 changes:
+  [patch 2]:
+- Fixed the problem reported by Simon Horman where build fails after
+  patch 2 application. Do not undefine VMWARE_HYPERCALL for now, and
+  update vmwgfx, vmmouse and ptp_vmw code for new VMWARE_HYPERCALL macro.
+- Introduce new patch 6 to undefine VMWARE_HYPERCALL, which is safe to do
+  after patches 3 to 5.
+- [patch 7 (former patch 6)]: Add missing r15 (CPL) initialization.
+
+v3->v4 changes: (no functional changes in patches 1-5)
+  [patch 2]:
+- Added the comment with VMware hypercall ABI description.
+  [patch 6]:
+- vmware_tdx_hypercall_args remove in6/out6 arguments as excessive.
+- vmware_tdx_hypercall return ULONG_MAX on error to mimic bad hypercall
+  command error from the hypervisor.
+- Replaced pr_warn by pr_warn_once as pointed by Kirill Shutemov.
+- Fixed the warning reported by Intel's kernel test robot.
+- Added the comment describing VMware TDX hypercall ABI.
+
+v2->v3 changes: (no functional changes in patches 1-5)
+- Improved commit message in patches 1, 2 and 5 as was suggested by
+  Borislav Petkov.
+- To address Dave Hansen's concern, patch 6 was reorganized to avoid
+  exporting bare __tdx_hypercall and to make exported vmware_tdx_hypercall
+  VMWare guest specific.
+
+v1->v2 changes (no functional changes):
+- Improved commit message in patches 2 and 5.
+- Added Reviewed-by for all patches.
+- Added Ack from Dmitry Torokhov in patch 4. No fixes regarding reported
+  by Simon Horman gcc error in this patch.
+
+Alexey Makhalov (8):
+  x86/vmware: Introduce VMware hypercall API
+  ptp/vmware: Use VMware hypercall API
+  input/vmmouse: Use VMware hypercall API
+  drm/vmwgfx: Use VMware hypercall API
+  x86/vmware: Use VMware hypercall API
+  x86/vmware: Correct macro names
+  x86/vmware: Remove legacy VMWARE_HYPERCALL* macros
+  x86/vmware: Add TDX hypercall support
+
+ arch/x86/include/asm/vmware.h             | 333 +++++++++++++++++++---
+ arch/x86/kernel/cpu/vmware.c              | 165 ++++++-----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c       | 173 ++++-------
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 196 +++++++++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h   | 185 ------------
+ drivers/input/mouse/vmmouse.c             |  76 ++---
+ drivers/ptp/ptp_vmw.c                     |  12 +-
+ 7 files changed, 602 insertions(+), 538 deletions(-)
+
+-- 
+2.39.0
+
