@@ -1,54 +1,55 @@
 Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B735183CDC
-	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:15:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97EFE84FCF
+	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:15:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716491735; cv=none; b=HITpZUtX2vQ9o0XYL87A5nsIbEkL2PtH9RdrKVa1PzCL2UkV099Y7JgwKnhkkUbLt+bRSppKFrOuecxGeWMOYeM9E6SFEAhY4jLWEmpNOQk4L/dalU5cwCDKThf4Tz4r2uEjH3/KyBlnvDgS4S3plXGiihhwk3AJGou9N/67STg=
+	t=1716491740; cv=none; b=suaCnqt01nIoSMyRLuBjx7syPwQ/nnKeSsjvyDDBKR3g3QybS2p0D+wszDngLaiU9sXr8xxdTiRN5xQDRHgUdzTEyB8jUoWWwkZHeSM34Bp7pxqMQj1PKLK0PKgUOc9pQW+pf4Mq9/Syb6qFLn9EYm8GiGm7/Q872IUBLxcM5Dg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716491735; c=relaxed/simple;
-	bh=kV4zcz6jzoAVhT4LSrmVY0zPVupX5RRs5ue5KqLrdag=;
+	s=arc-20240116; t=1716491740; c=relaxed/simple;
+	bh=cwPi0cwLaudKiJrBxIwug/LIGv5XW3nEwzrdc3S5Ovs=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=epwJgV55p/mfk2ITsVLJH+IlfJapNfmQY8sK+hSllHMdeR+8RVZXrAgnT1hR2dQSk/UJp5Iu1/OHmAbm2Q/yWZTPt30nZM0rc+qLHT9vecCz1zbsl1M8PDXhEQoozh9DxLlVOxBJU4mytnGdMNUbNAGokN9SfJ+0Pi7IeL/SsqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=arOhlklJ; arc=none smtp.client-ip=209.85.222.177
+	 MIME-Version; b=F8Cq3PgPcyfQz2E0NsXjoSxr/4xG75bnkmnGWeVItpbR89vE846B+9CpfYAhQEiaYz1P20mSS67dt/RknKGohqAQ89JnWePxZCR35TRVsR3y8HZr9KEaKZCdOgwnxPOxo7CFyDlwT8zuecvkq1wbkrQ6+sh3BtF39aSDtmlkwps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=NN54n4Rf; arc=none smtp.client-ip=209.85.222.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="arOhlklJ"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-792c031ffdeso543618485a.2
-        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 12:15:33 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="NN54n4Rf"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-7930504b2e2so150233985a.3
+        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 12:15:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1716491732; x=1717096532; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1716491738; x=1717096538; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2z+x9cF9UfIHvuJOEUpGiKSSOGcsvbWBKWEuefNVmwU=;
-        b=arOhlklJQFZMkG63zKTYQjJiAHXVOylj/Jm6dtwXghWR9ikcGWzVLlwtUO6oYcG3qq
-         CA0RwIs6PyAa9wSQzt24E5k8Gcv17gWYql2TFRMUSD1LVkg0z3gM25VSJuBL87YJqsaC
-         PUnPAdN4COx8ziuEMvkYzNCXKkqlAJF5Dx46k=
+        bh=KZPMIYqCPOQ9lUONW9JG6SX+420+rT4m9cGMXu5m3VI=;
+        b=NN54n4Rfh2+I//sy9HZkXJ7pfvPRXExjQjt1R86c6eCepvj5b98sEwLQVu3leXNnQK
+         aoi03bIYwdDUwjgKZUdxteVngmSgMePPS/NPIwMGicY8LF4V19JCmK7FP8ew7bdcPoF+
+         l+RMy4c3f5y8HXGvgxeWruqCYxhCYTd5xemMM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716491732; x=1717096532;
+        d=1e100.net; s=20230601; t=1716491738; x=1717096538;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2z+x9cF9UfIHvuJOEUpGiKSSOGcsvbWBKWEuefNVmwU=;
-        b=gOR7PLzAUq9WjsLgD8KiAowqZsghL2Um47vCZb4u4S3H/dvH5c0WuZsaO/KzAXLNIJ
-         0ahp+NAviqzH2lcPtc5hf3NQ07zAtV8ZqfwKOI4AXqNOdYwBzkDqq1GoS1LUIjh4UtRz
-         WIDIVnQ1kkeGDaF6mEk4PBpJdBzX/LrhIvB9Y9MWiX7YVhklBdJtqAoIqDixEgbMb5gq
-         LU/05UMbZe9ltE2Nn7V8sEoUMNrMHYG9ZPtRQ+/Em6tygBYoUtMpl6mIouvRaUFLeUtc
-         d0kGlbYV4ZdSvb7tZEQflDY80Z4XwarPC5yxysqhonz0C0v/kdp5lu5rkBhKNqw24tou
-         WVTA==
-X-Forwarded-Encrypted: i=1; AJvYcCVvaSxG4wYyoR0ZHQvvvhykU/rrvyDMgoXarUl9YNYmxQ8epiqmWzBMzGoCXXcbaiDvEBC0MSJ7YBD+/DPVMgsbbFzioVg+zTwavRdLxqQ=
-X-Gm-Message-State: AOJu0YxNCULmHCaLmvy4W4KqLzwzpdLPJJN6X4x5sW6Tq3kBHugBfDfl
-	seK2xUboryKFwVi0Pl0r2dtEU41NFNNK5oSDemCgD1fVgZ+YKVoglCxbUMFFQg==
-X-Google-Smtp-Source: AGHT+IE2BasLZ0crWe9TOEiCn1eNxaoBXd8AvFL3B7DO/1kp2aGcJp+wIYKp5XuroBIkt02sx+BaKQ==
-X-Received: by 2002:a05:6214:2f09:b0:6ab:86fe:514c with SMTP id 6a1803df08f44-6abcd0b1f1cmr62536d6.38.1716491732349;
-        Thu, 23 May 2024 12:15:32 -0700 (PDT)
+        bh=KZPMIYqCPOQ9lUONW9JG6SX+420+rT4m9cGMXu5m3VI=;
+        b=v+SYX3pO0b3UDKcNgNSfpZssDCjFQ/PNj1dKQTBjQnxrr2G03C57wVmqI3aeWZPtcR
+         RfNdim3t0qiDJIhcbCz9ml3zWVjPyQKwCrd14aMdb1gdJesP8acGkxpHUE2aVzQLcnLI
+         KCeumYMpSJhGlyODRnr45XcudsMcAGV6mWiEi9NM939H2sc68Li0Nw8oRJx02chzCWFZ
+         ePItITgtChe2fsbGL22otiQejG5VGVHeTMZHwYlLJZb3l3HthaOjXXUVdiev9V5dkU1D
+         7yL+HeRKvyCkcUm37MQkbeVmJAGVNKnlhkZfu+nMMxXiVi5ApMOzllEBmQH/7b+u1Hvt
+         706g==
+X-Forwarded-Encrypted: i=1; AJvYcCVeDr5LfUsveGj8tJ3/0bMhJFqsR3B+ioNqncE/Uv2ibHqjewRll379lf+jbLhyj9RJu409ZDYGijmGQbMx0iSeh9c32r/p/iU7xizkeaE=
+X-Gm-Message-State: AOJu0YzHJN3FTZuGmh1KVTKW7fjK4iSotuu82KdDsz2sVqSLjECI+oUh
+	sjHrsuV6VPLzc6Ri1bVLCBwr1wadD/l1QU4rKLzXswtFWuHj95zuySaAk3Op+w9jOizX1jM7Bnw
+	=
+X-Google-Smtp-Source: AGHT+IG2JzfPFZy3xWsQUnDD6DVaCv75DpVNO+T61rq9vujIHdvBjciczesgyKtATQ7tmpk6hsg4FQ==
+X-Received: by 2002:a05:620a:5608:b0:792:9d32:d37f with SMTP id af79cd13be357-794aaf8eeccmr19545485a.0.1716491737788;
+        Thu, 23 May 2024 12:15:37 -0700 (PDT)
 Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43e4a89b61dsm21219821cf.45.2024.05.23.12.15.27
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43e4a89b61dsm21219821cf.45.2024.05.23.12.15.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 May 2024 12:15:31 -0700 (PDT)
+        Thu, 23 May 2024 12:15:37 -0700 (PDT)
 From: Alexey Makhalov <alexey.makhalov@broadcom.com>
 To: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
@@ -76,9 +77,9 @@ Cc: x86@kernel.org,
 	horms@kernel.org,
 	kirill.shutemov@linux.intel.com,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>
-Subject: [PATCH v10 5/8] x86/vmware: Use VMware hypercall API
-Date: Thu, 23 May 2024 12:14:43 -0700
-Message-Id: <20240523191446.54695-6-alexey.makhalov@broadcom.com>
+Subject: [PATCH v10 6/8] x86/vmware: Correct macro names
+Date: Thu, 23 May 2024 12:14:44 -0700
+Message-Id: <20240523191446.54695-7-alexey.makhalov@broadcom.com>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
 References: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
@@ -90,187 +91,42 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Remove VMWARE_CMD macro and move to vmware_hypercall API.
-No functional changes intended.
-
-Use u32/u64 instead of uint32_t/uint64_t across the file
+VCPU_RESERVED and LEGACY_X2APIC are not VMware hypercall commands.
+These are bits in return value of VMWARE_CMD_GETVCPU_INFO command.
+Change VMWARE_CMD_ prefix to GETVCPU_INFO_ one. And move bit-shift
+operation to the macro body.
 
 Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
 ---
- arch/x86/kernel/cpu/vmware.c | 95 ++++++++++--------------------------
- 1 file changed, 25 insertions(+), 70 deletions(-)
+ arch/x86/kernel/cpu/vmware.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 07b7b5b773a0..6796425eaaa1 100644
+index 6796425eaaa1..58442c2581e7 100644
 --- a/arch/x86/kernel/cpu/vmware.c
 +++ b/arch/x86/kernel/cpu/vmware.c
-@@ -49,54 +49,16 @@
+@@ -42,8 +42,8 @@
+ #define CPUID_VMWARE_INFO_LEAF               0x40000000
+ #define CPUID_VMWARE_FEATURES_LEAF           0x40000010
+ 
+-#define VMWARE_CMD_LEGACY_X2APIC  3
+-#define VMWARE_CMD_VCPU_RESERVED 31
++#define GETVCPU_INFO_LEGACY_X2APIC           BIT(3)
++#define GETVCPU_INFO_VCPU_RESERVED           BIT(31)
+ 
+ #define STEALCLOCK_NOT_AVAILABLE (-1)
  #define STEALCLOCK_DISABLED        0
- #define STEALCLOCK_ENABLED         1
+@@ -424,8 +424,8 @@ static bool __init vmware_legacy_x2apic_available(void)
+ 	u32 eax;
  
--#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
--	__asm__("inl (%%dx), %%eax" :					\
--		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
--		"a"(VMWARE_HYPERVISOR_MAGIC),				\
--		"c"(VMWARE_CMD_##cmd),					\
--		"d"(VMWARE_HYPERVISOR_PORT), "b"(UINT_MAX) :		\
--		"memory")
--
--#define VMWARE_VMCALL(cmd, eax, ebx, ecx, edx)				\
--	__asm__("vmcall" :						\
--		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
--		"a"(VMWARE_HYPERVISOR_MAGIC),				\
--		"c"(VMWARE_CMD_##cmd),					\
--		"d"(0), "b"(UINT_MAX) :					\
--		"memory")
--
--#define VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx)                         \
--	__asm__("vmmcall" :						\
--		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
--		"a"(VMWARE_HYPERVISOR_MAGIC),				\
--		"c"(VMWARE_CMD_##cmd),					\
--		"d"(0), "b"(UINT_MAX) :					\
--		"memory")
--
--#define VMWARE_CMD(cmd, eax, ebx, ecx, edx) do {		\
--	switch (vmware_hypercall_mode) {			\
--	case CPUID_VMWARE_FEATURES_ECX_VMCALL:			\
--		VMWARE_VMCALL(cmd, eax, ebx, ecx, edx);		\
--		break;						\
--	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:			\
--		VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx);	\
--		break;						\
--	default:						\
--		VMWARE_PORT(cmd, eax, ebx, ecx, edx);		\
--		break;						\
--	}							\
--	} while (0)
--
- struct vmware_steal_time {
- 	union {
--		uint64_t clock;	/* stolen time counter in units of vtsc */
-+		u64 clock;	/* stolen time counter in units of vtsc */
- 		struct {
- 			/* only for little-endian */
--			uint32_t clock_low;
--			uint32_t clock_high;
-+			u32 clock_low;
-+			u32 clock_high;
- 		};
- 	};
--	uint64_t reserved[7];
-+	u64 reserved[7];
- };
- 
- static unsigned long vmware_tsc_khz __ro_after_init;
-@@ -105,9 +67,10 @@ EXPORT_SYMBOL_GPL(vmware_hypercall_mode);
- 
- static inline int __vmware_platform(void)
- {
--	uint32_t eax, ebx, ecx, edx;
--	VMWARE_CMD(GETVERSION, eax, ebx, ecx, edx);
--	return eax != (uint32_t)-1 && ebx == VMWARE_HYPERVISOR_MAGIC;
-+	u32 eax, ebx, ecx;
-+
-+	eax = vmware_hypercall3(VMWARE_CMD_GETVERSION, 0, &ebx, &ecx);
-+	return eax != UINT_MAX && ebx == VMWARE_HYPERVISOR_MAGIC;
+ 	eax = vmware_hypercall1(VMWARE_CMD_GETVCPU_INFO, 0);
+-	return !(eax & BIT(VMWARE_CMD_VCPU_RESERVED)) &&
+-		(eax & BIT(VMWARE_CMD_LEGACY_X2APIC));
++	return !(eax & GETVCPU_INFO_VCPU_RESERVED) &&
++		(eax & GETVCPU_INFO_LEGACY_X2APIC);
  }
  
- static unsigned long vmware_get_tsc_khz(void)
-@@ -159,21 +122,12 @@ static void __init vmware_cyc2ns_setup(void)
- 	pr_info("using clock offset of %llu ns\n", d->cyc2ns_offset);
- }
- 
--static int vmware_cmd_stealclock(uint32_t arg1, uint32_t arg2)
-+static int vmware_cmd_stealclock(u32 addr_hi, u32 addr_lo)
- {
--	uint32_t result, info;
--
--	asm volatile (VMWARE_HYPERCALL :
--		"=a"(result),
--		"=c"(info) :
--		"a"(VMWARE_HYPERVISOR_MAGIC),
--		"b"(0),
--		"c"(VMWARE_CMD_STEALCLOCK),
--		"d"(0),
--		"S"(arg1),
--		"D"(arg2) :
--		"memory");
--	return result;
-+	u32 info;
-+
-+	return vmware_hypercall5(VMWARE_CMD_STEALCLOCK, 0, 0, addr_hi, addr_lo,
-+				 &info);
- }
- 
- static bool stealclock_enable(phys_addr_t pa)
-@@ -208,15 +162,15 @@ static bool vmware_is_stealclock_available(void)
-  * Return:
-  *      The steal clock reading in ns.
-  */
--static uint64_t vmware_steal_clock(int cpu)
-+static u64 vmware_steal_clock(int cpu)
- {
- 	struct vmware_steal_time *steal = &per_cpu(vmw_steal_time, cpu);
--	uint64_t clock;
-+	u64 clock;
- 
- 	if (IS_ENABLED(CONFIG_64BIT))
- 		clock = READ_ONCE(steal->clock);
- 	else {
--		uint32_t initial_high, low, high;
-+		u32 initial_high, low, high;
- 
- 		do {
- 			initial_high = READ_ONCE(steal->clock_high);
-@@ -228,7 +182,7 @@ static uint64_t vmware_steal_clock(int cpu)
- 			high = READ_ONCE(steal->clock_high);
- 		} while (initial_high != high);
- 
--		clock = ((uint64_t)high << 32) | low;
-+		clock = ((u64)high << 32) | low;
- 	}
- 
- 	return mul_u64_u32_shr(clock, vmware_cyc2ns.cyc2ns_mul,
-@@ -382,13 +336,13 @@ static void __init vmware_set_capabilities(void)
- 
- static void __init vmware_platform_setup(void)
- {
--	uint32_t eax, ebx, ecx, edx;
--	uint64_t lpj, tsc_khz;
-+	u32 eax, ebx, ecx;
-+	u64 lpj, tsc_khz;
- 
--	VMWARE_CMD(GETHZ, eax, ebx, ecx, edx);
-+	eax = vmware_hypercall3(VMWARE_CMD_GETHZ, UINT_MAX, &ebx, &ecx);
- 
- 	if (ebx != UINT_MAX) {
--		lpj = tsc_khz = eax | (((uint64_t)ebx) << 32);
-+		lpj = tsc_khz = eax | (((u64)ebx) << 32);
- 		do_div(tsc_khz, 1000);
- 		WARN_ON(tsc_khz >> 32);
- 		pr_info("TSC freq read from hypervisor : %lu.%03lu MHz\n",
-@@ -439,7 +393,7 @@ static u8 __init vmware_select_hypercall(void)
-  * If !boot_cpu_has(X86_FEATURE_HYPERVISOR), vmware_hypercall_mode
-  * intentionally defaults to 0.
-  */
--static uint32_t __init vmware_platform(void)
-+static u32 __init vmware_platform(void)
- {
- 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR)) {
- 		unsigned int eax;
-@@ -467,8 +421,9 @@ static uint32_t __init vmware_platform(void)
- /* Checks if hypervisor supports x2apic without VT-D interrupt remapping. */
- static bool __init vmware_legacy_x2apic_available(void)
- {
--	uint32_t eax, ebx, ecx, edx;
--	VMWARE_CMD(GETVCPU_INFO, eax, ebx, ecx, edx);
-+	u32 eax;
-+
-+	eax = vmware_hypercall1(VMWARE_CMD_GETVCPU_INFO, 0);
- 	return !(eax & BIT(VMWARE_CMD_VCPU_RESERVED)) &&
- 		(eax & BIT(VMWARE_CMD_LEGACY_X2APIC));
- }
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
 -- 
 2.39.0
 
