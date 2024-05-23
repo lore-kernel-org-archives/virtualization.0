@@ -1,54 +1,54 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552D484DFE
-	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:15:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B735183CDC
+	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:15:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716491730; cv=none; b=ST25cb6U2ooImBYQzyIoIEQPaxhvo14x0upkAfCfKMY4bGB2FALszq8Tf38dJffKN7frGPxQ/rtdxomNqiAClq4AJHt6PoSqqaYLuOiv6UVVTsrv9Qr6rCdqZbnfkig7360/uPAGr4WOPA2VexWujMUFvN4LrLLgZUmR/zifWH4=
+	t=1716491735; cv=none; b=HITpZUtX2vQ9o0XYL87A5nsIbEkL2PtH9RdrKVa1PzCL2UkV099Y7JgwKnhkkUbLt+bRSppKFrOuecxGeWMOYeM9E6SFEAhY4jLWEmpNOQk4L/dalU5cwCDKThf4Tz4r2uEjH3/KyBlnvDgS4S3plXGiihhwk3AJGou9N/67STg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716491730; c=relaxed/simple;
-	bh=RDm38zEXykfHmPksXla0teet7INmzvzFXT1TwTXqlQI=;
+	s=arc-20240116; t=1716491735; c=relaxed/simple;
+	bh=kV4zcz6jzoAVhT4LSrmVY0zPVupX5RRs5ue5KqLrdag=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=aNsf4n0uDQxt7SCLuWzTSQmOf/xWHv/pydFMWDclKgRiDx1h6W6iXYILHpbsZonoFDwXI4thjz1xqyGy+eqYPNiB3hysyS6ayKU7Oa6BBnzxDlGcpkUeLUcAhBCffM6ipatptxb7LDzQmVAiUwfbsba6MBKH8852XsXfDDKC+Bs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=AOcWZ4b5; arc=none smtp.client-ip=209.85.160.176
+	 MIME-Version; b=epwJgV55p/mfk2ITsVLJH+IlfJapNfmQY8sK+hSllHMdeR+8RVZXrAgnT1hR2dQSk/UJp5Iu1/OHmAbm2Q/yWZTPt30nZM0rc+qLHT9vecCz1zbsl1M8PDXhEQoozh9DxLlVOxBJU4mytnGdMNUbNAGokN9SfJ+0Pi7IeL/SsqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=arOhlklJ; arc=none smtp.client-ip=209.85.222.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="AOcWZ4b5"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-43fb05b1ef2so439681cf.1
-        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 12:15:28 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="arOhlklJ"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-792c031ffdeso543618485a.2
+        for <virtualization@lists.linux.dev>; Thu, 23 May 2024 12:15:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1716491727; x=1717096527; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1716491732; x=1717096532; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=QiopQEY3ZRV+5A0x0Yxg0BN/KWIKy5uE6XVOT2njifc=;
-        b=AOcWZ4b51Yw+4qE5x90bSwhOM6WDle+RgAJ9YFG5i9UUrUhRCeZWAxt39CVBKT91ha
-         tzu/rY8uDDS6sNHXMpuxZVBPAkUJvSxj862fr4T2eWcDzlov+U7GFoP3XKx5iIVGZkMe
-         Mf6C21Gu8f880pBnijhqTeHkKPWD3pXJ4S6l0=
+        bh=2z+x9cF9UfIHvuJOEUpGiKSSOGcsvbWBKWEuefNVmwU=;
+        b=arOhlklJQFZMkG63zKTYQjJiAHXVOylj/Jm6dtwXghWR9ikcGWzVLlwtUO6oYcG3qq
+         CA0RwIs6PyAa9wSQzt24E5k8Gcv17gWYql2TFRMUSD1LVkg0z3gM25VSJuBL87YJqsaC
+         PUnPAdN4COx8ziuEMvkYzNCXKkqlAJF5Dx46k=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716491727; x=1717096527;
+        d=1e100.net; s=20230601; t=1716491732; x=1717096532;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=QiopQEY3ZRV+5A0x0Yxg0BN/KWIKy5uE6XVOT2njifc=;
-        b=LukwcreBWcOAjpUSfpw4XQnrWue7pXsVQcb+Lx/ubD6yapjClz49bcP6oM+FNMdJr9
-         iBdbiE8Uw5cTfFc8GU/C+t3o5hWtABicXJCn+jZ8AoPweekKvFx2r9zvfxtpvhadN1vi
-         om3895jMxjCFMUBn6kJNN9HS9hvXMeq5YlB6c6Dqc8XU9Cazm1dCG0XTPDtv2n+qhBBF
-         m41V/RiuX7lLk5XlicXr/+tzZS2aVJ6Wv388KdesdG9kyUBOUlrHcwDb8okI0g4hrmNF
-         0xuyHmX2em3PWf+Q2B02JVfq9eVlBsK0nAxXOAZPvdBGcjtK97slKgHkqZkNZ8PGTcqM
-         y3LQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXx+23mhjwt8i83eTSCGMucVAXsa4vY3hXWjo+ABAUzjkyj0peLtgqUyVtnHDABrUKFJHWp2xgIlasHkiu8Gx4koX2MaItOGs42Hi12By8=
-X-Gm-Message-State: AOJu0YwqPK2zDC8HyX+q3+CdTD+ziyAsa/YgfMMrkpEBPR1KCxjkaUCG
-	YEV2rrG+sDrG3zBp62dbcqQdEtv0X7cir5oVMVSFw6OtNEHL52wyiWUz0k0phQ==
-X-Google-Smtp-Source: AGHT+IHiAGeEC9+7vfTw74pMury0A1Bn7AAf7W5xisxI1dh/Dr90AI7V36QwDyTv+Q2QjDpJVx2F7w==
-X-Received: by 2002:ac8:5903:0:b0:43a:fb30:a21f with SMTP id d75a77b69052e-43fb0eab10emr278311cf.38.1716491726801;
-        Thu, 23 May 2024 12:15:26 -0700 (PDT)
+        bh=2z+x9cF9UfIHvuJOEUpGiKSSOGcsvbWBKWEuefNVmwU=;
+        b=gOR7PLzAUq9WjsLgD8KiAowqZsghL2Um47vCZb4u4S3H/dvH5c0WuZsaO/KzAXLNIJ
+         0ahp+NAviqzH2lcPtc5hf3NQ07zAtV8ZqfwKOI4AXqNOdYwBzkDqq1GoS1LUIjh4UtRz
+         WIDIVnQ1kkeGDaF6mEk4PBpJdBzX/LrhIvB9Y9MWiX7YVhklBdJtqAoIqDixEgbMb5gq
+         LU/05UMbZe9ltE2Nn7V8sEoUMNrMHYG9ZPtRQ+/Em6tygBYoUtMpl6mIouvRaUFLeUtc
+         d0kGlbYV4ZdSvb7tZEQflDY80Z4XwarPC5yxysqhonz0C0v/kdp5lu5rkBhKNqw24tou
+         WVTA==
+X-Forwarded-Encrypted: i=1; AJvYcCVvaSxG4wYyoR0ZHQvvvhykU/rrvyDMgoXarUl9YNYmxQ8epiqmWzBMzGoCXXcbaiDvEBC0MSJ7YBD+/DPVMgsbbFzioVg+zTwavRdLxqQ=
+X-Gm-Message-State: AOJu0YxNCULmHCaLmvy4W4KqLzwzpdLPJJN6X4x5sW6Tq3kBHugBfDfl
+	seK2xUboryKFwVi0Pl0r2dtEU41NFNNK5oSDemCgD1fVgZ+YKVoglCxbUMFFQg==
+X-Google-Smtp-Source: AGHT+IE2BasLZ0crWe9TOEiCn1eNxaoBXd8AvFL3B7DO/1kp2aGcJp+wIYKp5XuroBIkt02sx+BaKQ==
+X-Received: by 2002:a05:6214:2f09:b0:6ab:86fe:514c with SMTP id 6a1803df08f44-6abcd0b1f1cmr62536d6.38.1716491732349;
+        Thu, 23 May 2024 12:15:32 -0700 (PDT)
 Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43e4a89b61dsm21219821cf.45.2024.05.23.12.15.21
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43e4a89b61dsm21219821cf.45.2024.05.23.12.15.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 May 2024 12:15:26 -0700 (PDT)
+        Thu, 23 May 2024 12:15:31 -0700 (PDT)
 From: Alexey Makhalov <alexey.makhalov@broadcom.com>
 To: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
@@ -76,9 +76,9 @@ Cc: x86@kernel.org,
 	horms@kernel.org,
 	kirill.shutemov@linux.intel.com,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>
-Subject: [PATCH v10 4/8] drm/vmwgfx: Use VMware hypercall API
-Date: Thu, 23 May 2024 12:14:42 -0700
-Message-Id: <20240523191446.54695-5-alexey.makhalov@broadcom.com>
+Subject: [PATCH v10 5/8] x86/vmware: Use VMware hypercall API
+Date: Thu, 23 May 2024 12:14:43 -0700
+Message-Id: <20240523191446.54695-6-alexey.makhalov@broadcom.com>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
 References: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
@@ -90,746 +90,187 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Switch from VMWARE_HYPERCALL macro to vmware_hypercall API.
-Eliminate arch specific code.
+Remove VMWARE_CMD macro and move to vmware_hypercall API.
+No functional changes intended.
 
-drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h: implement arm64 variant
-of vmware_hypercall. And keep it here until introduction of ARM64
-VMWare hypervisor interface.
+Use u32/u64 instead of uint32_t/uint64_t across the file
 
 Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c       | 173 +++++++------------
- drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 196 +++++++++++++++-------
- drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h   | 185 --------------------
- 3 files changed, 196 insertions(+), 358 deletions(-)
+ arch/x86/kernel/cpu/vmware.c | 95 ++++++++++--------------------------
+ 1 file changed, 25 insertions(+), 70 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-index 2651fe0ef518..1f15990d3934 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -48,8 +48,6 @@
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 07b7b5b773a0..6796425eaaa1 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -49,54 +49,16 @@
+ #define STEALCLOCK_DISABLED        0
+ #define STEALCLOCK_ENABLED         1
  
- #define RETRIES                 3
- 
--#define VMW_HYPERVISOR_MAGIC    0x564D5868
+-#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
+-	__asm__("inl (%%dx), %%eax" :					\
+-		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
+-		"a"(VMWARE_HYPERVISOR_MAGIC),				\
+-		"c"(VMWARE_CMD_##cmd),					\
+-		"d"(VMWARE_HYPERVISOR_PORT), "b"(UINT_MAX) :		\
+-		"memory")
 -
- #define VMW_PORT_CMD_MSG        30
- #define VMW_PORT_CMD_HB_MSG     0
- #define VMW_PORT_CMD_OPEN_CHANNEL  (MSG_TYPE_OPEN << 16 | VMW_PORT_CMD_MSG)
-@@ -104,20 +102,18 @@ static const char* const mksstat_kern_name_desc[MKSSTAT_KERN_COUNT][2] =
-  */
- static int vmw_open_channel(struct rpc_channel *channel, unsigned int protocol)
+-#define VMWARE_VMCALL(cmd, eax, ebx, ecx, edx)				\
+-	__asm__("vmcall" :						\
+-		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
+-		"a"(VMWARE_HYPERVISOR_MAGIC),				\
+-		"c"(VMWARE_CMD_##cmd),					\
+-		"d"(0), "b"(UINT_MAX) :					\
+-		"memory")
+-
+-#define VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx)                         \
+-	__asm__("vmmcall" :						\
+-		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
+-		"a"(VMWARE_HYPERVISOR_MAGIC),				\
+-		"c"(VMWARE_CMD_##cmd),					\
+-		"d"(0), "b"(UINT_MAX) :					\
+-		"memory")
+-
+-#define VMWARE_CMD(cmd, eax, ebx, ecx, edx) do {		\
+-	switch (vmware_hypercall_mode) {			\
+-	case CPUID_VMWARE_FEATURES_ECX_VMCALL:			\
+-		VMWARE_VMCALL(cmd, eax, ebx, ecx, edx);		\
+-		break;						\
+-	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:			\
+-		VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx);	\
+-		break;						\
+-	default:						\
+-		VMWARE_PORT(cmd, eax, ebx, ecx, edx);		\
+-		break;						\
+-	}							\
+-	} while (0)
+-
+ struct vmware_steal_time {
+ 	union {
+-		uint64_t clock;	/* stolen time counter in units of vtsc */
++		u64 clock;	/* stolen time counter in units of vtsc */
+ 		struct {
+ 			/* only for little-endian */
+-			uint32_t clock_low;
+-			uint32_t clock_high;
++			u32 clock_low;
++			u32 clock_high;
+ 		};
+ 	};
+-	uint64_t reserved[7];
++	u64 reserved[7];
+ };
+ 
+ static unsigned long vmware_tsc_khz __ro_after_init;
+@@ -105,9 +67,10 @@ EXPORT_SYMBOL_GPL(vmware_hypercall_mode);
+ 
+ static inline int __vmware_platform(void)
  {
--	unsigned long eax, ebx, ecx, edx, si = 0, di = 0;
-+	u32 ecx, edx, esi, edi;
- 
--	VMW_PORT(VMW_PORT_CMD_OPEN_CHANNEL,
--		(protocol | GUESTMSG_FLAG_COOKIE), si, di,
--		0,
--		VMW_HYPERVISOR_MAGIC,
--		eax, ebx, ecx, edx, si, di);
-+	vmware_hypercall6(VMW_PORT_CMD_OPEN_CHANNEL,
-+			  (protocol | GUESTMSG_FLAG_COOKIE), 0,
-+			  &ecx, &edx, &esi, &edi);
- 
- 	if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
- 		return -EINVAL;
- 
- 	channel->channel_id  = HIGH_WORD(edx);
--	channel->cookie_high = si;
--	channel->cookie_low  = di;
-+	channel->cookie_high = esi;
-+	channel->cookie_low  = edi;
- 
- 	return 0;
+-	uint32_t eax, ebx, ecx, edx;
+-	VMWARE_CMD(GETVERSION, eax, ebx, ecx, edx);
+-	return eax != (uint32_t)-1 && ebx == VMWARE_HYPERVISOR_MAGIC;
++	u32 eax, ebx, ecx;
++
++	eax = vmware_hypercall3(VMWARE_CMD_GETVERSION, 0, &ebx, &ecx);
++	return eax != UINT_MAX && ebx == VMWARE_HYPERVISOR_MAGIC;
  }
-@@ -133,17 +129,13 @@ static int vmw_open_channel(struct rpc_channel *channel, unsigned int protocol)
+ 
+ static unsigned long vmware_get_tsc_khz(void)
+@@ -159,21 +122,12 @@ static void __init vmware_cyc2ns_setup(void)
+ 	pr_info("using clock offset of %llu ns\n", d->cyc2ns_offset);
+ }
+ 
+-static int vmware_cmd_stealclock(uint32_t arg1, uint32_t arg2)
++static int vmware_cmd_stealclock(u32 addr_hi, u32 addr_lo)
+ {
+-	uint32_t result, info;
+-
+-	asm volatile (VMWARE_HYPERCALL :
+-		"=a"(result),
+-		"=c"(info) :
+-		"a"(VMWARE_HYPERVISOR_MAGIC),
+-		"b"(0),
+-		"c"(VMWARE_CMD_STEALCLOCK),
+-		"d"(0),
+-		"S"(arg1),
+-		"D"(arg2) :
+-		"memory");
+-	return result;
++	u32 info;
++
++	return vmware_hypercall5(VMWARE_CMD_STEALCLOCK, 0, 0, addr_hi, addr_lo,
++				 &info);
+ }
+ 
+ static bool stealclock_enable(phys_addr_t pa)
+@@ -208,15 +162,15 @@ static bool vmware_is_stealclock_available(void)
+  * Return:
+  *      The steal clock reading in ns.
   */
- static int vmw_close_channel(struct rpc_channel *channel)
+-static uint64_t vmware_steal_clock(int cpu)
++static u64 vmware_steal_clock(int cpu)
  {
--	unsigned long eax, ebx, ecx, edx, si, di;
--
--	/* Set up additional parameters */
--	si  = channel->cookie_high;
--	di  = channel->cookie_low;
-+	u32 ecx;
+ 	struct vmware_steal_time *steal = &per_cpu(vmw_steal_time, cpu);
+-	uint64_t clock;
++	u64 clock;
  
--	VMW_PORT(VMW_PORT_CMD_CLOSE_CHANNEL,
--		0, si, di,
--		channel->channel_id << 16,
--		VMW_HYPERVISOR_MAGIC,
--		eax, ebx, ecx, edx, si, di);
-+	vmware_hypercall5(VMW_PORT_CMD_CLOSE_CHANNEL,
-+			  0, channel->channel_id << 16,
-+			  channel->cookie_high,
-+			  channel->cookie_low,
-+			  &ecx);
+ 	if (IS_ENABLED(CONFIG_64BIT))
+ 		clock = READ_ONCE(steal->clock);
+ 	else {
+-		uint32_t initial_high, low, high;
++		u32 initial_high, low, high;
  
- 	if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
- 		return -EINVAL;
-@@ -163,24 +155,18 @@ static int vmw_close_channel(struct rpc_channel *channel)
- static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
- 				     const char *msg, bool hb)
- {
--	unsigned long si, di, eax, ebx, ecx, edx;
-+	u32 ebx, ecx;
- 	unsigned long msg_len = strlen(msg);
+ 		do {
+ 			initial_high = READ_ONCE(steal->clock_high);
+@@ -228,7 +182,7 @@ static uint64_t vmware_steal_clock(int cpu)
+ 			high = READ_ONCE(steal->clock_high);
+ 		} while (initial_high != high);
  
- 	/* HB port can't access encrypted memory. */
- 	if (hb && !cc_platform_has(CC_ATTR_MEM_ENCRYPT)) {
--		unsigned long bp = channel->cookie_high;
--		u32 channel_id = (channel->channel_id << 16);
--
--		si = (uintptr_t) msg;
--		di = channel->cookie_low;
--
--		VMW_PORT_HB_OUT(
-+		vmware_hypercall_hb_out(
- 			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			msg_len, si, di,
--			VMWARE_HYPERVISOR_HB | channel_id |
--			VMWARE_HYPERVISOR_OUT,
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
-+			msg_len,
-+			channel->channel_id << 16,
-+			(uintptr_t) msg, channel->cookie_low,
-+			channel->cookie_high,
-+			&ebx);
- 
- 		return ebx;
+-		clock = ((uint64_t)high << 32) | low;
++		clock = ((u64)high << 32) | low;
  	}
-@@ -194,14 +180,13 @@ static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
- 		memcpy(&word, msg, bytes);
- 		msg_len -= bytes;
- 		msg += bytes;
--		si = channel->cookie_high;
--		di = channel->cookie_low;
--
--		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_SENDPAYLOAD << 16),
--			 word, si, di,
--			 channel->channel_id << 16,
--			 VMW_HYPERVISOR_MAGIC,
--			 eax, ebx, ecx, edx, si, di);
-+
-+		vmware_hypercall5(VMW_PORT_CMD_MSG |
-+				  (MSG_TYPE_SENDPAYLOAD << 16),
-+				  word, channel->channel_id << 16,
-+				  channel->cookie_high,
-+				  channel->cookie_low,
-+				  &ecx);
- 	}
  
- 	return ecx;
-@@ -220,22 +205,17 @@ static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
- static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
- 				    unsigned long reply_len, bool hb)
+ 	return mul_u64_u32_shr(clock, vmware_cyc2ns.cyc2ns_mul,
+@@ -382,13 +336,13 @@ static void __init vmware_set_capabilities(void)
+ 
+ static void __init vmware_platform_setup(void)
  {
--	unsigned long si, di, eax, ebx, ecx, edx;
-+	u32 ebx, ecx, edx;
+-	uint32_t eax, ebx, ecx, edx;
+-	uint64_t lpj, tsc_khz;
++	u32 eax, ebx, ecx;
++	u64 lpj, tsc_khz;
  
- 	/* HB port can't access encrypted memory */
- 	if (hb && !cc_platform_has(CC_ATTR_MEM_ENCRYPT)) {
--		unsigned long bp = channel->cookie_low;
--		u32 channel_id = (channel->channel_id << 16);
--
--		si = channel->cookie_high;
--		di = (uintptr_t) reply;
--
--		VMW_PORT_HB_IN(
-+		vmware_hypercall_hb_in(
- 			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			reply_len, si, di,
--			VMWARE_HYPERVISOR_HB | channel_id,
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
-+			reply_len,
-+			channel->channel_id << 16,
-+			channel->cookie_high,
-+			(uintptr_t) reply, channel->cookie_low,
-+			&ebx);
+-	VMWARE_CMD(GETHZ, eax, ebx, ecx, edx);
++	eax = vmware_hypercall3(VMWARE_CMD_GETHZ, UINT_MAX, &ebx, &ecx);
  
- 		return ebx;
- 	}
-@@ -245,14 +225,13 @@ static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
- 	while (reply_len) {
- 		unsigned int bytes = min_t(unsigned long, reply_len, 4);
- 
--		si = channel->cookie_high;
--		di = channel->cookie_low;
--
--		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_RECVPAYLOAD << 16),
--			 MESSAGE_STATUS_SUCCESS, si, di,
--			 channel->channel_id << 16,
--			 VMW_HYPERVISOR_MAGIC,
--			 eax, ebx, ecx, edx, si, di);
-+		vmware_hypercall7(VMW_PORT_CMD_MSG |
-+				  (MSG_TYPE_RECVPAYLOAD << 16),
-+				  MESSAGE_STATUS_SUCCESS,
-+				  channel->channel_id << 16,
-+				  channel->cookie_high,
-+				  channel->cookie_low,
-+				  &ebx, &ecx, &edx);
- 
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
- 			break;
-@@ -276,22 +255,18 @@ static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
+ 	if (ebx != UINT_MAX) {
+-		lpj = tsc_khz = eax | (((uint64_t)ebx) << 32);
++		lpj = tsc_khz = eax | (((u64)ebx) << 32);
+ 		do_div(tsc_khz, 1000);
+ 		WARN_ON(tsc_khz >> 32);
+ 		pr_info("TSC freq read from hypervisor : %lu.%03lu MHz\n",
+@@ -439,7 +393,7 @@ static u8 __init vmware_select_hypercall(void)
+  * If !boot_cpu_has(X86_FEATURE_HYPERVISOR), vmware_hypercall_mode
+  * intentionally defaults to 0.
   */
- static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+-static uint32_t __init vmware_platform(void)
++static u32 __init vmware_platform(void)
  {
--	unsigned long eax, ebx, ecx, edx, si, di;
-+	u32 ebx, ecx;
- 	size_t msg_len = strlen(msg);
- 	int retries = 0;
- 
- 	while (retries < RETRIES) {
- 		retries++;
- 
--		/* Set up additional parameters */
--		si  = channel->cookie_high;
--		di  = channel->cookie_low;
--
--		VMW_PORT(VMW_PORT_CMD_SENDSIZE,
--			msg_len, si, di,
--			channel->channel_id << 16,
--			VMW_HYPERVISOR_MAGIC,
--			eax, ebx, ecx, edx, si, di);
-+		vmware_hypercall5(VMW_PORT_CMD_SENDSIZE,
-+				  msg_len, channel->channel_id << 16,
-+				  channel->cookie_high,
-+				  channel->cookie_low,
-+				  &ecx);
- 
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			/* Expected success. Give up. */
-@@ -329,7 +304,7 @@ STACK_FRAME_NON_STANDARD(vmw_send_msg);
- static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 			size_t *msg_len)
+ 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR)) {
+ 		unsigned int eax;
+@@ -467,8 +421,9 @@ static uint32_t __init vmware_platform(void)
+ /* Checks if hypervisor supports x2apic without VT-D interrupt remapping. */
+ static bool __init vmware_legacy_x2apic_available(void)
  {
--	unsigned long eax, ebx, ecx, edx, si, di;
-+	u32 ebx, ecx, edx;
- 	char *reply;
- 	size_t reply_len;
- 	int retries = 0;
-@@ -341,15 +316,11 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 	while (retries < RETRIES) {
- 		retries++;
- 
--		/* Set up additional parameters */
--		si  = channel->cookie_high;
--		di  = channel->cookie_low;
--
--		VMW_PORT(VMW_PORT_CMD_RECVSIZE,
--			0, si, di,
--			channel->channel_id << 16,
--			VMW_HYPERVISOR_MAGIC,
--			eax, ebx, ecx, edx, si, di);
-+		vmware_hypercall7(VMW_PORT_CMD_RECVSIZE,
-+				  0, channel->channel_id << 16,
-+				  channel->cookie_high,
-+				  channel->cookie_low,
-+				  &ebx, &ecx, &edx);
- 
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			DRM_ERROR("Failed to get reply size for host message.\n");
-@@ -384,16 +355,12 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 
- 		reply[reply_len] = '\0';
- 
--
--		/* Ack buffer */
--		si  = channel->cookie_high;
--		di  = channel->cookie_low;
--
--		VMW_PORT(VMW_PORT_CMD_RECVSTATUS,
--			MESSAGE_STATUS_SUCCESS, si, di,
--			channel->channel_id << 16,
--			VMW_HYPERVISOR_MAGIC,
--			eax, ebx, ecx, edx, si, di);
-+		vmware_hypercall5(VMW_PORT_CMD_RECVSTATUS,
-+				  MESSAGE_STATUS_SUCCESS,
-+				  channel->channel_id << 16,
-+				  channel->cookie_high,
-+				  channel->cookie_low,
-+				  &ecx);
- 
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
-@@ -652,13 +619,7 @@ static inline void reset_ppn_array(PPN64 *arr, size_t size)
-  */
- static inline void hypervisor_ppn_reset_all(void)
- {
--	unsigned long eax, ebx, ecx, edx, si = 0, di = 0;
--
--	VMW_PORT(VMW_PORT_CMD_MKSGS_RESET,
--		0, si, di,
--		0,
--		VMW_HYPERVISOR_MAGIC,
--		eax, ebx, ecx, edx, si, di);
-+	vmware_hypercall1(VMW_PORT_CMD_MKSGS_RESET, 0);
+-	uint32_t eax, ebx, ecx, edx;
+-	VMWARE_CMD(GETVCPU_INFO, eax, ebx, ecx, edx);
++	u32 eax;
++
++	eax = vmware_hypercall1(VMWARE_CMD_GETVCPU_INFO, 0);
+ 	return !(eax & BIT(VMWARE_CMD_VCPU_RESERVED)) &&
+ 		(eax & BIT(VMWARE_CMD_LEGACY_X2APIC));
  }
- 
- /**
-@@ -669,13 +630,7 @@ static inline void hypervisor_ppn_reset_all(void)
-  */
- static inline void hypervisor_ppn_add(PPN64 pfn)
- {
--	unsigned long eax, ebx, ecx, edx, si = 0, di = 0;
--
--	VMW_PORT(VMW_PORT_CMD_MKSGS_ADD_PPN,
--		(unsigned long)pfn, si, di,
--		0,
--		VMW_HYPERVISOR_MAGIC,
--		eax, ebx, ecx, edx, si, di);
-+	vmware_hypercall1(VMW_PORT_CMD_MKSGS_ADD_PPN, (unsigned long)pfn);
- }
- 
- /**
-@@ -686,13 +641,7 @@ static inline void hypervisor_ppn_add(PPN64 pfn)
-  */
- static inline void hypervisor_ppn_remove(PPN64 pfn)
- {
--	unsigned long eax, ebx, ecx, edx, si = 0, di = 0;
--
--	VMW_PORT(VMW_PORT_CMD_MKSGS_REMOVE_PPN,
--		(unsigned long)pfn, si, di,
--		0,
--		VMW_HYPERVISOR_MAGIC,
--		eax, ebx, ecx, edx, si, di);
-+	vmware_hypercall1(VMW_PORT_CMD_MKSGS_REMOVE_PPN, (unsigned long)pfn);
- }
- 
- #if IS_ENABLED(CONFIG_DRM_VMWGFX_MKSSTATS)
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h b/drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h
-index 4f40167ad61f..3c78e9338b54 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h
-@@ -34,6 +34,8 @@
- #define VMWARE_HYPERVISOR_HB  BIT(0)
- #define VMWARE_HYPERVISOR_OUT BIT(1)
- 
-+#define VMWARE_HYPERVISOR_MAGIC	0x564D5868
-+
- #define X86_IO_MAGIC 0x86
- 
- #define X86_IO_W7_SIZE_SHIFT 0
-@@ -45,86 +47,158 @@
- #define X86_IO_W7_IMM_SHIFT  5
- #define X86_IO_W7_IMM_MASK  (0xff << X86_IO_W7_IMM_SHIFT)
- 
--static inline void vmw_port(unsigned long cmd, unsigned long in_ebx,
--			    unsigned long in_si, unsigned long in_di,
--			    unsigned long flags, unsigned long magic,
--			    unsigned long *eax, unsigned long *ebx,
--			    unsigned long *ecx, unsigned long *edx,
--			    unsigned long *si, unsigned long *di)
-+static inline
-+unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
- {
--	register u64 x0 asm("x0") = magic;
--	register u64 x1 asm("x1") = in_ebx;
-+	register u64 x0 asm("x0") = VMWARE_HYPERVISOR_MAGIC;
-+	register u64 x1 asm("x1") = in1;
- 	register u64 x2 asm("x2") = cmd;
--	register u64 x3 asm("x3") = flags | VMWARE_HYPERVISOR_PORT;
--	register u64 x4 asm("x4") = in_si;
--	register u64 x5 asm("x5") = in_di;
-+	register u64 x3 asm("x3") = VMWARE_HYPERVISOR_PORT;
-+	register u64 x7 asm("x7") = ((u64)X86_IO_MAGIC << 32) |
-+				    X86_IO_W7_WITH |
-+				    X86_IO_W7_DIR |
-+				    (2 << X86_IO_W7_SIZE_SHIFT);
- 
-+	asm_inline volatile (
-+		"mrs xzr, mdccsr_el0; "
-+		: "+r" (x0)
-+		: "r" (x1), "r" (x2), "r" (x3), "r" (x7)
-+		: "memory");
-+
-+	return x0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
-+				unsigned long in3, unsigned long in4,
-+				unsigned long in5, u32 *out2)
-+{
-+	register u64 x0 asm("x0") = VMWARE_HYPERVISOR_MAGIC;
-+	register u64 x1 asm("x1") = in1;
-+	register u64 x2 asm("x2") = cmd;
-+	register u64 x3 asm("x3") = in3 | VMWARE_HYPERVISOR_PORT;
-+	register u64 x4 asm("x4") = in4;
-+	register u64 x5 asm("x5") = in5;
- 	register u64 x7 asm("x7") = ((u64)X86_IO_MAGIC << 32) |
- 				    X86_IO_W7_WITH |
- 				    X86_IO_W7_DIR |
- 				    (2 << X86_IO_W7_SIZE_SHIFT);
- 
--	asm volatile("mrs xzr, mdccsr_el0 \n\t"
--		     : "+r"(x0), "+r"(x1), "+r"(x2),
--		       "+r"(x3), "+r"(x4), "+r"(x5)
--		     : "r"(x7)
--		     :);
--	*eax = x0;
--	*ebx = x1;
--	*ecx = x2;
--	*edx = x3;
--	*si = x4;
--	*di = x5;
-+	asm_inline volatile (
-+		"mrs xzr, mdccsr_el0; "
-+		: "+r" (x0), "+r" (x2)
-+		: "r" (x1), "r" (x3), "r" (x4), "r" (x5), "r" (x7)
-+		: "memory");
-+
-+	*out2 = x2;
-+	return x0;
- }
- 
--static inline void vmw_port_hb(unsigned long cmd, unsigned long in_ecx,
--			       unsigned long in_si, unsigned long in_di,
--			       unsigned long flags, unsigned long magic,
--			       unsigned long bp, u32 w7dir,
--			       unsigned long *eax, unsigned long *ebx,
--			       unsigned long *ecx, unsigned long *edx,
--			       unsigned long *si, unsigned long *di)
-+static inline
-+unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
-+				unsigned long in3, u32 *out2,
-+				u32 *out3, u32 *out4, u32 *out5)
- {
--	register u64 x0 asm("x0") = magic;
-+	register u64 x0 asm("x0") = VMWARE_HYPERVISOR_MAGIC;
-+	register u64 x1 asm("x1") = in1;
-+	register u64 x2 asm("x2") = cmd;
-+	register u64 x3 asm("x3") = in3 | VMWARE_HYPERVISOR_PORT;
-+	register u64 x4 asm("x4");
-+	register u64 x5 asm("x5");
-+	register u64 x7 asm("x7") = ((u64)X86_IO_MAGIC << 32) |
-+				    X86_IO_W7_WITH |
-+				    X86_IO_W7_DIR |
-+				    (2 << X86_IO_W7_SIZE_SHIFT);
-+
-+	asm_inline volatile (
-+		"mrs xzr, mdccsr_el0; "
-+		: "+r" (x0), "+r" (x2), "+r" (x3), "=r" (x4), "=r" (x5)
-+		: "r" (x1), "r" (x7)
-+		: "memory");
-+
-+	*out2 = x2;
-+	*out3 = x3;
-+	*out4 = x4;
-+	*out5 = x5;
-+	return x0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
-+				unsigned long in3, unsigned long in4,
-+				unsigned long in5, u32 *out1,
-+				u32 *out2, u32 *out3)
-+{
-+	register u64 x0 asm("x0") = VMWARE_HYPERVISOR_MAGIC;
-+	register u64 x1 asm("x1") = in1;
-+	register u64 x2 asm("x2") = cmd;
-+	register u64 x3 asm("x3") = in3 | VMWARE_HYPERVISOR_PORT;
-+	register u64 x4 asm("x4") = in4;
-+	register u64 x5 asm("x5") = in5;
-+	register u64 x7 asm("x7") = ((u64)X86_IO_MAGIC << 32) |
-+				    X86_IO_W7_WITH |
-+				    X86_IO_W7_DIR |
-+				    (2 << X86_IO_W7_SIZE_SHIFT);
-+
-+	asm_inline volatile (
-+		"mrs xzr, mdccsr_el0; "
-+		: "+r" (x0), "+r" (x1), "+r" (x2), "+r" (x3)
-+		: "r" (x4), "r" (x5), "r" (x7)
-+		: "memory");
-+
-+	*out1 = x1;
-+	*out2 = x2;
-+	*out3 = x3;
-+	return x0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall_hb(unsigned long cmd, unsigned long in2,
-+				  unsigned long in3, unsigned long in4,
-+				  unsigned long in5, unsigned long in6,
-+				  u32 *out1, int dir)
-+{
-+	register u64 x0 asm("x0") = VMWARE_HYPERVISOR_MAGIC;
- 	register u64 x1 asm("x1") = cmd;
--	register u64 x2 asm("x2") = in_ecx;
--	register u64 x3 asm("x3") = flags | VMWARE_HYPERVISOR_PORT_HB;
--	register u64 x4 asm("x4") = in_si;
--	register u64 x5 asm("x5") = in_di;
--	register u64 x6 asm("x6") = bp;
-+	register u64 x2 asm("x2") = in2;
-+	register u64 x3 asm("x3") = in3 | VMWARE_HYPERVISOR_PORT_HB;
-+	register u64 x4 asm("x4") = in4;
-+	register u64 x5 asm("x5") = in5;
-+	register u64 x6 asm("x6") = in6;
- 	register u64 x7 asm("x7") = ((u64)X86_IO_MAGIC << 32) |
- 				    X86_IO_W7_STR |
- 				    X86_IO_W7_WITH |
--				    w7dir;
--
--	asm volatile("mrs xzr, mdccsr_el0 \n\t"
--		     : "+r"(x0), "+r"(x1), "+r"(x2),
--		       "+r"(x3), "+r"(x4), "+r"(x5)
--		     : "r"(x6), "r"(x7)
--		     :);
--	*eax = x0;
--	*ebx = x1;
--	*ecx = x2;
--	*edx = x3;
--	*si  = x4;
--	*di  = x5;
--}
-+				    dir;
- 
--#define VMW_PORT(cmd, in_ebx, in_si, in_di, flags, magic, eax, ebx, ecx, edx,  \
--		 si, di)                                                       \
--	vmw_port(cmd, in_ebx, in_si, in_di, flags, magic, &eax, &ebx, &ecx,    \
--		 &edx, &si, &di)
-+	asm_inline volatile (
-+		"mrs xzr, mdccsr_el0; "
-+		: "+r" (x0), "+r" (x1)
-+		: "r" (x2), "r" (x3), "r" (x4), "r" (x5),
-+		  "r" (x6), "r" (x7)
-+		: "memory");
- 
--#define VMW_PORT_HB_OUT(cmd, in_ecx, in_si, in_di, flags, magic, bp, eax, ebx, \
--		        ecx, edx, si, di)                                      \
--	vmw_port_hb(cmd, in_ecx, in_si, in_di, flags, magic, bp,               \
--                    0, &eax, &ebx, &ecx, &edx, &si, &di)
-+	*out1 = x1;
-+	return x0;
-+}
- 
--#define VMW_PORT_HB_IN(cmd, in_ecx, in_si, in_di, flags, magic, bp, eax, ebx,  \
--		       ecx, edx, si, di)                                       \
--	vmw_port_hb(cmd, in_ecx, in_si, in_di, flags, magic, bp,               \
--		    X86_IO_W7_DIR, &eax, &ebx, &ecx, &edx, &si, &di)
-+static inline
-+unsigned long vmware_hypercall_hb_out(unsigned long cmd, unsigned long in2,
-+				      unsigned long in3, unsigned long in4,
-+				      unsigned long in5, unsigned long in6,
-+				      u32 *out1)
-+{
-+	return vmware_hypercall_hb(cmd, in2, in3, in4, in5, in6, out1, 0);
-+}
- 
-+static inline
-+unsigned long vmware_hypercall_hb_in(unsigned long cmd, unsigned long in2,
-+				     unsigned long in3, unsigned long in4,
-+				     unsigned long in5, unsigned long in6,
-+				     u32 *out1)
-+{
-+	return vmware_hypercall_hb(cmd, in2, in3, in4, in5, in6,  out1,
-+				   X86_IO_W7_DIR);
-+}
- #endif
- 
- #endif /* _VMWGFX_MSG_ARM64_H */
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h b/drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h
-index 23899d743a90..13304d34cc6e 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h
-@@ -37,191 +37,6 @@
- 
- #include <asm/vmware.h>
- 
--/**
-- * Hypervisor-specific bi-directional communication channel.  Should never
-- * execute on bare metal hardware.  The caller must make sure to check for
-- * supported hypervisor before using these macros.
-- *
-- * The last two parameters are both input and output and must be initialized.
-- *
-- * @cmd: [IN] Message Cmd
-- * @in_ebx: [IN] Message Len, through EBX
-- * @in_si: [IN] Input argument through SI, set to 0 if not used
-- * @in_di: [IN] Input argument through DI, set ot 0 if not used
-- * @flags: [IN] hypercall flags + [channel id]
-- * @magic: [IN] hypervisor magic value
-- * @eax: [OUT] value of EAX register
-- * @ebx: [OUT] e.g. status from an HB message status command
-- * @ecx: [OUT] e.g. status from a non-HB message status command
-- * @edx: [OUT] e.g. channel id
-- * @si:  [OUT]
-- * @di:  [OUT]
-- */
--#define VMW_PORT(cmd, in_ebx, in_si, in_di,	\
--                 flags, magic,		\
--                 eax, ebx, ecx, edx, si, di)	\
--({						\
--        asm volatile (VMWARE_HYPERCALL :	\
--                "=a"(eax),			\
--                "=b"(ebx),			\
--                "=c"(ecx),			\
--                "=d"(edx),			\
--                "=S"(si),			\
--                "=D"(di) :			\
--                "a"(magic),			\
--                "b"(in_ebx),			\
--                "c"(cmd),			\
--                "d"(flags),			\
--                "S"(in_si),			\
--                "D"(in_di) :			\
--                "memory");			\
--})
--
--
--/**
-- * Hypervisor-specific bi-directional communication channel.  Should never
-- * execute on bare metal hardware.  The caller must make sure to check for
-- * supported hypervisor before using these macros.
-- *
-- * The last 3 parameters are both input and output and must be initialized.
-- *
-- * @cmd: [IN] Message Cmd
-- * @in_ecx: [IN] Message Len, through ECX
-- * @in_si: [IN] Input argument through SI, set to 0 if not used
-- * @in_di: [IN] Input argument through DI, set to 0 if not used
-- * @flags: [IN] hypercall flags + [channel id]
-- * @magic: [IN] hypervisor magic value
-- * @bp:  [IN]
-- * @eax: [OUT] value of EAX register
-- * @ebx: [OUT] e.g. status from an HB message status command
-- * @ecx: [OUT] e.g. status from a non-HB message status command
-- * @edx: [OUT] e.g. channel id
-- * @si:  [OUT]
-- * @di:  [OUT]
-- */
--#ifdef __x86_64__
--
--#define VMW_PORT_HB_OUT(cmd, in_ecx, in_si, in_di,	\
--                        flags, magic, bp,		\
--                        eax, ebx, ecx, edx, si, di)	\
--({							\
--        asm volatile (					\
--		UNWIND_HINT_SAVE			\
--		"push %%rbp;"				\
--		UNWIND_HINT_UNDEFINED			\
--                "mov %12, %%rbp;"			\
--                VMWARE_HYPERCALL_HB_OUT			\
--                "pop %%rbp;"				\
--		UNWIND_HINT_RESTORE :			\
--                "=a"(eax),				\
--                "=b"(ebx),				\
--                "=c"(ecx),				\
--                "=d"(edx),				\
--                "=S"(si),				\
--                "=D"(di) :				\
--                "a"(magic),				\
--                "b"(cmd),				\
--                "c"(in_ecx),				\
--                "d"(flags),				\
--                "S"(in_si),				\
--                "D"(in_di),				\
--                "r"(bp) :				\
--                "memory", "cc");			\
--})
--
--
--#define VMW_PORT_HB_IN(cmd, in_ecx, in_si, in_di,	\
--                       flags, magic, bp,		\
--                       eax, ebx, ecx, edx, si, di)	\
--({							\
--        asm volatile (					\
--		UNWIND_HINT_SAVE			\
--		"push %%rbp;"				\
--		UNWIND_HINT_UNDEFINED			\
--                "mov %12, %%rbp;"			\
--                VMWARE_HYPERCALL_HB_IN			\
--                "pop %%rbp;"				\
--		UNWIND_HINT_RESTORE :			\
--                "=a"(eax),				\
--                "=b"(ebx),				\
--                "=c"(ecx),				\
--                "=d"(edx),				\
--                "=S"(si),				\
--                "=D"(di) :				\
--                "a"(magic),				\
--                "b"(cmd),				\
--                "c"(in_ecx),				\
--                "d"(flags),				\
--                "S"(in_si),				\
--                "D"(in_di),				\
--                "r"(bp) :				\
--                "memory", "cc");			\
--})
--
--#elif defined(__i386__)
--
--/*
-- * In the 32-bit version of this macro, we store bp in a memory location
-- * because we've ran out of registers.
-- * Now we can't reference that memory location while we've modified
-- * %esp or %ebp, so we first push it on the stack, just before we push
-- * %ebp, and then when we need it we read it from the stack where we
-- * just pushed it.
-- */
--#define VMW_PORT_HB_OUT(cmd, in_ecx, in_si, in_di,	\
--                        flags, magic, bp,		\
--                        eax, ebx, ecx, edx, si, di)	\
--({							\
--        asm volatile ("push %12;"			\
--                "push %%ebp;"				\
--                "mov 0x04(%%esp), %%ebp;"		\
--                VMWARE_HYPERCALL_HB_OUT			\
--                "pop %%ebp;"				\
--                "add $0x04, %%esp;" :			\
--                "=a"(eax),				\
--                "=b"(ebx),				\
--                "=c"(ecx),				\
--                "=d"(edx),				\
--                "=S"(si),				\
--                "=D"(di) :				\
--                "a"(magic),				\
--                "b"(cmd),				\
--                "c"(in_ecx),				\
--                "d"(flags),				\
--                "S"(in_si),				\
--                "D"(in_di),				\
--                "m"(bp) :				\
--                "memory", "cc");			\
--})
--
--
--#define VMW_PORT_HB_IN(cmd, in_ecx, in_si, in_di,	\
--                       flags, magic, bp,		\
--                       eax, ebx, ecx, edx, si, di)	\
--({							\
--        asm volatile ("push %12;"			\
--                "push %%ebp;"				\
--                "mov 0x04(%%esp), %%ebp;"		\
--                VMWARE_HYPERCALL_HB_IN			\
--                "pop %%ebp;"				\
--                "add $0x04, %%esp;" :			\
--                "=a"(eax),				\
--                "=b"(ebx),				\
--                "=c"(ecx),				\
--                "=d"(edx),				\
--                "=S"(si),				\
--                "=D"(di) :				\
--                "a"(magic),				\
--                "b"(cmd),				\
--                "c"(in_ecx),				\
--                "d"(flags),				\
--                "S"(in_si),				\
--                "D"(in_di),				\
--                "m"(bp) :				\
--                "memory", "cc");			\
--})
--#endif /* defined(__i386__) */
--
- #endif /* defined(__i386__) || defined(__x86_64__) */
- 
- #endif /* _VMWGFX_MSG_X86_H */
 -- 
 2.39.0
 
