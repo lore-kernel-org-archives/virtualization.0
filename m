@@ -1,91 +1,174 @@
-Received: from cstnet.cn (smtp84.cstnet.cn [159.226.251.84])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E7CD10A1C
-	for <virtualization@lists.linux.dev>; Fri, 24 May 2024 03:17:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDAA1292D2
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 May 2024 06:46:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716520661; cv=none; b=pDHS+iAG8UNN1elFUAdbv+wt49xz/rttM9yh1Bp5ev/5KmcvLzDjdQUNuxneBM+DWMxf7IqR0mKoH5F5ocODpj71I4ZQ8eAyQbKN3i3S9N6t7Plru9BEL34G8B74EXnRgq4yTAnqsG/Leor0pUnQt5zxmKsFSi+9IBCZAzHRw0w=
+	t=1716533186; cv=none; b=svoHLAxI1MHNEUctQpaBSc4TiiYr0nRCLXvIauTHSc3T978Ufl64YN3m6Ny42qT1iLiQPVd5DoOHl6kYq5rC1EaUic6PusAyzfpxXeabtzC9Jdj3uigMi5Ofw3u5WggM7ah8ruSgVh4y2TK4ruypGj+ZycJVn2dCa6MVzMVGPXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716520661; c=relaxed/simple;
-	bh=KZCJ7YhijKwiZJ1xUJ2OGx9s+MymMCK9Uzsvp3M3spU=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=gGlXZ/gV4t9n4ty4Rsqhy0CG5cQmBWl7c8AB4vL5pwWfqCydrvMKqeFQ8ispcBoRucijIJVJNligkVlQtoXtWBwkiYksx7yvJT0f8zLnWkJWZ9ZqnSobsVOAkIwhMVPEm5wPQnImY1eJyNNht6MFaJnplaqv+KGeJcLc9//R+VI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost (unknown [124.16.138.129])
-	by APP-05 (Coremail) with SMTP id zQCowADX3eW9BlBmYwAXDQ--.41660S2;
-	Fri, 24 May 2024 11:17:18 +0800 (CST)
-From: Chen Ni <nichen@iscas.ac.cn>
-To: kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	daniel@ffwll.ch
-Cc: virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	Chen Ni <nichen@iscas.ac.cn>
-Subject: [PATCH] drm/bochs: Add check for drm_simple_display_pipe_init
-Date: Fri, 24 May 2024 11:06:05 +0800
-Message-Id: <20240524030605.2185210-1-nichen@iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1716533186; c=relaxed/simple;
+	bh=0x62kCjeY+J4sbdaaUkUR2ly1ES+mb2DRDWplkfWUds=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gA88+BXBYp3OYSvj4Y2c0uerAWrHk4Ux2OQ1248K4uyJFWfooGnRHS8h73U60j//H2AHf/nVefa3cfaojN+o07pTik/5uw6RWDuOBroQ9aMNptvp6TJgbQXauRVnSoi7W1k0yB974+QZEDUSbVrKA5z+Q7gHDPZ6Asj2PJ2EQwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=SJsYf8+E; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="SJsYf8+E"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id ADADD60854
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 May 2024 06:46:24 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ceFZ2J_8X37J for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 May 2024 06:46:23 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=46.235.227.194; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org AC4BA608B0
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC4BA608B0
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=SJsYf8+E
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AC4BA608B0
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 May 2024 06:46:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1716533179;
+	bh=0x62kCjeY+J4sbdaaUkUR2ly1ES+mb2DRDWplkfWUds=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=SJsYf8+E0w6OSLbVoUwUSsolkuQTmZhNQnLJw0QsNGkjkGYFd8n2xohI2RvX5otBP
+	 89R+6Situxt4jvifcn/oo6h1jodewOReqLFgkPyO9orxk+p9HUp+wYrFC7qzl8HDEZ
+	 7Iug8I4CKu6KR7NsudZhhVAhPKnRF6vR5VhCUZOUF9nMO8lRZLiU3gcIdSKk4hzLK2
+	 yLDS4DuHt67z9bG4pm8+ip4ABXYYphDpTcBSlhEfnasesHdepNcZs58eczinwd+R6J
+	 KPTwxQuv4O3Nj8hmmAISzONjCXIq08lvpx/QwLGR59wg8MJT17+g5O+Y2/eECAIvcT
+	 1XQUtvRcgYCTw==
+Received: from [100.66.96.193] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id CC0FA3782112;
+	Fri, 24 May 2024 06:46:15 +0000 (UTC)
+Message-ID: <b695a2a3-2b4f-400d-a0b7-5d436926f49a@collabora.com>
+Date: Fri, 24 May 2024 12:16:11 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zQCowADX3eW9BlBmYwAXDQ--.41660S2
-X-Coremail-Antispam: 1UD129KBjvdXoW7Gw4kZF4ktw1kZr4kuFW3Jrb_yoWftFc_WF
-	15u3s5Xr9ru3srCFnxZFnYgrWS9a4vvF48Xry2qFZ3tFyfW3ZxJrW2qryfZw4UW3yUJF1k
-	C3y7GrZ5JF1xWjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUbVAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_
-	Gr1UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr
-	1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj
-	6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr
-	0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E
-	8cxan2IY04v7MxkIecxEwVAFwVW8GwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbV
-	WUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF
-	67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42
-	IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF
-	0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxh
-	VjvjDU0xZFpf9x0JU-miiUUUUU=
-X-CM-SenderInfo: xqlfxv3q6l2u1dvotugofq/
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/6] drm/ci: uprev mesa version
+Content-Language: en-US
+To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
+ helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
+ robdclark@gmail.com, david.heidelberg@collabora.com,
+ guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
+ mcanal@igalia.com, linux-mediatek@lists.infradead.org,
+ linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
+ amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org
+References: <20240517092502.647420-1-vignesh.raman@collabora.com>
+ <20240517092502.647420-2-vignesh.raman@collabora.com>
+ <2qzmfv3oc6feihwxu3tl37rg6w3qsj2vddu5olvqk6vhqr26cc@bxu5y6ijvtfa>
+ <9cd0667a-12ee-4d45-80e8-dc34259bf01d@collabora.com>
+ <CAA8EJprVVkQO7aPkehwL2zhYkGRkm4Foc13ErfuY6ikBA_4nLQ@mail.gmail.com>
+From: Vignesh Raman <vignesh.raman@collabora.com>
+In-Reply-To: <CAA8EJprVVkQO7aPkehwL2zhYkGRkm4Foc13ErfuY6ikBA_4nLQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Add check for the return value of drm_simple_display_pipe_init() and
-return the error if it fails in order to catch the error.
+Hi Dmitry,
 
-Signed-off-by: Chen Ni <nichen@iscas.ac.cn>
----
- drivers/gpu/drm/tiny/bochs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+On 23/05/24 15:29, Dmitry Baryshkov wrote:
+> On Thu, 23 May 2024 at 09:07, Vignesh Raman <vignesh.raman@collabora.com> wrote:
+>>
+>> Hi Dmitry,
+>>
+>> On 20/05/24 16:13, Dmitry Baryshkov wrote:
+>>> On Fri, May 17, 2024 at 02:54:57PM +0530, Vignesh Raman wrote:
+>>>> zlib.net is not allowing tarball download anymore and results
+>>>> in below error in kernel+rootfs_arm32 container build,
+>>>> urllib.error.HTTPError: HTTP Error 403: Forbidden
+>>>> urllib.error.HTTPError: HTTP Error 415: Unsupported Media Type
+>>>>
+>>>> Uprev mesa to latest version which includes a fix for this issue.
+>>>> https://gitlab.freedesktop.org/mesa/mesa/-/commit/908f444e
+>>>>
+>>>> Use id_tokens for JWT authentication. Since s3 bucket is migrated to
+>>>> mesa-rootfs, update the variables accordingly. Also copy helper scripts
+>>>> to install, so that the ci jobs can use these scripts for logging.
+>>>>
+>>>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+>>>> ---
+>>>>
+>>>> v2:
+>>>>     - Uprev to recent version and use id_tokens for JWT authentication
+>>>>
+>>>> ---
+>>>>    drivers/gpu/drm/ci/build-igt.sh   |  2 +-
+>>>>    drivers/gpu/drm/ci/build.sh       |  6 +++--
+>>>>    drivers/gpu/drm/ci/container.yml  | 12 +++------
+>>>>    drivers/gpu/drm/ci/gitlab-ci.yml  | 44 +++++++++++++++++++++----------
+>>>>    drivers/gpu/drm/ci/image-tags.yml |  2 +-
+>>>>    drivers/gpu/drm/ci/lava-submit.sh |  4 +--
+>>>>    drivers/gpu/drm/ci/test.yml       |  2 ++
+>>>>    7 files changed, 44 insertions(+), 28 deletions(-)
+>>>>
+>>>
+>>> [skipped]
+>>>
+>>>> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
+>>>> index 8bc63912fddb..612c9ede3507 100644
+>>>> --- a/drivers/gpu/drm/ci/test.yml
+>>>> +++ b/drivers/gpu/drm/ci/test.yml
+>>>> @@ -150,6 +150,8 @@ msm:sdm845:
+>>>>        BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/cheza-kernel
+>>>>        GPU_VERSION: sdm845
+>>>>        RUNNER_TAG: google-freedreno-cheza
+>>>> +    DEVICE_TYPE: sdm845-cheza-r3
+>>>> +    FARM: google
+>>>
+>>> I see that this is the only user of the FARM: tag. Is it correct?
+>>
+>> No, we need to add FARM variable for other jobs as well.
+> 
+> Why? Even if we have to, we don't have them now and the change doesn't
+> seem to be related to the uprev'ing of mesa. So this probably should
+> go to a separate commit.
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index c23c9f0cf49c..31ad2bc4ee22 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -550,13 +550,15 @@ static int bochs_kms_init(struct bochs_device *bochs)
- 	bochs->dev->mode_config.funcs = &bochs_mode_funcs;
- 
- 	bochs_connector_init(bochs->dev);
--	drm_simple_display_pipe_init(bochs->dev,
-+	ret = drm_simple_display_pipe_init(bochs->dev,
- 				     &bochs->pipe,
- 				     &bochs_pipe_funcs,
- 				     bochs_formats,
- 				     ARRAY_SIZE(bochs_formats),
- 				     NULL,
- 				     &bochs->connector);
-+	if (ret)
-+		return ret;
- 
- 	drm_mode_config_reset(bochs->dev);
- 
--- 
-2.25.1
+I will move them to separate commit.
 
+Regards,
+Vignesh
+
+> 
+>>
+>>> Also we miss DEVICE_TYPE for several other boards. Should we be adding
+>>> them?
+>>
+>> Yes, device type needs to be added for msm:apq8016, msm:apq8096, virtio_gpu.
+>>
+>> I will add this. Thanks.
+> 
+> I'd guess, separate commit too.
+> 
+>>
+>> Regards,
+>> Vignesh
+>>
+>>>
+>>>>      script:
+>>>>        - ./install/bare-metal/cros-servo.sh
+>>>>
+>>>> --
+>>>> 2.40.1
+>>>>
+>>>
+> 
+> 
+> 
