@@ -1,174 +1,97 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDAA1292D2
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 May 2024 06:46:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 345629475;
+	Fri, 24 May 2024 07:38:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716533186; cv=none; b=svoHLAxI1MHNEUctQpaBSc4TiiYr0nRCLXvIauTHSc3T978Ufl64YN3m6Ny42qT1iLiQPVd5DoOHl6kYq5rC1EaUic6PusAyzfpxXeabtzC9Jdj3uigMi5Ofw3u5WggM7ah8ruSgVh4y2TK4ruypGj+ZycJVn2dCa6MVzMVGPXw=
+	t=1716536305; cv=none; b=YwXxJ+vhAj4RD1tEhbK/JOVSJxssAN5Ho0mkdrA8nKYlHnB2rUS+RbQFjn3GRX4ci7yRnuGslr/BwCvcpTb3HOMQR5/lkj3KdYzRWM14STgSl4teiCOrICZ9B0x6FjTlEc7vE6nlV0jQkqnqJnJf3LYwFIgV7m7xSiYcJqrus9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716533186; c=relaxed/simple;
-	bh=0x62kCjeY+J4sbdaaUkUR2ly1ES+mb2DRDWplkfWUds=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gA88+BXBYp3OYSvj4Y2c0uerAWrHk4Ux2OQ1248K4uyJFWfooGnRHS8h73U60j//H2AHf/nVefa3cfaojN+o07pTik/5uw6RWDuOBroQ9aMNptvp6TJgbQXauRVnSoi7W1k0yB974+QZEDUSbVrKA5z+Q7gHDPZ6Asj2PJ2EQwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=SJsYf8+E; arc=none smtp.client-ip=140.211.166.136
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="SJsYf8+E"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id ADADD60854
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 May 2024 06:46:24 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ceFZ2J_8X37J for <virtualization@lists.linux-foundation.org>;
- Fri, 24 May 2024 06:46:23 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=46.235.227.194; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org AC4BA608B0
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC4BA608B0
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=SJsYf8+E
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id AC4BA608B0
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 May 2024 06:46:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1716533179;
-	bh=0x62kCjeY+J4sbdaaUkUR2ly1ES+mb2DRDWplkfWUds=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=SJsYf8+E0w6OSLbVoUwUSsolkuQTmZhNQnLJw0QsNGkjkGYFd8n2xohI2RvX5otBP
-	 89R+6Situxt4jvifcn/oo6h1jodewOReqLFgkPyO9orxk+p9HUp+wYrFC7qzl8HDEZ
-	 7Iug8I4CKu6KR7NsudZhhVAhPKnRF6vR5VhCUZOUF9nMO8lRZLiU3gcIdSKk4hzLK2
-	 yLDS4DuHt67z9bG4pm8+ip4ABXYYphDpTcBSlhEfnasesHdepNcZs58eczinwd+R6J
-	 KPTwxQuv4O3Nj8hmmAISzONjCXIq08lvpx/QwLGR59wg8MJT17+g5O+Y2/eECAIvcT
-	 1XQUtvRcgYCTw==
-Received: from [100.66.96.193] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id CC0FA3782112;
-	Fri, 24 May 2024 06:46:15 +0000 (UTC)
-Message-ID: <b695a2a3-2b4f-400d-a0b7-5d436926f49a@collabora.com>
-Date: Fri, 24 May 2024 12:16:11 +0530
+	s=arc-20240116; t=1716536305; c=relaxed/simple;
+	bh=iQvVWMmNWY2muA4rMvVgeuF8u4UtlmePBbkozhT5u/g=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hJjRQOuYatTshX4SJVuXHYnt77NejA4LtxaifsijozXHWMyjPSpqFmzO3gBkZlgUX3ErK+hNW4Z2xst2TaB3Skdd0TM9xx0aTUshENrHerIXho1JpMit2qtPAHhv3w+4RMgkVflz2ARu9FAw2HV6rRgRZ63Cawqt4VEAvAJYhP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8DxQK_lQ1Bm1ksDAA--.3487S3;
+	Fri, 24 May 2024 15:38:13 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxZcXlQ1BmScUHAA--.10650S2;
+	Fri, 24 May 2024 15:38:13 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Huacai Chen <chenhuacai@kernel.org>
+Cc: Juergen Gross <jgross@suse.com>,
+	kvm@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH v4 0/2] LoongArch: Add steal time support
+Date: Fri, 24 May 2024 15:38:10 +0800
+Message-Id: <20240524073812.731032-1-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/6] drm/ci: uprev mesa version
-Content-Language: en-US
-To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
- robdclark@gmail.com, david.heidelberg@collabora.com,
- guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
- mcanal@igalia.com, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org
-References: <20240517092502.647420-1-vignesh.raman@collabora.com>
- <20240517092502.647420-2-vignesh.raman@collabora.com>
- <2qzmfv3oc6feihwxu3tl37rg6w3qsj2vddu5olvqk6vhqr26cc@bxu5y6ijvtfa>
- <9cd0667a-12ee-4d45-80e8-dc34259bf01d@collabora.com>
- <CAA8EJprVVkQO7aPkehwL2zhYkGRkm4Foc13ErfuY6ikBA_4nLQ@mail.gmail.com>
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <CAA8EJprVVkQO7aPkehwL2zhYkGRkm4Foc13ErfuY6ikBA_4nLQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8CxZcXlQ1BmScUHAA--.10650S2
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
-Hi Dmitry,
+Para-virt feature steal time is added in both kvm and guest kernel side.
+It is silimar with other architectures, steal time structure comes from
+guest memory, also pseduo register is used to save/restore base address
+of steal time structure, so that when vm is migrated, kvm module on
+target machine knows the base address of steal time.
 
-On 23/05/24 15:29, Dmitry Baryshkov wrote:
-> On Thu, 23 May 2024 at 09:07, Vignesh Raman <vignesh.raman@collabora.com> wrote:
->>
->> Hi Dmitry,
->>
->> On 20/05/24 16:13, Dmitry Baryshkov wrote:
->>> On Fri, May 17, 2024 at 02:54:57PM +0530, Vignesh Raman wrote:
->>>> zlib.net is not allowing tarball download anymore and results
->>>> in below error in kernel+rootfs_arm32 container build,
->>>> urllib.error.HTTPError: HTTP Error 403: Forbidden
->>>> urllib.error.HTTPError: HTTP Error 415: Unsupported Media Type
->>>>
->>>> Uprev mesa to latest version which includes a fix for this issue.
->>>> https://gitlab.freedesktop.org/mesa/mesa/-/commit/908f444e
->>>>
->>>> Use id_tokens for JWT authentication. Since s3 bucket is migrated to
->>>> mesa-rootfs, update the variables accordingly. Also copy helper scripts
->>>> to install, so that the ci jobs can use these scripts for logging.
->>>>
->>>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->>>> ---
->>>>
->>>> v2:
->>>>     - Uprev to recent version and use id_tokens for JWT authentication
->>>>
->>>> ---
->>>>    drivers/gpu/drm/ci/build-igt.sh   |  2 +-
->>>>    drivers/gpu/drm/ci/build.sh       |  6 +++--
->>>>    drivers/gpu/drm/ci/container.yml  | 12 +++------
->>>>    drivers/gpu/drm/ci/gitlab-ci.yml  | 44 +++++++++++++++++++++----------
->>>>    drivers/gpu/drm/ci/image-tags.yml |  2 +-
->>>>    drivers/gpu/drm/ci/lava-submit.sh |  4 +--
->>>>    drivers/gpu/drm/ci/test.yml       |  2 ++
->>>>    7 files changed, 44 insertions(+), 28 deletions(-)
->>>>
->>>
->>> [skipped]
->>>
->>>> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
->>>> index 8bc63912fddb..612c9ede3507 100644
->>>> --- a/drivers/gpu/drm/ci/test.yml
->>>> +++ b/drivers/gpu/drm/ci/test.yml
->>>> @@ -150,6 +150,8 @@ msm:sdm845:
->>>>        BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/cheza-kernel
->>>>        GPU_VERSION: sdm845
->>>>        RUNNER_TAG: google-freedreno-cheza
->>>> +    DEVICE_TYPE: sdm845-cheza-r3
->>>> +    FARM: google
->>>
->>> I see that this is the only user of the FARM: tag. Is it correct?
->>
->> No, we need to add FARM variable for other jobs as well.
-> 
-> Why? Even if we have to, we don't have them now and the change doesn't
-> seem to be related to the uprev'ing of mesa. So this probably should
-> go to a separate commit.
+---
+v3 ... v4:
+  1. To resolve compile dependency problem, enable SCHED_INFO option
+section if KVM is enabled.
+  2. Put new added option PARAVIRT_TIME_ACCOUNTING in one submemu with
+PARAVIRT in file arch/loongarch/Kconfig.
 
-I will move them to separate commit.
+v2 ... v3:
+  1. Solve code confliction based on the kernel 6.9.0
+  2. Add kernel parameter no-steal-acc support on LoongArch with file
+Documentation/admin-guide/kernel-parameters.txt
+  3. Add strict checking with pv stealtimer gpa address in function
+kvm_save_notify() and kvm_loongarch_pvtime_set_attr()
 
-Regards,
-Vignesh
+v1 ... v2:
+  1. Add PARAVIRT_TIME_ACCOUNTING kconfig option in file
+arch/loongarch/Kconfig
+  2. Function name change such as replace pv_register_steal_time with
+pv_enable_steal_time etc
 
-> 
->>
->>> Also we miss DEVICE_TYPE for several other boards. Should we be adding
->>> them?
->>
->> Yes, device type needs to be added for msm:apq8016, msm:apq8096, virtio_gpu.
->>
->> I will add this. Thanks.
-> 
-> I'd guess, separate commit too.
-> 
->>
->> Regards,
->> Vignesh
->>
->>>
->>>>      script:
->>>>        - ./install/bare-metal/cros-servo.sh
->>>>
->>>> --
->>>> 2.40.1
->>>>
->>>
-> 
-> 
-> 
+---
+
+Bibo Mao (2):
+  LoongArch: KVM: Add steal time support in kvm side
+  LoongArch: Add steal time support in guest side
+
+ .../admin-guide/kernel-parameters.txt         |   2 +-
+ arch/loongarch/Kconfig                        |  11 ++
+ arch/loongarch/include/asm/kvm_host.h         |   7 +
+ arch/loongarch/include/asm/kvm_para.h         |  10 ++
+ arch/loongarch/include/asm/kvm_vcpu.h         |   4 +
+ arch/loongarch/include/asm/loongarch.h        |   1 +
+ arch/loongarch/include/asm/paravirt.h         |   5 +
+ arch/loongarch/include/uapi/asm/kvm.h         |   4 +
+ arch/loongarch/kernel/paravirt.c              | 133 ++++++++++++++++++
+ arch/loongarch/kernel/time.c                  |   2 +
+ arch/loongarch/kvm/Kconfig                    |   1 +
+ arch/loongarch/kvm/exit.c                     |  38 ++++-
+ arch/loongarch/kvm/vcpu.c                     | 124 ++++++++++++++++
+ 13 files changed, 339 insertions(+), 3 deletions(-)
+
+
+base-commit: 6e51b4b5bbc07e52b226017936874715629932d1
+-- 
+2.39.3
+
