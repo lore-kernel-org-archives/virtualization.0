@@ -1,94 +1,91 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp84.cstnet.cn [159.226.251.84])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 619C983CBE
-	for <virtualization@lists.linux.dev>; Thu, 23 May 2024 19:52:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E7CD10A1C
+	for <virtualization@lists.linux.dev>; Fri, 24 May 2024 03:17:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.84
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716493969; cv=none; b=XCbUsARW13l97bWFtBdThS/h2AhE4XxxqrZRYK2uaR7EfGUzMPqzg2hQ+IO2pGC2S7eyKAb0SJZvq98H3cT0e1s71L7lPChsNpesBTQT82Sg63ThHI89LHsysKFkCcJ9UzESWxallLu/7SsTYVR3TLt+wf1zMKpVZJIv9mEEF3Y=
+	t=1716520661; cv=none; b=pDHS+iAG8UNN1elFUAdbv+wt49xz/rttM9yh1Bp5ev/5KmcvLzDjdQUNuxneBM+DWMxf7IqR0mKoH5F5ocODpj71I4ZQ8eAyQbKN3i3S9N6t7Plru9BEL34G8B74EXnRgq4yTAnqsG/Leor0pUnQt5zxmKsFSi+9IBCZAzHRw0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716493969; c=relaxed/simple;
-	bh=lnqVjgkvWi+fXg+ZEjXR4tnRofPmiBZHcMWL3I+8MDw=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=h+EFyr0k5ePXOhk/TaBAbfJKri8Nv0ry1EfsHazSbeTOs/hn+EAtJtTK6R6LS0jCbeAs6DDewOhLNNrD55DE72ADJYhLIlF2+uXSuQjgXZ5cvXB7EL3zlgpkcVGTVqwjRAC35T6RNH5p712b04RM0V3tapXE1wRjBi96KT2/+80=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=xPNI7lGK; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=XyoNc7Sq; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="xPNI7lGK";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="XyoNc7Sq"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1716493966;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lnqVjgkvWi+fXg+ZEjXR4tnRofPmiBZHcMWL3I+8MDw=;
-	b=xPNI7lGKGva/APgAT7OzBOwQl0E/5c54B7HhDK5Phb1iKN4ahV3bEA3UYuY2dgt23o4aL/
-	zrJH32EYXAH3g3a95KY8llv/YVQYNV6a9rlHrGMsdRm20IGUZwdLlM5g6EeLCOBtXIM3hw
-	G3/z2s00T0J5qAe4+bcEQR/XZrvQhz0+znFmHQxX4y/T+GCPwc8e5Fkdhe1aZJYfA+YfLL
-	XojEfru58leoF1h7RUOYBuDuQK3ylam76TMP4TMlsno1AJxoanRPXed6E34ThJQEVbAsTI
-	H8xvTJIhVe/1xcyagrYMuSdK+k7jzB94Vlxsvm7pa920fc3xHyeKOCQXYOAuHg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1716493966;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lnqVjgkvWi+fXg+ZEjXR4tnRofPmiBZHcMWL3I+8MDw=;
-	b=XyoNc7Sqyr7swkex7HE2TEIQjbODm3OkyVUDf2n/A6xuYrKYWTf0K/c+g5RINgK7oREaoe
-	wOXHNQ0Nfr1iJjCw==
-To: Dongli Zhang <dongli.zhang@oracle.com>, x86@kernel.org
-Cc: mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
- hpa@zytor.com, joe.jin@oracle.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH v2 1/1] x86/vector: Fix vector leak during CPU offline
-In-Reply-To: <20240522220218.162423-1-dongli.zhang@oracle.com>
-References: <20240522220218.162423-1-dongli.zhang@oracle.com>
-Date: Thu, 23 May 2024 21:52:46 +0200
-Message-ID: <87a5kgfgq9.ffs@tglx>
+	s=arc-20240116; t=1716520661; c=relaxed/simple;
+	bh=KZCJ7YhijKwiZJ1xUJ2OGx9s+MymMCK9Uzsvp3M3spU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=gGlXZ/gV4t9n4ty4Rsqhy0CG5cQmBWl7c8AB4vL5pwWfqCydrvMKqeFQ8ispcBoRucijIJVJNligkVlQtoXtWBwkiYksx7yvJT0f8zLnWkJWZ9ZqnSobsVOAkIwhMVPEm5wPQnImY1eJyNNht6MFaJnplaqv+KGeJcLc9//R+VI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.84
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost (unknown [124.16.138.129])
+	by APP-05 (Coremail) with SMTP id zQCowADX3eW9BlBmYwAXDQ--.41660S2;
+	Fri, 24 May 2024 11:17:18 +0800 (CST)
+From: Chen Ni <nichen@iscas.ac.cn>
+To: kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	daniel@ffwll.ch
+Cc: virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	Chen Ni <nichen@iscas.ac.cn>
+Subject: [PATCH] drm/bochs: Add check for drm_simple_display_pipe_init
+Date: Fri, 24 May 2024 11:06:05 +0800
+Message-Id: <20240524030605.2185210-1-nichen@iscas.ac.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zQCowADX3eW9BlBmYwAXDQ--.41660S2
+X-Coremail-Antispam: 1UD129KBjvdXoW7Gw4kZF4ktw1kZr4kuFW3Jrb_yoWftFc_WF
+	15u3s5Xr9ru3srCFnxZFnYgrWS9a4vvF48Xry2qFZ3tFyfW3ZxJrW2qryfZw4UW3yUJF1k
+	C3y7GrZ5JF1xWjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbVAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_
+	Gr1UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr
+	1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj
+	6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr
+	0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E
+	8cxan2IY04v7MxkIecxEwVAFwVW8GwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbV
+	WUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF
+	67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF
+	0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxh
+	VjvjDU0xZFpf9x0JU-miiUUUUU=
+X-CM-SenderInfo: xqlfxv3q6l2u1dvotugofq/
 
-On Wed, May 22 2024 at 15:02, Dongli Zhang wrote:
-> The absence of IRQD_MOVE_PCNTXT prevents immediate effectiveness of
-> interrupt affinity reconfiguration via procfs. Instead, the change is
-> deferred until the next instance of the interrupt being triggered on the
-> original CPU.
->
-> When the interrupt next triggers on the original CPU, the new affinity is
-> enforced within __irq_move_irq(). A vector is allocated from the new CPU,
-> but if the old vector on the original CPU remains online, it is not
-> immediately reclaimed. Instead, apicd->move_in_progress is flagged, and the
-> reclaiming process is delayed until the next trigger of the interrupt on
-> the new CPU.
->
-> Upon the subsequent triggering of the interrupt on the new CPU,
-> irq_complete_move() adds a task to the old CPU's vector_cleanup list if it
-> remains online. Subsequently, the timer on the old CPU iterates over its
-> vector_cleanup list, reclaiming old vectors.
->
-> However, a rare scenario arises if the old CPU is outgoing before the
-> interrupt triggers again on the new CPU. The irq_force_complete_move() may
-> not have the chance to be invoked on the outgoing CPU to reclaim the old
-> apicd->prev_vector. This is because the interrupt isn't currently affine to
-> the outgoing CPU, and irq_needs_fixup() returns false. Even though
-> __vector_schedule_cleanup() is later called on the new CPU, it doesn't
-> reclaim apicd->prev_vector; instead, it simply resets both
-> apicd->move_in_progress and apicd->prev_vector to 0.
->
-> As a result, the vector remains unreclaimed in vector_matrix, leading to a
-> CPU vector leak.
->
-> To address this issue, move the invocation of irq_force_complete_move()
-> before the irq_needs_fixup() call to reclaim apicd->prev_vector, if the
-> interrupt is currently or used to affine to the outgoing CPU. Additionally,
-> reclaim the vector in __vector_schedule_cleanup() as well, following a
-> warning message, although theoretically it should never see
-> apicd->move_in_progress with apicd->prev_cpu pointing to an offline CPU.
+Add check for the return value of drm_simple_display_pipe_init() and
+return the error if it fails in order to catch the error.
 
-Nice change log!
+Signed-off-by: Chen Ni <nichen@iscas.ac.cn>
+---
+ drivers/gpu/drm/tiny/bochs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index c23c9f0cf49c..31ad2bc4ee22 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -550,13 +550,15 @@ static int bochs_kms_init(struct bochs_device *bochs)
+ 	bochs->dev->mode_config.funcs = &bochs_mode_funcs;
+ 
+ 	bochs_connector_init(bochs->dev);
+-	drm_simple_display_pipe_init(bochs->dev,
++	ret = drm_simple_display_pipe_init(bochs->dev,
+ 				     &bochs->pipe,
+ 				     &bochs_pipe_funcs,
+ 				     bochs_formats,
+ 				     ARRAY_SIZE(bochs_formats),
+ 				     NULL,
+ 				     &bochs->connector);
++	if (ret)
++		return ret;
+ 
+ 	drm_mode_config_reset(bochs->dev);
+ 
+-- 
+2.25.1
+
