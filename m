@@ -1,163 +1,136 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41D0B1A2C3F
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 May 2024 03:19:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85FD21FBA
+	for <virtualization@lists.linux.dev>; Mon, 27 May 2024 03:39:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716779980; cv=none; b=e3NH7sVMsoUZpUxm3LC5+J63a66m+k1fv24B0a6JSoiLEaaa8WsDGVQWrqsqqT/d+a+1H3z+mkfrj6fG4Z7BN4zQGWO+RnLTXhovMUSSA9xHyfhfJLZ4tvSjpXChQpZJ6AnUTK+BU3Vh2QmxQBHv2xqx5f4o9gw7Rm4g/PdA1kw=
+	t=1716781148; cv=none; b=SChLRVEyY8b8oDLOTFb8JbQR6E8sGF1zvZMdGQH7Vywsau2nkY4UIJ0KCJMjoflWJPqqbQ3cKGH6ZEpxBs4POHWk4m6RbwZt+CAUbrLR/k4nR74F2y917WfCFMxjj++04jtSx1qJwWmlp1FuqHhfziVWQWmcxWPOwKPaD/lQMnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716779980; c=relaxed/simple;
-	bh=WUffBdqEOLaqOF4z5j7m0MYHmGFH6sMH9X3Tl+Gf3Oo=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=nX3SP6Uz1BVblQ/dBd1e8j4aIcIn4x6Qb96m8bcqeUBUPGdbgDokaxa/8pGk+uf3/RW2ya+CV+DFKd+uyNyAJY2j2CAPoKobN+FNJpHyR+0EGdVYADBEvNKSZSHjLu6ewQWeug7Ol1iSziE3qPBTkQYQJqPXVo0DBsFkje2lxCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JPnQS+F3; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1716781148; c=relaxed/simple;
+	bh=fdj7qcTBnfmjPivAlTmVXqQmhx2raXN5Bmy44kdZv6Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Fruncp7ZefMS5AIy8T3GfZDo/kiNpr+RDcP+nGqjAtVqkWCZCqFe4zNtkHD6glHYyUDqQYo8Mebr6G7t9yyfkWM/3+0mAhtfABb4vLLHWmmHai47aWmJ0c21BBGBWDpGphwv7lujBmyD+wUlF2v39opz7uBYV7Bu9ywGyFadheI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S/nVkCoO; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JPnQS+F3"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CB2B2606DF
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 May 2024 03:19:38 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.999
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 8_0qzIkaFvVj for <virtualization@lists.linux-foundation.org>;
- Mon, 27 May 2024 03:19:37 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.9; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 481446066C
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 481446066C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=JPnQS+F3
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 481446066C
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 May 2024 03:19:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1716779977; x=1748315977;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=WUffBdqEOLaqOF4z5j7m0MYHmGFH6sMH9X3Tl+Gf3Oo=;
-  b=JPnQS+F3oRsijSaev/JqyA3KzHaW7AeKdEseFKqcZGf+Sow/cZQ812Ih
-   c2rzRRsrJGSjWTela0bJ8OWDHnmyxGsnOns1KSCgi7PCEQIUWGjknpkjN
-   DaLgtjT6jSxMBl8f+dzh6QJ+ZNCp8BbobRY8f77zmXmNI6UJfVkENAZDg
-   ieQsyOQNQxMOZTfK+NvWHF+PBOENjXxJYdDJPY/3MlYzcPkFVcxFYye/l
-   zYSjsA1eo39Vr2S9dWoWnzJ7zCmiFgkPnoIaabHNyf/c9cJE848CxwUtL
-   qZvSG3hhLsIWU3Ww+V8LDMaADscLyspn+Fi5QoiIXjn/bahwdqA23wMou
-   g==;
-X-CSE-ConnectionGUID: XhjkT4fVQHqmMN6yCNUVqg==
-X-CSE-MsgGUID: tS3PnwQYTOe+9WoLNOatsw==
-X-IronPort-AV: E=McAfee;i="6600,9927,11084"; a="23745166"
-X-IronPort-AV: E=Sophos;i="6.08,191,1712646000"; 
-   d="scan'208";a="23745166"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2024 20:18:46 -0700
-X-CSE-ConnectionGUID: YBoarlh6TfqWW41Ts+TVpg==
-X-CSE-MsgGUID: wGMRZsJGTMaNhj4qW0iMaQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,191,1712646000"; 
-   d="scan'208";a="39177191"
-Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
-  by fmviesa004.fm.intel.com with ESMTP; 26 May 2024 20:18:43 -0700
-Message-ID: <2b84f4f0-14a7-4232-932f-617e0a1b53d4@linux.intel.com>
-Date: Mon, 27 May 2024 11:16:41 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S/nVkCoO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1716781145;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4JcK820oahZByDVbNCRHJXrV2NxV94VFprz1qwfAJfA=;
+	b=S/nVkCoOk/rmABHK8GRbKyxxSvW434Hd+tnue6xN69yN8ui9gZ6V1WLDHwUgKs1Hzfuitg
+	diBel08H+Vlw2/s9njEPg0qNIebvVxiIsnOBF9mXOatF/1wnYe7JjfsMyIDJInA+UX3BL+
+	11Xn/9UvDABe4rWEF3atIC9t1pjdkI0=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-61-3MzvehqlNwmYz9j53NfQYg-1; Sun, 26 May 2024 23:39:03 -0400
+X-MC-Unique: 3MzvehqlNwmYz9j53NfQYg-1
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-1f44b428f7eso30446975ad.0
+        for <virtualization@lists.linux.dev>; Sun, 26 May 2024 20:39:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716781142; x=1717385942;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4JcK820oahZByDVbNCRHJXrV2NxV94VFprz1qwfAJfA=;
+        b=EA14waoM5LJyon5R5NYd0WH7jpXT8oLjafv0FXEznNDUab2MunBpgD3U4e2tRa5Wps
+         vLy9IrCJICSOtJNImmQeyLS2/KN+eDZYpaipB6K7wqB7rBmv74oPplnaTdOlGKe/opEW
+         qBWUzx7czJbSeD0F+j1s75J8E/deY5ENrS/KiGKfZyf0dtoNtcFp8+QFPq36Ax8yNBnV
+         CqnefT5KoaAMezvup0wQiy5NQz37TdPK80BzV5PVkUUP6frF+dDf4IbvfpgWFiSsW7+p
+         yx20+Speb4iMCZRprS3ChqvIQ6yyhMLgdLR25d3xwu86Jc/Zqkk0LTiVgmvcw1p4mg8L
+         AAmw==
+X-Forwarded-Encrypted: i=1; AJvYcCUe1s0t5QNhFXELPMqF7uCEuV03pShpkY1JAyXa2w/YeK/j7adxWxksAmwJTMJ4PBmw15RK0gjiB0JpJrHIZdtsjgN3mKF3vJvIrJlkLcc=
+X-Gm-Message-State: AOJu0YwCN5FHrtnpWluGDaeeIaVjhbQMJ4+mGRBkJGJspfpMc1e9otjU
+	6lilsHDcLNla8TeiFrkHKShtFyCF6FjY3mR7KnaOox0Rr47ym5wNPZbV//pj9O29xVivhfUPooZ
+	KaCz6nC2jvxjs/810ON9fG7pf+B08CgVwR47hR/PgJJp83tBtGFlox8khZbxG4nvTTgLJsSlNLf
+	Z7bphwyyZY39e1ijXVqsGNAkVO/suHYLZDYNuzVFY=
+X-Received: by 2002:a17:902:c404:b0:1f4:8faa:cd5e with SMTP id d9443c01a7336-1f48faad33bmr37000485ad.30.1716781142033;
+        Sun, 26 May 2024 20:39:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGksnTdLTpRZS7DCpHp2eNh1LCkUpAnxjqyRVIr2Kuz/YTy9VuQVPjxTNnHPSFE1E1LPaoruVC43jLFjLONHes=
+X-Received: by 2002:a17:902:c404:b0:1f4:8faa:cd5e with SMTP id
+ d9443c01a7336-1f48faad33bmr37000265ad.30.1716781141626; Sun, 26 May 2024
+ 20:39:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>,
- "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v5 7/9] iommufd: Associate fault object with
- iommufd_hw_pgtable
-To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
- <20240430145710.68112-8-baolu.lu@linux.intel.com>
- <BN9PR11MB5276A8E898983310B83C399E8CEC2@BN9PR11MB5276.namprd11.prod.outlook.com>
- <b09f96db-8451-4de9-81c5-312cffdfd4fc@linux.intel.com>
- <BN9PR11MB5276F07A130CD617777A3AAD8CE92@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20240524142446.GP69273@ziepe.ca>
- <BN9PR11MB527647FF053E249E27F4B43C8CF02@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <BN9PR11MB527647FF053E249E27F4B43C8CF02@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com> <1716431200.2626963-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1716431200.2626963-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 27 May 2024 11:38:49 +0800
+Message-ID: <CACGkMEsKgwgATiuiA4_DcrwtoGp4XT__GakKVYNJ=EcOOG9zew@mail.gmail.com>
+Subject: Re: [PATCH net-next 0/7] virtnet_net: prepare for af-xdp
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	virtualization@lists.linux.dev, bpf@vger.kernel.org, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 5/27/24 9:33 AM, Tian, Kevin wrote:
->> From: Jason Gunthorpe <jgg@ziepe.ca>
->> Sent: Friday, May 24, 2024 10:25 PM
->>
->> On Mon, May 20, 2024 at 03:39:54AM +0000, Tian, Kevin wrote:
->>>> From: Baolu Lu <baolu.lu@linux.intel.com>
->>>> Sent: Monday, May 20, 2024 10:19 AM
->>>>
->>>> On 5/15/24 4:50 PM, Tian, Kevin wrote:
->>>>>> From: Lu Baolu <baolu.lu@linux.intel.com>
->>>>>> Sent: Tuesday, April 30, 2024 10:57 PM
->>>>>>
->>>>>> @@ -308,6 +314,19 @@ int iommufd_hwpt_alloc(struct
->> iommufd_ucmd
->>>>>> *ucmd)
->>>>>>    		goto out_put_pt;
->>>>>>    	}
->>>>>>
->>>>>> +	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
->>>>>> +		struct iommufd_fault *fault;
->>>>>> +
->>>>>> +		fault = iommufd_get_fault(ucmd, cmd->fault_id);
->>>>>> +		if (IS_ERR(fault)) {
->>>>>> +			rc = PTR_ERR(fault);
->>>>>> +			goto out_hwpt;
->>>>>> +		}
->>>>>> +		hwpt->fault = fault;
->>>>>> +		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
->>>>>> +		hwpt->domain->fault_data = hwpt;
->>>>>> +	}
->>>>>
->>>>> this is nesting specific. why not moving it to the nested_alloc()?
->>>>
->>>> Nesting is currently a use case for userspace I/O page faults, but this
->>>> design should be general enough to support other scenarios as well.
->>>
->>> Do we allow user page table w/o nesting?
->>>
->>> What would be a scenario in which the user doesn't manage the
->>> page table but still want to handle the I/O page fault? The fault
->>> should always be delivered to the owner managing the page table...
->>
->> userspace always manages the page table, either it updates the IOPTE
->> directly in a nest or it calls iommufd map operations.
->>
->> Ideally the driver will allow PRI on normal cases, although it will
->> probably never be used.
->>
-> 
-> But now it's done in a half way.
-> 
-> valid_flags in normal cases doesn't accept a fault ID. but we then
-> handle the fault ID flag generally above.
-> 
-> I'd like to see a consistent message throughout the path.
+On Thu, May 23, 2024 at 10:27=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
+>
+> Any comments for this.
+>
+> Thanks.
 
-Okay, I see. I think valid_flags logic is doing the right thing. It
-indicates that user space page fault on a paging hwpt is not supported
-yet, but it leaves the room to grow it in the future.
+Will have a look.
 
-I will post v6 of this series soon to address some obvious issues
-identified during this v5 review cycle. Thanks to all review comments.
+Btw, does Michael happy with moving files into a dedicated directory?
 
-Best regards,
-baolu
+Thanks
+
+>
+> On Wed,  8 May 2024 16:05:07 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com=
+> wrote:
+> > This patch set prepares for supporting af-xdp zerocopy.
+> > There is no feature change in this patch set.
+> > I just want to reduce the patch num of the final patch set,
+> > so I split the patch set.
+> >
+> > #1-#3 add independent directory for virtio-net
+> > #4-#7 do some refactor, the sub-functions will be used by the subsequen=
+t commits
+> >
+> > Thanks.
+> >
+> > Xuan Zhuo (7):
+> >   virtio_net: independent directory
+> >   virtio_net: move core structures to virtio_net.h
+> >   virtio_net: add prefix virtnet to all struct inside virtio_net.h
+> >   virtio_net: separate virtnet_rx_resize()
+> >   virtio_net: separate virtnet_tx_resize()
+> >   virtio_net: separate receive_mergeable
+> >   virtio_net: separate receive_buf
+> >
+> >  MAINTAINERS                                   |   2 +-
+> >  drivers/net/Kconfig                           |   9 +-
+> >  drivers/net/Makefile                          |   2 +-
+> >  drivers/net/virtio/Kconfig                    |  12 +
+> >  drivers/net/virtio/Makefile                   |   8 +
+> >  drivers/net/virtio/virtnet.h                  | 246 ++++++++
+> >  .../{virtio_net.c =3D> virtio/virtnet_main.c}   | 534 ++++++----------=
+--
+> >  7 files changed, 452 insertions(+), 361 deletions(-)
+> >  create mode 100644 drivers/net/virtio/Kconfig
+> >  create mode 100644 drivers/net/virtio/Makefile
+> >  create mode 100644 drivers/net/virtio/virtnet.h
+> >  rename drivers/net/{virtio_net.c =3D> virtio/virtnet_main.c} (94%)
+> >
+> > --
+> > 2.32.0.3.g01195cf9f
+> >
+>
+
