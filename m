@@ -1,49 +1,59 @@
-Received: from smtp-fw-33001.amazon.com (smtp-fw-33001.amazon.com [207.171.190.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6407B2E636
-	for <virtualization@lists.linux.dev>; Mon, 27 May 2024 07:54:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.190.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CA0E4779F
+	for <virtualization@lists.linux.dev>; Mon, 27 May 2024 08:40:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716796472; cv=none; b=OeVb4xjBTY6Fh3M34QVYxG5V+guwG444RxsA+jIJsKZm1GrvVlbtk8qZr8iYOlyBigCsGCtKitS2UmdqyZPXW1drZKGzrO2twg21MR1kKA+Iu6+PqwecRgbukFHIj0a09zlDXvpv3Ow8X5SAKKgioZVwl6Lf4YxXs79SiKfOhNc=
+	t=1716799260; cv=none; b=JU2ngfzncpfEVxJHQbcYKvocJNaNmbQZXBi6rRynhV0JEvdgVUZP4H9Jb+cWFsav83euoB2DULQBU0P0quU70vPw+oudeemwh+lxL0VEPPg3U8f8IeX5WLnCbojchdEl5i5JteqhAbKUGVeoK/B9gJ146SplUno2D4EmF7eFOBY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716796472; c=relaxed/simple;
-	bh=vVmQM3KlSacYw9PT5Bt0doyYyXPgw3G8yA9jhQANLaM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=UQiQN5rKC6Kanq9E2xI41PezcNlhUWNJHvgQ2oz/ImADXQutf2kyniqJP2x+F2JLzHjXHfLr/gFUOfH78WHUR6S4aep1IUp82mJG20lbg1kYa1pWmV1ZEPzHpi5pI+CCuTJzJKTKI5RHEIkBdDc/WlRA9ep2ykbMHSoOhq/ryQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=Kw17CHn5; arc=none smtp.client-ip=207.171.190.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	s=arc-20240116; t=1716799260; c=relaxed/simple;
+	bh=LnRnA2Jjmv5v1wzM1P4UEYWuVqzhiZ8cKDv1xenj3pE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hu0i8upIwf2wcNUGvqhvWLKoKTpXj0Lv6eK3MoAQd+3cKLBGljMbvS6lUv0CyEYzxMHhrq/UBB0VLOFAdjNRMLDs+Cdg7LJmoZoRcDsPuuTsO8NPi9cG60kqd6+J1ICnd3X+3NFi+o+uv8HokzijzsY06Xp16bXhGmxgsHQeDYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kj1MjTjq; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="Kw17CHn5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kj1MjTjq"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-6f8eba8f25eso2358686b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 27 May 2024 01:40:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1716796470; x=1748332470;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=vVmQM3KlSacYw9PT5Bt0doyYyXPgw3G8yA9jhQANLaM=;
-  b=Kw17CHn53UOcKSiO7sHc5SqfWNkJ3nQxBg9yWVbDnALqAdyXLpbf+KKQ
-   iS94Qegf2E0+uHSUQn2ujh3iOi3AbbBAH5s3IgkD2lM7BMxhtzNIKH5O/
-   BAOIz89dQxgrt/Z5PlSKhUOnBD4/ffBkqjGPwrKNfgdW0oAUdXxw8GIma
-   A=;
-X-IronPort-AV: E=Sophos;i="6.08,192,1712620800"; 
-   d="scan'208";a="346759012"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
-  by smtp-border-fw-33001.sea14.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2024 07:54:23 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [10.0.7.35:52970]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.14.80:2525] with esmtp (Farcaster)
- id d92451b3-065a-4ffb-a212-175080e118f9; Mon, 27 May 2024 07:54:21 +0000 (UTC)
-X-Farcaster-Flow-ID: d92451b3-065a-4ffb-a212-175080e118f9
-Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.28; Mon, 27 May 2024 07:54:21 +0000
-Received: from [0.0.0.0] (10.253.83.51) by EX19D020UWC004.ant.amazon.com
- (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.28; Mon, 27 May
- 2024 07:54:19 +0000
-Message-ID: <554ae947-f06e-4b69-b274-47e8a78ae962@amazon.com>
-Date: Mon, 27 May 2024 09:54:17 +0200
+        d=gmail.com; s=20230601; t=1716799258; x=1717404058; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=uwVuXWQUZEgL6e/tw+iGOXe1aznzrrLjd63ykG2zqqQ=;
+        b=Kj1MjTjqYcSfmafiA3HooP99V6owldf3aTutKJ8gZ0SixUnB+ECP++T2NVgL0j+TwP
+         uDU18JCmOLJgJEb5/B3e3pERLn64vEXVqwzJUBFZk4f01AxyI6Fzj6VH5bxoTb1Zvg5g
+         nLjEJh6uzV5xF3kHoZbmR6fU/q9bD2C4pldgifh+ovjOvr5eLWCgacPSyJuQM/jdgSMm
+         zIcod2EeQ/y/9uBvqtNu3qfosY/qeguIWlbP1X3H8tcJ9626EMAl+fkgpGILKLAX6wR0
+         eDoAcuS//4DVOtqGftjuwMXgBAHsSkCvZmzbcozV1r8z68CtZevCeGjYN03xJvxAR+L4
+         La5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716799258; x=1717404058;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uwVuXWQUZEgL6e/tw+iGOXe1aznzrrLjd63ykG2zqqQ=;
+        b=K+e3qMlxh4r590GYwr6jDGUBtsHsw1bU+Nl5BanwSmBMdRg+FSg6TQBk0aDstt1OiA
+         p2pnKmA4HzfAQOjy5ReDkh4nSzvCvNvkyG8EOUYyPfNoLOCOwnzb5HCS6XiR2OYW4/yS
+         uOaYav2lZgNRtlqJo1jFUEe2bw3Nf2NPjj0ATw/8hgSRoVTfVcY2BRhAOHXQVb9uCTMK
+         YHSSdguB42OocRt1WhNYMlbKmErjQDjDg2Eru+B8E6GRHwHs01C5xzUgXuuubr1ZK4hL
+         OEdPLj25a2xLFXBYcmend7kldeUoDjj9h+ZA0R+jOjYQCXiFfn1WjW8RDDPhGMBSCXEF
+         nBjA==
+X-Forwarded-Encrypted: i=1; AJvYcCWwpqmY6/jCO0KFFxlv0DBDnCTt9r19a+xhDEDoDFvX9D86Uj9ae/SEI+9mL/1V/t8cZwlo9zdwFr6/o966DE8nLX7H6WUyP3fDGG2q2Hg=
+X-Gm-Message-State: AOJu0Ywt7bCYwiN4Gw0w5L4UdwjXndFmZYIRRvmSEta3Gh5NRMOACr86
+	4rBQtYKzW/6+YwSj69H/9B49GsmwUhANBmOefV5x1PbpnT6oYjGYiHHx5BA1nJs=
+X-Google-Smtp-Source: AGHT+IFE9T0rPP7MwtRJUQicZehQa9jFlvSRFoYunB9B4Qz+S1VqJZB9Znj1JzGeT9hBbKTDRlVOxw==
+X-Received: by 2002:a05:6a20:3d88:b0:1af:b86d:b6dc with SMTP id adf61e73a8af0-1b212f63dfdmr9828343637.55.1716799258547;
+        Mon, 27 May 2024 01:40:58 -0700 (PDT)
+Received: from [192.168.50.95] ([118.32.98.101])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-6f8fcbea891sm4452567b3a.126.2024.05.27.01.40.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 May 2024 01:40:58 -0700 (PDT)
+Message-ID: <694d1a9c-4e2d-4fd1-8b04-1c753c414761@gmail.com>
+Date: Mon, 27 May 2024 17:40:54 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -51,128 +61,80 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: How to implement message forwarding from one CID to another in
- vhost driver
-To: Stefano Garzarella <sgarzare@redhat.com>, Alexander Graf <agraf@csgraf.de>
-CC: Dorjoy Chowdhury <dorjoychy111@gmail.com>,
-	<virtualization@lists.linux.dev>, <kvm@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <stefanha@redhat.com>
-References: <CAFfO_h7xsn7Gsy7tFZU2UKcg_LCHY3M26iTuSyhFG-k-24h6_g@mail.gmail.com>
- <4i525r6irzjgibqqtrs3qzofqfifws2k3fmzotg37pyurs5wkd@js54ugamyyin>
- <CAFfO_h7iNYc3jrDvnAxTyaGWMxM9YK29DAGYux9s1ve32tuEBw@mail.gmail.com>
- <3a62a9d1-5864-4f00-bcf0-2c64552ee90c@csgraf.de>
- <6wn6ikteeanqmds2i7ar4wvhgj42pxpo2ejwbzz5t2i5cw3kov@omiadvu6dv6n>
- <5b3b1b08-1dc2-4110-98d4-c3bb5f090437@amazon.com>
+Subject: Re: [PATCH] tools/virtio: pipe assertion in vring_test.c
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ skhan@linuxfoundation.org, Austin Kim <austindh.kim@gmail.com>,
+ shjy180909@gmail.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-kernel-mentees@lists.linuxfoundation.org
+References: <20240527071330.105268-1-yskelg@gmail.com>
+ <20240527035009-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-From: Alexander Graf <graf@amazon.com>
-In-Reply-To: <5b3b1b08-1dc2-4110-98d4-c3bb5f090437@amazon.com>
-X-ClientProxiedBy: EX19D035UWB004.ant.amazon.com (10.13.138.104) To
- EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+From: Yunseong Kim <yskelg@gmail.com>
+In-Reply-To: <20240527035009-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Ck9uIDI3LjA1LjI0IDA5OjA4LCBBbGV4YW5kZXIgR3JhZiB3cm90ZToKPiBIZXkgU3RlZmFubywK
-Pgo+IE9uIDIzLjA1LjI0IDEwOjQ1LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+IE9uIFR1
-ZSwgTWF5IDIxLCAyMDI0IGF0IDA4OjUwOjIyQU0gR01ULCBBbGV4YW5kZXIgR3JhZiB3cm90ZToK
-Pj4+IEhvd2R5LAo+Pj4KPj4+IE9uIDIwLjA1LjI0IDE0OjQ0LCBEb3Jqb3kgQ2hvd2RodXJ5IHdy
-b3RlOgo+Pj4+IEhleSBTdGVmYW5vLAo+Pj4+Cj4+Pj4gVGhhbmtzIGZvciB0aGUgcmVwbHkuCj4+
-Pj4KPj4+Pgo+Pj4+IE9uIE1vbiwgTWF5IDIwLCAyMDI0LCAyOjU1IFBNIFN0ZWZhbm8gR2FyemFy
-ZWxsYSAKPj4+PiA8c2dhcnphcmVAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+Pj4+IEhpIERvcmpveSwK
-Pj4+Pj4KPj4+Pj4gT24gU2F0LCBNYXkgMTgsIDIwMjQgYXQgMDQ6MTc6MzhQTSBHTVQsIERvcmpv
-eSBDaG93ZGh1cnkgd3JvdGU6Cj4+Pj4+PiBIaSwKPj4+Pj4+Cj4+Pj4+PiBIb3BlIHlvdSBhcmUg
-ZG9pbmcgd2VsbC4gSSBhbSB3b3JraW5nIG9uIGFkZGluZyBBV1MgTml0cm8gRW5jbGF2ZVsxXQo+
-Pj4+Pj4gZW11bGF0aW9uIHN1cHBvcnQgaW4gUUVNVS4gQWxleGFuZGVyIEdyYWYgaXMgbWVudG9y
-aW5nIG1lIG9uIHRoaXMgCj4+Pj4+PiB3b3JrLiBBIHYxCj4+Pj4+PiBwYXRjaCBzZXJpZXMgaGFz
-IGFscmVhZHkgYmVlbiBwb3N0ZWQgdG8gdGhlIHFlbXUtZGV2ZWwgbWFpbGluZyAKPj4+Pj4+IGxp
-c3RbMl0uCj4+Pj4+Pgo+Pj4+Pj4gQVdTIG5pdHJvIGVuY2xhdmVzIGlzIGFuIEFtYXpvbiBFQzJb
-M10gZmVhdHVyZSB0aGF0IGFsbG93cyAKPj4+Pj4+IGNyZWF0aW5nIGlzb2xhdGVkCj4+Pj4+PiBl
-eGVjdXRpb24gZW52aXJvbm1lbnRzLCBjYWxsZWQgZW5jbGF2ZXMsIGZyb20gQW1hem9uIEVDMiAK
-Pj4+Pj4+IGluc3RhbmNlcywgd2hpY2ggYXJlCj4+Pj4+PiB1c2VkIGZvciBwcm9jZXNzaW5nIGhp
-Z2hseSBzZW5zaXRpdmUgZGF0YS4gRW5jbGF2ZXMgaGF2ZSBubyAKPj4+Pj4+IHBlcnNpc3RlbnQg
-c3RvcmFnZQo+Pj4+Pj4gYW5kIG5vIGV4dGVybmFsIG5ldHdvcmtpbmcuIFRoZSBlbmNsYXZlIFZN
-cyBhcmUgYmFzZWQgb24gCj4+Pj4+PiBGaXJlY3JhY2tlciBtaWNyb3ZtCj4+Pj4+PiBhbmQgaGF2
-ZSBhIHZob3N0LXZzb2NrIGRldmljZSBmb3IgY29tbXVuaWNhdGlvbiB3aXRoIHRoZSBwYXJlbnQg
-Cj4+Pj4+PiBFQzIgaW5zdGFuY2UKPj4+Pj4+IHRoYXQgc3Bhd25lZCBpdCBhbmQgYSBOaXRybyBT
-ZWN1cmUgTW9kdWxlIChOU00pIGRldmljZSBmb3IgCj4+Pj4+PiBjcnlwdG9ncmFwaGljCj4+Pj4+
-PiBhdHRlc3RhdGlvbi4gVGhlIHBhcmVudCBpbnN0YW5jZSBWTSBhbHdheXMgaGFzIENJRCAzIHdo
-aWxlIHRoZSAKPj4+Pj4+IGVuY2xhdmUgVk0gZ2V0cwo+Pj4+Pj4gYSBkeW5hbWljIENJRC4gVGhl
-IGVuY2xhdmUgVk1zIGNhbiBjb21tdW5pY2F0ZSB3aXRoIHRoZSBwYXJlbnQgCj4+Pj4+PiBpbnN0
-YW5jZSBvdmVyCj4+Pj4+PiB2YXJpb3VzIHBvcnRzIHRvIENJRCAzLCBmb3IgZXhhbXBsZSwgdGhl
-IGluaXQgcHJvY2VzcyBpbnNpZGUgYW4gCj4+Pj4+PiBlbmNsYXZlIHNlbmRzIGEKPj4+Pj4+IGhl
-YXJ0YmVhdCB0byBwb3J0IDkwMDAgdXBvbiBib290LCBleHBlY3RpbmcgYSBoZWFydGJlYXQgcmVw
-bHksIAo+Pj4+Pj4gbGV0dGluZyB0aGUKPj4+Pj4+IHBhcmVudCBpbnN0YW5jZSBrbm93IHRoYXQg
-dGhlIGVuY2xhdmUgVk0gaGFzIHN1Y2Nlc3NmdWxseSBib290ZWQuCj4+Pj4+Pgo+Pj4+Pj4gVGhl
-IHBsYW4gaXMgdG8gZXZlbnR1YWxseSBtYWtlIHRoZSBuaXRybyBlbmNsYXZlIGVtdWxhdGlvbiBp
-biAKPj4+Pj4+IFFFTVUgc3RhbmRhbG9uZQo+Pj4+Pj4gaS5lLiwgd2l0aG91dCBuZWVkaW5nIHRv
-IHJ1biBhbm90aGVyIFZNIHdpdGggQ0lEIDMgd2l0aCBwcm9wZXIgdnNvY2sKPj4+Pj4gSWYgeW91
-IGRvbid0IGhhdmUgdG8gbGF1bmNoIGFub3RoZXIgVk0sIG1heWJlIHdlIGNhbiBhdm9pZCAKPj4+
-Pj4gdmhvc3QtdnNvY2sKPj4+Pj4gYW5kIGVtdWxhdGUgdmlydGlvLXZzb2NrIGluIHVzZXItc3Bh
-Y2UsIGhhdmluZyBjb21wbGV0ZSBjb250cm9sIAo+Pj4+PiBvdmVyIHRoZQo+Pj4+PiBiZWhhdmlv
-ci4KPj4+Pj4KPj4+Pj4gU28gd2UgY291bGQgdXNlIHRoaXMgb3Bwb3J0dW5pdHkgdG8gaW1wbGVt
-ZW50IHZpcnRpby12c29jayBpbiBRRU1VIAo+Pj4+PiBbNF0KPj4+Pj4gb3IgdXNlIHZob3N0LXVz
-ZXItdnNvY2sgWzVdIGFuZCBjdXN0b21pemUgaXQgc29tZWhvdy4KPj4+Pj4gKE5vdGU6IHZob3N0
-LXVzZXItdnNvY2sgYWxyZWFkeSBzdXBwb3J0cyBzaWJsaW5nIGNvbW11bmljYXRpb24sIHNvIAo+
-Pj4+PiBtYXliZQo+Pj4+PiB3aXRoIGEgZmV3IG1vZGlmaWNhdGlvbnMgaXQgZml0cyB5b3VyIGNh
-c2UgcGVyZmVjdGx5KQo+Pj4+Pgo+Pj4+PiBbNF0gaHR0cHM6Ly9naXRsYWIuY29tL3FlbXUtcHJv
-amVjdC9xZW11Ly0vaXNzdWVzLzIwOTUKPj4+Pj4gWzVdIAo+Pj4+PiBodHRwczovL2dpdGh1Yi5j
-b20vcnVzdC12bW0vdmhvc3QtZGV2aWNlL3RyZWUvbWFpbi92aG9zdC1kZXZpY2UtdnNvY2sKPj4+
-Pgo+Pj4+Cj4+Pj4gVGhhbmtzIGZvciBsZXR0aW5nIG1lIGtub3cuIFJpZ2h0IG5vdyBJIGRvbid0
-IGhhdmUgYSBjb21wbGV0ZSBwaWN0dXJlCj4+Pj4gYnV0IEkgd2lsbCBsb29rIGludG8gdGhlbS4g
-VGhhbmsgeW91Lgo+Pj4+Pgo+Pj4+Pgo+Pj4+Pj4gY29tbXVuaWNhdGlvbiBzdXBwb3J0LiBGb3Ig
-dGhpcyB0byB3b3JrLCBvbmUgYXBwcm9hY2ggY291bGQgYmUgdG8gCj4+Pj4+PiB0ZWFjaCB0aGUK
-Pj4+Pj4+IHZob3N0IGRyaXZlciBpbiBrZXJuZWwgdG8gZm9yd2FyZCBDSUQgMyBtZXNzYWdlcyB0
-byBhbm90aGVyIENJRCBOCj4+Pj4+IFNvIGluIHRoaXMgY2FzZSBib3RoIENJRCAzIGFuZCBOIHdv
-dWxkIGJlIGFzc2lnbmVkIHRvIHRoZSBzYW1lIFFFTVUKPj4+Pj4gcHJvY2Vzcz8KPj4+Pgo+Pj4+
-Cj4+Pj4gQ0lEIE4gaXMgYXNzaWduZWQgdG8gdGhlIGVuY2xhdmUgVk0uIENJRCAzIHdhcyBzdXBw
-b3NlZCB0byBiZSB0aGUKPj4+PiBwYXJlbnQgVk0gdGhhdCBzcGF3bnMgdGhlIGVuY2xhdmUgVk0g
-KHRoaXMgaXMgaG93IGl0IGlzIGluIEFXUywgd2hlcmUKPj4+PiBhbiBFQzIgaW5zdGFuY2UgVk0g
-c3Bhd25zIHRoZSBlbmNsYXZlIFZNIGZyb20gaW5zaWRlIGl0IGFuZCB0aGF0Cj4+Pj4gcGFyZW50
-IEVDMiBpbnN0YW5jZSBhbHdheXMgaGFzIENJRCAzKS4gQnV0IGluIHRoZSBRRU1VIGNhc2UgYXMg
-d2UKPj4+PiBkb24ndCB3YW50IGEgcGFyZW50IFZNICh3ZSB3YW50IHRvIHJ1biBlbmNsYXZlIFZN
-cyBzdGFuZGFsb25lKSB3ZQo+Pj4+IHdvdWxkIG5lZWQgdG8gZm9yd2FyZCB0aGUgQ0lEIDMgbWVz
-c2FnZXMgdG8gaG9zdCBDSUQuIEkgZG9uJ3Qga25vdyBpZgo+Pj4+IGl0IG1lYW5zIENJRCAzIGFu
-ZCBDSUQgTiBpcyBhc3NpZ25lZCB0byB0aGUgc2FtZSBRRU1VIHByb2Nlc3MuIFNvcnJ5Lgo+Pj4K
-Pj4+Cj4+PiBUaGVyZSBhcmUgMiB1c2UgY2FzZXMgaGVyZToKPj4+Cj4+PiAxKSBFbmNsYXZlIHdh
-bnRzIHRvIHRyZWF0IGhvc3QgYXMgcGFyZW50IChkZWZhdWx0KS4gSW4gdGhpcyBzY2VuYXJpbywK
-Pj4+IHRoZSAicGFyZW50IGluc3RhbmNlIiB0aGF0IHNob3dzIHVwIGFzIENJRCAzIGluIHRoZSBF
-bmNsYXZlIGRvZXNuJ3QKPj4+IHJlYWxseSBleGlzdC4gSW5zdGVhZCwgd2hlbiB0aGUgRW5jbGF2
-ZSBhdHRlbXB0cyB0byB0YWxrIHRvIENJRCAzLCBpdAo+Pj4gc2hvdWxkIHJlYWxseSBsYW5kIG9u
-IENJRCAwIChoeXBlcnZpc29yKS4gV2hlbiB0aGUgaHlwZXJ2aXNvciB0cmllcyB0bwo+Pj4gY29u
-bmVjdCB0byB0aGUgRW5jbGF2ZSBvbiBwb3J0IFgsIGl0IHNob3VsZCBsb29rIGFzIGlmIGl0IG9y
-aWdpbmF0ZXMKPj4+IGZyb20gQ0lEIDMsIG5vdCBDSUQgMC4KPj4+Cj4+PiAyKSBNdWx0aXBsZSBw
-YXJlbnQgVk1zLiBUaGluayBvZiBhbiBhY3R1YWwgY2xvdWQgaG9zdGluZyBzY2VuYXJpby4KPj4+
-IEhlcmUsIHdlIGhhdmUgbXVsdGlwbGUgInBhcmVudCBpbnN0YW5jZXMiLiBFYWNoIG9mIHRoZW0g
-dGhpbmtzIGl0J3MKPj4+IENJRCAzLiBFYWNoIGNhbiBzcGF3biBhbiBFbmNsYXZlIHRoYXQgdGFs
-a3MgdG8gQ0lEIDMgYW5kIHJlYWNoIHRoZQo+Pj4gcGFyZW50LiBGb3IgdGhpcyBjYXNlLCBJIHRo
-aW5rIGltcGxlbWVudGluZyBhbGwgb2YgdmlydGlvLXZzb2NrIGluCj4+PiB1c2VyIHNwYWNlIGlz
-IHRoZSBiZXN0IHBhdGggZm9yd2FyZC4gQnV0IGluIHRoZW9yeSwgeW91IGNvdWxkIGFsc28KPj4+
-IHN3aXp6bGUgQ0lEcyB0byBtYWtlIHJhbmRvbSAicmVhbCIgQ0lEcyBhcHBlYXIgYXMgQ0lEIDMu
-Cj4+Pgo+Pgo+PiBUaGFuayB5b3UgZm9yIGNsYXJpZnlpbmcgdGhlIHVzZSBjYXNlcyEKPj4KPj4g
-QWxzbyBmb3IgY2FzZSAxLCB2aG9zdC12c29jayBkb2Vzbid0IHN1cHBvcnQgQ0lEIDAsIHNvIGlu
-IG15IG9waW5pb24KPj4gaXQncyBlYXNpZXIgdG8gZ28gaW50byB1c2VyLXNwYWNlIHdpdGggdmhv
-c3QtdXNlci12c29jayBvciB0aGUgYnVpbHQtaW4KPj4gZGV2aWNlLgo+Cj4KPiBTb3JyeSwgSSBi
-ZWxpZXZlIEkgbWVhbnQgQ0lEIDIuIEVmZmVjdGl2ZWx5IGZvciBjYXNlIDEsIHdoZW4gYSBwcm9j
-ZXNzIAo+IG9uIHRoZSBoeXBlcnZpc29yIGxpc3RlbnMgb24gcG9ydCAxMjM0LCBpdCBzaG91bGQg
-YmUgdmlzaWJsZSBhcyAzOjEyMzQgCj4gZnJvbSB0aGUgVk0gYW5kIHdoZW4gdGhlIGh5cGVydmlz
-b3IgcHJvY2VzcyBjb25uZWN0cyB0byA8Vk0gQ0lEPjoxMjM0LCAKPiBpdCBzaG91bGQgbG9vayBh
-cyBpZiB0aGF0IGNvbm5lY3Rpb24gY2FtZSBmcm9tIENJRCAzLgoKCk5vdyB0aGF0IEknbSB0aGlu
-a2luZyBhYm91dCBteSBtZXNzYWdlIGFnYWluOiBXaGF0IGlmIHdlIGp1c3QgaW50cm9kdWNlIAph
-IHN5c2ZzL3N5c2N0bCBmaWxlIGZvciB2c29jayB0aGF0IGluZGljYXRlcyB0aGUgImhvc3QgQ0lE
-IiAoZGVmYXVsdDogCjIpPyBVc2VycyB0aGF0IHdhbnQgdmhvc3QtdnNvY2sgdG8gYmVoYXZlIGFz
-IGlmIHRoZSBob3N0IGlzIENJRCAzIGNhbiAKanVzdCB3cml0ZSAzIHRvIGl0LgoKSXQgbWVhbnMg
-d2UnZCBuZWVkIHRvIGNoYW5nZSBhbGwgcmVmZXJlbmNlcyB0byBWTUFERFJfQ0lEX0hPU1QgdG8g
-Cmluc3RlYWQgcmVmZXIgdG8gYSBnbG9iYWwgdmFyaWFibGUgdGhhdCBpbmRpY2F0ZXMgdGhlIG5l
-dyAiaG9zdCBDSUQiLiAKSXQnZCBuZWVkIHNvbWUgbW9yZSBjYXJlZnVsIG1hc3NhZ2luZyB0byBu
-b3QgYnJlYWsgbnVtYmVyIG5hbWVzcGFjZSAKYXNzdW1wdGlvbnMgKDw9IENJRF9IT1NUIG5vIGxv
-bmdlciB3b3JrcyksIGJ1dCB0aGUgaWRlYSBzaG91bGQgZmx5LgoKVGhhdCB3b3VsZCBnaXZlIHVz
-IGFsbCAzIG9wdGlvbnM6CgoxKSBVc2VyIHNldHMgdnNvY2suaG9zdF9jaWQgPSAzIHRvIHNpbXVs
-YXRlIHRoYXQgdGhlIGhvc3QgaXMgaW4gcmVhbGl0eSAKYW4gZW5jbGF2ZSBwYXJlbnQKMikgVXNl
-ciBzcGF3bnMgVk0gd2l0aCBDSUQgPSAzIHRvIHJ1biBwYXJlbnQgcGF5bG9hZCBpbnNpZGUKMykg
-VXNlciBzcGF3bnMgcGFyZW50IGFuZCBlbmNsYXZlIFZNcyB3aXRoIHZob3N0LXZzb2NrLXVzZXIg
-d2hpY2ggCmNyZWF0ZXMgaXRzIG93biBDSUQgbmFtZXNwYWNlCgoKU3RlZmFubywgV0RZVD8KCgpB
-bGV4CgoKCgpBbWF6b24gV2ViIFNlcnZpY2VzIERldmVsb3BtZW50IENlbnRlciBHZXJtYW55IEdt
-YkgKS3JhdXNlbnN0ci4gMzgKMTAxMTcgQmVybGluCkdlc2NoYWVmdHNmdWVocnVuZzogQ2hyaXN0
-aWFuIFNjaGxhZWdlciwgSm9uYXRoYW4gV2Vpc3MKRWluZ2V0cmFnZW4gYW0gQW10c2dlcmljaHQg
-Q2hhcmxvdHRlbmJ1cmcgdW50ZXIgSFJCIDI1Nzc2NCBCClNpdHo6IEJlcmxpbgpVc3QtSUQ6IERF
-IDM2NSA1MzggNTk3Cg==
 
+
+On 5/27/24 4:52 오후, Michael S. Tsirkin wrote:
+> On Mon, May 27, 2024 at 04:13:31PM +0900, yskelg@gmail.com wrote:
+>> From: Yunseong Kim <yskelg@gmail.com>
+>>
+>> The virtio_device need to fail checking when create the geust/host pipe.
+> 
+> typo
+
+Thank you for code review Michael.
+
+Sorry, there was a typo in my message.
+
+I'll fix it and send you patch version 2.
+
+>>
+>> Signed-off-by: Yunseong Kim <yskelg@gmail.com>
+> 
+> 
+> I guess ... 
+> 
+>> ---
+>>  tools/virtio/vringh_test.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+>> index 98ff808d6f0c..b1af8807c02a 100644
+>> --- a/tools/virtio/vringh_test.c
+>> +++ b/tools/virtio/vringh_test.c
+>> @@ -161,8 +161,8 @@ static int parallel_test(u64 features,
+>>  	host_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+>>  	guest_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+>>  
+>> -	pipe(to_guest);
+>> -	pipe(to_host);
+>> +	assert(pipe(to_guest) == 0);
+>> +	assert(pipe(to_host) == 0);
+> 
+> 
+> I don't like == 0, prefer ! .
+> Also, calling pipe outside assert is preferable, since in theory
+> assert can be compiled out.
+> Not an issue here but people tend to copy/paste text.
+
+I agree, it's uncomfortable even if I did it.
+
+I'll fix it as you suggested and send it to patch 2.
+
+Thank you!
+
+
+Warm Regards,
+
+Yunseong Kim
+
+
+>>  	CPU_ZERO(&cpu_set);
+>>  	find_cpus(&first_cpu, &last_cpu);
+>> -- 
+>> 2.34.1
+> 
