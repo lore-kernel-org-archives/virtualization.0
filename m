@@ -1,180 +1,91 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABA5716D330
-	for <virtualization@lists.linux.dev>; Tue, 28 May 2024 11:46:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F5B64C97
+	for <virtualization@lists.linux.dev>; Tue, 28 May 2024 11:59:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716896801; cv=none; b=By0N13tjy6LtwRwiHMnxXJYwB/hR99q0tF5Nzcrw9WPyg8unwYeKz+IeDqVn7OFkY7wsMLxc0QGzHkzJHJ6HHOWgCUQnZTkSWvIoTL+P2w9OXD0feiDU46aiQdMM/vbU8iu+5TWxP7vxY9C4oxURwmFn4Q1BCVu32i/GY7+NSgc=
+	t=1716897576; cv=none; b=eSrEgFiQV3nMBrDB+Efkc7/jb+9XYJeITqxCx9i+i8L5T401A6sasOud7HPgyg5sVgo5m+0lYnCL4u0FhWWuwAqT4/49RZAJb5hxICG5+JLjIHcAe3jYHBBXx3UZvvZwDfk5RsL7dg5p+BIzPHIkO40pdrE4qoWoOF8Jr6fF1/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716896801; c=relaxed/simple;
-	bh=5X2a2fVYGAa/BCC1AgPsR8+eFARh/NPdsTWDOOM1arg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qnPkgHIjmyUMMtTd4UFwrprArGcZL52gcDM1/VHi/0O9VRoCntHnITv4NCsnbpB3BZtUY3BiDmNyOym49NSpUnmdJVlbnUCA17Mx8hbcM+ImJCMOmdMFv2UYFHYxcDB5e4mWrbUdD+lcpmTDgkNQHsJxlih/AGOabrcA9CSnkVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=K+QnNgUO; arc=none smtp.client-ip=115.124.30.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1716897576; c=relaxed/simple;
+	bh=s6g2xr75DPjwvTNFBy9wB2D+Bjws0UAhj7h2VOc4Eu0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=I0tS2ogGKtIeLsUieB44dnHjcLHf6khhqnj9uaT1fYZURbVKdH3lSJGjC8joU0XdDQ00+nUrFupLGXFhR2DhxzJaJKx5qhZY/8w4UHIWm7by5Am0VJV681C9nbUmLJN/QCB2VR7BwXJD3dghtEXf00rgHBguiyF+YX35pBUr2UQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=KrZB7+OG; arc=none smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="K+QnNgUO"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1716896796; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=s/JIHDkoxLXL+3UZcc69yu2RhlbrrvGxGOjDh5DZJ1M=;
-	b=K+QnNgUOXv0FatZ0E4OSOtpbplVHdt5vwwhu/cD9sVc6Llljb4mgDaSoT8B+FxyuLQ76io0Fduot+6zWrS9uvUeoFsTseMQfFXlssAU/U6m/m/lkqx6o2A0J9IS8dSiPCSvT5aLY9YpBvRX9jE7bGwP9zDFRdMSasaGBWLH7b0A=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W7PWm.1_1716896794;
-Received: from 30.221.148.249(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7PWm.1_1716896794)
-          by smtp.aliyun-inc.com;
-          Tue, 28 May 2024 19:46:35 +0800
-Message-ID: <60f1f487-427e-4ad7-8da6-d61d364e55ad@linux.alibaba.com>
-Date: Tue, 28 May 2024 19:46:33 +0800
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="KrZB7+OG"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a626777f74eso92346666b.3
+        for <virtualization@lists.linux.dev>; Tue, 28 May 2024 04:59:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google; t=1716897573; x=1717502373; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=THNN8GkzAmG9oL9YgeQemXCNW5SrSDue8NeUnoDMW0M=;
+        b=KrZB7+OGr5Q/44RuCctpdsKF4qtplhRhduT1JMsOU2nFktOYvD9wC2BltzQUmMeMvd
+         eaMWDeVbK+wh3xqyGfZT30TtGGVZkONdPN7zHOTeho5WPmfqExQIn3ibbkZKt1yIFP9S
+         q3bViBuusX7/iJXKnCy1Y5/arU3yrHUW3jRzg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716897573; x=1717502373;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=THNN8GkzAmG9oL9YgeQemXCNW5SrSDue8NeUnoDMW0M=;
+        b=OU+FuH8E+sBVKtydRuZ8lTo55wl6/agusytu/iyUZ/IYsmjc7pH6gmeMeiHx+soZIT
+         b5LfjRdimFP+MRg9Pg4lfwT1aYgYRny2XbvTgwE92ez0ECJ3Ug7DxtL9ADzUyTJVcQtn
+         Rgnw0x/lz+MMQwMHbYWCy2yZp0Rx6WPNrxy47HNbDYTR3sbc4ga6QwMLE/5O9rLkS6gB
+         /+m0rL7ryP8mgADJsWYNvqcn9ttbyRb0/cZWYU7bmLD3Ca89jfZVioVQWghgjpv0QJF9
+         dlzaNEucXfhX1H2zDbzOglsexJuPUmHmGp3OsDN+0wWda5I+1HKL9GoX2OWSMh/r/f+Z
+         lb/A==
+X-Forwarded-Encrypted: i=1; AJvYcCWGSn/aWT7hD4NnE4BH29p+qCMeEeCTvCBbDvIfHqv7jBrs0mFp5qUk77RGQCCunu2fYWUHN6ShItjQHwU9RJpooeUsut8GqeKIlZC6DlM=
+X-Gm-Message-State: AOJu0Yz+XGoJFgXKA8Y8SFhYAUOFeHOAmIxD7giwjwVN4W+e6bkpePpb
+	IdLWraxyZoZYYdhKwxL5uRu0W+sDoArQ1jc9apS9lMAq1a4x/fyODiR7b8jrcd7Lyo9d9UTXPpm
+	xpQ6H+PziNfFBFuWZRRT/MqEIRJt1LEqcJIJNbQ==
+X-Google-Smtp-Source: AGHT+IFoivlr9L3bEIgsjBISCwKV3YwgNkXHNn7gAr2htvM0x/PVzO450R6w6blHyzNF6fWf6x8Yu8ALWMejI+GxGYA=
+X-Received: by 2002:a17:906:c106:b0:a63:598:88fd with SMTP id
+ a640c23a62f3a-a6305989d03mr578701766b.62.1716897572737; Tue, 28 May 2024
+ 04:59:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 2/2] Revert "virtio_net: Add a lock for per queue
- RX coalesce"
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>,
- netdev@vger.kernel.org, virtualization@lists.linux.dev
-References: <20240523074651.3717-1-hengqi@linux.alibaba.com>
- <20240523074651.3717-3-hengqi@linux.alibaba.com>
- <a8b15f50960e15ba37c213169473f1b1d893f9e0.camel@redhat.com>
- <1716865564.880848-2-hengqi@linux.alibaba.com>
- <c443d5d84fc32beb6e11c6dd5fa506abcd6b4fc4.camel@redhat.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <c443d5d84fc32beb6e11c6dd5fa506abcd6b4fc4.camel@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20240501153817.540855-1-pgootzen@nvidia.com> <20240501153817.540855-3-pgootzen@nvidia.com>
+ <08795907-fb19-47d7-a8c9-3db0ecc91889@linux.alibaba.com>
+In-Reply-To: <08795907-fb19-47d7-a8c9-3db0ecc91889@linux.alibaba.com>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 28 May 2024 13:59:21 +0200
+Message-ID: <CAJfpegs7Dgn1++gYU5jNmCbiJwDFxWShgH_0fkaSN13nmbiY-g@mail.gmail.com>
+Subject: Re: [PATCH 2/2] virtio-fs: add multi-queue support
+To: Jingbo Xu <jefflexu@linux.alibaba.com>
+Cc: Peter-Jan Gootzen <pgootzen@nvidia.com>, virtualization@lists.linux.dev, vgoyal@redhat.com, 
+	stefanha@redhat.com, mst@redhat.com, dgilbert@redhat.com, yorayz@nvidia.comm, 
+	gurtovoy@nvidia.com, Yoray Zack <yorayz@nvidia.com>, 
+	Max Gurtovoy <mgurtovoy@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
 
+On Tue, 28 May 2024 at 10:52, Jingbo Xu <jefflexu@linux.alibaba.com> wrote:
+>
+> Hi Peter-Jan,
+>
+> Thanks for the amazing work.
+>
+> I'd just like to know if you have any plan of making fiq and fiq->lock
+> more scalable, e.g. make fiq a per-CPU software queue?
 
-在 2024/5/28 下午6:04, Paolo Abeni 写道:
-> On Tue, 2024-05-28 at 11:06 +0800, Heng Qi wrote:
->> On Mon, 27 May 2024 12:42:43 +0200, Paolo Abeni <pabeni@redhat.com> wrote:
->>> On Thu, 2024-05-23 at 15:46 +0800, Heng Qi wrote:
->>>> This reverts commit 4d4ac2ececd3c42a08dd32a6e3a4aaf25f7efe44.
->>>>
->>>> When the following snippet is run, lockdep will report a deadlock[1].
->>>>
->>>>    /* Acquire all queues dim_locks */
->>>>    for (i = 0; i < vi->max_queue_pairs; i++)
->>>>            mutex_lock(&vi->rq[i].dim_lock);
->>>>
->>>> There's no deadlock here because the vq locks are always taken
->>>> in the same order, but lockdep can not figure it out, and we
->>>> can not make each lock a separate class because there can be more
->>>> than MAX_LOCKDEP_SUBCLASSES of vqs.
->>>>
->>>> However, dropping the lock is harmless:
->>>>    1. If dim is enabled, modifications made by dim worker to coalescing
->>>>       params may cause the user's query results to be dirty data.
->>> It looks like the above can confuse the user-space/admin?
->> Maybe, but we don't seem to guarantee this --
->> the global query interface (.get_coalesce) cannot
->> guarantee correct results when the DIM and .get_per_queue_coalesce are present:
->>
->> 1. DIM has been around for a long time (it will modify the per-queue parameters),
->>     but many nics only have interfaces for querying global parameters.
->> 2. Some nics provide the .get_per_queue_coalesce interface, it is not
->>     synchronized with DIM.
->>
->> So I think this is acceptable.
-> Yes, the above sounds acceptable to me.
->
->>> Have you considered instead re-factoring
->>> virtnet_send_rx_notf_coal_cmds() to avoid acquiring all the mutex in
->>> sequence?
->> Perhaps it is a way to not traverse and update the parameters of each queue
->> in the global settings interface.
-> I'm wondering if something as dumb as the following would suffice? Not
-> even compile-tested.
+Doing a per-CPU queue is not necessarily a good idea: async requests
+could overload one queue while others are idle.
 
-This alleviates the problem, and l would like to repost this fix.
+One idea is to allow request to go through a per-CPU fast path if the
+respective listener is idle.  Otherwise the request would enter the
+default slow queue, where idle listeners would pick requests (like
+they do now).
 
-Thanks.
-> ---
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 4a802c0ea2cb..d844f4c89152 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -4267,27 +4267,27 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
->   			       ec->rx_max_coalesced_frames != vi->intr_coal_rx.max_packets))
->   		return -EINVAL;
->   
-> -	/* Acquire all queues dim_locks */
-> -	for (i = 0; i < vi->max_queue_pairs; i++)
-> -		mutex_lock(&vi->rq[i].dim_lock);
-> -
->   	if (rx_ctrl_dim_on && !vi->rx_dim_enabled) {
->   		vi->rx_dim_enabled = true;
-> -		for (i = 0; i < vi->max_queue_pairs; i++)
-> +		for (i = 0; i < vi->max_queue_pairs; i++) {
-> +			mutex_lock(&vi->rq[i].dim_lock);
->   			vi->rq[i].dim_enabled = true;
-> -		goto unlock;
-> +			mutex_unlock(&vi->rq[i].dim_lock);
-> +		}
-> +		return 0;
->   	}
->   
->   	coal_rx = kzalloc(sizeof(*coal_rx), GFP_KERNEL);
-> -	if (!coal_rx) {
-> -		ret = -ENOMEM;
-> -		goto unlock;
-> -	}
-> +	if (!coal_rx)
-> +		return -ENOMEM;
->   
->   	if (!rx_ctrl_dim_on && vi->rx_dim_enabled) {
->   		vi->rx_dim_enabled = false;
-> -		for (i = 0; i < vi->max_queue_pairs; i++)
-> +		for (i = 0; i < vi->max_queue_pairs; i++) {
-> +			mutex_lock(&vi->rq[i].dim_lock);
->   			vi->rq[i].dim_enabled = false;
-> +			mutex_unlock(&vi->rq[i].dim_lock);
-> +		}
->   	}
->   
->   	/* Since the per-queue coalescing params can be set,
-> @@ -4300,21 +4300,17 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
->   
->   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
->   				  VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
-> -				  &sgs_rx)) {
-> -		ret = -EINVAL;
-> -		goto unlock;
-> -	}
-> +				  &sgs_rx))
-> +		return -EINVAL;
->   
->   	vi->intr_coal_rx.max_usecs = ec->rx_coalesce_usecs;
->   	vi->intr_coal_rx.max_packets = ec->rx_max_coalesced_frames;
->   	for (i = 0; i < vi->max_queue_pairs; i++) {
-> +		mutex_lock(&vi->rq[i].dim_lock);
->   		vi->rq[i].intr_coal.max_usecs = ec->rx_coalesce_usecs;
->   		vi->rq[i].intr_coal.max_packets = ec->rx_max_coalesced_frames;
-> -	}
-> -unlock:
-> -	for (i = vi->max_queue_pairs - 1; i >= 0; i--)
->   		mutex_unlock(&vi->rq[i].dim_lock);
-> -
-> +	}
->   	return ret;
->   }
-> ---
->
-> Otherwise I think you need to add {READ,WRITE}_ONCE annotations while
-> touching the dim fields to avoid data races.
->
-> Thanks,
->
-> Paolo
->
->
->
->
+Might make sense to also optimize the way this picking is done if
+there are several idle listeners according to how close the listener's
+CPU is to the one that generated the request.
+
+Thanks,
+Miklos
