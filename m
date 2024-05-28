@@ -1,211 +1,109 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D39417E8FB
-	for <virtualization@lists.linux.dev>; Tue, 28 May 2024 08:32:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.156.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716885175; cv=fail; b=ncAZ9ZqE4SkCsJn/wQmV5ii4YGYrChkvKq232WXqkGmFPWeygcTBCMD7OiRUo1TP+kLjharBCDFuwcpVhZmdFZsy6p9gqPmIJtSFkL8cED/m7EdO8nkq7phLg1Bqoo9DsizVhAbRMEhX28rw4ipKvNMGIGVIvA6OYQQKR9gsesU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716885175; c=relaxed/simple;
-	bh=ohwh5ah9sXF6G8l/ewzsguL64O9UktK3C/H7RhdhdAE=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=K4LCmkvBePhT33csvl3cAyFCBWZrktBe8+vlr3odJun+gcyeT7RB1p/OyA4P9YFgBWGw9R9TIWdT01le40Oonkzkgm874NmEgJXtFJ73bLcJ2gwU57ClQlPIKz37XNS3q4Ht4GclUZ6MzdKaHMK5br1BMyCY7Fi33gUbjVo2CPs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=s99MCZ+D; arc=fail smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B10126EB64
+	for <virtualization@lists.linux.dev>; Tue, 28 May 2024 08:40:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1716885609; cv=none; b=psqkUZ4/KizbI6P2U3bxGJuJPIAY+xs+USeW6z1TNaM9WwIsMhhKHq4Lq5SVDc65NVx9MVHfRzkKBFTz5TtTsTnSbysQVwaRkmQ4JjYXXahOjAQ3v3JeidL5XkLxFAGWftpOJaF1DmRZSnYFA9VUQxrX9W/KWiSlh0aZuW9zD7w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1716885609; c=relaxed/simple;
+	bh=xe6x85zB0Ge/Xji2CNE8IhOMH+/VDGmdoVxE0YUv6fk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=myCqM6P1d6DP5AcyHIizsqp6febPt5T2ACHlFgMt/0WccuBVwcBv769pdoGNCiPkUsvPiPJAOeXj49h2xvdXVlu0MxN+8Pwl003oPWSAmshoeOGXGuziFkWwKSsia3p/8PngwYuDQqu7mf341ArEhZ704IqOCC/0IttKkuyUcLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=m7Ftw4yA; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="s99MCZ+D"
-Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44RMxVNK001836;
-	Tue, 28 May 2024 01:32:43 -0700
-Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam02lp2040.outbound.protection.outlook.com [104.47.51.40])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 3ycqpym1tx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 May 2024 01:32:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HPrbwz77GmOhcZcMBxyf24GC97G8WCg/UIgVgXfCjusydb12gFXGZCDs+A4C2ok6JjC5qlJl3znt2YE3nbkhKZy01DIKM7b0AlwMh27nuH8i72f62wbcCFnnaTWbEBYvV0JNQxKAocsThNw7+V/LfDEtCTOtjDPxQf0XeymjaqDCkz+ECOJZ08kbQM6ZkWBtCkRrKQbId7+T4N7tzvdVDa3vnQCDd2oEYFvV5ev/ZtzUxgZw/z33QXbN3sBZJ6bK9Nnu03sueBPOOAAnSsrw4Er5Ipyhcbu6e02L/X9VfpdDZ2sMP6iXxYNVs6PIl9JSEUpyAvevLptYdyvfK4DF/w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rfut32F1bUoqc9MI6NbaYewQQ3AkmSWMa4bERrb6ZS8=;
- b=iUa4Dm8l8DBC13O5yosJi005PtU+hoCfj/+fRuTMo83dfoK+7Q2w31RmqjQvHjxOpL4cypO1eRn3sEdtexyA3pUl+VEJmFkYJqGRJz9QdXauiVXSoYdRtE1Sik4hi5dXBhHXKLCLAFKA72azgjzyb64z8rv8ZjylPP95w+oPWn0QHLJfwIwtBQu1pG/HuhjJbub4cDRPn+zmFKFsA7/S5wekW6T0LANAvyERN6QADSNcPOugcq/THNm1jIpS4PvdkM7LwVqyAVuQhdHAQKe3kZVZu/pxdmqYpz8TZKz6fvJybgiVm47xqH8LFnWY9c8zifskyVYOoJ1rrYWzOT1OhQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
- dkim=pass header.d=marvell.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rfut32F1bUoqc9MI6NbaYewQQ3AkmSWMa4bERrb6ZS8=;
- b=s99MCZ+DnhsR5zNoRXh2enyKFi92OgS9NCr4QnPvB3vHpVkRI5FZBv7Hmmv3vrCcWBjQQzkCQknDnApL1Wfbr2pH4h/7655fdnasmYZiuQRUzwMds8bpsDRkDHmJkbONGzn2tZneTCM2dSsljPenGA2O3cgrQVSX+0rqN0BrOcg=
-Received: from PH0PR18MB4474.namprd18.prod.outlook.com (2603:10b6:510:ea::22)
- by MW4PR18MB5232.namprd18.prod.outlook.com (2603:10b6:303:1b6::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7611.30; Tue, 28 May
- 2024 08:32:40 +0000
-Received: from PH0PR18MB4474.namprd18.prod.outlook.com
- ([fe80::eeed:4f:2561:f916]) by PH0PR18MB4474.namprd18.prod.outlook.com
- ([fe80::eeed:4f:2561:f916%5]) with mapi id 15.20.7452.049; Tue, 28 May 2024
- 08:32:39 +0000
-From: Hariprasad Kelam <hkelam@marvell.com>
-To: Heng Qi <hengqi@linux.alibaba.com>,
-        "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>,
-        "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?iso-8859-1?Q?Eugenio_P=E9rez?=
-	<eperezma@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni
-	<pabeni@redhat.com>, Jiri Pirko <jiri@resnulli.us>,
-        Daniel Jurgens
-	<danielj@nvidia.com>
-Subject: [PATCH net 2/2] virtio_net: fix missing lock protection on
- control_buf access
-Thread-Topic: [PATCH net 2/2] virtio_net: fix missing lock protection on
- control_buf access
-Thread-Index: AQHasNmZaBBL5V2Fu0GzqSyJI9Fung==
-Date: Tue, 28 May 2024 08:32:39 +0000
-Message-ID: 
- <PH0PR18MB4474628EC0E1A9A4FAA4E59EDEF12@PH0PR18MB4474.namprd18.prod.outlook.com>
-References: <20240528075226.94255-1-hengqi@linux.alibaba.com>
- <20240528075226.94255-3-hengqi@linux.alibaba.com>
-In-Reply-To: <20240528075226.94255-3-hengqi@linux.alibaba.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR18MB4474:EE_|MW4PR18MB5232:EE_
-x-ms-office365-filtering-correlation-id: 3544b29e-502a-4b74-a9ca-08dc7ef0bc2c
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: 
- BCL:0;ARA:13230031|366007|376005|7416005|1800799015|38070700009;
-x-microsoft-antispam-message-info: 
- =?iso-8859-1?Q?tWUk5jV+lQsNHoIbSS3XCDMyRIw0lKJEsbdQIPyhwtJO83AF5K2JYDUlsg?=
- =?iso-8859-1?Q?X38+BYxA78O0ywi9qMn/a8mYtz0Lko19dRA2xWO7H6L+v54Oyxfi6muODr?=
- =?iso-8859-1?Q?HGEBW5CMEhmesL78cUCcC1X45og6vogVTJaLQ1VGwukp3tiJLKH96eyvag?=
- =?iso-8859-1?Q?x0Cas6N0CTGEw6rV2/P4aZCYL7gVEjj0jjoQ3jZtKizn2uJduOjZYcdKGk?=
- =?iso-8859-1?Q?k93ZfoTvs5homyolvFskozrahRHt/DfCZeDjaJo6U5zvI92F7wtpQVCibs?=
- =?iso-8859-1?Q?ZwWS74b7XsXh6BsGTylpMmX2LfyL3OVKGYUWQqhKXK1pqXWoXZmChP2y0C?=
- =?iso-8859-1?Q?fH6iUmlJGODyGuIs8Xq6INfzfHuhIHjfR7h9+/ftO2pEOAorGhKtWY5+qJ?=
- =?iso-8859-1?Q?DLbZQxHcex0ml/DAsa4dYWyEMoHIVnDveqc23df/ZDDkqzVLLLLV+NTGpg?=
- =?iso-8859-1?Q?j3fmF+w16EbfLvgWk7n9YiFLhRJMOZFsGL/J9P2zsbUOgkPHapP90PvhuX?=
- =?iso-8859-1?Q?O/PPM/ChPrIHp+E/diEOs3+/YH0tpHJGUr4iQrUDYAhE6D/GlS7foJAHW0?=
- =?iso-8859-1?Q?8SWs5SoIpLB3Jg55qBgrcrDXRupFIhXcVu7E/SJdIieSOCNM60dIKh/E6T?=
- =?iso-8859-1?Q?Vsc9QfxBSPRTEI4zqOgA19kkWyWzppnxfVgnRhFe9WZ1cWQibJw+K6SQO6?=
- =?iso-8859-1?Q?o7AxiJUhv9LWeSOP12+PcqtXFEsZzPpW7Cj5vbgXb3lFfg3sClvQVBP4Mt?=
- =?iso-8859-1?Q?Kyt5iu7yXNENIRu+hRuHU61tfhHBRBq6ISV51GfAVrtRoqGzWZW4obokho?=
- =?iso-8859-1?Q?/c/6cOAYvUZtXf3NnFbpnAFfJhJa1DSyxy903biDJsd3cy/Vla50lbZMxy?=
- =?iso-8859-1?Q?HvwIX8KmpfLG5Bo1K8KNaoDIyN6tV2PyW/QyNLbQFX9AARZ+TTW39l0Qf5?=
- =?iso-8859-1?Q?Lwxt1Poxci7YDotnnYE10PGOwCmDDAkf8PXNKi6m+SXlGwktkejd4aY6FH?=
- =?iso-8859-1?Q?uxUgMXLCGLIxrCk7t5l97MZNGoUQevLjtkivx7l1AcfhE1axqf/Ma2vXy3?=
- =?iso-8859-1?Q?waV/lzEEQv4idQmx3C8h7I5YHlpEoGyEmHIUEQtSycPFEb9mS4OqpElAk7?=
- =?iso-8859-1?Q?eyFuCqOFVp5VRpApNHN4rFz5zQl5KouJDVe+nKY+3ZBEYvRaZ2k2SZjaEX?=
- =?iso-8859-1?Q?67nOn1yOaVZVUFcUl7GYLdfMzonz+rKYZbgrvO6xNgrY9OgxJx1pNuAU6h?=
- =?iso-8859-1?Q?tG3un9Ks30xG6v/XI4EtvFCGUpdRPsAgMm5HCQNlqK4ZFjdEzgwgGojsmL?=
- =?iso-8859-1?Q?Lo1wxl29NYNo3iktQouAWuRNbCwEUrtOU4lP+RT3Sukg08OutH9/XahnY1?=
- =?iso-8859-1?Q?irn334UzZ9mrDbRET/jPXeWiYJrOCXvQ=3D=3D?=
-x-forefront-antispam-report: 
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR18MB4474.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(376005)(7416005)(1800799015)(38070700009);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: 
- =?iso-8859-1?Q?Qmv883b5o2FlcdKNrLxsLrjRVW3MSF20jNkNHqyq9Pzd5o1+GVNtY9vo7q?=
- =?iso-8859-1?Q?7G05vxwdlymjIFJq0PWWkCU/VjOJCA4N6FDVacbTJjzuHWekQGCSJS3mf0?=
- =?iso-8859-1?Q?01ZhSsCajTfUchfEDJozq9V6CIuAb1b3TllhPc+Amljao86U6lOeXNqnz9?=
- =?iso-8859-1?Q?WsuQzt2LbJK9/GXZT8Gu65GpWej7UEg2gIGx6NP4qrnwBDfJdKEVj7pLhf?=
- =?iso-8859-1?Q?ER848r7PXAqIJrEIvo46kxyS1NmOC9CBxfd8I5EPxzujmbEyua+J3tLu7q?=
- =?iso-8859-1?Q?STSH2+m/Sz/UOjFWuzUGOWgZXRqx0D6LUDO7xxcmKhxCIoo5UYngB+cWF6?=
- =?iso-8859-1?Q?rLwLG0ADklDptZokZ/oUVxyoHH0PErz2eQwAKuhKzvJzVyDE3a8Ogt98RF?=
- =?iso-8859-1?Q?Y1Lo1VQqnuf0WKkszua6dOXvCvMXJ5oW3bxT4+Ql03c/b1j0cdETMed1CP?=
- =?iso-8859-1?Q?c+x7BmtlJBOoLN/LXHwZ9mtTmoAF1vREnk28zn7G2l2rU/jZrqlFmnFEaQ?=
- =?iso-8859-1?Q?IkTFfKoZl+f7b7S5+TdAeKwgzhevQbhRL0DL5CbyR4LhjI9wQQeQmlh4JM?=
- =?iso-8859-1?Q?dySZU4dhW73ctYgodfvzOyBxI1UXYN87jBKCENi7rXqZNSXDSdt/UvEkQQ?=
- =?iso-8859-1?Q?V2/IpDKgZaR6W6U2wAe5jwrhY9qnohAnNbRS3RC7CeNEmXNXfriSWDI6ar?=
- =?iso-8859-1?Q?2PY7QjOa5LUTlCoCh1DGYtA27hVoVnQUjxP8cuKgM8sgXwpvau/NMD4rLA?=
- =?iso-8859-1?Q?YKDy9dxOjQ88wdnSMGiDc/+j9myU9gKkgqHFwscyXlZKz+Fc0YdbDtluJN?=
- =?iso-8859-1?Q?ovZi5UVWR0os8UYT2LexwwGIZSRDU2zw2x8tN6cY636dueYDvaAJO1WXYu?=
- =?iso-8859-1?Q?2Gy7ARntvIRt6WTd1FrIvpKNWTF1idvu9Vw5Ppn1b4w8UoY3tR0grVnxhL?=
- =?iso-8859-1?Q?OMKr8+aRyTPapxlnq0ldbV7XywUDDQA97js6RgfVMOF9P3teqph8PfAL6Z?=
- =?iso-8859-1?Q?wL5FOnYwyF+jHjkn32vNkqhik8e++NDiCC928e8Yx8LccrvG61E7iXxjOc?=
- =?iso-8859-1?Q?GxuoER4sY4UV5epHmLHMQClQrHfUhtqC/lVVobs97SAFIofoitWi59cC7m?=
- =?iso-8859-1?Q?KE3ayDS/5/D3r+DfKJCc4nhUOYvEN9HpjQIuizd1nRJn6vJdf6dmb8sM/5?=
- =?iso-8859-1?Q?eIp8MvVxvcFrp6XEs1kPBqrfmSRoRwCDWhio+cCl0pPs6CjmR47GhzD/hN?=
- =?iso-8859-1?Q?sz9Kq0ixeAM+ays9qIucSXznqDHKhU0b6klXKC2GWLMEK0hFYXJJJkNMQO?=
- =?iso-8859-1?Q?Bpn/Y+42PVodNoj2daRWTxI65WRPcnktzgzK4VWm/ozgENLJw/cWhWrBWa?=
- =?iso-8859-1?Q?efDsvk0Kh3JdeaY0PI02/VwI3pQ34MBerg4ty1kh/GF+lsz0slgZENlKE8?=
- =?iso-8859-1?Q?2V1WxoVL+lu/0G85pGBa4079CkorsPdumwMN8ABxMIC5NSLXtMghXtF6zX?=
- =?iso-8859-1?Q?5uECcf5kvn4DVjlJJTE4NWkb/C5A34GbOQzNOfmsoT8FnyT98TW35yIKds?=
- =?iso-8859-1?Q?ec9EHdSdk6Lha3uzqA1C1Keb2L2KuyDgrTTN3Zc3KiiTNAwx0U21CU0ngb?=
- =?iso-8859-1?Q?5H84gnnpNkyJs=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="m7Ftw4yA"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1716885604; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=6Jnt0HsIxg4xcioI7WXcaT5Aaecf7OxxMvZ6nGdybF4=;
+	b=m7Ftw4yAGEU35NLoyIIIjgAndhzhIGC98RFrDrP/1dsdzreLHWXqZ7vFh5TcWSobIGODEoMU0Q67VXjA+prPyCRrvUdaPg1GOeFcu6SOPnaKWuxrZZ7CuYYBBxFf6HaVnKmcHdafZzfIS4f7TYHfZ6Q6+4ipzIfJggeoTy5Zbgg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W7P8Y0u_1716885601;
+Received: from 30.221.144.199(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W7P8Y0u_1716885601)
+          by smtp.aliyun-inc.com;
+          Tue, 28 May 2024 16:40:03 +0800
+Message-ID: <6798df13-4db3-4165-a6f7-d8a7201b7093@linux.alibaba.com>
+Date: Tue, 28 May 2024 16:40:01 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: marvell.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR18MB4474.namprd18.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3544b29e-502a-4b74-a9ca-08dc7ef0bc2c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 May 2024 08:32:39.3909
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: SF0dLrcvt2LSkMjsZ7SIE7ojj9SV+d09xrIsNwnbjIw0oqKVGpbGVQBH3S2Eg7KXzMb5MEOg0CcDZd9A2NxTcw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR18MB5232
-X-Proofpoint-GUID: xQnfZtKBGQlwVejPibco18SOVkjR1P0m
-X-Proofpoint-ORIG-GUID: xQnfZtKBGQlwVejPibco18SOVkjR1P0m
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-05-28_05,2024-05-27_01,2024-05-17_01
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] virtio-fs: limit number of request queues
+To: Peter-Jan Gootzen <pgootzen@nvidia.com>, virtualization@lists.linux.dev,
+ vgoyal@redhat.com, stefanha@redhat.com, miklos@szeredi.hu
+Cc: mst@redhat.com, dgilbert@redhat.com, yorayz@nvidia.comm,
+ gurtovoy@nvidia.com, Yoray Zack <yorayz@nvidia.com>,
+ Max Gurtovoy <mgurtovoy@nvidia.com>
+References: <20240501153817.540855-1-pgootzen@nvidia.com>
+ <20240501153817.540855-2-pgootzen@nvidia.com>
+Content-Language: en-US
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+In-Reply-To: <20240501153817.540855-2-pgootzen@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Hi Peter-Jan,
+
+Thanks for the amazing work! Glad to see it is upstreamed.  We are also
+planning distribute virtiofs on DPU.
+
+BTW I have some questions when reading the patch, appreciate if you
+could give a hint.
 
 
+On 5/1/24 11:38 PM, Peter-Jan Gootzen wrote:
+> Virtio-fs devices might allocate significant resources to virtio queues
+> such as CPU cores that busy poll on the queue. The device indicates how
+> many request queues it can support and the driver should initialize the
+> number of queues that they want to utilize.
 
-> Refactored the handling of control_buf to be within the cvq_lock critical
-> section, mitigating race conditions between reading device responses and
-> new command submissions.
->=20
-> Fixes: 6f45ab3e0409 ("virtio_net: Add a lock for the command VQ.")
-> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+I'm okay with truncating the num_request_queues to nr_cpu_ids if the
+number of the available queues exceeds nr_cpu_ids, as generally 1:1
+mapping between cpus and queues is enough and we can not make use more
+queues in this case.
+
+I just don't understand the above commit message as how this relates to
+the resource footprint at the device side.  When the the number of the
+queues actually used by the driver (e.g. nr_cpu_ids is 6) is less than
+the amount (e.g. 8) that is advertised by the driver, will the device
+side reclaim the resources allocated for the remaining unused queues?
+The driver has no way notifying how many queues it actually utilizes.
+
+
+> 
+> In this patch we limit the number of initialized request queues to the
+> number of CPUs, to limit the resource consumption on the device-side
+> and to prepare for the upcoming multi-queue patch.
+> 
+> Signed-off-by: Peter-Jan Gootzen <pgootzen@nvidia.com>
+> Signed-off-by: Yoray Zack <yorayz@nvidia.com>
+> Suggested-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 > ---
->  drivers/net/virtio_net.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
-> 6b0512a628e0..3d8407d9e3d2 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2686,6 +2686,7 @@ static bool virtnet_send_command_reply(struct
-> virtnet_info *vi, u8 class, u8 cmd  {
->  	struct scatterlist *sgs[5], hdr, stat;
->  	u32 out_num =3D 0, tmp, in_num =3D 0;
-> +	bool ret;
->  	int err;
->=20
->  	/* Caller should know better */
-> @@ -2731,8 +2732,9 @@ static bool virtnet_send_command_reply(struct
-> virtnet_info *vi, u8 class, u8 cmd
->  	}
->=20
->  unlock:
-> +	ret =3D vi->ctrl->status =3D=3D VIRTIO_NET_OK;
->  	mutex_unlock(&vi->cvq_lock);
-> -	return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
-> +	return ret;
->  }
->=20
->  static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 c=
-md,
-> --
-> 2.32.0.3.g01195cf9f
->=20
-Reviewed-by: Hariprasad Kelam <hkelam@marvell.com>
+>  fs/fuse/virtio_fs.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 322af827a232..2745fa484dcb 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -751,6 +751,9 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+>  	if (fs->num_request_queues == 0)
+>  		return -EINVAL;
+>  
+> +	/* Truncate nr of request queues to nr_cpu_id */
+> +	fs->num_request_queues = min_t(unsigned int, fs->num_request_queues,
+> +					nr_cpu_ids);
+>  	fs->nvqs = VQ_REQUEST + fs->num_request_queues;
+>  	fs->vqs = kcalloc(fs->nvqs, sizeof(fs->vqs[VQ_HIPRIO]), GFP_KERNEL);
+>  	if (!fs->vqs)
+
+-- 
+Thanks,
+Jingbo
