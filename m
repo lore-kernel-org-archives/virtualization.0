@@ -1,221 +1,119 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6492617E8FA
-	for <virtualization@lists.linux.dev>; Mon, 27 May 2024 17:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 423DB168B1
+	for <virtualization@lists.linux.dev>; Tue, 28 May 2024 02:08:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716830143; cv=none; b=ICVM7rsW9RGUkul2JtQohLC8uY866XMLJ3uUxU0LtSqCYdW/H2/4LYvLux2aKHHdnvlkLg3sVWF73JTvFF/4ki1qDZoaJywNJHZg3sx8BmZVaN+McmKQoK28scvKGWi7LmR/ccxOwOlrCaBK8BsiYlX3VzCTuzRb3ypqEryq/cg=
+	t=1716862090; cv=none; b=o6WHj+rwg2Y49vcjVVwzZtkfggy8EJC3zHJ8EId8D0UoXgiG6KnjO+vgqRfmhDQCdqjUp5ngP18TZCWsfcchG1YGGeP0FI6QEu/uGcRa+4stqT6O54770Qa/kpw57Xo6hEL/q95WKGkZ4xxgDL47fdw/2YWEooR27jkgWe/4UJ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716830143; c=relaxed/simple;
-	bh=pt31EGsdEkZo53lwke3HcCRzxGGuWyxitKe94ccVdnc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=N3UffdVrBpEm01XV9cQ35zwOzNgpunGuYPkTi7oYa/UagfcD+8YDXwHl9nyk8uQjBeTT1UW5C1Euhr16ao4N9qHfLFJcitSYG9sNzklnaeLdNT7t8cDPCXx+nyQyi/+16h3eZ4sQuFZWotNRqQyIxlHJXK+YHAinEIaFaqFmikU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=UqEHkVvt; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1716862090; c=relaxed/simple;
+	bh=bGdpMC8w5NDXkvYx9bP9RlgD8bYpxSq37c5brwI9jHk=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=tHGnF5NL3ljcGXVxx/Swfsz5Ma5ukM4usMrtSPuwK7Ep6VBXNAz9k7TcwoO8k7ZPVYtX9se0LpcJCwkSBP9Bxm1NWDmSfsNKD3iTNfIODOxmsL6lQdFUyXHt6CtFiNwl70nfKMsLx5ng8tlWWPVUX0hcs4v/M0bt3RvcB9f1tpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hiHQCh2E; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="UqEHkVvt"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 4533540E01E8;
-	Mon, 27 May 2024 17:08:10 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id bimxyUlM5shO; Mon, 27 May 2024 17:08:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1716829686; bh=zzMPJ6U6LHHCwo8zSeCN578JvIc5clkBHFvMwav3ulA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=UqEHkVvtmndf7yBXhPjClvB23jAwbCH2y9mrqWuQVDLzPL5LKRkma5X0WAIXAslDI
-	 OWVmIJ6/GQh6MyHgNXH12gJzDPwF0OdhwM57t/S13aSva8RZqSNOaZBXycdRifKOfv
-	 0nvKCVZHTyaWAw7nHg6JeCT936cjd8IHWbDZetP9R64GkqGGbhn/Rq2o5O1lyk3xV/
-	 nYbgRJAb6ONjxRmC5hUl9xcu+okxrmSuyhHurHx00V4k20COwpr6rwpzQwAnyXHLMV
-	 m+czfkJWEL1NjV2TVhDcJ7mBL7mIdcM1fI5dycnLvxv1o9EI8YpByQh6R2sDWMk4An
-	 cyNP5dzV8x2tieKXMH4ReySNhZogLEwuhTGWdRnt928uQUmNRt4zprDoIAHQL2n21X
-	 lXVQ8ULIoVGrW3v4XqisVCko5CYOCA7b7kJ3zZKQ0w+pU8jRgndQBA4PekevN9v4C/
-	 w3YVJhZ84GxfQ2Jik3lPfedBlRPhMRAq2l2f+Vcoqu4HBD5/+MgUTgLY61H9GyG6+u
-	 foPRRlYX+NMMmBytfFA9fURUfzSdFIQaPgb/IPIcecIx2VtLoNK4Odm8q386PsdDba
-	 yPB0wl/TmUP+FPiUpIIrpy1wELmaq/xXv7yeZPb769FOhG57ozS+Z17YhfsAIYc+rJ
-	 8LVjMkN2N08NqOt51W4fqTAo=
-Received: from zn.tnic (p5de8ee85.dip0.t-ipconnect.de [93.232.238.133])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 2CF0E40E016A;
-	Mon, 27 May 2024 17:07:41 +0000 (UTC)
-Date: Mon, 27 May 2024 19:07:34 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
-	tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
-	richardcochran@gmail.com, linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com, zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
-	timothym@vmware.com, akaher@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, horms@kernel.org,
-	kirill.shutemov@linux.intel.com
-Subject: Re: [PATCH v10 1/8] x86/vmware: Introduce VMware hypercall API
-Message-ID: <20240527170734.GCZlS91uXD68HRN1na@fat_crate.local>
-References: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
- <20240523191446.54695-2-alexey.makhalov@broadcom.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hiHQCh2E"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1716862079; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=kbM3v+okdOZwQr8Ru327hBw//y8G7Jb+NPx7ac9Ui1A=;
+	b=hiHQCh2EOaXep7DzxM9iw41NrEGVGjrNbEcNRRoxG03wXgU0MCfN7xmWLeO+e9+l8kjWyN0uNUBzBQjWYmFesEwbjevo5RWLBo0V/HT8Cg/vLZx2UkvmDPry3gNQHSAoWjc5PQ9hUW+yVw3AoQq8CSj2jPvwPfZFXlwub42AaiY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W7O67O4_1716862077;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7O67O4_1716862077)
+          by smtp.aliyun-inc.com;
+          Tue, 28 May 2024 10:07:58 +0800
+Message-ID: <1716862000.5541763-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 0/7] virtnet_net: prepare for af-xdp
+Date: Tue, 28 May 2024 10:06:40 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux.dev,
+ bpf@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20240508080514.99458-1-xuanzhuo@linux.alibaba.com>
+ <1716431200.2626963-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEsKgwgATiuiA4_DcrwtoGp4XT__GakKVYNJ=EcOOG9zew@mail.gmail.com>
+In-Reply-To: <CACGkMEsKgwgATiuiA4_DcrwtoGp4XT__GakKVYNJ=EcOOG9zew@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240523191446.54695-2-alexey.makhalov@broadcom.com>
 
-On Thu, May 23, 2024 at 12:14:39PM -0700, Alexey Makhalov wrote:
-> +#define VMWARE_HYPERCALL						\
-> +	ALTERNATIVE_3("",						\
-> +		      "jmp .Lport_call%=", X86_FEATURE_HYPERVISOR,	\
-> +		      "jmp .Lvmcall%=", X86_FEATURE_VMCALL,		\
-> +		      "vmmcall\n\t"					\
-> +		      "jmp .Lend%=", X86_FEATURE_VMW_VMMCALL)		\
-> +		      "cmpb $"						\
-> +			__stringify(CPUID_VMWARE_FEATURES_ECX_VMMCALL)	\
-> +			", %[mode]\n\t"					\
-> +		      "jg .Lvmcall%=\n\t"				\
-> +		      "je .Lvmmcall%=\n\t"				\
-> +		      ".Lport_call%=: movw %[port], %%dx\n\t"		\
-> +		      "inl (%%dx), %%eax\n\t"				\
-> +		      "jmp .Lend%=\n\t"					\
-> +		      ".Lvmmcall%=: vmmcall\n\t"			\
-> +		      "jmp .Lend%=\n\t"					\
-> +		      ".Lvmcall%=: vmcall\n\t"				\
-> +		      ".Lend%=:"
-
-So applied (and with minor fixups for the proper indentation, see end of
-this mail) this looks like this:
-
-.pushsection .altinstructions,"a"
- .long 661b - .
- .long 6641f - .
- .4byte ( 4*32+31)
- .byte 663b-661b
- .byte 6651f-6641f
- .long 661b - .
- .long 6642f - .
- .4byte ( 8*32+18)
- .byte 663b-661b
- .byte 6652f-6642f
- .long 661b - .
- .long 6643f - .
- .4byte ( 8*32+19)
- .byte 663b-661b
- .byte 6653f-6643f
-.popsection
-.pushsection .altinstr_replacement, "ax"
-# ALT: replacement 1
-6641:
-        jmp .Lport_call72
-6651:
-# ALT: replacement 2
-6642:
-        jmp .Lvmcall72
-6652:
-# ALT: replacement 3
-6643:
-        vmmcall
-        jmp .Lend72
-6653:
-.popsection
-        cmpb $((((1UL))) << (0)), vmware_hypercall_mode(%rip)   # vmware_hypercall_mode
-        jg .Lvmcall72
-        je .Lvmmcall72
-.Lport_call72:
-        movw $22104, %dx        #
-        inl (%dx), %eax
-        jmp .Lend72
-.Lvmmcall72:
-        vmmcall
-        jmp .Lend72 
-.Lvmcall72:
-        vmcall
-.Lend72:
-
----
-
-so AFAICT, you want three things:
-
-1. X86_FEATURE_HYPERVISOR - that is always set when running as a guest.
-   For that it should do:
-
-        movw $22104, %dx        #
-        inl (%dx), %eax
-
-2. X86_FEATURE_VMCALL:
-
-	vmcall
-
-3. X86_FEATURE_VMW_VMMCALL:
-
-	vmmcall
-
-So why don't you simply do that?
-
-vmware_set_capabilities() sets vmware_hypercall_mode *and* those feature
-flags at the same time.
-
-And you either support VMCALL or VMMCALL so the first thing should be the
-fallback for some ancient crap.
-
-IOW, your hypercall alternative should simply be:
-
-	ALTERNATIVE_2("vmcall", "vmmcall", X86_FEATURE_VMW_VMMCALL, "movw %[port], %%dx; "inl (%%dx), %%eax", X86_FEATURE_HYPERVISOR);
-
-without any more silly dance?
-
-Hmmm?
-
----
-
-Fixup indentation for proper .s output:
-
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index 5114f4c75c54..8be877d8bb7c 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -70,17 +70,18 @@ extern u8 vmware_hypercall_mode;
- 		      "jmp .Lvmcall%=", X86_FEATURE_VMCALL,		\
- 		      "vmmcall\n\t"					\
- 		      "jmp .Lend%=", X86_FEATURE_VMW_VMMCALL)		\
--		      "cmpb $"						\
--			__stringify(CPUID_VMWARE_FEATURES_ECX_VMMCALL)	\
--			", %[mode]\n\t"					\
-+		      "\tcmpb $" __stringify(CPUID_VMWARE_FEATURES_ECX_VMMCALL) ", %[mode]\n\t" \
- 		      "jg .Lvmcall%=\n\t"				\
--		      "je .Lvmmcall%=\n\t"				\
--		      ".Lport_call%=: movw %[port], %%dx\n\t"		\
-+		      "je .Lvmmcall%=\n"				\
-+		      ".Lport_call%=:\n\t"				\
-+		      "movw %[port], %%dx\n\t"				\
- 		      "inl (%%dx), %%eax\n\t"				\
--		      "jmp .Lend%=\n\t"					\
--		      ".Lvmmcall%=: vmmcall\n\t"			\
--		      "jmp .Lend%=\n\t"					\
--		      ".Lvmcall%=: vmcall\n\t"				\
-+		      "jmp .Lend%=\n"					\
-+		      ".Lvmmcall%=:\n\t"				\
-+		      "vmmcall\n\t"					\
-+		      "jmp .Lend%=\n"					\
-+		      ".Lvmcall%=:\n\t"					\
-+		      "vmcall\n"					\
- 		      ".Lend%=:"
- 
- static inline
+On Mon, 27 May 2024 11:38:49 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Thu, May 23, 2024 at 10:27=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
+a.com> wrote:
+> >
+> > Any comments for this.
+> >
+> > Thanks.
+>
+> Will have a look.
+>
+> Btw, does Michael happy with moving files into a dedicated directory?
 
 
--- 
-Regards/Gruss,
-    Boris.
+Based on our previous discussions, I believe that he is okay.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+Thanks
+
+
+>
+> Thanks
+>
+> >
+> > On Wed,  8 May 2024 16:05:07 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+> > > This patch set prepares for supporting af-xdp zerocopy.
+> > > There is no feature change in this patch set.
+> > > I just want to reduce the patch num of the final patch set,
+> > > so I split the patch set.
+> > >
+> > > #1-#3 add independent directory for virtio-net
+> > > #4-#7 do some refactor, the sub-functions will be used by the subsequ=
+ent commits
+> > >
+> > > Thanks.
+> > >
+> > > Xuan Zhuo (7):
+> > >   virtio_net: independent directory
+> > >   virtio_net: move core structures to virtio_net.h
+> > >   virtio_net: add prefix virtnet to all struct inside virtio_net.h
+> > >   virtio_net: separate virtnet_rx_resize()
+> > >   virtio_net: separate virtnet_tx_resize()
+> > >   virtio_net: separate receive_mergeable
+> > >   virtio_net: separate receive_buf
+> > >
+> > >  MAINTAINERS                                   |   2 +-
+> > >  drivers/net/Kconfig                           |   9 +-
+> > >  drivers/net/Makefile                          |   2 +-
+> > >  drivers/net/virtio/Kconfig                    |  12 +
+> > >  drivers/net/virtio/Makefile                   |   8 +
+> > >  drivers/net/virtio/virtnet.h                  | 246 ++++++++
+> > >  .../{virtio_net.c =3D> virtio/virtnet_main.c}   | 534 ++++++--------=
+----
+> > >  7 files changed, 452 insertions(+), 361 deletions(-)
+> > >  create mode 100644 drivers/net/virtio/Kconfig
+> > >  create mode 100644 drivers/net/virtio/Makefile
+> > >  create mode 100644 drivers/net/virtio/virtnet.h
+> > >  rename drivers/net/{virtio_net.c =3D> virtio/virtnet_main.c} (94%)
+> > >
+> > > --
+> > > 2.32.0.3.g01195cf9f
+> > >
+> >
+>
