@@ -1,204 +1,89 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0697416DECF
-	for <virtualization@lists.linux.dev>; Tue, 28 May 2024 12:59:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6550216E893
+	for <virtualization@lists.linux.dev>; Tue, 28 May 2024 13:23:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716901150; cv=none; b=Tcy8DyclYStYqzf/yZREVIL4E4Q2GZzlCchIJy5HnvfhcYgQ9+spYWPBnjvaASwX9fEza7I1l3dLjWDS+fdXmFVg6pHRpdzWmax9AamIBC1KbLaG83UW4jaaVm7cle9YFOtHWS4CLVloRQRwOTb1ve+n224/8kaKHrQtwuWLds4=
+	t=1716902592; cv=none; b=pSyq6mvi+SPsr/PSYKYNnIrs4lOpyuC3BZbw9A/sPATTJ9G0ulo026brejgcfWIcFDpbBW8vhdd4URK+E/7TMPpFaqS4dg/W3LWKUd7YhfqrJxI+A24S4gXBlR37zmpkFCrkTfBhBF7YY7IDVZ2iKWkdeq1KDuGo/gidZbAg+IE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716901150; c=relaxed/simple;
-	bh=jIGeIgNwugHZLzikxCCnMT3AwFLdvWGJXgs5PnGmXSU=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Gzvt025/Sv7LNr7wvd+mBe0/8PQ2bnorPv2ifHF9p/MhFHfvRwwldXRQIqWJPZnN8Lt7wJQ02MqJIxGHyMoDDtmxiHLAWOPz/TRky61ueg3aVhqgljyqJBUj0tJnpUt1qFLBgAJno50sLOyVje5th6QtYhxjFDGxWhvFNy2a/rw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.174])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4VpXcB3L0NzckN8;
-	Tue, 28 May 2024 20:57:46 +0800 (CST)
-Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id E15211400D1;
-	Tue, 28 May 2024 20:59:06 +0800 (CST)
-Received: from localhost.localdomain (10.69.192.56) by
- dggpemm500005.china.huawei.com (7.185.36.74) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Tue, 28 May 2024 20:59:06 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Eric Dumazet <edumazet@google.com>, David
- Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Trond
- Myklebust <trond.myklebust@hammerspace.com>, Anna Schumaker
-	<anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>, Jeff Layton
-	<jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia
-	<kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
-	<tom@talpey.com>, <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>
-Subject: [PATCH net-next v5 07/13] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Tue, 28 May 2024 20:55:57 +0800
-Message-ID: <20240528125604.63048-8-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240528125604.63048-1-linyunsheng@huawei.com>
-References: <20240528125604.63048-1-linyunsheng@huawei.com>
+	s=arc-20240116; t=1716902592; c=relaxed/simple;
+	bh=DUPWtduwp8zdLSDmPTMi/nkBLwW3F9PjmBRfnnXZTZM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=acccKyYaArAS/xFviLb7lRk21BU712ujhQzRHtVMfVncY1fM1jPzYXrA9i3eWuay08StwTB5Qu59H6pp1nIrxlakQ2EhkiZX5GIhr7qw2DeEavZmJ4j3Sr8q+OKy5BpWVwVaoLv61SkD/V+8o9D3Hny3C9QwGjkbipYW0vkxhvA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=AaxTDTML; arc=none smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="AaxTDTML"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-a6269ad9a6fso106153566b.2
+        for <virtualization@lists.linux.dev>; Tue, 28 May 2024 06:23:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google; t=1716902585; x=1717507385; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=95y0vEjud7FjbUTny98W5RKv7IktelcJIICgIHz0yTE=;
+        b=AaxTDTMLuxSXJEnaFRghHs6Q2w6MkAXH24mSV+fVtOEC8/s/lepppEqHXoCOu40Go8
+         Psl7J98Pav5tMJvU8QkobzOTNCShwMwsULu9AQeFwU64gLISjfN5y8r0DTdFxBFmbR8w
+         Ptm7AAbN1CE6p8DhI2JmW6U/xIkbwm4j6ehPU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716902585; x=1717507385;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=95y0vEjud7FjbUTny98W5RKv7IktelcJIICgIHz0yTE=;
+        b=ffa+ppgCsOe2DUEXtO0qOGghf4L6U7fTzWptpS1PF6TdmNnSLJ+p60vgpwkldKBdNi
+         w3Yt6yYI+mmLkP8AZuYaEhSdPOPn12hCyBOW19cECrVK2QHEMWdvaAUPyxZZsoO7MTt2
+         6tzvf0TFWiuVWEUVDaBAJYF4KGW+XWTQPdwQ79zb53KdOdsnQBkN2M/XhN+yVUFoed7T
+         b+RMmsRrD7q6PcCDdNZuoqTzc3nBvvBbMQi5Nab4Vott8cEH/JTiCOpLQkJtyU8XPchF
+         0qrt50ehT7vzcztRdjzciUwE/3wU527Sbzrj9Ec1LRY2nZ7UfTi8p3+K684fSL/LTpHS
+         L2Mw==
+X-Forwarded-Encrypted: i=1; AJvYcCVpdACR/miyXlyUC+mrYn7QjAjCZvsdR5iMPrKca/iVoEGIGELcEF/cJQGXZN3HM4x8wyF9RwFAHTg27pvouDEdDBB2AJe8u51A4cHVbiU=
+X-Gm-Message-State: AOJu0Yz302Nmxg/nACGvDKMTNL2pbjzTrjvIgZlTrgr8+3t22WcCfU1m
+	5xuMeFhrS7eue/q5qf1JyZ68XY+qbm1GhzlqEIF5L0Gz8xR3shfeH6UooVa8iGUZEvlCIaES+MZ
+	8z0Ygz5zTvFhchGpWOcJVLRWQ0e4iWejc3F2cjA==
+X-Google-Smtp-Source: AGHT+IEuy2fYV3xKXM2nUqnxUca3YB5V8WOG0oxiAhP25lpRbZBoObWOsdgqKq+L1T6qtSdMgNI2OTyzup2szo6f4e4=
+X-Received: by 2002:a17:906:2ecd:b0:a61:e825:8a75 with SMTP id
+ a640c23a62f3a-a62641d9a10mr733127066b.18.1716902584674; Tue, 28 May 2024
+ 06:23:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500005.china.huawei.com (7.185.36.74)
+References: <20240501153817.540855-1-pgootzen@nvidia.com> <20240501153817.540855-3-pgootzen@nvidia.com>
+ <08795907-fb19-47d7-a8c9-3db0ecc91889@linux.alibaba.com> <CAJfpegs7Dgn1++gYU5jNmCbiJwDFxWShgH_0fkaSN13nmbiY-g@mail.gmail.com>
+ <4ac6b36f677c2447d1e4987435dc0f990fdbe996.camel@nvidia.com>
+In-Reply-To: <4ac6b36f677c2447d1e4987435dc0f990fdbe996.camel@nvidia.com>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 28 May 2024 15:22:53 +0200
+Message-ID: <CAJfpegu8Yced7pXNTFpEpHWe+DMTdeEsQX2ukgGEquwOyJcKEQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] virtio-fs: add multi-queue support
+To: Peter-Jan Gootzen <pgootzen@nvidia.com>
+Cc: "jefflexu@linux.alibaba.com" <jefflexu@linux.alibaba.com>, "vgoyal@redhat.com" <vgoyal@redhat.com>, 
+	"stefanha@redhat.com" <stefanha@redhat.com>, "mst@redhat.com" <mst@redhat.com>, 
+	"dgilbert@redhat.com" <dgilbert@redhat.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Yoray Zack <yorayz@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+On Tue, 28 May 2024 at 14:39, Peter-Jan Gootzen <pgootzen@nvidia.com> wrote:
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
----
- drivers/vhost/net.c             |  2 +-
- include/linux/page_frag_cache.h | 10 ++++++++++
- mm/page_frag_test.c             |  2 +-
- net/core/skbuff.c               |  6 +++---
- net/rxrpc/conn_object.c         |  4 +---
- net/rxrpc/local_object.c        |  4 +---
- net/sunrpc/svcsock.c            |  6 ++----
- 7 files changed, 19 insertions(+), 15 deletions(-)
+> I am not that familiar yet with the FUSE driver. What are these
+> listeners you are referring to? If I follow a FUSE file system operation
+> like fuse_statfs, I see a single-threaded path towards the
+> wake_pending_and_unlock of virtio-fs via fuse_simple_request.
+> Or are these listeners something from the virtiofsd implementation?
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 6691fac01e0d..b2737dc0dc50 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index c6fde197a6eb..6ac3a25089d1 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -23,6 +23,16 @@ struct page_frag_cache {
- 	bool pfmemalloc;
- };
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_va_align(struct page_frag_cache *nc,
-diff --git a/mm/page_frag_test.c b/mm/page_frag_test.c
-index bb9f5aa84631..641255136105 100644
---- a/mm/page_frag_test.c
-+++ b/mm/page_frag_test.c
-@@ -337,7 +337,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_frag.va = NULL;
-+	page_frag_cache_init(&test_frag);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index dca4e7445348..caee22db1cc7 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -741,12 +741,12 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 		local_bh_enable();
- 	}
- 
-@@ -834,7 +834,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc_va(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 
- 	if (unlikely(!data))
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index 504453c688d7..a8cffe47cf01 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 42d20412c1c3..4b1e87187614 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1609,7 +1609,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1619,8 +1618,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
--- 
-2.30.0
+I was thinking of the regular /dev/fuse interface, not virtiofs.  For
+the /dev/fuse there can be multiple threads that call read(2) on the
+fuse fd, which I call "listeners" above.
 
+The design is outdated for both /dev/fuse and for virtiofs.  When a
+request is created by the filesystem it shouldn't normally have to go
+through that fc->fiq bottleneck...
+
+I'll see if there's an easy fix for that.
+
+Thanks,
+Miklos
