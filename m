@@ -1,143 +1,124 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FD443D6B
-	for <virtualization@lists.linux.dev>; Wed, 29 May 2024 01:52:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B45E15B138
+	for <virtualization@lists.linux.dev>; Wed, 29 May 2024 02:03:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716947533; cv=none; b=rbVqLtIPPatTBvaYyfqe82Ff6QzJ1uHGB/3UxbR5SPYJC/zIyh9SD9eFchjuJSVYAc19plgfToCUhBHjhpPEAMavdO0f/x60RHK8sEzPSyTWLrmYhmTLJ6IrfPiE6fmWEalMwYPR0fF+Z2c9IAOc5tM3wwe8yfFJ8wpuOEgFgyQ=
+	t=1716948189; cv=none; b=UvZE+wrqKqPr2MjrhHe4BElh4h45fXRTvMbPgIXuoBmibPnliZ3+rfZkMPlJFdVR92Tz0OBTbKmRIWVZM+Zea4mR47ayatnYOUlMk7w2K0Rr7MtQH5WlIkVmf8iftmxEAviI6N6Cb6NxpMPlSHk4wF5LtHYZEW3LxzOblMg6WDo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716947533; c=relaxed/simple;
-	bh=qrVXyEJVBi8QWTH24/zpE6HgWAlyGbYmVuCwbt4NoG8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t3xxJwVBJnpsKibt3WVeRwQ/VbepEGV+KsAr2aS3KirNXN8mjdnMpVw1rwnafJ0H9Lcuq1PNtJq2l5hc3H8kFIV6CS/iMf3NcSoF3Y5uoT9BOtQ6+8BrvGhY+AmpZWps3sZ3R7uTMWWbsjVUoELLrSfkR9Xoh68+HuoTD46Mzs8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JhwJ5jbm; arc=none smtp.client-ip=115.124.30.132
+	s=arc-20240116; t=1716948189; c=relaxed/simple;
+	bh=/jAPqVaAnX6uuaZo5Y8bEOCQ0r8SBj4MRnDEE11nTY4=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=JPmcwtWZ+31r8BDU25ypz7ibyk5xh3N+f7WhHlW0/1TbySM5MSVwX+0ajGzh3mxl8QWEBmM43IKmxnfEDh511V7ZE7EMT2/DhPKsVHsO2pUTf1wQwYJIMJXUIy5feRaQupdmhFG/ViFmHAUEBw3r/AjQ8fjiHUdnrxl6TT2zjdk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=IlZJ4xKT; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JhwJ5jbm"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="IlZJ4xKT"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1716947528; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=jz7mIWn8uWV++X1z/yTVLP2NYmS4KSlf6sBMcPWTZCY=;
-	b=JhwJ5jbmGpumm0tjHme815VYLFrDMufRkz8n9046Xcim1xH8+aruX1vPejQYCpP5fiVZAjgFegaI90OMlrTrkphs/Hugt5gZ+m8oJZ7aDiCWRDzYZYceebEY9LQu4NR/BesX1O7BBrmmJNM4PAP8VauqZC7g/BEiCeLSNjLvxtA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W7R4szv_1716947527;
-Received: from 30.221.147.251(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W7R4szv_1716947527)
+	t=1716948184; h=Message-ID:Subject:Date:From:To;
+	bh=3SFYi3oG57/P8FL2z66pNqlfbX6wpCMtZY7JLpbe67s=;
+	b=IlZJ4xKTGf6nQ0J7yasv1ebnKdDbGhAVQ8NhKdBcuc40K85uMqOD0oGEDG5xUhnej+lgYsr4kTJD/Qv25eo1Ca2BCYkHrL1MJxgqNe/p8E7ef6aiw/UXSYcyTnPweNBj/1RdIHiT8ZYgnPJn5FYct4BIYwYAe2XY4g+ztmpKFHQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W7R.lw0_1716948183;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7R.lw0_1716948183)
           by smtp.aliyun-inc.com;
-          Wed, 29 May 2024 09:52:08 +0800
-Message-ID: <2a095e1a-a3f0-40d5-9dc4-68e60a5a3e9c@linux.alibaba.com>
-Date: Wed, 29 May 2024 09:52:06 +0800
+          Wed, 29 May 2024 10:03:03 +0800
+Message-ID: <1716948138.442408-2-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net 2/2] virtio_net: fix missing lock protection on control_buf access
+Date: Wed, 29 May 2024 10:02:18 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Daniel Jurgens <danielj@nvidia.com>
+References: <20240528075226.94255-1-hengqi@linux.alibaba.com>
+ <20240528075226.94255-3-hengqi@linux.alibaba.com>
+ <20240528114547-mutt-send-email-mst@kernel.org>
+ <1716912105.4028382-1-hengqi@linux.alibaba.com>
+ <20240528124435-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240528124435-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] virtio-fs: add multi-queue support
-To: Peter-Jan Gootzen <pgootzen@nvidia.com>,
- "miklos@szeredi.hu" <miklos@szeredi.hu>
-Cc: "vgoyal@redhat.com" <vgoyal@redhat.com>,
- "stefanha@redhat.com" <stefanha@redhat.com>, "mst@redhat.com"
- <mst@redhat.com>, Yoray Zack <yorayz@nvidia.com>,
- "dgilbert@redhat.com" <dgilbert@redhat.com>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- Max Gurtovoy <mgurtovoy@nvidia.com>
-References: <20240501153817.540855-1-pgootzen@nvidia.com>
- <20240501153817.540855-3-pgootzen@nvidia.com>
- <08795907-fb19-47d7-a8c9-3db0ecc91889@linux.alibaba.com>
- <CAJfpegs7Dgn1++gYU5jNmCbiJwDFxWShgH_0fkaSN13nmbiY-g@mail.gmail.com>
- <1672df38-7b97-41f5-802d-ee50f83a885f@linux.alibaba.com>
- <33d6f262b9c5c7c2d23bd0062a88262b597abc84.camel@nvidia.com>
-Content-Language: en-US
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-In-Reply-To: <33d6f262b9c5c7c2d23bd0062a88262b597abc84.camel@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-
-
-On 5/28/24 10:21 PM, Peter-Jan Gootzen wrote:
-> On Tue, 2024-05-28 at 21:35 +0800, Jingbo Xu wrote:
->> External email: Use caution opening links or attachments
->>
->>
->> On 5/28/24 7:59 PM, Miklos Szeredi wrote:
->>> On Tue, 28 May 2024 at 10:52, Jingbo Xu <jefflexu@linux.alibaba.com>
->>> wrote:
->>>>
->>>> Hi Peter-Jan,
->>>>
->>>> Thanks for the amazing work.
->>>>
->>>> I'd just like to know if you have any plan of making fiq and fiq-
->>>>> lock
->>>> more scalable, e.g. make fiq a per-CPU software queue?
->>>
->>> Doing a per-CPU queue is not necessarily a good idea: async requests
->>> could overload one queue while others are idle.
->>
->> It is in FUSE scenarios (instead of virtiofs). There's no 1:1 mapping
->> between CPUs and daemon threads.  All requests submitted from all CPUs
->> are enqueued in one global pending list, and all daemon threads fetch
->> request to be processed from this global pending list.
-> Virtiofsd also works in this thread pool manner with a global pending
-> list and many daemon threads fetching from said list.
+On Tue, 28 May 2024 12:45:32 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Wed, May 29, 2024 at 12:01:45AM +0800, Heng Qi wrote:
+> > On Tue, 28 May 2024 11:46:28 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Tue, May 28, 2024 at 03:52:26PM +0800, Heng Qi wrote:
+> > > > Refactored the handling of control_buf to be within the cvq_lock
+> > > > critical section, mitigating race conditions between reading device
+> > > > responses and new command submissions.
+> > > > 
+> > > > Fixes: 6f45ab3e0409 ("virtio_net: Add a lock for the command VQ.")
+> > > > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> > > 
+> > > 
+> > > I don't get what does this change. status can change immediately
+> > > after you drop the mutex, can it not? what exactly is the
+> > > race conditions you are worried about?
+> > 
+> > See the following case:
+> > 
+> > 1. Command A is acknowledged and successfully executed by the device.
+> > 2. After releasing the mutex (mutex_unlock), process P1 gets preempted before
+> >    it can read vi->ctrl->status, *which should be VIRTIO_NET_OK*.
+> > 3. A new command B (like the DIM command) is issued.
+> > 4. Post vi->ctrl->status being set to VIRTIO_NET_ERR by
+> >    virtnet_send_command_reply(), process P2 gets preempted.
+> > 5. Process P1 resumes, reads *vi->ctrl->status as VIRTIO_NET_ERR*, and reports
+> >    this error back for Command A. <-- Race causes incorrect results to be read.
+> > 
+> > Thanks.
 > 
->>
->>>
->>> One idea is to allow request to go through a per-CPU fast path if
->>> the
->>> respective listener is idle.  Otherwise the request would enter the
->>> default slow queue, where idle listeners would pick requests (like
->>> they do now).
->>
->> I guess "listener" refers to one thread of fuse daemon.
->>
->>
->> When coming to virtiofs scenarios, there's 1:1 mapping between CPUs
->> and
->> hardware queues.  The requests will only be routed to the hardware
->> queue
->> to which the submitter CPU maps, and thus there's no meaning still
->> managing pending requests in one global pending list.  In this case,
->> the
->> per-CPU pending list theoretically can reduce the lock contention on
->> the
->> global pending list.
->>
->>
->> I guess we have an internal RFC on per-CPU pending list for virtiofs.
->> Let me see if this really improves the performance from test.
-> I am a bit confused about the software layers we are talking about now.
-> We have:
-> - FUSE driver (so the kernel FUSE fs driver)
-> - virtio-fs driver
-> - virtiofsd as a software virtio-fs device
-> - Hardware virtio-fs device implementations (e.g. BlueField)
-> - libfuse (connecting /dev/fuse and a FS implementation)
-> - File systems that build upon: libfuse, virtiofsd or some hardware
-> virtio-fs implementation
 > 
-> So you have a patch at hand that fixes this fiq and fiq->lock bottleneck
-> in the FUSE driver, correct? In the virtio-fs driver there is no pending
-> list, it just pops from the pending list of the FUSE driver.
+> Why is it important that P1 gets VIRTIO_NET_OK?
+> After all it is no longer the state.
 
-I mean fiq->pending list (struct fuse_iqueue) when I refer to software
-pending list.
+The driver needs to know whether the command actually executed success.
 
-__fuse_request_send
-  spin_lock(&fiq->lock) <-- lock contention if multiple CPUs submit IOs
-  queue_request_and_unlock
-    # enqueue request to fiq->pending list
-    fiq->ops->wake_pending_and_unlock(),
-    i.e. virtio_fs_wake_pending_and_unlock() for virtiofs
-      # fetch one request from fiq->pending list
-    spin_unlock(&fiq->lock)
+Thanks.
 
-Both the regular /dev/fuse interface and virtiofs use "struct
-fuse_iqueue" as the pending list.
-
--- 
-Thanks,
-Jingbo
+> 
+> > > 
+> > > > ---
+> > > >  drivers/net/virtio_net.c | 4 +++-
+> > > >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index 6b0512a628e0..3d8407d9e3d2 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -2686,6 +2686,7 @@ static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd
+> > > >  {
+> > > >  	struct scatterlist *sgs[5], hdr, stat;
+> > > >  	u32 out_num = 0, tmp, in_num = 0;
+> > > > +	bool ret;
+> > > >  	int err;
+> > > >  
+> > > >  	/* Caller should know better */
+> > > > @@ -2731,8 +2732,9 @@ static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd
+> > > >  	}
+> > > >  
+> > > >  unlock:
+> > > > +	ret = vi->ctrl->status == VIRTIO_NET_OK;
+> > > >  	mutex_unlock(&vi->cvq_lock);
+> > > > -	return vi->ctrl->status == VIRTIO_NET_OK;
+> > > > +	return ret;
+> > > >  }
+> > > >  
+> > > >  static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+> > > > -- 
+> > > > 2.32.0.3.g01195cf9f
+> > > 
+> 
