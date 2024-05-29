@@ -1,83 +1,82 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C6A15B964
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 19:22:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFF1A1C9ED4
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 21:26:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717010533; cv=none; b=NYMuVCfRcDOLVLPYmsj24si3DHZQNFLxnDmfitna7eB/h9KdiYujijaA2hsaJaZBfmi9sdLAhpLM3wVkHd8c/8Uwz0WSYRJIDmCZgdfpYdAAlzaQUJvrd9O5gbB5YR0RWzoUjxdrh8NJTi6QGqmX4Jphl5fAPOXHiE8L3KdpyEc=
+	t=1717018005; cv=none; b=lyol9/bVYalzvQcY2HxXGK3iMbQHZR+yzGmpvdOhKRramwwydg4E2mvxDr6NtgHu8+TFUS+PhEmB9V64lBhQjPsW0Xf4f1N7eKR5otiYlbNAPM9+r2eaXOZrfPCjya2pl21AHzSfIeUnIws9tEm/i5l5EHq7QFiy0y2leDnsSe8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717010533; c=relaxed/simple;
-	bh=3N+yRNwAaot4RWsGxxpAHkl1rZ3X19BsknvqkoXEID8=;
+	s=arc-20240116; t=1717018005; c=relaxed/simple;
+	bh=IpFz8585vTf9JU0x/N7pc4JXCKQHyHW9TXfZC/vTso4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=RouoX2AGGPChFPR6mTKF91/WjbZfoOcYHqRa/l9v+/b+WDwGN+8MBmsNNJZdAbOAZmaE/iEu5t6O7dn4C4ckwQM3yCOCZ/fIsC8y5E/29OYVuCr0M8kCn7BJ71k3LI+cy06IEUMWESUty6xjl+ygFxRYklGl0VdQ632QKItjn9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=YYNj6qob; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type; b=RnpbTTIZcFH+rxSBK4Z6n1xqVLVHdzr//2vn3ZHJGVFxDfgarF5HozojgBfSUFGJ529WWDkH6AlL7ZLP9wc2+NuJVBDjs6dD5EYA2Jiel0PfbCBqiEKlln6mST+EWLsLwCfyh51CEPfDtGj1caarxig40LvlvAKXP2ayyzvw74Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=a4/OIZHi; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="YYNj6qob"
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="a4/OIZHi"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8EABE40977
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 19:22:11 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 47740409D1
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 21:26:43 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -2.1
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id RhUIAl_2K6aq for <virtualization@lists.linux-foundation.org>;
- Wed, 29 May 2024 19:22:10 +0000 (UTC)
-X-Greylist: delayed 2009 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 29 May 2024 19:22:09 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 062B8409C7
+ id BUdjinaQYtrg for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 May 2024 21:26:41 +0000 (UTC)
+X-Greylist: delayed 354 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 29 May 2024 21:26:40 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org D2829409C7
 Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 062B8409C7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D2829409C7
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=YYNj6qob
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.180.131; helo=mx0b-0031df01.pphosted.com; envelope-from=quic_abhinavk@quicinc.com; receiver=<UNKNOWN> 
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 062B8409C7
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 19:22:09 +0000 (UTC)
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44TBVbJQ012157;
-	Wed, 29 May 2024 18:48:18 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=a4/OIZHi
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.168.131; helo=mx0a-0031df01.pphosted.com; envelope-from=quic_jesszhan@quicinc.com; receiver=<UNKNOWN> 
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D2829409C7
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 21:26:40 +0000 (UTC)
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44THVp7X015693;
+	Wed, 29 May 2024 21:26:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ab81luCQi39eJfDPVl2fNVgypINjt9s7zOvtaAtxDg8=; b=YYNj6qobyCffIr2g
-	WnEBNc1XeMzQROmhvtKSiBwUJBZkv1vdyqn44Jc71ALpmMOAi04pP0GbJp6kd+wk
-	wu1ZZkRYC0ISAIF1zla//7Nw8rpn0yy2iowAa0pFsACqPQyo6EgxFmZjo26jUYs/
-	NtukDGd3MB68iJGDZT6UtytdIZOcvM1qEvLHRxjBBFBi4xPDpgu2okLRMpbAEgC4
-	MWe6T8KLTaQVLwQQC2/lBrVKU0HR+p98SJcNBW8GqY1Qk2fQQoh28a0dNt8YMFOX
-	YJed9XiOy830qKYWp5poffWMYkJQ116MsI5fo3nzPujVoAwawVtjt6+4HpBHbTYt
-	hO5XAg==
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3yb9yja498-1
+	PARYYHhg70pqBiJMUjkGT2vdJbafk+BvlarseNYu7HE=; b=a4/OIZHirY5G3qHR
+	VC7zdzqg4MzpwVkmFjGHO5vvpMXTkQzuNDvv6PjVaS1F+hFoRHEAgSV4NldZBFEt
+	ubJVZ0t1CVQgpzZR1U0/D3X039r1pnj1MdyyIYj282bUAU75rUkZLyL5a3QocW2s
+	MRu+8UYV7do7icZhOvk7fYNMzvI4kqG1MHfKuP9CcsUnQSmfwXUAiEql5WGSwL3x
+	L7+z+b02g9hyN1WIEAwLND/LFK7Gl8Pn8/Fq91KdkRJ31CaIVS3kLyCGPhlaUthc
+	EBQjntjhX2W3Xmj21Vz9sslc0lEctcTzEyhj+b3BWH+Kt/XAgPx2HEBHC6dIGxMQ
+	dTsBQQ==
+Received: from nasanppmta03.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3ydyws223d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 May 2024 18:48:18 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 44TImGmU026691
+	Wed, 29 May 2024 21:26:08 +0000 (GMT)
+Received: from nasanex01b.na.qualcomm.com (nasanex01b.na.qualcomm.com [10.46.141.250])
+	by NASANPPMTA03.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 44TLQ7wb019964
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 May 2024 18:48:16 GMT
-Received: from [10.71.110.249] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+	Wed, 29 May 2024 21:26:07 GMT
+Received: from [10.71.108.229] (10.80.80.8) by nasanex01b.na.qualcomm.com
+ (10.46.141.250) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 29 May
- 2024 11:48:10 -0700
-Message-ID: <05306686-922c-6646-3308-ebd6bc3e1219@quicinc.com>
-Date: Wed, 29 May 2024 11:48:01 -0700
+ 2024 14:26:06 -0700
+Message-ID: <f3696d6f-3e08-4ee9-8d6f-b2618d4818ee@quicinc.com>
+Date: Wed, 29 May 2024 14:26:06 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v3 4/6] drm/ci: uprev IGT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/6] drm/ci: add farm variable
+Content-Language: en-US
 To: Vignesh Raman <vignesh.raman@collabora.com>,
-        Dmitry Baryshkov
-	<dmitry.baryshkov@linaro.org>
-CC: <dri-devel@lists.freedesktop.org>, <daniels@collabora.com>,
-        <helen.koike@collabora.com>, <airlied@gmail.com>, <daniel@ffwll.ch>,
-        <robdclark@gmail.com>, <david.heidelberg@collabora.com>,
-        <guilherme.gallo@collabora.com>, <sergi.blanch.torne@collabora.com>,
+        <dri-devel@lists.freedesktop.org>
+CC: <daniels@collabora.com>, <helen.koike@collabora.com>, <airlied@gmail.com>,
+        <daniel@ffwll.ch>, <robdclark@gmail.com>,
+        <david.heidelberg@collabora.com>, <guilherme.gallo@collabora.com>,
+        <sergi.blanch.torne@collabora.com>, <dmitry.baryshkov@linaro.org>,
         <mcanal@igalia.com>, <linux-mediatek@lists.infradead.org>,
         <linux-amlogic@lists.infradead.org>,
         <linux-rockchip@lists.infradead.org>, <amd-gfx@lists.freedesktop.org>,
@@ -85,101 +84,115 @@ CC: <dri-devel@lists.freedesktop.org>, <daniels@collabora.com>,
         <virtualization@lists.linux-foundation.org>,
         <linux-kernel@vger.kernel.org>
 References: <20240529024049.356327-1-vignesh.raman@collabora.com>
- <20240529024049.356327-5-vignesh.raman@collabora.com>
- <bj6mpegmxo6i5o34xyxwiytdaokv2u6p5iu4eoek3ctqimwviy@jbo5aw7gy4ue>
- <12f14064-fd1c-4e9c-94ee-ba7d492a4056@collabora.com>
-Content-Language: en-US
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
-In-Reply-To: <12f14064-fd1c-4e9c-94ee-ba7d492a4056@collabora.com>
+ <20240529024049.356327-3-vignesh.raman@collabora.com>
+From: Jessica Zhang <quic_jesszhan@quicinc.com>
+In-Reply-To: <20240529024049.356327-3-vignesh.raman@collabora.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
+ nasanex01b.na.qualcomm.com (10.46.141.250)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: yAOcEUDxqMb3ILGVj-wikK1cqOlETKxm
-X-Proofpoint-ORIG-GUID: yAOcEUDxqMb3ILGVj-wikK1cqOlETKxm
+X-Proofpoint-ORIG-GUID: T53rmvm3f_jT7JuQL7xn10jo2GFV4OFn
+X-Proofpoint-GUID: T53rmvm3f_jT7JuQL7xn10jo2GFV4OFn
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-05-29_15,2024-05-28_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 mlxscore=0 phishscore=0 mlxlogscore=999 spamscore=0
- clxscore=1011 impostorscore=0 bulkscore=0 suspectscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2405290129
+ definitions=2024-05-29_16,2024-05-28_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 phishscore=0
+ malwarescore=0 impostorscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 bulkscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2405290152
 
 
 
-On 5/29/2024 2:48 AM, Vignesh Raman wrote:
-> Hi Dmitry,
+On 5/28/2024 7:40 PM, Vignesh Raman wrote:
+> Mesa uses structured logs for logging and debug purpose,
+> https://mesa.pages.freedesktop.org/-/mesa/-/jobs/59165650/artifacts/results/job_detail.json
 > 
-> On 29/05/24 13:39, Dmitry Baryshkov wrote:
->> On Wed, May 29, 2024 at 08:10:47AM +0530, Vignesh Raman wrote:
->>> test-list.txt and test-list-full.txt are not generated for
->>> cross-builds and they are required by drm-ci for testing
->>> arm32 targets. This is fixed in igt-gpu-tools. So uprev
->>> IGT to include the commit which fixes this issue. Also
->>> disable building xe driver tests for non-intel platforms.
->>>
->>> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
->>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->>> ---
->>>
->>> v2:
->>>    - Split IGT uprev to seperate patch.
->>>
->>> v3:
->>>    - No changes.
->>>
->>> ---
->>>   drivers/gpu/drm/ci/build-igt.sh  | 4 ++++
->>>   drivers/gpu/drm/ci/gitlab-ci.yml | 2 +-
->>>   2 files changed, 5 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/gpu/drm/ci/build-igt.sh 
->>> b/drivers/gpu/drm/ci/build-igt.sh
->>> index b7d2a49a6db3..eddb5f782a5e 100644
->>> --- a/drivers/gpu/drm/ci/build-igt.sh
->>> +++ b/drivers/gpu/drm/ci/build-igt.sh
->>> @@ -45,6 +45,10 @@ 
->>> MESON_OPTIONS="-Doverlay=disabled                    \
->>>                  -Dlibunwind=enabled                   \
->>>                  -Dprefix=/igt"
->>> +if [[ "$KERNEL_ARCH" = "arm64" ]] || [[ "$KERNEL_ARCH" = "arm" ]]; then
->>> +    MESON_OPTIONS="$MESON_OPTIONS -Dxe_driver=disabled"
->>> +fi
->>> +
->>>   mkdir -p /igt
->>>   meson build $MESON_OPTIONS $EXTRA_MESON_ARGS
->>>   ninja -C build -j${FDO_CI_CONCURRENT:-4} || ninja -C build -j 1
->>> diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml 
->>> b/drivers/gpu/drm/ci/gitlab-ci.yml
->>> index 8f32de63d92e..1b29c3b6406b 100644
->>> --- a/drivers/gpu/drm/ci/gitlab-ci.yml
->>> +++ b/drivers/gpu/drm/ci/gitlab-ci.yml
->>> @@ -5,7 +5,7 @@ variables:
->>>     UPSTREAM_REPO: git://anongit.freedesktop.org/drm/drm
->>>     TARGET_BRANCH: drm-next
->>> -  IGT_VERSION: d2af13d9f5be5ce23d996e4afd3e45990f5ab977
->>> +  IGT_VERSION: 0df7b9b97f9da0e364f5ee30fe331004b8c86b56
->>
->> Let's land this, then I'll ask to uprev to
->> dc2d7fb4f978048b87707ea9ec32da748b01b378, which fixes an issue with the
->> writeback tests on MSM devices.
+> Since drm-ci uses the mesa scripts, add the farm variable
+> and update the device type for missing jobs.
 > 
-> Sure. Once this is merged, we can uprev to the latest IGT.
-> 
-> Regards,
-> Vignesh
-> 
+> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
 
-Thanks, yes moving to latest IGT after this is merged will be great.
+Reviewed-by: Jessica Zhang <quic_jesszhan@quicinc.com>
 
->>
->>>     DEQP_RUNNER_GIT_URL: 
->>> https://gitlab.freedesktop.org/anholt/deqp-runner.git
->>>     DEQP_RUNNER_GIT_TAG: v0.15.0
->>> -- 
->>> 2.40.1
->>>
->>
+> ---
+> 
+> v3:
+>    - New commit to add farm variable and update device type variable.
+> 
+> ---
+>   drivers/gpu/drm/ci/test.yml | 11 +++++++++--
+>   1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
+> index 8bc63912fddb..2615f67f6aa3 100644
+> --- a/drivers/gpu/drm/ci/test.yml
+> +++ b/drivers/gpu/drm/ci/test.yml
+> @@ -24,6 +24,7 @@
+>     variables:
+>       HWCI_TEST_SCRIPT: "/install/igt_runner.sh"
+>       DEBIAN_ARCH: "armhf"
+> +    FARM: collabora
+>     dependencies:
+>       - testing:arm32
+>     needs:
+> @@ -39,6 +40,7 @@
+>     variables:
+>       HWCI_TEST_SCRIPT: "/install/igt_runner.sh"
+>       DEBIAN_ARCH: "arm64"
+> +    FARM: collabora
+>     dependencies:
+>       - testing:arm64
+>     needs:
+> @@ -54,6 +56,7 @@
+>     variables:
+>       HWCI_TEST_SCRIPT: "/install/igt_runner.sh"
+>       DEBIAN_ARCH: "amd64"
+> +    FARM: collabora
+>     dependencies:
+>       - testing:x86_64
+>     needs:
+> @@ -74,6 +77,7 @@
+>       S3_ARTIFACT_NAME: "arm64/kernel-files"
+>       BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/Image.gz
+>       BM_CMDLINE: "ip=dhcp console=ttyMSM0,115200n8 $BM_KERNEL_EXTRA_ARGS root=/dev/nfs rw nfsrootdebug nfsroot=,tcp,nfsvers=4.2 init=/init $BM_KERNELARGS"
+> +    FARM: google
+>     needs:
+>       - debian/arm64_test
+>       - job: testing:arm64
+> @@ -116,8 +120,9 @@ msm:apq8016:
+>       - .baremetal-igt-arm64
+>     stage: msm
+>     variables:
+> +    DEVICE_TYPE: apq8016-sbc-usb-host
+>       DRIVER_NAME: msm
+> -    BM_DTB: https://${PIPELINE_ARTIFACTS_BASE}/arm64/apq8016-sbc-usb-host.dtb
+> +    BM_DTB: https://${PIPELINE_ARTIFACTS_BASE}/arm64/${DEVICE_TYPE}.dtb
+>       GPU_VERSION: apq8016
+>       # disabling unused clocks congests with the MDSS runtime PM trying to
+>       # disable those clocks and causes boot to fail.
+> @@ -132,9 +137,10 @@ msm:apq8096:
+>       - .baremetal-igt-arm64
+>     stage: msm
+>     variables:
+> +    DEVICE_TYPE: apq8096-db820c
+>       DRIVER_NAME: msm
+>       BM_KERNEL_EXTRA_ARGS: maxcpus=2
+> -    BM_DTB: https://${PIPELINE_ARTIFACTS_BASE}/arm64/apq8096-db820c.dtb
+> +    BM_DTB: https://${PIPELINE_ARTIFACTS_BASE}/arm64/${DEVICE_TYPE}.dtb
+>       GPU_VERSION: apq8096
+>       RUNNER_TAG: google-freedreno-db820c
+>     script:
+> @@ -146,6 +152,7 @@ msm:sdm845:
+>     stage: msm
+>     parallel: 6
+>     variables:
+> +    DEVICE_TYPE: sdm845-cheza-r3
+>       DRIVER_NAME: msm
+>       BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/cheza-kernel
+>       GPU_VERSION: sdm845
+> -- 
+> 2.40.1
+> 
