@@ -1,133 +1,108 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com [209.85.167.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57CB216078E
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 06:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AB0C1649DF
+	for <virtualization@lists.linux.dev>; Wed, 29 May 2024 07:15:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716965773; cv=none; b=ZPf1Vf4TJHcFltZhXSLgIrpHbvaUp96dO85v0Tr46399w32YHMjc6E8vdVJi87i2Kuq6AxttzJFDVU9c8XiutsTgjqhbpv/iMq/cF6VGBnKy1HUrQUowAH82erY2iZ0ODgp8u0ut5OX89B0bP+D23c+WNWT6hTriS5QWj8zyoIE=
+	t=1716966924; cv=none; b=EqE07ZC17lH3MzB9hg2Dn8DSgyWC9mVKtpBPo0ftP5jXKTEDfjPo7lR7ZV7z721Zh+drh6+x30AJhWAV378QiseGC0/+FH7Tas8acO1HQf+rMPsfzhoVmi4j0PnBdSemgag+0s10Zqo+GXXNISI4Vke6HVf9bH2Gzi8TmjP/tsk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716965773; c=relaxed/simple;
-	bh=VN1Kq0JprgKgiY84Fl4GWOkl9GMDYn0hDtl9lNW63Ow=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=b8+4O8phOEcDYe9ajwcCfPa6ksle06qiwNOwzNvuzmRJgsxvvYANImQCSpvSpdX/TUGTcfI7C//bizdwiWdRS0VFFDTVhA9duvVtU0FYKu8ZgUF+BqcG6tVdnkWM2KwtBr0B5zEEfxCydtUJL84b0/rcYtr74ewBVAHFaayLYeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=EEslL9zm; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1716966924; c=relaxed/simple;
+	bh=VM23rw6dU+frl/564HTXigSeDbMXZ1+KDQbkMYied2g=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Ox3JsNRmtwQ+83ALS29J7pnlvqGIJI0PbhGfnGlO1V0X0506UbQgObGmwuQO5VrCbhQ3tSivsbrbqHeWb6eyL442RIw6sZqtYy346dCpXeA1m5Ng/v6JhhF7tpzYkxfvaZgnbIwqbjN+DDKBZFBoR/eFs0pnzuH0cAQuCiWSnB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hSlZO8X6; arc=none smtp.client-ip=209.85.167.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="EEslL9zm"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D324C815C1
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 06:56:11 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id yZlgV78fQP8l for <virtualization@lists.linux-foundation.org>;
- Wed, 29 May 2024 06:56:10 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::236; helo=mail-lj1-x236.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DF44381514
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DF44381514
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=EEslL9zm
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DF44381514
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 06:56:09 +0000 (UTC)
-Received: by mail-lj1-x236.google.com with SMTP id 38308e7fff4ca-2e6f2534e41so17035081fa.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 28 May 2024 23:56:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hSlZO8X6"
+Received: by mail-oi1-f177.google.com with SMTP id 5614622812f47-3d19dfb3dceso903142b6e.1
+        for <virtualization@lists.linux.dev>; Wed, 29 May 2024 00:15:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1716965767; x=1717570567; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=l8XM/FgEx6d8NuTgtXrGUs5+LoMJwxG6LNXhNDqRvo0=;
-        b=EEslL9zmv58zzz3FPeCA5zUgPyogKNmeaLIyPV6YeVjWZ9hFtxSgVbFMeZnIeBocwb
-         eJQANZlqupw9MRk5RABg+gIeH1sytAxlzWTNn2NEpMmlE+HlkFgzHIWHT3Py7aVr+z7T
-         8tmQfSlsW/2xAUoC0GsbP97fvjdWYwu15A2xYDLJ3IM5hO4L7R8vLNV+/VEElOOGBoPL
-         OSrDk4mXkn3r8ozt0oCVDFM+QkMDOjwa5UVvT13b/VJXMydwjh+nvkDNrqIMmZ8jx7Cv
-         UOZN5UTVTXmKWYVP/eBfYb1Qw3lsRCZYvpmIwMfvGw//nAb1x05x/6zvfRKGz6r7VnU/
-         ZI/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716965767; x=1717570567;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1716966922; x=1717571722; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=l8XM/FgEx6d8NuTgtXrGUs5+LoMJwxG6LNXhNDqRvo0=;
-        b=Sz/tF7cRzGh+PyIVpqi8MIOg0SwE5T2epfpokWSMqAW2ZyZ8N2Ri6wyacg4wPpcW5K
-         yv18dV9Cb91wrT2G/8wV6D7hGCw0+NYQuQc4PHWrKZlbHAwLKesngvuB37MqGSXyIBZL
-         kfet2iL00DTIivMlB/24ceaSE2MVWWapw3hCP4ZO5KJVo/KiIE671pzVmT4dEdc1edHD
-         m3phlBDQSFrMKPMnVNq1FR+QWVnXsWGMQ3gnJdpZnA49psJZecLFbsaCL5pIdzPjdHcj
-         ovdRE0metUbbcpILpBOvE4FyMs09KBaq9PaZkDTJCBWmXh2+lKL0Yk67+kfvCDfTEfj8
-         bwGQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX+eqmBzlHtoky7lYvKoAGbkQIUL5UyLHGwwi5+t5Aue8Ajvzy2QgcakI9lhiCHuGI7aX/VclepLoVb+JwPM7jF5/TgdkQD0C99qnQ/HD2KQUy0vZDwdMF80g==
-X-Gm-Message-State: AOJu0YygrCUnOpnbT4upFiii9Gv9ClwIXlWSWCcS/DtPLss6ZgSxhcmS
-	ifVagsEMKyJwVZu/5Y9YPZGbRqFzZDRg/LN7+fcng5SR3V/rcSp7XUsJUUIY0YU=
-X-Google-Smtp-Source: AGHT+IE8Vr6rfevCpWjYYJnFoMwyjAbgft8519qmMf8AdXmrOTwD8aPPvmWsyWzNiVDX4RqJ44Re8w==
-X-Received: by 2002:a05:6512:902:b0:51d:4af6:bb86 with SMTP id 2adb3069b0e04-529612c529amr9109860e87.0.1716965767480;
-        Tue, 28 May 2024 23:56:07 -0700 (PDT)
-Received: from eriador.lumag.spb.ru (dzdbxzyyyyyyyyyyyykxt-3.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::227])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-52aff3f65d8sm88039e87.181.2024.05.28.23.56.06
+        bh=CGIkK8b/tRFkmBW8sJbMAhIfVD5fwtlLdHMjbfiTK78=;
+        b=hSlZO8X6BC9ZVDrD4ixghnYQPcafKAfK+D4UgjJkp5Y/obvPdcybuAa6VMP0G6dXR/
+         8NOwwi2ZwI6KReEyvPHXHceszjUApzYE+3k2ry7P1IZCnChB8eaUI7e+7WOYPEQufGBL
+         Y6UkhnvaO8Da+6Nd+sRwiHVEghGzYO2pr06gMTbvBDNx4Oo0dVbRXUQNQRDK1y4RSPQB
+         4xOhAsGtttHuHi6g+4wMQdV6acLymCY61i9v0c28uIcwrZuklu9s0Pmw1rB2/Q64O/P4
+         XsQfY9Dt9vQT2FtngCewyRrDRn2PKFlTRtlXnS9oafnjITEgcQjGLyGZB93jOj09TnAw
+         eAFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716966922; x=1717571722;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CGIkK8b/tRFkmBW8sJbMAhIfVD5fwtlLdHMjbfiTK78=;
+        b=XmrO75OXq/5RyJtC5FII0phql+BcgYmlmj334bqcvIr4uAG9rmyS8/fAjpl/QNm2oH
+         UjIjONLWPsvP1H/D4zOm40KUtu7Obn9GMLaZebfPrSRjH3+Na09eG5NmSJQW6DOTf6u8
+         Geq9X9oArC4Vm8pAGxGWvvc3O7Lbw3WWimtiE+7tK7gO91yQfGcaP3/B1OVMTjLtwDb1
+         lw032MEhgZrvOuBrtNmHz6kYtx34g/wQeYmWkz98lPzvJkp/DCggdsY+C1yprccC58P6
+         0qOSniLD43fyZo2pH/kOwB7U7+t5jIQLvJsRHNJZMAHeLbusrR6rEwC4pQSOOQZVHdGI
+         oUxg==
+X-Forwarded-Encrypted: i=1; AJvYcCV7x+I1CYB1m77DG/R3dJCG44qfu2hcFJbG/KBX30LxYoNeaIrh1s8TQdgeHm8J5fqGctTAu3y1BYV54xiW+bOyr0WbDERXfttVVesFwvM=
+X-Gm-Message-State: AOJu0Yw0NSSDTUOsfAF80ko985PtSPkdnBKFz+t6N7HGz2iK90B/HF/6
+	XVAmQHeOZzrK8mg/O+qAUOlm0L49pToaaNJjauWXQ/25B7HGRYt8
+X-Google-Smtp-Source: AGHT+IFpgK5EbeZmdQsPAD6gq3FDM0KmWMgWUg5qm7Tlx36oZyOez4zO17hG2GaX6tAQPImObN94CA==
+X-Received: by 2002:a05:6870:8a0a:b0:23c:5f20:8393 with SMTP id 586e51a60fabf-24ca1472b59mr14007992fac.50.1716966922495;
+        Wed, 29 May 2024 00:15:22 -0700 (PDT)
+Received: from devant.hz.ali.com ([47.89.83.81])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-6f8fcbfaaf1sm7449629b3a.129.2024.05.29.00.15.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 May 2024 23:56:07 -0700 (PDT)
-Date: Wed, 29 May 2024 09:56:05 +0300
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-To: Vignesh Raman <vignesh.raman@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
-	helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch, robdclark@gmail.com, 
-	david.heidelberg@collabora.com, guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, 
-	mcanal@igalia.com, linux-mediatek@lists.infradead.org, 
-	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/6] drm/ci: uprev mesa version
-Message-ID: <jzb7oa2qtbavelujxwzk5vmcchazvva4aynxo2ceoigthgth2f@j3kjkj6okmwz>
-References: <20240529024049.356327-1-vignesh.raman@collabora.com>
- <20240529024049.356327-2-vignesh.raman@collabora.com>
+        Wed, 29 May 2024 00:15:22 -0700 (PDT)
+From: Xuewei Niu <niuxuewei97@gmail.com>
+X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+To: mst@redhat.com
+Cc: davem@davemloft.net,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org,
+	niuxuewei.nxw@antgroup.com,
+	niuxuewei97@gmail.com,
+	sgarzare@redhat.com,
+	stefanha@redhat.com,
+	virtualization@lists.linux.dev,
+	fupan.lfp@antgroup.com
+Subject: Re: Re: [RFC PATCH 0/5] vsock/virtio: Add support for multi-devices
+Date: Wed, 29 May 2024 15:15:13 +0800
+Message-Id: <20240529071513.466374-1-niuxuewei.nxw@antgroup.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240523104010-mutt-send-email-mst@kernel.org>
+References: <20240523104010-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240529024049.356327-2-vignesh.raman@collabora.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, May 29, 2024 at 08:10:44AM +0530, Vignesh Raman wrote:
-> zlib.net is not allowing tarball download anymore and results
-> in below error in kernel+rootfs_arm32 container build,
-> urllib.error.HTTPError: HTTP Error 403: Forbidden
-> urllib.error.HTTPError: HTTP Error 415: Unsupported Media Type
-> 
-> Uprev mesa to latest version which includes a fix for this issue.
-> https://gitlab.freedesktop.org/mesa/mesa/-/commit/908f444e
-> 
-> Use id_tokens for JWT authentication. Since s3 bucket is migrated to
-> mesa-rootfs, update the variables accordingly. Also copy helper scripts
-> to install, so that the ci jobs can use these scripts for logging.
-> 
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
-> ---
-> 
-> v2:
->   - Uprev to recent version and use id_tokens for JWT authentication
-> 
-> v3:
->   - Move adding farm variable and updating device type variable to seperate commit
-> 
-> ---
->  drivers/gpu/drm/ci/build-igt.sh   |  2 +-
->  drivers/gpu/drm/ci/build.sh       |  6 +++--
->  drivers/gpu/drm/ci/container.yml  | 12 +++------
->  drivers/gpu/drm/ci/gitlab-ci.yml  | 44 +++++++++++++++++++++----------
->  drivers/gpu/drm/ci/image-tags.yml |  2 +-
->  drivers/gpu/drm/ci/lava-submit.sh |  4 +--
->  6 files changed, 42 insertions(+), 28 deletions(-)
-> 
+Hi, MST!
 
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> >  include/linux/virtio_vsock.h            |   2 +-
+> >  include/net/af_vsock.h                  |  25 ++-
+> >  include/uapi/linux/virtio_vsock.h       |   1 +
+> >  include/uapi/linux/vm_sockets.h         |  14 ++
+> >  net/vmw_vsock/af_vsock.c                | 116 +++++++++--
+> >  net/vmw_vsock/virtio_transport.c        | 255 ++++++++++++++++++------
+> >  net/vmw_vsock/virtio_transport_common.c |  16 +-
+> >  net/vmw_vsock/vsock_loopback.c          |   4 +-
+> >  8 files changed, 352 insertions(+), 81 deletions(-)
+> 
+> As any change to virtio device/driver interface, this has to
+> go through the virtio TC. Please subscribe at
+> virtio-comment+subscribe@lists.linux.dev and then
+> contact the TC at virtio-comment@lists.linux.dev
+> 
+> You will likely eventually need to write a spec draft document, too.
 
+Thanks for your reply. I've sent a series of RFC documents for the spec
+changes to virtio TC [1].
 
--- 
-With best wishes
-Dmitry
+[1]: https://lore.kernel.org/virtio-comment/20240528054725.268173-1-niuxuewei.nxw@antgroup.com/
+
+Thanks
+Xuewei
+
