@@ -1,114 +1,185 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0797C15B990
-	for <virtualization@lists.linux.dev>; Wed, 29 May 2024 18:32:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C6A15B964
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 19:22:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717007560; cv=none; b=gNMMPIv3ZNTjY465yflfRt6kln2ZNDVXZjSIfPTH+dYOfaA79dJSNiMpKrFsPHyZq+aLsWBj0Q1P09U/tOVKMhQhi66Fc9gHm1cf1JXatvgYqOnD5WF8FIBvptaff1DTvKwJXXB4aEAgestQ8MgZ1cyqn261drl9ZpIbRr8qlBU=
+	t=1717010533; cv=none; b=NYMuVCfRcDOLVLPYmsj24si3DHZQNFLxnDmfitna7eB/h9KdiYujijaA2hsaJaZBfmi9sdLAhpLM3wVkHd8c/8Uwz0WSYRJIDmCZgdfpYdAAlzaQUJvrd9O5gbB5YR0RWzoUjxdrh8NJTi6QGqmX4Jphl5fAPOXHiE8L3KdpyEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717007560; c=relaxed/simple;
-	bh=52yBtlsfttwJOD8PKsZF4fgxkYqipcJnrVtlHXgQQYw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NiCa+MnDhprYQNVpxEueIh33N0B2/hG+lUMDEyCb4aMNAzEYiq1/JP9MUStWHDOMiAgRZea+jpyGQQzjgzx4jJjG3G1sy30Wd3071uRZTmT63368lzX7A1xJLeV+t4twek9StJ1ZDqxv2Zi1jgMfDO5pchNbVTntdSuRROWT5YU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ImiwoqP4; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717010533; c=relaxed/simple;
+	bh=3N+yRNwAaot4RWsGxxpAHkl1rZ3X19BsknvqkoXEID8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=RouoX2AGGPChFPR6mTKF91/WjbZfoOcYHqRa/l9v+/b+WDwGN+8MBmsNNJZdAbOAZmaE/iEu5t6O7dn4C4ckwQM3yCOCZ/fIsC8y5E/29OYVuCr0M8kCn7BJ71k3LI+cy06IEUMWESUty6xjl+ygFxRYklGl0VdQ632QKItjn9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=YYNj6qob; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ImiwoqP4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717007557;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oVayNWdyUAGQz4y/jxiAjETz9WQzUuYKs0dHZ7/y+zE=;
-	b=ImiwoqP47WI6W10UKYOr1N+KMfXeHNc5IotFBQoZG/QjBhORHFZx1IAVf0hNO/F9/FHZQ9
-	KrqCjiG7OldwOmqvsy30EXE80EPIUn+3MNHdeKiV2D9AMhQaw94gNekuqLRgNH08XZ/ddd
-	lWpooHNG/MFgjJ1F2f+zxjlFoNxtXyg=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-175-V7me-cd4N32vApkD4oDtuw-1; Wed,
- 29 May 2024 14:32:34 -0400
-X-MC-Unique: V7me-cd4N32vApkD4oDtuw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C77E829AA384;
-	Wed, 29 May 2024 18:32:33 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.15])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 43BEA36EC;
-	Wed, 29 May 2024 18:32:33 +0000 (UTC)
-Date: Wed, 29 May 2024 14:32:31 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Miklos Szeredi <mszeredi@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, Peter-Jan Gootzen <pgootzen@nvidia.com>,
-	Jingbo Xu <jefflexu@linux.alibaba.com>,
-	Yoray Zack <yorayz@nvidia.com>, Vivek Goyal <vgoyal@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH] fuse: cleanup request queuing towards virtiofs
-Message-ID: <20240529183231.GC1203999@fedora.redhat.com>
-References: <20240529155210.2543295-1-mszeredi@redhat.com>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="YYNj6qob"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8EABE40977
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 19:22:11 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id RhUIAl_2K6aq for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 May 2024 19:22:10 +0000 (UTC)
+X-Greylist: delayed 2009 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 29 May 2024 19:22:09 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 062B8409C7
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 062B8409C7
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=YYNj6qob
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.180.131; helo=mx0b-0031df01.pphosted.com; envelope-from=quic_abhinavk@quicinc.com; receiver=<UNKNOWN> 
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 062B8409C7
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 19:22:09 +0000 (UTC)
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44TBVbJQ012157;
+	Wed, 29 May 2024 18:48:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	ab81luCQi39eJfDPVl2fNVgypINjt9s7zOvtaAtxDg8=; b=YYNj6qobyCffIr2g
+	WnEBNc1XeMzQROmhvtKSiBwUJBZkv1vdyqn44Jc71ALpmMOAi04pP0GbJp6kd+wk
+	wu1ZZkRYC0ISAIF1zla//7Nw8rpn0yy2iowAa0pFsACqPQyo6EgxFmZjo26jUYs/
+	NtukDGd3MB68iJGDZT6UtytdIZOcvM1qEvLHRxjBBFBi4xPDpgu2okLRMpbAEgC4
+	MWe6T8KLTaQVLwQQC2/lBrVKU0HR+p98SJcNBW8GqY1Qk2fQQoh28a0dNt8YMFOX
+	YJed9XiOy830qKYWp5poffWMYkJQ116MsI5fo3nzPujVoAwawVtjt6+4HpBHbTYt
+	hO5XAg==
+Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3yb9yja498-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 May 2024 18:48:18 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 44TImGmU026691
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 May 2024 18:48:16 GMT
+Received: from [10.71.110.249] (10.80.80.8) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 29 May
+ 2024 11:48:10 -0700
+Message-ID: <05306686-922c-6646-3308-ebd6bc3e1219@quicinc.com>
+Date: Wed, 29 May 2024 11:48:01 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="6oV0VDCxVhgLbHjS"
-Content-Disposition: inline
-In-Reply-To: <20240529155210.2543295-1-mszeredi@redhat.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH v3 4/6] drm/ci: uprev IGT
+To: Vignesh Raman <vignesh.raman@collabora.com>,
+        Dmitry Baryshkov
+	<dmitry.baryshkov@linaro.org>
+CC: <dri-devel@lists.freedesktop.org>, <daniels@collabora.com>,
+        <helen.koike@collabora.com>, <airlied@gmail.com>, <daniel@ffwll.ch>,
+        <robdclark@gmail.com>, <david.heidelberg@collabora.com>,
+        <guilherme.gallo@collabora.com>, <sergi.blanch.torne@collabora.com>,
+        <mcanal@igalia.com>, <linux-mediatek@lists.infradead.org>,
+        <linux-amlogic@lists.infradead.org>,
+        <linux-rockchip@lists.infradead.org>, <amd-gfx@lists.freedesktop.org>,
+        <linux-arm-msm@vger.kernel.org>, <intel-gfx@lists.freedesktop.org>,
+        <virtualization@lists.linux-foundation.org>,
+        <linux-kernel@vger.kernel.org>
+References: <20240529024049.356327-1-vignesh.raman@collabora.com>
+ <20240529024049.356327-5-vignesh.raman@collabora.com>
+ <bj6mpegmxo6i5o34xyxwiytdaokv2u6p5iu4eoek3ctqimwviy@jbo5aw7gy4ue>
+ <12f14064-fd1c-4e9c-94ee-ba7d492a4056@collabora.com>
+Content-Language: en-US
+From: Abhinav Kumar <quic_abhinavk@quicinc.com>
+In-Reply-To: <12f14064-fd1c-4e9c-94ee-ba7d492a4056@collabora.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: yAOcEUDxqMb3ILGVj-wikK1cqOlETKxm
+X-Proofpoint-ORIG-GUID: yAOcEUDxqMb3ILGVj-wikK1cqOlETKxm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-05-29_15,2024-05-28_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 mlxscore=0 phishscore=0 mlxlogscore=999 spamscore=0
+ clxscore=1011 impostorscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2405290129
 
 
---6oV0VDCxVhgLbHjS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 29, 2024 at 05:52:07PM +0200, Miklos Szeredi wrote:
-> Virtiofs has its own queing mechanism, but still requests are first queued
-> on fiq->pending to be immediately dequeued and queued onto the virtio
-> queue.
->=20
-> The queuing on fiq->pending is unnecessary and might even have some
-> performance impact due to being a contention point.
->=20
-> Forget requests are handled similarly.
->=20
-> Move the queuing of requests and forgets into the fiq->ops->*.
-> fuse_iqueue_ops are renamed to reflect the new semantics.
->=20
-> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> ---
->  fs/fuse/dev.c       | 159 ++++++++++++++++++++++++--------------------
->  fs/fuse/fuse_i.h    |  19 ++----
->  fs/fuse/virtio_fs.c |  41 ++++--------
->  3 files changed, 106 insertions(+), 113 deletions(-)
+On 5/29/2024 2:48 AM, Vignesh Raman wrote:
+> Hi Dmitry,
+> 
+> On 29/05/24 13:39, Dmitry Baryshkov wrote:
+>> On Wed, May 29, 2024 at 08:10:47AM +0530, Vignesh Raman wrote:
+>>> test-list.txt and test-list-full.txt are not generated for
+>>> cross-builds and they are required by drm-ci for testing
+>>> arm32 targets. This is fixed in igt-gpu-tools. So uprev
+>>> IGT to include the commit which fixes this issue. Also
+>>> disable building xe driver tests for non-intel platforms.
+>>>
+>>> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+>>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+>>> ---
+>>>
+>>> v2:
+>>>    - Split IGT uprev to seperate patch.
+>>>
+>>> v3:
+>>>    - No changes.
+>>>
+>>> ---
+>>>   drivers/gpu/drm/ci/build-igt.sh  | 4 ++++
+>>>   drivers/gpu/drm/ci/gitlab-ci.yml | 2 +-
+>>>   2 files changed, 5 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/ci/build-igt.sh 
+>>> b/drivers/gpu/drm/ci/build-igt.sh
+>>> index b7d2a49a6db3..eddb5f782a5e 100644
+>>> --- a/drivers/gpu/drm/ci/build-igt.sh
+>>> +++ b/drivers/gpu/drm/ci/build-igt.sh
+>>> @@ -45,6 +45,10 @@ 
+>>> MESON_OPTIONS="-Doverlay=disabled                    \
+>>>                  -Dlibunwind=enabled                   \
+>>>                  -Dprefix=/igt"
+>>> +if [[ "$KERNEL_ARCH" = "arm64" ]] || [[ "$KERNEL_ARCH" = "arm" ]]; then
+>>> +    MESON_OPTIONS="$MESON_OPTIONS -Dxe_driver=disabled"
+>>> +fi
+>>> +
+>>>   mkdir -p /igt
+>>>   meson build $MESON_OPTIONS $EXTRA_MESON_ARGS
+>>>   ninja -C build -j${FDO_CI_CONCURRENT:-4} || ninja -C build -j 1
+>>> diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml 
+>>> b/drivers/gpu/drm/ci/gitlab-ci.yml
+>>> index 8f32de63d92e..1b29c3b6406b 100644
+>>> --- a/drivers/gpu/drm/ci/gitlab-ci.yml
+>>> +++ b/drivers/gpu/drm/ci/gitlab-ci.yml
+>>> @@ -5,7 +5,7 @@ variables:
+>>>     UPSTREAM_REPO: git://anongit.freedesktop.org/drm/drm
+>>>     TARGET_BRANCH: drm-next
+>>> -  IGT_VERSION: d2af13d9f5be5ce23d996e4afd3e45990f5ab977
+>>> +  IGT_VERSION: 0df7b9b97f9da0e364f5ee30fe331004b8c86b56
+>>
+>> Let's land this, then I'll ask to uprev to
+>> dc2d7fb4f978048b87707ea9ec32da748b01b378, which fixes an issue with the
+>> writeback tests on MSM devices.
+> 
+> Sure. Once this is merged, we can uprev to the latest IGT.
+> 
+> Regards,
+> Vignesh
+> 
 
-This is a little scary but I can't think of a scenario where directly
-dispatching requests to virtqueues is a problem.
+Thanks, yes moving to latest IGT after this is merged will be great.
 
-Is there someone who can run single and multiqueue virtiofs performance
-benchmarks?
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---6oV0VDCxVhgLbHjS
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmZXdL8ACgkQnKSrs4Gr
-c8hpgAf/TbBXZJlqAq5OzMWZIMAbeDhg6QQ7EHTeANq8Vd9mu/AtUuPe52sLxhC7
-Jb3pQ1BDzCcAYFhjzpJdpIHgynPqKNiwFc3lTrOE6esYp7IzEVRJzjQRfcm2WbyF
-vUEUXCkguB5d6SCQ5X1NSgxCK2JFoYHBZBqLE8uPn7ICrWP0Vh8FODufpnVBYOEZ
-WjMvOaKPiddO2PYBnVRQMBKqDpPST9jxqQYV2hhcKwAW1TGLsN2vZXNtLFq9uGpf
-UvG+gKHod4zfL4rqOjpSNJKOSi6EIvc2zhcwhOUpnLqkS9UIqSjrqUA1J+UacG7u
-Q/5yn5AZhYjoB7/MLOPVgORqD7leKA==
-=+/Z1
------END PGP SIGNATURE-----
-
---6oV0VDCxVhgLbHjS--
-
+>>
+>>>     DEQP_RUNNER_GIT_URL: 
+>>> https://gitlab.freedesktop.org/anholt/deqp-runner.git
+>>>     DEQP_RUNNER_GIT_TAG: v0.15.0
+>>> -- 
+>>> 2.40.1
+>>>
+>>
