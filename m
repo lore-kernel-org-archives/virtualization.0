@@ -1,163 +1,387 @@
-Received: from mail-il1-f207.google.com (mail-il1-f207.google.com [209.85.166.207])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA76D1C68B4
-	for <virtualization@lists.linux.dev>; Wed, 29 May 2024 22:08:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.207
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42EDE15B0E6
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 22:21:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717020510; cv=none; b=tV04B+THzv6cugTwcw1VqACzVSoMQ8kM0JRfUROUWS+xRHEjRuDKl5ITi1/p0FApKm83GYO4JCsUeIrifafEVQXhsl7D6JCP6/YuxYNxWwJ+jV8KltxnQgLbwzPLaTh6Aaqb77t6X+uQNsD8H5k6RcR2Xjile/16kDwv/nInpQY=
+	t=1717021319; cv=none; b=mdUs0MNy4xA+bO+om6kWOFJIZnh4gnjzxJbGq0H4/MMWoCOmYG9EfdxU3+nqMw8OU0tHn8YFWnPnp5ENQeLNxlGe3b+wcpMD1xzFNug9HLh20UrJMO8q2rST57l7fFanHHQhDvhUgXTIvLgpnDoae8L5RERjSPqTuE5J3bFcl7U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717020510; c=relaxed/simple;
-	bh=qlTTWGw8g4V5EQGOqrQjz4puCme7kPOvgv7L6YSc4Bk=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=O6XvtaqQ5Q+2unm+arwKYsOKmA2NcdE7xk+DvI8H1h/ohAtWdiWY2FlZMHBUjypWmw/duvFbpNopIMH0AEmeCcGTXqI6hTacetm4zv0EEoKzI57I0LAH+mNYjdls3vSy0hAvfFsAA/g5vJJWRQP//98pMaxd/NJeC0Fw4Er4Rdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.207
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f207.google.com with SMTP id e9e14a558f8ab-3738719bad7so1885625ab.3
-        for <virtualization@lists.linux.dev>; Wed, 29 May 2024 15:08:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717020508; x=1717625308;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=y2TP+cVoXsWGxaPYDHxSt3opPN7Ye6m5B6CFDizYDNQ=;
-        b=IlsEAqXBah+WztU7E3aSrMD/yqWBDsjz9jBLO/wq+ygksXSLqY+6FDYLNHKsL0NS4/
-         xEDCfsa2oQiI3N+Uf8LQtCpiSn2WydATuilZ0DRdkbmmutPv9D5CpZBWRShcUUgWp152
-         CucaZdPRtUSnmG28atIPCueTxLIeK96oagvehVBLFdqkJBNM9KE3s0SQNqsVYaonEyOj
-         pzHssTVW1Fvdr3xE8x6z4EfAbzoIwyi5z3abVZoHK8pJLxdwNSA5J7mvjKnozMZnvWEx
-         gC0iMYG7sySr0oyIsJdiXYFNR/As8xFyqGgLmtzMt9/9b2sHSstOM0dnJffD2DoJ9+me
-         QGyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU5oFln+Vfrocvb0MPpugk/KyA4hrS14/n+GWan1URVMUsQMSGbm++s0Pd0AFIqkEo5nCWrRUjbPPeD1s+57iheUUnu62GYbZ/3jAWLEF0=
-X-Gm-Message-State: AOJu0YzBPN/u2WH+/eC6UW7mYog2DlxrzUK/zJexYnQgxnFXQrhUEn2o
-	RDw51PurKF/ugvj/jrWc3snoCWYlGJzd3FDj8/tkE0Ut1D4VXRuyID2kVbUn6xVXFyp5TZHCdYk
-	R5bCGs4P8Vjnlww21akW+BccY+d4EVtkWhuRo/i7iyWdEja8VbGlh2jI=
-X-Google-Smtp-Source: AGHT+IGscVBJk0L7gvnjqMs1VFcnHllRu/Y7i65SekTk48C2yUUMzF11fi2fL9bYsUdKqxSOL4NNyNmdsZB9Aqg2DPLUaJARJBVj
+	s=arc-20240116; t=1717021319; c=relaxed/simple;
+	bh=27aTqHAK8eLcXO2lOfN/fmyM05+La3vG0YaOHO5f8ao=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=VWIJeplCSjhNxedufADSc2Gv9ClrnlxcDBTlkMmPBBVaIHOGu+BPr093FAh0pZsl2d3/uZYRhD+R6NLiypWGyTTtU+WkEA05w0Q/Kx3Wl1M29dAPYSoUGLpyoRmpRNtfsIMwXNTeSh7C30/VdlOHuJ9jfNkjZGiVcCmu70BX3Xc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=DSk1supW; arc=none smtp.client-ip=140.211.166.133
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="DSk1supW"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id D599340195
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 22:21:57 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id vzTMwJTdYeIR for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 May 2024 22:21:56 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.168.131; helo=mx0a-0031df01.pphosted.com; envelope-from=quic_jesszhan@quicinc.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6BB4B400F8
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6BB4B400F8
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=DSk1supW
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6BB4B400F8
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 22:21:56 +0000 (UTC)
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44TCKAUu015705;
+	Wed, 29 May 2024 21:20:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	ho9URM4GLxtmveMfnMpGaju9PuKA1yrv2/alLG7suIs=; b=DSk1supWGfabS6qz
+	ljMH72mlzoHdERNCl5WJqDO3UIjB92aQtKki/S344GtCfonq6kaiad1xRpOaBdLG
+	auLhrAVgH877Cyc42PuE5KF9bDMV8DfxFx2iswLE6+V/s7a271VrirNFh41ahAIc
+	p1hAgPw6iaN9AzSs43/IWrnRKEX00BienzvHEzcYMGHDadMbcVnQ+8sBnhRlmQnx
+	Jf/ehnXFyKTVS06RYJH2q6ZmuaB9T5J7k/HXugFjbkvfhe/eWtZzQQdUWCNFj3Bn
+	UqP/5oKsBFDG5NWxs0zTkCX6KEiob0LoG4EVnPWKg8fxHxOmPbxQN5e1CqKMPgTg
+	rdH6Ow==
+Received: from nasanppmta04.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3yba2ha9c4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 May 2024 21:20:08 +0000 (GMT)
+Received: from nasanex01b.na.qualcomm.com (nasanex01b.na.qualcomm.com [10.46.141.250])
+	by NASANPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 44TLK7pK009738
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 May 2024 21:20:07 GMT
+Received: from [10.71.108.229] (10.80.80.8) by nasanex01b.na.qualcomm.com
+ (10.46.141.250) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 29 May
+ 2024 14:20:07 -0700
+Message-ID: <0728e1fb-4208-4cad-8cbc-22ca115e2224@quicinc.com>
+Date: Wed, 29 May 2024 14:20:06 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:160e:b0:374:5382:72be with SMTP id
- e9e14a558f8ab-3747dfcae56mr115275ab.3.1717020508088; Wed, 29 May 2024
- 15:08:28 -0700 (PDT)
-Date: Wed, 29 May 2024 15:08:28 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000074ff7b06199efd7b@google.com>
-Subject: [syzbot] [kvm?] [net?] [virt?] INFO: task hung in __vhost_worker_flush
-From: syzbot <syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com>
-To: eperezma@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-
-Hello,
-
-syzbot found the following issue on:
-
-HEAD commit:    9b62e02e6336 Merge tag 'mm-hotfixes-stable-2024-05-25-09-1..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=16cb0eec980000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=3e73beba72b96506
-dashboard link: https://syzkaller.appspot.com/bug?extid=7f3bbe59e8dd2328a990
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/61b507f6e56c/disk-9b62e02e.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/6991f1313243/vmlinux-9b62e02e.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/65f88b96d046/bzImage-9b62e02e.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com
-
-INFO: task syz-executor.2:9163 blocked for more than 143 seconds.
-      Not tainted 6.9.0-syzkaller-12393-g9b62e02e6336 #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:syz-executor.2  state:D stack:27024 pid:9163  tgid:9163  ppid:8496   flags:0x00004006
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5408 [inline]
- __schedule+0xf15/0x5d00 kernel/sched/core.c:6745
- __schedule_loop kernel/sched/core.c:6822 [inline]
- schedule+0xe7/0x350 kernel/sched/core.c:6837
- schedule_timeout+0x258/0x2a0 kernel/time/timer.c:2557
- do_wait_for_common kernel/sched/completion.c:95 [inline]
- __wait_for_common+0x3de/0x5f0 kernel/sched/completion.c:116
- __vhost_worker_flush+0x1aa/0x1e0 drivers/vhost/vhost.c:288
- vhost_worker_flush drivers/vhost/vhost.c:295 [inline]
- vhost_dev_flush+0xad/0x120 drivers/vhost/vhost.c:305
- vhost_vsock_flush drivers/vhost/vsock.c:694 [inline]
- vhost_vsock_dev_release+0x1a5/0x400 drivers/vhost/vsock.c:746
- __fput+0x408/0xbb0 fs/file_table.c:422
- __fput_sync+0x47/0x50 fs/file_table.c:507
- __do_sys_close fs/open.c:1555 [inline]
- __se_sys_close fs/open.c:1540 [inline]
- __x64_sys_close+0x86/0x100 fs/open.c:1540
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f910027bdda
-RSP: 002b:00007ffc83a68930 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-RAX: ffffffffffffffda RBX: 0000000000000007 RCX: 00007f910027bdda
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000006
-RBP: 00007f91003ad980 R08: 0000001b2ec20000 R09: 00000000000003f6
-R10: 000000008ae9c606 R11: 0000000000000293 R12: 0000000000056292
-R13: 00007f91003abf8c R14: 00007ffc83a68a30 R15: 0000000000000032
- </TASK>
-
-Showing all locks held in the system:
-1 lock held by khungtaskd/30:
- #0: ffffffff8dbb18e0 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire include/linux/rcupdate.h:329 [inline]
- #0: ffffffff8dbb18e0 (rcu_read_lock){....}-{1:2}, at: rcu_read_lock include/linux/rcupdate.h:781 [inline]
- #0: ffffffff8dbb18e0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x75/0x340 kernel/locking/lockdep.c:6614
-2 locks held by kworker/u8:3/51:
- #0: ffff8880196fe948 ((wq_completion)iou_exit){+.+.}-{0:0}, at: process_one_work+0x12bf/0x1b60 kernel/workqueue.c:3206
- #1: ffffc90000bc7d80 ((work_completion)(&ctx->exit_work)){+.+.}-{0:0}, at: process_one_work+0x957/0x1b60 kernel/workqueue.c:3207
-3 locks held by kworker/u8:6/1041:
- #0: ffff888029f54148 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: process_one_work+0x12bf/0x1b60 kernel/workqueue.c:3206
- #1: ffffc90004507d80 ((work_completion)(&(&ifa->dad_work)->work)){+.+.}-{0:0}, at: process_one_work+0x957/0x1b60 kernel/workqueue.c:3207
- #2: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: addrconf_dad_work+0xcf/0x1500 net/ipv6/addrconf.c:4193
-2 locks held by kworker/u8:8/1261:
-2 locks held by getty/4844:
- #0: ffff88802b1860a0 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wait+0x24/0x80 drivers/tty/tty_ldisc.c:243
- #1: ffffc90002f062f0 (&ldata->atomic_read_lock){+.+.}-{3:3}, at: n_tty_read+0xfc8/0x1490 drivers/tty/n_tty.c:2201
-2 locks held by syz-fuzzer/7666:
-3 locks held by syz-executor.1/9466:
- #0: ffff88802ce84d88 (&hdev->req_lock){+.+.}-{3:3}, at: hci_dev_do_close+0x26/0x90 net/bluetooth/hci_core.c:554
- #1: ffff88802ce84078 (&hdev->lock){+.+.}-{3:3}, at: hci_dev_close_sync+0x339/0x1100 net/bluetooth/hci_sync.c:5050
- #2: ffffffff8dbbd078 (rcu_state.exp_mutex){+.+.}-{3:3}, at: exp_funnel_lock+0x1a4/0x3b0 kernel/rcu/tree_exp.h:323
-1 lock held by syz-executor.3/11000:
- #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_detach drivers/net/tun.c:698 [inline]
- #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_chr_close+0x3e/0x250 drivers/net/tun.c:3500
-1 lock held by syz-executor.3/11005:
- #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_detach drivers/net/tun.c:698 [inline]
- #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_chr_close+0x3e/0x250 drivers/net/tun.c:3500
-1 lock held by syz-executor.4/11002:
- #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_detach drivers/net/tun.c:698 [inline]
- #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_chr_close+0x3e/0x250 drivers/net/tun.c:3500
-1 lock held by syz-executor.1/11013:
- #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: __tun_chr_ioctl+0x4fc/0x4770 drivers/net/tun.c:3110
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/6] drm/ci: uprev mesa version
+Content-Language: en-US
+To: Vignesh Raman <vignesh.raman@collabora.com>,
+        <dri-devel@lists.freedesktop.org>
+CC: <daniels@collabora.com>, <helen.koike@collabora.com>, <airlied@gmail.com>,
+        <daniel@ffwll.ch>, <robdclark@gmail.com>,
+        <david.heidelberg@collabora.com>, <guilherme.gallo@collabora.com>,
+        <sergi.blanch.torne@collabora.com>, <dmitry.baryshkov@linaro.org>,
+        <mcanal@igalia.com>, <linux-mediatek@lists.infradead.org>,
+        <linux-amlogic@lists.infradead.org>,
+        <linux-rockchip@lists.infradead.org>, <amd-gfx@lists.freedesktop.org>,
+        <linux-arm-msm@vger.kernel.org>, <intel-gfx@lists.freedesktop.org>,
+        <virtualization@lists.linux-foundation.org>,
+        <linux-kernel@vger.kernel.org>
+References: <20240529024049.356327-1-vignesh.raman@collabora.com>
+ <20240529024049.356327-2-vignesh.raman@collabora.com>
+From: Jessica Zhang <quic_jesszhan@quicinc.com>
+In-Reply-To: <20240529024049.356327-2-vignesh.raman@collabora.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nasanex01b.na.qualcomm.com (10.46.141.250)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: CCh6wsfY60u7InhlF8hd8oJD7Lp4-hfI
+X-Proofpoint-ORIG-GUID: CCh6wsfY60u7InhlF8hd8oJD7Lp4-hfI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-05-29_16,2024-05-28_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
+ malwarescore=0 priorityscore=1501 impostorscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 mlxscore=0 lowpriorityscore=0 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2405290151
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+On 5/28/2024 7:40 PM, Vignesh Raman wrote:
+> zlib.net is not allowing tarball download anymore and results
+> in below error in kernel+rootfs_arm32 container build,
+> urllib.error.HTTPError: HTTP Error 403: Forbidden
+> urllib.error.HTTPError: HTTP Error 415: Unsupported Media Type
+> 
+> Uprev mesa to latest version which includes a fix for this issue.
+> https://gitlab.freedesktop.org/mesa/mesa/-/commit/908f444e
+> 
+> Use id_tokens for JWT authentication. Since s3 bucket is migrated to
+> mesa-rootfs, update the variables accordingly. Also copy helper scripts
+> to install, so that the ci jobs can use these scripts for logging.
+> 
+> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+Hi Vignesh,
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+Reviewed-by: Jessica Zhang <quic_jesszhan@quicinc.com>
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+Thanks,
 
-If you want to undo deduplication, reply with:
-#syz undup
+Jessica Zhang
+
+> ---
+> 
+> v2:
+>    - Uprev to recent version and use id_tokens for JWT authentication
+> 
+> v3:
+>    - Move adding farm variable and updating device type variable to seperate commit
+> 
+> ---
+>   drivers/gpu/drm/ci/build-igt.sh   |  2 +-
+>   drivers/gpu/drm/ci/build.sh       |  6 +++--
+>   drivers/gpu/drm/ci/container.yml  | 12 +++------
+>   drivers/gpu/drm/ci/gitlab-ci.yml  | 44 +++++++++++++++++++++----------
+>   drivers/gpu/drm/ci/image-tags.yml |  2 +-
+>   drivers/gpu/drm/ci/lava-submit.sh |  4 +--
+>   6 files changed, 42 insertions(+), 28 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/ci/build-igt.sh b/drivers/gpu/drm/ci/build-igt.sh
+> index 500fa4f5c30a..7859554756c4 100644
+> --- a/drivers/gpu/drm/ci/build-igt.sh
+> +++ b/drivers/gpu/drm/ci/build-igt.sh
+> @@ -32,4 +32,4 @@ tar -cf artifacts/igt.tar /igt
+>   # Pass needed files to the test stage
+>   S3_ARTIFACT_NAME="igt.tar.gz"
+>   gzip -c artifacts/igt.tar > ${S3_ARTIFACT_NAME}
+> -ci-fairy s3cp --token-file "${CI_JOB_JWT_FILE}" ${S3_ARTIFACT_NAME} https://${PIPELINE_ARTIFACTS_BASE}/${KERNEL_ARCH}/${S3_ARTIFACT_NAME}
+> +ci-fairy s3cp --token-file "${S3_JWT_FILE}" ${S3_ARTIFACT_NAME} https://${PIPELINE_ARTIFACTS_BASE}/${KERNEL_ARCH}/${S3_ARTIFACT_NAME}
+> diff --git a/drivers/gpu/drm/ci/build.sh b/drivers/gpu/drm/ci/build.sh
+> index 106f2d40d222..a67871fdcd3f 100644
+> --- a/drivers/gpu/drm/ci/build.sh
+> +++ b/drivers/gpu/drm/ci/build.sh
+> @@ -128,6 +128,7 @@ fi
+>   # Pass needed files to the test stage
+>   mkdir -p install
+>   cp -rfv .gitlab-ci/* install/.
+> +cp -rfv ci/*  install/.
+>   cp -rfv install/common install/ci-common
+>   cp -rfv drivers/gpu/drm/ci/* install/.
+>   
+> @@ -141,14 +142,15 @@ if [[ "$UPLOAD_TO_MINIO" = "1" ]]; then
+>           FILES_TO_UPLOAD="$FILES_TO_UPLOAD $(basename -a $DEVICE_TREES)"
+>       fi
+>   
+> +    ls -l "${S3_JWT_FILE}"
+>       for f in $FILES_TO_UPLOAD; do
+> -        ci-fairy s3cp --token-file "${CI_JOB_JWT_FILE}" /lava-files/$f \
+> +        ci-fairy s3cp --token-file "${S3_JWT_FILE}" /lava-files/$f \
+>                   https://${PIPELINE_ARTIFACTS_BASE}/${DEBIAN_ARCH}/$f
+>       done
+>   
+>       S3_ARTIFACT_NAME="kernel-files.tar.zst"
+>       tar --zstd -cf $S3_ARTIFACT_NAME install
+> -    ci-fairy s3cp --token-file "${CI_JOB_JWT_FILE}" ${S3_ARTIFACT_NAME} https://${PIPELINE_ARTIFACTS_BASE}/${DEBIAN_ARCH}/${S3_ARTIFACT_NAME}
+> +    ci-fairy s3cp --token-file "${S3_JWT_FILE}" ${S3_ARTIFACT_NAME} https://${PIPELINE_ARTIFACTS_BASE}/${DEBIAN_ARCH}/${S3_ARTIFACT_NAME}
+>   
+>       echo "Download vmlinux.xz from https://${PIPELINE_ARTIFACTS_BASE}/${DEBIAN_ARCH}/vmlinux.xz"
+>   fi
+> diff --git a/drivers/gpu/drm/ci/container.yml b/drivers/gpu/drm/ci/container.yml
+> index 9764e7921a4f..d6edf3635b23 100644
+> --- a/drivers/gpu/drm/ci/container.yml
+> +++ b/drivers/gpu/drm/ci/container.yml
+> @@ -36,15 +36,15 @@ debian/android_build:
+>     rules:
+>       - when: never
+>   
+> -debian/x86_64_test-android:
+> +.debian/x86_64_test-android:
+>     rules:
+>       - when: never
+>   
+> -windows_build_vs2019:
+> +windows_build_msvc:
+>     rules:
+>       - when: never
+>   
+> -windows_test_vs2019:
+> +windows_test_msvc:
+>     rules:
+>       - when: never
+>   
+> @@ -56,10 +56,6 @@ rustfmt:
+>      rules:
+>       - when: never
+>   
+> -windows_vs2019:
+> -   rules:
+> -    - when: never
+> -
+> -clang-format:
+> +windows_msvc:
+>      rules:
+>       - when: never
+> \ No newline at end of file
+> diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml b/drivers/gpu/drm/ci/gitlab-ci.yml
+> index 084e3ff8e3f4..8f32de63d92e 100644
+> --- a/drivers/gpu/drm/ci/gitlab-ci.yml
+> +++ b/drivers/gpu/drm/ci/gitlab-ci.yml
+> @@ -1,6 +1,6 @@
+>   variables:
+>     DRM_CI_PROJECT_PATH: &drm-ci-project-path mesa/mesa
+> -  DRM_CI_COMMIT_SHA: &drm-ci-commit-sha 9d162de9a05155e1c4041857a5848842749164cf
+> +  DRM_CI_COMMIT_SHA: &drm-ci-commit-sha e2b9c5a9e3e4f9b532067af8022eaef8d6fc6c00
+>   
+>     UPSTREAM_REPO: git://anongit.freedesktop.org/drm/drm
+>     TARGET_BRANCH: drm-next
+> @@ -19,33 +19,47 @@ variables:
+>             bash download-git-cache.sh
+>             rm download-git-cache.sh
+>             set +o xtrace
+> +  S3_JWT_FILE: /s3_jwt
+>     S3_HOST: s3.freedesktop.org
+> +  # This bucket is used to fetch the kernel image
+> +  S3_KERNEL_BUCKET: mesa-rootfs
+> +  # Bucket for git cache
+> +  S3_GITCACHE_BUCKET: git-cache
+> +  # Bucket for the pipeline artifacts pushed to S3
+> +  S3_ARTIFACTS_BUCKET: artifacts
+>     # per-pipeline artifact storage on MinIO
+> -  PIPELINE_ARTIFACTS_BASE: ${S3_HOST}/artifacts/${CI_PROJECT_PATH}/${CI_PIPELINE_ID}
+> +  PIPELINE_ARTIFACTS_BASE: ${S3_HOST}/${S3_ARTIFACTS_BUCKET}/${CI_PROJECT_PATH}/${CI_PIPELINE_ID}
+>     # per-job artifact storage on MinIO
+>     JOB_ARTIFACTS_BASE: ${PIPELINE_ARTIFACTS_BASE}/${CI_JOB_ID}
+>     # default kernel for rootfs before injecting the current kernel tree
+>     KERNEL_REPO: "gfx-ci/linux"
+> -  KERNEL_TAG: "v6.6.4-for-mesa-ci-e4f4c500f7fb"
+> -  KERNEL_IMAGE_BASE: https://${S3_HOST}/mesa-lava/${KERNEL_REPO}/${KERNEL_TAG}
+> +  KERNEL_TAG: "v6.6.21-mesa-f8ea"
+> +  KERNEL_IMAGE_BASE: https://${S3_HOST}/${S3_KERNEL_BUCKET}/${KERNEL_REPO}/${KERNEL_TAG}
+> +  PKG_REPO_REV: "3cc12a2a"
+>     LAVA_TAGS: subset-1-gfx
+>     LAVA_JOB_PRIORITY: 30
+> +  ARTIFACTS_BASE_URL: https://${CI_PROJECT_ROOT_NAMESPACE}.${CI_PAGES_DOMAIN}/-/${CI_PROJECT_NAME}/-/jobs/${CI_JOB_ID}/artifacts
+> +  # Python scripts for structured logger
+> +  PYTHONPATH: "$PYTHONPATH:$CI_PROJECT_DIR/install"
+>   
+>   default:
+> +  id_tokens:
+> +    S3_JWT:
+> +      aud: https://s3.freedesktop.org
+>     before_script:
+>       - export SCRIPTS_DIR=$(mktemp -d)
+>       - curl -L -s --retry 4 -f --retry-all-errors --retry-delay 60 -O --output-dir "${SCRIPTS_DIR}" "${DRM_CI_PROJECT_URL}/-/raw/${DRM_CI_COMMIT_SHA}/.gitlab-ci/setup-test-env.sh"
+>       - source ${SCRIPTS_DIR}/setup-test-env.sh
+>       - echo -e "\e[0Ksection_start:$(date +%s):unset_env_vars_section[collapsed=true]\r\e[0KUnsetting vulnerable environment variables"
+> -    - export CI_JOB_JWT_FILE="${CI_JOB_JWT_FILE:-$(mktemp)}"
+> -    - echo -n "${CI_JOB_JWT}" > "${CI_JOB_JWT_FILE}"
+> -    - unset CI_JOB_JWT
+> +    - echo -n "${S3_JWT}" > "${S3_JWT_FILE}"
+> +    - unset CI_JOB_JWT S3_JWT
+>       - echo -e "\e[0Ksection_end:$(date +%s):unset_env_vars_section\r\e[0K"
+>   
+>       - echo -e "\e[0Ksection_start:$(date +%s):drm_ci_download_section[collapsed=true]\r\e[0KDownloading mesa from $DRM_CI_PROJECT_URL/-/archive/$DRM_CI_COMMIT_SHA/mesa-$DRM_CI_COMMIT_SHA.tar.gz"
+>       - cd $CI_PROJECT_DIR
+>       - curl --output - $DRM_CI_PROJECT_URL/-/archive/$DRM_CI_COMMIT_SHA/mesa-$DRM_CI_COMMIT_SHA.tar.gz | tar -xz
+>       - mv mesa-$DRM_CI_COMMIT_SHA/.gitlab-ci* .
+> +    - mv mesa-$DRM_CI_COMMIT_SHA/bin/ci .
+>       - rm -rf mesa-$DRM_CI_COMMIT_SHA/
+>       - echo -e "\e[0Ksection_end:$(date +%s):drm_ci_download_section\r\e[0K"
+>   
+> @@ -53,9 +67,9 @@ default:
+>       - >
+>         set +x
+>   
+> -      test -e "${CI_JOB_JWT_FILE}" &&
+> -      export CI_JOB_JWT="$(<${CI_JOB_JWT_FILE})" &&
+> -      rm "${CI_JOB_JWT_FILE}"
+> +      test -e "${S3_JWT_FILE}" &&
+> +      export S3_JWT="$(<${S3_JWT_FILE})" &&
+> +      rm "${S3_JWT_FILE}"
+>   
+>   include:
+>     - project: 'freedesktop/ci-templates'
+> @@ -87,6 +101,7 @@ include:
+>         - '/src/intel/ci/gitlab-ci-inc.yml'
+>         - '/src/freedreno/ci/gitlab-ci-inc.yml'
+>         - '/src/amd/ci/gitlab-ci-inc.yml'
+> +      - '/src/virtio/ci/gitlab-ci-inc.yml'
+>     - drivers/gpu/drm/ci/image-tags.yml
+>     - drivers/gpu/drm/ci/container.yml
+>     - drivers/gpu/drm/ci/static-checks.yml
+> @@ -98,6 +113,7 @@ include:
+>   stages:
+>     - sanity
+>     - container
+> +  - code-validation
+>     - git-archive
+>     - build
+>     - amdgpu
+> @@ -107,7 +123,6 @@ stages:
+>     - msm
+>     - rockchip
+>     - virtio-gpu
+> -  - lint
+>   
+>   # YAML anchors for rule conditions
+>   # --------------------------------
+> @@ -218,14 +233,15 @@ make git archive:
+>     script:
+>       # Remove drm-ci files we just added
+>       - rm -rf .gitlab-ci.*
+> +    - rm -rf ci
+>   
+>       # Compactify the .git directory
+>       - git gc --aggressive
+>       # compress the current folder
+>       - tar -cvzf ../$CI_PROJECT_NAME.tar.gz .
+>   
+> -    # login with the JWT token file
+> -    - ci-fairy s3cp --token-file "${CI_JOB_JWT_FILE}" ../$CI_PROJECT_NAME.tar.gz https://$S3_HOST/git-cache/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$CI_PROJECT_NAME.tar.gz
+> +    # Use id_tokens for JWT auth
+> +    - ci-fairy s3cp --token-file "${S3_JWT_FILE}" ../$CI_PROJECT_NAME.tar.gz https://$S3_HOST/${S3_GITCACHE_BUCKET}/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$CI_PROJECT_NAME.tar.gz
+>   
+>   
+>   # Sanity checks of MR settings and commit logs
+> @@ -262,4 +278,4 @@ sanity:
+>   
+>   # Jobs that need to pass before spending hardware resources on further testing
+>   .required-for-hardware-jobs:
+> -  needs: []
+> \ No newline at end of file
+> +  needs: []
+> diff --git a/drivers/gpu/drm/ci/image-tags.yml b/drivers/gpu/drm/ci/image-tags.yml
+> index 7ab4f2514da8..60323ebc7304 100644
+> --- a/drivers/gpu/drm/ci/image-tags.yml
+> +++ b/drivers/gpu/drm/ci/image-tags.yml
+> @@ -1,5 +1,5 @@
+>   variables:
+> -   CONTAINER_TAG: "2023-10-11-mesa-uprev"
+> +   CONTAINER_TAG: "2024-05-09-mesa-uprev"
+>      DEBIAN_X86_64_BUILD_BASE_IMAGE: "debian/x86_64_build-base"
+>      DEBIAN_BASE_TAG: "${CONTAINER_TAG}"
+>   
+> diff --git a/drivers/gpu/drm/ci/lava-submit.sh b/drivers/gpu/drm/ci/lava-submit.sh
+> index 3d39b0c916a8..0707fa706a48 100755
+> --- a/drivers/gpu/drm/ci/lava-submit.sh
+> +++ b/drivers/gpu/drm/ci/lava-submit.sh
+> @@ -27,7 +27,7 @@ KERNEL_IMAGE_BASE="https://${BASE_SYSTEM_HOST_PATH}" \
+>   section_end variables
+>   
+>   tar zcf job-rootfs-overlay.tar.gz -C results/job-rootfs-overlay/ .
+> -ci-fairy s3cp --token-file "${CI_JOB_JWT_FILE}" job-rootfs-overlay.tar.gz "https://${JOB_ROOTFS_OVERLAY_PATH}"
+> +ci-fairy s3cp --token-file "${S3_JWT_FILE}" job-rootfs-overlay.tar.gz "https://${JOB_ROOTFS_OVERLAY_PATH}"
+>   
+>   touch results/lava.log
+>   tail -f results/lava.log &
+> @@ -45,7 +45,7 @@ PYTHONPATH=artifacts/ artifacts/lava/lava_job_submitter.py \
+>   	--ci-project-dir "${CI_PROJECT_DIR}" \
+>   	--device-type "${DEVICE_TYPE}" \
+>   	--dtb-filename "${DTB}" \
+> -	--jwt-file "${CI_JOB_JWT_FILE}" \
+> +	--jwt-file "${S3_JWT_FILE}" \
+>   	--kernel-image-name "${KERNEL_IMAGE_NAME}" \
+>   	--kernel-image-type "${KERNEL_IMAGE_TYPE}" \
+>   	--boot-method "${BOOT_METHOD}" \
+> -- 
+> 2.40.1
+> 
