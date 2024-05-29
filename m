@@ -1,537 +1,163 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f207.google.com (mail-il1-f207.google.com [209.85.166.207])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F8CB1667EB
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 21:47:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA76D1C68B4
+	for <virtualization@lists.linux.dev>; Wed, 29 May 2024 22:08:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717019236; cv=none; b=McmZ3sdfNlXXsCXCHPhWuy7BPSYpsm5z0KF30HBngaAcDS0+QM+ML5uFwPLn9oihB4ozceMAFiGvg+Qk+Bn2BPQI4pk+B08JUfQK09v9rJyUjO6WKeiidNS1KaBDyBf/+EGaJObyUpaEmoHvN2/PX61RiOozUq8tgQgY/Oa9vRU=
+	t=1717020510; cv=none; b=tV04B+THzv6cugTwcw1VqACzVSoMQ8kM0JRfUROUWS+xRHEjRuDKl5ITi1/p0FApKm83GYO4JCsUeIrifafEVQXhsl7D6JCP6/YuxYNxWwJ+jV8KltxnQgLbwzPLaTh6Aaqb77t6X+uQNsD8H5k6RcR2Xjile/16kDwv/nInpQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717019236; c=relaxed/simple;
-	bh=I7jpNw5HWKXgN02+Og8143WPLnygMpQygj4av5BGEl0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=dKXGuERAIfSBmzhWjW9U4RYGopFCMW22TgfihfpbyLY+d5k6irmI1yXNDg82gMIS33RYrsH0ah7QIvAxmb1L3jXQ+DMhDSAcrDm+ZlAli/d65G8hh817/YPycjoCk+XDnwuWqbWImcgL98TFnms6EWUVQvGFN9pJmQ2sqSGdp8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=PI6e89Ul; arc=none smtp.client-ip=140.211.166.136
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="PI6e89Ul"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9E3BE60B78
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 21:47:14 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id QHDmb68ICUeL for <virtualization@lists.linux-foundation.org>;
- Wed, 29 May 2024 21:47:13 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.168.131; helo=mx0a-0031df01.pphosted.com; envelope-from=quic_jesszhan@quicinc.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 1C8D660790
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1C8D660790
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=PI6e89Ul
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1C8D660790
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 May 2024 21:47:12 +0000 (UTC)
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44TJPGrq017183;
-	Wed, 29 May 2024 21:46:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	gK1kam6vuq9+vcdsWDyIbKSVLMePMif+Lmv6f9E0aRw=; b=PI6e89UlObe6OltA
-	wPGSynpbKnPMVJoa9Q/34KrW8KCzbi7NNzFCWZh8gCTfZYcaTyo0UibGuhDzxmHk
-	vTxR412upCJ5zKbyM6WUb55St+e9rWdAKaMLw98nTAQOXOuKPFKcsERrYAFvV/6k
-	jVIz2GtlgYYyy2WVmrOs8XX8V3V0t5ydQDFFus6z8cPkYZNUzsz3gcSPnjRNlMnd
-	bpbQInAk8V2ItDzG71R7M5LPTCEvuPYOZwRXfteBR3exBWh+uUkaNfnSm5aSYLNH
-	KYuFbPlFisHRiPj55XKHMi+XBtELswLaEa0gbDK6ye9yRk2GA8xwCjXthw2nBxg1
-	eRHldw==
-Received: from nasanppmta04.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3yba2njf5r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 May 2024 21:46:58 +0000 (GMT)
-Received: from nasanex01b.na.qualcomm.com (nasanex01b.na.qualcomm.com [10.46.141.250])
-	by NASANPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 44TLkv3R014965
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 May 2024 21:46:57 GMT
-Received: from [10.71.108.229] (10.80.80.8) by nasanex01b.na.qualcomm.com
- (10.46.141.250) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 29 May
- 2024 14:46:56 -0700
-Message-ID: <b7010617-873b-4a4d-909e-77b45d2cee90@quicinc.com>
-Date: Wed, 29 May 2024 14:46:56 -0700
+	s=arc-20240116; t=1717020510; c=relaxed/simple;
+	bh=qlTTWGw8g4V5EQGOqrQjz4puCme7kPOvgv7L6YSc4Bk=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=O6XvtaqQ5Q+2unm+arwKYsOKmA2NcdE7xk+DvI8H1h/ohAtWdiWY2FlZMHBUjypWmw/duvFbpNopIMH0AEmeCcGTXqI6hTacetm4zv0EEoKzI57I0LAH+mNYjdls3vSy0hAvfFsAA/g5vJJWRQP//98pMaxd/NJeC0Fw4Er4Rdc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f207.google.com with SMTP id e9e14a558f8ab-3738719bad7so1885625ab.3
+        for <virtualization@lists.linux.dev>; Wed, 29 May 2024 15:08:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717020508; x=1717625308;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=y2TP+cVoXsWGxaPYDHxSt3opPN7Ye6m5B6CFDizYDNQ=;
+        b=IlsEAqXBah+WztU7E3aSrMD/yqWBDsjz9jBLO/wq+ygksXSLqY+6FDYLNHKsL0NS4/
+         xEDCfsa2oQiI3N+Uf8LQtCpiSn2WydATuilZ0DRdkbmmutPv9D5CpZBWRShcUUgWp152
+         CucaZdPRtUSnmG28atIPCueTxLIeK96oagvehVBLFdqkJBNM9KE3s0SQNqsVYaonEyOj
+         pzHssTVW1Fvdr3xE8x6z4EfAbzoIwyi5z3abVZoHK8pJLxdwNSA5J7mvjKnozMZnvWEx
+         gC0iMYG7sySr0oyIsJdiXYFNR/As8xFyqGgLmtzMt9/9b2sHSstOM0dnJffD2DoJ9+me
+         QGyQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU5oFln+Vfrocvb0MPpugk/KyA4hrS14/n+GWan1URVMUsQMSGbm++s0Pd0AFIqkEo5nCWrRUjbPPeD1s+57iheUUnu62GYbZ/3jAWLEF0=
+X-Gm-Message-State: AOJu0YzBPN/u2WH+/eC6UW7mYog2DlxrzUK/zJexYnQgxnFXQrhUEn2o
+	RDw51PurKF/ugvj/jrWc3snoCWYlGJzd3FDj8/tkE0Ut1D4VXRuyID2kVbUn6xVXFyp5TZHCdYk
+	R5bCGs4P8Vjnlww21akW+BccY+d4EVtkWhuRo/i7iyWdEja8VbGlh2jI=
+X-Google-Smtp-Source: AGHT+IGscVBJk0L7gvnjqMs1VFcnHllRu/Y7i65SekTk48C2yUUMzF11fi2fL9bYsUdKqxSOL4NNyNmdsZB9Aqg2DPLUaJARJBVj
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 5/6] drm/ci: skip driver specific tests
-Content-Language: en-US
-To: Vignesh Raman <vignesh.raman@collabora.com>,
-        <dri-devel@lists.freedesktop.org>
-CC: <daniels@collabora.com>, <helen.koike@collabora.com>, <airlied@gmail.com>,
-        <daniel@ffwll.ch>, <robdclark@gmail.com>,
-        <david.heidelberg@collabora.com>, <guilherme.gallo@collabora.com>,
-        <sergi.blanch.torne@collabora.com>, <dmitry.baryshkov@linaro.org>,
-        <mcanal@igalia.com>, <linux-mediatek@lists.infradead.org>,
-        <linux-amlogic@lists.infradead.org>,
-        <linux-rockchip@lists.infradead.org>, <amd-gfx@lists.freedesktop.org>,
-        <linux-arm-msm@vger.kernel.org>, <intel-gfx@lists.freedesktop.org>,
-        <virtualization@lists.linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>
-References: <20240529024049.356327-1-vignesh.raman@collabora.com>
- <20240529024049.356327-6-vignesh.raman@collabora.com>
-From: Jessica Zhang <quic_jesszhan@quicinc.com>
-In-Reply-To: <20240529024049.356327-6-vignesh.raman@collabora.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nasanex01b.na.qualcomm.com (10.46.141.250)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: HDZlth4svdujOStFJLF-vhwH63eH43n4
-X-Proofpoint-GUID: HDZlth4svdujOStFJLF-vhwH63eH43n4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-05-29_16,2024-05-28_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- phishscore=0 suspectscore=0 mlxlogscore=999 malwarescore=0 impostorscore=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 mlxscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2405170001
- definitions=main-2405290155
+X-Received: by 2002:a05:6e02:160e:b0:374:5382:72be with SMTP id
+ e9e14a558f8ab-3747dfcae56mr115275ab.3.1717020508088; Wed, 29 May 2024
+ 15:08:28 -0700 (PDT)
+Date: Wed, 29 May 2024 15:08:28 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000074ff7b06199efd7b@google.com>
+Subject: [syzbot] [kvm?] [net?] [virt?] INFO: task hung in __vhost_worker_flush
+From: syzbot <syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com>
+To: eperezma@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+syzbot found the following issue on:
+
+HEAD commit:    9b62e02e6336 Merge tag 'mm-hotfixes-stable-2024-05-25-09-1..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=16cb0eec980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=3e73beba72b96506
+dashboard link: https://syzkaller.appspot.com/bug?extid=7f3bbe59e8dd2328a990
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/61b507f6e56c/disk-9b62e02e.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/6991f1313243/vmlinux-9b62e02e.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/65f88b96d046/bzImage-9b62e02e.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com
+
+INFO: task syz-executor.2:9163 blocked for more than 143 seconds.
+      Not tainted 6.9.0-syzkaller-12393-g9b62e02e6336 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor.2  state:D stack:27024 pid:9163  tgid:9163  ppid:8496   flags:0x00004006
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5408 [inline]
+ __schedule+0xf15/0x5d00 kernel/sched/core.c:6745
+ __schedule_loop kernel/sched/core.c:6822 [inline]
+ schedule+0xe7/0x350 kernel/sched/core.c:6837
+ schedule_timeout+0x258/0x2a0 kernel/time/timer.c:2557
+ do_wait_for_common kernel/sched/completion.c:95 [inline]
+ __wait_for_common+0x3de/0x5f0 kernel/sched/completion.c:116
+ __vhost_worker_flush+0x1aa/0x1e0 drivers/vhost/vhost.c:288
+ vhost_worker_flush drivers/vhost/vhost.c:295 [inline]
+ vhost_dev_flush+0xad/0x120 drivers/vhost/vhost.c:305
+ vhost_vsock_flush drivers/vhost/vsock.c:694 [inline]
+ vhost_vsock_dev_release+0x1a5/0x400 drivers/vhost/vsock.c:746
+ __fput+0x408/0xbb0 fs/file_table.c:422
+ __fput_sync+0x47/0x50 fs/file_table.c:507
+ __do_sys_close fs/open.c:1555 [inline]
+ __se_sys_close fs/open.c:1540 [inline]
+ __x64_sys_close+0x86/0x100 fs/open.c:1540
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f910027bdda
+RSP: 002b:00007ffc83a68930 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+RAX: ffffffffffffffda RBX: 0000000000000007 RCX: 00007f910027bdda
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000006
+RBP: 00007f91003ad980 R08: 0000001b2ec20000 R09: 00000000000003f6
+R10: 000000008ae9c606 R11: 0000000000000293 R12: 0000000000056292
+R13: 00007f91003abf8c R14: 00007ffc83a68a30 R15: 0000000000000032
+ </TASK>
+
+Showing all locks held in the system:
+1 lock held by khungtaskd/30:
+ #0: ffffffff8dbb18e0 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire include/linux/rcupdate.h:329 [inline]
+ #0: ffffffff8dbb18e0 (rcu_read_lock){....}-{1:2}, at: rcu_read_lock include/linux/rcupdate.h:781 [inline]
+ #0: ffffffff8dbb18e0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x75/0x340 kernel/locking/lockdep.c:6614
+2 locks held by kworker/u8:3/51:
+ #0: ffff8880196fe948 ((wq_completion)iou_exit){+.+.}-{0:0}, at: process_one_work+0x12bf/0x1b60 kernel/workqueue.c:3206
+ #1: ffffc90000bc7d80 ((work_completion)(&ctx->exit_work)){+.+.}-{0:0}, at: process_one_work+0x957/0x1b60 kernel/workqueue.c:3207
+3 locks held by kworker/u8:6/1041:
+ #0: ffff888029f54148 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: process_one_work+0x12bf/0x1b60 kernel/workqueue.c:3206
+ #1: ffffc90004507d80 ((work_completion)(&(&ifa->dad_work)->work)){+.+.}-{0:0}, at: process_one_work+0x957/0x1b60 kernel/workqueue.c:3207
+ #2: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: addrconf_dad_work+0xcf/0x1500 net/ipv6/addrconf.c:4193
+2 locks held by kworker/u8:8/1261:
+2 locks held by getty/4844:
+ #0: ffff88802b1860a0 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wait+0x24/0x80 drivers/tty/tty_ldisc.c:243
+ #1: ffffc90002f062f0 (&ldata->atomic_read_lock){+.+.}-{3:3}, at: n_tty_read+0xfc8/0x1490 drivers/tty/n_tty.c:2201
+2 locks held by syz-fuzzer/7666:
+3 locks held by syz-executor.1/9466:
+ #0: ffff88802ce84d88 (&hdev->req_lock){+.+.}-{3:3}, at: hci_dev_do_close+0x26/0x90 net/bluetooth/hci_core.c:554
+ #1: ffff88802ce84078 (&hdev->lock){+.+.}-{3:3}, at: hci_dev_close_sync+0x339/0x1100 net/bluetooth/hci_sync.c:5050
+ #2: ffffffff8dbbd078 (rcu_state.exp_mutex){+.+.}-{3:3}, at: exp_funnel_lock+0x1a4/0x3b0 kernel/rcu/tree_exp.h:323
+1 lock held by syz-executor.3/11000:
+ #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_detach drivers/net/tun.c:698 [inline]
+ #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_chr_close+0x3e/0x250 drivers/net/tun.c:3500
+1 lock held by syz-executor.3/11005:
+ #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_detach drivers/net/tun.c:698 [inline]
+ #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_chr_close+0x3e/0x250 drivers/net/tun.c:3500
+1 lock held by syz-executor.4/11002:
+ #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_detach drivers/net/tun.c:698 [inline]
+ #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: tun_chr_close+0x3e/0x250 drivers/net/tun.c:3500
+1 lock held by syz-executor.1/11013:
+ #0: ffffffff8f74afa8 (rtnl_mutex){+.+.}-{3:3}, at: __tun_chr_ioctl+0x4fc/0x4770 drivers/net/tun.c:3110
 
 
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-On 5/28/2024 7:40 PM, Vignesh Raman wrote:
-> Skip driver specific tests and skip kms tests for
-> panfrost driver since it is not a kms driver.
-> 
-> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-Reviewed-by: Jessica Zhang <quic_jesszhan@quicinc.com>
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
-> ---
-> 
-> v2:
->    - Skip xe tests for amdgpu and virtio.
-> 
-> v3:
->    - No changes.
-> 
-> ---
->   .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt   | 15 ++++++++++++++-
->   drivers/gpu/drm/ci/xfails/i915-amly-skips.txt   | 11 ++++++++++-
->   drivers/gpu/drm/ci/xfails/i915-apl-skips.txt    | 11 ++++++++++-
->   drivers/gpu/drm/ci/xfails/i915-cml-skips.txt    |  9 +++++++++
->   drivers/gpu/drm/ci/xfails/i915-glk-skips.txt    | 11 ++++++++++-
->   drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt    | 11 ++++++++++-
->   drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt    | 11 ++++++++++-
->   drivers/gpu/drm/ci/xfails/i915-whl-skips.txt    | 11 ++++++++++-
->   .../gpu/drm/ci/xfails/mediatek-mt8173-skips.txt | 12 ++++++++++++
->   .../gpu/drm/ci/xfails/mediatek-mt8183-skips.txt | 14 ++++++++++++++
->   drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt  | 14 ++++++++++++++
->   drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt | 11 +++++++++++
->   drivers/gpu/drm/ci/xfails/msm-apq8096-skips.txt | 14 +++++++++++++-
->   .../msm-sc7180-trogdor-kingoftown-skips.txt     | 12 ++++++++++++
->   .../msm-sc7180-trogdor-lazor-limozeen-skips.txt | 12 ++++++++++++
->   drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt  | 12 ++++++++++++
->   .../gpu/drm/ci/xfails/rockchip-rk3288-skips.txt | 17 ++++++++++++++++-
->   .../gpu/drm/ci/xfails/rockchip-rk3399-skips.txt | 15 +++++++++++++++
->   .../gpu/drm/ci/xfails/virtio_gpu-none-skips.txt | 16 +++++++++++++++-
->   19 files changed, 229 insertions(+), 10 deletions(-)
->   create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt
-> 
-> diff --git a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt
-> index e2c538a0f954..21d26d5e67c2 100644
-> --- a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt
-> @@ -1,2 +1,15 @@
->   # Suspend to RAM seems to be broken on this machine
-> -.*suspend.*
-> \ No newline at end of file
-> +.*suspend.*
-> +
-> +# Skip driver specific tests
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> +xe_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt b/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt
-> index fe55540a3f9a..1e80987cf584 100644
-> --- a/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt
-> @@ -1,4 +1,13 @@
->   # Suspend to RAM seems to be broken on this machine
->   .*suspend.*
->   # This is generating kernel oops with divide error
-> -kms_plane_scaling@invalid-parameters
-> \ No newline at end of file
-> +kms_plane_scaling@invalid-parameters
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> diff --git a/drivers/gpu/drm/ci/xfails/i915-apl-skips.txt b/drivers/gpu/drm/ci/xfails/i915-apl-skips.txt
-> index 3430b215c06e..0104f2ffa8ba 100644
-> --- a/drivers/gpu/drm/ci/xfails/i915-apl-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/i915-apl-skips.txt
-> @@ -3,4 +3,13 @@
->   # This is generating kernel oops with divide error
->   kms_plane_scaling@invalid-parameters
->   # This is cascading issues
-> -kms_3d
-> \ No newline at end of file
-> +kms_3d
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> diff --git a/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt b/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt
-> index 6d3d7ddc377f..398ebe163ad0 100644
-> --- a/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt
-> @@ -1,2 +1,11 @@
->   # This is generating kernel oops with divide error
->   kms_plane_scaling@invalid-parameters
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> diff --git a/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt b/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt
-> index 4c7d00ce14bc..4f5419d62170 100644
-> --- a/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt
-> @@ -2,4 +2,13 @@
->   .*suspend.*
->   
->   # This is generating kernel oops with divide error
-> -kms_plane_scaling@invalid-parameters
-> \ No newline at end of file
-> +kms_plane_scaling@invalid-parameters
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> diff --git a/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt b/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt
-> index 4c7d00ce14bc..4f5419d62170 100644
-> --- a/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt
-> @@ -2,4 +2,13 @@
->   .*suspend.*
->   
->   # This is generating kernel oops with divide error
-> -kms_plane_scaling@invalid-parameters
-> \ No newline at end of file
-> +kms_plane_scaling@invalid-parameters
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> diff --git a/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt b/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt
-> index 1d0621750b14..b0372c239b93 100644
-> --- a/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt
-> @@ -8,4 +8,13 @@ gem_eio.*
->   kms_flip@absolute-wf_vblank@a-edp1
->   
->   # This is generating kernel oops with divide error
-> -kms_plane_scaling@invalid-parameters
-> \ No newline at end of file
-> +kms_plane_scaling@invalid-parameters
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> diff --git a/drivers/gpu/drm/ci/xfails/i915-whl-skips.txt b/drivers/gpu/drm/ci/xfails/i915-whl-skips.txt
-> index f3be0888a214..398ebe163ad0 100644
-> --- a/drivers/gpu/drm/ci/xfails/i915-whl-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/i915-whl-skips.txt
-> @@ -1,2 +1,11 @@
->   # This is generating kernel oops with divide error
-> -kms_plane_scaling@invalid-parameters
-> \ No newline at end of file
-> +kms_plane_scaling@invalid-parameters
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
-> new file mode 100644
-> index 000000000000..db0c9dbbeb61
-> --- /dev/null
-> +++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
-> @@ -0,0 +1,12 @@
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
-> new file mode 100644
-> index 000000000000..7a1c8be89e5b
-> --- /dev/null
-> +++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
-> @@ -0,0 +1,14 @@
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> +
-> +# Panfrost is not a KMS driver, so skip the KMS tests
-> +kms_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt b/drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt
-> new file mode 100644
-> index 000000000000..7a1c8be89e5b
-> --- /dev/null
-> +++ b/drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt
-> @@ -0,0 +1,14 @@
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> +
-> +# Panfrost is not a KMS driver, so skip the KMS tests
-> +kms_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt b/drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt
-> new file mode 100644
-> index 000000000000..7fea49ec6b8f
-> --- /dev/null
-> +++ b/drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt
-> @@ -0,0 +1,11 @@
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8096-skips.txt b/drivers/gpu/drm/ci/xfails/msm-apq8096-skips.txt
-> index cd49c8ce2059..9ab2177df1ab 100644
-> --- a/drivers/gpu/drm/ci/xfails/msm-apq8096-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/msm-apq8096-skips.txt
-> @@ -1,2 +1,14 @@
->   # Whole machine hangs
-> -kms_cursor_legacy@all-pipes-torture-move
-> \ No newline at end of file
-> +kms_cursor_legacy@all-pipes-torture-move
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt
-> index 327039f70252..edf64057f866 100644
-> --- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt
-> @@ -1,2 +1,14 @@
->   # Suspend to RAM seems to be broken on this machine
->   .*suspend.*
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt
-> index 327039f70252..edf64057f866 100644
-> --- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt
-> @@ -1,2 +1,14 @@
->   # Suspend to RAM seems to be broken on this machine
->   .*suspend.*
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt b/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt
-> index 618e3a3a7277..dd24dc190db0 100644
-> --- a/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt
-> @@ -5,3 +5,15 @@ kms_bw.*
->   # https://gitlab.freedesktop.org/gfx-ci/linux/-/commit/4b49f902ec6f2bb382cbbf489870573f4b43371e
->   # https://gitlab.freedesktop.org/gfx-ci/linux/-/commit/38cdf4c5559771e2474ae0fecef8469f65147bc1
->   msm_mapping@*
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt
-> index f20c3574b75a..c33dc95b7fc1 100644
-> --- a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt
-> @@ -49,4 +49,19 @@ kms_plane_lowres@pipe-F-tiling-y
->   kms_cursor_crc.*
->   
->   # Machine is hanging in this test, so skip it
-> -kms_pipe_crc_basic@disable-crc-after-crtc
-> \ No newline at end of file
-> +kms_pipe_crc_basic@disable-crc-after-crtc
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> +
-> +# Panfrost is not a KMS driver, so skip the KMS tests
-> +kms_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
-> index 10c3d81a919a..8a7c9464b30d 100644
-> --- a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
-> @@ -3,3 +3,18 @@
->   
->   # Too unstable, machine ends up hanging after lots of Oopses
->   kms_cursor_legacy.*
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> +
-> +# Panfrost is not a KMS driver, so skip the KMS tests
-> +kms_.*
-> diff --git a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt
-> index 78be18174012..59d390d6856f 100644
-> --- a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt
-> +++ b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt
-> @@ -3,4 +3,18 @@
->   kms_cursor_legacy.*
->   
->   # Job just hangs without any output
-> -kms_flip@flip-vs-suspend.*
-> \ No newline at end of file
-> +kms_flip@flip-vs-suspend.*
-> +
-> +# Skip driver specific tests
-> +^amdgpu.*
-> +msm_.*
-> +nouveau_.*
-> +panfrost_.*
-> +^v3d.*
-> +^vc4.*
-> +^vmwgfx*
-> +
-> +# Skip intel specific tests
-> +gem_.*
-> +i915_.*
-> +xe_.*
-> -- 
-> 2.40.1
-> 
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
