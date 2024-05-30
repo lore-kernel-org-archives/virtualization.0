@@ -1,128 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5310B145A01;
-	Thu, 30 May 2024 15:08:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02F49187558
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 15:36:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717081681; cv=none; b=DF3YRDsow+pXmxSGL/9wiOqH5zI7BVeO+fBJA5MGL/u7qwqRJcNouziG5TgTuqY3qQQOEx0r9pN7oNYSonCDZKZ39uKih78RwbC2A++A8fhYwYd+nKXmFKRYvO1jKb6nyomwido4OKnB4XHkxJS7/w0uSMiIgZ+AtcuEq6TX5zk=
+	t=1717083376; cv=none; b=iQy9bVdKDSHrV8f49luqOv2vjsT2I4rmPVuhKftUdVLkZ7Zltq+L6sNAkRtFl9UkBZHfvU2l/fYiVgnfqisYy3EhSzD2Oi+u5g+n2zvntVD9i/aSoTeBwGh0ecvD0GeNucnc8BM0vUApT8HNLf44kHKYLgO0xtifoV4RZn04hUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717081681; c=relaxed/simple;
-	bh=3/zdBTPSJJf8HlvOufHkYXn47FBd5IAwPdehy8BAi2U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GXFarB3Ukiqfksudmyq7vEOnflDfLst3W52dzQgljhAvfEl45ETkZd+hVwmF0P0o9U2fQOQxl7qWOVAIWG5OlXpYebNncblwHURjdFdOBVV8DE9pxFYVj7b5jrFaATR+kmrgewGU23RWecyvOb+sR1zoETBsFKugOq0lNYr21PA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nvKzIUbD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1717083376; c=relaxed/simple;
+	bh=KbLdL/seA21LV9zN+LpX02fN0fOL7QT1V1+L/wG42Tk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TmHA1U0EC1uvVmjhu6NY9OTrjWRnpF1YA13INu7mvGP6RD+kpfTNtewI92CMJOJJxXQSEYx7By9pNlV5dhE8lomc6iyurCxbjmxUlU4nNeJQdi/JHzijJDOs5IDL2MC1vplCqxKtQpCfUAQXJfsXVBG3wX2WfsAIqjxERTCggIQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UtBYzAAu; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nvKzIUbD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81810C2BBFC;
-	Thu, 30 May 2024 15:07:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1717081680;
-	bh=3/zdBTPSJJf8HlvOufHkYXn47FBd5IAwPdehy8BAi2U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nvKzIUbD6I6xCDDUTNyTFHbkeN9/F7TPCrh/1IKTMcBmZqyiD0JLFoD4I+aywctNN
-	 Hx6Pw/EypbUoXopkBa+dXDOBiKx5D54083+/S4pIleTI6OeRVsrFDfO9IzvuDmTsE1
-	 4LJO8N9ViuMMe37iTFWT0vxL+3cYNsM8/bIFvkvuvV5diNV1Zm8uVOZRnJYTCxQASz
-	 ID7AHl4ANkIvt/0EUHTXRt9jIROuAOWl3LuDpn+gmz9hil6XhXDvn+dA24rTNsk3Va
-	 Y9wEaKfO/TYhxKe0tm35VFnv+be/av3PAFtZqBx8VigPGCcsCfLgOoK6Iopn/9dXmi
-	 GyhRiMRaE4GIg==
-Date: Thu, 30 May 2024 20:37:52 +0530
-From: Manivannan Sadhasivam <mani@kernel.org>
-To: Shunsuke Mie <mie@igel.co.jp>
-Cc: Manivannan Sadhasivam <mani@kernel.org>, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
-Message-ID: <20240530150727.GA11438@thinkpad>
-References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
- <20240516125913.GC11261@thinkpad>
- <CANXvt5rQdhS5XBnHFmFiN=fPO975jQ8dosH0L0ZP_51dd6cXag@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UtBYzAAu"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1717083365; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=w1t0izbHYuiodnmYQS/W/QtzQhF1IvrQmY/kNuEtIxk=;
+	b=UtBYzAAuqsXfcabSxAKAbLcrM63f4WXNEKdoxx5O7HVdiNBZWgegXI98aKSJh4dafQLvC1/kw2b28rz112LQNQwrKMCLWWD6d0zwTnuGVQShGrxo9473D95INbwTZyafnUgnt+3denapL9BRrI3L23/FeD8mag81Eon4oRUbjLA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W7XEnis_1717083364;
+Received: from 192.168.31.58(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W7XEnis_1717083364)
+          by smtp.aliyun-inc.com;
+          Thu, 30 May 2024 23:36:05 +0800
+Message-ID: <2b97f4bd-818f-4d8b-b55e-8410c0fb2768@linux.alibaba.com>
+Date: Thu, 30 May 2024 23:36:00 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANXvt5rQdhS5XBnHFmFiN=fPO975jQ8dosH0L0ZP_51dd6cXag@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] fuse: cleanup request queuing towards virtiofs
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org,
+ Peter-Jan Gootzen <pgootzen@nvidia.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Yoray Zack <yorayz@nvidia.com>,
+ Vivek Goyal <vgoyal@redhat.com>, virtualization@lists.linux.dev
+References: <20240529155210.2543295-1-mszeredi@redhat.com>
+ <af09b5d3-940f-491d-97ba-bd3bf19b750a@linux.alibaba.com>
+ <CAJfpeguV0dNiyR5jzQH7H4x0vOzFTcBgnnLDHBPU9fH23A0kng@mail.gmail.com>
+Content-Language: en-US
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+In-Reply-To: <CAJfpeguV0dNiyR5jzQH7H4x0vOzFTcBgnnLDHBPU9fH23A0kng@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, May 20, 2024 at 07:24:32PM +0900, Shunsuke Mie wrote:
-> 2024年5月16日(木) 21:59 Manivannan Sadhasivam <mani@kernel.org>:
-> >
-> > On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
-> > > Hi virtio folks,
-> > >
-> >
-> > You forgot to CC the actual Virtio folks. I've CCed them now.
-> Oops. thank you.
-> > > I'm writing to discuss finding a workaround with Virtio drivers and legacy
-> > > devices with limited memory access.
-> > >
-> > > # Background
-> > > The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) to
-> > > indicate devices requiring restricted memory access or IOMMU translation. This
-> > > feature bit resides at position 33 in the 64-bit Features register on modern
-> > > interfaces. When the linux virtio driver finds the flag, the driver uses DMA
-> > > API that handles to use of appropriate memory.
-> > >
-> > > # Problem
-> > > However, legacy devices only have a 32-bit register for the features bits.
-> > > Consequently, these devices cannot represent the ACCESS_PLATFORM bit. As a
-> > > result, legacy devices with restricted memory access cannot function
-> > > properly[1]. This is a legacy spec issue, but I'd like to find a workaround.
-> > >
-> > > # Proposed Solutions
-> > > I know these are not ideal, but I propose the following solution.
-> > > Driver-side:
-> > >     - Implement special handling similar to xen_domain.
-> > > In xen_domain, linux virtio driver enables to use the DMA API.
-> > >     - Introduce a CONFIG option to adjust the DMA API behavior.
-> > > Device-side:
-> > > Due to indistinguishability from the guest's perspective, a device-side
-> > > solution might be difficult.
-> > >
-> > > I'm open to any comments or suggestions you may have on this issue or
-> > > alternative approaches.
-> > >
-> > > [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
-> > > https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.co.jp/t/
-> > > The Linux PCIe endpoint framework is used to implement the virtio-net device on
-> > > a legacy interface. This is necessary because of the framework and hardware
-> > > limitation.
-> > >
-> >
-> > We can fix the endpoint framework limitation, but the problem lies with some
-> > platforms where we cannot write to vendor capability registers and still have
-> > IOMMU.
-> I agree, this is a problem caused by the inability to set the
-> capability. I'm not sure, but are there any chips that support this?
 
-Most of the recent endpoint platforms should support this feature.
 
-> Also, I wasn't aware of the IOMMU issue. I thought that if the Linux
-> DMA subsystem could handle IOMMU properly, there wouldn't be any
-> problems. Is that incorrect?
-
-The issue is, legacy virtio PCI device only has 32bits. So they cannot support
-VIRTIO_F_ACCESS_PLATFORM which is located at bit 33 as you explained.
-
-And if this bit is not set, then DMA APIs won't be used by the virtio stack.
-
-I think it is best to add support for modern virtio PCI device to make use of
-IOMMU. Legacy devices can continue to use physical address.
-
-- Mani
-
+On 5/30/24 5:00 PM, Miklos Szeredi wrote:
+> On Thu, 30 May 2024 at 05:20, Jingbo Xu <jefflexu@linux.alibaba.com> wrote:
 > 
-> Shunsuke,
-> Best
-> > - Mani
-> >
-> > --
-> > மணிவண்ணன் சதாசிவம்
+>>> +             if (test_bit(FR_FINISHED, &req->flags)) {
+>>> +                     list_del_init(&req->intr_entry);
+>>> +                     spin_unlock(&fiq->lock                  ^
+>>                 missing "return" here?
 > 
+> Well spotted.  Thanks.
+> 
+>>> -             err = -ENODEV;
+>>> -             spin_unlock(&fiq->lock);
+>>> -             fuse_put_request(req);
+>>> -     }
+>>> +     fuse_send_one(fiq, req);
+>>>
+>>> -     return err;
+>>> +     return 0;
+>>>  }
+>>
+>> There's a minor changed behavior visible to users.  Prior to the patch,
+>> the FUSE_NOTIFY_RETRIEVE will returns -ENODEV when the connection is
+>> aborted, but now it returns 0.
+>>
+>> It seems only example/notify_store_retrieve.c has used
+>> FUSE_NOTIFY_RETRIEVE in libfuse.  I'm not sure if this change really
+>> matters.
+> 
+> It will return -ENOTCONN from  fuse_simple_notify_reply() ->
+> fuse_get_req().  The -ENODEV would be a very short transient error
+> during the abort, so it doesn't matter.
+
+Okay, fair enough.  Feel free to add:
+
+Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+
 
 -- 
-மணிவண்ணன் சதாசிவம்
+Thanks,
+Jingbo
