@@ -1,133 +1,276 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61D8D8814
-	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 03:20:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 300AE1CD1F
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 03:21:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717039242; cv=none; b=H7O9v7ZLvys9rteBP9iqtuDel9WRGagpq+14dy6hYl2dST8Eqy80ZwD+9a7Ol2BO3W8XGFWuU/EXsDsxTLh8jdaxbgH1XTYdUyvluRTFnW+jWFlL+AcAY6B2J6mUsVxhh+2QLF7NhxFxSuBkpKM2dz/uDCv+WdKUtmaS4J59fAs=
+	t=1717039276; cv=none; b=hSi3UIBP4Cu2EToLuI4FqmcUpJlr2OGy4SB1retelHcJ1dOAa6khbIqp2vRDw3NOarFzamNz0lf9vC2QOgxrVHDHBliZbOLcrlK6hUMIom7IL5ecbsGaRYcAegQkdnXpuflDznStXDly+ANDDJ2mIORzjJJk1DAQ4jGwSXtkyps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717039242; c=relaxed/simple;
-	bh=MQTQ7Cp02xw7hHkn7dKec4W7o8RkEWaaDwz+tXow0RY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kDj1o+OmjLaIo4oN/F2mpAQR5KRiRoFGZIh/thzxkUHlfuCi/lGpJRbTJOI6TrrOSqoaL/kpItZ/96JaDC9cyVoC8y55jhM6AVXu+L7NTw90RgSsq/O5erocLdF54qguiwiC+D7kaAmfgBKbU5sDpWkBXi6+Ra8DehTNz1iCwHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JTQv+OsP; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717039276; c=relaxed/simple;
+	bh=n1Jdi8oml63cjaemoOBbfL5KLyFp1dEIVePxb+JZCNk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=SPhvWv4Lx6ZiysYoG2o6VlUkoqwMsXp2zO70citVVwODEWNjK0coHtVZN0d2+N30TPRZy5AsmKB2c9/UpIAsZ6e4w31guFBS9XDjeBFdBGCxZudWpPsk8MUTFTZbwGY6M8GVnzKFPoYRTfrFb2KQ9yFplEIn0B4ey8nqa5uDmDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J7t4zXqs; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JTQv+OsP"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717039236; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=+Fxqt3tnwHm9/kuy3jiTE8slP9edWqwdcp8oxwmEvek=;
-	b=JTQv+OsPFbp9usda/bLnvpWJ3LHqYVwjrEv+V4+ACxFFUnEk1VnsunETi9BM7vSZQ+1KoDph7RjMgi+mqNbOAH0TNK3k63sp5GmdcZ/QbYxljc3r8GgX0qno+dQsC02KJRroAUVfmhKaAk8H/OSSlhtzTFdjH1vEvk187kg/5PQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0W7VW8-W_1717039235;
-Received: from 30.221.148.14(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W7VW8-W_1717039235)
-          by smtp.aliyun-inc.com;
-          Thu, 30 May 2024 11:20:36 +0800
-Message-ID: <af09b5d3-940f-491d-97ba-bd3bf19b750a@linux.alibaba.com>
-Date: Thu, 30 May 2024 11:20:34 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J7t4zXqs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717039274;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=xlxDamz4s7GJC+Y0kcerAZwk3gsEzznwc9ByMiBweRE=;
+	b=J7t4zXqsYpSqU9/kCTBnqzWWMnvjuFybLQ6p/7QW0Z1XpEBV/Ttb9EdHootgcHLwUWazA/
+	19bAZoS37U61jR03/VRB+5DTUO5L3MULELBpK8JpZqFP+sgvY71YfgDPE2SUaDNViNDTLk
+	AVj37BVK/bRSSkLEXEn1SAreoc0S7VE=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-621-GJYXdUJkNfWa7HJyIVgX5w-1; Wed,
+ 29 May 2024 23:21:10 -0400
+X-MC-Unique: GJYXdUJkNfWa7HJyIVgX5w-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8BE1229AA381;
+	Thu, 30 May 2024 03:21:09 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.157])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id B31631C028E0;
+	Thu, 30 May 2024 03:21:03 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
+	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+Subject: [PATCH net-next V2] virtio-net: synchronize operstate with admin state on up/down
+Date: Thu, 30 May 2024 11:20:55 +0800
+Message-ID: <20240530032055.8036-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] fuse: cleanup request queuing towards virtiofs
-To: Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org
-Cc: Peter-Jan Gootzen <pgootzen@nvidia.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Yoray Zack <yorayz@nvidia.com>,
- Vivek Goyal <vgoyal@redhat.com>, virtualization@lists.linux.dev
-References: <20240529155210.2543295-1-mszeredi@redhat.com>
-Content-Language: en-US
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-In-Reply-To: <20240529155210.2543295-1-mszeredi@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
+This patch synchronize operstate with admin state per RFC2863.
 
+This is done by trying to toggle the carrier upon open/close and
+synchronize with the config change work. This allows propagate status
+correctly to stacked devices like:
 
-On 5/29/24 11:52 PM, Miklos Szeredi wrote:
-> Virtiofs has its own queing mechanism, but still requests are first queued
-> on fiq->pending to be immediately dequeued and queued onto the virtio
-> queue.
-> 
-> The queuing on fiq->pending is unnecessary and might even have some
-> performance impact due to being a contention point.
-> 
-> Forget requests are handled similarly.
-> 
-> Move the queuing of requests and forgets into the fiq->ops->*.
-> fuse_iqueue_ops are renamed to reflect the new semantics.
-> 
-> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> ---
+ip link add link enp0s3 macvlan0 type macvlan
+ip link set link enp0s3 down
+ip link show
 
-[...]
+Before this patch:
 
-> +static void fuse_dev_queue_interrupt(struct fuse_iqueue *fiq, struct fuse_req *req)
-> +{
-> +	spin_lock(&fiq->lock);
-> +	if (list_empty(&req->intr_entry)) {
-> +		list_add_tail(&req->intr_entry, &fiq->interrupts);
-> +		/*
-> +		 * Pairs with smp_mb() implied by test_and_set_bit()
-> +		 * from fuse_request_end().
-> +		 */
-> +		smp_mb();
-> +		if (test_bit(FR_FINISHED, &req->flags)) {
-> +			list_del_init(&req->intr_entry);
-> +			spin_unlock(&fiq->lock			^
-		missing "return" here?
+3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+    link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+......
+5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
 
-> +		}
-> +		fuse_dev_wake_and_unlock(fiq);
-> +	} else {
-> +		spin_unlock(&fiq->lock);
-> +	}
-> +}
+After this patch:
 
-[...]
+3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+    link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+...
+5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
+    link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
 
->  static void fuse_adjust_compat(struct fuse_conn *fc, struct fuse_args *args)
-> @@ -581,7 +605,6 @@ static int fuse_simple_notify_reply(struct fuse_mount *fm,
->  {
->  	struct fuse_req *req;
->  	struct fuse_iqueue *fiq = &fm->fc->iq;
-> -	int err = 0;
->  
->  	req = fuse_get_req(fm, false);
->  	if (IS_ERR(req))> @@ -592,16 +615,9 @@ static int fuse_simple_notify_reply(struct
-fuse_mount *fm,
->  
->  	fuse_args_to_req(req, args);
->  
-> -	spin_lock(&fiq->lock);
-> -	if (fiq->connected) {
-> -		queue_request_and_unlock(fiq, req);
-> -	} else {
-> -		err = -ENODEV;
-> -		spin_unlock(&fiq->lock);
-> -		fuse_put_request(req);
-> -	}
-> +	fuse_send_one(fiq, req);
->  
-> -	return err;
-> +	return 0;
->  }
+Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes since V1:
+- rebase
+- add ack/review tags
+---
+ drivers/net/virtio_net.c | 94 +++++++++++++++++++++++++++-------------
+ 1 file changed, 63 insertions(+), 31 deletions(-)
 
-There's a minor changed behavior visible to users.  Prior to the patch,
-the FUSE_NOTIFY_RETRIEVE will returns -ENODEV when the connection is
-aborted, but now it returns 0.
-
-It seems only example/notify_store_retrieve.c has used
-FUSE_NOTIFY_RETRIEVE in libfuse.  I'm not sure if this change really
-matters.
-
-Maybe we could check req->out.h.error after fuse_send_one() returns?
-
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 4a802c0ea2cb..69e4ae353c51 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -433,6 +433,12 @@ struct virtnet_info {
+ 	/* The lock to synchronize the access to refill_enabled */
+ 	spinlock_t refill_lock;
+ 
++	/* Is config change enabled? */
++	bool config_change_enabled;
++
++	/* The lock to synchronize the access to config_change_enabled */
++	spinlock_t config_change_lock;
++
+ 	/* Work struct for config space updates */
+ 	struct work_struct config_work;
+ 
+@@ -623,6 +629,20 @@ static void disable_delayed_refill(struct virtnet_info *vi)
+ 	spin_unlock_bh(&vi->refill_lock);
+ }
+ 
++static void enable_config_change(struct virtnet_info *vi)
++{
++	spin_lock_irq(&vi->config_change_lock);
++	vi->config_change_enabled = true;
++	spin_unlock_irq(&vi->config_change_lock);
++}
++
++static void disable_config_change(struct virtnet_info *vi)
++{
++	spin_lock_irq(&vi->config_change_lock);
++	vi->config_change_enabled = false;
++	spin_unlock_irq(&vi->config_change_lock);
++}
++
+ static void enable_rx_mode_work(struct virtnet_info *vi)
+ {
+ 	rtnl_lock();
+@@ -2421,6 +2441,25 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+ 	return err;
+ }
+ 
++static void virtnet_update_settings(struct virtnet_info *vi)
++{
++	u32 speed;
++	u8 duplex;
++
++	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
++		return;
++
++	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
++
++	if (ethtool_validate_speed(speed))
++		vi->speed = speed;
++
++	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
++
++	if (ethtool_validate_duplex(duplex))
++		vi->duplex = duplex;
++}
++
+ static int virtnet_open(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+@@ -2439,6 +2478,18 @@ static int virtnet_open(struct net_device *dev)
+ 			goto err_enable_qp;
+ 	}
+ 
++	/* Assume link up if device can't report link status,
++	   otherwise get link status from config. */
++	netif_carrier_off(dev);
++	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
++		enable_config_change(vi);
++		schedule_work(&vi->config_work);
++	} else {
++		vi->status = VIRTIO_NET_S_LINK_UP;
++		virtnet_update_settings(vi);
++		netif_carrier_on(dev);
++	}
++
+ 	return 0;
+ 
+ err_enable_qp:
+@@ -2875,12 +2926,19 @@ static int virtnet_close(struct net_device *dev)
+ 	disable_delayed_refill(vi);
+ 	/* Make sure refill_work doesn't re-enable napi! */
+ 	cancel_delayed_work_sync(&vi->refill);
++	/* Make sure config notification doesn't schedule config work */
++	disable_config_change(vi);
++	/* Make sure status updating is cancelled */
++	cancel_work_sync(&vi->config_work);
+ 
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		virtnet_disable_queue_pair(vi, i);
+ 		cancel_work_sync(&vi->rq[i].dim.work);
+ 	}
+ 
++	vi->status &= ~VIRTIO_NET_S_LINK_UP;
++	netif_carrier_off(dev);
++
+ 	return 0;
+ }
+ 
+@@ -4583,25 +4641,6 @@ static void virtnet_init_settings(struct net_device *dev)
+ 	vi->duplex = DUPLEX_UNKNOWN;
+ }
+ 
+-static void virtnet_update_settings(struct virtnet_info *vi)
+-{
+-	u32 speed;
+-	u8 duplex;
+-
+-	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+-		return;
+-
+-	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+-
+-	if (ethtool_validate_speed(speed))
+-		vi->speed = speed;
+-
+-	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+-
+-	if (ethtool_validate_duplex(duplex))
+-		vi->duplex = duplex;
+-}
+-
+ static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
+ {
+ 	return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
+@@ -5163,7 +5202,10 @@ static void virtnet_config_changed(struct virtio_device *vdev)
+ {
+ 	struct virtnet_info *vi = vdev->priv;
+ 
+-	schedule_work(&vi->config_work);
++	spin_lock_irq(&vi->config_change_lock);
++	if (vi->config_change_enabled)
++		schedule_work(&vi->config_work);
++	spin_unlock_irq(&vi->config_change_lock);
+ }
+ 
+ static void virtnet_free_queues(struct virtnet_info *vi)
+@@ -5706,6 +5748,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+ 	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
+ 	spin_lock_init(&vi->refill_lock);
++	spin_lock_init(&vi->config_change_lock);
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
+ 		vi->mergeable_rx_bufs = true;
+@@ -5901,17 +5944,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 		goto free_unregister_netdev;
+ 	}
+ 
+-	/* Assume link up if device can't report link status,
+-	   otherwise get link status from config. */
+-	netif_carrier_off(dev);
+-	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+-		schedule_work(&vi->config_work);
+-	} else {
+-		vi->status = VIRTIO_NET_S_LINK_UP;
+-		virtnet_update_settings(vi);
+-		netif_carrier_on(dev);
+-	}
+-
+ 	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
+ 		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
+ 			set_bit(guest_offloads[i], &vi->guest_offloads);
 -- 
-Thanks,
-Jingbo
+2.42.0
+
