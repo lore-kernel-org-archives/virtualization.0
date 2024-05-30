@@ -1,129 +1,177 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from APC01-PSA-obe.outbound.protection.outlook.com (mail-psaapc01on2130.outbound.protection.outlook.com [40.107.255.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9513C18396B
-	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 09:17:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717060647; cv=none; b=eClaq6Y8fWQLaF7gIzY2ygjGvjvwyJt9umZgkurHAv1jbD16cH4rmMVT0eR5j9mXcvIDa/hTXQxUQkWcG33ybyTgZqrZYloURF+st39CFjNJVWHH0RbVL5eFyvK8kOgWqHZRK4GJwd4qMDEECIRYncWUicrPXv2/Kd7vYlbNRFY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717060647; c=relaxed/simple;
-	bh=eCjZ8iPR0gePB3DWkGaXrIHfnAGJITyGfXj0aAhawR4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=FGZ5rqPW+FnlcM0WUIIxA/2mNF5rSyjlQXYFnkMjhk690fHXOtDdTo/tW7jVIPeEs6asBU3WkjJdUzmRlR8gMDt1lICTTNJAIzgZR+tr4iD5udYiuiS+SLjHeeJClitB+IPuF+MU7EI611a+SyGan3AR/W38ZcnHYWnYYS6y7fo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eD6caFar; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 861611527B3
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 09:31:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.255.130
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1717061494; cv=fail; b=SXfka9OKfzMwDVd4sAXug8lWbUmI9Ti6wXhK05ng4u+hVg0yZyud8zAKxfpidCn1tX9FTJjJWzbJ3SNTGX8Rho9LKh4PNB1OODZYpjVmTqohUi+r/EksF98YJdcxRMRzRLNfw8hoV0w0okElpQjb8U2BGI4XQqaA8OrcRwdr0eo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1717061494; c=relaxed/simple;
+	bh=0rDFu1EUIaOvE2LB82+C9odQFbYWmp1E4iZB8L/zMeQ=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=ZOJIDqKu6mVoXYzHGQpt/P08KGwRifUYC6xrWD2mIaCyNxZJv5s8daKgPuAR8SCjSggISYKWhSqCWxvPOtFUltTv1gZ5AbvqY/j76Ygn6nnhLhl9WlK4luGpSAK36QU88pTmRUD68LGIsRH6vmQdiDPrkqwpe2cae1rnj38NdWE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=CZaB7oY1; arc=fail smtp.client-ip=40.107.255.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eD6caFar"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717060644;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OrOhFD1O2QLtQkci+Xy+Xp8cmUEIquXNNePUgb7FIXg=;
-	b=eD6caFarGJu7I4lS1BP1kp0MQlY+bpw9KwrfK+mKPxMqcXfE0unSRAoICJDPDzuKu6wlRX
-	8uouy+RCke0d3GdJnkwOp4mueZ+XkI33bARloZgbGrulPRNAmu72TWna24We8sYssRXbBT
-	LfN6OVmT4fXFJm7D1TYMaBCUlLyi7pA=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-594-quLyy39kN1CGRc8MMdQRjw-1; Thu, 30 May 2024 05:17:23 -0400
-X-MC-Unique: quLyy39kN1CGRc8MMdQRjw-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-5234e83c4a6so482339e87.0
-        for <virtualization@lists.linux.dev>; Thu, 30 May 2024 02:17:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717060639; x=1717665439;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OrOhFD1O2QLtQkci+Xy+Xp8cmUEIquXNNePUgb7FIXg=;
-        b=tZMHilL8dVbzcBu1GwW5YlNT2/55kytx09mvF5VcIfoja3KcoF1ZelfFTPe48dL4OK
-         G8QTYtw5AYg/PSsQ7WYl3sKq5LxSp8MJJSVOXoXzGW4Maqy1xMhVeI+/2vTmokIu1cIu
-         BIGY7rMFPRJqEjHwnwCeh7pJGHawpfknCnmxvBWZWJN+K/V+xC+qP5QvIgmZoun5HdH/
-         yRqFUMmxawgRip7n+CBWmaaoa+wzcaAnJOGUcYkrtN+C6ZRcL0FRXoerG8PNLxiTebHg
-         ahljrOpuQly/2h5U0/ZDM/QUz6Vw/VAet7/rJpFqwQBbOlM1bWNKP5M9IjBH+pL8sXj+
-         gh4A==
-X-Forwarded-Encrypted: i=1; AJvYcCXvn82J2u+QHYgOKIKwGDP5GY76Cohwcov09yvp4CsfnZZ0KLFYcjFjoQcFnDT9eYALFS1+XtRLcZF+B9NLoDCpl+W+3Bxck8Nd79mcx5c=
-X-Gm-Message-State: AOJu0YzDOLUTdDsc+Bft6C0Ru62pIX7iFea4cPuv78XBp/TUCyF84oie
-	pQcQM8zeYui1TP9qsXhU6UWSA7lxgY2zogN611SE3K2eyRk2P3uZOE/XfK3xCKBtkRH7yrPIaCz
-	vIw3/U6qEBlai/Cp6a9s65sIpZq9yxrZOSkjH4mwMKAISY+UtzAzRKCT1KK3n0xVE
-X-Received: by 2002:ac2:43d3:0:b0:523:91d1:12b2 with SMTP id 2adb3069b0e04-52b7d417fa5mr936466e87.6.1717060639263;
-        Thu, 30 May 2024 02:17:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHjFauER2nKzlXi7PQA0lj1JP6X1POmUioG5dsP6556DuIVQ6ua4CC0ROYuYqAI0GinJHxrhg==
-X-Received: by 2002:ac2:43d3:0:b0:523:91d1:12b2 with SMTP id 2adb3069b0e04-52b7d417fa5mr936433e87.6.1717060638625;
-        Thu, 30 May 2024 02:17:18 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:179:fb20:c957:3427:ac94:f0a3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-421270aeb18sm18992555e9.48.2024.05.30.02.17.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 May 2024 02:17:18 -0700 (PDT)
-Date: Thu, 30 May 2024 05:17:11 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jiri Pirko <jiri@resnulli.us>, Daniel Jurgens <danielj@nvidia.com>,
-	Jiri Pirko <jiri@nvidia.com>
-Subject: Re: [PATCH net v3 1/2] virtio_net: fix possible dim status
- unrecoverable
-Message-ID: <20240530051705-mutt-send-email-mst@kernel.org>
-References: <20240528134116.117426-1-hengqi@linux.alibaba.com>
- <20240528134116.117426-2-hengqi@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="CZaB7oY1"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lCBFa4jsVeuE2wxfUrNfz8p6wS6/OWc6FU9LTx/YDTX6s+dNKO5NCirsJik9nP7QR5ed7BFU5l9yIbv4EqaDE0UTP6aqnOeqZB2KrFS21Y8iQSBwqs/h2illQOxjKdaZMQBfzBXLitKHBn4fZUMmafjYITq7GVX4iqWUH9LkdTkUGWviT70wBZ4WTvnf14O+5hzu4wcbpcu99Zpt1P5VwYo905gU6cParrJ5SJXep2pytJUlpoKit4KPiTEhp5yMyaq5sHmUo281DbqWGDSrcU0xqQ//z5qLRoWYpddWp2o15bx/FKJk3ULs3HN0d5Qt7CgRYEx+j9VKv+kKBOBqtg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0rDFu1EUIaOvE2LB82+C9odQFbYWmp1E4iZB8L/zMeQ=;
+ b=TF0P0LVReC12LwuLNp1acNA3+QYCvM4twv4pe9tCJ7o+185jBCTssDaz6ZtPF1ucVlfN4gN7LlnI8TaR3SJpZhw4GmunjDUDkdpltnMX+Jad91hfHxP4rXRoMxZlYGR4LyShfYDr/zTWIMNLu07F0Q/cymtggizYZlcJ9eG1t134f2tRy1eJUarWH5MaJ3zyGPjRKuHBLwICFQmi3wX0r8wcpamPz/3ZFKfK7ot5aThDLBF01lZQLYoC+QQRrVGTSEVy5sx03VAXhPA8AKScywHVgX/vGPMnY9KdLrDhD4T/zyX2PAitXPc72TDsCOejwP4WIuheYxHdy/iaGEeOuw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0rDFu1EUIaOvE2LB82+C9odQFbYWmp1E4iZB8L/zMeQ=;
+ b=CZaB7oY1U5i3+7Pqxx5u7S4Fk2nDht6ez5dNLbdHJJefiPieTzu9H0UStykE9KcgiQHXqADgols3GaRsaGNGcGIC2LHIii+krQniHrSGU78ldi5Vm32Q3XltQtR6RIl1/2Pay+F9ILW+dArIwqx/eFKW3preSGxJjfi7L+EdkdYljDdDBeX0EicFkpSyse9Xw9k9BeGI9zrEfft5214JX97141NeF13a/K1pkhqgYCLG/krEX6ZtkS2IQt/z4GMZYj4qhGRApanoi6IDLyZMRNNmQ0sWFCojWVhIiAh9gMk8SNIVDVHH8+eZEG+FdVVJdre1fys4YB88/AtqYW4YZA==
+Received: from SI2PR06MB5385.apcprd06.prod.outlook.com (2603:1096:4:1ec::12)
+ by SI2PR06MB5089.apcprd06.prod.outlook.com (2603:1096:4:1a8::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7633.21; Thu, 30 May
+ 2024 09:31:27 +0000
+Received: from SI2PR06MB5385.apcprd06.prod.outlook.com
+ ([fe80::967d:afda:6f4:33dd]) by SI2PR06MB5385.apcprd06.prod.outlook.com
+ ([fe80::967d:afda:6f4:33dd%6]) with mapi id 15.20.7633.018; Thu, 30 May 2024
+ 09:31:27 +0000
+From: Lege Wang <lege.wang@jaguarmicro.com>
+To: "pgootzen@nvidia.com" <pgootzen@nvidia.com>,
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+CC: Bin Yang <bin.yang@jaguarmicro.com>, Lege Wang
+	<lege.wang@jaguarmicro.com>, Angus Chen <angus.chen@jaguarmicro.com>
+Subject: virtio-fs tests between host(x86) and dpu(arm64)
+Thread-Topic: virtio-fs tests between host(x86) and dpu(arm64)
+Thread-Index: AdqybnzAiozTvtlkQFaloMBVG2WGpw==
+Date: Thu, 30 May 2024 09:31:26 +0000
+Message-ID:
+ <SI2PR06MB53852C83901A0DDE55624063FFF32@SI2PR06MB5385.apcprd06.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SI2PR06MB5385:EE_|SI2PR06MB5089:EE_
+x-ms-office365-filtering-correlation-id: c63b81b8-232b-4254-2eab-08dc808b479d
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230031|1800799015|376005|366007|38070700009;
+x-microsoft-antispam-message-info:
+ =?gb2312?B?TWIxTE1sY0h2T1dMTzhHVGxuQ3o2UmdwUjRSWCtMaTZBMXFsTFlwVDFMNU40?=
+ =?gb2312?B?Nm5zTWZudVgxeld3bU9jcGk2UDB6VVF3MmNCaDhTZ3dhYlE5NnZZN0JiblVN?=
+ =?gb2312?B?MmNFNnhlTVAvQ2hkYnp0S0NKd0RRSEowOEtzWlZNd2JvcUhEQ3ZCYnlGRXc1?=
+ =?gb2312?B?WU5UZHVNZk8rTmJoTU4rNzRSVUp4eHFEdC81aWJMMWtNQS9ENldlQ29EZUtq?=
+ =?gb2312?B?NkJrN01VaHJGdFVqSnhNS0xzY2Z3QjFWMUNlTjNLMnR4Tm5vQWNrLzdER0FV?=
+ =?gb2312?B?aXM4OFJKL3ByMDA0NVRRMXcxUk1kSFFqMjhtaE1YQjF3RW9LMDY2NVd3dWhm?=
+ =?gb2312?B?WjFpVEl4T1NOYzllZlNzbFRpaFJOL2l4cnBtQnBkWS9CNVNrM3E2eFBnVlpi?=
+ =?gb2312?B?OUIxSHpNOXJuSlVzbXNWWnhadm10QjgvT3RKSU43YTEycXRoNktPc1o1N2Rt?=
+ =?gb2312?B?NEk0OWdUZXBYZW1zdzRIeE9QOWNGZlk0OW1sYWZmRkhOeXpXdHBRWG15cm9G?=
+ =?gb2312?B?VEd3NitaOE1GMXIzSzU5aTZvRHpRbnRPZ1k3c292Ky9tVm15M2xqTGN5bnBQ?=
+ =?gb2312?B?OThuSzVORmw5cmltVjNhTWpGMG1pais2bEV4VVFoNGY2K1UzNTl6cHhvTlRa?=
+ =?gb2312?B?QTlCWkh6cENuMnFkUHBkZzc2QzhUeFVFOHkvQnFCZDh5NXlML2Y1SzlpTkdC?=
+ =?gb2312?B?cGpPLzErTUtQdEFwc2laWGxndVhlMTN1SVZOTUk0cHVTNjI5SDZJSEtLN1p3?=
+ =?gb2312?B?ZDZlSTYrUy9EcmRrOXNPczQzeWhaN3JZUHRQUkV5blQvQmpnb0lCUWUyazhz?=
+ =?gb2312?B?eG5VVjd0NDRoN3d4L3U4K0IvWGYwV3FSVUxWMUhSQ2tIYnZobzRMZEJpcHpD?=
+ =?gb2312?B?SkZ0S044STZCSzBkWmZOaUJsZkd1bisrY082bmQrdGJhelladVZXWGlwbzkv?=
+ =?gb2312?B?NHgwa25RT3RJc3Rqa3YxOXVZelBXeThWRW1yQkFOVlRQNUtFNG9IYVR2eDcr?=
+ =?gb2312?B?WVdWbnEyWStWTWdnVFJ1SDg0SXZiZCtjZ25QTDZUUEo5REhNbUNvcmVqZDd0?=
+ =?gb2312?B?K2hsNkQzRjk3VUc4d2YrOU1QTytDTVZYcWptZmoyMTlramhtUWF5NVpXbGYx?=
+ =?gb2312?B?NHRHa1J0RVpUdzhmSEd6VVkyY2lxamFOR0tmRkcwam5yMStpWjBHb2NMNGl2?=
+ =?gb2312?B?MjA2b1g3NHd5MEJoVFA4bTYxRGNmYlpucVhnUnJPancxYlA4SDRmQXRtRXBG?=
+ =?gb2312?B?cWZlTnpyUkFxN3hib3poL1pNNVJVeUpNTlI1dkpISWhJeXNsK3Y3aHRvcXdr?=
+ =?gb2312?B?dXptUng1VFBEOW9VOUphNlU0UnJMZmY1R2ROTlZnRCtETVA3U1FvVXFoM0dw?=
+ =?gb2312?B?aHdGQ1FiWkZsVUhzcTcwOWorcytaYmUxRXh5dk5uRnpyLzBXSUhRNVZqR1VU?=
+ =?gb2312?B?S0I5YW80QVVsbkhFcU5wczA5WW1aNTJZdEVkZ2pua0pyYlRveDZkeU03WTBj?=
+ =?gb2312?B?WVJSM2xNajdRbVpSZVRKUHRSN0NGblBaZEoxUmt2U3A1VUlPbFJhOHdoWG45?=
+ =?gb2312?B?Q1lHMHpXN0d6Z3I5dSttK3JHLzFOVTVnRE03YUdDN1NQQ0U2QStIUklmSE9v?=
+ =?gb2312?B?ay9DYlNtR1JGbWo3MjZ6dnZkWW11T01vZnIxRjFpdnlmZm5XUlMvMFVjNmI5?=
+ =?gb2312?B?ckI0cGZsNmN6YXVucVVEMmdNR25IZ1k3cytrSnRIcEE0V3czdGE0ekJ4M3FY?=
+ =?gb2312?B?N2IrMm9jK1YyandHNUV4T0hRcU9DYlVzV3krNDBVaUtMVkFTVHhiRHd6Y2dO?=
+ =?gb2312?B?Z0dNKytaZitianpQdjhTQT09?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:zh-cn;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SI2PR06MB5385.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(376005)(366007)(38070700009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?gb2312?B?UFVIM0RWbHZrWGhUTkFIcHRackhpdmVSckswbFdQZlVkMkJCdDdhcHNVUVFX?=
+ =?gb2312?B?ZFdvQlloK0ppWGdXWk5EQVEvVnlSamI5eStGeXRrM28zVkd2UzR6bFJMWXMz?=
+ =?gb2312?B?cEtmQ0w2SDlsVllwRWxQYThCVGxDM1l3YXV4ZE9BUUEyd1hVcDErYzlCVGk2?=
+ =?gb2312?B?UXViRGdnWXIzZlRrZ08zZ3QzaFB4Y29vRmFCelo1YVpPa3Badnp5TldIVUhz?=
+ =?gb2312?B?ZHNpb1RlSjVEQ3RScUs3MVpRaUgwWlBiR2s0SmVCUTlKNDl2Ry83aFBMM2g2?=
+ =?gb2312?B?VDF3cnIrcUVuM2piVDNZZ2lBempyTmlCUWRFNThFa3hrV3lWeHdJLzBpYi84?=
+ =?gb2312?B?dVk5c2Z5MXJBc0JZVjhpKzNYMGpmakZHT2JLM2lJY0pseDJqQ2ZmRUVadE12?=
+ =?gb2312?B?bHFjRTBzNjE5eHVRaEE0WWlFdWRDS3lXbkJOUm15cGFrTFAvOGJUdzJWaTYv?=
+ =?gb2312?B?VW1hTmp5ZmNTTHpLZ2xTTVFnUTJxUDBaZVd4MTFzN3d6SXV5UzNabmdWMks2?=
+ =?gb2312?B?cG0zRjRDSGNrYVN1UkdONWZpVGsrQUQxMUhiNUlLSG5rVmhidllvT3VoYWow?=
+ =?gb2312?B?bGtTekg2SFIzNmtMcVZMWE52Zk5qaU9xV0M3N25WZTVFeEE3blpETld2R3JT?=
+ =?gb2312?B?UUpZamJVZ2NDWWhsOC83MzJwcHdlNC9CckhaWjNEbHVZVjgreUJUaDIxZUc4?=
+ =?gb2312?B?RVozWnRrYUZwcjl6ck1ETkpYcFduQTVNdEEyeGtKaG15MGNZcHNJbDh6emJp?=
+ =?gb2312?B?WWJ2M3Joa2JFUDc0eG9JUGRxeVc5SnVYODIyWGIweE9zbE4yckRKRGlPeUNz?=
+ =?gb2312?B?UXBpekQzOWNQVnNENWF5Um02MlZIR0hWdEk5cXJGaDNzUjl6TGVyRUpNellz?=
+ =?gb2312?B?djRMVENRcGFlenNtanhFYVRRSVJKRUw5ZHhkRVlpSEVFRUFqSXFma3VSRkt1?=
+ =?gb2312?B?bGtwV0diK05nNkptdXFEUUY2NTNBRW5tVUhzOUFMRE9pRjJNYS9TL0hjMnVY?=
+ =?gb2312?B?VHM5WlBxUTFFUXd6MmpoOFAxRng3dDFwSDBYV2JQSk9Nc1BmWkRXNnBBZzZx?=
+ =?gb2312?B?dlNzKzBBV2IxZjBuU0JocUhGQWtIZVUxc0JaMXdJT3Z5M2NyaDgrZUNrQjF6?=
+ =?gb2312?B?R2pIQnRvd2hyVE9vRXBFRHh6cStJTkJ6ZjduMngzbDFITE1hL0s0S3RldkVU?=
+ =?gb2312?B?L0ZKTlp2Y0ZGZW03b1FzYTQzalBMK0FSZEtqc01XQWRpOTJoUnlhOVJ0K3h6?=
+ =?gb2312?B?Vjd0TG9VZ2Ziekhxb1BSWkYreU5IRDU1bWg5bTR3VThrV3E1Vm8wakxZelcx?=
+ =?gb2312?B?VC8zT0Vvd2JUN2hSeko5ZkgvdUxKUlFxeDNJWkNST2wwYjRCZU1BWkh0S0Qz?=
+ =?gb2312?B?L1RLQXhXSHh4RThibHArNm1UbTZ2M0lvbFhQRlVSRFRjYVFmM2NyaFZYVkpS?=
+ =?gb2312?B?WHgyc2x2cFhCOUZaS3dlTlNpaExlNk5qME1xWjJDSmpsRDVESE1Fa3hXbnJz?=
+ =?gb2312?B?U2QzdHFSRUJrS0lWMFZOeXhwUVNGbFlqajQ5NXNxNTNOTm16cGZKcU5mZHRS?=
+ =?gb2312?B?RzhKL3hUU211Q3VTQzFKek9UOHBIWGxnczQyZ2YvRHpQRzR0NEEyeEM3WWIz?=
+ =?gb2312?B?S05NU1RQRkxDVnFYTzBjOUo4d1JHa29ZdDFpWkdHdVFnMDNNM21aSlpMbEd1?=
+ =?gb2312?B?aDg2aXV3Z014QUpHc0ZUZThHRkxuNVBaZlF0RXl3VUpJWXk0WFBZOVVkYzhI?=
+ =?gb2312?B?RFNCVHBrUldmeUpidUswYVVBdUlhM21peGtueWJ1YldETmxtKzBOVExFaCsz?=
+ =?gb2312?B?Nlo1QXlsaDBHS0pMdFRlS1V1MkdrTjNTOHBtaUc4NVdMUDgrTEtOL0Jxdm5G?=
+ =?gb2312?B?ckE2UHplV2I5bHlaZkhQRXRyUVI3Z2pXQmJncjBWaWxiWFhwNW9kcVdQN25u?=
+ =?gb2312?B?VXZEY0Nsa0ZnREhidmFFRkVlMUExMjRicXBoLzZ5bjBPTFNyQ1N6SFJNSEFL?=
+ =?gb2312?B?VTEwUUVnRGpYTW9zU2xXaTI3d2dqRWpoVVBRbG9NU202VDBlYmtINWxWaE43?=
+ =?gb2312?B?cENaY2xSdkR1dzY4b3dqb0FvcjFJRDBUa0o4azNvVTFtbWs2aHUrbXBUQ3N1?=
+ =?gb2312?Q?/XxoqNHvs291pzj0AILA/wL58?=
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240528134116.117426-2-hengqi@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SI2PR06MB5385.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c63b81b8-232b-4254-2eab-08dc808b479d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 May 2024 09:31:26.9521
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Wra6ma4eB5gTNZdQBamNcHIE6OycBruHpfKeeqPvJO7sFgvfR1N0ltSKJa7riKVymlVuH0jAJOV5ZWQH4dncY2sHXm0xAyXydV5SlPgjXi0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SI2PR06MB5089
 
-On Tue, May 28, 2024 at 09:41:15PM +0800, Heng Qi wrote:
-> When the dim worker is scheduled, if it no longer needs to issue
-> commands, dim may not be able to return to the working state later.
-> 
-> For example, the following single queue scenario:
->   1. The dim worker of rxq0 is scheduled, and the dim status is
->      changed to DIM_APPLY_NEW_PROFILE;
->   2. dim is disabled or parameters have not been modified;
->   3. virtnet_rx_dim_work exits directly;
-> 
-> Then, even if net_dim is invoked again, it cannot work because the
-> state is not restored to DIM_START_MEASURE.
-> 
-> Fixes: 6208799553a8 ("virtio-net: support rx netdim")
-> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> ---
->  drivers/net/virtio_net.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 4a802c0ea2cb..4f828a9e5889 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -4417,9 +4417,9 @@ static void virtnet_rx_dim_work(struct work_struct *work)
->  		if (err)
->  			pr_debug("%s: Failed to send dim parameters on rxq%d\n",
->  				 dev->name, qnum);
-> -		dim->state = DIM_START_MEASURE;
->  	}
->  out:
-> +	dim->state = DIM_START_MEASURE;
->  	mutex_unlock(&rq->dim_lock);
->  }
->  
-> -- 
-> 2.32.0.3.g01195cf9f
-
+SGVsbG8sDQoNCkkgc2VlIHRoYXQgeW91IGhhdmUgYWRkZWQgbXVsdGktcXVldWUgc3VwcG9ydCBm
+b3IgdmlydGlvLWZzLCB0aGFua3MgZm9yIHRoaXMgd29yay4NCkZyb20geW91ciBwYXRjaCdzIGNv
+bW1pdCBsb2csIHlvdXIgaG9zdCBpcyB4ODYtNjQsIGRwdSBpcyBhcm02NCwgYnV0IHRoZXJlJ3Jl
+DQpkaWZmZXJlbmNlcyBhYm91dCBPX0RJUkVDVCBhbmQgT19ESVJFQ1RPUlkgYmV0d2VlbiB0aGVz
+ZSB0d28gYXJjaGl0ZWN0dXJlcy4NCg0KVGVzdCBwcm9ncmFtOg0KI2RlZmluZSBfR05VX1NPVVJD
+RQ0KDQojaW5jbHVkZSA8c3RkaW8uaD4NCiNpbmNsdWRlIDxmY250bC5oPg0KDQppbnQgbWFpbih2
+b2lkKQ0Kew0KICAgICAgICBwcmludGYoIk9fRElSRUNUOiVvXG4iLCBPX0RJUkVDVCk7DQogICAg
+ICAgIHByaW50ZigiT19ESVJFQ1RPUlk6JW9cbiIsIE9fRElSRUNUT1JZKTsNCiAgICAgICAgcmV0
+dXJuIDA7DQp9DQoNCkluIHg4Ni02NCwgdGhpcyB0ZXN0IHByb2dyYW0gb3V0cHV0czoNCk9fRElS
+RUNUOjQwMDAwDQpPX0RJUkVDVE9SWToyMDAwMDANCg0KQnV0IGluIGFybTY0LCBpdCBvdXRwdXM6
+DQpPX0RJUkVDVDoyMDAwMDANCk9fRElSRUNUT1JZOjQwMDAwDQoNCkluIGtlcm5lbCBmdXNlIG1v
+ZHVsZSwgZnVzZV9jcmVhdGVfaW4tPmZsYWdzIHdpbGwgdXNlZCB0byBob2xkIG9wZW4oMikncyBm
+bGFncywgdGhlbg0KYSBPX0RJUkVDVCBmbGFnIGZyb20gaG9zdCh4ODYpIHdvdWxkIGJlIHRyZWF0
+ZWQgYXMgT19ESVJFQ1RPUlkgaW4gZHB1KGFybTY0KSwgd2hpY2gNCnNlZW1zIGEgc2VyaW91cyBi
+dWcuDQoNCkZyb20geW91ciBmaW8gam9iLCB5b3UgdXNlIGxpYmFpbyBlbmdpbmUsIHNvIGl0J3Mg
+YXNzdW1lZCB0aGF0IGRpcmVjdC1pbyBpcw0KZW5hYmxlZCwgc28gSSB3b25kZXIgd2h5IHlvdSBk
+b24ndCBnZXQgZXJyb3JzLiBDb3VsZCB5b3UgcGxlYXNlIHRyeSBiZWxvdw0KY29tbWFuZCBpbiB5
+b3VyIHZpcnRpby1mcyBtb3VudCBwb2ludDoNCiAgZGQgaWY9L2Rldi96ZXJvIG9mPXRzdF9maWxl
+IGJzPTQwOTYgY291bnQ9MSBvZmxhZz1kaXJlY3QNCnRvIHNlZSB3aGV0aGVyIGl0IG9jY3VycyBh
+bnkgZXJyb3IuDQoNClJlZ2FyZHMsDQpYaWFvZ3VhbmcgV2FuZw0K
