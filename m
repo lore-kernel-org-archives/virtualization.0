@@ -1,141 +1,69 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD47C134B1
-	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 00:45:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F335833C5
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 03:11:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717029951; cv=none; b=nVWYpALa/5Mgorte+TKAecGHGp3yrVR3Dlee73cT3dmQsZfJB5b64U2hZD+e2Ux8q0So/oAob5isa5wveHMpm1r5qRCDKZ/kDRYbc9Txjbj6a4ixq42issBjvqezEaz4LwbVILcuuVUUjGOiTcT8LDa2Z14+as+Fn3i0neKZ3xQ=
+	t=1717038664; cv=none; b=OSQDamO+cczE5RF8wyTL4G0DZVDJE4NaEMDMDcFqpWY+vho/59IKs/TOHJgBoyJVLKqzbkFFnRk3RhvRtlFnOPxn+0pbh4qX/3UL94PHwqzLubmM6MiOxa/Ztee7h7f8Jgh4c7b4LclOAWVj/PjpT2hFDpLleQZj6z0xwkfbTSc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717029951; c=relaxed/simple;
-	bh=wBz2qZopS6FfLTe4ZSNt9bUuEFegNutb19fG4EI+yAQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CjcWhOUkes0r5l8uIgsuRKHykcY1Z7KpLlKdkw+UWgwvzQ2QEtjNzxzmOrYimBeU5ghmt8pcaeFOHqkiXcC4Fr8KcaxQF7f5XI460TGzX2TEpKqUrCwr/kSnbkYlenSGGvhaUN4exIhXGF1mNp2sY6DLg4SuhN5EyoQSOrQRev4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=FMbOiV48; arc=none smtp.client-ip=209.85.215.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1717038664; c=relaxed/simple;
+	bh=7sNUcNSmqNPsQTDr6e/iLs21QkaLHkuaxWMxfWhXeW4=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=CqwqBbk/ZVW23FAlnW+khosJE4SUgN3vMkhjd37vKM3sKgnY+5JmBNELj9FBlDmXSsuBWFSWGLWvpn0hN6KnQxb/ItEgm3iQnWfPkxln8uEMRHsYBK+vw+nIwusQf34BLL+GGsb5MKILUu5c0ktychmmtxNf5yQdONERcE9glW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=eXvMuQNl; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="FMbOiV48"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-66629f45359so312420a12.3
-        for <virtualization@lists.linux.dev>; Wed, 29 May 2024 17:45:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1717029949; x=1717634749; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=UzT4rsaryvD4HsIjsYHJczNs+fMyCNVp7/lsR9UttHw=;
-        b=FMbOiV48htLg/gg52Bc97V8J0mp3pDhNa8lecEMUb3SolkB8Wr3q/lt/PEQirygMNt
-         GAGqyMZG0A1f8XsUHdhO0Ef3P2V1upMScu16iFftzRwSSrzBa3vuqWpZQnVgsMqFCbe6
-         +LxxrVBPrSA4BVs48X4VgMrDagngltolvCBWU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717029949; x=1717634749;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UzT4rsaryvD4HsIjsYHJczNs+fMyCNVp7/lsR9UttHw=;
-        b=Ck6ZLYJCI/VwCscOC6X+Drjefe/BnYjz1NkRwijwu/WmA9WTJVVNjvEAvzOfUNRWFX
-         sZWMJNvzCij1uO852WByi0cR2KLh5bx3pkkkUddjXTpQoBF0UDjg9BgDkAHE1JT+BJtm
-         cncRvkQ942KZ6KE2UTnBuRJ5LWaPBGHDmRY1a+nHI2SREEi4X4cyiscmyajQS97pCuGn
-         5YvSrWFhyMR6b3hFqxij1k/Fl7q939a12TEXLOj3ieePhqAOmyPWxPKU1dXQfaN/AM/y
-         GZuGW6EWpxcMrLvwZ3T+rn7NZyG1T/IzVNrAK8KclfrKP3+/V4b9H5x2KXmERrYBQeol
-         4vZg==
-X-Forwarded-Encrypted: i=1; AJvYcCVJs/H9COZ9DYei7pdU3jwLn/FXI5Y1F4KNgUyG2BLVYlPDbnYl8YS2VrXrFu2xTpB7C3FggCkDs4LqhSNc3c8zcfUcluG4h47T8AHaIZ4=
-X-Gm-Message-State: AOJu0YxjVfpH8rPishBn2fuLevxPi6NHA1FISWaEPadOw3qku8ZxrUaB
-	lN+aIfwSSdpzaKehCLPxJwz4kIeBgJXjq5CafPQe4+TER7uD/zK8cxyzxbZz9BcL3CFiR/w44O8
-	=
-X-Google-Smtp-Source: AGHT+IGw/uQweGpiOxtSfYPC7LJBdJ2zJ1rqH+pim/ho7+uhpHOfv5xU/GTUkOAC13zAozamcR+7Gw==
-X-Received: by 2002:a17:90a:de93:b0:2c1:a9da:8344 with SMTP id 98e67ed59e1d1-2c1ab9e32c6mr750050a91.9.1717029948937;
-        Wed, 29 May 2024 17:45:48 -0700 (PDT)
-Received: from [10.66.192.68] ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2c1abe3d4d7sm288005a91.44.2024.05.29.17.45.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 May 2024 17:45:48 -0700 (PDT)
-Message-ID: <bcbe13ec-839c-4061-895c-8188bcd03841@broadcom.com>
-Date: Wed, 29 May 2024 17:45:43 -0700
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="eXvMuQNl"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1717038654; h=Message-ID:Subject:Date:From:To;
+	bh=TAMGz5OlUaCO7hHm1pRgBuMGTSA1Xh++eGteDd5wnhw=;
+	b=eXvMuQNlc+CY0NqAmmJbWTNV2CR6em+J5kMMOGh6aq/wMAWi80/v38r541nh6DoKHjd6idMyLCw3WDqUzWrris7K4fnHuxS+2N0qsTmmv7KPrH2K+QAp2McqIqucR0v+gdSAm1qefUDmrYh83EK0cZ2QjCoZ2HjhrbDsi1CW91E=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W7VW4jL_1717038653;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7VW4jL_1717038653)
+          by smtp.aliyun-inc.com;
+          Thu, 30 May 2024 11:10:53 +0800
+Message-ID: <1717038610.151065-1-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net 1/2] virtio_net: rename ret to err
+Date: Thu, 30 May 2024 11:10:10 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Daniel Jurgens <danielj@nvidia.com>
+References: <20240528075226.94255-1-hengqi@linux.alibaba.com>
+ <20240528075226.94255-2-hengqi@linux.alibaba.com>
+ <20240529171053.132ae776@kernel.org>
+In-Reply-To: <20240529171053.132ae776@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 6/8] x86/vmware: Correct macro names
-To: Markus Elfring <Markus.Elfring@web.de>,
- linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
- virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
- linux-input@vger.kernel.org, netdev@vger.kernel.org,
- kernel-janitors@vger.kernel.org, x86@kernel.org,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ajay Kaher <akaher@vmware.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Vetter
- <daniel@ffwll.ch>, David Airlie <airlied@gmail.com>,
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Simon Horman <horms@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Tim Merrifield
- <timothym@vmware.com>, Zack Rusin <zackr@vmware.com>
-References: <20240523191446.54695-7-alexey.makhalov@broadcom.com>
- <448230a6-1afd-416f-a430-3fc83d81908f@web.de>
-Content-Language: en-US
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
- 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 EuY0
-In-Reply-To: <448230a6-1afd-416f-a430-3fc83d81908f@web.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
-
-
-On 5/25/24 8:53 AM, Markus Elfring wrote:
->> VCPU_RESERVED and LEGACY_X2APIC are not VMware hypercall commands.
->> These are bits in return value of VMWARE_CMD_GETVCPU_INFO command.
->> Change VMWARE_CMD_ prefix to GETVCPU_INFO_ one. …
+On Wed, 29 May 2024 17:10:53 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Tue, 28 May 2024 15:52:25 +0800 Heng Qi wrote:
+> > The integer variable 'ret', denoting the return code, is mismatched with
+> > the boolean return type of virtnet_send_command_reply(); hence, it is
+> > renamed to 'err'.
+> > 
+> > The usage of 'ret' is deferred to the next patch.
 > 
-> Can such information be relevant for the addition of the tag “Fixes”?
-> 
+> That seems a bit much. Can you call the variable in patch 2 "ok"
+> instead?
 
-Makes sense! Thanks, --Alexey
+Sure.
+
+Thanks.
+
+> -- 
+> pw-bot: cr
