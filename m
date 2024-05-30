@@ -1,30 +1,30 @@
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 654D8178CEA
-	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 11:24:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA246174EFA
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 11:24:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717068254; cv=none; b=GVSuzRxCwGA7WdzXGnUJSJjOTniWC6dj33aQ8UvJIKZT6t5kNCZSHXwTs6k2yhDf0EecoRt1ykE4hJinUXswQRCqrZ8LZbghznh99XNVWEEf2WNxN3H0DsAUQCa3FgTYju5mq1xLtPUICWkjVqnoVNGEcdRyUS5168NKBv79PPc=
+	t=1717068255; cv=none; b=hm629Onwjp5aa1pbhcsPkkLrQIfgsBnq4EqLJWXkvu9EBS9XP2D92BqU2KcDgKXJ8XFzUXaNSTYBdEv+484sC05ibThocClthWCufQOxQHasOHQ+nK0+Blt0mIfLltLvPdeTYiZlc2h1RfCEP5MDM4F9x2Q73nrSXRhnuvijeMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717068254; c=relaxed/simple;
-	bh=/Y++BUgwmsAi4LotPXXUDwwIyfSH2FaWbU9WaBlSza8=;
+	s=arc-20240116; t=1717068255; c=relaxed/simple;
+	bh=Fi7/c7g+puHUQ1OYntO/NDOhQoKSgiLQU1LT5HSrXzk=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=mKCFUmjXy/1HtpT17TzzRNEEFd574ryabj0WnXESOO3jgGtMYqrRI9oiDkWZwjbbk9KSfFdy4erXKDEgy4PF+eVXXbbGwkui6UsMaxA1C9dzYv2JHPyE4v0pWa077EkrZ3hmhhyBIxKhwElk94upDntMeHdTzuR/c/m7ju5/eZE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WIQjqHx2; arc=none smtp.client-ip=115.124.30.130
+	 MIME-Version; b=DL6fhZ0erNC510v4HYJhzeojSYzUfsBOjg1bM4V6DrbVhu6iMXUvae/QiW3+CCjpVxkpShblv6N9vvAwBalM41wLoJhQWbpX/NZ/ZierwsmgWcF7ZRUN+SafsrdZS53ntIR66UDPbcBSVcfVp68n8sUZ1oQ2LYxUkvWziyH+usw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=c8QRBnps; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WIQjqHx2"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="c8QRBnps"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
 	t=1717068250; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=AzVVmzVGUvpPZ1lBvI2l0KxHDg3VLj9A3OfOYHQ+Y6w=;
-	b=WIQjqHx2i7iAIqz0q2TIg1EIx54C2naML1IPrjUvrEK1XdWaCeE/6QwbhEeW8XY7qqwdkZSzp4nlPVAZhbraBAyAL1qZMTgm+jLP4fRJg95Jri0mXovmkKosm362FrgIv/Gq0PRHJjOsDShZgtpSVGLC8plTCl3KA83xII3MJR4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W7WjJmQ_1717068248;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7WjJmQ_1717068248)
+	bh=OV9DEz92e7vXkROotTgqBNRUWlum5/QNgAsRioLqDwA=;
+	b=c8QRBnpskgd7dmsB1eYeQoP1aCNRHawWLnR5GxwHoWiN8VruAAjoZpC0bccTLFn3XPqS9Xj6TjUN3zEhF3Vhw5uLFNmK1Soym5KFjIJ8dkkQqlqA7+W083KltrlvdXOLP5vBAVTCtT5hBCH4w7ApaWVNvlF2er1onCgglOFD73k=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W7WnmkS_1717068247;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7WnmkS_1717068247)
           by smtp.aliyun-inc.com;
-          Thu, 30 May 2024 19:24:09 +0800
+          Thu, 30 May 2024 19:24:07 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -41,9 +41,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v2 02/12] virtio_net: move core structures to virtio_net.h
-Date: Thu, 30 May 2024 19:23:56 +0800
-Message-Id: <20240530112406.94452-3-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v2 01/12] virtio_net: independent directory
+Date: Thu, 30 May 2024 19:23:55 +0800
+Message-Id: <20240530112406.94452-2-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240530112406.94452-1-xuanzhuo@linux.alibaba.com>
 References: <20240530112406.94452-1-xuanzhuo@linux.alibaba.com>
@@ -56,552 +56,106 @@ MIME-Version: 1.0
 X-Git-Hash: fcf606ca5ff8
 Content-Transfer-Encoding: 8bit
 
-Move some core structures (send_queue, receive_queue, virtnet_info)
-definitions and the relative structures definitions into the
-virtio_net.h file.
-
-That will be used by the other c code files.
+Create a separate directory for virtio-net. AF_XDP support will be added
+later, then a separate xsk.c file will be added, so we should create a
+directory for virtio-net.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio/virtnet.h      | 239 ++++++++++++++++++++++++++++++
- drivers/net/virtio/virtnet_main.c | 235 +----------------------------
- 2 files changed, 241 insertions(+), 233 deletions(-)
- create mode 100644 drivers/net/virtio/virtnet.h
+ MAINTAINERS                                         |  2 +-
+ drivers/net/Kconfig                                 |  9 +--------
+ drivers/net/Makefile                                |  2 +-
+ drivers/net/virtio/Kconfig                          | 12 ++++++++++++
+ drivers/net/virtio/Makefile                         |  8 ++++++++
+ drivers/net/{virtio_net.c => virtio/virtnet_main.c} |  0
+ 6 files changed, 23 insertions(+), 10 deletions(-)
+ create mode 100644 drivers/net/virtio/Kconfig
+ create mode 100644 drivers/net/virtio/Makefile
+ rename drivers/net/{virtio_net.c => virtio/virtnet_main.c} (100%)
 
-diff --git a/drivers/net/virtio/virtnet.h b/drivers/net/virtio/virtnet.h
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 27367ad339ea..e426fdbaacb8 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -23776,7 +23776,7 @@ F:	Documentation/devicetree/bindings/virtio/
+ F:	Documentation/driver-api/virtio/
+ F:	drivers/block/virtio_blk.c
+ F:	drivers/crypto/virtio/
+-F:	drivers/net/virtio_net.c
++F:	drivers/net/virtio/
+ F:	drivers/vdpa/
+ F:	drivers/virtio/
+ F:	include/linux/vdpa.h
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 9920b3a68ed1..b80793a0bd17 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -443,14 +443,7 @@ config VETH
+ 	  When one end receives the packet it appears on its pair and vice
+ 	  versa.
+ 
+-config VIRTIO_NET
+-	tristate "Virtio network driver"
+-	depends on VIRTIO
+-	select NET_FAILOVER
+-	select DIMLIB
+-	help
+-	  This is the virtual network driver for virtio.  It can be used with
+-	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
++source "drivers/net/virtio/Kconfig"
+ 
+ config NLMON
+ 	tristate "Virtual netlink monitoring device"
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index 13743d0e83b5..505385d7f6b7 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -32,7 +32,7 @@ obj-$(CONFIG_NET_TEAM) += team/
+ obj-$(CONFIG_TUN) += tun.o
+ obj-$(CONFIG_TAP) += tap.o
+ obj-$(CONFIG_VETH) += veth.o
+-obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
++obj-$(CONFIG_VIRTIO_NET) += virtio/
+ obj-$(CONFIG_VXLAN) += vxlan/
+ obj-$(CONFIG_GENEVE) += geneve.o
+ obj-$(CONFIG_BAREUDP) += bareudp.o
+diff --git a/drivers/net/virtio/Kconfig b/drivers/net/virtio/Kconfig
 new file mode 100644
-index 000000000000..e46db9491605
+index 000000000000..e162535ca213
 --- /dev/null
-+++ b/drivers/net/virtio/virtnet.h
-@@ -0,0 +1,239 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
++++ b/drivers/net/virtio/Kconfig
+@@ -0,0 +1,12 @@
++# SPDX-License-Identifier: GPL-2.0-only
++#
++# virtio-net device configuration
++#
++config VIRTIO_NET
++	tristate "Virtio network driver"
++	depends on VIRTIO
++	select NET_FAILOVER
++	select DIMLIB
++	help
++	  This is the virtual network driver for virtio.  It can be used with
++	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
+diff --git a/drivers/net/virtio/Makefile b/drivers/net/virtio/Makefile
+new file mode 100644
+index 000000000000..c4602337c78c
+--- /dev/null
++++ b/drivers/net/virtio/Makefile
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: GPL-2.0
++#
++# Makefile for the virtio network device drivers.
++#
 +
-+#ifndef __VIRTIO_NET_H__
-+#define __VIRTIO_NET_H__
++obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
 +
-+#include <linux/ethtool.h>
-+#include <linux/average.h>
-+
-+/* RX packet size EWMA. The average packet size is used to determine the packet
-+ * buffer size when refilling RX rings. As the entire RX ring may be refilled
-+ * at once, the weight is chosen so that the EWMA will be insensitive to short-
-+ * term, transient changes in packet size.
-+ */
-+DECLARE_EWMA(pkt_len, 0, 64)
-+
-+struct virtnet_sq_stats {
-+	struct u64_stats_sync syncp;
-+	u64_stats_t packets;
-+	u64_stats_t bytes;
-+	u64_stats_t xdp_tx;
-+	u64_stats_t xdp_tx_drops;
-+	u64_stats_t kicks;
-+	u64_stats_t tx_timeouts;
-+	u64_stats_t stop;
-+	u64_stats_t wake;
-+};
-+
-+struct virtnet_rq_stats {
-+	struct u64_stats_sync syncp;
-+	u64_stats_t packets;
-+	u64_stats_t bytes;
-+	u64_stats_t drops;
-+	u64_stats_t xdp_packets;
-+	u64_stats_t xdp_tx;
-+	u64_stats_t xdp_redirects;
-+	u64_stats_t xdp_drops;
-+	u64_stats_t kicks;
-+};
-+
-+struct virtnet_interrupt_coalesce {
-+	u32 max_packets;
-+	u32 max_usecs;
-+};
-+
-+/* The dma information of pages allocated at a time. */
-+struct virtnet_rq_dma {
-+	dma_addr_t addr;
-+	u32 ref;
-+	u16 len;
-+	u16 need_sync;
-+};
-+
-+/* Internal representation of a send virtqueue */
-+struct send_queue {
-+	/* Virtqueue associated with this send _queue */
-+	struct virtqueue *vq;
-+
-+	/* TX: fragments + linear part + virtio header */
-+	struct scatterlist sg[MAX_SKB_FRAGS + 2];
-+
-+	/* Name of the send queue: output.$index */
-+	char name[16];
-+
-+	struct virtnet_sq_stats stats;
-+
-+	struct virtnet_interrupt_coalesce intr_coal;
-+
-+	struct napi_struct napi;
-+
-+	/* Record whether sq is in reset state. */
-+	bool reset;
-+};
-+
-+/* Internal representation of a receive virtqueue */
-+struct receive_queue {
-+	/* Virtqueue associated with this receive_queue */
-+	struct virtqueue *vq;
-+
-+	struct napi_struct napi;
-+
-+	struct bpf_prog __rcu *xdp_prog;
-+
-+	struct virtnet_rq_stats stats;
-+
-+	/* The number of rx notifications */
-+	u16 calls;
-+
-+	/* Is dynamic interrupt moderation enabled? */
-+	bool dim_enabled;
-+
-+	/* Used to protect dim_enabled and inter_coal */
-+	struct mutex dim_lock;
-+
-+	/* Dynamic Interrupt Moderation */
-+	struct dim dim;
-+
-+	u32 packets_in_napi;
-+
-+	struct virtnet_interrupt_coalesce intr_coal;
-+
-+	/* Chain pages by the private ptr. */
-+	struct page *pages;
-+
-+	/* Average packet length for mergeable receive buffers. */
-+	struct ewma_pkt_len mrg_avg_pkt_len;
-+
-+	/* Page frag for packet buffer allocation. */
-+	struct page_frag alloc_frag;
-+
-+	/* RX: fragments + linear part + virtio header */
-+	struct scatterlist sg[MAX_SKB_FRAGS + 2];
-+
-+	/* Min single buffer size for mergeable buffers case. */
-+	unsigned int min_buf_len;
-+
-+	/* Name of this receive queue: input.$index */
-+	char name[16];
-+
-+	struct xdp_rxq_info xdp_rxq;
-+
-+	/* Record the last dma info to free after new pages is allocated. */
-+	struct virtnet_rq_dma *last_dma;
-+};
-+
-+/* This structure can contain rss message with maximum settings for indirection table and keysize
-+ * Note, that default structure that describes RSS configuration virtio_net_rss_config
-+ * contains same info but can't handle table values.
-+ * In any case, structure would be passed to virtio hw through sg_buf split by parts
-+ * because table sizes may be differ according to the device configuration.
-+ */
-+#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
-+#define VIRTIO_NET_RSS_MAX_TABLE_LEN    128
-+struct virtio_net_ctrl_rss {
-+	u32 hash_types;
-+	u16 indirection_table_mask;
-+	u16 unclassified_queue;
-+	u16 indirection_table[VIRTIO_NET_RSS_MAX_TABLE_LEN];
-+	u16 max_tx_vq;
-+	u8 hash_key_length;
-+	u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
-+};
-+
-+struct virtnet_info {
-+	struct virtio_device *vdev;
-+	struct virtqueue *cvq;
-+	struct net_device *dev;
-+	struct send_queue *sq;
-+	struct receive_queue *rq;
-+	unsigned int status;
-+
-+	/* Max # of queue pairs supported by the device */
-+	u16 max_queue_pairs;
-+
-+	/* # of queue pairs currently used by the driver */
-+	u16 curr_queue_pairs;
-+
-+	/* # of XDP queue pairs currently used by the driver */
-+	u16 xdp_queue_pairs;
-+
-+	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
-+	bool xdp_enabled;
-+
-+	/* I like... big packets and I cannot lie! */
-+	bool big_packets;
-+
-+	/* number of sg entries allocated for big packets */
-+	unsigned int big_packets_num_skbfrags;
-+
-+	/* Host will merge rx buffers for big packets (shake it! shake it!) */
-+	bool mergeable_rx_bufs;
-+
-+	/* Host supports rss and/or hash report */
-+	bool has_rss;
-+	bool has_rss_hash_report;
-+	u8 rss_key_size;
-+	u16 rss_indir_table_size;
-+	u32 rss_hash_types_supported;
-+	u32 rss_hash_types_saved;
-+	struct virtio_net_ctrl_rss rss;
-+
-+	/* Has control virtqueue */
-+	bool has_cvq;
-+
-+	/* Lock to protect the control VQ */
-+	struct mutex cvq_lock;
-+
-+	/* Host can handle any s/g split between our header and packet data */
-+	bool any_header_sg;
-+
-+	/* Packet virtio header size */
-+	u8 hdr_len;
-+
-+	/* Work struct for delayed refilling if we run low on memory. */
-+	struct delayed_work refill;
-+
-+	/* Is delayed refill enabled? */
-+	bool refill_enabled;
-+
-+	/* The lock to synchronize the access to refill_enabled */
-+	spinlock_t refill_lock;
-+
-+	/* Work struct for config space updates */
-+	struct work_struct config_work;
-+
-+	/* Work struct for setting rx mode */
-+	struct work_struct rx_mode_work;
-+
-+	/* OK to queue work setting RX mode? */
-+	bool rx_mode_work_enabled;
-+
-+	/* Does the affinity hint is set for virtqueues? */
-+	bool affinity_hint_set;
-+
-+	/* CPU hotplug instances for online & dead */
-+	struct hlist_node node;
-+	struct hlist_node node_dead;
-+
-+	struct control_buf *ctrl;
-+
-+	/* Ethtool settings */
-+	u8 duplex;
-+	u32 speed;
-+
-+	/* Is rx dynamic interrupt moderation enabled? */
-+	bool rx_dim_enabled;
-+
-+	/* Interrupt coalescing settings */
-+	struct virtnet_interrupt_coalesce intr_coal_tx;
-+	struct virtnet_interrupt_coalesce intr_coal_rx;
-+
-+	unsigned long guest_offloads;
-+	unsigned long guest_offloads_capable;
-+
-+	/* failover when STANDBY feature enabled */
-+	struct failover *failover;
-+
-+	u64 device_stats_cap;
-+};
-+#endif
-diff --git a/drivers/net/virtio/virtnet_main.c b/drivers/net/virtio/virtnet_main.c
-index 4a802c0ea2cb..faff5d719440 100644
---- a/drivers/net/virtio/virtnet_main.c
-+++ b/drivers/net/virtio/virtnet_main.c
-@@ -6,7 +6,6 @@
- //#define DEBUG
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
--#include <linux/ethtool.h>
- #include <linux/module.h>
- #include <linux/virtio.h>
- #include <linux/virtio_net.h>
-@@ -16,7 +15,6 @@
- #include <linux/if_vlan.h>
- #include <linux/slab.h>
- #include <linux/cpu.h>
--#include <linux/average.h>
- #include <linux/filter.h>
- #include <linux/kernel.h>
- #include <linux/dim.h>
-@@ -26,6 +24,8 @@
- #include <net/netdev_rx_queue.h>
- #include <net/netdev_queues.h>
- 
-+#include "virtnet.h"
-+
- static int napi_weight = NAPI_POLL_WEIGHT;
- module_param(napi_weight, int, 0444);
- 
-@@ -49,13 +49,6 @@ module_param(napi_tx, bool, 0644);
- 
- #define VIRTIO_XDP_FLAG	BIT(0)
- 
--/* RX packet size EWMA. The average packet size is used to determine the packet
-- * buffer size when refilling RX rings. As the entire RX ring may be refilled
-- * at once, the weight is chosen so that the EWMA will be insensitive to short-
-- * term, transient changes in packet size.
-- */
--DECLARE_EWMA(pkt_len, 0, 64)
--
- #define VIRTNET_DRIVER_VERSION "1.0.0"
- 
- static const unsigned long guest_offloads[] = {
-@@ -87,30 +80,6 @@ struct virtnet_sq_free_stats {
- 	u64 bytes;
- };
- 
--struct virtnet_sq_stats {
--	struct u64_stats_sync syncp;
--	u64_stats_t packets;
--	u64_stats_t bytes;
--	u64_stats_t xdp_tx;
--	u64_stats_t xdp_tx_drops;
--	u64_stats_t kicks;
--	u64_stats_t tx_timeouts;
--	u64_stats_t stop;
--	u64_stats_t wake;
--};
--
--struct virtnet_rq_stats {
--	struct u64_stats_sync syncp;
--	u64_stats_t packets;
--	u64_stats_t bytes;
--	u64_stats_t drops;
--	u64_stats_t xdp_packets;
--	u64_stats_t xdp_tx;
--	u64_stats_t xdp_redirects;
--	u64_stats_t xdp_drops;
--	u64_stats_t kicks;
--};
--
- #define VIRTNET_SQ_STAT(name, m) {name, offsetof(struct virtnet_sq_stats, m), -1}
- #define VIRTNET_RQ_STAT(name, m) {name, offsetof(struct virtnet_rq_stats, m), -1}
- 
-@@ -265,212 +234,12 @@ static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc_qstat[] = {
- #define VIRTNET_Q_TYPE_TX 1
- #define VIRTNET_Q_TYPE_CQ 2
- 
--struct virtnet_interrupt_coalesce {
--	u32 max_packets;
--	u32 max_usecs;
--};
--
--/* The dma information of pages allocated at a time. */
--struct virtnet_rq_dma {
--	dma_addr_t addr;
--	u32 ref;
--	u16 len;
--	u16 need_sync;
--};
--
--/* Internal representation of a send virtqueue */
--struct send_queue {
--	/* Virtqueue associated with this send _queue */
--	struct virtqueue *vq;
--
--	/* TX: fragments + linear part + virtio header */
--	struct scatterlist sg[MAX_SKB_FRAGS + 2];
--
--	/* Name of the send queue: output.$index */
--	char name[16];
--
--	struct virtnet_sq_stats stats;
--
--	struct virtnet_interrupt_coalesce intr_coal;
--
--	struct napi_struct napi;
--
--	/* Record whether sq is in reset state. */
--	bool reset;
--};
--
--/* Internal representation of a receive virtqueue */
--struct receive_queue {
--	/* Virtqueue associated with this receive_queue */
--	struct virtqueue *vq;
--
--	struct napi_struct napi;
--
--	struct bpf_prog __rcu *xdp_prog;
--
--	struct virtnet_rq_stats stats;
--
--	/* The number of rx notifications */
--	u16 calls;
--
--	/* Is dynamic interrupt moderation enabled? */
--	bool dim_enabled;
--
--	/* Used to protect dim_enabled and inter_coal */
--	struct mutex dim_lock;
--
--	/* Dynamic Interrupt Moderation */
--	struct dim dim;
--
--	u32 packets_in_napi;
--
--	struct virtnet_interrupt_coalesce intr_coal;
--
--	/* Chain pages by the private ptr. */
--	struct page *pages;
--
--	/* Average packet length for mergeable receive buffers. */
--	struct ewma_pkt_len mrg_avg_pkt_len;
--
--	/* Page frag for packet buffer allocation. */
--	struct page_frag alloc_frag;
--
--	/* RX: fragments + linear part + virtio header */
--	struct scatterlist sg[MAX_SKB_FRAGS + 2];
--
--	/* Min single buffer size for mergeable buffers case. */
--	unsigned int min_buf_len;
--
--	/* Name of this receive queue: input.$index */
--	char name[16];
--
--	struct xdp_rxq_info xdp_rxq;
--
--	/* Record the last dma info to free after new pages is allocated. */
--	struct virtnet_rq_dma *last_dma;
--};
--
--/* This structure can contain rss message with maximum settings for indirection table and keysize
-- * Note, that default structure that describes RSS configuration virtio_net_rss_config
-- * contains same info but can't handle table values.
-- * In any case, structure would be passed to virtio hw through sg_buf split by parts
-- * because table sizes may be differ according to the device configuration.
-- */
--#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
--#define VIRTIO_NET_RSS_MAX_TABLE_LEN    128
--struct virtio_net_ctrl_rss {
--	u32 hash_types;
--	u16 indirection_table_mask;
--	u16 unclassified_queue;
--	u16 indirection_table[VIRTIO_NET_RSS_MAX_TABLE_LEN];
--	u16 max_tx_vq;
--	u8 hash_key_length;
--	u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
--};
--
- /* Control VQ buffers: protected by the rtnl lock */
- struct control_buf {
- 	struct virtio_net_ctrl_hdr hdr;
- 	virtio_net_ctrl_ack status;
- };
- 
--struct virtnet_info {
--	struct virtio_device *vdev;
--	struct virtqueue *cvq;
--	struct net_device *dev;
--	struct send_queue *sq;
--	struct receive_queue *rq;
--	unsigned int status;
--
--	/* Max # of queue pairs supported by the device */
--	u16 max_queue_pairs;
--
--	/* # of queue pairs currently used by the driver */
--	u16 curr_queue_pairs;
--
--	/* # of XDP queue pairs currently used by the driver */
--	u16 xdp_queue_pairs;
--
--	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
--	bool xdp_enabled;
--
--	/* I like... big packets and I cannot lie! */
--	bool big_packets;
--
--	/* number of sg entries allocated for big packets */
--	unsigned int big_packets_num_skbfrags;
--
--	/* Host will merge rx buffers for big packets (shake it! shake it!) */
--	bool mergeable_rx_bufs;
--
--	/* Host supports rss and/or hash report */
--	bool has_rss;
--	bool has_rss_hash_report;
--	u8 rss_key_size;
--	u16 rss_indir_table_size;
--	u32 rss_hash_types_supported;
--	u32 rss_hash_types_saved;
--	struct virtio_net_ctrl_rss rss;
--
--	/* Has control virtqueue */
--	bool has_cvq;
--
--	/* Lock to protect the control VQ */
--	struct mutex cvq_lock;
--
--	/* Host can handle any s/g split between our header and packet data */
--	bool any_header_sg;
--
--	/* Packet virtio header size */
--	u8 hdr_len;
--
--	/* Work struct for delayed refilling if we run low on memory. */
--	struct delayed_work refill;
--
--	/* Is delayed refill enabled? */
--	bool refill_enabled;
--
--	/* The lock to synchronize the access to refill_enabled */
--	spinlock_t refill_lock;
--
--	/* Work struct for config space updates */
--	struct work_struct config_work;
--
--	/* Work struct for setting rx mode */
--	struct work_struct rx_mode_work;
--
--	/* OK to queue work setting RX mode? */
--	bool rx_mode_work_enabled;
--
--	/* Does the affinity hint is set for virtqueues? */
--	bool affinity_hint_set;
--
--	/* CPU hotplug instances for online & dead */
--	struct hlist_node node;
--	struct hlist_node node_dead;
--
--	struct control_buf *ctrl;
--
--	/* Ethtool settings */
--	u8 duplex;
--	u32 speed;
--
--	/* Is rx dynamic interrupt moderation enabled? */
--	bool rx_dim_enabled;
--
--	/* Interrupt coalescing settings */
--	struct virtnet_interrupt_coalesce intr_coal_tx;
--	struct virtnet_interrupt_coalesce intr_coal_rx;
--
--	unsigned long guest_offloads;
--	unsigned long guest_offloads_capable;
--
--	/* failover when STANDBY feature enabled */
--	struct failover *failover;
--
--	u64 device_stats_cap;
--};
--
- struct padded_vnet_hdr {
- 	struct virtio_net_hdr_v1_hash hdr;
- 	/*
++virtio_net-y := virtnet_main.o
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio/virtnet_main.c
+similarity index 100%
+rename from drivers/net/virtio_net.c
+rename to drivers/net/virtio/virtnet_main.c
 -- 
 2.32.0.3.g01195cf9f
 
