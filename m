@@ -1,69 +1,133 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F335833C5
-	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 03:11:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61D8D8814
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 03:20:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717038664; cv=none; b=OSQDamO+cczE5RF8wyTL4G0DZVDJE4NaEMDMDcFqpWY+vho/59IKs/TOHJgBoyJVLKqzbkFFnRk3RhvRtlFnOPxn+0pbh4qX/3UL94PHwqzLubmM6MiOxa/Ztee7h7f8Jgh4c7b4LclOAWVj/PjpT2hFDpLleQZj6z0xwkfbTSc=
+	t=1717039242; cv=none; b=H7O9v7ZLvys9rteBP9iqtuDel9WRGagpq+14dy6hYl2dST8Eqy80ZwD+9a7Ol2BO3W8XGFWuU/EXsDsxTLh8jdaxbgH1XTYdUyvluRTFnW+jWFlL+AcAY6B2J6mUsVxhh+2QLF7NhxFxSuBkpKM2dz/uDCv+WdKUtmaS4J59fAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717038664; c=relaxed/simple;
-	bh=7sNUcNSmqNPsQTDr6e/iLs21QkaLHkuaxWMxfWhXeW4=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=CqwqBbk/ZVW23FAlnW+khosJE4SUgN3vMkhjd37vKM3sKgnY+5JmBNELj9FBlDmXSsuBWFSWGLWvpn0hN6KnQxb/ItEgm3iQnWfPkxln8uEMRHsYBK+vw+nIwusQf34BLL+GGsb5MKILUu5c0ktychmmtxNf5yQdONERcE9glW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=eXvMuQNl; arc=none smtp.client-ip=115.124.30.131
+	s=arc-20240116; t=1717039242; c=relaxed/simple;
+	bh=MQTQ7Cp02xw7hHkn7dKec4W7o8RkEWaaDwz+tXow0RY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kDj1o+OmjLaIo4oN/F2mpAQR5KRiRoFGZIh/thzxkUHlfuCi/lGpJRbTJOI6TrrOSqoaL/kpItZ/96JaDC9cyVoC8y55jhM6AVXu+L7NTw90RgSsq/O5erocLdF54qguiwiC+D7kaAmfgBKbU5sDpWkBXi6+Ra8DehTNz1iCwHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JTQv+OsP; arc=none smtp.client-ip=115.124.30.101
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="eXvMuQNl"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JTQv+OsP"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1717038654; h=Message-ID:Subject:Date:From:To;
-	bh=TAMGz5OlUaCO7hHm1pRgBuMGTSA1Xh++eGteDd5wnhw=;
-	b=eXvMuQNlc+CY0NqAmmJbWTNV2CR6em+J5kMMOGh6aq/wMAWi80/v38r541nh6DoKHjd6idMyLCw3WDqUzWrris7K4fnHuxS+2N0qsTmmv7KPrH2K+QAp2McqIqucR0v+gdSAm1qefUDmrYh83EK0cZ2QjCoZ2HjhrbDsi1CW91E=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W7VW4jL_1717038653;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7VW4jL_1717038653)
+	t=1717039236; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=+Fxqt3tnwHm9/kuy3jiTE8slP9edWqwdcp8oxwmEvek=;
+	b=JTQv+OsPFbp9usda/bLnvpWJ3LHqYVwjrEv+V4+ACxFFUnEk1VnsunETi9BM7vSZQ+1KoDph7RjMgi+mqNbOAH0TNK3k63sp5GmdcZ/QbYxljc3r8GgX0qno+dQsC02KJRroAUVfmhKaAk8H/OSSlhtzTFdjH1vEvk187kg/5PQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0W7VW8-W_1717039235;
+Received: from 30.221.148.14(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W7VW8-W_1717039235)
           by smtp.aliyun-inc.com;
-          Thu, 30 May 2024 11:10:53 +0800
-Message-ID: <1717038610.151065-1-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net 1/2] virtio_net: rename ret to err
-Date: Thu, 30 May 2024 11:10:10 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>,
- Jiri Pirko <jiri@resnulli.us>,
- Daniel Jurgens <danielj@nvidia.com>
-References: <20240528075226.94255-1-hengqi@linux.alibaba.com>
- <20240528075226.94255-2-hengqi@linux.alibaba.com>
- <20240529171053.132ae776@kernel.org>
-In-Reply-To: <20240529171053.132ae776@kernel.org>
+          Thu, 30 May 2024 11:20:36 +0800
+Message-ID: <af09b5d3-940f-491d-97ba-bd3bf19b750a@linux.alibaba.com>
+Date: Thu, 30 May 2024 11:20:34 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] fuse: cleanup request queuing towards virtiofs
+To: Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org
+Cc: Peter-Jan Gootzen <pgootzen@nvidia.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Yoray Zack <yorayz@nvidia.com>,
+ Vivek Goyal <vgoyal@redhat.com>, virtualization@lists.linux.dev
+References: <20240529155210.2543295-1-mszeredi@redhat.com>
+Content-Language: en-US
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+In-Reply-To: <20240529155210.2543295-1-mszeredi@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, 29 May 2024 17:10:53 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> On Tue, 28 May 2024 15:52:25 +0800 Heng Qi wrote:
-> > The integer variable 'ret', denoting the return code, is mismatched with
-> > the boolean return type of virtnet_send_command_reply(); hence, it is
-> > renamed to 'err'.
-> > 
-> > The usage of 'ret' is deferred to the next patch.
+
+
+On 5/29/24 11:52 PM, Miklos Szeredi wrote:
+> Virtiofs has its own queing mechanism, but still requests are first queued
+> on fiq->pending to be immediately dequeued and queued onto the virtio
+> queue.
 > 
-> That seems a bit much. Can you call the variable in patch 2 "ok"
-> instead?
+> The queuing on fiq->pending is unnecessary and might even have some
+> performance impact due to being a contention point.
+> 
+> Forget requests are handled similarly.
+> 
+> Move the queuing of requests and forgets into the fiq->ops->*.
+> fuse_iqueue_ops are renamed to reflect the new semantics.
+> 
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> ---
 
-Sure.
+[...]
 
-Thanks.
+> +static void fuse_dev_queue_interrupt(struct fuse_iqueue *fiq, struct fuse_req *req)
+> +{
+> +	spin_lock(&fiq->lock);
+> +	if (list_empty(&req->intr_entry)) {
+> +		list_add_tail(&req->intr_entry, &fiq->interrupts);
+> +		/*
+> +		 * Pairs with smp_mb() implied by test_and_set_bit()
+> +		 * from fuse_request_end().
+> +		 */
+> +		smp_mb();
+> +		if (test_bit(FR_FINISHED, &req->flags)) {
+> +			list_del_init(&req->intr_entry);
+> +			spin_unlock(&fiq->lock			^
+		missing "return" here?
 
-> -- 
-> pw-bot: cr
+> +		}
+> +		fuse_dev_wake_and_unlock(fiq);
+> +	} else {
+> +		spin_unlock(&fiq->lock);
+> +	}
+> +}
+
+[...]
+
+>  static void fuse_adjust_compat(struct fuse_conn *fc, struct fuse_args *args)
+> @@ -581,7 +605,6 @@ static int fuse_simple_notify_reply(struct fuse_mount *fm,
+>  {
+>  	struct fuse_req *req;
+>  	struct fuse_iqueue *fiq = &fm->fc->iq;
+> -	int err = 0;
+>  
+>  	req = fuse_get_req(fm, false);
+>  	if (IS_ERR(req))> @@ -592,16 +615,9 @@ static int fuse_simple_notify_reply(struct
+fuse_mount *fm,
+>  
+>  	fuse_args_to_req(req, args);
+>  
+> -	spin_lock(&fiq->lock);
+> -	if (fiq->connected) {
+> -		queue_request_and_unlock(fiq, req);
+> -	} else {
+> -		err = -ENODEV;
+> -		spin_unlock(&fiq->lock);
+> -		fuse_put_request(req);
+> -	}
+> +	fuse_send_one(fiq, req);
+>  
+> -	return err;
+> +	return 0;
+>  }
+
+There's a minor changed behavior visible to users.  Prior to the patch,
+the FUSE_NOTIFY_RETRIEVE will returns -ENODEV when the connection is
+aborted, but now it returns 0.
+
+It seems only example/notify_store_retrieve.c has used
+FUSE_NOTIFY_RETRIEVE in libfuse.  I'm not sure if this change really
+matters.
+
+Maybe we could check req->out.h.error after fuse_send_one() returns?
+
+
+-- 
+Thanks,
+Jingbo
