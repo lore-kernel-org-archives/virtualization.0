@@ -1,93 +1,92 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02F49187558
-	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 15:36:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C080922EF0
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 16:43:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717083376; cv=none; b=iQy9bVdKDSHrV8f49luqOv2vjsT2I4rmPVuhKftUdVLkZ7Zltq+L6sNAkRtFl9UkBZHfvU2l/fYiVgnfqisYy3EhSzD2Oi+u5g+n2zvntVD9i/aSoTeBwGh0ecvD0GeNucnc8BM0vUApT8HNLf44kHKYLgO0xtifoV4RZn04hUM=
+	t=1717087405; cv=none; b=pZ+xlQ69SNLGIOxePei8fUrRTHoAzj0AWqofgbqJdA7N5aIgMNWV/CkXSPDbRfaw5oRger/7MAt/3nGNM0tRgFoxKGxSkOwTFxUXHUXWYaHrWsWIbIqDDDATFvf9g44to2ZSvkRXMQsCM+jBS7hw/e1kEMnPFjg4FQgfjJbztSc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717083376; c=relaxed/simple;
-	bh=KbLdL/seA21LV9zN+LpX02fN0fOL7QT1V1+L/wG42Tk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TmHA1U0EC1uvVmjhu6NY9OTrjWRnpF1YA13INu7mvGP6RD+kpfTNtewI92CMJOJJxXQSEYx7By9pNlV5dhE8lomc6iyurCxbjmxUlU4nNeJQdi/JHzijJDOs5IDL2MC1vplCqxKtQpCfUAQXJfsXVBG3wX2WfsAIqjxERTCggIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UtBYzAAu; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717087405; c=relaxed/simple;
+	bh=Dm0nVJ/NcIyMC9lntjlrCWDmfEEPLnVaRBi2b/vdQS4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Q7++IUNKf8WVUPcwiwMCHZ7i6dMarPU/qCUk36bGE+5QtgLj4wz7WoGIvDxmj8s4K36OLPLSXY+D0uyX4aQmZ20LLI6FdTJsJfXMue4uGxvod1/sXSZMF9EX0bqu+djXFzC3YQT951qxdR35abByQBkNUSXp6FKwADx2HJWJnZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ibo5Okz1; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UtBYzAAu"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717083365; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=w1t0izbHYuiodnmYQS/W/QtzQhF1IvrQmY/kNuEtIxk=;
-	b=UtBYzAAuqsXfcabSxAKAbLcrM63f4WXNEKdoxx5O7HVdiNBZWgegXI98aKSJh4dafQLvC1/kw2b28rz112LQNQwrKMCLWWD6d0zwTnuGVQShGrxo9473D95INbwTZyafnUgnt+3denapL9BRrI3L23/FeD8mag81Eon4oRUbjLA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W7XEnis_1717083364;
-Received: from 192.168.31.58(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W7XEnis_1717083364)
-          by smtp.aliyun-inc.com;
-          Thu, 30 May 2024 23:36:05 +0800
-Message-ID: <2b97f4bd-818f-4d8b-b55e-8410c0fb2768@linux.alibaba.com>
-Date: Thu, 30 May 2024 23:36:00 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ibo5Okz1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717087402;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2j3l4Q70fl5RCpvAfo17nzmG43wS4MUrW4QcWGP7XTw=;
+	b=Ibo5Okz13OesSNlchVta+FgH6bjcMhaBuOpoXkP3F42ZA878YPeXzoV16qHQ3ooMvRBwlU
+	fE/E/QEe4d9ZHuyezI7VrTs7/Oxgd8m1ewOn19yJjS/v4/EGTHaZNQtzB5a2x7TUPLjk09
+	O/A3J2VsdBnJfS1vq/E0eh/+g67FFeQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-617-3lkZqVsTMhC1VCUw4B2EYg-1; Thu, 30 May 2024 12:43:21 -0400
+X-MC-Unique: 3lkZqVsTMhC1VCUw4B2EYg-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-354f5f219e7so719724f8f.2
+        for <virtualization@lists.linux.dev>; Thu, 30 May 2024 09:43:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717087399; x=1717692199;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2j3l4Q70fl5RCpvAfo17nzmG43wS4MUrW4QcWGP7XTw=;
+        b=oBJAAjbnbtyL2gLQwYeJ21ypku982uC7HN57uvEsc0UTUuYaW8Hbvd2a3tPmeJ/y2n
+         MnpwGd/tz4G/BY3X8WXB2bPaWvQoh/Nqmkm67bObLKVwhp0g95XVGX9VR3OufdFw1rcr
+         H4W3+AN4EIi5GV3ZuU/6C2dO6TlZJY94XWtvub5Mletdg++DAjoqrbNl4uwqUkPBjkyg
+         5kAf3NwwW4h3ILj+Swmc7XV9IMGC3DgeTSpHzq7my/WKDMu6q3AEbwNXwBdOwiwwaisJ
+         NmgAbInPKEG2UP7bDmZJl97yrOuc6FMNj+WEIlwj9d9WOW43SHUovhZCFzLYs2NpXdx4
+         gTQg==
+X-Forwarded-Encrypted: i=1; AJvYcCV5SM8MC9OgKgz2A3FiQVJ+DrrDMoCjPVk8X6c1iLxHh4GFP8pccJnuzOLccz7C4U6/atKfAHdXiiUe0XBDZuzmMY4PUrQ2bMJGMtv8fwE=
+X-Gm-Message-State: AOJu0Yzzzw8qpYWAwYXnGaJcNP59NEZwyYLk5QWp0aqfIuKaRTsXTrye
+	XBdwx4dM8vfCH5aZuhvwi2EfBx+5+o1Y4nS791l3DEr5WprgT9YlbcoZ055aHd3OQkTcROB3Hts
+	eyJJtNjeOdxR0YEPAyH87P86QWb9ycpSpFZDEWqY9GQo+ylYyjmPTV2EW6k1JVcIv5/ddEPug
+X-Received: by 2002:a05:6000:1743:b0:357:9f3f:6f51 with SMTP id ffacd0b85a97d-35dc0091a8cmr1579824f8f.17.1717087399492;
+        Thu, 30 May 2024 09:43:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEhfBVZuT7T29BbiPidz23C2EktcMyt/erqpkRz8qyBYxVbr+W7bD02m2L0QdU5JckYeG3Apg==
+X-Received: by 2002:a05:6000:1743:b0:357:9f3f:6f51 with SMTP id ffacd0b85a97d-35dc0091a8cmr1579810f8f.17.1717087399023;
+        Thu, 30 May 2024 09:43:19 -0700 (PDT)
+Received: from redhat.com ([176.12.190.235])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35aa9d22498sm8909179f8f.0.2024.05.30.09.43.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 May 2024 09:43:18 -0700 (PDT)
+Date: Thu, 30 May 2024 12:43:15 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Manivannan Sadhasivam <mani@kernel.org>
+Cc: Shunsuke Mie <mie@igel.co.jp>, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+Message-ID: <20240530124132-mutt-send-email-mst@kernel.org>
+References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
+ <20240516125913.GC11261@thinkpad>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] fuse: cleanup request queuing towards virtiofs
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org,
- Peter-Jan Gootzen <pgootzen@nvidia.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Yoray Zack <yorayz@nvidia.com>,
- Vivek Goyal <vgoyal@redhat.com>, virtualization@lists.linux.dev
-References: <20240529155210.2543295-1-mszeredi@redhat.com>
- <af09b5d3-940f-491d-97ba-bd3bf19b750a@linux.alibaba.com>
- <CAJfpeguV0dNiyR5jzQH7H4x0vOzFTcBgnnLDHBPU9fH23A0kng@mail.gmail.com>
-Content-Language: en-US
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-In-Reply-To: <CAJfpeguV0dNiyR5jzQH7H4x0vOzFTcBgnnLDHBPU9fH23A0kng@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20240516125913.GC11261@thinkpad>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Thu, May 16, 2024 at 02:59:13PM +0200, Manivannan Sadhasivam wrote:
+> We can fix the endpoint framework limitation, but the problem lies with some
+> platforms where we cannot write to vendor capability registers and still have
+> IOMMU.
 
-
-On 5/30/24 5:00 PM, Miklos Szeredi wrote:
-> On Thu, 30 May 2024 at 05:20, Jingbo Xu <jefflexu@linux.alibaba.com> wrote:
-> 
->>> +             if (test_bit(FR_FINISHED, &req->flags)) {
->>> +                     list_del_init(&req->intr_entry);
->>> +                     spin_unlock(&fiq->lock                  ^
->>                 missing "return" here?
-> 
-> Well spotted.  Thanks.
-> 
->>> -             err = -ENODEV;
->>> -             spin_unlock(&fiq->lock);
->>> -             fuse_put_request(req);
->>> -     }
->>> +     fuse_send_one(fiq, req);
->>>
->>> -     return err;
->>> +     return 0;
->>>  }
->>
->> There's a minor changed behavior visible to users.  Prior to the patch,
->> the FUSE_NOTIFY_RETRIEVE will returns -ENODEV when the connection is
->> aborted, but now it returns 0.
->>
->> It seems only example/notify_store_retrieve.c has used
->> FUSE_NOTIFY_RETRIEVE in libfuse.  I'm not sure if this change really
->> matters.
-> 
-> It will return -ENOTCONN from  fuse_simple_notify_reply() ->
-> fuse_get_req().  The -ENODEV would be a very short transient error
-> during the abort, so it doesn't matter.
-
-Okay, fair enough.  Feel free to add:
-
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-
+What exactly do you mean? Why do you need to write to vendor capability
+registers?
 
 -- 
-Thanks,
-Jingbo
+MST
+
