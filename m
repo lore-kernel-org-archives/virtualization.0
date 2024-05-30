@@ -1,51 +1,77 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2A7317FAD3
-	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 11:24:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 927791761BC
+	for <virtualization@lists.linux.dev>; Thu, 30 May 2024 11:53:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717068263; cv=none; b=KenQEPbTj2Aibd7FuTVp+muVB8FsBSZzXCsCrG3+RrUtFl/io85JdIvmGlu6SqK28Z6TTBtcJxdwL4MzYpCscDgEL94B/EsDJJzhQTWkC2P4zk/vCm2IcWtbuJRgvRaADuTI8n5PF/2+LLulVBJAkjVaF97bSwGdBiMXvl/lo+M=
+	t=1717070007; cv=none; b=VGePQZ52ecI/x/mudJ3fX0h/BoEr/Oc9xalvCbn3OOPCoP94r8FE7zbrmdR5n88Qs+7G9WYZSlrHvx0CoxUf9jVpBX7XPCCtQNxu26Mgdlj7J9SaLo1a+SfmSYpkNF70MdSHMrunT98+ykSuVnX4R5PKTQOIbqkU1l0ErTGFrjc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717068263; c=relaxed/simple;
-	bh=tdPoSdIc0Oaxikvfh/2WnEPug/B5tQ8MDGCpIAkFRXA=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=GgaUwnUQ7gR+IFeKytYPY5URIAUyQSHMtgdpciHLISanj64N9FPq6EEf9sYsdx4+9KcIlXUl275A+iDdZwlgx8II49xM5prtJGZ0NsywbTAGkygHIeaRmqqb/kUfEXQ1e3DFwx5YduP3+BLjBFNE9LniuxLyJdtJSTh9tU/sLPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=oyxYW+lc; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717070007; c=relaxed/simple;
+	bh=a5RoNmw3LEtmCv84g3foK1aKa72JGF8L3MC+ZOG8Gz8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=JkwJ1D1M3tDhqvZpQLsD7IwwJqb3xY0duIR0UFB6Ul33fkb4UqEqjTUFGcw4fPJymvPssUHzCszbmHOI33MUIVUMmh7H3uYamLWdoE7Ud1pIU/5+0HCesHyz+Q+P2B4CBg5l1/lSn24NOgwBFUKy3izMuLgodYssSFgKvrUdZWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ju7MmyE6; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="oyxYW+lc"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717068259; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=DcuYAgvfw57t9kUpYEityIwfKgzkIpU3UuPCoycBsSQ=;
-	b=oyxYW+lcsL+TKxe1quHJVoGVHbshiVwz7r2ouk6876knC5GIXMBId9Sl9QqWUsfzz/ZPJ0cL0j3twmdrq08Jwqv5shX5MnF3CUmlZQGXt/0SeKQOYXNdTsymc/SESotGEvs/WU1k7eR1DQtKyxEi13WuY5DUeqXsgpSJzif7ahA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W7Ws89W_1717068258;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7Ws89W_1717068258)
-          by smtp.aliyun-inc.com;
-          Thu, 30 May 2024 19:24:18 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ju7MmyE6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717070004;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QaJ08O7JdNI93KJGm73XMZhzelj+VajVlq/Gw0RkfEU=;
+	b=Ju7MmyE6qG9/MOUH5DUqudiPA4RyUzZTYBSMXu2oM5w4IKirQEIrsFGdveekV+Ukrx3MCF
+	DvVeJooWgUUsJjGGIOh7b/8V76El64LbqaWJhN5ATnqaUSZshFvslo25vJIYlvuSRCQxn9
+	jmB91y1sb7micHRZ5K3KyguEv6FNpfA=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-73-jx06R_7aOoK9zTZcuTys1Q-1; Thu, 30 May 2024 07:53:23 -0400
+X-MC-Unique: jx06R_7aOoK9zTZcuTys1Q-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42114bcc41cso5691145e9.0
+        for <virtualization@lists.linux.dev>; Thu, 30 May 2024 04:53:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717070002; x=1717674802;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QaJ08O7JdNI93KJGm73XMZhzelj+VajVlq/Gw0RkfEU=;
+        b=hMi0Ca1B9cRl6YfkVikwmB/RK/M2Wt57KvEVHB7Z5vih1uaBa+HMDcC7vQ/3nxrSKT
+         /+FQGS+qCJeB/e5zHVcVjJW7L4KuFpmvErn+9oXIfdQz3T7dz3yhgye1ehIlKfy/J+uK
+         Wm4fXorain0fbm3B48QmW69Vd6NgV3X5i3wBt2ZeK0sQrTbYC8UCAERqSwYALk3W36R6
+         SRANyEmFyz55iSVfzxqM2FSl5DLFl/aVDgg23wJIZraG4vywLTuCKI9lmqSQnMV/RxJb
+         7BEiqhJN15XdwDfxpFr3lQmKM/dP1nQ+v58VIx4INUIpmRhja825K8ogf8Mpm26FypLI
+         6kbA==
+X-Forwarded-Encrypted: i=1; AJvYcCU5cxPMe/5pwjYr/XYhBiHG9lPmHY67WuPtrHI8H6GsH+9qkUtEDkMFN384yfWixWJpjokLVm77S6XWgQ6v9wDm7e9oxAxXQ3D4p6+rHwU=
+X-Gm-Message-State: AOJu0YxDW0o6B30Jto07xAIvA74P2l1+dOf9qwZTJ+K2q1/5tgw7br5D
+	NgSKmXUpraA2GlUpSkqKC58vnq+Wci+bsqw4uvKqr/IXusbM21r03yewAhvnZkdmdZRtsehY32d
+	0E9e7TQ7nyLzNb/XeQELcOR9/PJ1T94346mcxXKocZnuw18fXKCpiKP11yQ9rSxuX
+X-Received: by 2002:a05:600c:3c9e:b0:41f:eba9:ced4 with SMTP id 5b1f17b1804b1-42127817a46mr21345955e9.16.1717070002021;
+        Thu, 30 May 2024 04:53:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEceci61giza+Mfylw+1jbKk7Vb1KMIlL8tVEyZVSFKJGK4nLI8VQ/9gqBvA2EqJRwnujJi8g==
+X-Received: by 2002:a05:600c:3c9e:b0:41f:eba9:ced4 with SMTP id 5b1f17b1804b1-42127817a46mr21345615e9.16.1717070001403;
+        Thu, 30 May 2024 04:53:21 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:179:fb20:c957:3427:ac94:f0a3])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4212706ea02sm23212155e9.30.2024.05.30.04.53.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 May 2024 04:53:20 -0700 (PDT)
+Date: Thu, 30 May 2024 07:53:17 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	Alexei Starovoitov <ast@kernel.org>,
 	Daniel Borkmann <daniel@iogearbox.net>,
 	Jesper Dangaard Brouer <hawk@kernel.org>,
 	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next v2 12/12] virtio_net: refactor the xmit type
-Date: Thu, 30 May 2024 19:24:06 +0800
-Message-Id: <20240530112406.94452-13-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240530112406.94452-1-xuanzhuo@linux.alibaba.com>
+	virtualization@lists.linux.dev, bpf@vger.kernel.org
+Subject: Re: [PATCH net-next v2 00/12] virtnet_net: prepare for af-xdp
+Message-ID: <20240530075003-mutt-send-email-mst@kernel.org>
 References: <20240530112406.94452-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -53,147 +79,62 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: fcf606ca5ff8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240530112406.94452-1-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Because the af-xdp and the sq premapped mode will introduce two
-new xmit types, so I refactor the xmit type mechanism first.
-Then we can add two new xmit types simply by add two new enum.
+On Thu, May 30, 2024 at 07:23:54PM +0800, Xuan Zhuo wrote:
+> This patch set prepares for supporting af-xdp zerocopy.
+> There is no feature change in this patch set.
+> I just want to reduce the patch num of the final patch set,
+> so I split the patch set.
+> 
+> Thanks.
+> 
+> v2:
+>     1. Add five commits. That provides some helper for sq to support premapped
+>        mode. And the last one refactors distinguishing xmit types.
+> 
+> v1:
+>     1. resend for the new net-next merge window
+> 
 
-We can use the last two bits of the pointer to distinguish the xmit type,
-so we can distinguish four xmit types.
 
-Now we have two xmit types: SKB and XDP.
+It's great that you are working on this but
+I'd like to see the actual use of this first.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio/virtnet_main.c | 58 +++++++++++++++++++++----------
- 1 file changed, 40 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/net/virtio/virtnet_main.c b/drivers/net/virtio/virtnet_main.c
-index 60ef7bb2228d..3ec821106c1d 100644
---- a/drivers/net/virtio/virtnet_main.c
-+++ b/drivers/net/virtio/virtnet_main.c
-@@ -47,8 +47,6 @@ module_param(napi_tx, bool, 0644);
- #define VIRTIO_XDP_TX		BIT(0)
- #define VIRTIO_XDP_REDIR	BIT(1)
- 
--#define VIRTIO_XDP_FLAG	BIT(0)
--
- #define VIRTNET_DRIVER_VERSION "1.0.0"
- 
- static const unsigned long guest_offloads[] = {
-@@ -260,42 +258,62 @@ struct virtio_net_common_hdr {
- 
- static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
- 
--static bool is_xdp_frame(void *ptr)
-+enum virtnet_xmit_type {
-+	VIRTNET_XMIT_TYPE_SKB,
-+	VIRTNET_XMIT_TYPE_XDP,
-+};
-+
-+#define VIRTNET_XMIT_TYPE_MASK (VIRTNET_XMIT_TYPE_SKB | VIRTNET_XMIT_TYPE_XDP)
-+
-+static enum virtnet_xmit_type virtnet_xmit_ptr_strip(void **ptr)
- {
--	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-+	unsigned long p = (unsigned long)*ptr;
-+
-+	*ptr = (void *)(p & ~VIRTNET_XMIT_TYPE_MASK);
-+
-+	return p & VIRTNET_XMIT_TYPE_MASK;
- }
- 
--static void *xdp_to_ptr(struct xdp_frame *ptr)
-+static void *virtnet_xmit_ptr_mix(void *ptr, enum virtnet_xmit_type type)
- {
--	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
-+	return (void *)((unsigned long)ptr | type);
- }
- 
--static struct xdp_frame *ptr_to_xdp(void *ptr)
-+static int virtnet_add_outbuf(struct virtnet_sq *sq, int num, void *data,
-+			      enum virtnet_xmit_type type)
- {
--	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
-+	return virtqueue_add_outbuf(sq->vq, sq->sg, num,
-+				    virtnet_xmit_ptr_mix(data, type),
-+				    GFP_ATOMIC);
- }
- 
- static void __free_old_xmit(struct virtnet_sq *sq, bool in_napi,
- 			    struct virtnet_sq_free_stats *stats)
- {
-+	struct xdp_frame *frame;
-+	struct sk_buff *skb;
- 	unsigned int len;
- 	void *ptr;
- 
- 	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
- 		++stats->packets;
- 
--		if (!is_xdp_frame(ptr)) {
--			struct sk_buff *skb = ptr;
-+		switch (virtnet_xmit_ptr_strip(&ptr)) {
-+		case VIRTNET_XMIT_TYPE_SKB:
-+			skb = ptr;
- 
- 			pr_debug("Sent skb %p\n", skb);
- 
- 			stats->bytes += skb->len;
- 			napi_consume_skb(skb, in_napi);
--		} else {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
-+			break;
-+
-+		case VIRTNET_XMIT_TYPE_XDP:
-+			frame = ptr;
- 
- 			stats->bytes += xdp_get_frame_len(frame);
- 			xdp_return_frame(frame);
-+			break;
- 		}
- 	}
- }
-@@ -833,8 +851,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
- 			    skb_frag_size(frag), skb_frag_off(frag));
- 	}
- 
--	err = virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
--				   xdp_to_ptr(xdpf), GFP_ATOMIC);
-+	err = virtnet_add_outbuf(sq, nr_frags + 1, xdpf, VIRTNET_XMIT_TYPE_XDP);
- 	if (unlikely(err))
- 		return -ENOSPC; /* Caller handle free/refcnt */
- 
-@@ -2343,7 +2360,7 @@ static int xmit_skb(struct virtnet_sq *sq, struct sk_buff *skb)
- 			return num_sg;
- 		num_sg++;
- 	}
--	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
-+	return virtnet_add_outbuf(sq, num_sg, skb, VIRTNET_XMIT_TYPE_SKB);
- }
- 
- static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-@@ -5051,10 +5068,15 @@ static void free_receive_page_frags(struct virtnet_info *vi)
- 
- static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
- {
--	if (!is_xdp_frame(buf))
-+	switch (virtnet_xmit_ptr_strip(&buf)) {
-+	case VIRTNET_XMIT_TYPE_SKB:
- 		dev_kfree_skb(buf);
--	else
--		xdp_return_frame(ptr_to_xdp(buf));
-+		break;
-+
-+	case VIRTNET_XMIT_TYPE_XDP:
-+		xdp_return_frame(buf);
-+		break;
-+	}
- }
- 
- static void free_unused_bufs(struct virtnet_info *vi)
--- 
-2.32.0.3.g01195cf9f
+> 
+> Xuan Zhuo (12):
+>   virtio_net: independent directory
+>   virtio_net: move core structures to virtio_net.h
+>   virtio_net: add prefix virtnet to all struct inside virtio_net.h
+>   virtio_net: separate virtnet_rx_resize()
+>   virtio_net: separate virtnet_tx_resize()
+>   virtio_net: separate receive_mergeable
+>   virtio_net: separate receive_buf
+>   virtio_ring: introduce vring_need_unmap_buffer
+>   virtio_ring: introduce dma map api for page
+>   virtio_ring: introduce virtqueue_dma_map_sg_attrs
+>   virtio_ring: virtqueue_set_dma_premapped() support to disable
+>   virtio_net: refactor the xmit type
+> 
+>  MAINTAINERS                                   |   2 +-
+>  drivers/net/Kconfig                           |   9 +-
+>  drivers/net/Makefile                          |   2 +-
+>  drivers/net/virtio/Kconfig                    |  12 +
+>  drivers/net/virtio/Makefile                   |   8 +
+>  drivers/net/virtio/virtnet.h                  | 248 ++++++++
+>  .../{virtio_net.c => virtio/virtnet_main.c}   | 596 +++++++-----------
+>  drivers/virtio/virtio_ring.c                  | 118 +++-
+>  include/linux/virtio.h                        |  12 +-
+>  9 files changed, 606 insertions(+), 401 deletions(-)
+>  create mode 100644 drivers/net/virtio/Kconfig
+>  create mode 100644 drivers/net/virtio/Makefile
+>  create mode 100644 drivers/net/virtio/virtnet.h
+>  rename drivers/net/{virtio_net.c => virtio/virtnet_main.c} (93%)
+> 
+> --
+> 2.32.0.3.g01195cf9f
 
