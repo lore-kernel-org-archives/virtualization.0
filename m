@@ -1,129 +1,107 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B008117CD
-	for <virtualization@lists.linux.dev>; Sat,  1 Jun 2024 01:15:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99C7C125DE;
+	Sat,  1 Jun 2024 19:15:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717204532; cv=none; b=lyggghGdJx7i/XzLvTIsrsox1gQzJiNbC1xlF9c6ysjoDUEzQGkMKfdiDG2Egi56qPu4lT9XgP+LmB933gaLRx2FwMQQvJlWyJ86CM2muNBSP56cn1ckLlfnScnYUXVP5VTvzGB8EmE5AxyNtRwgwyEuEa49+myGiMQsMKadi24=
+	t=1717269335; cv=none; b=fQTtG02J9ELWG7y30Xqhp+DTp23S/Wy+RE/cdpaEa6jG/q74Fr29ps3olDFqoAr8dY4kfRXNeLpqXF2vp289vmQYZZPIuBDHeTJK8ZV5v2qjKjdgVP3JMmvgW1jb/bx9cNhup2zBE6NgLcZW1TGESbokr/6n75uVgwdK1u08CqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717204532; c=relaxed/simple;
-	bh=8njHc4+OQxH6Zvo0xJgYYXhAprYJryPWqzqHTO7+d1Y=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=mtv4EMH0zBgIk3WDcezMEpfNIEwSl0EQtEZS/X0166u2NmTIxmqTqvBvEBFV167eC5lWFKbP58S0iuYuM4HewsSYV/bTwU1bBg6PWWRJ/YiXvVrGi07Mw7/Zf4QgiLRoMXe0MKgSYvm2u0DyA0IlgWRRiQs6tcASqmqRNU2drJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NcLYGRZj; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717269335; c=relaxed/simple;
+	bh=TCNSPxPns4EhFR9yBjsnQhWnMT3BTaZJ5LndNteH2Ns=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nxKnODVyXs6JIJUIalLaJ6CWYOKwkvVS2A1UrB0n94fvgjLO8HpdytRt0f/YYeKFMaAjjoGjMV+rH7LEhp5/EzYwQTZpiPwc197Mu3cGBWimXeqVujyJewE6+qjP/Joj7LvxcVHqUIzjivRJELOsjZX++C9h/QvFCvCbZLNyeGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ui+iMp0B; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NcLYGRZj"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717204521; h=Message-ID:Subject:Date:From:To;
-	bh=7c9v1vjRkw+eOQnY17pAKIlCydJpq+ODaejt+ncs1Os=;
-	b=NcLYGRZj/jFobfpIIx1fx1OYAnOcOfdZVFi6l1XxGAFWGqC/YqcEJ8XbxmTX1vrhPfpIYOnttymCWCvRcq1kk7QP27A/OcrbGCD8iajeKHHD2MddYGcah4DNN8UgdarOxCB938XOUoi+sNOVODHU1db/vJvMvsBcaksMKLJM3ms=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W7bCb3w_1717204518;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7bCb3w_1717204518)
-          by smtp.aliyun-inc.com;
-          Sat, 01 Jun 2024 09:15:19 +0800
-Message-ID: <1717203689.8004525-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 00/12] virtnet_net: prepare for af-xdp
-Date: Sat, 1 Jun 2024 09:01:29 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-References: <20240530112406.94452-1-xuanzhuo@linux.alibaba.com>
- <20240530075003-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240530075003-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ui+iMp0B"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1717269333; x=1748805333;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=TCNSPxPns4EhFR9yBjsnQhWnMT3BTaZJ5LndNteH2Ns=;
+  b=Ui+iMp0BHJMsejzYibXW9WxN99pEPm0eMyteNW8X6z63pAC6hDFyoHuO
+   Y9DTIfcrbfErbyXaLC4eLCPlcaS4QPQdd4FZjsRHGAZ6OdWW8wv2lm1fq
+   1KrhpYodValK+0edcHnyelso89FXlFuji06TDerVDYtgEmX1k/3GCA5bv
+   H6Jds7A6OIqAOW7qOV+XbtAUYM5i0jIAAcLzxkfaVRHWugpLFCND4XaAN
+   /GZdk+pLMZrucDu7SAfUfGIGnbeX5xSo9KYHAkZmVbnjtwj83iOkDin37
+   5TxYSLcv5rTc/fB53t60z2Yg4iEm3jFOww6OMt11lPZ29rBQOUzv6xrVl
+   Q==;
+X-CSE-ConnectionGUID: aB9HjrodQvqcAe6r3Wyrdg==
+X-CSE-MsgGUID: IVywz4D8SbuyvC5IRFXw9Q==
+X-IronPort-AV: E=McAfee;i="6600,9927,11090"; a="14024367"
+X-IronPort-AV: E=Sophos;i="6.08,207,1712646000"; 
+   d="scan'208";a="14024367"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2024 12:15:31 -0700
+X-CSE-ConnectionGUID: rWV/KU92STmxbEjmvCR7Zw==
+X-CSE-MsgGUID: bgxV5EY2QLGvKJagxrtxBw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,207,1712646000"; 
+   d="scan'208";a="41560131"
+Received: from unknown (HELO 0610945e7d16) ([10.239.97.151])
+  by orviesa004.jf.intel.com with ESMTP; 01 Jun 2024 12:15:29 -0700
+Received: from kbuild by 0610945e7d16 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sDUBq-000JHH-06;
+	Sat, 01 Jun 2024 19:15:21 +0000
+Date: Sun, 2 Jun 2024 03:13:51 +0800
+From: kernel test robot <lkp@intel.com>
+To: Srujana Challa <schalla@marvell.com>, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, mst@redhat.com, jasowang@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, schalla@marvell.com,
+	vattunuru@marvell.com, sthotton@marvell.com,
+	ndabilpuram@marvell.com, jerinj@marvell.com
+Subject: Re: [PATCH] vdpa: Add support for no-IOMMU mode
+Message-ID: <202406020255.Xp36fzlp-lkp@intel.com>
+References: <20240530101823.1210161-1-schalla@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240530101823.1210161-1-schalla@marvell.com>
 
-On Thu, 30 May 2024 07:53:17 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, May 30, 2024 at 07:23:54PM +0800, Xuan Zhuo wrote:
-> > This patch set prepares for supporting af-xdp zerocopy.
-> > There is no feature change in this patch set.
-> > I just want to reduce the patch num of the final patch set,
-> > so I split the patch set.
-> >
-> > Thanks.
-> >
-> > v2:
-> >     1. Add five commits. That provides some helper for sq to support premapped
-> >        mode. And the last one refactors distinguishing xmit types.
-> >
-> > v1:
-> >     1. resend for the new net-next merge window
-> >
->
->
-> It's great that you are working on this but
-> I'd like to see the actual use of this first.
+Hi Srujana,
 
-I want to finish this work quickly. I don't have a particular preference for
-whether to use a separate directory; as an engineer, I think it makes sense. I
-don't want to keep dwelling on this issue. I also hope that as a maintainer, you
-can help me complete this work as soon as possible. You should know that I have
-been working on this for about three years now.
+kernel test robot noticed the following build warnings:
 
-I can completely follow your suggestion regarding splitting the directory.
-However, there will still be many patches, so I hope that these patches in this
-patch set can be merged first.
+[auto build test WARNING on mst-vhost/linux-next]
+[also build test WARNING on linus/master v6.10-rc1 next-20240531]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-   virtio_net: separate virtnet_rx_resize()
-   virtio_net: separate virtnet_tx_resize()
-   virtio_net: separate receive_mergeable
-   virtio_net: separate receive_buf
-   virtio_net: refactor the xmit type
+url:    https://github.com/intel-lab-lkp/linux/commits/Srujana-Challa/vdpa-Add-support-for-no-IOMMU-mode/20240530-182129
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20240530101823.1210161-1-schalla%40marvell.com
+patch subject: [PATCH] vdpa: Add support for no-IOMMU mode
+config: powerpc64-randconfig-r123-20240601 (https://download.01.org/0day-ci/archive/20240602/202406020255.Xp36fzlp-lkp@intel.com/config)
+compiler: powerpc64-linux-gcc (GCC) 13.2.0
+reproduce: (https://download.01.org/0day-ci/archive/20240602/202406020255.Xp36fzlp-lkp@intel.com/reproduce)
 
-I will try to compress the subsequent patch sets, hoping to reduce them to about 15.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202406020255.Xp36fzlp-lkp@intel.com/
 
-Thanks.
+sparse warnings: (new ones prefixed by >>)
+>> drivers/vhost/vdpa.c:39:6: sparse: sparse: symbol 'vhost_vdpa_noiommu' was not declared. Should it be static?
 
+vim +/vhost_vdpa_noiommu +39 drivers/vhost/vdpa.c
 
->
-> >
-> > Xuan Zhuo (12):
-> >   virtio_net: independent directory
-> >   virtio_net: move core structures to virtio_net.h
-> >   virtio_net: add prefix virtnet to all struct inside virtio_net.h
-> >   virtio_net: separate virtnet_rx_resize()
-> >   virtio_net: separate virtnet_tx_resize()
-> >   virtio_net: separate receive_mergeable
-> >   virtio_net: separate receive_buf
-> >   virtio_ring: introduce vring_need_unmap_buffer
-> >   virtio_ring: introduce dma map api for page
-> >   virtio_ring: introduce virtqueue_dma_map_sg_attrs
-> >   virtio_ring: virtqueue_set_dma_premapped() support to disable
-> >   virtio_net: refactor the xmit type
-> >
-> >  MAINTAINERS                                   |   2 +-
-> >  drivers/net/Kconfig                           |   9 +-
-> >  drivers/net/Makefile                          |   2 +-
-> >  drivers/net/virtio/Kconfig                    |  12 +
-> >  drivers/net/virtio/Makefile                   |   8 +
-> >  drivers/net/virtio/virtnet.h                  | 248 ++++++++
-> >  .../{virtio_net.c => virtio/virtnet_main.c}   | 596 +++++++-----------
-> >  drivers/virtio/virtio_ring.c                  | 118 +++-
-> >  include/linux/virtio.h                        |  12 +-
-> >  9 files changed, 606 insertions(+), 401 deletions(-)
-> >  create mode 100644 drivers/net/virtio/Kconfig
-> >  create mode 100644 drivers/net/virtio/Makefile
-> >  create mode 100644 drivers/net/virtio/virtnet.h
-> >  rename drivers/net/{virtio_net.c => virtio/virtnet_main.c} (93%)
-> >
-> > --
-> > 2.32.0.3.g01195cf9f
->
+    38	
+  > 39	bool vhost_vdpa_noiommu;
+    40	module_param_named(enable_vhost_vdpa_unsafe_noiommu_mode,
+    41			   vhost_vdpa_noiommu, bool, 0644);
+    42	MODULE_PARM_DESC(enable_vhost_vdpa_unsafe_noiommu_mode, "Enable UNSAFE, no-IOMMU mode.  This mode provides no device isolation, no DMA translation, no host kernel protection, cannot be used for device assignment to virtual machines, requires RAWIO permissions, and will taint the kernel.  If you do not know what this is for, step away. (default: false)");
+    43	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
