@@ -1,107 +1,84 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99C7C125DE;
-	Sat,  1 Jun 2024 19:15:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17AD18473;
+	Sat,  1 Jun 2024 22:20:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717269335; cv=none; b=fQTtG02J9ELWG7y30Xqhp+DTp23S/Wy+RE/cdpaEa6jG/q74Fr29ps3olDFqoAr8dY4kfRXNeLpqXF2vp289vmQYZZPIuBDHeTJK8ZV5v2qjKjdgVP3JMmvgW1jb/bx9cNhup2zBE6NgLcZW1TGESbokr/6n75uVgwdK1u08CqE=
+	t=1717280434; cv=none; b=TWWrkHn+r1FIWyxeiA8COqIsb+v1WtDcxFbLulZmycYDZ6961acGGC5VipoVBaaDoqdl6FlzHcwB4PzcAIHw3eqgFb0NslnfDxxnjj+emx2omqhDSIYDUNTd6kOluwiHclURl9ZW4bEvdqRevyLxAtRo0vMeiH2H01E7bFisMyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717269335; c=relaxed/simple;
-	bh=TCNSPxPns4EhFR9yBjsnQhWnMT3BTaZJ5LndNteH2Ns=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nxKnODVyXs6JIJUIalLaJ6CWYOKwkvVS2A1UrB0n94fvgjLO8HpdytRt0f/YYeKFMaAjjoGjMV+rH7LEhp5/EzYwQTZpiPwc197Mu3cGBWimXeqVujyJewE6+qjP/Joj7LvxcVHqUIzjivRJELOsjZX++C9h/QvFCvCbZLNyeGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ui+iMp0B; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1717280434; c=relaxed/simple;
+	bh=hNgHVZe+petJJgZdQ4AargHAL3EsmxecFShi/5vzJw8=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=ZaVgg72pn0sRfGuQYi8ofeTy/J0txnNDx6k2AjNhjnBRRYDkz3R3farPkAYIfom6BlzurtmldZr6b3eRkex43rPdxP5xg5gEIel9uCh/cVh2pS8LiR1V/AqrvLIgjgrgiNQUpboa7N6FhytgG5zw1zWgIJKKjgViAVRvRBScMno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bfdi9//k; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ui+iMp0B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1717269333; x=1748805333;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=TCNSPxPns4EhFR9yBjsnQhWnMT3BTaZJ5LndNteH2Ns=;
-  b=Ui+iMp0BHJMsejzYibXW9WxN99pEPm0eMyteNW8X6z63pAC6hDFyoHuO
-   Y9DTIfcrbfErbyXaLC4eLCPlcaS4QPQdd4FZjsRHGAZ6OdWW8wv2lm1fq
-   1KrhpYodValK+0edcHnyelso89FXlFuji06TDerVDYtgEmX1k/3GCA5bv
-   H6Jds7A6OIqAOW7qOV+XbtAUYM5i0jIAAcLzxkfaVRHWugpLFCND4XaAN
-   /GZdk+pLMZrucDu7SAfUfGIGnbeX5xSo9KYHAkZmVbnjtwj83iOkDin37
-   5TxYSLcv5rTc/fB53t60z2Yg4iEm3jFOww6OMt11lPZ29rBQOUzv6xrVl
-   Q==;
-X-CSE-ConnectionGUID: aB9HjrodQvqcAe6r3Wyrdg==
-X-CSE-MsgGUID: IVywz4D8SbuyvC5IRFXw9Q==
-X-IronPort-AV: E=McAfee;i="6600,9927,11090"; a="14024367"
-X-IronPort-AV: E=Sophos;i="6.08,207,1712646000"; 
-   d="scan'208";a="14024367"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2024 12:15:31 -0700
-X-CSE-ConnectionGUID: rWV/KU92STmxbEjmvCR7Zw==
-X-CSE-MsgGUID: bgxV5EY2QLGvKJagxrtxBw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,207,1712646000"; 
-   d="scan'208";a="41560131"
-Received: from unknown (HELO 0610945e7d16) ([10.239.97.151])
-  by orviesa004.jf.intel.com with ESMTP; 01 Jun 2024 12:15:29 -0700
-Received: from kbuild by 0610945e7d16 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sDUBq-000JHH-06;
-	Sat, 01 Jun 2024 19:15:21 +0000
-Date: Sun, 2 Jun 2024 03:13:51 +0800
-From: kernel test robot <lkp@intel.com>
-To: Srujana Challa <schalla@marvell.com>, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, mst@redhat.com, jasowang@redhat.com
-Cc: oe-kbuild-all@lists.linux.dev, schalla@marvell.com,
-	vattunuru@marvell.com, sthotton@marvell.com,
-	ndabilpuram@marvell.com, jerinj@marvell.com
-Subject: Re: [PATCH] vdpa: Add support for no-IOMMU mode
-Message-ID: <202406020255.Xp36fzlp-lkp@intel.com>
-References: <20240530101823.1210161-1-schalla@marvell.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bfdi9//k"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A3C13C4AF07;
+	Sat,  1 Jun 2024 22:20:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1717280433;
+	bh=hNgHVZe+petJJgZdQ4AargHAL3EsmxecFShi/5vzJw8=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=Bfdi9//kNYSYHJPP6QNw0z5PAEkLIkvY6rihFQJS0vSE3sEAJX6oUS8UNdeGQo3C6
+	 lF0w8mRRLbIpkUBPHUJ7YDbr05GrxhAjC3ZOqDKoOUp1D3jtctEdfg80FlOXhRZ1oG
+	 pNJajoDdOzY6O3AqPnWXnB0YGBUEJw4d1ZoksfuNM96CEfAZsi9fxOmve3CeD9W/Rh
+	 wXV3yzECzUhLEkCiIajv07iBEx97fLD2qMecmkKEQmv/lfO+KfRc5PGGvEJb5bCHZb
+	 lavOIvkbaYGZhXnkusY2fBj6eQBz9vSJe1j9zHUQ4QmhSEmH62DdhciiHkX1XXVSVz
+	 lVcVLVbR480Lg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 94316C4936D;
+	Sat,  1 Jun 2024 22:20:33 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240530101823.1210161-1-schalla@marvell.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v3 0/2] virtio_net: fix lock warning and unrecoverable
+ state
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171728043360.17681.16238810205462664237.git-patchwork-notify@kernel.org>
+Date: Sat, 01 Jun 2024 22:20:33 +0000
+References: <20240528134116.117426-1-hengqi@linux.alibaba.com>
+In-Reply-To: <20240528134116.117426-1-hengqi@linux.alibaba.com>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ jasowang@redhat.com, mst@redhat.com, xuanzhuo@linux.alibaba.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ jiri@resnulli.us, danielj@nvidia.com
 
-Hi Srujana,
+Hello:
 
-kernel test robot noticed the following build warnings:
+This series was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-[auto build test WARNING on mst-vhost/linux-next]
-[also build test WARNING on linus/master v6.10-rc1 next-20240531]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+On Tue, 28 May 2024 21:41:14 +0800 you wrote:
+> Patch 1 describes and fixes an issue where dim cannot return to
+> normal state in certain scenarios.
+> 
+> Patch 2 attempts to resolve lockdep's complaints that holding many
+> nested locks.
+> 
+> Changelog
+> =======
+> v2->v3:
+>   Patch(2/2): Refactor code instead of revert the patch.
+> 
+> [...]
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Srujana-Challa/vdpa-Add-support-for-no-IOMMU-mode/20240530-182129
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20240530101823.1210161-1-schalla%40marvell.com
-patch subject: [PATCH] vdpa: Add support for no-IOMMU mode
-config: powerpc64-randconfig-r123-20240601 (https://download.01.org/0day-ci/archive/20240602/202406020255.Xp36fzlp-lkp@intel.com/config)
-compiler: powerpc64-linux-gcc (GCC) 13.2.0
-reproduce: (https://download.01.org/0day-ci/archive/20240602/202406020255.Xp36fzlp-lkp@intel.com/reproduce)
+Here is the summary with links:
+  - [net,v3,1/2] virtio_net: fix possible dim status unrecoverable
+    https://git.kernel.org/netdev/net/c/9e0945b1901c
+  - [net,v3,2/2] virtio_net: fix a spurious deadlock issue
+    https://git.kernel.org/netdev/net/c/d1f0bd01bc58
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202406020255.Xp36fzlp-lkp@intel.com/
-
-sparse warnings: (new ones prefixed by >>)
->> drivers/vhost/vdpa.c:39:6: sparse: sparse: symbol 'vhost_vdpa_noiommu' was not declared. Should it be static?
-
-vim +/vhost_vdpa_noiommu +39 drivers/vhost/vdpa.c
-
-    38	
-  > 39	bool vhost_vdpa_noiommu;
-    40	module_param_named(enable_vhost_vdpa_unsafe_noiommu_mode,
-    41			   vhost_vdpa_noiommu, bool, 0644);
-    42	MODULE_PARM_DESC(enable_vhost_vdpa_unsafe_noiommu_mode, "Enable UNSAFE, no-IOMMU mode.  This mode provides no device isolation, no DMA translation, no host kernel protection, cannot be used for device assignment to virtual machines, requires RAWIO permissions, and will taint the kernel.  If you do not know what this is for, step away. (default: false)");
-    43	
-
+You are awesome, thank you!
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
