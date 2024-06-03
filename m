@@ -1,70 +1,86 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C5C713791C
-	for <virtualization@lists.linux.dev>; Mon,  3 Jun 2024 17:59:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E8CF1CD38
+	for <virtualization@lists.linux-foundation.org>; Mon,  3 Jun 2024 18:39:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717437563; cv=none; b=FlJdBbfeshpatZDjXsJD2LfPD2Jt3QutUYSPy/YeLvjIpWZ294HJT7z2mZ4XuGwBvK8izBFqOaInUqeSQWpCU8q5Il4Qqq1WqRFcfh6lL1fd9P484HIoPexmJpkqnR88uU0ZYGJpWGNtlkOfwxu8rfBA1pVRTBJ0h0wAfjQpRyg=
+	t=1717439976; cv=none; b=KwX4zKl8Lf2k/uszRfh7+We7qbl+i5UNsll2pIZONcQoZ6MH/9187mNVbMsFhW+qWEXtOclQrPpp9ZPkJmsjLzK6FA3lK23nb6Ll3TV6omcfWRSdiDlC0OPg1Z7XFEzOmfh9Lb9JAFiOW5kayRlaH+ayZvazzRpvd+iFG+gJfUY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717437563; c=relaxed/simple;
-	bh=Y/zJ986UKXkezK0gJat0DBGlK5ILOQjBzfgpn/DaiBE=;
+	s=arc-20240116; t=1717439976; c=relaxed/simple;
+	bh=45DMRn2FH77YelrORvqcFvTIqhXAmUJq7b7LNS71ris=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VexNq7YrkrbG6UrNzd4jyqQEhHt5gNKq9ItUXE8m87hCr2putQ8vcUHKXm9LWt1E+LTX7oPqk2qmznKCJ17HRXykFZTOaWleKHsHdqWjOwYjIJZ/jlwXGG8Fwr+6dEWu0rlfzzjHwqjMDEWBIwP+nYrTol5WzM6kIT1Ois10dkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=Z0ljThrM; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=je2v1dmSSNCyplALiP3F2LbC0/v4SEGIAL5nlucBiW067UNrBMq0fyyeplJMwsRdp8Mss2pXuM8ke26iCKOOOrXOrCZPRrAeERKGmlIrh6PE6cAQDZ0Vj6m88TmkQl8Cjxj8PTSzVcItJbqz3OKmoYlxTt9oSJ29hWcZ5rlbqHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=xgOLEnz6; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="Z0ljThrM"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id A806540E0081;
-	Mon,  3 Jun 2024 17:59:19 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 7Mb5g9ACslUU; Mon,  3 Jun 2024 17:59:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1717437555; bh=JlEEXKm5UWyQVgXc+ZFdVI6RfV+Z9Mo9xPKI1O7Cj/w=;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="xgOLEnz6"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id D570A60724
+	for <virtualization@lists.linux-foundation.org>; Mon,  3 Jun 2024 18:39:33 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.102
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id GxAJVyP6G8c2 for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 Jun 2024 18:39:32 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:1600:4:17::bc0a; helo=smtp-bc0a.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4549C60711
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4549C60711
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=xgOLEnz6
+Received: from smtp-bc0a.mail.infomaniak.ch (smtp-bc0a.mail.infomaniak.ch [IPv6:2001:1600:4:17::bc0a])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4549C60711
+	for <virtualization@lists.linux-foundation.org>; Mon,  3 Jun 2024 18:39:30 +0000 (UTC)
+Received: from smtp-3-0000.mail.infomaniak.ch (smtp-3-0000.mail.infomaniak.ch [10.4.36.107])
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VtMvh6qFGzbqD;
+	Mon,  3 Jun 2024 20:39:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
+	s=20191114; t=1717439968;
+	bh=gtIaPUDSXyeON8s2CCg1DgIhDlLJpeFMkqvOS8MasVM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Z0ljThrMSGwn2+pIwvRGfY4P1x/K9CPSErW4n9pJLCn8Y9usR6cz1Pxul3L6qPZ6x
-	 hZqlTRRQmxKeMO+0DXg+hC+tOycLpm0Qi4XtHwWl7vL26jV9lAF+RxeTy0JvazhqoK
-	 Gnx+GE3YgXE98nNndiGi0Z6RTnvNlDMghQcHQgxI7dcb5rYYwCp6E8Xwmr5vqSdWBU
-	 MHKCeUqaMW7EhMCtIxACwZCwTaZ4q696+rdosl8Obj6V8kC4EeedKUeAV3fNU/ludx
-	 Rjv/0v3wPzp80gBayVRYGosrFPcq4w+Uhn1h4mbyJsWGfR68OZ/3RegBiz0gFqD/b1
-	 JB5oQA5AA/eTvr5lZZ9fiN/tf5pJIFuY1ZRz49vNGKLWnWeCLJ5UEw5vmUkzeLT6/B
-	 S2jf1RvAswwJw2IoQDg2ZLWO317dmCiyny+yAFHuY9U3eXculBCcQe8uU/IkKBBRXZ
-	 /gZUWgx+M4vXBvxhQWY+6+PiILAtfwu74Np7A1CzhBWADR4H5wy+IuxiOf84kcbKus
-	 +wzVHYJwi8awQS2Ihmr/p5yTZFpru9plvJK+b5KnKUII6NKYcMwbz3TyaXC7vasrzh
-	 0QOZrGn7PQDCbmkFpedLVjCJPs8TiSHKOuYBVS3pd9JZe8kF6kuLDAeynIMcYUdhmD
-	 Bfx5erMdRVCP2a/JiVMogeMM=
-Received: from zn.tnic (p5de8ee85.dip0.t-ipconnect.de [93.232.238.133])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D165940E016C;
-	Mon,  3 Jun 2024 17:58:49 +0000 (UTC)
-Date: Mon, 3 Jun 2024 19:58:44 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
-	tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
-	richardcochran@gmail.com, linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com, zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
-	timothym@vmware.com, akaher@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, horms@kernel.org,
-	kirill.shutemov@linux.intel.com
-Subject: Re: [PATCH v10 1/8] x86/vmware: Introduce VMware hypercall API
-Message-ID: <20240603175844.GKZl4EVGUxp2aQZnYJ@fat_crate.local>
-References: <20240523191446.54695-1-alexey.makhalov@broadcom.com>
- <20240523191446.54695-2-alexey.makhalov@broadcom.com>
- <20240527170734.GCZlS91uXD68HRN1na@fat_crate.local>
- <9ca6230c-740c-4f1a-8fdf-73f74cf025a1@broadcom.com>
+	b=xgOLEnz6SJcIhFjVsyAJkws+cB0hDF1vBl5UhdAnMFZ3IwIv9+mfJG3z/z022GaLC
+	 hucCNjddaf0O63psa6tLWOQ3L5xKcN9U7KIay9a2JpyiZ7tPESeMWs+1ppcAXahNNL
+	 fGKNj5z+dog4VQDnEUOYMq6wUCsWbim9yiLiW2VQ=
+Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4VtMvf5T4yz1Y3;
+	Mon,  3 Jun 2024 20:39:26 +0200 (CEST)
+Date: Mon, 3 Jun 2024 20:39:24 +0200
+From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Nicolas Saenz Julienne <nsaenz@amazon.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, 
+	Kees Cook <keescook@chromium.org>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Wanpeng Li <wanpengli@tencent.com>, Rick P Edgecombe <rick.p.edgecombe@intel.com>, 
+	Alexander Graf <graf@amazon.com>, Angelina Vu <angelinavu@linux.microsoft.com>, 
+	Anna Trikalinou <atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>, 
+	Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>, 
+	James Morris <jamorris@linux.microsoft.com>, John Andersen <john.s.andersen@intel.com>, 
+	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, 
+	Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>, =?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>, 
+	Thara Gopinath <tgopinath@microsoft.com>, Trilok Soni <quic_tsoni@quicinc.com>, 
+	Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, 
+	Yu Zhang <yu.c.zhang@linux.intel.com>, =?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>, 
+	dev@lists.cloudhypervisor.org, kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, 
+	x86@kernel.org, xen-devel@lists.xenproject.org
+Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
+ configuration and violation
+Message-ID: <20240603.ahNg8waif6Fu@digikod.net>
+References: <20240503131910.307630-1-mic@digikod.net>
+ <20240503131910.307630-4-mic@digikod.net>
+ <ZjTuqV-AxQQRWwUW@google.com>
+ <20240506.ohwe7eewu0oB@digikod.net>
+ <ZjmFPZd5q_hEBdBz@google.com>
+ <20240507.ieghomae0UoC@digikod.net>
+ <ZjpTxt-Bxia3bRwB@google.com>
+ <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com>
+ <20240514.mai3Ahdoo2qu@digikod.net>
+ <ZkUb2IWj4Z9FziCb@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,51 +89,25 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <9ca6230c-740c-4f1a-8fdf-73f74cf025a1@broadcom.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZkUb2IWj4Z9FziCb@google.com>
+X-Infomaniak-Routing: alpha
 
-On Wed, May 29, 2024 at 05:44:32PM -0700, Alexey Makhalov wrote:
-> While most of the vmware_hypercall callers are executed after alternative
-> patching applied, there are small amount of hypercalls running before that.
-> Only for them we have the logic of analyzing vmware_hypercall_mode as a
-> default alternative code. And there are 2 constraints:
-> 1. vmcall/vmmcall are not supported by old ESXi/Workstation/Fusion. We have
-> to use in/out instructions. After the end of support of old hypervisors the
-> alternative can be simplified as follow:
-> ALTERNATIVE("vmcall", "vmmcall", X86_FEATURE_VMW_VMMCALL);
-> 2. SEV-ES enabled VMs should use _only_ vmcall/vmmcall as in/out
-> instructions cause faults.
+On Wed, May 15, 2024 at 01:32:24PM -0700, Sean Christopherson wrote:
+> On Tue, May 14, 2024, Mickaël Salaün wrote:
+> > On Fri, May 10, 2024 at 10:07:00AM +0000, Nicolas Saenz Julienne wrote:
+> > > Development happens
+> > > https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-next
+> > > branch, but I'd advice against looking into it until we add some order
+> > > to the rework. Regardless, feel free to get in touch.
+> > 
+> > Thanks for the update.
+> > 
+> > Could we schedule a PUCK meeting to synchronize and help each other?
+> > What about June 12?
 > 
-> Another approach that we discussed internally was to use
-> ALTERNATIVE_2("movw %[port], %%dx; "inl (%%dx), %%eax", "vmcall",
-> X86_FEATURE_VMW_VMCALL, "vmmcall", X86_FEATURE_VMW_VMMCALL) for
-> vmware_hypercallX family of functions, _and_ to have a separate API
-> vmware_sev_hypercallX, with the silly dance without an alternative inside,
-> to be used only by early boot code, before alternative application. But,
-> it's error prone when things come to boot time related code movements or
-> rearrangements as it puts additional requirement for SEV-ES
-> understanding/testing for VMware guests.
+> June 12th works on my end.
 
-Right, so since we're exporting that alternatives_patched thing already,
-you might also try to do:
+Can you please send an invite?
 
-	if (unlikely(!alternatives_patched))
-		return slow_hypercall_X_in_c();
-
-	asm_inline volatile(VMWARE_HYPERCALL...
-
-where that slow_hypercall_X_in_c()* set of APIs does the checks in C.
-
-And the VMWARE_HYPERCALL thing is a lot simpler then.
-
-All in all, you'll have a lot less unreadable asm to pay attention to
-and those APIs should be all easy and readable.
-
-But in the end of the day, your call.
-
-Thanks for explaining the situation.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+ Mickaël
