@@ -1,113 +1,118 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E8CF1CD38
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Jun 2024 18:39:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7D4083A07;
+	Mon,  3 Jun 2024 23:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717439976; cv=none; b=KwX4zKl8Lf2k/uszRfh7+We7qbl+i5UNsll2pIZONcQoZ6MH/9187mNVbMsFhW+qWEXtOclQrPpp9ZPkJmsjLzK6FA3lK23nb6Ll3TV6omcfWRSdiDlC0OPg1Z7XFEzOmfh9Lb9JAFiOW5kayRlaH+ayZvazzRpvd+iFG+gJfUY=
+	t=1717455774; cv=none; b=XrN98r8Cap+96CSl88rkcuSzV9KveLPZiE0NeErEQJVxlF7nXRKaFdva1epgFcrurkY1ogODUzlwI7bqEjtN1b+JztNuPgNk0XMOy1sdR7GeskaAWQ86xxo2KaTtaO1Hn3tDMWnZL7S3qNY3ir4PwYaSgjWvu23p5JyXdH3oweA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717439976; c=relaxed/simple;
-	bh=45DMRn2FH77YelrORvqcFvTIqhXAmUJq7b7LNS71ris=;
+	s=arc-20240116; t=1717455774; c=relaxed/simple;
+	bh=3Ncjzb2ZWnsKUDe7He5plc+QeNjITYvtwV7ey/ecEIQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=je2v1dmSSNCyplALiP3F2LbC0/v4SEGIAL5nlucBiW067UNrBMq0fyyeplJMwsRdp8Mss2pXuM8ke26iCKOOOrXOrCZPRrAeERKGmlIrh6PE6cAQDZ0Vj6m88TmkQl8Cjxj8PTSzVcItJbqz3OKmoYlxTt9oSJ29hWcZ5rlbqHU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=xgOLEnz6; arc=none smtp.client-ip=140.211.166.136
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rfj84ZcdSzyDDibW7Vx7KnpiaGxhODZnPdm3FGwJq44uBxykD8ArX5GLNALBrMkFM0KBuAsYqwRTT6tNZBL3b6W8ODopmqay/o/qAXtVErJ1sUvv/nTo3PIqegTJCCpA5F1SECNrgKiPoBCUyxRkCbLVzRClFpC+KA7hGCcFChA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UzoN7nI3; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="xgOLEnz6"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D570A60724
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Jun 2024 18:39:33 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.102
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id GxAJVyP6G8c2 for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Jun 2024 18:39:32 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:1600:4:17::bc0a; helo=smtp-bc0a.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4549C60711
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4549C60711
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=xgOLEnz6
-Received: from smtp-bc0a.mail.infomaniak.ch (smtp-bc0a.mail.infomaniak.ch [IPv6:2001:1600:4:17::bc0a])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4549C60711
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Jun 2024 18:39:30 +0000 (UTC)
-Received: from smtp-3-0000.mail.infomaniak.ch (smtp-3-0000.mail.infomaniak.ch [10.4.36.107])
-	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VtMvh6qFGzbqD;
-	Mon,  3 Jun 2024 20:39:28 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1717439968;
-	bh=gtIaPUDSXyeON8s2CCg1DgIhDlLJpeFMkqvOS8MasVM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=xgOLEnz6SJcIhFjVsyAJkws+cB0hDF1vBl5UhdAnMFZ3IwIv9+mfJG3z/z022GaLC
-	 hucCNjddaf0O63psa6tLWOQ3L5xKcN9U7KIay9a2JpyiZ7tPESeMWs+1ppcAXahNNL
-	 fGKNj5z+dog4VQDnEUOYMq6wUCsWbim9yiLiW2VQ=
-Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4VtMvf5T4yz1Y3;
-	Mon,  3 Jun 2024 20:39:26 +0200 (CEST)
-Date: Mon, 3 Jun 2024 20:39:24 +0200
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Nicolas Saenz Julienne <nsaenz@amazon.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, 
-	Kees Cook <keescook@chromium.org>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Wanpeng Li <wanpengli@tencent.com>, Rick P Edgecombe <rick.p.edgecombe@intel.com>, 
-	Alexander Graf <graf@amazon.com>, Angelina Vu <angelinavu@linux.microsoft.com>, 
-	Anna Trikalinou <atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>, 
-	Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>, 
-	James Morris <jamorris@linux.microsoft.com>, John Andersen <john.s.andersen@intel.com>, 
-	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, 
-	Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>, =?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>, 
-	Thara Gopinath <tgopinath@microsoft.com>, Trilok Soni <quic_tsoni@quicinc.com>, 
-	Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, 
-	Yu Zhang <yu.c.zhang@linux.intel.com>, =?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>, 
-	dev@lists.cloudhypervisor.org, kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, 
-	x86@kernel.org, xen-devel@lists.xenproject.org
-Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
- configuration and violation
-Message-ID: <20240603.ahNg8waif6Fu@digikod.net>
-References: <20240503131910.307630-1-mic@digikod.net>
- <20240503131910.307630-4-mic@digikod.net>
- <ZjTuqV-AxQQRWwUW@google.com>
- <20240506.ohwe7eewu0oB@digikod.net>
- <ZjmFPZd5q_hEBdBz@google.com>
- <20240507.ieghomae0UoC@digikod.net>
- <ZjpTxt-Bxia3bRwB@google.com>
- <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com>
- <20240514.mai3Ahdoo2qu@digikod.net>
- <ZkUb2IWj4Z9FziCb@google.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UzoN7nI3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1717455773; x=1748991773;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=3Ncjzb2ZWnsKUDe7He5plc+QeNjITYvtwV7ey/ecEIQ=;
+  b=UzoN7nI3D35kULVVoe4Y4ioEoeP5zm8hKxsETsusLy65UV8h9oCr2rlL
+   u9RIJzXOr0FT+AwPWpDwmgRz6aEUgwCvt76ohIKZYh+W0b8Y0fgF3IgNh
+   jL0hLHRW1NwxP+aWQU0xqaKnipBDosQBRufGzwymTAPEVpjLSA0aFYPaA
+   uYnasni0NuUETxt8qOJY/uzACuObq3ktmS/IhjXoRSVyADmfIQTWQXWHa
+   54is4zSQAaP5kyL1pd9iY8sTg4oNe9xsFge6d0JLcAWCpe/CmLiqfgQrM
+   D5MM7FV5+ok0aqyijZfMGzpo33yyfO9q/XgbJM0kUQNWaHT3BtSQ1YQJQ
+   A==;
+X-CSE-ConnectionGUID: pHAli0J5T+yXKpfiHYEmJQ==
+X-CSE-MsgGUID: V8AvWWxySBuE6na6l4WO1A==
+X-IronPort-AV: E=McAfee;i="6600,9927,11092"; a="13811797"
+X-IronPort-AV: E=Sophos;i="6.08,212,1712646000"; 
+   d="scan'208";a="13811797"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2024 16:02:52 -0700
+X-CSE-ConnectionGUID: 4OkZhgWhQTyv4X0RBKCwLA==
+X-CSE-MsgGUID: SmqE3MnYSzWDHybU8y+hTg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,212,1712646000"; 
+   d="scan'208";a="60204759"
+Received: from unknown (HELO 0610945e7d16) ([10.239.97.151])
+  by fmviesa002.fm.intel.com with ESMTP; 03 Jun 2024 16:02:44 -0700
+Received: from kbuild by 0610945e7d16 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sEGhN-000MIf-2j;
+	Mon, 03 Jun 2024 23:02:41 +0000
+Date: Tue, 4 Jun 2024 07:00:35 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: oe-kbuild-all@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
+	"David S . Miller" <davem@davemloft.net>,
+	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Brett Creeley <bcreeley@amd.com>,
+	Ratheesh Kannoth <rkannoth@marvell.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Tal Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org,
+	Maxime Chevallier <maxime.chevallier@bootlin.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Paul Greenwalt <paul.greenwalt@intel.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Vladimir Oltean <vladimir.oltean@nxp.com>,
+	Kory Maincent <kory.maincent@bootlin.com>,
+	Andrew Lunn <andrew@lunn.ch>, justinstitt@google.com,
+	donald.hunter@gmail.com,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	Dragos Tatulea <dtatulea@nvidia.com>,
+	Rahul Rameshbabu <rrameshbabu@nvidia.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: [PATCH net-next v14 3/5] ethtool: provide customized dim profile
+ management
+Message-ID: <202406040645.6z95FW1f-lkp@intel.com>
+References: <20240603154727.31998-4-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZkUb2IWj4Z9FziCb@google.com>
-X-Infomaniak-Routing: alpha
+In-Reply-To: <20240603154727.31998-4-hengqi@linux.alibaba.com>
 
-On Wed, May 15, 2024 at 01:32:24PM -0700, Sean Christopherson wrote:
-> On Tue, May 14, 2024, Mickaël Salaün wrote:
-> > On Fri, May 10, 2024 at 10:07:00AM +0000, Nicolas Saenz Julienne wrote:
-> > > Development happens
-> > > https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-next
-> > > branch, but I'd advice against looking into it until we add some order
-> > > to the rework. Regardless, feel free to get in touch.
-> > 
-> > Thanks for the update.
-> > 
-> > Could we schedule a PUCK meeting to synchronize and help each other?
-> > What about June 12?
-> 
-> June 12th works on my end.
+Hi Heng,
 
-Can you please send an invite?
+kernel test robot noticed the following build warnings:
 
- Mickaël
+[auto build test WARNING on net-next/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/linux-dim-move-useful-macros-to-h-file/20240603-235834
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20240603154727.31998-4-hengqi%40linux.alibaba.com
+patch subject: [PATCH net-next v14 3/5] ethtool: provide customized dim profile management
+config: loongarch-defconfig (https://download.01.org/0day-ci/archive/20240604/202406040645.6z95FW1f-lkp@intel.com/config)
+compiler: loongarch64-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240604/202406040645.6z95FW1f-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202406040645.6z95FW1f-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> net/ethtool/coalesce.o: warning: objtool: unexpected relocation symbol type in .rela.discard.reachable
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
