@@ -1,30 +1,30 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79184133993
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 853FE132804
 	for <virtualization@lists.linux.dev>; Mon,  3 Jun 2024 15:47:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717429661; cv=none; b=MLBcdYH8xYfyQZpuKIN5mdC5vyxZaTYvldg549Kn0q3J7s+rrlwHIpgaA4T3yJPMETxA+hv0JRMNSOlrxV7lOwFIwM4xRJkPfMM6t51dgOEj63wJzkJuDOdghD8+NF7dkzohWbsghRkeYggUcRor+gDxldmZt8RCxAD/G8sspfc=
+	t=1717429662; cv=none; b=e2IU5Z5IaHnaFmPy/Wpvb1InyXUkbRvi0kEkcw3xwZEjtkaDLklf1UIdagZLbIoKCE2vorn7JZSpdQ5dvJoyTExKUdhXJj9jvAovdsZdqh+Ds2EXfn4D+rY0twH9l3o4Yie7+oDnQWxC8iZNGPgdTAih8Z1gW7C8bDidWeO+poI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717429661; c=relaxed/simple;
-	bh=h2dOgvh0sWfQSKuS7iwTKtX+p6v67FhrSFbT4Tw1MSU=;
+	s=arc-20240116; t=1717429662; c=relaxed/simple;
+	bh=qAEyJNGqXVtDQaOJ17IZNcP9BgYizJmujcQn0b+gcgw=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=HRYpBh+bZdCQRLigWPTATwDadqmDrZY90Y7UizQXF/4sXZca8gHTBBL+WtHCRpeDFOXQnjgTpphhi7Jbpi8KO6tvEqoYHm+QactwBdZkpIcxQU7dNux9QPylvS4IoN6tdQvRIIUGVTLLuNssA4U3YkjxrahusSkfyOipyEAT8Mo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ppscmisI; arc=none smtp.client-ip=115.124.30.100
+	 MIME-Version; b=kkQypYIQ2ODc8FpsdcilS6Vs6zNsePJVY7cc48lXZYC5hT0kVtik1jRneVUvYsYVpy2dlZudX3fquANG7SQKjlRbvdwQMHx7vCnyEKZRLCbV/fCJlcgcG3OrxXEQPbxksLMA1d9GNkPIim9TRzjqCJdnnkpb+QRDlTTMX2Su778=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mVpKa5bU; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ppscmisI"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mVpKa5bU"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1717429657; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=wBCcUYfTyR8e7GLKfA4FLYpk0PnG+1g1Mf2Ce8XInYw=;
-	b=ppscmisIQibriatTPoCl2qmcOIZ2ultn8poJk100gL+vrIEsR8crHgh/OivoJenhJi4a3wrIAIhj+uF4bQMBpXsq0i03zBz+OmqkvArkUl3L8nUYNRf3HUajsSz481tnRoQnncvYmguryeKamJLhmfuwuGFdVigdZrM1QdS+S3w=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W7oGJ1a_1717429654;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7oGJ1a_1717429654)
+	t=1717429656; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=/D4h/bMUp+InVUcUlroTGJDw83XIXlFPibLngvL1H+I=;
+	b=mVpKa5bUE+yiPmgwzFNsVnFj2jCYO9/YF4aYTEJoB5yGc7tSJuvPBeIMRY2OjOdCm1VS9YTasZzCy02IZ7QKTiDVGBUF5kOrDWyLJae0mX4EFSLlWGRlQYQ2ysaUgZ9wII/jJVAYuYRxVRrpbzwJjpkQq0gRsmr90lloEGkFOf4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W7oKL63_1717429653;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7oKL63_1717429653)
           by smtp.aliyun-inc.com;
-          Mon, 03 Jun 2024 23:47:35 +0800
+          Mon, 03 Jun 2024 23:47:34 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -57,9 +57,9 @@ Cc: Jakub Kicinski <kuba@kernel.org>,
 	Heiner Kallweit <hkallweit1@gmail.com>,
 	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
 	awel Dembicki <paweldembicki@gmail.com>
-Subject: [PATCH net-next v14 5/5] virtio-net: support dim profile fine-tuning
-Date: Mon,  3 Jun 2024 23:47:27 +0800
-Message-Id: <20240603154727.31998-6-hengqi@linux.alibaba.com>
+Subject: [PATCH net-next v14 4/5] dim: add new interfaces for initialization and getting results
+Date: Mon,  3 Jun 2024 23:47:26 +0800
+Message-Id: <20240603154727.31998-5-hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240603154727.31998-1-hengqi@linux.alibaba.com>
 References: <20240603154727.31998-1-hengqi@linux.alibaba.com>
@@ -71,137 +71,153 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Virtio-net has different types of back-end device implementations.
-In order to effectively optimize the dim library's gains for different
-device implementations, let's use the new interface params to
-initialize and query dim results from a customized profile list.
+DIM-related mode and work have been collected in one same place,
+so new interfaces are added to provide convenience.
 
 Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
 ---
- drivers/net/virtio_net.c | 54 ++++++++++++++++++++++++++++++++++------
- 1 file changed, 47 insertions(+), 7 deletions(-)
+ include/linux/dim.h | 48 ++++++++++++++++++++++++++++++++
+ lib/dim/net_dim.c   | 68 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 116 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4a802c0ea2cb..f9e15099982d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2421,6 +2421,13 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
- 	return err;
- }
+diff --git a/include/linux/dim.h b/include/linux/dim.h
+index e0f39bd85432..1b581ff25a15 100644
+--- a/include/linux/dim.h
++++ b/include/linux/dim.h
+@@ -256,6 +256,54 @@ int net_dim_init_irq_moder(struct net_device *dev, u8 profile_flags,
+  */
+ void net_dim_free_irq_moder(struct net_device *dev);
  
-+static void virtnet_cancel_dim(struct virtnet_info *vi, struct dim *dim)
-+{
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-+		return;
-+	net_dim_work_cancel(dim);
-+}
++/**
++ * net_dim_setting - initialize DIM's cq mode and schedule worker
++ * @dev: target network device
++ * @dim: DIM context
++ * @is_tx: true indicates the tx direction, false indicates the rx direction
++ */
++void net_dim_setting(struct net_device *dev, struct dim *dim, bool is_tx);
 +
- static int virtnet_open(struct net_device *dev)
++/**
++ * net_dim_work_cancel - synchronously cancel dim's worker
++ * @dim: DIM context
++ */
++void net_dim_work_cancel(struct dim *dim);
++
++/**
++ * net_dim_get_rx_irq_moder - get DIM rx results based on profile_ix
++ * @dev: target network device
++ * @dim: DIM context
++ *
++ * Return: DIM irq moderation
++ */
++struct dim_cq_moder
++net_dim_get_rx_irq_moder(struct net_device *dev, struct dim *dim);
++
++/**
++ * net_dim_get_tx_irq_moder - get DIM tx results based on profile_ix
++ * @dev: target network device
++ * @dim: DIM context
++ *
++ * Return: DIM irq moderation
++ */
++struct dim_cq_moder
++net_dim_get_tx_irq_moder(struct net_device *dev, struct dim *dim);
++
++/**
++ * net_dim_set_rx_mode - set DIM rx cq mode
++ * @dev: target network device
++ * @rx_mode: target rx cq mode
++ */
++void net_dim_set_rx_mode(struct net_device *dev, u8 rx_mode);
++
++/**
++ * net_dim_set_tx_mode - set DIM tx cq mode
++ * @dev: target network device
++ * @tx_mode: target tx cq mode
++ */
++void net_dim_set_tx_mode(struct net_device *dev, u8 tx_mode);
++
+ /**
+  *	dim_on_top - check if current state is a good place to stop (top location)
+  *	@dim: DIM context
+diff --git a/lib/dim/net_dim.c b/lib/dim/net_dim.c
+index 0cd41277c7a3..d7e7028e9b19 100644
+--- a/lib/dim/net_dim.c
++++ b/lib/dim/net_dim.c
+@@ -165,6 +165,74 @@ void net_dim_free_irq_moder(struct net_device *dev)
+ }
+ EXPORT_SYMBOL(net_dim_free_irq_moder);
+ 
++void net_dim_setting(struct net_device *dev, struct dim *dim, bool is_tx)
++{
++	struct dim_irq_moder *irq_moder = dev->irq_moder;
++
++	if (!irq_moder)
++		return;
++
++	if (is_tx) {
++		INIT_WORK(&dim->work, irq_moder->tx_dim_work);
++		dim->mode = READ_ONCE(irq_moder->dim_tx_mode);
++		return;
++	}
++
++	INIT_WORK(&dim->work, irq_moder->rx_dim_work);
++	dim->mode = READ_ONCE(irq_moder->dim_rx_mode);
++}
++EXPORT_SYMBOL(net_dim_setting);
++
++void net_dim_work_cancel(struct dim *dim)
++{
++	cancel_work_sync(&dim->work);
++}
++EXPORT_SYMBOL(net_dim_work_cancel);
++
++struct dim_cq_moder net_dim_get_rx_irq_moder(struct net_device *dev,
++					     struct dim *dim)
++{
++	struct dim_cq_moder res, *profile;
++
++	rcu_read_lock();
++	profile = rcu_dereference(dev->irq_moder->rx_profile);
++	res = profile[dim->profile_ix];
++	rcu_read_unlock();
++
++	res.cq_period_mode = dim->mode;
++
++	return res;
++}
++EXPORT_SYMBOL(net_dim_get_rx_irq_moder);
++
++struct dim_cq_moder net_dim_get_tx_irq_moder(struct net_device *dev,
++					     struct dim *dim)
++{
++	struct dim_cq_moder res, *profile;
++
++	rcu_read_lock();
++	profile = rcu_dereference(dev->irq_moder->tx_profile);
++	res = profile[dim->profile_ix];
++	rcu_read_unlock();
++
++	res.cq_period_mode = dim->mode;
++
++	return res;
++}
++EXPORT_SYMBOL(net_dim_get_tx_irq_moder);
++
++void net_dim_set_rx_mode(struct net_device *dev, u8 rx_mode)
++{
++	WRITE_ONCE(dev->irq_moder->dim_rx_mode, rx_mode);
++}
++EXPORT_SYMBOL(net_dim_set_rx_mode);
++
++void net_dim_set_tx_mode(struct net_device *dev, u8 tx_mode)
++{
++	WRITE_ONCE(dev->irq_moder->dim_tx_mode, tx_mode);
++}
++EXPORT_SYMBOL(net_dim_set_tx_mode);
++
+ static int net_dim_step(struct dim *dim)
  {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -2447,7 +2454,7 @@ static int virtnet_open(struct net_device *dev)
- 
- 	for (i--; i >= 0; i--) {
- 		virtnet_disable_queue_pair(vi, i);
--		cancel_work_sync(&vi->rq[i].dim.work);
-+		virtnet_cancel_dim(vi, &vi->rq[i].dim);
- 	}
- 
- 	return err;
-@@ -2619,7 +2626,7 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
- 
- 	if (running) {
- 		napi_disable(&rq->napi);
--		cancel_work_sync(&rq->dim.work);
-+		virtnet_cancel_dim(vi, &rq->dim);
- 	}
- 
- 	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_unmap_free_buf);
-@@ -2878,7 +2885,7 @@ static int virtnet_close(struct net_device *dev)
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		virtnet_disable_queue_pair(vi, i);
--		cancel_work_sync(&vi->rq[i].dim.work);
-+		virtnet_cancel_dim(vi, &vi->rq[i].dim);
- 	}
- 
- 	return 0;
-@@ -4408,7 +4415,7 @@ static void virtnet_rx_dim_work(struct work_struct *work)
- 	if (!rq->dim_enabled)
- 		goto out;
- 
--	update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
-+	update_moder = net_dim_get_rx_irq_moder(dev, dim);
- 	if (update_moder.usec != rq->intr_coal.max_usecs ||
- 	    update_moder.pkts != rq->intr_coal.max_packets) {
- 		err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
-@@ -5108,6 +5115,36 @@ static void virtnet_tx_timeout(struct net_device *dev, unsigned int txqueue)
- 		   jiffies_to_usecs(jiffies - READ_ONCE(txq->trans_start)));
- }
- 
-+static int virtnet_init_irq_moder(struct virtnet_info *vi)
-+{
-+	u8 profile_flags = 0, coal_flags = 0;
-+	int ret, i;
-+
-+	profile_flags |= DIM_PROFILE_RX;
-+	coal_flags |= DIM_COALESCE_USEC | DIM_COALESCE_PKTS;
-+	ret = net_dim_init_irq_moder(vi->dev, profile_flags, coal_flags,
-+				     DIM_CQ_PERIOD_MODE_START_FROM_EQE,
-+				     0, virtnet_rx_dim_work, NULL);
-+
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; i < vi->max_queue_pairs; i++)
-+		net_dim_setting(vi->dev, &vi->rq[i].dim, false);
-+
-+	return 0;
-+}
-+
-+static void virtnet_free_irq_moder(struct virtnet_info *vi)
-+{
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-+		return;
-+
-+	rtnl_lock();
-+	net_dim_free_irq_moder(vi->dev);
-+	rtnl_unlock();
-+}
-+
- static const struct net_device_ops virtnet_netdev = {
- 	.ndo_open            = virtnet_open,
- 	.ndo_stop   	     = virtnet_close,
-@@ -5387,9 +5424,6 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 					 virtnet_poll_tx,
- 					 napi_tx ? napi_weight : 0);
- 
--		INIT_WORK(&vi->rq[i].dim.work, virtnet_rx_dim_work);
--		vi->rq[i].dim.mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
--
- 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
- 		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
- 		sg_init_table(vi->sq[i].sg, ARRAY_SIZE(vi->sq[i].sg));
-@@ -5810,6 +5844,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		for (i = 0; i < vi->max_queue_pairs; i++)
- 			if (vi->sq[i].napi.weight)
- 				vi->sq[i].intr_coal.max_packets = 1;
-+
-+		err = virtnet_init_irq_moder(vi);
-+		if (err)
-+			goto free;
- 	}
- 
- #ifdef CONFIG_SYSFS
-@@ -5961,6 +5999,8 @@ static void virtnet_remove(struct virtio_device *vdev)
- 	disable_rx_mode_work(vi);
- 	flush_work(&vi->rx_mode_work);
- 
-+	virtnet_free_irq_moder(vi);
-+
- 	unregister_netdev(vi->dev);
- 
- 	net_failover_destroy(vi->failover);
+ 	if (dim->tired == (NET_DIM_PARAMS_NUM_PROFILES * 2))
 -- 
 2.32.0.3.g01195cf9f
 
