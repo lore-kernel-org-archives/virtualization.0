@@ -1,87 +1,88 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 040C04C69
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:29:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A4FECC
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:30:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717460994; cv=none; b=m1GPLkvf/nU5fqP+8QMQd9t859o3TPzRBFSH/NG8oOsYqTu/kPMhwGoin1SAIIFs167pU4Ef9Z/p7ZY/zj+E+0JLVpwS7cXpmRZDDMP0OM0veLjCb+T8rIPIzmQt1GmIurgGYZwMBjws5K1abXSZRNHj+bAFGWfAw6XB+UDjcgo=
+	t=1717461018; cv=none; b=Gpdhq1dABsYsgsWz9hECMtxtNQ9jRjVzxkkPv+MizXX1mPoRu0PjJQ4ifyWgDJIbdp1QRNy4PC0Nnn85shFUng1x4u6s4aZGyOAwGV146t54PwTs8aJfkV7R/gBRh/J7d2yLda8AyxcMHgf8/Lv25s/wyVhNlfCBAU/8vfTow0M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717460994; c=relaxed/simple;
-	bh=tHNlljHyl4OWf1KxKCEPYA1CiqsKpPT13VLxPLbrxl8=;
+	s=arc-20240116; t=1717461018; c=relaxed/simple;
+	bh=bvM0pADJsf/ny8qy1qpxXNEPBHi9kStugKigbeIsfP8=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=TwzwuKvxpBh1X2FxP6WzwW0S1c+mr7vqAWIZAGOkRk2/nPvscr+L7utX9GHAGXTfFJT7qECCKIEnvs2eNdfh3sn1+eD7G+ULspGsXe3uB/SNXxw5t8NnBAKmxPJBiU7cWeyZmPRAcvpOrU20eFxWDZYvjLJlWEDr5BTa9jZJ0u4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=zpNQwq6b; arc=none smtp.client-ip=140.211.166.133
+	 To:Cc:Content-Type; b=PBMzxbIUrPJSukVgbgDGiVtQjwd/b6Tg79+gW5ZV3Y29AWV0Bkv1E1s8NwOxq9CeGp720/XK4p5tWEbta5qYjrSIA/1fddpF9wlN7ky+Zy5Y8o0jLQGsUzOHH93hzdkIaxAKgDJ7EfGaCyO0NjLaR0VhElourtJ4WAGZum56Ehw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=1v6sLr8Q; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="zpNQwq6b"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="1v6sLr8Q"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AC9FA40534
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:29:52 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9072940534
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:30:16 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -9.601
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id BYWz0MJ-QSnt for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jun 2024 00:29:52 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::54a; helo=mail-pg1-x54a.google.com; envelope-from=3_l9ezgykahehtpcyrvddvat.rdb@flex--seanjc.bounces.google.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EC2A0400F1
+ id bxUMMMvTlf5F for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Jun 2024 00:30:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::1049; helo=mail-pj1-x1049.google.com; envelope-from=3fmbezgykaik5rn0wpt11tyr.p1z@flex--seanjc.bounces.google.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 9A7AE400F1
 Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=google.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EC2A0400F1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9A7AE400F1
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=zpNQwq6b
-Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EC2A0400F1
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:29:51 +0000 (UTC)
-Received: by mail-pg1-x54a.google.com with SMTP id 41be03b00d2f7-6658818ad5eso3699536a12.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 03 Jun 2024 17:29:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=1v6sLr8Q
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9A7AE400F1
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:30:15 +0000 (UTC)
+Received: by mail-pj1-x1049.google.com with SMTP id 98e67ed59e1d1-2c1a55ffd60so4437024a91.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 03 Jun 2024 17:30:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1717460991; x=1718065791; darn=lists.linux-foundation.org;
+        d=google.com; s=20230601; t=1717461015; x=1718065815; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:cc:to:from:subject:message-id:references
          :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=QxIMQXFvRFWSOBKMLO/Pb11VLx9FgWxOAKpcjqg1q6M=;
-        b=zpNQwq6bCBj7Ya5BLzu/mymLQ43GrxUloMuNHOE85uUof2JlTTK6t6mJQI7VcmrgxH
-         cmNzWpwi2weAorkKxKmI6ttMs1tHl9ON4LFv6OGxqxrECf7IHLk7FtYgk7GIKPrGiS1s
-         56eR4eJwlb9Fe40N6W7gr48u/IFQCc3ae5KVIwZmVwvcdC7a1zis3ktLae3vn9p9ALPU
-         LCkeXI7zM28qN7W7ylYORuPNdj8nt8bbnxjt0BU8xSEP6Z+SgaRKXbPK9oFreFwA05qd
-         peNESsvo8uplu4DjGhg5GDyrUr94CTQ4irU7IBWKHQBQO7Cm4dtOzsmYBhEJrpp1kT7e
-         sfFg==
+        bh=qxZAvQthUOLtrgNKYUD6oiL7rAnsVeqwoSoZowsNkW0=;
+        b=1v6sLr8QVLtFsv0Krt9y+0DLqAzjXYgzpzb4UdnkChhXbMLtmhF0OfgB221f7Gwh5o
+         xIZxXS3L/56d04866c8zvz06ELH8klSQD7G9yzJ3B1a0AqzK2Edi9dg0bPH/bPf9Iw6O
+         TzqE6om1+3/QY6pZA5VCXEzZxQwmFKmfcVOn4aXak+ddL8Z3etdBs6WT/2qXBS2s4uea
+         KEqcaTS/JIdUAtRF03hEoRfqe13Je6PfEHN4G1elllyfZYDFqvZ0SLhXNh5KVpFXwkRP
+         IcfsNqNLj23Ed+Nvd10qa9+koLZfnnGI7NffryXo4sd1w2GXwah9oPG7R9il3J42yZil
+         xuvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717460991; x=1718065791;
+        d=1e100.net; s=20230601; t=1717461015; x=1718065815;
         h=content-transfer-encoding:cc:to:from:subject:message-id:references
          :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=QxIMQXFvRFWSOBKMLO/Pb11VLx9FgWxOAKpcjqg1q6M=;
-        b=DLdgVGx19Ej/ag2v/UBUxOvLSEvsgI3rxZg0CKbOhJ/GWrs14XvkRQ5W/L+wioR/DY
-         4AZQewChs1gIcOxUOteV4LsHwaxVa9qXK4BEj3ZOm6RT65GMhpnJaWvQNLADKB+oKWDZ
-         D3x6qxMNhvZistndGbt9Uz9JvX6AP9o1iE/XJTmVTgdbLmzt35wVl6ftlAP3vIIDdV2z
-         +hTByH0fY4skNkT0g30eDB+PGAuM9KyZ+65hMJL6T3yHemlUutVxY04pbuMJ3fDnNZWd
-         Q+vcF+XPDa3bGySmusHI6EO7t/I58yaF0zYm4o4+uyTFaoO1XNrde0jQgZhGuKRh96CW
-         7Xcg==
-X-Forwarded-Encrypted: i=1; AJvYcCWXlU2aHtkG7btDMbt/W5e9rT24yqdAb4W//asw/t8ytv3I5MOAXma0AaE4ZsO0XLWfr4tfq61tuj/EYVl08wOn3M45i9C3O8jXHXsaqmJZjciJMXPHVJqXjg==
-X-Gm-Message-State: AOJu0YwMLaGRpfx/SUAqM5bYMIuoJ9ICZf4c+rzJSzrsUne0X7egw92j
-	l5wQjBsr1fepN9Exh6b0qbQjZT3o8bNKUs9SnebPLC/wdx0eOYn+950kW1vlnI11kfBXA4nJQX/
-	IXg==
-X-Google-Smtp-Source: AGHT+IENLGEaWbs37HwWar6l9tfsoGWg6m42nFsyoTQfIezFlKVeE9IraziAYhpEU9jmdwNYoPJqg3Pzh8c=
+        bh=qxZAvQthUOLtrgNKYUD6oiL7rAnsVeqwoSoZowsNkW0=;
+        b=h/scaYmTlx5yRETkwvQGC1sl+h6TUI6jUy2QLH1JJUETTZ7HBZ0gfu/uNzl1FIH732
+         QCFe/LBazz5HyzFSRaH06fx0jLqKDPz40AIcOprKaeBXEakb7fNWqfPSInKgttWSZSVN
+         yeqhL2et/KUfxgbnfi806G4gLPUc/fqT4h0R2Ew57DMfmh+DI7Ydc1hWOdE35RaRY0la
+         JB2xXqxTabwtVe18BZO6NqH/JHtKOJgoAE6/6ugayye3Fcl8UkTkK/Gpz8Ui776DqD/t
+         YqrgWC60CMgOO2utEATNT6Cue+Cd0lR/y5/1wtyVx+EBgYhy04XO+Ke9ydEdYvjYDwZ+
+         4kNg==
+X-Forwarded-Encrypted: i=1; AJvYcCXl2H5x3B1farkiYKbUrpYVjJh5AueLt/hB7E7Tx8nl3Y9got2pXabgcnKnVWcuBZGmZi3dH2GzhwO5TPs1/R9WcKn4f3MM2DARKMIkb2W7W4A6WPiJq79maA==
+X-Gm-Message-State: AOJu0YxDvaHyFR/QXcgppiRPE5HXMp3T66P+6K2wHKViMTcTxPCEyXIy
+	c8wxp+7gzAWX1HZHBCRw0vDKuVMOCDGhk9RjP2C0J4tU9OcQ153TQBYe6rgvP2b5AoCe1+/Uzcw
+	aQw==
+X-Google-Smtp-Source: AGHT+IHQGaBTeBmAnXtOHPKtCDExst6sxM2uUbRh6POZbhCe3IxNIvO17m1N9WlbQ/aSMCylqTV+FPzEOtI=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:902:f7c1:b0:1f4:620b:6a47 with SMTP id
- d9443c01a7336-1f6370524bemr2945395ad.4.1717460990723; Mon, 03 Jun 2024
- 17:29:50 -0700 (PDT)
-Date: Mon, 3 Jun 2024 17:29:49 -0700
-In-Reply-To: <20240514.OoPohLaejai6@digikod.net>
+ (user=seanjc job=sendgmr) by 2002:a17:90a:2c86:b0:2c1:aa8e:13cb with SMTP id
+ 98e67ed59e1d1-2c1dc5e0ab2mr29758a91.9.1717461014195; Mon, 03 Jun 2024
+ 17:30:14 -0700 (PDT)
+Date: Mon, 3 Jun 2024 17:30:12 -0700
+In-Reply-To: <20240603.ahNg8waif6Fu@digikod.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
-References: <20240503131910.307630-1-mic@digikod.net> <20240503131910.307630-4-mic@digikod.net>
- <ZjTuqV-AxQQRWwUW@google.com> <20240506.ohwe7eewu0oB@digikod.net>
- <ZjmFPZd5q_hEBdBz@google.com> <20240507.ieghomae0UoC@digikod.net>
- <ZjpTxt-Bxia3bRwB@google.com> <20240514.OoPohLaejai6@digikod.net>
-Message-ID: <Zl5f_T7Nb-Fk8Y1o@google.com>
+References: <20240503131910.307630-4-mic@digikod.net> <ZjTuqV-AxQQRWwUW@google.com>
+ <20240506.ohwe7eewu0oB@digikod.net> <ZjmFPZd5q_hEBdBz@google.com>
+ <20240507.ieghomae0UoC@digikod.net> <ZjpTxt-Bxia3bRwB@google.com>
+ <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com> <20240514.mai3Ahdoo2qu@digikod.net>
+ <ZkUb2IWj4Z9FziCb@google.com> <20240603.ahNg8waif6Fu@digikod.net>
+Message-ID: <Zl5gFMJp3nECJVW-@google.com>
 Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
  configuration and violation
 From: Sean Christopherson <seanjc@google.com>
@@ -110,51 +111,35 @@ Cc: Nicolas Saenz Julienne <nsaenz@amazon.com>, Borislav Petkov <bp@alien8.de>,
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 14, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
-> On Tue, May 07, 2024 at 09:16:06AM -0700, Sean Christopherson wrote:
-> > On Tue, May 07, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
-> > > If yes, that would indeed require a *lot* of work for something we're=
- not
-> > > sure will be accepted later on.
+On Mon, Jun 03, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
+> On Wed, May 15, 2024 at 01:32:24PM -0700, Sean Christopherson wrote:
+> > On Tue, May 14, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
+> > > On Fri, May 10, 2024 at 10:07:00AM +0000, Nicolas Saenz Julienne wrot=
+e:
+> > > > Development happens
+> > > > https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-n=
+ext
+> > > > branch, but I'd advice against looking into it until we add some or=
+der
+> > > > to the rework. Regardless, feel free to get in touch.
+> > >=20
+> > > Thanks for the update.
+> > >=20
+> > > Could we schedule a PUCK meeting to synchronize and help each other?
+> > > What about June 12?
 > >=20
-> > Yes and no.  The AWS folks are pursuing VSM support in KVM+QEMU, and SV=
-SM support
-> > is trending toward the paired VM+vCPU model.  IMO, it's entirely feasib=
-le to
-> > design KVM support such that much of the development load can be shared=
- between
-> > the projects.  And having 2+ use cases for a feature (set) makes it _mu=
-ch_ more
-> > likely that the feature(s) will be accepted.
-> >=20
-> > And similar to what Paolo said regarding HEKI not having a complete sto=
-ry, I
-> > don't see a clear line of sight for landing host-defined policy enforce=
-ment, as
-> > there are many open, non-trivial questions that need answers. I.e. upst=
-reaming
-> > HEKI in its current form is also far from a done deal, and isn't guaran=
-teed to
-> > be substantially less work when all is said and done.
+> > June 12th works on my end.
 >=20
-> I'm not sure to understand why "Heki not having a complete story".  The
-> goal is the same as the current kernel self-protection mechanisms.
+> Can you please send an invite?
 
-HEKI doesn't have a complete story for how it's going to play nice with kex=
-ec(),
-emulated RESET, etc.  The kernel's existing self-protection mechanisms Just=
- Work
-because the protections are automatically disabled/lost on such transitions=
-.
-They are obviously significant drawbacks to that behavior, but they are acc=
-epted
-drawbacks, i.e. solving those problems isn't in scope (yet) for the kernel.=
-  And
-the "failure" mode is also loss of hardening, not an unusable guest.
+I think this is all the info?
 
-In other words, the kernel's hardening is firmly best effort at this time,
-whereas HEKI likely needs to be much more than "best effort" in order to ju=
-stify
-the extra complexity.  And that means having answers to the various interop=
-erability
-questions.
+Time:  6am PDT
+Video: https://meet.google.com/vdb-aeqo-knk
+Phone: https://tel.meet/vdb-aeqo-knk?pin=3D3003112178656
+
+Calendar: https://calendar.google.com/calendar/u/0?cid=3DY182MWE1YjFmNjQ0Nz=
+M5YmY1YmVkN2U1ZWE1ZmMzNjY5Y2UzMmEyNTQ0YzVkYjFjN2M4OTE3MDJjYTUwOTBjN2Q1QGdyb=
+3VwLmNhbGVuZGFyLmdvb2dsZS5jb20
+Drive:    https://drive.google.com/drive/folders/1aTqCrvTsQI9T4qLhhLs_l986S=
+ngGlhPH?resourcekey=3D0-FDy0ykM3RerZedI8R-zj4A&usp=3Ddrive_link
