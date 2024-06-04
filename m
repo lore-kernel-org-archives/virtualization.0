@@ -1,206 +1,122 @@
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2047.outbound.protection.outlook.com [40.107.237.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CFB61422AE
-	for <virtualization@lists.linux.dev>; Tue,  4 Jun 2024 09:31:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717493473; cv=fail; b=QmZ1h2uN17r5oVVUnvqbVlraF09EUoOBkOl8qUkPLKVhaLdm4S03cEhzJ0xUWGqlOz04srDN6YXHDa+w2aBE5yYLcev1cOWvyGjsctdYqyN6nNWGh2bNebiwzfyey3OKOvKKeB7iGR0eglQjqfvSq5XLqKi27CUJLUoR//7Fnrw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717493473; c=relaxed/simple;
-	bh=E0aCIbaDsymCBshJc30JngCnNeqQMjV1GrooFQYPZZ4=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Bim0gaL5BwwL6CO6bdBIllmex5tL7AklG20/JthgACLuSsIxdoVsFFqaXFf2KCngoOWdYe0xm7Ki2xMNvEprHbob7SE6N33ZpDnnHi1C5PPiFn39Hr7diaGbXNg23nqZU3eGAh5fRt2nIXUzxCs1+lIfxMwdYZ4c5CN+JNhlvRY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=m7b1vL+a; arc=fail smtp.client-ip=40.107.237.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC9E131182
+	for <virtualization@lists.linux.dev>; Tue,  4 Jun 2024 10:21:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1717496520; cv=none; b=Vshdb6fcSd3Tqwi/V84srE7yR5JRO0dMw7p3dv7CoPljIvnydVZezoeF692abT7kMgG9TZAFQlTohqEdTnzFB4R9eVScBB42yPLx1G4NNy/oOCKVX0/s6h9WK+0+245DQT4Cg2BVB6x7kcZFq2nUBi+4T5I1+s2Nbf48GrBgrgE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1717496520; c=relaxed/simple;
+	bh=Imn+HUcKStZTO4Jr2J5KWbiLkL4epXPMwCj3OeOmXAI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=o58KTwJnMvz58AB692Qdeo3BPs9ZveAXjXQiy1xUAeRNMRIXdqoGceQalFvfz8dOjHRkQdDWFKGDZeSGBFXAt4RAq524AVOeL6mJHsd6cPSUPXrqNiKTj3FxUsCR0cXabFhIKw8intRCDpo4apTUdblR8sPg0iHWim+6Eq9FmdI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=ObpPgrn4; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="m7b1vL+a"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZABPXpBKfXIgbCrofc7TZrdvCPOWnGoag6hA+b2SV4e31Z8NKDtYI68eDJXGTc8nloJajhjlBs/Iv8F+2xDYPEhBbzXGUJokdHskQ7iYHNCnnwVIRXqLVf5+0V4XqFRTQRABHzDGNM7B7cC7HUaFnqHyf2KvQBMzr+N7NhX5kdyRjulEFpYLngnwSzFkBLYrtPLSyjeX7TM7j8ZjtYESHO9buLhDgYJ+ZPH2tgvox7ocgPBLN9JxVGQD5n8JtPfpg/5fxA8eZz/3Einy+55Oc8rSn9+Gtyp2pne08X8+7zi0RHQZWAInxCCqIr4Okbhb5CyseScR7Kpfzz6IVHkG4g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=E0aCIbaDsymCBshJc30JngCnNeqQMjV1GrooFQYPZZ4=;
- b=DmKMPyIMRqsIS1GaqDItRsXIo53MSoefODYNDXg1owQwe2Sxib1cQxZisAx5SIP3osPUCjwQCAsClMS2Kqxjuigt++p63h/xNG/B+lJcCdxD2VnU/EjhYYUacQ3VRrREShfGZrAWk9FopNl/jYBIRIf0kqBcib4j9Otj9w+R4iAlTpohCSILVCA0MotONUVcaRL5XNwN3tuM8FrQT8dA91uUdOneBxD1hT57pNJjRkyYE+DuohoT5U/aY4vdYEF8uTJcrmtbg172R8HAQjoEq+7UcgKfsT+5rWDCtg9Exi30/ejI9qFnXlqeDDItpXZTZ29o7exHdU5RRpEm1S2mrg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=E0aCIbaDsymCBshJc30JngCnNeqQMjV1GrooFQYPZZ4=;
- b=m7b1vL+aMq8EHdIc2asBKYHGkaqdHyF0oKi3AFxvt85ht9DvFqAF2//2g+7RosxCWiOf2Pb7BIJQ+j4rZsPeYftFV7KxmMQmlc1P2dkSxjlEJjYPmzbS+mBltmi7WOjBobAk3rmhDRBR7T5mGRQmirZiZDIedlTdvbVYtB4G51717DbInESmN9x33opNYp1NmSrJ/4YDfgrgWI63TyjggCQ9N7FB7cFTi9E62uWEtU4aiuLvYIq33GY+lV+oaT5C8wdAo3W2VI+OqHAf4RuGfWGHcBqFjdmCAU2guJ5+PJl+8yxSE53Ogfakvt4vrd6VR10IH3IvPqbBxtezksXBig==
-Received: from SN7PR12MB7833.namprd12.prod.outlook.com (2603:10b6:806:344::15)
- by DM6PR12MB4267.namprd12.prod.outlook.com (2603:10b6:5:21e::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7633.22; Tue, 4 Jun
- 2024 09:31:07 +0000
-Received: from SN7PR12MB7833.namprd12.prod.outlook.com
- ([fe80::6f09:43ac:d28:b19]) by SN7PR12MB7833.namprd12.prod.outlook.com
- ([fe80::6f09:43ac:d28:b19%4]) with mapi id 15.20.7633.021; Tue, 4 Jun 2024
- 09:31:07 +0000
-From: Peter-Jan Gootzen <pgootzen@nvidia.com>
-To: "miklos@szeredi.hu" <miklos@szeredi.hu>
-CC: Idan Zach <izach@nvidia.com>, Parav Pandit <parav@nvidia.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"stefanha@redhat.com" <stefanha@redhat.com>, Max Gurtovoy
-	<mgurtovoy@nvidia.com>, Oren Duer <oren@nvidia.com>, Yoray Zack
-	<yorayz@nvidia.com>, "mszeredi@redhat.com" <mszeredi@redhat.com>,
-	"angus.chen@jaguarmicro.com" <angus.chen@jaguarmicro.com>,
-	"bin.yang@jaguarmicro.com" <bin.yang@jaguarmicro.com>, Eliav Bar-Ilan
-	<eliavb@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-	"lege.wang@jaguarmicro.com" <lege.wang@jaguarmicro.com>
-Subject: Re: Addressing architectural differences between FUSE driver and fs -
- Re: virtio-fs tests between host(x86) and dpu(arm64)
-Thread-Topic: Addressing architectural differences between FUSE driver and fs
- - Re: virtio-fs tests between host(x86) and dpu(arm64)
-Thread-Index:
- AdqybnzAiozTvtlkQFaloMBVG2WGpwDHcmEAAADKEAAAAQAmgAAAdzaAAAm2tYAAAoHLAAABHCqAACK6xwAAAOV6AAAAntkAAADMmIAAAFipAAAAbt4A
-Date: Tue, 4 Jun 2024 09:31:07 +0000
-Message-ID: <8c28a7f83f66a30de13380c9b5f48b64d7c7c17f.camel@nvidia.com>
-References:
- <SI2PR06MB53852C83901A0DDE55624063FFF32@SI2PR06MB5385.apcprd06.prod.outlook.com>
-	 <b55cb50b3ecf8d6132f8633ce346b6adc159b38c.camel@nvidia.com>
-	 <CAJfpegsppbYbbLaECO+K2xpg8v0XZaQKFRZRTj=gJc9p7swdvQ@mail.gmail.com>
-	 <bbf427150d16122da9dd2a8ebec0ab1c9a758b56.camel@nvidia.com>
-	 <CAJfpegshNFmJ-LVfRQW0YxNyWGyMMOmzLAoH65DLg4JxwBYyAA@mail.gmail.com>
-	 <20240603134427.GA1680150@fedora.redhat.com>
-	 <CAOssrKfw4MKbGu=dXAdT=R3_2RX6uGUUVS+NEZp0fcfiNwyDWw@mail.gmail.com>
-	 <20240603152801.GA1688749@fedora.redhat.com>
-	 <CAJfpegsr7hW1ryaZXFbA+njQQyoXgQ_H-wX-13n=YF86Bs7LxA@mail.gmail.com>
-	 <bc4bb938b875ef8931d42030ae85220c9763154f.camel@nvidia.com>
-	 <CAJfpegshpJ3=hXuxpeq79MuBv_E-MPpPb3GVg3oEP3p5t=VAZQ@mail.gmail.com>
-	 <464c42bc3711332c5f50a562d99eb8353ef24acb.camel@nvidia.com>
-	 <CAJfpegu3kwv9y1+Yz=Ad_eJt7-fNJbxgJ8m2_B=Su+Lg6EskGQ@mail.gmail.com>
-In-Reply-To:
- <CAJfpegu3kwv9y1+Yz=Ad_eJt7-fNJbxgJ8m2_B=Su+Lg6EskGQ@mail.gmail.com>
-Reply-To: Peter-Jan Gootzen <pgootzen@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN7PR12MB7833:EE_|DM6PR12MB4267:EE_
-x-ms-office365-filtering-correlation-id: e47e14ea-b1ea-44bb-6af0-08dc84790fd6
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230031|1800799015|376005|366007|38070700009;
-x-microsoft-antispam-message-info:
- =?utf-8?B?ZjF1a3NzN1NvR2Q3TkVwK3NYY1o3TE9USlBULzhQbTluZWxCN1g0UkVCc0xS?=
- =?utf-8?B?RWJKQWpJMTBaMGZ1ZklCbzRqR0Z6V2hNMi9reGFyU0Rzc0ZnbmtUcURKbmh5?=
- =?utf-8?B?cStCTjVYUm1JUitTejNFMEE0WXlDMkpCbDVBVFU4V3dsZzdFU0VFYWEvc3Qr?=
- =?utf-8?B?VWNJSEw2OXA0M0NaTUYrQXkvL3VNTy84MFgzblhXU3k4bSs4RXJOLzFzdjky?=
- =?utf-8?B?THJRWmNERmR6dVlxb2tnSWpzbWprcWpscnh1T01taFpHb2lxeVJpcFlrdi85?=
- =?utf-8?B?dnIwbDdmRXhnUDMxT0UyU1gyWTJKdGNjZjlReCtnc2tJMzA0NGpocExmVHZQ?=
- =?utf-8?B?SndHV29FSHpFTUZpeE1nN1pUT21nblMxaE5VMXNpa1FpSUJQaWg4MDV1NXh5?=
- =?utf-8?B?UGdFTkFoa2R1UW0vZVJpbnoyNHd4MUppbTgrUGtwRlZ2ejE0VVo2bGt1dnNQ?=
- =?utf-8?B?QU1DTFJGanE0SW5zeFEwQzROUlluUzhYT25NZlB0cWxKcW9MQ1lhR2VJL1FL?=
- =?utf-8?B?VHhOY2RlTnhjeksxa3pqdy9JaW5TMTIwN3o1RjNXOU9EMDgwNFRpdUNJd3Bp?=
- =?utf-8?B?azZTNVFZMm00aWVmTHJzKzFvaFgxbDlkNUZ6Sm1QOGJsVzdlVWJldnZFTk9o?=
- =?utf-8?B?UjJuSGdwV1BJR0M2d0FnOVRxcmxzbng0VWphZlZ3YlNINFRtU05YbXJoNDRH?=
- =?utf-8?B?QldaU2IzbUx6N0tzMlM1Y2I4U0pQdFdyTGZnVXM3a2ZqOGNXWFEraTZtNHhJ?=
- =?utf-8?B?d0RkR3FOQ24rT3d0MWNYT2kwL3VjT1ZhZEVlM2c0TGUrQ2UwcnUzT2l3WTgy?=
- =?utf-8?B?NDlTWndOOUwybDgxYnFwaS9pem9yNDFGNUhtdHZpYm5iMUo2cmpWUzQrOVg2?=
- =?utf-8?B?d0VYMGdUeGI2TEZxcHZ1WWFKekRkSzRXbnNUeldVN0RrUmRleXpiVzVMMElX?=
- =?utf-8?B?SUcwZFZSRyt3YTJreU91elo0YnkvN1VBNnZLMlVjNSsxQmY4YmxaRGpvQnlR?=
- =?utf-8?B?YWw0emdVQjM5MUgwd3BCaWZuZW1zZGs4L0gwVGwzTFpORFdqS21tKzRXaE8y?=
- =?utf-8?B?dkZEY3dRbTQ0blh0aVhDTk1CZTZuYjBmQWRqaGxuUHltem9BeFhFSm1tWlVv?=
- =?utf-8?B?aDRMWHROSzlDbHIrZW5rcUNmUnNqSEdhbW9QMW5IODBEV3duQngxNjBYQm5v?=
- =?utf-8?B?Qy9VRGZPZ25udFpQeGFzbDJFM1krazRiS0dRZGlSdC9vdVgvZFZLZ2sxdVBV?=
- =?utf-8?B?RmZsQ2poclA0TUo1anNXcDlkUE8vSHFUazFTV0JkMzh3MmlvSHpNZHdDdVEv?=
- =?utf-8?B?ZWpmdFRmR3RuaDJ6SklsVWlSc1E4TC93MTRiKzVVUm44VnB5eDAvWFBhdHBX?=
- =?utf-8?B?TE9jVnFXdjJBYmc5VjlKalNpYjhERS8wVHpUVk9OR2xIbHNmQ3Rranp4Y2kr?=
- =?utf-8?B?eHNWR0I0K2dVNFZsTlRwa1ovRGF4TnpVN0dIbHNLbjc2dnlYc29LKzZhUUps?=
- =?utf-8?B?cmxKdVNOTEIyaE1BOHZqY3V2S3pBaUR1djVncnFWYnNGSEhJc21qN0R5dmEz?=
- =?utf-8?B?akdxR254eXlnYkpxWVBrdmhteFcwb0ZRMUlSWGVVa004MEpaN3VpK2lxNUQr?=
- =?utf-8?B?dXgxdDNkTnRKYTU5b0xDREFmcjFLQkh5QkM4YmZKNWQwZFJDdTUxQ0RFVUx2?=
- =?utf-8?B?YUdrR2dIYzZnaWtkaFBSdWNvTVFmNm4yR0FqSU1BaityRlpOSE5LS1VFTkh1?=
- =?utf-8?B?cGZNbHNBSk1TTjdJaDdzbm1uQ0NOVlJ2VENPTGdnVzB0RU5ManJjR3o2NnV6?=
- =?utf-8?Q?H8+typUdtmL8MlqSV/ug1EXJ5wI0IFzsKWW90=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN7PR12MB7833.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(376005)(366007)(38070700009);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?dUNwMXA3bDNlRmltUWthVHNzcEhHUjRUMWNtNkY5MmdJdVdLVWhXSG8ydXpC?=
- =?utf-8?B?M1RKZzF2SkllZjhUczlWaEU0UzRFWTR5Q05zU1gxNmxHb2JmNEJIdlVPVXgz?=
- =?utf-8?B?KzliWnl2dWpsL2JxdGNDK0pKVVNkRHVRQVNsTHkzajZWV2ZSNjZibHBQVzRC?=
- =?utf-8?B?bDBjR3pkeEVOSkErc2VZZDVyQVRBcjRLZXZjUmp1amZ3cG10VExkT1hEMzNT?=
- =?utf-8?B?ZldPenZwR0VGTGxxUHFoazhubVVtWGdyeXFqcU5hNGVuWHlLV1plRkpUSDBY?=
- =?utf-8?B?eXJ5ajlSYmFJTVdVVkgrbjRnY1QyS2VIaldKbWVoODhoU1YwMGR0U2xOb1g5?=
- =?utf-8?B?S0RFSk1LVVN0ZjJUWXdSMWFGYVBLWFAyRXNhZEV2SlM4VkNUNEJqUUdNZ05l?=
- =?utf-8?B?VVJ0Skpha203a1hJMkw3RG8xMURIUE1FVEtDN1FxWkNGWGk3VGJ5RlQ0NExu?=
- =?utf-8?B?YklLOFByNGtqazZDbXREZGNYbG9acHZvNUFLMjI1a3g5bmsrQjdmRXlDV2tj?=
- =?utf-8?B?OWNJcTQ5amRWeXI2Q205cWdnbWFKeUdOM0hvRzJQb2czdHg0V3BZSUxDOWty?=
- =?utf-8?B?TXoySWpoTWJzOXNSWUpwcFNXNHFRdFNESmhPNW02TzQzSW5PSGZoaHZhMjhK?=
- =?utf-8?B?Qkt6UXgrY2ZqWS9TWnVwakx5cXdmL2hsOWhsVWhZZmhqcTBXZmMza1JmRFZL?=
- =?utf-8?B?NXljNk9pTUpLS1pITkNOVXMwUTlYL3A1S2xMVGt0eXFrUTJMZG1GQ29BbTh0?=
- =?utf-8?B?R1RRL0h1Yjh1Uk5zNXBlbDdaYXhnOW9wNFY5aVRLdXhaa2lkci9ocWRYYUxj?=
- =?utf-8?B?cWJSaW8ycS90cWtrRVREdEI1TmxvVlVwTnZ2N250WGFUZUlXMElZcXZaamI5?=
- =?utf-8?B?dEdGcnNobC9YK1FaR0VrQXZCQ2N6M2xIRjhPbTlyK3pmaEF2c0FadFd1amJk?=
- =?utf-8?B?WXp0YmV3MitzSmkyK1kybXQ4NFJ3a2ptYzMyTUZ6WkFyQjhvYURFTWxKL05X?=
- =?utf-8?B?azNSOXVRaVdoME9kTklRMlJETW1lZ0xvMVZ5ZEVvbUlYNFVNMGJSS3JOVkpx?=
- =?utf-8?B?TVQ4eGYyQ1RtbkEyTVZYRmNJSkZ0WDFvQkM0S1hjRStSNkxCRmV4RjArdmRk?=
- =?utf-8?B?bTkyQ1pKL0NleWJOY2ExaWt0NmtNYUVyWm5rczh3UjlRWVdzc2djeGhXb1Y3?=
- =?utf-8?B?VW1UZmZYZUpDSVNDUUZMa3BkNkk1UzdzOXR0dXI1R2ttWVNGSDAyTStHazVO?=
- =?utf-8?B?Y1FJdy9iU3BFSW4vVk50UXdoYlZMcGthQUt6TXBMOXB6SUJZb2hWd29uTE15?=
- =?utf-8?B?V2c3bTl6bnMrWWQwVm9NVm9UNDlIN0hlTlpQSGtVdTM0Ni9XSXJhZ3RpV3VS?=
- =?utf-8?B?RFdtU2g0UDdWVkJSUmN6dXp2YlpLMHF0VlNTZTluYWpRa3pIMnBtNXliVlJJ?=
- =?utf-8?B?cm5PTmduWENNWkprMUYvN0ZydkVZNE16YUxlUTVYc0hDK0xtVU1IazdoSEJq?=
- =?utf-8?B?T2xoRVliYjhiUWdIdlVFblRIY2RYSnIyckIwY05BanFVWS92d2lQNlRmV3Zj?=
- =?utf-8?B?K1NybGRPYTFOQkhNalMvVVljSDFhY2hZS3B3OXcvNmNQK2NRcTNFT2NWZEk5?=
- =?utf-8?B?OStzZk9iQlJ0cDdSdnl3ZHZtZnRyNnZmcjFFc0srYS9yUDdTTThBQTRxSXRC?=
- =?utf-8?B?RXR5a0JyTENwRnhqa05PMS8zc00vNW1hZThJbHA3VW5BUWM5Ynp6TjVGQ0xW?=
- =?utf-8?B?UzJ6S3crRUY4WjViR3Q5QW83cHdlb2ZyMy95UHFncVhMNWtKM201cm1DdnNw?=
- =?utf-8?B?STNnM0Q3Z1EwOEIwWldZeFYyZW5DTnM0ZGhhVXNTQTdUTWxRWHU1RENSb3lp?=
- =?utf-8?B?cTdLbTE4bTRzRE9wWjdsMjBzYlBORFNMVFdudmpqZGUrTVg3MWpheUd3Mjlp?=
- =?utf-8?B?MGNTMEdoa3lNbmtRM1pXYmxoYVlTUnB3aDRQSWRTS2JtTk9tOU1ZODRicWNn?=
- =?utf-8?B?L3hmODd5Z3l3aDJCNGEvZ2FobmRFL3NYeDUyRlJqb0UxY0E1Z3JhcnV0cTFh?=
- =?utf-8?B?TTZIeHhRd3hQTHBpK3dWNXlsbms4NEhIMVZvV1Q5TXFTTUxZQ09GY3NVckJE?=
- =?utf-8?B?cm1ScFl0azhxa2pEU1lhQytJa1lnM1E4Nkk3eS9McFlOUzRtenZLVURyckhE?=
- =?utf-8?B?WWc9PQ==?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <0B28BD449C20914A80C0EADA0FE1E455@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="ObpPgrn4"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-52b962c4bb6so3550385e87.3
+        for <virtualization@lists.linux.dev>; Tue, 04 Jun 2024 03:21:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google; t=1717496516; x=1718101316; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=QmDmNFZ1TQLcn13Q/ifhWND/gu9EuhB43OgA74WF09Q=;
+        b=ObpPgrn4fr8cTVoicms5Bgx1b0UD4wWjmGd+aNupcRHFeUTgmLP2msucDqE/A1gjXn
+         GjCb5LYWLvDNNiMPcCSqC4hUXtfa4J7gnGSFX2rkkUcpxbBxH5fcynJ0AETegczuCH5C
+         /2IDFIKjVvo8jCbPp8cWX5kZdPgHFTy9Csj9o=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717496516; x=1718101316;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QmDmNFZ1TQLcn13Q/ifhWND/gu9EuhB43OgA74WF09Q=;
+        b=HQdz+3PV9rDOKmj6E+Qo4Lgobokq4X8DvScHl4BZgGAWv2JXgTUfxyXy3EKY3ALi2n
+         GhUq+7NhfGXeNdShjwIZayIvxJX9mENbHKinR0VA9rHOPhFMrODnXI0TOoEseZyuYUV0
+         aDF6F0+7V9Ls6AnA1/E/fvvC3dg4X6x+7g0C+1g8+uRIeQcDXEzKHDAybA4t0wh7K4pw
+         0oFP018sbJfj1m5t+aM2Dy7uhID0uXgEZAIh7HeZQB4XPbTKQR3Ua9FOOEssuwEZyvyp
+         VH0oHglexcO+U0IZQvVwRnvIrzBCT6f6mEQRGuLxlLfbahyrdG8DvOwDBJ41c3m8ZMbT
+         VRuA==
+X-Forwarded-Encrypted: i=1; AJvYcCXILJD4d3tbDOLlE/ljmm2/u7IIKC6dPPiBjbJnkhzuQ0kwcPz5IJdeda3S61psvd0vH0D62d95CMvwLfoPFQZeMl8iXPRnrdHMZO9oxUI=
+X-Gm-Message-State: AOJu0Yyv1JNBoEYidW6fD0bfgHhEk78rTvewmZT6MYHLUG5/8zFiaPmX
+	o7xkKBVxKPih15JZFvqBECdytkY/BFLbq56+1/4BBbDwZgaN936hJxzYL543eQjjbG8e9LPAmUx
+	fG7a3R+Y7+1AMvZ1IUc2oiyMCDbtpEhASaCPjGg==
+X-Google-Smtp-Source: AGHT+IESGKfjCZ/d7YQhVr4w9aHXy92y636qjmWLXH+R9HsoasnS99cNnuJIq1czHCghZavoE+Bq3PaKnRQ8RjpkIrs=
+X-Received: by 2002:ac2:4d83:0:b0:52b:fb4:1283 with SMTP id
+ 2adb3069b0e04-52b8954e82cmr9897134e87.15.1717496516433; Tue, 04 Jun 2024
+ 03:21:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN7PR12MB7833.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e47e14ea-b1ea-44bb-6af0-08dc84790fd6
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Jun 2024 09:31:07.0916
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: G55FWu/5tY7zVNKOf3xxMI/Q9KY3CHe5mWSWOM6DVhqJbd/fStGig7o1koGSZg6q+S721riG3ALxZZzdTCP4zA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4267
+References: <SI2PR06MB53852C83901A0DDE55624063FFF32@SI2PR06MB5385.apcprd06.prod.outlook.com>
+ <b55cb50b3ecf8d6132f8633ce346b6adc159b38c.camel@nvidia.com>
+ <CAJfpegsppbYbbLaECO+K2xpg8v0XZaQKFRZRTj=gJc9p7swdvQ@mail.gmail.com>
+ <bbf427150d16122da9dd2a8ebec0ab1c9a758b56.camel@nvidia.com>
+ <CAJfpegshNFmJ-LVfRQW0YxNyWGyMMOmzLAoH65DLg4JxwBYyAA@mail.gmail.com>
+ <20240603134427.GA1680150@fedora.redhat.com> <CAOssrKfw4MKbGu=dXAdT=R3_2RX6uGUUVS+NEZp0fcfiNwyDWw@mail.gmail.com>
+ <20240603152801.GA1688749@fedora.redhat.com> <CAJfpegsr7hW1ryaZXFbA+njQQyoXgQ_H-wX-13n=YF86Bs7LxA@mail.gmail.com>
+ <bc4bb938b875ef8931d42030ae85220c9763154f.camel@nvidia.com>
+ <CAJfpegshpJ3=hXuxpeq79MuBv_E-MPpPb3GVg3oEP3p5t=VAZQ@mail.gmail.com>
+ <464c42bc3711332c5f50a562d99eb8353ef24acb.camel@nvidia.com>
+ <CAJfpegu3kwv9y1+Yz=Ad_eJt7-fNJbxgJ8m2_B=Su+Lg6EskGQ@mail.gmail.com> <8c28a7f83f66a30de13380c9b5f48b64d7c7c17f.camel@nvidia.com>
+In-Reply-To: <8c28a7f83f66a30de13380c9b5f48b64d7c7c17f.camel@nvidia.com>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 4 Jun 2024 12:21:44 +0200
+Message-ID: <CAJfpeguhUYhtVu83fG6OhZvi6hGSOAfSztH7Aq=p0r2y=n0_2Q@mail.gmail.com>
+Subject: Re: Addressing architectural differences between FUSE driver and fs -
+ Re: virtio-fs tests between host(x86) and dpu(arm64)
+To: Peter-Jan Gootzen <pgootzen@nvidia.com>
+Cc: Idan Zach <izach@nvidia.com>, Parav Pandit <parav@nvidia.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"stefanha@redhat.com" <stefanha@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, Oren Duer <oren@nvidia.com>, 
+	Yoray Zack <yorayz@nvidia.com>, "mszeredi@redhat.com" <mszeredi@redhat.com>, 
+	"angus.chen@jaguarmicro.com" <angus.chen@jaguarmicro.com>, 
+	"bin.yang@jaguarmicro.com" <bin.yang@jaguarmicro.com>, Eliav Bar-Ilan <eliavb@nvidia.com>, 
+	"mst@redhat.com" <mst@redhat.com>, 
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
+	"lege.wang@jaguarmicro.com" <lege.wang@jaguarmicro.com>
+Content-Type: text/plain; charset="UTF-8"
 
-T24gVHVlLCAyMDI0LTA2LTA0IGF0IDExOjE4ICswMjAwLCBNaWtsb3MgU3plcmVkaSB3cm90ZToN
-Cj4gRXh0ZXJuYWwgZW1haWw6IFVzZSBjYXV0aW9uIG9wZW5pbmcgbGlua3Mgb3IgYXR0YWNobWVu
-dHMNCj4gDQo+IA0KPiBPbiBUdWUsIDQgSnVuIDIwMjQgYXQgMTE6MDgsIFBldGVyLUphbiBHb290
-emVuIDxwZ29vdHplbkBudmlkaWEuY29tPg0KPiB3cm90ZToNCj4gDQo+ID4gT3B0aW9uIDIgaXMg
-ZGV0ZWN0YWJsZSBpZiBmdXNlX2luaXRfb3V0Lm1pbm9yIDwgQ0FOT05fQVJDSF9NSU5PUiwNCj4g
-PiBub3QNCj4gPiBzdXJlIHlldCB3aGF0IHdlIGNvdWxkIGRvIHdpdGggdGhhdCBrbm93bGVkZ2Ug
-KG1heWJlIHVzZWZ1bCBpbiBlcnJvcg0KPiA+IGxvZ2dpbmc/KS4NCj4gDQo+IFVzaW5nIHRoZSB2
-ZXJzaW9uIGZvciBmZWF0dXJlIGRldGVjdGlvbiBicmVha3MgaWYgYSBmZWF0dXJlIGlzDQo+IGJh
-Y2twb3J0ZWQuwqAgU28gdGhpcyBtZXRob2QgaGFzIGJlZW4gZGVwcmVjYXRlZCBhbmQgbm90IHVz
-ZWQgb24gbmV3DQo+IGZlYXR1cmVzLg0KT2ggdGhhdCBpcyB2ZXJ5IGdvb2QgdG8ga25vdy4gU28g
-Zm9yIG5ldyBmZWF0dXJlcywgZmVhdHVyZSBkZXRlY3Rpb24gaXMNCm9ubHkgZG9uZSB0aHJvdWdo
-IHRoZSBmbGFncz8NCg0KSWYgc28sIHRoZW4gaW4gdGhpcyBjYXNlIChhbmQgY29ycmVjdCBtZSBp
-ZiBJJ20gd3JvbmcpLA0KaWYgdGhlIGNsaWVudCBkb2Vzbid0IHNldCB0aGUgRlVTRV9DQU5PTl9B
-UkNIIGZsYWcsIHRoZSBzZXJ2ZXIvZGV2aWNlDQpzaG91bGQgbm90IHJlYWQgdGhlIGFyY2hfaWQu
-DQpJZiB0aGUgc2VydmVyIGRvZXNuJ3Qgc2V0IHRoZSBGVVNFX0NBTk9OX0FSQ0ggZmxhZywgdGhl
-biB0aGUgY2xpZW50DQpzaG91bGQgYXNzdW1lIHRoYXQgdGhlIHNlcnZlciBoYXMgdGhlIHNhbWUg
-YXJjaC4gQmVjYXVzZSBpdCBjb3VsZCBiZQ0KZWl0aGVyIHRoZSBzYW1lIGFyY2gsIG9yIG5vdCBz
-dXBwb3J0IHRoaXMgbmV3IGZlYXR1cmUgeWV0IHdoaWxlIGJlaW5nIGENCmRpZmZlcmVudCBhcmNo
-Lg0KDQpBcyB0aGlzIGlzIGluIHNvbWUgc2Vuc2UgYSBidWctZml4IGZvciBjZXJ0YWluIHN5c3Rl
-bXMsIHdvdWxkIHRoaXMgbmV3DQpmZWF0dXJlIHF1YWxpZnkgZm9yIGJhY2twb3J0aW5nPw0KDQot
-IFBldGVyLUphbg0KDQo=
+On Tue, 4 Jun 2024 at 11:31, Peter-Jan Gootzen <pgootzen@nvidia.com> wrote:
+>
+> On Tue, 2024-06-04 at 11:18 +0200, Miklos Szeredi wrote:
+> > External email: Use caution opening links or attachments
+> >
+> >
+> > On Tue, 4 Jun 2024 at 11:08, Peter-Jan Gootzen <pgootzen@nvidia.com>
+> > wrote:
+> >
+> > > Option 2 is detectable if fuse_init_out.minor < CANON_ARCH_MINOR,
+> > > not
+> > > sure yet what we could do with that knowledge (maybe useful in error
+> > > logging?).
+> >
+> > Using the version for feature detection breaks if a feature is
+> > backported.  So this method has been deprecated and not used on new
+> > features.
+> Oh that is very good to know. So for new features, feature detection is
+> only done through the flags?
+>
+> If so, then in this case (and correct me if I'm wrong),
+> if the client doesn't set the FUSE_CANON_ARCH flag, the server/device
+> should not read the arch_id.
+
+Since reserved fields are zeroed, it's possible to check for arch_id
+being zero (meaning the client has unknown arch).
+
+So if the client sets the arch but doesn't set FUSE_CANON_ARCH, it
+would mean that it does not support translation for this particular
+architecture.   The server can still check to see if the arches match,
+continue if so, and error out otherwise.
+
+> As this is in some sense a bug-fix for certain systems, would this new
+> feature qualify for backporting?
+
+Certainly.
+
+Thanks,
+Miklos
