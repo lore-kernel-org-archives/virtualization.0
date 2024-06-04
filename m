@@ -1,145 +1,204 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from APC01-TYZ-obe.outbound.protection.outlook.com (mail-tyzapc01on2121.outbound.protection.outlook.com [40.107.117.121])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A4FECC
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:30:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717461018; cv=none; b=Gpdhq1dABsYsgsWz9hECMtxtNQ9jRjVzxkkPv+MizXX1mPoRu0PjJQ4ifyWgDJIbdp1QRNy4PC0Nnn85shFUng1x4u6s4aZGyOAwGV146t54PwTs8aJfkV7R/gBRh/J7d2yLda8AyxcMHgf8/Lv25s/wyVhNlfCBAU/8vfTow0M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717461018; c=relaxed/simple;
-	bh=bvM0pADJsf/ny8qy1qpxXNEPBHi9kStugKigbeIsfP8=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=PBMzxbIUrPJSukVgbgDGiVtQjwd/b6Tg79+gW5ZV3Y29AWV0Bkv1E1s8NwOxq9CeGp720/XK4p5tWEbta5qYjrSIA/1fddpF9wlN7ky+Zy5Y8o0jLQGsUzOHH93hzdkIaxAKgDJ7EfGaCyO0NjLaR0VhElourtJ4WAGZum56Ehw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=1v6sLr8Q; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3418122066
+	for <virtualization@lists.linux.dev>; Tue,  4 Jun 2024 03:08:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.117.121
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1717470522; cv=fail; b=BXKNJPS9Qqvmi18xTyXXw2z8tFgjzxO7793/82LKgKhtZhVUmmuyMM9iEbVwLoSRxsWqRIpfWE/0WN469DKcTOao5i1gKWQcVhxvknQembGXm00k3VUv73C5tbPuZqroifFxgXk8q7XaTNOjeX9NaS1wPNq0MfGnVXMD/8Dcf9s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1717470522; c=relaxed/simple;
+	bh=l9Cbc/eQWmMOpNnuM32o2MUNS0SIXWfqcYwIq8V7YhE=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=kI3Sm1dKAKj9gzON/qXU01Hz4vOtKdHXwgSct4vk0pq7dYNOPXctdROXFZIeGac0IV+1qINyBRoXshLMAxc4c15Q1wQAoVsEu+zqveqreBOKCuK4iASKzGYZncEtav6oHsGvYz8f4YTfOTSXERM6nSqCXzqqHBD7NnVmbTIMQuQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=T5Abfcul; arc=fail smtp.client-ip=40.107.117.121
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="1v6sLr8Q"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9072940534
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:30:16 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -9.601
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id bxUMMMvTlf5F for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jun 2024 00:30:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::1049; helo=mail-pj1-x1049.google.com; envelope-from=3fmbezgykaik5rn0wpt11tyr.p1z@flex--seanjc.bounces.google.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 9A7AE400F1
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=google.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9A7AE400F1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=1v6sLr8Q
-Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9A7AE400F1
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Jun 2024 00:30:15 +0000 (UTC)
-Received: by mail-pj1-x1049.google.com with SMTP id 98e67ed59e1d1-2c1a55ffd60so4437024a91.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 03 Jun 2024 17:30:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1717461015; x=1718065815; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qxZAvQthUOLtrgNKYUD6oiL7rAnsVeqwoSoZowsNkW0=;
-        b=1v6sLr8QVLtFsv0Krt9y+0DLqAzjXYgzpzb4UdnkChhXbMLtmhF0OfgB221f7Gwh5o
-         xIZxXS3L/56d04866c8zvz06ELH8klSQD7G9yzJ3B1a0AqzK2Edi9dg0bPH/bPf9Iw6O
-         TzqE6om1+3/QY6pZA5VCXEzZxQwmFKmfcVOn4aXak+ddL8Z3etdBs6WT/2qXBS2s4uea
-         KEqcaTS/JIdUAtRF03hEoRfqe13Je6PfEHN4G1elllyfZYDFqvZ0SLhXNh5KVpFXwkRP
-         IcfsNqNLj23Ed+Nvd10qa9+koLZfnnGI7NffryXo4sd1w2GXwah9oPG7R9il3J42yZil
-         xuvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717461015; x=1718065815;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=qxZAvQthUOLtrgNKYUD6oiL7rAnsVeqwoSoZowsNkW0=;
-        b=h/scaYmTlx5yRETkwvQGC1sl+h6TUI6jUy2QLH1JJUETTZ7HBZ0gfu/uNzl1FIH732
-         QCFe/LBazz5HyzFSRaH06fx0jLqKDPz40AIcOprKaeBXEakb7fNWqfPSInKgttWSZSVN
-         yeqhL2et/KUfxgbnfi806G4gLPUc/fqT4h0R2Ew57DMfmh+DI7Ydc1hWOdE35RaRY0la
-         JB2xXqxTabwtVe18BZO6NqH/JHtKOJgoAE6/6ugayye3Fcl8UkTkK/Gpz8Ui776DqD/t
-         YqrgWC60CMgOO2utEATNT6Cue+Cd0lR/y5/1wtyVx+EBgYhy04XO+Ke9ydEdYvjYDwZ+
-         4kNg==
-X-Forwarded-Encrypted: i=1; AJvYcCXl2H5x3B1farkiYKbUrpYVjJh5AueLt/hB7E7Tx8nl3Y9got2pXabgcnKnVWcuBZGmZi3dH2GzhwO5TPs1/R9WcKn4f3MM2DARKMIkb2W7W4A6WPiJq79maA==
-X-Gm-Message-State: AOJu0YxDvaHyFR/QXcgppiRPE5HXMp3T66P+6K2wHKViMTcTxPCEyXIy
-	c8wxp+7gzAWX1HZHBCRw0vDKuVMOCDGhk9RjP2C0J4tU9OcQ153TQBYe6rgvP2b5AoCe1+/Uzcw
-	aQw==
-X-Google-Smtp-Source: AGHT+IHQGaBTeBmAnXtOHPKtCDExst6sxM2uUbRh6POZbhCe3IxNIvO17m1N9WlbQ/aSMCylqTV+FPzEOtI=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:90a:2c86:b0:2c1:aa8e:13cb with SMTP id
- 98e67ed59e1d1-2c1dc5e0ab2mr29758a91.9.1717461014195; Mon, 03 Jun 2024
- 17:30:14 -0700 (PDT)
-Date: Mon, 3 Jun 2024 17:30:12 -0700
-In-Reply-To: <20240603.ahNg8waif6Fu@digikod.net>
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="T5Abfcul"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Qoq9sJe5mb5l+6kYXGVTj/U8peW+0x5iqPtz31GIDPmWOC4zi2Z32IHJ9J9a3ZlT6p8NKhC3PEbc5xfdyXiy3UQNjtZl8I7iliT1yf4F0iVEUKQ5Wa1ceFgdZQicjXfIpVJHJn0ypZlOhdo27zPdEWKm0nOEW2Oh8kHq3VRGvslxOaw3DoZhNDIGkTnErqKs8h3+KF2NmSlKEmqc9ZllcQvY0+Fykdjte1hRJO7+YK3ndVHvb1qjihPDEPKvPFbOTRQ14Cgf3dk0ySckMZXlqRjJ/Md3t2GR0mJo2KoaaeZZjWC9PfQ0aB4hARRM7t60/DHEuQY63YhA+UTbic86lg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=JEhl6DD0HwbsZTBYRU/QV/wAQi5/Fjb4qPPxf16ZsDc=;
+ b=ar3LaPWncvjIMnPWyxphAi/BHUTEc2rfckylfF0UQzZ2S5+/9BEwD6s/ztq+6kW97FsgRDiV9k7gPoj71Pm7+DOlR2VyaoDAPOGCY5vx8AJkhVv0Y09tyy93ghruGiqvxKS9fE+XNKIFu6fILYxwztxdchMIoW/NPiyZsCKkEJ1rirlcZkF6Mjg8ROZqefxs9gXnLC0M0YOabEOdxN96VRAvcUuOOT/4mYQrqHQsB6sIxSAV9olZdpKncOotwxGkh0Gx5kLHbeVij2hYXPto56wayDnd00+CzJo05ncKByHLNui4JOdg5F8rk+bGocjzq89HzZlea9c+vMIuLjeo2A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=JEhl6DD0HwbsZTBYRU/QV/wAQi5/Fjb4qPPxf16ZsDc=;
+ b=T5Abfculx4Ip44M4J2cNxWPmW2Q8m/u8gz9SXwa+v0yXtj3j5avwIpAdHeLTh2nXv90SMN1oWD/NHAi6pGoxvaowP6zSlf2eN+mldsYp5GXn779zpwgvbS4m0B3145Iv6wtoFZvPgo4dDJUsJwqES1vMunyhrXepwwP3rHlIvQR6tVOM+hoL+eISQ3lywJWLvqyVff2wJq6BcADQ7lSwq2hWm2Jgovxq04eDvknBZIfZCnFXaLxeMjADjDVZXdyeE+rjY9jlt+/cbKaL3je8/0C8wLC6bj+Av/9Mf1f4B51iSKJ+Z8YKB7/F3dLRMwD+274y+GCQiHSLeKMCyXWI6A==
+Received: from SI2PR06MB5385.apcprd06.prod.outlook.com (2603:1096:4:1ec::12)
+ by SEZPR06MB6912.apcprd06.prod.outlook.com (2603:1096:101:1ec::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7633.25; Tue, 4 Jun
+ 2024 03:08:36 +0000
+Received: from SI2PR06MB5385.apcprd06.prod.outlook.com
+ ([fe80::967d:afda:6f4:33dd]) by SI2PR06MB5385.apcprd06.prod.outlook.com
+ ([fe80::967d:afda:6f4:33dd%6]) with mapi id 15.20.7633.021; Tue, 4 Jun 2024
+ 03:08:36 +0000
+From: Lege Wang <lege.wang@jaguarmicro.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>
+CC: Peter-Jan Gootzen <pgootzen@nvidia.com>, Idan Zach <izach@nvidia.com>,
+	Yoray Zack <yorayz@nvidia.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, Parav Pandit <parav@nvidia.com>,
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, Bin Yang
+	<bin.yang@jaguarmicro.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
+	"mszeredi@redhat.com" <mszeredi@redhat.com>, Eliav Bar-Ilan
+	<eliavb@nvidia.com>, "mst@redhat.com" <mst@redhat.com>, Oren Duer
+	<oren@nvidia.com>, Angus Chen <angus.chen@jaguarmicro.com>
+Subject: RE: Addressing architectural differences between FUSE driver and fs -
+ Re: virtio-fs tests between host(x86) and dpu(arm64)
+Thread-Topic: Addressing architectural differences between FUSE driver and fs
+ - Re: virtio-fs tests between host(x86) and dpu(arm64)
+Thread-Index:
+ AdqybnzAiozTvtlkQFaloMBVG2WGpwDHcmEAAADKEAAAAQAmgAAAdzaAAAm2tYAAHBcsAA==
+Date: Tue, 4 Jun 2024 03:08:35 +0000
+Message-ID:
+ <SI2PR06MB538586B4F0AEFFB20F553240FFF82@SI2PR06MB5385.apcprd06.prod.outlook.com>
+References:
+ <SI2PR06MB53852C83901A0DDE55624063FFF32@SI2PR06MB5385.apcprd06.prod.outlook.com>
+ <b55cb50b3ecf8d6132f8633ce346b6adc159b38c.camel@nvidia.com>
+ <CAJfpegsppbYbbLaECO+K2xpg8v0XZaQKFRZRTj=gJc9p7swdvQ@mail.gmail.com>
+ <bbf427150d16122da9dd2a8ebec0ab1c9a758b56.camel@nvidia.com>
+ <CAJfpegshNFmJ-LVfRQW0YxNyWGyMMOmzLAoH65DLg4JxwBYyAA@mail.gmail.com>
+ <20240603134427.GA1680150@fedora.redhat.com>
+In-Reply-To: <20240603134427.GA1680150@fedora.redhat.com>
+Accept-Language: en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SI2PR06MB5385:EE_|SEZPR06MB6912:EE_
+x-ms-office365-filtering-correlation-id: 041e88fc-a852-405f-f62b-08dc84439fdd
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230031|376005|366007|1800799015|7416005|38070700009;
+x-microsoft-antispam-message-info:
+ =?Windows-1252?Q?i7jvJJzyqKXrason4pX9CQLTtkXhAMeXoAlQ77kn62jyqpQX9onFZ6Ze?=
+ =?Windows-1252?Q?ho2CF+XqI76C+nb1QVx2rtt0UM+Ksq3rj3XyCkKJf9ETOvwF6hsYGhuC?=
+ =?Windows-1252?Q?Ejm4ewiAAEEjzU34yPckhiCBrR5ywqIWpMgV+nkNCgAYGgP/CSFdQM3Z?=
+ =?Windows-1252?Q?Slm8BGFHonDiBj8PFyb6SGD1fMCuoBhQzSRO2kMJLebiYIORyQyS/P4J?=
+ =?Windows-1252?Q?xRgSvP6COGh9lbjhYEBEoO5hEw1BF+epY7eN0RQnXyU4Ny7VLgF/K3pI?=
+ =?Windows-1252?Q?WfWSKhtGuvrA1ZDRr6WDqfsmHQBrtPIn6J6f+q+Bph/x14dt/MFoJeqQ?=
+ =?Windows-1252?Q?Av+nZqZGdtueTlZl+tko82NJoNBvhryn0ZizMF2chYX89ZDo54h4vlod?=
+ =?Windows-1252?Q?aQycCZgQlsEVjStK/iY6MPrR3LgzRDYSoplZr5zfwAsCT1RaoXVPD86c?=
+ =?Windows-1252?Q?3FJapFL6IH0GjCncWpU21v0ExXjzoCHKJK/8GFT7XrdWUwIuUJBOGh8R?=
+ =?Windows-1252?Q?3vH3bfOP9RmDTy4EfUB136+NRu3Q6aCMR8jDWKy14w+bQ2k8ap2YZm6k?=
+ =?Windows-1252?Q?kiwquK/znYEVmkFYyqDjQyP43gnyTnSAYv5xOiZcy3+DHvUlXEQS5U0E?=
+ =?Windows-1252?Q?LOBOKsdZQui25j0qw5+jm/ylEtnnAtmbh93BHG37+YsZqPjoemmteUVP?=
+ =?Windows-1252?Q?i5vhlxamnJR9yL3Yz6mQOk7Re4eqTsedueQ7gVEklT6BBaZ02WSsaJiU?=
+ =?Windows-1252?Q?yehGMl+NKhlkoBrLbRaXMi03rnh6u6vkE5mTCf2CTJD+NRoK1VZHh6lE?=
+ =?Windows-1252?Q?ZGKD4I/yS7BvdNwN3RaUOblUyFphdxRjiF6zo9Uh+FTrZHeLIbtZefW6?=
+ =?Windows-1252?Q?ssrk/kD2j4u50+lmb6owVAg51htY80GtCXiukARarWPDoIt18LXDceVC?=
+ =?Windows-1252?Q?tsPkea5zrI548CLqwHfNJvw2SmXqqzrGU8yFIH3LL0pcDVe9mCFmCLWH?=
+ =?Windows-1252?Q?WFUv8UVQCysBusDpQEUhhXuz3FHfIS2+oBhmn3ZaqHBGkUt+vrPAD6/i?=
+ =?Windows-1252?Q?9WX1o4NS2XVwmCTmSNPRuOurhPbXeBaxoue8S840IxgxktQqqmQo36RG?=
+ =?Windows-1252?Q?UfIOdIoDnoCIU5n+5pdEJs3VQ2HMbSHfSeq2ovtAHOT3LxBx+L+sXWJE?=
+ =?Windows-1252?Q?IIwvBDGQGi77QjvN5Uag7jRAmAwGf5w8kPnDMtfz2VAV9MOFB/LjmTUW?=
+ =?Windows-1252?Q?RbLuenLAN/e6AIXVYFWhUE8E0zCT5YNr7F0rSjQVtPNPK/kc8vAFOnYV?=
+ =?Windows-1252?Q?Xn1toZjpH0H2pCLTx7PQvuoH+nazSGF75dBNvXufhgidD2hPYbooFAqT?=
+ =?Windows-1252?Q?avYSxR8MUE7T/VHYFCM/r+jn8KPPsOwM1YAXXLOsxB6O5ScndvkbZ6yw?=
+ =?Windows-1252?Q?h0isPBGCc6adO4mlz34oGg=3D=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:zh-cn;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SI2PR06MB5385.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(366007)(1800799015)(7416005)(38070700009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?Windows-1252?Q?/meV5fXp15JsCKOfE3Xl+319r0NIqyhAV91SZ7YX+zaPXrFrYPRfn/gW?=
+ =?Windows-1252?Q?cTg1tQd0X/yp17p5N4soIeXHOYLFgJb4X635M2gjVeIekeRV6xWEpyYG?=
+ =?Windows-1252?Q?PoIBmESpuwF7Fr832AggeJKednPgusA9St300UiVG4L2eUu1L0fnmONc?=
+ =?Windows-1252?Q?GGe87rOrxTcGBYpg+42qLrZt2Y4NvRAo+8BqQoFvBatHbj7l97Wv67dj?=
+ =?Windows-1252?Q?xLm6gToDP/Hw2QUl5UjKGUvmUV9jX9vTsqHM6EWiMcPq2eZQrt+H2tYT?=
+ =?Windows-1252?Q?tcKTk93OPAjrVIsbWeXokgneu7Np6Y0F8qJvHSe4JJwXDlijrpxVIwNK?=
+ =?Windows-1252?Q?HRu1aYXRACfb/7Bo64+qo4egkcP0x0F7qIgguyE4y9oF0OTddIE3QMzP?=
+ =?Windows-1252?Q?4xh90aYrJowop3O1VFOEldmN09KhNHFGUL1TvaLuO131f4d5M+vxnpRJ?=
+ =?Windows-1252?Q?6h8P0Yvc2O8K7g95fPgM5ng+hqHfTRQ3wGA+x4kV/Z/J2rXop/4PidHp?=
+ =?Windows-1252?Q?o21mND3+qnfnRaH++JiBaNWmqk+wZ1egdFXc9gjKedllubriNyaZaZGs?=
+ =?Windows-1252?Q?eUZ7gq3tFKIC+wkR6aJYQpdjcWYgvEXEAH6H8OUWJupNcE0i1FMohXZJ?=
+ =?Windows-1252?Q?7CPBVJ+L1K/Y4Po41aEdjI0sLM51P7reERnWdXsxfr9gbd0sWC3NbPi1?=
+ =?Windows-1252?Q?9L3s4xMV1fpuAhZknV0iODPsE+DCiIAA450ATHqMIakaKtbYhy8U1jRH?=
+ =?Windows-1252?Q?azkAP2d1ZD0Rk3e9/CiDo2VPUo0G1xu3xc4qeOBR0MlOcVE19rgPNiPl?=
+ =?Windows-1252?Q?EBnDjh/fGhEXUjRUNHuub90uZeOiKLDSXKEwyV5DsT2HK29Jx+ZXpnPB?=
+ =?Windows-1252?Q?G26MRyGI7yGjlCRlyhZW40318mxBH9JIKEpglhDwKWYfxosTxOkrpEVt?=
+ =?Windows-1252?Q?SVlLemOHNIdh6eRj6ERgpBglqFtfHErGtEGwDIx9fAQ1hbcH9EwWBN20?=
+ =?Windows-1252?Q?d5OYkN+nm/btflYnVnbCdj34UCM88uFz9RezD7LLR4qt8MII4TNBa4ZH?=
+ =?Windows-1252?Q?iDZsMZ1ipVhLoUhPQRyr1X1xqYU58Bujruchs89pT1NMy2RK4V3rq+wY?=
+ =?Windows-1252?Q?qO/mw+rcye63IsXGD0a36i1nFc/SEHGTjJbGhac6RlDTxNLRM/wzGLeP?=
+ =?Windows-1252?Q?FKe7+f+Inzywe/reKaebXrBP97P/Ypp7NM708alnjAE+yx8tdzYWmOtM?=
+ =?Windows-1252?Q?ZcRxeHxoZt1DcMpMHPk6onuw1m9U/RhXSFV6ZvR/Pl+nAnNkdYGXR65k?=
+ =?Windows-1252?Q?sArPAxSvOzO2lItk6PrLkzOHrGIfzRAiuVDGcVZfayNZIAWdPwMzO/Tl?=
+ =?Windows-1252?Q?PNBbGM7h3ikJ6D59XqeqrZA+f1pb9eS9m+HhUddDZi6Abu9ZjUFEg1k+?=
+ =?Windows-1252?Q?EFq6w3WEgsEFW8TuUopN86NN/U/O0Z7VMrHFIzarJNZi4NSsRQUmyLli?=
+ =?Windows-1252?Q?VZjjCxJNyoZWyH4sJen9VhB7u1uLbbXdOY+4XF8kX2kr/dUDCUSlNZoL?=
+ =?Windows-1252?Q?t+4gEh/x6d5gNbEo9DuT+o29g58rtysDBJapnr4QnobeUoTRXSOtsg/6?=
+ =?Windows-1252?Q?u0F06IKdTeUiF0qCuk71JRAKFp1FXgXjbGNZgLXxzVHjW+8rjV8pRxOZ?=
+ =?Windows-1252?Q?ntHzGmQfYTfidJ7psQ7Q1eYdCxL2JGvS?=
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20240503131910.307630-4-mic@digikod.net> <ZjTuqV-AxQQRWwUW@google.com>
- <20240506.ohwe7eewu0oB@digikod.net> <ZjmFPZd5q_hEBdBz@google.com>
- <20240507.ieghomae0UoC@digikod.net> <ZjpTxt-Bxia3bRwB@google.com>
- <D15VQ97L5M8J.1TDNQE6KLW6JO@amazon.com> <20240514.mai3Ahdoo2qu@digikod.net>
- <ZkUb2IWj4Z9FziCb@google.com> <20240603.ahNg8waif6Fu@digikod.net>
-Message-ID: <Zl5gFMJp3nECJVW-@google.com>
-Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
- configuration and violation
-From: Sean Christopherson <seanjc@google.com>
-To: "=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?=" <mic@digikod.net>
-Cc: Nicolas Saenz Julienne <nsaenz@amazon.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>, 
-	Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, 
-	Rick P Edgecombe <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>, 
-	Angelina Vu <angelinavu@linux.microsoft.com>, 
-	Anna Trikalinou <atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>, 
-	Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>, 
-	James Morris <jamorris@linux.microsoft.com>, John Andersen <john.s.andersen@intel.com>, 
-	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, 
-	"Mihai =?utf-8?B?RG9uyJt1?=" <mdontu@bitdefender.com>, 
-	"=?utf-8?B?TmljdciZb3IgQ8OuyJt1?=" <nicu.citu@icloud.com>, Thara Gopinath <tgopinath@microsoft.com>, 
-	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>, 
-	Will Deacon <will@kernel.org>, Yu Zhang <yu.c.zhang@linux.intel.com>, 
-	"=?utf-8?Q?=C8=98tefan_=C8=98icleru?=" <ssicleru@bitdefender.com>, dev@lists.cloudhypervisor.org, 
-	kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, 
-	virtualization@lists.linux-foundation.org, x86@kernel.org, 
-	xen-devel@lists.xenproject.org
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SI2PR06MB5385.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 041e88fc-a852-405f-f62b-08dc84439fdd
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Jun 2024 03:08:35.9309
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 6WB77czyNnoBzbLCQeJgRT1rKcl9FWyFZnleLHQL0+tZBxj1Z7bIJZgU5+mG1pcp8FAbXwLCrA1TA3bPsJf7bmd/wGMTqkpYPgG5b4KM5OE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEZPR06MB6912
 
-On Mon, Jun 03, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
-> On Wed, May 15, 2024 at 01:32:24PM -0700, Sean Christopherson wrote:
-> > On Tue, May 14, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
-> > > On Fri, May 10, 2024 at 10:07:00AM +0000, Nicolas Saenz Julienne wrot=
-e:
-> > > > Development happens
-> > > > https://github.com/vianpl/{linux,qemu,kvm-unit-tests} and the vsm-n=
-ext
-> > > > branch, but I'd advice against looking into it until we add some or=
-der
-> > > > to the rework. Regardless, feel free to get in touch.
-> > >=20
-> > > Thanks for the update.
-> > >=20
-> > > Could we schedule a PUCK meeting to synchronize and help each other?
-> > > What about June 12?
-> >=20
-> > June 12th works on my end.
+Hello,
+
 >=20
-> Can you please send an invite?
+> On Mon, Jun 03, 2024 at 11:06:19AM +0200, Miklos Szeredi wrote:
+> > On Mon, 3 Jun 2024 at 10:53, Peter-Jan Gootzen <pgootzen@nvidia.com>
+> wrote:
+> >
+> > > We also considered this idea, it would kind of be like locking FUSE i=
+nto
+> > > being x86. However I think this is not backwards compatible. Currentl=
+y
+> > > an ARM64 client and ARM64 server work just fine. But making such a
+> > > change would break if the client has the new driver version and the
+> > > server is not updated to know that it should interpret x86 specifical=
+ly.
+> >
+> > This would need to be negotiated, of course.
+> >
+> > But it's certainly simpler to just indicate the client arch in the
+> > INIT request.   Let's go with that for now.
+>=20
+> In the long term it would be cleanest to choose a single canonical
+> format instead of requiring drivers and devices to implement many
+> arch-specific formats. I liked the single canonical format idea you
+> suggested.
+Agree, I also think we should use canonical format for cases that client an=
+d
+server have different arches.
 
-I think this is all the info?
-
-Time:  6am PDT
-Video: https://meet.google.com/vdb-aeqo-knk
-Phone: https://tel.meet/vdb-aeqo-knk?pin=3D3003112178656
-
-Calendar: https://calendar.google.com/calendar/u/0?cid=3DY182MWE1YjFmNjQ0Nz=
-M5YmY1YmVkN2U1ZWE1ZmMzNjY5Y2UzMmEyNTQ0YzVkYjFjN2M4OTE3MDJjYTUwOTBjN2Q1QGdyb=
-3VwLmNhbGVuZGFyLmdvb2dsZS5jb20
-Drive:    https://drive.google.com/drive/folders/1aTqCrvTsQI9T4qLhhLs_l986S=
-ngGlhPH?resourcekey=3D0-FDy0ykM3RerZedI8R-zj4A&usp=3Ddrive_link
+Regards,
+Xiaoguang Wang
+>=20
+> My only concern is whether there are more commands/fields in FUSE that
+> operate in an arch-specific way (e.g. ioctl)? If there really are parts
+> that need to be arch-specific, then it might be necessary to negotiate
+> an architecture after all.
+>=20
+> Stefan
+>=20
+> >
+> > Thanks,
+> > Miklos
+> >
