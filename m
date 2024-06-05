@@ -1,442 +1,193 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CBB819D88D
-	for <virtualization@lists.linux.dev>; Wed,  5 Jun 2024 14:55:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1B35154BE5
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 16:03:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717599347; cv=none; b=U3vKODhcFBnGOQNZXN8AaVsMhuQQFJ7w/irxDDV/eBbgGnu4luJAWZpERClITXdlJY+uzMbZRSRp98ovluoybNi1BQjRaTdUf6QaYK8uZT0OLdm7vzOK7zF1wyFvBuQYzX+lkTiehnNhNeFewnVaHJ3luCkHxhrmYIv0pfKPQ7Q=
+	t=1717603383; cv=none; b=HYVTFm4ylTulXzdonFbz1ivN5ikIa636nCSU2D5PoKASRxvFetkzNPCW38KI4GkvHs2yz6GUOauG2eEw+Mf62oQv075TVb/jS/fssfrNAgNi4VNJwr9NjSJaIafnQkJNKwvZ98IWZ6IEnnr34aQOKaiBmAk8BzRY+1A5V1a9rfI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717599347; c=relaxed/simple;
-	bh=JCXZHKT3V8mBxuyp9uSbC474XPI6ojntG4/VjLk2S38=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=kM9wpWUPaTMGffH69lBC9878j0stTgc/ycoU8xlse1LlvyJ+RgUKS1J0/COCkmr+VFPFOImryCGJQqMMigY1hBmLvI3RuBM3ewzgMfSdrhXLAcPU5FKihIj2O1CRc7iGFV/CBkdXsPWLK1/7MX3IOBlyOWvwRLirSOvX5izdllM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=s+pwaD+z; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717603383; c=relaxed/simple;
+	bh=C0bCEbIkgFeTXnBAOsl8boxV6hIyhsh9cdh4AjtWpAU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=CkZ7kuKSM77auTy+nm38apuiPpu/49QxMWhR0Lv6/UudU0kHasZF05LDPGYRQDgmiKxFmDOCMZKzRo0I0rVzjnlMb7hIbVE1xWpe+AGCu2gqv873GdG79c+YexkjLZdlyDyYwbrzI0xybhMTRRWfurJc+TPrkuCBAy/7VetYvBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZF48eKoR; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="s+pwaD+z"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717599337; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=wu0MqgvWU6o+dDhtVerJmtCRy0t8kgDaHijzora45jc=;
-	b=s+pwaD+zUwszEXRO2biCkQiX3h59Gf4Cs9MVo3p3zekILTUypohmcdZDr/C9H3u7hX4BcZizXigrOfv2dKrc8XHCsWfwMrbfSEbNQqu30MUXfBDiFYg7cAuPdVfxqsLkRi6MWm02v8+R+oWj7iF5B/hp+6PEl0oezt+US2nlJxs=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W7vW.Un_1717599335;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7vW.Un_1717599335)
-          by smtp.aliyun-inc.com;
-          Wed, 05 Jun 2024 22:55:36 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH net-next v2 2/2] virtio_net: improve dim command request efficiency
-Date: Wed,  5 Jun 2024 22:55:33 +0800
-Message-Id: <20240605145533.86229-3-hengqi@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240605145533.86229-1-hengqi@linux.alibaba.com>
-References: <20240605145533.86229-1-hengqi@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZF48eKoR"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3C5C961143
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 16:03:02 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.998
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id mkZNx2Z8bEWh for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Jun 2024 16:03:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=148.163.156.1; helo=mx0a-001b2d01.pphosted.com; envelope-from=iii@linux.ibm.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 450DC61142
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.ibm.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 450DC61142
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ZF48eKoR
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 450DC61142
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 16:03:01 +0000 (UTC)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 455FqccJ001302;
+	Wed, 5 Jun 2024 16:02:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
+ content-transfer-encoding : content-type : date : from : in-reply-to :
+ message-id : mime-version : references : subject : to; s=pp1;
+ bh=VoD8tX52FvDat9NcjNAX98NVbgaw2ECRczO9sAXN6Zk=;
+ b=ZF48eKoRnALAvrJbyJKK96YuFZev/7Sl78hii05OBMRBLG1NDxTRMShJlrsgIyr+FEWL
+ JKwSN+vLTyw95FbHtYvmO8ALatkPEDqBi8aBXsl+xofy24NxVP5B1NRyEKQ2/UaVH4HJ
+ 3YW/jjBgcHyh3x0yCTBoA8DElc6nHUsxms4Me7csTUzD4rrtuLDrkimgXfceCJ5XRVRu
+ t2sH9pJ2zIXbzqCjfeBkMn8AcHkWpUOASyCHOZLEx0vpIOIhdfi8dGR7Mz58qlXIzK+S
+ Hem5DcORgIfC/lc23ZBxlsox/JlGAN5wFsla11pdx0Z4jIc/CxI8nquMOFzeUqUQ7IAp tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yju1j01w5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 16:02:44 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 455G2h42022506;
+	Wed, 5 Jun 2024 16:02:43 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yju1j01w2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 16:02:43 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 455EYUuw026521;
+	Wed, 5 Jun 2024 16:02:42 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yggp34kx2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 16:02:42 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 455G2csL48628082
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Jun 2024 16:02:41 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CC28A20043;
+	Wed,  5 Jun 2024 16:02:38 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A10A20040;
+	Wed,  5 Jun 2024 16:02:38 +0000 (GMT)
+Received: from [9.155.200.166] (unknown [9.155.200.166])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  5 Jun 2024 16:02:38 +0000 (GMT)
+Message-ID: <ecde3264696efe9145ce0785e7c3c2c7d0182ea4.camel@linux.ibm.com>
+Subject: Re: [PATCH vhost v13 04/12] virtio_ring: support add premapped buf
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        virtualization@lists.linux-foundation.org,
+        "Michael S. Tsirkin"
+ <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller"
+ <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+ <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov
+ <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard
+ Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, Christoph Hellwig
+ <hch@infradead.org>
+Date: Wed, 05 Jun 2024 18:02:38 +0200
+In-Reply-To: <CAG_fn=Wv4Tw8guW=mFYyV9T18C_qPZOxr3fwKcRkDVXm1e+iXg@mail.gmail.com>
+References: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
+	 <20230810123057.43407-5-xuanzhuo@linux.alibaba.com>
+	 <0b726a75574ad98200b815f173e59a5378e9df04.camel@linux.ibm.com>
+	 <CAG_fn=Wv4Tw8guW=mFYyV9T18C_qPZOxr3fwKcRkDVXm1e+iXg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: xYTW5mHPVypOduDonLVEW2AGx82bOgi3
+X-Proofpoint-ORIG-GUID: ezpYYrInLL1W71wsacFlf4Y4GCv2Vv5B
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-05_02,2024-06-05_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ mlxlogscore=999 mlxscore=0 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 priorityscore=1501 spamscore=0 impostorscore=0
+ clxscore=1015 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2406050121
 
-Currently, the control queue (ctrlq) handles commands synchronously,
-leading to increased delays for dim commands during multi-queue
-VM configuration and directly impacting dim performance.
+On Tue, 2024-06-04 at 18:17 +0200, Alexander Potapenko wrote:
+> On Tue, Jun 4, 2024 at 6:07=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
+m>
+> wrote:
+> >=20
+> > On Thu, 2023-08-10 at 20:30 +0800, Xuan Zhuo wrote:
+> > > If the vq is the premapped mode, use the sg_dma_address()
+> > > directly.
+> > >=20
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > > =C2=A0drivers/virtio/virtio_ring.c | 19 +++++++++++++++++--
+> > > =C2=A01 file changed, 17 insertions(+), 2 deletions(-)
+> > >=20
+> > > diff --git a/drivers/virtio/virtio_ring.c
+> > > b/drivers/virtio/virtio_ring.c
+> > > index 8e81b01e0735..f9f772e85a38 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -361,6 +361,11 @@ static struct device *vring_dma_dev(const
+> > > struct
+> > > vring_virtqueue *vq)
+> > > =C2=A0static int vring_map_one_sg(const struct vring_virtqueue *vq,
+> > > struct
+> > > scatterlist *sg,
+> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 enum dma_data_direction direction,
+> > > dma_addr_t *addr)
+> > > =C2=A0{
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0 if (vq->premapped) {
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 *addr =3D sg_dma_address(sg);
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 return 0;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0 }
+> > > +
+> >=20
+> > I wonder if something needs to be done for KMSAN here, like it's
+> > done
+> > by the next block in this function? I'm looking into what seems to
+> > be a
+> > KMSAN false positive on s390x:
+> >=20
+> > BUG: KMSAN: uninit-value in receive_buf+0x45ca/0x6990
+> > =C2=A0receive_buf+0x45ca/0x6990
+> > =C2=A0virtnet_poll+0x17e0/0x3130
+> > =C2=A0net_rx_action+0x832/0x26e0
+> > =C2=A0handle_softirqs+0x330/0x10f0
+> > =C2=A0[...]
+>=20
+> I think there's a similar problem on x86 as well:
+> https://syzkaller.appspot.com/bug?extid=3Dc5336dcd1b741349d27a
+>=20
+> I was going to look closer this week.
 
-To address this, we are shifting to asynchronous processing of
-ctrlq's dim commands.
+Thanks! I bisected it in the meantime and the first failing commit is:
 
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 260 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 236 insertions(+), 24 deletions(-)
+commit f9dac92ba9081062a6477ee015bd3b8c5914efc4
+Author: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date:   Sat May 11 11:14:01 2024 +0800
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 9b556ce89546..7975084052ad 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -270,6 +270,14 @@ struct virtnet_interrupt_coalesce {
- 	u32 max_usecs;
- };
- 
-+struct virtnet_coal_node {
-+	struct virtio_net_ctrl_hdr hdr;
-+	virtio_net_ctrl_ack status;
-+	struct virtio_net_ctrl_coal_vq coal_vqs;
-+	bool is_coal_wait;
-+	struct list_head list;
-+};
-+
- /* The dma information of pages allocated at a time. */
- struct virtnet_rq_dma {
- 	dma_addr_t addr;
-@@ -421,6 +429,9 @@ struct virtnet_info {
- 	/* Wait for the device to complete the cvq request. */
- 	struct completion completion;
- 
-+	/* Work struct for acquisition of cvq processing results. */
-+	struct work_struct get_cvq;
-+
- 	/* Host can handle any s/g split between our header and packet data */
- 	bool any_header_sg;
- 
-@@ -465,6 +476,14 @@ struct virtnet_info {
- 	struct virtnet_interrupt_coalesce intr_coal_tx;
- 	struct virtnet_interrupt_coalesce intr_coal_rx;
- 
-+	/* Free nodes used for concurrent delivery */
-+	struct mutex coal_free_lock;
-+	struct list_head coal_free_list;
-+
-+	/* Filled when there are no free nodes or cvq buffers */
-+	struct mutex coal_wait_lock;
-+	struct list_head coal_wait_list;
-+
- 	unsigned long guest_offloads;
- 	unsigned long guest_offloads_capable;
- 
-@@ -671,7 +690,7 @@ static void virtnet_cvq_done(struct virtqueue *cvq)
- {
- 	struct virtnet_info *vi = cvq->vdev->priv;
- 
--	complete(&vi->completion);
-+	schedule_work(&vi->get_cvq);
- }
- 
- static void skb_xmit_done(struct virtqueue *vq)
-@@ -2183,6 +2202,113 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
- 	return !oom;
- }
- 
-+static int __virtnet_add_dim_command(struct virtnet_info *vi,
-+				     struct virtnet_coal_node *ctrl)
-+{
-+	struct scatterlist *sgs[4], hdr, stat, out;
-+	unsigned int out_num = 0;
-+	int ret;
-+
-+	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
-+
-+	ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
-+	ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET;
-+
-+	sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
-+	sgs[out_num++] = &hdr;
-+
-+	sg_init_one(&out, &ctrl->coal_vqs, sizeof(ctrl->coal_vqs));
-+	sgs[out_num++] = &out;
-+
-+	ctrl->status = ~0;
-+	sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
-+	sgs[out_num] = &stat;
-+
-+	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
-+	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
-+	if (ret < 0) {
-+		dev_warn(&vi->vdev->dev,
-+			 "Failed to add sgs for command vq: %d\n.", ret);
-+		return ret;
-+	}
-+
-+	if (unlikely(!virtqueue_kick(vi->cvq)))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static int virtnet_add_dim_command(struct virtnet_info *vi,
-+				   struct virtnet_coal_node *ctrl)
-+{
-+	int ret;
-+
-+	mutex_lock(&vi->cvq_lock);
-+	ret = __virtnet_add_dim_command(vi, ctrl);
-+	mutex_unlock(&vi->cvq_lock);
-+
-+	return ret;
-+}
-+
-+static void virtnet_process_dim_cmd(struct virtnet_info *vi, void *res)
-+{
-+	struct virtnet_coal_node *node = (struct virtnet_coal_node *)res;
-+	u16 qnum = le16_to_cpu(node->coal_vqs.vqn) / 2;
-+
-+	mutex_lock(&vi->rq[qnum].dim_lock);
-+	vi->rq[qnum].intr_coal.max_usecs =
-+		le32_to_cpu(node->coal_vqs.coal.max_usecs);
-+	vi->rq[qnum].intr_coal.max_packets =
-+		le32_to_cpu(node->coal_vqs.coal.max_packets);
-+	vi->rq[qnum].dim.state = DIM_START_MEASURE;
-+	mutex_unlock(&vi->rq[qnum].dim_lock);
-+
-+	if (node->is_coal_wait) {
-+		kfree(node);
-+	} else {
-+		mutex_lock(&vi->coal_free_lock);
-+		list_add(&node->list, &vi->coal_free_list);
-+		mutex_unlock(&vi->coal_free_lock);
-+	}
-+}
-+
-+static void virtnet_get_cvq_work(struct work_struct *work)
-+{
-+	struct virtnet_info *vi =
-+		container_of(work, struct virtnet_info, get_cvq);
-+	struct virtnet_coal_node *wait_coal;
-+	bool valid = false;
-+	unsigned int tmp;
-+	void *res;
-+
-+	mutex_lock(&vi->cvq_lock);
-+	while ((res = virtqueue_get_buf(vi->cvq, &tmp)) != NULL) {
-+		if (res == ((void *)vi))
-+			complete(&vi->completion);
-+		else
-+			virtnet_process_dim_cmd(vi, res);
-+
-+		valid = true;
-+	}
-+
-+	if (!valid) {
-+		mutex_unlock(&vi->cvq_lock);
-+		return;
-+	}
-+
-+	mutex_lock(&vi->coal_wait_lock);
-+	while (!list_empty(&vi->coal_wait_list)) {
-+		wait_coal = list_first_entry(&vi->coal_wait_list,
-+					     struct virtnet_coal_node, list);
-+		if (__virtnet_add_dim_command(vi, wait_coal))
-+			break;
-+		list_del(&wait_coal->list);
-+	}
-+	mutex_unlock(&vi->coal_wait_lock);
-+
-+	mutex_unlock(&vi->cvq_lock);
-+}
-+
- static void skb_recv_done(struct virtqueue *rvq)
- {
- 	struct virtnet_info *vi = rvq->vdev->priv;
-@@ -2695,7 +2821,7 @@ static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd
- 				       struct scatterlist *in)
- {
- 	struct scatterlist *sgs[5], hdr, stat;
--	u32 out_num = 0, tmp, in_num = 0;
-+	u32 out_num = 0, in_num = 0;
- 	int ret;
- 
- 	/* Caller should know better */
-@@ -2728,14 +2854,15 @@ static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd
- 		return false;
- 	}
- 
--	if (unlikely(!virtqueue_kick(vi->cvq)))
--		goto unlock;
-+	if (unlikely(!virtqueue_kick(vi->cvq))) {
-+		mutex_unlock(&vi->cvq_lock);
-+		return false;
-+	}
-+
-+	mutex_unlock(&vi->cvq_lock);
- 
- 	wait_for_completion(&vi->completion);
--	virtqueue_get_buf(vi->cvq, &tmp);
- 
--unlock:
--	mutex_unlock(&vi->cvq_lock);
- 	return vi->ctrl->status == VIRTIO_NET_OK;
- }
- 
-@@ -4396,35 +4523,73 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
- 	return 0;
- }
- 
-+static void virtnet_put_wait_coal(struct virtnet_info *vi,
-+				  struct receive_queue *rq,
-+				  struct dim_cq_moder moder)
-+{
-+	struct virtnet_coal_node *wait_node;
-+
-+	wait_node = kzalloc(sizeof(*wait_node), GFP_KERNEL);
-+	if (!wait_node) {
-+		rq->dim.state = DIM_START_MEASURE;
-+		return;
-+	}
-+
-+	wait_node->is_coal_wait = true;
-+	wait_node->coal_vqs.vqn = cpu_to_le16(rxq2vq(rq - vi->rq));
-+	wait_node->coal_vqs.coal.max_usecs = cpu_to_le32(moder.usec);
-+	wait_node->coal_vqs.coal.max_packets = cpu_to_le32(moder.pkts);
-+	mutex_lock(&vi->coal_wait_lock);
-+	list_add_tail(&wait_node->list, &vi->coal_wait_list);
-+	mutex_unlock(&vi->coal_wait_lock);
-+}
-+
- static void virtnet_rx_dim_work(struct work_struct *work)
- {
- 	struct dim *dim = container_of(work, struct dim, work);
- 	struct receive_queue *rq = container_of(dim,
- 			struct receive_queue, dim);
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
--	struct net_device *dev = vi->dev;
-+	struct virtnet_coal_node *avail_coal;
- 	struct dim_cq_moder update_moder;
--	int qnum, err;
- 
--	qnum = rq - vi->rq;
-+	update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
- 
- 	mutex_lock(&rq->dim_lock);
--	if (!rq->dim_enabled)
--		goto out;
--
--	update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
--	if (update_moder.usec != rq->intr_coal.max_usecs ||
--	    update_moder.pkts != rq->intr_coal.max_packets) {
--		err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
--						       update_moder.usec,
--						       update_moder.pkts);
--		if (err)
--			pr_debug("%s: Failed to send dim parameters on rxq%d\n",
--				 dev->name, qnum);
--		dim->state = DIM_START_MEASURE;
-+	if (!rq->dim_enabled ||
-+	    (update_moder.usec == rq->intr_coal.max_usecs &&
-+	     update_moder.pkts == rq->intr_coal.max_packets)) {
-+		rq->dim.state = DIM_START_MEASURE;
-+		mutex_unlock(&rq->dim_lock);
-+		return;
- 	}
--out:
- 	mutex_unlock(&rq->dim_lock);
-+
-+	mutex_lock(&vi->cvq_lock);
-+	if (vi->cvq->num_free < 3) {
-+		virtnet_put_wait_coal(vi, rq, update_moder);
-+		mutex_unlock(&vi->cvq_lock);
-+		return;
-+	}
-+	mutex_unlock(&vi->cvq_lock);
-+
-+	mutex_lock(&vi->coal_free_lock);
-+	if (list_empty(&vi->coal_free_list)) {
-+		virtnet_put_wait_coal(vi, rq, update_moder);
-+		mutex_unlock(&vi->coal_free_lock);
-+		return;
-+	}
-+
-+	avail_coal = list_first_entry(&vi->coal_free_list,
-+				      struct virtnet_coal_node, list);
-+	avail_coal->coal_vqs.vqn = cpu_to_le16(rxq2vq(rq - vi->rq));
-+	avail_coal->coal_vqs.coal.max_usecs = cpu_to_le32(update_moder.usec);
-+	avail_coal->coal_vqs.coal.max_packets = cpu_to_le32(update_moder.pkts);
-+
-+	list_del(&avail_coal->list);
-+	mutex_unlock(&vi->coal_free_lock);
-+
-+	virtnet_add_dim_command(vi, avail_coal);
- }
- 
- static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
-@@ -4837,6 +5002,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
- 	flush_work(&vi->config_work);
- 	disable_rx_mode_work(vi);
- 	flush_work(&vi->rx_mode_work);
-+	flush_work(&vi->get_cvq);
- 
- 	netif_tx_lock_bh(vi->dev);
- 	netif_device_detach(vi->dev);
-@@ -5610,6 +5776,45 @@ static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
- 	.xmo_rx_hash			= virtnet_xdp_rx_hash,
- };
- 
-+static void virtnet_del_coal_free_list(struct virtnet_info *vi)
-+{
-+	struct virtnet_coal_node *coal_node, *tmp;
-+
-+	list_for_each_entry_safe(coal_node, tmp,  &vi->coal_free_list, list) {
-+		list_del(&coal_node->list);
-+		kfree(coal_node);
-+	}
-+}
-+
-+static int virtnet_init_coal_list(struct virtnet_info *vi)
-+{
-+	struct virtnet_coal_node *coal_node;
-+	int batch_dim_nums;
-+	int i;
-+
-+	INIT_LIST_HEAD(&vi->coal_free_list);
-+	mutex_init(&vi->coal_free_lock);
-+
-+	INIT_LIST_HEAD(&vi->coal_wait_list);
-+	mutex_init(&vi->coal_wait_lock);
-+
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-+		return 0;
-+
-+	batch_dim_nums = min((unsigned int)vi->max_queue_pairs,
-+			     virtqueue_get_vring_size(vi->cvq) / 3);
-+	for (i = 0; i < batch_dim_nums; i++) {
-+		coal_node = kzalloc(sizeof(*coal_node), GFP_KERNEL);
-+		if (!coal_node) {
-+			virtnet_del_coal_free_list(vi);
-+			return -ENOMEM;
-+		}
-+		list_add(&coal_node->list, &vi->coal_free_list);
-+	}
-+
-+	return 0;
-+}
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int i, err = -ENOMEM;
-@@ -5795,6 +6000,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto free;
- 
-+	if (virtnet_init_coal_list(vi))
-+		goto free;
-+
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL)) {
- 		vi->intr_coal_rx.max_usecs = 0;
- 		vi->intr_coal_tx.max_usecs = 0;
-@@ -5836,6 +6044,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (vi->has_rss || vi->has_rss_hash_report)
- 		virtnet_init_default_rss(vi);
- 
-+	INIT_WORK(&vi->get_cvq, virtnet_get_cvq_work);
- 	init_completion(&vi->completion);
- 	enable_rx_mode_work(vi);
- 
-@@ -5965,11 +6174,14 @@ static void virtnet_remove(struct virtio_device *vdev)
- 	flush_work(&vi->config_work);
- 	disable_rx_mode_work(vi);
- 	flush_work(&vi->rx_mode_work);
-+	flush_work(&vi->get_cvq);
- 
- 	unregister_netdev(vi->dev);
- 
- 	net_failover_destroy(vi->failover);
- 
-+	virtnet_del_coal_free_list(vi);
-+
- 	remove_vq_common(vi);
- 
- 	free_netdev(vi->dev);
--- 
-2.32.0.3.g01195cf9f
+    virtio_ring: enable premapped mode whatever use_dma_api
 
+so it's definitely related.
