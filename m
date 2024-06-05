@@ -1,54 +1,54 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A02F2140380
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1723190079
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717587689; cv=none; b=dijgKBmc57v0ydRs+O7nW9OHIH0f8+bIrrez2Imu0j7Z6XLmWaGX+TA/jpiRGjsXIZUoVQkCyVzxdhdZntD2MyAKDa8LHf1Ir4ivlM5AiNouhgxUJXIG9n1+G0mysdJghVEi5iV1plUCln7KBxq4sBEyfurNp7F6gxmrnMcomZc=
+	t=1717587695; cv=none; b=B4BcQVrt9iFtE28obN7C2Law6DMlylx50X4TBQN6JhLcc52aBatxaEGApTLWgw6NlzaPvC8Vox7rtBHO3PTmgbG6vjctwGXpLZBbK9ummMpTbeFLUJILXPgv1jKkD0mejLzFBiQZkQ3wmThmqZLEDwjYuI+8/UF/0shm0Qg0CS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717587689; c=relaxed/simple;
-	bh=HsHTP5EMBxXRbP7gHM9U5cuEmdv/0OsepSBXxmcR9vk=;
+	s=arc-20240116; t=1717587695; c=relaxed/simple;
+	bh=MFof7xn/oSifUp6j3V5p4AYP/CSYuS80BqueZAmmuuA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hm5C+8geCFwas2/gIZb3Q8Etp1t1rOUz3iq+Wb3hQvm2iOuzSDfuwQuQk/JttEZv3K9TSY93FL5BCIZQHwbi94OMySoCKud3otLM0rPOduFjI8jCr7HU0eA3lnJnOpZPDn1OoCFjTTZ1D75o6OFEaeX+/031sL7YYHL9B2ont4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HATjXYku; arc=none smtp.client-ip=140.211.166.133
+	 MIME-Version:Content-Type; b=XeQXzptr5aZU+YiuYfdBPqsZgEtfWPgyvoR3M0ppOUbojCQH1Y5p44uRX5uLtZYIQ9nuN8u/Q6Soinn0aMzIO4+xbPchPccS2WXGrz/585vgOsnxVDFn/H44AEDorB2G5KNDJ/qWUjlSMYmdgQDWtpxXZMlW1WayMdTCNXpvtoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pbFVgcWH; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HATjXYku"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pbFVgcWH"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3EADD414BD
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:28 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6755340AF6
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:33 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.401
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id mplp0cnH9hfp for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Jun 2024 11:41:27 +0000 (UTC)
+ id KX2DGyxd2-QE for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Jun 2024 11:41:32 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EC811414DE
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C003F40B24
 Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EC811414DE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C003F40B24
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=HATjXYku
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=pbFVgcWH
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EC811414DE
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:26 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C003F40B24
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:31 +0000 (UTC)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 83D64CE1784;
+	by sin.source.kernel.org (Postfix) with ESMTP id 6F2F8CE176A;
+	Wed,  5 Jun 2024 11:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5382CC32786;
 	Wed,  5 Jun 2024 11:41:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A38C32781;
-	Wed,  5 Jun 2024 11:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1717587683;
-	bh=HsHTP5EMBxXRbP7gHM9U5cuEmdv/0OsepSBXxmcR9vk=;
+	s=k20201202; t=1717587688;
+	bh=MFof7xn/oSifUp6j3V5p4AYP/CSYuS80BqueZAmmuuA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HATjXYkuNGAJd6ZLv+T2v73tr+Mc6k2jRhJItwlkYIAMhhwWJcS9UAkccUyjIGocm
-	 FpT5Qk21uUbdooqRUAgy0kZUw+P/J0vSaZ/BBxDRdx4Ux/+hf7kGQ9N5Qrv6wvPA7i
-	 nDivxB55BW0xjUIvNRnHMGR086mp0iiVgd/1dXwNc6PCovq009SjJTw4oRIZcmWQYR
-	 jCrbPH4Os670nJF5DH11/jvO5GP+uTC5v335/W5W7nBd01MhUwdEyweJtBVvSA7sad
-	 ALF4qUwr8X3xtfo2/HtKrJcfrhAbSKFg21UaNds30Hdi0KwftR7UHoI+cd51TBVay7
-	 nivI6FKPDR+hA==
+	b=pbFVgcWHRiy8pGFDtngTEv5eU6zwJP5WKhapkZnCc2mI03cZWTm4GzvL8iv/Je5MF
+	 oWk3OVTiG83nP8OWaGHrdw+5nwhzAkmJrNMIcwNMLOvmZu8MZUQ3BNkaksv1UyWJ2i
+	 OYHMGVswkTwTQSes3oSvy40gJcpCLSJ6ma+leHj6n4bikuN++iRIG+IUTthtz2pvuW
+	 2JSchG9gqfdrCInzs6Ty2xoH4RRiofEW1UNYJg3Hra555cYeBPfDkvtDjGE+GxD9yg
+	 JvfaSOCKVfspDfSQ+OxaRJt1zHhTct51b72y77qW2EuFj7hJNM9yFEpFwX7z/m+z9v
+	 Wc79Ge1oe18gA==
 From: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>
 To: Alexandre Ghiti <alexghiti@rivosinc.com>,
 	Albert Ou <aou@eecs.berkeley.edu>,
@@ -67,9 +67,9 @@ Cc: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
 	linux-kernel@vger.kernel.org,
 	linux-mm@kvack.org,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH v4 02/11] riscv: mm: Pre-allocate vmemmap/direct map/kasan PGD entries
-Date: Wed,  5 Jun 2024 13:40:45 +0200
-Message-ID: <20240605114100.315918-3-bjorn@kernel.org>
+Subject: [PATCH v4 03/11] riscv: mm: Change attribute from __init to __meminit for page functions
+Date: Wed,  5 Jun 2024 13:40:46 +0200
+Message-ID: <20240605114100.315918-4-bjorn@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240605114100.315918-1-bjorn@kernel.org>
 References: <20240605114100.315918-1-bjorn@kernel.org>
@@ -84,83 +84,239 @@ Content-Transfer-Encoding: 8bit
 
 From: Björn Töpel <bjorn@rivosinc.com>
 
-The RISC-V port copies the PGD table from init_mm/swapper_pg_dir to
-all userland page tables, which means that if the PGD level table is
-changed, other page tables has to be updated as well.
+Prepare for memory hotplugging support by changing from __init to
+__meminit for the page table functions that are used by the upcoming
+architecture specific callbacks.
 
-Instead of having the PGD changes ripple out to all tables, the
-synchronization can be avoided by pre-allocating the PGD entries/pages
-at boot, avoiding the synchronization all together.
-
-This is currently done for the bpf/modules, and vmalloc PGD regions.
-Extend this scheme for the PGD regions touched by memory hotplugging.
-
-Prepare the RISC-V port for memory hotplug by pre-allocate
-vmemmap/direct map/kasan entries at the PGD level. This will roughly
-waste ~128 (plus 32 if KASAN is enabled) worth of 4K pages when memory
-hotplugging is enabled in the kernel configuration.
+Changing the __init attribute to __meminit, avoids that the functions
+are removed after init. The __meminit attribute makes sure the
+functions are kept in the kernel text post init, but only if memory
+hotplugging is enabled for the build.
 
 Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
 Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
 ---
- arch/riscv/include/asm/kasan.h | 4 ++--
- arch/riscv/mm/init.c           | 9 +++++++++
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ arch/riscv/include/asm/mmu.h     |  4 +--
+ arch/riscv/include/asm/pgtable.h |  2 +-
+ arch/riscv/mm/init.c             | 56 ++++++++++++++------------------
+ 3 files changed, 28 insertions(+), 34 deletions(-)
 
-diff --git a/arch/riscv/include/asm/kasan.h b/arch/riscv/include/asm/kasan.h
-index 0b85e363e778..e6a0071bdb56 100644
---- a/arch/riscv/include/asm/kasan.h
-+++ b/arch/riscv/include/asm/kasan.h
-@@ -6,8 +6,6 @@
+diff --git a/arch/riscv/include/asm/mmu.h b/arch/riscv/include/asm/mmu.h
+index 947fd60f9051..c9e03e9da3dc 100644
+--- a/arch/riscv/include/asm/mmu.h
++++ b/arch/riscv/include/asm/mmu.h
+@@ -31,8 +31,8 @@ typedef struct {
+ #define cntx2asid(cntx)		((cntx) & SATP_ASID_MASK)
+ #define cntx2version(cntx)	((cntx) & ~SATP_ASID_MASK)
  
- #ifndef __ASSEMBLY__
+-void __init create_pgd_mapping(pgd_t *pgdp, uintptr_t va, phys_addr_t pa,
+-			       phys_addr_t sz, pgprot_t prot);
++void __meminit create_pgd_mapping(pgd_t *pgdp, uintptr_t va, phys_addr_t pa, phys_addr_t sz,
++				  pgprot_t prot);
+ #endif /* __ASSEMBLY__ */
  
--#ifdef CONFIG_KASAN
--
- /*
-  * The following comment was copied from arm64:
-  * KASAN_SHADOW_START: beginning of the kernel virtual addresses.
-@@ -34,6 +32,8 @@
-  */
- #define KASAN_SHADOW_START	((KASAN_SHADOW_END - KASAN_SHADOW_SIZE) & PGDIR_MASK)
- #define KASAN_SHADOW_END	MODULES_LOWEST_VADDR
-+
-+#ifdef CONFIG_KASAN
- #define KASAN_SHADOW_OFFSET	_AC(CONFIG_KASAN_SHADOW_OFFSET, UL)
+ #endif /* _ASM_RISCV_MMU_H */
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index aad8b8ca51f1..41f1b2c6f949 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -165,7 +165,7 @@ struct pt_alloc_ops {
+ #endif
+ };
  
- void kasan_init(void);
+-extern struct pt_alloc_ops pt_ops __initdata;
++extern struct pt_alloc_ops pt_ops __meminitdata;
+ 
+ #ifdef CONFIG_MMU
+ /* Number of PGD entries that a user-mode program can use */
 diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index fe5072f66c8c..a5b3bc1f3b88 100644
+index a5b3bc1f3b88..0dd04cedc0d2 100644
 --- a/arch/riscv/mm/init.c
 +++ b/arch/riscv/mm/init.c
-@@ -28,6 +28,7 @@
- 
- #include <asm/fixmap.h>
- #include <asm/io.h>
-+#include <asm/kasan.h>
- #include <asm/numa.h>
- #include <asm/pgtable.h>
- #include <asm/sections.h>
-@@ -1493,11 +1494,19 @@ static void __init preallocate_pgd_pages_range(unsigned long start, unsigned lon
- 	panic("Failed to pre-allocate %s pages for %s area\n", lvl, area);
+@@ -297,7 +297,7 @@ static void __init setup_bootmem(void)
  }
  
-+#define PAGE_END KASAN_SHADOW_START
-+
- void __init pgtable_cache_init(void)
+ #ifdef CONFIG_MMU
+-struct pt_alloc_ops pt_ops __initdata;
++struct pt_alloc_ops pt_ops __meminitdata;
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+ pgd_t trampoline_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+@@ -359,7 +359,7 @@ static inline pte_t *__init get_pte_virt_fixmap(phys_addr_t pa)
+ 	return (pte_t *)set_fixmap_offset(FIX_PTE, pa);
+ }
+ 
+-static inline pte_t *__init get_pte_virt_late(phys_addr_t pa)
++static inline pte_t *__meminit get_pte_virt_late(phys_addr_t pa)
  {
- 	preallocate_pgd_pages_range(VMALLOC_START, VMALLOC_END, "vmalloc");
- 	if (IS_ENABLED(CONFIG_MODULES))
- 		preallocate_pgd_pages_range(MODULES_VADDR, MODULES_END, "bpf/modules");
-+	if (IS_ENABLED(CONFIG_MEMORY_HOTPLUG)) {
-+		preallocate_pgd_pages_range(VMEMMAP_START, VMEMMAP_END, "vmemmap");
-+		preallocate_pgd_pages_range(PAGE_OFFSET, PAGE_END, "direct map");
-+		if (IS_ENABLED(CONFIG_KASAN))
-+			preallocate_pgd_pages_range(KASAN_SHADOW_START, KASAN_SHADOW_END, "kasan");
-+	}
+ 	return (pte_t *) __va(pa);
  }
+@@ -378,7 +378,7 @@ static inline phys_addr_t __init alloc_pte_fixmap(uintptr_t va)
+ 	return memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
+ }
+ 
+-static phys_addr_t __init alloc_pte_late(uintptr_t va)
++static phys_addr_t __meminit alloc_pte_late(uintptr_t va)
+ {
+ 	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
+ 
+@@ -386,9 +386,8 @@ static phys_addr_t __init alloc_pte_late(uintptr_t va)
+ 	return __pa((pte_t *)ptdesc_address(ptdesc));
+ }
+ 
+-static void __init create_pte_mapping(pte_t *ptep,
+-				      uintptr_t va, phys_addr_t pa,
+-				      phys_addr_t sz, pgprot_t prot)
++static void __meminit create_pte_mapping(pte_t *ptep, uintptr_t va, phys_addr_t pa, phys_addr_t sz,
++					 pgprot_t prot)
+ {
+ 	uintptr_t pte_idx = pte_index(va);
+ 
+@@ -442,7 +441,7 @@ static pmd_t *__init get_pmd_virt_fixmap(phys_addr_t pa)
+ 	return (pmd_t *)set_fixmap_offset(FIX_PMD, pa);
+ }
+ 
+-static pmd_t *__init get_pmd_virt_late(phys_addr_t pa)
++static pmd_t *__meminit get_pmd_virt_late(phys_addr_t pa)
+ {
+ 	return (pmd_t *) __va(pa);
+ }
+@@ -459,7 +458,7 @@ static phys_addr_t __init alloc_pmd_fixmap(uintptr_t va)
+ 	return memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
+ }
+ 
+-static phys_addr_t __init alloc_pmd_late(uintptr_t va)
++static phys_addr_t __meminit alloc_pmd_late(uintptr_t va)
+ {
+ 	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
+ 
+@@ -467,9 +466,9 @@ static phys_addr_t __init alloc_pmd_late(uintptr_t va)
+ 	return __pa((pmd_t *)ptdesc_address(ptdesc));
+ }
+ 
+-static void __init create_pmd_mapping(pmd_t *pmdp,
+-				      uintptr_t va, phys_addr_t pa,
+-				      phys_addr_t sz, pgprot_t prot)
++static void __meminit create_pmd_mapping(pmd_t *pmdp,
++					 uintptr_t va, phys_addr_t pa,
++					 phys_addr_t sz, pgprot_t prot)
+ {
+ 	pte_t *ptep;
+ 	phys_addr_t pte_phys;
+@@ -505,7 +504,7 @@ static pud_t *__init get_pud_virt_fixmap(phys_addr_t pa)
+ 	return (pud_t *)set_fixmap_offset(FIX_PUD, pa);
+ }
+ 
+-static pud_t *__init get_pud_virt_late(phys_addr_t pa)
++static pud_t *__meminit get_pud_virt_late(phys_addr_t pa)
+ {
+ 	return (pud_t *)__va(pa);
+ }
+@@ -523,7 +522,7 @@ static phys_addr_t __init alloc_pud_fixmap(uintptr_t va)
+ 	return memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
+ }
+ 
+-static phys_addr_t alloc_pud_late(uintptr_t va)
++static phys_addr_t __meminit alloc_pud_late(uintptr_t va)
+ {
+ 	unsigned long vaddr;
+ 
+@@ -543,7 +542,7 @@ static p4d_t *__init get_p4d_virt_fixmap(phys_addr_t pa)
+ 	return (p4d_t *)set_fixmap_offset(FIX_P4D, pa);
+ }
+ 
+-static p4d_t *__init get_p4d_virt_late(phys_addr_t pa)
++static p4d_t *__meminit get_p4d_virt_late(phys_addr_t pa)
+ {
+ 	return (p4d_t *)__va(pa);
+ }
+@@ -561,7 +560,7 @@ static phys_addr_t __init alloc_p4d_fixmap(uintptr_t va)
+ 	return memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
+ }
+ 
+-static phys_addr_t alloc_p4d_late(uintptr_t va)
++static phys_addr_t __meminit alloc_p4d_late(uintptr_t va)
+ {
+ 	unsigned long vaddr;
+ 
+@@ -570,9 +569,8 @@ static phys_addr_t alloc_p4d_late(uintptr_t va)
+ 	return __pa(vaddr);
+ }
+ 
+-static void __init create_pud_mapping(pud_t *pudp,
+-				      uintptr_t va, phys_addr_t pa,
+-				      phys_addr_t sz, pgprot_t prot)
++static void __meminit create_pud_mapping(pud_t *pudp, uintptr_t va, phys_addr_t pa, phys_addr_t sz,
++					 pgprot_t prot)
+ {
+ 	pmd_t *nextp;
+ 	phys_addr_t next_phys;
+@@ -597,9 +595,8 @@ static void __init create_pud_mapping(pud_t *pudp,
+ 	create_pmd_mapping(nextp, va, pa, sz, prot);
+ }
+ 
+-static void __init create_p4d_mapping(p4d_t *p4dp,
+-				      uintptr_t va, phys_addr_t pa,
+-				      phys_addr_t sz, pgprot_t prot)
++static void __meminit create_p4d_mapping(p4d_t *p4dp, uintptr_t va, phys_addr_t pa, phys_addr_t sz,
++					 pgprot_t prot)
+ {
+ 	pud_t *nextp;
+ 	phys_addr_t next_phys;
+@@ -655,9 +652,8 @@ static void __init create_p4d_mapping(p4d_t *p4dp,
+ #define create_pmd_mapping(__pmdp, __va, __pa, __sz, __prot) do {} while(0)
+ #endif /* __PAGETABLE_PMD_FOLDED */
+ 
+-void __init create_pgd_mapping(pgd_t *pgdp,
+-				      uintptr_t va, phys_addr_t pa,
+-				      phys_addr_t sz, pgprot_t prot)
++void __meminit create_pgd_mapping(pgd_t *pgdp, uintptr_t va, phys_addr_t pa, phys_addr_t sz,
++				  pgprot_t prot)
+ {
+ 	pgd_next_t *nextp;
+ 	phys_addr_t next_phys;
+@@ -682,8 +678,7 @@ void __init create_pgd_mapping(pgd_t *pgdp,
+ 	create_pgd_next_mapping(nextp, va, pa, sz, prot);
+ }
+ 
+-static uintptr_t __init best_map_size(phys_addr_t pa, uintptr_t va,
+-				      phys_addr_t size)
++static uintptr_t __meminit best_map_size(phys_addr_t pa, uintptr_t va, phys_addr_t size)
+ {
+ 	if (debug_pagealloc_enabled())
+ 		return PAGE_SIZE;
+@@ -719,7 +714,7 @@ asmlinkage void __init __copy_data(void)
  #endif
  
+ #ifdef CONFIG_STRICT_KERNEL_RWX
+-static __init pgprot_t pgprot_from_va(uintptr_t va)
++static __meminit pgprot_t pgprot_from_va(uintptr_t va)
+ {
+ 	if (is_va_kernel_text(va))
+ 		return PAGE_KERNEL_READ_EXEC;
+@@ -744,7 +739,7 @@ void mark_rodata_ro(void)
+ 				  set_memory_ro);
+ }
+ #else
+-static __init pgprot_t pgprot_from_va(uintptr_t va)
++static __meminit pgprot_t pgprot_from_va(uintptr_t va)
+ {
+ 	if (IS_ENABLED(CONFIG_64BIT) && !is_kernel_mapping(va))
+ 		return PAGE_KERNEL;
+@@ -1236,9 +1231,8 @@ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
+ 	pt_ops_set_fixmap();
+ }
+ 
+-static void __init create_linear_mapping_range(phys_addr_t start,
+-					       phys_addr_t end,
+-					       uintptr_t fixed_map_size)
++static void __meminit create_linear_mapping_range(phys_addr_t start, phys_addr_t end,
++						  uintptr_t fixed_map_size)
+ {
+ 	phys_addr_t pa;
+ 	uintptr_t va, map_size;
 -- 
 2.43.0
 
