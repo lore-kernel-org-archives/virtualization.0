@@ -1,188 +1,243 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f65.google.com (mail-wm1-f65.google.com [209.85.128.65])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 720E914BFB1
-	for <virtualization@lists.linux.dev>; Wed,  5 Jun 2024 11:04:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B0C61EB27
+	for <virtualization@lists.linux.dev>; Wed,  5 Jun 2024 11:30:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717585476; cv=none; b=WJglcV9T0hUnZpyBxsgFpL+nXv1rnDX3R3zfwC0QfbohEqNTkPafCvENVL5o0/vnGdiz+fpsctAlvzC3k5/v/T51JSGLvsC8YG8XjJQn8TJlWFdw90zKZCAFRLU2Pqst4mhHyZ6yK1WxsNGGXTI6NupWx0WBcv2C5EgbILx9sug=
+	t=1717587060; cv=none; b=NzWp9rbK88iGvT2465Uf1npSVcLaHGr+qWGdEsrKn8mAWYEmraQktsrwvXXX62jIFLcb48cew0z3VaVfO7zuoyRg+8b3+aShs47m/NpL+Eg1mAZpujnXOLCes9JMrT0J6fq3Wszs/Im9jGwESemazu3XmU9z4+R9tUeGfBsftqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717585476; c=relaxed/simple;
-	bh=aacbWcBdmej5VM/1HQcinIqRHUX3BrAjJvVP8miwrcM=;
+	s=arc-20240116; t=1717587060; c=relaxed/simple;
+	bh=We5opLWy7VSuhbIfPgcRvEpu2bynphyAOWJP0WxhwnY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OcPA6/1YNbpsVemFef+8tznD0vOdgnU5Ol/kXOf4hMbRB/icg5Qdpl7WQ++VngAMs4sl3u//914MaR/JHr245ioNMN/tsizMdN91+t6bH8W8Po3BFbH7mNlx3XDAnerdRajuf7mqbIaIr4oGAIy/7STOdwciirtL17dmuczVOEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i+UYPUTm; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=gDft8/Mw8qzw3Qp+AxuKy+2ISs1GYujvAN3bEDQ6P+RW7QTeASb/BtBSfOc2THEsE/pQUj38k74SchASPGNmDCPzvSF1MLZsiq/LvZ/kgaV+ctVE8SHge67WR5LbnB5G6V6qw8UbXE81rIJgkm46RBPynEqRxAcwusMJ8ZkyPA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=bid9djy8; arc=none smtp.client-ip=209.85.128.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i+UYPUTm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717585473;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ERhPWPhucZxJF11EopTAywzmhEWvAHMOqkMcgq9R5o8=;
-	b=i+UYPUTmlq8NgurG6kArzxoTHFfkpk3Q+3q9OZyP/FKz18vTSGBkXYtMWMFXxv+H1dcAkn
-	e2vK8ppiOY8iC+JRrvIo976WoxmKb407WekA3/YGQ08kQtXmVLJV2VIjhNq/63FLZzMPwe
-	GvvfDOuni/X1efNQ9SIA2tnxD3sodzw=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-460-kS3eThQCOW-jNDUfnSoyIw-1; Wed,
- 05 Jun 2024 07:04:29 -0400
-X-MC-Unique: kS3eThQCOW-jNDUfnSoyIw-1
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5CADD1955D9A;
-	Wed,  5 Jun 2024 11:04:27 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.133])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0B9E11955F79;
-	Wed,  5 Jun 2024 11:04:25 +0000 (UTC)
-Date: Wed, 5 Jun 2024 07:04:23 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Peter-Jan Gootzen <pgootzen@nvidia.com>
-Cc: "mszeredi@redhat.com" <mszeredi@redhat.com>,
-	Idan Zach <izach@nvidia.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"jefflexu@linux.alibaba.com" <jefflexu@linux.alibaba.com>,
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-	Max Gurtovoy <mgurtovoy@nvidia.com>,
-	"vgoyal@redhat.com" <vgoyal@redhat.com>,
-	Oren Duer <oren@nvidia.com>, Yoray Zack <yorayz@nvidia.com>
-Subject: Re: [PATCH] fuse: cleanup request queuing towards virtiofs
-Message-ID: <20240605110423.GA135899@fedora.redhat.com>
-References: <20240529155210.2543295-1-mszeredi@redhat.com>
- <20240529183231.GC1203999@fedora.redhat.com>
- <02a56c0d80c2fab16b7d3b536727ff6865aded40.camel@nvidia.com>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="bid9djy8"
+Received: by mail-wm1-f65.google.com with SMTP id 5b1f17b1804b1-42155143cb0so15203255e9.2
+        for <virtualization@lists.linux.dev>; Wed, 05 Jun 2024 04:30:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1717587056; x=1718191856; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=dI5cNg2pQS1K+SK1Dh8USe6ne1W8c1tbvQXgIdRfh6c=;
+        b=bid9djy8ptoFXJxlTr5RpMJil7W2WltiU1hGN7YRiwYUPSK+PCYOn8r0MgK9iEWtsn
+         A2s2C7kCNytkco15VI6c+mWRO4++zmp/A3OzdxcdHnb5SOCArNx4lVyIxctHW/wtufNC
+         h/jowa/dynhqLqvHv6Vzo9QlcB9HlcTG/MpL0JIVv6N2chHNuC1OUnWZKzpgd2EcLrrO
+         R4cbiLHY+Mfsa9NuhdBPW6bv6KtHc+nuJqVCNkb/XCPqi/e5y0MCre2/1Kodi/6BXKlQ
+         WxHGkpu3eTmZ8tSLtWUMtELsTvevL4eF/azoIdZKTgp/4GzHW1nisiPB7RxmQbDl161D
+         WH5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717587056; x=1718191856;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dI5cNg2pQS1K+SK1Dh8USe6ne1W8c1tbvQXgIdRfh6c=;
+        b=dXkq3/sQfMLqMLFT/kuz3cAYLCTYYc614YJdetbQzclUBmpq1XvwcktH5+/vV7Tyxd
+         shmMprRMeweFduTKu5VnFyFTYoF66KnMyKPZYFDNv6NDg8M6KsPoSNN67sZ3nkej7F6b
+         P5X2kRGnEnDz6Mc4vdG9j0d51D5OeFXdsXZdDeKbWbpvgALRn8goynl6rTGRhQSMCGr/
+         /FTy52ifqmppS+mHgLPXEEn1bynAJbcYCR/LDdB98e7di3AnkFO0ri/rcO6rOxQ8r2WQ
+         nyJmnf0a09UBgthDCn4vinQYO5CCJO8E43ZsCrabqr8sZ44PtGLRsPRmzerGD4jkHEzv
+         Lbag==
+X-Forwarded-Encrypted: i=1; AJvYcCXxXQox9LdP0vgvgzK8zWoZjDNRmIvDrdcf8PHmco8eLqFe6qoi/WG4OkLBjhYeuksj/8uI7INqN8TQH09tAIoJ7Zo0Ajzl9yWx/gcfxcs=
+X-Gm-Message-State: AOJu0Yw8YJ5vYLcAxKyCsaT4iN6/IbYXptMnTxENvmqljWsrM+UCTB3j
+	OMR4+3isuzAwzJmNJUOyBzv5oRPaTx3Ne7d5UXO+Eh1yA6NLgTw1LhTBKqZtC2I=
+X-Google-Smtp-Source: AGHT+IHnLX9QfM04CGs0aTWeZ6fYFqn170weZqx+exS7IbQLTKyYFBDBcHm0DfVPHq7ray8i0QJPLA==
+X-Received: by 2002:a05:6000:2a2:b0:35e:ebe7:de43 with SMTP id ffacd0b85a97d-35eebe7e01fmr1338482f8f.21.1717587055500;
+        Wed, 05 Jun 2024 04:30:55 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35dd04c0d3csm14338107f8f.19.2024.06.05.04.30.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jun 2024 04:30:54 -0700 (PDT)
+Date: Wed, 5 Jun 2024 13:30:51 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+	john.fastabend@gmail.com, netdev@vger.kernel.org
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+Message-ID: <ZmBMa7Am3LIYQw1x@nanopsycho.orion>
+References: <20240509114615.317450-1-jiri@resnulli.us>
+ <1715325076.4219763-2-hengqi@linux.alibaba.com>
+ <ZktGj4nDU4X0Lxtx@nanopsycho.orion>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="nmOucSGHiJiHzIv5"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <02a56c0d80c2fab16b7d3b536727ff6865aded40.camel@nvidia.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+In-Reply-To: <ZktGj4nDU4X0Lxtx@nanopsycho.orion>
 
+Mon, May 20, 2024 at 02:48:15PM CEST, jiri@resnulli.us wrote:
+>Fri, May 10, 2024 at 09:11:16AM CEST, hengqi@linux.alibaba.com wrote:
+>>On Thu,  9 May 2024 13:46:15 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
+>>> From: Jiri Pirko <jiri@nvidia.com>
+>>> 
+>>> Add support for Byte Queue Limits (BQL).
+>>
+>>Historically both Jason and Michael have attempted to support BQL
+>>for virtio-net, for example:
+>>
+>>https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com/
+>>
+>>These discussions focus primarily on:
+>>
+>>1. BQL is based on napi tx. Therefore, the transfer of statistical information
+>>needs to rely on the judgment of use_napi. When the napi mode is switched to
+>>orphan, some statistical information will be lost, resulting in temporary
+>>inaccuracy in BQL.
+>>
+>>2. If tx dim is supported, orphan mode may be removed and tx irq will be more
+>>reasonable. This provides good support for BQL.
+>
+>But when the device does not support dim, the orphan mode is still
+>needed, isn't it?
 
---nmOucSGHiJiHzIv5
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Heng, is my assuption correct here? Thanks!
 
-On Wed, Jun 05, 2024 at 10:40:44AM +0000, Peter-Jan Gootzen wrote:
-> On Wed, 2024-05-29 at 14:32 -0400, Stefan Hajnoczi wrote:
-> > On Wed, May 29, 2024 at 05:52:07PM +0200, Miklos Szeredi wrote:
-> > > Virtiofs has its own queing mechanism, but still requests are first
-> > > queued
-> > > on fiq->pending to be immediately dequeued and queued onto the
-> > > virtio
-> > > queue.
-> > >=20
-> > > The queuing on fiq->pending is unnecessary and might even have some
-> > > performance impact due to being a contention point.
-> > >=20
-> > > Forget requests are handled similarly.
-> > >=20
-> > > Move the queuing of requests and forgets into the fiq->ops->*.
-> > > fuse_iqueue_ops are renamed to reflect the new semantics.
-> > >=20
-> > > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> > > ---
-> > > =A0fs/fuse/dev.c=A0=A0=A0=A0=A0=A0 | 159 ++++++++++++++++++++++++----=
--------------
-> > > ---
-> > > =A0fs/fuse/fuse_i.h=A0=A0=A0 |=A0 19 ++----
-> > > =A0fs/fuse/virtio_fs.c |=A0 41 ++++--------
-> > > =A03 files changed, 106 insertions(+), 113 deletions(-)
-> >=20
-> > This is a little scary but I can't think of a scenario where directly
-> > dispatching requests to virtqueues is a problem.
-> >=20
-> > Is there someone who can run single and multiqueue virtiofs
-> > performance
-> > benchmarks?
-> >=20
-> > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
->=20
-> I ran some tests and experiments on the patch (on top of v6.10-rc2) with
-> our multi-queue capable virtio-fs device. No issues were found.
->=20
-> Experimental system setup (which is not the fastest possible setup nor
-> the most optimized setup!):
-> # Host:
->    - Dell PowerEdge R7525
->    - CPU: 2x AMD EPYC 7413 24-Core
->    - VM: QEMU KVM with 24 cores, vCPUs locked to the NUMA nodes on which
-> the DPU is attached. VFIO-pci device to passthrough the DPU.          =20
-> Running a default x86_64 ext4 buildroot with fio installed.
-> # Virtio-fs device:
->    - BlueField-3 DPU
->    - CPU: ARM Cortex-A78AE, 16 cores
->    - One thread per queue, each busy polling on one request queue
->    - Each queue is 1024 descriptors deep
-> # Workload (deviations are specified in the table):
->    - fio 3.34
->    - sequential read
->    - ioengine=3Dio_uring, single 4GiB file, iodepth=3D128, bs=3D256KiB,  =
- =20
-> runtime=3D30s, ramp_time=3D10s, direct=3D1
->    - T is the number of threads (numjobs=3DT with thread=3D1)
->    - Q is the number of request queues
->=20
-> | Workload           | Before patch | After patch |
-> | ------------------ | ------------ | ----------- |
-> | T=3D1 Q=3D1            | 9216MiB/s    | 9201MiB/s   |
-> | T=3D2 Q=3D2            | 10.8GiB/s    | 10.7GiB/s   |
-> | T=3D4 Q=3D4            | 12.6GiB/s    | 12.2GiB/s   |
-> | T=3D8 Q=3D8            | 19.5GiB/s    | 19.7GiB/s   |
-> | T=3D16 Q=3D1           | 9451MiB/s    | 9558MiB/s   |
-> | T=3D16 Q=3D2           | 13.5GiB/s    | 13.4GiB/s   |
-> | T=3D16 Q=3D4           | 11.8GiB/s    | 11.4GiB/s   |
-> | T=3D16 Q=3D8           | 11.1GiB/s    | 10.8GiB/s   |
-> | T=3D24 Q=3D24          | 26.5GiB/s    | 26.5GiB/s   |
-> | T=3D24 Q=3D24 24 files | 26.5GiB/s    | 26.6GiB/s   |
-> | T=3D24 Q=3D24 4k       | 948MiB/s     | 955MiB/s    |
->=20
-> Averaging out those results, the difference is within a reasonable
-> margin of a error (less than 1%). So in this setup's
-> case we see no difference in performance.
-> However if the virtio-fs device was more optimized, e.g. if it didn't
-> copy the data to its memory, then the bottleneck could possibly be on
-> the driver-side and this patch could show some benefit at those higher
-> message rates.
->=20
-> So although I would have hoped for some performance increase already
-> with this setup, I still think this is a good patch and a logical
-> optimization for high performance virtio-fs devices that might show a
-> benefit in the future.
->=20
-> Tested-by: Peter-Jan Gootzen <pgootzen@nvidia.com>
-> Reviewed-by: Peter-Jan Gootzen <pgootzen@nvidia.com>
-
-Thank you!
-
-Stefan
-
-
---nmOucSGHiJiHzIv5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmZgRjcACgkQnKSrs4Gr
-c8iyCggAhkhXMzDotyA6BkP9KLtvG2AhuoWCtTHYJGxlK2Pn3zREK1/ZJBRzCOD1
-U+5Cgc+XkDThFmX7yTO5FDuXl/af/e4r1mxYV7a7mXH7o8bU1j5YtmiaDh0b7mWJ
-TDmpzZukIp+dMuW8SgUuf4JQKSDal3NioybeZ+69l95RIKfFL4wOxX/tNrcAtDZj
-69yYFXNuND/k1knDUXieodeU8zIh0AA32ym7WgVeJ1yFBWnv1phxxRxijWQoc+4I
-EA7xgnJlLLwgK9xsUor48i/8oSmgltg4hAKB4M4sf+Buguy9ar7jSHcNzMkDIsN5
-nRCXsFy17X+R46IZtTjGjPabatbrmg==
-=Oh6C
------END PGP SIGNATURE-----
-
---nmOucSGHiJiHzIv5--
-
+>
+>>
+>>Thanks.
+>>
+>>> 
+>>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>>> ---
+>>>  drivers/net/virtio_net.c | 33 ++++++++++++++++++++-------------
+>>>  1 file changed, 20 insertions(+), 13 deletions(-)
+>>> 
+>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>> index 218a446c4c27..c53d6dc6d332 100644
+>>> --- a/drivers/net/virtio_net.c
+>>> +++ b/drivers/net/virtio_net.c
+>>> @@ -84,7 +84,9 @@ struct virtnet_stat_desc {
+>>>  
+>>>  struct virtnet_sq_free_stats {
+>>>  	u64 packets;
+>>> +	u64 xdp_packets;
+>>>  	u64 bytes;
+>>> +	u64 xdp_bytes;
+>>>  };
+>>>  
+>>>  struct virtnet_sq_stats {
+>>> @@ -512,19 +514,19 @@ static void __free_old_xmit(struct send_queue *sq, bool in_napi,
+>>>  	void *ptr;
+>>>  
+>>>  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+>>> -		++stats->packets;
+>>> -
+>>>  		if (!is_xdp_frame(ptr)) {
+>>>  			struct sk_buff *skb = ptr;
+>>>  
+>>>  			pr_debug("Sent skb %p\n", skb);
+>>>  
+>>> +			stats->packets++;
+>>>  			stats->bytes += skb->len;
+>>>  			napi_consume_skb(skb, in_napi);
+>>>  		} else {
+>>>  			struct xdp_frame *frame = ptr_to_xdp(ptr);
+>>>  
+>>> -			stats->bytes += xdp_get_frame_len(frame);
+>>> +			stats->xdp_packets++;
+>>> +			stats->xdp_bytes += xdp_get_frame_len(frame);
+>>>  			xdp_return_frame(frame);
+>>>  		}
+>>>  	}
+>>> @@ -965,7 +967,8 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+>>>  	virtnet_rq_free_buf(vi, rq, buf);
+>>>  }
+>>>  
+>>> -static void free_old_xmit(struct send_queue *sq, bool in_napi)
+>>> +static void free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
+>>> +			  bool in_napi)
+>>>  {
+>>>  	struct virtnet_sq_free_stats stats = {0};
+>>>  
+>>> @@ -974,9 +977,11 @@ static void free_old_xmit(struct send_queue *sq, bool in_napi)
+>>>  	/* Avoid overhead when no packets have been processed
+>>>  	 * happens when called speculatively from start_xmit.
+>>>  	 */
+>>> -	if (!stats.packets)
+>>> +	if (!stats.packets && !stats.xdp_packets)
+>>>  		return;
+>>>  
+>>> +	netdev_tx_completed_queue(txq, stats.packets, stats.bytes);
+>>> +
+>>>  	u64_stats_update_begin(&sq->stats.syncp);
+>>>  	u64_stats_add(&sq->stats.bytes, stats.bytes);
+>>>  	u64_stats_add(&sq->stats.packets, stats.packets);
+>>> @@ -1013,13 +1018,15 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+>>>  	 * early means 16 slots are typically wasted.
+>>>  	 */
+>>>  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+>>> -		netif_stop_subqueue(dev, qnum);
+>>> +		struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+>>> +
+>>> +		netif_tx_stop_queue(txq);
+>>>  		if (use_napi) {
+>>>  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
+>>>  				virtqueue_napi_schedule(&sq->napi, sq->vq);
+>>>  		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+>>>  			/* More just got used, free them then recheck. */
+>>> -			free_old_xmit(sq, false);
+>>> +			free_old_xmit(sq, txq, false);
+>>>  			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+>>>  				netif_start_subqueue(dev, qnum);
+>>>  				virtqueue_disable_cb(sq->vq);
+>>> @@ -2319,7 +2326,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>>>  
+>>>  		do {
+>>>  			virtqueue_disable_cb(sq->vq);
+>>> -			free_old_xmit(sq, true);
+>>> +			free_old_xmit(sq, txq, true);
+>>>  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>>>  
+>>>  		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+>>> @@ -2471,7 +2478,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+>>>  	txq = netdev_get_tx_queue(vi->dev, index);
+>>>  	__netif_tx_lock(txq, raw_smp_processor_id());
+>>>  	virtqueue_disable_cb(sq->vq);
+>>> -	free_old_xmit(sq, true);
+>>> +	free_old_xmit(sq, txq, true);
+>>>  
+>>>  	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+>>>  		netif_tx_wake_queue(txq);
+>>> @@ -2553,7 +2560,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>  	struct send_queue *sq = &vi->sq[qnum];
+>>>  	int err;
+>>>  	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+>>> -	bool kick = !netdev_xmit_more();
+>>> +	bool xmit_more = netdev_xmit_more();
+>>>  	bool use_napi = sq->napi.weight;
+>>>  
+>>>  	/* Free up any pending old buffers before queueing new ones. */
+>>> @@ -2561,9 +2568,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>  		if (use_napi)
+>>>  			virtqueue_disable_cb(sq->vq);
+>>>  
+>>> -		free_old_xmit(sq, false);
+>>> +		free_old_xmit(sq, txq, false);
+>>>  
+>>> -	} while (use_napi && kick &&
+>>> +	} while (use_napi && !xmit_more &&
+>>>  	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>>>  
+>>>  	/* timestamp packet in software */
+>>> @@ -2592,7 +2599,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>  
+>>>  	check_sq_full_and_disable(vi, dev, sq);
+>>>  
+>>> -	if (kick || netif_xmit_stopped(txq)) {
+>>> +	if (__netdev_tx_sent_queue(txq, skb->len, xmit_more)) {
+>>>  		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
+>>>  			u64_stats_update_begin(&sq->stats.syncp);
+>>>  			u64_stats_inc(&sq->stats.kicks);
+>>> -- 
+>>> 2.44.0
+>>> 
+>>> 
