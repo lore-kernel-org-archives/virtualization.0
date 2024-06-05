@@ -1,139 +1,130 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0442114A0A9
-	for <virtualization@lists.linux.dev>; Tue,  4 Jun 2024 18:09:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F05F63D969;
+	Wed,  5 Jun 2024 02:16:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717524591; cv=none; b=dPnsoRfiG9h50yGC+htlbn7kmlhKMnhDOaXnpPzo1imdVwRXOzjDtmQNVwT3HWH1GNsMUNxSxYzCZWyGNanew7R/h9f/6sVmKrAgpG/tJBKupeaUaomDvYzMgOEO6JqZ6IDIdOE4JZRUgTnlTCPJOWs2WH488xFx4k3mtxctCwc=
+	t=1717553802; cv=none; b=YhGA2S+/6Z6+yZlJAeIpKlgnP9U+TGAw4C38Xg1QsXVR03g1GrUORd5/m9pqOsdlA3ox8z1Ruw95K+1tsBPIpGmTvP9eC/6kftlQjFtDH5gSLo82scIzBc/nxCaCyerZtToyTPrzQotzf6Xj5XAuAuyD3GHNb1XlGXZXYDCE97w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717524591; c=relaxed/simple;
-	bh=Q/vqJhAwI6RsLZCudsHBw6Pj5sVNgMSrhmb9L69ADyI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N5rNm1tjn1743JCmeXY5gA/WZnYlSMnpOX5lOgqS18/xG3SJWaOskyY59Me/IA2rODgn/Xsb5BD+KqiEiheiH7glNDZhdlPTvxnRH/jIa6anpNz8+hoYLnla3dl/CQZqkpKmRZuj5kCOUL338ttqDz8GmlV+37Cv3XSA/aJEsKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=LbjDdtjJ; arc=none smtp.client-ip=209.85.208.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1717553802; c=relaxed/simple;
+	bh=189mdYsXxsccLCMxzEslQckd9F6l5Pkg+vVbG5gSlLA=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=XrYFV+8BT6sP4m1cYXnLraDx2ja51cInYTT67y5wWDQMY/NuKu+YVONvDXBLNrVj7QCjD/Ort9cM/KBE+FCwOyp0wPpKn+vb6JcwqcmgJwZzVxdwXN+MtanTyVxdWdnYJ96tASEZBdOUQURThDguNMhAjgDKCowDw5UCdOoveBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=j79yVPXf; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="LbjDdtjJ"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-2e72224c395so52617971fa.3
-        for <virtualization@lists.linux.dev>; Tue, 04 Jun 2024 11:09:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1717524588; x=1718129388; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jTkkByq7ZwISyvxejcvHZtm+hsmFHE1SVWn4MBX6fv0=;
-        b=LbjDdtjJNEkbIcBpzMc/OELAn2nuVZiy1wiTOEV07Vtn1b3+jUgm+jBpM6DsDVHlv1
-         j1iLp3vsHS9I9ue1efKTmRiEZEUvrOhpKwyuOUCMrqptMtI2Ng4elolpUk78LlM3UnJg
-         BHc34oZEj0Jf7ROjzfH8ZkBlUU+cPKF2KnJ4s=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717524588; x=1718129388;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jTkkByq7ZwISyvxejcvHZtm+hsmFHE1SVWn4MBX6fv0=;
-        b=BdcAfXvRFPxw2gFOYs99dfgVbByUFVbKELV0lmezL9qL3JidezOPXiS59i6LhnyftN
-         v0TpmyUj8qVE4seWXrnsTAQFgy8pFp1NFT0WHoHlQ9gWkH9pPdP3maJJSd+umBAMT+A2
-         oNl5dTaSzjEp33eY/UZEsEyGbXfMS8CjVEIvTLm5oa/orELu3zrJdYymMRY2QZwBnfRB
-         3oOtfHD/ZqfTEcabcZckpHZ+pvxCWXnfqmx5K7Y3mprD8wUkNUM/FtohvrlG2ucFOwCf
-         1eN+RoR1s4l+fA2rexAZK+bw0FCxyDQNhjFeG2M8GL4W7rda2WlKzGohJHoMYDs4ojBb
-         DNIA==
-X-Forwarded-Encrypted: i=1; AJvYcCUktF9KQYr6ba4aTDad8w30qLpBZEELFpqGvBSYCXGcHDjv+Zr9VP3euplcUnF3e1Kuq0SVb+BuOJOeQD3Y2ybYSQ+X9wrIkZUctvzaEi4=
-X-Gm-Message-State: AOJu0YyakroOb9+/wnjWZjO7N/d4uAC167aVSiphZX9T9F82HawpU4rc
-	w4CSEBZIWEdCnEPy1/TvELaW7otrqR4F8CRzRsQc502QKQWLJGTYW8QpeLS6MgQQHoLuuhEiAsu
-	0Wfcs
-X-Google-Smtp-Source: AGHT+IECJddGAwiVlI9SSjnCJBv4bJk7UAVybviRskrXFIxSyEIegedHOCaYfnsNf4eDwKMFBI8LvA==
-X-Received: by 2002:a2e:8943:0:b0:2de:cc70:2552 with SMTP id 38308e7fff4ca-2eac798e7eamr479321fa.10.1717524587994;
-        Tue, 04 Jun 2024 11:09:47 -0700 (PDT)
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com. [209.85.167.49])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-2ea91b9d983sm16066461fa.7.2024.06.04.11.09.44
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Jun 2024 11:09:45 -0700 (PDT)
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-52b894021cbso5537761e87.0
-        for <virtualization@lists.linux.dev>; Tue, 04 Jun 2024 11:09:44 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUMTG2Ez7lWr9KrOY11PZ5nvkf1kJkjbQNl9YYll0OHVvpYMdblUYTcjjB0n9rVUJXCn3n3atQm3kfv966NbZafRUxJKNXvtRylsDHopic=
-X-Received: by 2002:a05:6512:3ca2:b0:52b:8613:9d2d with SMTP id
- 2adb3069b0e04-52bab4fa5d3mr197824e87.55.1717524584300; Tue, 04 Jun 2024
- 11:09:44 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="j79yVPXf"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1717553796; h=Message-ID:Subject:Date:From:To;
+	bh=ddRm+B+lk3X4PjmjFxIaCezOgjOl1Nl1gTwxZc1qjRA=;
+	b=j79yVPXfHu37R2L1pkNHDpvRPvy05xjkawJ4A1MlSxKz+T3hDs9iFuHR9UN7SH7nmIAM+Si9aTk9ZzmYMT45JOusKM328hcj/myW3K/upPWtSjDxkpsK79zNQTLh6ByvSpW/ds0DiUC7WFTjycQz9lvZIYr2WGZEl1rAQIPSHW0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R281e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=38;SR=0;TI=SMTPD_---0W7sUjyI_1717553793;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7sUjyI_1717553793)
+          by smtp.aliyun-inc.com;
+          Wed, 05 Jun 2024 10:16:34 +0800
+Message-ID: <1717553610.6275685-4-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v14 3/5] ethtool: provide customized dim profile management
+Date: Wed, 5 Jun 2024 10:13:30 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: oe-kbuild-all@lists.linux.dev,
+ Huacai Chen <chenhuacai@loongson.cn>,
+ Xuerui Wang <kernel@xen0n.name>,
+ Jiaxun Yang <jiaxun.yang@flygoat.com>,
+ Guo Ren <guoren@kernel.org>,
+ loongarch@lists.linux.dev,
+ Jakub Kicinski <kuba@kernel.org>,
+ "David S . Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Tal Gilboa <talgi@nvidia.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Paul Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>,
+ Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com,
+ donald.hunter@gmail.com,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Linux Memory Management List <linux-mm@kvack.org>,
+ Dragos Tatulea <dtatulea@nvidia.com>,
+ Rahul Rameshbabu <rrameshbabu@nvidia.com>,
+ Heiner Kallweit <hkallweit1@gmail.com>,
+ netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ kernel test robot <lkp@intel.com>
+References: <20240603154727.31998-1-hengqi@linux.alibaba.com>
+ <20240603154727.31998-4-hengqi@linux.alibaba.com>
+ <202406040645.6z95FW1f-lkp@intel.com>
+ <1717478006.038663-1-hengqi@linux.alibaba.com>
+In-Reply-To: <1717478006.038663-1-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <SI2PR06MB53852C83901A0DDE55624063FFF32@SI2PR06MB5385.apcprd06.prod.outlook.com>
- <b55cb50b3ecf8d6132f8633ce346b6adc159b38c.camel@nvidia.com>
- <CAJfpegsppbYbbLaECO+K2xpg8v0XZaQKFRZRTj=gJc9p7swdvQ@mail.gmail.com>
- <bbf427150d16122da9dd2a8ebec0ab1c9a758b56.camel@nvidia.com>
- <CAJfpegshNFmJ-LVfRQW0YxNyWGyMMOmzLAoH65DLg4JxwBYyAA@mail.gmail.com> <20240603134427.GA1680150@fedora.redhat.com>
-In-Reply-To: <20240603134427.GA1680150@fedora.redhat.com>
-From: Daniel Verkamp <dverkamp@chromium.org>
-Date: Tue, 4 Jun 2024 11:09:16 -0700
-X-Gmail-Original-Message-ID: <CABVzXAkJGjJyP1DCrh-r+ZeA1v8VV9C8BkqxzhLGyhYw8qhcaA@mail.gmail.com>
-Message-ID: <CABVzXAkJGjJyP1DCrh-r+ZeA1v8VV9C8BkqxzhLGyhYw8qhcaA@mail.gmail.com>
-Subject: Re: Addressing architectural differences between FUSE driver and fs -
- Re: virtio-fs tests between host(x86) and dpu(arm64)
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Peter-Jan Gootzen <pgootzen@nvidia.com>, Idan Zach <izach@nvidia.com>, 
-	Yoray Zack <yorayz@nvidia.com>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Parav Pandit <parav@nvidia.com>, 
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
-	"bin.yang@jaguarmicro.com" <bin.yang@jaguarmicro.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, 
-	"mszeredi@redhat.com" <mszeredi@redhat.com>, Eliav Bar-Ilan <eliavb@nvidia.com>, 
-	"mst@redhat.com" <mst@redhat.com>, "lege.wang@jaguarmicro.com" <lege.wang@jaguarmicro.com>, Oren Duer <oren@nvidia.com>, 
-	"angus.chen@jaguarmicro.com" <angus.chen@jaguarmicro.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 3, 2024 at 6:44=E2=80=AFAM Stefan Hajnoczi <stefanha@redhat.com=
-> wrote:
->
-> On Mon, Jun 03, 2024 at 11:06:19AM +0200, Miklos Szeredi wrote:
-> > On Mon, 3 Jun 2024 at 10:53, Peter-Jan Gootzen <pgootzen@nvidia.com> wr=
-ote:
-> >
-> > > We also considered this idea, it would kind of be like locking FUSE i=
-nto
-> > > being x86. However I think this is not backwards compatible. Currentl=
-y
-> > > an ARM64 client and ARM64 server work just fine. But making such a
-> > > change would break if the client has the new driver version and the
-> > > server is not updated to know that it should interpret x86 specifical=
-ly.
-> >
-> > This would need to be negotiated, of course.
-> >
-> > But it's certainly simpler to just indicate the client arch in the
-> > INIT request.   Let's go with that for now.
->
-> In the long term it would be cleanest to choose a single canonical
-> format instead of requiring drivers and devices to implement many
-> arch-specific formats. I liked the single canonical format idea you
-> suggested.
->
-> My only concern is whether there are more commands/fields in FUSE that
-> operate in an arch-specific way (e.g. ioctl)? If there really are parts
-> that need to be arch-specific, then it might be necessary to negotiate
-> an architecture after all.
+On Tue, 4 Jun 2024 13:13:26 +0800, Heng Qi <hengqi@linux.alibaba.com> wrote:
+> On Tue, 4 Jun 2024 07:00:35 +0800, kernel test robot <lkp@intel.com> wrote:
+> > Hi Heng,
+> > 
+> > kernel test robot noticed the following build warnings:
+> > 
+> > [auto build test WARNING on net-next/main]
+> > 
+> > url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/linux-dim-move-useful-macros-to-h-file/20240603-235834
+> > base:   net-next/main
+> > patch link:    https://lore.kernel.org/r/20240603154727.31998-4-hengqi%40linux.alibaba.com
+> > patch subject: [PATCH net-next v14 3/5] ethtool: provide customized dim profile management
+> > config: loongarch-defconfig (https://download.01.org/0day-ci/archive/20240604/202406040645.6z95FW1f-lkp@intel.com/config)
+> > compiler: loongarch64-linux-gcc (GCC) 13.2.0
+> > reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240604/202406040645.6z95FW1f-lkp@intel.com/reproduce)
+> > 
+> > If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> > the same patch/commit), kindly add following tags
+> > | Reported-by: kernel test robot <lkp@intel.com>
+> > | Closes: https://lore.kernel.org/oe-kbuild-all/202406040645.6z95FW1f-lkp@intel.com/
+> > 
+> > All warnings (new ones prefixed by >>):
+> > 
+> > >> net/ethtool/coalesce.o: warning: objtool: unexpected relocation symbol type in .rela.discard.reachable
+> 
+> 
+> I'm not sure if this seems to be related to the update of loongarch[1]?
+> didn't find this warning on other architectures such as arm/openrisc/x86.
 
-For the purposes of virtio, it would definitely be preferable to
-define the FUSE protocol in a single, canonical,
-architecture-independent form. Ideally, this definition would be
-sufficient to implement a working virtio-fs client or server without
-referring to any Linux headers; currently, the virtio-fs spec just
-links to the Linux FUSE uapi header, which seems suboptimal for a
-protocol that is meant to be OS-agnostic (and has the problem of
-depending on arch-specific values, as discussed in this thread).
+I noticed that the loongarch community has submitted a fix[1], and after applying
+the fix, the robot no longer reports the warning. So the warning is specific
+to the loongarch architecture.
 
-One possible problem that I have noticed is that the interpretation of
-the max_pages field in fuse_init_out depends on the value of
-PAGE_SIZE, which could differ between host and guest even within the
-same architecture (e.g. ARM64 with 4K vs. 64K pages); architecture
-negotiation would not help with this particular problem. It would be
-nice if it could be specified in a canonical way as well, perhaps
-changing the definition so that it is always in units of 4096 bytes.
+[1] https://lore.kernel.org/all/20240604150741.30252-1-xry111@xry111.site/
 
-Thanks,
--- Daniel
+Thanks.
+
+> 
+> +Cc:
+> loongarch@lists.linux.dev, Guo Ren <guoren@kernel.org>,
+> Xuerui Wang <kernel@xen0n.name>,
+> Jiaxun Yang <jiaxun.yang@flygoat.com>,
+> Huacai Chen <chenhuacai@loongson.cn>
+> 
+> [1] https://lore.kernel.org/all/20240322135619.1423490-1-chenhuacai@loongson.cn/
+> 
+> > 
+> > -- 
+> > 0-DAY CI Kernel Test Service
+> > https://github.com/intel/lkp-tests/wiki
+> 
