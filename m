@@ -1,54 +1,54 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA3D5199231
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E96D8199249
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:42:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717587720; cv=none; b=Cl08Sfib6t1iogbZjOkxxrEW9d4UwwYg4/tJs2WRVdbSQYCZ77+wTTnef4GTWHzKaUnmtLC1DPoDRSxu8JwUlDu2062SXyB0SOQXkwcMrQaIIMFXzWtFfuVT0u/p55D1FHRxbhKLcfO3RShK2DqdeCMRYtChJNke9dpK000KocM=
+	t=1717587722; cv=none; b=b9/7+ooBvMWsSOrCCAcDjB39EYZySxK9LquU9bnLWMO2ghJ9qxGH7Sc8OFuYNUe5SROiDMeVUmXi6qVd97+4gr7OzjaOBpTlAT3xWkeNxL7jOp55urvJtaLYX8h7xmj2zypTWpQ+yUf6HEwQ4xzvbg58/ChHMgzxqAVBAfj1QjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717587720; c=relaxed/simple;
-	bh=JhdeFloFX/xxhqkxVxMkwy3o8a+I7NU1Jr3K3J+2XHI=;
+	s=arc-20240116; t=1717587722; c=relaxed/simple;
+	bh=cNH/faxi7/uMHF3i5ru1TGKN5bBuB3CG9oyUregFlwY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=smA8Dne9s8ZlwUF5AU8/zEZpntWzkSLX6uWGhS+6Tkj4dKxhT1BUqaFvZb/pM1RQepCIc7kp2qv9HxM8AthtmBQsZALKDuDZjiCtx4vPUFo7pISpJRuh7dR+kZqaCLryi2/kyMmg86mpSerZDvkskriAU92CquQFn/0bARXolnc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yo0tPcOU; arc=none smtp.client-ip=140.211.166.136
+	 MIME-Version:Content-Type; b=YDZxXcCC4HOuwCwvBNiz1ug71aov+D9dlDyLyjiq101RspoBdtUf+ONBQ3iZgC45+oFSUr2+4got4ag8ojrrOn1Jui2qGEniM09XCPyGeSD2INb82Jvdwcevhe0NwLNmOxXLZVg8FfNndsoZ1dYaRzyLYqTJdM3RvSuY1k8yQL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fe2kjdHr; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yo0tPcOU"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fe2kjdHr"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8CB9C6107C
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:59 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BB217413B5
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:42:01 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id yEutHAaEiUCH for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Jun 2024 11:41:41 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 85CA461072
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 85CA461072
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Yo0tPcOU
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 85CA461072
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:41:41 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9kWTa3zjKQea for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Jun 2024 11:42:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org D083A40323
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D083A40323
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=fe2kjdHr
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D083A40323
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Jun 2024 11:42:00 +0000 (UTC)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 48605CE1774;
-	Wed,  5 Jun 2024 11:41:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56EA3C3277B;
-	Wed,  5 Jun 2024 11:41:34 +0000 (UTC)
+	by sin.source.kernel.org (Postfix) with ESMTP id A53F5CE176A;
+	Wed,  5 Jun 2024 11:41:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C9B6C3277B;
+	Wed,  5 Jun 2024 11:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1717587698;
-	bh=JhdeFloFX/xxhqkxVxMkwy3o8a+I7NU1Jr3K3J+2XHI=;
+	s=k20201202; t=1717587718;
+	bh=cNH/faxi7/uMHF3i5ru1TGKN5bBuB3CG9oyUregFlwY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Yo0tPcOUDWbZKgAZCcnplN/Tpng+rYhahCirtGosu22vfbqUpPcHwDQA6k6SFhOAV
-	 ZJqZbW2Hub+7wW8blIcchz+3RvICwE2f/9Ybv7CyKA+D07H53Ebb5i0DPEtvRVmP7+
-	 +UJZgr4Sp39itexUAPNROpGAAJDUgk4oCvOQX909f0SpiDFFPHsojDG2bl1yDM6WIT
-	 1SeA46LAIXR14O9bfozUPdydSqNyrw8nINXW38klf+p8XKmw4BCQ/CsmeOD9GOvQFi
-	 hvRgm5Ntqz+0/jK4n1J/g/BIAKDgmEOtQ2+tEApA0MTtkbTxYZ4HxLyqMrMU4Yz12A
-	 PHsFFb2fJFJpQ==
+	b=fe2kjdHr8ojoEyfXhgZTloB0ifMmIHOiG5DKKusQ7Sy/pLVBqY69c3MDTz/IU9Zgo
+	 MOhwVt+ahqsvED2Vp8J9R+Q8ubBgqynFng83NWmTihwz/P2ChTKelcdKT2bUChXFK9
+	 XPcoo8c3N4IbEGXTynF+kAx7m1dH5G/PPGoikssoDmop+tc7FNpWuiccwDm0/0jsfe
+	 H4f2dL3LvdfbCWfFtqsONnn/c9csqEX1jG6HQnp4UkSH/eCSeScKzEtuXeHHntRU0w
+	 WP5qZvrd9lyHDBzgPM4+Zt64wDTLbmT3TRs6NhwxTl4SmXf6mkzAM5N7uV58/eSTTK
+	 ItWw6ywddPduA==
 From: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>
 To: Alexandre Ghiti <alexghiti@rivosinc.com>,
 	Albert Ou <aou@eecs.berkeley.edu>,
@@ -67,9 +67,9 @@ Cc: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
 	linux-kernel@vger.kernel.org,
 	linux-mm@kvack.org,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH v4 05/11] riscv: mm: Add pfn_to_kaddr() implementation
-Date: Wed,  5 Jun 2024 13:40:48 +0200
-Message-ID: <20240605114100.315918-6-bjorn@kernel.org>
+Subject: [PATCH v4 09/11] virtio-mem: Enable virtio-mem for RISC-V
+Date: Wed,  5 Jun 2024 13:40:52 +0200
+Message-ID: <20240605114100.315918-10-bjorn@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240605114100.315918-1-bjorn@kernel.org>
 References: <20240605114100.315918-1-bjorn@kernel.org>
@@ -84,31 +84,28 @@ Content-Transfer-Encoding: 8bit
 
 From: Björn Töpel <bjorn@rivosinc.com>
 
-The pfn_to_kaddr() function is used by KASAN's memory hotplugging
-path. Add the missing function to the RISC-V port, so that it can be
-built with MHP and CONFIG_KASAN.
+Now that RISC-V has memory hotplugging support, virtio-mem can be used
+on the platform.
 
+Acked-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
 ---
- arch/riscv/include/asm/page.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/virtio/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/page.h b/arch/riscv/include/asm/page.h
-index 115ac98b8d72..235fd45d998d 100644
---- a/arch/riscv/include/asm/page.h
-+++ b/arch/riscv/include/asm/page.h
-@@ -188,6 +188,11 @@ extern phys_addr_t __phys_addr_symbol(unsigned long x);
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 6284538a8184..42a48ac763ee 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -122,7 +122,7 @@ config VIRTIO_BALLOON
  
- unsigned long kaslr_offset(void);
- 
-+static __always_inline void *pfn_to_kaddr(unsigned long pfn)
-+{
-+	return __va(pfn << PAGE_SHIFT);
-+}
-+
- #endif /* __ASSEMBLY__ */
- 
- #define virt_addr_valid(vaddr)	({						\
+ config VIRTIO_MEM
+ 	tristate "Virtio mem driver"
+-	depends on X86_64 || ARM64
++	depends on X86_64 || ARM64 || RISCV
+ 	depends on VIRTIO
+ 	depends on MEMORY_HOTPLUG
+ 	depends on MEMORY_HOTREMOVE
 -- 
 2.43.0
 
