@@ -1,234 +1,131 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85A7D1A187C
-	for <virtualization@lists.linux.dev>; Wed,  5 Jun 2024 11:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3436C1BBBC3;
+	Wed,  5 Jun 2024 11:55:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717588310; cv=none; b=SRJjD2n5ofjv9JoFc7YyqoLqJmqw55e4ehlUbGyBUvl5UtdpabwmP1vquyyWWOdXEIo1lBSm+KB+5KgHllH++tvQgP5BksmK7eDaRs3nx/aQa4aEsmJ56PG0gTgPN2kbC8dukjJeWfLG64W8rxN7a5ZkAzB4T9iO6khgauQzzkY=
+	t=1717588558; cv=none; b=KYyaGyHCuV0Hd314UDFYo2amu0r4TRbf25Da8jGByOnK0Z0YTSQwix5oTqmSmPRvhqpSbIj6YZrJEL6m8KElX9nUuqa/4ATV/32lBrMnRxroDuHLPnym0xX9PkfZtKhhKiLetKWBQHvpn7em84SNGu5f7UughTxCaT3zrSKpV5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717588310; c=relaxed/simple;
-	bh=nX56YmrH6jSRhi41cg1jOIdrYXQfmvVg6w6IJ0y5FeI=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=U1Pmc3EccW/ihuCCKAQKNOH9d/dUXiy6XG3fspNsCoLISjWilNSS4+rUvf7rIaLgJmM84Rg5xeHlZs/xfk/FDOSbJ/diBFqhbl+Ujm8ekmDYAvyUmVe+JJvknaT3g3kMFe82egz1JXz9j4zQY61yYUVdmTmub1LDjKRbutg2fuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=nvTD8LGX; arc=none smtp.client-ip=115.124.30.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717588558; c=relaxed/simple;
+	bh=WTisGYSNvp17ebvku7IcULq8g4QnWshJd8J02Zl6YKw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Cki1iRWJjALcPt/m7Khvy5VAc7StY6Qd81A6thWiNNnZMFPnnmvT2dBUS/Wg6AwxBnKXK/LZt8j5KVRz/sx38P0XvmUHKIZZTl7qN1PpDmFDE4KMGahUCDooog8P69R4Lkqv3BuBCnd6+TwLdo16i9lo8TgDk5cp7FPTZHmH7WU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YhIie8SS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="nvTD8LGX"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717588305; h=Message-ID:Subject:Date:From:To;
-	bh=9c5VJz2MI2/0urY/Ud9QJgSdUZNjOpj7ksVhnnGqaRE=;
-	b=nvTD8LGX7gpY9SvqV7C+Xsis6y/szaN4IEtOm9i6WUKYTBwKjmFpGTFqeTcsHkffBsdiGeAXSi46hACmweo2Q85s+2kyhyR1SQKvReagrIjBfepVDBMj0Oy76skEj0qFcbf6oOHFDIOCBzeYY2mQDGayntbcCPSib9EHN/C3NQI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W7vCRx5_1717588303;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7vCRx5_1717588303)
-          by smtp.aliyun-inc.com;
-          Wed, 05 Jun 2024 19:51:44 +0800
-Message-ID: <1717587768.1588957-5-hengqi@linux.alibaba.com>
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-Date: Wed, 5 Jun 2024 19:42:48 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: davem@davemloft.net,
- edumazet@google.com,
- kuba@kernel.org,
- pabeni@redhat.com,
- mst@redhat.com,
- jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com,
- virtualization@lists.linux.dev,
- ast@kernel.org,
- daniel@iogearbox.net,
- hawk@kernel.org,
- john.fastabend@gmail.com,
- netdev@vger.kernel.org
-References: <20240509114615.317450-1-jiri@resnulli.us>
- <1715325076.4219763-2-hengqi@linux.alibaba.com>
- <ZktGj4nDU4X0Lxtx@nanopsycho.orion>
- <ZmBMa7Am3LIYQw1x@nanopsycho.orion>
-In-Reply-To: <ZmBMa7Am3LIYQw1x@nanopsycho.orion>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YhIie8SS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D02C6C32786;
+	Wed,  5 Jun 2024 11:55:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1717588557;
+	bh=WTisGYSNvp17ebvku7IcULq8g4QnWshJd8J02Zl6YKw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=YhIie8SSbnA2KqHzmnS7xAsUtRcBhgJlkoGAJ7/2O0LtCMClpHlRG304acbK+aPqr
+	 0QNnbdwen69Oo4VkI7cSCJQ5/57XvIvMm2rW4sqHXw50H8izEM4/NUQ1li9hoLAV5o
+	 +juKDxSfNrAxkXnDZCVvTy/cxEgfauAlt4tx4JcBtRrvslUnf4hfD6XrmIO+vnh9qT
+	 aU4ujK6NOMXbLH1MCXgQ5t0N70w6IEkQhRpFF6CvDhbR4pkLOe1MwiYmnPUU8XVcij
+	 t+H1QgtXHWlb67ShLoc/PxwVYDmEeRIrd/q3R7vsyxwunlQ+QwOhS5mykz0A2BoN4T
+	 R1YDUUAqc4DKg==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Mike Christie <michael.christie@oracle.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Sasha Levin <sashal@kernel.org>,
+	jasowang@redhat.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.9 6/6] vhost-scsi: Handle vhost_vq_work_queue failures for events
+Date: Wed,  5 Jun 2024 07:55:41 -0400
+Message-ID: <20240605115545.2964850-6-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240605115545.2964850-1-sashal@kernel.org>
+References: <20240605115545.2964850-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.9.3
+Content-Transfer-Encoding: 8bit
 
-On Wed, 5 Jun 2024 13:30:51 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
-> Mon, May 20, 2024 at 02:48:15PM CEST, jiri@resnulli.us wrote:
-> >Fri, May 10, 2024 at 09:11:16AM CEST, hengqi@linux.alibaba.com wrote:
-> >>On Thu,  9 May 2024 13:46:15 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
-> >>> From: Jiri Pirko <jiri@nvidia.com>
-> >>> 
-> >>> Add support for Byte Queue Limits (BQL).
-> >>
-> >>Historically both Jason and Michael have attempted to support BQL
-> >>for virtio-net, for example:
-> >>
-> >>https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com/
-> >>
-> >>These discussions focus primarily on:
-> >>
-> >>1. BQL is based on napi tx. Therefore, the transfer of statistical information
-> >>needs to rely on the judgment of use_napi. When the napi mode is switched to
-> >>orphan, some statistical information will be lost, resulting in temporary
-> >>inaccuracy in BQL.
-> >>
-> >>2. If tx dim is supported, orphan mode may be removed and tx irq will be more
-> >>reasonable. This provides good support for BQL.
-> >
-> >But when the device does not support dim, the orphan mode is still
-> >needed, isn't it?
-> 
-> Heng, is my assuption correct here? Thanks!
-> 
+From: Mike Christie <michael.christie@oracle.com>
 
-Maybe, according to our cloud data, napi_tx=on works better than orphan mode in
-most scenarios. Although orphan mode performs better in specific benckmark,
-perf of napi_tx can be enhanced through tx dim. Then, there is no reason not to
-support dim for devices that want the best performance.
+[ Upstream commit b1b2ce58ed23c5d56e0ab299a5271ac01f95b75c ]
 
-Back to this patch set, I think BQL as a point that affects performance should
-deserve more comprehensive test data.
+Currently, we can try to queue an event's work before the vhost_task is
+created. When this happens we just drop it in vhost_scsi_do_plug before
+even calling vhost_vq_work_queue. During a device shutdown we do the
+same thing after vhost_scsi_clear_endpoint has cleared the backends.
 
-Thanks.
+In the next patches we will be able to kill the vhost_task before we
+have cleared the endpoint. In that case, vhost_vq_work_queue can fail
+and we will leak the event's memory. This has handle the failure by
+just freeing the event. This is safe to do, because
+vhost_vq_work_queue will only return failure for us when the vhost_task
+is killed and so userspace will not be able to handle events if we
+sent them.
 
-> >
-> >>
-> >>Thanks.
-> >>
-> >>> 
-> >>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> >>> ---
-> >>>  drivers/net/virtio_net.c | 33 ++++++++++++++++++++-------------
-> >>>  1 file changed, 20 insertions(+), 13 deletions(-)
-> >>> 
-> >>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >>> index 218a446c4c27..c53d6dc6d332 100644
-> >>> --- a/drivers/net/virtio_net.c
-> >>> +++ b/drivers/net/virtio_net.c
-> >>> @@ -84,7 +84,9 @@ struct virtnet_stat_desc {
-> >>>  
-> >>>  struct virtnet_sq_free_stats {
-> >>>  	u64 packets;
-> >>> +	u64 xdp_packets;
-> >>>  	u64 bytes;
-> >>> +	u64 xdp_bytes;
-> >>>  };
-> >>>  
-> >>>  struct virtnet_sq_stats {
-> >>> @@ -512,19 +514,19 @@ static void __free_old_xmit(struct send_queue *sq, bool in_napi,
-> >>>  	void *ptr;
-> >>>  
-> >>>  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> >>> -		++stats->packets;
-> >>> -
-> >>>  		if (!is_xdp_frame(ptr)) {
-> >>>  			struct sk_buff *skb = ptr;
-> >>>  
-> >>>  			pr_debug("Sent skb %p\n", skb);
-> >>>  
-> >>> +			stats->packets++;
-> >>>  			stats->bytes += skb->len;
-> >>>  			napi_consume_skb(skb, in_napi);
-> >>>  		} else {
-> >>>  			struct xdp_frame *frame = ptr_to_xdp(ptr);
-> >>>  
-> >>> -			stats->bytes += xdp_get_frame_len(frame);
-> >>> +			stats->xdp_packets++;
-> >>> +			stats->xdp_bytes += xdp_get_frame_len(frame);
-> >>>  			xdp_return_frame(frame);
-> >>>  		}
-> >>>  	}
-> >>> @@ -965,7 +967,8 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
-> >>>  	virtnet_rq_free_buf(vi, rq, buf);
-> >>>  }
-> >>>  
-> >>> -static void free_old_xmit(struct send_queue *sq, bool in_napi)
-> >>> +static void free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
-> >>> +			  bool in_napi)
-> >>>  {
-> >>>  	struct virtnet_sq_free_stats stats = {0};
-> >>>  
-> >>> @@ -974,9 +977,11 @@ static void free_old_xmit(struct send_queue *sq, bool in_napi)
-> >>>  	/* Avoid overhead when no packets have been processed
-> >>>  	 * happens when called speculatively from start_xmit.
-> >>>  	 */
-> >>> -	if (!stats.packets)
-> >>> +	if (!stats.packets && !stats.xdp_packets)
-> >>>  		return;
-> >>>  
-> >>> +	netdev_tx_completed_queue(txq, stats.packets, stats.bytes);
-> >>> +
-> >>>  	u64_stats_update_begin(&sq->stats.syncp);
-> >>>  	u64_stats_add(&sq->stats.bytes, stats.bytes);
-> >>>  	u64_stats_add(&sq->stats.packets, stats.packets);
-> >>> @@ -1013,13 +1018,15 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
-> >>>  	 * early means 16 slots are typically wasted.
-> >>>  	 */
-> >>>  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
-> >>> -		netif_stop_subqueue(dev, qnum);
-> >>> +		struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
-> >>> +
-> >>> +		netif_tx_stop_queue(txq);
-> >>>  		if (use_napi) {
-> >>>  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
-> >>>  				virtqueue_napi_schedule(&sq->napi, sq->vq);
-> >>>  		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
-> >>>  			/* More just got used, free them then recheck. */
-> >>> -			free_old_xmit(sq, false);
-> >>> +			free_old_xmit(sq, txq, false);
-> >>>  			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
-> >>>  				netif_start_subqueue(dev, qnum);
-> >>>  				virtqueue_disable_cb(sq->vq);
-> >>> @@ -2319,7 +2326,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
-> >>>  
-> >>>  		do {
-> >>>  			virtqueue_disable_cb(sq->vq);
-> >>> -			free_old_xmit(sq, true);
-> >>> +			free_old_xmit(sq, txq, true);
-> >>>  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> >>>  
-> >>>  		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-> >>> @@ -2471,7 +2478,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
-> >>>  	txq = netdev_get_tx_queue(vi->dev, index);
-> >>>  	__netif_tx_lock(txq, raw_smp_processor_id());
-> >>>  	virtqueue_disable_cb(sq->vq);
-> >>> -	free_old_xmit(sq, true);
-> >>> +	free_old_xmit(sq, txq, true);
-> >>>  
-> >>>  	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-> >>>  		netif_tx_wake_queue(txq);
-> >>> @@ -2553,7 +2560,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> >>>  	struct send_queue *sq = &vi->sq[qnum];
-> >>>  	int err;
-> >>>  	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
-> >>> -	bool kick = !netdev_xmit_more();
-> >>> +	bool xmit_more = netdev_xmit_more();
-> >>>  	bool use_napi = sq->napi.weight;
-> >>>  
-> >>>  	/* Free up any pending old buffers before queueing new ones. */
-> >>> @@ -2561,9 +2568,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> >>>  		if (use_napi)
-> >>>  			virtqueue_disable_cb(sq->vq);
-> >>>  
-> >>> -		free_old_xmit(sq, false);
-> >>> +		free_old_xmit(sq, txq, false);
-> >>>  
-> >>> -	} while (use_napi && kick &&
-> >>> +	} while (use_napi && !xmit_more &&
-> >>>  	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> >>>  
-> >>>  	/* timestamp packet in software */
-> >>> @@ -2592,7 +2599,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> >>>  
-> >>>  	check_sq_full_and_disable(vi, dev, sq);
-> >>>  
-> >>> -	if (kick || netif_xmit_stopped(txq)) {
-> >>> +	if (__netdev_tx_sent_queue(txq, skb->len, xmit_more)) {
-> >>>  		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
-> >>>  			u64_stats_update_begin(&sq->stats.syncp);
-> >>>  			u64_stats_inc(&sq->stats.kicks);
-> >>> -- 
-> >>> 2.44.0
-> >>> 
-> >>> 
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Message-Id: <20240316004707.45557-2-michael.christie@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/vhost/scsi.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 282aac45c6909..f34f9895b8984 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -497,10 +497,8 @@ vhost_scsi_do_evt_work(struct vhost_scsi *vs, struct vhost_scsi_evt *evt)
+ 		vq_err(vq, "Faulted on vhost_scsi_send_event\n");
+ }
+ 
+-static void vhost_scsi_evt_work(struct vhost_work *work)
++static void vhost_scsi_complete_events(struct vhost_scsi *vs, bool drop)
+ {
+-	struct vhost_scsi *vs = container_of(work, struct vhost_scsi,
+-					vs_event_work);
+ 	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT].vq;
+ 	struct vhost_scsi_evt *evt, *t;
+ 	struct llist_node *llnode;
+@@ -508,12 +506,20 @@ static void vhost_scsi_evt_work(struct vhost_work *work)
+ 	mutex_lock(&vq->mutex);
+ 	llnode = llist_del_all(&vs->vs_event_list);
+ 	llist_for_each_entry_safe(evt, t, llnode, list) {
+-		vhost_scsi_do_evt_work(vs, evt);
++		if (!drop)
++			vhost_scsi_do_evt_work(vs, evt);
+ 		vhost_scsi_free_evt(vs, evt);
+ 	}
+ 	mutex_unlock(&vq->mutex);
+ }
+ 
++static void vhost_scsi_evt_work(struct vhost_work *work)
++{
++	struct vhost_scsi *vs = container_of(work, struct vhost_scsi,
++					     vs_event_work);
++	vhost_scsi_complete_events(vs, false);
++}
++
+ static int vhost_scsi_copy_sgl_to_iov(struct vhost_scsi_cmd *cmd)
+ {
+ 	struct iov_iter *iter = &cmd->saved_iter;
+@@ -1509,7 +1515,8 @@ vhost_scsi_send_evt(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
+ 	}
+ 
+ 	llist_add(&evt->list, &vs->vs_event_list);
+-	vhost_vq_work_queue(vq, &vs->vs_event_work);
++	if (!vhost_vq_work_queue(vq, &vs->vs_event_work))
++		vhost_scsi_complete_events(vs, true);
+ }
+ 
+ static void vhost_scsi_evt_handle_kick(struct vhost_work *work)
+-- 
+2.43.0
+
