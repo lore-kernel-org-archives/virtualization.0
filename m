@@ -1,195 +1,172 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61049D2E5
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 03:28:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E66A19D88B
+	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 04:25:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717644511; cv=none; b=uZa6BW5+fNzXoHGU2+X4CBgS0tc/cc4ZOjM7KRJOPOguHpFJtTYN/KPsDMLr0pmeAnnWM4KgJ6VZHLzgrhY4g/kLN8IMWUo64hskCqsbZOX/UucyggxmLhPmr6TOtOCMjZnKiyeqw35KM5tX2maODzKAY6OB7SxFDSdUsXWXyh4=
+	t=1717647939; cv=none; b=dgGEh7AItGFGDehc+42Iow3jTm82FfkmS+qSDkWO1iDFN6aWiq3BRgZ1PgZiixbggFcVpViIeyAA3m/sjv/psOEggZxzl7sYioz2xCiHOaHewJ+lAmJNkWlRaVAi5id+yK3lQyjSwV4C6cGa8q7mpzn7RRqb3Ive1sqYqx30YRI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717644511; c=relaxed/simple;
-	bh=bgVAcuwY1SKXG3vjyzdqlv2nugV2OGyQixNnAyg2jA8=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=GuBdw21dxjAM9CHNH400NNubho3mpOQR5V7LwhbEZfD1q1PlGAHJD1N0nGq92v3V9b+N8ZjYd65kx9k7VLOJKiwC/tjXbCXBpow7xt258mHDNdtVqfQnz/ZCIAtLfsDf34w0EvJ1PmjOwcsT5tchS/wy4/Oxl4gAuOx4WfCRGZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D3LBOZwR; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1717647939; c=relaxed/simple;
+	bh=DSfi+Biq2aW0cJ8wkedaa3lAHKHIQt7QcVEkTfIDKj4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=I8oqSR+F1B9zvtwCRM6dM0I4hbenyEb5kCHiFutJwxoYXXXPU0/RhSS2aXN7KyfdsEFgxIslPCv2lJX29Ds9hRQvTA8a1qgN99WuoUUqq5T8c1RP4ZY8rAvLV1wkYVE7u4J5YoWwbgilXpS6aCAw30mHaTFOawGl9kji6W7v4zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dgXFManR; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D3LBOZwR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BE007403A2
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 03:28:29 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -17.499
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Xp2bGw0o_gaz for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Jun 2024 03:28:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=xuanzhuo@linux.alibaba.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 811A9400BA
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 811A9400BA
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=D3LBOZwR
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 811A9400BA
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 03:27:51 +0000 (UTC)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717644456; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=OFu44R6J/QcE53wYRSjB6IeSCEeSV0oNByx8BtNCsr4=;
-	b=D3LBOZwR9Q5ILxAq+Ri7cnJ5SG9jUb8gRWhB77uylIyq2Ka/G+DCJLNuKFuC9iDXSb5VCgvdNk4WWumKQ1sPKuTG/kBmIwHdiPHRbT9REnktfzOaxD1r4SDtnGNIHJaoU/6WzFnsWrkZo0sd/GN2m62O6pUuwbcMd5TMxDDZWYc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0W7wj7E1_1717644453;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7wj7E1_1717644453)
-          by smtp.aliyun-inc.com;
-          Thu, 06 Jun 2024 11:27:34 +0800
-Message-ID: <1717644183.6895547-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v13 04/12] virtio_ring: support add premapped buf
-Date: Thu, 6 Jun 2024 11:23:03 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John  Fastabend <john.fastabend@gmail.com>,
- netdev@vger.kernel.org,
- bpf@vger.kernel.org,
- Christoph Hellwig <hch@infradead.org>,
- Alexander  Potapenko <glider@google.com>,
- virtualization@lists.linux-foundation.org
-References: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
- <20230810123057.43407-5-xuanzhuo@linux.alibaba.com>
- <0b726a75574ad98200b815f173e59a5378e9df04.camel@linux.ibm.com>
-In-Reply-To: <0b726a75574ad98200b815f173e59a5378e9df04.camel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dgXFManR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717647936;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wSBCfrMFxIEimCoVPLYQ8l0DHjemGsXczcA6kmz3O+M=;
+	b=dgXFManR11WL9gt+kz6jn+hITCOxdUORNWUjD5vaWqSnjaeI7ARxDp4HmI2jWszgkZ56tR
+	ZcYuXIKwWvn3P8YbSwZUdAGMnAuaK2mVHQTUNCb/AqTOvvEFbNbd4qVCZ5nOdedi7vVDFS
+	iXu1WTYZQkZg+BE/9oRL7Ca6eR6ia7I=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-546-LoeYZOIqN5SxCSUMu1COog-1; Thu, 06 Jun 2024 00:25:30 -0400
+X-MC-Unique: LoeYZOIqN5SxCSUMu1COog-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-70256c09ec7so576239b3a.1
+        for <virtualization@lists.linux.dev>; Wed, 05 Jun 2024 21:25:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717647930; x=1718252730;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wSBCfrMFxIEimCoVPLYQ8l0DHjemGsXczcA6kmz3O+M=;
+        b=laqqHvzYFudD8qbS62FSq7lFDNK/WPqkUz6sM2kQiTen/9C0r8phL4HBWrQd1v9SBD
+         JV2DwvimFEFIp54EfPMaENlNXu/pz4zTOmJzQBGK2rH+LMnpooi6XLlHkwHM5VWdr4Y2
+         Km5DtTQxz9twjyLnOZPPRzPvFSqEGDA00xAV1hySNVjpg/ziJXXNhtHNr+z61o+v3I/Y
+         iuEI4kRAnLi1dZxUqx2Sr94NFRULCBgXG6QbICdfwr6vUHmGIus44p6hU6wk6BwVIsE1
+         y8PwPlnlNm2E/H0F/FSGG9SCiAgWPWAVwqDMBjOy0Gc/oW6eP3/reTK99x3etqiJguWe
+         CE6A==
+X-Forwarded-Encrypted: i=1; AJvYcCXMbMjf6vXEr49sdVjUB30+CcyA1DqhrJJUD4EQA6fJYoXT7Oakx6Hdp9EkVhH4UJlFFD9mCV8xugcGdLwdwQuQHgY8f3M4nDofjMfT8Fc=
+X-Gm-Message-State: AOJu0YzEx7pPGk0lZ48nVzlsHtNFOJa4pol6pC4LN6jO0j62JPFvsWug
+	6/CihdzbarsdQva7JPhAfljsOKUp/N6gZzYzO/RnlHDhKVpsl9+MdGkXugoJFa6jSgBwCIQIOu2
+	/DSX/Q6vAhu3Bm9YKF19suObbhBx87d6G1hfGrmAiDoDsKr/GZG/CkGNaDWtVeuEsTb8fKC4lFh
+	K77ewNAYDm55rYUSmqQX0mj9SryOYFYNjaXjYCvSY=
+X-Received: by 2002:a05:6a20:9686:b0:1a7:60d8:a6dd with SMTP id adf61e73a8af0-1b2b716eb94mr4390027637.53.1717647929566;
+        Wed, 05 Jun 2024 21:25:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHDUBe4Da26OmuDzxSJzfrOdRkfFw3X1ifGh/dMSB126LV+1Q/igGAVX2Gw+AdW7T2YmDPz0ADUvXcg9PgWyww=
+X-Received: by 2002:a05:6a20:9686:b0:1a7:60d8:a6dd with SMTP id
+ adf61e73a8af0-1b2b716eb94mr4390008637.53.1717647929136; Wed, 05 Jun 2024
+ 21:25:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240509114615.317450-1-jiri@resnulli.us> <1715325076.4219763-2-hengqi@linux.alibaba.com>
+ <ZktGj4nDU4X0Lxtx@nanopsycho.orion> <ZmBMa7Am3LIYQw1x@nanopsycho.orion>
+ <1717587768.1588957-5-hengqi@linux.alibaba.com> <CACGkMEsiosWxNCS=Jpb-H14b=-26UzPjw+sD3H21FwVh2ZTF5g@mail.gmail.com>
+ <CAL+tcoB8y6ctDO4Ph8WM-19qAoNMcYTVWLKRqsJYYrmW9q41=w@mail.gmail.com>
+In-Reply-To: <CAL+tcoB8y6ctDO4Ph8WM-19qAoNMcYTVWLKRqsJYYrmW9q41=w@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 6 Jun 2024 12:25:15 +0800
+Message-ID: <CACGkMEvh6nKfFMp5fb6tbijrs88vgSofCNkwN1UzKHnf6RqURg@mail.gmail.com>
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+To: Jason Xing <kerneljasonxing@gmail.com>
+Cc: Heng Qi <hengqi@linux.alibaba.com>, Jiri Pirko <jiri@resnulli.us>, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, mst@redhat.com, 
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, ast@kernel.org, 
+	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 04 Jun 2024 18:07:44 +0200, Ilya Leoshkevich <iii@linux.ibm.com> wr=
-ote:
-> On Thu, 2023-08-10 at 20:30 +0800, Xuan Zhuo wrote:
-> > If the vq is the premapped mode, use the sg_dma_address() directly.
+On Thu, Jun 6, 2024 at 10:59=E2=80=AFAM Jason Xing <kerneljasonxing@gmail.c=
+om> wrote:
+>
+> Hello Jason,
+>
+> On Thu, Jun 6, 2024 at 8:21=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
 > >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> > =C2=A0drivers/virtio/virtio_ring.c | 19 +++++++++++++++++--
-> > =C2=A01 file changed, 17 insertions(+), 2 deletions(-)
+> > On Wed, Jun 5, 2024 at 7:51=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.co=
+m> wrote:
+> > >
+> > > On Wed, 5 Jun 2024 13:30:51 +0200, Jiri Pirko <jiri@resnulli.us> wrot=
+e:
+> > > > Mon, May 20, 2024 at 02:48:15PM CEST, jiri@resnulli.us wrote:
+> > > > >Fri, May 10, 2024 at 09:11:16AM CEST, hengqi@linux.alibaba.com wro=
+te:
+> > > > >>On Thu,  9 May 2024 13:46:15 +0200, Jiri Pirko <jiri@resnulli.us>=
+ wrote:
+> > > > >>> From: Jiri Pirko <jiri@nvidia.com>
+> > > > >>>
+> > > > >>> Add support for Byte Queue Limits (BQL).
+> > > > >>
+> > > > >>Historically both Jason and Michael have attempted to support BQL
+> > > > >>for virtio-net, for example:
+> > > > >>
+> > > > >>https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1b=
+c3@redhat.com/
+> > > > >>
+> > > > >>These discussions focus primarily on:
+> > > > >>
+> > > > >>1. BQL is based on napi tx. Therefore, the transfer of statistica=
+l information
+> > > > >>needs to rely on the judgment of use_napi. When the napi mode is =
+switched to
+> > > > >>orphan, some statistical information will be lost, resulting in t=
+emporary
+> > > > >>inaccuracy in BQL.
+> > > > >>
+> > > > >>2. If tx dim is supported, orphan mode may be removed and tx irq =
+will be more
+> > > > >>reasonable. This provides good support for BQL.
+> > > > >
+> > > > >But when the device does not support dim, the orphan mode is still
+> > > > >needed, isn't it?
+> > > >
+> > > > Heng, is my assuption correct here? Thanks!
+> > > >
+> > >
+> > > Maybe, according to our cloud data, napi_tx=3Don works better than or=
+phan mode in
+> > > most scenarios. Although orphan mode performs better in specific benc=
+kmark,
 > >
-> > diff --git a/drivers/virtio/virtio_ring.c
-> > b/drivers/virtio/virtio_ring.c
-> > index 8e81b01e0735..f9f772e85a38 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -361,6 +361,11 @@ static struct device *vring_dma_dev(const struct
-> > vring_virtqueue *vq)
-> > =C2=A0static int vring_map_one_sg(const struct vring_virtqueue *vq, str=
-uct
-> > scatterlist *sg,
-> > =C2=A0			=C2=A0=C2=A0=C2=A0 enum dma_data_direction direction,
-> > dma_addr_t *addr)
-> > =C2=A0{
-> > +	if (vq->premapped) {
-> > +		*addr =3D sg_dma_address(sg);
-> > +		return 0;
-> > +	}
-> > +
+> > For example pktgen (I meant even if the orphan mode can break pktgen,
+> > it can finish when there's a new packet that needs to be sent after
+> > pktgen is completed).
+> >
+> > > perf of napi_tx can be enhanced through tx dim. Then, there is no rea=
+son not to
+> > > support dim for devices that want the best performance.
+> >
+> > Ideally, if we can drop orphan mode, everything would be simplified.
 >
-> I wonder if something needs to be done for KMSAN here, like it's done
-> by the next block in this function? I'm looking into what seems to be a
-> KMSAN false positive on s390x:
+> Please please don't do this. Orphan mode still has its merits. In some
+> cases which can hardly be reproduced in production, we still choose to
+> turn off the napi_tx mode because the delay of freeing a skb could
+> cause lower performance in the tx path,
+
+Well, it's probably just a side effect and it depends on how to define
+performance here.
+
+> which is, I know, surely
+> designed on purpose.
+
+I don't think so and no modern NIC uses that. It breaks a lot of things.
+
 >
-> BUG: KMSAN: uninit-value in receive_buf+0x45ca/0x6990
->  receive_buf+0x45ca/0x6990
->  virtnet_poll+0x17e0/0x3130
->  net_rx_action+0x832/0x26e0
->  handle_softirqs+0x330/0x10f0
->  [...]
+> If the codes of orphan mode don't have an impact when you enable
+> napi_tx mode, please keep it if you can.
+
+For example, it complicates BQL implementation.
+
+Thanks
+
 >
-> Uninit was created at:
->  __alloc_pages_noprof+0x62a/0xe60
->  alloc_pages_noprof+0x392/0x830
->  skb_page_frag_refill+0x21a/0x5c0
->  virtnet_rq_alloc+0x50/0x1500
->  try_fill_recv+0x372/0x54c0
->  virtnet_open+0x210/0xbe0
->  __dev_open+0x56e/0x920
->  __dev_change_flags+0x39c/0x2000
->  dev_change_flags+0xaa/0x200
->  do_setlink+0x197a/0x7420
->  rtnl_setlink+0x77c/0x860
->  [...]
+> Thank you.
 >
-> My understanding is that virtnet_rq_alloc() allocates a page for
-> receiving data from a virtio device, which is then wrapped in struct
-> scatterlist by virtnet_rq_init_one_sg(), which is in turn associated
-> with a virtqueue through the virtqueue_add_inbuf_ctx() ->
-> virtqueue_add() -> virtqueue_add_split() -> vring_map_one_sg()
-> call chain.
->
-> Someone should unpoison this page (since KMSAN doesn't know that the
-> hypervisor writes to it), and today for the non-premapped case this is
-> vring_map_one_sg(). So I tried the following naive fix:
->
->         if (vq->premapped) {
->                 *addr =3D sg_dma_address(sg);
-> +               if (!vq->use_dma_api) {
-> +                       kmsan_handle_dma(phys_to_page(*addr), sg-
-> >offset, sg->length, direction);
-> +               }
->
-> but it didn't help. I plan to investigate this further, but any hints
-> are much appreciated.
->
-> > =C2=A0	if (!vq->use_dma_api) {
-> > =C2=A0		/*
-> > =C2=A0		 * If DMA is not used, KMSAN doesn't know that the
-> > scatterlist
 
-
-Could you try this?
-
-Thanks.
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 37c9c5b55864..cb280b66c7a2 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -3119,8 +3119,10 @@ dma_addr_t virtqueue_dma_map_single_attrs(struct vir=
-tqueue *_vq, void *ptr,
- {
-        struct vring_virtqueue *vq =3D to_vvq(_vq);
-
--       if (!vq->use_dma_api)
-+       if (!vq->use_dma_api) {
-+               kmsan_handle_dma(virt_to_page(ptr), offset_in_page(ptr), si=
-ze, dir);
-                return (dma_addr_t)virt_to_phys(ptr);
-+       }
-
-        return dma_map_single_attrs(vring_dma_dev(vq), ptr, size, dir, attr=
-s);
- }
-@@ -3171,8 +3173,10 @@ dma_addr_t virtqueue_dma_map_page_attrs(struct virtq=
-ueue *_vq, struct page *page
- {
-        struct vring_virtqueue *vq =3D to_vvq(_vq);
-
--       if (!vq->use_dma_api)
-+       if (!vq->use_dma_api) {
-+               kmsan_handle_dma(page, offset, size, dir);
-                return page_to_phys(page) + offset;
-+       }
-
-        return dma_map_page_attrs(vring_dma_dev(vq), page, offset, size, di=
-r, attrs);
- }
