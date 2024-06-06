@@ -1,302 +1,214 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 676F72900
-	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 00:20:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 825C9173
+	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 00:22:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717633255; cv=none; b=SbISFk9kIghe6QihnV8aYvGTtQuBYjJlc9s2Bj+lyrCpYFFxAMZ0Nv0tBmlpaAtunzm+tr7uYcNUpa4/Lg6cSiq3SHVyjkyIueAH33+4ykCh5fooO8ijDCSOZtfwy/AkBU0/lPTMctK12V20C1J4s+A5kMcCnTLlVNPk5zBFZCE=
+	t=1717633351; cv=none; b=aRdIggckmRuElIyv8NuOs0TPWgoMGkE3Vin6BMXgCED2S/bsLmFpzCLwNRA2Ja7q5kUvMO+dval9buqEckd7BlablC3KRag469UvRO5I4xfAMB2YPdlKN2bQ1RDbfu2F/kAEtG7nmO37R0N7U3PYfyCw3+2FSZ/MTy5utTH4RFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717633255; c=relaxed/simple;
-	bh=K4uVHDP87kJCqOj1cXrXMDSpMN9IXZttJ1fRNDFs1AU=;
+	s=arc-20240116; t=1717633351; c=relaxed/simple;
+	bh=3vc8T1yJa+tEmXjxhkr/Caecgw0eEIRO+K3Y9cuhyJk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AohbLo7ukbcPBE0JjQv/6G8FzV/SkkCWoWI0WT34vPaieFK9ZsAxBC4Tm5lybGsIDOcv+g+gliJnb8MQZ5hXZ495LHzSrW2LcBobdwC9685cwg0jUFpGDSwMkKuoijJ7gOcSW+Y7AyVfw0vWDejQ/8S6ZvY+YXR1eY/NXrqUl1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H0usxsaN; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=ZNa81tCCKWzAXgcTEP/pMKLixcD2wOqfjuwBysdQDTwqZpXgKnlsQ6VKxHxCFbmVQAguc43q7UZmRc+5XixUuTTFDu3DZmYoGaZ3bdpcqHK4q5Z+6ZryWJ6qEOCTYRqb8Bf9/WHcS0rS8lItZmhlvhYZUdAqmB00IuoD1P/52vU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HmeEcK6o; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H0usxsaN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HmeEcK6o"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717633252;
+	s=mimecast20190719; t=1717633348;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NE2ZSKPbjoZZ2kAv+hgjLqmfV3FjYbnLAtY/ism3HQw=;
-	b=H0usxsaN7jln7aptK6BSLIqLU43+p1kTF9NZWWcT9YBiZbPF3Tz6LJPjT1zkg4r33kKPfK
-	QE0gdgf57eEzYXslZBnqW5FFTQ/Z9kCOBkEK4a/3luO+reVIxHxObkW2nKxiGCPOAtnVx7
-	WmzqCiFLyw8BO4brV4ebyPdFu4Ff4uo=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=A3WnCdr7NGFNEC2Eyj9xh68M3W1rWWXkjJt9FXdJgiw=;
+	b=HmeEcK6oB7O8DJ0LEv6svpcgLWWhpAwRv4J5qe8lsA3/jKw30TqxwNlZ09JfdtlrZpHviZ
+	7n7EkGsbgClj7T1FgAoZAoEl678e6nsOkZYgt/la3DEN1t6UDqCXldI7/0s0Hr//MsSeFM
+	R7km6W8P70DCYHt+hYAFQEJbAz+9XFk=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-587-_jdGdzG3Nlq-tsRPHJ2jdg-1; Wed, 05 Jun 2024 20:20:51 -0400
-X-MC-Unique: _jdGdzG3Nlq-tsRPHJ2jdg-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2c241ee8fd5so352829a91.1
-        for <virtualization@lists.linux.dev>; Wed, 05 Jun 2024 17:20:51 -0700 (PDT)
+ us-mta-422-a_A2_NtuPn2p1DeDOmZtTw-1; Wed, 05 Jun 2024 20:22:26 -0400
+X-MC-Unique: a_A2_NtuPn2p1DeDOmZtTw-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-703f8e69279so287250b3a.1
+        for <virtualization@lists.linux.dev>; Wed, 05 Jun 2024 17:22:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717633250; x=1718238050;
+        d=1e100.net; s=20230601; t=1717633345; x=1718238145;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NE2ZSKPbjoZZ2kAv+hgjLqmfV3FjYbnLAtY/ism3HQw=;
-        b=uPGw+S3flHOoWKgC2Dja7TAhPuyrzj47OzLhWe9e7ZZ7W2R6fm+ksj0PAXDW/9jxqA
-         x2mDvxW5/dWXq2M1pey6D0EzDO+jcjY6tVMaAhhi/MAph8Ir/4piCMxOrnVuBfwqMzQh
-         NF8WWifvwrH7xFWHwMrIsEbnVDrxRngxOVoi2Ro7SRsubbNuTwYIqds3Qf9wJ3C5dJgp
-         /NilYfczOILFidZo0A/FqbVcaEiGcJxDVqwZ5CgOt6GVdKSZl6KGhjcV3xjfBsZI/cPi
-         AnbM4ebhqunPZLCGaVc2ZJpERxlVdXjBic5XPtNe8B/cdaEsgDybqS90piXLT9ZBe+Pz
-         KzsQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWHmTDJB4dPI+xSOgU56Va0bQ7ai2z5Vyr/yIXDE5e9xJz1NVbw2CeAl1UmmFcpPubLYKz/KXv+1O/rVOt/FLOrzISwYWsf2dL2ISvTSXA=
-X-Gm-Message-State: AOJu0YxpzMXTCm8XqkpMJob6aTRQkdqKGSXb3Pddp8lB7EjnA2O8WLfR
-	/grHGIBrVSU3sA9Hs6gXNh9sVVCE9zE7LJYTXzCc2Yxn8K9K5yO/54pF0V068Say9hCgNvSQ4fX
-	wOFtuGMp/Ld/B6L68PyH0JZiy5RQCqAkbRKyWvcxembegLIk51xfPyU5Z/3TEvWPmTtf0oEJwIC
-	8yxxr5vVZZLDiOuSyT3Q1m3OIDa6ViaUBpvhvln4Q=
-X-Received: by 2002:a17:90a:ba10:b0:2c2:9aa:3969 with SMTP id 98e67ed59e1d1-2c27db63beamr3589279a91.45.1717633250266;
-        Wed, 05 Jun 2024 17:20:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF+/6jAb4MCPQzpYUmm3uHkW83PLMoW579h8btCPs2vU09fvoId1684R5/Y4niItcO9ltsik/BhTRA7SkwBhp0=
-X-Received: by 2002:a17:90a:ba10:b0:2c2:9aa:3969 with SMTP id
- 98e67ed59e1d1-2c27db63beamr3589262a91.45.1717633249856; Wed, 05 Jun 2024
- 17:20:49 -0700 (PDT)
+        bh=A3WnCdr7NGFNEC2Eyj9xh68M3W1rWWXkjJt9FXdJgiw=;
+        b=DKoFGOue6Y7S7Cx7GJLO5uujVmC518Tyxg3WN4lLVozNmdXW5auIe+FnxxYl2Fmnmv
+         scA8zUXm9FxcNzEgZP/h3wmf6n6S4nan2dE0Lo4UBqyt0exMqxPS6eImB25OsMXG6R0j
+         P8gf/zf253qun2+nkZr/rwTc/bDYbA3ZVQy5/lOPonpY/7d2ZCnf42St431Y0/PKhail
+         weSkjvL7S+4P5qIwYYK1JAJDJuUUl+f2483BV4MLcwwuQvYpQRhUOePiF3MMHyxPzoLl
+         My/8WQ02VXLzaliev93/KBUvNE2W1QstJgm2DLYJKO/HbwnRfYJE3yTUDETBuhlEDCec
+         PDHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVU9QRLRvAh8aYRtUy1qAguMZiKdiZbPE8SKV4/xZ0xbWeM+iW3HTnbU4Wjqx+WTtDYq/nBKnOaIecTcKxjI99NwbezuEtRoM4sRe089Wo=
+X-Gm-Message-State: AOJu0YzWO5zJcH/s31iBxnF8bI6wQGBoV4d8gm23METR4h8cUAgrK20D
+	0hhQR/dXQc1so5C4iJo8kEoXTG9UZRhZTkLR3ncQcL/yKPJ3HzAqxDrNS96i3YTiV+FoIM6XBK+
+	zNfdR4iwzp6Jpvphsl05sR4BNK4d0BMVDK8OwvlyEu2i6YYLkJaLz5E+/1mU+Vw8NyD3dxddYVE
+	Z1XII6foM795GdnhADRQ3EQt3AxbtANwMzBvT9NQw=
+X-Received: by 2002:a05:6a20:7350:b0:1b2:b027:a305 with SMTP id adf61e73a8af0-1b2b6ff5aacmr4915760637.33.1717633345339;
+        Wed, 05 Jun 2024 17:22:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGnjAv7WzmQLTwGlWHL0Kk3HDaGP9LfjjTwlSo3xDTBix7n4S/u2CLmFnqs1iGFQDMOH2aET0IA34YjFOGpKIU=
+X-Received: by 2002:a05:6a20:7350:b0:1b2:b027:a305 with SMTP id
+ adf61e73a8af0-1b2b6ff5aacmr4915727637.33.1717633344499; Wed, 05 Jun 2024
+ 17:22:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240509114615.317450-1-jiri@resnulli.us> <1715325076.4219763-2-hengqi@linux.alibaba.com>
- <ZktGj4nDU4X0Lxtx@nanopsycho.orion> <ZmBMa7Am3LIYQw1x@nanopsycho.orion> <1717587768.1588957-5-hengqi@linux.alibaba.com>
-In-Reply-To: <1717587768.1588957-5-hengqi@linux.alibaba.com>
+References: <20240530032055.8036-1-jasowang@redhat.com> <20240530020531-mutt-send-email-mst@kernel.org>
+ <CACGkMEun-77fXbQ93H_GEC4=0_7CLq7iPtXSKe9Qriw-Qh1Tbw@mail.gmail.com>
+ <20240530090742-mutt-send-email-mst@kernel.org> <CACGkMEsYRCJ96=sja9pBo_mnPsp75Go6E-wmm=-QX0kaOu4RFQ@mail.gmail.com>
+In-Reply-To: <CACGkMEsYRCJ96=sja9pBo_mnPsp75Go6E-wmm=-QX0kaOu4RFQ@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 6 Jun 2024 08:20:38 +0800
-Message-ID: <CACGkMEsiosWxNCS=Jpb-H14b=-26UzPjw+sD3H21FwVh2ZTF5g@mail.gmail.com>
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: Jiri Pirko <jiri@resnulli.us>, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com, 
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, ast@kernel.org, 
-	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com, 
-	netdev@vger.kernel.org
+Date: Thu, 6 Jun 2024 08:22:13 +0800
+Message-ID: <CACGkMEu2vb8njbNHExWnDAG_pFjsLkYChgNerH4LAQ7pbYyEcg@mail.gmail.com>
+Subject: Re: [PATCH net-next V2] virtio-net: synchronize operstate with admin
+ state on up/down
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, 
+	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>, 
+	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 5, 2024 at 7:51=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> w=
-rote:
+On Fri, May 31, 2024 at 8:18=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
 >
-> On Wed, 5 Jun 2024 13:30:51 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
-> > Mon, May 20, 2024 at 02:48:15PM CEST, jiri@resnulli.us wrote:
-> > >Fri, May 10, 2024 at 09:11:16AM CEST, hengqi@linux.alibaba.com wrote:
-> > >>On Thu,  9 May 2024 13:46:15 +0200, Jiri Pirko <jiri@resnulli.us> wro=
-te:
-> > >>> From: Jiri Pirko <jiri@nvidia.com>
-> > >>>
-> > >>> Add support for Byte Queue Limits (BQL).
-> > >>
-> > >>Historically both Jason and Michael have attempted to support BQL
-> > >>for virtio-net, for example:
-> > >>
-> > >>https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@r=
-edhat.com/
-> > >>
-> > >>These discussions focus primarily on:
-> > >>
-> > >>1. BQL is based on napi tx. Therefore, the transfer of statistical in=
-formation
-> > >>needs to rely on the judgment of use_napi. When the napi mode is swit=
-ched to
-> > >>orphan, some statistical information will be lost, resulting in tempo=
-rary
-> > >>inaccuracy in BQL.
-> > >>
-> > >>2. If tx dim is supported, orphan mode may be removed and tx irq will=
- be more
-> > >>reasonable. This provides good support for BQL.
+> On Thu, May 30, 2024 at 9:09=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
+m> wrote:
+> >
+> > On Thu, May 30, 2024 at 06:29:51PM +0800, Jason Wang wrote:
+> > > On Thu, May 30, 2024 at 2:10=E2=80=AFPM Michael S. Tsirkin <mst@redha=
+t.com> wrote:
+> > > >
+> > > > On Thu, May 30, 2024 at 11:20:55AM +0800, Jason Wang wrote:
+> > > > > This patch synchronize operstate with admin state per RFC2863.
+> > > > >
+> > > > > This is done by trying to toggle the carrier upon open/close and
+> > > > > synchronize with the config change work. This allows propagate st=
+atus
+> > > > > correctly to stacked devices like:
+> > > > >
+> > > > > ip link add link enp0s3 macvlan0 type macvlan
+> > > > > ip link set link enp0s3 down
+> > > > > ip link show
+> > > > >
+> > > > > Before this patch:
+> > > > >
+> > > > > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state =
+DOWN mode DEFAULT group default qlen 1000
+> > > > >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> > > > > ......
+> > > > > 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu =
+1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+> > > > >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> > > > >
+> > > > > After this patch:
+> > > > >
+> > > > > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state =
+DOWN mode DEFAULT group default qlen 1000
+> > > > >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> > > > > ...
+> > > > > 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mt=
+u 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1=
+000
+> > > > >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> > > > >
+> > > > > Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+> > > > > Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+> > > > > Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > > ---
+> > > > > Changes since V1:
+> > > > > - rebase
+> > > > > - add ack/review tags
+> > > >
+> > > >
+> > > >
+> > > >
+> > > >
+> > > > > ---
+> > > > >  drivers/net/virtio_net.c | 94 +++++++++++++++++++++++++++-------=
+------
+> > > > >  1 file changed, 63 insertions(+), 31 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > > index 4a802c0ea2cb..69e4ae353c51 100644
+> > > > > --- a/drivers/net/virtio_net.c
+> > > > > +++ b/drivers/net/virtio_net.c
+> > > > > @@ -433,6 +433,12 @@ struct virtnet_info {
+> > > > >       /* The lock to synchronize the access to refill_enabled */
+> > > > >       spinlock_t refill_lock;
+> > > > >
+> > > > > +     /* Is config change enabled? */
+> > > > > +     bool config_change_enabled;
+> > > > > +
+> > > > > +     /* The lock to synchronize the access to config_change_enab=
+led */
+> > > > > +     spinlock_t config_change_lock;
+> > > > > +
+> > > > >       /* Work struct for config space updates */
+> > > > >       struct work_struct config_work;
+> > > > >
+> > > >
+> > > >
+> > > > But we already have dev->config_lock and dev->config_enabled.
+> > > >
+> > > > And it actually works better - instead of discarding config
+> > > > change events it defers them until enabled.
+> > > >
 > > >
-> > >But when the device does not support dim, the orphan mode is still
-> > >needed, isn't it?
+> > > Yes but then both virtio-net driver and virtio core can ask to enable
+> > > and disable and then we need some kind of synchronization which is
+> > > non-trivial.
 > >
-> > Heng, is my assuption correct here? Thanks!
+> > Well for core it happens on bring up path before driver works
+> > and later on tear down after it is gone.
+> > So I do not think they ever do it at the same time.
+>
+> For example, there could be a suspend/resume when the admin state is down=
+.
+>
 > >
+> >
+> > > And device enabling on the core is different from bringing the device
+> > > up in the networking subsystem. Here we just delay to deal with the
+> > > config change interrupt on ndo_open(). (E.g try to ack announce is
+> > > meaningless when the device is down).
+> > >
+> > > Thanks
+> >
+> > another thing is that it is better not to re-read all config
+> > on link up if there was no config interrupt - less vm exits.
 >
-> Maybe, according to our cloud data, napi_tx=3Don works better than orphan=
- mode in
-> most scenarios. Although orphan mode performs better in specific benckmar=
-k,
+> Yes, but it should not matter much as it's done in the ndo_open().
 
-For example pktgen (I meant even if the orphan mode can break pktgen,
-it can finish when there's a new packet that needs to be sent after
-pktgen is completed).
+Michael, any more comments on this?
 
-> perf of napi_tx can be enhanced through tx dim. Then, there is no reason =
-not to
-> support dim for devices that want the best performance.
-
-Ideally, if we can drop orphan mode, everything would be simplified.
-
->
-> Back to this patch set, I think BQL as a point that affects performance s=
-hould
-> deserve more comprehensive test data.
+Please confirm if this patch is ok or not. If you prefer to reuse the
+config_disable() I can change it from a boolean to a counter that
+allows to be nested.
 
 Thanks
 
 >
-> Thanks.
+> Thanks
 >
-> > >
-> > >>
-> > >>Thanks.
-> > >>
-> > >>>
-> > >>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> > >>> ---
-> > >>>  drivers/net/virtio_net.c | 33 ++++++++++++++++++++-------------
-> > >>>  1 file changed, 20 insertions(+), 13 deletions(-)
-> > >>>
-> > >>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > >>> index 218a446c4c27..c53d6dc6d332 100644
-> > >>> --- a/drivers/net/virtio_net.c
-> > >>> +++ b/drivers/net/virtio_net.c
-> > >>> @@ -84,7 +84,9 @@ struct virtnet_stat_desc {
-> > >>>
-> > >>>  struct virtnet_sq_free_stats {
-> > >>>   u64 packets;
-> > >>> + u64 xdp_packets;
-> > >>>   u64 bytes;
-> > >>> + u64 xdp_bytes;
-> > >>>  };
-> > >>>
-> > >>>  struct virtnet_sq_stats {
-> > >>> @@ -512,19 +514,19 @@ static void __free_old_xmit(struct send_queue=
- *sq, bool in_napi,
-> > >>>   void *ptr;
-> > >>>
-> > >>>   while ((ptr =3D virtqueue_get_buf(sq->vq, &len)) !=3D NULL) {
-> > >>> -         ++stats->packets;
-> > >>> -
-> > >>>           if (!is_xdp_frame(ptr)) {
-> > >>>                   struct sk_buff *skb =3D ptr;
-> > >>>
-> > >>>                   pr_debug("Sent skb %p\n", skb);
-> > >>>
-> > >>> +                 stats->packets++;
-> > >>>                   stats->bytes +=3D skb->len;
-> > >>>                   napi_consume_skb(skb, in_napi);
-> > >>>           } else {
-> > >>>                   struct xdp_frame *frame =3D ptr_to_xdp(ptr);
-> > >>>
-> > >>> -                 stats->bytes +=3D xdp_get_frame_len(frame);
-> > >>> +                 stats->xdp_packets++;
-> > >>> +                 stats->xdp_bytes +=3D xdp_get_frame_len(frame);
-> > >>>                   xdp_return_frame(frame);
-> > >>>           }
-> > >>>   }
-> > >>> @@ -965,7 +967,8 @@ static void virtnet_rq_unmap_free_buf(struct vi=
-rtqueue *vq, void *buf)
-> > >>>   virtnet_rq_free_buf(vi, rq, buf);
-> > >>>  }
-> > >>>
-> > >>> -static void free_old_xmit(struct send_queue *sq, bool in_napi)
-> > >>> +static void free_old_xmit(struct send_queue *sq, struct netdev_que=
-ue *txq,
-> > >>> +                   bool in_napi)
-> > >>>  {
-> > >>>   struct virtnet_sq_free_stats stats =3D {0};
-> > >>>
-> > >>> @@ -974,9 +977,11 @@ static void free_old_xmit(struct send_queue *s=
-q, bool in_napi)
-> > >>>   /* Avoid overhead when no packets have been processed
-> > >>>    * happens when called speculatively from start_xmit.
-> > >>>    */
-> > >>> - if (!stats.packets)
-> > >>> + if (!stats.packets && !stats.xdp_packets)
-> > >>>           return;
-> > >>>
-> > >>> + netdev_tx_completed_queue(txq, stats.packets, stats.bytes);
-> > >>> +
-> > >>>   u64_stats_update_begin(&sq->stats.syncp);
-> > >>>   u64_stats_add(&sq->stats.bytes, stats.bytes);
-> > >>>   u64_stats_add(&sq->stats.packets, stats.packets);
-> > >>> @@ -1013,13 +1018,15 @@ static void check_sq_full_and_disable(struc=
-t virtnet_info *vi,
-> > >>>    * early means 16 slots are typically wasted.
-> > >>>    */
-> > >>>   if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
-> > >>> -         netif_stop_subqueue(dev, qnum);
-> > >>> +         struct netdev_queue *txq =3D netdev_get_tx_queue(dev, qnu=
-m);
-> > >>> +
-> > >>> +         netif_tx_stop_queue(txq);
-> > >>>           if (use_napi) {
-> > >>>                   if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)=
-))
-> > >>>                           virtqueue_napi_schedule(&sq->napi, sq->vq=
-);
-> > >>>           } else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))=
-) {
-> > >>>                   /* More just got used, free them then recheck. */
-> > >>> -                 free_old_xmit(sq, false);
-> > >>> +                 free_old_xmit(sq, txq, false);
-> > >>>                   if (sq->vq->num_free >=3D 2+MAX_SKB_FRAGS) {
-> > >>>                           netif_start_subqueue(dev, qnum);
-> > >>>                           virtqueue_disable_cb(sq->vq);
-> > >>> @@ -2319,7 +2326,7 @@ static void virtnet_poll_cleantx(struct recei=
-ve_queue *rq)
-> > >>>
-> > >>>           do {
-> > >>>                   virtqueue_disable_cb(sq->vq);
-> > >>> -                 free_old_xmit(sq, true);
-> > >>> +                 free_old_xmit(sq, txq, true);
-> > >>>           } while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> > >>>
-> > >>>           if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS)
-> > >>> @@ -2471,7 +2478,7 @@ static int virtnet_poll_tx(struct napi_struct=
- *napi, int budget)
-> > >>>   txq =3D netdev_get_tx_queue(vi->dev, index);
-> > >>>   __netif_tx_lock(txq, raw_smp_processor_id());
-> > >>>   virtqueue_disable_cb(sq->vq);
-> > >>> - free_old_xmit(sq, true);
-> > >>> + free_old_xmit(sq, txq, true);
-> > >>>
-> > >>>   if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS)
-> > >>>           netif_tx_wake_queue(txq);
-> > >>> @@ -2553,7 +2560,7 @@ static netdev_tx_t start_xmit(struct sk_buff =
-*skb, struct net_device *dev)
-> > >>>   struct send_queue *sq =3D &vi->sq[qnum];
-> > >>>   int err;
-> > >>>   struct netdev_queue *txq =3D netdev_get_tx_queue(dev, qnum);
-> > >>> - bool kick =3D !netdev_xmit_more();
-> > >>> + bool xmit_more =3D netdev_xmit_more();
-> > >>>   bool use_napi =3D sq->napi.weight;
-> > >>>
-> > >>>   /* Free up any pending old buffers before queueing new ones. */
-> > >>> @@ -2561,9 +2568,9 @@ static netdev_tx_t start_xmit(struct sk_buff =
-*skb, struct net_device *dev)
-> > >>>           if (use_napi)
-> > >>>                   virtqueue_disable_cb(sq->vq);
-> > >>>
-> > >>> -         free_old_xmit(sq, false);
-> > >>> +         free_old_xmit(sq, txq, false);
-> > >>>
-> > >>> - } while (use_napi && kick &&
-> > >>> + } while (use_napi && !xmit_more &&
-> > >>>          unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> > >>>
-> > >>>   /* timestamp packet in software */
-> > >>> @@ -2592,7 +2599,7 @@ static netdev_tx_t start_xmit(struct sk_buff =
-*skb, struct net_device *dev)
-> > >>>
-> > >>>   check_sq_full_and_disable(vi, dev, sq);
-> > >>>
-> > >>> - if (kick || netif_xmit_stopped(txq)) {
-> > >>> + if (__netdev_tx_sent_queue(txq, skb->len, xmit_more)) {
-> > >>>           if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq=
-->vq)) {
-> > >>>                   u64_stats_update_begin(&sq->stats.syncp);
-> > >>>                   u64_stats_inc(&sq->stats.kicks);
-> > >>> --
-> > >>> 2.44.0
-> > >>>
-> > >>>
->
+> >
+> > --
+> > MST
+> >
 
