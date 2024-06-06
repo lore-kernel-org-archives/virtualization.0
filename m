@@ -1,143 +1,201 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C55B217E46A
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 09:49:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59E9C13C673;
+	Thu,  6 Jun 2024 10:26:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717667392; cv=none; b=FiNo8YsH1JXltxG99Iu5LUF5p3mBSQFCUAbHJYRKLHqaLmXXzhFNLawdEsM8bXu1d1MRQrE4XuC6Cw3VJsGP+4GOaSeFToLKXWPg75lDsywXgad2qTx4BS43kAfkwIxJ6k/m1aiK7xUr4HIEVZxyErU92dIUjpCgN+pHKWhjAQ4=
+	t=1717669572; cv=none; b=TljD5nbk+mynPIclg1msMuTIsqzZZCbwg2yHCY5/ytJd0K8+r2UdF9YyB6o8ZkByJnwsq15QOEdu5qenco8J9IWoU4ydqf5i9ZDif+EJz1ZQlHZFmt6fgEfk9mTrqC+TaOidB3Ruqhh7TTCJA5FO/Qil56pLa93RpkkC2+i5cr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717667392; c=relaxed/simple;
-	bh=+s+yhOwg79j75o8WoByyWhf+YyJpWwFPenJ7DA7VLW0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WojH4s7Rcc7zRmIytGB1ZqtmGln7g7ks4Ef8qZGGDUu4vdLKub79Pdm/OZfskxM0LLa54Pw4ksXyTRKbc6QJ09Ohnh7aCH9G0gpGiyJ4a8DLKPZ9uuAJsUFT0N+jI1GEBjJ1AdxF480VvUrIcBPq/bXGaOOgyoFRg7/IEibjQWs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4Xc6vXN1; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1717669572; c=relaxed/simple;
+	bh=XtmlM9TlqX08cpeM2q1IwikRYJEqGVTehuNCWzJukak=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WBtwbo/UgRcp60XlGf5Lp9UCQ8qG00Brer/vFrXYjUXa7ZF70IUcMVvrxpwn7cN5NYb+y9eMjh1bjQjm4EJmKCVC3xiDAtQelhgr41TU752Rm4IXRLqwWV623TYWh4uO3IAptD1HSeYxBVRziy5i4BbJ3fPkW1ddjPt4x1izKHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f5LlIQAc; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4Xc6vXN1"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 62689607AD
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 09:49:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -17.601
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id inG5MBA-JKmo for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Jun 2024 09:49:50 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::f2b; helo=mail-qv1-xf2b.google.com; envelope-from=glider@google.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 6EE09605EA
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=google.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6EE09605EA
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=4Xc6vXN1
-Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6EE09605EA
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 09:49:50 +0000 (UTC)
-Received: by mail-qv1-xf2b.google.com with SMTP id 6a1803df08f44-6ae2e6dba36so4063836d6.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 06 Jun 2024 02:49:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1717667389; x=1718272189; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=W5dL381WobNig2njEknAbaM2t6txWWIRtjrYV1jJVaM=;
-        b=4Xc6vXN1wYgc2+adWe/cuKBkYUQ6FOVTJPI6YjK9MIIdg/hLSO+nyd3oI1SMTefZV6
-         koK3BUQxeLo6J59bz96e6UN/g8Y5ci0z9vHsSgihgfG/UJ57VgY//oBu7PGsETgaFEL9
-         aZy15JYXn5VkuTSAMGKL4DcOKEjoNb2t2KPzxEJ0pQzkVTKYZyNqPlhTq3ErBrf1Eaag
-         G5TQ2lQg9eWdGEIAoxVn9paBwYcXrFfBG9U1cc+WaD0ygdFkUKzISy9S/pNsJeeJW6NA
-         JIOi04mLCx4oERYmCNvCZhMAD4VJFrJvmXHzyPydgdWw49uWmCenoNTvmfjZv3WxOhWz
-         eezA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717667389; x=1718272189;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=W5dL381WobNig2njEknAbaM2t6txWWIRtjrYV1jJVaM=;
-        b=jqz0Od19gdlusEnGFa+pH6lVHJibLafRNl7y3aswdOjEO8u3CwCVP0InTehuw4UpTJ
-         xXfEGgoPj2WKI3KvYgBy/LsCfc9HOpMPECMVXi+qwbWzha3iDyKIHCM2bcKXS8MTzMwz
-         exYzG979GCQm1eztD8CDErxfOzgUY0ps2Mm7JqjUhJUmDNq60rubYzGLVKa/KigZL0jg
-         zMnEgSJprs/C3SV4wDA5jQT0jvc4Q7Cwy0sIxjXI56lbSv8hi/9QToKGftOi9Xpfs2Pc
-         6Kkgq4VHlFzyGav5A1RV4ArfyzKLvAneNeVDwXHna6iJktCfgXLFSW/FKZql7J/yWyCR
-         2tfw==
-X-Forwarded-Encrypted: i=1; AJvYcCXAG4crPauwv7XdZzB039O41iyeH7V/ahmD/4rXMVto2YYuY4oAEFwVS7erZYmCOYZvi0PvDFG1WTiP7Q7h339JXPnCLVJWbEAisM69osJGCUfjW7kqWCf+bw==
-X-Gm-Message-State: AOJu0YznL6TsPSYWjJJW3A0g1ryM8MOe4WH0b3RT0hNNzmLfyLvW/vob
-	OrlPX5vO0D47ZaUKXSra+VpdOHJcwvPk4EKWhVKgyriJXXcqH60fMd2MEVLYcUPwbPrkJ/gmV+m
-	gdVYtGjn82iULEDisvlHu+LDwGoivgAbiqPMC
-X-Google-Smtp-Source: AGHT+IGSavWspcAP+9gFMHHK5+xZQBSdefZIDFgx0Jb2MuNzkoSE1fUwptT3XiTbAuOpSImCAU9XqTknjXm91l63MJU=
-X-Received: by 2002:a05:6214:5f01:b0:6ae:cec8:be38 with SMTP id
- 6a1803df08f44-6b020321366mr63489686d6.5.1717667388916; Thu, 06 Jun 2024
- 02:49:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f5LlIQAc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1717669571; x=1749205571;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=XtmlM9TlqX08cpeM2q1IwikRYJEqGVTehuNCWzJukak=;
+  b=f5LlIQAcOzXoRedCb4E9uYdEuXnosA8RGgQMkhajJAi+lLE6LzE54iq9
+   Z+l7aoTeKlZQ3Zb1c0KkMKJMUbXsD4fHMiYH2FyNu7dYYPnBn0b9Wd++k
+   AwQigMJKHN/6J9DmkvEHtGKnyorb1/HL9OiXt25rPR9CmfFYmeWCS0W4B
+   cQKlzwx/PS8fryBUwa/n2UEXUZsff5K6OukLkfIlwqtL5GdABQgIysLd3
+   Yo3jKsOWp+6suN7LjMkJqaQr37N6RDAe90BrMGRZR7kOcx5TkLteqpYSj
+   hE1mNMLeccYmF4+kORq16GWixLXqb/40QmucO0QHD3+FZXvqvbHRp4Idx
+   Q==;
+X-CSE-ConnectionGUID: 6Dpv+8T3Rh6/SjvsxAagvg==
+X-CSE-MsgGUID: jfolwBPwSi+zEeq6pWqwsw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11094"; a="24960729"
+X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
+   d="scan'208";a="24960729"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2024 03:26:05 -0700
+X-CSE-ConnectionGUID: tNcXLHLNQhWdQ1Z8gJpGvQ==
+X-CSE-MsgGUID: JyJrvGNhT1SP9xWkJNur6g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
+   d="scan'208";a="37985146"
+Received: from unknown (HELO 0610945e7d16) ([10.239.97.151])
+  by orviesa009.jf.intel.com with ESMTP; 06 Jun 2024 03:26:02 -0700
+Received: from kbuild by 0610945e7d16 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sFAJj-0002yo-03;
+	Thu, 06 Jun 2024 10:25:59 +0000
+Date: Thu, 6 Jun 2024 18:25:04 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH net-next v3 4/4] virtio_net: improve dim command request
+ efficiency
+Message-ID: <202406061803.R48FH9c8-lkp@intel.com>
+References: <20240606061446.127802-5-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
- <20230810123057.43407-5-xuanzhuo@linux.alibaba.com> <0b726a75574ad98200b815f173e59a5378e9df04.camel@linux.ibm.com>
- <1717644183.6895547-1-xuanzhuo@linux.alibaba.com> <CAG_fn=UsqAhH57s08+prkj2iJshhxuLznzDNft4dPXHKX9V72Q@mail.gmail.com>
- <1717662283.8634596-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1717662283.8634596-1-xuanzhuo@linux.alibaba.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Thu, 6 Jun 2024 11:49:07 +0200
-Message-ID: <CAG_fn=WwijXza_xufVNpBMo79Nh6uysV4MyWt_T264Pji3gA7g@mail.gmail.com>
-Subject: Re: [PATCH vhost v13 04/12] virtio_ring: support add premapped buf
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, netdev@vger.kernel.org, bpf@vger.kernel.org, 
-	Christoph Hellwig <hch@infradead.org>, virtualization@lists.linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240606061446.127802-5-hengqi@linux.alibaba.com>
 
-On Thu, Jun 6, 2024 at 10:27=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> On Thu, 6 Jun 2024 10:20:21 +0200, Alexander Potapenko <glider@google.com=
-> wrote:
-> > > Could you try this?
-> >
-> > Hi Xuan,
-> >
-> > What kernel revision does this patch apply to? I tried it against
-> > v6.10-rc2, and only the first hunk applied.
-> > However this seems to fix the problem, at least the kernel boots withou=
-t
-> > warnings now.
->
->
-> Sorry, I have some changes locally.
->
-> If the hunk #1 is applied, then it is ok.
->
-> Do you think we need more test? Or I post an new patch directly.
+Hi Heng,
 
-I think we're good to go (just double-checked that). Assuming you're
-sending the following patch:
+kernel test robot noticed the following build warnings:
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 2a972752ff1bc..9d3a9942c8c82 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -3121,8 +3121,10 @@ dma_addr_t
-virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr,
- {
-        struct vring_virtqueue *vq =3D to_vvq(_vq);
+[auto build test WARNING on net-next/main]
 
--       if (!vq->use_dma_api)
-+       if (!vq->use_dma_api) {
-+               kmsan_handle_dma(virt_to_page(ptr),
-offset_in_page(ptr), size, dir);
-                return (dma_addr_t)virt_to_phys(ptr);
-+       }
+url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio_net-passing-control_buf-explicitly/20240606-141748
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20240606061446.127802-5-hengqi%40linux.alibaba.com
+patch subject: [PATCH net-next v3 4/4] virtio_net: improve dim command request efficiency
+config: riscv-defconfig (https://download.01.org/0day-ci/archive/20240606/202406061803.R48FH9c8-lkp@intel.com/config)
+compiler: clang version 19.0.0git (https://github.com/llvm/llvm-project d7d2d4f53fc79b4b58e8d8d08151b577c3699d4a)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240606/202406061803.R48FH9c8-lkp@intel.com/reproduce)
 
-        return dma_map_single_attrs(vring_dma_dev(vq), ptr, size, dir, attr=
-s);
- }
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202406061803.R48FH9c8-lkp@intel.com/
 
-, feel free to add:
+All warnings (new ones prefixed by >>):
 
-Tested-by: Alexander Potapenko <glider@google.com>
+   In file included from drivers/net/virtio_net.c:7:
+   In file included from include/linux/netdevice.h:38:
+   In file included from include/net/net_namespace.h:43:
+   In file included from include/linux/skbuff.h:17:
+   In file included from include/linux/bvec.h:10:
+   In file included from include/linux/highmem.h:8:
+   In file included from include/linux/cacheflush.h:5:
+   In file included from arch/riscv/include/asm/cacheflush.h:9:
+   In file included from include/linux/mm.h:2253:
+   include/linux/vmstat.h:514:36: warning: arithmetic between different enumeration types ('enum node_stat_item' and 'enum lru_list') [-Wenum-enum-conversion]
+     514 |         return node_stat_name(NR_LRU_BASE + lru) + 3; // skip "nr_"
+         |                               ~~~~~~~~~~~ ^ ~~~
+>> drivers/net/virtio_net.c:2844:3: warning: add explicit braces to avoid dangling else [-Wdangling-else]
+    2844 |                 else
+         |                 ^
+   2 warnings generated.
+
+
+vim +2844 drivers/net/virtio_net.c
+
+  2813	
+  2814	static void virtnet_get_cvq_work(struct work_struct *work)
+  2815	{
+  2816		struct virtnet_info *vi =
+  2817			container_of(work, struct virtnet_info, get_cvq);
+  2818		struct virtnet_coal_node *wait_coal;
+  2819		bool valid = false;
+  2820		unsigned int tmp;
+  2821		void *res;
+  2822	
+  2823		mutex_lock(&vi->cvq_lock);
+  2824		while ((res = virtqueue_get_buf(vi->cvq, &tmp)) != NULL) {
+  2825			complete((struct completion *)res);
+  2826			valid = true;
+  2827		}
+  2828		mutex_unlock(&vi->cvq_lock);
+  2829	
+  2830		if (!valid)
+  2831			return;
+  2832	
+  2833		while (true) {
+  2834			wait_coal = NULL;
+  2835			mutex_lock(&vi->coal_wait_lock);
+  2836			if (!list_empty(&vi->coal_wait_list))
+  2837				wait_coal = list_first_entry(&vi->coal_wait_list,
+  2838							     struct virtnet_coal_node,
+  2839							     list);
+  2840			mutex_unlock(&vi->coal_wait_lock);
+  2841			if (wait_coal)
+  2842				if (virtnet_add_dim_command(vi, wait_coal))
+  2843					break;
+> 2844			else
+  2845				break;
+  2846		}
+  2847	}
+  2848	static int virtnet_set_mac_address(struct net_device *dev, void *p)
+  2849	{
+  2850		struct virtnet_info *vi = netdev_priv(dev);
+  2851		struct virtio_device *vdev = vi->vdev;
+  2852		int ret;
+  2853		struct sockaddr *addr;
+  2854		struct scatterlist sg;
+  2855	
+  2856		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STANDBY))
+  2857			return -EOPNOTSUPP;
+  2858	
+  2859		addr = kmemdup(p, sizeof(*addr), GFP_KERNEL);
+  2860		if (!addr)
+  2861			return -ENOMEM;
+  2862	
+  2863		ret = eth_prepare_mac_addr_change(dev, addr);
+  2864		if (ret)
+  2865			goto out;
+  2866	
+  2867		if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+  2868			sg_init_one(&sg, addr->sa_data, dev->addr_len);
+  2869			if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+  2870						  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
+  2871				dev_warn(&vdev->dev,
+  2872					 "Failed to set mac address by vq command.\n");
+  2873				ret = -EINVAL;
+  2874				goto out;
+  2875			}
+  2876		} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
+  2877			   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+  2878			unsigned int i;
+  2879	
+  2880			/* Naturally, this has an atomicity problem. */
+  2881			for (i = 0; i < dev->addr_len; i++)
+  2882				virtio_cwrite8(vdev,
+  2883					       offsetof(struct virtio_net_config, mac) +
+  2884					       i, addr->sa_data[i]);
+  2885		}
+  2886	
+  2887		eth_commit_mac_addr_change(dev, p);
+  2888		ret = 0;
+  2889	
+  2890	out:
+  2891		kfree(addr);
+  2892		return ret;
+  2893	}
+  2894	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
