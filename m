@@ -1,172 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E66A19D88B
-	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 04:25:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 293F838384
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 05:35:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717647939; cv=none; b=dgGEh7AItGFGDehc+42Iow3jTm82FfkmS+qSDkWO1iDFN6aWiq3BRgZ1PgZiixbggFcVpViIeyAA3m/sjv/psOEggZxzl7sYioz2xCiHOaHewJ+lAmJNkWlRaVAi5id+yK3lQyjSwV4C6cGa8q7mpzn7RRqb3Ive1sqYqx30YRI=
+	t=1717652147; cv=none; b=G0gxuFpAn8EVXSLu9V8XrOFsUo9fZBAexALBlxmy5XzBGJWfdkEEy79369yKjro8aEOf+PxwQeNIqQ7o5QYFwb2Q5DS8G7LlTugDgRT9tQehy+zROpZ0JGeerCqqtY3pdbySX8jXFvz454yqfCvvCJVXmviXlBn8lTBVI4Yu6r8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717647939; c=relaxed/simple;
-	bh=DSfi+Biq2aW0cJ8wkedaa3lAHKHIQt7QcVEkTfIDKj4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=I8oqSR+F1B9zvtwCRM6dM0I4hbenyEb5kCHiFutJwxoYXXXPU0/RhSS2aXN7KyfdsEFgxIslPCv2lJX29Ds9hRQvTA8a1qgN99WuoUUqq5T8c1RP4ZY8rAvLV1wkYVE7u4J5YoWwbgilXpS6aCAw30mHaTFOawGl9kji6W7v4zk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dgXFManR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717652147; c=relaxed/simple;
+	bh=InCQzcleHQrhQdMJPefCKWuAUYL7XdU2W+O2UOMCf1o=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=KPkVwLim3bFc4dh2a40wYrogDNIMygKc2E+wo6i53BxtQAOfLGptdvl2xBV5u7xm5J/fDVrTyFGk7ZKdyO4T+6pBLarPTtSM/b9XXOhnQEGZ36YltG1eMjLZlCYdQMLmk+3RzGl74r1Jg570x9xuuc5ECEg+7hJKJk8dO/8HjGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OaVleXGk; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dgXFManR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717647936;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wSBCfrMFxIEimCoVPLYQ8l0DHjemGsXczcA6kmz3O+M=;
-	b=dgXFManR11WL9gt+kz6jn+hITCOxdUORNWUjD5vaWqSnjaeI7ARxDp4HmI2jWszgkZ56tR
-	ZcYuXIKwWvn3P8YbSwZUdAGMnAuaK2mVHQTUNCb/AqTOvvEFbNbd4qVCZ5nOdedi7vVDFS
-	iXu1WTYZQkZg+BE/9oRL7Ca6eR6ia7I=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-546-LoeYZOIqN5SxCSUMu1COog-1; Thu, 06 Jun 2024 00:25:30 -0400
-X-MC-Unique: LoeYZOIqN5SxCSUMu1COog-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-70256c09ec7so576239b3a.1
-        for <virtualization@lists.linux.dev>; Wed, 05 Jun 2024 21:25:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717647930; x=1718252730;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wSBCfrMFxIEimCoVPLYQ8l0DHjemGsXczcA6kmz3O+M=;
-        b=laqqHvzYFudD8qbS62FSq7lFDNK/WPqkUz6sM2kQiTen/9C0r8phL4HBWrQd1v9SBD
-         JV2DwvimFEFIp54EfPMaENlNXu/pz4zTOmJzQBGK2rH+LMnpooi6XLlHkwHM5VWdr4Y2
-         Km5DtTQxz9twjyLnOZPPRzPvFSqEGDA00xAV1hySNVjpg/ziJXXNhtHNr+z61o+v3I/Y
-         iuEI4kRAnLi1dZxUqx2Sr94NFRULCBgXG6QbICdfwr6vUHmGIus44p6hU6wk6BwVIsE1
-         y8PwPlnlNm2E/H0F/FSGG9SCiAgWPWAVwqDMBjOy0Gc/oW6eP3/reTK99x3etqiJguWe
-         CE6A==
-X-Forwarded-Encrypted: i=1; AJvYcCXMbMjf6vXEr49sdVjUB30+CcyA1DqhrJJUD4EQA6fJYoXT7Oakx6Hdp9EkVhH4UJlFFD9mCV8xugcGdLwdwQuQHgY8f3M4nDofjMfT8Fc=
-X-Gm-Message-State: AOJu0YzEx7pPGk0lZ48nVzlsHtNFOJa4pol6pC4LN6jO0j62JPFvsWug
-	6/CihdzbarsdQva7JPhAfljsOKUp/N6gZzYzO/RnlHDhKVpsl9+MdGkXugoJFa6jSgBwCIQIOu2
-	/DSX/Q6vAhu3Bm9YKF19suObbhBx87d6G1hfGrmAiDoDsKr/GZG/CkGNaDWtVeuEsTb8fKC4lFh
-	K77ewNAYDm55rYUSmqQX0mj9SryOYFYNjaXjYCvSY=
-X-Received: by 2002:a05:6a20:9686:b0:1a7:60d8:a6dd with SMTP id adf61e73a8af0-1b2b716eb94mr4390027637.53.1717647929566;
-        Wed, 05 Jun 2024 21:25:29 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHDUBe4Da26OmuDzxSJzfrOdRkfFw3X1ifGh/dMSB126LV+1Q/igGAVX2Gw+AdW7T2YmDPz0ADUvXcg9PgWyww=
-X-Received: by 2002:a05:6a20:9686:b0:1a7:60d8:a6dd with SMTP id
- adf61e73a8af0-1b2b716eb94mr4390008637.53.1717647929136; Wed, 05 Jun 2024
- 21:25:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OaVleXGk"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 975BB84880
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 05:35:45 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id IzQffRKlykdt for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Jun 2024 05:35:43 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 6C8AE8487C
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6C8AE8487C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=OaVleXGk
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6C8AE8487C
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 05:35:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1717652143; x=1749188143;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=InCQzcleHQrhQdMJPefCKWuAUYL7XdU2W+O2UOMCf1o=;
+  b=OaVleXGkuxKF2kIkS5Rj1iI9KYjFhIEj+Ba7GDJIvB2vl93yQBfG0J8y
+   FV2iyV3X6s8lbUgNZHzgTTxwE5gH3/2tCgdnpWZ1Q71Q9TGXcCD/0m9xQ
+   vCmPEssTlh1yjS6jDH0DhxIDldYExLQpUuxsYu/3aC8gTptJBpZ5HForv
+   lmDSCiQDVzTYpiygr5TjJcSOTDS/kh+eyEmqQZrjCpp2TEthEJ4sZhDGY
+   8O/S42gxjDwcC740Ce5Z12jzxjuRHiW+4t5eIBt8RtePCB4aGKewiYGKQ
+   fdB9Jm0MyIfwC/yMTask9WOKpGHY1dm6jp7yxlQECqVb5GMROBC3e7uU6
+   w==;
+X-CSE-ConnectionGUID: 4uqhEy9gSZOGMmmrvLC6vA==
+X-CSE-MsgGUID: i78aKRSYTXWf36oIMyD8dg==
+X-IronPort-AV: E=McAfee;i="6600,9927,11094"; a="14136533"
+X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
+   d="scan'208";a="14136533"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jun 2024 22:35:42 -0700
+X-CSE-ConnectionGUID: 7WWfxiLaQamFNN8Wrip2bQ==
+X-CSE-MsgGUID: 32paJY4dQeO+RRptTXFT9g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
+   d="scan'208";a="42940006"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa004.jf.intel.com with ESMTP; 05 Jun 2024 22:35:39 -0700
+Message-ID: <ae7c05b0-104e-4c71-99aa-fed2a4f209fb@linux.intel.com>
+Date: Thu, 6 Jun 2024 13:33:29 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240509114615.317450-1-jiri@resnulli.us> <1715325076.4219763-2-hengqi@linux.alibaba.com>
- <ZktGj4nDU4X0Lxtx@nanopsycho.orion> <ZmBMa7Am3LIYQw1x@nanopsycho.orion>
- <1717587768.1588957-5-hengqi@linux.alibaba.com> <CACGkMEsiosWxNCS=Jpb-H14b=-26UzPjw+sD3H21FwVh2ZTF5g@mail.gmail.com>
- <CAL+tcoB8y6ctDO4Ph8WM-19qAoNMcYTVWLKRqsJYYrmW9q41=w@mail.gmail.com>
-In-Reply-To: <CAL+tcoB8y6ctDO4Ph8WM-19qAoNMcYTVWLKRqsJYYrmW9q41=w@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 6 Jun 2024 12:25:15 +0800
-Message-ID: <CACGkMEvh6nKfFMp5fb6tbijrs88vgSofCNkwN1UzKHnf6RqURg@mail.gmail.com>
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-To: Jason Xing <kerneljasonxing@gmail.com>
-Cc: Heng Qi <hengqi@linux.alibaba.com>, Jiri Pirko <jiri@resnulli.us>, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, mst@redhat.com, 
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, ast@kernel.org, 
-	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, "iommu@lists.linux.dev"
+ <iommu@lists.linux.dev>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v6 01/10] iommu: Introduce domain attachment handle
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>
+References: <20240527040517.38561-1-baolu.lu@linux.intel.com>
+ <20240527040517.38561-2-baolu.lu@linux.intel.com>
+ <BN9PR11MB52767B3B1F441D9AA656AC258CF92@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <BN9PR11MB52767B3B1F441D9AA656AC258CF92@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jun 6, 2024 at 10:59=E2=80=AFAM Jason Xing <kerneljasonxing@gmail.c=
-om> wrote:
->
-> Hello Jason,
->
-> On Thu, Jun 6, 2024 at 8:21=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > On Wed, Jun 5, 2024 at 7:51=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.co=
-m> wrote:
-> > >
-> > > On Wed, 5 Jun 2024 13:30:51 +0200, Jiri Pirko <jiri@resnulli.us> wrot=
-e:
-> > > > Mon, May 20, 2024 at 02:48:15PM CEST, jiri@resnulli.us wrote:
-> > > > >Fri, May 10, 2024 at 09:11:16AM CEST, hengqi@linux.alibaba.com wro=
-te:
-> > > > >>On Thu,  9 May 2024 13:46:15 +0200, Jiri Pirko <jiri@resnulli.us>=
- wrote:
-> > > > >>> From: Jiri Pirko <jiri@nvidia.com>
-> > > > >>>
-> > > > >>> Add support for Byte Queue Limits (BQL).
-> > > > >>
-> > > > >>Historically both Jason and Michael have attempted to support BQL
-> > > > >>for virtio-net, for example:
-> > > > >>
-> > > > >>https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1b=
-c3@redhat.com/
-> > > > >>
-> > > > >>These discussions focus primarily on:
-> > > > >>
-> > > > >>1. BQL is based on napi tx. Therefore, the transfer of statistica=
-l information
-> > > > >>needs to rely on the judgment of use_napi. When the napi mode is =
-switched to
-> > > > >>orphan, some statistical information will be lost, resulting in t=
-emporary
-> > > > >>inaccuracy in BQL.
-> > > > >>
-> > > > >>2. If tx dim is supported, orphan mode may be removed and tx irq =
-will be more
-> > > > >>reasonable. This provides good support for BQL.
-> > > > >
-> > > > >But when the device does not support dim, the orphan mode is still
-> > > > >needed, isn't it?
-> > > >
-> > > > Heng, is my assuption correct here? Thanks!
-> > > >
-> > >
-> > > Maybe, according to our cloud data, napi_tx=3Don works better than or=
-phan mode in
-> > > most scenarios. Although orphan mode performs better in specific benc=
-kmark,
-> >
-> > For example pktgen (I meant even if the orphan mode can break pktgen,
-> > it can finish when there's a new packet that needs to be sent after
-> > pktgen is completed).
-> >
-> > > perf of napi_tx can be enhanced through tx dim. Then, there is no rea=
-son not to
-> > > support dim for devices that want the best performance.
-> >
-> > Ideally, if we can drop orphan mode, everything would be simplified.
->
-> Please please don't do this. Orphan mode still has its merits. In some
-> cases which can hardly be reproduced in production, we still choose to
-> turn off the napi_tx mode because the delay of freeing a skb could
-> cause lower performance in the tx path,
+On 6/5/24 4:02 PM, Tian, Kevin wrote:
+>> From: Lu Baolu <baolu.lu@linux.intel.com>
+>> Sent: Monday, May 27, 2024 12:05 PM
+>>
+>> @@ -99,7 +99,9 @@ struct iommu_sva *iommu_sva_bind_device(struct device
+>> *dev, struct mm_struct *mm
+>>
+>>   	/* Search for an existing domain. */
+>>   	list_for_each_entry(domain, &mm->iommu_mm->sva_domains, next) {
+>> -		ret = iommu_attach_device_pasid(domain, dev, iommu_mm-
+>>> pasid);
+>> +		handle->handle.domain = domain;
+>> +		ret = iommu_attach_device_pasid(domain, dev, iommu_mm-
+>>> pasid,
+>> +						&handle->handle);
+> 
+> move the setting of handle.domain into the helper?
 
-Well, it's probably just a side effect and it depends on how to define
-performance here.
+Yes.
 
-> which is, I know, surely
-> designed on purpose.
+> 
+>> @@ -3382,11 +3383,9 @@ int iommu_attach_device_pasid(struct
+>> iommu_domain *domain,
+>>   		}
+>>   	}
+>>
+>> -	curr = xa_cmpxchg(&group->pasid_array, pasid, NULL, domain,
+>> GFP_KERNEL);
+>> -	if (curr) {
+>> -		ret = xa_err(curr) ? : -EBUSY;
+>> +	ret = xa_insert(&group->pasid_array, pasid, handle, GFP_KERNEL);
+>> +	if (ret)
+>>   		goto out_unlock;
+>> -	}
+> 
+> this leads to a slightly different implication comparing to the old code.
+> 
+> the domain pointer was always tracked in the old code but now the handle
+> is optional.
+> 
+> if iommu core only needs to know whether a pasid has been attached (as
+> in this helper), it still works as xa_insert() will mark the entry as reserved
+> if handle==NULL and next xa_insert() at the same index will fail due to
+> the entry being reserved.
+> 
+> But if certain path (other than iopf) in the iommu core needs to know
+> the exact domain pointer then this change breaks it.
 
-I don't think so and no modern NIC uses that. It breaks a lot of things.
+The iommu core should not fetch the domain pointer in paths other than
+attach/detach/replace. There is currently no reference counter for an
+iommu domain, hence fetching the domain for other purposes will
+potentially lead to a use-after-free issue.
 
->
-> If the codes of orphan mode don't have an impact when you enable
-> napi_tx mode, please keep it if you can.
+> 
+> Anyway some explanation is welcomed here for why this change is safe.
+> 
+>> @@ -3414,7 +3413,7 @@ void iommu_detach_device_pasid(struct
+>> iommu_domain *domain, struct device *dev,
+>>
+>>   	mutex_lock(&group->mutex);
+>>   	__iommu_remove_group_pasid(group, pasid, domain);
+>> -	WARN_ON(xa_erase(&group->pasid_array, pasid) != domain);
+>> +	xa_erase(&group->pasid_array, pasid);
+> 
+> if the entry is valid do we want to keep the WARN_ON() upon handle->domain?
 
-For example, it complicates BQL implementation.
+The domain pointer has already been passed to the iommu driver in
+__iommu_remove_group_pasid(). Therefore, the check for the pointer's
+validity should be performed before calling
+__iommu_remove_group_pasid(). Hence, in my view, using WARN_ON() around
+xa_erase() is not very useful.
 
-Thanks
-
->
-> Thank you.
->
-
+Best regards,
+baolu
