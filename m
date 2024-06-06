@@ -1,201 +1,95 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59E9C13C673;
-	Thu,  6 Jun 2024 10:26:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23CC41870
+	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 11:13:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717669572; cv=none; b=TljD5nbk+mynPIclg1msMuTIsqzZZCbwg2yHCY5/ytJd0K8+r2UdF9YyB6o8ZkByJnwsq15QOEdu5qenco8J9IWoU4ydqf5i9ZDif+EJz1ZQlHZFmt6fgEfk9mTrqC+TaOidB3Ruqhh7TTCJA5FO/Qil56pLa93RpkkC2+i5cr0=
+	t=1717672431; cv=none; b=RsoNns976ZRpvsz+O/fwugTVKl1TSpOz+1oXNAYf7h8gii/j5iCKkcB78FG60ezPJ7e+garwbQgNj4l/NTm74cXacT57i+9wld8qVUeEyxKgA8lisgIVWXKGRgjvN6oLv6NTRzfiGlY8eh2b5l6k/ll8lPQ5r0vOOQje+6o8JZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717669572; c=relaxed/simple;
-	bh=XtmlM9TlqX08cpeM2q1IwikRYJEqGVTehuNCWzJukak=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WBtwbo/UgRcp60XlGf5Lp9UCQ8qG00Brer/vFrXYjUXa7ZF70IUcMVvrxpwn7cN5NYb+y9eMjh1bjQjm4EJmKCVC3xiDAtQelhgr41TU752Rm4IXRLqwWV623TYWh4uO3IAptD1HSeYxBVRziy5i4BbJ3fPkW1ddjPt4x1izKHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f5LlIQAc; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1717672431; c=relaxed/simple;
+	bh=Wi9tJ6XUiDG2zIhgrwj+eY0OzJgL+HO2VtjeZAgHr7g=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aUvMJXj/bRq9yuzQYhkI+FPN3RwkyWom0iqQP4D9sR+a7TWN9K/MO3zOX7iIbtKlxioAkoQyAfbNlFN/YAOva6O33gAVVz/TtSJzJsHoOMzk47Cm5cTx9xypd6auaGqz8/6R+H/wWn93d82AsCrTk8n28ishd+NvRXL9TbOs+uY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=m0GprcW+; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f5LlIQAc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1717669571; x=1749205571;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=XtmlM9TlqX08cpeM2q1IwikRYJEqGVTehuNCWzJukak=;
-  b=f5LlIQAcOzXoRedCb4E9uYdEuXnosA8RGgQMkhajJAi+lLE6LzE54iq9
-   Z+l7aoTeKlZQ3Zb1c0KkMKJMUbXsD4fHMiYH2FyNu7dYYPnBn0b9Wd++k
-   AwQigMJKHN/6J9DmkvEHtGKnyorb1/HL9OiXt25rPR9CmfFYmeWCS0W4B
-   cQKlzwx/PS8fryBUwa/n2UEXUZsff5K6OukLkfIlwqtL5GdABQgIysLd3
-   Yo3jKsOWp+6suN7LjMkJqaQr37N6RDAe90BrMGRZR7kOcx5TkLteqpYSj
-   hE1mNMLeccYmF4+kORq16GWixLXqb/40QmucO0QHD3+FZXvqvbHRp4Idx
-   Q==;
-X-CSE-ConnectionGUID: 6Dpv+8T3Rh6/SjvsxAagvg==
-X-CSE-MsgGUID: jfolwBPwSi+zEeq6pWqwsw==
-X-IronPort-AV: E=McAfee;i="6600,9927,11094"; a="24960729"
-X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
-   d="scan'208";a="24960729"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2024 03:26:05 -0700
-X-CSE-ConnectionGUID: tNcXLHLNQhWdQ1Z8gJpGvQ==
-X-CSE-MsgGUID: JyJrvGNhT1SP9xWkJNur6g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
-   d="scan'208";a="37985146"
-Received: from unknown (HELO 0610945e7d16) ([10.239.97.151])
-  by orviesa009.jf.intel.com with ESMTP; 06 Jun 2024 03:26:02 -0700
-Received: from kbuild by 0610945e7d16 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sFAJj-0002yo-03;
-	Thu, 06 Jun 2024 10:25:59 +0000
-Date: Thu, 6 Jun 2024 18:25:04 +0800
-From: kernel test robot <lkp@intel.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="m0GprcW+"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1717672426; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=CUSScYNSoqguUJd4oHSKGJp6xNjllqDi+0y/CYQpdJI=;
+	b=m0GprcW+sTpP+Trt+2sdwfQyw5YNypo11X9dyC0UbyXFt2KkXasG8QVU36CYD9KnTQj8odJQkGEJhq1vcRHl5Ai18LvQ0I2NcNX1IM0+qQvlmZuwvn/Hkw6PRs/7ei2HIIwrZKQEjarZXLjsjJyhUmwMZLuNo3xRzFsWbI8eka4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0W7xz1P0_1717672425;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7xz1P0_1717672425)
+          by smtp.aliyun-inc.com;
+          Thu, 06 Jun 2024 19:13:46 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net-next v3 4/4] virtio_net: improve dim command request
- efficiency
-Message-ID: <202406061803.R48FH9c8-lkp@intel.com>
-References: <20240606061446.127802-5-hengqi@linux.alibaba.com>
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Alexander Potapenko <glider@google.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: [PATCH] virtio_ring: fix KMSAN error for premapped mode
+Date: Thu,  6 Jun 2024 19:13:45 +0800
+Message-Id: <20240606111345.93600-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240606061446.127802-5-hengqi@linux.alibaba.com>
+X-Git-Hash: 5f5ee3f8833c
+Content-Transfer-Encoding: 8bit
 
-Hi Heng,
+Add kmsan for virtqueue_dma_map_single_attrs to fix:
 
-kernel test robot noticed the following build warnings:
+BUG: KMSAN: uninit-value in receive_buf+0x45ca/0x6990
+ receive_buf+0x45ca/0x6990
+ virtnet_poll+0x17e0/0x3130
+ net_rx_action+0x832/0x26e0
+ handle_softirqs+0x330/0x10f0
+ [...]
 
-[auto build test WARNING on net-next/main]
+Uninit was created at:
+ __alloc_pages_noprof+0x62a/0xe60
+ alloc_pages_noprof+0x392/0x830
+ skb_page_frag_refill+0x21a/0x5c0
+ virtnet_rq_alloc+0x50/0x1500
+ try_fill_recv+0x372/0x54c0
+ virtnet_open+0x210/0xbe0
+ __dev_open+0x56e/0x920
+ __dev_change_flags+0x39c/0x2000
+ dev_change_flags+0xaa/0x200
+ do_setlink+0x197a/0x7420
+ rtnl_setlink+0x77c/0x860
+ [...]
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio_net-passing-control_buf-explicitly/20240606-141748
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20240606061446.127802-5-hengqi%40linux.alibaba.com
-patch subject: [PATCH net-next v3 4/4] virtio_net: improve dim command request efficiency
-config: riscv-defconfig (https://download.01.org/0day-ci/archive/20240606/202406061803.R48FH9c8-lkp@intel.com/config)
-compiler: clang version 19.0.0git (https://github.com/llvm/llvm-project d7d2d4f53fc79b4b58e8d8d08151b577c3699d4a)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240606/202406061803.R48FH9c8-lkp@intel.com/reproduce)
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Tested-by: Alexander Potapenko <glider@google.com>
+---
+ drivers/virtio/virtio_ring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202406061803.R48FH9c8-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   In file included from drivers/net/virtio_net.c:7:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:8:
-   In file included from include/linux/cacheflush.h:5:
-   In file included from arch/riscv/include/asm/cacheflush.h:9:
-   In file included from include/linux/mm.h:2253:
-   include/linux/vmstat.h:514:36: warning: arithmetic between different enumeration types ('enum node_stat_item' and 'enum lru_list') [-Wenum-enum-conversion]
-     514 |         return node_stat_name(NR_LRU_BASE + lru) + 3; // skip "nr_"
-         |                               ~~~~~~~~~~~ ^ ~~~
->> drivers/net/virtio_net.c:2844:3: warning: add explicit braces to avoid dangling else [-Wdangling-else]
-    2844 |                 else
-         |                 ^
-   2 warnings generated.
-
-
-vim +2844 drivers/net/virtio_net.c
-
-  2813	
-  2814	static void virtnet_get_cvq_work(struct work_struct *work)
-  2815	{
-  2816		struct virtnet_info *vi =
-  2817			container_of(work, struct virtnet_info, get_cvq);
-  2818		struct virtnet_coal_node *wait_coal;
-  2819		bool valid = false;
-  2820		unsigned int tmp;
-  2821		void *res;
-  2822	
-  2823		mutex_lock(&vi->cvq_lock);
-  2824		while ((res = virtqueue_get_buf(vi->cvq, &tmp)) != NULL) {
-  2825			complete((struct completion *)res);
-  2826			valid = true;
-  2827		}
-  2828		mutex_unlock(&vi->cvq_lock);
-  2829	
-  2830		if (!valid)
-  2831			return;
-  2832	
-  2833		while (true) {
-  2834			wait_coal = NULL;
-  2835			mutex_lock(&vi->coal_wait_lock);
-  2836			if (!list_empty(&vi->coal_wait_list))
-  2837				wait_coal = list_first_entry(&vi->coal_wait_list,
-  2838							     struct virtnet_coal_node,
-  2839							     list);
-  2840			mutex_unlock(&vi->coal_wait_lock);
-  2841			if (wait_coal)
-  2842				if (virtnet_add_dim_command(vi, wait_coal))
-  2843					break;
-> 2844			else
-  2845				break;
-  2846		}
-  2847	}
-  2848	static int virtnet_set_mac_address(struct net_device *dev, void *p)
-  2849	{
-  2850		struct virtnet_info *vi = netdev_priv(dev);
-  2851		struct virtio_device *vdev = vi->vdev;
-  2852		int ret;
-  2853		struct sockaddr *addr;
-  2854		struct scatterlist sg;
-  2855	
-  2856		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STANDBY))
-  2857			return -EOPNOTSUPP;
-  2858	
-  2859		addr = kmemdup(p, sizeof(*addr), GFP_KERNEL);
-  2860		if (!addr)
-  2861			return -ENOMEM;
-  2862	
-  2863		ret = eth_prepare_mac_addr_change(dev, addr);
-  2864		if (ret)
-  2865			goto out;
-  2866	
-  2867		if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
-  2868			sg_init_one(&sg, addr->sa_data, dev->addr_len);
-  2869			if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
-  2870						  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
-  2871				dev_warn(&vdev->dev,
-  2872					 "Failed to set mac address by vq command.\n");
-  2873				ret = -EINVAL;
-  2874				goto out;
-  2875			}
-  2876		} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
-  2877			   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-  2878			unsigned int i;
-  2879	
-  2880			/* Naturally, this has an atomicity problem. */
-  2881			for (i = 0; i < dev->addr_len; i++)
-  2882				virtio_cwrite8(vdev,
-  2883					       offsetof(struct virtio_net_config, mac) +
-  2884					       i, addr->sa_data[i]);
-  2885		}
-  2886	
-  2887		eth_commit_mac_addr_change(dev, p);
-  2888		ret = 0;
-  2889	
-  2890	out:
-  2891		kfree(addr);
-  2892		return ret;
-  2893	}
-  2894	
-
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 6f7e5010a673..80669e05bf0e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -3126,8 +3126,10 @@ dma_addr_t virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr,
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	if (!vq->use_dma_api)
++	if (!vq->use_dma_api) {
++		kmsan_handle_dma(virt_to_page(ptr), offset_in_page(ptr), size, dir);
+ 		return (dma_addr_t)virt_to_phys(ptr);
++	}
+ 
+ 	return dma_map_single_attrs(vring_dma_dev(vq), ptr, size, dir, attrs);
+ }
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.32.0.3.g01195cf9f
+
