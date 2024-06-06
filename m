@@ -1,49 +1,73 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B7631DFD1
-	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 03:06:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61049D2E5
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 03:28:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717643175; cv=none; b=FSN7sA1qEYQn6ISqNNOSHsrhva5q8ieMUe3t9Oxyw59Zv58/O0bxHVCi69F1y3llTVw+Xg2fawYNr4OlIP4l5bsz8oUA5dYdjwesxHa9MlnQgad/hAORgwmMucziLMVRgqXwgJmOTIG9IrA8Q38cZX5ARaHtwKKaoKb1DpYCYuY=
+	t=1717644511; cv=none; b=uZa6BW5+fNzXoHGU2+X4CBgS0tc/cc4ZOjM7KRJOPOguHpFJtTYN/KPsDMLr0pmeAnnWM4KgJ6VZHLzgrhY4g/kLN8IMWUo64hskCqsbZOX/UucyggxmLhPmr6TOtOCMjZnKiyeqw35KM5tX2maODzKAY6OB7SxFDSdUsXWXyh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717643175; c=relaxed/simple;
-	bh=6VY/OhqdB7YwAOB6VnvcsGbiCQqTmgpBdjJIphmRSLU=;
+	s=arc-20240116; t=1717644511; c=relaxed/simple;
+	bh=bgVAcuwY1SKXG3vjyzdqlv2nugV2OGyQixNnAyg2jA8=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=c41R3VYHJ8r8C8pw/yGR4FUby7jjk/5bGJjEFFfSsAzVegx4FAtqAq4KXK0zNE0McHtneMoz8zKZgIU13eW/veuJfPxMnbcrjM5qhUbdiQDtTDEhVtOM8ZY1q4276qOCzDftkfyZukzMZA+0RfOJD9NsGzlJ0V2/QcyO2m9YqXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MahMwqka; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type; b=GuBdw21dxjAM9CHNH400NNubho3mpOQR5V7LwhbEZfD1q1PlGAHJD1N0nGq92v3V9b+N8ZjYd65kx9k7VLOJKiwC/tjXbCXBpow7xt258mHDNdtVqfQnz/ZCIAtLfsDf34w0EvJ1PmjOwcsT5tchS/wy4/Oxl4gAuOx4WfCRGZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D3LBOZwR; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MahMwqka"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D3LBOZwR"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id BE007403A2
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 03:28:29 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -17.499
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Xp2bGw0o_gaz for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Jun 2024 03:28:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=xuanzhuo@linux.alibaba.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 811A9400BA
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 811A9400BA
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=D3LBOZwR
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 811A9400BA
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 03:27:51 +0000 (UTC)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1717643163; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=I1FLNRVgPfZex60y7UTLgH1N1syFYtHTE9N+rIvQ/eU=;
-	b=MahMwqkaDdAqj53YQpFrx87tIsxMZqibGZlti8kf9K+sdu3d9T1jSavlQCCVUpVw9fN0LbEp0qKHq0i6kgAsG7/ymbO1Rdard8em6wMGNNQyqPJ+PIxKs13lmMRyKg7EQtiqtyj0pv3ZOMfOCo2wCdHqGnmykKDqp9VutoWlWX4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W7waqZm_1717643162;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W7waqZm_1717643162)
+	t=1717644456; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=OFu44R6J/QcE53wYRSjB6IeSCEeSV0oNByx8BtNCsr4=;
+	b=D3LBOZwR9Q5ILxAq+Ri7cnJ5SG9jUb8gRWhB77uylIyq2Ka/G+DCJLNuKFuC9iDXSb5VCgvdNk4WWumKQ1sPKuTG/kBmIwHdiPHRbT9REnktfzOaxD1r4SDtnGNIHJaoU/6WzFnsWrkZo0sd/GN2m62O6pUuwbcMd5TMxDDZWYc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0W7wj7E1_1717644453;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W7wj7E1_1717644453)
           by smtp.aliyun-inc.com;
-          Thu, 06 Jun 2024 11:06:03 +0800
-Message-ID: <1717643130.589116-6-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 2/2] virtio_net: improve dim command request efficiency
-Date: Thu, 6 Jun 2024 11:05:30 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Eric Dumazet <edumazet@google.com>,
+          Thu, 06 Jun 2024 11:27:34 +0800
+Message-ID: <1717644183.6895547-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v13 04/12] virtio_ring: support add premapped buf
+Date: Thu, 6 Jun 2024 11:23:03 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
  "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-References: <20240605145533.86229-1-hengqi@linux.alibaba.com>
- <20240605145533.86229-3-hengqi@linux.alibaba.com>
- <CACGkMEu-HFw0n_WtxDDmypj4WLTEF=8W6Pa_1UCtmvhbTP_udw@mail.gmail.com>
-In-Reply-To: <CACGkMEu-HFw0n_WtxDDmypj4WLTEF=8W6Pa_1UCtmvhbTP_udw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+ Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John  Fastabend <john.fastabend@gmail.com>,
+ netdev@vger.kernel.org,
+ bpf@vger.kernel.org,
+ Christoph Hellwig <hch@infradead.org>,
+ Alexander  Potapenko <glider@google.com>,
+ virtualization@lists.linux-foundation.org
+References: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
+ <20230810123057.43407-5-xuanzhuo@linux.alibaba.com>
+ <0b726a75574ad98200b815f173e59a5378e9df04.camel@linux.ibm.com>
+In-Reply-To: <0b726a75574ad98200b815f173e59a5378e9df04.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -51,437 +75,121 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Thu, 6 Jun 2024 08:27:35 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Wed, Jun 5, 2024 at 10:56=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com=
-> wrote:
+On Tue, 04 Jun 2024 18:07:44 +0200, Ilya Leoshkevich <iii@linux.ibm.com> wr=
+ote:
+> On Thu, 2023-08-10 at 20:30 +0800, Xuan Zhuo wrote:
+> > If the vq is the premapped mode, use the sg_dma_address() directly.
 > >
-> > Currently, the control queue (ctrlq) handles commands synchronously,
-> > leading to increased delays for dim commands during multi-queue
-> > VM configuration and directly impacting dim performance.
-> >
-> > To address this, we are shifting to asynchronous processing of
-> > ctrlq's dim commands.
-> >
-> > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > > ---
-> >  drivers/net/virtio_net.c | 260 +++++++++++++++++++++++++++++++++++----
-> >  1 file changed, 236 insertions(+), 24 deletions(-)
+> > =C2=A0drivers/virtio/virtio_ring.c | 19 +++++++++++++++++--
+> > =C2=A01 file changed, 17 insertions(+), 2 deletions(-)
 > >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 9b556ce89546..7975084052ad 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -270,6 +270,14 @@ struct virtnet_interrupt_coalesce {
-> >         u32 max_usecs;
-> >  };
-> >
-> > +struct virtnet_coal_node {
-> > +       struct virtio_net_ctrl_hdr hdr;
-> > +       virtio_net_ctrl_ack status;
-> > +       struct virtio_net_ctrl_coal_vq coal_vqs;
-> > +       bool is_coal_wait;
-> > +       struct list_head list;
-> > +};
+> > diff --git a/drivers/virtio/virtio_ring.c
+> > b/drivers/virtio/virtio_ring.c
+> > index 8e81b01e0735..f9f772e85a38 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -361,6 +361,11 @@ static struct device *vring_dma_dev(const struct
+> > vring_virtqueue *vq)
+> > =C2=A0static int vring_map_one_sg(const struct vring_virtqueue *vq, str=
+uct
+> > scatterlist *sg,
+> > =C2=A0			=C2=A0=C2=A0=C2=A0 enum dma_data_direction direction,
+> > dma_addr_t *addr)
+> > =C2=A0{
+> > +	if (vq->premapped) {
+> > +		*addr =3D sg_dma_address(sg);
+> > +		return 0;
+> > +	}
 > > +
-> >  /* The dma information of pages allocated at a time. */
-> >  struct virtnet_rq_dma {
-> >         dma_addr_t addr;
-> > @@ -421,6 +429,9 @@ struct virtnet_info {
-> >         /* Wait for the device to complete the cvq request. */
-> >         struct completion completion;
-> >
-> > +       /* Work struct for acquisition of cvq processing results. */
-> > +       struct work_struct get_cvq;
-> > +
-> >         /* Host can handle any s/g split between our header and packet =
-data */
-> >         bool any_header_sg;
-> >
-> > @@ -465,6 +476,14 @@ struct virtnet_info {
-> >         struct virtnet_interrupt_coalesce intr_coal_tx;
-> >         struct virtnet_interrupt_coalesce intr_coal_rx;
-> >
-> > +       /* Free nodes used for concurrent delivery */
-> > +       struct mutex coal_free_lock;
-> > +       struct list_head coal_free_list;
-> > +
-> > +       /* Filled when there are no free nodes or cvq buffers */
-> > +       struct mutex coal_wait_lock;
-> > +       struct list_head coal_wait_list;
-> > +
-> >         unsigned long guest_offloads;
-> >         unsigned long guest_offloads_capable;
-> >
-> > @@ -671,7 +690,7 @@ static void virtnet_cvq_done(struct virtqueue *cvq)
-> >  {
-> >         struct virtnet_info *vi =3D cvq->vdev->priv;
-> >
-> > -       complete(&vi->completion);
-> > +       schedule_work(&vi->get_cvq);
-> >  }
-> >
-> >  static void skb_xmit_done(struct virtqueue *vq)
-> > @@ -2183,6 +2202,113 @@ static bool try_fill_recv(struct virtnet_info *=
-vi, struct receive_queue *rq,
-> >         return !oom;
-> >  }
-> >
-> > +static int __virtnet_add_dim_command(struct virtnet_info *vi,
-> > +                                    struct virtnet_coal_node *ctrl)
-> > +{
-> > +       struct scatterlist *sgs[4], hdr, stat, out;
-> > +       unsigned int out_num =3D 0;
-> > +       int ret;
-> > +
-> > +       BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
-> > +
-> > +       ctrl->hdr.class =3D VIRTIO_NET_CTRL_NOTF_COAL;
-> > +       ctrl->hdr.cmd =3D VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET;
-> > +
-> > +       sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
-> > +       sgs[out_num++] =3D &hdr;
-> > +
-> > +       sg_init_one(&out, &ctrl->coal_vqs, sizeof(ctrl->coal_vqs));
-> > +       sgs[out_num++] =3D &out;
-> > +
-> > +       ctrl->status =3D ~0;
-> > +       sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
-> > +       sgs[out_num] =3D &stat;
-> > +
-> > +       BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
-> > +       ret =3D virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_A=
-TOMIC);
-> > +       if (ret < 0) {
-> > +               dev_warn(&vi->vdev->dev,
-> > +                        "Failed to add sgs for command vq: %d\n.", ret=
-);
-> > +               return ret;
-> > +       }
-> > +
-> > +       if (unlikely(!virtqueue_kick(vi->cvq)))
-> > +               return -EIO;
-> > +
-> > +       return 0;
-> > +}
-> > +
-> > +static int virtnet_add_dim_command(struct virtnet_info *vi,
-> > +                                  struct virtnet_coal_node *ctrl)
-> > +{
-> > +       int ret;
-> > +
-> > +       mutex_lock(&vi->cvq_lock);
-> > +       ret =3D __virtnet_add_dim_command(vi, ctrl);
-> > +       mutex_unlock(&vi->cvq_lock);
-> > +
-> > +       return ret;
-> > +}
-> > +
-> > +static void virtnet_process_dim_cmd(struct virtnet_info *vi, void *res)
-> > +{
-> > +       struct virtnet_coal_node *node =3D (struct virtnet_coal_node *)=
-res;
-> > +       u16 qnum =3D le16_to_cpu(node->coal_vqs.vqn) / 2;
-> > +
-> > +       mutex_lock(&vi->rq[qnum].dim_lock);
-> > +       vi->rq[qnum].intr_coal.max_usecs =3D
-> > +               le32_to_cpu(node->coal_vqs.coal.max_usecs);
-> > +       vi->rq[qnum].intr_coal.max_packets =3D
-> > +               le32_to_cpu(node->coal_vqs.coal.max_packets);
-> > +       vi->rq[qnum].dim.state =3D DIM_START_MEASURE;
-> > +       mutex_unlock(&vi->rq[qnum].dim_lock);
-> > +
-> > +       if (node->is_coal_wait) {
-> > +               kfree(node);
-> > +       } else {
-> > +               mutex_lock(&vi->coal_free_lock);
-> > +               list_add(&node->list, &vi->coal_free_list);
-> > +               mutex_unlock(&vi->coal_free_lock);
-> > +       }
-> > +}
-> > +
-> > +static void virtnet_get_cvq_work(struct work_struct *work)
-> > +{
-> > +       struct virtnet_info *vi =3D
-> > +               container_of(work, struct virtnet_info, get_cvq);
-> > +       struct virtnet_coal_node *wait_coal;
-> > +       bool valid =3D false;
-> > +       unsigned int tmp;
-> > +       void *res;
-> > +
-> > +       mutex_lock(&vi->cvq_lock);
-> > +       while ((res =3D virtqueue_get_buf(vi->cvq, &tmp)) !=3D NULL) {
-> > +               if (res =3D=3D ((void *)vi))
-> > +                       complete(&vi->completion);
-> > +               else
-> > +                       virtnet_process_dim_cmd(vi, res);
->=20
-> This seems an ad-hoc optimization for dim? Instead of doing this, I
-> wonder if we can make it re-usable for other possible use cases.
->=20
+>
+> I wonder if something needs to be done for KMSAN here, like it's done
+> by the next block in this function? I'm looking into what seems to be a
+> KMSAN false positive on s390x:
+>
+> BUG: KMSAN: uninit-value in receive_buf+0x45ca/0x6990
+>  receive_buf+0x45ca/0x6990
+>  virtnet_poll+0x17e0/0x3130
+>  net_rx_action+0x832/0x26e0
+>  handle_softirqs+0x330/0x10f0
+>  [...]
+>
+> Uninit was created at:
+>  __alloc_pages_noprof+0x62a/0xe60
+>  alloc_pages_noprof+0x392/0x830
+>  skb_page_frag_refill+0x21a/0x5c0
+>  virtnet_rq_alloc+0x50/0x1500
+>  try_fill_recv+0x372/0x54c0
+>  virtnet_open+0x210/0xbe0
+>  __dev_open+0x56e/0x920
+>  __dev_change_flags+0x39c/0x2000
+>  dev_change_flags+0xaa/0x200
+>  do_setlink+0x197a/0x7420
+>  rtnl_setlink+0x77c/0x860
+>  [...]
+>
+> My understanding is that virtnet_rq_alloc() allocates a page for
+> receiving data from a virtio device, which is then wrapped in struct
+> scatterlist by virtnet_rq_init_one_sg(), which is in turn associated
+> with a virtqueue through the virtqueue_add_inbuf_ctx() ->
+> virtqueue_add() -> virtqueue_add_split() -> vring_map_one_sg()
+> call chain.
+>
+> Someone should unpoison this page (since KMSAN doesn't know that the
+> hypervisor writes to it), and today for the non-premapped case this is
+> vring_map_one_sg(). So I tried the following naive fix:
+>
+>         if (vq->premapped) {
+>                 *addr =3D sg_dma_address(sg);
+> +               if (!vq->use_dma_api) {
+> +                       kmsan_handle_dma(phys_to_page(*addr), sg-
+> >offset, sg->length, direction);
+> +               }
+>
+> but it didn't help. I plan to investigate this further, but any hints
+> are much appreciated.
+>
+> > =C2=A0	if (!vq->use_dma_api) {
+> > =C2=A0		/*
+> > =C2=A0		 * If DMA is not used, KMSAN doesn't know that the
+> > scatterlist
 
-The purpose of this is that I don't see the need for concurrent ctrlq reque=
-sts
-in addition to dim. But I can try your suggestion.
+
+Could you try this?
 
 Thanks.
 
-> For example, just allocation completion and store the completion as a
-> token. Then virtqueue_get_buf can wake up the correct completion?
->=20
-> Thanks
->=20
-> > +
-> > +               valid =3D true;
-> > +       }
-> > +
-> > +       if (!valid) {
-> > +               mutex_unlock(&vi->cvq_lock);
-> > +               return;
-> > +       }
-> > +
-> > +       mutex_lock(&vi->coal_wait_lock);
-> > +       while (!list_empty(&vi->coal_wait_list)) {
-> > +               wait_coal =3D list_first_entry(&vi->coal_wait_list,
-> > +                                            struct virtnet_coal_node, =
-list);
-> > +               if (__virtnet_add_dim_command(vi, wait_coal))
-> > +                       break;
-> > +               list_del(&wait_coal->list);
-> > +       }
-> > +       mutex_unlock(&vi->coal_wait_lock);
-> > +
-> > +       mutex_unlock(&vi->cvq_lock);
-> > +}
-> > +
-> >  static void skb_recv_done(struct virtqueue *rvq)
-> >  {
-> >         struct virtnet_info *vi =3D rvq->vdev->priv;
-> > @@ -2695,7 +2821,7 @@ static bool virtnet_send_command_reply(struct vir=
-tnet_info *vi, u8 class, u8 cmd
-> >                                        struct scatterlist *in)
-> >  {
-> >         struct scatterlist *sgs[5], hdr, stat;
-> > -       u32 out_num =3D 0, tmp, in_num =3D 0;
-> > +       u32 out_num =3D 0, in_num =3D 0;
-> >         int ret;
-> >
-> >         /* Caller should know better */
-> > @@ -2728,14 +2854,15 @@ static bool virtnet_send_command_reply(struct v=
-irtnet_info *vi, u8 class, u8 cmd
-> >                 return false;
-> >         }
-> >
-> > -       if (unlikely(!virtqueue_kick(vi->cvq)))
-> > -               goto unlock;
-> > +       if (unlikely(!virtqueue_kick(vi->cvq))) {
-> > +               mutex_unlock(&vi->cvq_lock);
-> > +               return false;
-> > +       }
-> > +
-> > +       mutex_unlock(&vi->cvq_lock);
-> >
-> >         wait_for_completion(&vi->completion);
-> > -       virtqueue_get_buf(vi->cvq, &tmp);
-> >
-> > -unlock:
-> > -       mutex_unlock(&vi->cvq_lock);
-> >         return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
-> >  }
-> >
-> > @@ -4396,35 +4523,73 @@ static int virtnet_send_notf_coal_vq_cmds(struc=
-t virtnet_info *vi,
-> >         return 0;
-> >  }
-> >
-> > +static void virtnet_put_wait_coal(struct virtnet_info *vi,
-> > +                                 struct receive_queue *rq,
-> > +                                 struct dim_cq_moder moder)
-> > +{
-> > +       struct virtnet_coal_node *wait_node;
-> > +
-> > +       wait_node =3D kzalloc(sizeof(*wait_node), GFP_KERNEL);
-> > +       if (!wait_node) {
-> > +               rq->dim.state =3D DIM_START_MEASURE;
-> > +               return;
-> > +       }
-> > +
-> > +       wait_node->is_coal_wait =3D true;
-> > +       wait_node->coal_vqs.vqn =3D cpu_to_le16(rxq2vq(rq - vi->rq));
-> > +       wait_node->coal_vqs.coal.max_usecs =3D cpu_to_le32(moder.usec);
-> > +       wait_node->coal_vqs.coal.max_packets =3D cpu_to_le32(moder.pkts=
-);
-> > +       mutex_lock(&vi->coal_wait_lock);
-> > +       list_add_tail(&wait_node->list, &vi->coal_wait_list);
-> > +       mutex_unlock(&vi->coal_wait_lock);
-> > +}
-> > +
-> >  static void virtnet_rx_dim_work(struct work_struct *work)
-> >  {
-> >         struct dim *dim =3D container_of(work, struct dim, work);
-> >         struct receive_queue *rq =3D container_of(dim,
-> >                         struct receive_queue, dim);
-> >         struct virtnet_info *vi =3D rq->vq->vdev->priv;
-> > -       struct net_device *dev =3D vi->dev;
-> > +       struct virtnet_coal_node *avail_coal;
-> >         struct dim_cq_moder update_moder;
-> > -       int qnum, err;
-> >
-> > -       qnum =3D rq - vi->rq;
-> > +       update_moder =3D net_dim_get_rx_moderation(dim->mode, dim->prof=
-ile_ix);
-> >
-> >         mutex_lock(&rq->dim_lock);
-> > -       if (!rq->dim_enabled)
-> > -               goto out;
-> > -
-> > -       update_moder =3D net_dim_get_rx_moderation(dim->mode, dim->prof=
-ile_ix);
-> > -       if (update_moder.usec !=3D rq->intr_coal.max_usecs ||
-> > -           update_moder.pkts !=3D rq->intr_coal.max_packets) {
-> > -               err =3D virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
-> > -                                                      update_moder.use=
-c,
-> > -                                                      update_moder.pkt=
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 37c9c5b55864..cb280b66c7a2 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -3119,8 +3119,10 @@ dma_addr_t virtqueue_dma_map_single_attrs(struct vir=
+tqueue *_vq, void *ptr,
+ {
+        struct vring_virtqueue *vq =3D to_vvq(_vq);
+
+-       if (!vq->use_dma_api)
++       if (!vq->use_dma_api) {
++               kmsan_handle_dma(virt_to_page(ptr), offset_in_page(ptr), si=
+ze, dir);
+                return (dma_addr_t)virt_to_phys(ptr);
++       }
+
+        return dma_map_single_attrs(vring_dma_dev(vq), ptr, size, dir, attr=
 s);
-> > -               if (err)
-> > -                       pr_debug("%s: Failed to send dim parameters on =
-rxq%d\n",
-> > -                                dev->name, qnum);
-> > -               dim->state =3D DIM_START_MEASURE;
-> > +       if (!rq->dim_enabled ||
-> > +           (update_moder.usec =3D=3D rq->intr_coal.max_usecs &&
-> > +            update_moder.pkts =3D=3D rq->intr_coal.max_packets)) {
-> > +               rq->dim.state =3D DIM_START_MEASURE;
-> > +               mutex_unlock(&rq->dim_lock);
-> > +               return;
-> >         }
-> > -out:
-> >         mutex_unlock(&rq->dim_lock);
-> > +
-> > +       mutex_lock(&vi->cvq_lock);
-> > +       if (vi->cvq->num_free < 3) {
-> > +               virtnet_put_wait_coal(vi, rq, update_moder);
-> > +               mutex_unlock(&vi->cvq_lock);
-> > +               return;
-> > +       }
-> > +       mutex_unlock(&vi->cvq_lock);
-> > +
-> > +       mutex_lock(&vi->coal_free_lock);
-> > +       if (list_empty(&vi->coal_free_list)) {
-> > +               virtnet_put_wait_coal(vi, rq, update_moder);
-> > +               mutex_unlock(&vi->coal_free_lock);
-> > +               return;
-> > +       }
-> > +
-> > +       avail_coal =3D list_first_entry(&vi->coal_free_list,
-> > +                                     struct virtnet_coal_node, list);
-> > +       avail_coal->coal_vqs.vqn =3D cpu_to_le16(rxq2vq(rq - vi->rq));
-> > +       avail_coal->coal_vqs.coal.max_usecs =3D cpu_to_le32(update_mode=
-r.usec);
-> > +       avail_coal->coal_vqs.coal.max_packets =3D cpu_to_le32(update_mo=
-der.pkts);
-> > +
-> > +       list_del(&avail_coal->list);
-> > +       mutex_unlock(&vi->coal_free_lock);
-> > +
-> > +       virtnet_add_dim_command(vi, avail_coal);
-> >  }
-> >
-> >  static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
-> > @@ -4837,6 +5002,7 @@ static void virtnet_freeze_down(struct virtio_dev=
-ice *vdev)
-> >         flush_work(&vi->config_work);
-> >         disable_rx_mode_work(vi);
-> >         flush_work(&vi->rx_mode_work);
-> > +       flush_work(&vi->get_cvq);
-> >
-> >         netif_tx_lock_bh(vi->dev);
-> >         netif_device_detach(vi->dev);
-> > @@ -5610,6 +5776,45 @@ static const struct xdp_metadata_ops virtnet_xdp=
-_metadata_ops =3D {
-> >         .xmo_rx_hash                    =3D virtnet_xdp_rx_hash,
-> >  };
-> >
-> > +static void virtnet_del_coal_free_list(struct virtnet_info *vi)
-> > +{
-> > +       struct virtnet_coal_node *coal_node, *tmp;
-> > +
-> > +       list_for_each_entry_safe(coal_node, tmp,  &vi->coal_free_list, =
-list) {
-> > +               list_del(&coal_node->list);
-> > +               kfree(coal_node);
-> > +       }
-> > +}
-> > +
-> > +static int virtnet_init_coal_list(struct virtnet_info *vi)
-> > +{
-> > +       struct virtnet_coal_node *coal_node;
-> > +       int batch_dim_nums;
-> > +       int i;
-> > +
-> > +       INIT_LIST_HEAD(&vi->coal_free_list);
-> > +       mutex_init(&vi->coal_free_lock);
-> > +
-> > +       INIT_LIST_HEAD(&vi->coal_wait_list);
-> > +       mutex_init(&vi->coal_wait_lock);
-> > +
-> > +       if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-> > +               return 0;
-> > +
-> > +       batch_dim_nums =3D min((unsigned int)vi->max_queue_pairs,
-> > +                            virtqueue_get_vring_size(vi->cvq) / 3);
-> > +       for (i =3D 0; i < batch_dim_nums; i++) {
-> > +               coal_node =3D kzalloc(sizeof(*coal_node), GFP_KERNEL);
-> > +               if (!coal_node) {
-> > +                       virtnet_del_coal_free_list(vi);
-> > +                       return -ENOMEM;
-> > +               }
-> > +               list_add(&coal_node->list, &vi->coal_free_list);
-> > +       }
-> > +
-> > +       return 0;
-> > +}
-> > +
-> >  static int virtnet_probe(struct virtio_device *vdev)
-> >  {
-> >         int i, err =3D -ENOMEM;
-> > @@ -5795,6 +6000,9 @@ static int virtnet_probe(struct virtio_device *vd=
-ev)
-> >         if (err)
-> >                 goto free;
-> >
-> > +       if (virtnet_init_coal_list(vi))
-> > +               goto free;
-> > +
-> >         if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL)) {
-> >                 vi->intr_coal_rx.max_usecs =3D 0;
-> >                 vi->intr_coal_tx.max_usecs =3D 0;
-> > @@ -5836,6 +6044,7 @@ static int virtnet_probe(struct virtio_device *vd=
-ev)
-> >         if (vi->has_rss || vi->has_rss_hash_report)
-> >                 virtnet_init_default_rss(vi);
-> >
-> > +       INIT_WORK(&vi->get_cvq, virtnet_get_cvq_work);
-> >         init_completion(&vi->completion);
-> >         enable_rx_mode_work(vi);
-> >
-> > @@ -5965,11 +6174,14 @@ static void virtnet_remove(struct virtio_device=
- *vdev)
-> >         flush_work(&vi->config_work);
-> >         disable_rx_mode_work(vi);
-> >         flush_work(&vi->rx_mode_work);
-> > +       flush_work(&vi->get_cvq);
-> >
-> >         unregister_netdev(vi->dev);
-> >
-> >         net_failover_destroy(vi->failover);
-> >
-> > +       virtnet_del_coal_free_list(vi);
-> > +
-> >         remove_vq_common(vi);
-> >
-> >         free_netdev(vi->dev);
-> > --
-> > 2.32.0.3.g01195cf9f
-> >
->=20
+ }
+@@ -3171,8 +3173,10 @@ dma_addr_t virtqueue_dma_map_page_attrs(struct virtq=
+ueue *_vq, struct page *page
+ {
+        struct vring_virtqueue *vq =3D to_vvq(_vq);
+
+-       if (!vq->use_dma_api)
++       if (!vq->use_dma_api) {
++               kmsan_handle_dma(page, offset, size, dir);
+                return page_to_phys(page) + offset;
++       }
+
+        return dma_map_page_attrs(vring_dma_dev(vq), page, offset, size, di=
+r, attrs);
+ }
