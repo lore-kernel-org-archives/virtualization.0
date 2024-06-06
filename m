@@ -1,59 +1,50 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D2691991C6
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 14:48:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5761519924E;
+	Thu,  6 Jun 2024 16:12:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717685292; cv=none; b=UsFoGKfs3bsB28KK68tHcYO7Zq/HqRsk++vKEO69mfTYTfSL625PfCTb4YdmGrFZO1usvUXPJ4JQvIxO4zOqXnHb1jcRLN3aXfVtyOLTVKidK7bXOHcNcdpl+JRIABVUqHrXcZXlnzJiTOErp7HAf9tiSmaSLgRu3zVmcAnNB6A=
+	t=1717690370; cv=none; b=h9qPGddrOkeKHjzd6CbrT+jlhRdqSBWjy31Bvi50FqRMy7rYUKC+U+QaYdUtoneWYA1qpR1TeF/rL+S5fTNOuDFumZkE1xpyGjvjkVvXOZVfiFEYuz5Y4QW+ltp6zRlaGijpg/d8Nh8Nu6pvsfry56oP2v0YX4MV6U+lGqeKsQA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717685292; c=relaxed/simple;
-	bh=dQuMVnPcFvL2rm7IsOiVG0+PEE/oKkyHvTcPJNmZa+0=;
+	s=arc-20240116; t=1717690370; c=relaxed/simple;
+	bh=FLkgxi+pF25xhHIbp2IkfKVsNIEObURWbTxALpl5xow=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hWPYh21jLyNMLxoyrjbBK5Bpxk8SlwORq/bBzUyGqCsBFJQHgkIVf6x0AFYPkuoQXrtxCF5Fjtyjv0+mNtvjH17K6tOyk+Ord45amQf1ii0lP7/XXxsBNeCd/B/VPSJXvp6ilhR/40Q+J0vv63+AiHgCloDLQ6Op0NvgyLAL55Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=YtRrkQHK; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type; b=uLTuwDhnA4ih6EnTcScKtewuG3ZQa8aKOtSs55ULH5ykoLVC1s3ySkjUzyl2DDnFb0qQN+hxUnpZurNyOwlu4o/G2kj4H6ePGxU1/v3KhYon0V07Ajqy/pvwlWuTgVakIihHwAaVJ+VqrEItgzU6WNqEZfAzQPvrL8oCP+SmxLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UhIfQ4IP; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="YtRrkQHK"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A451440521
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 14:48:10 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 9Ikj6_5X4k-T for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Jun 2024 14:48:09 +0000 (UTC)
-X-Greylist: delayed 1743 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 06 Jun 2024 14:48:09 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 19D8B4050B
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 19D8B4050B
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=YtRrkQHK
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1098:ed:100::25; helo=madrid.collaboradmins.com; envelope-from=helen.koike@collabora.com; receiver=<UNKNOWN> 
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 19D8B4050B
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 14:48:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1717685287;
-	bh=dQuMVnPcFvL2rm7IsOiVG0+PEE/oKkyHvTcPJNmZa+0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YtRrkQHKb+X7xskObtg8FVCsFdwW8ShtHfCWtk4KRWoyx36T/q0AyGDwcPLitgXD0
-	 juSSzZ3cVZnQbEDdzMDSSm8xGeGxl3vLT/L53APO2Uo9mJm74o3YO7FrEl2BM+EyDS
-	 RHflhbHlPHGWQ7EThEjdeN/fGUeVCYOlIKGO8DrwcAr/iYf/5sLnc4QHnStmIq0v0h
-	 xLL7JMpSpaAnGsWurIR2SiEcuC0uSUEfaXkzCyK0B0+QnKCJRPycr/Fv0n4gXpkoOX
-	 CpotkDssPI/ghb/8UWFmzZvE0qBspVDQY2C+F0VYLb5GEI9kUvXljorsWjykBsbJu8
-	 LAPtwkBjkdYrA==
-Received: from [100.95.196.25] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: koike)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 233DF37821F4;
-	Thu,  6 Jun 2024 14:48:01 +0000 (UTC)
-Message-ID: <da1366fa-4d48-4227-ae4b-4b39a6607973@collabora.com>
-Date: Thu, 6 Jun 2024 11:47:59 -0300
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UhIfQ4IP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1717690369; x=1749226369;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=FLkgxi+pF25xhHIbp2IkfKVsNIEObURWbTxALpl5xow=;
+  b=UhIfQ4IPqJPInGZG/lqNpgYj5z4dkv2TJKWM7XaVSqADsg7oIo/7xuwE
+   a0lORgX/IZKD9Cedi0ft4KbmPSd9uSAlwWPmNZsE4yD+ZccRAm66vhOih
+   cbY3uYDU4/CdHXw2l7HM3EAGZttkD91/z9wZydHThsqGAQWLPYhQXPQ0K
+   MD9Nf/k0WNdfI8bZalVfjlSE/gnNdbKXf34bOxdhH/eRCujVIoiUpbOsb
+   JU3jzx+NKgHqoKCzHaZQLlidUQ7FfgpRVqXdOYU6LWZl+cJhA+BWvgI+S
+   gGgQEh+mmCObeoPvZwhLk4s29UEJ9kuMgw0kK1UI6NRNII+dWXcQG7sWn
+   g==;
+X-CSE-ConnectionGUID: 1Q29yw6qSPaRSeOKL4A4WQ==
+X-CSE-MsgGUID: nb5HED58T46rX0MzktTIdQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11095"; a="18164962"
+X-IronPort-AV: E=Sophos;i="6.08,219,1712646000"; 
+   d="scan'208";a="18164962"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2024 09:12:48 -0700
+X-CSE-ConnectionGUID: +lPHS99LR8SsXcZGmjMI2w==
+X-CSE-MsgGUID: fiUbgt3HR1m8ltR79Nforw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,219,1712646000"; 
+   d="scan'208";a="38467602"
+Received: from djiang5-mobl3.amr.corp.intel.com (HELO [10.125.109.168]) ([10.125.109.168])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2024 09:12:48 -0700
+Message-ID: <5bc0ab49-c24b-4057-9bad-5193328f2cc1@intel.com>
+Date: Thu, 6 Jun 2024 09:12:47 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,124 +52,110 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 0/6] drm/ci: uprev mesa/IGT and generate testlist
-To: Vignesh Raman <vignesh.raman@collabora.com>,
- dri-devel@lists.freedesktop.org
-Cc: daniels@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
- robdclark@gmail.com, david.heidelberg@collabora.com,
- guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
- dmitry.baryshkov@linaro.org, mcanal@igalia.com,
- linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org,
- linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org,
- linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-References: <20240529024049.356327-1-vignesh.raman@collabora.com>
+Subject: Re: [PATCH RESEND] nvdimm: add missing MODULE_DESCRIPTION() macros
+To: Jeff Johnson <quic_jjohnson@quicinc.com>,
+ Vishal Verma <vishal.l.verma@intel.com>,
+ Dan Williams <dan.j.williams@intel.com>, Ira Weiny <ira.weiny@intel.com>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ Oliver O'Halloran <oohall@gmail.com>
+Cc: nvdimm@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, kernel-janitors@vger.kernel.org
+References: <20240526-md-drivers-nvdimm-v1-1-9e583677e80f@quicinc.com>
 Content-Language: en-US
-From: Helen Koike <helen.koike@collabora.com>
-In-Reply-To: <20240529024049.356327-1-vignesh.raman@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Dave Jiang <dave.jiang@intel.com>
+In-Reply-To: <20240526-md-drivers-nvdimm-v1-1-9e583677e80f@quicinc.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 
 
-On 28/05/2024 23:40, Vignesh Raman wrote:
-> Uprev mesa and IGT to the latest version and stop vendoring the
-> testlist into the kernel. Instead, use the testlist from the
-> IGT build to ensure we do not miss renamed or newly added tests.
-> Update the xfails with the latest testlist run.
+On 5/26/24 10:07 AM, Jeff Johnson wrote:
+> Fix the 'make W=1' warnings:
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/nvdimm/libnvdimm.o
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/nvdimm/nd_pmem.o
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/nvdimm/nd_btt.o
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/nvdimm/nd_e820.o
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/nvdimm/of_pmem.o
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/nvdimm/nd_virtio.o
 > 
-> Add farm variable and update device type variable.
+> Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+> ---
+>  drivers/nvdimm/btt.c       | 1 +
+>  drivers/nvdimm/core.c      | 1 +
+>  drivers/nvdimm/e820.c      | 1 +
+>  drivers/nvdimm/nd_virtio.c | 1 +
+>  drivers/nvdimm/of_pmem.c   | 1 +
+>  drivers/nvdimm/pmem.c      | 1 +
+>  6 files changed, 6 insertions(+)
 > 
-> https://gitlab.freedesktop.org/vigneshraman/linux/-/pipelines/1187556
+> diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+> index 1e5aedaf8c7b..a47acc5d05df 100644
+> --- a/drivers/nvdimm/btt.c
+> +++ b/drivers/nvdimm/btt.c
+> @@ -1721,6 +1721,7 @@ static void __exit nd_btt_exit(void)
+>  
+>  MODULE_ALIAS_ND_DEVICE(ND_DEVICE_BTT);
+>  MODULE_AUTHOR("Vishal Verma <vishal.l.verma@linux.intel.com>");
+> +MODULE_DESCRIPTION("NVDIMM Block Translation Table");
+>  MODULE_LICENSE("GPL v2");
+>  module_init(nd_btt_init);
+>  module_exit(nd_btt_exit);
+> diff --git a/drivers/nvdimm/core.c b/drivers/nvdimm/core.c
+> index 2023a661bbb0..f4b6fb4b9828 100644
+> --- a/drivers/nvdimm/core.c
+> +++ b/drivers/nvdimm/core.c
+> @@ -540,6 +540,7 @@ static __exit void libnvdimm_exit(void)
+>  	nvdimm_devs_exit();
+>  }
+>  
+> +MODULE_DESCRIPTION("NVDIMM (Non-Volatile Memory Device) core module");
+>  MODULE_LICENSE("GPL v2");
+>  MODULE_AUTHOR("Intel Corporation");
+>  subsys_initcall(libnvdimm_init);
+> diff --git a/drivers/nvdimm/e820.c b/drivers/nvdimm/e820.c
+> index 4cd18be9d0e9..008b9aae74ff 100644
+> --- a/drivers/nvdimm/e820.c
+> +++ b/drivers/nvdimm/e820.c
+> @@ -69,5 +69,6 @@ static struct platform_driver e820_pmem_driver = {
+>  module_platform_driver(e820_pmem_driver);
+>  
+>  MODULE_ALIAS("platform:e820_pmem*");
+> +MODULE_DESCRIPTION("NVDIMM support for e820 type-12 memory");
+>  MODULE_LICENSE("GPL v2");
+>  MODULE_AUTHOR("Intel Corporation");
+> diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
+> index 1f8c667c6f1e..35c8fbbba10e 100644
+> --- a/drivers/nvdimm/nd_virtio.c
+> +++ b/drivers/nvdimm/nd_virtio.c
+> @@ -123,4 +123,5 @@ int async_pmem_flush(struct nd_region *nd_region, struct bio *bio)
+>  	return 0;
+>  };
+>  EXPORT_SYMBOL_GPL(async_pmem_flush);
+> +MODULE_DESCRIPTION("Virtio Persistent Memory Driver");
+>  MODULE_LICENSE("GPL");
+> diff --git a/drivers/nvdimm/of_pmem.c b/drivers/nvdimm/of_pmem.c
+> index d3fca0ab6290..5134a8d08bf9 100644
+> --- a/drivers/nvdimm/of_pmem.c
+> +++ b/drivers/nvdimm/of_pmem.c
+> @@ -111,5 +111,6 @@ static struct platform_driver of_pmem_region_driver = {
+>  
+>  module_platform_driver(of_pmem_region_driver);
+>  MODULE_DEVICE_TABLE(of, of_pmem_region_match);
+> +MODULE_DESCRIPTION("NVDIMM Device Tree support");
+>  MODULE_LICENSE("GPL");
+>  MODULE_AUTHOR("IBM Corporation");
+> diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+> index 598fe2e89bda..57cb30f8a3b8 100644
+> --- a/drivers/nvdimm/pmem.c
+> +++ b/drivers/nvdimm/pmem.c
+> @@ -768,4 +768,5 @@ static struct nd_device_driver nd_pmem_driver = {
+>  module_nd_driver(nd_pmem_driver);
+>  
+>  MODULE_AUTHOR("Ross Zwisler <ross.zwisler@linux.intel.com>");
+> +MODULE_DESCRIPTION("NVDIMM Persistent Memory Driver");
+>  MODULE_LICENSE("GPL v2");
 > 
-> Vignesh Raman (6):
->    drm/ci: uprev mesa version
->    drm/ci: add farm variable
->    drm/ci: generate testlist from build
->    drm/ci: uprev IGT
->    drm/ci: skip driver specific tests
->    drm/ci: update xfails for the new testlist
-> 
->   drivers/gpu/drm/ci/build-igt.sh               |   41 +-
->   drivers/gpu/drm/ci/build.sh                   |    6 +-
->   drivers/gpu/drm/ci/container.yml              |   12 +-
->   drivers/gpu/drm/ci/gitlab-ci.yml              |   46 +-
->   drivers/gpu/drm/ci/igt_runner.sh              |    9 +-
->   drivers/gpu/drm/ci/image-tags.yml             |    2 +-
->   drivers/gpu/drm/ci/lava-submit.sh             |    4 +-
->   drivers/gpu/drm/ci/test.yml                   |   17 +-
->   drivers/gpu/drm/ci/testlist.txt               | 2761 -----------------
->   .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |   41 +-
->   .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |    7 +
->   .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt |   33 +-
->   drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |   31 +
->   .../gpu/drm/ci/xfails/i915-amly-flakes.txt    |    9 +
->   drivers/gpu/drm/ci/xfails/i915-amly-skips.txt |   22 +-
->   drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  |   46 +-
->   drivers/gpu/drm/ci/xfails/i915-apl-flakes.txt |    6 +
->   drivers/gpu/drm/ci/xfails/i915-apl-skips.txt  |   26 +-
->   drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |   38 +
->   drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |    6 +
->   drivers/gpu/drm/ci/xfails/i915-cml-skips.txt  |   23 +
->   drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |   41 +-
->   drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt |    7 +
->   drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  |   26 +-
->   drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  |   42 +-
->   drivers/gpu/drm/ci/xfails/i915-kbl-flakes.txt |    7 +-
->   drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt  |   36 +-
->   drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |   77 +-
->   drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt  |   28 +-
->   drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |   63 +-
->   drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt |    6 +
->   drivers/gpu/drm/ci/xfails/i915-whl-skips.txt  |   22 +-
->   .../drm/ci/xfails/mediatek-mt8173-fails.txt   |   30 +-
->   .../drm/ci/xfails/mediatek-mt8173-flakes.txt  |   11 +
->   .../drm/ci/xfails/mediatek-mt8173-skips.txt   |   16 +
->   .../drm/ci/xfails/mediatek-mt8183-fails.txt   |   21 +-
->   .../drm/ci/xfails/mediatek-mt8183-skips.txt   |   18 +
->   .../gpu/drm/ci/xfails/meson-g12b-fails.txt    |   24 +-
->   .../gpu/drm/ci/xfails/meson-g12b-skips.txt    |   18 +
->   .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |   12 +-
->   .../gpu/drm/ci/xfails/msm-apq8016-skips.txt   |   15 +
->   .../gpu/drm/ci/xfails/msm-apq8096-fails.txt   |    7 +
->   .../gpu/drm/ci/xfails/msm-apq8096-flakes.txt  |    6 +
->   .../gpu/drm/ci/xfails/msm-apq8096-skips.txt   |   26 +-
->   .../msm-sc7180-trogdor-kingoftown-fails.txt   |  175 +-
->   .../msm-sc7180-trogdor-kingoftown-flakes.txt  |    8 +
->   .../msm-sc7180-trogdor-kingoftown-skips.txt   |   19 +
->   ...sm-sc7180-trogdor-lazor-limozeen-fails.txt |  175 +-
->   ...m-sc7180-trogdor-lazor-limozeen-flakes.txt |    6 +
->   ...sm-sc7180-trogdor-lazor-limozeen-skips.txt |   16 +
->   .../gpu/drm/ci/xfails/msm-sdm845-fails.txt    |   38 +-
->   .../gpu/drm/ci/xfails/msm-sdm845-flakes.txt   |   25 +-
->   .../gpu/drm/ci/xfails/msm-sdm845-skips.txt    |   19 +
->   .../drm/ci/xfails/rockchip-rk3288-fails.txt   |   62 +-
->   .../drm/ci/xfails/rockchip-rk3288-skips.txt   |   21 +-
->   .../drm/ci/xfails/rockchip-rk3399-fails.txt   |   83 +-
->   .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |   13 +-
->   .../drm/ci/xfails/rockchip-rk3399-skips.txt   |   19 +
->   drivers/gpu/drm/ci/xfails/update-xfails.py    |    4 +-
->   .../drm/ci/xfails/virtio_gpu-none-fails.txt   |   94 +-
->   .../drm/ci/xfails/virtio_gpu-none-skips.txt   |   20 +-
->   61 files changed, 1348 insertions(+), 3194 deletions(-)
->   delete mode 100644 drivers/gpu/drm/ci/testlist.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/i915-amly-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/i915-apl-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8173-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-apq8096-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-flakes.txt
-> 
-
-
-Applied to drm-misc-next
-
-Thanks
-Helen
+> ---
+> base-commit: 416ff45264d50a983c3c0b99f0da6ee59f9acd68
+> change-id: 20240526-md-drivers-nvdimm-121215a4b93f
