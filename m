@@ -1,113 +1,188 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0CE138DE0
-	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 06:05:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E22844361
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 06:08:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717653931; cv=none; b=lWE8y1wTHa9A+hEduS1gVBumftdUyJP/fYqRZRrJtyB5+9c8wKOX3lBaFVDh5IgaKFN1mdpjUjyzWd6Q9t8tXgMQfwenudZUHS+Af3y1+8LwbN4iCi+Jumzc/GN4gGQ4Jx8+vwFIMiaIjIfpZOzrdJkvoMmHlCC9Tcun8RtLPuc=
+	t=1717654131; cv=none; b=MNIe8cpTOHn2lnx5Dja7Zl8jCKs8j4icCn5djFAyoRZbpesEBI14Z/pOnMEqCiVORSmANGptbyfiesH0qlXpB9iJw/niArtu/zwyxJnei9fVL/YXumfhzdHowdSBFV+1c6ZJdJDtPZST4Qqly3QdN933xn2HjirbrAhywGtFhz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717653931; c=relaxed/simple;
-	bh=xZKIrW8/SuE4qqD2uv3M3ACaJ92yjjULx+qrf+XjCxk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SRJr6cd+nyhZjyelM3bBUR9o27fhQgu/6Yto4Vhn2jqb6WuL5iQk7SE6fTah0HPeSeyZP1/TIsjyEsKUnpMGQJip23CY5Tw6mJAH9UwLKbbVcutPxa5SV3bXpkU2IymrgK+RqwLE8p1CHP+oF2OmvmFIFZmh1bLEOAXy9dp5arY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SBg9g354; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717654131; c=relaxed/simple;
+	bh=13akkfKAq2hsSCLQoZwEGPw7tB5uWCBWFWWz8dMiHsQ=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=OFCvY6PwmmE0Cv6bM0dfZTmzuFIjUZsWYMH7C7ui4GWDeSCffLc/KTr9cIwE3p9VqWZWwTdBc6/zO/Cjq2iWTe+p+IUW3h7vhdJrCJETm5rkKyZttmmbMlduPnKOMkTThO7kTc2IUNxtc5Y8QJa5DmgBjLyc8LvhR5rl09parws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XyfGtsWU; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SBg9g354"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717653928;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TsrZUlxApod7nrUSmaJxIfXQuT4xkPv6XR1BlDjdQ14=;
-	b=SBg9g35448Qji+n1KyTNFucpKvFBelXQuco1gcPXh1fUSa0v0n9FQhCVSWjQvKY183hiRm
-	n/tkQackdBiN750+M6NGVrdUOF14HZsP7qEAdZPSVwPkot590xorMw/vxGZrK9NQTBpdzY
-	nAfpa/x0ixiD53TZSCgnIBLkOVc+D3o=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-131-h5qqdUY4P0KrkqBre1lD5Q-1; Thu, 06 Jun 2024 02:05:27 -0400
-X-MC-Unique: h5qqdUY4P0KrkqBre1lD5Q-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a68b41fb17cso149701166b.0
-        for <virtualization@lists.linux.dev>; Wed, 05 Jun 2024 23:05:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717653926; x=1718258726;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TsrZUlxApod7nrUSmaJxIfXQuT4xkPv6XR1BlDjdQ14=;
-        b=iDLcxyQOJOixAEIESwGSsGi27VbVf3IBb9Ye0VY8OD1tYC33ndzD/JijepGq075G3C
-         +q4G+Aokp20xhJ+XM1w7U8ynDXjx3pJhWMx9Ri9HC+LFiyc1gAt9tGTjaaA1rYa07VHV
-         GxGWqoStaZ2vw7xRMK+CnGm7yddBqWQKqfOvVJP9deKMG0sdKndu0g0oHZF4O1QgZRqF
-         hS48IihB68Up4HJCRL1Sufd70+EFFntmF2zZNjH0G0atzfGluWbyBT1ZAcd43qaQrO+m
-         JqDmVQ7mAEZQ0ps9xpKQF34uoTLpc5SfYY6po3zR7Tho7r9AX2N4yLJizf26bvIN6SVX
-         BSZA==
-X-Forwarded-Encrypted: i=1; AJvYcCXbm+CXjan+lp6ZfHfT5xgy2eTEaNIq54oyIi5a2VZhQN0/W8jxx6nbHj2s/fi6OrAN1CriEn0c/thUKr8gdjB4btXq5AXE0YKyrhAGbsg=
-X-Gm-Message-State: AOJu0Yw/PFfuL06zM12o47G0COwX97SihIJS9lpF3yjoKrUS77NodN5U
-	4CABFeR96KMioL8LTW8IXhCbrrlNrNTv5RYV3R0ax32h0bU/z/CBES8CxZVvoqEa8Pc5RZVKeLX
-	xDtPSeqS2NfNElDRAI97w+lwvwrzA9qjBCaJI23WV9yg8uJwYTe6DPNTFkCu69swH
-X-Received: by 2002:a17:906:b198:b0:a59:9f88:f1f1 with SMTP id a640c23a62f3a-a6c762bcb66mr147655666b.19.1717653925934;
-        Wed, 05 Jun 2024 23:05:25 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHK8HAAcmA9u09zvEwVLZTGKDryhlokys9J5BLeWli7B/moSHAoVGjthnoy2bJ5A/eL6Fnn6Q==
-X-Received: by 2002:a17:906:b198:b0:a59:9f88:f1f1 with SMTP id a640c23a62f3a-a6c762bcb66mr147653066b.19.1717653925439;
-        Wed, 05 Jun 2024 23:05:25 -0700 (PDT)
-Received: from redhat.com ([2.55.59.85])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a6c806ec823sm44887766b.101.2024.06.05.23.05.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Jun 2024 23:05:24 -0700 (PDT)
-Date: Thu, 6 Jun 2024 02:05:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jason Xing <kerneljasonxing@gmail.com>,
-	Heng Qi <hengqi@linux.alibaba.com>, Jiri Pirko <jiri@resnulli.us>,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, ast@kernel.org,
-	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
-	netdev@vger.kernel.org
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-Message-ID: <20240606020248-mutt-send-email-mst@kernel.org>
-References: <20240509114615.317450-1-jiri@resnulli.us>
- <1715325076.4219763-2-hengqi@linux.alibaba.com>
- <ZktGj4nDU4X0Lxtx@nanopsycho.orion>
- <ZmBMa7Am3LIYQw1x@nanopsycho.orion>
- <1717587768.1588957-5-hengqi@linux.alibaba.com>
- <CACGkMEsiosWxNCS=Jpb-H14b=-26UzPjw+sD3H21FwVh2ZTF5g@mail.gmail.com>
- <CAL+tcoB8y6ctDO4Ph8WM-19qAoNMcYTVWLKRqsJYYrmW9q41=w@mail.gmail.com>
- <CACGkMEvh6nKfFMp5fb6tbijrs88vgSofCNkwN1UzKHnf6RqURg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XyfGtsWU"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3E0F140542
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 06:08:49 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Kc3DDUJxCF8x for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Jun 2024 06:08:48 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2EAD24054D
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2EAD24054D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=XyfGtsWU
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2EAD24054D
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Jun 2024 06:08:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1717654128; x=1749190128;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=13akkfKAq2hsSCLQoZwEGPw7tB5uWCBWFWWz8dMiHsQ=;
+  b=XyfGtsWUgSjvxfG158f82/MMCs6935r7UcNJd5DTw0uEHo6PbHxitnVR
+   9+aQOfATFkuDhHr+goXW1jEdT3Jl/uMaeq1e2pe9lUT+JR6Q57JazLbRB
+   ikQ7B7n6QTRGJ3vwCx8QLf3QMeCx6m1orDCrnSO/9/S185vvI1gCMHHdY
+   r4iQCYPvotBqLlTe5IEaPVA3Ys1WvyrPnD+w44ku+K8z+y8SUDZd3XLhs
+   ACAljP2RpDqpOy7G9BKslzB37I99WldWcWLtA6NQv2zsyFbdxDiOgUp+s
+   vOP24Xy/kHnvc6moHAd3GLW1r3Jr3GgX1xziaSfo+2Oyd+InweE80J0oz
+   Q==;
+X-CSE-ConnectionGUID: ve244M6pSU+/5c37lhhYdQ==
+X-CSE-MsgGUID: YXcWJzsaTauOfhqWdsJb+Q==
+X-IronPort-AV: E=McAfee;i="6600,9927,11094"; a="14104133"
+X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
+   d="scan'208";a="14104133"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jun 2024 23:08:46 -0700
+X-CSE-ConnectionGUID: v7Q61PdfSESz90u4pDDIQA==
+X-CSE-MsgGUID: MzwVyrGjSHCTg59Wl3M16w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,218,1712646000"; 
+   d="scan'208";a="68663885"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa002.jf.intel.com with ESMTP; 05 Jun 2024 23:08:43 -0700
+Message-ID: <afaf133b-7175-467f-a254-060b66b9cb4e@linux.intel.com>
+Date: Thu, 6 Jun 2024 14:06:32 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvh6nKfFMp5fb6tbijrs88vgSofCNkwN1UzKHnf6RqURg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, "iommu@lists.linux.dev"
+ <iommu@lists.linux.dev>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v6 02/10] iommu: Remove sva handle list
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>
+References: <20240527040517.38561-1-baolu.lu@linux.intel.com>
+ <20240527040517.38561-3-baolu.lu@linux.intel.com>
+ <BN9PR11MB527658A85092F88329EB73E98CF92@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <BN9PR11MB527658A85092F88329EB73E98CF92@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jun 06, 2024 at 12:25:15PM +0800, Jason Wang wrote:
-> > If the codes of orphan mode don't have an impact when you enable
-> > napi_tx mode, please keep it if you can.
+On 6/5/24 4:15 PM, Tian, Kevin wrote:
+>> From: Lu Baolu <baolu.lu@linux.intel.com>
+>> Sent: Monday, May 27, 2024 12:05 PM
+>>
+>> @@ -69,11 +68,16 @@ static struct iommu_mm_data
+>> *iommu_alloc_mm_data(struct mm_struct *mm, struct de
+>>    */
+>>   struct iommu_sva *iommu_sva_bind_device(struct device *dev, struct
+>> mm_struct *mm)
+>>   {
+>> +	struct iommu_group *group = dev->iommu_group;
+>> +	struct iommu_attach_handle *attach_handle;
+>>   	struct iommu_mm_data *iommu_mm;
+>>   	struct iommu_domain *domain;
+>>   	struct iommu_sva *handle;
 > 
-> For example, it complicates BQL implementation.
+> it's confusing to have both 'handle' and 'attach_handle' in one function.
 > 
-> Thanks
+> Clearer to rename 'handle' as 'sva'.
 
-I very much doubt sending interrupts to a VM can
-*on all benchmarks* compete with not sending interrupts.
+Yes. Could be cleaned up in a separated patch. All sva handle in
+iommu-sva.c should be converted if we decide to do that.
 
-So yea, it's great if napi and hardware are advanced enough
-that the default can be changed, since this way virtio
-is closer to a regular nic and more or standard
-infrastructure can be used.
+> 
+>>   	int ret;
+>>
+>> +	if (!group)
+>> +		return ERR_PTR(-ENODEV);
+>> +
+>>   	mutex_lock(&iommu_sva_lock);
+>>
+>>   	/* Allocate mm->pasid if necessary. */
+>> @@ -83,12 +87,13 @@ struct iommu_sva *iommu_sva_bind_device(struct
+>> device *dev, struct mm_struct *mm
+>>   		goto out_unlock;
+>>   	}
+>>
+>> -	list_for_each_entry(handle, &mm->iommu_mm->sva_handles,
+>> handle_item) {
+>> -		if (handle->dev == dev) {
+>> -			refcount_inc(&handle->users);
+>> -			mutex_unlock(&iommu_sva_lock);
+>> -			return handle;
+>> -		}
+>> +	/* A bond already exists, just take a reference`. */
+>> +	attach_handle = iommu_attach_handle_get(group, iommu_mm-
+>>> pasid, IOMMU_DOMAIN_SVA);
+>> +	if (!IS_ERR(attach_handle)) {
+>> +		handle = container_of(attach_handle, struct iommu_sva,
+>> handle);
+>> +		refcount_inc(&handle->users);
+>> +		mutex_unlock(&iommu_sva_lock);
+>> +		return handle;
+>>   	}
+> 
+> It's counter-intuitive to move forward when an error is returned.
+> 
+> e.g. if it's -EBUSY indicating the pasid already used for another type then
+> following attempts shouldn't been tried.
+> 
+> probably we should have iommu_attach_handle_get() return NULL
+> instead of -ENOENT when the entry is free? then:
+> 
+> 	attach_handle = iommu_attach_handle_get();
+> 	if (IS_ERR(attach_handle)) {
+> 		ret = PTR_ERR(attach_handle);
+> 		goto out_unlock;
+> 	} else if (attach_handle) {
+> 		/* matched and increase handle->users */
+> 	}
+> 
+> 	/* free entry falls through */
+> But then there is one potential issue with the design that 'handle'
+> can be optional in iommu_attach_device_pasid(). In that case
+> xa_load returns NULL then we cannot differentiate a real unused
+> PASID vs. one which has been attached w/o an handle.
 
-But dropping it will go against *no breaking userspace* rule.
-Complicated? Tough.
+The PASID should be allocated exclusively. This means that once a PASID
+is assigned to A, it shouldn't be assigned to B at the same time. If a
+single PASID is used for multiple purposes, it's likely a bug in the
+system.
 
--- 
-MST
+So the logic of iommu_attach_handle_get() here is: has an SVA domain
+already been installed for this PASID? If so, just reuse it. Otherwise,
+try to install a new SVA domain.
 
+> Does it suggest that having the caller to always provide a handle
+> makes more sense?
+
+I'm neutral on this since only sva bind and iopf path delivery currently
+require an attach handle.
+
+Best regards,
+baolu
