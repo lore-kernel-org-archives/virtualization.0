@@ -1,204 +1,241 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3203197525
-	for <virtualization@lists.linux.dev>; Fri,  7 Jun 2024 12:41:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77E7413E40C
+	for <virtualization@lists.linux.dev>; Fri,  7 Jun 2024 18:40:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717764093; cv=none; b=hF0zOlKLYUwKvF1SVLKNdjagT05ZIwVlzfN9DqFuxKW2+HwIXqmPbwLJKKWVddM3khhu7hDqg5e7hmjtQDiTXxaXlP13xkgYMzu51jjAnzvaSmDiT2Lyv/VG7hoBrUqAymgF/mRWSovZVmg5xqy3yDou38N5VlFnLPuC7FQA52Q=
+	t=1717785660; cv=none; b=BC/EJxlvU+6Y9Gy/VkkFfD9nVfP4hydE10TrIFNn6gdWliYAZ9bkhFNFgrhiMgdI7xilHlqfLT/7Ak8Shk+M95YarWd0dk1iHTD6yuGOl2RFYvn3nH4me2aR2ne84vSLC9gU1vRGOVOT277RUTlIi6+X27OGIz40Ywszaxf32kA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717764093; c=relaxed/simple;
-	bh=UKrQB7BAzMucLmu6rSZnSX21jFfck85fX5kiW2DsiHU=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=p50HvAvX22ukzoYWE5SJ3K403shXWx8u57OV4k/pGToc46DKpeOQKkObNAWyCNHBcbXZooEo708bn696vrQWKTHd5qJ3NQG806D/EzRmvfFBT7WKC3UQWqGHpnGwt4lLfzutcI7ujlFgJT/d7jFz0AK1XeQHPPr71jX/hnGR/oI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4VwghB2pvkzsTCv;
-	Fri,  7 Jun 2024 20:37:30 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 6ECE6140336;
-	Fri,  7 Jun 2024 20:41:29 +0800 (CST)
-Received: from localhost.localdomain (10.69.192.56) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Fri, 7 Jun 2024 20:41:29 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Eric Dumazet <edumazet@google.com>, David
- Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Chuck
- Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Trond Myklebust
-	<trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>
-Subject: [PATCH net-next v7 07/15] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Fri, 7 Jun 2024 20:38:10 +0800
-Message-ID: <20240607123819.40694-8-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240607123819.40694-1-linyunsheng@huawei.com>
-References: <20240607123819.40694-1-linyunsheng@huawei.com>
+	s=arc-20240116; t=1717785660; c=relaxed/simple;
+	bh=MYPF51Z+xg0HbgYb3YvIJPDFq+AjCN4zn84m7UTnV6s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XsnMnkefx1T7I3VJVHfr/BNpL4hluFMTBRjUsu4UUgsbpPzh64udfudcxe0pzKp4CZQJTXI+ph/u68CFmDuAOz70gufwsHggR0VfIN+6f5uhq5QC+BsAag2RtirLUT3sey0I8NJj9GjGt/6tqB/sKvBxIh/q5QqKURe4zj8F07U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DCpO61Ao; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DCpO61Ao"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717785657;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=J1hUmjCQX6fG/8RrOn/s4Zg+H1krUQrxIX7N8cOfAjs=;
+	b=DCpO61AoaDEQJQ717YrptT/89ioDnru5pC7VE3SEgp5O+BZKzGJ6zszmbjlGzidW6RpXwQ
+	o0W0xUydxkfcuc7rALsvYUQiMg7pbaNrXooDQgOV1puO5QGIkLIKtX7kspY3QF/+mkf2an
+	2tEvAimo7BeW2eWDAwtNVjTPGerkrQI=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-217-P0MIxhi3N6uSMa91iwE3xw-1; Fri, 07 Jun 2024 14:40:56 -0400
+X-MC-Unique: P0MIxhi3N6uSMa91iwE3xw-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-35dbf83bb20so1601747f8f.2
+        for <virtualization@lists.linux.dev>; Fri, 07 Jun 2024 11:40:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717785655; x=1718390455;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=J1hUmjCQX6fG/8RrOn/s4Zg+H1krUQrxIX7N8cOfAjs=;
+        b=JzutgfFXzYL1J1fGs22PSK5KvDGtDkS6eW4KMiBTsyrlqMPjshdLBFR/b/NAS6Uo1B
+         qnk853kOhn+2Tax4k2dL5rZ0FVMy6G4+5+wb8EfpMx3ITkPrfmyBy/1o9XTeTONFNGr8
+         mzBYVayH5qWn90Gk8dErXLLgjnRuX7vfAUmD7qUvMWCgs5Duso6AG35A41WlKC3rRlRC
+         f9hUInombVDkq+rRju51/c+cUacLBsDW8m1dQ1QJleuBXMPl3rJ0SCLWGUoxZ33oTZM6
+         tu3wmjqQikIAs+9sqVhWJ8vkx7CDnuMy6JFs8E+I/2+rgobhVrwDVtpmnJEpDSSU0OO+
+         0Isg==
+X-Forwarded-Encrypted: i=1; AJvYcCWq3NHBmun3a4uSLHDSjCUXhCzbhHw2xKfF1nKaSIQeHT+56yCXHiURAmK7TMgeQeLRnhp8h/1+neQkO9kYidluVP8Sa8gqrezWUwg29wE=
+X-Gm-Message-State: AOJu0YzC0XKf3sB8Edi6how0oCcAURtFqmghJr4XamciQQ0QwSlpQixe
+	81QJ3+zO7QTBF181dV5bthnER7/AmH8rllyJP/Bo83xZZYSGK2+TU0wYEjLFajvJktHbPiVyGBi
+	mluvYwCUyk8vyOkGIsHtFBw1RXUVL2dXjk4nP0Mnyb7+ZS49I1zbPJBLb4O2QzlQ2
+X-Received: by 2002:a05:600c:3b22:b0:421:1f68:f80c with SMTP id 5b1f17b1804b1-42164a3274cmr33024045e9.25.1717785654959;
+        Fri, 07 Jun 2024 11:40:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHjxAAobdln9o8Z+ZSwK+8DP+joAlNWvnty2OQv0sD2CWIRw1H0eU3Abu8j4Jf1XLd5TYqa1A==
+X-Received: by 2002:a05:600c:3b22:b0:421:1f68:f80c with SMTP id 5b1f17b1804b1-42164a3274cmr33023775e9.25.1717785654411;
+        Fri, 07 Jun 2024 11:40:54 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c71a:2200:31c4:4d18:1bdd:fb7a? (p200300cbc71a220031c44d181bddfb7a.dip0.t-ipconnect.de. [2003:cb:c71a:2200:31c4:4d18:1bdd:fb7a])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42158148f43sm93769755e9.33.2024.06.07.11.40.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 07 Jun 2024 11:40:54 -0700 (PDT)
+Message-ID: <b72e6efd-fb0a-459c-b1a0-88a98e5b19e2@redhat.com>
+Date: Fri, 7 Jun 2024 20:40:52 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] mm: pass meminit_context to __free_pages_core()
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+ kasan-dev@googlegroups.com, Andrew Morton <akpm@linux-foundation.org>,
+ Mike Rapoport <rppt@kernel.org>, Oscar Salvador <osalvador@suse.de>,
+ "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
+ Dmitry Vyukov <dvyukov@google.com>
+References: <20240607090939.89524-1-david@redhat.com>
+ <20240607090939.89524-2-david@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240607090939.89524-2-david@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+On 07.06.24 11:09, David Hildenbrand wrote:
+> In preparation for further changes, let's teach __free_pages_core()
+> about the differences of memory hotplug handling.
+> 
+> Move the memory hotplug specific handling from generic_online_page() to
+> __free_pages_core(), use adjust_managed_page_count() on the memory
+> hotplug path, and spell out why memory freed via memblock
+> cannot currently use adjust_managed_page_count().
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>   mm/internal.h       |  3 ++-
+>   mm/kmsan/init.c     |  2 +-
+>   mm/memory_hotplug.c |  9 +--------
+>   mm/mm_init.c        |  4 ++--
+>   mm/page_alloc.c     | 17 +++++++++++++++--
+>   5 files changed, 21 insertions(+), 14 deletions(-)
+> 
+> diff --git a/mm/internal.h b/mm/internal.h
+> index 12e95fdf61e90..3fdee779205ab 100644
+> --- a/mm/internal.h
+> +++ b/mm/internal.h
+> @@ -604,7 +604,8 @@ extern void __putback_isolated_page(struct page *page, unsigned int order,
+>   				    int mt);
+>   extern void memblock_free_pages(struct page *page, unsigned long pfn,
+>   					unsigned int order);
+> -extern void __free_pages_core(struct page *page, unsigned int order);
+> +extern void __free_pages_core(struct page *page, unsigned int order,
+> +		enum meminit_context);
+>   
+>   /*
+>    * This will have no effect, other than possibly generating a warning, if the
+> diff --git a/mm/kmsan/init.c b/mm/kmsan/init.c
+> index 3ac3b8921d36f..ca79636f858e5 100644
+> --- a/mm/kmsan/init.c
+> +++ b/mm/kmsan/init.c
+> @@ -172,7 +172,7 @@ static void do_collection(void)
+>   		shadow = smallstack_pop(&collect);
+>   		origin = smallstack_pop(&collect);
+>   		kmsan_setup_meta(page, shadow, origin, collect.order);
+> -		__free_pages_core(page, collect.order);
+> +		__free_pages_core(page, collect.order, MEMINIT_EARLY);
+>   	}
+>   }
+>   
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index 171ad975c7cfd..27e3be75edcf7 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -630,14 +630,7 @@ EXPORT_SYMBOL_GPL(restore_online_page_callback);
+>   
+>   void generic_online_page(struct page *page, unsigned int order)
+>   {
+> -	/*
+> -	 * Freeing the page with debug_pagealloc enabled will try to unmap it,
+> -	 * so we should map it first. This is better than introducing a special
+> -	 * case in page freeing fast path.
+> -	 */
+> -	debug_pagealloc_map_pages(page, 1 << order);
+> -	__free_pages_core(page, order);
+> -	totalram_pages_add(1UL << order);
+> +	__free_pages_core(page, order, MEMINIT_HOTPLUG);
+>   }
+>   EXPORT_SYMBOL_GPL(generic_online_page);
+>   
+> diff --git a/mm/mm_init.c b/mm/mm_init.c
+> index 019193b0d8703..feb5b6e8c8875 100644
+> --- a/mm/mm_init.c
+> +++ b/mm/mm_init.c
+> @@ -1938,7 +1938,7 @@ static void __init deferred_free_range(unsigned long pfn,
+>   	for (i = 0; i < nr_pages; i++, page++, pfn++) {
+>   		if (pageblock_aligned(pfn))
+>   			set_pageblock_migratetype(page, MIGRATE_MOVABLE);
+> -		__free_pages_core(page, 0);
+> +		__free_pages_core(page, 0, MEMINIT_EARLY);
+>   	}
+>   }
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
----
- drivers/vhost/net.c             |  2 +-
- include/linux/page_frag_cache.h | 10 ++++++++++
- mm/page_frag_test.c             |  2 +-
- net/core/skbuff.c               |  6 +++---
- net/rxrpc/conn_object.c         |  4 +---
- net/rxrpc/local_object.c        |  4 +---
- net/sunrpc/svcsock.c            |  6 ++----
- 7 files changed, 19 insertions(+), 15 deletions(-)
+The build bot just reminded me that I missed another case in this function:
+(CONFIG_DEFERRED_STRUCT_PAGE_INIT)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 6691fac01e0d..b2737dc0dc50 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index c6fde197a6eb..6ac3a25089d1 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -23,6 +23,16 @@ struct page_frag_cache {
- 	bool pfmemalloc;
- };
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_va_align(struct page_frag_cache *nc,
-diff --git a/mm/page_frag_test.c b/mm/page_frag_test.c
-index c3cfce87fbbf..8b259e422fae 100644
---- a/mm/page_frag_test.c
-+++ b/mm/page_frag_test.c
-@@ -341,7 +341,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_frag.va = NULL;
-+	page_frag_cache_init(&test_frag);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 6842fa6a71a5..ac5fe61c0ff2 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -741,12 +741,12 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 		local_bh_enable();
- 	}
- 
-@@ -834,7 +834,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc_va(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 
- 	if (unlikely(!data))
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index 504453c688d7..a8cffe47cf01 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 42d20412c1c3..4b1e87187614 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1609,7 +1609,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1619,8 +1618,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
+diff --git a/mm/mm_init.c b/mm/mm_init.c
+index feb5b6e8c8875..5a0752261a795 100644
+--- a/mm/mm_init.c
++++ b/mm/mm_init.c
+@@ -1928,7 +1928,7 @@ static void __init deferred_free_range(unsigned long pfn,
+         if (nr_pages == MAX_ORDER_NR_PAGES && IS_MAX_ORDER_ALIGNED(pfn)) {
+                 for (i = 0; i < nr_pages; i += pageblock_nr_pages)
+                         set_pageblock_migratetype(page + i, MIGRATE_MOVABLE);
+-               __free_pages_core(page, MAX_PAGE_ORDER);
++               __free_pages_core(page, MAX_PAGE_ORDER, MEMINIT_EARLY);
+                 return;
+         }
+  
+
 -- 
-2.33.0
+Cheers,
+
+David / dhildenb
 
