@@ -1,496 +1,197 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2DE371B20
-	for <virtualization@lists.linux.dev>; Thu,  6 Jun 2024 23:23:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 820961CABF
+	for <virtualization@lists.linux.dev>; Fri,  7 Jun 2024 06:22:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717716232; cv=none; b=dJl6f0FjFXPw/J6fDUkYv2uYIkllsR2EtUumdtqoYjfp8153HlBJZ2fDf/KV4AOjD29E/ryozuQkhuqGv56eJ/DaqsEYBINqMpBEb3AmJ9K50gjaCeYEELJ5H92sNW7/sAZnkI+yFMQMx2exdaMRerhPYclgu95qUA4GXYbPvYM=
+	t=1717741369; cv=none; b=aSXLf7ogtyR2KINl/QTwPi25vqJ3u+8CEVH10HrE4FU+tvi2ndvDUwRGwcuBJoRzMQacN7fqBtPvpznnqWlqM0RyW8Ao5jTsBdPAtVA56VqEoS0ULUMl/Ngua2la7192eituFLyWj1ed03v5U639wNU0pWr+QnuQPkjFji4r90w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717716232; c=relaxed/simple;
-	bh=2PdqOdGEq49AdXJM8wvAaXgTaRWc4dBbUQ3silIe83g=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=J/9NPL6Rqvc4CYyELWlCtanmB7VGFCvWSvGs9ZjU2LGpdMXCgx+GKZXiwZa3j5xcsJPdyyhtQi+DB6SEO8jIs2RkQpcdNG+psfkVVhEqRYPSs6SvJFtOd5M8tPa5oSN7Y4MzzALnAt+wMjMWFa9YGVy0U2xgdDMO2WtysCqv32U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=dfEDWdbJ; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1717741369; c=relaxed/simple;
+	bh=LKuBQ28/1yz/CT83kCvNLcsL4DfCoTKrprm3yfzJhlc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Tm5i1AbhfOEFGi2AfC7rudHz/wSUd1RntQZT2iOdur2a2iTK5GFQOekCngEgdNQ6m3NkqWoD2khiRJr4lSwONB3YMQTVWdX/p+g2JRPZaQNCIKN8eJaGd0yVlvwyzC6N1EmEhtflM9FBSLA1Xm4f21Z1HglWNJrGl2U+IXQ6ZZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cm9uuIMl; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="dfEDWdbJ"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-702508bf0a9so1267027b3a.0
-        for <virtualization@lists.linux.dev>; Thu, 06 Jun 2024 16:23:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1717716230; x=1718321030; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mM9WYm9XI5PW1U41hiYNaHD+KzvqHC2eIs2HUyyCJO8=;
-        b=dfEDWdbJmMuSmBWMhMV8N1Ef4Omq/eD8YemyV+jrOD6JPpQ2OqK6ehL/xwBstql1d2
-         bDPRF0z4fIOv8pJGqzDHJRpRae6AFPXaZaJJKgEA/9ov/jtjfEkXFtE2nTrZMq5gUSB9
-         cRrvJTbXFluzXnOF+3CuF2EZx12EpZmRui6lY=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cm9uuIMl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717741366;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8BpY/LvUhfACDsxU4VlJjRaAtdugouYaei4Fra/b/gc=;
+	b=cm9uuIMlU7cMya7BCmUes/OnoQt7cJgMVY1eEeV0ngcSndwU1kciPkrmlYR527WePC27fG
+	qMZy/6Vsj+aALjFd7BhlziBad7jDYB+CbGMdLt0xmfcDX0IX6hYUfI+oOdbrKCrlYN6d8x
+	9188ubTGJMPBlT5V7N5RaEL0S/QgfKw=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-58-NmtpkD47M2GsEnnixgPHew-1; Fri, 07 Jun 2024 02:22:45 -0400
+X-MC-Unique: NmtpkD47M2GsEnnixgPHew-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2c2c9ae984aso64155a91.1
+        for <virtualization@lists.linux.dev>; Thu, 06 Jun 2024 23:22:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717716230; x=1718321030;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1717741364; x=1718346164;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mM9WYm9XI5PW1U41hiYNaHD+KzvqHC2eIs2HUyyCJO8=;
-        b=K2f6SEG/VbzvZItwFdyMzMheyLsCbAAd8eC/FHybNQR5KeUiviBGCAsxBVCQXTXwgR
-         LKhMk+8FZINGujvJYKOX53TUCuXmrTaiVJc4JjRcz3yluzijcueUxWnlgDUVw6w863vF
-         dhtrdmYzZuB+CO1q1kDFHnw6PHURHja82rqt9Npgbb8DU+FsPv5qGoI02eA/KiVVKGIO
-         AeO/wb2tAde5+dIj0NIISVfBeOoOhe2CVSwNVER9U4yc0bb334RAI7mN0yekGaPHA3e6
-         mkhw3P0O1h/wWdIwpS7keS4otlh0yijYDqQdjA1fPpXe+hWy0/bP9kRiAYpMbyzEe17U
-         ztjw==
-X-Forwarded-Encrypted: i=1; AJvYcCUeqlSddgLQEh4bNu1v30FEaATSe9z5D7paCkQbXplhwJaWF/yd02nyxM94R6H6MVimEhCzFOWTbYDchqejtaERFMykImpBGIQGwHFNPxU=
-X-Gm-Message-State: AOJu0YzkFAN+IJA6l9vePsGshzIi9g8IxOfOVvOdhuJx4hnzTe8q3sY9
-	dY0PAgnv8DpXOGit7A8x9K0GIktjfs2V6XYFhWk8M+Siai9wYkpqEfbCIq4mxw==
-X-Google-Smtp-Source: AGHT+IErS4NzKTudIPQuG7w3tR/9Ztq5NhpT/CW1xzG/uiAF5vis9gxE3CNyLjr3lBtrIE76+EIvWA==
-X-Received: by 2002:a05:6a00:3c93:b0:702:31f9:49b0 with SMTP id d2e1a72fcca58-7040c6194femr1016619b3a.5.1717716229448;
-        Thu, 06 Jun 2024 16:23:49 -0700 (PDT)
-Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-703fd3b3558sm1625803b3a.96.2024.06.06.16.23.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Jun 2024 16:23:49 -0700 (PDT)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de
-Cc: x86@kernel.org,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org,
-	kirill.shutemov@linux.intel.com,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>
-Subject: [PATCH v11 1/8] x86/vmware: Introduce VMware hypercall API
-Date: Thu,  6 Jun 2024 16:23:34 -0700
-Message-Id: <20240606232334.41384-1-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <3d6ec46c-53c2-4a13-90ff-eb419863c1d5@broadcom.com>
-References: <3d6ec46c-53c2-4a13-90ff-eb419863c1d5@broadcom.com>
+        bh=8BpY/LvUhfACDsxU4VlJjRaAtdugouYaei4Fra/b/gc=;
+        b=SlgaerbTz9jimcz0GnmMVxJD2Ok2yJz/HUElneyQCxuYbLb+4qjIfjJ3+pu/vAcd3S
+         /rD3W7o7hn6s1IpOs/QlNU0rydeX9sdqToJPZlHe8AYiDXHYynsLyMS4YwlCRhL9Z12S
+         ixrMiyBvjs1hhQkeh6njjGCiCwLMk3oqElRl/TBH4FQ9A3ifqlfI4XyjEEOzvKRPYyfA
+         I3yg8CCYN0BABxn4fmtoLHlzsr9e2L9eWhm7/nXOw8u52YbIK1j3xsykZ4TeJpsxh4W1
+         L5WlX06qnKNsMA7gZ57oRGnQn5dsnfX5xu2ZWSxZehZajnKyJEg1CWTQGaWglWItvETp
+         eIOQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVdRhdAH+bpUg8nRFDACZI7ECfXhXnkGoowjySi/j1prCPgq0+EcT0mcUW3k3Ytm6fEhmNKpIoqkE3Gfc3VCn5puclWscC6eGQF/aktgp0=
+X-Gm-Message-State: AOJu0Yz4GvJ40/nSiIl5UszRkkqI21I394nPXnxA/okNMEbqXqdo7Bm+
+	dJyTokguTd0lJRArdd61bMwre1jSoVy9HUwNv4lD/c2yJu/eQawwJQ7mfmo/ucXRrvHMmXwUSwQ
+	U3Yc79eJZXl68XYKCZ8CrzhwbRvrBQCam/OD+yb5fvzTLkS/m/RiSURcymK7qaXeiiyG1bRa81A
+	EemLdS9d37TPEXhcjKxxJuZks/OE+34lf/LtcylHw=
+X-Received: by 2002:a17:90a:34c9:b0:2c2:c65f:2061 with SMTP id 98e67ed59e1d1-2c2c65f22femr416856a91.31.1717741363971;
+        Thu, 06 Jun 2024 23:22:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGyBZS5h+R8JA9Tc22RmwY8UoPLjde+OK53I9oajlQ717pQ3ervU6OuHFyTP+CRXM9T7JkR3n43g0OFCRYv8dw=
+X-Received: by 2002:a17:90a:34c9:b0:2c2:c65f:2061 with SMTP id
+ 98e67ed59e1d1-2c2c65f22femr416835a91.31.1717741363472; Thu, 06 Jun 2024
+ 23:22:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240509114615.317450-1-jiri@resnulli.us> <1715325076.4219763-2-hengqi@linux.alibaba.com>
+ <ZktGj4nDU4X0Lxtx@nanopsycho.orion> <ZmBMa7Am3LIYQw1x@nanopsycho.orion>
+ <1717587768.1588957-5-hengqi@linux.alibaba.com> <CACGkMEsiosWxNCS=Jpb-H14b=-26UzPjw+sD3H21FwVh2ZTF5g@mail.gmail.com>
+ <CAL+tcoB8y6ctDO4Ph8WM-19qAoNMcYTVWLKRqsJYYrmW9q41=w@mail.gmail.com>
+ <CACGkMEvh6nKfFMp5fb6tbijrs88vgSofCNkwN1UzKHnf6RqURg@mail.gmail.com> <ZmG8eMl3E4GvGl2b@nanopsycho.orion>
+In-Reply-To: <ZmG8eMl3E4GvGl2b@nanopsycho.orion>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 7 Jun 2024 14:22:31 +0800
+Message-ID: <CACGkMEv1+ZSPiy5w1SN=a73-XCwCR6vE35LWNpqhaVAom71afQ@mail.gmail.com>
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: Jason Xing <kerneljasonxing@gmail.com>, Heng Qi <hengqi@linux.alibaba.com>, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	mst@redhat.com, xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
+	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org, 
+	john.fastabend@gmail.com, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Introduce vmware_hypercall family of functions. It is a common
-implementation to be used by the VMware guest code and virtual
-device drivers in architecture independent manner.
+On Thu, Jun 6, 2024 at 9:41=E2=80=AFPM Jiri Pirko <jiri@resnulli.us> wrote:
+>
+> Thu, Jun 06, 2024 at 06:25:15AM CEST, jasowang@redhat.com wrote:
+> >On Thu, Jun 6, 2024 at 10:59=E2=80=AFAM Jason Xing <kerneljasonxing@gmai=
+l.com> wrote:
+> >>
+> >> Hello Jason,
+> >>
+> >> On Thu, Jun 6, 2024 at 8:21=E2=80=AFAM Jason Wang <jasowang@redhat.com=
+> wrote:
+> >> >
+> >> > On Wed, Jun 5, 2024 at 7:51=E2=80=AFPM Heng Qi <hengqi@linux.alibaba=
+.com> wrote:
+> >> > >
+> >> > > On Wed, 5 Jun 2024 13:30:51 +0200, Jiri Pirko <jiri@resnulli.us> w=
+rote:
+> >> > > > Mon, May 20, 2024 at 02:48:15PM CEST, jiri@resnulli.us wrote:
+> >> > > > >Fri, May 10, 2024 at 09:11:16AM CEST, hengqi@linux.alibaba.com =
+wrote:
+> >> > > > >>On Thu,  9 May 2024 13:46:15 +0200, Jiri Pirko <jiri@resnulli.=
+us> wrote:
+> >> > > > >>> From: Jiri Pirko <jiri@nvidia.com>
+> >> > > > >>>
+> >> > > > >>> Add support for Byte Queue Limits (BQL).
+> >> > > > >>
+> >> > > > >>Historically both Jason and Michael have attempted to support =
+BQL
+> >> > > > >>for virtio-net, for example:
+> >> > > > >>
+> >> > > > >>https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521=
+e1bc3@redhat.com/
+> >> > > > >>
+> >> > > > >>These discussions focus primarily on:
+> >> > > > >>
+> >> > > > >>1. BQL is based on napi tx. Therefore, the transfer of statist=
+ical information
+> >> > > > >>needs to rely on the judgment of use_napi. When the napi mode =
+is switched to
+> >> > > > >>orphan, some statistical information will be lost, resulting i=
+n temporary
+> >> > > > >>inaccuracy in BQL.
+> >> > > > >>
+> >> > > > >>2. If tx dim is supported, orphan mode may be removed and tx i=
+rq will be more
+> >> > > > >>reasonable. This provides good support for BQL.
+> >> > > > >
+> >> > > > >But when the device does not support dim, the orphan mode is st=
+ill
+> >> > > > >needed, isn't it?
+> >> > > >
+> >> > > > Heng, is my assuption correct here? Thanks!
+> >> > > >
+> >> > >
+> >> > > Maybe, according to our cloud data, napi_tx=3Don works better than=
+ orphan mode in
+> >> > > most scenarios. Although orphan mode performs better in specific b=
+enckmark,
+> >> >
+> >> > For example pktgen (I meant even if the orphan mode can break pktgen=
+,
+> >> > it can finish when there's a new packet that needs to be sent after
+> >> > pktgen is completed).
+> >> >
+> >> > > perf of napi_tx can be enhanced through tx dim. Then, there is no =
+reason not to
+> >> > > support dim for devices that want the best performance.
+> >> >
+> >> > Ideally, if we can drop orphan mode, everything would be simplified.
+> >>
+> >> Please please don't do this. Orphan mode still has its merits. In some
+> >> cases which can hardly be reproduced in production, we still choose to
+> >> turn off the napi_tx mode because the delay of freeing a skb could
+> >> cause lower performance in the tx path,
+> >
+> >Well, it's probably just a side effect and it depends on how to define
+> >performance here.
+> >
+> >> which is, I know, surely
+> >> designed on purpose.
+> >
+> >I don't think so and no modern NIC uses that. It breaks a lot of things.
+> >
+> >>
+> >> If the codes of orphan mode don't have an impact when you enable
+> >> napi_tx mode, please keep it if you can.
+> >
+> >For example, it complicates BQL implementation.
+>
+> Well, bql could be disabled when napi is not used. It is just a matter
+> of one "if" in the xmit path.
 
-The API consists of vmware_hypercallX and vmware_hypercall_hb_{out,in}
-set of functions by analogy with KVM hypercall API. Architecture
-specific implementation is hidden inside.
+Maybe, care to post a patch?
 
-It will simplify future enhancements in VMware hypercalls such
-as SEV-ES and TDX related changes without needs to modify a
-caller in device drivers code.
+The trick part is, a skb is queued when BQL is enabled but sent when
+BQL is disabled as discussed here:
 
-Current implementation extends an idea from commit bac7b4e84323
-("x86/vmware: Update platform detection code for VMCALL/VMMCALL
-hypercalls") to have a slow, but safe path vmware_hypercall_slow()
-earlier during the boot when alternatives are not yet applied.
-The code inherits VMWARE_CMD logic from the commit mentioned above.
+https://lore.kernel.org/netdev/21384cb5-99a6-7431-1039-b356521e1bc3@redhat.=
+com/
 
-Move common macros from vmware.c to vmware.h.
+Thanks
 
-Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
----
- arch/x86/include/asm/vmware.h | 279 ++++++++++++++++++++++++++++++++--
- arch/x86/kernel/cpu/vmware.c  |  58 ++++++-
- 2 files changed, 315 insertions(+), 22 deletions(-)
-
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index ac9fc51e2b18..724c8b9b4b8d 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -7,26 +7,277 @@
- #include <linux/stringify.h>
- 
- /*
-- * The hypercall definitions differ in the low word of the %edx argument
-- * in the following way: the old port base interface uses the port
-- * number to distinguish between high- and low bandwidth versions.
-+ * VMware hypercall ABI.
-+ *
-+ * - Low bandwidth (LB) hypercalls (I/O port based, vmcall and vmmcall)
-+ * have up to 6 input and 6 output arguments passed and returned using
-+ * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-+ * %esi (arg4), %edi (arg5).
-+ * The following input arguments must be initialized by the caller:
-+ * arg0 - VMWARE_HYPERVISOR_MAGIC
-+ * arg2 - Hypercall command
-+ * arg3 bits [15:0] - Port number, LB and direction flags
-+ *
-+ * - High bandwidth (HB) hypercalls are I/O port based only. They have
-+ * up to 7 input and 7 output arguments passed and returned using
-+ * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-+ * %esi (arg4), %edi (arg5), %ebp (arg6).
-+ * The following input arguments must be initialized by the caller:
-+ * arg0 - VMWARE_HYPERVISOR_MAGIC
-+ * arg1 - Hypercall command
-+ * arg3 bits [15:0] - Port number, HB and direction flags
-+ *
-+ * For compatibility purposes, x86_64 systems use only lower 32 bits
-+ * for input and output arguments.
-+ *
-+ * The hypercall definitions differ in the low word of the %edx (arg3)
-+ * in the following way: the old I/O port based interface uses the port
-+ * number to distinguish between high- and low bandwidth versions, and
-+ * uses IN/OUT instructions to define transfer direction.
-  *
-  * The new vmcall interface instead uses a set of flags to select
-  * bandwidth mode and transfer direction. The flags should be loaded
-- * into %dx by any user and are automatically replaced by the port
-- * number if the VMWARE_HYPERVISOR_PORT method is used.
-- *
-- * In short, new driver code should strictly use the new definition of
-- * %dx content.
-+ * into arg3 by any user and are automatically replaced by the port
-+ * number if the I/O port method is used.
-+ */
-+
-+#define VMWARE_HYPERVISOR_HB		BIT(0)
-+#define VMWARE_HYPERVISOR_OUT		BIT(1)
-+
-+#define VMWARE_HYPERVISOR_PORT		0x5658
-+#define VMWARE_HYPERVISOR_PORT_HB	(VMWARE_HYPERVISOR_PORT | \
-+					 VMWARE_HYPERVISOR_HB)
-+
-+#define VMWARE_HYPERVISOR_MAGIC		0x564d5868U
-+
-+#define VMWARE_CMD_GETVERSION		10
-+#define VMWARE_CMD_GETHZ		45
-+#define VMWARE_CMD_GETVCPU_INFO		68
-+#define VMWARE_CMD_STEALCLOCK		91
-+
-+#define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
-+#define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
-+
-+extern unsigned long vmware_hypercall_slow(unsigned long cmd,
-+					   unsigned long in1, unsigned long in3,
-+					   unsigned long in4, unsigned long in5,
-+					   u32 *out1, u32 *out2, u32 *out3,
-+					   u32 *out4, u32 *out5);
-+
-+/*
-+ * The low bandwidth call. The low word of %edx is presumed to have OUT bit
-+ * set. The high word of %edx may contain input data from the caller.
-  */
-+#define VMWARE_HYPERCALL					\
-+	ALTERNATIVE_2("movw %[port], %%dx\n\t"			\
-+		      "inl (%%dx), %%eax",			\
-+		      "vmcall", X86_FEATURE_VMCALL,		\
-+		      "vmmcall", X86_FEATURE_VMW_VMMCALL)
-+
-+static inline
-+unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
-+{
-+	unsigned long out0;
-+
-+	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-+		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
-+					     NULL, NULL, NULL, NULL, NULL);
-+
-+	asm_inline volatile (VMWARE_HYPERCALL
-+		: "=a" (out0)
-+		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-+		  "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (in1),
-+		  "c" (cmd),
-+		  "d" (0)
-+		: "cc", "memory");
-+	return out0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
-+				u32 *out1, u32 *out2)
-+{
-+	unsigned long out0;
-+
-+	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-+		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
-+					     out1, out2, NULL, NULL, NULL);
-+
-+	asm_inline volatile (VMWARE_HYPERCALL
-+		: "=a" (out0), "=b" (*out1), "=c" (*out2)
-+		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-+		  "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (in1),
-+		  "c" (cmd),
-+		  "d" (0)
-+		: "cc", "memory");
-+	return out0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
-+				u32 *out1, u32 *out2, u32 *out3)
-+{
-+	unsigned long out0;
-+
-+	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-+		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
-+					     out1, out2, out3, NULL, NULL);
-+
-+	asm_inline volatile (VMWARE_HYPERCALL
-+		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
-+		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-+		  "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (in1),
-+		  "c" (cmd),
-+		  "d" (0)
-+		: "cc", "memory");
-+	return out0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
-+				unsigned long in3, unsigned long in4,
-+				unsigned long in5, u32 *out2)
-+{
-+	unsigned long out0;
-+
-+	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-+		return vmware_hypercall_slow(cmd, in1, in3, in4, in5,
-+					     NULL, out2, NULL, NULL, NULL);
-+
-+	asm_inline volatile (VMWARE_HYPERCALL
-+		: "=a" (out0), "=c" (*out2)
-+		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-+		  "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (in1),
-+		  "c" (cmd),
-+		  "d" (in3),
-+		  "S" (in4),
-+		  "D" (in5)
-+		: "cc", "memory");
-+	return out0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
-+				unsigned long in3, u32 *out2,
-+				u32 *out3, u32 *out4, u32 *out5)
-+{
-+	unsigned long out0;
-+
-+	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-+		return vmware_hypercall_slow(cmd, in1, in3, 0, 0,
-+					     NULL, out2, out3, out4, out5);
-+
-+	asm_inline volatile (VMWARE_HYPERCALL
-+		: "=a" (out0), "=c" (*out2), "=d" (*out3), "=S" (*out4),
-+		  "=D" (*out5)
-+		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-+		  "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (in1),
-+		  "c" (cmd),
-+		  "d" (in3)
-+		: "cc", "memory");
-+	return out0;
-+}
-+
-+static inline
-+unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
-+				unsigned long in3, unsigned long in4,
-+				unsigned long in5, u32 *out1,
-+				u32 *out2, u32 *out3)
-+{
-+	unsigned long out0;
-+
-+	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-+		return vmware_hypercall_slow(cmd, in1, in3, in4, in5,
-+					     out1, out2, out3, NULL, NULL);
-+
-+	asm_inline volatile (VMWARE_HYPERCALL
-+		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
-+		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-+		  "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (in1),
-+		  "c" (cmd),
-+		  "d" (in3),
-+		  "S" (in4),
-+		  "D" (in5)
-+		: "cc", "memory");
-+	return out0;
-+}
-+
-+#ifdef CONFIG_X86_64
-+#define VMW_BP_CONSTRAINT "r"
-+#else
-+#define VMW_BP_CONSTRAINT "m"
-+#endif
-+
-+/*
-+ * High bandwidth calls are not supported on encrypted memory guests.
-+ * The caller should check cc_platform_has(CC_ATTR_MEM_ENCRYPT) and use
-+ * low bandwidth hypercall if memory encryption is set.
-+ * This assumption simplifies HB hypercall implementation to just I/O port
-+ * based approach without alternative patching.
-+ */
-+static inline
-+unsigned long vmware_hypercall_hb_out(unsigned long cmd, unsigned long in2,
-+				      unsigned long in3, unsigned long in4,
-+				      unsigned long in5, unsigned long in6,
-+				      u32 *out1)
-+{
-+	unsigned long out0;
-+
-+	asm_inline volatile (
-+		UNWIND_HINT_SAVE
-+		"push %%" _ASM_BP "\n\t"
-+		UNWIND_HINT_UNDEFINED
-+		"mov %[in6], %%" _ASM_BP "\n\t"
-+		"rep outsb\n\t"
-+		"pop %%" _ASM_BP "\n\t"
-+		UNWIND_HINT_RESTORE
-+		: "=a" (out0), "=b" (*out1)
-+		: "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (cmd),
-+		  "c" (in2),
-+		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
-+		  "S" (in4),
-+		  "D" (in5),
-+		  [in6] VMW_BP_CONSTRAINT (in6)
-+		: "cc", "memory");
-+	return out0;
-+}
- 
--/* Old port-based version */
--#define VMWARE_HYPERVISOR_PORT    0x5658
--#define VMWARE_HYPERVISOR_PORT_HB 0x5659
-+static inline
-+unsigned long vmware_hypercall_hb_in(unsigned long cmd, unsigned long in2,
-+				     unsigned long in3, unsigned long in4,
-+				     unsigned long in5, unsigned long in6,
-+				     u32 *out1)
-+{
-+	unsigned long out0;
- 
--/* Current vmcall / vmmcall version */
--#define VMWARE_HYPERVISOR_HB   BIT(0)
--#define VMWARE_HYPERVISOR_OUT  BIT(1)
-+	asm_inline volatile (
-+		UNWIND_HINT_SAVE
-+		"push %%" _ASM_BP "\n\t"
-+		UNWIND_HINT_UNDEFINED
-+		"mov %[in6], %%" _ASM_BP "\n\t"
-+		"rep insb\n\t"
-+		"pop %%" _ASM_BP "\n\t"
-+		UNWIND_HINT_RESTORE
-+		: "=a" (out0), "=b" (*out1)
-+		: "a" (VMWARE_HYPERVISOR_MAGIC),
-+		  "b" (cmd),
-+		  "c" (in2),
-+		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
-+		  "S" (in4),
-+		  "D" (in5),
-+		  [in6] VMW_BP_CONSTRAINT (in6)
-+		: "cc", "memory");
-+	return out0;
-+}
-+#undef VMW_BP_CONSTRAINT
-+#undef VMWARE_HYPERCALL
- 
- /* The low bandwidth call. The low word of edx is presumed clear. */
- #define VMWARE_HYPERCALL						\
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 11f83d07925e..533ac2d1de88 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -41,17 +41,9 @@
- 
- #define CPUID_VMWARE_INFO_LEAF               0x40000000
- #define CPUID_VMWARE_FEATURES_LEAF           0x40000010
--#define CPUID_VMWARE_FEATURES_ECX_VMMCALL    BIT(0)
--#define CPUID_VMWARE_FEATURES_ECX_VMCALL     BIT(1)
- 
--#define VMWARE_HYPERVISOR_MAGIC	0x564D5868
--
--#define VMWARE_CMD_GETVERSION    10
--#define VMWARE_CMD_GETHZ         45
--#define VMWARE_CMD_GETVCPU_INFO  68
- #define VMWARE_CMD_LEGACY_X2APIC  3
- #define VMWARE_CMD_VCPU_RESERVED 31
--#define VMWARE_CMD_STEALCLOCK    91
- 
- #define STEALCLOCK_NOT_AVAILABLE (-1)
- #define STEALCLOCK_DISABLED        0
-@@ -110,6 +102,56 @@ struct vmware_steal_time {
- static unsigned long vmware_tsc_khz __ro_after_init;
- static u8 vmware_hypercall_mode     __ro_after_init;
- 
-+unsigned long vmware_hypercall_slow(unsigned long cmd,
-+				    unsigned long in1, unsigned long in3,
-+				    unsigned long in4, unsigned long in5,
-+				    u32 *out1, u32 *out2, u32 *out3,
-+				    u32 *out4, u32 *out5)
-+{
-+	unsigned long out0;
-+
-+	switch (vmware_hypercall_mode) {
-+	case CPUID_VMWARE_FEATURES_ECX_VMCALL:
-+		asm_inline volatile ("vmcall"
-+				: "=a" (out0), "=b" (*out1), "=c" (*out2),
-+				"=d" (*out3), "=S" (*out4), "=D" (*out5)
-+				: "a" (VMWARE_HYPERVISOR_MAGIC),
-+				"b" (in1),
-+				"c" (cmd),
-+				"d" (in3),
-+				"S" (in4),
-+				"D" (in5)
-+				: "cc", "memory");
-+		break;
-+	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:
-+		asm_inline volatile ("vmmcall"
-+				: "=a" (out0), "=b" (*out1), "=c" (*out2),
-+				"=d" (*out3), "=S" (*out4), "=D" (*out5)
-+				: "a" (VMWARE_HYPERVISOR_MAGIC),
-+				"b" (in1),
-+				"c" (cmd),
-+				"d" (in3),
-+				"S" (in4),
-+				"D" (in5)
-+				: "cc", "memory");
-+		break;
-+	default:
-+		asm_inline volatile ("movw %[port], %%dx; inl (%%dx), %%eax"
-+				: "=a" (out0), "=b" (*out1), "=c" (*out2),
-+				"=d" (*out3), "=S" (*out4), "=D" (*out5)
-+				: [port] "i" (VMWARE_HYPERVISOR_PORT),
-+				"a" (VMWARE_HYPERVISOR_MAGIC),
-+				"b" (in1),
-+				"c" (cmd),
-+				"d" (in3),
-+				"S" (in4),
-+				"D" (in5)
-+				: "cc", "memory");
-+		break;
-+	}
-+	return out0;
-+}
-+
- static inline int __vmware_platform(void)
- {
- 	uint32_t eax, ebx, ecx, edx;
--- 
-2.39.0
+>
+>
+> >
+> >Thanks
+> >
+> >>
+> >> Thank you.
+> >>
+> >
+>
 
