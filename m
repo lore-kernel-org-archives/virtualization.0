@@ -1,241 +1,139 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68EC615B995
-	for <virtualization@lists.linux.dev>; Fri,  7 Jun 2024 09:10:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A886215B125
+	for <virtualization@lists.linux.dev>; Fri,  7 Jun 2024 09:16:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717751407; cv=none; b=rnOPS6ec5MJ95J15xF08+Su+atezFoiQUPRc1AlFWk8ECvco6r7ipnfSRLDXJkwxB29/oUjXnic0eafqfcC0mMoCvkuk9jFCl+0HDteQ7H4ouArWg9p267y68il/0dZ4Gt1Ud5xXrFFSpp7RF6+yR0JNMBM0ZyZpaIGWszsBfXY=
+	t=1717751806; cv=none; b=AkvsBscusrM2M2LGpWQXJsu4yglJm5+Vwse9qMAv3X3ryxknxcw/BFF+EhTVGvQ/PVZq+fqpmlQC+RWGjQppyOoIXNECKaKD/asrLlqxkel/T7BVuzjK0iXgAEZUq+WqT0Ef9c2/lxjp72AP3PCiAaYg+eqsvdv6FUEbJlItyXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717751407; c=relaxed/simple;
-	bh=rcr98LUxMH4GskxdErEsuVpzVDjlNv4ljeb+rvJlTGs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kOZpp6WYjuyNb1fkE5TBo7jqizNGGYQ8JW445cSLG15ZL3QdXEqPUAQ8AkOIvi2t9p76nxDBlZKC2+Fthg+1PSudoRNBOXAuXOWMW0Vodp1bOSxfdx7jhwklUky7DJcfwa1xB03pi1dk9raKhN62OOIObZR8ls66bpwqTfHDCPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QRy19RDo; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717751806; c=relaxed/simple;
+	bh=QzOHaJ+VpQtbU98T3t6z1j5z/fDMO7o6RSHzV4knFvs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ETr+604DAuYARzUIy5AcipjTOBoEdCw8gGMamuwryG+JLJr5juoSR+nDIaz9XcVBOpx5auDDye4PYNT4A3kKnRRFPIC5xDyVxCU+PFdPkKUagkto5xMDQYj4Fq7JCJHeF15Y8tBgwFVgv04wNaLlmdnep9FBLLeC2FpHGm+o10w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GuFmQlhf; arc=none smtp.client-ip=209.85.218.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QRy19RDo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717751404;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BkvZtA0DZCTst0gmiY3p4tzfSSSAg0RWHnN+gN89loE=;
-	b=QRy19RDoaozjAxuNTwCmVLsSRd7CQWyCrV8cc2mYUKNq4tKyY3Ybzp+rJ2acTcF8nNB04g
-	GIuALLzGVv8Bmll91KRu5R/+1UHoFzQUpfvg7XbSMoxmKNEpqFnbJACY6cliztE7Fzv7g4
-	0C1kQfCSHyd2og0uM2UMoGVK0hbjyXw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-592-yH10sX6lNoa9rUALrYBFDg-1; Fri, 07 Jun 2024 05:10:01 -0400
-X-MC-Unique: yH10sX6lNoa9rUALrYBFDg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 16217811E81;
-	Fri,  7 Jun 2024 09:10:00 +0000 (UTC)
-Received: from t14s.fritz.box (unknown [10.39.194.94])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id CF51437E7;
-	Fri,  7 Jun 2024 09:09:55 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org,
-	linux-hyperv@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org,
-	kasan-dev@googlegroups.com,
-	David Hildenbrand <david@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Oscar Salvador <osalvador@suse.de>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Dexuan Cui <decui@microsoft.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-	Alexander Potapenko <glider@google.com>,
-	Marco Elver <elver@google.com>,
-	Dmitry Vyukov <dvyukov@google.com>
-Subject: [PATCH v1 3/3] mm/memory_hotplug: skip adjust_managed_page_count() for PageOffline() pages when offlining
-Date: Fri,  7 Jun 2024 11:09:38 +0200
-Message-ID: <20240607090939.89524-4-david@redhat.com>
-In-Reply-To: <20240607090939.89524-1-david@redhat.com>
-References: <20240607090939.89524-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GuFmQlhf"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a6266ffdba8so175696866b.1
+        for <virtualization@lists.linux.dev>; Fri, 07 Jun 2024 02:16:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1717751803; x=1718356603; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QzOHaJ+VpQtbU98T3t6z1j5z/fDMO7o6RSHzV4knFvs=;
+        b=GuFmQlhf664/uI4xaDr8xzT+glMDwXct+78wmM5X4rZ7FU/GzxZV+p0k1VcOKuoUoJ
+         GsOhMvHIxNm6kTdlsVwthLyNrr/nlZxMrZQubFV0Cgz3d5+Tjl+SN9YvOBASO6RjDniV
+         +L8tnoLee7aUFjB7dyb/G0PWk7Ze0/gK8S/PewElJVIhhGpGffXCqAmVFAdkyetzZydl
+         dSYFuPb4/rgl5w0QLgs+R+MmzvL4f2SFj6mJv/HoVn9T1fPhH9FXfAfvdq3JVK1YBqO6
+         dY9UiwgDxXfCPgIqHAJartUXbF117ci4Dz5gRfwinVRcZrmGyliX3XnC2MsRibHVBj/c
+         R3sw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717751803; x=1718356603;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QzOHaJ+VpQtbU98T3t6z1j5z/fDMO7o6RSHzV4knFvs=;
+        b=OkH2x84LUVAVWVpR+O60fNvEaCOqpjGdG2g3xZJTSiHN5R4t2GkjgCZsl8Bp/Ngfp8
+         Sp8QpkLgh5yF9uv3CndudQyuU63H1eO82deed3ZaHKMssI1FfYhXLfm2erSQt7EHM/0b
+         iraNjQ968YtSh+J5dW8sXOkxR+qTCmbppenYJ75nQyjSBiaVEuqq1GA4C+8g2CD7HnVq
+         tuRR6pLel3sZ7zWai1Ey8CUEpKMsoeugbVnKyA6ZnVkBN3UIvC/cjUy3bFaygqj/mzn4
+         6GEQUAyb9La1XuGd8nOKseLrUgHbO2WS+duePQvqFpVeTw5kS3Se3j/fcZ6op65JegCX
+         +bVA==
+X-Forwarded-Encrypted: i=1; AJvYcCVc7EqlNTjTfgrHXdvwDf1RXtqlTT/+Rx5O3iKU1kyd1XvIjHhxP9cWMxGcWO0oRun10ME5I0GtN1wqIL7ZYKGYX6HCtlyPef483kcP01Y=
+X-Gm-Message-State: AOJu0Ywcy6dTTI0FLcwJ2MYIbSQZYrqYIDMHR+b/T2ImqRqF0R4wtq5J
+	4SKk6D6ygTqVWA9WUMDuVDVLQ3ESksuzL6V9tB6WfZ4OCX9qpjQdXKuj5tR5nvM6g3urg9m6hab
+	1EYRIRc5WiBSUgtkYRn98ynmxW6s=
+X-Google-Smtp-Source: AGHT+IHoguKxRM7exkyMVrRtyhDuFXR6LPgRouKgmIvnNKxWFlca3whZ14HFA5//zRqMaFuM1JDi7nmgTPLIYsEFH00=
+X-Received: by 2002:a17:907:6ea6:b0:a68:f83b:22fa with SMTP id
+ a640c23a62f3a-a6cd5613cfdmr157790966b.11.1717751802811; Fri, 07 Jun 2024
+ 02:16:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+References: <20240130142521.18593-1-danielj@nvidia.com> <20240130095645-mutt-send-email-mst@kernel.org>
+ <CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <20240130104107-mutt-send-email-mst@kernel.org> <CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <20240130105246-mutt-send-email-mst@kernel.org> <CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
+ <20240201202106.25d6dc93@kernel.org> <CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
+ <20240202080126.72598eef@kernel.org> <CH0PR12MB858044D0E5AB3AC651AE0987C9422@CH0PR12MB8580.namprd12.prod.outlook.com>
+In-Reply-To: <CH0PR12MB858044D0E5AB3AC651AE0987C9422@CH0PR12MB8580.namprd12.prod.outlook.com>
+From: Jason Xing <kerneljasonxing@gmail.com>
+Date: Fri, 7 Jun 2024 17:16:05 +0800
+Message-ID: <CAL+tcoBXB97rCp2ghvVGkZAuC+2a4mnMnjsywRLK+nL0+n+s2A@mail.gmail.com>
+Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, "jasowang@redhat.com" <jasowang@redhat.com>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>, 
+	"abeni@redhat.com" <abeni@redhat.com>, Parav Pandit <parav@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-We currently have a hack for virtio-mem in place to handle memory
-offlining with PageOffline pages for which we already adjusted the
-managed page count.
+On Sat, Feb 3, 2024 at 12:46=E2=80=AFAM Daniel Jurgens <danielj@nvidia.com>=
+ wrote:
+>
+> > From: Jakub Kicinski <kuba@kernel.org>
+> > Sent: Friday, February 2, 2024 10:01 AM
+> > Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
+> >
+> > On Fri, 2 Feb 2024 14:52:59 +0800 Jason Xing wrote:
+> > > > Can you say more? I'm curious what's your use case.
+> > >
+> > > I'm not working at Nvidia, so my point of view may differ from theirs=
+.
+> > > From what I can tell is that those two counters help me narrow down
+> > > the range if I have to diagnose/debug some issues.
+> >
+> > right, i'm asking to collect useful debugging tricks, nothing against t=
+he patch
+> > itself :)
+> >
+> > > 1) I sometimes notice that if some irq is held too long (say, one
+> > > simple case: output of printk printed to the console), those two
+> > > counters can reflect the issue.
+> > > 2) Similarly in virtio net, recently I traced such counters the
+> > > current kernel does not have and it turned out that one of the output
+> > > queues in the backend behaves badly.
+> > > ...
+> > >
+> > > Stop/wake queue counters may not show directly the root cause of the
+> > > issue, but help us 'guess' to some extent.
+> >
+> > I'm surprised you say you can detect stall-related issues with this.
+> > I guess virtio doesn't have BQL support, which makes it special.
+> > Normal HW drivers with BQL almost never stop the queue by themselves.
+> > I mean - if they do, and BQL is active, then the system is probably
+> > misconfigured (queue is too short). This is what we use at Meta to dete=
+ct
+> > stalls in drivers with BQL:
+> >
+> > https://lore.kernel.org/all/20240131102150.728960-3-leitao@debian.org/
+> >
+> > Daniel, I think this may be a good enough excuse to add per-queue stats=
+ to
+> > the netdev genl family, if you're up for that. LMK if you want more inf=
+o,
+> > otherwise I guess ethtool -S is fine for now.
+>
+> For now, I would like to go with ethtool -S. But I can take on the netdev=
+ level as a background task. Are you suggesting adding them to rtnl_link_st=
+ats64?
 
-Let's enlighten memory offlining code so we can get rid of that hack,
-and document the situation.
+Hello Daniel, Jakub,
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c    | 11 ++---------
- include/linux/memory_hotplug.h |  4 ++--
- include/linux/page-flags.h     |  8 ++++++--
- mm/memory_hotplug.c            |  6 +++---
- mm/page_alloc.c                | 12 ++++++++++--
- 5 files changed, 23 insertions(+), 18 deletions(-)
+Sorry to revive this thread. I wonder why not use this patch like mlnx
+driver does instead of adding statistics into the yaml file? Are we
+gradually using or adding more fields into the yaml file to replace
+the 'ethtool -S' command?
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index b90df29621c81..b0b8714415783 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -1269,12 +1269,6 @@ static void virtio_mem_fake_offline_going_offline(unsigned long pfn,
- 	struct page *page;
- 	unsigned long i;
- 
--	/*
--	 * Drop our reference to the pages so the memory can get offlined
--	 * and add the unplugged pages to the managed page counters (so
--	 * offlining code can correctly subtract them again).
--	 */
--	adjust_managed_page_count(pfn_to_page(pfn), nr_pages);
- 	/* Drop our reference to the pages so the memory can get offlined. */
- 	for (i = 0; i < nr_pages; i++) {
- 		page = pfn_to_page(pfn + i);
-@@ -1293,10 +1287,9 @@ static void virtio_mem_fake_offline_cancel_offline(unsigned long pfn,
- 	unsigned long i;
- 
- 	/*
--	 * Get the reference we dropped when going offline and subtract the
--	 * unplugged pages from the managed page counters.
-+	 * Get the reference again that we dropped via page_ref_dec_and_test()
-+	 * when going offline.
- 	 */
--	adjust_managed_page_count(pfn_to_page(pfn), -nr_pages);
- 	for (i = 0; i < nr_pages; i++)
- 		page_ref_inc(pfn_to_page(pfn + i));
- }
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 7a9ff464608d7..ebe876930e782 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -175,8 +175,8 @@ extern int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
- extern void mhp_deinit_memmap_on_memory(unsigned long pfn, unsigned long nr_pages);
- extern int online_pages(unsigned long pfn, unsigned long nr_pages,
- 			struct zone *zone, struct memory_group *group);
--extern void __offline_isolated_pages(unsigned long start_pfn,
--				     unsigned long end_pfn);
-+extern unsigned long __offline_isolated_pages(unsigned long start_pfn,
-+		unsigned long end_pfn);
- 
- typedef void (*online_page_callback_t)(struct page *page, unsigned int order);
- 
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index e0362ce7fc109..0876aca0833e7 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -1024,11 +1024,15 @@ PAGE_TYPE_OPS(Buddy, buddy, buddy)
-  * putting them back to the buddy, it can do so via the memory notifier by
-  * decrementing the reference count in MEM_GOING_OFFLINE and incrementing the
-  * reference count in MEM_CANCEL_OFFLINE. When offlining, the PageOffline()
-- * pages (now with a reference count of zero) are treated like free pages,
-- * allowing the containing memory block to get offlined. A driver that
-+ * pages (now with a reference count of zero) are treated like free (unmanaged)
-+ * pages, allowing the containing memory block to get offlined. A driver that
-  * relies on this feature is aware that re-onlining the memory block will
-  * require not giving them to the buddy via generic_online_page().
-  *
-+ * Memory offlining code will not adjust the managed page count for any
-+ * PageOffline() pages, treating them like they were never exposed to the
-+ * buddy using generic_online_page().
-+ *
-  * There are drivers that mark a page PageOffline() and expect there won't be
-  * any further access to page content. PFN walkers that read content of random
-  * pages should check PageOffline() and synchronize with such drivers using
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 0254059efcbe1..965707a02556f 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1941,7 +1941,7 @@ int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages,
- 			struct zone *zone, struct memory_group *group)
- {
- 	const unsigned long end_pfn = start_pfn + nr_pages;
--	unsigned long pfn, system_ram_pages = 0;
-+	unsigned long pfn, managed_pages, system_ram_pages = 0;
- 	const int node = zone_to_nid(zone);
- 	unsigned long flags;
- 	struct memory_notify arg;
-@@ -2062,7 +2062,7 @@ int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages,
- 	} while (ret);
- 
- 	/* Mark all sections offline and remove free pages from the buddy. */
--	__offline_isolated_pages(start_pfn, end_pfn);
-+	managed_pages = __offline_isolated_pages(start_pfn, end_pfn);
- 	pr_debug("Offlined Pages %ld\n", nr_pages);
- 
- 	/*
-@@ -2078,7 +2078,7 @@ int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages,
- 	zone_pcp_enable(zone);
- 
- 	/* removal success */
--	adjust_managed_page_count(pfn_to_page(start_pfn), -nr_pages);
-+	adjust_managed_page_count(pfn_to_page(start_pfn), -managed_pages);
- 	adjust_present_page_count(pfn_to_page(start_pfn), group, -nr_pages);
- 
- 	/* reinitialise watermarks and update pcp limits */
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 039bc52cc9091..809bc4a816e85 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6745,14 +6745,19 @@ void zone_pcp_reset(struct zone *zone)
- /*
-  * All pages in the range must be in a single zone, must not contain holes,
-  * must span full sections, and must be isolated before calling this function.
-+ *
-+ * Returns the number of managed (non-PageOffline()) pages in the range: the
-+ * number of pages for which memory offlining code must adjust managed page
-+ * counters using adjust_managed_page_count().
-  */
--void __offline_isolated_pages(unsigned long start_pfn, unsigned long end_pfn)
-+unsigned long __offline_isolated_pages(unsigned long start_pfn,
-+		unsigned long end_pfn)
- {
-+	unsigned long already_offline = 0, flags;
- 	unsigned long pfn = start_pfn;
- 	struct page *page;
- 	struct zone *zone;
- 	unsigned int order;
--	unsigned long flags;
- 
- 	offline_mem_sections(pfn, end_pfn);
- 	zone = page_zone(pfn_to_page(pfn));
-@@ -6774,6 +6779,7 @@ void __offline_isolated_pages(unsigned long start_pfn, unsigned long end_pfn)
- 		if (PageOffline(page)) {
- 			BUG_ON(page_count(page));
- 			BUG_ON(PageBuddy(page));
-+			already_offline++;
- 			pfn++;
- 			continue;
- 		}
-@@ -6786,6 +6792,8 @@ void __offline_isolated_pages(unsigned long start_pfn, unsigned long end_pfn)
- 		pfn += (1 << order);
- 	}
- 	spin_unlock_irqrestore(&zone->lock, flags);
-+
-+	return end_pfn - start_pfn - already_offline;
- }
- #endif
- 
--- 
-2.45.1
-
+Thanks,
+Jason
