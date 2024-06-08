@@ -1,32 +1,68 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03453E56C
-	for <virtualization@lists.linux.dev>; Sat,  8 Jun 2024 04:17:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07B971779B8
+	for <virtualization@lists.linux-foundation.org>; Sat,  8 Jun 2024 10:00:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717820280; cv=none; b=QnWPonTaTk1NKSq+86zATl+RNomXIhdk2nTmNtd3H27ttoVtf1/NJ5eycSXjYhuJwbHAsPFab1fM58iM67CyaOJoiiN30hmwSWHg1ryJSgD+640vApF3/wBCF4LKwhO5nhrzSdCWYbt+DkWt0Oh/Qe1NTOJPUXMqC1CjZDbQqCI=
+	t=1717840856; cv=none; b=PI1dasxyjZxGIDkUOGFf2QxqrRXEiUzb0hJH06v59Jgx2zy0AyOSxFOcaerPmr73GbB2G3fR/YsVtiPIYiaxY2pILIuDrxpi8MHRTYEQW4eFPvy0MKgOKUxOhOyoDCcpUswfLNsy0oITVgnbFBp+nW7C2nwCUV5gTklAaWu1xYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717820280; c=relaxed/simple;
-	bh=ekmqOcLE4iH6H9/1UXBJARqZityuqrevYo5eanX1HBg=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=LL/G1XRDOUeMU3UmufNoTnrU0St1cH5GXtyUaP7sqTm7brG8KFESgmhMDl0/iLXOus05cakH3JGFsz4pA3ak0OVMu7/OVvm1dEdtCN1vb054vd8A44yUINNsRS082TafeZEjzWZHMBRNGiPceycG7cCnUY3IL82luPCPcrpcbCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iJudAg/P; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717840856; c=relaxed/simple;
+	bh=dD/2qxPjsTYcJBiszw6+m0kwHnKdGtPseKpmC/MTrdk=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=FmRrbjH5u076aogOj4YhcTmkcg8dd6kFhuIWnoAnklITCvW0/uF+0ZC7gYgddshaUWiq2O767i5DFDlBqGL67OFB3UtZNzrQO7A6Sp/IbQEu31BFtBKcTK8EEiXF9Slp0JJm/BcF1y9ZcvUudI3f1drAc9VRrz3XECahZtj0BVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=X164Lzqs; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iJudAg/P"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717820269; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
-	bh=Ttp/o9fQaKCeIOlWsO2k2ss4apRk3x0NTTyLGlgh39o=;
-	b=iJudAg/Pmwpx06cvbtgHsKfcuJvVovOn7iXkxtHB2vjzMhSG9xQ08UdwbG2w+8ll9Ife3PEae00TOcdv3a0XMznGECq2QpHwouX69kVvM5vlLi33hXszptiYakVH/6iQx3bx0OcRiCjP1mse9ESIYjVUho98inwV0F8SEbd1xzw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R631e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W80ed0T_1717820266;
-Received: from 30.39.231.133(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W80ed0T_1717820266)
-          by smtp.aliyun-inc.com;
-          Sat, 08 Jun 2024 12:17:48 +0800
-Message-ID: <2279297c-ac6e-46ed-b1a7-5229bc622f09@linux.alibaba.com>
-Date: Sat, 8 Jun 2024 12:17:46 +0800
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="X164Lzqs"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8CDFB40169
+	for <virtualization@lists.linux-foundation.org>; Sat,  8 Jun 2024 10:00:54 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id uSTrv5FypZBR for <virtualization@lists.linux-foundation.org>;
+ Sat,  8 Jun 2024 10:00:53 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E6F9B40021
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E6F9B40021
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=X164Lzqs
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E6F9B40021
+	for <virtualization@lists.linux-foundation.org>; Sat,  8 Jun 2024 10:00:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1717840853; x=1749376853;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=dD/2qxPjsTYcJBiszw6+m0kwHnKdGtPseKpmC/MTrdk=;
+  b=X164LzqsTyCVuovy0G2rVrCivvpMnqaKZFLcIBi90hvjNep3zCTBXDXW
+   jpZFDoqx5Pk3x4XGEF94hK24hUJy8sP8dOWD34/rgpNI+tacycYLQrrbR
+   0HwtzFEUtw2V8sCBK4VZelbfE2Uu6/FP+37v2oia1tPCjaJ3cYAuyKFos
+   vQ1JPiYX5jtOdWwivTxlBP+DrpdbkIlbKUoArHan//nBC1kx2UohMOmkH
+   lC7b5TRD4mUjJOUOJ/4xiASq+8zfSPs0Lu7v0H2bdcN0ekILxpv9jWbjM
+   xKJV7/89khN/suvtBJgmzzdk/QyYjmHllW8xxdZafGPGRpbJUhSSDK9mY
+   g==;
+X-CSE-ConnectionGUID: srHdQFnbTRWAPVSIegJoMA==
+X-CSE-MsgGUID: eL/3f8IQQxyf6vM28z/CyQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11096"; a="14366491"
+X-IronPort-AV: E=Sophos;i="6.08,222,1712646000"; 
+   d="scan'208";a="14366491"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jun 2024 03:00:51 -0700
+X-CSE-ConnectionGUID: lcCbsdoTQd2NporVwlg6GQ==
+X-CSE-MsgGUID: T9NVOjipTtmZfYc9dHtNOQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,222,1712646000"; 
+   d="scan'208";a="39004890"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa006.jf.intel.com with ESMTP; 08 Jun 2024 03:00:47 -0700
+Message-ID: <a17113d3-500e-45ef-a2d2-747d890c9c5e@linux.intel.com>
+Date: Sat, 8 Jun 2024 17:58:34 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,123 +70,203 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v14 0/5] ethtool: provide the dim profile
- fine-tuning channel
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- Jakub Kicinski <kuba@kernel.org>
-Cc: "David S . Miller" <davem@davemloft.net>, Paolo Abeni
- <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
- Jason Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
- Brett Creeley <bcreeley@amd.com>, Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal Gilboa <talgi@nvidia.com>,
- Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
- Maxime Chevallier <maxime.chevallier@bootlin.com>,
- Jiri Pirko <jiri@resnulli.us>, Paul Greenwalt <paul.greenwalt@intel.com>,
- Ahmed Zaki <ahmed.zaki@intel.com>, Vladimir Oltean
- <vladimir.oltean@nxp.com>, Kory Maincent <kory.maincent@bootlin.com>,
- Andrew Lunn <andrew@lunn.ch>, justinstitt@google.com,
- donald.hunter@gmail.com, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Dragos Tatulea <dtatulea@nvidia.com>,
- Rahul Rameshbabu <rrameshbabu@nvidia.com>,
- Heiner Kallweit <hkallweit1@gmail.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- awel Dembicki <paweldembicki@gmail.com>
-References: <20240603154727.31998-1-hengqi@linux.alibaba.com>
-In-Reply-To: <20240603154727.31998-1-hengqi@linux.alibaba.com>
+Cc: baolu.lu@linux.intel.com, "iommu@lists.linux.dev"
+ <iommu@lists.linux.dev>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v6 06/10] iommufd: Add iommufd fault object
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>
+References: <20240527040517.38561-1-baolu.lu@linux.intel.com>
+ <20240527040517.38561-7-baolu.lu@linux.intel.com>
+ <BN9PR11MB527615EC664698C340A0CA878CFB2@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <BN9PR11MB527615EC664698C340A0CA878CFB2@BN9PR11MB5276.namprd11.prod.outlook.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-Gentle ping.
+On 6/7/24 5:17 PM, Tian, Kevin wrote:
+>> From: Lu Baolu <baolu.lu@linux.intel.com>
+>> Sent: Monday, May 27, 2024 12:05 PM
+>>
+>> +static ssize_t iommufd_fault_fops_read(struct file *filep, char __user *buf,
+>> +				       size_t count, loff_t *ppos)
+>> +{
+>> +	size_t fault_size = sizeof(struct iommu_hwpt_pgfault);
+>> +	struct iommufd_fault *fault = filep->private_data;
+>> +	struct iommu_hwpt_pgfault data;
+>> +	struct iommufd_device *idev;
+>> +	struct iopf_group *group;
+>> +	struct iopf_fault *iopf;
+>> +	size_t done = 0;
+>> +	int rc = 0;
+>> +
+>> +	if (*ppos || count % fault_size)
+>> +		return -ESPIPE;
+> 
+> the man page says:
+> 
+> "If count is zero, read() returns zero and has no  other  results."
 
-Thanks.
+My understanding is that reading zero bytes is likely to check if a file
+descriptor is valid and ready for reading without actually taking any
+data from it.
 
-在 2024/6/3 下午11:47, Heng Qi 写道:
-> The NetDIM library provides excellent acceleration for many modern
-> network cards. However, the default profiles of DIM limits its maximum
-> capabilities for different NICs, so providing a way which the NIC can
-> be custom configured is necessary.
->
-> Currently, the way is based on the commonly used "ethtool -C".
->
-> Please review, thank you very much!
->
-> Changelog
-> =====
-> v13->v14:
->    - Make DIMLIB dependent on NET (patch 2/5).
->
-> v12->v13:
->    - Rebase net-next to fix the one-line conflict.
->    - Update tiny comments.
->    - Config ETHTOOL_NETLINK to select DIMLIB.
->
-> v11->v12:
->    - Remove the use of IS_ENABLED(DIMLIB).
->    - Update Simon's htmldoc hint.
->
-> v10->v11:
->    - Fix and clean up some issues from Kuba, thanks.
->    - Rebase net-next/main
->
-> v9->v10:
->    - Collect dim related flags/mode/work into one place.
->    - Use rx_profile + tx_profile instead of four profiles.
->    - Add several helps.
->    - Update commit logs.
->
-> v8->v9:
->    - Fix the compilation error of conflicting names of rx_profile in
->      dim.h and ice driver: in dim.h, rx_profile is replaced with
->      dim_rx_profile. So does tx_profile.
->
-> v7->v8:
->    - Use kmemdup() instead of kzalloc()/memcpy() in dev_dim_profile_init().
->
-> v6->v7:
->    - A new wrapper struct pointer is used in struct net_device.
->    - Add IS_ENABLED(CONFIG_DIMLIB) to avoid compiler warnings.
->    - Profile fields changed from u16 to u32.
->
-> v5->v6:
->    - Place the profile in netdevice to bypass the driver.
->      The interaction code of ethtool <-> kernel has not changed at all,
->      only the interaction part of kernel <-> driver has changed.
->
-> v4->v5:
->    - Update some snippets from Kuba.
->
-> v3->v4:
->    - Some tiny updates and patch 1 only add a new comment.
->
-> v2->v3:
->    - Break up the attributes to avoid the use of raw c structs.
->    - Use per-device profile instead of global profile in the driver.
->
-> v1->v2:
->    - Use ethtool tool instead of net-sysfs.
->
-> Heng Qi (5):
->    linux/dim: move useful macros to .h file
->    dim: make DIMLIB dependent on NET
->    ethtool: provide customized dim profile management
->    dim: add new interfaces for initialization and getting results
->    virtio-net: support dim profile fine-tuning
->
->   Documentation/netlink/specs/ethtool.yaml     |  31 +++
->   Documentation/networking/ethtool-netlink.rst |   4 +
->   Documentation/networking/net_dim.rst         |  42 +++
->   drivers/net/virtio_net.c                     |  54 +++-
->   drivers/soc/fsl/Kconfig                      |   2 +-
->   include/linux/dim.h                          | 113 ++++++++
->   include/linux/ethtool.h                      |   4 +-
->   include/linux/netdevice.h                    |   3 +
->   include/uapi/linux/ethtool_netlink.h         |  22 ++
->   lib/Kconfig                                  |   1 +
->   lib/dim/net_dim.c                            | 144 +++++++++-
->   net/Kconfig                                  |   1 +
->   net/ethtool/coalesce.c                       | 263 ++++++++++++++++++-
->   13 files changed, 667 insertions(+), 17 deletions(-)
->
+In this code, it just returns 0 and it's compatible with the man page.
+Or, I overlooked anything?
+
+> 
+>> +
+>> +	mutex_lock(&fault->mutex);
+>> +	while (!list_empty(&fault->deliver) && count > done) {
+>> +		group = list_first_entry(&fault->deliver,
+>> +					 struct iopf_group, node);
+>> +
+>> +		if (group->fault_count * fault_size > count - done)
+>> +			break;
+>> +
+>> +		rc = xa_alloc(&fault->response, &group->cookie, group,
+>> +			      xa_limit_32b, GFP_KERNEL);
+>> +		if (rc)
+>> +			break;
+>> +
+>> +		idev = to_iommufd_handle(group->attach_handle)->idev;
+>> +		list_for_each_entry(iopf, &group->faults, list) {
+>> +			iommufd_compose_fault_message(&iopf->fault,
+>> +						      &data, idev,
+>> +						      group->cookie);
+>> +			rc = copy_to_user(buf + done, &data, fault_size);
+>> +			if (rc) {
+> 
+> 'rc' should be converted to -EFAULT.
+
+Yes. I will make it like this:
+
+        if (copy_to_user(buf + done, &data, fault_size)) {
+                xa_erase(&fault->response, group->cookie);
+                rc = -EFAULT;
+                break;
+        }
+
+> 
+>> +				xa_erase(&fault->response, group->cookie);
+>> +				break;
+>> +			}
+>> +			done += fault_size;
+>> +		}
+>> +
+>> +		list_del(&group->node);
+>> +	}
+>> +	mutex_unlock(&fault->mutex);
+>> +
+>> +	return done == 0 ? rc : done;
+> 
+> again this doesn't match the manual:
+> 
+> "On error, -1 is returned, and errno is set appropriately."
+> 
+> it doesn't matter whether 'done' is 0.
+
+I don't quite follow here. The code is doing the following:
+
+- If done == 0, it means nothing has been copied to user space. This
+   could be due to two reasons:
+
+   1) the user read with a count set to 0, or
+   2) a failure case.
+
+   The code returns 0 for the first case and an error number for the
+   second.
+
+- If done != 0, some data has been copied to user space. In this case,
+   the code returns the number of data copied regardless of the value of
+   rc.
+
+> 
+>> +
+>> +static int iommufd_fault_fops_release(struct inode *inode, struct file *filep)
+>> +{
+>> +	struct iommufd_fault *fault = filep->private_data;
+>> +
+>> +	iommufd_ctx_put(fault->ictx);
+>> +	refcount_dec(&fault->obj.users);
+>> +	return 0;
+>> +}
+> 
+> hmm this doesn't sound correct. the context and refcount are
+> acquired in iommufd_fault_alloc() but here they are reverted when
+> the fd is closed...
+
+These two refcounts were requested when the fault object was installed
+to the fault FD.
+
+        filep = anon_inode_getfile("[iommufd-pgfault]", &iommufd_fault_fops,
+                                    fault, O_RDWR);
+         if (IS_ERR(filep)) {
+                 rc = PTR_ERR(filep);
+                 goto out_abort;
+         }
+
+         refcount_inc(&fault->obj.users);
+         iommufd_ctx_get(fault->ictx);
+         fault->filep = filep;
+
+These refcounts must then be released when the FD is released.
+
+>> +
+>> +	filep = anon_inode_getfile("[iommufd-pgfault]",
+>> &iommufd_fault_fops,
+>> +				   fault, O_RDWR);
+>> +	if (IS_ERR(filep)) {
+>> +		rc = PTR_ERR(filep);
+>> +		goto out_abort;
+>> +	}
+>> +
+>> +	refcount_inc(&fault->obj.users);
+>> +	iommufd_ctx_get(fault->ictx);
+>> +	fault->filep = filep;
+> 
+> those 3 lines can be moved after below fdno get. It's reads slightly
+> clearer to put file related work together before getting to the last piece
+> of intiailzation.
+
+The filep is allocated and initialized together.
+
+>> +
+>> +	fdno = get_unused_fd_flags(O_CLOEXEC);
+>> +	if (fdno < 0) {
+>> +		rc = fdno;
+>> +		goto out_fput;
+>> +	}
+>> +
+>> @@ -332,6 +332,7 @@ union ucmd_buffer {
+>>   	struct iommu_ioas_unmap unmap;
+>>   	struct iommu_option option;
+>>   	struct iommu_vfio_ioas vfio_ioas;
+>> +	struct iommu_fault_alloc fault;
+> 
+> alphabetic
+> 
+>> @@ -381,6 +382,8 @@ static const struct iommufd_ioctl_op
+>> iommufd_ioctl_ops[] = {
+>>   		 val64),
+>>   	IOCTL_OP(IOMMU_VFIO_IOAS, iommufd_vfio_ioas, struct
+>> iommu_vfio_ioas,
+>>   		 __reserved),
+>> +	IOCTL_OP(IOMMU_FAULT_QUEUE_ALLOC, iommufd_fault_alloc,
+>> struct iommu_fault_alloc,
+>> +		 out_fault_fd),
+> 
+> ditto
+
+Yes, sure. I wasn't aware of the order.
+
+Best regards,
+baolu
