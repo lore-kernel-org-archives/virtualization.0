@@ -1,145 +1,119 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66F3223B0
-	for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 14:19:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99BF68F6D
+	for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 17:39:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718029154; cv=none; b=PcupLFaxks1k1wDJqIP2mt0xPTHnc3FxFBF5yao/rcbAXXsoXfvqIECqc+1hfPn1d6lz0cv5aO3oes1KKlf/PZKb+LI6dNibioW72DDgTxRijmYN1zipC+vnzkve8X6sKmmL//AjuFnNlh+EM6NvHHZfNagUQvT1x+d3AV3ZggU=
+	t=1718041158; cv=none; b=FyBIrmkgc9MHpbSUJAoXhNNr0irSDD5pl4fGYdwjNYlHIAl4IwJe92kJMGSeGffb5+xb2C0GJV162oBV4Nc+2OGTyncX36/FF4lPd3f6QaEV5yZPmdXLSnbPN/uKTMwcu0kiUSF8bQGEzVl9F8cYQd4Z9y0JJ0oKXbwvGqAVeXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718029154; c=relaxed/simple;
-	bh=Rl2tVPiX9UWvnu+ZPwPmaHdP1YszauJ4RtH4EfVZS/M=;
+	s=arc-20240116; t=1718041158; c=relaxed/simple;
+	bh=gYn5ThmtsS7mr67KhDPaq+PQqVO6F8ApXUk64E+UyM8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=iJ4k2U5rgdkBHkxZsDLVbF7wv+754fmFyQSeSRpG/f1wJYmBpDO5IADayImfZ5csD5hDNYg/yKXmH3NwF9bAk54jMHPhh4oS+LKXxz/dUauvZC2EhBzLEhX2N2WLzUizpbyNodBubMHHZwm5EdI2uiZKQBtnm/gEJfdgxyrjdWk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QunuzQWl; arc=none smtp.client-ip=170.10.129.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=fI5lXTjmSAd4nfoktAoMEeD8kWxbpRfcMls2gYj5oKoU75fbkq5S3o7tqAunzbeQe/8hUR6i4TV/NAa0Xe1jSDmP3qVvYM1umomJ944WONH3tScULuiSf6XCJmuLW9JoRAfRUemvA4F60WSv2oRyWIIHthgp42ZeMqiLnOmvSEU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hjEIj9VD; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QunuzQWl"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hjEIj9VD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718029151;
+	s=mimecast20190719; t=1718041155;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5fQYADQiwQp5dfNvEaV5J/jkCAEg3Kh2jQNmcpyXbzo=;
-	b=QunuzQWlwqetj8aCw6ekL2iH4Y7fTqEuiWzqCjyzGsqgqL0G+s4NJxodJw+c/tTYKU7ZTa
-	BTbvHhocgCIQu5UR8O0ViMhAJpsALtxvKZJLf4I9htyWCyN4WVzXL0WaKXDBwCy1pNpBW5
-	ZMx5/JIAPEsHqLj41eli9SpqE7F27Vw=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-133-_PGLxkJJMce38WgmCkCjEw-1; Mon, 10 Jun 2024 10:19:09 -0400
-X-MC-Unique: _PGLxkJJMce38WgmCkCjEw-1
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-57c80b0d272so1000684a12.1
-        for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 07:19:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718029148; x=1718633948;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5fQYADQiwQp5dfNvEaV5J/jkCAEg3Kh2jQNmcpyXbzo=;
-        b=pJI5vHtTtIB3KnuJW10OBAurpT4mTjcDtz0N44OSS3bi5QGanmyxwTosacexwHefzg
-         tq/ZsfCYkh97QFDteNvH0iYIK7sm8oK9jwIwZOwy79VQocKXGcCoROlYSDsJH5PQtt/P
-         f6v8kmlisqYhw3dka/0tls3GqcEegQ/Euz/3yD+g4WZjtTLbqAZqZ6jpgoYt050dVhcV
-         H7NoJ/rXvDI2fvyaYCqyj9kKUGUovCoj9fQi5gHcbDaph9DTyZFsdgVGt2N+X/jwXp4m
-         q+RaYqqMlxnglfOOF/XLcolJlpMM9Roo/wxgzfzs2MssHn5KuzkL/uFIU3EMW09cjwfB
-         It8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVolP9Ktd+UC+mwLLp+QLeOhRURj52fKJspreca89DaJO52RIXQIwxbFBs8qW5UcaS5XdhoWoD/r9mpNyRzKl8tSlQd5DPy2Qa8aRAiRVI=
-X-Gm-Message-State: AOJu0Yw310MZVfTmNg0EqCTwkek6GGRFZqZtbxMbZe5isjGQmw2q6FPV
-	brK2Rsp7D0kmgzEbhf6dv9bMiTa6sqgGBMo7pstnzycCc96prkEUtrbuUhKRbk9gcxeFnrSwV/u
-	UEDo9XGY+tEemeRf93sn3MYwQeYysbIaE1HE9VCX4BgC1VIl35MD/oymuPS8QsNzG
-X-Received: by 2002:a50:cdc1:0:b0:57c:7641:72e2 with SMTP id 4fb4d7f45d1cf-57c76417319mr3169040a12.30.1718029147745;
-        Mon, 10 Jun 2024 07:19:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHCp3exlBA6B9Bw4Hrp54qJGJT7MsRMusp9B/hD6uoUg1sf4LnZ6GbChe4UfO/h6zYmtLS4hw==
-X-Received: by 2002:a50:cdc1:0:b0:57c:7641:72e2 with SMTP id 4fb4d7f45d1cf-57c76417319mr3169012a12.30.1718029147149;
-        Mon, 10 Jun 2024 07:19:07 -0700 (PDT)
-Received: from redhat.com ([2.52.131.243])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57c828dd0dfsm1807666a12.72.2024.06.10.07.18.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Jun 2024 07:19:05 -0700 (PDT)
-Date: Mon, 10 Jun 2024 10:18:56 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Jason Xing <kerneljasonxing@gmail.com>,
-	Heng Qi <hengqi@linux.alibaba.com>, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
-	john.fastabend@gmail.com, netdev@vger.kernel.org
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-Message-ID: <20240610101346-mutt-send-email-mst@kernel.org>
-References: <CACGkMEvh6nKfFMp5fb6tbijrs88vgSofCNkwN1UzKHnf6RqURg@mail.gmail.com>
- <20240606020248-mutt-send-email-mst@kernel.org>
- <CACGkMEsy37mg-GwRXJNBBkvhEuaEYw-g3wthv_XS7+t5=ALhiA@mail.gmail.com>
- <ZmG9YWUcaW4S94Eq@nanopsycho.orion>
- <CACGkMEug18UTJ4HDB+E4-U84UnhyrY-P5kW4et5tnS9E7Pq2Gw@mail.gmail.com>
- <ZmKrGBLiNvDVKL2Z@nanopsycho.orion>
- <CACGkMEvQ04NBUBwrc9AyvLqskSbQ_4OBUK=B9a+iktLcPLeyrg@mail.gmail.com>
- <ZmLZkVML2a3mT2Hh@nanopsycho.orion>
- <20240607062231-mutt-send-email-mst@kernel.org>
- <ZmLvWnzUBwgpbyeh@nanopsycho.orion>
+	bh=4erCarrIyR2PznMxWy2osancnsDLG/qu3A8gBhzKfNU=;
+	b=hjEIj9VDV+yg4i8IY6mJM1auUTIILNreaByCwXJTlBnzZX3xUUr5rJRvdLYFPYLRF2bi/g
+	u37rcZmdCOWYFdvEet9yN50ULEIT9Hso3tbevMIubirI4xx23yZbRDsfkaHSiqeAbuc00Y
+	SVvfE4+KTDOOm3OFP7paJXVKxamwpMo=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-246-Fzqn9hYbMw-AzZj7jk8WEA-1; Mon,
+ 10 Jun 2024 13:39:10 -0400
+X-MC-Unique: Fzqn9hYbMw-AzZj7jk8WEA-1
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AFA4E19560B2;
+	Mon, 10 Jun 2024 17:39:08 +0000 (UTC)
+Received: from localhost (unknown [10.39.195.112])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 01B0019560AB;
+	Mon, 10 Jun 2024 17:39:06 +0000 (UTC)
+Date: Mon, 10 Jun 2024 13:39:04 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Peter-Jan Gootzen <pgootzen@nvidia.com>
+Cc: virtualization@lists.linux.dev, vgoyal@redhat.com, miklos@szeredi.hu,
+	mst@redhat.com, dgilbert@redhat.com, yorayz@nvidia.com,
+	mgurtovoy@nvidia.com
+Subject: Re: [PATCH 0/2] virtio-fs: change handling of failure at request
+ enqueue
+Message-ID: <20240610173904.GA346990@fedora.redhat.com>
+References: <20240517190435.152096-1-pgootzen@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ZmLvWnzUBwgpbyeh@nanopsycho.orion>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="Kob+GNVT7oJxrsjl"
+Content-Disposition: inline
+In-Reply-To: <20240517190435.152096-1-pgootzen@nvidia.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+
+
+--Kob+GNVT7oJxrsjl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 07, 2024 at 01:30:34PM +0200, Jiri Pirko wrote:
-> Fri, Jun 07, 2024 at 12:23:37PM CEST, mst@redhat.com wrote:
-> >On Fri, Jun 07, 2024 at 11:57:37AM +0200, Jiri Pirko wrote:
-> >> >True. Personally, I would like to just drop orphan mode. But I'm not
-> >> >sure others are happy with this.
-> >> 
-> >> How about to do it other way around. I will take a stab at sending patch
-> >> removing it. If anyone is against and has solid data to prove orphan
-> >> mode is needed, let them provide those.
-> >
-> >Break it with no warning and see if anyone complains?
-> 
-> This is now what I suggested at all.
-> 
-> >No, this is not how we handle userspace compatibility, normally.
-> 
-> Sure.
-> 
-> Again:
-> 
-> I would send orphan removal patch containing:
-> 1) no module options removal. Warn if someone sets it up
-> 2) module option to disable napi is ignored
-> 3) orphan mode is removed from code
-> 
-> There is no breakage. Only, hypotetically performance downgrade in some
-> hypotetical usecase nobody knows of.
+On Fri, May 17, 2024 at 09:04:33PM +0200, Peter-Jan Gootzen wrote:
+> This patch set aims to improve the latencies of virtio-fs requests when
+> the system is under high load, namely when the application's IO depth
+> is greater than the size of the Virtio queue.
+>=20
+> We found that the handling of -ENOMEM when enqueueing requests is
+> inconsistent with other parts of the kernel (e.g. FUSE) and also
+> obstructs optimizing the enqueueing behavior.
+>=20
+> It is important to first remove the -ENOMEM behavior as the new style of
+> retrying virtio-fs requests in patch 2/2 is only correct in case of
+> -ENOSPC. With -ENOMEM the failed enqueue might never be retried as there
+> might not be another completion to trigger retrying the enqueue.
+>=20
+> Note that this patch series is a revival of my patch that was last
+> discussed in the mailing list on 2023-08-16.
+>=20
+> Peter-Jan Gootzen (2):
+>   virtio-fs: let -ENOMEM bubble up or burst gently
+>   virtio-fs: improved request latencies when Virtio queue is full
+>=20
+>  fs/fuse/virtio_fs.c | 40 ++++++++++++++++++++++------------------
+>  1 file changed, 22 insertions(+), 18 deletions(-)
+>=20
+> --=20
+> 2.34.1
+>=20
 
-Performance is why people use virtio. It's as much a breakage as any
-other bug. The main difference is, with other types of breakage, they
-are typically binary and we can not tolerate them at all.  A tiny,
-negligeable performance regression might be tolarable if it brings
-other benefits. I very much doubt avoiding interrupts is
-negligeable though. And making code simpler isn't a big benefit,
-users do not care.
+This is a nice improvement, thank you!
 
-> My point was, if someone presents
-> solid data to prove orphan is needed during the patch review, let's toss
-> out the patch.
-> 
-> Makes sense?
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-It's not hypothetical - if anything, it's hypothetical that performance
-does not regress.  And we just got a report from users that see a
-regression without.  So, not really.
+--Kob+GNVT7oJxrsjl
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> 
-> >
-> >-- 
-> >MST
-> >
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmZnOjgACgkQnKSrs4Gr
+c8jNfwgAgl0SZW15ukfeIlL6QUXzJoUgWyd+ShK7gfj76jx0inIwxBTUtFepYUoa
+gY2TUnjucKD/2SbQJx2vXreuIjzrY9GMCucKV7Cg6YwS2isI0hHkGrmjnm/t1XLc
+1vBsS2YGipw01/SUKyarKECJQiCjP0qi4bkkMN+JhZj3qCSFHNQPLMIy4hU9I+Wq
+u0b3rGGApgztUzzr4abUIkaElokfivYEXr7cEskzJTsqX4A2hBersqme3/Uluocp
+GekIR1+W/9niToFGSWSaT50SjSyEarRWlCaBm+tDb6PUdmnk1uAesOog+ie9Q5Ad
+ue2Ab3KGANNPcG7uS/TxSRiGa9itUw==
+=Kn8p
+-----END PGP SIGNATURE-----
+
+--Kob+GNVT7oJxrsjl--
 
