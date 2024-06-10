@@ -1,64 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8080255887
-	for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 08:32:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25A4163C7
+	for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 08:38:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718008341; cv=none; b=OsjC1Ggmm4sXBWsS557SJLe7btKeLUBeqiCPDsQrfFW9tW0B1ly0RvQ5Nwn2yENSjZyiAQE/WzoYj3pmvTh8UhI8ZOra1NXo3mSP7EF/pAJRESPJHGM4liYHSAxgekW5AAtYow+HN37GP+ru3IZApqVbK+R308a2wNg4+fD6jhQ=
+	t=1718008699; cv=none; b=qba6+J+movwGRC2K1Lju+jo7jcF85VIEzC2ev54/xVAsgst5fT+0wBjaSsTRvHIOZ81PjbPA8/KHGXWfbl5AlijfQp8Vu4EjW4qcQDuSjoY/+DWawURtx9csArUFJ2v/KB2JjuDmNvP3kfdN+tqcS/hwo//MXiXUahWe1NGTI2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718008341; c=relaxed/simple;
-	bh=NMlcYcmuSGPRF4yrItr4CuF2mNzLKhvU6KEPBL0SggE=;
+	s=arc-20240116; t=1718008699; c=relaxed/simple;
+	bh=PKzZA1Tyb9IrkR6CjttNB5iU/gycey9RVJ7xg2XmZls=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LaHEDbYLC0mYad73cOwaMnOZlMjCbVd/Ry5yIo5MWydLH5eZjE1RGGC2CinAPC1YqWtae7YHi7zM4tRvCh4XOTec0TKmM7WLFQhzMf7eSXmdrsBbFPCmsz6uvaerYxf1IYnwwg8v1GiNDgh80s8DYD7x0obaZ/51LdYoE7aPbu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DrRMW5RN; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=olJ11QSZRsJ4mbWmAcyaSshvabfNjt/P/4MvwenYfcP8I8S+4HwMQbpapcGx2HnG60QHnXbI9+3YV82wCd62ROPgEdBB9j+coA5y80DzDozdlQn6vw2vrlm9uETlBqW14yhQy19tjX7XiYyeeMfwnLnW8t0gYwjCzTSth+W0Mkk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UE4CD9OV; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DrRMW5RN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UE4CD9OV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718008339;
+	s=mimecast20190719; t=1718008696;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hSRcH/8de8I+xRtp7H6QKboIq4H1BR83RocjPY6icfE=;
-	b=DrRMW5RNzysZ959fp/61Jx5uKrqYkp0kogFR3QI1R7No64aifW5PLFvk4K7l6j+ALFe3DF
-	9hHP0ZbMHyCBgvpKT4aEmmFF/s9K9S6wR7VVzTCOjhZtTmhbpPkrI9pAFq6+0z2vr++Ku3
-	RShwutqju0R2QcZpqFh4VSPdvsrVeeU=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=w6nrbStgbGoljYTouWdcfenV64/6o+i5+It1jT8aCEg=;
+	b=UE4CD9OVImDXlHksw9I1TO1/shRLrWjqatsnj7QBIqruNUpOf8/8+Fk7wAgq45I/18qy/X
+	KHkUjmIXFOIY9TKVnPhFMo487JzFSLMkRUWNAnQtb2RGHxyc9R4ZfU+JViqEIekbz/dce5
+	BubQOdjatzKfmEKPvf351JJQi+i3feg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-308-rU9oRcRnNL-vykMvq7wHFg-1; Mon, 10 Jun 2024 04:32:15 -0400
-X-MC-Unique: rU9oRcRnNL-vykMvq7wHFg-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a6e8aa42033so119008466b.1
-        for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 01:32:15 -0700 (PDT)
+ us-mta-122-cSgdgtl-MEapPyapq7aM1w-1; Mon, 10 Jun 2024 04:38:08 -0400
+X-MC-Unique: cSgdgtl-MEapPyapq7aM1w-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-35f1ddd8a47so594724f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 01:38:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718008334; x=1718613134;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=hSRcH/8de8I+xRtp7H6QKboIq4H1BR83RocjPY6icfE=;
-        b=LqmMeTqCK5HOuZV80Ib/eIOdjn8UnMOTs9A/Nuk9ufbmrkyXIXKqllt7m1H8zZo+JJ
-         8A0RbUz65jB+IEFaCGPMEToQDM57V3JZNh10Gd4WDUTZZ8DNclh5B+q1h1zNwZN08frN
-         rk3nVRo/q1obPUtvi7c+R7RSk7CRBttVesFdbSPKRGi6L8XgIBOXxg8nfpzel1Cb0VBC
-         rg47ECop4Nlf0rUOrHOtUO2vJON/Q6/8Vei9+U89Gb/Wh179mY3JDb3AtLV6PsdVbKD0
-         XOE8jOsBkIYBfHvyk/geEvVU1Zqs9skA0++O26Y1G8ZE99zuro0VWMMgrWK7iq1JjmgI
-         uexA==
-X-Gm-Message-State: AOJu0YyGZ4EF2NVd+0n16UgXj+uu5f52raBsNbSTxUBCEwzKxQtwO6ph
-	CNKU9eFv1PJ8IlLH6Arzry7UdyncxiZUPiHK6dagJQEmrrFo1sxadd0H5rSK4BR5COe+bC4xjuz
-	mrHqpP2afk+cq0a/aWzL4OEOVk89wTAyghvdmizv6g338pBE0cqa2eDW53307q2Lz
-X-Received: by 2002:a17:906:6b01:b0:a6f:117c:60c1 with SMTP id a640c23a62f3a-a6f117c6798mr232882366b.55.1718008334487;
-        Mon, 10 Jun 2024 01:32:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFNdowhmu00ckKngsHHAEOjW9e2OU6ATnmpJMzLrmBT1lN3+KYrPR1LaT6Wx0JstaTndpl+FQ==
-X-Received: by 2002:a17:906:6b01:b0:a6f:117c:60c1 with SMTP id a640c23a62f3a-a6f117c6798mr232880166b.55.1718008334104;
-        Mon, 10 Jun 2024 01:32:14 -0700 (PDT)
-Received: from [10.40.98.157] ([78.108.130.194])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57c8df2c332sm55431a12.61.2024.06.10.01.32.13
+        d=1e100.net; s=20230601; t=1718008687; x=1718613487;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=w6nrbStgbGoljYTouWdcfenV64/6o+i5+It1jT8aCEg=;
+        b=Y6g9e8P6Ap+gq+BGfCccAXq54/a8GTX6k1UB9JtyVpsXpEOYpO3e3jBdMJzqws6v0H
+         FBySIC78cG1GeM04hu+oLJ2LNVoAQ8TVCU9QAQNyYhvORqRxyeL21gakCoD9vHwXqZZF
+         ke6ZBWeXSrKWOekx605Q1+qQOrWx93fBfZ9hlj8vfkMyZVEtYzNkRCyG5S7+M3fYnlRp
+         7sGceflf+WzwIcsOAXuKjaxOdlQ+cJ/tV7TZf7xZoTHSz2VLiVTJLsae5JST1fUs529L
+         YyC0KFENqtS19ijBzpZqGJVYXlOnFkg37qm8Y/I6aDJjwZuhYkW5BenBrZZISTR3e5ph
+         XlvA==
+X-Forwarded-Encrypted: i=1; AJvYcCU35XEUY/ZhoY8EoI2v9TkScHGxy+6FUPgwi11t0fjKCkxxHWFF5gyO5GKPOhwJRJ9PIlAXw6183272tGwHRY7UVyomWI1Lc38G+ol08kE=
+X-Gm-Message-State: AOJu0Yz686iJCpolYs5uli+2WMzuK3qJPvQn9e/6QybRtQjapUvNQzWc
+	4ZgX5b7Biy3aTRjzsu9qSNDqPp8nJFOkXmcKPQwD/OV1DMAR9YbIkGclHMgjxvvJSRt7eL+Q87v
+	DTLbP/l+K7cBupcrOEYNLq3ywwfkZE0g3Jvik4lHC4+es+TP4XMMBMXfhkYOrhy4v
+X-Received: by 2002:a5d:5f90:0:b0:35f:22d9:cab3 with SMTP id ffacd0b85a97d-35f22d9cd51mr2249193f8f.36.1718008687503;
+        Mon, 10 Jun 2024 01:38:07 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHXEFywI0gemoc9w1rogNSIeoaxga56ZirfcbsHoHRmzr//4KCG2uOiq+HM1RIZR6Nee59Wpg==
+X-Received: by 2002:a5d:5f90:0:b0:35f:22d9:cab3 with SMTP id ffacd0b85a97d-35f22d9cd51mr2249152f8f.36.1718008686974;
+        Mon, 10 Jun 2024 01:38:06 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35f29629231sm157912f8f.67.2024.06.10.01.38.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Jun 2024 01:32:13 -0700 (PDT)
-Message-ID: <b5de3aaf-24e4-4bb1-b34a-f9f45efc0eac@redhat.com>
-Date: Mon, 10 Jun 2024 10:32:12 +0200
+        Mon, 10 Jun 2024 01:38:06 -0700 (PDT)
+Message-ID: <13070847-4129-490c-b228-2e52bd77566a@redhat.com>
+Date: Mon, 10 Jun 2024 10:38:05 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,86 +68,122 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/tiny: add missing MODULE_DESCRIPTION() macros
-To: Jeff Johnson <quic_jjohnson@quicinc.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Dave Airlie <airlied@redhat.com>
-Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-References: <20240609-md-drivers-gpu-drm-tiny-v1-1-6905fe4ada50@quicinc.com>
-From: Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20240609-md-drivers-gpu-drm-tiny-v1-1-6905fe4ada50@quicinc.com>
+Subject: Re: [PATCH v1 1/3] mm: pass meminit_context to __free_pages_core()
+To: Oscar Salvador <osalvador@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ xen-devel@lists.xenproject.org, kasan-dev@googlegroups.com,
+ Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>,
+ "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
+ Dmitry Vyukov <dvyukov@google.com>
+References: <20240607090939.89524-1-david@redhat.com>
+ <20240607090939.89524-2-david@redhat.com>
+ <ZmZ7GgwJw4ucPJaM@localhost.localdomain>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <ZmZ7GgwJw4ucPJaM@localhost.localdomain>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi,
-
-On 6/9/24 7:20 PM, Jeff Johnson wrote:
-> make allmodconfig && make W=1 C=1 reports:
-> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/tiny/bochs.o
-> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/tiny/cirrus.o
-> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/tiny/gm12u320.o
+On 10.06.24 06:03, Oscar Salvador wrote:
+> On Fri, Jun 07, 2024 at 11:09:36AM +0200, David Hildenbrand wrote:
+>> In preparation for further changes, let's teach __free_pages_core()
+>> about the differences of memory hotplug handling.
+>>
+>> Move the memory hotplug specific handling from generic_online_page() to
+>> __free_pages_core(), use adjust_managed_page_count() on the memory
+>> hotplug path, and spell out why memory freed via memblock
+>> cannot currently use adjust_managed_page_count().
+>>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
 > 
-> Add the missing invocations of the MODULE_DESCRIPTION() macro.
+> All looks good but I am puzzled with something.
 > 
-> Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
-
-Thanks, patch looks good to me:
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
-
-
-
-
-> ---
->  drivers/gpu/drm/tiny/bochs.c    | 1 +
->  drivers/gpu/drm/tiny/cirrus.c   | 1 +
->  drivers/gpu/drm/tiny/gm12u320.c | 1 +
->  3 files changed, 3 insertions(+)
+>> +	} else {
+>> +		/* memblock adjusts totalram_pages() ahead of time. */
+>> +		atomic_long_add(nr_pages, &page_zone(page)->managed_pages);
+>> +	}
 > 
-> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-> index c23c9f0cf49c..d15f4d3baeab 100644
-> --- a/drivers/gpu/drm/tiny/bochs.c
-> +++ b/drivers/gpu/drm/tiny/bochs.c
-> @@ -736,4 +736,5 @@ drm_module_pci_driver_if_modeset(bochs_pci_driver, bochs_modeset);
->  
->  MODULE_DEVICE_TABLE(pci, bochs_pci_tbl);
->  MODULE_AUTHOR("Gerd Hoffmann <kraxel@redhat.com>");
-> +MODULE_DESCRIPTION("DRM Support for bochs dispi vga interface (qemu stdvga)");
->  MODULE_LICENSE("GPL");
-> diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-> index 4e3a152f897a..89484f7084bd 100644
-> --- a/drivers/gpu/drm/tiny/cirrus.c
-> +++ b/drivers/gpu/drm/tiny/cirrus.c
-> @@ -760,4 +760,5 @@ static struct pci_driver cirrus_pci_driver = {
->  drm_module_pci_driver(cirrus_pci_driver)
->  
->  MODULE_DEVICE_TABLE(pci, pciidlist);
-> +MODULE_DESCRIPTION("Cirrus driver for QEMU emulated device");
->  MODULE_LICENSE("GPL");
-> diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
-> index 0187539ff5ea..07c6640022c2 100644
-> --- a/drivers/gpu/drm/tiny/gm12u320.c
-> +++ b/drivers/gpu/drm/tiny/gm12u320.c
-> @@ -755,4 +755,5 @@ static struct usb_driver gm12u320_usb_driver = {
->  
->  module_usb_driver(gm12u320_usb_driver);
->  MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
-> +MODULE_DESCRIPTION("GM12U320 driver for USB projectors");
->  MODULE_LICENSE("GPL");
+> You say that memblock adjusts totalram_pages ahead of time, and I guess
+> you mean in memblock_free_all()
+
+And memblock_free_late(), which uses atomic_long_inc().
+
 > 
-> ---
-> base-commit: 19ca0d8a433ff37018f9429f7e7739e9f3d3d2b4
-> change-id: 20240609-md-drivers-gpu-drm-tiny-a3370189f560
+>   pages = free_low_memory_core_early()
+>   totalram_pages_add(pages);
 > 
+> but that is not ahead, it looks like it is upading __after__ sending
+> them to buddy?
+
+Right (it's suboptimal, but not really problematic so far. Hopefully Wei 
+can clean it up and move it in here as well)
+
+For the time being
+
+"/* memblock adjusts totalram_pages() manually. */"
+
+?
+
+Thanks!
+
+-- 
+Cheers,
+
+David / dhildenb
 
