@@ -1,119 +1,81 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99BF68F6D
-	for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 17:39:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F370614884F;
+	Mon, 10 Jun 2024 17:57:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718041158; cv=none; b=FyBIrmkgc9MHpbSUJAoXhNNr0irSDD5pl4fGYdwjNYlHIAl4IwJe92kJMGSeGffb5+xb2C0GJV162oBV4Nc+2OGTyncX36/FF4lPd3f6QaEV5yZPmdXLSnbPN/uKTMwcu0kiUSF8bQGEzVl9F8cYQd4Z9y0JJ0oKXbwvGqAVeXg=
+	t=1718042239; cv=none; b=JaC6nY4a4gunl1AYhwLnFTWTT0MmwO8bL1CGqbPj8DOaMRfhEMQNeb58/DUuJMUv4YVuqoAW0w7yjw2zsHGV98pyFzHK70MuFUdMH2mzCjc1Ldq9UJd3PE7jlrrnUvrssvl+FeR9WteBuZAn0BfCC7U8Qpq55twDfL3aceS+op0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718041158; c=relaxed/simple;
-	bh=gYn5ThmtsS7mr67KhDPaq+PQqVO6F8ApXUk64E+UyM8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fI5lXTjmSAd4nfoktAoMEeD8kWxbpRfcMls2gYj5oKoU75fbkq5S3o7tqAunzbeQe/8hUR6i4TV/NAa0Xe1jSDmP3qVvYM1umomJ944WONH3tScULuiSf6XCJmuLW9JoRAfRUemvA4F60WSv2oRyWIIHthgp42ZeMqiLnOmvSEU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hjEIj9VD; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1718042239; c=relaxed/simple;
+	bh=GZC/MhALX/ksEhs5BxScLGoQ+046shv8SpsC0EqMARY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=vGpN2MOtKMC/SWM7/3atywKVYgjT5CSGsQdsNYBwTRhlsX679l4U7vlvJqm0f3Dhh6mChcLI8Yd8/Aonqzw6BgbVSewaFR+W7UoZYOg/ocgZNqD0+QaqDp5qxkkv8P+Urf/Ml9K3/Mmy7Akx1sBOO8MUE3T/7ArZz3GUJWiiaSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=beB7Leg9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hjEIj9VD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718041155;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4erCarrIyR2PznMxWy2osancnsDLG/qu3A8gBhzKfNU=;
-	b=hjEIj9VDV+yg4i8IY6mJM1auUTIILNreaByCwXJTlBnzZX3xUUr5rJRvdLYFPYLRF2bi/g
-	u37rcZmdCOWYFdvEet9yN50ULEIT9Hso3tbevMIubirI4xx23yZbRDsfkaHSiqeAbuc00Y
-	SVvfE4+KTDOOm3OFP7paJXVKxamwpMo=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-246-Fzqn9hYbMw-AzZj7jk8WEA-1; Mon,
- 10 Jun 2024 13:39:10 -0400
-X-MC-Unique: Fzqn9hYbMw-AzZj7jk8WEA-1
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AFA4E19560B2;
-	Mon, 10 Jun 2024 17:39:08 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.112])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 01B0019560AB;
-	Mon, 10 Jun 2024 17:39:06 +0000 (UTC)
-Date: Mon, 10 Jun 2024 13:39:04 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Peter-Jan Gootzen <pgootzen@nvidia.com>
-Cc: virtualization@lists.linux.dev, vgoyal@redhat.com, miklos@szeredi.hu,
-	mst@redhat.com, dgilbert@redhat.com, yorayz@nvidia.com,
-	mgurtovoy@nvidia.com
-Subject: Re: [PATCH 0/2] virtio-fs: change handling of failure at request
- enqueue
-Message-ID: <20240610173904.GA346990@fedora.redhat.com>
-References: <20240517190435.152096-1-pgootzen@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="beB7Leg9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF3BC2BBFC;
+	Mon, 10 Jun 2024 17:57:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718042238;
+	bh=GZC/MhALX/ksEhs5BxScLGoQ+046shv8SpsC0EqMARY=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=beB7Leg9SzkHdfN7Z2QeocrQ2JIiqE5Ycn2YNDrMMgxdSGYqIhmZEaWcr6MiuQQ6Z
+	 lg2buWpJPgyaG5gwAak0YNTpIt+C/4TZ3QnyV20KYtBlC3tSnDUMhH6TyqqSWfuIjX
+	 PM3hSRL8TYzLvdceUAiclepegzIQDwa6sXlz8BIQsYUkU6HEyNc1bqweN5zrQoPnBv
+	 vNVwuYzH4/8Bnuve/6zkzmhMgsYwABjRFQuYAIdJB/lXjllPlY9gJhwtMQeIPPKYzE
+	 Cd7RbUVf4LOJlKUepZLNN5BXHlOx1U0Ev3zQ7Yif7+b4q5rrUdZYqbc/WFVvzyl2qH
+	 RHGOeZesWwDXw==
+Date: Mon, 10 Jun 2024 10:57:17 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Jason Xing <kerneljasonxing@gmail.com>
+Cc: Dan Jurgens <danielj@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "jasowang@redhat.com"
+ <jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
+ <xuanzhuo@linux.alibaba.com>, "virtualization@lists.linux.dev"
+ <virtualization@lists.linux.dev>, "davem@davemloft.net"
+ <davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
+ "abeni@redhat.com" <abeni@redhat.com>, Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
+Message-ID: <20240610105717.7fbb1caa@kernel.org>
+In-Reply-To: <CAL+tcoDkpZva=aStFKWTO6_8VK2iu9CeSeW2aeC+2QTXR2nD=Q@mail.gmail.com>
+References: <20240130142521.18593-1-danielj@nvidia.com>
+	<20240130095645-mutt-send-email-mst@kernel.org>
+	<CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<20240130104107-mutt-send-email-mst@kernel.org>
+	<CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<20240130105246-mutt-send-email-mst@kernel.org>
+	<CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
+	<20240201202106.25d6dc93@kernel.org>
+	<CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
+	<20240202080126.72598eef@kernel.org>
+	<CH0PR12MB858044D0E5AB3AC651AE0987C9422@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<CAL+tcoBXB97rCp2ghvVGkZAuC+2a4mnMnjsywRLK+nL0+n+s2A@mail.gmail.com>
+	<CH0PR12MB85804D451A889448D3427132C9FB2@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<CAL+tcoDkpZva=aStFKWTO6_8VK2iu9CeSeW2aeC+2QTXR2nD=Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Kob+GNVT7oJxrsjl"
-Content-Disposition: inline
-In-Reply-To: <20240517190435.152096-1-pgootzen@nvidia.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+On Sat, 8 Jun 2024 08:41:44 +0800 Jason Xing wrote:
+> > > Sorry to revive this thread. I wonder why not use this patch like mlnx driver
+> > > does instead of adding statistics into the yaml file? Are we gradually using or
+> > > adding more fields into the yaml file to replace the 'ethtool -S' command?
+> > >  
+> >
+> > It's trivial to have the stats in ethtool as well. But I noticed
+> > the stats series intentionally removed some stats from ethtool. So
+> > I didn't put it both places.  
+> 
+> Thank you for the reply. I thought there was some particular reason
+> :-)
 
---Kob+GNVT7oJxrsjl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, May 17, 2024 at 09:04:33PM +0200, Peter-Jan Gootzen wrote:
-> This patch set aims to improve the latencies of virtio-fs requests when
-> the system is under high load, namely when the application's IO depth
-> is greater than the size of the Virtio queue.
->=20
-> We found that the handling of -ENOMEM when enqueueing requests is
-> inconsistent with other parts of the kernel (e.g. FUSE) and also
-> obstructs optimizing the enqueueing behavior.
->=20
-> It is important to first remove the -ENOMEM behavior as the new style of
-> retrying virtio-fs requests in patch 2/2 is only correct in case of
-> -ENOSPC. With -ENOMEM the failed enqueue might never be retried as there
-> might not be another completion to trigger retrying the enqueue.
->=20
-> Note that this patch series is a revival of my patch that was last
-> discussed in the mailing list on 2023-08-16.
->=20
-> Peter-Jan Gootzen (2):
->   virtio-fs: let -ENOMEM bubble up or burst gently
->   virtio-fs: improved request latencies when Virtio queue is full
->=20
->  fs/fuse/virtio_fs.c | 40 ++++++++++++++++++++++------------------
->  1 file changed, 22 insertions(+), 18 deletions(-)
->=20
-> --=20
-> 2.34.1
->=20
-
-This is a nice improvement, thank you!
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---Kob+GNVT7oJxrsjl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmZnOjgACgkQnKSrs4Gr
-c8jNfwgAgl0SZW15ukfeIlL6QUXzJoUgWyd+ShK7gfj76jx0inIwxBTUtFepYUoa
-gY2TUnjucKD/2SbQJx2vXreuIjzrY9GMCucKV7Cg6YwS2isI0hHkGrmjnm/t1XLc
-1vBsS2YGipw01/SUKyarKECJQiCjP0qi4bkkMN+JhZj3qCSFHNQPLMIy4hU9I+Wq
-u0b3rGGApgztUzzr4abUIkaElokfivYEXr7cEskzJTsqX4A2hBersqme3/Uluocp
-GekIR1+W/9niToFGSWSaT50SjSyEarRWlCaBm+tDb6PUdmnk1uAesOog+ie9Q5Ad
-ue2Ab3KGANNPcG7uS/TxSRiGa9itUw==
-=Kn8p
------END PGP SIGNATURE-----
-
---Kob+GNVT7oJxrsjl--
-
+Yes, we don't want duplication. We have a long standing (and
+documented) policy against duplicating normal stats in custom stat
+APIs, otherwise vendors pile everything into the custom stats.
