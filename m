@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25A4163C7
-	for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 08:38:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 494B76F2F1
+	for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 08:56:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718008699; cv=none; b=qba6+J+movwGRC2K1Lju+jo7jcF85VIEzC2ev54/xVAsgst5fT+0wBjaSsTRvHIOZ81PjbPA8/KHGXWfbl5AlijfQp8Vu4EjW4qcQDuSjoY/+DWawURtx9csArUFJ2v/KB2JjuDmNvP3kfdN+tqcS/hwo//MXiXUahWe1NGTI2E=
+	t=1718009773; cv=none; b=Z36vpsmy0KBohL6AAgbBVtqqJtChGln8lE3HJv5I9cK4NYiTZiaUiHRJw+o4JdQTv1Z5COCdHj1j+BfjwzpFXNEWPOBE47Ly+2PXkkyGWqpGm+HayxBTJbHRYUVqSt/lTO1kaLUwDeaf7SZY3fexpdW+ygIcCKzfXDHDSysoSJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718008699; c=relaxed/simple;
-	bh=PKzZA1Tyb9IrkR6CjttNB5iU/gycey9RVJ7xg2XmZls=;
+	s=arc-20240116; t=1718009773; c=relaxed/simple;
+	bh=4X3NzY/0G9gnq5hEYrDAdraQf2at+G7MFAtOMz5dTUQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=olJ11QSZRsJ4mbWmAcyaSshvabfNjt/P/4MvwenYfcP8I8S+4HwMQbpapcGx2HnG60QHnXbI9+3YV82wCd62ROPgEdBB9j+coA5y80DzDozdlQn6vw2vrlm9uETlBqW14yhQy19tjX7XiYyeeMfwnLnW8t0gYwjCzTSth+W0Mkk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UE4CD9OV; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=GSM5e7eYcnhYRF49aF+PoCu6D3i8dgi0d6VqNp0AOTgHd1ypN1qRxafhA4StmthgMQBg9qlibJajqdzncU7COz+IXMLj+Cs2GoGZR2XwRwytcmPLe9GivHingt5l9W7ulx5PR3oC2zdFgdYmeJ2zVelYvCCcLS9hL9lfCgFZ8NI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aLOeJrd8; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UE4CD9OV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aLOeJrd8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718008696;
+	s=mimecast20190719; t=1718009771;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=w6nrbStgbGoljYTouWdcfenV64/6o+i5+It1jT8aCEg=;
-	b=UE4CD9OVImDXlHksw9I1TO1/shRLrWjqatsnj7QBIqruNUpOf8/8+Fk7wAgq45I/18qy/X
-	KHkUjmIXFOIY9TKVnPhFMo487JzFSLMkRUWNAnQtb2RGHxyc9R4ZfU+JViqEIekbz/dce5
-	BubQOdjatzKfmEKPvf351JJQi+i3feg=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=K7xP27zKqY4v47zLxGRsdu26ar7Ig8tqaIa+76/1NNg=;
+	b=aLOeJrd8ambtbxju63VRtCW0HkoflUQWYi0l6wiLlofuAaeXuJKreOkLGJOyGGuO2fJkY/
+	r7iEXZVS6qf1gvk7FkM8PDkmSQHW0bAkt1Q/CNXJ/ug9sTF83WikQVzqgHBdrAajrhEj9B
+	y9H4655+ru1jXIFg2yV8/3zgRDNfVFo=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-122-cSgdgtl-MEapPyapq7aM1w-1; Mon, 10 Jun 2024 04:38:08 -0400
-X-MC-Unique: cSgdgtl-MEapPyapq7aM1w-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-35f1ddd8a47so594724f8f.3
-        for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 01:38:08 -0700 (PDT)
+ us-mta-477-9kNFfFVWMGi9FAIBEwSO9w-1; Mon, 10 Jun 2024 04:56:05 -0400
+X-MC-Unique: 9kNFfFVWMGi9FAIBEwSO9w-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-421f3b7b27eso4400365e9.1
+        for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 01:56:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718008687; x=1718613487;
+        d=1e100.net; s=20230601; t=1718009764; x=1718614564;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=w6nrbStgbGoljYTouWdcfenV64/6o+i5+It1jT8aCEg=;
-        b=Y6g9e8P6Ap+gq+BGfCccAXq54/a8GTX6k1UB9JtyVpsXpEOYpO3e3jBdMJzqws6v0H
-         FBySIC78cG1GeM04hu+oLJ2LNVoAQ8TVCU9QAQNyYhvORqRxyeL21gakCoD9vHwXqZZF
-         ke6ZBWeXSrKWOekx605Q1+qQOrWx93fBfZ9hlj8vfkMyZVEtYzNkRCyG5S7+M3fYnlRp
-         7sGceflf+WzwIcsOAXuKjaxOdlQ+cJ/tV7TZf7xZoTHSz2VLiVTJLsae5JST1fUs529L
-         YyC0KFENqtS19ijBzpZqGJVYXlOnFkg37qm8Y/I6aDJjwZuhYkW5BenBrZZISTR3e5ph
-         XlvA==
-X-Forwarded-Encrypted: i=1; AJvYcCU35XEUY/ZhoY8EoI2v9TkScHGxy+6FUPgwi11t0fjKCkxxHWFF5gyO5GKPOhwJRJ9PIlAXw6183272tGwHRY7UVyomWI1Lc38G+ol08kE=
-X-Gm-Message-State: AOJu0Yz686iJCpolYs5uli+2WMzuK3qJPvQn9e/6QybRtQjapUvNQzWc
-	4ZgX5b7Biy3aTRjzsu9qSNDqPp8nJFOkXmcKPQwD/OV1DMAR9YbIkGclHMgjxvvJSRt7eL+Q87v
-	DTLbP/l+K7cBupcrOEYNLq3ywwfkZE0g3Jvik4lHC4+es+TP4XMMBMXfhkYOrhy4v
-X-Received: by 2002:a5d:5f90:0:b0:35f:22d9:cab3 with SMTP id ffacd0b85a97d-35f22d9cd51mr2249193f8f.36.1718008687503;
-        Mon, 10 Jun 2024 01:38:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHXEFywI0gemoc9w1rogNSIeoaxga56ZirfcbsHoHRmzr//4KCG2uOiq+HM1RIZR6Nee59Wpg==
-X-Received: by 2002:a5d:5f90:0:b0:35f:22d9:cab3 with SMTP id ffacd0b85a97d-35f22d9cd51mr2249152f8f.36.1718008686974;
-        Mon, 10 Jun 2024 01:38:06 -0700 (PDT)
+        bh=K7xP27zKqY4v47zLxGRsdu26ar7Ig8tqaIa+76/1NNg=;
+        b=ONAeaRJC2r/1K7Z5JodJ2V/J0LptK678LtxtomAhGiH83JWiFRjVglcGS+isiSZT9H
+         Pg3BFD5bzLyB2dBJ+ikkzsylQfzmZ3NJqfG++cQ90ahHM2HU+TP0Zw35MxB0duXHv3XN
+         YiyIEPK3Q/gblsuNehjNKirRAGTIp6TQJTepA3JtMTqAe5HxnwkWHXQDWt8944MeryS2
+         P5inZQTIJq0PZtARmWXJUq/HgKh9F8MTOMr7p8br8Wvda6BV0vnTxUDrHET3xamjIES5
+         W8N8DtUwVO6AStrhpfU6ytajuACykHiqD5Iy8mMrZkziO9ruzSJPbCDeV4Jv6Abw4Gkn
+         Fq1w==
+X-Forwarded-Encrypted: i=1; AJvYcCWl8WU4io0PHeJsEQ/pyqiiQ/YtjrotPgjTx+8mm/tvbcI01ytsKwAUwtqG1L8eJsVKwLc/FIQ5zNzwfH4OQZvIuRTUDTpEACKqfvLuQws=
+X-Gm-Message-State: AOJu0YwqI/iBS22BK2kLZo/Um7M22qF8KuI8tqyiOfWTggdnACz0T4bR
+	PT/0n7/+zaOFkpe+BZv/OcPFmJ/Ab90lIi1F5GHsQQ+MF+JvFbFylftIbBxjyH09DEkQxEcAOro
+	E3GPpgPJt1p1uBIw49ab0e3z8gFPVVxE94NP8fCYmDJZJAFC1coV/O1W/jINlRkF4
+X-Received: by 2002:a05:600c:4fc1:b0:422:aca:f87e with SMTP id 5b1f17b1804b1-4220acafc07mr8547315e9.19.1718009764175;
+        Mon, 10 Jun 2024 01:56:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE8VQ0Q4YEczV/EAVgWH6dX6M5wlMcQB+GZ0NoLgBFXD6JcjrTO0xiRa6CUmh2pcsQldmgXsA==
+X-Received: by 2002:a05:600c:4fc1:b0:422:aca:f87e with SMTP id 5b1f17b1804b1-4220acafc07mr8546975e9.19.1718009763680;
+        Mon, 10 Jun 2024 01:56:03 -0700 (PDT)
 Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35f29629231sm157912f8f.67.2024.06.10.01.38.05
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35f23c67e70sm2326824f8f.33.2024.06.10.01.56.02
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Jun 2024 01:38:06 -0700 (PDT)
-Message-ID: <13070847-4129-490c-b228-2e52bd77566a@redhat.com>
-Date: Mon, 10 Jun 2024 10:38:05 +0200
+        Mon, 10 Jun 2024 01:56:03 -0700 (PDT)
+Message-ID: <5d9583e1-3374-437d-8eea-6ab1e1400a30@redhat.com>
+Date: Mon, 10 Jun 2024 10:56:02 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,7 +68,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/3] mm: pass meminit_context to __free_pages_core()
+Subject: Re: [PATCH v1 2/3] mm/memory_hotplug: initialize memmap of
+ !ZONE_DEVICE with PageOffline() instead of PageReserved()
 To: Oscar Salvador <osalvador@suse.de>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
@@ -85,8 +86,8 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
  Dmitry Vyukov <dvyukov@google.com>
 References: <20240607090939.89524-1-david@redhat.com>
- <20240607090939.89524-2-david@redhat.com>
- <ZmZ7GgwJw4ucPJaM@localhost.localdomain>
+ <20240607090939.89524-3-david@redhat.com>
+ <ZmZ_3Xc7fdrL1R15@localhost.localdomain>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -133,52 +134,167 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ZmZ7GgwJw4ucPJaM@localhost.localdomain>
+In-Reply-To: <ZmZ_3Xc7fdrL1R15@localhost.localdomain>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 10.06.24 06:03, Oscar Salvador wrote:
-> On Fri, Jun 07, 2024 at 11:09:36AM +0200, David Hildenbrand wrote:
->> In preparation for further changes, let's teach __free_pages_core()
->> about the differences of memory hotplug handling.
+On 10.06.24 06:23, Oscar Salvador wrote:
+> On Fri, Jun 07, 2024 at 11:09:37AM +0200, David Hildenbrand wrote:
+>> We currently initialize the memmap such that PG_reserved is set and the
+>> refcount of the page is 1. In virtio-mem code, we have to manually clear
+>> that PG_reserved flag to make memory offlining with partially hotplugged
+>> memory blocks possible: has_unmovable_pages() would otherwise bail out on
+>> such pages.
 >>
->> Move the memory hotplug specific handling from generic_online_page() to
->> __free_pages_core(), use adjust_managed_page_count() on the memory
->> hotplug path, and spell out why memory freed via memblock
->> cannot currently use adjust_managed_page_count().
+>> We want to avoid PG_reserved where possible and move to typed pages
+>> instead. Further, we want to further enlighten memory offlining code about
+>> PG_offline: offline pages in an online memory section. One example is
+>> handling managed page count adjustments in a cleaner way during memory
+>> offlining.
+>>
+>> So let's initialize the pages with PG_offline instead of PG_reserved.
+>> generic_online_page()->__free_pages_core() will now clear that flag before
+>> handing that memory to the buddy.
+>>
+>> Note that the page refcount is still 1 and would forbid offlining of such
+>> memory except when special care is take during GOING_OFFLINE as
+>> currently only implemented by virtio-mem.
+>>
+>> With this change, we can now get non-PageReserved() pages in the XEN
+>> balloon list. From what I can tell, that can already happen via
+>> decrease_reservation(), so that should be fine.
+>>
+>> HV-balloon should not really observe a change: partial online memory
+>> blocks still cannot get surprise-offlined, because the refcount of these
+>> PageOffline() pages is 1.
+>>
+>> Update virtio-mem, HV-balloon and XEN-balloon code to be aware that
+>> hotplugged pages are now PageOffline() instead of PageReserved() before
+>> they are handed over to the buddy.
+>>
+>> We'll leave the ZONE_DEVICE case alone for now.
 >>
 >> Signed-off-by: David Hildenbrand <david@redhat.com>
 > 
-> All looks good but I am puzzled with something.
+>> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+>> index 27e3be75edcf7..0254059efcbe1 100644
+>> --- a/mm/memory_hotplug.c
+>> +++ b/mm/memory_hotplug.c
+>> @@ -734,7 +734,7 @@ static inline void section_taint_zone_device(unsigned long pfn)
+>>   /*
+>>    * Associate the pfn range with the given zone, initializing the memmaps
+>>    * and resizing the pgdat/zone data to span the added pages. After this
+>> - * call, all affected pages are PG_reserved.
+>> + * call, all affected pages are PageOffline().
+>>    *
+>>    * All aligned pageblocks are initialized to the specified migratetype
+>>    * (usually MIGRATE_MOVABLE). Besides setting the migratetype, no related
+>> @@ -1100,8 +1100,12 @@ int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
+>>   
+>>   	move_pfn_range_to_zone(zone, pfn, nr_pages, NULL, MIGRATE_UNMOVABLE);
+>>   
+>> -	for (i = 0; i < nr_pages; i++)
+>> -		SetPageVmemmapSelfHosted(pfn_to_page(pfn + i));
+>> +	for (i = 0; i < nr_pages; i++) {
+>> +		struct page *page = pfn_to_page(pfn + i);
+>> +
+>> +		__ClearPageOffline(page);
+>> +		SetPageVmemmapSelfHosted(page);
 > 
->> +	} else {
->> +		/* memblock adjusts totalram_pages() ahead of time. */
->> +		atomic_long_add(nr_pages, &page_zone(page)->managed_pages);
->> +	}
+> So, refresh my memory here please.
+> AFAIR, those VmemmapSelfHosted pages were marked Reserved before, but now,
+> memmap_init_range() will not mark them reserved anymore.
+
+Correct.
+
+> I do not think that is ok? I am worried about walkers getting this wrong.
 > 
-> You say that memblock adjusts totalram_pages ahead of time, and I guess
-> you mean in memblock_free_all()
+> We usually skip PageReserved pages in walkers because are pages we cannot deal
+> with for those purposes, but with this change, we will leak
+> PageVmemmapSelfHosted, and I am not sure whether are ready for that.
 
-And memblock_free_late(), which uses atomic_long_inc().
+There are fortunately not that many left.
 
-> 
->   pages = free_low_memory_core_early()
->   totalram_pages_add(pages);
-> 
-> but that is not ahead, it looks like it is upading __after__ sending
-> them to buddy?
+I'd even say marking them (vmemmap) reserved is more wrong than right: 
+note that ordinary vmemmap pages after memory hotplug are not reserved! 
+Only bootmem should be reserved.
 
-Right (it's suboptimal, but not really problematic so far. Hopefully Wei 
-can clean it up and move it in here as well)
+Let's take at the relevant core-mm ones (arch stuff is mostly just for 
+MMIO remapping)
 
-For the time being
+fs/proc/task_mmu.c:     if (PageReserved(page))
+fs/proc/task_mmu.c:     if (PageReserved(page))
 
-"/* memblock adjusts totalram_pages() manually. */"
+-> If we find vmemmap pages mapped into user space we already messed up
+    seriously
 
-?
+kernel/power/snapshot.c:        if (PageReserved(page) ||
+kernel/power/snapshot.c:        if (PageReserved(page)
+
+-> There should be no change (saveable_page() would still allow saving
+    them, highmem does not apply)
+
+mm/hugetlb_vmemmap.c:           if (!PageReserved(head))
+mm/hugetlb_vmemmap.c:   if (PageReserved(page))
+
+-> Wants to identify bootmem, but we exclude these
+    PageVmemmapSelfHosted() on the splitting part already properly
+
+
+mm/page_alloc.c:                VM_WARN_ON_ONCE(PageReserved(p));
+mm/page_alloc.c:                if (PageReserved(page))
+
+-> pfn_range_valid_contig() would scan them, just like for ordinary
+    vmemmap pages during hotplug. We'll simply fail isolating/migrating
+    them similarly (like any unmovable allocations) later
+
+mm/page_ext.c:          BUG_ON(PageReserved(page));
+
+-> free_page_ext handling, does not apply
+
+mm/page_isolation.c:            if (PageReserved(page))
+
+-> has_unmovable_pages() should still detect them as unmovable (e.g.,
+    neither movable nor LRU).
+
+mm/page_owner.c:                        if (PageReserved(page))
+mm/page_owner.c:                        if (PageReserved(page))
+
+-> Simply page_ext_get() will return NULL instead and we'll similarly
+    skip them
+
+mm/sparse.c:            if (!PageReserved(virt_to_page(ms->usage))) {
+
+-> Detecting boot memory for ms->usage allocation, does not apply to
+    vmemmap.
+
+virt/kvm/kvm_main.c:    if (!PageReserved(page))
+virt/kvm/kvm_main.c:    return !PageReserved(page);
+
+-> For MMIO remapping purposes, does not apply to vmemmap
+
+
+> Moreover, boot memmap pages are marked as PageReserved, which would be
+> now inconsistent with those added during hotplug operations.
+
+Just like vmemmap pages allocated dynamically during memory hotplug. 
+Now, really only bootmem-ones are PageReserved.
+
+> All in all, I feel uneasy about this change.
+
+I really don't want to mark these pages here PageReserved for the sake 
+of it.
+
+Any PageReserved user that I am missing, or why we should handle these 
+vmemmap pages differently than the ones allocated during ordinary memory 
+hotplug?
+
+In the future, we might want to consider using a dedicated page type for 
+them, so we can stop using a bit that doesn't allow to reliably identify 
+them. (we should mark all vmemmap with that type then)
 
 Thanks!
 
