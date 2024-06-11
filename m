@@ -1,78 +1,74 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5351C17D899;
-	Tue, 11 Jun 2024 05:21:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA596172BCD
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Jun 2024 05:32:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718083272; cv=none; b=HelRNwBqnxuwzW+xPRi4xjJpeEAftplcAHi1AXA2PJEBoqC3N7nrHNPmCc3m4VVkAFznQnz6KA8oKr+exkCDQtGVEgsBy703rvsm7QVd/VSHuDNe/gsYBoae64noLz8fZM9S+ivDMOVqiuGan/3WVMGljU5enxYGps9KoBTAG8I=
+	t=1718083978; cv=none; b=P4q0cWn7IjNnCRg1cHqr9ugsjpvp+RLhYsUte3pQoUY3tjmsuyYaB3Fc/0s6/1H22LA4b0kZVjYp9nBbGSUgQt1HZN0AjMqXQEUlNK0PPld/wdTkuePT6FVrqvaVQT1+VAFhWWpXif8v/ULIvw/9eUqxor6WInVuVftwCK4VzTE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718083272; c=relaxed/simple;
-	bh=pSzE7POP0IbcApaWAG28mx8JR4h3Qp2KDPweIs4v+So=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pnmOnI6RbXX+QCX+xdDNFl0gw4t/2gcttIy81HcqqUblSMAEOe8AjIULTj/nqDBP0xlLW63DtU8l2D8zhHTu6GUz6qMPfwQwrYqC53qTiAYbAjdkngcvWh2SaG4ZpYrlNqj+GTZ/syXMcowlr4QzSx0qJUmAbHoHVP/7O63u4v8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=4T9NMLhZ; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1718083978; c=relaxed/simple;
+	bh=RxfXH2ZFb7Id4zlG5fVIVyfD9EzHBt+idquBieWGYcw=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=spi6FFusU9h4a/KS2TDL75rvbU6HXmShPaTWyXJINYj+rGZfvHGaL57qCWc2cUxWhz2UJkxRmQ94AxQqSOPjcGi1fXt7unIVMioNjWg3E9Aww+0FXAF7HacoRXa8uhMGbgdQ5pYWqvt3ROBvKNp1mRVOfaNaS0OxnLdJ1amUW5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DXUfINb9; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="4T9NMLhZ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=xY3slEHkiIq7NT2sGuMOxA8hJLcOIj4MfNseHu5TMns=; b=4T9NMLhZ85LGaZsJ9WbdPngt7y
-	Lg47NyWbOusFuIcnPlTazNjFjWXkT5yAEsdF2Tng0oqqiQUya3UrgF3lv0cr8mioMxIZ95opUklxw
-	3M1OWMNS18z5UDDHYnISdGZR4enIuBTfKqZeh9NEHC/wwn7yQffyG8jZyBMEHv7CUIPTauCM/4A4t
-	uZ54Izj2QaXtkwLI0uaSn4JJf/3BR911bsG/t7tsxTYATIA0iybKQ85jYBhiCUPleyeGd+jL60ZaI
-	wLfr7z+VuHHqSsgF7BQktz3lOGgIphJl2pF+e1sp4qBMFXL07QcuVEXmkU7DDi+7mFGg/G/7yUWm6
-	lSBsjOfg==;
-Received: from 2a02-8389-2341-5b80-cdb4-8e7d-405d-6b77.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:cdb4:8e7d:405d:6b77] helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sGtwA-00000007RkZ-1jS3;
-	Tue, 11 Jun 2024 05:20:58 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Weinberger <richard@nod.at>,
-	Philipp Reisner <philipp.reisner@linbit.com>,
-	Lars Ellenberg <lars.ellenberg@linbit.com>,
-	=?UTF-8?q?Christoph=20B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
-	Josef Bacik <josef@toxicpanda.com>,
-	Ming Lei <ming.lei@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-	Alasdair Kergon <agk@redhat.com>,
-	Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>,
-	Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai3@huawei.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-m68k@lists.linux-m68k.org,
-	linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com,
-	nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org,
-	ceph-devel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org,
-	linux-bcache@vger.kernel.org,
-	dm-devel@lists.linux.dev,
-	linux-raid@vger.kernel.org,
-	linux-mmc@vger.kernel.org,
-	linux-mtd@lists.infradead.org,
-	nvdimm@lists.linux.dev,
-	linux-nvme@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linux-block@vger.kernel.org
-Subject: [PATCH 26/26] block: move the bounce flag into the feature field
-Date: Tue, 11 Jun 2024 07:19:26 +0200
-Message-ID: <20240611051929.513387-27-hch@lst.de>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240611051929.513387-1-hch@lst.de>
-References: <20240611051929.513387-1-hch@lst.de>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DXUfINb9"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7C8D040B7E
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Jun 2024 05:32:56 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: 1.236
+X-Spam-Level: *
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id gHP6Z81669D4 for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 Jun 2024 05:32:55 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 61BE94016B
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 61BE94016B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DXUfINb9
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 61BE94016B
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Jun 2024 05:32:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718083974;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=rjMLPcN4lf4hILs75qKFb2X8tj4fMICRG7d9Mi8k40Q=;
+	b=DXUfINb9RQWvB0u4fBWBySWlbRzIzkGLOTrM965YHnfcP7T7nXeZUuQ7jpPqFmzCiFFteX
+	YastbrxPqChx6wTVELEn2UU7nUXDdhEE22XWzDp+0N3nlv7YRst0xsNyuYpp57cdOBJQRL
+	qn07wWp5vdQpVvUlbfak/uMA3WMnKAE=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-111-_V8BYhHVPAey9ah6ri3acA-1; Tue,
+ 11 Jun 2024 01:32:50 -0400
+X-MC-Unique: _V8BYhHVPAey9ah6ri3acA-1
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 199A719560BD;
+	Tue, 11 Jun 2024 05:32:49 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.77])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7CAC11956048;
+	Tue, 11 Jun 2024 05:32:42 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	dtatulea@nvidia.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [PATCH 1/2] vdpa: support set mac address from vdpa tool
+Date: Tue, 11 Jun 2024 13:32:32 +0800
+Message-ID: <20240611053239.516996-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,88 +76,162 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Move the bounce field into the flags field to reclaim a little bit of
-space.
+Add new UAPI to support the mac address from vdpa tool
+Function vdpa_nl_cmd_dev_config_set_doit() will get the
+MAC address from the vdpa tool and then set it to the device.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
+
+Here is sample:
+root@L1# vdpa -jp dev config show vdpa0
+{
+    "config": {
+        "vdpa0": {
+            "mac": "82:4d:e9:5d:d7:e6",
+            "link ": "up",
+            "link_announce ": false,
+            "mtu": 1500
+        }
+    }
+}
+
+root@L1# vdpa dev set name vdpa0 mac 00:11:22:33:44:55
+
+root@L1# vdpa -jp dev config show vdpa0
+{
+    "config": {
+        "vdpa0": {
+            "mac": "00:11:22:33:44:55",
+            "link ": "up",
+            "link_announce ": false,
+            "mtu": 1500
+        }
+    }
+}
+
+Signed-off-by: Cindy Lu <lulu@redhat.com>
 ---
- block/blk-settings.c    | 1 -
- block/blk.h             | 2 +-
- drivers/scsi/scsi_lib.c | 2 +-
- include/linux/blkdev.h  | 6 ++++--
- 4 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/vdpa/vdpa.c       | 71 +++++++++++++++++++++++++++++++++++++++
+ include/linux/vdpa.h      |  2 ++
+ include/uapi/linux/vdpa.h |  1 +
+ 3 files changed, 74 insertions(+)
 
-diff --git a/block/blk-settings.c b/block/blk-settings.c
-index 96e07f24bd9aa1..d0e9096f93ca8a 100644
---- a/block/blk-settings.c
-+++ b/block/blk-settings.c
-@@ -479,7 +479,6 @@ int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
- 					b->max_write_zeroes_sectors);
- 	t->max_zone_append_sectors = min(queue_limits_max_zone_append_sectors(t),
- 					 queue_limits_max_zone_append_sectors(b));
--	t->bounce = max(t->bounce, b->bounce);
- 
- 	t->seg_boundary_mask = min_not_zero(t->seg_boundary_mask,
- 					    b->seg_boundary_mask);
-diff --git a/block/blk.h b/block/blk.h
-index 79e8d5d4fe0caf..fa32f7fad5d7e6 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -394,7 +394,7 @@ struct bio *__blk_queue_bounce(struct bio *bio, struct request_queue *q);
- static inline bool blk_queue_may_bounce(struct request_queue *q)
- {
- 	return IS_ENABLED(CONFIG_BOUNCE) &&
--		q->limits.bounce == BLK_BOUNCE_HIGH &&
-+		(q->limits.features & BLK_FEAT_BOUNCE_HIGH) &&
- 		max_low_pfn >= max_pfn;
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index a7612e0783b3..347ae6e7749d 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -1149,6 +1149,72 @@ static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff *skb, struct genl_info
+ 	return err;
  }
  
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 54f771ec8cfb5e..e2f7bfb2b9e450 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1986,7 +1986,7 @@ void scsi_init_limits(struct Scsi_Host *shost, struct queue_limits *lim)
- 		shost->dma_alignment, dma_get_cache_alignment() - 1);
- 
- 	if (shost->no_highmem)
--		lim->bounce = BLK_BOUNCE_HIGH;
-+		lim->features |= BLK_FEAT_BOUNCE_HIGH;
- 
- 	dma_set_seg_boundary(dev, shost->dma_boundary);
- 	dma_set_max_seg_size(dev, shost->max_segment_size);
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index d7ad25def6e50b..d1d9787e76ce73 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -325,6 +325,9 @@ enum {
- 
- 	/* skip this queue in blk_mq_(un)quiesce_tagset */
- 	BLK_FEAT_SKIP_TAGSET_QUIESCE		= (1u << 13),
++static int vdpa_nl_cmd_dev_config_set_doit(struct sk_buff *skb,
++					   struct genl_info *info)
++{
++	struct vdpa_dev_set_config set_config = {};
++	struct nlattr **nl_attrs = info->attrs;
++	struct vdpa_mgmt_dev *mdev;
++	const u8 *macaddr;
++	const char *name;
++	int err = 0;
++	struct device *dev;
++	struct vdpa_device *vdev;
 +
-+	/* bounce all highmem pages */
-+	BLK_FEAT_BOUNCE_HIGH			= (1u << 14),
++	if (!info->attrs[VDPA_ATTR_DEV_NAME])
++		return -EINVAL;
++
++	name = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
++
++	down_write(&vdpa_dev_lock);
++	dev = bus_find_device(&vdpa_bus, NULL, name, vdpa_name_match);
++	if (!dev) {
++		NL_SET_ERR_MSG_MOD(info->extack, "device not found");
++		err = -ENODEV;
++		goto dev_err;
++	}
++	vdev = container_of(dev, struct vdpa_device, dev);
++	if (!vdev->mdev) {
++		NL_SET_ERR_MSG_MOD(
++			info->extack,
++			"Fail to find the specified management device");
++		err = -EINVAL;
++		goto mdev_err;
++	}
++	mdev = vdev->mdev;
++	if (nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
++		if (!(mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC))) {
++			NL_SET_ERR_MSG_FMT_MOD(
++				info->extack,
++				"Missing features 0x%llx for provided attributes",
++				BIT_ULL(VIRTIO_NET_F_MAC));
++			err = -EINVAL;
++			goto mdev_err;
++		}
++		macaddr = nla_data(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]);
++		memcpy(set_config.net.mac, macaddr, ETH_ALEN);
++		set_config.mask |= BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
++		if (mdev->ops->set_mac) {
++			err = mdev->ops->set_mac(mdev, vdev, &set_config);
++		} else {
++			NL_SET_ERR_MSG_FMT_MOD(
++				info->extack,
++				"%s device not support set mac address ", name);
++		}
++
++	} else {
++		NL_SET_ERR_MSG_FMT_MOD(info->extack,
++				       "%s device not support this config ",
++				       name);
++	}
++
++mdev_err:
++	put_device(dev);
++dev_err:
++	up_write(&vdpa_dev_lock);
++	return err;
++}
++
+ static int vdpa_dev_config_dump(struct device *dev, void *data)
+ {
+ 	struct vdpa_device *vdev = container_of(dev, struct vdpa_device, dev);
+@@ -1285,6 +1351,11 @@ static const struct genl_ops vdpa_nl_ops[] = {
+ 		.doit = vdpa_nl_cmd_dev_stats_get_doit,
+ 		.flags = GENL_ADMIN_PERM,
+ 	},
++	{
++		.cmd = VDPA_CMD_DEV_CONFIG_SET,
++		.doit = vdpa_nl_cmd_dev_config_set_doit,
++		.flags = GENL_ADMIN_PERM,
++	},
  };
  
- /*
-@@ -332,7 +335,7 @@ enum {
-  */
- #define BLK_FEAT_INHERIT_MASK \
- 	(BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA | BLK_FEAT_ROTATIONAL | \
--	 BLK_FEAT_STABLE_WRITES | BLK_FEAT_ZONED)
-+	 BLK_FEAT_STABLE_WRITES | BLK_FEAT_ZONED | BLK_FEAT_BOUNCE_HIGH)
+ static struct genl_family vdpa_nl_family __ro_after_init = {
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index db15ac07f8a6..c97f4f1da753 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -581,6 +581,8 @@ struct vdpa_mgmtdev_ops {
+ 	int (*dev_add)(struct vdpa_mgmt_dev *mdev, const char *name,
+ 		       const struct vdpa_dev_set_config *config);
+ 	void (*dev_del)(struct vdpa_mgmt_dev *mdev, struct vdpa_device *dev);
++	int (*set_mac)(struct vdpa_mgmt_dev *mdev, struct vdpa_device *dev,
++		       const struct vdpa_dev_set_config *config);
+ };
  
- /* internal flags in queue_limits.flags */
- enum {
-@@ -352,7 +355,6 @@ enum blk_bounce {
- struct queue_limits {
- 	unsigned int		features;
- 	unsigned int		flags;
--	enum blk_bounce		bounce;
- 	unsigned long		seg_boundary_mask;
- 	unsigned long		virt_boundary_mask;
+ /**
+diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+index 54b649ab0f22..53f249fb26bc 100644
+--- a/include/uapi/linux/vdpa.h
++++ b/include/uapi/linux/vdpa.h
+@@ -19,6 +19,7 @@ enum vdpa_command {
+ 	VDPA_CMD_DEV_GET,		/* can dump */
+ 	VDPA_CMD_DEV_CONFIG_GET,	/* can dump */
+ 	VDPA_CMD_DEV_VSTATS_GET,
++	VDPA_CMD_DEV_CONFIG_SET,
+ };
  
+ enum vdpa_attr {
 -- 
-2.43.0
+2.45.0
 
