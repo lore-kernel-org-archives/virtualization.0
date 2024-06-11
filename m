@@ -1,173 +1,103 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10EE62AF11
-	for <virtualization@lists.linux.dev>; Tue, 11 Jun 2024 08:01:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31928173323;
+	Tue, 11 Jun 2024 08:02:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718092868; cv=none; b=BqDEluSPdIXKrSd6A8j0g926L7Bd5hFIguwfHfGx21kq1BQVQOf+ed2up6e/FXMjjNwzHAFJcUPSNvU8vfXScyKvBVp/egzeJyqmOKNxzCspEQN6ESNlvbzTWwVzfNGUvbLwV7v3/XvE1pBLcIA4oDnWsbZfOFESjB7NHCTQc4A=
+	t=1718092955; cv=none; b=AxpG7E9JoN84FgUR4A7xZe6k3dqf0FsHp5x4A3hT9x0Fr5ytIOUzL0gqAxk5sGRY7lax3Prm1IJVu/bqG69N4w3YEqDp2ZRLbX4GLwAn7/NKOxWPGw7VYin51x1LBNIWCxGb7He20XhYnstGJww9pVZq+CsiCzj8LnNNgmL8K7s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718092868; c=relaxed/simple;
-	bh=jwJHq+vd5L6MZDnMuM4jQ8vcoW0y342FZpLncBEsrc8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wm8+JqCrV/eA5y1YFa36lKoxLBMcGbqP28xYvj/T0k7BFKosq2VhkTL79ABOsi+S44vTkKgK5U8mYqUKqn0z7PL+qhMW/6z0nat+JeLubp/gyzo9aC8l1Fv3DnwPnlyedqPjj2Yknge//JmHxNjbHvxLwM8u8ZZuKKBjE1kk/s4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eZBr7hv0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=OXxCJyUQ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eZBr7hv0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=OXxCJyUQ; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1718092955; c=relaxed/simple;
+	bh=9448E2ZQUrvNp7ZURrtI3/D86m7bLK+HS2+4F3/kAbo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=o4IJ3DBdSWfmm2Qi2yOfEKyhOwQ8hbWC1Kix1QKLEIdD9nT+Gi66czcpg/ClImhnte2XrPi1LnqaCUVx24L9V3PUyxo8lul/V0n7VVLQWfzgiV7553KQ7HMjTNObMsqhwNqtnI2N3DIljqSsB84FHjnjrKVvNgdAwaQDJhXfB9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cVm1t8g2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eZBr7hv0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="OXxCJyUQ";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eZBr7hv0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="OXxCJyUQ"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 3DCEE20560;
-	Tue, 11 Jun 2024 08:01:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1718092865; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qHTLyIX7jLzbH1ivzBIljZd8gbAzcrr4kki4IuM/w4s=;
-	b=eZBr7hv01QtJAQ63m8FhIkoxR6rfVWdIAtAM3tMSW7+msYF8sKzstxlxUcLGVQkzYd+xcg
-	yOUDCjNkttpZD4LSyjDGBE0HLudW2/1+Hz5TvpMX2H9pqAKeYuboG4MyCcVVBme6zH6ZFU
-	gW3gI5sxhgleQef05pj0FqPwwOu6HPU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1718092865;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qHTLyIX7jLzbH1ivzBIljZd8gbAzcrr4kki4IuM/w4s=;
-	b=OXxCJyUQRJS9OhqC4VgzbBVBP3JyYprOS8XwZTJXMp2JoR9G+H5IoGoPm1Pm1PuGPVCFI5
-	a/T9/prPxYrogmCQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1718092865; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qHTLyIX7jLzbH1ivzBIljZd8gbAzcrr4kki4IuM/w4s=;
-	b=eZBr7hv01QtJAQ63m8FhIkoxR6rfVWdIAtAM3tMSW7+msYF8sKzstxlxUcLGVQkzYd+xcg
-	yOUDCjNkttpZD4LSyjDGBE0HLudW2/1+Hz5TvpMX2H9pqAKeYuboG4MyCcVVBme6zH6ZFU
-	gW3gI5sxhgleQef05pj0FqPwwOu6HPU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1718092865;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qHTLyIX7jLzbH1ivzBIljZd8gbAzcrr4kki4IuM/w4s=;
-	b=OXxCJyUQRJS9OhqC4VgzbBVBP3JyYprOS8XwZTJXMp2JoR9G+H5IoGoPm1Pm1PuGPVCFI5
-	a/T9/prPxYrogmCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2124F13A55;
-	Tue, 11 Jun 2024 08:01:04 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id cdtzBUAEaGY4VgAAD6G6ig
-	(envelope-from <osalvador@suse.de>); Tue, 11 Jun 2024 08:01:04 +0000
-Date: Tue, 11 Jun 2024 10:01:02 +0200
-From: Oscar Salvador <osalvador@suse.de>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org, kasan-dev@googlegroups.com,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-	Alexander Potapenko <glider@google.com>,
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>
-Subject: Re: [PATCH v1 2/3] mm/memory_hotplug: initialize memmap of
- !ZONE_DEVICE with PageOffline() instead of PageReserved()
-Message-ID: <ZmgEPgjyG4EfYkNM@localhost.localdomain>
-References: <20240607090939.89524-1-david@redhat.com>
- <20240607090939.89524-3-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cVm1t8g2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAD55C2BD10;
+	Tue, 11 Jun 2024 08:02:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718092954;
+	bh=9448E2ZQUrvNp7ZURrtI3/D86m7bLK+HS2+4F3/kAbo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=cVm1t8g2Dmo9pyaeFexP0cVZp2V9+zrzLaosx0fHWpCgyVMjhJafz/YjIRFcP6e/N
+	 JiQrRCWm2cXvKJW25gK4jKXdI9z1r5PiGAPnVoL3Jgi9iLA+RTBXO3LhS10/kQ9VJv
+	 S0HFEAZmlsLJdqInbsOGCHZ7lARtlpYV0wnusyawzuHxpb/RclmLX5rlq1DxBTsAuq
+	 DUc+w0vOa4IhkCXuAcAxPK35SsjdXOHX0tyGNoT44IBIj7FNuzH/TkqH47YX1TuM03
+	 t8bqET45kpSSPx+5HvwwYL7yfxY/bG8VgPBzRal4b99z62CNkY4oDCrnC6ah7dxmTJ
+	 PwVnGOKYPVpoA==
+Message-ID: <01366bae-699e-45dc-bad1-9541883a8b42@kernel.org>
+Date: Tue, 11 Jun 2024 17:02:28 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240607090939.89524-3-david@redhat.com>
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.26 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.16)[-0.822];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MISSING_XM_UA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[23];
-	SUBJECT_HAS_EXCLAIM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email]
-X-Spam-Score: -4.26
-X-Spam-Flag: NO
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 14/26] block: move the nonrot flag to queue_limits
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+ Richard Weinberger <richard@nod.at>,
+ Philipp Reisner <philipp.reisner@linbit.com>,
+ Lars Ellenberg <lars.ellenberg@linbit.com>,
+ =?UTF-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
+ Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
+ Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+ Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+ Yu Kuai <yukuai3@huawei.com>, Vineeth Vijayan <vneethv@linux.ibm.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+ drbd-dev@lists.linbit.com, nbd@other.debian.org,
+ linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+ linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+ linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+ linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+ linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+References: <20240611051929.513387-1-hch@lst.de>
+ <20240611051929.513387-15-hch@lst.de>
+Content-Language: en-US
+From: Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <20240611051929.513387-15-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jun 07, 2024 at 11:09:37AM +0200, David Hildenbrand wrote:
-> We currently initialize the memmap such that PG_reserved is set and the
-> refcount of the page is 1. In virtio-mem code, we have to manually clear
-> that PG_reserved flag to make memory offlining with partially hotplugged
-> memory blocks possible: has_unmovable_pages() would otherwise bail out on
-> such pages.
-> 
-> We want to avoid PG_reserved where possible and move to typed pages
-> instead. Further, we want to further enlighten memory offlining code about
-> PG_offline: offline pages in an online memory section. One example is
-> handling managed page count adjustments in a cleaner way during memory
-> offlining.
-> 
-> So let's initialize the pages with PG_offline instead of PG_reserved.
-> generic_online_page()->__free_pages_core() will now clear that flag before
-> handing that memory to the buddy.
-> 
-> Note that the page refcount is still 1 and would forbid offlining of such
-> memory except when special care is take during GOING_OFFLINE as
-> currently only implemented by virtio-mem.
-> 
-> With this change, we can now get non-PageReserved() pages in the XEN
-> balloon list. From what I can tell, that can already happen via
-> decrease_reservation(), so that should be fine.
-> 
-> HV-balloon should not really observe a change: partial online memory
-> blocks still cannot get surprise-offlined, because the refcount of these
-> PageOffline() pages is 1.
-> 
-> Update virtio-mem, HV-balloon and XEN-balloon code to be aware that
-> hotplugged pages are now PageOffline() instead of PageReserved() before
-> they are handed over to the buddy.
-> 
-> We'll leave the ZONE_DEVICE case alone for now.
-> 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+On 6/11/24 2:19 PM, Christoph Hellwig wrote:
+> Move the norot flag into the queue_limits feature field so that it can be
 
-Acked-by: Oscar Salvador <osalvador@suse.de> # for the generic
-memory-hotplug bits
+s/norot/nonrot
 
+> set atomically and all I/O is frozen when changing the flag.
+
+and... -> with the queue frozen when... ?
+
+> 
+> Use the chance to switch to defaulting to non-rotational and require
+> the driver to opt into rotational, which matches the polarity of the
+> sysfs interface.
+> 
+> For the z2ram, ps3vram, 2x memstick, ubiblock and dcssblk the new
+> rotational flag is not set as they clearly are not rotational despite
+> this being a behavior change.  There are some other drivers that
+> unconditionally set the rotational flag to keep the existing behavior
+> as they arguably can be used on rotational devices even if that is
+> probably not their main use today (e.g. virtio_blk and drbd).
+> 
+> The flag is automatically inherited in blk_stack_limits matching the
+> existing behavior in dm and md.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Other than that, looks good to me.
+
+Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
 
 -- 
-Oscar Salvador
-SUSE Labs
+Damien Le Moal
+Western Digital Research
+
