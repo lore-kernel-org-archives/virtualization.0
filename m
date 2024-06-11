@@ -1,107 +1,137 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87FD1134BC
-	for <virtualization@lists.linux.dev>; Tue, 11 Jun 2024 02:06:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7C3F8C04;
+	Tue, 11 Jun 2024 05:19:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718071584; cv=none; b=B/ixcPo8moJbUOok1H1cLHUVkDTgyPX26l/44vOSup58oZc5eEwvW3YIy1+4y1dTQtq75vc1EoVNluaFaA33EEASBAeHt6NLV2mqv92d6Omt/2LsBdaCvfdAEfyJ9Y/EpdXhieYR2CUHVGdwzvB5plIRFzW0Z9AhXbA74V+Pj88=
+	t=1718083188; cv=none; b=I/S/koMU/tjEFElJFDL86bu5pKIY2QqIHnTXty0FQ/1IB99n5GfgmkqKLGHyUXDFrnUGiUbHhjrsFwWAxwWOmuebCxngVoUSb1df9MTmVWH/Eh3GbW0PYFYZ2YLUwvRaSTMdjUXerJBESClwYJHayVU/63DuT4GFNoO3Wgq6ebI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718071584; c=relaxed/simple;
-	bh=tuff/6OuEt+2hme3SS1LRX+ueYVQOYk0iMP38yw56OQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kSy9vN95UqzhM9UoyPFFvnQ5H1O+aWTiSPOcEBe7kvRuiivRmxUYXfwJODFJ/EnRfyReyBq8EU4HIYWNSQdWjlJjw296U82qfH7eJwfetVvxuKWhMgV1eWzTT2MsZFJbd6igjfEEEiUGSjSZsTSML9rJhp0qrY/A4lnkLeRJL+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YV+QPo6P; arc=none smtp.client-ip=209.85.218.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1718083188; c=relaxed/simple;
+	bh=pJHJWcNs/pJcnRM22ACgcER3q2shJV55AlIb3h7/28E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=piQLpDRc+vLSU6w1LvAdWuJmNy0VD5ijkVvERRp+DvxQohI4+02XKxWU4tPPvz5QGZUpbqo7pZuHMEML6EGw5pbcuNJYon0cffukJzwg/V4T5dIF73he9m8qhARn7cwN7Fquwahp9YHxT4FxYjvW6K0KVN6oZJbqwUqNbmDsgDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=rUA9ZaXU; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YV+QPo6P"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a68b41ef3f6so560105266b.1
-        for <virtualization@lists.linux.dev>; Mon, 10 Jun 2024 19:06:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718071581; x=1718676381; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tuff/6OuEt+2hme3SS1LRX+ueYVQOYk0iMP38yw56OQ=;
-        b=YV+QPo6PHTRb3HO0w5AeYUOYIHKrm9+ayBwhJjRTfTJ164OBzuTx4XJv9Ab3b3Kmb9
-         tS52zHplX2VYJ/7N5WjPrUyXebZRHLaUyltmQzlMu7g4MJgLE/rPOcT4wyLKVNo24zcx
-         HBcq3KYraK9rMCvt4H0D7fbX6f6pNBtmjixzJlCAv38b9df7ntWZDAcnDt5/w2tmzuiB
-         NxcWYPCyWLVwpi+p668MVXm/7V3AW0yM/fSQcC0K0d2Pfzpi7OeGOcB6vjwykH26jU7r
-         C/PpTIt4sx9PmS/EJ+1f4hZCRhoMNDe+eQBHEMMUFE/WRmyPugQ9btBcEZ6MC2K2w1xM
-         s0og==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718071581; x=1718676381;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tuff/6OuEt+2hme3SS1LRX+ueYVQOYk0iMP38yw56OQ=;
-        b=cPz5S3hSUIWSAyn8Q8W7kJFknLnxCv7LArFoDcVx2rCTnzwevb/O+EZrpPRyHE9ukG
-         O9bGxunQ+MrHnF08i8DCDoexQMIOB92TuJpHY6S1pOHH3ueuyYPueTrIcN8bP1GZ3ItB
-         tpf3W7sWa54BsWS6Ns7ZAPk5Xc/35hfs8oH6jXiXskDkGChQD2oQwnH9OjuxOz8IbveO
-         lB05/iYZzoHND7pNgbfLsfBSscyUoocbz/EYe3sd8i3G/A1vUkKL8ONar7l3c3TiwJ9x
-         u0kn54erJsWs+PH2iSSw+gcc2iQovYcSahuZcpKhUrqy26ZUSH6+XzfhZdE529z7gdCH
-         3hRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVNEiRyXexB0BfuOihXKljq5jJDdJ5FXBGh5i2YTIrwPx3OWapExtsEdpKr16T6ajxqpLddxme9KoXjIN93k5lUJdMBMqrbQtnj0o/oEys=
-X-Gm-Message-State: AOJu0Yz5P+W7PFYrGauQoSkJvGESTCA3j9efkQPVHM/vX2Y2P8/3XGFG
-	cZGr6RmJysEUrJ92gKgrMa1faxfWjMH6smYRTBCumclHNwgd0cqXPYTcBOna22XdQli3LmlK3+a
-	Lq+TgbaUyCFwaSdMQstS0qL267jQ=
-X-Google-Smtp-Source: AGHT+IHJ8AjC2nQdCHkvEIiAg5SYB3Vy4VBsSouM+tmUNPm4sUIJZMgWBTWyiI1mjy8d9yBV3+j6xZozdhfUDe7nhgY=
-X-Received: by 2002:a17:907:7f87:b0:a6f:20af:49cb with SMTP id
- a640c23a62f3a-a6f20af4f9dmr298552066b.48.1718071580627; Mon, 10 Jun 2024
- 19:06:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rUA9ZaXU"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
+	:Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=lvXE5gTUk5P3TVKgX5q5Q8J1/DjEMwO75JeCg7ieY7s=; b=rUA9ZaXUx5MpyhS2j5LBHsyXxQ
+	KbTuAJUR1haH+9S1m8G4GZVBD1g7bx2ayPONElMYjcxYJ0QDJPl5o5zOp4k78Qgw0XyFdjZCPo5wp
+	vIgPX59oPcfHLDliRB8Y+Bi/vjpbtw2V1cwzkbepDA/QzMJIwAsmVAdMFC3UF8wgtmukkiprCLdOG
+	RnSyiCv+Mvh3ga6qyL+ash+wP6WvC9+JDwisvTf85QvcZuGjp66L5kSvkUkgxcMfJHjnZZ91k2qO0
+	ThG6qMn0y6iW42CQt05TqF0tEm3cI9aOk07AkgbKRZMt1CIdlg2QNDBGCgPEgHOzn7Iuc8T8ztdEX
+	0c6zkTmg==;
+Received: from 2a02-8389-2341-5b80-cdb4-8e7d-405d-6b77.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:cdb4:8e7d:405d:6b77] helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sGtux-00000007Qnu-0nLE;
+	Tue, 11 Jun 2024 05:19:35 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	=?UTF-8?q?Christoph=20B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+	Alasdair Kergon <agk@redhat.com>,
+	Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>,
+	Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org,
+	linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com,
+	nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org,
+	ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org,
+	dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org,
+	linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org,
+	nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-block@vger.kernel.org
+Subject: [PATCH 01/26] sd: fix sd_is_zoned
+Date: Tue, 11 Jun 2024 07:19:01 +0200
+Message-ID: <20240611051929.513387-2-hch@lst.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240611051929.513387-1-hch@lst.de>
+References: <20240611051929.513387-1-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240130142521.18593-1-danielj@nvidia.com> <20240130095645-mutt-send-email-mst@kernel.org>
- <CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <20240130104107-mutt-send-email-mst@kernel.org> <CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <20240130105246-mutt-send-email-mst@kernel.org> <CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
- <20240201202106.25d6dc93@kernel.org> <CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
- <20240202080126.72598eef@kernel.org> <CH0PR12MB858044D0E5AB3AC651AE0987C9422@CH0PR12MB8580.namprd12.prod.outlook.com>
- <CAL+tcoBXB97rCp2ghvVGkZAuC+2a4mnMnjsywRLK+nL0+n+s2A@mail.gmail.com>
- <CH0PR12MB85804D451A889448D3427132C9FB2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <CAL+tcoDkpZva=aStFKWTO6_8VK2iu9CeSeW2aeC+2QTXR2nD=Q@mail.gmail.com> <20240610105717.7fbb1caa@kernel.org>
-In-Reply-To: <20240610105717.7fbb1caa@kernel.org>
-From: Jason Xing <kerneljasonxing@gmail.com>
-Date: Tue, 11 Jun 2024 10:05:41 +0800
-Message-ID: <CAL+tcoB3tCw+CypLSaqcFs8CASJDCLPchQs1xcyC9eS+1hYDxQ@mail.gmail.com>
-Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Dan Jurgens <danielj@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, "jasowang@redhat.com" <jasowang@redhat.com>, 
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>, 
-	"abeni@redhat.com" <abeni@redhat.com>, Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On Tue, Jun 11, 2024 at 1:57=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> wr=
-ote:
->
-> On Sat, 8 Jun 2024 08:41:44 +0800 Jason Xing wrote:
-> > > > Sorry to revive this thread. I wonder why not use this patch like m=
-lnx driver
-> > > > does instead of adding statistics into the yaml file? Are we gradua=
-lly using or
-> > > > adding more fields into the yaml file to replace the 'ethtool -S' c=
-ommand?
-> > > >
-> > >
-> > > It's trivial to have the stats in ethtool as well. But I noticed
-> > > the stats series intentionally removed some stats from ethtool. So
-> > > I didn't put it both places.
-> >
-> > Thank you for the reply. I thought there was some particular reason
-> > :-)
->
-> Yes, we don't want duplication. We have a long standing (and
-> documented) policy against duplicating normal stats in custom stat
-> APIs, otherwise vendors pile everything into the custom stats.
+Since commit 7437bb73f087 ("block: remove support for the host aware zone
+model"), only ZBC devices expose a zoned access model.  sd_is_zoned is
+used to check for that and thus return false for host aware devices.
 
-Thanks, Jakub. I see :)
+Fixes: 7437bb73f087 ("block: remove support for the host aware zone model")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/scsi/sd.h     | 7 ++++++-
+ drivers/scsi/sd_zbc.c | 7 +------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/scsi/sd.h b/drivers/scsi/sd.h
+index 726f1613f6cb56..65dff3c2108926 100644
+--- a/drivers/scsi/sd.h
++++ b/drivers/scsi/sd.h
+@@ -222,9 +222,14 @@ static inline sector_t sectors_to_logical(struct scsi_device *sdev, sector_t sec
+ 
+ void sd_dif_config_host(struct scsi_disk *sdkp, struct queue_limits *lim);
+ 
++/*
++ * Check if we support a zoned model for this device.
++ *
++ * Note that host aware devices are treated as conventional by Linux.
++ */
+ static inline int sd_is_zoned(struct scsi_disk *sdkp)
+ {
+-	return sdkp->zoned == 1 || sdkp->device->type == TYPE_ZBC;
++	return sdkp->device->type == TYPE_ZBC;
+ }
+ 
+ #ifdef CONFIG_BLK_DEV_ZONED
+diff --git a/drivers/scsi/sd_zbc.c b/drivers/scsi/sd_zbc.c
+index f685838d9ed214..422eaed8457227 100644
+--- a/drivers/scsi/sd_zbc.c
++++ b/drivers/scsi/sd_zbc.c
+@@ -598,13 +598,8 @@ int sd_zbc_read_zones(struct scsi_disk *sdkp, struct queue_limits *lim,
+ 	u32 zone_blocks = 0;
+ 	int ret;
+ 
+-	if (!sd_is_zoned(sdkp)) {
+-		/*
+-		 * Device managed or normal SCSI disk, no special handling
+-		 * required.
+-		 */
++	if (!sd_is_zoned(sdkp))
+ 		return 0;
+-	}
+ 
+ 	/* READ16/WRITE16/SYNC16 is mandatory for ZBC devices */
+ 	sdkp->device->use_16_for_rw = 1;
+-- 
+2.43.0
+
