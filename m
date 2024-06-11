@@ -1,87 +1,116 @@
-Received: from 009.lax.mailroute.net (009.lax.mailroute.net [199.89.1.12])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A37064D8BB;
-	Tue, 11 Jun 2024 19:38:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1421E43AD7
+	for <virtualization@lists.linux.dev>; Tue, 11 Jun 2024 19:41:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718134684; cv=none; b=ntsn5OZl6i88LsYjKJhuM0W8NI2UKzxsXQdxLF+J1IrgpC0N0F+f6a2wCvjs0XzPyu0cRCAoQqLVDVfr6k8fz41kHE6M6HFcgCXd81ByEfBgW7cZugDUPlRz/6fjby3k4UrYbACb7yI/5zF1dqhur3MKZhnvLPKWc+DyWuqC78w=
+	t=1718134914; cv=none; b=o5pE5aJR3AjJeFQrCkMJIKxHB3qi5Y90cDqdhEcKCXpOJU3z6gRzJrbjf7JdxVrPxhqmAI674YWmYGRixpruu8JqhDefCz+vxikAb/Eglpc1WhYCb7J6VTTryY0p4pTvMzQ6gGeg/d+b0i35uQLivbV7Qb1rsMK/fqMw4iKX+CE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718134684; c=relaxed/simple;
-	bh=tK+p4adAIoEF9E/ptCUDenQl3BY1TNXp315QKrRxFzY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=u9dE2KndN/AwX4m5dZgwFPAU4r+qITMHYoeM3dxPA9gGk0pthk4bgNrHCqxNeXNKorxSXhXnJRRK8sPvm9t7qtQR0Ig5CRVfbFJrUINbIkPHETLFahZ3xRm7k2OkM7RcFTh/UMKwrPLZHltGVDW70axMmJb+4p4f4c9NDqQjiHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=YL4MxZ10; arc=none smtp.client-ip=199.89.1.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
+	s=arc-20240116; t=1718134914; c=relaxed/simple;
+	bh=3jSJzP/wKvbuiDtG0srhckDI0jqTpk/NVaK27TegDYY=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=pd/xr4gjh8G3gJOzWa3JEHWa6ymLibgz79y7uskLrINk4L9f52cz6m5+IezM0WD08Y3zcChN7d1727QhKEVGuvwOXj4v6Oirk7eO0XTyzMgtY+R2+yLiNCCPhHEjiN3HPs/f7rLmU+ngl/NFHWdFCvviaeEgE4iYIvE+XGdQpoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AO+gqqlC; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="YL4MxZ10"
-Received: from localhost (localhost [127.0.0.1])
-	by 009.lax.mailroute.net (Postfix) with ESMTP id 4VzJqY2LNKzlgMVP;
-	Tue, 11 Jun 2024 19:38:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
-	content-transfer-encoding:content-type:content-type:in-reply-to
-	:from:from:content-language:references:subject:subject
-	:user-agent:mime-version:date:date:message-id:received:received;
-	 s=mr01; t=1718134673; x=1720726674; bh=0hnbQEod74zEsc3xGCFcX6S0
-	bBHUsC8JGcAKSWF8hiY=; b=YL4MxZ10FXpIpPLCE4CZCH+u/phW+zPSavUSnees
-	X3hFh+szuiEXRkWSrqQXNYIhU0UJbzi/GHx8Kl9pzwID8L7djiktSWoqSJawtcTN
-	eACQHyinxvwid5PBDKOPXHioaILwfZth5RTqz1dRgkYDlk023V89V3LY0fPlpXR0
-	ZjGrS0ATmGTxDvR88c454EcuD5z2B7TEK4AUazeGvS0OkvYK9K5aLe/SEJZB1fEB
-	WtswPKKjQnmZAIZ2btE2JJFpRK4bbK63mBG2amE83a1CL9Fd2be6YrLh9YZh7k7F
-	6DXimFz0V4Au4RPDc4bBe0TfqrqfZwLel7pBkDBg2DZJFg==
-X-Virus-Scanned: by MailRoute
-Received: from 009.lax.mailroute.net ([127.0.0.1])
- by localhost (009.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
- id TYPL5HYORF0n; Tue, 11 Jun 2024 19:37:53 +0000 (UTC)
-Received: from [100.96.154.26] (unknown [104.132.0.90])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bvanassche@acm.org)
-	by 009.lax.mailroute.net (Postfix) with ESMTPSA id 4VzJqD5hVvzlgMVN;
-	Tue, 11 Jun 2024 19:37:44 +0000 (UTC)
-Message-ID: <f5a5f79e-43f5-46ae-9c11-371e8e558685@acm.org>
-Date: Tue, 11 Jun 2024 12:37:42 -0700
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AO+gqqlC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1718134914; x=1749670914;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=3jSJzP/wKvbuiDtG0srhckDI0jqTpk/NVaK27TegDYY=;
+  b=AO+gqqlCb39u+0nU5I4srhI9ge73zIQ6KK5kFQX9wl1aAZ6j5ZXe4p5/
+   Ir0NMhVoJjuDm9O909wicw1+g4+9gd0f/C4aNAoLIBDvhtZOjyzwXCocK
+   tfJAu8kRMcMixLE+fofhcKTyKiXp+2FjCoioffKBwDSWQIAJKu6soql97
+   Vb2n4w5p7VfM9hM6HVS54IF8mxnBU9F7H6mX7zfouZvKuv1OIjzEMWI9w
+   aj4t4a62cjdemGYAggYvqNovhqAFWeSW5Rbsy32zCiuKQhfY3K/x/cyXC
+   8PvGTFbMRzGjwTyA3ejC9Y/5xQeWTxFvBmdAQJ0rEqPVmOuzR8iA2Cpxq
+   Q==;
+X-CSE-ConnectionGUID: FBVOQY3NSXmWCKCVLevSBw==
+X-CSE-MsgGUID: a4C31MlTTJSL8SSthHN4yQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11100"; a="14826587"
+X-IronPort-AV: E=Sophos;i="6.08,231,1712646000"; 
+   d="scan'208";a="14826587"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jun 2024 12:41:53 -0700
+X-CSE-ConnectionGUID: RmVZgz1VRteabv7gZ38CIw==
+X-CSE-MsgGUID: YWjwba72SB6sl89EETJtkw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,231,1712646000"; 
+   d="scan'208";a="39643390"
+Received: from mmasroor-mobl.amr.corp.intel.com (HELO [10.255.231.206]) ([10.255.231.206])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jun 2024 12:41:52 -0700
+Message-ID: <80532f73e52e2c21fdc9aac7bce24aefb76d11b0.camel@linux.intel.com>
+Subject: Re: [PATCH v1 1/3] mm: pass meminit_context to __free_pages_core()
+From: Tim Chen <tim.c.chen@linux.intel.com>
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-hyperv@vger.kernel.org, 
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, 
+ kasan-dev@googlegroups.com, Andrew Morton <akpm@linux-foundation.org>, Mike
+ Rapoport <rppt@kernel.org>, Oscar Salvador <osalvador@suse.de>, "K. Y.
+ Srinivasan" <kys@microsoft.com>,  Haiyang Zhang <haiyangz@microsoft.com>,
+ Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,  "Michael
+ S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
+ <eperezma@redhat.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>, Oleksandr Tyshchenko
+ <oleksandr_tyshchenko@epam.com>,  Alexander Potapenko <glider@google.com>,
+ Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>
+Date: Tue, 11 Jun 2024 12:41:51 -0700
+In-Reply-To: <20240607090939.89524-2-david@redhat.com>
+References: <20240607090939.89524-1-david@redhat.com>
+	 <20240607090939.89524-2-david@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4 (3.44.4-3.fc36) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 12/26] block: remove blk_flush_policy
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
- Richard Weinberger <richard@nod.at>,
- Philipp Reisner <philipp.reisner@linbit.com>,
- Lars Ellenberg <lars.ellenberg@linbit.com>,
- =?UTF-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
- Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
- Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
- Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
- Yu Kuai <yukuai3@huawei.com>, Vineeth Vijayan <vneethv@linux.ibm.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
- drbd-dev@lists.linbit.com, nbd@other.debian.org,
- linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
- linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
- linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
- linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
- linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
-References: <20240611051929.513387-1-hch@lst.de>
- <20240611051929.513387-13-hch@lst.de>
-Content-Language: en-US
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20240611051929.513387-13-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 6/10/24 10:19 PM, Christoph Hellwig wrote:
-> Fold blk_flush_policy into the only caller to prepare for pending changes
-> to it.
-  Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+On Fri, 2024-06-07 at 11:09 +0200, David Hildenbrand wrote:
+> In preparation for further changes, let's teach __free_pages_core()
+> about the differences of memory hotplug handling.
+>=20
+> Move the memory hotplug specific handling from generic_online_page() to
+> __free_pages_core(), use adjust_managed_page_count() on the memory
+> hotplug path, and spell out why memory freed via memblock
+> cannot currently use adjust_managed_page_count().
+>=20
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  mm/internal.h       |  3 ++-
+>  mm/kmsan/init.c     |  2 +-
+>  mm/memory_hotplug.c |  9 +--------
+>  mm/mm_init.c        |  4 ++--
+>  mm/page_alloc.c     | 17 +++++++++++++++--
+>  5 files changed, 21 insertions(+), 14 deletions(-)
+>=20
+> diff --git a/mm/internal.h b/mm/internal.h
+> index 12e95fdf61e90..3fdee779205ab 100644
+> --- a/mm/internal.h
+> +++ b/mm/internal.h
+> @@ -604,7 +604,8 @@ extern void __putback_isolated_page(struct page *page=
+, unsigned int order,
+>  				    int mt);
+>  extern void memblock_free_pages(struct page *page, unsigned long pfn,
+>  					unsigned int order);
+> -extern void __free_pages_core(struct page *page, unsigned int order);
+> +extern void __free_pages_core(struct page *page, unsigned int order,
+> +		enum meminit_context);
+
+Shouldn't the above be=20
+		enum meminit_context context);
+> =20
+>  /*
+>   * This will have no effect, other than possibly generating a warning, i=
+f the
+
+Thanks.
+
+Tim
