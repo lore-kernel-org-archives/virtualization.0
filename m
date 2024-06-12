@@ -1,174 +1,162 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9E217E8F3
-	for <virtualization@lists.linux-foundation.org>; Wed, 12 Jun 2024 13:54:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718200477; cv=fail; b=Bkmue6XeZnKtqrV9oZ6gsHIk1yzlGlwpXlUrYRMd58l+W2IHQm4eKcBBhrxJNcKmmo/tNxWRQtRuT6Mgxi4L/zGKUNKuLYU7Px4KqVL0CnrA0LD+yqDcdwPLhkevslFiHR9Ufb4n86yPlOLglHbOLApSjpXB/0l5yRTG673gI3E=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718200477; c=relaxed/simple;
-	bh=100+TPjQ92lHC3ZBCTRXJk7HY5AiU8eS6PBFbVOfltY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=ZY/u9jKgJrejSSgGhgIKlDIzxREfcJfauLXwo3VYO5WgvzRrmeFC6n8X31WdzGBKl2ESTnDaN8RkhIpM7mThqxnFRgovgQM/otZXRAfnqXQan5J5fHvtICCXzidtvO3VyCGFedUFsCw8UmTaFYXVagUm0E1WXFLfNWpn9BAXWX8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=SQlheANc; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11166171E70
+	for <virtualization@lists.linux.dev>; Wed, 12 Jun 2024 14:04:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1718201067; cv=none; b=XL4hOkWdYMqCFQVz2hXvX3Ux6AJI5OXDCuWfAWTEtcOHoD3TNwyh7glqd6uPd7906baALsceiGvqQlZ9eLMjoF/GvGRCK6fc0ZdEmPtnd3mdqDB/m6aMRPFgRf6ciFTo1tc3xyyQty0LDtXb0m3wAwB3jC3ptK5V1YiCHI61zs8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1718201067; c=relaxed/simple;
+	bh=n6rQcdlTzLyq3J1ACt2i5X2K8jWLz6x7Pyg6vl9BQmw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MRGp33w1IQKxvhRhN3DEaNyoRArICN2zAlHCviGtyUccSR0uDUJZWg1yqQkt/cEI3ekDMnaeCa9UWmCYmmuprWHaHhjzAcWdmVzv24lcfgG6lg5X+mTrhzWFF11mU+qbsGb44/wvMjzSs/9AB09LIITEE83Nq5u1zr3GBNWJTxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BwSigGwW; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="SQlheANc"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CC49240119
-	for <virtualization@lists.linux-foundation.org>; Wed, 12 Jun 2024 13:54:35 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id xplH979kTgyv for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jun 2024 13:54:35 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2412::603; helo=nam10-mw2-obe.outbound.protection.outlook.com; envelope-from=jgg@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8A67140125
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8A67140125
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=SQlheANc
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20603.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::603])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8A67140125
-	for <virtualization@lists.linux-foundation.org>; Wed, 12 Jun 2024 13:54:34 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ceTYghtj15KIH5PLnjbHp9B0woB2mWS66QRECxXVn1u55sRh+4ICmvgvk5W2JwzYEgcLorGZ8pn8AXzUsF2TuE3apFZu6LCKzUSwlCWiI4nSGpgozE7WOrgMm0cnWWrpKkXs9ck2oQJDhLsD3v7nadtLq65mKNH9wOSiygpWrBqmCqXj3hkm+6YtSgJVHTW0DPMYjtiSL84MvBuOqgfL3XBMgz24IfG2KHs4wM9nui20K88jH1TIn8o3fL5foypub+h+50V6yl9LoV9GwHw9BjXUVdsaYsGRz/PZIXw6LZ+IbdTrql8OT8y5RgPlJMFyVxiHTAn2Z0kEU9D2LCzs6g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=100+TPjQ92lHC3ZBCTRXJk7HY5AiU8eS6PBFbVOfltY=;
- b=dAIC8GucIJFaYpoVbWv46WyPiMffl5QZ+Q24eFEI6SYZmBHXtpyy/bQAjKLNJ7QMJEW7oeATr91XqIG1ds5qZWCy47nTbGJ0ITSiE/mlJsP1qcTV1TZzuD7H5VWzNcPtj1lN3xsML2zyoiNEdtapI8rIVhyp8tNPaM8AqQigxtG0zZpimZ2UXmJ1Hm64upxeXZdV7K957eqdwgtji/MKszKki0fQ2RKKIFW+ff/9LAJuflnKuIVwhTWVL3Ph70KDmmMDndZikitVMJbqLbOb1+0HE2+Wru9xOft3AnToBR38m+LmqSRgpg9qrKEAVCaq45SSk3rDQrA4s2qEkxW+RA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=100+TPjQ92lHC3ZBCTRXJk7HY5AiU8eS6PBFbVOfltY=;
- b=SQlheANcZKw/Q3DuucPOPl70lbWEwr2c5BwcAPZl6TOt6yNDyiZizsjgS+OOOjGXqvys/0HtZYfAodPK6zoz6ndNqScLmw2brb7AedANz5flf8XSkLPYzjjeoeiobB63UjticVoMN1z4rP8ZJ1wXpQoTi9cpqO35GKgYhrzReRXFrVVBKO3isYBr/SSdinSxWwZ9bcFXIuXG7lI07LDGw7CkqMiaLTnq19te41I6eWHWXBNOh21tLBW4cvLasr1zv9TFKwungzqOA9c44W3hDuG9vs4VDUjVGRehQOXGfKz0TIZpMRh6HgpRot6+kGcSmd2MShZ0S+bE73JTfZcxFw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3849.namprd12.prod.outlook.com (2603:10b6:5:1c7::26)
- by CH2PR12MB4246.namprd12.prod.outlook.com (2603:10b6:610:a9::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.20; Wed, 12 Jun
- 2024 13:54:29 +0000
-Received: from DM6PR12MB3849.namprd12.prod.outlook.com
- ([fe80::c296:774b:a5fc:965e]) by DM6PR12MB3849.namprd12.prod.outlook.com
- ([fe80::c296:774b:a5fc:965e%4]) with mapi id 15.20.7633.036; Wed, 12 Jun 2024
- 13:54:29 +0000
-Date: Wed, 12 Jun 2024 10:54:26 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 00/10] IOMMUFD: Deliver IO page faults to user space
-Message-ID: <20240612135426.GA2151677@nvidia.com>
-References: <20240527040517.38561-1-baolu.lu@linux.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240527040517.38561-1-baolu.lu@linux.intel.com>
-X-ClientProxiedBy: MN2PR18CA0015.namprd18.prod.outlook.com
- (2603:10b6:208:23c::20) To DM6PR12MB3849.namprd12.prod.outlook.com
- (2603:10b6:5:1c7::26)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BwSigGwW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718201064;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=VHS87YElUOWkANf6E72nxalS03lPC9WT8JCafxHD7gY=;
+	b=BwSigGwWqNQHEaVuqxpJ0Pe20h41tDhLvgyAtnzRUqNP9TCOudXcDtJLbc3Hf7ugKQytid
+	ctTw4fGUvSkE3JnqILG/5qzVPoTx6iBdfB51XKLHwh/+eCHuIFlqYY+GPTorGSNban4mgu
+	N9c9nD7MX7evHAfx39dlZGTGeA60294=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-125-mC0C9H-7Pr6yq8jRS-SF8A-1; Wed, 12 Jun 2024 10:04:23 -0400
+X-MC-Unique: mC0C9H-7Pr6yq8jRS-SF8A-1
+Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-6b066f99442so25909056d6.2
+        for <virtualization@lists.linux.dev>; Wed, 12 Jun 2024 07:04:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718201063; x=1718805863;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=VHS87YElUOWkANf6E72nxalS03lPC9WT8JCafxHD7gY=;
+        b=nzFQrNkOr3vHv6ZO6UGQWpn1l4T1+fujzZMret63qbL5RmV+wLjCDWjoGGWZHk1s1+
+         ovuyPzjokKeVc6lxlE9+X6f3BNi0ciicWYnQhOdKirqxoyaFWML9xiq2Q1RHV2X/hYde
+         7BD2IY45vzMHCv7Jh1LHoAYrknGl1rq41vQedpp6HcSFwn2fA8ntK6ZCDkABVoGHq9NM
+         84uf0UfDbzRVy1yIg1pWpakqVdtkmAM0SdynvTzgLtlvxH8AhAqDIHjdPSiWfAMwYau4
+         Rn9bW1+j4FcqaxYO1BDJiwizQR39dZ6ltkhQUqAYqMqvjVcuj8DV4Z/IYafqfBsQiF8/
+         tPtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXD+OttAgnCaIxX9WdEXd+/B6DFZnrbzgqFVaJDfIoNGFE6Agma7u0A8bhpxz6CkS7gocTDGg4Udd0PhqmfxsAyXtYzFzTnO7IyAH4cIG4=
+X-Gm-Message-State: AOJu0YzlLuSqOF9zY/crDSu0yuB9srNa4XoRuQmK/HYiSfN17QWD91xK
+	KJuyImOnncm/Rqk/0ZnWLJoEgVYXWnrPGYtARmeX2AgWzTXXHNtjAn/5do8+FGZs2R4SbPQNb9g
+	aox7hElxoPjSsraaqlSk2xN0hVq16bVe4FUXsZ1tGXRNIgkMZgWMmw8zlxRK48lOh
+X-Received: by 2002:a05:6214:2b90:b0:6b0:7821:4026 with SMTP id 6a1803df08f44-6b1a6c57871mr20407016d6.52.1718201062938;
+        Wed, 12 Jun 2024 07:04:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHis29s85ghN1wCvWNHSB3z3fEhPObl0T66oMycOn7F9OWRQIQYakS2Z/8aehOyVDRyZ6GOEQ==
+X-Received: by 2002:a05:6214:2b90:b0:6b0:7821:4026 with SMTP id 6a1803df08f44-6b1a6c57871mr20406306d6.52.1718201062563;
+        Wed, 12 Jun 2024 07:04:22 -0700 (PDT)
+Received: from [192.168.0.4] (ip-109-43-176-68.web.vodafone.de. [109.43.176.68])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b2a1515903sm958436d6.58.2024.06.12.07.04.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Jun 2024 07:04:22 -0700 (PDT)
+Message-ID: <6086ef5e-48e7-40f3-b0a7-ff67b20aeae3@redhat.com>
+Date: Wed, 12 Jun 2024 16:04:15 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3849:EE_|CH2PR12MB4246:EE_
-X-MS-Office365-Filtering-Correlation-Id: 317af23a-7b58-492f-0358-08dc8ae72d92
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230032|376006|1800799016|7416006|366008;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?wdhb4rntOohiIvlASN4symHdEARYDxnR1QeXHbr5k0VG9GKEOERj29okSf0J?=
- =?us-ascii?Q?GXDKrI85LEyz1nhs3z+a0CnH9hZNb+qg1AdYye7nKSdl2ZqhYZPcwDpawwbA?=
- =?us-ascii?Q?qil18UFFucmFgi87v7TF97u8Eu6bbwBed3ValK6vefWcg94E43hlZ7LmSm+s?=
- =?us-ascii?Q?mjeRSHknXT1wrJIPfsOsrNfEVuJFzkKTezns8Krz6FcEiDQljJicqWqNNjUq?=
- =?us-ascii?Q?RXcGHc3Xi1yTJb/Ah5deAYQCElOlv+zkOf5aBRMu4zZYpoK5RKFxf/t2arIo?=
- =?us-ascii?Q?TTQmvdHWXXfb62MbSrp4SSbLO0Bkgqw35oZEEFHoiZwVGcsOdDcirKe2N6nY?=
- =?us-ascii?Q?5ypQPF8bx8LXoKLXbFNuHq9JZUKRCI+/OeToAmUxPuooQycIKDkOWzmwoTLQ?=
- =?us-ascii?Q?Kr0qROWTJAx3Oqwinpv3qaTFJUT441X//pLc9f1mSBW6l4M1r/mp3/i34nTm?=
- =?us-ascii?Q?ZB73dlj9rsP41F3xBMdCQ+1kWwjjHeJngiWl8hGr5y6Kop04xaxZIl2jZALc?=
- =?us-ascii?Q?Vdr9pFJhKL6fsCifXevlbNISoUdbF4O/WfdExRqvoFLqUFQyiQceIrvf1lvg?=
- =?us-ascii?Q?c7rs7SiHEDew0KCkpBOvcbuoBld3xQnIDPhpgiYVBxNO78WZ0fvQj1k/6rR4?=
- =?us-ascii?Q?UjFWsFqY9mLei8z1YOb1ufQn94xtOSNslwQofqxTgMVa/6t1z6wlT1OahVN8?=
- =?us-ascii?Q?FT0fCCF7nuyijOly+BRJIwiKHjQhKD1tuO/daEEAEIGMO1wJJTEF/AfGHfD9?=
- =?us-ascii?Q?XMyK1k2nxlYxeZb6XjCRrDKUEAyzUnwdKDvAO2SiIOhnDYo4ap64Mrb9n8Om?=
- =?us-ascii?Q?idqn2TIOlRsdVlE+2PaMt1EAcw7AgJ3I/TPTpyWwVPCc0wP7Q79n/XxIWmmx?=
- =?us-ascii?Q?4R39SM5cHv1ybeUyfbQozIgfZ95pk4+cYSie8eGDT8vdYy77tYaTbrRXEgMy?=
- =?us-ascii?Q?dlr5x+iLj8bM/Wvu2sazLms2Z2WMs9YjxwNyyCtHKWks202QMYC+r7tcWQiO?=
- =?us-ascii?Q?8ujy4nLRTCsHLF+GggfjXsEenJYqOoKlGFg8Y38SOFi1Z3LuKowVkyT/hwwF?=
- =?us-ascii?Q?b2eFVyAtx2zteF8GQdkWcwlG6zS/PFyMpPrL/UEIxfmFG+3KY142Cyuz0Nmq?=
- =?us-ascii?Q?FuqxRHCpg6zXbe2BxPCkeuzLqi2beTz6QvCH5cE3uHHckl+ZEGsdt7xsq/TH?=
- =?us-ascii?Q?lYpt4xoT+Cnj89b6jNUrAYFMdSez+igXfgT3gV0qRcFfyAaNiLFh9ZvB43nA?=
- =?us-ascii?Q?K6bMUCG/OxevI+X2cQ3QzjxcgB5YtNSZux6UTBbAIk5ob9Cjuv6BSfkG7lbM?=
- =?us-ascii?Q?mhwo73fi3hVKGxLUXurbZ4bn?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3849.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230032)(376006)(1800799016)(7416006)(366008);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?nuFzw/YjqajmHWW1E90iS/ZPXPyFfyq1o45fBzfRQp76ebEi44J3cPRaP6fd?=
- =?us-ascii?Q?pxtA1WRHOvIpB1lXJS59b/wE9MFNJbcn0hoRzgL+qqp+2kAZhTLW42sjMeS8?=
- =?us-ascii?Q?Gn1vsLjclcqwg5fLfZ4sLhu6ykUIVBJm1iUQxn8p3izlGXBta/ylCx7yucjH?=
- =?us-ascii?Q?jk9Q9Bwx5I9cFbqAUTLXaNW89VdbdJGSQGYLo27syoTEcvR9WIu/p8Ar61QD?=
- =?us-ascii?Q?Hg1ibzLONW1tbGwbJJ88XgJqfhS5bPKQ0btzSu3WrFVXiIZUt/M93EiNcVBQ?=
- =?us-ascii?Q?wtQvq5YJktnMIpwU1CPnwjlUoOfSZIIqdgjJsUBYXu96gdzBmJ2dvsa68UYv?=
- =?us-ascii?Q?8cFohpYTR33NITwm/eibUPvP33klCzyQ6YQf8lp0hYKDJ6Y7UehWYIb+zwXo?=
- =?us-ascii?Q?Z8fCDx4KKdO4XWXbK+cy0BPrOd5DNoItQujISvx0tHZinIasTzHjq1I+dHTe?=
- =?us-ascii?Q?MZJmDX55qWZ4EsHvKNRnnt5h+zGG85DVkNU2AgvQZx7jqt3fBycpnXu9Zs4l?=
- =?us-ascii?Q?mBPxAGZ3xALs8wyhKwRRXMBWU1P3OH+LfU8jHheXX1ebnahtfHFoE2IuhyqG?=
- =?us-ascii?Q?+EFJL33pIqpdn7tyaYFcbw333XetxeV+sUqhI5daGeuoD9hoTc9w9NoTNYK6?=
- =?us-ascii?Q?tfNH3xDpzSO0aVoL1qJJr3QgeqeCA79KjZE81f85eB0Ui9QgRE/7YGH/z0+D?=
- =?us-ascii?Q?GHMi8SXaiKXIqyhFBS1liA0f12Zzd6BDS/cjZVDmLKtmgnCMhSQhfEZc9SQW?=
- =?us-ascii?Q?bD0GG67DBausme3kSrkDA4h0yGJa0w41Boeo+bZr8cBNoh2xaPwLu+GjSZn0?=
- =?us-ascii?Q?hdLfKukIVX9b2CHDNdWweLpwEiEWWAuzBvsuXsnW6BuwPWmVAiCmg/ny80y8?=
- =?us-ascii?Q?Sjp2Y/xYWWwlt5AZ/FRoSs+4+7obEfqBTOVdzZdabCcm81AGb2w14tYZfohl?=
- =?us-ascii?Q?z/G82/O5V5WKDaERmRDwkhOUYbOiv8S++0zMER7kkL6vvA9cK7qZEyEKwxuc?=
- =?us-ascii?Q?y2M5k7jOlBAbNahfIqPBxlzp+qt6a6x3Y+Uhst24riOqTTCZ3LhWPOD2XfBX?=
- =?us-ascii?Q?/Ve5esYGzGg275yOp0xL+0e+KaB4wYJ2w0RH3Y1TXgDVy7jgzn9UVYmJqiHg?=
- =?us-ascii?Q?TQWrRresBc/7KlEq0hAl+OGZe/di/JLOiG/RgoHY0JwwCsl8sMJnRK1It9NY?=
- =?us-ascii?Q?kyQtC+S3r20r62wRJ2B+h7z2zGBhOdbR8ZCFHzZFRTEZwUTkMHAhdXD5Ud7o?=
- =?us-ascii?Q?KaOw572PAW6nYTChuTvMRBSOEv6nQbnNyaBn/2FWVAUYjCFHDZjbwIh9Knn0?=
- =?us-ascii?Q?gpOM68hDqN8Ebeo1tu19dyQkiJFWO5urmInX8pj3/5SMItNsJi6XXacAz+LI?=
- =?us-ascii?Q?ZNd62FInPrVETTFEW4gI6f/M/3yQsLXN2rl6Joq596igmdi/nvr7AKY+G6e2?=
- =?us-ascii?Q?iar0zSYcHFdKRTu+xDAFeyw5ERlzu9h1TPLA3c8bv6u+tEAsFJxCUXbxw3hs?=
- =?us-ascii?Q?el7kXIshki4E0ZBL7WnHcd+EA0QoXym6sG0pPypt3AIJY8nU6Lo910snE9Wn?=
- =?us-ascii?Q?fd1qMXrsTcZusD0UUdeqXuM7sZv7ELnKbDGD3cXb?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 317af23a-7b58-492f-0358-08dc8ae72d92
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3849.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jun 2024 13:54:29.4093
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: RDl9ZOThMbu/pvo0KeoCM9N0H3+AM/1m5Yawczw08b/KbnQj3Xeyyalp7d+v/dPW
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4246
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/1] s390/virtio_ccw: fix config change notifications
+To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>,
+ Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Cc: Boqiao Fu <bfu@redhat.com>, Sebastian Mitterle <smitterl@redhat.com>
+References: <20240611214716.1002781-1-pasic@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <20240611214716.1002781-1-pasic@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, May 27, 2024 at 12:05:07PM +0800, Lu Baolu wrote:
-> This series implements the functionality of delivering IO page faults to
-> user space through the IOMMUFD framework. One feasible use case is the
-> nested translation. Nested translation is a hardware feature that
-> supports two-stage translation tables for IOMMU. The second-stage
-> translation table is managed by the host VMM, while the first-stage
-> translation table is owned by user space. This allows user space to
-> control the IOMMU mappings for its devices.
+On 11/06/2024 23.47, Halil Pasic wrote:
+> Commit e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
+> broke configuration change notifications for virtio-ccw by putting the
+> DMA address of *indicatorp directly into ccw->cda disregarding the fact
+> that if !!(vcdev->is_thinint) then the function
+> virtio_ccw_register_adapter_ind() will overwrite that ccw->cda value
+> with the address of the virtio_thinint_area so it can actually set up
+> the adapter interrupts via CCW_CMD_SET_IND_ADAPTER.  Thus we end up
+> pointing to the wrong object for both CCW_CMD_SET_IND if setting up the
+> adapter interrupts fails, and for CCW_CMD_SET_CONF_IND regardless
+> whether it succeeds or fails.
+> 
+> To fix this, let us save away the dma address of *indicatorp in a local
+> variable, and copy it to ccw->cda after the "vcdev->is_thinint" branch.
+> 
+> Reported-by: Boqiao Fu <bfu@redhat.com>
+> Reported-by: Sebastian Mitterle <smitterl@redhat.com>
+> Fixes: e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+> I know that checkpatch.pl complains about a missing 'Closes' tag.
+> Unfortunately I don't have an appropriate URL at hand. @Sebastian,
+> @Boqiao: do you have any suggetions?
 
-This looks pretty close, will you post a v7 with the minor changes?
+Closes: https://issues.redhat.com/browse/RHEL-39983
+?
 
-Thanks,
-Jasno
+Anyway, I've tested the patch and it indeed fixes the problem with 
+virtio-balloon and the link state for me:
+
+Tested-by: Thomas Huth <thuth@redhat.com>
+
