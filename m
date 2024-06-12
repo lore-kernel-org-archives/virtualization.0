@@ -1,103 +1,75 @@
-Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B674AD5D
-	for <virtualization@lists.linux.dev>; Wed, 12 Jun 2024 02:12:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5AD224C9;
+	Wed, 12 Jun 2024 04:46:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718158339; cv=none; b=B3DJ8MjNY+Ekz0uSM4VYYR0vdkTRjqwQEPkRhXpdux5KtW6kshAfpmgEOIQ60Qk8boQybZSEM8ZVBBeXlHOZ9IapAPeap1/kfDMF8zr7Oy3Fa0XM1AJQzqwW0bNzItrTHCUSXlHEgVsLL0+YglX3KrPJZyZE8p/0hQSmYfS2TJI=
+	t=1718167566; cv=none; b=Rp6tglX94U56ujpfT7LHadL/zHQOmpmIEF7VbqPflcnCwhF1xINtjidxJDMYZvYvoORGdDHtQca+yzm6AV/89V6I1QEsnYVzCRnMXKPeAV1kR+Rvc8NmexCJ9S+Tcd8Z1cPA+Q23951MOQwXv1G2S488uMW9VK6ypyouLIGJwUY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718158339; c=relaxed/simple;
-	bh=ow+WRcEvA3pNIVVf3fLydRk6hOHg4krSLYZQDJrwoAo=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=WgIjk7qMan+oMihUYVIfPYivZANe3n4VaOkwNK0mzGuxS+lP0EUr1XCsIWBd7sXObc4BtW4Lk6o97LAnvWO9KY7AyiohTYKIuomek5MkJm6319YB/ABWQP67s6P5sAPkUBYGuAi/n4DGpN/52rERPNMAHUY+8XJ02Qmi+YvHX3k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=YswApsq3; arc=none smtp.client-ip=209.85.219.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="YswApsq3"
-Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-dfe71fc2ab1so274430276.1
-        for <virtualization@lists.linux.dev>; Tue, 11 Jun 2024 19:12:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1718158337; x=1718763137; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=aHlMYhGZxnwsaOysx25sfHBbHxJf0WYTlqBZxa9fVCg=;
-        b=YswApsq3hB/RFpLWwo2i75naIBgcO+QSCAbc0Nk8QF7G8xsZ3U3kQyRJgXsjj3UZ3G
-         rpACY8NusMzdr2b4nois0uz1rRElLl07j7wojs/GbC+Ifsxe3Vjci5n4Y+wziTt0fGC+
-         yqYVq4+Vp24UfBs+ZbeMkLnzPTkb2azg+iJ7K1xKxgbplZeGplDnIJDKejtILDgXWmCm
-         FhnVL4x5LlHnR1e8c1jmza5Z9YhXNv5a9EjUBBPbmaZd/ucld4x3/XrwV0Q6gQN58mS0
-         on7XK1jALdfj0e+oIOB/7Bnu/cdfcyycDC+9pMxnRR8E91NINXH4BPqLUNHlRGj3EhhW
-         6FHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718158337; x=1718763137;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aHlMYhGZxnwsaOysx25sfHBbHxJf0WYTlqBZxa9fVCg=;
-        b=t+YPXgLKbkhikItDVLUeTnPPFgMFczzeAgKPDHiKGO+czNe49D4Jm6Sy+xaWq7icDQ
-         HMQJ3xYVJETQ+Omlpws/JOcvRsxOoA4OuR9S0HKdnHLfYJTCqwp5Tpkfwi74lU9KlC/j
-         InxFwYaIyJVEKh3WYRFll3YDFf9sUqqYuf9gmCf/DB79nLlb4z0jfj+HJDSppbUYUDaw
-         xHrf2YpdAy5qlRmkw6b5HQWtcyir7omxPw8tdWcNj/EcBlBSMO+R02U1P/sJszgXzdiO
-         r0eAGePrBq3wCIwmiyM06lMHnKl5W2TtekFkD1EWF2APUR/pq4qWfbK0SaHfbG+uI/kt
-         le+w==
-X-Forwarded-Encrypted: i=1; AJvYcCXkQL3qgFz6SKGyhUnmUuPIUdJ0Eqn6/c8Zc86RfV7CkOIDKgJj+/eLOLsr6tWiPvlzGy/HR7TukEojunhkU/2JaHXpw1rcn2SlguuvaIs=
-X-Gm-Message-State: AOJu0Yz4fSXRYR0Va5wJyKeMA4X2JtN50YY5+wCVKYlqCyb6we3GEaNj
-	pOca9a+b6CW/3+y1aFHx/RiwqYx+LD3taonoG8kC2enq2NY4QDiTsRaLdVb+T+8FFffLw79yLKl
-	dRpBaoA==
-X-Google-Smtp-Source: AGHT+IGt4ud5/3/G+1KJieAAEUKdvmhQo9Yatp2D5Uch0hGD63q/smE91xVBjPLMSedGoXwnETr8/GQkwf7q
-X-Received: from yuanchu-desktop.svl.corp.google.com ([2620:15c:2a3:200:6634:9477:a468:5a8c])
- (user=yuanchu job=sendgmr) by 2002:a25:8702:0:b0:dfa:b352:824c with SMTP id
- 3f1490d57ef6-dfe66b65314mr108148276.7.1718158337485; Tue, 11 Jun 2024
- 19:12:17 -0700 (PDT)
-Date: Tue, 11 Jun 2024 19:12:07 -0700
-In-Reply-To: <20240612021207.3314369-1-yuanchu@google.com>
+	s=arc-20240116; t=1718167566; c=relaxed/simple;
+	bh=lmEUDVQ2LAtfkGS2NiQcL/waPbmMTp1rN5KRFay4VZc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eMc/dfWyIB63M1qzWCb5Vyck/WwbTYmJ3CnNG3AfCCkiQyDN8BFHQAh6TndjbBZIaY7vYVzy5/wcn2bg8O8AGVpiaU1Pr+IPUJCDMRz95CQb/z2mZmE6wc3N0cop3fyQOE5dPo947LykgUjHqrDO8NNOijDyZQzDR0/49mxS/NA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 2B0FA68BEB; Wed, 12 Jun 2024 06:45:59 +0200 (CEST)
+Date: Wed, 12 Jun 2024 06:45:58 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Damien Le Moal <dlemoal@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
+	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+Subject: Re: [PATCH 02/26] sd: move zone limits setup out of
+ sd_read_block_characteristics
+Message-ID: <20240612044558.GA26468@lst.de>
+References: <20240611051929.513387-1-hch@lst.de> <20240611051929.513387-3-hch@lst.de> <40ca8052-6ac1-4c1b-8c39-b0a7948839f8@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20240612021207.3314369-1-yuanchu@google.com>
-X-Mailer: git-send-email 2.45.2.505.gda0bf45e8d-goog
-Message-ID: <20240612021207.3314369-2-yuanchu@google.com>
-Subject: [PATCH v2 2/2] virt: pvmemcontrol: add Yuanchu and Pasha as maintainers
-From: Yuanchu Xie <yuanchu@google.com>
-To: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Dan Williams <dan.j.williams@intel.com>, 
-	Tom Lendacky <thomas.lendacky@amd.com>, 
-	Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, virtualization@lists.linux.dev, 
-	dev@lists.cloudhypervisor.org, Yuanchu Xie <yuanchu@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40ca8052-6ac1-4c1b-8c39-b0a7948839f8@kernel.org>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-The pvmemcontrol driver lives under drivers/virt/pvmemcontrol. We
-specify maintainers for the driver.
+On Tue, Jun 11, 2024 at 02:51:24PM +0900, Damien Le Moal wrote:
+> > -	if (!sd_is_zoned(sdkp))
+> > +	if (!sd_is_zoned(sdkp)) {
+> > +		lim->zoned = false;
+> 
+> Maybe we should clear the other zone related limits here ? If the drive is
+> reformatted/converted from SMR to CMR (FORMAT WITH PRESET), the other zone
+> limits may be set already, no ?
 
-Signed-off-by: Yuanchu Xie <yuanchu@google.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+Yes, but we would not end up here.  The device type is constant over
+the struct of the scsi_device and we'd have to fully reprobe it.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index aacccb376c28..5e661f39e07d 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18125,6 +18125,13 @@ L:	linux-wireless@vger.kernel.org
- S:	Supported
- F:	drivers/net/wireless/purelifi/plfxlc/
- 
-+PVMEMCONTROL GUEST DRIVER
-+M:	Yuanchu Xie <yuanchu@google.com>
-+M:	Pasha Tatashin <pasha.tatashin@soleen.com>
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+F:	drivers/virt/pvmemcontrol/
-+
- PVRUSB2 VIDEO4LINUX DRIVER
- M:	Mike Isely <isely@pobox.com>
- L:	pvrusb2@isely.net	(subscribers-only)
--- 
-2.45.2.505.gda0bf45e8d-goog
+So we don't need to clear any flags, including the actual zoned flag
+here.
 
