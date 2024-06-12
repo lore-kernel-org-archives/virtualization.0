@@ -1,51 +1,85 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0E6F282F1;
-	Wed, 12 Jun 2024 05:03:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83126169AC9
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Jun 2024 06:30:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718168627; cv=none; b=qtXInUhEFoJibzq5vuqB3tzthyfgZMTxtcgJxWhjszQ5x/GAK7gxuAMdaZJkGWQCohXVS4WQTFRUSu1coEBJQxhU2lTRAnKNoNN1YA3Jjnp55oMroIRuKHlAZmgwkvCvKIwrQ8o/04UY6xJW3p8Q3ZyeSe7n4qIXXPAgz1FyY9c=
+	t=1718173805; cv=none; b=qEsrDSZFKl4vPkYKX32xHt39oYpCRo2T6OvnhgWy307Pm9QROs/7MBY43JRK2DBNCWbv357tAEtPLtlp2xb63aFFaFanTqkhsJ8WUMbKcshlWbvMwAWSGl/7TJ2gRElOCcOJUrCtyDz9IXPXv5sSzfR8SkyLdXerC0Vi0w0y+H8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718168627; c=relaxed/simple;
-	bh=yideDWBgYhb8gdrUDek21Tjymn+mofyCK/oOHbACXbQ=;
+	s=arc-20240116; t=1718173805; c=relaxed/simple;
+	bh=Dw8KIMMn+F28OFpTAhQjzDCM2P9ytOTncCAHmd6nIHc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FAnmfMUG34tRaWqpD5u1On2mm9mjpXpSJcqEI3KeM7IsV29kwloOQnUQJ8q2k7Il+OZ84HGmrDZnws1NameBx5QPPWV7ycOsnnEiSdKv+3y2xhMMH51PDmD66wMOQrseOiDDLLmf2T/5uCc1bJ4+f0SSqLQlJj22Vb/mdb69sLI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 0069168C4E; Wed, 12 Jun 2024 07:03:41 +0200 (CEST)
-Date: Wed, 12 Jun 2024 07:03:41 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Damien Le Moal <dlemoal@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Weinberger <richard@nod.at>,
-	Philipp Reisner <philipp.reisner@linbit.com>,
-	Lars Ellenberg <lars.ellenberg@linbit.com>,
-	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
-	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
-	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai3@huawei.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com, nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
-	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
-	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
-	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
-Subject: Re: [PATCH 21/26] block: move the poll flag to queue_limits
-Message-ID: <20240612050341.GA27049@lst.de>
-References: <20240611051929.513387-1-hch@lst.de> <20240611051929.513387-22-hch@lst.de> <d1775d3f-daaa-4193-9f68-06ec47563b35@kernel.org>
+	 Content-Type:Content-Disposition:In-Reply-To; b=IBmFrOiD3qU8nzXBMppbAPcZeq409cI5P3pNXWUagZCX2J8UGEfKJiRqeZCFj+Pl8LF5Ey1Cb6bM1wtOVvy3VLdREbEITQY6/dtZOm0rqj80TONidVuhuA3xqKHZoYHeT70vh4jT3qzaMuMa6LTvxvekrDf2sM+ZOlV5iWbU1FU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=xIh97Zbq; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="xIh97Zbq"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 21E5B608A9
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Jun 2024 06:30:04 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id FMArhDKAc_lA for <virtualization@lists.linux-foundation.org>;
+ Wed, 12 Jun 2024 06:30:03 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::136; helo=mail-lf1-x136.google.com; envelope-from=jiri@resnulli.us; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 181126067F
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 181126067F
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=xIh97Zbq
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 181126067F
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Jun 2024 06:29:59 +0000 (UTC)
+Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-52c8342af5eso3652077e87.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 11 Jun 2024 23:29:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718173798; x=1718778598; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5LH8e3qpcjluJss2hNPudK/MPhEV4gW+gLGQ/ZThC0k=;
+        b=xIh97Zbq5Gz6+rdXwknCTk3/CJJiDmFxyuaY2kOpq6fw1F+bxYikc7805HR43wV3EV
+         a8F88XOKkNPF89F8X/86ibzEuI/hMKwKWxBpodhmm68J0UPY+Yubqe0qufurFywIIOii
+         KvHTdg+qVDqo872eU0TQ+zfG7mFfsry28FUw6cwN5vzF+GyT4/ZbI6NdD0zvC7zwcL+j
+         a+LEy55N2kxt7nG4Ej7YfawcBP+ZcUmtrw/wq2OWUpooZKSXTsIT5UDOLGib5JCfFSnz
+         jI2+18YhdeLuDzP84dFg4uBws78IE305kCvaaBYOnXek9mHD4KemggFHRSnFZf8whXzG
+         oCrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718173798; x=1718778598;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5LH8e3qpcjluJss2hNPudK/MPhEV4gW+gLGQ/ZThC0k=;
+        b=K+g55yO4/IqF5VgCGwJPaEM+G01rzVmlktE2eC1IJQafx36Z2wrdb2qjxYvEdK5AaH
+         bfKwtKpnsepD/Fyy3ywReLd7K54x3tsdc6A2sJIB6L6M/C0i0vNP7aVYqNZuKnU8XFJH
+         X+zJLj5z1/OAxFyl0fiIwxyXFuZINmX4LwwuIftW641/Vg094CDxCuyD4KKE0x6pMu3I
+         qdsUakQqh8iEoVTUEU6QAammQLY3W4jIBUC2u59vff2rnsMAQDhE1Y/y98uX/GL9YV5A
+         8yZpJiN17V0nszd/9bBd+ey0RTaEMYpKlsvCO8+hPo8LUGtwcPFzDwKVoADbY8GwB7c/
+         q6cw==
+X-Forwarded-Encrypted: i=1; AJvYcCUhadqisxzzsOqNZLyHoKoMNeRNOe72hdM5Sx3b/RSHwTY1tvudYxPGpFxnYKZJH38e6v2//6pl6ywkyBy6kE7EQBQHEnNsaqPfbjNzkKQ/NAKZzp4ieASeaw==
+X-Gm-Message-State: AOJu0Yw5ZL8TFRGudi/poro276PO14uQop9aDRyMVzFTBNCCIUhK8lNT
+	+hQt3uBZIWw0EnLfmCxxf4k2M0AFzRivCUmJ1xneFG0aX1QxcUePnpsQkJ54DzY=
+X-Google-Smtp-Source: AGHT+IFp/68HMGdtt+tnnGcItdNkBhSFo46K5V4Iw0bDMZtwLsT4wVHxdkIyBopwMlohpTWvO6o3cQ==
+X-Received: by 2002:a05:6512:1313:b0:52c:8abe:5204 with SMTP id 2adb3069b0e04-52c9a3dbeffmr624591e87.32.1718173797669;
+        Tue, 11 Jun 2024 23:29:57 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42286fe75ebsm12495135e9.9.2024.06.11.23.29.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Jun 2024 23:29:56 -0700 (PDT)
+Date: Wed, 12 Jun 2024 08:29:53 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Cindy Lu <lulu@redhat.com>, dtatulea@nvidia.com, mst@redhat.com,
+	jasowang@redhat.com, virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH 1/2] vdpa: support set mac address from vdpa tool
+Message-ID: <ZmlAYcRHMqCgYBJD@nanopsycho.orion>
+References: <20240611053239.516996-1-lulu@redhat.com>
+ <20240611185810.14b63d7d@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -54,15 +88,17 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d1775d3f-daaa-4193-9f68-06ec47563b35@kernel.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <20240611185810.14b63d7d@kernel.org>
 
-On Tue, Jun 11, 2024 at 05:21:07PM +0900, Damien Le Moal wrote:
-> Kind of the same remark as for io_stat about this not really being a device
-> feature. But I guess seeing "features" as a queue feature rather than just a
-> device feature makes it OK to have poll (and io_stat) as a feature rather than
-> a flag.
+Wed, Jun 12, 2024 at 03:58:10AM CEST, kuba@kernel.org wrote:
+>On Tue, 11 Jun 2024 13:32:32 +0800 Cindy Lu wrote:
+>> Add new UAPI to support the mac address from vdpa tool
+>> Function vdpa_nl_cmd_dev_config_set_doit() will get the
+>> MAC address from the vdpa tool and then set it to the device.
+>> 
+>> The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
+>
+>Why don't you use devlink?
 
-So unlike io_stat this very much is a feature and a feature only as
-we don't even allow changing it.  It purely exposes a device (or
-rather driver) capability.
+Fair question. Why does vdpa-specific uapi even exist? To have
+driver-specific uapi Does not make any sense to me :/
