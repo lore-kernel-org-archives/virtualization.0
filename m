@@ -1,530 +1,296 @@
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 186AD1272BC
-	for <virtualization@lists.linux.dev>; Wed, 12 Jun 2024 22:12:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B31012C49E
+	for <virtualization@lists.linux.dev>; Wed, 12 Jun 2024 22:31:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718230322; cv=none; b=UVD3Y1XkEz94dQt/EwreelP7RUZsDCrk68T+LhyxCEEnmR629+3oWT+SBZ4IKTBwdIW/3mrm+aWljbzDYTxBGp6UNXPzGu/qo/OK1i3KFTE6ewM5LS/U6NRRcr0e6iXp3JlaxeZUCW3Xf1NzDvnTy43dU84OnORqs9YIF12LFz8=
+	t=1718231470; cv=none; b=HnAXXk6cIGl/UJYMpJMKIM1VKKhURtYCBBukv9p3kF0xTJ6cA8UCwjAMhncHRMSZcnCqbjQk9cAdy+Js3Xsdcy/hyZmHGBRAUuvYUfWbcoJd5VqwowxvB0iee3L/FNwJpAmwsRsbMrfyoBeFwcSAd4oWEFaWlXtLRjoOgrHKKpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718230322; c=relaxed/simple;
-	bh=TiHhlZo7HZR1yfnnJSa1w/GEHdI4xtxB224R88h4Vnk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A5SDa72LCBjpN0+f7q3UUc7Hp6OZwAETmWIdTTOBcBHgg0GzgkPaQCfAUp9QkOU9BQ3bx5WFLoDlFFGhq/sJAzJXhiVpwnbqmK/5SM5G76qBszG50/smk+hwgCX8ApvsLwMYKD3XSpQhwQXS4knlfc42NUd6gNO81Iau8yEc36k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=bz2GErkh; arc=none smtp.client-ip=209.85.128.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1718231470; c=relaxed/simple;
+	bh=d28hJqnE/fp4WWmHC4Chpo+kVBJe1kKRBfBoZJZ+0dg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=LVXmst4lA3m3d6j6nj/EbhtRQdoYBmO7ieAUS54Fp61NS21QdHj+sJm1vJBum/m3mbco8oDJgj9LbQoi92en7MDrQvNyF3hBAYez08i+iruPQukqWjBCJYTaqgSvilPGcYxYyCXW9VgRmuwtRO3VV9VKhWL+A1FHxvfPd+xwbTs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gx8EZuHu; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="bz2GErkh"
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-62f8dcbd4b5so4595817b3.0
-        for <virtualization@lists.linux.dev>; Wed, 12 Jun 2024 15:12:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1718230320; x=1718835120; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=ppMASZ0eIvj/5FKG8wqGN0hZDHJf87zO9TYcK304HR8=;
-        b=bz2GErkhReeCBJts8XprqPL2EKPWjquoaVOrBiw1EYxvJ8ZxhoINUnwt84gjl4Dee6
-         n8o4IEOx+2CawgUhexCb5B3mUSYrUmzAjyzBbzlmuTE9tSRAzq+oOpkOJX8shyjeJxP+
-         XIZbEEO7Uh6lef5la4bM6tT434cTHPXRA3dCk=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gx8EZuHu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718231465;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Nl2m2MbhkCyqfeFvn0SH6yKdu/HPUWtJGaL2h1R8ncA=;
+	b=gx8EZuHukxY9RxfYUHOI0lNMIjKyP18OU12DTz3ozmx7S8uLYHvICjVw/JDRQnHkQ7539a
+	ZcCzbTOlW349pCVTbuPHeLitM9gpQSYuaOAWZtz0Kos1b2NlJF+LtVVQUUInVq26KI8Spp
+	1q/7jQJMKpLWj5rMrFoeIC0EaGHiszM=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-155-FGlqWB8AMCa5KvMaF0W3Jw-1; Wed, 12 Jun 2024 18:31:03 -0400
+X-MC-Unique: FGlqWB8AMCa5KvMaF0W3Jw-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-422a0f21366so3085295e9.1
+        for <virtualization@lists.linux.dev>; Wed, 12 Jun 2024 15:31:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718230320; x=1718835120;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1718231462; x=1718836262;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ppMASZ0eIvj/5FKG8wqGN0hZDHJf87zO9TYcK304HR8=;
-        b=S3FDfFQuhOl+N1YtgPkDHvpX9BAjyggzj4Sb34vzKYDshN0rpYqSHeZL5j3N/TRZOc
-         awnMB9smaY1ip2LvKho/cZ5xU3oDz34OO+d/aX44iwnzE2StAfRHl3TdFzJ7uaZwQM4v
-         pYgVabIi05cavzaxERYv3oJbOuv3DisHvA6PVj+ZeRhd1ZUB6AtvX7QnwlMsu6iLolXy
-         8lVl1VCX/y+mEuYJERvH0O+marKJQOSveGsssuUpcD4Tdhw/HX6ya3CIJw092DZbAo+P
-         1AMwQjO7rLImidt2a8VLe9jlTH4sZ5QbKSzePMFVyavoNgPtWDxTgX4+BGCqALRP1Qey
-         mFYA==
-X-Forwarded-Encrypted: i=1; AJvYcCVwEGv1wgxeBv986LGRVEx9enUrjiZwT1paCLAiJ1W1pi8haZ16B+/fixeCkEVvWIl0Ad/2zZZCPYD/7pkq56bJhRgEg99Y9TDwLCQFuSQ=
-X-Gm-Message-State: AOJu0Ywz45JM5H0tzLJRUHC32AiXdm8Mz+MI+1s46HsNkupYFneg9khG
-	s/L1bGEyhQmFx0AYKxgH7xYUibrAFAsSYDLbaHuLZ83XuINxIV7AI0fTxfepSw==
-X-Google-Smtp-Source: AGHT+IHxzFYt0pq6Y+fA/dKuwJmOWcF4JS7vsNenIyDqRHigG6xvvdGFEw4nNPdEDBg7cQUt9d+mQg==
-X-Received: by 2002:a0d:ee45:0:b0:627:c0ab:22b9 with SMTP id 00721157ae682-62fb847de6emr29993107b3.21.1718230319867;
-        Wed, 12 Jun 2024 15:11:59 -0700 (PDT)
-Received: from [192.168.0.212] ([50.35.46.55])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b2a5c20435sm309356d6.49.2024.06.12.15.11.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 Jun 2024 15:11:59 -0700 (PDT)
-Message-ID: <d366491d-2f5b-478c-8968-b0a3a298827c@broadcom.com>
-Date: Wed, 12 Jun 2024 15:11:54 -0700
+        bh=Nl2m2MbhkCyqfeFvn0SH6yKdu/HPUWtJGaL2h1R8ncA=;
+        b=QsGhjqgVaCjidYiBpkIcWNggRodjvVrVQlmhG4hTIGEOf+kaSvuV7Q32QOG5R7zRVZ
+         gGa9/7mtrnjmz1a47F9DbUist7niCHwQLYlDZpU+44Lj76MOcnmsgTQcg0pjTl1i8YqZ
+         1ANPWOwX+xdvPnr9AaMgAoeBVkc+1vjgnZlrpzTBQcT7BXqiVfBNHyxQtL+/zvQZyTua
+         fJfuSxwHErTcgjMJAZWQCR7Mk7chnuY48T7atcdH0fGQI1mXXmsgQRuhvsGLSsdxODSu
+         8+QZa8x6t+uzSATaJInlrqs4y/FnAhEVqWvnZ4e2a5y1YD/AIYqo0A2x5qcyw3Kqn5v9
+         LVeQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW2Wd8XmuM03Fb9bh3olVkx77B36nhDkr26BwCMsPa3QUFrveHqAx5y6AlI/Wg+8NZrNsM/FUYIahZGzeMuFGD8GPb19SSsrOlpFOZ1aqY=
+X-Gm-Message-State: AOJu0Yw8Hm74V40QuFduz+YUiRmqGN57tMdTFi2CAbrEXdt2eAHE3fzd
+	9IHLgSoqdbID2g/sXmhc3naEPdik4PxtxbiOPddY9DXTPBk7gxPSjcBPxagUiNP0pEv2wgXsLt4
+	LzrdvRTIlkMiroPhj8vxLyA+q9hXeRlnqlPkIxb5TCxEJe+Nn+Hk/au0YHHWtQCbd
+X-Received: by 2002:a05:600c:45cc:b0:421:21d2:abf5 with SMTP id 5b1f17b1804b1-422865acc67mr26883825e9.31.1718231462235;
+        Wed, 12 Jun 2024 15:31:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHEDRZahJSJq6/Ujb2z7gkEtgTdOve/kBATPKQ7YP56k6eRdRbTyGe1GQ9Myo2uG8lTGG78Rg==
+X-Received: by 2002:a05:600c:45cc:b0:421:21d2:abf5 with SMTP id 5b1f17b1804b1-422865acc67mr26883415e9.31.1718231461601;
+        Wed, 12 Jun 2024 15:31:01 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:341:5539:9b1a:2e49:4aac:204e])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-422f5f33c38sm2114725e9.9.2024.06.12.15.30.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Jun 2024 15:31:00 -0700 (PDT)
+Date: Wed, 12 Jun 2024 18:30:55 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+	john.fastabend@gmail.com, dave.taht@gmail.com,
+	kerneljasonxing@gmail.com, hengqi@linux.alibaba.com
+Subject: Re: [PATCH net-next v2] virtio_net: add support for Byte Queue Limits
+Message-ID: <20240612182944-mutt-send-email-mst@kernel.org>
+References: <20240612170851.1004604-1-jiri@resnulli.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 1/8] x86/vmware: Introduce VMware hypercall API
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
- tglx@linutronix.de
-Cc: x86@kernel.org, netdev@vger.kernel.org, richardcochran@gmail.com,
- linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, zackr@vmware.com,
- linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
- timothym@vmware.com, akaher@vmware.com, dri-devel@lists.freedesktop.org,
- daniel@ffwll.ch, airlied@gmail.com, tzimmermann@suse.de, mripard@kernel.org,
- maarten.lankhorst@linux.intel.com, horms@kernel.org,
- kirill.shutemov@linux.intel.com
-References: <3d6ec46c-53c2-4a13-90ff-eb419863c1d5@broadcom.com>
- <20240606232334.41384-1-alexey.makhalov@broadcom.com>
-Content-Language: en-US
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
- 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 EuY0
-In-Reply-To: <20240606232334.41384-1-alexey.makhalov@broadcom.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20240612170851.1004604-1-jiri@resnulli.us>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Borislav, please review v11 implementation of 1/8 based on your proposal.
-I'm waiting for your feedback before sending full v11 patchset.
-Thanks,
---Alexey
+On Wed, Jun 12, 2024 at 07:08:51PM +0200, Jiri Pirko wrote:
+> From: Jiri Pirko <jiri@nvidia.com>
+> 
+> Add support for Byte Queue Limits (BQL).
+> 
+> Tested on qemu emulated virtio_net device with 1, 2 and 4 queues.
+> Tested with fq_codel and pfifo_fast. Super netperf with 50 threads is
+> running in background. Netperf TCP_RR results:
+> 
+> NOBQL FQC 1q:  159.56  159.33  158.50  154.31    agv: 157.925
+> NOBQL FQC 2q:  184.64  184.96  174.73  174.15    agv: 179.62
+> NOBQL FQC 4q:  994.46  441.96  416.50  499.56    agv: 588.12
+> NOBQL PFF 1q:  148.68  148.92  145.95  149.48    agv: 148.2575
+> NOBQL PFF 2q:  171.86  171.20  170.42  169.42    agv: 170.725
+> NOBQL PFF 4q: 1505.23 1137.23 2488.70 3507.99    agv: 2159.7875
+>   BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
+>   BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
+>   BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
+>   BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
+>   BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
+>   BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
+> 
+> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 
-On 6/6/24 4:23 PM, Alexey Makhalov wrote:
-> Introduce vmware_hypercall family of functions. It is a common
-> implementation to be used by the VMware guest code and virtual
-> device drivers in architecture independent manner.
-> 
-> The API consists of vmware_hypercallX and vmware_hypercall_hb_{out,in}
-> set of functions by analogy with KVM hypercall API. Architecture
-> specific implementation is hidden inside.
-> 
-> It will simplify future enhancements in VMware hypercalls such
-> as SEV-ES and TDX related changes without needs to modify a
-> caller in device drivers code.
-> 
-> Current implementation extends an idea from commit bac7b4e84323
-> ("x86/vmware: Update platform detection code for VMCALL/VMMCALL
-> hypercalls") to have a slow, but safe path vmware_hypercall_slow()
-> earlier during the boot when alternatives are not yet applied.
-> The code inherits VMWARE_CMD logic from the commit mentioned above.
-> 
-> Move common macros from vmware.c to vmware.h.
-> 
-> Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+I see you now support both napi and non-napi. Thanks a lot Jiri!
+Just coming out of a national holiday here, as usual with a backlog - pls allow
+until Monday to review. Thanks!
+
 > ---
->   arch/x86/include/asm/vmware.h | 279 ++++++++++++++++++++++++++++++++--
->   arch/x86/kernel/cpu/vmware.c  |  58 ++++++-
->   2 files changed, 315 insertions(+), 22 deletions(-)
+> v1->v2:
+> - moved netdev_tx_completed_queue() call into __free_old_xmit(),
+>   propagate use_napi flag to __free_old_xmit() and only call
+>   netdev_tx_completed_queue() in case it is true
+> - added forgotten call to netdev_tx_reset_queue()
+> - fixed stats for xdp packets
+> - fixed bql accounting when __free_old_xmit() is called from xdp path
+> - handle the !use_napi case in start_xmit() kick section
+> ---
+>  drivers/net/virtio_net.c | 50 +++++++++++++++++++++++++---------------
+>  1 file changed, 32 insertions(+), 18 deletions(-)
 > 
-> diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-> index ac9fc51e2b18..724c8b9b4b8d 100644
-> --- a/arch/x86/include/asm/vmware.h
-> +++ b/arch/x86/include/asm/vmware.h
-> @@ -7,26 +7,277 @@
->   #include <linux/stringify.h>
->   
->   /*
-> - * The hypercall definitions differ in the low word of the %edx argument
-> - * in the following way: the old port base interface uses the port
-> - * number to distinguish between high- and low bandwidth versions.
-> + * VMware hypercall ABI.
-> + *
-> + * - Low bandwidth (LB) hypercalls (I/O port based, vmcall and vmmcall)
-> + * have up to 6 input and 6 output arguments passed and returned using
-> + * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-> + * %esi (arg4), %edi (arg5).
-> + * The following input arguments must be initialized by the caller:
-> + * arg0 - VMWARE_HYPERVISOR_MAGIC
-> + * arg2 - Hypercall command
-> + * arg3 bits [15:0] - Port number, LB and direction flags
-> + *
-> + * - High bandwidth (HB) hypercalls are I/O port based only. They have
-> + * up to 7 input and 7 output arguments passed and returned using
-> + * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-> + * %esi (arg4), %edi (arg5), %ebp (arg6).
-> + * The following input arguments must be initialized by the caller:
-> + * arg0 - VMWARE_HYPERVISOR_MAGIC
-> + * arg1 - Hypercall command
-> + * arg3 bits [15:0] - Port number, HB and direction flags
-> + *
-> + * For compatibility purposes, x86_64 systems use only lower 32 bits
-> + * for input and output arguments.
-> + *
-> + * The hypercall definitions differ in the low word of the %edx (arg3)
-> + * in the following way: the old I/O port based interface uses the port
-> + * number to distinguish between high- and low bandwidth versions, and
-> + * uses IN/OUT instructions to define transfer direction.
->    *
->    * The new vmcall interface instead uses a set of flags to select
->    * bandwidth mode and transfer direction. The flags should be loaded
-> - * into %dx by any user and are automatically replaced by the port
-> - * number if the VMWARE_HYPERVISOR_PORT method is used.
-> - *
-> - * In short, new driver code should strictly use the new definition of
-> - * %dx content.
-> + * into arg3 by any user and are automatically replaced by the port
-> + * number if the I/O port method is used.
-> + */
-> +
-> +#define VMWARE_HYPERVISOR_HB		BIT(0)
-> +#define VMWARE_HYPERVISOR_OUT		BIT(1)
-> +
-> +#define VMWARE_HYPERVISOR_PORT		0x5658
-> +#define VMWARE_HYPERVISOR_PORT_HB	(VMWARE_HYPERVISOR_PORT | \
-> +					 VMWARE_HYPERVISOR_HB)
-> +
-> +#define VMWARE_HYPERVISOR_MAGIC		0x564d5868U
-> +
-> +#define VMWARE_CMD_GETVERSION		10
-> +#define VMWARE_CMD_GETHZ		45
-> +#define VMWARE_CMD_GETVCPU_INFO		68
-> +#define VMWARE_CMD_STEALCLOCK		91
-> +
-> +#define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
-> +#define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
-> +
-> +extern unsigned long vmware_hypercall_slow(unsigned long cmd,
-> +					   unsigned long in1, unsigned long in3,
-> +					   unsigned long in4, unsigned long in5,
-> +					   u32 *out1, u32 *out2, u32 *out3,
-> +					   u32 *out4, u32 *out5);
-> +
-> +/*
-> + * The low bandwidth call. The low word of %edx is presumed to have OUT bit
-> + * set. The high word of %edx may contain input data from the caller.
->    */
-> +#define VMWARE_HYPERCALL					\
-> +	ALTERNATIVE_2("movw %[port], %%dx\n\t"			\
-> +		      "inl (%%dx), %%eax",			\
-> +		      "vmcall", X86_FEATURE_VMCALL,		\
-> +		      "vmmcall", X86_FEATURE_VMW_VMMCALL)
-> +
-> +static inline
-> +unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
-> +{
-> +	unsigned long out0;
-> +
-> +	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-> +		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
-> +					     NULL, NULL, NULL, NULL, NULL);
-> +
-> +	asm_inline volatile (VMWARE_HYPERCALL
-> +		: "=a" (out0)
-> +		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-> +		  "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (in1),
-> +		  "c" (cmd),
-> +		  "d" (0)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
-> +
-> +static inline
-> +unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
-> +				u32 *out1, u32 *out2)
-> +{
-> +	unsigned long out0;
-> +
-> +	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-> +		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
-> +					     out1, out2, NULL, NULL, NULL);
-> +
-> +	asm_inline volatile (VMWARE_HYPERCALL
-> +		: "=a" (out0), "=b" (*out1), "=c" (*out2)
-> +		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-> +		  "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (in1),
-> +		  "c" (cmd),
-> +		  "d" (0)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
-> +
-> +static inline
-> +unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
-> +				u32 *out1, u32 *out2, u32 *out3)
-> +{
-> +	unsigned long out0;
-> +
-> +	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-> +		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
-> +					     out1, out2, out3, NULL, NULL);
-> +
-> +	asm_inline volatile (VMWARE_HYPERCALL
-> +		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
-> +		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-> +		  "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (in1),
-> +		  "c" (cmd),
-> +		  "d" (0)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
-> +
-> +static inline
-> +unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
-> +				unsigned long in3, unsigned long in4,
-> +				unsigned long in5, u32 *out2)
-> +{
-> +	unsigned long out0;
-> +
-> +	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-> +		return vmware_hypercall_slow(cmd, in1, in3, in4, in5,
-> +					     NULL, out2, NULL, NULL, NULL);
-> +
-> +	asm_inline volatile (VMWARE_HYPERCALL
-> +		: "=a" (out0), "=c" (*out2)
-> +		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-> +		  "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (in1),
-> +		  "c" (cmd),
-> +		  "d" (in3),
-> +		  "S" (in4),
-> +		  "D" (in5)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
-> +
-> +static inline
-> +unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
-> +				unsigned long in3, u32 *out2,
-> +				u32 *out3, u32 *out4, u32 *out5)
-> +{
-> +	unsigned long out0;
-> +
-> +	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-> +		return vmware_hypercall_slow(cmd, in1, in3, 0, 0,
-> +					     NULL, out2, out3, out4, out5);
-> +
-> +	asm_inline volatile (VMWARE_HYPERCALL
-> +		: "=a" (out0), "=c" (*out2), "=d" (*out3), "=S" (*out4),
-> +		  "=D" (*out5)
-> +		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-> +		  "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (in1),
-> +		  "c" (cmd),
-> +		  "d" (in3)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
-> +
-> +static inline
-> +unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
-> +				unsigned long in3, unsigned long in4,
-> +				unsigned long in5, u32 *out1,
-> +				u32 *out2, u32 *out3)
-> +{
-> +	unsigned long out0;
-> +
-> +	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
-> +		return vmware_hypercall_slow(cmd, in1, in3, in4, in5,
-> +					     out1, out2, out3, NULL, NULL);
-> +
-> +	asm_inline volatile (VMWARE_HYPERCALL
-> +		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
-> +		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-> +		  "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (in1),
-> +		  "c" (cmd),
-> +		  "d" (in3),
-> +		  "S" (in4),
-> +		  "D" (in5)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
-> +
-> +#ifdef CONFIG_X86_64
-> +#define VMW_BP_CONSTRAINT "r"
-> +#else
-> +#define VMW_BP_CONSTRAINT "m"
-> +#endif
-> +
-> +/*
-> + * High bandwidth calls are not supported on encrypted memory guests.
-> + * The caller should check cc_platform_has(CC_ATTR_MEM_ENCRYPT) and use
-> + * low bandwidth hypercall if memory encryption is set.
-> + * This assumption simplifies HB hypercall implementation to just I/O port
-> + * based approach without alternative patching.
-> + */
-> +static inline
-> +unsigned long vmware_hypercall_hb_out(unsigned long cmd, unsigned long in2,
-> +				      unsigned long in3, unsigned long in4,
-> +				      unsigned long in5, unsigned long in6,
-> +				      u32 *out1)
-> +{
-> +	unsigned long out0;
-> +
-> +	asm_inline volatile (
-> +		UNWIND_HINT_SAVE
-> +		"push %%" _ASM_BP "\n\t"
-> +		UNWIND_HINT_UNDEFINED
-> +		"mov %[in6], %%" _ASM_BP "\n\t"
-> +		"rep outsb\n\t"
-> +		"pop %%" _ASM_BP "\n\t"
-> +		UNWIND_HINT_RESTORE
-> +		: "=a" (out0), "=b" (*out1)
-> +		: "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (cmd),
-> +		  "c" (in2),
-> +		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
-> +		  "S" (in4),
-> +		  "D" (in5),
-> +		  [in6] VMW_BP_CONSTRAINT (in6)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
->   
-> -/* Old port-based version */
-> -#define VMWARE_HYPERVISOR_PORT    0x5658
-> -#define VMWARE_HYPERVISOR_PORT_HB 0x5659
-> +static inline
-> +unsigned long vmware_hypercall_hb_in(unsigned long cmd, unsigned long in2,
-> +				     unsigned long in3, unsigned long in4,
-> +				     unsigned long in5, unsigned long in6,
-> +				     u32 *out1)
-> +{
-> +	unsigned long out0;
->   
-> -/* Current vmcall / vmmcall version */
-> -#define VMWARE_HYPERVISOR_HB   BIT(0)
-> -#define VMWARE_HYPERVISOR_OUT  BIT(1)
-> +	asm_inline volatile (
-> +		UNWIND_HINT_SAVE
-> +		"push %%" _ASM_BP "\n\t"
-> +		UNWIND_HINT_UNDEFINED
-> +		"mov %[in6], %%" _ASM_BP "\n\t"
-> +		"rep insb\n\t"
-> +		"pop %%" _ASM_BP "\n\t"
-> +		UNWIND_HINT_RESTORE
-> +		: "=a" (out0), "=b" (*out1)
-> +		: "a" (VMWARE_HYPERVISOR_MAGIC),
-> +		  "b" (cmd),
-> +		  "c" (in2),
-> +		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
-> +		  "S" (in4),
-> +		  "D" (in5),
-> +		  [in6] VMW_BP_CONSTRAINT (in6)
-> +		: "cc", "memory");
-> +	return out0;
-> +}
-> +#undef VMW_BP_CONSTRAINT
-> +#undef VMWARE_HYPERCALL
->   
->   /* The low bandwidth call. The low word of edx is presumed clear. */
->   #define VMWARE_HYPERCALL						\
-> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-> index 11f83d07925e..533ac2d1de88 100644
-> --- a/arch/x86/kernel/cpu/vmware.c
-> +++ b/arch/x86/kernel/cpu/vmware.c
-> @@ -41,17 +41,9 @@
->   
->   #define CPUID_VMWARE_INFO_LEAF               0x40000000
->   #define CPUID_VMWARE_FEATURES_LEAF           0x40000010
-> -#define CPUID_VMWARE_FEATURES_ECX_VMMCALL    BIT(0)
-> -#define CPUID_VMWARE_FEATURES_ECX_VMCALL     BIT(1)
->   
-> -#define VMWARE_HYPERVISOR_MAGIC	0x564D5868
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 61a57d134544..5863c663ccab 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -84,7 +84,9 @@ struct virtnet_stat_desc {
+>  
+>  struct virtnet_sq_free_stats {
+>  	u64 packets;
+> +	u64 xdp_packets;
+>  	u64 bytes;
+> +	u64 xdp_bytes;
+>  };
+>  
+>  struct virtnet_sq_stats {
+> @@ -506,29 +508,33 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
+>  	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+>  }
+>  
+> -static void __free_old_xmit(struct send_queue *sq, bool in_napi,
+> +static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
+> +			    bool in_napi, bool use_napi,
+>  			    struct virtnet_sq_free_stats *stats)
+>  {
+>  	unsigned int len;
+>  	void *ptr;
+>  
+>  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> -		++stats->packets;
 > -
-> -#define VMWARE_CMD_GETVERSION    10
-> -#define VMWARE_CMD_GETHZ         45
-> -#define VMWARE_CMD_GETVCPU_INFO  68
->   #define VMWARE_CMD_LEGACY_X2APIC  3
->   #define VMWARE_CMD_VCPU_RESERVED 31
-> -#define VMWARE_CMD_STEALCLOCK    91
->   
->   #define STEALCLOCK_NOT_AVAILABLE (-1)
->   #define STEALCLOCK_DISABLED        0
-> @@ -110,6 +102,56 @@ struct vmware_steal_time {
->   static unsigned long vmware_tsc_khz __ro_after_init;
->   static u8 vmware_hypercall_mode     __ro_after_init;
->   
-> +unsigned long vmware_hypercall_slow(unsigned long cmd,
-> +				    unsigned long in1, unsigned long in3,
-> +				    unsigned long in4, unsigned long in5,
-> +				    u32 *out1, u32 *out2, u32 *out3,
-> +				    u32 *out4, u32 *out5)
-> +{
-> +	unsigned long out0;
+>  		if (!is_xdp_frame(ptr)) {
+>  			struct sk_buff *skb = ptr;
+>  
+>  			pr_debug("Sent skb %p\n", skb);
+>  
+> +			stats->packets++;
+>  			stats->bytes += skb->len;
+>  			napi_consume_skb(skb, in_napi);
+>  		} else {
+>  			struct xdp_frame *frame = ptr_to_xdp(ptr);
+>  
+> -			stats->bytes += xdp_get_frame_len(frame);
+> +			stats->xdp_packets++;
+> +			stats->xdp_bytes += xdp_get_frame_len(frame);
+>  			xdp_return_frame(frame);
+>  		}
+>  	}
+> +	if (use_napi)
+> +		netdev_tx_completed_queue(txq, stats->packets, stats->bytes);
 > +
-> +	switch (vmware_hypercall_mode) {
-> +	case CPUID_VMWARE_FEATURES_ECX_VMCALL:
-> +		asm_inline volatile ("vmcall"
-> +				: "=a" (out0), "=b" (*out1), "=c" (*out2),
-> +				"=d" (*out3), "=S" (*out4), "=D" (*out5)
-> +				: "a" (VMWARE_HYPERVISOR_MAGIC),
-> +				"b" (in1),
-> +				"c" (cmd),
-> +				"d" (in3),
-> +				"S" (in4),
-> +				"D" (in5)
-> +				: "cc", "memory");
-> +		break;
-> +	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:
-> +		asm_inline volatile ("vmmcall"
-> +				: "=a" (out0), "=b" (*out1), "=c" (*out2),
-> +				"=d" (*out3), "=S" (*out4), "=D" (*out5)
-> +				: "a" (VMWARE_HYPERVISOR_MAGIC),
-> +				"b" (in1),
-> +				"c" (cmd),
-> +				"d" (in3),
-> +				"S" (in4),
-> +				"D" (in5)
-> +				: "cc", "memory");
-> +		break;
-> +	default:
-> +		asm_inline volatile ("movw %[port], %%dx; inl (%%dx), %%eax"
-> +				: "=a" (out0), "=b" (*out1), "=c" (*out2),
-> +				"=d" (*out3), "=S" (*out4), "=D" (*out5)
-> +				: [port] "i" (VMWARE_HYPERVISOR_PORT),
-> +				"a" (VMWARE_HYPERVISOR_MAGIC),
-> +				"b" (in1),
-> +				"c" (cmd),
-> +				"d" (in3),
-> +				"S" (in4),
-> +				"D" (in5)
-> +				: "cc", "memory");
-> +		break;
-> +	}
-> +	return out0;
-> +}
+>  }
+>  
+>  /* Converting between virtqueue no. and kernel tx/rx queue no.
+> @@ -955,21 +961,22 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+>  	virtnet_rq_free_buf(vi, rq, buf);
+>  }
+>  
+> -static void free_old_xmit(struct send_queue *sq, bool in_napi)
+> +static void free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
+> +			  bool in_napi, bool use_napi)
+>  {
+>  	struct virtnet_sq_free_stats stats = {0};
+>  
+> -	__free_old_xmit(sq, in_napi, &stats);
+> +	__free_old_xmit(sq, txq, in_napi, use_napi, &stats);
+>  
+>  	/* Avoid overhead when no packets have been processed
+>  	 * happens when called speculatively from start_xmit.
+>  	 */
+> -	if (!stats.packets)
+> +	if (!stats.packets && !stats.xdp_packets)
+>  		return;
+>  
+>  	u64_stats_update_begin(&sq->stats.syncp);
+> -	u64_stats_add(&sq->stats.bytes, stats.bytes);
+> -	u64_stats_add(&sq->stats.packets, stats.packets);
+> +	u64_stats_add(&sq->stats.bytes, stats.bytes + stats.xdp_bytes);
+> +	u64_stats_add(&sq->stats.packets, stats.packets + stats.xdp_packets);
+>  	u64_stats_update_end(&sq->stats.syncp);
+>  }
+>  
+> @@ -1003,7 +1010,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+>  	 * early means 16 slots are typically wasted.
+>  	 */
+>  	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+> -		netif_stop_subqueue(dev, qnum);
+> +		struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
 > +
->   static inline int __vmware_platform(void)
->   {
->   	uint32_t eax, ebx, ecx, edx;
+> +		netif_tx_stop_queue(txq);
+>  		u64_stats_update_begin(&sq->stats.syncp);
+>  		u64_stats_inc(&sq->stats.stop);
+>  		u64_stats_update_end(&sq->stats.syncp);
+> @@ -1012,7 +1021,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+>  				virtqueue_napi_schedule(&sq->napi, sq->vq);
+>  		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+>  			/* More just got used, free them then recheck. */
+> -			free_old_xmit(sq, false);
+> +			free_old_xmit(sq, txq, false, use_napi);
+>  			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+>  				netif_start_subqueue(dev, qnum);
+>  				u64_stats_update_begin(&sq->stats.syncp);
+> @@ -1138,7 +1147,8 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>  	}
+>  
+>  	/* Free up any pending old buffers before queueing new ones. */
+> -	__free_old_xmit(sq, false, &stats);
+> +	__free_old_xmit(sq, netdev_get_tx_queue(dev, sq - vi->sq),
+> +			false, sq->napi.weight, &stats);
+>  
+>  	for (i = 0; i < n; i++) {
+>  		struct xdp_frame *xdpf = frames[i];
+> @@ -2313,7 +2323,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>  
+>  		do {
+>  			virtqueue_disable_cb(sq->vq);
+> -			free_old_xmit(sq, true);
+> +			free_old_xmit(sq, txq, true, true);
+>  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>  
+>  		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+> @@ -2412,6 +2422,7 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>  		goto err_xdp_reg_mem_model;
+>  
+>  	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+> +	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
+>  	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+>  
+>  	return 0;
+> @@ -2471,7 +2482,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+>  	txq = netdev_get_tx_queue(vi->dev, index);
+>  	__netif_tx_lock(txq, raw_smp_processor_id());
+>  	virtqueue_disable_cb(sq->vq);
+> -	free_old_xmit(sq, true);
+> +	free_old_xmit(sq, txq, true, true);
+>  
+>  	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+>  		if (netif_tx_queue_stopped(txq)) {
+> @@ -2559,17 +2570,18 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	struct send_queue *sq = &vi->sq[qnum];
+>  	int err;
+>  	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+> -	bool kick = !netdev_xmit_more();
+> +	bool xmit_more = netdev_xmit_more();
+>  	bool use_napi = sq->napi.weight;
+> +	bool kick;
+>  
+>  	/* Free up any pending old buffers before queueing new ones. */
+>  	do {
+>  		if (use_napi)
+>  			virtqueue_disable_cb(sq->vq);
+>  
+> -		free_old_xmit(sq, false);
+> +		free_old_xmit(sq, txq, false, use_napi);
+>  
+> -	} while (use_napi && kick &&
+> +	} while (use_napi && !xmit_more &&
+>  	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>  
+>  	/* timestamp packet in software */
+> @@ -2598,7 +2610,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  
+>  	check_sq_full_and_disable(vi, dev, sq);
+>  
+> -	if (kick || netif_xmit_stopped(txq)) {
+> +	kick = use_napi ? __netdev_tx_sent_queue(txq, skb->len, xmit_more) :
+> +			  !xmit_more && netif_xmit_stopped(txq);
+> +	if (kick) {
+>  		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
+>  			u64_stats_update_begin(&sq->stats.syncp);
+>  			u64_stats_inc(&sq->stats.kicks);
+> -- 
+> 2.45.1
+
