@@ -1,137 +1,158 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFC846A34F
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 07:21:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 684E013CABF
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 07:51:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718263279; cv=none; b=nnxjMsNbyzB1DY8K2b4lCPFUJHm98IGrWLepASd/jacSRqVbn5hGBDdtCSciU9/av3JFGhnJ7Dl9DBzwSfrei+Crce2lHdHMglM3024mv8SSlLxxlKBDN1eAP6Og5C/JzbF8EDI4jqd06HkN+F1O+GF12oyzIq3ZYhyWGwQ8jeA=
+	t=1718265071; cv=none; b=kiwwkiQkBuT4BiTfrPR5R1ELpHyP+lu+b+f5vrcqpR4pZUm9JxF/fCc/8t14gYJIML5h0s1TQO1VZvFrVHuvv/rbFg9XlaYZn4w6mLny9aI/KKi6wfKUpK5DYB3nS3E53PFb2vYvnuL3ANuG+Kgwu6EQDiB8cOrOnbuAxN3TRaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718263279; c=relaxed/simple;
-	bh=l80RjXdZw7gxCEOaUJxc6adU9RUoluvmfgHKiXUbHxU=;
+	s=arc-20240116; t=1718265071; c=relaxed/simple;
+	bh=GFIcxWXQwNCRH03Z9cLHboBcOBzSFyWQjvAxn613bA8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=D5a+s265uyoJGXiY6eO1pE0alk6DQetLnudkJzug//m25hGvPhYQ8afNKcoRpcnFlO7hso5UEwmf2tszhCtKdlXJjxPrSbyQwVUpUQdJV3EsFnH229UBbu3l81ZA8mF96U5Wr0G0gRfXS7EF/uBH0QEVGhcavsTpryW5m5ThrmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=PtPPFIJn; arc=none smtp.client-ip=140.211.166.133
+	 In-Reply-To:Content-Type:Content-Disposition; b=tbcBrVS3VkktV0WgiGEKxD+cC/EFzzJ8WJB8rKuzWEEM5vDykXAkXlyhzLVjHZsCJVMMZ2LRu/RjCZgDFvUvBExnZG3/1HUgHN3RzvrjutOkc1ZsWz2JOBnxC8Iz0LY484TlNH0hviGN4J0pgZjRdmDrfGnSHzUqmStPDEGfPr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bsBHTJKS; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="PtPPFIJn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bsBHTJKS"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6283340BE4
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 07:21:17 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 005456078C
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 07:51:10 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.898
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id iO7QEbwFLSoP for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jun 2024 07:21:16 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::42d; helo=mail-wr1-x42d.google.com; envelope-from=jiri@resnulli.us; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org A3BA94016D
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A3BA94016D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=PtPPFIJn
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A3BA94016D
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 07:21:13 +0000 (UTC)
-Received: by mail-wr1-x42d.google.com with SMTP id ffacd0b85a97d-35f2c0b7701so396810f8f.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 00:21:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718263272; x=1718868072; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nhdTMjtoIXZFugvUtXucLNLZ+wuL3jj/Mf2FujAvEdI=;
-        b=PtPPFIJnrHMXcLbaDKn1/r7VmaPd5Fq0mvs/+C6/teLCSChrLsUWSQ1o3nMXKlkOyr
-         Tgy0xI5QadlbXld6ssjPWfnPbXex7J86qH84TgnC5RQ5ZkHkJ+Ai+MoPdlsi9sfbdUCJ
-         LjHw3Iyfj4TrEjV5B3yEV3xKMt7v+aiOMwxQZyOM+2CfBlcyoxHGY8ezjg5LKnDKFLjT
-         C0HyI3Nzps3lWddND+QV3oO1wz7aJR7fF2zuqA5gvparrIGuWz2H69M6m4tqsTJQAIiE
-         +xSgfxFIyk+Hb2WfLd1P3//Y1Xe0+CjmeU+gd809i6xcaOTeFefkRC96RCYHMnyM/gKA
-         XMKw==
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id dqb1MotwgCYh for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Jun 2024 07:51:08 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 7EFBC6083E
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7EFBC6083E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bsBHTJKS
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7EFBC6083E
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 07:51:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718265067;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=A/n+AhuyhqSsJr+vWl3tvLtoPgeLWQoTZ3U+G+ztgvo=;
+	b=bsBHTJKSab5vyxARrVYEkE0NmQuDatcGMXaAaKJoo15ih9SDrqsfq2YT63gZm3Scfa84rd
+	p7mx1n7QXkyO/5ye0UI/ldh4mdD35HtU3h+BqqWD3oVhhYdmsgMxrQdnIoB1vJsrDejFdg
+	MCNDtz5c7vAiD3mje3u27NTMzEeulVc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-530-ygIWk_92Os-nqI5hgwqtTQ-1; Thu, 13 Jun 2024 03:51:05 -0400
+X-MC-Unique: ygIWk_92Os-nqI5hgwqtTQ-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-36073b9e266so246147f8f.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 00:51:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718263272; x=1718868072;
+        d=1e100.net; s=20230601; t=1718265064; x=1718869864;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nhdTMjtoIXZFugvUtXucLNLZ+wuL3jj/Mf2FujAvEdI=;
-        b=mkQBIltPGYsfFQogO+RL9p+547EKnLYmjtNVHIxsLrI4O6M8I0pvRbUgzxvIjzeI7M
-         K6ByV9wL6prQ/uys5EKE/BtYD6QoMlhtIiPSXqKxOy1zyDiA5wAcXES8wWt+rnJvDeKu
-         8m/TJeC+CtpuR3oPqZk3EiRQedpyve4HuQw2Axp8i62qfXk8ojTRoymfD6zClJmgzugF
-         6NFgumyp8aylJh5IUKb23IL1/dK6UBC7wg7WXKwt0DkLSY7RGfb9QHimIGsgvWvwXUM6
-         gp/yKVVyyMVPlHhlYWPHPe2YhcyqpRMH6sEZ76uk3dcJwVoJpvc+Pk67iJaa7cwcRO0y
-         ex4A==
-X-Forwarded-Encrypted: i=1; AJvYcCXwy/ZRk3BiSbgGDnfaNgFlMxY//lUQ0zNsLjd/wr1oxnmNeu+Uu7ZhyFARL5VqEYfG0rnzBzW4YDnpdan8npfHcOISmE+xzWFgqEkAN0cnetZhJX8T5q7qSQ==
-X-Gm-Message-State: AOJu0Yyq/54RJiZdUAT9It48otsJZWMwmD8CqDSHGaeaFve+OJhHA/Dy
-	gIrZe/f18BU+TXU/1L/niHDAKEgTAWDF4Dh8m+H4pVLZNIxweHedQJgGsIksKaM=
-X-Google-Smtp-Source: AGHT+IEhPIOPdXqAxFfHuuOD1kWxW9YlJJ2QDiJYUAHkDsdB9olUY85yrXKWxCO/8TkZGGaYlxO5Fg==
-X-Received: by 2002:a5d:45cc:0:b0:35f:d07:d34 with SMTP id ffacd0b85a97d-360718e5232mr1590625f8f.27.1718263271467;
-        Thu, 13 Jun 2024 00:21:11 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-360750ad20bsm821833f8f.54.2024.06.13.00.21.10
+        bh=A/n+AhuyhqSsJr+vWl3tvLtoPgeLWQoTZ3U+G+ztgvo=;
+        b=JHaaoKEP5j3OTj27zFmYtBKx3dgPxJtlAziY3e6SVKmY1RQST53rLRMl3aupPnw1/q
+         Cw/pf8ihFG5wlmmB0udKRu57rOhcJUZAoBhxP8TavwSHwgsBlxOicWvu4j/UYb8TIhRE
+         F1lO1OGY7LLwkX7caj0PcGpzPujcf5qLb3wE3/4ca3NiobrtjTiOgCzalOlrzOopQwvZ
+         DEWZbJhFidLos6vqo3yO36Hj5uw1o70/zpJfQCP+GOngIfscGQoyjck0xv8SN5B0jPFd
+         Tu74dLjBOrKsqq3Bnzl11hcDTtmxMW1/3SEXNdJBxNgpaObAUB3NpJrFuhNCXzQ0cERx
+         AN2A==
+X-Forwarded-Encrypted: i=1; AJvYcCXfeV3Mq6EfgBnomhP7haRkkpBmZ7Qc2BALGJNYhQkNLrNli5C9JykJ+Z/t8QyajjfN07qyFsx7KkC6F98NhlPohVHdJ0j6iQNmcHzu90oPKlbaX5SwTT0Llw==
+X-Gm-Message-State: AOJu0Yz87tPvlxI9gaQOeRJ5X6TZx0M6DcV/goN+Y+tUNHjqkWicK3hB
+	aZ8hsfDiVdO70Rlvz71sjSqj8bVeGIBo29dw02uaxwzl+KW6ie64WFUmHdKblXAD6yDYS7XIeyQ
+	4lDmsqoG5KIdrdd+j8xnt+ryg2t2Wps/8p3utOdCFv/t1NzVAvvtMhljnfM1QpIak94/gW4YDRR
+	LkkI0=
+X-Received: by 2002:a05:6000:d:b0:360:75b3:2cd9 with SMTP id ffacd0b85a97d-36075b32d48mr830149f8f.65.1718265063716;
+        Thu, 13 Jun 2024 00:51:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGecT5yUVKpC78rMOjYPpZNfe8ITqSuJs063PFj3s8mFpH0gfLFXFffpfByk9P/e9suAjpbJA==
+X-Received: by 2002:a05:6000:d:b0:360:75b3:2cd9 with SMTP id ffacd0b85a97d-36075b32d48mr830121f8f.65.1718265063171;
+        Thu, 13 Jun 2024 00:51:03 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:176:94c5:b48b:41a4:81c0:f1c8])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36075093d58sm894451f8f.4.2024.06.13.00.50.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Jun 2024 00:21:10 -0700 (PDT)
-Date: Thu, 13 Jun 2024 09:21:07 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+        Thu, 13 Jun 2024 00:51:02 -0700 (PDT)
+Date: Thu, 13 Jun 2024 03:50:54 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiri Pirko <jiri@resnulli.us>
 Cc: Jakub Kicinski <kuba@kernel.org>, Cindy Lu <lulu@redhat.com>,
 	dtatulea@nvidia.com, jasowang@redhat.com,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
 	netdev@vger.kernel.org
 Subject: Re: [PATCH 1/2] vdpa: support set mac address from vdpa tool
-Message-ID: <Zmqd45TnVVZYPwp8@nanopsycho.orion>
+Message-ID: <20240613034647-mutt-send-email-mst@kernel.org>
 References: <20240611053239.516996-1-lulu@redhat.com>
  <20240611185810.14b63d7d@kernel.org>
  <ZmlAYcRHMqCgYBJD@nanopsycho.orion>
  <20240612031356-mutt-send-email-mst@kernel.org>
  <ZmlMuGGY2po6LLCY@nanopsycho.orion>
  <20240613024756-mutt-send-email-mst@kernel.org>
+ <Zmqd45TnVVZYPwp8@nanopsycho.orion>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <Zmqd45TnVVZYPwp8@nanopsycho.orion>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240613024756-mutt-send-email-mst@kernel.org>
 
-Thu, Jun 13, 2024 at 08:49:25AM CEST, mst@redhat.com wrote:
->On Wed, Jun 12, 2024 at 09:22:32AM +0200, Jiri Pirko wrote:
->> Wed, Jun 12, 2024 at 09:15:44AM CEST, mst@redhat.com wrote:
->> >On Wed, Jun 12, 2024 at 08:29:53AM +0200, Jiri Pirko wrote:
->> >> Wed, Jun 12, 2024 at 03:58:10AM CEST, kuba@kernel.org wrote:
->> >> >On Tue, 11 Jun 2024 13:32:32 +0800 Cindy Lu wrote:
->> >> >> Add new UAPI to support the mac address from vdpa tool
->> >> >> Function vdpa_nl_cmd_dev_config_set_doit() will get the
->> >> >> MAC address from the vdpa tool and then set it to the device.
->> >> >> 
->> >> >> The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
->> >> >
->> >> >Why don't you use devlink?
->> >> 
->> >> Fair question. Why does vdpa-specific uapi even exist? To have
->> >> driver-specific uapi Does not make any sense to me :/
->> >
->> >I am not sure which uapi do you refer to? The one this patch proposes or
->> >the existing one?
->> 
->> Sure, I'm sure pointing out, that devlink should have been the answer
->> instead of vdpa netlink introduction. That ship is sailed,
->
->> now we have
->> unfortunate api duplication which leads to questions like Jakub's one.
->> That's all :/
->
->
->
->Yea there's no point to argue now, there were arguments this and that
->way.  I don't think we currently have a lot
->of duplication, do we?
+On Thu, Jun 13, 2024 at 09:21:07AM +0200, Jiri Pirko wrote:
+> Thu, Jun 13, 2024 at 08:49:25AM CEST, mst@redhat.com wrote:
+> >On Wed, Jun 12, 2024 at 09:22:32AM +0200, Jiri Pirko wrote:
+> >> Wed, Jun 12, 2024 at 09:15:44AM CEST, mst@redhat.com wrote:
+> >> >On Wed, Jun 12, 2024 at 08:29:53AM +0200, Jiri Pirko wrote:
+> >> >> Wed, Jun 12, 2024 at 03:58:10AM CEST, kuba@kernel.org wrote:
+> >> >> >On Tue, 11 Jun 2024 13:32:32 +0800 Cindy Lu wrote:
+> >> >> >> Add new UAPI to support the mac address from vdpa tool
+> >> >> >> Function vdpa_nl_cmd_dev_config_set_doit() will get the
+> >> >> >> MAC address from the vdpa tool and then set it to the device.
+> >> >> >> 
+> >> >> >> The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
+> >> >> >
+> >> >> >Why don't you use devlink?
+> >> >> 
+> >> >> Fair question. Why does vdpa-specific uapi even exist? To have
+> >> >> driver-specific uapi Does not make any sense to me :/
+> >> >
+> >> >I am not sure which uapi do you refer to? The one this patch proposes or
+> >> >the existing one?
+> >> 
+> >> Sure, I'm sure pointing out, that devlink should have been the answer
+> >> instead of vdpa netlink introduction. That ship is sailed,
+> >
+> >> now we have
+> >> unfortunate api duplication which leads to questions like Jakub's one.
+> >> That's all :/
+> >
+> >
+> >
+> >Yea there's no point to argue now, there were arguments this and that
+> >way.  I don't think we currently have a lot
+> >of duplication, do we?
+> 
+> True. I think it would be good to establish guidelines for api
+> extensions in this area.
+> 
+> >
+> >-- 
+> >MST
+> >
 
-True. I think it would be good to establish guidelines for api
-extensions in this area.
 
->
->-- 
->MST
->
+Guidelines are good, are there existing examples of such guidelines in
+Linux to follow though? Specifically after reviewing this some more, I
+think what Cindy is trying to do is actually provisioning as opposed to
+programming.
+
+-- 
+MST
+
