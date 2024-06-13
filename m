@@ -1,154 +1,118 @@
-Received: from mx.swemel.ru (mx.swemel.ru [95.143.211.150])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 336331411C1
-	for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 09:54:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.143.211.150
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C170B146010
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 11:49:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718272502; cv=none; b=bxn8ppWDsvNfwdviMu0ZsdpyEE0Ds0bjFWB1HvTsYzlHj0/3PpMfoUpsQU3ox9jxH8jQSuFpDmSrqfZOliKjRJma6uFJDEI7YkIZAG5ks41tBzIsuKURiJL7bOXK2+o5Aow1CAxYiyvzRLU26BikKgD+WExUF7yMf84IHFVtyAY=
+	t=1718279394; cv=none; b=Ao+oM/tZq4M3qGXDlmCVgTebxHTFtVK4GkwFjH1ZqO6jxdATR1BtpUFs2LKbmWTAloQzcz68gbqRjHZkjJOKBNM4v/owxM0yp+bOzWDtqDEitO38p2TU5XBqXKQJUJPzTzvoWYq7NlLExKUGaZiNrF46ybw+apynnj0q6mHs9l0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718272502; c=relaxed/simple;
-	bh=XnuWg2Emch0/204csrIJ1PmV8H0Z4/Kb0XfctwfzmfE=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pmscpmDmFelP0j5STxZ2Z2ae6gIHEDwrp4jlie2KTPMarFeh3MsrHqJ/gDBwSoiezFY+hcD9HEr2miOPvLUIH6YCczLsr1TaVg34lJ1VBCOloozOQgCt37fvkeUqAxDLeRyYScaT2ezDHScJUCPT8YNyd9NUTL6iA2PzaS5QC4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru; spf=pass smtp.mailfrom=swemel.ru; dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b=UASGHpkB; arc=none smtp.client-ip=95.143.211.150
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=swemel.ru
+	s=arc-20240116; t=1718279394; c=relaxed/simple;
+	bh=JMH7aegv+MnUlyAhiAM0CDdTw+aBY3IivqXYt0vaVMU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M39a7mm/yIOsgNwd7OB15bbUtmCUW5xF6wGZSvRGUkTAPOYSULWLGD4qMsKkbfnwYggcEwTNg+Zz2w7Qf+ErKXxYjbrntwifkmTkgPbUSu9eDJFwCU+unY9x5fkgU55pfYT2n7jfpfYDDP2M3Aoq1ZkI9xPsOBetSV0q/x1WmW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=CvjpoS2z; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b="UASGHpkB"
-From: Denis Arefev <arefev@swemel.ru>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=swemel.ru; s=mail;
-	t=1718272488;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=JxF9v+MgG1oJK9K0GvDYFSNk1WRmKVVkPVwWZtJ2zws=;
-	b=UASGHpkBaR6P9fcZXpMWF0YLq5RGEUYvq+MNYp3J85MYXz8EVrrWVtOPUALLMILWch8hRQ
-	gfAET9Tvo0BxyyWAjbJVQonuuQRO+LA/BO/NgeP+bXQ4GtF/htEu/mMSFRjBbLr6ZJ53mT
-	eQjArYsXZ3KR6NL1zUWnxaj7vkD5+uw=
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	Eric Dumazet <edumazet@google.com>,
-	lvc-project@linuxtesting.org
-Subject: [PATCH v2] net: missing check virtio
-Date: Thu, 13 Jun 2024 12:54:48 +0300
-Message-Id: <20240613095448.27118-1-arefev@swemel.ru>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="CvjpoS2z"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 54EFA81947
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 11:49:53 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id t6KlJ5fMoI7F for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Jun 2024 11:49:52 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::72d; helo=mail-qk1-x72d.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 5DE95818D7
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5DE95818D7
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=CvjpoS2z
+Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5DE95818D7
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 11:49:52 +0000 (UTC)
+Received: by mail-qk1-x72d.google.com with SMTP id af79cd13be357-7955ddc6516so57641585a.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 04:49:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1718279391; x=1718884191; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=jK9pHfBGXfQm/UiByYtEUABvVZaPCm/AtIE7LocooA8=;
+        b=CvjpoS2z2XH3QGgB4gTuk74vdAzGpaF+2TiCITpm7qVw0rR0vq9/sbh7w9IQMsQHbJ
+         Y8zALKOtO1+cRse5GpFpdMbW96gxkvvxvmMGYBrCmxUwmeW2yVNIYBvO3rZuPntdUHD/
+         iSNt+z+ua8I2TUAmlg0C+hWfmQe6PmcSNiR59orIqQIcM/g9sxRin1aZ29GwXBMkr2f0
+         brq67didszhM6N0HzyVaSC15udVgF4cjPo7TDLxQ5Yaiq3zzLfAOif73HR01PSngzxVz
+         SUJmV9F4xhXOyuOQtNYp4RHAlC1Nt60K5fZXUw6H0rQv5/rP4Sz6Zu5EiNuTVeBoYE83
+         SW+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718279391; x=1718884191;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jK9pHfBGXfQm/UiByYtEUABvVZaPCm/AtIE7LocooA8=;
+        b=il7AnVyrSxO5ebdb2RmdNtXhUE5xRZQcCeO/qRa9VVqFCRIXYtcXWBQ2NSccgVM0gG
+         cWFpRWBCKoXUd2f01kiSD0TgMasgPZevabS0ck3jpwty1R/tvj8dLB5EL4l1hUGraXDM
+         z0nUaAoA3kSku2cInpashluiEAOgXrdXNZiAesre0QEqcbpc68ndjkgs5hhhTCTN6VPt
+         hQ8bdenY/h5rpPKnVFR48Z5VvrHKoW4ofeoIsrbEnJE4lJUugXhW0MN0t9d0rINx63Ud
+         jjNRfciMGcYNcKdxgHCW7bBHeZbJ9BzvKuUmVGB4VzqtTRnW4PUjRVsUOqJPkSkIqz32
+         l7zQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWfcu/Sd6Vp5FvFgMGKF+IGklTzG7Og+QH9LmZE7vrp5yrT8iMLiXRy4wsnh14NFyuIpg8FGuHbg9aZeKB82100gWnytU14kbHH5XXxN9d3FgPwTMPbN5Iaug==
+X-Gm-Message-State: AOJu0YyxlL3dIEALjTWYGqFSKQbln3vui8lxNtBexBM59hd5/zQRvuNe
+	4FsMv44/QCPaJBn4Za8jMGEsp8k4Ycldy/lj40A7kVXdlT63ukPJLiodH7DOpSg=
+X-Google-Smtp-Source: AGHT+IFWK9h3YEybm6BIGLMJNixPvA73NV4oZYSszQRCqVG7+H7HxqTpkqRohcPjaEg2JALqIvr1Ug==
+X-Received: by 2002:a05:620a:4482:b0:794:d988:521a with SMTP id af79cd13be357-797f6006419mr521195085a.7.1718279390820;
+        Thu, 13 Jun 2024 04:49:50 -0700 (PDT)
+Received: from ziepe.ca ([128.77.69.89])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-798b73fb4dcsm40891385a.100.2024.06.13.04.49.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Jun 2024 04:49:50 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1sHixg-00FW6s-Sj;
+	Thu, 13 Jun 2024 08:49:48 -0300
+Date: Thu, 13 Jun 2024 08:49:48 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 03/10] iommu: Add attach handle to struct iopf_group
+Message-ID: <20240613114948.GA791043@ziepe.ca>
+References: <20240527040517.38561-1-baolu.lu@linux.intel.com>
+ <20240527040517.38561-4-baolu.lu@linux.intel.com>
+ <20240612133732.GW791043@ziepe.ca>
+ <013afe9a-756f-4c85-baa1-977bea6be395@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <013afe9a-756f-4c85-baa1-977bea6be395@linux.intel.com>
 
-Two missing check in virtio_net_hdr_to_skb() allowed syzbot
-to crash kernels again
+On Thu, Jun 13, 2024 at 12:23:17PM +0800, Baolu Lu wrote:
 
-1. After the skb_segment function the buffer may become non-linear
-(nr_frags != 0), but since the SKBTX_SHARED_FRAG flag is not set anywhere
-the __skb_linearize function will not be executed, then the buffer will
-remain non-linear. Then the condition (offset >= skb_headlen(skb))
-becomes true, which causes WARN_ON_ONCE in skb_checksum_help.
+>  struct iommu_ops {
+>         bool (*capable)(struct device *dev, enum iommu_cap);
+> @@ -600,6 +598,7 @@ struct iommu_ops {
+>         struct iommu_domain *blocked_domain;
+>         struct iommu_domain *release_domain;
+>         struct iommu_domain *default_domain;
+> +       bool user_pasid_table;
+>  };
 
-2. The struct sk_buff and struct virtio_net_hdr members must be
-mathematically related.
-(gso_size) must be greater than (needed) otherwise WARN_ON_ONCE.
-(remainder) must be greater than (needed) otherwise WARN_ON_ONCE.
-(remainder) may be 0 if division is without remainder.
+Yeah, maybe spell it 
 
-offset+2 (4191) > skb_headlen() (1116)
-WARNING: CPU: 1 PID: 5084 at net/core/dev.c:3303 skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
-Modules linked in:
-CPU: 1 PID: 5084 Comm: syz-executor336 Not tainted 6.7.0-rc3-syzkaller-00014-gdf60cee26a2e #0
-Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 11/10/2023
-RIP: 0010:skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
-Code: 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 52 01 00 00 44 89 e2 2b 53 74 4c 89 ee 48 c7 c7 40 57 e9 8b e8 af 8f dd f8 90 <0f> 0b 90 90 e9 87 fe ff ff e8 40 0f 6e f9 e9 4b fa ff ff 48 89 ef
-RSP: 0018:ffffc90003a9f338 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: ffff888025125780 RCX: ffffffff814db209
-RDX: ffff888015393b80 RSI: ffffffff814db216 RDI: 0000000000000001
-RBP: ffff8880251257f4 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000001 R12: 000000000000045c
-R13: 000000000000105f R14: ffff8880251257f0 R15: 000000000000105d
-FS:  0000555555c24380(0000) GS:ffff8880b9900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000002000f000 CR3: 0000000023151000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- ip_do_fragment+0xa1b/0x18b0 net/ipv4/ip_output.c:777
- ip_fragment.constprop.0+0x161/0x230 net/ipv4/ip_output.c:584
- ip_finish_output_gso net/ipv4/ip_output.c:286 [inline]
- __ip_finish_output net/ipv4/ip_output.c:308 [inline]
- __ip_finish_output+0x49c/0x650 net/ipv4/ip_output.c:295
- ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:323
- NF_HOOK_COND include/linux/netfilter.h:303 [inline]
- ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:433
- dst_output include/net/dst.h:451 [inline]
- ip_local_out+0xaf/0x1a0 net/ipv4/ip_output.c:129
- iptunnel_xmit+0x5b4/0x9b0 net/ipv4/ip_tunnel_core.c:82
- ipip6_tunnel_xmit net/ipv6/sit.c:1034 [inline]
- sit_tunnel_xmit+0xed2/0x28f0 net/ipv6/sit.c:1076
- __netdev_start_xmit include/linux/netdevice.h:4940 [inline]
- netdev_start_xmit include/linux/netdevice.h:4954 [inline]
- xmit_one net/core/dev.c:3545 [inline]
- dev_hard_start_xmit+0x13d/0x6d0 net/core/dev.c:3561
- __dev_queue_xmit+0x7c1/0x3d60 net/core/dev.c:4346
- dev_queue_xmit include/linux/netdevice.h:3134 [inline]
- packet_xmit+0x257/0x380 net/packet/af_packet.c:276
- packet_snd net/packet/af_packet.c:3087 [inline]
- packet_sendmsg+0x24ca/0x5240 net/packet/af_packet.c:3119
- sock_sendmsg_nosec net/socket.c:730 [inline]
- __sock_sendmsg+0xd5/0x180 net/socket.c:745
- __sys_sendto+0x255/0x340 net/socket.c:2190
- __do_sys_sendto net/socket.c:2202 [inline]
- __se_sys_sendto net/socket.c:2198 [inline]
- __x64_sys_sendto+0xe0/0x1b0 net/socket.c:2198
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x40/0x110 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x63/0x6b
+  u8 user_pasid_table : 1;
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller
-
-Signed-off-by: Denis Arefev <arefev@swemel.ru>
----
- V1 -> V2: incorrect type in argument 2
- include/linux/virtio_net.h | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 4dfa9b69ca8d..d1d7825318c3 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -56,6 +56,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 	unsigned int thlen = 0;
- 	unsigned int p_off = 0;
- 	unsigned int ip_proto;
-+	u64 ret, remainder, gso_size;
- 
- 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
- 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-@@ -98,6 +99,16 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
- 		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
- 
-+		if (hdr->gso_size) {
-+			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
-+			ret = div64_u64_rem(skb->len, gso_size, &remainder);
-+			if (!(ret && (hdr->gso_size > needed) &&
-+						((remainder > needed) || (remainder == 0)))) {
-+				return -EINVAL;
-+			}
-+			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
-+		}
-+
- 		if (!pskb_may_pull(skb, needed))
- 			return -EINVAL;
- 
--- 
-2.25.1
-
+Jason
