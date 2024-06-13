@@ -1,286 +1,203 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C26CE144D22
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 13:29:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26D6813F45B;
+	Thu, 13 Jun 2024 14:05:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718285390; cv=none; b=dIa0TW8atHiFUg+nMxBEmTq7jtDvPPRHPzm7/OgVFV1bq4Ce58i6AJcq+vuo9gG0vxwPYSxADXM6AvSUF669MAAjPKdfpoc5it+2AmU4MYlv/86Ak7UJ9BdpBUyIz2jt6n7MvnQw5fODuEfpAtzYer1/PVo+Ds/L8eAfptZBtcw=
+	t=1718287517; cv=none; b=EZJ5VO1JTH4bEyt0l3SFMMAsVQo6FqaJltk0kiP1g7vu6bxs05AioPwyasPiAzbLrS8iw8qo9roBQyw2mJYNGkCeAn4VZxMvtka+1dWmIbgXAsedyG8lB6A9n5D47TAA2XCMNJCMW2nwufu/zqV8Cw50TRVnK0onNn/fyN4nSEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718285390; c=relaxed/simple;
-	bh=EwDYV86apdp1y3FgvqhXoUdcP6ZAutdGUFD8nB4Rupc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VJ0DH6oDyIxmzrFm8jjvV9jhk4L/IHvEM4ss950vWL5jQzV1sR/fUiuF1ToFYWe7cnYAP8sYO2GAolUssVtzFhtvu6iLIIMyq7h78wAfPTZiTDMP7IGceAwQ/0X3qd8RXDCqepe8edxm/AekCJtE8SBD8w5eaoNYo61jtAazBcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gn58lC0F; arc=none smtp.client-ip=140.211.166.137
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gn58lC0F"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 58CE740946
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 13:29:48 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id C35WjBQkis2T for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jun 2024 13:29:47 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 11605408F2
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 11605408F2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gn58lC0F
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 11605408F2
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 13:29:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718285385;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=y9evobZ56tePgOcIz6BoUUANwCX8e2L9RTd9imGKDRo=;
-	b=gn58lC0F7YRH1Ed+QnaEAiKC4OtiMuUVk+4wo2SmvW5BETV+97QmQnD89nVSDLcDgnlTDL
-	W6in+YzPTT17GVDZn/Zi8lWp7OyMyK6A/TwNYOCVTbpZOUhzCtKVeWZNCULac1+pB46fr6
-	TURmVhP8g8/kB78o/Y2ezjd/uOIzcHA=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-106-zTAewAdAPj-JJI1xbojkKg-1; Thu, 13 Jun 2024 09:29:43 -0400
-X-MC-Unique: zTAewAdAPj-JJI1xbojkKg-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a6def6e9ef2so157368666b.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 13 Jun 2024 06:29:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718285382; x=1718890182;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=y9evobZ56tePgOcIz6BoUUANwCX8e2L9RTd9imGKDRo=;
-        b=PjztNvWEFWfeUBShM8ItXW2rIOV4LOZR4iWDbc2cwyvdbSe97I4HkEmh97Mmg/dFYE
-         OjBWZvhfxSkIOqruNDGuo8w8+ZShrySzZSeE56lDLnUHCQnN/EeXcnNAI5IE/fPlhZrS
-         r8UmtDrmmv/ZvJrheRzBg5m1b3dz8shEp1/8TtcGaLom75PeSZPacP5Kv8ZGkZsaVGbm
-         E1pGWyIA1wF36PgHAFrvJwKxz4oSja6x9TwbiiKoGGHabRckmnOUIDsDhcxk2e6OCyeM
-         y2cQ3Ay1503NerGdgz14xHh9+uBgWB33lUdHG67sv2F1Y1Yk/uGgk7+J0sEKPDS/V5yL
-         PjqA==
-X-Forwarded-Encrypted: i=1; AJvYcCV9Rsn+V1qIWlgCoJk0MWZ4vB5xnta+P5nkZ5WKimDDscgkBThpBRGm0euN5HuqARlvR/8Br9QQZ6YeUvGcGaOvodahMsEt98rP7F//eewCnU5YTdTLc31EsA==
-X-Gm-Message-State: AOJu0YynIwlmJUbvpYx2D+64AKveooq8p02yzl84byD0yNDCGqcLQOr2
-	Y53LjzHxpHtHgFAQnBEWa5RvnV0AvCmTvlhoKJULp3vyK9jZN6Za8qeBYz9T2Iu9VoHnGuJ2KyZ
-	Sl0o4FhVtWWhNpks8aub6c1BCDrXb2QkbczkgLl6dH7U4MkNRvwgbDXmvF9bWdoL67T2kHssFdV
-	SlNmQOwXVzbQ58GvItJgfU+14lePMLvK8TsuTEjbYyRbR2G/1OM1athQ==
-X-Received: by 2002:a17:906:f2cf:b0:a6f:1c0e:6776 with SMTP id a640c23a62f3a-a6f5240f021mr181403266b.16.1718285382605;
-        Thu, 13 Jun 2024 06:29:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGUeOJDpHV2LdwavarsbYi5bPL2vRysrQ5fKaLl/dCD/lbPcIEg1tjiBX4sLf6XM7kiJX4bP1FfUh1UTOsXPLI=
-X-Received: by 2002:a17:906:f2cf:b0:a6f:1c0e:6776 with SMTP id
- a640c23a62f3a-a6f5240f021mr181401766b.16.1718285382121; Thu, 13 Jun 2024
- 06:29:42 -0700 (PDT)
+	s=arc-20240116; t=1718287517; c=relaxed/simple;
+	bh=mWqCF/Q1ylazfgkNhXCkkB36nGt3iLW/vFBDPsVVQaQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rK3Mwirb3K5rNlrF3rbX7FxZMFpMCgFZk4VvCPJgkLs9goBVg7wjTIWvZetIGkkcsdnVaRMHZVt3RA3wu5uBvzYRnzZ5OndA66TEG1SxjwLPvJ4LEvx4TBEK/gstJ24pxmZRt4oqzjR1g2+pCh37ixccsbqCQ17yV7KvSQZALD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id C2B2968BEB; Thu, 13 Jun 2024 16:05:08 +0200 (CEST)
+Date: Thu, 13 Jun 2024 16:05:08 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, Alasdair Kergon <agk@redhat.com>,
+	Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+Subject: Re: [PATCH 10/26] xen-blkfront: don't disable cache flushes when
+ they fail
+Message-ID: <20240613140508.GA16529@lst.de>
+References: <20240611051929.513387-1-hch@lst.de> <20240611051929.513387-11-hch@lst.de> <ZmlVziizbaboaBSn@macbook> <20240612150030.GA29188@lst.de> <ZmnFH17bTV2Ot_iR@macbook>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240611053239.516996-1-lulu@redhat.com> <20240613025548-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240613025548-mutt-send-email-mst@kernel.org>
-From: Cindy Lu <lulu@redhat.com>
-Date: Thu, 13 Jun 2024 21:29:04 +0800
-Message-ID: <CACLfguWwkkfFA143uOavS0jDkW1Q0XEd5JZDdriOz-yywDkYng@mail.gmail.com>
-Subject: Re: [PATCH 1/2] vdpa: support set mac address from vdpa tool
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: dtatulea@nvidia.com, jasowang@redhat.com, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	kvm@vger.kernel.org, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZmnFH17bTV2Ot_iR@macbook>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Thu, Jun 13, 2024 at 2:59=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Tue, Jun 11, 2024 at 01:32:32PM +0800, Cindy Lu wrote:
-> > Add new UAPI to support the mac address from vdpa tool
-> > Function vdpa_nl_cmd_dev_config_set_doit() will get the
-> > MAC address from the vdpa tool and then set it to the device.
-> >
-> > The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
-> >
-> > Here is sample:
-> > root@L1# vdpa -jp dev config show vdpa0
-> > {
-> >     "config": {
-> >         "vdpa0": {
-> >             "mac": "82:4d:e9:5d:d7:e6",
-> >             "link ": "up",
-> >             "link_announce ": false,
-> >             "mtu": 1500
-> >         }
-> >     }
-> > }
-> >
-> > root@L1# vdpa dev set name vdpa0 mac 00:11:22:33:44:55
-> >
-> > root@L1# vdpa -jp dev config show vdpa0
-> > {
-> >     "config": {
-> >         "vdpa0": {
-> >             "mac": "00:11:22:33:44:55",
-> >             "link ": "up",
-> >             "link_announce ": false,
-> >             "mtu": 1500
-> >         }
-> >     }
-> > }
-> >
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
->
->
->
-> I think actually the idea of allowing provisioning
-> by specifying config of the device is actually valid.
-> However
-> - the name SET_CONFIG makes people think this allows
->   writing even when e.g. device is assigned to guest
-> - having the internal api be mac specific is weird
->
-> Shouldn't config be an attribute maybe, not a new command?
->
-Got it. Thanks, Michael. I will change this.
-Thanks
-Cindy
->
-> > ---
-> >  drivers/vdpa/vdpa.c       | 71 +++++++++++++++++++++++++++++++++++++++
-> >  include/linux/vdpa.h      |  2 ++
-> >  include/uapi/linux/vdpa.h |  1 +
-> >  3 files changed, 74 insertions(+)
-> >
-> > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> > index a7612e0783b3..347ae6e7749d 100644
-> > --- a/drivers/vdpa/vdpa.c
-> > +++ b/drivers/vdpa/vdpa.c
-> > @@ -1149,6 +1149,72 @@ static int vdpa_nl_cmd_dev_config_get_doit(struc=
-t sk_buff *skb, struct genl_info
-> >       return err;
-> >  }
-> >
-> > +static int vdpa_nl_cmd_dev_config_set_doit(struct sk_buff *skb,
-> > +                                        struct genl_info *info)
-> > +{
-> > +     struct vdpa_dev_set_config set_config =3D {};
-> > +     struct nlattr **nl_attrs =3D info->attrs;
-> > +     struct vdpa_mgmt_dev *mdev;
-> > +     const u8 *macaddr;
-> > +     const char *name;
-> > +     int err =3D 0;
-> > +     struct device *dev;
-> > +     struct vdpa_device *vdev;
-> > +
-> > +     if (!info->attrs[VDPA_ATTR_DEV_NAME])
-> > +             return -EINVAL;
-> > +
-> > +     name =3D nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
-> > +
-> > +     down_write(&vdpa_dev_lock);
-> > +     dev =3D bus_find_device(&vdpa_bus, NULL, name, vdpa_name_match);
-> > +     if (!dev) {
-> > +             NL_SET_ERR_MSG_MOD(info->extack, "device not found");
-> > +             err =3D -ENODEV;
-> > +             goto dev_err;
-> > +     }
-> > +     vdev =3D container_of(dev, struct vdpa_device, dev);
-> > +     if (!vdev->mdev) {
-> > +             NL_SET_ERR_MSG_MOD(
-> > +                     info->extack,
-> > +                     "Fail to find the specified management device");
-> > +             err =3D -EINVAL;
-> > +             goto mdev_err;
-> > +     }
-> > +     mdev =3D vdev->mdev;
-> > +     if (nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
-> > +             if (!(mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC=
-))) {
-> > +                     NL_SET_ERR_MSG_FMT_MOD(
-> > +                             info->extack,
-> > +                             "Missing features 0x%llx for provided att=
-ributes",
-> > +                             BIT_ULL(VIRTIO_NET_F_MAC));
-> > +                     err =3D -EINVAL;
-> > +                     goto mdev_err;
-> > +             }
-> > +             macaddr =3D nla_data(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACAD=
-DR]);
-> > +             memcpy(set_config.net.mac, macaddr, ETH_ALEN);
-> > +             set_config.mask |=3D BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADD=
-R);
-> > +             if (mdev->ops->set_mac) {
-> > +                     err =3D mdev->ops->set_mac(mdev, vdev, &set_confi=
-g);
-> > +             } else {
-> > +                     NL_SET_ERR_MSG_FMT_MOD(
-> > +                             info->extack,
-> > +                             "%s device not support set mac address ",=
- name);
-> > +             }
-> > +
-> > +     } else {
-> > +             NL_SET_ERR_MSG_FMT_MOD(info->extack,
-> > +                                    "%s device not support this config=
- ",
-> > +                                    name);
-> > +     }
-> > +
-> > +mdev_err:
-> > +     put_device(dev);
-> > +dev_err:
-> > +     up_write(&vdpa_dev_lock);
-> > +     return err;
-> > +}
-> > +
-> >  static int vdpa_dev_config_dump(struct device *dev, void *data)
-> >  {
-> >       struct vdpa_device *vdev =3D container_of(dev, struct vdpa_device=
-, dev);
-> > @@ -1285,6 +1351,11 @@ static const struct genl_ops vdpa_nl_ops[] =3D {
-> >               .doit =3D vdpa_nl_cmd_dev_stats_get_doit,
-> >               .flags =3D GENL_ADMIN_PERM,
-> >       },
-> > +     {
-> > +             .cmd =3D VDPA_CMD_DEV_CONFIG_SET,
-> > +             .doit =3D vdpa_nl_cmd_dev_config_set_doit,
-> > +             .flags =3D GENL_ADMIN_PERM,
-> > +     },
-> >  };
-> >
-> >  static struct genl_family vdpa_nl_family __ro_after_init =3D {
-> > diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> > index db15ac07f8a6..c97f4f1da753 100644
-> > --- a/include/linux/vdpa.h
-> > +++ b/include/linux/vdpa.h
-> > @@ -581,6 +581,8 @@ struct vdpa_mgmtdev_ops {
-> >       int (*dev_add)(struct vdpa_mgmt_dev *mdev, const char *name,
-> >                      const struct vdpa_dev_set_config *config);
-> >       void (*dev_del)(struct vdpa_mgmt_dev *mdev, struct vdpa_device *d=
-ev);
-> > +     int (*set_mac)(struct vdpa_mgmt_dev *mdev, struct vdpa_device *de=
-v,
-> > +                    const struct vdpa_dev_set_config *config);
-> >  };
-> >
-> >  /**
-> > diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-> > index 54b649ab0f22..53f249fb26bc 100644
-> > --- a/include/uapi/linux/vdpa.h
-> > +++ b/include/uapi/linux/vdpa.h
-> > @@ -19,6 +19,7 @@ enum vdpa_command {
-> >       VDPA_CMD_DEV_GET,               /* can dump */
-> >       VDPA_CMD_DEV_CONFIG_GET,        /* can dump */
-> >       VDPA_CMD_DEV_VSTATS_GET,
-> > +     VDPA_CMD_DEV_CONFIG_SET,
-> >  };
-> >
-> >  enum vdpa_attr {
-> > --
-> > 2.45.0
->
+On Wed, Jun 12, 2024 at 05:56:15PM +0200, Roger Pau Monné wrote:
+> Right.  AFAICT advertising "feature-barrier" and/or
+> "feature-flush-cache" could be done based on whether blkback
+> understand those commands, not on whether the underlying storage
+> supports the equivalent of them.
+> 
+> Worst case we can print a warning message once about the underlying
+> storage failing to complete flush/barrier requests, and that data
+> integrity might not be guaranteed going forward, and not propagate the
+> error to the upper layer?
+> 
+> What would be the consequence of propagating a flush error to the
+> upper layers?
+
+If you propage the error to the upper layer you will generate an
+I/O error there, which usually leads to a file system shutdown.
+
+> Given the description of the feature in the blkif header, I'm afraid
+> we cannot guarantee that seeing the feature exposed implies barrier or
+> flush support, since the request could fail at any time (or even from
+> the start of the disk attachment) and it would still sadly be a correct
+> implementation given the description of the options.
+
+Well, then we could do something like the patch below, which keeps
+the existing behavior, but insolates the block layer from it and
+removes the only user of blk_queue_write_cache from interrupt
+context:
+
+---
+From e6e82c769ab209a77302994c3829cf6ff7a595b8 Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Thu, 30 May 2024 08:58:52 +0200
+Subject: xen-blkfront: don't disable cache flushes when they fail
+
+blkfront always had a robust negotiation protocol for detecting a write
+cache.  Stop simply disabling cache flushes in the block layer as the
+flags handling is moving to the atomic queue limits API that needs
+user context to freeze the queue for that.  Instead handle the case
+of the feature flags cleared inside of blkfront.  This removes old
+debug code to check for such a mismatch which was previously impossible
+to hit, including the check for passthrough requests that blkfront
+never used to start with.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/block/xen-blkfront.c | 44 +++++++++++++++++++-----------------
+ 1 file changed, 23 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index 9b4ec3e4908cce..e2c92d5095ff17 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -788,6 +788,14 @@ static int blkif_queue_rw_req(struct request *req, struct blkfront_ring_info *ri
+ 			 * A barrier request a superset of FUA, so we can
+ 			 * implement it the same way.  (It's also a FLUSH+FUA,
+ 			 * since it is guaranteed ordered WRT previous writes.)
++			 *
++			 * Note that can end up here with a FUA write and the
++			 * flags cleared.  This happens when the flag was
++			 * run-time disabled and raced with I/O submission in
++			 * the block layer.  We submit it as a normal write
++			 * here.  A pure flush should never end up here with
++			 * the flags cleared as they are completed earlier for
++			 * the !feature_flush case.
+ 			 */
+ 			if (info->feature_flush && info->feature_fua)
+ 				ring_req->operation =
+@@ -795,8 +803,6 @@ static int blkif_queue_rw_req(struct request *req, struct blkfront_ring_info *ri
+ 			else if (info->feature_flush)
+ 				ring_req->operation =
+ 					BLKIF_OP_FLUSH_DISKCACHE;
+-			else
+-				ring_req->operation = 0;
+ 		}
+ 		ring_req->u.rw.nr_segments = num_grant;
+ 		if (unlikely(require_extra_req)) {
+@@ -887,16 +893,6 @@ static inline void flush_requests(struct blkfront_ring_info *rinfo)
+ 		notify_remote_via_irq(rinfo->irq);
+ }
+ 
+-static inline bool blkif_request_flush_invalid(struct request *req,
+-					       struct blkfront_info *info)
+-{
+-	return (blk_rq_is_passthrough(req) ||
+-		((req_op(req) == REQ_OP_FLUSH) &&
+-		 !info->feature_flush) ||
+-		((req->cmd_flags & REQ_FUA) &&
+-		 !info->feature_fua));
+-}
+-
+ static blk_status_t blkif_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 			  const struct blk_mq_queue_data *qd)
+ {
+@@ -908,23 +904,30 @@ static blk_status_t blkif_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	rinfo = get_rinfo(info, qid);
+ 	blk_mq_start_request(qd->rq);
+ 	spin_lock_irqsave(&rinfo->ring_lock, flags);
+-	if (RING_FULL(&rinfo->ring))
+-		goto out_busy;
+ 
+-	if (blkif_request_flush_invalid(qd->rq, rinfo->dev_info))
+-		goto out_err;
++	/*
++	 * Check if the backend actually supports flushes.
++	 *
++	 * While the block layer won't send us flushes if we don't claim to
++	 * support them, the Xen protocol allows the backend to revoke support
++	 * at any time.  That is of course a really bad idea and dangerous, but
++	 * has been allowed for 10+ years.  In that case we simply clear the
++	 * flags, and directly return here for an empty flush and ignore the
++	 * FUA flag later on.
++	 */
++	if (unlikely(req_op(qd->rq) == REQ_OP_FLUSH && !info->feature_flush))
++		goto out;
+ 
++	if (RING_FULL(&rinfo->ring))
++		goto out_busy;
+ 	if (blkif_queue_request(qd->rq, rinfo))
+ 		goto out_busy;
+ 
+ 	flush_requests(rinfo);
++out:
+ 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
+ 	return BLK_STS_OK;
+ 
+-out_err:
+-	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
+-	return BLK_STS_IOERR;
+-
+ out_busy:
+ 	blk_mq_stop_hw_queue(hctx);
+ 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
+@@ -1627,7 +1630,6 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
+ 					blkif_req(req)->error = BLK_STS_OK;
+ 				info->feature_fua = 0;
+ 				info->feature_flush = 0;
+-				xlvbd_flush(info);
+ 			}
+ 			fallthrough;
+ 		case BLKIF_OP_READ:
+-- 
+2.43.0
 
