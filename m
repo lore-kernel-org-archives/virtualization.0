@@ -1,32 +1,32 @@
 Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0721E84055
-	for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 02:39:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8C0F748E
+	for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 02:39:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718246369; cv=none; b=hmSwAJj+kEO7KhelemuNkDbTA7ysyyMIaH+lN1yl9ITbcZaE9mMLNJds83WlXqVx8btXLM9Y93WgoK9g5dd/15ailYS60Efeo9q2GlYIK8mWezkOM+mXGbBWavMYCh2L16Nn7NnIaQZsCQQp2Xke7tV1IgqtRTSS2Gr7FJX7qT4=
+	t=1718246400; cv=none; b=FeuxNnntyL1qnliA/XKObYQY1RY/z/k3MWqmkerOiHbEjDBeUsdqD6m2uTylcmdi+nshobPPSundpfjOryvs7VSrp1tgFWP4FUsDUDtYF9QPL84w+3wfeEeRzLDsJIgqrfh9JKMVvQDL35i51vPP0Zaw23rz/61Slg6gSNcgaRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718246369; c=relaxed/simple;
-	bh=wPPE2Ssaq69cZU1iRXz6+qxkFK8Ff9UHmMthwAPpAhk=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=iWJP6rdBB2ZFdYxo+Il518lig7aLjxD/5YR9HcINgT9nOzrorgb5SNtQ6q3Hq4BCZM9gTaRrZvW2X52K8Cg0O18/wZxqF+SCIV1Aty8u8bdWhdYb0wAT5p6U+LgTQBgzd5a+7xdOeSYNj/eCVxLcw097tVX0ZVppFJxz6SxgE4U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vhbuEZO5; arc=none smtp.client-ip=115.124.30.110
+	s=arc-20240116; t=1718246400; c=relaxed/simple;
+	bh=1MQ1Fp6HjbgootLBn8zZmwvHuRc7XlhiqbCjKSbPafA=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=bjGjIiDGD7jIH1nuJmuBJoplKtwOui//KoN9B+CPw9YCoSKQtO04QcWd30OtfMUzzZIbnJlt/Sk0N/FIB93gN7/DPBQiGYsrmg49Q4hGf6f8QXKmH5XXPQFtT9W85zOIhGr9wVxsJusv6k14LZA+bmeXU5BQylZ0phKnmNhb/1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=xqkh5nw0; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vhbuEZO5"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="xqkh5nw0"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718246357; h=Message-ID:Subject:Date:From:To;
-	bh=td1XJw66f+wQG/FODBLlh/MSxtLfQLLtTzZiZwnOIJg=;
-	b=vhbuEZO5hv/wAwRmBoVs/zt+xQQuuIbcXDb9RTGjSXPsSzeQEOsnm/+3QDUaYkPwGkYujSjwAMRIZgisj9A1op3TcJ/XebYiO1o159nZ+C7vCN5aii7yZLT05uNV0Z7oKaonMXYe/RhxQi+LzioXNiEKVn6tja715/41TWnbG1E=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R271e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8MKCQh_1718246355;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8MKCQh_1718246355)
+	t=1718246395; h=Message-ID:Subject:Date:From:To;
+	bh=tEcZiFuzzMApnaL1rj8g8wA1o3mOqOt7+2FRZmiJQpA=;
+	b=xqkh5nw0W3Ai3Yb9cOXMTdzbvABN++TKN1bUJ0/PCXJc7kUeksBWZfWAQLGr4lv7yMl2inpmlSfwOR+wYryJCe713lgSNEznZhSPabMQGaglbBs6TZ2S6QCUOLxF9KMQsgQrCQJBYIJU8+Dq74LhiXU2ZmIGHgajURvq7aws1pk=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8MQWMo_1718246394;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8MQWMo_1718246394)
           by smtp.aliyun-inc.com;
-          Thu, 13 Jun 2024 10:39:16 +0800
-Message-ID: <1718246339.0960987-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v4 01/15] virtio_ring: introduce dma map api for page
-Date: Thu, 13 Jun 2024 10:38:59 +0800
+          Thu, 13 Jun 2024 10:39:54 +0800
+Message-ID: <1718246386.8347378-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v4 08/15] virtio_net: sq support premapped mode
+Date: Thu, 13 Jun 2024 10:39:46 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jakub Kicinski <kuba@kernel.org>
 Cc: netdev@vger.kernel.org,
@@ -43,42 +43,24 @@ Cc: netdev@vger.kernel.org,
  virtualization@lists.linux.dev,
  bpf@vger.kernel.org
 References: <20240611114147.31320-1-xuanzhuo@linux.alibaba.com>
- <20240611114147.31320-2-xuanzhuo@linux.alibaba.com>
- <20240612162011.7f1d03a0@kernel.org>
-In-Reply-To: <20240612162011.7f1d03a0@kernel.org>
+ <20240611114147.31320-9-xuanzhuo@linux.alibaba.com>
+ <20240612162337.137994bb@kernel.org>
+In-Reply-To: <20240612162337.137994bb@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Wed, 12 Jun 2024 16:20:11 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> On Tue, 11 Jun 2024 19:41:33 +0800 Xuan Zhuo wrote:
-> > +/**
-> > + * virtqueue_dma_map_page_attrs - map DMA for _vq
-> > + * @_vq: the struct virtqueue we're talking about.
-> > + * @page: the page to do dma
-> > + * @offset: the offset inside the page
-> > + * @size: the size of the page to do dma
-> > + * @dir: DMA direction
-> > + * @attrs: DMA Attrs
-> > + *
-> > + * The caller calls this to do dma mapping in advance. The DMA address can be
-> > + * passed to this _vq when it is in pre-mapped mode.
-> > + *
-> > + * return DMA address. Caller should check that by virtqueue_dma_mapping_error().
+On Wed, 12 Jun 2024 16:23:37 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Tue, 11 Jun 2024 19:41:40 +0800 Xuan Zhuo wrote:
+> > +static int virtnet_sq_set_premapped(struct send_queue *sq, bool premapped)
 >
-> You gotta format the return value doc in a kdoc-sanctioned way.
-> please run ./scripts/kernel-doc -none -Wall to find such issues
+> Could you try to add __maybe_unused or some such and then remove it
+> in the patch which calls this function?  Having warnings during
+> bisection is not great.
 
-Will fix.
+
+Will do.
 
 Thanks.
-
-
->
-> > + */
-> > +dma_addr_t virtqueue_dma_map_page_attrs(struct virtqueue *_vq, struct page *page,
-> > +					size_t offset, size_t size,
-> > +					enum dma_data_direction dir,
-> > +					unsigned long attrs)
