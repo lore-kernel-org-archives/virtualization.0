@@ -1,189 +1,201 @@
-Received: from mail-wr1-f66.google.com (mail-wr1-f66.google.com [209.85.221.66])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E567A14534B
-	for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 14:49:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3593314D2B8
+	for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 19:17:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718290154; cv=none; b=Q3jgRSABwrQ5uFXc3z04vcGWHXWikCa9qKM2UHs0XQgmxl12zlw54FEm82mB0cRallDEjgI9DbSr+hpBIL7lrLTOO+KXnTg95enz96nvOEnbtWFZSsn2K0oocCHGABcJlxP86l4rzZrMZ16iejDgz5jHq9I/3Ue4fCNwRxwCv0E=
+	t=1718306232; cv=none; b=IqoMXxqWs9VRGZLfDNUBvZr8cvq0ZZEgyNPQrwomEv7Z2zd9vjFj/xeol3vPkGkm7w34i9DEbWXpbVKd3anayrGaknBHIsGsr8S0pv5LQLMMWymSONRmfGc1QuvdA/ng6m9zwb/e4Hw8x+OOYcUuhOT9cgiEauRxfXm5+oIf0Cc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718290154; c=relaxed/simple;
-	bh=jl6jRSsRorbqeGrAfCD1Mg5hCP+HaCGsXUQF0b59Tvc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XMSMeFZn/BKLSKrYFvtSBNTYWWWnclpfg/0PUvqdQ8+sdSuAXVj2vqsxEmvXmUzpsrgXdRbOMkEqFN06bO8Jm170Z/EuuPoju2jAs7lGrKd8LXW2JNeuGgdN6bbfDNlKJdFhN7yKer4FOY4gErbE3C/Jktg0ulrQloEmqTEp/mc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=i7XpgQXX; arc=none smtp.client-ip=209.85.221.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1718306232; c=relaxed/simple;
+	bh=CrA2LbZw2fj1oZQlxW6cbBwREuI1pwVFNKXdbbVw6aE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hiW+yzXqJvxzevGpuJZ3e0ufSEXwzal4DKeTSKyqq9QIUczPfuHFZWcNxH8n1vwwNkqpBY2rgfARG+s44JsDD4vXV5AI4rwD80lDmGlttqtDo3ThOC/MQ2V5DoORdGlctS5ZNgXjaCfczbhJdH/MFTS3e2mnwRrpcRdrxNsQJh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=fBqWjfVH; arc=none smtp.client-ip=209.85.219.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="i7XpgQXX"
-Received: by mail-wr1-f66.google.com with SMTP id ffacd0b85a97d-35f1bc2ab37so1096617f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 07:49:12 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="fBqWjfVH"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6b2a6e99be8so6851086d6.2
+        for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 12:17:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718290151; x=1718894951; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wShLhYnuISf+2hpf/eQPXGR1lsTej2ilkcqXvyes8eo=;
-        b=i7XpgQXX46K9wRhNTiMlhLKIC/+BnuAG2YgbtBoCTbFdMwp9zItaWoFDkSEVs8s1dP
-         SFcIiimLLifB09hH+oRK6AnkBMhNLNPfJDxoUzXOM1OL5MVvyW9DK4RFE4hvGSMNiFoY
-         6MifFsIA6xiv7UAeVZu3+N/TvKL0RVabgKVirKR7sj7C5UsPpJJORNLRvUyW9D6hEtch
-         2gK3mRMptF8WYbzqWQt6Bu1JQoV703ZX473PW/UkGGlFxzFFTD8qVxg8T2ztVyeC3pJT
-         yi0wslJTHAziW/SvLTHuPu/NhygUBkOaHduOj2ysEdW7Q+2Ws2JLP20rVlnTah4dlYil
-         nmJA==
+        d=broadcom.com; s=google; t=1718306230; x=1718911030; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=SqRZVCpbYo2jtcU4VLLPgUkKEV8z0zarA1K4gBzGSZs=;
+        b=fBqWjfVHQF0gACVegWOzirAF9Uvo5ydPEdO06OP/33fod0kuwyj4EcnB3IV16SyOyG
+         1LZjKXlUPCFyj3GnMjlafuwB7Z6tJurgIXRzbzKOAVm7Q5q5LE+0b0xT6xyrVEGhUSH6
+         5USBygT9n4fQlUTPoIeiIdACZx0z1iLrDSPSY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718290151; x=1718894951;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wShLhYnuISf+2hpf/eQPXGR1lsTej2ilkcqXvyes8eo=;
-        b=YhgUvdtHVLGbbb62QDfbt+uKDeOddGv/yY2x8sXQh+ca/gsCwN8sDXjH9YA6Yu8Bgt
-         5ufoHf713EhTaMhyoeob8Oj8yPDqL0LbY2QzuweshfxcV7jcjiqilDAWHPPCFYuVMEan
-         1wf1hPavbV3CemGj0UCV+vvM5oIKrRF9eTvk4mGSP1U8d6Oa8/ySceSfu7qOTIbKjXA8
-         3OjQGCn7OQBaZ7ikZLrwEsw8PMh0ttScVWllyril0ImyvebL4vK3B1xO0J5sZ+kMo1Nq
-         SDcEjeDT64UU9/puK0b6Sdn92PkkcJmtGb+H459UUhWfrcFVMGj+gb+lT86JLKjk255f
-         X5tw==
-X-Forwarded-Encrypted: i=1; AJvYcCXv1s1xC1wp2odcnlIiU4sLwlL7HDJKawjnYZghT3+ohokkijhARfuVlzkT6vwfJlUq3VVreI9uPZ1hNsokVFUQT7HIPsgq6t0m9UGMkEU=
-X-Gm-Message-State: AOJu0Yy2GbxaxQT03PBh3aJz667qfnnX+5IrzAnaFvtrPhrge+nVZ82H
-	BAW8HtPTdyx4AKijse0F3taF5TZTeCzuVEB3hdmU7Q4i4iGTMYqHP7lGbpvKcko=
-X-Google-Smtp-Source: AGHT+IG9qCPzOg3WirqPZDwbhAXKL6Yb6zrCLWQTcYobNNvr0Q7AYb3xE9mlM13c1KuhNPOrCXygng==
-X-Received: by 2002:adf:db47:0:b0:360:71df:b157 with SMTP id ffacd0b85a97d-36071dfb2f1mr1921045f8f.56.1718290151141;
-        Thu, 13 Jun 2024 07:49:11 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3607509c8acsm1916907f8f.48.2024.06.13.07.49.09
+        d=1e100.net; s=20230601; t=1718306230; x=1718911030;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=SqRZVCpbYo2jtcU4VLLPgUkKEV8z0zarA1K4gBzGSZs=;
+        b=d90sKXVaKK2KV8VClfpx9xg+HKBkKK4Ce7muRYByfCC5PZrWN7M21Y4Hl2zksZGnnH
+         t4+OSQ46Yb0kLRrKi1Cojlxug7w357KwOHpRjSZTf4bf1s+xdrrpBP5s1id2AWc32lrW
+         SB5jTRBkeNMu8zQVD4n+0dcmQLjrqbO+ZiUqlurskDAhjAYVx47F1PIYlW+qMOsoJoXl
+         nMys1rOq03Ocy1biqYyC53yGfc0vw5c9L8pHY8wAVGLvL4liC3Tp8HJpK+P7qTjzocgA
+         wHvohL4zVv/kFcgEs1WloA37YgXJAmt/7pOtuB3Xj18TJX+C0Ii2FQHnEhnLt1OAJEKi
+         1Ujw==
+X-Forwarded-Encrypted: i=1; AJvYcCUKjsjEbWPXCg92CQDkhEw7uJ7YL3tNE9+wm1Acu4QRfESFyazsPh8/68yT3fqb0S9VDrJKFpF0U6DTu4HM3I51XwDfGGI+fVIi8zCZHjM=
+X-Gm-Message-State: AOJu0YyxMNJcopLazc4LjIR/9JKGILrr1BDwrQ6jTwDsTAorSStxFGIA
+	9JxVDlc06N8sbqN4POQvu+RgUxZg6pQRged4fO5LJcX3Qq+2bJHS1Fga9Tv6qg==
+X-Google-Smtp-Source: AGHT+IFjEHPK4k0l7eyVsilK8yUQTNHgIqYDnv7SJ1An/1VqFCPEcRK7LH9vCsjmYZUTW3mQYOd55w==
+X-Received: by 2002:a0c:f882:0:b0:6b0:839e:ba6b with SMTP id 6a1803df08f44-6b2afd5f040mr5356876d6.43.1718306229909;
+        Thu, 13 Jun 2024 12:17:09 -0700 (PDT)
+Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b2a5eb47f6sm9714106d6.82.2024.06.13.12.17.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Jun 2024 07:49:10 -0700 (PDT)
-Date: Thu, 13 Jun 2024 16:49:07 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Denis Arefev <arefev@swemel.ru>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-	lvc-project@linuxtesting.org
-Subject: Re: [PATCH v2] net: missing check virtio
-Message-ID: <ZmsG41ezsAfok_fs@nanopsycho.orion>
-References: <20240613095448.27118-1-arefev@swemel.ru>
+        Thu, 13 Jun 2024 12:17:09 -0700 (PDT)
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+To: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bp@alien8.de,
+	hpa@zytor.com,
+	dave.hansen@linux.intel.com,
+	mingo@redhat.com,
+	tglx@linutronix.de
+Cc: x86@kernel.org,
+	netdev@vger.kernel.org,
+	richardcochran@gmail.com,
+	linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com,
+	pv-drivers@vmware.com,
+	timothym@vmware.com,
+	akaher@vmware.com,
+	dri-devel@lists.freedesktop.org,
+	daniel@ffwll.ch,
+	airlied@gmail.com,
+	tzimmermann@suse.de,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	horms@kernel.org,
+	kirill.shutemov@linux.intel.com,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>
+Subject: [PATCH v11 0/8] VMware hypercalls enhancements
+Date: Thu, 13 Jun 2024 12:16:42 -0700
+Message-Id: <20240613191650.9913-1-alexey.makhalov@broadcom.com>
+X-Mailer: git-send-email 2.39.4
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240613095448.27118-1-arefev@swemel.ru>
+Content-Transfer-Encoding: 8bit
 
-Thu, Jun 13, 2024 at 11:54:48AM CEST, arefev@swemel.ru wrote:
->Two missing check in virtio_net_hdr_to_skb() allowed syzbot
->to crash kernels again
->
->1. After the skb_segment function the buffer may become non-linear
->(nr_frags != 0), but since the SKBTX_SHARED_FRAG flag is not set anywhere
->the __skb_linearize function will not be executed, then the buffer will
->remain non-linear. Then the condition (offset >= skb_headlen(skb))
->becomes true, which causes WARN_ON_ONCE in skb_checksum_help.
->
->2. The struct sk_buff and struct virtio_net_hdr members must be
->mathematically related.
->(gso_size) must be greater than (needed) otherwise WARN_ON_ONCE.
->(remainder) must be greater than (needed) otherwise WARN_ON_ONCE.
->(remainder) may be 0 if division is without remainder.
->
->offset+2 (4191) > skb_headlen() (1116)
->WARNING: CPU: 1 PID: 5084 at net/core/dev.c:3303 skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
->Modules linked in:
->CPU: 1 PID: 5084 Comm: syz-executor336 Not tainted 6.7.0-rc3-syzkaller-00014-gdf60cee26a2e #0
->Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 11/10/2023
->RIP: 0010:skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
->Code: 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 52 01 00 00 44 89 e2 2b 53 74 4c 89 ee 48 c7 c7 40 57 e9 8b e8 af 8f dd f8 90 <0f> 0b 90 90 e9 87 fe ff ff e8 40 0f 6e f9 e9 4b fa ff ff 48 89 ef
->RSP: 0018:ffffc90003a9f338 EFLAGS: 00010286
->RAX: 0000000000000000 RBX: ffff888025125780 RCX: ffffffff814db209
->RDX: ffff888015393b80 RSI: ffffffff814db216 RDI: 0000000000000001
->RBP: ffff8880251257f4 R08: 0000000000000001 R09: 0000000000000000
->R10: 0000000000000000 R11: 0000000000000001 R12: 000000000000045c
->R13: 000000000000105f R14: ffff8880251257f0 R15: 000000000000105d
->FS:  0000555555c24380(0000) GS:ffff8880b9900000(0000) knlGS:0000000000000000
->CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->CR2: 000000002000f000 CR3: 0000000023151000 CR4: 00000000003506f0
->DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->Call Trace:
-> <TASK>
-> ip_do_fragment+0xa1b/0x18b0 net/ipv4/ip_output.c:777
-> ip_fragment.constprop.0+0x161/0x230 net/ipv4/ip_output.c:584
-> ip_finish_output_gso net/ipv4/ip_output.c:286 [inline]
-> __ip_finish_output net/ipv4/ip_output.c:308 [inline]
-> __ip_finish_output+0x49c/0x650 net/ipv4/ip_output.c:295
-> ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:323
-> NF_HOOK_COND include/linux/netfilter.h:303 [inline]
-> ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:433
-> dst_output include/net/dst.h:451 [inline]
-> ip_local_out+0xaf/0x1a0 net/ipv4/ip_output.c:129
-> iptunnel_xmit+0x5b4/0x9b0 net/ipv4/ip_tunnel_core.c:82
-> ipip6_tunnel_xmit net/ipv6/sit.c:1034 [inline]
-> sit_tunnel_xmit+0xed2/0x28f0 net/ipv6/sit.c:1076
-> __netdev_start_xmit include/linux/netdevice.h:4940 [inline]
-> netdev_start_xmit include/linux/netdevice.h:4954 [inline]
-> xmit_one net/core/dev.c:3545 [inline]
-> dev_hard_start_xmit+0x13d/0x6d0 net/core/dev.c:3561
-> __dev_queue_xmit+0x7c1/0x3d60 net/core/dev.c:4346
-> dev_queue_xmit include/linux/netdevice.h:3134 [inline]
-> packet_xmit+0x257/0x380 net/packet/af_packet.c:276
-> packet_snd net/packet/af_packet.c:3087 [inline]
-> packet_sendmsg+0x24ca/0x5240 net/packet/af_packet.c:3119
-> sock_sendmsg_nosec net/socket.c:730 [inline]
-> __sock_sendmsg+0xd5/0x180 net/socket.c:745
-> __sys_sendto+0x255/0x340 net/socket.c:2190
-> __do_sys_sendto net/socket.c:2202 [inline]
-> __se_sys_sendto net/socket.c:2198 [inline]
-> __x64_sys_sendto+0xe0/0x1b0 net/socket.c:2198
-> do_syscall_x64 arch/x86/entry/common.c:51 [inline]
-> do_syscall_64+0x40/0x110 arch/x86/entry/common.c:82
-> entry_SYSCALL_64_after_hwframe+0x63/0x6b
->
->Found by Linux Verification Center (linuxtesting.org) with Syzkaller
->
->Signed-off-by: Denis Arefev <arefev@swemel.ru>
+VMware hypercalls invocations were all spread out across the kernel
+implementing same ABI as in-place asm-inline. With encrypted memory
+and confidential computing it became harder to maintain every changes
+in these hypercall implementations.
 
-Could you please provide "Fixes" blaming the commit which itroduced the
-bug?
+Intention of this patchset is to introduce arch independent VMware
+hypercall API layer other subsystems such as device drivers can call
+to, while hiding architecture specific implementation behind.
 
+First patch introduces the vmware_hypercall low and high bandwidth
+families of functions, with little enhancements there. And the last
+patch adds tdx hypercall support
 
->---
-> V1 -> V2: incorrect type in argument 2
-> include/linux/virtio_net.h | 11 +++++++++++
-> 1 file changed, 11 insertions(+)
->
->diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
->index 4dfa9b69ca8d..d1d7825318c3 100644
->--- a/include/linux/virtio_net.h
->+++ b/include/linux/virtio_net.h
->@@ -56,6 +56,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
-> 	unsigned int thlen = 0;
-> 	unsigned int p_off = 0;
-> 	unsigned int ip_proto;
->+	u64 ret, remainder, gso_size;
-> 
-> 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
-> 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
->@@ -98,6 +99,16 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
-> 		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-> 		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
-> 
->+		if (hdr->gso_size) {
->+			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
->+			ret = div64_u64_rem(skb->len, gso_size, &remainder);
->+			if (!(ret && (hdr->gso_size > needed) &&
->+						((remainder > needed) || (remainder == 0)))) {
->+				return -EINVAL;
->+			}
->+			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
->+		}
->+
-> 		if (!pskb_may_pull(skb, needed))
-> 			return -EINVAL;
-> 
->-- 
->2.25.1
->
->
+arm64 implementation of vmware_hypercalls is in drivers/gpu/drm/
+vmwgfx/vmwgfx_msg_arm64.h and going to be moved to arch/arm64 with
+a separate patchset with the introduction of VMware Linux guest
+support for arm64.
+
+No functional changes in drivers/input/mouse/vmmouse.c and
+drivers/ptp/ptp_vmw.c
+
+v10->v11 changes:
+- Redesign VMware hypercall asm inline. Move slow path to a separate function
+  keeping asm inline alternative small a simple. Suggested by Borislav Petkov.
+- Use existing _ASM_BP instead of introduction of VMW_BP_REG as was suggested
+  by Uros Bizjak.
+- Patch 6: add "Fixes" tag as was suggested by Markus Elfring. 
+
+v9->v10 changes:
+- Restructure the patchset as was suggested by Borislav Petkov to
+  introduce vmware_hypercalls API first, then move callers to use this
+  API, and then remove the old mechanism.  
+- Reduce alternative portion of VMWARE_HYPERCALL by moving common code
+  outside of alternative block. Suggested by Borislav Petkov.
+- Use u32 instead of uint32_t in vmware_hypercall API and across vmware.c
+  as was suggested by Simon Horman.
+- Remove previous Reviewed-by and Acked-by.
+- Fix typos in comments and commit descriptions.
+- No major changes in patches 2,3,4,8 compare to v9.
+
+v8->v9 change:
+First patch "x86/vmware: Move common macros to vmware.h" was split on 2 pieces:
+  "x86/vmware: Move common macros to vmware.h" - just code movement, and
+  "x86/vmware: Correct macro names" - macro renaming.
+
+v7->v8 no functional changes. Updated authors and reviewers emails to
+@broadcom.com
+
+v6->v7 changes (only in patch 7):
+- Addressed comments from H. Peter Anvin:
+  1. Removed vmware_tdx_hypercall_args(), moved args handling inside
+     vmware_tdx_hypercall().
+  2. Added pr_warn_once() for !hypervisor_is_type(X86_HYPER_VMWARE) case.
+- Added ack by Dave Hansen.
+
+v5->v6 change:
+- Added ack by Kirill A. Shutemov in patch 7. 
+
+v4->v5 changes:
+  [patch 2]:
+- Fixed the problem reported by Simon Horman where build fails after
+  patch 2 application. Do not undefine VMWARE_HYPERCALL for now, and
+  update vmwgfx, vmmouse and ptp_vmw code for new VMWARE_HYPERCALL macro.
+- Introduce new patch 6 to undefine VMWARE_HYPERCALL, which is safe to do
+  after patches 3 to 5.
+- [patch 7 (former patch 6)]: Add missing r15 (CPL) initialization.
+
+v3->v4 changes: (no functional changes in patches 1-5)
+  [patch 2]:
+- Added the comment with VMware hypercall ABI description.
+  [patch 6]:
+- vmware_tdx_hypercall_args remove in6/out6 arguments as excessive.
+- vmware_tdx_hypercall return ULONG_MAX on error to mimic bad hypercall
+  command error from the hypervisor.
+- Replaced pr_warn by pr_warn_once as pointed by Kirill Shutemov.
+- Fixed the warning reported by Intel's kernel test robot.
+- Added the comment describing VMware TDX hypercall ABI.
+
+v2->v3 changes: (no functional changes in patches 1-5)
+- Improved commit message in patches 1, 2 and 5 as was suggested by
+  Borislav Petkov.
+- To address Dave Hansen's concern, patch 6 was reorganized to avoid
+  exporting bare __tdx_hypercall and to make exported vmware_tdx_hypercall
+  VMWare guest specific.
+
+v1->v2 changes (no functional changes):
+- Improved commit message in patches 2 and 5.
+- Added Reviewed-by for all patches.
+- Added Ack from Dmitry Torokhov in patch 4. No fixes regarding reported
+  by Simon Horman gcc error in this patch.
+
+Alexey Makhalov (8):
+  x86/vmware: Introduce VMware hypercall API
+  ptp/vmware: Use VMware hypercall API
+  input/vmmouse: Use VMware hypercall API
+  drm/vmwgfx: Use VMware hypercall API
+  x86/vmware: Use VMware hypercall API
+  x86/vmware: Correct macro names
+  x86/vmware: Remove legacy VMWARE_HYPERCALL* macros
+  x86/vmware: Add TDX hypercall support
+
+ arch/x86/include/asm/vmware.h             | 336 +++++++++++++++++++---
+ arch/x86/kernel/cpu/vmware.c              | 212 ++++++++------
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c       | 173 ++++-------
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 196 +++++++++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h   | 185 ------------
+ drivers/input/mouse/vmmouse.c             |  76 ++---
+ drivers/ptp/ptp_vmw.c                     |  12 +-
+ 7 files changed, 654 insertions(+), 536 deletions(-)
+
+-- 
+2.39.4
+
