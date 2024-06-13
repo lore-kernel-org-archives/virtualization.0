@@ -1,284 +1,134 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37C7515887B
-	for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 19:17:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D08E5A4FD;
+	Thu, 13 Jun 2024 21:50:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718306274; cv=none; b=dwA9nTLrG0pfOSPNwZgU+yey44PYmN40nfk+WrYHySbPphCjWJTqUoiNAyfYwOL2tAUbYfrg1IDV/jOHhvlWNn3HK0rZZ2QmNOgtFSZgIRCxG1PFsMIjxtD1hakmo4j8b8bFHWnmvuWKJrojpN6i8/N6iXD0qajh8S6XUBGHgAE=
+	t=1718315449; cv=none; b=NujhTdHsm0fJKRTdPpULNJ1hrlBtJOcvYbPFwEf5gcaZQhhFrhZkfW0EfdYmpHqnaowgMn5oYzx/27qRXERGcnHcU8EkWjqYN/0sWEpjAfwE7m/XZWibh4IFw/YT0fFg2hhTEmvCZ5FYrgz0CrJTEH1CDi+jbcUYQ3hMwBAcA8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718306274; c=relaxed/simple;
-	bh=JnrkH5FyMjsCzZIiYdt1ni9oWej36xLzQp8VsV/K6Oc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=d4KiSyeIEI7ieqsp5SwRDbTkHb2nSgBccri89L1DveAcVB2t/05MbcW1wmBHUkSlad+1PlMY/kJTWRJ7CdwzJyMUvBVy7h2z+96+AGwsE3Qm+vM2M+PMKSYwa/h4TxzLftgeIS0suLHz3n6PJwxPLhDIMqjExiR4esa+1+pMhcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=T2Yuh9MO; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1718315449; c=relaxed/simple;
+	bh=E1LZ2qD4h47Nm0fqTgahufLnfYId7G2BDN4j2DBKUCk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=Y6chLNkbTkTC0BEKwlxEavS7GIuMrDqzUmw5Ec9KYihUuduoRQRLXT6EGdfsVpjDK8oJTF5ulxRr0bONlEmGIVZWq718KvDBS4xiTdd8mV1RXS4TOZ6pjQnVpdgD+YqsHOQRcm9iKJpJHqXEOdlhYiAM36ppxYZZbp2d5EiPCYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ahtnjbfp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="T2Yuh9MO"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-795482e114cso80574585a.1
-        for <virtualization@lists.linux.dev>; Thu, 13 Jun 2024 12:17:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1718306272; x=1718911072; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=U6QyinaOFJqkp/FwCYbZM2RK9dvc3sFq+NiGTtbWdDw=;
-        b=T2Yuh9MOXHXdJY3TOOpRXg651feEkR3iF1TPQtV7d7OppEhw2EE5RsHUImgCvb46vb
-         LIkW434ok27Qk23IRYItWvfnAOgghBTSKtT7BcIZKcd8Sofr3ATUO40D8uDoerxlTEEo
-         XkYsJyybdFUg02KF0vVSaDx8hjglobebHBplQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718306272; x=1718911072;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=U6QyinaOFJqkp/FwCYbZM2RK9dvc3sFq+NiGTtbWdDw=;
-        b=i7RD4yTowHGk83kWwuhaNw19xizxu2aXzeqvgKR7DlOHW0F0JZxK1XixALypGUNnT+
-         /vn5fw5xDvYkwx8tU3zyqqBksgjCDQY0j6+cvKyuqBk/0uESWijBo7o2mHBEY53nQhsn
-         Ic0ZXFoLSNXGZlj41iCUPYcFjYdWevwHhe3SEUpda/i4+6uGoqm7PRNfjV6+lxEFbG3W
-         H+yec9VxFOzsFCDnNmdl3fTfrYSsAig5t9MP5jLSpPCAWOi18oPX50fx9p3ZNRMzzDxf
-         J1mLQpaC5QDfaAGQUueqi01PKEKrDA6sCg3mnoyGya4u8xj1AhzwJYTP9zenDHRzeHGw
-         dI3g==
-X-Forwarded-Encrypted: i=1; AJvYcCWi4x23Dw9CuXdkGt4AkG5mkN9rWNT7QRE5YSSNxsSZGnUG1SyZET12g4V9HC/m43hdpUNaKe7sRMYgNUb5y/sLialRsLtnPPB9BswJICg=
-X-Gm-Message-State: AOJu0YzRNmGTHIr847bGbTp5r2tZZgDRnZWUXcd5K/vtXWyCsq1yjeId
-	5JY6Zi66khPwFfXn7V18j9PQMe/BbV72MwQg5W+P6rvfLtTGF6SIMEs3RzjImA==
-X-Google-Smtp-Source: AGHT+IEhHo4/bVvLX5CCRFwAPWXs+0Q6azIN2QMKWV00z/494lBSBlAsOpG3aNUM+fwFk0Vdxltj4A==
-X-Received: by 2002:a05:6214:cab:b0:6b0:6443:7fcb with SMTP id 6a1803df08f44-6b2afc793b7mr7504386d6.10.1718306272057;
-        Thu, 13 Jun 2024 12:17:52 -0700 (PDT)
-Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b2a5eb47f6sm9714106d6.82.2024.06.13.12.17.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Jun 2024 12:17:51 -0700 (PDT)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de
-Cc: x86@kernel.org,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org,
-	kirill.shutemov@linux.intel.com,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Tim Merrifield <tim.merrifield@broadcom.com>
-Subject: [PATCH v11 8/8] x86/vmware: Add TDX hypercall support
-Date: Thu, 13 Jun 2024 12:16:50 -0700
-Message-Id: <20240613191650.9913-9-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.4
-In-Reply-To: <20240613191650.9913-1-alexey.makhalov@broadcom.com>
-References: <20240613191650.9913-1-alexey.makhalov@broadcom.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ahtnjbfp"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DLlh9b031385;
+	Thu, 13 Jun 2024 21:50:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:content-type
+	:in-reply-to:mime-version; s=pp1; bh=XfZH3QdHnUhyEF5FH3erh0hNNk8
+	Aq0lyphP1+FusXOQ=; b=AhtnjbfpjiJr5bCvMnSzcUf8TyNL9iGvyW019pquIcV
+	5h5PwSosD+VKRTVPhuC4Al2vgT+BmchWoJ/ySStw/IDgz8THzr4UspieTGYvViVC
+	ScNoLnms23vLDeh6JiDWAq18fZDK08aVd3Aml3pE0D2De6V4lE9ASxfmP3SXz1bB
+	ZN577x3kGLyq5bAhBd6dLLEq4O25S0fEMGxqlQRJdAAiJMCIhP1xZkChx/nJO0A2
+	kVudq5s6/jGHe+PlzlJ/L2NIVd5Dx4xd28mh5/m2zUDemIb3vvVjN6Kmo2/7Be/s
+	S+WWofgE77M6VwD4nisZ8UoxVn6ZeODTrqwZNUwON8w==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yr76mg9hh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Jun 2024 21:50:45 +0000 (GMT)
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DLojbd002840;
+	Thu, 13 Jun 2024 21:50:45 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yr76mg9hf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Jun 2024 21:50:45 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DKZtQm027243;
+	Thu, 13 Jun 2024 21:50:44 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn211c1r2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Jun 2024 21:50:44 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DLocP956688914
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 13 Jun 2024 21:50:40 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9CF8220040;
+	Thu, 13 Jun 2024 21:50:38 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 070F720043;
+	Thu, 13 Jun 2024 21:50:38 +0000 (GMT)
+Received: from localhost (unknown [9.171.17.6])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 13 Jun 2024 21:50:37 +0000 (GMT)
+Date: Thu, 13 Jun 2024 23:50:36 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Boqiao Fu <bfu@redhat.com>,
+        Sebastian Mitterle <smitterl@redhat.com>
+Subject: Re: [PATCH 1/1] s390/virtio_ccw: fix config change notifications
+Message-ID: <your-ad-here.call-01718315436-ext-6568@work.hours>
+References: <20240611214716.1002781-1-pasic@linux.ibm.com>
+ <6086ef5e-48e7-40f3-b0a7-ff67b20aeae3@redhat.com>
+ <20240613152115.48b00798.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240613152115.48b00798.pasic@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Zh5pS27zY4hCl2nM5Z-JIj_yqJcTPm8n
+X-Proofpoint-GUID: ISNNOKrlGBlJTnIO7-XUbGs6B1Of3jyG
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-13_13,2024-06-13_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 mlxlogscore=447 bulkscore=0 suspectscore=0
+ malwarescore=0 mlxscore=0 adultscore=0 clxscore=1011 phishscore=0
+ spamscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2405170001 definitions=main-2406130154
 
-VMware hypercalls use I/O port, VMCALL or VMMCALL instructions.
-Add __tdx_hypercall path to support TDX guests.
+On Thu, Jun 13, 2024 at 03:21:15PM +0200, Halil Pasic wrote:
+> On Wed, 12 Jun 2024 16:04:15 +0200
+> Thomas Huth <thuth@redhat.com> wrote:
+> 
+> > On 11/06/2024 23.47, Halil Pasic wrote:
+> > > Commit e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
+> > > broke configuration change notifications for virtio-ccw by putting the
+> > > DMA address of *indicatorp directly into ccw->cda disregarding the fact
+> > > that if !!(vcdev->is_thinint) then the function
+> > > virtio_ccw_register_adapter_ind() will overwrite that ccw->cda value
+> > > with the address of the virtio_thinint_area so it can actually set up
+> > > the adapter interrupts via CCW_CMD_SET_IND_ADAPTER.  Thus we end up
+> > > pointing to the wrong object for both CCW_CMD_SET_IND if setting up the
+> > > adapter interrupts fails, and for CCW_CMD_SET_CONF_IND regardless
+> > > whether it succeeds or fails.
+> > > 
+> > > To fix this, let us save away the dma address of *indicatorp in a local
+> > > variable, and copy it to ccw->cda after the "vcdev->is_thinint" branch.
+> > > 
+> > > Reported-by: Boqiao Fu <bfu@redhat.com>
+> > > Reported-by: Sebastian Mitterle <smitterl@redhat.com>
+> > > Fixes: e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
+> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > > ---
+> > > I know that checkpatch.pl complains about a missing 'Closes' tag.
+> > > Unfortunately I don't have an appropriate URL at hand. @Sebastian,
+> > > @Boqiao: do you have any suggetions?  
+> > 
+> > Closes: https://issues.redhat.com/browse/RHEL-39983
+> > ?
+> 
+> Yep! That is a public bug tracker bug. Qualifies!
+> @Vasily: Can you guys pick hat one up when picking the patch?
 
-No change in high bandwidth hypercalls, as only low bandwidth
-ones are supported for TDX guests.
-
-Co-developed-by: Tim Merrifield <tim.merrifield@broadcom.com>
-Signed-off-by: Tim Merrifield <tim.merrifield@broadcom.com>
-Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
----
- arch/x86/include/asm/vmware.h | 45 +++++++++++++++++++++++++++++++
- arch/x86/kernel/cpu/vmware.c  | 51 +++++++++++++++++++++++++++++++++++
- 2 files changed, 96 insertions(+)
-
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index d83444f03969..c9cf43d5ef23 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -18,6 +18,12 @@
-  * arg2 - Hypercall command
-  * arg3 bits [15:0] - Port number, LB and direction flags
-  *
-+ * - Low bandwidth TDX hypercalls (x86_64 only) are similar to LB
-+ * hypercalls. They also have up to 6 input and 6 output on registers
-+ * arguments, with different argument to register mapping:
-+ * %r12 (arg0), %rbx (arg1), %r13 (arg2), %rdx (arg3),
-+ * %rsi (arg4), %rdi (arg5).
-+ *
-  * - High bandwidth (HB) hypercalls are I/O port based only. They have
-  * up to 7 input and 7 output arguments passed and returned using
-  * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-@@ -54,6 +60,12 @@
- #define VMWARE_CMD_GETHZ		45
- #define VMWARE_CMD_GETVCPU_INFO		68
- #define VMWARE_CMD_STEALCLOCK		91
-+/*
-+ * Hypercall command mask:
-+ *   bits [6:0] command, range [0, 127]
-+ *   bits [19:16] sub-command, range [0, 15]
-+ */
-+#define VMWARE_CMD_MASK			0xf007fU
- 
- #define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
- #define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
-@@ -64,6 +76,15 @@ extern unsigned long vmware_hypercall_slow(unsigned long cmd,
- 					   u32 *out1, u32 *out2, u32 *out3,
- 					   u32 *out4, u32 *out5);
- 
-+#define VMWARE_TDX_VENDOR_LEAF 0x1af7e4909ULL
-+#define VMWARE_TDX_HCALL_FUNC  1
-+
-+extern unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+					  unsigned long in1, unsigned long in3,
-+					  unsigned long in4, unsigned long in5,
-+					  u32 *out1, u32 *out2, u32 *out3,
-+					  u32 *out4, u32 *out5);
-+
- /*
-  * The low bandwidth call. The low word of %edx is presumed to have OUT bit
-  * set. The high word of %edx may contain input data from the caller.
-@@ -79,6 +100,10 @@ unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0,
-+					    NULL, NULL, NULL, NULL, NULL);
-+
- 	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
- 		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
- 					     NULL, NULL, NULL, NULL, NULL);
-@@ -100,6 +125,10 @@ unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0,
-+					    out1, out2, NULL, NULL, NULL);
-+
- 	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
- 		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
- 					     out1, out2, NULL, NULL, NULL);
-@@ -121,6 +150,10 @@ unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0,
-+					    out1, out2, out3, NULL, NULL);
-+
- 	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
- 		return vmware_hypercall_slow(cmd, in1, 0, 0, 0,
- 					     out1, out2, out3, NULL, NULL);
-@@ -143,6 +176,10 @@ unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, in4, in5,
-+					    NULL, out2, NULL, NULL, NULL);
-+
- 	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
- 		return vmware_hypercall_slow(cmd, in1, in3, in4, in5,
- 					     NULL, out2, NULL, NULL, NULL);
-@@ -167,6 +204,10 @@ unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, 0, 0,
-+					    NULL, out2, out3, out4, out5);
-+
- 	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
- 		return vmware_hypercall_slow(cmd, in1, in3, 0, 0,
- 					     NULL, out2, out3, out4, out5);
-@@ -191,6 +232,10 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, in4, in5,
-+					    out1, out2, out3, NULL, NULL);
-+
- 	if (unlikely(!alternatives_patched) && !__is_defined(MODULE))
- 		return vmware_hypercall_slow(cmd, in1, in3, in4, in5,
- 					     out1, out2, out3, NULL, NULL);
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index d24ba03b30b8..708048b8a095 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -477,6 +477,57 @@ static bool __init vmware_legacy_x2apic_available(void)
- 		(eax & GETVCPU_INFO_LEGACY_X2APIC);
- }
- 
-+#ifdef CONFIG_INTEL_TDX_GUEST
-+/*
-+ * TDCALL[TDG.VP.VMCALL] uses %rax (arg0) and %rcx (arg2). Therefore,
-+ * we remap those registers to %r12 and %r13, respectively.
-+ */
-+unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+				   unsigned long in1, unsigned long in3,
-+				   unsigned long in4, unsigned long in5,
-+				   u32 *out1, u32 *out2, u32 *out3,
-+				   u32 *out4, u32 *out5)
-+{
-+	struct tdx_module_args args;
-+
-+	if (!hypervisor_is_type(X86_HYPER_VMWARE)) {
-+		pr_warn_once("Incorrect usage\n");
-+		return ULONG_MAX;
-+	}
-+
-+	if (cmd & ~VMWARE_CMD_MASK) {
-+		pr_warn_once("Out of range command %lx\n", cmd);
-+		return ULONG_MAX;
-+	}
-+
-+	args.rbx = in1;
-+	args.rdx = in3;
-+	args.rsi = in4;
-+	args.rdi = in5;
-+	args.r10 = VMWARE_TDX_VENDOR_LEAF;
-+	args.r11 = VMWARE_TDX_HCALL_FUNC;
-+	args.r12 = VMWARE_HYPERVISOR_MAGIC;
-+	args.r13 = cmd;
-+	args.r15 = 0; /* CPL */
-+
-+	__tdx_hypercall(&args);
-+
-+	if (out1)
-+		*out1 = args.rbx;
-+	if (out2)
-+		*out2 = args.r13;
-+	if (out3)
-+		*out3 = args.rdx;
-+	if (out4)
-+		*out4 = args.rsi;
-+	if (out5)
-+		*out5 = args.rdi;
-+
-+	return args.r12;
-+}
-+EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-+#endif
-+
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
- 					struct pt_regs *regs)
--- 
-2.39.4
-
+Sure, applied. Thanks!
