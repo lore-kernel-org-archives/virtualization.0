@@ -1,155 +1,134 @@
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0240E1850A9
-	for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 22:00:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D71DD1487ED
+	for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 22:04:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718402422; cv=none; b=PERo6nBcKu68wZc/m03rAExyHrepMK8ahjTGJg14jwrwRBVVY5khStqPOttChsPNvIaTjJ3mAEe6pprC73xlRy9GJ8Pk7qyWp2LLKY2RMDPhNsbuQ7FtbiYmQxyPJT/4z6SNRM3/8pfotCJfTR8s3bHKtUGfOBl/+lqNxiZMQUk=
+	t=1718402697; cv=none; b=ORmQso70J7y2d49b6kaJ93V61lccnwHXYaJDBtZtOucg269Z+mfYe+1PlknOoriHB2Jyb2vVZ3jjSPmBWO063Jfsv5cZZhp93jhbq+QYGcNyKcBwWlgsnrI0kY6jDOUhWdsb8MdTSATqi0NL3zVUvAMOvehkgvKEnO4aArsnDd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718402422; c=relaxed/simple;
-	bh=+5veQkgnVNkMxA9kgPIirgp7ENT3iYRLPKA4QGYdskE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Pqni/d4iV3s71j3yJkx5iSJinmVB1dEtaxj2SnRYtJ2vBw2upUZj03jrSQMKU31sA4xtcY/BP+Eu8WymiErMY7ei1zyRaM2avi/GhLYrLiZb1LvzIkggMrZh4nk3heC3cn/Qkz/NQ6m6BDxho39q7VqCON+c/7+OZfitALwm6l8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=aLs6JNF3; arc=none smtp.client-ip=209.85.219.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1718402697; c=relaxed/simple;
+	bh=n/dIbEBzku354LPAwJ5AA17Jtd1gqtcu4Ldd7iIeX6s=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=CkpJhf0lLuBIGvmG++hSHmDZ8Q3SCGuPSOoRNW3WZcW6XUn0ltKZ1qlNtW36YBylcNb4nFfQsV+b0X2JjrstIZcnHAVt9kEUthzo1nZGhAAMvDp9+ropMzkCELCHjJ+DtiruoWYGvi/bRBW7Fm8L0ir9NvIeKKlKff2Ujb6POCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JaDlP5yw; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="aLs6JNF3"
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-6b065d12dc6so13320306d6.0
-        for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 15:00:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JaDlP5yw"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-1f480624d10so22147515ad.1
+        for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 15:04:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1718402420; x=1719007220; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=YICLqeWZ7CPWIj9cycB+v+Sx/kefZlyQDl7Jt1GJ9mk=;
-        b=aLs6JNF31HtHG3UOwLRQNSpsPBOajh1M3sQS8M0Yd18w3hIXRceGo/hqoNTb1fBpw3
-         HNteOHax78d416UB//UjQl0J7beLCF5M5V2pnYg0fRMR/yal9IILdZfGV8vDMNhYDVAu
-         QLjYoPA81rr4h2Wsw5Xft+/qkyo2cd7Sg4tt4=
+        d=gmail.com; s=20230601; t=1718402695; x=1719007495; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=3GvcueyQPUEu25Z3M+kcx0gqsGUqckbLKTeC7p2z6FQ=;
+        b=JaDlP5ywxN8XcYy6RfpwmY13D5RBZln4JdizvjDH2Effc9mfnVQ9ZtCh0/RtmWLr8r
+         qc+qEWcz7nmOIx4GYCnyGhkU0bUeN8UULGaN65lUFXI15A+yAaKEkt/tM7GDS4dVWkya
+         GEq7Y6VHpiP4TTvvYhK09ih2y2uz6Lc7iGodgA8Kv1GdfW8lV3ep6XgMFX7pLFu+EYBW
+         zU+1uUXIHCbs8C4sMO7e3LYEnGr2i509eDeolcmIR0zFTof78nUJbOADuhFLP3xr5wte
+         mHbXIZENYptMUGWK5lDQz8wz04icpSMuhDquZ6uxF9G+jqfphufDiFzUfhCenZZ0F82s
+         vNWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718402420; x=1719007220;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YICLqeWZ7CPWIj9cycB+v+Sx/kefZlyQDl7Jt1GJ9mk=;
-        b=OFxJQVouzlD3MfWvcaSzmlXlfx5M9NfwtQejT3vzHszV+LsHr0qw45e2Q4cg3tQ9te
-         Jm0khPFDRCYT/cEuu4Li4Od2SBUwXq9iQzCY/l6fBtGISo6BJR0wn76WjxLZqNKHHa9+
-         Pi1ziy/lPGDIiiyqGp4gQNW2Co6+xIjmuY168WMbMDUmhukEOEYq+7dlraXlS3kcAuFI
-         4wk0mDaoP8SWRdPZ62Gw1VCSLO6CYsfHJjeNX7eBvSYd42IMy6rlt+aGjpZQIWC7bWLa
-         9YwW8AS9MaLCxGpalm4eX5WpdVOyjXQ/582dXqMbLvn69Ocq7CcLnuDr8l5qmaIgGmXh
-         SLLw==
-X-Forwarded-Encrypted: i=1; AJvYcCXXCmVDaptOw00sxWHRyos0DZGH4qwy34kfZLVs7OZNvb/bFGLJwni6BNKgyyNgSHX6gUcMSkBJM0hqTUoiJ12crPE7lXqGzx39kQ+U1s0=
-X-Gm-Message-State: AOJu0YzflwJxkM2nStQ820XwPlhqEhftnU+BP1bWDvcuPh4CYeeMIdGb
-	z59vDXZH2PWh2RWXRVgWyYVgP7DL6Lwt5op5cHQCtWkblU90ZjAjP7T/sQQqjw==
-X-Google-Smtp-Source: AGHT+IG/HD2HHZaQReiMiEQIeKbUkIZLrpVW6+XwOsJB6JUy8Iaw3habv8swl8TM2z1Y2OKuwVX6NQ==
-X-Received: by 2002:a0c:d6c7:0:b0:6b2:b251:7d95 with SMTP id 6a1803df08f44-6b2b2517db4mr30028326d6.17.1718402419852;
-        Fri, 14 Jun 2024 15:00:19 -0700 (PDT)
-Received: from [10.66.192.68] ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b2a5f05782sm23013906d6.139.2024.06.14.15.00.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Jun 2024 15:00:19 -0700 (PDT)
-Message-ID: <a640b47b-c1a3-4f0c-8780-ca08edcf089e@broadcom.com>
-Date: Fri, 14 Jun 2024 15:00:12 -0700
+        d=1e100.net; s=20230601; t=1718402695; x=1719007495;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3GvcueyQPUEu25Z3M+kcx0gqsGUqckbLKTeC7p2z6FQ=;
+        b=i7ol1b6NtyhowX3ZYCEplugFNs8mGhjrpc1X+0LHvIGpIpDBWB8PvwTqLprG2Tx6+9
+         goIJvvVp/NZyFpFK8mOQbOleooEZbQ5L+fIavt/gjiGQXQsPjH+RMl/IxPrnXjBuvX3s
+         26LDM8glAD1gSUOtkdPzLKIn/kEAEE7ezbGJH8Wn7tomaOGlxDU3r/w2mUgBNyTj8WKy
+         DATLDFbLiICxc7ZLZF4XiuNTWdwkcs2wsfHwLdD8J6GI98khqsah4u8LWOlIHKK8Yi1b
+         zjDEWeryEwwhEkexYsxxFzWXDrc9Q2EuGdDoLUVmeIkV0+mwW/70prg9Iuc/O2i/TcNT
+         tzUw==
+X-Forwarded-Encrypted: i=1; AJvYcCU2c6nI3+eOdt4OCn0DLyvALYLGXM1BP8bWT2MKLXx7VREAe7QrrdVRllkVx7SYqwtd/Nal8KMU2UapRHTnJxcKsPOhVEYqdSFlNpLG3bo=
+X-Gm-Message-State: AOJu0YxNUGEndACXVxedt0NtrChK92w++sbilykFnuRk/BpuXVLMVWmj
+	T+sdiTqgxy3tt7cxLXV8n3Mp6YLQW+jUghdVpbeyVCWeDYxn5OLs
+X-Google-Smtp-Source: AGHT+IFqvmnvREoZpL4HIEpMIZNae92JdUxNXwL23tevbC6InKHNUqYV0Ja7ifE4kxB84ngtUtcjvQ==
+X-Received: by 2002:a17:903:234b:b0:1f2:fb02:3dfd with SMTP id d9443c01a7336-1f8625c0deamr45197675ad.11.1718402694709;
+        Fri, 14 Jun 2024 15:04:54 -0700 (PDT)
+Received: from dev0.. ([49.43.162.104])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f855e7ca78sm37008375ad.106.2024.06.14.15.04.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Jun 2024 15:04:54 -0700 (PDT)
+From: Abhinav Jain <jain.abhinav177@gmail.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: skhan@linuxfoundation.org,
+	javier.carrasco.cruz@gmail.com,
+	jain.abhinav177@gmail.com
+Subject: [PATCH] virtio_net: Eliminate OOO packets during switching
+Date: Fri, 14 Jun 2024 22:04:22 +0000
+Message-Id: <20240614220422.42733-1-jain.abhinav177@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 8/8] x86/vmware: Add TDX hypercall support
-To: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, hpa@zytor.com, dave.hansen@linux.intel.com,
- mingo@redhat.com, tglx@linutronix.de, x86@kernel.org,
- netdev@vger.kernel.org, richardcochran@gmail.com,
- linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, zackr@vmware.com,
- linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
- timothym@vmware.com, akaher@vmware.com, dri-devel@lists.freedesktop.org,
- daniel@ffwll.ch, airlied@gmail.com, tzimmermann@suse.de, mripard@kernel.org,
- maarten.lankhorst@linux.intel.com, horms@kernel.org,
- kirill.shutemov@linux.intel.com, Tim Merrifield <tim.merrifield@broadcom.com>
-References: <20240613191650.9913-1-alexey.makhalov@broadcom.com>
- <20240613191650.9913-9-alexey.makhalov@broadcom.com>
- <844ef200-aabe-4497-85c9-44fc46c9133a@intel.com>
- <20240614161404.GCZmxsTNLSoYTqoRoj@fat_crate.local>
- <74f8300b-3520-4824-81e3-71464e3da3b6@intel.com>
- <1750e44f-f9a9-4c2a-afb3-f1ae8237ccb0@broadcom.com>
- <20240614190956.GFZmyVhLGeyLjwvA6X@fat_crate.local>
-Content-Language: en-US
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
- 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 EuY0
-In-Reply-To: <20240614190956.GFZmyVhLGeyLjwvA6X@fat_crate.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+Disable the network device & turn off carrier before modifying the
+number of queue pairs.
+Process all the in-flight packets and then turn on carrier, followed
+by waking up all the queues on the network device.
 
+Signed-off-by: Abhinav Jain <jain.abhinav177@gmail.com>
+---
+ drivers/net/virtio_net.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-On 6/14/24 12:09 PM, Borislav Petkov wrote:
-> On Fri, Jun 14, 2024 at 11:32:16AM -0700, Alexey Makhalov wrote:
->>
->>
->> On 6/14/24 9:19 AM, Dave Hansen wrote:
->>> On 6/14/24 09:14, Borislav Petkov wrote:
->>>> On Fri, Jun 14, 2024 at 09:03:22AM -0700, Dave Hansen wrote:
->>> ...
->>>>> You need to zero out all of 'args' somehow.
->>>>
->>>> You mean like this:
->>>>
->>>> 	struct tdx_module_args args = {};
->>>>
->>>> ?
->>>
->>> Yes, or do all the assignments with the initializer.  We seem to do it
->>> both ways, so whatever works.
->>
->> Thanks Dave for pointing that out. I missed that at v7.
-> 
-> Ok, I'll fold this struct initialization oneliner into the last patch.
-> 
-Thanks!
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 61a57d134544..d0a655a3b4c6 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3447,7 +3447,6 @@ static void virtnet_get_drvinfo(struct net_device *dev,
+ 
+ }
+ 
+-/* TODO: Eliminate OOO packets during switching */
+ static int virtnet_set_channels(struct net_device *dev,
+ 				struct ethtool_channels *channels)
+ {
+@@ -3471,6 +3470,15 @@ static int virtnet_set_channels(struct net_device *dev,
+ 	if (vi->rq[0].xdp_prog)
+ 		return -EINVAL;
+ 
++	/* Disable network device to prevent packet processing during
++	 * the switch.
++	 */
++	netif_tx_disable(dev);
++	netif_carrier_off(dev);
++
++	/* Make certain that all in-flight packets are processed. */
++	synchronize_net();
++
+ 	cpus_read_lock();
+ 	err = virtnet_set_queues(vi, queue_pairs);
+ 	if (err) {
+@@ -3482,7 +3490,12 @@ static int virtnet_set_channels(struct net_device *dev,
+ 
+ 	netif_set_real_num_tx_queues(dev, queue_pairs);
+ 	netif_set_real_num_rx_queues(dev, queue_pairs);
+- err:
++
++	/* Restart the network device */
++	netif_carrier_on(dev);
++	netif_tx_wake_all_queues(dev);
++
++err:
+ 	return err;
+ }
+ 
+-- 
+2.34.1
+
