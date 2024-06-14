@@ -1,208 +1,302 @@
-Received: from EUR05-AM6-obe.outbound.protection.outlook.com (mail-am6eur05olkn2097.outbound.protection.outlook.com [40.92.91.97])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C555EBA38
-	for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 13:55:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.91.97
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718373359; cv=fail; b=gtFIum4CcI7fIKy23TzPKMSj5iFRUYi8Am/iBvF5/eEOI3oXHtWxeHUVPMz1d05LKGT6uN4AhsxEdKED4mqvowR7Qs2Xv58hI+LcNhRKAmtE9Uf7vGfqGnQKX9DWK66VLkffLvYoUR5uCBOLFSOCB2PYKBpExUDVxXDLMnoxuWY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718373359; c=relaxed/simple;
-	bh=PbcR8chyGrvRobCuehcXslLl+Q50d6BejioPRAdAJOM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=MbzZeeB2YGIS+CIatfJ1ARpVscqEjYpyJGKqImsELWEhwWkYm50ex6JTjUG14QzPqUq8KQbUJ7n5rIsG8GcMVXtffMS804vZkqsK+cisLwD0vDvCZS2za9z6hdza+YYmNoT8RrJ2Bv2hzI7VRGuM9lJ9/hUogtGpE7hY25eYjjY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=dLfUj49/; arc=fail smtp.client-ip=40.92.91.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDCA5DF55
+	for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 14:37:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1718375843; cv=none; b=lfykUhhdXPCgqncHBKAQtgJuG5Z52E+cHZsrrwmY/i3Gs/eLkiV3vRg/plPUCxrvKDZiPfnW+MsniW5jAfHd6MTNzqEcR32qGOPU+sSnEqcNTbRVxPX8DpJ7cC4GMC2FE1ta2bJ85O6PNX6j+p9Hgo0mB5ywJdnEWs5/Q+ROPdY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1718375843; c=relaxed/simple;
+	bh=T6yv7I5syZZgcNs6PyKRhYS3KfDAA6mZlqzAdOn36Uc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=J4JgH9qe8SnUa2HnDpb01N8ESOvxAdgq8ajiVR19Sv5RknCT5aiXOLjoojjBtQSwcNw7u29WGFXY+K7nr3oBJoCZrgt7W8bEYPtTnOjM5BksXR/1FDEmA8TXnT6jlAnEvs+F9ezy9gvbvJmir07AYNSi6f6utBy+31Vmcq86hDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DQuyxCKF; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="dLfUj49/"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=E2DaS/H4saj1To0E2acGxi9jQxMWbt2h3MTmV8TzgP7IRyVGzFAEKdk7ar4yOec9XFsXvf3C7eAVDBJf+27cDiWizU7MZwIigGldJElLXEOc9hoIBgWrwGEcIuFHSwNyb/SIIOHFjyWytu34Ls7fjyNYsFq/5WbpXKyJDjG841ghaCncL5I8d9ymFL13b8yiVPflN+v8ogoHEjqzXNE18t8HfuLjwFftfDym8f52JQzRn/sSWOAHtoCsSi64ZO8YRzLvFAE4Qb6oEFWRRh5pC4xtRJrkFlbD5kHKSv7BJ4zS7dKSau/SzymB9vVqjJNyIf+aNIEIPTgXuBT60CkgZw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Vbq4SBZ24qmRTbz8LqgCwYGwTDk8D5Sa4oWquQYwEhM=;
- b=SLlDDuglFE/1LZjte4Y48COo1ICmM1G8iWWGiIzpzhI6rC5zqfU4DQJG/NtVpngm5B8Y14ht9HB1TdrgkIcKBVkmFXcKDitK2B4cCanVzcHgv4BL3gxyc7auAhnMGawQPUos7dI7JtRvG7lWKZxHutM0eIowWYkHduUkyEyerW4T4ulbsHM6Fkiq+H6IXasVDXKwBxdBcAMQqc5EmupHT7/K1K6Elxwyzpl7NRWUls11GcEpZHYmr/JYfn39VoxyJ1zk/cz9GbmmRgbCDtwiaDWJtQOgciKaA/5yMrLffx4EN15769WAlr5qJ3qebdGp+K4UZ6TRkqxckSuvmhLzOg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Vbq4SBZ24qmRTbz8LqgCwYGwTDk8D5Sa4oWquQYwEhM=;
- b=dLfUj49/C5ACfMGcm2Rkvk1bXciMnwKmjzKs+MveUT+BPo1Sat3EHFQbdnNTFYpIYQ/m0MmMwtMBZm8DeAGjVJe2sdi4+oW463rfzL+EJzL/lJ7co5n1QzKn2pwiZw5jJRMyI+Cn7tlmLLnEFKquTEtZ7HU2ZZfBC1wt0BSAKfTncRDRM0SLrGSiWLjFsPdPimJlFaNfY0hGUeW6FY9+bKBjdOW24z6QFuCt1DrFwTCFA1aDa6Pd9osC5Jvomv3uGYLrG/WOhFsuEbEmKkWKLFP3ervGf28H3W8KqTBGv0kgxd4jMGqMQNH62zcP0Apvd/5B1xJWI0K3NPQh7bldyg==
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
- by PAXP194MB1469.EURP194.PROD.OUTLOOK.COM (2603:10a6:102:1a8::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.24; Fri, 14 Jun
- 2024 13:55:51 +0000
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930%3]) with mapi id 15.20.7677.024; Fri, 14 Jun 2024
- 13:55:51 +0000
-From: Luigi Leonardi <luigi.leonardi@outlook.com>
-To: sgarzare@redhat.com,
-	edumazet@google.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	kuba@kernel.org,
-	kvm@vger.kernel.org,
-	stefanha@redhat.com,
-	pabeni@redhat.com,
-	davem@davemloft.net
-Cc: Marco Pinna <marco.pinn95@gmail.com>,
-	Luigi Leonardi <luigi.leonardi@outlook.com>
-Subject: [PATCH net-next 2/2] vsock/virtio: avoid enqueue packets when work queue is empty
-Date: Fri, 14 Jun 2024 15:55:43 +0200
-Message-ID:
- <AS2P194MB21706E349197C1466937052C9AC22@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240614135543.31515-1-luigi.leonardi@outlook.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DQuyxCKF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718375839;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8VKKhGKwr7TjIxs7MZnTi0KjppWjoseUD7kZ6OFw6gE=;
+	b=DQuyxCKFMcZ3MhP6zRFSlNMXiw+WsZksP46V/5Uhv+gF3uJTEqgszfXbV515PoFakhJ9+/
+	vL4rDhX63E28mRz15fmqe9QUCUadAHylsvwqWgRddjEraJ6T4Yv14+DHvbfX64s1638Dpf
+	I36YTL9/Mrs4l3oI+MFEMg7ckDmt+eg=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-1-DLIF3_2TNQesEZeUpNBU5g-1; Fri, 14 Jun 2024 10:37:18 -0400
+X-MC-Unique: DLIF3_2TNQesEZeUpNBU5g-1
+Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-57c77b21110so1927880a12.1
+        for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 07:37:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718375837; x=1718980637;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8VKKhGKwr7TjIxs7MZnTi0KjppWjoseUD7kZ6OFw6gE=;
+        b=XXLvZa0Al0ppCMQY5HpB4/Ap1H/eWUP9jA+6CwkbUmt7IHux6cK2IGn1pJROzwVmgu
+         d17GXW3xQCvyJLhQBpQYXUXlpJGOPdpqFsw5cFsNM5/4JDZcM0EFWYeZcJ2ShrN2Qu5F
+         pXZdlgETxKmrM45ercqpDEvzBI6Tntk5lXxFAh8C86MqGayeGFPsxq0dDJBKlL0wkz/Q
+         assK3V1QWMR3o4hmslh1YikHTwXLl01tHi63pi39wYxu4/xdW0fzlm0U0Qqo3N0lXY/x
+         GuopYRhD9pDQUik/fC4SSzQu0M6OuuQXCx9xhRa8v51J5/PJQEaeClrRkRqUjEika66X
+         p2TA==
+X-Forwarded-Encrypted: i=1; AJvYcCWZpGPeyR0Lq4JVGXe/bHDmi8x/iSdGAlX6vKgnx3bAjJDK0Wfs6RTWQZh/KgLhg0PcJh8J0qkNxMiNB1HmdY6X/ClVpT2tMbL8RqhdjQU=
+X-Gm-Message-State: AOJu0Yz2MGVrKuTlVKgstHoVu3vAMjrpob4ndvGz6eGW2u2GfFZgPwLH
+	3kxoNs+DYNiUhWR7TyqrEzTLYii+V0v2hMn8yC13nFm/Zt2ttZjxOEeCpyd2n/FMMWPZghVUaF8
+	dLU40g2CKIWLHGsk4IrkhXzd6nIEtLfFG4ocy/N5v+6I8t/TNbh8se+Hnk/su5xqg
+X-Received: by 2002:a50:96c3:0:b0:57c:4867:6738 with SMTP id 4fb4d7f45d1cf-57cbd6496b2mr2142639a12.2.1718375837191;
+        Fri, 14 Jun 2024 07:37:17 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEMIPk9ZbvfOHdHDxFf5K+8em8CG7gzR2Iqm6IoVMPzEdsKvGKc6eizF14fWO0h+dFsk3GJ0w==
+X-Received: by 2002:a50:96c3:0:b0:57c:4867:6738 with SMTP id 4fb4d7f45d1cf-57cbd6496b2mr2142622a12.2.1718375836770;
+        Fri, 14 Jun 2024 07:37:16 -0700 (PDT)
+Received: from sgarzare-redhat ([147.229.117.1])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57cb72da156sm2342251a12.22.2024.06.14.07.37.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Jun 2024 07:37:16 -0700 (PDT)
+Date: Fri, 14 Jun 2024 16:37:12 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Luigi Leonardi <luigi.leonardi@outlook.com>
+Cc: edumazet@google.com, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, kuba@kernel.org, kvm@vger.kernel.org, stefanha@redhat.com, 
+	pabeni@redhat.com, davem@davemloft.net, Marco Pinna <marco.pinn95@gmail.com>
+Subject: Re: [PATCH net-next 1/2] vsock/virtio: refactor
+ virtio_transport_send_pkt_work
+Message-ID: <i5ofr6nj2fmxqeaswucvhbtvgglhvurzslsismthlrr77v7bsk@aishfdtaq4vb>
 References: <20240614135543.31515-1-luigi.leonardi@outlook.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN: [zmAx0oZ3aW9aLNZjpKtjFc1D5puwy8oS]
-X-ClientProxiedBy: MI0P293CA0015.ITAP293.PROD.OUTLOOK.COM
- (2603:10a6:290:44::8) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:20b:642::8)
-X-Microsoft-Original-Message-ID:
- <20240614135543.31515-3-luigi.leonardi@outlook.com>
+ <AS2P194MB21702C53FEFDC2F8283B5A789AC22@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|PAXP194MB1469:EE_
-X-MS-Office365-Filtering-Correlation-Id: 76ae548f-9d8b-46db-c92a-08dc8c79b3b9
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|461199025|3412199022|440099025|1710799023;
-X-Microsoft-Antispam-Message-Info:
-	WW/B1PvIk5+eqfQhx3R2kSqmMKWbQevi5x8gs1W3/3v/3NrEFRxD2ig37z7hTazVM2HqZizQKLNnLfQS8+ZOhVx/ZODmeNnqpwyIjddVTLqB3uVUR99KMHSHODY4syjMDpIouP5hAM9IGX9Tz50G7YX8+KYWMN9otMLm6N5f9I9yUQ0yfoqgG2qDs+vQ9MT8REdNFQrn8T7QSNLNnTdt1ylMF9zT+bPqNPrrG0tDA+Em0d1d0/iI5Xn1KbRVbzoFO9npNsfeM1a4ge9F0R6I/c7lBsqy4X8GIsLURSxi+sFHn+/vnV0/HaiNZ4ZWY+fotIWHOw+U7CG10XsZb1yfKLTt2YGjOTnjwwNo16PfirBzKTKyxnnd5nxOmkoyAzjbxHT2EEf4T/SlUfRbAoprtWo+ZFLVy5cJTvpvb0Aw3Lnv+GpNI/2XKxZsWWH5fsmFxrY0617zFBRWJF0oMD4aA7O7YbPecsse59AFQst2vHAzojwDbWGJ6qDLmi0mg1hng60Uo7c5gKXE6gwZaszUSBXR4eqiFsZjmkumusHsGbRizDy/s6k8GU1H5WXFyT9S/cBlcgGBP5Fz7pS2J7xzxVXO4ztG3E9Ggz9u7WY6fq5M5qNJTVxlvThMyLxNC/kU
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?38IOLlKAPMECLKOWiFCXC/SnZAHV6noRMaF1OMct1BM9BEK55wniP5uzjmYd?=
- =?us-ascii?Q?7DQPghEZPFAzC8sHropJnPYBf+CG8arg76HB8UmHPGDlh6pkBoc/Xo1Sspk6?=
- =?us-ascii?Q?vqtce8CUZLGH6lJYzOpouRwURQMGKUNgx34TVcwlMufx8quHemUisL/ov/kb?=
- =?us-ascii?Q?fb8XOdjpEKABkfpt0dga5ZuItbWTPGAWi6HCuO7bWgIpoA5TtFoI8KSH8CW7?=
- =?us-ascii?Q?/PQJNTdndUVGli50j5flyL85ZcJ7mtkLdakS4x7lYfRfmKSaLZhYRsuI5wIP?=
- =?us-ascii?Q?2axe6bBI0oeYQQwaGT6QLl5/4b7ybI4+ALeFgl6xSVz8S/ZSl4ltRwBTVrSE?=
- =?us-ascii?Q?xDaMNpi5pRL31/rR4kVNIqbVWZQ8pwRVyfY5JI9g4YYKOM4AS4iGerkH6V5K?=
- =?us-ascii?Q?1stn6HaHv3fiw9geawr9dMptNNFThOx7HP5nqulhhAopw/dfBpTLu3yBxRmd?=
- =?us-ascii?Q?mD3nyeEuMYfmUAbN3BUic9Al1pimZys10RLsyt0iEY4vG0lrosRWqGfs58x8?=
- =?us-ascii?Q?bWloyzfe2IhuYf/m7uIjfYKA5LIgmCHbtE23Aur0bVRBpPCwOD3HUS63poeC?=
- =?us-ascii?Q?nBeSRWhpBmiZ3b2nuyfLRwolZCoxuVBBo0fZYjcDKvu4VuY/UeN4iDgAzQX7?=
- =?us-ascii?Q?LXVuOWol2Nw7Dn413pOCYWqOPV4X/uCysmjOc8IB6dQYrI/UvNxdvN7ACxLg?=
- =?us-ascii?Q?OndpO8sZqF+jzH+7jcNYzvI1Xx/I+h0iXQHGJp6zvzOsGSX/3UPXG5M+pgwk?=
- =?us-ascii?Q?OtIw2S9IB6r6vbCv3lIfphdfgsp6LXsleAWqO4JMhlJnIjZp5DX/bPL5Deky?=
- =?us-ascii?Q?GHZBV7zIbOKId4JUe9/CNkIraT+8oDo7Mw/cPKlQVdCJtYtUsD3ZDoLDtpga?=
- =?us-ascii?Q?SsKx3Tuf5spBQhdTuNDMjMjcNb/fxve8Y+qpl7ojrkwXDppELXkxPvu0kCzj?=
- =?us-ascii?Q?//4KFLCx9gN/OKgrQsCJxgLnEBlqwI42Yb/1LYTk1HPyyXXrRUrE/oQj83Ez?=
- =?us-ascii?Q?Esmz/cPLBN9GDKOypfsaBFWZMDWgL9QfF+Xv2mb2DvvxoW8poBwZTakFKmw+?=
- =?us-ascii?Q?lYQBJG8uu4opw6uIdqldUM2Uv9d2iRWWnMSANzZnUGVM6UPRseGCFPo2CqmM?=
- =?us-ascii?Q?Alvd1UI2RIPSIo4UXUXMZB55c5EQ8219GE+CSrMBbOuqj6Lg7Qfa7psfSkH2?=
- =?us-ascii?Q?aFY2Z8gK5xsBTeedydfh0ZAthGOXXae6M46vMVr8PrXI/Cs8ibFQroIO2Rmc?=
- =?us-ascii?Q?OzRba2sgKKapYxDj/V/S?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 76ae548f-9d8b-46db-c92a-08dc8c79b3b9
-X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jun 2024 13:55:51.5906
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXP194MB1469
+In-Reply-To: <AS2P194MB21702C53FEFDC2F8283B5A789AC22@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-From: Marco Pinna <marco.pinn95@gmail.com>
+On Fri, Jun 14, 2024 at 03:55:42PM GMT, Luigi Leonardi wrote:
+>From: Marco Pinna <marco.pinn95@gmail.com>
+>
+>This is a preliminary patch to introduce an optimization to
+>the enqueue system.
+>
+>All the code used to enqueue a packet into the virtqueue
+>is removed from virtio_transport_send_pkt_work()
+>and moved to the new virtio_transport_send_skb() function.
+>
+>Co-developed-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+>Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+>Signed-off-by: Marco Pinna <marco.pinn95@gmail.com>
+>---
+> net/vmw_vsock/virtio_transport.c | 134 +++++++++++++++++--------------
+> 1 file changed, 74 insertions(+), 60 deletions(-)
+>
+>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>index 43d405298857..c930235ecaec 100644
+>--- a/net/vmw_vsock/virtio_transport.c
+>+++ b/net/vmw_vsock/virtio_transport.c
+>@@ -94,6 +94,78 @@ static u32 virtio_transport_get_local_cid(void)
+> 	return ret;
+> }
+>
+>+/* Caller need to hold vsock->tx_lock on vq */
+>+static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+>+				     struct virtio_vsock *vsock, bool *restart_rx)
+>+{
+>+	int ret, in_sg = 0, out_sg = 0;
+>+	struct scatterlist **sgs;
+>+	bool reply;
+>+
+>+	reply = virtio_vsock_skb_reply(skb);
+>+	sgs = vsock->out_sgs;
+>+	sg_init_one(sgs[out_sg], virtio_vsock_hdr(skb),
+>+		    sizeof(*virtio_vsock_hdr(skb)));
+>+	out_sg++;
+>+
+>+	if (!skb_is_nonlinear(skb)) {
+>+		if (skb->len > 0) {
+>+			sg_init_one(sgs[out_sg], skb->data, skb->len);
+>+			out_sg++;
+>+		}
+>+	} else {
+>+		struct skb_shared_info *si;
+>+		int i;
+>+
+>+		/* If skb is nonlinear, then its buffer must contain
+>+		 * only header and nothing more. Data is stored in
+>+		 * the fragged part.
+>+		 */
+>+		WARN_ON_ONCE(skb_headroom(skb) != sizeof(*virtio_vsock_hdr(skb)));
+>+
+>+		si = skb_shinfo(skb);
+>+
+>+		for (i = 0; i < si->nr_frags; i++) {
+>+			skb_frag_t *skb_frag = &si->frags[i];
+>+			void *va;
+>+
+>+			/* We will use 'page_to_virt()' for the userspace page
+>+			 * here, because virtio or dma-mapping layers will call
+>+			 * 'virt_to_phys()' later to fill the buffer descriptor.
+>+			 * We don't touch memory at "virtual" address of 
+>this page.
+>+			 */
+>+			va = page_to_virt(skb_frag_page(skb_frag));
+>+			sg_init_one(sgs[out_sg],
+>+				    va + skb_frag_off(skb_frag),
+>+				    skb_frag_size(skb_frag));
+>+			out_sg++;
+>+		}
+>+	}
+>+
+>+	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
+>+	/* Usually this means that there is no more space available in
+>+	 * the vq
+>+	 */
+>+	if (ret < 0)
+>+		goto out;
 
-This introduces an optimization in virtio_transport_send_pkt:
-when the work queue (send_pkt_queue) is empty the packet is
-put directly in the virtqueue reducing latency.
+We use the `out` label just here, so what about remove it since we just 
+return ret?
 
-In the following benchmark (pingpong mode) the host sends
-a payload to the guest and waits for the same payload back.
+I mean:
 
-Tool: Fio version 3.37-56
-Env: Phys host + L1 Guest
-Payload: 4k
-Runtime-per-test: 50s
-Mode: pingpong (h-g-h)
-Test runs: 50
-Type: SOCK_STREAM
+	if (ret < 0)
+		return ret;
 
-Before (Linux 6.8.11)
-------
-mean(1st percentile):     722.45 ns
-mean(overall):           1686.23 ns
-mean(99th percentile):  35379.27 ns
+...
 
-After
-------
-mean(1st percentile):     602.62 ns
-mean(overall):           1248.83 ns
-mean(99th percentile):  17557.33 ns
+>+
+>+	virtio_transport_deliver_tap_pkt(skb);
+>+
+>+	if (reply) {
+>+		struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
+>+		int val;
+>+
+>+		val = atomic_dec_return(&vsock->queued_replies);
+>+
+>+		/* Do we now have resources to resume rx processing? */
+>+		if (val + 1 == virtqueue_get_vring_size(rx_vq))
+>+			*restart_rx = true;
+>+	}
+>+
 
-Co-developed-by: Luigi Leonardi <luigi.leonardi@outlook.com>
-Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
-Signed-off-by: Marco Pinna <marco.pinn95@gmail.com>
----
- net/vmw_vsock/virtio_transport.c | 32 ++++++++++++++++++++++++++++++--
- 1 file changed, 30 insertions(+), 2 deletions(-)
+	return 0;
+}
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index c930235ecaec..e89bf87282b2 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -214,7 +214,9 @@ virtio_transport_send_pkt(struct sk_buff *skb)
- {
- 	struct virtio_vsock_hdr *hdr;
- 	struct virtio_vsock *vsock;
-+	bool use_worker = true;
- 	int len = skb->len;
-+	int ret = -1;
- 
- 	hdr = virtio_vsock_hdr(skb);
- 
-@@ -235,8 +237,34 @@ virtio_transport_send_pkt(struct sk_buff *skb)
- 	if (virtio_vsock_skb_reply(skb))
- 		atomic_inc(&vsock->queued_replies);
- 
--	virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, skb);
--	queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
-+	/* If the send_pkt_queue is empty there is no need to enqueue the packet.
-+	 * Just put it on the ringbuff using virtio_transport_send_skb.
-+	 */
-+
-+	if (skb_queue_empty_lockless(&vsock->send_pkt_queue)) {
-+		bool restart_rx = false;
-+		struct virtqueue *vq;
-+
-+		mutex_lock(&vsock->tx_lock);
-+
-+		vq = vsock->vqs[VSOCK_VQ_TX];
-+
-+		ret = virtio_transport_send_skb(skb, vq, vsock, &restart_rx);
-+		if (ret == 0) {
-+			use_worker = false;
-+			virtqueue_kick(vq);
-+		}
-+
-+		mutex_unlock(&vsock->tx_lock);
-+
-+		if (restart_rx)
-+			queue_work(virtio_vsock_workqueue, &vsock->rx_work);
-+	}
-+
-+	if (use_worker) {
-+		virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, skb);
-+		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
-+	}
- 
- out_rcu:
- 	rcu_read_unlock();
--- 
-2.45.2
+>+out:
+>+	return ret;
+>+}
+>+
+> static void
+> virtio_transport_send_pkt_work(struct work_struct *work)
+> {
+>@@ -111,77 +183,19 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+> 	vq = vsock->vqs[VSOCK_VQ_TX];
+>
+> 	for (;;) {
+>-		int ret, in_sg = 0, out_sg = 0;
+>-		struct scatterlist **sgs;
+> 		struct sk_buff *skb;
+>-		bool reply;
+>+		int ret;
+>
+> 		skb = virtio_vsock_skb_dequeue(&vsock->send_pkt_queue);
+> 		if (!skb)
+> 			break;
+>
+>-		reply = virtio_vsock_skb_reply(skb);
+>-		sgs = vsock->out_sgs;
+>-		sg_init_one(sgs[out_sg], virtio_vsock_hdr(skb),
+>-			    sizeof(*virtio_vsock_hdr(skb)));
+>-		out_sg++;
+>-
+>-		if (!skb_is_nonlinear(skb)) {
+>-			if (skb->len > 0) {
+>-				sg_init_one(sgs[out_sg], skb->data, skb->len);
+>-				out_sg++;
+>-			}
+>-		} else {
+>-			struct skb_shared_info *si;
+>-			int i;
+>+		ret = virtio_transport_send_skb(skb, vq, vsock, &restart_rx);
+>
+
+nit: I'd remove this new line here.
+
+>-			/* If skb is nonlinear, then its buffer must contain
+>-			 * only header and nothing more. Data is stored in
+>-			 * the fragged part.
+>-			 */
+>-			WARN_ON_ONCE(skb_headroom(skb) != sizeof(*virtio_vsock_hdr(skb)));
+>-
+>-			si = skb_shinfo(skb);
+>-
+>-			for (i = 0; i < si->nr_frags; i++) {
+>-				skb_frag_t *skb_frag = &si->frags[i];
+>-				void *va;
+>-
+>-				/* We will use 'page_to_virt()' for the userspace page
+>-				 * here, because virtio or dma-mapping layers will call
+>-				 * 'virt_to_phys()' later to fill the buffer descriptor.
+>-				 * We don't touch memory at "virtual" address of this page.
+>-				 */
+>-				va = page_to_virt(skb_frag_page(skb_frag));
+>-				sg_init_one(sgs[out_sg],
+>-					    va + skb_frag_off(skb_frag),
+>-					    skb_frag_size(skb_frag));
+>-				out_sg++;
+>-			}
+>-		}
+>-
+>-		ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, 
+>GFP_KERNEL);
+>-		/* Usually this means that there is no more space 
+>available in
+>-		 * the vq
+>-		 */
+> 		if (ret < 0) {
+> 			virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, skb);
+> 			break;
+> 		}
+>-
+>-		virtio_transport_deliver_tap_pkt(skb);
+>-
+>-		if (reply) {
+>-			struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
+>-			int val;
+>-
+>-			val = atomic_dec_return(&vsock->queued_replies);
+>-
+>-			/* Do we now have resources to resume rx processing? */
+>-			if (val + 1 == virtqueue_get_vring_size(rx_vq))
+>-				restart_rx = true;
+>-		}
+>-
+
+nit: maybe I'd move the empty line here.
+
+
+Our usual style is:
+         ret = foo();
+         if (ret < 0) {
+             //error handling
+         }
+
+         next_stuff...
+
+Thanks,
+Stefano
+
+> 		added = true;
+> 	}
+>
+>-- 
+>2.45.2
+>
 
