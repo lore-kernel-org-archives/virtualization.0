@@ -1,30 +1,30 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92CF14D420
-	for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 06:39:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9D71836ED
+	for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 06:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718347189; cv=none; b=NcCk/3t8MNh+cF347HgVtark35KFAzunNwEy4VP6dekh6CI+5Mcz5NmwSkFC2v/Aj5FVYGu1rf2iOOVfHU+i4HXe7WzWCR/IKEePHw2D/3l8Vl0hIk4TSGuILSpQkQxLypkiDtwvwyMZ5TKj7m46fL5yqmUrlaeE50kvkqWqycA=
+	t=1718347190; cv=none; b=fI5O/YjNkuCGo/M54XLiV0EWOJAiB2fbrvdKJpB9ITnO/A9G9DRnKjfQYma4Il4A9ybnsnMLkjU4mppnXMpLUuKfd0fiPdukuS1bVERN3OWnqm6Hc/VanFlJPdPs39VRxfpqghaYhmjGfWgr2p3Ize+5whjeOfeFDcs2VEem5jQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718347189; c=relaxed/simple;
-	bh=JNOnnmOFu1NUWWjC8WtNGzYk18S62nPmUhl6YzbpQds=;
+	s=arc-20240116; t=1718347190; c=relaxed/simple;
+	bh=4seTsozVSv+ezpete5JyfgV166HQrZcU8nGvlj7gUss=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=kOPijKG5H+HDin1JdBVE1oLQQIm8xo7WPhNJe+P1WKezXutdAxaPX0ftFc5cSPrvdruD2uoZQL4XGK4chT6IvfFeYpRCkD3Hq0ZGoPYeRpTi63WLmzt7CmC+pI6dSFAbKo4Oat0wXvz8b55Dse5VhqzkaT0aOvVT0jDew+3v6g0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=U5MshxJo; arc=none smtp.client-ip=115.124.30.111
+	 MIME-Version; b=b/PulggW6DQqElZPdd/wUy0bNgvnx+GxSF8qN8wAPK6lUQyhMYBUtwCMgg/nAfHN08DEg2BLUMUr8NaamGex04xLOR5f0UiC0/2cH1i8j20UYAthW+v6S5Pj3e6R65foHvw48IeVDuw3t/iw9w1r41CEW/tMxRS/WoAyL0ARpjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=O9X0ZdiR; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="U5MshxJo"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="O9X0ZdiR"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718347185; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=AsxCsmPwJLPCPz8R6ARZ0TKBqaj/tWLFeD6Lswatkas=;
-	b=U5MshxJotsTtaBkTcpVgNnGfM22mTO3cjRvrbxvS0Dv/NpUplIUBZzfSzSWtsJd9u0gV3HLfpnjmj7ygkRKZOHO8/YHMyu5CGUFdm0wi8q1mkpfgQSISooTTgr5FoYIgJFZ8ZQUCm50bh3ah1Qiv1uChQ6u6sUKyiT/L80Ik1cI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W8QKgVb_1718347184;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8QKgVb_1718347184)
+	t=1718347181; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=npQee9M15+Lo4pMMFfrdbZsJ16sd84cpsyzjvN2BTSw=;
+	b=O9X0ZdiRqUN+Pu1Iy2SI557ZzOv8TlcPrCGXsqmKoa1otNxkHs9tJ17gEoVOcdEg3/isV3MlvuqaOovnk+13fn8s25BzYbKE9GUFOIpLvcMai/0lXN+2WY/ZrF/i7eZ4Cp9obM8LOTSKtkHBf5qiCvyv7ncfAZ5Hy7v3A16dBlc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W8QF6Rt_1718347179;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8QF6Rt_1718347179)
           by smtp.aliyun-inc.com;
-          Fri, 14 Jun 2024 14:39:44 +0800
+          Fri, 14 Jun 2024 14:39:39 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -41,9 +41,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v5 12/15] virtio_net: xsk: tx: support wakeup
-Date: Fri, 14 Jun 2024 14:39:30 +0800
-Message-Id: <20240614063933.108811-13-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v5 06/15] virtio_net: separate receive_buf
+Date: Fri, 14 Jun 2024 14:39:24 +0800
+Message-Id: <20240614063933.108811-7-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240614063933.108811-1-xuanzhuo@linux.alibaba.com>
 References: <20240614063933.108811-1-xuanzhuo@linux.alibaba.com>
@@ -56,59 +56,92 @@ MIME-Version: 1.0
 X-Git-Hash: e008fb4a0943
 Content-Transfer-Encoding: 8bit
 
-xsk wakeup is used to trigger the logic for xsk xmit by xsk framework or
-user.
-
-Virtio-net does not support to actively generate an interruption, so it
-tries to trigger tx NAPI on the local cpu.
+This commit separates the function receive_buf(), then we wrap the logic
+of handling the skb to an independent function virtnet_receive_done().
+The subsequent commit will reuse it.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/net/virtio_net.c | 56 +++++++++++++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7e811f392768..9bfccef18e27 100644
+index 8c51947abce9..161694957065 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1368,6 +1368,29 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	return sent == budget;
+@@ -1935,32 +1935,11 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+ 	skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_type);
  }
  
-+static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
+-static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+-			void *buf, unsigned int len, void **ctx,
+-			unsigned int *xdp_xmit,
+-			struct virtnet_rq_stats *stats)
++static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
++				 struct sk_buff *skb)
+ {
+-	struct net_device *dev = vi->dev;
+-	struct sk_buff *skb;
+ 	struct virtio_net_common_hdr *hdr;
+-
+-	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+-		pr_debug("%s: short packet %i\n", dev->name, len);
+-		DEV_STATS_INC(dev, rx_length_errors);
+-		virtnet_rq_free_buf(vi, rq, buf);
+-		return;
+-	}
+-
+-	if (vi->mergeable_rx_bufs)
+-		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
+-					stats);
+-	else if (vi->big_packets)
+-		skb = receive_big(dev, vi, rq, buf, len, stats);
+-	else
+-		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
+-
+-	if (unlikely(!skb))
+-		return;
++	struct net_device *dev = vi->dev;
+ 
+ 	hdr = skb_vnet_common_hdr(skb);
+ 	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
+@@ -1990,6 +1969,35 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+ 	dev_kfree_skb(skb);
+ }
+ 
++static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
++			void *buf, unsigned int len, void **ctx,
++			unsigned int *xdp_xmit,
++			struct virtnet_rq_stats *stats)
 +{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	struct send_queue *sq;
++	struct net_device *dev = vi->dev;
++	struct sk_buff *skb;
 +
-+	if (!netif_running(dev))
-+		return -ENETDOWN;
++	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
++		pr_debug("%s: short packet %i\n", dev->name, len);
++		DEV_STATS_INC(dev, rx_length_errors);
++		virtnet_rq_free_buf(vi, rq, buf);
++		return;
++	}
 +
-+	if (qid >= vi->curr_queue_pairs)
-+		return -EINVAL;
++	if (vi->mergeable_rx_bufs)
++		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
++					stats);
++	else if (vi->big_packets)
++		skb = receive_big(dev, vi, rq, buf, len, stats);
++	else
++		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
 +
-+	sq = &vi->sq[qid];
++	if (unlikely(!skb))
++		return;
 +
-+	if (napi_if_scheduled_mark_missed(&sq->napi))
-+		return 0;
-+
-+	local_bh_disable();
-+	virtqueue_napi_schedule(&sq->napi, sq->vq);
-+	local_bh_enable();
-+
-+	return 0;
++	virtnet_receive_done(vi, rq, skb);
 +}
 +
- static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
- 				   struct send_queue *sq,
- 				   struct xdp_frame *xdpf)
-@@ -5706,6 +5729,7 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
- 	.ndo_bpf		= virtnet_xdp,
- 	.ndo_xdp_xmit		= virtnet_xdp_xmit,
-+	.ndo_xsk_wakeup         = virtnet_xsk_wakeup,
- 	.ndo_features_check	= passthru_features_check,
- 	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
- 	.ndo_set_features	= virtnet_set_features,
+ /* Unlike mergeable buffers, all buffers are allocated to the
+  * same size, except for the headroom. For this reason we do
+  * not need to use  mergeable_len_to_ctx here - it is enough
 -- 
 2.32.0.3.g01195cf9f
 
