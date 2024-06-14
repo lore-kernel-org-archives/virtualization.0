@@ -1,112 +1,185 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C8EF1822DA
-	for <virtualization@lists.linux-foundation.org>; Fri, 14 Jun 2024 01:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C46A12BF1B
+	for <virtualization@lists.linux.dev>; Fri, 14 Jun 2024 06:39:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718327965; cv=none; b=VseHtu9H6rKzE/qPvGfSyPGO/3Pudmthbu/SrIdmdJkfGaCeKkrh18llXSdKXXKfeMET3nvPBnlDiCnVne2KiOJPt1aclKYf/HSenxkecK6RhdSs/k5vtx/x+S0xXg0x+aVXfz1aJWL12B6INLqZR5LgwaBh4rmHZZ0u9IAW9tY=
+	t=1718347180; cv=none; b=cvKx+46JncnOBzMGOswAq97LFmXzCWXhvgkn7DPIXJCJRv0FxvZ0U8JPYRBGuN6r2C/6QP79AxbUOONrnl1GLDgBEtZeDOFVDz6pAjdp8RAftcy/CmObjR073ZIdAKoXpnG98w/9go6Do1jI1ifjHjNDE3szQHjaErG8XyYeqoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718327965; c=relaxed/simple;
-	bh=Y3xFmer/bJb5jwuUcExtgxCX4BjTUCWoKsvdsQB96HE=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=fGnjODLrndsrIar+EmL3sXC/P/MBnK2fA10iZKjCVMehRzzvssWa/z/29OE/6Oddek2Rrze4ctFLlFYY7QL7Xiu2qOTFQS2glDD+Cm2IJaCz4JO4Ujj9eClITGOTMk+Po0vJbGL9tDko6s0SM/oIr0+SfMxXrRiz2bP/t/pScxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=k/EEL0Pi; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1718347180; c=relaxed/simple;
+	bh=4FX3KCeo+zGJWP2jJEyhGlLX9iArK5OajLC25b5UbBA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rh7DEeKmrRos6/ycNsOK+tQH1V8ZGXPC3ASkN0+HFhzdlJTsFKmKacT/K1OfdZYgs+Eic42e07he0zwUKzgia+o5EZe2wXMzUCKwQICCPOfkr0SFRHCi+gBBGOqoQRPZyj05x9P99/YKS1KbEJBYVW4dpFjbnv+jOL8BzTGWRy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jK9gg2KM; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="k/EEL0Pi"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7A1954015D
-	for <virtualization@lists.linux-foundation.org>; Fri, 14 Jun 2024 01:19:23 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.299
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id c6kZkpGFF_FE for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jun 2024 01:19:22 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.18; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 459EF4015A
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 459EF4015A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=k/EEL0Pi
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 459EF4015A
-	for <virtualization@lists.linux-foundation.org>; Fri, 14 Jun 2024 01:19:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1718327963; x=1749863963;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=Y3xFmer/bJb5jwuUcExtgxCX4BjTUCWoKsvdsQB96HE=;
-  b=k/EEL0Pi2nrMFMySbi+trWbj7y2B5HFbrQusavkupQ5/naCySgLkMXVm
-   lkF5Zp9EPCcvTwiyVtwgBpjXhCdZXV7aMQ9KTpc+N0B424TTkpRb+zPcu
-   M5UxWIwowiAABSzKXVz6C1EaJRcdTXrmAgx85rP31ckChEURskqUSGFed
-   abKFBAhC4Yotq+qNcO0jLkg/d5hVEGNSfXgvJzDfdpktEUHFeqDO2lgfj
-   eIthLqBR2x1fLlFqiVD0as2yuZ0YEF7DKNe6NPX9IP4F3x80en7CfsMzr
-   R7jCD2vFpXhL2WiWxTDf/77n624QUD1puu+6t2TYWIsBkpFjtTObNCiki
-   A==;
-X-CSE-ConnectionGUID: 9oM4DiTsTByrKh7cxF10qw==
-X-CSE-MsgGUID: PJWTqF3IS1uJPeoxc5wpsw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11102"; a="15346727"
-X-IronPort-AV: E=Sophos;i="6.08,236,1712646000"; 
-   d="scan'208";a="15346727"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jun 2024 18:19:22 -0700
-X-CSE-ConnectionGUID: srtDBUcgR/GMQOGdRXhpKQ==
-X-CSE-MsgGUID: B49IlPj3TwGU3zZoYVf2og==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,236,1712646000"; 
-   d="scan'208";a="40266698"
-Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
-  by orviesa010.jf.intel.com with ESMTP; 13 Jun 2024 18:19:18 -0700
-Message-ID: <1a053b9c-6cbf-4b8c-9d23-731b8a22c747@linux.intel.com>
-Date: Fri, 14 Jun 2024 09:16:58 +0800
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jK9gg2KM"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1718347175; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=6ZV1Fx6Ec7LCR0Is0DJur0luS1MYJQaYAUCZ3bmYf/0=;
+	b=jK9gg2KMjh1JZp9xGQWt1J00FEYtfVL+XGTW0OaOHyZ13vL34L0iBQXaoLyRJDb7SG8umr3LKeQxqDbH4j9ER4f4hYApQGESHSEfLmHvrxWBqA7unBVXcgcqa4G32AayCjI3HLhyyxi/euJTI/INC5ASgkm3Lsv95oF3r9is/X8=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R651e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W8QEk7z_1718347173;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8QEk7z_1718347173)
+          by smtp.aliyun-inc.com;
+          Fri, 14 Jun 2024 14:39:34 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org
+Subject: [PATCH net-next v5 00/15] virtio-net: support AF_XDP zero copy
+Date: Fri, 14 Jun 2024 14:39:18 +0800
+Message-Id: <20240614063933.108811-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 03/10] iommu: Add attach handle to struct iopf_group
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240527040517.38561-1-baolu.lu@linux.intel.com>
- <20240527040517.38561-4-baolu.lu@linux.intel.com>
- <20240612133732.GW791043@ziepe.ca>
- <013afe9a-756f-4c85-baa1-977bea6be395@linux.intel.com>
- <20240613114948.GA791043@ziepe.ca>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240613114948.GA791043@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Git-Hash: e008fb4a0943
+Content-Transfer-Encoding: 8bit
 
-On 6/13/24 7:49 PM, Jason Gunthorpe wrote:
-> On Thu, Jun 13, 2024 at 12:23:17PM +0800, Baolu Lu wrote:
-> 
->>   struct iommu_ops {
->>          bool (*capable)(struct device *dev, enum iommu_cap);
->> @@ -600,6 +598,7 @@ struct iommu_ops {
->>          struct iommu_domain *blocked_domain;
->>          struct iommu_domain *release_domain;
->>          struct iommu_domain *default_domain;
->> +       bool user_pasid_table;
->>   };
-> Yeah, maybe spell it
-> 
->    u8 user_pasid_table : 1;
+v5:
+    1. fix the comments of last version
+        http://lore.kernel.org/all/20240611114147.31320-1-xuanzhuo@linux.alibaba.com
+v4:
+    1. remove the commits that introduce the independent directory
+    2. remove the supporting for the rx merge mode (for limit 15
+       commits of net-next). Let's start with the small mode.
+    3. merge some commits and remove some not important commits
 
-Done.
+## AF_XDP
 
-Best regards,
-baolu
+XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
+copy feature of xsk (XDP socket) needs to be supported by the driver. The
+performance of zero copy is very good. mlx5 and intel ixgbe already support
+this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
+feature.
+
+At present, we have completed some preparation:
+
+1. vq-reset (virtio spec and kernel code)
+2. virtio-core premapped dma
+3. virtio-net xdp refactor
+
+So it is time for Virtio-Net to complete the support for the XDP Socket
+Zerocopy.
+
+Virtio-net can not increase the queue num at will, so xsk shares the queue with
+kernel.
+
+On the other hand, Virtio-Net does not support generate interrupt from driver
+manually, so when we wakeup tx xmit, we used some tips. If the CPU run by TX
+NAPI last time is other CPUs, use IPI to wake up NAPI on the remote CPU. If it
+is also the local CPU, then we wake up napi directly.
+
+This patch set includes some refactor to the virtio-net to let that to support
+AF_XDP.
+
+## performance
+
+ENV: Qemu with vhost-user(polling mode).
+Host CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
+
+### virtio PMD in guest with testpmd
+
+testpmd> show port stats all
+
+ ######################## NIC statistics for port 0 ########################
+ RX-packets: 19531092064 RX-missed: 0     RX-bytes: 1093741155584
+ RX-errors: 0
+ RX-nombuf: 0
+ TX-packets: 5959955552 TX-errors: 0     TX-bytes: 371030645664
+
+
+ Throughput (since last show)
+ Rx-pps:   8861574     Rx-bps:  3969985208
+ Tx-pps:   8861493     Tx-bps:  3969962736
+ ############################################################################
+
+### AF_XDP PMD in guest with testpmd
+
+testpmd> show port stats all
+
+  ######################## NIC statistics for port 0  ########################
+  RX-packets: 68152727   RX-missed: 0          RX-bytes:  3816552712
+  RX-errors: 0
+  RX-nombuf:  0
+  TX-packets: 68114967   TX-errors: 33216      TX-bytes:  3814438152
+
+  Throughput (since last show)
+  Rx-pps:      6333196          Rx-bps:   2837272088
+  Tx-pps:      6333227          Tx-bps:   2837285936
+  ############################################################################
+
+But AF_XDP consumes more CPU for tx and rx napi(100% and 86%).
+
+## maintain
+
+I am currently a reviewer for virtio-net. I commit to maintain AF_XDP support in
+virtio-net.
+
+Please review.
+
+Thanks.
+
+v3
+    1. virtio introduces helpers for virtio-net sq using premapped dma
+    2. xsk has more complete support for merge mode
+    3. fix some problems
+
+v2
+    1. wakeup uses the way of GVE. No send ipi to wakeup napi on remote cpu.
+    2. remove rcu. Because we synchronize all operat, so the rcu is not needed.
+    3. split the commit "move to virtio_net.h" in last patch set. Just move the
+       struct/api to header when we use them.
+    4. add comments for some code
+
+v1:
+    1. remove two virtio commits. Push this patchset to net-next
+    2. squash "virtio_net: virtnet_poll_tx support rescheduled" to xsk: support tx
+    3. fix some warnings
+
+
+
+
+
+Xuan Zhuo (15):
+  virtio_ring: introduce dma map api for page
+  virtio_ring: introduce vring_need_unmap_buffer
+  virtio_ring: virtqueue_set_dma_premapped() support to disable
+  virtio_net: separate virtnet_rx_resize()
+  virtio_net: separate virtnet_tx_resize()
+  virtio_net: separate receive_buf
+  virtio_net: refactor the xmit type
+  virtio_net: sq support premapped mode
+  virtio_net: xsk: bind/unbind xsk
+  virtio_net: xsk: prevent disable tx napi
+  virtio_net: xsk: tx: support xmit xsk buffer
+  virtio_net: xsk: tx: support wakeup
+  virtio_net: xsk: tx: handle the transmitted xsk buffer
+  virtio_net: xsk: rx: support fill with xsk buffer
+  virtio_net: xsk: rx: support recv small mode
+
+ drivers/net/virtio_net.c     | 992 ++++++++++++++++++++++++++++++++---
+ drivers/virtio/virtio_ring.c |  88 +++-
+ include/linux/virtio.h       |   9 +-
+ 3 files changed, 1006 insertions(+), 83 deletions(-)
+
+--
+2.32.0.3.g01195cf9f
+
