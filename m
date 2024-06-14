@@ -1,134 +1,112 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D08E5A4FD;
-	Thu, 13 Jun 2024 21:50:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C8EF1822DA
+	for <virtualization@lists.linux-foundation.org>; Fri, 14 Jun 2024 01:19:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718315449; cv=none; b=NujhTdHsm0fJKRTdPpULNJ1hrlBtJOcvYbPFwEf5gcaZQhhFrhZkfW0EfdYmpHqnaowgMn5oYzx/27qRXERGcnHcU8EkWjqYN/0sWEpjAfwE7m/XZWibh4IFw/YT0fFg2hhTEmvCZ5FYrgz0CrJTEH1CDi+jbcUYQ3hMwBAcA8U=
+	t=1718327965; cv=none; b=VseHtu9H6rKzE/qPvGfSyPGO/3Pudmthbu/SrIdmdJkfGaCeKkrh18llXSdKXXKfeMET3nvPBnlDiCnVne2KiOJPt1aclKYf/HSenxkecK6RhdSs/k5vtx/x+S0xXg0x+aVXfz1aJWL12B6INLqZR5LgwaBh4rmHZZ0u9IAW9tY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718315449; c=relaxed/simple;
-	bh=E1LZ2qD4h47Nm0fqTgahufLnfYId7G2BDN4j2DBKUCk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Y6chLNkbTkTC0BEKwlxEavS7GIuMrDqzUmw5Ec9KYihUuduoRQRLXT6EGdfsVpjDK8oJTF5ulxRr0bONlEmGIVZWq718KvDBS4xiTdd8mV1RXS4TOZ6pjQnVpdgD+YqsHOQRcm9iKJpJHqXEOdlhYiAM36ppxYZZbp2d5EiPCYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ahtnjbfp; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1718327965; c=relaxed/simple;
+	bh=Y3xFmer/bJb5jwuUcExtgxCX4BjTUCWoKsvdsQB96HE=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=fGnjODLrndsrIar+EmL3sXC/P/MBnK2fA10iZKjCVMehRzzvssWa/z/29OE/6Oddek2Rrze4ctFLlFYY7QL7Xiu2qOTFQS2glDD+Cm2IJaCz4JO4Ujj9eClITGOTMk+Po0vJbGL9tDko6s0SM/oIr0+SfMxXrRiz2bP/t/pScxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=k/EEL0Pi; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ahtnjbfp"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DLlh9b031385;
-	Thu, 13 Jun 2024 21:50:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:content-type
-	:in-reply-to:mime-version; s=pp1; bh=XfZH3QdHnUhyEF5FH3erh0hNNk8
-	Aq0lyphP1+FusXOQ=; b=AhtnjbfpjiJr5bCvMnSzcUf8TyNL9iGvyW019pquIcV
-	5h5PwSosD+VKRTVPhuC4Al2vgT+BmchWoJ/ySStw/IDgz8THzr4UspieTGYvViVC
-	ScNoLnms23vLDeh6JiDWAq18fZDK08aVd3Aml3pE0D2De6V4lE9ASxfmP3SXz1bB
-	ZN577x3kGLyq5bAhBd6dLLEq4O25S0fEMGxqlQRJdAAiJMCIhP1xZkChx/nJO0A2
-	kVudq5s6/jGHe+PlzlJ/L2NIVd5Dx4xd28mh5/m2zUDemIb3vvVjN6Kmo2/7Be/s
-	S+WWofgE77M6VwD4nisZ8UoxVn6ZeODTrqwZNUwON8w==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yr76mg9hh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 21:50:45 +0000 (GMT)
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DLojbd002840;
-	Thu, 13 Jun 2024 21:50:45 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yr76mg9hf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 21:50:45 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DKZtQm027243;
-	Thu, 13 Jun 2024 21:50:44 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn211c1r2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 21:50:44 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DLocP956688914
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Jun 2024 21:50:40 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9CF8220040;
-	Thu, 13 Jun 2024 21:50:38 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 070F720043;
-	Thu, 13 Jun 2024 21:50:38 +0000 (GMT)
-Received: from localhost (unknown [9.171.17.6])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 13 Jun 2024 21:50:37 +0000 (GMT)
-Date: Thu, 13 Jun 2024 23:50:36 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Boqiao Fu <bfu@redhat.com>,
-        Sebastian Mitterle <smitterl@redhat.com>
-Subject: Re: [PATCH 1/1] s390/virtio_ccw: fix config change notifications
-Message-ID: <your-ad-here.call-01718315436-ext-6568@work.hours>
-References: <20240611214716.1002781-1-pasic@linux.ibm.com>
- <6086ef5e-48e7-40f3-b0a7-ff67b20aeae3@redhat.com>
- <20240613152115.48b00798.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240613152115.48b00798.pasic@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Zh5pS27zY4hCl2nM5Z-JIj_yqJcTPm8n
-X-Proofpoint-GUID: ISNNOKrlGBlJTnIO7-XUbGs6B1Of3jyG
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="k/EEL0Pi"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7A1954015D
+	for <virtualization@lists.linux-foundation.org>; Fri, 14 Jun 2024 01:19:23 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id c6kZkpGFF_FE for <virtualization@lists.linux-foundation.org>;
+ Fri, 14 Jun 2024 01:19:22 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.18; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 459EF4015A
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 459EF4015A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=k/EEL0Pi
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 459EF4015A
+	for <virtualization@lists.linux-foundation.org>; Fri, 14 Jun 2024 01:19:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1718327963; x=1749863963;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=Y3xFmer/bJb5jwuUcExtgxCX4BjTUCWoKsvdsQB96HE=;
+  b=k/EEL0Pi2nrMFMySbi+trWbj7y2B5HFbrQusavkupQ5/naCySgLkMXVm
+   lkF5Zp9EPCcvTwiyVtwgBpjXhCdZXV7aMQ9KTpc+N0B424TTkpRb+zPcu
+   M5UxWIwowiAABSzKXVz6C1EaJRcdTXrmAgx85rP31ckChEURskqUSGFed
+   abKFBAhC4Yotq+qNcO0jLkg/d5hVEGNSfXgvJzDfdpktEUHFeqDO2lgfj
+   eIthLqBR2x1fLlFqiVD0as2yuZ0YEF7DKNe6NPX9IP4F3x80en7CfsMzr
+   R7jCD2vFpXhL2WiWxTDf/77n624QUD1puu+6t2TYWIsBkpFjtTObNCiki
+   A==;
+X-CSE-ConnectionGUID: 9oM4DiTsTByrKh7cxF10qw==
+X-CSE-MsgGUID: PJWTqF3IS1uJPeoxc5wpsw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11102"; a="15346727"
+X-IronPort-AV: E=Sophos;i="6.08,236,1712646000"; 
+   d="scan'208";a="15346727"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jun 2024 18:19:22 -0700
+X-CSE-ConnectionGUID: srtDBUcgR/GMQOGdRXhpKQ==
+X-CSE-MsgGUID: B49IlPj3TwGU3zZoYVf2og==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,236,1712646000"; 
+   d="scan'208";a="40266698"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa010.jf.intel.com with ESMTP; 13 Jun 2024 18:19:18 -0700
+Message-ID: <1a053b9c-6cbf-4b8c-9d23-731b8a22c747@linux.intel.com>
+Date: Fri, 14 Jun 2024 09:16:58 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-13_13,2024-06-13_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 mlxlogscore=447 bulkscore=0 suspectscore=0
- malwarescore=0 mlxscore=0 adultscore=0 clxscore=1011 phishscore=0
- spamscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2405170001 definitions=main-2406130154
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 03/10] iommu: Add attach handle to struct iopf_group
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20240527040517.38561-1-baolu.lu@linux.intel.com>
+ <20240527040517.38561-4-baolu.lu@linux.intel.com>
+ <20240612133732.GW791043@ziepe.ca>
+ <013afe9a-756f-4c85-baa1-977bea6be395@linux.intel.com>
+ <20240613114948.GA791043@ziepe.ca>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20240613114948.GA791043@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jun 13, 2024 at 03:21:15PM +0200, Halil Pasic wrote:
-> On Wed, 12 Jun 2024 16:04:15 +0200
-> Thomas Huth <thuth@redhat.com> wrote:
+On 6/13/24 7:49 PM, Jason Gunthorpe wrote:
+> On Thu, Jun 13, 2024 at 12:23:17PM +0800, Baolu Lu wrote:
 > 
-> > On 11/06/2024 23.47, Halil Pasic wrote:
-> > > Commit e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
-> > > broke configuration change notifications for virtio-ccw by putting the
-> > > DMA address of *indicatorp directly into ccw->cda disregarding the fact
-> > > that if !!(vcdev->is_thinint) then the function
-> > > virtio_ccw_register_adapter_ind() will overwrite that ccw->cda value
-> > > with the address of the virtio_thinint_area so it can actually set up
-> > > the adapter interrupts via CCW_CMD_SET_IND_ADAPTER.  Thus we end up
-> > > pointing to the wrong object for both CCW_CMD_SET_IND if setting up the
-> > > adapter interrupts fails, and for CCW_CMD_SET_CONF_IND regardless
-> > > whether it succeeds or fails.
-> > > 
-> > > To fix this, let us save away the dma address of *indicatorp in a local
-> > > variable, and copy it to ccw->cda after the "vcdev->is_thinint" branch.
-> > > 
-> > > Reported-by: Boqiao Fu <bfu@redhat.com>
-> > > Reported-by: Sebastian Mitterle <smitterl@redhat.com>
-> > > Fixes: e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
-> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > > ---
-> > > I know that checkpatch.pl complains about a missing 'Closes' tag.
-> > > Unfortunately I don't have an appropriate URL at hand. @Sebastian,
-> > > @Boqiao: do you have any suggetions?  
-> > 
-> > Closes: https://issues.redhat.com/browse/RHEL-39983
-> > ?
+>>   struct iommu_ops {
+>>          bool (*capable)(struct device *dev, enum iommu_cap);
+>> @@ -600,6 +598,7 @@ struct iommu_ops {
+>>          struct iommu_domain *blocked_domain;
+>>          struct iommu_domain *release_domain;
+>>          struct iommu_domain *default_domain;
+>> +       bool user_pasid_table;
+>>   };
+> Yeah, maybe spell it
 > 
-> Yep! That is a public bug tracker bug. Qualifies!
-> @Vasily: Can you guys pick hat one up when picking the patch?
+>    u8 user_pasid_table : 1;
 
-Sure, applied. Thanks!
+Done.
+
+Best regards,
+baolu
