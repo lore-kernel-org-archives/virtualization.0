@@ -1,53 +1,55 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A03F18037;
-	Sat, 15 Jun 2024 08:01:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B07E18637;
+	Sat, 15 Jun 2024 08:40:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718438498; cv=none; b=tsCxyePRbSLWzDga1pe35xbsSLua04VF9pH7q6MPUlHB9mfFHBKBn+8B0r7/cjIpZXvlRsfNr2Tu9541L7FiiVS1zXsEFSD8gxaNivMQYENkPhgB1/pQelrV7n7GQmMTj4ZJuwjcGVmvc5ckvb66yTRLK2FqRUah0wlQ9IyEl7E=
+	t=1718440861; cv=none; b=AYZA+o2HCWIBUjm97qtf968ewCvmUvp1ppQbohAVTfr5HAsRZcO3QLiyJtHiGY3ewVPHNM9IisPAYlrJ4rwRETwbjf6Q7WyaNNrpjYivy4+4Hf9/9PrAeJiSgp6mvPIahZM3aH4x7jwJsi8r+SxNJik3rhJL6B8zWH15r9l27js=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718438498; c=relaxed/simple;
-	bh=XzCGPalpbhCTdzGNROHi9j+06WifQGSUSWZHCvwRXuM=;
+	s=arc-20240116; t=1718440861; c=relaxed/simple;
+	bh=4R3uUIxrJQiuGjqkIGpoeNcafPWXyxGNmxhK5Rodovc=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=uaANcTzQ0G4IevWzLAVgQ2kfTwjfpvRJyx1Emi/XDWqtiDnJTNGM9kn/54W4yme5MV1CLXpeFHDZrfeKn5su0S7bgyRh+UbzcaOTrOcAEFKpk5pXVvJVLr5e0Yg70ro++86OQh1mjFZCkDVv6P4g02WZbub/dA3jdNMxzkBS46w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=MvOW5Q5e; arc=none smtp.client-ip=90.155.50.34
+	 Content-Type:MIME-Version; b=HY86H4YM+Ztr4WhhqxutNgz3em2CvZKOAC+7Ff6hf8qoHsO5Sam1dWaphzEvs/MbgBaLYmMlEUzO4uovborpTedXCeVOoF/JNWpJz9dDTjXYKOx4DEPO08OyZKlA3Vu4kNVOrANYJtT4AX+VpGOa+2bkJQ/yxQp+3Z1CDlotnew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=soM731N+; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MvOW5Q5e"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="soM731N+"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
 	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=XzCGPalpbhCTdzGNROHi9j+06WifQGSUSWZHCvwRXuM=; b=MvOW5Q5elpMkH15tj6jge24irL
-	w5ddWDzKYZSoEki0FvNh0tUIpNkaxYNrdsqoTCXhgDTRFubkBgetCbcKMvJh7PC4jczVm0Du7Vu9W
-	CLQvCHSY7V7wDbs4N4QcdMC5zgtVsPectj/9U6T0qE5v5VmAUDKj0r0Sf+4pz2hUwcBsgJKeLq8LM
-	bKBv9MMsrlySAj3ScNCGZojXKhphSc0mZ/JyoHVuYuuHcXbyFp8mmeMXBrLEP5mUC9PpH/V/5BrMz
-	qE5JkbYRspFGLrTacb2B8Zq7lZ1uUlb0O2soe9EGjqthVAV7zVICh8s6ZhxYz+1/lvKloZX8lGtu/
-	kU0inwng==;
+	bh=iZPZYccp8Ej58ZDkGCeEMv/9sZD/mBEq7RPSkU84YJE=; b=soM731N+GuejG8ToT2/YbplLdg
+	rbdKMhY9hwyk82HdbSd+AEWoeQo2Kq4gFyfBZ0ThRkOU34nOl8sLD2v1kSW0SFtFKtKP4IPlbMlXV
+	0K9zN55T7m5TRpMGdi4BSZiukBTifhhla4ITwYzhi7BrAi21izieMHma6cWhd9lxURzZ3WfpDWC9Q
+	498Tn2B18+zr+MqDVqUeM2w7TcYQmvHqpQRJKH+GGhGWMr5be5yor7FW7pbqb9P//8Y03ix40VWly
+	UTVQ8rO2Mv5etGFqra0GuOPqLLIb6LTWUfvnN3XGZxuWqccJRg4rpLmerX6UZvXyD0oo8TMXEmUQ/
+	tDozP7BA==;
 Received: from [2001:8b0:10b:5:5157:7793:c27:1b76] (helo=u3832b3a9db3152.ant.amazon.com)
 	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sIOLs-000000006tL-0qB6;
-	Sat, 15 Jun 2024 08:01:32 +0000
-Message-ID: <e0935a7cc42ad34e71c17f3b5ada4a16a8d1f539.camel@infradead.org>
-Subject: Re: [RFC PATCH v3 5/7] virtio_rtc: Add PTP clocks
+	id 1sIOxx-000000008Ds-0NX4;
+	Sat, 15 Jun 2024 08:40:53 +0000
+Message-ID: <684eac07834699889fdb67be4cee09319c994a42.camel@infradead.org>
+Subject: Re: [RFC PATCH v3 0/7] Add virtio_rtc module and related changes
 From: David Woodhouse <dwmw2@infradead.org>
 To: Peter Hilber <peter.hilber@opensynergy.com>,
  linux-kernel@vger.kernel.org,  virtualization@lists.linux.dev,
- virtio-dev@lists.oasis-open.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Richard Cochran
- <richardcochran@gmail.com>,  netdev@vger.kernel.org, Marc Zyngier
- <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Daniel Lezcano
- <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>,
- linux-arm-kernel@lists.infradead.org
-Date: Sat, 15 Jun 2024 09:01:31 +0100
-In-Reply-To: <20231218073849.35294-6-peter.hilber@opensynergy.com>
+ virtio-dev@lists.oasis-open.org,  linux-arm-kernel@lists.infradead.org,
+ linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>
+Cc: "Christopher S. Hall" <christopher.s.hall@intel.com>, Jason Wang
+ <jasowang@redhat.com>, John Stultz <jstultz@google.com>, "Michael S.
+ Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Richard Cochran
+ <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>, Thomas
+ Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marc
+ Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Daniel
+ Lezcano <daniel.lezcano@linaro.org>, Alessandro Zummo
+ <a.zummo@towertech.it>,  Alexandre Belloni <alexandre.belloni@bootlin.com>
+Date: Sat, 15 Jun 2024 09:40:52 +0100
+In-Reply-To: <20231218073849.35294-1-peter.hilber@opensynergy.com>
 References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
-	 <20231218073849.35294-6-peter.hilber@opensynergy.com>
 Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-HAfKymkZ+UD2bBPbP9fC"
+	boundary="=-lc60//8qBao9hYxY28aM"
 User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -58,45 +60,713 @@ MIME-Version: 1.0
 X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
 
---=-HAfKymkZ+UD2bBPbP9fC
+--=-lc60//8qBao9hYxY28aM
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Mon, 2023-12-18 at 08:38 +0100, Peter Hilber wrote:
+> RFC v3 updates
+> --------------
 >=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D viortc_hw_xtstamp_para=
-ms(&hw_counter, &cs_id);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0return ret;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ktime_get_snapshot(&history_be=
-gin);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (history_begin.cs_id !=3D c=
-s_id)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0return -EOPNOTSUPP;
+> This series implements a driver for a virtio-rtc device conforming to spe=
+c
+> RFC v3 [1]. It now includes an RTC class driver with alarm, in addition t=
+o
+> the PTP clock driver already present before.
+>=20
+> This patch series depends on the patch series "treewide: Use clocksource =
+id
+> for get_device_system_crosststamp()" [3]. Pull [4] to get the combined
+> series on top of mainline.
+>=20
+> Overview
+> --------
+>=20
+> This patch series adds the virtio_rtc module, and related bugfixes. The
+> virtio_rtc module implements a driver compatible with the proposed Virtio
+> RTC device specification [1]. The Virtio RTC (Real Time Clock) device
+> provides information about current time. The device can provide different
+> clocks, e.g. for the UTC or TAI time standards, or for physical time
+> elapsed since some past epoch. The driver can read the clocks with simple
+> or more accurate methods. Optionally, the driver can set an alarm.
+>=20
+> The series first fixes some bugs in the get_device_system_crosststamp()
+> interpolation code, which is required for reliable virtio_rtc operation.
+> Then, add the virtio_rtc implementation.
+>=20
+> For the Virtio RTC device, there is currently a proprietary implementatio=
+n,
+> which has been used for provisional testing.
 
-I think you have to call ktime_get_snapshot() anyway to get a snapshot
-from before your crosststamp? But I still don't much like the fact that
-you need to use it to work out which cs_id is being used.
+As discussed before, I don't think it makes sense to design a new high-
+precision virtual clock which only gets it right *most* of the time. We
+absolutely need to address the issue of live migration.
 
-Shouldn't get_device_system_crosststamp() pass that to its get_time_fn
-as a hint?
+When live migration occurs, the guest's time precision suffers in two
+ways.
 
-On x86, you are likely to find that history_begin.cs_id is the KVM
-clock, so this will return -EOPNOTSUPP and userspace will have to fall
-back to PTP_SYS_OFFSET. I note the KVM PTP clock actually *converts* a
-TSC-based crosststamp to kvmclock =C2=B5s for itself, so that it can report=
-=C2=A0
-*cs_id =3D=C2=A0CSID_X86_KVM_CLK. Not sure how I feel about that though. I'=
-m
-inclined to suggest that it shouldn't, as anyone who wants accurate
-timekeeping shouldn't be using the KVM clock anyway.
+First, even when migrating to a supposedly identical host the precise
+rate of the underlying counter (TSC, arch counter, etc.) can change
+within the tolerances (e.g. =C2=B150PPM) of the hardware. Unlike the natura=
+l
+changes that NTP normally manages to track, this is a *step* change,
+potentially from -50PPM to +50PPM from one host to the next.
 
-But we should at least be relatively consistent about it.
+Second, the accuracy of the counter as preserved across migration is
+limited by the accuracy of each host's NTP synchronization. So there is
+also a step change in the value of the counter itself.
 
---=-HAfKymkZ+UD2bBPbP9fC
+At the moment of migration, the guest's timekeeping should be
+considered invalid. Any previous cross-timestamps are meaningless, and
+blindly using the previously-known relationship between the counter and
+real time can lead to problems such as corruption in distributed
+databases, fines for mis-timestamped transactions, and other general
+unhappiness.
+
+We obviously can't get a new timestamp from the virtio_rtc device every
+time an application wants to know the time reliably. We don't even want
+*system* calls for that, which is why we have it in a vDSO.
+
+We can take the same approach to warning the guest about clock
+disruption due to live migration. A shared memory region from the
+virtual clock device even be mapped all the way to userspace, for those
+applications which need precise and *reliable* time to check a
+'disruption' marker in it, and do whatever is appropriate (e.g. abort
+transactions and wait for time to resync) when it happens.
+
+We can do better than just letting the guest know about disruption, of
+course. We can put the actual counter=E2=86=92realtime relationship into th=
+e
+memory region too. As well as being able to provide a PTP driver with
+this, the applications which care about *reliable* timestamps can mmap
+the page directly and use it, vDSO-style, to have accurate timestamps
+even from the first cycle after migration.
+
+When disruption is signalled, the guest needs to throw away any
+*additional* refinement that it's done with NTP/PTP/PPS/etc. and revert
+to knowing nothing more than what the hypervisor advertises here.
+
+Here's a first attempt at defining such a memory structure. For now
+I've done it as a "vmclock" ACPI device based loosely on vmgenid, but I
+think it makes most sense for this to be part of the virtio_rtc spec.
+Ultimately it doesn't matter *how* the guest finds the memory region.
+
+Very preliminary QEMU hacks at=20
+https://git.infradead.org/users/dwmw2/qemu.git/shortlog/refs/heads/vmclock
+(I still need to do the KVM side helper for actually filling in the
+host clock information, converted to the *guest* TSC)
+
+This is the guest side. H aving heckled your assumption that we can use
+the virt counter on Arm, I concede I'm doing the same thing for now.
+The structure itself is at the end, or see
+https://git.infradead.org/?p=3Dusers/dwmw2/linux.git;a=3Dblob;f=3Dinclude/u=
+api/linux/vmclock.h;hb=3Dvmclock
+
+=46rom 9e1c3b823d497efa4e0acb21b226a72e4d6e8a53 Mon Sep 17 00:00:00 2001
+From: David Woodhouse <dwmw@amazon.co.uk>
+Date: Mon, 10 Jun 2024 15:10:11 +0100
+Subject: [PATCH] ptp: Add vDSO-style vmclock support
+
+The vmclock "device" provides a shared memory region with precision clock
+information. By using shared memory, it is safe across Live Migration.
+
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+---
+ drivers/ptp/Kconfig          |  13 ++
+ drivers/ptp/Makefile         |   1 +
+ drivers/ptp/ptp_vmclock.c    | 404 +++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vmclock.h | 102 +++++++++
+ 4 files changed, 520 insertions(+)
+ create mode 100644 drivers/ptp/ptp_vmclock.c
+ create mode 100644 include/uapi/linux/vmclock.h
+
+diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
+index 604541dcb320..ace6d58c1781 100644
+--- a/drivers/ptp/Kconfig
++++ b/drivers/ptp/Kconfig
+@@ -131,6 +131,19 @@ config PTP_1588_CLOCK_KVM
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called ptp_kvm.
+=20
++config PTP_1588_CLOCK_VMCLOCK
++	tristate "Virtual machine PTP clock"
++	depends on X86_TSC || ARM_ARCH_TIMER
++	depends on PTP_1588_CLOCK && ACPI
++	default y
++	help
++	  This driver adds support for using a virtual precision clock
++	  advertised by the hypervisor. This clock is only useful in virtual
++	  machines where such a device is present.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called ptp_vmclock.
++
+ config PTP_1588_CLOCK_IDT82P33
+ 	tristate "IDT 82P33xxx PTP clock"
+ 	depends on PTP_1588_CLOCK && I2C
+diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
+index 68bf02078053..01b5cd91eb61 100644
+--- a/drivers/ptp/Makefile
++++ b/drivers/ptp/Makefile
+@@ -11,6 +11,7 @@ obj-$(CONFIG_PTP_1588_CLOCK_DTE)	+=3D ptp_dte.o
+ obj-$(CONFIG_PTP_1588_CLOCK_INES)	+=3D ptp_ines.o
+ obj-$(CONFIG_PTP_1588_CLOCK_PCH)	+=3D ptp_pch.o
+ obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+=3D ptp_kvm.o
++obj-$(CONFIG_PTP_1588_CLOCK_VMCLOCK)	+=3D ptp_vmclock.o
+ obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+=3D ptp-qoriq.o
+ ptp-qoriq-y				+=3D ptp_qoriq.o
+ ptp-qoriq-$(CONFIG_DEBUG_FS)		+=3D ptp_qoriq_debugfs.o
+diff --git a/drivers/ptp/ptp_vmclock.c b/drivers/ptp/ptp_vmclock.c
+new file mode 100644
+index 000000000000..3c4e027090c5
+--- /dev/null
++++ b/drivers/ptp/ptp_vmclock.c
+@@ -0,0 +1,404 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Virtual PTP 1588 clock for use with LM-safe VMclock device.
++ *
++ * Copyright =C2=A9 2024 Amazon.com, Inc. or its affiliates.
++ */
++
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/ptp_kvm.h>
++#include <linux/platform_device.h>
++#include <linux/miscdevice.h>
++#include <linux/acpi.h>
++#include <uapi/linux/vmclock.h>
++
++#include <linux/ptp_clock_kernel.h>
++
++static DEFINE_IDA(vmclock_ida);
++
++ACPI_MODULE_NAME("vmclock");
++
++struct vmclock_state {
++	phys_addr_t phys_addr;
++	struct vmclock_abi *clk;
++	struct miscdevice miscdev;
++	struct ptp_clock_info ptp_clock_info;
++	struct ptp_clock *ptp_clock;
++	enum clocksource_ids cs_id;
++	int index;
++	char *name;
++};
++
++static int vmclock_get_crosststamp(struct vmclock_state *st,
++				   struct system_counterval_t *system_counter,
++				   struct timespec64 *tspec)
++{
++	uint64_t cycle, delta, seq, delta_s32, delta_s64, delta_s32b;
++	uint64_t delta_lo, delta_hi, period_lo, period_hi, frac_sec_lo, frac_sec_=
+hi;
++	int ret =3D 0;
++
++#ifdef CONFIG_X86
++	if (check_tsc_unstable())
++		return -EINVAL;
++#endif
++
++	preempt_disable_notrace();
++
++	do {
++
++		seq =3D st->clk->seq_count & ~1ULL;
++		virt_rmb();
++
++		if (st->clk->clock_status =3D=3D VMCLOCK_STATUS_UNRELIABLE) {
++			ret =3D -EINVAL;
++			virt_rmb();
++			continue;
++		}
++
++		cycle =3D get_cycles();
++
++		tspec->tv_sec =3D st->clk->utc_time_sec;
++		frac_sec_lo =3D st->clk->utc_time_frac_sec & 0xffffffff;
++		frac_sec_hi =3D st->clk->utc_time_frac_sec >> 32;
++
++		delta =3D cycle - st->clk->counter_value;
++
++		delta_lo =3D delta & 0xffffffff;
++		delta_hi =3D delta >> 32;
++		period_lo =3D st->clk->counter_period_frac_sec & 0xffffffff;
++		period_hi =3D st->clk->counter_period_frac_sec >> 32;
++
++		/* Delta in units of (second >> 32) */
++		delta_s32 =3D delta_lo * period_hi;
++
++		/* Avoid overflow by skimming off the full seconds */
++		tspec->tv_sec +=3D delta_s32 >> 32;
++		delta_s32 &=3D 0xffffffff;
++
++		if (delta_hi) {
++			tspec->tv_sec +=3D delta_hi * period_hi;
++			delta_s32b =3D delta_hi * period_lo;
++
++			tspec->tv_sec +=3D delta_s32b >> 32;
++			delta_s32 +=3D delta_s32b & 0xffffffff;
++		}
++
++		delta_s32 +=3D frac_sec_hi;
++
++		delta_s64 =3D (period_lo * delta_lo) + frac_sec_lo;
++		delta_s32 +=3D delta_s64 >> 32;
++		delta_s64 &=3D 0xffffffff;
++
++		tspec->tv_sec +=3D delta_s32 >> 32;
++		delta_s32 &=3D 0xffffffff;
++
++		tspec->tv_nsec =3D ((delta_s32 * NSEC_PER_SEC) +
++				  ((delta_s64 * NSEC_PER_SEC) >> 32)) >> 32;
++
++		ret =3D 0;
++
++		virt_rmb();
++	} while (seq !=3D st->clk->seq_count);
++
++	preempt_enable_notrace();
++
++	if (ret)
++		return ret;
++
++	if (system_counter) {
++		system_counter->cycles =3D cycle;
++		system_counter->cs_id =3D st->cs_id;
++	}
++
++	return 0;
++}
++
++static int ptp_vmclock_get_time_fn(ktime_t *device_time,
++				   struct system_counterval_t *system_counter,
++				   void *ctx)
++{
++	struct vmclock_state *st =3D ctx;
++	struct timespec64 tspec;
++	int ret;
++
++	ret =3D vmclock_get_crosststamp(st, system_counter, &tspec);
++	if (!ret)
++		*device_time =3D timespec64_to_ktime(tspec);
++
++	return ret;
++}
++
++
++static int ptp_vmclock_getcrosststamp(struct ptp_clock_info *ptp,
++				      struct system_device_crosststamp *xtstamp)
++{
++	struct vmclock_state *st =3D container_of(ptp, struct vmclock_state,
++						ptp_clock_info);
++
++	return get_device_system_crosststamp(ptp_vmclock_get_time_fn, st,
++					     NULL, xtstamp);
++}
++
++/*
++ * PTP clock operations
++ */
++
++static int ptp_vmclock_adjfine(struct ptp_clock_info *ptp, long delta)
++{
++	return -EOPNOTSUPP;
++}
++
++static int ptp_vmclock_adjtime(struct ptp_clock_info *ptp, s64 delta)
++{
++	return -EOPNOTSUPP;
++}
++
++static int ptp_vmclock_settime(struct ptp_clock_info *ptp,
++			   const struct timespec64 *ts)
++{
++	return -EOPNOTSUPP;
++}
++
++static int ptp_vmclock_gettime(struct ptp_clock_info *ptp, struct timespec=
+64 *ts)
++{
++	struct vmclock_state *st =3D container_of(ptp, struct vmclock_state,
++						ptp_clock_info);
++
++	return vmclock_get_crosststamp(st, NULL, ts);
++}
++
++static int ptp_vmclock_enable(struct ptp_clock_info *ptp,
++			  struct ptp_clock_request *rq, int on)
++{
++	return -EOPNOTSUPP;
++}
++
++static const struct ptp_clock_info ptp_vmclock_info =3D {
++	.owner		=3D THIS_MODULE,
++	.max_adj	=3D 0,
++	.n_ext_ts	=3D 0,
++	.n_pins		=3D 0,
++	.pps		=3D 0,
++	.adjfine	=3D ptp_vmclock_adjfine,
++	.adjtime	=3D ptp_vmclock_adjtime,
++	.gettime64	=3D ptp_vmclock_gettime,
++	.settime64	=3D ptp_vmclock_settime,
++	.enable		=3D ptp_vmclock_enable,
++	.getcrosststamp =3D ptp_vmclock_getcrosststamp,
++};
++
++static int vmclock_miscdev_mmap(struct file *fp, struct vm_area_struct *vm=
+a)
++{
++	struct vmclock_state *st =3D container_of(fp->private_data,
++						struct vmclock_state, miscdev);
++
++	if ((vma->vm_flags & (VM_READ|VM_WRITE)) !=3D VM_READ)
++		return -EROFS;
++
++	if (vma->vm_end - vma->vm_start !=3D PAGE_SIZE || vma->vm_pgoff)
++		return -EINVAL;
++
++        if (io_remap_pfn_range(vma, vma->vm_start,
++			       st->phys_addr >> PAGE_SHIFT, PAGE_SIZE,
++                               vma->vm_page_prot))
++                return -EAGAIN;
++
++        return 0;
++}
++
++static ssize_t vmclock_miscdev_read(struct file *fp, char __user *buf,
++				    size_t count, loff_t *ppos)
++{
++	struct vmclock_state *st =3D container_of(fp->private_data,
++						struct vmclock_state, miscdev);
++	size_t max_count;
++	int32_t seq;
++
++	if (*ppos >=3D PAGE_SIZE)
++		return 0;
++
++	max_count =3D PAGE_SIZE - *ppos;
++	if (count > max_count)
++		count =3D max_count;
++
++	do {
++		seq =3D st->clk->seq_count & ~1ULL;
++		virt_rmb();
++
++		if (copy_to_user(buf, ((char *)st->clk) + *ppos, count))
++			return -EFAULT;
++
++		virt_rmb();
++	} while (seq !=3D st->clk->seq_count);
++
++	*ppos +=3D count;
++	return count;
++}
++
++static const struct file_operations vmclock_miscdev_fops =3D {
++        .mmap =3D vmclock_miscdev_mmap,
++        .read =3D vmclock_miscdev_read,
++};
++
++/* module operations */
++
++static void vmclock_remove(struct platform_device *pdev)
++{
++	struct device *dev =3D &pdev->dev;
++	struct vmclock_state *st =3D dev_get_drvdata(dev);
++
++	if (st->ptp_clock)
++		ptp_clock_unregister(st->ptp_clock);
++
++	if (st->miscdev.minor =3D=3D MISC_DYNAMIC_MINOR)
++		misc_deregister(&st->miscdev);
++}
++
++static int vmclock_probe_acpi(struct device *dev, struct vmclock_state *st=
+)
++{
++	struct acpi_buffer parsed =3D { ACPI_ALLOCATE_BUFFER };
++	struct acpi_device *adev =3D ACPI_COMPANION(dev);
++	union acpi_object *obj;
++	acpi_status status;
++
++	status =3D acpi_evaluate_object(adev->handle, "ADDR", NULL, &parsed);
++	if (ACPI_FAILURE(status)) {
++		ACPI_EXCEPTION((AE_INFO, status, "Evaluating ADDR"));
++		return -ENODEV;
++	}
++	obj =3D parsed.pointer;
++	if (!obj || obj->type !=3D ACPI_TYPE_PACKAGE || obj->package.count !=3D 2=
+ ||
++	    obj->package.elements[0].type !=3D ACPI_TYPE_INTEGER ||
++	    obj->package.elements[1].type !=3D ACPI_TYPE_INTEGER)
++		return -EINVAL;
++
++	st->phys_addr =3D (obj->package.elements[0].integer.value << 0) |
++		(obj->package.elements[1].integer.value << 32);
++
++	return 0;
++}
++
++static void vmclock_put_idx(void *data)
++{
++	struct vmclock_state *st =3D data;
++
++	ida_free(&vmclock_ida, st->index);
++}
++
++static int vmclock_probe(struct platform_device *pdev)
++{
++	struct device *dev =3D &pdev->dev;
++	struct vmclock_state *st;
++	int ret;
++
++	st =3D devm_kzalloc(dev, sizeof (*st), GFP_KERNEL);
++	if (!st)
++		return -ENOMEM;
++
++	if (has_acpi_companion(dev))
++		ret =3D vmclock_probe_acpi(dev, st);
++	else
++		ret =3D -EINVAL; /* Only ACPI for now */
++
++	if (ret) {
++		dev_info(dev, "Failed to obtain physical address: %d\n", ret);
++		goto out;
++	}
++
++	st->clk =3D devm_memremap(dev, st->phys_addr, sizeof(*st->clk),
++				MEMREMAP_WB);
++	if (IS_ERR(st->clk)) {
++		ret =3D PTR_ERR(st->clk);
++		dev_info(dev, "failed to map shared memory\n");
++		st->clk =3D NULL;
++		goto out;
++	}
++
++	if (st->clk->magic !=3D VMCLOCK_MAGIC ||
++	    st->clk->size < sizeof(*st->clk) ||
++	    st->clk->version !=3D 1) {
++		dev_info(dev, "vmclock magic fields invalid\n");
++		ret =3D -EINVAL;
++		goto out;
++	}
++
++	if (IS_ENABLED(CONFIG_ARM64) &&
++	    st->clk->counter_id =3D=3D VMCLOCK_COUNTER_ARM_VCNT) {
++		/* Can we check it's the virtual counter? */
++		st->cs_id =3D CSID_ARM_ARCH_COUNTER;
++	} else if (IS_ENABLED(CONFIG_X86) &&
++		   st->clk->counter_id =3D=3D VMCLOCK_COUNTER_X86_TSC) {
++		st->cs_id =3D CSID_X86_TSC;
++	}
++
++	ret =3D ida_alloc(&vmclock_ida, GFP_KERNEL);
++	if (ret < 0)
++		goto out;
++
++	st->index =3D ret;
++        ret =3D devm_add_action_or_reset(&pdev->dev, vmclock_put_idx, st);
++	if (ret)
++		goto out;
++
++	st->name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "vmclock%d", st->inde=
+x);
++	if (!st->name) {
++		ret =3D -ENOMEM;
++		goto out;
++	}
++
++	/* If the structure is big enough, it can be mapped to userspace */
++	if (st->clk->size >=3D PAGE_SIZE) {
++		st->miscdev.minor =3D MISC_DYNAMIC_MINOR;
++		st->miscdev.fops =3D &vmclock_miscdev_fops;
++		st->miscdev.name =3D st->name;
++
++		ret =3D misc_register(&st->miscdev);
++		if (ret)
++			goto out;
++	}
++
++	/* If there is valid clock information, register a PTP clock */
++	if (st->cs_id) {
++		st->ptp_clock_info =3D ptp_vmclock_info;
++		strncpy(st->ptp_clock_info.name, st->name, sizeof(st->ptp_clock_info.nam=
+e));
++		st->ptp_clock =3D ptp_clock_register(&st->ptp_clock_info, dev);
++
++		if (IS_ERR(st->ptp_clock)) {
++			ret =3D PTR_ERR(st->ptp_clock);
++			st->ptp_clock =3D NULL;
++			vmclock_remove(pdev);
++			goto out;
++		}
++	}
++
++	dev_set_drvdata(dev, st);
++
++ out:
++	return ret;
++}
++
++static const struct acpi_device_id vmclock_acpi_ids[] =3D {
++	{ "VMCLOCK", 0 },
++	{}
++};
++MODULE_DEVICE_TABLE(acpi, vmclock_acpi_ids);
++
++static struct platform_driver vmclock_platform_driver =3D {
++	.probe		=3D vmclock_probe,
++	.remove_new	=3D vmclock_remove,
++	.driver	=3D {
++		.name	=3D "vmclock",
++		.acpi_match_table =3D vmclock_acpi_ids,
++	},
++};
++
++module_platform_driver(vmclock_platform_driver)
++
++MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org>");
++MODULE_DESCRIPTION("PTP clock using VMCLOCK");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/uapi/linux/vmclock.h b/include/uapi/linux/vmclock.h
+new file mode 100644
+index 000000000000..cac24536c5c8
+--- /dev/null
++++ b/include/uapi/linux/vmclock.h
+@@ -0,0 +1,102 @@
++/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-2-Cl=
+ause) */
++
++/*
++ * This structure provides a vDSO-style clock to VM guests, exposing the
++ * relationship (or lack thereof) between the CPU clock (TSC, timebase, ar=
+ch
++ * counter, etc.) and real time. It is designed to address the problem of
++ * live migration, which other clock enlightenments do not.
++ *
++ * When a guest is live migrated, this affects the clock in two ways.
++ *
++ * First, even between identical hosts the actual frequency of the underly=
+ing
++ * counter will change within the tolerances of its specification (typical=
+ly
++ * =C2=B150PPM, or 4 seconds a day). The frequency also varies over time o=
+n the
++ * same host, but can be tracked by NTP as it generally varies slowly. Wit=
+h
++ * live migration there is a step change in the frequency, with no warning=
+.
++ *
++ * Second, there may be a step change in the value of the counter itself, =
+as
++ * its accuracy is limited by the precision of the NTP synchronization on =
+the
++ * source and destination hosts.
++ *
++ * So any calibration (NTP, PTP, etc.) which the guest has done on the sou=
+rce
++ * host before migration is invalid, and needs to be redone on the new hos=
+t.
++ *
++ * In its most basic mode, this structure provides only an indication to t=
+he
++ * guest that live migration has occurred. This allows the guest to know t=
+hat
++ * its clock is invalid and take remedial action. For applications that ne=
+ed
++ * reliable accurate timestamps (e.g. distributed databases), the structur=
+e
++ * can be mapped all the way to userspace. This allows the application to =
+see
++ * directly for itself that the clock is disrupted and take appropriate
++ * action, even when using a vDSO-style method to get the time instead of =
+a
++ * system call.
++ *
++ * In its more advanced mode. this structure can also be used to expose th=
+e
++ * precise relationship of the CPU counter to real time, as calibrated by =
+the
++ * host. This means that userspace applications can have accurate time
++ * immediately after live migration, rather than having to pause operation=
+s
++ * and wait for NTP to recover. This mode does, of course, rely on the
++ * counter being reliable and consistent across CPUs.
++ */
++
++#ifdef __KERNEL__
++#include <linux/types.h>
++#else
++#include <stdint.h>
++#endif
++
++struct vmclock_abi {
++	uint32_t magic;
++#define VMCLOCK_MAGIC	0x4b4c4356 /* "VCLK" */
++	uint16_t size;		/* Size of page containing this structure */
++	uint16_t version;	/* 1 */
++
++	/* Sequence lock. Low bit means an update is in progress. */
++	uint64_t seq_count;
++
++	/*
++	 * This field changes to another non-repeating value when the CPU
++	 * counter is disrupted, for example on live migration.
++	 */
++	uint64_t disruption_marker;
++
++	uint8_t clock_status;
++#define VMCLOCK_STATUS_UNKNOWN		0
++#define VMCLOCK_STATUS_INITIALIZING	1
++#define VMCLOCK_STATUS_SYNCHRONIZED	2
++#define VMCLOCK_STATUS_FREERUNNING	3
++#define VMCLOCK_STATUS_UNRELIABLE	4
++
++	uint8_t counter_id;
++#define VMCLOCK_COUNTER_INVALID		0
++#define VMCLOCK_COUNTER_X86_TSC		1
++#define VMCLOCK_COUNTER_ARM_VCNT	2
++
++	uint8_t pad[3];
++
++	/*
++	 * UTC on its own is non-monotonic and ambiguous.
++	 *
++	 * Inform the guest about the TAI offset, so that it can have an
++	 * actual monotonic and reliable time reference if it needs it.
++	 *
++	 * Also indicate a nearby leap second, if one exists. Unlike in
++	 * NTP, this may indicate a leap second in the past in order to
++	 * indicate that it *has* been taken into account.
++	 */
++	int8_t leapsecond_direction;
++	int16_t tai_offset_sec;
++	uint64_t leapsecond_counter_value;
++	uint64_t leapsecond_tai_time;
++
++	/* Paired values of counter and UTC at a given point in time. */
++	uint64_t counter_value;
++	uint64_t utc_time_sec;
++	uint64_t utc_time_frac_sec;
++
++	/* Counter frequency, and error margin. Units of (second >> 64) */
++	uint64_t counter_period_frac_sec;
++	uint64_t counter_period_error_rate_frac_sec;
++
++	/* Error margin of UTC reading above (=C2=B1 picoseconds) */
++	uint64_t utc_time_maxerror_picosec;
++};
+--=20
+2.44.0
+
+
+
+--=-lc60//8qBao9hYxY28aM
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Disposition: attachment; filename="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -188,24 +858,24 @@ IzGCBMcwggTDAgEBMIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVz
 dGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMT
 NVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA
 xr4ZlmdAxAMdKFES+jupfjANBglghkgBZQMEAgEFAKCCAeswGAYJKoZIhvcNAQkDMQsGCSqGSIb3
-DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwNjE1MDgwMTMxWjAvBgkqhkiG9w0BCQQxIgQgUgYFspNG
-5wxOdzsC3Nao1gtzJPbdWcNMVm43IxgF8mgwgb0GCSsGAQQBgjcQBDGBrzCBrDCBljELMAkGA1UE
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwNjE1MDg0MDUyWjAvBgkqhkiG9w0BCQQxIgQgXdotV1z4
+oSuhJScLVN9oAHUbApw3FJDqfe1K1lVVxaEwgb0GCSsGAQQBgjcQBDGBrzCBrDCBljELMAkGA1UE
 BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEYMBYG
 A1UEChMPU2VjdGlnbyBMaW1pdGVkMT4wPAYDVQQDEzVTZWN0aWdvIFJTQSBDbGllbnQgQXV0aGVu
 dGljYXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQQIRAMa+GZZnQMQDHShREvo7qX4wgb8GCyqGSIb3
 DQEJEAILMYGvoIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVy
 MRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNl
 Y3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEAxr4Z
-lmdAxAMdKFES+jupfjANBgkqhkiG9w0BAQEFAASCAgBXGeugOjAgoNIMLQEq94ZjyilxNU3FvlgL
-GSDWr3DYI4XE+WB+AKEG66+U29+7cCi/SG9CM5zahrsUcI+zVC5EviXjA7W6jsMstqc75zCvPMvV
-Zviu8QMx78BTqwUNLOouY/6xeaVp4y6Y9LGgAAGHBTfiWyLjmXl+eDQ5QVUPgf/tqO8npubuNazq
-xViqewvJ3uZMNi2MF6gy+tu2iDjXPV3qCCbkQd82EvtysqhJuvzSrDb4RfOVY4/GQ2HHlBn3p48U
-6IreuFr99UtSXPsQfOzaiHowxkcib6WlkkQoFp2ZBtnfY5Q6o83t53RR8gl6tTR5Cyr5fJyMBl/z
-2IyfEEky4Oop8kn/UcjIIT1JZdzVnS0DPp3X3T7ZHQaE3bDGoTSDyrYmCgw0uSHddQ7z1v2a0pHq
-z/9FEM7vTdbpr/8RhyXC0+0jgLNl4f6HfC4IdtNicmcCew4Dc0FX12CISIKWxBNS5Sf7ozDrhlCU
-ZUl6xLM5WO73oZroAvnNOzW//a+6CgR4l38Bt8Y4fhA+djDXbSVHiPwAHiYOnNkQU70yYHQGoEjp
-CLHy0VGcuOE7RiWPDaGy7TOwcGa086C9WQPMyy5nkUMzmdHfQb+6uG62ZGWMZ+Sn3oLaNx8d2XpH
-mXly4yIAcHk8u1sUq1YnFpKQSNRZwY70bl9n61jRSAAAAAAAAA==
+lmdAxAMdKFES+jupfjANBgkqhkiG9w0BAQEFAASCAgB5Nje749HyAyQsYmN75bys3EFmHvIktrU/
+UpiOZvf1Rjg0pVtNGbESGTxVXqCcvQWxqjBpmjqz52iHqlUjU5TbqPubiNckO/StdJpzMN88Vy2r
+mSreR2vvCtAYCKFvWsSWtV3t7qYF5KcEwrH+ewumDP+bhEzPE+GHM9dNeu2NCObrPJylVKHCB0LE
+qeFdBcyeVnpn/yAwyfofQfk79B73XO89fpPwZv3qc7BqHjVDxqMspr9kH9BC3ZoLKpZc9IC2qtwV
+jZJ7mE6ey0jOJ6t919BUWQiGI8XTalqUxM/+qfpt/Qd17Myys25HwOWk3tf1O+yGEyXMykkqestY
+BfrugudFfudz1ssdoNl1Q41nM+CM/1SQsSX1D9AoGhs7FrEnC2xLXfYABY+B4QsXIoQY0a1pQE1a
+ohPGfqC3kHhdpeW3UEMMBavlISs/RadYQ2uMq1G3sOsgjE/Xw+lFJnFqen+aUgZZAZs65geenCs9
+5zTjFL8MnwH7H/piVf9BMhb86iCP9PIuId5v56Zgouw+z7bxlzxdItsoBmx6yEnGGbxzesDaQTmq
+dS61voh59SUKIoKIHEhFmN+pT0do/p2fsTD2OQeAMGaQas2vSkQGdOHBZwriCj9UNlMDxabvXWDy
+gG/U69pdTybl/nRD0pHfQc/SWpuvMNqPEyY006sYwQAAAAAAAA==
 
 
---=-HAfKymkZ+UD2bBPbP9fC--
+--=-lc60//8qBao9hYxY28aM--
