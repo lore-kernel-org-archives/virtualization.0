@@ -1,52 +1,53 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D24F511CB8;
-	Sat, 15 Jun 2024 07:51:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A03F18037;
+	Sat, 15 Jun 2024 08:01:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718437864; cv=none; b=uTXt5uWWpXdj9xjSVmr/1IgsYCAiTluqj4BWFVtvDQJvfxnY9TN6TSMZgWJfVeCZ0TkmDs59g4dcq+fkGavMJRuQJHz+DmAYvGz/to+bjnf4gQIZljKyfQ3UYT7mIcGuJZVXKkvJXncFmdSNzeWWNLT3plXOzazdzKI1p6cA/o8=
+	t=1718438498; cv=none; b=tsCxyePRbSLWzDga1pe35xbsSLua04VF9pH7q6MPUlHB9mfFHBKBn+8B0r7/cjIpZXvlRsfNr2Tu9541L7FiiVS1zXsEFSD8gxaNivMQYENkPhgB1/pQelrV7n7GQmMTj4ZJuwjcGVmvc5ckvb66yTRLK2FqRUah0wlQ9IyEl7E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718437864; c=relaxed/simple;
-	bh=sRlc1IxkbpFzLo1wdQj56UWdiL0d9xvss9PSfw73f8g=;
+	s=arc-20240116; t=1718438498; c=relaxed/simple;
+	bh=XzCGPalpbhCTdzGNROHi9j+06WifQGSUSWZHCvwRXuM=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=WenTujCa3z8DlGCv7qMJS8YD98epWe8CaNd4IqVdopmNhcRgmPnb06SanYlQJBZnhoJ996sBvntP0ACdFFMlkQJP+My03dhfewokmz/ptxceIeSjCsK9Y45+boxiryIvQlwudajEh17a4k7xrMl/oRCS85tIRQMwMKJF26JpK9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=LgUgeFhn; arc=none smtp.client-ip=90.155.50.34
+	 Content-Type:MIME-Version; b=uaANcTzQ0G4IevWzLAVgQ2kfTwjfpvRJyx1Emi/XDWqtiDnJTNGM9kn/54W4yme5MV1CLXpeFHDZrfeKn5su0S7bgyRh+UbzcaOTrOcAEFKpk5pXVvJVLr5e0Yg70ro++86OQh1mjFZCkDVv6P4g02WZbub/dA3jdNMxzkBS46w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=MvOW5Q5e; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="LgUgeFhn"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MvOW5Q5e"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
 	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=J9zDxgTCMKAH6+JFaK+bMT0Od1Ypcxv1SWT8jf6654Q=; b=LgUgeFhnr3YitfLyD1zL389Mkt
-	XQS2Sp9FhOQwwus4rfNRwNywy1ZdczcgYpT7iQBjS6GqJKZ+M6IYvNNkZd2j3AD/p4uy6BWkMk+UB
-	V0d8vGqtUGAdSvC5JC3+aAGuEUvzfvyXUYkWBSEcWkT5ylf/0eRG4YlVRdu++2w/VHKNHhI5W1/Aw
-	SNKZO0Qz6Z44pspE+OuLaOBO2o+bg1A27Sj1BOlSeFq2bqgWtIu3dM02ApkHxyM1OvdaLmGvOrrqU
-	23GcYKIiNMStUQIHGv10lIC+JjmUQBqgSqBNFSUVVSsEnOwqtU6JzGyqrA1Qk8PkBqhfn/5OYqhMb
-	yhLvDKuQ==;
+	bh=XzCGPalpbhCTdzGNROHi9j+06WifQGSUSWZHCvwRXuM=; b=MvOW5Q5elpMkH15tj6jge24irL
+	w5ddWDzKYZSoEki0FvNh0tUIpNkaxYNrdsqoTCXhgDTRFubkBgetCbcKMvJh7PC4jczVm0Du7Vu9W
+	CLQvCHSY7V7wDbs4N4QcdMC5zgtVsPectj/9U6T0qE5v5VmAUDKj0r0Sf+4pz2hUwcBsgJKeLq8LM
+	bKBv9MMsrlySAj3ScNCGZojXKhphSc0mZ/JyoHVuYuuHcXbyFp8mmeMXBrLEP5mUC9PpH/V/5BrMz
+	qE5JkbYRspFGLrTacb2B8Zq7lZ1uUlb0O2soe9EGjqthVAV7zVICh8s6ZhxYz+1/lvKloZX8lGtu/
+	kU0inwng==;
 Received: from [2001:8b0:10b:5:5157:7793:c27:1b76] (helo=u3832b3a9db3152.ant.amazon.com)
 	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sIOBb-000000006YE-18fZ;
-	Sat, 15 Jun 2024 07:50:55 +0000
-Message-ID: <e410d65754ba6a11ad7f74b27dc28d9a25d8c82e.camel@infradead.org>
-Subject: Re: [RFC PATCH v3 6/7] virtio_rtc: Add Arm Generic Timer
- cross-timestamping
+	id 1sIOLs-000000006tL-0qB6;
+	Sat, 15 Jun 2024 08:01:32 +0000
+Message-ID: <e0935a7cc42ad34e71c17f3b5ada4a16a8d1f539.camel@infradead.org>
+Subject: Re: [RFC PATCH v3 5/7] virtio_rtc: Add PTP clocks
 From: David Woodhouse <dwmw2@infradead.org>
 To: Peter Hilber <peter.hilber@opensynergy.com>,
  linux-kernel@vger.kernel.org,  virtualization@lists.linux.dev,
- virtio-dev@lists.oasis-open.org,  linux-arm-kernel@lists.infradead.org
+ virtio-dev@lists.oasis-open.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marc Zyngier <maz@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Daniel Lezcano
- <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>
-Date: Sat, 15 Jun 2024 08:50:53 +0100
-In-Reply-To: <20231218073849.35294-7-peter.hilber@opensynergy.com>
+  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Richard Cochran
+ <richardcochran@gmail.com>,  netdev@vger.kernel.org, Marc Zyngier
+ <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Daniel Lezcano
+ <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>,
+ linux-arm-kernel@lists.infradead.org
+Date: Sat, 15 Jun 2024 09:01:31 +0100
+In-Reply-To: <20231218073849.35294-6-peter.hilber@opensynergy.com>
 References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
-	 <20231218073849.35294-7-peter.hilber@opensynergy.com>
+	 <20231218073849.35294-6-peter.hilber@opensynergy.com>
 Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-Va78wFKtl3D0hDHsROYb"
+	boundary="=-HAfKymkZ+UD2bBPbP9fC"
 User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -57,36 +58,45 @@ MIME-Version: 1.0
 X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
 
---=-Va78wFKtl3D0hDHsROYb
+--=-HAfKymkZ+UD2bBPbP9fC
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Mon, 2023-12-18 at 08:38 +0100, Peter Hilber wrote:
 >=20
-> +int viortc_hw_xtstamp_params(u16 *hw_counter, enum clocksource_ids *cs_i=
-d)
-> +{
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0*hw_counter =3D VIRTIO_RTC_COU=
-NTER_ARM_VIRT;
-
-Hm, but what if it isn't? I think you need to put this in
-drivers/clocksource/arm_arch_timer.c where it can do something like
-kvm_arch_ptp_get_crosststamp() does to decide:
-
-        if (arch_timer_uses_ppi =3D=3D ARCH_TIMER_VIRT_PPI)
-                ptp_counter =3D KVM_PTP_VIRT_COUNTER;
-        else
-                ptp_counter =3D KVM_PTP_PHYS_COUNTER;
-
-
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0*cs_id =3D CSID_ARM_ARCH_COUNT=
-ER;
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D viortc_hw_xtstamp_para=
+ms(&hw_counter, &cs_id);
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret)
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0return ret;
 > +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return 0;
-> +}
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ktime_get_snapshot(&history_be=
+gin);
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (history_begin.cs_id !=3D c=
+s_id)
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0return -EOPNOTSUPP;
 
+I think you have to call ktime_get_snapshot() anyway to get a snapshot
+from before your crosststamp? But I still don't much like the fact that
+you need to use it to work out which cs_id is being used.
 
---=-Va78wFKtl3D0hDHsROYb
+Shouldn't get_device_system_crosststamp() pass that to its get_time_fn
+as a hint?
+
+On x86, you are likely to find that history_begin.cs_id is the KVM
+clock, so this will return -EOPNOTSUPP and userspace will have to fall
+back to PTP_SYS_OFFSET. I note the KVM PTP clock actually *converts* a
+TSC-based crosststamp to kvmclock =C2=B5s for itself, so that it can report=
+=C2=A0
+*cs_id =3D=C2=A0CSID_X86_KVM_CLK. Not sure how I feel about that though. I'=
+m
+inclined to suggest that it shouldn't, as anyone who wants accurate
+timekeeping shouldn't be using the KVM clock anyway.
+
+But we should at least be relatively consistent about it.
+
+--=-HAfKymkZ+UD2bBPbP9fC
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Disposition: attachment; filename="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -178,24 +188,24 @@ IzGCBMcwggTDAgEBMIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVz
 dGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMT
 NVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA
 xr4ZlmdAxAMdKFES+jupfjANBglghkgBZQMEAgEFAKCCAeswGAYJKoZIhvcNAQkDMQsGCSqGSIb3
-DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwNjE1MDc1MDUzWjAvBgkqhkiG9w0BCQQxIgQg7cMk45W2
-miMCX3pM8Kh6nBYKOZC+962JoQjHKP/OHr8wgb0GCSsGAQQBgjcQBDGBrzCBrDCBljELMAkGA1UE
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwNjE1MDgwMTMxWjAvBgkqhkiG9w0BCQQxIgQgUgYFspNG
+5wxOdzsC3Nao1gtzJPbdWcNMVm43IxgF8mgwgb0GCSsGAQQBgjcQBDGBrzCBrDCBljELMAkGA1UE
 BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEYMBYG
 A1UEChMPU2VjdGlnbyBMaW1pdGVkMT4wPAYDVQQDEzVTZWN0aWdvIFJTQSBDbGllbnQgQXV0aGVu
 dGljYXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQQIRAMa+GZZnQMQDHShREvo7qX4wgb8GCyqGSIb3
 DQEJEAILMYGvoIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVy
 MRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNl
 Y3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEAxr4Z
-lmdAxAMdKFES+jupfjANBgkqhkiG9w0BAQEFAASCAgBCbCO5uiph00/t4nuEyZgI+yUFraW3nvIG
-5vYY6QuTEApUZ8pRBTIApQrtMP3QrqEe4JuGIlLWo4wQAswFYNvOTYQFfydELygzBrSh8QkjPU/e
-wvvr7p0WHzqpid74LtLRyJgtLd3KsrALASsRccyP10x119e2vgzIBWh2ntuHZcR0PRRJ8cGpDl8Z
-JxcP1G440OLniXZQWFodooCTxMD3DY4pkMeSLht1B97sV/uX2xhpDV8unMk5RA2dVp4oqZ68F9ZL
-2b3d929giEMTnrfw/qM9jLHETGaxkbNsmGq0u4WCS7dZxj+nctgdkrwkgG5ZcUDISVgVz8ocePgi
-PMfcWPOyVGsmU1IbVPmSegGtegl+l8cdldXKPNzuIjR18v9WnnmgGwneVuZusti7SgOcD3I/hV1g
-yHAFSJ9Cm5N5FmUfS9lp8gW9PNCJmaHjjPlrhyPax2zsAA56cR/p+R5UY8L1eVjQTfYSbWDtypff
-Jl647Ye8JS1QbR/VuMyG+Iefqxzt7yDmjsHuLPmsgykBQkC0RLCIgVbsu70QKAdU+rqAH7njSU/7
-HFEBCVozrEa/BZiwPQkkTkXdNIbj/O6uAPeatcB6y9nYgdv1I0Dd1//NQRIvFtkDR5kfoLvIXfjO
-yLPX6+MdKmasCV3UGGlr+bADRaRhcV3sxDSCLnRP0gAAAAAAAA==
+lmdAxAMdKFES+jupfjANBgkqhkiG9w0BAQEFAASCAgBXGeugOjAgoNIMLQEq94ZjyilxNU3FvlgL
+GSDWr3DYI4XE+WB+AKEG66+U29+7cCi/SG9CM5zahrsUcI+zVC5EviXjA7W6jsMstqc75zCvPMvV
+Zviu8QMx78BTqwUNLOouY/6xeaVp4y6Y9LGgAAGHBTfiWyLjmXl+eDQ5QVUPgf/tqO8npubuNazq
+xViqewvJ3uZMNi2MF6gy+tu2iDjXPV3qCCbkQd82EvtysqhJuvzSrDb4RfOVY4/GQ2HHlBn3p48U
+6IreuFr99UtSXPsQfOzaiHowxkcib6WlkkQoFp2ZBtnfY5Q6o83t53RR8gl6tTR5Cyr5fJyMBl/z
+2IyfEEky4Oop8kn/UcjIIT1JZdzVnS0DPp3X3T7ZHQaE3bDGoTSDyrYmCgw0uSHddQ7z1v2a0pHq
+z/9FEM7vTdbpr/8RhyXC0+0jgLNl4f6HfC4IdtNicmcCew4Dc0FX12CISIKWxBNS5Sf7ozDrhlCU
+ZUl6xLM5WO73oZroAvnNOzW//a+6CgR4l38Bt8Y4fhA+djDXbSVHiPwAHiYOnNkQU70yYHQGoEjp
+CLHy0VGcuOE7RiWPDaGy7TOwcGa086C9WQPMyy5nkUMzmdHfQb+6uG62ZGWMZ+Sn3oLaNx8d2XpH
+mXly4yIAcHk8u1sUq1YnFpKQSNRZwY70bl9n61jRSAAAAAAAAA==
 
 
---=-Va78wFKtl3D0hDHsROYb--
+--=-HAfKymkZ+UD2bBPbP9fC--
