@@ -1,203 +1,129 @@
-Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97EDE1991D8
-	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 13:17:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4DEE3DABE5
+	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 13:25:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718630261; cv=none; b=cyZ1CG+7IAspXBQLsc3F7o/+tTE3YxP/7ZZMuqNjaJ5rE5iyoWNfmC5muPVdjapzPhBSaOkdlAVmmUT45iMSJZZ2JOeX19nYASd3esWnku3WRJos/xSzvo+tADPh6CehLNgTTA2P2psNqCD/CwY2y6y2jfdB2bOmcs+xdK6RVZs=
+	t=1718630705; cv=none; b=TILIhJq7j6pqhxEEAZXwR5r3Pgk2yLh7bHXu8qgtNiaCg/6032UMkEK4VHPuPT0leFy15PZ4Le1GMotWyIVMMKj9dyQj31+EV6cM2kL2HJaVhlrAxI1gX6XTKHXTdFr06Eo2HcAfzR2lL7cm/91G8QPClTslp6eYb2CcC9HuVK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718630261; c=relaxed/simple;
-	bh=UKrQB7BAzMucLmu6rSZnSX21jFfck85fX5kiW2DsiHU=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=un52zzTu/3dOCAUQrrnyo6uA08vHjo6rUjJwFzJHvwoOxkuma4wXVQNQvxyqlztor1gSbpajWZcEGDwnp4Im/9jFwCTztFZT26mbGu4Zi0lNtCZ2ybNSmqFhuQARdo1cqvNjuk+FCyPVL5Q7Oge45SyBFR54bkbCXnNHu/t4Zuk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4W2r480Hksz1xsdG;
-	Mon, 17 Jun 2024 21:16:08 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 940551A016C;
-	Mon, 17 Jun 2024 21:17:33 +0800 (CST)
-Received: from localhost.localdomain (10.69.192.56) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Mon, 17 Jun 2024 21:17:33 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Eric Dumazet <edumazet@google.com>, David
- Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Trond
- Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
-	<chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>,
-	<linux-afs@lists.infradead.org>, <linux-nfs@vger.kernel.org>
-Subject: [PATCH net-next v8 05/13] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Mon, 17 Jun 2024 21:14:04 +0800
-Message-ID: <20240617131413.25189-6-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240617131413.25189-1-linyunsheng@huawei.com>
-References: <20240617131413.25189-1-linyunsheng@huawei.com>
+	s=arc-20240116; t=1718630705; c=relaxed/simple;
+	bh=UffNg64kltXiNMQy07YaTpOg7r4pBCC49Y6FPB+maXw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=d4ptT0ZH6gtIQLz6z3IN87ffbLcuLxGbtcfs/EF4du12lDOK+nO6oWlMmn1rnsGjirUXdBuyuyIqyG1BPgZMcj9KgJg3igOzvZFweqtt+wZ0N2G0892xPT3jAWzltNPjeI+EMC1WywJFzZoECSril6DSHsSTpxirAmDrOyaZ8is=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I0QSnAJT; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I0QSnAJT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718630702;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gNdwNvulKIO4JOfhW5zSdvn5q7O0IrSkNwM4LbWgZA4=;
+	b=I0QSnAJT6vYXtZA7AVTv8eToMQce1tWMb0WK/+ORo2+MDsAK6+nAv3mUvAot1aWKmh3jrX
+	D3q3dyqcEijx/qFCL3R/otL4Ku2QYzZpW9MlrtvA8jvBUJo+JbNNE+jllS8FKyFIWmBOu6
+	tEZIgVrTzj1mQy0mIYh8sCHb/nqF2uk=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-335-AnrWj2-LM1upyI0-JtofWw-1; Mon, 17 Jun 2024 09:25:00 -0400
+X-MC-Unique: AnrWj2-LM1upyI0-JtofWw-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-35f2030f868so3158167f8f.2
+        for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 06:25:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718630699; x=1719235499;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gNdwNvulKIO4JOfhW5zSdvn5q7O0IrSkNwM4LbWgZA4=;
+        b=GXRCMUkRj5l6J3RA4XR2cVHjfmSF72nJ8Tkl+rh5X7ZBqsLB2JFlmo9xX+Mt3C/nvq
+         A09S4++2LgQ/GQHyqkKlx8WbGhVSmLNcKJ9DX0OHgBxRwB4kXgeTqz72mu4nbplzKEe2
+         vx2dBXr3WPuzH/3KafUc1z49zM9RZ/1xnJbjT2qiXZCd1CwUGrrWG3D7ccqQuj+t4Ca/
+         s0NyR00t2oLkofQsl9REPsZlf/QEbmZhKDN7gg51748k+FH4z8vFo9/DNo3IfxDBOrZ8
+         f1d9p0R0AIrtBbx6grYUS4IPwxci5+mvCn3v5drtxrYu+mWfPqxmPcMdHlBmEuZEDRDn
+         OqZg==
+X-Forwarded-Encrypted: i=1; AJvYcCWgM+9NbyZd2HtKzHoyC2YL7tf7DwcIWSoehCEfYTuIs7gcNMK/lB9KsvIN1A6wzL/lc/o5hzkiVVKk2XTo1aI0Pca38wwGHfAcbPvR4jo=
+X-Gm-Message-State: AOJu0YxFeuLDvt0sKUECJ36C/Uktl3tL6zq0e+ot8PBJAysWxP2fsXtJ
+	v7qern2kITxaIZ38URehwEiZpnphwyP4KXuox+TAMeLur1Z1I/ulFP3xNAcUmCKhEjza4KtAoHk
+	/9i/lNzXiTNl0QepYpVRee6mjxe8DjlCNq/QEypa6SZL8clLZQCgvZzJC/SNLzk8/
+X-Received: by 2002:a5d:46c6:0:b0:360:9a04:57ba with SMTP id ffacd0b85a97d-3609a04587dmr1509643f8f.31.1718630699512;
+        Mon, 17 Jun 2024 06:24:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHRxoRznz4bsF2t8WDRmKhi4N1xEAy+HXiK9JIkYxIFPdtbiwxr4Y2KaDbSLkoIb3poAiSTrQ==
+X-Received: by 2002:a5d:46c6:0:b0:360:9a04:57ba with SMTP id ffacd0b85a97d-3609a04587dmr1509626f8f.31.1718630699176;
+        Mon, 17 Jun 2024 06:24:59 -0700 (PDT)
+Received: from fedora (lmontsouris-659-1-55-176.w193-248.abo.wanadoo.fr. [193.248.58.176])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36075093499sm12071989f8f.8.2024.06.17.06.24.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Jun 2024 06:24:58 -0700 (PDT)
+Date: Mon, 17 Jun 2024 15:24:56 +0200
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Luigi Leonardi <luigi.leonardi@outlook.com>
+Cc: sgarzare@redhat.com, edumazet@google.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, kuba@kernel.org, kvm@vger.kernel.org, 
+	stefanha@redhat.com, pabeni@redhat.com, davem@davemloft.net, 
+	Marco Pinna <marco.pinn95@gmail.com>
+Subject: Re: [PATCH net-next 2/2] vsock/virtio: avoid enqueue packets when
+ work queue is empty
+Message-ID: <jjewa7jiltjnoauat3nnaeezhtcwi6k4xf5mkllykcqw4gyfgi@glwzqxp5r76q>
+References: <20240614135543.31515-1-luigi.leonardi@outlook.com>
+ <AS2P194MB21706E349197C1466937052C9AC22@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+In-Reply-To: <AS2P194MB21706E349197C1466937052C9AC22@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+Hello,
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
----
- drivers/vhost/net.c             |  2 +-
- include/linux/page_frag_cache.h | 10 ++++++++++
- mm/page_frag_test.c             |  2 +-
- net/core/skbuff.c               |  6 +++---
- net/rxrpc/conn_object.c         |  4 +---
- net/rxrpc/local_object.c        |  4 +---
- net/sunrpc/svcsock.c            |  6 ++----
- 7 files changed, 19 insertions(+), 15 deletions(-)
+thanks for working on this! I have some minor thoughts.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 6691fac01e0d..b2737dc0dc50 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index c6fde197a6eb..6ac3a25089d1 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -23,6 +23,16 @@ struct page_frag_cache {
- 	bool pfmemalloc;
- };
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_va_align(struct page_frag_cache *nc,
-diff --git a/mm/page_frag_test.c b/mm/page_frag_test.c
-index c3cfce87fbbf..8b259e422fae 100644
---- a/mm/page_frag_test.c
-+++ b/mm/page_frag_test.c
-@@ -341,7 +341,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_frag.va = NULL;
-+	page_frag_cache_init(&test_frag);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 6842fa6a71a5..ac5fe61c0ff2 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -741,12 +741,12 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 		local_bh_enable();
- 	}
- 
-@@ -834,7 +834,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc_va(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 
- 	if (unlikely(!data))
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index 504453c688d7..a8cffe47cf01 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 42d20412c1c3..4b1e87187614 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1609,7 +1609,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1619,8 +1618,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
--- 
-2.33.0
+On Fri, Jun 14, 2024 at 03:55:43PM +0200, Luigi Leonardi wrote:
+> From: Marco Pinna <marco.pinn95@gmail.com>
+> 
+> This introduces an optimization in virtio_transport_send_pkt:
+> when the work queue (send_pkt_queue) is empty the packet is
+> put directly in the virtqueue reducing latency.
+> 
+> In the following benchmark (pingpong mode) the host sends
+> a payload to the guest and waits for the same payload back.
+> 
+> Tool: Fio version 3.37-56
+> Env: Phys host + L1 Guest
+> Payload: 4k
+> Runtime-per-test: 50s
+> Mode: pingpong (h-g-h)
+> Test runs: 50
+> Type: SOCK_STREAM
+> 
+> Before (Linux 6.8.11)
+> ------
+> mean(1st percentile):     722.45 ns
+> mean(overall):           1686.23 ns
+> mean(99th percentile):  35379.27 ns
+> 
+> After
+> ------
+> mean(1st percentile):     602.62 ns
+> mean(overall):           1248.83 ns
+> mean(99th percentile):  17557.33 ns
+> 
+
+I think It would be interesting to know what exactly the test does, and,
+if the test is triggering the improvement, i.e., the better results are
+due to enqueuing packets directly to the virtqueue instead of letting
+the worker does it. If I understand correctly, this patch focuses on the
+case in which the worker queue is empty. I think the test can always
+send packets at a frequency so the worker queue is always empty, but
+maybe, this is a corner case and most of the time the worker queue is
+not empty in a non-testing environment.
+
+Matias
 
