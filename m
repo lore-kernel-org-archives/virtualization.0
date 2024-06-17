@@ -1,70 +1,79 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31C45194122
-	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 09:18:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 883E819309C
+	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 09:30:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718615906; cv=none; b=Ypa5+pQps+VTTIGV8g8A52kfIKehlNhI2N/0thXfjsvoQ6ooXsZXx9w34SAlQag1fEBw8F7y9/SQ2+/jfomiup8T8MoIBEy/47gwbaLYA36uxab5iTlCnFdmUUS9RAqH7+zrTvwiHNQEwHN6xyjgBdSX3vBBn9XfOBC3w7uMKTM=
+	t=1718616644; cv=none; b=JUM59Zrrgd0qaeFu2vsBHEWL7Z+Xsitv+4r9p6SAHn4FwB54x+SyUisvph6EMQeNoP6IgfdkMj83bEWr5vVlbKL2DOf/CmvyEVbPbNy9d0wdtrWSSGzksq+RI2nFQo0iX2wvOBSr8EDYa1SvNJNPtZvCUtBaGLAeq1bnIdh8Q8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718615906; c=relaxed/simple;
-	bh=60p88lXRnFxWwD0DE/HWIs9gL3qFPJpsKvKfDLWGtnY=;
+	s=arc-20240116; t=1718616644; c=relaxed/simple;
+	bh=QLxX4Rpj7zYvuJpj/kPpfbxaCfiDItCMeqMDeGVl4V4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Isvxwxrspvh/AFnwa76n7VEMhjvZBTSOmCRp/j+mLv1cuTJHg65Nj7BREeSs1Kyfn19ig5caYFVRNfspJO4bbmyNbZAmZFFbQUaQBH/A/hxvEdgAVwA6sYdUVoMA7wrFRstRt4gHxvAJFXsMm0HB8wu2yDPKDgNl9E5ni/pcRgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=QvGTtwJT; arc=none smtp.client-ip=209.85.221.48
+	 Content-Type:Content-Disposition:In-Reply-To; b=f6uC5nAicLt1yYxLXs7Ya+4lP+sEoJ5foBrnpiAB7dGlVr5EZ7OgwS+JzdUUceqhs6IvZ37Ovc100O3OjhHE/Hf2CwsE1kAiztgCL4szs3UBYz7t+LhvDyogMpaFqeJK02eUPyu7iiBdujHnY0Nf+JnJ9B/u6oBP1AcKuoRhiFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=cLgEJ/pa; arc=none smtp.client-ip=209.85.167.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="QvGTtwJT"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-35f275c7286so3710452f8f.2
-        for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 02:18:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="cLgEJ/pa"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-52cc129c78fso108899e87.2
+        for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 02:30:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718615903; x=1719220703; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718616640; x=1719221440; darn=lists.linux.dev;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=POfDX3xWgrJgT8Fq+G401F4a/WRA9742U2LN9jolq6Q=;
-        b=QvGTtwJTQ/SXY8qNTmPSdE+Ejo+XJceCK95TrsA1jYc8EV/9kQCGJGIGWJLu0G8nRD
-         1WehiTv9pFXUGfuSI2pDm+hFP2UDIe59jgTNRcbkGQXyNwKvl6sSeA3wKlj8xGGKBvcG
-         svyJlk1fTlA3lvWXk0yit3xCAoqgzL0l1fRIJcSJEJCV8qm9HamQXLjYmIZr1cR/ureH
-         +e2QyV090HMIo/88xj4uESU1bwguIzIEQU9UFPcv4dg2nwX9+lhv5TEQ4NgWO2kYYhCr
-         GapeF801MJd2FuDzTH3zx1r7jyjTsbDgtlVpcrUWpUOuZA/0/eL/VYcAB74iDPdMXmIF
-         /0Hw==
+        bh=8QLktAGNTjUFJei+a7Yp7B+dYTOmyOgcx1VIYD5aK+o=;
+        b=cLgEJ/pakBnQOYn+F68Ij7PODzsYsZ85T2EMkHo3N+KmDzqz1KbDXdzwcMMjrsidEd
+         aTjRQRpkH25zsLX60cneDSx5Fupzw6lvJRzejgHTB7QPzfL7Wg6DA7dAemTS7bH5ndpR
+         vheYtVnHkjIyA+ItEN5iZ+0tjZMb8hdlyHwS8U9L0m1KiyhoIO3CIL52yNzRIVx9uFRD
+         KUaqJVpduzm/Uk+onZjFRNTRNPQuA6/Gm8Rzyme2IiyOGUqreQUtM7gw//KAAMi/q2ir
+         UmPQ4bjDn+29xi2eVTpNGSIgP8jyboghffaEZfWJzM7mqqiYmykGLBlsbP2raboyhr7w
+         nzAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718615903; x=1719220703;
+        d=1e100.net; s=20230601; t=1718616640; x=1719221440;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=POfDX3xWgrJgT8Fq+G401F4a/WRA9742U2LN9jolq6Q=;
-        b=oLY+Egb0RfmSNegRFsGoK3/4nY0phfn6ZZS13m1VUsSTPtmr9QlvicjdIskXGfPQP0
-         nM6HeMx2gGpRdMjb5R//lslNDgF08yMexSkJXeBmH5dD1aLmjK0zYjLjdUVSjPeXdHlP
-         /QKimoSCQN0CXKILdO4jqI/SLXPa6ZcczGjJxHuzk5bEOdQKj2Zaj82awoxAE/Q0bgym
-         6g4w8R1INogFrTeMhjAq/AtZANM0FgyY6wMN+Qeg4MFjRsTDeU7rzz50qeK16TXmaI66
-         i4U1xgd2tkITna42yH0Lf0vsskODKuNs6Ame9/2XHWbBOf8Se9yKpIyWZRIymwAALdrD
-         rXKA==
-X-Forwarded-Encrypted: i=1; AJvYcCVlLoQXqx504AYGe9SSh79KElldt6q8EsJpRbJq9W8SM8lHbhJUJ+zg0VwlEfFLrEKgfwDg2p58905Gk/HtLMKxogSDiaH1dGoWiMaoUj4=
-X-Gm-Message-State: AOJu0YxKxJygu9b1dN30DbujRBYyOO/M43sdJJpRehKXMNAonuRm+rsv
-	sAgabwkrIOy4u61UQwTjlDJmReYZbPhipCcg/6p9gHbm4IpLEbsgLmItaljLlDo=
-X-Google-Smtp-Source: AGHT+IFc3xNDHvg8DJDW+rOLA6i/+nFtomWf+/l7TwKCWXAEUYTKks7voFma+B6f2Aaqai0xRQn9jA==
-X-Received: by 2002:adf:e9c9:0:b0:35f:3068:56a1 with SMTP id ffacd0b85a97d-3607a781a27mr6160588f8f.54.1718615903203;
-        Mon, 17 Jun 2024 02:18:23 -0700 (PDT)
+        bh=8QLktAGNTjUFJei+a7Yp7B+dYTOmyOgcx1VIYD5aK+o=;
+        b=IivljjyKLanyVZ4lf2S5PrNfL5NlEReuzctmIe/H0QTZ5xSkHvwuQyiBUO1GJgPm93
+         A0jkmhqJGfn9D2m8h7y7iyIGwGJtLrUxJzZzvmS1aIY5fIW7vo+t30TGsjdQyvECSpId
+         5fcwsIxxkY/apIbHAHhlyPbTfQTqq9U2BS3jCisTVEauvu0Mut8gkEe0tnLW18JCP5cw
+         6KD6VOY7fU+BoDVVIpxxPiWSjhhnWiPtG0oGajiAzCS/0mKFN+pYj0ZhhMDi7c5nGBiR
+         Fu4dtVR6AyIUcHRzj5ANkjRARWzCWO4B+Tiu/eXNKjuBOLBy+/NjsD5sOons1ovbiN+C
+         Ih8A==
+X-Forwarded-Encrypted: i=1; AJvYcCVTyA6jc8MVYZbpNfDGRQhOH9oyPVd5LRyrHQqmEgKzNKt6DFIiqmcGiqTIGfXr5cWKdzP/NbT1gx54HMFpCTY/ixGvzGyBiYGa0mtdR3o=
+X-Gm-Message-State: AOJu0YwIVh2CoqA8OZ80Bh0lknzLgfN6Bi6doopyJNO5qy9vAXM6z9Gu
+	NCVFxAH52juaT0ayi637BMJ6C3hlJ3/mgopTY9PFJQawZT38QBehj8S1W63tESM=
+X-Google-Smtp-Source: AGHT+IFeQQ3VLHyWUDWMF94tKcMqEnxKjztlgo/DGQL+ULZYyDevfiUpxD8t+PLZ6eWIpx+EZWjgJQ==
+X-Received: by 2002:a19:385b:0:b0:52c:9846:3b8c with SMTP id 2adb3069b0e04-52ca6e6c7ffmr5359133e87.41.1718616640555;
+        Mon, 17 Jun 2024 02:30:40 -0700 (PDT)
 Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-360750f2407sm11567394f8f.72.2024.06.17.02.18.21
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-422874e71dcsm188650685e9.44.2024.06.17.02.30.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Jun 2024 02:18:22 -0700 (PDT)
-Date: Mon, 17 Jun 2024 11:18:19 +0200
+        Mon, 17 Jun 2024 02:30:39 -0700 (PDT)
+Date: Mon, 17 Jun 2024 11:30:36 +0200
 From: Jiri Pirko <jiri@resnulli.us>
 To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Xing <kerneljasonxing@gmail.com>,
+	Heng Qi <hengqi@linux.alibaba.com>, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
 	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
 	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
-	john.fastabend@gmail.com, dave.taht@gmail.com,
-	kerneljasonxing@gmail.com, hengqi@linux.alibaba.com
-Subject: Re: [PATCH net-next v2] virtio_net: add support for Byte Queue Limits
-Message-ID: <Zm__WzuGEV8OdEKR@nanopsycho.orion>
-References: <20240612170851.1004604-1-jiri@resnulli.us>
- <CACGkMEv-mO6Sus7_MkCR3B3QGukrig2e2KgBeVBcfOMU5uvo9g@mail.gmail.com>
+	john.fastabend@gmail.com, netdev@vger.kernel.org
+Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
+Message-ID: <ZnACPN-uDHZAwURl@nanopsycho.orion>
+References: <CACGkMEsy37mg-GwRXJNBBkvhEuaEYw-g3wthv_XS7+t5=ALhiA@mail.gmail.com>
+ <ZmG9YWUcaW4S94Eq@nanopsycho.orion>
+ <CACGkMEug18UTJ4HDB+E4-U84UnhyrY-P5kW4et5tnS9E7Pq2Gw@mail.gmail.com>
+ <ZmKrGBLiNvDVKL2Z@nanopsycho.orion>
+ <CACGkMEvQ04NBUBwrc9AyvLqskSbQ_4OBUK=B9a+iktLcPLeyrg@mail.gmail.com>
+ <ZmLZkVML2a3mT2Hh@nanopsycho.orion>
+ <20240607062231-mutt-send-email-mst@kernel.org>
+ <ZmLvWnzUBwgpbyeh@nanopsycho.orion>
+ <20240610101346-mutt-send-email-mst@kernel.org>
+ <CACGkMEvWa9OZXhb2==VNw_t2SDdb9etLSvuWa=OWkDFr0rHLQA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -74,104 +83,76 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEv-mO6Sus7_MkCR3B3QGukrig2e2KgBeVBcfOMU5uvo9g@mail.gmail.com>
+In-Reply-To: <CACGkMEvWa9OZXhb2==VNw_t2SDdb9etLSvuWa=OWkDFr0rHLQA@mail.gmail.com>
 
-Mon, Jun 17, 2024 at 04:34:26AM CEST, jasowang@redhat.com wrote:
->On Thu, Jun 13, 2024 at 1:09 AM Jiri Pirko <jiri@resnulli.us> wrote:
+Mon, Jun 17, 2024 at 03:44:55AM CEST, jasowang@redhat.com wrote:
+>On Mon, Jun 10, 2024 at 10:19 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 >>
->> From: Jiri Pirko <jiri@nvidia.com>
+>> On Fri, Jun 07, 2024 at 01:30:34PM +0200, Jiri Pirko wrote:
+>> > Fri, Jun 07, 2024 at 12:23:37PM CEST, mst@redhat.com wrote:
+>> > >On Fri, Jun 07, 2024 at 11:57:37AM +0200, Jiri Pirko wrote:
+>> > >> >True. Personally, I would like to just drop orphan mode. But I'm not
+>> > >> >sure others are happy with this.
+>> > >>
+>> > >> How about to do it other way around. I will take a stab at sending patch
+>> > >> removing it. If anyone is against and has solid data to prove orphan
+>> > >> mode is needed, let them provide those.
+>> > >
+>> > >Break it with no warning and see if anyone complains?
+>> >
+>> > This is now what I suggested at all.
+>> >
+>> > >No, this is not how we handle userspace compatibility, normally.
+>> >
+>> > Sure.
+>> >
+>> > Again:
+>> >
+>> > I would send orphan removal patch containing:
+>> > 1) no module options removal. Warn if someone sets it up
+>> > 2) module option to disable napi is ignored
+>> > 3) orphan mode is removed from code
+>> >
+>> > There is no breakage. Only, hypotetically performance downgrade in some
+>> > hypotetical usecase nobody knows of.
 >>
->> Add support for Byte Queue Limits (BQL).
->>
->> Tested on qemu emulated virtio_net device with 1, 2 and 4 queues.
->> Tested with fq_codel and pfifo_fast. Super netperf with 50 threads is
->> running in background. Netperf TCP_RR results:
->>
->> NOBQL FQC 1q:  159.56  159.33  158.50  154.31    agv: 157.925
->> NOBQL FQC 2q:  184.64  184.96  174.73  174.15    agv: 179.62
->> NOBQL FQC 4q:  994.46  441.96  416.50  499.56    agv: 588.12
->> NOBQL PFF 1q:  148.68  148.92  145.95  149.48    agv: 148.2575
->> NOBQL PFF 2q:  171.86  171.20  170.42  169.42    agv: 170.725
->> NOBQL PFF 4q: 1505.23 1137.23 2488.70 3507.99    agv: 2159.7875
->>   BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
->>   BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
->>   BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
->>   BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
->>   BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
->>   BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
->>
->> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> ---
->> v1->v2:
->> - moved netdev_tx_completed_queue() call into __free_old_xmit(),
->>   propagate use_napi flag to __free_old_xmit() and only call
->>   netdev_tx_completed_queue() in case it is true
->> - added forgotten call to netdev_tx_reset_queue()
->> - fixed stats for xdp packets
->> - fixed bql accounting when __free_old_xmit() is called from xdp path
->> - handle the !use_napi case in start_xmit() kick section
->> ---
->>  drivers/net/virtio_net.c | 50 +++++++++++++++++++++++++---------------
->>  1 file changed, 32 insertions(+), 18 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 61a57d134544..5863c663ccab 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -84,7 +84,9 @@ struct virtnet_stat_desc {
->>
->>  struct virtnet_sq_free_stats {
->>         u64 packets;
->> +       u64 xdp_packets;
->>         u64 bytes;
->> +       u64 xdp_bytes;
->>  };
->>
->>  struct virtnet_sq_stats {
->> @@ -506,29 +508,33 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
->>         return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
->>  }
->>
->> -static void __free_old_xmit(struct send_queue *sq, bool in_napi,
->> +static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
->> +                           bool in_napi, bool use_napi,
->>                             struct virtnet_sq_free_stats *stats)
->>  {
->>         unsigned int len;
->>         void *ptr;
->>
->>         while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
->> -               ++stats->packets;
->> -
->>                 if (!is_xdp_frame(ptr)) {
->>                         struct sk_buff *skb = ptr;
->>
->>                         pr_debug("Sent skb %p\n", skb);
->>
->> +                       stats->packets++;
->>                         stats->bytes += skb->len;
->>                         napi_consume_skb(skb, in_napi);
->>                 } else {
->>                         struct xdp_frame *frame = ptr_to_xdp(ptr);
->>
->> -                       stats->bytes += xdp_get_frame_len(frame);
->> +                       stats->xdp_packets++;
->> +                       stats->xdp_bytes += xdp_get_frame_len(frame);
->>                         xdp_return_frame(frame);
->>                 }
->>         }
->> +       if (use_napi)
->> +               netdev_tx_completed_queue(txq, stats->packets, stats->bytes);
->> +
->>  }
+>> Performance is why people use virtio. It's as much a breakage as any
+>> other bug. The main difference is, with other types of breakage, they
+>> are typically binary and we can not tolerate them at all.  A tiny,
+>> negligeable performance regression might be tolarable if it brings
+>> other benefits. I very much doubt avoiding interrupts is
+>> negligeable though. And making code simpler isn't a big benefit,
+>> users do not care.
 >
->I wonder if this works correctly, for example NAPI could be enabled
->after queued but before sent. So __netdev_tx_sent_queue() is not
->called before.
+>It's not just making code simpler. As discussed in the past, it also
+>fixes real bugs.
+>
+>>
+>> > My point was, if someone presents
+>> > solid data to prove orphan is needed during the patch review, let's toss
+>> > out the patch.
+>> >
+>> > Makes sense?
+>>
+>> It's not hypothetical - if anything, it's hypothetical that performance
+>> does not regress.  And we just got a report from users that see a
+>> regression without.  So, not really.
+>
+>Probably, but do we need to define a bar here? Looking at git history,
+>we didn't ask a full benchmark for a lot of commits that may touch
 
-How is that possible? Napi weight can't change when link is up. Or am I
-missing something?
+Moreover, there is no "benchmark" to run anyway, is it?
 
+
+>performance.
 >
 >Thanks
+>
+>>
+>> >
+>> > >
+>> > >--
+>> > >MST
+>> > >
+>>
 >
