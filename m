@@ -1,85 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D1781822F3;
-	Mon, 17 Jun 2024 06:26:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0277C17E900
+	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 06:28:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718605589; cv=none; b=GXVwMdMmU6LdsyA6iCKdF85NBSnyPhCqRFGVjhQUvKMfmXhQJi1zKBj7xaD1OK0aFZYy8aqgyhkHKnQqmDmGgTxaj35HkDG/BctmidNVZ1/30gwNrTqx+GrL7b0UAbk9NFzMP9bPcmykpDOQsK22Fxn57FDhzHgkBHBIjbHfE4Y=
+	t=1718605704; cv=none; b=BTvxJcELwMAqESThQpWJl++DfPOL0+vlDKZBlWKDLcHbs8PcuC/pGz9r3xOepj1p3y/ewy3KUUrO2DdoT6ML2ij/TgZ8JZUKgqvTQsEp5yQu7Scv2qhzR8c4N5siebkXHCPMqhb7DeDAHiSAu7UTwSgMqRLrNNNjHEHSY04Oxyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718605589; c=relaxed/simple;
-	bh=5ukl1My1jMqhSyTqZEFqdGlI+72qAecy5V2ti5Kc46U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eS1CAG9ixn7Y+VSNE6byZVc8CNzyjNkpGUnwwey3TLWcyF1QQvtwGjDdtxm7OMESpfCIYjbwrQU2zIUVeF08vq1QN+OL4QG5sEzt9CEVcBGPnyx7+OmIEBesD8PEYQ+qNQ904xf5dewlwBAhc54Af7342kOwqGBKXCoVB7319QM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OVa4VXa4; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1718605704; c=relaxed/simple;
+	bh=OSTkYO2YEbZIEWcvOK8gFKoY42oPBjRDD1sYUp4a7Js=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lf6G/dZgFp8Xdb+OXqRzq0ci2SQA2I6rhqwBMWEdqZvSZO9SAjgo3OahKe2UveRUx7AgLy4yUZtOAskDJf4Yzepb5zKU97SnHIvhpahaEkRiOJOEiUk0t9fBqcODNEv9vWd13VSbNjPo/hZryos5sDOFOMyNA8x9dYrzrzPcXR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QmC9tg+4; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OVa4VXa4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 897D7C2BD10;
-	Mon, 17 Jun 2024 06:26:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718605589;
-	bh=5ukl1My1jMqhSyTqZEFqdGlI+72qAecy5V2ti5Kc46U=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=OVa4VXa4gPyN4KTWboLud3pwf0TJbbk/rQ5BM4+Ufc5q6edplugfrWWUEhonGkfMR
-	 QHtsT5neG8mJ3vHyVK4COzgFtMwuBSA3Ltr1Kmgg0P9h/SDaPK/4D4vixnSs7AOdoo
-	 HP6agM24471d/vJb4Hh8SFe0zewqIqWCGc3aXNawn13hq27CQJOtkzwEi0TWYKBp4l
-	 c0TLeE0D0RKiKV3rNJyqOIzjVOG/87Bt7edT59MQLl5UfWjsDRSx6vZMzrYnvW4QJA
-	 /RoDuAqhbb/WQma0tOFHLAJHwURkZ+Z0rxy3rGxoovWXWM4rnyYIVDHULrocVjTDvQ
-	 k66Zct4kG1uEw==
-Message-ID: <c9871979-de72-49ca-879b-5f2bd773d517@kernel.org>
-Date: Mon, 17 Jun 2024 15:26:23 +0900
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QmC9tg+4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718605702;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6Ps5JswGrFVlCCUIk9N0xG3axjAOsPQkWEjzfIjAMKY=;
+	b=QmC9tg+4stQv7TUOHiokkVQHdfDJY6mnoniX+JMv3474N+p2ay5i/Ka8paPxFS4FHuOGQ3
+	UICtAiU5DAo+VwPX14p5EbD4M+B37hQHHI/Z/9z1VUBfruYuJqzBEROSRFZm5HLrCpZ8Hr
+	eekcar8eBj7zLEebN05SkX/qalLDJro=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-157-rHtt8PUnMM6n3hLrmObODg-1; Mon, 17 Jun 2024 02:28:19 -0400
+X-MC-Unique: rHtt8PUnMM6n3hLrmObODg-1
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-6e53ddbbb1fso4174894a12.0
+        for <virtualization@lists.linux.dev>; Sun, 16 Jun 2024 23:28:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718605698; x=1719210498;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6Ps5JswGrFVlCCUIk9N0xG3axjAOsPQkWEjzfIjAMKY=;
+        b=e3OH0FAkXkpAdZim30bYHfI6mHNosl7NcDqOBQG7nB4bsRcpvaFxXKTt+8xRJanAeZ
+         DCYjpO5ayWaRA5gaihj/fGoksN92obIjI0mvjYYe6B0b7L1sILfUh5karv+h1s5v+hdW
+         Hw6/VIRHsGIm6qzGBYxiKPDl5KX87OyhdOBHcTewcsmX/WhvcRVYO2PidKD2TQm0yi4d
+         gCWiXNJhonJIqkHvNN9rOOKHyEhrx71ltm+ytMtPWo+YGEoog5Pp59FKWhXVL0atI3rO
+         C3SraiDL+LRak5Phf3B83ZWnKut2oUdC2hsAwKAeN3+XNLshT6Pey2gRG7O11Phouhxr
+         qIXw==
+X-Forwarded-Encrypted: i=1; AJvYcCXloSjQLfNEvCYPgqFsmzYq9FnDOqgRX/4Yig6/JtzXqpBZQIYJoddQ0vZ3+nyvjfJo2QyLqdHvj424WZHdqmVrgoGEdhWKW1Zl+rI3G5o=
+X-Gm-Message-State: AOJu0YxVc+vS3RmBW+gLubDRgwkBcDovjah246e3B9+uP8zJSigTBuhJ
+	274Oy5vIgMEWKPdtaV632LYOgc3f0N2VIpgpfd7L6av2x70ZAqyJa1s6kVPxV8yf8uZ0H9fBNiM
+	27xp+Qaaagu2vMKOgH4lk0WOqRPvP2sZ2tOzz2Vr/po1G7uN7qLiFEXYN4XZe59kBygfa4ElPgY
+	KSu8iJ0ot0AjENo1TiG5b+eFGqMqI5QRn0uf/9OAA=
+X-Received: by 2002:a05:6a20:12c1:b0:1b8:7de9:6e3f with SMTP id adf61e73a8af0-1bae82b6515mr10689242637.53.1718605698617;
+        Sun, 16 Jun 2024 23:28:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE2baPcl2kCTFLwcSKILsceKj+PbJEWOMXTqE4MSXxS0p/rU+v6ZPazw+zzfETCZucrn8dwHiLbJUrZH9BYgxw=
+X-Received: by 2002:a05:6a20:12c1:b0:1b8:7de9:6e3f with SMTP id
+ adf61e73a8af0-1bae82b6515mr10689221637.53.1718605698270; Sun, 16 Jun 2024
+ 23:28:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 19/26] block: move the nowait flag to queue_limits
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
- Richard Weinberger <richard@nod.at>,
- Philipp Reisner <philipp.reisner@linbit.com>,
- Lars Ellenberg <lars.ellenberg@linbit.com>,
- =?UTF-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
- Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
- Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
- Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
- Yu Kuai <yukuai3@huawei.com>, Vineeth Vijayan <vneethv@linux.ibm.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
- drbd-dev@lists.linbit.com, nbd@other.debian.org,
- linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
- linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
- linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
- linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
- linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
-References: <20240617060532.127975-1-hch@lst.de>
- <20240617060532.127975-20-hch@lst.de>
-From: Damien Le Moal <dlemoal@kernel.org>
-Content-Language: en-US
-Organization: Western Digital Research
-In-Reply-To: <20240617060532.127975-20-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20240614063933.108811-1-xuanzhuo@linux.alibaba.com>
+ <20240614063933.108811-9-xuanzhuo@linux.alibaba.com> <CACGkMEu49yaJ+ZBAqP_e1T7kw-9GV8rKMeT1=GtG08ty52XWMw@mail.gmail.com>
+In-Reply-To: <CACGkMEu49yaJ+ZBAqP_e1T7kw-9GV8rKMeT1=GtG08ty52XWMw@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 17 Jun 2024 14:28:05 +0800
+Message-ID: <CACGkMEuxhaPcSyvNnZH3q1uvSUTbpRMr+YuK4r0x6zG_SKesbg@mail.gmail.com>
+Subject: Re: [PATCH net-next v5 08/15] virtio_net: sq support premapped mode
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev, 
+	bpf@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 6/17/24 15:04, Christoph Hellwig wrote:
-> Move the nowait flag into the queue_limits feature field so that it can
-> be set atomically with the queue frozen.
-> 
-> Stacking drivers are simplified in that they now can simply set the
-> flag, and blk_stack_limits will clear it when the features is not
-> supported by any of the underlying devices.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+On Mon, Jun 17, 2024 at 1:00=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Fri, Jun 14, 2024 at 2:39=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
+> >
+> > If the xsk is enabling, the xsk tx will share the send queue.
+> > But the xsk requires that the send queue use the premapped mode.
+> > So the send queue must support premapped mode when it is bound to
+> > af-xdp.
+> >
+> > * virtnet_sq_set_premapped(sq, true) is used to enable premapped mode.
+> >
+> >     In this mode, the driver will record the dma info when skb or xdp
+> >     frame is sent.
+> >
+> >     Currently, the SQ premapped mode is operational only with af-xdp. I=
+n
+> >     this mode, af-xdp, the kernel stack, and xdp tx/redirect will share
+> >     the same SQ. Af-xdp independently manages its DMA. The kernel stack
+> >     and xdp tx/redirect utilize this DMA metadata to manage the DMA
+> >     info.
+> >
 
-Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
+Note that there's indeed a mode when we have exclusive XDP TX queue:
 
--- 
-Damien Le Moal
-Western Digital Research
+        /* XDP requires extra queues for XDP_TX */
+        if (curr_qp + xdp_qp > vi->max_queue_pairs) {
+                netdev_warn_once(dev, "XDP request %i queues but max
+is %i. XDP_TX and XDP_REDIRECT will operate in a slower locked tx
+mode.\n",
+                                 curr_qp + xdp_qp, vi->max_queue_pairs);
+                xdp_qp =3D 0;
+        }
+
+So we need to mention how the code works in this patch.
+
+Thanks
 
