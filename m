@@ -1,291 +1,107 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E34C190042
-	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 07:53:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B1C1190045
+	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 07:55:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718610840; cv=none; b=rsKx/emUcIRFGpHG5WltT7MiRXSnwyuA5H9egrTalQiWYf1IiLrnRkiGV4aWHUDF/AiUd5OX21rgA/L1ReD316W7FKLfhRoyj13/oLWyDMMb+QJVAEx6hO4B2GDFv5vcVOG/jhbS8ZCBUYsP704n3HQ3GVlIJw6BpWnDjxxiclI=
+	t=1718610955; cv=none; b=epI5dwbVGm60rLJ0pYH5++w+yIeNzLFKbc2ts8pR8PbmoS4qY2s2wyzpKXshC7ZHe6Zd0ThP/IpHe9J6WDgwb2m8A6Hbp4QrMXvRKWPqa/ijAbbwrG8u3GQ+mjKySFn57WTZAPbIXldyrDT/foxZqcyftdbFrO3TDA6IJsxY58U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718610840; c=relaxed/simple;
-	bh=QZWLMROZJ6yMyPZMNTRw8uwJVgbM8CBulr5upUaL/1Q=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=hLTtViW7d9UWaMQ7oSOaeKp+CJxF1ivYqwp/bJCLFFdqb/KJN0vxbTFSRkAowOGoeGRb6nnJCot4EFewCYaZe/pNCF3cZCjTAlPG0at+mpnxOLTEBLXg9OfnkkE8263eTqOrD3tfrTg2mak1v4BvwYsAUQxnVTGjrJPtqW7xrTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=c8rX5QaL; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1718610955; c=relaxed/simple;
+	bh=JhFXSTpTbZnynjs4GWaWiZ25aqQJvGOYbY3MGHI2j0s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ccskw7stQ/SPzznDsXWt4KST8pf2wVO6uWs9edt2HFlReVAjPysjYKZVKF3JAtZHReyWTTp8hAd1CqgNjwT/zgN6YLKge9frMi2qzcrSVMVwWIrs61iOmcf4mgYt6f9YMjineZrnObQUWuNpxHWtCZUrD9VUrsFVG84dVwiNV3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com; spf=pass smtp.mailfrom=cloud.com; dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b=YcoZj8J2; arc=none smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloud.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="c8rX5QaL"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718610829; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=BOLIpsdx9COnZgmjEKNjHBVGCFu0GGUUJnuvMitqjF4=;
-	b=c8rX5QaL0WCG0n/xgDcp0CmjDPR8cRuo3Asw3SAEdqo6PBInhxbphMDHBleUKCXpEWj2CKFI6A81zrmbYyozG7DsC36tKsNfik5gkzvOBAbPlGB8C1sWMS4McejbpFHBcKvvxQBnOBea41z5bW0/o1GoitytRDBIU5AEhxSiYkA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8aXrny_1718610828;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8aXrny_1718610828)
-          by smtp.aliyun-inc.com;
-          Mon, 17 Jun 2024 15:53:49 +0800
-Message-ID: <1718610681.9219804-5-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v5 11/15] virtio_net: xsk: tx: support xmit xsk buffer
-Date: Mon, 17 Jun 2024 15:51:21 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-References: <20240614063933.108811-1-xuanzhuo@linux.alibaba.com>
- <20240614063933.108811-12-xuanzhuo@linux.alibaba.com>
- <CACGkMEsWg95zXVsnDWrAU1qRS0uuEJJR0rw7LVOV-fGuBGzQCQ@mail.gmail.com>
-In-Reply-To: <CACGkMEsWg95zXVsnDWrAU1qRS0uuEJJR0rw7LVOV-fGuBGzQCQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b="YcoZj8J2"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-4421c014b95so20836131cf.0
+        for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 00:55:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=citrix.com; s=google; t=1718610952; x=1719215752; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=6I7HjTVD0FYGpGJyzdWr9lYyHGbtAeqv6wNa85E5Tlk=;
+        b=YcoZj8J2Z2ubiO3ZJR2z79eldCfjV7v/LodIv4Zsg4KsmAiiN+0z9Sgw6PhkrzGQ/f
+         rNJ0mosassppDU8ETQ2zgcE/uNe41LNQM9GKPBbeKAXPhvVAjcJHDLHX56GAU2EEatSs
+         xzMxtVZrq4Bx4REFCRuL7cNR1YA6hDoq6f7TA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718610952; x=1719215752;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6I7HjTVD0FYGpGJyzdWr9lYyHGbtAeqv6wNa85E5Tlk=;
+        b=G+xQV5lAtmQvVFDAQEi3/OAa2/TMfuGSjmwUa88fdswuRRr1FpTDokH44uyMcP6CFE
+         hPrRvjancqYpCjWjdq36aP8uknQq01Y4Z0RxdNroEXVsn6dFPL9427/im5whyvS+sl5y
+         HraPy+tR+r/q02vAe7fIJyo54yV9REsZR75sVAP5V8v2PMpC4n0RIeSbptdSN+XeqkOi
+         pXOv3w2Fd0Jts10wHkcO3vAynDWdbonwbwDomMghthKGR128jKrxyu0wuRadSVeWhgxo
+         EjXASkGCGwI+dqPkds+pTkgy6E0avyJ/yt3g7YpziAVLLcMwL1+2Shk+RoYQV05REU9f
+         PWtw==
+X-Forwarded-Encrypted: i=1; AJvYcCWOnmGBi3lN+4qZGe7/UamLxdudmUgi0jCWg60K76g/M+xuRASEaok51q11dyFx8aSuDYwD33lyM/XrXRw0OrBKxHHLUjPXWsWH2blsRx8=
+X-Gm-Message-State: AOJu0YwZv5Iswr1/B4H6aBGnBjk+AhwxM1aTbuIfyc2UAQKM8qqyubdH
+	XRrDnEeWL5ETgVXRqUuTBVFEDEP72DEM+5MrtMjUtYlgh/amegb7+uhIjhrrt5Y=
+X-Google-Smtp-Source: AGHT+IFxBb+fxu+zFP9/mPYH5nZSCdE6S/NGqQ55TdkfvSsNQ6okiuS1Itv2iysUUW0wZGmJIGDYbg==
+X-Received: by 2002:ac8:5e11:0:b0:440:10be:3ecf with SMTP id d75a77b69052e-4417ac402c0mr199666251cf.22.1718610952095;
+        Mon, 17 Jun 2024 00:55:52 -0700 (PDT)
+Received: from localhost ([213.195.124.163])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-441ef4eefaesm44094171cf.21.2024.06.17.00.55.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Jun 2024 00:55:51 -0700 (PDT)
+Date: Mon, 17 Jun 2024 09:55:48 +0200
+From: Roger Pau =?utf-8?B?TW9ubsOp?= <roger.pau@citrix.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	Christoph =?utf-8?Q?B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, Alasdair Kergon <agk@redhat.com>,
+	Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+Subject: Re: [PATCH 01/26] xen-blkfront: don't disable cache flushes when
+ they fail
+Message-ID: <Zm_sBInagtSkOZtg@macbook>
+References: <20240617060532.127975-1-hch@lst.de>
+ <20240617060532.127975-2-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240617060532.127975-2-hch@lst.de>
 
-On Mon, 17 Jun 2024 14:30:07 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Fri, Jun 14, 2024 at 2:40=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > The driver's tx napi is very important for XSK. It is responsible for
-> > obtaining data from the XSK queue and sending it out.
-> >
-> > At the beginning, we need to trigger tx napi.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c | 121 ++++++++++++++++++++++++++++++++++++++-
-> >  1 file changed, 119 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 2767338dc060..7e811f392768 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -535,10 +535,13 @@ enum virtnet_xmit_type {
-> >         VIRTNET_XMIT_TYPE_SKB,
-> >         VIRTNET_XMIT_TYPE_XDP,
-> >         VIRTNET_XMIT_TYPE_DMA,
-> > +       VIRTNET_XMIT_TYPE_XSK,
-> >  };
-> >
-> >  #define VIRTNET_XMIT_TYPE_MASK (VIRTNET_XMIT_TYPE_SKB | VIRTNET_XMIT_T=
-YPE_XDP \
-> > -                               | VIRTNET_XMIT_TYPE_DMA)
-> > +                               | VIRTNET_XMIT_TYPE_DMA | VIRTNET_XMIT_=
-TYPE_XSK)
-> > +
-> > +#define VIRTIO_XSK_FLAG_OFFSET 4
-> >
-> >  static enum virtnet_xmit_type virtnet_xmit_ptr_strip(void **ptr)
-> >  {
-> > @@ -768,6 +771,10 @@ static void __free_old_xmit(struct send_queue *sq,=
- bool in_napi,
-> >                          * func again.
-> >                          */
-> >                         goto retry;
-> > +
-> > +               case VIRTNET_XMIT_TYPE_XSK:
-> > +                       /* Make gcc happy. DONE in subsequent commit */
->
-> This is probably a hint that the next patch should be squashed here.
+On Mon, Jun 17, 2024 at 08:04:28AM +0200, Christoph Hellwig wrote:
+> blkfront always had a robust negotiation protocol for detecting a write
+> cache.  Stop simply disabling cache flushes in the block layer as the
+> flags handling is moving to the atomic queue limits API that needs
+> user context to freeze the queue for that.  Instead handle the case
+> of the feature flags cleared inside of blkfront.  This removes old
+> debug code to check for such a mismatch which was previously impossible
+> to hit, including the check for passthrough requests that blkfront
+> never used to start with.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-The code for the xmit patch is more. So I separate the code out.
+Acked-by: Roger Pau Monné <roger.pau@citrix.com>
 
->
-> > +                       break;
-> >                 }
-> >         }
-> >  }
-> > @@ -1265,6 +1272,102 @@ static void check_sq_full_and_disable(struct vi=
-rtnet_info *vi,
-> >         }
-> >  }
-> >
-> > +static void *virtnet_xsk_to_ptr(u32 len)
-> > +{
-> > +       unsigned long p;
-> > +
-> > +       p =3D len << VIRTIO_XSK_FLAG_OFFSET;
-> > +
-> > +       return virtnet_xmit_ptr_mix((void *)p, VIRTNET_XMIT_TYPE_XSK);
-> > +}
-> > +
-> > +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 l=
-en)
-> > +{
-> > +       sg->dma_address =3D addr;
-> > +       sg->length =3D len;
-> > +}
-> > +
-> > +static int virtnet_xsk_xmit_one(struct send_queue *sq,
-> > +                               struct xsk_buff_pool *pool,
-> > +                               struct xdp_desc *desc)
-> > +{
-> > +       struct virtnet_info *vi;
-> > +       dma_addr_t addr;
-> > +
-> > +       vi =3D sq->vq->vdev->priv;
-> > +
-> > +       addr =3D xsk_buff_raw_get_dma(pool, desc->addr);
-> > +       xsk_buff_raw_dma_sync_for_device(pool, addr, desc->len);
-> > +
-> > +       sg_init_table(sq->sg, 2);
-> > +
-> > +       sg_fill_dma(sq->sg, sq->xsk.hdr_dma_address, vi->hdr_len);
-> > +       sg_fill_dma(sq->sg + 1, addr, desc->len);
-> > +
-> > +       return virtqueue_add_outbuf(sq->vq, sq->sg, 2,
-> > +                                   virtnet_xsk_to_ptr(desc->len), GFP_=
-ATOMIC);
-> > +}
-> > +
-> > +static int virtnet_xsk_xmit_batch(struct send_queue *sq,
-> > +                                 struct xsk_buff_pool *pool,
-> > +                                 unsigned int budget,
-> > +                                 u64 *kicks)
-> > +{
-> > +       struct xdp_desc *descs =3D pool->tx_descs;
-> > +       bool kick =3D false;
-> > +       u32 nb_pkts, i;
-> > +       int err;
-> > +
-> > +       budget =3D min_t(u32, budget, sq->vq->num_free);
-> > +
-> > +       nb_pkts =3D xsk_tx_peek_release_desc_batch(pool, budget);
-> > +       if (!nb_pkts)
-> > +               return 0;
-> > +
-> > +       for (i =3D 0; i < nb_pkts; i++) {
-> > +               err =3D virtnet_xsk_xmit_one(sq, pool, &descs[i]);
-> > +               if (unlikely(err)) {
-> > +                       xsk_tx_completed(sq->xsk.pool, nb_pkts - i);
-> > +                       break;
->
-> Any reason we don't need a kick here?
-
-After the loop, I checked the kick.
-
-Do you mean kick for the packet that encountered the error?
-
-
->
-> > +               }
-> > +
-> > +               kick =3D true;
-> > +       }
-> > +
-> > +       if (kick && virtqueue_kick_prepare(sq->vq) && virtqueue_notify(=
-sq->vq))
-> > +               (*kicks)++;
-> > +
-> > +       return i;
-> > +}
-> > +
-> > +static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_po=
-ol *pool,
-> > +                            int budget)
-> > +{
-> > +       struct virtnet_info *vi =3D sq->vq->vdev->priv;
-> > +       struct virtnet_sq_free_stats stats =3D {};
-> > +       u64 kicks =3D 0;
-> > +       int sent;
-> > +
-> > +       __free_old_xmit(sq, true, &stats);
-> > +
-> > +       sent =3D virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
-> > +
-> > +       if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
-> > +               check_sq_full_and_disable(vi, vi->dev, sq);
-> > +
-> > +       u64_stats_update_begin(&sq->stats.syncp);
-> > +       u64_stats_add(&sq->stats.packets, stats.packets);
-> > +       u64_stats_add(&sq->stats.bytes,   stats.bytes);
-> > +       u64_stats_add(&sq->stats.kicks,   kicks);
-> > +       u64_stats_add(&sq->stats.xdp_tx,  sent);
-> > +       u64_stats_update_end(&sq->stats.syncp);
-> > +
-> > +       if (xsk_uses_need_wakeup(pool))
-> > +               xsk_set_tx_need_wakeup(pool);
-> > +
-> > +       return sent =3D=3D budget;
-> > +}
-> > +
-> >  static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
-> >                                    struct send_queue *sq,
-> >                                    struct xdp_frame *xdpf)
-> > @@ -2707,6 +2810,7 @@ static int virtnet_poll_tx(struct napi_struct *na=
-pi, int budget)
-> >         struct virtnet_info *vi =3D sq->vq->vdev->priv;
-> >         unsigned int index =3D vq2txq(sq->vq);
-> >         struct netdev_queue *txq;
-> > +       bool xsk_busy =3D false;
-> >         int opaque;
-> >         bool done;
-> >
-> > @@ -2719,7 +2823,11 @@ static int virtnet_poll_tx(struct napi_struct *n=
-api, int budget)
-> >         txq =3D netdev_get_tx_queue(vi->dev, index);
-> >         __netif_tx_lock(txq, raw_smp_processor_id());
-> >         virtqueue_disable_cb(sq->vq);
-> > -       free_old_xmit(sq, true);
-> > +
-> > +       if (sq->xsk.pool)
-> > +               xsk_busy =3D virtnet_xsk_xmit(sq, sq->xsk.pool, budget);
->
-> How about rename this to "xsk_sent"?
-
-
-OK
-
-Thanks.
-
-
->
-> > +       else
-> > +               free_old_xmit(sq, true);
-> >
-> >         if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS) {
-> >                 if (netif_tx_queue_stopped(txq)) {
-> > @@ -2730,6 +2838,11 @@ static int virtnet_poll_tx(struct napi_struct *n=
-api, int budget)
-> >                 netif_tx_wake_queue(txq);
-> >         }
-> >
-> > +       if (xsk_busy) {
-> > +               __netif_tx_unlock(txq);
-> > +               return budget;
-> > +       }
-> > +
-> >         opaque =3D virtqueue_enable_cb_prepare(sq->vq);
-> >
-> >         done =3D napi_complete_done(napi, 0);
-> > @@ -5715,6 +5828,10 @@ static void virtnet_sq_free_unused_buf(struct vi=
-rtqueue *vq, void *buf)
-> >         case VIRTNET_XMIT_TYPE_DMA:
-> >                 virtnet_sq_unmap(sq, &buf);
-> >                 goto retry;
-> > +
-> > +       case VIRTNET_XMIT_TYPE_XSK:
-> > +               /* Make gcc happy. DONE in subsequent commit */
-> > +               break;
-> >         }
-> >  }
-> >
-> > --
-> > 2.32.0.3.g01195cf9f
-> >
->
-> Thanks
->
+Thanks, Roger.
