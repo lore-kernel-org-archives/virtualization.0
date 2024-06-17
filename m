@@ -1,79 +1,92 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 883E819309C
-	for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 09:30:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B0F9194A68
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Jun 2024 09:39:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718616644; cv=none; b=JUM59Zrrgd0qaeFu2vsBHEWL7Z+Xsitv+4r9p6SAHn4FwB54x+SyUisvph6EMQeNoP6IgfdkMj83bEWr5vVlbKL2DOf/CmvyEVbPbNy9d0wdtrWSSGzksq+RI2nFQo0iX2wvOBSr8EDYa1SvNJNPtZvCUtBaGLAeq1bnIdh8Q8M=
+	t=1718617176; cv=none; b=Da0JD28eh3FrBlFTsE6voRUTcq1sKwVUwsPrplpHppwsSSDDBPrH6+p2ARZ+rqersOYFFQqZP3y+eSVdubdF2LrIBuXGncDb4LUwMIF60DKJ2s4fx7aPckXCfAuRHMMiz7CZ+yBSl+SeKnK/mLVwIWryJv36bG58fYsDnOemob0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718616644; c=relaxed/simple;
-	bh=QLxX4Rpj7zYvuJpj/kPpfbxaCfiDItCMeqMDeGVl4V4=;
+	s=arc-20240116; t=1718617176; c=relaxed/simple;
+	bh=w6euua8DdAndSBqtwxLw75oNhUUVr0fLiGLrdXsOKIg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f6uC5nAicLt1yYxLXs7Ya+4lP+sEoJ5foBrnpiAB7dGlVr5EZ7OgwS+JzdUUceqhs6IvZ37Ovc100O3OjhHE/Hf2CwsE1kAiztgCL4szs3UBYz7t+LhvDyogMpaFqeJK02eUPyu7iiBdujHnY0Nf+JnJ9B/u6oBP1AcKuoRhiFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=cLgEJ/pa; arc=none smtp.client-ip=209.85.167.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	 Content-Type:Content-Disposition:In-Reply-To; b=GObgajUK8BchzGMovNKKcwotuoGal9sZ3Z9qjMQ2Aoheq8Y4tJ5hKoV5jQy7a0j4HHXLjnUBkLvzE0Y8gLqYBjeJl/amAOqlC3ITqjoVUV4A9F1ekWYigLKw8sMAcDTMqn3LvmZd5mFravcPtNf6nS1qRUSx+Kt9XPySTp+fFXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=LBcOEgV4; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="cLgEJ/pa"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-52cc129c78fso108899e87.2
-        for <virtualization@lists.linux.dev>; Mon, 17 Jun 2024 02:30:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="LBcOEgV4"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 20A9D402C8
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Jun 2024 09:39:35 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id T0NUrVqs42j6 for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Jun 2024 09:39:33 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::533; helo=mail-ed1-x533.google.com; envelope-from=jiri@resnulli.us; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 05DDE4094D
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 05DDE4094D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=LBcOEgV4
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 05DDE4094D
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Jun 2024 09:39:31 +0000 (UTC)
+Received: by mail-ed1-x533.google.com with SMTP id 4fb4d7f45d1cf-57c923e03caso4706858a12.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 17 Jun 2024 02:39:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718616640; x=1719221440; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718617169; x=1719221969; darn=lists.linux-foundation.org;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=8QLktAGNTjUFJei+a7Yp7B+dYTOmyOgcx1VIYD5aK+o=;
-        b=cLgEJ/pakBnQOYn+F68Ij7PODzsYsZ85T2EMkHo3N+KmDzqz1KbDXdzwcMMjrsidEd
-         aTjRQRpkH25zsLX60cneDSx5Fupzw6lvJRzejgHTB7QPzfL7Wg6DA7dAemTS7bH5ndpR
-         vheYtVnHkjIyA+ItEN5iZ+0tjZMb8hdlyHwS8U9L0m1KiyhoIO3CIL52yNzRIVx9uFRD
-         KUaqJVpduzm/Uk+onZjFRNTRNPQuA6/Gm8Rzyme2IiyOGUqreQUtM7gw//KAAMi/q2ir
-         UmPQ4bjDn+29xi2eVTpNGSIgP8jyboghffaEZfWJzM7mqqiYmykGLBlsbP2raboyhr7w
-         nzAg==
+        bh=jWyeWccl/2aEbivUkA2fQdZreCyT8NBDVsWDIMF7kK0=;
+        b=LBcOEgV41DIhn+9XRz1okSvwvLopBxxi3C2KcWBxUzwPyiVcKXcPI0n544NFNydkW5
+         xzoSTBTTX9Ar3zH4GfU0DhrATp0v6FShhL2KonTtHvQM44wLUwY+g5n48lRmtTtziSHd
+         ncE1BBzKXQZgQwBwvwsws7Bd4rQoir2nIOvF1k9vM07xYV3jp6nS78/71ioqk6Z0/rwf
+         LsryuVGhPQ+DSbtRAX9zmlJ1drMDNen2QrNEFPK9MR3ZrVxnpfr5v/Y75dlXisimlFcx
+         wILmnT3G3PsknUuaGbeLnrhEHh1wh3KMkRWule07HSxkoqcLDDlAJ6MG3UOZIq61a48M
+         TJKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718616640; x=1719221440;
+        d=1e100.net; s=20230601; t=1718617169; x=1719221969;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8QLktAGNTjUFJei+a7Yp7B+dYTOmyOgcx1VIYD5aK+o=;
-        b=IivljjyKLanyVZ4lf2S5PrNfL5NlEReuzctmIe/H0QTZ5xSkHvwuQyiBUO1GJgPm93
-         A0jkmhqJGfn9D2m8h7y7iyIGwGJtLrUxJzZzvmS1aIY5fIW7vo+t30TGsjdQyvECSpId
-         5fcwsIxxkY/apIbHAHhlyPbTfQTqq9U2BS3jCisTVEauvu0Mut8gkEe0tnLW18JCP5cw
-         6KD6VOY7fU+BoDVVIpxxPiWSjhhnWiPtG0oGajiAzCS/0mKFN+pYj0ZhhMDi7c5nGBiR
-         Fu4dtVR6AyIUcHRzj5ANkjRARWzCWO4B+Tiu/eXNKjuBOLBy+/NjsD5sOons1ovbiN+C
-         Ih8A==
-X-Forwarded-Encrypted: i=1; AJvYcCVTyA6jc8MVYZbpNfDGRQhOH9oyPVd5LRyrHQqmEgKzNKt6DFIiqmcGiqTIGfXr5cWKdzP/NbT1gx54HMFpCTY/ixGvzGyBiYGa0mtdR3o=
-X-Gm-Message-State: AOJu0YwIVh2CoqA8OZ80Bh0lknzLgfN6Bi6doopyJNO5qy9vAXM6z9Gu
-	NCVFxAH52juaT0ayi637BMJ6C3hlJ3/mgopTY9PFJQawZT38QBehj8S1W63tESM=
-X-Google-Smtp-Source: AGHT+IFeQQ3VLHyWUDWMF94tKcMqEnxKjztlgo/DGQL+ULZYyDevfiUpxD8t+PLZ6eWIpx+EZWjgJQ==
-X-Received: by 2002:a19:385b:0:b0:52c:9846:3b8c with SMTP id 2adb3069b0e04-52ca6e6c7ffmr5359133e87.41.1718616640555;
-        Mon, 17 Jun 2024 02:30:40 -0700 (PDT)
+        bh=jWyeWccl/2aEbivUkA2fQdZreCyT8NBDVsWDIMF7kK0=;
+        b=beMIKDChlBKIADT1Y76UvlO1XfTepUitbqwPdiZXHgF+OdyjISIoNSlo+nt6RE96jx
+         ptEipCIcK/Lmw38giJRYLedJZk1f7j4gwE7JzAaGm0HVKB1b7eYmw52/Z2gV+LaVEMUA
+         pXjdZFLokjK0yssuN+w36mhdEcFaCUZge+w409MFa5SRsradvl1S8EWlyXyNv3ZCJ3DT
+         wr6aHGbyCxH8l92zvvIB0BXcnfS7AAmV40P7y4xnZnxhE2Tq7WKZY6x/SVMM43H/BmYH
+         ScCzIPQHSnpinSl6GtagRwJwyc/NYIotJsfnjrsBBf/GVCreqc727BBVXeEMPj1L0e0q
+         hJew==
+X-Forwarded-Encrypted: i=1; AJvYcCW2Jr1Ho0prpwMsmvdlEjtzSg0zVMVL3aG/F5VaRVhKorZ4S1iNq28h6Y+4rMpLPslExJt/g9gveenYZ56hUqwWEfRFqggqOhAYzDmmSZPU+nwU4oxjK5kMVA==
+X-Gm-Message-State: AOJu0YwZAghGJdbrTuDQZL52caThHZZf0T6zranOgiv4OQ9bgzgCEbs9
+	8NQNV+bFFGF3WxGCZVLHfevK/ByWC6StqK7v/eqxdny38FH0GU4k057Tcx/XrH8=
+X-Google-Smtp-Source: AGHT+IGp6uk6Ht7TdfIqqo0ajPFbRj2WbXpaBM2/Fev0ZqRwXqgcuvLouIHuUc2CjEsT4jUPUz2Q/Q==
+X-Received: by 2002:a50:a458:0:b0:57a:322c:b1a5 with SMTP id 4fb4d7f45d1cf-57cbd6a6d1dmr5264380a12.38.1718617169052;
+        Mon, 17 Jun 2024 02:39:29 -0700 (PDT)
 Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-422874e71dcsm188650685e9.44.2024.06.17.02.30.38
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57cb72ce12fsm6169015a12.7.2024.06.17.02.39.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Jun 2024 02:30:39 -0700 (PDT)
-Date: Mon, 17 Jun 2024 11:30:36 +0200
+        Mon, 17 Jun 2024 02:39:28 -0700 (PDT)
+Date: Mon, 17 Jun 2024 11:39:25 +0200
 From: Jiri Pirko <jiri@resnulli.us>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Xing <kerneljasonxing@gmail.com>,
-	Heng Qi <hengqi@linux.alibaba.com>, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
-	john.fastabend@gmail.com, netdev@vger.kernel.org
-Subject: Re: [patch net-next] virtio_net: add support for Byte Queue Limits
-Message-ID: <ZnACPN-uDHZAwURl@nanopsycho.orion>
-References: <CACGkMEsy37mg-GwRXJNBBkvhEuaEYw-g3wthv_XS7+t5=ALhiA@mail.gmail.com>
- <ZmG9YWUcaW4S94Eq@nanopsycho.orion>
- <CACGkMEug18UTJ4HDB+E4-U84UnhyrY-P5kW4et5tnS9E7Pq2Gw@mail.gmail.com>
- <ZmKrGBLiNvDVKL2Z@nanopsycho.orion>
- <CACGkMEvQ04NBUBwrc9AyvLqskSbQ_4OBUK=B9a+iktLcPLeyrg@mail.gmail.com>
- <ZmLZkVML2a3mT2Hh@nanopsycho.orion>
- <20240607062231-mutt-send-email-mst@kernel.org>
- <ZmLvWnzUBwgpbyeh@nanopsycho.orion>
- <20240610101346-mutt-send-email-mst@kernel.org>
- <CACGkMEvWa9OZXhb2==VNw_t2SDdb9etLSvuWa=OWkDFr0rHLQA@mail.gmail.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: Jason Wang <jasowang@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+	Cindy Lu <lulu@redhat.com>, Dragos Tatulea <dtatulea@nvidia.com>,
+	"mst@redhat.com" <mst@redhat.com>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Subject: Re: [PATCH 1/2] vdpa: support set mac address from vdpa tool
+Message-ID: <ZnAETXPWG2BvyqSc@nanopsycho.orion>
+References: <20240611053239.516996-1-lulu@redhat.com>
+ <20240611185810.14b63d7d@kernel.org>
+ <ZmlAYcRHMqCgYBJD@nanopsycho.orion>
+ <CACGkMEtKFZwPpzjNBv2j6Y5L=jYTrW4B8FnSLRMWb_AtqqSSDQ@mail.gmail.com>
+ <PH0PR12MB5481BAABF5C43F9500D2852CDCCD2@PH0PR12MB5481.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,76 +96,44 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEvWa9OZXhb2==VNw_t2SDdb9etLSvuWa=OWkDFr0rHLQA@mail.gmail.com>
+In-Reply-To: <PH0PR12MB5481BAABF5C43F9500D2852CDCCD2@PH0PR12MB5481.namprd12.prod.outlook.com>
 
-Mon, Jun 17, 2024 at 03:44:55AM CEST, jasowang@redhat.com wrote:
->On Mon, Jun 10, 2024 at 10:19 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->>
->> On Fri, Jun 07, 2024 at 01:30:34PM +0200, Jiri Pirko wrote:
->> > Fri, Jun 07, 2024 at 12:23:37PM CEST, mst@redhat.com wrote:
->> > >On Fri, Jun 07, 2024 at 11:57:37AM +0200, Jiri Pirko wrote:
->> > >> >True. Personally, I would like to just drop orphan mode. But I'm not
->> > >> >sure others are happy with this.
+Mon, Jun 17, 2024 at 04:57:23AM CEST, parav@nvidia.com wrote:
+>
+>
+>> From: Jason Wang <jasowang@redhat.com>
+>> Sent: Monday, June 17, 2024 7:18 AM
+>> 
+>> On Wed, Jun 12, 2024 at 2:30 PM Jiri Pirko <jiri@resnulli.us> wrote:
+>> >
+>> > Wed, Jun 12, 2024 at 03:58:10AM CEST, kuba@kernel.org wrote:
+>> > >On Tue, 11 Jun 2024 13:32:32 +0800 Cindy Lu wrote:
+>> > >> Add new UAPI to support the mac address from vdpa tool Function
+>> > >> vdpa_nl_cmd_dev_config_set_doit() will get the MAC address from the
+>> > >> vdpa tool and then set it to the device.
 >> > >>
->> > >> How about to do it other way around. I will take a stab at sending patch
->> > >> removing it. If anyone is against and has solid data to prove orphan
->> > >> mode is needed, let them provide those.
+>> > >> The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
 >> > >
->> > >Break it with no warning and see if anyone complains?
+>> > >Why don't you use devlink?
 >> >
->> > This is now what I suggested at all.
->> >
->> > >No, this is not how we handle userspace compatibility, normally.
->> >
->> > Sure.
->> >
->> > Again:
->> >
->> > I would send orphan removal patch containing:
->> > 1) no module options removal. Warn if someone sets it up
->> > 2) module option to disable napi is ignored
->> > 3) orphan mode is removed from code
->> >
->> > There is no breakage. Only, hypotetically performance downgrade in some
->> > hypotetical usecase nobody knows of.
->>
->> Performance is why people use virtio. It's as much a breakage as any
->> other bug. The main difference is, with other types of breakage, they
->> are typically binary and we can not tolerate them at all.  A tiny,
->> negligeable performance regression might be tolarable if it brings
->> other benefits. I very much doubt avoiding interrupts is
->> negligeable though. And making code simpler isn't a big benefit,
->> users do not care.
->
->It's not just making code simpler. As discussed in the past, it also
->fixes real bugs.
->
->>
->> > My point was, if someone presents
->> > solid data to prove orphan is needed during the patch review, let's toss
->> > out the patch.
->> >
->> > Makes sense?
->>
->> It's not hypothetical - if anything, it's hypothetical that performance
->> does not regress.  And we just got a report from users that see a
->> regression without.  So, not really.
->
->Probably, but do we need to define a bar here? Looking at git history,
->we didn't ask a full benchmark for a lot of commits that may touch
+>> > Fair question. Why does vdpa-specific uapi even exist? To have
+>> > driver-specific uapi Does not make any sense to me :/
+>> 
+>> It came with devlink first actually, but switched to a dedicated uAPI.
+>> 
+>> Parav(cced) may explain more here.
+>> 
+>Devlink configures function level mac that applies to all protocol devices (vdpa, rdma, netdev) etc.
+>Additionally, vdpa device level mac can be different (an additional one) to apply to only vdpa traffic.
+>Hence dedicated uAPI was added.
 
-Moreover, there is no "benchmark" to run anyway, is it?
+There is 1:1 relation between vdpa instance and devlink port, isn't it?
+Then we have:
+       devlink port function set DEV/PORT_INDEX hw_addr ADDR
 
+Which does exactly what you need, configure function hw address (mac).
 
->performance.
->
->Thanks
->
->>
->> >
->> > >
->> > >--
->> > >MST
->> > >
->>
->
+When you say VDPA traffic, do you suggest there might be VDPA instance
+and netdev running on the same VF in parallel. If yes, do we have 2
+eswitch port representors to be separately used to steer the traffic?
+If no, how is that supposed to be working?
