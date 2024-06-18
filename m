@@ -1,232 +1,111 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B682719EEDD
-	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 07:57:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C94E14D717
+	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 08:24:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718697423; cv=none; b=kqcsb4V0pFv0b57wHoXKw1u/M6CpL0eS4WTtSGrDHHeh2PwBUKeHnSse9foj92Y09ZnxI9S5mQzzz3rN/95JOaJulrusTGbaNBGIbfmo47OBNHges6goQqGkzBBO+9lAm7KHwP3VupQHat6q33/ulq+BbnXagsGAIvEO9uGbjSg=
+	t=1718699089; cv=none; b=sZn/r04NsENqueo5AP7LxMMAKyuc1yIFB7yjmZY3kXQKMlmhYNke3Q6zddpbWv3mpP3g9okpFmn5ZfksY9EppuWA6XYm291FwqbJ/eXBv2WHZxeVBhPjZC8vU85ylRpWhuV4TlbgI6+yy1c+XHQjzLh/bl+lMB/+BlU+r+9l1qU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718697423; c=relaxed/simple;
-	bh=FWHKSY/+gape+qlMF1te0S6rQk+1EewFBWF0NTMojJg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=OnR/SCm2XdnrweE1rYeW4R3+QklMUUypTFEZcFsiko5qcV6+bvmqqGIBZGnC1r+Hmvb7yNL1kVUVxEKFqkMETy+PUEJgh6ASWvL893k2uhhMjxbUU36tJvYxaHZg/2LfWGDDFL9v0yvJ3ExY8gj7xkQPn0j/gY/8V3bzvAdue3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=joYPijmT; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1718699089; c=relaxed/simple;
+	bh=pbDziqPI/WoS/orp534a2HtadGyFK22CpztY1tUbZh8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ISAWnaxzqRwRZ0W+m6plCc77DPUj06FTcGDuHcoouEd9Q9vF18rJRcY4BZOhPFoy4JVoIsU+MmrRsEIT043lv/6vOHOiaIElUm1H60AEWFu0nSXTZCMhw1xE0tuNAcP0jKJWQGDdAz3w07hKql60tlDOL4tLFTw7hl8a0ZwGNpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=WgH2s/dj; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="joYPijmT"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718697413; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=v33T2BReP5MmEwR4SEGzkthhk2RVW62w9993rtHIlik=;
-	b=joYPijmTzBB9mZ+aJRoEuzmJ6LeAZfNnYL4TpiJdfGH6KrmaCN/4PE0JKt+1iFgP0H9CJKf/7wlGIF6EIKUXqTTe6QQzd9LSILBGqj24SVzZaeK/Gc8zbLHe0QoYkq4eil77TC1t+IoivMu6GbztEKAhceYf+sOhq43jKurWAyk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W8jSGCu_1718697412;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8jSGCu_1718697412)
-          by smtp.aliyun-inc.com;
-          Tue, 18 Jun 2024 15:56:53 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next v6 09/10] virtio_net: xsk: rx: support recv merge mode
-Date: Tue, 18 Jun 2024 15:56:42 +0800
-Message-Id: <20240618075643.24867-10-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240618075643.24867-1-xuanzhuo@linux.alibaba.com>
-References: <20240618075643.24867-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="WgH2s/dj"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-42122ac2f38so32020435e9.1
+        for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 01:24:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1718699085; x=1719303885; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=SdSZOLQOwQN4pDV3GxSPxLcKEx0R6yJdz5wU8m1ZtRM=;
+        b=WgH2s/djKC1/37gQDZDgfIvzX18qHptgyC5M29pO+IpraMd4W8QQ8IYqiZqyUJGA5D
+         b+7dDFm3KEoLnBm01DzfI1rMyZmO++Bb4tU1UWdvBo5Q9GRgUf3yEDCExSlbtNsZdRHD
+         tiGUdlxZo6KKEH34P4gCeR6s7dW7Dl5OPgUQUdHcF9Rv0ErxLcBxa+cPbkrYI+FUKCSi
+         qnicpf4Re7857Z5Mg1E09Azv3I4qWgoFmrNjeIOZMge/lHGzvnw4kGJ4BJ3vVXpLdCBj
+         4LnLF+Y3RKviPm1w2HqfBORl3JWLOwoMdHybUgSAlMsX7vyByLqYPYsc34GbDSoDFhf4
+         KYwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718699085; x=1719303885;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SdSZOLQOwQN4pDV3GxSPxLcKEx0R6yJdz5wU8m1ZtRM=;
+        b=OdC3mjmsUwWxRkAg4Sehd19hqCmmbFEWnCj/EhBVV03dPl9ZK/W5w06kt+qKbMcsGb
+         zapKqOv2cQSC93xp0VjJXhvUDznu7yz1gnOyTrn87pE26H6QO9VZnFr7FZ0qWIhqcBGC
+         0y0RavBQyiak+hZOvjprpqVrK1c/w1IsXL9e71UFgjSoppv2J95jnjicSCcH/Qtxgz0x
+         nUaz86L3z+rP4INNo0PpxMloW9MHUeMgtGvNAaKIzPya2FtCIYVdvxZEQLhAwgAUtsCd
+         ljrH789T0nMNov+bEIaifO9iT+hzAm9fZmEHG+QdSrck7ORTLfgcnPuETCVFBKDRtOVn
+         jmmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWuV9VsO2fu4QOldTp3/erG6KdOTK2kiZ+UcRwUgkcyUxCeiBb9/eepuxErB6ob08Jzbu4oYXPArvgjgN1yVYP9jvUAPoOn0yOaaY/hSMs=
+X-Gm-Message-State: AOJu0YzOK8y1CzZTjybMFgWXUHBQttRVLvKMM4o9rTr7KI+/ang0lFwi
+	ZgDS85TE84SdkgFLuHrChKcyPZehxrv1FQh43f5AEX0tSIX6mvkrtSLzR6KWTtw=
+X-Google-Smtp-Source: AGHT+IEMTh472tGg2TlG1vDvd0yUcn+uDzW2Pp6bl99LkVV30JyfLW2jhEBMA9p2+F9DdNBT2sENKQ==
+X-Received: by 2002:a05:600c:4506:b0:422:291:6b3e with SMTP id 5b1f17b1804b1-4246f56d2b6mr15871505e9.1.1718699085348;
+        Tue, 18 Jun 2024 01:24:45 -0700 (PDT)
+Received: from ?IPV6:2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a? ([2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3607509c7e5sm13717250f8f.30.2024.06.18.01.24.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Jun 2024 01:24:45 -0700 (PDT)
+Message-ID: <c83127de-b59a-4475-8d20-e3582ee2e6f8@suse.com>
+Date: Tue, 18 Jun 2024 11:24:42 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 8baa0af3684b
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] x86/paravirt: Disable virt spinlock on bare metal
+To: Chen Yu <yu.c.chen@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Juergen Gross <jgross@suse.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Ajay Kaher <ajay.kaher@broadcom.com>
+Cc: x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+ Prem Nath Dey <prem.nath.dey@intel.com>,
+ Xiaoping Zhou <xiaoping.zhou@intel.com>
+References: <20240526015847.14142-1-yu.c.chen@intel.com>
+Content-Language: en-US
+From: Nikolay Borisov <nik.borisov@suse.com>
+In-Reply-To: <20240526015847.14142-1-yu.c.chen@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Support AF-XDP for merge mode.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 139 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 139 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 06608d696e2e..cfa106aa8039 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -504,6 +504,10 @@ static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
- 			       struct net_device *dev,
- 			       unsigned int *xdp_xmit,
- 			       struct virtnet_rq_stats *stats);
-+static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
-+					       struct sk_buff *curr_skb,
-+					       struct page *page, void *buf,
-+					       int len, int truesize);
- 
- static bool is_xdp_frame(void *ptr)
- {
-@@ -1128,6 +1132,139 @@ static struct sk_buff *virtnet_receive_xsk_small(struct net_device *dev, struct
- 	}
- }
- 
-+static void xsk_drop_follow_bufs(struct net_device *dev,
-+				 struct receive_queue *rq,
-+				 u32 num_buf,
-+				 struct virtnet_rq_stats *stats)
-+{
-+	struct xdp_buff *xdp;
-+	u32 len;
-+
-+	while (num_buf-- > 1) {
-+		xdp = virtqueue_get_buf(rq->vq, &len);
-+		if (unlikely(!xdp)) {
-+			pr_debug("%s: rx error: %d buffers missing\n",
-+				 dev->name, num_buf);
-+			DEV_STATS_INC(dev, rx_length_errors);
-+			break;
-+		}
-+		u64_stats_add(&stats->bytes, len);
-+		xsk_buff_free(xdp);
-+	}
-+}
-+
-+static int xsk_append_merge_buffer(struct virtnet_info *vi,
-+				   struct receive_queue *rq,
-+				   struct sk_buff *head_skb,
-+				   u32 num_buf,
-+				   struct virtio_net_hdr_mrg_rxbuf *hdr,
-+				   struct virtnet_rq_stats *stats)
-+{
-+	struct sk_buff *curr_skb;
-+	struct xdp_buff *xdp;
-+	u32 len, truesize;
-+	struct page *page;
-+	void *buf;
-+
-+	curr_skb = head_skb;
-+
-+	while (--num_buf) {
-+		buf = virtqueue_get_buf(rq->vq, &len);
-+		if (unlikely(!buf)) {
-+			pr_debug("%s: rx error: %d buffers out of %d missing\n",
-+				 vi->dev->name, num_buf,
-+				 virtio16_to_cpu(vi->vdev,
-+						 hdr->num_buffers));
-+			DEV_STATS_INC(vi->dev, rx_length_errors);
-+			return -EINVAL;
-+		}
-+
-+		u64_stats_add(&stats->bytes, len);
-+
-+		xdp = buf_to_xdp(vi, rq, buf, len);
-+		if (!xdp)
-+			goto err;
-+
-+		buf = napi_alloc_frag(len);
-+		if (!buf) {
-+			xsk_buff_free(xdp);
-+			goto err;
-+		}
-+
-+		memcpy(buf, xdp->data - vi->hdr_len, len);
-+
-+		xsk_buff_free(xdp);
-+
-+		page = virt_to_page(buf);
-+
-+		truesize = len;
-+
-+		curr_skb  = virtnet_skb_append_frag(head_skb, curr_skb, page,
-+						    buf, len, truesize);
-+		if (!curr_skb) {
-+			put_page(page);
-+			goto err;
-+		}
-+	}
-+
-+	return 0;
-+
-+err:
-+	xsk_drop_follow_bufs(vi->dev, rq, num_buf, stats);
-+	return -EINVAL;
-+}
-+
-+static struct sk_buff *virtnet_receive_xsk_merge(struct net_device *dev, struct virtnet_info *vi,
-+						 struct receive_queue *rq, struct xdp_buff *xdp,
-+						 unsigned int *xdp_xmit,
-+						 struct virtnet_rq_stats *stats)
-+{
-+	struct virtio_net_hdr_mrg_rxbuf *hdr;
-+	struct bpf_prog *prog;
-+	struct sk_buff *skb;
-+	u32 ret, num_buf;
-+
-+	hdr = xdp->data - vi->hdr_len;
-+	num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
-+
-+	ret = XDP_PASS;
-+	rcu_read_lock();
-+	prog = rcu_dereference(rq->xdp_prog);
-+	/* TODO: support multi buffer. */
-+	if (prog && num_buf == 1)
-+		ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit, stats);
-+	rcu_read_unlock();
-+
-+	switch (ret) {
-+	case XDP_PASS:
-+		skb = xdp_construct_skb(rq, xdp);
-+		if (!skb)
-+			goto drop_bufs;
-+
-+		if (xsk_append_merge_buffer(vi, rq, skb, num_buf, hdr, stats)) {
-+			dev_kfree_skb(skb);
-+			goto drop;
-+		}
-+
-+		return skb;
-+
-+	case XDP_TX:
-+	case XDP_REDIRECT:
-+		return NULL;
-+
-+	default:
-+		/* drop packet */
-+		xsk_buff_free(xdp);
-+	}
-+
-+drop_bufs:
-+	xsk_drop_follow_bufs(dev, rq, num_buf, stats);
-+
-+drop:
-+	u64_stats_inc(&stats->drops);
-+	return NULL;
-+}
-+
- static struct sk_buff *virtnet_receive_xsk_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 					       void *buf, u32 len,
- 					       unsigned int *xdp_xmit,
-@@ -1154,6 +1291,8 @@ static struct sk_buff *virtnet_receive_xsk_buf(struct virtnet_info *vi, struct r
- 
- 	if (!vi->mergeable_rx_bufs)
- 		skb = virtnet_receive_xsk_small(dev, vi, rq, xdp, xdp_xmit, stats);
-+	else
-+		skb = virtnet_receive_xsk_merge(dev, vi, rq, xdp, xdp_xmit, stats);
- 
- 	return skb;
- }
--- 
-2.32.0.3.g01195cf9f
+On 26.05.24 г. 4:58 ч., Chen Yu wrote:
+> The kernel can change spinlock behavior when running as a guest. But
+> this guest-friendly behavior causes performance problems on bare metal.
+> So there's a 'virt_spin_lock_key' static key to switch between the two
+> modes.
+> 
+> The static key is always enabled by default (run in guest mode) and
+> should be disabled for bare metal (and in some guests that want native
+> behavior).
+> 
+> Performance drop is reported when running encode/decode workload and
+> BenchSEE cache sub-workload.
+> Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
+> native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
+> is disabled the virt_spin_lock_key is incorrectly set to true on bare
+> metal. The qspinlock degenerates to test-and-set spinlock, which
+> decrease the performance on bare metal.
+> 
+> Fix this by disabling virt_spin_lock_key if it is on bare metal,
+> regardless of CONFIG_PARAVIRT_SPINLOCKS.
+> 
 
+nit:
+
+This bug wouldn't have happened if the key was defined FALSE by default 
+and only enabled in the appropriate case. I think it makes more sense to 
+invert the logic and have the key FALSE by default and only enable it 
+iff the kernel is running under a hypervisor... At worst only the 
+virtualization case would suffer if the lock is falsely not enabled.
