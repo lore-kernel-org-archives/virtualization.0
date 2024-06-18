@@ -1,111 +1,219 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C94E14D717
-	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 08:24:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5427C204EE3
+	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 09:47:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718699089; cv=none; b=sZn/r04NsENqueo5AP7LxMMAKyuc1yIFB7yjmZY3kXQKMlmhYNke3Q6zddpbWv3mpP3g9okpFmn5ZfksY9EppuWA6XYm291FwqbJ/eXBv2WHZxeVBhPjZC8vU85ylRpWhuV4TlbgI6+yy1c+XHQjzLh/bl+lMB/+BlU+r+9l1qU=
+	t=1718704032; cv=none; b=tX7XdFYLFoBvhIEOz3j94JNaxpNeFNP0ofwcdVEwA2I7rhcLa087Hd8aWRT5vMWBSlaaZjIc14V1D+a0gmANZrkMuTQcp+O9phN8c1qkwRcYA6te3fvvBfx44Ed84Afkl6TKd/XtTOPDdf3sGimeKN3GvNYbvtZ5FNKmuR+KAvk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718699089; c=relaxed/simple;
-	bh=pbDziqPI/WoS/orp534a2HtadGyFK22CpztY1tUbZh8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ISAWnaxzqRwRZ0W+m6plCc77DPUj06FTcGDuHcoouEd9Q9vF18rJRcY4BZOhPFoy4JVoIsU+MmrRsEIT043lv/6vOHOiaIElUm1H60AEWFu0nSXTZCMhw1xE0tuNAcP0jKJWQGDdAz3w07hKql60tlDOL4tLFTw7hl8a0ZwGNpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=WgH2s/dj; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1718704032; c=relaxed/simple;
+	bh=NKSlcV6xqhaUW4Q4ODXZrLaX1p1+K5g53ZOZx12Fpng=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=nPYiJKuAQC6zRmCM7FePQANHYlMpdPfQ/qNWMM156PBohziN3Gays6ZPESj9YjhkEFntspbuwMhhihmVIFC627F3iSPc/KvZQhdQTcrtLMhGpyOmit6qJFqdyzYz7KgKstKcaCzSlktGvyK0zsoKKNQjLORRnhHE2Y72m6+4i/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ctDIAE5G; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="WgH2s/dj"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-42122ac2f38so32020435e9.1
-        for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 01:24:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1718699085; x=1719303885; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=SdSZOLQOwQN4pDV3GxSPxLcKEx0R6yJdz5wU8m1ZtRM=;
-        b=WgH2s/djKC1/37gQDZDgfIvzX18qHptgyC5M29pO+IpraMd4W8QQ8IYqiZqyUJGA5D
-         b+7dDFm3KEoLnBm01DzfI1rMyZmO++Bb4tU1UWdvBo5Q9GRgUf3yEDCExSlbtNsZdRHD
-         tiGUdlxZo6KKEH34P4gCeR6s7dW7Dl5OPgUQUdHcF9Rv0ErxLcBxa+cPbkrYI+FUKCSi
-         qnicpf4Re7857Z5Mg1E09Azv3I4qWgoFmrNjeIOZMge/lHGzvnw4kGJ4BJ3vVXpLdCBj
-         4LnLF+Y3RKviPm1w2HqfBORl3JWLOwoMdHybUgSAlMsX7vyByLqYPYsc34GbDSoDFhf4
-         KYwQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ctDIAE5G"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718704029;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uTZKtkr79Lfim0p7IaBCWbQs6mQHbjzmBshnARYHwbE=;
+	b=ctDIAE5GztAq11LRlXzFtPPP8D5NmgmNQVIsYGYOmKM4G9C8nfzHCAdxv3BbuWpfl3RI/Y
+	g7hDNXRwuRKuKtcMaYZjAfBtpFfX/8UvCgUWB/PTHnOsWehkComjfI3OVhexqYuuihJrCQ
+	8cGkZIfsr+bpo/RQSoNKCH/lvTL1pCE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-637-ACNvtVyxPUCnaSEi__JZbQ-1; Tue, 18 Jun 2024 05:47:07 -0400
+X-MC-Unique: ACNvtVyxPUCnaSEi__JZbQ-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4217b3d2044so40310235e9.0
+        for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 02:47:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718699085; x=1719303885;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1718704026; x=1719308826;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SdSZOLQOwQN4pDV3GxSPxLcKEx0R6yJdz5wU8m1ZtRM=;
-        b=OdC3mjmsUwWxRkAg4Sehd19hqCmmbFEWnCj/EhBVV03dPl9ZK/W5w06kt+qKbMcsGb
-         zapKqOv2cQSC93xp0VjJXhvUDznu7yz1gnOyTrn87pE26H6QO9VZnFr7FZ0qWIhqcBGC
-         0y0RavBQyiak+hZOvjprpqVrK1c/w1IsXL9e71UFgjSoppv2J95jnjicSCcH/Qtxgz0x
-         nUaz86L3z+rP4INNo0PpxMloW9MHUeMgtGvNAaKIzPya2FtCIYVdvxZEQLhAwgAUtsCd
-         ljrH789T0nMNov+bEIaifO9iT+hzAm9fZmEHG+QdSrck7ORTLfgcnPuETCVFBKDRtOVn
-         jmmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWuV9VsO2fu4QOldTp3/erG6KdOTK2kiZ+UcRwUgkcyUxCeiBb9/eepuxErB6ob08Jzbu4oYXPArvgjgN1yVYP9jvUAPoOn0yOaaY/hSMs=
-X-Gm-Message-State: AOJu0YzOK8y1CzZTjybMFgWXUHBQttRVLvKMM4o9rTr7KI+/ang0lFwi
-	ZgDS85TE84SdkgFLuHrChKcyPZehxrv1FQh43f5AEX0tSIX6mvkrtSLzR6KWTtw=
-X-Google-Smtp-Source: AGHT+IEMTh472tGg2TlG1vDvd0yUcn+uDzW2Pp6bl99LkVV30JyfLW2jhEBMA9p2+F9DdNBT2sENKQ==
-X-Received: by 2002:a05:600c:4506:b0:422:291:6b3e with SMTP id 5b1f17b1804b1-4246f56d2b6mr15871505e9.1.1718699085348;
-        Tue, 18 Jun 2024 01:24:45 -0700 (PDT)
-Received: from ?IPV6:2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a? ([2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3607509c7e5sm13717250f8f.30.2024.06.18.01.24.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Jun 2024 01:24:45 -0700 (PDT)
-Message-ID: <c83127de-b59a-4475-8d20-e3582ee2e6f8@suse.com>
-Date: Tue, 18 Jun 2024 11:24:42 +0300
+        bh=uTZKtkr79Lfim0p7IaBCWbQs6mQHbjzmBshnARYHwbE=;
+        b=twqM9gOjPQKbc9O+Q05Rv5S2Zo29222fOfjnPgfbG+zA6F6w2Ar741at/P2GP9iHat
+         22/Xz0hfo2B9IpP2jtbnWPVWOLRHd9QPPTR14Fu+Gce8UvPjbFPDqUxowwcyWmjbgkEo
+         5sd1ci+3xW9Th07puyQpvEoWM695e3b+N6h3Odc3tdzem/Z0TC7JoXOs+Hh0EnXLbLmx
+         vNg9uT53JJYSMGsjNwP9UaP9fa3vKlpubWOxfX7mkbth6PWLeO9InUH+AGbEyECZ7y+C
+         12B+1LlFMKezPM/katUBmywBlgKmYw2Q3/+xAHx1K5GQabCQhwPyjanpuaaLj4NOagbN
+         5hfw==
+X-Forwarded-Encrypted: i=1; AJvYcCXoOaMDGY9sC/69OlVt/I96klDc8H7xwwP43Q78zzrcGW7DbZGpq6XQs+zEM/FDIDMvfT+zn9c1dWufa6is2OfJFuEyjCwbE9knhDNbohs=
+X-Gm-Message-State: AOJu0Yylh8/nMi6tjtBwBNLcD531UZYgGW38D2Wn/oKT6u3SCvmD9TQ7
+	Ab7DtaUnfFcCtnKEmtk66RHDHqf9RKMg9MUSjyymDzl7473lNXeTz5FB3eoFj4Oul7EGOR1VGgV
+	PZX4KwWPpYGqi0RzoOwP7GD+kGuOyZgFu0fgLZ0Blqzd6tExS2ptOatmj8vWNq6sz
+X-Received: by 2002:a05:600c:3d13:b0:423:2ea:fdb3 with SMTP id 5b1f17b1804b1-42304827b93mr88708245e9.14.1718704025902;
+        Tue, 18 Jun 2024 02:47:05 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGyM5RIkf//FNiHL4bIrMmJ3JCefSUPWbznYkp3sETl7EEyGVlkt+Me+HnWNc6Z7w/Cq+HL2g==
+X-Received: by 2002:a05:600c:3d13:b0:423:2ea:fdb3 with SMTP id 5b1f17b1804b1-42304827b93mr88708045e9.14.1718704025298;
+        Tue, 18 Jun 2024 02:47:05 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:441:67bf:ebbb:9f62:dc29:2bdc])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42301a7c850sm177265855e9.6.2024.06.18.02.47.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jun 2024 02:47:04 -0700 (PDT)
+Date: Tue, 18 Jun 2024 05:47:00 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Shunsuke Mie <mie@igel.co.jp>
+Cc: Manivannan Sadhasivam <mani@kernel.org>, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+Message-ID: <20240618054115-mutt-send-email-mst@kernel.org>
+References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
+ <20240516125913.GC11261@thinkpad>
+ <20240520090809-mutt-send-email-mst@kernel.org>
+ <20240614095033.GA59574@thinkpad>
+ <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] x86/paravirt: Disable virt spinlock on bare metal
-To: Chen Yu <yu.c.chen@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- Juergen Gross <jgross@suse.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Ajay Kaher <ajay.kaher@broadcom.com>
-Cc: x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
- Prem Nath Dey <prem.nath.dey@intel.com>,
- Xiaoping Zhou <xiaoping.zhou@intel.com>
-References: <20240526015847.14142-1-yu.c.chen@intel.com>
-Content-Language: en-US
-From: Nikolay Borisov <nik.borisov@suse.com>
-In-Reply-To: <20240526015847.14142-1-yu.c.chen@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
+On Tue, Jun 18, 2024 at 08:41:09AM +0900, Shunsuke Mie wrote:
+> Let's clarify the situation.
+> 
+> The Virtio device and driver are not working properly due to a
+> combination of the following reasons:
+> 
+> 1. Regarding VIRTIO_F_ACCESS_PLATFORM:
+> - The modern spec includes VIRTIO_F_ACCESS_PLATFORM, which allows
+> Physical DMAC to be used.
+> - This feature is not available in the legacy spec.
+
+... because legacy drivers don't set it
+
+> 2. Regarding Virtio PCIe Capability:
+> - The modern spec requires Virtio PCIe Capability.
+
+It's a PCI capability actually. People have been asking
+about option to make it a pcie extended capability,
+but no one did the spec, qemu and driver work, yet.
+
+> - In some environments, Virtio PCIe Capability cannot be provided.
+
+why not?
 
 
-On 26.05.24 г. 4:58 ч., Chen Yu wrote:
-> The kernel can change spinlock behavior when running as a guest. But
-> this guest-friendly behavior causes performance problems on bare metal.
-> So there's a 'virt_spin_lock_key' static key to switch between the two
-> modes.
-> 
-> The static key is always enabled by default (run in guest mode) and
-> should be disabled for bare metal (and in some guests that want native
-> behavior).
-> 
-> Performance drop is reported when running encode/decode workload and
-> BenchSEE cache sub-workload.
-> Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
-> native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
-> is disabled the virt_spin_lock_key is incorrectly set to true on bare
-> metal. The qspinlock degenerates to test-and-set spinlock, which
-> decrease the performance on bare metal.
-> 
-> Fix this by disabling virt_spin_lock_key if it is on bare metal,
-> regardless of CONFIG_PARAVIRT_SPINLOCKS.
-> 
+> Ideas to solve this problem:
+> 1. Introduce an ACCESS_PLATFORM-like flag in the legacy spec:
+> There are some unused bits, but it may be difficult to make changes to
+> the legacy spec at this stage.
 
-nit:
+seems pointless - if you can not change the driver then it won't
+negotiate ACCESS_PLATFORM. if you can change the driver then
+use 1.0 interface, please.
 
-This bug wouldn't have happened if the key was defined FALSE by default 
-and only enabled in the appropriate case. I think it makes more sense to 
-invert the logic and have the key FALSE by default and only enable it 
-iff the kernel is running under a hypervisor... At worst only the 
-virtualization case would suffer if the lock is falsely not enabled.
+> 2. Mani's Idea:
+> I think it is best to add support for modern virtio PCI device to make
+> use of IOMMU. Legacy devices can continue to use physical address.
+> 
+> The meaning of "Legacy devices can continue to use physical address"
+> is not fully understood. @mani Could you explain more?
+
+I don't know how this is different from 3.
+
+> 3. Wait until the HW supports the modern spec:
+> This depends on the chip vendor.
+
+Adding ACCESS_PLATFORM hacks would also depend on the chip vendor.
+
+> Option 3 is essentially doing nothing, so it would be preferable to
+> consider other ideas.
+
+Why because you have to do something, anything?
+
+> Best,
+> Shunsuke
+> 
+> 2024年6月14日(金) 18:50 Manivannan Sadhasivam <mani@kernel.org>:
+> >
+> > On Mon, May 20, 2024 at 09:22:54AM -0400, Michael S. Tsirkin wrote:
+> > > On Thu, May 16, 2024 at 02:59:13PM +0200, Manivannan Sadhasivam wrote:
+> > > > On Thu, May 16, 2024 at 01:38:40PM +0900, Shunsuke Mie wrote:
+> > > > > Hi virtio folks,
+> > > > >
+> > > >
+> > > > You forgot to CC the actual Virtio folks. I've CCed them now.
+> > > >
+> > > > > I'm writing to discuss finding a workaround with Virtio drivers and legacy
+> > > > > devices with limited memory access.
+> > > > >
+> > > > > # Background
+> > > > > The Virtio specification defines a feature (VIRTIO_F_ACCESS_PLATFORM) to
+> > > > > indicate devices requiring restricted memory access or IOMMU translation. This
+> > > > > feature bit resides at position 33 in the 64-bit Features register on modern
+> > > > > interfaces. When the linux virtio driver finds the flag, the driver uses DMA
+> > > > > API that handles to use of appropriate memory.
+> > > > >
+> > > > > # Problem
+> > > > > However, legacy devices only have a 32-bit register for the features bits.
+> > > > > Consequently, these devices cannot represent the ACCESS_PLATFORM bit. As a
+> > > > > result, legacy devices with restricted memory access cannot function
+> > > > > properly[1]. This is a legacy spec issue, but I'd like to find a workaround.
+> > > > >
+> > > > > # Proposed Solutions
+> > > > > I know these are not ideal, but I propose the following solution.
+> > > > > Driver-side:
+> > > > >     - Implement special handling similar to xen_domain.
+> > > > > In xen_domain, linux virtio driver enables to use the DMA API.
+> > > > >     - Introduce a CONFIG option to adjust the DMA API behavior.
+> > > > > Device-side:
+> > > > > Due to indistinguishability from the guest's perspective, a device-side
+> > > > > solution might be difficult.
+> > > > >
+> > > > > I'm open to any comments or suggestions you may have on this issue or
+> > > > > alternative approaches.
+> > > > >
+> > > > > [1] virtio-net PCI endpoint function using PCIe Endpoint Framework,
+> > > > > https://lore.kernel.org/lkml/54ee46c3-c845-3df3-8ba0-0ee79a2acab1@igel.co.jp/t/
+> > > > > The Linux PCIe endpoint framework is used to implement the virtio-net device on
+> > > > > a legacy interface. This is necessary because of the framework and hardware
+> > > > > limitation.
+> > > > >
+> > > >
+> > > > We can fix the endpoint framework limitation, but the problem lies with some
+> > > > platforms where we cannot write to vendor capability registers and still have
+> > > > IOMMU.
+> > > >
+> > > > - Mani
+> > >
+> > > What are vendor capability registers and what do they have to do
+> > > with the IOMMU?
+> > >
+> >
+> > Virtio spec v1.2, sec 4.1.4 says,
+> >
+> > "Each structure can be mapped by a Base Address register (BAR) belonging to the
+> > function, or accessed via the special VIRTIO_PCI_CAP_PCI_CFG field in the PCI
+> > configuration space.
+> >
+> > The location of each structure is specified using a vendor-specific PCI
+> > capability located on the capability list in PCI configuration space of the
+> > device."
+> >
+> > So this means the device has to expose the virtio structures through vendor
+> > specific capability isn't it?
+> >
+> > And only in that case, it can expose VIRTIO_F_ACCESS_PLATFORM bit for making
+> > use of IOMMU translation.
+> >
+> > - Mani
+> >
+> > --
+> > மணிவண்ணன் சதாசிவம்
+
