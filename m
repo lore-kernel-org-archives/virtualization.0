@@ -1,30 +1,30 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B66019ADBF
-	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 02:56:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC27819ADBC
+	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 02:56:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718679413; cv=none; b=MIJOQeqtuJCE0BhtoHdw/4uEBX0O9CVFWtpQjKN6JatSw1cw2eErrUWZ+qBeQt5oujyOLhDaxv7NlYszZS1ozqPDcqvnKK+VvUSl+atafldgXVnulqFPjCWzyAqaE9Mjh94C3VelGSFoR6ceyHUVCu6/ZxTqhl6EdBp5tihVPcI=
+	t=1718679413; cv=none; b=GHRzuWr5xn6iy1VTRO4HvYfLlebdXGykYMnQ822Bxc5H6ICZAOcPMNAC5bPxmQ70F+hxFxUUM/NE/gY5Ff9TXB2jKyGNNXxoNCCSBeJYFEakHNGWQBjxAgU+9EkxeEegS0eMjw6f71Siw9PvsmSdZp9ofmpzj2jp2GcopDe10yg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718679413; c=relaxed/simple;
-	bh=V2q9wNhoGtcyAXiR+9ihkLI1oCVtTX6AlUqTypmDM7g=;
+	bh=5nFbI7Upd2hpda5RW2EE/j0+rNTNKwpdyiOklTx6Nug=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=VSgCfcsRtbrRHZT10IfaXEmRXSy5Fkn4ZKw38uCwU28szOJGRWlD/JtF1mk+FDExlZp26p3bZqxYltPgf0cK/eLASAgfQGk8Ksca7sZwliYrZr8u8xX8AwUj8OUS/XvkjHQjlJLSBm0z96id7rw43MyPqF4TB+d+Kx+VakiCJRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mMIJ9G5S; arc=none smtp.client-ip=115.124.30.110
+	 MIME-Version; b=kooXjwqWNGpjWPsOG74wcc4Bk48B3e2CQpx7GDBzZR6XXc0GCNInJSbGhmtNKliyUxECDVP/P9T1ovfvh6pNQXkwKNBNHRfahOJJ8Gbvc9gck0xu4G6HZKIfcXr69lh/WSHiR8O7nganUMiH0eEQ5lX9Nbads3XbqKZ/8lqeysA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=KDfO5++b; arc=none smtp.client-ip=115.124.30.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mMIJ9G5S"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="KDfO5++b"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718679408; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=MPfdTFk0JzUdgoO7Gp95wxkRiKUup9y05x3o9Fsda+E=;
-	b=mMIJ9G5SQAD/sSNfNZsJiBkwrvi7bL6RFRnevs5ohxE0UoxGhNroJvqR7UPM76O1qWgz0bFogxCCV6BFOVc79bwL0FXv7xAYU7TWauhwvLM/ThWHszY2nA5yq2RkF0xqGV1idwteK6T5nOQvtK52zND+xOcTtn1YHTJkVV1DqZ4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W8iGnO7_1718679407;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8iGnO7_1718679407)
+	t=1718679407; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=8pxCpWS62jn7IeclhGIjU+cXuR/s1kYqZ8blq+PFmUc=;
+	b=KDfO5++bmKof8ZnFTlcuvf8RvA9jvSEFS35tonXD+N3vdHS+eP6DbcA4j6IitqSF+qOQFv67lvGKeoBilvpMt/YPnOk0QBf1RA7wU16vzA9N8mnU9K+L/uiATDScscwv+EsuGeFKNS4v/NaBomjOtgJUiVcPjLl7lJrvCbVEOp4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W8iG1aT_1718679405;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8iG1aT_1718679405)
           by smtp.aliyun-inc.com;
-          Tue, 18 Jun 2024 10:56:47 +0800
+          Tue, 18 Jun 2024 10:56:46 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -57,9 +57,9 @@ Cc: Jakub Kicinski <kuba@kernel.org>,
 	Heiner Kallweit <hkallweit1@gmail.com>,
 	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
 	awel Dembicki <paweldembicki@gmail.com>
-Subject: [PATCH RESEND net-next v14 2/5] dim: make DIMLIB dependent on NET
-Date: Tue, 18 Jun 2024 10:56:41 +0800
-Message-Id: <20240618025644.25754-3-hengqi@linux.alibaba.com>
+Subject: [PATCH RESEND net-next v14 1/5] linux/dim: move useful macros to .h file
+Date: Tue, 18 Jun 2024 10:56:40 +0800
+Message-Id: <20240618025644.25754-2-hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240618025644.25754-1-hengqi@linux.alibaba.com>
 References: <20240618025644.25754-1-hengqi@linux.alibaba.com>
@@ -71,49 +71,50 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-DIMLIB's capabilities are supplied by the dim, net_dim, and
-rdma_dim objects, and dim's interfaces solely act as a base for
-net_dim and rdma_dim and are not explicitly used anywhere else.
-rdma_dim is utilized by the infiniband driver, while net_dim
-is for network devices, excluding the soc/fsl driver.
-
-In this patch, net_dim relies on some NET's interfaces, thus
-DIMLIB needs to explicitly depend on the NET Kconfig.
-
-The soc/fsl driver uses the functions provided by net_dim, so
-it also needs to depend on NET.
+Useful macros will be used effectively elsewhere.
+These will be utilized in subsequent patches.
 
 Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
 ---
- drivers/soc/fsl/Kconfig | 2 +-
- lib/Kconfig             | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ include/linux/dim.h | 7 +++++++
+ lib/dim/net_dim.c   | 6 ------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
-index fcec6ed83d5e..a1e0bc8c1757 100644
---- a/drivers/soc/fsl/Kconfig
-+++ b/drivers/soc/fsl/Kconfig
-@@ -22,7 +22,7 @@ config FSL_GUTS
+diff --git a/include/linux/dim.h b/include/linux/dim.h
+index f343bc9aa2ec..43398f5eade2 100644
+--- a/include/linux/dim.h
++++ b/include/linux/dim.h
+@@ -10,6 +10,13 @@
+ #include <linux/types.h>
+ #include <linux/workqueue.h>
  
- config FSL_MC_DPIO
-         tristate "QorIQ DPAA2 DPIO driver"
--        depends on FSL_MC_BUS
-+        depends on FSL_MC_BUS && NET
-         select SOC_BUS
-         select FSL_GUTS
-         select DIMLIB
-diff --git a/lib/Kconfig b/lib/Kconfig
-index d33a268bc256..0ffc4f69564f 100644
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -629,6 +629,7 @@ config SIGNATURE
- 
- config DIMLIB
- 	tristate
-+	depends on NET
- 	help
- 	  Dynamic Interrupt Moderation library.
- 	  Implements an algorithm for dynamically changing CQ moderation values
++/* Number of DIM profiles and period mode. */
++#define NET_DIM_PARAMS_NUM_PROFILES 5
++#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
++#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
++#define NET_DIM_DEF_PROFILE_CQE 1
++#define NET_DIM_DEF_PROFILE_EQE 1
++
+ /*
+  * Number of events between DIM iterations.
+  * Causes a moderation of the algorithm run.
+diff --git a/lib/dim/net_dim.c b/lib/dim/net_dim.c
+index 4e32f7aaac86..67d5beb34dc3 100644
+--- a/lib/dim/net_dim.c
++++ b/lib/dim/net_dim.c
+@@ -11,12 +11,6 @@
+  *        There are different set of profiles for RX/TX CQs.
+  *        Each profile size must be of NET_DIM_PARAMS_NUM_PROFILES
+  */
+-#define NET_DIM_PARAMS_NUM_PROFILES 5
+-#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
+-#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
+-#define NET_DIM_DEF_PROFILE_CQE 1
+-#define NET_DIM_DEF_PROFILE_EQE 1
+-
+ #define NET_DIM_RX_EQE_PROFILES { \
+ 	{.usec = 1,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
+ 	{.usec = 8,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
 -- 
 2.32.0.3.g01195cf9f
 
