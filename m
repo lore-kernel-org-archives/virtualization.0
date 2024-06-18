@@ -1,121 +1,157 @@
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58C3714E2E0
-	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 10:40:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A278C15279C
+	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 10:47:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718707247; cv=none; b=GQPpWxAhB7zI36fxiqS5edTHwvOCjKZz/TAgpBZjkbrqB1aIiERwgufkSnz2llSzInbrgEiblwRrnymi6LjNDscBGRae1W/+IRdMigP7VG1sd9FesvNP+nv2o4xBh8g2Oyr8SuaPI7LgH8MOlhHNAF+s/3Sm7TywYlEKQq0fvwM=
+	t=1718707656; cv=none; b=Fv+lwR/zi61KQgopb71R0ddCteJR0sKUV3F3abE2CKlv6jlHTWFDxZ5zNKLEEJLyNtvU+EZjuZGzcSpEXzxru52g+x9xD16WDs8Rq0MBCsvnApnSzlHSY/ISBkyBfvQmhy3CquhpqaSa9/NgnOVTVmRmtW12KUC6+L9fzeGtZxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718707247; c=relaxed/simple;
-	bh=QUZtEG9m5EGGPIsNYlvFNCzGak0heKIOdAl3a6ylhIw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uD85nWIRgKayemDpoacAa0XsMVnBf5yZnOzTIetaR6Zy5x611dFbv7GqPVNjnjI4V8WBJenew0j3UDZspz1SE4k4qL/xYWrexfXY+8w4iObc4uru/SlV9gCrr02mAReUo/o6GUs5iS0v4rGNXIZtkNTyWT7EEPj+BTfvzFTjvrw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igel.co.jp; spf=pass smtp.mailfrom=igel.co.jp; dkim=pass (2048-bit key) header.d=igel-co-jp.20230601.gappssmtp.com header.i=@igel-co-jp.20230601.gappssmtp.com header.b=nSvLnPo9; arc=none smtp.client-ip=209.85.222.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igel.co.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igel.co.jp
+	s=arc-20240116; t=1718707656; c=relaxed/simple;
+	bh=bbFDJ9d+NeKK+CO4zNLMqES2opGAC32Y6IWmOx4SgBE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=cNUMLQoqdwKhXcQrkybDtkxgOtRnX16UvhQRbag+vYXgw0N2ttUyzwIS9SMT2ApEAU28tUHhw6ffrpR69NmLBU05ovuGEQpx3ecDPWXw/nPjfabAfLMvva8/vNxTaKAEUH4Z4cqiD6Cv8YRDIid2+FNB1x2mK819H2lN8GNzUBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J5HZVowC; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igel-co-jp.20230601.gappssmtp.com header.i=@igel-co-jp.20230601.gappssmtp.com header.b="nSvLnPo9"
-Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-80b7699abcaso1499425241.3
-        for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 03:40:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=igel-co-jp.20230601.gappssmtp.com; s=20230601; t=1718707245; x=1719312045; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QUZtEG9m5EGGPIsNYlvFNCzGak0heKIOdAl3a6ylhIw=;
-        b=nSvLnPo9dSPRWkns+lqoGUjWolEEU4bZ9CyPxtTbCXEuLuQwWgjbOdEo4tS66qXdg1
-         U2N6rMZX8VrnxvZFFuFiupE/R4aS1W84TtbiWdUYT2KtwZ7zrqbFzS3KlMYkCb4aSIq+
-         PxuCQRMEbTk+QEaoobp5Mof8WSC0az+qsPBgRIDjAE6+AwfItMADlheVzHVTmXytwtjV
-         TeVI65XqC6h3rDn3J0eN2/lu3K00tRP/48UtKvEZhv3742B4C5qND5bPbLInUCDvfBPG
-         U4WENQUwAY7GttNu9Jj37ypRfqUMH2Hm0ny8SneCMvNpp+zds4HXUU7l0bNzZnbED+lq
-         xpZQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J5HZVowC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718707653;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EOUtL3UGrQmccc3gpNc49cvfnyOLInhzKNWaCqBhVrI=;
+	b=J5HZVowCAWwuJ0Ntx2TsgkCSs05L0SzQALNbhe1UMZiw3PeaYwWCLwI3T8kLtU3KTba3UE
+	laxsBSG6Bk+KVGmEsyMn08YypFa95K+1UPV87iSH0EPIV9fykr5FVUavoOT4r5CWjqO1H8
+	MFlCWdaWMir4bjG2omwbrwNDPq9rNcg=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-176-MRVtc8ysPEu6DgH92h1XKw-1; Tue, 18 Jun 2024 06:47:31 -0400
+X-MC-Unique: MRVtc8ysPEu6DgH92h1XKw-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-421739476b3so47567185e9.2
+        for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 03:47:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718707245; x=1719312045;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QUZtEG9m5EGGPIsNYlvFNCzGak0heKIOdAl3a6ylhIw=;
-        b=pCMju9bCrUdUry2owsOUa+JHLR3CRLx/UxLiknRzKV7bC/wJSVDBcCSmm9DzivRfX+
-         1DHMtzmhT9jV3xCHzSCyFfkl6yyjjPGPelrZo0QM+aMXWlpAwOMJKh+2zehXRq/IG7M7
-         Tr1aJuvlitkacFe9CKqCzv+Yy36yPMZlVbXdbJ4Mzk/cRLBs5eLMma6NT5mH5P46v1OJ
-         iY2/T/pkE6A9/EWQ2Iv/CoLLN6wBqKOGkX5921pEPVS/tKS43mUs7fCGbbWflD1dgSeL
-         eJe4EoWIJo06JPj8G00TBSGRXWz3+WOvlJhg9qGx6wTE0XHzy8Yx+ehG4YNYt74EJl6e
-         TU+g==
-X-Forwarded-Encrypted: i=1; AJvYcCXK3C56dkRE0EzcLRPS7kubvrrj9O3Wk7nOA56Un0yFc7VxPlt5YQFhR/udB3WOM46GCDvejLcBdmI7y0QkY5wOEs/TuSLQdTtbAFSue3s=
-X-Gm-Message-State: AOJu0Yx2QdLiPR3iT1zsjFKxqrKRdzxn6pbC+/mxOiM7VOyt/OIiGu9p
-	WD9sqV42PVq7dwSij4soL4jjFkatjKzItItbntqAVbF+EdJed0sv+S8wM3WSmhaJKuhxz8/UnUM
-	CIZzoUBkRKaU4554prWm0l3Dj4T8daqcd0pwKGg==
-X-Google-Smtp-Source: AGHT+IGvfcGfqQoY3MzRav8ed/slokoh5A3Ps7owp6wpMs2ZMHdV4kkvRQ+BzhDS69u78xzULFIbl4tCnNz67fGKqJE=
-X-Received: by 2002:a67:cd9a:0:b0:48c:4e31:4e25 with SMTP id
- ada2fe7eead31-48dae34bccdmr12303977137.19.1718707245269; Tue, 18 Jun 2024
- 03:40:45 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1718707650; x=1719312450;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EOUtL3UGrQmccc3gpNc49cvfnyOLInhzKNWaCqBhVrI=;
+        b=r5s5/SWAPhLHMu+J2agr/N1lF61ZD3qa6eSTMSDz/bHOxu84OMUTTBYbZikDJdZOdu
+         r9V4BLMZdkG1zmuFbntUUajjMiSYXVrOpWw53MK93Gx3iJI7G7F+/wD8v9Q1sHBvm2iC
+         qoWYNl2ABjcPPXP2Xram+2xuluZB+1me9Y4ET4QCRNdsolOqoU8vaMl0dgDMQ+LjfBxT
+         92QCXdZWYGzb393WMaRW/nSZI0ivT3xjbhrb6CCTcdepAwQf557ZjKQyOZkNAtVTEmoO
+         KyT5AOlLOdGpYVkfdva7icS2nf3IptSlqPJhs5e3M6gAaHJEkD2+gNEKTAX742CKDvgt
+         sKBw==
+X-Forwarded-Encrypted: i=1; AJvYcCWjFEMOh0luBOjlUSY9cTEvWWRNdrdKQy1TMxgAtnI/C4K/8JlgEdq2x9rwNps7U8VKlFU5cpEG8l6tgbRctUDW3YxSNW6RHwASqBjkY1Q=
+X-Gm-Message-State: AOJu0YzZnB+hSmw6TCRCpfqNs79jVeF1fZXSWh1G+rrf1/zwk+PVsIOR
+	EddXyJL7DLJ3ZARtMSLRruJxhxMn0LXOdImKjgh7rLK+CKLPpFqxsRBH1rZyC8/Hx6eJBKam1qI
+	kweo8Rc0OvZ7RVdqbBSWVISVQQwUPyeo+ZArkYnt9sHQGYztOqSL7Op1qxOJtXLG8
+X-Received: by 2002:a05:600c:a01:b0:422:50d7:100b with SMTP id 5b1f17b1804b1-42304820c95mr111537585e9.14.1718707650486;
+        Tue, 18 Jun 2024 03:47:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF4ImD7bgDtwoo7yFTpUhWD2pMBpu08/uRi1Aski/T8Bq/xpyc9IGyMV0M6WmxVCM62NRmy4w==
+X-Received: by 2002:a05:600c:a01:b0:422:50d7:100b with SMTP id 5b1f17b1804b1-42304820c95mr111537265e9.14.1718707649552;
+        Tue, 18 Jun 2024 03:47:29 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:441:67bf:ebbb:9f62:dc29:2bdc])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-360750935ecsm13902939f8f.3.2024.06.18.03.47.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jun 2024 03:47:28 -0700 (PDT)
+Date: Tue, 18 Jun 2024 06:47:25 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Shunsuke Mie <mie@igel.co.jp>
+Cc: Manivannan Sadhasivam <mani@kernel.org>, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+Message-ID: <20240618064231-mutt-send-email-mst@kernel.org>
+References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
+ <20240516125913.GC11261@thinkpad>
+ <20240520090809-mutt-send-email-mst@kernel.org>
+ <20240614095033.GA59574@thinkpad>
+ <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
+ <20240618054115-mutt-send-email-mst@kernel.org>
+ <CANXvt5psZAkEOJtxO250n6vjZTK7as-F-4qr1Rc3awZsmqWCpQ@mail.gmail.com>
+ <20240618061705-mutt-send-email-mst@kernel.org>
+ <CANXvt5pDjvVwFLS3p0a4hx1-MUJGsKHnpEsjejYUcmvTeKyFmg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
- <20240516125913.GC11261@thinkpad> <20240520090809-mutt-send-email-mst@kernel.org>
- <20240614095033.GA59574@thinkpad> <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
- <20240618054115-mutt-send-email-mst@kernel.org> <CANXvt5psZAkEOJtxO250n6vjZTK7as-F-4qr1Rc3awZsmqWCpQ@mail.gmail.com>
- <20240618061705-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240618061705-mutt-send-email-mst@kernel.org>
-From: Shunsuke Mie <mie@igel.co.jp>
-Date: Tue, 18 Jun 2024 19:40:34 +0900
-Message-ID: <CANXvt5pDjvVwFLS3p0a4hx1-MUJGsKHnpEsjejYUcmvTeKyFmg@mail.gmail.com>
-Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Manivannan Sadhasivam <mani@kernel.org>, linux-pci@vger.kernel.org, 
-	virtualization@lists.linux.dev, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CANXvt5pDjvVwFLS3p0a4hx1-MUJGsKHnpEsjejYUcmvTeKyFmg@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-2024=E5=B9=B46=E6=9C=8818=E6=97=A5(=E7=81=AB) 19:33 Michael S. Tsirkin <mst=
-@redhat.com>:
->
-> On Tue, Jun 18, 2024 at 07:15:47PM +0900, Shunsuke Mie wrote:
-> > Thank you for your response.
+On Tue, Jun 18, 2024 at 07:40:34PM +0900, Shunsuke Mie wrote:
+> 2024年6月18日(火) 19:33 Michael S. Tsirkin <mst@redhat.com>:
 > >
-> > 2024=E5=B9=B46=E6=9C=8818=E6=97=A5(=E7=81=AB) 18:47 Michael S. Tsirkin =
-<mst@redhat.com>:
+> > On Tue, Jun 18, 2024 at 07:15:47PM +0900, Shunsuke Mie wrote:
+> > > Thank you for your response.
 > > >
-> > > On Tue, Jun 18, 2024 at 08:41:09AM +0900, Shunsuke Mie wrote:
-> > > > Let's clarify the situation.
+> > > 2024年6月18日(火) 18:47 Michael S. Tsirkin <mst@redhat.com>:
 > > > >
-> > > > The Virtio device and driver are not working properly due to a
-> > > > combination of the following reasons:
+> > > > On Tue, Jun 18, 2024 at 08:41:09AM +0900, Shunsuke Mie wrote:
+> > > > > Let's clarify the situation.
+> > > > >
+> > > > > The Virtio device and driver are not working properly due to a
+> > > > > combination of the following reasons:
+> > > > >
+> > > > > 1. Regarding VIRTIO_F_ACCESS_PLATFORM:
+> > > > > - The modern spec includes VIRTIO_F_ACCESS_PLATFORM, which allows
+> > > > > Physical DMAC to be used.
+> > > > > - This feature is not available in the legacy spec.
 > > > >
-> > > > 1. Regarding VIRTIO_F_ACCESS_PLATFORM:
-> > > > - The modern spec includes VIRTIO_F_ACCESS_PLATFORM, which allows
-> > > > Physical DMAC to be used.
-> > > > - This feature is not available in the legacy spec.
-> > >
-> > > ... because legacy drivers don't set it
-> > >
-> > > > 2. Regarding Virtio PCIe Capability:
-> > > > - The modern spec requires Virtio PCIe Capability.
-> > >
-> > > It's a PCI capability actually. People have been asking
-> > > about option to make it a pcie extended capability,
-> > > but no one did the spec, qemu and driver work, yet.
-> > >
-> > > > - In some environments, Virtio PCIe Capability cannot be provided.
-> > >
-> > > why not?
-> > PCIe Endpoint Controller chips are available from several vendors and a=
-llow
-> > software to describe the behavior of PCIe Endpoint functions. However, =
-they
-> > offer only limited functionality. Specifically, while PCIe bus communic=
-ation is
-> > programmable, PCIe Capabilities are fixed and cannot be made to show as
-> > virtio's.
->
-> Okay. So where could these structures live, if not in pci config?
-What does "these structures" refer to? PCIe Capabilities? virtio configs?
-> --
-> MST
->
+> > > > ... because legacy drivers don't set it
+> > > >
+> > > > > 2. Regarding Virtio PCIe Capability:
+> > > > > - The modern spec requires Virtio PCIe Capability.
+> > > >
+> > > > It's a PCI capability actually. People have been asking
+> > > > about option to make it a pcie extended capability,
+> > > > but no one did the spec, qemu and driver work, yet.
+> > > >
+> > > > > - In some environments, Virtio PCIe Capability cannot be provided.
+> > > >
+> > > > why not?
+> > > PCIe Endpoint Controller chips are available from several vendors and allow
+> > > software to describe the behavior of PCIe Endpoint functions. However, they
+> > > offer only limited functionality. Specifically, while PCIe bus communication is
+> > > programmable, PCIe Capabilities are fixed and cannot be made to show as
+> > > virtio's.
+> >
+> > Okay. So where could these structures live, if not in pci config?
+> What does "these structures" refer to? PCIe Capabilities? virtio configs?
+
+Virtio uses a bunch of read only structures that look like this:
+
+struct virtio_pci_cap {
+
+	..... [skipped, specific to pci config caps] ...
+
+        u8 cfg_type;    /* Identifies the structure. */
+        u8 bar;         /* Where to find it. */
+        u8 id;          /* Multiple capabilities of the same type */
+        u8 padding[2];  /* Pad to full dword. */
+        le32 offset;    /* Offset within bar. */
+        le32 length;    /* Length of the structure, in bytes. */
+};
+
+
+The driver uses that to locate parts of device interface it
+later uses.
+
+
+Per spec, they are currently in pci config, you are saying some devices
+can't have this data in pci config - is that right? Where yes?
+
+
+> > --
+> > MST
+> >
+
