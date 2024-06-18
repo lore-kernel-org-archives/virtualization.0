@@ -1,350 +1,155 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from EUR03-VI1-obe.outbound.protection.outlook.com (mail-vi1eur03olkn2075.outbound.protection.outlook.com [40.92.57.75])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FC4200CB
-	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 14:45:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718721905; cv=none; b=mn8V3bbdyCXZvuKLpXWJQoUbT2eHE64d7qxYOhmO4DPX14NnelCYOqQkGSsQmu93zBb1crfpze2OojKaMPTdjEE7ohpoyf2f121ZDl2Yy/Y0mlhukwCrCMqfRzOZxv4iIAAk+RoJFb7TWqP2TSnhpkNwT+vz4inyvurRwcBkv2w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718721905; c=relaxed/simple;
-	bh=DRMavt8N2YnlZCvD17z11VwAfNLnw/2GNeVmSBQxuzs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=t0bkLThSPgGSCOzdDXJVgTrXHcbcA0nnFhiSXmiwIYJh72q0ATU1j/XRuzaYQg/nYEmd7uBdmRlTGdhMFAXWxdTYBBkqL0CZTqy++Gfrw2lWxptHz5NgS2rgs0rIQIOmHerW7PoHqr1sQWO31VP49dk/JN/WEtXvjIn7GYuiXmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=hM52hjKv; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57DE613B79B
+	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 17:06:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.57.75
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1718730412; cv=fail; b=nKfpin8oz0K2zD946U5F447wMQAjOJmCkH/jiVbrlgU0EULRhtuOmClCRIVVLQjqqpHylWI/zj5MYJJp/k0aKSAzNvcxMb4zF4B5FSUqxJMPmyXoClw68CWq472964M1eZ2Zb4Rk+Nsj6thGqXPVgOqKXMRjqvwLttA9n64Cl60=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1718730412; c=relaxed/simple;
+	bh=Iu0KXbmaSbcHGv+qwxX7KvdlFvAuc6tP2WDDM+laUrY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=iuDuN+FEqEitXCsfiMsiwrnmmzas+BYe03jRI0GpDuFAls+EvvgnEsQqtNAEfaSjLWqabBY6qeQn4ik87qAepHF6L0UnDrrjPQMeYahJAwioLabxJwM92js+DgXnI48KbGC8NGgkpk31gscEgDQNHdADSJsFuV+2M1CqZ4lnZN4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=hQgI7JIu; arc=fail smtp.client-ip=40.92.57.75
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="hM52hjKv"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-42172ab4b60so49031685e9.0
-        for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 07:45:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718721900; x=1719326700; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=jDHbCFW7qj4JoJ70BZacxRKzokWqUTwX9tIpuWgcM6Q=;
-        b=hM52hjKvumEUxNh3BszugdEP1JUKDUTGH5sNidZfTBZNcEsZwpNrL3C0MtfmkoLQva
-         1xIVKhkkn96UpkYf5F/26HWTD7Q8n7Fcr1c1L1NDosw1VqiBBCpfflB4CrWQj9zhIG6h
-         G4IhczlMR8WrcndqfBOuyjR5fEw4HRyYAtJMLcURKWBH1PnVOxU/c4MupV59CZ4ohKwV
-         hF2KVcsKX4UUV2nBwNeHulPiKuJclz/v+ZhqzA4THkvRdHIBP7wqVLvKf3GEEA2Kr5zG
-         jDztxzj5nSoPlR5Sd8kGvJMHZmOEcTtu0sDfoecZFrGVh/TNl7IBJ7aMn7Tco8JRiucT
-         2ABA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718721900; x=1719326700;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jDHbCFW7qj4JoJ70BZacxRKzokWqUTwX9tIpuWgcM6Q=;
-        b=qBw8gtzibw4YB+NUVkBVBz1kNpCWjImjMG37XZwYtDY+k1JisAehb3mwrIiqyJZbBI
-         jFKzDtyMbUCpg30DCi/2IMot0amqNtqCSIh4ejBkUz8JaIONcKf22c6TFp9bcoqdT5Z1
-         0NNvPjGSl+oCADIbVgwo19PjML5CgC81rr5U0zI2TWUiPFprcPXvPgXsLXkB0VJvxw90
-         juReIPw/z8jq2NWdP5eoR37Fe+Ca1o6usqCNfmt3Qn/WV/ngJvK8eUvqrm3DIgAukScA
-         mqTRxqI9QZmdSlRffs6xXFSgSa3F2ztwHY89xf5uZpEFkUgLYH3ldxJ1+3bD9Qdid6JQ
-         Pw2g==
-X-Forwarded-Encrypted: i=1; AJvYcCWZoZAnBzV66TOC1/wSYmMlOQ/OlSLTVjj8FbPeps2L5E1Gzjeg4ny02GMLyE4U8HdIyZoItcLJNnJbFpwBP8MTJybRpACIjblstYty9q4=
-X-Gm-Message-State: AOJu0YxZuT8pFGZS3ErKi69XoDY5a+Lmg6gfx1PY05yclimx92yd/ghh
-	tmsgNdv0atPlPZLT9Fnk7qV8WM5wYRja1cUl5Nwhd1/778B70IecEtoeoxEQ63o=
-X-Google-Smtp-Source: AGHT+IFQNOdfZ4EHM+UVjCKTW7opa7MiMU0Dy+RbzU/tevZyt9DEt1izlXiF6hJtTIomD95rPErt/A==
-X-Received: by 2002:a5d:5917:0:b0:35f:296c:27b2 with SMTP id ffacd0b85a97d-3607a7b6255mr9687120f8f.22.1718721900104;
-        Tue, 18 Jun 2024 07:45:00 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3607509c79bsm14426978f8f.41.2024.06.18.07.44.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jun 2024 07:44:59 -0700 (PDT)
-From: Jiri Pirko <jiri@resnulli.us>
-To: netdev@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="hQgI7JIu"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VdrhjlRXS16MtRUS90zrssAPnAofUbvBeQyTFFTgE39nQRDCBHuOvZeuLCeODxPn9H250zXhrJsB2UkJvlEhIt1EFzXO/u3KuASqj/QLjIo97FUgKFnoFtuChYD/VJhh3B2YIvISQAiHe3MgLcQjomeeSIOXQcLC9PbX+bHkoMzN1btXJoWk903Vo/teh6gHcieLn8V2t0eFYYZlC/+ElwmkVpHaPGWsybxEmu2OxAsWuQgcW5D/L8ik+ngXU6eHxhiF6riY8YERifcwfSi9E2RTruwQZX5mUUd5DEcilD6myJR3WljqQHFiA1SNDUxHCejx/VgI2MpSna8FjZ+NUg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Iu0KXbmaSbcHGv+qwxX7KvdlFvAuc6tP2WDDM+laUrY=;
+ b=LujtaQL4cAg712+CXud41OudpSD2uPBa/jmCHP/uf3s+dlSMNWHAaUB7a9YmgbmL9HembIbBlm7AjLDv27vQLNUeGwmRSwjOv3TAEuDLN/xcfEJR7dYzkyvj2lOzoLZ6Va6+wDJjMoeat0YUWw8EOdwbXKt08UVBbVFOWOV3i/NHsuSmyTE+s2LeKLyI1Ad1eCUM/igA29kDrrRUbqxcx1rI2ixJc9GIvyjm56xNfbrMc9UtPD0Ecv6xBlEfkSmsczE/rxKQoGg3PYG20+2GYO4ltU/KBqCMDjJYNKhxTrHLurMb+17SDAw9fBOo6oOo4OSh107so4XlEtIzqVjz1w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Iu0KXbmaSbcHGv+qwxX7KvdlFvAuc6tP2WDDM+laUrY=;
+ b=hQgI7JIux7IBRlgqVA5XLR9YBMB/c3cJ58ilNQNvaG10xoEmKHRqdxgmXikrQLahwWZ2bLLWSuc0OgmSUwackkPli1PEMwJ7Ex/NfODbxzqwIt5QXie84QN1XK7uhNO7wdMZcuL+hgNEbDCh9OkRCJkiVNRt0HNjYdA3nJUWMnUqpEqSfp9HTkC7bE73O0HQZr9yN77sR5zGwURHz3yWkZ+m7ggUzyGJcD2yFsvBYMbXOWImjC/JzOi0fyV0P9AlxrIg9B0277Nt9s7xYWQ2eLSQOYUpqs05ZEJrjDzGEulSkNgm+86NZq/UOZUaFAazgZw9QGnx8x30ThNZq0dNdQ==
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
+ by PAXP194MB1469.EURP194.PROD.OUTLOOK.COM (2603:10a6:102:1a8::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.30; Tue, 18 Jun
+ 2024 17:06:48 +0000
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930%4]) with mapi id 15.20.7677.030; Tue, 18 Jun 2024
+ 17:06:47 +0000
+From: Luigi Leonardi <luigi.leonardi@outlook.com>
+To: mvaralar@redhat.com
 Cc: davem@davemloft.net,
 	edumazet@google.com,
 	kuba@kernel.org,
+	kvm@vger.kernel.org,
+	luigi.leonardi@outlook.com,
+	marco.pinn95@gmail.com,
+	netdev@vger.kernel.org,
 	pabeni@redhat.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	ast@kernel.org,
-	daniel@iogearbox.net,
-	hawk@kernel.org,
-	john.fastabend@gmail.com,
-	dave.taht@gmail.com,
-	kerneljasonxing@gmail.com,
-	hengqi@linux.alibaba.com
-Subject: [PATCH net-next v3] virtio_net: add support for Byte Queue Limits
-Date: Tue, 18 Jun 2024 16:44:56 +0200
-Message-ID: <20240618144456.1688998-1-jiri@resnulli.us>
-X-Mailer: git-send-email 2.45.1
+	sgarzare@redhat.com,
+	stefanha@redhat.com,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next 2/2] vsock/virtio: avoid enqueue packets when work queue is empty
+Date: Tue, 18 Jun 2024 19:05:54 +0200
+Message-ID:
+ <AS2P194MB2170E2A932679C37B87562539ACE2@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <jjewa7jiltjnoauat3nnaeezhtcwi6k4xf5mkllykcqw4gyfgi@glwzqxp5r76q>
+References: <jjewa7jiltjnoauat3nnaeezhtcwi6k4xf5mkllykcqw4gyfgi@glwzqxp5r76q>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [AgMXQ0+TrTSac1IRUDK8vMcI5sKrDLqn]
+X-ClientProxiedBy: MI1P293CA0013.ITAP293.PROD.OUTLOOK.COM
+ (2603:10a6:290:2::15) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ (2603:10a6:20b:642::8)
+X-Microsoft-Original-Message-ID:
+ <20240618170553.48483-2-luigi.leonardi@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|PAXP194MB1469:EE_
+X-MS-Office365-Filtering-Correlation-Id: e10ddb0e-e87c-4bb8-b6a9-08dc8fb9097e
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|461199025|3412199022|440099025|1710799023;
+X-Microsoft-Antispam-Message-Info:
+	GXLH3XrMs99QVvm2DSUDQPUrv9wsWA2RqpYolBzgjeeTD57nczT3wNvcqQV1DpkH4rO40ixDWL37BK5TciCPZ2BiQPW+r0/En1Da3sGyoT+1ZnMLZZQPzYcN67xZP0r3Nu/nxvbPOHGFSz0OrHB5pzZ/qRrGo0wk1E1WexTcXvyLEuNqcAK2PbO8yoHsD53IDnb6VNhs8ooyGiDgN0vge2mkeXs/tfsKrYm5gTP9gFX8iEYf9ydTu9KIrVH99VoSkZKN0uBwDHuFV7CSRL/yt/ROfvGw37eClxNA3rEWPuDliRWFjBpFljAjtq6qady45SP5nQAA6QutwHUgntEXb55/kx6u1zLva+JswA7pP2604mA1VZ6o69LAwAYg0gcjQsFZDsBJ8K9WPDJYwKvJWTIfgUPr72IH2KzHssg6lTpRICEyTIs5acHPCAqc6pRkTtE+CWBGfIMxfGHKmDIw5xcyJXXlA6P91rWbEw62iGrS4xU7USNeHqfp6BcfLMxV4AVuzzOy1bsjebbgRhZvo+DF7d3acQyiGv42Tj0aJb3Zfsa0IwEKA2MF+RTYuXQtlsvLBSBuSvfMwv66Dg+U2VIMxjzDY+ONVMHjonYPFVewgH+gqJKl/bGDc2e7ByEo
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?THM3jP8BrBcgpi/9SXSbdazmP9E83RetHPss/bn9InqdiB+usQ2VxGdGgivh?=
+ =?us-ascii?Q?woazaDPnTgZWyYvOq8OlcOfMMfz5Vjkj34l6QCzTirF85MYU4nWdLPjkW6U+?=
+ =?us-ascii?Q?WjKWDe8YeBaBouVIAu6phBLUv1V99cyit08z00VFKn+VkOTJ3tS1iJt+r4Ry?=
+ =?us-ascii?Q?UfkJ13Tr9sgxyuAp0W9hwGblPBYOJmlJLXyI97wVF36fdvGZwiewEPc19P1V?=
+ =?us-ascii?Q?lF3mEfMbkMnKACUTWy8VNKQXUzcQ7w6u5HYlaNkm8WF6dsnCn6VK7p2MTbFK?=
+ =?us-ascii?Q?LyxFPcFGeV7iv7dqJcBv370bFq0QlzZCFwCTarwft4AvBE+uEJWvDjRMPsFX?=
+ =?us-ascii?Q?eB4kdfwdeXVVUidKWgpACMc5GhLNDiWcrgqiG/RAfKNCl6fjdALI3Xjt3/Q0?=
+ =?us-ascii?Q?Ly6g14QCTto4vge6IzdcPy+Rl5CMSeFqIKHNafaR7RR1W4ESzlixU2pFFi7o?=
+ =?us-ascii?Q?2svnaeJlYY9f3POgPPLQWwbGW41CNvd0XKyl+EH2XZB3sl0YZl/go+VdDazx?=
+ =?us-ascii?Q?grQW6RKB8yRuF2bJTM/f8JgjaI/wj6NH2SVKbj7lhGhOZe4L/ntktzQTRwGX?=
+ =?us-ascii?Q?cdhDV4b+CHqlJRwSE7/gf4d7xKI/EIXp3FEyHmX5nE2hGGzWw/qGM7AGdt+H?=
+ =?us-ascii?Q?k83oS6yZWKvyfKq3pLoBXnsRtBImdOZREorztGBIEzVOu3OQ2PNfVqUPugqD?=
+ =?us-ascii?Q?k89BElELL2jXfq+e9guOVYogBF/gkGDMwUP7+0fudGHbOQFFnge6RguPw4l/?=
+ =?us-ascii?Q?9lcOravW7zTwynag62/7o9CheY0NNTfPBEdEejSw16IXVTH4wvEBG+XFWVM4?=
+ =?us-ascii?Q?kc1eP+Kp58fUFFFP0lHg6lfpU9rXHDfP/hxJm/Ep3uc79WyTzvoNNqcyObSZ?=
+ =?us-ascii?Q?PA/xnyXgPK8ZZcTRJUTNyKzp6gSBTx6nJyFlZi3AyADW9d6mh9t0rBY9bVHe?=
+ =?us-ascii?Q?dNQ467goQk9VkiqvuyRRwo5lJsy8QCxgCT7ACe6YInY6ZQ1y6JtFjR4oeza2?=
+ =?us-ascii?Q?sge8EVuS7fP7FNyC5hoV+cloCQrLg+gvMpSGtsYOnsg7IjHSuEODeqsHWma8?=
+ =?us-ascii?Q?Zb8IOGR+5Iv7qKbuc367J6tb0GmnSCD+/aDnYJkiiFpa+X28gxucLzkSF7WY?=
+ =?us-ascii?Q?6nlewSLsVbfGByywqu6Sn4yJhgvhitQrmpOVUWEri09+eAtRs8TWigGW+BLn?=
+ =?us-ascii?Q?gzA/VI95UuAhVHCJrBIkbc3UDDS8VcUyXSkL1ciHsPWGbHJJIx72Xlmhqb7R?=
+ =?us-ascii?Q?B0k4EulATAXdETj6MWfi?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e10ddb0e-e87c-4bb8-b6a9-08dc8fb9097e
+X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jun 2024 17:06:47.4068
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXP194MB1469
 
-From: Jiri Pirko <jiri@nvidia.com>
+Hi Stefano and Matias,
 
-Add support for Byte Queue Limits (BQL).
+@Stefano Thanks for your review(s)! I'll send a V2 by the end of the week.
 
-Tested on qemu emulated virtio_net device with 1, 2 and 4 queues.
-Tested with fq_codel and pfifo_fast. Super netperf with 50 threads is
-running in background. Netperf TCP_RR results:
+@Matias
 
-NOBQL FQC 1q:  159.56  159.33  158.50  154.31    agv: 157.925
-NOBQL FQC 2q:  184.64  184.96  174.73  174.15    agv: 179.62
-NOBQL FQC 4q:  994.46  441.96  416.50  499.56    agv: 588.12
-NOBQL PFF 1q:  148.68  148.92  145.95  149.48    agv: 148.2575
-NOBQL PFF 2q:  171.86  171.20  170.42  169.42    agv: 170.725
-NOBQL PFF 4q: 1505.23 1137.23 2488.70 3507.99    agv: 2159.7875
-  BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
-  BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
-  BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
-  BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
-  BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
-  BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
+Thanks for your feedback!
 
-Signed-off-by: Jiri Pirko <jiri@nvidia.com>
----
-v2->v3:
-- fixed the switch from/to orphan mode while skbs are yet to be
-  completed by using the second least significant bit in virtqueue
-  token pointer to indicate skb is orphan. Don't account orphan
-  skbs in completion.
-- reorganized parallel skb/xdp free stats accounting to napi/others.
-- fixed kick condition check in orphan mode
-v1->v2:
-- moved netdev_tx_completed_queue() call into __free_old_xmit(),
-  propagate use_napi flag to __free_old_xmit() and only call
-  netdev_tx_completed_queue() in case it is true
-- added forgotten call to netdev_tx_reset_queue()
-- fixed stats for xdp packets
-- fixed bql accounting when __free_old_xmit() is called from xdp path
-- handle the !use_napi case in start_xmit() kick section
----
- drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++------------
- 1 file changed, 57 insertions(+), 24 deletions(-)
+> I think It would be interesting to know what exactly the test does
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 61a57d134544..9f9b86874173 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -47,7 +47,8 @@ module_param(napi_tx, bool, 0644);
- #define VIRTIO_XDP_TX		BIT(0)
- #define VIRTIO_XDP_REDIR	BIT(1)
- 
--#define VIRTIO_XDP_FLAG	BIT(0)
-+#define VIRTIO_XDP_FLAG		BIT(0)
-+#define VIRTIO_ORPHAN_FLAG	BIT(1)
- 
- /* RX packet size EWMA. The average packet size is used to determine the packet
-  * buffer size when refilling RX rings. As the entire RX ring may be refilled
-@@ -85,6 +86,8 @@ struct virtnet_stat_desc {
- struct virtnet_sq_free_stats {
- 	u64 packets;
- 	u64 bytes;
-+	u64 napi_packets;
-+	u64 napi_bytes;
- };
- 
- struct virtnet_sq_stats {
-@@ -506,29 +509,50 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
- 	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
- }
- 
--static void __free_old_xmit(struct send_queue *sq, bool in_napi,
--			    struct virtnet_sq_free_stats *stats)
-+static bool is_orphan_skb(void *ptr)
-+{
-+	return (unsigned long)ptr & VIRTIO_ORPHAN_FLAG;
-+}
-+
-+static void *skb_to_ptr(struct sk_buff *skb, bool orphan)
-+{
-+	return (void *)((unsigned long)skb | (orphan ? VIRTIO_ORPHAN_FLAG : 0));
-+}
-+
-+static struct sk_buff *ptr_to_skb(void *ptr)
-+{
-+	return (struct sk_buff *)((unsigned long)ptr & ~VIRTIO_ORPHAN_FLAG);
-+}
-+
-+static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
-+			    bool in_napi, struct virtnet_sq_free_stats *stats)
- {
- 	unsigned int len;
- 	void *ptr;
- 
- 	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		++stats->packets;
--
- 		if (!is_xdp_frame(ptr)) {
--			struct sk_buff *skb = ptr;
-+			struct sk_buff *skb = ptr_to_skb(ptr);
- 
- 			pr_debug("Sent skb %p\n", skb);
- 
--			stats->bytes += skb->len;
-+			if (is_orphan_skb(ptr)) {
-+				stats->packets++;
-+				stats->bytes += skb->len;
-+			} else {
-+				stats->napi_packets++;
-+				stats->napi_bytes += skb->len;
-+			}
- 			napi_consume_skb(skb, in_napi);
- 		} else {
- 			struct xdp_frame *frame = ptr_to_xdp(ptr);
- 
-+			stats->packets++;
- 			stats->bytes += xdp_get_frame_len(frame);
- 			xdp_return_frame(frame);
- 		}
- 	}
-+	netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi_bytes);
- }
- 
- /* Converting between virtqueue no. and kernel tx/rx queue no.
-@@ -955,21 +979,22 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- 	virtnet_rq_free_buf(vi, rq, buf);
- }
- 
--static void free_old_xmit(struct send_queue *sq, bool in_napi)
-+static void free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
-+			  bool in_napi)
- {
- 	struct virtnet_sq_free_stats stats = {0};
- 
--	__free_old_xmit(sq, in_napi, &stats);
-+	__free_old_xmit(sq, txq, in_napi, &stats);
- 
- 	/* Avoid overhead when no packets have been processed
- 	 * happens when called speculatively from start_xmit.
- 	 */
--	if (!stats.packets)
-+	if (!stats.packets && !stats.napi_packets)
- 		return;
- 
- 	u64_stats_update_begin(&sq->stats.syncp);
--	u64_stats_add(&sq->stats.bytes, stats.bytes);
--	u64_stats_add(&sq->stats.packets, stats.packets);
-+	u64_stats_add(&sq->stats.bytes, stats.bytes + stats.napi_bytes);
-+	u64_stats_add(&sq->stats.packets, stats.packets + stats.napi_packets);
- 	u64_stats_update_end(&sq->stats.syncp);
- }
- 
-@@ -1003,7 +1028,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
- 	 * early means 16 slots are typically wasted.
- 	 */
- 	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
--		netif_stop_subqueue(dev, qnum);
-+		struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
-+
-+		netif_tx_stop_queue(txq);
- 		u64_stats_update_begin(&sq->stats.syncp);
- 		u64_stats_inc(&sq->stats.stop);
- 		u64_stats_update_end(&sq->stats.syncp);
-@@ -1012,7 +1039,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
- 				virtqueue_napi_schedule(&sq->napi, sq->vq);
- 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
- 			/* More just got used, free them then recheck. */
--			free_old_xmit(sq, false);
-+			free_old_xmit(sq, txq, false);
- 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
- 				netif_start_subqueue(dev, qnum);
- 				u64_stats_update_begin(&sq->stats.syncp);
-@@ -1138,7 +1165,8 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	}
- 
- 	/* Free up any pending old buffers before queueing new ones. */
--	__free_old_xmit(sq, false, &stats);
-+	__free_old_xmit(sq, netdev_get_tx_queue(dev, sq - vi->sq),
-+			false, &stats);
- 
- 	for (i = 0; i < n; i++) {
- 		struct xdp_frame *xdpf = frames[i];
-@@ -2313,7 +2341,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 
- 		do {
- 			virtqueue_disable_cb(sq->vq);
--			free_old_xmit(sq, true);
-+			free_old_xmit(sq, txq, true);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
- 
- 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
-@@ -2412,6 +2440,7 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
- 		goto err_xdp_reg_mem_model;
- 
- 	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
-+	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
- 	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
- 
- 	return 0;
-@@ -2471,7 +2500,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
- 	virtqueue_disable_cb(sq->vq);
--	free_old_xmit(sq, true);
-+	free_old_xmit(sq, txq, true);
- 
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
- 		if (netif_tx_queue_stopped(txq)) {
-@@ -2505,7 +2534,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	return 0;
- }
- 
--static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
-+static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
- {
- 	struct virtio_net_hdr_mrg_rxbuf *hdr;
- 	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
-@@ -2549,7 +2578,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 			return num_sg;
- 		num_sg++;
- 	}
--	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
-+	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg,
-+				    skb_to_ptr(skb, orphan), GFP_ATOMIC);
- }
- 
- static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-@@ -2559,24 +2589,25 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	struct send_queue *sq = &vi->sq[qnum];
- 	int err;
- 	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
--	bool kick = !netdev_xmit_more();
-+	bool xmit_more = netdev_xmit_more();
- 	bool use_napi = sq->napi.weight;
-+	bool kick;
- 
- 	/* Free up any pending old buffers before queueing new ones. */
- 	do {
- 		if (use_napi)
- 			virtqueue_disable_cb(sq->vq);
- 
--		free_old_xmit(sq, false);
-+		free_old_xmit(sq, txq, false);
- 
--	} while (use_napi && kick &&
-+	} while (use_napi && !xmit_more &&
- 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
- 
- 	/* timestamp packet in software */
- 	skb_tx_timestamp(skb);
- 
- 	/* Try to transmit */
--	err = xmit_skb(sq, skb);
-+	err = xmit_skb(sq, skb, !use_napi);
- 
- 	/* This should not happen! */
- 	if (unlikely(err)) {
-@@ -2598,7 +2629,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	check_sq_full_and_disable(vi, dev, sq);
- 
--	if (kick || netif_xmit_stopped(txq)) {
-+	kick = use_napi ? __netdev_tx_sent_queue(txq, skb->len, xmit_more) :
-+			  !xmit_more || netif_xmit_stopped(txq);
-+	if (kick) {
- 		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
- 			u64_stats_update_begin(&sq->stats.syncp);
- 			u64_stats_inc(&sq->stats.kicks);
--- 
-2.45.1
+It's relatively easy: I used fio's pingpong mode. This mode is specifically
+for measuring the latency, the way it works is by sending packets,
+in my case, from the host to the guest. and waiting for the other side
+to send them back. The latency I wrote in the commit is the "completion
+latency". The total throughput on my system is around 16 Gb/sec.
 
+> if the test is triggering the improvement
+
+Yes! I did some additional testing and I can confirm you that during this
+test, the worker queue is never used!
+
+> If I understand correctly, this patch focuses on the
+> case in which the worker queue is empty
+
+Correct!
+
+> I think the test can always send packets at a frequency so the worker queue
+> is always empty. but maybe, this is a corner case and most of the time the
+> worker queue is not empty in a non-testing environment.
+
+I'm not sure about this, but IMHO this optimization is free, there is no
+penalty for using it, in the worst case the system will work as usual.
+In any case, I'm more than happy to do some additional testing, do you have
+anything in mind?
+
+Luigi
