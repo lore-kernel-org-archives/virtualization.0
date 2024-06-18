@@ -1,328 +1,204 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2054.outbound.protection.outlook.com [40.107.237.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966B0FC19
-	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 01:38:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718674711; cv=none; b=JZyrNPHkocQLVIxIyW6aqFwIkeMukZwOovvvL0X8Rq1cwRAy1ESs5oZUjW0+/trM/GTe4kCSuPwin4xpr3R4Qn9POYyp3mfPlG9QlGdBzfUDZVN93uEEqWIF/55IDdbXVKcMTCOC7epIV8nfmuQXjSNoDfT1HJvQwnZILJeR7OU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718674711; c=relaxed/simple;
-	bh=g6wTGydtPKi0ukL4yXPEcCGxvLg/T9nDRsqgDigwkh0=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=oaOlckHuZ9QniJuFVqcgQZHjKNu8R74gjdYmhqZkfnF3SBFxY9Dwz2I9qs1a58GZBdN+5mqT+5fxCWyddj8ICZWPpjoCOYSSMBR/SkmxmFTcBkgySwKjsgB1IeLIPBAq7JEETS6KJ6Sqw15J0yJOvO0m6xyOxXE1EKh+mDCUY0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ff0D1U69; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D1EB1865C;
+	Tue, 18 Jun 2024 01:39:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1718674762; cv=fail; b=CtLlGcuVPoYhaQJFJail38FLvU1KWCoypemKCpxAK+miZGhrntHRWmuSjczW2ZHnCf6Oiri7qPv4vjlutbaG73c8uJKFY+wlAJUiHbaLCCzVjgLC+FV+rm2IpUwmdrpFtE+ZAxDd/KPMBNLfsW4UUX6RMZNxy8s99iII/mW9pMU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1718674762; c=relaxed/simple;
+	bh=ypMPtz/9WIFSGNNpA6pjZRdqPMAO+pisYx7f9K2KVd0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=EIESZflEZBSqqWvo+X2ggx13SDhCQ51SlG3uFuvqxqjI/FHGFsUfOjNEHhlzN9R/R6syqcfg/zytWmHDU5v+RFh+rOn01WO20nfRHOiQ0dPF3OlACDZ1XPd/reWDNGGEE/GRCymMnIjdxqTyXkmCfGJRVsfLdWbUZblXPrYH6Vs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=PksuVYKK; arc=fail smtp.client-ip=40.107.237.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ff0D1U69"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718674706; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=hIMNYdjc0gyhFl4vv40hMzs7l7ugdiC0y+OzHJdqYB0=;
-	b=ff0D1U696W/Ua3LQtxkY9bOgqg5vWElK81FPRfbrq1FiH6cYh47pCcGWMTrsdopJ5SZjzo+7ttvR3fRDSU0kw8XfU/EBJM1fboAXI08pGigC0LTQgOHxa7Mm0Te9EdAwjJrfU6Hu37o/8o+8d+1yJ0EcsHjWt+d6Hu+aM/lPqKk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8i3hD6_1718674704;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8i3hD6_1718674704)
-          by smtp.aliyun-inc.com;
-          Tue, 18 Jun 2024 09:38:25 +0800
-Message-ID: <1718674602.351249-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v5 09/15] virtio_net: xsk: bind/unbind xsk
-Date: Tue, 18 Jun 2024 09:36:42 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-References: <20240614063933.108811-1-xuanzhuo@linux.alibaba.com>
- <20240614063933.108811-10-xuanzhuo@linux.alibaba.com>
- <CACGkMEuLJSuM2Y1JRnvDoQG-dBsLGaOctv7tDdq8NjFOD2miSw@mail.gmail.com>
- <1718610191.0911355-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEvySjELA_4vU6yzR+sBAX75u9Rv-XmUUbNA8SaaPf-XXg@mail.gmail.com>
-In-Reply-To: <CACGkMEvySjELA_4vU6yzR+sBAX75u9Rv-XmUUbNA8SaaPf-XXg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="PksuVYKK"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T8N5UmuOg3DbfZZqqNuAOnKUX0leBKNlMh92PnYnQzHWaHcYH5oY7Jf2nPO+Qk4etgTefBsRz3xTvg77Jx9BrsBmWHm8RbnrjS1ufhMTqRs6dylRjdOdMD97ygb4ytvK5Qjkj8Kz8MRxBP/WuwMiGA7SkMEKFodhVM+YB51bGW0JnZJaLNz6kEFsTzGWYOWMLq8wxf/4xoHKCIuZe4fyI2wUhojLUyDe9Bg+W3oPTBeMr6cKyvdP6bSsbGAnOgK21LrcnL97kmtwVPq8iUbashUt8ve2tudcNvSNT6STdsrALGg1xZkdhApbYZ7FLnmIE0Sh2xWcxVXR2MNK5gpu6Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ypMPtz/9WIFSGNNpA6pjZRdqPMAO+pisYx7f9K2KVd0=;
+ b=AlS7cUUNT2GENU/FMqDmwPtmxqJQKiKaf2yIXUIstnYMTzQ3k2Y/23Bo1upLZOBV3BLvSRWMF/Kci2GeXrW1SpXtQ0sT1IVSz89wVNEBq5XvOcWz1VWVvcePfY8KTvORUzzSr6The+VwqqF2mVbiSMJRt+ka0cLV+511gQazCUjgS5rkPBXN3QNBRfj7EEEGj26igCXm9R/iCCNmNupkQe/dG1th7uXWejVlmwRgzPDwTysMdAGax42SVqoAbn1BIRlFk8j2N1wRuFDwqYVYunagRDvfyEA6V0TlucrgQUTEgU+8DSMMgVHdMqKIVkR8rZKG0w2DlY+BPUGJYiXKqQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ypMPtz/9WIFSGNNpA6pjZRdqPMAO+pisYx7f9K2KVd0=;
+ b=PksuVYKKhrvecgqS+9aiMNGQiWVwXuX+AwaD8YHjxwFIv+B2j9hQnJxGTDMA9+6af35W2T6/HIZ9BIpvU1s9HcU+dpkEiSZbco9YTjpiheB5yRm4kIGenaJGdtu+iBxymX/YH0YmGlpQfKVBrmcBCZwn3fvBy1PCfYKL183BvjT92sH86WLNJcTCxH0FCxnyKIpIFTntL5yIlJEtLXlk40OlJ4GLfPs5eEiy6O03syOjPIrgnseZ7QiJVtAERoc8Mxsn676RnPqKsLde+LvUUXNjs6uG1bOFg0RuBo5U9ho2LPCJ2A6SALLoV4Li9Pk7lLLRVJzw2oV4gcazeMdBVg==
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com (2603:10b6:408:219::9)
+ by SJ2PR12MB8884.namprd12.prod.outlook.com (2603:10b6:a03:547::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.30; Tue, 18 Jun
+ 2024 01:39:16 +0000
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::57ac:82e6:1ec5:f40b]) by LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::57ac:82e6:1ec5:f40b%5]) with mapi id 15.20.7677.030; Tue, 18 Jun 2024
+ 01:39:16 +0000
+From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>, Richard Weinberger
+	<richard@nod.at>, Philipp Reisner <philipp.reisner@linbit.com>, Lars
+ Ellenberg <lars.ellenberg@linbit.com>,
+	=?utf-8?B?Q2hyaXN0b3BoIELDtmhtd2FsZGVy?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>, "Michael
+ S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	=?utf-8?B?Um9nZXIgUGF1IE1vbm7DqQ==?= <roger.pau@citrix.com>, Alasdair Kergon
+	<agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>, Mikulas Patocka
+	<mpatocka@redhat.com>, Song Liu <song@kernel.org>, Yu Kuai
+	<yukuai3@huawei.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, "Martin K.
+ Petersen" <martin.petersen@oracle.com>, "linux-m68k@lists.linux-m68k.org"
+	<linux-m68k@lists.linux-m68k.org>, "linux-um@lists.infradead.org"
+	<linux-um@lists.infradead.org>, "drbd-dev@lists.linbit.com"
+	<drbd-dev@lists.linbit.com>, "nbd@other.debian.org" <nbd@other.debian.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+	"linux-bcache@vger.kernel.org" <linux-bcache@vger.kernel.org>,
+	"dm-devel@lists.linux.dev" <dm-devel@lists.linux.dev>,
+	"linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
+	"linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+	"linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+	"nvdimm@lists.linux.dev" <nvdimm@lists.linux.dev>,
+	"linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, Bart Van Assche
+	<bvanassche@acm.org>, Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke
+	<hare@suse.de>, Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Subject: Re: [PATCH 02/26] sd: remove sd_is_zoned
+Thread-Topic: [PATCH 02/26] sd: remove sd_is_zoned
+Thread-Index: AQHawHyGRqOeyk9mTUyH0jN7gvO2LrHMv68A
+Date: Tue, 18 Jun 2024 01:39:16 +0000
+Message-ID: <117628c1-7378-4195-89d1-d5df7d3d22b2@nvidia.com>
+References: <20240617060532.127975-1-hch@lst.de>
+ <20240617060532.127975-3-hch@lst.de>
+In-Reply-To: <20240617060532.127975-3-hch@lst.de>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Mozilla Thunderbird
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LV3PR12MB9404:EE_|SJ2PR12MB8884:EE_
+x-ms-office365-filtering-correlation-id: a24f19e2-a3bb-447b-5f5e-08dc8f377743
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230037|7416011|376011|1800799021|366013|38070700015;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?YldBZjhNY09zL1licEhjV2FjeENsMXIxMVFxckxEcC8zSGdhUEh1K2dtNUdK?=
+ =?utf-8?B?cnh4S3BHN3dQM0djVnZIV202MjYrQ1g3MWNCai9OMTk1OUZvUUZOY0k1NTNk?=
+ =?utf-8?B?YUVLZmdyUFluQ0VsMDBtakFIMjFxNmsxR2tyMElDN1hXRktLU0cvWnBsKzR3?=
+ =?utf-8?B?SkdpSDVpYTVIMHllNkI0UGxMZkVNN1dtRnBqNld5bmdpRzExSWZnTWw5L2kx?=
+ =?utf-8?B?NUx5WisvdDJXZnp6VmNhSkl4dzZYNUd2VnkvWlpkVlR6UzluYmVFc1BNOSt6?=
+ =?utf-8?B?MUUzaDVjelFzdnpRa1VmaldOb3Q1NC9YVCtUTXFKMm05dGIvZkd2OEtqSHhu?=
+ =?utf-8?B?VlZZNFNOK0hhVkhpWHd3ekcxc2VYdnk3a2MvUkRzRDNkUVdFRk1JT2tnaTd2?=
+ =?utf-8?B?My9CRmtEL3VWU2ZiRDdSNkxJdFRPK1hISXU5ZC9Qa1owL204cXFnZU9HQnE1?=
+ =?utf-8?B?aURmUSs5SDRqZVg3YzVTVFBIRmUzWTQrc2RnWURhZ21zVnA3blNnUzVKTXZh?=
+ =?utf-8?B?OUJzZnhUaVdJZWxBcVZmTkhLSXVaYW5kRTBmTGpmQk12dHppMXFTK0tWNWN2?=
+ =?utf-8?B?VHFsbEx3MTdLbmVpemYzaFVXODJpMVR5ekdCMDVKL2UrSCs3d3MrMU9OdTRS?=
+ =?utf-8?B?dU9raGhmaXlMcEZuaExQdWdiMlNHY3BjZ0RqZE4xcnlzSzVMMkxCYVVHMWw3?=
+ =?utf-8?B?c0QzUGpES2xndWhZN0c1ZzdFOHp0di9LaDFCVTFZc0hOcU9hTnptMi90STVW?=
+ =?utf-8?B?Y25GMnlhOGppcGJidGsxL3ByMCtPU1U2aE9YNHVEa3loeFQ1OEZaVGw4NmFy?=
+ =?utf-8?B?KytMdmVSOVR6YzNROS8ySHBJeTlWS3Fsc3FBWGVPemo3ODJlNDlqYjJsbWtM?=
+ =?utf-8?B?cnNjcHB2T3IrNGxhdEZnYi9pSXp1U25qR25odEUveE5IeXhRcFUxcktsRGRl?=
+ =?utf-8?B?VUtqWkFHZ3g1KzhhdXNqUEhLL0htTVdiRVRMNzNZMGY5M2sxeFBncWFBdkp4?=
+ =?utf-8?B?ZDRWTkNuaFZXRlk2Nk1QMWhzNENSQ2VOZ0dDaFdpUXkzTksrNnhZMGp6aTlT?=
+ =?utf-8?B?cEFnTHh6K0szQ2xGeVJSSG1yTWp0RWk4Sm55a3ZhSCtlelZUUGdDTW55ckNw?=
+ =?utf-8?B?cFducnNTRC9od2M1QVJZbVZhWERUZUFkVTExZ1ozaHNOUk8zNWs0NE1rQkpi?=
+ =?utf-8?B?VThiRW9ZaURzZTJscXRKT2d1SVYwcGFQQW56akkvbW5NN1VsQlp4YzB3QXpR?=
+ =?utf-8?B?cEgxQy9KMzVkTGk4NWFEZGtmZml4VUFWRFdZdHhmSmlnSW5EVkVsdGRpdW00?=
+ =?utf-8?B?U25LSzc4b0NON08zSDBjQXQxRlNrQVRMbnloSlNHK014c3lKRXJ0NytoRXpK?=
+ =?utf-8?B?djB1TG1ObDhzQkY5WVh3MzZRbkpkYVhnMFozTkpaTUx5NWRHVHV3QWtmdjNp?=
+ =?utf-8?B?Q1RNcVJPbHJXTXBLcDdhMUhjZVhiNGRhZGhSOFhzL1F0WWI0cEVoSjJOVGNL?=
+ =?utf-8?B?QmFOS1NEbkxaYWdkY0hUakRIOEpmZDlkR3JDUlp6eUFQQ09YNEdiM0pHeUo0?=
+ =?utf-8?B?WldaWkFGZ0Q0OWNkM1plbzBUR0dHQkVGa0JqTjA5aFdGVThtZk5XRVZmQjNN?=
+ =?utf-8?B?YjZPWS96djA3bTFiaUZqbUl3OE9yNm1adWtoYThHOFJQOVdEYkV2OFpIRVFy?=
+ =?utf-8?B?VlJRMnJuQkhmbms1eWRHVGRGZk5ZUEg3bmNwN1hDcnI5L2VOcGYrV1BYaStY?=
+ =?utf-8?B?ZVhkeXp0SlliTEhjaDhiYkpHdk44NFpORkJFZDhwTHJFaDJ4ei8xUENjdHFX?=
+ =?utf-8?Q?OtQ9mQztXhiEHIpXzLQe6Ig8+4Tr36Xi3M7ao=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9404.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230037)(7416011)(376011)(1800799021)(366013)(38070700015);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?TXV4d3VjdmNaY3IzUHF3aU5NaitSNjBjWWNVZnpxSnFaUGd2WVIwZjNNTlFq?=
+ =?utf-8?B?Rk9oSXNrcHN1NTFhbUhXa0NPWkJJSVpCMSt6VGVFaXVPQXlYTUdsMTNoczJs?=
+ =?utf-8?B?K042RmpvS3JyajV2UklUWmpUeW5EUm4rd3lDM2Q4bm1YRUQrSjZFdHFEZnVD?=
+ =?utf-8?B?NDJ2T2dqUXRTYWhtV1NVMVQzWW5qdk9nUjZaOExPMmxRaVc1UWlQVGVWL3RO?=
+ =?utf-8?B?YjhEei9jV0hxSE9JbllpOExWbVErbDREQkFPUEJVR0pBSTBPMHZQN000Sk9X?=
+ =?utf-8?B?VVY0Ly9PUUh6UHgzaCtZWis1blBxUFZoeDBIQkZhWGpTN2F1bTlKbFNNUTYr?=
+ =?utf-8?B?SGVHM2FaOTFKaHpaclZBNUUxVml4eGlZanh5T3hSWFFEUFdQTnpta1FZMG9l?=
+ =?utf-8?B?Sy9ZVGhqQTJQNUZ4d1dQYStleTlEKzc5MEYvQkQyQzNQckFKZlUzTW1NbTli?=
+ =?utf-8?B?clk3OFlWUThPek4zbWlFQWMvSm9BTzVVU1lPYnNPbjJGSlg2bm0wL092Y1Nu?=
+ =?utf-8?B?YlZQWGpzNGNabWF2bE5vYmxVZ3d2am9zNVV2OHMvb2paQmUrZUYxLzlENU53?=
+ =?utf-8?B?U21KZG5qRUZNb1RFS3Jjdk10NGFmSHVXYnNNR1dIMk5PN0VjOGdabWdvTi9p?=
+ =?utf-8?B?UmZ2VHMvYjRIUEcwQjd2Uy82THFwMkxWZTA3cnRnd3VGVjBhRHVlbjNrNlZn?=
+ =?utf-8?B?NUc2WE84VGhxdGVZRkRCUkd5d2FYWXk3OCtSREF3WGZWQlZENDRiUDdiSGYz?=
+ =?utf-8?B?OEZkQ0F0QzFjajN2VkQwdllPUEtiSUk0T0VPVk5XQ24zSXVqazY2YWFVMEhZ?=
+ =?utf-8?B?TmhkSkRWZlJrVEczck16S0tEMUUvWlcvWktPWlFQZ1JnWmwxbzdITFdIaVJI?=
+ =?utf-8?B?TzEwMEN4WUNxakQ2VFVOcWJjRmJ4SFlxcWZsSkYyeVI0M1V6aEszdE85SXMw?=
+ =?utf-8?B?bm9sekxTVG5xTkx5TXJMK2VpS2xJZnFXYjhQVmpURXJJeEtBdE1SdXJnQzh5?=
+ =?utf-8?B?cDlPNFVMY05pN2pHWFc5cWllNjlFY0EzTlNweXdqQlphVXg4cndiU1R6TlJ6?=
+ =?utf-8?B?NkJIMUxOcE5pMzJreWorbFlBYXdWdGpoZVNaZE9oYTNTVlVHQVBhT1pPQ1p4?=
+ =?utf-8?B?K2FCUE5McFlJVFQ1cjc4UkFKOTdzVE14dGxydzFNWVRWd09seERkQTROVVdE?=
+ =?utf-8?B?M2tCZS9WbzhlbmRkOTJ0QktuSDFZOEoydVUxdVludGRBbkRUdmN5S1lOWE5q?=
+ =?utf-8?B?NmpLYk0zcXRrb3d1ZkwwNnpuNnNpZlY1MXhKblAzU01BM2NTSlBaTE1UaFZ0?=
+ =?utf-8?B?RDgzdC9INjFkM09NMFI2RE5PZUNiT1ErdnhnS0lESGJ5cFJLL1ExaWlJS3lU?=
+ =?utf-8?B?QzkyUXR1dEgyNnZiVjVVMWpZYlJveEt5am90cURXZjNqV29LWHIzcGUvUGNZ?=
+ =?utf-8?B?bG1FYU1Rb2J2d0hId1ZJcWFqWGd6TUpJSzRJK1EzVjFFZDlSdmRhQXhpWGRG?=
+ =?utf-8?B?eUpxeGJNRmRCOXVrUmNQWWMvdUYrUzFHaFM1VHpITWNKS1lTUC84YWtpcm8r?=
+ =?utf-8?B?dHptUjMvSERweFZ6Uy8vMWhtMVBaK09VUDFvaTl1TWtqNHNldmRaQ01OUEZL?=
+ =?utf-8?B?d2RQelJtVkFBZzF1b2ErZmNvc1RFL1JQTnJKTnVLMUVTVWNaNm5KaU91M0RM?=
+ =?utf-8?B?OURMTGtacW5XQ1IzQUtCUk1CTWR1cUlYVUxVOEZtN2V1T212S3JUc3F5S21N?=
+ =?utf-8?B?dVZ3TzVUb2QyYlFON1BhVDhTdHJucXprekZjLzg4OTNTcis2WnVVMDc1SnFM?=
+ =?utf-8?B?aVNhMlpuYnh0TjF6S1Jxa1dkRG9tSEpYOW5IeWVoRXMybUczTk52MlRwbSsw?=
+ =?utf-8?B?WDdGWDFjRStGR0ZQV2Uvd3Q5dUVqNXpGSVltQWlxSzVhbW1VdFNTZGhWeUlp?=
+ =?utf-8?B?c0plbDlUdzRVSDN0WFJVVU8yLzVGcWhscFFrcUU3N0VaMHZZbjlwaG1QV0FX?=
+ =?utf-8?B?bnRUUm40QlYwcDlzUlM5T0MxNU00V2IzUkhtNnlkcTJDUDAzRmRGYUNqaWpo?=
+ =?utf-8?B?L2sva1hYbFdYMHh6cDJNYUxnc0s4dzI0WkMvS0ZRUGNZak9oU2FJWEtJamRz?=
+ =?utf-8?B?TDVhRWd2QjkzV1R5Z1Z2Ung2YkUxNGlXWldCdkRnVzQ2SXhYQ01Mc012NlQ5?=
+ =?utf-8?Q?w8GYB5pM2Mk2Gf/Dm1gQ9pu+ddAC6O1L+90dogtUght1?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <BA6754379EC35C49B5EFA1BCA5963450@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9404.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a24f19e2-a3bb-447b-5f5e-08dc8f377743
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Jun 2024 01:39:16.6435
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 70ANE6Zvl450ORuJDVNcemcJUkoaM3ff48ZcnrnAVEtgTHWVtCloarSJ3+wrSx5yarVIxAT7WJVryThOXcYA5g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8884
 
-On Tue, 18 Jun 2024 09:04:03 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Jun 17, 2024 at 3:49=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Mon, 17 Jun 2024 14:19:10 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Fri, Jun 14, 2024 at 2:39=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > This patch implement the logic of bind/unbind xsk pool to sq and rq.
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 201 +++++++++++++++++++++++++++++++++++=
-+++-
-> > > >  1 file changed, 200 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index 88ab9ea1646f..35fd8bca7fcf 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -26,6 +26,7 @@
-> > > >  #include <net/netdev_rx_queue.h>
-> > > >  #include <net/netdev_queues.h>
-> > > >  #include <uapi/linux/virtio_ring.h>
-> > > > +#include <net/xdp_sock_drv.h>
-> > > >
-> > > >  static int napi_weight =3D NAPI_POLL_WEIGHT;
-> > > >  module_param(napi_weight, int, 0444);
-> > > > @@ -57,6 +58,8 @@ DECLARE_EWMA(pkt_len, 0, 64)
-> > > >
-> > > >  #define VIRTNET_DRIVER_VERSION "1.0.0"
-> > > >
-> > > > +static struct virtio_net_hdr_mrg_rxbuf xsk_hdr;
-> > >
-> > > Does this mean AF_XDP only supports virtio_net_hdr_mrg_rxbuf but not =
-others?
-> >
-> > Sorry, this is the old code.
-> >
-> > Should be virtio_net_common_hdr.
-> >
-> > Here we should use the max size of the virtio-net header.
->
-> Better but still suboptimal, for example it could be extended as we're
-> adding more features?
-
-When we use this, we will work with hdr_len.
-
-	sg_fill_dma(sq->sg, sq->xsk.hdr_dma_address, vi->hdr_len);
-
-So, I think it is ok.
-
->
-> >
-> > >
-> > > > +
-> > > >  static const unsigned long guest_offloads[] =3D {
-> > > >         VIRTIO_NET_F_GUEST_TSO4,
-> > > >         VIRTIO_NET_F_GUEST_TSO6,
-> > > > @@ -321,6 +324,12 @@ struct send_queue {
-> > > >         bool premapped;
-> > > >
-> > > >         struct virtnet_sq_dma_info dmainfo;
-> > > > +
-> > > > +       struct {
-> > > > +               struct xsk_buff_pool *pool;
-> > > > +
-> > > > +               dma_addr_t hdr_dma_address;
-> > > > +       } xsk;
-> > > >  };
-> > > >
-> > > >  /* Internal representation of a receive virtqueue */
-> > > > @@ -372,6 +381,13 @@ struct receive_queue {
-> > > >
-> > > >         /* Record the last dma info to free after new pages is allo=
-cated. */
-> > > >         struct virtnet_rq_dma *last_dma;
-> > > > +
-> > > > +       struct {
-> > > > +               struct xsk_buff_pool *pool;
-> > > > +
-> > > > +               /* xdp rxq used by xsk */
-> > > > +               struct xdp_rxq_info xdp_rxq;
-> > > > +       } xsk;
-> > > >  };
-> > > >
-> > > >  /* This structure can contain rss message with maximum settings fo=
-r indirection table and keysize
-> > > > @@ -695,7 +711,7 @@ static void virtnet_sq_free_dma_meta(struct sen=
-d_queue *sq)
-> > > >  /* This function must be called immediately after creating the vq,=
- or after vq
-> > > >   * reset, and before adding any buffers to it.
-> > > >   */
-> > > > -static __maybe_unused int virtnet_sq_set_premapped(struct send_que=
-ue *sq, bool premapped)
-> > > > +static int virtnet_sq_set_premapped(struct send_queue *sq, bool pr=
-emapped)
-> > > >  {
-> > > >         if (premapped) {
-> > > >                 int r;
-> > > > @@ -5177,6 +5193,187 @@ static int virtnet_restore_guest_offloads(s=
-truct virtnet_info *vi)
-> > > >         return virtnet_set_guest_offloads(vi, offloads);
-> > > >  }
-> > > >
-> > > > +static int virtnet_rq_bind_xsk_pool(struct virtnet_info *vi, struc=
-t receive_queue *rq,
-> > > > +                                   struct xsk_buff_pool *pool)
-> > > > +{
-> > > > +       int err, qindex;
-> > > > +
-> > > > +       qindex =3D rq - vi->rq;
-> > > > +
-> > > > +       if (pool) {
-> > > > +               err =3D xdp_rxq_info_reg(&rq->xsk.xdp_rxq, vi->dev,=
- qindex, rq->napi.napi_id);
-> > > > +               if (err < 0)
-> > > > +                       return err;
-> > > > +
-> > > > +               err =3D xdp_rxq_info_reg_mem_model(&rq->xsk.xdp_rxq,
-> > > > +                                                MEM_TYPE_XSK_BUFF_=
-POOL, NULL);
-> > > > +               if (err < 0) {
-> > > > +                       xdp_rxq_info_unreg(&rq->xsk.xdp_rxq);
-> > > > +                       return err;
-> > > > +               }
-> > > > +
-> > > > +               xsk_pool_set_rxq_info(pool, &rq->xsk.xdp_rxq);
-> > > > +       }
-> > > > +
-> > > > +       virtnet_rx_pause(vi, rq);
-> > > > +
-> > > > +       err =3D virtqueue_reset(rq->vq, virtnet_rq_unmap_free_buf);
-> > > > +       if (err) {
-> > > > +               netdev_err(vi->dev, "reset rx fail: rx queue index:=
- %d err: %d\n", qindex, err);
-> > > > +
-> > > > +               pool =3D NULL;
-> > > > +       }
-> > > > +
-> > > > +       if (!pool)
-> > > > +               xdp_rxq_info_unreg(&rq->xsk.xdp_rxq);
-> > >
-> > > Let's use err label instead of duplicating xdp_rxq_info_unreg() here?
-> > >
-> > > > +
-> > > > +       rq->xsk.pool =3D pool;
-> > > > +
-> > > > +       virtnet_rx_resume(vi, rq);
-> > > > +
-> > > > +       return err;
-> > > > +}
-> > > > +
-> > > > +static int virtnet_sq_bind_xsk_pool(struct virtnet_info *vi,
-> > > > +                                   struct send_queue *sq,
-> > > > +                                   struct xsk_buff_pool *pool)
-> > > > +{
-> > > > +       int err, qindex;
-> > > > +
-> > > > +       qindex =3D sq - vi->sq;
-> > > > +
-> > > > +       virtnet_tx_pause(vi, sq);
-> > > > +
-> > > > +       err =3D virtqueue_reset(sq->vq, virtnet_sq_free_unused_buf);
-> > > > +       if (err)
-> > > > +               netdev_err(vi->dev, "reset tx fail: tx queue index:=
- %d err: %d\n", qindex, err);
-> > > > +       else
-> > > > +               err =3D virtnet_sq_set_premapped(sq, !!pool);
-> > > > +
-> > > > +       if (err)
-> > > > +               pool =3D NULL;
-> > > > +
-> > > > +       sq->xsk.pool =3D pool;
-> > > > +
-> > > > +       virtnet_tx_resume(vi, sq);
-> > > > +
-> > > > +       return err;
-> > > > +}
-> > > > +
-> > > > +static int virtnet_xsk_pool_enable(struct net_device *dev,
-> > > > +                                  struct xsk_buff_pool *pool,
-> > > > +                                  u16 qid)
-> > > > +{
-> > > > +       struct virtnet_info *vi =3D netdev_priv(dev);
-> > > > +       struct receive_queue *rq;
-> > > > +       struct send_queue *sq;
-> > > > +       struct device *dma_dev;
-> > > > +       dma_addr_t hdr_dma;
-> > > > +       int err;
-> > > > +
-> > > > +       /* In big_packets mode, xdp cannot work, so there is no nee=
-d to
-> > > > +        * initialize xsk of rq.
-> > > > +        *
-> > > > +        * Support for small mode firstly.
-> > >
-> > > This comment is kind of confusing, I think mergeable mode is also
-> > > supported. If it's true, we can simply remove it.
-> >
-> > For the commit num limit of the net-next, I have to remove some commits.
-> >
-> > So the mergeable mode is not supported by this patch set.
-> >
-> > I plan to support the merge mode after this patch set.
->
-> Then, I'd suggest to split the patches into two series:
->
-> 1) AF_XDP TX zerocopy
-> 2) AF_XDP RX zerocopy
->
-> And implement both small and mergeable in series 2).
-
-
-I am ok.
-
-
->
-> >
-> >
-> > >
-> > > > +        */
-> > > > +       if (vi->big_packets)
-> > > > +               return -ENOENT;
-> > > > +
-> > > > +       if (qid >=3D vi->curr_queue_pairs)
-> > > > +               return -EINVAL;
-> > > > +
-> > > > +       sq =3D &vi->sq[qid];
-> > > > +       rq =3D &vi->rq[qid];
-> > > > +
-> > > > +       /* xsk tx zerocopy depend on the tx napi.
-> > > > +        *
-> > > > +        * All xsk packets are actually consumed and sent out from =
-the xsk tx
-> > > > +        * queue under the tx napi mechanism.
-> > > > +        */
-> > > > +       if (!sq->napi.weight)
-> > > > +               return -EPERM;
-> > > > +
-> > > > +       /* For the xsk, the tx and rx should have the same device. =
-But
-> > > > +        * vq->dma_dev allows every vq has the respective dma dev. =
-So I check
-> > > > +        * the dma dev of vq and sq is the same dev.
-> > > > +        */
-> > > > +       if (virtqueue_dma_dev(rq->vq) !=3D virtqueue_dma_dev(sq->vq=
-))
-> > > > +               return -EPERM;
-> > >
-> > > I don't understand how a different DMA device matters here. It looks
-> > > like the code is using per virtqueue DMA below.
-> >
-> > The af-xdp may use one buffer to receive from the rx and reuse this buf=
-fer to
-> > send by the tx.  So the dma dev of sq and rq should be the same one.
->
-> Right, let's tweak the comment to say something like this.
-
-Will fix.
-
-Thanks.
-
-
->
-> Thanks
->
+T24gNi8xNi8yNCAyMzowNCwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6DQo+IFNpbmNlIGNvbW1p
+dCA3NDM3YmI3M2YwODcgKCJibG9jazogcmVtb3ZlIHN1cHBvcnQgZm9yIHRoZSBob3N0IGF3YXJl
+IHpvbmUNCj4gbW9kZWwiKSwgb25seSBaQkMgZGV2aWNlcyBleHBvc2UgYSB6b25lZCBhY2Nlc3Mg
+bW9kZWwuICBzZF9pc196b25lZCBpcw0KPiB1c2VkIHRvIGNoZWNrIGZvciB0aGF0IGFuZCB0aHVz
+IHJldHVybiBmYWxzZSBmb3IgaG9zdCBhd2FyZSBkZXZpY2VzLg0KPg0KPiBSZXBsYWNlIHRoZSBo
+ZWxwZXIgd2l0aCB0aGUgc2ltcGxlIG9wZW4gY29kZWQgVFlQRV9aQkMgY2hlY2sgdG8gZml4IHRo
+aXMuDQo+DQo+IEZpeGVzOiA3NDM3YmI3M2YwODcgKCJibG9jazogcmVtb3ZlIHN1cHBvcnQgZm9y
+IHRoZSBob3N0IGF3YXJlIHpvbmUgbW9kZWwiKQ0KPiBTaWduZWQtb2ZmLWJ5OiBDaHJpc3RvcGgg
+SGVsbHdpZzxoY2hAbHN0LmRlPg0KPiBSZXZpZXdlZC1ieTogQmFydCBWYW4gQXNzY2hlPGJ2YW5h
+c3NjaGVAYWNtLm9yZz4NCj4gUmV2aWV3ZWQtYnk6IERhbWllbiBMZSBNb2FsPGRsZW1vYWxAa2Vy
+bmVsLm9yZz4NCj4gUmV2aWV3ZWQtYnk6IEhhbm5lcyBSZWluZWNrZTxoYXJlQHN1c2UuZGU+DQo+
+IFJldmlld2VkLWJ5OiBKb2hhbm5lcyBUaHVtc2hpcm48am9oYW5uZXMudGh1bXNoaXJuQHdkYy5j
+b20+DQoNCg0KTG9va3MgZ29vZC4NCg0KUmV2aWV3ZWQtYnk6IENoYWl0YW55YSBLdWxrYXJuaSA8
+a2NoQG52aWRpYS5jb20+DQoNCi1jaw0KDQoNCg==
