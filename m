@@ -1,316 +1,200 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2041.outbound.protection.outlook.com [40.107.94.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E7E13FF9
-	for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 01:40:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718674850; cv=none; b=pIDA2JNS3XniM+zpYGJPAMGlxcFt5t09i8RhiRniNKp6hNCyXPufsa6fCgkQuz6D/HkOrymgD+SsWggeTBd69OCRAgMExr2Zggb14BLEzmtOmLARav52ZtmiZJD+aaseFW9q38c3YYYAyKM9XKNoIqn8BbzmLHGv5PMxuD2IgrU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718674850; c=relaxed/simple;
-	bh=hvQTP8Ry/qU1EpjbUIawlcOMrW4GBpWF0fVUYya78NM=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=DhRrv1xueu9TFz79sel3n1bYSf9cr2oyToYROPQKeaWwFaqVO4zicZbaJHbLszVsdln/mqocdra7kZldrObDwHtjZSekzz/arj6ZovndqF99G1YYVEoKPlH0G50Srooy2yuvIthY6fvPMCRZpyhLFSlfLB9v45IHT8+M1F98C5E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FqmzsqJW; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D5310A16;
+	Tue, 18 Jun 2024 01:41:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1718674903; cv=fail; b=nLtRSULK8wrlXoUh3tiyorHOiElntVz6HgX18CaBKEDmS+3lAhMiFwmYDcRCrQ1DUAY3rsA9P+3+ohyOEKwtnMKlW9zJeFZhyxVoA/O3mcqZJafd4NJin9hAlGJJMd49/RigVyE+PTzGijux7ouiyToMirrepRoY32mc4a734Wo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1718674903; c=relaxed/simple;
+	bh=p+4N1S30rum21qkQT06ApcKDgx92UXru4uX9+/mhiOU=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=rMIXXc5OAFSnf151HZFw704blLLvgKBJxTPmCfTYkt8uWiG1pDsjX1su8PVB31jR3AIuIrJ0g84KskmDopYPPpHJEBRHM/3NfwFYuEATPVzTMg8gdIPU71kGsDBwol7MpEkuSAhqFhSN/x/eKRJZ5kpP5kfDnOWKif8GEuyf4g4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=m1c+7rH9; arc=fail smtp.client-ip=40.107.94.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FqmzsqJW"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718674846; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=XUzSPYOwy9ttnTtGkmH+DS8/GdC3Dw7Xnzzm2WXn79o=;
-	b=FqmzsqJWptKs7t4vd+nnN9wE5+nxRnmD7rNfzl7AGA7IDNQfPT1vnfj/aXWiYmzI5jLkKCqexTo8l4ceF6Ba/bAnQEQTogwFB2PmPTO1NAL1Jc28ID+wgLp17VX6YpIajJ/5njxpB3E04cTL/uTkWG4rxUoI5mQpD2ICEc0Ei2w=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8hvTFB_1718674844;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8hvTFB_1718674844)
-          by smtp.aliyun-inc.com;
-          Tue, 18 Jun 2024 09:40:45 +0800
-Message-ID: <1718674830.0975292-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v5 11/15] virtio_net: xsk: tx: support xmit xsk buffer
-Date: Tue, 18 Jun 2024 09:40:30 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-References: <20240614063933.108811-1-xuanzhuo@linux.alibaba.com>
- <20240614063933.108811-12-xuanzhuo@linux.alibaba.com>
- <CACGkMEsWg95zXVsnDWrAU1qRS0uuEJJR0rw7LVOV-fGuBGzQCQ@mail.gmail.com>
- <1718610681.9219804-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEsn8h9UCy66i_N6zOPbW7V=fSswPWRjsjJFKc310YUu3g@mail.gmail.com>
-In-Reply-To: <CACGkMEsn8h9UCy66i_N6zOPbW7V=fSswPWRjsjJFKc310YUu3g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="m1c+7rH9"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XAAiTyEijMTi1pqi6OQZ9E7fo/FrAMCRmGyOhMSoQ9T0szq603SqkEbmZ3abOt5/cdvPvM93TUuAk078DCHKPtZrZB+6zedhGfql7HDA8HXqQME08nP76PuxRsvJybHu+y6LVUarqtFX72aLCiZ52r2mMBS8TUSzV/2yKSLjEJKYXDyIIAbiuZulPdjNRc47TShOtLJKfJoh7/bpX81PCMJ3g5KTOcAMotLp5FrP/blYUzTtDTA9LMtFaRoU8GeML6Qkd8ROVsRsaM2DiG5Te6f2MqpmS4QpiQWbSTMSe2BO51MNIYG4aBqPDhUIQCL1AssHt34v6+mOTUs0Sdy28Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=p+4N1S30rum21qkQT06ApcKDgx92UXru4uX9+/mhiOU=;
+ b=VxkNS3sCVR7rNGAOGkWfAvVTZQ5YgLErIftcgFOK6exMbD6PKHWpMeapBzaV73ltwRV1MJV9JvzUEa238InZF/fmCv0Iy4nrkgof6Ov0/S+eF2QFTbaNmhATrhQtvryzcwMMlh5Af1C6eiMAPbK3mJpxS6KoEphm3iBDzsH69tuxwWkT7A9FNxRwiURexpdsAH2QOYvACdaS6Nta3tNpIAZM6AOTKNkMONdjphxoiydOqvTfTLV4PQOHNEO/w9kobZ1nyz1cpK4/ciX64t8/vtJGlUnRcXzVsBiQQC2NotEYBHrxaGVIe39AKJq8k3E6mWFUX6S7FLKGD2Q4zbmKfQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=p+4N1S30rum21qkQT06ApcKDgx92UXru4uX9+/mhiOU=;
+ b=m1c+7rH9cmDdMCNSxBcnPUD/on6ZNGVQ1KRzDnAt/sk23sKsRIvrJ/TrLRg5TaF5oTqx0Hs39BnWhisunIvqRmuYCaEm/Rsl3nsrQb+DfgZ0UXJ+VPZox1MFV7Se6nxLAiL9OOCTmkx7TXByw5IC9xNNtBOTiVbbSt7KGJVUsAQWkN8zHy4XKuIAD4k7skHsWCOlSCGaIj3jGAkRPwCQurVpAzqjsMqo7wUAfKA9UpbffVtZVggzRAef5tm13cDTwQkacw3b7Xv2XEdfbCG1xR8B3vAT4zrxXTo5WdNAJcLWI+38SLCYUNaK5sIjD7gdxEtKNdjzo/9bADT9DMGIjA==
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com (2603:10b6:408:219::9)
+ by LV3PR12MB9143.namprd12.prod.outlook.com (2603:10b6:408:19e::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.31; Tue, 18 Jun
+ 2024 01:41:36 +0000
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::57ac:82e6:1ec5:f40b]) by LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::57ac:82e6:1ec5:f40b%5]) with mapi id 15.20.7677.030; Tue, 18 Jun 2024
+ 01:41:36 +0000
+From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>, Richard Weinberger
+	<richard@nod.at>, Philipp Reisner <philipp.reisner@linbit.com>, Lars
+ Ellenberg <lars.ellenberg@linbit.com>,
+	=?utf-8?B?Q2hyaXN0b3BoIELDtmhtd2FsZGVy?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>, "Michael
+ S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	=?utf-8?B?Um9nZXIgUGF1IE1vbm7DqQ==?= <roger.pau@citrix.com>, Alasdair Kergon
+	<agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>, Mikulas Patocka
+	<mpatocka@redhat.com>, Song Liu <song@kernel.org>, Yu Kuai
+	<yukuai3@huawei.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, "Martin K.
+ Petersen" <martin.petersen@oracle.com>, "linux-m68k@lists.linux-m68k.org"
+	<linux-m68k@lists.linux-m68k.org>, "linux-um@lists.infradead.org"
+	<linux-um@lists.infradead.org>, "drbd-dev@lists.linbit.com"
+	<drbd-dev@lists.linbit.com>, "nbd@other.debian.org" <nbd@other.debian.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+	"linux-bcache@vger.kernel.org" <linux-bcache@vger.kernel.org>,
+	"dm-devel@lists.linux.dev" <dm-devel@lists.linux.dev>,
+	"linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
+	"linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+	"linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+	"nvdimm@lists.linux.dev" <nvdimm@lists.linux.dev>,
+	"linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, Bart Van Assche
+	<bvanassche@acm.org>, Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke
+	<hare@suse.de>
+Subject: Re: [PATCH 11/26] block: freeze the queue in queue_attr_store
+Thread-Topic: [PATCH 11/26] block: freeze the queue in queue_attr_store
+Thread-Index: AQHawHztZf+US5g9EkKLFc+wTLOrGbHMwFUA
+Date: Tue, 18 Jun 2024 01:41:36 +0000
+Message-ID: <d0d47735-ca4d-4744-bb8a-607d59c67315@nvidia.com>
+References: <20240617060532.127975-1-hch@lst.de>
+ <20240617060532.127975-12-hch@lst.de>
+In-Reply-To: <20240617060532.127975-12-hch@lst.de>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Mozilla Thunderbird
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LV3PR12MB9404:EE_|LV3PR12MB9143:EE_
+x-ms-office365-filtering-correlation-id: 4c152403-08d1-47d7-1138-08dc8f37ca9c
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230037|376011|7416011|1800799021|366013|38070700015;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?eEhxVE5BUktkU2hReldpbFpRMjdOWXlzeG5zZDROWFRHTFNOSDIzeExQV1M5?=
+ =?utf-8?B?OUdrb0paT3J0K3JzelEvSk5EQWd0YnkzaXJEbVdweUdKdjBtazJoZEN0QUY2?=
+ =?utf-8?B?Q3B3S0JMUGVoa2lSRXRxM3plaU0zeU1Hc3ZyNmlDcmhzeHFkdGh4bFFia2VG?=
+ =?utf-8?B?dE5rbVpPTzA4RjhlaFdpUlk0M1Zoc21MaGoyM0h6NklxMzIwanIxTWM2QnF1?=
+ =?utf-8?B?Yk92bHJkdmtlQmVzQ1NJN1R3TlJHK0hjZk9GVVlqaWU4VWFvV3A4WGZtVDI3?=
+ =?utf-8?B?K0dKVnk3eDNtZ1FWNjRqUHEzMDBNTm5kbUlIWXBxZExXUHFIY0QyVkswQVpk?=
+ =?utf-8?B?QlBvUEpQVW1lQldIQ0F3dWJ3blVDdVFCTWZ5cUdpcVBJd3pFcUlmaEpIanJn?=
+ =?utf-8?B?REE1T3pFeU9GdXIvRDkvYUorUnRLbmFDTXpobVR4VXdDbzJCOUMxc2R0b3NC?=
+ =?utf-8?B?aVFyTWxDV2dOaTBqYnlkeWVSQnJramoyd08xc1ZOSmVwUGxMNnMreVlLK1dI?=
+ =?utf-8?B?bTZ6aGtTanhkT0VsaXEvQTJmZG40UkJKVThkdG1uL1IyR3ZlaE1BRGxjUXBr?=
+ =?utf-8?B?azNHRFFQaUxpTWZJcFh5SVpDU2tab2YzbzE1UHJOOTlVSUp5OUxZUnVJQ3Fi?=
+ =?utf-8?B?QnU1dVQ5SUcwTU11K1d0MWhnSXZqRFo4Mi85UWpJS1VQcTI0Z2hkbUVna2xM?=
+ =?utf-8?B?eVZ2bHQxQS9UMStOOXpVbU1iUEU2cGZqRmRCZU9aOG14anBOMkRZRXRJL282?=
+ =?utf-8?B?bjIyVWFaOHVRN0pMWU0yUDJhVy9GaVdEOGM5SkYyZnhWTzZwV0xtMmIxS01q?=
+ =?utf-8?B?WVJIWDlvenRpYmFMUmgrME1SZ012VnZPbWpIT014eW4za0JhWjNXT212TlJq?=
+ =?utf-8?B?MDI0bEZYak01Y2pPUnJnN28yeUhTZDcvb2NYYkFZck5KZmJ2dWZrSEJMaVNY?=
+ =?utf-8?B?WmxlNmVRVGFheHdOMVNid0NMVkcrWWpUNk95VzZLVUVpYm5ZWGNKdE5kVTgz?=
+ =?utf-8?B?YXlvdy80NTI2bnRyWFBNRCtvOCtrbEJLWlBQU2hoRm9yeHU0R2crU21vN29v?=
+ =?utf-8?B?Tyt5V3BIV2ZYZHp1UXJKeHQzYVplYUM5SFZ0L0RoN3BLcHlJangyN29Jdml6?=
+ =?utf-8?B?OG0vWUhzeUdTZStxLyt3NHR4aUZxODhxWXZISUp2U0JUMms5SFd2ME1IRVhh?=
+ =?utf-8?B?K0UrQVZtNFE2a0VjamJ6T2lYb3BxVXZLRnQ3Mzl3dzg3ZWlwaU1CL1U1VVg4?=
+ =?utf-8?B?c3IyOEcyb3RZQUJ4SWJmU1I4VFJiZldZSEJCZEhwa1dDbi9Jc3JXRVg0SjVW?=
+ =?utf-8?B?dHRCT1hPdndOSmNZQUlKUVM1ODV2MkxPWjRMdDQwellWTGEwVHZSSHZhNlhL?=
+ =?utf-8?B?Wm5KQmd0YjJ3akdVeTBoSDYxT21PdUR6RkFsZkxFUGVkRzlOUHhFOE95WTVj?=
+ =?utf-8?B?MDJqa1FObnpSSjNHRkUyY2gyKzJoUnp3NExXclE0eDRJS21NZlZDcnFETjA1?=
+ =?utf-8?B?c2svc3NzajVtdDcvUHhUT2FwRjNuWUU4SlBKT25UeW5UeStHeXI5Q3MwcEll?=
+ =?utf-8?B?RnlUZnJSYlhxczVxUFpkSyszN0dWbHlYYndDOXlBNDZScytmTy9rMk9oQkhP?=
+ =?utf-8?B?Tk44RUh3VmZMRktqblk0SnhWWlFHSTVXVFVtallFb0N4azhKaFRIa3UzRSt6?=
+ =?utf-8?B?TklDSE5GbzFaMUxSK2lScnk0Qng0MmJhWWtzS1c2eUxlMlY4NVFOVG9oNnhB?=
+ =?utf-8?B?QS9pN29EKzZDQjFzZFFCZmE4M3ZvZ3g1eTVjK01LN09hLy9DVnpwVitselA4?=
+ =?utf-8?Q?yDaYv2cPpCpg0IUjKcHimjy+oHUBvt5whOaCE=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9404.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230037)(376011)(7416011)(1800799021)(366013)(38070700015);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?dFFUZUxPTDNtMWVpUDludzVjc1hkOENZdlRjUGZRWU4vZDlnSTlGMlpNWkZL?=
+ =?utf-8?B?enVJU1MzS1FRaFNPcGdHMU1jbjRPNjZ1U0o2bXRaWjNpREFBaTFwRkZ2SXY1?=
+ =?utf-8?B?M0NaTDVSaEQxYk1uQm9pWTQyc0hidmdtdysrN1A2eVp1YkFEUm4yOE9MV2wz?=
+ =?utf-8?B?Y3NSNXpuWXMrN1hYeGVoaGx3YUdrczZzTUEwWml4dit3cWt5aW4xWkJLRnNH?=
+ =?utf-8?B?K2ZFRXQ1SW53VEc0cC95NjVSZmZ6SnpuTzRaOEtmaUlSeVdiS0NRTS95dzJQ?=
+ =?utf-8?B?VU80UmRCdjUvOUVXMVEvc09qdy9CeUNxd2k5MjZnSnVUVUd5a3haWmdQRXBH?=
+ =?utf-8?B?aFJPbWZXMUphQ3MvL2ZhM3NIOWY3NnJLOTVUZHBSc21Cc2dZTWdJSlViSEVa?=
+ =?utf-8?B?T3lpWDk3MjRnQjYxdUNZNUt0b2RKSlY0ZGhQcHh0M1RxZGtiOFdNTytVWjJB?=
+ =?utf-8?B?S1h2UjJCeUc4S3FpZ1BkZVREQjY1aUt1MUIyRndQZFR3b1BmZHlWVzJpNVkv?=
+ =?utf-8?B?a0s0ckZ5T0NXYU00eEVrTFBqRVV1L1BITEtQMW5Ld3BuY1B4RThjSnhnM0gx?=
+ =?utf-8?B?NTJiSHpabU5wclBUZFFRVjJaNERodTgzT0NML0hwbyszMDZ6aXNjWXN1S3R4?=
+ =?utf-8?B?QWUxTHRXdSsvcStPYnF2eTBpdkcwamdna2hIRm8rQTdTRDlpME5Cd3hjUVo1?=
+ =?utf-8?B?VUQ4Z2dJdFRUc215NFhtUTBxZlVOOGwxTUhSMUw4NHg3YlU5bDVYbzZiYkRX?=
+ =?utf-8?B?YXhBak1POC84NVJUc2FlWTZJalZhaitZYVhEY2o0cXlVVGU4eGNFaXpjSzhI?=
+ =?utf-8?B?eHdnNDc2V2pzb2tNRlI3WWE5VjYwYWFmNTJnbWpZNmJiUkYwbWhlTFdaMXNz?=
+ =?utf-8?B?TlRxSEpzd1Q2cUd4OXIyOHV3Z2RiU3lSVjQ0eEFramlPNDZLUXFjandEN1Y2?=
+ =?utf-8?B?ZU5COXpGSFdKeUxJRWVBaFZVcnZWOWNNalZUak10OC92UDJuOVdVVUxoaXJJ?=
+ =?utf-8?B?amNxaUQ4bXRXTWNuTDNNSjNPRk9meS9SMEN6ZW1GbGowT3Vka1BFM240cUhE?=
+ =?utf-8?B?SjF0MytHTGcra0hOK21jbGpkWEV0UDdOa1BxMGpWTVFVNVhLVXNQb2tTWnRC?=
+ =?utf-8?B?dEttNlFuNVlhWnZhSk1wdlFMRUVramsrMGlLS3A2dGJpZDZCTXh1Vk5tUTYy?=
+ =?utf-8?B?VkJwai9MaGRrVG0rL2hwbEtPeHJTNzhGYWUvTFhMYm4rbDR6YXVDU3Q1RDN3?=
+ =?utf-8?B?aUw1WHhQSEluclNtVE01eXVrNkszZW1Od2cyNlRIUGJKL1RNeGxYUk1adzNX?=
+ =?utf-8?B?bDZxUVpEQytVTi9HbWVnQlZpWHJCeWZtR1d3MG1JSWxRSlp3ZUhXRVFRMHNj?=
+ =?utf-8?B?RnN6V2RkVUFXWkMwZHFxWXkrQ0ZwVFdpS2dLS0pqRlRRNzlJTGdqWjYyZktq?=
+ =?utf-8?B?ZFJiT0FBY3FNcDVRVDNCV3lUNTdvM0ptclQrOWxIWHlyaXBNTTdMNTdwaW45?=
+ =?utf-8?B?RUR1dkpWdDFGd3I5aE9Sam1IRW1kYUpOU1dzbjJRWnpUaEJBMlM4ZmJFeHlM?=
+ =?utf-8?B?RzY2UzMzSkFTSURpMmMvVTVJZ3pBanJvT2xqL2ppUlhSdStLQkRkRFdxTys5?=
+ =?utf-8?B?OVdlemRsNlovVUhmam1ZWmtYVEVDOW16bTBHeVZBWjMvdFErcWxkYUVBQnY4?=
+ =?utf-8?B?blJMaDJOT09kNWxjZDF4UVd0cnBsbytONERubWVORGxUSElzNkdPVkt5RURv?=
+ =?utf-8?B?b0VhWFNXNmR0WE9JT1BNM2VxbzZEekV1d2NTMSsxSmhoQklnV2JTZnVZMFRY?=
+ =?utf-8?B?em9yWUJKeXRsNXhuRE5WVkc0TWh6SEFmSHlQRkM5Z21jY2ZxUTFpNXBFR1Z4?=
+ =?utf-8?B?b3pBL2U2S2lZcDFib1BQTzk5ME1wa3RnR3pwSjdjVTBCcWV1eFliMnFBdm5s?=
+ =?utf-8?B?Vjk1RW8yUVF1dmFNL0ZHaDBtWkprTHRoT1k1clNqalc0cEFpeW5kU2RoaG11?=
+ =?utf-8?B?TkF5YUI3TTlJK2xwTUJneU4zdHVxdFY4dyt5VjZXaDUxWnNuMStLQ253Yi8x?=
+ =?utf-8?B?UUQzc1ZOemZxanFuYXg2cGhmSHQ0S3FwTlNXbVFGZk9XT0JkbC8rbUU1Q3ls?=
+ =?utf-8?B?ZDl1cHM1d2FMV2Q3NmNpY3NycW85ZFRwOEZ2Q1lTblZWbERkWnNyRC9GWEVt?=
+ =?utf-8?Q?jyBU2G9AYkAY6ICQoFyf7aMkk3wiXDwKEcgM4OEMKwMP?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <F0E393A774C60C469B0101BC1E571406@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9404.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4c152403-08d1-47d7-1138-08dc8f37ca9c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Jun 2024 01:41:36.4521
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: WRLy+uAERJ1P0hWsb9WWiPJU0Nl7a1j1bdEqUClZSeVr7v3i2pq/EX+cPq+Qu3jBm86xyl8mWbPMkGpOs1cK5A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR12MB9143
 
-On Tue, 18 Jun 2024 09:06:50 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Jun 17, 2024 at 3:54=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Mon, 17 Jun 2024 14:30:07 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Fri, Jun 14, 2024 at 2:40=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > The driver's tx napi is very important for XSK. It is responsible f=
-or
-> > > > obtaining data from the XSK queue and sending it out.
-> > > >
-> > > > At the beginning, we need to trigger tx napi.
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 121 +++++++++++++++++++++++++++++++++++=
-+++-
-> > > >  1 file changed, 119 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index 2767338dc060..7e811f392768 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -535,10 +535,13 @@ enum virtnet_xmit_type {
-> > > >         VIRTNET_XMIT_TYPE_SKB,
-> > > >         VIRTNET_XMIT_TYPE_XDP,
-> > > >         VIRTNET_XMIT_TYPE_DMA,
-> > > > +       VIRTNET_XMIT_TYPE_XSK,
-> > > >  };
-> > > >
-> > > >  #define VIRTNET_XMIT_TYPE_MASK (VIRTNET_XMIT_TYPE_SKB | VIRTNET_XM=
-IT_TYPE_XDP \
-> > > > -                               | VIRTNET_XMIT_TYPE_DMA)
-> > > > +                               | VIRTNET_XMIT_TYPE_DMA | VIRTNET_X=
-MIT_TYPE_XSK)
-> > > > +
-> > > > +#define VIRTIO_XSK_FLAG_OFFSET 4
-> > > >
-> > > >  static enum virtnet_xmit_type virtnet_xmit_ptr_strip(void **ptr)
-> > > >  {
-> > > > @@ -768,6 +771,10 @@ static void __free_old_xmit(struct send_queue =
-*sq, bool in_napi,
-> > > >                          * func again.
-> > > >                          */
-> > > >                         goto retry;
-> > > > +
-> > > > +               case VIRTNET_XMIT_TYPE_XSK:
-> > > > +                       /* Make gcc happy. DONE in subsequent commi=
-t */
-> > >
-> > > This is probably a hint that the next patch should be squashed here.
-> >
-> > The code for the xmit patch is more. So I separate the code out.
-> >
-> > >
-> > > > +                       break;
-> > > >                 }
-> > > >         }
-> > > >  }
-> > > > @@ -1265,6 +1272,102 @@ static void check_sq_full_and_disable(struc=
-t virtnet_info *vi,
-> > > >         }
-> > > >  }
-> > > >
-> > > > +static void *virtnet_xsk_to_ptr(u32 len)
-> > > > +{
-> > > > +       unsigned long p;
-> > > > +
-> > > > +       p =3D len << VIRTIO_XSK_FLAG_OFFSET;
-> > > > +
-> > > > +       return virtnet_xmit_ptr_mix((void *)p, VIRTNET_XMIT_TYPE_XS=
-K);
-> > > > +}
-> > > > +
-> > > > +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u=
-32 len)
-> > > > +{
-> > > > +       sg->dma_address =3D addr;
-> > > > +       sg->length =3D len;
-> > > > +}
-> > > > +
-> > > > +static int virtnet_xsk_xmit_one(struct send_queue *sq,
-> > > > +                               struct xsk_buff_pool *pool,
-> > > > +                               struct xdp_desc *desc)
-> > > > +{
-> > > > +       struct virtnet_info *vi;
-> > > > +       dma_addr_t addr;
-> > > > +
-> > > > +       vi =3D sq->vq->vdev->priv;
-> > > > +
-> > > > +       addr =3D xsk_buff_raw_get_dma(pool, desc->addr);
-> > > > +       xsk_buff_raw_dma_sync_for_device(pool, addr, desc->len);
-> > > > +
-> > > > +       sg_init_table(sq->sg, 2);
-> > > > +
-> > > > +       sg_fill_dma(sq->sg, sq->xsk.hdr_dma_address, vi->hdr_len);
-> > > > +       sg_fill_dma(sq->sg + 1, addr, desc->len);
-> > > > +
-> > > > +       return virtqueue_add_outbuf(sq->vq, sq->sg, 2,
-> > > > +                                   virtnet_xsk_to_ptr(desc->len), =
-GFP_ATOMIC);
-> > > > +}
-> > > > +
-> > > > +static int virtnet_xsk_xmit_batch(struct send_queue *sq,
-> > > > +                                 struct xsk_buff_pool *pool,
-> > > > +                                 unsigned int budget,
-> > > > +                                 u64 *kicks)
-> > > > +{
-> > > > +       struct xdp_desc *descs =3D pool->tx_descs;
-> > > > +       bool kick =3D false;
-> > > > +       u32 nb_pkts, i;
-> > > > +       int err;
-> > > > +
-> > > > +       budget =3D min_t(u32, budget, sq->vq->num_free);
-> > > > +
-> > > > +       nb_pkts =3D xsk_tx_peek_release_desc_batch(pool, budget);
-> > > > +       if (!nb_pkts)
-> > > > +               return 0;
-> > > > +
-> > > > +       for (i =3D 0; i < nb_pkts; i++) {
-> > > > +               err =3D virtnet_xsk_xmit_one(sq, pool, &descs[i]);
-> > > > +               if (unlikely(err)) {
-> > > > +                       xsk_tx_completed(sq->xsk.pool, nb_pkts - i);
-> > > > +                       break;
-> > >
-> > > Any reason we don't need a kick here?
-> >
-> > After the loop, I checked the kick.
-> >
-> > Do you mean kick for the packet that encountered the error?
->
-> Nope, I mis-read the code but kick is actually i =3D=3D 0 here.
-
-Will fix.
-
-
-Thanks.
-
-
-
->
-> >
-> >
-> > >
-> > > > +               }
-> > > > +
-> > > > +               kick =3D true;
-> > > > +       }
-> > > > +
-> > > > +       if (kick && virtqueue_kick_prepare(sq->vq) && virtqueue_not=
-ify(sq->vq))
-> > > > +               (*kicks)++;
-> > > > +
-> > > > +       return i;
-> > > > +}
-> > > > +
-> > > > +static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buf=
-f_pool *pool,
-> > > > +                            int budget)
-> > > > +{
-> > > > +       struct virtnet_info *vi =3D sq->vq->vdev->priv;
-> > > > +       struct virtnet_sq_free_stats stats =3D {};
-> > > > +       u64 kicks =3D 0;
-> > > > +       int sent;
-> > > > +
-> > > > +       __free_old_xmit(sq, true, &stats);
-> > > > +
-> > > > +       sent =3D virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
-> > > > +
-> > > > +       if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
-> > > > +               check_sq_full_and_disable(vi, vi->dev, sq);
-> > > > +
-> > > > +       u64_stats_update_begin(&sq->stats.syncp);
-> > > > +       u64_stats_add(&sq->stats.packets, stats.packets);
-> > > > +       u64_stats_add(&sq->stats.bytes,   stats.bytes);
-> > > > +       u64_stats_add(&sq->stats.kicks,   kicks);
-> > > > +       u64_stats_add(&sq->stats.xdp_tx,  sent);
-> > > > +       u64_stats_update_end(&sq->stats.syncp);
-> > > > +
-> > > > +       if (xsk_uses_need_wakeup(pool))
-> > > > +               xsk_set_tx_need_wakeup(pool);
-> > > > +
-> > > > +       return sent =3D=3D budget;
-> > > > +}
-> > > > +
-> > > >  static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
-> > > >                                    struct send_queue *sq,
-> > > >                                    struct xdp_frame *xdpf)
-> > > > @@ -2707,6 +2810,7 @@ static int virtnet_poll_tx(struct napi_struct=
- *napi, int budget)
-> > > >         struct virtnet_info *vi =3D sq->vq->vdev->priv;
-> > > >         unsigned int index =3D vq2txq(sq->vq);
-> > > >         struct netdev_queue *txq;
-> > > > +       bool xsk_busy =3D false;
-> > > >         int opaque;
-> > > >         bool done;
-> > > >
-> > > > @@ -2719,7 +2823,11 @@ static int virtnet_poll_tx(struct napi_struc=
-t *napi, int budget)
-> > > >         txq =3D netdev_get_tx_queue(vi->dev, index);
-> > > >         __netif_tx_lock(txq, raw_smp_processor_id());
-> > > >         virtqueue_disable_cb(sq->vq);
-> > > > -       free_old_xmit(sq, true);
-> > > > +
-> > > > +       if (sq->xsk.pool)
-> > > > +               xsk_busy =3D virtnet_xsk_xmit(sq, sq->xsk.pool, bud=
-get);
-> > >
-> > > How about rename this to "xsk_sent"?
-> >
-> >
-> > OK
-> >
-> > Thanks.
-> >
-> >
-> > >
-> > > > +       else
-> > > > +               free_old_xmit(sq, true);
-> > > >
-> > > >         if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS) {
-> > > >                 if (netif_tx_queue_stopped(txq)) {
-> > > > @@ -2730,6 +2838,11 @@ static int virtnet_poll_tx(struct napi_struc=
-t *napi, int budget)
-> > > >                 netif_tx_wake_queue(txq);
-> > > >         }
-> > > >
-> > > > +       if (xsk_busy) {
-> > > > +               __netif_tx_unlock(txq);
-> > > > +               return budget;
-> > > > +       }
-> > > > +
-> > > >         opaque =3D virtqueue_enable_cb_prepare(sq->vq);
-> > > >
-> > > >         done =3D napi_complete_done(napi, 0);
-> > > > @@ -5715,6 +5828,10 @@ static void virtnet_sq_free_unused_buf(struc=
-t virtqueue *vq, void *buf)
-> > > >         case VIRTNET_XMIT_TYPE_DMA:
-> > > >                 virtnet_sq_unmap(sq, &buf);
-> > > >                 goto retry;
-> > > > +
-> > > > +       case VIRTNET_XMIT_TYPE_XSK:
-> > > > +               /* Make gcc happy. DONE in subsequent commit */
-> > > > +               break;
-> > > >         }
-> > > >  }
-> > > >
-> > > > --
-> > > > 2.32.0.3.g01195cf9f
-> > > >
-> > >
-> > > Thanks
-> > >
-> >
->
+T24gNi8xNi8yNCAyMzowNCwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6DQo+IHF1ZXVlX2F0dHJf
+c3RvcmUgdXBkYXRlcyBhdHRyaWJ1dGVzIHVzZWQgdG8gY29udHJvbCBnZW5lcmF0aW5nIEkvTywg
+YW5kDQo+IGNhbiBjYXVzZSBtYWxmb3JtZWQgYmlvcyBpZiBjaGFuZ2VkIHdpdGggSS9PIGluIGZs
+aWdodC4gIEZyZWV6ZSB0aGUgcXVldWUNCj4gaW4gY29tbW9uIGNvZGUgaW5zdGVhZCBvZiBhZGRp
+bmcgaXQgdG8gYWxtb3N0IGV2ZXJ5IGF0dHJpYnV0ZS4NCj4NCj4gU2lnbmVkLW9mZi1ieTogQ2hy
+aXN0b3BoIEhlbGx3aWc8aGNoQGxzdC5kZT4NCj4gUmV2aWV3ZWQtYnk6IEJhcnQgVmFuIEFzc2No
+ZTxidmFuYXNzY2hlQGFjbS5vcmc+DQo+IFJldmlld2VkLWJ5OiBEYW1pZW4gTGUgTW9hbDxkbGVt
+b2FsQGtlcm5lbC5vcmc+DQo+IFJldmlld2VkLWJ5OiBIYW5uZXMgUmVpbmVja2U8aGFyZUBzdXNl
+LmRlPg0KDQpMb29rcyBnb29kLg0KDQpSZXZpZXdlZC1ieTogQ2hhaXRhbnlhIEt1bGthcm5pIDxr
+Y2hAbnZpZGlhLmNvbT4NCg0KLWNrDQoNCg0K
