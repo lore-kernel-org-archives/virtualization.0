@@ -1,204 +1,171 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E979E182DB
-	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 07:58:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD46477117
+	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 08:05:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718783905; cv=none; b=WGrYMUSFlHEA+8l3AdXhzD7m9uHo7k9VSXrJNfjpFXrMr8c5uu4bGT/PQyvPS38M6ZNbf/GV/a6lZrDkyKMlE9tlhyPrMysPs3dxLg+nsBGLV4r6jYFwYi9ifaW67N4M2r63RgHMptQa+53NXbcwvLVAvOLrwvSQUBWXEwLVd2M=
+	t=1718784349; cv=none; b=TT0w0OAofZhnHX77sTkc5vnHAS5jelOQZuIJFr/Ficwk5wm91K6T2s1U4DxoiF4kXPEoMFtg79nv9qH2MD0k918uVEpPWXiiEWnD7X6hrkUe5D1cfaT8lEXR0EvHtOdTRNQrTRMHx9QZEj7VIxAWr3Y2ci5TzBXnjrU1jTqN2fg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718783905; c=relaxed/simple;
-	bh=F+nCQotwyBJ/AYl6K244TiJ9pbK87bZbSD51hie1cSY=;
+	s=arc-20240116; t=1718784349; c=relaxed/simple;
+	bh=rEYX9TMT+WexG+9ndxYWFHFfhUupKb3tjubpg2QCDuA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=eigiUQivffYfecR+AtC9D19ha88vbfiAg1bYcmrx5MlvjzpskGAiYAOkE9MHwVQXvuXIVBmXqC36+HNA7Qq0kreevAeTxb00rvn+H4yvh7aFLxU7GUQT+FS54GIXTyff/qbA9y20pn9uZk8omM9efbTFoSTYuYW5IrVQ/eePWp8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MjvRIpvc; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=bztbOcGSOFH9busvnNEShbpXB+9EBqL6Vu8CInHAU7BgvuIP+/7FSr0nynly/3sO8K+bR28SpTNRxiO5qs4So4UjnZgkyHoyutNQ7PO6mtV89YQwoBvBxk5Gjun22JcY1dfP8oTF1eb+Fqbs0RH1UYfvmm0UY5wH6FNhnGejn/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=igPikSKh; arc=none smtp.client-ip=209.85.221.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MjvRIpvc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718783902;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ANzmvHUQ5AIaHRYaMSvxHwn59q2Kn3fvsfBTKnY6KpY=;
-	b=MjvRIpvcokLwNkAQAqAViD+uoRu7PCC+2Dr+XE8GJJjo8uswTEFuiZFNKcQ/8jz6nGqzhO
-	QG+krbcMjD08XlFhbAsPA6PIRJfuRMBNOp4y2X+vAVQHRaGBSkfhdmguvU10c/taxDNM3Q
-	PRqgRWGrNuqT7YX3bPkyCVJre+6KIuU=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-175-u9A99Q3WN6quD7QY1f_t4Q-1; Wed, 19 Jun 2024 03:58:21 -0400
-X-MC-Unique: u9A99Q3WN6quD7QY1f_t4Q-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3636413fcc5so285543f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 00:58:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="igPikSKh"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-3608e6d14b6so2627526f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 01:05:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718784346; x=1719389146; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=yJSugbnXw2ae2W7TK3VccrDrLGEAOnFb3uGQf7gF5Kg=;
+        b=igPikSKhmRFPJMKBpEjsdIAqN7TuQ3uYoUyiahGLX8DfksmtQXytOoqt21EvgW9dBc
+         hCjdurYmrElUR0xrkEuWCW0z79aeCGhoQCO47bKbMywCW9uer3rBg+SZKHbwoekAqFRs
+         IPeO6nc3r+2mmb/9evzfz0gR+dSjGhW6pfrLXIuznIFsBt0C0POaKfELsQ3WzoTZBquT
+         xYsxbFBCnPQS7PxJSHcEIdjYdGFDyXFF2CUsoosRahekE0jx/hhXQ1W6ZnDyd8YHq6tV
+         +y0jOSDOR1pu50zXLK9C88sSsILwDvj3+iEpBtPEilQtnWw67yWwTbrkABwnkbFy7VWH
+         NpIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718783900; x=1719388700;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ANzmvHUQ5AIaHRYaMSvxHwn59q2Kn3fvsfBTKnY6KpY=;
-        b=sfg9gSnCqCBRhvZ4IgsL6043s5EJ0JUeztFjd3+GaSCHKldLsIOoYamOTHWSIOlRiK
-         xPtLEM8Gxeb/ITILBjKZZBdpO1LYdGICap3D+ZQaNkYxpNftjfdeEiAUGSsGfZRkU4vC
-         DaFMuECW4I6Wme5rh/lIGBLUYatfyavBDEL/uu9F2Oij2GLkfNJngnN+V+q+CzS/KpLS
-         I2kp5oEzMlLVTgSSAVa4BenOydTMEI5QtpiMZpS4JYFBYGF8v43Jaaa9cB0khVtSj4nK
-         5KyRO9AgBRjocGqwiImb9HlC1+Xl2Br1ckVdZg7WHiHfJY/eUbz9eKiYh+exe56hWa4W
-         SzfQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUCfWIZYAoA7PR3agPFVsLLLIKazO6/tq3lEP7EQoGhver7KI1N8T+n0uYUGI+8Awbmztz2Mov+JuUbshT50TUV/PEtX80H1bieSZLexc0=
-X-Gm-Message-State: AOJu0YwnKjZkxLPWElDiEKc0XskhsEYC9YDjEHVcnzDkifnVkx8nMOAc
-	x17fDxZtZ0VrchzRkO8BP8EUEFFvIoTlG783600u8yHNlwj2AFrdronD+orbFYEwLOhbepXWueS
-	LzeSACjWaxjO+4VYNBNLPwEOxIFYV6mBW6rgNBSYOVwdXf0r13vFFWOJy44FsN5RJ
-X-Received: by 2002:adf:f04e:0:b0:360:9180:760f with SMTP id ffacd0b85a97d-36319a85e94mr1263561f8f.66.1718783899974;
-        Wed, 19 Jun 2024 00:58:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGWemWDy24QaqC3xrYRq1zbjmVl3kkTcoVG68ij7komu3mePTPqa6b8OU/wc/Neez6+/OKD1g==
-X-Received: by 2002:adf:f04e:0:b0:360:9180:760f with SMTP id ffacd0b85a97d-36319a85e94mr1263536f8f.66.1718783899449;
-        Wed, 19 Jun 2024 00:58:19 -0700 (PDT)
-Received: from redhat.com ([2.52.146.100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-360750acfeasm16388562f8f.65.2024.06.19.00.58.17
+        d=1e100.net; s=20230601; t=1718784346; x=1719389146;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yJSugbnXw2ae2W7TK3VccrDrLGEAOnFb3uGQf7gF5Kg=;
+        b=qzJzlsZd5KJmaj5QZ268Dk08hvgDNXuL2VTGUpupRCHzETuwVSo4wmBcsp6TfQUNh1
+         iZBHz3oB+yTR38e4LysKU9dxAM9kwdA2xkj1rXbpW1cRVICjOgseDA15aEBB7BomYZTw
+         CczAUc/GqYpIPAsd5wNOcJslR+QcoranL0R8HHFAFfnIpZY8R7NoBFUt5FuVILjWm3cS
+         LQRcUxjNGa7KlJiiWfyDsoxob7eWSGwYU2sariZgXKfNy+HKT8v1dE0S77hcE2fOHsDj
+         0boY+Rifj8uN9TCf7dJ5lu8EgapE47ki+s7k2hpbgudLIpqERn+O3uUE1v/Yr5JZPeTZ
+         X+nA==
+X-Forwarded-Encrypted: i=1; AJvYcCWSgVMxT/xAG5/KjDZgW4PBkxYOg3opZ97b6RFTTDimuoX6S2E+o0jAHOg+2huXWXJX+JP9b45cbXavOPW3iOcQHW8jEIthapL3U3SPTkc=
+X-Gm-Message-State: AOJu0YyMsNepOiSKwTS6u8+liSbXc2072dzmFMiVu9syScqnbjfSHCz3
+	P5E43qPvu22apthBM0pxMVzv18ycKcd1zbvdQPfLhPskSfD9ywTgOQxwYJB16qA=
+X-Google-Smtp-Source: AGHT+IEtlrQVa8H1EwEqrf+pukQotff3H5/HsmOUag1nfUWerbRk7FDhBXuM1cDwadPm5DKeBxZklw==
+X-Received: by 2002:adf:f98c:0:b0:35f:20da:e1a2 with SMTP id ffacd0b85a97d-36317b7d57dmr1238251f8f.30.1718784345820;
+        Wed, 19 Jun 2024 01:05:45 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3607510315csm16341455f8f.90.2024.06.19.01.05.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Jun 2024 00:58:18 -0700 (PDT)
-Date: Wed, 19 Jun 2024 03:58:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Manivannan Sadhasivam <mani@kernel.org>
-Cc: Shunsuke Mie <mie@igel.co.jp>, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
-Message-ID: <20240619035655-mutt-send-email-mst@kernel.org>
-References: <20240614095033.GA59574@thinkpad>
- <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
- <20240618054115-mutt-send-email-mst@kernel.org>
- <CANXvt5psZAkEOJtxO250n6vjZTK7as-F-4qr1Rc3awZsmqWCpQ@mail.gmail.com>
- <20240618061705-mutt-send-email-mst@kernel.org>
- <CANXvt5pDjvVwFLS3p0a4hx1-MUJGsKHnpEsjejYUcmvTeKyFmg@mail.gmail.com>
- <20240618064231-mutt-send-email-mst@kernel.org>
- <CANXvt5pbdsSMc9C-nV0MiOAJPVyxXKu5otwLp2yopqBdNLS26A@mail.gmail.com>
- <20240619032703-mutt-send-email-mst@kernel.org>
- <20240619073929.GA8089@thinkpad>
+        Wed, 19 Jun 2024 01:05:45 -0700 (PDT)
+Date: Wed, 19 Jun 2024 10:05:41 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+	john.fastabend@gmail.com, dave.taht@gmail.com,
+	kerneljasonxing@gmail.com, hengqi@linux.alibaba.com
+Subject: Re: [PATCH net-next v3] virtio_net: add support for Byte Queue Limits
+Message-ID: <ZnKRVS6fDNIwQDEM@nanopsycho.orion>
+References: <20240618144456.1688998-1-jiri@resnulli.us>
+ <20240618140326-mutt-send-email-mst@kernel.org>
+ <ZnJwbKmy923yye0t@nanopsycho.orion>
+ <20240619014938-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240619073929.GA8089@thinkpad>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240619014938-mutt-send-email-mst@kernel.org>
 
-On Wed, Jun 19, 2024 at 01:09:29PM +0530, Manivannan Sadhasivam wrote:
-> On Wed, Jun 19, 2024 at 03:32:41AM -0400, Michael S. Tsirkin wrote:
-> > On Tue, Jun 18, 2024 at 09:51:41PM +0900, Shunsuke Mie wrote:
-> > > 2024年6月18日(火) 19:47 Michael S. Tsirkin <mst@redhat.com>:
-> > > >
-> > > > On Tue, Jun 18, 2024 at 07:40:34PM +0900, Shunsuke Mie wrote:
-> > > > > 2024年6月18日(火) 19:33 Michael S. Tsirkin <mst@redhat.com>:
-> > > > > >
-> > > > > > On Tue, Jun 18, 2024 at 07:15:47PM +0900, Shunsuke Mie wrote:
-> > > > > > > Thank you for your response.
-> > > > > > >
-> > > > > > > 2024年6月18日(火) 18:47 Michael S. Tsirkin <mst@redhat.com>:
-> > > > > > > >
-> > > > > > > > On Tue, Jun 18, 2024 at 08:41:09AM +0900, Shunsuke Mie wrote:
-> > > > > > > > > Let's clarify the situation.
-> > > > > > > > >
-> > > > > > > > > The Virtio device and driver are not working properly due to a
-> > > > > > > > > combination of the following reasons:
-> > > > > > > > >
-> > > > > > > > > 1. Regarding VIRTIO_F_ACCESS_PLATFORM:
-> > > > > > > > > - The modern spec includes VIRTIO_F_ACCESS_PLATFORM, which allows
-> > > > > > > > > Physical DMAC to be used.
-> > > > > > > > > - This feature is not available in the legacy spec.
-> > > > > > > >
-> > > > > > > > ... because legacy drivers don't set it
-> > > > > > > >
-> > > > > > > > > 2. Regarding Virtio PCIe Capability:
-> > > > > > > > > - The modern spec requires Virtio PCIe Capability.
-> > > > > > > >
-> > > > > > > > It's a PCI capability actually. People have been asking
-> > > > > > > > about option to make it a pcie extended capability,
-> > > > > > > > but no one did the spec, qemu and driver work, yet.
-> > > > > > > >
-> > > > > > > > > - In some environments, Virtio PCIe Capability cannot be provided.
-> > > > > > > >
-> > > > > > > > why not?
-> > > > > > > PCIe Endpoint Controller chips are available from several vendors and allow
-> > > > > > > software to describe the behavior of PCIe Endpoint functions. However, they
-> > > > > > > offer only limited functionality. Specifically, while PCIe bus communication is
-> > > > > > > programmable, PCIe Capabilities are fixed and cannot be made to show as
-> > > > > > > virtio's.
-> > > > > >
-> > > > > > Okay. So where could these structures live, if not in pci config?
-> > > > > What does "these structures" refer to? PCIe Capabilities? virtio configs?
-> > > >
-> > > > Virtio uses a bunch of read only structures that look like this:
-> > > >
-> > > > struct virtio_pci_cap {
-> > > >
-> > > >         ..... [skipped, specific to pci config caps] ...
-> > > >
-> > > >         u8 cfg_type;    /* Identifies the structure. */
-> > > >         u8 bar;         /* Where to find it. */
-> > > >         u8 id;          /* Multiple capabilities of the same type */
-> > > >         u8 padding[2];  /* Pad to full dword. */
-> > > >         le32 offset;    /* Offset within bar. */
-> > > >         le32 length;    /* Length of the structure, in bytes. */
-> > > > };
-> > > >
-> > > >
-> > > > The driver uses that to locate parts of device interface it
-> > > > later uses.
-> > > >
-> > > >
-> > > > Per spec, they are currently in pci config, you are saying some devices
-> > > > can't have this data in pci config - is that right? Where yes?
-> > > I understood. The configuration structure is in the space that is
-> > > indicated by BAR0.
-> > > Follows the instructions in the spec:
-> > > ```
-> > > 4.1.4.10 Legacy Interfaces: A Note on PCI Device Layout
-> > > Transitional devices MUST present part of configuration registers in a
-> > > legacy configuration structure in BAR0 in the first I/O region of the
-> > > PCI device, as documented below.
-> > > ...
-> > > ```
-> > 
-> > No, and it's best everyone stopped talking about legacy like we
-> > are going to add new features to it.
-> > 
-> > The configuration structure is in the space that is
-> > indicated by the vendor specific structure, which is currently
-> > in pci config space.
-> > 
-> > If use of a vendor specific structure in pci config space is
-> > problematic, we can try to fix that by extending the virtio spec.
-> > 
-> 
-> It is indeed problematic as the device vendors usually use those capability
-> registers themselves and wouldn't allow users to configure them.
-> 
-> So if the spec is ammended to support other way of finding the virtio config
-> structures, then it would really unblock us from supporting modern virtio
-> devices.
-> 
-> - Mani
+Wed, Jun 19, 2024 at 09:26:22AM CEST, mst@redhat.com wrote:
+>On Wed, Jun 19, 2024 at 07:45:16AM +0200, Jiri Pirko wrote:
+>> Tue, Jun 18, 2024 at 08:18:12PM CEST, mst@redhat.com wrote:
+>> >This looks like a sensible way to do this.
+>> >Yet something to improve:
+>> >
+>> >
+>> >On Tue, Jun 18, 2024 at 04:44:56PM +0200, Jiri Pirko wrote:
+>> >> From: Jiri Pirko <jiri@nvidia.com>
+>> >> 
+>> 
+>> [...]
+>> 
+>> 
+>> >> +static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
+>> >> +			    bool in_napi, struct virtnet_sq_free_stats *stats)
+>> >>  {
+>> >>  	unsigned int len;
+>> >>  	void *ptr;
+>> >>  
+>> >>  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+>> >> -		++stats->packets;
+>> >> -
+>> >>  		if (!is_xdp_frame(ptr)) {
+>> >> -			struct sk_buff *skb = ptr;
+>> >> +			struct sk_buff *skb = ptr_to_skb(ptr);
+>> >>  
+>> >>  			pr_debug("Sent skb %p\n", skb);
+>> >>  
+>> >> -			stats->bytes += skb->len;
+>> >> +			if (is_orphan_skb(ptr)) {
+>> >> +				stats->packets++;
+>> >> +				stats->bytes += skb->len;
+>> >> +			} else {
+>> >> +				stats->napi_packets++;
+>> >> +				stats->napi_bytes += skb->len;
+>> >> +			}
+>> >>  			napi_consume_skb(skb, in_napi);
+>> >>  		} else {
+>> >>  			struct xdp_frame *frame = ptr_to_xdp(ptr);
+>> >>  
+>> >> +			stats->packets++;
+>> >>  			stats->bytes += xdp_get_frame_len(frame);
+>> >>  			xdp_return_frame(frame);
+>> >>  		}
+>> >>  	}
+>> >> +	netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi_bytes);
+>> >
+>> >Are you sure it's right? You are completing larger and larger
+>> >number of bytes and packets each time.
+>> 
+>> Not sure I get you. __free_old_xmit() is always called with stats
+>> zeroed. So this is just sum-up of one queue completion run.
+>> I don't see how this could become "larger and larger number" as you
+>> describe.
+>
+>Oh. Right of course. Worth a comment maybe? Just to make sure
+>we remember not to call __free_old_xmit twice in a row
+>without reinitializing stats.
+>Or move the initialization into __free_old_xmit to make it
+>self-contained ..
 
-Okay.
-Anyone from your side can join the virtio TC to champion this?
-We don't have anyone knowledgeable about this protocol ATM AFAIK.
+Well, the initialization happens in the caller by {0}, Wouldn't
+memset in __free_old_xmit() add an extra overhead? IDK.
+Perhaps a small comment in __free_old_xmit() would do better.
 
+One way or another, I think this is parallel to this patchset. Will
+handle it separatelly if you don't mind.
 
-> > 
-> > > >
-> > > > > > --
-> > > > > > MST
-> > > > > >
-> > > >
-> > 
-> 
-> -- 
-> மணிவண்ணன் சதாசிவம்
-
+>WDYT?
+>
+>> 
+>> >
+>> >For example as won't this eventually trigger this inside dql_completed:
+>> >
+>> >        BUG_ON(count > num_queued - dql->num_completed);
+>> 
+>> Nope, I don't see how we can hit it. Do not complete anything else
+>> in addition to what was started in xmit(). Am I missing something?
+>> 
+>> 
+>> >
+>> >?
+>> >
+>> >
+>> >If I am right the perf testing has to be redone with this fixed ...
+>> >
+>> >
+>> >>  }
+>> >>  
+>> 
+>> [...]
+>
