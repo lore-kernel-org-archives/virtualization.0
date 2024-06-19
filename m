@@ -1,414 +1,120 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57EFB15253B
-	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 16:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F4145153BFC
+	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 16:39:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718813965; cv=none; b=fApwSyY3UTAxtW+xIJNa7pK5gbp0x2NLBK3OREHsucIkHlCImtl9YvURxHoEtA6VdjQ9i7nmQKSrf6QJtuQT6l7eOwLW1YG9plaX3scpyecw2v5IiBRZswAW/0xHDGcHxUcJIOEFGBuUrB3mLogB2rj0HqzJKx4CjsIle9KiB/Q=
+	t=1718815201; cv=none; b=oVJS6s3KCoBpBNR3Nv6hPMTirPL+bVGJO0PKBsGq1nmJmgfwkMtM/Br0cG3tsadJ68IZPpup5P9L5GoKWUIW3Me92gfzgF4JGRmLQuLKlttSU728puZIE96gyMymMS0LJmtuI0QIAYRPUafstpxPe3i2LrgezzhXk7w8KTvoUI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718813965; c=relaxed/simple;
-	bh=mTcvtuNXKLYqNNpz9HH3VkQuCcWXve2g64/UWOHq+aY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JsSEDTeR/zgCSJl1vKtHgfgVNEKScAv0mG6P/RVjEz6y6Bo8nFgbyfYwNHnhWqkPf1r7YBMeeKOc8hwiROwZDGll/8wVob4qQtB/DvOXDPBzDiouERg14hdS2xi4ZQt4Df7UOsc1qP63B80jmQ+0AoHSOs7o27xkE5gpq5WQM7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Ynpz+qbl; arc=none smtp.client-ip=115.124.30.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1718815201; c=relaxed/simple;
+	bh=TLxDuDULv7mvnSpOlUw3zxuVhjTlDVDDw8EewhZA5MU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=McFryQqKKnxXMleQbxKBy+b81I49zUYTQuvMu0VGeFIwV/ns5SERRhpTEXIQvQ5p6Oq+qWi47kMh7gm5wTGzCfG4qy8bR+Bb1D4ivKsVno519sBmkydtx+s5GOgePAQJpgngbkbAOy885qMsji8MuOMffmoRMQVyZpfme5xxR+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FM/6aQCr; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Ynpz+qbl"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718813954; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=ITzd3w/WqM0TQWzJVHlTWo29vu31745lICvMHq2EJ+M=;
-	b=Ynpz+qblf2yiryhwF1MBwk+ilTtDw0zn/QMQq/OdB8FYbpMmS67Q6XmKIIaIzSiXS2/h9EcJ8u3f95pC7+NLZRTsWeKy0jm9lno4zO+fI8sqIbWXyUBTTJjWHisUAaJBDzeoTeEU/r/4PMfeQgpLimywUJGs2vANLy/Z+1n9520=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W8olbkL_1718813953;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8olbkL_1718813953)
-          by smtp.aliyun-inc.com;
-          Thu, 20 Jun 2024 00:19:14 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH net-next v4 5/5] virtio_net: improve dim command request efficiency
-Date: Thu, 20 Jun 2024 00:19:08 +0800
-Message-Id: <20240619161908.82348-6-hengqi@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240619161908.82348-1-hengqi@linux.alibaba.com>
-References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FM/6aQCr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718815199;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=P60Z+qqKP/gxhy1fal8KOowFEF1s+YzH3edKw1gHlyU=;
+	b=FM/6aQCrgoL8qshur8rleJ3Qhz5i3MmMhcg1Rv7t2D4p8wear3fyrMXeAjOW9KjwdrnWew
+	Iz9LCpkgCFJdNdaBsyx7sh265A9WFZEJ0bjuMBUb8+nzzRn1wYcEXvWkV8a+9yjOn80gU6
+	6WakzzfrrFDAW+mNrYosX99OuAN/xrw=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-594-YcK1hDR7O-m13gDYnkysKQ-1; Wed, 19 Jun 2024 12:39:57 -0400
+X-MC-Unique: YcK1hDR7O-m13gDYnkysKQ-1
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-62f8a1b2969so137922887b3.3
+        for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 09:39:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718815197; x=1719419997;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=P60Z+qqKP/gxhy1fal8KOowFEF1s+YzH3edKw1gHlyU=;
+        b=NgZzP5NRPU/M/RKFpdkDED7tg1rNzFvW8hnenjmpEJ4Gib8VElieoUr4po2v8gmRgV
+         XT7N1L6mg11yqP4JURo0Gv1vWMzexj2/xLlU8FgVq9Sz7wVLZcuWTluPSJPDU+rDYEP4
+         BLUHl9RxyZIqIagDALs++51HutNZfgDBYSCPKone3c5x8hkGq64V3I+xzvLs8JtZNtCg
+         dKAhJqcsjTBx30UbORJ9Yi2wKVmZfbiHryRHgBlAu4acrRxMtwm/otngR3krlAsrFmjS
+         hlfGDn6qqlJhxFRi2MaREoNyx3nO/nvhk64CxgDavyu343PcjgBVBptO7ynBMjP8V45f
+         1ekw==
+X-Forwarded-Encrypted: i=1; AJvYcCXkOMRlSl2Ums5Hyt+Hgp00KgUZBJQ3nmRpgftCR7U8leF6LrQkjVP4dwiDq2FgW5n80ijgXejKTZcXeyY7D8CTLX327m9980nIef2ChnU=
+X-Gm-Message-State: AOJu0YyHAqtocNOXQZ9gCLth5unDhOdiLdlQ/VGuWzDK6X1kdDueEN18
+	3TZfWiMaYjYFA7Mtaadb0C+zwqtdzJ+Kbqa3DPo3iVgjKsRt+CE3qvx6u4ZaIu0ITtgNKYigKwY
+	rhZVfIPs/vBanQpWHgX6HTmfuhShAU9EJm0tT8ph5NPWEIJDWOT3g3S72PPXZWfZ3hrGrI5d8M7
+	XJp1R8nO4q3l3ZePXEN1AoInUYmvxBwOQYc5YGEWc=
+X-Received: by 2002:a05:690c:94d:b0:61a:b038:6d34 with SMTP id 00721157ae682-63a8e4bb5a1mr33219797b3.24.1718815197190;
+        Wed, 19 Jun 2024 09:39:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHOXaEuiFH0ecGWxfyNYKYA47piELvowHtDpjSC86sl6JvY/gqFtoIQ2677PkimEVq0gbLNOWpWdslhce2oYP0=
+X-Received: by 2002:a05:690c:94d:b0:61a:b038:6d34 with SMTP id
+ 00721157ae682-63a8e4bb5a1mr33219687b3.24.1718815196917; Wed, 19 Jun 2024
+ 09:39:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240617-stage-vdpa-vq-precreate-v1-0-8c0483f0ca2a@nvidia.com> <20240617-stage-vdpa-vq-precreate-v1-23-8c0483f0ca2a@nvidia.com>
+In-Reply-To: <20240617-stage-vdpa-vq-precreate-v1-23-8c0483f0ca2a@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 19 Jun 2024 18:39:20 +0200
+Message-ID: <CAJaqyWc+bmWVU8Lu40bhxEatJ5y1f3n=AD2_UborSRa+Bf495g@mail.gmail.com>
+Subject: Re: [PATCH vhost 23/23] vdpa/mlx5: Don't enable non-active VQs in .set_vq_ready()
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Saeed Mahameed <saeedm@nvidia.com>, 
+	Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, netdev@vger.kernel.org, 
+	Cosmin Ratiu <cratiu@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Currently, control vq handles commands synchronously,
-leading to increased delays for dim commands during multi-queue
-VM configuration and directly impacting dim performance.
+On Mon, Jun 17, 2024 at 5:09=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+> VQ indices in the range [cur_num_qps, max_vqs) represent queues that
+> have not yet been activated. .set_vq_ready should not activate these
+> VQs.
+>
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
 
-To address this, we are shifting to asynchronous processing of
-ctrlq's dim commands.
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 221 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 201 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 807724772bcf..bd224e282f9b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -376,6 +376,12 @@ struct control_buf {
- 	struct completion completion;
- };
- 
-+struct virtnet_coal_node {
-+	struct control_buf ctrl;
-+	struct virtio_net_ctrl_coal_vq coal_vqs;
-+	struct list_head list;
-+};
-+
- struct virtnet_info {
- 	struct virtio_device *vdev;
- 	struct virtqueue *cvq;
-@@ -420,6 +426,12 @@ struct virtnet_info {
- 	/* Lock to protect the control VQ */
- 	struct mutex cvq_lock;
- 
-+	/* Work struct for acquisition of cvq processing results. */
-+	struct work_struct get_cvq;
-+
-+	/* OK to queue work getting cvq response? */
-+	bool get_cvq_work_enabled;
-+
- 	/* Host can handle any s/g split between our header and packet data */
- 	bool any_header_sg;
- 
-@@ -464,6 +476,10 @@ struct virtnet_info {
- 	struct virtnet_interrupt_coalesce intr_coal_tx;
- 	struct virtnet_interrupt_coalesce intr_coal_rx;
- 
-+	/* Free nodes used for concurrent delivery */
-+	struct mutex coal_free_lock;
-+	struct list_head coal_free_list;
-+
- 	unsigned long guest_offloads;
- 	unsigned long guest_offloads_capable;
- 
-@@ -666,11 +682,26 @@ static bool virtqueue_napi_complete(struct napi_struct *napi,
- 	return false;
- }
- 
-+static void enable_get_cvq_work(struct virtnet_info *vi)
-+{
-+	rtnl_lock();
-+	vi->get_cvq_work_enabled = true;
-+	rtnl_unlock();
-+}
-+
-+static void disable_get_cvq_work(struct virtnet_info *vi)
-+{
-+	rtnl_lock();
-+	vi->get_cvq_work_enabled = false;
-+	rtnl_unlock();
-+}
-+
- static void virtnet_cvq_done(struct virtqueue *cvq)
- {
- 	struct virtnet_info *vi = cvq->vdev->priv;
- 
--	complete(&vi->ctrl->completion);
-+	virtqueue_disable_cb(cvq);
-+	schedule_work(&vi->get_cvq);
- }
- 
- static void skb_xmit_done(struct virtqueue *vq)
-@@ -2730,6 +2761,7 @@ static bool virtnet_add_command_reply(struct virtnet_info *vi,
- 		return false;
- 	}
- 
-+	mutex_unlock(&vi->cvq_lock);
- 	return true;
- }
- 
-@@ -2740,10 +2772,8 @@ static bool virtnet_wait_command_response(struct virtnet_info *vi,
- 	bool ok;
- 
- 	wait_for_completion(&ctrl->completion);
--	virtqueue_get_buf(vi->cvq, &tmp);
- 
- 	ok = ctrl->status == VIRTIO_NET_OK;
--	mutex_unlock(&vi->cvq_lock);
- 	return ok;
- }
- 
-@@ -2772,6 +2802,89 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
- 	return virtnet_send_command_reply(vi, class, cmd, vi->ctrl, out, NULL);
- }
- 
-+static bool virtnet_process_dim_cmd(struct virtnet_info *vi,
-+				    struct virtnet_coal_node *node)
-+{
-+	u16 qnum = le16_to_cpu(node->coal_vqs.vqn) / 2;
-+	bool ret;
-+
-+	ret = virtnet_wait_command_response(vi, &node->ctrl);
-+	if (ret) {
-+		mutex_lock(&vi->rq[qnum].dim_lock);
-+		vi->rq[qnum].intr_coal.max_usecs =
-+			le32_to_cpu(node->coal_vqs.coal.max_usecs);
-+		vi->rq[qnum].intr_coal.max_packets =
-+			le32_to_cpu(node->coal_vqs.coal.max_packets);
-+		mutex_unlock(&vi->rq[qnum].dim_lock);
-+	}
-+
-+	vi->rq[qnum].dim.state = DIM_START_MEASURE;
-+
-+	mutex_lock(&vi->coal_free_lock);
-+	list_add(&node->list, &vi->coal_free_list);
-+	mutex_unlock(&vi->coal_free_lock);
-+	return ret;
-+}
-+
-+static bool virtnet_add_dim_command(struct virtnet_info *vi,
-+				    struct receive_queue *rq,
-+				    struct dim_cq_moder update_moder,
-+				    struct virtnet_coal_node **avail_coal)
-+{
-+	struct virtnet_coal_node *node;
-+	struct scatterlist sg;
-+	bool ret;
-+
-+	mutex_lock(&vi->coal_free_lock);
-+	if (list_empty(&vi->coal_free_list)) {
-+		mutex_unlock(&vi->coal_free_lock);
-+		return false;
-+	}
-+
-+	node = list_first_entry(&vi->coal_free_list,
-+				struct virtnet_coal_node, list);
-+	node->coal_vqs.vqn = cpu_to_le16(rxq2vq(rq - vi->rq));
-+	node->coal_vqs.coal.max_usecs = cpu_to_le32(update_moder.usec);
-+	node->coal_vqs.coal.max_packets = cpu_to_le32(update_moder.pkts);
-+
-+	sg_init_one(&sg, &node->coal_vqs, sizeof(node->coal_vqs));
-+	ret = virtnet_add_command_reply(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-+					VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET,
-+					&node->ctrl, &sg, NULL);
-+	if (!ret) {
-+		dev_warn(&vi->dev->dev,
-+			 "Failed to change coalescing params.\n");
-+		mutex_unlock(&vi->coal_free_lock);
-+		return ret;
-+	}
-+
-+	*avail_coal = node;
-+	list_del(&node->list);
-+	mutex_unlock(&vi->coal_free_lock);
-+
-+	return true;
-+}
-+
-+static void virtnet_get_cvq_work(struct work_struct *work)
-+{
-+	struct virtnet_info *vi =
-+		container_of(work, struct virtnet_info, get_cvq);
-+	unsigned int tmp;
-+	int opaque;
-+	void *res;
-+
-+again:
-+	mutex_lock(&vi->cvq_lock);
-+	while ((res = virtqueue_get_buf(vi->cvq, &tmp)) != NULL)
-+		complete((struct completion *)res);
-+	mutex_unlock(&vi->cvq_lock);
-+
-+	opaque = virtqueue_enable_cb_prepare(vi->cvq);
-+	if (unlikely(virtqueue_poll(vi->cvq, opaque))) {
-+		virtqueue_disable_cb(vi->cvq);
-+		goto again;
-+	}
-+}
- static int virtnet_set_mac_address(struct net_device *dev, void *p)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -4419,35 +4532,54 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
- 	return 0;
- }
- 
-+static void virtnet_wait_space(struct virtnet_info *vi)
-+{
-+	bool no_coal_free = true;
-+
-+	while (READ_ONCE(vi->cvq->num_free) < 3)
-+		usleep_range(1000, 2000);
-+
-+	while (no_coal_free) {
-+		mutex_lock(&vi->coal_free_lock);
-+		if (!list_empty(&vi->coal_free_list))
-+			no_coal_free = false;
-+		mutex_unlock(&vi->coal_free_lock);
-+		if (no_coal_free)
-+			usleep_range(1000, 2000);
-+	}
-+}
-+
- static void virtnet_rx_dim_work(struct work_struct *work)
- {
- 	struct dim *dim = container_of(work, struct dim, work);
- 	struct receive_queue *rq = container_of(dim,
- 			struct receive_queue, dim);
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
--	struct net_device *dev = vi->dev;
-+	struct virtnet_coal_node *avail_coal;
- 	struct dim_cq_moder update_moder;
--	int qnum, err;
- 
--	qnum = rq - vi->rq;
-+	update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
- 
- 	mutex_lock(&rq->dim_lock);
--	if (!rq->dim_enabled)
--		goto out;
--
--	update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
--	if (update_moder.usec != rq->intr_coal.max_usecs ||
--	    update_moder.pkts != rq->intr_coal.max_packets) {
--		err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
--						       update_moder.usec,
--						       update_moder.pkts);
--		if (err)
--			pr_debug("%s: Failed to send dim parameters on rxq%d\n",
--				 dev->name, qnum);
-+	if (!rq->dim_enabled ||
-+	    (update_moder.usec == rq->intr_coal.max_usecs &&
-+	     update_moder.pkts == rq->intr_coal.max_packets)) {
-+		rq->dim.state = DIM_START_MEASURE;
-+		mutex_unlock(&rq->dim_lock);
-+		return;
- 	}
--out:
--	dim->state = DIM_START_MEASURE;
- 	mutex_unlock(&rq->dim_lock);
-+
-+again:
-+	virtnet_wait_space(vi);
-+
-+	if (!virtnet_add_dim_command(vi, rq, update_moder, &avail_coal)) {
-+		if (virtqueue_is_broken(vi->cvq))
-+			return;
-+		goto again;
-+	}
-+
-+	virtnet_process_dim_cmd(vi, avail_coal);
- }
- 
- static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
-@@ -4860,6 +4992,8 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
- 	flush_work(&vi->config_work);
- 	disable_rx_mode_work(vi);
- 	flush_work(&vi->rx_mode_work);
-+	disable_get_cvq_work(vi);
-+	flush_work(&vi->get_cvq);
- 
- 	netif_tx_lock_bh(vi->dev);
- 	netif_device_detach(vi->dev);
-@@ -4883,6 +5017,7 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 
- 	enable_delayed_refill(vi);
- 	enable_rx_mode_work(vi);
-+	enable_get_cvq_work(vi);
- 
- 	if (netif_running(vi->dev)) {
- 		err = virtnet_open(vi->dev);
-@@ -5633,6 +5768,43 @@ static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
- 	.xmo_rx_hash			= virtnet_xdp_rx_hash,
- };
- 
-+static void virtnet_del_coal_free_list(struct virtnet_info *vi)
-+{
-+	struct virtnet_coal_node *coal_node, *tmp;
-+
-+	list_for_each_entry_safe(coal_node, tmp,  &vi->coal_free_list, list) {
-+		list_del(&coal_node->list);
-+		kfree(coal_node);
-+	}
-+}
-+
-+static int virtnet_init_coal_list(struct virtnet_info *vi)
-+{
-+	struct virtnet_coal_node *coal_node;
-+	int batch_dim_nums;
-+	int i;
-+
-+	INIT_LIST_HEAD(&vi->coal_free_list);
-+	mutex_init(&vi->coal_free_lock);
-+
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-+		return 0;
-+
-+	batch_dim_nums = min((unsigned int)vi->max_queue_pairs,
-+			     virtqueue_get_vring_size(vi->cvq) / 3);
-+	for (i = 0; i < batch_dim_nums; i++) {
-+		coal_node = kzalloc(sizeof(*coal_node), GFP_KERNEL);
-+		if (!coal_node) {
-+			virtnet_del_coal_free_list(vi);
-+			return -ENOMEM;
-+		}
-+		init_completion(&coal_node->ctrl.completion);
-+		list_add(&coal_node->list, &vi->coal_free_list);
-+	}
-+
-+	return 0;
-+}
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int i, err = -ENOMEM;
-@@ -5818,6 +5990,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto free;
- 
-+	if (virtnet_init_coal_list(vi))
-+		goto free;
-+
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL)) {
- 		vi->intr_coal_rx.max_usecs = 0;
- 		vi->intr_coal_tx.max_usecs = 0;
-@@ -5859,7 +6034,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (vi->has_rss || vi->has_rss_hash_report)
- 		virtnet_init_default_rss(vi);
- 
-+	INIT_WORK(&vi->get_cvq, virtnet_get_cvq_work);
- 	init_completion(&vi->ctrl->completion);
-+	enable_get_cvq_work(vi);
- 	enable_rx_mode_work(vi);
- 
- 	/* serialize netdev register + virtio_device_ready() with ndo_open() */
-@@ -5988,11 +6165,15 @@ static void virtnet_remove(struct virtio_device *vdev)
- 	flush_work(&vi->config_work);
- 	disable_rx_mode_work(vi);
- 	flush_work(&vi->rx_mode_work);
-+	disable_get_cvq_work(vi);
-+	flush_work(&vi->get_cvq);
- 
- 	unregister_netdev(vi->dev);
- 
- 	net_failover_destroy(vi->failover);
- 
-+	virtnet_del_coal_free_list(vi);
-+
- 	remove_vq_common(vi);
- 
- 	free_netdev(vi->dev);
--- 
-2.32.0.3.g01195cf9f
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index 1a5ee0d2b47f..a969a7f105a6 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1575,6 +1575,9 @@ static int resume_vq(struct mlx5_vdpa_net *ndev, st=
+ruct mlx5_vdpa_virtqueue *mvq
+>         if (!mvq->initialized)
+>                 return 0;
+>
+> +       if (mvq->index >=3D ndev->cur_num_vqs)
+> +               return 0;
+> +
+>         switch (mvq->fw_state) {
+>         case MLX5_VIRTIO_NET_Q_OBJECT_STATE_INIT:
+>                 /* Due to a FW quirk we need to modify the VQ fields firs=
+t then change state.
+>
+> --
+> 2.45.1
+>
 
