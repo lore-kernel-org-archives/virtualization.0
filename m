@@ -1,93 +1,200 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDED1762D0
-	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 07:43:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5855C78297
+	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 07:51:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718782992; cv=none; b=gFjXATHyc2Z4o//VDNlMOjy49MFzmQKW0HhRE+xG7CAA4oZBcopvHvg/issk+c3L45HMBm77eXJNzzTwfaWW0iMzAPJsLLet1hCqvWfr5IhKGHDIBgDXwq0OlOIzx9/dDCT7ww6bJw/yp7FtfWN4qjD318Nb57V581k/iUOmh28=
+	t=1718783481; cv=none; b=APn80a8+wgSJTpG4hCBzCkr/hiSsYDQAKmbrWuVmKxFVBtwBkgy8f9QlrrLCjWpN9dCiVI+UdAIxAdD/6ifQg8F5ZtHOpp6YmeQRfv5g721689imTful2/Xeia/346Q3Mxvl6mUn4WlFIeqMeLnPnLt7Fwwy/LwDSa3AN0GmqlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718782992; c=relaxed/simple;
-	bh=CWFYCLr1S9tlTDsXwd82PYiyX9o/sFArGzlmRlQeeQM=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=IMZ8MHdppV4P4e8C6rS46aW99WkHzrh0HoAiGCwyVxgpXkWrercPdo11ec1l4y9KtpWcKhHFPFlRQddcLT+8OHoaAjkHxqLtD7Cibs3chMhwPLSRjmCm/3rYcTI3FGs83+JmcxAZN8IsSd/ACwE7JfRs3mi1Z/w5ZC0E4LQ//lE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=O9NfQard; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1718783481; c=relaxed/simple;
+	bh=SakDkSaznJ42+rNLU6g9ncLYcfpB/RFNYeC3yICgVuo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=eEU+ET16b3LsBeYZ/R3RD9NimEFgrK1qnPFqkwgpzH5ElNE/fRY2b+ndQ1jPU/4oiVLNjKWay5DRccglFnevy95fE0U152kTs9awraeAHbttqHUWHCoDQyz35WaXTLXe24WnwrDkWlGmzQhKLyWXXfbhbH0rdsg+gyki6uSluYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gtuLurii; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="O9NfQard"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718782981; h=Message-ID:Subject:Date:From:To;
-	bh=wCgw5wclWH6p97tsJn6yIeHJSR+uCtIF69aE5YHRmqQ=;
-	b=O9NfQardvUIqHTHXVFipwL8zB6XiCC1OgVUFWWkzgM7TgwY7m+KsQLTQXL8Ap60NQJTRcDUBhVtmm6N/rVhohd8g78/Q3rBZWCR2F4Ne96eZAlfy+jkCL8BlWv8b1XdcvXSnpXToXKAf9wfTbh6s4Z/i3mX3mybHw1g5bTAkGsE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0W8nS15P_1718782979;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8nS15P_1718782979)
-          by smtp.aliyun-inc.com;
-          Wed, 19 Jun 2024 15:43:00 +0800
-Message-ID: <1718782933.7258735-3-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH] virtio_net: Use u64_stats_fetch_begin() for stats fetch
-Date: Wed, 19 Jun 2024 15:42:13 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: Li RongQing <lirongqing@baidu.com>
-Cc: Li RongQing <lirongqing@baidu.com>,
- mst@redhat.com,
- jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com,
- virtualization@lists.linux.dev,
- netdev@vger.kernel.org
-References: <20240619025529.5264-1-lirongqing@baidu.com>
-In-Reply-To: <20240619025529.5264-1-lirongqing@baidu.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gtuLurii"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718783477;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=54l/bQWI1DZeSh0ObKloGm/WQfpdPpAWrREcvojyFcI=;
+	b=gtuLuriiFys4uTFgJA5Ctc8Vg/sbnGTZXa0e2Xi5V5jlCFunq+/IwNQBQRLnMMdo7mAwxQ
+	1m7wWs+NcWe/2XNMX7wITcl5DU9CNHUtd25f5SEJVk7msTxEPTLId1IKTFCaQY/x3GJlTK
+	AGxNC6XU1He42rsb/UPYdWw/AinFGf0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-660-pDVsmZ-tOhSP_IJWqlfFrQ-1; Wed, 19 Jun 2024 03:51:15 -0400
+X-MC-Unique: pDVsmZ-tOhSP_IJWqlfFrQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-36298880c8bso736115f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 00:51:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718783474; x=1719388274;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=54l/bQWI1DZeSh0ObKloGm/WQfpdPpAWrREcvojyFcI=;
+        b=vhB+Bnir8Wb5KfDzMycSBMFL70i/A65DKxhTGgATbB3xtf7ebVDbYWilVHwmfWWid3
+         TAOfH6rlM8FFiEUdYKRZ2/01DHXhMq+1SN0ZrrKWEtabjjYlzi3kQV2F3H+GzEdjV4BN
+         JmmJ5ypQkYLA5L4f1CzSlw+BlWOuT4W9I2BqW3jEquzb79162/l3YX2snTjMPqcH/nvh
+         EA45tZ3irGqObHYItL1ZGSu0cCTJPGY7hCYQP1WyVdHn2IESCmFt2RShSPxsfioA9AsZ
+         6A+S5mkB9H8EDMUXQtSarxWtPOOlYGvvWpSjXGzRSySk5MXSI94EKVYcoJyc/W3diC9e
+         xRrQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXC+8fRzB93dO5YSFrrDvOodvU0X2K2EGXslqjwNOetPLYSYcy4/uE/4zCamlFrqJs1EQIkdy2a68rXUM1hAvs0sfag96VlVxpBHDzs0Ho=
+X-Gm-Message-State: AOJu0Yyg39W5TwmerQoT7VC9/wbNfcXIdLlQFBhutc242Qiol6Rezkvp
+	882vp9e8LJLv4NGvWGoyy3nKW8ku4XSWMKQtvYwVAWxw2Q9cE5Js0H7N/WTMniEUh8I8eBv0C1G
+	1qtJ4bNi62y9nLV6SqIbFbnFJSKLS8+Mm8WukzNA8ozh15kJZ6VW7mlg7BtAczDCP
+X-Received: by 2002:a5d:4d4e:0:b0:360:711b:114f with SMTP id ffacd0b85a97d-363170ed43fmr1677407f8f.5.1718783474581;
+        Wed, 19 Jun 2024 00:51:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGgshaVs3GIEzhy3LqFFVEKzd78LiEjfe2e4rzHd9MLxQKBApInQuCqxm9Tqj4WTUduoEdJkQ==
+X-Received: by 2002:a5d:4d4e:0:b0:360:711b:114f with SMTP id ffacd0b85a97d-363170ed43fmr1677368f8f.5.1718783473735;
+        Wed, 19 Jun 2024 00:51:13 -0700 (PDT)
+Received: from redhat.com ([2.52.146.100])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36302e474e8sm2130125f8f.37.2024.06.19.00.51.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Jun 2024 00:51:13 -0700 (PDT)
+Date: Wed, 19 Jun 2024 03:51:08 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Denis Arefev <arefev@swemel.ru>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+	lvc-project@linuxtesting.org
+Subject: Re: [PATCH v2] net: missing check virtio
+Message-ID: <20240619035015-mutt-send-email-mst@kernel.org>
+References: <20240613095448.27118-1-arefev@swemel.ru>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20240613095448.27118-1-arefev@swemel.ru>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 19 Jun 2024 10:55:29 +0800, Li RongQing <lirongqing@baidu.com> wrote:
-> This place is fetching the stats, so u64_stats_fetch_begin
-> and u64_stats_fetch_retry should be used
-
-Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
-
-Thanks!
-
+On Thu, Jun 13, 2024 at 12:54:48PM +0300, Denis Arefev wrote:
+> Two missing check in virtio_net_hdr_to_skb() allowed syzbot
+> to crash kernels again
 > 
-> Fixes: 6208799553a8 ("virtio-net: support rx netdim")
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
+> 1. After the skb_segment function the buffer may become non-linear
+> (nr_frags != 0), but since the SKBTX_SHARED_FRAG flag is not set anywhere
+> the __skb_linearize function will not be executed, then the buffer will
+> remain non-linear. Then the condition (offset >= skb_headlen(skb))
+> becomes true, which causes WARN_ON_ONCE in skb_checksum_help.
+> 
+> 2. The struct sk_buff and struct virtio_net_hdr members must be
+> mathematically related.
+> (gso_size) must be greater than (needed) otherwise WARN_ON_ONCE.
+> (remainder) must be greater than (needed) otherwise WARN_ON_ONCE.
+> (remainder) may be 0 if division is without remainder.
+> 
+> offset+2 (4191) > skb_headlen() (1116)
+> WARNING: CPU: 1 PID: 5084 at net/core/dev.c:3303 skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
+> Modules linked in:
+> CPU: 1 PID: 5084 Comm: syz-executor336 Not tainted 6.7.0-rc3-syzkaller-00014-gdf60cee26a2e #0
+> Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 11/10/2023
+> RIP: 0010:skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
+> Code: 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 52 01 00 00 44 89 e2 2b 53 74 4c 89 ee 48 c7 c7 40 57 e9 8b e8 af 8f dd f8 90 <0f> 0b 90 90 e9 87 fe ff ff e8 40 0f 6e f9 e9 4b fa ff ff 48 89 ef
+> RSP: 0018:ffffc90003a9f338 EFLAGS: 00010286
+> RAX: 0000000000000000 RBX: ffff888025125780 RCX: ffffffff814db209
+> RDX: ffff888015393b80 RSI: ffffffff814db216 RDI: 0000000000000001
+> RBP: ffff8880251257f4 R08: 0000000000000001 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000001 R12: 000000000000045c
+> R13: 000000000000105f R14: ffff8880251257f0 R15: 000000000000105d
+> FS:  0000555555c24380(0000) GS:ffff8880b9900000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 000000002000f000 CR3: 0000000023151000 CR4: 00000000003506f0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  <TASK>
+>  ip_do_fragment+0xa1b/0x18b0 net/ipv4/ip_output.c:777
+>  ip_fragment.constprop.0+0x161/0x230 net/ipv4/ip_output.c:584
+>  ip_finish_output_gso net/ipv4/ip_output.c:286 [inline]
+>  __ip_finish_output net/ipv4/ip_output.c:308 [inline]
+>  __ip_finish_output+0x49c/0x650 net/ipv4/ip_output.c:295
+>  ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:323
+>  NF_HOOK_COND include/linux/netfilter.h:303 [inline]
+>  ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:433
+>  dst_output include/net/dst.h:451 [inline]
+>  ip_local_out+0xaf/0x1a0 net/ipv4/ip_output.c:129
+>  iptunnel_xmit+0x5b4/0x9b0 net/ipv4/ip_tunnel_core.c:82
+>  ipip6_tunnel_xmit net/ipv6/sit.c:1034 [inline]
+>  sit_tunnel_xmit+0xed2/0x28f0 net/ipv6/sit.c:1076
+>  __netdev_start_xmit include/linux/netdevice.h:4940 [inline]
+>  netdev_start_xmit include/linux/netdevice.h:4954 [inline]
+>  xmit_one net/core/dev.c:3545 [inline]
+>  dev_hard_start_xmit+0x13d/0x6d0 net/core/dev.c:3561
+>  __dev_queue_xmit+0x7c1/0x3d60 net/core/dev.c:4346
+>  dev_queue_xmit include/linux/netdevice.h:3134 [inline]
+>  packet_xmit+0x257/0x380 net/packet/af_packet.c:276
+>  packet_snd net/packet/af_packet.c:3087 [inline]
+>  packet_sendmsg+0x24ca/0x5240 net/packet/af_packet.c:3119
+>  sock_sendmsg_nosec net/socket.c:730 [inline]
+>  __sock_sendmsg+0xd5/0x180 net/socket.c:745
+>  __sys_sendto+0x255/0x340 net/socket.c:2190
+>  __do_sys_sendto net/socket.c:2202 [inline]
+>  __se_sys_sendto net/socket.c:2198 [inline]
+>  __x64_sys_sendto+0xe0/0x1b0 net/socket.c:2198
+>  do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+>  do_syscall_64+0x40/0x110 arch/x86/entry/common.c:82
+>  entry_SYSCALL_64_after_hwframe+0x63/0x6b
+> 
+> Found by Linux Verification Center (linuxtesting.org) with Syzkaller
+> 
+> Signed-off-by: Denis Arefev <arefev@swemel.ru>
 > ---
->  drivers/net/virtio_net.c | 14 ++++++++------
->  1 file changed, 8 insertions(+), 6 deletions(-)
+>  V1 -> V2: incorrect type in argument 2
+>  include/linux/virtio_net.h | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 61a57d1..b669e73 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2332,16 +2332,18 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
->  static void virtnet_rx_dim_update(struct virtnet_info *vi, struct receive_queue *rq)
->  {
->  	struct dim_sample cur_sample = {};
-> +	unsigned int start;
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 4dfa9b69ca8d..d1d7825318c3 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -56,6 +56,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>  	unsigned int thlen = 0;
+>  	unsigned int p_off = 0;
+>  	unsigned int ip_proto;
+> +	u64 ret, remainder, gso_size;
 >  
->  	if (!rq->packets_in_napi)
->  		return;
+>  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+>  		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+> @@ -98,6 +99,16 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>  		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
+>  		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
 >  
-> -	u64_stats_update_begin(&rq->stats.syncp);
-> -	dim_update_sample(rq->calls,
-> -			  u64_stats_read(&rq->stats.packets),
-> -			  u64_stats_read(&rq->stats.bytes),
-> -			  &cur_sample);
-> -	u64_stats_update_end(&rq->stats.syncp);
-> +	do {
-> +		start = u64_stats_fetch_begin(&rq->stats.syncp);
-> +		dim_update_sample(rq->calls,
-> +				u64_stats_read(&rq->stats.packets),
-> +				u64_stats_read(&rq->stats.bytes),
-> +				&cur_sample);
-> +	} while (u64_stats_fetch_retry(&rq->stats.syncp, start));
+> +		if (hdr->gso_size) {
+> +			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+> +			ret = div64_u64_rem(skb->len, gso_size, &remainder);
+> +			if (!(ret && (hdr->gso_size > needed) &&
+> +						((remainder > needed) || (remainder == 0)))) {
+> +				return -EINVAL;
+> +			}
+
+
+Could you please add some comments explaining the logic here?
+
+And do we really need u64 math? All the values here are 32 bit ATM ...
+
+
+
+
+> +			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
+> +		}
+> +
+>  		if (!pskb_may_pull(skb, needed))
+>  			return -EINVAL;
 >  
->  	net_dim(&rq->dim, cur_sample);
->  	rq->packets_in_napi = 0;
 > -- 
-> 2.9.4
-> 
+> 2.25.1
+
