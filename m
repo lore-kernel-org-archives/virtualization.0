@@ -1,112 +1,63 @@
-Received: from mail-wr1-f65.google.com (mail-wr1-f65.google.com [209.85.221.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B870173453
-	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 06:17:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D57946139;
+	Wed, 19 Jun 2024 07:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718777877; cv=none; b=tVlfaqm28mYa+/SCPhROlM/99GPa/vEsWRrnP0e5XnPbwNiOdmnAlvu4xeiJYgYiWo6N7yebeNd56G/vLzby3+jpCg1Fa4p9BAoqfZgZxV2e1Es9dqTjblrqCvYSr6fe59rTEtb94kJfJ3uMaxCrO7QI8SgkKH9vJNPregzi2+I=
+	t=1718780876; cv=none; b=rgWHKN2bz0RqqmCIPPfzpQii7PxYpNeJb/b4tNWD6PV1o/WJ3DCqy1c331cgpuYNYU0SYsN9RZG0z8/UtKMUmzncpS63zkfACRJcehqpYnePUnmSfclR6DNvKanU4nfdKf1+gyBr4cAMQZq9UQT+50zag7sVZHE+g8QErov/QsU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718777877; c=relaxed/simple;
-	bh=9JxSuB2e5zHpPnsceJPM2Z4u5/cle2vjrbTlQxjKR8U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hzEObybfvWNbktf2QQGm9U/+k3nv7uIm127kj9ih0iMDVppYiNQAXfvg8VRs2EX57Iz4W+SrSw/pNTlgy6r7uEW1+X1hYMcVEnPCYxNahj8pbXLYoh3LknEp7OsO0ew+2Cxapxq3HLD6Fy7EbQbbEkg/mNKmjeZ3MJZK5Ft22gE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=GM7orkCx; arc=none smtp.client-ip=209.85.221.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1718780876; c=relaxed/simple;
+	bh=Ct7KvPtTFdYsgUGp7gRvuzhTQI1YOAeOSuW3qmzAIWg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EMzfwKfg5Aymlp9J/tIssedHYB4Nj9M3Rz71FXe/zYLcVTivpRmVtxytybIq8oZyywXiGXKhTQbeMfBaI51NSnN74VlXtHWo2IblpiAMnxZqPsW8vsrATZ0oYjXgsYZtMljRPJ/wl59iQayPXKDe1pBkkq+WUgyXBCLCyTeCCZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=3u4qcIt+; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="GM7orkCx"
-Received: by mail-wr1-f65.google.com with SMTP id ffacd0b85a97d-35f1bc2ab37so5580934f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 18 Jun 2024 23:17:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1718777873; x=1719382673; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=q9tHSYcUn51SyAd1faMtIy/AKsEtmmYSS3K41DfIPoQ=;
-        b=GM7orkCxG4bjtDjUYsju2+xARoFOWQUiRd3g56z8GeCmQhj2zfKlmd6Pf84mxE6UMe
-         3xsngjJ5Uyf8XPBFYXNpTIpTOPk9cGug2lqjxEIMN0zAe+dRl0LuuRiCP4UHVxXBERd0
-         x8HLq0v0nk3EKuiAX5HLekyLakc8a9ZEyZ91YGCeR1Mjw8Iu4ilr8nm8/MW2V/Ix+7Ox
-         s/P7lR3TTs6n7xWDHvYsn+Y6dA5SRmn2E258jcLOpHMVqFmO9s2S11FCJWh1tKm3bLVK
-         4zqOvhaScQE4byiKDDQ1YxjvSlkLAfqyE72lf2qsYztygVo4zP4Iacdm91WzxgTajVLH
-         xzNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718777873; x=1719382673;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=q9tHSYcUn51SyAd1faMtIy/AKsEtmmYSS3K41DfIPoQ=;
-        b=csUUuWAkOdPCUBGQUZK+4cdmakXJ8Xn1de0J1++H0VdiIkZ1MlXS86IPQBxQpQKRQI
-         ZgLV+3+V8wAbsNUyPN6BH2PHvsMMojxrUKUe3iExRNWMdqc2GQur4YFPgoGhDVfCegr6
-         imlxLudp5go9Ja5cR/GE9lVtW9M7WuwTG6E0GLWm3rFk4pcUFacF/N2/CjteJgvZiDdm
-         iHzMhNRvLoreprippXEBJvJojN7+YO4NclvGXfXreaSJRH+JJQ4R9I1cSiekxN7GvAR9
-         GRUFuH/UtX9QeEmBDKpEbzMqbxCJY4AkHhutE8EIEpWYOoHN+Ed76w3esxp3c3SWwqw1
-         GOcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU+prGpXImoAOQJ5l2AmzjAql9PHnLa812cPoZMvTQHgGcagAlTaSt3h9bud8Oi6JybepegV4IG48bGfmUPAFkEZXjp00q05FJN4cRZkJ8=
-X-Gm-Message-State: AOJu0Yyw3YCVIyTtqcY9uBuPyD5xa2MIzUUx5mhXJOtR1anRRM3F1hBC
-	iFEkCeEkYTqeAQztIcJU8ZK54BOivNvwJJI3A7L6GJMAnHiFI9E3TxN1XSX7A9I=
-X-Google-Smtp-Source: AGHT+IEdGqwuPmkL1V/kYBiEFfGbh6LP5DzFOB/llA59skIBzGQ4ntMUTADfLf03eLYt7oZOFgktEg==
-X-Received: by 2002:a5d:51ce:0:b0:362:f853:603c with SMTP id ffacd0b85a97d-36317c77507mr1035090f8f.32.1718777872719;
-        Tue, 18 Jun 2024 23:17:52 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3608fb0b145sm9878962f8f.102.2024.06.18.23.17.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jun 2024 23:17:52 -0700 (PDT)
-From: Jiri Pirko <jiri@resnulli.us>
-To: netdev@vger.kernel.org
-Cc: kuba@kernel.org,
-	matttbe@kernel.org,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	shuah@kernel.org,
-	petrm@nvidia.com,
-	pabeni@redhat.com,
-	linux-kselftest@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH net] selftests: virtio_net: add forgotten config options
-Date: Wed, 19 Jun 2024 08:17:48 +0200
-Message-ID: <20240619061748.1869404-1-jiri@resnulli.us>
-X-Mailer: git-send-email 2.45.1
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="3u4qcIt+"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=YYWyyacnBbefsfYbd1v/MxFdVPLfKcrl6epFLCWHzXs=; b=3u4qcIt+FNSHDbH93XFvYScy0Q
+	OLAI90UP8gu+rfzQvgO3eVDmQgH7+gqyd0K4R8447zVMPHXaC6hFHmdEyiL4GvDssP/nTtsuje9BY
+	FdZOoRJeyHWtvKKkH6UbnBmkSM/RlOd6BUexz3AEy71WtgAr/AACmQsKRM1hJl52vAOKvR+q6kBsc
+	MxxIjI9+4qZZMALGXg9Dd15qmbQMp69WcIClPB91A8BM7qkwNnul0bAAKenu/rtUE2eGGiafnn9xt
+	U3hHNhhQ8azYyZqo9nrTPxjyAzXc/Fuq2tWlml5LSbI4XglvWm8m3/eTPAAjAUMoQOFmuZ+BxB/zS
+	gqejEQ7w==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sJpQ8-000000008dv-22EN;
+	Wed, 19 Jun 2024 07:07:52 +0000
+Date: Wed, 19 Jun 2024 00:07:52 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Shunsuke Mie <mie@igel.co.jp>
+Cc: Manivannan Sadhasivam <mani@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+Message-ID: <ZnKDyJDrCuFMn0Nw@infradead.org>
+References: <CANXvt5r00Y5VGKSFXFnwbvGF+fhh2uNvU5VBGwECA9yabK4=Uw@mail.gmail.com>
+ <20240516125913.GC11261@thinkpad>
+ <20240520090809-mutt-send-email-mst@kernel.org>
+ <20240614095033.GA59574@thinkpad>
+ <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-From: Jiri Pirko <jiri@nvidia.com>
+On Tue, Jun 18, 2024 at 08:41:09AM +0900, Shunsuke Mie wrote:
+> 3. Wait until the HW supports the modern spec:
+> This depends on the chip vendor.
 
-One may use tools/testing/selftests/drivers/net/virtio_net/config
-for example for vng build command like this one:
-$ vng -v -b -f tools/testing/selftests/drivers/net/virtio_net/config
-
-In that case, the needed kernel config options are not turned on.
-Add the missed kernel config options.
-
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Closes: https://lore.kernel.org/netdev/20240617072614.75fe79e7@kernel.org/
-Reported-by: Matthieu Baerts <matttbe@kernel.org>
-Closes: https://lore.kernel.org/netdev/1a63f209-b1d4-4809-bc30-295a5cafa296@kernel.org/
-Fixes: ccfaed04db5e ("selftests: virtio_net: add initial tests")
-Signed-off-by: Jiri Pirko <jiri@nvidia.com>
----
- tools/testing/selftests/drivers/net/virtio_net/config | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/tools/testing/selftests/drivers/net/virtio_net/config b/tools/testing/selftests/drivers/net/virtio_net/config
-index f35de0542b60..040b600d52f1 100644
---- a/tools/testing/selftests/drivers/net/virtio_net/config
-+++ b/tools/testing/selftests/drivers/net/virtio_net/config
-@@ -1,2 +1,8 @@
- CONFIG_VIRTIO_NET=y
- CONFIG_VIRTIO_DEBUG=y
-+CONFIG_NET_L3_MASTER_DEV=y
-+CONFIG_IPV6_MULTIPLE_TABLES=y
-+CONFIG_NET_VRF=m
-+CONFIG_BPF_SYSCALL=y
-+CONFIG_CGROUP_BPF=y
-+CONFIG_IPV6=y
--- 
-2.45.1
+This is the only sensible option.  It's not like modern virtio devices
+are a brand new thing.
 
