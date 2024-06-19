@@ -1,72 +1,69 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E55114A82;
-	Wed, 19 Jun 2024 14:23:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6885A6FA8;
+	Wed, 19 Jun 2024 15:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718807027; cv=none; b=W7hQgPPnWX+O+64huO6h7PVk9Zdib3DoOYyeZUEkJAmYkP2LHZtsHdPrhUGhqru+8hBx9/zsjDxmDNzVrA/b697uMhA9bCwjJuAo1GHE9B85CscarEP8L+DNg27aqY8j3ejgSOucwRR/U7+jcb0PvL2dLEMwdzVc9X6XkWMRnOM=
+	t=1718809684; cv=none; b=bReyeWALFHU2CsAf1kUI4ljWpJK4LHs9s+rIT+bgkVHgn0cABsHWdH2P5Lyy9a4rY0P4fYYunuk6BrZWGw+i3526gz9K2e6TMmPFwoCG+Qy3SHp/O8ihS03f8TbJJAGPRaYTkHQp2/P88w1zlhQw9gku8yg4Pzfl0l+Pp7gUBBA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718807027; c=relaxed/simple;
-	bh=m/DPhefj6Aj7VUp6cgTM8mW93C8uSqJjtVUZPbpUW8w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gwUFevPdmHJhevMMHDLZhUsS7hmmAGFHL7UfLOtMb5XIokvPvKfg+tz9Wns9FdSy7BVp1N8g6iGCIblgAmy3gQAJudMdSx6x6SGMl972oTn51QFMg26Ji3X+8FAxUyc2XeJvMFFWzexXNwvJvxhHxglOYaWv3tTecZWOaViu3N0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id D67B368AFE; Wed, 19 Jun 2024 16:23:40 +0200 (CEST)
-Date: Wed, 19 Jun 2024 16:23:40 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Christoph Hellwig <hch@lst.de>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Weinberger <richard@nod.at>,
-	Philipp Reisner <philipp.reisner@linbit.com>,
-	Lars Ellenberg <lars.ellenberg@linbit.com>,
-	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
-	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
-	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai3@huawei.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com, nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
-	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
-	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
-	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
-Subject: Re: move features flags into queue_limits v2
-Message-ID: <20240619142340.GA32100@lst.de>
-References: <20240617060532.127975-1-hch@lst.de> <171880672048.115609.5962725096227627176.b4-ty@kernel.dk> <e8e718ca-7d3a-4bce-b88a-3bcbe1fa32b0@kernel.dk>
+	s=arc-20240116; t=1718809684; c=relaxed/simple;
+	bh=Ew7DEzh7UDLk9j70nGGG9ah+QcztYrAjq9d1edBgKFM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JIb84dwMHi8eSrnOBEmf3+uj7FEnA7p+pmZMZWvEtVHus3wr39pwuPkZoen4RICPSZwRMeJWRy6PT3YEm0jP0uYP7imTQAHHwDObmM4ekjkATgZzEs/uB2enUoHRdkJLoxQRyhG7h+IYut50BrIy4LYhjMHwHY8EUDUBsyTSyRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YNAtAiGY; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YNAtAiGY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52589C2BBFC;
+	Wed, 19 Jun 2024 15:08:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718809684;
+	bh=Ew7DEzh7UDLk9j70nGGG9ah+QcztYrAjq9d1edBgKFM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=YNAtAiGY2FbJI2SOctetkcVe0eH6FjRfPpoONhbvUzAXnHd0Xgn8eq23O+nSrkpwf
+	 pg/F1zHTjeDcKV0ub69HoLR4iNfyOVmkybkykgnNGWRku4lbIQvIbmwa4efXOVcqKp
+	 zCvO9Y9GeuNmWdoRNMgROyhf88+51iZN7lPY8Mt3n0GM79ty8mwnSpmEJzngh+MG6/
+	 8OaEUEEH433TnqruTZFN4FYOeITa4ee1V+hVz+sUnbHLwtavn4KcOx1kiBBW45s6WS
+	 dutm+fWEDeklhec91OWE8kpvq13s6EwByKwbeTU7D+jDgA/AgWsNv50/IsTV+7/c3d
+	 LWEMQq4p/Wqww==
+Date: Wed, 19 Jun 2024 08:08:02 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, Thomas Huth <thuth@linux.vnet.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Eric Dumazet <edumazet@google.com>, "David S.
+ Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
+ <john.fastabend@gmail.com>
+Subject: Re: [PATCH 1/2] virtio_net: checksum offloading handling fix
+Message-ID: <20240619080802.07acb5ac@kernel.org>
+In-Reply-To: <1718762578.3916998-2-hengqi@linux.alibaba.com>
+References: <20240617131524.63662-1-hengqi@linux.alibaba.com>
+	<20240617131524.63662-2-hengqi@linux.alibaba.com>
+	<CACGkMEvDUcVmaT1dBoWnFx0CO5kH+HYp9je5bJ1dFR1+EEdyWA@mail.gmail.com>
+	<1718680142.7236671-11-hengqi@linux.alibaba.com>
+	<20240618181516.7d22421e@kernel.org>
+	<1718762578.3916998-2-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e8e718ca-7d3a-4bce-b88a-3bcbe1fa32b0@kernel.dk>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jun 19, 2024 at 08:21:14AM -0600, Jens Axboe wrote:
-> Please check for-6.11/block, as I pulled in the changes to the main
-> block branch and that threw some merge conflicts mostly due to Damien's
-> changes in for-6.11/block. While fixing those up, I also came across
-> oddities like:
+On Wed, 19 Jun 2024 10:02:58 +0800 Heng Qi wrote:
+> > > Currently we do not allow RXCUSM to be disabled.  
+> > 
+> > You don't have to disable checksuming in the device.  
 > 
-> (limits->features & limits->features & BLK_FEAT_ZONED)) {
-> 
-> which don't make much sense and hence I changed them to
-> 
-> (limits->features & BLK_FEAT_ZONED)) {
+> Yes, it is up to the device itself to decide whether to validate checksum.
+> What I mean is that we don't allow users to disable the driver's
+> NETIF_F_RXCSUM flag.
 
-Yeah.  The above is harmless but of course completely pointless.
+I understand. What I'm suggesting is that you send a follow up patch
+that allows it.
