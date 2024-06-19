@@ -1,43 +1,50 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DFF74687;
-	Wed, 19 Jun 2024 00:45:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D19521876;
+	Wed, 19 Jun 2024 01:15:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718757901; cv=none; b=Ku4uXHt7WZZ7e4kBHQYRpJaLZcfnOnTHQKcc5xxs1Huvz0kL31ci7x1WDgUlj7fyUDxyt1ha2AyomTR3fXY39o4ReNvrQSUAFxZZsr2fWwqdvnrHGZk42X87uMbdAqdpGkyO9ebMkTC7NlknRakpMS5Q9LED5jN5ZRjYQI9W9cY=
+	t=1718759718; cv=none; b=btztIUYK4YtqAbpxMBYOaqQivqO/ei+d4XLUeVn7e40J77sMDFEgKO0RoeVa3wgDg0dpupnTpjX05gCaCOnV5LG5kFahKebPy11QDwSwVNhSumVofJR64vnQqLlNEakUhTnm+zvbnvSfMemq+/iFpYMbAt8fZFpvMkIPU3oK/ag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718757901; c=relaxed/simple;
-	bh=4MSwzDwCDVOtASEfSX2a65c/to5zuEGQDDfHQVDYUpo=;
+	s=arc-20240116; t=1718759718; c=relaxed/simple;
+	bh=txv75gnyDaI0dhggEgXUoqJ1Ns902WFRZhtWvl1w4vM=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PRkzxacqRVGGsFyom8S3AeHpWkXwSLW4Jxaz7TZkSKi9/DjLxGZDpzYKjcfd30y9jEzlzExSIwA7H1dzkLnXFzkzzTbKN3G+5UMl1I0pH231iQSNdTYmeVLSTkuVx7REIRN9GR+uuNURpQKMVBB0HwfHYcPlZqvMzMgi0RWYV+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mf3TNz2B; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=JeUISqK/FioG5C45/VRzr/qBHoLZHWQwHAY+60RdZJ3dheUhtuSQu5517lq1q4zfG5OZSdCD05bppJmo+d+WaY3SX6zZpSzakIl++p2yec9Ubb8mlMyydr5kBkSE220ne17wqttNl+UE//NNC7tWeCyHcr/V8A3ia16pdSd+330=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sf32uwrn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mf3TNz2B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD51C3277B;
-	Wed, 19 Jun 2024 00:45:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sf32uwrn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978F9C3277B;
+	Wed, 19 Jun 2024 01:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718757901;
-	bh=4MSwzDwCDVOtASEfSX2a65c/to5zuEGQDDfHQVDYUpo=;
+	s=k20201202; t=1718759718;
+	bh=txv75gnyDaI0dhggEgXUoqJ1Ns902WFRZhtWvl1w4vM=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Mf3TNz2BRtXxesfQP75+rglLlPAgEsO1xIp/NbQh4ionEPhFjjgJKrUNolt07oJQh
-	 6+VkhMO5yo5xi5QRBTK7f+piD2fy0d6CyZp0iHL/0WwhdA8HJHrGEX4LcY0DM1Ps8Z
-	 6okdOAeda7PVcI3HEgbuYrb/MfvnRwuLnCso96+FbVgSI8D7nz5jzHFy5ixU6r2AjB
-	 REHVAlxvBNtc6q4pPz88n6zuUn0UNqsAdqSevu+OlmRBCq7Kqwy2d3dmYzRsOPTFk9
-	 Z99C1Qr8ak47sVGZc3uZvQBinRHpD+tQ1M1SZn2QtbuqjrxCXOpIxeQS2DtudT26mq
-	 0EEzVql14BA7Q==
-Date: Tue, 18 Jun 2024 17:45:00 -0700
+	b=Sf32uwrnw6XVRnZu08nJmbF8/dIFbimU3gOkEk89tqQ52qNHOglwEAYAaVmVT183W
+	 5bbYxayzk3ElMyocBttHr7hF5grq3cobcwKZ6Q/Vh2JSLZyW3NokhdsTQCMDdiml8E
+	 vqBw9RodLuOPJV2Qoc1ODql1mcNYcKFTGLqzLH1cP5cQqn6g5NwrSbJqspZMSHeKd4
+	 a+brX+rw+HUch8dM8ix/vXndXb4jzuZbY/hl/bo/b41xgdxlWNaJ/5wJyXvbxOoIsH
+	 4l5ZNBZnQXrfD610UgIqkixptHdh94+09/OdUQHgTR4z8ItOSOip4Dm0wApB5c2+c3
+	 zfCQpg4vSZgzg==
+Date: Tue, 18 Jun 2024 18:15:16 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-To: Denis Arefev <arefev@swemel.ru>
-Cc: jiri@resnulli.us, edumazet@google.com, eperezma@redhat.com,
- jasowang@redhat.com, linux-kernel@vger.kernel.org,
- lvc-project@linuxtesting.org, mst@redhat.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH v2] net: missing check virtio
-Message-ID: <20240618174500.49a3045b@kernel.org>
-In-Reply-To: <20240614101826.30518-1-arefev@swemel.ru>
-References: <ZmsG41ezsAfok_fs@nanopsycho.orion>
-	<20240614101826.30518-1-arefev@swemel.ru>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, Thomas Huth <thuth@linux.vnet.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Eric Dumazet <edumazet@google.com>, "David S.
+ Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
+ <john.fastabend@gmail.com>
+Subject: Re: [PATCH 1/2] virtio_net: checksum offloading handling fix
+Message-ID: <20240618181516.7d22421e@kernel.org>
+In-Reply-To: <1718680142.7236671-11-hengqi@linux.alibaba.com>
+References: <20240617131524.63662-1-hengqi@linux.alibaba.com>
+	<20240617131524.63662-2-hengqi@linux.alibaba.com>
+	<CACGkMEvDUcVmaT1dBoWnFx0CO5kH+HYp9je5bJ1dFR1+EEdyWA@mail.gmail.com>
+	<1718680142.7236671-11-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,16 +54,13 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri, 14 Jun 2024 13:18:26 +0300 Denis Arefev wrote:
-> Yeah, I was thinking of adding Fixes: 
+On Tue, 18 Jun 2024 11:09:02 +0800 Heng Qi wrote:
+> > (Should we manually do checksum if RXCUSM is disabled?)
+> >   
 > 
-> But this code is new, it complements what is done.
-> 1. check (!(ret && (hdr->gso_size > needed) &&
->                ((remainder > needed) || (remainder == 0)))) 
->  complements comit 0f6925b3e8da0
-> 
-> 2. The setting of the SKBFL_SHARED_FRAG flag can be associated with this comit cef401de7be8c.
-> In the skb_checksum_help function, a check for skb_has_shared_frag has been added.
-> If the flag is not set, the skb buffer will remain non-linear, which is not good. 
+> Currently we do not allow RXCUSM to be disabled.
 
-The Fixes tag indicates how far back the bug would trigger.
+You don't have to disable checksuming in the device.
+Just ignore VIRTIO_NET_HDR_F_DATA_VALID if user cleared NETIF_F_RXCSUM.
+I know some paranoid workloads which do actually want the kernel to
+calculate the checksum.
