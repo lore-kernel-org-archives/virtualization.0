@@ -1,169 +1,79 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E22D15253B
-	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 16:15:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF9A8152191
+	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 16:19:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718813728; cv=none; b=r087Rg0W1HZpY729+BKPruWBmr/4hPpgXczmz8jueBszk1cIdBda5K998n5c9exah2nCTBZgZAM/sXSCT7YVpmsPIknYeqB5DZGRg9CPJOPC+1YqXq/nY1hnzi3YgYWlWK6tLNVgpjnK9hBtuFzcQzhjLSYXegCI8GBmT78B5hA=
+	t=1718813954; cv=none; b=a7K2eEqCti248lMSGd/8nvxZg90vo3JnNOAsNpPNa3Ek6+08xVrgLk6s+MyaqKJ7dQI5LwGm3TnNeHyv2xTPojaYd41hJjA0I5ts9Aw4Bo6aoOgH2/JORzVSecBYMvu9oi5uscQit51VS43fZ+ZWojjt0u+Vs2UptggcS4SHz3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718813728; c=relaxed/simple;
-	bh=ss0Uh9EdjlVVVTaBDNia4yMe/Wcg/oAnvkrDgWyx1Pc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ez4Z9qv/ywqzG0PmMr/M/Rr7B0mYsLLPAzqaeczYuGY41RRGHyqRf2+Sy831ZXzaJwjsVVw7oa/+Cs8zy4P3D5txIhzb/cg4Pmbb3SPVNfcHxwdnxA32llM0dhAbgEZI8OtGbQM+kgjccx5cabzOulkK4P6V741RgfepO6Lea9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NKgsF0/n; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1718813954; c=relaxed/simple;
+	bh=RqHFDtHtQE9Grerc9O5k5bpYaEdw/SFIbPS03zp2pJo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=BcbLeG84HkhiEZ2ctSx9NecmiR/Tr0q+PEZgo1+TDf1JmTK3dYtZ5QK+eXxSJgOvdqEGy7R2Rv23C/LjGudhTjHrswJCPmYg+44/1yp/hpviVytIWGLorD4513jfTSCgWsJiPZ5BqGrtpmcH4KM6eTSUHSKUTvq0ctaDacC22Bo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=VweBqLjn; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NKgsF0/n"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718813725;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=K6uw6c8xTJWi+pvcU2aMToH9/dEBpeu9C2fVbRq6KEk=;
-	b=NKgsF0/n0vtERV13/3JA3aF7EZqpXMf8MfQhfwx3GzwOMlE9sl0vJtvM99QV7DnPc+z2Ze
-	LEQ7DXyWmtxgmmT1pOtS/toBIHcDv+GkW/lqJ8e0bDt66xL7Lv+EOWhMWWuEpcQ8wh+hyq
-	Xw3Gcz+RM48baDwNdshejsxFrbsuRdg=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-171-fGzk4w9lP3qhaIhQj5t7Aw-1; Wed, 19 Jun 2024 12:15:22 -0400
-X-MC-Unique: fGzk4w9lP3qhaIhQj5t7Aw-1
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-632b6ff93e4so98318707b3.1
-        for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 09:15:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718813722; x=1719418522;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=K6uw6c8xTJWi+pvcU2aMToH9/dEBpeu9C2fVbRq6KEk=;
-        b=umFVq/qmOhCilOvCuZhWrWPMz4q0z9MKZgp840+bd4tzxyQrqgYj+j9R8j4KXVd2PQ
-         NQGQdFVtpKarzfdLndco+z+8/6d8dnaWV4XxSCy2/1wlw4Hx9ERWa3xVJYccgiG/kxTL
-         FX+eApdyUFuc8TY2a/H/BOZGrH593v+T10ywd7UgWV06YfX9CbPpoBDR0IPE7BMOCe8E
-         Grinp4YR0aTUTVlrDj0n2/Hasv8MoITZd525MEV+f2biAxj+DfAWTJJ6fP4thyVHL/Yk
-         TOZkgKh8pYWJldsTKlFvbyV1Wr6Bmug2lRz6zK3BBIsptovqX1DohY5BVySGq1Emc0Sc
-         vHPA==
-X-Forwarded-Encrypted: i=1; AJvYcCXpIwE9cU1qFuxhguWvScDgb8898Nuy7u1Sl4+Dg4f7XCbtxPFydjUdYBw4WSm5Xa7gapqTMlYKDPRnglCr97wdRowb7LuUFeRG1sZhHwk=
-X-Gm-Message-State: AOJu0Yzi72CpLYFfXK5zCZX3dii5MgE/RbEOsZfJ+aY5I5AlgZcLqpCN
-	sLyLZ/Tai8BemNEpNC4/oxj2swf8auD+y8WxxVkaEeTrthPsyZ78pj1gDPifUflCm7yc//JwA86
-	5uuXsPFZd2/4YYj3L0uoMUD3dwJgmBKLguHAGiktbpRapE0XZTFeFmipUdUxRrDQ/RUM9InQ2rq
-	3PUAYhpaj77sz+NUWYUQ5K9ge4O7FeUCLTQnabaPE=
-X-Received: by 2002:a81:9e04:0:b0:62f:3278:a635 with SMTP id 00721157ae682-63a8db11467mr30440477b3.20.1718813721753;
-        Wed, 19 Jun 2024 09:15:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFYj9yHFJVb+3h0QXR7hz1TBdvtwdMW2hViXwyFTLlI/REfheh7B4/sRoIX5a0uxH+gXSI/PDw6ksDPNWWW1Ps=
-X-Received: by 2002:a81:9e04:0:b0:62f:3278:a635 with SMTP id
- 00721157ae682-63a8db11467mr30440377b3.20.1718813721450; Wed, 19 Jun 2024
- 09:15:21 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="VweBqLjn"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1718813949; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=HIT6NKrwkLUJi2AMHNNv5UDY3B4A5R1UQJX3u/TaLLU=;
+	b=VweBqLjnYTA80hRn8Lfn9GRFc63fUT4qZOiktoLsl/Hz/qBKFqVqBmLLX0+Zwm8nqI9pvfNUxaHLO9EpQe8lOS8WMZ2NEz2I1cxchZ+/SfcAeBScI5Ln1CdIYCQuvOZDcVRB8lefaOivlbJ2mqu7fE3KdEFeTwdQkbrMZ3N00HY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W8olDoZ_1718813948;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8olDoZ_1718813948)
+          by smtp.aliyun-inc.com;
+          Thu, 20 Jun 2024 00:19:08 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH net-next v4 0/5] virtio_net: enable the irq for ctrlq
+Date: Thu, 20 Jun 2024 00:19:03 +0800
+Message-Id: <20240619161908.82348-1-hengqi@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240617-stage-vdpa-vq-precreate-v1-0-8c0483f0ca2a@nvidia.com> <20240617-stage-vdpa-vq-precreate-v1-22-8c0483f0ca2a@nvidia.com>
-In-Reply-To: <20240617-stage-vdpa-vq-precreate-v1-22-8c0483f0ca2a@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 19 Jun 2024 18:14:45 +0200
-Message-ID: <CAJaqyWezppMAL85-w7QLmEnKrebjdg9BQORApCj2ZHqWtiDptw@mail.gmail.com>
-Subject: Re: [PATCH vhost 22/23] vdpa/mlx5: Don't reset VQs more than necessary
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, netdev@vger.kernel.org, 
-	Cosmin Ratiu <cratiu@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jun 17, 2024 at 5:09=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
->
-> The vdpa device can be reset many times in sequence without any
-> significant state changes in between. Previously this was not a problem:
-> VQs were torn down only on first reset. But after VQ pre-creation was
-> introduced, each reset will delete and re-create the hardware VQs and
-> their associated resources.
->
-> To solve this problem, avoid resetting hardware VQs if the VQs are still
-> in a blank state.
->
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
+Ctrlq in polling mode may cause the virtual machine to hang and
+occupy additional CPU resources. Enabling the irq for ctrlq
+alleviates this problem and allows commands to be requested
+concurrently.
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Changelog
+=========
+v3->v4:
+  - Turn off the switch before flush the get_cvq work.
+  - Add interrupt suppression.
 
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 30 +++++++++++++++++++++++++++---
->  1 file changed, 27 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
-x5_vnet.c
-> index d80d6b47da61..1a5ee0d2b47f 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -3134,18 +3134,41 @@ static void init_group_to_asid_map(struct mlx5_vd=
-pa_dev *mvdev)
->                 mvdev->group2asid[i] =3D 0;
->  }
->
-> +static bool needs_vqs_reset(const struct mlx5_vdpa_dev *mvdev)
-> +{
-> +       struct mlx5_vdpa_net *ndev =3D to_mlx5_vdpa_ndev(mvdev);
-> +       struct mlx5_vdpa_virtqueue *mvq =3D &ndev->vqs[0];
-> +
-> +       if (mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK)
-> +               return true;
-> +
-> +       if (mvq->fw_state !=3D MLX5_VIRTIO_NET_Q_OBJECT_STATE_INIT)
-> +               return true;
-> +
-> +       return mvq->modified_fields & (
-> +               MLX5_VIRTQ_MODIFY_MASK_STATE |
-> +               MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_ADDRS |
-> +               MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_AVAIL_IDX |
-> +               MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_USED_IDX
-> +       );
-> +}
-> +
->  static int mlx5_vdpa_compat_reset(struct vdpa_device *vdev, u32 flags)
->  {
->         struct mlx5_vdpa_dev *mvdev =3D to_mvdev(vdev);
->         struct mlx5_vdpa_net *ndev =3D to_mlx5_vdpa_ndev(mvdev);
-> +       bool vq_reset;
->
->         print_status(mvdev, 0, true);
->         mlx5_vdpa_info(mvdev, "performing device reset\n");
->
->         down_write(&ndev->reslock);
->         unregister_link_notifier(ndev);
-> -       teardown_vq_resources(ndev);
-> -       init_mvqs(ndev);
-> +       vq_reset =3D needs_vqs_reset(mvdev);
-> +       if (vq_reset) {
-> +               teardown_vq_resources(ndev);
-> +               init_mvqs(ndev);
-> +       }
->
->         if (flags & VDPA_RESET_F_CLEAN_MAP)
->                 mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
-> @@ -3165,7 +3188,8 @@ static int mlx5_vdpa_compat_reset(struct vdpa_devic=
-e *vdev, u32 flags)
->                 if (mlx5_vdpa_create_dma_mr(mvdev))
->                         mlx5_vdpa_warn(mvdev, "create MR failed\n");
->         }
-> -       setup_vq_resources(ndev, false);
-> +       if (vq_reset)
-> +               setup_vq_resources(ndev, false);
->         up_write(&ndev->reslock);
->
->         return 0;
->
-> --
-> 2.45.1
->
+v2->v3:
+  - Use the completion for dim cmds.
+
+v1->v2:
+  - Refactor the patch 1 and rephase the commit log.
+
+Heng Qi (5):
+  virtio_net: passing control_buf explicitly
+  virtio_net: enable irq for the control vq
+  virtio_net: change the command token to completion
+  virtio_net: refactor command sending and response handling
+  virtio_net: improve dim command request efficiency
+
+ drivers/net/virtio_net.c | 309 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 260 insertions(+), 49 deletions(-)
+
+-- 
+2.32.0.3.g01195cf9f
 
