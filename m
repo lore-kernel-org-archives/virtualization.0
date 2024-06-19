@@ -1,200 +1,204 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5855C78297
-	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 07:51:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E979E182DB
+	for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 07:58:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718783481; cv=none; b=APn80a8+wgSJTpG4hCBzCkr/hiSsYDQAKmbrWuVmKxFVBtwBkgy8f9QlrrLCjWpN9dCiVI+UdAIxAdD/6ifQg8F5ZtHOpp6YmeQRfv5g721689imTful2/Xeia/346Q3Mxvl6mUn4WlFIeqMeLnPnLt7Fwwy/LwDSa3AN0GmqlI=
+	t=1718783905; cv=none; b=WGrYMUSFlHEA+8l3AdXhzD7m9uHo7k9VSXrJNfjpFXrMr8c5uu4bGT/PQyvPS38M6ZNbf/GV/a6lZrDkyKMlE9tlhyPrMysPs3dxLg+nsBGLV4r6jYFwYi9ifaW67N4M2r63RgHMptQa+53NXbcwvLVAvOLrwvSQUBWXEwLVd2M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718783481; c=relaxed/simple;
-	bh=SakDkSaznJ42+rNLU6g9ncLYcfpB/RFNYeC3yICgVuo=;
+	s=arc-20240116; t=1718783905; c=relaxed/simple;
+	bh=F+nCQotwyBJ/AYl6K244TiJ9pbK87bZbSD51hie1cSY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=eEU+ET16b3LsBeYZ/R3RD9NimEFgrK1qnPFqkwgpzH5ElNE/fRY2b+ndQ1jPU/4oiVLNjKWay5DRccglFnevy95fE0U152kTs9awraeAHbttqHUWHCoDQyz35WaXTLXe24WnwrDkWlGmzQhKLyWXXfbhbH0rdsg+gyki6uSluYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gtuLurii; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=eigiUQivffYfecR+AtC9D19ha88vbfiAg1bYcmrx5MlvjzpskGAiYAOkE9MHwVQXvuXIVBmXqC36+HNA7Qq0kreevAeTxb00rvn+H4yvh7aFLxU7GUQT+FS54GIXTyff/qbA9y20pn9uZk8omM9efbTFoSTYuYW5IrVQ/eePWp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MjvRIpvc; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gtuLurii"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MjvRIpvc"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718783477;
+	s=mimecast20190719; t=1718783902;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=54l/bQWI1DZeSh0ObKloGm/WQfpdPpAWrREcvojyFcI=;
-	b=gtuLuriiFys4uTFgJA5Ctc8Vg/sbnGTZXa0e2Xi5V5jlCFunq+/IwNQBQRLnMMdo7mAwxQ
-	1m7wWs+NcWe/2XNMX7wITcl5DU9CNHUtd25f5SEJVk7msTxEPTLId1IKTFCaQY/x3GJlTK
-	AGxNC6XU1He42rsb/UPYdWw/AinFGf0=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ANzmvHUQ5AIaHRYaMSvxHwn59q2Kn3fvsfBTKnY6KpY=;
+	b=MjvRIpvcokLwNkAQAqAViD+uoRu7PCC+2Dr+XE8GJJjo8uswTEFuiZFNKcQ/8jz6nGqzhO
+	QG+krbcMjD08XlFhbAsPA6PIRJfuRMBNOp4y2X+vAVQHRaGBSkfhdmguvU10c/taxDNM3Q
+	PRqgRWGrNuqT7YX3bPkyCVJre+6KIuU=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-660-pDVsmZ-tOhSP_IJWqlfFrQ-1; Wed, 19 Jun 2024 03:51:15 -0400
-X-MC-Unique: pDVsmZ-tOhSP_IJWqlfFrQ-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-36298880c8bso736115f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 00:51:15 -0700 (PDT)
+ us-mta-175-u9A99Q3WN6quD7QY1f_t4Q-1; Wed, 19 Jun 2024 03:58:21 -0400
+X-MC-Unique: u9A99Q3WN6quD7QY1f_t4Q-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3636413fcc5so285543f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 19 Jun 2024 00:58:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718783474; x=1719388274;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=54l/bQWI1DZeSh0ObKloGm/WQfpdPpAWrREcvojyFcI=;
-        b=vhB+Bnir8Wb5KfDzMycSBMFL70i/A65DKxhTGgATbB3xtf7ebVDbYWilVHwmfWWid3
-         TAOfH6rlM8FFiEUdYKRZ2/01DHXhMq+1SN0ZrrKWEtabjjYlzi3kQV2F3H+GzEdjV4BN
-         JmmJ5ypQkYLA5L4f1CzSlw+BlWOuT4W9I2BqW3jEquzb79162/l3YX2snTjMPqcH/nvh
-         EA45tZ3irGqObHYItL1ZGSu0cCTJPGY7hCYQP1WyVdHn2IESCmFt2RShSPxsfioA9AsZ
-         6A+S5mkB9H8EDMUXQtSarxWtPOOlYGvvWpSjXGzRSySk5MXSI94EKVYcoJyc/W3diC9e
-         xRrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXC+8fRzB93dO5YSFrrDvOodvU0X2K2EGXslqjwNOetPLYSYcy4/uE/4zCamlFrqJs1EQIkdy2a68rXUM1hAvs0sfag96VlVxpBHDzs0Ho=
-X-Gm-Message-State: AOJu0Yyg39W5TwmerQoT7VC9/wbNfcXIdLlQFBhutc242Qiol6Rezkvp
-	882vp9e8LJLv4NGvWGoyy3nKW8ku4XSWMKQtvYwVAWxw2Q9cE5Js0H7N/WTMniEUh8I8eBv0C1G
-	1qtJ4bNi62y9nLV6SqIbFbnFJSKLS8+Mm8WukzNA8ozh15kJZ6VW7mlg7BtAczDCP
-X-Received: by 2002:a5d:4d4e:0:b0:360:711b:114f with SMTP id ffacd0b85a97d-363170ed43fmr1677407f8f.5.1718783474581;
-        Wed, 19 Jun 2024 00:51:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGgshaVs3GIEzhy3LqFFVEKzd78LiEjfe2e4rzHd9MLxQKBApInQuCqxm9Tqj4WTUduoEdJkQ==
-X-Received: by 2002:a5d:4d4e:0:b0:360:711b:114f with SMTP id ffacd0b85a97d-363170ed43fmr1677368f8f.5.1718783473735;
-        Wed, 19 Jun 2024 00:51:13 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1718783900; x=1719388700;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ANzmvHUQ5AIaHRYaMSvxHwn59q2Kn3fvsfBTKnY6KpY=;
+        b=sfg9gSnCqCBRhvZ4IgsL6043s5EJ0JUeztFjd3+GaSCHKldLsIOoYamOTHWSIOlRiK
+         xPtLEM8Gxeb/ITILBjKZZBdpO1LYdGICap3D+ZQaNkYxpNftjfdeEiAUGSsGfZRkU4vC
+         DaFMuECW4I6Wme5rh/lIGBLUYatfyavBDEL/uu9F2Oij2GLkfNJngnN+V+q+CzS/KpLS
+         I2kp5oEzMlLVTgSSAVa4BenOydTMEI5QtpiMZpS4JYFBYGF8v43Jaaa9cB0khVtSj4nK
+         5KyRO9AgBRjocGqwiImb9HlC1+Xl2Br1ckVdZg7WHiHfJY/eUbz9eKiYh+exe56hWa4W
+         SzfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUCfWIZYAoA7PR3agPFVsLLLIKazO6/tq3lEP7EQoGhver7KI1N8T+n0uYUGI+8Awbmztz2Mov+JuUbshT50TUV/PEtX80H1bieSZLexc0=
+X-Gm-Message-State: AOJu0YwnKjZkxLPWElDiEKc0XskhsEYC9YDjEHVcnzDkifnVkx8nMOAc
+	x17fDxZtZ0VrchzRkO8BP8EUEFFvIoTlG783600u8yHNlwj2AFrdronD+orbFYEwLOhbepXWueS
+	LzeSACjWaxjO+4VYNBNLPwEOxIFYV6mBW6rgNBSYOVwdXf0r13vFFWOJy44FsN5RJ
+X-Received: by 2002:adf:f04e:0:b0:360:9180:760f with SMTP id ffacd0b85a97d-36319a85e94mr1263561f8f.66.1718783899974;
+        Wed, 19 Jun 2024 00:58:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGWemWDy24QaqC3xrYRq1zbjmVl3kkTcoVG68ij7komu3mePTPqa6b8OU/wc/Neez6+/OKD1g==
+X-Received: by 2002:adf:f04e:0:b0:360:9180:760f with SMTP id ffacd0b85a97d-36319a85e94mr1263536f8f.66.1718783899449;
+        Wed, 19 Jun 2024 00:58:19 -0700 (PDT)
 Received: from redhat.com ([2.52.146.100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36302e474e8sm2130125f8f.37.2024.06.19.00.51.10
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-360750acfeasm16388562f8f.65.2024.06.19.00.58.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Jun 2024 00:51:13 -0700 (PDT)
-Date: Wed, 19 Jun 2024 03:51:08 -0400
+        Wed, 19 Jun 2024 00:58:18 -0700 (PDT)
+Date: Wed, 19 Jun 2024 03:58:15 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Denis Arefev <arefev@swemel.ru>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-	lvc-project@linuxtesting.org
-Subject: Re: [PATCH v2] net: missing check virtio
-Message-ID: <20240619035015-mutt-send-email-mst@kernel.org>
-References: <20240613095448.27118-1-arefev@swemel.ru>
+To: Manivannan Sadhasivam <mani@kernel.org>
+Cc: Shunsuke Mie <mie@igel.co.jp>, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [RFC] Legacy Virtio Driver with Device Has Limited Memory Access
+Message-ID: <20240619035655-mutt-send-email-mst@kernel.org>
+References: <20240614095033.GA59574@thinkpad>
+ <CANXvt5ojosFbt60Gcfym1DX96W7SiX4X15dMGdSCVEPhUTpk=w@mail.gmail.com>
+ <20240618054115-mutt-send-email-mst@kernel.org>
+ <CANXvt5psZAkEOJtxO250n6vjZTK7as-F-4qr1Rc3awZsmqWCpQ@mail.gmail.com>
+ <20240618061705-mutt-send-email-mst@kernel.org>
+ <CANXvt5pDjvVwFLS3p0a4hx1-MUJGsKHnpEsjejYUcmvTeKyFmg@mail.gmail.com>
+ <20240618064231-mutt-send-email-mst@kernel.org>
+ <CANXvt5pbdsSMc9C-nV0MiOAJPVyxXKu5otwLp2yopqBdNLS26A@mail.gmail.com>
+ <20240619032703-mutt-send-email-mst@kernel.org>
+ <20240619073929.GA8089@thinkpad>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240613095448.27118-1-arefev@swemel.ru>
+In-Reply-To: <20240619073929.GA8089@thinkpad>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 13, 2024 at 12:54:48PM +0300, Denis Arefev wrote:
-> Two missing check in virtio_net_hdr_to_skb() allowed syzbot
-> to crash kernels again
+On Wed, Jun 19, 2024 at 01:09:29PM +0530, Manivannan Sadhasivam wrote:
+> On Wed, Jun 19, 2024 at 03:32:41AM -0400, Michael S. Tsirkin wrote:
+> > On Tue, Jun 18, 2024 at 09:51:41PM +0900, Shunsuke Mie wrote:
+> > > 2024年6月18日(火) 19:47 Michael S. Tsirkin <mst@redhat.com>:
+> > > >
+> > > > On Tue, Jun 18, 2024 at 07:40:34PM +0900, Shunsuke Mie wrote:
+> > > > > 2024年6月18日(火) 19:33 Michael S. Tsirkin <mst@redhat.com>:
+> > > > > >
+> > > > > > On Tue, Jun 18, 2024 at 07:15:47PM +0900, Shunsuke Mie wrote:
+> > > > > > > Thank you for your response.
+> > > > > > >
+> > > > > > > 2024年6月18日(火) 18:47 Michael S. Tsirkin <mst@redhat.com>:
+> > > > > > > >
+> > > > > > > > On Tue, Jun 18, 2024 at 08:41:09AM +0900, Shunsuke Mie wrote:
+> > > > > > > > > Let's clarify the situation.
+> > > > > > > > >
+> > > > > > > > > The Virtio device and driver are not working properly due to a
+> > > > > > > > > combination of the following reasons:
+> > > > > > > > >
+> > > > > > > > > 1. Regarding VIRTIO_F_ACCESS_PLATFORM:
+> > > > > > > > > - The modern spec includes VIRTIO_F_ACCESS_PLATFORM, which allows
+> > > > > > > > > Physical DMAC to be used.
+> > > > > > > > > - This feature is not available in the legacy spec.
+> > > > > > > >
+> > > > > > > > ... because legacy drivers don't set it
+> > > > > > > >
+> > > > > > > > > 2. Regarding Virtio PCIe Capability:
+> > > > > > > > > - The modern spec requires Virtio PCIe Capability.
+> > > > > > > >
+> > > > > > > > It's a PCI capability actually. People have been asking
+> > > > > > > > about option to make it a pcie extended capability,
+> > > > > > > > but no one did the spec, qemu and driver work, yet.
+> > > > > > > >
+> > > > > > > > > - In some environments, Virtio PCIe Capability cannot be provided.
+> > > > > > > >
+> > > > > > > > why not?
+> > > > > > > PCIe Endpoint Controller chips are available from several vendors and allow
+> > > > > > > software to describe the behavior of PCIe Endpoint functions. However, they
+> > > > > > > offer only limited functionality. Specifically, while PCIe bus communication is
+> > > > > > > programmable, PCIe Capabilities are fixed and cannot be made to show as
+> > > > > > > virtio's.
+> > > > > >
+> > > > > > Okay. So where could these structures live, if not in pci config?
+> > > > > What does "these structures" refer to? PCIe Capabilities? virtio configs?
+> > > >
+> > > > Virtio uses a bunch of read only structures that look like this:
+> > > >
+> > > > struct virtio_pci_cap {
+> > > >
+> > > >         ..... [skipped, specific to pci config caps] ...
+> > > >
+> > > >         u8 cfg_type;    /* Identifies the structure. */
+> > > >         u8 bar;         /* Where to find it. */
+> > > >         u8 id;          /* Multiple capabilities of the same type */
+> > > >         u8 padding[2];  /* Pad to full dword. */
+> > > >         le32 offset;    /* Offset within bar. */
+> > > >         le32 length;    /* Length of the structure, in bytes. */
+> > > > };
+> > > >
+> > > >
+> > > > The driver uses that to locate parts of device interface it
+> > > > later uses.
+> > > >
+> > > >
+> > > > Per spec, they are currently in pci config, you are saying some devices
+> > > > can't have this data in pci config - is that right? Where yes?
+> > > I understood. The configuration structure is in the space that is
+> > > indicated by BAR0.
+> > > Follows the instructions in the spec:
+> > > ```
+> > > 4.1.4.10 Legacy Interfaces: A Note on PCI Device Layout
+> > > Transitional devices MUST present part of configuration registers in a
+> > > legacy configuration structure in BAR0 in the first I/O region of the
+> > > PCI device, as documented below.
+> > > ...
+> > > ```
+> > 
+> > No, and it's best everyone stopped talking about legacy like we
+> > are going to add new features to it.
+> > 
+> > The configuration structure is in the space that is
+> > indicated by the vendor specific structure, which is currently
+> > in pci config space.
+> > 
+> > If use of a vendor specific structure in pci config space is
+> > problematic, we can try to fix that by extending the virtio spec.
+> > 
 > 
-> 1. After the skb_segment function the buffer may become non-linear
-> (nr_frags != 0), but since the SKBTX_SHARED_FRAG flag is not set anywhere
-> the __skb_linearize function will not be executed, then the buffer will
-> remain non-linear. Then the condition (offset >= skb_headlen(skb))
-> becomes true, which causes WARN_ON_ONCE in skb_checksum_help.
+> It is indeed problematic as the device vendors usually use those capability
+> registers themselves and wouldn't allow users to configure them.
 > 
-> 2. The struct sk_buff and struct virtio_net_hdr members must be
-> mathematically related.
-> (gso_size) must be greater than (needed) otherwise WARN_ON_ONCE.
-> (remainder) must be greater than (needed) otherwise WARN_ON_ONCE.
-> (remainder) may be 0 if division is without remainder.
+> So if the spec is ammended to support other way of finding the virtio config
+> structures, then it would really unblock us from supporting modern virtio
+> devices.
 > 
-> offset+2 (4191) > skb_headlen() (1116)
-> WARNING: CPU: 1 PID: 5084 at net/core/dev.c:3303 skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
-> Modules linked in:
-> CPU: 1 PID: 5084 Comm: syz-executor336 Not tainted 6.7.0-rc3-syzkaller-00014-gdf60cee26a2e #0
-> Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 11/10/2023
-> RIP: 0010:skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
-> Code: 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 52 01 00 00 44 89 e2 2b 53 74 4c 89 ee 48 c7 c7 40 57 e9 8b e8 af 8f dd f8 90 <0f> 0b 90 90 e9 87 fe ff ff e8 40 0f 6e f9 e9 4b fa ff ff 48 89 ef
-> RSP: 0018:ffffc90003a9f338 EFLAGS: 00010286
-> RAX: 0000000000000000 RBX: ffff888025125780 RCX: ffffffff814db209
-> RDX: ffff888015393b80 RSI: ffffffff814db216 RDI: 0000000000000001
-> RBP: ffff8880251257f4 R08: 0000000000000001 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000001 R12: 000000000000045c
-> R13: 000000000000105f R14: ffff8880251257f0 R15: 000000000000105d
-> FS:  0000555555c24380(0000) GS:ffff8880b9900000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 000000002000f000 CR3: 0000000023151000 CR4: 00000000003506f0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Call Trace:
->  <TASK>
->  ip_do_fragment+0xa1b/0x18b0 net/ipv4/ip_output.c:777
->  ip_fragment.constprop.0+0x161/0x230 net/ipv4/ip_output.c:584
->  ip_finish_output_gso net/ipv4/ip_output.c:286 [inline]
->  __ip_finish_output net/ipv4/ip_output.c:308 [inline]
->  __ip_finish_output+0x49c/0x650 net/ipv4/ip_output.c:295
->  ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:323
->  NF_HOOK_COND include/linux/netfilter.h:303 [inline]
->  ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:433
->  dst_output include/net/dst.h:451 [inline]
->  ip_local_out+0xaf/0x1a0 net/ipv4/ip_output.c:129
->  iptunnel_xmit+0x5b4/0x9b0 net/ipv4/ip_tunnel_core.c:82
->  ipip6_tunnel_xmit net/ipv6/sit.c:1034 [inline]
->  sit_tunnel_xmit+0xed2/0x28f0 net/ipv6/sit.c:1076
->  __netdev_start_xmit include/linux/netdevice.h:4940 [inline]
->  netdev_start_xmit include/linux/netdevice.h:4954 [inline]
->  xmit_one net/core/dev.c:3545 [inline]
->  dev_hard_start_xmit+0x13d/0x6d0 net/core/dev.c:3561
->  __dev_queue_xmit+0x7c1/0x3d60 net/core/dev.c:4346
->  dev_queue_xmit include/linux/netdevice.h:3134 [inline]
->  packet_xmit+0x257/0x380 net/packet/af_packet.c:276
->  packet_snd net/packet/af_packet.c:3087 [inline]
->  packet_sendmsg+0x24ca/0x5240 net/packet/af_packet.c:3119
->  sock_sendmsg_nosec net/socket.c:730 [inline]
->  __sock_sendmsg+0xd5/0x180 net/socket.c:745
->  __sys_sendto+0x255/0x340 net/socket.c:2190
->  __do_sys_sendto net/socket.c:2202 [inline]
->  __se_sys_sendto net/socket.c:2198 [inline]
->  __x64_sys_sendto+0xe0/0x1b0 net/socket.c:2198
->  do_syscall_x64 arch/x86/entry/common.c:51 [inline]
->  do_syscall_64+0x40/0x110 arch/x86/entry/common.c:82
->  entry_SYSCALL_64_after_hwframe+0x63/0x6b
+> - Mani
+
+Okay.
+Anyone from your side can join the virtio TC to champion this?
+We don't have anyone knowledgeable about this protocol ATM AFAIK.
+
+
+> > 
+> > > >
+> > > > > > --
+> > > > > > MST
+> > > > > >
+> > > >
+> > 
 > 
-> Found by Linux Verification Center (linuxtesting.org) with Syzkaller
-> 
-> Signed-off-by: Denis Arefev <arefev@swemel.ru>
-> ---
->  V1 -> V2: incorrect type in argument 2
->  include/linux/virtio_net.h | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 4dfa9b69ca8d..d1d7825318c3 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -56,6 +56,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  	unsigned int thlen = 0;
->  	unsigned int p_off = 0;
->  	unsigned int ip_proto;
-> +	u64 ret, remainder, gso_size;
->  
->  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
->  		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-> @@ -98,6 +99,16 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
->  		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
->  
-> +		if (hdr->gso_size) {
-> +			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
-> +			ret = div64_u64_rem(skb->len, gso_size, &remainder);
-> +			if (!(ret && (hdr->gso_size > needed) &&
-> +						((remainder > needed) || (remainder == 0)))) {
-> +				return -EINVAL;
-> +			}
-
-
-Could you please add some comments explaining the logic here?
-
-And do we really need u64 math? All the values here are 32 bit ATM ...
-
-
-
-
-> +			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
-> +		}
-> +
->  		if (!pskb_may_pull(skb, needed))
->  			return -EINVAL;
->  
 > -- 
-> 2.25.1
+> மணிவண்ணன் சதாசிவம்
 
