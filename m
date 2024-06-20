@@ -1,251 +1,241 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from refb02.tmes.trendmicro.eu (refb02.tmes.trendmicro.eu [18.185.115.58])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BA521AC23D
-	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 11:37:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718883468; cv=none; b=ETf6n5edXK6Xjw3fWr3/DVgoMhjEJTNoj46Vj2+5pFDHvqSFJ93NAam7arF9T7QYqTP1cWYLA44GFLfgG+rJ6jgPCRuzaVy8FQ9Qcn9C82SY+x9+r2KLVTZ2MWVFnM4oO92pYc6VodqQkLGlh2SiWhmIX1nqTapFOOL0MygQdBI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718883468; c=relaxed/simple;
-	bh=+BUuzt0EV0E7b5HL9H0lKiRQzBuiOBmGvgWVpf0cnf8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=quGdhBM/kPJoRKWASLNNcqaDae5RRzBeIpjaU3o0UYZD3GVSlYj4SvQtqCct7YYV/iCLUk0h5RlWGNZQ/TI7ruuVAKO0qVFIlTrbytQ80V6DNWdEboaaaYYtqozOWkx3wq/zASpnRJQNdvCCTpU2ZzUGXX9UH50Y5rNcuC8I90A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MohDjuKu; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B041617B429
+	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 12:01:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=18.185.115.58
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1718884878; cv=fail; b=czSkaAoJQiqJYb7nCglEUmPMlCPb6WHhq8Z/OYmlHt+hLYT3CT9GdwD/aBERlMPB87ABLL/zdtTI5OIsFsMxoSmNcHp2vQ3iu6f6JG7px6kXYEmqIUEf+NBZBoJvM4nnSKrbYIWdj0IZS7PtZozCFBdugOWlMNnuEoeFNfnuUfw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1718884878; c=relaxed/simple;
+	bh=dYQ8c40brY8P1cnuVvGfvMzzVVZR8lVQzDZOZTE2mDI=;
+	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=T6+U0F7mDanHiyaF3dLsgFx/HqCFx8QO8dFJVvw7uAXeVXQrhLHQnVNnzqsKvSuLWHbjhPwcuWnenrOjZ6p8GgrurdnkdBtdMKik2dkWGpECWccuvzfQ2NWHDbgIz14aIV7s3OhFNZyFB74cOocjgQNaAL5VqOplz7RnWJq5oUE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com; spf=pass smtp.mailfrom=opensynergy.com; dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b=LdNdEYPh; arc=fail smtp.client-ip=18.185.115.58
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensynergy.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MohDjuKu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718883465;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=d0vRFjJoymfNkJ7AiCzZKbFSRm1LITjQgITc8revWNM=;
-	b=MohDjuKuCIomkoPxCiTN8igFsjQZA8WoXOwdcpPDvMEImR7mlRd+0Xb1rYXbgJlWvMbhGT
-	ylHQEN0cEaNP/INoJVot9Rp8TfmxiY+hcH9wfRqCreKOvqFkz9Xeab4cWXKYugyrIxE10Q
-	KjqkTrq988FUQ1P51PNF3hg1BUfEwSc=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-444-_JST7cFkMMGvEzD0rPFTng-1; Thu, 20 Jun 2024 07:37:43 -0400
-X-MC-Unique: _JST7cFkMMGvEzD0rPFTng-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a6efbb08949so32820466b.0
-        for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 04:37:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718883461; x=1719488261;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=d0vRFjJoymfNkJ7AiCzZKbFSRm1LITjQgITc8revWNM=;
-        b=rXaQ1WQqnzE3JZ9prI60UpsDtvoRqPc0xp8YV98wWH1PAWGH1KJNRhDHbXxaJtFbZI
-         G5Nu3IYSC5WghV4m1Bmp19hQtVH4UUm+1vQKfdOFe121IKvtLkyWf3g7qGr84n9zUT3U
-         2cl5WJvxNYaKz1uus1xmNMJEMN78OTbMQHgh1IBYBiik0EQ8qCjraCNbFtisQjbJBgyT
-         /xErwYkJEKVH5PvRGBzpqRSuhUwJH5cNwyPa32pGSFW/8kPyufVuPt+AmaVFiJO2eTIM
-         dZ2juKIJksVbJWri7ci+W2Dv5L5XfYx4I/drdYAiHXIVTgXbi6ZTnRrFCAh6GDeaYAzl
-         i3Tw==
-X-Gm-Message-State: AOJu0YytLXR0YkZp50si4t40y9Q0q2CdBIm0lL2uJ1qRNIKVXL0tEhnR
-	BaeTbGhbEU8dRBsIZ9WS6HmKR5k6WCJZrdaRYf9vciuWUYqpe3qqVXBJBim2cWP4M3hvHbDEBtE
-	R9L15tQQLcG4Fqp/1eWkUYYLHt/dnlYPhnrUzb1RFtVnT9AM9eNDRTZlPkhvp/rTZ
-X-Received: by 2002:a17:907:198e:b0:a68:a800:5f7e with SMTP id a640c23a62f3a-a6fab605032mr323035166b.10.1718883461405;
-        Thu, 20 Jun 2024 04:37:41 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEDIGM+jwPnAqXhfTi5j68F0TiQKYd3uIDh3xaq5X5qn943fCJOq9d8Dl2broWQ/a34GcpdjA==
-X-Received: by 2002:a17:907:198e:b0:a68:a800:5f7e with SMTP id a640c23a62f3a-a6fab605032mr323032466b.10.1718883460605;
-        Thu, 20 Jun 2024 04:37:40 -0700 (PDT)
-Received: from redhat.com ([2.52.146.100])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a6f56ecdce5sm752536366b.108.2024.06.20.04.37.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jun 2024 04:37:39 -0700 (PDT)
-Date: Thu, 20 Jun 2024 07:37:32 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH vhost v9 3/6] virtio: find_vqs: pass struct instead of
- multi parameters
-Message-ID: <20240620073111-mutt-send-email-mst@kernel.org>
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
- <20240424091533.86949-4-xuanzhuo@linux.alibaba.com>
- <20240620034823-mutt-send-email-mst@kernel.org>
- <1718874049.457552-1-xuanzhuo@linux.alibaba.com>
- <20240620050545-mutt-send-email-mst@kernel.org>
- <1718875249.1787696-3-xuanzhuo@linux.alibaba.com>
- <20240620061202-mutt-send-email-mst@kernel.org>
- <1718880210.0475078-2-xuanzhuo@linux.alibaba.com>
- <20240620070354-mutt-send-email-mst@kernel.org>
- <1718881968.7394087-7-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b="LdNdEYPh"
+Received: from 104.47.7.174_.trendmicro.com (unknown [172.21.9.50])
+	by refb02.tmes.trendmicro.eu (Postfix) with ESMTPS id 5D364100DCEA2
+	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 12:01:12 +0000 (UTC)
+Received: from 104.47.7.174_.trendmicro.com (unknown [172.21.162.72])
+	by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 7D4DF10000E29;
+	Thu, 20 Jun 2024 12:01:05 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1718884863.902000
+X-TM-MAIL-UUID: 714caa17-c701-4c7a-bd3e-e4c2496fef40
+Received: from DEU01-BE0-obe.outbound.protection.outlook.com (unknown [104.47.7.174])
+	by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id DC744100382E9;
+	Thu, 20 Jun 2024 12:01:03 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hqRmnrbGKPV2e+Bkw+TTxXOCh3AMdpEWlS8y7JZmezcrYypGxgxFBI4TMmRS0Vvd6ZAQvLVQ3UbRwd1mcbB2F/wd513BAYYjiSDUrWpCT9b1INuJKc3et2MRRtHSQs69ROmk3W2mMhzgp99A4NFjw/+aMlh+KtcRCjSf+1Pg9m16f0kr3IbvD9Sl5AU1Ma2hWQtb//7+K3xrHDtJEqZgt8cekDDYgXbM8I+l9czmJM/mjYBnZlL8xqt/LWEfYZpDyUaMmwx0pNcaBAEg/P2QO9/gEFTyJcjgIWhNk2Y9ItTRrpq1wkFtb2/8Tms7+nAK0L9SEVDZNzhmCj+BEPt/SQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=s47X0+fSe7HjivAUDR0hjkSq4uofUyg89sDvRsIVF/s=;
+ b=D7GQ0V3ZoVsOPdw/plEA02Ypd1oZ0X/bBYa/9k5D20tZ/gS8N11cQmqN2puh4QQC+bzifwNzsqkbqrRWm6ezJiJ3YsKgas8aWellE2FWTpDjoirYNlYRNyYHDxh4HbSEW53FaZMbBygIQsctbypK5JuihNCVUU4xPnMyHQBMb6xzMSPigtYSUw1nomPwim4hGYviSQtXA10VbepV6IF2Iw2wWjt3AL/rC76IMOUNm4SBQPJcvA+RLa/dsJEysiyodyQZu8CR/6uqH8P7noFo85W1JJBh4jSMHJK+D6932feVKY7R56YQdBaumnVyL2jcin4v9WevadU2pQhvB9PC/A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=opensynergy.com;
+Message-ID: <647cfef4-bcf1-4156-b6ae-b2e089778096@opensynergy.com>
+Date: Thu, 20 Jun 2024 14:01:01 +0200
+From: Peter Hilber <peter.hilber@opensynergy.com>
+Subject: Re: [RFC PATCH v3 5/7] virtio_rtc: Add PTP clocks
+To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, virtio-dev@lists.oasis-open.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Richard Cochran <richardcochran@gmail.com>, netdev@vger.kernel.org,
+ Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org
+References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
+ <20231218073849.35294-6-peter.hilber@opensynergy.com>
+ <e0935a7cc42ad34e71c17f3b5ada4a16a8d1f539.camel@infradead.org>
+Content-Language: en-US
+In-Reply-To: <e0935a7cc42ad34e71c17f3b5ada4a16a8d1f539.camel@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: BE0P281CA0007.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:a::17) To BE1P281MB1906.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:3d::8)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1718881968.7394087-7-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BE1P281MB1906:EE_|FR3P281MB2798:EE_
+X-MS-Office365-Filtering-Correlation-Id: 76d02d69-742c-43c7-b28f-08dc9120a81b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230037|366013|376011|7416011|1800799021;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?eVZpK2wwZFJVVlVwYU9TaW5ITHBETUZ1aHhQVnFYQ0dsWktGTllBc2Z5RG9N?=
+ =?utf-8?B?K0t0cVZhVk8xTkZPZUdqT1VjQlQ2Z2NZYkhZNGhsc0JLVkVUcVNjVlFYcXlt?=
+ =?utf-8?B?dkRwZWZ5WUdoTnhmSVVoNDlUKzZ3UWVZWUx5bjBwempCdkhQTnorclpzblhh?=
+ =?utf-8?B?d1p1MnMyN1Q3cFdzclRLVTJKaE92U2phTUtlNTFiUytMbU5MQ01NNHZQUTJS?=
+ =?utf-8?B?eVR6RGJiWFFxZ1hFdlJqNTlwaGExR0VRdnZOYkpOQkRIejRnMUh1K1N5Nnli?=
+ =?utf-8?B?RW51T2d6UmVSVmxJMjJ4d05SWU1GeTVSQ2FMS0tRa2duZURVcXIyeVRKZ3Rn?=
+ =?utf-8?B?amQzcUl5bEVoRnVNeGZjbjBtZTcrbHUydmJZY3FZbWx6a21FOVJSbjhIczlD?=
+ =?utf-8?B?cUJNcUFVSjU2MjlYMzdGN3VjemFWVmFKenJaQ3NyL3FEa0pyQ3dCdER1d1Iz?=
+ =?utf-8?B?ZjJOSW9HYlBjc1pmS3ZuR0lMODZtTitJdFdMdjkrbHBPM0VvOEtoRXNTOC9F?=
+ =?utf-8?B?dndIWEhWVW5GL0hvZ09XZ2tVbyt2dk5COWswekdQdEV3TWtaT2ZxQ0R6VUt3?=
+ =?utf-8?B?enRFQkx4MlQrNVV6YlhPWUtzYzVqV3VsK3NjM21lbG9jWGd0UWxZelZhUXMy?=
+ =?utf-8?B?dWhFN0hNN2JJdkQrNjdVOU5SejhFaU9BU3N5S2xlL3lyY3YyNUdPL1lVQTRF?=
+ =?utf-8?B?R0hWOWhPYmxBWE94bUlYeHFOK2p6cVhrQUhiTDVHT3FLYTlaUi9YWHNIanpP?=
+ =?utf-8?B?amJxN0FvNjVEb053c3dYS0FlVEtORk95OEhkOUdYZkd3K1B5YlhSTUZIWkNH?=
+ =?utf-8?B?d05uYmtqQTdyY21LNFZvbGJRbTNORnY4eHROaHpkdmtNYWJ2QXFhN083MlFx?=
+ =?utf-8?B?L1pYSG9EVW1jTmo4MTFCa2FMVENGQmxVcHF3bkozN09ZK0hEaWc0ZU5pMDA0?=
+ =?utf-8?B?NnNwM1ErbWIwTXhjN0pTU2taamtVaWhUM3FseENXNXB6d2FLd3duckNVbnBt?=
+ =?utf-8?B?UE0wcGpoSnNXNzN0MFBvZG94TU1idkw0YlhVZkZldkVKUldXdzBHeXROY2NU?=
+ =?utf-8?B?enhLSEVqclZ0OFZKRGJBVUxkdzQ5eFlWYWJiVlRhdXB5aFIyVmFIUDZxb0ty?=
+ =?utf-8?B?RVhCMEdydWgrVjhEbXMwNDJ3cFVLNWlwS2Eza2Fzd2JIMUs0QmdXV00vVWUr?=
+ =?utf-8?B?dGZTRzFoU2tFbFEyVnBIWDJRaUtLcllkVndFNXVJYTU5bHl1b2dFa2ZKeFc3?=
+ =?utf-8?B?YzA3c3d6bWJ0Kzlvc3J5NkdBS2VPdUFzc04wN2Z1Z2FOSkJoaUZRTkxiU0F3?=
+ =?utf-8?B?bllUNldwQThtTHRPWmVHQlY1Zms5d3FwVVVLK3R0emM3YjF3UlZXT3cvQno1?=
+ =?utf-8?B?UVhBZ05DanNVS0VHdWUyYkNhYTVsaWkwQlp0Qi81Wk1HNTFRbzUrYUxuMjRW?=
+ =?utf-8?B?NzZ2WWkwVHk5VGVOZUh1K2hMa0pYc3ljQm5DK1pVL1czSHllbFdCYmV3bWJN?=
+ =?utf-8?B?MGhPM0F5ZDRqSVNkRWRkdHdxZ3lMeHAxQk5jS21XelFHOGRmcGEzQW85elJt?=
+ =?utf-8?B?WjlKTzdaUFQ0cTNwTTI1VzJ5M0tFVjB1eGk2RHkzUTEwUDBPejRNNVc4U084?=
+ =?utf-8?B?MTkzcEtpT3ZvNm9rQXJmMDNveDZvTTJuK3FhQjVOMjNIOWc4Umowaml4dDhz?=
+ =?utf-8?Q?ovNZXu8Z1FkIN4IrzPCi?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BE1P281MB1906.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230037)(366013)(376011)(7416011)(1800799021);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?SlN0b2g2OG5iOFJNZGVNdUxRcExXVzJQQTBPRjVoczUrRkExNGQ4UXl4M0xF?=
+ =?utf-8?B?UXo3WUlways4dVZJWjREVHhxYU9TNUV4czdDSlp6dytMZGE2bTArbXZ6VXhN?=
+ =?utf-8?B?dGlKVU1BbWtGR2JEaHNvZ0g1Ni9NVktvMytTOG1Dc0hKWDNPVC91b1BITGNP?=
+ =?utf-8?B?Qmt3aGFkSFE2aFZQc1pLK3JzMVNBUkpnNVFFdTBmUCtkQmFUc3JFODVlNFU5?=
+ =?utf-8?B?MXUybGFSQnkycGVlQjV1ZVhkL2o1dWFyYU9OSGxSZVJkMnRTdjdid3FzYUoz?=
+ =?utf-8?B?Y3lWR3VHbGZ4cktSR0l1UG9EWk4za1FBcXZpMnZybGpya29weGxVc1BVQkhZ?=
+ =?utf-8?B?bHkxN0k4bFFsRFJJV1k1K3BGenZFZGp1NW9Veks3N21zMFdEZEZDbTFGRVlo?=
+ =?utf-8?B?bUFod1BKajdqbWQ1eWZrTHV4WDJFRnNSMXMvVHMrQkJob0tJTDN5aE1ZSUlQ?=
+ =?utf-8?B?eE9iaE9OV1FPc2ZCUk9jekF6NWRKN3VkQktLaW1BaXIvWHpIZmNqUXlmb2lL?=
+ =?utf-8?B?Q0FJbHBWSnlTMitGM0RLUGtOai8zM2JSTU1zQmlrWno1TklOVXlUb3l2SlFU?=
+ =?utf-8?B?eXJhNmcxUEdRM3ZKeEl2SkwyeXRqZHBtUHEzV0dGVFZpZ05UcnpnSGpFTmQw?=
+ =?utf-8?B?N2xrekJoc3FzZDYxR1hlUTYwQ1FYSXlJeFRtT3BsanlvWGhOMWZYT3FXcHBL?=
+ =?utf-8?B?S0JxOUhqVy85NzNPVGdId3BNRE14WThSVE5FN05vajFoTjYyb3ExcUZzRDBG?=
+ =?utf-8?B?aDhzTGZyUlMzMzNRL0Uyb25SU0pBdkJFREo3b25acGRpVDF4TVNKMUtrQW5H?=
+ =?utf-8?B?YndhdjQ0UzdDSWdVa0dEcUo4UjcxVVpyblI3aGlXMXora0lYY0RPTG5qa09X?=
+ =?utf-8?B?OXJVNjU0TlExcUJ5U3o0aXlESE1TeTJub1c3RTYyeEFPbm4zVEdtblRVNzV0?=
+ =?utf-8?B?S3N3bjFldUFXaG44RkthSVlWK2JRbVpSTGdRK0ROZ1JocDM3ekRoSE15VkNx?=
+ =?utf-8?B?MkwweS9Wb0FESTJjK3hDSGJyc2dUU3laVUg3TURSbTlEM3cwYmxyREplekt0?=
+ =?utf-8?B?Z3JJci9nK2ZoT1JHcHphdmE1QUNLcnlHZEk4eXRBNllhSzFJVU9XSTAwbzhu?=
+ =?utf-8?B?Z0I4L1VBQmVDenV2QThhQVhKeVFzY21HclJpZ3BoR2M2a3VtL0thYWw0bUZM?=
+ =?utf-8?B?RE9ZajJHWENLcEFlVklFdTF2V01DZDRveUdPS2lPWllvcHJ3V0RJQitNckxE?=
+ =?utf-8?B?SGJVSzQ5OVVyb0FEWWlDeU8rQ20rUWJzRW1EV0tXRTNXc1p1WWRZbmQrSDBh?=
+ =?utf-8?B?T20xdGlobXFIbk5KYkNPNWQ1OWhVVkhDVk5YQnJWSldxclVwTjFlbW5tR3Bn?=
+ =?utf-8?B?aHora2U3WkJHUVVjMXFReFNQYkV5SmRJenRPWjJvZ3ZTQndJTDJLZk1rajE2?=
+ =?utf-8?B?TFdJVThBaEdZbmpKdmVoQmlBQlRadVAwUEJxdlRET1lYWFpRZCtUSDBGbStD?=
+ =?utf-8?B?QUNFZUwxQU5zNnhXYkR6bURocTB6dGxzYlVjY1NvdE04MHFXTkZlR0RBVUow?=
+ =?utf-8?B?cTFsdU9zN2U2YWloUzl1a05SWWczM01PUzhaNWtpT1BPN0FMRHByZjNoZFEw?=
+ =?utf-8?B?N05wU1ZVVnlSQ2k4OVdhNER0VkRJZERMSTQxdENnQ3k5bWJROU9DVWg1Y3Y3?=
+ =?utf-8?B?aDQ0QzlzNlQzZlNOUlZEcnlMdHovWnlCa3Y4L2JDaUpHVHpaOWE1eVpHck01?=
+ =?utf-8?B?U2hWU3V4bFEzZnhRSVVIT01KbjZ4cGpXcWg1VmtDbVNvcnJHMzZ4SDc1Vkdr?=
+ =?utf-8?B?Tit3ZGRtKytDbGcyWkNwV3Z6UktReEFqNVNOd09oM1A4cnFRcStuMGVHdkhj?=
+ =?utf-8?B?WEc2c3FlK2cwV3k2SC9ZS3JwNnB6Rk5KMFUxRlViT0lWbzVnRVZwQmFacTJL?=
+ =?utf-8?B?NVpnbHROVVoxSkR0WEJHaFNtMlZ6bjN0M0VrYVAxNHBrdEZTanhVTkRwdGFZ?=
+ =?utf-8?B?UnZZanllYm5KZlE3Wk5vZWtTTU5QR2FRbTdBc1dHbXdCK1VtWjd0NWJxSHJB?=
+ =?utf-8?B?TmI3My92Tkk1RlFGU0xPL3ZESStKbHg4V2lQdXNJQVFncU41cG03RC9mOWJ0?=
+ =?utf-8?B?eTJETzdUd3pOYmJuSzYzejZyUkpjcmp4THRJL2psc09Pdmp3RDBadmZ1VWU2?=
+ =?utf-8?Q?bzzIPKOGphECamk9BpKtxuvaWvyhjWXJ/1uvz9GwQhsj?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 76d02d69-742c-43c7-b28f-08dc9120a81b
+X-MS-Exchange-CrossTenant-AuthSource: BE1P281MB1906.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jun 2024 12:01:02.6343
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: BGv6yWeTgMjORodVHfkvcExgVaFyUVbzPK45vbYI/tkS1T+4QTfjKmb11LzqdwWO7NNUvami9WONKYn7s82cJA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR3P281MB2798
+X-TM-AS-ERS: 104.47.7.174-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.1.1026-28464.007
+X-TMASE-Result: 10--13.616700-4.000000
+X-TMASE-MatchedRID: 1GZI+iG+Mtf5ETspAEX/ngw4DIWv1jSVbU+XbFYs1xLmW9rYbVvp1J/T
+	ZXlvSm1gfyAq8UHkGKVQLud/xEUaYtpgSVqv58hZybaMhlRNDfDn0oaU6WM++12TMSYoqccgzWg
+	4ANw5W7AtPt+NTi5kUe2nTRTG/zl+JR2IjGwE8Ff6a0NEvI0IWhLkfOHvRgPiD25MJwZSrJTyOk
+	fTAk4hYnLmCj+bquxDUyV+BSI3dH4SG9fFHG6GrJGPSO6O5JCaA20dQxCGeLo+Jg7sQdznaPoY8
+	j1fcWGrDjdBvGLFPTOqidLUiUZwVn3ehwM//IdIqolsh7l9ctCjg0lrtKMWymtT/CJNcwXFCtR6
+	vnsndImN4P4XksxlVzv5gdvtdpzVWjsaYI4lh3VfbzE2lTRTc1y0sKK4iJ9cDi2wCPzLaSBDxHj
+	vuloxNaUVD4+2HcXr
+X-TMASE-XGENCLOUD: d21e5e63-e4ee-47f3-9835-5206d243aec7-0-0-200-0
+X-TM-Deliver-Signature: 27E6D8F9B18DA87B68EB745D6EE0B9A4
+X-TM-Addin-Auth: ZBLxCRJ+TEGTQXTg7ctOS2FT+AudRW1nFnppqQZNy56htp1asf4Y027eJl5
+	vNGSXFEMYPFM6eoQ3KT13j9mI/GitW243CspvfBeym3Qqd6oWzOwsnbE3EOvUCBH4zMrOaE99qx
+	GoO9SDGf8yDLcJGfn+y3iRAky6bKFaVbaAKFINp9i8ot5jJURQksoILktNr60mxLZsN/eRquISi
+	fv0L9lcXyvnxo4h34XKry+S+yUjF1cJf9LaoPkEGO9bXc6Za/mrD5h7O82vaZaL7YBsEKc8WPrL
+	LnHuHfa8xXT3D/A=.07X4nssfjZqm9Wz3DpGZEk7jzMxnPWqcL+hAEeTTgfXSG931ftTyS9Jdjr
+	2qQFdDnQSyw7L6AJkJap8Ii3WFK3Mqy8y6gOly7sQQ/NJDfV3tgEQ4QdnimoE5lWTaX8tJiPoH6
+	IcPjmcmvjtoOsAFLYZFxCjZSKdOYsPK+aIr1XA5ALJPsSLohfk2OyT/LiKtTFdiZXaF8iP+/yme
+	6Ubz1HLfH8ujK7Luzx6fKpHMKEqlD4Xh3KUZWVHkpufss1XP/qfbKDXOccFh1MB6LJMPttm7M+W
+	2Jgh/0wEDYTPxxHJjJdAhGQFI5OvW3N35aL45/OBBDjGpegKyyNT34mjH0A==
+X-TM-Addin-ProductCode: EMS
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+	s=TM-DKIM-20210503141657; t=1718884865;
+	bh=dYQ8c40brY8P1cnuVvGfvMzzVVZR8lVQzDZOZTE2mDI=; l=2040;
+	h=Date:From:To;
+	b=LdNdEYPh6ket7UodAG5jrQ2KtlgYq8TqI8SfoJwl2ZGnBitd1MPCJNveLIkyb3yLg
+	 LhQgo7PZtXHZLfTjg9TO+zumgk11tN8I06tXZF4IR6x+37AGTR3uB3KoeegG0xBZYI
+	 7Rp1f9Ij9RaOnZqsqXTuZA2+/myv90epHyn6FZUpsPVtcBTeSYBa4A0ZxbnLduTCTo
+	 NYxATFFBEuYXsfPlH04fpzYOPMzyY94dHwQzq/rB5c0XD/bQO/Ol2L517V4fzQuhxo
+	 1mo0ILUL1QMWaWasOQ800yGjLMX19UBUott+9pfbi2oUIHb2JOswQENHpg2O5vHJXe
+	 EcxRLdqPLkjoQ==
 
-On Thu, Jun 20, 2024 at 07:12:48PM +0800, Xuan Zhuo wrote:
-> On Thu, 20 Jun 2024 07:06:53 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Jun 20, 2024 at 06:43:30PM +0800, Xuan Zhuo wrote:
-> > > On Thu, 20 Jun 2024 06:15:08 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Thu, Jun 20, 2024 at 05:20:49PM +0800, Xuan Zhuo wrote:
-> > > > > On Thu, 20 Jun 2024 05:14:24 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > > On Thu, Jun 20, 2024 at 05:00:49PM +0800, Xuan Zhuo wrote:
-> > > > > > > > > @@ -226,21 +248,37 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
-> > > > > > > > >
-> > > > > > > > >  static inline
-> > > > > > > > >  int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-> > > > > > > > > -			struct virtqueue *vqs[], vq_callback_t *callbacks[],
-> > > > > > > > > -			const char * const names[],
-> > > > > > > > > -			struct irq_affinity *desc)
-> > > > > > > > > +		    struct virtqueue *vqs[], vq_callback_t *callbacks[],
-> > > > > > > > > +		    const char * const names[],
-> > > > > > > > > +		    struct irq_affinity *desc)
-> > > > > > > > >  {
-> > > > > > > > > -	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
-> > > > > > > > > +	struct virtio_vq_config cfg = {};
-> > > > > > > > > +
-> > > > > > > > > +	cfg.nvqs = nvqs;
-> > > > > > > > > +	cfg.vqs = vqs;
-> > > > > > > > > +	cfg.callbacks = callbacks;
-> > > > > > > > > +	cfg.names = (const char **)names;
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > Casting const away? Not safe.
-> > > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > > Because the vp_modern_create_avq() use the "const char *names[]",
-> > > > > > > and the virtio_uml.c changes the name in the subsequent commit, so
-> > > > > > > change the "names" inside the virtio_vq_config from "const char *const
-> > > > > > > *names" to "const char **names".
-> > > > > >
-> > > > > > I'm not sure I understand which commit you mean,
-> > > > > > and this kind of change needs to be documented, but it does not matter.
-> > > > > > Don't cast away const.
-> > > > >
-> > > > >
-> > > > > Do you mean change the virtio_find_vqs(), from
-> > > > > const char * const names[] to const char *names[].
-> > > > >
-> > > > > And update the caller?
-> > > > >
-> > > > > If we do not cast the const, we need to update all the caller to remove the
-> > > > > const.
-> > > > >
-> > > > > Right?
-> > > > >
-> > > > > Thanks.
-> > > >
-> > > >
-> > > > Just do not split the patchset at a boundary that makes you do that.
-> > > > If you are passing in an array from a const section then it
-> > > > has to be const and attempts to change it are a bad idea.
-> > >
-> > > Without this patch set:
-> > >
-> > > static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
-> > > 				     unsigned index, vq_callback_t *callback,
-> > > 				     const char *name, bool ctx)
-> > > {
-> > > 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
-> > > 	struct platform_device *pdev = vu_dev->pdev;
-> > > 	struct virtio_uml_vq_info *info;
-> > > 	struct virtqueue *vq;
-> > > 	int num = MAX_SUPPORTED_QUEUE_SIZE;
-> > > 	int rc;
-> > >
-> > > 	info = kzalloc(sizeof(*info), GFP_KERNEL);
-> > > 	if (!info) {
-> > > 		rc = -ENOMEM;
-> > > 		goto error_kzalloc;
-> > > 	}
-> > > ->	snprintf(info->name, sizeof(info->name), "%s.%d-%s", pdev->name,
-> > > 		 pdev->id, name);
-> > >
-> > > 	vq = vring_create_virtqueue(index, num, PAGE_SIZE, vdev, true, true,
-> > > 				    ctx, vu_notify, callback, info->name);
-> > >
-> > >
-> > > The name is changed by vu_setup_vq().
-> > > If we want to pass names to
-> > > virtio ring, the names must not be  "const char * const"
-> > >
-> > > And the admin queue of pci do the same thing.
-> > >
-> > > And I think you are right, we should not cast the const.
-> > > So we have to remove the "const" from the source.
-> > > And I checked the source code, if we remove the "const", I think
-> > > that makes sense.
-> > >
-> > > Thanks.
-> >
-> > /facepalm
-> >
-> > This is a different const.
-> >
-> >
-> > There should be no need to drop the annotation, core
-> > does not change these things and using const helps make
-> > sure that is the case.
+On 15.06.24 10:01, David Woodhouse wrote:
+> On Mon, 2023-12-18 at 08:38 +0100, Peter Hilber wrote:
+>>
+>> +       ret = viortc_hw_xtstamp_params(&hw_counter, &cs_id);
+>> +       if (ret)
+>> +               return ret;
+>> +
+>> +       ktime_get_snapshot(&history_begin);
+>> +       if (history_begin.cs_id != cs_id)
+>> +               return -EOPNOTSUPP;
 > 
-> 
-> If you do not like this, the left only way is to allocate new
-> memory to store the info, if the caller do not change.
-> 
-> In the further, maybe the caller can use the follow struct directly.
-> 
-> struct virtio_vq_config {
->  	vq_callback_t      callback;
->  	const char         *name;
->  	const bool          ctx;
-> };
-> 
-> For now, we can allocate memory to change the arrays (names, callbacks..)
-> to the array of struct virtio_vq_config.
-> 
-> And the find_vqs() accepts the array of struct virtio_vq_config.
-> 
-> How about this?
-> 
-> Thanks.
+> I think you have to call ktime_get_snapshot() anyway to get a snapshot
+> from before your crosststamp? But I still don't much like the fact that
+> you need to use it to work out which cs_id is being used.
 
+The actual cs_id check is in get_device_system_crosststamp(), where it was
+added recently [1]. So this additional check is just verifying that the
+history_begin is usable.
 
-Basically I am not sure how bad a single big patch would be.
+> 
+> Shouldn't get_device_system_crosststamp() pass that to its get_time_fn
+> as a hint?
 
+This is unneeded in this case, since get_device_system_crosststamp() does
+the check already (but the driver is free to pass it through the
+get_time_fn parameter ctx).
 
-> >
-> >
-> >
-> > >
-> > >
-> > > >
-> > > >
-> > > > > >
-> > > > > > --
-> > > > > > MST
-> > > > > >
-> > > >
-> >
+> 
+> On x86, you are likely to find that history_begin.cs_id is the KVM
+> clock, so this will return -EOPNOTSUPP and userspace will have to fall
+> back to PTP_SYS_OFFSET. I note the KVM PTP clock actually *converts* a
+> TSC-based crosststamp to kvmclock µs for itself, so that it can report 
+> *cs_id = CSID_X86_KVM_CLK. Not sure how I feel about that though. I'm
+> inclined to suggest that it shouldn't, as anyone who wants accurate
+> timekeeping shouldn't be using the KVM clock anyway.
+> 
+> But we should at least be relatively consistent about it.
 
+ATM, the driver does indeed not have TSC support (for cross-timestamping)
+enabled at all, so would always use fallback. If *not* using the KVM clock,
+I think TSC can just be enabled by adding architecture-specific code
+similar to virtio_rtc_arm.c.
+
+I am not familiar with the KVM clock, but maybe it would be sufficient to
+allow CSID_X86_KVM_CLK as well?
+
+Thanks for the comments,
+
+Peter
+
+[1] https://git.kernel.org/torvalds/c/4b7f521229ef
