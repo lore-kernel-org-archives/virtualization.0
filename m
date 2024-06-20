@@ -1,183 +1,163 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B72901A8C0D
-	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 10:11:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21D851A8C19
+	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 10:15:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718878312; cv=none; b=ljVEGfctLbxbmQBz6C1yyadREPOoPXBRh9vcUd7ompjOLqh8lBaccL9N4g/b1dUuToEE3qfUv132X1fr16/7pVfC3wNbClNmP8bgw2OUypqabhYsgljxz2uxkdWHdRiwONb7sBzbTVGWNzk2e/y522LyWRPN3hc2yBGyVNUOhgE=
+	t=1718878522; cv=none; b=t+Mgy6Rn/FumJOZQ2Ac5kV4XH+nsWZmlM0jlkmWagu4d/H1phhalAlMTiOIswpwTS94itDG4aStOeC1v7rBXT2YSb2NnzrBBgGx9SlOYrUoRBglgeqRsdh4+mURrLDXEPFNsVrKuIE9Jug5cO0JCs3rLNV6j49wjyi4/VjxX6AE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718878312; c=relaxed/simple;
-	bh=jkzmF9Xid2aLr4XKEkzyb59+U1OT5X9+7JdCqgQaXoM=;
+	s=arc-20240116; t=1718878522; c=relaxed/simple;
+	bh=KT+gmGxmqPGTmSPB6Wmg2kppdu71XosMa8bHRQqSGhA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=bRC805KP5Jo8q6DNOBX45sCUidYTUF67LOYruMSNGr2HEjtG5gdBqilh/4sAnY5Hk/mobfyHcxJIn3H6ljty3I5lpK5tg3dBz16q+uzGWMsDl3vy+p/HL84r6YipR+osx4H6JIvFGgFoluTmWH7kl9Oqb8/D7cRJkABVzsqbhWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IbiDDaYN; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=kciMB+nOCyR7mHDjLQMLo9Z2F9lOloEOFpX3hWI1221XQbsB++tTHBcRvsHE8XakgXJDm1TyyHZDVzznfxEW1u30fs7DV9xHMBOx+E4x3IdA6A+pVgrCaL3qCh1I9iLwk5uAD5c747qbE4f857q2VSxIC/Zhtcxmu51ZV/7npKw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i120p/Vo; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IbiDDaYN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i120p/Vo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718878309;
+	s=mimecast20190719; t=1718878520;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=+Kw9HM3KamhLERa2K67DAsy/gvS+yu9Tp59autjb6IE=;
-	b=IbiDDaYNUFfBFVRnXFfFbkqQVCsomhj9jkhJSfvG12Gt8nnHcv5kc6NWbaUt+9BDqUPU7J
-	d/oeYpjCMaumItp9J3vCffdi0+C03YTRYNQtwf7150f6XgDP2ZzrFNfUI71DQwP/8XuAgV
-	Mzd359Vn8lYVMKTXlW1KsFSEkJr+SM4=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=F5cLrcBZuYCEeePJIc62tRcAqhOXIeLud2uXAMK36HI=;
+	b=i120p/Vozmlw858WapVhOKadWR17dk4eAyAMv/Tqge5SqHO6Ij3r9O+nV6uVralvkxijTt
+	Ryh68VfIk1KIBnAxLrVREg3qXpUvsvXn5mFM7pISgcsQeHLwAhXbyUVRNJ/vc3rm3S96zF
+	b/7ygKnF4JwKOEtieYHV/09/MKi9zUM=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-575-qtwtKhrnO0OxHvnqtqi8fA-1; Thu, 20 Jun 2024 06:11:48 -0400
-X-MC-Unique: qtwtKhrnO0OxHvnqtqi8fA-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a6f4a6537f7so28205166b.3
-        for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 03:11:48 -0700 (PDT)
+ us-mta-681-PEdR8bmWMOOqKEOzR_fSxg-1; Thu, 20 Jun 2024 06:15:17 -0400
+X-MC-Unique: PEdR8bmWMOOqKEOzR_fSxg-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a6ef7afd90aso34525166b.2
+        for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 03:15:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718878307; x=1719483107;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+Kw9HM3KamhLERa2K67DAsy/gvS+yu9Tp59autjb6IE=;
-        b=Ue5xThaJBVPz6g8J4RMXgwkKkO+teGA5DH8CgHsRPhYWtu8rh0LfobjJcPb5WMJSjL
-         Gzx9hPTY08zmiVbtPJk24mAsSuiNqePtX+4ZjVdTgmldECqUvHazLFq44igJAugjz/2F
-         MvKSAVFgCUp5MqxhYqbov51TJB2a8qEmieH2yKGnpgzU8k+Z4+AuDN9tk6QAJmuCfwh2
-         m5PGHX2kejK2q+o7ksCb7zOZzzbXkQr1BsHxJ8kjHsitj2TrDGADVJg9/ayutFLbnm+m
-         /jDLQ2WZOJzqdjULTcuUH/DCvY1T9VPJ6NBiVwi422JemiEmSBW+aiLngiZAWjz5GUd4
-         HbgA==
-X-Forwarded-Encrypted: i=1; AJvYcCVc9zaLsIKHuviVTrMAJbJsXkUBgW/NI/2/ku4ekkWAvuD88lu5hUVQIM2eHfu2c1VjsiOp4MFgnOOuzSJyrCDE87kCr2YELULh1cf8IJo=
-X-Gm-Message-State: AOJu0YzR1mDgewMY0rClGa5b9qhQKdVf4tQ0f1ciC6YFjkSyZxLinMyB
-	0o7wdW9LYtmN/wRRudENjcGACBwL9ZZfUztEzC+V8vyRaMRkpnLuShnJXsYO0neq4hP9FftYwND
-	zfjiLEDLev9xHlo72ANms1bsUfS+QNSTMWvka58OqzEHFao2SWS7eL1OYzP+mtTJ2
-X-Received: by 2002:a17:906:d78f:b0:a6f:6803:57ef with SMTP id a640c23a62f3a-a6fab62f55cmr273264066b.27.1718878307083;
-        Thu, 20 Jun 2024 03:11:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE9pVkXEno8kTNO8OIeoExPEgy/WSM127G9iCS2Rxcoh4npb4ENAfV+o2MIA0vOkVnV9bbxlQ==
-X-Received: by 2002:a17:906:d78f:b0:a6f:6803:57ef with SMTP id a640c23a62f3a-a6fab62f55cmr273259766b.27.1718878306146;
-        Thu, 20 Jun 2024 03:11:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1718878516; x=1719483316;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=F5cLrcBZuYCEeePJIc62tRcAqhOXIeLud2uXAMK36HI=;
+        b=oxy3ThunvdO0ELbxRAO27da1GbYBQRZJaH37FULNTjuBX2nhFTrsHAihqO/OjAw7QW
+         eTxKPK2HwysxbLtDp+sK+KbEwXNUnvKZZKRE+X3XnljXvvAX1wvn2dBT4hhiDQsqImGw
+         2nOZ0925o5UWknRQ2NaCpcSIkjnKvwR59g2ORrIennMN+Xvg9PS9KDXw0N/x+oRXRel7
+         oKN9cH2dBa9EMwZ2vbqF1uuTYbziYkYRCadvmZFoT/8/HbYo5msJIhO7A/BONIIGKsSX
+         ORtdAL81QyNdwhWsAw7nRRy0Pz20viE/iOvT6xtLJ/QZzlb3dPyqyBK1u+v/209mMkk/
+         AEcQ==
+X-Gm-Message-State: AOJu0Ywyyr9oEiLskoXWqb0ReFXcyNTf4g3zVpzlK28At5BX2wB8poQ5
+	6EyQLSjZ+ms4hZonRz9vVKuCa/nOmeANsVHT0nxJc0sVTYP2kJHKXoLmrmjpOE14kwwAm/8n7bP
+	XDqO4pMz/pVPiADR54kUxLMGQg+cA3wjuDSNxuwIaJlqN1HMnfFNXczVCs/G7FKXh
+X-Received: by 2002:a17:907:2d08:b0:a6f:501d:c229 with SMTP id a640c23a62f3a-a6fab60ba19mr339712866b.9.1718878515671;
+        Thu, 20 Jun 2024 03:15:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGLolJ3t9kBt/FV6CSCM4Ryf1U+wjtgY8UpBQflIEZZb/4e3FwGJgSy2Bl6IqLXHgvitjoz1Q==
+X-Received: by 2002:a17:907:2d08:b0:a6f:501d:c229 with SMTP id a640c23a62f3a-a6fab60ba19mr339707566b.9.1718878514780;
+        Thu, 20 Jun 2024 03:15:14 -0700 (PDT)
 Received: from redhat.com ([2.52.146.100])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a6f7c12f7c0sm461085866b.198.2024.06.20.03.11.43
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a6f56f41a7asm750071366b.159.2024.06.20.03.15.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jun 2024 03:11:45 -0700 (PDT)
-Date: Thu, 20 Jun 2024 06:11:40 -0400
+        Thu, 20 Jun 2024 03:15:14 -0700 (PDT)
+Date: Thu, 20 Jun 2024 06:15:08 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
-Message-ID: <20240620061109-mutt-send-email-mst@kernel.org>
-References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
- <20240619161908.82348-3-hengqi@linux.alibaba.com>
- <20240619171708-mutt-send-email-mst@kernel.org>
- <1718868555.2701075-5-hengqi@linux.alibaba.com>
- <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
- <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
- <1718877195.0503237-9-hengqi@linux.alibaba.com>
- <20240620060816-mutt-send-email-mst@kernel.org>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH vhost v9 3/6] virtio: find_vqs: pass struct instead of
+ multi parameters
+Message-ID: <20240620061202-mutt-send-email-mst@kernel.org>
+References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+ <20240424091533.86949-4-xuanzhuo@linux.alibaba.com>
+ <20240620034823-mutt-send-email-mst@kernel.org>
+ <1718874049.457552-1-xuanzhuo@linux.alibaba.com>
+ <20240620050545-mutt-send-email-mst@kernel.org>
+ <1718875249.1787696-3-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240620060816-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1718875249.1787696-3-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
-> On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
-> > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > > On Thu, Jun 20, 2024 at 4:21 PM Jason Wang <jasowang@redhat.com> wrote:
-> > > >
-> > > > On Thu, Jun 20, 2024 at 3:35 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+On Thu, Jun 20, 2024 at 05:20:49PM +0800, Xuan Zhuo wrote:
+> On Thu, 20 Jun 2024 05:14:24 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Thu, Jun 20, 2024 at 05:00:49PM +0800, Xuan Zhuo wrote:
+> > > > > @@ -226,21 +248,37 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
 > > > > >
-> > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
-> > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > > > > > >
-> > > > > > >     /* Parameters for control virtqueue, if any */
-> > > > > > >     if (vi->has_cvq) {
-> > > > > > > -           callbacks[total_vqs - 1] = NULL;
-> > > > > > > +           callbacks[total_vqs - 1] = virtnet_cvq_done;
-> > > > > > >             names[total_vqs - 1] = "control";
-> > > > > > >     }
-> > > > > > >
-> > > > > >
-> > > > > > If the # of MSIX vectors is exactly for data path VQs,
-> > > > > > this will cause irq sharing between VQs which will degrade
-> > > > > > performance significantly.
-> > > > > >
+> > > > >  static inline
+> > > > >  int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+> > > > > -			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+> > > > > -			const char * const names[],
+> > > > > -			struct irq_affinity *desc)
+> > > > > +		    struct virtqueue *vqs[], vq_callback_t *callbacks[],
+> > > > > +		    const char * const names[],
+> > > > > +		    struct irq_affinity *desc)
+> > > > >  {
+> > > > > -	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
+> > > > > +	struct virtio_vq_config cfg = {};
+> > > > > +
+> > > > > +	cfg.nvqs = nvqs;
+> > > > > +	cfg.vqs = vqs;
+> > > > > +	cfg.callbacks = callbacks;
+> > > > > +	cfg.names = (const char **)names;
 > > > >
-> > > > Why do we need to care about buggy management? I think libvirt has
-> > > > been teached to use 2N+2 since the introduction of the multiqueue[1].
-> > > 
-> > > And Qemu can calculate it correctly automatically since:
-> > > 
-> > > commit 51a81a2118df0c70988f00d61647da9e298483a4
-> > > Author: Jason Wang <jasowang@redhat.com>
-> > > Date:   Mon Mar 8 12:49:19 2021 +0800
-> > > 
-> > >     virtio-net: calculating proper msix vectors on init
-> > > 
-> > >     Currently, the default msix vectors for virtio-net-pci is 3 which is
-> > >     obvious not suitable for multiqueue guest, so we depends on the user
-> > >     or management tools to pass a correct vectors parameter. In fact, we
-> > >     can simplifying this by calculating the number of vectors on realize.
-> > > 
-> > >     Consider we have N queues, the number of vectors needed is 2*N + 2
-> > >     (#queue pairs + plus one config interrupt and control vq). We didn't
-> > >     check whether or not host support control vq because it was added
-> > >     unconditionally by qemu to avoid breaking legacy guests such as Minix.
-> > > 
-> > >     Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com
-> > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > 
-> > Yes, devices designed according to the spec need to reserve an interrupt
-> > vector for ctrlq. So, Michael, do we want to be compatible with buggy devices?
-> > 
-> > Thanks.
+> > > >
+> > > > Casting const away? Not safe.
+> > >
+> > >
+> > >
+> > > Because the vp_modern_create_avq() use the "const char *names[]",
+> > > and the virtio_uml.c changes the name in the subsequent commit, so
+> > > change the "names" inside the virtio_vq_config from "const char *const
+> > > *names" to "const char **names".
+> >
+> > I'm not sure I understand which commit you mean,
+> > and this kind of change needs to be documented, but it does not matter.
+> > Don't cast away const.
 > 
-> These aren't buggy, the spec allows this. So don't fail, but
-> I'm fine with using polling if not enough vectors.
+> 
+> Do you mean change the virtio_find_vqs(), from
+> const char * const names[] to const char *names[].
+> 
+> And update the caller?
+> 
+> If we do not cast the const, we need to update all the caller to remove the
+> const.
+> 
+> Right?
+> 
+> Thanks.
 
-sharing with config interrupt is easier code-wise though, FWIW -
-we don't need to maintain two code-paths.
 
-> > > 
-> > > Thanks
-> > > 
-> > > >
-> > > > > > So no, you can not just do it unconditionally.
-> > > > > >
-> > > > > > The correct fix probably requires virtio core/API extensions.
-> > > > >
-> > > > > If the introduction of cvq irq causes interrupts to become shared, then
-> > > > > ctrlq need to fall back to polling mode and keep the status quo.
-> > > >
-> > > > Having to path sounds a burden.
-> > > >
-> > > > >
-> > > > > Thanks.
-> > > > >
-> > > >
-> > > >
-> > > > Thanks
-> > > >
-> > > > [1] https://www.linux-kvm.org/page/Multiqueue
-> > > >
-> > > > > >
-> > > > > > --
-> > > > > > MST
-> > > > > >
-> > > > >
-> > > 
+Just do not split the patchset at a boundary that makes you do that.
+If you are passing in an array from a const section then it
+has to be const and attempts to change it are a bad idea.
+
+
+> >
+> > --
+> > MST
+> >
 
