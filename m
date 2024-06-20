@@ -1,59 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30E4C1AB91B;
-	Thu, 20 Jun 2024 14:11:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D916C1E48B;
+	Thu, 20 Jun 2024 14:20:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718892662; cv=none; b=EPkl7qIAPlE0aTOMUWUsOVf/qvUCMJOhu9qFfXLBPUTmiImlEuKLyZh3lLYCkwYMgN6jGn5d+jPxZH82KW5/9+uT353JOJOP9tfbD2dj5dPjVxYQPKdjdpXeDdLEFSJKKMlEtyQe2KO0R3Y1Rz0WLNop8SrfK+AzQBf6Qo33Bq8=
+	t=1718893230; cv=none; b=k8Jx9vhs6eI3CDRMvnH2QrTkNhaCEcU8BHn8UdqvCwCpL/92Yvn0VRZW4G9bhOqeshirobCQC6zbWe5TSl+3Ol3c6B8RHGl121ShaiWXyYBF/YxgZ0f0Suab81/iRPjfpZ0V5UsEcEjLfdKEjiVabIaaa5HJCgk6diL3V0IZLbw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718892662; c=relaxed/simple;
-	bh=aW+XK4t/S2Wp+P0aaahubszuXaeo7UPV6ZebItanu7g=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AExZf9hi65cIkVcFg7zXtMimRXJX1kicnPWGjO6kvKf0uEk8X131jVZZ12sMG01VIBUvoo+JG8yXwdBG11VD2eo3ZRcZ5UO8zP4XE0rs9AvTQw6Je5M5KPP9QlfgHn+qiocmCEJJWUWSnga1y77vPo7WDIPtN9NytlRPPXIPVAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rsLLcnH5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1718893230; c=relaxed/simple;
+	bh=i0oBbz9+0HtZfagyCCJ6k91AeQdrU8fUCiWr14XCJ2Y=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=TTg2RoiEIBXUChojTEsI/USKcsYUl4hU4FhI3E0aL0oYrsLwkGC9ItUELVymlp8vrwXHF386OQOECrXGRsqixFF6LGD4ahzAuSJSGukW8J4fCoRMeAKyr3fpqvv1qUwLiZwnDdv5bx6/Q32TFIg+41QT9pIvilWMNJyIZW2UsQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LhbCmsiH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rsLLcnH5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32244C2BD10;
-	Thu, 20 Jun 2024 14:11:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LhbCmsiH"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9F02EC4AF07;
+	Thu, 20 Jun 2024 14:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718892661;
-	bh=aW+XK4t/S2Wp+P0aaahubszuXaeo7UPV6ZebItanu7g=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=rsLLcnH5OgosSXeWf6oP6ICY4h+X4IUMR1Dkel1FMXf/lsRsfUhUgIgV/iexyep3R
-	 AtvrdNZi78Fsz5CctvOSv3yq4uOitTlVZl863e0Gc2P8LrdLLKCsS+6xB4kIGnenXY
-	 Pi9BHPi6EhJxY3WZpkTeSzDn4/OK0RjkCET/+CbH/azfKnADeUJMs9Fk6fAQLzwyfK
-	 lwCrieWb96oxt02GIX363WpkJXE83JechaAHSI8C+Pw7ax9Vb+ONjRImVRmUm/gFOw
-	 G9f4t6lJplXugiag4awxGRmU/HRyYjzx5FfZDg0cE+tNSrXVKfGhXsZ8DqQwezE+i+
-	 e8NTLw1ENcghw==
-Date: Thu, 20 Jun 2024 07:11:00 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: netdev@vger.kernel.org, matttbe@kernel.org, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- shuah@kernel.org, petrm@nvidia.com, pabeni@redhat.com,
- linux-kselftest@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH net] selftests: virtio_net: add forgotten config options
-Message-ID: <20240620071100.2dc3d75d@kernel.org>
-In-Reply-To: <20240619061748.1869404-1-jiri@resnulli.us>
-References: <20240619061748.1869404-1-jiri@resnulli.us>
+	s=k20201202; t=1718893229;
+	bh=i0oBbz9+0HtZfagyCCJ6k91AeQdrU8fUCiWr14XCJ2Y=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=LhbCmsiHU0AhhgZ3d6zcJk4wOD91wrlQfIxBCtgAn927gz2bXnJyXt3AW1LDjZ1Ke
+	 vb+rsx330fxK7p9S0gI4EdaM4MzFwuG9h2YwAvvweWAbj4Bcd6WzsXej8JxzXrzIqz
+	 9LMkoD8EWBlyWFZcbawahuqi6eTMEGF4/l2+helLot8nqkVFBTSZJScrAwZvEf/A73
+	 PFXMdhfSPUbbK6OOss/t5Iy3nXNDvyaJNEHcRHqOVltdUhUW7+6ca0Pm+ZwAg0SjLZ
+	 xw8lYEjVp4IcLvmg8bn3y/rtJ5e7qY2o6GEHG2jSYp8/t294w6vMcMhIppQCSbSEPx
+	 cbyP17GhLYDyQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 8DB67C4166F;
+	Thu, 20 Jun 2024 14:20:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] selftests: virtio_net: add forgotten config options
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171889322957.30997.16779069029833021252.git-patchwork-notify@kernel.org>
+Date: Thu, 20 Jun 2024 14:20:29 +0000
+References: <20240619061748.1869404-1-jiri@resnulli.us>
+In-Reply-To: <20240619061748.1869404-1-jiri@resnulli.us>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, matttbe@kernel.org,
+ mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, shuah@kernel.org, petrm@nvidia.com, pabeni@redhat.com,
+ linux-kselftest@vger.kernel.org, virtualization@lists.linux.dev
 
-On Wed, 19 Jun 2024 08:17:48 +0200 Jiri Pirko wrote:
->  CONFIG_VIRTIO_NET=y
->  CONFIG_VIRTIO_DEBUG=y
-> +CONFIG_NET_L3_MASTER_DEV=y
-> +CONFIG_IPV6_MULTIPLE_TABLES=y
-> +CONFIG_NET_VRF=m
-> +CONFIG_BPF_SYSCALL=y
-> +CONFIG_CGROUP_BPF=y
-> +CONFIG_IPV6=y
+Hello:
 
-I sorted them alphabetically when applying, hope you don't mind.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Wed, 19 Jun 2024 08:17:48 +0200 you wrote:
+> From: Jiri Pirko <jiri@nvidia.com>
+> 
+> One may use tools/testing/selftests/drivers/net/virtio_net/config
+> for example for vng build command like this one:
+> $ vng -v -b -f tools/testing/selftests/drivers/net/virtio_net/config
+> 
+> In that case, the needed kernel config options are not turned on.
+> Add the missed kernel config options.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] selftests: virtio_net: add forgotten config options
+    https://git.kernel.org/netdev/net/c/48dea8f7bb01
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
