@@ -1,174 +1,119 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EC9417CA1B
-	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 10:33:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 579FE2594
+	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 10:37:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718879612; cv=none; b=mV5kL+5BH/bpAWkAeLjc73pR/NyO3sl2Zo+g1lyTl27EjN1pxtTarl8jt2c1nZvMCq8c67yc3w9bTIhOhjVBNx1Xha9yJoamSakBVbXLdSdqhyDdNR03rtC+NGfUvTRk9usaMrb75Fg/vRn5xwX92u3gr3sBEMMLeg0EjpBFqWE=
+	t=1718879862; cv=none; b=Z+pihccNpZRs2xxOJwdZeNFnrY2jMwmFb09X44S+32tUBY6Apjccv9jn6k+cbCUYpxjk9V/drhl75eHN/WH3vUEf8iSzF7PC1EMnyBxwEOhxYsvuiVNBvjfWZb0eJ/t8IGxewsmCLcbBoM2E4uoYXj38fPmcjhqDOMcVcBBwIkY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718879612; c=relaxed/simple;
-	bh=lwjRdInxaz+BwwfNopbOTAclyOjdeOWa2bzPsTLxyzU=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=MTPcuexS79xP7Ts3YctR2BaXeE8+rrpFSZYaTrE7r8vJqn81RuH9y+gnugbOQ5EDfxj0Dm1fPUkv3VnEdKO4mio5hq8PU2dVk2mDnCvAJpRimKbQm7++P3pw5i6e4Xn8bhz6knueyk9Gfu7UW6WOa1gvecgUkXtjp4iXpEYEyf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HyAMYTS+; arc=none smtp.client-ip=115.124.30.98
+	s=arc-20240116; t=1718879862; c=relaxed/simple;
+	bh=6aDztqjSTnaUeyltlCrlvYeHxUXqJDK5o3/xDHh0avg=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=kBZ3XOQSOgEivsvRXEoH93YLcGnliW0+HWdLPm+Z6Ij20TLiy4lh79j7ay5ocPQKbxHtBDEYANzveqco8FVjpOj6R5SE7PypUG6QQtLlWuY52phkaYMGJwpJdFfgzE/03JHZBuc6IVS+DJ4qiVU5brSYWCMm7nB+ac9UmVrv3YU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ld3rbAwk; arc=none smtp.client-ip=115.124.30.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HyAMYTS+"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ld3rbAwk"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718879607; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=Mga/fS+X7ChpebY6EN4dcVxyUcm7HRc2D3toPbZ37ig=;
-	b=HyAMYTS+F7AYBIZpg907+cdtpJkmrYR1/4lUJdGdQSuQbZWkmkh14OirTnt0vJKqwq8bst5eB+KUpJluYKZ/xOvXiNO+Nk9j2jNaKvkmp9jj8a3nrE44qOkHIxHHbKvaFYzu5sqD27mYewxek0TWLGH+usyALsSktLegQYoo0RY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W8s9a-Z_1718879606;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8s9a-Z_1718879606)
+	t=1718879857; h=Message-ID:Subject:Date:From:To;
+	bh=VqYPr1Mqwxx2tXIhyczp5dCPFE4y5M+KHrE+laJzF9c=;
+	b=ld3rbAwkF23bgMEtdED3uEtjjMZ/UptHQZljvKK8jPV4Low7NYjKUvZp4mLslYh3W6PbzcbTWju1RLiVwf2c+YTXto+4w0dz/BcHd9TdkPSEgDcvdVePctAHV61b1IZ1jR0TW1scqr+BqEOCCz9BiUZ45F7CsTf72P85jhXwfos=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8s8VNH_1718879855;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8s8VNH_1718879855)
           by smtp.aliyun-inc.com;
-          Thu, 20 Jun 2024 18:33:26 +0800
-Message-ID: <1718879494.952194-11-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
-Date: Thu, 20 Jun 2024 18:31:34 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+          Thu, 20 Jun 2024 18:37:36 +0800
+Message-ID: <1718879832.544193-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 07/10] virtio_net: xsk: rx: support fill with xsk buffer
+Date: Thu, 20 Jun 2024 18:37:12 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
  =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
  "David S. Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
- <20240619161908.82348-3-hengqi@linux.alibaba.com>
- <20240619171708-mutt-send-email-mst@kernel.org>
- <1718868555.2701075-5-hengqi@linux.alibaba.com>
- <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
- <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
- <1718877195.0503237-9-hengqi@linux.alibaba.com>
- <20240620060816-mutt-send-email-mst@kernel.org>
- <20240620061109-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240620061109-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux.dev,
+ bpf@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20240618075643.24867-1-xuanzhuo@linux.alibaba.com>
+ <20240618075643.24867-8-xuanzhuo@linux.alibaba.com>
+ <3554649e61063491cc3a04222c7dff68d46c2f99.camel@redhat.com>
+In-Reply-To: <3554649e61063491cc3a04222c7dff68d46c2f99.camel@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Thu, 20 Jun 2024 06:11:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> w=
-rote:
-> On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
-> > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
-> > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Thu, Jun 20, 2024 at 4:21=E2=80=AFPM Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > >
-> > > > > On Thu, Jun 20, 2024 at 3:35=E2=80=AFPM Heng Qi <hengqi@linux.ali=
-baba.com> wrote:
-> > > > > >
-> > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@r=
-edhat.com> wrote:
-> > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
-> > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct vi=
-rtnet_info *vi)
-> > > > > > > >
-> > > > > > > >     /* Parameters for control virtqueue, if any */
-> > > > > > > >     if (vi->has_cvq) {
-> > > > > > > > -           callbacks[total_vqs - 1] =3D NULL;
-> > > > > > > > +           callbacks[total_vqs - 1] =3D virtnet_cvq_done;
-> > > > > > > >             names[total_vqs - 1] =3D "control";
-> > > > > > > >     }
-> > > > > > > >
-> > > > > > >
-> > > > > > > If the # of MSIX vectors is exactly for data path VQs,
-> > > > > > > this will cause irq sharing between VQs which will degrade
-> > > > > > > performance significantly.
-> > > > > > >
-> > > > >
-> > > > > Why do we need to care about buggy management? I think libvirt has
-> > > > > been teached to use 2N+2 since the introduction of the multiqueue=
-[1].
-> > > >=20
-> > > > And Qemu can calculate it correctly automatically since:
-> > > >=20
-> > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
-> > > > Author: Jason Wang <jasowang@redhat.com>
-> > > > Date:   Mon Mar 8 12:49:19 2021 +0800
-> > > >=20
-> > > >     virtio-net: calculating proper msix vectors on init
-> > > >=20
-> > > >     Currently, the default msix vectors for virtio-net-pci is 3 whi=
-ch is
-> > > >     obvious not suitable for multiqueue guest, so we depends on the=
- user
-> > > >     or management tools to pass a correct vectors parameter. In fac=
-t, we
-> > > >     can simplifying this by calculating the number of vectors on re=
-alize.
-> > > >=20
-> > > >     Consider we have N queues, the number of vectors needed is 2*N =
-+ 2
-> > > >     (#queue pairs + plus one config interrupt and control vq). We d=
-idn't
-> > > >     check whether or not host support control vq because it was add=
-ed
-> > > >     unconditionally by qemu to avoid breaking legacy guests such as=
- Minix.
-> > > >=20
-> > > >     Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@redhat.com
-> > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > >=20
-> > > Yes, devices designed according to the spec need to reserve an interr=
-upt
-> > > vector for ctrlq. So, Michael, do we want to be compatible with buggy=
- devices?
-> > >=20
-> > > Thanks.
-> >=20
-> > These aren't buggy, the spec allows this. So don't fail, but
-> > I'm fine with using polling if not enough vectors.
->=20
-> sharing with config interrupt is easier code-wise though, FWIW -
-> we don't need to maintain two code-paths.
+On Thu, 20 Jun 2024 12:20:44 +0200, Paolo Abeni <pabeni@redhat.com> wrote:
+> Hi,
+>
+> On Tue, 2024-06-18 at 15:56 +0800, Xuan Zhuo wrote:
+> > @@ -1032,6 +1034,53 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+> >  	}
+> >  }
+> >
+> > +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
+> > +{
+> > +	sg->dma_address = addr;
+> > +	sg->length = len;
+> > +}
+> > +
+> > +static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue *rq,
+> > +				   struct xsk_buff_pool *pool, gfp_t gfp)
+> > +{
+> > +	struct xdp_buff **xsk_buffs;
+> > +	dma_addr_t addr;
+> > +	u32 len, i;
+> > +	int err = 0;
+>
+> Minor nit: the reverse xmas tree order is based on the full line len,
+> should be:
+> 	int err = 0;
+> 	u32 len, i;
 
-Yes, it works well - config change irq is used less before - and will not f=
-ail.
+Will fix.
+
+>
+> [...]
+> > @@ -2226,6 +2281,7 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+> >  		u64_stats_update_end_irqrestore(&rq->stats.syncp, flags);
+> >  	}
+> >
+> > +	oom = err == -ENOMEM;
+> >  	return !oom;
+>
+> Minor nit: 'oom' is used only in the above to lines. You could drop
+> such variable and just:
+> 	return err != -ENOMEM;
+
+Will fix.
+
+>
+> Please _do not_ repost just for the above, but please include such
+> changes if you should repost for other reasons.
+
+OK.
+
+
+>
+> Also try to include a detailed changelog in each patch after the tag
+> area and a '---' separator, it will simplify the review process.
+
+Will do.
 
 Thanks.
 
->=20
-> > > >=20
-> > > > Thanks
-> > > >=20
-> > > > >
-> > > > > > > So no, you can not just do it unconditionally.
-> > > > > > >
-> > > > > > > The correct fix probably requires virtio core/API extensions.
-> > > > > >
-> > > > > > If the introduction of cvq irq causes interrupts to become shar=
-ed, then
-> > > > > > ctrlq need to fall back to polling mode and keep the status quo.
-> > > > >
-> > > > > Having to path sounds a burden.
-> > > > >
-> > > > > >
-> > > > > > Thanks.
-> > > > > >
-> > > > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > [1] https://www.linux-kvm.org/page/Multiqueue
-> > > > >
-> > > > > > >
-> > > > > > > --
-> > > > > > > MST
-> > > > > > >
-> > > > > >
-> > > >=20
->=20
+
+>
+> Thanks,
+>
+> Paolo
+>
