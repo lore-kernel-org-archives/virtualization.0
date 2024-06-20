@@ -1,207 +1,94 @@
 Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D09702C694
-	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 10:54:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93FD82C694
+	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 10:55:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718880844; cv=none; b=RSeHClDostKGhfx8mNFZTjmUzHVJ7pV8TGJ699djx12VZyzFziF5xv3bbbug6ZNs02HGTmhrdLlQQcykTqXTEhnPEIUloGunQ23AXpG5yX7bmDYaT7t+7/mvV4ZZ/3YKFUo2eig5OldQ6cmRhVQBEDVNGLIzx0iDmizjGIUFSU0=
+	t=1718880912; cv=none; b=YOEdFOEVEPy0jkMMPDwmyPElYNGeZAm+lotax4/BQwphAl7DcArda49+FLy8fF3jwuBrGZsYiOB3GtpJ9uBjB4TzNGX3xRGw6HY0Tou9I63R3HdS7T264M83G79KmFxu+DNuuTSZQBaezhkpeRaeP/43OwfTRq1z+Mc4A/S/wtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718880844; c=relaxed/simple;
-	bh=UruHWUQ5O8MYClPNIYZaA1YtVIMIggmoUzcTqSnUq/c=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=du0p9PpCQqqtMjUgXPzy1dQ4d4Qa9rSw73TLCn5QvTlXkXD82AqHCz4cXnKt73WdKL45kRJkMoxh0xwI879/iLowYZvDJcHQhfiHpo0lmvpZxrK/HVnowULr0KI69ttsmpX0dgv/dLSzOcbMUgX9G9b3bZB+i8XH3M+KU1JdQNo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=V+Oa14Ig; arc=none smtp.client-ip=115.124.30.113
+	s=arc-20240116; t=1718880912; c=relaxed/simple;
+	bh=kROW9RQ/mhmEg14a8RjZNTEPPLtvdCD4Fhrlk7IyI3w=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Tw8Q1O1NZaO8jUSxDKdiEz4VCygUoTSP2oGLAk8K/k6Xyc6i2GHim26iITrYp/ZZ99VKsPJ0e7HN1sp2rz9lc9snk4LnP9Olouhew/aFAdscA6v9mkK+z+55McL2DjZx2JBjewyXocWmTGkPl4ISh21veFqtGcYVQQUHQHuG/BI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sKMDGs1p; arc=none smtp.client-ip=115.124.30.113
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="V+Oa14Ig"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sKMDGs1p"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718880838; h=Message-ID:Subject:Date:From:To;
-	bh=2vIY8NZnvngm+xxf0k0vAQCKhjahEOWJHOTFFlU+/BE=;
-	b=V+Oa14IgVNG+rIZ6jWWnHEMB7LU0xqY4RBJU411+Tp1YZb4b6aez9mxVERTvyuAukv7hsaU4/F5XciZqlCIGC0ppAH/CzIElDbYmK7i3XFMlTikfTTz+KCeooFRztx0NTd84VYxKmnZb3tLfgmFLdF5+c4GVOrmCG1dnA46CSmM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W8sD2ym_1718880836;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8sD2ym_1718880836)
+	t=1718880907; h=Message-ID:Subject:Date:From:To;
+	bh=Fel2/8/EOFmcfP6qOXtVIWxVD5zcPAVWJrMLgPVGTog=;
+	b=sKMDGs1pObF7DwjK2tvRvdP/9hdEAnCybX80G5XxvA5PTyafM3fvGr+4ebG0puVj8pqPFeXOZPP5EoRj5nVyInk1PuLtv5G76Au23hObFU760ql0HOERcSZAs0cpgOjhhhlYbOwB9gsq2AXcTnE1bMT1PB2FvJMG9y2VW0vXQyA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8s9g52_1718880905;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8s9g52_1718880905)
           by smtp.aliyun-inc.com;
-          Thu, 20 Jun 2024 18:53:57 +0800
-Message-ID: <1718880548.281809-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v9 2/6] virtio: remove support for names array entries being null.
-Date: Thu, 20 Jun 2024 18:49:08 +0800
+          Thu, 20 Jun 2024 18:55:05 +0800
+Message-ID: <1718880882.9011145-4-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 10/10] virtio_net: xsk: rx: free the unused xsk buffer
+Date: Thu, 20 Jun 2024 18:54:42 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- David Hildenbrand <david@redhat.com>,
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
  Jason Wang <jasowang@redhat.com>,
- linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- Wei Wang <wei.w.wang@intel.com>
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
- <20240424091533.86949-3-xuanzhuo@linux.alibaba.com>
- <20240620035749-mutt-send-email-mst@kernel.org>
- <1718872778.4831812-1-xuanzhuo@linux.alibaba.com>
- <20240620044839-mutt-send-email-mst@kernel.org>
- <1718874293.698573-2-xuanzhuo@linux.alibaba.com>
- <20240620054548-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240620054548-mutt-send-email-mst@kernel.org>
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux.dev,
+ bpf@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20240618075643.24867-1-xuanzhuo@linux.alibaba.com>
+ <20240618075643.24867-11-xuanzhuo@linux.alibaba.com>
+ <38db3facdfefbefecd367ccce2e9b094d0b0314d.camel@redhat.com>
+In-Reply-To: <38db3facdfefbefecd367ccce2e9b094d0b0314d.camel@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Thu, 20 Jun 2024 06:01:54 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Jun 20, 2024 at 05:04:53PM +0800, Xuan Zhuo wrote:
-> > On Thu, 20 Jun 2024 05:01:08 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Thu, Jun 20, 2024 at 04:39:38PM +0800, Xuan Zhuo wrote:
-> > > > On Thu, 20 Jun 2024 04:02:45 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > On Wed, Apr 24, 2024 at 05:15:29PM +0800, Xuan Zhuo wrote:
-> > > > > > commit 6457f126c888 ("virtio: support reserved vqs") introduced this
-> > > > > > support. Multiqueue virtio-net use 2N as ctrl vq finally, so the logic
-> > > > > > doesn't apply. And not one uses this.
-> > > > > >
-> > > > > > On the other side, that makes some trouble for us to refactor the
-> > > > > > find_vqs() params.
-> > > > > >
-> > > > > > So I remove this support.
-> > > > > >
-> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > > > Acked-by: Eric Farman <farman@linux.ibm.com> # s390
-> > > > > > Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> > > > >
-> > > > >
-> > > > > I don't mind, but this patchset is too big already.
-> > > > > Why do we need to make this part of this patchset?
-> > > >
-> > > >
-> > > > If some the pointers of the names is NULL, then in the virtio ring,
-> > > > we will have a trouble to index from the arrays(names, callbacks...).
-> > > > Becasue that the idx of the vq is not the index of these arrays.
-> > > >
-> > > > If the names is [NULL, "rx", "tx"], the first vq is the "rx", but index of the
-> > > > vq is zero, but the index of the info of this vq inside the arrays is 1.
-> > >
-> > >
-> > > Ah. So actually, it used to work.
-> > >
-> > > What this should refer to is
-> > >
-> > > commit ddbeac07a39a81d82331a312d0578fab94fccbf1
-> > > Author: Wei Wang <wei.w.wang@intel.com>
-> > > Date:   Fri Dec 28 10:26:25 2018 +0800
-> > >
-> > >     virtio_pci: use queue idx instead of array idx to set up the vq
-> > >
-> > >     When find_vqs, there will be no vq[i] allocation if its corresponding
-> > >     names[i] is NULL. For example, the caller may pass in names[i] (i=4)
-> > >     with names[2] being NULL because the related feature bit is turned off,
-> > >     so technically there are 3 queues on the device, and name[4] should
-> > >     correspond to the 3rd queue on the device.
-> > >
-> > >     So we use queue_idx as the queue index, which is increased only when the
-> > >     queue exists.
-> > >
-> > >     Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > >     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
+On Thu, 20 Jun 2024 12:46:24 +0200, Paolo Abeni <pabeni@redhat.com> wrote:
+> On Tue, 2024-06-18 at 15:56 +0800, Xuan Zhuo wrote:
+> > Release the xsk buffer, when the queue is releasing or the queue is
+> > resizing.
 > >
-> > That just work for PCI.
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  drivers/net/virtio_net.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
 > >
-> > The trouble I described is that we can not index in the virtio ring.
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index cfa106aa8039..33695b86bd99 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -967,6 +967,11 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
 > >
-> > In virtio ring, we may like to use the vq.index that do not increase
-> > for the NULL.
+> >  	rq = &vi->rq[i];
 > >
-> >
-> > >
-> > > Which made it so setting names NULL actually does not reserve a vq.
-> > >
-> > > But I worry about non pci transports - there's a chance they used
-> > > a different index with the balloon. Did you test some of these?
-> > >
-> >
-> > Balloon is out of spec.
-> >
-> > The vq.index does not increase for the name NULL. So the Balloon use the
-> > continuous id. That is out of spec.
+> > +	if (rq->xsk.pool) {
+> > +		xsk_buff_free((struct xdp_buff *)buf);
+> > +		return;
+> > +	}
+> > +
+> >  	if (!vi->big_packets || vi->mergeable_rx_bufs)
+> >  		virtnet_rq_unmap(rq, buf, 0);
 >
 >
-> I see. And apparently the QEMU implementation is out of spec, too,
-> so they work fine. And STATS is always on in QEMU.
->
-> That change by Wei broke the theoretical config which has
-> !STATS but does have FREE_PAGE. We never noticed - not many people
-> ever bothered with FREE_PAGE.
->
-> However QEMU really is broken in a weird way.
-> In particular if it exposes STATS but driver does not
-> configure STATS then QEMU still has the stats vq.
-> Things will break then.
->
->
-> In short, it's a mess, and it needs thought.
-> At this point I suggest we keep the ability to set
-> names to NULL in case we want to just revert Wei's patch.
->
->
->
-> > That does not matter for this patchset.
-> > The name NULL is always skipped.
-> >
-> > Thanks.
->
->
-> Let's keep this patchset as small as possible.
-> Keep the existing functionality, we'll do cleanups
-> later.
+> I'm under the impression this should be squashed in a previous patch,
+> likely "virtio_net: xsk: bind/unbind xsk for rx"
 
-
-I am ok. But we need a idx to index the info of the vq.
-
-How about a new element "cfg_idx" to virtio_vq_config.
-
-struct virtio_vq_config {
-	unsigned int nvqs;
-->	unsigned int cfg_idx;
-
-	struct virtqueue   **vqs;
-	vq_callback_t      **callbacks;
-	const char         **names;
-	const bool          *ctx;
-	struct irq_affinity *desc;
-};
-
-
-That is setted by transport. The virtio ring can use this to index the info
-of the vq. Then the #1 #2 commits can be dropped.
-
+OK.
 
 Thanks.
 
 
-
 >
+> Thanks,
 >
-> > > --
-> > > MST
-> > >
+> Paolo
 >
