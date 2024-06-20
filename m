@@ -1,32 +1,32 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83D84D8A8
-	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 07:29:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D4D154750
+	for <virtualization@lists.linux.dev>; Thu, 20 Jun 2024 07:34:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718868545; cv=none; b=rn4lCH9QiwWUSpQf6UGgbYPgr62jXA0KwUQMWdU13bl3WG+T/AO9BlE/Po4ZVaszPjqlief9B4MMljbam1Fna0OqQvcPFq4/aFIZPNc01yODv8eSGUDDG1czY3T6YHcKkzT5F/tKxenyfo80bkCp9jKHzeuJBP4nHe7/z1Zm2YA=
+	t=1718868894; cv=none; b=s6Dmmc52wbD9tMDQPKm1lrV+RRhLRWgGwgTdzxqA7YAqzO7+o1o3Yoczi312heZYd3t4r6eNMJ7qQHp7m6wLRzAdCicuBupvoHvqZU76UICq1My5VYzlFACS8KVne7pNotg83/5IBdMrZKlICCdXhbNpJsU2t8EhNnfMvfo3EDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718868545; c=relaxed/simple;
-	bh=PZpSMSwUXqsWFe7yGDGWwHD0YyoCBXhytLQ4Ro6CISM=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=SfuaE2y9zIsKKNgDU/IfpOh/H3EAEJYot9MKihJf0T9PNJxWKxGJPlMfMK4TvZ5dg+Nwf8dZ+ycujGM2J2eIZ/58tHO17FtSh3cfLlcQ6VojeRX7hg/tmr5r3BzTVvlLbiHejHyIwTmRwCiuDCO2iu6RZoWO7aloFwVp1V/WrpM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=tml0PjiS; arc=none smtp.client-ip=115.124.30.99
+	s=arc-20240116; t=1718868894; c=relaxed/simple;
+	bh=utnGBcGfqhx3odsMMUpnDqRZ87HpmTagQZGorlaBLQY=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=KPOLQDxWjB4bCN7QCiOr+PYIlblrUOEGSTG1Z2A0B7LVu6AZ6rjfCl/j0DqAKuD0rJbY8CuUhzZpEbvhxbV6IvXDRB77t7p7dbGLlYZB9kAKinPub/Wuc1WrivbGO9aYfHcx5B7ATAo4ndY/1q0EegkfHXMLkvfgLBJ37FdJUMI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yE9SssuR; arc=none smtp.client-ip=115.124.30.118
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="tml0PjiS"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yE9SssuR"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718868540; h=Message-ID:Subject:Date:From:To;
-	bh=N7plDoouekMcid3olDSlT1T7gAQzkJadDghYmSKJvWQ=;
-	b=tml0PjiSD6nb7gPoRrMtHzy1t3WsyAicCkgpkuvIUIsxrT1cc9ZQjBEAav9fq6uWXDxYASuX3dl4Y8W0McgQZe1GblLrJacMu8zFqPKAW2/KwH4+xIDp8x06YzF25/6anoAjPE+35HDLLMiapFENyUv7vo3vU6sRxurQ67tXH9Q=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W8qVEfz_1718868538;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8qVEfz_1718868538)
+	t=1718868883; h=Message-ID:Subject:Date:From:To;
+	bh=d9iPSVqNJ1QqmN6EFZNWgjHrK3uM1ZJvNdZTn7+Ymtw=;
+	b=yE9SssuRtgEAeN+px+1Dbk5rrsaIUmISAqVPOwegBA1dy9WCWkyZa/2YlftRSaK3DSNKF1rpTgNR+ZCKAMnC0e2UjVzNs7PFAJ42Oxg7GYFrx3Xx1Rx6uy6iiZvNzeg83vowMBM3QTwiyO4+XBg2lA0goZGQlN1pIAbom3j871U=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W8qVGgm_1718868882;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8qVGgm_1718868882)
           by smtp.aliyun-inc.com;
-          Thu, 20 Jun 2024 15:28:59 +0800
-Message-ID: <1718867780.8623598-4-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next v4 0/5] virtio_net: enable the irq for ctrlq
-Date: Thu, 20 Jun 2024 15:16:20 +0800
+          Thu, 20 Jun 2024 15:34:43 +0800
+Message-ID: <1718868555.2701075-5-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
+Date: Thu, 20 Jun 2024 15:29:15 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org,
@@ -39,64 +39,41 @@ Cc: netdev@vger.kernel.org,
  Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>
 References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
- <20240619171535-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240619171535-mutt-send-email-mst@kernel.org>
+ <20240619161908.82348-3-hengqi@linux.alibaba.com>
+ <20240619171708-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240619171708-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Wed, 19 Jun 2024 17:16:57 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Jun 20, 2024 at 12:19:03AM +0800, Heng Qi wrote:
-> > Ctrlq in polling mode may cause the virtual machine to hang and
-> > occupy additional CPU resources. Enabling the irq for ctrlq
-> > alleviates this problem and allows commands to be requested
-> > concurrently.
+On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
+> > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> >  
+> >  	/* Parameters for control virtqueue, if any */
+> >  	if (vi->has_cvq) {
+> > -		callbacks[total_vqs - 1] = NULL;
+> > +		callbacks[total_vqs - 1] = virtnet_cvq_done;
+> >  		names[total_vqs - 1] = "control";
+> >  	}
+> >  
 > 
-> Any patch that is supposed to be a performance improvement
-> has to come with actual before/after testing restults, not
-> vague "may cause".
+> If the # of MSIX vectors is exactly for data path VQs,
+> this will cause irq sharing between VQs which will degrade
+> performance significantly.
+> 
+> So no, you can not just do it unconditionally.
+> 
+> The correct fix probably requires virtio core/API extensions.
 
-1. If the device does not respond in time, the CPU usage for ctrlq in the polling mode is
-   ~100%, and in irq mode is ~0%;
-2. If there are concurrent requests, the situation in 1 will be even worse;
-3. On 64 queues with dim on, use nginx + wrk with the number of connections is 500:
-   a. If ctrlq is in polling mode and concurrent requests are not supported:
-      seeing that the dim worker occupies 20%+ CPU usage. Because of the
-      large number of queues, dim requests cannot be concurrent, and the
-      performance is unstable;
-   b. If ctrlq is in irq mode and concurrent requests are supported: the overhead
-      of the dim worker is not visible, and the pps increases by ~13%
-      compared to a.
+If the introduction of cvq irq causes interrupts to become shared, then
+ctrlq need to fall back to polling mode and keep the status quo.
 
 Thanks.
 
 > 
-> 
-> 
-> > Changelog
-> > =========
-> > v3->v4:
-> >   - Turn off the switch before flush the get_cvq work.
-> >   - Add interrupt suppression.
-> > 
-> > v2->v3:
-> >   - Use the completion for dim cmds.
-> > 
-> > v1->v2:
-> >   - Refactor the patch 1 and rephase the commit log.
-> > 
-> > Heng Qi (5):
-> >   virtio_net: passing control_buf explicitly
-> >   virtio_net: enable irq for the control vq
-> >   virtio_net: change the command token to completion
-> >   virtio_net: refactor command sending and response handling
-> >   virtio_net: improve dim command request efficiency
-> > 
-> >  drivers/net/virtio_net.c | 309 ++++++++++++++++++++++++++++++++-------
-> >  1 file changed, 260 insertions(+), 49 deletions(-)
-> > 
-> > -- 
-> > 2.32.0.3.g01195cf9f
+> -- 
+> MST
 > 
