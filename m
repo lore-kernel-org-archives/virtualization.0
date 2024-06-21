@@ -1,32 +1,32 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F2E12D76F
-	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 06:33:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B8CD39FD0
+	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 06:33:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718951613; cv=none; b=ncXfeZs33oZZ7D717PKS2Ihj06KbXxEQNzFAGIMFS8KHmRhNfe52wFvJaBTAQS6WyKkxfr4+woQmTj4+drndC/K/zHvf6Fj/ONKvca5tkzlJpkCZzE/pJfo6vLiL//D8DjKwc7dsNsVpsCtdQTtk2k1M/TW6JRUVE+3it/ZH2sU=
+	t=1718951636; cv=none; b=lhb4QHA50NKaJ1uACZNentT0MQGu3rsnqNLZhqHQYYYvb3GuKqsNpMPLUMDeyoWH99xo0SZR93cnsh4RecMZ4lmDORpml6GjExWCVBbk8HoxPXJ3AkAyJ5fRS2JibnP8p43TFEOITgSmjlvxhr6MMZ7I+W/xI0jNsxsQ5NOL1vY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718951613; c=relaxed/simple;
-	bh=pfKWFBb7zDxCQi7BvfVsF6Ioi73jz575cHTCkheV/vw=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=NDkTlB3My/9U35OaKNRaFoBzD57pvbuSPAPZeuFNc8mg4d59U2nlZni+7gCTLWX7Lc92ui0O8PmDMoP4J0VFsSrKTtr7s8+BWeSBdoyTi3/MCCwOJ7UbGQpHDprvOgeN0HhfgVMR8cdB3urb7mVNBXAZ0bSKxoVH+rORzExdFTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=m9yeXz+x; arc=none smtp.client-ip=115.124.30.110
+	s=arc-20240116; t=1718951636; c=relaxed/simple;
+	bh=Xb0mUtM8oiE38+41F9AbNF/z9ky5fLWOK4MWw6xBhLg=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=XmQ3jashK3epxm0xiE6H42M4D1neOeNrAcIQAu1pzkRYQTvwbomlWOrBqednnd64+8+DmEYQuhDAWireUvAybG2nIgaLCMMM617sc1AN+CwTjE+7K6o+0eDYDAYXof+ewQjGE5KfPw5ANigEr350xeP7EVOAHFGG4VszDqCoWv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HLM2Sk02; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="m9yeXz+x"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HLM2Sk02"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718951607; h=Message-ID:Subject:Date:From:To;
-	bh=jguX9efGrTByDGtu7eOLceR5dbAAeAKLWv5lG9X/b2k=;
-	b=m9yeXz+xG33rzOqDd82nxP7HDtqgIQW3eoLH1IhHsF11l6zBALFwchwGBU8+QU63AmNW3FEBN16XEb6Z+cp5Cgq22nVcVIzCLeCPAfpdtbBEADOJ0jK4yh46uMLBT7LN3yNoUfBcWudfrm5GzsXjd16JC9Piggmr8H49yPksW0c=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068164191;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W8vIC3b_1718951605;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8vIC3b_1718951605)
+	t=1718951630; h=Message-ID:Subject:Date:From:To;
+	bh=fGizkInIzi8S2Z/Q1zqQQM8kbuz37uBRTVg3F8UQ+QY=;
+	b=HLM2Sk02iDYq+MXsulsJtBvnM9rgb+nv7o4jXB72ReolD57cxqe03bASshcpEcWthLSK42uPNhGoksVMkbmcDI/iyl1FGStqHfMCOEz0eojdRhNfO0+x8ZU31YPnV2uxJRmPz0W8eM8V5+FoxsBQo/lVFszdtkcAqw9JTxvJR2E=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068164191;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W8vG-Z4_1718951629;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8vG-Z4_1718951629)
           by smtp.aliyun-inc.com;
-          Fri, 21 Jun 2024 14:33:26 +0800
-Message-ID: <1718951589.6499782-16-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH RESEND net-next v14 3/5] ethtool: provide customized dim profile management
-Date: Fri, 21 Jun 2024 14:33:09 +0800
+          Fri, 21 Jun 2024 14:33:50 +0800
+Message-ID: <1718941478.823058-14-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH RESEND net-next v14 0/5] ethtool: provide the dim profile fine-tuning channel
+Date: Fri, 21 Jun 2024 11:44:38 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: Jakub Kicinski <kuba@kernel.org>
 Cc: netdev@vger.kernel.org,
@@ -60,36 +60,22 @@ Cc: netdev@vger.kernel.org,
  Przemek Kitszel <przemyslaw.kitszel@intel.com>,
  awel Dembicki <paweldembicki@gmail.com>
 References: <20240618025644.25754-1-hengqi@linux.alibaba.com>
- <20240618025644.25754-4-hengqi@linux.alibaba.com>
- <20240620204445.2d589788@kernel.org>
-In-Reply-To: <20240620204445.2d589788@kernel.org>
+ <20240620204025.625f759c@kernel.org>
+In-Reply-To: <20240620204025.625f759c@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Thu, 20 Jun 2024 20:44:45 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> On Tue, 18 Jun 2024 10:56:42 +0800 Heng Qi wrote:
-> > --- a/Documentation/networking/ethtool-netlink.rst
-> > +++ b/Documentation/networking/ethtool-netlink.rst
-> > @@ -1033,6 +1033,8 @@ Kernel response contents:
-> >    ``ETHTOOL_A_COALESCE_TX_AGGR_MAX_BYTES``     u32     max aggr size, Tx
-> >    ``ETHTOOL_A_COALESCE_TX_AGGR_MAX_FRAMES``    u32     max aggr packets, Tx
-> >    ``ETHTOOL_A_COALESCE_TX_AGGR_TIME_USECS``    u32     time (us), aggr, Tx
-> > +  ``ETHTOOL_A_COALESCE_RX_PROFILE``            nested  profile of DIM, Rx
-> > +  ``ETHTOOL_A_COALESCE_TX_PROFILE``            nested  profile of DIM, Tx
-> >    ===========================================  ======  =======================
-> >  
-> >  Attributes are only included in reply if their value is not zero or the
+On Thu, 20 Jun 2024 20:40:25 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Tue, 18 Jun 2024 10:56:39 +0800 Heng Qi wrote:
+> > The NetDIM library provides excellent acceleration for many modern
+> > network cards. However, the default profiles of DIM limits its maximum
+> > capabilities for different NICs, so providing a way which the NIC can
+> > be custom configured is necessary.
 > 
-> Maybe add a short line in the section for COALESCE_GET linking to dim?
-> Something like:
-> 
-> ``ETHTOOL_A_COALESCE_RX_PROFILE`` and ``ETHTOOL_A_COALESCE_TX_PROFILE``
-> refer to DIM parameters, see ... <- add ReST link to net_dim.rst here.
+> Could you give an example in the cover letter of a type of workload and
+> how much a new set of DIM values helped?
 
-Will add.
-
-Thanks.
-
+Sure.
