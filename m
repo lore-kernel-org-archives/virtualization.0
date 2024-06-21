@@ -1,62 +1,62 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8460B179203
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 026BC17B504
 	for <virtualization@lists.linux-foundation.org>; Fri, 21 Jun 2024 19:44:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718999042; cv=none; b=Jg/r11EbeH1UmgopTEomny55ENzl0mPAOrso7mBDLCv6FXtcFe4vadJ169pLfcNGYNUMYW36feTBveDh1uMj/C5Gufqhlih+RhRTX8F/WgIck0NQqJt151hIyMO+VZvXlf1o4+3tWk8m+CtEI8JO4jMqg5WTsQ1vYt1akO6Eb4s=
+	t=1718999042; cv=none; b=sZPoAr5mxubZsdf0kGJiD0O8IwBt78ek1rji8a59qpzrgMTnXU3xZ1B8/ErzyU7TNtiHbWEmV9LpuEunIk7CPKkSlCaMcGyqe/HsSPml0SOIXNZBA0oNFUQ7k2dX/8pQF0BFLFK5W/iu4zfjN50jYio4hazzjmUiCoEgkKn1Xu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718999042; c=relaxed/simple;
-	bh=sTdM4/wJgWIz32F7RmoaSOOm13k88VVlhyEn7r2d0Pk=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jmae3jRSBlAfFvUXJYD+fjYYg+du6bosbswQs+gfNM8wrKLlj3wlJdafwX64iqju+X1N3VRPMiH4pqMNBCyKrN6iHXsIubiVbYhojX+XAEPd3dPnPgp8nCjN4P8/aEdUfs7Q6i6kgyl3wMVfALt6C1JAeHLmckSb9iX022PzyeA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=l+/JC+M+; arc=none smtp.client-ip=140.211.166.136
+	bh=b0MVT8obBsnnfcUJguz716T6dfpUAaaH84e9QWzNd5g=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=TTQEYBA0CJaVB+b8EemWQ37CJvt55NW1OsBYdAhRBhfiNTWZ/Rh1WxzZ7eV2+NGTH0Le1U0WZJJJTAQsHwFcKFiPlGlXaXjFaDpfzNtnCYyDM050feA2Lfcn2Nu0EqQdV73DMIK5wU1yxUZfBK0jnvHUFFQa1vxDjH4lG1LLssw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=fBhyssEz; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="l+/JC+M+"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="fBhyssEz"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1347860725
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9099080CED
 	for <virtualization@lists.linux-foundation.org>; Fri, 21 Jun 2024 19:44:00 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.102
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 1agZ1-7TpJjl for <virtualization@lists.linux-foundation.org>;
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id dZkwygoszEhE for <virtualization@lists.linux-foundation.org>;
  Fri, 21 Jun 2024 19:43:59 +0000 (UTC)
-X-Greylist: delayed 386 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 21 Jun 2024 19:43:59 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 16D79606E8
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 16D79606E8
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=l+/JC+M+
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.89.224.132; helo=mx1.sberdevices.ru; envelope-from=avkrasnov@salutedevices.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 10EA780CB9
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 10EA780CB9
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=fBhyssEz
 Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 16D79606E8
-	for <virtualization@lists.linux-foundation.org>; Fri, 21 Jun 2024 19:43:58 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 10EA780CB9
+	for <virtualization@lists.linux-foundation.org>; Fri, 21 Jun 2024 19:43:59 +0000 (UTC)
 Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 89995120009;
-	Fri, 21 Jun 2024 22:37:28 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 89995120009
+	by mx1.sberdevices.ru (Postfix) with ESMTP id BEF2812000A;
+	Fri, 21 Jun 2024 22:37:30 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru BEF2812000A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1718998648;
-	bh=QEP9tVC7IJrIs6z3JIp7IhpStzLXbWBfPUokHOf8CCA=;
+	s=mail; t=1718998650;
+	bh=+imAiTZlutgnKCi/zzqvLyHYlTuHBPLtJT+Rnuz2Hvc=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=l+/JC+M+jZzqnwL+juNzZitz2gGjfw5LAFeeDM2jHB924rP5Eh862bY8M6h7XBOOB
-	 0I/q2tVCGPlTGtGCvfVSwYqBI5foWAJRVivlXy0WSghii9j4dvVjdI6R48xfUKdoGV
-	 +mJ1IlapX5cU1E/333GBoZUb66rOtxTBWsJOjAT6xkROUzJh0LPH3EWN6yb0femwBU
-	 S6rdwCh7cO4vuzWB4fEufMBp0Qe3LNJEagOAMN026pBDpTe2PpbovWjrn9wN/Uuk32
-	 GIP7w8CMSrpHd76YSr13mQZc3Q9nIO4dp7ssNCF9ZvIoVLLoZPj4NColmeguCDFKgZ
-	 StGZW9G2xvSOw==
+	b=fBhyssEzoZLN2D4fZNYfH5S1/uBUptuOsOVHT3eNY1d5/KFOYQN2WmRxlXePaZVC8
+	 k9kh7mRLj4vR9P58xw7LbFpQ880j5uhCwEOz+n2mz2/HnRY3gfz21XotJOO0lPT8Iw
+	 QwrLqPhNX+F9J/e8InBJtol+IgE9YKPq7jBsG20nFaa9tqmZY2IJDfr9Q0DFdyqUp4
+	 mIMg6rkJxO0XaASLuS7qg2WZ8xMJquQrofqwh2k/fcZXCeu6rqkVeAR0m1ZeVNJ+Wx
+	 1IlkudzCRypXPR3daW+08Of4SeakT8eysWRzcuQvqVlvX4y391Xny4ebaH6mG7b0LZ
+	 bw2dM6WKuJdHg==
 Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
 	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Fri, 21 Jun 2024 22:37:28 +0300 (MSK)
+	Fri, 21 Jun 2024 22:37:30 +0300 (MSK)
 Received: from localhost.localdomain (100.64.160.123) by
  p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Fri, 21 Jun 2024 22:37:27 +0300
+ 15.2.1118.40; Fri, 21 Jun 2024 22:37:29 +0300
 From: Arseniy Krasnov <avkrasnov@salutedevices.com>
 To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
 	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
@@ -66,10 +66,12 @@ To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
 CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
 	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [RFC PATCH v1 0/2] virtio/vsock: some updates for deferred credit update
-Date: Fri, 21 Jun 2024 22:25:39 +0300
-Message-ID: <20240621192541.2082657-1-avkrasnov@salutedevices.com>
+Subject: [RFC PATCH v1 2/2] vsock/test: add test for deferred credit update
+Date: Fri, 21 Jun 2024 22:25:41 +0300
+Message-ID: <20240621192541.2082657-3-avkrasnov@salutedevices.com>
 X-Mailer: git-send-email 2.35.0
+In-Reply-To: <20240621192541.2082657-1-avkrasnov@salutedevices.com>
+References: <20240621192541.2082657-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -97,25 +99,439 @@ X-KSMG-LinksScanning: Clean
 X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/06/21 16:35:00 #25651590
 X-KSMG-AntiVirus-Status: Clean, skipped
 
-This patchset contains:
-0001 - patch which reworks deferred credit update. Pls see commit message,
-       it contains full description of this problem.
+This test checks, that we send exactly expected number of credit
+update packets during deferred credit update optimization. Test
+work in client/server modes:
+1) Client just connects to server and send 256Kb of data. 256Kb
+   is chosen because it is default space for vsock peer. After
+   transmission client waits until server performs checks of this
+   test.
 
-0002 - test which uses vsockmon interface, and checks that deferred
-       credit update works as expected by parsing raw packets.
+2) Server waits for vsock connection and also open raw socket
+   binded to vsock monitor interface. Then server waits until
+   there will be 256Kb of data in its rx queue (by reading data
+   from stream socket with MSG_PEEK flag). Then server starts
+   reading data from stream socket - it reads entire socket,
+   also reading packets from raw vsock socket, to check that
+   there is OP_RW packets. After data read is done, it checks
+   raw socket again, by waiting exact amount of CREDIT_UPDATE
+   packets. Finally it checks that rx queue of raw socket is
+   empty using read with timeout.
 
-Arseniy Krasnov (2):
-  virtio/vsock: rework deferred credit update logic
-  vsock/test: add test for deferred credit update
+Some notes about this test:
+* It is only for virtio transport.
+* It relies on sizes of virtio rx buffers for guest and host,
+  to handle raw packets properly (4Kb for guest and 64Kb for
+  host).
+* It relies on free space limit for deferred credit update -
+  currently it is 64Kb.
+* It needs permissions to open raw sockets.
 
- include/linux/virtio_vsock.h            |   1 +
- net/vmw_vsock/virtio_transport_common.c |   8 +-
+Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+---
  tools/testing/vsock/.gitignore          |   1 +
  tools/testing/vsock/Makefile            |   2 +
  tools/testing/vsock/virtio_vsock_test.c | 369 ++++++++++++++++++++++++
- 5 files changed, 376 insertions(+), 5 deletions(-)
+ 3 files changed, 372 insertions(+)
  create mode 100644 tools/testing/vsock/virtio_vsock_test.c
 
+diff --git a/tools/testing/vsock/.gitignore b/tools/testing/vsock/.gitignore
+index d9f798713cd7..74d13a38cf43 100644
+--- a/tools/testing/vsock/.gitignore
++++ b/tools/testing/vsock/.gitignore
+@@ -4,3 +4,4 @@ vsock_test
+ vsock_diag_test
+ vsock_perf
+ vsock_uring_test
++virtio_vsock_test
+diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+index a7f56a09ca9f..e04d69903687 100644
+--- a/tools/testing/vsock/Makefile
++++ b/tools/testing/vsock/Makefile
+@@ -8,6 +8,8 @@ vsock_perf: vsock_perf.o msg_zerocopy_common.o
+ vsock_uring_test: LDLIBS = -luring
+ vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o msg_zerocopy_common.o
+ 
++virtio_vsock_test: virtio_vsock_test.o util.o timeout.o control.o
++
+ CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
+ .PHONY: all test clean
+ clean:
+diff --git a/tools/testing/vsock/virtio_vsock_test.c b/tools/testing/vsock/virtio_vsock_test.c
+new file mode 100644
+index 000000000000..4320dbc31ecc
+--- /dev/null
++++ b/tools/testing/vsock/virtio_vsock_test.c
+@@ -0,0 +1,369 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * virtio_vsock_test - vsock.ko test suite for VirtIO transport.
++ *
++ * Copyright (C) 2024 SaluteDevices.
++ *
++ * Author: Arseniy Krasnov <AVKrasnov@salutedevices.com>
++ */
++#include <assert.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <getopt.h>
++#include <poll.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <linux/if.h>
++#include <linux/if_packet.h>
++#include <linux/if_ether.h>
++#include <linux/virtio_vsock.h>
++#include <linux/vsockmon.h>
++#include <linux/sockios.h>
++#include <netinet/in.h>
++#include <sys/ioctl.h>
++#include <sys/types.h>
++#include <sys/socket.h>
++
++#include "control.h"
++#include "util.h"
++
++#define RAW_SOCK_RCV_BUF	(1024 * 1024)
++
++#define TOTAL_TX_BYTES		(1024 * 256)
++
++#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE	(1024 * 64)
++
++#define VIRTIO_VSOCK_GUEST_RX_BUF_SIZE	(4096)
++#define VIRTIO_VSOCK_HOST_RX_BUF_SIZE	(1024 * 64)
++
++static const char *interface;
++
++static void test_stream_deferred_credit_update_client(const struct test_opts *opts)
++{
++	unsigned char buf[VIRTIO_VSOCK_MAX_PKT_BUF_SIZE];
++	int fd;
++	int i;
++
++	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
++	if (fd < 0) {
++		perror("connect");
++		exit(EXIT_FAILURE);
++	}
++
++	control_expectln("SERVERREADY");
++	memset(buf, 0, sizeof(buf));
++
++	for (i = 0; i < TOTAL_TX_BYTES / VIRTIO_VSOCK_MAX_PKT_BUF_SIZE; i++) {
++		if (write(fd, buf, sizeof(buf)) != sizeof(buf)) {
++			perror("write");
++			exit(EXIT_FAILURE);
++		}
++	}
++
++	control_writeln("CLIENTDONE");
++	control_expectln("SERVERDONE");
++
++	close(fd);
++}
++
++static int create_raw_sock(const char *ifname)
++{
++	struct sockaddr_ll addr_ll;
++	struct ifreq ifr;
++	size_t rcv_buf;
++	int fd;
++
++	fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
++	if (fd < 0) {
++		perror("socket");
++		exit(EXIT_FAILURE);
++	}
++
++	memset(&ifr, 0, sizeof(ifr));
++	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name),
++		 "%s", ifname);
++
++	rcv_buf = RAW_SOCK_RCV_BUF;
++	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUFFORCE, &rcv_buf,
++				sizeof(rcv_buf))) {
++		perror("setsockopt(SO_RCVBUFFORCE)");
++		exit(EXIT_FAILURE);
++	}
++
++	if (ioctl(fd, SIOCGIFINDEX, &ifr)) {
++		perror("ioctl(SIOCGIFINDEX)");
++		exit(EXIT_FAILURE);
++	}
++
++	memset(&addr_ll, 0, sizeof(addr_ll));
++	addr_ll.sll_family = AF_PACKET;
++	addr_ll.sll_ifindex = ifr.ifr_ifindex;
++	addr_ll.sll_protocol = htons(ETH_P_ALL);
++
++	if (bind(fd, (struct sockaddr *)&addr_ll, sizeof(struct sockaddr_ll)) < 0) {
++		perror("bind");
++		exit(EXIT_FAILURE);
++	}
++
++	return fd;
++}
++
++
++static void check_raw_packet(int raw_fd, uint16_t expected_op)
++{
++	struct af_vsockmon_hdr *mhdr;
++	struct virtio_vsock_hdr *hdr;
++	unsigned char buf[VIRTIO_VSOCK_MAX_PKT_BUF_SIZE +
++			  sizeof(*mhdr) + sizeof(*hdr)] = { 0 };
++	ssize_t res;
++
++	res = read(raw_fd, buf, sizeof(buf));
++
++	if (res == -1) {
++		if (expected_op == 0xffff && errno == EAGAIN)
++			return;
++
++		fprintf(stderr, "Unexpected raw read: %i\n", errno);
++		exit(EXIT_FAILURE);
++	}
++
++	mhdr = (struct af_vsockmon_hdr *)buf;
++	hdr =  (struct virtio_vsock_hdr *)(mhdr + 1);
++
++	if (hdr->op != expected_op) {
++		fprintf(stderr, "Unexpected op: %hhu, but %hhu expected\n",
++				hdr->op, expected_op);
++		exit(EXIT_FAILURE);
++	}
++}
++
++static void test_stream_deferred_credit_update_server(const struct test_opts *opts)
++{
++	char buf[TOTAL_TX_BYTES] = { 0 };
++	int raw_fd, fd, rx_packet_size, i;
++	int credit_update_pkts;
++	struct timeval tv;
++	size_t total_recv;
++
++	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
++	if (fd < 0) {
++		perror("accept");
++		exit(EXIT_FAILURE);
++	}
++
++	raw_fd = create_raw_sock(interface);
++
++	tv.tv_sec = 2;
++	tv.tv_usec = 0;
++
++	if (setsockopt(raw_fd, SOL_SOCKET, SO_RCVTIMEO,
++		       (void *)&tv, sizeof(tv))) {
++		perror("setsockopt(SO_RCVTIMEO)");
++		exit(EXIT_FAILURE);
++	}
++
++	control_writeln("SERVERREADY");
++	control_expectln("CLIENTDONE");
++
++	total_recv = 0;
++
++	/* Wait, until we receive whole data. */
++	while (1) {
++		ssize_t ret;
++
++		ret = recv(fd, buf, sizeof(buf), MSG_PEEK);
++		if (ret == sizeof(buf))
++			break;
++
++		if (ret <= 0) {
++			fprintf(stderr, "unexpected 'recv()' return: %zi\n", ret);
++			exit(EXIT_FAILURE);
++		}
++	}
++
++	if (opts->peer_cid == VMADDR_CID_HOST)
++		rx_packet_size = VIRTIO_VSOCK_GUEST_RX_BUF_SIZE;
++	else
++		rx_packet_size = VIRTIO_VSOCK_HOST_RX_BUF_SIZE;
++
++	while (1) {
++		ssize_t ret;
++
++		ret = read(fd, buf, rx_packet_size);
++		if (ret <= 0) {
++			perror("read");
++			exit(EXIT_FAILURE);
++		}
++
++		check_raw_packet(raw_fd, VIRTIO_VSOCK_OP_RW);
++
++		total_recv += ret;
++
++		if (total_recv >= TOTAL_TX_BYTES)
++			break;
++	}
++
++	if (total_recv != TOTAL_TX_BYTES) {
++		fprintf(stderr, "Invalid number of received bytes: %zu",
++			total_recv);
++		exit(EXIT_FAILURE);
++	}
++
++	credit_update_pkts = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE / rx_packet_size;
++	for (i = 0; i < credit_update_pkts; i++)
++		check_raw_packet(raw_fd, VIRTIO_VSOCK_OP_CREDIT_UPDATE);
++
++	/* Check that there are no new packets. */
++	check_raw_packet(raw_fd, 0xffff);
++
++	control_writeln("SERVERDONE");
++
++	close(fd);
++	close(raw_fd);
++}
++
++static struct test_case test_cases[] = {
++	{
++		.name = "SOCK_STREAM deferred credit update",
++		.run_client = test_stream_deferred_credit_update_client,
++		.run_server = test_stream_deferred_credit_update_server,
++	},
++	{}
++};
++
++static const char optstring[] = "";
++static const struct option longopts[] = {
++	{
++		.name = "control-host",
++		.has_arg = required_argument,
++		.val = 'H',
++	},
++	{
++		.name = "control-port",
++		.has_arg = required_argument,
++		.val = 'P',
++	},
++	{
++		.name = "mode",
++		.has_arg = required_argument,
++		.val = 'm',
++	},
++	{
++		.name = "peer-cid",
++		.has_arg = required_argument,
++		.val = 'p',
++	},
++	{
++		.name = "peer-port",
++		.has_arg = required_argument,
++		.val = 'q',
++	},
++	{
++		.name = "interface",
++		.has_arg = required_argument,
++		.val = 'i',
++	},
++	{
++		.name = "help",
++		.has_arg = no_argument,
++		.val = '?',
++	},
++	{},
++};
++
++static void usage(void)
++{
++	fprintf(stderr, "Usage: virtio_vsock_test [--help] [--control-host=<host>] --control-port=<port> --mode=client|server --peer-cid=<cid> [--peer-port=<port>] [--list] [--interface=<iface name>]\n"
++		"\n"
++		"  Server: virtio_vsock_test --control-port=1234 --mode=server --peer-cid=3 --interface=vsockmon0\n"
++		"  Client: virtio_vsock_test --control-host=192.168.0.1 --control-port=1234 --mode=client --peer-cid=2\n"
++		"\n"
++		"Run AF_VSOCK tests, specific for virtio transport. Requires\n"
++		"permissions to open raw socket.\n"
++		"\n"
++		"A TCP control socket connection is used to coordinate tests\n"
++		"between the client and the server.  The server requires a\n"
++		"listen address and the client requires an address to\n"
++		"connect to.\n"
++		"\n"
++		"The CID of the other side must be given with --peer-cid=<cid>.\n"
++		"During the test, two AF_VSOCK ports will be used: the port\n"
++		"specified with --peer-port=<port> (or the default port)\n"
++		"and the next one.\n"
++		"\n"
++		"Options:\n"
++		"  --help                 This help message\n"
++		"  --control-host <host>  Server IP address to connect to\n"
++		"  --control-port <port>  Server port to listen on/connect to\n"
++		"  --mode client|server   Server or client mode\n"
++		"  --peer-cid <cid>       CID of the other side\n"
++		"  --peer-port <port>     AF_VSOCK port used for the test [default: %d]\n"
++		"  --interface <iface name>\n",
++		DEFAULT_PEER_PORT
++	       );
++}
++
++int main(int argc, char *argv[])
++{
++	const char *control_host = NULL;
++	const char *control_port = NULL;
++	struct test_opts opts = {
++		.mode = TEST_MODE_UNSET,
++		.peer_cid = VMADDR_CID_ANY,
++		.peer_port = DEFAULT_PEER_PORT,
++	};
++
++	for (;;) {
++		int opt = getopt_long(argc, argv, optstring, longopts, NULL);
++
++		if (opt == -1)
++			break;
++
++		switch (opt) {
++		case 'H':
++			control_host = optarg;
++			break;
++		case 'P':
++			control_port = optarg;
++			break;
++		case 'm':
++			if (strcmp(optarg, "client") == 0)
++				opts.mode = TEST_MODE_CLIENT;
++			else if (strcmp(optarg, "server") == 0)
++				opts.mode = TEST_MODE_SERVER;
++			else {
++				fprintf(stderr, "--mode must be \"client\" or \"server\"\n");
++				return EXIT_FAILURE;
++			}
++			break;
++		case 'p':
++			opts.peer_cid = parse_cid(optarg);
++			break;
++		case 'q':
++			opts.peer_port = parse_port(optarg);
++			break;
++		case 'i':
++			interface = optarg;
++		default:
++			usage();
++		}
++	}
++
++	if (!control_host) {
++		if (opts.mode != TEST_MODE_SERVER)
++			usage();
++		control_host = "0.0.0.0";
++	}
++
++	if (!interface)
++		interface = "vsockmon0";
++
++	control_init(control_host, control_port,
++		     opts.mode == TEST_MODE_SERVER);
++
++	run_tests(test_cases, &opts);
++
++	return EXIT_SUCCESS;
++}
 -- 
 2.25.1
 
