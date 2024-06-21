@@ -1,30 +1,30 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4320171670
-	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 10:14:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4D83171675
+	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 10:14:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718964845; cv=none; b=O8AhJDr0TqaPidXO3+YjTGdCbPTc7HIWH7/IuO5OtFMbnUZ51DMIv6t9y2Su7YixyGB/CtHJjdmF9jFY2qsvjaj7j1klns3/ZVO+T6AigMByzHz8gTqvNJeVI0tsWzmM21d7pCNPilR6xMpT04FiE/cZfY2Y2wVfPwtAVvE3tZM=
+	t=1718964845; cv=none; b=L8RhQEmSG7V2wDbZZwfFB5ZZvp4SGHReQnibBZRZUBHrEe1faQiPrpEI2v+AWuzIHhKFvrPqnNWcRzf92Ll+eybXWu/k8rnNRXtA4O/Z7T5jk8LlQoIrA32el4ustKlPrbZN3MlcquzWh5NSS2ie0qPOAsyoRmHtlnwEx6e5kqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718964845; c=relaxed/simple;
-	bh=lqwq5MKjhn5BSJoCvANc4Qnv3+K1tK0AUnYclRBmWJw=;
+	bh=qpbCOZDB+J2nwsl2XAfQG4PhbDJfMsdiPNu27gIPiz4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=QOCUXBFhXVBcslh0lSU8TO4nafSLNz5WKmYMZGyW2q1B7ij82nmSFFoFJpKRud+f29x1Z7G4Nf8pt3nDosH0qH456o3uAIXxLFdN47cRcd6jOISJcKrNatPiHob+RoKU7kI2f+0X8z5Cj/4TiMjr7z/TJnxzqu8APZBZaiH9uG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=A9Ux8HNJ; arc=none smtp.client-ip=115.124.30.99
+	 MIME-Version; b=SM+MMvEa+aYuygNCGzqr0gWx12Xkern3lVgbV9wfC/z+K9h2mFLePUAT/m+I0SQnRHTWx3a1wgRC6m2ti0nceFKPIz9e9cJgzYk6i7dnypdH+cp4dT73xA3btO2jIHBXGRI3EAFcovvVr6cTaXUMjMCGD5//GA3sQnPszIsVFIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Q4lhrgQm; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="A9Ux8HNJ"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Q4lhrgQm"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718964840; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=cJZeR3Vg4FHsPtKPm6+t5ByKOyxmuqpQm7IsXDaWVrw=;
-	b=A9Ux8HNJn+P/fEu9DKXUdu3y/RncT4qqliqEuBupqYUdkNwGP5hBHyNseR5yrXFMvxNiJPYNPZ5F/DmuQDxdVo7KFAhw9shg9P+TmggIUpOwKKrpooh91/Ph+Rggx90mZ0LNwhbRFLlM0fUrHOdiVmiqQtAAv8FMWdwdLX0Z24o=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068164191;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=32;SR=0;TI=SMTPD_---0W8w4Tf6_1718964838;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8w4Tf6_1718964838)
+	t=1718964836; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=L8rSiqZg3PV499+UfKe91Ovz/HqoQnMxBzyIpQmBxEM=;
+	b=Q4lhrgQm5SbzfXbozwpJHKV8/o/NEpfn/di7wb+1F23Q0DlL10dFjLCZfUED2NOFLZKusD4f23d5y14zTnpKHmQuqKzNXC1DeswT1ewSuolmcwvUF15YGK7MXadZSZNTAYBRnS7sz6fbibivhqiY0ryp23rdhYFvwhQCbrQ+XOU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=32;SR=0;TI=SMTPD_---0W8w4rvc_1718964834;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8w4rvc_1718964834)
           by smtp.aliyun-inc.com;
-          Fri, 21 Jun 2024 18:13:59 +0800
+          Fri, 21 Jun 2024 18:13:55 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -58,9 +58,9 @@ Cc: Jakub Kicinski <kuba@kernel.org>,
 	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
 	awel Dembicki <paweldembicki@gmail.com>,
 	Simon Horman <horms@kernel.org>
-Subject: [PATCH net-next v15 4/5] dim: add new interfaces for initialization and getting results
-Date: Fri, 21 Jun 2024 18:13:52 +0800
-Message-Id: <20240621101353.107425-5-hengqi@linux.alibaba.com>
+Subject: [PATCH net-next v15 1/5] linux/dim: move useful macros to .h file
+Date: Fri, 21 Jun 2024 18:13:49 +0800
+Message-Id: <20240621101353.107425-2-hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240621101353.107425-1-hengqi@linux.alibaba.com>
 References: <20240621101353.107425-1-hengqi@linux.alibaba.com>
@@ -72,154 +72,51 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-DIM-related mode and work have been collected in one same place,
-so new interfaces are added to provide convenience.
+Useful macros will be used effectively elsewhere.
+These will be utilized in subsequent patches.
 
 Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
 Reviewed-by: Simon Horman <horms@kernel.org>
 ---
- include/linux/dim.h | 48 ++++++++++++++++++++++++++++++++
- lib/dim/net_dim.c   | 68 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 116 insertions(+)
+ include/linux/dim.h | 7 +++++++
+ lib/dim/net_dim.c   | 6 ------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/include/linux/dim.h b/include/linux/dim.h
-index e0f39bd85432..1b581ff25a15 100644
+index f343bc9aa2ec..43398f5eade2 100644
 --- a/include/linux/dim.h
 +++ b/include/linux/dim.h
-@@ -256,6 +256,54 @@ int net_dim_init_irq_moder(struct net_device *dev, u8 profile_flags,
-  */
- void net_dim_free_irq_moder(struct net_device *dev);
+@@ -10,6 +10,13 @@
+ #include <linux/types.h>
+ #include <linux/workqueue.h>
  
-+/**
-+ * net_dim_setting - initialize DIM's cq mode and schedule worker
-+ * @dev: target network device
-+ * @dim: DIM context
-+ * @is_tx: true indicates the tx direction, false indicates the rx direction
-+ */
-+void net_dim_setting(struct net_device *dev, struct dim *dim, bool is_tx);
++/* Number of DIM profiles and period mode. */
++#define NET_DIM_PARAMS_NUM_PROFILES 5
++#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
++#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
++#define NET_DIM_DEF_PROFILE_CQE 1
++#define NET_DIM_DEF_PROFILE_EQE 1
 +
-+/**
-+ * net_dim_work_cancel - synchronously cancel dim's worker
-+ * @dim: DIM context
-+ */
-+void net_dim_work_cancel(struct dim *dim);
-+
-+/**
-+ * net_dim_get_rx_irq_moder - get DIM rx results based on profile_ix
-+ * @dev: target network device
-+ * @dim: DIM context
-+ *
-+ * Return: DIM irq moderation
-+ */
-+struct dim_cq_moder
-+net_dim_get_rx_irq_moder(struct net_device *dev, struct dim *dim);
-+
-+/**
-+ * net_dim_get_tx_irq_moder - get DIM tx results based on profile_ix
-+ * @dev: target network device
-+ * @dim: DIM context
-+ *
-+ * Return: DIM irq moderation
-+ */
-+struct dim_cq_moder
-+net_dim_get_tx_irq_moder(struct net_device *dev, struct dim *dim);
-+
-+/**
-+ * net_dim_set_rx_mode - set DIM rx cq mode
-+ * @dev: target network device
-+ * @rx_mode: target rx cq mode
-+ */
-+void net_dim_set_rx_mode(struct net_device *dev, u8 rx_mode);
-+
-+/**
-+ * net_dim_set_tx_mode - set DIM tx cq mode
-+ * @dev: target network device
-+ * @tx_mode: target tx cq mode
-+ */
-+void net_dim_set_tx_mode(struct net_device *dev, u8 tx_mode);
-+
- /**
-  *	dim_on_top - check if current state is a good place to stop (top location)
-  *	@dim: DIM context
+ /*
+  * Number of events between DIM iterations.
+  * Causes a moderation of the algorithm run.
 diff --git a/lib/dim/net_dim.c b/lib/dim/net_dim.c
-index 0cd41277c7a3..d7e7028e9b19 100644
+index 4e32f7aaac86..67d5beb34dc3 100644
 --- a/lib/dim/net_dim.c
 +++ b/lib/dim/net_dim.c
-@@ -165,6 +165,74 @@ void net_dim_free_irq_moder(struct net_device *dev)
- }
- EXPORT_SYMBOL(net_dim_free_irq_moder);
- 
-+void net_dim_setting(struct net_device *dev, struct dim *dim, bool is_tx)
-+{
-+	struct dim_irq_moder *irq_moder = dev->irq_moder;
-+
-+	if (!irq_moder)
-+		return;
-+
-+	if (is_tx) {
-+		INIT_WORK(&dim->work, irq_moder->tx_dim_work);
-+		dim->mode = READ_ONCE(irq_moder->dim_tx_mode);
-+		return;
-+	}
-+
-+	INIT_WORK(&dim->work, irq_moder->rx_dim_work);
-+	dim->mode = READ_ONCE(irq_moder->dim_rx_mode);
-+}
-+EXPORT_SYMBOL(net_dim_setting);
-+
-+void net_dim_work_cancel(struct dim *dim)
-+{
-+	cancel_work_sync(&dim->work);
-+}
-+EXPORT_SYMBOL(net_dim_work_cancel);
-+
-+struct dim_cq_moder net_dim_get_rx_irq_moder(struct net_device *dev,
-+					     struct dim *dim)
-+{
-+	struct dim_cq_moder res, *profile;
-+
-+	rcu_read_lock();
-+	profile = rcu_dereference(dev->irq_moder->rx_profile);
-+	res = profile[dim->profile_ix];
-+	rcu_read_unlock();
-+
-+	res.cq_period_mode = dim->mode;
-+
-+	return res;
-+}
-+EXPORT_SYMBOL(net_dim_get_rx_irq_moder);
-+
-+struct dim_cq_moder net_dim_get_tx_irq_moder(struct net_device *dev,
-+					     struct dim *dim)
-+{
-+	struct dim_cq_moder res, *profile;
-+
-+	rcu_read_lock();
-+	profile = rcu_dereference(dev->irq_moder->tx_profile);
-+	res = profile[dim->profile_ix];
-+	rcu_read_unlock();
-+
-+	res.cq_period_mode = dim->mode;
-+
-+	return res;
-+}
-+EXPORT_SYMBOL(net_dim_get_tx_irq_moder);
-+
-+void net_dim_set_rx_mode(struct net_device *dev, u8 rx_mode)
-+{
-+	WRITE_ONCE(dev->irq_moder->dim_rx_mode, rx_mode);
-+}
-+EXPORT_SYMBOL(net_dim_set_rx_mode);
-+
-+void net_dim_set_tx_mode(struct net_device *dev, u8 tx_mode)
-+{
-+	WRITE_ONCE(dev->irq_moder->dim_tx_mode, tx_mode);
-+}
-+EXPORT_SYMBOL(net_dim_set_tx_mode);
-+
- static int net_dim_step(struct dim *dim)
- {
- 	if (dim->tired == (NET_DIM_PARAMS_NUM_PROFILES * 2))
+@@ -11,12 +11,6 @@
+  *        There are different set of profiles for RX/TX CQs.
+  *        Each profile size must be of NET_DIM_PARAMS_NUM_PROFILES
+  */
+-#define NET_DIM_PARAMS_NUM_PROFILES 5
+-#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
+-#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
+-#define NET_DIM_DEF_PROFILE_CQE 1
+-#define NET_DIM_DEF_PROFILE_EQE 1
+-
+ #define NET_DIM_RX_EQE_PROFILES { \
+ 	{.usec = 1,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
+ 	{.usec = 8,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
 -- 
 2.32.0.3.g01195cf9f
 
