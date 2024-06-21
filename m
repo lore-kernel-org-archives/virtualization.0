@@ -1,179 +1,238 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756B916C448
-	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 07:44:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77E2484E0D;
+	Fri, 21 Jun 2024 08:45:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718955848; cv=none; b=bUmt6LydpHcD+IMFXnsYkEHENLWQlm5UAo5ty5TitoYE0fzY9foG8Pq1KuJRtXznX1KQEFvrHhvrmbPPvDZc3A4JSd7dY6o7qJq2FSp0Mxe8ThyHnY7PM6kk5tDbOf8kXi5FAjJnyP8XGET8w5IGiS8DcpRk2QW3GnlowGBSLTw=
+	t=1718959545; cv=none; b=W9V149LTYZwZPBY1nGyNejcR0Am39/pJvCgYKmhmW+D0tRREhBqLc28H7OYM8QH5NbAyUgMBRVxDZv1IaHILCusZmmpEzaz312SpVDF7u0wfNSjXzfC+S08HsBTS4NgmN6poiVjEgQl3wQFZqiqp7bD7MD2QICq+Wcpns7UCh3M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718955848; c=relaxed/simple;
-	bh=Sy9ZOn8NK7MnCsuHfevQ7ppL9Y9bZfsvNWY9MkGv39o=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=LxuIeo4pn8NupSkaaDo2dKzGNt4kQBoJgXp5Yzr8EKuWENzK2O16/dM5S66CvahTu1v/WUBEVlUyH+pOm5zTpx/0Rn72M911digyFnrvkUlq6r/4ERp1Kv92Pmz6BMbiof8oXh+wI+bHjdBZoQ0Iai6OxAkgZx9+ZlMWfQtwEMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iI3tXVpo; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1718959545; c=relaxed/simple;
+	bh=octImp/hbb6hih4Mkyk7R+jtYPhN783CY6AS6qpoGjc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=P8STFBCg1Lx+TuCmmCVkWJqSd4hdZr36SRfSWR1p3UC8rrEqScCTv8qmmrbWU2RfQaS1VduNYLsbZ6p3Skk7C6nE2tHfmkVcSQjRWqLiPNDWYy/XKNKdVK9t7ArCYDVm80Ei7x2gpa40ag2pAQzbb603/Flj6v5btzwjh6XodXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HKtZZyum; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iI3tXVpo"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718955843; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=4xIHEedSkR7qBZvF3zyjozrFeMDZlYkrDToG/UgkIKU=;
-	b=iI3tXVpo3iEUj7Jz4uDvbJhFBRP3/ldqHseC/sIwKeIb6yHPjwB2BX9iZWVyFyjkKs26hGOdb3+Ab5LM6iay5mduNtSxt04IREYB49Pd+DSzo3ITG8PAfKbsXqzEsFjKMk3IaQP6LvG4YezV2WiPZLVBAMZ2vP33ruTeCxF0U64=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W8vWSYq_1718955841;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8vWSYq_1718955841)
-          by smtp.aliyun-inc.com;
-          Fri, 21 Jun 2024 15:44:02 +0800
-Message-ID: <1718955706.2555537-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
-Date: Fri, 21 Jun 2024 15:41:46 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Heng Qi <hengqi@linux.alibaba.com>
-References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
- <20240619161908.82348-3-hengqi@linux.alibaba.com>
- <20240619171708-mutt-send-email-mst@kernel.org>
- <1718868555.2701075-5-hengqi@linux.alibaba.com>
- <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
- <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
- <1718877195.0503237-9-hengqi@linux.alibaba.com>
- <20240620060816-mutt-send-email-mst@kernel.org>
- <20240620061109-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240620061109-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HKtZZyum"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=octImp/hbb6hih4Mkyk7R+jtYPhN783CY6AS6qpoGjc=; b=HKtZZyum0/94YbgKn50jGSF+TP
+	nNEuEZJ2F+79HcuhkwG3gwZirNbNzoYdet3BSdpTT4y1rbjelXNBaPF4Wpx9wHIuP5Lf+J9DG0/sb
+	9BlSxsQZZqppfOAmu39n1ZSj0SdNboIMj4KLdVRX3ZRmqk6G9RnZKxqvTSeP2hB441/SXM1RhyE1E
+	R8z0LgWyXQqFBUvKC+aBU5L13zANwdJSRiiXvtOREYBsXiJzSFC6ydbwn5lRb0WNKIPbyYy7h/rRM
+	akzZ2s8oTULtKixjByUdfVs69/JJjIRQNlsgmnRhks660IL0qb3c67tWUATZpBsXXo/Ym2fRxMeyO
+	eMrFbXVw==;
+Received: from [2001:8b0:10b:5:79ed:809d:f17f:46e5] (helo=u3832b3a9db3152.ant.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sKZte-00000006z9e-0ZVX;
+	Fri, 21 Jun 2024 08:45:26 +0000
+Message-ID: <c0ae63fc88365c93d5401972683a41112c094704.camel@infradead.org>
+Subject: Re: [RFC PATCH v3 0/7] Add virtio_rtc module and related changes
+From: David Woodhouse <dwmw2@infradead.org>
+To: Peter Hilber <peter.hilber@opensynergy.com>,
+ linux-kernel@vger.kernel.org,  virtualization@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org,  linux-rtc@vger.kernel.org, "Ridoux,
+ Julien" <ridouxj@amazon.com>,  virtio-dev@lists.linux.dev
+Cc: "Christopher S. Hall" <christopher.s.hall@intel.com>, Jason Wang
+ <jasowang@redhat.com>, John Stultz <jstultz@google.com>, "Michael S.
+ Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Richard Cochran
+ <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>, Thomas
+ Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marc
+ Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Daniel
+ Lezcano <daniel.lezcano@linaro.org>, Alessandro Zummo
+ <a.zummo@towertech.it>,  Alexandre Belloni <alexandre.belloni@bootlin.com>
+Date: Fri, 21 Jun 2024 09:45:25 +0100
+In-Reply-To: <db594efd5a5774748a9ef07cc86741f5a677bdbf.camel@infradead.org>
+References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
+	 <684eac07834699889fdb67be4cee09319c994a42.camel@infradead.org>
+	 <671a784b-234f-4be6-80bf-5135e257ed40@opensynergy.com>
+	 <db594efd5a5774748a9ef07cc86741f5a677bdbf.camel@infradead.org>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-HR2p0POzl1PQKfx5bxjB"
+User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-
-On Thu, 20 Jun 2024 06:11:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> w=
-rote:
-> On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
-> > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
-> > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Thu, Jun 20, 2024 at 4:21=E2=80=AFPM Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > >
-> > > > > On Thu, Jun 20, 2024 at 3:35=E2=80=AFPM Heng Qi <hengqi@linux.ali=
-baba.com> wrote:
-> > > > > >
-> > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@r=
-edhat.com> wrote:
-> > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
-> > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct vi=
-rtnet_info *vi)
-> > > > > > > >
-> > > > > > > >     /* Parameters for control virtqueue, if any */
-> > > > > > > >     if (vi->has_cvq) {
-> > > > > > > > -           callbacks[total_vqs - 1] =3D NULL;
-> > > > > > > > +           callbacks[total_vqs - 1] =3D virtnet_cvq_done;
-> > > > > > > >             names[total_vqs - 1] =3D "control";
-> > > > > > > >     }
-> > > > > > > >
-> > > > > > >
-> > > > > > > If the # of MSIX vectors is exactly for data path VQs,
-> > > > > > > this will cause irq sharing between VQs which will degrade
-> > > > > > > performance significantly.
-> > > > > > >
-> > > > >
-> > > > > Why do we need to care about buggy management? I think libvirt has
-> > > > > been teached to use 2N+2 since the introduction of the multiqueue=
-[1].
-> > > >
-> > > > And Qemu can calculate it correctly automatically since:
-> > > >
-> > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
-> > > > Author: Jason Wang <jasowang@redhat.com>
-> > > > Date:   Mon Mar 8 12:49:19 2021 +0800
-> > > >
-> > > >     virtio-net: calculating proper msix vectors on init
-> > > >
-> > > >     Currently, the default msix vectors for virtio-net-pci is 3 whi=
-ch is
-> > > >     obvious not suitable for multiqueue guest, so we depends on the=
- user
-> > > >     or management tools to pass a correct vectors parameter. In fac=
-t, we
-> > > >     can simplifying this by calculating the number of vectors on re=
-alize.
-> > > >
-> > > >     Consider we have N queues, the number of vectors needed is 2*N =
-+ 2
-> > > >     (#queue pairs + plus one config interrupt and control vq). We d=
-idn't
-> > > >     check whether or not host support control vq because it was add=
-ed
-> > > >     unconditionally by qemu to avoid breaking legacy guests such as=
- Minix.
-> > > >
-> > > >     Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@redhat.com
-> > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > >
-> > > Yes, devices designed according to the spec need to reserve an interr=
-upt
-> > > vector for ctrlq. So, Michael, do we want to be compatible with buggy=
- devices?
-> > >
-> > > Thanks.
-> >
-> > These aren't buggy, the spec allows this. So don't fail, but
-> > I'm fine with using polling if not enough vectors.
->
-> sharing with config interrupt is easier code-wise though, FWIW -
-> we don't need to maintain two code-paths.
+MIME-Version: 1.0
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
 
-If we do that, we should introduce a new helper, not to add new function to
-find_vqs().
+--=-HR2p0POzl1PQKfx5bxjB
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-if ->share_irq_with_config:
-	->share_irq_with_config(..., vq_idx)
+On Thu, 2024-06-20 at 17:19 +0100, David Woodhouse wrote:
+>=20
+> >=20
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* Counter frequency, and =
+error margin. Units of (second >> 64) */
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint64_t counter_period_fr=
+ac_sec;
+> >=20
+> > AFAIU this might limit the precision in case of high counter frequencie=
+s.
+> > Could the unit be aligned to the expected frequency band of counters?
+>=20
+> This field indicates the period of a single tick, in units of 1>>64 of
+> a second. That's about 5.4e-20 seconds, or 54 zeptoseconds?=20
+>=20
+> Can you walk me through a calculation where you believe that level of
+> precision is insufficient?
+>=20
+> I guess the precision matters if the structure isn't updated for a long
+> period of time, and the delta between the current counter and the
+> snapshot is high? That's a *lot* of 54 zeptosecondses? But you really
+> would need a *lot* of them before you care? And if nobody's been
+> calibrating your counter for that long, surely you have bigger worries?
+>=20
+> Am I missing something there?
 
-Thanks.
+Hm, that was a bit rushed at the end of the day; let's take a better look..=
+.
+
+Let's take a hypothetical example of a 100GHz counter. That's two
+orders of magnitude more than today's Arm arch counter.
+
+The period of such a counter would be 10 picoseconds.=20
+
+(Let's ignore the question of how far light actually travels in that
+time and how *realistic* that example is, for the moment.)
+
+It turns out that at that rate, there *are* a lot of 54 zeptosecondses
+of precision loss in the day. It could be half a millisecond a day, or
+20=C2=B5s an hour.
+
+That particular example of 10 picoseconds is 184467440.7370955
+(seconds>>64) which could be truncated to 184467440 =E2=80=94 losing about =
+4PPB
+(a third of a millisecond a day; 14=C2=B5s an hour).
+
+So yeah, I suppose a 'shift' field could make sense. It's easy enough
+to consume on the guest side as it doesn't really perturb the 128-bit
+multiplication very much; especially if we don't let it be negative.
+
+And implementations *can* just set it to zero. It hurts nobody.
+
+Or were you thinking of just using a fixed shift like (seconds>>80)
+instead?
+
+--=-HR2p0POzl1PQKfx5bxjB
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCEkQw
+ggYQMIID+KADAgECAhBNlCwQ1DvglAnFgS06KwZPMA0GCSqGSIb3DQEBDAUAMIGIMQswCQYDVQQG
+EwJVUzETMBEGA1UECBMKTmV3IEplcnNleTEUMBIGA1UEBxMLSmVyc2V5IENpdHkxHjAcBgNVBAoT
+FVRoZSBVU0VSVFJVU1QgTmV0d29yazEuMCwGA1UEAxMlVVNFUlRydXN0IFJTQSBDZXJ0aWZpY2F0
+aW9uIEF1dGhvcml0eTAeFw0xODExMDIwMDAwMDBaFw0zMDEyMzEyMzU5NTlaMIGWMQswCQYDVQQG
+EwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYD
+VQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50
+aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
+AQEAyjztlApB/975Rrno1jvm2pK/KxBOqhq8gr2+JhwpKirSzZxQgT9tlC7zl6hn1fXjSo5MqXUf
+ItMltrMaXqcESJuK8dtK56NCSrq4iDKaKq9NxOXFmqXX2zN8HHGjQ2b2Xv0v1L5Nk1MQPKA19xeW
+QcpGEGFUUd0kN+oHox+L9aV1rjfNiCj3bJk6kJaOPabPi2503nn/ITX5e8WfPnGw4VuZ79Khj1YB
+rf24k5Ee1sLTHsLtpiK9OjG4iQRBdq6Z/TlVx/hGAez5h36bBJMxqdHLpdwIUkTqT8se3ed0PewD
+ch/8kHPo5fZl5u1B0ecpq/sDN/5sCG52Ds+QU5O5EwIDAQABo4IBZDCCAWAwHwYDVR0jBBgwFoAU
+U3m/WqorSs9UgOHYm8Cd8rIDZsswHQYDVR0OBBYEFAnA8vwL2pTbX/4r36iZQs/J4K0AMA4GA1Ud
+DwEB/wQEAwIBhjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEF
+BQcDBDARBgNVHSAECjAIMAYGBFUdIAAwUAYDVR0fBEkwRzBFoEOgQYY/aHR0cDovL2NybC51c2Vy
+dHJ1c3QuY29tL1VTRVJUcnVzdFJTQUNlcnRpZmljYXRpb25BdXRob3JpdHkuY3JsMHYGCCsGAQUF
+BwEBBGowaDA/BggrBgEFBQcwAoYzaHR0cDovL2NydC51c2VydHJ1c3QuY29tL1VTRVJUcnVzdFJT
+QUFkZFRydXN0Q0EuY3J0MCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1c3QuY29tMA0G
+CSqGSIb3DQEBDAUAA4ICAQBBRHUAqznCFfXejpVtMnFojADdF9d6HBA4kMjjsb0XMZHztuOCtKF+
+xswhh2GqkW5JQrM8zVlU+A2VP72Ky2nlRA1GwmIPgou74TZ/XTarHG8zdMSgaDrkVYzz1g3nIVO9
+IHk96VwsacIvBF8JfqIs+8aWH2PfSUrNxP6Ys7U0sZYx4rXD6+cqFq/ZW5BUfClN/rhk2ddQXyn7
+kkmka2RQb9d90nmNHdgKrwfQ49mQ2hWQNDkJJIXwKjYA6VUR/fZUFeCUisdDe/0ABLTI+jheXUV1
+eoYV7lNwNBKpeHdNuO6Aacb533JlfeUHxvBz9OfYWUiXu09sMAviM11Q0DuMZ5760CdO2VnpsXP4
+KxaYIhvqPqUMWqRdWyn7crItNkZeroXaecG03i3mM7dkiPaCkgocBg0EBYsbZDZ8bsG3a08LwEsL
+1Ygz3SBsyECa0waq4hOf/Z85F2w2ZpXfP+w8q4ifwO90SGZZV+HR/Jh6rEaVPDRF/CEGVqR1hiuQ
+OZ1YL5ezMTX0ZSLwrymUE0pwi/KDaiYB15uswgeIAcA6JzPFf9pLkAFFWs1QNyN++niFhsM47qod
+x/PL+5jR87myx5uYdBEQkkDc+lKB1Wct6ucXqm2EmsaQ0M95QjTmy+rDWjkDYdw3Ms6mSWE3Bn7i
+5ZgtwCLXgAIe5W8mybM2JzCCBhQwggT8oAMCAQICEQDGvhmWZ0DEAx0oURL6O6l+MA0GCSqGSIb3
+DQEBCwUAMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNlY3RpZ28g
+UlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMB4XDTIyMDEwNzAw
+MDAwMFoXDTI1MDEwNjIzNTk1OVowJDEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9y
+ZzCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBALQ3GpC2bomUqk+91wLYBzDMcCj5C9m6
+oZaHwvmIdXftOgTbCJXADo6G9T7BBAebw2JV38EINgKpy/ZHh7htyAkWYVoFsFPrwHounto8xTsy
+SSePMiPlmIdQ10BcVSXMUJ3Juu16GlWOnAMJY2oYfEzmE7uT9YgcBqKCo65pTFmOnR/VVbjJk4K2
+xE34GC2nAdUQkPFuyaFisicc6HRMOYXPuF0DuwITEKnjxgNjP+qDrh0db7PAjO1D4d5ftfrsf+kd
+RR4gKVGSk8Tz2WwvtLAroJM4nXjNPIBJNT4w/FWWc/5qPHJy2U+eITZ5LLE5s45mX2oPFknWqxBo
+bQZ8a9dsZ3dSPZBvE9ZrmtFLrVrN4eo1jsXgAp1+p7bkfqd3BgBEmfsYWlBXO8rVXfvPgLs32VdV
+NZxb/CDWPqBsiYv0Hv3HPsz07j5b+/cVoWqyHDKzkaVbxfq/7auNVRmPB3v5SWEsH8xi4Bez2V9U
+KxfYCnqsjp8RaC2/khxKt0A552Eaxnz/4ly/2C7wkwTQnBmdlFYhAflWKQ03Ufiu8t3iBE3VJbc2
+5oMrglj7TRZrmKq3CkbFnX0fyulB+kHimrt6PIWn7kgyl9aelIl6vtbhMA+l0nfrsORMa4kobqQ5
+C5rveVgmcIad67EDa+UqEKy/GltUwlSh6xy+TrK1tzDvAgMBAAGjggHMMIIByDAfBgNVHSMEGDAW
+gBQJwPL8C9qU21/+K9+omULPyeCtADAdBgNVHQ4EFgQUzMeDMcimo0oz8o1R1Nver3ZVpSkwDgYD
+VR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMC
+MEAGA1UdIAQ5MDcwNQYMKwYBBAGyMQECAQEBMCUwIwYIKwYBBQUHAgEWF2h0dHBzOi8vc2VjdGln
+by5jb20vQ1BTMFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9jcmwuc2VjdGlnby5jb20vU2VjdGln
+b1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcmwwgYoGCCsGAQUFBwEB
+BH4wfDBVBggrBgEFBQcwAoZJaHR0cDovL2NydC5zZWN0aWdvLmNvbS9TZWN0aWdvUlNBQ2xpZW50
+QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAjBggrBgEFBQcwAYYXaHR0cDovL29j
+c3Auc2VjdGlnby5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5mcmFkZWFkLm9yZzANBgkqhkiG9w0B
+AQsFAAOCAQEAyW6MUir5dm495teKqAQjDJwuFCi35h4xgnQvQ/fzPXmtR9t54rpmI2TfyvcKgOXp
+qa7BGXNFfh1JsqexVkIqZP9uWB2J+uVMD+XZEs/KYNNX2PvIlSPrzIB4Z2wyIGQpaPLlYflrrVFK
+v9CjT2zdqvy2maK7HKOQRt3BiJbVG5lRiwbbygldcALEV9ChWFfgSXvrWDZspnU3Gjw/rMHrGnql
+Htlyebp3pf3fSS9kzQ1FVtVIDrL6eqhTwJxe+pXSMMqFiN0whpBtXdyDjzBtQTaZJ7zTT/vlehc/
+tDuqZwGHm/YJy883Ll+GP3NvOkgaRGWEuYWJJ6hFCkXYjyR9IzCCBhQwggT8oAMCAQICEQDGvhmW
+Z0DEAx0oURL6O6l+MA0GCSqGSIb3DQEBCwUAMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3Jl
+YXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0
+ZWQxPjA8BgNVBAMTNVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJl
+IEVtYWlsIENBMB4XDTIyMDEwNzAwMDAwMFoXDTI1MDEwNjIzNTk1OVowJDEiMCAGCSqGSIb3DQEJ
+ARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBALQ3
+GpC2bomUqk+91wLYBzDMcCj5C9m6oZaHwvmIdXftOgTbCJXADo6G9T7BBAebw2JV38EINgKpy/ZH
+h7htyAkWYVoFsFPrwHounto8xTsySSePMiPlmIdQ10BcVSXMUJ3Juu16GlWOnAMJY2oYfEzmE7uT
+9YgcBqKCo65pTFmOnR/VVbjJk4K2xE34GC2nAdUQkPFuyaFisicc6HRMOYXPuF0DuwITEKnjxgNj
+P+qDrh0db7PAjO1D4d5ftfrsf+kdRR4gKVGSk8Tz2WwvtLAroJM4nXjNPIBJNT4w/FWWc/5qPHJy
+2U+eITZ5LLE5s45mX2oPFknWqxBobQZ8a9dsZ3dSPZBvE9ZrmtFLrVrN4eo1jsXgAp1+p7bkfqd3
+BgBEmfsYWlBXO8rVXfvPgLs32VdVNZxb/CDWPqBsiYv0Hv3HPsz07j5b+/cVoWqyHDKzkaVbxfq/
+7auNVRmPB3v5SWEsH8xi4Bez2V9UKxfYCnqsjp8RaC2/khxKt0A552Eaxnz/4ly/2C7wkwTQnBmd
+lFYhAflWKQ03Ufiu8t3iBE3VJbc25oMrglj7TRZrmKq3CkbFnX0fyulB+kHimrt6PIWn7kgyl9ae
+lIl6vtbhMA+l0nfrsORMa4kobqQ5C5rveVgmcIad67EDa+UqEKy/GltUwlSh6xy+TrK1tzDvAgMB
+AAGjggHMMIIByDAfBgNVHSMEGDAWgBQJwPL8C9qU21/+K9+omULPyeCtADAdBgNVHQ4EFgQUzMeD
+Mcimo0oz8o1R1Nver3ZVpSkwDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYw
+FAYIKwYBBQUHAwQGCCsGAQUFBwMCMEAGA1UdIAQ5MDcwNQYMKwYBBAGyMQECAQEBMCUwIwYIKwYB
+BQUHAgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9j
+cmwuc2VjdGlnby5jb20vU2VjdGlnb1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1h
+aWxDQS5jcmwwgYoGCCsGAQUFBwEBBH4wfDBVBggrBgEFBQcwAoZJaHR0cDovL2NydC5zZWN0aWdv
+LmNvbS9TZWN0aWdvUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAj
+BggrBgEFBQcwAYYXaHR0cDovL29jc3Auc2VjdGlnby5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5m
+cmFkZWFkLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAyW6MUir5dm495teKqAQjDJwuFCi35h4xgnQv
+Q/fzPXmtR9t54rpmI2TfyvcKgOXpqa7BGXNFfh1JsqexVkIqZP9uWB2J+uVMD+XZEs/KYNNX2PvI
+lSPrzIB4Z2wyIGQpaPLlYflrrVFKv9CjT2zdqvy2maK7HKOQRt3BiJbVG5lRiwbbygldcALEV9Ch
+WFfgSXvrWDZspnU3Gjw/rMHrGnqlHtlyebp3pf3fSS9kzQ1FVtVIDrL6eqhTwJxe+pXSMMqFiN0w
+hpBtXdyDjzBtQTaZJ7zTT/vlehc/tDuqZwGHm/YJy883Ll+GP3NvOkgaRGWEuYWJJ6hFCkXYjyR9
+IzGCBMcwggTDAgEBMIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVz
+dGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMT
+NVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA
+xr4ZlmdAxAMdKFES+jupfjANBglghkgBZQMEAgEFAKCCAeswGAYJKoZIhvcNAQkDMQsGCSqGSIb3
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwNjIxMDg0NTI1WjAvBgkqhkiG9w0BCQQxIgQgFa1+VUXy
+bvd36nqVLYst8a8mfk6937WX6f9fVPlR83kwgb0GCSsGAQQBgjcQBDGBrzCBrDCBljELMAkGA1UE
+BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEYMBYG
+A1UEChMPU2VjdGlnbyBMaW1pdGVkMT4wPAYDVQQDEzVTZWN0aWdvIFJTQSBDbGllbnQgQXV0aGVu
+dGljYXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQQIRAMa+GZZnQMQDHShREvo7qX4wgb8GCyqGSIb3
+DQEJEAILMYGvoIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVy
+MRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNl
+Y3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEAxr4Z
+lmdAxAMdKFES+jupfjANBgkqhkiG9w0BAQEFAASCAgCa5tbBSK+VqSe6c334kH2p+fRExvEYKNM1
+cksmG5hhPywHjVmb4HFokpVRNXfCEdH1q/aQT415AWmK8jjk2nVNPxQ/cxmwjRqxooKVpoRdWJsh
+e4WexDgJV9dctZ48zZltYwwD3OqQvS7pISPN708a/do6y4BC7Ttx6LhQPMauOec8qz4aO7ruEXpi
+Z09FeyMopAe9pjOa0Ox66s5/TaTF7pEPIJoYrRVLr2IXOFG2BqTS2PhXCsIGJ738vhhLFDPcP0NC
+7RwqPlKdexlrGt0Vt+wAKfbmrEqPgcRJuu2wmXZV+ejKunhIZ5OyO1Nj6eQ7sISwJ7uO5+EDgCBh
+3tR1LrhHOaF9Hmu8VLhmpgtLHdBHMjezTFgFTKngmCX9XADjcqHWIeLQvToC7ScwEN6e/JweKBIs
+orV0Bm9wewSppA9GwZnubc5ZtdRhbgFmbbWZiyXXSSGuSnojr2FEudmHNHKxMfq9lWNpucQnjKT2
+poHU3YFyzHqFytPBh33svfVBvpNHvxoCAClkp8hfGjv//nwrkazmMnuHKEWZ0ZDi0RxLAA0vTEzG
+jfJoctbV+XJJ7m7dRonZ5UPBs4QL+CLqtDRGvuqJfsW+4ht5kfFziZ/7ArSgHoa9QbqF0ymiYO5q
+FrimJKpe/Mhl8mEIf+AGDIG2AeWGWNYAR7uexTg5DAAAAAAAAA==
 
 
->
-> > > >
-> > > > Thanks
-> > > >
-> > > > >
-> > > > > > > So no, you can not just do it unconditionally.
-> > > > > > >
-> > > > > > > The correct fix probably requires virtio core/API extensions.
-> > > > > >
-> > > > > > If the introduction of cvq irq causes interrupts to become shar=
-ed, then
-> > > > > > ctrlq need to fall back to polling mode and keep the status quo.
-> > > > >
-> > > > > Having to path sounds a burden.
-> > > > >
-> > > > > >
-> > > > > > Thanks.
-> > > > > >
-> > > > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > [1] https://www.linux-kvm.org/page/Multiqueue
-> > > > >
-> > > > > > >
-> > > > > > > --
-> > > > > > > MST
-> > > > > > >
-> > > > > >
-> > > >
->
+--=-HR2p0POzl1PQKfx5bxjB--
