@@ -1,71 +1,100 @@
-Received: from baidu.com (mx24.baidu.com [111.206.215.185])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D97BD12D773
-	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 06:21:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=111.206.215.185
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CC90382
+	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 06:33:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718950891; cv=none; b=Gd2bOOIIMn8CLb913ytUREzJAF6oNn2fNgpHnqVhb+pp1hsmE/bRPnT+maVCL837OI4C2HHlR8reQIOiEIIQ9ZEgKk4Gr1a2FSfky4mhjfvuZaOJ0Le/nLvPK3gUrAnlrR10f74KTzyxQy4+oyDDGAnfT7aWuyBKRVAydMH1lMk=
+	t=1718951590; cv=none; b=TjG3DY5vu5Pg0p3PlMN/WsPiVp9ndD11SFLGqwzfdUg19r26PzzD78A1q9ryeiylSax+Zt5fJ8E8bzztFIX+E+K9GZjIuko5DlENOOmVzGWD8VbgwLtl7UYHEn1sXWxHFkjeTi9blp5UZGt1XWxIH/OhOdhl23GNGW4Jq859pgA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718950891; c=relaxed/simple;
-	bh=u57FyeN4yXEi543jN5gw5XXDtHFLHwnOdJ8bk5RideY=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=l1vLlDjZr3NiKXP8IB6OqZ2YRrlddkbQxDdbygQTKNi4zudarWI3BkGUQ2Oo9pUsYKdiTaBBH0SD+IIxLtxOkJm6L9yPUOdwOa8zs56LHxupbUfIXbPDdwiYfSAw5TVOWDAi9XDWvxoEG+8RzSFFHk0CnGnqJ9DEVLnGjdHTLbw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com; spf=pass smtp.mailfrom=baidu.com; arc=none smtp.client-ip=111.206.215.185
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
-From: "Li,Rongqing" <lirongqing@baidu.com>
+	s=arc-20240116; t=1718951590; c=relaxed/simple;
+	bh=4pzyRHT73Q7GiPsI890QMwhId8ur1gzjRUjj9cW5f74=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=atuObtbSWTfzsjbtEZRQq1Tmr2sdpRCJBTtG8fJYaQAt29fA3fkdLRsXqJpL31MNyZklTAiDh6kLgHLPATvCmnTNabcY1SozLnFx8zTURW+ktbsn73ehgpNEMLtuGs91bhlI0bYzZIHFRdCSSfnJzZbSaCAcsG7rrzSf7cjIPvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HDw5sRv7; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HDw5sRv7"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1718951584; h=Message-ID:Subject:Date:From:To;
+	bh=HQzBAHQmzzdOD9opnF/vKbMd3fqbLQ9N71S3Ajm7tHA=;
+	b=HDw5sRv7nKaqBL0XKUDQRVH2cs4RuPAz30yxX1GNqLZOvV1wImY+16e7EFCcwBpUbdVyuU/AgW1Cc1GGUCeQhT+aGhn/alsxvvK4eRHyYHH1w0IMOVCC4DD9qXny5nkBkCW6uCSSgbUoJ2+Gk8u+g5YoExz545uOKMHoJDWA5kw=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0W8vIaOZ_1718951582;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8vIaOZ_1718951582)
+          by smtp.aliyun-inc.com;
+          Fri, 21 Jun 2024 14:33:02 +0800
+Message-ID: <1718951303.3419425-15-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH RESEND net-next v14 3/5] ethtool: provide customized dim profile management
+Date: Fri, 21 Jun 2024 14:28:23 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
 To: Jakub Kicinski <kuba@kernel.org>
-CC: "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com"
-	<jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
-	"hengqi@linux.alibaba.com" <hengqi@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Subject: RE: [????] Re: [PATCH] virtio_net: Use u64_stats_fetch_begin() for
- stats fetch
-Thread-Topic: [????] Re: [PATCH] virtio_net: Use u64_stats_fetch_begin() for
- stats fetch
-Thread-Index: AQHawfQooceI1YM1lUOLDiZ4kyQEFrHQLNAAgAGUPLA=
-Date: Fri, 21 Jun 2024 06:20:45 +0000
-Message-ID: <b9f5b5f86b994729a0c408b84fc01ec2@baidu.com>
-References: <20240619025529.5264-1-lirongqing@baidu.com>
- <20240620070908.2efe2048@kernel.org>
-In-Reply-To: <20240620070908.2efe2048@kernel.org>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ "David S . Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Tal Gilboa <talgi@nvidia.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Paul Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>,
+ Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com,
+ donald.hunter@gmail.com,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Dragos Tatulea <dtatulea@nvidia.com>,
+ Rahul Rameshbabu <rrameshbabu@nvidia.com>,
+ Heiner Kallweit <hkallweit1@gmail.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ awel Dembicki <paweldembicki@gmail.com>
+References: <20240618025644.25754-1-hengqi@linux.alibaba.com>
+ <20240618025644.25754-4-hengqi@linux.alibaba.com>
+ <20240620203918.407185c9@kernel.org>
+In-Reply-To: <20240620203918.407185c9@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-FEAS-Client-IP: 172.31.51.56
-X-FE-Last-Public-Client-IP: 100.100.100.38
-X-FE-Policy-ID: 52:10:53:SYSTEM
 
-> Did you by any chance use an automated tool of any sort to find this issu=
-e or
-> generate the fix?
->=20
-> I don't think this is actually necessary here, you're in the same context=
- as the
-> updater of the stats, you don't need any protection.
-> You can remove u64_stats_update_begin() / end() (in net-next, there's no =
-bug).
->=20
-> I won't comment on implications of calling dim_update_sample() in a loop.
->=20
-> Please make sure you answer my "did you use a tool" question, I'm really
-> curious.
+On Thu, 20 Jun 2024 20:39:18 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Tue, 18 Jun 2024 10:56:42 +0800 Heng Qi wrote:
+> > +	if (dev->irq_moder && dev->irq_moder->profile_flags & DIM_PROFILE_RX) {
+> > +		ret = ethnl_update_profile(dev, &dev->irq_moder->rx_profile,
+> > +					   tb[ETHTOOL_A_COALESCE_RX_PROFILE],
+> > +					   info->extack);
+> > +		if (ret < 0)
+> > +			return ret;
+> > +	}
+> > +
+> > +	if (dev->irq_moder && dev->irq_moder->profile_flags & DIM_PROFILE_TX) {
+> > +		ret = ethnl_update_profile(dev, &dev->irq_moder->tx_profile,
+> > +					   tb[ETHTOOL_A_COALESCE_TX_PROFILE],
+> > +					   info->extack);
+> > +		if (ret < 0)
+> > +			return ret;
+> > +	}
+> 
+> One last thing - you're missing updating the &mod bit.
+> When any of the settings were change mod should be set
+> to true so that we send a notification to user space,
+> that the settings have been modified.
 
+Oh, I didn't modify the mod bit in the past because the profile list
+modification does not require the dual_change behavior, ignoring the
+passing of ret = 0/1. Will modify.
 
-I have no tool, I find this when I investigating a DIM related issue.
-
-Thanks
-
+Thanks.
 
