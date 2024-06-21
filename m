@@ -1,30 +1,30 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4D83171675
-	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 10:14:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A837284D04
+	for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 10:14:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718964845; cv=none; b=L8RhQEmSG7V2wDbZZwfFB5ZZvp4SGHReQnibBZRZUBHrEe1faQiPrpEI2v+AWuzIHhKFvrPqnNWcRzf92Ll+eybXWu/k8rnNRXtA4O/Z7T5jk8LlQoIrA32el4ustKlPrbZN3MlcquzWh5NSS2ie0qPOAsyoRmHtlnwEx6e5kqw=
+	t=1718964846; cv=none; b=npeowULLGhg5p+c465omiL+YawZQ6nS2ozkhhcJM6wYjlhat4JNkZQSj5LUwnbYfcjif54sk0tRZXsiMFanpXVjEdO1LrVz4HSUDI/FKVX2xgMqJNEgsqFW6mBuqJtp8ows5SLShH8rxOLDt7LiSyTDWJbZ9QAU8XWjOg71TmuY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718964845; c=relaxed/simple;
-	bh=qpbCOZDB+J2nwsl2XAfQG4PhbDJfMsdiPNu27gIPiz4=;
+	s=arc-20240116; t=1718964846; c=relaxed/simple;
+	bh=tmlri8t1CxgfIkfVOnGXuPMD3e1M651EGjnqQtUcNRI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=SM+MMvEa+aYuygNCGzqr0gWx12Xkern3lVgbV9wfC/z+K9h2mFLePUAT/m+I0SQnRHTWx3a1wgRC6m2ti0nceFKPIz9e9cJgzYk6i7dnypdH+cp4dT73xA3btO2jIHBXGRI3EAFcovvVr6cTaXUMjMCGD5//GA3sQnPszIsVFIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Q4lhrgQm; arc=none smtp.client-ip=115.124.30.112
+	 MIME-Version; b=qpjDmtKkYFXuxGL7MlN1wwYnx/jlIpn8L4uMOiSYwYj0CD3EJClrCkpqOYi93Z8j6XfHDhpBFzO5EFWWB42Dxl2CSeZa1ATRwTx1I0V/BWwG3kmRxHpiniVfl2gg7hdicl0FYFTGZ+sn0OJkERbBIkr3tZcpdJo1NbA77th/zmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hPr8Lbog; arc=none smtp.client-ip=115.124.30.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Q4lhrgQm"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hPr8Lbog"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718964836; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=L8rSiqZg3PV499+UfKe91Ovz/HqoQnMxBzyIpQmBxEM=;
-	b=Q4lhrgQm5SbzfXbozwpJHKV8/o/NEpfn/di7wb+1F23Q0DlL10dFjLCZfUED2NOFLZKusD4f23d5y14zTnpKHmQuqKzNXC1DeswT1ewSuolmcwvUF15YGK7MXadZSZNTAYBRnS7sz6fbibivhqiY0ryp23rdhYFvwhQCbrQ+XOU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=32;SR=0;TI=SMTPD_---0W8w4rvc_1718964834;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8w4rvc_1718964834)
+	t=1718964837; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=N5h3iZ4k+3MeEdd0aie0bnGKKRDFAZ2ZrjPuYSrtQc0=;
+	b=hPr8Lbogkiz/1j2MO0EWQTl0/95pwCozCfwJXOy5ods2Q3Gi1jD3RObfyMZOacdClwDm0dNGH7VXKzACd9IyjhnQTuP+L0Wko9kbNTzBCdeIXG5RFcuKYWw+FZIE2QAWGU3dw0x/9/sBTHMYeFa/YKZwnerLegooz6KbfGZQhrk=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=32;SR=0;TI=SMTPD_---0W8w3037_1718964836;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W8w3037_1718964836)
           by smtp.aliyun-inc.com;
-          Fri, 21 Jun 2024 18:13:55 +0800
+          Fri, 21 Jun 2024 18:13:56 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -58,9 +58,9 @@ Cc: Jakub Kicinski <kuba@kernel.org>,
 	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
 	awel Dembicki <paweldembicki@gmail.com>,
 	Simon Horman <horms@kernel.org>
-Subject: [PATCH net-next v15 1/5] linux/dim: move useful macros to .h file
-Date: Fri, 21 Jun 2024 18:13:49 +0800
-Message-Id: <20240621101353.107425-2-hengqi@linux.alibaba.com>
+Subject: [PATCH net-next v15 2/5] dim: make DIMLIB dependent on NET
+Date: Fri, 21 Jun 2024 18:13:50 +0800
+Message-Id: <20240621101353.107425-3-hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240621101353.107425-1-hengqi@linux.alibaba.com>
 References: <20240621101353.107425-1-hengqi@linux.alibaba.com>
@@ -72,51 +72,50 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Useful macros will be used effectively elsewhere.
-These will be utilized in subsequent patches.
+DIMLIB's capabilities are supplied by the dim, net_dim, and
+rdma_dim objects, and dim's interfaces solely act as a base for
+net_dim and rdma_dim and are not explicitly used anywhere else.
+rdma_dim is utilized by the infiniband driver, while net_dim
+is for network devices, excluding the soc/fsl driver.
+
+In this patch, net_dim relies on some NET's interfaces, thus
+DIMLIB needs to explicitly depend on the NET Kconfig.
+
+The soc/fsl driver uses the functions provided by net_dim, so
+it also needs to depend on NET.
 
 Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
 Reviewed-by: Simon Horman <horms@kernel.org>
 ---
- include/linux/dim.h | 7 +++++++
- lib/dim/net_dim.c   | 6 ------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/soc/fsl/Kconfig | 2 +-
+ lib/Kconfig             | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/dim.h b/include/linux/dim.h
-index f343bc9aa2ec..43398f5eade2 100644
---- a/include/linux/dim.h
-+++ b/include/linux/dim.h
-@@ -10,6 +10,13 @@
- #include <linux/types.h>
- #include <linux/workqueue.h>
+diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
+index fcec6ed83d5e..a1e0bc8c1757 100644
+--- a/drivers/soc/fsl/Kconfig
++++ b/drivers/soc/fsl/Kconfig
+@@ -22,7 +22,7 @@ config FSL_GUTS
  
-+/* Number of DIM profiles and period mode. */
-+#define NET_DIM_PARAMS_NUM_PROFILES 5
-+#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
-+#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
-+#define NET_DIM_DEF_PROFILE_CQE 1
-+#define NET_DIM_DEF_PROFILE_EQE 1
-+
- /*
-  * Number of events between DIM iterations.
-  * Causes a moderation of the algorithm run.
-diff --git a/lib/dim/net_dim.c b/lib/dim/net_dim.c
-index 4e32f7aaac86..67d5beb34dc3 100644
---- a/lib/dim/net_dim.c
-+++ b/lib/dim/net_dim.c
-@@ -11,12 +11,6 @@
-  *        There are different set of profiles for RX/TX CQs.
-  *        Each profile size must be of NET_DIM_PARAMS_NUM_PROFILES
-  */
--#define NET_DIM_PARAMS_NUM_PROFILES 5
--#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
--#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
--#define NET_DIM_DEF_PROFILE_CQE 1
--#define NET_DIM_DEF_PROFILE_EQE 1
--
- #define NET_DIM_RX_EQE_PROFILES { \
- 	{.usec = 1,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
- 	{.usec = 8,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
+ config FSL_MC_DPIO
+         tristate "QorIQ DPAA2 DPIO driver"
+-        depends on FSL_MC_BUS
++        depends on FSL_MC_BUS && NET
+         select SOC_BUS
+         select FSL_GUTS
+         select DIMLIB
+diff --git a/lib/Kconfig b/lib/Kconfig
+index b0a76dff5c18..b38849af6f13 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -623,6 +623,7 @@ config SIGNATURE
+ 
+ config DIMLIB
+ 	tristate
++	depends on NET
+ 	help
+ 	  Dynamic Interrupt Moderation library.
+ 	  Implements an algorithm for dynamically changing CQ moderation values
 -- 
 2.32.0.3.g01195cf9f
 
