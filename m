@@ -1,282 +1,198 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA54836126
-	for <virtualization@lists.linux.dev>; Sat, 22 Jun 2024 06:07:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.16
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719036467; cv=fail; b=MKrT3DjysS/lcre/usNIC0p+C+95goBMjWp84QkjoLDu3kXDCoKQoMv5KZBQ9lQ0MLI0YNkMfu8xVhTQ0/6JTFk3LTr3ztmy7rW6c/63LD8xmUCvJlUbZ6YoPvtU3f3d4ewTkWolQ3PYbm9koIO1HUEt7WlMjJedpLW5MJWrlj8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719036467; c=relaxed/simple;
-	bh=xvDu0IERs33YFFpOIqsSC03l24wzHA82W7XARUl+RcA=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=I2NJ1csqiGvrHIlYQLz4QUGY/1CR4Aq74N3RjQzWP0gKZ8myWfOBYOoyyGgd55To2gpE2MMwkniX0EKUscfPSXUCX/9Lspxi601tNpba1YzKXJmLAtXbeE9pB2gh9/UQswSWRCDgWc88y6zKDmWWZP3uSFcPzf1OKEqYK4UJWBU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=c0eT1+i9; arc=fail smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AD6614AD0D
+	for <virtualization@lists.linux.dev>; Sat, 22 Jun 2024 06:12:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1719036772; cv=none; b=eZtxGYpnZUGj+ndfAejNGhRp1uQ6/QTNtZeqreLhPWHT/FZvFGIP/WHAwiBAmmLYla5+XX23zYUcvTIAxibvynoHOR9Dy4jeuqBR+V+tMJwaL6ro/aZneV19Dmh6PE4pxGrgqsIT0p+SiL3or90XyxcdyMOU8hGTkZGlc37zV14=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1719036772; c=relaxed/simple;
+	bh=p6PDmXigC5hUdyFCozlaD9uz4k5UZDZrhOi7GZpbu7M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DH7GtcvL7Tu7yER/M9+SWsqdYos0WXyU4vIhX51lLvxxwAs33Je4jCi6sfV0kOrwE6Qbe2Up3s4/MkuFWK1aeQZfkdjjrHm7mzhGIdbZazYy7twd28fG7OHKRxYah+hQV+n2iIBzG+cplZSqG91/yDUr5iPn9Z1j+qSEvhrEPWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mz5RStLR; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="c0eT1+i9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1719036465; x=1750572465;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=xvDu0IERs33YFFpOIqsSC03l24wzHA82W7XARUl+RcA=;
-  b=c0eT1+i9XC3GNdJM+G1t8WIAdcrlvWGzo6AKKBLQW+LtBrOqlYONsg06
-   TirMJD6NYmTHaoGIh06I8E8/6Ezr2IgdCDP3E43y4kJE1cDQeGmiL17A0
-   SdE0FUhEFMJ9Rq96r6SSBJPzfvYfYzR9arPaT82gPwu0hIieGOFa//pnt
-   /CKswYzRn0tLq5O47EvOmqGHBg7tsMU/i32SO1leICtGMlv2EgKgiX88K
-   na5J574Zm0C5XlCJrIrepjoqKutACVWhBKA1sP0qmy10gUO7FtxfAnuZY
-   bJ+XERAikeJfGtlG/LnNP/r2Irx88ZhNY312EBiKUFI3x5Sw/tYeDFtfE
-   w==;
-X-CSE-ConnectionGUID: H1jO+g/iT0Gq1t370v1ngA==
-X-CSE-MsgGUID: dqcExYQmTXuDVwSH3fhnFg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11110"; a="12190102"
-X-IronPort-AV: E=Sophos;i="6.08,256,1712646000"; 
-   d="scan'208";a="12190102"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jun 2024 23:07:44 -0700
-X-CSE-ConnectionGUID: DWiZ2G8XRuWXNyVLO+9scg==
-X-CSE-MsgGUID: VW4dFkxfTx6axeYnzQNc0g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,256,1712646000"; 
-   d="scan'208";a="43230573"
-Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
-  by orviesa006.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 21 Jun 2024 23:07:44 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Fri, 21 Jun 2024 23:07:43 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Fri, 21 Jun 2024 23:07:43 -0700
-Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Fri, 21 Jun 2024 23:07:43 -0700
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com (104.47.56.41) by
- edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Fri, 21 Jun 2024 23:07:43 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kx4pKDe5nB8R8XduQujUCIO2U3eHRYlWFmzcGYE41iGP2N2gds1iAQSGVNtgo4cpEDaHjIFiMUas58cGp211lrd80AfXJ7HJe/cq7DBBzR/L8q92p8o/wBVlbXtcmNL2r4WqYcRz28JtjCLRVG4WFlpH0kDahhLLwgT8BA/y5HP2p3YN4Ao8DHUkbfvrLKrwnUqOgE6rLuEGo6OtDKTwYMq0Iy73RhltocaozOWc2zLjfpExUElXVsy95sIyb4vv3v19a4KZa0LD+ZSHGBodTDltefSojmIUfTYeZqXKHEDIRGt+vH4ZWf0cRkECZ4ULBcViyAp6+yo/pT9X7ZZzYA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3S93vVE9s7VvxIMidbK21k6nyVsuLzvWA8A2RJx3ne8=;
- b=iw/mRGCU9JUxfiZ0zz4ZsufCN9uo6EeFPWNkbmHgtKg9L9VpZrW5M9ZQRSpy/EFIam/qertbd0H2Zyp+5VOTlr1S8deE0La8CCoYipZn0z5kN5uaFv1+bUXr+71CCvwIKwEMeTfnf6z/7CZ9awq8peZUYy3SZmHS3+Y/2I01dYKS+sBw4P00p16vHKx04V4XH/92qhFcu+L4bCMRtOuhkkNq2lyidC0vP92gFyfgOS3HYJbXeSG+h3A/kJQl6kIaAdthh/2J4Xwf9dkGT/nulYkVGlmqS6fHjgGGQJxPD9YR0RLXkAmqFStYOpACQFMxJ+e3osTH7mI694dGgtwAHA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB6373.namprd11.prod.outlook.com (2603:10b6:8:cb::20) by
- MN6PR11MB8219.namprd11.prod.outlook.com (2603:10b6:208:471::7) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7698.22; Sat, 22 Jun 2024 06:07:36 +0000
-Received: from DS0PR11MB6373.namprd11.prod.outlook.com
- ([fe80::2dd5:1312:cd85:e1e]) by DS0PR11MB6373.namprd11.prod.outlook.com
- ([fe80::2dd5:1312:cd85:e1e%4]) with mapi id 15.20.7677.030; Sat, 22 Jun 2024
- 06:07:35 +0000
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>
-CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"Richard Weinberger" <richard@nod.at>, Anton Ivanov
-	<anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>, =?iso-8859-1?Q?Ilpo_J=E4rvinen?=
-	<ilpo.jarvinen@linux.intel.com>, Vadim Pasternak <vadimp@nvidia.com>, "Bjorn
- Andersson" <andersson@kernel.org>, Mathieu Poirier
-	<mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic
-	<pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Heiko Carstens
-	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, "linux-um@lists.infradead.org"
-	<linux-um@lists.infradead.org>, "platform-driver-x86@vger.kernel.org"
-	<platform-driver-x86@vger.kernel.org>, "linux-remoteproc@vger.kernel.org"
-	<linux-remoteproc@vger.kernel.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: RE: [PATCH vhost v9 2/6] virtio: remove support for names array
- entries being null.
-Thread-Topic: [PATCH vhost v9 2/6] virtio: remove support for names array
- entries being null.
-Thread-Index: AQHaligQYdJ7G3/Ep0SOtqEoL6Vt7bHQpCeAgAAKTgCAAAYCAIAC0a8A
-Date: Sat, 22 Jun 2024 06:07:35 +0000
-Message-ID: <DS0PR11MB6373310FBF95058B8FE8CD95DCCA2@DS0PR11MB6373.namprd11.prod.outlook.com>
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
- <20240424091533.86949-3-xuanzhuo@linux.alibaba.com>
- <20240620035749-mutt-send-email-mst@kernel.org>
- <1718872778.4831812-1-xuanzhuo@linux.alibaba.com>
- <20240620044839-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240620044839-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB6373:EE_|MN6PR11MB8219:EE_
-x-ms-office365-filtering-correlation-id: d216aa01-a40f-45c0-0616-08dc92819cca
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230037|1800799021|366013|7416011|376011|38070700015;
-x-microsoft-antispam-message-info: =?iso-8859-1?Q?fKDwNw+VGHC0SYJZLY7t4E40jBlGIpQGzu17hMb/EsIfbdc6xyQ+QhuaLh?=
- =?iso-8859-1?Q?8nTXGaaSfDVuUVsOillAglm/1z52/YXzWlGwETQSGVGi9872IuYPcQ9/Ia?=
- =?iso-8859-1?Q?TtyWSZ2jTXA2EbdAD550XPJQtr3GMmkC388wTvQbCKeuUICVKj+1iG3fBw?=
- =?iso-8859-1?Q?neRs0dBDh8dCrGWFWnRtHxRoI/P0l0X2xkl0fdMslAQX45nFBC1cBurR/h?=
- =?iso-8859-1?Q?OisBpf5xqWwjYzQmA0+GrnHwBtHibCCCOxQsoQn6Y0XUCgr3YQSN3Gd0q1?=
- =?iso-8859-1?Q?ZS8814tRgRKOphVLb7DopXRtfOYxij7NUzWoz7KYcVAYP+5Czr1ruXNDbh?=
- =?iso-8859-1?Q?J1tyF9gni6bK/NXv/6S/aq2d5ewN/E2I8HpnZONTUjcRnJY/s8jiGgrl2C?=
- =?iso-8859-1?Q?6QnpabYOiHkmkOot6yQmclsGF5zbrBR1B6Xifsg3fG3G5PKh4JFP38TqiJ?=
- =?iso-8859-1?Q?eJ0si6RXR7r0finlyDuJMeOUXgssiRH9eYLwEuBgVpi1bXPRPO+OC2/9nk?=
- =?iso-8859-1?Q?pXCbup7yohNPFWpTns/xhIQJ3A/WAjN4V8cXjwMtrP8NbTxzG5j/SqNnNQ?=
- =?iso-8859-1?Q?qyXT1yhhhSpgVS00Flj1arf/3Ciiv5dS1vAEc4EgVR+ukEV0s3FuxKiN42?=
- =?iso-8859-1?Q?4OtoWPcriirpGJlRDoqTDfAhX6beKq3x7JxmuZrB2XUIm6qjqMlnb4EP9/?=
- =?iso-8859-1?Q?p0GJrHEN0j68qbVgFVHtzGG7dmsVfhRXG1DNb3L/l2PwlKSKdF51DJnyVE?=
- =?iso-8859-1?Q?vMXpE08t2lhvzGoIU6Liev5aMUpN3OfHvJeChqe3JpcVAlDm51UZu0PSES?=
- =?iso-8859-1?Q?eJKbXW1eYyI5Tqjws0tqez+m6BbeClEMQDXeUatQi8yrEyzeL1OsJQ+XSb?=
- =?iso-8859-1?Q?Bh9Q3JCqjhIuN3l7N6Jg+p8FnsMIXR5r3YEdlhC6Uln7pa9DiLlMlG/k0D?=
- =?iso-8859-1?Q?Sa91sj2T90OxsdPOSNYuMcKDZv/C1zenkzlhx3p1Lb6Zl3g2LS5mr6mqbY?=
- =?iso-8859-1?Q?NbuT3RFytAHIbb+dQ8O/COUy0G/4wLI4k73PpmqpiLROcqyyiO/WYXURqe?=
- =?iso-8859-1?Q?IKBmD3nXLxvnRZFeoqGNKvEi+Lv5EnWNnE48EHt47WjKB91fgzBdyWv8Yv?=
- =?iso-8859-1?Q?/RCg5AH0JD2sOOscgtshkP6vS73sT4wD8kofHxnRRM4MhchBHL9VptylsS?=
- =?iso-8859-1?Q?7qyRFpkU8Zj0Kke+HLdFmlgZvb6Kz4GhiSUIje8TLwlp0jN5o8jg1GT2Yv?=
- =?iso-8859-1?Q?pU6XIufy03SIji3yADto0ibzCaXgA5a6NODMaHyZeOjCuLVifmI7xUwjrQ?=
- =?iso-8859-1?Q?X0pARD4/g0kntFx66KUnOfabPOy6AfuBGfFgi/TjDzSUxCE11VUZjddWb3?=
- =?iso-8859-1?Q?C3JDkicE/prvGYWAACtHgrIWFp3AvmpeWL9uQQdJaroy2Q/By/+w0=3D?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB6373.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230037)(1800799021)(366013)(7416011)(376011)(38070700015);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?jq+Z23GM4aUFwhVYxkThuhBTzlP+rpyv51+Gy/D+ozAlZZB6uSehDi/YDm?=
- =?iso-8859-1?Q?qu0oK0LwNNItb8rT64bui5ZNcYHF86XyO0FBIkjFXIGM1mKChwJodk+baU?=
- =?iso-8859-1?Q?7OFiqrR2Vj08NPY0Pbuz4M9NAfa4S9HIS3d2lxqJKIYvbPWl/+x5+UiOEt?=
- =?iso-8859-1?Q?MXCJRAeqLPeQKIdsm50o+I1vdQhSR0nHaB9VXLFByl/JOygePmDSOJrepe?=
- =?iso-8859-1?Q?c2HSEImuFR/uP4+vvZq6mtBisV9prlEOa4xFOplKoMT+G78lbQylvjdaw5?=
- =?iso-8859-1?Q?t49sIB40I1kYkppdzkI7cXQoxiy7zWEA2MqrelmpmavsEwCzXXsHCvOxta?=
- =?iso-8859-1?Q?OFV+EHhKbM8SrDipvaDbuPyBV+3kpGTeERdIopUnFQF9RuyUPiKVZVES45?=
- =?iso-8859-1?Q?Id3vWdvVKDAsKBrYQaJyan1qd3LyVKLh7T9F1yrEmICwwl2oeTpOpP/ezH?=
- =?iso-8859-1?Q?QOm46cNFYDQDtIVax8n1ktzYLIq0L+7RC3zNMQVKB9AsSMD0Tbmt6iGtg7?=
- =?iso-8859-1?Q?oBThv5hJqj511JVyNe9ST2KRs0+1iSB+rSnhdMNE8BSJtr2NEjdGJIMtDF?=
- =?iso-8859-1?Q?Lf7WlOenSYLmJw9TFckTyrWnIDeM/KgB7APt/WO4+IxeeL+/ZisR8hXQp2?=
- =?iso-8859-1?Q?JHH7FwYfhKb2pFCmMeeAq+rqV1cmAYI2WA8Esga6unpVscBi6OAfE6RgJI?=
- =?iso-8859-1?Q?g8GVU0jZNNTOMoB7xj6lwoY3sPS4KZZCIik1C5KekK864dz2mH50PGY2OK?=
- =?iso-8859-1?Q?3VqnWd3/mFpj0TjgwwmFiio5yCZe26Oba5M4YAZ5x0QQOprdAdOTFgAWFF?=
- =?iso-8859-1?Q?+31BkpPWz8tbpz+oWgLC+vF/xH+4axrYpUg6o9sVhZSv0F5Y4uNphtn5aF?=
- =?iso-8859-1?Q?8EP1L5wMX9TzjgrkNJviLUWsqZd83rOpYGc/v+eXML0+8tHqS8y2O6D6O1?=
- =?iso-8859-1?Q?V4mIku1P6wCS1cGCk857vust75g7VaSAC8sRMyhre9LZH9zcLDRU92Qsn8?=
- =?iso-8859-1?Q?O8NsYEpp4KCptMqWmUdE0bm4PmTeQsFqWKgLNUxsJehQugJzgbAfwT+V26?=
- =?iso-8859-1?Q?JWcXA4QdLz7QTkhHa93UbEOTQ+4HfCRSWyj2GJyoNKPIPsY+QtqqrjICfE?=
- =?iso-8859-1?Q?dOZ+FODMoaHo+x4FHW+UlMPdDCgxHsvlsymMItPlaxoaJRaAh3WPQnz2OI?=
- =?iso-8859-1?Q?qXkTUi2ZwfxT3lAomtXalA7x+rglTJI8bhvMd552zHVcxXAWxLANMJ0jKS?=
- =?iso-8859-1?Q?1543kPZ2y2y90oC9RO33da49TIEn3wgLb6dZVE1SeGrGtC8riJC7LrkIru?=
- =?iso-8859-1?Q?ycxFpxYrW+VxN3oKGFWb8Lt08110A/Mng55Q5Nsb3SYRrAGF3Iqf4jCwun?=
- =?iso-8859-1?Q?Te5vgG30gIQEkMWm7kTbG+QkJ6+I4cfqngFllNdry2Q2SP7+v/6lodHSb2?=
- =?iso-8859-1?Q?5Xqc/hw4GwbfVX000nk8YocCr2qUQ1N/tV8cg98rV2BPyIMdeqYzBk8/sh?=
- =?iso-8859-1?Q?NWdl2YPOZUJaZ+eMWJoPW0sblSyxoX90ldqZGwOCPu2DKnti7zsdut/3UQ?=
- =?iso-8859-1?Q?ZXFbvzSSm8fJZ9eQwDLBbU4tIcEMNWnlAlcMG42eKwURiTPpfTq7VRBN0c?=
- =?iso-8859-1?Q?qCjGXF2yNq2KU/+Pv0S1ifeovgZcn8FPgU?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mz5RStLR"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-1f9b364faddso23529875ad.3
+        for <virtualization@lists.linux.dev>; Fri, 21 Jun 2024 23:12:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1719036770; x=1719641570; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=krjZBqR5YUtpntS8j4/66w89iNnPL3e7qeE0XOy0iWk=;
+        b=Mz5RStLRiqvE+atB/R+Edw4NOejA2ZpFyENlh4WG3lXLA9f+QjQbUFEUakRkhMc3yQ
+         N20RWpQQuYgsr5x2I0v8582feEzkLlLFcXxVxxhXuJw6yBp91EAFLvvA9BOokM2DhIt+
+         ZO85wNro8hNOXQ8k8HTURMEWaoTGWtrSEQZl0mSvOXUkz2NXFQFTEZG6H1n/JUy5lmSx
+         bD/UvpWQogrUITZ7TWAamAlpql8RVCTAhnUKnVmdOUy5cowjyaAcQ5G7I0lkyeDDNw89
+         DKegquHOn1J7BYHL2OmFiMuhynzYXO7+PU5zF+s5GnR3rSi5eoDD/AXVZha1p6yxD9J6
+         BeGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719036770; x=1719641570;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=krjZBqR5YUtpntS8j4/66w89iNnPL3e7qeE0XOy0iWk=;
+        b=aOP4I3R1WLcZcDpk7ICR7Ia68WiEQcRoO4D1FKNiedzWsPHdG1ExGO8Glk8sgQ3SQy
+         hbPIY2nKdt+uKmQUxLDr8ckBJojQ5chzV05ptGUO33PoQjE7dthl1CPfK30TUZ1lKnMt
+         ZyoaRu/FLUEMKLFUaTIT2Lk1Kud+fSrA0/JkNxAr/sr7r2Lzc92pZ8cjOSkV65Lw7Kyy
+         iyPICRHHj9drBuHQ06z2qD67tpAWdL+VjAp+1tPqy2FD4iGDrWWsAalACmUyTRHH6prg
+         B9KJipMUGL8A/QPwRhv4F9j57Vv+taz0CKW/az47eBS133pfMHeVZ/j+Q6Lz37tKg536
+         XThQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUjd4E9zHXTEs2J9SWd60kmg/nGENfDVYSrSiI4RvdG9a0GlO+684l48Bk/CdV9DZHAu44mSdoqiDTs6fFjLtuglb9SWprqqNyTt/9BGxs=
+X-Gm-Message-State: AOJu0YzrJzkAeeHg/b0n6CQxET7lWDBH3/8rCf+WoiQQ6JOGxgns9yzo
+	UkbgdEvvoTUpp0JW0u61SPTyVsmOhTkze6zQp7iqEGhopuXbA7br
+X-Google-Smtp-Source: AGHT+IGB5XwqfWtYBN6crK+WQ07ENNTrZ/be0kujOfF3fjm8luW20woMymDtrUMtTNGlDFm90ozJ4g==
+X-Received: by 2002:a17:902:d4c9:b0:1f9:e3e8:456b with SMTP id d9443c01a7336-1f9e3e852cbmr54609045ad.4.1719036770233;
+        Fri, 21 Jun 2024 23:12:50 -0700 (PDT)
+Received: from [192.168.50.95] ([118.32.98.101])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f9eb3c608fsm23819705ad.157.2024.06.21.23.12.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 21 Jun 2024 23:12:49 -0700 (PDT)
+Message-ID: <80f28cfb-f287-419b-a448-b5967bc778ae@gmail.com>
+Date: Sat, 22 Jun 2024 15:12:43 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB6373.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d216aa01-a40f-45c0-0616-08dc92819cca
-X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Jun 2024 06:07:35.8292
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Y2s7IXeti5mwsCGKtdPlgXkZYUZrDQMNvyv3NDpWB4vcWcuhQrJf0JosAoqNgyRbupbptm4JmOe5EFAWYeFKZQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN6PR11MB8219
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] tracing/net_sched: NULL pointer dereference in
+ perf_trace_qdisc_reset()
+To: Taehee Yoo <ap420073@gmail.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, Pedro Tammela <pctammela@mojatatu.com>,
+ netdev@vger.kernel.org, stable@vger.kernel.org,
+ Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Takashi Iwai <tiwai@suse.de>, "David S. Miller" <davem@davemloft.net>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Jamal Hadi Salim
+ <jhs@mojatatu.com>, Cong Wang <xiyou.wangcong@gmail.com>,
+ Jiri Pirko <jiri@resnulli.us>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, Austin Kim <austindh.kim@gmail.com>,
+ shjy180909@gmail.com, linux-kernel@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, ppbuk5246@gmail.com,
+ Yeoreum Yun <yeoreum.yun@arm.com>, virtualization@lists.linux.dev
+References: <20240622045701.8152-2-yskelg@gmail.com>
+ <CAMArcTVgpAq8dC_u8eFE=asMWriWjNfYsmo6KVFi=tpHebdmCA@mail.gmail.com>
+Content-Language: en-US
+From: Yunseong Kim <yskelg@gmail.com>
+In-Reply-To: <CAMArcTVgpAq8dC_u8eFE=asMWriWjNfYsmo6KVFi=tpHebdmCA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thursday, June 20, 2024 5:01 PM, Michael S. Tsirkin wrote:
-> On Thu, Jun 20, 2024 at 04:39:38PM +0800, Xuan Zhuo wrote:
-> > On Thu, 20 Jun 2024 04:02:45 -0400, "Michael S. Tsirkin" <mst@redhat.co=
-m>
-> wrote:
-> > > On Wed, Apr 24, 2024 at 05:15:29PM +0800, Xuan Zhuo wrote:
-> > > > commit 6457f126c888 ("virtio: support reserved vqs") introduced
-> > > > this support. Multiqueue virtio-net use 2N as ctrl vq finally, so
-> > > > the logic doesn't apply. And not one uses this.
-> > > >
-> > > > On the other side, that makes some trouble for us to refactor the
-> > > > find_vqs() params.
-> > > >
-> > > > So I remove this support.
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > Acked-by: Eric Farman <farman@linux.ibm.com> # s390
-> > > > Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> > >
-> > >
-> > > I don't mind, but this patchset is too big already.
-> > > Why do we need to make this part of this patchset?
-> >
-> >
-> > If some the pointers of the names is NULL, then in the virtio ring, we
-> > will have a trouble to index from the arrays(names, callbacks...).
-> > Becasue that the idx of the vq is not the index of these arrays.
-> >
-> > If the names is [NULL, "rx", "tx"], the first vq is the "rx", but
-> > index of the vq is zero, but the index of the info of this vq inside th=
-e arrays is
-> 1.
->=20
->=20
-> Ah. So actually, it used to work.
->=20
-> What this should refer to is
->=20
-> commit ddbeac07a39a81d82331a312d0578fab94fccbf1
-> Author: Wei Wang <wei.w.wang@intel.com>
-> Date:   Fri Dec 28 10:26:25 2018 +0800
->=20
->     virtio_pci: use queue idx instead of array idx to set up the vq
->=20
->     When find_vqs, there will be no vq[i] allocation if its corresponding
->     names[i] is NULL. For example, the caller may pass in names[i] (i=3D4=
-)
->     with names[2] being NULL because the related feature bit is turned of=
-f,
->     so technically there are 3 queues on the device, and name[4] should
->     correspond to the 3rd queue on the device.
->=20
->     So we use queue_idx as the queue index, which is increased only when =
-the
->     queue exists.
->=20
->     Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->=20
+Hi Taehee,
 
-The approach was taken to prevent the creation (by the device) of unnecessa=
-ry
-queues that would remain unused when the feature bit is turned off. Otherwi=
-se,
-the device is required to create all conditional queues regardless of their=
- necessity.
+On 6/22/24 2:50 오후, Taehee Yoo wrote:
+> On Sat, Jun 22, 2024 at 1:58 PM <yskelg@gmail.com> wrote:
+>>
+>> From: Yunseong Kim <yskelg@gmail.com>
+>>
+> 
+> Hi Yunseong,
+> Thanks a lot for this work!
 
->=20
-> Which made it so setting names NULL actually does not reserve a vq.
+Thank you Taehee for reviewing our patch. It's greatly appreciated.
 
-If there is a need for an explicit queue reservation, it might be feasible =
-to assign
-a specific name to the queue(e.g. "reserved")?
-This will require the device to have the reserved queue added.
+>> During qdisc initialization, qdisc was being set to noop_queue.
+>> In veth_init_queue, the initial tx_num was reduced back to one,
+>> causing the qdisc reset to be called with noop, which led to the kernel panic.
+>>
+>> I've attached the GitHub gist link that C converted syz-execprogram
+>> source code and 3 log of reproduced vmcore-dmesg.
+>>
+>>  https://gist.github.com/yskelg/cc64562873ce249cdd0d5a358b77d740
+>>
+>> Yeoreum and I use two fuzzing tool simultaneously.
+>>
+>> One process with syz-executor : https://github.com/google/syzkaller
+>>
+>>  $ ./syz-execprog -executor=./syz-executor -repeat=1 -sandbox=setuid \
+>>     -enable=none -collide=false log1
+>>
+>> The other process with perf fuzzer:
+>>  https://github.com/deater/perf_event_tests/tree/master/fuzzer
+>>
+>>  $ perf_event_tests/fuzzer/perf_fuzzer
+>>
+>> I think this will happen on the kernel version.
+>>
+>>  Linux kernel version +v6.7.10, +v6.8, +v6.9 and it could happen in v6.10.
+>>
+>> This occurred from 51270d573a8d. I think this patch is absolutely
+>> necessary. Previously, It was showing not intended string value of name.
 
->=20
-> But I worry about non pci transports - there's a chance they used a diffe=
-rent
-> index with the balloon. Did you test some of these?
->=20
-> --
-> MST
->=20
 
+> I found a simple reproducer, please use the below command to test this patch.
+> 
+> echo 1 > /sys/kernel/debug/tracing/events/enable
+> ip link add veth0 type veth peer name veth1
+
+The perf event is activated by perf_fuzzer, and it's indeed a similar
+environment with veth.
+
+> In my machine, the splat looks like:
+> 
+> BUG: kernel NULL pointer dereference, address: 0000000000000130
+> #PF: supervisor read access in kernel mode
+> #PF: error_code(0x0000) - not-present page
+> PGD 0 P4D 0
+> Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
+> CPU: 1 PID: 1207 Comm: ip Not tainted 6.10.0-rc4+ #25
+> 362ec22a686962a9936425abea9a73f03b445c0c
+> Hardware name: ASUS System Product Name/PRIME Z690-P D4, BIOS 0603 11/01/2021
+> RIP: 0010:strlen+0x0/0x20
+> Code: f7 75 ec 31 c0 c3 cc cc cc cc 48 89 f8 c3 cc cc cc cc 0f 1f 84
+> 00 00 00 00 00 90 90 90 90 9c
+> RSP: 0018:ffffbed8435c7630 EFLAGS: 00010206
+> RAX: ffffffff92d629c0 RBX: ffffa14100185c60 RCX: 0000000000000000
+> RDX: 0000000000000001 RSI: ffffffff92d62840 RDI: 0000000000000130
+> RBP: ffffffff92dc4600 R08: 0000000000000fd0 R09: 0000000000000010
+> R10: ffffffff92c66c98 R11: 0000000000000001 R12: 0000000000000001
+> R13: 0000000000000000 R14: 0000000000000130 R15: ffffffff92d62840
+> FS: 00007f6a94e50b80(0000) GS:ffffa1485f680000(0000) knlGS:0000000000000000
+> CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000000000000130 CR3: 0000000103414000 CR4: 00000000007506f0
+> PKRU: 55555554
+> Call Trace:
+> <TASK>
+> ? __die+0x20/0x70
+> ? page_fault_oops+0x15a/0x460
+> ? trace_event_raw_event_x86_exceptions+0x5f/0xa0
+> ? exc_page_fault+0x6e/0x180
+> ? asm_exc_page_fault+0x22/0x30
+> ? __pfx_strlen+0x10/0x10
+> trace_event_raw_event_qdisc_reset+0x4d/0x180
+> ? synchronize_rcu_expedited+0x215/0x240
+> ? __pfx_autoremove_wake_function+0x10/0x10
+> qdisc_reset+0x130/0x150
+> netif_set_real_num_tx_queues+0xe3/0x1e0
+> veth_init_queues+0x44/0x70 [veth 24a9dd1cd1b1b279e1b467ad46d47a753799b428]
+> veth_newlink+0x22b/0x440 [veth 24a9dd1cd1b1b279e1b467ad46d47a753799b428]
+> __rtnl_newlink+0x718/0x990
+> rtnl_newlink+0x44/0x70
+> rtnetlink_rcv_msg+0x159/0x410
+> ? kmalloc_reserve+0x90/0xf0
+> ? trace_event_raw_event_kmem_cache_alloc+0x87/0xe0
+> ? __pfx_rtnetlink_rcv_msg+0x10/0x10
+> netlink_rcv_skb+0x54/0x100
+> netlink_unicast+0x243/0x370
+> netlink_sendmsg+0x1bb/0x3e0
+> ____sys_sendmsg+0x2bb/0x320
+> ? copy_msghdr_from_user+0x6d/0xa0
+> ___sys_sendmsg+0x88/0xd0
+> 
+> Thanks a lot!
+> Taehee Yoo
+
+I think this bug might cause inconvenience for developers working on net
+devices driver in a virtual machine when they use tracing.
+
+I'm appreciate your effort in reproducing it.
+
+Warm Regards,
+Yunseong Kim
