@@ -1,57 +1,57 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 570F71805E
-	for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 09:05:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D640512FB2D
+	for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 09:05:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719219915; cv=none; b=pfPmAx1f2GjLkjtMDggCm7athl9f4PA73W0KcOFYgIHSFOyCxBw0dXI4Cgba4erxw44M2Y3l4SkOR7xOVd/eVeCAwgBUKE+WZvZLVZ4BBX/L1ExeWlfkp6/2v09xoOBq+YqANqpZ8+HsV1T4mWEGBhf2tRqsvf9EIEZnNCoxjl0=
+	t=1719219918; cv=none; b=BLygJOvATsK+WaUa+LSevNpDTqDjwxNXB2f3cTcru3p2Ayqs13ZvNyyMEnxsHUJUQJVKXnaWjQhdsgMrEKPZxTtFJggDaszKsm9ik3KJhPkEbfFMiIo+D18FYIEMm84KnmQH3Z+7CWoxc8k3M3lIlOYToc/T7T+jsOOlxaUBLt4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719219915; c=relaxed/simple;
-	bh=ttKlQj9e83WHmOr/KgqVCLtLBbQyABlmLbKteimGewc=;
+	s=arc-20240116; t=1719219918; c=relaxed/simple;
+	bh=xFIbcGBM81RayCAY8ByT6/C2V2OBiobl5QMcWCpjG8U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EVoZZDojdaroAv8IV9JPYPB1NvbhBGs/OipO3vBBp6X2z79/Cl61UcfWcJEWvDsIQ63Uzw44xSehXQ5BH+X6eT2EOKdb0nJSalTFFQEUZnQvU+hGEn2a6lXEFgOlTOS6NK9+1nxeDa5O/fA0+8/ZK2jDkDYwKlaAAeUVe/hlDRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=mDxPi0cX; arc=none smtp.client-ip=209.85.128.44
+	 MIME-Version; b=dN7l1YDIX+fTd1CCqlQ7AHVzxZdWBr5a7bikYsV9vWszzS67kCkK95q6CjGoO15zPeYHcBg1ggTfAUUXL9LYO7UV6l7p9HdlSMaMOSy18nq8uw+fQrUtNdcVDpwm31VAvFT4ClL7a5GTV2bn8YsluK1YIIFbrM0zpwOdMVCj270=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=c3AzEXNU; arc=none smtp.client-ip=209.85.208.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="mDxPi0cX"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4247f36f689so28390575e9.1
-        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 02:05:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="c3AzEXNU"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2ec52fbb50aso23860021fa.3
+        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 02:05:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1719219912; x=1719824712; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1719219915; x=1719824715; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wUAMqaIVwbvGzGoTMKA84LlFhJh0fnpEJTqYoEKMkSY=;
-        b=mDxPi0cX717afGupXNDoM1iSv869cLitw5stHXocDM6aTws6RdagLutD2eXiPudUBt
-         Qt2ww9KOEUS/9sff79DRy4q5myc+qf6dH35n6OOqXTeq8oWd99Za+5+SaO8ExHDCAwKX
-         MQ7JQL7jeSaAl6KLqZM0xi2Ke+T6uMft0rI9RFdKcpb0cyN4JPV6q7RAvspHIOshx8Yd
-         IUe0iYXuB6Nl9SFgea5kGdm1vAb5T4ljuo+x91tDH7EehPhMaVwfc1BN9SSgcFppUZXI
-         hXOjmbCp2W9hTmG80vSE7Gjxt1pmWcEjNhHNguW0c7OOFuc4sOPaNG7xSbKSXK34d2hX
-         vh9g==
+        bh=MMfWapA/eVt/cHgSxWLP2bikTqlCVy2iq5rnnyYeCLk=;
+        b=c3AzEXNUwjQ8TPpIPbfedvJ9g5PIohd8pXdM/Pq201uSPjGKI6UR0uLJbC4jbL/V4B
+         uQoGQGvB+3/Oh3yWaSMlB9Zdti9XPN2TMycOzk72ZU0+r7SWxbp6L70horVH5X0CiRE6
+         gTNBaS73t1BYKAtItomFl0CBj1jIYAVkz+ZzP62PqYgvhsbHzmadqFGRCKOvIKh9WQGp
+         3jl87hfqOtv/pmIE2rrww8yHVajQsC4hSRp0GSyvFlns1uKk1+LhPeFO+EQB/E24TXma
+         WKi61B8emM/z5pALiiI48Mfevc7/7SW4UMQZNkFY6FVdqzD1njVgCJ/B6bQO3PjbLwKD
+         0T4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719219912; x=1719824712;
+        d=1e100.net; s=20230601; t=1719219915; x=1719824715;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wUAMqaIVwbvGzGoTMKA84LlFhJh0fnpEJTqYoEKMkSY=;
-        b=aeDfc6uNbVW50pubJOeJ5FVij9mc2ueJsgnBoDR0cEQwsmI6DJ9qxr3ZqLwP/Yg/a1
-         sGOpvUHqtpKa1lK3luFpaifRF4g7z1pGmjN/SjF0icF1zha6Gq0tQdY3qHIbRz2EXWYF
-         UCYYFLpbXc0Ssaik60Wb1oy42RDRTZKxaqiy0Z9h79TPRekeGW3XQ4R6NxMGrN4fi/il
-         PjDSOvWBDweBhCBUbBDgcxyJynfb2LI2yVPpQY19twyg9EkI1p8nWWDZN2ZUlo+3Tcg9
-         c8z1s0som07ty/FxXsz71JE3YYc2h96ucJgIJK6ik3pp9xWhCU4svf9ABYbGCGQ0GHKx
-         25wA==
-X-Gm-Message-State: AOJu0Yy+pQn5GlXanIiJMDSN7SfNzUd33EcqB/mwaoKcuVg21BEzKkIW
-	xju4GFsmvAyBCR9axG/RMSVdLFH590m3wVPY4RIbB7C1a091H7k3kn+e8hu0eOqHGZOchXWZ2f4
-	2/pk=
-X-Google-Smtp-Source: AGHT+IGV8YLbAGk11u3s89SZEqNybZUWbyhU/3JB6fNhdfZtcKKv6+a6l83Vgamsr3AxQsWkER3Unw==
-X-Received: by 2002:a05:600c:22d6:b0:424:7876:b6f2 with SMTP id 5b1f17b1804b1-4248b9cfa8emr34830715e9.26.1719219911725;
-        Mon, 24 Jun 2024 02:05:11 -0700 (PDT)
+        bh=MMfWapA/eVt/cHgSxWLP2bikTqlCVy2iq5rnnyYeCLk=;
+        b=irt5EC8BXTZNqk7kosfzUfMkZz0Vr3ZyA732Vj5RXr9mMiRVyAB5raUi8TMIZXITt7
+         mwLuxyLsUPPP2duidjFrvIjBs/p1YojUWeA3pb1G3i07x4TBoSRBQXSJ2mcVPh5eXOaf
+         E7uhCkQSNnc+QFQlv1r2ulS8ZMdUU9O1K+v/u/qLwgEfJMh90vreGQ2iq0qWikVI7Vaa
+         b2D3VXCLB1bbvhVbPXhMzT3mAK8BqSYpEiuRDOwUoajxDinodTsQYFc5NIl7Zibf6MOW
+         0Gk1OXNM4b5k/0sQaYRGCw4FVNOCLQ44/PPSA9zplc6nExKopI/OQhj+pUknU3JWnJEu
+         LpJw==
+X-Gm-Message-State: AOJu0YxzjG6s3v40d/3dceTg2oWdr8lM8Ub68hc+HRfT8+7z92m0Xn+e
+	LkfBAjIJLAiDhG+d2oGh2Miqus4ACI95BGFvIvgc4zKvAhbnhxiXAahplTWK+Jwx65r1KQIdxDP
+	N/cc=
+X-Google-Smtp-Source: AGHT+IGHoivxCirFrEXq8wSx3eXnwhDi9SynY7Z5ehX8jwF1hGV+hkJHJhStfrtgUwQCQVbVOPL8fg==
+X-Received: by 2002:a2e:7805:0:b0:2ec:5073:5814 with SMTP id 38308e7fff4ca-2ec5b2fd2f3mr32142141fa.8.1719219915240;
+        Mon, 24 Jun 2024 02:05:15 -0700 (PDT)
 Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4247d0c54d9sm170397955e9.28.2024.06.24.02.05.10
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4247d0b62basm168955135e9.8.2024.06.24.02.05.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jun 2024 02:05:11 -0700 (PDT)
+        Mon, 24 Jun 2024 02:05:14 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -60,9 +60,9 @@ Cc: mst@redhat.com,
 	eperezma@redhat.com,
 	parav@nvidia.com,
 	feliu@nvidia.com
-Subject: [PATCH virtio 5/8] virtio_pci_modern: create admin queue of queried size
-Date: Mon, 24 Jun 2024 11:04:48 +0200
-Message-ID: <20240624090451.2683976-6-jiri@resnulli.us>
+Subject: [PATCH virtio 6/8] virtio_pci_modern: pass cmd as an identification token
+Date: Mon, 24 Jun 2024 11:04:49 +0200
+Message-ID: <20240624090451.2683976-7-jiri@resnulli.us>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240624090451.2683976-1-jiri@resnulli.us>
 References: <20240624090451.2683976-1-jiri@resnulli.us>
@@ -76,28 +76,45 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-Don't limit the admin queue size to VIRTIO_AVQ_SGS_MAX and rather rely
-on the queried queue size.
+In preparation to asynchronous admin queue processing, pass cmd pointer
+as a data arg to virtqueue_add_sgs().
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/virtio/virtio_pci_modern.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index adbaf1ac168e..41aa97e338ac 100644
+index 41aa97e338ac..b4041e541fc3 100644
 --- a/drivers/virtio/virtio_pci_modern.c
 +++ b/drivers/virtio/virtio_pci_modern.c
-@@ -551,8 +551,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	if (index >= vp_modern_get_num_queues(mdev) && !is_avq)
- 		return ERR_PTR(-EINVAL);
+@@ -59,7 +59,7 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_device *vp_dev,
+ 				    struct scatterlist **sgs,
+ 				    unsigned int out_num,
+ 				    unsigned int in_num,
+-				    void *data)
++				    struct virtio_admin_cmd *cmd)
+ {
+ 	struct virtqueue *vq;
+ 	int ret, len;
+@@ -73,7 +73,7 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_device *vp_dev,
+ 	    !((1ULL << opcode) & admin_vq->supported_cmds))
+ 		return -EOPNOTSUPP;
  
--	num = is_avq ?
--		VIRTIO_AVQ_SGS_MAX : vp_modern_get_queue_size(mdev, index);
-+	num = vp_modern_get_queue_size(mdev, index);
- 	/* Check if queue is either not available or already active. */
- 	if (!num || vp_modern_get_queue_enable(mdev, index))
- 		return ERR_PTR(-ENOENT);
+-	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, data, GFP_KERNEL);
++	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
+ 	if (ret < 0)
+ 		return -EIO;
+ 
+@@ -141,7 +141,7 @@ int vp_modern_admin_cmd_exec(struct virtio_device *vdev,
+ 	mutex_lock(&vp_dev->admin_vq.cmd_lock);
+ 	ret = virtqueue_exec_admin_cmd(vp_dev, &vp_dev->admin_vq,
+ 				       le16_to_cpu(cmd->opcode),
+-				       sgs, out_num, in_num, sgs);
++				       sgs, out_num, in_num, cmd);
+ 	mutex_unlock(&vp_dev->admin_vq.cmd_lock);
+ 
+ 	if (ret) {
 -- 
 2.45.1
 
