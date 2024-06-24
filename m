@@ -1,53 +1,105 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98F2C482C3;
-	Mon, 24 Jun 2024 08:35:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0D721805E
+	for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 09:04:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719218150; cv=none; b=lR7rjpSzd5kYBo9lnTJgxrbiGAbGMqp6Qkjgi1qCfIctfwi773YaM39ITItE4qands6uaZFCgMy+ZxeV5k46B4Rf46vJiQ+7pKxiQ3/6FGRRSJFHKHFX5SE0drdgD21v0u6CYoif3ge3ZneZmf4x7AYlu0OxnLnWJUKCMV5rbnU=
+	t=1719219901; cv=none; b=lNI+YdQxQYJ/trgMQMFiVfeO5G4sQSeJN00jczlNZUkias1em251pBYgAfPAJ8yH+o1Kanwdwd/mj8tzXHuvB41+8oyUAWZspOSVQJkWyN+aaq5vBaAqBSvLbNwopORsGbGqpyGp4OLSafLCotF5p8X9k4WLmKjdAdmxefZO2xQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719218150; c=relaxed/simple;
-	bh=iQaPBQWjPOQlK9q4eiAviREeWvCKzzUxahs3Qk1DZfw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cr4SKa/xXVMwIQmKS8LrVhqppz2AaIQFOMgkIV217iOar1wWvK0VMeK5HRDPgcDY9x1RgY410jwXaqF4ipiFw8fsauOvWCgGf5Cz6Ld4YwYQEMNlrHVgjoNIsAVsk9eKyy3ryZKMfdPX0+kJJZhSj1vzrHVcasRXyf1MSDGC5fk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 7971768B05; Mon, 24 Jun 2024 10:35:38 +0200 (CEST)
-Date: Mon, 24 Jun 2024 10:35:37 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: kernel test robot <oliver.sang@intel.com>
-Cc: Christoph Hellwig <hch@lst.de>, oe-lkp@lists.linux.dev, lkp@intel.com,
-	Jens Axboe <axboe@kernel.dk>, Damien Le Moal <dlemoal@kernel.org>,
-	Hannes Reinecke <hare@suse.de>, linux-m68k@lists.linux-m68k.org,
-	linux-um@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org, drbd-dev@lists.linbit.com,
-	nbd@other.debian.org, linuxppc-dev@lists.ozlabs.org,
-	ceph-devel@vger.kernel.org, virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
-	dm-devel@lists.linux.dev, linux-raid@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-	nvdimm@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-	ying.huang@intel.com, feng.tang@intel.com, fengwei.yin@intel.com
-Subject: Re: [axboe-block:for-next] [block]  bd4a633b6f:
- fsmark.files_per_sec -64.5% regression
-Message-ID: <20240624083537.GA19941@lst.de>
-References: <202406241546.6bbd44a7-oliver.sang@intel.com>
+	s=arc-20240116; t=1719219901; c=relaxed/simple;
+	bh=LYwlii5fWUIRm63wbj3yCLbUGuIM17q04TgWFocXfHg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PuNZ3jMGn15tobEb0xuzdfofw5wBYmI8Dh4yCZjHNv+pgM44aysK6jjlxsVr8JYE/GsRnSQhywROTypL61wCdvmpcZ6BXN7rtyJ/SBvdAp5EbMBpwUI4n3f6aba8S5xW6BZKoByBBOxrfWB9vrFPVzv/H5lOSfIKklLVfQwhUe0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=mjkpKSCJ; arc=none smtp.client-ip=209.85.208.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="mjkpKSCJ"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-2ec5779b423so16612751fa.0
+        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 02:04:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1719219895; x=1719824695; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=e5v9eSTD0lZ4zwBOHnapE3GfLJ8VI0ftKFJRQU9E+C8=;
+        b=mjkpKSCJvQ4rRp86xJvoKCE2pJvrSqzraAF7xEW3umy/YTESNrOp9qSyDD0rNqSnNG
+         Qe3JLXAKivapD077q0E/xl9PJKbNNtEXdnOd21GuHRqRXuYDS1ue7z/28ub4QjJjhmMA
+         Nx/qR8pBfzfszHZPmoHYCgA6ZksDdZNjADM9XsmR3xabevJ+JzQO5Na+96H0KDjO49in
+         SwSbWWZS6R6SWz34GqBn5aSPc+xbTmWFSRtP9W61lGdAQ2FlfRJsT0bNFgjaA1pz1fnc
+         /oWeQbN6WUNSLC40ljNdHaGa7rPflMR7s1hyhLSG7KG1lsk+4IrDK9746SV5kzFlmoDx
+         vkLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719219895; x=1719824695;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=e5v9eSTD0lZ4zwBOHnapE3GfLJ8VI0ftKFJRQU9E+C8=;
+        b=YH9qAxWE0TaDI+N+gnIj2CXi2luSS3plnXavosC9L3RrnUtZzh/L6AnaBuZj6rvGER
+         kt2P1rEc/Pr11qnVCxT0l+Y3RLpHc49cc/qvB7e9ld1yeRUFgKIOFKnvFDQ66KkYI3hU
+         txG9cp+mtS8gtde/0C5hQbL3+oydYbnRtsHCrCOzJypzXRJeQc8J1RoobUZZgZCCNWhl
+         fI/mrJkrl3lSdhKE/NkTxS95dIqvwieBaXnBVo/KdUTeF8Cp0eJp9yhIl2/RNe5vvZQp
+         YvNjKjwNfb2w6mcsX4Rr08pU1vBYnWPCHTCtV6Quuz6svAcu3b5i2h51kkrqbyVocXui
+         xckg==
+X-Gm-Message-State: AOJu0YxHBWl8zcnAZjLnYgHuZIoBZL+QesV0TXxskI79MsSGxlzkTvXe
+	v12r8pwDIGoJ8/vZI4IqC4ugu+XT7qA8qNJcIKf7oqXaKgGdvYh1rCKt0/abmBcvUCn10+FZ6Iq
+	HcSk=
+X-Google-Smtp-Source: AGHT+IGaSwz8ww4IUZD2uDktlaSecN2PFcz3hP4Umou4FioEqv4KhNQuApJ+VtdQnNeCsI/GRhcNBg==
+X-Received: by 2002:a2e:3512:0:b0:2ec:5488:da with SMTP id 38308e7fff4ca-2ec5937382amr29228891fa.40.1719219895317;
+        Mon, 24 Jun 2024 02:04:55 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4247d0bea05sm165840145e9.18.2024.06.24.02.04.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Jun 2024 02:04:54 -0700 (PDT)
+From: Jiri Pirko <jiri@resnulli.us>
+To: virtualization@lists.linux.dev
+Cc: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	parav@nvidia.com,
+	feliu@nvidia.com
+Subject: [PATCH virtio 0/8] virtio_pci_modern: allow parallel admin queue commands execution
+Date: Mon, 24 Jun 2024 11:04:43 +0200
+Message-ID: <20240624090451.2683976-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.45.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202406241546.6bbd44a7-oliver.sang@intel.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
 
-This is odd to say at least.  Any chance you can check the value
-of /sys/block/$DEVICE/queue/rotational for the relevant device before
-and after this commit?  And is this an ATA or NVMe SSD?
+From: Jiri Pirko <jiri@nvidia.com>
+
+Currently the admin queue command execution is serialized by a lock.
+This patchsets lifts this limitation allowing to execute admin queue
+commands in parallel. To do that, admin queue processing needs to be
+converted from polling to interrupt based completion.
+
+Patches #1-#6 are preparations, making things a bit smoother as well.
+Patch #7 implements interrupt based completion for admin queue.
+Patch #8 finally removes the admin queue serialization lock.
+
+Jiri Pirko (8):
+  virtio_pci: push out single vq find code to vp_find_one_vq_msix()
+  virtio_pci_modern: treat vp_dev->admin_vq.info.vq pointer as static
+  virtio: push out code to vp_avq_index()
+  virtio: create admin queues alongside other virtqueues
+  virtio_pci_modern: create admin queue of queried size
+  virtio_pci_modern: pass cmd as an identification token
+  virtio_pci_modern: use completion instead of busy loop to wait on
+    admin cmd result
+  virtio_pci_modern: remove admin queue serialization lock
+
+ drivers/virtio/virtio.c            |  28 +----
+ drivers/virtio/virtio_pci_common.c | 109 ++++++++++++++------
+ drivers/virtio/virtio_pci_common.h |   9 +-
+ drivers/virtio/virtio_pci_modern.c | 160 ++++++++++++-----------------
+ include/linux/virtio.h             |   2 +
+ include/linux/virtio_config.h      |   2 -
+ 6 files changed, 150 insertions(+), 160 deletions(-)
+
+-- 
+2.45.1
 
