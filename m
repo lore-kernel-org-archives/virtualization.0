@@ -1,116 +1,178 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18D45140399
-	for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 13:52:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B52A6142635
+	for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 13:56:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719237154; cv=none; b=OQ/92vYzNAhrKzikIg3NRGMTxfto0Or/PGYNX5GeH0wkFr2PiOzIeq5cccLH58IxzFyHjybipm0z8vNm2Ct+pgSj2aSfBGD4mOcnwCOxi+tN3KEdYrc49Iw/jApgvABi4Dzw5AMBVLX8XPQiZ/8hWeI/Usx6dL2urdhMrW8EEpg=
+	t=1719237364; cv=none; b=kSGQOEqh66zDPX3lewQvO34SECnRNUZSA5Yj2ZK90iLiJrTXkWGtLzN5NcIP7cnOsCvtj+kK74v4qDeO35kSnjK2GA+pk3Vo8KcBOrjmGiu7L2Sd2PdvOnsQoE341YVuNfrjQbGriLU6S++L004otCJFB5/ZeyYK7slULs14GAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719237154; c=relaxed/simple;
-	bh=DcPfmR1l4bModJlCqUxPpDWrYmgLAwKMchvIGQs+0gQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=M/zqkg3J6LixnX/9lACkmljQST9x2e8Skdssca4NdNV07V5s1KwIQN5km6lR1Fwj6Rh+3qKmC9zf7dfLWiWGRop1XxQ/kjJObZkJMrJ/lgIp0EDhVl1DcYqDx1anRU7NOQye7ElRigqmWrtNCCT5i5zDyLjKlN0rJDF4HnqqPw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=LF9bi/jc; arc=none smtp.client-ip=209.85.222.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1719237364; c=relaxed/simple;
+	bh=0KAWka5+kPZhTIYr/7Dv4uYDRJBl1BNMbN/s7FiWa/w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=M+NFhTbx6lb21T7aeGvtqX/HJe4aCAiwgV5Sf+Ung1lg5Xqv8vWtba7yqEdXJlBBdNG7WpES/MZWQVCGhrwWRdyM1fkouvBAiNHON+RX416p9g5QXPzFy0RcdZNKhPN0qamr8r5ukbqISKA7ONs+3vpEzhplgrXx8TK9X8dZE3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RyLaRvxx; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="LF9bi/jc"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7955af79812so246022485a.1
-        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 06:52:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1719237152; x=1719841952; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8EDsLn1OgzRgyNhEu4xvrhQi5e7pRWLpS/h4W2a5wsU=;
-        b=LF9bi/jcF5wbsqpVFRmxJQiO31+5DC4aqphbDhmCZPpW/E3PqNPOvqTmQTMIIAQWTI
-         ADyWbeiWMD+op4mOLBkyj3B84lQSuqtfKaRwvLjP1B0DeybcQe5etZe6a5eBLvFUBfyp
-         p0I/NssLHXkn/6FzhFP35TfwWKxAVz17owZxbP/Z8SJuno+hv1OfKVeyXVkSvHa7GrYo
-         Cb08VC0M88DDRYhxS1CukDVJV57bHeGxPQrGMf1mGvbVUAN82i8yNEpTVPnBTqdC+Zor
-         1bapEbVFO3VtLU4kmX8EcPfj7fBj+Nnqkt+j87no2sjVN/wpb+rzH97gCzo4DRJE93yG
-         Ecpg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RyLaRvxx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719237361;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2o04lTmcmrjMqysaRuHA86FBr57g+H7lRo4DegWHVh0=;
+	b=RyLaRvxx2hYh5vuRCwQCXYMDmAgWKpECPzj8F9w46quK6Em4hMDOvBbBoseuLunQgQQGlS
+	YmizlXxITu+Snpf3hwuEGwaffle6a5eSq2UYwkHu+OyGCoun5DJwOe88ifiaMOTAa6yLek
+	GbsKtrGO8JTKAMW/xpHXF2I0ZyP6OR0=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-138-4MMKFePmNGSbmrNRmtax8Q-1; Mon, 24 Jun 2024 09:56:00 -0400
+X-MC-Unique: 4MMKFePmNGSbmrNRmtax8Q-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a6f5e82440cso272231266b.2
+        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 06:56:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719237152; x=1719841952;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8EDsLn1OgzRgyNhEu4xvrhQi5e7pRWLpS/h4W2a5wsU=;
-        b=ndQ5rIbn8Rd+G6TmKUhvMSSmNi1KU5IrMjNrH67+s/udqNP0T0sNlY8Lcd9lD8D1ai
-         vb5veY3x+vlCXajLocbclJ+rYtbKHzw5Sj58eCmCuTKJH4DZ2eSd03W+FtWclMcmTEUY
-         zh7BcXvCeioRWEyodq0oB3C6jqB6KDsBLJ2yLCeTYz8/YvSzzYBVPfk6KBiTDY9IYGsu
-         n+c3ecZFh0E/F76tCD//k9Vq67pJLi5SZApxTakTfpZD8Df6h6huoFmrvwPa1aSmU8Ft
-         YNKtsjtlycEq/h1GQlaEoBuBXQNM8h/SD42riG0NjomNl8g0l14PSDuK7SN7xtM6ZWB+
-         a8Fg==
-X-Forwarded-Encrypted: i=1; AJvYcCXVjL8lM4wXFU9kdYUbqYgsEdiYTi9zF/hM2UB9o+p+TUmHRpImFBVJJxa068PBV3kgnXpEC/MNGybgFQXoo7i5BMFiAWdZKmj+BUIxj4Y=
-X-Gm-Message-State: AOJu0YysMGEFKeXOwVvMpmbbF3pbQsJ37OADz67WFnmxGkXiZK7fDW15
-	AFy/kdN6htfC69d/C8ZP6pRwkT3SSKVO+UrkjFSZ+HKUCSt76Et1RsLZ2ldbe0DU6O1BOWwuT/f
-	6wL++6tdQpSKqoQ/mmEJUuqOS5Yh/iqMclwZm
-X-Google-Smtp-Source: AGHT+IFElQ+3gzo5alcZs2P13akx+VrbUCKVOC71sr0kMTL0rspnVhmcd0pjD9YgW1eZ7h0k9JfWZOuXETrot3Pj8Xc=
-X-Received: by 2002:ac8:7f81:0:b0:441:579d:c7f1 with SMTP id
- d75a77b69052e-444d647e664mr53406461cf.20.1719237151648; Mon, 24 Jun 2024
- 06:52:31 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1719237359; x=1719842159;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2o04lTmcmrjMqysaRuHA86FBr57g+H7lRo4DegWHVh0=;
+        b=f77JL9iFREa/j5cTyvfyy59nOhnu4Xe3aBN2489lY9LZxevSH379vJfxu4zrT5jyi8
+         wj0RfPqEy5cS98auSEFP8Fd9WF6OEIQLgqeQWU6uwE6SE5r5pcAgJJRAntmiEDhJRf3M
+         l7SEGUHVfXeGtZ1nFMOrfDaUD8mZdv8auyZNgqh2ckcowfdkDE5C4uBVezkjMQVq3Jhv
+         7LL3+QM5ak/aHHCBRM7nJ9ZSsWtKSEkeZWDSIrKoxro5LNKC+NBVM00AhTKQd9F0mbGR
+         caI9JXYQQ69Ftq1r95ZR9pavTPowyQbdTpzhRACT48Syqy2n6XZT1BgFbnrL9fgnbKG6
+         TRnw==
+X-Forwarded-Encrypted: i=1; AJvYcCVS3Qi4mOdb52zep2POagy5gTv++3Msg5pRiwzS5qBoWkMTtw0Avj+5PvQWHXZ8iuIhTpoVLNaJQE3wldUbFvYf6qBjVnj5/YgJT3yn4CI=
+X-Gm-Message-State: AOJu0Yzz/cjdks90oSSUgoSp8+6skU98lqOO6dLXaxVZeksikdMEQCrc
+	Gsbr1hNjcTfvylRfWOZrC5y0xtcLTQpRzny6ijie0rs7TPrsKqLJYB/Ajak7G+DUh+5fB9MddBf
+	rZFEk4+FPz/eZeTx1zrclgkUJNnu8Rca2+YuzUCJphlwlrQzCx6+ZdTLr7GvhB0hm
+X-Received: by 2002:a17:907:7782:b0:a6f:a008:7f66 with SMTP id a640c23a62f3a-a7245b648ccmr287988366b.26.1719237358896;
+        Mon, 24 Jun 2024 06:55:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHquNF0DS6lM4STtbBvZCu09KbzHXeU2Cscj7xthiRSKTbkuwed3BYxHP0q1mB6L7/GERR2Wg==
+X-Received: by 2002:a17:907:7782:b0:a6f:a008:7f66 with SMTP id a640c23a62f3a-a7245b648ccmr287984666b.26.1719237358019;
+        Mon, 24 Jun 2024 06:55:58 -0700 (PDT)
+Received: from redhat.com ([2.52.146.100])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a724fe5d3a8sm151848166b.75.2024.06.24.06.55.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Jun 2024 06:55:57 -0700 (PDT)
+Date: Mon, 24 Jun 2024 09:55:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: Heng Qi <hengqi@linux.alibaba.com>, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, parav@nvidia.com,
+	feliu@nvidia.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH virtio 0/8] virtio_pci_modern: allow parallel admin queue
+ commands execution
+Message-ID: <20240624095239-mutt-send-email-mst@kernel.org>
+References: <20240624090451.2683976-1-jiri@resnulli.us>
+ <1719222832.5704103-18-hengqi@linux.alibaba.com>
+ <20240624070832-mutt-send-email-mst@kernel.org>
+ <Znl4q_ArglG1aqPv@nanopsycho.orion>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240606111345.93600-1-xuanzhuo@linux.alibaba.com> <CACGkMEtZWJJ1TxnbDLio28M1_0mUZmDd_HbQrZOVB9ixKoLbMQ@mail.gmail.com>
-In-Reply-To: <CACGkMEtZWJJ1TxnbDLio28M1_0mUZmDd_HbQrZOVB9ixKoLbMQ@mail.gmail.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Mon, 24 Jun 2024 15:51:50 +0200
-Message-ID: <CAG_fn=Xe+XQROUqZ9zy94BXVj8SRKprW3fUj_0rD3AhSAvtn-w@mail.gmail.com>
-Subject: Re: [PATCH] virtio_ring: fix KMSAN error for premapped mode
-To: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	"Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Ilya Leoshkevich <iii@linux.ibm.com>, Aleksandr Nogikh <nogikh@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <Znl4q_ArglG1aqPv@nanopsycho.orion>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, Jun 7, 2024 at 8:34=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
-te:
->
-> On Thu, Jun 6, 2024 at 7:13=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
-> >
-> > Add kmsan for virtqueue_dma_map_single_attrs to fix:
-> >
-> > BUG: KMSAN: uninit-value in receive_buf+0x45ca/0x6990
-> >  receive_buf+0x45ca/0x6990
-> >  virtnet_poll+0x17e0/0x3130
-> >  net_rx_action+0x832/0x26e0
-> >  handle_softirqs+0x330/0x10f0
-> >  [...]
-> >
-> > Uninit was created at:
-> >  __alloc_pages_noprof+0x62a/0xe60
-> >  alloc_pages_noprof+0x392/0x830
-> >  skb_page_frag_refill+0x21a/0x5c0
-> >  virtnet_rq_alloc+0x50/0x1500
-> >  try_fill_recv+0x372/0x54c0
-> >  virtnet_open+0x210/0xbe0
-> >  __dev_open+0x56e/0x920
-> >  __dev_change_flags+0x39c/0x2000
-> >  dev_change_flags+0xaa/0x200
-> >  do_setlink+0x197a/0x7420
-> >  rtnl_setlink+0x77c/0x860
-> >  [...]
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > Tested-by: Alexander Potapenko <glider@google.com>
->
-> Acked-by: Jason Wang <jasowang@redhat.com>
+On Mon, Jun 24, 2024 at 03:46:19PM +0200, Jiri Pirko wrote:
+> Mon, Jun 24, 2024 at 01:23:01PM CEST, mst@redhat.com wrote:
+> >On Mon, Jun 24, 2024 at 05:53:52PM +0800, Heng Qi wrote:
+> >> On Mon, 24 Jun 2024 11:04:43 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
+> >> > From: Jiri Pirko <jiri@nvidia.com>
+> >> > 
+> >> > Currently the admin queue command execution is serialized by a lock.
+> >> > This patchsets lifts this limitation allowing to execute admin queue
+> >> > commands in parallel. To do that, admin queue processing needs to be
+> >> > converted from polling to interrupt based completion.
+> >> > 
+> >> > Patches #1-#6 are preparations, making things a bit smoother as well.
+> >> > Patch #7 implements interrupt based completion for admin queue.
+> >> 
+> >> Hi, Jiri
+> >> 
+> >> Before this set, I pushed the cvq irq set [1], and the discussion focused on the
+> >> fact that the newly added irq vector may cause the IO queue to fall back to
+> >> shared interrupt mode.
+> >> But it is true that devices implemented according to the specification should
+> >> not encounter this problem. So what do you think?
+> 
+> Wait. Please note that admin queue is only created and used by PF virtio
+> device. And most probably, this is on hypervisor managing the VFs that
+> are passed to guest VMs. These VFs does not have admin queue.
+> 
+> Therefore, this is hardly comparable to control vq.
 
-Jason, Michael, any chance this patch can make it to 6.10?
-The bug in question has essentially been blocking KMSAN on syzbot for
-the past month:
-https://syzkaller.appspot.com/bug?id=3D2819883f3d376b703e686e700fde00a01eec=
-62fa
 
-The patch should probably have
-  Fixes: b6253b4e21939 ("virtio_ring: introduce dma map api for virtqueue")
+Well Parav recently posted patches adding admin queue
+to VFs, with new "self" group type.
 
-, but I am not exactly sure why syzkaller only started triggering the
-bug this year, given that the patch dates back to 2023.
+
+> 
+> >> 
+> >> [1] https://lore.kernel.org/all/20240619171708-mutt-send-email-mst@kernel.org/
+> >
+> >It's true - this can cause guest to run out of vectors for a variety of
+> >reasons.
+> >
+> >First we have guest irqs - I am guessing avq could use IRQF_SHARED ?
+> 
+> There is no avq in quest, under normal circumstances. Unless for some
+> reason somebody passes trough virtio PF into guest.
+
+
+At the moment, but this will change soon.
+
+
+> 
+> >I am not sure why we don't allow IRQF_SHARED for the config
+> >interrupt though. So I think addressing this part can be deferred.
+> >
+> >Second, we might not have enough msix vectors on the device. Here sharing
+> >with e.g. cvq and further with config interrupt would make sense.
+> 
+> For cvq irq vector, I believe that sharing with config irq makes sense.
+> Even for admin queue maybe. But again, admin queue is on PF. I don't
+> think this is a real concern.
+> 
+> 
+> >
+> >Jiri do you think you can help Heng Qi hammer out a solution for cvq?
+> >I feel this will work will then benefit in a similar way,
+> >and having us poll aggressively for cvq but not admin commands
+> >does not make much sense, right?
+> >
+> >> > Patch #8 finally removes the admin queue serialization lock.
+> >> > 
+> >> > Jiri Pirko (8):
+> >> >   virtio_pci: push out single vq find code to vp_find_one_vq_msix()
+> >> >   virtio_pci_modern: treat vp_dev->admin_vq.info.vq pointer as static
+> >> >   virtio: push out code to vp_avq_index()
+> >> >   virtio: create admin queues alongside other virtqueues
+> >> >   virtio_pci_modern: create admin queue of queried size
+> >> >   virtio_pci_modern: pass cmd as an identification token
+> >> >   virtio_pci_modern: use completion instead of busy loop to wait on
+> >> >     admin cmd result
+> >> >   virtio_pci_modern: remove admin queue serialization lock
+> >> > 
+> >> >  drivers/virtio/virtio.c            |  28 +----
+> >> >  drivers/virtio/virtio_pci_common.c | 109 ++++++++++++++------
+> >> >  drivers/virtio/virtio_pci_common.h |   9 +-
+> >> >  drivers/virtio/virtio_pci_modern.c | 160 ++++++++++++-----------------
+> >> >  include/linux/virtio.h             |   2 +
+> >> >  include/linux/virtio_config.h      |   2 -
+> >> >  6 files changed, 150 insertions(+), 160 deletions(-)
+> >> > 
+> >> > -- 
+> >> > 2.45.1
+> >> > 
+> >> > 
+> >
+
