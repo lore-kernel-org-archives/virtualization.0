@@ -1,167 +1,268 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2085.outbound.protection.outlook.com [40.107.223.85])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED327145FF6
-	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 06:42:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.85
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719297724; cv=fail; b=pXMQtHkhivlBn+T2TzsQE/C9scUoymkB0JBOUWvxdh03gnnpaOSoVa4siNCrzCAoceVrgREmadQbZ5BC/s2HK0OS3PK0LbmkTHdN6yNEl5eGS/HlWFjxZTv78KuBT9utL4Xp59cA68eNOEwMtw8VA4nWs5EeEBofceW4fze1I8Y=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719297724; c=relaxed/simple;
-	bh=Tayi3WzZw/eFSm08xu7wGXzT8dIUHDhR8FVDy9NnZVk=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=QN5cfzhH7KDqoigNpOm76M1mqWPp5bk7Y2yKc3djUfOnchsumtxs1/ZSTEwVQapCNW0nzqti24QflqCv9AyRaTm7ktC/6xD0OaosP8v0upj8yd1a49CMd5e9RJ3EWtH9BEqU+E/ZBMTuhvu8WhUp4o+ERxwn7Gy7B/AO5HF1sQU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Sej+DBNS; arc=fail smtp.client-ip=40.107.223.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 328A81465AC
+	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 07:11:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1719299507; cv=none; b=mPI1inuQuWoUTovKC6ejxImgj04OD6H9Ck7d7GVizvRgjmvpzkk4XtAkIabFzLIpn6zOZYS3BtJu2AOnf7AlMpGvOGLJEn01wGwCZzAcgPGUK7CfAdFf0KWPdr1QBwTKH1YtYIdkCe4/Qv2iNlOl9eb6WanzBL6Jii/kz+Y1aFE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1719299507; c=relaxed/simple;
+	bh=TLrvzNSGRIjfjk0ds0hDGYrbMsuv7YV9Cx8PsRvbsvo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=qW3mnvNNfPdlm4r4Gwd6ZIUmHOe/5H88YC3X+FmBWDPJYvbEhYPNoOUO4CjGWXjEElhVZZhZ56RfvCjCrX0YQAA1YbYunFa+26ARcGg7piwXaVYqtnM57tEnetK4ykIiJBCOSWRaeNivP9nBJjw/aqBf0ChQ/t4VloFWw+rH3J0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cu0kRO88; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Sej+DBNS"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=L3eLdb4oRzcZlvr1UylZKlhy9onoQGJd7SeugVqZWTUbMMb0wrdzRZvh0A18a8P/kT0ZPZjKJteWU8bimHoBhRUpNeG2ualGObm+J+z8ipWYHM2fjCHE0Ya0qEPB0hjIb/E867EDCnA9Kzv3mGOVBkiZDAihBTch8wMhtrHswyWgeZ1ku/n1Bp7drelUQzTMVUaJISEjft65BRmnF7C/jNJOxeMtWRU/VHJgjLAVMMNUDggST6brPbGlq+jugkZekMvzArgBM5/Kc+n00CoqElXTaHmWPZhrzFR+T6pzwagx63/6lfMVQ6ayeuITfYZV6TnmDEAkCW1dYgc3OituMg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Tayi3WzZw/eFSm08xu7wGXzT8dIUHDhR8FVDy9NnZVk=;
- b=M9kxqj5e1AC7A0vWFKvrHwM7Swk2NoM2NwT3LZb0wCV0292e2PTGpij9zruomDxfPDcdnh67rnQfYlnPhq94hvvBwQCeWpNL73MVm76TgqF2O9nzTkDXOXwvxSNO4zF6MTcbEd55uDMOOx1jkag2QH5MR6GeZjaoeQyaw1EOaPXFVpbu2hKqYntnHkX8QJOuJbzSoEr3Oy0cHNel2cBTfiMWOSHKjxqOfnYyh5DBSP9uH4vdkPUEJ5eUK0QGmHdfWWqrFaFbojsD3auAYKdzySG1gF0VOp8WWQE+C0HjV4EPcJBUG9xetpqeRBTvhOGypV8IRLT/+gs4U4FIKzKzJg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Tayi3WzZw/eFSm08xu7wGXzT8dIUHDhR8FVDy9NnZVk=;
- b=Sej+DBNSiGHgWfjgcQONxXZrmS4WrP4FWmIhQ7KAdhzbRArTevXs50RM/SOlp7M+kLMY7wcx6TPefLgpNBGm5BWJIkGDu7gmlp1zadZdte5Omiukt1DEvPh7T2o5F0uSbpaBtBzZzomdxk8+qB7zpoKsmh9GYTLsgdV9xG+Pt+bksbPeqvWPlXhjYB66M9yvO4bd535XUF/WbZTryIzIC+y56/NjakAhzvEGEOtShnkHlLO1zBKItPxnCJrHtGqmmZaKf8xVULIdYltpQ812xEUVQY4PIhzYCHwIPSaNNVS5LdVkYsUZ1vsPbqVeLLjDJ+XW/1eznpASOMT2va//uw==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by MW4PR12MB7144.namprd12.prod.outlook.com (2603:10b6:303:21b::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7698.26; Tue, 25 Jun
- 2024 06:41:56 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::361d:c9dd:4cf:7ffd]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::361d:c9dd:4cf:7ffd%3]) with mapi id 15.20.7698.025; Tue, 25 Jun 2024
- 06:41:52 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Jiri Pirko <jiri@resnulli.us>, Heng Qi <hengqi@linux.alibaba.com>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, "jasowang@redhat.com"
-	<jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
-	Feng Liu <feliu@nvidia.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>
-Subject: RE: [PATCH virtio 0/8] virtio_pci_modern: allow parallel admin queue
- commands execution
-Thread-Topic: [PATCH virtio 0/8] virtio_pci_modern: allow parallel admin queue
- commands execution
-Thread-Index:
- AQHaxhWYDh9AqSDb90uEf0IIROIBL7HWrKsAgAAY6ICAACgKgIAAAqyAgAAPkoCAAAcGgIAAtusAgABKlACAAABeUA==
-Date: Tue, 25 Jun 2024 06:41:52 +0000
-Message-ID:
- <PH0PR12MB5481409E517CD45449CAE1FCDCD52@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20240624090451.2683976-1-jiri@resnulli.us>
- <1719222832.5704103-18-hengqi@linux.alibaba.com>
- <20240624070832-mutt-send-email-mst@kernel.org>
- <Znl4q_ArglG1aqPv@nanopsycho.orion>
- <20240624095239-mutt-send-email-mst@kernel.org>
- <ZnmH-eMBfsPkDpkd@nanopsycho.orion>
- <20240624111347-mutt-send-email-mst@kernel.org>
- <1719281486.8829272-20-hengqi@linux.alibaba.com>
- <Znpl3lrArGU8EdFQ@nanopsycho.orion>
-In-Reply-To: <Znpl3lrArGU8EdFQ@nanopsycho.orion>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|MW4PR12MB7144:EE_
-x-ms-office365-filtering-correlation-id: c9f2f139-4d7e-4f6f-5664-08dc94e1e61d
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230037|1800799021|366013|376011|38070700015;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?+hEkeHvU7tpqoNUOqB9O2XOvo+2DEhMlgEJnSCpRxmiw4dEvku7ZTRmAMlBq?=
- =?us-ascii?Q?bVuCKlSU6d6ZeUQDLX2LP4suBJnbs5y9s/3h7CtDCCYlG2C76RHgLVcsRuQ3?=
- =?us-ascii?Q?T7sS//kazMY9EO4595zGG+avxDMOIcYCOgfobhYHaC64uoaBILmlXkM8frcB?=
- =?us-ascii?Q?Kpy7Kl1d+6V7s3qtH+fwECNKagTdanv4rSpZwaJgUkDuuBnh2nm3hV3lx2cK?=
- =?us-ascii?Q?D1O4leSdvEGYCVv82sNoqkxAde6DO7sxbkWm1wRCLVrApgOCJ3cHzAXwRwXW?=
- =?us-ascii?Q?JRrJH1jBmrM1tPf+NdvCGuRib9cOaYiZ0h3IhiWPLe9mXdv4c/lKp0as2G9K?=
- =?us-ascii?Q?RNCJd74P6+RMpKjt9k1PbCIir+g+w05HRSZ/hUi83/8QB3z6S/Ae/zeW9xMU?=
- =?us-ascii?Q?lAKNd5Aic7QcGKNpmilzmQyFFVDNGE86G3lzU/pjSO4h4CjNasULIqtBVHen?=
- =?us-ascii?Q?zEbs+6utLzukUt7CgywuMvqszmzkz9NhJF03KiWu5IzWfzHhuF33A1xTHaIF?=
- =?us-ascii?Q?3zJYoZS9oBN76Rf6MfuiIkouvSUuG32n3DRDO+cijOhXQ0ia9t/LmjSCbQa2?=
- =?us-ascii?Q?IxTwvWFDqtU8Hv+cwPxa9zQTQvivYGRPSfXcZ9WvMF7+dlvV7dp1OjSWzOWn?=
- =?us-ascii?Q?qwEhrYwfHW9ysPcKNFRfKDgPOEy3ojUApTKVY7YUzImq7XfRZhb4crVc1pZ7?=
- =?us-ascii?Q?Dr1i0Tk9ztuV9P9NaohFXhbT+NYmrZ4sTJKLl595MXXpDVpY1TyXMunca4dV?=
- =?us-ascii?Q?CnWDPQyFg3gB1jQKyF5FrKq1YKIHl9Y/QOvHymDC+f6TjDELJ3tGwAA4s2dO?=
- =?us-ascii?Q?kwPlE0H/l5NlisO1C7RwFQAPGk6tFEJ9OOVIOSJXa+JdtNjbCVIwZR0L13RA?=
- =?us-ascii?Q?9voeeFHMV0yzs2ilO9E1YzsbvLVPohNb7cwMCEXjHtwA6Os36b/UfEMfkBK+?=
- =?us-ascii?Q?nKVIi9b55mQyQQJuzkBmOVJc90SlyQDr0bAWwDlyo/mhWA8VQUGaTUcDv4R4?=
- =?us-ascii?Q?lwMVPqqLW//g4QuoBR+y+NImaU3d+PWrbZuyuuLMe+JZWAyUFaS7WaygF6eH?=
- =?us-ascii?Q?0EnveeDAHaa7eku+l+dyqbLLMA9RtcJdRo12xgCsZI7bEXYCj1/ruFF0lV1g?=
- =?us-ascii?Q?fZPZJ7ORbbkWilzNjx0Gq3Aq1DMbodyGc9tgBaJIJaeePj8b/A58JJ8bNCiW?=
- =?us-ascii?Q?/HWVBLVEo0W9nP0rpNOAS3G+fYLiF6SrOsULTvjCSdV+kSsJH/Z89VutYeSh?=
- =?us-ascii?Q?D0Ne8/OHPeS2adHGe2fMwWmobGC85Q2ut3d+SQH+UefAOiyiFOb/buOWAbAz?=
- =?us-ascii?Q?Jv/abD23RtqAHWnX+ZDifLa6QG4YT+JRdGGbPBNPTXdfRUrDE4/NNriwsWpa?=
- =?us-ascii?Q?BdBxU4Q=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB5481.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230037)(1800799021)(366013)(376011)(38070700015);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?YvjcnJ+dJNfHViaT9JoJE7q3KKerLTS/SvofZ6zYM6gdYy3Zpmhyyrqxdysq?=
- =?us-ascii?Q?4wnvVH5/dRDUFDSNYSh2bPnZswIhQnAVWXBUEDd5Fr2a/AHLKChBMvGrJa0s?=
- =?us-ascii?Q?7UwTo9rxnMNaFk++lw2IQMczeer2mlWNBglBum5ssgfR31SKraqQW2b5DnJi?=
- =?us-ascii?Q?U9vsuqEgwqam6SttZGugXC/RHDvMw5FwtHB/BkIEznSj6DvGCX3igYrgUp7v?=
- =?us-ascii?Q?6l07k04OYFVjvoCjRm7SOfEdbHefQqsot1c1JYFoYap4inIkgVKqCMxZUZDV?=
- =?us-ascii?Q?4oaEiGZoYp+kMHb5ahbgb7weRLO1LfkGxw8HYJ8VXMG02bza3N2ac7p/5t7C?=
- =?us-ascii?Q?1oABFzxW0YnZ79GmDRs5mo804JHXFGAe0GQKDHFJ2BMQTWiEv89d9M0YNj2C?=
- =?us-ascii?Q?z3nU7uyPEKiywEWpDk9ZqZPTM9Z5n6KM3adfpbQ11cSBF9Jhs5fVxTOa6SG1?=
- =?us-ascii?Q?yY5lSr2UOjBhpMnWe256FApYWY90CpXvy8xnV+BWkcfrCAwZi2WnL3iJWM/R?=
- =?us-ascii?Q?ZG0ecwYY/l/QZAh0Y0mp69ynsfpQzTqNm5xfw+eOcuXRjjj9/HPbwdAiXefp?=
- =?us-ascii?Q?T4C6JTD9cSSeOm8Sr894SjZg4VxJKmNl9nsbxIqqhwm3Wyz8WkYz17JQ//P7?=
- =?us-ascii?Q?6V3OX5K7ohYAvyZG42hmLGGmYKzQf996FZLIDQ+lvwJNzhfHxAFDuKuZUG0x?=
- =?us-ascii?Q?qqpzlhr/MHfx9JCck7upYLf/i5m8J5bxzSCrQIRvi/NMSTYR0xPj0FsgPHa4?=
- =?us-ascii?Q?KmpG/j2krT4/v7GW8/FIK6lcOQ3nZCMyEYx7ZsYd8ApfUY+1VVqnHlbPGxlm?=
- =?us-ascii?Q?fEktvo6CLOMqzy0a/aTNpprBQN3aOfc6GMYAqtcJu75eZQeFwXjZ+ZWV3Eci?=
- =?us-ascii?Q?chU/12lUf0WI9OOKmUwLd/QKJUH+bMmXYcyLVMkV2ZZYGPhWojT8UvLKpzpq?=
- =?us-ascii?Q?HDqEwFT6QvtaQ6DM2cxkc8488O/4eHIoNLM/ZlQQflSPot7QdWiq7ZXqCkno?=
- =?us-ascii?Q?bQDK1FFodZa1zj84zxjCA3UDGcDUbFWqEdcoOPMSujiGhNAJASHFtad//sTf?=
- =?us-ascii?Q?p9omYzs0LxbcI7vBduhZNbNkl0XNsA7TH/3zUxMbmAooPit8JmxUEAKfJU5o?=
- =?us-ascii?Q?5RcGh/Nh/3cGagWJTAOmH1rU3OUtc7Uy8do4s/T/GhBPImai79esmSXPAxQV?=
- =?us-ascii?Q?Yqxk4KrN6fzZu2XLPo1+NHN6f6m+h8pEmB9j3pyW27MIa6QPl4sSkM0POmUy?=
- =?us-ascii?Q?bosnglHIy75530UZmwB3BM4EX2LgvtP5ruqEFuE9NRoD9RkSY3ixMgrbCl+T?=
- =?us-ascii?Q?fl5OKreV4UgJJFoEuKbwLQkRZU3Hk9vmaG18dlNVSp8jEOPSOpTPmdXAf09a?=
- =?us-ascii?Q?5EsyrPOAuZ2iy7/bjrV7ntO98nX7Pbkr7go9IIlgcwTavXnCZxLCJzfhSizD?=
- =?us-ascii?Q?d8ehOrdSIdPp82eLGz3ksUxk8/Hdv7F9uEt9f2rLnObSoEVVtjX8fO/EI3oQ?=
- =?us-ascii?Q?VJwHCjXI+lZrtK9aX2B9PdYCIpng5hz73LUvtad+TR83rCyss4Lsk1LwAG4I?=
- =?us-ascii?Q?OQS4/EfQRtZpu9IwJ9k=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cu0kRO88"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719299505;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UnIdsJMqMkoDF6UPKRzG7Hc37h3V7D0wsMm0QIPwULU=;
+	b=cu0kRO88qGdTGpUmG1ej+Dg6szGc5fjyvLf0S6U9tqVloSAdS7FADlzaychLTE02llzvni
+	G38a4WcRtGqnvhq0rpxeT5p0m97SYHIJtlTSEwo6+eCjMl4YzVgzhY8rC9quk5PJXd1fir
+	XIKCFp2T+DLSSahcKTvu2r2qQKfxK7g=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-422-6UeFJdhVO9Ghj7u-bggv_Q-1; Tue, 25 Jun 2024 03:11:41 -0400
+X-MC-Unique: 6UeFJdhVO9Ghj7u-bggv_Q-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-422a0f21366so3416965e9.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 00:11:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719299500; x=1719904300;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UnIdsJMqMkoDF6UPKRzG7Hc37h3V7D0wsMm0QIPwULU=;
+        b=g0tQBctIjMZcLze50jktX3JjAql4IXyzZCFixSW6uJfUOtvgQAtVMQfW0vwvsR5I+y
+         msUyTqdJ8oqxAZfxGWInbPPfolVoecJ/spZFmqX+H5PzVlJLlglvsoFfe1M9H/dQWUE7
+         fO49zaxkJ7Lz4GcWUTudGJrMcccreEdfrzjsx0JyxxdMmRle4amxnWPSy6g37nZ6BNgR
+         ORpfCKvGI8qk8INXVTjaDhaELqVGXD83//WlX+l+Qt8Lj/tavlQsMu7PaJgYzQZYLkXa
+         QRzCt3nBMY6Y0ldSESBw+CCORwWaAvLNg1HPRmi9rCsQf7sp8nXM9WkaBUfrPzzum9Ku
+         ZJcw==
+X-Forwarded-Encrypted: i=1; AJvYcCV15Ao/dheZizLAI7/z4SRlY3Il62X1SIKGpBlO9/KFg5uHPbJcILz8Ti2xnvGz3CfwSXoGD7LGdrc5tgBbjfaYxNCgbx+KGL+amp/HuHU=
+X-Gm-Message-State: AOJu0YzPD5KVLY0KC8m+IP0ukUZLFMMCJLXreAze3U+55JNnJzTjkchp
+	Y5q1c/84xMxpnr9AUQeszaNShSo+5bWBF7GlkQqLmIy5oq/JQZ2e/9ub+0vTIXMkNq4A6GK9uvv
+	qJjlJQKy3veB9DZ1Yha+Bwh51hwBxg6o/qP14RemRWRjsR9kCq/fns/E5GxIAIgpS
+X-Received: by 2002:a05:600c:4fcb:b0:421:c211:a57e with SMTP id 5b1f17b1804b1-4248cc6673emr41636745e9.35.1719299500129;
+        Tue, 25 Jun 2024 00:11:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGLLu5OdsdrE20B7Tz2kH8m837OaXN5E0lckyzm0dvKRWIthJJP3coYroXleaJKHDI2+Pm53w==
+X-Received: by 2002:a05:600c:4fcb:b0:421:c211:a57e with SMTP id 5b1f17b1804b1-4248cc6673emr41636375e9.35.1719299499386;
+        Tue, 25 Jun 2024 00:11:39 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f6:f72:b8c7:9fc2:4c8b:feb3])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-366389b8ad2sm11987747f8f.33.2024.06.25.00.11.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Jun 2024 00:11:38 -0700 (PDT)
+Date: Tue, 25 Jun 2024 03:11:35 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, venkat.x.venkatsubra@oracle.com,
+	gia-khanh.nguyen@oracle.com
+Subject: Re: [PATCH V2 1/3] virtio: allow nested disabling of the configure
+ interrupt
+Message-ID: <20240625030259-mutt-send-email-mst@kernel.org>
+References: <20240624024523.34272-1-jasowang@redhat.com>
+ <20240624024523.34272-2-jasowang@redhat.com>
+ <20240624054403-mutt-send-email-mst@kernel.org>
+ <CACGkMEv1U7N-RRgQ=jbhBK1SWJ3EJz84qYaxC2kk6keM6J6MaQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c9f2f139-4d7e-4f6f-5664-08dc94e1e61d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Jun 2024 06:41:52.8661
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: mJx1F3uDQyXt+CcJenmRH6vF9jmgiUugGei+zlL72tIsFyH5rWtoRvlU1Hvl9TRbfIW7QRSBUeWoAVC7pBXY1w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7144
+In-Reply-To: <CACGkMEv1U7N-RRgQ=jbhBK1SWJ3EJz84qYaxC2kk6keM6J6MaQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+On Tue, Jun 25, 2024 at 09:27:04AM +0800, Jason Wang wrote:
+> On Mon, Jun 24, 2024 at 5:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Mon, Jun 24, 2024 at 10:45:21AM +0800, Jason Wang wrote:
+> > > Somtime driver may want to enable or disable the config callback. This
+> > > requires a synchronization with the core. So this patch change the
+> > > config_enabled to be a integer counter. This allows the toggling of
+> > > the config_enable to be synchronized between the virtio core and the
+> > > virtio driver.
+> > >
+> > > The counter is not allowed to be increased greater than one, this
+> > > simplifies the logic where the interrupt could be disabled immediately
+> > > without extra synchronization between driver and core.
+> > >
+> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > ---
+> > >  drivers/virtio/virtio.c | 20 +++++++++++++-------
+> > >  include/linux/virtio.h  |  2 +-
+> > >  2 files changed, 14 insertions(+), 8 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > > index b968b2aa5f4d..d3aa74b8ae5d 100644
+> > > --- a/drivers/virtio/virtio.c
+> > > +++ b/drivers/virtio/virtio.c
+> > > @@ -127,7 +127,7 @@ static void __virtio_config_changed(struct virtio_device *dev)
+> > >  {
+> > >       struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+> > >
+> > > -     if (!dev->config_enabled)
+> > > +     if (dev->config_enabled < 1)
+> > >               dev->config_change_pending = true;
+> > >       else if (drv && drv->config_changed)
+> > >               drv->config_changed(dev);
+> > > @@ -146,17 +146,23 @@ EXPORT_SYMBOL_GPL(virtio_config_changed);
+> > >  static void virtio_config_disable(struct virtio_device *dev)
+> > >  {
+> > >       spin_lock_irq(&dev->config_lock);
+> > > -     dev->config_enabled = false;
+> > > +     --dev->config_enabled;
+> > >       spin_unlock_irq(&dev->config_lock);
+> > >  }
+> > >
+> > >  static void virtio_config_enable(struct virtio_device *dev)
+> > >  {
+> > >       spin_lock_irq(&dev->config_lock);
+> > > -     dev->config_enabled = true;
+> > > -     if (dev->config_change_pending)
+> > > -             __virtio_config_changed(dev);
+> > > -     dev->config_change_pending = false;
+> > > +
+> > > +     if (dev->config_enabled < 1) {
+> > > +             ++dev->config_enabled;
+> > > +             if (dev->config_enabled == 1 &&
+> > > +                 dev->config_change_pending) {
+> > > +                     __virtio_config_changed(dev);
+> > > +                     dev->config_change_pending = false;
+> > > +             }
+> > > +     }
+> > > +
+> > >       spin_unlock_irq(&dev->config_lock);
+> > >  }
+> > >
+> >
+> > So every disable decrements the counter. Enable only increments it up to 1.
+> > You seem to be making some very specific assumptions
+> > about how this API will be used. Any misuse will lead to under/overflow
+> > eventually ...
+> >
+> 
+> Well, a counter gives us more information than a boolean. With
+> boolean, misuse is even harder to be noticed.
+
+With boolean we can prevent misuse easily because previous state
+is known exactly. E.g.:
+
+static void virtio_config_driver_disable(struct virtio_device *dev)
+{
+	BUG_ON(dev->config_driver_disabled);
+	dev->config_driver_disabled = true;
+}
 
 
-> From: Jiri Pirko <jiri@resnulli.us>
-> Sent: Tuesday, June 25, 2024 12:08 PM
 
-> I'm working on a fallback where admin queue and cvq would share config
-> vector. Lets see.
+static void virtio_config_driver_enable(struct virtio_device *dev)
+{
+	BUG_ON(!dev->config_driver_disabled);
+	dev->config_driver_disabled = false;
+}
 
-Cvq or avq resulting in performing more MMIO reads of the config space is n=
-ot good.
-CVQ and AVQ sharing irq is good, but it should not share with config change=
- interrupt.
+
+Does not work with integer you simply have no idea what the value
+should be at point of call.
+
+
+> >
+> >
+> > My suggestion would be to
+> > 1. rename config_enabled to config_core_enabled
+> > 2. rename virtio_config_enable/disable to virtio_config_core_enable/disable
+> > 3. add bool config_driver_disabled and make virtio_config_enable/disable
+> >    switch that.
+> > 4. Change logic from dev->config_enabled to
+> >    dev->config_core_enabled && !dev->config_driver_disabled
+> 
+> If we make config_driver_disabled by default true,
+
+No, we make it false by default.
+
+> we need someone to
+> enable it explicitly. If it's core, it breaks the semantic that it is
+> under the control of the driver (or needs to synchronize with the
+> driver). If it's a driver, each driver needs to enable it at some time
+> which can be easily forgotten. And if we end up with workarounds like:
+> 
+>         /* If probe didn't do it, mark device DRIVER_OK ourselves. */
+>         if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
+>                 virtio_device_ready(dev);
+> 
+> It's another break of the semantics. And actually the above is also racy.
+> 
+> It seems the only choice is to make config_driver_disabled by default
+> false. But the driver needs to be aware of this and take extra care
+> when calling virtio_device_ready() which is also tricky.
+
+
+No, false by default simply means no change to semantics.
+
+
+> 
+> So in conclusion, two booleans seems sut-optimal than a counter. For
+> example we can use different bits for the counter as preempt_count
+> did. With counter(s), core and driver don't need any implicit/explicit
+> synchronization.
+> 
+> Thanks
+> 
+
+We have a simple problem, we can solve it simply. reference counting
+is tricky to get right and hard to debug, if we don't need it let us
+not go there.
+
+
+
+But in conclusion ;) if you don't like my suggestion do something else
+but make the APIs make sense, at least do better than +5
+on Rusty's interface design scale.
+
+> 
+> 
+> 
+> >
+> >
+> >
+> >
+> > > @@ -455,7 +461,7 @@ int register_virtio_device(struct virtio_device *dev)
+> > >               goto out_ida_remove;
+> > >
+> > >       spin_lock_init(&dev->config_lock);
+> > > -     dev->config_enabled = false;
+> > > +     dev->config_enabled = 0;
+> > >       dev->config_change_pending = false;
+> > >
+> > >       INIT_LIST_HEAD(&dev->vqs);
+> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > > index 96fea920873b..4496f9ba5d82 100644
+> > > --- a/include/linux/virtio.h
+> > > +++ b/include/linux/virtio.h
+> > > @@ -132,7 +132,7 @@ struct virtio_admin_cmd {
+> > >  struct virtio_device {
+> > >       int index;
+> > >       bool failed;
+> > > -     bool config_enabled;
+> > > +     int config_enabled;
+> > >       bool config_change_pending;
+> > >       spinlock_t config_lock;
+> > >       spinlock_t vqs_list_lock;
+> > > --
+> > > 2.31.1
+> >
+
