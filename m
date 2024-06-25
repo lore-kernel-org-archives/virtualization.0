@@ -1,111 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE07514830E
-	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 08:33:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9564F146D7C
+	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 08:34:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719304383; cv=none; b=bTwBt3xpm0Q+doDYv4wE8037oBSaSp/gtztpJA34PN9UAyFnkRNYi75v1QvyUfTtuVJCbeqMDiNr6mVWSgq9tDbjTFWcmb6OVjCZw4T0WEWfuEpYN+7m9edXBK1Y8W73G+rR5y1dAIbkkfeFcfVNMX1s+RzFWg3m5XFZRe6dmmI=
+	t=1719304454; cv=none; b=LLd1V4KhyA5+y1zH+6LRGB7hgXwXZU8R2BSf5xcRJkgWkN/O/BdGBWMjWOzV0TV1UAoiVgfE34LFIdVDt2w7CQ0fxfkctJCjxgF1Ttq3MPE+Cpw8X98+9dZYV+LjXpS3lHQfXXHa7tWo2Bauo0lR+TZEI6PMyaj7jK+kzjSZGEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719304383; c=relaxed/simple;
-	bh=RWnZq6/e1o8ODqj7cwxxBBd2E4goPZtqioAyVQQcqSY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=suzMaRQYnjhFk/LP/H+V3F8HX22kdHzjojfB3Q23UR7m+A42eq5hhtoIgfXvAqkStEGEnpQTvnkQgpuy968E3IvkhOu1aMkjINUVjU+1580z1ftu5j93U7vD9NsJrJZe+1cBTd9mVnhF3GO7YJjIKN0Q4q9vuNDJgHC9qAYYsnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NBBzqV10; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1719304454; c=relaxed/simple;
+	bh=L65BVw1IfGXIpPCpLltvH1Pr3HFst845zg0oA4nj5mc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=dRb4ULXj8hYd941u+UeMtBxktT9c8XRIvlBkh3EPa4usoHWFELHb1CpE7a35HKSNgoEs2UgbnqyroHo0rtn9lSuQPXPmff4+s7IcyIgsV5mfalAW6ORbfQI2XYw56O3aiyR+qD4BCGWg55X/yH9D4K4AxWbouF3G/kcuVcpe0Mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=H+gnRdpF; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NBBzqV10"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719304380;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kmuQcBhqdbQliLKyKkeXS3WXDCp2XThxY79yU+S5CmA=;
-	b=NBBzqV10niWXFNqnRPiEn6Fjl0Mcm1BP9VboLs2p+YpbE6EWn5lHYq/hUFstEjohuuku5B
-	sEtYWJDa+xYRTMdK/xD+Dg1005+KQ0kbrH2ROrJO6cuNF+PgVRtsHe8senPwptc4u5bb3C
-	jceRSltouw6+axnP/RLS3aDkIRhOTCo=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-690-O2qgbBA2PT6kAPxV8FzuHA-1; Tue, 25 Jun 2024 04:32:52 -0400
-X-MC-Unique: O2qgbBA2PT6kAPxV8FzuHA-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a7251ca4d3dso106164666b.2
-        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 01:32:52 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="H+gnRdpF"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-1f6a837e9a3so32247855ad.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 01:34:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1719304452; x=1719909252; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=LaZTDIj+9Ci38w0UviyVOkLNbmq1P63k6Hrc4PEaBIQ=;
+        b=H+gnRdpFrJC87qFfLKNiqJbwNHE2nUTaa2GYGllGDQtQ4xLY29ys+pMuq++2+N6q26
+         AEYT3bRI1Wlo2yUNr4r18N3iNxBv4FY7QYoa5ea3XItiv25m4D9pei/R9ZXDwOL3BVFG
+         faW42Cd+TedeJLC/s0zu98o1lYvFJZ1COy32g=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719304371; x=1719909171;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kmuQcBhqdbQliLKyKkeXS3WXDCp2XThxY79yU+S5CmA=;
-        b=HpS78JspK4lDo2SJiZz4DzNHp0YIzQnq2S4pnuxNTB2AGG+4dROo6HAQ6CI/1KiZm4
-         4YHI8b+TQ03Mu8esps91AIgS/4x5AMyzCUzr5xfgxyu85cjPbJXfeCQX7yHqytRXIAfV
-         Kt1cm8uD9gmJBh6QDDBO04y3nShdoWqS/yXPS4JOqHjNFdFgxQow/Vux9SwFqBqnYnZo
-         ARX69ek04DVhXbVcRy/B+69q7sJBa95nsNsM4LJ/7ZH8PcT8IxjFnCpKf7w8H8dSANFy
-         63Z4DP3LQrC6m9JES3wmjQoFG/0wCcmyKuoFgGTHzhgHwPRi1Z032GFLdPTgoWcG+v3+
-         Vk2A==
-X-Forwarded-Encrypted: i=1; AJvYcCXdUhPPRtLakl5V83PFlbviHUH/zO5xcTFf/isD6zCP3Snsveo7vt83rqNXzILGXa31tZ4pS2CxZTdE1RrM5CVdftKPnoZ9PSoyagJX+TQ=
-X-Gm-Message-State: AOJu0YyzbznNzJ9h9tnYXEWQc2TvMPC5ezt/VPRB1LA0boCrSs3LUG8B
-	PLYWREQMcGbpe38/NZOAEtw7szavlsMtVglFbDSGsGD7lNhLM24VoX8+HzNgS5FOMowBTqA3q/F
-	ZitNE++BMBNaQUVvosO/1hJv3+QYvusalmJkgAiZkL65bnHU2JVL1QDkweAjjPtb2
-X-Received: by 2002:a17:907:a4c8:b0:a72:5fd5:ea02 with SMTP id a640c23a62f3a-a725fd5ec00mr300909266b.10.1719304371440;
-        Tue, 25 Jun 2024 01:32:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGKGLvgEEpYliYHX2+LzsnrTLSKm1BWp3FNYDFymgqiF0mmHfghVSDUyJ+9zJAMv1pBABF97A==
-X-Received: by 2002:a17:907:a4c8:b0:a72:5fd5:ea02 with SMTP id a640c23a62f3a-a725fd5ec00mr300906066b.10.1719304370721;
-        Tue, 25 Jun 2024 01:32:50 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:342:f1b5:a48c:a59a:c1d6:8d0a])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a6fe779bc80sm366832266b.174.2024.06.25.01.32.48
+        d=1e100.net; s=20230601; t=1719304452; x=1719909252;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LaZTDIj+9Ci38w0UviyVOkLNbmq1P63k6Hrc4PEaBIQ=;
+        b=CXKTJTHoX8Ru+ND0dKxnJ/tHfANLZcIJKfG1EwC0ipduGtzfJABBOwVsxjetMPtlDO
+         op0xTqonDbwPuMeOPuknRoARcoOAkGQS9rWEv43dbKHrr+mG4UUp7PpbgdfV17BmtYoy
+         DmIpTqvJLnv7heYoqt8YumX2Ez9DhZJNudqWLKcFd0lka1uqfXwAXMRaU+xIYmBXl5JK
+         aoPpf3LInXDyOGiXzoWD8U+PCiBIIhoZDGjQMRwIbXiEASTF8520BHA1GdEfy3CUkJKT
+         65/V0f1oMW5KsSSe6OKzwjOZWzszjhv76KhNMfzNMXdnV8pGuYnVOCutGTWv4aCYorI7
+         CDlg==
+X-Forwarded-Encrypted: i=1; AJvYcCV6Xd6G4yShfaS/QRGouv8U/0/GbdoU1wmrm2Dy56nb8Z5vcLpyeUoENmnmI8DvaLaAjq4eTnBAQiQQY027ZeL5VZ/+J97TMuU3ui+jRoE=
+X-Gm-Message-State: AOJu0YwBJiAe7+dURr6B7zNBn/mMSQYJYOk9+w27h8W+/iofLFIjj5vr
+	L53D+d5z/a89P9/g40RcpFsET9XnqGdQDGQlLAa5VYnhtQeb3gdiyEVnQiiN8g==
+X-Google-Smtp-Source: AGHT+IFvtgAjlj7uBPVh9T4VXCJSxzqqWolw/cxJnogKrJancnYPlW73KylsMYsJMzjjVEBypTPkHA==
+X-Received: by 2002:a17:903:234f:b0:1fa:3428:53ba with SMTP id d9443c01a7336-1fa34285bb8mr71977385ad.64.1719304451837;
+        Tue, 25 Jun 2024 01:34:11 -0700 (PDT)
+Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f9eb2f027fsm75937105ad.6.2024.06.25.01.34.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jun 2024 01:32:50 -0700 (PDT)
-Date: Tue, 25 Jun 2024 04:32:46 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, venkat.x.venkatsubra@oracle.com,
-	gia-khanh.nguyen@oracle.com
-Subject: Re: [PATCH V2 3/3] virtio-net: synchronize operstate with admin
- state on up/down
-Message-ID: <20240625043206-mutt-send-email-mst@kernel.org>
-References: <20240624024523.34272-1-jasowang@redhat.com>
- <20240624024523.34272-4-jasowang@redhat.com>
- <20240624060057-mutt-send-email-mst@kernel.org>
- <CACGkMEsysbded3xvU=qq6L_SmR0jmfvXdbthpZ0ERJoQhveZ3w@mail.gmail.com>
- <20240625031455-mutt-send-email-mst@kernel.org>
- <CACGkMEt4qnbiotLgBx+jHBSsd-k0UAVSxjHovfXk6iGd6uSCPg@mail.gmail.com>
- <20240625035638-mutt-send-email-mst@kernel.org>
- <CACGkMEtY1waRRWOKvmq36Wxio3tUGbTooTe-QqCMBFVDjOW-8w@mail.gmail.com>
+        Tue, 25 Jun 2024 01:34:11 -0700 (PDT)
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+To: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bp@alien8.de,
+	hpa@zytor.com,
+	dave.hansen@linux.intel.com,
+	mingo@redhat.com,
+	tglx@linutronix.de
+Cc: x86@kernel.org,
+	ajay.kaher@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Alex James <alex.james@broadcom.com>
+Subject: [PATCH] x86/vmware: fix panic in vmware_hypercall_slow()
+Date: Tue, 25 Jun 2024 01:33:48 -0700
+Message-Id: <20240625083348.2299-1-alexey.makhalov@broadcom.com>
+X-Mailer: git-send-email 2.39.4
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtY1waRRWOKvmq36Wxio3tUGbTooTe-QqCMBFVDjOW-8w@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 25, 2024 at 04:11:05PM +0800, Jason Wang wrote:
-> On Tue, Jun 25, 2024 at 3:57 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Tue, Jun 25, 2024 at 03:46:44PM +0800, Jason Wang wrote:
-> > > Workqueue is used to serialize those so we won't lose any change.
-> >
-> > So we don't need to re-read then?
-> >
-> 
-> We might have to re-read but I don't get why it is a problem for us.
-> 
-> Thanks
+Caller of vmware_hypercall_slow() can pass NULL into *out1,
+*out2,... *out5. It will lead to a NULL pointer dereference.
 
-I don't think each ethtool command should force a full config read,
-is what I mean. Only do it if really needed.
+Check a pointer for NULL before assigning a value.
 
+Fixes: 	666cbb562d05d ("x86/vmware: Introduce VMware hypercall API")
+Co-developed-by: Alex James <alex.james@broadcom.com>
+Signed-off-by: Alex James <alex.james@broadcom.com>
+Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+---
+ arch/x86/kernel/cpu/vmware.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 55903563afd3..16da970499f2 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -72,13 +72,13 @@ unsigned long vmware_hypercall_slow(unsigned long cmd,
+ 				    u32 *out1, u32 *out2, u32 *out3,
+ 				    u32 *out4, u32 *out5)
+ {
+-	unsigned long out0;
++	unsigned long out0, rbx, rcx, rdx, rsi, rdi;
+ 
+ 	switch (vmware_hypercall_mode) {
+ 	case CPUID_VMWARE_FEATURES_ECX_VMCALL:
+ 		asm_inline volatile ("vmcall"
+-				: "=a" (out0), "=b" (*out1), "=c" (*out2),
+-				"=d" (*out3), "=S" (*out4), "=D" (*out5)
++				: "=a" (out0), "=b" (rbx), "=c" (rcx),
++				"=d" (rdx), "=S" (rsi), "=D" (rdi)
+ 				: "a" (VMWARE_HYPERVISOR_MAGIC),
+ 				"b" (in1),
+ 				"c" (cmd),
+@@ -89,8 +89,8 @@ unsigned long vmware_hypercall_slow(unsigned long cmd,
+ 		break;
+ 	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:
+ 		asm_inline volatile ("vmmcall"
+-				: "=a" (out0), "=b" (*out1), "=c" (*out2),
+-				"=d" (*out3), "=S" (*out4), "=D" (*out5)
++				: "=a" (out0), "=b" (rbx), "=c" (rcx),
++				"=d" (rdx), "=S" (rsi), "=D" (rdi)
+ 				: "a" (VMWARE_HYPERVISOR_MAGIC),
+ 				"b" (in1),
+ 				"c" (cmd),
+@@ -101,8 +101,8 @@ unsigned long vmware_hypercall_slow(unsigned long cmd,
+ 		break;
+ 	default:
+ 		asm_inline volatile ("movw %[port], %%dx; inl (%%dx), %%eax"
+-				: "=a" (out0), "=b" (*out1), "=c" (*out2),
+-				"=d" (*out3), "=S" (*out4), "=D" (*out5)
++				: "=a" (out0), "=b" (rbx), "=c" (rcx),
++				"=d" (rdx), "=S" (rsi), "=D" (rdi)
+ 				: [port] "i" (VMWARE_HYPERVISOR_PORT),
+ 				"a" (VMWARE_HYPERVISOR_MAGIC),
+ 				"b" (in1),
+@@ -113,6 +113,18 @@ unsigned long vmware_hypercall_slow(unsigned long cmd,
+ 				: "cc", "memory");
+ 		break;
+ 	}
++
++	if (out1)
++		*out1 = rbx;
++	if (out2)
++		*out2 = rcx;
++	if (out3)
++		*out3 = rdx;
++	if (out4)
++		*out4 = rsi;
++	if (out5)
++		*out5 = rdi;
++
+ 	return out0;
+ }
+ 
 -- 
-MST
+2.39.4
 
