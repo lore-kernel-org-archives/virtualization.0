@@ -1,210 +1,279 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587D117BA7
-	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 01:27:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B032C1B963
+	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 01:27:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719278861; cv=none; b=dkTky86YMe9/nyF/vLOxao4JnRaDaB77p6j7F1nzO57AxNlL2W9+k2D5J/U02S9JFT1KEWMnDIcsZ9QFmWqA1rFyt0a8lZEsXtSrrmBrDyrMSwCrJZ6F7laLX8ht7TqJ5oYDma5pXGpdEW2ljzDq94fzCcXGt2aSWPu6jeH6vG8=
+	t=1719278876; cv=none; b=Y3wFNmULWFLUXBES86SoZGNTkUl4BDLixqAwoBVLU3DEq6fy7WPDrmRsU4cvCfwxVWB6Xigox9B5DE8s/cJAh1qPdWvjVc3BcjT9q1ityjrskcSR5IsgNzKJ0claaRIRg9LN+EPrrZEZ2Up5ewTQlFB4nIaN3JnXoHC6J0nB5q4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719278861; c=relaxed/simple;
-	bh=lcl3kjOcrdpnrmRC0LXidWtYMWMJGh7ncjegY8IrIMs=;
+	s=arc-20240116; t=1719278876; c=relaxed/simple;
+	bh=yjjQUUKXhxytqvA2OHxeNfjdJ0+LI/24Ja29DIooPo8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Fukf2vlDRmzAjQqaVmIaEpju5qSThW9DuMITTFlF6uoGYHA/JuFo67n0bNFx2128i3d5hi9eDqZTQh5bdbwia8aDnCNm4dbCdF/5mP/DbJEiUWNKL9sM8FnhUYtKuncelVb3RJIA2QdWGAJlpe2uQ57RXKUUj0ozV663o4PW/Ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TLLw/Fb4; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=d89ytlcuYEqHkukw6bPEfiDmn50tGUO7vvCMbQY4aQ66qUVNSOL8PceaAWeLgl8gb1UJByAgpddxsZFL7HK7TU99ejmcQwUzNxwOl2T/Teg23zXHxnPV3JLymt3ltdITbbAoaoPY2KnctGB2J0B+qhtyoq7P9roLLjjWJC0/0mU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hHqfEIvN; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TLLw/Fb4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hHqfEIvN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719278859;
+	s=mimecast20190719; t=1719278872;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lDFjTk1JNql5tI0ia7WLJKWDIsw4M/msf+eUvs8c+NU=;
-	b=TLLw/Fb4n2MmXNypIA6il6kLfDWpuhFzpXwfviWIefBXaB94PGHe4PW08PHm6c1snwMrzd
-	Kgnvl/mhqHXzNh1tQh3lA9tAm0hOm3kRhIIgLRQSnWjnr0rxhUmWYe+GHTfirjLtRrMz26
-	CzEGkEKeiKkY7lzA7ZT4OnI/+UQNQak=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=pqCzMsWS7cK7fhBVzoWPTT37VEQ1CT6mCtp7QCXX3Sc=;
+	b=hHqfEIvNZocZx8WIhLmoofVp1dNt3MCX7wheYKuabNXaRJ8842d6EiIPe9j7dRHYz/HTFJ
+	8vd1b+BF5gfg7WkbzdRvRhGjqCTtV7RAOTKIFwnk6WrNQYGkPbI7/BdUkKny88hIlluJZS
+	FiRZanEx7tZ+vEJYjMVlJngCUS3SmLM=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-456-HzkAALdPPc-OvqDhIgtA1w-1; Mon, 24 Jun 2024 21:27:37 -0400
-X-MC-Unique: HzkAALdPPc-OvqDhIgtA1w-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2c7a8fa8013so6407660a91.2
-        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 18:27:37 -0700 (PDT)
+ us-mta-209-jsyudlyLNou0EIQQeawc8Q-1; Mon, 24 Jun 2024 21:27:50 -0400
+X-MC-Unique: jsyudlyLNou0EIQQeawc8Q-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-704d99cb97aso6020647a12.0
+        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 18:27:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719278856; x=1719883656;
+        d=1e100.net; s=20230601; t=1719278870; x=1719883670;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lDFjTk1JNql5tI0ia7WLJKWDIsw4M/msf+eUvs8c+NU=;
-        b=t3Mmaf6fOYTPBabiI6V8XP8ImQ77jw/tuRpQgItYJmR9feHJ8W6NVi3dX4BaCG0ZWk
-         FwcXr/Hag0pA5qzlxHXWUCh0NNau6b9l/x+ytCSCkqsx9fQNt8rStGjiT8G9bW3WrNg9
-         j5srw5VGbY7Y3214qKqLIxJ1Rmk6HF48eEXTWQ06hQLydtRjEHEuD7FStzaJQu6yfLbp
-         +c/bkK4GhKl9J1jjcQF/Od+6FCvfSeILGdsiokL9xhaumYzOua5EvXZElWLpb9ZwFcj2
-         bSl3F+oKhNtGG2TVBrzWdcMQuTARwzIEX6IDAIkjwdYIqz5STguJLd8iU0syEmhneFOf
-         hvVw==
-X-Forwarded-Encrypted: i=1; AJvYcCXasImpm3obuUMkXnijQPinTOqNeN/3f4Gj6D9xRSYWk4w9FDbTvr1nqAA2+chsWWfAbhZTnKDzjkXz9OK7kUQnpTeeahXJ8AfZturAb6Q=
-X-Gm-Message-State: AOJu0Ywg4jU9Wraw1cq2OuYo4hFeU5ulPFpsIo73L2YEj3yO26GWEcA8
-	kiLXV3rdjAX9D29cJDUZHWrMCda6lD0uQSZQVR0q3SJf/L6mijRCZmnkV4vjSoWIEYGN6vrtS3V
-	LUXf5s1L1Z4nTaGXC+rPFQQgEBrztfYRLyQbTZBaqVhCTNyqiylwQjHZsHiGhSEkMBTpRRqmlSE
-	B2Zp7b3nwAuPsIZiE21RZmiDS5eMC5i+HJ4dDBGlw=
-X-Received: by 2002:a17:90b:1d12:b0:2bd:d42a:e071 with SMTP id 98e67ed59e1d1-2c8582751e7mr5923454a91.30.1719278856337;
-        Mon, 24 Jun 2024 18:27:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGQX2v15J9HasbiG0qxwS3EwVOrcoFzC3/3pPPii8IU1Bz65W2MeXYkxKpAHQTcsOIIa9X2YAdalqVNZACS8Rs=
-X-Received: by 2002:a17:90b:1d12:b0:2bd:d42a:e071 with SMTP id
- 98e67ed59e1d1-2c8582751e7mr5923433a91.30.1719278855823; Mon, 24 Jun 2024
- 18:27:35 -0700 (PDT)
+        bh=pqCzMsWS7cK7fhBVzoWPTT37VEQ1CT6mCtp7QCXX3Sc=;
+        b=mXqw/kDg4ickV2415H9Mi1Kdb8IF5KglJS4cCLIlcO5zq9w0FAAkdS16w4xeo7qFff
+         vHtSXNp5skppOIRwjnd4x67kJXAIBWtldDZksX5+n2pmPQK2AR6amdYY7Voi/oRHqlG1
+         EgbG4CZ+FvCk8KjNo/xG1b8GdMEqRmbxD8nIoqADmqwNwYJ0MMGhHO2U6+Mm3N4UcjwO
+         wJ4uw3heZC3EfwJOgQL3QR1jAH6G/ah/4/2QCJ7eU3bcAkVGxjGtIhRNxtHMJPWIiewa
+         lfSspw7BN1bdUiPO7DUL7c8nkSHSWD+Lo95ccZBTf869GhWNzoR9+V04IPeiKyjRp2Ii
+         58HA==
+X-Forwarded-Encrypted: i=1; AJvYcCUsACLxmWaeLxf6ClIiqtsqzM+tgjnVg4DuaFeljreOLQ1YBQT9IOfGWg3yH3LytKDmGFVnNSdtwpWC56OmIAhbGwGRP4xtkQ7mWQOvoBI=
+X-Gm-Message-State: AOJu0YyZVQMhQgEpJj1Ha9T0bz/JqrFEfwiwPPTTMnqAf18QOYNzTqvp
+	avijEw95Cre7DCe1Q2Sl6Bi+n/xp20VMldhjCHlmFiHqZPa5jWZFtCs9gJSrGmyGCd5aO7GIuQo
+	1+XthPA0HXPJWuMgG8iOCHwWnKQ4MwRWA557B1JOBWaD++DzymOuD5LueHGUSbo+ztQT1JdgnLV
+	4uv2k81g/4Ig3Q/evQM1jotfD4ITLb/GdXTK9aIr8=
+X-Received: by 2002:a05:6a20:3f15:b0:1bd:b69:f0e3 with SMTP id adf61e73a8af0-1bd0b69f2e6mr2859698637.44.1719278869787;
+        Mon, 24 Jun 2024 18:27:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGnSD1Ch6q09/yixw0OjRjgosSIFbkYnngHKOWbkFx4RhraQi66A+gxlTJvgHuMxTB4ShwvJ3EbZnK+L4FKMIw=
+X-Received: by 2002:a05:6a20:3f15:b0:1bd:b69:f0e3 with SMTP id
+ adf61e73a8af0-1bd0b69f2e6mr2859683637.44.1719278869254; Mon, 24 Jun 2024
+ 18:27:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
- <20240619161908.82348-3-hengqi@linux.alibaba.com> <20240619171708-mutt-send-email-mst@kernel.org>
- <1718868555.2701075-5-hengqi@linux.alibaba.com> <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
- <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
- <1718877195.0503237-9-hengqi@linux.alibaba.com> <20240620060816-mutt-send-email-mst@kernel.org>
- <20240620061109-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240620061109-mutt-send-email-mst@kernel.org>
+References: <20240624024523.34272-1-jasowang@redhat.com> <20240624024523.34272-4-jasowang@redhat.com>
+ <20240624060057-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240624060057-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 25 Jun 2024 09:27:24 +0800
-Message-ID: <CACGkMEtacpgHvD7GLysXWm7_CybhgyJYx=AMAX+jk6+G4wqW8Q@mail.gmail.com>
-Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
+Date: Tue, 25 Jun 2024 09:27:38 +0800
+Message-ID: <CACGkMEsysbded3xvU=qq6L_SmR0jmfvXdbthpZ0ERJoQhveZ3w@mail.gmail.com>
+Subject: Re: [PATCH V2 3/3] virtio-net: synchronize operstate with admin state
+ on up/down
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, venkat.x.venkatsubra@oracle.com, 
+	gia-khanh.nguyen@oracle.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 20, 2024 at 6:12=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+On Mon, Jun 24, 2024 at 6:07=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
  wrote:
 >
-> On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
-> > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
-> > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Thu, Jun 20, 2024 at 4:21=E2=80=AFPM Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > >
-> > > > > On Thu, Jun 20, 2024 at 3:35=E2=80=AFPM Heng Qi <hengqi@linux.ali=
-baba.com> wrote:
-> > > > > >
-> > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@r=
-edhat.com> wrote:
-> > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
-> > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct vi=
-rtnet_info *vi)
-> > > > > > > >
-> > > > > > > >     /* Parameters for control virtqueue, if any */
-> > > > > > > >     if (vi->has_cvq) {
-> > > > > > > > -           callbacks[total_vqs - 1] =3D NULL;
-> > > > > > > > +           callbacks[total_vqs - 1] =3D virtnet_cvq_done;
-> > > > > > > >             names[total_vqs - 1] =3D "control";
-> > > > > > > >     }
-> > > > > > > >
-> > > > > > >
-> > > > > > > If the # of MSIX vectors is exactly for data path VQs,
-> > > > > > > this will cause irq sharing between VQs which will degrade
-> > > > > > > performance significantly.
-> > > > > > >
-> > > > >
-> > > > > Why do we need to care about buggy management? I think libvirt ha=
-s
-> > > > > been teached to use 2N+2 since the introduction of the multiqueue=
-[1].
-> > > >
-> > > > And Qemu can calculate it correctly automatically since:
-> > > >
-> > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
-> > > > Author: Jason Wang <jasowang@redhat.com>
-> > > > Date:   Mon Mar 8 12:49:19 2021 +0800
-> > > >
-> > > >     virtio-net: calculating proper msix vectors on init
-> > > >
-> > > >     Currently, the default msix vectors for virtio-net-pci is 3 whi=
-ch is
-> > > >     obvious not suitable for multiqueue guest, so we depends on the=
- user
-> > > >     or management tools to pass a correct vectors parameter. In fac=
-t, we
-> > > >     can simplifying this by calculating the number of vectors on re=
-alize.
-> > > >
-> > > >     Consider we have N queues, the number of vectors needed is 2*N =
-+ 2
-> > > >     (#queue pairs + plus one config interrupt and control vq). We d=
-idn't
-> > > >     check whether or not host support control vq because it was add=
-ed
-> > > >     unconditionally by qemu to avoid breaking legacy guests such as=
- Minix.
-> > > >
-> > > >     Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@redhat.com
-> > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > >
-> > > Yes, devices designed according to the spec need to reserve an interr=
-upt
-> > > vector for ctrlq. So, Michael, do we want to be compatible with buggy=
- devices?
-> > >
-> > > Thanks.
+> On Mon, Jun 24, 2024 at 10:45:23AM +0800, Jason Wang wrote:
+> > This patch synchronize operstate with admin state per RFC2863.
 > >
-> > These aren't buggy, the spec allows this.
+> > This is done by trying to toggle the carrier upon open/close and
+> > synchronize with the config change work. This allows propagate status
+> > correctly to stacked devices like:
+> >
+> > ip link add link enp0s3 macvlan0 type macvlan
+> > ip link set link enp0s3 down
+> > ip link show
+> >
+> > Before this patch:
+> >
+> > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN m=
+ode DEFAULT group default qlen 1000
+> >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> > ......
+> > 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 q=
+disc noqueue state UP mode DEFAULT group default qlen 1000
+> >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> >
+> > After this patch:
+> >
+> > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN m=
+ode DEFAULT group default qlen 1000
+> >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> > ...
+> > 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500=
+ qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
+> >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> >
+> > Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+> > Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/net/virtio_net.c | 72 +++++++++++++++++++++++-----------------
+> >  1 file changed, 42 insertions(+), 30 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index b1f8b720733e..eff3ad3d6bcc 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -2468,6 +2468,25 @@ static int virtnet_enable_queue_pair(struct virt=
+net_info *vi, int qp_index)
+> >       return err;
+> >  }
+> >
+> > +static void virtnet_update_settings(struct virtnet_info *vi)
+> > +{
+> > +     u32 speed;
+> > +     u8 duplex;
+> > +
+> > +     if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> > +             return;
+> > +
+> > +     virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed=
+);
+> > +
+> > +     if (ethtool_validate_speed(speed))
+> > +             vi->speed =3D speed;
+> > +
+> > +     virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &dupl=
+ex);
+> > +
+> > +     if (ethtool_validate_duplex(duplex))
+> > +             vi->duplex =3D duplex;
+> > +}
+> > +
+> >  static int virtnet_open(struct net_device *dev)
+> >  {
+> >       struct virtnet_info *vi =3D netdev_priv(dev);
+> > @@ -2486,6 +2505,22 @@ static int virtnet_open(struct net_device *dev)
+> >                       goto err_enable_qp;
+> >       }
+> >
+> > +     /* Assume link up if device can't report link status,
+> > +        otherwise get link status from config. */
+> > +     netif_carrier_off(dev);
+> > +     if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> > +             virtio_config_enable(vi->vdev);
+> > +             /* We are not sure if config interrupt is disabled by
+> > +              * core or not, so we can't schedule config_work by
+> > +              * ourselves.
+> > +              */
+>
+> This comment confuses more than it explains.
+> You seem to be arguing about some alternative design
+> you had in mind, but readers don't have it in mind.
+>
+>
+> Please just explain what this does and why.
+> For what: something like "Trigger re-read of config - same
+> as we'd do if config changed".
+>
+> Now, please do what you don't do here: explain the why:
+>
+>
+> why do we want all these VM
+> exits on each open/close as opposed to once on probe and later on
+> config changed interrupt.
 
-So it doesn't differ from the case when we are lacking sufficient msix
-vectors in the case of multiqueue. In that case we just fallback to
-share one msix for all queues and another for config and we don't
-bother at that time.
-
-Any reason to bother now?
+Fine, the main reason is that a config interrupt might be pending
+during ifdown and core may disable configure interrupt due to several
+reasons.
 
 Thanks
 
-> >  So don't fail, but
-> > I'm fine with using polling if not enough vectors.
+
 >
-> sharing with config interrupt is easier code-wise though, FWIW -
-> we don't need to maintain two code-paths.
 >
-> > > >
-> > > > Thanks
-> > > >
-> > > > >
-> > > > > > > So no, you can not just do it unconditionally.
-> > > > > > >
-> > > > > > > The correct fix probably requires virtio core/API extensions.
-> > > > > >
-> > > > > > If the introduction of cvq irq causes interrupts to become shar=
-ed, then
-> > > > > > ctrlq need to fall back to polling mode and keep the status quo=
-.
-> > > > >
-> > > > > Having to path sounds a burden.
-> > > > >
-> > > > > >
-> > > > > > Thanks.
-> > > > > >
-> > > > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > [1] https://www.linux-kvm.org/page/Multiqueue
-> > > > >
-> > > > > > >
-> > > > > > > --
-> > > > > > > MST
-> > > > > > >
-> > > > > >
-> > > >
+> > +             virtio_config_changed(vi->vdev);
+> > +     } else {
+> > +             vi->status =3D VIRTIO_NET_S_LINK_UP;
+> > +             virtnet_update_settings(vi);
+> > +             netif_carrier_on(dev);
+> > +     }
+> > +
+> >       return 0;
+> >
+> >  err_enable_qp:
+> > @@ -2928,12 +2963,19 @@ static int virtnet_close(struct net_device *dev=
+)
+> >       disable_delayed_refill(vi);
+> >       /* Make sure refill_work doesn't re-enable napi! */
+> >       cancel_delayed_work_sync(&vi->refill);
+> > +     /* Make sure config notification doesn't schedule config work */
+> > +     virtio_config_disable(vi->vdev);
+> > +     /* Make sure status updating is cancelled */
+> > +     cancel_work_sync(&vi->config_work);
+> >
+> >       for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> >               virtnet_disable_queue_pair(vi, i);
+> >               cancel_work_sync(&vi->rq[i].dim.work);
+> >       }
+> >
+> > +     vi->status &=3D ~VIRTIO_NET_S_LINK_UP;
+> > +     netif_carrier_off(dev);
+> > +
+> >       return 0;
+> >  }
+> >
+> > @@ -4632,25 +4674,6 @@ static void virtnet_init_settings(struct net_dev=
+ice *dev)
+> >       vi->duplex =3D DUPLEX_UNKNOWN;
+> >  }
+> >
+> > -static void virtnet_update_settings(struct virtnet_info *vi)
+> > -{
+> > -     u32 speed;
+> > -     u8 duplex;
+> > -
+> > -     if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> > -             return;
+> > -
+> > -     virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed=
+);
+> > -
+> > -     if (ethtool_validate_speed(speed))
+> > -             vi->speed =3D speed;
+> > -
+> > -     virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &dupl=
+ex);
+> > -
+> > -     if (ethtool_validate_duplex(duplex))
+> > -             vi->duplex =3D duplex;
+> > -}
+> > -
+> >  static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
+> >  {
+> >       return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
+> > @@ -5958,17 +5981,6 @@ static int virtnet_probe(struct virtio_device *v=
+dev)
+> >               goto free_unregister_netdev;
+> >       }
+> >
+> > -     /* Assume link up if device can't report link status,
+> > -        otherwise get link status from config. */
+> > -     netif_carrier_off(dev);
+> > -     if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> > -             schedule_work(&vi->config_work);
+> > -     } else {
+> > -             vi->status =3D VIRTIO_NET_S_LINK_UP;
+> > -             virtnet_update_settings(vi);
+> > -             netif_carrier_on(dev);
+> > -     }
+> > -
+> >       for (i =3D 0; i < ARRAY_SIZE(guest_offloads); i++)
+> >               if (virtio_has_feature(vi->vdev, guest_offloads[i]))
+> >                       set_bit(guest_offloads[i], &vi->guest_offloads);
+> > --
+> > 2.31.1
 >
 
