@@ -1,624 +1,1801 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B63FA433CB;
-	Tue, 25 Jun 2024 02:29:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42BE21DA22
+	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 05:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.156.173
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719282560; cv=fail; b=SB5gBurd5ZUEzrdbVB/MVcCDnyL6RYusgNrRcPDF8o+qocjtXKyouaG5svecyUBsgup8AHYZx2OwMTNitY+xiY6KRqff6Y9aqwpvaderpUEP7S9YFy8bQK9O8Ap1T8EpdiZLL8nDEcjB6hPLkBjUhJZarIQwhyl8gCUhxc4tEZ8=
+	t=1719294389; cv=fail; b=qn04bW4XBom0WoG7LAjnxl4MZV6U4Je57uWRxBcckHic0gpYvnv+ao6SrHwPImjpvG77uwvAA6XuRNBCsX/HblRyzBzRcucJcAMvt1geL/wzMwW7I5Zb679GQKQIWbRMIdLTrY/wN1rMZx1p07vUI27UGzshzQ1/1qqWf24YpDk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719282560; c=relaxed/simple;
-	bh=V11zIKqk/6wupkP1AL+HaUeiYuY0nVFIKfm6Rg0OkQI=;
-	h=Date:From:To:CC:Subject:Message-ID:Content-Type:
-	 Content-Disposition:MIME-Version; b=q/Xpouk8jyu8PGsA2fkEK2yFB0wtFprGqAbeD0BE4Gbar5txUEjjn5zJu72HQtIRD7uvx9kDsfGLi1jncki5O6UOl3N6qm2+Fkixd7XOLDNNq1JgJKq0yD1pfQRigsW9QgX7nwUe1qlxE+F6cIr1txaRw+k+3IbqY5zy3fDStu4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NP8QXcQw; arc=fail smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1719294389; c=relaxed/simple;
+	bh=J0BfT7ydYmowqFZMsNN6082GeOMnP+S0S7wNRaG5bqc=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=ExjAGZ0fLDjalT/Dtb/83GBCJxfU+cNUFXqepC0l94IdLMwDY/bK/rsbG6WEOMcUXsCP1kx+KvbmPavId55zg2LUjez9qoAs7Uy2Sl/ozFMoECuUHtdn9lMtzMLRAakMQKVI7Ltox9blg4ZbmxTPdq2SYWFEEwKBV7vJXLAEKsQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=f7XPtMMK; arc=fail smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NP8QXcQw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1719282556; x=1750818556;
-  h=date:from:to:cc:subject:message-id:
-   content-transfer-encoding:mime-version;
-  bh=V11zIKqk/6wupkP1AL+HaUeiYuY0nVFIKfm6Rg0OkQI=;
-  b=NP8QXcQwyfmkN4LvhWpWHh+zoHhcEoB7XbQQT4jmpa08GAw2zWO/QPpo
-   oQcsba1WYalyuPRhcRCw0gizE2Oo9lU4444wYgOyy+6wgTBweaH3Mp7vN
-   VgB+uIUmhuAsdnSLD21+C0H2l4ph39QF6il4TS0LD7zOOaKptsL0FEvZr
-   sGHNpvMh4vbhpESqFM/HF/ouRg6qk8yKm7HUoMbVnsvklUJTCCWgc/kis
-   78xhlxs7muRSyg7bbOBnda2tOnJznFGswjtrOUkx4v9KH6m6ktw9zqgTm
-   I5KpPsETgEJkUS8XadLnpGwn2rQZp8v+QvmbDcSsHWDdU8BZ6c1yVU40G
-   g==;
-X-CSE-ConnectionGUID: Krvfa8rCTF+2dv7rk88BgA==
-X-CSE-MsgGUID: Yu2z5XXaRZqEewby8VofuQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11113"; a="16243604"
-X-IronPort-AV: E=Sophos;i="6.08,263,1712646000"; 
-   d="scan'208";a="16243604"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2024 19:29:15 -0700
-X-CSE-ConnectionGUID: AsAxO2tPRv6jk8yJ0kSNsQ==
-X-CSE-MsgGUID: bX47Fp3gRPaL8p0eVze4JA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,263,1712646000"; 
-   d="scan'208";a="43476889"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
-  by fmviesa008.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 24 Jun 2024 19:29:15 -0700
-Received: from orsmsx603.amr.corp.intel.com (10.22.229.16) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Mon, 24 Jun 2024 19:29:14 -0700
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- orsmsx603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Mon, 24 Jun 2024 19:29:14 -0700
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (104.47.74.40) by
- edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Mon, 24 Jun 2024 19:29:14 -0700
+	dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="f7XPtMMK"
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45OMncZx003137;
+	Mon, 24 Jun 2024 22:46:17 -0700
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2174.outbound.protection.outlook.com [104.47.58.174])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 3ywx4gfust-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 24 Jun 2024 22:46:16 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=P9h8R6hzcnzhx4/2SvQorNvgdOcdkKvE0PLwksN7GPqMDbJF+VQw0p/0Fm/PCK6i7IMZeSQCBsLXgLBfZHdqr4TKJIdtx/LhSD3RiEjVQoQhz0kWPtfPOL/RH7oprc8Q418pLxlGNjF0I5qs86ckctHeyh59TOTIbQFM89ifuBbcbvUDYfdyZIxYkpgZ0g2hvBs4hoaOqUZrh5kxe8xWDMED2kV4ELERa/lXUJ/4mx/BzbudsxEVShYqelMvNIapixWiHQVA829BOFIgbyXhC7MnwHnfOpc29x16kitTJqLVlR+oP1doxcZLzU2EljTu2HCT5ChLvqdtkkADVZMwkQ==
+ b=CwvADr6M/ZqrY0XzBurLN/1guwFdEMVbidOo0DZ6dBI0v6WF2yT0++rF2R0KjjuiICrgc6kaw3y/wpS/2HPQao/PCtFgmEAsti3hYdEB7GQPxyzbxQ/+zQK9oIxsbTTElnsvWFCcZGGruxHrmRtsH2gng37RtJE7WAbYnh3WBgaR8Jx0DFxvlkk/uqnnMP+YTnEO7W4JNpY4BGOfZus4W5VJ4uWZeo/HsYl3/uCQU2v8q+j9pa/VreX/Wq/38sBkBYXb+SEo4DVGBvT+7FlPOcq8wVLAViyIV041YRjd9eIQ8YutNXJhRI1FBIeS6OFc8ywZFDIIeK5Ws4iH3nAUfw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=EwpKITPhZdY8rBpmX/A9w8AtI8ycz5+NsEaqwbLR1AM=;
- b=BRhf6AKDZEbWZkJctacnPUO1XrMuzfSzMhrA0783U9cwcQxkhCfM8pmENquiRBLuYhaTtL93JuwnG55xHWIai1kHfiFoOS4bCJ6O/FpyRst4grWyn7ZknvGsk/x7zNjdVxkUmMOAwaTN/xFpyHnVDVHoL1OB2gM2Mi7BY/AVkYI6/z57W+2d+H3znbzBV02VlZPSmoDFGTuFNRLJT2G3c0CYheLMLTqcMSWy3mCsGeTIfAKYhpkuOiT7j10asiOa2LpbzQoQm4W2L9U9HWjQ1sZJzCU+DRjO5GJFi+49imD6MpPDx5gYcRyxwIW4vJqQkgkl1woqAwHSNPj38HFxkA==
+ bh=3oxb1Qftmn4SI09R4rEThGYR12bmWI3E0CKKv/yk7WI=;
+ b=bxtJYRZuBm9gyx1nABSo2ydMZyriT89H5pbbVyJt6MHJd7zoQeTrR74EdwqF4bJspHuZY3vJ9V3NCOWdiGJ+7l5ZC0djygunqmQmtY9a+n4q7poobiUdVqlKJJrmW1//yBD0Bm/a0n1cCOdkaBfR+f/if0Z4Wzu0FUvF/eMSejE7VwFtSJ8bNd4PiGCe/CoC5dcE5hpo/lvDYNRVpDXyNRqdvf3yc6jafNI8i8vaUsWMfXXTGWm3+y86XcgxMa1wtJv8VzewRtO9NrWhAWcgr4zUzlpouL/GHNhlU/8xWS7Ftw82hXecIVPGaucFvxxRbI5okuhWVZ/J4/XdatgVpg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from LV3PR11MB8603.namprd11.prod.outlook.com (2603:10b6:408:1b6::9)
- by SA2PR11MB4922.namprd11.prod.outlook.com (2603:10b6:806:111::20) with
+ smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
+ dkim=pass header.d=marvell.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3oxb1Qftmn4SI09R4rEThGYR12bmWI3E0CKKv/yk7WI=;
+ b=f7XPtMMKc1CGyAogPEBUN9rUh2N2DdAWPV6N0UTtFIFOE0cfymUCyaH1+K7+C0Rnw/guK634CNudWbNr+ZBJV0+jSkqGf7b78h5IyHnw6Zuf2z0LQ/ATnycfyl1/92u5m3fhx7adZNvacwhlrOaud+LY4IQMNrZCghhP4Kzo+6U=
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
+ by LV8PR18MB5939.namprd18.prod.outlook.com (2603:10b6:408:228::6) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.29; Tue, 25 Jun
- 2024 02:29:11 +0000
-Received: from LV3PR11MB8603.namprd11.prod.outlook.com
- ([fe80::4622:29cf:32b:7e5c]) by LV3PR11MB8603.namprd11.prod.outlook.com
- ([fe80::4622:29cf:32b:7e5c%2]) with mapi id 15.20.7698.025; Tue, 25 Jun 2024
- 02:29:11 +0000
-Date: Tue, 25 Jun 2024 10:28:54 +0800
-From: kernel test robot <oliver.sang@intel.com>
-To: Christoph Hellwig <hch@lst.de>
-CC: <oe-lkp@lists.linux.dev>, <lkp@intel.com>, Jens Axboe <axboe@kernel.dk>,
-	Ulf Hansson <ulf.hansson@linaro.org>, Damien Le Moal <dlemoal@kernel.org>,
-	Hannes Reinecke <hare@suse.de>, <linux-block@vger.kernel.org>,
-	<linux-um@lists.infradead.org>, <drbd-dev@lists.linbit.com>,
-	<nbd@other.debian.org>, <linuxppc-dev@lists.ozlabs.org>,
-	<virtualization@lists.linux.dev>, <xen-devel@lists.xenproject.org>,
-	<linux-bcache@vger.kernel.org>, <dm-devel@lists.linux.dev>,
-	<linux-raid@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-	<linux-mtd@lists.infradead.org>, <nvdimm@lists.linux.dev>,
-	<linux-nvme@lists.infradead.org>, <linux-scsi@vger.kernel.org>,
-	<ying.huang@intel.com>, <feng.tang@intel.com>, <fengwei.yin@intel.com>,
-	<oliver.sang@intel.com>
-Subject: [axboe-block:for-next] [block]  1122c0c1cc:  aim7.jobs-per-min 22.6%
- improvement
-Message-ID: <202406250948.e0044f1d-oliver.sang@intel.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SG2PR02CA0133.apcprd02.prod.outlook.com
- (2603:1096:4:188::18) To LV3PR11MB8603.namprd11.prod.outlook.com
- (2603:10b6:408:1b6::9)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7698.32; Tue, 25 Jun
+ 2024 05:46:13 +0000
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::ad53:bef2:cc17:13ac]) by DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::ad53:bef2:cc17:13ac%3]) with mapi id 15.20.7698.025; Tue, 25 Jun 2024
+ 05:46:13 +0000
+From: Srujana Challa <schalla@marvell.com>
+To: Srujana Challa <schalla@marvell.com>,
+        "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>,
+        "mst@redhat.com" <mst@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>
+CC: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+        Vamsi Krishna
+ Attunuru <vattunuru@marvell.com>,
+        Shijith Thotton <sthotton@marvell.com>,
+        Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
+        Jerin Jacob
+	<jerinj@marvell.com>
+Subject: RE: [PATCH v6] virtio: vdpa: vDPA driver for Marvell OCTEON DPU
+ devices
+Thread-Topic: [PATCH v6] virtio: vdpa: vDPA driver for Marvell OCTEON DPU
+ devices
+Thread-Index: AQHavmm7Zajku3dNX02gVVqcYg5g27HYCBOQ
+Date: Tue, 25 Jun 2024 05:46:12 +0000
+Message-ID: 
+ <DS0PR18MB53682E4FEF5DCCAA4FE0D5A0A0D52@DS0PR18MB5368.namprd18.prod.outlook.com>
+References: <20240614144659.1776067-1-schalla@marvell.com>
+In-Reply-To: <20240614144659.1776067-1-schalla@marvell.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|LV8PR18MB5939:EE_
+x-ms-office365-filtering-correlation-id: cdce550b-2d59-4c10-71a8-08dc94da1f66
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230037|376011|1800799021|366013|38070700015;
+x-microsoft-antispam-message-info: 
+ =?us-ascii?Q?dOOkO348x7ofh1cyEMglnw+qZUpzMKJmpWXo3QuUy03WwuqvHsSvpdH69LnH?=
+ =?us-ascii?Q?kqV4d0Wp4KAtxwAqDZyqJhXI8tXlJVVaJKhmq+D5zelRrCWJnT6tOc8TbQOj?=
+ =?us-ascii?Q?mPsWs+glEIjQ1PC2DOaTZ2ENCYGyZD8y7dpCas4QxUAVWaeTemKZBGwtdvMK?=
+ =?us-ascii?Q?wDR9m/Y+5oqNykD+Q1ZslQY9qFfbsM9NgoRLV94L8CT0DhI1nei8WnX1GEza?=
+ =?us-ascii?Q?cnmVDccw0qx+79kpT5R1j9uxaNaSrZ14z7C6sLy36jZF3H05ClzyQ/fWIe9D?=
+ =?us-ascii?Q?zZjczNhla+AussPpEDeoQasdS2oMlRIJePL60fIc8RiOHV8Z2F1y6JoMbKBJ?=
+ =?us-ascii?Q?0AlDxLAMs5kguoUlDGKhRL3l1UE7rCksnn3QqgRzu/NkMY4DbTx6G2flH9sP?=
+ =?us-ascii?Q?mB0dYl4CNq4h/5hg+6GdyzDpmg1elWsqzJ4ZYoJI1pLOP+Ds+6DZ8L7sq3ow?=
+ =?us-ascii?Q?2StF0HEw5Xl8N4sC98tSJD+yP2I5mED4Y+qy3E9r6mYeCkbR1MS9LblkQJhC?=
+ =?us-ascii?Q?kFDwhEz42LP8Tl1HtSihqjl5u3czYYJUYLyv5YXahi+2gbwXtrRpjP3thni/?=
+ =?us-ascii?Q?U+RHMDkMspSqP1Gfmyw8hYEeVvKgS1ABd2p69tc/lI5bu+2zzvFvK8S20y5X?=
+ =?us-ascii?Q?Hc/+eNvoLlwt94FarvJ3P5vqg0h7nb5bhrUJcClenQzcrD1/RpTUJBXecXi1?=
+ =?us-ascii?Q?BQDY6fxyUsyn6wNGKUB9F6gAI+7jNYylokRlK7vXv9hNckOpDlciWqcCwvCA?=
+ =?us-ascii?Q?3rHCNrDKn0KSEXPYardvhNqpPHXhMD0dueqqCm3yJc0CZhBx7UhaKk09+uMK?=
+ =?us-ascii?Q?F0yyKRH+o7gtYO1eQwTAA/P5i2606nLdMRcQHH/NSMTc9LOoQxMVVWzJxc0L?=
+ =?us-ascii?Q?7JzEnJ2aNBek19ZDC/6NcICihHstR+M5vyZ+vzN9F0InBY+jub03uzztZH5q?=
+ =?us-ascii?Q?b6d/WOWkQrNsmDrjbG5KogBsUdq3db79VHhZZBjG4llNBgFVH6WGBi5g6ly6?=
+ =?us-ascii?Q?kiRR6QTXPqdQtwsvfqZV399BMoP42NkuOeix57vB45ahbHfkW3va0xLuP6oL?=
+ =?us-ascii?Q?6vTC3JLwR/p9pCQc0XArjCvgCAZV5QwVyUVHcV4PHOrfnU30rr/tn9bQKMDD?=
+ =?us-ascii?Q?hcHq6NJ1v8Us7S3/V3yGCjTtKxnOL3dwWZm7yYCGeD3LmykrQbaD702u+T3E?=
+ =?us-ascii?Q?mqnDwlxtLfutpk/Mc+sfqbJpmAHGDkhQ1GlrBC2MYC1wCR1K/Uw0hSIJdfQk?=
+ =?us-ascii?Q?im2ym85JrpvcBK2cQ9daX2DcAJgkNG8URd2O8cDuSjKCc4S3Eb/Jo0e4RISg?=
+ =?us-ascii?Q?cHv16GBJaDZh6E2+tdjnB0Mo0XCOCDVjp23tIVhuz/RcZH2bo+sA2ADwF3yX?=
+ =?us-ascii?Q?QDjFLx0=3D?=
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230037)(376011)(1800799021)(366013)(38070700015);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?us-ascii?Q?aPH1D/IZhVUcXkdV1SSFO5ALKXWZCrpsoBe4DeOsLgrFbQi/LwFSRrNeTn/S?=
+ =?us-ascii?Q?ILbh/l2LlGHWzhS9d/nmR0lOsCpilI/RNpb4Yamrifb1pUTotAkPFW1E7k2u?=
+ =?us-ascii?Q?OtYvbV2I7yG2WBuNBsGq2hu2nSMZ63JJ3fEkuBI44jMdR4rXwMIKBQwpEdat?=
+ =?us-ascii?Q?2oHERtd/kxlZi6Nl4UMci4UyYX2JyCXv9/7m69ImVFgAgrJ9y5+EEXC05nfr?=
+ =?us-ascii?Q?wpf9hAyOdgBOVq9x8ZHgEi44OdOBfEIuT48ca0VJjtqo/S1l/2V0Xb935MzO?=
+ =?us-ascii?Q?c0e38iGkKgTeFvMGfLgIswrtVzlVjkL3wHjpWffKu6I4lPYTmQrPfEbdv34L?=
+ =?us-ascii?Q?rz/9Ukpl1v4crNAM9/PAb+2QOvH8R6ZOf8NmU/WNqnvjDxi4QWxavxW1BQBB?=
+ =?us-ascii?Q?obKg1636stmXm0tfSmlBOoy7TxLtFrUGiq09KAqhJNG5cpVTxqXak+/s2nqc?=
+ =?us-ascii?Q?jUhO7dc2KZ4lX9/2uaRtbKimyNHRMs9Y8VsMz+Vg5wrsIxfosxs6C7MSrtPr?=
+ =?us-ascii?Q?n9o0Kdjtm67Y+ftvL14y4JHmVtyv0sijyCUcRhaQy2hoMOzXtAzGH6qqM2nM?=
+ =?us-ascii?Q?ivCdzpqI+yKALwExrphAz+DNxqDEy6YTaNYXT85eq/hMJQ1uYcKEuRBEYaF2?=
+ =?us-ascii?Q?uqC5QEVp2vxFMQPbCvgLLYeQDt/vS9A2uTu6+ekIhE6uthCylC0DfbCn+35R?=
+ =?us-ascii?Q?/9WmoH3a3sxEhn59Ut+JWHmqv8Z0LGAoT7srXT2XyyGkQvnTn2aKZ4rpudsQ?=
+ =?us-ascii?Q?VZ4SYd6xeyNl0w0pLQLe6xaMTIVupfvUhAVR/1R0d8VuTlhzqs85bZDJWTie?=
+ =?us-ascii?Q?EIfHpNof0eWlUSov7kWKcChvoqXT/fxToXDAYm/nYBggaaXQ6PUgMBbm2RL+?=
+ =?us-ascii?Q?KxpZciOzcVMV7T+lYu26JvQAJwZV01m3iZqwFM0djL2yuKE2HEVPpge56pUj?=
+ =?us-ascii?Q?5B30z3FqIhDLwYqiLvtlFUCF9jB7koYyT73Yw118TatdbjYxGH4S56MonwGR?=
+ =?us-ascii?Q?Obz2sqwdx2XMY7MD2Jsb5J1wd3z+vax7067XTcmps9MWOFuG6IUoiMoexR54?=
+ =?us-ascii?Q?6BpSUvrJylp2Y3TmoDx7L8X9znXbgE4g7qWYLYQqhJIAaql4r7nuVoSa44Ax?=
+ =?us-ascii?Q?TxldtbwSwGHnExzsgTPWW3khsQ1aoyG4LoVDGODKjEdYlPu84MpIp0y7nzjn?=
+ =?us-ascii?Q?GbkHe0bn5W5i5OipqAruGHQyNXtDsg04BaHhloWvlTxNXhiQ+7XMkAwbjjbv?=
+ =?us-ascii?Q?Gtbz1CBX87jZHqsNSj5lhN/d++/D3ocvLm9D64cuWr1yKYl6avCEvGHi9Isu?=
+ =?us-ascii?Q?SEiJ2JH6sU/gnlJegZfEmJ04WPXtDde8JofO3KH3J/pnuy51UQlMNqMjMBtf?=
+ =?us-ascii?Q?dcHHtvXF3eZVNazxMmrQf6nCWdY+4S+wrzjBKxf8Iyx+utkl4ofH6sIKJUO8?=
+ =?us-ascii?Q?81pJcGhLzTAa/ruxF/wq2act5ZiPqS2z7eDRo1F2tlLyeDoNlnNq+Tjzs0BX?=
+ =?us-ascii?Q?DuYH4nBTbCwbJcUIQkg8sqUNsMGNktNogq7AonoQKcIpyh3VZOV8B3dYCHqu?=
+ =?us-ascii?Q?lwO0dGEL6ioIHwMSloU=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV3PR11MB8603:EE_|SA2PR11MB4922:EE_
-X-MS-Office365-Filtering-Correlation-Id: bd8ede53-74eb-4dff-a384-08dc94be98a9
-X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230037|366013|376011|7416011|1800799021;
-X-Microsoft-Antispam-Message-Info: =?iso-8859-1?Q?PIIgtCnwHZoc/HDZapjTLstCsf2vJA7dqGuvyDdI+BFfAm9aBdaewcOf34?=
- =?iso-8859-1?Q?Jooffxj7oiw8pKHAv17Sq4mUOjtkpSUV/tcs5vj1nkiKk3Q++QlO/JO/Gh?=
- =?iso-8859-1?Q?8tlONGWUxgY47PMxma4El1ngJwEU7Oc+3op87+IezaceDVmIGXdJptjDdP?=
- =?iso-8859-1?Q?iIVg2eGYFpKwr2pfoXlMtUZcAeWbMDBcVEccd5U2rKljURimKIe2NV+TZl?=
- =?iso-8859-1?Q?Q9rX0DyRwPjhFB6V5l5qPpkO3wAxzzOiTB+KPPpYFhEALw2Rd2pAX8+KBW?=
- =?iso-8859-1?Q?epVTj44l2NewRbspVVAqRajF785U3k6g3U/mZVnvgaTkx85He0SypHAuDr?=
- =?iso-8859-1?Q?6Y6eHYfkZWl5QB6V41AnB1Y4aFKAltJcM1hkvNgujDRGn28R7G9PhV68cG?=
- =?iso-8859-1?Q?xEOVHyrYDmm2RNFwwdiZOef6WgAg5isxrDK6uQ2+jgx2GlAOpPLtFpbZQF?=
- =?iso-8859-1?Q?IqxHMUMJXvRzSoEbTBqgbgTfobyNrwnYCgY8tAyD8GpHwIP2ff4FCFMWe4?=
- =?iso-8859-1?Q?jC3nKsIXZycbbfIc+8u7GpXMJN16hTbeqQXaAGFdVwu6U4Jyt7zM8fCKbD?=
- =?iso-8859-1?Q?/h4a4Bh5rClpKoNWhUU94vav++fqm/6cp73Yu8r3T3KtVUmIyDh8jGAOrV?=
- =?iso-8859-1?Q?wB9vpx8ebFCakwWbPdIdDT37Tc/6z+5tJm5dZ0U2PZF1vU3CfSTvZTdSXd?=
- =?iso-8859-1?Q?4xRIsAdP99TG1gAluRlLdUU0bchgP8rcexw/UllnPGqidY9np58WrtM9au?=
- =?iso-8859-1?Q?nD4jSn5gH+OPJKP5Pm+BtloYFaHluH+BYzgDk/8KwUaok1PVv5NYQykuuB?=
- =?iso-8859-1?Q?sR90Poe9tnBPpaUpZM0F/M/Tl6SCsepytiKPgpVkI3kFKCo9lv3QCrgL3S?=
- =?iso-8859-1?Q?KwtKafjHocGu7VorMLvNpY6zGNQSaySLlJRppuiLQ8SU6nus/bPUllCGr0?=
- =?iso-8859-1?Q?4BkqhMcXzal3fErmbMPMETqxWRNSoVldhIrOTH0Ve2ial7vAZcg0A14cmW?=
- =?iso-8859-1?Q?8spKsHUVkqX+xoNJDCn2jkSMc12Iw9Lh8IpodGdXep+K8GuFgtMogOjKJV?=
- =?iso-8859-1?Q?ZRbDDwRQ0nb54bIjcrPoxI8FUgiKrHJDn3NzxclmH/ikJ4SHpKxPOJEHNX?=
- =?iso-8859-1?Q?Dz4PoKFuiGpKYXirLXeiiFMCP/OolpA8h+tOaWZyMpoX6CyC1r07mNivV0?=
- =?iso-8859-1?Q?/yvDYDb84NmdI02GnJMv+Jydn0E2cd4db84d61nKPt86rfNdCPsQNGwDtS?=
- =?iso-8859-1?Q?BppUGS2/6QMIIzj+/tylz0apPhWRVTcqpGWp/o1Fsrz/ZlCSSegdy56VT4?=
- =?iso-8859-1?Q?lONpg/ZuYe5jMybgDLAOcIgpzQ=3D=3D?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR11MB8603.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230037)(366013)(376011)(7416011)(1800799021);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?a2eBOImJcv9EUqqAdM8+K8Sx2DYwG3JU+3AgvaMH5Y9h+UewAjTEgUqvLH?=
- =?iso-8859-1?Q?+O3U7SLWDyeVMNg16Bhdpbs2pUshRwXhsE3H2xcOLINxGV65wpjjwKcGlg?=
- =?iso-8859-1?Q?FT3ZbeLkalts+157JmiNEya3cIzAJZ2jNT/h50EYtR5IFGLxc2EPg1669S?=
- =?iso-8859-1?Q?yqQUnfnJ+ySx/XyBAtlcakbuXFKHVn4StmPSyvdHEBmXILHoC4kgJ+vTS1?=
- =?iso-8859-1?Q?os5l85/9nGv5jpPO8zKOAmyGeuOhsToOQAF0J/m6TNi7CAQQyMdkhaDRle?=
- =?iso-8859-1?Q?o0tkhlZror8Wq78cGXZ6P/aLAJ6uZtPv8pzcwp7GoWmK+fKwB5Pw8qnQNh?=
- =?iso-8859-1?Q?xRISnEz3xUQEdX84SJs8Wliubv/r5SHRRHkPpxiE10INEeVsg9HlEBwVma?=
- =?iso-8859-1?Q?Hk9lMLebXIc04/8wgltIt0ubrzxw0JOkCv1lHSSdtr9+thDoC3vcqKTvK+?=
- =?iso-8859-1?Q?+ZoxeR1NeTUZoBAiQptrIaKDn3iFkn3ksfo7aa59NUn/HJ5njz7MOvuHIq?=
- =?iso-8859-1?Q?YXjzdI8tJztF3OIu+8I1HE0WeYhxESwQiN6EOFHKg3TvE1GSQdKo/rxTRp?=
- =?iso-8859-1?Q?GZOdDX5ZxUcorUXZAlqocczlCpTMMS/T5tuqERry+PSGd/KUORLtAP2zpA?=
- =?iso-8859-1?Q?YugVmhWwiA36p7ZtzqV/14Nl4FnLhVRPTIekbVhZ+V4dcVBbbR5JLMv63C?=
- =?iso-8859-1?Q?BHBad851pqVlkxI1anKxI/P+9W23qifsT71mqEu1LsI0+aR18HsfviUB07?=
- =?iso-8859-1?Q?W+kf8kLK4SR38dVzA7Ek9v+B3JJzqy/+a2J5j9zND3kAG/WmDgXGsJebBF?=
- =?iso-8859-1?Q?FZm1oIEQAAgD6caN6uD2jHxXbwlkDLedzNnajIRn49zT1lQbeqnr6wY5wk?=
- =?iso-8859-1?Q?QnE6jDseNZXU7+SLoEeCv5bdFpgJt466kcS1uZ0Ci7GCzHxq7y/Sl/l1gj?=
- =?iso-8859-1?Q?227wuuHzhXE2+ADXTxSBBd4vuBPqxo5eFIo08xHhpIKDlBWbEXn02XyH/+?=
- =?iso-8859-1?Q?6lZuWo4hAcEsHZoekesn9i2hwbQEg3f2Hu4QklGeDKmy8GcvbfbSKygrrA?=
- =?iso-8859-1?Q?MeuFOQUF0W1DtG1yJ7YKgYml/nXBnv6r/M6EvRy8rDv+0X4J8mIaK9PBTm?=
- =?iso-8859-1?Q?YrObpua6oP1Pe1QRpdeyN85CiEWYCUQl5wSvM8jVeTsPFK7tU+rbi+tF56?=
- =?iso-8859-1?Q?bJRz7LDmCsuTxpbtBSyFrgZbTrNSQwfwqcTqDp5nSzfDJg1O366ZTL1NgQ?=
- =?iso-8859-1?Q?qoBZVtwsfmwPZWQ+zWRz18g66g8HyyrJVKdJLXavldaMnVIrbjNDjxA6fo?=
- =?iso-8859-1?Q?miH9183wvA7rkwqya2SqBHoFmay/0RQYU835d/zRIRf3DFNTMb2trmWZKG?=
- =?iso-8859-1?Q?FtsdKW2FE9ybmB4WnjsiMPBmOXGDvI55r1JCUn23c5K/dBFP7UUl/y+3O6?=
- =?iso-8859-1?Q?WXM2Ks4C7RgpdT98LWt88LpjkoiQDr9hV+kVWikPYNHVIc7kVOHEBXy1ck?=
- =?iso-8859-1?Q?cvor5rxLsgNRM3dtfWpIRhd6dU0zZoV2IRBhIG+vY0HtzXYiqJbZgDe0n3?=
- =?iso-8859-1?Q?LSszv7iifTKphqYTy6EnRcRm+XT77QB0AXjIrYmlKtgoKmMBWfiVHvrdEt?=
- =?iso-8859-1?Q?/qlwyfKtu33jTIZ+KHY2DF2n0p0RlySTXQQG6B4jdYTxOIKO0/FCzezg?=
- =?iso-8859-1?Q?=3D=3D?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: bd8ede53-74eb-4dff-a384-08dc94be98a9
-X-MS-Exchange-CrossTenant-AuthSource: LV3PR11MB8603.namprd11.prod.outlook.com
+X-OriginatorOrg: marvell.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jun 2024 02:29:10.9499
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cdce550b-2d59-4c10-71a8-08dc94da1f66
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Jun 2024 05:46:12.9805
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 7kxJ5gKgNkwM5s9fmrlour0cJ/y8l5AOLx8gfJoGmkeKSBi0NVGkj+TFuyayyHymlrUKN1zDxX8yNoipbVI70Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR11MB4922
-X-OriginatorOrg: intel.com
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: w0qvjFohV3iddrz2KVNTu9+delS+UgAMdFi0f+U7uLfr8z+RjfPpL+BLBruE5y/MPWRNnE5Azd02pOzSSPfxjg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR18MB5939
+X-Proofpoint-GUID: bxw4uxCB03QBPSw3zmocH6GC7SR4bZDD
+X-Proofpoint-ORIG-GUID: bxw4uxCB03QBPSw3zmocH6GC7SR4bZDD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-25_02,2024-06-24_01,2024-05-17_01
 
+Ping.
 
-
-Hello,
-
-kernel test robot noticed a 22.6% improvement of aim7.jobs-per-min on:
-
-
-commit: 1122c0c1cc71f740fa4d5f14f239194e06a1d5e7 ("block: move cache control settings out of queue->flags")
-https://git.kernel.org/cgit/linux/kernel/git/axboe/linux-block.git for-next
-
-testcase: aim7
-test machine: 96 threads 2 sockets Intel(R) Xeon(R) Platinum 8260L CPU @ 2.40GHz (Cascade Lake) with 128G memory
-parameters:
-
-	disk: 4BRD_12G
-	md: RAID0
-	fs: xfs
-	test: sync_disk_rw
-	load: 300
-	cpufreq_governor: performance
-
-
-
-
-
-
-Details are as below:
--------------------------------------------------------------------------------------------------->
-
-
-The kernel config and materials to reproduce are available at:
-https://download.01.org/0day-ci/archive/20240625/202406250948.e0044f1d-oliver.sang@intel.com
-
-=========================================================================================
-compiler/cpufreq_governor/disk/fs/kconfig/load/md/rootfs/tbox_group/test/testcase:
-  gcc-13/performance/4BRD_12G/xfs/x86_64-rhel-8.3/300/RAID0/debian-12-x86_64-20240206.cgz/lkp-csl-2sp3/sync_disk_rw/aim7
-
-commit: 
-  70905f8706 ("block: remove blk_flush_policy")
-  1122c0c1cc ("block: move cache control settings out of queue->flags")
-
-70905f8706b62113 1122c0c1cc71f740fa4d5f14f23 
----------------- --------------------------- 
-         %stddev     %change         %stddev
-             \          |                \  
-    153.19           -13.3%     132.81        uptime.boot
-   2.8e+09           -11.9%  2.466e+09        cpuidle..time
-  21945319 ±  2%     -40.4%   13076160        cpuidle..usage
-     29.31            +7.8%      31.58 ±  2%  iostat.cpu.idle
-     69.87            -3.6%      67.35        iostat.cpu.system
-      0.04 ±  4%      +0.0        0.08 ±  5%  mpstat.cpu.all.iowait%
-      0.78 ±  2%      +0.2        0.99 ±  2%  mpstat.cpu.all.usr%
-     52860 ± 49%     -78.2%      11536 ± 78%  numa-numastat.node0.other_node
-     46804 ± 56%     +88.4%      88190 ± 10%  numa-numastat.node1.other_node
-    955871 ± 10%     -43.3%     542216 ± 14%  numa-meminfo.node1.Active
-    955871 ± 10%     -43.3%     542216 ± 14%  numa-meminfo.node1.Active(anon)
-   1015354 ± 10%     -34.7%     662696 ± 13%  numa-meminfo.node1.Shmem
-      6008           -14.3%       5146 ±  2%  perf-c2c.DRAM.remote
-      7889           -12.4%       6908 ±  2%  perf-c2c.HITM.local
-      3839           -16.5%       3203 ±  2%  perf-c2c.HITM.remote
-     11728           -13.8%      10112 ±  2%  perf-c2c.HITM.total
-    695109           +20.5%     837625        vmstat.io.bo
-    105.99 ±  7%     -23.7%      80.83 ± 11%  vmstat.procs.r
-    803244           -30.9%     555360        vmstat.system.cs
-    209736           -12.9%     182626        vmstat.system.in
-      1448 ± 89%    +207.9%       4459 ±  6%  numa-vmstat.node0.nr_page_table_pages
-     52860 ± 49%     -78.2%      11536 ± 78%  numa-vmstat.node0.numa_other
-    239214 ± 10%     -43.6%     134883 ± 13%  numa-vmstat.node1.nr_active_anon
-    254124 ± 10%     -34.9%     165421 ± 13%  numa-vmstat.node1.nr_shmem
-    239214 ± 10%     -43.6%     134883 ± 13%  numa-vmstat.node1.nr_zone_active_anon
-     46805 ± 56%     +88.4%      88190 ± 10%  numa-vmstat.node1.numa_other
-     17374           +22.6%      21299        aim7.jobs-per-min
-    103.64           -18.4%      84.58        aim7.time.elapsed_time
-    103.64           -18.4%      84.58        aim7.time.elapsed_time.max
-   4641240           -83.4%     770073        aim7.time.involuntary_context_switches
-     32705            -4.3%      31289 ±  2%  aim7.time.minor_page_faults
-      6562            -3.1%       6359        aim7.time.percent_of_cpu_this_job_got
-      6775           -21.0%       5351 ±  2%  aim7.time.system_time
-  49095202           -38.3%   30299361        aim7.time.voluntary_context_switches
-   1297567           -37.0%     817692        meminfo.Active
-   1297567           -37.0%     817692        meminfo.Active(anon)
-     97760 ±  5%     -23.4%      74859 ± 20%  meminfo.AnonHugePages
-   2390317           -15.3%    2024905        meminfo.Committed_AS
-    884407           +11.9%     989723        meminfo.Inactive
-    743152 ±  2%     +14.8%     853331        meminfo.Inactive(anon)
-    159265 ±  8%     +38.6%     220668 ±  3%  meminfo.Mapped
-   1382079           -27.1%    1007445        meminfo.Shmem
-    324534           -37.2%     203663 ±  2%  proc-vmstat.nr_active_anon
-   1165686            -8.2%    1070277        proc-vmstat.nr_file_pages
-    185928 ±  2%     +14.9%     213697        proc-vmstat.nr_inactive_anon
-     35436            -2.9%      34420        proc-vmstat.nr_inactive_file
-     40463 ±  8%     +38.2%      55918 ±  3%  proc-vmstat.nr_mapped
-    345824           -27.3%     251424        proc-vmstat.nr_shmem
-     28871            -1.4%      28477        proc-vmstat.nr_slab_reclaimable
-    324534           -37.2%     203663 ±  2%  proc-vmstat.nr_zone_active_anon
-    185928 ±  2%     +14.9%     213697        proc-vmstat.nr_zone_inactive_anon
-     35436            -2.9%      34420        proc-vmstat.nr_zone_inactive_file
-   5120744            -2.4%    4996195        proc-vmstat.numa_hit
-   5020486            -2.5%    4896473        proc-vmstat.numa_local
-    207026 ± 10%     +50.2%     310941        proc-vmstat.pgactivate
-   5196440            -2.7%    5057618        proc-vmstat.pgalloc_normal
-    763396 ±  6%     -11.8%     673464        proc-vmstat.pgfault
-  74254490            -1.3%   73292473        proc-vmstat.pgpgout
-     11.25 ± 24%     -60.0%       4.50 ± 29%  sched_debug.cfs_rq:/.h_nr_running.max
-      1.59 ± 20%     -42.7%       0.91 ± 13%  sched_debug.cfs_rq:/.h_nr_running.stddev
-    968.29 ±  5%     -13.2%     840.04 ±  5%  sched_debug.cfs_rq:/.runnable_avg.avg
-      5533 ± 21%     -47.1%       2925 ± 21%  sched_debug.cfs_rq:/.runnable_avg.max
-    798.88 ± 13%     -38.3%     492.63 ±  9%  sched_debug.cfs_rq:/.runnable_avg.stddev
-    578.50 ±  5%      -9.9%     521.30 ±  4%  sched_debug.cfs_rq:/.util_avg.avg
-      3120 ± 20%     -40.3%       1862 ± 19%  sched_debug.cfs_rq:/.util_avg.max
-    479.36 ± 12%     -30.4%     333.40 ±  8%  sched_debug.cfs_rq:/.util_avg.stddev
-      4592 ± 24%     -51.8%       2215 ± 31%  sched_debug.cfs_rq:/.util_est.max
-    615.47 ± 21%     -35.7%     395.64 ± 15%  sched_debug.cfs_rq:/.util_est.stddev
-     11.33 ± 24%     -58.8%       4.67 ± 26%  sched_debug.cpu.nr_running.max
-      1.62 ± 20%     -42.6%       0.93 ± 11%  sched_debug.cpu.nr_running.stddev
-    224323           -28.2%     161088        sched_debug.cpu.nr_switches.avg
-    242363 ±  2%     -27.9%     174695 ±  2%  sched_debug.cpu.nr_switches.max
-    197870 ±  2%     -27.6%     143186        sched_debug.cpu.nr_switches.min
-      7911 ± 19%     -33.1%       5295 ± 10%  sched_debug.cpu.nr_switches.stddev
-      1.23            -4.8%       1.17        perf-stat.i.MPKI
- 1.105e+10            +5.6%  1.167e+10        perf-stat.i.branch-instructions
-      1.20 ±  2%      +0.1        1.29 ±  2%  perf-stat.i.branch-miss-rate%
-    820863           -30.7%     569230        perf-stat.i.context-switches
-      3.79           -10.2%       3.41        perf-stat.i.cpi
- 2.176e+11            -3.2%  2.106e+11        perf-stat.i.cpu-cycles
-    212040           -27.8%     153137        perf-stat.i.cpu-migrations
- 5.416e+10            +6.8%  5.785e+10        perf-stat.i.instructions
-      0.32           +11.8%       0.36        perf-stat.i.ipc
-      0.05 ± 77%    +233.9%       0.17 ± 50%  perf-stat.i.major-faults
-     10.74           -30.2%       7.50        perf-stat.i.metric.K/sec
-      1.28            -4.3%       1.22        perf-stat.overall.MPKI
-      4.02            -9.4%       3.64        perf-stat.overall.cpi
-      3145            -5.3%       2979        perf-stat.overall.cycles-between-cache-misses
-      0.25           +10.3%       0.27        perf-stat.overall.ipc
- 1.094e+10            +5.4%  1.153e+10        perf-stat.ps.branch-instructions
-    812563           -30.8%     562343        perf-stat.ps.context-switches
- 2.156e+11            -3.4%  2.082e+11        perf-stat.ps.cpu-cycles
-    209965           -28.0%     151248        perf-stat.ps.cpu-migrations
- 5.365e+10            +6.6%  5.717e+10        perf-stat.ps.instructions
- 5.641e+12           -13.1%  4.905e+12 ±  2%  perf-stat.total.instructions
-     14.88 ±  5%     -14.9        0.00        perf-profile.calltrace.cycles-pp.blkdev_issue_flush.xfs_file_fsync.xfs_file_buffered_write.vfs_write.ksys_write
-     14.86 ±  5%     -14.9        0.00        perf-profile.calltrace.cycles-pp.submit_bio_wait.blkdev_issue_flush.xfs_file_fsync.xfs_file_buffered_write.vfs_write
-     14.77 ±  5%     -14.8        0.00        perf-profile.calltrace.cycles-pp.__submit_bio_noacct.submit_bio_wait.blkdev_issue_flush.xfs_file_fsync.xfs_file_buffered_write
-     14.76 ±  5%     -14.8        0.00        perf-profile.calltrace.cycles-pp.__submit_bio.__submit_bio_noacct.submit_bio_wait.blkdev_issue_flush.xfs_file_fsync
-     14.74 ±  5%     -14.7        0.00        perf-profile.calltrace.cycles-pp.md_handle_request.__submit_bio.__submit_bio_noacct.submit_bio_wait.blkdev_issue_flush
-     14.72 ±  5%     -14.7        0.00        perf-profile.calltrace.cycles-pp.raid0_make_request.md_handle_request.__submit_bio.__submit_bio_noacct.submit_bio_wait
-     14.71 ±  5%     -14.7        0.00        perf-profile.calltrace.cycles-pp.md_flush_request.raid0_make_request.md_handle_request.__submit_bio.__submit_bio_noacct
-     13.32 ±  5%     -13.3        0.00        perf-profile.calltrace.cycles-pp._raw_spin_lock_irq.md_flush_request.raid0_make_request.md_handle_request.__submit_bio
-     13.25 ±  5%     -13.3        0.00        perf-profile.calltrace.cycles-pp.native_queued_spin_lock_slowpath._raw_spin_lock_irq.md_flush_request.raid0_make_request.md_handle_request
-      9.70 ±  3%      -1.1        8.61 ±  3%  perf-profile.calltrace.cycles-pp.cpu_startup_entry.start_secondary.common_startup_64
-      9.70 ±  3%      -1.1        8.61 ±  3%  perf-profile.calltrace.cycles-pp.start_secondary.common_startup_64
-      9.70 ±  3%      -1.1        8.61 ±  3%  perf-profile.calltrace.cycles-pp.do_idle.cpu_startup_entry.start_secondary.common_startup_64
-      9.80 ±  3%      -1.1        8.71 ±  3%  perf-profile.calltrace.cycles-pp.common_startup_64
-      9.12 ±  3%      -1.0        8.15 ±  3%  perf-profile.calltrace.cycles-pp.cpuidle_idle_call.do_idle.cpu_startup_entry.start_secondary.common_startup_64
-      8.95 ±  3%      -0.9        8.01 ±  3%  perf-profile.calltrace.cycles-pp.cpuidle_enter_state.cpuidle_enter.cpuidle_idle_call.do_idle.cpu_startup_entry
-      8.95 ±  3%      -0.9        8.02 ±  3%  perf-profile.calltrace.cycles-pp.cpuidle_enter.cpuidle_idle_call.do_idle.cpu_startup_entry.start_secondary
-      2.21            -0.4        1.78 ±  2%  perf-profile.calltrace.cycles-pp.worker_thread.kthread.ret_from_fork.ret_from_fork_asm
-      2.22            -0.4        1.79 ±  2%  perf-profile.calltrace.cycles-pp.kthread.ret_from_fork.ret_from_fork_asm
-      2.22            -0.4        1.79 ±  2%  perf-profile.calltrace.cycles-pp.ret_from_fork.ret_from_fork_asm
-      2.22            -0.4        1.79 ±  2%  perf-profile.calltrace.cycles-pp.ret_from_fork_asm
-      2.08            -0.4        1.68 ±  2%  perf-profile.calltrace.cycles-pp.process_one_work.worker_thread.kthread.ret_from_fork.ret_from_fork_asm
-      3.09            -0.2        2.86 ±  2%  perf-profile.calltrace.cycles-pp.native_queued_spin_lock_slowpath._raw_spin_lock_irqsave.remove_wait_queue.xlog_wait_on_iclog.xfs_log_force_seq
-      3.10            -0.2        2.87 ±  2%  perf-profile.calltrace.cycles-pp._raw_spin_lock_irqsave.remove_wait_queue.xlog_wait_on_iclog.xfs_log_force_seq.xfs_file_fsync
-      3.10            -0.2        2.87 ±  2%  perf-profile.calltrace.cycles-pp.remove_wait_queue.xlog_wait_on_iclog.xfs_log_force_seq.xfs_file_fsync.xfs_file_buffered_write
-      3.44            -0.2        3.23 ±  4%  perf-profile.calltrace.cycles-pp.xlog_wait_on_iclog.xfs_log_force_seq.xfs_file_fsync.xfs_file_buffered_write.vfs_write
-      0.95            +0.1        1.04        perf-profile.calltrace.cycles-pp.mutex_spin_on_owner.__mutex_lock.__flush_workqueue.xlog_cil_push_now.xlog_cil_force_seq
-      0.57            +0.1        0.71 ±  2%  perf-profile.calltrace.cycles-pp.iomap_file_buffered_write.xfs_file_buffered_write.vfs_write.ksys_write.do_syscall_64
-      0.58 ±  2%      +0.3        0.84 ±  3%  perf-profile.calltrace.cycles-pp.xfs_end_ioend.xfs_end_io.process_one_work.worker_thread.kthread
-      0.59 ±  2%      +0.3        0.85 ±  2%  perf-profile.calltrace.cycles-pp.xfs_end_io.process_one_work.worker_thread.kthread.ret_from_fork
-      0.90 ±  2%      +0.4        1.27 ±  3%  perf-profile.calltrace.cycles-pp.__submit_bio_noacct.iomap_submit_ioend.iomap_writepages.xfs_vm_writepages.do_writepages
-      0.88 ±  2%      +0.4        1.26 ±  3%  perf-profile.calltrace.cycles-pp.__submit_bio.__submit_bio_noacct.iomap_submit_ioend.iomap_writepages.xfs_vm_writepages
-      0.92 ±  3%      +0.4        1.30 ±  3%  perf-profile.calltrace.cycles-pp.iomap_submit_ioend.iomap_writepages.xfs_vm_writepages.do_writepages.filemap_fdatawrite_wbc
-      0.57 ±  3%      +0.4        0.95 ±  6%  perf-profile.calltrace.cycles-pp.xlog_cil_commit.__xfs_trans_commit.xfs_vn_update_time.kiocb_modified.xfs_file_write_checks
-      0.64 ±  3%      +0.4        1.03 ±  6%  perf-profile.calltrace.cycles-pp.__xfs_trans_commit.xfs_vn_update_time.kiocb_modified.xfs_file_write_checks.xfs_file_buffered_write
-      6.90 ±  2%      +0.5        7.40 ±  3%  perf-profile.calltrace.cycles-pp.intel_idle.cpuidle_enter_state.cpuidle_enter.cpuidle_idle_call.do_idle
-      0.92 ±  4%      +0.5        1.43 ±  6%  perf-profile.calltrace.cycles-pp.xfs_vn_update_time.kiocb_modified.xfs_file_write_checks.xfs_file_buffered_write.vfs_write
-      0.00            +0.5        0.52        perf-profile.calltrace.cycles-pp.complete.__flush_workqueue.xlog_cil_push_now.xlog_cil_force_seq.xfs_log_force_seq
-      0.94 ±  4%      +0.5        1.46 ±  6%  perf-profile.calltrace.cycles-pp.kiocb_modified.xfs_file_write_checks.xfs_file_buffered_write.vfs_write.ksys_write
-      0.96 ±  4%      +0.5        1.48 ±  6%  perf-profile.calltrace.cycles-pp.xfs_file_write_checks.xfs_file_buffered_write.vfs_write.ksys_write.do_syscall_64
-      0.00            +0.5        0.54 ±  2%  perf-profile.calltrace.cycles-pp.xfs_iomap_write_unwritten.xfs_end_ioend.xfs_end_io.process_one_work.worker_thread
-      0.00            +0.5        0.55 ±  2%  perf-profile.calltrace.cycles-pp.iomap_write_iter.iomap_file_buffered_write.xfs_file_buffered_write.vfs_write.ksys_write
-      0.00            +0.6        0.56 ± 10%  perf-profile.calltrace.cycles-pp.__folio_start_writeback.iomap_writepage_map.iomap_writepages.xfs_vm_writepages.do_writepages
-      0.00            +0.6        0.57 ±  6%  perf-profile.calltrace.cycles-pp.__folio_end_writeback.folio_end_writeback.iomap_finish_ioend.md_end_clone_io.__submit_bio
-      0.00            +0.6        0.58 ±  7%  perf-profile.calltrace.cycles-pp.folio_end_writeback.iomap_finish_ioend.md_end_clone_io.__submit_bio.__submit_bio_noacct
-      0.00            +0.6        0.60 ±  6%  perf-profile.calltrace.cycles-pp.iomap_finish_ioend.md_end_clone_io.__submit_bio.__submit_bio_noacct.iomap_submit_ioend
-      0.08 ±223%      +0.6        0.72 ±  5%  perf-profile.calltrace.cycles-pp.md_end_clone_io.__submit_bio.__submit_bio_noacct.iomap_submit_ioend.iomap_writepages
-      1.45 ±  4%      +0.7        2.15 ±  4%  perf-profile.calltrace.cycles-pp.iomap_writepages.xfs_vm_writepages.do_writepages.filemap_fdatawrite_wbc.__filemap_fdatawrite_range
-      1.46 ±  4%      +0.7        2.16 ±  4%  perf-profile.calltrace.cycles-pp.xfs_vm_writepages.do_writepages.filemap_fdatawrite_wbc.__filemap_fdatawrite_range.file_write_and_wait_range
-      1.48 ±  4%      +0.7        2.18 ±  4%  perf-profile.calltrace.cycles-pp.do_writepages.filemap_fdatawrite_wbc.__filemap_fdatawrite_range.file_write_and_wait_range.xfs_file_fsync
-      1.51 ±  4%      +0.7        2.22 ±  4%  perf-profile.calltrace.cycles-pp.filemap_fdatawrite_wbc.__filemap_fdatawrite_range.file_write_and_wait_range.xfs_file_fsync.xfs_file_buffered_write
-      1.51 ±  3%      +0.7        2.23 ±  4%  perf-profile.calltrace.cycles-pp.__filemap_fdatawrite_range.file_write_and_wait_range.xfs_file_fsync.xfs_file_buffered_write.vfs_write
-      0.00            +0.7        0.72 ±  7%  perf-profile.calltrace.cycles-pp.iomap_writepage_map.iomap_writepages.xfs_vm_writepages.do_writepages.filemap_fdatawrite_wbc
-      1.60 ±  3%      +0.8        2.36 ±  4%  perf-profile.calltrace.cycles-pp.file_write_and_wait_range.xfs_file_fsync.xfs_file_buffered_write.vfs_write.ksys_write
-     85.48            +0.8       86.24        perf-profile.calltrace.cycles-pp.xfs_file_fsync.xfs_file_buffered_write.vfs_write.ksys_write.do_syscall_64
-     87.06            +1.4       88.49        perf-profile.calltrace.cycles-pp.xfs_file_buffered_write.vfs_write.ksys_write.do_syscall_64.entry_SYSCALL_64_after_hwframe
-     87.18            +1.5       88.64        perf-profile.calltrace.cycles-pp.vfs_write.ksys_write.do_syscall_64.entry_SYSCALL_64_after_hwframe.write
-     87.36            +1.5       88.82        perf-profile.calltrace.cycles-pp.do_syscall_64.entry_SYSCALL_64_after_hwframe.write
-     87.19            +1.5       88.65        perf-profile.calltrace.cycles-pp.ksys_write.do_syscall_64.entry_SYSCALL_64_after_hwframe.write
-     87.36            +1.5       88.82        perf-profile.calltrace.cycles-pp.entry_SYSCALL_64_after_hwframe.write
-     87.62            +1.5       89.10        perf-profile.calltrace.cycles-pp.write
-     56.74           +13.7       70.42        perf-profile.calltrace.cycles-pp.osq_lock.__mutex_lock.__flush_workqueue.xlog_cil_push_now.xlog_cil_force_seq
-     57.89           +13.8       71.74        perf-profile.calltrace.cycles-pp.__mutex_lock.__flush_workqueue.xlog_cil_push_now.xlog_cil_force_seq.xfs_log_force_seq
-     60.36           +14.6       74.96        perf-profile.calltrace.cycles-pp.__flush_workqueue.xlog_cil_push_now.xlog_cil_force_seq.xfs_log_force_seq.xfs_file_fsync
-     61.48           +14.6       76.09        perf-profile.calltrace.cycles-pp.xlog_cil_push_now.xlog_cil_force_seq.xfs_log_force_seq.xfs_file_fsync.xfs_file_buffered_write
-     68.74           +14.8       83.60        perf-profile.calltrace.cycles-pp.xfs_log_force_seq.xfs_file_fsync.xfs_file_buffered_write.vfs_write.ksys_write
-     64.97           +15.1       80.03        perf-profile.calltrace.cycles-pp.xlog_cil_force_seq.xfs_log_force_seq.xfs_file_fsync.xfs_file_buffered_write.vfs_write
-     14.86 ±  5%     -14.9        0.00        perf-profile.children.cycles-pp.submit_bio_wait
-     14.96 ±  5%     -14.8        0.12 ±  4%  perf-profile.children.cycles-pp.md_handle_request
-     14.94 ±  5%     -14.8        0.11 ±  3%  perf-profile.children.cycles-pp.raid0_make_request
-     14.83 ±  5%     -14.8        0.00        perf-profile.children.cycles-pp.md_flush_request
-     14.88 ±  5%     -14.8        0.06 ±  6%  perf-profile.children.cycles-pp.blkdev_issue_flush
-     15.82 ±  5%     -14.5        1.32 ±  3%  perf-profile.children.cycles-pp.__submit_bio_noacct
-     15.81 ±  5%     -14.5        1.31 ±  3%  perf-profile.children.cycles-pp.__submit_bio
-     13.86 ±  5%     -13.6        0.29 ±  3%  perf-profile.children.cycles-pp._raw_spin_lock_irq
-     22.32 ±  3%     -13.1        9.23 ±  4%  perf-profile.children.cycles-pp.native_queued_spin_lock_slowpath
-      1.96 ±  9%      -1.5        0.49 ±  4%  perf-profile.children.cycles-pp.intel_idle_irq
-      9.70 ±  3%      -1.1        8.61 ±  3%  perf-profile.children.cycles-pp.start_secondary
-      9.80 ±  3%      -1.1        8.71 ±  3%  perf-profile.children.cycles-pp.common_startup_64
-      9.80 ±  3%      -1.1        8.71 ±  3%  perf-profile.children.cycles-pp.cpu_startup_entry
-      9.79 ±  3%      -1.1        8.71 ±  3%  perf-profile.children.cycles-pp.do_idle
-      9.20 ±  3%      -1.0        8.25 ±  3%  perf-profile.children.cycles-pp.cpuidle_idle_call
-      9.04 ±  3%      -0.9        8.11 ±  3%  perf-profile.children.cycles-pp.cpuidle_enter
-      9.04 ±  3%      -0.9        8.11 ±  3%  perf-profile.children.cycles-pp.cpuidle_enter_state
-      2.21            -0.4        1.78 ±  2%  perf-profile.children.cycles-pp.worker_thread
-      2.22            -0.4        1.79 ±  2%  perf-profile.children.cycles-pp.kthread
-      2.22            -0.4        1.79 ±  2%  perf-profile.children.cycles-pp.ret_from_fork
-      2.22            -0.4        1.79 ±  2%  perf-profile.children.cycles-pp.ret_from_fork_asm
-      2.08            -0.4        1.68 ±  2%  perf-profile.children.cycles-pp.process_one_work
-      0.57            -0.3        0.24        perf-profile.children.cycles-pp.__wake_up
-      0.63            -0.3        0.32 ±  2%  perf-profile.children.cycles-pp.__wake_up_common
-      1.26            -0.3        0.99        perf-profile.children.cycles-pp.try_to_wake_up
-      3.56 ±  2%      -0.2        3.34 ±  4%  perf-profile.children.cycles-pp.xlog_wait_on_iclog
-      0.46 ±  2%      -0.1        0.36 ±  2%  perf-profile.children.cycles-pp.select_task_rq
-      0.86 ±  3%      -0.1        0.75 ±  2%  perf-profile.children.cycles-pp.asm_sysvec_apic_timer_interrupt
-      0.43 ±  2%      -0.1        0.33 ±  2%  perf-profile.children.cycles-pp.select_task_rq_fair
-      0.64            -0.1        0.55 ±  2%  perf-profile.children.cycles-pp.ttwu_do_activate
-      0.71 ±  3%      -0.1        0.62 ±  3%  perf-profile.children.cycles-pp.activate_task
-      0.57            -0.1        0.48        perf-profile.children.cycles-pp.__flush_smp_call_function_queue
-      0.17 ±  2%      -0.1        0.08        perf-profile.children.cycles-pp.xlog_state_release_iclog
-      0.48            -0.1        0.41 ±  2%  perf-profile.children.cycles-pp.sched_ttwu_pending
-      0.61 ±  3%      -0.1        0.54 ±  3%  perf-profile.children.cycles-pp.enqueue_task_fair
-      0.28 ±  3%      -0.1        0.21 ±  3%  perf-profile.children.cycles-pp.select_idle_sibling
-      0.19            -0.1        0.13 ±  2%  perf-profile.children.cycles-pp.schedule_idle
-      0.22 ±  3%      -0.1        0.16 ±  4%  perf-profile.children.cycles-pp.select_idle_cpu
-      0.47 ±  4%      -0.1        0.41 ±  5%  perf-profile.children.cycles-pp.update_load_avg
-      0.35 ±  2%      -0.1        0.29 ±  2%  perf-profile.children.cycles-pp.flush_smp_call_function_queue
-      0.42 ±  3%      -0.1        0.37 ±  2%  perf-profile.children.cycles-pp.enqueue_entity
-      0.11 ±  6%      -0.1        0.06 ±  8%  perf-profile.children.cycles-pp.finish_task_switch
-      0.18 ±  5%      -0.0        0.13 ±  5%  perf-profile.children.cycles-pp.available_idle_cpu
-      0.33            -0.0        0.28        perf-profile.children.cycles-pp.xlog_write
-      0.12 ±  3%      -0.0        0.07 ±  5%  perf-profile.children.cycles-pp.xlog_write_partial
-      0.30 ±  3%      -0.0        0.25 ±  3%  perf-profile.children.cycles-pp.asm_sysvec_call_function_single
-      0.12 ±  4%      -0.0        0.07 ±  5%  perf-profile.children.cycles-pp.xlog_write_get_more_iclog_space
-      0.37 ±  5%      -0.0        0.32 ±  8%  perf-profile.children.cycles-pp.dequeue_entity
-      0.08            -0.0        0.03 ± 70%  perf-profile.children.cycles-pp.__cond_resched
-      0.46            -0.0        0.41        perf-profile.children.cycles-pp.xlog_cil_push_work
-      0.27 ±  3%      -0.0        0.23 ±  3%  perf-profile.children.cycles-pp.sysvec_call_function_single
-      0.08 ±  6%      -0.0        0.04 ± 44%  perf-profile.children.cycles-pp.select_idle_core
-      0.26 ±  2%      -0.0        0.22 ±  3%  perf-profile.children.cycles-pp.__sysvec_call_function_single
-      0.12 ±  3%      -0.0        0.09 ±  5%  perf-profile.children.cycles-pp.queue_work_on
-      0.14 ±  3%      -0.0        0.12 ±  6%  perf-profile.children.cycles-pp.prepare_task_switch
-      0.12 ±  3%      -0.0        0.09        perf-profile.children.cycles-pp.ttwu_queue_wakelist
-      0.26 ±  5%      -0.0        0.23 ±  6%  perf-profile.children.cycles-pp.update_curr
-      0.12            -0.0        0.10 ±  5%  perf-profile.children.cycles-pp.perf_trace_sched_wakeup_template
-      0.13 ±  3%      -0.0        0.11        perf-profile.children.cycles-pp.wake_affine
-      0.08 ±  4%      -0.0        0.06 ±  8%  perf-profile.children.cycles-pp.set_next_entity
-      0.10 ±  5%      -0.0        0.07 ±  6%  perf-profile.children.cycles-pp.kick_pool
-      0.11 ±  4%      -0.0        0.09 ±  4%  perf-profile.children.cycles-pp.__queue_work
-      0.10 ±  3%      -0.0        0.08 ±  4%  perf-profile.children.cycles-pp.__switch_to_asm
-      0.10 ±  4%      -0.0        0.08 ±  6%  perf-profile.children.cycles-pp.switch_mm_irqs_off
-      0.07            -0.0        0.05        perf-profile.children.cycles-pp.__smp_call_single_queue
-      0.11            -0.0        0.09        perf-profile.children.cycles-pp.xlog_cil_set_ctx_write_state
-      0.10            -0.0        0.08 ±  4%  perf-profile.children.cycles-pp.task_h_load
-      0.08 ±  4%      -0.0        0.06        perf-profile.children.cycles-pp.sched_mm_cid_migrate_to
-      0.08 ±  4%      -0.0        0.06        perf-profile.children.cycles-pp.set_task_cpu
-      0.07 ±  5%      -0.0        0.05        perf-profile.children.cycles-pp.__switch_to
-      0.13 ±  4%      -0.0        0.11 ±  3%  perf-profile.children.cycles-pp.menu_select
-      0.13 ±  6%      -0.0        0.11 ±  5%  perf-profile.children.cycles-pp.reweight_entity
-      0.11            -0.0        0.09 ±  4%  perf-profile.children.cycles-pp.xlog_cil_write_commit_record
-      0.06 ±  6%      -0.0        0.05        perf-profile.children.cycles-pp.___perf_sw_event
-      0.08 ±  5%      -0.0        0.07 ±  6%  perf-profile.children.cycles-pp.avg_vruntime
-      0.06            -0.0        0.05        perf-profile.children.cycles-pp.perf_tp_event
-      0.06            -0.0        0.05        perf-profile.children.cycles-pp.place_entity
-      0.06            -0.0        0.05        perf-profile.children.cycles-pp.sched_clock
-      0.05            +0.0        0.06        perf-profile.children.cycles-pp.rep_movs_alternative
-      0.05            +0.0        0.06 ±  6%  perf-profile.children.cycles-pp.kfree
-      0.06            +0.0        0.07 ±  5%  perf-profile.children.cycles-pp.copy_page_from_iter_atomic
-      0.10 ±  3%      +0.0        0.12 ±  4%  perf-profile.children.cycles-pp.xfs_inode_item_format_data_fork
-      0.05            +0.0        0.06 ±  7%  perf-profile.children.cycles-pp.xfs_trans_read_buf_map
-      0.06            +0.0        0.07 ±  6%  perf-profile.children.cycles-pp.xfs_btree_lookup_get_block
-      0.07 ±  5%      +0.0        0.08 ±  5%  perf-profile.children.cycles-pp.filemap_get_entry
-      0.09 ±  5%      +0.0        0.10 ±  3%  perf-profile.children.cycles-pp.memcpy_orig
-      0.12 ±  3%      +0.0        0.14 ±  3%  perf-profile.children.cycles-pp.xlog_state_clean_iclog
-      0.07 ±  5%      +0.0        0.08 ±  5%  perf-profile.children.cycles-pp.filemap_dirty_folio
-      0.07            +0.0        0.09 ±  5%  perf-profile.children.cycles-pp.iomap_set_range_uptodate
-      0.07 ±  5%      +0.0        0.08 ±  5%  perf-profile.children.cycles-pp.writeback_get_folio
-      0.07            +0.0        0.09 ±  5%  perf-profile.children.cycles-pp.xfs_end_bio
-      0.06 ±  9%      +0.0        0.07 ±  5%  perf-profile.children.cycles-pp.io_schedule
-      0.10            +0.0        0.12 ±  3%  perf-profile.children.cycles-pp.xfs_buffered_write_iomap_begin
-      0.09            +0.0        0.11 ±  6%  perf-profile.children.cycles-pp.xfs_btree_lookup
-      0.10 ±  3%      +0.0        0.12 ±  5%  perf-profile.children.cycles-pp.writeback_iter
-      0.09            +0.0        0.11        perf-profile.children.cycles-pp.xfs_trans_committed_bulk
-      0.26            +0.0        0.28        perf-profile.children.cycles-pp.flush_workqueue_prep_pwqs
-      0.10            +0.0        0.12 ±  3%  perf-profile.children.cycles-pp.__filemap_get_folio
-      0.07 ±  7%      +0.0        0.09 ±  4%  perf-profile.children.cycles-pp.folio_wait_bit_common
-      0.16 ±  3%      +0.0        0.19 ±  3%  perf-profile.children.cycles-pp.xfs_inode_item_format
-      0.08 ±  5%      +0.0        0.11        perf-profile.children.cycles-pp.__filemap_fdatawait_range
-      0.07 ±  5%      +0.0        0.09 ±  5%  perf-profile.children.cycles-pp.wake_page_function
-      0.07 ±  7%      +0.0        0.09 ±  4%  perf-profile.children.cycles-pp.folio_wait_writeback
-      0.12 ±  4%      +0.0        0.14 ±  2%  perf-profile.children.cycles-pp.iomap_writepage_map_blocks
-      0.07 ±  6%      +0.0        0.10 ±  5%  perf-profile.children.cycles-pp.folio_wake_bit
-      0.13 ±  2%      +0.0        0.16 ±  2%  perf-profile.children.cycles-pp.llseek
-      0.03 ± 70%      +0.0        0.06        perf-profile.children.cycles-pp.get_jiffies_update
-      0.12 ±  3%      +0.0        0.15 ±  2%  perf-profile.children.cycles-pp.iomap_iter
-      0.14 ±  5%      +0.0        0.16 ±  3%  perf-profile.children.cycles-pp.__mutex_unlock_slowpath
-      0.03 ± 70%      +0.0        0.06 ±  6%  perf-profile.children.cycles-pp.tmigr_requires_handle_remote
-      0.04 ± 44%      +0.0        0.07        perf-profile.children.cycles-pp.__lruvec_stat_mod_folio
-      0.14 ±  2%      +0.0        0.17 ±  4%  perf-profile.children.cycles-pp.iomap_write_end
-      0.04 ± 45%      +0.0        0.07 ±  6%  perf-profile.children.cycles-pp.xfs_trans_alloc_inode
-      0.03 ± 70%      +0.0        0.06 ±  7%  perf-profile.children.cycles-pp.xfs_map_blocks
-      0.15 ±  3%      +0.0        0.18 ±  2%  perf-profile.children.cycles-pp.iomap_write_begin
-      0.11 ±  5%      +0.0        0.14 ±  3%  perf-profile.children.cycles-pp.wake_up_q
-      0.14 ±  3%      +0.0        0.17 ±  3%  perf-profile.children.cycles-pp.xlog_cil_committed
-      0.14 ±  3%      +0.0        0.17 ±  2%  perf-profile.children.cycles-pp.xlog_cil_process_committed
-      0.03 ± 70%      +0.0        0.07 ±  8%  perf-profile.children.cycles-pp.balance_dirty_pages_ratelimited_flags
-      0.22            +0.0        0.26 ±  2%  perf-profile.children.cycles-pp.xlog_cil_insert_format_items
-      0.15 ±  2%      +0.0        0.19 ±  5%  perf-profile.children.cycles-pp.xfs_bmap_add_extent_unwritten_real
-      0.16 ±  2%      +0.0        0.20 ±  5%  perf-profile.children.cycles-pp.xfs_bmapi_convert_unwritten
-      0.02 ±141%      +0.0        0.06 ± 13%  perf-profile.children.cycles-pp.xlog_grant_push_threshold
-      0.28 ±  4%      +0.0        0.32 ±  2%  perf-profile.children.cycles-pp.update_process_times
-      0.15            +0.0        0.19        perf-profile.children.cycles-pp.entry_SYSRETQ_unsafe_stack
-      0.32 ±  3%      +0.0        0.36 ±  3%  perf-profile.children.cycles-pp.tick_nohz_handler
-      0.18 ±  2%      +0.0        0.23 ±  4%  perf-profile.children.cycles-pp.xfs_bmapi_write
-      0.27 ±  2%      +0.0        0.32        perf-profile.children.cycles-pp.xlog_ioend_work
-      0.36 ±  4%      +0.0        0.41 ±  3%  perf-profile.children.cycles-pp.__hrtimer_run_queues
-      0.26 ±  2%      +0.0        0.31        perf-profile.children.cycles-pp.xlog_state_do_callback
-      0.26 ±  2%      +0.0        0.31        perf-profile.children.cycles-pp.xlog_state_do_iclog_callbacks
-      0.00            +0.1        0.05        perf-profile.children.cycles-pp.xa_load
-      0.00            +0.1        0.05        perf-profile.children.cycles-pp.xfs_iext_lookup_extent
-      0.02 ±141%      +0.1        0.07 ±  5%  perf-profile.children.cycles-pp.up_write
-      0.31 ±  2%      +0.1        0.38 ±  2%  perf-profile.children.cycles-pp.xlog_cil_insert_items
-      0.41 ±  4%      +0.1        0.47 ±  2%  perf-profile.children.cycles-pp.hrtimer_interrupt
-      0.41 ±  3%      +0.1        0.48 ±  3%  perf-profile.children.cycles-pp.__sysvec_apic_timer_interrupt
-      0.13 ± 12%      +0.1        0.20 ±  8%  perf-profile.children.cycles-pp.xfs_log_ticket_ungrant
-      0.30            +0.1        0.38 ±  3%  perf-profile.children.cycles-pp.copy_to_brd
-      0.56 ±  3%      +0.1        0.64 ±  2%  perf-profile.children.cycles-pp.sysvec_apic_timer_interrupt
-      0.35            +0.1        0.43 ±  3%  perf-profile.children.cycles-pp.brd_submit_bio
-      0.95            +0.1        1.04        perf-profile.children.cycles-pp.mutex_spin_on_owner
-      0.11 ± 11%      +0.1        0.21 ± 12%  perf-profile.children.cycles-pp.xlog_grant_add_space
-      0.44            +0.1        0.55 ±  2%  perf-profile.children.cycles-pp.iomap_write_iter
-      0.19 ±  5%      +0.1        0.30 ±  6%  perf-profile.children.cycles-pp.iomap_finish_ioends
-      0.21 ± 11%      +0.1        0.35 ± 12%  perf-profile.children.cycles-pp.xfs_log_reserve
-      0.22 ± 11%      +0.1        0.36 ± 11%  perf-profile.children.cycles-pp.xfs_trans_reserve
-      0.40 ±  2%      +0.1        0.54 ±  2%  perf-profile.children.cycles-pp.xfs_iomap_write_unwritten
-      0.57            +0.1        0.71 ±  2%  perf-profile.children.cycles-pp.iomap_file_buffered_write
-      0.25 ± 10%      +0.1        0.39 ± 10%  perf-profile.children.cycles-pp.xfs_trans_alloc
-      0.13 ± 11%      +0.2        0.32 ± 16%  perf-profile.children.cycles-pp.schedule_preempt_disabled
-      0.23 ± 13%      +0.2        0.46 ± 12%  perf-profile.children.cycles-pp.sb_mark_inode_writeback
-      0.25 ± 12%      +0.2        0.50 ± 12%  perf-profile.children.cycles-pp.sb_clear_inode_writeback
-      0.59 ±  2%      +0.3        0.85 ±  2%  perf-profile.children.cycles-pp.xfs_end_io
-      0.58 ±  2%      +0.3        0.84 ±  3%  perf-profile.children.cycles-pp.xfs_end_ioend
-      0.46 ±  6%      +0.3        0.72 ±  6%  perf-profile.children.cycles-pp.md_end_clone_io
-      0.30 ± 10%      +0.3        0.57 ±  9%  perf-profile.children.cycles-pp.__folio_start_writeback
-      0.11 ± 11%      +0.3        0.38 ± 13%  perf-profile.children.cycles-pp.rwsem_down_read_slowpath
-      0.43 ±  7%      +0.3        0.72 ±  7%  perf-profile.children.cycles-pp.iomap_writepage_map
-      0.16 ±  9%      +0.3        0.46 ± 11%  perf-profile.children.cycles-pp.down_read
-      0.44 ±  8%      +0.3        0.76 ±  7%  perf-profile.children.cycles-pp.__folio_end_writeback
-      0.52 ±  7%      +0.4        0.88 ±  6%  perf-profile.children.cycles-pp.folio_end_writeback
-      0.54 ±  7%      +0.4        0.90 ±  6%  perf-profile.children.cycles-pp.iomap_finish_ioend
-      0.92 ±  2%      +0.4        1.30 ±  3%  perf-profile.children.cycles-pp.iomap_submit_ioend
-      0.72 ±  3%      +0.4        1.16 ±  5%  perf-profile.children.cycles-pp.xlog_cil_commit
-      0.82 ±  3%      +0.5        1.28 ±  5%  perf-profile.children.cycles-pp.__xfs_trans_commit
-      0.92 ±  4%      +0.5        1.43 ±  6%  perf-profile.children.cycles-pp.xfs_vn_update_time
-      0.94 ±  4%      +0.5        1.46 ±  6%  perf-profile.children.cycles-pp.kiocb_modified
-      0.96 ±  4%      +0.5        1.48 ±  6%  perf-profile.children.cycles-pp.xfs_file_write_checks
-      6.96 ±  2%      +0.5        7.49 ±  3%  perf-profile.children.cycles-pp.intel_idle
-      1.45 ±  4%      +0.7        2.15 ±  5%  perf-profile.children.cycles-pp.iomap_writepages
-      1.46 ±  4%      +0.7        2.16 ±  4%  perf-profile.children.cycles-pp.xfs_vm_writepages
-      1.48 ±  4%      +0.7        2.18 ±  4%  perf-profile.children.cycles-pp.do_writepages
-      1.51 ±  4%      +0.7        2.22 ±  4%  perf-profile.children.cycles-pp.filemap_fdatawrite_wbc
-      1.51 ±  3%      +0.7        2.23 ±  4%  perf-profile.children.cycles-pp.__filemap_fdatawrite_range
-      1.61 ±  3%      +0.8        2.36 ±  4%  perf-profile.children.cycles-pp.file_write_and_wait_range
-     85.48            +0.8       86.24        perf-profile.children.cycles-pp.xfs_file_fsync
-     87.06            +1.4       88.49        perf-profile.children.cycles-pp.xfs_file_buffered_write
-     87.19            +1.5       88.65        perf-profile.children.cycles-pp.vfs_write
-     87.20            +1.5       88.66        perf-profile.children.cycles-pp.ksys_write
-     87.66            +1.5       89.14        perf-profile.children.cycles-pp.write
-     87.50            +1.5       88.98        perf-profile.children.cycles-pp.do_syscall_64
-     87.50            +1.5       88.99        perf-profile.children.cycles-pp.entry_SYSCALL_64_after_hwframe
-     56.76           +13.7       70.44        perf-profile.children.cycles-pp.osq_lock
-     57.89           +13.9       71.74        perf-profile.children.cycles-pp.__mutex_lock
-     60.36           +14.6       74.96        perf-profile.children.cycles-pp.__flush_workqueue
-     61.49           +14.6       76.10        perf-profile.children.cycles-pp.xlog_cil_push_now
-     68.74           +14.8       83.60        perf-profile.children.cycles-pp.xfs_log_force_seq
-     64.98           +15.1       80.03        perf-profile.children.cycles-pp.xlog_cil_force_seq
-     22.30 ±  3%     -13.1        9.22 ±  4%  perf-profile.self.cycles-pp.native_queued_spin_lock_slowpath
-      1.91 ±  9%      -1.4        0.46 ±  5%  perf-profile.self.cycles-pp.intel_idle_irq
-      0.24 ±  2%      -0.1        0.18 ±  4%  perf-profile.self.cycles-pp._raw_spin_lock_irq
-      0.18 ±  4%      -0.1        0.12 ±  6%  perf-profile.self.cycles-pp.available_idle_cpu
-      0.37 ±  2%      -0.0        0.32 ±  2%  perf-profile.self.cycles-pp._raw_spin_lock_irqsave
-      0.20 ±  3%      -0.0        0.17 ±  4%  perf-profile.self.cycles-pp.update_load_avg
-      0.14 ±  3%      -0.0        0.11 ±  3%  perf-profile.self.cycles-pp.__schedule
-      0.09 ±  4%      -0.0        0.07 ±  8%  perf-profile.self.cycles-pp.prepare_task_switch
-      0.10            -0.0        0.08 ±  4%  perf-profile.self.cycles-pp.task_h_load
-      0.10 ±  5%      -0.0        0.08 ±  6%  perf-profile.self.cycles-pp.__switch_to_asm
-      0.08 ±  4%      -0.0        0.06        perf-profile.self.cycles-pp.sched_mm_cid_migrate_to
-      0.07 ±  5%      -0.0        0.05 ±  7%  perf-profile.self.cycles-pp.menu_select
-      0.09 ±  5%      -0.0        0.08 ±  6%  perf-profile.self.cycles-pp.switch_mm_irqs_off
-      0.06 ±  7%      -0.0        0.05        perf-profile.self.cycles-pp.__switch_to
-      0.07 ±  7%      -0.0        0.05 ±  8%  perf-profile.self.cycles-pp.enqueue_entity
-      0.10 ±  4%      -0.0        0.09 ±  7%  perf-profile.self.cycles-pp.update_curr
-      0.05            +0.0        0.06        perf-profile.self.cycles-pp.rep_movs_alternative
-      0.06            +0.0        0.07 ±  5%  perf-profile.self.cycles-pp.xas_load
-      0.08 ±  4%      +0.0        0.10 ±  5%  perf-profile.self.cycles-pp.__flush_workqueue
-      0.07            +0.0        0.08 ±  5%  perf-profile.self.cycles-pp.iomap_set_range_uptodate
-      0.08 ±  5%      +0.0        0.10 ±  3%  perf-profile.self.cycles-pp.memcpy_orig
-      0.05 ±  7%      +0.0        0.07 ±  5%  perf-profile.self.cycles-pp.down_read
-      0.08 ±  5%      +0.0        0.11 ±  4%  perf-profile.self.cycles-pp.__mutex_lock
-      0.09 ±  4%      +0.0        0.12 ±  6%  perf-profile.self.cycles-pp.xlog_cil_insert_items
-      0.03 ± 70%      +0.0        0.06        perf-profile.self.cycles-pp.get_jiffies_update
-      0.02 ± 99%      +0.0        0.06 ±  7%  perf-profile.self.cycles-pp.__folio_end_writeback
-      0.15            +0.0        0.19        perf-profile.self.cycles-pp.entry_SYSRETQ_unsafe_stack
-      0.10 ± 12%      +0.1        0.16 ±  9%  perf-profile.self.cycles-pp.xfs_log_ticket_ungrant
-      0.00            +0.1        0.06 ± 11%  perf-profile.self.cycles-pp.balance_dirty_pages_ratelimited_flags
-      0.30 ±  2%      +0.1        0.37 ±  2%  perf-profile.self.cycles-pp.copy_to_brd
-      0.95            +0.1        1.03        perf-profile.self.cycles-pp.mutex_spin_on_owner
-      0.11 ± 11%      +0.1        0.20 ± 14%  perf-profile.self.cycles-pp.xlog_grant_add_space
-      6.96 ±  2%      +0.5        7.49 ±  3%  perf-profile.self.cycles-pp.intel_idle
-     56.27           +13.5       69.81        perf-profile.self.cycles-pp.osq_lock
-
-
-
-
-Disclaimer:
-Results have been estimated based on internal Intel analysis and are provided
-for informational purposes only. Any difference in system hardware or software
-design or configuration may affect actual performance.
-
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+> -----Original Message-----
+> From: Srujana Challa <schalla@marvell.com>
+> Sent: Friday, June 14, 2024 8:17 PM
+> To: virtualization@lists.linux.dev; mst@redhat.com; jasowang@redhat.com
+> Cc: xuanzhuo@linux.alibaba.com; Srujana Challa <schalla@marvell.com>;
+> Vamsi Krishna Attunuru <vattunuru@marvell.com>; Shijith Thotton
+> <sthotton@marvell.com>; Nithin Kumar Dabilpuram
+> <ndabilpuram@marvell.com>; Jerin Jacob <jerinj@marvell.com>
+> Subject: [PATCH v6] virtio: vdpa: vDPA driver for Marvell OCTEON DPU devi=
+ces
+>=20
+> This commit introduces a new vDPA driver specifically designed for managi=
+ng
+> the virtio control plane over the vDPA bus for OCTEON DPU devices. The dr=
+iver
+> consists of two layers:
+>=20
+> 1. Octep HW Layer (Octeon Endpoint): Responsible for handling hardware
+> operations and configurations related to the DPU device.
+>=20
+> 2. Octep Main Layer: Compliant with the vDPA bus framework, this layer
+> implements device operations for the vDPA bus. It handles device probing,=
+ bus
+> attachment, vring operations, and other relevant tasks.
+>=20
+> Signed-off-by: Srujana Challa <schalla@marvell.com>
+> Signed-off-by: Vamsi Attunuru <vattunuru@marvell.com>
+> Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+> Signed-off-by: Nithin Dabilpuram <ndabilpuram@marvell.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> ---
+> v2:
+> * Addressed review comments
+> v3:
+> * Enhanced a few error logs based on the suggestions provided.
+> v4:
+> * Addressed kbuild failures on mips.
+> v5:
+> * Addressed kbuild failures for 32bit arch.
+> v6:
+> * Addressed the review comments on v5.
+>=20
+>  MAINTAINERS                              |   5 +
+>  drivers/vdpa/Kconfig                     |  11 +
+>  drivers/vdpa/Makefile                    |   1 +
+>  drivers/vdpa/octeon_ep/Makefile          |   4 +
+>  drivers/vdpa/octeon_ep/octep_vdpa.h      |  94 +++
+>  drivers/vdpa/octeon_ep/octep_vdpa_hw.c   | 517 ++++++++++++++
+>  drivers/vdpa/octeon_ep/octep_vdpa_main.c | 857
+> +++++++++++++++++++++++
+>  7 files changed, 1489 insertions(+)
+>  create mode 100644 drivers/vdpa/octeon_ep/Makefile  create mode 100644
+> drivers/vdpa/octeon_ep/octep_vdpa.h
+>  create mode 100644 drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+>  create mode 100644 drivers/vdpa/octeon_ep/octep_vdpa_main.c
+>=20
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index cfe44a876d8a..539ce209a960 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -13127,6 +13127,11 @@ S:	Supported
+>  F:	Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml
+>  F:	drivers/mmc/host/sdhci-xenon*
+>=20
+> +MARVELL OCTEON ENDPOINT VIRTIO DATA PATH ACCELERATOR
+> +R:	schalla@marvell.com
+> +R:	vattunuru@marvell.com
+> +F:	drivers/vdpa/octeon_ep/
+> +
+>  MATROX FRAMEBUFFER DRIVER
+>  L:	linux-fbdev@vger.kernel.org
+>  S:	Orphan
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig index
+> 656c1cb541de..5265d09fc1c4 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -126,4 +126,15 @@ config PDS_VDPA
+>  	  With this driver, the VirtIO dataplane can be
+>  	  offloaded to an AMD/Pensando DSC device.
+>=20
+> +config OCTEONEP_VDPA
+> +	tristate "vDPA driver for Octeon DPU devices"
+> +	depends on m
+> +	depends on PCI_MSI
+> +	help
+> +	  This is a vDPA driver designed for Marvell's Octeon DPU devices.
+> +	  This driver enables the offloading of the VirtIO dataplane to an
+> +	  Octeon DPU device.
+> +	  Please note that this driver must be built as a module and it
+> +	  cannot be loaded until the Octeon emulation software is running.
+> +
+>  endif # VDPA
+> diff --git a/drivers/vdpa/Makefile b/drivers/vdpa/Makefile index
+> 8f53c6f3cca7..5654d36707af 100644
+> --- a/drivers/vdpa/Makefile
+> +++ b/drivers/vdpa/Makefile
+> @@ -8,3 +8,4 @@ obj-$(CONFIG_VP_VDPA)    +=3D virtio_pci/
+>  obj-$(CONFIG_ALIBABA_ENI_VDPA) +=3D alibaba/
+>  obj-$(CONFIG_SNET_VDPA) +=3D solidrun/
+>  obj-$(CONFIG_PDS_VDPA) +=3D pds/
+> +obj-$(CONFIG_OCTEONEP_VDPA) +=3D octeon_ep/
+> diff --git a/drivers/vdpa/octeon_ep/Makefile
+> b/drivers/vdpa/octeon_ep/Makefile new file mode 100644 index
+> 000000000000..e23e2ff14f33
+> --- /dev/null
+> +++ b/drivers/vdpa/octeon_ep/Makefile
+> @@ -0,0 +1,4 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +obj-$(CONFIG_OCTEONEP_VDPA) +=3D octep_vdpa.o
+> +octep_vdpa-$(CONFIG_OCTEONEP_VDPA) +=3D octep_vdpa_main.o
+> +octep_vdpa-$(CONFIG_OCTEONEP_VDPA) +=3D octep_vdpa_hw.o
+> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa.h
+> b/drivers/vdpa/octeon_ep/octep_vdpa.h
+> new file mode 100644
+> index 000000000000..046710ec4d42
+> --- /dev/null
+> +++ b/drivers/vdpa/octeon_ep/octep_vdpa.h
+> @@ -0,0 +1,94 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only
+> + * Copyright (C) 2024 Marvell.
+> + */
+> +#ifndef __OCTEP_VDPA_H__
+> +#define __OCTEP_VDPA_H__
+> +
+> +#include <linux/pci.h>
+> +#include <linux/pci_regs.h>
+> +#include <linux/vdpa.h>
+> +#include <linux/virtio_pci_modern.h>
+> +#include <uapi/linux/virtio_net.h>
+> +#include <uapi/linux/virtio_blk.h>
+> +#include <uapi/linux/virtio_config.h>
+> +#include <uapi/linux/virtio_pci.h>
+> +#include <uapi/linux/vdpa.h>
+> +
+> +#define OCTEP_VDPA_DEVID_CN106K_PF 0xb900 #define
+> +OCTEP_VDPA_DEVID_CN106K_VF 0xb903 #define
+> OCTEP_VDPA_DEVID_CN105K_PF
+> +0xba00 #define OCTEP_VDPA_DEVID_CN105K_VF 0xba03 #define
+> +OCTEP_VDPA_DEVID_CN103K_PF 0xbd00 #define
+> OCTEP_VDPA_DEVID_CN103K_VF
+> +0xbd03
+> +
+> +#define OCTEP_HW_MBOX_BAR 0
+> +#define OCTEP_HW_CAPS_BAR 4
+> +
+> +#define OCTEP_DEV_READY_SIGNATURE 0xBABABABA
+> +
+> +#define OCTEP_EPF_RINFO(x) (0x000209f0 | ((x) << 25)) #define
+> +OCTEP_VF_MBOX_DATA(x) (0x00010210 | ((x) << 17)) #define
+> +OCTEP_PF_MBOX_DATA(x) (0x00022000 | ((x) << 4))
+> +
+> +#define OCTEP_EPF_RINFO_RPVF(val) (((val) >> 32) & 0xF) #define
+> +OCTEP_EPF_RINFO_NVFS(val) (((val) >> 48) & 0x7F)
+> +
+> +#define OCTEP_FW_READY_SIGNATURE0  0xFEEDFEED #define
+> +OCTEP_FW_READY_SIGNATURE1  0x3355ffaa
+> +
+> +enum octep_vdpa_dev_status {
+> +	OCTEP_VDPA_DEV_STATUS_INVALID,
+> +	OCTEP_VDPA_DEV_STATUS_ALLOC,
+> +	OCTEP_VDPA_DEV_STATUS_WAIT_FOR_BAR_INIT,
+> +	OCTEP_VDPA_DEV_STATUS_INIT,
+> +	OCTEP_VDPA_DEV_STATUS_READY,
+> +	OCTEP_VDPA_DEV_STATUS_UNINIT
+> +};
+> +
+> +struct octep_vring_info {
+> +	struct vdpa_callback cb;
+> +	void __iomem *notify_addr;
+> +	u32 __iomem *cb_notify_addr;
+> +	phys_addr_t notify_pa;
+> +	char msix_name[256];
+> +};
+> +
+> +struct octep_hw {
+> +	struct pci_dev *pdev;
+> +	u8 __iomem *base[PCI_STD_NUM_BARS];
+> +	struct virtio_pci_common_cfg __iomem *common_cfg;
+> +	u8 __iomem *dev_cfg;
+> +	u8 __iomem *isr;
+> +	void __iomem *notify_base;
+> +	phys_addr_t notify_base_pa;
+> +	u32 notify_off_multiplier;
+> +	u8 notify_bar;
+> +	struct octep_vring_info *vqs;
+> +	struct vdpa_callback config_cb;
+> +	u64 features;
+> +	u16 nr_vring;
+> +	u32 config_size;
+> +	int irq;
+> +};
+> +
+> +u8 octep_hw_get_status(struct octep_hw *oct_hw); void
+> +octep_hw_set_status(struct octep_hw *dev, uint8_t status); void
+> +octep_hw_reset(struct octep_hw *oct_hw); void
+> +octep_write_queue_select(struct octep_hw *oct_hw, u16 queue_id); void
+> +octep_notify_queue(struct octep_hw *oct_hw, u16 qid); void
+> +octep_read_dev_config(struct octep_hw *oct_hw, u64 offset, void *dst,
+> +int length); int octep_set_vq_address(struct octep_hw *oct_hw, u16 qid, =
+u64
+> desc_area, u64 driver_area,
+> +			 u64 device_area);
+> +void octep_set_vq_num(struct octep_hw *oct_hw, u16 qid, u32 num); void
+> +octep_set_vq_ready(struct octep_hw *oct_hw, u16 qid, bool ready); bool
+> +octep_get_vq_ready(struct octep_hw *oct_hw, u16 qid); int
+> +octep_set_vq_state(struct octep_hw *oct_hw, u16 qid, const struct
+> +vdpa_vq_state *state); int octep_get_vq_state(struct octep_hw *oct_hw,
+> +u16 qid, struct vdpa_vq_state *state);
+> +u16 octep_get_vq_size(struct octep_hw *oct_hw); int
+> +octep_hw_caps_read(struct octep_hw *oct_hw, struct pci_dev *pdev);
+> +u64 octep_hw_get_dev_features(struct octep_hw *oct_hw); void
+> +octep_hw_set_drv_features(struct octep_hw *oct_hw, u64 features);
+> +u64 octep_hw_get_drv_features(struct octep_hw *oct_hw); int
+> +octep_verify_features(u64 features);
+> +
+> +#endif /* __OCTEP_VDPA_H__ */
+> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+> b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+> new file mode 100644
+> index 000000000000..7fa0491bb201
+> --- /dev/null
+> +++ b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+> @@ -0,0 +1,517 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/* Copyright (C) 2024 Marvell. */
+> +
+> +#include <linux/iopoll.h>
+> +
+> +#include "octep_vdpa.h"
+> +
+> +enum octep_mbox_ids {
+> +	OCTEP_MBOX_MSG_SET_VQ_STATE =3D 1,
+> +	OCTEP_MBOX_MSG_GET_VQ_STATE,
+> +};
+> +
+> +#define OCTEP_HW_TIMEOUT       10000000
+> +
+> +#define MBOX_OFFSET            64
+> +#define MBOX_RSP_MASK          0x00000001
+> +#define MBOX_RC_MASK           0x0000FFFE
+> +
+> +#define MBOX_RSP_TO_ERR(val)   (-(((val) & MBOX_RC_MASK) >> 2))
+> +#define MBOX_AVAIL(val)        (((val) & MBOX_RSP_MASK))
+> +#define MBOX_RSP(val)          ((val) & (MBOX_RC_MASK |
+> MBOX_RSP_MASK))
+> +
+> +#define DEV_RST_ACK_BIT        7
+> +#define FEATURE_SEL_ACK_BIT    15
+> +#define QUEUE_SEL_ACK_BIT      15
+> +
+> +struct octep_mbox_hdr {
+> +	u8 ver;
+> +	u8 rsvd1;
+> +	u16 id;
+> +	u16 rsvd2;
+> +#define MBOX_REQ_SIG (0xdead)
+> +#define MBOX_RSP_SIG (0xbeef)
+> +	u16 sig;
+> +};
+> +
+> +struct octep_mbox_sts {
+> +	u16 rsp:1;
+> +	u16 rc:15;
+> +	u16 rsvd;
+> +};
+> +
+> +struct octep_mbox {
+> +	struct octep_mbox_hdr hdr;
+> +	struct octep_mbox_sts sts;
+> +	u64 rsvd;
+> +	u32 data[];
+> +};
+> +
+> +static inline struct octep_mbox __iomem *octep_get_mbox(struct octep_hw
+> +*oct_hw) {
+> +	return (struct octep_mbox __iomem *)(oct_hw->dev_cfg +
+> MBOX_OFFSET); }
+> +
+> +static inline int octep_wait_for_mbox_avail(struct octep_mbox __iomem
+> +*mbox) {
+> +	u32 val;
+> +
+> +	return readx_poll_timeout(ioread32, &mbox->sts, val,
+> MBOX_AVAIL(val), 10,
+> +				  OCTEP_HW_TIMEOUT);
+> +}
+> +
+> +static inline int octep_wait_for_mbox_rsp(struct octep_mbox __iomem
+> +*mbox) {
+> +	u32 val;
+> +
+> +	return readx_poll_timeout(ioread32, &mbox->sts, val,
+> MBOX_RSP(val), 10,
+> +				  OCTEP_HW_TIMEOUT);
+> +}
+> +
+> +static inline void octep_write_hdr(struct octep_mbox __iomem *mbox, u16
+> +id, u16 sig) {
+> +	iowrite16(id, &mbox->hdr.id);
+> +	iowrite16(sig, &mbox->hdr.sig);
+> +}
+> +
+> +static inline u32 octep_read_sig(struct octep_mbox __iomem *mbox) {
+> +	return ioread16(&mbox->hdr.sig);
+> +}
+> +
+> +static inline void octep_write_sts(struct octep_mbox __iomem *mbox, u32
+> +sts) {
+> +	iowrite32(sts, &mbox->sts);
+> +}
+> +
+> +static inline u32 octep_read_sts(struct octep_mbox __iomem *mbox) {
+> +	return ioread32(&mbox->sts);
+> +}
+> +
+> +static inline u32 octep_read32_word(struct octep_mbox __iomem *mbox,
+> +u16 word_idx) {
+> +	return ioread32(&mbox->data[word_idx]); }
+> +
+> +static inline void octep_write32_word(struct octep_mbox __iomem *mbox,
+> +u16 word_idx, u32 word) {
+> +	return iowrite32(word, &mbox->data[word_idx]); }
+> +
+> +static int octep_process_mbox(struct octep_hw *oct_hw, u16 id, u16 qid,
+> void *buffer,
+> +			      u32 buf_size, bool write)
+> +{
+> +	struct octep_mbox __iomem *mbox =3D octep_get_mbox(oct_hw);
+> +	struct pci_dev *pdev =3D oct_hw->pdev;
+> +	u32 *p =3D (u32 *)buffer;
+> +	u16 data_wds;
+> +	int ret, i;
+> +	u32 val;
+> +
+> +	if (!IS_ALIGNED(buf_size, 4))
+> +		return -EINVAL;
+> +
+> +	/* Make sure mbox space is available */
+> +	ret =3D octep_wait_for_mbox_avail(mbox);
+> +	if (ret) {
+> +		dev_warn(&pdev->dev, "Timeout waiting for previous mbox
+> data to be consumed\n");
+> +		return ret;
+> +	}
+> +	data_wds =3D buf_size / 4;
+> +
+> +	if (write) {
+> +		for (i =3D 1; i <=3D data_wds; i++) {
+> +			octep_write32_word(mbox, i, *p);
+> +			p++;
+> +		}
+> +	}
+> +	octep_write32_word(mbox, 0, (u32)qid);
+> +	octep_write_sts(mbox, 0);
+> +
+> +	octep_write_hdr(mbox, id, MBOX_REQ_SIG);
+> +
+> +	ret =3D octep_wait_for_mbox_rsp(mbox);
+> +	if (ret) {
+> +		dev_warn(&pdev->dev, "Timeout waiting for mbox : %d
+> response\n", id);
+> +		return ret;
+> +	}
+> +
+> +	val =3D octep_read_sig(mbox);
+> +	if ((val & 0xFFFF) !=3D MBOX_RSP_SIG) {
+> +		dev_warn(&pdev->dev, "Invalid Signature from mbox : %d
+> response\n", id);
+> +		return ret;
+> +	}
+> +
+> +	val =3D octep_read_sts(mbox);
+> +	if (val & MBOX_RC_MASK) {
+> +		ret =3D MBOX_RSP_TO_ERR(val);
+> +		dev_warn(&pdev->dev, "Error while processing mbox : %d, err
+> %d\n", id, ret);
+> +		return ret;
+> +	}
+> +
+> +	if (!write)
+> +		for (i =3D 1; i <=3D data_wds; i++)
+> +			*p++ =3D octep_read32_word(mbox, i);
+> +
+> +	return 0;
+> +}
+> +
+> +static void octep_mbox_init(struct octep_mbox __iomem *mbox) {
+> +	iowrite32(1, &mbox->sts);
+> +}
+> +
+> +int octep_verify_features(u64 features) {
+> +	/* Minimum features to expect */
+> +	if (!(features & BIT_ULL(VIRTIO_F_VERSION_1)))
+> +		return -EOPNOTSUPP;
+> +
+> +	if (!(features & BIT_ULL(VIRTIO_F_NOTIFICATION_DATA)))
+> +		return -EOPNOTSUPP;
+> +
+> +	if (!(features & BIT_ULL(VIRTIO_F_RING_PACKED)))
+> +		return -EOPNOTSUPP;
+> +
+> +	return 0;
+> +}
+> +
+> +u8 octep_hw_get_status(struct octep_hw *oct_hw) {
+> +	return ioread8(&oct_hw->common_cfg->device_status);
+> +}
+> +
+> +void octep_hw_set_status(struct octep_hw *oct_hw, u8 status) {
+> +	iowrite8(status, &oct_hw->common_cfg->device_status);
+> +}
+> +
+> +void octep_hw_reset(struct octep_hw *oct_hw) {
+> +	u8 val;
+> +
+> +	octep_hw_set_status(oct_hw, 0 | BIT(DEV_RST_ACK_BIT));
+> +	if (readx_poll_timeout(ioread8, &oct_hw->common_cfg-
+> >device_status, val, !val, 10,
+> +			       OCTEP_HW_TIMEOUT)) {
+> +		dev_warn(&oct_hw->pdev->dev, "Octeon device reset
+> timeout\n");
+> +		return;
+> +	}
+> +}
+> +
+> +static int feature_sel_write_with_timeout(struct octep_hw *oct_hw, u32
+> +select, void __iomem *addr) {
+> +	u32 val;
+> +
+> +	iowrite32(select | BIT(FEATURE_SEL_ACK_BIT), addr);
+> +
+> +	if (readx_poll_timeout(ioread32, addr, val, val =3D=3D select, 10,
+> OCTEP_HW_TIMEOUT)) {
+> +		dev_warn(&oct_hw->pdev->dev, "Feature select%d write
+> timeout\n", select);
+> +		return -1;
+> +	}
+> +	return 0;
+> +}
+> +
+> +u64 octep_hw_get_dev_features(struct octep_hw *oct_hw) {
+> +	u32 features_lo, features_hi;
+> +
+> +	if (feature_sel_write_with_timeout(oct_hw, 0, &oct_hw-
+> >common_cfg->device_feature_select))
+> +		return 0;
+> +
+> +	features_lo =3D ioread32(&oct_hw->common_cfg->device_feature);
+> +
+> +	if (feature_sel_write_with_timeout(oct_hw, 1, &oct_hw-
+> >common_cfg->device_feature_select))
+> +		return 0;
+> +
+> +	features_hi =3D ioread32(&oct_hw->common_cfg->device_feature);
+> +
+> +	return ((u64)features_hi << 32) | features_lo; }
+> +
+> +u64 octep_hw_get_drv_features(struct octep_hw *oct_hw) {
+> +	u32 features_lo, features_hi;
+> +
+> +	if (feature_sel_write_with_timeout(oct_hw, 0, &oct_hw-
+> >common_cfg->guest_feature_select))
+> +		return 0;
+> +
+> +	features_lo =3D ioread32(&oct_hw->common_cfg->guest_feature);
+> +
+> +	if (feature_sel_write_with_timeout(oct_hw, 1, &oct_hw-
+> >common_cfg->guest_feature_select))
+> +		return 0;
+> +
+> +	features_hi =3D ioread32(&oct_hw->common_cfg->guest_feature);
+> +
+> +	return ((u64)features_hi << 32) | features_lo; }
+> +
+> +void octep_hw_set_drv_features(struct octep_hw *oct_hw, u64 features) {
+> +	if (feature_sel_write_with_timeout(oct_hw, 0, &oct_hw-
+> >common_cfg->guest_feature_select))
+> +		return;
+> +
+> +	iowrite32(features & (BIT_ULL(32) - 1),
+> +&oct_hw->common_cfg->guest_feature);
+> +
+> +	if (feature_sel_write_with_timeout(oct_hw, 1, &oct_hw-
+> >common_cfg->guest_feature_select))
+> +		return;
+> +
+> +	iowrite32(features >> 32, &oct_hw->common_cfg->guest_feature);
+> +}
+> +
+> +void octep_write_queue_select(struct octep_hw *oct_hw, u16 queue_id) {
+> +	u16 val;
+> +
+> +	iowrite16(queue_id | BIT(QUEUE_SEL_ACK_BIT),
+> +&oct_hw->common_cfg->queue_select);
+> +
+> +	if (readx_poll_timeout(ioread16, &oct_hw->common_cfg-
+> >queue_select, val, val =3D=3D queue_id,
+> +			       10, OCTEP_HW_TIMEOUT)) {
+> +		dev_warn(&oct_hw->pdev->dev, "Queue select write
+> timeout\n");
+> +		return;
+> +	}
+> +}
+> +
+> +void octep_notify_queue(struct octep_hw *oct_hw, u16 qid) {
+> +	iowrite16(qid, oct_hw->vqs[qid].notify_addr); }
+> +
+> +void octep_read_dev_config(struct octep_hw *oct_hw, u64 offset, void
+> +*dst, int length) {
+> +	u8 old_gen, new_gen, *p;
+> +	int i;
+> +
+> +	if (WARN_ON(offset + length > oct_hw->config_size))
+> +		return;
+> +
+> +	do {
+> +		old_gen =3D ioread8(&oct_hw->common_cfg-
+> >config_generation);
+> +		p =3D dst;
+> +		for (i =3D 0; i < length; i++)
+> +			*p++ =3D ioread8(oct_hw->dev_cfg + offset + i);
+> +
+> +		new_gen =3D ioread8(&oct_hw->common_cfg-
+> >config_generation);
+> +	} while (old_gen !=3D new_gen);
+> +}
+> +
+> +int octep_set_vq_address(struct octep_hw *oct_hw, u16 qid, u64 desc_area=
+,
+> u64 driver_area,
+> +			 u64 device_area)
+> +{
+> +	struct virtio_pci_common_cfg __iomem *cfg =3D oct_hw->common_cfg;
+> +
+> +	octep_write_queue_select(oct_hw, qid);
+> +	vp_iowrite64_twopart(desc_area, &cfg->queue_desc_lo,
+> +			     &cfg->queue_desc_hi);
+> +	vp_iowrite64_twopart(driver_area, &cfg->queue_avail_lo,
+> +			     &cfg->queue_avail_hi);
+> +	vp_iowrite64_twopart(device_area, &cfg->queue_used_lo,
+> +			     &cfg->queue_used_hi);
+> +
+> +	return 0;
+> +}
+> +
+> +int octep_get_vq_state(struct octep_hw *oct_hw, u16 qid, struct
+> +vdpa_vq_state *state) {
+> +	return octep_process_mbox(oct_hw,
+> OCTEP_MBOX_MSG_GET_VQ_STATE, qid, state,
+> +				  sizeof(*state), 0);
+> +}
+> +
+> +int octep_set_vq_state(struct octep_hw *oct_hw, u16 qid, const struct
+> +vdpa_vq_state *state) {
+> +	struct vdpa_vq_state q_state;
+> +
+> +	memcpy(&q_state, state, sizeof(struct vdpa_vq_state));
+> +	return octep_process_mbox(oct_hw,
+> OCTEP_MBOX_MSG_SET_VQ_STATE, qid, &q_state,
+> +				  sizeof(*state), 1);
+> +}
+> +
+> +void octep_set_vq_num(struct octep_hw *oct_hw, u16 qid, u32 num) {
+> +	struct virtio_pci_common_cfg __iomem *cfg =3D oct_hw->common_cfg;
+> +
+> +	octep_write_queue_select(oct_hw, qid);
+> +	iowrite16(num, &cfg->queue_size);
+> +}
+> +
+> +void octep_set_vq_ready(struct octep_hw *oct_hw, u16 qid, bool ready) {
+> +	struct virtio_pci_common_cfg __iomem *cfg =3D oct_hw->common_cfg;
+> +
+> +	octep_write_queue_select(oct_hw, qid);
+> +	iowrite16(ready, &cfg->queue_enable);
+> +}
+> +
+> +bool octep_get_vq_ready(struct octep_hw *oct_hw, u16 qid) {
+> +	struct virtio_pci_common_cfg __iomem *cfg =3D oct_hw->common_cfg;
+> +
+> +	octep_write_queue_select(oct_hw, qid);
+> +	return ioread16(&cfg->queue_enable);
+> +}
+> +
+> +u16 octep_get_vq_size(struct octep_hw *oct_hw) {
+> +	octep_write_queue_select(oct_hw, 0);
+> +	return ioread16(&oct_hw->common_cfg->queue_size);
+> +}
+> +
+> +static u32 octep_get_config_size(struct octep_hw *oct_hw) {
+> +	return sizeof(struct virtio_net_config); }
+> +
+> +static void __iomem *octep_get_cap_addr(struct octep_hw *oct_hw, struct
+> +virtio_pci_cap *cap) {
+> +	struct device *dev =3D &oct_hw->pdev->dev;
+> +	u32 length =3D le32_to_cpu(cap->length);
+> +	u32 offset =3D le32_to_cpu(cap->offset);
+> +	u8  bar    =3D cap->bar;
+> +	u32 len;
+> +
+> +	if (bar !=3D OCTEP_HW_CAPS_BAR) {
+> +		dev_err(dev, "Invalid bar: %u\n", bar);
+> +		return NULL;
+> +	}
+> +	if (offset + length < offset) {
+> +		dev_err(dev, "offset(%u) + length(%u) overflows\n",
+> +			offset, length);
+> +		return NULL;
+> +	}
+> +	len =3D pci_resource_len(oct_hw->pdev, bar);
+> +	if (offset + length > len) {
+> +		dev_err(dev, "invalid cap: overflows bar space: %u > %u\n",
+> +			offset + length, len);
+> +		return NULL;
+> +	}
+> +	return oct_hw->base[bar] + offset;
+> +}
+> +
+> +/* In Octeon DPU device, the virtio config space is completely
+> + * emulated by the device's firmware. So, the standard pci config
+> + * read apis can't be used for reading the virtio capability.
+> + */
+> +static void octep_pci_caps_read(struct octep_hw *oct_hw, void *buf,
+> +size_t len, off_t offset) {
+> +	u8 __iomem *bar =3D oct_hw->base[OCTEP_HW_CAPS_BAR];
+> +	u8 *p =3D buf;
+> +	size_t i;
+> +
+> +	for (i =3D 0; i < len; i++)
+> +		*p++ =3D ioread8(bar + offset + i);
+> +}
+> +
+> +static int octep_pci_signature_verify(struct octep_hw *oct_hw) {
+> +	u32 signature[2];
+> +
+> +	octep_pci_caps_read(oct_hw, &signature, sizeof(signature), 0);
+> +
+> +	if (signature[0] !=3D OCTEP_FW_READY_SIGNATURE0)
+> +		return -1;
+> +
+> +	if (signature[1] !=3D OCTEP_FW_READY_SIGNATURE1)
+> +		return -1;
+> +
+> +	return 0;
+> +}
+> +
+> +int octep_hw_caps_read(struct octep_hw *oct_hw, struct pci_dev *pdev) {
+> +	struct octep_mbox __iomem *mbox;
+> +	struct device *dev =3D &pdev->dev;
+> +	struct virtio_pci_cap cap;
+> +	u16 notify_off;
+> +	int i, ret;
+> +	u8 pos;
+> +
+> +	oct_hw->pdev =3D pdev;
+> +	ret =3D octep_pci_signature_verify(oct_hw);
+> +	if (ret) {
+> +		dev_err(dev, "Octeon Virtio FW is not initialized\n");
+> +		return -EIO;
+> +	}
+> +
+> +	octep_pci_caps_read(oct_hw, &pos, 1, PCI_CAPABILITY_LIST);
+> +
+> +	while (pos) {
+> +		octep_pci_caps_read(oct_hw, &cap, 2, pos);
+> +
+> +		if (cap.cap_vndr !=3D PCI_CAP_ID_VNDR) {
+> +			dev_err(dev, "Found invalid capability vndr id: %d\n",
+> cap.cap_vndr);
+> +			break;
+> +		}
+> +
+> +		octep_pci_caps_read(oct_hw, &cap, sizeof(cap), pos);
+> +
+> +		dev_info(dev, "[%2x] cfg type: %u, bar: %u, offset: %04x, len:
+> %u\n",
+> +			 pos, cap.cfg_type, cap.bar, cap.offset, cap.length);
+> +
+> +		switch (cap.cfg_type) {
+> +		case VIRTIO_PCI_CAP_COMMON_CFG:
+> +			oct_hw->common_cfg =3D octep_get_cap_addr(oct_hw,
+> &cap);
+> +			break;
+> +		case VIRTIO_PCI_CAP_NOTIFY_CFG:
+> +			octep_pci_caps_read(oct_hw, &oct_hw-
+> >notify_off_multiplier,
+> +					    4, pos + sizeof(cap));
+> +
+> +			oct_hw->notify_base =3D octep_get_cap_addr(oct_hw,
+> &cap);
+> +			oct_hw->notify_bar =3D cap.bar;
+> +			oct_hw->notify_base_pa =3D pci_resource_start(pdev,
+> cap.bar) +
+> +						 le32_to_cpu(cap.offset);
+> +			break;
+> +		case VIRTIO_PCI_CAP_DEVICE_CFG:
+> +			oct_hw->dev_cfg =3D octep_get_cap_addr(oct_hw,
+> &cap);
+> +			break;
+> +		case VIRTIO_PCI_CAP_ISR_CFG:
+> +			oct_hw->isr =3D octep_get_cap_addr(oct_hw, &cap);
+> +			break;
+> +		}
+> +
+> +		pos =3D cap.cap_next;
+> +	}
+> +	if (!oct_hw->common_cfg || !oct_hw->notify_base ||
+> +	    !oct_hw->dev_cfg    || !oct_hw->isr) {
+> +		dev_err(dev, "Incomplete PCI capabilities");
+> +		return -EIO;
+> +	}
+> +	dev_info(dev, "common cfg mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)oct_hw->common_cfg);
+> +	dev_info(dev, "device cfg mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)oct_hw->dev_cfg);
+> +	dev_info(dev, "isr cfg mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)oct_hw->isr);
+> +	dev_info(dev, "notify base: 0x%016llx, notify off multiplier: %u\n",
+> +		 (u64)(uintptr_t)oct_hw->notify_base, oct_hw-
+> >notify_off_multiplier);
+> +
+> +	oct_hw->config_size =3D octep_get_config_size(oct_hw);
+> +	oct_hw->features =3D octep_hw_get_dev_features(oct_hw);
+> +
+> +	ret =3D octep_verify_features(oct_hw->features);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Couldn't read features from the device
+> FW\n");
+> +		return ret;
+> +	}
+> +	oct_hw->nr_vring =3D vp_ioread16(&oct_hw->common_cfg-
+> >num_queues);
+> +
+> +	oct_hw->vqs =3D devm_kcalloc(&pdev->dev, oct_hw->nr_vring,
+> sizeof(*oct_hw->vqs), GFP_KERNEL);
+> +	if (!oct_hw->vqs)
+> +		return -ENOMEM;
+> +
+> +	oct_hw->irq =3D -1;
+> +
+> +	dev_info(&pdev->dev, "Device features : %llx\n", oct_hw->features);
+> +	dev_info(&pdev->dev, "Maximum queues : %u\n", oct_hw-
+> >nr_vring);
+> +
+> +	for (i =3D 0; i < oct_hw->nr_vring; i++) {
+> +		octep_write_queue_select(oct_hw, i);
+> +		notify_off =3D vp_ioread16(&oct_hw->common_cfg-
+> >queue_notify_off);
+> +		oct_hw->vqs[i].notify_addr =3D oct_hw->notify_base +
+> +			notify_off * oct_hw->notify_off_multiplier;
+> +		oct_hw->vqs[i].cb_notify_addr =3D (u32 __iomem *)oct_hw-
+> >vqs[i].notify_addr + 1;
+> +		oct_hw->vqs[i].notify_pa =3D oct_hw->notify_base_pa +
+> +			notify_off * oct_hw->notify_off_multiplier;
+> +	}
+> +	mbox =3D octep_get_mbox(oct_hw);
+> +	octep_mbox_init(mbox);
+> +	dev_info(dev, "mbox mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)mbox);
+> +
+> +	return 0;
+> +}
+> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> new file mode 100644
+> index 000000000000..cd55b1aac151
+> --- /dev/null
+> +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> @@ -0,0 +1,857 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/* Copyright (C) 2024 Marvell. */
+> +
+> +#include <linux/interrupt.h>
+> +#include <linux/io-64-nonatomic-lo-hi.h> #include <linux/module.h>
+> +#include <linux/iommu.h> #include "octep_vdpa.h"
+> +
+> +#define OCTEP_VDPA_DRIVER_NAME "octep_vdpa"
+> +
+> +struct octep_pf {
+> +	u8 __iomem *base[PCI_STD_NUM_BARS];
+> +	struct pci_dev *pdev;
+> +	struct resource res;
+> +	u64 vf_base;
+> +	int enabled_vfs;
+> +	u32 vf_stride;
+> +	u16 vf_devid;
+> +};
+> +
+> +struct octep_vdpa {
+> +	struct vdpa_device vdpa;
+> +	struct octep_hw *oct_hw;
+> +	struct pci_dev *pdev;
+> +};
+> +
+> +struct octep_vdpa_mgmt_dev {
+> +	struct vdpa_mgmt_dev mdev;
+> +	struct octep_hw oct_hw;
+> +	struct pci_dev *pdev;
+> +	/* Work entry to handle device setup */
+> +	struct work_struct setup_task;
+> +	/* Device status */
+> +	atomic_t status;
+> +};
+> +
+> +static struct octep_hw *vdpa_to_octep_hw(struct vdpa_device *vdpa_dev)
+> +{
+> +	struct octep_vdpa *oct_vdpa;
+> +
+> +	oct_vdpa =3D container_of(vdpa_dev, struct octep_vdpa, vdpa);
+> +
+> +	return oct_vdpa->oct_hw;
+> +}
+> +
+> +static irqreturn_t octep_vdpa_intr_handler(int irq, void *data) {
+> +	struct octep_hw *oct_hw =3D data;
+> +	int i;
+> +
+> +	for (i =3D 0; i < oct_hw->nr_vring; i++) {
+> +		if (oct_hw->vqs[i].cb.callback && ioread32(oct_hw-
+> >vqs[i].cb_notify_addr)) {
+> +			/* Acknowledge the per queue notification to the
+> device */
+> +			iowrite32(0, oct_hw->vqs[i].cb_notify_addr);
+> +			oct_hw->vqs[i].cb.callback(oct_hw-
+> >vqs[i].cb.private);
+> +		}
+> +	}
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static void octep_free_irqs(struct octep_hw *oct_hw) {
+> +	struct pci_dev *pdev =3D oct_hw->pdev;
+> +
+> +	if (oct_hw->irq !=3D -1) {
+> +		devm_free_irq(&pdev->dev, oct_hw->irq, oct_hw);
+> +		oct_hw->irq =3D -1;
+> +	}
+> +	pci_free_irq_vectors(pdev);
+> +}
+> +
+> +static int octep_request_irqs(struct octep_hw *oct_hw) {
+> +	struct pci_dev *pdev =3D oct_hw->pdev;
+> +	int ret, irq;
+> +
+> +	/* Currently HW device provisions one IRQ per VF, hence
+> +	 * allocate one IRQ for all virtqueues call interface.
+> +	 */
+> +	ret =3D pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSIX);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Failed to alloc msix vector");
+> +		return ret;
+> +	}
+> +
+> +	snprintf(oct_hw->vqs->msix_name, sizeof(oct_hw->vqs-
+> >msix_name),
+> +		 OCTEP_VDPA_DRIVER_NAME "-vf-%d", pci_iov_vf_id(pdev));
+> +
+> +	irq =3D pci_irq_vector(pdev, 0);
+> +	ret =3D devm_request_irq(&pdev->dev, irq, octep_vdpa_intr_handler, 0,
+> +			       oct_hw->vqs->msix_name, oct_hw);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to register interrupt handler\n");
+> +		goto free_irq_vec;
+> +	}
+> +	oct_hw->irq =3D irq;
+> +
+> +	return 0;
+> +
+> +free_irq_vec:
+> +	pci_free_irq_vectors(pdev);
+> +	return ret;
+> +}
+> +
+> +static u64 octep_vdpa_get_device_features(struct vdpa_device *vdpa_dev)
+> +{
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return oct_hw->features;
+> +}
+> +
+> +static int octep_vdpa_set_driver_features(struct vdpa_device *vdpa_dev,
+> +u64 features) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +	int ret;
+> +
+> +	pr_debug("Driver Features: %llx\n", features);
+> +
+> +	ret =3D octep_verify_features(features);
+> +	if (ret) {
+> +		dev_warn(&oct_hw->pdev->dev,
+> +			 "Must negotiate minimum features 0x%llx for this
+> device",
+> +			 BIT_ULL(VIRTIO_F_VERSION_1) |
+> BIT_ULL(VIRTIO_F_NOTIFICATION_DATA) |
+> +			 BIT_ULL(VIRTIO_F_RING_PACKED));
+> +		return ret;
+> +	}
+> +	octep_hw_set_drv_features(oct_hw, features);
+> +
+> +	return 0;
+> +}
+> +
+> +static u64 octep_vdpa_get_driver_features(struct vdpa_device *vdpa_dev)
+> +{
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return octep_hw_get_drv_features(oct_hw);
+> +}
+> +
+> +static u8 octep_vdpa_get_status(struct vdpa_device *vdpa_dev) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return octep_hw_get_status(oct_hw);
+> +}
+> +
+> +static void octep_vdpa_set_status(struct vdpa_device *vdpa_dev, u8
+> +status) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +	u8 status_old;
+> +
+> +	status_old =3D octep_hw_get_status(oct_hw);
+> +
+> +	if (status_old =3D=3D status)
+> +		return;
+> +
+> +	if ((status & VIRTIO_CONFIG_S_DRIVER_OK) &&
+> +	    !(status_old & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> +		if (octep_request_irqs(oct_hw))
+> +			status =3D status_old | VIRTIO_CONFIG_S_FAILED;
+> +	}
+> +	octep_hw_set_status(oct_hw, status);
+> +}
+> +
+> +static int octep_vdpa_reset(struct vdpa_device *vdpa_dev) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +	u8 status =3D octep_hw_get_status(oct_hw);
+> +	u16 qid;
+> +
+> +	if (status =3D=3D 0)
+> +		return 0;
+> +
+> +	for (qid =3D 0; qid < oct_hw->nr_vring; qid++) {
+> +		oct_hw->vqs[qid].cb.callback =3D NULL;
+> +		oct_hw->vqs[qid].cb.private =3D NULL;
+> +		oct_hw->config_cb.callback =3D NULL;
+> +		oct_hw->config_cb.private =3D NULL;
+> +	}
+> +	octep_hw_reset(oct_hw);
+> +
+> +	if (status & VIRTIO_CONFIG_S_DRIVER_OK)
+> +		octep_free_irqs(oct_hw);
+> +
+> +	return 0;
+> +}
+> +
+> +static u16 octep_vdpa_get_vq_num_max(struct vdpa_device *vdpa_dev) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return octep_get_vq_size(oct_hw);
+> +}
+> +
+> +static int octep_vdpa_get_vq_state(struct vdpa_device *vdpa_dev, u16 qid=
+,
+> +				   struct vdpa_vq_state *state)
+> +{
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return octep_get_vq_state(oct_hw, qid, state); }
+> +
+> +static int octep_vdpa_set_vq_state(struct vdpa_device *vdpa_dev, u16 qid=
+,
+> +				   const struct vdpa_vq_state *state) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return octep_set_vq_state(oct_hw, qid, state); }
+> +
+> +static void octep_vdpa_set_vq_cb(struct vdpa_device *vdpa_dev, u16 qid,
+> +struct vdpa_callback *cb) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	oct_hw->vqs[qid].cb =3D *cb;
+> +}
+> +
+> +static void octep_vdpa_set_vq_ready(struct vdpa_device *vdpa_dev, u16
+> +qid, bool ready) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	octep_set_vq_ready(oct_hw, qid, ready); }
+> +
+> +static bool octep_vdpa_get_vq_ready(struct vdpa_device *vdpa_dev, u16
+> +qid) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return octep_get_vq_ready(oct_hw, qid); }
+> +
+> +static void octep_vdpa_set_vq_num(struct vdpa_device *vdpa_dev, u16
+> +qid, u32 num) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	octep_set_vq_num(oct_hw, qid, num);
+> +}
+> +
+> +static int octep_vdpa_set_vq_address(struct vdpa_device *vdpa_dev, u16
+> qid, u64 desc_area,
+> +				     u64 driver_area, u64 device_area) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	pr_debug("qid[%d]: desc_area: %llx\n", qid, desc_area);
+> +	pr_debug("qid[%d]: driver_area: %llx\n", qid, driver_area);
+> +	pr_debug("qid[%d]: device_area: %llx\n\n", qid, device_area);
+> +
+> +	return octep_set_vq_address(oct_hw, qid, desc_area, driver_area,
+> +device_area); }
+> +
+> +static void octep_vdpa_kick_vq(struct vdpa_device *vdpa_dev, u16 qid) {
+> +	/* Not supported */
+> +}
+> +
+> +static void octep_vdpa_kick_vq_with_data(struct vdpa_device *vdpa_dev,
+> +u32 data) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +	u16 idx =3D data & 0xFFFF;
+> +
+> +	vp_iowrite32(data, oct_hw->vqs[idx].notify_addr); }
+> +
+> +static u32 octep_vdpa_get_generation(struct vdpa_device *vdpa_dev) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return vp_ioread8(&oct_hw->common_cfg->config_generation);
+> +}
+> +
+> +static u32 octep_vdpa_get_device_id(struct vdpa_device *vdpa_dev) {
+> +	return VIRTIO_ID_NET;
+> +}
+> +
+> +static u32 octep_vdpa_get_vendor_id(struct vdpa_device *vdpa_dev) {
+> +	return PCI_VENDOR_ID_CAVIUM;
+> +}
+> +
+> +static u32 octep_vdpa_get_vq_align(struct vdpa_device *vdpa_dev) {
+> +	return PAGE_SIZE;
+> +}
+> +
+> +static size_t octep_vdpa_get_config_size(struct vdpa_device *vdpa_dev)
+> +{
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	return oct_hw->config_size;
+> +}
+> +
+> +static void octep_vdpa_get_config(struct vdpa_device *vdpa_dev, unsigned
+> int offset, void *buf,
+> +				  unsigned int len)
+> +{
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	octep_read_dev_config(oct_hw, offset, buf, len); }
+> +
+> +static void octep_vdpa_set_config(struct vdpa_device *vdpa_dev, unsigned
+> int offset,
+> +				  const void *buf, unsigned int len) {
+> +	/* Not supported */
+> +}
+> +
+> +static void octep_vdpa_set_config_cb(struct vdpa_device *vdpa_dev,
+> +struct vdpa_callback *cb) {
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +
+> +	oct_hw->config_cb.callback =3D cb->callback;
+> +	oct_hw->config_cb.private =3D cb->private; }
+> +
+> +static struct vdpa_notification_area octep_get_vq_notification(struct
+> vdpa_device *vdpa_dev,
+> +							       u16 idx)
+> +{
+> +	struct octep_hw *oct_hw =3D vdpa_to_octep_hw(vdpa_dev);
+> +	struct vdpa_notification_area area;
+> +
+> +	area.addr =3D oct_hw->vqs[idx].notify_pa;
+> +	area.size =3D PAGE_SIZE;
+> +
+> +	return area;
+> +}
+> +
+> +static struct vdpa_config_ops octep_vdpa_ops =3D {
+> +	.get_device_features =3D octep_vdpa_get_device_features,
+> +	.set_driver_features =3D octep_vdpa_set_driver_features,
+> +	.get_driver_features =3D octep_vdpa_get_driver_features,
+> +	.get_status	=3D octep_vdpa_get_status,
+> +	.set_status	=3D octep_vdpa_set_status,
+> +	.reset		=3D octep_vdpa_reset,
+> +	.get_vq_num_max	=3D octep_vdpa_get_vq_num_max,
+> +	.get_vq_state	=3D octep_vdpa_get_vq_state,
+> +	.set_vq_state	=3D octep_vdpa_set_vq_state,
+> +	.set_vq_cb	=3D octep_vdpa_set_vq_cb,
+> +	.set_vq_ready	=3D octep_vdpa_set_vq_ready,
+> +	.get_vq_ready	=3D octep_vdpa_get_vq_ready,
+> +	.set_vq_num	=3D octep_vdpa_set_vq_num,
+> +	.set_vq_address	=3D octep_vdpa_set_vq_address,
+> +	.get_vq_irq	=3D NULL,
+> +	.kick_vq	=3D octep_vdpa_kick_vq,
+> +	.kick_vq_with_data	=3D octep_vdpa_kick_vq_with_data,
+> +	.get_generation	=3D octep_vdpa_get_generation,
+> +	.get_device_id	=3D octep_vdpa_get_device_id,
+> +	.get_vendor_id	=3D octep_vdpa_get_vendor_id,
+> +	.get_vq_align	=3D octep_vdpa_get_vq_align,
+> +	.get_config_size	=3D octep_vdpa_get_config_size,
+> +	.get_config	=3D octep_vdpa_get_config,
+> +	.set_config	=3D octep_vdpa_set_config,
+> +	.set_config_cb  =3D octep_vdpa_set_config_cb,
+> +	.get_vq_notification =3D octep_get_vq_notification, };
+> +
+> +static int octep_iomap_region(struct pci_dev *pdev, u8 __iomem **tbl,
+> +u8 bar) {
+> +	int ret;
+> +
+> +	ret =3D pci_request_region(pdev, bar, OCTEP_VDPA_DRIVER_NAME);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to request BAR:%u region\n",
+> bar);
+> +		return ret;
+> +	}
+> +
+> +	tbl[bar] =3D pci_iomap(pdev, bar, pci_resource_len(pdev, bar));
+> +	if (!tbl[bar]) {
+> +		dev_err(&pdev->dev, "Failed to iomap BAR:%u\n", bar);
+> +		pci_release_region(pdev, bar);
+> +		ret =3D -ENOMEM;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static void octep_iounmap_region(struct pci_dev *pdev, u8 __iomem
+> +**tbl, u8 bar) {
+> +	pci_iounmap(pdev, tbl[bar]);
+> +	pci_release_region(pdev, bar);
+> +}
+> +
+> +static void octep_vdpa_pf_bar_shrink(struct octep_pf *octpf) {
+> +	struct pci_dev *pf_dev =3D octpf->pdev;
+> +	struct resource *res =3D pf_dev->resource + PCI_STD_RESOURCES + 4;
+> +	struct pci_bus_region bus_region;
+> +
+> +	octpf->res.start =3D res->start;
+> +	octpf->res.end =3D res->end;
+> +	octpf->vf_base =3D res->start;
+> +
+> +	bus_region.start =3D res->start;
+> +	bus_region.end =3D res->start - 1;
+> +
+> +	pcibios_bus_to_resource(pf_dev->bus, res, &bus_region); }
+> +
+> +static void octep_vdpa_pf_bar_expand(struct octep_pf *octpf) {
+> +	struct pci_dev *pf_dev =3D octpf->pdev;
+> +	struct resource *res =3D pf_dev->resource + PCI_STD_RESOURCES + 4;
+> +	struct pci_bus_region bus_region;
+> +
+> +	bus_region.start =3D octpf->res.start;
+> +	bus_region.end =3D octpf->res.end;
+> +
+> +	pcibios_bus_to_resource(pf_dev->bus, res, &bus_region); }
+> +
+> +static void octep_vdpa_remove_pf(struct pci_dev *pdev) {
+> +	struct octep_pf *octpf =3D pci_get_drvdata(pdev);
+> +
+> +	pci_disable_sriov(pdev);
+> +
+> +	if (octpf->base[OCTEP_HW_CAPS_BAR])
+> +		octep_iounmap_region(pdev, octpf->base,
+> OCTEP_HW_CAPS_BAR);
+> +
+> +	if (octpf->base[OCTEP_HW_MBOX_BAR])
+> +		octep_iounmap_region(pdev, octpf->base,
+> OCTEP_HW_MBOX_BAR);
+> +
+> +	octep_vdpa_pf_bar_expand(octpf);
+> +}
+> +
+> +static void octep_vdpa_vf_bar_shrink(struct pci_dev *pdev) {
+> +	struct resource *vf_res =3D pdev->resource + PCI_STD_RESOURCES + 4;
+> +
+> +	memset(vf_res, 0, sizeof(*vf_res));
+> +}
+> +
+> +static void octep_vdpa_remove_vf(struct pci_dev *pdev) {
+> +	struct octep_vdpa_mgmt_dev *mgmt_dev =3D pci_get_drvdata(pdev);
+> +	struct octep_hw *oct_hw;
+> +	int status;
+> +
+> +	oct_hw =3D &mgmt_dev->oct_hw;
+> +	status =3D atomic_read(&mgmt_dev->status);
+> +	atomic_set(&mgmt_dev->status,
+> OCTEP_VDPA_DEV_STATUS_UNINIT);
+> +
+> +	cancel_work_sync(&mgmt_dev->setup_task);
+> +	if (status =3D=3D OCTEP_VDPA_DEV_STATUS_READY)
+> +		vdpa_mgmtdev_unregister(&mgmt_dev->mdev);
+> +
+> +	if (oct_hw->base[OCTEP_HW_CAPS_BAR])
+> +		octep_iounmap_region(pdev, oct_hw->base,
+> OCTEP_HW_CAPS_BAR);
+> +
+> +	if (oct_hw->base[OCTEP_HW_MBOX_BAR])
+> +		octep_iounmap_region(pdev, oct_hw->base,
+> OCTEP_HW_MBOX_BAR);
+> +
+> +	octep_vdpa_vf_bar_shrink(pdev);
+> +}
+> +
+> +static void octep_vdpa_remove(struct pci_dev *pdev) {
+> +	if (pdev->is_virtfn)
+> +		octep_vdpa_remove_vf(pdev);
+> +	else
+> +		octep_vdpa_remove_pf(pdev);
+> +}
+> +
+> +static int octep_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char
+> *name,
+> +			      const struct vdpa_dev_set_config *config) {
+> +	struct octep_vdpa_mgmt_dev *mgmt_dev =3D container_of(mdev,
+> struct octep_vdpa_mgmt_dev, mdev);
+> +	struct octep_hw *oct_hw =3D &mgmt_dev->oct_hw;
+> +	struct pci_dev *pdev =3D oct_hw->pdev;
+> +	struct vdpa_device *vdpa_dev;
+> +	struct octep_vdpa *oct_vdpa;
+> +	u64 device_features;
+> +	int ret;
+> +
+> +	oct_vdpa =3D vdpa_alloc_device(struct octep_vdpa, vdpa, &pdev->dev,
+> &octep_vdpa_ops, 1, 1,
+> +				     NULL, false);
+> +	if (IS_ERR(oct_vdpa)) {
+> +		dev_err(&pdev->dev, "Failed to allocate vDPA structure for
+> octep vdpa device");
+> +		return PTR_ERR(oct_vdpa);
+> +	}
+> +
+> +	oct_vdpa->pdev =3D pdev;
+> +	oct_vdpa->vdpa.dma_dev =3D &pdev->dev;
+> +	oct_vdpa->vdpa.mdev =3D mdev;
+> +	oct_vdpa->oct_hw =3D oct_hw;
+> +	vdpa_dev =3D &oct_vdpa->vdpa;
+> +
+> +	device_features =3D oct_hw->features;
+> +	if (config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
+> +		if (config->device_features & ~device_features) {
+> +			dev_err(&pdev->dev, "The provisioned features 0x%llx
+> are not supported by this device with features 0x%llx\n",
+> +				config->device_features, device_features);
+> +			ret =3D -EINVAL;
+> +			goto vdpa_dev_put;
+> +		}
+> +		device_features &=3D config->device_features;
+> +	}
+> +
+> +	oct_hw->features =3D device_features;
+> +	dev_info(&pdev->dev, "Vdpa management device features : %llx\n",
+> +device_features);
+> +
+> +	ret =3D octep_verify_features(device_features);
+> +	if (ret) {
+> +		dev_warn(mdev->device,
+> +			 "Must provision minimum features 0x%llx for this
+> device",
+> +			 BIT_ULL(VIRTIO_F_VERSION_1) |
+> BIT_ULL(VIRTIO_F_ACCESS_PLATFORM) |
+> +			 BIT_ULL(VIRTIO_F_NOTIFICATION_DATA) |
+> BIT_ULL(VIRTIO_F_RING_PACKED));
+> +		goto vdpa_dev_put;
+> +	}
+> +	if (name)
+> +		ret =3D dev_set_name(&vdpa_dev->dev, "%s", name);
+> +	else
+> +		ret =3D dev_set_name(&vdpa_dev->dev, "vdpa%u", vdpa_dev-
+> >index);
+> +
+> +	ret =3D _vdpa_register_device(&oct_vdpa->vdpa, oct_hw->nr_vring);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to register to vDPA bus");
+> +		goto vdpa_dev_put;
+> +	}
+> +	return 0;
+> +
+> +vdpa_dev_put:
+> +	put_device(&oct_vdpa->vdpa.dev);
+> +	return ret;
+> +}
+> +
+> +static void octep_vdpa_dev_del(struct vdpa_mgmt_dev *mdev, struct
+> +vdpa_device *vdpa_dev) {
+> +	_vdpa_unregister_device(vdpa_dev);
+> +}
+> +
+> +static const struct vdpa_mgmtdev_ops octep_vdpa_mgmt_dev_ops =3D {
+> +	.dev_add =3D octep_vdpa_dev_add,
+> +	.dev_del =3D octep_vdpa_dev_del
+> +};
+> +
+> +static bool get_device_ready_status(u8 __iomem *addr) {
+> +	u64 signature =3D readq(addr + OCTEP_VF_MBOX_DATA(0));
+> +
+> +	if (signature =3D=3D OCTEP_DEV_READY_SIGNATURE) {
+> +		writeq(0, addr + OCTEP_VF_MBOX_DATA(0));
+> +		return true;
+> +	}
+> +
+> +	return false;
+> +}
+> +
+> +static struct virtio_device_id id_table[] =3D {
+> +	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+> +	{ 0 },
+> +};
+> +
+> +static void octep_vdpa_setup_task(struct work_struct *work) {
+> +	struct octep_vdpa_mgmt_dev *mgmt_dev =3D container_of(work,
+> struct octep_vdpa_mgmt_dev,
+> +							    setup_task);
+> +	struct pci_dev *pdev =3D mgmt_dev->pdev;
+> +	struct device *dev =3D &pdev->dev;
+> +	struct octep_hw *oct_hw;
+> +	unsigned long timeout;
+> +	int ret;
+> +
+> +	oct_hw =3D &mgmt_dev->oct_hw;
+> +
+> +	atomic_set(&mgmt_dev->status,
+> +OCTEP_VDPA_DEV_STATUS_WAIT_FOR_BAR_INIT);
+> +
+> +	/* Wait for a maximum of 5 sec */
+> +	timeout =3D jiffies + msecs_to_jiffies(5000);
+> +	while (!time_after(jiffies, timeout)) {
+> +		if (get_device_ready_status(oct_hw-
+> >base[OCTEP_HW_MBOX_BAR])) {
+> +			atomic_set(&mgmt_dev->status,
+> OCTEP_VDPA_DEV_STATUS_INIT);
+> +			break;
+> +		}
+> +
+> +		if (atomic_read(&mgmt_dev->status) >=3D
+> OCTEP_VDPA_DEV_STATUS_READY) {
+> +			dev_info(dev, "Stopping vDPA setup task.\n");
+> +			return;
+> +		}
+> +
+> +		usleep_range(1000, 1500);
+> +	}
+> +
+> +	if (atomic_read(&mgmt_dev->status) !=3D
+> OCTEP_VDPA_DEV_STATUS_INIT) {
+> +		dev_err(dev, "BAR initialization is timed out\n");
+> +		return;
+> +	}
+> +
+> +	ret =3D octep_iomap_region(pdev, oct_hw->base,
+> OCTEP_HW_CAPS_BAR);
+> +	if (ret)
+> +		return;
+> +
+> +	ret =3D octep_hw_caps_read(oct_hw, pdev);
+> +	if (ret < 0)
+> +		goto unmap_region;
+> +
+> +	mgmt_dev->mdev.ops =3D &octep_vdpa_mgmt_dev_ops;
+> +	mgmt_dev->mdev.id_table =3D id_table;
+> +	mgmt_dev->mdev.max_supported_vqs =3D oct_hw->nr_vring;
+> +	mgmt_dev->mdev.supported_features =3D oct_hw->features;
+> +	mgmt_dev->mdev.config_attr_mask =3D (1 <<
+> VDPA_ATTR_DEV_FEATURES);
+> +	mgmt_dev->mdev.device =3D dev;
+> +
+> +	ret =3D vdpa_mgmtdev_register(&mgmt_dev->mdev);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to register vdpa management
+> interface\n");
+> +		goto unmap_region;
+> +	}
+> +
+> +	atomic_set(&mgmt_dev->status,
+> OCTEP_VDPA_DEV_STATUS_READY);
+> +
+> +	return;
+> +
+> +unmap_region:
+> +	octep_iounmap_region(pdev, oct_hw->base, OCTEP_HW_CAPS_BAR);
+> +	oct_hw->base[OCTEP_HW_CAPS_BAR] =3D NULL; }
+> +
+> +static int octep_vdpa_probe_vf(struct pci_dev *pdev) {
+> +	struct octep_vdpa_mgmt_dev *mgmt_dev;
+> +	struct device *dev =3D &pdev->dev;
+> +	int ret;
+> +
+> +	ret =3D pcim_enable_device(pdev);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to enable device\n");
+> +		return ret;
+> +	}
+> +
+> +	ret =3D dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64));
+> +	if (ret) {
+> +		dev_err(dev, "No usable DMA configuration\n");
+> +		return ret;
+> +	}
+> +	pci_set_master(pdev);
+> +
+> +	mgmt_dev =3D devm_kzalloc(dev, sizeof(struct octep_vdpa_mgmt_dev),
+> GFP_KERNEL);
+> +	if (!mgmt_dev)
+> +		return -ENOMEM;
+> +
+> +	ret =3D octep_iomap_region(pdev, mgmt_dev->oct_hw.base,
+> OCTEP_HW_MBOX_BAR);
+> +	if (ret)
+> +		return ret;
+> +
+> +	mgmt_dev->pdev =3D pdev;
+> +	pci_set_drvdata(pdev, mgmt_dev);
+> +
+> +	atomic_set(&mgmt_dev->status, OCTEP_VDPA_DEV_STATUS_ALLOC);
+> +	INIT_WORK(&mgmt_dev->setup_task, octep_vdpa_setup_task);
+> +	schedule_work(&mgmt_dev->setup_task);
+> +	dev_info(&pdev->dev, "octep vdpa mgmt device setup task is
+> queued\n");
+> +
+> +	return 0;
+> +}
+> +
+> +static void octep_vdpa_assign_barspace(struct pci_dev *vf_dev, struct
+> +pci_dev *pf_dev, u8 idx) {
+> +	struct resource *vf_res =3D vf_dev->resource + PCI_STD_RESOURCES + 4;
+> +	struct resource *pf_res =3D pf_dev->resource + PCI_STD_RESOURCES +
+> 4;
+> +	struct octep_pf *pf =3D pci_get_drvdata(pf_dev);
+> +	struct pci_bus_region bus_region;
+> +
+> +	vf_res->name =3D pci_name(vf_dev);
+> +	vf_res->flags =3D pf_res->flags;
+> +	vf_res->parent =3D (pf_dev->resource + PCI_STD_RESOURCES)->parent;
+> +
+> +	bus_region.start =3D pf->vf_base + idx * pf->vf_stride;
+> +	bus_region.end =3D bus_region.start + pf->vf_stride - 1;
+> +	pcibios_bus_to_resource(vf_dev->bus, vf_res, &bus_region); }
+> +
+> +static int octep_sriov_enable(struct pci_dev *pdev, int num_vfs) {
+> +	struct octep_pf *pf =3D pci_get_drvdata(pdev);
+> +	u8 __iomem *addr =3D pf->base[OCTEP_HW_MBOX_BAR];
+> +	struct pci_dev *vf_pdev =3D NULL;
+> +	bool done =3D false;
+> +	int index =3D 0;
+> +	int ret, i;
+> +
+> +	ret =3D pci_enable_sriov(pdev, num_vfs);
+> +	if (ret)
+> +		return ret;
+> +
+> +	pf->enabled_vfs =3D num_vfs;
+> +
+> +	while ((vf_pdev =3D pci_get_device(PCI_VENDOR_ID_CAVIUM,
+> PCI_ANY_ID, vf_pdev))) {
+> +		if (vf_pdev->device !=3D pf->vf_devid)
+> +			continue;
+> +
+> +		octep_vdpa_assign_barspace(vf_pdev, pdev, index);
+> +		if (++index =3D=3D num_vfs) {
+> +			done =3D true;
+> +			break;
+> +		}
+> +	}
+> +
+> +	if (done) {
+> +		for (i =3D 0; i < pf->enabled_vfs; i++)
+> +			writeq(OCTEP_DEV_READY_SIGNATURE, addr +
+> OCTEP_PF_MBOX_DATA(i));
+> +	}
+> +
+> +	return num_vfs;
+> +}
+> +
+> +static int octep_sriov_disable(struct pci_dev *pdev) {
+> +	struct octep_pf *pf =3D pci_get_drvdata(pdev);
+> +
+> +	if (!pci_num_vf(pdev))
+> +		return 0;
+> +
+> +	pci_disable_sriov(pdev);
+> +	pf->enabled_vfs =3D 0;
+> +
+> +	return 0;
+> +}
+> +
+> +static int octep_vdpa_sriov_configure(struct pci_dev *pdev, int
+> +num_vfs) {
+> +	if (num_vfs > 0)
+> +		return octep_sriov_enable(pdev, num_vfs);
+> +	else
+> +		return octep_sriov_disable(pdev);
+> +}
+> +
+> +static u16 octep_get_vf_devid(struct pci_dev *pdev) {
+> +	u16 did;
+> +
+> +	switch (pdev->device) {
+> +	case OCTEP_VDPA_DEVID_CN106K_PF:
+> +		did =3D OCTEP_VDPA_DEVID_CN106K_VF;
+> +		break;
+> +	case OCTEP_VDPA_DEVID_CN105K_PF:
+> +		did =3D OCTEP_VDPA_DEVID_CN105K_VF;
+> +		break;
+> +	case OCTEP_VDPA_DEVID_CN103K_PF:
+> +		did =3D OCTEP_VDPA_DEVID_CN103K_VF;
+> +		break;
+> +	default:
+> +		did =3D 0xFFFF;
+> +		break;
+> +	}
+> +
+> +	return did;
+> +}
+> +
+> +static int octep_vdpa_pf_setup(struct octep_pf *octpf) {
+> +	u8 __iomem *addr =3D octpf->base[OCTEP_HW_MBOX_BAR];
+> +	struct pci_dev *pdev =3D octpf->pdev;
+> +	int totalvfs;
+> +	size_t len;
+> +	u64 val;
+> +
+> +	totalvfs =3D pci_sriov_get_totalvfs(pdev);
+> +	if (unlikely(!totalvfs)) {
+> +		dev_info(&pdev->dev, "Total VFs are %d in PF sriov
+> configuration\n", totalvfs);
+> +		return 0;
+> +	}
+> +
+> +	addr =3D octpf->base[OCTEP_HW_MBOX_BAR];
+> +	val =3D readq(addr + OCTEP_EPF_RINFO(0));
+> +	if (val =3D=3D 0) {
+> +		dev_err(&pdev->dev, "Invalid device configuration\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (OCTEP_EPF_RINFO_RPVF(val) !=3D BIT_ULL(0)) {
+> +		val &=3D ~GENMASK_ULL(35, 32);
+> +		val |=3D BIT_ULL(32);
+> +		writeq(val, addr + OCTEP_EPF_RINFO(0));
+> +	}
+> +
+> +	len =3D pci_resource_len(pdev, OCTEP_HW_CAPS_BAR);
+> +
+> +	octpf->vf_stride =3D len / totalvfs;
+> +	octpf->vf_devid =3D octep_get_vf_devid(pdev);
+> +
+> +	octep_vdpa_pf_bar_shrink(octpf);
+> +
+> +	return 0;
+> +}
+> +
+> +static int octep_vdpa_probe_pf(struct pci_dev *pdev) {
+> +	struct device *dev =3D &pdev->dev;
+> +	struct octep_pf *octpf;
+> +	int ret;
+> +
+> +	ret =3D pcim_enable_device(pdev);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to enable device\n");
+> +		return ret;
+> +	}
+> +
+> +	ret =3D dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64));
+> +	if (ret) {
+> +		dev_err(dev, "No usable DMA configuration\n");
+> +		return ret;
+> +	}
+> +	octpf =3D devm_kzalloc(dev, sizeof(*octpf), GFP_KERNEL);
+> +	if (!octpf)
+> +		return -ENOMEM;
+> +
+> +	ret =3D octep_iomap_region(pdev, octpf->base,
+> OCTEP_HW_MBOX_BAR);
+> +	if (ret)
+> +		return ret;
+> +
+> +	pci_set_master(pdev);
+> +	pci_set_drvdata(pdev, octpf);
+> +	octpf->pdev =3D pdev;
+> +
+> +	ret =3D octep_vdpa_pf_setup(octpf);
+> +	if (ret)
+> +		goto unmap_region;
+> +
+> +	return 0;
+> +
+> +unmap_region:
+> +	octep_iounmap_region(pdev, octpf->base, OCTEP_HW_MBOX_BAR);
+> +	return ret;
+> +}
+> +
+> +static int octep_vdpa_probe(struct pci_dev *pdev, const struct
+> +pci_device_id *id) {
+> +	if (pdev->is_virtfn)
+> +		return octep_vdpa_probe_vf(pdev);
+> +	else
+> +		return octep_vdpa_probe_pf(pdev);
+> +}
+> +
+> +static struct pci_device_id octep_pci_vdpa_map[] =3D {
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM,
+> OCTEP_VDPA_DEVID_CN106K_PF) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM,
+> OCTEP_VDPA_DEVID_CN106K_VF) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM,
+> OCTEP_VDPA_DEVID_CN105K_PF) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM,
+> OCTEP_VDPA_DEVID_CN105K_VF) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM,
+> OCTEP_VDPA_DEVID_CN103K_PF) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM,
+> OCTEP_VDPA_DEVID_CN103K_VF) },
+> +	{ 0 },
+> +};
+> +
+> +static struct pci_driver octep_pci_vdpa =3D {
+> +	.name     =3D OCTEP_VDPA_DRIVER_NAME,
+> +	.id_table =3D octep_pci_vdpa_map,
+> +	.probe    =3D octep_vdpa_probe,
+> +	.remove   =3D octep_vdpa_remove,
+> +	.sriov_configure =3D octep_vdpa_sriov_configure };
+> +
+> +module_pci_driver(octep_pci_vdpa);
+> +
+> +MODULE_AUTHOR("Marvell");
+> +MODULE_DESCRIPTION("Marvell Octeon PCIe endpoint vDPA driver");
+> +MODULE_LICENSE("GPL");
+> --
+> 2.25.1
 
