@@ -1,268 +1,207 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 328A81465AC
-	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 07:11:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39CD4146D71
+	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 07:14:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719299507; cv=none; b=mPI1inuQuWoUTovKC6ejxImgj04OD6H9Ck7d7GVizvRgjmvpzkk4XtAkIabFzLIpn6zOZYS3BtJu2AOnf7AlMpGvOGLJEn01wGwCZzAcgPGUK7CfAdFf0KWPdr1QBwTKH1YtYIdkCe4/Qv2iNlOl9eb6WanzBL6Jii/kz+Y1aFE=
+	t=1719299687; cv=none; b=jaH8VuUQjhPYjEGew0wZQO555Km6iynnwhSqJromgyNooq2+8atK0G43DdDX8qoCnacsXKMcgBbfq1Dn/trfqxPCvzR/b7iOrHwEFe9N1TbYkwW7GK5ViGsYRrpgZX4gcI3MLstohCj39GFFFXjAFNjVuXm3JcvoGkqrJNK+1C8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719299507; c=relaxed/simple;
-	bh=TLrvzNSGRIjfjk0ds0hDGYrbMsuv7YV9Cx8PsRvbsvo=;
+	s=arc-20240116; t=1719299687; c=relaxed/simple;
+	bh=MWlI6gqiKW7AFxrW0jW8foQWqr6Sk9txhhHrr4oyi4I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qW3mnvNNfPdlm4r4Gwd6ZIUmHOe/5H88YC3X+FmBWDPJYvbEhYPNoOUO4CjGWXjEElhVZZhZ56RfvCjCrX0YQAA1YbYunFa+26ARcGg7piwXaVYqtnM57tEnetK4ykIiJBCOSWRaeNivP9nBJjw/aqBf0ChQ/t4VloFWw+rH3J0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cu0kRO88; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=fYlqV3XSt4qBaRWR4zlJjrCaogPVC9x6ivxWGxsF7yD/iU6LaJi1rpnXYUv2S0tvod7xczYVoHA/8J1kLazTuNwkXVTq69MdhryVNJCBfRqAIn9oh38X+RNYwc6lu0ZCq0M12EgbWnfXNHahBKEWlFLu7mEa8ClT0tAAGKfojkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Fk/JV14k; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cu0kRO88"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fk/JV14k"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719299505;
+	s=mimecast20190719; t=1719299685;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UnIdsJMqMkoDF6UPKRzG7Hc37h3V7D0wsMm0QIPwULU=;
-	b=cu0kRO88qGdTGpUmG1ej+Dg6szGc5fjyvLf0S6U9tqVloSAdS7FADlzaychLTE02llzvni
-	G38a4WcRtGqnvhq0rpxeT5p0m97SYHIJtlTSEwo6+eCjMl4YzVgzhY8rC9quk5PJXd1fir
-	XIKCFp2T+DLSSahcKTvu2r2qQKfxK7g=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=LebRXIKKc2SwfP9sV4lCluk07RoQVB0AjJsteCADcZk=;
+	b=Fk/JV14kReAaZOGRmOrvxMdyssbm7FLISruB0P6va5/NCz8moClJJYsQO2jEUq0F8vJn4m
+	j/+cJLD/0Zq6J66JwnvUlM31mUbO+7YObCmTbKM+3WM14bl3DVNOq+Xq/Q1EDvHL8V5lIY
+	MHrvkO/95D6cCdDtI7Blf42KiDpOIEw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-422-6UeFJdhVO9Ghj7u-bggv_Q-1; Tue, 25 Jun 2024 03:11:41 -0400
-X-MC-Unique: 6UeFJdhVO9Ghj7u-bggv_Q-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-422a0f21366so3416965e9.1
-        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 00:11:41 -0700 (PDT)
+ us-mta-266-V_HlZ7VgNHa7bs8fGMmOiA-1; Tue, 25 Jun 2024 03:14:40 -0400
+X-MC-Unique: V_HlZ7VgNHa7bs8fGMmOiA-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-365dca90118so1967921f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 00:14:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719299500; x=1719904300;
+        d=1e100.net; s=20230601; t=1719299679; x=1719904479;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UnIdsJMqMkoDF6UPKRzG7Hc37h3V7D0wsMm0QIPwULU=;
-        b=g0tQBctIjMZcLze50jktX3JjAql4IXyzZCFixSW6uJfUOtvgQAtVMQfW0vwvsR5I+y
-         msUyTqdJ8oqxAZfxGWInbPPfolVoecJ/spZFmqX+H5PzVlJLlglvsoFfe1M9H/dQWUE7
-         fO49zaxkJ7Lz4GcWUTudGJrMcccreEdfrzjsx0JyxxdMmRle4amxnWPSy6g37nZ6BNgR
-         ORpfCKvGI8qk8INXVTjaDhaELqVGXD83//WlX+l+Qt8Lj/tavlQsMu7PaJgYzQZYLkXa
-         QRzCt3nBMY6Y0ldSESBw+CCORwWaAvLNg1HPRmi9rCsQf7sp8nXM9WkaBUfrPzzum9Ku
-         ZJcw==
-X-Forwarded-Encrypted: i=1; AJvYcCV15Ao/dheZizLAI7/z4SRlY3Il62X1SIKGpBlO9/KFg5uHPbJcILz8Ti2xnvGz3CfwSXoGD7LGdrc5tgBbjfaYxNCgbx+KGL+amp/HuHU=
-X-Gm-Message-State: AOJu0YzPD5KVLY0KC8m+IP0ukUZLFMMCJLXreAze3U+55JNnJzTjkchp
-	Y5q1c/84xMxpnr9AUQeszaNShSo+5bWBF7GlkQqLmIy5oq/JQZ2e/9ub+0vTIXMkNq4A6GK9uvv
-	qJjlJQKy3veB9DZ1Yha+Bwh51hwBxg6o/qP14RemRWRjsR9kCq/fns/E5GxIAIgpS
-X-Received: by 2002:a05:600c:4fcb:b0:421:c211:a57e with SMTP id 5b1f17b1804b1-4248cc6673emr41636745e9.35.1719299500129;
-        Tue, 25 Jun 2024 00:11:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGLLu5OdsdrE20B7Tz2kH8m837OaXN5E0lckyzm0dvKRWIthJJP3coYroXleaJKHDI2+Pm53w==
-X-Received: by 2002:a05:600c:4fcb:b0:421:c211:a57e with SMTP id 5b1f17b1804b1-4248cc6673emr41636375e9.35.1719299499386;
-        Tue, 25 Jun 2024 00:11:39 -0700 (PDT)
+        bh=LebRXIKKc2SwfP9sV4lCluk07RoQVB0AjJsteCADcZk=;
+        b=Wu6q1Ds87GqdDhVnJ12v4TfyqTWMJEVlY3xwuEbbZ2CeQ2mMfLEe8TXfzx2jvztwqN
+         4tcuD5zOa+3NgYkYLEtkanokhCbdnhRHtTQl0K8w7oFBkAut0oTDmrl8SEBfbJ5rKxZR
+         x9z0cJEIGv8OoAgt9l7b///9p6E81emv/jKJKy8USA95kHbPU8i513e78QV9VQZcKzVW
+         aAKp9g24y2aw542algeDGLk0psk0qn050NTFhB98V12DqlPF1+PaeVkDE5iUwh6RqFNg
+         Eh0hcfpNYp/1sYC7xhJsph942D5iNhcmnIk7QmHGIrbt9HJlIV5sg/DPP6k/RhbFaaKd
+         Y7FQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXffHVQgU2P+bhsOud9QqyBdA2M1rIbkjRAGjO0clvMFx/zG6YyMKi94jn8Oxek7pEy/U4xAGAA/JJgTmYm/V+8UYJ4z5QR2QJysI6rJNM=
+X-Gm-Message-State: AOJu0YwILLehdWJnxJ3pawc59MwhI9myGuELhVqw9YMobBXOQ/717xsx
+	TZcqZ24RLfPflZvdlIV4S+GeiUGFxliHuTSOI1L+n+aUF3yBSx0lJN1R2Tp3fAK1xWVzQv4t3QS
+	EX5p277+CDp0qoK/FT9CRTuqHyHLmqXQclIIaEoHukl2DADeBLsVTNaUJRmbMNWrr
+X-Received: by 2002:adf:fa8e:0:b0:362:8749:9639 with SMTP id ffacd0b85a97d-366e7a373f4mr4713215f8f.35.1719299679069;
+        Tue, 25 Jun 2024 00:14:39 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF+RQabaVT0BHWxAQBLc5MihkozylBrOdUtM3UiHMV0ATZoGWoxlVaHU25AglTEOaxNsvlKQw==
+X-Received: by 2002:adf:fa8e:0:b0:362:8749:9639 with SMTP id ffacd0b85a97d-366e7a373f4mr4713186f8f.35.1719299678279;
+        Tue, 25 Jun 2024 00:14:38 -0700 (PDT)
 Received: from redhat.com ([2a02:14f:1f6:f72:b8c7:9fc2:4c8b:feb3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-366389b8ad2sm11987747f8f.33.2024.06.25.00.11.37
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-366389b861bsm11976184f8f.29.2024.06.25.00.14.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jun 2024 00:11:38 -0700 (PDT)
-Date: Tue, 25 Jun 2024 03:11:35 -0400
+        Tue, 25 Jun 2024 00:14:37 -0700 (PDT)
+Date: Tue, 25 Jun 2024 03:14:32 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, venkat.x.venkatsubra@oracle.com,
-	gia-khanh.nguyen@oracle.com
-Subject: Re: [PATCH V2 1/3] virtio: allow nested disabling of the configure
- interrupt
-Message-ID: <20240625030259-mutt-send-email-mst@kernel.org>
-References: <20240624024523.34272-1-jasowang@redhat.com>
- <20240624024523.34272-2-jasowang@redhat.com>
- <20240624054403-mutt-send-email-mst@kernel.org>
- <CACGkMEv1U7N-RRgQ=jbhBK1SWJ3EJz84qYaxC2kk6keM6J6MaQ@mail.gmail.com>
+Cc: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
+Message-ID: <20240625031153-mutt-send-email-mst@kernel.org>
+References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
+ <20240619161908.82348-3-hengqi@linux.alibaba.com>
+ <20240619171708-mutt-send-email-mst@kernel.org>
+ <1718868555.2701075-5-hengqi@linux.alibaba.com>
+ <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
+ <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
+ <1718877195.0503237-9-hengqi@linux.alibaba.com>
+ <20240620060816-mutt-send-email-mst@kernel.org>
+ <20240620061109-mutt-send-email-mst@kernel.org>
+ <CACGkMEtacpgHvD7GLysXWm7_CybhgyJYx=AMAX+jk6+G4wqW8Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEv1U7N-RRgQ=jbhBK1SWJ3EJz84qYaxC2kk6keM6J6MaQ@mail.gmail.com>
+In-Reply-To: <CACGkMEtacpgHvD7GLysXWm7_CybhgyJYx=AMAX+jk6+G4wqW8Q@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 25, 2024 at 09:27:04AM +0800, Jason Wang wrote:
-> On Mon, Jun 24, 2024 at 5:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Tue, Jun 25, 2024 at 09:27:24AM +0800, Jason Wang wrote:
+> On Thu, Jun 20, 2024 at 6:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > On Mon, Jun 24, 2024 at 10:45:21AM +0800, Jason Wang wrote:
-> > > Somtime driver may want to enable or disable the config callback. This
-> > > requires a synchronization with the core. So this patch change the
-> > > config_enabled to be a integer counter. This allows the toggling of
-> > > the config_enable to be synchronized between the virtio core and the
-> > > virtio driver.
+> > On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
+> > > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
+> > > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > > > On Thu, Jun 20, 2024 at 4:21 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > >
+> > > > > > On Thu, Jun 20, 2024 at 3:35 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+> > > > > > >
+> > > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
+> > > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> > > > > > > > >
+> > > > > > > > >     /* Parameters for control virtqueue, if any */
+> > > > > > > > >     if (vi->has_cvq) {
+> > > > > > > > > -           callbacks[total_vqs - 1] = NULL;
+> > > > > > > > > +           callbacks[total_vqs - 1] = virtnet_cvq_done;
+> > > > > > > > >             names[total_vqs - 1] = "control";
+> > > > > > > > >     }
+> > > > > > > > >
+> > > > > > > >
+> > > > > > > > If the # of MSIX vectors is exactly for data path VQs,
+> > > > > > > > this will cause irq sharing between VQs which will degrade
+> > > > > > > > performance significantly.
+> > > > > > > >
+> > > > > >
+> > > > > > Why do we need to care about buggy management? I think libvirt has
+> > > > > > been teached to use 2N+2 since the introduction of the multiqueue[1].
+> > > > >
+> > > > > And Qemu can calculate it correctly automatically since:
+> > > > >
+> > > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
+> > > > > Author: Jason Wang <jasowang@redhat.com>
+> > > > > Date:   Mon Mar 8 12:49:19 2021 +0800
+> > > > >
+> > > > >     virtio-net: calculating proper msix vectors on init
+> > > > >
+> > > > >     Currently, the default msix vectors for virtio-net-pci is 3 which is
+> > > > >     obvious not suitable for multiqueue guest, so we depends on the user
+> > > > >     or management tools to pass a correct vectors parameter. In fact, we
+> > > > >     can simplifying this by calculating the number of vectors on realize.
+> > > > >
+> > > > >     Consider we have N queues, the number of vectors needed is 2*N + 2
+> > > > >     (#queue pairs + plus one config interrupt and control vq). We didn't
+> > > > >     check whether or not host support control vq because it was added
+> > > > >     unconditionally by qemu to avoid breaking legacy guests such as Minix.
+> > > > >
+> > > > >     Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com
+> > > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > >
+> > > > Yes, devices designed according to the spec need to reserve an interrupt
+> > > > vector for ctrlq. So, Michael, do we want to be compatible with buggy devices?
+> > > >
+> > > > Thanks.
 > > >
-> > > The counter is not allowed to be increased greater than one, this
-> > > simplifies the logic where the interrupt could be disabled immediately
-> > > without extra synchronization between driver and core.
-> > >
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > ---
-> > >  drivers/virtio/virtio.c | 20 +++++++++++++-------
-> > >  include/linux/virtio.h  |  2 +-
-> > >  2 files changed, 14 insertions(+), 8 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > index b968b2aa5f4d..d3aa74b8ae5d 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -127,7 +127,7 @@ static void __virtio_config_changed(struct virtio_device *dev)
-> > >  {
-> > >       struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-> > >
-> > > -     if (!dev->config_enabled)
-> > > +     if (dev->config_enabled < 1)
-> > >               dev->config_change_pending = true;
-> > >       else if (drv && drv->config_changed)
-> > >               drv->config_changed(dev);
-> > > @@ -146,17 +146,23 @@ EXPORT_SYMBOL_GPL(virtio_config_changed);
-> > >  static void virtio_config_disable(struct virtio_device *dev)
-> > >  {
-> > >       spin_lock_irq(&dev->config_lock);
-> > > -     dev->config_enabled = false;
-> > > +     --dev->config_enabled;
-> > >       spin_unlock_irq(&dev->config_lock);
-> > >  }
-> > >
-> > >  static void virtio_config_enable(struct virtio_device *dev)
-> > >  {
-> > >       spin_lock_irq(&dev->config_lock);
-> > > -     dev->config_enabled = true;
-> > > -     if (dev->config_change_pending)
-> > > -             __virtio_config_changed(dev);
-> > > -     dev->config_change_pending = false;
-> > > +
-> > > +     if (dev->config_enabled < 1) {
-> > > +             ++dev->config_enabled;
-> > > +             if (dev->config_enabled == 1 &&
-> > > +                 dev->config_change_pending) {
-> > > +                     __virtio_config_changed(dev);
-> > > +                     dev->config_change_pending = false;
-> > > +             }
-> > > +     }
-> > > +
-> > >       spin_unlock_irq(&dev->config_lock);
-> > >  }
-> > >
-> >
-> > So every disable decrements the counter. Enable only increments it up to 1.
-> > You seem to be making some very specific assumptions
-> > about how this API will be used. Any misuse will lead to under/overflow
-> > eventually ...
-> >
+> > > These aren't buggy, the spec allows this.
 > 
-> Well, a counter gives us more information than a boolean. With
-> boolean, misuse is even harder to be noticed.
+> So it doesn't differ from the case when we are lacking sufficient msix
+> vectors in the case of multiqueue. In that case we just fallback to
+> share one msix for all queues and another for config and we don't
+> bother at that time.
 
-With boolean we can prevent misuse easily because previous state
-is known exactly. E.g.:
+sharing queues is exactly "bothering".
 
-static void virtio_config_driver_disable(struct virtio_device *dev)
-{
-	BUG_ON(dev->config_driver_disabled);
-	dev->config_driver_disabled = true;
-}
-
-
-
-static void virtio_config_driver_enable(struct virtio_device *dev)
-{
-	BUG_ON(!dev->config_driver_disabled);
-	dev->config_driver_disabled = false;
-}
-
-
-Does not work with integer you simply have no idea what the value
-should be at point of call.
-
-
-> >
-> >
-> > My suggestion would be to
-> > 1. rename config_enabled to config_core_enabled
-> > 2. rename virtio_config_enable/disable to virtio_config_core_enable/disable
-> > 3. add bool config_driver_disabled and make virtio_config_enable/disable
-> >    switch that.
-> > 4. Change logic from dev->config_enabled to
-> >    dev->config_core_enabled && !dev->config_driver_disabled
-> 
-> If we make config_driver_disabled by default true,
-
-No, we make it false by default.
-
-> we need someone to
-> enable it explicitly. If it's core, it breaks the semantic that it is
-> under the control of the driver (or needs to synchronize with the
-> driver). If it's a driver, each driver needs to enable it at some time
-> which can be easily forgotten. And if we end up with workarounds like:
-> 
->         /* If probe didn't do it, mark device DRIVER_OK ourselves. */
->         if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
->                 virtio_device_ready(dev);
-> 
-> It's another break of the semantics. And actually the above is also racy.
-> 
-> It seems the only choice is to make config_driver_disabled by default
-> false. But the driver needs to be aware of this and take extra care
-> when calling virtio_device_ready() which is also tricky.
-
-
-No, false by default simply means no change to semantics.
-
-
-> 
-> So in conclusion, two booleans seems sut-optimal than a counter. For
-> example we can use different bits for the counter as preempt_count
-> did. With counter(s), core and driver don't need any implicit/explicit
-> synchronization.
+> Any reason to bother now?
 > 
 > Thanks
-> 
 
-We have a simple problem, we can solve it simply. reference counting
-is tricky to get right and hard to debug, if we don't need it let us
-not go there.
-
+This patch can make datapath slower for such configs by switching to
+sharing msix for a control path benefit. Not a tradeoff many users want
+to make.
 
 
-But in conclusion ;) if you don't like my suggestion do something else
-but make the APIs make sense, at least do better than +5
-on Rusty's interface design scale.
-
-> 
-> 
-> 
+> > >  So don't fail, but
+> > > I'm fine with using polling if not enough vectors.
 > >
+> > sharing with config interrupt is easier code-wise though, FWIW -
+> > we don't need to maintain two code-paths.
 > >
-> >
-> >
-> > > @@ -455,7 +461,7 @@ int register_virtio_device(struct virtio_device *dev)
-> > >               goto out_ida_remove;
-> > >
-> > >       spin_lock_init(&dev->config_lock);
-> > > -     dev->config_enabled = false;
-> > > +     dev->config_enabled = 0;
-> > >       dev->config_change_pending = false;
-> > >
-> > >       INIT_LIST_HEAD(&dev->vqs);
-> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > index 96fea920873b..4496f9ba5d82 100644
-> > > --- a/include/linux/virtio.h
-> > > +++ b/include/linux/virtio.h
-> > > @@ -132,7 +132,7 @@ struct virtio_admin_cmd {
-> > >  struct virtio_device {
-> > >       int index;
-> > >       bool failed;
-> > > -     bool config_enabled;
-> > > +     int config_enabled;
-> > >       bool config_change_pending;
-> > >       spinlock_t config_lock;
-> > >       spinlock_t vqs_list_lock;
-> > > --
-> > > 2.31.1
+> > > > >
+> > > > > Thanks
+> > > > >
+> > > > > >
+> > > > > > > > So no, you can not just do it unconditionally.
+> > > > > > > >
+> > > > > > > > The correct fix probably requires virtio core/API extensions.
+> > > > > > >
+> > > > > > > If the introduction of cvq irq causes interrupts to become shared, then
+> > > > > > > ctrlq need to fall back to polling mode and keep the status quo.
+> > > > > >
+> > > > > > Having to path sounds a burden.
+> > > > > >
+> > > > > > >
+> > > > > > > Thanks.
+> > > > > > >
+> > > > > >
+> > > > > >
+> > > > > > Thanks
+> > > > > >
+> > > > > > [1] https://www.linux-kvm.org/page/Multiqueue
+> > > > > >
+> > > > > > > >
+> > > > > > > > --
+> > > > > > > > MST
+> > > > > > > >
+> > > > > > >
+> > > > >
 > >
 
