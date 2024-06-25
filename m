@@ -1,180 +1,244 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B5715ECD4
-	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 13:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC5C116A39E
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Jun 2024 13:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719322937; cv=none; b=o3dmkBJeQQALuJuQ1FUpjjE+YlM7ojziaS/KsPO6XvXrn9o+yU54/ya9HwFD6yQHSCZh1aSYvZwU4yPN9qMqrQF2qpvYGdqAcH091XGYu+XZLUtZxJ+ON21qKGK+uCtpvIpzJ3g9UybPilVWPrGmhg9F7g2j6r/c0AcY6r8wAZY=
+	t=1719323188; cv=none; b=skgxpgTI6TMZfVnw4QhQc1I+jB2LRJmel9KKZhB3EkPGQ9cu9i38qsBGjHG89woXkkyfQYxuMs2Q0ZGD2ufw0k7NjxONx1q2FvPinpKajmkq6uazdNFLh975KTyjn7WufOEeDJWHsaVkWeXgUMjKyh5dPBxe53wfhvVT8izkaOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719322937; c=relaxed/simple;
-	bh=kCWUIGs9OZe3ZSPUsdL0AZKlZk6a6lOvSF+HkD/n7YU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EyVieqZFzj9kyb/FemPTw6dyPDnSSitcPcBu0rEpHXTMhfU1O1Gn/iwTaLLhBKydE/HBczxIs4xqJwlku/OUXgH1MmUeKiyBjPkK9yjo03G3GoiyCGomN+bVI6xS7WucEs0sDhX/n+OSW10yVF1hD5en1NvDkO482VdJkZGVkcI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=ePanDZeV; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1719323188; c=relaxed/simple;
+	bh=vfo9iXqy/970YzrxmklBYDaq0RPH6PhseDRgP91Fz+8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=VKTxoJHuR9GCkm/rGX6G2fJQ6V75nqZ6VVjFqHpDyzjQGuPzj+BMmJxzfE1uG4acDbrnNn1gYKnNI9E7KdR4y0RlRab1Y2TEcRcx8O04qY4GPDV8a+olmoYaOmUAgQ+RyVdgyWiek4oSmQ6AzZf/ohPnhT8S69l6xTf4WjFr70s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dvgmyJqG; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="ePanDZeV"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-3620ee2cdf7so3481880f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 06:42:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1719322933; x=1719927733; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=rrBw1ViXI8PKGjD0P3Qbt3rk/F/dAyXw362A2nW4GkE=;
-        b=ePanDZeVA3vrhz8U8FacBCE1jsgWadItRdONJaIBzrua2nbyIb0l0aIuoQ4qwiKHTh
-         h3pTg74BLjj7b1HN/Wl7BClbyIgiF6YRdDwFrHNhTzBnYJ+xamDftttykRPkmW6oYdly
-         IzPyTXbzLPmQMFNQ82UAJuR5x4tRzvPitQBNaNU2J1m+3z29axUEiELfHAf+dxMwTUxT
-         5FCUhgj+oG177YRjRCSPlpsQGKOseQqe6Z8OJHvbfyrJOpk/TniwDESItPL/rrIlMysj
-         99XIVncHu4djqQoE7ZdH9QVEpVJQZCKP2YDabPQbWgkLf+/pV4INFtaKJ1hgNPw7tc2J
-         yr0A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dvgmyJqG"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 745846100D
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Jun 2024 13:46:25 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Kun0adkZjtIc for <virtualization@lists.linux-foundation.org>;
+ Tue, 25 Jun 2024 13:46:24 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 504B0607C0
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 504B0607C0
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dvgmyJqG
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 504B0607C0
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Jun 2024 13:46:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719323182;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gPjoHIe5MDYXs/lRS7+72fRb4oaPZZtDvA0u547prQU=;
+	b=dvgmyJqGx6gp8A3GK0RK4TDVYzr+fCz2FmP4fDF0f+bNiLvehkcGSzI4KnyZYJAZ26hkpz
+	5D+HEfIYgbAyDhGFHZ5YbcoUHIYHO+nyzXlx1mJ3NpER8pK82Wmt6FuQp73aAaArd4E9A2
+	zFBDyQMlgKqJYwKMu8KhJ7aK/w4+Sr0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-622-htNjuFwfPEi3f4stlnYXjQ-1; Tue, 25 Jun 2024 09:46:20 -0400
+X-MC-Unique: htNjuFwfPEi3f4stlnYXjQ-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42488bec55cso15196195e9.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 25 Jun 2024 06:46:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719322933; x=1719927733;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rrBw1ViXI8PKGjD0P3Qbt3rk/F/dAyXw362A2nW4GkE=;
-        b=PLynNVHkJZtbaGBwSxdzdCsBVqPauSi6u+mpl98HRc1XFm2Ds0YsxYUbbhBujl9ohl
-         gFhqMPFV8bes4ATfz7nl60rVRXG2pirlbPNmSKr6Y4f3DJfLXq+kB1b2OCZOuhgQPKod
-         3SNS/e0CuUrruLdfStNtKAnK8gZgOskhwHYbE6kY9CUwx32nUsWNwVs1fwlM1nZbz9tm
-         NxRCczDjRw0hlNtvbDXryETS6+ZFdDE9ZnDxVYBNFo9xe3z++FxKj2oO9DnuGaxg5cda
-         wlSERfrA86oWjsFd8QZfT4NZuZGIVmUGhPlbNX/5DchsThJXsmn2dzdHCZetOdamOfBX
-         ROYA==
-X-Forwarded-Encrypted: i=1; AJvYcCXjSMjvySi9Z3+nGIudKkjfZMLKhzz1ZYF3nTphjyXNpt4kxBns0L0aitgFteRfYTjS1lQQm4+RHIN8HyrL5+N4cYIgel6OxsIIRFnlIy0=
-X-Gm-Message-State: AOJu0Yxb5t+7NDmnGv6sHbKnmTIeQtXnjub0zLmKrMqxMTxpuctqDKGY
-	wq/A9raQAi15aonArMLFFbvJBgE0BttnHeirs+c7efaV+5dQ3lb+VC6ThYA4VnA=
-X-Google-Smtp-Source: AGHT+IGfxVH8cZhLOCvXgvPNcvNOE8ex439nMaaAuCPU2WaO9XCX6Uc4t/p/Ojo8lUWJHTo7ui6OzA==
-X-Received: by 2002:adf:f6d0:0:b0:35f:231e:ef87 with SMTP id ffacd0b85a97d-366e7a3634fmr6303452f8f.29.1719322933410;
-        Tue, 25 Jun 2024 06:42:13 -0700 (PDT)
-Received: from ?IPV6:2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a? ([2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3663ada0f8csm12930687f8f.115.2024.06.25.06.42.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Jun 2024 06:42:12 -0700 (PDT)
-Message-ID: <224793a4-da57-4621-ac29-7eac35c2da08@suse.com>
-Date: Tue, 25 Jun 2024 16:42:11 +0300
+        d=1e100.net; s=20230601; t=1719323179; x=1719927979;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gPjoHIe5MDYXs/lRS7+72fRb4oaPZZtDvA0u547prQU=;
+        b=IRb3esvdPwuiolwdqlQAYXlu+jFhDxmtpY63HwCKdlwUGxr6QJk6bePzn9+KAnj+MP
+         t4Rq0z/yussr1XtGF969hywAl1pqlC5i/aBJuXZMKE0AM/YeYIOtyxdTm78guy22zNy9
+         k4ywBibVCBf9KPg/X0slz5GEW2gjISO10C0CtAt5EhupIk+wVFeR88tUSRrWyp8ybNrL
+         McMbrxgx48yooPhI944wdbjq0974LKfG9YbAhcf74BSHZIiGSXy6eyMCLC+ruU1fbM6s
+         R12en05eFYjSzpKSzBiMd2EQYlfCSBGpF6jQQDWEnDqMX7tOL7eK43TXhAiO2Lqf58gW
+         65WQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVwwd/Ye233zHsDnFKwzsJs/a1ZjqHzHZNFE2ejdJQTFKX7aoHK2Y6rJ7Oi6L8jEI5ZP9iJvMNINCr2nE37kVGwrOZ2RLwy94TMzAiof4ZcoWfPngofmvM1Aw==
+X-Gm-Message-State: AOJu0YxTM8SihqKnCIdCZ0I+QfBIb9P2Pptmi8knJuU+wSudOqHJtPLE
+	2fzPjm0xm1WlwU908vxB7SRB+kQ11ppn4I1O8LMvUiSBlGU027B3fJ2WvAvJ42eCCWDod6eGfD9
+	rvEwJbssWhI5G4MPLAR/966OzSQhkCbydDtkS/heAXDKLpnOx/KKw94y1/iop9hKFUSbaYYmiF5
+	T78tQ=
+X-Received: by 2002:a05:600c:3553:b0:424:84fb:9fd2 with SMTP id 5b1f17b1804b1-42489541879mr76820325e9.19.1719323179620;
+        Tue, 25 Jun 2024 06:46:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEInYLknU3PDAumozrLMsLFwruhveRKJkmwMwzGi8w63OpSy5rfjaIFAi2mpghZFNrYBKRUUg==
+X-Received: by 2002:a05:600c:3553:b0:424:84fb:9fd2 with SMTP id 5b1f17b1804b1-42489541879mr76820055e9.19.1719323178904;
+        Tue, 25 Jun 2024 06:46:18 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.217.220])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4247d208dcesm211421255e9.31.2024.06.25.06.46.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Jun 2024 06:46:18 -0700 (PDT)
+Date: Tue, 25 Jun 2024 15:46:12 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
+	oxffffaa@gmail.com, Alexander Graf <graf@amazon.com>
+Subject: Re: [RFC PATCH v1 1/2] virtio/vsock: rework deferred credit update
+ logic
+Message-ID: <qkxvvvahksbz2n52s5eqk6s5yxsjjtyp4uehwy5gvrcq3sftvh@rred7jd2qsd4>
+References: <20240621192541.2082657-1-avkrasnov@salutedevices.com>
+ <20240621192541.2082657-2-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] x86/paravirt: Disable virt spinlock on bare metal
-To: Chen Yu <yu.c.chen@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Juergen Gross <jgross@suse.com>,
- Chen Yu <yu.chen.surf@gmail.com>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
- Prem Nath Dey <prem.nath.dey@intel.com>,
- Xiaoping Zhou <xiaoping.zhou@intel.com>
-References: <20240625125403.187110-1-yu.c.chen@intel.com>
-From: Nikolay Borisov <nik.borisov@suse.com>
-Content-Language: en-US
-In-Reply-To: <20240625125403.187110-1-yu.c.chen@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240621192541.2082657-2-avkrasnov@salutedevices.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
+On Fri, Jun 21, 2024 at 10:25:40PM GMT, Arseniy Krasnov wrote:
+>Previous calculation of 'free_space' was wrong (but worked as expected
+>in most cases, see below), because it didn't account number of bytes in
+>rx queue. Let's rework 'free_space' calculation in the following way:
+>as this value is considered free space at rx side from tx point of view,
+>it must be equal to return value of 'virtio_transport_get_credit()' at
+>tx side. This function uses 'tx_cnt' counter and 'peer_fwd_cnt': first
+>is number of transmitted bytes (without wrap), second is last 'fwd_cnt'
+>value received from rx. So let's use same approach at rx side during
+>'free_space' calculation: add 'rx_cnt' counter which is number of
+>received bytes (also without wrap) and subtract 'last_fwd_cnt' from it.
+>Now we have:
+>1) 'rx_cnt' == 'tx_cnt' at both sides.
+>2) 'last_fwd_cnt' == 'peer_fwd_cnt' - because first is last 'fwd_cnt'
+>   sent to tx, while second is last 'fwd_cnt' received from rx.
+>
+>Now 'free_space' is handled correctly and also we don't need
 
+mmm, I don't know if it was wrong before, maybe we could say it was less 
+accurate.
 
-On 25.06.24 г. 15:54 ч., Chen Yu wrote:
-> The kernel can change spinlock behavior when running as a guest. But
-> this guest-friendly behavior causes performance problems on bare metal.
-> So there's a 'virt_spin_lock_key' static key to switch between the two
-> modes.
-> 
-> The static key is always enabled by default (run in guest mode) and
-> should be disabled for bare metal (and in some guests that want native
-> behavior).
-> 
-> Performance drop is reported when running encode/decode workload and
-> BenchSEE cache sub-workload.
-> Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
-> native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
-> is disabled the virt_spin_lock_key is incorrectly set to true on bare
-> metal. The qspinlock degenerates to test-and-set spinlock, which
-> decrease the performance on bare metal.
-> 
-> Set the default value of virt_spin_lock_key to false. If booting in a VM,
-> enable this key. Later during the VM initialization, if other
-> high-efficient spinlock is preferred(paravirt-spinlock eg), the
-> virt_spin_lock_key is disabled accordingly. The relation is described as
-> below:
-> 
-> X86_FEATURE_HYPERVISOR         Y    Y    Y     N
-> CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
-> PV spinlock                    Y    N    N     Y/N
-> 
-> virt_spin_lock_key             N    N    Y     N
-> 
-> Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
-> Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-> Suggested-by: Nikolay Borisov <nik.borisov@suse.com>
-> Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
-> Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-> Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-> ---
-> v2._v3:
->    Change the default value of virt_spin_lock_key from true to false.
->    Enable this key when it is in the VM, and disable it when needed.
->    This makes the code more readable. (Nikolay Borisov)
->    Dropped Reviewed-by because the code has been changed.
-> v1->v2:
->    Refine the commit log per Dave's suggestion.
->    Simplify the fix by directly disabling the virt_spin_lock_key on bare metal.
->    Collect Reviewed-by from Juergen.
-> ---
->   arch/x86/include/asm/qspinlock.h | 4 ++--
->   arch/x86/kernel/paravirt.c       | 7 +++----
->   2 files changed, 5 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-> index a053c1293975..a32bd2aabdf9 100644
-> --- a/arch/x86/include/asm/qspinlock.h
-> +++ b/arch/x86/include/asm/qspinlock.h
-> @@ -66,13 +66,13 @@ static inline bool vcpu_is_preempted(long cpu)
->   
->   #ifdef CONFIG_PARAVIRT
->   /*
-> - * virt_spin_lock_key - enables (by default) the virt_spin_lock() hijack.
-> + * virt_spin_lock_key - disables (by default) the virt_spin_lock() hijack.
->    *
->    * Native (and PV wanting native due to vCPU pinning) should disable this key.
->    * It is done in this backwards fashion to only have a single direction change,
->    * which removes ordering between native_pv_spin_init() and HV setup.
->    */
-> -DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
-> +DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
->   
->   /*
->    * Shortcut for the queued_spin_lock_slowpath() function that allows
-> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> index 5358d43886ad..fec381533555 100644
-> --- a/arch/x86/kernel/paravirt.c
-> +++ b/arch/x86/kernel/paravirt.c
-> @@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
->   DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
->   #endif
->   
-> -DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
-> +DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
->   
->   void __init native_pv_lock_init(void)
->   {
-> -	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
+That said, could we have the same problem now if we have a lot of 
+producers and the virtqueue becomes full?
 
-Actually now shouldn't the CONFIG_PARAVIRT_SPINLOCKS check be retained? 
-Otherwise we'll have the virtspinlock enabled even if we are a guest but 
-CONFIG_PARAVIRT_SPINLOCKS is disabled, no ?
+>'low_rx_bytes' flag - this was more like a hack.
+>
+>Previous calculation of 'free_space' worked (in 99% cases), because if
+>we take a look on behaviour of both expressions (new and previous):
+>
+>'(rx_cnt - last_fwd_cnt)' and '(fwd_cnt - last_fwd_cnt)'
+>
+>Both of them always grows up, with almost same "speed": only difference
+>is that 'rx_cnt' is incremented earlier during packet is received,
+>while 'fwd_cnt' in incremented when packet is read by user. So if 'rx_cnt'
+>grows "faster", then resulting 'free_space' become smaller also, so we
+>send credit updates a little bit more, but:
+>
+>  * 'free_space' calculation based on 'rx_cnt' gives the same value,
+>    which tx sees as free space at rx side, so original idea of
 
-> -	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
-> -		static_branch_disable(&virt_spin_lock_key);
-> +	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-> +		static_branch_enable(&virt_spin_lock_key);
->   }
->   
->   static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
+Ditto, what happen if the virtqueue is full?
+
+>    'free_space' is now implemented as planned.
+>  * Hack with 'low_rx_bytes' now is not needed.
+
+Yeah, so this patch should also mitigate issue reported by Alex (added 
+in CC), right?
+
+If yes, please mention that problem and add a Reported-by giving credit 
+to Alex.
+
+>
+>Also here is some performance comparison between both versions of
+>'free_space' calculation:
+>
+> *------*----------*----------*
+> |      | 'rx_cnt' | previous |
+> *------*----------*----------*
+> |H -> G|   8.42   |   7.82   |
+> *------*----------*----------*
+> |G -> H|   11.6   |   12.1   |
+> *------*----------*----------*
+
+How many seconds did you run it? How many repetitions? There's a little 
+discrepancy anyway, but I can't tell if it's just noise.
+
+>
+>As benchmark 'vsock-iperf' with default arguments was used. There is no
+>significant performance difference before and after this patch.
+>
+>Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+>---
+> include/linux/virtio_vsock.h            | 1 +
+> net/vmw_vsock/virtio_transport_common.c | 8 +++-----
+> 2 files changed, 4 insertions(+), 5 deletions(-)
+
+Thanks for working on this, I'll do more tests but the approach LGTM.
+
+Thanks,
+Stefano
+
+>
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index c82089dee0c8..3579491c411e 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -135,6 +135,7 @@ struct virtio_vsock_sock {
+> 	u32 peer_buf_alloc;
+>
+> 	/* Protected by rx_lock */
+>+	u32 rx_cnt;
+> 	u32 fwd_cnt;
+> 	u32 last_fwd_cnt;
+> 	u32 rx_bytes;
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 16ff976a86e3..1d4e2328e06e 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -441,6 +441,7 @@ static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+> 		return false;
+>
+> 	vvs->rx_bytes += len;
+>+	vvs->rx_cnt += len;
+> 	return true;
+> }
+>
+>@@ -558,7 +559,6 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	size_t bytes, total = 0;
+> 	struct sk_buff *skb;
+> 	u32 fwd_cnt_delta;
+>-	bool low_rx_bytes;
+> 	int err = -EFAULT;
+> 	u32 free_space;
+>
+>@@ -603,9 +603,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	}
+>
+> 	fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
+>-	free_space = vvs->buf_alloc - fwd_cnt_delta;
+>-	low_rx_bytes = (vvs->rx_bytes <
+>-			sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
+>+	free_space = vvs->buf_alloc - (vvs->rx_cnt - vvs->last_fwd_cnt);
+>
+> 	spin_unlock_bh(&vvs->rx_lock);
+>
+>@@ -619,7 +617,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	 * number of bytes in rx queue is not enough to wake up reader.
+> 	 */
+> 	if (fwd_cnt_delta &&
+>-	    (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE || low_rx_bytes))
+>+	    (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE))
+> 		virtio_transport_send_credit_update(vsk);
+>
+> 	return total;
+>-- 
+>2.25.1
+>
+>
+
