@@ -1,279 +1,172 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B032C1B963
-	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 01:27:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F0481CA87
+	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 02:11:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719278876; cv=none; b=Y3wFNmULWFLUXBES86SoZGNTkUl4BDLixqAwoBVLU3DEq6fy7WPDrmRsU4cvCfwxVWB6Xigox9B5DE8s/cJAh1qPdWvjVc3BcjT9q1ityjrskcSR5IsgNzKJ0claaRIRg9LN+EPrrZEZ2Up5ewTQlFB4nIaN3JnXoHC6J0nB5q4=
+	t=1719281506; cv=none; b=QJEy/jMC3oN34Kkh+I2JCwnCeP/YkbbQxPV2v8sFnRgBl3HVVU48zqZ7PXau8xOQ3WSekU+LLcEMbjTbLaSfwBMtEiYkQGKJN+9tWrfPGudCIqRMT5n2uj+CxI8Q6/6b6dlZ3DtKsYSjvK/HpYTb4hcmHpfnkaqlm5QfZRJplWQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719278876; c=relaxed/simple;
-	bh=yjjQUUKXhxytqvA2OHxeNfjdJ0+LI/24Ja29DIooPo8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=d89ytlcuYEqHkukw6bPEfiDmn50tGUO7vvCMbQY4aQ66qUVNSOL8PceaAWeLgl8gb1UJByAgpddxsZFL7HK7TU99ejmcQwUzNxwOl2T/Teg23zXHxnPV3JLymt3ltdITbbAoaoPY2KnctGB2J0B+qhtyoq7P9roLLjjWJC0/0mU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hHqfEIvN; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1719281506; c=relaxed/simple;
+	bh=AdKoMK5EpTduYeM66UoUj2BMPOrcCsYupeqYb/H/qOk=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=EQCZUJxEDn2IEvu+EruPbYXGs1dvh6+V7kNltMHm/aI++BIiUv+2kC1nlXVxjASICKoG0kTfgDDBUY9cJLLs/ggeoW/ciGa3KHiardsd2EvfqGTwGRt2CLia67hHc933bcEymBDxOi/9QGeHBRVYukFhUENCe5w4/K25YZe9CKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yFs7qka6; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hHqfEIvN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719278872;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pqCzMsWS7cK7fhBVzoWPTT37VEQ1CT6mCtp7QCXX3Sc=;
-	b=hHqfEIvNZocZx8WIhLmoofVp1dNt3MCX7wheYKuabNXaRJ8842d6EiIPe9j7dRHYz/HTFJ
-	8vd1b+BF5gfg7WkbzdRvRhGjqCTtV7RAOTKIFwnk6WrNQYGkPbI7/BdUkKny88hIlluJZS
-	FiRZanEx7tZ+vEJYjMVlJngCUS3SmLM=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-209-jsyudlyLNou0EIQQeawc8Q-1; Mon, 24 Jun 2024 21:27:50 -0400
-X-MC-Unique: jsyudlyLNou0EIQQeawc8Q-1
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-704d99cb97aso6020647a12.0
-        for <virtualization@lists.linux.dev>; Mon, 24 Jun 2024 18:27:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719278870; x=1719883670;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pqCzMsWS7cK7fhBVzoWPTT37VEQ1CT6mCtp7QCXX3Sc=;
-        b=mXqw/kDg4ickV2415H9Mi1Kdb8IF5KglJS4cCLIlcO5zq9w0FAAkdS16w4xeo7qFff
-         vHtSXNp5skppOIRwjnd4x67kJXAIBWtldDZksX5+n2pmPQK2AR6amdYY7Voi/oRHqlG1
-         EgbG4CZ+FvCk8KjNo/xG1b8GdMEqRmbxD8nIoqADmqwNwYJ0MMGhHO2U6+Mm3N4UcjwO
-         wJ4uw3heZC3EfwJOgQL3QR1jAH6G/ah/4/2QCJ7eU3bcAkVGxjGtIhRNxtHMJPWIiewa
-         lfSspw7BN1bdUiPO7DUL7c8nkSHSWD+Lo95ccZBTf869GhWNzoR9+V04IPeiKyjRp2Ii
-         58HA==
-X-Forwarded-Encrypted: i=1; AJvYcCUsACLxmWaeLxf6ClIiqtsqzM+tgjnVg4DuaFeljreOLQ1YBQT9IOfGWg3yH3LytKDmGFVnNSdtwpWC56OmIAhbGwGRP4xtkQ7mWQOvoBI=
-X-Gm-Message-State: AOJu0YyZVQMhQgEpJj1Ha9T0bz/JqrFEfwiwPPTTMnqAf18QOYNzTqvp
-	avijEw95Cre7DCe1Q2Sl6Bi+n/xp20VMldhjCHlmFiHqZPa5jWZFtCs9gJSrGmyGCd5aO7GIuQo
-	1+XthPA0HXPJWuMgG8iOCHwWnKQ4MwRWA557B1JOBWaD++DzymOuD5LueHGUSbo+ztQT1JdgnLV
-	4uv2k81g/4Ig3Q/evQM1jotfD4ITLb/GdXTK9aIr8=
-X-Received: by 2002:a05:6a20:3f15:b0:1bd:b69:f0e3 with SMTP id adf61e73a8af0-1bd0b69f2e6mr2859698637.44.1719278869787;
-        Mon, 24 Jun 2024 18:27:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGnSD1Ch6q09/yixw0OjRjgosSIFbkYnngHKOWbkFx4RhraQi66A+gxlTJvgHuMxTB4ShwvJ3EbZnK+L4FKMIw=
-X-Received: by 2002:a05:6a20:3f15:b0:1bd:b69:f0e3 with SMTP id
- adf61e73a8af0-1bd0b69f2e6mr2859683637.44.1719278869254; Mon, 24 Jun 2024
- 18:27:49 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yFs7qka6"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1719281500; h=Message-ID:Subject:Date:From:To;
+	bh=WXA32tsIMZqvbGx5Q+/pZspIKoB8/Xap8m8mmepx66U=;
+	b=yFs7qka6zL6B/svpTv+O+XSile6JVdz9SWnAg+FBnF9ZzbJox3VzmFn9QbexZO8I0ci3qcr3pkoURR3M8bokhArfs/b6NJs9RSwnPhpHQ0170B0dfGkXqSjESfN7d4Z+Po4wcMns+2MaSQaa3OFndwnkPpYTCI8glfYXFKPXFfU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W9Dhw3-_1719281499;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W9Dhw3-_1719281499)
+          by smtp.aliyun-inc.com;
+          Tue, 25 Jun 2024 10:11:39 +0800
+Message-ID: <1719281486.8829272-20-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH virtio 0/8] virtio_pci_modern: allow parallel admin queue commands execution
+Date: Tue, 25 Jun 2024 10:11:26 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com,
+ parav@nvidia.com,
+ feliu@nvidia.com,
+ virtualization@lists.linux.dev,
+ Jiri Pirko <jiri@resnulli.us>
+References: <20240624090451.2683976-1-jiri@resnulli.us>
+ <1719222832.5704103-18-hengqi@linux.alibaba.com>
+ <20240624070832-mutt-send-email-mst@kernel.org>
+ <Znl4q_ArglG1aqPv@nanopsycho.orion>
+ <20240624095239-mutt-send-email-mst@kernel.org>
+ <ZnmH-eMBfsPkDpkd@nanopsycho.orion>
+ <20240624111347-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240624111347-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20240624024523.34272-1-jasowang@redhat.com> <20240624024523.34272-4-jasowang@redhat.com>
- <20240624060057-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240624060057-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 25 Jun 2024 09:27:38 +0800
-Message-ID: <CACGkMEsysbded3xvU=qq6L_SmR0jmfvXdbthpZ0ERJoQhveZ3w@mail.gmail.com>
-Subject: Re: [PATCH V2 3/3] virtio-net: synchronize operstate with admin state
- on up/down
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, venkat.x.venkatsubra@oracle.com, 
-	gia-khanh.nguyen@oracle.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 24, 2024 at 6:07=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Mon, Jun 24, 2024 at 10:45:23AM +0800, Jason Wang wrote:
-> > This patch synchronize operstate with admin state per RFC2863.
-> >
-> > This is done by trying to toggle the carrier upon open/close and
-> > synchronize with the config change work. This allows propagate status
-> > correctly to stacked devices like:
-> >
-> > ip link add link enp0s3 macvlan0 type macvlan
-> > ip link set link enp0s3 down
-> > ip link show
-> >
-> > Before this patch:
-> >
-> > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN m=
-ode DEFAULT group default qlen 1000
-> >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-> > ......
-> > 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 q=
-disc noqueue state UP mode DEFAULT group default qlen 1000
-> >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-> >
-> > After this patch:
-> >
-> > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN m=
-ode DEFAULT group default qlen 1000
-> >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-> > ...
-> > 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500=
- qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
-> >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-> >
-> > Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-> > Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/net/virtio_net.c | 72 +++++++++++++++++++++++-----------------
-> >  1 file changed, 42 insertions(+), 30 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index b1f8b720733e..eff3ad3d6bcc 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -2468,6 +2468,25 @@ static int virtnet_enable_queue_pair(struct virt=
-net_info *vi, int qp_index)
-> >       return err;
-> >  }
-> >
-> > +static void virtnet_update_settings(struct virtnet_info *vi)
-> > +{
-> > +     u32 speed;
-> > +     u8 duplex;
-> > +
-> > +     if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
-> > +             return;
-> > +
-> > +     virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed=
-);
-> > +
-> > +     if (ethtool_validate_speed(speed))
-> > +             vi->speed =3D speed;
-> > +
-> > +     virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &dupl=
-ex);
-> > +
-> > +     if (ethtool_validate_duplex(duplex))
-> > +             vi->duplex =3D duplex;
-> > +}
-> > +
-> >  static int virtnet_open(struct net_device *dev)
-> >  {
-> >       struct virtnet_info *vi =3D netdev_priv(dev);
-> > @@ -2486,6 +2505,22 @@ static int virtnet_open(struct net_device *dev)
-> >                       goto err_enable_qp;
-> >       }
-> >
-> > +     /* Assume link up if device can't report link status,
-> > +        otherwise get link status from config. */
-> > +     netif_carrier_off(dev);
-> > +     if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-> > +             virtio_config_enable(vi->vdev);
-> > +             /* We are not sure if config interrupt is disabled by
-> > +              * core or not, so we can't schedule config_work by
-> > +              * ourselves.
-> > +              */
->
-> This comment confuses more than it explains.
-> You seem to be arguing about some alternative design
-> you had in mind, but readers don't have it in mind.
->
->
-> Please just explain what this does and why.
-> For what: something like "Trigger re-read of config - same
-> as we'd do if config changed".
->
-> Now, please do what you don't do here: explain the why:
->
->
-> why do we want all these VM
-> exits on each open/close as opposed to once on probe and later on
-> config changed interrupt.
+On Mon, 24 Jun 2024 11:16:45 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, Jun 24, 2024 at 04:51:37PM +0200, Jiri Pirko wrote:
+> > Mon, Jun 24, 2024 at 03:55:53PM CEST, mst@redhat.com wrote:
+> > >On Mon, Jun 24, 2024 at 03:46:19PM +0200, Jiri Pirko wrote:
+> > >> Mon, Jun 24, 2024 at 01:23:01PM CEST, mst@redhat.com wrote:
+> > >> >On Mon, Jun 24, 2024 at 05:53:52PM +0800, Heng Qi wrote:
+> > >> >> On Mon, 24 Jun 2024 11:04:43 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
+> > >> >> > From: Jiri Pirko <jiri@nvidia.com>
+> > >> >> > 
+> > >> >> > Currently the admin queue command execution is serialized by a lock.
+> > >> >> > This patchsets lifts this limitation allowing to execute admin queue
+> > >> >> > commands in parallel. To do that, admin queue processing needs to be
+> > >> >> > converted from polling to interrupt based completion.
+> > >> >> > 
+> > >> >> > Patches #1-#6 are preparations, making things a bit smoother as well.
+> > >> >> > Patch #7 implements interrupt based completion for admin queue.
+> > >> >> 
+> > >> >> Hi, Jiri
+> > >> >> 
+> > >> >> Before this set, I pushed the cvq irq set [1], and the discussion focused on the
+> > >> >> fact that the newly added irq vector may cause the IO queue to fall back to
+> > >> >> shared interrupt mode.
+> > >> >> But it is true that devices implemented according to the specification should
+> > >> >> not encounter this problem. So what do you think?
+> > >> 
+> > >> Wait. Please note that admin queue is only created and used by PF virtio
+> > >> device. And most probably, this is on hypervisor managing the VFs that
+> > >> are passed to guest VMs. These VFs does not have admin queue.
+> > >> 
+> > >> Therefore, this is hardly comparable to control vq.
+> > >
+> > >
+> > >Well Parav recently posted patches adding admin queue
+> > >to VFs, with new "self" group type.
+> > 
+> > Right, but even so, when device implementation decides to implement and
+> > enable admin queue, it should also make sure to provide correct amount
+> > of vectors. My point is, there should not be any breakage in user
+> > expectation, or am I missing something?
+> 
+> 
+> Hmm, I think you are right that cvq is an existing capability
+> and adminq is newer.
 
-Fine, the main reason is that a config interrupt might be pending
-during ifdown and core may disable configure interrupt due to several
-reasons.
+admin vq has been supported in the kernel for more than half a year, and if at
+this point you think that the device must provide interrupt vectors for it, then
+I think this is also true for cvq.
 
-Thanks
-
-
->
->
-> > +             virtio_config_changed(vi->vdev);
-> > +     } else {
-> > +             vi->status =3D VIRTIO_NET_S_LINK_UP;
-> > +             virtnet_update_settings(vi);
-> > +             netif_carrier_on(dev);
-> > +     }
-> > +
-> >       return 0;
-> >
-> >  err_enable_qp:
-> > @@ -2928,12 +2963,19 @@ static int virtnet_close(struct net_device *dev=
-)
-> >       disable_delayed_refill(vi);
-> >       /* Make sure refill_work doesn't re-enable napi! */
-> >       cancel_delayed_work_sync(&vi->refill);
-> > +     /* Make sure config notification doesn't schedule config work */
-> > +     virtio_config_disable(vi->vdev);
-> > +     /* Make sure status updating is cancelled */
-> > +     cancel_work_sync(&vi->config_work);
-> >
-> >       for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> >               virtnet_disable_queue_pair(vi, i);
-> >               cancel_work_sync(&vi->rq[i].dim.work);
-> >       }
-> >
-> > +     vi->status &=3D ~VIRTIO_NET_S_LINK_UP;
-> > +     netif_carrier_off(dev);
-> > +
-> >       return 0;
-> >  }
-> >
-> > @@ -4632,25 +4674,6 @@ static void virtnet_init_settings(struct net_dev=
-ice *dev)
-> >       vi->duplex =3D DUPLEX_UNKNOWN;
-> >  }
-> >
-> > -static void virtnet_update_settings(struct virtnet_info *vi)
-> > -{
-> > -     u32 speed;
-> > -     u8 duplex;
-> > -
-> > -     if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
-> > -             return;
-> > -
-> > -     virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed=
-);
-> > -
-> > -     if (ethtool_validate_speed(speed))
-> > -             vi->speed =3D speed;
-> > -
-> > -     virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &dupl=
-ex);
-> > -
-> > -     if (ethtool_validate_duplex(duplex))
-> > -             vi->duplex =3D duplex;
-> > -}
-> > -
-> >  static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
-> >  {
-> >       return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
-> > @@ -5958,17 +5981,6 @@ static int virtnet_probe(struct virtio_device *v=
-dev)
-> >               goto free_unregister_netdev;
-> >       }
-> >
-> > -     /* Assume link up if device can't report link status,
-> > -        otherwise get link status from config. */
-> > -     netif_carrier_off(dev);
-> > -     if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-> > -             schedule_work(&vi->config_work);
-> > -     } else {
-> > -             vi->status =3D VIRTIO_NET_S_LINK_UP;
-> > -             virtnet_update_settings(vi);
-> > -             netif_carrier_on(dev);
-> > -     }
-> > -
-> >       for (i =3D 0; i < ARRAY_SIZE(guest_offloads); i++)
-> >               if (virtio_has_feature(vi->vdev, guest_offloads[i]))
-> >                       set_bit(guest_offloads[i], &vi->guest_offloads);
-> > --
-> > 2.31.1
->
-
+> 
+> Gimme a couple of days to think all this over, hopefully we'll also see
+> a new version of the cvq patch, making it easier to see whether they
+> interact and if so, how.
+> 
+> 
+> 
+> > 
+> > >
+> > >
+> > >> 
+> > >> >> 
+> > >> >> [1] https://lore.kernel.org/all/20240619171708-mutt-send-email-mst@kernel.org/
+> > >> >
+> > >> >It's true - this can cause guest to run out of vectors for a variety of
+> > >> >reasons.
+> > >> >
+> > >> >First we have guest irqs - I am guessing avq could use IRQF_SHARED ?
+> > >> 
+> > >> There is no avq in quest, under normal circumstances. Unless for some
+> > >> reason somebody passes trough virtio PF into guest.
+> > >
+> > >
+> > >At the moment, but this will change soon.
+> > >
+> > >
+> > >> 
+> > >> >I am not sure why we don't allow IRQF_SHARED for the config
+> > >> >interrupt though. So I think addressing this part can be deferred.
+> > >> >
+> > >> >Second, we might not have enough msix vectors on the device. Here sharing
+> > >> >with e.g. cvq and further with config interrupt would make sense.
+> > >> 
+> > >> For cvq irq vector, I believe that sharing with config irq makes sense.
+> > >> Even for admin queue maybe. But again, admin queue is on PF. I don't
+> > >> think this is a real concern.
+> > >> 
+> > >> 
+> > >> >
+> > >> >Jiri do you think you can help Heng Qi hammer out a solution for cvq?
+> > >> >I feel this will work will then benefit in a similar way,
+> > >> >and having us poll aggressively for cvq but not admin commands
+> > >> >does not make much sense, right?
+> > >> >
+> > >> >> > Patch #8 finally removes the admin queue serialization lock.
+> > >> >> > 
+> > >> >> > Jiri Pirko (8):
+> > >> >> >   virtio_pci: push out single vq find code to vp_find_one_vq_msix()
+> > >> >> >   virtio_pci_modern: treat vp_dev->admin_vq.info.vq pointer as static
+> > >> >> >   virtio: push out code to vp_avq_index()
+> > >> >> >   virtio: create admin queues alongside other virtqueues
+> > >> >> >   virtio_pci_modern: create admin queue of queried size
+> > >> >> >   virtio_pci_modern: pass cmd as an identification token
+> > >> >> >   virtio_pci_modern: use completion instead of busy loop to wait on
+> > >> >> >     admin cmd result
+> > >> >> >   virtio_pci_modern: remove admin queue serialization lock
+> > >> >> > 
+> > >> >> >  drivers/virtio/virtio.c            |  28 +----
+> > >> >> >  drivers/virtio/virtio_pci_common.c | 109 ++++++++++++++------
+> > >> >> >  drivers/virtio/virtio_pci_common.h |   9 +-
+> > >> >> >  drivers/virtio/virtio_pci_modern.c | 160 ++++++++++++-----------------
+> > >> >> >  include/linux/virtio.h             |   2 +
+> > >> >> >  include/linux/virtio_config.h      |   2 -
+> > >> >> >  6 files changed, 150 insertions(+), 160 deletions(-)
+> > >> >> > 
+> > >> >> > -- 
+> > >> >> > 2.45.1
+> > >> >> > 
+> > >> >> > 
+> > >> >
+> > >
+> 
