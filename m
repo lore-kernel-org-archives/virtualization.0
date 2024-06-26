@@ -1,247 +1,270 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2075.outbound.protection.outlook.com [40.107.94.75])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83DC15F316
-	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 08:43:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719391399; cv=none; b=J9qdEcrmrJ8cc9SVN0GPmX/Pb8jfW1WS//R33K5pzbbUpjNalhzT9z3JipoF7a3+pX5iJjQ2ooa3EQOJKUjtCX5AIjGsg3E7xUEWREvl52g85kbH9YoywQ5ASURZlbD1B7+9H2AFlwTAJtSXRVlTEBddRAw+ZlyrGWr9qD6vFyY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719391399; c=relaxed/simple;
-	bh=C2ox0KqbefqgIcR1h5oqnPkIXq4UGVS9kbaYWQ6dfb8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gRUybNAXwW1+Fv0aVr6o+bsqKjKRGniIE8CG6Qqj4F/366Z/JwjUOly13MwRPLeI4n/E2KHIiKppzTEpFRKiAVxg1MCA9rKolVKWSMbIKu7gNmKAu7RMHYQikS+8YbqLy4XzTxcRXNk71G8YQkZ1sxgAoT+KhyLH41Inqa3NPFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=ZxCDMVvj; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F74C16A92E
+	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 09:27:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.75
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1719394035; cv=fail; b=K+rDirOfp1IwsI5ZDDLQ3U9mut5G39IRSj5OZd8m2um6jACZ4o59XMUatnkB7VHZt9qGWJZ8J7A+l9DA0B+4wliidXDgKGGR9KvK72e/FTkwI/8jml7UszHrxBFAv+xOYxBTAOP6mJlCKGSaa0O6u5dnnJpMl32XqBfKDbiO1Ns=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1719394035; c=relaxed/simple;
+	bh=zoJZfS41OYRCPBZDZTCgGFWgdRjfaTa/xmN2b6NyOrA=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=jnKpnkSo2HYTS2H15AhCy1NhRWnQpCNy8R+nWcLJTL1O4fCxrPMJVr74gof25RKXkNEKUijC7zD32KwLkjDdhPKdun+gXmudpaAf934t1C/FZBWsaZxUUNhBoUXcUD9F9e/qcvCJgfUOmpdHWKJjZKEbCrnty353YUuSfD8Wj9U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Fh2Gsp9C; arc=fail smtp.client-ip=40.107.94.75
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="ZxCDMVvj"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4247f36f689so44695155e9.1
-        for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 01:43:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1719391395; x=1719996195; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=+vu6CAngNKGlbKo6gG6ckEU4iEDVbJhe6KmDGwESUxA=;
-        b=ZxCDMVvjuaaorG/lz1uoY/9NYkAkamYnnn0BGITklP87cTI8Q//X6fSHxZrI+xp0Xr
-         bPPVTEdrAK/IW6O319NPWnH/oooOUc8E+5DC5MeKf1NhNgiZRc75mWLGhBtWTFL40FaU
-         YjKoxvrpRUQ5cb4OWY+MfzCr6J/Q/7mjyILLafrbTrhz94JjQlnrpudhj46nYg6uEU3Q
-         wuAJU4YR3w7QsFpnBs/m5kITiC1fQ2PX9yr46yUvq/hx+35E3o0lTkE11VvNpBA24ixp
-         ibbxz1uTLcYJoLLZHilKYC1F4BTVhHRYMQALlaOuNUdVr6uZBHe0Qftr1jqqZtN0mMwo
-         aQ/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719391395; x=1719996195;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+vu6CAngNKGlbKo6gG6ckEU4iEDVbJhe6KmDGwESUxA=;
-        b=IQpQy9uw5QUlzeFS/5q0+CkuFPyannss/5O0Ub+nPUvYYmMJzZMLxPzfLF5+dSh+dP
-         1rVgK+OGKGgrCZFPJogr4rd6eTZgvzl21vQWIeF4l6/lNxPis4L4kwWPJs/dSt+Gc9Tr
-         9EmszRBsr3hJpsskaF5aZyDB6xaxaB9gwlZTXfI5YjDxacodeEq14qY1j2INg/6mRZpn
-         08jy0pqwyC0fMqGgHsdmso8uixp8dF33YIabQZShzXJ0KqmdL2Y52cnOL+UXakbKis9N
-         D54L8Di02xGC66c+BTrFogyuYD1aXbJg89CX+u5wWpu1IDPKeoU0pFQXPAyIwi/6Qswb
-         Xtqw==
-X-Forwarded-Encrypted: i=1; AJvYcCXm5EuhP4jnwED078iszvMBlVCj3r5EdmbN8Gal7nobI4KCM2d1k+7rCXU5GweqQIOyz0mDe8vIqRoQYWrPjsWV5X6Hezpx1SlKnykq/8U=
-X-Gm-Message-State: AOJu0YwjIGSpejUXdex4Ul361IbIUckYZNshdt/KouEzpYYaG2Uy4WA4
-	8ZCyrh4k0whPtrVehC9WoKw0XR13FGDAtPSXOm/IQIEwQk3E/q1zgQQJ6dc1/Ck=
-X-Google-Smtp-Source: AGHT+IEkBVGWG6r8INvHXHS1OoC6a2g8D6yuEsFL7uFC/fiKvKH09PT6Z5FhZ0ah6BTan5HW5rn3eA==
-X-Received: by 2002:a5d:526d:0:b0:35e:4f42:6016 with SMTP id ffacd0b85a97d-366e7a35de0mr7166540f8f.30.1719391395042;
-        Wed, 26 Jun 2024 01:43:15 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-366f973b7e5sm6345965f8f.14.2024.06.26.01.43.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jun 2024 01:43:14 -0700 (PDT)
-Date: Wed, 26 Jun 2024 10:43:11 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Heng Qi <hengqi@linux.alibaba.com>, Jason Wang <jasowang@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
-Message-ID: <ZnvUn-Kq4Al0nMQZ@nanopsycho.orion>
-References: <20240619171708-mutt-send-email-mst@kernel.org>
- <1718868555.2701075-5-hengqi@linux.alibaba.com>
- <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
- <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
- <1718877195.0503237-9-hengqi@linux.alibaba.com>
- <20240620060816-mutt-send-email-mst@kernel.org>
- <20240620061109-mutt-send-email-mst@kernel.org>
- <1718879494.952194-11-hengqi@linux.alibaba.com>
- <ZnvI2hJXPJZyveAv@nanopsycho.orion>
- <20240626040730-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Fh2Gsp9C"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=l9IwtTH6RWymA/Hv3pwkmwdwFmIB28LgJO6bM2toLA76let1h40/AEx0j0A8KGmk0aa//netnSXHhAhZStsTrAhs712qGoRQNDKfqmwdQbirE3RYmDHvfNnOEBapreeGlA7q4Fbh8Yq8jsO6lExkrrf4NJdQe5fsivQnnvC6J9ox7Hxcd22G2SQyCz9pOPWFBhx+8s6dPErMO6CKuT7zsIThWy3VFT7InGM2VBf+XnY8MKY6gTIenaeGEXJ9RTg2Mypz/+ANCIfLEUS/dVImyHsXJY13fciQ0ie3/58FBw2riEhcxwtDUUcVOP22TOnCOK5A3Qqgnwa3gU9jeBTYzg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zoJZfS41OYRCPBZDZTCgGFWgdRjfaTa/xmN2b6NyOrA=;
+ b=S1HEAE7FPXbQ5EaXB5Ly5+wdfWVm+jd/P89gxa7vOGVKKT/0EYkoL6y77i4wmaRxecP4iselEIVEpFlo4l4Yp5JJy+YQZwpMWouH8CRyqcx69orm/BJEM9e3iaZnINzwxhz37FmzG9MDSh5zdibUWvtrrCZEx1eLj2MGvxNH5rbQ4VJpz+uklUZfOFgxapfLfRk33XybpVySsKfSfT1IbxZJuAPeaHB4b+veBPNgZCMah38RAHcIz/+CPoC/2K8tnRsJ0Pg6Tf7dL8j20anEDEkLdua9edxHcxrKMNez2MJ+1Zn5912qWHGd5j5mhrZF3I9z9QkS2Ck2fD4//jPxxg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zoJZfS41OYRCPBZDZTCgGFWgdRjfaTa/xmN2b6NyOrA=;
+ b=Fh2Gsp9CY1lEM8xVNnUH2wVhCjRs1Mn3w9Fdk1TNgQCDJx1LrtFJX79bivlZq9z02EBBk/6+/FypwLml2FbsENLP7cdFFHHqcmAm2QUc0KNv9GTJaXnQRM0P84/21HUQkj/2T81fAJvPvPO99MvVKyqZMW6x9HfhrwjsKTvV13YPoOPKjwIiP0b/byEkNsfR1K7SkPT1PC9wPO4Ie9UqF9zuNsslM1mm91HUqh9Jjr6hhmEy/IvdY0kfjrcS8xLPfbrldJ2DNDeNHitZrqcVQI6krAS1TnQIzyf8XO5u/d+RQldI98m19RD8OrJEiP3C03PVQYlkB8cLLDnG8cg6vA==
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
+ by MN2PR12MB4144.namprd12.prod.outlook.com (2603:10b6:208:15f::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7698.32; Wed, 26 Jun
+ 2024 09:27:10 +0000
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::17f8:a49a:ebba:71f1]) by DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::17f8:a49a:ebba:71f1%6]) with mapi id 15.20.7698.025; Wed, 26 Jun 2024
+ 09:27:10 +0000
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "eperezma@redhat.com" <eperezma@redhat.com>
+CC: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Tariq
+ Toukan <tariqt@nvidia.com>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Cosmin Ratiu <cratiu@nvidia.com>,
+	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, "mst@redhat.com" <mst@redhat.com>, Saeed Mahameed
+	<saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Subject: Re: [PATCH vhost 20/23] vdpa/mlx5: Pre-create hardware VQs at vdpa
+ .dev_add time
+Thread-Topic: [PATCH vhost 20/23] vdpa/mlx5: Pre-create hardware VQs at vdpa
+ .dev_add time
+Thread-Index: AQHawMhZfAWsnj0CYEOKT7TiC0tv/7HPQEaAgAqUMoA=
+Date: Wed, 26 Jun 2024 09:27:10 +0000
+Message-ID: <308f90bb505d12e899e3f4515c4abc93c39cfbd5.camel@nvidia.com>
+References: <20240617-stage-vdpa-vq-precreate-v1-0-8c0483f0ca2a@nvidia.com>
+	 <20240617-stage-vdpa-vq-precreate-v1-20-8c0483f0ca2a@nvidia.com>
+	 <CAJaqyWd3yiPUMaGEmzgHF-8u+HcqjUxBNB3=Xg6Lon-zYNVCow@mail.gmail.com>
+In-Reply-To:
+ <CAJaqyWd3yiPUMaGEmzgHF-8u+HcqjUxBNB3=Xg6Lon-zYNVCow@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Evolution 3.52.2 (3.52.2-1.fc40) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|MN2PR12MB4144:EE_
+x-ms-office365-filtering-correlation-id: 53a4d88f-29b9-44e5-33a3-08dc95c22803
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230038|376012|7416012|366014|1800799022|38070700016;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?azJUWTlBRnpFR2s0WHFVR3daM3F2dm50OGlIRXczY0dKM1d0czZyb1h3QjBZ?=
+ =?utf-8?B?aUFYczE3OG1UY2ZqL2NXU3JkUnBPcllDbGt0L1BnVzhHelFDK3JhUEUyNGRs?=
+ =?utf-8?B?U2hvcHpsQzVVQmkxWlJVTG5SbW1TbFhZQnhMMDlUNXRFRElTc1FtNWhUWEsx?=
+ =?utf-8?B?djVkOWdrbklkREYrZ1lBU1U4YWo3ZmZLbVZCQjUyM1hlRXE3WXZhR0lBTDU4?=
+ =?utf-8?B?UDk4RHcyTUhSUy8yL3lsbEdKaktoWGFlcEVFdS9UYUYwa3ZEb2lyQUQrY1lQ?=
+ =?utf-8?B?K2twVDJ3bTVKcmdpUTM3OFRFclNiT2dkTVRaRm55L1dCSHBmcmNDSm5SSlVN?=
+ =?utf-8?B?Y1FLV0hHOGJ1a29GQ2pzTHdqQTAva09tL1VnaDNlS1FMUjRQcjhvdGZKUjJR?=
+ =?utf-8?B?L214c1RhUUZiOXZqdytSK3NTaW9xam1VdG0xcEozU1UyTkNBcHhVa3JKVkpk?=
+ =?utf-8?B?bnJyT0lHcXp5WlNBZVJTdVp0bW5wWEY2ZEdTaWVkelhGOTdzNnRBdjMvRkJV?=
+ =?utf-8?B?Rjk0VmRZa0g3TnNGTlg2YnhYOUo5aGpIZzVCMDg5UWI2bTdPcDRBdm81aGht?=
+ =?utf-8?B?MVRXZmI5V2tnV1J3S2tmUlpzTGlERld1cDJCSVJYazNDNFduTm45Q2cvUjlP?=
+ =?utf-8?B?WTkzdlJ4YVpLazRPU2xmWmRENHZRM3ZwSWN0azRXeUYwUFdnYU8wZ2dxejUy?=
+ =?utf-8?B?YXB1VDBvSFROYVc1Y1BHbkVEQ3ROL1ZRN3NyRGFFckZBWHQxTUpIT0xGVm9u?=
+ =?utf-8?B?WDlqRnFTcDZzL1JPb1RoRDNWYm9ycnJpNHZ2amMyZUs1VFVTVUZONW1ONXFO?=
+ =?utf-8?B?bU5hU3BPbG9nZmZ0SnBSenZCaVpsM3d6ZVBNSEIyUjlTVGRJbkhXUE8rVXN3?=
+ =?utf-8?B?MWw4WlhPZEV6MVpTT3pBZGxHZkVIRGsvUWZybUMwSG91MXRmVlphUGF0VSsw?=
+ =?utf-8?B?V1gzRWU2Y2NJZTRCMUpQTjNUV3MvaGpqdDFNWVdHM0FhK1pIUU94eGZ3bVJm?=
+ =?utf-8?B?dThmQUZaZzhEWHVKYVFUT2NRZU1Fcm1obHNIRysyTVp4Y2M3c1lJQzdFck4z?=
+ =?utf-8?B?YndSMFBvcEdYZ3l0RS9UaWhmTDZXVkJOU0pJQ3oxR1FmY2lPUVAzWFJpd1JU?=
+ =?utf-8?B?SVp3cFRRWHNuYXFtYWkxMXIyUjBzRDVzRHhHenU3bmNONGtucWZIekZITXpQ?=
+ =?utf-8?B?SEJHUndCSk9nV09heTkycDlCTVpTU3IvbGpVQXY5Y0Q2OStnaTNyRGhVeitJ?=
+ =?utf-8?B?dWcybldaY2NHVm9ROWVpaFo3ZXB1STdGdGdBZ09hRGQyQllBNXRCZGZBVVdU?=
+ =?utf-8?B?aVVTV0JvZTFodWZnNXpBWmdVYVZEWnE3USt3S3NjeWV4bzJNRm9za0pTTU5I?=
+ =?utf-8?B?TEF1em5JMWppR2hXeE5JQ1MvS2Nxa2FTUkhYR2tSQ1dZNVJmVWZDeVlMbTY0?=
+ =?utf-8?B?Y0cvOWVwcDNsOTJFa1hZcW9oMmZ6R09QK0hyZ0VuY2pmWnZoYURUdUNnT1VJ?=
+ =?utf-8?B?T0x5RG1WSVVFZWpWZ0JlNEJDcWdIdDNSVVRUalluZVB3S1JGZzdjbzg5QXZZ?=
+ =?utf-8?B?dEVXUVU4Wm5oWnBXSTBpVDFHTDMyeEdicUM5MW9xNUZtN0J5Nkwrby9hSURK?=
+ =?utf-8?B?NjkwWnkzY1NkRG5sRGJCOFMzNitNQ2VOL0pMVnEvdDhEVmQ4SllyMlVreDls?=
+ =?utf-8?B?VXhieHExYzd6YjVOa3d1a05KN0gxbTduUHdwT2JqRXJSSFp2TW9aMUUwQU5K?=
+ =?utf-8?B?SnJvV0tIK2J6U3pESllrWmpOOHNmSWd2dkdQZjhRaWdJZHhLWk10aFMvYm1D?=
+ =?utf-8?B?eU9OV0JGVmZzZEFXTlhXWnp3R1VBdG95YTJMcWFwQ2JTU3pZemFpOFlIZStv?=
+ =?utf-8?B?cFNqVjkzeU1mZGRaTTJSVi95Y1ZNcW9Mb0IxYmtjZnVFdmc9PQ==?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB5565.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230038)(376012)(7416012)(366014)(1800799022)(38070700016);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?dHBrcXg0M05sUjJ2eDB1dS96VDRaTXdhQUlkek01Q0d1OGg5KzFUMFpyQVR4?=
+ =?utf-8?B?WFNadXpPS3N0NUlTN3VyMTFSOEJ0U2VZRTd1bVJicDMvS2NlejhXYTBMVWwr?=
+ =?utf-8?B?NGs3NzFxMWE5dTRySGRQenRjOW8zVDhEbU13WkdzS3c0ckgySEhZS1ZPclVu?=
+ =?utf-8?B?eE1GQTQyTEhZeTRuTkdqazZUUFhHTS9NQmlGYlpUeHBJMDVZSlZubU5iOVJM?=
+ =?utf-8?B?SE4rakRXV3J3R05pQ2VwTG55UFZrczNiUGk2MUxFYlJFUm9DemtuMGV3L0xk?=
+ =?utf-8?B?MjB3Y3JZaVdHV2hXQXBrbGxvejJ4Q0dwWE1RV05hOTdoU1lkU0grOXFFWVU1?=
+ =?utf-8?B?WktnNFVRTGd5bzQzVVdOSTNBZ2g2ZlZwWUdiMXVjK205VmZIQUh1MW03NXFq?=
+ =?utf-8?B?T2puZlNvVGJLeUozd3JsNnRRbGdyUklnRjdSckxjYkxzelhMaDVuSzR0bEl4?=
+ =?utf-8?B?bnJPcldpVUMwbGQ1U3o4ODZSWFNJTFd3VlN2cDN3YnFjWGluVE5uS0FTRkNC?=
+ =?utf-8?B?eU43THVaSVp6RUFDR0IwOTAva2dtR1k2Nld3K2JtT0lyN1UxaEtrMVRHVjN1?=
+ =?utf-8?B?eDI4SVZ5ZGV3NjNwc285aG9tcE1Wd1VSVityc29kdHdoTnliNjd2L0pSY0hD?=
+ =?utf-8?B?Y01YSHNWWGsrTWQvWFpBWVU4UTVpZHYzRFVBTnh5MXJINnZ0WHFjVkxTVzVp?=
+ =?utf-8?B?cU9ScFlyNkJXTFBKTElFODVvLzNHZ0tkeHJRVG1lS0ZFdlo0Z3F0TUYxOHNj?=
+ =?utf-8?B?cnMzbmdtdG1wdTVsNGJUdysyNWZhN1FTSUx4VDl2azJWWUlFSGhWSThoTW53?=
+ =?utf-8?B?YnBVTFRHeHJOUmw4SVBRcGpGOGd3MFhIVWRGQ0djcWoycEx5am9HZjZoRmxk?=
+ =?utf-8?B?RXpPaUdSNGEzZTBrbHliUzhwL2RRMjhIN29KQWxtM00rM2piRlF6NXRZYjZB?=
+ =?utf-8?B?b29tdWs1T0lrT1pacDA4NXZwWmFRajJZWWp3V0Y3OFI0ajNmLzE0bnA4cS90?=
+ =?utf-8?B?YUtEVytXYmpBWHhHV0ZxWmNpNnBtcHVXRlhDWDJBTHhlbmhvdFBoaVEvVWw0?=
+ =?utf-8?B?NGRTajcxb042VjZjQzRDRUcwWlBYWm5RWncxMGhYRnN4cTUvbmZLQ1FjTHVC?=
+ =?utf-8?B?elF4Y2lMbGhMOVViWWdmTzZ3bWZURlRSWmNoT3ZoS2dsZUZyNXQxbnlmUURr?=
+ =?utf-8?B?T3VsK3JJRmsrcnF1WnJvcTVndG9xVXcwWUZibkFxZVU5UjJ5RzhRUmlPWkRi?=
+ =?utf-8?B?VnhvZ1Z6azVHRm9ZeTQxV0hQMkVDd0V2NXgyTVdDZTlKK29TWi9XOE9BU3Zm?=
+ =?utf-8?B?K3BPbkwwZFA1VnBpUStTRVZxSjhaSGZFckJod1IwRDlkVjVaUXdzSVhCTnFR?=
+ =?utf-8?B?bWlBRmlGaHpHOVFjaXoxaU9taGU1djlBV08yc3laS2g4dlQ3d3E3RURBRSsv?=
+ =?utf-8?B?SXFvTm9jdUpBNDZOaitpdU95ZGN5Y1BoNm5tRXlWcFc0NHdURzZkSlNGcGpT?=
+ =?utf-8?B?TDJ0QlU1NTJzanhtbzdCUjNXWmp6cWdySjlFMW5UTXFwbHhZeHBXOEZkR2pt?=
+ =?utf-8?B?bzI0b29EMmRYbUJHWHhLRksrVUswY3puR24xR3doSUhMRVlQcGlRSXRDS3Bs?=
+ =?utf-8?B?TlZIUldkbjFiMlI5ZWF0c1BlOGllWW1IZ1dKaG9xK0Q0T2NxMlhIVEhBSHFZ?=
+ =?utf-8?B?MmdtRnpURXJhZUpza09aM282UCtyaDhTU0Evdm45cU9mSUlmbmZiUUFBVHcx?=
+ =?utf-8?B?bEc1a0xkL3NzV1cxeU9UYThyT0h3R0l2NlFESVNJS1Uxa1JSbG1EZk5qcUtx?=
+ =?utf-8?B?ejJrYWpLa2NCZE5FMXh5UXJZOUJjNTRLQ2paMWIyT2RkU3gzRWt6RFZrZ05v?=
+ =?utf-8?B?Sm5YRG52blFJVUZRUUhPZVE5a1huclBtdWVFV2d2bDVoOXJRV1l2MVVlclp0?=
+ =?utf-8?B?bVlaN25BSThKNEZocHkwakVaVHFzeWhDOEp5ZkpZdGdnWmJGdWVlQzFpSU43?=
+ =?utf-8?B?QzRMYzh4OE5BbWpuczc3TGs5NVN5M0t5SDNrdkU5bSs2OHdSTDgzeHVucW5M?=
+ =?utf-8?B?Sk0xRW5wV1hVTlZzbXFQMk5RWlhZV0FYOUVndWw3RFRpd2JQK3RCNzZlVkZn?=
+ =?utf-8?B?ZVVkYXJuU0xsVnNEbHJWRjROd0RlMGhQREttZk52YXVIZ0lGSGlXbVRiazBp?=
+ =?utf-8?Q?86h7UOYZSBEst3fmp86A67kjLG9jnq6nHWsPdqp7MGpD?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <6EA9EFD78064F64AA9B6A75EB14F998E@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240626040730-mutt-send-email-mst@kernel.org>
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 53a4d88f-29b9-44e5-33a3-08dc95c22803
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jun 2024 09:27:10.7172
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: O869v8/yoYOVV8crMbbPaLAz6amJtIyDimHKnjNtUU0hcGWtQEk3iMerkgUym+xPo2hRhrxx3IFGKVLfq5rfPQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4144
 
-Wed, Jun 26, 2024 at 10:08:14AM CEST, mst@redhat.com wrote:
->On Wed, Jun 26, 2024 at 09:52:58AM +0200, Jiri Pirko wrote:
->> Thu, Jun 20, 2024 at 12:31:34PM CEST, hengqi@linux.alibaba.com wrote:
->> >On Thu, 20 Jun 2024 06:11:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >> On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
->> >> > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
->> >> > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> wrote:
->> >> > > > On Thu, Jun 20, 2024 at 4:21 PM Jason Wang <jasowang@redhat.com> wrote:
->> >> > > > >
->> >> > > > > On Thu, Jun 20, 2024 at 3:35 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->> >> > > > > >
->> >> > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >> > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
->> >> > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
->> >> > > > > > > >
->> >> > > > > > > >     /* Parameters for control virtqueue, if any */
->> >> > > > > > > >     if (vi->has_cvq) {
->> >> > > > > > > > -           callbacks[total_vqs - 1] = NULL;
->> >> > > > > > > > +           callbacks[total_vqs - 1] = virtnet_cvq_done;
->> >> > > > > > > >             names[total_vqs - 1] = "control";
->> >> > > > > > > >     }
->> >> > > > > > > >
->> >> > > > > > >
->> >> > > > > > > If the # of MSIX vectors is exactly for data path VQs,
->> >> > > > > > > this will cause irq sharing between VQs which will degrade
->> >> > > > > > > performance significantly.
->> >> > > > > > >
->> >> > > > >
->> >> > > > > Why do we need to care about buggy management? I think libvirt has
->> >> > > > > been teached to use 2N+2 since the introduction of the multiqueue[1].
->> >> > > > 
->> >> > > > And Qemu can calculate it correctly automatically since:
->> >> > > > 
->> >> > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
->> >> > > > Author: Jason Wang <jasowang@redhat.com>
->> >> > > > Date:   Mon Mar 8 12:49:19 2021 +0800
->> >> > > > 
->> >> > > >     virtio-net: calculating proper msix vectors on init
->> >> > > > 
->> >> > > >     Currently, the default msix vectors for virtio-net-pci is 3 which is
->> >> > > >     obvious not suitable for multiqueue guest, so we depends on the user
->> >> > > >     or management tools to pass a correct vectors parameter. In fact, we
->> >> > > >     can simplifying this by calculating the number of vectors on realize.
->> >> > > > 
->> >> > > >     Consider we have N queues, the number of vectors needed is 2*N + 2
->> >> > > >     (#queue pairs + plus one config interrupt and control vq). We didn't
->> >> > > >     check whether or not host support control vq because it was added
->> >> > > >     unconditionally by qemu to avoid breaking legacy guests such as Minix.
->> >> > > > 
->> >> > > >     Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com
->> >> > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
->> >> > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
->> >> > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
->> >> > > 
->> >> > > Yes, devices designed according to the spec need to reserve an interrupt
->> >> > > vector for ctrlq. So, Michael, do we want to be compatible with buggy devices?
->> >> > > 
->> >> > > Thanks.
->> >> > 
->> >> > These aren't buggy, the spec allows this. So don't fail, but
->> >> > I'm fine with using polling if not enough vectors.
->> >> 
->> >> sharing with config interrupt is easier code-wise though, FWIW -
->> >> we don't need to maintain two code-paths.
->> >
->> >Yes, it works well - config change irq is used less before - and will not fail.
->> 
->> Please note I'm working on such fallback for admin queue. I would Like
->> to send the patchset by the end of this week. You can then use it easily
->> for cvq.
->> 
->> Something like:
->> /* the config->find_vqs() implementation */
->> int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->>                 struct virtqueue *vqs[], vq_callback_t *callbacks[],
->>                 const char * const names[], const bool *ctx,
->>                 struct irq_affinity *desc)
->> {
->>         int err;
->> 
->>         /* Try MSI-X with one vector per queue. */
->>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
->>                                VP_VQ_VECTOR_POLICY_EACH, ctx, desc);
->>         if (!err)
->>                 return 0;
->>         /* Fallback: MSI-X with one shared vector for config and
->>          * slow path queues, one vector per queue for the rest. */
->>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
->>                                VP_VQ_VECTOR_POLICY_SHARED_SLOW, ctx, desc);
->>         if (!err)
->>                 return 0;
->>         /* Fallback: MSI-X with one vector for config, one shared for queues. */
->>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
->>                                VP_VQ_VECTOR_POLICY_SHARED, ctx, desc);
->>         if (!err)
->>                 return 0;
->>         /* Is there an interrupt? If not give up. */
->>         if (!(to_vp_device(vdev)->pci_dev->irq))
->>                 return err;
->>         /* Finally fall back to regular interrupts. */
->>         return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
->> }
->> 
->> 
->
->
->Well for cvq, we'll need to adjust the API so core
->knows cvq interrupts are be shared with config not
->datapath.
-
-Agreed. I was thinking about introducing some info struct and pass array
-of it instead of callbacks[] and names[]. Then the struct can contain
-flag indication. Something like:
-
-struct vq_info {
-	vq_callback_t *callback;
-	const char *name;
-	bool slow_path;
-};
-
-
->
->
->
->> 
->> >
->> >Thanks.
->> >
->> >> 
->> >> > > > 
->> >> > > > Thanks
->> >> > > > 
->> >> > > > >
->> >> > > > > > > So no, you can not just do it unconditionally.
->> >> > > > > > >
->> >> > > > > > > The correct fix probably requires virtio core/API extensions.
->> >> > > > > >
->> >> > > > > > If the introduction of cvq irq causes interrupts to become shared, then
->> >> > > > > > ctrlq need to fall back to polling mode and keep the status quo.
->> >> > > > >
->> >> > > > > Having to path sounds a burden.
->> >> > > > >
->> >> > > > > >
->> >> > > > > > Thanks.
->> >> > > > > >
->> >> > > > >
->> >> > > > >
->> >> > > > > Thanks
->> >> > > > >
->> >> > > > > [1] https://www.linux-kvm.org/page/Multiqueue
->> >> > > > >
->> >> > > > > > >
->> >> > > > > > > --
->> >> > > > > > > MST
->> >> > > > > > >
->> >> > > > > >
->> >> > > > 
->> >> 
->> >
->
+T24gV2VkLCAyMDI0LTA2LTE5IGF0IDE3OjU0ICswMjAwLCBFdWdlbmlvIFBlcmV6IE1hcnRpbiB3
+cm90ZToNCj4gT24gTW9uLCBKdW4gMTcsIDIwMjQgYXQgNTowOeKAr1BNIERyYWdvcyBUYXR1bGVh
+IDxkdGF0dWxlYUBudmlkaWEuY29tPiB3cm90ZToNCj4gPiANCj4gPiBDdXJyZW50bHksIGhhcmR3
+YXJlIFZRcyBhcmUgY3JlYXRlZCByaWdodCB3aGVuIHRoZSB2ZHBhIGRldmljZSBnZXRzIGludG8N
+Cj4gPiBEUklWRVJfT0sgc3RhdGUuIFRoYXQgaXMgZWFzaWVyIGJlY2F1c2UgbW9zdCBvZiB0aGUg
+VlEgc3RhdGUgaXMga25vd24gYnkNCj4gPiB0aGVuLg0KPiA+IA0KPiA+IFRoaXMgcGF0Y2ggc3dp
+dGNoZXMgdG8gY3JlYXRpbmcgYWxsIFZRcyBhbmQgdGhlaXIgYXNzb2NpYXRlZCByZXNvdXJjZXMN
+Cj4gPiBhdCBkZXZpY2UgY3JlYXRpb24gdGltZS4gVGhlIG1vdGl2YXRpb24gaXMgdG8gcmVkdWNl
+IHRoZSB2ZHBhIGRldmljZQ0KPiA+IGxpdmUgbWlncmF0aW9uIGRvd250aW1lIGJ5IG1vdmluZyB0
+aGUgZXhwZW5zaXZlIG9wZXJhdGlvbiBvZiBjcmVhdGluZw0KPiA+IGFsbCB0aGUgaGFyZHdhcmUg
+VlFzIGFuZCB0aGVpciBhc3NvY2lhdGVkIHJlc291cmNlcyBvdXQgb2YgZG93bnRpbWUgb24NCj4g
+PiB0aGUgZGVzdGluYXRpb24gVk0uDQo+ID4gDQo+ID4gVGhlIFZRcyBhcmUgbm93IGNyZWF0ZWQg
+aW4gYSBibGFuayBzdGF0ZS4gVGhlIFZRIGNvbmZpZ3VyYXRpb24gd2lsbA0KPiA+IGhhcHBlbiBs
+YXRlciwgb24gRFJJVkVSX09LLiBUaGVuIHRoZSBjb25maWd1cmF0aW9uIHdpbGwgYmUgYXBwbGll
+ZCB3aGVuDQo+ID4gdGhlIFZRcyBhcmUgbW92ZWQgdG8gdGhlIFJlYWR5IHN0YXRlLg0KPiA+IA0K
+PiA+IFdoZW4gLnNldF92cV9yZWFkeSgpIGlzIGNhbGxlZCBvbiBhIFZRIGJlZm9yZSBEUklWRVJf
+T0ssIHNwZWNpYWwgY2FyZSBpcw0KPiA+IG5lZWRlZDogbm93IHRoYXQgdGhlIFZRIGlzIGFscmVh
+ZHkgY3JlYXRlZCBhIHJlc3VtZV92cSgpIHdpbGwgYmUNCj4gPiB0cmlnZ2VyZWQgdG9vIGVhcmx5
+IHdoZW4gbm8gbXIgaGFzIGJlZW4gY29uZmlndXJlZCB5ZXQuIFNraXAgY2FsbGluZw0KPiA+IHJl
+c3VtZV92cSgpIGluIHRoaXMgY2FzZSwgbGV0IGl0IGJlIGhhbmRsZWQgZHVyaW5nIERSSVZFUl9P
+Sy4NCj4gPiANCj4gPiBGb3IgdmlydGlvLXZkcGEsIHRoZSBkZXZpY2UgY29uZmlndXJhdGlvbiBp
+cyBkb25lIGVhcmxpZXIgZHVyaW5nDQo+ID4gLnZkcGFfZGV2X2FkZCgpIGJ5IHZkcGFfcmVnaXN0
+ZXJfZGV2aWNlKCkuIEF2b2lkIGNhbGxpbmcNCj4gPiBzZXR1cF92cV9yZXNvdXJjZXMoKSBhIHNl
+Y29uZCB0aW1lIGluIHRoYXQgY2FzZS4NCj4gPiANCj4gDQo+IEkgZ3Vlc3MgdGhpcyBoYXBwZW5z
+IGlmIHZpcnRpb192ZHBhIGlzIGFscmVhZHkgbG9hZGVkLCBidXQgSSBjYW5ub3QNCj4gc2VlIGhv
+dyB0aGlzIGlzIGRpZmZlcmVudCBoZXJlLiBBcGFydCBmcm9tIHRoZSBJT1RMQiwgd2hhdCBlbHNl
+IGRvZXMNCj4gaXQgY2hhbmdlIGZyb20gdGhlIG1seDVfdmRwYSBQT1Y/DQo+IA0KSSBkb24ndCB1
+bmRlcnN0YW5kIHlvdXIgcXVlc3Rpb24sIGNvdWxkIHlvdSByZXBocmFzZSBvciBwcm92aWRlIG1v
+cmUgY29udGV4dA0KcGxlYXNlPw0KDQpUaGFua3MsDQpEcmFnb3MNCg0KPiA+IFNpZ25lZC1vZmYt
+Ynk6IERyYWdvcyBUYXR1bGVhIDxkdGF0dWxlYUBudmlkaWEuY29tPg0KPiA+IFJldmlld2VkLWJ5
+OiBDb3NtaW4gUmF0aXUgPGNyYXRpdUBudmlkaWEuY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJz
+L3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMgfCAzNyArKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKy0tLS0tDQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCAzMiBpbnNlcnRpb25zKCspLCA1IGRl
+bGV0aW9ucygtKQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQv
+bWx4NV92bmV0LmMgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMNCj4gPiBpbmRl
+eCAyNDliNWFmYmUzNGEuLmIyODM2ZmQzZDFkZCAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL3Zk
+cGEvbWx4NS9uZXQvbWx4NV92bmV0LmMNCj4gPiArKysgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQv
+bWx4NV92bmV0LmMNCj4gPiBAQCAtMjQ0NCw3ICsyNDQ0LDcgQEAgc3RhdGljIHZvaWQgbWx4NV92
+ZHBhX3NldF92cV9yZWFkeShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHUxNiBpZHgsIGJvb2wg
+cmVhZHkNCj4gPiAgICAgICAgIG12cSA9ICZuZGV2LT52cXNbaWR4XTsNCj4gPiAgICAgICAgIGlm
+ICghcmVhZHkpIHsNCj4gPiAgICAgICAgICAgICAgICAgc3VzcGVuZF92cShuZGV2LCBtdnEpOw0K
+PiA+IC0gICAgICAgfSBlbHNlIHsNCj4gPiArICAgICAgIH0gZWxzZSBpZiAobXZkZXYtPnN0YXR1
+cyAmIFZJUlRJT19DT05GSUdfU19EUklWRVJfT0spIHsNCj4gPiAgICAgICAgICAgICAgICAgaWYg
+KHJlc3VtZV92cShuZGV2LCBtdnEpKQ0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIHJlYWR5
+ID0gZmFsc2U7DQo+ID4gICAgICAgICB9DQo+ID4gQEAgLTMwNzgsMTAgKzMwNzgsMTggQEAgc3Rh
+dGljIHZvaWQgbWx4NV92ZHBhX3NldF9zdGF0dXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1
+OCBzdGF0dXMpDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBnb3RvIGVycl9z
+ZXR1cDsNCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICB9DQo+ID4gICAgICAgICAgICAgICAg
+ICAgICAgICAgcmVnaXN0ZXJfbGlua19ub3RpZmllcihuZGV2KTsNCj4gPiAtICAgICAgICAgICAg
+ICAgICAgICAgICBlcnIgPSBzZXR1cF92cV9yZXNvdXJjZXMobmRldiwgdHJ1ZSk7DQo+ID4gLSAg
+ICAgICAgICAgICAgICAgICAgICAgaWYgKGVycikgew0KPiA+IC0gICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgbWx4NV92ZHBhX3dhcm4obXZkZXYsICJmYWlsZWQgdG8gc2V0dXAgZHJpdmVy
+XG4iKTsNCj4gPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gZXJyX2RyaXZl
+cjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICBpZiAobmRldi0+c2V0dXApIHsNCj4gPiAr
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVyciA9IHJlc3VtZV92cXMobmRldik7DQo+
+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpZiAoZXJyKSB7DQo+ID4gKyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1seDVfdmRwYV93YXJuKG12ZGV2LCAi
+ZmFpbGVkIHRvIHJlc3VtZSBWUXNcbiIpOw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBnb3RvIGVycl9kcml2ZXI7DQo+ID4gKyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB9DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgfSBlbHNlIHsNCj4gPiAr
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVyciA9IHNldHVwX3ZxX3Jlc291cmNlcyhu
+ZGV2LCB0cnVlKTsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmIChlcnIp
+IHsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWx4NV92ZHBh
+X3dhcm4obXZkZXYsICJmYWlsZWQgdG8gc2V0dXAgZHJpdmVyXG4iKTsNCj4gPiArICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ290byBlcnJfZHJpdmVyOw0KPiA+ICsgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgfQ0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAg
+IH0NCj4gPiAgICAgICAgICAgICAgICAgfSBlbHNlIHsNCj4gPiAgICAgICAgICAgICAgICAgICAg
+ICAgICBtbHg1X3ZkcGFfd2FybihtdmRldiwgImRpZCBub3QgZXhwZWN0IERSSVZFUl9PSyB0byBi
+ZSBjbGVhcmVkXG4iKTsNCj4gPiBAQCAtMzE0Miw2ICszMTUwLDcgQEAgc3RhdGljIGludCBtbHg1
+X3ZkcGFfY29tcGF0X3Jlc2V0KHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdTMyIGZsYWdzKQ0K
+PiA+ICAgICAgICAgICAgICAgICBpZiAobWx4NV92ZHBhX2NyZWF0ZV9kbWFfbXIobXZkZXYpKQ0K
+PiA+ICAgICAgICAgICAgICAgICAgICAgICAgIG1seDVfdmRwYV93YXJuKG12ZGV2LCAiY3JlYXRl
+IE1SIGZhaWxlZFxuIik7DQo+ID4gICAgICAgICB9DQo+ID4gKyAgICAgICBzZXR1cF92cV9yZXNv
+dXJjZXMobmRldiwgZmFsc2UpOw0KPiA+ICAgICAgICAgdXBfd3JpdGUoJm5kZXYtPnJlc2xvY2sp
+Ow0KPiA+IA0KPiA+ICAgICAgICAgcmV0dXJuIDA7DQo+ID4gQEAgLTM4MzYsOCArMzg0NSwyMSBA
+QCBzdGF0aWMgaW50IG1seDVfdmRwYV9kZXZfYWRkKHN0cnVjdCB2ZHBhX21nbXRfZGV2ICp2X21k
+ZXYsIGNvbnN0IGNoYXIgKm5hbWUsDQo+ID4gICAgICAgICAgICAgICAgIGdvdG8gZXJyX3JlZzsN
+Cj4gPiANCj4gPiAgICAgICAgIG1ndGRldi0+bmRldiA9IG5kZXY7DQo+ID4gKw0KPiA+ICsgICAg
+ICAgLyogRm9yIHZpcnRpby12ZHBhLCB0aGUgZGV2aWNlIHdhcyBzZXQgdXAgZHVyaW5nIGRldmlj
+ZSByZWdpc3Rlci4gKi8NCj4gPiArICAgICAgIGlmIChuZGV2LT5zZXR1cCkNCj4gPiArICAgICAg
+ICAgICAgICAgcmV0dXJuIDA7DQo+ID4gKw0KPiA+ICsgICAgICAgZG93bl93cml0ZSgmbmRldi0+
+cmVzbG9jayk7DQo+ID4gKyAgICAgICBlcnIgPSBzZXR1cF92cV9yZXNvdXJjZXMobmRldiwgZmFs
+c2UpOw0KPiA+ICsgICAgICAgdXBfd3JpdGUoJm5kZXYtPnJlc2xvY2spOw0KPiA+ICsgICAgICAg
+aWYgKGVycikNCj4gPiArICAgICAgICAgICAgICAgZ290byBlcnJfc2V0dXBfdnFfcmVzOw0KPiA+
+ICsNCj4gPiAgICAgICAgIHJldHVybiAwOw0KPiA+IA0KPiA+ICtlcnJfc2V0dXBfdnFfcmVzOg0K
+PiA+ICsgICAgICAgX3ZkcGFfdW5yZWdpc3Rlcl9kZXZpY2UoJm12ZGV2LT52ZGV2KTsNCj4gPiAg
+ZXJyX3JlZzoNCj4gPiAgICAgICAgIGRlc3Ryb3lfd29ya3F1ZXVlKG12ZGV2LT53cSk7DQo+ID4g
+IGVycl9yZXMyOg0KPiA+IEBAIC0zODYzLDYgKzM4ODUsMTEgQEAgc3RhdGljIHZvaWQgbWx4NV92
+ZHBhX2Rldl9kZWwoc3RydWN0IHZkcGFfbWdtdF9kZXYgKnZfbWRldiwgc3RydWN0IHZkcGFfZGV2
+aWNlICoNCj4gPiANCj4gPiAgICAgICAgIHVucmVnaXN0ZXJfbGlua19ub3RpZmllcihuZGV2KTsN
+Cj4gPiAgICAgICAgIF92ZHBhX3VucmVnaXN0ZXJfZGV2aWNlKGRldik7DQo+ID4gKw0KPiA+ICsg
+ICAgICAgZG93bl93cml0ZSgmbmRldi0+cmVzbG9jayk7DQo+ID4gKyAgICAgICB0ZWFyZG93bl92
+cV9yZXNvdXJjZXMobmRldik7DQo+ID4gKyAgICAgICB1cF93cml0ZSgmbmRldi0+cmVzbG9jayk7
+DQo+ID4gKw0KPiA+ICAgICAgICAgd3EgPSBtdmRldi0+d3E7DQo+ID4gICAgICAgICBtdmRldi0+
+d3EgPSBOVUxMOw0KPiA+ICAgICAgICAgZGVzdHJveV93b3JrcXVldWUod3EpOw0KPiA+IA0KPiA+
+IC0tDQo+ID4gMi40NS4xDQo+ID4gDQo+IA0KDQo=
