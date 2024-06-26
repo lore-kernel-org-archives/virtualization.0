@@ -1,285 +1,225 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 202CF23BF;
-	Wed, 26 Jun 2024 08:32:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB97415D5DE
+	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 08:37:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719390763; cv=none; b=YwcJlPnvKfLMOTQ5ilhm+rzW1u0KGv5+rAlgYOkSaz5ah18d/Fu7bsTLQh+8+1vB58YKD1pRTa5qYArlrA5Z8BbxW5dqFtlZLoDZlrshZnknuL7IRq8n8qZlw8HuObTlBw7T82hp0DYDoUKak+k9XZPp2t4eGnTOlFyLxTfnipk=
+	t=1719391073; cv=none; b=tzHqbLfDu/Bru5Z5i6JzV0kwMnw/A8qbFwX0MM7pHrUVDWYh9ZAubEQpLNjxNfJzRLcBrK3fqXwXLaDehDLvoZM55wLJqxCw19tlqq9MmZE7+t+azQ7st3tnJvjvGDQYawAmrkxboXrtMthro0Ih/oWXbkHhW01L3VVBmnUZTJA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719390763; c=relaxed/simple;
-	bh=JLfSucvEHpuuXpIlyWN46R9TVxkHIn8qeuwQJkf+gLA=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=b1dBlddv5+u4cW94v/ZW+9dxo4zzRl32v/AqVk4Efnjdd0eUBSSgzifDR9t5EHdcSGyGjiI2BwxwOoV08Qf56XzQb4hFnwG1ceCbc0WCVzih/v9daVuopkhSsGrU1ZqsTWxFr0MaDCaIK9/Pc56yAIQLCv7Ak/84iRC4Ppq2t1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=EeW/c7ZQ; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
+	s=arc-20240116; t=1719391073; c=relaxed/simple;
+	bh=RtiWRIj+hSLQ54YPkKolBiQlrty0POTxE/+VB3Eh8CI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=E5okZiFziY3zI2vloMDSkp3gKyDze8fZhNJ//62YtyihOzIDdhyzktGkdg5+FvJeWvp+pcSZM6QQsULKd/bRtLIe54pUmDEIogIfHOpFvRQUGWoxF81okfvTzI6Ttx9nnejeoftbfcRIn9QN+e75aNHP2sefaVQaIuzx0JoAIs0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HZQBCaKj; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="EeW/c7ZQ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=JLfSucvEHpuuXpIlyWN46R9TVxkHIn8qeuwQJkf+gLA=; b=EeW/c7ZQfLNgv86UYshqV0TG+/
-	47KuIwtAHTr3t1aJ5Gj4RfJqpHMsnMZPgob2Kqa26cewuTRTk3PfIxRZImqAFkmyZ2hqR8dSrhS5g
-	qLxi4cbWSJuhtl4jgqNN7B4KfrqMu/wm1oD6zM6Nznx/8HRtsugaQV0qBQkXdmbocUCxqX3VJX2s4
-	bTo0EFfaDoT7r830c3HXsNI5TFeWsNfbJ7pKxMhKzwhoEfbWqeUdA6i5PvFg/1B6e8sa7Hr+LPj4S
-	Yrc2teeOgjvH1SUiIdkQ91p+O0omvYsHRXIulRkEy3OnxCHALKpkSP9UGQNof+sUkkxdkMc1adLW3
-	B47P/EzQ==;
-Received: from [2001:8b0:10b:5:4085:75b2:1737:3c57] (helo=u3832b3a9db3152.ant.amazon.com)
-	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sMO4q-0000000C4Mj-0JCI;
-	Wed, 26 Jun 2024 08:32:28 +0000
-Message-ID: <d74847bc28037737e1d470501752215905ec6f9e.camel@infradead.org>
-Subject: Re: [RFC PATCH v2] ptp: Add vDSO-style vmclock support
-From: David Woodhouse <dwmw2@infradead.org>
-To: John Stultz <jstultz@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Peter Hilber
- <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org, 
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
- linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>, 
- virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>, "Christopher S.
- Hall" <christopher.s.hall@intel.com>, Jason Wang <jasowang@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Richard
- Cochran <richardcochran@gmail.com>,  Stephen Boyd <sboyd@kernel.org>, Xuan
- Zhuo <xuanzhuo@linux.alibaba.com>, Marc Zyngier <maz@kernel.org>,  Mark
- Rutland <mark.rutland@arm.com>, Daniel Lezcano <daniel.lezcano@linaro.org>,
- Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
- <alexandre.belloni@bootlin.com>
-Date: Wed, 26 Jun 2024 09:32:27 +0100
-In-Reply-To: <CANDhNCpi_MyGWH2jZcSRB4RU28Ga08Cqm8cyY_6wkZhNMJsNSQ@mail.gmail.com>
-References: <87jzic4sgv.ffs@tglx>
-	 <ea7c5eda8180904a6caf476c56973a06bd4b5e78.camel@infradead.org>
-	 <CANDhNCpi_MyGWH2jZcSRB4RU28Ga08Cqm8cyY_6wkZhNMJsNSQ@mail.gmail.com>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-Otk1zO0DqMplnS4FZWSz"
-User-Agent: Evolution 3.44.4-0ubuntu2 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HZQBCaKj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719391070;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7EyR2jI3y57JBzoahqt2bc4GxOzHMK3Z1WoVOJyvS2E=;
+	b=HZQBCaKj45ZAVWw2Pa63fr6B3sGDssUa6oeW7iV2b1YSccXxD39j7ncA9vEGzofLbkm6Fb
+	u5MgvhGzv7y5uFSzYZrwUl6Zd0A/MmBFrAU0fhpemycE5D4PvPd00Kx495GJx6n1kTENNK
+	oR0/7GDswlsP3QQTxUUHcum9K7hB1K0=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-335-jbHiyXvwN1O3ff59Ig-JDw-1; Wed, 26 Jun 2024 04:37:49 -0400
+X-MC-Unique: jbHiyXvwN1O3ff59Ig-JDw-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a6fe721da43so133564866b.3
+        for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 01:37:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719391068; x=1719995868;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7EyR2jI3y57JBzoahqt2bc4GxOzHMK3Z1WoVOJyvS2E=;
+        b=YKrSHqFPOQ+bWqgIj02LjzIE9hRYiR1IE2WAIkdaOnO1v3OTmKZaSRjCJSpnpN2lb5
+         +eLblhOO7WtRICpboUIEhYt83aS2MV2+K+8WIDaCFVej20agynWA3YOBzObr5T5qjvwH
+         083cGndl5dLaIBQORGi+YlptKPNfiXpAQ5a3zqgUjtj4t9xeWdyNp8SLksAwfb5TkAIf
+         CXHE+EBzT/1qqVeUNf6Jtpa3gJt7TlMTDUSiEMvg6epFqTMPnkcQIG4FttfCQIoX3r8x
+         IkfGTWoc4I7INF1zk+HSe6E66WBm0C1TMBzlYr1MV2nOyzMS2Mhp98G7wJ3ezExyC1y0
+         EUYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWTtWJmnVf7ucddh/sfCc4Xg2KmEHn2uRAMGp5DJoM700VM9MrRjQghrGq8+B09KJDYI1P9HV4jnbB5Z736gOye9GZDxXcO1GVF2bZRf80=
+X-Gm-Message-State: AOJu0YxmaPJIcJ54UGkICEDAl0PiBkF1S9eJkLO0IN6cCeaBOkfY6pe0
+	KWw2hUjj3yuN1OZFM+jMQkfuEqcBx4uyy5+qLmlHXle9F63JKPiJV0/uLoEFPJJGZQ+9ww9MnGh
+	nv/mBL3Y9SLN0BjkgHs8wZrKAiM9Dq8cTpWvwID1WnCKl6nzMIn4YZvZ7uKSE5EwE
+X-Received: by 2002:a50:871e:0:b0:57c:ad96:14c8 with SMTP id 4fb4d7f45d1cf-57d4bd8f884mr8506691a12.23.1719391068336;
+        Wed, 26 Jun 2024 01:37:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF0zlrG20Q/erIRLYUmDvFSHuAKwdxWOO2zMTgc/4canrgayIJ1Tp4SqtdXhApLa8Kj5QLs7Q==
+X-Received: by 2002:a50:871e:0:b0:57c:ad96:14c8 with SMTP id 4fb4d7f45d1cf-57d4bd8f884mr8506678a12.23.1719391067659;
+        Wed, 26 Jun 2024 01:37:47 -0700 (PDT)
+Received: from sgarzare-redhat (83.0.40.93.internetdsl.tpnet.pl. [83.0.40.93])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a727900d2f1sm128041566b.180.2024.06.26.01.37.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jun 2024 01:37:47 -0700 (PDT)
+Date: Wed, 26 Jun 2024 10:37:36 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Dorjoy Chowdhury <dorjoychy111@gmail.com>
+Cc: Alexander Graf <graf@amazon.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Alexander Graf <agraf@csgraf.de>, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
+	netdev@vger.kernel.org, stefanha@redhat.com
+Subject: Re: How to implement message forwarding from one CID to another in
+ vhost driver
+Message-ID: <xw2rhgn2s677t6cufp2ndpvvgpdlovej44o6ieo7nz2p6msvnw@zza7jzylpw76>
+References: <554ae947-f06e-4b69-b274-47e8a78ae962@amazon.com>
+ <14e68dd8-b2fa-496f-8dfc-a883ad8434f5@redhat.com>
+ <c5wziphzhyoqb2mwzd2rstpotjqr3zky6hrgysohwsum4wvgi7@qmboatooyddd>
+ <CABgObfasyA7U5Fg5r0gGoFAw73nwGJnWBYmG8vqf0hC2E8SPFw@mail.gmail.com>
+ <sejux5gvpakaopre6mk3fyudi2f56hiuxuevfzay3oohg773kd@5odm3x3fryuq>
+ <CABgObfb-KrmJzr4YBtuN3+_HLm3S1hmjO7uEy0+AxSDeWE3uWg@mail.gmail.com>
+ <l5oxnxkg7owmwuadknttnnl2an37wt3u5kgfjb5563f7llbgwj@bvwfv5d7wrq4>
+ <3b6a1f23-bf0e-416d-8880-4556b87b5137@amazon.com>
+ <hyrgztjkjmftnpra2o2skonfs6bwf2sqrncwtec3e4ckupe5ea@76whtcp3zapf>
+ <CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+
+Hi Dorjoy,
+
+On Tue, Jun 25, 2024 at 11:44:30PM GMT, Dorjoy Chowdhury wrote:
+>Hey Stefano,
+
+[...]
+
+>> >
+>> >So the immediate plan would be to:
+>> >
+>> >  1) Build a new vhost-vsock-forward object model that connects to
+>> >vhost as CID 3 and then forwards every packet from CID 1 to the
+>> >Enclave-CID and every packet that arrives on to CID 3 to CID 2.
+>>
+>> This though requires writing completely from scratch the virtio-vsock
+>> emulation in QEMU. If you have time that would be great, otherwise if
+>> you want to do a PoC, my advice is to start with vhost-user-vsock which
+>> is already there.
+>>
+>
+>Can you give me some more details about how I can implement the
+>daemon? 
+
+We already have a demon written in Rust, so I don't recommend you 
+rewrite one from scratch, just start with that. You can find the daemon 
+and instructions on how to use it with QEMU here [1].
+
+>I would appreciate some pointers to code too.
+
+I sent the pointer to it in my first reply [2].
+
+>
+>Right now, the "nitro-enclave" machine type (wip) in QEMU
+>automatically spawns a VHOST_VSOCK device with the CID equal to the
+>"guest-cid" machine option. I think this is equivalent to using the
+>"-device vhost-vsock-device,guest-cid=N" option explicitly. Does that
+>need any change? I guess instead of "vhost-vsock-device", the
+>vhost-vsock device needs to be equivalent to "-device
+>vhost-user-vsock-device,guest-cid=N"?
+
+Nope, the vhost-user-vsock device requires just a `chardev` option.
+The chardev points to the Unix socket used by QEMU to talk with the 
+daemon. The daemon has a parameter to set the CID. See [1] for the 
+examples.
+
+>
+>The applications inside the nitro-enclave VM will still connect and
+>talk to CID 3. So on the daemon side, do we need to spawn a device
+>that has CID 3 and then forward everything this device receives to CID
+>1 (VMADDR_CID_LOCAL) same port and everything it receives from CID 1
+>to the "guest-cid"? 
+
+Yep, I think this is right.
+Note: to use VMADDR_CID_LOCAL, the host needs to load `vsock_loopback` 
+kernel module.
+
+Before modifying the code, if you want to do some testing, perhaps you 
+can use socat (which supports both UNIX-* and VSOCK-*). The daemon for 
+now exposes two unix sockets, one is used to communicate with QEMU via 
+the vhost-user protocol, and the other is to be used by the application 
+to communicate with vsock sockets in the guest using the hybrid protocol 
+defined by firecracker. So you could initiate a socat between the latter 
+and VMADDR_CID_LOCAL, the only problem I see is that you have to send 
+the first string provided by the hybrid protocol (CONNECT 1234), but for 
+a PoC it should be ok.
+
+I just tried the following and it works without touching any code:
+
+shell1$ ./target/debug/vhost-device-vsock \
+     --vm guest-cid=3,socket=/tmp/vhost3.socket,uds-path=/tmp/vm3.vsock
+
+shell2$ sudo modprobe vsock_loopback
+shell2$ socat VSOCK-LISTEN:1234 UNIX-CONNECT:/tmp/vm3.vsock
+
+shell3$ qemu-system-x86_64 -smp 2 -M q35,accel=kvm,memory-backend=mem \
+     -drive file=fedora40.qcow2,format=qcow2,if=virtio\
+     -chardev socket,id=char0,path=/tmp/vhost3.socket \
+     -device vhost-user-vsock-pci,chardev=char0 \
+     -object memory-backend-memfd,id=mem,size=512M \
+     -nographic
+
+     guest$ nc --vsock -l 1234
+
+shell4$ nc --vsock 1 1234
+CONNECT 1234
+
+     Note: the `CONNECT 1234` is required by the hybrid vsock protocol 
+     defined by firecracker, so if we extend the vhost-device-vsock 
+     daemon to forward packet to VMADDR_CID_LOCAL, that would not be 
+     needed (including running socat).
 
 
---=-Otk1zO0DqMplnS4FZWSz
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+This is just an example for how to use loopback, now if from the VM you 
+want to connect to a CID other than 2, then we have to modify the daemon 
+to do that.
 
-On Tue, 2024-06-25 at 15:22 -0700, John Stultz wrote:
-> On Tue, Jun 25, 2024 at 2:48=E2=80=AFPM David Woodhouse <dwmw2@infradead.=
-org> wrote:
-> > On Tue, 2024-06-25 at 23:34 +0200, Thomas Gleixner wrote:
-> > > On Tue, Jun 25 2024 at 20:01, David Woodhouse wrote:
-> > > > From: David Woodhouse <dwmw@amazon.co.uk>
-> > > >=20
-> > > > The vmclock "device" provides a shared memory region with precision=
- clock
-> > > > information. By using shared memory, it is safe across Live Migrati=
-on.
-> > > >=20
-> > > > Like the KVM PTP clock, this can convert TSC-based cross timestamps=
- into
-> > > > KVM clock values. Unlike the KVM PTP clock, it does so only when su=
-ch is
-> > > > actually helpful.
-> > > >=20
-> > > > The memory region of the device is also exposed to userspace so it =
-can be
-> > > > read or memory mapped by application which need reliable notificati=
-on of
-> > > > clock disruptions.
-> > >=20
-> > > There is effort underway to expose PTP clocks to user space via VDSO.
-> >=20
-> > Ooh, interesting. Got a reference to that please?
-> >=20
-> > > =C2=A0Can we please not expose an ad hoc interface for that?
-> >=20
-> > Absolutely. I'm explicitly trying to intercept the virtio-rtc
-> > specification here, to *avoid* having to do anything ad hoc.
-> >=20
-> > Note that this is a "vDSO-style" interface from hypervisor to guest via
-> > a shared memory region, not necessarily an actual vDSO.
-> >=20
-> > But yes, it *is* intended to be exposed to userspace, so that userspace
-> > can know the *accurate* time without a system call, and know that it
-> > hasn't been perturbed by live migration.
->=20
-> Yea, I was going to raise a concern that just defining an mmaped
-> structure means it has to trust the guest logic is as expected. It's
-> good that it's versioned! :)
+>The applications that will be running in the host
+>need to be changed so that instead of connecting to the "guest-cid" of
+>the nitro-enclave VM, they will instead connect to VMADDR_CID_LOCAL.
+>Is my understanding correct?
 
-Right. Although it's basically a pvclock, and we've had those for ages.
+Yep.
 
-The main difference here is that we add an indicator that tells the
-guest that it's been live migrated, so any additional NTP/PTP
-refinement that the *guest* has done of its oscillator, should now be
-discarded.
+>
+>BTW is there anything related to the "VMADDR_FLAG_TO_HOST" flag that
+>needs to be checked? I remember some discussion about it.
 
-It's also designed to be useful in "disruption-only" mode, where the
-pvclock information isn't actually populated, so *all* it does is tell
-guests that their clock is now hosed due to live migration.
+No, that flag is handled by the driver. If that flag is on, the driver 
+forwards the packet to the host, regardless of the destination CID. So 
+it has to be set by the application in the guest, but it should already 
+do that since that flag was introduced just for Nitro enclaves.
 
-That part is why it needs to be mappable directly to userspace, so that
-userspace can not only get a timestamp but *also* know that it's
-actually valid. All without a system call.
+>
+>It would be great if you could give me some details about how I can
+>achieve the CID 3 <-> CID 2 communication using the vhost-user-vsock.
 
-The critical use cases are financial systems where they incur massive
-fines if they submit mis-timestamped transactions, and distributed
-databases which rely on accurate timestamps (and error bounds) for
-eventual coherence. Live migration can screw those completely.
+CID 3 <-> CID 2 is the standard use case, right?
+The readme in [1] contains several examples, let me know if you need 
+more details ;-)
 
-I'm open to changing fairly much anything about the proposal as long as
-we can address those use cases (which the existing virtio-rtc and other
-KVM enlightenments do not).
+>Is this https://github.com/stefano-garzarella/vhost-user-vsock where I
+>would need to add support for forwarding everything to
+>VMADDR_CID_LOCAL via an option maybe?
 
-> I'd fret a bit about exposing this to userland. It feels very similar
-> to the old powerpc systemcfg implementation that similarly mapped just
-> kernel data out to userland and was difficult to maintain as changes
-> were made. Would including a code page like a proper vdso make sense
-> to make this more flexible of an UABI to maintain?
+Nope, that one was a PoC and the repo is archived, the daemon is [1].
+BTW, I agree on the option for the forwarding.
 
-I think the structure itself should be stable once we've bikeshedded it
-a bit. But there is certainly some potential for vDSO functions which
-help us expose it to the user...
+Thanks,
+Stefano
 
-This structure exposes a 'disruption count' which is updated every time
-the TSC/counter is messed with by live migration. But what is userspace
-actually going to *compare* it with?
+[1] 
+https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock
+[2] 
+https://lore.kernel.org/virtualization/CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com/T/#m4a50f94a5329cd262412437ac80a4f406404bf20
 
-It basically needs to compare it with the disruption count when the
-clock was last synchronized, so maybe the kernel could export *that* to
-vDSO too, then expose a simple vDSO function which reports whether the
-clock is valid?
-
-The 'invalid' code path could turn into an actual system call which
-makes the kernel (check for itself and) call ntp_clear() when the
-disruption occurs. Or maybe not just ntp_clear() but actually consume
-the pvclock rate information directly and apply the *new* calibration?
-
-That kind of thing would be great, and I've definitely tried to design
-the structure so that it *can* be made a first-class citizen within the
-kernel's timekeeping code and used like that.
-
-But I was going to start with a more modest proposal that it's "just a
-device", and applications which care about reliable time after LM would
-have to /dev/vmclock0 and mmap it and check for themselves. (Which
-would be assisted by things like the ClockBound library).
-
-
-
---=-Otk1zO0DqMplnS4FZWSz
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCEkQw
-ggYQMIID+KADAgECAhBNlCwQ1DvglAnFgS06KwZPMA0GCSqGSIb3DQEBDAUAMIGIMQswCQYDVQQG
-EwJVUzETMBEGA1UECBMKTmV3IEplcnNleTEUMBIGA1UEBxMLSmVyc2V5IENpdHkxHjAcBgNVBAoT
-FVRoZSBVU0VSVFJVU1QgTmV0d29yazEuMCwGA1UEAxMlVVNFUlRydXN0IFJTQSBDZXJ0aWZpY2F0
-aW9uIEF1dGhvcml0eTAeFw0xODExMDIwMDAwMDBaFw0zMDEyMzEyMzU5NTlaMIGWMQswCQYDVQQG
-EwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYD
-VQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50
-aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
-AQEAyjztlApB/975Rrno1jvm2pK/KxBOqhq8gr2+JhwpKirSzZxQgT9tlC7zl6hn1fXjSo5MqXUf
-ItMltrMaXqcESJuK8dtK56NCSrq4iDKaKq9NxOXFmqXX2zN8HHGjQ2b2Xv0v1L5Nk1MQPKA19xeW
-QcpGEGFUUd0kN+oHox+L9aV1rjfNiCj3bJk6kJaOPabPi2503nn/ITX5e8WfPnGw4VuZ79Khj1YB
-rf24k5Ee1sLTHsLtpiK9OjG4iQRBdq6Z/TlVx/hGAez5h36bBJMxqdHLpdwIUkTqT8se3ed0PewD
-ch/8kHPo5fZl5u1B0ecpq/sDN/5sCG52Ds+QU5O5EwIDAQABo4IBZDCCAWAwHwYDVR0jBBgwFoAU
-U3m/WqorSs9UgOHYm8Cd8rIDZsswHQYDVR0OBBYEFAnA8vwL2pTbX/4r36iZQs/J4K0AMA4GA1Ud
-DwEB/wQEAwIBhjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEF
-BQcDBDARBgNVHSAECjAIMAYGBFUdIAAwUAYDVR0fBEkwRzBFoEOgQYY/aHR0cDovL2NybC51c2Vy
-dHJ1c3QuY29tL1VTRVJUcnVzdFJTQUNlcnRpZmljYXRpb25BdXRob3JpdHkuY3JsMHYGCCsGAQUF
-BwEBBGowaDA/BggrBgEFBQcwAoYzaHR0cDovL2NydC51c2VydHJ1c3QuY29tL1VTRVJUcnVzdFJT
-QUFkZFRydXN0Q0EuY3J0MCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1c3QuY29tMA0G
-CSqGSIb3DQEBDAUAA4ICAQBBRHUAqznCFfXejpVtMnFojADdF9d6HBA4kMjjsb0XMZHztuOCtKF+
-xswhh2GqkW5JQrM8zVlU+A2VP72Ky2nlRA1GwmIPgou74TZ/XTarHG8zdMSgaDrkVYzz1g3nIVO9
-IHk96VwsacIvBF8JfqIs+8aWH2PfSUrNxP6Ys7U0sZYx4rXD6+cqFq/ZW5BUfClN/rhk2ddQXyn7
-kkmka2RQb9d90nmNHdgKrwfQ49mQ2hWQNDkJJIXwKjYA6VUR/fZUFeCUisdDe/0ABLTI+jheXUV1
-eoYV7lNwNBKpeHdNuO6Aacb533JlfeUHxvBz9OfYWUiXu09sMAviM11Q0DuMZ5760CdO2VnpsXP4
-KxaYIhvqPqUMWqRdWyn7crItNkZeroXaecG03i3mM7dkiPaCkgocBg0EBYsbZDZ8bsG3a08LwEsL
-1Ygz3SBsyECa0waq4hOf/Z85F2w2ZpXfP+w8q4ifwO90SGZZV+HR/Jh6rEaVPDRF/CEGVqR1hiuQ
-OZ1YL5ezMTX0ZSLwrymUE0pwi/KDaiYB15uswgeIAcA6JzPFf9pLkAFFWs1QNyN++niFhsM47qod
-x/PL+5jR87myx5uYdBEQkkDc+lKB1Wct6ucXqm2EmsaQ0M95QjTmy+rDWjkDYdw3Ms6mSWE3Bn7i
-5ZgtwCLXgAIe5W8mybM2JzCCBhQwggT8oAMCAQICEQDGvhmWZ0DEAx0oURL6O6l+MA0GCSqGSIb3
-DQEBCwUAMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
-VQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNlY3RpZ28g
-UlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMB4XDTIyMDEwNzAw
-MDAwMFoXDTI1MDEwNjIzNTk1OVowJDEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9y
-ZzCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBALQ3GpC2bomUqk+91wLYBzDMcCj5C9m6
-oZaHwvmIdXftOgTbCJXADo6G9T7BBAebw2JV38EINgKpy/ZHh7htyAkWYVoFsFPrwHounto8xTsy
-SSePMiPlmIdQ10BcVSXMUJ3Juu16GlWOnAMJY2oYfEzmE7uT9YgcBqKCo65pTFmOnR/VVbjJk4K2
-xE34GC2nAdUQkPFuyaFisicc6HRMOYXPuF0DuwITEKnjxgNjP+qDrh0db7PAjO1D4d5ftfrsf+kd
-RR4gKVGSk8Tz2WwvtLAroJM4nXjNPIBJNT4w/FWWc/5qPHJy2U+eITZ5LLE5s45mX2oPFknWqxBo
-bQZ8a9dsZ3dSPZBvE9ZrmtFLrVrN4eo1jsXgAp1+p7bkfqd3BgBEmfsYWlBXO8rVXfvPgLs32VdV
-NZxb/CDWPqBsiYv0Hv3HPsz07j5b+/cVoWqyHDKzkaVbxfq/7auNVRmPB3v5SWEsH8xi4Bez2V9U
-KxfYCnqsjp8RaC2/khxKt0A552Eaxnz/4ly/2C7wkwTQnBmdlFYhAflWKQ03Ufiu8t3iBE3VJbc2
-5oMrglj7TRZrmKq3CkbFnX0fyulB+kHimrt6PIWn7kgyl9aelIl6vtbhMA+l0nfrsORMa4kobqQ5
-C5rveVgmcIad67EDa+UqEKy/GltUwlSh6xy+TrK1tzDvAgMBAAGjggHMMIIByDAfBgNVHSMEGDAW
-gBQJwPL8C9qU21/+K9+omULPyeCtADAdBgNVHQ4EFgQUzMeDMcimo0oz8o1R1Nver3ZVpSkwDgYD
-VR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMC
-MEAGA1UdIAQ5MDcwNQYMKwYBBAGyMQECAQEBMCUwIwYIKwYBBQUHAgEWF2h0dHBzOi8vc2VjdGln
-by5jb20vQ1BTMFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9jcmwuc2VjdGlnby5jb20vU2VjdGln
-b1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcmwwgYoGCCsGAQUFBwEB
-BH4wfDBVBggrBgEFBQcwAoZJaHR0cDovL2NydC5zZWN0aWdvLmNvbS9TZWN0aWdvUlNBQ2xpZW50
-QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAjBggrBgEFBQcwAYYXaHR0cDovL29j
-c3Auc2VjdGlnby5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5mcmFkZWFkLm9yZzANBgkqhkiG9w0B
-AQsFAAOCAQEAyW6MUir5dm495teKqAQjDJwuFCi35h4xgnQvQ/fzPXmtR9t54rpmI2TfyvcKgOXp
-qa7BGXNFfh1JsqexVkIqZP9uWB2J+uVMD+XZEs/KYNNX2PvIlSPrzIB4Z2wyIGQpaPLlYflrrVFK
-v9CjT2zdqvy2maK7HKOQRt3BiJbVG5lRiwbbygldcALEV9ChWFfgSXvrWDZspnU3Gjw/rMHrGnql
-Htlyebp3pf3fSS9kzQ1FVtVIDrL6eqhTwJxe+pXSMMqFiN0whpBtXdyDjzBtQTaZJ7zTT/vlehc/
-tDuqZwGHm/YJy883Ll+GP3NvOkgaRGWEuYWJJ6hFCkXYjyR9IzCCBhQwggT8oAMCAQICEQDGvhmW
-Z0DEAx0oURL6O6l+MA0GCSqGSIb3DQEBCwUAMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3Jl
-YXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0
-ZWQxPjA8BgNVBAMTNVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJl
-IEVtYWlsIENBMB4XDTIyMDEwNzAwMDAwMFoXDTI1MDEwNjIzNTk1OVowJDEiMCAGCSqGSIb3DQEJ
-ARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBALQ3
-GpC2bomUqk+91wLYBzDMcCj5C9m6oZaHwvmIdXftOgTbCJXADo6G9T7BBAebw2JV38EINgKpy/ZH
-h7htyAkWYVoFsFPrwHounto8xTsySSePMiPlmIdQ10BcVSXMUJ3Juu16GlWOnAMJY2oYfEzmE7uT
-9YgcBqKCo65pTFmOnR/VVbjJk4K2xE34GC2nAdUQkPFuyaFisicc6HRMOYXPuF0DuwITEKnjxgNj
-P+qDrh0db7PAjO1D4d5ftfrsf+kdRR4gKVGSk8Tz2WwvtLAroJM4nXjNPIBJNT4w/FWWc/5qPHJy
-2U+eITZ5LLE5s45mX2oPFknWqxBobQZ8a9dsZ3dSPZBvE9ZrmtFLrVrN4eo1jsXgAp1+p7bkfqd3
-BgBEmfsYWlBXO8rVXfvPgLs32VdVNZxb/CDWPqBsiYv0Hv3HPsz07j5b+/cVoWqyHDKzkaVbxfq/
-7auNVRmPB3v5SWEsH8xi4Bez2V9UKxfYCnqsjp8RaC2/khxKt0A552Eaxnz/4ly/2C7wkwTQnBmd
-lFYhAflWKQ03Ufiu8t3iBE3VJbc25oMrglj7TRZrmKq3CkbFnX0fyulB+kHimrt6PIWn7kgyl9ae
-lIl6vtbhMA+l0nfrsORMa4kobqQ5C5rveVgmcIad67EDa+UqEKy/GltUwlSh6xy+TrK1tzDvAgMB
-AAGjggHMMIIByDAfBgNVHSMEGDAWgBQJwPL8C9qU21/+K9+omULPyeCtADAdBgNVHQ4EFgQUzMeD
-Mcimo0oz8o1R1Nver3ZVpSkwDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYw
-FAYIKwYBBQUHAwQGCCsGAQUFBwMCMEAGA1UdIAQ5MDcwNQYMKwYBBAGyMQECAQEBMCUwIwYIKwYB
-BQUHAgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9j
-cmwuc2VjdGlnby5jb20vU2VjdGlnb1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1h
-aWxDQS5jcmwwgYoGCCsGAQUFBwEBBH4wfDBVBggrBgEFBQcwAoZJaHR0cDovL2NydC5zZWN0aWdv
-LmNvbS9TZWN0aWdvUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAj
-BggrBgEFBQcwAYYXaHR0cDovL29jc3Auc2VjdGlnby5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5m
-cmFkZWFkLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAyW6MUir5dm495teKqAQjDJwuFCi35h4xgnQv
-Q/fzPXmtR9t54rpmI2TfyvcKgOXpqa7BGXNFfh1JsqexVkIqZP9uWB2J+uVMD+XZEs/KYNNX2PvI
-lSPrzIB4Z2wyIGQpaPLlYflrrVFKv9CjT2zdqvy2maK7HKOQRt3BiJbVG5lRiwbbygldcALEV9Ch
-WFfgSXvrWDZspnU3Gjw/rMHrGnqlHtlyebp3pf3fSS9kzQ1FVtVIDrL6eqhTwJxe+pXSMMqFiN0w
-hpBtXdyDjzBtQTaZJ7zTT/vlehc/tDuqZwGHm/YJy883Ll+GP3NvOkgaRGWEuYWJJ6hFCkXYjyR9
-IzGCBMcwggTDAgEBMIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVz
-dGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMT
-NVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA
-xr4ZlmdAxAMdKFES+jupfjANBglghkgBZQMEAgEFAKCCAeswGAYJKoZIhvcNAQkDMQsGCSqGSIb3
-DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwNjI2MDgzMjI3WjAvBgkqhkiG9w0BCQQxIgQgZ/Nk13bH
-P4Q45gq19HJ//DAJbV7MnSoygUsJZjMC7UMwgb0GCSsGAQQBgjcQBDGBrzCBrDCBljELMAkGA1UE
-BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEYMBYG
-A1UEChMPU2VjdGlnbyBMaW1pdGVkMT4wPAYDVQQDEzVTZWN0aWdvIFJTQSBDbGllbnQgQXV0aGVu
-dGljYXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQQIRAMa+GZZnQMQDHShREvo7qX4wgb8GCyqGSIb3
-DQEJEAILMYGvoIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVy
-MRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNl
-Y3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEAxr4Z
-lmdAxAMdKFES+jupfjANBgkqhkiG9w0BAQEFAASCAgCYM49vYhr1YjUs1p7K7xl8RE+CjO0/16RT
-h+EFYCyN2fRuE9m2AsDzyz59Bcg5TdxKliUZkg3cQFOZs7YCWBt4hkE6NqLVnS1qnMxFxI6rnU/S
-30VW30l1UfL/EmP7hfuR9IjZVj/75lSY8R0SOgv89117hRJHWdjbkiiV2LRB4jr7EevWmtknxTSi
-XZ2iejXkN18QiNU3A0Azz0OJZgFmqZKXEuMSWB6rFQ7tOoowpDl4aL06VfHyDE37Rdz78DASp7sM
-lyBE6fY3N3WVWtGYG8uwKqaOpd3IsC6KU1hxGsLXRKfpLHM2CTfvsQRhNvTvvgxs0g7t+cq/8FsQ
-V8TDEgBH5DdEdSk/QlyBV8txF5hRGe19ZTC2VZfLVA6XJqKKr9Ml7ZommT2TAYI3YRsQinsQuQt4
-6Gkd+c1KvK0QHys6o9QzXLVZ2Z8utFuGDv7JSBDxX+Qk1ix2y2SWRogwycEYcaMK8CwcFrZrEYCy
-GuC0KbG32SXT27NFIqco5o5VFy6ZhYQXCBFXbRPdIh9XW2qIlb8Qv1LLVGx730DQ+RaPe6iXD+nj
-pyuaVIafzypheJIlusmVKgwmqoDxy864vyilK+hd+w6i/xbMkLdrvi0HsW9Ql9pqcPHzbqQNzhJd
-Ezdj5ESdTlkBFW5Lw5UvY9Gw+kFkVlqoVv2tDhybhwAAAAAAAA==
-
-
---=-Otk1zO0DqMplnS4FZWSz--
