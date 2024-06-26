@@ -1,225 +1,247 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB97415D5DE
-	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 08:37:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83DC15F316
+	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 08:43:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719391073; cv=none; b=tzHqbLfDu/Bru5Z5i6JzV0kwMnw/A8qbFwX0MM7pHrUVDWYh9ZAubEQpLNjxNfJzRLcBrK3fqXwXLaDehDLvoZM55wLJqxCw19tlqq9MmZE7+t+azQ7st3tnJvjvGDQYawAmrkxboXrtMthro0Ih/oWXbkHhW01L3VVBmnUZTJA=
+	t=1719391399; cv=none; b=J9qdEcrmrJ8cc9SVN0GPmX/Pb8jfW1WS//R33K5pzbbUpjNalhzT9z3JipoF7a3+pX5iJjQ2ooa3EQOJKUjtCX5AIjGsg3E7xUEWREvl52g85kbH9YoywQ5ASURZlbD1B7+9H2AFlwTAJtSXRVlTEBddRAw+ZlyrGWr9qD6vFyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719391073; c=relaxed/simple;
-	bh=RtiWRIj+hSLQ54YPkKolBiQlrty0POTxE/+VB3Eh8CI=;
+	s=arc-20240116; t=1719391399; c=relaxed/simple;
+	bh=C2ox0KqbefqgIcR1h5oqnPkIXq4UGVS9kbaYWQ6dfb8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=E5okZiFziY3zI2vloMDSkp3gKyDze8fZhNJ//62YtyihOzIDdhyzktGkdg5+FvJeWvp+pcSZM6QQsULKd/bRtLIe54pUmDEIogIfHOpFvRQUGWoxF81okfvTzI6Ttx9nnejeoftbfcRIn9QN+e75aNHP2sefaVQaIuzx0JoAIs0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HZQBCaKj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=gRUybNAXwW1+Fv0aVr6o+bsqKjKRGniIE8CG6Qqj4F/366Z/JwjUOly13MwRPLeI4n/E2KHIiKppzTEpFRKiAVxg1MCA9rKolVKWSMbIKu7gNmKAu7RMHYQikS+8YbqLy4XzTxcRXNk71G8YQkZ1sxgAoT+KhyLH41Inqa3NPFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=ZxCDMVvj; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HZQBCaKj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719391070;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7EyR2jI3y57JBzoahqt2bc4GxOzHMK3Z1WoVOJyvS2E=;
-	b=HZQBCaKj45ZAVWw2Pa63fr6B3sGDssUa6oeW7iV2b1YSccXxD39j7ncA9vEGzofLbkm6Fb
-	u5MgvhGzv7y5uFSzYZrwUl6Zd0A/MmBFrAU0fhpemycE5D4PvPd00Kx495GJx6n1kTENNK
-	oR0/7GDswlsP3QQTxUUHcum9K7hB1K0=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-335-jbHiyXvwN1O3ff59Ig-JDw-1; Wed, 26 Jun 2024 04:37:49 -0400
-X-MC-Unique: jbHiyXvwN1O3ff59Ig-JDw-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a6fe721da43so133564866b.3
-        for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 01:37:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="ZxCDMVvj"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4247f36f689so44695155e9.1
+        for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 01:43:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1719391395; x=1719996195; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=+vu6CAngNKGlbKo6gG6ckEU4iEDVbJhe6KmDGwESUxA=;
+        b=ZxCDMVvjuaaorG/lz1uoY/9NYkAkamYnnn0BGITklP87cTI8Q//X6fSHxZrI+xp0Xr
+         bPPVTEdrAK/IW6O319NPWnH/oooOUc8E+5DC5MeKf1NhNgiZRc75mWLGhBtWTFL40FaU
+         YjKoxvrpRUQ5cb4OWY+MfzCr6J/Q/7mjyILLafrbTrhz94JjQlnrpudhj46nYg6uEU3Q
+         wuAJU4YR3w7QsFpnBs/m5kITiC1fQ2PX9yr46yUvq/hx+35E3o0lTkE11VvNpBA24ixp
+         ibbxz1uTLcYJoLLZHilKYC1F4BTVhHRYMQALlaOuNUdVr6uZBHe0Qftr1jqqZtN0mMwo
+         aQ/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719391068; x=1719995868;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7EyR2jI3y57JBzoahqt2bc4GxOzHMK3Z1WoVOJyvS2E=;
-        b=YKrSHqFPOQ+bWqgIj02LjzIE9hRYiR1IE2WAIkdaOnO1v3OTmKZaSRjCJSpnpN2lb5
-         +eLblhOO7WtRICpboUIEhYt83aS2MV2+K+8WIDaCFVej20agynWA3YOBzObr5T5qjvwH
-         083cGndl5dLaIBQORGi+YlptKPNfiXpAQ5a3zqgUjtj4t9xeWdyNp8SLksAwfb5TkAIf
-         CXHE+EBzT/1qqVeUNf6Jtpa3gJt7TlMTDUSiEMvg6epFqTMPnkcQIG4FttfCQIoX3r8x
-         IkfGTWoc4I7INF1zk+HSe6E66WBm0C1TMBzlYr1MV2nOyzMS2Mhp98G7wJ3ezExyC1y0
-         EUYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWTtWJmnVf7ucddh/sfCc4Xg2KmEHn2uRAMGp5DJoM700VM9MrRjQghrGq8+B09KJDYI1P9HV4jnbB5Z736gOye9GZDxXcO1GVF2bZRf80=
-X-Gm-Message-State: AOJu0YxmaPJIcJ54UGkICEDAl0PiBkF1S9eJkLO0IN6cCeaBOkfY6pe0
-	KWw2hUjj3yuN1OZFM+jMQkfuEqcBx4uyy5+qLmlHXle9F63JKPiJV0/uLoEFPJJGZQ+9ww9MnGh
-	nv/mBL3Y9SLN0BjkgHs8wZrKAiM9Dq8cTpWvwID1WnCKl6nzMIn4YZvZ7uKSE5EwE
-X-Received: by 2002:a50:871e:0:b0:57c:ad96:14c8 with SMTP id 4fb4d7f45d1cf-57d4bd8f884mr8506691a12.23.1719391068336;
-        Wed, 26 Jun 2024 01:37:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF0zlrG20Q/erIRLYUmDvFSHuAKwdxWOO2zMTgc/4canrgayIJ1Tp4SqtdXhApLa8Kj5QLs7Q==
-X-Received: by 2002:a50:871e:0:b0:57c:ad96:14c8 with SMTP id 4fb4d7f45d1cf-57d4bd8f884mr8506678a12.23.1719391067659;
-        Wed, 26 Jun 2024 01:37:47 -0700 (PDT)
-Received: from sgarzare-redhat (83.0.40.93.internetdsl.tpnet.pl. [83.0.40.93])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a727900d2f1sm128041566b.180.2024.06.26.01.37.45
+        d=1e100.net; s=20230601; t=1719391395; x=1719996195;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+vu6CAngNKGlbKo6gG6ckEU4iEDVbJhe6KmDGwESUxA=;
+        b=IQpQy9uw5QUlzeFS/5q0+CkuFPyannss/5O0Ub+nPUvYYmMJzZMLxPzfLF5+dSh+dP
+         1rVgK+OGKGgrCZFPJogr4rd6eTZgvzl21vQWIeF4l6/lNxPis4L4kwWPJs/dSt+Gc9Tr
+         9EmszRBsr3hJpsskaF5aZyDB6xaxaB9gwlZTXfI5YjDxacodeEq14qY1j2INg/6mRZpn
+         08jy0pqwyC0fMqGgHsdmso8uixp8dF33YIabQZShzXJ0KqmdL2Y52cnOL+UXakbKis9N
+         D54L8Di02xGC66c+BTrFogyuYD1aXbJg89CX+u5wWpu1IDPKeoU0pFQXPAyIwi/6Qswb
+         Xtqw==
+X-Forwarded-Encrypted: i=1; AJvYcCXm5EuhP4jnwED078iszvMBlVCj3r5EdmbN8Gal7nobI4KCM2d1k+7rCXU5GweqQIOyz0mDe8vIqRoQYWrPjsWV5X6Hezpx1SlKnykq/8U=
+X-Gm-Message-State: AOJu0YwjIGSpejUXdex4Ul361IbIUckYZNshdt/KouEzpYYaG2Uy4WA4
+	8ZCyrh4k0whPtrVehC9WoKw0XR13FGDAtPSXOm/IQIEwQk3E/q1zgQQJ6dc1/Ck=
+X-Google-Smtp-Source: AGHT+IEkBVGWG6r8INvHXHS1OoC6a2g8D6yuEsFL7uFC/fiKvKH09PT6Z5FhZ0ah6BTan5HW5rn3eA==
+X-Received: by 2002:a5d:526d:0:b0:35e:4f42:6016 with SMTP id ffacd0b85a97d-366e7a35de0mr7166540f8f.30.1719391395042;
+        Wed, 26 Jun 2024 01:43:15 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-366f973b7e5sm6345965f8f.14.2024.06.26.01.43.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jun 2024 01:37:47 -0700 (PDT)
-Date: Wed, 26 Jun 2024 10:37:36 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Dorjoy Chowdhury <dorjoychy111@gmail.com>
-Cc: Alexander Graf <graf@amazon.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Alexander Graf <agraf@csgraf.de>, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	netdev@vger.kernel.org, stefanha@redhat.com
-Subject: Re: How to implement message forwarding from one CID to another in
- vhost driver
-Message-ID: <xw2rhgn2s677t6cufp2ndpvvgpdlovej44o6ieo7nz2p6msvnw@zza7jzylpw76>
-References: <554ae947-f06e-4b69-b274-47e8a78ae962@amazon.com>
- <14e68dd8-b2fa-496f-8dfc-a883ad8434f5@redhat.com>
- <c5wziphzhyoqb2mwzd2rstpotjqr3zky6hrgysohwsum4wvgi7@qmboatooyddd>
- <CABgObfasyA7U5Fg5r0gGoFAw73nwGJnWBYmG8vqf0hC2E8SPFw@mail.gmail.com>
- <sejux5gvpakaopre6mk3fyudi2f56hiuxuevfzay3oohg773kd@5odm3x3fryuq>
- <CABgObfb-KrmJzr4YBtuN3+_HLm3S1hmjO7uEy0+AxSDeWE3uWg@mail.gmail.com>
- <l5oxnxkg7owmwuadknttnnl2an37wt3u5kgfjb5563f7llbgwj@bvwfv5d7wrq4>
- <3b6a1f23-bf0e-416d-8880-4556b87b5137@amazon.com>
- <hyrgztjkjmftnpra2o2skonfs6bwf2sqrncwtec3e4ckupe5ea@76whtcp3zapf>
- <CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com>
+        Wed, 26 Jun 2024 01:43:14 -0700 (PDT)
+Date: Wed, 26 Jun 2024 10:43:11 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Heng Qi <hengqi@linux.alibaba.com>, Jason Wang <jasowang@redhat.com>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
+Message-ID: <ZnvUn-Kq4Al0nMQZ@nanopsycho.orion>
+References: <20240619171708-mutt-send-email-mst@kernel.org>
+ <1718868555.2701075-5-hengqi@linux.alibaba.com>
+ <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
+ <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
+ <1718877195.0503237-9-hengqi@linux.alibaba.com>
+ <20240620060816-mutt-send-email-mst@kernel.org>
+ <20240620061109-mutt-send-email-mst@kernel.org>
+ <1718879494.952194-11-hengqi@linux.alibaba.com>
+ <ZnvI2hJXPJZyveAv@nanopsycho.orion>
+ <20240626040730-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240626040730-mutt-send-email-mst@kernel.org>
 
-Hi Dorjoy,
-
-On Tue, Jun 25, 2024 at 11:44:30PM GMT, Dorjoy Chowdhury wrote:
->Hey Stefano,
-
-[...]
-
+Wed, Jun 26, 2024 at 10:08:14AM CEST, mst@redhat.com wrote:
+>On Wed, Jun 26, 2024 at 09:52:58AM +0200, Jiri Pirko wrote:
+>> Thu, Jun 20, 2024 at 12:31:34PM CEST, hengqi@linux.alibaba.com wrote:
+>> >On Thu, 20 Jun 2024 06:11:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> >> On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
+>> >> > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
+>> >> > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> wrote:
+>> >> > > > On Thu, Jun 20, 2024 at 4:21 PM Jason Wang <jasowang@redhat.com> wrote:
+>> >> > > > >
+>> >> > > > > On Thu, Jun 20, 2024 at 3:35 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+>> >> > > > > >
+>> >> > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> >> > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
+>> >> > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>> >> > > > > > > >
+>> >> > > > > > > >     /* Parameters for control virtqueue, if any */
+>> >> > > > > > > >     if (vi->has_cvq) {
+>> >> > > > > > > > -           callbacks[total_vqs - 1] = NULL;
+>> >> > > > > > > > +           callbacks[total_vqs - 1] = virtnet_cvq_done;
+>> >> > > > > > > >             names[total_vqs - 1] = "control";
+>> >> > > > > > > >     }
+>> >> > > > > > > >
+>> >> > > > > > >
+>> >> > > > > > > If the # of MSIX vectors is exactly for data path VQs,
+>> >> > > > > > > this will cause irq sharing between VQs which will degrade
+>> >> > > > > > > performance significantly.
+>> >> > > > > > >
+>> >> > > > >
+>> >> > > > > Why do we need to care about buggy management? I think libvirt has
+>> >> > > > > been teached to use 2N+2 since the introduction of the multiqueue[1].
+>> >> > > > 
+>> >> > > > And Qemu can calculate it correctly automatically since:
+>> >> > > > 
+>> >> > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
+>> >> > > > Author: Jason Wang <jasowang@redhat.com>
+>> >> > > > Date:   Mon Mar 8 12:49:19 2021 +0800
+>> >> > > > 
+>> >> > > >     virtio-net: calculating proper msix vectors on init
+>> >> > > > 
+>> >> > > >     Currently, the default msix vectors for virtio-net-pci is 3 which is
+>> >> > > >     obvious not suitable for multiqueue guest, so we depends on the user
+>> >> > > >     or management tools to pass a correct vectors parameter. In fact, we
+>> >> > > >     can simplifying this by calculating the number of vectors on realize.
+>> >> > > > 
+>> >> > > >     Consider we have N queues, the number of vectors needed is 2*N + 2
+>> >> > > >     (#queue pairs + plus one config interrupt and control vq). We didn't
+>> >> > > >     check whether or not host support control vq because it was added
+>> >> > > >     unconditionally by qemu to avoid breaking legacy guests such as Minix.
+>> >> > > > 
+>> >> > > >     Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com
+>> >> > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+>> >> > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+>> >> > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> >> > > 
+>> >> > > Yes, devices designed according to the spec need to reserve an interrupt
+>> >> > > vector for ctrlq. So, Michael, do we want to be compatible with buggy devices?
+>> >> > > 
+>> >> > > Thanks.
+>> >> > 
+>> >> > These aren't buggy, the spec allows this. So don't fail, but
+>> >> > I'm fine with using polling if not enough vectors.
+>> >> 
+>> >> sharing with config interrupt is easier code-wise though, FWIW -
+>> >> we don't need to maintain two code-paths.
 >> >
->> >So the immediate plan would be to:
+>> >Yes, it works well - config change irq is used less before - and will not fail.
+>> 
+>> Please note I'm working on such fallback for admin queue. I would Like
+>> to send the patchset by the end of this week. You can then use it easily
+>> for cvq.
+>> 
+>> Something like:
+>> /* the config->find_vqs() implementation */
+>> int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>>                 struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>>                 const char * const names[], const bool *ctx,
+>>                 struct irq_affinity *desc)
+>> {
+>>         int err;
+>> 
+>>         /* Try MSI-X with one vector per queue. */
+>>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
+>>                                VP_VQ_VECTOR_POLICY_EACH, ctx, desc);
+>>         if (!err)
+>>                 return 0;
+>>         /* Fallback: MSI-X with one shared vector for config and
+>>          * slow path queues, one vector per queue for the rest. */
+>>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
+>>                                VP_VQ_VECTOR_POLICY_SHARED_SLOW, ctx, desc);
+>>         if (!err)
+>>                 return 0;
+>>         /* Fallback: MSI-X with one vector for config, one shared for queues. */
+>>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
+>>                                VP_VQ_VECTOR_POLICY_SHARED, ctx, desc);
+>>         if (!err)
+>>                 return 0;
+>>         /* Is there an interrupt? If not give up. */
+>>         if (!(to_vp_device(vdev)->pci_dev->irq))
+>>                 return err;
+>>         /* Finally fall back to regular interrupts. */
+>>         return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
+>> }
+>> 
+>> 
+>
+>
+>Well for cvq, we'll need to adjust the API so core
+>knows cvq interrupts are be shared with config not
+>datapath.
+
+Agreed. I was thinking about introducing some info struct and pass array
+of it instead of callbacks[] and names[]. Then the struct can contain
+flag indication. Something like:
+
+struct vq_info {
+	vq_callback_t *callback;
+	const char *name;
+	bool slow_path;
+};
+
+
+>
+>
+>
+>> 
 >> >
->> >  1) Build a new vhost-vsock-forward object model that connects to
->> >vhost as CID 3 and then forwards every packet from CID 1 to the
->> >Enclave-CID and every packet that arrives on to CID 3 to CID 2.
->>
->> This though requires writing completely from scratch the virtio-vsock
->> emulation in QEMU. If you have time that would be great, otherwise if
->> you want to do a PoC, my advice is to start with vhost-user-vsock which
->> is already there.
->>
+>> >Thanks.
+>> >
+>> >> 
+>> >> > > > 
+>> >> > > > Thanks
+>> >> > > > 
+>> >> > > > >
+>> >> > > > > > > So no, you can not just do it unconditionally.
+>> >> > > > > > >
+>> >> > > > > > > The correct fix probably requires virtio core/API extensions.
+>> >> > > > > >
+>> >> > > > > > If the introduction of cvq irq causes interrupts to become shared, then
+>> >> > > > > > ctrlq need to fall back to polling mode and keep the status quo.
+>> >> > > > >
+>> >> > > > > Having to path sounds a burden.
+>> >> > > > >
+>> >> > > > > >
+>> >> > > > > > Thanks.
+>> >> > > > > >
+>> >> > > > >
+>> >> > > > >
+>> >> > > > > Thanks
+>> >> > > > >
+>> >> > > > > [1] https://www.linux-kvm.org/page/Multiqueue
+>> >> > > > >
+>> >> > > > > > >
+>> >> > > > > > > --
+>> >> > > > > > > MST
+>> >> > > > > > >
+>> >> > > > > >
+>> >> > > > 
+>> >> 
+>> >
 >
->Can you give me some more details about how I can implement the
->daemon? 
-
-We already have a demon written in Rust, so I don't recommend you 
-rewrite one from scratch, just start with that. You can find the daemon 
-and instructions on how to use it with QEMU here [1].
-
->I would appreciate some pointers to code too.
-
-I sent the pointer to it in my first reply [2].
-
->
->Right now, the "nitro-enclave" machine type (wip) in QEMU
->automatically spawns a VHOST_VSOCK device with the CID equal to the
->"guest-cid" machine option. I think this is equivalent to using the
->"-device vhost-vsock-device,guest-cid=N" option explicitly. Does that
->need any change? I guess instead of "vhost-vsock-device", the
->vhost-vsock device needs to be equivalent to "-device
->vhost-user-vsock-device,guest-cid=N"?
-
-Nope, the vhost-user-vsock device requires just a `chardev` option.
-The chardev points to the Unix socket used by QEMU to talk with the 
-daemon. The daemon has a parameter to set the CID. See [1] for the 
-examples.
-
->
->The applications inside the nitro-enclave VM will still connect and
->talk to CID 3. So on the daemon side, do we need to spawn a device
->that has CID 3 and then forward everything this device receives to CID
->1 (VMADDR_CID_LOCAL) same port and everything it receives from CID 1
->to the "guest-cid"? 
-
-Yep, I think this is right.
-Note: to use VMADDR_CID_LOCAL, the host needs to load `vsock_loopback` 
-kernel module.
-
-Before modifying the code, if you want to do some testing, perhaps you 
-can use socat (which supports both UNIX-* and VSOCK-*). The daemon for 
-now exposes two unix sockets, one is used to communicate with QEMU via 
-the vhost-user protocol, and the other is to be used by the application 
-to communicate with vsock sockets in the guest using the hybrid protocol 
-defined by firecracker. So you could initiate a socat between the latter 
-and VMADDR_CID_LOCAL, the only problem I see is that you have to send 
-the first string provided by the hybrid protocol (CONNECT 1234), but for 
-a PoC it should be ok.
-
-I just tried the following and it works without touching any code:
-
-shell1$ ./target/debug/vhost-device-vsock \
-     --vm guest-cid=3,socket=/tmp/vhost3.socket,uds-path=/tmp/vm3.vsock
-
-shell2$ sudo modprobe vsock_loopback
-shell2$ socat VSOCK-LISTEN:1234 UNIX-CONNECT:/tmp/vm3.vsock
-
-shell3$ qemu-system-x86_64 -smp 2 -M q35,accel=kvm,memory-backend=mem \
-     -drive file=fedora40.qcow2,format=qcow2,if=virtio\
-     -chardev socket,id=char0,path=/tmp/vhost3.socket \
-     -device vhost-user-vsock-pci,chardev=char0 \
-     -object memory-backend-memfd,id=mem,size=512M \
-     -nographic
-
-     guest$ nc --vsock -l 1234
-
-shell4$ nc --vsock 1 1234
-CONNECT 1234
-
-     Note: the `CONNECT 1234` is required by the hybrid vsock protocol 
-     defined by firecracker, so if we extend the vhost-device-vsock 
-     daemon to forward packet to VMADDR_CID_LOCAL, that would not be 
-     needed (including running socat).
-
-
-This is just an example for how to use loopback, now if from the VM you 
-want to connect to a CID other than 2, then we have to modify the daemon 
-to do that.
-
->The applications that will be running in the host
->need to be changed so that instead of connecting to the "guest-cid" of
->the nitro-enclave VM, they will instead connect to VMADDR_CID_LOCAL.
->Is my understanding correct?
-
-Yep.
-
->
->BTW is there anything related to the "VMADDR_FLAG_TO_HOST" flag that
->needs to be checked? I remember some discussion about it.
-
-No, that flag is handled by the driver. If that flag is on, the driver 
-forwards the packet to the host, regardless of the destination CID. So 
-it has to be set by the application in the guest, but it should already 
-do that since that flag was introduced just for Nitro enclaves.
-
->
->It would be great if you could give me some details about how I can
->achieve the CID 3 <-> CID 2 communication using the vhost-user-vsock.
-
-CID 3 <-> CID 2 is the standard use case, right?
-The readme in [1] contains several examples, let me know if you need 
-more details ;-)
-
->Is this https://github.com/stefano-garzarella/vhost-user-vsock where I
->would need to add support for forwarding everything to
->VMADDR_CID_LOCAL via an option maybe?
-
-Nope, that one was a PoC and the repo is archived, the daemon is [1].
-BTW, I agree on the option for the forwarding.
-
-Thanks,
-Stefano
-
-[1] 
-https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock
-[2] 
-https://lore.kernel.org/virtualization/CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com/T/#m4a50f94a5329cd262412437ac80a4f406404bf20
-
