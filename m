@@ -1,150 +1,92 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53F6F158A23
-	for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 22:50:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45C6E15B7;
+	Wed, 26 Jun 2024 00:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719355823; cv=none; b=UfQw9SAEkw/QKuEUReAy2EWtyiyidkUs+IjmOjSYjJhDLyx8sksr+hdwzG8uhV67NxokNv7kkXInamDinGzn6M2bXor03USu1kf4Sun8joMK1UiwG5wFEkWYk7Op11tPKaSS8/zmKmdmonF/gtRLbsQ8w3/FRCJrv7FXqTuFSu8=
+	t=1719363031; cv=none; b=Pn6csD7mZbVfjRGOYRk3VRa2Td9+k2q3LRo5VQFN2Q9FY69qiqLixZdw66E80VswlUQ0LYWgqIcxtgo+f8S1Gy0omkpm2+W8hTrruZFoD2H4roBwnWUAtC3E+N+ehe+fXZN7HJld1godKupxLMFU2H5lNWCzpsBioFr6TKdFkqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719355823; c=relaxed/simple;
-	bh=OMJJqsWmMXsLxDpb09oJZ90ADbUHbE/I6p9lu0Syvfk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=UA8t5z+A9Ck9v21Q93m8uajeUjP36JV4pQfzvzibDrkhJNTC+GkDXiZ3j05gg22b+fF7h+9rUxEemxgptvtjdlEZr/L/dcFt1v3mV5HVJ5ePTvHIewPsCpJqzkf8Y54x8agLLt5YB40G6LdVlM4vONDKtJX0Nf94rzUMJYtbN2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PtF5ZS32; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1719363031; c=relaxed/simple;
+	bh=NMqBdW6cHN2yp/PLmHLJNE+UdpAsHxZYtmRCzGlkuLw=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=DcyuFW8LU4sNFK5wszssQ/WMzI7GJcKH7JzwYWxLJ40kHOmnA6BGSkePXlJAzJuzlYauuzjvuySsQ2MCYpuJ0iKfxgcThFYJ/tzjWdiF6MhlqoVnbLvG/no3b4GhL/nimJOpaZExqdaL+vabRYu8Z/AARf1Hdj3Kg8S9yCbZCA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YOs+gR3F; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PtF5ZS32"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719355820;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oU8QrkeYhtfgg4G8OaEsau9ozz7JUXSqzMXGT4kRNJM=;
-	b=PtF5ZS32bmil8ABSpZ+WQNPunpJixZiAzr/JyX3gFbQyRlICsG+Zew6KvK26tT1jSvrBC0
-	6JHJjpzqD1pft3/c2nfm2XAwinfk6zaAQ1xqBfXrx+sBzEqXWkPOy+2q+ME84PZIW17XKI
-	YXHBqyaBUnY5FOcuJ5TDeyWZhkTdk4c=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-450-YE7HuKcBOn6YccSVvZgb9g-1; Tue, 25 Jun 2024 18:50:18 -0400
-X-MC-Unique: YE7HuKcBOn6YccSVvZgb9g-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-364b75a8194so3039277f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 15:50:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719355817; x=1719960617;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oU8QrkeYhtfgg4G8OaEsau9ozz7JUXSqzMXGT4kRNJM=;
-        b=iNQ4D4K+N/HMzKlbgx5fXYzwug/qEMHnG5lL1qakGG106N1QI7SLtmaIQNnKnuEpQU
-         2RFxpER/PYJRtnTFhLBKV5benmMfRg+aX2DKWSMYx3HfBLj2xc18hNGwjw+5vOAuqzKo
-         dziX++QlIC8iLQGf/x/x1wVufR2Ln+XOvFNGJlcxvMIwpsq7sRvpXXCEh5t/jXESrIof
-         yocM1kewTB3SV8zD/Me1kBmK8qHXQkeuOWm/EzqbQbw+E2SCe0D5uLS2wSerOChQf+pO
-         BLM1ssIPhR8E7LYu3Az+VkhNYEh2LX8LOYhWvQccYAy2xB2YIEpOQP9GsbXJHBEEn2Un
-         0VPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVS8emH5CzJhKDh0y2jFC5osfaWwK8lvbnEbK5McEbihrKsaKdeZc86XIdFiZjMx9Mu/PRZwYGCvtbmGHMiQmTcymOEkBIK/Gzta1bU3VI=
-X-Gm-Message-State: AOJu0YzGqFpUCRpH+pviXBqo3mR4L8IbwjHGIV4uJOvfVlmay+EWnNaL
-	IhUo7Qa6ka2QVIJvqvYJ6FYHLWMWLJOR9DMgZTzvbs1EvkfXHdc0lT7Uw6SpCQZ3EQTvU8SGeDp
-	ACpNP/mgSOh3StC7h0W0Efu10Mu+zmyjqlmyrW6LvF1nPVr9bnXmNUgkt/86Llc2i
-X-Received: by 2002:a5d:4bc5:0:b0:35f:2067:2072 with SMTP id ffacd0b85a97d-366e96b2398mr6698746f8f.52.1719355817111;
-        Tue, 25 Jun 2024 15:50:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFdr5Ed132jV7cV1Dq86qNW68UOd+n6d3b/DQMkB0QVx0Q/gO7pu5FkpmnKYZrbw8RdUc9qqQ==
-X-Received: by 2002:a5d:4bc5:0:b0:35f:2067:2072 with SMTP id ffacd0b85a97d-366e96b2398mr6698734f8f.52.1719355816391;
-        Tue, 25 Jun 2024 15:50:16 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:342:f1b5:a48c:a59a:c1d6:8d0a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3663a2f693fsm14083543f8f.69.2024.06.25.15.50.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jun 2024 15:50:15 -0700 (PDT)
-Date: Tue, 25 Jun 2024 18:50:11 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: sahanlb <sahanb@bu.edu>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	drepper@redhat.com
-Subject: Re: [PATCH] virtio-pci: PCI extended capabilities for virtio
-Message-ID: <20240625154900-mutt-send-email-mst@kernel.org>
-References: <20240625184043.10658-1-sahanb@bu.edu>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YOs+gR3F"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A6FFDC32786;
+	Wed, 26 Jun 2024 00:50:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1719363030;
+	bh=NMqBdW6cHN2yp/PLmHLJNE+UdpAsHxZYtmRCzGlkuLw=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=YOs+gR3FU/mMhtz6RVBgnLzHyIi7OG43lvEh4tOW122AiyCt7bY/0oxLTPDqHtpbj
+	 QKum6hG8GFs4VnHPPG5x5EIAVdvWlVHOSsz9Wa1bGV40lSGecjoGxET3dy6JNiTpkg
+	 3MBeMa1YHxIASwfdvrIu+VhvfaSrAWgY+/l+tOgOtusTmjObP84Ii32I/ML9PMnd0g
+	 CcIRTRss5dhjVKh2Vokuv4r0HSYJQPxVAkWw5JJJUxQsiJ56hPjX6PGEIxur3CkKwc
+	 qDsX16kHDh1Ip4KuHoTYVDefR78U0zNY4eBL6yJBRXi9R83lv3qCp2sMtTerAQrIUL
+	 ALTzTwPgdc/9w==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 8FAF9DE8DF3;
+	Wed, 26 Jun 2024 00:50:30 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240625184043.10658-1-sahanb@bu.edu>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v15 0/5] ethtool: provide the dim profile fine-tuning
+ channel
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171936303058.27591.15292953150310890485.git-patchwork-notify@kernel.org>
+Date: Wed, 26 Jun 2024 00:50:30 +0000
+References: <20240621101353.107425-1-hengqi@linux.alibaba.com>
+In-Reply-To: <20240621101353.107425-1-hengqi@linux.alibaba.com>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, kuba@kernel.org,
+ davem@davemloft.net, pabeni@redhat.com, edumazet@google.com,
+ jasowang@redhat.com, mst@redhat.com, bcreeley@amd.com, rkannoth@marvell.com,
+ aleksander.lobakin@intel.com, xuanzhuo@linux.alibaba.com, talgi@nvidia.com,
+ corbet@lwn.net, linux-doc@vger.kernel.org, maxime.chevallier@bootlin.com,
+ jiri@resnulli.us, paul.greenwalt@intel.com, ahmed.zaki@intel.com,
+ vladimir.oltean@nxp.com, kory.maincent@bootlin.com, andrew@lunn.ch,
+ justinstitt@google.com, donald.hunter@gmail.com, eperezma@redhat.com,
+ akpm@linux-foundation.org, dtatulea@nvidia.com, rrameshbabu@nvidia.com,
+ hkallweit1@gmail.com, przemyslaw.kitszel@intel.com, paweldembicki@gmail.com
 
-On Tue, Jun 25, 2024 at 02:39:37PM -0400, sahanlb wrote:
-> PCI legacy configuration space does not have sufficient space for a device
-> that supports all kinds of virtio structures via PCI capabilities. This is
-> especially true if one were to use virtio drivers with physical devices.
-> Link: https://par.nsf.gov/servlets/purl/10463939
-> A physical device may already have many capabilities in the legacy space.
+Hello:
+
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Fri, 21 Jun 2024 18:13:48 +0800 you wrote:
+> The NetDIM library provides excellent acceleration for many modern
+> network cards. However, the default profiles of DIM limits its maximum
+> capabilities for different NICs, so providing a way which the NIC can
+> be custom configured is necessary.
 > 
-> This patch adds support to place virtio capabilities in the PCI extended
-> configuration space and makes the driver search both legacy and extended
-> PCI configuration spaces.
+> Currently, the way is based on the commonly used "ethtool -C".
 > 
-> Add new argument to vp_modern_map_capability to indicate whether mapping
-> a legacy or extended capability.
-> Add new function virtio_pci_find_ext_capability to walk extended
-> capabilities and find virtio capabilities.
-> 
-> Modify vp_modern_probe to search both legacy and extended configuration
-> spaces.
-> If virtio_pci_find_capability fails to find common, isr, notify, or device
-> virtio structures, call virtio_pci_find_ext_capability.
-> 
-> Notify virtio structure can get mapped either in vp_modern_probe or in
-> vp_modern_map_vq_notify. Add new attribute 'notify_ecap' to
-> struct virtio_pci_modern_device to indicate whether the notify capability
-> is in the extended congiguration structure.
-> 
-> Add virtio extended capability structures to
-> "include/uapi/linux/virtio_pci.h".
-> Format for the extended structures derived from
-> Link: https://lore.kernel.org/all/20220112055755.41011-2-jasowang@redhat.com/
-> 
-> This patch has been validated using an FPGA development board to implement 
-> a virtio interface.
-> 
-> Signed-off-by: sahanlb <sahanb@bu.edu>
+> [...]
 
+Here is the summary with links:
+  - [net-next,v15,1/5] linux/dim: move useful macros to .h file
+    https://git.kernel.org/netdev/net-next/c/0e942053e4dc
+  - [net-next,v15,2/5] dim: make DIMLIB dependent on NET
+    https://git.kernel.org/netdev/net-next/c/b65e697a7c9e
+  - [net-next,v15,3/5] ethtool: provide customized dim profile management
+    https://git.kernel.org/netdev/net-next/c/f750dfe825b9
+  - [net-next,v15,4/5] dim: add new interfaces for initialization and getting results
+    https://git.kernel.org/netdev/net-next/c/13ba28c5cd04
+  - [net-next,v15,5/5] virtio-net: support dim profile fine-tuning
+    https://git.kernel.org/netdev/net-next/c/dcb67f6a9ead
 
-Thanks for the patch! As any UAPI change, this one has to also
-be accompanied by a spec patch documenting the capabilities.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-
-...
-
-> +struct virtio_pci_cfg_ecap {
-> +	struct virtio_pci_ecap cap;
-> +	__u8 pci_cfg_data[4]; /* Data for BAR access. */
-> +};
-
-Hmm, a weird thing to do. The reason we have it is because
-a legacy bios has trouble accessing BAR directly (e.g. if BAR
-is 64 bit).  Is there still an issue even for bios with
-support for pcie extended config space?
-
-
-> +
->  /* Macro versions of offsets for the Old Timers! */
->  #define VIRTIO_PCI_CAP_VNDR		0
->  #define VIRTIO_PCI_CAP_NEXT		1
-
-
-This comes at an interesting time, there is an interest
-in order to get virtio working over EP protocol,
-in exposing all this information as part of a BAR
-as opposed as a capability. I wonder whether that's
-also palatable.
-
-
-> -- 
-> 2.42.0
 
