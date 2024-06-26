@@ -1,93 +1,121 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82D0F61FE8;
-	Wed, 26 Jun 2024 03:39:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93E1813A88A
+	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 04:38:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719373197; cv=none; b=r8lU6K0IVDQwqeDtwIHaq2MVFxdmscqKToyPbhTjN0ORvnQejCJisFpz8F0rUTai8G1MuR4+fj5Oar16oaiadBRy8F1eTs6paE8Kh4thwL7W+CXDUWRE0BQGwoKrKRDgGPp4B3+odwTMcGBkHXwUO/seQHzx3bQeIdACYGUEgC4=
+	t=1719376714; cv=none; b=YtuzZwCRppjrDfO41wWkRRHfBrkjxjmoLGJecUzPwGKYtVnjKGoF44WhqVfND8P64DFvz+T8flfRnWy6esblfVzkEGDCG7HhT+04CaKxZ0GzuubA8dnizOgQKPmk9Ncn6l6tGzgvvcf2gUxAA5gY0ZDkmPWfNpB1wEiqbLfFgFg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719373197; c=relaxed/simple;
-	bh=3Sqem+lMn+S52efuvN21xdPnqe1u52xD6z7JDEdxua8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OKol9UXbZTbOWPXQZk1EPyVzbPBMeTyZvzDH7024sObyKuMqttJLzEuX8u+W3pSnPBwLnRurzoQYgZc2Fh5MjVC8ST6ylpjsda0Pbyr3CQFJ3kzOe/zRQNFSUvl9nsCVaFIx4RsxqAV3aIMYwwectaDCFWW4wLBtFxwnmgLG5bU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=v38aUgEx; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1719376714; c=relaxed/simple;
+	bh=urO9PF41hgll0dRPTGLkmriEDOf5ydq979P37U8+EZQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=O1j3Z3NeLuzWS7INieVKnl1Ijq2nN4KJYXGo0ZkgBW0hc8HJpbaKdc4rQeahWvCjC0/d7XIZhtLGfSLYUDbSxCPJritCQP/ajwnj0IZKeXGwv7+uHObarCdQZ0FEmR+ristmZHsDvPOMSG8pIBhI/f7GtgzZxFEnItM/rr80KBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=HLIkptkk; arc=none smtp.client-ip=209.85.167.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="v38aUgEx"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=q35hat2STPhlr4DAn4+ABXn/NxJWaK5wgb5DlM6xpCg=; b=v38aUgExch/0roE+EfRJ2Glql8
-	NJM5fN+YEIB1TYrzijSpWBKOBPz4ePJWBmxAeIq8Vy0dgCM+B8D7e2Uu/8N8Um6Vr/QojQ2rgIn5c
-	kZ0Qn4LEY3fOdOmfyKwMWEDOh9Ymv1GdTyRuFBajkXiPOidtU70du4sEE9xKuUof+3qQcWAWRaj21
-	Q277QHf25k5Hs4ZG2a3z7KhsZxdHv16NmcJJI6IIXWv8/dTL6K+es5s2mnReHc51vjem7WfsNQ2Oh
-	GFZANqqhPdUBbop3nLGkV+BdHz5dumNmTIDB8b0TUPLkhRAW/U3MN14I64qofM3LTvdEoRKFoAPJn
-	ZHT0K0YA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sMJVe-00000005Ecx-3HCZ;
-	Wed, 26 Jun 2024 03:39:50 +0000
-Date: Tue, 25 Jun 2024 20:39:50 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Oliver Sang <oliver.sang@intel.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Christoph Hellwig <hch@lst.de>,
-	oe-lkp@lists.linux.dev, lkp@intel.com, Jens Axboe <axboe@kernel.dk>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
-	linux-block@vger.kernel.org, linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com, nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
-	dm-devel@lists.linux.dev, linux-raid@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-	nvdimm@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org, ying.huang@intel.com,
-	feng.tang@intel.com, fengwei.yin@intel.com
-Subject: Re: [axboe-block:for-next] [block]  1122c0c1cc:  aim7.jobs-per-min
- 22.6% improvement
-Message-ID: <ZnuNhkH26nZi8fz6@infradead.org>
-References: <202406250948.e0044f1d-oliver.sang@intel.com>
- <ZnqGf49cvy6W-xWf@infradead.org>
- <Znt4qTr/NdeIPyNp@xsang-OptiPlex-9020>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="HLIkptkk"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-52cdb0d8107so5821123e87.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Jun 2024 21:38:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1719376711; x=1719981511; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aqcce+viBw5891cRDW3KYK3GO/t8otW+H0eaejzqnZ8=;
+        b=HLIkptkk2Js141cksuA4gxxG6qpM8i8a9ScolEos9DIAgc38wWbUPmbUN9U7w1Vi2J
+         xzZQS5AqEcBReXrlvoYtqfSc0D0CRyPxUm7g8lGxCuBhZUt337RsLX9yIM+mkmjOeyLJ
+         fu9/pDTxzLGGApzTR95gZNVb1WwOqNPGwnD/oyDtTxKp6W57FbaDSFXNwbSIJexPO6kw
+         ShlAZaBjMGLNeQIKQSxEzCV57y/KKctEiKFci+QZqyn7dcfpD42LCtjZGbn+L9ve83Y1
+         2bhTa6BTb+4BhPO8yHwKj7nHqQtb4cGqg+vC+8SuBzK3RkuiQZ7wVn9vm1WWrO4x9Wcj
+         yBSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719376711; x=1719981511;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aqcce+viBw5891cRDW3KYK3GO/t8otW+H0eaejzqnZ8=;
+        b=oupmOsBs01J8XG9T7yeHr+MC3ryoUzzSOh21/LzMnbe6Jh/44dF6pfmCYFDnQNFNWq
+         qLUe8so6UT1xP9wLL8drIzNW2yI9OOILFSYvyWqnWLcQCnsRuNtcFX0NNPkqPb/2tmeX
+         90BlJ+k0n6lpb3rXSKi+6X6eQMAXH/jBJ7gtVTUoWCnPHKkOgQXrSjbyTvZtBTPigCoe
+         oXE0YODiVq6IarcgqADrAlVHkluQRKLJWv8FmU4a46cLvF0kzBa+ZD+ub6JaFkggoAST
+         HSXUGPwGQQ82jYv2BzIiLlGQb3FXNUzgjQob/g3n3FzX0Q5Cj4Qw3UbpXT2CBmRqJRkg
+         ILTw==
+X-Forwarded-Encrypted: i=1; AJvYcCV8S174akGmBoQI5zIyB1hq6BqDjrgEP+arz20SyXlOWfV2ij33CQU10Lr3DVBUgbOEpvYQqQh5BbF9OpNGnocufDMwevK0/6O3wicVVUI=
+X-Gm-Message-State: AOJu0YytVk95AltBnREyklJN6JJBXfWB7mSt9Pgm6eKVdfrTMoD9gPNO
+	jsBdQh7CPscqj/4HxTSIlNDHsR86b+AwMDt2L19QvNGzWz4ehgIOOPMhGAay2hY=
+X-Google-Smtp-Source: AGHT+IFmIWttdaTJRAvIH8UrjPds8xvnf85HM29QagGQ7d1YSELkyFRIvS+iI6cQUa86E2mDA3DxXw==
+X-Received: by 2002:a05:6512:3da3:b0:52c:e728:cca1 with SMTP id 2adb3069b0e04-52ce728cd5bmr6009512e87.39.1719376710614;
+        Tue, 25 Jun 2024 21:38:30 -0700 (PDT)
+Received: from ?IPV6:2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a? ([2a10:bac0:b000:7579:7285:c2ff:fedd:7e3a])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-424c8285f5csm9826695e9.25.2024.06.25.21.38.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Jun 2024 21:38:30 -0700 (PDT)
+Message-ID: <0844686c-0108-4267-87e0-a79531dbeaf3@suse.com>
+Date: Wed, 26 Jun 2024 07:38:28 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Znt4qTr/NdeIPyNp@xsang-OptiPlex-9020>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] x86/paravirt: Disable virt spinlock on bare metal
+To: Chen Yu <yu.c.chen@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+ Chen Yu <yu.chen.surf@gmail.com>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+ Prem Nath Dey <prem.nath.dey@intel.com>,
+ Xiaoping Zhou <xiaoping.zhou@intel.com>
+References: <20240625125403.187110-1-yu.c.chen@intel.com>
+From: Nikolay Borisov <nik.borisov@suse.com>
+Content-Language: en-US
+In-Reply-To: <20240625125403.187110-1-yu.c.chen@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 26, 2024 at 10:10:49AM +0800, Oliver Sang wrote:
-> I'm not sure I understand this test request. as in title, we see a good
-> improvement of aim7 for 1122c0c1cc, and we didn't observe other issues for
-> this commit.
 
-The improvement suggests we are not sending cache flushes when we should
-send them, or at least just handle them in md.
 
-> do you mean this improvement is not expected or exposes some problems instead?
-> then by below patch, should the performance back to the level of parent of
-> 1122c0c1cc?
+On 25.06.24 г. 15:54 ч., Chen Yu wrote:
+> The kernel can change spinlock behavior when running as a guest. But
+> this guest-friendly behavior causes performance problems on bare metal.
+> So there's a 'virt_spin_lock_key' static key to switch between the two
+> modes.
 > 
-> sure! it's our great pleasure to test your patches. I noticed there are
-> [1]
-> https://lore.kernel.org/all/20240625110603.50885-2-hch@lst.de/
-> which includes "[PATCH 1/7] md: set md-specific flags for all queue limits"
-> [2]
-> https://lore.kernel.org/all/20240625145955.115252-2-hch@lst.de/
-> which includes "[PATCH 1/8] md: set md-specific flags for all queue limits"
+> The static key is always enabled by default (run in guest mode) and
+> should be disabled for bare metal (and in some guests that want native
+> behavior).
 > 
-> which one you suggest us to test?
-> do we only need to apply the first patch "md: set md-specific flags for all queue limits"
-> upon 1122c0c1cc?
-> then is the expectation the performance back to parent of 1122c0c1cc?
+> Performance drop is reported when running encode/decode workload and
+> BenchSEE cache sub-workload.
+> Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
+> native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
+> is disabled the virt_spin_lock_key is incorrectly set to true on bare
+> metal. The qspinlock degenerates to test-and-set spinlock, which
+> decrease the performance on bare metal.
+> 
+> Set the default value of virt_spin_lock_key to false. If booting in a VM,
+> enable this key. Later during the VM initialization, if other
+> high-efficient spinlock is preferred(paravirt-spinlock eg), the
+> virt_spin_lock_key is disabled accordingly. The relation is described as
+> below:
+> 
+> X86_FEATURE_HYPERVISOR         Y    Y    Y     N
+> CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
+> PV spinlock                    Y    N    N     Y/N
+> 
+> virt_spin_lock_key             N    N    Y     N
+> 
+> Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
+> Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+> Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+> Suggested-by: Nikolay Borisov <nik.borisov@suse.com>
+> Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
+> Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
+> Signed-off-by: Chen Yu <yu.c.chen@intel.com>
 
-Either just the patch in reply or the entire [2] series would be fine.
-
-Thanks!
-
+Reviewed-by: Nikolay Borisov <nik.borisov@suse.com>
