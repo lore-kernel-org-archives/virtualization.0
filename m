@@ -1,95 +1,126 @@
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A45BC190045;
-	Wed, 26 Jun 2024 16:43:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63E7918FC81
+	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 16:45:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719420229; cv=none; b=Hkg737X8OkClXEqXgcb1FcmqbMqCrPRgHu2gL2Fpu7MsEvHOyYxco2fjlSxWm1xE8WTck02Bt1cdGo8bGEAKXphbquQf17orNfVGTyv1v0ozPtCvWMjScoNNs7rN3p/FMctnX82aupWzegQoNM/Q+tk8qjo9rghwtVaMz2DKPMU=
+	t=1719420353; cv=none; b=mmneD1zpbt8IGSjgszwg4bBSe+oEtgQi0XiIjCydTpW4utrjmL/kT6qpOb9ZjQLRO2boEOWHuqe4sNHofBJYS/HISYYZXR28Jhg3ZmSFSUnJ0ldv90YAvMJeNNhrMlKTJXxJkqkmcvPHtRafwTMrqpG+KuW7SZLD1kKitsMnhMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719420229; c=relaxed/simple;
-	bh=VG0CTW/l6QMPvH75w6uUTc8si0UlyREe3hdbA6mVWjM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fGjT0WPI9Er1Xcrpe7wxRXouPSsNiKhP0lmgEGaquN67jU7CNXFl9YqwlAGqFkfHANyfGj1ugnu1zZP+bXebaVLOwb1qm53Kh8+tKyHPNUCoDieAtfzAE7Um8mTbuV3GJe7drhgA0VMuEqIn0N/3G4tfdQBPsglc6DYsEYZnzIw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dx/lvlEF; arc=none smtp.client-ip=209.85.128.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1719420353; c=relaxed/simple;
+	bh=Bs9vJpXDcIIrDVNNhhluvol44x76LKbhRs7LW1G5KdI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=beA2jggqV9K9j4xSJbfL3QjjtlIBl+Co+OtEH2fi4Gw+AIoBhsXaBuYMME7n/KUID3zWpd5RXFz4n8UzAzINGyQ2y9V/CzhGoFQ99O/A9+5ZrXvEtbtcrzjtr5Aci45oILIPjo+Ts1KYZ1G3+6wlXjusFSYAAlQqyUmAhT1wAnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=Rtl7T5vH; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dx/lvlEF"
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-630b743635bso3965127b3.2;
-        Wed, 26 Jun 2024 09:43:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1719420226; x=1720025026; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=zhrdzthSK3H9hkETy9VZKmUKkeoLCNjPCZYKjf+xG1s=;
-        b=Dx/lvlEF4ilvT/9od1ETB4zZ+x4ZVdHtlQzXzGs8wMOxaV6S+msTiR2OCKmaWKYD9F
-         slyzOTduyeDFani3r1ktPmn5lAZmt5V/EfExPm4FouJJKOQ2ERSjDMp6NMI4oXWpYpys
-         IQhe9bvujsq15U8eZZmDMe7TekeUsVwKOQrxFKAVzeid+B6fcL9orRSo3Knog0n6DbSL
-         4RSfABIO4qXjmOse0w9Wpud0dcUyS9N9SCgRDCFyIv37qXcxCae3+2yKeP3Qc+Ll18qU
-         cpQcSLPy2wc7aMGC7dTlVRsG3Dt+7LyegT2fYpR8JezPMN9eUjrI03AwyME3gAyx6iQq
-         4/xg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719420226; x=1720025026;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zhrdzthSK3H9hkETy9VZKmUKkeoLCNjPCZYKjf+xG1s=;
-        b=HWUXO5riKBOXj1xU33cAVrJ2N49yKtuEaJhsD93d8g5sPicuAWd/bHQfMcKEBaGRVT
-         ki5/WRqqZfhmaxu+RoLQ9h207LSL0yarjpo9aKj8s5FDphwUbzsUUBG5w3ww+HzVNQMd
-         LwR9madPf1AjSrmDerCC1y5Per4k4IorXrnJK2LuVB0rryNRbz59oscivjXwWmi6cds2
-         sAZOGt6V4BMfJoBJ2kYRAza0OULzYHf17/R2BRunx8HZg0Nhgqs1CrdgqFQW9F1WIr/b
-         jZYfyAxAIuvfFKzKdm1vYCtCbWzqSQgytP+jSO4XZNssApNpCz+os0vi+kEV4UcePpwS
-         ymsQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVBs/EwBKZWVXcg5FB1gKtC7qqZj8zifvSK+oFfXPsQiB3wcivNX9AmKnkllPPds+zsHesRYcZPDt/e/oN95otefMIzfaLeUHVAegsDA87Oc8jGSZ8SWMFz0l+5MYiE/NeVA6mX3CcqLeMq
-X-Gm-Message-State: AOJu0YzUGFn5Q7Htgil5Ztky+ZZ5jp7o7X8YzMRB7L7GaISq+i7ADh8V
-	frppujho80K1KZkP1eNICe404yXPpLY8Q2Yv3yw/kxbBUCu8OgLg
-X-Google-Smtp-Source: AGHT+IHCdgDSdlNbkbnAcycpINiojpcU5U7poX3MUB5iUjfsCrwkArPk6D/Bh/TNX6YdFEgG7FEJJw==
-X-Received: by 2002:a05:690c:63ca:b0:62c:e485:5591 with SMTP id 00721157ae682-64207460d3cmr94060417b3.3.1719420226540;
-        Wed, 26 Jun 2024 09:43:46 -0700 (PDT)
-Received: from hoboy.vegasvil.org ([2600:1700:2430:6f6f:e2d5:5eff:fea5:802f])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-63f10f8847asm39169167b3.5.2024.06.26.09.43.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jun 2024 09:43:45 -0700 (PDT)
-Date: Wed, 26 Jun 2024 09:43:42 -0700
-From: Richard Cochran <richardcochran@gmail.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-	Peter Hilber <peter.hilber@opensynergy.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	"Ridoux, Julien" <ridouxj@amazon.com>, virtio-dev@lists.linux.dev,
-	"Luu, Ryan" <rluu@amazon.com>,
-	"Christopher S. Hall" <christopher.s.hall@intel.com>,
-	Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
-	Stephen Boyd <sboyd@kernel.org>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [RFC PATCH v2] ptp: Add vDSO-style vmclock support
-Message-ID: <ZnxFPkwGKTdRWTZh@hoboy.vegasvil.org>
-References: <4a0a240dffc21dde4d69179288547b945142259f.camel@infradead.org>
- <87jzic4sgv.ffs@tglx>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="Rtl7T5vH"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45QAfP7b015339;
+	Wed, 26 Jun 2024 16:45:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	nXT+VIQRF66ya1CgSTFCuI8yOpJzFj18D5aSjmsocEs=; b=Rtl7T5vHlY+rAr+8
+	1D/3RkDBxCw3agjiZDsrY9C3QuvRWQnHqJNyiqZphjH1yUonsHwADFq6hQy30kfh
+	jMMJxZdeDnkiygLPgCIwvNPWFHyTHmAGaPoQRoDexHJqcQwu93AWAnXM5ehej1F1
+	NuOTsmXxu12hbiEot8vGVQrqaS2ebhA+9OkPM5/TE3v2mMb/1VQgtbhc/5DRq1IE
+	jAZ8Y7/pkLu46teORcsWUpvWJpn5g9+6pl3ygMzlif+fpXQSOf+HHhWRSNmQPgdy
+	2SJbsa/Plue5PPcQkhvurZItDmh6rExtuqsoJQJ8PFim4u3WXn58y/Rvxk66/ELn
+	P8zNbg==
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 400gcm93q4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Jun 2024 16:45:44 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA02.qualcomm.com (8.17.1.19/8.17.1.19) with ESMTPS id 45QGjhUU004980
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Jun 2024 16:45:43 GMT
+Received: from [10.48.244.230] (10.49.16.6) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 26 Jun
+ 2024 09:45:42 -0700
+Message-ID: <b1868e2d-7181-4713-8db9-b4d8a29e3fe6@quicinc.com>
+Date: Wed, 26 Jun 2024 09:45:42 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87jzic4sgv.ffs@tglx>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vDPA: add missing MODULE_DESCRIPTION() macros
+Content-Language: en-US
+To: Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin"
+	<mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+	<eperezma@redhat.com>
+CC: <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>
+References: <20240611-md-drivers-vdpa-v1-1-efaf2de15152@quicinc.com>
+From: Jeff Johnson <quic_jjohnson@quicinc.com>
+In-Reply-To: <20240611-md-drivers-vdpa-v1-1-efaf2de15152@quicinc.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: jIQF7VIgf1vsRVBFcLziamNaYZDNV3Xr
+X-Proofpoint-ORIG-GUID: jIQF7VIgf1vsRVBFcLziamNaYZDNV3Xr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-26_07,2024-06-25_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ mlxlogscore=999 clxscore=1015 mlxscore=0 phishscore=0 impostorscore=0
+ adultscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406260122
 
-On Tue, Jun 25, 2024 at 11:34:24PM +0200, Thomas Gleixner wrote:
+On 6/11/2024 12:22 PM, Jeff Johnson wrote:
+> With ARCH=x86, make allmodconfig && make W=1 C=1 reports:
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/vdpa/vdpa.o
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/vdpa/ifcvf/ifcvf.o
+> 
+> Add the missing invocations of the MODULE_DESCRIPTION() macro.
+> 
+> Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+> ---
+>  drivers/vdpa/ifcvf/ifcvf_main.c | 1 +
+>  drivers/vdpa/vdpa.c             | 1 +
+>  2 files changed, 2 insertions(+)
+> 
+> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+> index 80d0a0460885..ccf64d7bbfaa 100644
+> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
+> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+> @@ -894,4 +894,5 @@ static struct pci_driver ifcvf_driver = {
+>  
+>  module_pci_driver(ifcvf_driver);
+>  
+> +MODULE_DESCRIPTION("Intel IFC VF NIC driver for virtio dataplane offloading");
+>  MODULE_LICENSE("GPL v2");
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 8d391947eb8d..1ca445e31acb 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -1538,4 +1538,5 @@ core_initcall(vdpa_init);
+>  module_exit(vdpa_exit);
+>  
+>  MODULE_AUTHOR("Jason Wang <jasowang@redhat.com>");
+> +MODULE_DESCRIPTION("vDPA bus");
+>  MODULE_LICENSE("GPL v2");
+> 
+> ---
+> base-commit: 83a7eefedc9b56fe7bfeff13b6c7356688ffa670
+> change-id: 20240611-md-drivers-vdpa-391206d17ec3
+> 
+Following up to see if anything else is needed from me. Hoping to see this in
+linux-next so I can remove it from my tracking spreadsheet :)
 
-> There is effort underway to expose PTP clocks to user space via
-> VDSO.
-
-That sounds interesting.  Has anything been posted?
-
-Thanks,
-Richard
-
+/jeff
