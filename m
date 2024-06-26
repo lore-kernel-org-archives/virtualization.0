@@ -1,257 +1,127 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96CE016A92E
-	for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 11:51:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CF40180A7C;
+	Wed, 26 Jun 2024 12:08:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719402670; cv=none; b=CDDkMrBklWxzKzpl1ruocxKiTM6/+QMNvvrHOd5+aYjCIShCiez6tTHiv4vL49JwZm4VsaokdwK6wWWpjsbMI98NlYb9cBMXIuqBAhEizJKvBk91aEiJegbNOCfwhrlillWFrTDNEZHp+EAnJp/KkxWo3pawG70vgitf6Byj+Us=
+	t=1719403719; cv=none; b=ep/Lv6xW3+Ifu5K2YHzMBwhssksKa7EV+mXj5NaVm2qkz5D9DNn3V+WtTEawsxW9pL5UO3KOjN4qmw99Zp+3HETuE4z5Sh33nN1p07zHhvGSTOloUlbRCE8O5frlTjtF8EGe5e8PlO6OwYKI4Wz9ZmlG/E0CfySwqmuyIHKAP3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719402670; c=relaxed/simple;
-	bh=3LQoN23WI44iPi2+GuyPErzV/0khWkpYKV5ZVnuwIx4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=U9hlfVZLPUd08JOnRhOgbHHhZAdQ20dEg7iXvLSEnkOfC084p1q7pVhPZX1MPgmVyE3VuPOcuoQrk8hVPSLbWDze3b4sgRq6FI+9HNjkAgMavy3ZYLmFv6xXkmJDaknmPEZtYZdLQRQpbwnAeOo45EHVPLw4CzmvNDmYQg4xwdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=SpnEVYoN; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1719403719; c=relaxed/simple;
+	bh=6+8bqp4cDtpRaRrmfUU+dpvgtMMlgSZQodg1El7MI5E=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=k2DlSWfeEXhn2yQTDjFN/eSqZBoPkQCleYJYKmzZaGt5mQyaY8pIRtl0U8FctXISC8DtOj+lURv8d8oai01Dm0zZe5hLI5wEmIA9jnqVN4jm04TGjIJQQ3R93mfhrNCU5005NxlxxeUJjvJ2N6asyuGAGr/yILPq/aOEzBkuw5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UDlzKdLF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="SpnEVYoN"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-421eab59723so48404575e9.3
-        for <virtualization@lists.linux.dev>; Wed, 26 Jun 2024 04:51:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1719402665; x=1720007465; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=fuDkC3caQ7VJLf9N0acshbX2fD3wiC5AX8llZiwDzAU=;
-        b=SpnEVYoNQobY+ToqVBOimbplcRRrQ/hono4Fi3nAJyocRzY9s8TFWclSX86kn70dvi
-         iaAoFdhmtaVWf3W5yMuFIBCKclvU0EjjwUNgMw2mla124GZP/ToIWbC9QqvIw8rWbgcb
-         vhXfEm3Kq4RcDqaI186XnTB9PDz81jX0oLlha+Rw3bWXnn36WNmLl0dhPO1IUBlGCLRm
-         xUziq7eFHbIdJ93m2J0TMVokFI1P8aHFyxLc2Qdm8s0LlcN6bBjaYqgwSA593WTpR67D
-         K/iY3CrTFEln77I8/tJMzCGchR3qFvkt1ktAYSS7BN51MDDU28Lj5MMjPdo8JLKvJvtE
-         I8Tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719402665; x=1720007465;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fuDkC3caQ7VJLf9N0acshbX2fD3wiC5AX8llZiwDzAU=;
-        b=vX4KTkb5js1K/P3hhq8aajnt6jMZOYCGNAI3MIbCNDemEGdlU3PGymUZ3BWn+zPs0R
-         Mi1kwKLVA9orHZAv+EmB1W7uroE73uGqLIEszEfuAHrf5Fe2eUT+WATjH8+AHwkXgug7
-         1EWbVkIaSILvhG0uxfeJHLcuuTqjyEdmXa0Bm99nybfmJk8tigpl3kOWiVQrRberXD6J
-         hoK1XaZQse4jxMhPwCDIAFShjeTH8Imr5IWaELNkXAgMReoN7QkobE1R2SIDfqnlC1UK
-         l5gVlm4T5+zi7NatVS1UzV2JJN59W5YUF86pLhJgRJ6qyoaybYMS2CUd+SY9WBx6ZpJX
-         35kg==
-X-Forwarded-Encrypted: i=1; AJvYcCUTsa+tiENSNPY8vvnE3fT7K8a9r81l1Oy+BW1hSlBD2oY02Ac3aPu8dhNuzmAKhi3w9ikGOfqlOjuWxJ6MB6Fyc9Urv7Fzv15nfXjE51Q=
-X-Gm-Message-State: AOJu0YyuY2DEeSk95WtyIjloqV67XMD8Y4scJjblmXhmoDHo8D9WjWAA
-	S4XloNocV5YTlLZAlCgNzvVx8PIkkpY5M6KzEKznzgKqj3RelaiZtHLpu9LOGh0=
-X-Google-Smtp-Source: AGHT+IGFl4S14Jjbg273TutmbckTv1CS1SX8kegzuUKztNNNRpEpmFGSMeTBG1qSXNbcQxBW106IZg==
-X-Received: by 2002:a5d:6487:0:b0:366:e64f:b787 with SMTP id ffacd0b85a97d-366e64fb8a9mr10701070f8f.8.1719402664558;
-        Wed, 26 Jun 2024 04:51:04 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3663ada0bdesm15526415f8f.113.2024.06.26.04.51.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jun 2024 04:51:03 -0700 (PDT)
-Date: Wed, 26 Jun 2024 13:51:00 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Heng Qi <hengqi@linux.alibaba.com>, Jason Wang <jasowang@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
-Message-ID: <ZnwApCUjIijZ7o0b@nanopsycho.orion>
-References: <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
- <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
- <1718877195.0503237-9-hengqi@linux.alibaba.com>
- <20240620060816-mutt-send-email-mst@kernel.org>
- <20240620061109-mutt-send-email-mst@kernel.org>
- <1718879494.952194-11-hengqi@linux.alibaba.com>
- <ZnvI2hJXPJZyveAv@nanopsycho.orion>
- <20240626040730-mutt-send-email-mst@kernel.org>
- <ZnvUn-Kq4Al0nMQZ@nanopsycho.orion>
- <20240626045313-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UDlzKdLF"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B5371C32789;
+	Wed, 26 Jun 2024 12:08:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1719403718;
+	bh=6+8bqp4cDtpRaRrmfUU+dpvgtMMlgSZQodg1El7MI5E=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=UDlzKdLFC0mXugOqHR4s+aAKbkIRyvmyNRi4Obm1D6H9lD9rFhoPX2TddF2txIWHp
+	 1F8jIIo/JVw/CIRdEZVYaFgYfefE6u1e8cxaL8VGVPlR9hI/p7L2ppqIXKr0H3e80U
+	 ErV9Eycea64kjjP2ZqrEJCpZzzJgjyRsqYIURm4OMYGjdYJyny08bEoBZoFbvhKaUF
+	 GU+WdaHsT0tN6l3CR9PC7j52pXC1O4Ak/jqCjh6CfbKfSCgvXImDPBuA43P8sAS6Tr
+	 Pz0P/XO+BIXUJfNY/ndQFAx3tgsMm/DANQ8FOWzW6A3kcDJYo0vZVRp13xqb905Cx3
+	 3YPebud5/dkQg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2D31C30653;
+	Wed, 26 Jun 2024 12:08:38 +0000 (UTC)
+From: Luigi Leonardi via B4 Relay <devnull+luigi.leonardi.outlook.com@kernel.org>
+Subject: [PATCH net-next v3 0/3] ioctl support for AF_VSOCK and
+ virtio-based transports
+Date: Wed, 26 Jun 2024 14:08:34 +0200
+Message-Id: <20240626-ioctl_next-v3-0-63be5bf19a40@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240626045313-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMIEfGYC/x2MQQqAIBAAvyJ7ThArob4SEaVrLYSGSgjS37OOA
+ zNTIGIgjDCyAgFviuRdhbZhoI/V7cjJVAYpZCeUVJy8TufiMCdut00b0w9KqBZqcAW0lP/ZBA4
+ T/yyYn+cFLWo0gGYAAAA=
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+ Luigi Leonardi <luigi.leonardi@outlook.com>, 
+ Daan De Meyer <daan.j.demeyer@gmail.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1719403717; l=2183;
+ i=luigi.leonardi@outlook.com; s=20240626; h=from:subject:message-id;
+ bh=6+8bqp4cDtpRaRrmfUU+dpvgtMMlgSZQodg1El7MI5E=;
+ b=IWWqvzJ+wnZA9iJ5U6GbU25eUB91GRaT6iBrG0OwHjrkK+izvBFFcKxzBLy8WlPe7dE9aaGNU
+ f+xPdDS3YU4CVbMfqX62lWk26eorcsZcbT4gx0vnmd7AdJG1Jz277m3
+X-Developer-Key: i=luigi.leonardi@outlook.com; a=ed25519;
+ pk=RYXD8JyCxGnx/izNc/6b3g3pgpohJMAI0LJ7ynxXzi8=
+X-Endpoint-Received: by B4 Relay for luigi.leonardi@outlook.com/20240626
+ with auth_id=177
+X-Original-From: Luigi Leonardi <luigi.leonardi@outlook.com>
+Reply-To: luigi.leonardi@outlook.com
 
-Wed, Jun 26, 2024 at 11:58:08AM CEST, mst@redhat.com wrote:
->On Wed, Jun 26, 2024 at 10:43:11AM +0200, Jiri Pirko wrote:
->> Wed, Jun 26, 2024 at 10:08:14AM CEST, mst@redhat.com wrote:
->> >On Wed, Jun 26, 2024 at 09:52:58AM +0200, Jiri Pirko wrote:
->> >> Thu, Jun 20, 2024 at 12:31:34PM CEST, hengqi@linux.alibaba.com wrote:
->> >> >On Thu, 20 Jun 2024 06:11:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >> >> On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wrote:
->> >> >> > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
->> >> >> > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@redhat.com> wrote:
->> >> >> > > > On Thu, Jun 20, 2024 at 4:21 PM Jason Wang <jasowang@redhat.com> wrote:
->> >> >> > > > >
->> >> >> > > > > On Thu, Jun 20, 2024 at 3:35 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->> >> >> > > > > >
->> >> >> > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >> >> > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi wrote:
->> >> >> > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
->> >> >> > > > > > > >
->> >> >> > > > > > > >     /* Parameters for control virtqueue, if any */
->> >> >> > > > > > > >     if (vi->has_cvq) {
->> >> >> > > > > > > > -           callbacks[total_vqs - 1] = NULL;
->> >> >> > > > > > > > +           callbacks[total_vqs - 1] = virtnet_cvq_done;
->> >> >> > > > > > > >             names[total_vqs - 1] = "control";
->> >> >> > > > > > > >     }
->> >> >> > > > > > > >
->> >> >> > > > > > >
->> >> >> > > > > > > If the # of MSIX vectors is exactly for data path VQs,
->> >> >> > > > > > > this will cause irq sharing between VQs which will degrade
->> >> >> > > > > > > performance significantly.
->> >> >> > > > > > >
->> >> >> > > > >
->> >> >> > > > > Why do we need to care about buggy management? I think libvirt has
->> >> >> > > > > been teached to use 2N+2 since the introduction of the multiqueue[1].
->> >> >> > > > 
->> >> >> > > > And Qemu can calculate it correctly automatically since:
->> >> >> > > > 
->> >> >> > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
->> >> >> > > > Author: Jason Wang <jasowang@redhat.com>
->> >> >> > > > Date:   Mon Mar 8 12:49:19 2021 +0800
->> >> >> > > > 
->> >> >> > > >     virtio-net: calculating proper msix vectors on init
->> >> >> > > > 
->> >> >> > > >     Currently, the default msix vectors for virtio-net-pci is 3 which is
->> >> >> > > >     obvious not suitable for multiqueue guest, so we depends on the user
->> >> >> > > >     or management tools to pass a correct vectors parameter. In fact, we
->> >> >> > > >     can simplifying this by calculating the number of vectors on realize.
->> >> >> > > > 
->> >> >> > > >     Consider we have N queues, the number of vectors needed is 2*N + 2
->> >> >> > > >     (#queue pairs + plus one config interrupt and control vq). We didn't
->> >> >> > > >     check whether or not host support control vq because it was added
->> >> >> > > >     unconditionally by qemu to avoid breaking legacy guests such as Minix.
->> >> >> > > > 
->> >> >> > > >     Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com
->> >> >> > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
->> >> >> > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
->> >> >> > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
->> >> >> > > 
->> >> >> > > Yes, devices designed according to the spec need to reserve an interrupt
->> >> >> > > vector for ctrlq. So, Michael, do we want to be compatible with buggy devices?
->> >> >> > > 
->> >> >> > > Thanks.
->> >> >> > 
->> >> >> > These aren't buggy, the spec allows this. So don't fail, but
->> >> >> > I'm fine with using polling if not enough vectors.
->> >> >> 
->> >> >> sharing with config interrupt is easier code-wise though, FWIW -
->> >> >> we don't need to maintain two code-paths.
->> >> >
->> >> >Yes, it works well - config change irq is used less before - and will not fail.
->> >> 
->> >> Please note I'm working on such fallback for admin queue. I would Like
->> >> to send the patchset by the end of this week. You can then use it easily
->> >> for cvq.
->> >> 
->> >> Something like:
->> >> /* the config->find_vqs() implementation */
->> >> int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->> >>                 struct virtqueue *vqs[], vq_callback_t *callbacks[],
->> >>                 const char * const names[], const bool *ctx,
->> >>                 struct irq_affinity *desc)
->> >> {
->> >>         int err;
->> >> 
->> >>         /* Try MSI-X with one vector per queue. */
->> >>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
->> >>                                VP_VQ_VECTOR_POLICY_EACH, ctx, desc);
->> >>         if (!err)
->> >>                 return 0;
->> >>         /* Fallback: MSI-X with one shared vector for config and
->> >>          * slow path queues, one vector per queue for the rest. */
->> >>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
->> >>                                VP_VQ_VECTOR_POLICY_SHARED_SLOW, ctx, desc);
->> >>         if (!err)
->> >>                 return 0;
->> >>         /* Fallback: MSI-X with one vector for config, one shared for queues. */
->> >>         err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
->> >>                                VP_VQ_VECTOR_POLICY_SHARED, ctx, desc);
->> >>         if (!err)
->> >>                 return 0;
->> >>         /* Is there an interrupt? If not give up. */
->> >>         if (!(to_vp_device(vdev)->pci_dev->irq))
->> >>                 return err;
->> >>         /* Finally fall back to regular interrupts. */
->> >>         return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
->> >> }
->> >> 
->> >> 
->> >
->> >
->> >Well for cvq, we'll need to adjust the API so core
->> >knows cvq interrupts are be shared with config not
->> >datapath.
->> 
->> Agreed. I was thinking about introducing some info struct and pass array
->> of it instead of callbacks[] and names[]. Then the struct can contain
->> flag indication. Something like:
->> 
->> struct vq_info {
->> 	vq_callback_t *callback;
->> 	const char *name;
->> 	bool slow_path;
->> };
->> 
->
->Yes. Add ctx too? There were attempts at it already btw.
+This patch series introduce the support for ioctl(s) in AF_VSOCK.
+The only ioctl currently available is SIOCOUTQ, which returns
+the number of unsent or unacked packets. It is available for
+SOCK_STREAM, SOCK_SEQPACKET and SOCK_DGRAM.
 
-Yep, ctx too. I can take a stab at it if noone else is interested.
+As this information is transport-dependent, a new optional callback
+is introduced: unsent_bytes.
+
+The first patch add ioctl support in AF_VSOCK, while the second
+patch introduce support for SOCK_STREAM and SOCK_SEQPACKET
+in all virtio-based transports: virtio_transport (G2H),
+vhost-vsock (H2G) and vsock-loopback.
+
+The latest patch introduce two tests for this new feature.
+More details can be found in each patch changelog.
+
+v2->v3
+Applied all reviewers' suggetions:
+    - Minor style and code changes
+    - atomic_int replaced with an existing spin_lock.
+Introduced lock_sock on ioctl call.
+Rebased to latest net-next
+
+v1->v2
+Applied all Stefano's suggestions:
+    - vsock_do_ioctl has been rewritten
+    - ioctl(SIOCOUTQ) test is skipped when it is not supported
+    - Minor variable/function name changes
+    - rebased to latest net-next
+
+Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+---
+Luigi Leonardi (3):
+      vsock: add support for SIOCOUTQ ioctl for all vsock socket types.
+      vsock/virtio: add SIOCOUTQ support for all virtio based transports
+      test/vsock: add ioctl unsent bytes test
+
+ drivers/vhost/vsock.c                   |  4 +-
+ include/linux/virtio_vsock.h            |  7 +++
+ include/net/af_vsock.h                  |  3 ++
+ net/vmw_vsock/af_vsock.c                | 60 +++++++++++++++++++++--
+ net/vmw_vsock/virtio_transport.c        |  4 +-
+ net/vmw_vsock/virtio_transport_common.c | 35 ++++++++++++++
+ net/vmw_vsock/vsock_loopback.c          |  7 +++
+ tools/testing/vsock/util.c              |  6 +--
+ tools/testing/vsock/util.h              |  3 ++
+ tools/testing/vsock/vsock_test.c        | 85 +++++++++++++++++++++++++++++++++
+ 10 files changed, 206 insertions(+), 8 deletions(-)
+---
+base-commit: 50b70845fc5c22cf7e7d25b57d57b3dca1725aa5
+change-id: 20240626-ioctl_next-fbbcdd596063
+
+Best regards,
+-- 
+Luigi Leonardi <luigi.leonardi@outlook.com>
 
 
->
->
->> >
->> >
->> >
->> >> 
->> >> >
->> >> >Thanks.
->> >> >
->> >> >> 
->> >> >> > > > 
->> >> >> > > > Thanks
->> >> >> > > > 
->> >> >> > > > >
->> >> >> > > > > > > So no, you can not just do it unconditionally.
->> >> >> > > > > > >
->> >> >> > > > > > > The correct fix probably requires virtio core/API extensions.
->> >> >> > > > > >
->> >> >> > > > > > If the introduction of cvq irq causes interrupts to become shared, then
->> >> >> > > > > > ctrlq need to fall back to polling mode and keep the status quo.
->> >> >> > > > >
->> >> >> > > > > Having to path sounds a burden.
->> >> >> > > > >
->> >> >> > > > > >
->> >> >> > > > > > Thanks.
->> >> >> > > > > >
->> >> >> > > > >
->> >> >> > > > >
->> >> >> > > > > Thanks
->> >> >> > > > >
->> >> >> > > > > [1] https://www.linux-kvm.org/page/Multiqueue
->> >> >> > > > >
->> >> >> > > > > > >
->> >> >> > > > > > > --
->> >> >> > > > > > > MST
->> >> >> > > > > > >
->> >> >> > > > > >
->> >> >> > > > 
->> >> >> 
->> >> >
->> >
->
