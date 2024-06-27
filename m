@@ -1,58 +1,73 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFF751804F;
-	Thu, 27 Jun 2024 04:54:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3108E13C67B;
+	Thu, 27 Jun 2024 10:35:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719464050; cv=none; b=nSUO7vVMCtp3HWrJmzGt0/KEvtPktLA8aPn3g5TG5LbnzAhchdYiYkj0IzfjNF0TPTuoJNcsdbWLzCJQuHxPNQ35Qd0GXhryLaCsStQo+z9SP2KoqPcSVZ8kNDWFG2g3aIkzbTK+ViI4/P3rJeO48vyCFvKSlU73xglzEuW9K4k=
+	t=1719484520; cv=none; b=RTy5YIQj3yUiR/rY8gG91TTRVZdy3LyTLROGE8RrG9YZLKbXceieHENR6P79uIKZ41+9YxIN161AsOSTTs3lQJCew2xTzSXnINOsOBsKAwVdpYjv4rQZMIRX9Ya7A1ShK8lOAyQNFmGcfZBkWRShH1XwuIxLQVBmEaZRsIeKx78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719464050; c=relaxed/simple;
-	bh=LlK0F5tTrVM/p36ygp+Mt3SiuwhdpQbrsHRgx3HnkSg=;
+	s=arc-20240116; t=1719484520; c=relaxed/simple;
+	bh=n3fTqo6NFMW3NSDHDgErXu3fhjUWB/TMDTwrHQZiNk0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jp9aRjc6bvVU7htso8INg4pjbpHLdL+us9mGkJjZnw4skL10P4+a7h8xuWf8D3+egiHhjtmZDEwKATxHoTHBnOJXa/j6T3Skly6CKJcEuRectplFZ07Zg3O821ZqomuBBnnnesTEGGW79CYhAGlrLjlERjnoPM5pVPB9OoMRNqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=uzcGPgco; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=TL3nHpEPG5lxvR9PbNHxV6wLeVWlWE5wfVen8/qr3B4cTdYLhWYqphP2lE413AqojLWvNV4FzWdWo3J2F4vuYCGA7KkHteKGdJd6FRqrof2iNPB58kWlRcE3P9Wg4cQmz70WcYE9jyXab5ZreBnnn4rtmVG9tmvE1sCsT8GblO0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=btwmqID4; arc=none smtp.client-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="uzcGPgco"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=/fzE2yWElnzU7XRficmyE9tfka6WnF3hLS24PJakxl4=; b=uzcGPgconVlUhJahqA4o0y4rP2
-	YDkQfdW0m0w2u8N8BRaxbwBTF1twTy53aPn4xBPj/AfBrb0WxTzWJH8wD6oR43WzK3V70db4qXtWY
-	0IIZI+2mDcUbXHX9Anl5SaO8PZqQtBzUCFGUjAdJ7ExnkxJgGk1kclJpDyt1NPlhJH6k1SD2KJv1r
-	Y/aWT38dOOUqqw6WO2aC6zoYnYWj+859j2ETzBrnZoTEbtU0f3blIKoRcb5DyUh8Hm74KMCv5zkZg
-	gzrN7RVyue7JLzZcBns6ISX0k4yPom7ZauQBJlbkxj+mZ51Z3qG2KMut3g2uFWJoxlvZFyPWvc2cp
-	37dKQmlg==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sMh93-00000009D8d-4Br2;
-	Thu, 27 Jun 2024 04:54:06 +0000
-Date: Wed, 26 Jun 2024 21:54:05 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Oliver Sang <oliver.sang@intel.com>
-Cc: Christoph Hellwig <hch@infradead.org>, oe-lkp@lists.linux.dev,
-	lkp@intel.com, Jens Axboe <axboe@kernel.dk>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
-	linux-block@vger.kernel.org, linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com, nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
-	dm-devel@lists.linux.dev, linux-raid@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-	nvdimm@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org, ying.huang@intel.com,
-	feng.tang@intel.com, fengwei.yin@intel.com
-Subject: Re: [axboe-block:for-next] [block]  1122c0c1cc:  aim7.jobs-per-min
- 22.6% improvement
-Message-ID: <ZnzwbYSaIlT0SIEy@infradead.org>
-References: <202406250948.e0044f1d-oliver.sang@intel.com>
- <ZnqGf49cvy6W-xWf@infradead.org>
- <Znt4qTr/NdeIPyNp@xsang-OptiPlex-9020>
- <ZnuNhkH26nZi8fz6@infradead.org>
- <ZnzP+nUrk8+9bANK@xsang-OptiPlex-9020>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="btwmqID4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1719484519; x=1751020519;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=n3fTqo6NFMW3NSDHDgErXu3fhjUWB/TMDTwrHQZiNk0=;
+  b=btwmqID4rWjgL2xPewEqaqGimJKmMIWth9WcdrCQ8WgbS1eSpVZGNCqN
+   H+VWLSeN3PG16AKzFn+V+E58RWONfLfiDN6P9j5tFMHyel+E7Btjdi1/+
+   PToYdEk62TPrn5FhZCf9C1P10MIT10Acp3p9f9fu9Fsk+fZn7rIkftrLc
+   vIT8k3oT7QCQ3jMicUPbP+hQrvsR9JEFkf1wZSXzHqU+e1ecIsem3CIqr
+   F0+DQuVip+iyvz9kU7+DbWN/FLxpmHiiylpvDBuKKyGGCZAO3GcDNx7Fa
+   HUeWK3kbE8yDivPUgimcZm6cXqQMw2/RLfecFNmbns4PKkoSdyljeMBw8
+   A==;
+X-CSE-ConnectionGUID: +egYIJyRSjuolThxtE+Amw==
+X-CSE-MsgGUID: yBLaFBWzS2O42RSS08rpCQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11115"; a="27291349"
+X-IronPort-AV: E=Sophos;i="6.08,269,1712646000"; 
+   d="scan'208";a="27291349"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jun 2024 03:35:19 -0700
+X-CSE-ConnectionGUID: paDRu1OoTI6tUNJdOeGl2w==
+X-CSE-MsgGUID: GJd7IFfETOepN/MOy1bIdg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,269,1712646000"; 
+   d="scan'208";a="44457060"
+Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
+  by orviesa009.jf.intel.com with ESMTP; 27 Jun 2024 03:35:14 -0700
+Received: from kbuild by 68891e0c336b with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sMmT9-000G7y-22;
+	Thu, 27 Jun 2024 10:35:11 +0000
+Date: Thu, 27 Jun 2024 18:34:29 +0800
+From: kernel test robot <lkp@intel.com>
+To: Luigi Leonardi via B4 Relay <devnull+luigi.leonardi.outlook.com@kernel.org>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	Luigi Leonardi <luigi.leonardi@outlook.com>,
+	Daan De Meyer <daan.j.demeyer@gmail.com>
+Subject: Re: [PATCH net-next v3 1/3] vsock: add support for SIOCOUTQ ioctl
+ for all vsock socket types.
+Message-ID: <202406271827.aQ9ZYlCh-lkp@intel.com>
+References: <20240626-ioctl_next-v3-1-63be5bf19a40@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,27 +76,90 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZnzP+nUrk8+9bANK@xsang-OptiPlex-9020>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <20240626-ioctl_next-v3-1-63be5bf19a40@outlook.com>
 
-On Thu, Jun 27, 2024 at 10:35:38AM +0800, Oliver Sang wrote:
-> 
-> I failed to apply patch in your previous reply to 1122c0c1cc or current tip
-> of axboe-block/for-next:
-> c1440ed442a58 (axboe-block/for-next) Merge branch 'for-6.11/block' into for-next
+Hi Luigi,
 
-That already includes it.
+kernel test robot noticed the following build warnings:
 
-> 
-> but it's ok to apply upon next:
-> * 0fc4bfab2cd45 (tag: next-20240625) Add linux-next specific files for 20240625
-> 
-> I've already started the test based on this applyment.
-> is the expectation that patch should not introduce performance change comparing
-> to 0fc4bfab2cd45?
-> 
-> or if this applyment is not ok, please just give me guidance. Thanks!
+[auto build test WARNING on 50b70845fc5c22cf7e7d25b57d57b3dca1725aa5]
 
-The expectation is that the latest block branch (and thus linux-next)
-doesn't see this performance change.
+url:    https://github.com/intel-lab-lkp/linux/commits/Luigi-Leonardi-via-B4-Relay/vsock-add-support-for-SIOCOUTQ-ioctl-for-all-vsock-socket-types/20240627-023902
+base:   50b70845fc5c22cf7e7d25b57d57b3dca1725aa5
+patch link:    https://lore.kernel.org/r/20240626-ioctl_next-v3-1-63be5bf19a40%40outlook.com
+patch subject: [PATCH net-next v3 1/3] vsock: add support for SIOCOUTQ ioctl for all vsock socket types.
+config: i386-buildonly-randconfig-001-20240627 (https://download.01.org/0day-ci/archive/20240627/202406271827.aQ9ZYlCh-lkp@intel.com/config)
+compiler: clang version 18.1.5 (https://github.com/llvm/llvm-project 617a15a9eac96088ae5e9134248d8236e34b91b1)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240627/202406271827.aQ9ZYlCh-lkp@intel.com/reproduce)
 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202406271827.aQ9ZYlCh-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> net/vmw_vsock/af_vsock.c:1314:7: warning: variable 'retval' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    1314 |                 if (vsk->transport->unsent_bytes) {
+         |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   net/vmw_vsock/af_vsock.c:1334:9: note: uninitialized use occurs here
+    1334 |         return retval;
+         |                ^~~~~~
+   net/vmw_vsock/af_vsock.c:1314:3: note: remove the 'if' if its condition is always true
+    1314 |                 if (vsk->transport->unsent_bytes) {
+         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   net/vmw_vsock/af_vsock.c:1301:12: note: initialize the variable 'retval' to silence this warning
+    1301 |         int retval;
+         |                   ^
+         |                    = 0
+   1 warning generated.
+
+
+vim +1314 net/vmw_vsock/af_vsock.c
+
+  1295	
+  1296	static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
+  1297				  int __user *arg)
+  1298	{
+  1299		struct sock *sk = sock->sk;
+  1300		struct vsock_sock *vsk;
+  1301		int retval;
+  1302	
+  1303		vsk = vsock_sk(sk);
+  1304	
+  1305		switch (cmd) {
+  1306		case SIOCOUTQ: {
+  1307			size_t n_bytes;
+  1308	
+  1309			if (!vsk->transport || !vsk->transport->unsent_bytes) {
+  1310				retval = -EOPNOTSUPP;
+  1311				break;
+  1312			}
+  1313	
+> 1314			if (vsk->transport->unsent_bytes) {
+  1315				if (sock_type_connectible(sk->sk_type) && sk->sk_state == TCP_LISTEN) {
+  1316					retval = -EINVAL;
+  1317					break;
+  1318				}
+  1319	
+  1320				n_bytes = vsk->transport->unsent_bytes(vsk);
+  1321				if (n_bytes < 0) {
+  1322					retval = n_bytes;
+  1323					break;
+  1324				}
+  1325	
+  1326				retval = put_user(n_bytes, arg);
+  1327			}
+  1328			break;
+  1329		}
+  1330		default:
+  1331			retval = -ENOIOCTLCMD;
+  1332		}
+  1333	
+  1334		return retval;
+  1335	}
+  1336	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
