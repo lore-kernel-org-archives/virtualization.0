@@ -1,33 +1,33 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB17A405E6
-	for <virtualization@lists.linux.dev>; Fri, 28 Jun 2024 05:42:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D18044502D
+	for <virtualization@lists.linux.dev>; Fri, 28 Jun 2024 05:43:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719553358; cv=none; b=E0yHQfiSWWzKsuG/eQlCNZxM5gl8A+wi65M95/KComGh1G1/83sbLqBRKcVEY1lpGxR4q7aAbvdIsC8x+apQy0qqJD6HyqA4EsbRy7YxTv85i3tSfF9NuPV5kSRyb4cKoUUMyOUjqV53rMvtKF7f0vRb0wCjpsmbJDj+fe5qsNw=
+	t=1719553434; cv=none; b=M52yYiGZ9vYcavibfmIqNY9eNCnDzOBUsC+xWcJwCTZfosWfjI6yhY93KFqV4sZY2yc1hm4GDvoz4LOX7WYJU573XiJf4gle4Bk17kwhHrfuuLnRAXi10y8JfxV8oaU/RTIqrQHchVZgepmmANcXMZ7HVpWSbzFJM5l36Hy6OLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719553358; c=relaxed/simple;
-	bh=gYXXaIbnJMeu2Y5i7gFbuBfABlLzFqp1ojWyFwutkqQ=;
+	s=arc-20240116; t=1719553434; c=relaxed/simple;
+	bh=6hGeZecioq+y13J2GuEtEopfpkVV0aXCZs+PJruPyw8=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=osIhcIbTaceMUf7YCbX+aPb3ZOzxJa9TOofjjgeDx/NZks8H3tsuF0o7vMg9Lt1KRIt9US0lOCCktArRhgifGU1/XqVKOh8wj+HA5WX4nxiTLMDj39HCvA/KHe287sddFkIJheUsp6EwjRb5qSek86LKGDESA+jkb0nWCVkHkek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=lae1uSWn; arc=none smtp.client-ip=115.124.30.132
+	 Content-Type; b=bi2GNzk6D9d4iSUwoyOBB85oZD5BwRs0/nw9qLvY+ijj16ioIVPsH7O79ibqNugOSsfI1jBIs88T3I++m/BbIFnug1CENus+zB0FBMyiu1Cjuqc9C9ystCs3okbPdNm96EpqeMA/Z/HvFOb5Vap9bhylhbULAev88uABtGxxcAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mK+khEOM; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="lae1uSWn"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mK+khEOM"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1719553353; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=/jDrd4tsoE8pGQfoa2aLNAfsKwzQ0HaPA+FLDXmgUqw=;
-	b=lae1uSWnmC7+RA5WDvCpQTM994icFbobhyhD7Q9oDnIBYMhedoEjMd9WiGHuc6KHMG3SSABK6gx3zfsIn2t3LxEKOy7R9j/bh/u/e37TyiYNbAyQi0i0gBtqnmkakW92vDthj+QdnqqQ/RxO1erLt4c+kZ5gVSKSjdIMXmPoYmk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W9PB5Pu_1719553351;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W9PB5Pu_1719553351)
+	t=1719553429; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=oigxU9OW11eqdIXlUMNJSXXFugkZpgKFvvLNvvI4pQY=;
+	b=mK+khEOM8Jq2ReRkJJNuo29JbHjKXt4dCvqbgzL0QHOQR3u/lcrH0GuwuND2oN7Zt0Plf4tRxizJHgFwQZUjM3h4iErfza9vP2vRfL0KkjhD4ivroCp0/J+xQ+xXg7ops8vGOTLKVjymQwmdT+fOmQZG7fXH7KBMWJjtOkFg9Ko=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W9PGH13_1719553427;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W9PGH13_1719553427)
           by smtp.aliyun-inc.com;
-          Fri, 28 Jun 2024 13:42:32 +0800
-Message-ID: <1719553327.3107169-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v6 05/10] virtio_net: xsk: bind/unbind xsk for rx
-Date: Fri, 28 Jun 2024 13:42:07 +0800
+          Fri, 28 Jun 2024 13:43:48 +0800
+Message-ID: <1719553356.2373846-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 07/10] virtio_net: xsk: rx: support fill with xsk buffer
+Date: Fri, 28 Jun 2024 13:42:36 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org,
@@ -44,9 +44,9 @@ Cc: netdev@vger.kernel.org,
  virtualization@lists.linux.dev,
  bpf@vger.kernel.org
 References: <20240618075643.24867-1-xuanzhuo@linux.alibaba.com>
- <20240618075643.24867-6-xuanzhuo@linux.alibaba.com>
- <CACGkMEtPwA2EN3xEH_T67cOQAWyZfYESso8LzeFDocJKYoXmTw@mail.gmail.com>
-In-Reply-To: <CACGkMEtPwA2EN3xEH_T67cOQAWyZfYESso8LzeFDocJKYoXmTw@mail.gmail.com>
+ <20240618075643.24867-8-xuanzhuo@linux.alibaba.com>
+ <CACGkMEta9o97cqUy+wV=1Xpu8MBoFt4CEtWS35dhTMs0Dm4AKg@mail.gmail.com>
+In-Reply-To: <CACGkMEta9o97cqUy+wV=1Xpu8MBoFt4CEtWS35dhTMs0Dm4AKg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -55,147 +55,84 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Fri, 28 Jun 2024 10:19:34 +0800, Jason Wang <jasowang@redhat.com> wrote:
+On Fri, 28 Jun 2024 10:19:37 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > On Tue, Jun 18, 2024 at 3:57=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
 .com> wrote:
 > >
-> > This patch implement the logic of bind/unbind xsk pool to rq.
+> > Implement the logic of filling rq with XSK buffers.
 > >
 > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > > ---
-> >  drivers/net/virtio_net.c | 133 +++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 133 insertions(+)
+> >  drivers/net/virtio_net.c | 68 ++++++++++++++++++++++++++++++++++++++--
+> >  1 file changed, 66 insertions(+), 2 deletions(-)
 > >
 > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index df885cdbe658..d8cce143be26 100644
+> > index 2bbc715f22c6..2ac5668a94ce 100644
 > > --- a/drivers/net/virtio_net.c
 > > +++ b/drivers/net/virtio_net.c
-> > @@ -25,6 +25,7 @@
-> >  #include <net/net_failover.h>
-> >  #include <net/netdev_rx_queue.h>
-> >  #include <net/netdev_queues.h>
-> > +#include <net/xdp_sock_drv.h>
+> > @@ -355,6 +355,8 @@ struct receive_queue {
 > >
-> >  static int napi_weight =3D NAPI_POLL_WEIGHT;
-> >  module_param(napi_weight, int, 0444);
-> > @@ -348,6 +349,13 @@ struct receive_queue {
-> >
-> >         /* Record the last dma info to free after new pages is allocate=
-d. */
-> >         struct virtnet_rq_dma *last_dma;
+> >                 /* xdp rxq used by xsk */
+> >                 struct xdp_rxq_info xdp_rxq;
 > > +
-> > +       struct {
-> > +               struct xsk_buff_pool *pool;
-> > +
-> > +               /* xdp rxq used by xsk */
-> > +               struct xdp_rxq_info xdp_rxq;
-> > +       } xsk;
->
-> I don't see a special reason for having a container struct here.
-
-
-Will fix.
-
->
->
+> > +               struct xdp_buff **xsk_buffs;
+> >         } xsk;
 > >  };
 > >
-> >  /* This structure can contain rss message with maximum settings for in=
-direction table and keysize
-> > @@ -4970,6 +4978,129 @@ static int virtnet_restore_guest_offloads(struc=
-t virtnet_info *vi)
-> >         return virtnet_set_guest_offloads(vi, offloads);
+> > @@ -1032,6 +1034,53 @@ static void check_sq_full_and_disable(struct vir=
+tnet_info *vi,
+> >         }
 > >  }
 > >
-> > +static int virtnet_rq_bind_xsk_pool(struct virtnet_info *vi, struct re=
-ceive_queue *rq,
-> > +                                   struct xsk_buff_pool *pool)
+> > +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 l=
+en)
 > > +{
-> > +       int err, qindex;
-> > +
-> > +       qindex =3D rq - vi->rq;
-> > +
-> > +       if (pool) {
-> > +               err =3D xdp_rxq_info_reg(&rq->xsk.xdp_rxq, vi->dev, qin=
-dex, rq->napi.napi_id);
-> > +               if (err < 0)
-> > +                       return err;
-> > +
-> > +               err =3D xdp_rxq_info_reg_mem_model(&rq->xsk.xdp_rxq,
-> > +                                                MEM_TYPE_XSK_BUFF_POOL=
-, NULL);
-> > +               if (err < 0)
-> > +                       goto unreg;
-> > +
-> > +               xsk_pool_set_rxq_info(pool, &rq->xsk.xdp_rxq);
-> > +       }
-> > +
-> > +       virtnet_rx_pause(vi, rq);
-> > +
-> > +       err =3D virtqueue_reset(rq->vq, virtnet_rq_unmap_free_buf);
-> > +       if (err) {
-> > +               netdev_err(vi->dev, "reset rx fail: rx queue index: %d =
-err: %d\n", qindex, err);
-> > +
-> > +               pool =3D NULL;
-> > +       }
-> > +
-> > +       rq->xsk.pool =3D pool;
-> > +
-> > +       virtnet_rx_resume(vi, rq);
-> > +
-> > +       if (pool)
-> > +               return 0;
-> > +
-> > +unreg:
-> > +       xdp_rxq_info_unreg(&rq->xsk.xdp_rxq);
-> > +       return err;
+> > +       sg->dma_address =3D addr;
+> > +       sg->length =3D len;
 > > +}
 > > +
-> > +static int virtnet_xsk_pool_enable(struct net_device *dev,
-> > +                                  struct xsk_buff_pool *pool,
-> > +                                  u16 qid)
+> > +static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct rec=
+eive_queue *rq,
+> > +                                  struct xsk_buff_pool *pool, gfp_t gf=
+p)
 > > +{
-> > +       struct virtnet_info *vi =3D netdev_priv(dev);
-> > +       struct receive_queue *rq;
-> > +       struct device *dma_dev;
-> > +       struct send_queue *sq;
-> > +       int err;
+> > +       struct xdp_buff **xsk_buffs;
+> > +       dma_addr_t addr;
+> > +       u32 len, i;
+> > +       int err =3D 0;
+> > +       int num;
 > > +
-> > +       /* In big_packets mode, xdp cannot work, so there is no need to
-> > +        * initialize xsk of rq.
-> > +        */
-> > +       if (vi->big_packets && !vi->mergeable_rx_bufs)
-> > +               return -ENOENT;
+> > +       xsk_buffs =3D rq->xsk.xsk_buffs;
 > > +
-> > +       if (qid >=3D vi->curr_queue_pairs)
-> > +               return -EINVAL;
+> > +       num =3D xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
+> > +       if (!num)
+> > +               return -ENOMEM;
 > > +
-> > +       sq =3D &vi->sq[qid];
-> > +       rq =3D &vi->rq[qid];
+> > +       len =3D xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
 > > +
-> > +       /* For the xsk, the tx and rx should have the same device. The =
-af-xdp
-> > +        * may use one buffer to receive from the rx and reuse this buf=
-fer to
-> > +        * send by the tx. So the dma dev of sq and rq should be the sa=
-me one.
-> > +        *
-> > +        * But vq->dma_dev allows every vq has the respective dma dev. =
-So I
-> > +        * check the dma dev of vq and sq is the same dev.
+> > +       for (i =3D 0; i < num; ++i) {
+> > +               /* use the part of XDP_PACKET_HEADROOM as the virtnet h=
+dr space */
+> > +               addr =3D xsk_buff_xdp_get_dma(xsk_buffs[i]) - vi->hdr_l=
+en;
 >
-> Not a native speaker, but it might be better to say "xsk assumes ....
-> to be the same device". And it might be better to replace "should"
-> with "must".
+> We had VIRTIO_XDP_HEADROOM, can we reuse it? Or if it's redundant
+> let's send a patch to switch to XDP_PACKET_HEADROOM.
 
-Will fix.
+Do you mean replace it inside the comment?
+
+I want to describe use the headroom of xsk, the size of the headroom is
+XDP_PACKET_HEADROOM.
+
+>
+> Btw, the code assumes vi->hdr_len < xsk_pool_get_headroom(). It's
+> better to fail if it's not true when enabling xsk.
+
+It is ok.
 
 Thanks.
 
 
->
-> Others look good.
 >
 > Thanks
 >
