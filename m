@@ -1,124 +1,216 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A016719E7DC
-	for <virtualization@lists.linux-foundation.org>; Thu, 27 Jun 2024 17:50:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B467517F8
+	for <virtualization@lists.linux.dev>; Fri, 28 Jun 2024 02:19:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719510660; cv=none; b=nZOeSXDjYfgJx29N3sxe7Oaunfvt9H4Rq+nQE3Ha4BsHEQMLGwyUws/nhHGwd7tD1dKFfdGQiYfwNQz6rPhZ9uJQj9WTkzMCeDqaofqPl8tf4BFLVnS6OSesLGGoKM42JoHgqV9ddLAQMDlfdECEoKXb8YVZvAsZ9RFkexqOxjo=
+	t=1719541191; cv=none; b=rJU9elYfTR9yrfvVT539LiwX/gMmt+5FAgQIbeC/wwzmXHmFnjihRCcXDqcXtC4oWOlFhY8Yln4ZpdBp5bBKPSaUmRjmZAvOVVI3jEBq4hszuO+Pscbg7fAFWkTrKFIYIGx3f3k8ybGbsoMkxRgMdYyB7h4AoB/sG49qz54j3mg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719510660; c=relaxed/simple;
-	bh=FhBU8A5+Q8J0OeOT+PjkesYLZH9n5p6zVNLOC80zmBw=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=txPyf+bkjlgD+BLQXnfeXs9yEgwl/eUgKVwN/zpZYfMYzB4yLBANxOMvSwR3B59e/HP3xAHiNe3IDBwQcYqHA3OU/Yq2N4qn9dTZ5Stq9y6UBIK7ifhJO/hZ74gbzRVePLmBQ91mM6vU2IyuArRp39Bc5RRb/F2IoNDOpQlWS+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CYAi0p2Z; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1719541191; c=relaxed/simple;
+	bh=fS9/cFuMgM0lZ8ejH+LXiAGmaBNxW0h/VZBmYDdLhe4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=T5iBoNHuv895qpc6uoEJHOr4VfLhYMorRdyhIshNqhFBj3nIJ5CsYV/a8zP73jvk9GX3c4XZSfZSiZdKl+XS2Gsk0fSqck8pM7gdMfhcBco2ZIa8QVTHoU8jf2kOo8H87URmA+Bq+mWHXVDJ7uzSHN5kUanagYApcBkedzxFSLQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h+llYpfv; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CYAi0p2Z"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4BED0416B5
-	for <virtualization@lists.linux-foundation.org>; Thu, 27 Jun 2024 17:50:59 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -7.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id WLrVY6MPCPe7 for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jun 2024 17:50:58 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=patchwork-bot+linux-riscv@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2A8DE416AB
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2A8DE416AB
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=CYAi0p2Z
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2A8DE416AB
-	for <virtualization@lists.linux-foundation.org>; Thu, 27 Jun 2024 17:50:58 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id D15C061F6D;
-	Thu, 27 Jun 2024 17:50:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6C44CC4AF07;
-	Thu, 27 Jun 2024 17:50:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1719510656;
-	bh=FhBU8A5+Q8J0OeOT+PjkesYLZH9n5p6zVNLOC80zmBw=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=CYAi0p2ZyCgc3Y/ccqYLug+F9ztYsbxWr9w6tr695saFcQn6YidUwXIq9K0ak9EJs
-	 sk1lKUr5cTZvu27kL+fNxzb5Qy9/QclYZW3qiXhDFBS3YEgSgzOrPnXlnxeBrofhP2
-	 at+jqHsN682VCLNaiPv3cQvb2ugk6DRlkH/0ceAOjETSb85P5DKXJUP3cGqpMTYXir
-	 +ETVxwIBD5O16Ve54x/LvN5tBB6xToPZyGosRt4nz+/Wah2fD5Fl1L8I1/ZQTEnEKe
-	 HzMCD9GQzDfNOZvkt3T+TosAQEGCbpNsFvr5eTd/7xXGx2wtLrXz7Vtt//bb+Zjefh
-	 CJRGBd1/xNnbw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 3DE1FC433A2;
-	Thu, 27 Jun 2024 17:50:56 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h+llYpfv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719541188;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XFtsipCPOP/jakTRLVMoqNYxm8v6uKh7kTQGbc/1cIY=;
+	b=h+llYpfvJ0uSY6hAHEXrU/mC2qjiVo4ip2PTOYQz6vBBpnuNHduXIV/cg/J/5gtB6BgPaz
+	EiRL2VaeNwNhIBFN95AlZhVg7O/iLTdRBDotSnl9hXl+Fwc19aPXzy2GuycANu7DvsdA7k
+	GXA7ZefdnL3LKerLo4aiNhoS9wbFngM=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-692-wB9fuOB8ON2kabLhd9Bynw-1; Thu, 27 Jun 2024 22:19:47 -0400
+X-MC-Unique: wB9fuOB8ON2kabLhd9Bynw-1
+Received: by mail-ot1-f72.google.com with SMTP id 46e09a7af769-6f8ee93828fso242729a34.3
+        for <virtualization@lists.linux.dev>; Thu, 27 Jun 2024 19:19:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719541186; x=1720145986;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=XFtsipCPOP/jakTRLVMoqNYxm8v6uKh7kTQGbc/1cIY=;
+        b=vACRiKmARTu/N9HHxV9SyvFPltuJFGMp8c/oyR2xGRS9YBMUIp4X8tM80oTYhAmHz2
+         bbrpBEloAtu0ZMx/w3r+MfnfqiuJxa3FBl4nPoSoB8XloZpxM07jon9wBH14cAIxl4Gi
+         MDpM/+g3aukuxNNlv3J/s3jcENrXnZgY+ZsrNpPfYUYm0zkbfZltlxYmTYTvqdglMel/
+         g0SglD1LeS1Ahh3K0XN8HU2QJdSHCfM2b724oQ/DvLESvM+gacXR8F9TuMGySnYqjMFk
+         Ut1urDm+n9QXdTJphD4LcdLE4E0VuoKN2ARRz9NuBNPf+eugtN65/6Vn1jklYisLnpxP
+         bmCQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVGNjAL3x41OpNuQ2OqQ7cveDN5KpCeztREgk8gnWDYQRlTMVLSIYujVC9cppiQx80Vf/WoWeBvA74MLPdrMaQGtYdVPjUVwhW4/c5XtXY=
+X-Gm-Message-State: AOJu0YxS79Q+l9VwbfDS7ylNZhbeC43YRweJ1qsIw+Olk+m738ej3npe
+	AXuj7qKwki58bsxhSeuomVXg6Kg76d2geFk4Dgb96oC0cVXXNNL7TlUbInWbA2/3mAO9Ruacq2S
+	Z1oGiOwL0FrRCLUAC0yQ2bcuem/h/m6Qt/uu+e1FsdxejNgae2Lkd34RKfVMW9vW+OO2fqNj1h4
+	/+iiVy8RfWF42AsPIwEPIpxa807Eq735e3png4sbU=
+X-Received: by 2002:a9d:760b:0:b0:6f9:6161:56d6 with SMTP id 46e09a7af769-700b118801amr16478942a34.3.1719541186328;
+        Thu, 27 Jun 2024 19:19:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH0cy9whsZGzhAzpp3vFWkjbwHKyu4q8WjSFEbZ4m1R5IwigdKQPr7kxsvvcJH5teLIRbMAoIj3o3ESGwRVCsA=
+X-Received: by 2002:a9d:760b:0:b0:6f9:6161:56d6 with SMTP id
+ 46e09a7af769-700b118801amr16478922a34.3.1719541185825; Thu, 27 Jun 2024
+ 19:19:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v4 00/11] riscv: Memory Hot(Un)Plug support
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <171951065622.6762.1200021343450740838.git-patchwork-notify@kernel.org>
-Date: Thu, 27 Jun 2024 17:50:56 +0000
-References: <20240605114100.315918-1-bjorn@kernel.org>
-In-Reply-To: <20240605114100.315918-1-bjorn@kernel.org>
-To: =?utf-8?b?QmrDtnJuIFTDtnBlbCA8Ympvcm5Aa2VybmVsLm9yZz4=?=@ci.codeaurora.org
-Cc: linux-riscv@lists.infradead.org, alexghiti@rivosinc.com,
- aou@eecs.berkeley.edu, david@redhat.com, palmer@dabbelt.com,
- paul.walmsley@sifive.com, osalvador@suse.de, lstoakes@gmail.com,
- Chethan.Seshadri@catalinasystems.io, linux-kernel@vger.kernel.org,
- abrestic@rivosinc.com, bjorn@rivosinc.com, santosh.mamila@catalinasystems.io,
- linux-mm@kvack.org, siva.munnangi@catalinasystems.io,
- virtualization@lists.linux-foundation.org
+References: <20240618075643.24867-1-xuanzhuo@linux.alibaba.com> <20240618075643.24867-6-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240618075643.24867-6-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 28 Jun 2024 10:19:34 +0800
+Message-ID: <CACGkMEtPwA2EN3xEH_T67cOQAWyZfYESso8LzeFDocJKYoXmTw@mail.gmail.com>
+Subject: Re: [PATCH net-next v6 05/10] virtio_net: xsk: bind/unbind xsk for rx
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev, 
+	bpf@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello:
+On Tue, Jun 18, 2024 at 3:57=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> This patch implement the logic of bind/unbind xsk pool to rq.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/net/virtio_net.c | 133 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 133 insertions(+)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index df885cdbe658..d8cce143be26 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -25,6 +25,7 @@
+>  #include <net/net_failover.h>
+>  #include <net/netdev_rx_queue.h>
+>  #include <net/netdev_queues.h>
+> +#include <net/xdp_sock_drv.h>
+>
+>  static int napi_weight =3D NAPI_POLL_WEIGHT;
+>  module_param(napi_weight, int, 0444);
+> @@ -348,6 +349,13 @@ struct receive_queue {
+>
+>         /* Record the last dma info to free after new pages is allocated.=
+ */
+>         struct virtnet_rq_dma *last_dma;
+> +
+> +       struct {
+> +               struct xsk_buff_pool *pool;
+> +
+> +               /* xdp rxq used by xsk */
+> +               struct xdp_rxq_info xdp_rxq;
+> +       } xsk;
 
-This series was applied to riscv/linux.git (for-next)
-by Palmer Dabbelt <palmer@rivosinc.com>:
+I don't see a special reason for having a container struct here.
 
-On Wed,  5 Jun 2024 13:40:43 +0200 you wrote:
-> From: Björn Töpel <bjorn@rivosinc.com>
-> 
-> ================================================================
-> Memory Hot(Un)Plug support (and ZONE_DEVICE) for the RISC-V port
-> ================================================================
-> 
-> (For the restless folks: change log in the bottom!)
-> 
-> [...]
 
-Here is the summary with links:
-  - [v4,01/11] riscv: mm: Properly forward vmemmap_populate() altmap parameter
-    https://git.kernel.org/riscv/c/e3ecf2fdc8f3
-  - [v4,02/11] riscv: mm: Pre-allocate vmemmap/direct map/kasan PGD entries
-    https://git.kernel.org/riscv/c/66673099f734
-  - [v4,03/11] riscv: mm: Change attribute from __init to __meminit for page functions
-    https://git.kernel.org/riscv/c/fe122b89da67
-  - [v4,04/11] riscv: mm: Refactor create_linear_mapping_range() for memory hot add
-    https://git.kernel.org/riscv/c/007480fe84a9
-  - [v4,05/11] riscv: mm: Add pfn_to_kaddr() implementation
-    https://git.kernel.org/riscv/c/6e6c5e21b8cb
-  - [v4,06/11] riscv: mm: Add memory hotplugging support
-    https://git.kernel.org/riscv/c/c75a74f4ba19
-  - [v4,07/11] riscv: mm: Take memory hotplug read-lock during kernel page table dump
-    https://git.kernel.org/riscv/c/37992b7f1097
-  - [v4,08/11] riscv: Enable memory hotplugging for RISC-V
-    https://git.kernel.org/riscv/c/f8c2a240556e
-  - [v4,09/11] virtio-mem: Enable virtio-mem for RISC-V
-    https://git.kernel.org/riscv/c/0546d7043e55
-  - [v4,10/11] riscv: mm: Add support for ZONE_DEVICE
-    https://git.kernel.org/riscv/c/216e04bf1e4d
-  - [v4,11/11] riscv: Enable DAX VMEMMAP optimization
-    https://git.kernel.org/riscv/c/4705c1571ad3
+>  };
+>
+>  /* This structure can contain rss message with maximum settings for indi=
+rection table and keysize
+> @@ -4970,6 +4978,129 @@ static int virtnet_restore_guest_offloads(struct =
+virtnet_info *vi)
+>         return virtnet_set_guest_offloads(vi, offloads);
+>  }
+>
+> +static int virtnet_rq_bind_xsk_pool(struct virtnet_info *vi, struct rece=
+ive_queue *rq,
+> +                                   struct xsk_buff_pool *pool)
+> +{
+> +       int err, qindex;
+> +
+> +       qindex =3D rq - vi->rq;
+> +
+> +       if (pool) {
+> +               err =3D xdp_rxq_info_reg(&rq->xsk.xdp_rxq, vi->dev, qinde=
+x, rq->napi.napi_id);
+> +               if (err < 0)
+> +                       return err;
+> +
+> +               err =3D xdp_rxq_info_reg_mem_model(&rq->xsk.xdp_rxq,
+> +                                                MEM_TYPE_XSK_BUFF_POOL, =
+NULL);
+> +               if (err < 0)
+> +                       goto unreg;
+> +
+> +               xsk_pool_set_rxq_info(pool, &rq->xsk.xdp_rxq);
+> +       }
+> +
+> +       virtnet_rx_pause(vi, rq);
+> +
+> +       err =3D virtqueue_reset(rq->vq, virtnet_rq_unmap_free_buf);
+> +       if (err) {
+> +               netdev_err(vi->dev, "reset rx fail: rx queue index: %d er=
+r: %d\n", qindex, err);
+> +
+> +               pool =3D NULL;
+> +       }
+> +
+> +       rq->xsk.pool =3D pool;
+> +
+> +       virtnet_rx_resume(vi, rq);
+> +
+> +       if (pool)
+> +               return 0;
+> +
+> +unreg:
+> +       xdp_rxq_info_unreg(&rq->xsk.xdp_rxq);
+> +       return err;
+> +}
+> +
+> +static int virtnet_xsk_pool_enable(struct net_device *dev,
+> +                                  struct xsk_buff_pool *pool,
+> +                                  u16 qid)
+> +{
+> +       struct virtnet_info *vi =3D netdev_priv(dev);
+> +       struct receive_queue *rq;
+> +       struct device *dma_dev;
+> +       struct send_queue *sq;
+> +       int err;
+> +
+> +       /* In big_packets mode, xdp cannot work, so there is no need to
+> +        * initialize xsk of rq.
+> +        */
+> +       if (vi->big_packets && !vi->mergeable_rx_bufs)
+> +               return -ENOENT;
+> +
+> +       if (qid >=3D vi->curr_queue_pairs)
+> +               return -EINVAL;
+> +
+> +       sq =3D &vi->sq[qid];
+> +       rq =3D &vi->rq[qid];
+> +
+> +       /* For the xsk, the tx and rx should have the same device. The af=
+-xdp
+> +        * may use one buffer to receive from the rx and reuse this buffe=
+r to
+> +        * send by the tx. So the dma dev of sq and rq should be the same=
+ one.
+> +        *
+> +        * But vq->dma_dev allows every vq has the respective dma dev. So=
+ I
+> +        * check the dma dev of vq and sq is the same dev.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Not a native speaker, but it might be better to say "xsk assumes ....
+to be the same device". And it might be better to replace "should"
+with "must".
 
+Others look good.
+
+Thanks
 
