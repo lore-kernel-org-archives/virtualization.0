@@ -1,113 +1,129 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E889F2B9BE
-	for <virtualization@lists.linux-foundation.org>; Sat, 29 Jun 2024 01:11:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8AA61EB31
+	for <virtualization@lists.linux-foundation.org>; Sat, 29 Jun 2024 03:58:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719623521; cv=none; b=enudi6BBJyLy2EDvk+azd0ri+1M0Z+s/ekK26f7V1J5S1ZFjZvb3aezFVvh/TZIxTn1yxYYieSsKVk9uyEnLDU0SzlwDzZ7Vod+FdedFt0Gj9pkzgZT0XRXQLVcC+mt1hFyDWNtZsiG+nvHaBiGzc6cH20viAPczQ69QzMRblnU=
+	t=1719633514; cv=none; b=hgHyMFB7IE/baENYfoSniTrDeqaIkSdHB4YUbaTv4oPVf7+iqI07leojxzrw6RWuAKqHRS4op7PTC+i0QI5GO2EjiAbKZnrUlwZDYFJuQrxVKSctBodiif84koATGGf0WxTwlcCGEXJsVJ8hT7MOH46VfjPDB/+OFfzHEZbgAgs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719623521; c=relaxed/simple;
-	bh=owo+cNn/TUw6Wew2s0YPnRqOgIVxnweK7ckD+KeIf3A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YydNLFp0CMSXxeoH2kORMnTiuCQ3GDltSqjOFvVX/POCCUV5nkJMekAg+Z6W/V8gN5nWmgAVr3d8D1N57HrBzAFz79Tatzo+1ma3LRMLLpLlzYyUvmbcIjz93EKtjqgmJLDJ3EOSkBARZSN0pM2nnFshMTlHs/V7qhC1+yxcxo8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=UutEpBGU; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1719633514; c=relaxed/simple;
+	bh=KAM2m2vrRAt/9MTW/snw1O4VivECpPi3UISTEE8FRps=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=mU2/PdP3t4J2wohj1caq8WuTPCT/W/X+Tr3RQxxpircvUXKZ/E9KsQr9On7MsUjgfEVyYh9hFUtc6tM3bJeWui95pYeQLxdJfz1/vkH+a5EdqzOW5t16D6r9XdsjPODcBtnzrP3R4/pbi+XjWmAN8iSYwiLKe5DMPWrrhNcfUWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=am5s1+96; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="UutEpBGU"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="am5s1+96"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2FE2540131
-	for <virtualization@lists.linux-foundation.org>; Sat, 29 Jun 2024 01:11:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7B459400EA
+	for <virtualization@lists.linux-foundation.org>; Sat, 29 Jun 2024 03:58:32 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -4.299
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id L_ajfjiXWrvU for <virtualization@lists.linux-foundation.org>;
- Sat, 29 Jun 2024 01:11:56 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::133; helo=mail-il1-x133.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 65CE3400E7
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 65CE3400E7
+ id 6HEV8WhnTrZu for <virtualization@lists.linux-foundation.org>;
+ Sat, 29 Jun 2024 03:58:31 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.7; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 5B61E40021
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B61E40021
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=UutEpBGU
-Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 65CE3400E7
-	for <virtualization@lists.linux-foundation.org>; Sat, 29 Jun 2024 01:11:56 +0000 (UTC)
-Received: by mail-il1-x133.google.com with SMTP id e9e14a558f8ab-378d954e505so4568265ab.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 28 Jun 2024 18:11:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1719623515; x=1720228315; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=rdZPgDV7aIl0J73xlRHxxXH5BwM06TOu62VfOoYuq0w=;
-        b=UutEpBGUBBPKO+pG9MZmUsZvj1V8AVWDmCedTZySINFlHw0VWvO/9pwiidrhDRzfnE
-         efjw3ZMbk9hwexzkZDJGRMmuPRZbVr8q4NesAQSCyx2imK7vaSppKONfUpkOr7VvselM
-         quea6HqOyXZzRvDVUD2hblyVArhZtBPoQN4t9rFihUetw8GCtKETcmPFsuDCsIxVYQSB
-         2D6JBn3+BNKN9uIfXub4VY1z3LEl8sv+FJ/TlQd4y+LaPk60QHEAc5jEhm8xkCTFwcOt
-         /47dP1VlrgtOkDqFbjQcIIDejD13FDCshBsHfPXC3YyQfL82EOsv+u6iSLR59TD2L1rF
-         LUdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719623515; x=1720228315;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rdZPgDV7aIl0J73xlRHxxXH5BwM06TOu62VfOoYuq0w=;
-        b=lkhHOp44eDFnRK0qcI4oXNvYaIGwIOz6zUPLOFnxSmJ/hSQkcqx/QAL65fD+CChvFn
-         HPreohUfAhBABi9XJOH0t1apgL9cCNlnjtWw1i3vR5nSM/LOxgi3oF0CQ3tY5uE0N26l
-         TL3X4+cWqIBbgAOvINJ8xVkWwWa6mOubr6yMosWMC7fMtG2//1TU2X1U8nQZKZl9xAbg
-         3IiaRPSjpvXT7pvNgzNt29nh7xnMbhchQguy/jprLNAhmmF91eXbOX9GjkcyFccI/yfA
-         Nj9+gFBuCQvJ0PkezFGIKWAxRDqIqoWRCZ/x07fWfYIpbAsB4xraDjtdqfioAfdzlyqB
-         hXbg==
-X-Forwarded-Encrypted: i=1; AJvYcCUh7AX0vIgBrrtjm0OZR2FdMvian7zZ/fmOLPPnw3C+Y8w40m8iQfJuos80M9lrnQKYKenvnear1YAo1NoF2feBa0R063yeH9AKZeRqhDJOPIl8YwuJa5vC+g==
-X-Gm-Message-State: AOJu0YzH2BoYbtwOtn89g3uCm/KLgOsfZwqeJ7dHSSK238R1+KdFSzkC
-	+56X5m7GN6ere5HJCtpA+/WsBtl32D2mS8TPk/5Zvge+fbnzpB1DvqqKINfxacs=
-X-Google-Smtp-Source: AGHT+IHX2JUaclIoPrHTyWd3NWpAL4bg4r61iFuy9mfBP9il15TCI+aZkWxWAJEJRM9M8Gi0RE+u5w==
-X-Received: by 2002:a92:c24d:0:b0:374:97b4:dbd1 with SMTP id e9e14a558f8ab-3763f633817mr217872295ab.18.1719623515458;
-        Fri, 28 Jun 2024 18:11:55 -0700 (PDT)
-Received: from ziepe.ca ([24.114.37.55])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-72c69b53be5sm1784142a12.16.2024.06.28.18.11.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Jun 2024 18:11:54 -0700 (PDT)
-Received: from jgg by jggl with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1sNJr9-0004o0-Ot;
-	Fri, 28 Jun 2024 19:14:11 -0300
-Date: Fri, 28 Jun 2024 19:14:11 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 06/10] iommufd: Add iommufd fault object
-Message-ID: <Zn81szS0G27keAwB@ziepe.ca>
-References: <20240616061155.169343-1-baolu.lu@linux.intel.com>
- <20240616061155.169343-7-baolu.lu@linux.intel.com>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=am5s1+96
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5B61E40021
+	for <virtualization@lists.linux-foundation.org>; Sat, 29 Jun 2024 03:58:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1719633511; x=1751169511;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=KAM2m2vrRAt/9MTW/snw1O4VivECpPi3UISTEE8FRps=;
+  b=am5s1+96wmJ7uZgTYnXzzpSLzwyQywCEdFj2o1Iwaq+71yXRVCOc+LRj
+   iP9ne/jMw28KRHipzYkbwijtzyn+r3M8FEG6W5QFXUkZdGy0j3LtBS2o3
+   /UmZyWgERpO7hAkIxZk+FxpdZxqtT7qW8xQnoQnEEEG4NGhjmG4be9wWB
+   FVta/7bEqPFiJlGYlVvUFN5g6Qf/TYd9ogM++GTPZCxkbAwSQA0YdZZ3h
+   V6XudvgpMnRZDgxux94nNilap7O91oqF8hwePQeITrUxEqzat+2kx9bya
+   R5qhZFWSRQ9t9OsxZ9VIqo+J85okVyLZ1bnsSiPSOIpITB57weHdIe5O5
+   g==;
+X-CSE-ConnectionGUID: boCFr7KUTnCQUCIgIsE78A==
+X-CSE-MsgGUID: XVt5f2q0SxSXKQCP8QbVxg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11117"; a="42247197"
+X-IronPort-AV: E=Sophos;i="6.09,170,1716274800"; 
+   d="scan'208";a="42247197"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2024 20:58:06 -0700
+X-CSE-ConnectionGUID: o/L9obIOSLqrGV1okJ2tdw==
+X-CSE-MsgGUID: yu2LNLFdQwGzf1VGpU5Dfw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,170,1716274800"; 
+   d="scan'208";a="45004877"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.125.248.220]) ([10.125.248.220])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2024 20:58:03 -0700
+Message-ID: <4bda68fb-0aa4-4160-8e8a-7024938ea525@linux.intel.com>
+Date: Sat, 29 Jun 2024 11:58:01 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240616061155.169343-7-baolu.lu@linux.intel.com>
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 04/10] iommu: Extend domain attach group with handle
+ support
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20240616061155.169343-1-baolu.lu@linux.intel.com>
+ <20240616061155.169343-5-baolu.lu@linux.intel.com>
+ <Zn8luxc+RLBOIIX0@ziepe.ca>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <Zn8luxc+RLBOIIX0@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, Jun 16, 2024 at 02:11:51PM +0800, Lu Baolu wrote:
-> @@ -6,6 +6,7 @@ iommufd-y := \
->  	ioas.o \
->  	main.o \
->  	pages.o \
-> +	fault.o \
->  	vfio_compat.o
+On 2024/6/29 5:06, Jason Gunthorpe wrote:
+> On Sun, Jun 16, 2024 at 02:11:49PM +0800, Lu Baolu wrote:
+> 
+>> +int iommu_replace_group_handle(struct iommu_group *group,
+>> +			       struct iommu_domain *new_domain,
+>> +			       struct iommu_attach_handle *handle)
+>> +{
+>> +	struct iommu_domain *old_domain = group->domain;
+>> +	void *curr;
+>> +	int ret;
+>> +
+>> +	if (!new_domain)
+>> +		return -EINVAL;
+>> +
+>> +	mutex_lock(&group->mutex);
+>> +	ret = __iommu_group_set_domain(group, new_domain);
+>> +	if (ret)
+>> +		goto err_unlock;
+>> +	xa_erase(&group->pasid_array, IOMMU_NO_PASID);
+>> +	if (handle) {
+>> +		curr = xa_store(&group->pasid_array, IOMMU_NO_PASID, handle, GFP_KERNEL);
+>> +		if (xa_err(curr)) {
+>> +			ret = xa_err(curr);
+>> +			goto err_restore;
+> But this error unwind doesn't work because the xa_erase() already
+> happened and there may have been a handle there that we don't put
+> back.
 
-Keep sorted
+Yes, you are right.
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> 
+> Something like this - store to a reserved entry cannot fail:
 
-Jason
+This code looks good to me. Thanks!
+
+Best regards,
+baolu
