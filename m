@@ -1,257 +1,298 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 990A139AF4
-	for <virtualization@lists.linux.dev>; Sun, 30 Jun 2024 09:55:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719741342; cv=fail; b=aOA5ht9+nI9yMi4RXIJm4VEe/szYQ3RL1ZIvuafZG2F/B3u3qCwTASRFYl1ZpqlqUE+ZE8+jHCBC3wGL9lMLVwFk9JiDBkR1MoxLSAsky0Hs23+C3XYkP+eFh9VFty18Cwyi9CIho88F2meGjK5nTXX2GQjWXhZLDfhy+2Yl5tg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719741342; c=relaxed/simple;
-	bh=ZgWmRQvNv7ywdodTtcMobDkI2pveJ6Wwb7AdBFTBB2s=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=O1NYiVaINm6YOTJPVAhZbx7GlTrRqasx7EPVp/XfFhcsyMuITDOlFDPvJ1x9tvjwD797lajRHfphw+oK3zHTCTpDDwAwkoT/x3wt9RpWqBAh30k8N2ycRj0r2N1E3RmqOLig4Kg5Ah2FGcC9XTKG6B4m4mTcT0QBB+zY7KEYwa0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=kxRW6I52; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=J26v2AH/; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 340C43D967
+	for <virtualization@lists.linux.dev>; Sun, 30 Jun 2024 10:54:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1719744874; cv=none; b=BSj/1YNu/3EWXQCxxdKfLvnF0rNiplEOC6EILhXBHOF04TxIYhmzxS+cV+Y4VRFuKAcIr878sRaSnLeijDRBj6bxf7r6x5+sZ5BkpNiUjFMNnjTStcPISHmW3Q/ta2rxofaRLHql+izoLvNq3tydIRqB/bdgS7/MvUt5fq7ekfs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1719744874; c=relaxed/simple;
+	bh=1QBRwsXA34RmLa2g6FnonMAiblXfwVrRMezVwXEKUNc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=AHOoWarQzcGysn5zGDJoX0dtr5dVUmWy4P/qk1LaUX7pCkTXx1R+rWokMlSIOJBQH32zpp5kE/T02y4pXm7YRgb/m3tzayaFFiMLRJKaoqRzGNa1np8X3ogvSVgnKkSw2psBYIkIUyW17r4TGqIiYlGP/C8k1YqBwGvjwhyISAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YkRH4a1/; arc=none smtp.client-ip=209.85.208.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="kxRW6I52";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="J26v2AH/"
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45U72Xlq007537;
-	Sun, 30 Jun 2024 09:55:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
-	message-id:date:subject:to:cc:references:from:in-reply-to
-	:content-type:content-transfer-encoding:mime-version; s=
-	corp-2023-11-20; bh=EQvnehYu27+rDhBsqtFj2TDhEdD/BvBrxL8ExBuBfWs=; b=
-	kxRW6I52rDlNvB5wDdkyce6a3nm1zIkqWv2zPYw2TDHrChPIN2jAosTaN9frMxQd
-	QgviJ6FD9ap10evL8ReG69/+OpXpvNmAm9aWKEwNlIlRDAumlL5XTR+puWipxKiM
-	JcqiATB/W/ZgzeQZ+RPLqErPhmmupSMxdAbHAyGahGery4ZvfCCjY08pXzGDaoCG
-	QOynbrPl+QScd+mHnp309x7gcXIRMSA/LprWgW1Kb/D4f6NPVTdAtgVE+2ZGEXJE
-	ez5B+ozoobM6wh44j4OUQbtv2CDQDfYSfAeKC88oOnw43yFihtLNI2I8xmVkfi4X
-	zU72xGrkbs+1cZaZ3w6nwg==
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4028v0h6rd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sun, 30 Jun 2024 09:55:22 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 45U6IB3p010555;
-	Sun, 30 Jun 2024 09:55:21 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2168.outbound.protection.outlook.com [104.47.55.168])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4028q5hev7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sun, 30 Jun 2024 09:55:21 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kKiRXUhWI+jIirvbvp0u245/b049oDQmY91LGDzM8XXLvAsgy84zI/RNeg5TlhLYhMWYokH8Nt/41S4UNpWXBJB6VHjolFq8cXSgJujgnXaMOdSA1Ec9EizwVa3SPJ9I53S1HQFLfgpIubaF36uqmijwRf6Fo5YFUtfo7RxQik01ptd90PySNPmhCPz0DQNih7bdFBidRTo5tD/CGzJHCJddwiwRRFXnUALB3rLTaBhmh1kINPWWGIDCzo1vxHmJuKscN0WbCtfZ9917u21xw4HGe+tpCnBXo98CqEdSO5wXX+gTOLGCHznTJl2yzXkrpTDftmWLuaiBK9kwFRzj9A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=EQvnehYu27+rDhBsqtFj2TDhEdD/BvBrxL8ExBuBfWs=;
- b=f+h3xQA4Ch50i5SyDXskfshiQoEGS1MBN7GT7/LVTOTlkOSvKg65wIBN9oPdme66SkZzfVMrKXuKWIItEMK+TGv4WiKeFnQFQYbDt2wlEbtZT3X9SsQk8I7hQKCy9JBKAtsEorAQjRxSFSJ7QpPdR68+yN3cM9TrApayXkDZ0OveR0wfEj8NwTuv9hvk2+KqgBI7mortixhilZ4spB++NJ4+lyZ92hVgwx7f0euhTaOW+8AQL5QKL8X46ztC/Waqz4UQKQmj8qbts4wyA6/VKL5JLWQ74MME+CLCggPjcWH+nildXJ+3bw5bY8DUMhwUR9m7ADWnqxf+n1Ptlh/yzg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YkRH4a1/"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-2ec61eeed8eso25506541fa.0
+        for <virtualization@lists.linux.dev>; Sun, 30 Jun 2024 03:54:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EQvnehYu27+rDhBsqtFj2TDhEdD/BvBrxL8ExBuBfWs=;
- b=J26v2AH/R3XRj0O1z+b5LVPSMcqF2/qPlzh7h5Rpl6otx998PSqsi8+rgrSc83fo0wvelUNCreTZhiRhxpxQOZ8ZRnFl4kqY6ef7xoy9sw8JXeWiPaRF3iH19HTakHvzBejTIvyruIB5WDtKNP4oN3uzmMP9AEUBl7pkq16RM/4=
-Received: from DM6PR10MB4313.namprd10.prod.outlook.com (2603:10b6:5:212::20)
- by SJ0PR10MB5743.namprd10.prod.outlook.com (2603:10b6:a03:3ee::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7719.29; Sun, 30 Jun
- 2024 09:55:17 +0000
-Received: from DM6PR10MB4313.namprd10.prod.outlook.com
- ([fe80::4f45:f4ab:121:e088]) by DM6PR10MB4313.namprd10.prod.outlook.com
- ([fe80::4f45:f4ab:121:e088%6]) with mapi id 15.20.7719.028; Sun, 30 Jun 2024
- 09:55:17 +0000
-Message-ID: <2455c846-e232-4e6e-8ba0-cd9de0cc7b03@oracle.com>
-Date: Sun, 30 Jun 2024 10:55:12 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 12/15] virtio_blk: pass queue_limits to blk_mq_alloc_disk
-To: Christoph Hellwig <hch@lst.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Damien Le Moal <dlemoal@kernel.org>, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
-        linux-nvme@lists.infradead.org, virtualization@lists.linux.dev,
-        Jens Axboe <axboe@kernel.dk>
-References: <20240122173645.1686078-1-hch@lst.de>
- <20240122173645.1686078-13-hch@lst.de>
- <4f515e0f-f370-4096-85a8-907942bb41fe@oracle.com>
- <20240629051958.GA15371@lst.de>
-Content-Language: en-US
-From: John Garry <john.g.garry@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <20240629051958.GA15371@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: AM8P190CA0001.EURP190.PROD.OUTLOOK.COM
- (2603:10a6:20b:219::6) To CH2PR10MB4312.namprd10.prod.outlook.com
- (2603:10b6:610:7b::9)
+        d=gmail.com; s=20230601; t=1719744870; x=1720349670; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=v9oeaMPsCR6Fj9nW0E2isS4N6Y5TVkUOU29y4hjEU4U=;
+        b=YkRH4a1/3aD4tYm8WqeStQHhhzluUTyd3SCXOADYBM0CFmzObkpELIeNlQaO7QCO55
+         5uqq/FdD3thXEmS8RHGYElHzY+4boUWv75LX15Nqm9BVUaSemjHPdhMtfnX+3eFuYBbt
+         2RzEFLoxQdXmc0SCXN6pLjbYCEjgPCiof5v/7gL8wwwZhxRGZ4xwkstH2D1UYe0P11Yo
+         un04Pdku/WM9p27icw+ofE30iIxnHC8bkX2NYvuGLzT7uZ54LlC648wSH84+YQe4DIs/
+         6qsA1TLOC1iRNAaBt/NIJSyHR8oGRtSWq0LZMD/OJ7v/B9O+XvpfltdbV5D7A8/OXTX/
+         I2bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719744870; x=1720349670;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=v9oeaMPsCR6Fj9nW0E2isS4N6Y5TVkUOU29y4hjEU4U=;
+        b=fmpGo4FuhKn0cDIG1SK5nzCZN3/cIadG5OGZwnCf7XMYwz8VXHoxmx/VHJdL6MIqeB
+         cs+bO0cyYklTd0ix6B4EuHbgDfrwCddVvuVrQsaKG20lXgliG+6D9y+5M6p+Tz404tK2
+         vt9mV6ew3N7a1iWP9wf8bEQyDijD5RnFKon7dIx9VR7jgTSWAmYY1wed1GATvfvqfHJC
+         xj0DcWKZ0G3u7pme3tkYNDzqPRfZ1UTPCmntD1DHQblwFDDv3/VBTYhKwjDW7OZ/UPsK
+         Oy+lYUlcZmemZ8h5Aewl8wydcKeQhI6l075KhrDvtNZ5dDoVwpLYJ3HlZ49eGBjEcazz
+         PzWQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVgOtxm6qi5v4ZhSKgutvzUP1zZn3yESMf8UcznCGkaXrslaKFT3BG767t5gm4DBMOgen1uBx24pdS1r9WHV022u4HcfB2OI4tRXGuJAUQ=
+X-Gm-Message-State: AOJu0YzDrq0kbRZqbjKIJpheM1CqCpSmohca/XXG3tWYemFomMMl0t7u
+	lOTFl29sn6dJj1OmQTKb368Q3CAjm7v+/DsgEEAtDXJmcjM9FpdXRqkvuTEl7M4HZgyqMGn90u4
+	Py4GhZG72gY4Am3FPCNHgK20ed60=
+X-Google-Smtp-Source: AGHT+IE921cbhYP+bH+8F8C2y3WbaMHMJ77aL0cjeyHFk4zTuLSLYcW5GR0gX6mgzkxgfAuZBoBi4Qcec/ZYpY3/T7I=
+X-Received: by 2002:a05:651c:b23:b0:2ec:5fa1:2434 with SMTP id
+ 38308e7fff4ca-2ee5e33a9e5mr20449631fa.9.1719744869952; Sun, 30 Jun 2024
+ 03:54:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6PR10MB4313:EE_|SJ0PR10MB5743:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9cad2883-45d9-44fa-381b-08dc98eabe8f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|7416014|366016;
-X-Microsoft-Antispam-Message-Info: 
-	=?utf-8?B?bzV4NkJxb1JmY0lmVWprODlleE1VZVhVLzU2eGhraUZQbUkxeHNpWXJEVlBh?=
- =?utf-8?B?WVZtWkI4MFJIdDBWd1ZyNTQ2MnZqUGtnNlFNeXhUSkhWRzlOdlptYmtSK1NV?=
- =?utf-8?B?cllmalU3T2srZHJpN1RVaGhZL0FiZHpWdlF1VStTOUVJMW8rQit0WHFUM3Js?=
- =?utf-8?B?MHNRMWdsbWFabVo2Wi9tamRJQXRYTi9yNlZkejR4VTgxVlJ2cjB5WTk4dkho?=
- =?utf-8?B?OHBGNngrTnRRZy9qYitoUElmd2dlL0w4MlBuZ28zS01KU003cTNWRlJXRGFI?=
- =?utf-8?B?YVVqZjJzYTFJMWxodFhjOWJmNWJIajB0anRnRjczQk1nbGRwYnBaUko4cnhj?=
- =?utf-8?B?OVJNczFyZ2ZldDZjazZiZ3RoTTVyZjBlZ2EwcFI5RlViL0svVXlsZm1XRWs1?=
- =?utf-8?B?cU5iZXowRE5vVVBkMERRbFk3ZnRsajVoeG1VSXVUK3hWZnUralBOYlY0Z3Fs?=
- =?utf-8?B?RzJXanpXWHU4T2FTZWhyRjBjUmh1VXZ5cW5hMVBGdElLeE0xd1R5elhrazlG?=
- =?utf-8?B?OHlTVHlUeTU4VmN5NE10c2dWb3U5Wkdib29HMW1ERG94L0VneG9aZmw2cTcv?=
- =?utf-8?B?aUhjWk1FMnlUVzJ0OUl3UDlvZG4yaXVjZkdXZmduYUkyTUZZUXBQZmlVRXRF?=
- =?utf-8?B?Rkc5VVdHRzduOGZYT213QVEzb09raFFVSFF6eHJBR05DQVVsNDNwbjVJTkRL?=
- =?utf-8?B?Q0NtQVdOdEZBTXRUQmhQdnpURmxFdjJDYkZGUW5pcFBqQ2dQOTUxVmtjaFd5?=
- =?utf-8?B?cytFQlJ1RjdqRDBjVmgyU2ZTNGhzaWtCc3dQeUJjVnJ3YXZ0Z0NnWkhvWnMx?=
- =?utf-8?B?TXpSVHNPalhHSTFKUlVhSm81ZU5hK0JBOWF3S1hXY0R1L2huRGdGWHpwdDFa?=
- =?utf-8?B?UUtWckw0UGtuT3V0QlVUSExJRnNxNTZzOWY3aC9aRDVEOGVOY2FUS28rVnJU?=
- =?utf-8?B?TmtCRVo0aDA5alc4disrNUZrS3JUODJIYmw2MXhUQmtndlp1cncvbVAzNWF0?=
- =?utf-8?B?dkxuNFpCSVp2UHQ5TmxxamJYRkh1TzJjc1NEV3VMb2NEblh5VVM2NjBzUnJz?=
- =?utf-8?B?TWpjdWN2YkR4bW5CbC91WTRJZE5kUm1ZeEVEbSt0d3UrSEFwNXQ4eVhBQUhW?=
- =?utf-8?B?andqMU9VNldjVXhpZ3pIWm5UNmx5QTFzaWVTREh5bXlSSHJiUklmSFRGeE9F?=
- =?utf-8?B?OElWTENIaUtRd2pONXJqZTdlK1FwTXRwb3ZNYkxPNk5lelV6Si9mUzh3Zmw2?=
- =?utf-8?B?YWZuQzNqRTVSRUhQd0FrU1VXK2NVWE81T3ROR2U4MGdaaXpFUkdEaGNSSTZw?=
- =?utf-8?B?WHBYL2lDWW85NnJqWHpWZ3hVTGlnZTV3NnNLVzF2UmJObTFvTDBqU3VnZ3lh?=
- =?utf-8?B?MXZzelR5VE1rUG1tZE1LYjNuejZrUHUxU0FuYkgvL0prN2lXWXBxMll0K2pa?=
- =?utf-8?B?NWk4NlFuNm1ONFdNMCtza3dhWHdoWEwrRWovRFBVZitoMVp4TG9WbXVQUkRC?=
- =?utf-8?B?TWNqbUROUlRONFZyQ0pXV3p2Wmt0dlpvdVVpQ2tIbVB2YUtId1Boc1I5bTUy?=
- =?utf-8?B?UFoxNzh6RjhGM1BZcTR5dVZNZlpUa1V2empnM2ZZU3VtRWlxY0ExanhUMUh2?=
- =?utf-8?B?dTBYeVp3WTM1TGZKcmRUNU9wdjgzVXU3UlcweDZkWnlpcWlJbWU5aXpNMzdC?=
- =?utf-8?B?UlNhQllNcFV2cDRhYWloU2lvOEJ5c2JxRDAzRGVsSTEzMktpaGFCdS9LdGVK?=
- =?utf-8?B?L3p4bFZPaDNpTTl0Qy9xV05PRlpZZ1hEQTBudFhuQ3REWFprU1BCdCtMMVlC?=
- =?utf-8?B?azNHcVliMXQybkJ2UDJhdz09?=
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR10MB4313.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(7416014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?K0wwWnFDY0dsVlZySlduT21TZHpGNG4yNVZONGVGeXZJNldXNThPa0ZwaVdk?=
- =?utf-8?B?RzU3OGlLNjBIMFlTdmVISzZYUmx2eWttYmo4OFFxcTNrd0FkbkdGMG1iUXRk?=
- =?utf-8?B?N3FrRE5UQnZDdDVUSDYzUGJMbTlWQWF4WEU2MFJNaTBsTVAvK2RDcnpYcUI4?=
- =?utf-8?B?ODhhZnpib2t6MkprdjRWNzYyVHNubDRVQmp2Rlh6MWtyandQVmZBdjFjTnhZ?=
- =?utf-8?B?cEVsU25EaWlKcFZQUGFwQnpiZFFTSmpkNHNuenRnWjA3WU5GVExsQUV4U3M3?=
- =?utf-8?B?OXdpY0lWNnhNK0ZPdVNwVGNQVExvNmxiZmlnZkk5ZUZ1cjZCNVpOcG1ZaHZG?=
- =?utf-8?B?UUMySytyekFmRFl3V1ZFaFFzbzBnNVZJTmQyeGpOd3dRa25nbDJFc1JHZTZP?=
- =?utf-8?B?dVdRZ0FCYTBpTjl4blAwU00rN2dyeEZqUGVoVElwbjhPNVlGQUxiWkx0M3pk?=
- =?utf-8?B?dDN6MW56ZFlyVEdQcGJxaFJWd0o5a3RjMTNoK0VwRFp5bERNeldMTzhlWFFv?=
- =?utf-8?B?VjUybUwxT09uVWFjZXg5VFM2SzhzRVI0emM1QlhDY0NzcmExOU4wYXpWeGJV?=
- =?utf-8?B?RUpmTFFZWG1uMVREd2JKd2dLOGltYkcxM1JEcVo0akkzNjB2Y3FOUG1nWmZm?=
- =?utf-8?B?RmZRNFg1dC9XNC9HV1hkTWo4SXI4MUJmNU9wazVLNVU1Zjczd0tMSnFGNzN2?=
- =?utf-8?B?S1RUeE1aazdXV1dQVzNSeE5iaGV5K09jZ1I2M3BJa2ZiYUV1bDM0bGZzWWd5?=
- =?utf-8?B?VllxMjE5RFk1dHlDWTgyYVhuTm9meXZtZUJtbkVqNE9EQ1Q2dzVJWVl0MDA0?=
- =?utf-8?B?THpHdzVOTGl6L1Riei9GSHdxa0YvNTQ5K3UxOVBxSUFZWnpseWJ2UHpCdmFE?=
- =?utf-8?B?MmJwb1lUZTNrLzgrSGNaM1NRYjB3SDgvR2dGcXd2M09aNjZVVjVVdVk5aGxW?=
- =?utf-8?B?Tng5U1lOK09NRk5kMmdpWG8vV2NEcERVK2I1Y0tmVzMwcENjU2VXRGtLUlps?=
- =?utf-8?B?U05VcTlKLzFCSkZ3bGE3cmxLMTBOU1l1ZXpydEhWa3JlRjFHdlpjSURFK2tv?=
- =?utf-8?B?WmhEcE8rOENjd3ducXFoSWhXamM4Yk01WnM0VmFDSlB1NUx2NVRwQWZZaXo2?=
- =?utf-8?B?a1JaV0ZSVmRIZHhFdENHVkR2ZlhadXRLbWdFc1ZyUGVaYVJQbnIzdUJaanhu?=
- =?utf-8?B?RlN4OFhuMVlYbWRMMSttTWw5djd5bzJxNzYwbXUrZDNMSjArQTF0NXpFT1Vl?=
- =?utf-8?B?RXlUZkFwOHZ6YXR3Mm5uMWF4QXlOTEUrWjROM29ncmtlOXcrclFjMHp2RkpE?=
- =?utf-8?B?cm51MmJvTXlmcjQvOFVKRmF1aHBrN0R4MnRRWEYrOEVUam82MlNGbmNyUnlU?=
- =?utf-8?B?ak9SK1EzNXZ4eFRleWNycm95VDB5cWM5aE80c3IzWVZwOE9HZHpBMlFPMWIw?=
- =?utf-8?B?TUtFSllyNzFac2FFMy9WYXlxZlVYZXl6YlpzRkFDOEFQcnhYNS9FSnd3dGIz?=
- =?utf-8?B?dDVFOGxPRDRVdVJqVkU0a3dnV3RRNkYyeTR2aElSRzlvSUxyQ1BaVEhhZWxS?=
- =?utf-8?B?bFVoQUgxM3BaZjJTVktqN3ZFTURxYTlITUR2enQxRFVsRWlqTnFicjMzRHVH?=
- =?utf-8?B?bndVZEg0M1NES3RZMFozWHhyc2piK1ZDc3RKdG9PbmN3TVBpbGNnRG9teEIx?=
- =?utf-8?B?K21KVnNCMzExaDlzVE8zNVNyOEw0Mm8xNGgrY3hYRnZXSXI5L3Y2aFY2c1Fz?=
- =?utf-8?B?SERqSmhTTFFIdlhJL2dpWXIvSkFWbGJNcUo2cXQvKzN3WE5pdGNVem14WEQ0?=
- =?utf-8?B?RjJxVGhsZjQrMm8wUU1ETG9nRFlPVWlPK2MwUHNvT25OWVF5YVJERnRKWXF4?=
- =?utf-8?B?YmRUZE92VlpwQUxXdW43YWdsLzkvNEZXMzBsdkE0aGIxWWxxbHlMdWJYY2Vp?=
- =?utf-8?B?ZDRMcjhlbTVWejI2Yk9TZnBYa0lJT1RXK3EvdlFOYjNCRVRSemtSemRXeVY0?=
- =?utf-8?B?bVFnSjNybFNPVjN6WTFHOFNaMHVHUEdvekJxTW9sU0srbkhvK3YvcFZHK3px?=
- =?utf-8?B?elc1NkdRTndZS3REckVVS3dXOFVtd05tWmw5clhoNEVEREliQmZTZGR6WUo3?=
- =?utf-8?B?NkpvM2NndjI3TzY5ckM0d3k2eHY4bzlBVlM0eS9UTnBrbEF2MVdDZDc5anN2?=
- =?utf-8?B?MXc9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	GwFcVtEEffmVG6U/yh6maX1s9cH8f2bZ8WUp8yDZRsfvRBX6Bi58VX88NbJTkpLwFGB6E+JCa/Fe1UkiE23KR9pcpp3hzC8krXUOBRb98nC0e47ZssK9fYVNVX9Yc0q2XPkZ8pOFyqmjBO234HPcheG1a9A60WsTUuYtMVePUq1T+XSdA0ObuRdX700h8pGbvojOk+MtVvMjnLId85bop1qR6cUHU+jgkTqhnnRXvh0O9OUcdMJO9FASl4ARLdKK/0w0nYomE0jbYxROqaCLk8hVL4zr7o1GhcF38+JFBuXc/csG9pA1yH+S5VyA7pO40Eq8BYmKZbBsrT5oF1IwsL8rFGp/edYxweJkA94srBSu/gmBHh4ZUGEc92yBs762+4+qtq3kQztg77nAAiXLPPdQ8F8AWxxhu3OXkBwzBhkoxn0DweGRXY6jzxxQRUIvEPv0dFpfBF9WmJtre6+OfKbAf/NBHLEFAZZPzWTIha6zsvaf0Gzw98cYfAQ5GENec9nCPOBaH9v7of5XsYMA5bJgRfBe5lpZRwlDwFbfggw79lTa4l5LCnb91r879pAXYCIR07qP7F3xb9y0tD5Ta6j9rCY6H9Apu0rZyIwrsxc=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9cad2883-45d9-44fa-381b-08dc98eabe8f
-X-MS-Exchange-CrossTenant-AuthSource: CH2PR10MB4312.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2024 09:55:17.3079
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: damH5nOWNaoQXKYy3wmQjjA8xyr1dcOx9mZpu/eIs5iRD/rmu8OnQHWHn1yRMq/kI2/UZAiUqeemyy8tpEYjCg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB5743
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-30_08,2024-06-28_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 phishscore=0
- spamscore=0 mlxscore=0 adultscore=0 bulkscore=0 malwarescore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2406180000 definitions=main-2406300077
-X-Proofpoint-ORIG-GUID: 2JkIONwFk94xSV_YtFs3ZH0TqxRA9qiZ
-X-Proofpoint-GUID: 2JkIONwFk94xSV_YtFs3ZH0TqxRA9qiZ
+References: <554ae947-f06e-4b69-b274-47e8a78ae962@amazon.com>
+ <14e68dd8-b2fa-496f-8dfc-a883ad8434f5@redhat.com> <c5wziphzhyoqb2mwzd2rstpotjqr3zky6hrgysohwsum4wvgi7@qmboatooyddd>
+ <CABgObfasyA7U5Fg5r0gGoFAw73nwGJnWBYmG8vqf0hC2E8SPFw@mail.gmail.com>
+ <sejux5gvpakaopre6mk3fyudi2f56hiuxuevfzay3oohg773kd@5odm3x3fryuq>
+ <CABgObfb-KrmJzr4YBtuN3+_HLm3S1hmjO7uEy0+AxSDeWE3uWg@mail.gmail.com>
+ <l5oxnxkg7owmwuadknttnnl2an37wt3u5kgfjb5563f7llbgwj@bvwfv5d7wrq4>
+ <3b6a1f23-bf0e-416d-8880-4556b87b5137@amazon.com> <hyrgztjkjmftnpra2o2skonfs6bwf2sqrncwtec3e4ckupe5ea@76whtcp3zapf>
+ <CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com>
+ <xw2rhgn2s677t6cufp2ndpvvgpdlovej44o6ieo7nz2p6msvnw@zza7jzylpw76> <CAFfO_h4WnSkinX1faduAD68h=nQCWhPgpYKTPV+xfSqyfMmxEA@mail.gmail.com>
+In-Reply-To: <CAFfO_h4WnSkinX1faduAD68h=nQCWhPgpYKTPV+xfSqyfMmxEA@mail.gmail.com>
+From: Dorjoy Chowdhury <dorjoychy111@gmail.com>
+Date: Sun, 30 Jun 2024 16:54:18 +0600
+Message-ID: <CAFfO_h55DdTPWEjeR-ARnWZ0tMWNdJZnUauXsxm5eL+TzhAFLA@mail.gmail.com>
+Subject: Re: How to implement message forwarding from one CID to another in
+ vhost driver
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Alexander Graf <graf@amazon.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Alexander Graf <agraf@csgraf.de>, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
+	netdev@vger.kernel.org, stefanha@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 29/06/2024 06:19, Christoph Hellwig wrote:
-> On Fri, Jun 28, 2024 at 03:25:02PM +0100, John Garry wrote:
->> I think that we might need a change like the following change after this:
->>
->> ----8<----
->> [PATCH] virtio_blk: Fix default logical block size
->>
->> If we fail to read a logical block size in virtblk_read_limits() ->
->> virtio_cread_feature(), then we default to what is in
->> lim->logical_block_size, but that would be 0.
->>
->> We can deal with lim->logical_block_size = 0 later in the
->> blk_mq_alloc_disk(), but the subsequent code in virtblk_read_limits()
->> cannot, so give a default of SECTOR_SIZE.
-> 
-> I think the right fix would be to initialize it where the virtio code
-> currently uses the uninitialized lim->logical_block_size.  That assumes
-> that we really want to handle this case.  If reading the block size
-> fails, can we really trust reading other less basic attributes?  Or
-> should we just fail the probe?
+Hey Stefano,
+Apart from my questions in my previous email, I have some others as well.
 
-According to the comment on virtio_cread_feature, it is conditional 
-(which I read as optional) and that function can only fail with -ENOENT. 
-So I don't think that the probe should fail. virtio people?
+If the vhost-device-vsock modification to forward packets to
+VMADDR_CID_LOCAL is implemented, does the VMADDR_FLAG_TO_HOST need to
+be set by any application in the guest? I understand that the flag is
+set automatically in the listen path by the driver (ref:
+https://patchwork.ozlabs.org/project/netdev/patch/20201204170235.84387-4-an=
+draprs@amazon.com/#2594117
+), but from the comments in the referenced patch, I am guessing the
+applications in the guest that will "connect" (as opposed to listen)
+will need to set the flag in the application code? So does the
+VMADDR_FLAG_TO_HOST flag need to be set by the applications in the
+guest that will "connect" or should it work without it? I am asking
+because the nitro-enclave VMs have an "init" which tries to connect to
+CID 3 to send a "hello" on boot to let the parent VM know that it
+booted expecting a "hello" reply but the init doesn't seem to set the
+flag https://github.com/aws/aws-nitro-enclaves-sdk-bootstrap/blob/main/init=
+/init.c#L356C1-L361C7
+.
 
- From my qemu testing, it is always supplied (obvs).
+I was following
+https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock#sibli=
+ng-vm-communication
+to test if sibling communication works and it seems like I didn't need
+to modify the "socat" to set the "VMADDR_FLAG_TO_HOST". I am wondering
+why it works without any modification. Here is what I do:
 
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 6c64a67ab9c901..5bde41505818f9 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -1303,7 +1303,7 @@ static int virtblk_read_limits(struct virtio_blk *vblk,
->   
->   		lim->logical_block_size = blk_size;
->   	} else
-> -		blk_size = lim->logical_block_size;
-> +		blk_size = SECTOR_SIZE;
+shell1: ./vhost-device-vsock --vm
+guest-cid=3D3,uds-path=3D/tmp/vm3.vsock,socket=3D/tmp/vhost3.socket --vm
+guest-cid=3D4,uds-path=3D/tmp/vm4.vsock,socket=3D/tmp/vhost4.socket
 
-I think that it would need to be:
-		blk_size = lim->logical_block_size = SECTOR_SIZE;
+shell2: ./qemu-system-x86_64 -machine q35,memory-backend=3Dmem0
+-enable-kvm -m 8G -nic user,model=3Dvirtio -drive
+file=3D/home/dorjoy/Forks/test_vm/fedora2.qcow2,media=3Ddisk,if=3Dvirtio
+--display sdl -object memory-backend-memfd,id=3Dmem0,size=3D8G -chardev
+socket,id=3Dchar0,reconnect=3D0,path=3D/tmp/vhost3.socket -device
+vhost-user-vsock-pci,chardev=3Dchar0
+    inside this guest I run: socat - VSOCK-LISTEN:9000
 
-Which is a big ugly, so maybe:
+shell3: ./qemu-system-x86_64 -machine q35,memory-backend=3Dmem0
+-enable-kvm -m 8G -nic user,model=3Dvirtio -drive
+file=3D/home/dorjoy/Forks/test_vm/fedora40.qcow2,media=3Ddisk,if=3Dvirtio
+--display sdl -object memory-backend-memfd,id=3Dmem0,size=3D8G -chardev
+socket,id=3Dchar0,reconnect=3D0,path=3D/tmp/vhost4.socket -device
+vhost-user-vsock-pci,chardev=3Dchar0
+    inside this guest I run: socat - VSOCK-CONNECT:3:9000
 
-	if (err)
-		blk_size = SECTOR_SIZE;
-	lim->logical_block_size = SECTOR_SIZE;
+Then when I type something in the socat terminal of one VM and hit
+'enter', they pop up in the socat terminal of the other VM. From the
+documentation of the vhost-device-vsock, I thought I would need to
+patch socat to set the "VMADDR_FLAG_TO_HOST" but I did not do anything
+with socat. I simply did "sudo dnf install socat" in both VMs. I also
+looked into the socat source code and I didn't see any reference to
+"VMADDR_FLAG_TO_HOST". I am running "Fedora 40" on both VMs. Do you
+know why it works without the flag?
 
-or, alternatively, set bsize to SECTOR_SIZE when declared.
-
->   
->   	/* Use topology information if available */
->   	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
-
+On Wed, Jun 26, 2024 at 11:43=E2=80=AFPM Dorjoy Chowdhury
+<dorjoychy111@gmail.com> wrote:
+>
+> Hey Stefano,
+> Thanks a lot for all the details. I will look into them and reach out
+> if I need further input. Thanks! I have tried to summarize my
+> understanding below. Let me know if that sounds correct.
+>
+> On Wed, Jun 26, 2024 at 2:37=E2=80=AFPM Stefano Garzarella <sgarzare@redh=
+at.com> wrote:
+> >
+> > Hi Dorjoy,
+> >
+> > On Tue, Jun 25, 2024 at 11:44:30PM GMT, Dorjoy Chowdhury wrote:
+> > >Hey Stefano,
+> >
+> > [...]
+> >
+> > >> >
+> > >> >So the immediate plan would be to:
+> > >> >
+> > >> >  1) Build a new vhost-vsock-forward object model that connects to
+> > >> >vhost as CID 3 and then forwards every packet from CID 1 to the
+> > >> >Enclave-CID and every packet that arrives on to CID 3 to CID 2.
+> > >>
+> > >> This though requires writing completely from scratch the virtio-vsoc=
+k
+> > >> emulation in QEMU. If you have time that would be great, otherwise i=
+f
+> > >> you want to do a PoC, my advice is to start with vhost-user-vsock wh=
+ich
+> > >> is already there.
+> > >>
+> > >
+> > >Can you give me some more details about how I can implement the
+> > >daemon?
+> >
+> > We already have a demon written in Rust, so I don't recommend you
+> > rewrite one from scratch, just start with that. You can find the daemon
+> > and instructions on how to use it with QEMU here [1].
+> >
+> > >I would appreciate some pointers to code too.
+> >
+> > I sent the pointer to it in my first reply [2].
+> >
+> > >
+> > >Right now, the "nitro-enclave" machine type (wip) in QEMU
+> > >automatically spawns a VHOST_VSOCK device with the CID equal to the
+> > >"guest-cid" machine option. I think this is equivalent to using the
+> > >"-device vhost-vsock-device,guest-cid=3DN" option explicitly. Does tha=
+t
+> > >need any change? I guess instead of "vhost-vsock-device", the
+> > >vhost-vsock device needs to be equivalent to "-device
+> > >vhost-user-vsock-device,guest-cid=3DN"?
+> >
+> > Nope, the vhost-user-vsock device requires just a `chardev` option.
+> > The chardev points to the Unix socket used by QEMU to talk with the
+> > daemon. The daemon has a parameter to set the CID. See [1] for the
+> > examples.
+> >
+> > >
+> > >The applications inside the nitro-enclave VM will still connect and
+> > >talk to CID 3. So on the daemon side, do we need to spawn a device
+> > >that has CID 3 and then forward everything this device receives to CID
+> > >1 (VMADDR_CID_LOCAL) same port and everything it receives from CID 1
+> > >to the "guest-cid"?
+> >
+> > Yep, I think this is right.
+> > Note: to use VMADDR_CID_LOCAL, the host needs to load `vsock_loopback`
+> > kernel module.
+> >
+> > Before modifying the code, if you want to do some testing, perhaps you
+> > can use socat (which supports both UNIX-* and VSOCK-*). The daemon for
+> > now exposes two unix sockets, one is used to communicate with QEMU via
+> > the vhost-user protocol, and the other is to be used by the application
+> > to communicate with vsock sockets in the guest using the hybrid protoco=
+l
+> > defined by firecracker. So you could initiate a socat between the latte=
+r
+> > and VMADDR_CID_LOCAL, the only problem I see is that you have to send
+> > the first string provided by the hybrid protocol (CONNECT 1234), but fo=
+r
+> > a PoC it should be ok.
+> >
+> > I just tried the following and it works without touching any code:
+> >
+> > shell1$ ./target/debug/vhost-device-vsock \
+> >      --vm guest-cid=3D3,socket=3D/tmp/vhost3.socket,uds-path=3D/tmp/vm3=
+.vsock
+> >
+> > shell2$ sudo modprobe vsock_loopback
+> > shell2$ socat VSOCK-LISTEN:1234 UNIX-CONNECT:/tmp/vm3.vsock
+> >
+> > shell3$ qemu-system-x86_64 -smp 2 -M q35,accel=3Dkvm,memory-backend=3Dm=
+em \
+> >      -drive file=3Dfedora40.qcow2,format=3Dqcow2,if=3Dvirtio\
+> >      -chardev socket,id=3Dchar0,path=3D/tmp/vhost3.socket \
+> >      -device vhost-user-vsock-pci,chardev=3Dchar0 \
+> >      -object memory-backend-memfd,id=3Dmem,size=3D512M \
+> >      -nographic
+> >
+> >      guest$ nc --vsock -l 1234
+> >
+> > shell4$ nc --vsock 1 1234
+> > CONNECT 1234
+> >
+> >      Note: the `CONNECT 1234` is required by the hybrid vsock protocol
+> >      defined by firecracker, so if we extend the vhost-device-vsock
+> >      daemon to forward packet to VMADDR_CID_LOCAL, that would not be
+> >      needed (including running socat).
+> >
+>
+> Understood. Just trying to think out loud what the final UX will be
+> from the user perspective to successfully run a nitro VM before I try
+> to modify vhost-device-vsock to support forwarding to
+> VMADDR_CID_LOCAL.
+> I guess because the "vhost-user-vsock" device needs to be spawned
+> implicitly (without any explicit option) inside nitro-enclave in QEMU,
+> we now need to provide the "chardev" as a machine option, so the
+> nitro-enclave command would look something like below:
+> "./qemu-system-x86_64 -M nitro-enclave,chardev=3Dchar0 -kernel
+> /path/to/eif -chardev socket,id=3Dchar0,path=3D/tmp/vhost5.socket -m 4G
+> --enable-kvm -cpu host"
+> and then set the chardev id to the vhost-user-vsock device in the code
+> from the machine option.
+>
+> The modified "vhost-device-vsock" would need to be run with the new
+> option that will forward everything to VMADDR_CID_LOCAL (below by the
+> "-z" I mean the new option)
+> "./target/debug/vhost-device-vsock -z --vm
+> guest-cid=3D5,socket=3D/tmp/vhost5.socket,uds-path=3D/tmp/vm5.vsock"
+> this means the guest-cid of the nitro VM is CID 5, right?
+>
+> And the applications in the host would need to use VMADDR_CID_LOCAL
+> for communication instead of "guest-cid" (5) (assuming vsock_loopback
+> is modprobed). Let's say there are 2 applications inside the nitro VM
+> that connect to CID 3 on port 9000 and 9001. And the applications on
+> the host listen on 9000 and 9001 using VMADDR_CID_LOCAL. So, after the
+> commands above (qemu VM and vhost-device-vsock) are run, the
+> communication between the applications in the host and the
+> applications in the nitro VM on port 9000 and 9001 should just work,
+> right, without needing to run any extra socat commands or such? or
+> will the user still need to run some socat commands for all the
+> relevant ports (e.g.,9000 and 9001)?
+>
+> I am just wondering what kind of changes are needed in
+> vhost-device-vsock for forwarding packets to VMADDR_CID_LOCAL? Will
+> that be something like this: the codepath that handles
+> "/tmp/vm5.vsock", upon receiving a "connect" (from inside the nitro
+> VM) for any port to "/tmp/vm5.vsock", vhost-device-vsock will just
+> connect to the same port using AF_VSOCK using the socket system calls
+> and messages received on that port in "/tmp/vm5.vsock" will be "send"
+> to the AF_VSOCK socket? or am I not thinking right and the
+> implementation would be something different entirely (change the CID
+> from 3 to 2 (or 1?) on the packets before they are handled then socat
+> will be needed probably)? Will this work if the applications in the
+> host want to connect to applications inside the nitro VM (as opposed
+> to applications inside the nitro VM connecting to CID 3)?
+>
+> Thanks and Regards,
+> Dorjoy
