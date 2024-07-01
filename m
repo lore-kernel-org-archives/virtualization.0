@@ -1,134 +1,245 @@
-Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02olkn2086.outbound.protection.outlook.com [40.92.49.86])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8800A1607BC
-	for <virtualization@lists.linux.dev>; Mon,  1 Jul 2024 14:50:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.49.86
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719845417; cv=fail; b=GJK6iHaQEDRHx1A3oAYQ/j79YmZu6Soyye4+T6ZaB79VNkgCJlV4xWyDhrajbbBisbMhHzPX9C+8/KKAEQIuCXcUdeu2C9S7ksAc5jYe0LC+PMafrcZnSAKcPEhaFSyG4SVd+uoiWJjv1xjF2rf2OvpRJHkald2nmgybS1I48pA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719845417; c=relaxed/simple;
-	bh=0PybR2F9bNvwIvO/qTyObZYiEfYjs5DeCBIYUxeCqd0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Nl0JtTeUAYtOeT/kiVsRGJsCnsVeQXdNo02s9BykjpAJhBimeX5tdt5oPNMxkZaLrsAKKEWXqCD8WIa/BVwKPjrEXjNBZ9S82MFM0TyXo9OMoDuAKU+P6nwwyD0ipcyYh0ZSmi+4TjroqHUYZu0sfl9smhdPt3S6IKnIemao5OA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=khIfk+f+; arc=fail smtp.client-ip=40.92.49.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2334F16D320
+	for <virtualization@lists.linux-foundation.org>; Mon,  1 Jul 2024 15:32:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1719847958; cv=none; b=kgkltdk01HZ5wN/zK7+dipXuJf0VKWAVmDc6ja65mgShrol2QMZBCNkH3xbor29PQir9Wm7mj5KGExWfUCz/9VFL5KHesViNVlpYDjcLFciqsaS1LYHFugrm3zdEiUZIRJUCVlPz4nyp30Oe0b4cirnvqG+ch3SvayF6ipRoMbU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1719847958; c=relaxed/simple;
+	bh=zi+8fbwcptjmw/P2wZ5lSDZ3iDkRd/wjaUHGZ/OL5lI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=dphuSFYYh/kO6lurq4jbEab0alSol2bN3iLzHdnI0sKtrbhFlLtsb4M90+S7CVJLB929PQnDtui0HFoVRbk3aw3p/sNDfLiu5Ba296foq/fYSIWO4dDdUFG/YYnyz2P8DfjoUFrPTuH+8q7rRCRkmteDP943gGJyHvXrOjrAtnY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VeH9fuSF; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="khIfk+f+"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Hf3HOF2maZZShc4BV8PlWpNG/G2Msbr20mwzc3iJVByCasw2DWxZKL+0fqbXhDdYwuMLy7zbxB+s9d9rd7JmHR9HTwSoxEq4cXMCqtFV3TPID5Q5snkTy8KvrQVdLLRNyzB4xb/IjSS5k8ZKAXmv/HFyea/HRweojP/ntEw4vp9JbOJa1ts5ZehoydkZ+ZIHdzHbLykcCOxGsOsBmmaXLVC2Xn0GI5lwNYdG5vYB8IVS111HDoSA3CLSlUD1Cmk43wsvYkNG8FPt4ZOs9vqiIJW8bI4928W66ROLR62R31AIZ+9/06ugnjXzywbGXzFjygqFDeMjFGgaemO5lKadfA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cInpAUnfgY+dl/3jdMpt0fwwJPOWp5VFOuhZ613ReaA=;
- b=nvvgNwv8y3BKIozMr8IJyRuVniRPQj9IiPISYzwnmchiXgiae+ekEBvFkFmsdS0bRuNZp4I321n57Rkftc3yIq+rhjzPrybjTCtNeKmAIuucH2f/Md7kATDNTX3esYahcpuNprwDycdqfjlFiTAHrbep/Un5tu+RrG5cAcswOqwmdtZq3NO8r0dTvL46TvZiAKkw2x0FxNlIe0LyM9iQRJJhGvbzVusRtTfjaDF3Iww0hS4rwCarAPtzwpFaZm+d2vUaPq0do2tTVEY1MxAoh3Y9HQNy5veT8gr0lrRM/dU9VaTEbzInv5gr6Bu4pWPIsdW0biQuwWXb89gV0TQODA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cInpAUnfgY+dl/3jdMpt0fwwJPOWp5VFOuhZ613ReaA=;
- b=khIfk+f+Td49oyK5ltD1Kxhk8rAXh97dwTIBhbrMK0h3VZx02Kp+Z30CjW8cgIOjni9rdjecK884BD90M7Qz4w4p8h98PbDkaXoalSb0mvC6XiEVm6ce3Sq8z5AiscM7LiizRVpxfHr1WxH2FkusEISOO/6bfjtFtafY75csxhYIooUByvBUDbWKI5xpkaGwO3XlY7e7g5SR6jqcBhIefVCuW0ue3lG1ugqvi4o8YrQTzsR8YFXg323H5M3V+xneACAxRBqEhO66Lw42b+5dlgOW9Dq0tmVKBTBxK3yHAFdxLTmkdkP7JSv1xvKabXY7m1fkJmJLx6jPoNTcf8zRrQ==
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
- by AM8P194MB1673.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:320::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7719.32; Mon, 1 Jul
- 2024 14:50:12 +0000
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930%4]) with mapi id 15.20.7719.028; Mon, 1 Jul 2024
- 14:50:12 +0000
-From: Luigi Leonardi <luigi.leonardi@outlook.com>
-To: devnull+luigi.leonardi.outlook.com@kernel.org
-Cc: davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	luigi.leonardi@outlook.com,
-	marco.pinn95@gmail.com,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH PATCH net-next v2 2/2] vsock/virtio: avoid enqueue packets when work queue is empty
-Date: Mon,  1 Jul 2024 16:49:41 +0200
-Message-ID:
- <AS2P194MB21701DDDFD9714671737D0E39AD32@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240701-pinna-v2-2-ac396d181f59@outlook.com>
-References: <20240701-pinna-v2-2-ac396d181f59@outlook.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN: [IifNZn0XtVjad8xnR9zjL0AwBOlrPIrF]
-X-ClientProxiedBy: MI1P293CA0012.ITAP293.PROD.OUTLOOK.COM
- (2603:10a6:290:2::10) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:20b:642::8)
-X-Microsoft-Original-Message-ID:
- <20240701144940.13356-2-luigi.leonardi@outlook.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VeH9fuSF"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id BEF1960A59
+	for <virtualization@lists.linux-foundation.org>; Mon,  1 Jul 2024 15:32:36 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id lfmHNBGQ6L7F for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Jul 2024 15:32:35 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 966EA605A2
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 966EA605A2
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VeH9fuSF
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 966EA605A2
+	for <virtualization@lists.linux-foundation.org>; Mon,  1 Jul 2024 15:32:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719847954;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OGj93uGkH1pdIY4bLcgMBtJuKm0uxksm0StLnbxqKDU=;
+	b=VeH9fuSFlAT7GJ4rJl3ucb/MCixS8qq3dnlICghAA2yc+lr6v8apyYe2le65OocRN1b/0e
+	hU7WDfU+GRDZoaza738VG20LO5M+lg83ma8i3RDbhHG0xZiB2uBinoabx3hVdC1bjSoeZk
+	HhkjausfdC8nqIZJbGhyLuVA2otxiLY=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-605-Mg_dgDjyPziRf9rssCCWLg-1; Mon, 01 Jul 2024 11:32:32 -0400
+X-MC-Unique: Mg_dgDjyPziRf9rssCCWLg-1
+Received: by mail-qv1-f71.google.com with SMTP id 6a1803df08f44-6b56000666dso50865646d6.1
+        for <virtualization@lists.linux-foundation.org>; Mon, 01 Jul 2024 08:32:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719847952; x=1720452752;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=OGj93uGkH1pdIY4bLcgMBtJuKm0uxksm0StLnbxqKDU=;
+        b=N/w741QbvNDrRQLXbdtwm+XTdn3MbD/3M+wR+mVdsGLvrykvZWyzVZ2Mh/wSYHX6dI
+         AgkaKUvHQs28LIJ+2JU605gEWK4/AzcLJKL6wz39k+U6r9wemNwR7wtv0HertxxCB709
+         GtXVEU/gaskikBGFfYOisbVMObCHYq9XlrgG4xxICpa6yKB90HTvJjWJJpwJdbkEa1IB
+         N8NFvgsxYyNh47Ea2wjdtnKvxprh3vJaXNf8ub/JIFSgC5wniKHKDuNSmklk0HNtwo2W
+         cnG99JBmWqm+mRK5bXxqo5D6MDG8G4giNGrHYaX1FCxnmD0/Ms5tOCtZsMHr6C71To9F
+         3GFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUwL9mFFUfKPeM+doIY6g9NNRqr7q15rS/lc7dX5GogiFU7hZ0FIXL50jo1IxeGaDMlGk/WWuB2bOIJZjD1q6h7wwALa8cEop29M7UsycN4VrPWuZ4oWeQHRw==
+X-Gm-Message-State: AOJu0Yw3zpj5+KwMESUTxvM5ipioT8/C0C8GhGRLHJ7R4MkXkQGJhNKJ
+	3lJB18lc9UYBBC3FZ2N1OZbQmf4MUEc5PiK5DoWB8hTclYBWNWs1oHSUOwhdrRD+pqy6deNpG01
+	KevVBbzW7yM9pUNdJe2oXYxcRGn4rYMiAO+Jqyj27INPErlMRAUdvGQ+GD65tVzFyWw7w8EhKbO
+	lwNIo=
+X-Received: by 2002:a05:6214:248e:b0:6af:2344:5811 with SMTP id 6a1803df08f44-6b5b71b6e5fmr96492566d6.55.1719847952325;
+        Mon, 01 Jul 2024 08:32:32 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEqlm/0WDwpS5KeYlMAis8uyUKkkCDY9gfKmx9JQ3uzDgIThn0Pe6YuT5CFCsxpsqgIj8oqrg==
+X-Received: by 2002:a05:6214:248e:b0:6af:2344:5811 with SMTP id 6a1803df08f44-6b5b71b6e5fmr96492046d6.55.1719847951861;
+        Mon, 01 Jul 2024 08:32:31 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.163.0])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b59e563aefsm34189636d6.38.2024.07.01.08.32.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jul 2024 08:32:31 -0700 (PDT)
+Date: Mon, 1 Jul 2024 17:32:22 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
+	oxffffaa@gmail.com
+Subject: Re: [RFC PATCH v1 1/2] virtio/vsock: rework deferred credit update
+ logic
+Message-ID: <ua7aoa6yapzzitbg77taspl7h34mmp32lrn6zmr7m6w6xfwk26@w6hheulzftw6>
+References: <20240621192541.2082657-1-avkrasnov@salutedevices.com>
+ <20240621192541.2082657-2-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|AM8P194MB1673:EE_
-X-MS-Office365-Filtering-Correlation-Id: c55ba186-6ca6-47ef-afdd-08dc99dd1c40
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|461199028|8060799006|3412199025|440099028|56899033|1710799026;
-X-Microsoft-Antispam-Message-Info:
-	ITmXCn5fE80qMaM187/TmGOt3nm1bTMTK9nRiiWnMoBMDH1RrFQlBkazCDYlVBSaIWtguFebTJ5Iany67Ew58+Vp5t3XBHH9ZMQR4R770TgTmt4HkkiKmiR7GjXmnLHH2qlh+rXvcsCKvnjoD+o+Jwk8lNX/I98elGnikuPd6lmvcruqK2EUmArKOLU9B47o3Mv8dlTE3+ZVdgjh54UzdP3BlBwax/+28FvcyLZ9Lq16n5OxjsWu956j4zCIaaoEsYrX9BJWm3hLA2rI0OShHEPY/wv7+U6nDiOR5WJw5xxyExRaJ/TXhlvcbS9u6u2hHK1Zh/loCLC2ZAHrg2VMLVPQF1GLm3C3T1BHRM3VVyuEDLTe/hfwEXgg5QaBjFm+m3h0ZI/NG/nZ7fI4jeTmvq59RYQu+pK9Dqef2dLm3rtkVZ06lh9zZOT3y6FAHfykUzP62nNEk91P3uOju6LDWeCJcq0yYqx2FSktmCmFLz7Mn/v0I0tEPWE9Cs7KyXiez42hOPwWantAePadWio9T0Lx6yFHp2qJ02Op5iliBMR6I3OVXqHPxGRR6djffiGb2mrdTC8MdTYAdoBINCL6IdFTuUPYnMz5An7CXVxY+ePRD2A0+O5HVfF7/d1BD1w7qyuPkjlonM/1UBR4jnGIOw==
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?LO0xSbYbE5mZ8S+rFlNQ6R6JIjfICrH9lxHHKVcx3giV3i+hJxmVw5qeIf+J?=
- =?us-ascii?Q?cKA5GRgqi4Jn7GQ/FiNzg6u5zmQRS+mxSt0saV6OR/hEmAP8s1qhMAuU3Vrh?=
- =?us-ascii?Q?oW4k92M/PYv0Ixpy7DcNdRC6SL69HONjqBec+ztPPZrlNIHqDy7mqbUjpQdZ?=
- =?us-ascii?Q?SKkYX7P7CTsklNJNWbSpuYZkTrBdIjJsSc8iHdqujHNltuMmnGR0UTZDLN2E?=
- =?us-ascii?Q?Tv3NlUWy3DKWdjvTGIZw9PnNw7RoCtXbX6W44AmkX1VMXn66XVBBKqpKZfRg?=
- =?us-ascii?Q?jd2yCaIyH85se9IM8Fel+w64DlHTuUja+3Ek+FyXCalnYeEOr3MNNvc08Fp8?=
- =?us-ascii?Q?UHV+cT3ajCkZ8MD5KiAZ+QO1N9bQFMSSZ3a/P2bUvbDg3zf9BkpvTwGGcD0c?=
- =?us-ascii?Q?BmqwVMD9DDzx6r/nErdSuYnQqteCFJ31Pyz7FfrKQndgOUAt9QtAElScdU6r?=
- =?us-ascii?Q?v6UOxMOue1wt7jTRJUXJrEgibOn4wzOxEG8/NPCmBK/5k3UyqEQwW0YQV6UQ?=
- =?us-ascii?Q?x1lRQSFO2H+Z8oykkBoCZjkuFEewwGAi/SmtFOf4SwTVGrgbB0AVGV+BMVtX?=
- =?us-ascii?Q?JdtIydE6x3TbW1j6IwS7jb7mNg6beyPlAC/mVPa+3FPIaDmArF5WcTXnPgzs?=
- =?us-ascii?Q?OVWcb/A5p472XAKcryiY8Nd/kLetRpI8BLGCl6rGV/QECSnDzRx2qITNb/if?=
- =?us-ascii?Q?AyqD9EwWwdRrgl2hJIOufaYrYqQrJ8qKRDGGROwJE3HJdNcNnohjJ/VZ44as?=
- =?us-ascii?Q?4RfDkbHLkGXaSKLK/KNohM0X17X27TFsLnvI/s8a1Y6W5V9qvcjOt78EqmVZ?=
- =?us-ascii?Q?lGeWvjRaZSW0CmPqADCJ+LMzPjndlOASmKrXHVoHU8S8u+LRCH9y/a6G8zzw?=
- =?us-ascii?Q?qKMST+O7RE6QsHhy2pex/WmLRO/DYl56SiCpBd5jIgWZwGiTJXl1URrrCumY?=
- =?us-ascii?Q?3Cfg8FoZEyTkxvw8jhff4ZoN03Rv5WVuNpdX1FT43Hmo23Jp/PkEXYOoV3Yh?=
- =?us-ascii?Q?OdusZydcQ/tKrsgI2Nm4e6RW4BVkxLRRRFOYXWtS55q6ie3uZdVi+x7cpmw4?=
- =?us-ascii?Q?lETt637l3/qFLO3uLVt0t+6cyGQdQNeg365JiJNHnIlTjSDJs0adRiYfgq2q?=
- =?us-ascii?Q?g5rbPQLnc6qSbT7l4EynHtVENHJh/7O+qCL4aG8LbdJZ0Xl8cwRMFFnkfUS2?=
- =?us-ascii?Q?60WbG2d7TSRhKVHobtpw+lImFcw8l86OtKtNgFzWT8kvzFDZibYD7XfKzOp/?=
- =?us-ascii?Q?5IaJGdvDOTAPLRJQdKnx?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c55ba186-6ca6-47ef-afdd-08dc99dd1c40
-X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Jul 2024 14:50:12.5061
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM8P194MB1673
+In-Reply-To: <20240621192541.2082657-2-avkrasnov@salutedevices.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Hi all,
+Hi Arseniy,
 
-> +		/* Inside RCU, can't sleep! */
-> +		ret = mutex_trylock(&vsock->tx_lock);
-> +		if (unlikely(ret == 0))
-> +			goto out_worker;
+On Fri, Jun 21, 2024 at 10:25:40PM GMT, Arseniy Krasnov wrote:
+>Previous calculation of 'free_space' was wrong (but worked as expected
+>in most cases, see below), because it didn't account number of bytes in
+>rx queue. Let's rework 'free_space' calculation in the following way:
+>as this value is considered free space at rx side from tx point of 
+>view,
+>it must be equal to return value of 'virtio_transport_get_credit()' at
+>tx side. This function uses 'tx_cnt' counter and 'peer_fwd_cnt': first
+>is number of transmitted bytes (without wrap), second is last 'fwd_cnt'
+>value received from rx. So let's use same approach at rx side during
+>'free_space' calculation: add 'rx_cnt' counter which is number of
+>received bytes (also without wrap) and subtract 'last_fwd_cnt' from it.
+>Now we have:
+>1) 'rx_cnt' == 'tx_cnt' at both sides.
+>2) 'last_fwd_cnt' == 'peer_fwd_cnt' - because first is last 'fwd_cnt'
+>   sent to tx, while second is last 'fwd_cnt' received from rx.
+>
+>Now 'free_space' is handled correctly and also we don't need
+>'low_rx_bytes' flag - this was more like a hack.
+>
+>Previous calculation of 'free_space' worked (in 99% cases), because if
+>we take a look on behaviour of both expressions (new and previous):
+>
+>'(rx_cnt - last_fwd_cnt)' and '(fwd_cnt - last_fwd_cnt)'
+>
+>Both of them always grows up, with almost same "speed": only difference
+>is that 'rx_cnt' is incremented earlier during packet is received,
+>while 'fwd_cnt' in incremented when packet is read by user. So if 
+>'rx_cnt'
+>grows "faster", then resulting 'free_space' become smaller also, so we
+>send credit updates a little bit more, but:
+>
+>  * 'free_space' calculation based on 'rx_cnt' gives the same value,
+>    which tx sees as free space at rx side, so original idea of
+>    'free_space' is now implemented as planned.
+>  * Hack with 'low_rx_bytes' now is not needed.
+>
+>Also here is some performance comparison between both versions of
+>'free_space' calculation:
+>
+> *------*----------*----------*
+> |      | 'rx_cnt' | previous |
+> *------*----------*----------*
+> |H -> G|   8.42   |   7.82   |
+> *------*----------*----------*
+> |G -> H|   11.6   |   12.1   |
+> *------*----------*----------*
 
-I just realized that here I don't release the tx_lock and 
-that the email subject is "PATCH PATCH".
-I will fix this in the next version.
-Any feedback is welcome!
+I did some tests on an Intel(R) Xeon(R) Silver 4410Y using iperf-vsock:
+- kernel 6.9.0
+pkt_size     G->H     H->G
+4k            4.6      6.4
+64k          13.8     11.5
+128k         13.4     11.7
+
+- kernel 6.9.0 with this series applied
+pkt_size     G->H     H->G
+4k            4.6     8.16
+64k          12.2     8.9
+128k         12.8     8.8
+
+I see a big drop, especially on H->G with big packets. Can you try to 
+replicate on your env?
+
+I'll try to understand more and also an i7 on the next days.
 
 Thanks,
-Luigi
+Stefano
+
+>
+>As benchmark 'vsock-iperf' with default arguments was used. There is no
+>significant performance difference before and after this patch.
+>
+>Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+>---
+> include/linux/virtio_vsock.h            | 1 +
+> net/vmw_vsock/virtio_transport_common.c | 8 +++-----
+> 2 files changed, 4 insertions(+), 5 deletions(-)
+>
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index c82089dee0c8..3579491c411e 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -135,6 +135,7 @@ struct virtio_vsock_sock {
+> 	u32 peer_buf_alloc;
+>
+> 	/* Protected by rx_lock */
+>+	u32 rx_cnt;
+> 	u32 fwd_cnt;
+> 	u32 last_fwd_cnt;
+> 	u32 rx_bytes;
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 16ff976a86e3..1d4e2328e06e 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -441,6 +441,7 @@ static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+> 		return false;
+>
+> 	vvs->rx_bytes += len;
+>+	vvs->rx_cnt += len;
+> 	return true;
+> }
+>
+>@@ -558,7 +559,6 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	size_t bytes, total = 0;
+> 	struct sk_buff *skb;
+> 	u32 fwd_cnt_delta;
+>-	bool low_rx_bytes;
+> 	int err = -EFAULT;
+> 	u32 free_space;
+>
+>@@ -603,9 +603,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	}
+>
+> 	fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
+>-	free_space = vvs->buf_alloc - fwd_cnt_delta;
+>-	low_rx_bytes = (vvs->rx_bytes <
+>-			sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
+>+	free_space = vvs->buf_alloc - (vvs->rx_cnt - vvs->last_fwd_cnt);
+>
+> 	spin_unlock_bh(&vvs->rx_lock);
+>
+>@@ -619,7 +617,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	 * number of bytes in rx queue is not enough to wake up reader.
+> 	 */
+> 	if (fwd_cnt_delta &&
+>-	    (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE || low_rx_bytes))
+>+	    (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE))
+> 		virtio_transport_send_credit_update(vsk);
+>
+> 	return total;
+>-- 
+>2.25.1
+>
+>
+
