@@ -1,126 +1,184 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA9E01E49F;
-	Sun, 30 Jun 2024 13:29:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66446BA20
+	for <virtualization@lists.linux.dev>; Mon,  1 Jul 2024 03:05:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719754146; cv=none; b=TPhjj/Rehe5RxjBbhD9AXOnfcZYDD4WQ5azbiQK1rxOYphx6yYV929kq6xLCCPmM5tXt/t+O+m/z8TV1eRTbPG/F4g9vf2wJrCbA75V5y+I18HmFiFXy6vRUhbkXsuvdJrx6zn4B06l3zaH/sfKXH3O6guAbAjOUweLSIE1jS6o=
+	t=1719803150; cv=none; b=E2X+eRjR1VMJv2kzM98oN7gRyteDOu66oEDYk125fDvkltt3bkKyu0ScqQAxbUQg10d+nBSZh77uovjeRCUdw/OmKE5qBLZzeuLR5UrAytZ2xLYjn1XjpsgHPcqMQGnwxYVAu+gqUtRWbExATec8isfC3gEtHfWB3ZL/31U+gp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719754146; c=relaxed/simple;
-	bh=ChFb8w15BttkA8Gd38P/acg2lX8jxg3AeR6dCf7FnUk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QBvUGr4HB3JJrmeO7qrycIYDKzXD9JjqPomNMxSxkdcpfmRTfn3M7jjo6HdVgi89xAYeO0T20VePjJxLyTdIeRv9w9jJWHqAvpX09hIeVsk5Yc6QL9145JPW6XDSfrG4mV7qzKslHGDpGJnOUOFETZ9qAAfzsV8I55dmwJD1Ojc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ifzeGgc1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1719803150; c=relaxed/simple;
+	bh=x7CIyMnhiWMh15XzadY+hegqA0fxD1v2PlohvDWSh7o=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CM7yQ+OqP+k2E4OGMkBISKy1WxVXvKG5v8YYfM8Pq+2PzQL4i1iPfrt/+9e0oNQAU9IkdrzVUwK8WWl9BXGS7I0/J6klvK2cpgM9ub50Hyxm54MEGRi5IWk4Bjrtpu/zKjgKV8Udbthwgbb5+ruLw/bxKd1eILpbyYose0RnvEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lqwe3OuC; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ifzeGgc1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DADC2BD10;
-	Sun, 30 Jun 2024 13:29:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1719754146;
-	bh=ChFb8w15BttkA8Gd38P/acg2lX8jxg3AeR6dCf7FnUk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ifzeGgc1XPqx+MtSb9wIhYQKdSYS+/J+fwqGorROaN67YFRM/STdky6UuWpNhVyLw
-	 z8GC43AJg4Im2K/Ryq0gJG2Pyu32+fx49gEeQnQRCPPCWA+7b0HvR367HICrhYrdbu
-	 hs2MwLJhopRfIyNColSNZ5x5W1OjkUQ1Kzxc7XD5/14Z1Bgi3tUB18SX48HBLS6TrN
-	 tuyw5sk9l5P13hiWKilWIwQekNuQJ8c0tGUD3VF5ajg94CmRe1EU6qjYYdAROTsarG
-	 695L5QuZsPICkubKeh5Wl45ajosLI9iRdkXL1Keg2/r5NegBHWHpJZfAOpj/ue7OxN
-	 QulWDHuDUXqoA==
-Date: Sun, 30 Jun 2024 14:28:59 +0100
-From: Simon Horman <horms@kernel.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Peter Hilber <peter.hilber@opensynergy.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	"Ridoux, Julien" <ridouxj@amazon.com>, virtio-dev@lists.linux.dev,
-	"Luu, Ryan" <rluu@amazon.com>,
-	"Christopher S. Hall" <christopher.s.hall@intel.com>,
-	Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
-	Richard Cochran <richardcochran@gmail.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Kees Cook <kees@kernel.org>, linux-hardening@vger.kernel.org
-Subject: Re: [RFC PATCH v2] ptp: Add vDSO-style vmclock support
-Message-ID: <20240630132859.GC17134@kernel.org>
-References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
- <684eac07834699889fdb67be4cee09319c994a42.camel@infradead.org>
- <671a784b-234f-4be6-80bf-5135e257ed40@opensynergy.com>
- <db594efd5a5774748a9ef07cc86741f5a677bdbf.camel@infradead.org>
- <c0ae63fc88365c93d5401972683a41112c094704.camel@infradead.org>
- <4a0a240dffc21dde4d69179288547b945142259f.camel@infradead.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lqwe3OuC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719803147;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jBHQBjWIdUQuBh+7vJ7Urb/sZUQn569LJ1AIL3BHqDg=;
+	b=Lqwe3OuCylG3ncmu2LYrTGFrlEeU+oY2fY8aPRXVkaCB8L6W5sV9sg6apvKRzefhLLL2OY
+	tGstS1VnweUEmxlNAkm/cZErxpESc3b+krqXAGzdGyPNOOU1fE+ebu3f8TWh2pffQCxSwW
+	a2k4f/nJmpPMVDjr9S4k3U5GZ2rGERc=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-207-fdJgUbPJORulhIxtbAunBg-1; Sun, 30 Jun 2024 23:05:45 -0400
+X-MC-Unique: fdJgUbPJORulhIxtbAunBg-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2c7316658ccso1687976a91.3
+        for <virtualization@lists.linux.dev>; Sun, 30 Jun 2024 20:05:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719803145; x=1720407945;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jBHQBjWIdUQuBh+7vJ7Urb/sZUQn569LJ1AIL3BHqDg=;
+        b=q5ijAx+dzWdIOXE6FkaWULGc2X/7kBWw1pQSBBEC0eQnM7WTCBmk/zRCF939c0PoKu
+         WKzdQGkc7aN1/fayPocgiFYQCIV4Ry9DkZlv2Em7zhFqsZa+8YVj6exQ4UpwKs+0UpWJ
+         B0wjskKYarxr6zP1biwhnsHUTjXgeKMZ9qmhE9jD+RGKmFYnBzo904j4aUrNmTOOuiq9
+         GDbsffrRTGpC8QVzrLNSiey/HHTmd3/4ne0eojPR3THUR+l4Hbnr2EHh8htcqomvpqrE
+         QuV8WSOvWgviuWMzS/12BRXaMFMWOfMmbrG8FpsLVJx7s0Z8ltLcZm4appWt7BC9gth1
+         11+A==
+X-Forwarded-Encrypted: i=1; AJvYcCW4Eo+dwXY6IvsV0MKEyRPzXjQ3DklL2C/zzRNB9Xj9G1m7NmDszR6cI2mq93w4qxHPsKcMYIitx+rsJyYCkkYHjTHYbihdCK2y6RM5n4o=
+X-Gm-Message-State: AOJu0Yzs4YckEH8CscLm2BWxLRhw29Nrm4S1SiwTS6yf6yQmIbQtql5u
+	LjbPWAdDFcPlgw4iKVykmPZgmVhfyDZOhyoufFs2WNKeHrnhJ9SSNcKHriFwW5gnXPyyrkavmTs
+	IvnzztgOMDOcaAR3nrZCdOvpzk9SWVFxrtGM+5ZbQTcWdtrx2hkpxiGa5ilvwOFKRSgI9klFhw1
+	gCxeeYFPVFnEFWTPDRJndUDNjYGae17c8qid/Uc1g=
+X-Received: by 2002:a17:90b:46ca:b0:2b1:b1a1:1310 with SMTP id 98e67ed59e1d1-2c93d730ac1mr1806234a91.29.1719803144832;
+        Sun, 30 Jun 2024 20:05:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHRcE1jBGXfj1LwD0BYVw6F3AonJHCmNmKtTt+BJqVg5um4oaX/fZpPg6T9n8Zeh2Xj82KJmoNFJNctTcIFAiE=
+X-Received: by 2002:a17:90b:46ca:b0:2b1:b1a1:1310 with SMTP id
+ 98e67ed59e1d1-2c93d730ac1mr1806222a91.29.1719803144364; Sun, 30 Jun 2024
+ 20:05:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4a0a240dffc21dde4d69179288547b945142259f.camel@infradead.org>
+References: <20240618075643.24867-1-xuanzhuo@linux.alibaba.com>
+ <20240618075643.24867-8-xuanzhuo@linux.alibaba.com> <CACGkMEta9o97cqUy+wV=1Xpu8MBoFt4CEtWS35dhTMs0Dm4AKg@mail.gmail.com>
+ <1719553356.2373846-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1719553356.2373846-2-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 1 Jul 2024 11:05:33 +0800
+Message-ID: <CACGkMEtMSXumzmziWoMagEf-vA+j84oCJWMGAh0vGtmU_QupyA@mail.gmail.com>
+Subject: Re: [PATCH net-next v6 07/10] virtio_net: xsk: rx: support fill with
+ xsk buffer
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev, 
+	bpf@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-+ Kees Cook, linux-hardening
+On Fri, Jun 28, 2024 at 1:44=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> On Fri, 28 Jun 2024 10:19:37 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Tue, Jun 18, 2024 at 3:57=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > Implement the logic of filling rq with XSK buffers.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/net/virtio_net.c | 68 ++++++++++++++++++++++++++++++++++++++=
+--
+> > >  1 file changed, 66 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 2bbc715f22c6..2ac5668a94ce 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -355,6 +355,8 @@ struct receive_queue {
+> > >
+> > >                 /* xdp rxq used by xsk */
+> > >                 struct xdp_rxq_info xdp_rxq;
+> > > +
+> > > +               struct xdp_buff **xsk_buffs;
+> > >         } xsk;
+> > >  };
+> > >
+> > > @@ -1032,6 +1034,53 @@ static void check_sq_full_and_disable(struct v=
+irtnet_info *vi,
+> > >         }
+> > >  }
+> > >
+> > > +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32=
+ len)
+> > > +{
+> > > +       sg->dma_address =3D addr;
+> > > +       sg->length =3D len;
+> > > +}
+> > > +
+> > > +static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct r=
+eceive_queue *rq,
+> > > +                                  struct xsk_buff_pool *pool, gfp_t =
+gfp)
+> > > +{
+> > > +       struct xdp_buff **xsk_buffs;
+> > > +       dma_addr_t addr;
+> > > +       u32 len, i;
+> > > +       int err =3D 0;
+> > > +       int num;
+> > > +
+> > > +       xsk_buffs =3D rq->xsk.xsk_buffs;
+> > > +
+> > > +       num =3D xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_fre=
+e);
+> > > +       if (!num)
+> > > +               return -ENOMEM;
+> > > +
+> > > +       len =3D xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
+> > > +
+> > > +       for (i =3D 0; i < num; ++i) {
+> > > +               /* use the part of XDP_PACKET_HEADROOM as the virtnet=
+ hdr space */
+> > > +               addr =3D xsk_buff_xdp_get_dma(xsk_buffs[i]) - vi->hdr=
+_len;
+> >
+> > We had VIRTIO_XDP_HEADROOM, can we reuse it? Or if it's redundant
+> > let's send a patch to switch to XDP_PACKET_HEADROOM.
+>
+> Do you mean replace it inside the comment?
 
-On Tue, Jun 25, 2024 at 08:01:56PM +0100, David Woodhouse wrote:
-> From: David Woodhouse <dwmw@amazon.co.uk>
-> 
-> The vmclock "device" provides a shared memory region with precision clock
-> information. By using shared memory, it is safe across Live Migration.
-> 
-> Like the KVM PTP clock, this can convert TSC-based cross timestamps into
-> KVM clock values. Unlike the KVM PTP clock, it does so only when such is
-> actually helpful.
-> 
-> The memory region of the device is also exposed to userspace so it can be
-> read or memory mapped by application which need reliable notification of
-> clock disruptions.
-> 
-> Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+I meant a patch to s/VIRTIO_XDP_HEADROOM/XDP_PACKET_HEADROOM/g.
 
-...
+>
+> I want to describe use the headroom of xsk, the size of the headroom is
+> XDP_PACKET_HEADROOM.
+>
+> >
+> > Btw, the code assumes vi->hdr_len < xsk_pool_get_headroom(). It's
+> > better to fail if it's not true when enabling xsk.
+>
+> It is ok.
 
-> diff --git a/drivers/ptp/ptp_vmclock.c b/drivers/ptp/ptp_vmclock.c
+I mean do we need a check to fail xsk binding if vi->hdr_len >
+xsk_pool_get_headroom() or it has been guaranteed by the code already.
 
-...
+Thanks
 
-> +static int vmclock_probe(struct platform_device *pdev)
-> +{
+>
+> Thanks.
+>
+>
+> >
+> > Thanks
+> >
+>
 
-...
-
-> +	/* If there is valid clock information, register a PTP clock */
-> +	if (st->cs_id) {
-> +		st->ptp_clock_info = ptp_vmclock_info;
-> +		strncpy(st->ptp_clock_info.name, st->name, sizeof(st->ptp_clock_info.name));
-
-Hi David,
-
-W=1 allmodconfig builds with gcc-13 flag the following.
-Reading the documentation of strncpy() in fortify-string.h,
-I wonder if strscpy() would be more appropriate in this case.
-
-In file included from ./include/linux/string.h:374,
-                 from ./include/linux/bitmap.h:13,
-                 from ./include/linux/cpumask.h:13,
-                 from ./arch/x86/include/asm/paravirt.h:21,
-                 from ./arch/x86/include/asm/cpuid.h:62,
-                 from ./arch/x86/include/asm/processor.h:19,
-                 from ./include/linux/sched.h:13,
-                 from ./include/linux/ratelimit.h:6,
-                 from ./include/linux/dev_printk.h:16,
-                 from ./include/linux/device.h:15,
-                 from drivers/ptp/ptp_vmclock.c:8:
-In function 'strncpy',
-    inlined from 'vmclock_probe' at drivers/ptp/ptp_vmclock.c:480:3:
-./include/linux/fortify-string.h:125:33: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
-  125 | #define __underlying_strncpy    __builtin_strncpy
-      |                                 ^
-./include/linux/fortify-string.h:205:16: note: in expansion of macro '__underlying_strncpy'
-  205 |         return __underlying_strncpy(p, q, size);
-
-...
