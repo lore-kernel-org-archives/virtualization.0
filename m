@@ -1,119 +1,199 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CC456BFC7
-	for <virtualization@lists.linux-foundation.org>; Mon,  1 Jul 2024 05:55:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D74282485;
+	Mon,  1 Jul 2024 08:02:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719813356; cv=none; b=CqNqZ2DyxC9FntRpyMrDfJCyKsXPCLJXmaK6q13FgSeMiYRUlA7cS1Xhei3pFXtBIYIUr94zLlNmHeOwT8SbwOLT6/zJFLegV3qMky+CeCswpRuheqYMX97l0A6xU9lghylX9C55flMdCxYKEMr7batu7fA6Hz9kAYV15zz/2Jc=
+	t=1719820970; cv=none; b=YN3zSuezKH9NRTdumu/skXQq58/wqVjeC/DtnQudYI2sGW9HKmgipau8joOZHpd8kkkl/mHetrQCj5+iieHmYaEDNBFse+CVFMuHtmfzSFuxPdf++FO96I3sd4rKyCjul32HoDNpGv/A/jyruusWcKEKguYSJ71acdVeMvcH7Tg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719813356; c=relaxed/simple;
-	bh=zoolY0j9tBgKN2MEBj7jMgK5u98hB3qhLdhkSd0qq80=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=i66WyzHyQX2Hl7nlE1JmMavWwihxMhYb/+A3ULMCVdpvE4/SNaPu+EXzeDLLAeH+4+gHcfBmptlgXgM1UZkKjk/WFDBeGCQ6UjSsoLPGdhQGCuKeOnMdyvMo6JH19bEBO5W4Irpx0bK5kF3bCcVCaH1ltcN6IID3BlM/dgm6zys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LP5spFtX; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1719820970; c=relaxed/simple;
+	bh=YNU8xeKCxGMYOgi3xzqQWTx9+rgNkvKSAEHaxN2NjcA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=s7M73kevTbRlvuseCOKyoHKD+z0BIvMQ1OQDxcmJXLlds1Xbxo8BESk2bPfsHT5qetxQ6chZ2aHYs6AS448UUwF4kyD9FwLX5EaHuJjadRSs45XhtFfyqoXPF8gAFQ91nnQxQucVE/1BRGDF834C4nrAwQIuIQ/yKKS1gxqTqSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=XZTMj6xC; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LP5spFtX"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9DDEE40448
-	for <virtualization@lists.linux-foundation.org>; Mon,  1 Jul 2024 05:55:54 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.299
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id iN82Vg_HXnln for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Jul 2024 05:55:53 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.13; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org BAEBD40141
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BAEBD40141
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=LP5spFtX
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BAEBD40141
-	for <virtualization@lists.linux-foundation.org>; Mon,  1 Jul 2024 05:55:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1719813352; x=1751349352;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=zoolY0j9tBgKN2MEBj7jMgK5u98hB3qhLdhkSd0qq80=;
-  b=LP5spFtXEaMvFKozYy/6rLP2Mr3nBmHb0dPRRzjehocPx9YQi1HphItl
-   +sw0v1CE+ZZjVMgwU7gsL+BEsyNnZaeWnMzckei3cakpELTVbSu/Fs68n
-   xV+0iL8y+pqyCbVd2iYI2M97EUYE61qqg7AzNSpeeaXH4gdq3dHe61zMU
-   NzVbWRlM/GuVWY087Z4oluCuGBWvuyGtXYoYz72sYR/gnO+Q7YvY3OK/Z
-   5hl9Ej9heYDybGfPU82/EqZMEFQokRR8HI8ZFb9MCiU/XUBIhx/wBbMqH
-   G39F0sMAC9gZKl2CFa6C/l6uoaGQF9chIi+cFoHaL+AfnYgSwbycgJrqK
-   A==;
-X-CSE-ConnectionGUID: xYbypqqQQIW8kWUDa0wEyA==
-X-CSE-MsgGUID: tloxCsNJQciigaV15OkH5Q==
-X-IronPort-AV: E=McAfee;i="6700,10204,11119"; a="19817044"
-X-IronPort-AV: E=Sophos;i="6.09,175,1716274800"; 
-   d="scan'208";a="19817044"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2024 22:55:17 -0700
-X-CSE-ConnectionGUID: YvK3MWzjQP6f2lsibkttYQ==
-X-CSE-MsgGUID: p91iEwuIRdqyjcfXzEouHA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,175,1716274800"; 
-   d="scan'208";a="49860164"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.124.229.145]) ([10.124.229.145])
-  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2024 22:55:14 -0700
-Message-ID: <7421b923-0bd6-4c9d-81e6-07d954085171@linux.intel.com>
-Date: Mon, 1 Jul 2024 13:55:12 +0800
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="XZTMj6xC"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=YNU8xeKCxGMYOgi3xzqQWTx9+rgNkvKSAEHaxN2NjcA=; b=XZTMj6xCryltA/GYdja4rlKrow
+	y6qfdpaowMC8aBtSaptN7myKSewDw3hZ5MmK9tMq6MKqXA4T2gkEp80AQCXsAHlTg9rQ/2oB0/SS6
+	Fxr+ezyjoDtMXkGJ7lYLa2YoLpj9rDuG7glULRzAEb/Z9ew3tFBSTwPRjNApJH2HmFQDUPCBO23JY
+	5EVurNStpQCogDOTprP44IFpLPhOvRpbIBXGmoHiQg66C4SP2I9rxNMQQY34vxiL9JutAa/4BVuTl
+	E/TyD1cVWzAaZeA6bmqwnXaDHIs85vx2MKXkWzv6+3/j0SAs0nVq28iedzqm/M+CiPKueWNAegblI
+	LrlnoEYg==;
+Received: from [2001:8b0:10b:5:8143:6283:9375:d9e] (helo=u3832b3a9db3152.ant.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sOBzi-0000000H7Kb-3UCz;
+	Mon, 01 Jul 2024 08:02:38 +0000
+Message-ID: <4d49e640143a557861a75a65678485965611b638.camel@infradead.org>
+Subject: Re: [RFC PATCH v2] ptp: Add vDSO-style vmclock support
+From: David Woodhouse <dwmw2@infradead.org>
+To: Simon Horman <horms@kernel.org>
+Cc: Peter Hilber <peter.hilber@opensynergy.com>,
+ linux-kernel@vger.kernel.org,  virtualization@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org,  linux-rtc@vger.kernel.org, "Ridoux,
+ Julien" <ridouxj@amazon.com>,  virtio-dev@lists.linux.dev, "Luu, Ryan"
+ <rluu@amazon.com>, "Christopher S. Hall" <christopher.s.hall@intel.com>,
+ Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,  netdev@vger.kernel.org, Richard
+ Cochran <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>, Thomas
+ Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marc
+ Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Daniel
+ Lezcano <daniel.lezcano@linaro.org>,  Alessandro Zummo
+ <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Kees Cook <kees@kernel.org>, linux-hardening@vger.kernel.org
+Date: Mon, 01 Jul 2024 09:02:38 +0100
+In-Reply-To: <20240630132859.GC17134@kernel.org>
+References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
+	 <684eac07834699889fdb67be4cee09319c994a42.camel@infradead.org>
+	 <671a784b-234f-4be6-80bf-5135e257ed40@opensynergy.com>
+	 <db594efd5a5774748a9ef07cc86741f5a677bdbf.camel@infradead.org>
+	 <c0ae63fc88365c93d5401972683a41112c094704.camel@infradead.org>
+	 <4a0a240dffc21dde4d69179288547b945142259f.camel@infradead.org>
+	 <20240630132859.GC17134@kernel.org>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-2VcdSTZ+DgjOCXYR0Rnr"
+User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 07/10] iommufd: Fault-capable hwpt
- attach/detach/replace
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240616061155.169343-1-baolu.lu@linux.intel.com>
- <20240616061155.169343-8-baolu.lu@linux.intel.com>
- <Zn8oZ80p0p1bHgBC@ziepe.ca>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <Zn8oZ80p0p1bHgBC@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
-On 2024/6/29 5:17, Jason Gunthorpe wrote:
-> On Sun, Jun 16, 2024 at 02:11:52PM +0800, Lu Baolu wrote:
->> +static int iommufd_fault_iopf_enable(struct iommufd_device *idev)
->> +{
->> +	struct device *dev = idev->dev;
->> +	int ret;
->> +
->> +	/*
->> +	 * Once we turn on PCI/PRI support for VF, the response failure code
->> +	 * should not be forwarded to the hardware due to PRI being a shared
->> +	 * resource between PF and VFs. There is no coordination for this
->> +	 * shared capability. This waits for a vPRI reset to recover.
->> +	 */
->> +	if (dev_is_pci(dev) && to_pci_dev(dev)->is_virtfn)
->> +		return -EINVAL;
-> I don't quite get this remark, isn't not supporting PRI on VFs kind of
-> useless? What is the story here?
 
-This remark is trying to explain why attaching an iopf-capable hwpt to a
-VF is not supported for now. The PCI sepc (section 10.4.2.1) states that
-a response failure will disable the PRI on the function. But for PF/VF
-case, the PRI is a shared resource, therefore a response failure on a VF
-might cause iopf on other VFs to malfunction. So, we start from simple
-by not allowing it.
+--=-2VcdSTZ+DgjOCXYR0Rnr
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-baolu
+On Sun, 2024-06-30 at 14:28 +0100, Simon Horman wrote:
+>=20
+> W=3D1 allmodconfig builds with gcc-13 flag the following.
+> Reading the documentation of strncpy() in fortify-string.h,
+> I wonder if strscpy() would be more appropriate in this case.
+
+It's never going to matter in practice, as the buffer is 32 bytes, so
+"vmclock%d" would never get to the end even if was a 64-bit integer.
+
+But as a matter of hygiene and best practice, yes strscpy() would be
+more appropriate. Fixed in git, thanks.
+
+--=-2VcdSTZ+DgjOCXYR0Rnr
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCEkQw
+ggYQMIID+KADAgECAhBNlCwQ1DvglAnFgS06KwZPMA0GCSqGSIb3DQEBDAUAMIGIMQswCQYDVQQG
+EwJVUzETMBEGA1UECBMKTmV3IEplcnNleTEUMBIGA1UEBxMLSmVyc2V5IENpdHkxHjAcBgNVBAoT
+FVRoZSBVU0VSVFJVU1QgTmV0d29yazEuMCwGA1UEAxMlVVNFUlRydXN0IFJTQSBDZXJ0aWZpY2F0
+aW9uIEF1dGhvcml0eTAeFw0xODExMDIwMDAwMDBaFw0zMDEyMzEyMzU5NTlaMIGWMQswCQYDVQQG
+EwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYD
+VQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50
+aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
+AQEAyjztlApB/975Rrno1jvm2pK/KxBOqhq8gr2+JhwpKirSzZxQgT9tlC7zl6hn1fXjSo5MqXUf
+ItMltrMaXqcESJuK8dtK56NCSrq4iDKaKq9NxOXFmqXX2zN8HHGjQ2b2Xv0v1L5Nk1MQPKA19xeW
+QcpGEGFUUd0kN+oHox+L9aV1rjfNiCj3bJk6kJaOPabPi2503nn/ITX5e8WfPnGw4VuZ79Khj1YB
+rf24k5Ee1sLTHsLtpiK9OjG4iQRBdq6Z/TlVx/hGAez5h36bBJMxqdHLpdwIUkTqT8se3ed0PewD
+ch/8kHPo5fZl5u1B0ecpq/sDN/5sCG52Ds+QU5O5EwIDAQABo4IBZDCCAWAwHwYDVR0jBBgwFoAU
+U3m/WqorSs9UgOHYm8Cd8rIDZsswHQYDVR0OBBYEFAnA8vwL2pTbX/4r36iZQs/J4K0AMA4GA1Ud
+DwEB/wQEAwIBhjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEF
+BQcDBDARBgNVHSAECjAIMAYGBFUdIAAwUAYDVR0fBEkwRzBFoEOgQYY/aHR0cDovL2NybC51c2Vy
+dHJ1c3QuY29tL1VTRVJUcnVzdFJTQUNlcnRpZmljYXRpb25BdXRob3JpdHkuY3JsMHYGCCsGAQUF
+BwEBBGowaDA/BggrBgEFBQcwAoYzaHR0cDovL2NydC51c2VydHJ1c3QuY29tL1VTRVJUcnVzdFJT
+QUFkZFRydXN0Q0EuY3J0MCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1c3QuY29tMA0G
+CSqGSIb3DQEBDAUAA4ICAQBBRHUAqznCFfXejpVtMnFojADdF9d6HBA4kMjjsb0XMZHztuOCtKF+
+xswhh2GqkW5JQrM8zVlU+A2VP72Ky2nlRA1GwmIPgou74TZ/XTarHG8zdMSgaDrkVYzz1g3nIVO9
+IHk96VwsacIvBF8JfqIs+8aWH2PfSUrNxP6Ys7U0sZYx4rXD6+cqFq/ZW5BUfClN/rhk2ddQXyn7
+kkmka2RQb9d90nmNHdgKrwfQ49mQ2hWQNDkJJIXwKjYA6VUR/fZUFeCUisdDe/0ABLTI+jheXUV1
+eoYV7lNwNBKpeHdNuO6Aacb533JlfeUHxvBz9OfYWUiXu09sMAviM11Q0DuMZ5760CdO2VnpsXP4
+KxaYIhvqPqUMWqRdWyn7crItNkZeroXaecG03i3mM7dkiPaCkgocBg0EBYsbZDZ8bsG3a08LwEsL
+1Ygz3SBsyECa0waq4hOf/Z85F2w2ZpXfP+w8q4ifwO90SGZZV+HR/Jh6rEaVPDRF/CEGVqR1hiuQ
+OZ1YL5ezMTX0ZSLwrymUE0pwi/KDaiYB15uswgeIAcA6JzPFf9pLkAFFWs1QNyN++niFhsM47qod
+x/PL+5jR87myx5uYdBEQkkDc+lKB1Wct6ucXqm2EmsaQ0M95QjTmy+rDWjkDYdw3Ms6mSWE3Bn7i
+5ZgtwCLXgAIe5W8mybM2JzCCBhQwggT8oAMCAQICEQDGvhmWZ0DEAx0oURL6O6l+MA0GCSqGSIb3
+DQEBCwUAMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNlY3RpZ28g
+UlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMB4XDTIyMDEwNzAw
+MDAwMFoXDTI1MDEwNjIzNTk1OVowJDEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9y
+ZzCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBALQ3GpC2bomUqk+91wLYBzDMcCj5C9m6
+oZaHwvmIdXftOgTbCJXADo6G9T7BBAebw2JV38EINgKpy/ZHh7htyAkWYVoFsFPrwHounto8xTsy
+SSePMiPlmIdQ10BcVSXMUJ3Juu16GlWOnAMJY2oYfEzmE7uT9YgcBqKCo65pTFmOnR/VVbjJk4K2
+xE34GC2nAdUQkPFuyaFisicc6HRMOYXPuF0DuwITEKnjxgNjP+qDrh0db7PAjO1D4d5ftfrsf+kd
+RR4gKVGSk8Tz2WwvtLAroJM4nXjNPIBJNT4w/FWWc/5qPHJy2U+eITZ5LLE5s45mX2oPFknWqxBo
+bQZ8a9dsZ3dSPZBvE9ZrmtFLrVrN4eo1jsXgAp1+p7bkfqd3BgBEmfsYWlBXO8rVXfvPgLs32VdV
+NZxb/CDWPqBsiYv0Hv3HPsz07j5b+/cVoWqyHDKzkaVbxfq/7auNVRmPB3v5SWEsH8xi4Bez2V9U
+KxfYCnqsjp8RaC2/khxKt0A552Eaxnz/4ly/2C7wkwTQnBmdlFYhAflWKQ03Ufiu8t3iBE3VJbc2
+5oMrglj7TRZrmKq3CkbFnX0fyulB+kHimrt6PIWn7kgyl9aelIl6vtbhMA+l0nfrsORMa4kobqQ5
+C5rveVgmcIad67EDa+UqEKy/GltUwlSh6xy+TrK1tzDvAgMBAAGjggHMMIIByDAfBgNVHSMEGDAW
+gBQJwPL8C9qU21/+K9+omULPyeCtADAdBgNVHQ4EFgQUzMeDMcimo0oz8o1R1Nver3ZVpSkwDgYD
+VR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMC
+MEAGA1UdIAQ5MDcwNQYMKwYBBAGyMQECAQEBMCUwIwYIKwYBBQUHAgEWF2h0dHBzOi8vc2VjdGln
+by5jb20vQ1BTMFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9jcmwuc2VjdGlnby5jb20vU2VjdGln
+b1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcmwwgYoGCCsGAQUFBwEB
+BH4wfDBVBggrBgEFBQcwAoZJaHR0cDovL2NydC5zZWN0aWdvLmNvbS9TZWN0aWdvUlNBQ2xpZW50
+QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAjBggrBgEFBQcwAYYXaHR0cDovL29j
+c3Auc2VjdGlnby5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5mcmFkZWFkLm9yZzANBgkqhkiG9w0B
+AQsFAAOCAQEAyW6MUir5dm495teKqAQjDJwuFCi35h4xgnQvQ/fzPXmtR9t54rpmI2TfyvcKgOXp
+qa7BGXNFfh1JsqexVkIqZP9uWB2J+uVMD+XZEs/KYNNX2PvIlSPrzIB4Z2wyIGQpaPLlYflrrVFK
+v9CjT2zdqvy2maK7HKOQRt3BiJbVG5lRiwbbygldcALEV9ChWFfgSXvrWDZspnU3Gjw/rMHrGnql
+Htlyebp3pf3fSS9kzQ1FVtVIDrL6eqhTwJxe+pXSMMqFiN0whpBtXdyDjzBtQTaZJ7zTT/vlehc/
+tDuqZwGHm/YJy883Ll+GP3NvOkgaRGWEuYWJJ6hFCkXYjyR9IzCCBhQwggT8oAMCAQICEQDGvhmW
+Z0DEAx0oURL6O6l+MA0GCSqGSIb3DQEBCwUAMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3Jl
+YXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0
+ZWQxPjA8BgNVBAMTNVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJl
+IEVtYWlsIENBMB4XDTIyMDEwNzAwMDAwMFoXDTI1MDEwNjIzNTk1OVowJDEiMCAGCSqGSIb3DQEJ
+ARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBALQ3
+GpC2bomUqk+91wLYBzDMcCj5C9m6oZaHwvmIdXftOgTbCJXADo6G9T7BBAebw2JV38EINgKpy/ZH
+h7htyAkWYVoFsFPrwHounto8xTsySSePMiPlmIdQ10BcVSXMUJ3Juu16GlWOnAMJY2oYfEzmE7uT
+9YgcBqKCo65pTFmOnR/VVbjJk4K2xE34GC2nAdUQkPFuyaFisicc6HRMOYXPuF0DuwITEKnjxgNj
+P+qDrh0db7PAjO1D4d5ftfrsf+kdRR4gKVGSk8Tz2WwvtLAroJM4nXjNPIBJNT4w/FWWc/5qPHJy
+2U+eITZ5LLE5s45mX2oPFknWqxBobQZ8a9dsZ3dSPZBvE9ZrmtFLrVrN4eo1jsXgAp1+p7bkfqd3
+BgBEmfsYWlBXO8rVXfvPgLs32VdVNZxb/CDWPqBsiYv0Hv3HPsz07j5b+/cVoWqyHDKzkaVbxfq/
+7auNVRmPB3v5SWEsH8xi4Bez2V9UKxfYCnqsjp8RaC2/khxKt0A552Eaxnz/4ly/2C7wkwTQnBmd
+lFYhAflWKQ03Ufiu8t3iBE3VJbc25oMrglj7TRZrmKq3CkbFnX0fyulB+kHimrt6PIWn7kgyl9ae
+lIl6vtbhMA+l0nfrsORMa4kobqQ5C5rveVgmcIad67EDa+UqEKy/GltUwlSh6xy+TrK1tzDvAgMB
+AAGjggHMMIIByDAfBgNVHSMEGDAWgBQJwPL8C9qU21/+K9+omULPyeCtADAdBgNVHQ4EFgQUzMeD
+Mcimo0oz8o1R1Nver3ZVpSkwDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYw
+FAYIKwYBBQUHAwQGCCsGAQUFBwMCMEAGA1UdIAQ5MDcwNQYMKwYBBAGyMQECAQEBMCUwIwYIKwYB
+BQUHAgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9j
+cmwuc2VjdGlnby5jb20vU2VjdGlnb1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1h
+aWxDQS5jcmwwgYoGCCsGAQUFBwEBBH4wfDBVBggrBgEFBQcwAoZJaHR0cDovL2NydC5zZWN0aWdv
+LmNvbS9TZWN0aWdvUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAj
+BggrBgEFBQcwAYYXaHR0cDovL29jc3Auc2VjdGlnby5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5m
+cmFkZWFkLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAyW6MUir5dm495teKqAQjDJwuFCi35h4xgnQv
+Q/fzPXmtR9t54rpmI2TfyvcKgOXpqa7BGXNFfh1JsqexVkIqZP9uWB2J+uVMD+XZEs/KYNNX2PvI
+lSPrzIB4Z2wyIGQpaPLlYflrrVFKv9CjT2zdqvy2maK7HKOQRt3BiJbVG5lRiwbbygldcALEV9Ch
+WFfgSXvrWDZspnU3Gjw/rMHrGnqlHtlyebp3pf3fSS9kzQ1FVtVIDrL6eqhTwJxe+pXSMMqFiN0w
+hpBtXdyDjzBtQTaZJ7zTT/vlehc/tDuqZwGHm/YJy883Ll+GP3NvOkgaRGWEuYWJJ6hFCkXYjyR9
+IzGCBMcwggTDAgEBMIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVz
+dGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMT
+NVNlY3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA
+xr4ZlmdAxAMdKFES+jupfjANBglghkgBZQMEAgEFAKCCAeswGAYJKoZIhvcNAQkDMQsGCSqGSIb3
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwNzAxMDgwMjM4WjAvBgkqhkiG9w0BCQQxIgQg9GmkiwxO
+tEV92cwzYVz0/CbM4P0e7vWEr2A/RSyqfkIwgb0GCSsGAQQBgjcQBDGBrzCBrDCBljELMAkGA1UE
+BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEYMBYG
+A1UEChMPU2VjdGlnbyBMaW1pdGVkMT4wPAYDVQQDEzVTZWN0aWdvIFJTQSBDbGllbnQgQXV0aGVu
+dGljYXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQQIRAMa+GZZnQMQDHShREvo7qX4wgb8GCyqGSIb3
+DQEJEAILMYGvoIGsMIGWMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVy
+MRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxPjA8BgNVBAMTNVNl
+Y3RpZ28gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEAxr4Z
+lmdAxAMdKFES+jupfjANBgkqhkiG9w0BAQEFAASCAgBrKW5XB3J5dLeqFxFw3IlX12pgFjL9ihjR
+LvtBNCfn9OTScKRFId8eajb7GyrDbyyFIBLJw1oEtuEIij3r3knH+2zh2MYiGKzL6rYsvRy1pghh
+P8a1VXVxG0DtBjDT7/9C9Oe9TMOChnu5kuYseSGIH/XHghIkDZ982xusBCoZXmnA6SDCOJDVY50k
+f49PGxG5D1pVcfbYmqkyg0dbWqfawqO556Apx0FbvDCYFnpxaiJquYDhZLuKSfq8TuBfE2VP1Das
+hUxxYeTxdlDgzVT+JC61Eim/vuZ7oxVFU9x+UFo+K/lWJfU9JUpzTjZV5ayTmzp9mkdYDgm31oT1
+eenl/5XhZSfbeyP/L2LAUhppiqq8Mu2ZSYzMlEX9cLMb1CjAVubGLLw+7G6XFCQgoZuuTumWKdoB
+s+dkHfpXrsnvAr2zifjnykPNdc0t0m3VYnrFpOgi0zzSmbIDnxL22HWHwaie6WPGOIVXi3Ky24Nf
+RprnlnUB8ijTVqNixqufNejJwneOUvjNvzaGyVfj7e1r7H7uj6EkrtiIeSMGFfmq35g82oFT6+mx
+Q+Y7UAaNeaJe2IIUse4I/zbNpE1oBCmMU/zxXfo4uuizZ1I1O45MLj7LMjS/gyjiU5f9PF0frz5x
+z4HYze7jf8Nb4d5md6XnY159XqfuHzheiP5FQCVrHgAAAAAAAA==
+
+
+--=-2VcdSTZ+DgjOCXYR0Rnr--
