@@ -1,206 +1,223 @@
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F8446436;
-	Mon,  1 Jul 2024 10:02:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.237.130.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719828154; cv=none; b=maDOaQMVBefIWsMhXx1ytm0sCd5CX2O8nQZtY67J9u3sxVhkh1U0h6sLHtiQRdsd7GTRRRr7T6hoDFyIvLkZ1zXBp6xScyt4hsqwJvwAwoTmDQ2jdwxDxSNyEKA1TTs3R1NoPqe3MeSCBCVO1HF+Xa93ExSp61wv9yG8fUVEeRk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719828154; c=relaxed/simple;
-	bh=qpqOlNCc6pE+Az7x1zOSWa1Hy2UVVKTtKCMN0PvJV2c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kYIe7Ku8J/Lvw/3rZzMZXXGn/8A1JgAdqxgKH34D0hXEOEzGqNF6K6oveaPP3w63vhCXF+7PZmsfr8DJWjXUzjCnXSPi4uIkPrR+Z44SNSszwxrt1RP5BCBlS4BEHQT2e1gd+6LJvkZGp1fTJEyTvrZmM+V1IR+Q0xUwh/umgU4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=A6X+9638; arc=none smtp.client-ip=80.237.130.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D50712A14C
+	for <virtualization@lists.linux.dev>; Mon,  1 Jul 2024 12:38:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.17
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1719837493; cv=fail; b=MAfYmbdPoOdVCVt+gQ7jchzvyqZCfmDhaRg4duEyt7J+gGQ9NaUPR3io41iSvFRQzlpyt+vsSlmVZLrpz1P64D5J779hLe5IdOWnyBFNN0YrE4GS3FPae0hg58i5nBzLHYwvpQLtjDuPtbnu+yiWwqpvmMLgxih8AqKYxP/5CpE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1719837493; c=relaxed/simple;
+	bh=Bx2KIvBHZvoIM/AmxUlkZxqYaHQUq9T5CYf2eTzDDrc=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=AJ1ByutC+0Oyb++Jpeq+o4680hJTYGSHNK+bqV8awFPtQZo0ulsb7mAwrEjFeMpLZ4yEcLUPYJCWEQ7mXCxF6jsYSnHEZ7mHM9DKPvd22krQMq9dT9EXeSBs/Dx5YpWWSEwlYduCJVJ11euzgrbEuNSq9/mvssb0edLtiuwo3dU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jquaGZZL; arc=fail smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="A6X+9638"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:
-	Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
-	In-Reply-To:References; bh=DJ9+LxV54Ieb6gRSrHFlDXvJdhuQToWOdrkYwkWiAjg=;
-	t=1719828152; x=1720260152; b=A6X+9638Ee5F083A/4TnUMgo2C6rHZSIH062qgydb+xzkYN
-	P1fNquUmSUvWkdGzAB2jIPDgfo7kQaWFCPkHeK7EdYvD2tbFRGUFatoqiAAAqkA2dl4TSSiPomCU3
-	6+Kc/lp1tcTj3a77P++OiuK0tRCpOIti8jR3XwqwpHp5omH9RjAqHSxknS4JkGFqri4wrF3DcDHJB
-	osahfQd8pQhKVj+evon6Vbn5jE8vy9MJ3EBzzrbY9608qpVkAbUsUTfIBYElXA8ztTglV1M38w+Sp
-	nwnvFv3aQaj2eCFCfHrg5nkCzUwqCcygiYcjgP/sR5Yv4spJ/x0/I8zRBgXrHwXg==;
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-	id 1sODrZ-0007Nt-U6; Mon, 01 Jul 2024 12:02:22 +0200
-Message-ID: <e0d95288-17b4-4286-8084-95f496603ada@leemhuis.info>
-Date: Mon, 1 Jul 2024 12:02:20 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jquaGZZL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1719837491; x=1751373491;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=Bx2KIvBHZvoIM/AmxUlkZxqYaHQUq9T5CYf2eTzDDrc=;
+  b=jquaGZZLr/j9jgpIp6jDi7LZhWYhp3B+06fYySF0uxgTXBfcaaiwf3SC
+   9URsXQAfI6rMsDC/1IS3hYpYoqxMBeIvVFfzsGc3r0IZ/n0Tr501uGqiR
+   mqMMlYslEgTPzV7rzo+GysC4FFXf5tLdnVq338k2A7apYJRdTZrT7BBBp
+   yPgYGekKy7XKW8yzflcrhi1VxAt0cGsRRLTO2LQLB1W6mJOzQzEB0XZGh
+   aImXYRdDZgC+HxFrGIAf12VwHDqFzhRcuGcAOo87aHa9aMBeaWXoRJOy8
+   GTBwVLjyQmwWOZIigd7MCA3bIGgY6N4fQ30Q1sNvG3Rm47P12G2wEEGsA
+   A==;
+X-CSE-ConnectionGUID: /DKtIx6gTtGg4V+3iXIMbA==
+X-CSE-MsgGUID: gfUEFPD6TyqxzEsL8RlK0w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11120"; a="17089356"
+X-IronPort-AV: E=Sophos;i="6.09,176,1716274800"; 
+   d="scan'208";a="17089356"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2024 05:38:11 -0700
+X-CSE-ConnectionGUID: 6v9bIWSaQkiIXGXbfZZ8zQ==
+X-CSE-MsgGUID: 8ZHTRCJmQd+h3YI2VUFySw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,176,1716274800"; 
+   d="scan'208";a="46169339"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by orviesa007.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 01 Jul 2024 05:38:11 -0700
+Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Mon, 1 Jul 2024 05:38:10 -0700
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Mon, 1 Jul 2024 05:38:09 -0700
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Mon, 1 Jul 2024 05:38:09 -0700
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.169)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Mon, 1 Jul 2024 05:38:09 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XTkibQCoPcK9R42z6LUPstgejM6f769ZNBv9RsKv8CobcTMPIwq2DQXrwybsG3YH5zZBQLxMdfy3VVJHmtBQmGChW+Q/VhRtW/Rx2t1KeeZfKe240edvq7yA3gjPyDs53nJm4wndvBTQ7mIonUKETm/oJD/Uj72gBoMKPrcUxjW0O/RTM/g5zc/fTkAsWfaaYLwNos3P5LynjIY0D+ATEk7KdpCo8Of6L0LzwPL6crTDXwDL/3k62V8uV7fEZASuK07Gho7Tz9hE0dQqZuYOIjmvPdaP0qVLMl3LdN+QroswMJ/SXHHq5XJi9WGmXESyPILjZy/SE+cY1/Zdz5JfMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=i4i+AN23Lp0oBfsA66UHBnsl/m/WyJKoY2F8NDmPJDU=;
+ b=Ul0QwoEq25poVbcClgMb49ieuP4D4Z5x3O7aZTSUYiGwkN88ZESmQYCuogb7VVnIPn3XoEcheUqD17YXzq0/QT7eS9RjtL3qIvtfSxVUlEKMMU8kaLF5ze++M9VkS6BO7Jhi3U5jp36d0loOGI9NdKOOoRt3i52UQyR9qdqcB8+Ia27num/JzDagv13IWjKSHIt5WBdFkO/7UWaQFyt6buFtcFsq98woT4xnQoUAlLsM9C1Danbilxn7j6Lnuta0KZrIzcYlIna9v7Pnpa3EkTEJRdUIrCxmn3EZLJMmuGlCGlTsIpo5n+Kn4dGKezs2Sq9592JsoRwXJwcgxVslow==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from PH0PR11MB5782.namprd11.prod.outlook.com (2603:10b6:510:147::11)
+ by DS0PR11MB8082.namprd11.prod.outlook.com (2603:10b6:8:157::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7719.29; Mon, 1 Jul
+ 2024 12:38:07 +0000
+Received: from PH0PR11MB5782.namprd11.prod.outlook.com
+ ([fe80::9696:a886:f70a:4e01]) by PH0PR11MB5782.namprd11.prod.outlook.com
+ ([fe80::9696:a886:f70a:4e01%7]) with mapi id 15.20.7698.038; Mon, 1 Jul 2024
+ 12:38:07 +0000
+Date: Mon, 1 Jul 2024 14:37:54 +0200
+From: Michal Kubiak <michal.kubiak@intel.com>
+To: Jason Wang <jasowang@redhat.com>
+CC: <mst@redhat.com>, <eperezma@redhat.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Dragos Tatulea <dtatulea@nvidia.com>,
+	<stable@vger.kernel.org>
+Subject: Re: [PATCH] vhost-vdpa: switch to use vmf_insert_pfn() in the fault
+ handler
+Message-ID: <ZoKjIpwno/84WQK7@localhost.localdomain>
+References: <20240701033159.18133-1-jasowang@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20240701033159.18133-1-jasowang@redhat.com>
+X-ClientProxiedBy: MI0P293CA0014.ITAP293.PROD.OUTLOOK.COM
+ (2603:10a6:290:44::14) To PH0PR11MB5782.namprd11.prod.outlook.com
+ (2603:10b6:510:147::11)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [REGRESSION] QXL display malfunction
-To: "Kaplan, David" <David.Kaplan@amd.com>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Linux regressions mailing list <regressions@lists.linux.dev>
-Cc: "Petkov, Borislav" <Borislav.Petkov@amd.com>,
- "zack.rusin@broadcom.com" <zack.rusin@broadcom.com>,
- "dmitry.osipenko@collabora.com" <dmitry.osipenko@collabora.com>,
- "Koenig, Christian" <Christian.Koenig@amd.com>,
- Dave Airlie <airlied@redhat.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
- ML dri-devel <dri-devel@lists.freedesktop.org>,
- "spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-References: <DS7PR12MB576622398096CB650FF6AF4294FF2@DS7PR12MB5766.namprd12.prod.outlook.com>
- <DS7PR12MB57665F9F4BDF0598D7CC53DD94FF2@DS7PR12MB5766.namprd12.prod.outlook.com>
- <67b279c7-1b65-46be-baa2-06794b47b9d1@leemhuis.info>
- <ab0fb17d-0f96-4ee6-8b21-65d02bb02655@suse.de>
- <DS7PR12MB57662053B081FBD62213016B94C22@DS7PR12MB5766.namprd12.prod.outlook.com>
-From: "Linux regression tracking (Thorsten Leemhuis)"
- <regressions@leemhuis.info>
-Content-Language: en-US, de-DE
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <DS7PR12MB57662053B081FBD62213016B94C22@DS7PR12MB5766.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1719828152;8b6a32e2;
-X-HE-SMSGID: 1sODrZ-0007Nt-U6
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR11MB5782:EE_|DS0PR11MB8082:EE_
+X-MS-Office365-Filtering-Correlation-Id: bb77ed77-bbe3-4cd6-5324-08dc99caa8d5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?Wy1Nkftf9B4T58qHgnYNvfxo6YzwniXFyn4yDBldiCVzeBCzg+kbvsraekRF?=
+ =?us-ascii?Q?91vu+r4w8baNIvWG2c0rlOAgsBX6YdRijCDApVvMMuU+WWuTY4qu2h94qsvz?=
+ =?us-ascii?Q?lmg7lIJ8fVwpnydXxoFLoWdVmZ1yzxT2pIGuzR6TnqjP2L5VOCeiZlcxFAmG?=
+ =?us-ascii?Q?9zBZDJM8eKJltkM/kEQtGw2ygdp4S/FEf57uLGed1RLqDQyS10/VzP/hQq8Z?=
+ =?us-ascii?Q?Bm7QyoUNW76YC6k3wOuvwiXIpMB+KONFp9Qtgb0R6wvcTTOAE0mP0JAvKRRG?=
+ =?us-ascii?Q?eByx1cL7O1Q/gcl0I3PLscNzfN8Z9Sjejtrhv3NvgFEsbXGqXRRAU1PfDzL3?=
+ =?us-ascii?Q?eiGyuvTqM0d4te5vnmgAvn2OtqW4zyVwWhkEShcZNISz+3wiJi0+YxykYPPm?=
+ =?us-ascii?Q?0y7ME+J02eINUmGHVEaABZ3NROIdOInljxjO7q2F+FhVCBQiNPHuMO14lbXt?=
+ =?us-ascii?Q?/YKx168YDqKpyVOsQYUuOmue6jRsb75V4wYwZ++Jl+9G3/sCKj1/kosZWdAE?=
+ =?us-ascii?Q?GlcRSXwBHwqtX/q4GSIjw7L+evvFtQVrFqMC3wxm63MdNFmCJa80ybiZKEHO?=
+ =?us-ascii?Q?hLFkdBWgJXOtluycOvfc8Xz/V6RiJ3fFJm+NB70TOGBeWWpzA553i+RtLSr+?=
+ =?us-ascii?Q?WBRdth7XtYYLt9rB5yUwrnZY1Ms+YU3sI55Q/ChVw5CabZVQLsTf40UaSHit?=
+ =?us-ascii?Q?vIY6tw7i2IUgoFcPN+yc9JOkXnacOTU0IuZ8b8m0RmQFEsNzC0pHle9XYdQe?=
+ =?us-ascii?Q?8mHlDxjNNQ1ea5u21g5ZZXxyCuej0t4+pmmkNuMJ6QS/0GaBcEdCEZf717Cg?=
+ =?us-ascii?Q?9voWngk8bDZHnMwlIlQfjy3QASaRRVLqha65CXvyubu4atCMmvk9V0OVQSAt?=
+ =?us-ascii?Q?LFagmQk2Q7AW8cvTLtC8mmrgMzggATy4Cvbdub1cA94hh88ZmBOJVReSTkl3?=
+ =?us-ascii?Q?X+sXOCSkqfEjtZseYPWXfpY52ywciMu4H6vIAYR4C9qDpGM+hPg29GQVeZPB?=
+ =?us-ascii?Q?n04csiiWlyTgDwM5sGBo7G9KJukCNhUUSCgX07AEPlBct7yKhXE0Pn47ZK7S?=
+ =?us-ascii?Q?zoZmE7Vy/fdAN6MnbR5poopi0/YjCUqXRXpHPr0YH9a/E+jZeeqzvpBEmxlG?=
+ =?us-ascii?Q?Y1eJpUzxfd9io1+xKF/Nbua6ZQCyG4r6lfIvevQccakWeqz6PYukoq+0CXBn?=
+ =?us-ascii?Q?O97rLVaytTu6VC/5FMHQ2VnRnSZVcqnaxq31MjAB/pbCyoTYy/TQwpHZW5MM?=
+ =?us-ascii?Q?n0KtECf7iZPx2HPG0K7lzoflVrUPcOBHY/fe8x2W+wVaAYfrpF+/7BPJ9Rqi?=
+ =?us-ascii?Q?4Tz0HcTk+QsUl5MWKzozUo0s8LSjR9x8L7MfgcW83MWFvg=3D=3D?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR11MB5782.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?sEa51xaSiirb0aoeMR5638/ATXWrqMxPMIltSEZrhVBKkp/IJlrPrsdb1ZTu?=
+ =?us-ascii?Q?YwWgXUpY+mylGZquBmrIzMTOvdV7rEiaV/wxHIEiKM3ZykuOzBxM2XB6tX4m?=
+ =?us-ascii?Q?TfwbtHz+TtejmTNo7GWfrikC/hKchsYDf/t2kZM8dkhZc8A9buBcNJiryw0S?=
+ =?us-ascii?Q?7e4Ooq0DvgaxwzzD0SEn2Jr3U99+FAcCcvTJfebST7OENSeEQ9Sk9+hxRFcp?=
+ =?us-ascii?Q?BHK22oZ2Ja5Z4eYjlIpOy2R2KBYbweJgWA9Eg6S3+PX7a3Kc7L+GnnOQ7uya?=
+ =?us-ascii?Q?c74j2HN2KHDpBOFlGTf/d+5Z7NXOo+zjw6ZB3d+5RYxPi7Uxb0X6Zlk2yMmz?=
+ =?us-ascii?Q?BM2ftNeuY7SYpDEdQFWT+WEA2437bHVLPMZztk0xsbnt1mVDuM4WLY3V4yuG?=
+ =?us-ascii?Q?GTcMFqUUhQSl98f5O8wgfzzuPjDw11dz6k3Uf8Gnd49I0KtY8s/4eIfnZO+v?=
+ =?us-ascii?Q?iLYl5I73sC6GuB3Pv/RpybvYL74+AJTRsXW44HjhfrlFWa2JK3cIJyld6dtX?=
+ =?us-ascii?Q?E0ErOIJwvC1q60W3BMy3L1ubogoUA4KbLycu8fFxM+VGsC1AKtomDU+0ZnHY?=
+ =?us-ascii?Q?SZOmaZvyOfuF1DotoG2aRopsJC+CtYBwizYiwIjpqYcCOrHFkPNNUiwpLe7S?=
+ =?us-ascii?Q?uMiZfEjhNP72rbSDe+f7CpEl/cAUTZChDlT0fiDQknhXMK83Lu6Zj0+1jbtS?=
+ =?us-ascii?Q?RqF8TAmdjmMU4cRuMgkTE141NhUFbVp2JEW5bLp41dqFtknx6D2fIdg4bFsZ?=
+ =?us-ascii?Q?0ImywzWWf1nyNKXRztrPjV7CREYx0FIscBooo7gKF3FcfV+l9zdnbnYxMynf?=
+ =?us-ascii?Q?Sxa8c09RKjsz9B0bq6of4/Q9B7Bd+j5fz+imPl32JE/ijBpB30kej/NPSbqp?=
+ =?us-ascii?Q?WBK7OssNLkkMNwMe/awSD/SCtd6DpA3+MmpgJGm0S1jJoL/JT6HfvBMmmv5V?=
+ =?us-ascii?Q?xJwx2MDDS0OMGZ5hu3V9DaZj6bNyIkZJEVkqAuJXwZfz8sqTu+AZ+bSya0ud?=
+ =?us-ascii?Q?EZ1A8nN541z26nBN3e1rrhFrgjVrGVP7VfqarjNPQDDL3BFi4Gk1bIe0EDM2?=
+ =?us-ascii?Q?18yYGXRQdXC84kxd3SZ+kVCA+y4k+BtTe+2TML2dXXX4fOLajVV0VytXl8s2?=
+ =?us-ascii?Q?kDc6SC6IWByLkDk0nTbUl1HzwW8wnwXi9KbAoL1GEFCIL7+HiclLErsDQ4u6?=
+ =?us-ascii?Q?Jhi+S+fcj67zevD/yrdKw1os/WuvXH+BEOfVc91tKzbCqsDYq0ldWdZHAKuk?=
+ =?us-ascii?Q?bNHzQ4ZkAVshNwUcQN8GQbWUy7rLrB485REY9O4lcOb7VSnf/R8aapllLrjE?=
+ =?us-ascii?Q?lx2+P7Tq8NYT+Hdol9f2ZXBaqvr7unda2nN70XEDZh+cBQAu1kDmOIpgwM41?=
+ =?us-ascii?Q?3gu8YWNFXkrOgHjYDKptBLPMsrqBsu0AbKX7Rq7cidxpIrSbU5IEXKvI7mmb?=
+ =?us-ascii?Q?C5eSCeWCIWaN6Bd79FhNclRZkdBbLtAj9oVHVWGsRsib6GYhK6cnvnPBGn6G?=
+ =?us-ascii?Q?cIVYSdm80ezCv3RJMPbNRZyH3gQIDe7vlSZz6RQ50zqRvVbybWU3dY5nCTA1?=
+ =?us-ascii?Q?ThsV9imiqNM8v0wM5PNluAaw0g1REI6q9xRhO2U2pqc1+T+sE1ZS1hmcGEuG?=
+ =?us-ascii?Q?oQ=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: bb77ed77-bbe3-4cd6-5324-08dc99caa8d5
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR11MB5782.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Jul 2024 12:38:07.7691
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: RelBZ8OtdsWehJ8pyNafKQCFKegec9LA/EaaCoTw0O3j0TMW66K34+4F+2B37Qr+qf3glLVH4OGQ1zppRa9pPw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB8082
+X-OriginatorOrg: intel.com
 
-Hi, Thorsten here, the Linux kernel's regression tracker. Top-posting
-for once, to make this easily accessible to everyone.
+On Mon, Jul 01, 2024 at 11:31:59AM +0800, Jason Wang wrote:
+> remap_pfn_page() should not be called in the fault handler as it may
+> change the vma->flags which may trigger lockdep warning since the vma
+> write lock is not held. Actually there's no need to modify the
+> vma->flags as it has been set in the mmap(). So this patch switches to
+> use vmf_insert_pfn() instead.
+> 
+> Reported-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Tested-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Fixes: ddd89d0a059d ("vhost_vdpa: support doorbell mapping via mmap")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/vdpa.c | 8 +-------
+>  1 file changed, 1 insertion(+), 7 deletions(-)
+> 
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 63a53680a85c..6b9c12acf438 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -1483,13 +1483,7 @@ static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
+>  
+>  	notify = ops->get_vq_notification(vdpa, index);
+>  
+> -	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+> -	if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
+> -			    PFN_DOWN(notify.addr), PAGE_SIZE,
+> -			    vma->vm_page_prot))
+> -		return VM_FAULT_SIGBUS;
+> -
+> -	return VM_FAULT_NOPAGE;
+> +	return vmf_insert_pfn(vma, vmf->address & PAGE_MASK, PFN_DOWN(notify.addr));
+>  }
+>  
+>  static const struct vm_operations_struct vhost_vdpa_vm_ops = {
+> -- 
+> 2.31.1
+> 
+> 
 
-Thomas, was there some progress wrt to fixing below regression? I might
-have missed something, but from here it looks like this fall through the
-cracks.
+I would only consider pasting an example warning log. (It's my
+suggestion only).
 
-Makes me wonder if we should temporarily revert this for now to fix this
-for rc7 and ensure things get at least one week of testing before the final.
+Anyway, the patch looks OK to me.
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
-
-#regzbot poke
-
-On 14.06.24 15:45, Kaplan, David wrote:
-> [AMD Official Use Only - AMD Internal Distribution Only]
-> 
->> -----Original Message-----
->> From: Thomas Zimmermann <tzimmermann@suse.de>
->> Sent: Wednesday, June 12, 2024 9:26 AM
->> To: Linux regressions mailing list <regressions@lists.linux.dev>
->> Cc: Petkov, Borislav <Borislav.Petkov@amd.com>;
->> zack.rusin@broadcom.com; dmitry.osipenko@collabora.com; Kaplan, David
->> <David.Kaplan@amd.com>; Koenig, Christian <Christian.Koenig@amd.com>;
->> Dave Airlie <airlied@redhat.com>; Maarten Lankhorst
->> <maarten.lankhorst@linux.intel.com>; Maxime Ripard
->> <mripard@kernel.org>; LKML <linux-kernel@vger.kernel.org>; ML dri-devel
->> <dri-devel@lists.freedesktop.org>; spice-devel@lists.freedesktop.org;
->> virtualization@lists.linux.dev
->> Subject: Re: [REGRESSION] QXL display malfunction
->>
->> Caution: This message originated from an External Source. Use proper
->> caution when opening attachments, clicking links, or responding.
->>
->>
->> Hi
->>
->> Am 12.06.24 um 14:41 schrieb Linux regression tracking (Thorsten Leemhuis):
->>> [CCing a few more people and lists that get_maintainers pointed out
->>> for qxl]
->>>
->>> Hi, Thorsten here, the Linux kernel's regression tracker. Top-posting
->>> for once, to make this easily accessible to everyone.
->>>
->>> Thomas, from here it looks like this report that apparently is caused
->>> by a change of yours that went into 6.10-rc1 (b33651a5c98dbd
->>> ("drm/qxl: Do not pin buffer objects for vmap")) fell through the
->>> cracks. Or was progress made to resolve this and I just missed this?
->>>
->>> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker'
->>> hat)
->>> --
->>> Everything you wanna know about Linux kernel regression tracking:
->>> https://linux-regtracking.leemhuis.info/about/#tldr
->>> If I did something stupid, please tell me, as explained on that page.
->>>
->>> #regzbot poke
->>>
->>>
->>> On 03.06.24 04:29, Kaplan, David wrote:
->>>>> -----Original Message-----
->>>>> From: Kaplan, David
->>>>> Sent: Sunday, June 2, 2024 9:25 PM
->>>>> To: tzimmermann@suse.de; dmitry.osipenko@collabora.com; Koenig,
->>>>> Christian <Christian.Koenig@amd.com>; zach.rusin@broadcom.com
->>>>> Cc: Petkov, Borislav <Borislav.Petkov@amd.com>;
->>>>> regressions@list.linux.dev
->>>>> Subject: [REGRESSION] QXL display malfunction
->>>>>
->>>>> Hi,
->>>>>
->>>>> I am running an Ubuntu 19.10 VM with a tip kernel using QXL video
->>>>> and I've observed the VM graphics often malfunction after boot,
->>>>> sometimes failing to load the Ubuntu desktop or even immediately
->> shutting the guest down.
->>>>> When it does load, the guest dmesg log often contains errors like
->>>>>
->>>>> [    4.303586] [drm:drm_atomic_helper_commit_planes] *ERROR* head
->> 1
->>>>> wrong: 65376256x16777216+0+0
->>>>> [    4.586883] [drm:drm_atomic_helper_commit_planes] *ERROR* head
->> 1
->>>>> wrong: 65376256x16777216+0+0
->>>>> [    4.904036] [drm:drm_atomic_helper_commit_planes] *ERROR* head
->> 1
->>>>> wrong: 65335296x16777216+0+0
->>
->> I don't see how these messages are related. Did they already appear before
->> the broken commit was there?
-> 
-> No, I did not observe them prior to the broken commit.
-> 
->>
->>>>> [    5.374347] [drm:qxl_release_from_id_locked] *ERROR* failed to find
->> id in
->>>>> release_idr
->>
->> Is there only one such message in the log? Or multiple/frequent ones.
-> 
-> I would usually only see one.
-> 
->>
->> Could you provide a stack trace of what happens before?
-> 
-> Here's the top of a backtrace when the error occurs:
-> #0  qxl_release_from_id_locked (qdev=qdev@entry=0xffff88810126e000, id=id@entry=262151)
->     at drivers/gpu/drm/qxl/qxl_release.c:373
-> #1  0xffffffff819f5b6a in qxl_garbage_collect (qdev=0xffff88810126e000)
->     at drivers/gpu/drm/qxl/qxl_cmd.c:222
-> #2  0xffffffff810e3aa8 in process_one_work (worker=worker@entry=0xffff888101680300,
->     work=0xffff88810126f340) at kernel/workqueue.c:3231
-> #3  0xffffffff810e6281 in process_scheduled_works (worker=<optimized out>)
->     at kernel/workqueue.c:3312
-> #4  worker_thread (__worker=0xffff888101680300) at kernel/workqueue.c:3393
-> 
->>
->> We sometimes draw into the buffer object from the CPU. For accessing the
->> buffer object's pages from the CPU, only a vmap operation should be
->> necessary. It appears as if qxl also requires a pin. My guess is that the pin
->> inserts the buffer-object's host-side pages and the code around
->> qxl_release_from_id_locked() appears to be garbage-collecting them.
->> Hence without the pin, the GC complains about inconsistent state.
->>>>>
->>>>> I bisected the issue down to "drm/qxl: Do not pin buffer objects for
->> vmap"
->>>>> (b33651a5c98dbd5a919219d8c129d0674ef74299).
->>
->> Thanks for bisecting. Does it work if you revert that commit?
-> 
-> Yes
-> 
-> Thanks --David Kaplan
+Thanks,
+Reviewed-by: Michal Kubiak <michal.kubiak@intel.com>
