@@ -1,109 +1,116 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 275461DFE3;
-	Tue,  2 Jul 2024 18:40:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CD9A142E77
+	for <virtualization@lists.linux.dev>; Tue,  2 Jul 2024 20:10:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719945622; cv=none; b=YD7+m27XCmcpJW9tpbLdOsPFYUPb5iGR2pTdiduBvZLdQZAKBzS5YSD+YW/Or3546tZdqZE4qed6TFsXed+KKKUj/AYK3/Cm6lmppAWlHQ8XoweOW4ihc0TzCHLzMH6ox70Mx03qpyfcFmtlAfH87bzIebtxPfjh9mAlFPlaFuk=
+	t=1719951034; cv=none; b=WaRNixoOJ1DpcLnBckVuVF1JdJ7lQrFViFUxsaR2iB09pZGrrzdxLyfkQQhE+vlyG2h7MUr8TPLlZvTLIQGAv4eElUZrF2QXNLYN5ye/afsxW7wY4Bgpikl5Sx/BT+v3axstZRs0veC4gGcffhfVqaBrfwkOeUOIy5QhJI+qkX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719945622; c=relaxed/simple;
-	bh=XlhLqAUMcg+sJf064MDVicDasZ/lcOHYbpSPJSTSDvI=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=G9X0vP6+SfjLScSMv20+d0ZNZH7p72a/pipKdLYaPYQhj/axp/yJbUiKmgxrDUpnI1PnszMCtgZPEIzkRqkYoGnN5EZQll28/oyOtw0zzycWGey8f7TGY37NFPdIZNj6e6eWWDm/8+saAMWp1+kAWwuUPspDi2Xk6q0RGWJ7xRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=W8u3i889; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1719951034; c=relaxed/simple;
+	bh=kg2Q+tvG2CSfuvv//x7rHQEG0q5L6gS1q4lFnI9QkLk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:To:CC; b=Ql33S6qhRpuIliOjsyCaL5DKQyQKiDcJby1Kfc1qKWJYKCwUgOzI9y8vxCEwYkx00HpgfIsC0T6Fc+QVx+NkFbyPbwnT8rnQH1UuZeKCHw4pwBCV0JPqjcRRIgBhuMXQ+a8LwpsGal6enrwtebhHxeiipsLkp7qMxy8eGU6UQjU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=WkRhS5R6; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="W8u3i889"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
-	:MIME-Version:Message-ID:References:In-Reply-To:Subject:CC:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=RJSqylBZlzW9UDCHCqo3Xfdt29Ffczco70FXx734zXo=; b=W8u3i889blo/jC1uilhFu/Yv9K
-	DQ9k2/5RYKE9bFhzWgXt+qmRVEYimUpcIzTQorHpZTs0sI+Wuw9P7Y9PKvMWZy7Hyt+1ku1VT3L4j
-	zigvimNVllEcFg+TAavc51UyH6hvMn5lWe7yyv/WCORZItTjkvmM+ible75PooH827bgjsC3/HBzY
-	DxFtxU+Nl4iICPDA/17ID9pxbpRhuTxgAZjT7ZiSwSySjsRuQMugzG6eSy/oUKFrjqf3pXeBiJsGR
-	ywLBRO+CmelMGec+Q/a6G+Lp5eow6Xtl6Ei4AfGmU79ts4I4BYyE0s0VInEBotHZ770lYW+Q+HD8l
-	EGHkoTbQ==;
-Received: from [2a00:23ee:2318:7901:3188:7b97:6ee:f783] (helo=[IPv6:::1])
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sOiQ9-00000009rA4-2tiF;
-	Tue, 02 Jul 2024 18:40:06 +0000
-Date: Tue, 02 Jul 2024 19:40:04 +0100
-From: David Woodhouse <dwmw2@infradead.org>
-To: Peter Hilber <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
- virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>
-CC: "Christopher S. Hall" <christopher.s.hall@intel.com>,
- Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Richard Cochran <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [RFC PATCH v2] ptp: Add vDSO-style vmclock support
-User-Agent: K-9 Mail for Android
-In-Reply-To: <19c75212-bcb6-49e3-964d-ed727da2ba54@opensynergy.com>
-References: <20231218073849.35294-1-peter.hilber@opensynergy.com> <684eac07834699889fdb67be4cee09319c994a42.camel@infradead.org> <671a784b-234f-4be6-80bf-5135e257ed40@opensynergy.com> <db594efd5a5774748a9ef07cc86741f5a677bdbf.camel@infradead.org> <c0ae63fc88365c93d5401972683a41112c094704.camel@infradead.org> <4a0a240dffc21dde4d69179288547b945142259f.camel@infradead.org> <8d9d7ce2-4dd1-4f54-a468-79ef5970a708@opensynergy.com> <bdcafc76ea44db244b52f8a092287cb33950d5d6.camel@infradead.org> <db1113d5-a427-4eb7-b5d1-8174a71e63b6@opensynergy.com> <c69d7d380575e49bd9cb995e060d205fb41aef8f.camel@infradead.org> <2de9275f-b344-4a76-897b-52d5f4bdca59@opensynergy.com> <BC212953-A043-4D65-ABF3-326DBF7F10F7@infradead.org> <51087cd7149ce576aa166d32d051592b146ce2c4.camel@infradead.org> <cb11ff57-4d58-4d47-824b-761712e12bdc@opensynergy.com> <3707d99d0dfea45d05fd65f669132c2e546f35c6.camel@infradead.org> <19c75212-bcb6-49e3-964d-ed727da2ba54@opensynergy.com>
-Message-ID: <02E9F187-A38C-4D14-A287-AFD7503B6B0F@infradead.org>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="WkRhS5R6"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 462He7xw004288;
+	Tue, 2 Jul 2024 20:10:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=Trl3wBd3Ms8JnkrcozxPpQ
+	+/rF1C9Mx5b7+0DvlBfu0=; b=WkRhS5R6xz1354YRk6Jk8GH/06oMJ8gN8a+oc5
+	Q0O8kEj+7Z/x3EMQ4FEIkv0b6SEpZ0b0zuw8ufjVJVWV9ICJTrGSeIgvpIWPrnLZ
+	27OH6Y68G2HcoU/9unHn+XfRRSOoImdv+RlPYDM9eSan0EulEGWihrNrx0vRxgj/
+	Kr2DRLULHFBYU6dqQmkAOz4v8Ok57vbn+RkM6rRdTg+NCSf8xmJy2pEQBaCEp/ZW
+	0F7X90qj3SMVgdJoPZ3bCJTK5ll11KgwVlcjV1ELqhkQdXhxJwL3BHr0JDyFSGKB
+	NwojvevZXYYp1O/ydlTg8ifPcaeWC55u/t+y3XtSs03Zydfg==
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4027yf9wpd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Jul 2024 20:10:28 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA05.qualcomm.com (8.17.1.19/8.17.1.19) with ESMTPS id 462KAJgu030383
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 2 Jul 2024 20:10:19 GMT
+Received: from [169.254.0.1] (10.49.16.6) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Tue, 2 Jul 2024
+ 13:10:19 -0700
+From: Jeff Johnson <quic_jjohnson@quicinc.com>
+Date: Tue, 2 Jul 2024 13:10:18 -0700
+Subject: [PATCH] virtio: add missing MODULE_DESCRIPTION() macros
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20240702-md-sh-drivers-virtio-v1-1-cf7325ab6ccc@quicinc.com>
+X-B4-Tracking: v=1; b=H4sIAKpehGYC/x3MTQrCMBBA4auUWTsQQzDqVcRFfqbNgE1lpoZC6
+ d2NLr/FezsoCZPCfdhBqLHyUjvOpwFSCXUi5NwN1lhnvLE4Z9SCWbiRKDaWlRf0xlG8On+5pQg
+ 9fQuNvP23j2d3DEoYJdRUfrMX18+Gc9CVBI7jC9JagleFAAAA
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?utf-8?q?Eugenio_P=C3=A9rez?=
+	<eperezma@redhat.com>
+CC: <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>,
+        Jeff Johnson <quic_jjohnson@quicinc.com>
+X-Mailer: b4 0.14.0
+X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: HutdNiJI12GPIWG-8IJcQZ7YT0kqB4z1
+X-Proofpoint-ORIG-GUID: HutdNiJI12GPIWG-8IJcQZ7YT0kqB4z1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-02_15,2024-07-02_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ mlxscore=0 lowpriorityscore=0 mlxlogscore=899 phishscore=0 impostorscore=0
+ clxscore=1011 malwarescore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2407020148
 
-On 2 July 2024 19:12:00 BST, Peter Hilber <peter=2Ehilber@opensynergy=2Ecom=
-> wrote:
->On 02=2E07=2E24 18:39, David Woodhouse wrote:
->> To clarify then, the main types are
->>=20
->>  VIRTIO_RTC_CLOCK_UTC =3D=3D 0
->>  VIRTIO_RTC_CLOCK_TAI =3D=3D 1
->>  VIRTIO_RTC_CLOCK_MONOTONIC =3D=3D 2
->>  VIRTIO_RTC_CLOCK_SMEARED_UTC =3D=3D 3
->>=20
->> And the subtypes are *only* for the case of
->> VIRTIO_RTC_CLOCK_SMEARED_UTC=2E They include
->>=20
->>  VIRTIO_RTC_SUBTYPE_STRICT
->>  VIRTIO_RTC_SUBTYPE_UNDEFINED /* or whatever you want to call it */
->>  VIRTIO_RTC_SUBTYPE_SMEAR_NOON_LINEAR=20
->>  VIRTIO_RTC_SUBTYPE_UTC_SLS /* if it's worth doing this one */
->>=20
->> Is that what we just agreed on?
->>=20
->>=20
->
->This is a misunderstanding=2E My idea was that the main types are
->
->>  VIRTIO_RTC_CLOCK_UTC =3D=3D 0
->>  VIRTIO_RTC_CLOCK_TAI =3D=3D 1
->>  VIRTIO_RTC_CLOCK_MONOTONIC =3D=3D 2
->>  VIRTIO_RTC_CLOCK_SMEARED_UTC =3D=3D 3
->
->VIRTIO_RTC_CLOCK_MAYBE_SMEARED_UTC =3D=3D 4
->
->The subtypes would be (1st for clocks other than
->VIRTIO_RTC_CLOCK_SMEARED_UTC, 2nd to last for
->VIRTIO_RTC_CLOCK_SMEARED_UTC):
->
->#define VIRTIO_RTC_SUBTYPE_STRICT 0
->#define VIRTIO_RTC_SUBTYPE_SMEAR_NOON_LINEAR 1
->#define VIRTIO_RTC_SUBTYPE_SMEAR_UTC_SLS 2
->
+With ARCH=sh, make allmodconfig && make W=1 C=1 reports:
+WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/virtio/virtio.o
+WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/virtio/virtio_ring.o
 
-Thanks=2E I really do think that from the guest point of view there's real=
-ly no distinction between "maybe smeared" and "undefined smearing", and hav=
-e a preference for using the latter form, which is the key difference there=
-?
+Add the missing invocations of the MODULE_DESCRIPTION() macro.
 
-Again though, not a hill for me to die on=2E
+Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+---
+ drivers/virtio/virtio.c      | 1 +
+ drivers/virtio/virtio_ring.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index b968b2aa5f4d..396d3cd49a1b 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -609,4 +609,5 @@ static void __exit virtio_exit(void)
+ core_initcall(virtio_init);
+ module_exit(virtio_exit);
+ 
++MODULE_DESCRIPTION("Virtio core interface");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 2a972752ff1b..1cac7d5b3062 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -3244,4 +3244,5 @@ void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq,
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_device);
+ 
++MODULE_DESCRIPTION("Virtio ring implementation");
+ MODULE_LICENSE("GPL");
+
+---
+base-commit: 1dfe225e9af5bd3399a1dbc6a4df6a6041ff9c23
+change-id: 20240702-md-sh-drivers-virtio-704eb84769cb
+
