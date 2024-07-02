@@ -1,324 +1,290 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49CB61607B2
-	for <virtualization@lists.linux.dev>; Tue,  2 Jul 2024 12:05:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCBB11BA076
+	for <virtualization@lists.linux.dev>; Tue,  2 Jul 2024 14:20:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719921950; cv=none; b=rvapX5oWPtSiQ73k/rb7cFVNBmlNEPU+fO4jaIRsvvh9Xjobzxo/+Z9hC89unjLmcNigpLhJb1KsmpYYtAzyzdU4qKFMHPqvjgk9GtKELvxPUzLAVR/xW51EyZR7YQq2MuWf+HZGXX0eviCWEo4lHpvcYQioARgX4htZETeVfM0=
+	t=1719930044; cv=none; b=Xhvx83TlW+unJuPftDLindtwXwQMFrk6w4UfQgO4fNmuGeTOOwUDA8yZB504PtJrlikhca8bc1u6576RvziqjrCdl4IhpDHHy2rh9+orotg3iYISTdxfbK0xcbWL9Ln+N82k07L1PI96JNqv7HYi6Loz+Dvz/n0NVcrSAOTc3EA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719921950; c=relaxed/simple;
-	bh=o3DxiSX0V7ibpPfayjNjBRA+XYTLR0rE1GPKw2O7IAs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dvXeh8G/nGF0U9S01mD2VlSJAz5Ts1OSQYWG69ZzgtRGFLiGWl+BWb3tgq6OcMmBl4rGIwguZJxibMbnS1e9aKeE0moWjCwr8w9gmN9SA+DGTr2aPGtxU8mfNF1oppvzaNnYfZxTkngt72Of3Qc854pbhOmPO3mEpB6F8tu+qYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Kd4EInWN; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1719930044; c=relaxed/simple;
+	bh=y9Y2PhjOXlhR5I54Kz0zjaM+mPCid3eem4o5CyJnWg8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=dGKFiwl3IXGY08iKvbhxt4O6VBqX7I1LRbOUCnRGNNAFUgInGBwJZkHMeej22Ed9KHnAuog7D/WcBGPQuVKS60GHDb67RVennhtESdhQwwsOmorjamGumbRrjMpd0eYtvwk0C5+uY2kuZ4pzGSXldZrrE6DCOillMgwZeEgZ4Pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=oEBBIKK3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Az5Mk+zK; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SZoJTd60; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=P/aHVHQq; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kd4EInWN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719921947;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XIY7ymFq65GMU+6BYZkdKE1/VVblQ2rpUte3RvkSuQM=;
-	b=Kd4EInWNK8CPPpYsB1wW8+W8K4EFQveCSpRi7fOCa93WPR2T/w1QXwBehaf8n5oIV7F705
-	/1oWDJgeztNUsIwTAkxaf6dVv3qA2JHWN9VVICRo/kfvPmBq1AI989gG0F5lHKq0HhBTFW
-	n3jakR96pWm5QlmJrsaOY8Y+y/eMjsk=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-90-oIIyw99vMXS9l0KtKJ1obQ-1; Tue, 02 Jul 2024 08:05:45 -0400
-X-MC-Unique: oIIyw99vMXS9l0KtKJ1obQ-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a751edc86bdso212299066b.1
-        for <virtualization@lists.linux.dev>; Tue, 02 Jul 2024 05:05:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719921944; x=1720526744;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=XIY7ymFq65GMU+6BYZkdKE1/VVblQ2rpUte3RvkSuQM=;
-        b=ps8n2VgLO7jCYWKpXQpN9VbvnYZ08jQa9ZhQiGqlFDGRiJL1JS8XylY44Mp8QzmFx4
-         LKfsWwzBI6+qZ5TliB4Ka0OfNWxEr0ThKOV4yB4BXNZrDZIKzANjRRWSeMkz/GMAIcUb
-         QV0v/sEUOIRHi1RI3Rog5DyT+PnPrbKov0BDM4KoanWbPe8cZbqsjWsVAAJYcTKp2xLQ
-         R07pFX1dwgVZvmqcACUu4rNsLaLfEFL+YjuqD2RvL4L4YCTOqozr5QWz+fveX0IjWQQM
-         lUwpqFqtcjL+YRdMmH05PJu30JzSnENTwYoD087yfZr7AXTai9nJsnnw5lKcaQ5mYE8Q
-         8enQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV0MU4TIatEOuEvdxH6gnOosXGHrICa3eK1Eca974aG65qeVREFD69XKUeDMB91jrqwPBgqlmBbPmSB1kFi8VNx/s3zXE4cY5m4GoiVXCY=
-X-Gm-Message-State: AOJu0Yy0I1ig6dsDGGoX/hAxjc0zvC211dN9N9SH9tAnllaPr6+dqsd4
-	18EBCcKqwBxLgs1BMAaL1x9E+f2Xz7D546zKAjmsj7yNHAUHpztEKHL3QzDM6/xnLUkVLGRhySn
-	9rpezsZVwaKd0xBVm0cSvhaL97/MLXq1Z22gErlMDDzcpO/bv7ZXekRwg6D4hP8hp
-X-Received: by 2002:a17:906:db05:b0:a72:5c3d:4d08 with SMTP id a640c23a62f3a-a7514495834mr593526466b.61.1719921944490;
-        Tue, 02 Jul 2024 05:05:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGyelizFnE93jO2j1CjN7UeHKnIO2pnAXClpq93UziagX36mOq9DAA4Ru4XryXWbOHa4P6BZQ==
-X-Received: by 2002:a17:906:db05:b0:a72:5c3d:4d08 with SMTP id a640c23a62f3a-a7514495834mr593523166b.61.1719921943764;
-        Tue, 02 Jul 2024 05:05:43 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.133.110])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5861503ad14sm5609712a12.88.2024.07.02.05.05.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jul 2024 05:05:43 -0700 (PDT)
-Date: Tue, 2 Jul 2024 14:05:37 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Dorjoy Chowdhury <dorjoychy111@gmail.com>
-Cc: Alexander Graf <graf@amazon.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Alexander Graf <agraf@csgraf.de>, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	netdev@vger.kernel.org, stefanha@redhat.com
-Subject: Re: How to implement message forwarding from one CID to another in
- vhost driver
-Message-ID: <nojtsdora7chbhnblvygozoa4qui3ghivndvg5ixbsgebos4hg@e2jldxpf7sum>
-References: <CABgObfasyA7U5Fg5r0gGoFAw73nwGJnWBYmG8vqf0hC2E8SPFw@mail.gmail.com>
- <sejux5gvpakaopre6mk3fyudi2f56hiuxuevfzay3oohg773kd@5odm3x3fryuq>
- <CABgObfb-KrmJzr4YBtuN3+_HLm3S1hmjO7uEy0+AxSDeWE3uWg@mail.gmail.com>
- <l5oxnxkg7owmwuadknttnnl2an37wt3u5kgfjb5563f7llbgwj@bvwfv5d7wrq4>
- <3b6a1f23-bf0e-416d-8880-4556b87b5137@amazon.com>
- <hyrgztjkjmftnpra2o2skonfs6bwf2sqrncwtec3e4ckupe5ea@76whtcp3zapf>
- <CAFfO_h5_uAwdNJB=fjrxb_pPiwRDQxaZn=OvR3yrYd+c18tUdQ@mail.gmail.com>
- <xw2rhgn2s677t6cufp2ndpvvgpdlovej44o6ieo7nz2p6msvnw@zza7jzylpw76>
- <CAFfO_h4WnSkinX1faduAD68h=nQCWhPgpYKTPV+xfSqyfMmxEA@mail.gmail.com>
- <CAFfO_h55DdTPWEjeR-ARnWZ0tMWNdJZnUauXsxm5eL+TzhAFLA@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="oEBBIKK3";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Az5Mk+zK";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SZoJTd60";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="P/aHVHQq"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C18D51FBAB;
+	Tue,  2 Jul 2024 14:20:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1719930039; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=3arCfMnSLD6TmGayHJHudTbjvKxANzAoXW5QPbJX0u8=;
+	b=oEBBIKK3ZlLz9bpQWUKx05VN+e9UkfZquEBUWmDsQTyDCcjlMXMxljocbh7yy88iz/c4rx
+	bltSqZAOHh0qaao6+B2qpznvtzd6q98tpGlQ6GtuKKlkTNj9iFsfOMqSaSPCNOEeY5CRJv
+	xEVYNlYmVWTGy63arnAic+3iGJfeaO0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1719930039;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=3arCfMnSLD6TmGayHJHudTbjvKxANzAoXW5QPbJX0u8=;
+	b=Az5Mk+zKxbfLFQhms8ElUy7WMV+lwyn+UTn8Po1BkY2q49iQ/gujzTZooATGvwb9IU01Vo
+	amdCuabJN2rJo3AA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=SZoJTd60;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="P/aHVHQq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1719930038; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=3arCfMnSLD6TmGayHJHudTbjvKxANzAoXW5QPbJX0u8=;
+	b=SZoJTd60p4my1o+2OPJKzY0rLo+8lZ6rTav0YzEV0azo/4TL+qshuOmhrihKibswQszr1w
+	M5kW7kRiVFXya5euOwiII8jG5h3bWLW4a0TI+uSCIiChmf791CUVn/9z5PxEGZ3u/9rYAm
+	dhUeC4XJ4eMbCcTUIbA5rFgVnbFTDfA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1719930038;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=3arCfMnSLD6TmGayHJHudTbjvKxANzAoXW5QPbJX0u8=;
+	b=P/aHVHQqsIydYpS3snIaAamUOdhrxxiX4kRVvbve4t2Mkult3fjcKDpOvmaXTWswf4wgcd
+	2vXfLKKoH62aTrBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6620A13A9A;
+	Tue,  2 Jul 2024 14:20:38 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id g4S1F7YMhGZcEQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 02 Jul 2024 14:20:38 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	zack.rusin@broadcom.com,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org
+Cc: regressions@leemhuis.info,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Kaplan <david.kaplan@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH] drm/qxl: Pin buffer objects for internal mappings
+Date: Tue,  2 Jul 2024 16:20:07 +0200
+Message-ID: <20240702142034.32615-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAFfO_h55DdTPWEjeR-ARnWZ0tMWNdJZnUauXsxm5eL+TzhAFLA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-3.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCPT_COUNT_TWELVE(0.00)[15];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FREEMAIL_TO(0.00)[redhat.com,collabora.com,broadcom.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim]
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: C18D51FBAB
+X-Spam-Flag: NO
+X-Spam-Score: -3.51
+X-Spam-Level: 
 
-On Sun, Jun 30, 2024 at 04:54:18PM GMT, Dorjoy Chowdhury wrote:
->Hey Stefano,
->Apart from my questions in my previous email, I have some others as well.
->
->If the vhost-device-vsock modification to forward packets to
->VMADDR_CID_LOCAL is implemented, does the VMADDR_FLAG_TO_HOST need to
->be set by any application in the guest? I understand that the flag is
->set automatically in the listen path by the driver (ref:
->https://patchwork.ozlabs.org/project/netdev/patch/20201204170235.84387-4-andraprs@amazon.com/#2594117
->), but from the comments in the referenced patch, I am guessing the
->applications in the guest that will "connect" (as opposed to listen)
->will need to set the flag in the application code? So does the
->VMADDR_FLAG_TO_HOST flag need to be set by the applications in the
->guest that will "connect" or should it work without it? I am asking
->because the nitro-enclave VMs have an "init" which tries to connect to
->CID 3 to send a "hello" on boot to let the parent VM know that it
->booted expecting a "hello" reply but the init doesn't seem to set the
->flag https://github.com/aws/aws-nitro-enclaves-sdk-bootstrap/blob/main/init/init.c#L356C1-L361C7
+Add qxl_bo_pin_and_vmap() that pins and vmaps a buffer object in one
+step. Update callers of the regular qxl_bo_vmap(). Fixes a bug where
+qxl accesses an unpinned buffer object while it is being moved; such
+as with the monitor-description BO. An typical error is shown below.
 
-Looking at af_vsock.c code, it looks like that if we don't have any
-H2G transports (e.g. vhost-vsock) loaded in the VM (this is loaded for 
-nested VMs, so I guess for nitro-enclave VM this should not be the 
-case), the packets are forwarded to the host in any case.
+[    4.303586] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
+[    4.586883] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
+[    4.904036] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65335296x16777216+0+0
+[    5.374347] [drm:qxl_release_from_id_locked] *ERROR* failed to find id in release_idr
 
-See 
-https://elixir.bootlin.com/linux/latest/source/net/vmw_vsock/af_vsock.c#L469
+Commit b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
+removed the implicit pin operation from qxl's vmap code. This is the
+correct behavior for GEM and PRIME interfaces, but the pin is still
+needed for qxl internal operation.
 
->.
->
->I was following
->https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock#sibling-vm-communication
->to test if sibling communication works and it seems like I didn't need
->to modify the "socat" to set the "VMADDR_FLAG_TO_HOST". I am wondering
->why it works without any modification. Here is what I do:
->
->shell1: ./vhost-device-vsock --vm
->guest-cid=3,uds-path=/tmp/vm3.vsock,socket=/tmp/vhost3.socket --vm
->guest-cid=4,uds-path=/tmp/vm4.vsock,socket=/tmp/vhost4.socket
->
->shell2: ./qemu-system-x86_64 -machine q35,memory-backend=mem0
->-enable-kvm -m 8G -nic user,model=virtio -drive
->file=/home/dorjoy/Forks/test_vm/fedora2.qcow2,media=disk,if=virtio
->--display sdl -object memory-backend-memfd,id=mem0,size=8G -chardev
->socket,id=char0,reconnect=0,path=/tmp/vhost3.socket -device
->vhost-user-vsock-pci,chardev=char0
->    inside this guest I run: socat - VSOCK-LISTEN:9000
->
->shell3: ./qemu-system-x86_64 -machine q35,memory-backend=mem0
->-enable-kvm -m 8G -nic user,model=virtio -drive
->file=/home/dorjoy/Forks/test_vm/fedora40.qcow2,media=disk,if=virtio
->--display sdl -object memory-backend-memfd,id=mem0,size=8G -chardev
->socket,id=char0,reconnect=0,path=/tmp/vhost4.socket -device
->vhost-user-vsock-pci,chardev=char0
->    inside this guest I run: socat - VSOCK-CONNECT:3:9000
->
->Then when I type something in the socat terminal of one VM and hit
->'enter', they pop up in the socat terminal of the other VM. From the
->documentation of the vhost-device-vsock, I thought I would need to
->patch socat to set the "VMADDR_FLAG_TO_HOST" but I did not do anything
->with socat. I simply did "sudo dnf install socat" in both VMs. I also
->looked into the socat source code and I didn't see any reference to
->"VMADDR_FLAG_TO_HOST". I am running "Fedora 40" on both VMs. Do you
->know why it works without the flag?
+Also add a corresponding function qxl_bo_vunmap_and_unpin() and remove
+the old qxl_bo_vmap() helpers.
 
-Yep, so the driver will forward them if the H2G transport is not loaded, 
-like in your case. So if you set VMADDR_FLAG_TO_HOST you are sure that 
-it is always forwarded to the host, if you don't set it, it is forwarded 
-only if you don't have a nested VM using vhost-vsock. In that case we 
-don't know how to differentiate the case of communication with a nested 
-guest or a sibling guest, for this reason we added the flag.
+Future directions: BOs should not be pinned or vmapped unnecessarily.
+The pin-and-vmap operation should be removed from the driver and a
+temporary mapping should be established with a vmap_local-like helper.
+See the client helper drm_client_buffer_vmap_local() for semantics.
 
-If the host uses vhost-vsock, that packets are discarded, but for 
-vhost-device-vsock, we are handling them.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
+Reported-by: David Kaplan <david.kaplan@amd.com>
+Closes: https://lore.kernel.org/dri-devel/ab0fb17d-0f96-4ee6-8b21-65d02bb02655@suse.de/
+Tested-by: David Kaplan <david.kaplan@amd.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Zack Rusin <zack.rusin@broadcom.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux.dev
+Cc: spice-devel@lists.freedesktop.org
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 14 +++++++-------
+ drivers/gpu/drm/qxl/qxl_object.c  | 11 +++++++++--
+ drivers/gpu/drm/qxl/qxl_object.h  |  4 ++--
+ 3 files changed, 18 insertions(+), 11 deletions(-)
 
-Hope this clarify.
-
-Stefano
-
->
->On Wed, Jun 26, 2024 at 11:43 PM Dorjoy Chowdhury
-><dorjoychy111@gmail.com> wrote:
->>
->> Hey Stefano,
->> Thanks a lot for all the details. I will look into them and reach out
->> if I need further input. Thanks! I have tried to summarize my
->> understanding below. Let me know if that sounds correct.
->>
->> On Wed, Jun 26, 2024 at 2:37 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
->> >
->> > Hi Dorjoy,
->> >
->> > On Tue, Jun 25, 2024 at 11:44:30PM GMT, Dorjoy Chowdhury wrote:
->> > >Hey Stefano,
->> >
->> > [...]
->> >
->> > >> >
->> > >> >So the immediate plan would be to:
->> > >> >
->> > >> >  1) Build a new vhost-vsock-forward object model that connects to
->> > >> >vhost as CID 3 and then forwards every packet from CID 1 to the
->> > >> >Enclave-CID and every packet that arrives on to CID 3 to CID 2.
->> > >>
->> > >> This though requires writing completely from scratch the virtio-vsock
->> > >> emulation in QEMU. If you have time that would be great, otherwise if
->> > >> you want to do a PoC, my advice is to start with vhost-user-vsock which
->> > >> is already there.
->> > >>
->> > >
->> > >Can you give me some more details about how I can implement the
->> > >daemon?
->> >
->> > We already have a demon written in Rust, so I don't recommend you
->> > rewrite one from scratch, just start with that. You can find the daemon
->> > and instructions on how to use it with QEMU here [1].
->> >
->> > >I would appreciate some pointers to code too.
->> >
->> > I sent the pointer to it in my first reply [2].
->> >
->> > >
->> > >Right now, the "nitro-enclave" machine type (wip) in QEMU
->> > >automatically spawns a VHOST_VSOCK device with the CID equal to the
->> > >"guest-cid" machine option. I think this is equivalent to using the
->> > >"-device vhost-vsock-device,guest-cid=N" option explicitly. Does that
->> > >need any change? I guess instead of "vhost-vsock-device", the
->> > >vhost-vsock device needs to be equivalent to "-device
->> > >vhost-user-vsock-device,guest-cid=N"?
->> >
->> > Nope, the vhost-user-vsock device requires just a `chardev` option.
->> > The chardev points to the Unix socket used by QEMU to talk with the
->> > daemon. The daemon has a parameter to set the CID. See [1] for the
->> > examples.
->> >
->> > >
->> > >The applications inside the nitro-enclave VM will still connect and
->> > >talk to CID 3. So on the daemon side, do we need to spawn a device
->> > >that has CID 3 and then forward everything this device receives to CID
->> > >1 (VMADDR_CID_LOCAL) same port and everything it receives from CID 1
->> > >to the "guest-cid"?
->> >
->> > Yep, I think this is right.
->> > Note: to use VMADDR_CID_LOCAL, the host needs to load `vsock_loopback`
->> > kernel module.
->> >
->> > Before modifying the code, if you want to do some testing, perhaps you
->> > can use socat (which supports both UNIX-* and VSOCK-*). The daemon for
->> > now exposes two unix sockets, one is used to communicate with QEMU via
->> > the vhost-user protocol, and the other is to be used by the application
->> > to communicate with vsock sockets in the guest using the hybrid protocol
->> > defined by firecracker. So you could initiate a socat between the latter
->> > and VMADDR_CID_LOCAL, the only problem I see is that you have to send
->> > the first string provided by the hybrid protocol (CONNECT 1234), but for
->> > a PoC it should be ok.
->> >
->> > I just tried the following and it works without touching any code:
->> >
->> > shell1$ ./target/debug/vhost-device-vsock \
->> >      --vm guest-cid=3,socket=/tmp/vhost3.socket,uds-path=/tmp/vm3.vsock
->> >
->> > shell2$ sudo modprobe vsock_loopback
->> > shell2$ socat VSOCK-LISTEN:1234 UNIX-CONNECT:/tmp/vm3.vsock
->> >
->> > shell3$ qemu-system-x86_64 -smp 2 -M q35,accel=kvm,memory-backend=mem \
->> >      -drive file=fedora40.qcow2,format=qcow2,if=virtio\
->> >      -chardev socket,id=char0,path=/tmp/vhost3.socket \
->> >      -device vhost-user-vsock-pci,chardev=char0 \
->> >      -object memory-backend-memfd,id=mem,size=512M \
->> >      -nographic
->> >
->> >      guest$ nc --vsock -l 1234
->> >
->> > shell4$ nc --vsock 1 1234
->> > CONNECT 1234
->> >
->> >      Note: the `CONNECT 1234` is required by the hybrid vsock protocol
->> >      defined by firecracker, so if we extend the vhost-device-vsock
->> >      daemon to forward packet to VMADDR_CID_LOCAL, that would not be
->> >      needed (including running socat).
->> >
->>
->> Understood. Just trying to think out loud what the final UX will be
->> from the user perspective to successfully run a nitro VM before I try
->> to modify vhost-device-vsock to support forwarding to
->> VMADDR_CID_LOCAL.
->> I guess because the "vhost-user-vsock" device needs to be spawned
->> implicitly (without any explicit option) inside nitro-enclave in QEMU,
->> we now need to provide the "chardev" as a machine option, so the
->> nitro-enclave command would look something like below:
->> "./qemu-system-x86_64 -M nitro-enclave,chardev=char0 -kernel
->> /path/to/eif -chardev socket,id=char0,path=/tmp/vhost5.socket -m 4G
->> --enable-kvm -cpu host"
->> and then set the chardev id to the vhost-user-vsock device in the code
->> from the machine option.
->>
->> The modified "vhost-device-vsock" would need to be run with the new
->> option that will forward everything to VMADDR_CID_LOCAL (below by the
->> "-z" I mean the new option)
->> "./target/debug/vhost-device-vsock -z --vm
->> guest-cid=5,socket=/tmp/vhost5.socket,uds-path=/tmp/vm5.vsock"
->> this means the guest-cid of the nitro VM is CID 5, right?
->>
->> And the applications in the host would need to use VMADDR_CID_LOCAL
->> for communication instead of "guest-cid" (5) (assuming vsock_loopback
->> is modprobed). Let's say there are 2 applications inside the nitro VM
->> that connect to CID 3 on port 9000 and 9001. And the applications on
->> the host listen on 9000 and 9001 using VMADDR_CID_LOCAL. So, after the
->> commands above (qemu VM and vhost-device-vsock) are run, the
->> communication between the applications in the host and the
->> applications in the nitro VM on port 9000 and 9001 should just work,
->> right, without needing to run any extra socat commands or such? or
->> will the user still need to run some socat commands for all the
->> relevant ports (e.g.,9000 and 9001)?
->>
->> I am just wondering what kind of changes are needed in
->> vhost-device-vsock for forwarding packets to VMADDR_CID_LOCAL? Will
->> that be something like this: the codepath that handles
->> "/tmp/vm5.vsock", upon receiving a "connect" (from inside the nitro
->> VM) for any port to "/tmp/vm5.vsock", vhost-device-vsock will just
->> connect to the same port using AF_VSOCK using the socket system calls
->> and messages received on that port in "/tmp/vm5.vsock" will be "send"
->> to the AF_VSOCK socket? or am I not thinking right and the
->> implementation would be something different entirely (change the CID
->> from 3 to 2 (or 1?) on the packets before they are handled then socat
->> will be needed probably)? Will this work if the applications in the
->> host want to connect to applications inside the nitro VM (as opposed
->> to applications inside the nitro VM connecting to CID 3)?
->>
->> Thanks and Regards,
->> Dorjoy
->
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 86a5dea710c0..bc24af08dfcd 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -584,11 +584,11 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
+ 	if (ret)
+ 		goto err;
+ 
+-	ret = qxl_bo_vmap(cursor_bo, &cursor_map);
++	ret = qxl_bo_pin_and_vmap(cursor_bo, &cursor_map);
+ 	if (ret)
+ 		goto err_unref;
+ 
+-	ret = qxl_bo_vmap(user_bo, &user_map);
++	ret = qxl_bo_pin_and_vmap(user_bo, &user_map);
+ 	if (ret)
+ 		goto err_unmap;
+ 
+@@ -614,12 +614,12 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
+ 		       user_map.vaddr, size);
+ 	}
+ 
+-	qxl_bo_vunmap(user_bo);
+-	qxl_bo_vunmap(cursor_bo);
++	qxl_bo_vunmap_and_unpin(user_bo);
++	qxl_bo_vunmap_and_unpin(cursor_bo);
+ 	return cursor_bo;
+ 
+ err_unmap:
+-	qxl_bo_vunmap(cursor_bo);
++	qxl_bo_vunmap_and_unpin(cursor_bo);
+ err_unref:
+ 	qxl_bo_unpin(cursor_bo);
+ 	qxl_bo_unref(&cursor_bo);
+@@ -1205,7 +1205,7 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
+ 	}
+ 	qdev->monitors_config_bo = gem_to_qxl_bo(gobj);
+ 
+-	ret = qxl_bo_vmap(qdev->monitors_config_bo, &map);
++	ret = qxl_bo_pin_and_vmap(qdev->monitors_config_bo, &map);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1236,7 +1236,7 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
+ 	qdev->monitors_config = NULL;
+ 	qdev->ram_header->monitors_config = 0;
+ 
+-	ret = qxl_bo_vunmap(qdev->monitors_config_bo);
++	ret = qxl_bo_vunmap_and_unpin(qdev->monitors_config_bo);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+index 5893e27a7ae5..cb1b7c2580ae 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.c
++++ b/drivers/gpu/drm/qxl/qxl_object.c
+@@ -182,7 +182,7 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map)
+ 	return 0;
+ }
+ 
+-int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
++int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map)
+ {
+ 	int r;
+ 
+@@ -190,7 +190,13 @@ int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
+ 	if (r)
+ 		return r;
+ 
++	r = qxl_bo_pin_locked(bo);
++	if (r)
++		return r;
++
+ 	r = qxl_bo_vmap_locked(bo, map);
++	if (r)
++		qxl_bo_unpin_locked(bo);
+ 	qxl_bo_unreserve(bo);
+ 	return r;
+ }
+@@ -241,7 +247,7 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
+ 	ttm_bo_vunmap(&bo->tbo, &bo->map);
+ }
+ 
+-int qxl_bo_vunmap(struct qxl_bo *bo)
++int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo)
+ {
+ 	int r;
+ 
+@@ -250,6 +256,7 @@ int qxl_bo_vunmap(struct qxl_bo *bo)
+ 		return r;
+ 
+ 	qxl_bo_vunmap_locked(bo);
++	qxl_bo_unpin_locked(bo);
+ 	qxl_bo_unreserve(bo);
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
+index 1cf5bc759101..875f63221074 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.h
++++ b/drivers/gpu/drm/qxl/qxl_object.h
+@@ -59,9 +59,9 @@ extern int qxl_bo_create(struct qxl_device *qdev,
+ 			 u32 priority,
+ 			 struct qxl_surface *surf,
+ 			 struct qxl_bo **bo_ptr);
+-int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map);
++int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map);
+ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map);
+-int qxl_bo_vunmap(struct qxl_bo *bo);
++int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo);
+ void qxl_bo_vunmap_locked(struct qxl_bo *bo);
+ void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, int page_offset);
+ void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, void *map);
+-- 
+2.45.2
 
