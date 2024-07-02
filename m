@@ -1,111 +1,76 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C1CC14600B
-	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jul 2024 06:42:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06BC074047;
+	Tue,  2 Jul 2024 07:32:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719902533; cv=none; b=owMFoTbYt8Ckg75Kfj3w/al/nJponB/nA7ufqxPrgGIuQmWSMCSgNHNpE2gzUTZYNx/Zyv0D5Ui4egjDsPKcZvIoWanJnrSvcMcJpYoWQPRIdpw7HnZrDQjtk4JgEQoxE51DRbwTeWUxhglkV8bawVXRH4Mi92Wf/Jub9VR9mu0=
+	t=1719905532; cv=none; b=OvO62cmax8M2GKtAhZTpx9uYAp1LE5T0i5QOMKQKt82Eu7XVrUikK8vPHYl4XLzfTAx6yZ0ZA6X9b6iNH7QdXsAC4p0NtgpGCGOxfX3+tImdOSMlk5o28pxMgDoUxd6ZEJwaVEY/B3KabdPI4RkpGgRGUQoEjFfgSNoRiMbEx0Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719902533; c=relaxed/simple;
-	bh=skiLNaS3OynVBSdw38XH6gPIue0IpenzfUX6kSiea30=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=GW2fK+u803D1Bc7/Dx4Kh6U87BdOCqDWOJV2+tBUZVieQGK6bXPda88qVFCjWWy8LCPy9RNbC4cCinGdj6aB+Ul39YpNJsnUJIGgS5bI4vmHAE1IJsnmrBmStobuu9KSe6nZktXejgcexc148koYzRl9FYnspyCvrB9hlshL6Hc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SVrwdmrR; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1719905532; c=relaxed/simple;
+	bh=+sMR8Y+fELBV98VkEZAmEYgkVwqnEdYtSXSzNoB2jX0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lEgNYpEfVRJpi3fpemItYdBPZC818qgDpHPv++lA20MSyP3ZtHMJxN7DJLhv41LQOGinttCvLdRvuQls6x06GeWz5hPzqtcO96aPbabEizIAQMVGY3qJdn7dGDh7E7qygiHavAq8eeyRPdOJLjcn9a4pPGFFvm1/ysaGMTzY3DQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=nxBkkv55; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SVrwdmrR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D475A40CCB
-	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jul 2024 06:42:11 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.299
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id yTukzIN5CB14 for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Jul 2024 06:42:11 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.13; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org D32F740620
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D32F740620
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=SVrwdmrR
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D32F740620
-	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jul 2024 06:42:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1719902531; x=1751438531;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=skiLNaS3OynVBSdw38XH6gPIue0IpenzfUX6kSiea30=;
-  b=SVrwdmrRd37Jjri28XjgSD2ZYd4Z6s2O+KNq5AG7BoMmPmGcgjPMotCE
-   k10UEAzIDQHiCJ3ZrNC8ZG3moK1tLRnolgKlC16oG5PiTc7++CTnVkFBS
-   s3l0IIzLBUncAVxruNogOqSjMJmOfsKDIEENjADUvl6XEeGBhHi1vfHkm
-   twoBXaMxcV9jRhqjGgNvuY+lPw7XKkxUxk5/VppxA3XleBeUU+V1iimOM
-   gW6n0eCBDJp4wuGxXDZSg2ntyGxVhcDelHww9S8stNvRhRujUYqlzpN0b
-   E7E5la8JfLG9AafNn7KkV5nXBZaCaOKTVStzBWhFi07LLEkVYbh4rVN7l
-   g==;
-X-CSE-ConnectionGUID: qMF6CzkWRcaxEufXh17s9w==
-X-CSE-MsgGUID: Z7SU/5sWRcq5QM9DHJADFA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11120"; a="28191022"
-X-IronPort-AV: E=Sophos;i="6.09,178,1716274800"; 
-   d="scan'208";a="28191022"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2024 23:42:10 -0700
-X-CSE-ConnectionGUID: SwpiZGu1SJ6+7oRuLo4zTA==
-X-CSE-MsgGUID: HOHVsNC2RseI+/0lRuG0XA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,178,1716274800"; 
-   d="scan'208";a="76510909"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.124.237.100]) ([10.124.237.100])
-  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2024 23:42:06 -0700
-Message-ID: <21baa9fd-124c-4ab5-87da-2b225c4b1efc@linux.intel.com>
-Date: Tue, 2 Jul 2024 14:42:04 +0800
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="nxBkkv55"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=yRJduJ4b13YGEVnBaImf8MBMoj+rPcyZfPfJ5uybrn0=; b=nxBkkv5533e0ibSUtWu/FWqca9
+	T02UNeMXerA742jTnmxcJDpprQYJhN+AB5mjSyF1tkFtaC9NWv/DI0JPbLwQgi37wPeed5cA37c0e
+	+2f4q+qCCkqKwjebfWNgYqdh3KcmHS4SeimB2eXIojre3wqBiKfJ74iCTIY0nzAi/62xdvvQQ9QVV
+	ggumCBVJg78P9RdScYdX17RSGD42SxwMGXnk/F0Te2sI20BEGRBsqQOtoGA/KEqDDyMxAk9wtOs1O
+	z/1WMLlWsZ6latPxKW85ISPYOrT1dPDdYNH/mzAspCJntQyhFPayqTd56frrg1OjYGXYjfO03yN/a
+	E+Zh4hIw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sOXzk-00000005s56-0D5a;
+	Tue, 02 Jul 2024 07:32:08 +0000
+Date: Tue, 2 Jul 2024 00:32:07 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Oliver Sang <oliver.sang@intel.com>
+Cc: Christoph Hellwig <hch@infradead.org>, oe-lkp@lists.linux.dev,
+	lkp@intel.com, Jens Axboe <axboe@kernel.dk>,
+	Ulf Hansson <ulf.hansson@linaro.org>,
+	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
+	linux-block@vger.kernel.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
+	dm-devel@lists.linux.dev, linux-raid@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
+	nvdimm@lists.linux.dev, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org, ying.huang@intel.com,
+	feng.tang@intel.com, fengwei.yin@intel.com
+Subject: Re: [axboe-block:for-next] [block]  1122c0c1cc:  aim7.jobs-per-min
+ 22.6% improvement
+Message-ID: <ZoOs9wdR1yBPB-7J@infradead.org>
+References: <202406250948.e0044f1d-oliver.sang@intel.com>
+ <ZnqGf49cvy6W-xWf@infradead.org>
+ <Znt4qTr/NdeIPyNp@xsang-OptiPlex-9020>
+ <ZnuNhkH26nZi8fz6@infradead.org>
+ <ZnzP+nUrk8+9bANK@xsang-OptiPlex-9020>
+ <ZnzwbYSaIlT0SIEy@infradead.org>
+ <ZoJnO09LBj6kApY7@xsang-OptiPlex-9020>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 00/10] IOMMUFD: Deliver IO page faults to user space
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240616061155.169343-1-baolu.lu@linux.intel.com>
- <Zn814+VwyCJ/okax@ziepe.ca>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <Zn814+VwyCJ/okax@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZoJnO09LBj6kApY7@xsang-OptiPlex-9020>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On 2024/6/29 6:14, Jason Gunthorpe wrote:
-> On Sun, Jun 16, 2024 at 02:11:45PM +0800, Lu Baolu wrote:
-> 
->> Lu Baolu (10):
->>    iommu: Introduce domain attachment handle
->>    iommu: Remove sva handle list
->>    iommu: Add attach handle to struct iopf_group
->>    iommu: Extend domain attach group with handle support
->>    iommufd: Add fault and response message definitions
->>    iommufd: Add iommufd fault object
->>    iommufd: Fault-capable hwpt attach/detach/replace
->>    iommufd: Associate fault object with iommufd_hw_pgtable
->>    iommufd/selftest: Add IOPF support for mock device
->>    iommufd/selftest: Add coverage for IOPF test
-> Small remarks aside this all looks fine to me, send a v8 and I'll try
-> to pick it up next week
+On Mon, Jul 01, 2024 at 04:22:19PM +0800, Oliver Sang wrote:
+> from below, it seems the patchset doesn't introduce any performance improvement
+> but a regression now. is this expected?
 
-Sure. I have updated the series and posted a v8 in another thread.
+Not having the improvement at least alleviate my concerns about data
+integrity.  I'm still curious where it comes from as it isn't exactly
+expected.
 
-Best regards,
-baolu
