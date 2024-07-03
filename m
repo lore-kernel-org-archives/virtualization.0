@@ -1,151 +1,206 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF903185E60
-	for <virtualization@lists.linux.dev>; Wed,  3 Jul 2024 16:23:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE0CF1822CA
+	for <virtualization@lists.linux.dev>; Wed,  3 Jul 2024 16:41:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720023811; cv=none; b=CQ75FJG0q6pvA8xG/PYdxBw5M9ANrkpbjc97KVGAGil36bbNN3ngxQz1EA0mqM4WKenf+GS9m1Qi9XZ8zJQCfzfiT4cugV/xCLea6leCJiTSMOyb8VWjXQI8QBbAGhr2SuMgGBaymVrV16MmGTFE3D5vvk2l5hzIGvox8j7xQrg=
+	t=1720024862; cv=none; b=HJzMuoersmlGV4RnZoZXbm/anYqDCwUK+CHkf5fuPsyCeK+VQH/RhvxUdM88omKsBqjvgnHIXVQMgUNqQ/DB/6qy+qzR0RzhrII4Qys/QFM3a9/mgf5MndXlR0NSezfN6BFL/+DoqFQwVtj14zQwWurZQHjE4f1DBr9j2leLCHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720023811; c=relaxed/simple;
-	bh=yAl9WkIF75Z5792jsKO6kzvCg4MDRUb7mflCnX2qKpE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kJljG8Ag9SBig04dQRw3Jhk5Zj1c8XTAkaSF4ntF/jpFSsx7BaJJVEw4sZuoU0Fo8RJvJzyR3n/aP2yC4NAOCqz7fj47LCxdn4zkUe6b+P05BOgRDpCwG7W92OdYtxcSOW0o8D8Z9cGnqAS+rznONgJaxFyjAwCJowpCxFvTjlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SBxtOUuC; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1720024862; c=relaxed/simple;
+	bh=79BrRLdiZfItmEzkSMMuHLfKxWc5wOh4+yAMova779Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jIAjIdvfEkbhIynjrOrYCwvkTiplIOsX5kJuxZfh0G0fipHv1ri3exJqepwMIzp9FyF5MXVDbPpGU+IAvlbeYEGd39LFhGXcwdKHCATw58Lca6TM25BvAHWfLGLrHdNcpP8u1I108yd3RXfXsIRw+bRg4zpChOeA2h6hznZnjc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IonXYkml; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SBxtOUuC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IonXYkml"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720023808;
+	s=mimecast20190719; t=1720024859;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=n91rt4myNGjgsOAzA53ROWPaLTAmQTcNbTctluHszT0=;
-	b=SBxtOUuCG3UlM9L0/b3N7Zp77cLVVF/US/TUsTxSeC4nGfSDpFDOGtesjWotgxUshvV+gP
-	EIwjVhCiokLUL+H7l1ohcTqZFqrUGNCQ6PE3zQg6TsVzHg1IGVSj/8Sr0ZHZtpTQ4ylrEO
-	kgA8yuEyI+RtcviyB5wlmgkJquZH3Mk=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=GjcYMTjxU9kW8nOnuCfG73hNuxho2zHE2PKN/EiOn/o=;
+	b=IonXYkmli8DnvB3s9tm4OigEvSUPBKk9cVDJXGm4P8WbqUmun/srPTc/ErNXXHIU2tSGcR
+	qItDWZ+Np7+htpnBiBHGgzneXDmZmSeSfyEnUUA852DrbxR2ugkKbBARjvYhKwAt6MpSC9
+	ue0j1bn6lfq3dyQNprGyR/JIsOOe/f4=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-427-YWK4UADOMeaTm7t3WEVUPw-1; Wed, 03 Jul 2024 12:23:27 -0400
-X-MC-Unique: YWK4UADOMeaTm7t3WEVUPw-1
-Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-58c98ce7d00so1068179a12.1
-        for <virtualization@lists.linux.dev>; Wed, 03 Jul 2024 09:23:27 -0700 (PDT)
+ us-mta-591-G84DiaFbPVar93xlMZymHg-1; Wed, 03 Jul 2024 12:40:57 -0400
+X-MC-Unique: G84DiaFbPVar93xlMZymHg-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2ee86eda4e4so7046101fa.3
+        for <virtualization@lists.linux.dev>; Wed, 03 Jul 2024 09:40:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720023806; x=1720628606;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=n91rt4myNGjgsOAzA53ROWPaLTAmQTcNbTctluHszT0=;
-        b=S37w7bHrUYcB+yKJ4z+sMRnhbxc/IVGM5uBqxs4jW4eJd9U/5LuzjYCTyEwvEIVvZ/
-         p5xVsctxWFA83pzKwNepsBjOyuGMlhL++JOlHqFmVkZ6/bq62BYY7gXDIHfpFxtgVZpb
-         RxpJdvsrYf1YQmLCrOw/zCZge7VJkAAQv5v9/0YLo7UKcLvfNxPmYmwimf9SPQR98xnX
-         Tx6TIWz3KipmAXW5sSGfM1hXSUxZmTI0y9gt1WCpoktPN7qvkKIwYgFudg8IKRnYLvmg
-         WdeTOhrVJTlGxgWLrN09LNZ4vnLpyOUMJlJbMUKpmZk49MtEsJmtqm2ym84MIiwroGDX
-         KDzw==
-X-Forwarded-Encrypted: i=1; AJvYcCUCcdtGmA9URSNsjYRsfgCjaLNaHVedSCL0eUtc/98/iA4iWJC5lY6qxKs4gQBswDarrZTFqBad4TjuBKO3RHu0V9NliqniME7DIiRxxkQ=
-X-Gm-Message-State: AOJu0YyXVtb0jKNdQ01xdxmoxurfJfYHUw2FFt92wxGAZxVTHa/0PTXx
-	h0N8+nukKou0NhQfa6jI01ySPmdBxVyQ5ArV6EA6L/W/RnLySr4zki+FH52qYHN4vGFkKsbd5aO
-	D8Ab6rpKY1jNJx9TBQdsbzD0Tu/NTE7TuDkuLfCzM/r89JYAKY8GHsh4K7hF/GqaclPoJPPfZCJ
-	oaCB719jzYhe8fDWdC1Os/Dut1bPvi4p5fwrgWnWE=
-X-Received: by 2002:a05:6402:1cc1:b0:57c:6188:875a with SMTP id 4fb4d7f45d1cf-587a0637437mr7847853a12.26.1720023806606;
-        Wed, 03 Jul 2024 09:23:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGDKcKhOUx+NmAMpJL8tgtpN3L8p4uaUWiZMnuqg99iVFuWIDVp5qSLrtsQb/GpER4ZLfVxi176Yy0Dko+cScU=
-X-Received: by 2002:a05:6402:1cc1:b0:57c:6188:875a with SMTP id
- 4fb4d7f45d1cf-587a0637437mr7847840a12.26.1720023806248; Wed, 03 Jul 2024
- 09:23:26 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720024856; x=1720629656;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GjcYMTjxU9kW8nOnuCfG73hNuxho2zHE2PKN/EiOn/o=;
+        b=rxGbpocHpJtLBI+6RrdVqCvPojxv9tCM2PXxVtgAKxShhwJBAZwtbXIEo91bh2DgSU
+         x1IANlyGVtf3b/cY1uVt/Ue5rGwlimCG8qyfFjhbszb37nH9nupo2/QU+eq+6Z9Ww/++
+         EZ+dTls5GVEH2KeNKpCBeg91QCFm74U8niird7rmGQd7E8wQlZqnbYJXAR2dGLbp8N0h
+         OHp6MDVRnP8UvnbRp1bfZcAA4ULEjXnCucYf9rK0nzCV8j3Qhy0J++9usVpAger3DXh0
+         bhKtNiE14hn/mTQMfSofEeaBgmlL8GxWTg7qVBHqA0avHSInyZtOEodk2FAFl7gceo4V
+         7GkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW9pxkTGh/xHZJP2rJTldE0YEFmKFMJDxKhBaohvzQVultjbWi4b7BovRNiiI0UiG7AWiRmeY4whgtYO9j9oRfxnVvB+Vf1zINVlfLjksg=
+X-Gm-Message-State: AOJu0Yxdp7uMb1vvMvBV6j7em4lYSzls5ddiaihq3p/tIfklMOuhnWaw
+	GIfdoHboBod1n5PxQTZ9mi7Tjt46Q+ETx0l3CafkHO7xgOOVYSwutqf40HBGGbOnjkSh7DBZrU+
+	IEvpaqEJvIa2z6W11bpRZGeIsQBwvAnQJzx7nxCdH7ywqV5zf9SfsOYK0k8bt4QjQ5fLJNN1V
+X-Received: by 2002:a05:651c:49b:b0:2eb:d9a3:2071 with SMTP id 38308e7fff4ca-2ee5e6c9cd8mr67067731fa.50.1720024855706;
+        Wed, 03 Jul 2024 09:40:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGvypbDJXalyTd6VQsSi89yawsHxOcoDakQlgNsNJ/JxTEK9+b9EQJj2/3nSKl7r1LNJEGU6w==
+X-Received: by 2002:a05:651c:49b:b0:2eb:d9a3:2071 with SMTP id 38308e7fff4ca-2ee5e6c9cd8mr67066891fa.50.1720024852997;
+        Wed, 03 Jul 2024 09:40:52 -0700 (PDT)
+Received: from redhat.com ([31.187.78.171])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4257c4e10d6sm173923055e9.30.2024.07.03.09.40.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jul 2024 09:40:52 -0700 (PDT)
+Date: Wed, 3 Jul 2024 12:40:48 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Denis Arefev <arefev@swemel.ru>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+	lvc-project@linuxtesting.org
+Subject: Re: [PATCH v2] net: missing check virtio
+Message-ID: <20240703123832-mutt-send-email-mst@kernel.org>
+References: <20240613095448.27118-1-arefev@swemel.ru>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240626-stage-vdpa-vq-precreate-v2-0-560c491078df@nvidia.com> <20240626-stage-vdpa-vq-precreate-v2-19-560c491078df@nvidia.com>
-In-Reply-To: <20240626-stage-vdpa-vq-precreate-v2-19-560c491078df@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 3 Jul 2024 18:22:47 +0200
-Message-ID: <CAJaqyWccNsTo16CzUmSwNLFw2CTinrQ47YQ2JjRndyHLeRVFNg@mail.gmail.com>
-Subject: Re: [PATCH vhost v2 19/24] vdpa/mlx5: Forward error in suspend/resume device
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, netdev@vger.kernel.org, 
-	Cosmin Ratiu <cratiu@nvidia.com>, Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <20240613095448.27118-1-arefev@swemel.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, Jun 26, 2024 at 12:28=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.co=
-m> wrote:
->
-> Start using the suspend/resume_vq() error return codes previously added.
->
-> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
-> Reviewed-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+On Thu, Jun 13, 2024 at 12:54:48PM +0300, Denis Arefev wrote:
+> Two missing check in virtio_net_hdr_to_skb() allowed syzbot
+> to crash kernels again
+> 
+> 1. After the skb_segment function the buffer may become non-linear
+> (nr_frags != 0), but since the SKBTX_SHARED_FRAG flag is not set anywhere
+> the __skb_linearize function will not be executed, then the buffer will
+> remain non-linear. Then the condition (offset >= skb_headlen(skb))
+> becomes true, which causes WARN_ON_ONCE in skb_checksum_help.
+> 
+> 2. The struct sk_buff and struct virtio_net_hdr members must be
+> mathematically related.
+> (gso_size) must be greater than (needed) otherwise WARN_ON_ONCE.
+> (remainder) must be greater than (needed) otherwise WARN_ON_ONCE.
+> (remainder) may be 0 if division is without remainder.
+> 
+> offset+2 (4191) > skb_headlen() (1116)
+> WARNING: CPU: 1 PID: 5084 at net/core/dev.c:3303 skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
+> Modules linked in:
+> CPU: 1 PID: 5084 Comm: syz-executor336 Not tainted 6.7.0-rc3-syzkaller-00014-gdf60cee26a2e #0
+> Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 11/10/2023
+> RIP: 0010:skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
+> Code: 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 52 01 00 00 44 89 e2 2b 53 74 4c 89 ee 48 c7 c7 40 57 e9 8b e8 af 8f dd f8 90 <0f> 0b 90 90 e9 87 fe ff ff e8 40 0f 6e f9 e9 4b fa ff ff 48 89 ef
+> RSP: 0018:ffffc90003a9f338 EFLAGS: 00010286
+> RAX: 0000000000000000 RBX: ffff888025125780 RCX: ffffffff814db209
+> RDX: ffff888015393b80 RSI: ffffffff814db216 RDI: 0000000000000001
+> RBP: ffff8880251257f4 R08: 0000000000000001 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000001 R12: 000000000000045c
+> R13: 000000000000105f R14: ffff8880251257f0 R15: 000000000000105d
+> FS:  0000555555c24380(0000) GS:ffff8880b9900000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 000000002000f000 CR3: 0000000023151000 CR4: 00000000003506f0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  <TASK>
+>  ip_do_fragment+0xa1b/0x18b0 net/ipv4/ip_output.c:777
+>  ip_fragment.constprop.0+0x161/0x230 net/ipv4/ip_output.c:584
+>  ip_finish_output_gso net/ipv4/ip_output.c:286 [inline]
+>  __ip_finish_output net/ipv4/ip_output.c:308 [inline]
+>  __ip_finish_output+0x49c/0x650 net/ipv4/ip_output.c:295
+>  ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:323
+>  NF_HOOK_COND include/linux/netfilter.h:303 [inline]
+>  ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:433
+>  dst_output include/net/dst.h:451 [inline]
+>  ip_local_out+0xaf/0x1a0 net/ipv4/ip_output.c:129
+>  iptunnel_xmit+0x5b4/0x9b0 net/ipv4/ip_tunnel_core.c:82
+>  ipip6_tunnel_xmit net/ipv6/sit.c:1034 [inline]
+>  sit_tunnel_xmit+0xed2/0x28f0 net/ipv6/sit.c:1076
+>  __netdev_start_xmit include/linux/netdevice.h:4940 [inline]
+>  netdev_start_xmit include/linux/netdevice.h:4954 [inline]
+>  xmit_one net/core/dev.c:3545 [inline]
+>  dev_hard_start_xmit+0x13d/0x6d0 net/core/dev.c:3561
+>  __dev_queue_xmit+0x7c1/0x3d60 net/core/dev.c:4346
+>  dev_queue_xmit include/linux/netdevice.h:3134 [inline]
+>  packet_xmit+0x257/0x380 net/packet/af_packet.c:276
+>  packet_snd net/packet/af_packet.c:3087 [inline]
+>  packet_sendmsg+0x24ca/0x5240 net/packet/af_packet.c:3119
+>  sock_sendmsg_nosec net/socket.c:730 [inline]
+>  __sock_sendmsg+0xd5/0x180 net/socket.c:745
+>  __sys_sendto+0x255/0x340 net/socket.c:2190
+>  __do_sys_sendto net/socket.c:2202 [inline]
+>  __se_sys_sendto net/socket.c:2198 [inline]
+>  __x64_sys_sendto+0xe0/0x1b0 net/socket.c:2198
+>  do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+>  do_syscall_64+0x40/0x110 arch/x86/entry/common.c:82
+>  entry_SYSCALL_64_after_hwframe+0x63/0x6b
+> 
+> Found by Linux Verification Center (linuxtesting.org) with Syzkaller
+> 
+> Signed-off-by: Denis Arefev <arefev@swemel.ru>
 
-Reviewed-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+I suspect it's this one:
+
+Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+
+
+Though if you can test kernel before that to make sure, that
+would be nice.
+
+I'm inclined to merge, crashing syzkaller is not nice.
+
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
 
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
-x5_vnet.c
-> index e65d488f7a08..ce1f6a1f36cd 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -3436,22 +3436,25 @@ static int mlx5_vdpa_suspend(struct vdpa_device *=
-vdev)
->  {
->         struct mlx5_vdpa_dev *mvdev =3D to_mvdev(vdev);
->         struct mlx5_vdpa_net *ndev =3D to_mlx5_vdpa_ndev(mvdev);
-> +       int err;
->
->         mlx5_vdpa_info(mvdev, "suspending device\n");
->
->         down_write(&ndev->reslock);
->         unregister_link_notifier(ndev);
-> -       suspend_vqs(ndev);
-> +       err =3D suspend_vqs(ndev);
->         mlx5_vdpa_cvq_suspend(mvdev);
->         mvdev->suspended =3D true;
->         up_write(&ndev->reslock);
-> -       return 0;
+>  V1 -> V2: incorrect type in argument 2
+>  include/linux/virtio_net.h | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+> 
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 4dfa9b69ca8d..d1d7825318c3 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -56,6 +56,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>  	unsigned int thlen = 0;
+>  	unsigned int p_off = 0;
+>  	unsigned int ip_proto;
+> +	u64 ret, remainder, gso_size;
+>  
+>  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+>  		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+> @@ -98,6 +99,16 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>  		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
+>  		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
+>  
+> +		if (hdr->gso_size) {
+> +			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+> +			ret = div64_u64_rem(skb->len, gso_size, &remainder);
+> +			if (!(ret && (hdr->gso_size > needed) &&
+> +						((remainder > needed) || (remainder == 0)))) {
+> +				return -EINVAL;
+> +			}
+> +			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
+> +		}
 > +
-> +       return err;
->  }
->
->  static int mlx5_vdpa_resume(struct vdpa_device *vdev)
->  {
->         struct mlx5_vdpa_dev *mvdev =3D to_mvdev(vdev);
->         struct mlx5_vdpa_net *ndev;
-> +       int err;
->
->         ndev =3D to_mlx5_vdpa_ndev(mvdev);
->
-> @@ -3459,10 +3462,11 @@ static int mlx5_vdpa_resume(struct vdpa_device *v=
-dev)
->
->         down_write(&ndev->reslock);
->         mvdev->suspended =3D false;
-> -       resume_vqs(ndev);
-> +       err =3D resume_vqs(ndev);
->         register_link_notifier(ndev);
->         up_write(&ndev->reslock);
-> -       return 0;
-> +
-> +       return err;
->  }
->
->  static int mlx5_set_group_asid(struct vdpa_device *vdev, u32 group,
->
-> --
-> 2.45.1
->
+>  		if (!pskb_may_pull(skb, needed))
+>  			return -EINVAL;
+>  
+> -- 
+> 2.25.1
 
