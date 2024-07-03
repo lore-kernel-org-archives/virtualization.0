@@ -1,206 +1,230 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE0CF1822CA
-	for <virtualization@lists.linux.dev>; Wed,  3 Jul 2024 16:41:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720024862; cv=none; b=HJzMuoersmlGV4RnZoZXbm/anYqDCwUK+CHkf5fuPsyCeK+VQH/RhvxUdM88omKsBqjvgnHIXVQMgUNqQ/DB/6qy+qzR0RzhrII4Qys/QFM3a9/mgf5MndXlR0NSezfN6BFL/+DoqFQwVtj14zQwWurZQHjE4f1DBr9j2leLCHc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720024862; c=relaxed/simple;
-	bh=79BrRLdiZfItmEzkSMMuHLfKxWc5wOh4+yAMova779Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jIAjIdvfEkbhIynjrOrYCwvkTiplIOsX5kJuxZfh0G0fipHv1ri3exJqepwMIzp9FyF5MXVDbPpGU+IAvlbeYEGd39LFhGXcwdKHCATw58Lca6TM25BvAHWfLGLrHdNcpP8u1I108yd3RXfXsIRw+bRg4zpChOeA2h6hznZnjc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IonXYkml; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 022A41946C0
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jul 2024 23:06:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720048010; cv=fail; b=fo4K3sNzLuzUH17D+E2iwcA9rAUMYX4ZUts+ZzWBejXy1BZYnsH3a3lZLrFvxQEOqZfD5D1mlcLvY3OlwDWvajQ6zLwGpZSvr94y7Y+E2SR6pHsUSy7Khqbep17ItZSVMR1/zmkc1pnGXTIyjsw2Iq8n1QD3rj4BKfLEnRNiob8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720048010; c=relaxed/simple;
+	bh=n3rO4D/WPqksRT92c3WjMYe+8nZkj256Z/CXbB333YA=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nyEZWvmTJBsdFoNlYLvyKpr+q7aUK+hYzz0ePpDojAIhtKvyVkdH2mEJcgfxuX1PyLe3e0I5vBV5F/QVhT7CxmGmYYmbGGTeYGabwwNsHhuxJ0tFlQWMXkxLT9w4czaADtF1o4wvSJIw8d3MXW2XpwuhzHECt7gF1ap6OMAWIfU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IhQqhAmn; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IonXYkml"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720024859;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=GjcYMTjxU9kW8nOnuCfG73hNuxho2zHE2PKN/EiOn/o=;
-	b=IonXYkmli8DnvB3s9tm4OigEvSUPBKk9cVDJXGm4P8WbqUmun/srPTc/ErNXXHIU2tSGcR
-	qItDWZ+Np7+htpnBiBHGgzneXDmZmSeSfyEnUUA852DrbxR2ugkKbBARjvYhKwAt6MpSC9
-	ue0j1bn6lfq3dyQNprGyR/JIsOOe/f4=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-G84DiaFbPVar93xlMZymHg-1; Wed, 03 Jul 2024 12:40:57 -0400
-X-MC-Unique: G84DiaFbPVar93xlMZymHg-1
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2ee86eda4e4so7046101fa.3
-        for <virtualization@lists.linux.dev>; Wed, 03 Jul 2024 09:40:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720024856; x=1720629656;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GjcYMTjxU9kW8nOnuCfG73hNuxho2zHE2PKN/EiOn/o=;
-        b=rxGbpocHpJtLBI+6RrdVqCvPojxv9tCM2PXxVtgAKxShhwJBAZwtbXIEo91bh2DgSU
-         x1IANlyGVtf3b/cY1uVt/Ue5rGwlimCG8qyfFjhbszb37nH9nupo2/QU+eq+6Z9Ww/++
-         EZ+dTls5GVEH2KeNKpCBeg91QCFm74U8niird7rmGQd7E8wQlZqnbYJXAR2dGLbp8N0h
-         OHp6MDVRnP8UvnbRp1bfZcAA4ULEjXnCucYf9rK0nzCV8j3Qhy0J++9usVpAger3DXh0
-         bhKtNiE14hn/mTQMfSofEeaBgmlL8GxWTg7qVBHqA0avHSInyZtOEodk2FAFl7gceo4V
-         7GkQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW9pxkTGh/xHZJP2rJTldE0YEFmKFMJDxKhBaohvzQVultjbWi4b7BovRNiiI0UiG7AWiRmeY4whgtYO9j9oRfxnVvB+Vf1zINVlfLjksg=
-X-Gm-Message-State: AOJu0Yxdp7uMb1vvMvBV6j7em4lYSzls5ddiaihq3p/tIfklMOuhnWaw
-	GIfdoHboBod1n5PxQTZ9mi7Tjt46Q+ETx0l3CafkHO7xgOOVYSwutqf40HBGGbOnjkSh7DBZrU+
-	IEvpaqEJvIa2z6W11bpRZGeIsQBwvAnQJzx7nxCdH7ywqV5zf9SfsOYK0k8bt4QjQ5fLJNN1V
-X-Received: by 2002:a05:651c:49b:b0:2eb:d9a3:2071 with SMTP id 38308e7fff4ca-2ee5e6c9cd8mr67067731fa.50.1720024855706;
-        Wed, 03 Jul 2024 09:40:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGvypbDJXalyTd6VQsSi89yawsHxOcoDakQlgNsNJ/JxTEK9+b9EQJj2/3nSKl7r1LNJEGU6w==
-X-Received: by 2002:a05:651c:49b:b0:2eb:d9a3:2071 with SMTP id 38308e7fff4ca-2ee5e6c9cd8mr67066891fa.50.1720024852997;
-        Wed, 03 Jul 2024 09:40:52 -0700 (PDT)
-Received: from redhat.com ([31.187.78.171])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4257c4e10d6sm173923055e9.30.2024.07.03.09.40.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jul 2024 09:40:52 -0700 (PDT)
-Date: Wed, 3 Jul 2024 12:40:48 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Denis Arefev <arefev@swemel.ru>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-	lvc-project@linuxtesting.org
-Subject: Re: [PATCH v2] net: missing check virtio
-Message-ID: <20240703123832-mutt-send-email-mst@kernel.org>
-References: <20240613095448.27118-1-arefev@swemel.ru>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IhQqhAmn"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9842241A73
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jul 2024 23:06:48 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id D_CYRK4enkQj for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Jul 2024 23:06:47 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f400:7e88::61c; helo=nam10-dm6-obe.outbound.protection.outlook.com; envelope-from=nicolinc@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 4F5AF41A8A
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4F5AF41A8A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=IhQqhAmn
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2061c.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::61c])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4F5AF41A8A
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jul 2024 23:06:47 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=E0Vfc4oT6YtWdFOVyer7W9yTJkCvXWfTYj5FgcRRWOyO89L3py8LVJNMQHgrgdldA4mrifQuexRuf2MyhHWg8PKpCmiu6xIOkKufqt70ENRB5qzQqdmbE7gBRYzqUXdWxfFO+E87xwMf43kdb/HL45srZGNhZ23c44W9X6wl2ak5gsAWtUIcl+XmdJ7V22g8dE1Iq/h0swtNju2W52R85BVo8j9Ul5PNQYrEFoWrxr4OWIVVyeoQItDiTpYcL7bjG5OE11l9NAgOkkb5RojoIYt1slmUCMuhbT5LUYCbcFYoBqqtz5+dU0H15NG4M/GWh5t6nyL9IkC865dlNmxnmw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dFypB8QquqIWlG3jKiaHR+nrvsGhowfnkzF/SjFq/T8=;
+ b=JB/Hp75/dbUrbW38e+kK6yESZikSkCQGgybDv4EQ47LQl85LBbCOXkaY+/2dDVFTu7D2qHPJCxlaRvfGeV3mcNefZDzty42012lW+28mDQ1f1F2DYMxFSuCcPmbbRcpPOy3lQBWu2zoXF6ILanMbrjJ6qfty2FmYjG5BJj7tZm/VU/tWIICC6Q0U9lJIWm7p9VbA47FIRCnn+QT0EkzgwrHoKsZMXzJ8cGnzkewGGxdpdVbtZN0o4vq8Okw4jVXwfsd5KuIADl60fyAjYjTSGJbUn7jlYk+bEumDadrxk5V+WmWEYVZjB8BfICnkm3bPUzgoujvLuoSbxK25NiWcuQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=linux.intel.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dFypB8QquqIWlG3jKiaHR+nrvsGhowfnkzF/SjFq/T8=;
+ b=IhQqhAmnZFZPmssIo/UAGIk839AfgiMVQ9y12rMcH/J/UZjfD6fTD51ZL5DIMlJdGlMSElgGYb5Hz7KoLFWI912N+EgQwFEjp1BFryLZVycTeVbFtCE3E3ZBTNrhSpBchoJw32/xKQUk+WlDdADkw6Q3uccasDchNxd5AteO9GCewT69Cq4DKgPaNKrINgRnWSa6qZMKAMjzwt0//7sHrdVCRCNv4hh7DcX9/x6mathTwOTZHHq5m9XJb1VvYeDae8tpPnZYg6CKpHU1r8LRcd9gk068zOLGmhWsEu6dS8v9ORlTwemOOocKbfrdpHeYYgh962OJ3DspkQVISdgpWg==
+Received: from BL1PR13CA0110.namprd13.prod.outlook.com (2603:10b6:208:2b9::25)
+ by CY5PR12MB6348.namprd12.prod.outlook.com (2603:10b6:930:f::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7719.36; Wed, 3 Jul
+ 2024 23:06:42 +0000
+Received: from BL6PEPF0002256E.namprd02.prod.outlook.com
+ (2603:10b6:208:2b9:cafe::99) by BL1PR13CA0110.outlook.office365.com
+ (2603:10b6:208:2b9::25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7762.8 via Frontend
+ Transport; Wed, 3 Jul 2024 23:06:42 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BL6PEPF0002256E.mail.protection.outlook.com (10.167.249.36) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7741.18 via Frontend Transport; Wed, 3 Jul 2024 23:06:42 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 3 Jul 2024
+ 16:06:18 -0700
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail204.nvidia.com
+ (10.129.68.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 3 Jul 2024
+ 16:06:18 -0700
+Received: from Asurada-Nvidia (10.127.8.13) by mail.nvidia.com (10.129.68.6)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4 via Frontend
+ Transport; Wed, 3 Jul 2024 16:06:17 -0700
+Date: Wed, 3 Jul 2024 16:06:15 -0700
+From: Nicolin Chen <nicolinc@nvidia.com>
+To: Lu Baolu <baolu.lu@linux.intel.com>
+CC: Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, "Joerg
+ Roedel" <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
+	<robin.murphy@arm.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, "Yi
+ Liu" <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, "Joel
+ Granados" <j.granados@samsung.com>, <iommu@lists.linux.dev>,
+	<virtualization@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>,
+	Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v8 06/10] iommufd: Add iommufd fault object
+Message-ID: <ZoXZZ2SJ/WdlMJaX@Asurada-Nvidia>
+References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
+ <20240702063444.105814-7-baolu.lu@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240613095448.27118-1-arefev@swemel.ru>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
+In-Reply-To: <20240702063444.105814-7-baolu.lu@linux.intel.com>
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL6PEPF0002256E:EE_|CY5PR12MB6348:EE_
+X-MS-Office365-Filtering-Correlation-Id: 478f0402-6c59-4446-11d4-08dc9bb4cd7d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|36860700013|1800799024|82310400026;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?01asFNKhw3TEnyGzj+QTcagAvRPs33I8TUTPCr27Fm/hZh+05BzglDCv+j+Q?=
+ =?us-ascii?Q?vLpikZEd0BzoSy09Oh8vHTFnRCJd3Rf7bEh703hcfoM07GuhgRsvIdavZ1IQ?=
+ =?us-ascii?Q?Fx+VeUk6vomJwEcxF6NFU6qnKEHIaPtP9kU3XOiAE1QCfSMqw+atkdr6GaTd?=
+ =?us-ascii?Q?lTrJ/PrWjbH6mwRk+3vqqF3/qiPGZ7f7S3rRFMK4zdoEx7xEN0WjmnMYV0bV?=
+ =?us-ascii?Q?2vMqzTeOHaVIN5JzoxVTxir2POcyPlUTnUAeWGNMksnfObIu6c4nP/pTWq4G?=
+ =?us-ascii?Q?NkSoc6Qyb+yXga7B7+iZtoFs78Yg3LG2HzerYOwjV9IVArUTr10CTeWvcu+y?=
+ =?us-ascii?Q?g4gQhS5nj3guFIwJAZRAG12BvcQfOe3OLWMCVOdkn729TOsNrY9sECRUOvya?=
+ =?us-ascii?Q?wRK7Z48jk7rbbvm+2jduaTgKLvIyJ2ar+nVZZ0lGrU1Rb87LtImP1DBEknJi?=
+ =?us-ascii?Q?gXDaAgSCG+72gvqRYlRHZz/wjRAxFPYfLm6LOHyySGI3BLPNRpOd7gf7Gcy0?=
+ =?us-ascii?Q?gA5D1DkTwQG3T2KLbVOqgUhOdVb2+eG+AV78X6DldtmZd1+UmxkR81ymgxHJ?=
+ =?us-ascii?Q?2Ktkf4wXVOCgG3mjfOZkVm9PjZyPUrDIdU3JeyzFVkpb5gonf0OFH6lxSwDJ?=
+ =?us-ascii?Q?pl+WHpSmZrRMKBV5/x/5xgleywZ94JkOWp3jBYe3IhPeqLa3uoUZWf+IRgFB?=
+ =?us-ascii?Q?tC1/iXXDL8qrz0GgbDBFH9/lVMhua67mcSjjrroztZ3+OEeyQcCzuchmf4Fs?=
+ =?us-ascii?Q?G1IYeeFwSvhW4yDyVqELzgQddHxpXscT7AnU1q/zW0qNf2VxYn099tCxP21i?=
+ =?us-ascii?Q?HVQJlb/kCiEiPBJRSRv7mHmzUd65DsAGPG4yFSruSQRSMyssARDzt4ymQsII?=
+ =?us-ascii?Q?bnNMR3LtllTec0ucC14rUmWjU/Q7MCPePpvt27X4QiT5b9xT+IDa8TwXC8Za?=
+ =?us-ascii?Q?0SRsjw5qntGoD5ByRfQOppDGok2Ljc84t2bnGVPeuIhrRQ2LbEQ86F4vHCwR?=
+ =?us-ascii?Q?EjaIWjH1rDJ+OCMmvLHpQI4xxT5Pix+7+epm1s3C4WNhX2rBguLmCCA6EVEU?=
+ =?us-ascii?Q?gA4aH6Hc7lZGw7j2+4sZjgD8Cyu2nbIq024mxtXBvILwH2Jb7LbDSCmsx4Bb?=
+ =?us-ascii?Q?k9EtO8KwW2PIvoHjXZywASTH3z/PC0Ch/CRUbjgUegqnTSQlcufbfHpbpFWl?=
+ =?us-ascii?Q?YNwfCxSyxfY0rw8r0zhaiq83VXfXOzNx+YuEjRfFcToN6xFe+pw9CbcLt924?=
+ =?us-ascii?Q?FDr8Kyjfw79EUo+k5AjqocIl84+foimu0AsvX3AcgWpRVZgeGmkjxS3XXDhk?=
+ =?us-ascii?Q?mCjIgGxOcXwybN3WzbEPlW9tt1wqbGgkSI2RpvZZEjeLvdE10IWvWK6CXGRp?=
+ =?us-ascii?Q?efuLIi3zsb+ARsf7DZN1y86s3jaSgCFjLIejACSFC2JQoJuHcq5UdCH6HJ20?=
+ =?us-ascii?Q?9QCSRt/1Ntrm8bgulGNTWPln8/VMwM7L?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(376014)(36860700013)(1800799024)(82310400026);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Jul 2024 23:06:42.1524
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 478f0402-6c59-4446-11d4-08dc9bb4cd7d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL6PEPF0002256E.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6348
 
-On Thu, Jun 13, 2024 at 12:54:48PM +0300, Denis Arefev wrote:
-> Two missing check in virtio_net_hdr_to_skb() allowed syzbot
-> to crash kernels again
+Hi Baolu,
+
+On Tue, Jul 02, 2024 at 02:34:40PM +0800, Lu Baolu wrote:
+
+> An iommufd fault object provides an interface for delivering I/O page
+> faults to user space. These objects are created and destroyed by user
+> space, and they can be associated with or dissociated from hardware page
+> table objects during page table allocation or destruction.
 > 
-> 1. After the skb_segment function the buffer may become non-linear
-> (nr_frags != 0), but since the SKBTX_SHARED_FRAG flag is not set anywhere
-> the __skb_linearize function will not be executed, then the buffer will
-> remain non-linear. Then the condition (offset >= skb_headlen(skb))
-> becomes true, which causes WARN_ON_ONCE in skb_checksum_help.
+> User space interacts with the fault object through a file interface. This
+> interface offers a straightforward and efficient way for user space to
+> handle page faults. It allows user space to read fault messages
+> sequentially and respond to them by writing to the same file. The file
+> interface supports reading messages in poll mode, so it's recommended that
+> user space applications use io_uring to enhance read and write efficiency.
 > 
-> 2. The struct sk_buff and struct virtio_net_hdr members must be
-> mathematically related.
-> (gso_size) must be greater than (needed) otherwise WARN_ON_ONCE.
-> (remainder) must be greater than (needed) otherwise WARN_ON_ONCE.
-> (remainder) may be 0 if division is without remainder.
-> 
-> offset+2 (4191) > skb_headlen() (1116)
-> WARNING: CPU: 1 PID: 5084 at net/core/dev.c:3303 skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
-> Modules linked in:
-> CPU: 1 PID: 5084 Comm: syz-executor336 Not tainted 6.7.0-rc3-syzkaller-00014-gdf60cee26a2e #0
-> Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 11/10/2023
-> RIP: 0010:skb_checksum_help+0x5e2/0x740 net/core/dev.c:3303
-> Code: 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 52 01 00 00 44 89 e2 2b 53 74 4c 89 ee 48 c7 c7 40 57 e9 8b e8 af 8f dd f8 90 <0f> 0b 90 90 e9 87 fe ff ff e8 40 0f 6e f9 e9 4b fa ff ff 48 89 ef
-> RSP: 0018:ffffc90003a9f338 EFLAGS: 00010286
-> RAX: 0000000000000000 RBX: ffff888025125780 RCX: ffffffff814db209
-> RDX: ffff888015393b80 RSI: ffffffff814db216 RDI: 0000000000000001
-> RBP: ffff8880251257f4 R08: 0000000000000001 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000001 R12: 000000000000045c
-> R13: 000000000000105f R14: ffff8880251257f0 R15: 000000000000105d
-> FS:  0000555555c24380(0000) GS:ffff8880b9900000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 000000002000f000 CR3: 0000000023151000 CR4: 00000000003506f0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Call Trace:
->  <TASK>
->  ip_do_fragment+0xa1b/0x18b0 net/ipv4/ip_output.c:777
->  ip_fragment.constprop.0+0x161/0x230 net/ipv4/ip_output.c:584
->  ip_finish_output_gso net/ipv4/ip_output.c:286 [inline]
->  __ip_finish_output net/ipv4/ip_output.c:308 [inline]
->  __ip_finish_output+0x49c/0x650 net/ipv4/ip_output.c:295
->  ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:323
->  NF_HOOK_COND include/linux/netfilter.h:303 [inline]
->  ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:433
->  dst_output include/net/dst.h:451 [inline]
->  ip_local_out+0xaf/0x1a0 net/ipv4/ip_output.c:129
->  iptunnel_xmit+0x5b4/0x9b0 net/ipv4/ip_tunnel_core.c:82
->  ipip6_tunnel_xmit net/ipv6/sit.c:1034 [inline]
->  sit_tunnel_xmit+0xed2/0x28f0 net/ipv6/sit.c:1076
->  __netdev_start_xmit include/linux/netdevice.h:4940 [inline]
->  netdev_start_xmit include/linux/netdevice.h:4954 [inline]
->  xmit_one net/core/dev.c:3545 [inline]
->  dev_hard_start_xmit+0x13d/0x6d0 net/core/dev.c:3561
->  __dev_queue_xmit+0x7c1/0x3d60 net/core/dev.c:4346
->  dev_queue_xmit include/linux/netdevice.h:3134 [inline]
->  packet_xmit+0x257/0x380 net/packet/af_packet.c:276
->  packet_snd net/packet/af_packet.c:3087 [inline]
->  packet_sendmsg+0x24ca/0x5240 net/packet/af_packet.c:3119
->  sock_sendmsg_nosec net/socket.c:730 [inline]
->  __sock_sendmsg+0xd5/0x180 net/socket.c:745
->  __sys_sendto+0x255/0x340 net/socket.c:2190
->  __do_sys_sendto net/socket.c:2202 [inline]
->  __se_sys_sendto net/socket.c:2198 [inline]
->  __x64_sys_sendto+0xe0/0x1b0 net/socket.c:2198
->  do_syscall_x64 arch/x86/entry/common.c:51 [inline]
->  do_syscall_64+0x40/0x110 arch/x86/entry/common.c:82
->  entry_SYSCALL_64_after_hwframe+0x63/0x6b
-> 
-> Found by Linux Verification Center (linuxtesting.org) with Syzkaller
-> 
-> Signed-off-by: Denis Arefev <arefev@swemel.ru>
+> A fault object can be associated with any iopf-capable iommufd_hw_pgtable
+> during the pgtable's allocation. All I/O page faults triggered by devices
+> when accessing the I/O addresses of an iommufd_hw_pgtable are routed
+> through the fault object to user space. Similarly, user space's responses
+> to these page faults are routed back to the iommu device driver through
+> the same fault object.
 
-I suspect it's this one:
+There is a need for VIOMMU object to report HW fault to VMM. For
+example, a HW-accelerated VCMDQ may encounter HW errors. HW will
+raise an IRQ to the host kernel and the host kernel will forward
+it to the guest. I think we can have a viommu->fault, similar to
+the hwpt->fault introduced by this series. This viommu->fault can
+also benefit nested IOMMU for reporting translation error.
 
-Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+I learned that this hwpt->fault is exclusively for IOPF/PRI. And
+Jason suggested me to add a different one for VIOMMU. Yet, after
+taking a closer look, I found the fault object in this series is
+seemingly quite generic at the uAPI level: its naming/structure,
+and the way how it's allocated and passed to hwpt, despite being
+highly correlated with IOPF in its fops code. So, I feel that we
+might have a chance of reusing it for different fault types:
 
++enum iommu_fault_type {
++	IOMMU_FAULT_TYPE_HWPT_IOPF,
++	IOMMU_FAULT_TYPE_VIOMMU_IRQ,
++};
 
-Though if you can test kernel before that to make sure, that
-would be nice.
+ struct iommu_fault_alloc {
+ 	__u32 size;
+ 	__u32 flags;
++	__u32 type;  /* enum iommu_fault_type */
+ 	__u32 out_fault_id;
+ 	__u32 out_fault_fd;
+ };
 
-I'm inclined to merge, crashing syzkaller is not nice.
+I understand that this is already v8. So, maybe we can, for now,
+apply the small diff above with an IOMMU_FAULT_TYPE_HWPT_IOPF type
+check in the ioctl handler. And a decoupling for the iopf fops in
+the ioctl handler can come later in the viommu series:
+	switch (type) {
+	case IOMMU_FAULT_TYPE_HWPT_IOPF:
+		filep = anon_inode_getfile("[iommufd-pgfault]",
+					   &iommufd_fault_fops_iopf);
+	case IOMMU_FAULT_TYPE_VIOMMU_IRQ:
+		filep = anon_inode_getfile("[iommufd-viommu-irq]",
+					   &iommufd_fault_fops_viommu);
+	default:
+		return -EOPNOSUPP;
+	}
 
+Since you are the designer here, I think you have a better 10000
+foot view -- maybe I am missing something here implying that the
+fault object can't be really reused by viommu.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Would you mind sharing some thoughts here?
 
-
-> ---
->  V1 -> V2: incorrect type in argument 2
->  include/linux/virtio_net.h | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 4dfa9b69ca8d..d1d7825318c3 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -56,6 +56,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  	unsigned int thlen = 0;
->  	unsigned int p_off = 0;
->  	unsigned int ip_proto;
-> +	u64 ret, remainder, gso_size;
->  
->  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
->  		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-> @@ -98,6 +99,16 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
->  		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
->  
-> +		if (hdr->gso_size) {
-> +			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
-> +			ret = div64_u64_rem(skb->len, gso_size, &remainder);
-> +			if (!(ret && (hdr->gso_size > needed) &&
-> +						((remainder > needed) || (remainder == 0)))) {
-> +				return -EINVAL;
-> +			}
-> +			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
-> +		}
-> +
->  		if (!pskb_may_pull(skb, needed))
->  			return -EINVAL;
->  
-> -- 
-> 2.25.1
-
+Thanks
+Nic
