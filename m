@@ -1,115 +1,183 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 831D21B0116
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 14:19:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FC451AC247
+	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 14:33:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720102766; cv=none; b=Wj37SMuKyQ4WGC7lgGxs1/eKqXwRcEmzxPnCE7etLoEHvqv/HRhZs12O6K0UWZDodGEKR772NwMFY1DbFFOuROvRpwT+yBZ6aupppCAr4XUijbR2ItL6DhbJm9vqeA0usIpsndu02jWs/Z1y8t8ktAq/IaOi9Zvt6JEVal9UGoE=
+	t=1720103599; cv=none; b=cFsA6cNeAOzbIe8siaHWEE8RSqEvyiGCBCmJhQhoUU6SOvAZiH4WFUS4GPlAa15ZQWT3tVe4TjaVOvV3PDpMOz0egEuMGm0BCShjlEDv8btAcl37cxL+2Xt7eSVrBE6y1/0sjpKdploCk5b3+KWGFJrXrBcsV4IXBNefCWOHgA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720102766; c=relaxed/simple;
-	bh=xLWtU+r6HtS/s4pQFfOXx/75eJPmoXke//X9ptIbVgU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bddMortRcvBNV/6Y+rqGZ2zvcMAB9lHg+G2MfJofC3XGkATP3LDgjdPyJRqtYhrY+OgKYrjml+EdW97DmNN66ArE5IHJhsXIGhWXHlJh7jT09b4bAC1+7kCzML/EuTXezvy/bzNAIDxOdVff9+44N7zDw3Myx7swqF/nw4mElcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YTnJGl8c; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1720103599; c=relaxed/simple;
+	bh=ScMokjX/7gOoPAf4P/UeITBMJOFCgt9up4D1pgTystc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BfqxGWpcnWgidKJI6trsBjEYqPXRrXsNleGNhZlUTkhfP0iRC8AKrEOteUxGH3JgSVEKNXA/o3Uitkx6YWCHbDnmkMmg0K9/YLWMGQfypLXRDlAXq35FkSZkCeHviZTc1/pZ2AShJqD5vfUjNUzTwU2fx8ccgsxHXbw1R/YRXT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=VVXCmN2o; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YTnJGl8c"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2F9CE6085E
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 14:19:24 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 3_RelWd6yzyr for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Jul 2024 14:19:23 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=will@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org F382060851
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F382060851
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YTnJGl8c
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F382060851
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 14:19:22 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 72BC9CE2F80;
-	Thu,  4 Jul 2024 14:19:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00B15C4AF0A;
-	Thu,  4 Jul 2024 14:19:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720102752;
-	bh=xLWtU+r6HtS/s4pQFfOXx/75eJPmoXke//X9ptIbVgU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=YTnJGl8c5wfv8pFoMx0MPfIwGiKoZPbKD9Rxv9Todv2zmcHUk2WYqqi7EakObJvTP
-	 cuwrJlEwzbj3DkhkX8Xi+2NzeibWQKN8c+0IH1D3hxc7Yz1yuB9d6T2v3Sz4dbYOby
-	 0yfPkR9n3aOcy/SrV100v6zbkL4uCKvmWuT2t0f5Zn0tDL7fHVkBbJB0Q9NT0WRGXN
-	 SQRmpkDyjP1+VO59dk0xESwKID/YGFse6f1iWhdUgMpk4polojrY4V43zXglekKKl/
-	 r+KDoafLXqWOs0tUzdZfuyLOCxTRseSv5aC/kJ+3ib4lJ6xiGDYz/MPCKp123TO063
-	 N6AEkbxwqt25g==
-From: Will Deacon <will@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>,
-	Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>
-Cc: catalin.marinas@arm.com,
-	kernel-team@android.com,
-	Will Deacon <will@kernel.org>,
-	iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v8 00/10] IOMMUFD: Deliver IO page faults to user space
-Date: Thu,  4 Jul 2024 15:18:57 +0100
-Message-Id: <172009718026.360360.18220408964887632139.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20240702063444.105814-1-baolu.lu@linux.intel.com>
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="VVXCmN2o"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-42565cdf99cso6041285e9.3
+        for <virtualization@lists.linux.dev>; Thu, 04 Jul 2024 07:33:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720103594; x=1720708394; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7+XcHt72PqD48gjXmTjJ0nKJ4gTlxCsTMHGoaMCYVc8=;
+        b=VVXCmN2o/ZJA76J4wBy9OQYFjdix2ENWVkYRPCXJyZm8nhVhqGPBDJ5zkNlsjk1txg
+         p2kZbCvMG8H587jbmbKor494w5+rN9qBDBMLoVp3punJC1wIewlV20TFlrHT2MOy193/
+         YFb1Pck/GjEuR83KbkFc8XAe+BktMZOxFS76PlSEQQ3JueUvus4VaItZhCapX7N10e2U
+         DkfTCp/g00ROoWUiPOpHWBXC9DI4tXAZZILECggwYWN5/wrEPad83mYHh3rFPEx2I2G8
+         uPG7aJ26TOa3It3vKYYL632PBxtS4WcwJgpE0j4xRSYQG5BbuOE1kiqEmbGi6TXPbzJ6
+         BGfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720103594; x=1720708394;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7+XcHt72PqD48gjXmTjJ0nKJ4gTlxCsTMHGoaMCYVc8=;
+        b=eikd9PprMqR/I5woAYOkQoLMFzIyS6VKuQ8dmbQZzARzj+FpAjxAnI2G3Tqcr6Akzc
+         aPpuODc77PuZoLzkpay7FKCgrq3dwdiHRMfDZb3/dNVkReMTcOww5p7VHkEc1GscuV//
+         m7k3ttR+dsCBi1bb1uTA6mcy0zhGIygj0PlEievnRDEG8Dsnz5kuy1IEfbrxAkfm5QYF
+         ln+muyxkbAjQK4cIO3xmiJTRgysq63/zjCBNrlJBG1A0Ofyls/SISFIQjacJO9nMAZwS
+         AbUDp4RDD0pd4Dm6HxYnEgavCsLKE0EUV8L0OfJuLnccPIgUzmksRHOpQbBDZmY7lzlB
+         rduA==
+X-Gm-Message-State: AOJu0YzgwvfN6MFoWlV3hD10mYN2zzbriLZduBUzi7LydGuFXf/unUSV
+	D6hsMd8Lb91kMuUVSyGVODp5TcLT8ZgasdEpHMb+IAwIxJAkU9Xu3yFC/4GWb8qYjkE2QgdfXxK
+	ywqk=
+X-Google-Smtp-Source: AGHT+IFepNjVAxi9b2oVoQS2eiQk6dcO17r2Is4fGu8gu10nX4CTpCNUfiYG0RGCgKN5fYj/tysr6g==
+X-Received: by 2002:a05:600c:15d4:b0:425:6927:5f4e with SMTP id 5b1f17b1804b1-4264a41e878mr19179955e9.37.1720103594069;
+        Thu, 04 Jul 2024 07:33:14 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4264879f1b5sm16251735e9.0.2024.07.04.07.33.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jul 2024 07:33:13 -0700 (PDT)
+From: Jiri Pirko <jiri@resnulli.us>
+To: virtualization@lists.linux.dev
+Cc: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	parav@nvidia.com,
+	feliu@nvidia.com,
+	hengqi@linux.alibaba.com
+Subject: [PATCH virtio v3 00/19] virtio: consolidate vq info args of find_vqs()
+Date: Thu,  4 Jul 2024 16:32:48 +0200
+Message-ID: <20240704143307.1212454-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
-On Tue, 02 Jul 2024 14:34:34 +0800, Lu Baolu wrote:
-> This series implements the functionality of delivering IO page faults to
-> user space through the IOMMUFD framework. One feasible use case is the
-> nested translation. Nested translation is a hardware feature that
-> supports two-stage translation tables for IOMMU. The second-stage
-> translation table is managed by the host VMM, while the first-stage
-> translation table is owned by user space. This allows user space to
-> control the IOMMU mappings for its devices.
-> 
-> [...]
+From: Jiri Pirko <jiri@nvidia.com>
 
-Applied first four to iommu (iommufd/attach-handles), thanks!
+Currently, virtio_find_vqs() and virtio_find_vqs_ctx() accept array of
+names, callbacks and ctx (in case of the second one) as separate args.
+That became inconvenient as the ctx addition showed.
 
-[01/10] iommu: Introduce domain attachment handle
-        https://git.kernel.org/iommu/c/14678219cf40
-[02/10] iommu: Remove sva handle list
-        https://git.kernel.org/iommu/c/3e7f57d1ef3f
-[03/10] iommu: Add attach handle to struct iopf_group
-        https://git.kernel.org/iommu/c/06cdcc32d657
-[04/10] iommu: Extend domain attach group with handle support
-        https://git.kernel.org/iommu/c/8519e689834a
+For virtio_net control queue, an indication of queue flavour (slow path)
+is going to be needed to be passed to PCI transport in order to
+assign vectors properly, another array added to virtio_find_vqs_ctx()
+arg list would not be nice and convenient.
 
-Jason -- feel free to use this branch as a base on which you can take
-the iommufd parts.
+Instead, introduce a structure to carry vq callback, name and ctx. Pass
+array of these structures to virtio_find_vqs() and all the way down to
+transport find_vqs() op implementation.
 
-Cheers,
+That allows to easily extend what needs to be passed down. Also, it
+makes the code a bit more cleaner. We get rid of separate
+virtio_find_vqs_ctx() helper.
+
+This patchset does the conversion in steps, using temporary _info() op
+and helper. Note they are renamed back.
+
+Patch #1 does one forgotten conversion to virtio_find_single_vq().
+Patches #2 and #3 do preparations for find_vqs_info() op introduction.
+Patch #4 introduces new op find_vqs_info() to replace find_vqs() it also
+  introduces struct virtio_queue_info and virtio_find_vqs_info() helper.
+Patches #5 and #6 convert transports to implement find_vqs_info() op
+  that accepts array of virtio_queue_info structs.
+Patch #7 converts virtio_find_single_vq() to use the new way as well.
+Patch #8 removes original find_vqs() op.
+Patch #9 renames find_vqs_info() to find_vqs() and completes first part
+  of conversion this patches does.
+Patches #10-#17 convert virtio_find_vqs() and virtio_find_vqs_ctx()
+  users to use new virtio_find_vqs_info() helper.
+Patch #18 removes no longer used virtio_find_vqs() and
+  virtio_find_vqs_ctx() helpers.
+Patch #19 finalizes the conversion by renaming virtio_find_vqs_info()
+  to virtio_find_vqs().
+
+---
+v2->v3:
+- added proper struct description comment to patch #4
+- added suggested by tag to patches #4, #10-#17
+
+v1->v2:
+- added forgotten VIRTIO_SND_VQ_MAX for array size in virtio_card.c
+- s/virtio_queue_info/virtqueue_info/
+- fixed comments for struct virtqueue_info
+- rebased on top of recent code changes (virtio_fs.c)
+- see individual patches changelog for more details
+
+Jiri Pirko (19):
+  caif_virtio: use virtio_find_single_vq() for single virtqueue finding
+  virtio: make virtio_find_vqs() call virtio_find_vqs_ctx()
+  virtio: make virtio_find_single_vq() call virtio_find_vqs()
+  virtio: introduce virtio_queue_info struct and find_vqs_info() config
+    op
+  virtio_pci: convert vp_*find_vqs() ops to find_vqs_info()
+  virtio: convert find_vqs() op implementations to find_vqs_info()
+  virtio: call virtio_find_vqs_info() from virtio_find_single_vq()
+    directly
+  virtio: remove the original find_vqs() op
+  virtio: rename find_vqs_info() op to find_vqs()
+  virtio_blk: convert to use virtio_find_vqs_info()
+  virtio_console: convert to use virtio_find_vqs_info()
+  virtio_crypto: convert to use virtio_find_vqs_info()
+  virtio_net: convert to use virtio_find_vqs_info()
+  scsi: virtio_scsi: convert to use virtio_find_vqs_info()
+  virtiofs: convert to use virtio_find_vqs_info()
+  virtio_balloon: convert to use virtio_find_vqs_info()
+  virtio: convert the rest virtio_find_vqs() users to
+    virtio_find_vqs_info()
+  virtio: remove unused virtio_find_vqs() and virtio_find_vqs_ctx()
+    helpers
+  virtio: rename virtio_find_vqs_info() to virtio_find_vqs()
+
+ arch/um/drivers/virt-pci.c                    |  8 ++-
+ arch/um/drivers/virtio_uml.c                  | 12 ++--
+ drivers/block/virtio_blk.c                    | 20 +++---
+ drivers/bluetooth/virtio_bt.c                 | 13 ++--
+ drivers/char/virtio_console.c                 | 43 +++++--------
+ drivers/crypto/virtio/virtio_crypto_core.c    | 31 ++++-----
+ drivers/firmware/arm_scmi/virtio.c            | 11 ++--
+ drivers/gpio/gpio-virtio.c                    | 10 +--
+ drivers/gpu/drm/virtio/virtgpu_kms.c          |  9 ++-
+ drivers/iommu/virtio-iommu.c                  | 11 ++--
+ drivers/net/caif/caif_virtio.c                |  8 +--
+ drivers/net/virtio_net.c                      | 34 ++++------
+ drivers/net/wireless/virtual/mac80211_hwsim.c | 12 ++--
+ drivers/platform/mellanox/mlxbf-tmfifo.c      | 10 +--
+ drivers/remoteproc/remoteproc_virtio.c        | 12 ++--
+ drivers/rpmsg/virtio_rpmsg_bus.c              |  8 ++-
+ drivers/s390/virtio/virtio_ccw.c              | 13 ++--
+ drivers/scsi/virtio_scsi.c                    | 32 ++++------
+ drivers/virtio/virtio_balloon.c               | 32 ++++------
+ drivers/virtio/virtio_input.c                 |  9 +--
+ drivers/virtio/virtio_mmio.c                  | 12 ++--
+ drivers/virtio/virtio_pci_common.c            | 48 +++++++-------
+ drivers/virtio/virtio_pci_common.h            |  3 +-
+ drivers/virtio/virtio_pci_modern.c            |  5 +-
+ drivers/virtio/virtio_vdpa.c                  | 13 ++--
+ fs/fuse/virtio_fs.c                           | 22 +++----
+ include/linux/virtio_config.h                 | 64 ++++++++++---------
+ net/vmw_vsock/virtio_transport.c              | 16 ++---
+ sound/virtio/virtio_card.c                    | 23 +++----
+ 29 files changed, 242 insertions(+), 302 deletions(-)
+
 -- 
-Will
+2.45.2
 
-https://fixes.arm64.dev
-https://next.arm64.dev
-https://will.arm64.dev
