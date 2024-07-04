@@ -1,57 +1,57 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B26BD1A08C9
-	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 06:44:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AB3F1A070E
+	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 06:44:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720075443; cv=none; b=QWm8ZEFthyHOfaCbTYQ1kPlLtuQ3VldRO005vW+3VuZJaEzoOB3h8GCrtqO80EK+r6ZYq7pCnhG3Z+H+zfgMwxz8OiLa457jj0Hzb26R5jNddGVm92hDrqzWlywfvS+DNZnjrVj8cht8NU0yfeK4Ohe4DIuzpp/aacLqbdvf7A4=
+	t=1720075445; cv=none; b=QyNG0YH6nLpw1x9yTzQ124RQdWlL6ZFvSkvg27jYUF12Do62/NlL8Mkktu6tuVRGO6vJ2WO6F5bqkOv1pLrPmb/fZlRGRNF1GHDXDP1/XcWyq3YFg4iVMAuQCrkxRPh42roia0YDMoesxtJ14TEFVh9wM1NKAuyQRtKjibAnQ/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720075443; c=relaxed/simple;
-	bh=Ejlf1kqfgu4Sjr9vD62wFu8Yxljiio3MmUzYjCugIOE=;
+	s=arc-20240116; t=1720075445; c=relaxed/simple;
+	bh=7uProIdkp+GwxUM7EvKgW81xUttZRtSoikRQdnXXoag=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=K+R/33Kbbo1UC9n+8Yw9BzvSkhJAg5RZ1h8hAaQ3EVZW/8AiM6m2iH6ezK3rdtJ6o/TQH4auvBR2e4xbkB4E3teX2mwKCaAnQDl7UIg0XOxoT/IgsVWIGqhVk8vtIywQtyfUwU314RNkN/6c72HTdQ23W647tcLFU3j9z/58/9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=m937kByL; arc=none smtp.client-ip=209.85.128.43
+	 MIME-Version; b=lRyu21rOJsCqhQfOUSEuGqeIWTkQswNFHxw1i/Bc+7yLddtfDVR+KAWV37m+I4ojBA/a2B656VxlrNAhedQ/NTO/P6rpFOmaw1A5Skt/iwdc27p2NFHLIKMpDJCq062My5v4pzo4uaHBUjShDN924pIMJY1LKXPGxcEJpBZMRyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=Vf7FUuxb; arc=none smtp.client-ip=209.85.128.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="m937kByL"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-424a3ccd0c0so1816565e9.1
-        for <virtualization@lists.linux.dev>; Wed, 03 Jul 2024 23:44:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="Vf7FUuxb"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-425814992aeso1805195e9.1
+        for <virtualization@lists.linux.dev>; Wed, 03 Jul 2024 23:44:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720075440; x=1720680240; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720075442; x=1720680242; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xwAIl/qCoX0iq4tp93u5F8klCUOPLZX57WWCkCb3iw0=;
-        b=m937kByL50+LE5u2I5b5pU05g/cII0IKLPbGiBsJxkxvIhp+Z3bMyOdfmkNlFh66Zs
-         s+TZJSaRiU2XshWuAzpFR+kLih6YM5A1f8vSMSIquGokpDAaW4x5SO0jlO16XIlChwXY
-         cx3CP5C+QQChOraxJptzw7j231vzFnmjUfnRrFV4/1GxkLO0YvT97q44nBctQ8IvGxjX
-         EzyTbq3JwiVj9aAAUvIUcnQxJLQXrYP4nU54X9ymdacMfXeGzbg7+vTucvTMRfalKYN+
-         WUCzcbZfjH4KYihkfG49pOs+o1yPOMvl+KIlupdmlTnHTuiiP4vn+0Wd+kPMODwrqEiG
-         ziUg==
+        bh=Wg/86A9OsTgOazRE9ce35tA0P/JztWuqN04XNrQwJ7I=;
+        b=Vf7FUuxbzhKGNoGGS3cv3nhl/XhVH6vXrKKsa0ljg3oNuuLnCFd4SB+Dqsd7HZbBby
+         1SetJ0fkLVrfR22m288jUKJ0zfMy2cPauvMZodrU5OUTubV3wVuoeoNmFzEMKDZm2yiR
+         d5H+9wyVT4TjNaIFYUeX3WhWS/TBqhiqNkvOrycNUAdn/cDhMJ2O4A8FcnR3JvPXSaRH
+         w+JZzLfGQNqn+ydS2osZI30QPDgVvgouniGLvN2bhmry1SJVysZKgCzGGm6bcmyVskAL
+         YvA8V3v4f5aVZnCOQVl+myCiL0MuyCnro8WhO01J39jybn5LNvmnlM6Rue1IujNlsZbK
+         JhQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720075440; x=1720680240;
+        d=1e100.net; s=20230601; t=1720075442; x=1720680242;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xwAIl/qCoX0iq4tp93u5F8klCUOPLZX57WWCkCb3iw0=;
-        b=nN/d04WE9i6PkSIQvl2gomzKJN7rwIF6TjVdep1rBTSENu9ym/fFATNUmpJrM71H1S
-         GLxXzigWx/hrcZ3dFmHr0BNM2ceiKjtiACwqvIvLWrE+xUZQ47nIUxl5ILDOAUop4Rku
-         apH4poZZjhYgPX74yx6qE5Mm/EOysaQOZ+dKi1Oh3uyBqz3Kyb/RvdcoojaYX86NJLhM
-         i5CfEO/uCFuBY5AHja/K/Ra1elvyLGg/RO2jDeFqK37Z3G1o+GK1hHAifLtfw13+hD8j
-         2jweq+kcIAvPcF1CobcE8J81h+w38V9fYMn92t/4QnJVJesLcQaBbELRMAWhGABu7ImA
-         TP2A==
-X-Gm-Message-State: AOJu0YwY7jlT8G4z+3JbXSXH7aTFZmE2RAW4sUQ/g54Ll8SSEotp1fzR
-	DPSOGcwbuZb0YAwchEa8WsLfMYVXxk0RFoId6BZk7sv3Ko1s5YmKKN9h6KejNitlcCIgzydSWKn
-	A
-X-Google-Smtp-Source: AGHT+IGC9epl8tYA6KqbEHGivEscgCEtJcA+VDIZW+iFUOLk4Ee7mir5wybhYvz3Pp+z/MqSSAWKAQ==
-X-Received: by 2002:a05:600c:2d55:b0:425:77b4:366d with SMTP id 5b1f17b1804b1-4264a3e3515mr4973105e9.11.1720075439951;
-        Wed, 03 Jul 2024 23:43:59 -0700 (PDT)
+        bh=Wg/86A9OsTgOazRE9ce35tA0P/JztWuqN04XNrQwJ7I=;
+        b=NR+dcyrk4UCFezW7VxFi4n2GQrRsW+sx0o2fccrlVA6foog9st+Qoc4c6Yez4nSRMD
+         g9NPdhS1+KMwv6hg2WS/WaJh5Fj6uWEryhUW0pR9dTIoK+TfmJTQUDdqTFwUpxdYSIiH
+         kNpeiojUaf1wxtwftu4Co+wD6Mr+Mjr/OhHoW94zogszY1c66e1OJMdMprK5cq70acRn
+         I5EwppUnULKU5LnzOSJCXF2dF5E7+nwzEhjVNEIkMaM8sovcpN43n5koRsn3rJQ/2j2C
+         hPDMbLVbmzVR4ZfpyEbc2iCNavwNYiAmjI1fuTF3SC5OGPaPJikpToBYxAKOLLCxooAl
+         iWLg==
+X-Gm-Message-State: AOJu0YwQ6FOSNfCxm65X3VdBm4IeC3q9P0P0RqC/XQM4wHTKKKRr3vuk
+	Zimasq+PTzHfGvdX0LFsG8Dd1VCX0v5TjiXmWeUqXbK5yOmXLjnSPEvVULopmmBCcIN+w7QMW3l
+	T
+X-Google-Smtp-Source: AGHT+IHF9cHpLsO6DmJ6Nb1L19P37+AEjXTDJSw/Yuc0GYfUWao2Y2omE4B+NudsuNymRanIzVq6aA==
+X-Received: by 2002:a05:600c:2319:b0:424:a3c7:4710 with SMTP id 5b1f17b1804b1-4264a42858fmr4738945e9.34.1720075442121;
+        Wed, 03 Jul 2024 23:44:02 -0700 (PDT)
 Received: from localhost (78-80-19-19.customers.tmcz.cz. [78.80.19.19])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4264a1f23f9sm10857695e9.26.2024.07.03.23.43.59
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4264a2fc49fsm10980715e9.39.2024.07.03.23.44.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jul 2024 23:43:59 -0700 (PDT)
+        Wed, 03 Jul 2024 23:44:01 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -61,9 +61,9 @@ Cc: mst@redhat.com,
 	parav@nvidia.com,
 	feliu@nvidia.com,
 	hengqi@linux.alibaba.com
-Subject: [PATCH virtio v2 03/19] virtio: make virtio_find_single_vq() call virtio_find_vqs()
-Date: Thu,  4 Jul 2024 08:43:34 +0200
-Message-ID: <20240704064350.1097716-4-jiri@resnulli.us>
+Subject: [PATCH virtio v2 04/19] virtio: introduce virtio_queue_info struct and find_vqs_info() config op
+Date: Thu,  4 Jul 2024 08:43:35 +0200
+Message-ID: <20240704064350.1097716-5-jiri@resnulli.us>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240704064350.1097716-1-jiri@resnulli.us>
 References: <20240704064350.1097716-1-jiri@resnulli.us>
@@ -77,61 +77,118 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-In order to prepare for conversion of virtio_find_vqs*() arguments, make
-virtio_find_single_vq() to call virtio_find_vqs() instead of
-op directly.
+Introduce a structure virtio_queue_info to carry name, callback and ctx
+together. In order to allow config implementations to accept config op
+with array of virtio_queue_info structures, introduce a new
+find_vqs_info() op. Do the needed conversion in virtio_find_vqs_ctx().
+Note that whole virtio_find_vqs_ctx() is going to be eventually removed
+at the and of this patchset.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
- include/linux/virtio_config.h | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+v1->v2:
+- fixed comments for struct virtqueue_info
+- s/virtio_queue_info/virtqueue_info/
+---
+ include/linux/virtio_config.h | 51 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 48 insertions(+), 3 deletions(-)
 
 diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index d19eaf6bafbf..82a1d798b2f1 100644
+index 82a1d798b2f1..9b975c2830f6 100644
 --- a/include/linux/virtio_config.h
 +++ b/include/linux/virtio_config.h
-@@ -210,20 +210,6 @@ static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
+@@ -18,6 +18,16 @@ struct virtio_shm_region {
+ 
+ typedef void vq_callback_t(struct virtqueue *);
+ 
++struct virtqueue_info {
++	const char *name; /* Mainly for debugging, may be NULL for a virtqueue
++			   * unused by driver.
++			   */
++	vq_callback_t *callback; /* May be NULL for vq that does
++				  * not need a callback.
++				  */
++	bool ctx;
++};
++
+ /**
+  * struct virtio_config_ops - operations for configuring a virtio device
+  * Note: Do not assume that a transport implements all of the operations
+@@ -58,6 +68,12 @@ typedef void vq_callback_t(struct virtqueue *);
+  *	names: array of virtqueue names (mainly for debugging)
+  *		include a NULL entry for vqs unused by driver
+  *	Returns 0 on success or error status
++ * @find_vqs_info: find virtqueues and instantiate them.
++ *	vdev: the virtio_device
++ *	nvqs: the number of virtqueues to find
++ *	vqs: on success, includes new virtqueues
++ *	vqs_info: array of virtqueue info structures
++ *	Returns 0 on success or error status
+  * @del_vqs: free virtqueues found by find_vqs().
+  * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
+  *      The function guarantees that all memory operations on the
+@@ -109,6 +125,10 @@ struct virtio_config_ops {
+ 			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+ 			const char * const names[], const bool *ctx,
+ 			struct irq_affinity *desc);
++	int (*find_vqs_info)(struct virtio_device *vdev, unsigned int nvqs,
++			     struct virtqueue *vqs[],
++			     struct virtqueue_info vqs_info[],
++			     struct irq_affinity *desc);
+ 	void (*del_vqs)(struct virtio_device *);
+ 	void (*synchronize_cbs)(struct virtio_device *);
+ 	u64 (*get_features)(struct virtio_device *vdev);
+@@ -117,7 +137,7 @@ struct virtio_config_ops {
+ 	int (*set_vq_affinity)(struct virtqueue *vq,
+ 			       const struct cpumask *cpu_mask);
+ 	const struct cpumask *(*get_vq_affinity)(struct virtio_device *vdev,
+-			int index);
++						 int index);
+ 	bool (*get_shm_region)(struct virtio_device *vdev,
+ 			       struct virtio_shm_region *region, u8 id);
+ 	int (*disable_vq_and_reset)(struct virtqueue *vq);
+@@ -210,14 +230,39 @@ static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
  	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
  }
  
--static inline
--struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
--					vq_callback_t *c, const char *n)
--{
--	vq_callback_t *callbacks[] = { c };
--	const char *names[] = { n };
--	struct virtqueue *vq;
--	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL,
--					 NULL);
--	if (err < 0)
--		return ERR_PTR(err);
--	return vq;
--}
--
++static inline
++int virtio_find_vqs_info(struct virtio_device *vdev, unsigned int nvqs,
++			 struct virtqueue *vqs[],
++			 struct virtqueue_info vqs_info[],
++			 struct irq_affinity *desc)
++{
++	return vdev->config->find_vqs_info(vdev, nvqs, vqs, vqs_info, desc);
++}
++
  static inline
  int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
-@@ -244,6 +230,20 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 				   names, NULL, desc);
+ 			const char * const names[], const bool *ctx,
+ 			struct irq_affinity *desc)
+ {
+-	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
+-				      desc);
++	struct virtqueue_info *vqs_info;
++	int err, i;
++
++	if (!vdev->config->find_vqs_info)
++		return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks,
++					      names, ctx, desc);
++
++	vqs_info = kmalloc_array(nvqs, sizeof(*vqs_info), GFP_KERNEL);
++	if (!vqs_info)
++		return -ENOMEM;
++	for (i = 0; i < nvqs; i++) {
++		vqs_info[i].name = names[i];
++		vqs_info[i].callback = callbacks[i];
++		vqs_info[i].ctx = ctx ? ctx[i] : false;
++	}
++	err = virtio_find_vqs_info(vdev, nvqs, vqs, vqs_info, desc);
++	kfree(vqs_info);
++	return err;
  }
  
-+static inline
-+struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
-+					vq_callback_t *c, const char *n)
-+{
-+	vq_callback_t *callbacks[] = { c };
-+	const char *names[] = { n };
-+	struct virtqueue *vq;
-+	int err = virtio_find_vqs(vdev, 1, &vq, callbacks, names, NULL);
-+
-+	if (err < 0)
-+		return ERR_PTR(err);
-+	return vq;
-+}
-+
- /**
-  * virtio_synchronize_cbs - synchronize with virtqueue callbacks
-  * @dev: the virtio device
+ static inline
 -- 
 2.45.2
 
