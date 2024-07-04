@@ -1,192 +1,228 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72C08145B23
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 07:32:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A1CC1822E2
+	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 07:47:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720078362; cv=none; b=cKS51rfBZVHjpEOFULWUfd4M+FePkTRg8MoG+7vrTc3STrqAScNE44LBTcNepS3VzDkiRPZym3XUDBMCZXNrJq2dRq1iGlcBeKZWahfQZznF9RVG5oYmWRusCT65zIGd4JBP0VX3E+eYLAEYlSpS0Bs2iqfxM4Y0PQGfYPmFhVQ=
+	t=1720079241; cv=none; b=iZc8sDNgpNIJKgWJFdo5OABp7qHc26PLJzByKq6vU4wA5qEECZkXvlqJCEsHpyC4aiHfd0BBvZg1MulyD7ffMu/KFJNQB4XUZAN5H384XtUc56LWDZBg2LUuCI4pmI+ENoDjBjXiFYl1VK7ogU/U7VZhS59gv1b4UOs9Rn/SpwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720078362; c=relaxed/simple;
-	bh=8HlmpJMCXUdLQJpNWUAEVrqJS0MrfXPhDJstgMIWOsw=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=EkBWmBVj92X1aYh27Q3JowFLp0lVMzrj62x0PzSysKwTdYty39S/Q+TEdPcHH+kveYTJkQxtwE0hujBUImcOTjuqzEOpS4Lmq4bPxHnN7zKpTDHcap2skL3UCPIu2cQEMQjbcE7InT1jUlIy2DiJVWN4h/LvPSfd1/Qr7EshphA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HEd8YQ69; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1720079241; c=relaxed/simple;
+	bh=HhwyaE6DFadzOwfhFG6khoTSZLfQhMak7Y9ulxjdCu0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=qCgkFfZ4WkYjQQt1T+QF/4TpClxS5HkWo4iMhv2oEgVOBmKlziJakeAMXJXaQJI5F33MS1j3J4wszdPRXcfCcZ8AT2DjcEQIXsr+7iPthJ0iHCwOOEeWL9ZIv+0d7XYzbYO9KhZtiPys0moU/yVrjT5qyKhetafiVs2Sy4CmBzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WQh92kg8; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HEd8YQ69"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1E686409AD
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 07:32:41 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.299
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id OFegUMSQNPAN for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Jul 2024 07:32:40 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.16; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B15EF4062C
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B15EF4062C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=HEd8YQ69
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B15EF4062C
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 07:32:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1720078360; x=1751614360;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=8HlmpJMCXUdLQJpNWUAEVrqJS0MrfXPhDJstgMIWOsw=;
-  b=HEd8YQ69NHkbBjyCFEMPjMDL1VXo+JXBIqeJWPAwtW9SImuCzAUibtvD
-   N+oyjwrhYiIZTWIEpC/B/35zxXkFQ4Ur8Ti2bn86YfuDLV/ZrYNUArHdZ
-   bRGNPVcnvsgz5QQ4+vT3GaMzipVuZENKoNzN+tza/cQ/9Ilhiw7J/lRQm
-   S8EXJDc19fsCnYbs1r0/MLWHhOJ5KQXxE6qoxZgVYqq+VJX0Ok8IHFwks
-   PUhdmVsbdIaqmLN2QPmQDvEj8cfuy92ORRm4+x9R0K1Rw968MHD4FV38P
-   E98b+ntg5+//MAdJ1b+RyJAOjWA79FftVu9NF+hpaUovw80xNL009ZqrI
-   w==;
-X-CSE-ConnectionGUID: svwfLopiROSWuvNjIQTnzA==
-X-CSE-MsgGUID: HGbjru9ARWS0Ow+TbR+72Q==
-X-IronPort-AV: E=McAfee;i="6700,10204,11122"; a="17476682"
-X-IronPort-AV: E=Sophos;i="6.09,183,1716274800"; 
-   d="scan'208";a="17476682"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2024 00:32:39 -0700
-X-CSE-ConnectionGUID: hdEgb+MBQFOD37NcQY3N4w==
-X-CSE-MsgGUID: H+fHHzmfRBq+AaDMDklizQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,183,1716274800"; 
-   d="scan'208";a="47166851"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.125.248.220]) ([10.125.248.220])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2024 00:32:35 -0700
-Message-ID: <fc7f5bb1-25b7-4a5f-8d6b-1fa17b1af534@linux.intel.com>
-Date: Thu, 4 Jul 2024 15:32:32 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WQh92kg8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1720079238;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=n8/YAlRCjKuGkNLjkSmBuw+u27+aGTZd4jOvOkV8+AQ=;
+	b=WQh92kg8o6igicCacmPOH4daNGlUhpHgGN+u4bAn6kgDyOFBrkUGQFmT3qVQ4u1mmQfhz4
+	q6kzQsktMeZpxQItMz7bYxwb1mVmr1bRmDN90ugo0sKeAzwiGBsVC0iRwYRUuyZo2lXBEp
+	i3GB6ZD4OOkLVkXqX0jeaAkE4VrhuUM=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-209--6TAgiMNNy658WR2pYP0oA-1; Thu, 04 Jul 2024 03:47:17 -0400
+X-MC-Unique: -6TAgiMNNy658WR2pYP0oA-1
+Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2ee87e69b53so4141281fa.0
+        for <virtualization@lists.linux.dev>; Thu, 04 Jul 2024 00:47:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720079235; x=1720684035;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=n8/YAlRCjKuGkNLjkSmBuw+u27+aGTZd4jOvOkV8+AQ=;
+        b=m/t+Z0IKLFhe/ASK+QAtwa0vN0vAJqaNM+X1S6cnRoz4aHHGyW75ctjXYO1sgO8pns
+         FJhzRhdqJVuDHEKKQWvntj3i8ntE0y9gF0PI7cKySbCWSC6Jp0rN6Phtn0nAgKV0IsQ1
+         8+zzRZ6atvcUBUw1wbgllbxsTXLfX/riwrB9XHZk5/CFG8YZskrhfMZg58OZPHZouopI
+         2sGjayWRsDbqzpnNOhYHX2DlzP8/vQSGZ8yvZ7HQlZdZcLodB+/Hw07eprMDnsl7EqbJ
+         om99E9lsD10lRcF7QBEordlI9fLo/TRYs3eQoE2O2BF++iFhgOCBiBxwm35Gs9fovT5G
+         MBKQ==
+X-Gm-Message-State: AOJu0Yy20+Av0DdEBro4H5oMowYCbxTghA0d7zdQj6S/ENaM7UcicPdL
+	7/HK8JExjsDBUn983ivRDnncSbi9/dyhqPb/rLT4W0EsGjMqryJmlyExsEjQDCKhb9jsWTpva5v
+	aLGdm/4mUE7q+WQf5Cg5Z/eP/D5MsVEAp5CmPI/NUGsEumiYrJWUV2rxDd+6Pp5Zh
+X-Received: by 2002:a2e:6a18:0:b0:2ed:59af:ecb4 with SMTP id 38308e7fff4ca-2ee8ee0e975mr6260471fa.41.1720079235722;
+        Thu, 04 Jul 2024 00:47:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG10sxyRCTTtEDoPeJO2l1jBFeFjeNumqFXyoML8cnwylVAltccaAuWNUjvQ4Wt+ALP+L+cgA==
+X-Received: by 2002:a2e:6a18:0:b0:2ed:59af:ecb4 with SMTP id 38308e7fff4ca-2ee8ee0e975mr6260111fa.41.1720079235023;
+        Thu, 04 Jul 2024 00:47:15 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f7:82e2:c2d2:c800:4b76:dc98])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3679f9783d0sm544379f8f.9.2024.07.04.00.47.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jul 2024 00:47:14 -0700 (PDT)
+Date: Thu, 4 Jul 2024 03:47:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, parav@nvidia.com,
+	feliu@nvidia.com, hengqi@linux.alibaba.com
+Subject: Re: [PATCH virtio v2 04/19] virtio: introduce virtio_queue_info
+ struct and find_vqs_info() config op
+Message-ID: <20240704034225-mutt-send-email-mst@kernel.org>
+References: <20240704064350.1097716-1-jiri@resnulli.us>
+ <20240704064350.1097716-5-jiri@resnulli.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Jason Gunthorpe <jgg@ziepe.ca>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- "Liu, Yi L" <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>,
- "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH v8 06/10] iommufd: Add iommufd fault object
-To: "Tian, Kevin" <kevin.tian@intel.com>, Nicolin Chen <nicolinc@nvidia.com>
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-7-baolu.lu@linux.intel.com>
- <ZoXZZ2SJ/WdlMJaX@Asurada-Nvidia>
- <309e37d1-6066-4ba1-b30c-402a3c3e7c76@linux.intel.com>
- <ZoY01iLmzoV4fIPG@Asurada-Nvidia>
- <BN9PR11MB52769E10ED0741F5ED3E5B668CDE2@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <BN9PR11MB52769E10ED0741F5ED3E5B668CDE2@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20240704064350.1097716-5-jiri@resnulli.us>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 2024/7/4 14:37, Tian, Kevin wrote:
->> From: Nicolin Chen<nicolinc@nvidia.com>
->> Sent: Thursday, July 4, 2024 1:36 PM
->>
->> On Thu, Jul 04, 2024 at 10:59:45AM +0800, Baolu Lu wrote:
->>>> On Tue, Jul 02, 2024 at 02:34:40PM +0800, Lu Baolu wrote:
->>>>
->>>> +enum iommu_fault_type {
->>>> +     IOMMU_FAULT_TYPE_HWPT_IOPF,
->>>> +     IOMMU_FAULT_TYPE_VIOMMU_IRQ,
->>>> +};
->>>>
->>>>    struct iommu_fault_alloc {
->>>>        __u32 size;
->>>>        __u32 flags;
->>>> +     __u32 type;  /* enum iommu_fault_type */
->>>>        __u32 out_fault_id;
->>>>        __u32 out_fault_fd;
-> and need a new reserved field for alignment.
+On Thu, Jul 04, 2024 at 08:43:35AM +0200, Jiri Pirko wrote:
+> From: Jiri Pirko <jiri@nvidia.com>
 > 
->>>>    };
->>>>
->>>> I understand that this is already v8. So, maybe we can, for now,
->>>> apply the small diff above with an IOMMU_FAULT_TYPE_HWPT_IOPF
->> type
->>>> check in the ioctl handler. And a decoupling for the iopf fops in
->>>> the ioctl handler can come later in the viommu series:
->>>>        switch (type) {
->>>>        case IOMMU_FAULT_TYPE_HWPT_IOPF:
->>>>                filep = anon_inode_getfile("[iommufd-pgfault]",
->>>>                                           &iommufd_fault_fops_iopf);
->>>>        case IOMMU_FAULT_TYPE_VIOMMU_IRQ:
->>>>                filep = anon_inode_getfile("[iommufd-viommu-irq]",
->>>>                                           &iommufd_fault_fops_viommu);
->>>>        default:
->>>>                return -EOPNOSUPP;
->>>>        }
->>>>
->>>> Since you are the designer here, I think you have a better 10000
->>>> foot view -- maybe I am missing something here implying that the
->>>> fault object can't be really reused by viommu.
->>>>
->>>> Would you mind sharing some thoughts here?
->>> I think this is a choice between "two different objects" vs. "same
->>> object with different FD interfaces". If I understand it correctly, your
->>> proposal of unrecoverable fault delivery is not limited to vcmdq, but
->>> generic to all unrecoverable events that userspace should be aware of
->>> when the passed-through device is affected.
->> It's basically IRQ forwarding, not confined to unrecoverable
->> faults. For example, a VCMDQ used by the guest kernel would
->> raise an HW IRQ if the guest kernel issues an illegal command
->> to the HW Queue assigned to it. The host kernel will receive
->> the IRQ, so it needs a way to forward it to the VM for guest
->> kernel to recover the HW queue.
->>
->> The way that we define the structure can follow what we have
->> for hwpt_alloc/invalidate uAPIs, i.e. driver data/event. And
->> such an event can carry unrecoverable translation faults too.
->> SMMU at least reports DMA translation faults using an eventQ
->> in its own native language.
->>
->>>  From a hardware architecture perspective, the interfaces for
->>> unrecoverable events don't always match the page faults. For example,
->>> VT-d architecture defines a PR queue for page faults, but uses a
->>> register set to report unrecoverable events. The 'reason', 'request id'
->>> and 'pasid' fields of the register set indicate what happened on the
->>> hardware. New unrecoverable events will not be reported until the
->>> previous one has been fetched.
->> Understood. I don't think we can share the majority pieces in
->> the fault.c. Just the "IOMMU_FAULT_QUEUE_ALLOC" ioctl itself
->> looks way too general to be limited to page-fault usage only.
->> So, I feel we can share, for example:
->>      IOMMU_FAULT_QUEUE_ALLOC (type=hwpt_iopf) -> fault_id=1
->>      IOMMU_HWPT_ALLOC (fault_id=1) -> hwpt_id=2
->>      IOMMU_FAULT_QUEUE_ALLOC (type=viommu_irq) -> fault_id=3
->>      IOMMU_VIOMMU_ALLOC (fault_id=2) -> viommu_id=4
->> The handler will direct to different fops as I drafted in my
->> previous mail.
->>
->>> With the above being said, I have no strong opinions between these two
->>> choices. Jason and Kevin should have more insights.
->> Thanks. Jason is out of office this week, so hopefully Kevin
->> may shed some light. I personally feel that we don't need to
->> largely update this series until we add VIOMMU. Yet, it would
->> be convenient if we add a "type" in the uAPI with this series.
->>
-> This is ok to me.
+> Introduce a structure virtio_queue_info to carry name, callback and ctx
+> together. In order to allow config implementations to accept config op
+> with array of virtio_queue_info structures, introduce a new
+> find_vqs_info() op. Do the needed conversion in virtio_find_vqs_ctx().
+> Note that whole virtio_find_vqs_ctx() is going to be eventually removed
+> at the and of this patchset.
+> 
+> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+> v1->v2:
+> - fixed comments for struct virtqueue_info
+> - s/virtio_queue_info/virtqueue_info/
+> ---
+>  include/linux/virtio_config.h | 51 ++++++++++++++++++++++++++++++++---
+>  1 file changed, 48 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 82a1d798b2f1..9b975c2830f6 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -18,6 +18,16 @@ struct virtio_shm_region {
+>  
+>  typedef void vq_callback_t(struct virtqueue *);
+>  
+> +struct virtqueue_info {
+> +	const char *name; /* Mainly for debugging, may be NULL for a virtqueue
+> +			   * unused by driver.
+> +			   */
+> +	vq_callback_t *callback; /* May be NULL for vq that does
+> +				  * not need a callback.
+> +				  */
+> +	bool ctx;
 
-So
 
-Nicolin, perhaps can you please cook an additional patch on top of this
-series and post it for further review?
+	/*
+	 * Always
+	 * like this
+	 * outside of netdev code
+	 * and it comes before the code being documented
+	 */
 
-Thanks,
-baolu
+	/* Never
+	 * like this
+	 */
+
+
+Also "may be null" is a bit confusing - it has to be null
+for such a vq.
+
+Thus:
+
+	/*
+	 * name: mainly for debugging, NULL for a virtqueue
+         * unused by the driver.
+	 */
+	const char *name;
+
+and similarly for the callback.
+
+
+
+> +};
+> +
+>  /**
+>   * struct virtio_config_ops - operations for configuring a virtio device
+>   * Note: Do not assume that a transport implements all of the operations
+> @@ -58,6 +68,12 @@ typedef void vq_callback_t(struct virtqueue *);
+>   *	names: array of virtqueue names (mainly for debugging)
+>   *		include a NULL entry for vqs unused by driver
+>   *	Returns 0 on success or error status
+> + * @find_vqs_info: find virtqueues and instantiate them.
+> + *	vdev: the virtio_device
+> + *	nvqs: the number of virtqueues to find
+> + *	vqs: on success, includes new virtqueues
+> + *	vqs_info: array of virtqueue info structures
+> + *	Returns 0 on success or error status
+>   * @del_vqs: free virtqueues found by find_vqs().
+>   * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
+>   *      The function guarantees that all memory operations on the
+> @@ -109,6 +125,10 @@ struct virtio_config_ops {
+>  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>  			const char * const names[], const bool *ctx,
+>  			struct irq_affinity *desc);
+> +	int (*find_vqs_info)(struct virtio_device *vdev, unsigned int nvqs,
+> +			     struct virtqueue *vqs[],
+> +			     struct virtqueue_info vqs_info[],
+> +			     struct irq_affinity *desc);
+>  	void (*del_vqs)(struct virtio_device *);
+>  	void (*synchronize_cbs)(struct virtio_device *);
+>  	u64 (*get_features)(struct virtio_device *vdev);
+> @@ -117,7 +137,7 @@ struct virtio_config_ops {
+>  	int (*set_vq_affinity)(struct virtqueue *vq,
+>  			       const struct cpumask *cpu_mask);
+>  	const struct cpumask *(*get_vq_affinity)(struct virtio_device *vdev,
+> -			int index);
+> +						 int index);
+>  	bool (*get_shm_region)(struct virtio_device *vdev,
+>  			       struct virtio_shm_region *region, u8 id);
+>  	int (*disable_vq_and_reset)(struct virtqueue *vq);
+> @@ -210,14 +230,39 @@ static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
+>  	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
+>  }
+>  
+> +static inline
+> +int virtio_find_vqs_info(struct virtio_device *vdev, unsigned int nvqs,
+> +			 struct virtqueue *vqs[],
+> +			 struct virtqueue_info vqs_info[],
+> +			 struct irq_affinity *desc)
+> +{
+> +	return vdev->config->find_vqs_info(vdev, nvqs, vqs, vqs_info, desc);
+> +}
+> +
+>  static inline
+>  int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
+>  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>  			const char * const names[], const bool *ctx,
+>  			struct irq_affinity *desc)
+>  {
+> -	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
+> -				      desc);
+> +	struct virtqueue_info *vqs_info;
+> +	int err, i;
+> +
+> +	if (!vdev->config->find_vqs_info)
+> +		return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks,
+> +					      names, ctx, desc);
+> +
+> +	vqs_info = kmalloc_array(nvqs, sizeof(*vqs_info), GFP_KERNEL);
+> +	if (!vqs_info)
+> +		return -ENOMEM;
+> +	for (i = 0; i < nvqs; i++) {
+> +		vqs_info[i].name = names[i];
+> +		vqs_info[i].callback = callbacks[i];
+> +		vqs_info[i].ctx = ctx ? ctx[i] : false;
+> +	}
+> +	err = virtio_find_vqs_info(vdev, nvqs, vqs, vqs_info, desc);
+> +	kfree(vqs_info);
+> +	return err;
+>  }
+>  
+>  static inline
+> -- 
+> 2.45.2
+
