@@ -1,89 +1,88 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEE681AED31;
-	Thu,  4 Jul 2024 13:05:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944702F37
+	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 14:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720098335; cv=none; b=P3llhFkUxjhKGCHOxoGEA5kPXeNrnT1Raxk7woqeisuY7FTFZZ679Q6D6EPsfz0ThNEf6rvqwRjCKazhFWRlW9MbNUTtekXdvHhl9n/1bfXMRYRJ95Rmy0TwgsXxBzUwnFBeDrDZoS2Gxq/aTbzU/XHhQ3ATPDRbgCf5WsFPtt0=
+	t=1720101649; cv=none; b=idvF7xqZIOkw7wQoXSHDYb51+UUmuD94cprmoCeQKnkWpPn8ir8xAov9qoJrSlD7Wx3BGt6rm0VA2PZrm/8U29nQ/jeHoTTIWWck51FqpC7cZOFnjlSjgcYHJndzxX7CmOHxBt5pRcNm3iLR5ymfRc7DtuSp0aaaWHykqPiQ0rM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720098335; c=relaxed/simple;
-	bh=VLX+/UE8oDKDooF+ghZH28ShzdJLeLVP+bDPayL7B3M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YCbbin/NguOwTwuNzSdHvIYYG7w+VQYiRVouRWb8iu0rrTQMpRAddHH0QWoeQ6EzepQOF0TreBGHi1T8s5ufbvpbhHXSVyVrAWYhWGr0i48GG04+LGaU73No2hPTnZBCZRK3YQ9K1k/c6FaCGjPyp4sBGqdPsMbQCLINbhUjQS0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=gowb/ffi; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="gowb/ffi"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=zfd3k+e/2iCQZpiP/1H67Ibzd3SlkkBWIgLCprwuUXY=; b=gowb/ffi2fiTQAxLXhOLHl+gPF
-	98pHv/VFFWSfVSvc4LK8nlNHdz18GJXCrxVVx2EI2DzjpCtc5cAlitlA6eSNLA0e4Ezn/slM7Xk4K
-	s8eCyC4zF4RB1ik6EAsoDIY4KzG9IN1l6ua1boCoVx9s6nprIAymVGGaIm7ZQKcPxULNxDTN+koAb
-	iaSAYs/CuqUyhIZdB+Rc58f4GXG4fvwF+BZOx/SuolHv9yw7+Tp/PvNChf1dMTlxi3B4pDcks3+Yx
-	NicW7UmyRPPjqxupjjHoAFHzEFZ6aqcrqUgQYhvv0sjOjiYF9LlatJ62iI48WJMhcN4w4syo7spN9
-	EbXduQcA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sPM96-0000000ADpW-3LPn;
-	Thu, 04 Jul 2024 13:05:10 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id F358F300694; Thu,  4 Jul 2024 15:05:05 +0200 (CEST)
-Date: Thu, 4 Jul 2024 15:05:05 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Tim Merrifield <tim.merrifield@broadcom.com>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
-	Xin Li <xin3.li@intel.com>, Ard Biesheuvel <ardb@kernel.org>,
-	Kai Huang <kai.huang@intel.com>,
-	Kevin Loughlin <kevinloughlin@google.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Kees Cook <kees@kernel.org>, Mike Rapoport <rppt@kernel.org>,
-	Brian Gerst <brgerst@gmail.com>, linux-coco@lists.linux.dev,
-	linux-kernel@vger.kernel.org, Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	virtualization@lists.linux.dev, alex.james@broadcom.com,
-	doug.covelli@broadcom.com, jeffrey.sheldon@broadcom.com
-Subject: Re: [PATCH 0/2] Support userspace hypercalls for TDX
-Message-ID: <20240704130505.GT11386@noisy.programming.kicks-ass.net>
-References: <cover.1720046911.git.tim.merrifield@broadcom.com>
+	s=arc-20240116; t=1720101649; c=relaxed/simple;
+	bh=/X0yE8f7XR4volbJhs7urx60xnjrl6METk7uV8iq6k4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=CJwQrBl4CBgD4DpqeQFjb0myVmNVTCuSzvYs0CzxrA9t325oGTMeqDsmV9A1XHG6CigcPXBpik88it9ohhBvU3zxe/q+3SScROuxp2s1zKnD8R6olSEGftfp6aTGttf/R5LU6rUOLz8LhbiW61gV1Kqf+qMUmw3V7hQPur9o7u4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from icess-ProLiant-DL380-Gen10.. (unknown [183.174.60.14])
+	by APP-01 (Coremail) with SMTP id qwCowACnr8v8qoZm5G+PAQ--.2764S2;
+	Thu, 04 Jul 2024 22:00:35 +0800 (CST)
+From: Ma Ke <make24@iscas.ac.cn>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	noralf@tronnes.org
+Cc: virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	Ma Ke <make24@iscas.ac.cn>
+Subject: [PATCH RESEND] drm/qxl: fix null pointer dereference in qxl_add_mode
+Date: Thu,  4 Jul 2024 22:00:27 +0800
+Message-Id: <20240704140027.304685-1-make24@iscas.ac.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1720046911.git.tim.merrifield@broadcom.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qwCowACnr8v8qoZm5G+PAQ--.2764S2
+X-Coremail-Antispam: 1UD129KBjvdXoWruF13Kr4UuryDtr47GF47XFb_yoWfAwb_ur
+	18ZwnrXryUu3Wv9r47ZFyfur4IvFykZF4xXr1xta4Sq3y8G3ZxXr47ZwnYv3y7Za4UAFnr
+	Aw48GwnxAan7GjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUb38FF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6r1S6rWUM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
+	Cr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s
+	1lnxkEFVAIw20F6cxK64vIFxWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IE
+	w4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMc
+	vjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v
+	4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7
+	v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
+	1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI
+	42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWI
+	evJa73UjIFyTuYvjfUFYFADUUUU
+X-CM-SenderInfo: ppdnvj2u6l2u1dvotugofq/
 
-On Wed, Jul 03, 2024 at 11:35:59PM +0000, Tim Merrifield wrote:
-> VMCALL and VMMCALL instructions are used by x86 guests to request services
-> from the host VMM. Both VMCALL and VMMCALL are not restricted to CPL 0.
-> This allows userspace software like open-vm-tools to communicate directly
-> with the VMM.
-> 
-> In the context of confidential VMs, direct communication with the host may
-> violate the security model. Existing binaries that make use of hypercalls
-> and are not hardened against malicious hypervisors can become a possible
-> attack surface. For this reason, user-level VMCALLs are not currently
-> forwarded to the host on TDX VMs. This breaks any user-level software that
-> use these instructions.
-> 
-> But if user-level software is aware of the risks and has been hardened to
-> address any known violations of the security model, then it seems
-> reasonable to allow hypercalls from this process to proceed.
+In qxl_add_mode(), the return value of drm_cvt_mode() is assigned to mode,
+which will lead to a possible NULL pointer dereference on failure of
+drm_cvt_mode(). Add a check to avoid npd.
 
-And how are we to ascertain the software using these hooks is deemed
-secure? What security risks are there for the kernel if a malicious
-userspace process asks for these rights?
+Fixes: 1b043677d4be ("drm/qxl: add qxl_add_mode helper function")
+Signed-off-by: Ma Ke <make24@iscas.ac.cn>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-The kernel must assume malice on the part of userspace.
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index c6d35c33d5d6..7c11383cd3c4 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -236,6 +236,8 @@ static int qxl_add_mode(struct drm_connector *connector,
+ 		return 0;
+ 
+ 	mode = drm_cvt_mode(dev, width, height, 60, false, false, false);
++	if (!mode)
++		return -ENOMEM;
+ 	if (preferred)
+ 		mode->type |= DRM_MODE_TYPE_PREFERRED;
+ 	mode->hdisplay = width;
+-- 
+2.25.1
+
