@@ -1,57 +1,57 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C0D41B11EB
-	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 14:34:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4B81B010A
+	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 14:34:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720103664; cv=none; b=mWeDs++Mi9+WQB465m4/IngHbSpGgf/YjNaq3aT9NA4k+e6NrMxhWSLMegJsQxjuYkQy7DwWRfCs5rxW++ba8rGMxo34ecoNWG3IgYBocYHZ3c6tTT1FXfsDKpmJgfHEk+qZ2/SCI27lAj+/3NWN3Lr+fOhX5dzBMN9ARqPYFAY=
+	t=1720103670; cv=none; b=lhW0WQBPuFU27b70ChDgFI6b7Gv9S265xiu1vbWf5GDZn48tUVqM98flLkmDJic5GYsKIjRlfu9UsRGoU7+VltBuz5gniSiTlA/M++gsmrmiljxpZzyOP0ikpUdDZr70I15U0iFQ/xhF18T/UvjYjZpSViWFOtGf43SdzbQRME8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720103664; c=relaxed/simple;
-	bh=c3WXl3B3CNV8p5t/WoRkex6Wx1voS6E6J/WZG25IGS0=;
+	s=arc-20240116; t=1720103670; c=relaxed/simple;
+	bh=L/3en0bkvOysInXLFUAmmljOLApUNUuJ0gjHrjskSC8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fLo97twlbXE4DbntBBe3uD8OA+ebDO+dSHwjlNtXWkrTOGyXPtpdL4f6+623F/2VLC+t8oq8V1OD+CIWa94mswM9Y26zKWqfLiIaz1wydMH78/pSVOH5H0ZiGhncRmQiHNtVTsL/KeRqgy2XjME79bF7JtII7OaAuAhVAWfH72w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=Nsk0Gleq; arc=none smtp.client-ip=209.85.221.53
+	 MIME-Version; b=nE/k1cCjaurRf1jNOhfT30R7g4eswczHmjgRhGnFyueauwvQMgwMBkoouOOkcqwUroF1jaIyszHZT1g+94zuOyPCdZBLL9l3tAixTZw4EXnXelgKH9QyJKr2e+Oob+s5yfwNbY5T84qijrw7mfQKyfWDdfu4rYPK2C7ynQHvzXM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=BU0Xh7Yl; arc=none smtp.client-ip=209.85.221.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="Nsk0Gleq"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-367895d9991so394817f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 04 Jul 2024 07:34:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="BU0Xh7Yl"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-367818349a0so411203f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 04 Jul 2024 07:34:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720103661; x=1720708461; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720103667; x=1720708467; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pZUcAqrULzWGmkg91F9cyeog2be9bbjMRm9ngzyA4To=;
-        b=Nsk0GleqhFhjuPl9LU/hhe71hekppp+8pTYT4A2MtMsKMsW2H2zYdTc/uUnfOkPy8M
-         p+s0pbOBekdGPtDzPUCe9Dr27ehWb6lk++2T8VbW/rYfg7UTHwLLFq3+E0DRRTzPOHZ6
-         WPmcqdk53vfArKqOvCW6U1JEghaG6yfk8XuS1WL8eT3lDMphe8gy/PP+AjyqVgg5Utm5
-         pM7VNLlNuj5JgurOB9XsfWHOsuiTvMPKSGDeY02Sc0aJ5ODHXgSYAyIn+1PRXk2dW5B1
-         l1QHmuqPEiXLOzplcipkF+doD4lyZaslYgsumAJVdQxB8Ylupy4PnWICzHVU62NMtkFl
-         DAdA==
+        bh=FqVaCC9DZgHd9nT60tI2Q6fo236s+2BQRfq0WTkR1tQ=;
+        b=BU0Xh7Yl8hrmOV/WsafYSMbRjkq1wl+EEZ5ehmh5UsjEhmpYsk75BbPuswE3hXyJh2
+         B44O09v11XCnf7kBqwG5TIffTYcDMDPgU0W3ynmbtmx5eWe8+0Rg2RVTJZLl5HDW4wjI
+         /DJ1y1qlpDZRqH0rROdVuUD1K6U7vh8SczqwJE0AWUy1uHF0iDw1l81XghSnPZnjXagN
+         VH4zIijKx2kQD//mojsEelG3pBi9D23Sx0gnhP5lRJG+Ol64sh09Q5kZN9R1gTxkPK4N
+         mYUM8l6RhWDXUkehplIO0XqxR9VSLasnbZ7vYgPmaW3oI+paFKXtPFn4uwSq59ut6NeS
+         kqLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720103661; x=1720708461;
+        d=1e100.net; s=20230601; t=1720103667; x=1720708467;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pZUcAqrULzWGmkg91F9cyeog2be9bbjMRm9ngzyA4To=;
-        b=JV/NfW4l5gkdrveakjA6IxSBKvTRGpi5yUyRDPqEx15+0iL0L+HJJRHWDPYFelJ8Kg
-         7HqBgB2fTausxgtk0qyMC/eflsBe3j4kypvZkVmvm72TvCD710Wak7zu2E6tDytDWJDc
-         nGfjT8Da4IDDHpz3Z2l9GOrUNkKl9W0iq+5SCtdRfZ7lvIqTtCp9kNz92Z3OXe2b4kTU
-         ex+gPsmruozjqQbvuFVNyfPWodjBcVNNF3dpYkh4be7l9qAe55//mmsfSjMkFZymj2Bi
-         xV+93aCtZeuTSd2WCPtQzp+2F7lSXIVXk/vM9lusHwLvr74QC/YqKe3gKYW0rKJnMzxl
-         KqSA==
-X-Gm-Message-State: AOJu0YzAyMUrsdRHUuwdwNVZkP9IjBU6c7VQ1aWTpa3rL1/x9drJRLW9
-	yegpIK2H9BA77AHP2pI3EVU0FJJWF3uSjtXjkIUeG1H267AOr1xt+0gmr+EGbvWYa9VpBIgfA0Z
-	S/Cs=
-X-Google-Smtp-Source: AGHT+IG/Y+7cRdPeJeJbmtGb6E2YTL4vAQKDIFcDHDBuDxqdnf0cXx+1rvecULh80HuxRKdFUveaNQ==
-X-Received: by 2002:adf:e3d0:0:b0:367:8c3e:2316 with SMTP id ffacd0b85a97d-3679dd72610mr1319130f8f.66.1720103661426;
-        Thu, 04 Jul 2024 07:34:21 -0700 (PDT)
+        bh=FqVaCC9DZgHd9nT60tI2Q6fo236s+2BQRfq0WTkR1tQ=;
+        b=F81HDfb5+HFJZ50/tLfHHkiklqftBXO3FjkI9vBdCVB0ssMHxxFpD+tznWfglys00H
+         nLYxSM3yHYdp+f0f0VArkmI4vk8WAOODey0InrNVyXkxQGAHX8zWV7ill70KZfSD3pYD
+         JOROLUiDMM2pOQOGPbU5eBfq99j3HWnPBXD49zhZLiKifPpEIuvnrY+nbt2AoURqiuPi
+         iH5x84XaP/fdtkU2pY7eB8H417LsT3keQDMWH7QqFMNw3eQLYDMNbuzClcDrohN9yKeB
+         l5vLKbFN9Wl1ZHR97QC9UTovhj2OyqiaRMHFYbJOTmmWi/DCzY+DeQv70XkmbBTil+zx
+         2MMQ==
+X-Gm-Message-State: AOJu0YwWh+TqY+0RXqsqY8C5/x+8MGOCnj6hk1GKWCTpKQxZj/ysZ9pd
+	xJbwuYZr9YOg6Uz5MkltJm6S0E/UR9VaqGT3UF8D75i2gPzWTztm1DMnfuFOehkRkQJWtoQ/pWL
+	2p3k=
+X-Google-Smtp-Source: AGHT+IHJdBRjA0iO46byuVcOB1yfiDYpsv455A7sjjb21hiF3uipYXto/6lTTuLawQZ2aPGFCQXguQ==
+X-Received: by 2002:a5d:4147:0:b0:355:143:b5f5 with SMTP id ffacd0b85a97d-3679dd73996mr1246077f8f.64.1720103667201;
+        Thu, 04 Jul 2024 07:34:27 -0700 (PDT)
 Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3675a0e12fcsm18592249f8f.48.2024.07.04.07.34.19
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-367a54f237bsm61234f8f.16.2024.07.04.07.34.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jul 2024 07:34:20 -0700 (PDT)
+        Thu, 04 Jul 2024 07:34:26 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -61,9 +61,9 @@ Cc: mst@redhat.com,
 	parav@nvidia.com,
 	feliu@nvidia.com,
 	hengqi@linux.alibaba.com
-Subject: [PATCH virtio v3 11/19] virtio_console: convert to use virtio_find_vqs_info()
-Date: Thu,  4 Jul 2024 16:32:59 +0200
-Message-ID: <20240704143307.1212454-12-jiri@resnulli.us>
+Subject: [PATCH virtio v3 12/19] virtio_crypto: convert to use virtio_find_vqs_info()
+Date: Thu,  4 Jul 2024 16:33:00 +0200
+Message-ID: <20240704143307.1212454-13-jiri@resnulli.us>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240704143307.1212454-1-jiri@resnulli.us>
 References: <20240704143307.1212454-1-jiri@resnulli.us>
@@ -87,105 +87,83 @@ Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 v1->v2:
 - s/virtio_queue_info/virtqueue_info/
 ---
- drivers/char/virtio_console.c | 44 ++++++++++++++---------------------
- 1 file changed, 18 insertions(+), 26 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_core.c | 31 +++++++++-------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index d9ee2dbc7eab..903d83a1ffe8 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1804,8 +1804,7 @@ static void config_work_handler(struct work_struct *work)
+diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
+index 30cd040aa03b..b8119d1f9931 100644
+--- a/drivers/crypto/virtio/virtio_crypto_core.c
++++ b/drivers/crypto/virtio/virtio_crypto_core.c
+@@ -96,11 +96,10 @@ static void virtcrypto_dataq_callback(struct virtqueue *vq)
  
- static int init_vqs(struct ports_device *portdev)
+ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
  {
--	vq_callback_t **io_callbacks;
--	char **io_names;
+-	vq_callback_t **callbacks;
 +	struct virtqueue_info *vqs_info;
  	struct virtqueue **vqs;
- 	u32 i, j, nr_ports, nr_queues;
- 	int err;
-@@ -1814,15 +1813,12 @@ static int init_vqs(struct ports_device *portdev)
- 	nr_queues = use_multiport(portdev) ? (nr_ports + 1) * 2 : 2;
+ 	int ret = -ENOMEM;
+ 	int i, total_vqs;
+-	const char **names;
+ 	struct device *dev = &vi->vdev->dev;
  
- 	vqs = kmalloc_array(nr_queues, sizeof(struct virtqueue *), GFP_KERNEL);
--	io_callbacks = kmalloc_array(nr_queues, sizeof(vq_callback_t *),
--				     GFP_KERNEL);
--	io_names = kmalloc_array(nr_queues, sizeof(char *), GFP_KERNEL);
-+	vqs_info = kcalloc(nr_queues, sizeof(*vqs_info), GFP_KERNEL);
- 	portdev->in_vqs = kmalloc_array(nr_ports, sizeof(struct virtqueue *),
- 					GFP_KERNEL);
- 	portdev->out_vqs = kmalloc_array(nr_ports, sizeof(struct virtqueue *),
- 					 GFP_KERNEL);
--	if (!vqs || !io_callbacks || !io_names || !portdev->in_vqs ||
--	    !portdev->out_vqs) {
-+	if (!vqs || !vqs_info || !portdev->in_vqs || !portdev->out_vqs) {
- 		err = -ENOMEM;
- 		goto free;
+ 	/*
+@@ -114,26 +113,23 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+ 	vqs = kcalloc(total_vqs, sizeof(*vqs), GFP_KERNEL);
+ 	if (!vqs)
+ 		goto err_vq;
+-	callbacks = kcalloc(total_vqs, sizeof(*callbacks), GFP_KERNEL);
+-	if (!callbacks)
+-		goto err_callback;
+-	names = kcalloc(total_vqs, sizeof(*names), GFP_KERNEL);
+-	if (!names)
+-		goto err_names;
++	vqs_info = kcalloc(total_vqs, sizeof(*vqs_info), GFP_KERNEL);
++	if (!vqs_info)
++		goto err_vqs_info;
+ 
+ 	/* Parameters for control virtqueue */
+-	callbacks[total_vqs - 1] = virtcrypto_ctrlq_callback;
+-	names[total_vqs - 1] = "controlq";
++	vqs_info[total_vqs - 1].callback = virtcrypto_ctrlq_callback;
++	vqs_info[total_vqs - 1].name = "controlq";
+ 
+ 	/* Allocate/initialize parameters for data virtqueues */
+ 	for (i = 0; i < vi->max_data_queues; i++) {
+-		callbacks[i] = virtcrypto_dataq_callback;
++		vqs_info[i].callback = virtcrypto_dataq_callback;
+ 		snprintf(vi->data_vq[i].name, sizeof(vi->data_vq[i].name),
+ 				"dataq.%d", i);
+-		names[i] = vi->data_vq[i].name;
++		vqs_info[i].name = vi->data_vq[i].name;
  	}
-@@ -1833,30 +1829,28 @@ static int init_vqs(struct ports_device *portdev)
- 	 * 0 before others.
- 	 */
- 	j = 0;
--	io_callbacks[j] = in_intr;
--	io_callbacks[j + 1] = out_intr;
--	io_names[j] = "input";
--	io_names[j + 1] = "output";
-+	vqs_info[j].callback = in_intr;
-+	vqs_info[j + 1].callback = out_intr;
-+	vqs_info[j].name = "input";
-+	vqs_info[j + 1].name = "output";
- 	j += 2;
  
- 	if (use_multiport(portdev)) {
--		io_callbacks[j] = control_intr;
--		io_callbacks[j + 1] = NULL;
--		io_names[j] = "control-i";
--		io_names[j + 1] = "control-o";
-+		vqs_info[j].callback = control_intr;
-+		vqs_info[j].name = "control-i";
-+		vqs_info[j + 1].name = "control-o";
+-	ret = virtio_find_vqs(vi->vdev, total_vqs, vqs, callbacks, names, NULL);
++	ret = virtio_find_vqs_info(vi->vdev, total_vqs, vqs, vqs_info, NULL);
+ 	if (ret)
+ 		goto err_find;
  
- 		for (i = 1; i < nr_ports; i++) {
- 			j += 2;
--			io_callbacks[j] = in_intr;
--			io_callbacks[j + 1] = out_intr;
--			io_names[j] = "input";
--			io_names[j + 1] = "output";
-+			vqs_info[j].callback = in_intr;
-+			vqs_info[j + 1].callback = out_intr;
-+			vqs_info[j].name = "input";
-+			vqs_info[j + 1].name = "output";
- 		}
+@@ -153,18 +149,15 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+ 				(unsigned long)&vi->data_vq[i]);
  	}
- 	/* Find the queues. */
--	err = virtio_find_vqs(portdev->vdev, nr_queues, vqs,
--			      io_callbacks,
--			      (const char **)io_names, NULL);
-+	err = virtio_find_vqs_info(portdev->vdev, nr_queues, vqs,
-+				   vqs_info, NULL);
- 	if (err)
- 		goto free;
  
-@@ -1874,8 +1868,7 @@ static int init_vqs(struct ports_device *portdev)
- 			portdev->out_vqs[i] = vqs[j + 1];
- 		}
- 	}
--	kfree(io_names);
--	kfree(io_callbacks);
+-	kfree(names);
+-	kfree(callbacks);
 +	kfree(vqs_info);
  	kfree(vqs);
  
  	return 0;
-@@ -1883,8 +1876,7 @@ static int init_vqs(struct ports_device *portdev)
- free:
- 	kfree(portdev->out_vqs);
- 	kfree(portdev->in_vqs);
--	kfree(io_names);
--	kfree(io_callbacks);
-+	kfree(vqs_info);
- 	kfree(vqs);
  
- 	return err;
+ err_engine:
+ err_find:
+-	kfree(names);
+-err_names:
+-	kfree(callbacks);
+-err_callback:
++	kfree(vqs_info);
++err_vqs_info:
+ 	kfree(vqs);
+ err_vq:
+ 	return ret;
 -- 
 2.45.2
 
