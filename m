@@ -1,67 +1,87 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C149C1A2555
-	for <virtualization@lists.linux.dev>; Thu,  4 Jul 2024 09:43:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBCE01AB908
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 10:15:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720086186; cv=none; b=l2Ngzu3sX2N3qyZ4TXt8DZFAVWfw6IzVbjxBrCr9K5OJ/M8tdGjh2itJhRzy+SglEkFWwYPdCS47/dHf9WFmrWqw+M+dQbFFBdmuMRIou5Ldgx45nOGKwH2cUvxs1nssYM4Vuik/u/EgRaTXqDQtRiVHbHwhuTPZiJpBFPyikcc=
+	t=1720088161; cv=none; b=FBMaJr3RIsTV1LzWQpw8QhZ3+OIdhWo88WPeMwX2MSf5t3JqvuWox1ErUmrmT0JiO7yyg/RX9k+7zppG9hiF/Yv7WfcZKZE7HIvE6R7KbrChWjI6QLmNmFRgob8v9U7i7wU5nE+KH1xdePMduBcbEx+fSC16NeHm5wWVcMK2PKc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720086186; c=relaxed/simple;
-	bh=BUriZPsUVbhLATzAmI0PjxunmyADKeXgU84CGi3jAmg=;
+	s=arc-20240116; t=1720088161; c=relaxed/simple;
+	bh=Vwgi1lg2CshzOJbmksugK2R0s08lIGSQYEuCi3ab+VE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i0497N2CSTvixIJI8nB2GaQihqyMU6efoddqpPg1zoIRFrHsPpTSr8tS98Sh5Ln2wsAZn6QtkwhxQsyHz7rLwgk9MfnwYaGoXlVkQklLcxDIhwAv5NYievcHH17PmrZDox53fK2NFf9r4KjMRZUYdxZF5h9uJIOky+jf0gVCC/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=SUWnqR0u; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	 Content-Type:Content-Disposition:In-Reply-To; b=q51NQikKm/3q18sazSAolEK9gk1m3DvnTK3yGJHPcCHFqONjezNDNTOfh6repArlMPwFSaQKFv2tZ4R2hi3fffoWmbR/Pu51S3vOfB8StJePGurj/NVa8CFQp5BX9WorvDtQja/PQt8Yyi3JE0pEW1QXVPO/C+OwyXudDmr90lY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=XtU30mOT; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="SUWnqR0u"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-42564316479so2527515e9.2
-        for <virtualization@lists.linux.dev>; Thu, 04 Jul 2024 02:43:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="XtU30mOT"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 647336085B
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 10:15:59 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 4Ywp2S0nsFFI for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Jul 2024 10:15:57 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::235; helo=mail-lj1-x235.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org B5B1060008
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B5B1060008
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=XtU30mOT
+Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B5B1060008
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jul 2024 10:15:56 +0000 (UTC)
+Received: by mail-lj1-x235.google.com with SMTP id 38308e7fff4ca-2ec52fbb50cso4289921fa.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 04 Jul 2024 03:15:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720086181; x=1720690981; darn=lists.linux.dev;
+        d=linaro.org; s=google; t=1720088154; x=1720692954; darn=lists.linux-foundation.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DaEvD8qcU1ZnSG7I84a4WlGeJNpP1dihxcMT9PIpY8Y=;
-        b=SUWnqR0uwKgr1ap3+A5mAtuWUfhnY5anQqeFHPDPfoDSEK5+KdwaAX9HV2tntsw5/q
-         Xw2c8RjWjV/IczqzkEUlBznvNIR3EygVDEoTW6adYuqyvkXVnU6HEXFOm65QaXAkHeIJ
-         QYjcHpoA+8leb9k32TeunTldVtI9HiVsIIAXXoIoP010LKj/fiwQhHt/eMvhluIiHFKx
-         rujBX5QOe9s/bZKQVM+e2FSaB/DfTjNhj/egic6Tt+sSW9kSbPJ6hHoe3pOhmbgiKrhA
-         PUlakxpUSWDzDa7b0ZPQjWluCBS+656l+UidbJ5ewjbjvdeGcEil//3r+Dfnw3rWQrFQ
-         UNaQ==
+        bh=1nvqcTE+d+I6/PYlZYlUrN3ZSE7/0dbyWuREcOgf8aA=;
+        b=XtU30mOTn0LjpWwBok5oXt2GfaK7HHVbJSKpAyotnoosZhk8gIgvYEuHL+FFR9D/v3
+         SmNvEQ5JznPzLNy7wzWdNhiX7ZnJHp+1gW0GjMHl9na92P+v3cQ3Hoitf9k6EDbtfg4q
+         a6jjFTVHkEi6oOshK+UXZcdJokrJfcMi+g8NS29YcPvsh0hkcK4YFLb7tcIf1SPLJzMJ
+         DPY4W5kWtJuhKuDM+uq2jdtLtPlEDzfF9lnGVOElWOhWA2h5aqBanbhiJ57ea8BiuWt0
+         uQ0zb5Cu21Dl7nLj980LwrZ6xbmRrWGQ/euTjOwtC75jU+A+ZJ3pmyxoHXr7oZnzzVX8
+         Gjbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720086181; x=1720690981;
+        d=1e100.net; s=20230601; t=1720088154; x=1720692954;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DaEvD8qcU1ZnSG7I84a4WlGeJNpP1dihxcMT9PIpY8Y=;
-        b=wGk6SsNwU/Ji0F8BfLvQqAG/vcoUmGONNeV1zMpK9Uqr90U4Mwu+I730KO1QYNvncZ
-         L8LRG1hVm6/27f032PPHMsgq181xv65uy70iZpfjzNOcQG4u1uEPYUKN0jndSmAzjJ4k
-         qIoBpgkwmNgA8aeRxvFnGzPFd4nFKsLrE5OxJYFJtVcUq8Qj0m4THnXkEia925fXTpeU
-         Mmo2ZsXrGyFPrjrSyuI2Uw7eVmftSNQuxJF5DOx/22DkZZ8CoOkzC3hsVsyjSQZU+NHs
-         K5/Nv7j7SpmIHSgr0oUoVHYG61+bKoi9Jn61Zo5Gu7UiGovOCQl4bAarz6Bdq1EAh+ui
-         YhZQ==
-X-Gm-Message-State: AOJu0YxbzOeV/jFusFsUdp1gGp38Oh4lr6RcX9t3WmJS14MFVEskIT3d
-	Qs8f/MIIflEXfq5F73H6EZ9b4khnPPbmVWZIN21uJAd+Nosszfu/a6YDDuhIQZg=
-X-Google-Smtp-Source: AGHT+IHuoUTRBAX7yCQuos76mosjsd/ZK/qD45nQt7/eIbrPD0auMJqWZKU6Z6LcKYLRexfG44pnmQ==
-X-Received: by 2002:a7b:cd95:0:b0:426:4186:efae with SMTP id 5b1f17b1804b1-4264a3d1d13mr9723645e9.14.1720086180722;
-        Thu, 04 Jul 2024 02:43:00 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4264a28327fsm16620075e9.39.2024.07.04.02.42.59
+        bh=1nvqcTE+d+I6/PYlZYlUrN3ZSE7/0dbyWuREcOgf8aA=;
+        b=N5IixFBzFAy3EloTlAAm7JLFuDsXxce6fQx5KVBvvJASsy0Ye4bBXJozGayXAlX6wu
+         JkZ+393JaSinuI+f3cu40pbb2OJtFloYmuI8WVbSZlK1hSmNnxepzsgyjY/2xQlBu7Lw
+         illvMqp64IXEXzdVi5N9nMEWDKYgfnM11WipmOzLxRJxeO8fbiuvGLcV7VdqGeZQpigB
+         YUg2Z8erC3X7uiasLPvqiBFnG35ymVULs/mxH2BCVwtuEUYboQjpgTf6TBJXE1xzdnMu
+         61r+xZSW01FkacjC43nSnjWUDAmdaUQ4Yv5zM+gpaCrWZ8xkBlVAoIjt6XByZZdwKxGq
+         Fg0Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVZdyOqoM5L/D84ALjJ5yh6RABvv1repQVLWF2XRQCco6xt1dhOApeI3mPu9TvCTpkIfQ3oxQdOAkV3z+zzAUxRjOrxkxo1pS0DaMef+Bs8OCRv2UVfA+/Gmg==
+X-Gm-Message-State: AOJu0Yz6XE+7JLEJ5e591MKIJFy1L8Je4Nf0B/miHzL7Qe1JdTtM7YxK
+	RKbxnMLQ0U4JCTkKfXHSI7Pr20YyyPVwkjgdLS1v7vvDByTHofAuahDDFqfhobk=
+X-Google-Smtp-Source: AGHT+IFjFbE6dWkiueh16FP2N9UOEw13MN12/uduae8Rfkcs3JR/7QPB7Yfqddj+KjB9xdjW8KZcuw==
+X-Received: by 2002:a2e:98c3:0:b0:2ec:5200:a935 with SMTP id 38308e7fff4ca-2ee8edc2d45mr8049801fa.40.1720088154177;
+        Thu, 04 Jul 2024 03:15:54 -0700 (PDT)
+Received: from eriador.lumag.spb.ru (dzdbxzyyyyyyyyyyybrhy-3.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::b8c])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-2ee5168cf1fsm22523201fa.116.2024.07.04.03.15.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jul 2024 02:43:00 -0700 (PDT)
-Date: Thu, 4 Jul 2024 11:42:56 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, parav@nvidia.com,
-	feliu@nvidia.com, hengqi@linux.alibaba.com
-Subject: Re: [PATCH virtio v2 04/19] virtio: introduce virtio_queue_info
- struct and find_vqs_info() config op
-Message-ID: <ZoZuoOoqMoLAMm3N@nanopsycho.orion>
-References: <20240704064350.1097716-1-jiri@resnulli.us>
- <20240704064350.1097716-5-jiri@resnulli.us>
- <20240704034225-mutt-send-email-mst@kernel.org>
+        Thu, 04 Jul 2024 03:15:53 -0700 (PDT)
+Date: Thu, 4 Jul 2024 13:15:52 +0300
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+To: Vignesh Raman <vignesh.raman@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
+	helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch, robdclark@gmail.com, 
+	guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, mcanal@igalia.com, 
+	linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org, 
+	linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
+	intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] drm/ci: uprev IGT
+Message-ID: <ojnz5hjfht6gwouphvmvizb2udlz2wvwnsj4vgosp3chrhsmcv@c7cxscdyxtsn>
+References: <20240704092202.75551-1-vignesh.raman@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,170 +90,96 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240704034225-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240704092202.75551-1-vignesh.raman@collabora.com>
 
-Thu, Jul 04, 2024 at 09:47:09AM CEST, mst@redhat.com wrote:
->On Thu, Jul 04, 2024 at 08:43:35AM +0200, Jiri Pirko wrote:
->> From: Jiri Pirko <jiri@nvidia.com>
->> 
->> Introduce a structure virtio_queue_info to carry name, callback and ctx
->> together. In order to allow config implementations to accept config op
->> with array of virtio_queue_info structures, introduce a new
->> find_vqs_info() op. Do the needed conversion in virtio_find_vqs_ctx().
->> Note that whole virtio_find_vqs_ctx() is going to be eventually removed
->> at the and of this patchset.
->> 
->> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> ---
->> v1->v2:
->> - fixed comments for struct virtqueue_info
->> - s/virtio_queue_info/virtqueue_info/
->> ---
->>  include/linux/virtio_config.h | 51 ++++++++++++++++++++++++++++++++---
->>  1 file changed, 48 insertions(+), 3 deletions(-)
->> 
->> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
->> index 82a1d798b2f1..9b975c2830f6 100644
->> --- a/include/linux/virtio_config.h
->> +++ b/include/linux/virtio_config.h
->> @@ -18,6 +18,16 @@ struct virtio_shm_region {
->>  
->>  typedef void vq_callback_t(struct virtqueue *);
->>  
->> +struct virtqueue_info {
->> +	const char *name; /* Mainly for debugging, may be NULL for a virtqueue
->> +			   * unused by driver.
->> +			   */
->> +	vq_callback_t *callback; /* May be NULL for vq that does
->> +				  * not need a callback.
->> +				  */
->> +	bool ctx;
->
->
->	/*
->	 * Always
->	 * like this
->	 * outside of netdev code
->	 * and it comes before the code being documented
->	 */
+On Thu, Jul 04, 2024 at 02:52:02PM GMT, Vignesh Raman wrote:
+> Uprev IGT to the latest version, which includes a fix for the
+> writeback tests issue on MSM devices. Enable debugging for
+> igt-runner to log output such as 'Begin test' and 'End test'.
+> This will help identify which test causes system freeze or hangs.
+> Update xfails and add metadata header for each flake test.
+> 
+> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> ---
+> 
+> v1:
+>   - https://gitlab.freedesktop.org/vigneshraman/linux/-/pipelines/1216850
+> 
+> ---
+>  drivers/gpu/drm/ci/gitlab-ci.yml              |   2 +-
+>  drivers/gpu/drm/ci/igt_runner.sh              |   1 +
+>  .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |   1 +
+>  .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |  14 +-
+>  .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt |   4 +-
+>  drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |  12 +-
+>  .../gpu/drm/ci/xfails/i915-amly-flakes.txt    |  41 ++++-
+>  drivers/gpu/drm/ci/xfails/i915-amly-skips.txt |   5 +-
+>  drivers/gpu/drm/ci/xfails/i915-apl-flakes.txt |   2 +-
+>  drivers/gpu/drm/ci/xfails/i915-apl-skips.txt  |   4 +-
+>  drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |  14 +-
+>  drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |   9 +-
+>  drivers/gpu/drm/ci/xfails/i915-cml-skips.txt  |   5 +-
+>  drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |  24 +--
+>  drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt |   8 +-
+>  drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  |   4 +-
+>  drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  |   2 +
+>  drivers/gpu/drm/ci/xfails/i915-kbl-flakes.txt |   2 +-
+>  drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt  |   4 +-
+>  drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |  25 +--
+>  drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt  |   4 +-
+>  drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |  17 +-
+>  drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt |   2 +-
+>  drivers/gpu/drm/ci/xfails/i915-whl-skips.txt  |   5 +-
+>  .../drm/ci/xfails/mediatek-mt8173-fails.txt   |   9 +-
+>  .../drm/ci/xfails/mediatek-mt8173-flakes.txt  |  32 +++-
+>  .../drm/ci/xfails/mediatek-mt8173-skips.txt   |   4 +-
+>  .../drm/ci/xfails/mediatek-mt8183-fails.txt   |   2 +-
+>  .../drm/ci/xfails/mediatek-mt8183-skips.txt   |   2 +-
+>  .../gpu/drm/ci/xfails/meson-g12b-fails.txt    |   2 +-
+>  .../gpu/drm/ci/xfails/meson-g12b-skips.txt    |   2 +-
+>  .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |   5 +-
+>  .../gpu/drm/ci/xfails/msm-apq8016-skips.txt   |   2 +-
+>  .../gpu/drm/ci/xfails/msm-apq8096-flakes.txt  |   2 +-
+>  .../gpu/drm/ci/xfails/msm-apq8096-skips.txt   |   4 +-
 
-Ah, yeah.
-
-I wonder howcome checkpatch does not warn.
-
-
->
->	/* Never
->	 * like this
->	 */
->
->
->Also "may be null" is a bit confusing - it has to be null
->for such a vq.
->
->Thus:
->
->	/*
->	 * name: mainly for debugging, NULL for a virtqueue
->         * unused by the driver.
->	 */
-
-Okay.
+Acked-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> # msm tests
 
 
->	const char *name;
->
->and similarly for the callback.
+>  .../msm-sc7180-trogdor-kingoftown-fails.txt   | 145 ------------------
+>  .../msm-sc7180-trogdor-kingoftown-flakes.txt  |  18 ++-
+>  .../msm-sc7180-trogdor-kingoftown-skips.txt   |   5 +-
+>  ...sm-sc7180-trogdor-lazor-limozeen-fails.txt | 145 ------------------
+>  ...m-sc7180-trogdor-lazor-limozeen-flakes.txt |  11 +-
+>  ...sm-sc7180-trogdor-lazor-limozeen-skips.txt |   2 +-
+>  .../gpu/drm/ci/xfails/msm-sdm845-flakes.txt   | 105 ++++++++++++-
+>  .../gpu/drm/ci/xfails/msm-sdm845-skips.txt    |   4 +-
+>  .../drm/ci/xfails/rockchip-rk3288-fails.txt   |   2 +-
+>  .../drm/ci/xfails/rockchip-rk3288-skips.txt   |   2 +-
+>  .../drm/ci/xfails/rockchip-rk3399-fails.txt   |   2 +-
+>  .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |   4 +-
+>  .../drm/ci/xfails/rockchip-rk3399-skips.txt   |   2 +-
+>  .../drm/ci/xfails/virtio_gpu-none-fails.txt   |  64 ++++++++
+>  .../drm/ci/xfails/virtio_gpu-none-skips.txt   |   4 +-
+>  drivers/gpu/drm/ci/xfails/vkms-none-fails.txt |   4 -
+>  .../gpu/drm/ci/xfails/vkms-none-flakes.txt    |  21 +++
+>  drivers/gpu/drm/ci/xfails/vkms-none-skips.txt | 105 ++++++++++++-
+>  53 files changed, 527 insertions(+), 395 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml b/drivers/gpu/drm/ci/gitlab-ci.yml
+> index 80fb0f57ae46..b09976c3d2c2 100644
+> --- a/drivers/gpu/drm/ci/gitlab-ci.yml
+> +++ b/drivers/gpu/drm/ci/gitlab-ci.yml
+> @@ -5,7 +5,7 @@ variables:
+>    UPSTREAM_REPO: git://anongit.freedesktop.org/drm/drm
+>    TARGET_BRANCH: drm-next
+>  
+> -  IGT_VERSION: 0df7b9b97f9da0e364f5ee30fe331004b8c86b56
+> +  IGT_VERSION: f13702b8e4e847c56da3ef6f0969065d686049c5
+>  
+>    DEQP_RUNNER_GIT_URL: https://gitlab.freedesktop.org/anholt/deqp-runner.git
+>    DEQP_RUNNER_GIT_TAG: v0.15.0
 
-Yes.
 
-Will send v3 later today if there are no more comments.
-
-Thanks!
-
->
->
->
->> +};
->> +
->>  /**
->>   * struct virtio_config_ops - operations for configuring a virtio device
->>   * Note: Do not assume that a transport implements all of the operations
->> @@ -58,6 +68,12 @@ typedef void vq_callback_t(struct virtqueue *);
->>   *	names: array of virtqueue names (mainly for debugging)
->>   *		include a NULL entry for vqs unused by driver
->>   *	Returns 0 on success or error status
->> + * @find_vqs_info: find virtqueues and instantiate them.
->> + *	vdev: the virtio_device
->> + *	nvqs: the number of virtqueues to find
->> + *	vqs: on success, includes new virtqueues
->> + *	vqs_info: array of virtqueue info structures
->> + *	Returns 0 on success or error status
->>   * @del_vqs: free virtqueues found by find_vqs().
->>   * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
->>   *      The function guarantees that all memory operations on the
->> @@ -109,6 +125,10 @@ struct virtio_config_ops {
->>  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
->>  			const char * const names[], const bool *ctx,
->>  			struct irq_affinity *desc);
->> +	int (*find_vqs_info)(struct virtio_device *vdev, unsigned int nvqs,
->> +			     struct virtqueue *vqs[],
->> +			     struct virtqueue_info vqs_info[],
->> +			     struct irq_affinity *desc);
->>  	void (*del_vqs)(struct virtio_device *);
->>  	void (*synchronize_cbs)(struct virtio_device *);
->>  	u64 (*get_features)(struct virtio_device *vdev);
->> @@ -117,7 +137,7 @@ struct virtio_config_ops {
->>  	int (*set_vq_affinity)(struct virtqueue *vq,
->>  			       const struct cpumask *cpu_mask);
->>  	const struct cpumask *(*get_vq_affinity)(struct virtio_device *vdev,
->> -			int index);
->> +						 int index);
->>  	bool (*get_shm_region)(struct virtio_device *vdev,
->>  			       struct virtio_shm_region *region, u8 id);
->>  	int (*disable_vq_and_reset)(struct virtqueue *vq);
->> @@ -210,14 +230,39 @@ static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
->>  	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
->>  }
->>  
->> +static inline
->> +int virtio_find_vqs_info(struct virtio_device *vdev, unsigned int nvqs,
->> +			 struct virtqueue *vqs[],
->> +			 struct virtqueue_info vqs_info[],
->> +			 struct irq_affinity *desc)
->> +{
->> +	return vdev->config->find_vqs_info(vdev, nvqs, vqs, vqs_info, desc);
->> +}
->> +
->>  static inline
->>  int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
->>  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
->>  			const char * const names[], const bool *ctx,
->>  			struct irq_affinity *desc)
->>  {
->> -	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
->> -				      desc);
->> +	struct virtqueue_info *vqs_info;
->> +	int err, i;
->> +
->> +	if (!vdev->config->find_vqs_info)
->> +		return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks,
->> +					      names, ctx, desc);
->> +
->> +	vqs_info = kmalloc_array(nvqs, sizeof(*vqs_info), GFP_KERNEL);
->> +	if (!vqs_info)
->> +		return -ENOMEM;
->> +	for (i = 0; i < nvqs; i++) {
->> +		vqs_info[i].name = names[i];
->> +		vqs_info[i].callback = callbacks[i];
->> +		vqs_info[i].ctx = ctx ? ctx[i] : false;
->> +	}
->> +	err = virtio_find_vqs_info(vdev, nvqs, vqs, vqs_info, desc);
->> +	kfree(vqs_info);
->> +	return err;
->>  }
->>  
->>  static inline
->> -- 
->> 2.45.2
->
+-- 
+With best wishes
+Dmitry
