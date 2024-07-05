@@ -1,276 +1,194 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 442AE146A63
-	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 10:09:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABC01147C82
+	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 11:28:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720174154; cv=none; b=K/q7r57ocATUF5hjb7/tum516QzUrnKN1AFM2V2Kq31wqnxXxP2v5+54vNWAtlQP94qP0m5oNnyZ/eNspkZBytemIxq2gg3w4rz4J51HOcnh6GNw/BCA9mEA5JJcG6X9EfBlyazqGir3x4g9cQswWIuY/6tMklddIZcqDdV+Hu4=
+	t=1720178911; cv=none; b=X/aF235bAC64ydLseRb4mcUgv8VysceFBjyXHKBIIEo443fzU61ted68uE1Mn9vGz2XXeAmppBXxgg2tMJc0Fh500gxSOjvNZElC9xO8TEHoMUmIckFHKMH9f5+1by81Cj3LSLzGqd4wfdQSYYkGep3ZxyDbphuaGIXkYoKUVrc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720174154; c=relaxed/simple;
-	bh=hTt1vb2rlKzdwlZrBwUZKYn386WW4/puEcuG/xh7pBc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=G9pdet1FZ8hZbGvam20sxPa3BMyHGro80vjezEmiIR+78DffyCJW8F/Wvpxpn9pnRIgKdAQK+0+uLsT7l7qIJ45Ez8cV+8ytqsf0QfNbLJFMRNDSeMfZuZwTcQgD8LWSS+IKCMgzFKI68kQFLGwIkt0oZurYrI7EAf+uxoSdNik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BdDZ5HD0; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1720178911; c=relaxed/simple;
+	bh=lak4dxsT08I8rYU4tKXnZja2wg0MZqfxAJYkErSmlII=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ioq61JSn+5GYZi8VOT9M87Awc/tDVD3AW3kvqlVArLLTsV9M3/pN4vUv9TTMC5Jn+a20t4m4+vrKSY1/szquYTSbPPsWne9VGaMvKTeTuaxZ4TJlsg2Re0aQlnBJTOKUW3Lfbxw1TqV0CCnN4yQITzve8kijsZIS7DjBAgb6t+g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NBhCQRch; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BdDZ5HD0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NBhCQRch"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720174152;
+	s=mimecast20190719; t=1720178908;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Odn3kI68k2nJO/AKzhT19WX3OnWz2Ozg0VobWfUmy3A=;
-	b=BdDZ5HD0iyApu7/ZuXewiaa6jDPczxjRgUAba/STsMigGySzcIc3ZrxA5GDOz84DlB6ss3
-	CRI72Kbdw34pa7Fpf2IhD0EDg6I0f6jS7cNdD0GnjC60HxZubzjbPLXA9x8ft1rTb6+wqx
-	JZ6WCPFP4t2O/4qyA+TmCPcALAp5E3g=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=aUSIGduRuPTLuIye5guuFOEZVZ3eQUaOUfXk4TJeX/s=;
+	b=NBhCQRchVToXO+7gm6uT+CH6VcGwAdC4aOU2RrTeAZPaXQQhwjARi/9ulHirlQ/f0zzL8w
+	kIAA52efyKuwNSQcOKbDTpoIpF4+AjTs4BLtKoMe3CM6cyFKiXRZcaMBQarcNlC0YLFJ+y
+	LdCvdvgwklATZKcykzfTYQcqn8JSOl0=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-624-sMok9KvFM--GSHvjf-7nyg-1; Fri, 05 Jul 2024 06:09:11 -0400
-X-MC-Unique: sMok9KvFM--GSHvjf-7nyg-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4256c2a2e8dso11330775e9.3
-        for <virtualization@lists.linux.dev>; Fri, 05 Jul 2024 03:09:10 -0700 (PDT)
+ us-mta-493-bNpsECi6P5ay_K_nNOZ5QQ-1; Fri, 05 Jul 2024 07:28:27 -0400
+X-MC-Unique: bNpsECi6P5ay_K_nNOZ5QQ-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-42567dbbd20so11919185e9.0
+        for <virtualization@lists.linux.dev>; Fri, 05 Jul 2024 04:28:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720174150; x=1720778950;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Odn3kI68k2nJO/AKzhT19WX3OnWz2Ozg0VobWfUmy3A=;
-        b=BNzF2Nl1ttAFlOAjdUoQJmueDP9Wz7ClWn9XjbCr++q/0RIQ1tAplcW75y567MV4g7
-         LA7BD0DZgX6k4pBBUsfEMx13IJZ8IY4nvtOq7N9kPHiRZnG88piBzGeodGltFdS5kO48
-         rCbuH5bFrJJOjC6w78tptpY5VSet9/Iy/W8Uqd8lSeIcl18UsAe75QaFgKXSYKrQwtQ9
-         2zKuSdojwrtxmYTiv/3NyPzWe/BItFFnNozxyuVu9zu9ciiA4/ah9JTmgZRWLIxmq9ch
-         4/Lm4ezGSQvrAYe2hVHRHxEZabx5dF4sJC2ZStnv7HEllkjW0jO43CppsOpJbACIj8Wi
-         I12w==
-X-Forwarded-Encrypted: i=1; AJvYcCXEdfRAGcJFPW/EK8AAn9QVtI7f65NvEIPEJP5N4PWME9sO0YPhhswmjau82aMTLHWeB7MUv+RD6ZQC3qydR0tDosA77F5Tx+jZwTTEDTA=
-X-Gm-Message-State: AOJu0YzKvFjnr9DnbF6XxisjSffkd2y7370IHjL1FDxLcrk8g7kOzFZX
-	p8gIedpzlXVzSL+/51r/BUzHNkWvCavACTPtCrkOVjdfxtEpp5X4Y3I1yewo2RHWOSpSAqx4Lj6
-	295WyMM+bMYwK8rSwx4kIdC/qAJDI4ELiyEypsfhi9y4mqbkZj7gmMjPlmTUiPdEV
-X-Received: by 2002:a05:6000:18d1:b0:366:f001:78d5 with SMTP id ffacd0b85a97d-3679dd15831mr2701327f8f.13.1720174149721;
-        Fri, 05 Jul 2024 03:09:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF4wwtYRyztkbCukZKtbADwQgiOS0R3XAJxhjPsgDTBQMKf8FQrtcOZyu+TAhVhA0306KQefg==
-X-Received: by 2002:a05:6000:18d1:b0:366:f001:78d5 with SMTP id ffacd0b85a97d-3679dd15831mr2701283f8f.13.1720174149018;
-        Fri, 05 Jul 2024 03:09:09 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f0:a185:2de6:83fc:7632:9788])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3678eb6593bsm7742101f8f.93.2024.07.05.03.09.02
+        d=1e100.net; s=20230601; t=1720178905; x=1720783705;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aUSIGduRuPTLuIye5guuFOEZVZ3eQUaOUfXk4TJeX/s=;
+        b=NEDrSCFM0lQQDIWS8htPR3iol2ks+euiJ7NdiTQ1Mu8orK8rA9nlwFU0IRsW4fniOl
+         m7w71gX3HVBIWF6DDne1PgPTYanXMbBL1Zf9PiGumBbTIPw4UAYu+p9lRjFy7yZI9l7k
+         FHAlhgbApdwM6NCSDNG6Lwc7+WOoJS0Hsfl4l4zuOPNi849/b6MV8SwbprK8EgRfddA2
+         msM5HVMj2H8VUpJWZKUio+s9v5GAaAyjz+ywONCeKgv2BM9tNm7QbXjDNYSCpGtFy5YH
+         yJQip0JyvIYUg/0tfAHH9Tl2vK5a+n22SE9u8v4wEZLaAdKlIAF/b88ilXfE/EC9EhP+
+         f1WQ==
+X-Gm-Message-State: AOJu0Yy+WXn/WJYghyQiP3FYI3MUuuI46RGzRxyPZr1LiEh6615fKMpR
+	nxEHeRYVvMxNyv8iOhwW1OOrAFr1ZaZSXciPUGPbd0VKYgwNcikTeiXTHwkeHudbX3p5WKeibjC
+	vxmEEmiO+T73mJ7KTixRGPfLXxC1Zx50lx2ck1+TDPnAajsatXgJhMbGKBXGAkxFDroheXd1Eyi
+	NqOtD9KMvU3mhfxsv3xgUvvO6Du/RMKkLaOMhWeSyYAETRgK7P
+X-Received: by 2002:a05:600c:230d:b0:425:6424:357a with SMTP id 5b1f17b1804b1-4264a45f760mr26730065e9.35.1720178905554;
+        Fri, 05 Jul 2024 04:28:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFXn1FfE3jKyhkXLC5OprjObAGEx5l00fijgonR1jxhZlWMGrSQ/t0Y3OWTzi9026CPeOS7QA==
+X-Received: by 2002:a05:600c:230d:b0:425:6424:357a with SMTP id 5b1f17b1804b1-4264a45f760mr26729835e9.35.1720178904690;
+        Fri, 05 Jul 2024 04:28:24 -0700 (PDT)
+Received: from step1.redhat.com ([193.207.218.209])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-367a29eab73sm2774662f8f.41.2024.07.05.04.28.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jul 2024 03:09:08 -0700 (PDT)
-Date: Fri, 5 Jul 2024 06:09:01 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@redhat.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
+        Fri, 05 Jul 2024 04:28:23 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: virtualization@lists.linux.dev
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: [PATCH 2/2] virtio: fix vq # when vq skipped
-Message-ID: <1a5d7456542bcd1df8e397c93c48deacd244add5.1720173841.git.mst@redhat.com>
-References: <cover.1720173841.git.mst@redhat.com>
+	linux-kernel@vger.kernel.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH] vdpa_sim_blk: add `capacity` module parameter
+Date: Fri,  5 Jul 2024 13:28:21 +0200
+Message-ID: <20240705112821.144819-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1720173841.git.mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
-virtio balloon communicates to the core that in some
-configurations vq #s are non-contiguous by setting name
-pointer to NULL.
+The vDPA block simulator always allocated a 128 MiB ram-disk, but some
+filesystems (e.g. XFS) may require larger minimum sizes (see
+https://issues.redhat.com/browse/RHEL-45951).
 
-Unfortunately, core then turned around and just made them
-contiguous again. Result is that driver is out of spec.
+So to allow us to test these filesystems, let's add a module parameter
+to control the size of the simulated virtio-blk devices.
+The value is mapped directly to the `capacity` field of the virtio-blk
+configuration space, so it must be expressed in sector numbers of 512
+bytes.
 
-Implement what the API was supposed to do
-in the 1st place. Compatibility with buggy hypervisors
-is handled inside virtio-balloon, which is the only driver
-making use of this facility, so far.
+The default value (0x40000) is the same as the previous value, so the
+behavior without setting `capacity` remains unchanged.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Before this patch or with this patch without setting `capacity`:
+  $ modprobe vdpa-sim-blk
+  $ vdpa dev add mgmtdev vdpasim_blk name blk0
+  virtio_blk virtio6: 1/0/0 default/read/poll queues
+  virtio_blk virtio6: [vdb] 262144 512-byte logical blocks (134 MB/128 MiB)
+
+After this patch:
+  $ modprobe vdpa-sim-blk capacity=614400
+  $ vdpa dev add mgmtdev vdpasim_blk name blk0
+  virtio_blk virtio6: 1/0/0 default/read/poll queues
+  virtio_blk virtio6: [vdb] 614400 512-byte logical blocks (315 MB/300 MiB)
+
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- arch/um/drivers/virtio_uml.c           | 4 ++--
- drivers/remoteproc/remoteproc_virtio.c | 4 ++--
- drivers/s390/virtio/virtio_ccw.c       | 4 ++--
- drivers/virtio/virtio_mmio.c           | 4 ++--
- drivers/virtio/virtio_pci_common.c     | 8 ++++----
- drivers/virtio/virtio_vdpa.c           | 4 ++--
- 6 files changed, 14 insertions(+), 14 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index 77faa2cf3a13..d65346cd340e 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -1019,7 +1019,7 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		       struct irq_affinity *desc)
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+index b137f3679343..18f390149836 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+@@ -33,7 +33,6 @@
+ 				 (1ULL << VIRTIO_BLK_F_DISCARD)  | \
+ 				 (1ULL << VIRTIO_BLK_F_WRITE_ZEROES))
+ 
+-#define VDPASIM_BLK_CAPACITY	0x40000
+ #define VDPASIM_BLK_SIZE_MAX	0x1000
+ #define VDPASIM_BLK_SEG_MAX	32
+ #define VDPASIM_BLK_DWZ_MAX_SECTORS UINT_MAX
+@@ -43,6 +42,10 @@
+ #define VDPASIM_BLK_AS_NUM	1
+ #define VDPASIM_BLK_GROUP_NUM	1
+ 
++static unsigned long capacity = 0x40000;
++module_param(capacity, ulong, 0444);
++MODULE_PARM_DESC(capacity, "virtio-blk device capacity (in 512-byte sectors)");
++
+ struct vdpasim_blk {
+ 	struct vdpasim vdpasim;
+ 	void *buffer;
+@@ -79,10 +82,10 @@ static void vdpasim_blk_buffer_unlock(struct vdpasim_blk *blk)
+ static bool vdpasim_blk_check_range(struct vdpasim *vdpasim, u64 start_sector,
+ 				    u64 num_sectors, u64 max_sectors)
  {
- 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
--	int i, queue_idx = 0, rc;
-+	int i, rc;
- 	struct virtqueue *vq;
+-	if (start_sector > VDPASIM_BLK_CAPACITY) {
++	if (start_sector > capacity) {
+ 		dev_dbg(&vdpasim->vdpa.dev,
+-			"starting sector exceeds the capacity - start: 0x%llx capacity: 0x%x\n",
+-			start_sector, VDPASIM_BLK_CAPACITY);
++			"starting sector exceeds the capacity - start: 0x%llx capacity: 0x%lx\n",
++			start_sector, capacity);
+ 	}
  
- 	/* not supported for now */
-@@ -1036,7 +1036,7 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			continue;
- 		}
+ 	if (num_sectors > max_sectors) {
+@@ -92,10 +95,10 @@ static bool vdpasim_blk_check_range(struct vdpasim *vdpasim, u64 start_sector,
+ 		return false;
+ 	}
  
--		vqs[i] = vu_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-+		vqs[i] = vu_setup_vq(vdev, i, callbacks[i], names[i],
- 				     ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			rc = PTR_ERR(vqs[i]);
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index 25b66b113b69..2d17135abb66 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -187,7 +187,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 				 const bool * ctx,
- 				 struct irq_affinity *desc)
- {
--	int i, ret, queue_idx = 0;
-+	int i, ret;
+-	if (num_sectors > VDPASIM_BLK_CAPACITY - start_sector) {
++	if (num_sectors > capacity - start_sector) {
+ 		dev_dbg(&vdpasim->vdpa.dev,
+-			"request exceeds the capacity - start: 0x%llx num: 0x%llx capacity: 0x%x\n",
+-			start_sector, num_sectors, VDPASIM_BLK_CAPACITY);
++			"request exceeds the capacity - start: 0x%llx num: 0x%llx capacity: 0x%lx\n",
++			start_sector, num_sectors, capacity);
+ 		return false;
+ 	}
  
- 	for (i = 0; i < nvqs; ++i) {
- 		if (!names[i]) {
-@@ -195,7 +195,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 			continue;
- 		}
+@@ -369,7 +372,7 @@ static void vdpasim_blk_get_config(struct vdpasim *vdpasim, void *config)
  
--		vqs[i] = rp_find_vq(vdev, queue_idx++, callbacks[i], names[i],
-+		vqs[i] = rp_find_vq(vdev, i, callbacks[i], names[i],
- 				    ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			ret = PTR_ERR(vqs[i]);
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index d6491fc84e8c..64541b3bb8a2 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -696,7 +696,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	dma64_t *indicatorp = NULL;
--	int ret, i, queue_idx = 0;
-+	int ret, i;
- 	struct ccw1 *ccw;
- 	dma32_t indicatorp_dma = 0;
+ 	memset(config, 0, sizeof(struct virtio_blk_config));
  
-@@ -710,7 +710,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			continue;
- 		}
+-	blk_config->capacity = cpu_to_vdpasim64(vdpasim, VDPASIM_BLK_CAPACITY);
++	blk_config->capacity = cpu_to_vdpasim64(vdpasim, capacity);
+ 	blk_config->size_max = cpu_to_vdpasim32(vdpasim, VDPASIM_BLK_SIZE_MAX);
+ 	blk_config->seg_max = cpu_to_vdpasim32(vdpasim, VDPASIM_BLK_SEG_MAX);
+ 	blk_config->num_queues = cpu_to_vdpasim16(vdpasim, VDPASIM_BLK_VQ_NUM);
+@@ -437,8 +440,7 @@ static int vdpasim_blk_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	if (blk->shared_backend) {
+ 		blk->buffer = shared_buffer;
+ 	} else {
+-		blk->buffer = kvzalloc(VDPASIM_BLK_CAPACITY << SECTOR_SHIFT,
+-				       GFP_KERNEL);
++		blk->buffer = kvzalloc(capacity << SECTOR_SHIFT, GFP_KERNEL);
+ 		if (!blk->buffer) {
+ 			ret = -ENOMEM;
+ 			goto put_dev;
+@@ -495,8 +497,7 @@ static int __init vdpasim_blk_init(void)
+ 		goto parent_err;
  
--		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
-+		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i],
- 					     names[i], ctx ? ctx[i] : false,
- 					     ccw);
- 		if (IS_ERR(vqs[i])) {
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 173596589c71..a3a66a0b7cb1 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -496,7 +496,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	int irq = platform_get_irq(vm_dev->pdev, 0);
--	int i, err, queue_idx = 0;
-+	int i, err;
- 
- 	if (irq < 0)
- 		return irq;
-@@ -515,7 +515,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 			continue;
- 		}
- 
--		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-+		vqs[i] = vm_setup_vq(vdev, i, callbacks[i], names[i],
- 				     ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			vm_del_vqs(vdev);
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index f6b0b00e4599..eeff060cacec 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -292,7 +292,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	u16 msix_vec;
--	int i, err, nvectors, allocated_vectors, queue_idx = 0;
-+	int i, err, nvectors, allocated_vectors;
- 
- 	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
- 	if (!vp_dev->vqs)
-@@ -328,7 +328,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
- 			msix_vec = allocated_vectors++;
- 		else
- 			msix_vec = VP_MSIX_VQ_VECTOR;
--		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-+		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i],
- 				     ctx ? ctx[i] : false,
- 				     msix_vec);
- 		if (IS_ERR(vqs[i])) {
-@@ -365,7 +365,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
- 		const char * const names[], const bool *ctx)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	int i, err, queue_idx = 0;
-+	int i, err;
- 
- 	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
- 	if (!vp_dev->vqs)
-@@ -383,7 +383,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
- 			vqs[i] = NULL;
- 			continue;
- 		}
--		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-+		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i],
- 				     ctx ? ctx[i] : false,
- 				     VIRTIO_MSI_NO_VECTOR);
- 		if (IS_ERR(vqs[i])) {
-diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index e803db0da307..fe91a5d673dc 100644
---- a/drivers/virtio/virtio_vdpa.c
-+++ b/drivers/virtio/virtio_vdpa.c
-@@ -370,7 +370,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 	struct cpumask *masks;
- 	struct vdpa_callback cb;
- 	bool has_affinity = desc && ops->set_vq_affinity;
--	int i, err, queue_idx = 0;
-+	int i, err;
- 
- 	if (has_affinity) {
- 		masks = create_affinity_masks(nvqs, desc ? desc : &default_affd);
-@@ -384,7 +384,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 			continue;
- 		}
- 
--		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++,
-+		vqs[i] = virtio_vdpa_setup_vq(vdev, i,
- 					      callbacks[i], names[i], ctx ?
- 					      ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
+ 	if (shared_backend) {
+-		shared_buffer = kvzalloc(VDPASIM_BLK_CAPACITY << SECTOR_SHIFT,
+-					 GFP_KERNEL);
++		shared_buffer = kvzalloc(capacity << SECTOR_SHIFT, GFP_KERNEL);
+ 		if (!shared_buffer) {
+ 			ret = -ENOMEM;
+ 			goto mgmt_dev_err;
 -- 
-MST
+2.45.2
 
