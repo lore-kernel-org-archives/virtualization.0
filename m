@@ -1,132 +1,114 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD95516C6AE
-	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 15:30:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8D6F13A88B
+	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 16:04:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720193409; cv=none; b=PNbbN77JT2FiF0BE5xfvKtV49lnW1I6vZzlq8gTOhp3jNm32tsN/ZSq4TgfXePfzOKWah5N2WjCWEDkVYUfMXeJSEf+MhRRGGV6yKQgCxSA2JQ9PXWy8R0U7WcNB2it+jBxHIR9SpU1zqKpFOkCAgOFw5ES1rPzCn9gw0dHorsc=
+	t=1720195469; cv=none; b=ng3dUWcBScxRbmL5/5tnreqJMd8+CBRQmzKyPDBras5Eab07nz1kKLxTVJMfTPKg08JlrAzltznCnZXDj5sFl+dC3yD/yn9QsXzD0S6PCWRZNCo3+zL6X/xUtgvtCF9wvapiHdetCLlihntBZXxJMT4238atKh5S+LLRKwjisWY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720193409; c=relaxed/simple;
-	bh=yEgkAHLT9xLT/kpLsE5GeojmOuuYLdB0Rj2xt8hrjNo=;
+	s=arc-20240116; t=1720195469; c=relaxed/simple;
+	bh=FNTBsX+63uIgnWKLXkG5pwYCpWKOxAZZwqQ8X2x73vU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=EA8kY9MIHR7K3+ZpEOJt+mMeF6+zO7tJhl8nSNh244xXUGxMf26/O9hyi8XdI+Q5qt4sMlXD5oEzfy3Zxba8GoF4CxU4roZuAP4hUb+KkAddBNEqZWoF6D91/8d5VpWgR7aXwy31pZ6sX1vwV8hfWtusfaDozbtuWyIFy7V34oE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P9T84yNm; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=fcM0RIFzRx7L9zpR3yimlJ2EfKOuxg09EYyjuxMLP36dpQ4KItL2B/smGhmpuoLSDneFm53DtbmhnSiyAnzfHZ2IDbw6to8SJmgpIFOBmrwc0gRFzRc5QB3G8o53Qg3qh3VUF2ZHQR/+eDheKjP/Xy5EUG3UyX+aSL3ZIDmlXBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=J6VAgbO9; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P9T84yNm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720193407;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=74RpSZvpnxQTfE/ido1/Stn3pY4Si/dshmNfWAA5MUE=;
-	b=P9T84yNmh/TIfYhs+I+bX3rUxAkWWLcsT48X8eyjymVsuslbsXiX45cvgLo5CM4ey4++jr
-	RaNi2lzQfTQe2UVw+n+2YnACY51qqUR3h3ktMwTf88US6EwR9T5PHazbHdPpIXYF85EVO0
-	nCPq1lDiIT4jUrt2W40FKOraLseEv44=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-185-TyIRavoENYSL2Ic0vJxK5w-1; Fri, 05 Jul 2024 11:30:05 -0400
-X-MC-Unique: TyIRavoENYSL2Ic0vJxK5w-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4263fff5eaeso12963575e9.0
-        for <virtualization@lists.linux.dev>; Fri, 05 Jul 2024 08:30:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720193404; x=1720798204;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="J6VAgbO9"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-2c8e7553c9eso1238475a91.3
+        for <virtualization@lists.linux.dev>; Fri, 05 Jul 2024 09:04:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1720195467; x=1720800267; darn=lists.linux.dev;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=74RpSZvpnxQTfE/ido1/Stn3pY4Si/dshmNfWAA5MUE=;
-        b=oA8tJQGPmSzO+8XoiViPbp6SLLnxHQTaSS56jJ9mz1haxtecRPkxs7mErTMpt+EqLz
-         gKVRXGD6jnlFK09IqCn4nz/Mj1sWS2IpvPpfd56PhgNFr13ksF2S6z/HtBei+R8ydGsk
-         V7Hl/E1xMYmPRNJrgkaRy/GTuOKtjRC0/LHAQPfxgVHrfZjVL5qfJD1bN5LTjwKh6py9
-         7ypbzoV3JaXieeVNpQ/kyuNksz/qjzJMZaieWy8+FOyUXnaLqeCQR9oijDR9UMdTRKgz
-         yxJsJF3ju8O9ESixF5WHd8QIiUW0uAHwYjbbazf2CKahwlkm6YARfn7wewbwfE8BwnnX
-         joEA==
-X-Forwarded-Encrypted: i=1; AJvYcCViFqKVbEWjADNjp3yxexG7pxyrePBHhjT0htIqEdeygTKxHeGMnCsOX/mZN5TkA61zj3GtmTQPxvMZDoNjEl+fXOBLl5Lzr6SM/D8kIKU=
-X-Gm-Message-State: AOJu0YzPpPbex12cRqrJywfyy14iXlBEkYIakhCInVFMZnY+Ty5OJECk
-	PbezjQBNJ471HJPtc7Augd49Xu//A5Q5hb9iV+6G4GZFHWucTdpQXOSjx0F4WpWnIBxg5DgFo+Z
-	HbHYLDCKDrmh4tfDJbqI6y8ulBSmernozFJi0almimLAwldXuCuKgOgnMzbhtdNRK
-X-Received: by 2002:a05:600c:1382:b0:426:51dc:f6cd with SMTP id 5b1f17b1804b1-42651dcf78amr13275305e9.18.1720193404492;
-        Fri, 05 Jul 2024 08:30:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGkVrboDczs0dPxo4wunbHpnYmaIVmXlNE6+0TzmZu7gg/JiVCnHif8sPUpik4uc7u+5wZ2JA==
-X-Received: by 2002:a05:600c:1382:b0:426:51dc:f6cd with SMTP id 5b1f17b1804b1-42651dcf78amr13274985e9.18.1720193403888;
-        Fri, 05 Jul 2024 08:30:03 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:441:1b5b:ac5c:b82e:a18c:2c6e])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4264a2ca492sm67562515e9.34.2024.07.05.08.30.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jul 2024 08:30:03 -0700 (PDT)
-Date: Fri, 5 Jul 2024 11:29:58 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: John Garry <john.g.garry@oracle.com>
-Cc: axboe@kernel.dk, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, pbonzini@redhat.com, stefanha@redhat.com,
-	hare@suse.de, kbusch@kernel.org, hch@lst.de,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 0/5] Validate logical block size in blk_validate_limits()
-Message-ID: <20240705112922-mutt-send-email-mst@kernel.org>
-References: <20240705115127.3417539-1-john.g.garry@oracle.com>
+        bh=J0j8hAyQWJjGjX5p48jR0ZeFa7oUdUxgMcRMAfmdz3I=;
+        b=J6VAgbO9HzuhZ/FZr4H/PEin/LA11g/TNsXj3wjI9TYkXvdFPxO7sshv8iS1E2Adn2
+         0FR2q1xaORujGaM7ANXeqq4G3KR7a/7V0+FYXvIaJe/pp1cMRCp0tG4FuWu2YojQ6pI3
+         sTC+POvUYzgKum1B2Vwy34sDLcQMMXaNiqB/4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720195467; x=1720800267;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=J0j8hAyQWJjGjX5p48jR0ZeFa7oUdUxgMcRMAfmdz3I=;
+        b=PNd6wIO08yzCD7LeqwtHmESwt2fBhNR7Npv+4JShnIhj4rd4C91TlFomRU7VYSNTn8
+         MxDVeIsoRj10odm5EV2+6B1KGTG8cAxV2GKNYw58A2DhzGpiAiBCBXz9J1LZjz6G0sMJ
+         ZNAklVRrvaX1jHTRJByHD9hUbWZ5HKUU8/VE6YEsNnSLkgQ1tTMvrnZjkhjH+8pIx/Ld
+         Jy146OYNe5PyOZIZ4oRzMqukRekbHK67B7w+JhPR+gx7vDzT2hntphJd6wIesLMD7O1i
+         8oAaQJ2YjBD/Ap0HkSu4gwrdyBAZfE6OQSWKt/lhEZxha9sxUL1RIA4MmQIQP89zHa6k
+         Qi8Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVvh9CPtjgCminAdNUXhLmQ2YF4S3S97zqijsC+iqyKh+aQSP+2GSXp+aqtov7nksGAfWLGDZLJoFBhBoGyvd8pmBES5qOTPteHBSDvIlQ=
+X-Gm-Message-State: AOJu0YyE4S1pFyyOHaa4XhlsfqIERwemhH8EQFoF87rrS884v9tzlWO4
+	/hPGIF1FlTc5FAoV+J+pejBqgo/1QDhgNFYXZG5S04cRFuoPSTFOFdvpfJ1dfw==
+X-Google-Smtp-Source: AGHT+IHgkOSaePxDDnJHq1U7KDyApbljJxbvMpXvGQArIGdlvWKuaNaFIdtcRXK3XVmYMcGfw2r45Q==
+X-Received: by 2002:a17:90b:11d4:b0:2c9:74cc:1c1b with SMTP id 98e67ed59e1d1-2c99c504127mr4043383a91.7.1720195467069;
+        Fri, 05 Jul 2024 09:04:27 -0700 (PDT)
+Received: from prme-hs2-i1009 ([66.170.99.1])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2c99a992c43sm3576853a91.30.2024.07.05.09.04.25
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 05 Jul 2024 09:04:26 -0700 (PDT)
+Date: Fri, 5 Jul 2024 09:04:17 -0700
+From: Tim Merrifield <tim.merrifield@broadcom.com>
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
+	Xin Li <xin3.li@intel.com>, Ard Biesheuvel <ardb@kernel.org>,
+	Kai Huang <kai.huang@intel.com>,
+	Kevin Loughlin <kevinloughlin@google.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Kees Cook <kees@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+	Brian Gerst <brgerst@gmail.com>, linux-coco@lists.linux.dev,
+	linux-kernel@vger.kernel.org, Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	virtualization@lists.linux.dev, alex.james@broadcom.com,
+	doug.covelli@broadcom.com, jeffrey.sheldon@broadcom.com
+Subject: Re: [PATCH 0/2] Support userspace hypercalls for TDX
+Message-ID: <20240705160404.GA15452@prme-hs2-i1009>
+References: <cover.1720046911.git.tim.merrifield@broadcom.com>
+ <33874bf0-c115-4185-85ef-684794de3c8e@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240705115127.3417539-1-john.g.garry@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-
-On Fri, Jul 05, 2024 at 11:51:22AM +0000, John Garry wrote:
-> This series adds validation of the logical block size in
-> blk_validate_limits().
-> 
-> Some drivers had already been validating this themselves. As such, we can
-> mostly drop that driver validation.
-> 
-> nbd is problematic, as we cannot only change to just stop calling
-> blk_validate_limits(). This is because the LBS is updated in a 2-stage
-> process:
-> a. update block size in the driver and validate
-> b. update queue limits
-> 
-> So if we stop validating the limits in a., there is a user-visible change
-> in behaviour (as we stop rejecting invalid limits from the NBD_SET_BLKSIZE
-> ioctl). So I left that untouched.
-> 
-> This topic was originally mentioned in [0] and then again in [1] by
-> Keith.
-> 
-> I have also included a related virtio_blk change to deal with
-> blk_size config fallback.
-> 
-> [0] https://lore.kernel.org/linux-block/10b3e3fe-6ad5-4e0e-b822-f51656c976ee@oracle.com/
-> [1] https://lore.kernel.org/linux-block/Zl4dxaQgPbw19Irk@kbusch-mbp.dhcp.thefacebook.com/
-
-virtio bits:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-I assume this everything will go in gother with block patches?
+In-Reply-To: <33874bf0-c115-4185-85ef-684794de3c8e@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 
 
-> John Garry (5):
->   virtio_blk: Fix default logical block size fallback
->   block: Validate logical block size in blk_validate_limits()
->   null_blk: Don't bother validating blocksize
->   virtio_blk: Don't bother validating blocksize
->   loop: Don't bother validating blocksize
-> 
->  block/blk-settings.c          |  2 ++
->  drivers/block/loop.c          | 12 +-----------
->  drivers/block/null_blk/main.c |  3 ---
->  drivers/block/virtio_blk.c    | 31 +++++++++++--------------------
->  include/linux/blkdev.h        |  1 +
->  5 files changed, 15 insertions(+), 34 deletions(-)
-> 
-> -- 
-> 2.31.1
+Thanks for the response, Dave.
 
+On Wed, Jul 03, 2024 at 05:18:22PM -0700, Dave Hansen wrote:
+> 
+> Could we please be frank and transparent about what you actually want
+> here and how you expect this mechanism to be used?
+>
+
+Sorry for being unclear. open-vm-tools is currently broken on TDX and
+the intent here is to fix that. The idea is that versions of open-vm-tools
+that have been audited and restricted to certain hypercalls, would execute
+prctl to mark the process as capable of executing hypercalls.
+    
+> This inheritance model seems more suited to wrapping a tiny helper app
+> around an existing binary, a la:
+> 
+> 	prctl(ARCH_SET_COCO_USER_HCALL);
+> 	execve("/existing/binary/that/i/surely/did/not/audit", ...);
+> 
+> ... as opposed to something that you set in new versions of
+> open-vm-tools after an extensive audit and a bug fixing campaign to
+> clean up everything that the audit found.
+
+I understand the concern about inheritance. I chose prctl primarily
+because of some existing options that seemed similar, mainly speculation
+control. Is there an alternative approach that doesn't suffer from the
+inheritance issue?
