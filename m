@@ -1,196 +1,158 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB4AB132127
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jul 2024 04:02:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CEC213C9CD
+	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 07:37:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720152171; cv=none; b=nvUplEQnmTqVkipWEBXFX7ziRDdD2aZyszrCLUlVWfIC2cz95AQOyRGwmP3+wO/n0vyZQNdTw0nTSBUaZ2p+OeRk9klogMfsY1QsC/ZVTXk9dc7SQX9mfBZBm1CUdJA70RRd/GfOLuHWUmj07GuBXgrtmkYBsX+GvqOhoDkrfnQ=
+	t=1720165061; cv=none; b=JhyqIaHvvJZ3ojrhNy5VMU8Q0Gw4/D3rBizDQrCnH+JjENcEcGKg5lV2CG7CGfmfXwJTA4UcjxDimJuEXpQFBUZ4jO+4AwzOVyixaND8HLxitRGRIwjzIpm4TTbbEy/vu+jnghuU1nrJqTtbNWO2xMHzm8FSfmZ/rMwr5mdixUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720152171; c=relaxed/simple;
-	bh=NTs8cdPmXydAT7wf+ZRCPvOrg5JcTb7r2luwDH/A6qw=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=HSDhVg4DV49YZXvEkmiazw2JdDjEciDqglKTPjXXwKgfil+fzivCiOXTVm9Ngdqb6lPAhgcwstsPhQK3G5AZ6iHYeBGmEwEwYNCQgvZWT3qT60ARx1knpAVS39un5UEQb6mL+1LpOwpDWnLcMngO3zTqZm2N9woLIlSTnkDJ+9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=E5xu9kPu; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1720165061; c=relaxed/simple;
+	bh=aZ8pENvHUJkljWVAMm2vHyYCxOseBejaoRanFMSMNbw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=dgRUhsCVZJLUCvb1D5WYdz4PEn1Ts9+Si9jGXmTKwtaGk7yujuQvUHsw83RpuL5AxTHFyfM6KFjZY5gXrz00kAcNFhRhUf8JRo2cVgTke46wPnVdfx/PYIXTBiBcHPwAOriuyghK70095wAys2Owoamv0sayKBccJBOEIk32Hwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Jmg9nVfB; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="E5xu9kPu"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4BBB14040A
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jul 2024 04:02:50 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id zXUQYZbj8mcS for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Jul 2024 04:02:49 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E1FB340018
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E1FB340018
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=E5xu9kPu
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E1FB340018
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jul 2024 04:02:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1720152169; x=1751688169;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=NTs8cdPmXydAT7wf+ZRCPvOrg5JcTb7r2luwDH/A6qw=;
-  b=E5xu9kPuDQf9qj3iE5Xu9XctKKT3VOjLzbGb7xWDJ8IdD5E0QJrZS9zx
-   UY2I/ejAbU7EPtEkIGHcwH8QNiVn7zQSZjI4Xa+95aJUDVb7EXJvgCEct
-   LhqTJpzyuVTkR9tObvaEteBV27rJQ7mVUTg/nwPdGFv9N7H9Hu3N1mzPu
-   N3HzUurDWCcD6df/LLbbUeH1TM1QkRF6YIq7OO7dNBCsvujY4aojI9qvo
-   hNIxRDybNOyJwrDisFeqzKhNgptc+Ui2kn67YvnffwYdhq77BE3BGtgt+
-   8DM6wlnBGm9xEKMf6QDIVMIyCMOzqh+X+65DbkgUHpXuENED3KDqPenAN
-   g==;
-X-CSE-ConnectionGUID: VVccMll9SeCVEXIcqyuP+g==
-X-CSE-MsgGUID: kR4/lCpZT7+bx2XrcTkyeg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11123"; a="17081662"
-X-IronPort-AV: E=Sophos;i="6.09,183,1716274800"; 
-   d="scan'208";a="17081662"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2024 21:02:49 -0700
-X-CSE-ConnectionGUID: miGB7wAdTG+jVSj2Eq3mJA==
-X-CSE-MsgGUID: gczDXJkkTSy5j3tWShrBdQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,183,1716274800"; 
-   d="scan'208";a="51091746"
-Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
-  by fmviesa003.fm.intel.com with ESMTP; 04 Jul 2024 21:02:46 -0700
-Received: from kbuild by 68891e0c336b with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sPa9k-000Rt5-1I;
-	Fri, 05 Jul 2024 04:02:44 +0000
-Date: Fri, 5 Jul 2024 12:02:15 +0800
-From: kernel test robot <lkp@intel.com>
-To: Jiri Pirko <jiri@nvidia.com>
-Cc: oe-kbuild-all@lists.linux.dev, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>
-Subject: [mst-vhost:vhost 45/58] drivers/s390/virtio/virtio_ccw.c:708:22:
- error: 'vq_info' undeclared; did you mean 'vqs_info'?
-Message-ID: <202407051121.VASLAYUt-lkp@intel.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Jmg9nVfB"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1720165057; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=pUSM+Cs2Q5ZUzQ2KAzXHQfwuFb00FR3tFPJo4qCRG8Y=;
+	b=Jmg9nVfBb3JESp8Bd0gx+V2Ovk9YxNNmUS9dv0GTTBJZyeD4jagCzl+pOwMI60G95OZ+jTiihSMc1NeFMLcLCA4oNikBi7390hpvIe8sIRI3QJSgw7a6tLPZ4ra6tJjSfPAjqSQVVuSPe7ISG9t23GhGaM2RqiwGJFsDDneOb/Q=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W9u53oH_1720165055;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W9u53oH_1720165055)
+          by smtp.aliyun-inc.com;
+          Fri, 05 Jul 2024 15:37:36 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org
+Subject: [PATCH net-next v7 01/10] virtio_net: replace VIRTIO_XDP_HEADROOM by XDP_PACKET_HEADROOM
+Date: Fri,  5 Jul 2024 15:37:25 +0800
+Message-Id: <20240705073734.93905-2-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240705073734.93905-1-xuanzhuo@linux.alibaba.com>
+References: <20240705073734.93905-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Git-Hash: bfc652b69f2c
+Content-Transfer-Encoding: 8bit
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
-head:   b3dab3dfaa73df6bde78cb52f6bc03f57c4d056c
-commit: f07c2dc394264dd811776de1dec9544f2181f2e4 [45/58] virtio: convert find_vqs() op implementations to find_vqs_info()
-config: s390-allyesconfig (https://download.01.org/0day-ci/archive/20240705/202407051121.VASLAYUt-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240705/202407051121.VASLAYUt-lkp@intel.com/reproduce)
+virtio net has VIRTIO_XDP_HEADROOM that is equal to
+XDP_PACKET_HEADROOM to calculate the headroom for xdp.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202407051121.VASLAYUt-lkp@intel.com/
+But here we should use the macro XDP_PACKET_HEADROOM from bpf.h to
+calculate the headroom for xdp. So here we remove the
+VIRTIO_XDP_HEADROOM, and use the XDP_PACKET_HEADROOM to replace it.
 
-All errors (new ones prefixed by >>):
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/net/virtio_net.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-   drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_find_vqs':
->> drivers/s390/virtio/virtio_ccw.c:708:22: error: 'vq_info' undeclared (first use in this function); did you mean 'vqs_info'?
-     708 |                 if (!vq_info->name) {
-         |                      ^~~~~~~
-         |                      vqs_info
-   drivers/s390/virtio/virtio_ccw.c:708:22: note: each undeclared identifier is reported only once for each function it appears in
-
-
-vim +708 drivers/s390/virtio/virtio_ccw.c
-
-   689	
-   690	static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-   691				       struct virtqueue *vqs[],
-   692				       struct virtqueue_info vqs_info[],
-   693				       struct irq_affinity *desc)
-   694	{
-   695		struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-   696		struct virtqueue_info *vqi;
-   697		dma64_t *indicatorp = NULL;
-   698		int ret, i, queue_idx = 0;
-   699		struct ccw1 *ccw;
-   700		dma32_t indicatorp_dma = 0;
-   701	
-   702		ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw), NULL);
-   703		if (!ccw)
-   704			return -ENOMEM;
-   705	
-   706		for (i = 0; i < nvqs; ++i) {
-   707			vqi = &vqs_info[i];
- > 708			if (!vq_info->name) {
-   709				vqs[i] = NULL;
-   710				continue;
-   711			}
-   712	
-   713			vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, vqi->callback,
-   714						     vqi->name, vqi->ctx, ccw);
-   715			if (IS_ERR(vqs[i])) {
-   716				ret = PTR_ERR(vqs[i]);
-   717				vqs[i] = NULL;
-   718				goto out;
-   719			}
-   720		}
-   721		ret = -ENOMEM;
-   722		/*
-   723		 * We need a data area under 2G to communicate. Our payload is
-   724		 * the address of the indicators.
-   725		*/
-   726		indicatorp = ccw_device_dma_zalloc(vcdev->cdev,
-   727						   sizeof(*indicatorp),
-   728						   &indicatorp_dma);
-   729		if (!indicatorp)
-   730			goto out;
-   731		*indicatorp = indicators_dma(vcdev);
-   732		if (vcdev->is_thinint) {
-   733			ret = virtio_ccw_register_adapter_ind(vcdev, vqs, nvqs, ccw);
-   734			if (ret)
-   735				/* no error, just fall back to legacy interrupts */
-   736				vcdev->is_thinint = false;
-   737		}
-   738		ccw->cda = indicatorp_dma;
-   739		if (!vcdev->is_thinint) {
-   740			/* Register queue indicators with host. */
-   741			*indicators(vcdev) = 0;
-   742			ccw->cmd_code = CCW_CMD_SET_IND;
-   743			ccw->flags = 0;
-   744			ccw->count = sizeof(*indicatorp);
-   745			ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
-   746			if (ret)
-   747				goto out;
-   748		}
-   749		/* Register indicators2 with host for config changes */
-   750		*indicatorp = indicators2_dma(vcdev);
-   751		*indicators2(vcdev) = 0;
-   752		ccw->cmd_code = CCW_CMD_SET_CONF_IND;
-   753		ccw->flags = 0;
-   754		ccw->count = sizeof(*indicatorp);
-   755		ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_CONF_IND);
-   756		if (ret)
-   757			goto out;
-   758	
-   759		if (indicatorp)
-   760			ccw_device_dma_free(vcdev->cdev, indicatorp,
-   761					    sizeof(*indicatorp));
-   762		ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
-   763		return 0;
-   764	out:
-   765		if (indicatorp)
-   766			ccw_device_dma_free(vcdev->cdev, indicatorp,
-   767					    sizeof(*indicatorp));
-   768		ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
-   769		virtio_ccw_del_vqs(vdev);
-   770		return ret;
-   771	}
-   772	
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0b4747e81464..d99898e44456 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -40,9 +40,6 @@ module_param(napi_tx, bool, 0644);
+ 
+ #define VIRTNET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
+ 
+-/* Amount of XDP headroom to prepend to packets for use by xdp_adjust_head */
+-#define VIRTIO_XDP_HEADROOM 256
+-
+ /* Separating two types of XDP xmit */
+ #define VIRTIO_XDP_TX		BIT(0)
+ #define VIRTIO_XDP_REDIR	BIT(1)
+@@ -1268,7 +1265,7 @@ static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
+ 
+ static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
+ {
+-	return vi->xdp_enabled ? VIRTIO_XDP_HEADROOM : 0;
++	return vi->xdp_enabled ? XDP_PACKET_HEADROOM : 0;
+ }
+ 
+ /* We copy the packet for XDP in the following cases:
+@@ -1332,7 +1329,7 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+ 	}
+ 
+ 	/* Headroom does not contribute to packet length */
+-	*len = page_off - VIRTIO_XDP_HEADROOM;
++	*len = page_off - XDP_PACKET_HEADROOM;
+ 	return page;
+ err_buf:
+ 	__free_pages(page, 0);
+@@ -1619,8 +1616,8 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+ 	void *ctx;
+ 
+ 	xdp_init_buff(xdp, frame_sz, &rq->xdp_rxq);
+-	xdp_prepare_buff(xdp, buf - VIRTIO_XDP_HEADROOM,
+-			 VIRTIO_XDP_HEADROOM + vi->hdr_len, len - vi->hdr_len, true);
++	xdp_prepare_buff(xdp, buf - XDP_PACKET_HEADROOM,
++			 XDP_PACKET_HEADROOM + vi->hdr_len, len - vi->hdr_len, true);
+ 
+ 	if (!*num_buf)
+ 		return 0;
+@@ -1737,12 +1734,12 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
+ 		/* linearize data for XDP */
+ 		xdp_page = xdp_linearize_page(rq, num_buf,
+ 					      *page, offset,
+-					      VIRTIO_XDP_HEADROOM,
++					      XDP_PACKET_HEADROOM,
+ 					      len);
+ 		if (!xdp_page)
+ 			return NULL;
+ 	} else {
+-		xdp_room = SKB_DATA_ALIGN(VIRTIO_XDP_HEADROOM +
++		xdp_room = SKB_DATA_ALIGN(XDP_PACKET_HEADROOM +
+ 					  sizeof(struct skb_shared_info));
+ 		if (*len + xdp_room > PAGE_SIZE)
+ 			return NULL;
+@@ -1751,7 +1748,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
+ 		if (!xdp_page)
+ 			return NULL;
+ 
+-		memcpy(page_address(xdp_page) + VIRTIO_XDP_HEADROOM,
++		memcpy(page_address(xdp_page) + XDP_PACKET_HEADROOM,
+ 		       page_address(*page) + offset, *len);
+ 	}
+ 
+@@ -1761,7 +1758,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
+ 
+ 	*page = xdp_page;
+ 
+-	return page_address(*page) + VIRTIO_XDP_HEADROOM;
++	return page_address(*page) + XDP_PACKET_HEADROOM;
+ }
+ 
+ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+@@ -4971,7 +4968,7 @@ static int virtnet_restore_guest_offloads(struct virtnet_info *vi)
+ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 			   struct netlink_ext_ack *extack)
+ {
+-	unsigned int room = SKB_DATA_ALIGN(VIRTIO_XDP_HEADROOM +
++	unsigned int room = SKB_DATA_ALIGN(XDP_PACKET_HEADROOM +
+ 					   sizeof(struct skb_shared_info));
+ 	unsigned int max_sz = PAGE_SIZE - room - ETH_HLEN;
+ 	struct virtnet_info *vi = netdev_priv(dev);
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.32.0.3.g01195cf9f
+
