@@ -1,30 +1,30 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DF79144D01
-	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 07:37:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F3CD145359
+	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 07:37:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720165063; cv=none; b=ctlmhnSEQppYR2l+aHlFlaMsTqZ/G5GGMEJyfJ/jE1EbO+mi5Nn3FptFa5NhpKOPpppF6nlw0RC4J5CWSqgQGQOIFR35/WuMSp0ecxlvb2pVy3t3/mTMfufMXXBdNsTng4DrtLjrfEscLRoK+NLj2M3VzWulaGlUqcwmTbW1I68=
+	t=1720165064; cv=none; b=kPnQDlFbVsqYTWau1r6gj+pVsmzyQz6XJuxk9ArtvvpZgUz4XRsoGhSTyTUflSWeZAZl5sZ+emb/qu0Q+SvLnKiMqPcNKMtbIiX5jiJRBrXur2F+janfc7JoUKmvujvKHFtxrrSuDGZhniul3XPy1o3vHggCHngxQWJ+qWDFf0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720165063; c=relaxed/simple;
-	bh=N3BuQzEZ3xADxJCxh31dFbFp4xi723iW5Mhupk7GrXk=;
+	s=arc-20240116; t=1720165064; c=relaxed/simple;
+	bh=IV40QPdhsyLoYmU4imjg3UYnG7CDYoFS43lM0om6mkY=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=bQ0ya5iqUt8mrc7C7HfAkvvg/L5o5pUwcLfkxjUS2pospQpwmjkwtwR80eJbcywYx8HRj/yjqk64nUMll1e1agWpsYnUb0arXgKCW+4AWN/ba1xJd3ZM1hQ65GVKPJSzQzitYVXvrin6g9vyvCff32CQjgRrdY1minZZLyLu/F0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=eEdYoh/I; arc=none smtp.client-ip=115.124.30.131
+	 MIME-Version; b=gf5uwDZyz3en6lLzryAEAZRRbxclvzzZ41hFjNvmq2PuVAmcGO4s2aC5WaOes0SuTU/UYJdXZtHBmB/UlH9gzzKifhd4i4ZRF6+w9MOD4/aXk9grFJqoiu9TfnWh0A4f5wh1KD1yF7uBmCVMJM1zFuQTEba7NlFjbt/yEhBS8DI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=YLTM4DiU; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="eEdYoh/I"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="YLTM4DiU"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1720165059; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=ixQcmDs1008Adtr8nnLB1TsPVvNLEyo3g5zAUujjY4M=;
-	b=eEdYoh/IiGcSuBw2mmpZn45sHSYiaQGXDDzx1Gd8cvCi+Dya1NGq53Wdn6fRDcv/LhexKdgCWhtJSgkF/5AygixDXh4YV/6mmb3pP19LFIkxsh24AjaXJFQOx+kseHJ6rnqxuSjtZDrkAGhG2XyJ7HRV3vFgmETa0zHnzu9OOoc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W9uE.dr_1720165057;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W9uE.dr_1720165057)
+	t=1720165060; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=QkrRXTCDLDlphnBuelc6bjg4YI24a+uIVOKNzc4W2sM=;
+	b=YLTM4DiUwLob5Bf3Arb4OD2cpXBMf+B+DSjEDrcTSppB/95TI54VdJ2XVxXpJX0sy2RTm1T+TxPoKqL0Gh1wJpCqhuF6YLyyHhC9udJ2ef+evzG1SUnXs1NSDAdyRDpbc6CNipZWSlky5EpiBltz6vsJQzquI7xFrKUnkdJwI3c=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W9u5R-9_1720165058;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W9u5R-9_1720165058)
           by smtp.aliyun-inc.com;
-          Fri, 05 Jul 2024 15:37:38 +0800
+          Fri, 05 Jul 2024 15:37:39 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -41,9 +41,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v7 03/10] virtio_net: separate virtnet_tx_resize()
-Date: Fri,  5 Jul 2024 15:37:27 +0800
-Message-Id: <20240705073734.93905-4-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v7 04/10] virtio_net: separate receive_buf
+Date: Fri,  5 Jul 2024 15:37:28 +0800
+Message-Id: <20240705073734.93905-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240705073734.93905-1-xuanzhuo@linux.alibaba.com>
 References: <20240705073734.93905-1-xuanzhuo@linux.alibaba.com>
@@ -56,83 +56,103 @@ MIME-Version: 1.0
 X-Git-Hash: bfc652b69f2c
 Content-Transfer-Encoding: 8bit
 
-This patch separates two sub-functions from virtnet_tx_resize():
-
-* virtnet_tx_pause
-* virtnet_tx_resume
-
-Then the subsequent virtnet_tx_reset() can share these two functions.
+This commit separates the function receive_buf(), then we wrap the logic
+of handling the skb to an independent function virtnet_receive_done().
+The subsequent commit will reuse it.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ drivers/net/virtio_net.c | 62 +++++++++++++++++++++++-----------------
+ 1 file changed, 35 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index df5b23374c53..7d762614113b 100644
+index 7d762614113b..abfc84af90ce 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -2703,12 +2703,11 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
- 	return err;
+@@ -1968,6 +1968,40 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+ 	skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_type);
  }
  
--static int virtnet_tx_resize(struct virtnet_info *vi,
--			     struct send_queue *sq, u32 ring_num)
-+static void virtnet_tx_pause(struct virtnet_info *vi, struct send_queue *sq)
++static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
++				 struct sk_buff *skb, u8 flags)
++{
++	struct virtio_net_common_hdr *hdr;
++	struct net_device *dev = vi->dev;
++
++	hdr = skb_vnet_common_hdr(skb);
++	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
++		virtio_skb_set_hash(&hdr->hash_v1_hdr, skb);
++
++	if (flags & VIRTIO_NET_HDR_F_DATA_VALID)
++		skb->ip_summed = CHECKSUM_UNNECESSARY;
++
++	if (virtio_net_hdr_to_skb(skb, &hdr->hdr,
++				  virtio_is_little_endian(vi->vdev))) {
++		net_warn_ratelimited("%s: bad gso: type: %u, size: %u\n",
++				     dev->name, hdr->hdr.gso_type,
++				     hdr->hdr.gso_size);
++		goto frame_err;
++	}
++
++	skb_record_rx_queue(skb, vq2rxq(rq->vq));
++	skb->protocol = eth_type_trans(skb, dev);
++	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
++		 ntohs(skb->protocol), skb->len, skb->pkt_type);
++
++	napi_gro_receive(&rq->napi, skb);
++	return;
++
++frame_err:
++	DEV_STATS_INC(dev, rx_frame_errors);
++	dev_kfree_skb(skb);
++}
++
+ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+ 			void *buf, unsigned int len, void **ctx,
+ 			unsigned int *xdp_xmit,
+@@ -1975,7 +2009,6 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
  {
- 	bool running = netif_running(vi->dev);
- 	struct netdev_queue *txq;
--	int err, qindex;
-+	int qindex;
+ 	struct net_device *dev = vi->dev;
+ 	struct sk_buff *skb;
+-	struct virtio_net_common_hdr *hdr;
+ 	u8 flags;
  
- 	qindex = sq - vi->sq;
+ 	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+@@ -2005,32 +2038,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+ 	if (unlikely(!skb))
+ 		return;
  
-@@ -2729,10 +2728,17 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
- 	netif_stop_subqueue(vi->dev, qindex);
- 
- 	__netif_tx_unlock_bh(txq);
-+}
- 
--	err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
--	if (err)
--		netdev_err(vi->dev, "resize tx fail: tx queue index: %d err: %d\n", qindex, err);
-+static void virtnet_tx_resume(struct virtnet_info *vi, struct send_queue *sq)
-+{
-+	bool running = netif_running(vi->dev);
-+	struct netdev_queue *txq;
-+	int qindex;
-+
-+	qindex = sq - vi->sq;
-+
-+	txq = netdev_get_tx_queue(vi->dev, qindex);
- 
- 	__netif_tx_lock_bh(txq);
- 	sq->reset = false;
-@@ -2741,6 +2747,23 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
- 
- 	if (running)
- 		virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-+}
-+
-+static int virtnet_tx_resize(struct virtnet_info *vi, struct send_queue *sq,
-+			     u32 ring_num)
-+{
-+	int qindex, err;
-+
-+	qindex = sq - vi->sq;
-+
-+	virtnet_tx_pause(vi, sq);
-+
-+	err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
-+	if (err)
-+		netdev_err(vi->dev, "resize tx fail: tx queue index: %d err: %d\n", qindex, err);
-+
-+	virtnet_tx_resume(vi, sq);
-+
- 	return err;
+-	hdr = skb_vnet_common_hdr(skb);
+-	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
+-		virtio_skb_set_hash(&hdr->hash_v1_hdr, skb);
+-
+-	if (flags & VIRTIO_NET_HDR_F_DATA_VALID)
+-		skb->ip_summed = CHECKSUM_UNNECESSARY;
+-
+-	if (virtio_net_hdr_to_skb(skb, &hdr->hdr,
+-				  virtio_is_little_endian(vi->vdev))) {
+-		net_warn_ratelimited("%s: bad gso: type: %u, size: %u\n",
+-				     dev->name, hdr->hdr.gso_type,
+-				     hdr->hdr.gso_size);
+-		goto frame_err;
+-	}
+-
+-	skb_record_rx_queue(skb, vq2rxq(rq->vq));
+-	skb->protocol = eth_type_trans(skb, dev);
+-	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
+-		 ntohs(skb->protocol), skb->len, skb->pkt_type);
+-
+-	napi_gro_receive(&rq->napi, skb);
+-	return;
+-
+-frame_err:
+-	DEV_STATS_INC(dev, rx_frame_errors);
+-	dev_kfree_skb(skb);
++	virtnet_receive_done(vi, rq, skb, flags);
  }
  
+ /* Unlike mergeable buffers, all buffers are allocated to the
 -- 
 2.32.0.3.g01195cf9f
 
