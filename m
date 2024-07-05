@@ -1,395 +1,234 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from refb01.tmes.trendmicro.eu (refb01.tmes.trendmicro.eu [18.185.115.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8233144D28
-	for <virtualization@lists.linux.dev>; Fri,  5 Jul 2024 07:43:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720165434; cv=none; b=cAs8ZdY46qy1VZ1iUjBhgIZukiMX/5fyxRUevTttVG9yb9pj8m/dtAPMrJtcj77OlXfJF0bm+k2BS6sBj3DHF0hGRkkpQGmkQIz4uAW5xK/qTUiWd0XIhwpJwzRVbtfPhirBubM0Fpa/FbbkvHjJfsxE64kR4RzOaM8km+BLEV4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720165434; c=relaxed/simple;
-	bh=yMp/o0KF8sghb6QN7Ue1yHs/a2gkTVGWHyhUq8x+MHE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=cnxU4XWTaW20wg2V9D+8W4q4to1IFm92TQHHr6cCDLQC/buqWVzVyW/Dfztf2/cO/EYPMOdCJOND6MmkQBw8YvTLsVJpGv8i6M9+Ll/YnlgqdSEwudDsObHa6x4kZgEPr7iqp1cKk7ot1rYHSgdunzPmLxUKKo8VxpLsToE1t7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SFatCeo0; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A780D13C681;
+	Fri,  5 Jul 2024 08:12:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=18.185.115.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720167163; cv=fail; b=XWjsa8kKWgfZhziZ6Cret2cLDlKkjchlM1ceIqFgrYUPwMtWdlBiX4q4qUBaYxxOGBqCPZRTAt9v00Er0hiMncM8x7H3AJmnUP2pd4y596dzZgrwcnbQq063EaT+ENvAtT/AmpctxVVJ2uYb4zG3NEKgo4rmjG+sgYkW3sBhmdg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720167163; c=relaxed/simple;
+	bh=FTSaQRcC9DZjMRjgPVWtEYegaKkLhYdM9iT3kqJjVJ8=;
+	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=T7fOdaePnv1LGVmZ/G85cGjrIvJVDf/W7EnwZZh6IGQIqqjzVdchBR2+WfEpG3dmpQwHVoTbdzIy9PF5ik6RxUwj7mhKAEyZPFvReS+kkOya6gS4riYFwBO9gQDUODs9mYEX0FxaMzhWHFZb1dSDxdLON/4IgkwJpSfR1NYHUhU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com; spf=pass smtp.mailfrom=opensynergy.com; dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b=Bt1YHZFd; arc=fail smtp.client-ip=18.185.115.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensynergy.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SFatCeo0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720165431;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=guw6UvRHl1c29uTh913l6v1VFnnOUH4SsG9WmrFlG+A=;
-	b=SFatCeo0+oQ/FxStEdUHJHjAwmIUzwYRyZLsCLy8ad9Eu5wqCzXfNzeW2eJQtjhMJ41n0d
-	8pfvcEs7+bsAEObpeLyumI7pRvZv3x+MSapJwbWX2zD9chTBRR+HBcoJznJtQbdmHqOS1X
-	gwShp2kY/Dj3R1RTjpjEdA5Jv6urgRQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-312-kqLSJ4jTMnCjGHnPICVAuQ-1; Fri, 05 Jul 2024 03:43:49 -0400
-X-MC-Unique: kqLSJ4jTMnCjGHnPICVAuQ-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4246cf4c87dso9399105e9.2
-        for <virtualization@lists.linux.dev>; Fri, 05 Jul 2024 00:43:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720165428; x=1720770228;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=guw6UvRHl1c29uTh913l6v1VFnnOUH4SsG9WmrFlG+A=;
-        b=WG2zcl6cBqRfwoYYWimJju4BjNrBBorndJFktUH6qe5FnNfYlzMzdYeOxy4yszCL4r
-         1mqxrT+K3PrBGcrHvFRN5+O4FsG262EMV9IaX+g3nqzDQxlhRvbG3JcR2Vvt75750sLw
-         uBJ9hQkNGeoMHiwXXG/4kh2fiXaOepHyhWmlQ5kbxnyp7Fu2hv8x6Cs1zN2PRtjSQZoI
-         p9Tyad52qDaK4l4ue8YIacUc4oNiv2nr0AH9f2yjahl00y6e7XANRNKlMYhv249KwTha
-         bWesSNF8aIKp1Cwk2NHt4r7Xi5cAhBIo0NP1UOVP4KRUeIG8Q17nEz6DJtE5sQUwlaKR
-         mPhg==
-X-Gm-Message-State: AOJu0YwJNa7/f+o/lrn1cv3HNcK9lF/qppYaEqq5LMeTSbSXgm4vb4qr
-	86sRfhWEAYeOLOPkaWdJI7+zYiAw/cNE87tEYg4wS5zzTNOwnIybXZMm/j0vomKvGwAfhIq6wTg
-	g8nC6iD0Nt3st1NOFoVc9COezXlYdNaefcE9StKGxT2hwF4BLYKt+T+NwXtG5NbYO
-X-Received: by 2002:a05:600c:4c15:b0:426:59ec:17a2 with SMTP id 5b1f17b1804b1-42659ec1a4cmr799975e9.33.1720165428065;
-        Fri, 05 Jul 2024 00:43:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEZzlAmCnztwRkJ0GinlEBF8QW5JES4RQryz9Ycm8Yk0TjPYvdANpXxNeeNN8rA85BLwhEo+w==
-X-Received: by 2002:a05:600c:4c15:b0:426:59ec:17a2 with SMTP id 5b1f17b1804b1-42659ec1a4cmr799795e9.33.1720165427352;
-        Fri, 05 Jul 2024 00:43:47 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:441:1b5b:ac5c:b82e:a18c:2c6e])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36788e37b53sm8643748f8f.45.2024.07.05.00.43.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jul 2024 00:43:46 -0700 (PDT)
-Date: Fri, 5 Jul 2024 03:43:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, parav@nvidia.com,
-	feliu@nvidia.com, hengqi@linux.alibaba.com
-Subject: Re: [PATCH virtio v2 06/19] virtio: convert find_vqs() op
- implementations to find_vqs_info()
-Message-ID: <20240705034127-mutt-send-email-mst@kernel.org>
-References: <20240704064350.1097716-1-jiri@resnulli.us>
- <20240704064350.1097716-7-jiri@resnulli.us>
+	dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b="Bt1YHZFd"
+Received: from 40.93.78.50_.trendmicro.com (unknown [172.21.10.202])
+	by refb01.tmes.trendmicro.eu (Postfix) with ESMTPS id 8B74D10235A97;
+	Fri,  5 Jul 2024 08:12:33 +0000 (UTC)
+Received: from 40.93.78.50_.trendmicro.com (unknown [172.21.186.216])
+	by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 1C22610002185;
+	Fri,  5 Jul 2024 08:12:26 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1720167145.457000
+X-TM-MAIL-UUID: 9f3ead84-4713-48ee-a842-7c5c79604994
+Received: from FR5P281CU006.outbound.protection.outlook.com (unknown [40.93.78.50])
+	by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id 6FC5A100058F5;
+	Fri,  5 Jul 2024 08:12:25 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lpVHBXq2MTAGxCW5Ppnk3qGMPh/rUcIIZ/cXqHW0lGc17wVHOMsUpDrwU0MdlVRsj0TOBmmxx+yvQjWO5xK3nyoSxK54QCn5pEdFIalcIn6f8wK+O5iMuaysa12Lh/FUbj1iCCcarGqZhW++XBRj/FxPgih0oZylnas38dcOM/zqb/fNKIQrMYUqGJLLUfonlhNfklrXRDDHMjrWxj2HDTnPzaGeLjcjdg7DQg7SIUORdzoDlQZpKuc8ECN6LQ/xw6uLGaFJUBakwU54lPj+bbKlHHVu63Gk8JjnaooOyC9p19Y85YZalA49liopWvitb9YrFqeCnaeCzyGzjLqZ8Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=W080npF9wrMbmTITroFaT/+oCMtBc4qLTtdH0WRrHqw=;
+ b=il2qOmLLNoTluxjjLV8uAzKqWQ/x5p39FG72Gi6uCgKJLD6uD1oAELR/WCz4w7kYVB1n7igqImy2HayKTcRs0v0CkzmOL+Y2Zke3oxp6Y6bKPhaR6GHv+la7EoNtMPee7S9d84ScCa9wtXFPXucFy/A+mMbqQhUGJy7qybuOvS/CnNrGvGHjP1dOVxhWeVdXG1kiP1BS51mFExEYRPeBRgH2CMOrM9g3yAKe27k/r4bJHZiEAqZsb9dgEzmYa2jFlwvJfFx/bbwcWXdDBSRJkTi3cGTnFi3PNTzihYzYzGd1e/bW3Axdu4vVi3vAt/ZrAUi9x+/X2q9QSee5Xx0ofw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=opensynergy.com;
+Message-ID: <9b33c44f-3855-4c7e-925e-2f4af3b0567a@opensynergy.com>
+Date: Fri, 5 Jul 2024 10:12:21 +0200
+From: Peter Hilber <peter.hilber@opensynergy.com>
+Subject: Re: [RFC PATCH v2] ptp: Add vDSO-style vmclock support
+To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
+ virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
+ "Chashper, David" <chashper@amazon.com>
+Cc: "Christopher S. Hall" <christopher.s.hall@intel.com>,
+ Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Richard Cochran <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Marc Zyngier <maz@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
+ <c0ae63fc88365c93d5401972683a41112c094704.camel@infradead.org>
+ <4a0a240dffc21dde4d69179288547b945142259f.camel@infradead.org>
+ <8d9d7ce2-4dd1-4f54-a468-79ef5970a708@opensynergy.com>
+ <bdcafc76ea44db244b52f8a092287cb33950d5d6.camel@infradead.org>
+ <db1113d5-a427-4eb7-b5d1-8174a71e63b6@opensynergy.com>
+ <c69d7d380575e49bd9cb995e060d205fb41aef8f.camel@infradead.org>
+ <2de9275f-b344-4a76-897b-52d5f4bdca59@opensynergy.com>
+ <BC212953-A043-4D65-ABF3-326DBF7F10F7@infradead.org>
+ <51087cd7149ce576aa166d32d051592b146ce2c4.camel@infradead.org>
+ <cb11ff57-4d58-4d47-824b-761712e12bdc@opensynergy.com>
+ <3707d99d0dfea45d05fd65f669132c2e546f35c6.camel@infradead.org>
+ <19c75212-bcb6-49e3-964d-ed727da2ba54@opensynergy.com>
+ <02E9F187-A38C-4D14-A287-AFD7503B6B0F@infradead.org>
+ <02077acb-7f26-4cfb-90be-cf085a048334@opensynergy.com>
+ <352a7f910269daf1a7ff57ea4a41a306d6981b21.camel@infradead.org>
+Content-Language: en-US
+In-Reply-To: <352a7f910269daf1a7ff57ea4a41a306d6981b21.camel@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: FR4P281CA0346.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:f4::10) To BE1P281MB1906.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:3d::8)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240704064350.1097716-7-jiri@resnulli.us>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BE1P281MB1906:EE_|BEZP281MB2245:EE_
+X-MS-Office365-Filtering-Correlation-Id: b6b4714a-e2fe-40f3-023a-08dc9cca331c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|376014|7416014|1800799024|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?U0NVR0ZxWXRMeUlqVnhvU1M0L1lZa1NMUldPY0V4cU5ZaEZqcjVmbUh1Q0Rn?=
+ =?utf-8?B?dHNrajhSc28vdjI3NHc2bVJKWkt5K1hSVnkxVWRZanRsK3hpZEY5Y1dMQzlv?=
+ =?utf-8?B?ZndIVWh2UW1rVDZPZ2FES3ovcVZEOHI0SVVxdXdhaUxoYS9meW9YUEdPUDBa?=
+ =?utf-8?B?QlFuL0htNE8wZDFabVZmRFNGa0M4THp5ZzNROFkyb09RSTE2UUR3ZFp4MW9H?=
+ =?utf-8?B?emNXb3NzaWszOTE3aTJCNEpDMzBLb2Z2c09XWWQ4cGRjZWZzNXlGdnkrTS8r?=
+ =?utf-8?B?U3hKZHdmb1VNdHNjblQ0djVWMVR6YnRNaEVDVzI5U3JpQnlZQ0lTNWc0V1Ur?=
+ =?utf-8?B?U3FYT3pxVmNGV3Jubm93MUlxeEJQRzNpc3JZNnVCMnVCbk83YlROVm5TUzlq?=
+ =?utf-8?B?cVNVdDVjZlB6Z0taWWpVbmFLZXN4K3JZMkVEUWR3SS9NZ0VybElCWXVhMzlx?=
+ =?utf-8?B?VGFFYUZPM1BPU1BiaUdlSmhuMVVWVWVMbzNuQTF1a2JMNE12Z3V2UTJKUG9k?=
+ =?utf-8?B?SFBZVTlnZVFNSm1hRUF4dWNKRlY3bXBMbk00YzlqWWlSSmlCdWVnTFJmTG9Y?=
+ =?utf-8?B?OVF5S3gwWmxvaXBkN3pMNEZRalZOVnVYRUc4NytUSi9IdXplWDFMbTJ3bDBP?=
+ =?utf-8?B?YVBKZGd4dk95eU1TMVV0UDhMWEZaMVRPZ3ZVeGlLS2ZKNWl4Ry9hSmxVdUsy?=
+ =?utf-8?B?NU9iUEkwVGZ0TkFtMldhZHFjT08vT2hsaVVXamhTY1FHRGpRdXpNRXNqOFI4?=
+ =?utf-8?B?RWFzQi9YRVZzZjVwZ3JoMXpsTkVvZUhoR0FnbGdlZGI5YWNJN0h6S003Wkhm?=
+ =?utf-8?B?MmVHYlFEcXBzWnp6bWFOUXhmWjhOZE9wYmdBM3ljNzgvTFJyb3JOL3FQbmQw?=
+ =?utf-8?B?WEk0ZU9BT3crdzdsajYxdnQ2cy9tcHFNZTNnM2l1MFA1NXAyMndFY29hN0Jt?=
+ =?utf-8?B?REdaMnQyVGVEbDZGcnNXTDFBMCsxbis1S040UytaYkVRMTlpb1NGYXFHRVdG?=
+ =?utf-8?B?SEtUS0dVdmk0ajlmd0FJd2UveHFrTEdwNVEvd0pxMlBVVG13ZEUvRE1nY0c2?=
+ =?utf-8?B?NzkzWDRINXREU3lVNWNXUU40YkdYL0loQXE5SWZRZEVCdGxuVC83Mk0wZUcr?=
+ =?utf-8?B?OE5vdTBUM1JoY2pRbUszR0YwZDN5Q2RCcUcwMitDQmdqQWZhdnJ5aWxOVFB3?=
+ =?utf-8?B?aVIxTWl2RXF2aEp5MWdCSFEvUHkyV3dYN0ZWVStTa3BwZWowcmg5NWEySVRi?=
+ =?utf-8?B?VXcxME5JV09WVlEvVTR5VDh5M2sxVER1WjBTb0xUTS9jMWRsTCs4Mm9YaThV?=
+ =?utf-8?B?ZEk4dkdMY3o0b0pvWkQzVDczRzIwTk5mWVE4Nk15emR3WThNUWYxQmxhWFhB?=
+ =?utf-8?B?Mkx4TGRNczUwUWVWSjJ2cDlQUCtVOWpqa3NKK2g0MksxMzROemJ1TUpWSXpw?=
+ =?utf-8?B?OEpHNGRKa1pVd25HSHdMWHZoa3hrMWpHR25Qak1IcjVqTHdmcTZqWVFRSXM0?=
+ =?utf-8?B?R3Z0cHdiSnBqNUlDZ2lTdkpXcjlaSlRGdDV3MlNFSUZ4a1ZKVnE0eGdvRkdi?=
+ =?utf-8?B?V3FKZ2RTUUxCbE9CNFFoSWhKQzk0a3lGMFBmR0ZhWlZUWFpMbjVJcjFrVWcz?=
+ =?utf-8?B?RUtFbytPMjNpeitxV3duc295dlVUdktqNFlSOVVqdTRMT3luSDRZUE9xWmpm?=
+ =?utf-8?B?ZkQxYVNrZGZlUDhKU0tTOFpOVDJtNW9tdHpOY2trRXBzYk1rd25OMnZHVzFX?=
+ =?utf-8?B?K24zWUtLV2psUE5kOFNCbHN5UkEzSXFjd1Q5Y2h3end2UkRmOXcvZnljNE9a?=
+ =?utf-8?B?RThxL2JSVSs5T2paaU95UE1icitoK2pwNTNKNmVUWnpaajRESnN0ZEhGTlgx?=
+ =?utf-8?Q?ywdyRJ5eGNgOK?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BE1P281MB1906.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(921020);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?d01Tb1Y2eVozTmhiVm9sY1dsL3YzN1EzV1BwdXJHWWRuVHFBY3Q3bnllTlNi?=
+ =?utf-8?B?Tlp2enAyNFBjVUd1bWxDWWIySEFlaXJsekhHSnpUak5jU3FZYmkxVC9jeDN6?=
+ =?utf-8?B?eWo0UG1sbWRWUDNpbUtmUlBuYjI2eElzMmlqSGtZejFpbDFGd1BmYmE0Snht?=
+ =?utf-8?B?NllvRWZlNFRKNVBrSm42U1Z1QWpuUml1eVdqQmlXaVpGUS94dHdTcWVYeVZu?=
+ =?utf-8?B?eEV5YTI2YW9sUklIVUhZOEhmK1QwMEtPWnVzZ1ZaTEU2eUt0VS9LZVM0S00w?=
+ =?utf-8?B?L2s4akY4S3orS05INitUSGpmSjExQTM3eDJGY2ZsMElxbTdtaGUva093a1Nm?=
+ =?utf-8?B?N1dVZjQzb2NBbGtKUlRQZTZBSHMzZ3c4bUYwb3dBZmZjL3Q3eWJQeHJFcDBn?=
+ =?utf-8?B?Y2JyTXZvejNWVzMyR3pKRHh1aXRReGVIRkI1NTZVQVRSeDA2cnlETjd5WlZa?=
+ =?utf-8?B?R055c3poNlVEN05OelhGQTU1RE9ZWXo1MjJKL1NwK0hBY0tuMlExWVMyQk94?=
+ =?utf-8?B?Ti9oOGNPWXQvNmJNNG11TkpYSUpUN2NBbGJzazV5TUJsUzlUUlUzQWtQTStO?=
+ =?utf-8?B?ZjB5b1g2QzlWQVFjZ1o0MldTVGpncEw4OHpVd2d5YXJLalcvWWVTL0R4Yk1l?=
+ =?utf-8?B?d3QxNEVoU3M1YzN6Q0FxUy92Wm1ObndzZXFYRFBOVFU3emlEcVE1WS90ZVBE?=
+ =?utf-8?B?Z29oVnRQUW9qajhINjBHUjZvQTFBTG5wU1pNSjBUUDczckJhek1ZYTRmZFA1?=
+ =?utf-8?B?clZreUZtYTlaL3ZNZUt6NklraHg0ODdKaHpZNWQ5cVVDc2ppWFZMOG5CNHlm?=
+ =?utf-8?B?VEsxWWJuU0V0Rkt0TXdJeUl5eWtmenYyRkVMcktBdWJwVnJiaHI1N2t1V3Nj?=
+ =?utf-8?B?RW5IanNyTmpydnhiT1VCUU9tUXBWY2swdC9lWE1rM0FKWHArV3kyaGorY2po?=
+ =?utf-8?B?dmZDcjZhSmpaMStRYWdDK09GeVpLUFV0Z2I4MTF4SzVIc29YWTNFNGU4RGFx?=
+ =?utf-8?B?eTk1bUMxbFIzRHhsU0NrL3F2OVBjM3J5UWZINDNxMFcyRkRYZy8vdFNTV0xr?=
+ =?utf-8?B?Q2ZjUXVOQ2FTcUtEcXp1N3IzWkpWTFF2TDY4QkhHdnl6Z1d6YWluYld4cE5K?=
+ =?utf-8?B?d3ZEckowUFpiMUJZbDVkRkFVMlZXZWVJRTExajhUQWxjaFBmeGpkVXk0bkh5?=
+ =?utf-8?B?eXlzaUVXcURHMHpwTFQ5eTg4NkUyNzFWVlpLb0VpMkNQZGlXY0hRTXZ5UWFj?=
+ =?utf-8?B?TXUwYmY5cWdiZTI1czViTGNaVXNOS3BPaDFvWDlTTU0rQVhoYUYvNDFPYldv?=
+ =?utf-8?B?bC9HY2UyTFRuaUNNbEQwYll6SXNxaXJBTm1CWDVhZ2FIMHlJUnNXWlZqbUFI?=
+ =?utf-8?B?V2VVZVBETS9mZXpLcnU1bGcraEp1QVJpSlk4R0dDRWNHdTBqMWtSUVRQdG53?=
+ =?utf-8?B?ajZRbjY5a0lBMWx2RXYvZVRhU3JhNGhpUC9LS29sME4wd2VCUi8xVUFtaFlY?=
+ =?utf-8?B?OVJ5cngrczNhVUJtUzZnNFhvWThMZVJUK3UrdnM2MWdkZG1Ma0JQUU80R3JI?=
+ =?utf-8?B?VkJ6dHpXRDU0aTh5WE9yODRMbW9mVitjaUtNa21QdUsrbzlLOG4rVjVtdHlq?=
+ =?utf-8?B?SDVMM01FeGx5TnRwU0hLUGU0SC9TR0lTSnNrMm1lTHN5SzZINTRoc1NFN01F?=
+ =?utf-8?B?UEx0T0JpZjV2YTVPYkZKOCtJWUxrK1hBZ3VlTGY1eTU1c25DNWdMU3d0SS9u?=
+ =?utf-8?B?MEJ4NlRFUW5lZ1ZVTmhtR1VQRENXTkZrMXgxcEIyajZ5SEFWL25CN1NOUWln?=
+ =?utf-8?B?Q09yN0x6YVlmcWk0Nm5VNHRwMmo4TUlzZWxqTHV2UGlsOW9BQ1FQRXNBWkFz?=
+ =?utf-8?B?cVlVS08zVlliTTRWVDZFeEh6cjlLQmIxajhuWitNRklaN3JJTU1EZ1dDWW9t?=
+ =?utf-8?B?Q2o0K2VCTmtveU9GeEE4Nzc0eU5aeU9yTHROcUhSR3UzRkJ1cjZVZ0FtbTBS?=
+ =?utf-8?B?VmFwWGpDSk1pN05YRFJEODQ2N3NuOGhYUHpQa1E4QnN6TFh0QnRyZURDT2xI?=
+ =?utf-8?B?QnpDTEwxZGVrcENKaEVTZjB6Q3c3Skl3bzlHUGNjZGtlTkJWQldsTGVDZ1pQ?=
+ =?utf-8?B?N3BDQVRyS0QyekpVRFVCWlBVRTVkQzlXTENESjRjTm40ZXN0M3g3eWJYZFlV?=
+ =?utf-8?Q?lAzv5H6HYZAe4IHV+pBvXGGoGHbme/zvrJeCu67vNi97?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b6b4714a-e2fe-40f3-023a-08dc9cca331c
+X-MS-Exchange-CrossTenant-AuthSource: BE1P281MB1906.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jul 2024 08:12:23.6430
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: aqQkgozmhEfQDUUWT7mRz2NQKVH7St0zf9VuXkMSphH55/7wjczJz3OX0KRhdKkpsWB1SzQKzvgbc0GZRcOa+A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BEZP281MB2245
+X-TM-AS-ERS: 40.93.78.50-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.1.1026-28510.006
+X-TMASE-Result: 10--3.853100-4.000000
+X-TMASE-MatchedRID: scwq2vQP8OH5ETspAEX/ngw4DIWv1jSVWmXbLJb9DRtjIOKZDN+g+z+K
+	HGbsC8OPewUKQ7cT03tU60xTm7KR6mV5JEdzxR3yYdhOdiv4miYtMW9M51EEXwXN4LNfYru8S/d
+	g2O/aWsyaZL2eZhAVKv8C3uRHSHZ9Ap4CqYccFq85qDAZK5rn/5gmDODGqBVPe8ED0L/V6IVIlq
+	ldglC+k9D6xLvX4M4IO3lIxn2HRqkqIw/OY3zSGZx7TrJxMWvNVxHvEGsKrsW/2tJ3foSBQiPzR
+	lrdFGDwBv6s2HT+SFBo7QBuLxIwXzVGtQnsdz92hsTHbtukvy5hPhLr6FkJ2A==
+X-TMASE-XGENCLOUD: b962de24-1d88-4ff0-92c2-8039bae0c2c8-0-0-200-0
+X-TM-Deliver-Signature: 8D2EDDDB228B36409A115C5CA8AD3DD3
+X-TM-Addin-Auth: BquRn+QlMXRQFBVjKFsiVrjXQn0RgWv9fc2oceI+Cx6K2ukuyhnc0ZEYaXi
+	ne+dxHF8LTSk7oAdHJ8HvPkn7j5iPk5xWFNMDwTPUWAjlA5RoWAFnYMyJZPLT3kTnm6C0vtaScC
+	c5Xkc3GYN6wtilOC4red03XXmy2rHXK3bEjfeWz7CxkfG9lp9xUODg99w15iujS27s7xms9usBV
+	6GGBzhjyrXrCIVjh8pocqL9FJVMA660UNFv2PRaU0IDC0x/UIvPw3FDkVZ/1TqvNHWHeJxDXoeN
+	gFdUIrrGOuCPmtc=.MAvURxNzZkR9Zyckham1GOaf/wwb8WbVRh32Ff9bIYVjLdFXimif3BkWLI
+	KGmNKOB7KtCXWSFVEkMcp2xzgi5vW2vf8B2wDogIQv4t81hpAbgPiOaKKXMRPIUKYC8rQbA3oJm
+	X1ECzZ0ZbuP8pGPGkunlTiI7XnIOkk85Dt5nqUubNvj3efup/e29C0E+BOjxJ6B2v3DdiCOEEPS
+	Bd1XRm0wp9SwMU7ssk3Han3oVJKlSwmi4hbVW2hlv60cUIdJTwmRibRHwtAh5JghnGJSOY+1eFf
+	6FTDiPCwv8FK6KaPdXbUBzW0rGIfQDC36Y1JVJbQl2eqEPbEEAqy1y0kj1A==
+X-TM-Addin-ProductCode: EMS
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+	s=TM-DKIM-20210503141657; t=1720167146;
+	bh=FTSaQRcC9DZjMRjgPVWtEYegaKkLhYdM9iT3kqJjVJ8=; l=790;
+	h=Date:From:To;
+	b=Bt1YHZFdDVLk1PXQ5hSO3Dvaj1BM4MoM9VIwsfn3rwVVB1Yth2tZ+erG5BGsFbNVQ
+	 8oZr1CBEM6UqdF/DpGctCcJ84T16gj/rHGHheECJnzHZaT4wE1DEp7OO9nrEmJCypE
+	 G4ERVfMQELZ5oLX0H5fZywCjf6o92GuCGP7tkA5IHTphkFJYlGweV9MDKTEdVQXjkH
+	 O8lJ5O7BpNX/t1sFIOuBmjTV81gPmCi2O3B/8450IuRBaSMavQGJcywjTSOPwdod51
+	 Nb9B7ASy1YftbxpnUhKuaUksRjccmEjr7Rnq6BS48mKXm3EqGCtlMi6e4Hxe/Sivhe
+	 UjlT/DhPzCGNw==
 
-This is the riskiest patch.
-Jiri, I'd ask you to cross-build it before posting,
-wasn't done here.
+On 03.07.24 12:40, David Woodhouse wrote:
 
-On Thu, Jul 04, 2024 at 08:43:37AM +0200, Jiri Pirko wrote:
-> From: Jiri Pirko <jiri@nvidia.com>
+[...]
+
 > 
-> Convert existing find_vqs() transport implementations
-> to use find_vqs_info() config op.
 > 
-> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> ---
-> v1->v2:
-> - s/virtio_queue_info/virtqueue_info/
-> ---
->  arch/um/drivers/virtio_uml.c             | 14 ++++++++------
->  drivers/platform/mellanox/mlxbf-tmfifo.c | 12 ++++++------
->  drivers/remoteproc/remoteproc_virtio.c   | 14 +++++++-------
->  drivers/s390/virtio/virtio_ccw.c         | 15 +++++++--------
->  drivers/virtio/virtio_mmio.c             | 14 +++++++-------
->  drivers/virtio/virtio_vdpa.c             | 15 +++++++--------
->  6 files changed, 42 insertions(+), 42 deletions(-)
+> This is what I currently have for 'struct vmclock_abi' that I'd like to
+> persuade you to adopt. I need to tweak it some more, for at least the
+> following reasons, as well as any more you can see:
 > 
-> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-> index 77faa2cf3a13..c32a51017f9f 100644
-> --- a/arch/um/drivers/virtio_uml.c
-> +++ b/arch/um/drivers/virtio_uml.c
-> @@ -1014,11 +1014,12 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
->  }
->  
->  static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-> -		       struct virtqueue *vqs[], vq_callback_t *callbacks[],
-> -		       const char * const names[], const bool *ctx,
-> +		       struct virtqueue *vqs[],
-> +		       struct virtqueue_info vqs_info[],
->  		       struct irq_affinity *desc)
->  {
->  	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
-> +	struct virtqueue_info *vqi;
->  	int i, queue_idx = 0, rc;
->  	struct virtqueue *vq;
->  
-> @@ -1031,13 +1032,14 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		return rc;
->  
->  	for (i = 0; i < nvqs; ++i) {
-> -		if (!names[i]) {
-> +		vqi = &vqs_info[i];
+>  • size isn't big enough for 64KiB pages
+>  • Should be explicitly little-endian
+>  • Does it need esterror as well as maxerror?
 
-vqi better declared here, it's unused outside the loop.
-same elsewhere.
+I have no opinion about this. I can drop esterror if unwanted.
 
-> +		if (!vqi->name) {
->  			vqs[i] = NULL;
->  			continue;
->  		}
->  
-> -		vqs[i] = vu_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-> -				     ctx ? ctx[i] : false);
-> +		vqs[i] = vu_setup_vq(vdev, queue_idx++, vqi->callback,
-> +				     vqi->name, vqi->ctx);
->  		if (IS_ERR(vqs[i])) {
->  			rc = PTR_ERR(vqs[i]);
->  			goto error_setup;
-> @@ -1097,7 +1099,7 @@ static const struct virtio_config_ops virtio_uml_config_ops = {
->  	.get_status = vu_get_status,
->  	.set_status = vu_set_status,
->  	.reset = vu_reset,
-> -	.find_vqs = vu_find_vqs,
-> +	.find_vqs_info = vu_find_vqs,
->  	.del_vqs = vu_del_vqs,
->  	.get_features = vu_get_features,
->  	.finalize_features = vu_finalize_features,
-> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> index b8d1e32e97eb..1497a5a0a68f 100644
-> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> @@ -1058,13 +1058,12 @@ static void mlxbf_tmfifo_virtio_del_vqs(struct virtio_device *vdev)
->  static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
->  					unsigned int nvqs,
->  					struct virtqueue *vqs[],
-> -					vq_callback_t *callbacks[],
-> -					const char * const names[],
-> -					const bool *ctx,
-> +					struct virtqueue_info vqs_info[],
->  					struct irq_affinity *desc)
->  {
->  	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
->  	struct mlxbf_tmfifo_vring *vring;
-> +	struct virtqueue_info *vqi;
->  	struct virtqueue *vq;
->  	int i, ret, size;
->  
-> @@ -1072,7 +1071,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
->  		return -EINVAL;
->  
->  	for (i = 0; i < nvqs; ++i) {
-> -		if (!names[i]) {
-> +		vqi = &vqs_info[i];
-> +		if (!vqi->name) {
->  			ret = -EINVAL;
->  			goto error;
->  		}
-> @@ -1084,7 +1084,7 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
->  		vq = vring_new_virtqueue(i, vring->num, vring->align, vdev,
->  					 false, false, vring->va,
->  					 mlxbf_tmfifo_virtio_notify,
-> -					 callbacks[i], names[i]);
-> +					 vqi->callback, vqi->name);
->  		if (!vq) {
->  			dev_err(&vdev->dev, "vring_new_virtqueue failed\n");
->  			ret = -ENOMEM;
-> @@ -1175,7 +1175,7 @@ static void tmfifo_virtio_dev_release(struct device *device)
->  static const struct virtio_config_ops mlxbf_tmfifo_virtio_config_ops = {
->  	.get_features = mlxbf_tmfifo_virtio_get_features,
->  	.finalize_features = mlxbf_tmfifo_virtio_finalize_features,
-> -	.find_vqs = mlxbf_tmfifo_virtio_find_vqs,
-> +	.find_vqs_info = mlxbf_tmfifo_virtio_find_vqs,
->  	.del_vqs = mlxbf_tmfifo_virtio_del_vqs,
->  	.reset = mlxbf_tmfifo_virtio_reset,
->  	.set_status = mlxbf_tmfifo_virtio_set_status,
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> index 25b66b113b69..a82a7c13bdc5 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-> @@ -182,21 +182,21 @@ static void rproc_virtio_del_vqs(struct virtio_device *vdev)
->  
->  static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  				 struct virtqueue *vqs[],
-> -				 vq_callback_t *callbacks[],
-> -				 const char * const names[],
-> -				 const bool * ctx,
-> +				 struct virtqueue_info vqs_info[],
->  				 struct irq_affinity *desc)
->  {
-> +	struct virtqueue_info *vqi;
->  	int i, ret, queue_idx = 0;
->  
->  	for (i = 0; i < nvqs; ++i) {
-> -		if (!names[i]) {
-> +		vqi = &vqs_info[i];
-> +		if (!vqi->name) {
->  			vqs[i] = NULL;
->  			continue;
->  		}
->  
-> -		vqs[i] = rp_find_vq(vdev, queue_idx++, callbacks[i], names[i],
-> -				    ctx ? ctx[i] : false);
-> +		vqs[i] = rp_find_vq(vdev, queue_idx++, vqi->callback,
-> +				    vqi->name, vqi->ctx);
->  		if (IS_ERR(vqs[i])) {
->  			ret = PTR_ERR(vqs[i]);
->  			goto error;
-> @@ -327,7 +327,7 @@ static void rproc_virtio_set(struct virtio_device *vdev, unsigned int offset,
->  static const struct virtio_config_ops rproc_virtio_config_ops = {
->  	.get_features	= rproc_virtio_get_features,
->  	.finalize_features = rproc_virtio_finalize_features,
-> -	.find_vqs	= rproc_virtio_find_vqs,
-> +	.find_vqs_info	= rproc_virtio_find_vqs,
->  	.del_vqs	= rproc_virtio_del_vqs,
->  	.reset		= rproc_virtio_reset,
->  	.set_status	= rproc_virtio_set_status,
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index d6491fc84e8c..1f1fa70cf09d 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -689,12 +689,11 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
->  
->  static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			       struct virtqueue *vqs[],
-> -			       vq_callback_t *callbacks[],
-> -			       const char * const names[],
-> -			       const bool *ctx,
-> +			       struct virtqueue_info vqs_info[],
->  			       struct irq_affinity *desc)
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> +	struct virtqueue_info *vqi;
->  	dma64_t *indicatorp = NULL;
->  	int ret, i, queue_idx = 0;
->  	struct ccw1 *ccw;
-> @@ -705,14 +704,14 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		return -ENOMEM;
->  
->  	for (i = 0; i < nvqs; ++i) {
-> -		if (!names[i]) {
-> +		vqi = &vqs_info[i];
-> +		if (!vq_info->name) {
+>  • Why is maxerror in picoseconds? It's the only use of that unit
+>  • Where do the clock_status values come from? Do they make sense?
+>  • Are signed integers OK? (I think so!).
 
-typo. we got lucky you didn't write vqs_info otherwise
-it would build but not work correctly.
-
-
->  			vqs[i] = NULL;
->  			continue;
->  		}
->  
-> -		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
-> -					     names[i], ctx ? ctx[i] : false,
-> -					     ccw);
-> +		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, vqi->callback,
-> +					     vqi->name, vqi->ctx, ccw);
->  		if (IS_ERR(vqs[i])) {
->  			ret = PTR_ERR(vqs[i]);
->  			vqs[i] = NULL;
-> @@ -1079,7 +1078,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
->  	.get_status = virtio_ccw_get_status,
->  	.set_status = virtio_ccw_set_status,
->  	.reset = virtio_ccw_reset,
-> -	.find_vqs = virtio_ccw_find_vqs,
-> +	.find_vqs_info = virtio_ccw_find_vqs,
->  	.del_vqs = virtio_ccw_del_vqs,
->  	.bus_name = virtio_ccw_bus_name,
->  	.synchronize_cbs = virtio_ccw_synchronize_cbs,
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 173596589c71..533aca85b745 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -489,13 +489,12 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
->  
->  static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  		       struct virtqueue *vqs[],
-> -		       vq_callback_t *callbacks[],
-> -		       const char * const names[],
-> -		       const bool *ctx,
-> +		       struct virtqueue_info vqs_info[],
->  		       struct irq_affinity *desc)
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
->  	int irq = platform_get_irq(vm_dev->pdev, 0);
-> +	struct virtqueue_info *vqi;
->  	int i, err, queue_idx = 0;
->  
->  	if (irq < 0)
-> @@ -510,13 +509,14 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  		enable_irq_wake(irq);
->  
->  	for (i = 0; i < nvqs; ++i) {
-> -		if (!names[i]) {
-> +		vqi = &vqs_info[i];
-> +		if (!vqi->name) {
->  			vqs[i] = NULL;
->  			continue;
->  		}
->  
-> -		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-> -				     ctx ? ctx[i] : false);
-> +		vqs[i] = vm_setup_vq(vdev, queue_idx++, vqi->callback,
-> +				     vqi->name, vqi->ctx);
->  		if (IS_ERR(vqs[i])) {
->  			vm_del_vqs(vdev);
->  			return PTR_ERR(vqs[i]);
-> @@ -570,7 +570,7 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
->  	.get_status	= vm_get_status,
->  	.set_status	= vm_set_status,
->  	.reset		= vm_reset,
-> -	.find_vqs	= vm_find_vqs,
-> +	.find_vqs_info	= vm_find_vqs,
->  	.del_vqs	= vm_del_vqs,
->  	.get_features	= vm_get_features,
->  	.finalize_features = vm_finalize_features,
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> index e803db0da307..dcf0c2b19a44 100644
-> --- a/drivers/virtio/virtio_vdpa.c
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -358,15 +358,14 @@ create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
->  
->  static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  				struct virtqueue *vqs[],
-> -				vq_callback_t *callbacks[],
-> -				const char * const names[],
-> -				const bool *ctx,
-> +				struct virtqueue_info vqs_info[],
->  				struct irq_affinity *desc)
->  {
->  	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
->  	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
->  	const struct vdpa_config_ops *ops = vdpa->config;
->  	struct irq_affinity default_affd = { 0 };
-> +	struct virtqueue_info *vqi;
->  	struct cpumask *masks;
->  	struct vdpa_callback cb;
->  	bool has_affinity = desc && ops->set_vq_affinity;
-> @@ -379,14 +378,14 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  	}
->  
->  	for (i = 0; i < nvqs; ++i) {
-> -		if (!names[i]) {
-> +		vqi = &vqs_info[i];
-> +		if (!vqi->name) {
->  			vqs[i] = NULL;
->  			continue;
->  		}
->  
-> -		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++,
-> -					      callbacks[i], names[i], ctx ?
-> -					      ctx[i] : false);
-> +		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++, vqi->callback,
-> +					      vqi->name, vqi->ctx);
->  		if (IS_ERR(vqs[i])) {
->  			err = PTR_ERR(vqs[i]);
->  			goto err_setup_vq;
-> @@ -470,7 +469,7 @@ static const struct virtio_config_ops virtio_vdpa_config_ops = {
->  	.get_status	= virtio_vdpa_get_status,
->  	.set_status	= virtio_vdpa_set_status,
->  	.reset		= virtio_vdpa_reset,
-> -	.find_vqs	= virtio_vdpa_find_vqs,
-> +	.find_vqs_info	= virtio_vdpa_find_vqs,
->  	.del_vqs	= virtio_vdpa_del_vqs,
->  	.get_features	= virtio_vdpa_get_features,
->  	.finalize_features = virtio_vdpa_finalize_features,
-> -- 
-> 2.45.2
-
+Signed integers would need to be introduced to Virtio, which so far only
+uses explicitly unsigned types: u8, le16 etc.
