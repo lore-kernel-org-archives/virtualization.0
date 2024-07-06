@@ -1,460 +1,262 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 664281C696;
-	Sat,  6 Jul 2024 06:59:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720249171; cv=none; b=IzsdJsI/+5LKh8AcETUv/ES+SKa7VWMRxBPlGb4K0B1KqRZ5AeIg/18vtFRK5XFq82G2/v9LHb/1gdqqvHsLAng5c4iRezLfhOVhJXY7VkDXl0D9Y2Up30agZ8p1usGXIE82IALLVfQh4e6hiZn1MTBIqIeV+DcbWXoT9cy6/lg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720249171; c=relaxed/simple;
-	bh=olEjsXIAWmZoZr8LY91Ntm9s2L+/5znHbZ8MkkOyB4A=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=DV/jpEvzTQ4BvnPlhN17EUUljeTeR04tpO1nsFt7cbhKiOI3wvN21EIYrTXeTKhmIvH0Rbw5gJ0Mpy3wEEYwt/eU6Bwxtrs/VkN1QingZIZTf2pmdCnwDHd5EBqJRREePatrbg7pG1VD5PdkP62uWWbqPm+5yQmI8fKtPo/ar3E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8AxjutM64hmm4cBAA--.4515S3;
-	Sat, 06 Jul 2024 14:59:25 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8Bx08RJ64hm0yA9AA--.65446S3;
-	Sat, 06 Jul 2024 14:59:23 +0800 (CST)
-Subject: Re: [PATCH v4 1/2] LoongArch: KVM: Add steal time support in kvm side
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
- kvm@vger.kernel.org, loongarch@lists.linux.dev,
- linux-kernel@vger.kernel.org, x86@kernel.org, virtualization@lists.linux.dev
-References: <20240524073812.731032-1-maobibo@loongson.cn>
- <20240524073812.731032-2-maobibo@loongson.cn>
- <CAAhV-H5G7O7tbwzyaoO4iEXuN+_xbVFJDEyv1HH7GqOH24639Q@mail.gmail.com>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <1aa110a8-28b9-d1d0-4b39-bc894b31f26c@loongson.cn>
-Date: Sat, 6 Jul 2024 14:59:21 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Received: from refb02.tmes.trendmicro.eu (refb02.tmes.trendmicro.eu [18.185.115.60])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2FEC3B295
+	for <virtualization@lists.linux.dev>; Sat,  6 Jul 2024 08:04:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=18.185.115.60
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720253073; cv=fail; b=J8aUbrNX8o9TtFoxJIAvaUxd6QVkmZBRuk0fg+uLp6olz2Kvg7g/VFiyNkEH7rh2XsgnIwo9gpeCOQ1kGPVV1tnk7kRkZPvfIwXNEECnSDASZ14RVmLCPwZkxBAFb+C78PnxTJi0BqF9Cj2c45+W7x11F24Xc0twSm6mLuYk6xA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720253073; c=relaxed/simple;
+	bh=reVS4XwYvyCpQsiovCtEEx8v4RdLPuAfb0QRQ8fW894=;
+	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=iADUTrjRx1gr3lVlCCvxW/nZrc2Oa2zOcQtnNOkg5Cgf2CewH3S690x7uNQrprdpeIPOykCW4NrYNfVeXtqmKbVyaSCFQY5VfKSXca+v6mq4/Z3urfQskG9yTgSzwd/c4CtiTI0LymkcxGX+tV7DhxSL9eVBEm2pe0KQ7cuoQYE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com; spf=pass smtp.mailfrom=opensynergy.com; dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b=1hSQZ/8o; arc=fail smtp.client-ip=18.185.115.60
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensynergy.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b="1hSQZ/8o"
+Received: from 40.93.78.50_.trendmicro.com (unknown [172.21.19.202])
+	by refb02.tmes.trendmicro.eu (Postfix) with ESMTPS id 12B29100E8730;
+	Sat,  6 Jul 2024 07:50:24 +0000 (UTC)
+Received: from 40.93.78.50_.trendmicro.com (unknown [172.21.186.216])
+	by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 5C6B910000654;
+	Sat,  6 Jul 2024 07:50:16 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1720252215.387000
+X-TM-MAIL-UUID: 3813722c-175d-4ff0-8a2f-aa7b1460fc26
+Received: from FR4P281CU032.outbound.protection.outlook.com (unknown [40.93.78.50])
+	by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id 5EAB7100003CF;
+	Sat,  6 Jul 2024 07:50:15 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OKKftTb8MKdFk1ZtxwDujK83C7YF/MxlDgtsYP04p6hwFAYXHxtWmQudatek2Cgh93SrMpkppbHX7ahtNOz3+1TsILDXFn5hehJHzMMAOC/rokmY2He9Tjt+XYYwnacc3I/Ffl7cCmCa2Kl5BqqnCr+d5E9qJ8vUV1f9bl5Z68+eO+9Nk3shG1I6A81yN9MxkITHkFMd11gS23dORUbgkd5DImistOjan8wnBPwYC37ymP3PwgxNKN8wSYERZI8qT27tYrLnnmFj1OpzA4NMxvc+o1lf/ed9aUP0C0ygYHH9X9wrZpicmz74AJKDGdOX6jqZ1LlUTx4UwgUciEoSDg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wEgJJEv3fWzJ2sr6G8LURUMtp/FvWi/LQ2bhi5UMSf4=;
+ b=Kj99ys1xxS8GIiK7Mm6+PKzNpJWJd6ZQBJ2Q3yJEmSDK/Yk8ov+dLS5VHJqBh5JZAEBN9wXq2Y/MJx2ORXEef1jB7fQtsKLwSisSemNo/Dy//HfzfmhOiXOECzbnJxCUXc2Si2pB4/vSh3TynGGu1zvE0/kBTgXSOySklCZYepEqqd/w+L4mEqPLUXUqsQUme+00kBSclvlx2n+8CL6PaJEK2zLXxRLvuvqMBNNDLOQM86PqpONEXCp3MkJJfNhe6FtMpBqGhumHoL/fWi485EEnFezn6vy96mAINW/PvWLECfmWJmVZ/+fI1OtiDA3Q63ZI6WW0+K5ZpeNolEvROA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=opensynergy.com;
+Message-ID: <7660500c-c90f-4db0-87d5-05abd1cb1dbb@opensynergy.com>
+Date: Sat, 6 Jul 2024 09:50:10 +0200
+From: Peter Hilber <peter.hilber@opensynergy.com>
+Subject: Re: [RFC PATCH v2] ptp: Add vDSO-style vmclock support
+To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
+ virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
+ "Chashper, David" <chashper@amazon.com>
+Cc: "Christopher S. Hall" <christopher.s.hall@intel.com>,
+ Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Richard Cochran <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Marc Zyngier <maz@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
+ <4a0a240dffc21dde4d69179288547b945142259f.camel@infradead.org>
+ <8d9d7ce2-4dd1-4f54-a468-79ef5970a708@opensynergy.com>
+ <bdcafc76ea44db244b52f8a092287cb33950d5d6.camel@infradead.org>
+ <db1113d5-a427-4eb7-b5d1-8174a71e63b6@opensynergy.com>
+ <c69d7d380575e49bd9cb995e060d205fb41aef8f.camel@infradead.org>
+ <2de9275f-b344-4a76-897b-52d5f4bdca59@opensynergy.com>
+ <BC212953-A043-4D65-ABF3-326DBF7F10F7@infradead.org>
+ <51087cd7149ce576aa166d32d051592b146ce2c4.camel@infradead.org>
+ <cb11ff57-4d58-4d47-824b-761712e12bdc@opensynergy.com>
+ <3707d99d0dfea45d05fd65f669132c2e546f35c6.camel@infradead.org>
+ <19c75212-bcb6-49e3-964d-ed727da2ba54@opensynergy.com>
+ <02E9F187-A38C-4D14-A287-AFD7503B6B0F@infradead.org>
+ <02077acb-7f26-4cfb-90be-cf085a048334@opensynergy.com>
+ <352a7f910269daf1a7ff57ea4a41a306d6981b21.camel@infradead.org>
+ <9b33c44f-3855-4c7e-925e-2f4af3b0567a@opensynergy.com>
+ <24a6fd46a3383aa8d18d19511b8422baad37317c.camel@infradead.org>
+Content-Language: en-US
+In-Reply-To: <24a6fd46a3383aa8d18d19511b8422baad37317c.camel@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: BE1P281CA0073.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:26::18) To FR3P281MB1917.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:34::8)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H5G7O7tbwzyaoO4iEXuN+_xbVFJDEyv1HH7GqOH24639Q@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8Bx08RJ64hm0yA9AA--.65446S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj9fXoW3KFy7JrWUWr48tFy3tF4UWrX_yoW8Jw4Uuo
-	WFyF1Iq3y8Ww45uF4DG34Yq3y0v340kw4UA3y3Zwn3Wa1xta45WF15Ga1YvF43Xr1kGr13
-	Ca42g3yqvayfJwn5l-sFpf9Il3svdjkaLaAFLSUrUUUU1b8apTn2vfkv8UJUUUU8wcxFpf
-	9Il3svdxBIdaVrn0xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3
-	UjIYCTnIWjp_UUUO17kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI
-	8IcIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xG
-	Y2AK021l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14
-	v26r1j6r4UM28EF7xvwVC2z280aVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8JVW8Jr1ln4kS14v26r1Y6r17M2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12
-	xvs2x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
-	6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
-	1lc7I2V7IY0VAS07AlzVAYIcxG8wCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxG
-	rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C267AKxVWUXVWUAwC20s026c02F40E14
-	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkG
-	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4U
-	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8zyIUUUUU
-	U==
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: FR3P281MB1917:EE_|FR3P281MB2031:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0bc58e51-891f-455a-6f75-08dc9d904552
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|366016|1800799024|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?eVNIVnRzQW5HYmdkNytEWmJHNmM2blJPaXEvZHRqeTFNUjBJN0ZjSzM3bGQr?=
+ =?utf-8?B?Z0cwQnJZY2ZXTnFBMk1Cdk90bU10VktDbDltNzFGbVZEdUhmcEVWTzVFUnV3?=
+ =?utf-8?B?UFd5WXR2Z0lMUTlDczVQaVRWT0tvZzc1b2dwa0hwQ21rVWJXbEppZytSRzBz?=
+ =?utf-8?B?ZXdMTFBtMjhrKzdNdTN2bFkyZ1ljOWFST0VVMi94a0xXUzlFYWJ4a29DcVAw?=
+ =?utf-8?B?SWN1a1dwSGJRdE51b0JVSlVjQlFkZ1BhNDhWZ0JGVUJnOVZYeGVwYUhjd2s2?=
+ =?utf-8?B?cXZiT3JUbFJCSllpU2wyK3dNVGpJUUJlM3lQdWVTbGNCaWNKcDhEclUweml4?=
+ =?utf-8?B?eERnMEp1VjhYZUhxMHpnUVZ6Z056cUtFNFdlUXVBMVdmQ3J6UkNjZTJub3dz?=
+ =?utf-8?B?dUU0d24yRG1wZEttTU5pYlpkcnpPaXI4TnBIT095RUlIOHJQSFlXdko3TzJR?=
+ =?utf-8?B?bUw2ckxKK1FNY1dWSlYxeXQ2d0dCa2d1YXJ4eWRwdS81WTJGeUExdGE2emxU?=
+ =?utf-8?B?MXRkRXk3MHVyOVNOWVNDcnR6NW41QW9xL3lvQ1J2bUROOHBlVlQ5RENUY1ds?=
+ =?utf-8?B?MUlSSDVvVFV5eUc4QXNVVzV3WWRUWjY0dDdPbHpRZUdzTVAxVmZGeFBrZStT?=
+ =?utf-8?B?cDBBeDlldi9CRXlhSkUwRDJKWU1paFNMcTd1ZlpNZ0J1Sm5WWXl1U3ZGaHRy?=
+ =?utf-8?B?MDlqNEJxaTRKRGhSYTcyYTNTUGRtVVJXcW5pVno3MmF5Rk13a3YwMHYrMWNt?=
+ =?utf-8?B?WUN3SVVNVjJ5dVhsV3JQOEtTQldnNEhvSUNiVmlqNDZMUDNmNHVuckxTUWJk?=
+ =?utf-8?B?RDBXY21VN3RGTXhyZ3gzcWdHWVEveEZVNWdOOU1lSTREU0F6cW85QXI5WGlG?=
+ =?utf-8?B?bzIwZkdKQ2QyVVRWZHJtVy9CeVJxM1NxcG9weThENVg4VjVMRzR6bElsam1h?=
+ =?utf-8?B?SmFlUVY1VmlMTDBOMldnb2ROZFdtRDlISWVHT1o4WXRXMkVXdEY3TU9VcW9r?=
+ =?utf-8?B?UERtWWdEb2R0ZnBheGU1SGsyT3g1TDNscktyVlh2U09sd3daVW84cFBpMXF0?=
+ =?utf-8?B?c3g4cTlxTFg5K3RXaXVJM3pnWWVPYWplVVBIbmNGbEJ3b2NORTlyTzNXbnps?=
+ =?utf-8?B?WTZaMHhnTEM0Q0NJb2QvZXBveE5zeHVuWlZWdWwyNzdhbmhicXFHZklEZWVN?=
+ =?utf-8?B?aGhnS1UvdHhhZ0NZSVpTUEdOV2x0Rmh1OGxhMEtpYy8yRUhTN0FiWjRya21V?=
+ =?utf-8?B?WlphRkFqR3dDb09YTklPL0hQREgwSC9ZM1p4cGJhN0ZYSEphKzVEUW8rZVJp?=
+ =?utf-8?B?eDg3S1VYNWhNRmZpTVFLNUR6bEJRTWMyZSs3YWlNWVRkMGFrNU1JM0hTOEtl?=
+ =?utf-8?B?RTYvT0dkYnpoZjdmL2ZNampkK1hjNUdUVVBwbXpURE85TnJnZUxEcmxRY3Fa?=
+ =?utf-8?B?WXhMVExFQVJBSm9KMUc2T2wxdjRYSENOdVZkZXRTOFBhTllORk9uUEtSL2JG?=
+ =?utf-8?B?UUlnNjdZcE5OMGtqSk40T1RWMXBZeks2WmxveEN0dVFKN3NET3NOVTF6M0M1?=
+ =?utf-8?B?Nm5TM0hZSTFMWEVoN0RhckdtcnZXcVJWTGpyajEya3Y3bzkzQ2g0YXVmVHp3?=
+ =?utf-8?B?cjN5TENpcUd2MjZaTnlGbUkrVVpRbE5Va3JqK0lOYWNVNURsTFdpeW9qMm9S?=
+ =?utf-8?B?U1ZlRlRucUs2YjVXeDRlMEdIRDFiTEVBcWhvN2N4ZDBKU0QrRDdQQ1lHMWhs?=
+ =?utf-8?B?bUFORUZubFAyaHRVK3N5R3ZXeE1FQTJXWlBCb29WWWRtQkJ0SzdobitEcE1B?=
+ =?utf-8?B?N1hIdDJTaEZvS29lUnNXd3diWHJSeWN2RTVXbmc0bXJtRlFzeVpoVXN4NWVj?=
+ =?utf-8?Q?PYJ/mXbNgm+ug?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:FR3P281MB1917.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(921020);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?UXdmUHRRN2NsUVdIazlJallOcXBlS1p3TTQ2cjlGKzdMalRxa3VEaUJYbEww?=
+ =?utf-8?B?OU5RQ1pPNFExUWJlVFJjampwN2NUQ3FSWThlQnFleE1xVlZOakQ2c1UwNkNa?=
+ =?utf-8?B?UTZQcmFDa3J5NElNUUpMeklvRnFDSVM0MXBCc1lYZVlNY2FrOTVpL1plQWg2?=
+ =?utf-8?B?ZFZFaC9SS0hLQlN3eU1FT2tsN0h1cTVXZkhHZFdCWStlcmdyVE55NEtsRlFB?=
+ =?utf-8?B?K1ZCekllamFac3dsUUQrQXdqQ1YrWGtpMXM0L21IMWNtTlNGVFNLb1hldTBO?=
+ =?utf-8?B?YzM2azlTb2EzQkUvL0gxUWlqbDNRK0JpbDJNOS8vckI5cnFBdXlhcFVFMHFN?=
+ =?utf-8?B?blhZKzE3TVF3T0hDaHNuMUxLcUZEMnlsWCt5cFA2NU5zd0w5VlN1M25KMUQ3?=
+ =?utf-8?B?T1YydGFlSDNkN3dWRHhZLzNJMUFEUEpRYktGaUkrakpsQ2F4N2U3OU4wWXdU?=
+ =?utf-8?B?N3RYR3U0RUR2VlhrTkJlL0lMVWJ0ZDF4ZjMxTzJuM0JCYXFJS0pQKzBVZThW?=
+ =?utf-8?B?clZTc0VndThSL1llYklIdUY2Z1lqMHRNRGlqSGdpYWFGZWNteXloS3crUmZT?=
+ =?utf-8?B?dGhaeVMvR1M1VzZ2RXJocjRDZ2VlblBWbDY3UTBNODNXUXhIY0o5MER0R1U0?=
+ =?utf-8?B?MGxQaEFGV3JtOFVWMHl1ZmVnV2wwbjlDMjBqVU9Eay9aZUZERmVxN1NUUFlp?=
+ =?utf-8?B?WmM4dlBBSTR0b3JHSElIbTJrK1Btbk9odE4xa3BXdTFjYlVDejk2NXZQUlh4?=
+ =?utf-8?B?dFFPVzNFcE05UjRKaUVrZFphVk1oeHBIM1I2V203bGlXRUNBTytNcEp2MWJD?=
+ =?utf-8?B?UW9OMFIyeHlVY09QeE9xTnhJaVIxWW9IMGdVZkFmNVFmQW1WOG5nL1E5a29i?=
+ =?utf-8?B?M3psb1Jid1pJYk0vV0xya1l6L0lVZXRYdy9VcGxtMVE5WTUrL3JBNlRLbDNY?=
+ =?utf-8?B?cHZyWVJkMmJvSFR0YW5YNklkOUdXQ0NyTFF0eWJFTEo0U2lFMVAxWEJYUFY1?=
+ =?utf-8?B?c0pLTGlaMnJqazJoajgzYXVQc3NPcmNGdElNSmxEU2ZwVEVUL0tSWVVBSEJQ?=
+ =?utf-8?B?U2NSY1JqeDJuekJKQ0x3SjZSQTBXOUNOWGRkRS9zZHFMOG9PalpWQVI0c0x3?=
+ =?utf-8?B?STNXL0hGZHNzMkZIOHJFSGF6TGlycGJOL0lBSERMWnJkdFZ3YjU5N1dNWnkr?=
+ =?utf-8?B?bUlzTUlWL3d1TEFsMkN4NXJ1ZTBCY2N0eVVkaHltTkgrSkl0c1p1Z3gvbGtx?=
+ =?utf-8?B?eW5jcGU1VHNjWEh3NDZUSU1YekliY1NUaWxoRUpLcU5UeFB3U3p0OVI4Tm5V?=
+ =?utf-8?B?WnJ1NnhKNWN0d0JSQVhmRjFrZml4NkIrek1rVTRkcEN1L01TWmRjaHBnVzdl?=
+ =?utf-8?B?OXlFWDNMQitsRTlndm5ENFZtVUwrY1hvMDJBY1k1R01YeWFFaHNxMnVXV1Zn?=
+ =?utf-8?B?NWpEb1RBL09aU2JRUjRKVitkcUFKU2JCb0VSU0h1Q0pNbDEzSEhoS3dDQjQr?=
+ =?utf-8?B?Y0YyQ3ByNVczcjBxV3pxRUxCN2h1emZRa200ZEF5Rno2dkFvT0xGM3Q0c3hG?=
+ =?utf-8?B?VEozZkR3RldQVlNQVlFta202djZTVTExbGwvNUJ3UUFkc2hqVnhhS3BMS01u?=
+ =?utf-8?B?MGUveHdpUkNWMlVPTDJSS2hmejRqaEp2aWZVdWFqT1dGMXNmR0FGbHU0VFgw?=
+ =?utf-8?B?aHU2VnhsenFUb25SbGpFM2MvWFRHWDJvM0sxL0RKMk5PaTJkRU4wVUhvR1FJ?=
+ =?utf-8?B?NHVPZG55OUxVUlhUWWN6ekpIZW03bjVzblZJYUNkQkJSZzFBQi9YSHg0c3lD?=
+ =?utf-8?B?KytiVUNFMFp4a2pCdUs4UmtqUHNRMHBOZlZaMkZQay9sWGcwdWJVUHV1Vldo?=
+ =?utf-8?B?Y0dMRFdURkV2TVVsSkJSdWJYRnZzSmpjdjA1WVZoWjBENzQ5SStTVC9ZSmRI?=
+ =?utf-8?B?aDliTnNsY09EWEh2YnBZYnA2UEQrTmRlcWZGd3A0NE9hWmxTNkxQMlRYRGZl?=
+ =?utf-8?B?SHgwZE9QNnhBRzVEcWswNWRmTDBOUW1jYTVxZE9XRmxOc3J3b1pZVXpuK09L?=
+ =?utf-8?B?dWZhR1JZTTIxMlh3MEhJUktMSHRKRDB6WWs3RFJGNXRXd3VoYmNibGdQVEhp?=
+ =?utf-8?B?R0tuT1I4NDg0L0pza2FDZEUyWTlwL0EyY08zVVVwMHh4dFcrWmpJVVNscHUx?=
+ =?utf-8?Q?799VNE/fTc8vAgy4DXUciHLuP5OE0FuzOg7X4F5uDPYI?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0bc58e51-891f-455a-6f75-08dc9d904552
+X-MS-Exchange-CrossTenant-AuthSource: FR3P281MB1917.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jul 2024 07:50:14.6766
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: VjTTaLecaJywwDnJW3VuILK13x4Lq9lw6P4VcY/L7YXI7zFq5URMJ7AFrMYMFJKFYjllBLXU9U2gcE4OrBoipg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR3P281MB2031
+X-TM-AS-ERS: 40.93.78.50-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.1.1026-28512.006
+X-TMASE-Result: 10--15.075100-4.000000
+X-TMASE-MatchedRID: 6otD/cJAac35ETspAEX/ngw4DIWv1jSVpolXqDXvwwphwrHzkyNIlaXi
+	cGonyj1pF7wI/GkECICwvGp2wlHVUIuA+CD/W2+Ra3/ivePgGTzGCI8DPyXV+8Dy2KKuKumVGC8
+	MszMtCe7XdfUDT7CrmnhvrEfbRzzXrC0NytMhAODsWvLjh/4YUtA8uiVRRVmWR8D6aEu8Yk2tbh
+	TKqzFczTfTDCVI7/VScpxxqdM2ODDg+5w4ygvpjyw57foj4iEhtwSRbcjubiRSMzx3ql2YQ8yfx
+	QnKP1ktupoogdfVK+Jd4x1IUlKnFI1g3zDt1sv5eZOzHdy7Qc5LmwaA0hCee2dtARg0IcL9qDtm
+	jlQ4FGmiWLhmiI4dP34gKq42LRYkASOwxLdYcJnN9tK9I4gZ7cf3ye8/TE4yTgMq552Ab2B+3Bn
+	dfXUhXQ==
+X-TMASE-XGENCLOUD: eeb95482-d88a-468e-8f95-9dfe300f2a6a-0-0-200-0
+X-TM-Deliver-Signature: E6720385FD30C8F102BAD53CD831CBD4
+X-TM-Addin-Auth: FCD5vDoVqFX+dmhUW9KB/444Ut95RaSayhx5BK86uC4mN4hoWOGzFuMfspC
+	IXhg7uYSuKhBuTbWW3CvOCxA35qF/ABUDX7d1Y9kt1RF2v7NzFNDNzwB/VjBFC0TnTQ/0h8Kydb
+	8RtV5vfsOgHQXnbtSObyM8dc7fTVPXivEgnBzR1CH0f6Vr637CLNupqWA59AmaMhVwxerVau049
+	XqSJKAEGpF2NbiMEQL1T+oZ1gCE/vHIj+muBpgAA5rlNclMNYBoerGNWgAWen2zunpimbt2A6JK
+	VS9fr4JuBSGCbHE=.R+Xn6PUFXHAZ7UHvc6YoOKQlV8UQC+g6VWy5Cmq/Vx+t8i5CEuqpPNR1RK
+	6qrrMTh1t2ytACbmQmqM5HFudadPZO/cv38F2BkxhxMoKOuVg3pPUav3+fmOwV8DEIXZOZIs+E2
+	hhJ03sY2MDrALwTY1Rl4CT2KFgz4xuTiO87aGFz8OsS/0MAuG1AG5IDYuDDpkrnK3hxIov4yBtF
+	f1GICFJXtvR5nd3byaZKiD6MSCM2WYjh/NVHxX9AkIJ5oDtP5zxtd3JtqcPAJ1O4VnXO0lculaU
+	JvV/abnYh4AV3XGljXL27DR9fOYuHHD7XNt+y9FFECvjOv9R8jj8sM9l30Q==
+X-TM-Addin-ProductCode: EMS
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+	s=TM-DKIM-20210503141657; t=1720252216;
+	bh=reVS4XwYvyCpQsiovCtEEx8v4RdLPuAfb0QRQ8fW894=; l=1882;
+	h=Date:From:To;
+	b=1hSQZ/8oesLXF267MSoJbxE+gLAW/sSrhIrsWSRvhpBE9/Xltu5pnogeC8DwA2U3y
+	 nFUwIFWFQHf7xfnqHImS0E5hVkGbTNAWpzA2aZ94EBwle+r/X3R/uMUwhWLCExt+F1
+	 /Tq04P64Dimr/2uTz7DNIaHPbp5ATCCkVpkphQJ+MsX0jqtWUvRALkcZpKAVYrtW87
+	 6K8EqVmuYqZqCOrFdVGZPRKeT5/oSP487QY6BxJ/7QwnqzGdyfRUalJzrlq3PGa0QL
+	 giE5TjX+0PFpGDkAzLn69zVAzddMXO4M6GW4gNe63H6hOGtHDL1Su+znV4nB+hi6Br
+	 +yrrRCmictEHg==
 
-Huacai,
+On 05.07.24 17:02, David Woodhouse wrote:
+> On Fri, 2024-07-05 at 10:12 +0200, Peter Hilber wrote:
+>> On 03.07.24 12:40, David Woodhouse wrote:
 
-On 2024/7/6 上午11:00, Huacai Chen wrote:
-> Hi, Bibo,
+[...]
+
+>>>  • Why is maxerror in picoseconds? It's the only use of that unit
 > 
-> On Fri, May 24, 2024 at 3:38 PM Bibo Mao <maobibo@loongson.cn> wrote:
->>
->> Steal time feature is added here in kvm side, VM can search supported
->> features provided by KVM hypervisor, feature KVM_FEATURE_STEAL_TIME
->> is added here. Like x86, steal time structure is saved in guest memory,
->> one hypercall function KVM_HCALL_FUNC_NOTIFY is added to notify KVM to
->> enable the feature.
->>
->> One cpu attr ioctl command KVM_LOONGARCH_VCPU_PVTIME_CTRL is added to
->> save and restore base address of steal time structure when VM is migrated.
->>
->> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
->> ---
->>   arch/loongarch/include/asm/kvm_host.h  |   7 ++
->>   arch/loongarch/include/asm/kvm_para.h  |  10 ++
->>   arch/loongarch/include/asm/kvm_vcpu.h  |   4 +
->>   arch/loongarch/include/asm/loongarch.h |   1 +
->>   arch/loongarch/include/uapi/asm/kvm.h  |   4 +
->>   arch/loongarch/kvm/Kconfig             |   1 +
->>   arch/loongarch/kvm/exit.c              |  38 +++++++-
->>   arch/loongarch/kvm/vcpu.c              | 124 +++++++++++++++++++++++++
->>   8 files changed, 187 insertions(+), 2 deletions(-)
->>
->> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
->> index c87b6ea0ec47..2eb2f7572023 100644
->> --- a/arch/loongarch/include/asm/kvm_host.h
->> +++ b/arch/loongarch/include/asm/kvm_host.h
->> @@ -30,6 +30,7 @@
->>   #define KVM_PRIVATE_MEM_SLOTS          0
->>
->>   #define KVM_HALT_POLL_NS_DEFAULT       500000
->> +#define KVM_REQ_STEAL_UPDATE           KVM_ARCH_REQ(1)
->>
->>   #define KVM_GUESTDBG_SW_BP_MASK                \
->>          (KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP)
->> @@ -201,6 +202,12 @@ struct kvm_vcpu_arch {
->>          struct kvm_mp_state mp_state;
->>          /* cpucfg */
->>          u32 cpucfg[KVM_MAX_CPUCFG_REGS];
->> +       /* paravirt steal time */
->> +       struct {
->> +               u64 guest_addr;
->> +               u64 last_steal;
->> +               struct gfn_to_hva_cache cache;
->> +       } st;
->>   };
->>
->>   static inline unsigned long readl_sw_gcsr(struct loongarch_csrs *csr, int reg)
->> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
->> index 4ba2312e5f8c..a9ba8185d4af 100644
->> --- a/arch/loongarch/include/asm/kvm_para.h
->> +++ b/arch/loongarch/include/asm/kvm_para.h
->> @@ -14,6 +14,7 @@
->>
->>   #define KVM_HCALL_SERVICE              HYPERCALL_ENCODE(HYPERVISOR_KVM, KVM_HCALL_CODE_SERVICE)
->>   #define  KVM_HCALL_FUNC_IPI            1
->> +#define  KVM_HCALL_FUNC_NOTIFY         2
->>
->>   #define KVM_HCALL_SWDBG                        HYPERCALL_ENCODE(HYPERVISOR_KVM, KVM_HCALL_CODE_SWDBG)
->>
->> @@ -24,6 +25,15 @@
->>   #define KVM_HCALL_INVALID_CODE         -1UL
->>   #define KVM_HCALL_INVALID_PARAMETER    -2UL
->>
->> +#define KVM_STEAL_PHYS_VALID           BIT_ULL(0)
->> +#define KVM_STEAL_PHYS_MASK            GENMASK_ULL(63, 6)
->> +struct kvm_steal_time {
->> +       __u64 steal;
->> +       __u32 version;
->> +       __u32 flags;
-> I found that x86 has a preempted field here, in our internal repo the
-> LoongArch version also has this field. Moreover,
-> kvm_steal_time_set_preempted() and kvm_steal_time_clear_preempted()
-> seems needed.
-By my understanding, macro vcpu_is_preempted() is used together with pv 
-spinlock, and pv spinlock depends on pv stealtime. So I think preempted 
-flag is not part of pv stealtime, it is part of pv spinlock.
-
-We are going to add preempted field if pv spinlock is added.
+> Between us we now have picoseconds, nanoseconds, (seconds >> 64) and
+> (seconds >> 64+n).
 > 
->> +       __u32 pad[12];
->> +};
->> +
->>   /*
->>    * Hypercall interface for KVM hypervisor
->>    *
->> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/include/asm/kvm_vcpu.h
->> index 590a92cb5416..d7e51300a89f 100644
->> --- a/arch/loongarch/include/asm/kvm_vcpu.h
->> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
->> @@ -120,4 +120,8 @@ static inline void kvm_write_reg(struct kvm_vcpu *vcpu, int num, unsigned long v
->>          vcpu->arch.gprs[num] = val;
->>   }
->>
->> +static inline bool kvm_pvtime_supported(void)
->> +{
->> +       return !!sched_info_on();
->> +}
->>   #endif /* __ASM_LOONGARCH_KVM_VCPU_H__ */
->> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
->> index eb09adda54b7..7a4633ef284b 100644
->> --- a/arch/loongarch/include/asm/loongarch.h
->> +++ b/arch/loongarch/include/asm/loongarch.h
->> @@ -169,6 +169,7 @@
->>   #define  KVM_SIGNATURE                 "KVM\0"
->>   #define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
->>   #define  KVM_FEATURE_IPI               BIT(1)
->> +#define  KVM_FEATURE_STEAL_TIME                BIT(2)
->>
->>   #ifndef __ASSEMBLY__
->>
->> diff --git a/arch/loongarch/include/uapi/asm/kvm.h b/arch/loongarch/include/uapi/asm/kvm.h
->> index f9abef382317..ddc5cab0ffd0 100644
->> --- a/arch/loongarch/include/uapi/asm/kvm.h
->> +++ b/arch/loongarch/include/uapi/asm/kvm.h
->> @@ -81,7 +81,11 @@ struct kvm_fpu {
->>   #define LOONGARCH_REG_64(TYPE, REG)    (TYPE | KVM_REG_SIZE_U64 | (REG << LOONGARCH_REG_SHIFT))
->>   #define KVM_IOC_CSRID(REG)             LOONGARCH_REG_64(KVM_REG_LOONGARCH_CSR, REG)
->>   #define KVM_IOC_CPUCFG(REG)            LOONGARCH_REG_64(KVM_REG_LOONGARCH_CPUCFG, REG)
->> +
->> +/* Device Control API on vcpu fd */
->>   #define KVM_LOONGARCH_VCPU_CPUCFG      0
->> +#define KVM_LOONGARCH_VCPU_PVTIME_CTRL 1
->> +#define  KVM_LOONGARCH_VCPU_PVTIME_GPA 0
->>
->>   struct kvm_debug_exit_arch {
->>   };
->> diff --git a/arch/loongarch/kvm/Kconfig b/arch/loongarch/kvm/Kconfig
->> index c4ef2b4d9797..248744b4d086 100644
->> --- a/arch/loongarch/kvm/Kconfig
->> +++ b/arch/loongarch/kvm/Kconfig
->> @@ -29,6 +29,7 @@ config KVM
->>          select KVM_MMIO
->>          select HAVE_KVM_READONLY_MEM
->>          select KVM_XFER_TO_GUEST_WORK
->> +       select SCHED_INFO
->>          help
->>            Support hosting virtualized guest machines using
->>            hardware virtualization extensions. You will need
->> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
->> index c86e099af5ca..e2abd97fb13f 100644
->> --- a/arch/loongarch/kvm/exit.c
->> +++ b/arch/loongarch/kvm/exit.c
->> @@ -24,7 +24,7 @@
->>   static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
->>   {
->>          int rd, rj;
->> -       unsigned int index;
->> +       unsigned int index, ret;
->>
->>          if (inst.reg2_format.opcode != cpucfg_op)
->>                  return EMULATE_FAIL;
->> @@ -50,7 +50,10 @@ static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
->>                  vcpu->arch.gprs[rd] = *(unsigned int *)KVM_SIGNATURE;
->>                  break;
->>          case CPUCFG_KVM_FEATURE:
->> -               vcpu->arch.gprs[rd] = KVM_FEATURE_IPI;
->> +               ret = KVM_FEATURE_IPI;
->> +               if (sched_info_on())
-> What about replacing it with your helper function kvm_pvtime_supported()?
-Sure, will replace it with helper function kvm_pvtime_supported().
-
-Regards
-Bibo Mao
+> The power-of-two fractions seem to make a lot of sense for the counter
+> period, because they mean we don't have to perform divisions.
 > 
-> Huacai
+> Does it makes sense to harmonise on (seconds >> 64) for all of the
+> fractional seconds? Again I don't have a strong opinion; I only want us
+> to have a *reason* for any differences that exist.
 > 
->> +                       ret |= KVM_FEATURE_STEAL_TIME;
->> +               vcpu->arch.gprs[rd] = ret;
->>                  break;
->>          default:
->>                  vcpu->arch.gprs[rd] = 0;
->> @@ -687,6 +690,34 @@ static int kvm_handle_fpu_disabled(struct kvm_vcpu *vcpu)
->>          return RESUME_GUEST;
->>   }
->>
->> +static long kvm_save_notify(struct kvm_vcpu *vcpu)
->> +{
->> +       unsigned long id, data;
->> +
->> +       id   = kvm_read_reg(vcpu, LOONGARCH_GPR_A1);
->> +       data = kvm_read_reg(vcpu, LOONGARCH_GPR_A2);
->> +       switch (id) {
->> +       case KVM_FEATURE_STEAL_TIME:
->> +               if (!kvm_pvtime_supported())
->> +                       return KVM_HCALL_INVALID_CODE;
->> +
->> +               if (data & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
->> +                       return KVM_HCALL_INVALID_PARAMETER;
->> +
->> +               vcpu->arch.st.guest_addr = data;
->> +               if (!(data & KVM_STEAL_PHYS_VALID))
->> +                       break;
->> +
->> +               vcpu->arch.st.last_steal = current->sched_info.run_delay;
->> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
->> +               break;
->> +       default:
->> +               break;
->> +       };
->> +
->> +       return 0;
->> +};
->> +
->>   /*
->>    * kvm_handle_lsx_disabled() - Guest used LSX while disabled in root.
->>    * @vcpu:      Virtual CPU context.
->> @@ -758,6 +789,9 @@ static void kvm_handle_service(struct kvm_vcpu *vcpu)
->>                  kvm_send_pv_ipi(vcpu);
->>                  ret = KVM_HCALL_SUCCESS;
->>                  break;
->> +       case KVM_HCALL_FUNC_NOTIFY:
->> +               ret = kvm_save_notify(vcpu);
->> +               break;
->>          default:
->>                  ret = KVM_HCALL_INVALID_CODE;
->>                  break;
->> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
->> index 9e8030d45129..382796f1d3e6 100644
->> --- a/arch/loongarch/kvm/vcpu.c
->> +++ b/arch/loongarch/kvm/vcpu.c
->> @@ -31,6 +31,117 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
->>                         sizeof(kvm_vcpu_stats_desc),
->>   };
->>
->> +static void kvm_update_stolen_time(struct kvm_vcpu *vcpu)
->> +{
->> +       struct kvm_steal_time __user *st;
->> +       struct gfn_to_hva_cache *ghc;
->> +       struct kvm_memslots *slots;
->> +       gpa_t gpa;
->> +       u64 steal;
->> +       u32 version;
->> +
->> +       ghc = &vcpu->arch.st.cache;
->> +       gpa = vcpu->arch.st.guest_addr;
->> +       if (!(gpa & KVM_STEAL_PHYS_VALID))
->> +               return;
->> +
->> +       gpa &= KVM_STEAL_PHYS_MASK;
->> +       slots = kvm_memslots(vcpu->kvm);
->> +       if (slots->generation != ghc->generation || gpa != ghc->gpa) {
->> +               if (kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, gpa,
->> +                                       sizeof(*st))) {
->> +                       ghc->gpa = INVALID_GPA;
->> +                       return;
->> +               }
->> +       }
->> +
->> +       st = (struct kvm_steal_time __user *)ghc->hva;
->> +       unsafe_get_user(version, &st->version, out);
->> +       if (version & 1)
->> +               version += 1;
->> +       version += 1;
->> +       unsafe_put_user(version, &st->version, out);
->> +       smp_wmb();
->> +
->> +       unsafe_get_user(steal, &st->steal, out);
->> +       steal += current->sched_info.run_delay -
->> +               vcpu->arch.st.last_steal;
->> +       vcpu->arch.st.last_steal = current->sched_info.run_delay;
->> +       unsafe_put_user(steal, &st->steal, out);
->> +
->> +       smp_wmb();
->> +       version += 1;
->> +       unsafe_put_user(version, &st->version, out);
->> +out:
->> +       mark_page_dirty_in_slot(vcpu->kvm, ghc->memslot, gpa_to_gfn(ghc->gpa));
->> +}
->> +
->> +static int kvm_loongarch_pvtime_has_attr(struct kvm_vcpu *vcpu,
->> +                                       struct kvm_device_attr *attr)
->> +{
->> +       if (!kvm_pvtime_supported() ||
->> +                       attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
->> +               return -ENXIO;
->> +
->> +       return 0;
->> +}
->> +
->> +static int kvm_loongarch_pvtime_get_attr(struct kvm_vcpu *vcpu,
->> +                                       struct kvm_device_attr *attr)
->> +{
->> +       u64 __user *user = (u64 __user *)attr->addr;
->> +       u64 gpa;
->> +
->> +       if (!kvm_pvtime_supported() ||
->> +                       attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
->> +               return -ENXIO;
->> +
->> +       gpa = vcpu->arch.st.guest_addr;
->> +       if (put_user(gpa, user))
->> +               return -EFAULT;
->> +
->> +       return 0;
->> +}
->> +
->> +static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
->> +                                       struct kvm_device_attr *attr)
->> +{
->> +       u64 __user *user = (u64 __user *)attr->addr;
->> +       struct kvm *kvm = vcpu->kvm;
->> +       u64 gpa;
->> +       int ret = 0;
->> +       int idx;
->> +
->> +       if (!kvm_pvtime_supported() ||
->> +                       attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
->> +               return -ENXIO;
->> +
->> +       if (get_user(gpa, user))
->> +               return -EFAULT;
->> +
->> +       if (gpa & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
->> +               return -EINVAL;
->> +
->> +       if (!(gpa & KVM_STEAL_PHYS_VALID)) {
->> +               vcpu->arch.st.guest_addr = gpa;
->> +               return 0;
->> +       }
->> +
->> +       /* Check the address is in a valid memslot */
->> +       idx = srcu_read_lock(&kvm->srcu);
->> +       if (kvm_is_error_hva(gfn_to_hva(kvm, gpa >> PAGE_SHIFT)))
->> +               ret = -EINVAL;
->> +       srcu_read_unlock(&kvm->srcu, idx);
->> +
->> +       if (!ret) {
->> +               vcpu->arch.st.guest_addr = gpa;
->> +               vcpu->arch.st.last_steal = current->sched_info.run_delay;
->> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
->> +       }
->> +
->> +       return ret;
->> +}
->> +
->>   /*
->>    * kvm_check_requests - check and handle pending vCPU requests
->>    *
->> @@ -48,6 +159,9 @@ static int kvm_check_requests(struct kvm_vcpu *vcpu)
->>          if (kvm_dirty_ring_check_request(vcpu))
->>                  return RESUME_HOST;
->>
->> +       if (kvm_check_request(KVM_REQ_STEAL_UPDATE, vcpu))
->> +               kvm_update_stolen_time(vcpu);
->> +
->>          return RESUME_GUEST;
->>   }
->>
->> @@ -671,6 +785,9 @@ static int kvm_loongarch_vcpu_has_attr(struct kvm_vcpu *vcpu,
->>          case KVM_LOONGARCH_VCPU_CPUCFG:
->>                  ret = kvm_loongarch_cpucfg_has_attr(vcpu, attr);
->>                  break;
->> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
->> +               ret = kvm_loongarch_pvtime_has_attr(vcpu, attr);
->> +               break;
->>          default:
->>                  break;
->>          }
->> @@ -703,6 +820,9 @@ static int kvm_loongarch_vcpu_get_attr(struct kvm_vcpu *vcpu,
->>          case KVM_LOONGARCH_VCPU_CPUCFG:
->>                  ret = kvm_loongarch_get_cpucfg_attr(vcpu, attr);
->>                  break;
->> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
->> +               ret = kvm_loongarch_pvtime_get_attr(vcpu, attr);
->> +               break;
->>          default:
->>                  break;
->>          }
->> @@ -725,6 +845,9 @@ static int kvm_loongarch_vcpu_set_attr(struct kvm_vcpu *vcpu,
->>          case KVM_LOONGARCH_VCPU_CPUCFG:
->>                  ret = kvm_loongarch_cpucfg_set_attr(vcpu, attr);
->>                  break;
->> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
->> +               ret = kvm_loongarch_pvtime_set_attr(vcpu, attr);
->> +               break;
->>          default:
->>                  break;
->>          }
->> @@ -1084,6 +1207,7 @@ static int _kvm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
->>
->>          /* Control guest page CCA attribute */
->>          change_csr_gcfg(CSR_GCFG_MATC_MASK, CSR_GCFG_MATC_ROOT);
->> +       kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
->>
->>          /* Don't bother restoring registers multiple times unless necessary */
->>          if (vcpu->arch.aux_inuse & KVM_LARCH_HWCSR_USABLE)
->> --
->> 2.39.3
->>
 
+I don't have the expertise with fixed-point arithmetic to judge if this
+would become unwieldy.
+
+I selected ns for the virtio-rtc drafts so far because that didn't have any
+impact on the precision with the Linux kernel driver message-based use
+cases, but that would be different for SHM in my understanding.
+
+So I would tend to retain ns for convenience for messages (where it doesn't
+impact precision) but do not have any preference for SHM.
+
+>>>  • Where do the clock_status values come from? Do they make sense?
+>>>  • Are signed integers OK? (I think so!).
+>>
+>> Signed integers would need to be introduced to Virtio, which so far only
+>> uses explicitly unsigned types: u8, le16 etc.
+> 
+> Perhaps. Although it would also be possible (if not ideal) to define
+> that e.g. the tai_offset field is a 16-bit "unsigned" integer according
+> to virtio, but to be interpreted as follows:
+> 
+> If the number is <= 32767 then the TAI offset is that value, but if the
+> number is >= 32768 then the TAI offset is that value minus 65536.
+> 
+> Perhaps not pretty, but there isn't a *fundamental* dependency on
+> virtio supporting signed integers as a primary type.
+> 
+
+Agreed.
