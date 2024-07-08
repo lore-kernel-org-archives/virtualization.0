@@ -1,536 +1,298 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2048.outbound.protection.outlook.com [40.107.223.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F4877580A;
-	Mon,  8 Jul 2024 09:47:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720432052; cv=none; b=P/2xfpRBZzvgs8QKFgvm+oS7yPxKCv5vH/FBzmKtvpzeFWsZCDEmU9+gXTEiAhYxEkRwFuvBXYTItg9CU5NbkokNKH8bAoSL5F/z6XAIhFLmuges2vyuQEN/V/rDMu2V0f/CPXgYVj1YSFnp0f8sbJwJ4Pvcy8HQ5SyU9zwh+7A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720432052; c=relaxed/simple;
-	bh=6ZQTAiQVbQo9uYcXEBcFrxIQPxojeGwZ9owxOifNEfw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sJNUChu1JOLWFiLFFB/JnD7FPpQudoXfuoZYvS+E1Ktwrnk5LURX8QYUupy0xK4AlxeeCFT4tCzNYdPitqTF8W4NQMR6Zq2trRHSnSm3aIA7rrOGOG3J/tA47tMUt3bAgmbvywHCqVTJIG3Ox3x3VlwY2VyDTlTAuHPQIhsE3sM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mPnjHn4k; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7450011712
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 11:01:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720436505; cv=fail; b=qbB26f1pEc282OTEt3muDbLAh35saaAfb+JlczLgHJcm1Hea5OZ3bknJDA6v46MktGSJOWfHjfN/gc/lqkCLVtS1Tw1ItFdp9oDidLCS4rk2xkGskxCJzoO3V+uQ0PxHZTCtdR7zun2pka9b7HSIDzHfF+KTOmK7IWDgEL1TaYc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720436505; c=relaxed/simple;
+	bh=VJMeF8Xn70zxQQmbeTpO4Q0qNQgWMojyKaK8ZU61yfE=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=nt4qGa/gM+45AiJAzLOAk2SnGi87xkKTDKZOC3SgU4LKIy+tp1Lini69oXengt00FtilqWLzxN7JMnimNmco/QxBjblZBGA+L1+VXwTMFmUhMpt/kSfYWSrZAe/7ujq4s/pUjyQnR4/Xw5JoIJpwHk5iqyju1A9M8ep/h7I5SMc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IFFfzjCF; arc=fail smtp.client-ip=40.107.223.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mPnjHn4k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4DDC4AF0A;
-	Mon,  8 Jul 2024 09:47:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720432052;
-	bh=6ZQTAiQVbQo9uYcXEBcFrxIQPxojeGwZ9owxOifNEfw=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=mPnjHn4krM2syVwybaGnTF5CDuHuUV7OIDsB4/SD0yV2/ZuD5JOEBlt7+W7QceF4O
-	 ezpArvKBPCYN8DvExkhVlIwRj271gWD0dOxdAGxdHmGfoTuoLeZUjmwWSBdxANgi6v
-	 jX3Arzy+pJATi+puf1J6/wd0o8GIYWPfjj1ezbrRCrOq0MW7cZVXtCpJCjCEq04f2I
-	 xPCI6/93vVV+Jb5pOjRTzl0rW47YmSBftmb6XtWapztDWZWh3rmslx6pit8QGyRubW
-	 b21ohGibTtymkWHUt8cLThQeWCMJC54NmDBgHv1P4yVYvUfJTS4uQQm7IUC0blSIxx
-	 vQhZmS1Q0Hb0g==
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a77e2f51496so200328366b.0;
-        Mon, 08 Jul 2024 02:47:31 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUvqzEIIti2MY4b0qPXI1i0oTzwehBvGxrjHg51KvCLIVVVgYRxMDvfwDZe4czt5q1LyT0FZZklvm39ZKSK0v81QezqZUFnT9+xBl45ySoeLhIGmyc2Acdrz1W1CCFubkHcwubru53c08k=
-X-Gm-Message-State: AOJu0YwLaEIchBSGVGvB258dN9X+k3ByuYvsV35xclvAdKLEV73e9zE1
-	oMduPIfFL0ya2k62Plb2bhOO1NQ/wRVt/PNaxi18qsFwiBC9iNt1EZoz7PhpaVbtHKbKKdEviKV
-	+paf1uqRhz5zm3BsA1ewKaRpOAyE=
-X-Google-Smtp-Source: AGHT+IHT7P4R9Gj2HJxbgNAzMvzU8XXQI2iU6qxaLmu63ghvfY2DhAYH0v7X1A/WX9w1E/RHXEXCEzqRX2Tl6sw4ncI=
-X-Received: by 2002:a17:906:4686:b0:a72:5a8c:87c6 with SMTP id
- a640c23a62f3a-a77ba454c31mr780998566b.10.1720432050300; Mon, 08 Jul 2024
- 02:47:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IFFfzjCF"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=RyNPt3ARS7F9/VdG7yd0AZhA188yT07EEdxo1VeQM80mMHvTKd2Uhqi7CEJzKWTxb2F2zcgEzsiPsWfl7VE7AM7Fblvnt40QAUb1MWorC5xmPrkK7XRlQa9PrCSgBAKbY672OaW7YkG8jvpUv5/yM0tuc7/p2jgYcc/Hi+Hiq7oovCkLmgr6i7NEFgDxqD4cZqr+7CWfFsbBCol5n4R6jZZt35JaGA0H7vlMpC3HbDZTM4xJjSXkN0sphfQhwCOnWcCIS6RITQoxYhwPSp6kIgfE0vGzMkH5grdf57LLpXSnqYe+97Qo+O5ijKsVjO0Rwonqh9tD4XqDMDEPPA/YIA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VJMeF8Xn70zxQQmbeTpO4Q0qNQgWMojyKaK8ZU61yfE=;
+ b=SGpIcINCFup8QG2iHZFacafIkKGbxSCgIvt0cEAhrhMm8gnTydlAtqZH1hOxY7cgBOpnn1eSnAKj8kVK/qO5TUA+0KQv2+wbjstMgZKVgFB/Mltd+YR8t9qyRdGVdEdYFkhZJOXfqPQP/odU5Qlg0p6CP/OE559jXr4Wdb0350exjqlq9sdM2oQ/AyDKWJmq5z/1zYQRLTvRFiflQuJ5V2I6GsZe5X4gczMqeja1k0DPqMsqHe3eUlIq7169FRqzPKF4Nqw39buR86MJ5ZNqqsbeIxMOj+rOSMQY6kZBAevjhyjcYKhIKlgrAlRO77/zcBIMpI+xxo5XsnVpvTJVzQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VJMeF8Xn70zxQQmbeTpO4Q0qNQgWMojyKaK8ZU61yfE=;
+ b=IFFfzjCFB1BCJ90N4PO8/oje58L7UEJ3fTronBVfumT1opkDWZk1aqLLzyIQ56MzCAQZjZgx16hg2phFB06oYo8Uj+aQBNN4IH8oEgwClcvjPE4cu6G9EzjQkytGWXk3DItaAU6hLS8/FgEH3ZzyvAfB3bFNd8TtPu7C3kS/cZrDm+3BHwZn4P3ynERrbIugX23ujXbEs6Kg1ozPu7TbLufSc0OofBI9C/gJIpOYDLenhOb6RTZylGyXVunrDdpAxZemtc3/sYQCKNHXlsFXBKRknUozxridVa3IQqublHobZCCCTwN0Q6MZXiLJyVZE2YDr7lg8Yg+2wrDYIOgqtA==
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
+ by MW6PR12MB8757.namprd12.prod.outlook.com (2603:10b6:303:239::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.35; Mon, 8 Jul
+ 2024 11:01:40 +0000
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::17f8:a49a:ebba:71f1]) by DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::17f8:a49a:ebba:71f1%3]) with mapi id 15.20.7741.033; Mon, 8 Jul 2024
+ 11:01:39 +0000
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "eperezma@redhat.com" <eperezma@redhat.com>
+CC: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Tariq
+ Toukan <tariqt@nvidia.com>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Cosmin Ratiu <cratiu@nvidia.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>, "mst@redhat.com"
+	<mst@redhat.com>, "si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, Saeed
+ Mahameed <saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Subject: Re: [PATCH vhost 20/23] vdpa/mlx5: Pre-create hardware VQs at vdpa
+ .dev_add time
+Thread-Topic: [PATCH vhost 20/23] vdpa/mlx5: Pre-create hardware VQs at vdpa
+ .dev_add time
+Thread-Index: AQHawMhZfAWsnj0CYEOKT7TiC0tv/7HPQEaAgAqUMoCAC26hAIAHh78A
+Date: Mon, 8 Jul 2024 11:01:39 +0000
+Message-ID: <c6dc541919a0cc78521364dbf4db32293cf1071e.camel@nvidia.com>
+References: <20240617-stage-vdpa-vq-precreate-v1-0-8c0483f0ca2a@nvidia.com>
+	 <20240617-stage-vdpa-vq-precreate-v1-20-8c0483f0ca2a@nvidia.com>
+	 <CAJaqyWd3yiPUMaGEmzgHF-8u+HcqjUxBNB3=Xg6Lon-zYNVCow@mail.gmail.com>
+	 <308f90bb505d12e899e3f4515c4abc93c39cfbd5.camel@nvidia.com>
+	 <CAJaqyWeHDD0drkAZQqEP_ZfbUPscOmM7T8zXRie5Q14nfAV0sg@mail.gmail.com>
+In-Reply-To:
+ <CAJaqyWeHDD0drkAZQqEP_ZfbUPscOmM7T8zXRie5Q14nfAV0sg@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Evolution 3.52.3 (3.52.3-1.fc40) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|MW6PR12MB8757:EE_
+x-ms-office365-filtering-correlation-id: 49928ebc-e08c-423e-d267-08dc9f3d57d8
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|7416014|376014|1800799024|366016|38070700018;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?U0xldjlkbnJjSXJmOFVnVVYrY0Fud2FGT2lPN2xTSE1IMkRTOW13Wm9zMmFu?=
+ =?utf-8?B?Z3VSbFNuNWMzdmZkdDZSb1ZzZDdiQ1RkR0Z0eFYrL3pCWFRtMEMyZ0dTMWpJ?=
+ =?utf-8?B?UDhHQ0tlV3l0eThET2dFaDVrc1VEZUFINHpaTjhpYjFOT2UrNWZkN2QrbFdK?=
+ =?utf-8?B?TVpydno4MFZBbVRsN2M0bThScS9mWDBOaVFnY1N5MDAvWTRZczMrWXdNTDA5?=
+ =?utf-8?B?bWFvcThDSjRycitKdnJSTGM2eVVVZXFFeUdhblRnRUdYdXJMc1RpcGxFdUhz?=
+ =?utf-8?B?eTR3TlA3R3VLNHBhRG4yRlZteW9icjZPTTFVUyt6RFIyMU9jTmpIT3BNdE54?=
+ =?utf-8?B?L1B1NE91dUFvbmlQcHRGWFVTN0RLOGJQTlBHOHZBNVM1MXcwaUFYNXFwY2Jl?=
+ =?utf-8?B?bFZQTE5XbCtPWndlYVlXNEVtcjFpWHlEWDB3c3lFeXVhREVpU1pzb0JyeG0x?=
+ =?utf-8?B?UkVyQXpwb0lzdVJ6VW5meFRIZXR3cFhVUVRvSVlyUDlHeWorQjUvVUpiSkFl?=
+ =?utf-8?B?aldEK2lzVEJIN3VtL1BoOEoxajBuTVptMUYrMytwV21qOUMrSjVnSURGb3ds?=
+ =?utf-8?B?UGNMUFlTejREVmVRR2FOVmk4UktZdVI3ZUY4azZjbmxqbUVCZHhZcFFXR1Vw?=
+ =?utf-8?B?OGhpaUhodkgzL3ZPencyT3duVE13RHdOdmloYzBTOXNxbkZEaTNpQzFlUjFS?=
+ =?utf-8?B?M3h0TUkxTVVhT3pSN3NYMlFyTWEzdFNvTWJiK2FZTHlpVkpTUDZVcEQ2ZFJD?=
+ =?utf-8?B?b3BLa0paa0MzZ2hsdW04eWNHZUgzQm5weXFIOWhlenYzVXBVekZOWFpES2Rl?=
+ =?utf-8?B?N1k4dHlORy9xdzlDQXVZSmQvcFlQRlZLRGxuend4YmMrUDAwWmZsUmI2K1BH?=
+ =?utf-8?B?YmhXQmRDQVVxTG5ZVWdtMW9yQ29lbVU2clU4cjhTaDVCVU9Xd0VMZkZpb0JZ?=
+ =?utf-8?B?S0tRcnlNR2Y5dEZSeFMzaEt3cDFEZkR6ajc2c2VqNXVwRVNmcUtJeTYvM0xu?=
+ =?utf-8?B?T0lFOEZwT2VYQnVMWVJaVkRQdVd6T3pKWXlMVUUrNDVQUld6RWJVNzE3N3pu?=
+ =?utf-8?B?dGtadEd2elNaS20rRm95NnFITUE5OEtNbjRuNVphQjVXWkZQNW1aK0VybEdS?=
+ =?utf-8?B?SjNMQ3FvN2s3MGtwKzRNZElqbVhkUk53Mi9NZkdNQVN2U0UzbW5DVGpkTURW?=
+ =?utf-8?B?U3VnbGhtOGt6d2NJWkF6ZVU3OGVjd1cyVVM5eGJ0VGQ5dFdGRTFJTU5UQlpR?=
+ =?utf-8?B?L2V5OHlzZ2REamRtQTRwREtJVjA3RTk1cVQ4TlNKTWhyVkI0WkpQMHNodk1W?=
+ =?utf-8?B?UDBieUx3MjhmejNrZzdMZXhsc3Via01qdjJpMGpjWmgvR3l2US9sVXVSeE95?=
+ =?utf-8?B?WWxMMlp1anJZeHgzcis4aTYrenh1aTJ1eG9nOEhsZGQrWFV4YWZ3c3JjSzhK?=
+ =?utf-8?B?S1h6REdBTi9sMW9YWndxVHpMRCsvZlpST1ovSHdMZTI5dWYyeVhZV3NmWDcx?=
+ =?utf-8?B?ZUNmdXE1akxCMWR3dHNWVVgweFl3a2lZaXBuWFl4Z21kb3RmekZXNXBFbzVD?=
+ =?utf-8?B?ZjgyNjZLUGRVS0MvNTduU09jOWRpRDIwQngrd3oxcGtkT0NSK29ocWFQVThw?=
+ =?utf-8?B?RWNNdFRtYnFHL3JZSWV0R1NyOE90eUEzY1VTWVc0WmFKb0dRaTNRbGF0SFU1?=
+ =?utf-8?B?YWFJM3Y5cXJNc1c0Wm5pakNVQXdvWTZZeXozWjRid1IyNjk2SHU4UWNoNHJD?=
+ =?utf-8?B?WHNoaEVlSVBmZCtVVmI0dHRyV2VZVDZETXlVOXFTdlB3N1lRclZtbFg3MU52?=
+ =?utf-8?B?SmhUV0lqdzlUYnNFbXM5RlVTK3A4U2xHNXNaaitxa2hKOW94YTJiOHUvRDlP?=
+ =?utf-8?B?YjRGWnlPUTZreTA1YXQ3QUVMKzA4OGMzOFg1WFNUR1U0dHc9PQ==?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB5565.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?WVZ5VVFxLyt4Mm91K2M1UXdhanY3cUVsbzN2b1VBWDJtMks4THkxOTVnUEtt?=
+ =?utf-8?B?QjQ4RnQ0TXg5R0s0aU5LVjgxWitGc1NqNHVmN09PWlVkYkJlM0ZKL3k4RmFk?=
+ =?utf-8?B?U05Idlpja01YQ2JPN2R0clBUTVpEbE8raFRhVVBmeXFSQUJnenBzK3JYMG1a?=
+ =?utf-8?B?SFBVWUFodVZYTTZzUEoza0liZnF2UTJrWDZnTThOZFhQaVhkS1JrTUhRZktr?=
+ =?utf-8?B?ZytUVjB3cXdZdmlkZHJscFhTNFNIdUdseGxhR091L2d5Ukl2eWxlUUJ4QmJl?=
+ =?utf-8?B?YU9JWjBDN0NueEE2THEvYVllNzhYSG9wZzRMclNOaWJjMzZyZDZsSVJUMTdK?=
+ =?utf-8?B?TFZYRjN4OVJURnlWa2psK24wM1d4aHRZbWR0RlA3QjhzTDVFVC90YkQ3RzRy?=
+ =?utf-8?B?YU5KUTE2VjZPdlk4Mk02akhMazExK2kwQzRWeHl2N0J6Sm5hYmJpUXVhYkJt?=
+ =?utf-8?B?T2ZIRFNpYW8rczIzbVZvaEg1WEtrTHN1NGxacWZnYU1ydGNWNncwTVJtU0tQ?=
+ =?utf-8?B?RUxheE5ra0xNUDhTclF2Tm9UODFOR3lqRTRnMHp0eElPNGw3Ym9jMDhabzlD?=
+ =?utf-8?B?Z1B5Z2hTNXlsSHFIcExTRnNzRnVGUXJCckpEU3hBdUFtS1J3VGJUditSUHZX?=
+ =?utf-8?B?VlBsSXZnUHF6V1FOdC8yL1JnYm9HUmN6elNZOCtHQ2tGQmt3U0haTzI1cGc3?=
+ =?utf-8?B?Rm1XOXdGbStvVHFrdmlDQXJGcUVqcnFEd0MydDlxN1lBdC9pUitKSk5wWDU1?=
+ =?utf-8?B?VzJwQS9qKzFzcnBJeExraUNER3lDam96R2hic212d2oyMlMzNkhPVUZLWXY0?=
+ =?utf-8?B?RFhUL3BLdnYwdDFkdlVOVDdKQUpJaldCRkZtdGZBZkZFVWNNdGV3QXhPT2Vj?=
+ =?utf-8?B?cFlhNUVYNXFrc29ySVEyYjhqampmcnE0UGp4R3Y1K3NtSDRVM3BXREFRU2tY?=
+ =?utf-8?B?Q3VSTDJzbU9OUmljSzRoM3lCSGNneEFQQnA1aG9zeTZ5TC9hZGhTSkJvU2JF?=
+ =?utf-8?B?UEMwOU85UVVzU2JJejR6Z3ltbXVIRHgvQjcxOGVULzEzQTZMVzk3TUtpelZR?=
+ =?utf-8?B?Qlg1b0oxTmNsZ09WeWRuMTFrandsbGFZT0t0R1ZCeDFSMER1Ymg1Rm4vaWJk?=
+ =?utf-8?B?TytKWTFhQ0cyNHpiTXhmVlY1NW45ZU5vZ2F0bS9UOEx4c0JEMXhzNnVMK1lP?=
+ =?utf-8?B?MTNudnhEZUdscEQwcTBGcjhvS2tIMldBdzVWRlZVR3g3NmplRm9xd2NYZ25W?=
+ =?utf-8?B?TXlmYnVkenFWVVU0ZEIwajVSRHlleWdxOWk2Y2lDUjlZR0NCbkFVRzlYOFE2?=
+ =?utf-8?B?SFNNRmw4Wmw4V3I0U1FiZGxsVHErQ0JOcjZYWkRURVdYRTd2VDBlY0hCRnRP?=
+ =?utf-8?B?NTVZbEgrcGs3SjNuV0lScWx3SWh1RlFwSjVYbjlncGVZemljWVpxeG9qS2M2?=
+ =?utf-8?B?N29QMWcxcW10SC9CQnh2Z0NBb3NkVXByVGU4K0Rsd1BJZTc4OTNkU2M1U2Va?=
+ =?utf-8?B?Qm9jblFlUk1XN2JnQW1BU3dJc2taNlV2V1JVOTBpbWtNaG1KYzhhdElWblpt?=
+ =?utf-8?B?azc0UmYvQVh3YnN2TGVITHZiajdUZTkwSlpVbnVxQlFLRXhualliRFNnTEpS?=
+ =?utf-8?B?YkJrZTNvbThHYm9DMWlBN2lWZzV5L3JKKzFEWmJYdHhXd013NGpoVkJWNFBI?=
+ =?utf-8?B?eEJiVlIxOXlsTWNrWS9NR0xrMWJHUEZYd2pSd2g2YyswSU5pYVpSVTYyNWtx?=
+ =?utf-8?B?L0lpNWlZdTdWUDJVbzZ3NzF0TWc4NkZzTEcyTGxGR0NCU1JSQkZKNk9xOTFN?=
+ =?utf-8?B?S0pKV1dQTTFaL0NPM0lqZU9HUWN0RkZ0aldTQzd1UnZsYTgzQkVoNmtrRmxP?=
+ =?utf-8?B?WEJXc2dvNXNQZy96b05FZ2NZeWJNZ08rRWU0ZXlnK3orME9WamV2WkhWaExF?=
+ =?utf-8?B?MGYvQjJJaHExd2JqOC9NQ2JHRWgreHZldEtoOUJjbTZnZ0NWck5VMzhwbzNN?=
+ =?utf-8?B?Wlh1YStmd0M0L0tEeDNSRjJhTXo4TXVzVDlEVE1iSGhMblFjNWJ4Q3pBdzdB?=
+ =?utf-8?B?NkltUUJWaFZKQTJ6SmtaZlB5SGlPcmQrVmdPclIybXgyaitTYnU5Q1VvOURm?=
+ =?utf-8?B?VGNlbERqd2hlRDArUCsxblYrT3c1RFI1MVdwOE9UeEMrTEF2ekNnT3lpaVA5?=
+ =?utf-8?Q?bMCAw0tQVaeZ4HynyxaBrYeH3MG18uWJETFycj5gTKIJ?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <623F0AD567D4E74193BD52B43F883A6B@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240524073812.731032-1-maobibo@loongson.cn> <20240524073812.731032-2-maobibo@loongson.cn>
- <CAAhV-H5G7O7tbwzyaoO4iEXuN+_xbVFJDEyv1HH7GqOH24639Q@mail.gmail.com>
- <1aa110a8-28b9-d1d0-4b39-bc894b31f26c@loongson.cn> <CAAhV-H5oS+KrcGH+1wJCGKCjs2VKHkWyZ5QnorPjFMuE_eBb3g@mail.gmail.com>
- <ae21f9ef-e043-0f8c-b088-6645fc1f3c30@loongson.cn>
-In-Reply-To: <ae21f9ef-e043-0f8c-b088-6645fc1f3c30@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Mon, 8 Jul 2024 17:47:16 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H7QKqOX0fSyN=wnf_Y_5=CDE2ysP2O3Shj2zex8ce1ZMA@mail.gmail.com>
-Message-ID: <CAAhV-H7QKqOX0fSyN=wnf_Y_5=CDE2ysP2O3Shj2zex8ce1ZMA@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] LoongArch: KVM: Add steal time support in kvm side
-To: maobibo <maobibo@loongson.cn>
-Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>, kvm@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, x86@kernel.org, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 49928ebc-e08c-423e-d267-08dc9f3d57d8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Jul 2024 11:01:39.5354
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 9BE6yp2cJHD/GaeJ1/rcHxKwsI83p5Yj1Kvf4qCGDAJ5EpseOp5ptSHRZhoJr0p721mYIQbioMmP81n2dTPRvA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8757
 
-On Mon, Jul 8, 2024 at 9:16=E2=80=AFAM maobibo <maobibo@loongson.cn> wrote:
->
->
->
-> On 2024/7/6 =E4=B8=8B=E5=8D=885:41, Huacai Chen wrote:
-> > On Sat, Jul 6, 2024 at 2:59=E2=80=AFPM maobibo <maobibo@loongson.cn> wr=
-ote:
-> >>
-> >> Huacai,
-> >>
-> >> On 2024/7/6 =E4=B8=8A=E5=8D=8811:00, Huacai Chen wrote:
-> >>> Hi, Bibo,
-> >>>
-> >>> On Fri, May 24, 2024 at 3:38=E2=80=AFPM Bibo Mao <maobibo@loongson.cn=
-> wrote:
-> >>>>
-> >>>> Steal time feature is added here in kvm side, VM can search supporte=
-d
-> >>>> features provided by KVM hypervisor, feature KVM_FEATURE_STEAL_TIME
-> >>>> is added here. Like x86, steal time structure is saved in guest memo=
-ry,
-> >>>> one hypercall function KVM_HCALL_FUNC_NOTIFY is added to notify KVM =
-to
-> >>>> enable the feature.
-> >>>>
-> >>>> One cpu attr ioctl command KVM_LOONGARCH_VCPU_PVTIME_CTRL is added t=
-o
-> >>>> save and restore base address of steal time structure when VM is mig=
-rated.
-> >>>>
-> >>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> >>>> ---
-> >>>>    arch/loongarch/include/asm/kvm_host.h  |   7 ++
-> >>>>    arch/loongarch/include/asm/kvm_para.h  |  10 ++
-> >>>>    arch/loongarch/include/asm/kvm_vcpu.h  |   4 +
-> >>>>    arch/loongarch/include/asm/loongarch.h |   1 +
-> >>>>    arch/loongarch/include/uapi/asm/kvm.h  |   4 +
-> >>>>    arch/loongarch/kvm/Kconfig             |   1 +
-> >>>>    arch/loongarch/kvm/exit.c              |  38 +++++++-
-> >>>>    arch/loongarch/kvm/vcpu.c              | 124 ++++++++++++++++++++=
-+++++
-> >>>>    8 files changed, 187 insertions(+), 2 deletions(-)
-> >>>>
-> >>>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/=
-include/asm/kvm_host.h
-> >>>> index c87b6ea0ec47..2eb2f7572023 100644
-> >>>> --- a/arch/loongarch/include/asm/kvm_host.h
-> >>>> +++ b/arch/loongarch/include/asm/kvm_host.h
-> >>>> @@ -30,6 +30,7 @@
-> >>>>    #define KVM_PRIVATE_MEM_SLOTS          0
-> >>>>
-> >>>>    #define KVM_HALT_POLL_NS_DEFAULT       500000
-> >>>> +#define KVM_REQ_STEAL_UPDATE           KVM_ARCH_REQ(1)
-> >>>>
-> >>>>    #define KVM_GUESTDBG_SW_BP_MASK                \
-> >>>>           (KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP)
-> >>>> @@ -201,6 +202,12 @@ struct kvm_vcpu_arch {
-> >>>>           struct kvm_mp_state mp_state;
-> >>>>           /* cpucfg */
-> >>>>           u32 cpucfg[KVM_MAX_CPUCFG_REGS];
-> >>>> +       /* paravirt steal time */
-> >>>> +       struct {
-> >>>> +               u64 guest_addr;
-> >>>> +               u64 last_steal;
-> >>>> +               struct gfn_to_hva_cache cache;
-> >>>> +       } st;
-> >>>>    };
-> >>>>
-> >>>>    static inline unsigned long readl_sw_gcsr(struct loongarch_csrs *=
-csr, int reg)
-> >>>> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/=
-include/asm/kvm_para.h
-> >>>> index 4ba2312e5f8c..a9ba8185d4af 100644
-> >>>> --- a/arch/loongarch/include/asm/kvm_para.h
-> >>>> +++ b/arch/loongarch/include/asm/kvm_para.h
-> >>>> @@ -14,6 +14,7 @@
-> >>>>
-> >>>>    #define KVM_HCALL_SERVICE              HYPERCALL_ENCODE(HYPERVISO=
-R_KVM, KVM_HCALL_CODE_SERVICE)
-> >>>>    #define  KVM_HCALL_FUNC_IPI            1
-> >>>> +#define  KVM_HCALL_FUNC_NOTIFY         2
-> >>>>
-> >>>>    #define KVM_HCALL_SWDBG                        HYPERCALL_ENCODE(H=
-YPERVISOR_KVM, KVM_HCALL_CODE_SWDBG)
-> >>>>
-> >>>> @@ -24,6 +25,15 @@
-> >>>>    #define KVM_HCALL_INVALID_CODE         -1UL
-> >>>>    #define KVM_HCALL_INVALID_PARAMETER    -2UL
-> >>>>
-> >>>> +#define KVM_STEAL_PHYS_VALID           BIT_ULL(0)
-> >>>> +#define KVM_STEAL_PHYS_MASK            GENMASK_ULL(63, 6)
-> >>>> +struct kvm_steal_time {
-> >>>> +       __u64 steal;
-> >>>> +       __u32 version;
-> >>>> +       __u32 flags;
-> >>> I found that x86 has a preempted field here, in our internal repo the
-> >>> LoongArch version also has this field. Moreover,
-> >>> kvm_steal_time_set_preempted() and kvm_steal_time_clear_preempted()
-> >>> seems needed.
-> >> By my understanding, macro vcpu_is_preempted() is used together with p=
-v
-> >> spinlock, and pv spinlock depends on pv stealtime. So I think preempte=
-d
-> >> flag is not part of pv stealtime, it is part of pv spinlock.
-> >>
-> >> We are going to add preempted field if pv spinlock is added.
-> >>>
-> >>>> +       __u32 pad[12];
-> >>>> +};
-> >>>> +
-> >>>>    /*
-> >>>>     * Hypercall interface for KVM hypervisor
-> >>>>     *
-> >>>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/=
-include/asm/kvm_vcpu.h
-> >>>> index 590a92cb5416..d7e51300a89f 100644
-> >>>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
-> >>>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
-> >>>> @@ -120,4 +120,8 @@ static inline void kvm_write_reg(struct kvm_vcpu=
- *vcpu, int num, unsigned long v
-> >>>>           vcpu->arch.gprs[num] =3D val;
-> >>>>    }
-> >>>>
-> >>>> +static inline bool kvm_pvtime_supported(void)
-> >>>> +{
-> >>>> +       return !!sched_info_on();
-> >>>> +}
-> >>>>    #endif /* __ASM_LOONGARCH_KVM_VCPU_H__ */
-> >>>> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch=
-/include/asm/loongarch.h
-> >>>> index eb09adda54b7..7a4633ef284b 100644
-> >>>> --- a/arch/loongarch/include/asm/loongarch.h
-> >>>> +++ b/arch/loongarch/include/asm/loongarch.h
-> >>>> @@ -169,6 +169,7 @@
-> >>>>    #define  KVM_SIGNATURE                 "KVM\0"
-> >>>>    #define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
-> >>>>    #define  KVM_FEATURE_IPI               BIT(1)
-> >>>> +#define  KVM_FEATURE_STEAL_TIME                BIT(2)
-> >>>>
-> >>>>    #ifndef __ASSEMBLY__
-> >>>>
-> >>>> diff --git a/arch/loongarch/include/uapi/asm/kvm.h b/arch/loongarch/=
-include/uapi/asm/kvm.h
-> >>>> index f9abef382317..ddc5cab0ffd0 100644
-> >>>> --- a/arch/loongarch/include/uapi/asm/kvm.h
-> >>>> +++ b/arch/loongarch/include/uapi/asm/kvm.h
-> >>>> @@ -81,7 +81,11 @@ struct kvm_fpu {
-> >>>>    #define LOONGARCH_REG_64(TYPE, REG)    (TYPE | KVM_REG_SIZE_U64 |=
- (REG << LOONGARCH_REG_SHIFT))
-> >>>>    #define KVM_IOC_CSRID(REG)             LOONGARCH_REG_64(KVM_REG_L=
-OONGARCH_CSR, REG)
-> >>>>    #define KVM_IOC_CPUCFG(REG)            LOONGARCH_REG_64(KVM_REG_L=
-OONGARCH_CPUCFG, REG)
-> >>>> +
-> >>>> +/* Device Control API on vcpu fd */
-> >>>>    #define KVM_LOONGARCH_VCPU_CPUCFG      0
-> >>>> +#define KVM_LOONGARCH_VCPU_PVTIME_CTRL 1
-> >>>> +#define  KVM_LOONGARCH_VCPU_PVTIME_GPA 0
-> >>>>
-> >>>>    struct kvm_debug_exit_arch {
-> >>>>    };
-> >>>> diff --git a/arch/loongarch/kvm/Kconfig b/arch/loongarch/kvm/Kconfig
-> >>>> index c4ef2b4d9797..248744b4d086 100644
-> >>>> --- a/arch/loongarch/kvm/Kconfig
-> >>>> +++ b/arch/loongarch/kvm/Kconfig
-> >>>> @@ -29,6 +29,7 @@ config KVM
-> >>>>           select KVM_MMIO
-> >>>>           select HAVE_KVM_READONLY_MEM
-> >>>>           select KVM_XFER_TO_GUEST_WORK
-> >>>> +       select SCHED_INFO
-> >>>>           help
-> >>>>             Support hosting virtualized guest machines using
-> >>>>             hardware virtualization extensions. You will need
-> >>>> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
-> >>>> index c86e099af5ca..e2abd97fb13f 100644
-> >>>> --- a/arch/loongarch/kvm/exit.c
-> >>>> +++ b/arch/loongarch/kvm/exit.c
-> >>>> @@ -24,7 +24,7 @@
-> >>>>    static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
-> >>>>    {
-> >>>>           int rd, rj;
-> >>>> -       unsigned int index;
-> >>>> +       unsigned int index, ret;
-> >>>>
-> >>>>           if (inst.reg2_format.opcode !=3D cpucfg_op)
-> >>>>                   return EMULATE_FAIL;
-> >>>> @@ -50,7 +50,10 @@ static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, =
-larch_inst inst)
-> >>>>                   vcpu->arch.gprs[rd] =3D *(unsigned int *)KVM_SIGNA=
-TURE;
-> >>>>                   break;
-> >>>>           case CPUCFG_KVM_FEATURE:
-> >>>> -               vcpu->arch.gprs[rd] =3D KVM_FEATURE_IPI;
-> >>>> +               ret =3D KVM_FEATURE_IPI;
-> >>>> +               if (sched_info_on())
-> >>> What about replacing it with your helper function kvm_pvtime_supporte=
-d()?
-> >> Sure, will replace it with helper function kvm_pvtime_supported().
-> > If you are sure this is the only issue, then needn't submit a new versi=
-on.
-> OK, thanks.
->
-> By searching orginal submit of vcpu_is_preempt(), it can be located at
-> https://lore.kernel.org/lkml/1477642287-24104-1-git-send-email-xinhui.pan=
-@linux.vnet.ibm.com/
->
-> It is separated one, only that is depends on pv-spinlock and
-> pv-stealtime. And there is no capability indicator for guest kernel, it
-> is enabled by default.
-Series applied with some modifications here, you can double-check the
-correctness.
-https://git.kernel.org/pub/scm/linux/kernel/git/chenhuacai/linux-loongson.g=
-it/log/?h=3Dloongarch-kvm
-
-Huacai
->
-> Regards
-> Bibo Mao
->
-> >
-> > Huacai
-> >
-> >>
-> >> Regards
-> >> Bibo Mao
-> >>>
-> >>> Huacai
-> >>>
-> >>>> +                       ret |=3D KVM_FEATURE_STEAL_TIME;
-> >>>> +               vcpu->arch.gprs[rd] =3D ret;
-> >>>>                   break;
-> >>>>           default:
-> >>>>                   vcpu->arch.gprs[rd] =3D 0;
-> >>>> @@ -687,6 +690,34 @@ static int kvm_handle_fpu_disabled(struct kvm_v=
-cpu *vcpu)
-> >>>>           return RESUME_GUEST;
-> >>>>    }
-> >>>>
-> >>>> +static long kvm_save_notify(struct kvm_vcpu *vcpu)
-> >>>> +{
-> >>>> +       unsigned long id, data;
-> >>>> +
-> >>>> +       id   =3D kvm_read_reg(vcpu, LOONGARCH_GPR_A1);
-> >>>> +       data =3D kvm_read_reg(vcpu, LOONGARCH_GPR_A2);
-> >>>> +       switch (id) {
-> >>>> +       case KVM_FEATURE_STEAL_TIME:
-> >>>> +               if (!kvm_pvtime_supported())
-> >>>> +                       return KVM_HCALL_INVALID_CODE;
-> >>>> +
-> >>>> +               if (data & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VA=
-LID))
-> >>>> +                       return KVM_HCALL_INVALID_PARAMETER;
-> >>>> +
-> >>>> +               vcpu->arch.st.guest_addr =3D data;
-> >>>> +               if (!(data & KVM_STEAL_PHYS_VALID))
-> >>>> +                       break;
-> >>>> +
-> >>>> +               vcpu->arch.st.last_steal =3D current->sched_info.run=
-_delay;
-> >>>> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
-> >>>> +               break;
-> >>>> +       default:
-> >>>> +               break;
-> >>>> +       };
-> >>>> +
-> >>>> +       return 0;
-> >>>> +};
-> >>>> +
-> >>>>    /*
-> >>>>     * kvm_handle_lsx_disabled() - Guest used LSX while disabled in r=
-oot.
-> >>>>     * @vcpu:      Virtual CPU context.
-> >>>> @@ -758,6 +789,9 @@ static void kvm_handle_service(struct kvm_vcpu *=
-vcpu)
-> >>>>                   kvm_send_pv_ipi(vcpu);
-> >>>>                   ret =3D KVM_HCALL_SUCCESS;
-> >>>>                   break;
-> >>>> +       case KVM_HCALL_FUNC_NOTIFY:
-> >>>> +               ret =3D kvm_save_notify(vcpu);
-> >>>> +               break;
-> >>>>           default:
-> >>>>                   ret =3D KVM_HCALL_INVALID_CODE;
-> >>>>                   break;
-> >>>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
-> >>>> index 9e8030d45129..382796f1d3e6 100644
-> >>>> --- a/arch/loongarch/kvm/vcpu.c
-> >>>> +++ b/arch/loongarch/kvm/vcpu.c
-> >>>> @@ -31,6 +31,117 @@ const struct kvm_stats_header kvm_vcpu_stats_hea=
-der =3D {
-> >>>>                          sizeof(kvm_vcpu_stats_desc),
-> >>>>    };
-> >>>>
-> >>>> +static void kvm_update_stolen_time(struct kvm_vcpu *vcpu)
-> >>>> +{
-> >>>> +       struct kvm_steal_time __user *st;
-> >>>> +       struct gfn_to_hva_cache *ghc;
-> >>>> +       struct kvm_memslots *slots;
-> >>>> +       gpa_t gpa;
-> >>>> +       u64 steal;
-> >>>> +       u32 version;
-> >>>> +
-> >>>> +       ghc =3D &vcpu->arch.st.cache;
-> >>>> +       gpa =3D vcpu->arch.st.guest_addr;
-> >>>> +       if (!(gpa & KVM_STEAL_PHYS_VALID))
-> >>>> +               return;
-> >>>> +
-> >>>> +       gpa &=3D KVM_STEAL_PHYS_MASK;
-> >>>> +       slots =3D kvm_memslots(vcpu->kvm);
-> >>>> +       if (slots->generation !=3D ghc->generation || gpa !=3D ghc->=
-gpa) {
-> >>>> +               if (kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, gpa,
-> >>>> +                                       sizeof(*st))) {
-> >>>> +                       ghc->gpa =3D INVALID_GPA;
-> >>>> +                       return;
-> >>>> +               }
-> >>>> +       }
-> >>>> +
-> >>>> +       st =3D (struct kvm_steal_time __user *)ghc->hva;
-> >>>> +       unsafe_get_user(version, &st->version, out);
-> >>>> +       if (version & 1)
-> >>>> +               version +=3D 1;
-> >>>> +       version +=3D 1;
-> >>>> +       unsafe_put_user(version, &st->version, out);
-> >>>> +       smp_wmb();
-> >>>> +
-> >>>> +       unsafe_get_user(steal, &st->steal, out);
-> >>>> +       steal +=3D current->sched_info.run_delay -
-> >>>> +               vcpu->arch.st.last_steal;
-> >>>> +       vcpu->arch.st.last_steal =3D current->sched_info.run_delay;
-> >>>> +       unsafe_put_user(steal, &st->steal, out);
-> >>>> +
-> >>>> +       smp_wmb();
-> >>>> +       version +=3D 1;
-> >>>> +       unsafe_put_user(version, &st->version, out);
-> >>>> +out:
-> >>>> +       mark_page_dirty_in_slot(vcpu->kvm, ghc->memslot, gpa_to_gfn(=
-ghc->gpa));
-> >>>> +}
-> >>>> +
-> >>>> +static int kvm_loongarch_pvtime_has_attr(struct kvm_vcpu *vcpu,
-> >>>> +                                       struct kvm_device_attr *attr=
-)
-> >>>> +{
-> >>>> +       if (!kvm_pvtime_supported() ||
-> >>>> +                       attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GP=
-A)
-> >>>> +               return -ENXIO;
-> >>>> +
-> >>>> +       return 0;
-> >>>> +}
-> >>>> +
-> >>>> +static int kvm_loongarch_pvtime_get_attr(struct kvm_vcpu *vcpu,
-> >>>> +                                       struct kvm_device_attr *attr=
-)
-> >>>> +{
-> >>>> +       u64 __user *user =3D (u64 __user *)attr->addr;
-> >>>> +       u64 gpa;
-> >>>> +
-> >>>> +       if (!kvm_pvtime_supported() ||
-> >>>> +                       attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GP=
-A)
-> >>>> +               return -ENXIO;
-> >>>> +
-> >>>> +       gpa =3D vcpu->arch.st.guest_addr;
-> >>>> +       if (put_user(gpa, user))
-> >>>> +               return -EFAULT;
-> >>>> +
-> >>>> +       return 0;
-> >>>> +}
-> >>>> +
-> >>>> +static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
-> >>>> +                                       struct kvm_device_attr *attr=
-)
-> >>>> +{
-> >>>> +       u64 __user *user =3D (u64 __user *)attr->addr;
-> >>>> +       struct kvm *kvm =3D vcpu->kvm;
-> >>>> +       u64 gpa;
-> >>>> +       int ret =3D 0;
-> >>>> +       int idx;
-> >>>> +
-> >>>> +       if (!kvm_pvtime_supported() ||
-> >>>> +                       attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GP=
-A)
-> >>>> +               return -ENXIO;
-> >>>> +
-> >>>> +       if (get_user(gpa, user))
-> >>>> +               return -EFAULT;
-> >>>> +
-> >>>> +       if (gpa & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
-> >>>> +               return -EINVAL;
-> >>>> +
-> >>>> +       if (!(gpa & KVM_STEAL_PHYS_VALID)) {
-> >>>> +               vcpu->arch.st.guest_addr =3D gpa;
-> >>>> +               return 0;
-> >>>> +       }
-> >>>> +
-> >>>> +       /* Check the address is in a valid memslot */
-> >>>> +       idx =3D srcu_read_lock(&kvm->srcu);
-> >>>> +       if (kvm_is_error_hva(gfn_to_hva(kvm, gpa >> PAGE_SHIFT)))
-> >>>> +               ret =3D -EINVAL;
-> >>>> +       srcu_read_unlock(&kvm->srcu, idx);
-> >>>> +
-> >>>> +       if (!ret) {
-> >>>> +               vcpu->arch.st.guest_addr =3D gpa;
-> >>>> +               vcpu->arch.st.last_steal =3D current->sched_info.run=
-_delay;
-> >>>> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
-> >>>> +       }
-> >>>> +
-> >>>> +       return ret;
-> >>>> +}
-> >>>> +
-> >>>>    /*
-> >>>>     * kvm_check_requests - check and handle pending vCPU requests
-> >>>>     *
-> >>>> @@ -48,6 +159,9 @@ static int kvm_check_requests(struct kvm_vcpu *vc=
-pu)
-> >>>>           if (kvm_dirty_ring_check_request(vcpu))
-> >>>>                   return RESUME_HOST;
-> >>>>
-> >>>> +       if (kvm_check_request(KVM_REQ_STEAL_UPDATE, vcpu))
-> >>>> +               kvm_update_stolen_time(vcpu);
-> >>>> +
-> >>>>           return RESUME_GUEST;
-> >>>>    }
-> >>>>
-> >>>> @@ -671,6 +785,9 @@ static int kvm_loongarch_vcpu_has_attr(struct kv=
-m_vcpu *vcpu,
-> >>>>           case KVM_LOONGARCH_VCPU_CPUCFG:
-> >>>>                   ret =3D kvm_loongarch_cpucfg_has_attr(vcpu, attr);
-> >>>>                   break;
-> >>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
-> >>>> +               ret =3D kvm_loongarch_pvtime_has_attr(vcpu, attr);
-> >>>> +               break;
-> >>>>           default:
-> >>>>                   break;
-> >>>>           }
-> >>>> @@ -703,6 +820,9 @@ static int kvm_loongarch_vcpu_get_attr(struct kv=
-m_vcpu *vcpu,
-> >>>>           case KVM_LOONGARCH_VCPU_CPUCFG:
-> >>>>                   ret =3D kvm_loongarch_get_cpucfg_attr(vcpu, attr);
-> >>>>                   break;
-> >>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
-> >>>> +               ret =3D kvm_loongarch_pvtime_get_attr(vcpu, attr);
-> >>>> +               break;
-> >>>>           default:
-> >>>>                   break;
-> >>>>           }
-> >>>> @@ -725,6 +845,9 @@ static int kvm_loongarch_vcpu_set_attr(struct kv=
-m_vcpu *vcpu,
-> >>>>           case KVM_LOONGARCH_VCPU_CPUCFG:
-> >>>>                   ret =3D kvm_loongarch_cpucfg_set_attr(vcpu, attr);
-> >>>>                   break;
-> >>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
-> >>>> +               ret =3D kvm_loongarch_pvtime_set_attr(vcpu, attr);
-> >>>> +               break;
-> >>>>           default:
-> >>>>                   break;
-> >>>>           }
-> >>>> @@ -1084,6 +1207,7 @@ static int _kvm_vcpu_load(struct kvm_vcpu *vcp=
-u, int cpu)
-> >>>>
-> >>>>           /* Control guest page CCA attribute */
-> >>>>           change_csr_gcfg(CSR_GCFG_MATC_MASK, CSR_GCFG_MATC_ROOT);
-> >>>> +       kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
-> >>>>
-> >>>>           /* Don't bother restoring registers multiple times unless =
-necessary */
-> >>>>           if (vcpu->arch.aux_inuse & KVM_LARCH_HWCSR_USABLE)
-> >>>> --
-> >>>> 2.39.3
-> >>>>
-> >>
->
->
+T24gV2VkLCAyMDI0LTA3LTAzIGF0IDE4OjAxICswMjAwLCBFdWdlbmlvIFBlcmV6IE1hcnRpbiB3
+cm90ZToNCj4gT24gV2VkLCBKdW4gMjYsIDIwMjQgYXQgMTE6MjfigK9BTSBEcmFnb3MgVGF0dWxl
+YSA8ZHRhdHVsZWFAbnZpZGlhLmNvbT4gd3JvdGU6DQo+ID4gDQo+ID4gT24gV2VkLCAyMDI0LTA2
+LTE5IGF0IDE3OjU0ICswMjAwLCBFdWdlbmlvIFBlcmV6IE1hcnRpbiB3cm90ZToNCj4gPiA+IE9u
+IE1vbiwgSnVuIDE3LCAyMDI0IGF0IDU6MDnigK9QTSBEcmFnb3MgVGF0dWxlYSA8ZHRhdHVsZWFA
+bnZpZGlhLmNvbT4gd3JvdGU6DQo+ID4gPiA+IA0KPiA+ID4gPiBDdXJyZW50bHksIGhhcmR3YXJl
+IFZRcyBhcmUgY3JlYXRlZCByaWdodCB3aGVuIHRoZSB2ZHBhIGRldmljZSBnZXRzIGludG8NCj4g
+PiA+ID4gRFJJVkVSX09LIHN0YXRlLiBUaGF0IGlzIGVhc2llciBiZWNhdXNlIG1vc3Qgb2YgdGhl
+IFZRIHN0YXRlIGlzIGtub3duIGJ5DQo+ID4gPiA+IHRoZW4uDQo+ID4gPiA+IA0KPiA+ID4gPiBU
+aGlzIHBhdGNoIHN3aXRjaGVzIHRvIGNyZWF0aW5nIGFsbCBWUXMgYW5kIHRoZWlyIGFzc29jaWF0
+ZWQgcmVzb3VyY2VzDQo+ID4gPiA+IGF0IGRldmljZSBjcmVhdGlvbiB0aW1lLiBUaGUgbW90aXZh
+dGlvbiBpcyB0byByZWR1Y2UgdGhlIHZkcGEgZGV2aWNlDQo+ID4gPiA+IGxpdmUgbWlncmF0aW9u
+IGRvd250aW1lIGJ5IG1vdmluZyB0aGUgZXhwZW5zaXZlIG9wZXJhdGlvbiBvZiBjcmVhdGluZw0K
+PiA+ID4gPiBhbGwgdGhlIGhhcmR3YXJlIFZRcyBhbmQgdGhlaXIgYXNzb2NpYXRlZCByZXNvdXJj
+ZXMgb3V0IG9mIGRvd250aW1lIG9uDQo+ID4gPiA+IHRoZSBkZXN0aW5hdGlvbiBWTS4NCj4gPiA+
+ID4gDQo+ID4gPiA+IFRoZSBWUXMgYXJlIG5vdyBjcmVhdGVkIGluIGEgYmxhbmsgc3RhdGUuIFRo
+ZSBWUSBjb25maWd1cmF0aW9uIHdpbGwNCj4gPiA+ID4gaGFwcGVuIGxhdGVyLCBvbiBEUklWRVJf
+T0suIFRoZW4gdGhlIGNvbmZpZ3VyYXRpb24gd2lsbCBiZSBhcHBsaWVkIHdoZW4NCj4gPiA+ID4g
+dGhlIFZRcyBhcmUgbW92ZWQgdG8gdGhlIFJlYWR5IHN0YXRlLg0KPiA+ID4gPiANCj4gPiA+ID4g
+V2hlbiAuc2V0X3ZxX3JlYWR5KCkgaXMgY2FsbGVkIG9uIGEgVlEgYmVmb3JlIERSSVZFUl9PSywg
+c3BlY2lhbCBjYXJlIGlzDQo+ID4gPiA+IG5lZWRlZDogbm93IHRoYXQgdGhlIFZRIGlzIGFscmVh
+ZHkgY3JlYXRlZCBhIHJlc3VtZV92cSgpIHdpbGwgYmUNCj4gPiA+ID4gdHJpZ2dlcmVkIHRvbyBl
+YXJseSB3aGVuIG5vIG1yIGhhcyBiZWVuIGNvbmZpZ3VyZWQgeWV0LiBTa2lwIGNhbGxpbmcNCj4g
+PiA+ID4gcmVzdW1lX3ZxKCkgaW4gdGhpcyBjYXNlLCBsZXQgaXQgYmUgaGFuZGxlZCBkdXJpbmcg
+RFJJVkVSX09LLg0KPiA+ID4gPiANCj4gPiA+ID4gRm9yIHZpcnRpby12ZHBhLCB0aGUgZGV2aWNl
+IGNvbmZpZ3VyYXRpb24gaXMgZG9uZSBlYXJsaWVyIGR1cmluZw0KPiA+ID4gPiAudmRwYV9kZXZf
+YWRkKCkgYnkgdmRwYV9yZWdpc3Rlcl9kZXZpY2UoKS4gQXZvaWQgY2FsbGluZw0KPiA+ID4gPiBz
+ZXR1cF92cV9yZXNvdXJjZXMoKSBhIHNlY29uZCB0aW1lIGluIHRoYXQgY2FzZS4NCj4gPiA+ID4g
+DQo+ID4gPiANCj4gPiA+IEkgZ3Vlc3MgdGhpcyBoYXBwZW5zIGlmIHZpcnRpb192ZHBhIGlzIGFs
+cmVhZHkgbG9hZGVkLCBidXQgSSBjYW5ub3QNCj4gPiA+IHNlZSBob3cgdGhpcyBpcyBkaWZmZXJl
+bnQgaGVyZS4gQXBhcnQgZnJvbSB0aGUgSU9UTEIsIHdoYXQgZWxzZSBkb2VzDQo+ID4gPiBpdCBj
+aGFuZ2UgZnJvbSB0aGUgbWx4NV92ZHBhIFBPVj8NCj4gPiA+IA0KPiA+IEkgZG9uJ3QgdW5kZXJz
+dGFuZCB5b3VyIHF1ZXN0aW9uLCBjb3VsZCB5b3UgcmVwaHJhc2Ugb3IgcHJvdmlkZSBtb3JlIGNv
+bnRleHQNCj4gPiBwbGVhc2U/DQo+ID4gDQo+IA0KPiBNeSBtYWluIHBvaW50IGlzIHRoYXQgdGhl
+IHZkcGEgcGFyZW50IGRyaXZlciBzaG91bGQgbm90IGJlIGFibGUgdG8NCj4gdGVsbCB0aGUgZGlm
+ZmVyZW5jZSBiZXR3ZWVuIHZob3N0X3ZkcGEgYW5kIHZpcnRpb192ZHBhLiBUaGUgb25seQ0KPiBk
+aWZmZXJlbmNlIEkgY2FuIHRoaW5rIG9mIGlzIGJlY2F1c2Ugb2YgdGhlIHZob3N0IElPVExCIGhh
+bmRsaW5nLg0KPiANCj4gRG8geW91IGFsc28gb2JzZXJ2ZSB0aGlzIGJlaGF2aW9yIGlmIHlvdSBh
+ZGQgdGhlIGRldmljZSB3aXRoICJ2ZHBhDQo+IGFkZCIgd2l0aG91dCB0aGUgdmlydGlvX3ZkcGEg
+bW9kdWxlIGxvYWRlZCwgYW5kIHRoZW4gbW9kcHJvYmUNCj4gdmlydGlvX3ZkcGE/DQo+IA0KQWFo
+LCBub3cgSSB1bmRlcnN0YW5kIHdoYXQgeW91IG1lYW4uIEluZGVlZCBpbiBteSB0ZXN0cyBJIHdh
+cyBsb2FkaW5nIHRoZQ0KdmlydGlvX3ZkcGEgbW9kdWxlIGJlZm9yZSBhZGRpbmcgdGhlIGRldmlj
+ZS4gV2hlbiBkb2luZyBpdCB0aGUgb3RoZXIgd2F5IGFyb3VuZA0KdGhlIGRldmljZSBkb2Vzbid0
+IGdldCBjb25maWd1cmVkIGR1cmluZyBwcm9iZS4NCiANCg0KPiBBdCBsZWFzdCB0aGUgY29tbWVu
+dCBzaG91bGQgYmUgc29tZXRoaW5nIGluIHRoZSBsaW5lIG9mICJJZiB3ZSBoYXZlDQo+IGFsbCB0
+aGUgaW5mb3JtYXRpb24gdG8gaW5pdGlhbGl6ZSB0aGUgZGV2aWNlLCBwcmUtd2FybSBpdCBoZXJl
+IiBvcg0KPiBzaW1pbGFyLg0KTWFrZXMgc2Vuc2UuIEkgd2lsbCBzZW5kIGEgdjMgd2l0aCB0aGUg
+Y29tbWl0ICsgY29tbWVudCBtZXNzYWdlIHVwZGF0ZS4NCg0KPiANCj4gPiBUaGFua3MsDQo+ID4g
+RHJhZ29zDQo+ID4gDQo+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IERyYWdvcyBUYXR1bGVhIDxkdGF0
+dWxlYUBudmlkaWEuY29tPg0KPiA+ID4gPiBSZXZpZXdlZC1ieTogQ29zbWluIFJhdGl1IDxjcmF0
+aXVAbnZpZGlhLmNvbT4NCj4gPiA+ID4gLS0tDQo+ID4gPiA+ICBkcml2ZXJzL3ZkcGEvbWx4NS9u
+ZXQvbWx4NV92bmV0LmMgfCAzNyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0t
+DQo+ID4gPiA+ICAxIGZpbGUgY2hhbmdlZCwgMzIgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMo
+LSkNCj4gPiA+ID4gDQo+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQv
+bWx4NV92bmV0LmMgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMNCj4gPiA+ID4g
+aW5kZXggMjQ5YjVhZmJlMzRhLi5iMjgzNmZkM2QxZGQgMTAwNjQ0DQo+ID4gPiA+IC0tLSBhL2Ry
+aXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYw0KPiA+ID4gPiArKysgYi9kcml2ZXJzL3Zk
+cGEvbWx4NS9uZXQvbWx4NV92bmV0LmMNCj4gPiA+ID4gQEAgLTI0NDQsNyArMjQ0NCw3IEBAIHN0
+YXRpYyB2b2lkIG1seDVfdmRwYV9zZXRfdnFfcmVhZHkoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2
+LCB1MTYgaWR4LCBib29sIHJlYWR5DQo+ID4gPiA+ICAgICAgICAgbXZxID0gJm5kZXYtPnZxc1tp
+ZHhdOw0KPiA+ID4gPiAgICAgICAgIGlmICghcmVhZHkpIHsNCj4gPiA+ID4gICAgICAgICAgICAg
+ICAgIHN1c3BlbmRfdnEobmRldiwgbXZxKTsNCj4gPiA+ID4gLSAgICAgICB9IGVsc2Ugew0KPiA+
+ID4gPiArICAgICAgIH0gZWxzZSBpZiAobXZkZXYtPnN0YXR1cyAmIFZJUlRJT19DT05GSUdfU19E
+UklWRVJfT0spIHsNCj4gPiA+ID4gICAgICAgICAgICAgICAgIGlmIChyZXN1bWVfdnEobmRldiwg
+bXZxKSkNCj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgcmVhZHkgPSBmYWxzZTsNCj4g
+PiA+ID4gICAgICAgICB9DQo+ID4gPiA+IEBAIC0zMDc4LDEwICszMDc4LDE4IEBAIHN0YXRpYyB2
+b2lkIG1seDVfdmRwYV9zZXRfc3RhdHVzKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdTggc3Rh
+dHVzKQ0KPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gZXJyX3Nl
+dHVwOw0KPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICB9DQo+ID4gPiA+ICAgICAgICAg
+ICAgICAgICAgICAgICAgIHJlZ2lzdGVyX2xpbmtfbm90aWZpZXIobmRldik7DQo+ID4gPiA+IC0g
+ICAgICAgICAgICAgICAgICAgICAgIGVyciA9IHNldHVwX3ZxX3Jlc291cmNlcyhuZGV2LCB0cnVl
+KTsNCj4gPiA+ID4gLSAgICAgICAgICAgICAgICAgICAgICAgaWYgKGVycikgew0KPiA+ID4gPiAt
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1seDVfdmRwYV93YXJuKG12ZGV2LCAiZmFp
+bGVkIHRvIHNldHVwIGRyaXZlclxuIik7DQo+ID4gPiA+IC0gICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgZ290byBlcnJfZHJpdmVyOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAg
+ICBpZiAobmRldi0+c2V0dXApIHsNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBlcnIgPSByZXN1bWVfdnFzKG5kZXYpOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIGlmIChlcnIpIHsNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIG1seDVfdmRwYV93YXJuKG12ZGV2LCAiZmFpbGVkIHRvIHJlc3VtZSBW
+UXNcbiIpOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+Z290byBlcnJfZHJpdmVyOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IH0NCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgfSBlbHNlIHsNCj4gPiA+ID4gKyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlcnIgPSBzZXR1cF92cV9yZXNvdXJjZXMobmRl
+diwgdHJ1ZSk7DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYgKGVy
+cikgew0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWx4
+NV92ZHBhX3dhcm4obXZkZXYsICJmYWlsZWQgdG8gc2V0dXAgZHJpdmVyXG4iKTsNCj4gPiA+ID4g
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gZXJyX2RyaXZlcjsN
+Cj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9DQo+ID4gPiA+ICAgICAg
+ICAgICAgICAgICAgICAgICAgIH0NCj4gPiA+ID4gICAgICAgICAgICAgICAgIH0gZWxzZSB7DQo+
+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIG1seDVfdmRwYV93YXJuKG12ZGV2LCAiZGlk
+IG5vdCBleHBlY3QgRFJJVkVSX09LIHRvIGJlIGNsZWFyZWRcbiIpOw0KPiA+ID4gPiBAQCAtMzE0
+Miw2ICszMTUwLDcgQEAgc3RhdGljIGludCBtbHg1X3ZkcGFfY29tcGF0X3Jlc2V0KHN0cnVjdCB2
+ZHBhX2RldmljZSAqdmRldiwgdTMyIGZsYWdzKQ0KPiA+ID4gPiAgICAgICAgICAgICAgICAgaWYg
+KG1seDVfdmRwYV9jcmVhdGVfZG1hX21yKG12ZGV2KSkNCj4gPiA+ID4gICAgICAgICAgICAgICAg
+ICAgICAgICAgbWx4NV92ZHBhX3dhcm4obXZkZXYsICJjcmVhdGUgTVIgZmFpbGVkXG4iKTsNCj4g
+PiA+ID4gICAgICAgICB9DQo+ID4gPiA+ICsgICAgICAgc2V0dXBfdnFfcmVzb3VyY2VzKG5kZXYs
+IGZhbHNlKTsNCj4gPiA+ID4gICAgICAgICB1cF93cml0ZSgmbmRldi0+cmVzbG9jayk7DQo+ID4g
+PiA+IA0KPiA+ID4gPiAgICAgICAgIHJldHVybiAwOw0KPiA+ID4gPiBAQCAtMzgzNiw4ICszODQ1
+LDIxIEBAIHN0YXRpYyBpbnQgbWx4NV92ZHBhX2Rldl9hZGQoc3RydWN0IHZkcGFfbWdtdF9kZXYg
+KnZfbWRldiwgY29uc3QgY2hhciAqbmFtZSwNCj4gPiA+ID4gICAgICAgICAgICAgICAgIGdvdG8g
+ZXJyX3JlZzsNCj4gPiA+ID4gDQo+ID4gPiA+ICAgICAgICAgbWd0ZGV2LT5uZGV2ID0gbmRldjsN
+Cj4gPiA+ID4gKw0KPiA+ID4gPiArICAgICAgIC8qIEZvciB2aXJ0aW8tdmRwYSwgdGhlIGRldmlj
+ZSB3YXMgc2V0IHVwIGR1cmluZyBkZXZpY2UgcmVnaXN0ZXIuICovDQo+ID4gPiA+ICsgICAgICAg
+aWYgKG5kZXYtPnNldHVwKQ0KPiA+ID4gPiArICAgICAgICAgICAgICAgcmV0dXJuIDA7DQo+ID4g
+PiA+ICsNCj4gPiA+ID4gKyAgICAgICBkb3duX3dyaXRlKCZuZGV2LT5yZXNsb2NrKTsNCj4gPiA+
+ID4gKyAgICAgICBlcnIgPSBzZXR1cF92cV9yZXNvdXJjZXMobmRldiwgZmFsc2UpOw0KPiA+ID4g
+PiArICAgICAgIHVwX3dyaXRlKCZuZGV2LT5yZXNsb2NrKTsNCj4gPiA+ID4gKyAgICAgICBpZiAo
+ZXJyKQ0KPiA+ID4gPiArICAgICAgICAgICAgICAgZ290byBlcnJfc2V0dXBfdnFfcmVzOw0KPiA+
+ID4gPiArDQo+ID4gPiA+ICAgICAgICAgcmV0dXJuIDA7DQo+ID4gPiA+IA0KPiA+ID4gPiArZXJy
+X3NldHVwX3ZxX3JlczoNCj4gPiA+ID4gKyAgICAgICBfdmRwYV91bnJlZ2lzdGVyX2RldmljZSgm
+bXZkZXYtPnZkZXYpOw0KPiA+ID4gPiAgZXJyX3JlZzoNCj4gPiA+ID4gICAgICAgICBkZXN0cm95
+X3dvcmtxdWV1ZShtdmRldi0+d3EpOw0KPiA+ID4gPiAgZXJyX3JlczI6DQo+ID4gPiA+IEBAIC0z
+ODYzLDYgKzM4ODUsMTEgQEAgc3RhdGljIHZvaWQgbWx4NV92ZHBhX2Rldl9kZWwoc3RydWN0IHZk
+cGFfbWdtdF9kZXYgKnZfbWRldiwgc3RydWN0IHZkcGFfZGV2aWNlICoNCj4gPiA+ID4gDQo+ID4g
+PiA+ICAgICAgICAgdW5yZWdpc3Rlcl9saW5rX25vdGlmaWVyKG5kZXYpOw0KPiA+ID4gPiAgICAg
+ICAgIF92ZHBhX3VucmVnaXN0ZXJfZGV2aWNlKGRldik7DQo+ID4gPiA+ICsNCj4gPiA+ID4gKyAg
+ICAgICBkb3duX3dyaXRlKCZuZGV2LT5yZXNsb2NrKTsNCj4gPiA+ID4gKyAgICAgICB0ZWFyZG93
+bl92cV9yZXNvdXJjZXMobmRldik7DQo+ID4gPiA+ICsgICAgICAgdXBfd3JpdGUoJm5kZXYtPnJl
+c2xvY2spOw0KPiA+ID4gPiArDQo+ID4gPiA+ICAgICAgICAgd3EgPSBtdmRldi0+d3E7DQo+ID4g
+PiA+ICAgICAgICAgbXZkZXYtPndxID0gTlVMTDsNCj4gPiA+ID4gICAgICAgICBkZXN0cm95X3dv
+cmtxdWV1ZSh3cSk7DQo+ID4gPiA+IA0KPiA+ID4gPiAtLQ0KPiA+ID4gPiAyLjQ1LjENCj4gPiA+
+ID4gDQo+ID4gPiANCj4gPiANCj4gDQoNCg==
