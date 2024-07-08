@@ -1,175 +1,400 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5C5224F6
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 07:19:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D399EDF
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 07:27:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720423154; cv=none; b=Ca1ikpNtm9D5tdnRxGbu1rISyA0JlWoWiLFanrZFcNc6X9GAlJdxd2jrYwKD9MCkOOKsyOlvn5dxNxEVB2Mjo0QOtfoRrKnow+rTUBHTv3hRSzXeUY78y1xWyvL/2UJsJqbdfGNAa4+2wL+T+KKy0bXl8Z9LehbJa5f5TK75yvg=
+	t=1720423626; cv=none; b=ipzm+GL8LtcTM8NTnIwebOOxLM9VPQEgLEovunOKjTjqYKSVMRagz7b6clocW+Af2fMFP4LUKuMhgedhrDiDEd7c3jhoymLa5t6JXfGSBi169HxFQW6NuLXCfCQLWqISsMWh1RpD6hy2+8wqU68vd7hfiUqM1FGUuQwosnvb5Fg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720423154; c=relaxed/simple;
-	bh=BCpNb63WRewgJB37gIEoqo5egyIJUDlpbkKJgwO8OHU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TtrqbRAR5vgjhlRCGgNXTWfaoZVoefjjDWlUpiNL4SygqBOS/66bZeA7rWZYUIeEuiIK4P2LLyg+xDoYLHud/eTyiunoKpFLn1c289YaWOGcha78R+chjuBIKB6X56hgUI36RCuL+cdtMIOdgtXL8nY/V9u26NzoxCg9Dfg3jKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MRilljeW; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1720423626; c=relaxed/simple;
+	bh=rDZu9fw1v/FI+wJuef+gwMgyNqIbr7qkV+S3h+Gg580=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CLpfzQQQaz9hFU8wxK95BsonD4nF+cWTbTV/D2RHegV3E12qm21QW9U2ocOI3XbN6aSnzoGKmxk1gR6/55poak9JyYiFMozY63jxvmZ7z5BTPnCizgV6jpl0nSNIhX/dY5iCUFS7A9nTdiROGqPSu/FGFIiFXysMc2r6CFwQrgw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=zFY91apR; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MRilljeW"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5363F80B9F
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 07:19:13 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id cNi02MRjG33o for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Jul 2024 07:19:12 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8A95680B08
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8A95680B08
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MRilljeW
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8A95680B08
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 07:19:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720423151;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jqM73JSLXU66f0uRVT9WU+gkf5AyrsxUM3dUDMhxBT4=;
-	b=MRilljeWXPZxeqBhAcYW+XPuVMcvo9jjJ/nufLr8Vc/WmxGsPpEfEVfB5tvyM4CK6grd9q
-	BNgmLxSqPxZBpEVFZu7XkBja50dz/2L9VBmlNM+lWDx+uooH9CDblGQBleLGzJwnV/Y3tZ
-	CK6g48/14a6OXv0Li8GtkpPz/z1GEvc=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-83-_aoXS2n2PLqJGiMrr36KyQ-1; Mon, 08 Jul 2024 03:19:09 -0400
-X-MC-Unique: _aoXS2n2PLqJGiMrr36KyQ-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a77d98ed6ebso171873566b.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 08 Jul 2024 00:19:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="zFY91apR"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-36798e62aeeso2399032f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 08 Jul 2024 00:27:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720423621; x=1721028421; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=BZ1HFJUI6FOcCsREwUwHNL0CMjQVvhm0psh8+7dJe8c=;
+        b=zFY91apR8/0V7pUTjSY159T0Ylh8coR7Z55lfc8G1OkfQrkh0rDDxQcG6Fbm1UgAj1
+         eCHZ/kTrvlih/+TE1Ww7xe8IIr8GI/KlQvqyak7lwTPypRt2sLZey57B34SelZOKF7XK
+         kzA6YptmdTKsaF21LkDMpEWI2hZHNx8G7IY6Z3vU5PTjTY6ZzdU3c4hFztUOUphnG9NY
+         2Z2jtsn4s4IsRSPFy7fUgGemh88HynVcEMjkoFOd9shEWw7ZVIpIW+t3LOcxU23zgkLf
+         mXe0jmS8+iiKqKYm2fJETut6aMCIz8dP/rXkXbJLaem1rYM2DiyNjHaNK4U27iRV2yxY
+         jk7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720423148; x=1721027948;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jqM73JSLXU66f0uRVT9WU+gkf5AyrsxUM3dUDMhxBT4=;
-        b=aiBpYybL2K9YyHjY+vdkfYpxdUXzfQ2EQ4neFyHfGKkEOmabqK630/tDsJblbN3Wzr
-         JBlWNW58QEjeYjLqCyBr6QXVlzdbvgcqH5hecuGJ0VTVnu8TYF1/WCRGAw7ay7qv0KmP
-         TjbNBKeU089cOfxOtkhVWGQd+njtJwEWS70Hdfz3Z3eqAKoUnCmp7hcXuB2g051hJ4pi
-         NwdFPh2CxDFPLKJUWQZgpkjgQm2dO0pl9S06VZp3YBJXemeBWb2iGz8d9yg2ZmpHGCdT
-         Uo40dqPMsLb9Xqsb3VoG+ZcjWvweGp8UNF8nPZKkU+9u2MqLaT895it3t7jau9Tg/YHs
-         Z4zw==
-X-Forwarded-Encrypted: i=1; AJvYcCVfVIStFTlhtO6hNH5IqXjfmhRQheQgAGyAXJiEV8kGFfKwIf0OUTCFTPUj4guEZag3+ocCaZXCpdiH6G6N9IQF/BaMoSB4A7Gdek7ij+hcUpWvo4ynk/3H6g==
-X-Gm-Message-State: AOJu0Yy6uAT8ylhFjQTRBFLpPWrl1wPXnT408SW+KtexD8fukh/eY925
-	FiheuY7jqviUpx+buRrf2/0yTJn0bV3gyLg5iOXpI8AjYuuH71srjFIffikAVmn4xXBB58JxZAk
-	zVUUs18lFNatQCUcH5t0XWjUepzsbH6IittXynZadHxZYK4ebk76DUvn3pTmil+eD86SW/x83LW
-	XaL+SmPKPp0/h1xmsbTTxG4xV34410Pmo7BR1VSBP1deM7gb0MOeZePg==
-X-Received: by 2002:a17:906:175b:b0:a77:a630:cf89 with SMTP id a640c23a62f3a-a77b9dee79dmr706515066b.0.1720423148321;
-        Mon, 08 Jul 2024 00:19:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEGUu1W6MyDpHHXhXDXEq+4hte1tFdv4eIOo7asqiTd/PZmPPhD5t+yUjE3Q9R2KpY/v0HSjx6vJ4Xu91Rb1yY=
-X-Received: by 2002:a17:906:175b:b0:a77:a630:cf89 with SMTP id
- a640c23a62f3a-a77b9dee79dmr706512466b.0.1720423147970; Mon, 08 Jul 2024
- 00:19:07 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720423621; x=1721028421;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BZ1HFJUI6FOcCsREwUwHNL0CMjQVvhm0psh8+7dJe8c=;
+        b=UIlRPtVSRgKnAFkynZS1MQ51LQWaHS6G40AGvzoRGRhPZjGKfzWdb/xNqcXH38uGGF
+         r2pQz30Z7oFf6Hagm35RIq4wjb9Kdg/yGZt3r7wHAKDxMg5gxoMPk4GNNYvQ5RLkDnTn
+         3X00VBdJwrL0gFVzhy1NPsCn1+G0W5/cam5kR7MDBDCBMOd7Niw5a3I3m3seFzX6LE9k
+         Iz1G/O5wV8ywVrVAGVxCq89H8k9QbCy1sBHXOXXqgANBbm0zbNMWjIrcgvb/uvPuvCYP
+         7t+DiEHlVqvADi5+Z/DOmLl5xDq2mRRXCYq/1gPry+ygmRQfBhk8NKfGTYOQe/qEo/n+
+         dsaA==
+X-Gm-Message-State: AOJu0YxCek9iUzxxA9l/fKZ6+CM8Q9KCqIr52xt7qId6kXYUbisYya09
+	UN18Mrzpsu8ABhU5MRzVi8vSSv1ON+04yewhfswTCvBu+6v7OfAlYLi1DJ13e8o=
+X-Google-Smtp-Source: AGHT+IGAQeHt98/KM6h+Qz+yqINqCrx0gvpa7c9Dk31OzRYyZyeM1ybxpoAtIEuK5U+IUn5TiLNuyQ==
+X-Received: by 2002:a5d:6507:0:b0:367:402f:805b with SMTP id ffacd0b85a97d-3679dd3144dmr7153137f8f.2.1720423620484;
+        Mon, 08 Jul 2024 00:27:00 -0700 (PDT)
+Received: from localhost (78-80-19-19.customers.tmcz.cz. [78.80.19.19])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3679c9008b0sm10294950f8f.80.2024.07.08.00.26.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jul 2024 00:26:59 -0700 (PDT)
+Date: Mon, 8 Jul 2024 09:26:58 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, parav@nvidia.com,
+	feliu@nvidia.com, hengqi@linux.alibaba.com
+Subject: Re: [PATCH virtio v2 06/19] virtio: convert find_vqs() op
+ implementations to find_vqs_info()
+Message-ID: <ZouUwiSBgbnrO5-a@nanopsycho.orion>
+References: <20240704064350.1097716-1-jiri@resnulli.us>
+ <20240704064350.1097716-7-jiri@resnulli.us>
+ <20240705034127-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240708064820.88955-1-lulu@redhat.com> <20240708064820.88955-3-lulu@redhat.com>
- <CACGkMEum7Ufgkez9p4-o9tfYBqfvPUA+BPrxZD8gF7PmWVhE2g@mail.gmail.com>
-In-Reply-To: <CACGkMEum7Ufgkez9p4-o9tfYBqfvPUA+BPrxZD8gF7PmWVhE2g@mail.gmail.com>
-From: Cindy Lu <lulu@redhat.com>
-Date: Mon, 8 Jul 2024 15:18:31 +0800
-Message-ID: <CACLfguXdL_FvdvReQrzvKvzJrHnE9gcTv+rLYsCNB0HtvXC74w@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] vdpa_sim_net: Add the support of set mac address
-To: Jason Wang <jasowang@redhat.com>
-Cc: dtatulea@nvidia.com, mst@redhat.com, parav@nvidia.com, sgarzare@redhat.com, 
-	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240705034127-mutt-send-email-mst@kernel.org>
 
-On Mon, 8 Jul 2024 at 15:06, Jason Wang <jasowang@redhat.com> wrote:
->
-> On Mon, Jul 8, 2024 at 2:48=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
-> >
-> > Add the function to support setting the MAC address.
-> > For vdpa_sim_net, the driver will write the MAC address
-> > to the config space, and other devices can implement
-> > their own functions to support this.
-> >
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > ---
-> >  drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 19 ++++++++++++++++++-
-> >  1 file changed, 18 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_s=
-im/vdpa_sim_net.c
-> > index cfe962911804..a472c3c43bfd 100644
-> > --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> > +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> > @@ -414,6 +414,22 @@ static void vdpasim_net_get_config(struct vdpasim =
-*vdpasim, void *config)
-> >         net_config->status =3D cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_L=
-INK_UP);
-> >  }
-> >
-> > +static int vdpasim_net_set_attr(struct vdpa_mgmt_dev *mdev,
-> > +                               struct vdpa_device *dev,
-> > +                               const struct vdpa_dev_set_config *confi=
-g)
-> > +{
-> > +       struct vdpasim *vdpasim =3D container_of(dev, struct vdpasim, v=
-dpa);
-> > +
-> > +       struct virtio_net_config *vio_config =3D vdpasim->config;
-> > +       if (config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
-> > +               if (!is_zero_ether_addr(config->net.mac)) {
-> > +                       memcpy(vio_config->mac, config->net.mac, ETH_AL=
-EN);
-> > +                       return 0;
-> > +               }
-> > +       }
-> > +       return -EINVAL;
->
-> I think in the previous version, we agreed to have a lock to
-> synchronize the writing here?
->
-> Thanks
->
-Hi Jason
-I have moved the down_write(&vdev->cf_lock) and
-up_write(&vdev->cf_lock) to the function vdpa_dev_net_device_attr_set
-in vdpa/vdpa.c. Then the device itself doesn't need to call it again.
-Do you think this is ok?
-Thanks
-Cindy
-> > +}
-> > +
-> >  static void vdpasim_net_setup_config(struct vdpasim *vdpasim,
-> >                                      const struct vdpa_dev_set_config *=
-config)
-> >  {
-> > @@ -510,7 +526,8 @@ static void vdpasim_net_dev_del(struct vdpa_mgmt_de=
-v *mdev,
-> >
-> >  static const struct vdpa_mgmtdev_ops vdpasim_net_mgmtdev_ops =3D {
-> >         .dev_add =3D vdpasim_net_dev_add,
-> > -       .dev_del =3D vdpasim_net_dev_del
-> > +       .dev_del =3D vdpasim_net_dev_del,
-> > +       .dev_set_attr =3D vdpasim_net_set_attr
-> >  };
-> >
-> >  static struct virtio_device_id id_table[] =3D {
-> > --
-> > 2.45.0
-> >
->
+Fri, Jul 05, 2024 at 09:43:41AM CEST, mst@redhat.com wrote:
+>This is the riskiest patch.
+>Jiri, I'd ask you to cross-build it before posting,
+>wasn't done here.
 
+I relied on buildbot to do that. I didn't receive any issues from him.
+Will try to build manually.
+
+>
+>On Thu, Jul 04, 2024 at 08:43:37AM +0200, Jiri Pirko wrote:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> Convert existing find_vqs() transport implementations
+>> to use find_vqs_info() config op.
+>> 
+>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> ---
+>> v1->v2:
+>> - s/virtio_queue_info/virtqueue_info/
+>> ---
+>>  arch/um/drivers/virtio_uml.c             | 14 ++++++++------
+>>  drivers/platform/mellanox/mlxbf-tmfifo.c | 12 ++++++------
+>>  drivers/remoteproc/remoteproc_virtio.c   | 14 +++++++-------
+>>  drivers/s390/virtio/virtio_ccw.c         | 15 +++++++--------
+>>  drivers/virtio/virtio_mmio.c             | 14 +++++++-------
+>>  drivers/virtio/virtio_vdpa.c             | 15 +++++++--------
+>>  6 files changed, 42 insertions(+), 42 deletions(-)
+>> 
+>> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+>> index 77faa2cf3a13..c32a51017f9f 100644
+>> --- a/arch/um/drivers/virtio_uml.c
+>> +++ b/arch/um/drivers/virtio_uml.c
+>> @@ -1014,11 +1014,12 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+>>  }
+>>  
+>>  static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>> -		       struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>> -		       const char * const names[], const bool *ctx,
+>> +		       struct virtqueue *vqs[],
+>> +		       struct virtqueue_info vqs_info[],
+>>  		       struct irq_affinity *desc)
+>>  {
+>>  	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+>> +	struct virtqueue_info *vqi;
+>>  	int i, queue_idx = 0, rc;
+>>  	struct virtqueue *vq;
+>>  
+>> @@ -1031,13 +1032,14 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>>  		return rc;
+>>  
+>>  	for (i = 0; i < nvqs; ++i) {
+>> -		if (!names[i]) {
+>> +		vqi = &vqs_info[i];
+>
+>vqi better declared here, it's unused outside the loop.
+>same elsewhere.
+
+Why not.
+
+>
+>> +		if (!vqi->name) {
+>>  			vqs[i] = NULL;
+>>  			continue;
+>>  		}
+>>  
+>> -		vqs[i] = vu_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+>> -				     ctx ? ctx[i] : false);
+>> +		vqs[i] = vu_setup_vq(vdev, queue_idx++, vqi->callback,
+>> +				     vqi->name, vqi->ctx);
+>>  		if (IS_ERR(vqs[i])) {
+>>  			rc = PTR_ERR(vqs[i]);
+>>  			goto error_setup;
+>> @@ -1097,7 +1099,7 @@ static const struct virtio_config_ops virtio_uml_config_ops = {
+>>  	.get_status = vu_get_status,
+>>  	.set_status = vu_set_status,
+>>  	.reset = vu_reset,
+>> -	.find_vqs = vu_find_vqs,
+>> +	.find_vqs_info = vu_find_vqs,
+>>  	.del_vqs = vu_del_vqs,
+>>  	.get_features = vu_get_features,
+>>  	.finalize_features = vu_finalize_features,
+>> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+>> index b8d1e32e97eb..1497a5a0a68f 100644
+>> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
+>> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+>> @@ -1058,13 +1058,12 @@ static void mlxbf_tmfifo_virtio_del_vqs(struct virtio_device *vdev)
+>>  static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+>>  					unsigned int nvqs,
+>>  					struct virtqueue *vqs[],
+>> -					vq_callback_t *callbacks[],
+>> -					const char * const names[],
+>> -					const bool *ctx,
+>> +					struct virtqueue_info vqs_info[],
+>>  					struct irq_affinity *desc)
+>>  {
+>>  	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
+>>  	struct mlxbf_tmfifo_vring *vring;
+>> +	struct virtqueue_info *vqi;
+>>  	struct virtqueue *vq;
+>>  	int i, ret, size;
+>>  
+>> @@ -1072,7 +1071,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+>>  		return -EINVAL;
+>>  
+>>  	for (i = 0; i < nvqs; ++i) {
+>> -		if (!names[i]) {
+>> +		vqi = &vqs_info[i];
+>> +		if (!vqi->name) {
+>>  			ret = -EINVAL;
+>>  			goto error;
+>>  		}
+>> @@ -1084,7 +1084,7 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+>>  		vq = vring_new_virtqueue(i, vring->num, vring->align, vdev,
+>>  					 false, false, vring->va,
+>>  					 mlxbf_tmfifo_virtio_notify,
+>> -					 callbacks[i], names[i]);
+>> +					 vqi->callback, vqi->name);
+>>  		if (!vq) {
+>>  			dev_err(&vdev->dev, "vring_new_virtqueue failed\n");
+>>  			ret = -ENOMEM;
+>> @@ -1175,7 +1175,7 @@ static void tmfifo_virtio_dev_release(struct device *device)
+>>  static const struct virtio_config_ops mlxbf_tmfifo_virtio_config_ops = {
+>>  	.get_features = mlxbf_tmfifo_virtio_get_features,
+>>  	.finalize_features = mlxbf_tmfifo_virtio_finalize_features,
+>> -	.find_vqs = mlxbf_tmfifo_virtio_find_vqs,
+>> +	.find_vqs_info = mlxbf_tmfifo_virtio_find_vqs,
+>>  	.del_vqs = mlxbf_tmfifo_virtio_del_vqs,
+>>  	.reset = mlxbf_tmfifo_virtio_reset,
+>>  	.set_status = mlxbf_tmfifo_virtio_set_status,
+>> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+>> index 25b66b113b69..a82a7c13bdc5 100644
+>> --- a/drivers/remoteproc/remoteproc_virtio.c
+>> +++ b/drivers/remoteproc/remoteproc_virtio.c
+>> @@ -182,21 +182,21 @@ static void rproc_virtio_del_vqs(struct virtio_device *vdev)
+>>  
+>>  static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>>  				 struct virtqueue *vqs[],
+>> -				 vq_callback_t *callbacks[],
+>> -				 const char * const names[],
+>> -				 const bool * ctx,
+>> +				 struct virtqueue_info vqs_info[],
+>>  				 struct irq_affinity *desc)
+>>  {
+>> +	struct virtqueue_info *vqi;
+>>  	int i, ret, queue_idx = 0;
+>>  
+>>  	for (i = 0; i < nvqs; ++i) {
+>> -		if (!names[i]) {
+>> +		vqi = &vqs_info[i];
+>> +		if (!vqi->name) {
+>>  			vqs[i] = NULL;
+>>  			continue;
+>>  		}
+>>  
+>> -		vqs[i] = rp_find_vq(vdev, queue_idx++, callbacks[i], names[i],
+>> -				    ctx ? ctx[i] : false);
+>> +		vqs[i] = rp_find_vq(vdev, queue_idx++, vqi->callback,
+>> +				    vqi->name, vqi->ctx);
+>>  		if (IS_ERR(vqs[i])) {
+>>  			ret = PTR_ERR(vqs[i]);
+>>  			goto error;
+>> @@ -327,7 +327,7 @@ static void rproc_virtio_set(struct virtio_device *vdev, unsigned int offset,
+>>  static const struct virtio_config_ops rproc_virtio_config_ops = {
+>>  	.get_features	= rproc_virtio_get_features,
+>>  	.finalize_features = rproc_virtio_finalize_features,
+>> -	.find_vqs	= rproc_virtio_find_vqs,
+>> +	.find_vqs_info	= rproc_virtio_find_vqs,
+>>  	.del_vqs	= rproc_virtio_del_vqs,
+>>  	.reset		= rproc_virtio_reset,
+>>  	.set_status	= rproc_virtio_set_status,
+>> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+>> index d6491fc84e8c..1f1fa70cf09d 100644
+>> --- a/drivers/s390/virtio/virtio_ccw.c
+>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>> @@ -689,12 +689,11 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
+>>  
+>>  static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>>  			       struct virtqueue *vqs[],
+>> -			       vq_callback_t *callbacks[],
+>> -			       const char * const names[],
+>> -			       const bool *ctx,
+>> +			       struct virtqueue_info vqs_info[],
+>>  			       struct irq_affinity *desc)
+>>  {
+>>  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+>> +	struct virtqueue_info *vqi;
+>>  	dma64_t *indicatorp = NULL;
+>>  	int ret, i, queue_idx = 0;
+>>  	struct ccw1 *ccw;
+>> @@ -705,14 +704,14 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>>  		return -ENOMEM;
+>>  
+>>  	for (i = 0; i < nvqs; ++i) {
+>> -		if (!names[i]) {
+>> +		vqi = &vqs_info[i];
+>> +		if (!vq_info->name) {
+>
+>typo. we got lucky you didn't write vqs_info otherwise
+>it would build but not work correctly.
+
+Will fix.
+
+
+>
+>
+>>  			vqs[i] = NULL;
+>>  			continue;
+>>  		}
+>>  
+>> -		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
+>> -					     names[i], ctx ? ctx[i] : false,
+>> -					     ccw);
+>> +		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, vqi->callback,
+>> +					     vqi->name, vqi->ctx, ccw);
+>>  		if (IS_ERR(vqs[i])) {
+>>  			ret = PTR_ERR(vqs[i]);
+>>  			vqs[i] = NULL;
+>> @@ -1079,7 +1078,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
+>>  	.get_status = virtio_ccw_get_status,
+>>  	.set_status = virtio_ccw_set_status,
+>>  	.reset = virtio_ccw_reset,
+>> -	.find_vqs = virtio_ccw_find_vqs,
+>> +	.find_vqs_info = virtio_ccw_find_vqs,
+>>  	.del_vqs = virtio_ccw_del_vqs,
+>>  	.bus_name = virtio_ccw_bus_name,
+>>  	.synchronize_cbs = virtio_ccw_synchronize_cbs,
+>> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+>> index 173596589c71..533aca85b745 100644
+>> --- a/drivers/virtio/virtio_mmio.c
+>> +++ b/drivers/virtio/virtio_mmio.c
+>> @@ -489,13 +489,12 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+>>  
+>>  static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>>  		       struct virtqueue *vqs[],
+>> -		       vq_callback_t *callbacks[],
+>> -		       const char * const names[],
+>> -		       const bool *ctx,
+>> +		       struct virtqueue_info vqs_info[],
+>>  		       struct irq_affinity *desc)
+>>  {
+>>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+>>  	int irq = platform_get_irq(vm_dev->pdev, 0);
+>> +	struct virtqueue_info *vqi;
+>>  	int i, err, queue_idx = 0;
+>>  
+>>  	if (irq < 0)
+>> @@ -510,13 +509,14 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>>  		enable_irq_wake(irq);
+>>  
+>>  	for (i = 0; i < nvqs; ++i) {
+>> -		if (!names[i]) {
+>> +		vqi = &vqs_info[i];
+>> +		if (!vqi->name) {
+>>  			vqs[i] = NULL;
+>>  			continue;
+>>  		}
+>>  
+>> -		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+>> -				     ctx ? ctx[i] : false);
+>> +		vqs[i] = vm_setup_vq(vdev, queue_idx++, vqi->callback,
+>> +				     vqi->name, vqi->ctx);
+>>  		if (IS_ERR(vqs[i])) {
+>>  			vm_del_vqs(vdev);
+>>  			return PTR_ERR(vqs[i]);
+>> @@ -570,7 +570,7 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
+>>  	.get_status	= vm_get_status,
+>>  	.set_status	= vm_set_status,
+>>  	.reset		= vm_reset,
+>> -	.find_vqs	= vm_find_vqs,
+>> +	.find_vqs_info	= vm_find_vqs,
+>>  	.del_vqs	= vm_del_vqs,
+>>  	.get_features	= vm_get_features,
+>>  	.finalize_features = vm_finalize_features,
+>> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+>> index e803db0da307..dcf0c2b19a44 100644
+>> --- a/drivers/virtio/virtio_vdpa.c
+>> +++ b/drivers/virtio/virtio_vdpa.c
+>> @@ -358,15 +358,14 @@ create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
+>>  
+>>  static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>>  				struct virtqueue *vqs[],
+>> -				vq_callback_t *callbacks[],
+>> -				const char * const names[],
+>> -				const bool *ctx,
+>> +				struct virtqueue_info vqs_info[],
+>>  				struct irq_affinity *desc)
+>>  {
+>>  	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
+>>  	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
+>>  	const struct vdpa_config_ops *ops = vdpa->config;
+>>  	struct irq_affinity default_affd = { 0 };
+>> +	struct virtqueue_info *vqi;
+>>  	struct cpumask *masks;
+>>  	struct vdpa_callback cb;
+>>  	bool has_affinity = desc && ops->set_vq_affinity;
+>> @@ -379,14 +378,14 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>>  	}
+>>  
+>>  	for (i = 0; i < nvqs; ++i) {
+>> -		if (!names[i]) {
+>> +		vqi = &vqs_info[i];
+>> +		if (!vqi->name) {
+>>  			vqs[i] = NULL;
+>>  			continue;
+>>  		}
+>>  
+>> -		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++,
+>> -					      callbacks[i], names[i], ctx ?
+>> -					      ctx[i] : false);
+>> +		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++, vqi->callback,
+>> +					      vqi->name, vqi->ctx);
+>>  		if (IS_ERR(vqs[i])) {
+>>  			err = PTR_ERR(vqs[i]);
+>>  			goto err_setup_vq;
+>> @@ -470,7 +469,7 @@ static const struct virtio_config_ops virtio_vdpa_config_ops = {
+>>  	.get_status	= virtio_vdpa_get_status,
+>>  	.set_status	= virtio_vdpa_set_status,
+>>  	.reset		= virtio_vdpa_reset,
+>> -	.find_vqs	= virtio_vdpa_find_vqs,
+>> +	.find_vqs_info	= virtio_vdpa_find_vqs,
+>>  	.del_vqs	= virtio_vdpa_del_vqs,
+>>  	.get_features	= virtio_vdpa_get_features,
+>>  	.finalize_features = virtio_vdpa_finalize_features,
+>> -- 
+>> 2.45.2
+>
