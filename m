@@ -1,201 +1,136 @@
-Received: from out-175.mta1.migadu.com (out-175.mta1.migadu.com [95.215.58.175])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BBCC1482E6
-	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 16:22:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03C07146A79
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 16:22:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720455753; cv=none; b=E4IfF5fQCz5bnijWFgGEo79xnhnfhCuhqzWZTfav7aKG//8HqYtRONdiVUfeEiSZwv2Q8K7DvUiTJ4LSMUzTxovYw1fMQlrjBkbyTW85VrCKIIOSk2qC8eUvDw1la16+4Bi3J3Glhgs5oojGpmmBZokQAkA6UNxrFi5OJMfion8=
+	t=1720455781; cv=none; b=qTVMMriY183Ih7QGkLqO6gyJ5IrXJhwH6Qsnk+rG3cyDHBEXVvjwDXfWEVY6iYzl3t1WvOSSgQAawvKL4ZS07wDRMBfzx336bOHa4avSM+wORENeXV44i4jOrTXvp2jZapjaIWK3zEr3I+CC5qUfr4nLtvkBha9VkDsdU1iIF8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720455753; c=relaxed/simple;
-	bh=PtWdQP9TUf3UnSMasmAy0oliIW93Gy0/rpFK2mRdEJ4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=J8OE90q5gSo1wHE136S9V3zvO01xDftbMP7K0koxP+cTm2UaLICRhmUncocZKbkVMnYCT2KTpQ7DbSRwRV3gCkgvJw9Wca1tELjoqt1+hgZbaeic4Dbp5ToPyUetyG/6uBaI4O9094zxcy7yZCRpCbKhrACIdfEHNScq6eLzU54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QJWe8Uzf; arc=none smtp.client-ip=95.215.58.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1720455781; c=relaxed/simple;
+	bh=39Ok3aZtiGyAkg4DskALCfPqlmoQpaapP1QZtS597l4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JhGbRB3l0Z1YZwF1oHnOtpeV0/NqDwoOO1JBjsIdLA/nN1Y22MX9zfZQQX+phwre4Mp+HmZfrp+tVAHlzXPx27FZ5y2p6tIXvd37KOq3QAa/1MArBjodBKqYkX06eJhWObFrlpVw16AVteEjKYT/RbZ/5kM5mrIwZHH2iTunatI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=cvYtw7SY; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QJWe8Uzf"
-X-Envelope-To: dtatulea@nvidia.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1720455748;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZRPeq+TIECbg3XiWASLi/Zq5CIq0PmJjCGCHnJ56A2o=;
-	b=QJWe8UzfU5nl9s7j/pqbZ84E8FYKmD4BQ8Q5uOys5WliEQB1P/WBYp0Wg2KuIUwRxkrpI0
-	kbInJY9PF8ekfMVxzjqS21hEotrIzVmLa1rMJbZHPb50Usl1f3IKTRuEwdP7+7bAOCAYoW
-	HKXSLtRaPxdC/HidlS0Ol8/ueek8yqY=
-X-Envelope-To: mst@redhat.com
-X-Envelope-To: jasowang@redhat.com
-X-Envelope-To: xuanzhuo@linux.alibaba.com
-X-Envelope-To: eperezma@redhat.com
-X-Envelope-To: saeedm@nvidia.com
-X-Envelope-To: leon@kernel.org
-X-Envelope-To: tariqt@nvidia.com
-X-Envelope-To: si-wei.liu@oracle.com
-X-Envelope-To: virtualization@lists.linux.dev
-X-Envelope-To: linux-kernel@vger.kernel.org
-X-Envelope-To: linux-rdma@vger.kernel.org
-X-Envelope-To: netdev@vger.kernel.org
-X-Envelope-To: cratiu@nvidia.com
-Message-ID: <34ce285c-d87d-4116-adbc-a2d691cfa4c9@linux.dev>
-Date: Mon, 8 Jul 2024 18:22:26 +0200
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="cvYtw7SY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8419240598
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 16:22:59 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id l-7Ml2xhVaNX for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Jul 2024 16:22:58 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::72c; helo=mail-qk1-x72c.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 27EF740511
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 27EF740511
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=cvYtw7SY
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 27EF740511
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 16:22:57 +0000 (UTC)
+Received: by mail-qk1-x72c.google.com with SMTP id af79cd13be357-79f0c08aa45so106808785a.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 08 Jul 2024 09:22:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1720455776; x=1721060576; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ka0gK+6TRBkr1g04M4X3WeamKoRpIybVWjVNgzYyEOk=;
+        b=cvYtw7SY/HIuGpUg4Z0T6bHJtTWNIqBqQYWPdy58w5tX3ISS5NpmLbw3xDjNOKwtCn
+         sAmZGz0bzcgCnYqCIKJVvo8WtWk1fG7zXw1xfeUd7vls32p99RyBjNHjYAQboodBWl91
+         LbZHVYFGSBZiBuH6ZcEsnPIsIq62CTClN0IWg7RZWvzvEOzfgy5Pq8b/IWJloi4qGzhw
+         ptlJxMcGgtQxJLQG1m6rj2eY609y/JICpv/2nphXbC/Cu3W7cdylQP+tn02gIYrZYVo3
+         ZWZKRMfh+jaCT/rvJm+RLtdt6qPddpMY3edPFe1lXjCZRSKqe0keEYFHWcu+ffryecZm
+         e/NA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720455776; x=1721060576;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ka0gK+6TRBkr1g04M4X3WeamKoRpIybVWjVNgzYyEOk=;
+        b=nQdFkw+89wBuV6YtG/UlJxzvtGx2qwgIQ0xD/ruyKwPUk0NDTOmtgSx3wIunKcI1XU
+         UyqJIPsywXjNqd1dmw8lyo4rRn17i3VZox+pPP7auI591eKw198bzg+9LsYZAmeDoIt+
+         Kb6KzwmNLKoSM8+wXtDMN5GPvCWe5SiRgM2YC47sNUlSmKnNSml04wU+XlgVlM/R025R
+         PtiOXLjar+/P9al1d6cMxqRBFx/zWl43kCgJE1NfMHVcqeemvCDDBHCH3NFmorIn+NNt
+         94B0R5I9QP4tafC+y41Kx6xe0h4wRuBpMcNM1yqqNzixNTkfh+B4HI2OxY5SoixXKPed
+         J7xA==
+X-Forwarded-Encrypted: i=1; AJvYcCU2C6JSyGisSAZC3ML9WGxHOHMo5mhrJc4ek0swBmkHoV0L2c80KF1EEUXkyuYQSgyehsyqCwo9RQxcIdnt3rZ37Q2hdT3jZLMhXiINMfyBoWVduKbix+ptcw==
+X-Gm-Message-State: AOJu0YyiqSjlKjhgvksDVp/4D+T/HV55EGnS78iYT+tLGjl+8CWyxOYL
+	HLcuLo/zEGZmiWwX1ueLfllZldNT5VslZxREYecYXuSeS2gzB87ETa39I1iC/xE=
+X-Google-Smtp-Source: AGHT+IEWk4zyOjmKegu6Ou87+AD0hzX/bn+Dtu9fsIyTz6kLGJ/J3j+Jl6yX9VsoZO3luJTYUeKCCA==
+X-Received: by 2002:a05:620a:1b:b0:79f:1731:ae24 with SMTP id af79cd13be357-79f19a65363mr2034085a.32.1720455776575;
+        Mon, 08 Jul 2024 09:22:56 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-79f190b4c57sm5520685a.132.2024.07.08.09.22.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jul 2024 09:22:55 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1sQr8h-000S83-1x;
+	Mon, 08 Jul 2024 13:22:55 -0300
+Date: Mon, 8 Jul 2024 13:22:55 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: "Tian, Kevin" <kevin.tian@intel.com>
+Cc: Nicolin Chen <nicolinc@nvidia.com>, Baolu Lu <baolu.lu@linux.intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	"Liu, Yi L" <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>,
+	"iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v8 06/10] iommufd: Add iommufd fault object
+Message-ID: <20240708162255.GA14050@ziepe.ca>
+References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
+ <20240702063444.105814-7-baolu.lu@linux.intel.com>
+ <ZoXZZ2SJ/WdlMJaX@Asurada-Nvidia>
+ <309e37d1-6066-4ba1-b30c-402a3c3e7c76@linux.intel.com>
+ <ZoY01iLmzoV4fIPG@Asurada-Nvidia>
+ <BN9PR11MB52769E10ED0741F5ED3E5B668CDE2@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <fc7f5bb1-25b7-4a5f-8d6b-1fa17b1af534@linux.intel.com>
+ <Zoct3LVVHhDNbPBT@Asurada-Nvidia>
+ <BN9PR11MB52760E55FE52C5B670AA75058CDF2@BN9PR11MB5276.namprd11.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH vhost 20/23] vdpa/mlx5: Pre-create hardware VQs at vdpa
- .dev_add time
-To: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>,
- Si-Wei Liu <si-wei.liu@oracle.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- Cosmin Ratiu <cratiu@nvidia.com>
-References: <20240617-stage-vdpa-vq-precreate-v1-0-8c0483f0ca2a@nvidia.com>
- <20240617-stage-vdpa-vq-precreate-v1-20-8c0483f0ca2a@nvidia.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <20240617-stage-vdpa-vq-precreate-v1-20-8c0483f0ca2a@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB52760E55FE52C5B670AA75058CDF2@BN9PR11MB5276.namprd11.prod.outlook.com>
 
-在 2024/6/17 17:07, Dragos Tatulea 写道:
-> Currently, hardware VQs are created right when the vdpa device gets into
-> DRIVER_OK state. That is easier because most of the VQ state is known by
-> then.
+On Fri, Jul 05, 2024 at 12:49:10AM +0000, Tian, Kevin wrote:
+
+> > > > > > > +enum iommu_fault_type {
+> > > > > > > +     IOMMU_FAULT_TYPE_HWPT_IOPF,
+> > > > > > > +     IOMMU_FAULT_TYPE_VIOMMU_IRQ,
+> > > > > > > +};
+> > > > > > >
+> > > > > > >    struct iommu_fault_alloc {
+> > > > > > >        __u32 size;
+> > > > > > >        __u32 flags;
+> > > > > > > +     __u32 type;  /* enum iommu_fault_type */
+> > > > > > >        __u32 out_fault_id;
+> > > > > > >        __u32 out_fault_fd;
+> > > > and need a new reserved field for alignment.
+> > 
+> > Hmm, what's the reason for enforcing a 64-bit alignment to an
+> > all-u32 struct though? I thought we need a reserved field only
+> > for padding. The struct iommu_ioas_alloc has three u32 members
+> > for example?
 > 
-> This patch switches to creating all VQs and their associated resources
-> at device creation time. The motivation is to reduce the vdpa device
-> live migration downtime by moving the expensive operation of creating
-> all the hardware VQs and their associated resources out of downtime on
-> the destination VM.
+> yeah please ignore this comment.
 
-Hi, Dragos Tatulea
+Sometimes I encourage it so that people notice the if the structure is
+changed later. Almost all structs here are 8 byte aligned. It is OK
+like this too.
 
- From the above, when a device is created, all the VQs and their 
-associated resources are also created.
-If VM live migration does not occur, how much resources are wasted?
-
-I mean, to achieve a better downtime, how much resource are used?
-
-"
-On a 64 CPU, 256 GB VM with 1 vDPA device of 16 VQps, the full VQ
-resource creation + resume time was ~370ms. Now it's down to 60 ms
-(only VQ config and resume). The measurements were done on a ConnectX6DX
-based vDPA device.
-"
- From the above, the performance is amazing.
-If we expect to use it in the production hosts, how much resources 
-should we prepare to achieve this downtime?
-
-Zhu Yanjun
-
-> 
-> The VQs are now created in a blank state. The VQ configuration will
-> happen later, on DRIVER_OK. Then the configuration will be applied when
-> the VQs are moved to the Ready state.
-> 
-> When .set_vq_ready() is called on a VQ before DRIVER_OK, special care is
-> needed: now that the VQ is already created a resume_vq() will be
-> triggered too early when no mr has been configured yet. Skip calling
-> resume_vq() in this case, let it be handled during DRIVER_OK.
-> 
-> For virtio-vdpa, the device configuration is done earlier during
-> .vdpa_dev_add() by vdpa_register_device(). Avoid calling
-> setup_vq_resources() a second time in that case.
-> 
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
-> ---
->   drivers/vdpa/mlx5/net/mlx5_vnet.c | 37 ++++++++++++++++++++++++++++++++-----
->   1 file changed, 32 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 249b5afbe34a..b2836fd3d1dd 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -2444,7 +2444,7 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready
->   	mvq = &ndev->vqs[idx];
->   	if (!ready) {
->   		suspend_vq(ndev, mvq);
-> -	} else {
-> +	} else if (mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK) {
->   		if (resume_vq(ndev, mvq))
->   			ready = false;
->   	}
-> @@ -3078,10 +3078,18 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
->   				goto err_setup;
->   			}
->   			register_link_notifier(ndev);
-> -			err = setup_vq_resources(ndev, true);
-> -			if (err) {
-> -				mlx5_vdpa_warn(mvdev, "failed to setup driver\n");
-> -				goto err_driver;
-> +			if (ndev->setup) {
-> +				err = resume_vqs(ndev);
-> +				if (err) {
-> +					mlx5_vdpa_warn(mvdev, "failed to resume VQs\n");
-> +					goto err_driver;
-> +				}
-> +			} else {
-> +				err = setup_vq_resources(ndev, true);
-> +				if (err) {
-> +					mlx5_vdpa_warn(mvdev, "failed to setup driver\n");
-> +					goto err_driver;
-> +				}
->   			}
->   		} else {
->   			mlx5_vdpa_warn(mvdev, "did not expect DRIVER_OK to be cleared\n");
-> @@ -3142,6 +3150,7 @@ static int mlx5_vdpa_compat_reset(struct vdpa_device *vdev, u32 flags)
->   		if (mlx5_vdpa_create_dma_mr(mvdev))
->   			mlx5_vdpa_warn(mvdev, "create MR failed\n");
->   	}
-> +	setup_vq_resources(ndev, false);
->   	up_write(&ndev->reslock);
->   
->   	return 0;
-> @@ -3836,8 +3845,21 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->   		goto err_reg;
->   
->   	mgtdev->ndev = ndev;
-> +
-> +	/* For virtio-vdpa, the device was set up during device register. */
-> +	if (ndev->setup)
-> +		return 0;
-> +
-> +	down_write(&ndev->reslock);
-> +	err = setup_vq_resources(ndev, false);
-> +	up_write(&ndev->reslock);
-> +	if (err)
-> +		goto err_setup_vq_res;
-> +
->   	return 0;
->   
-> +err_setup_vq_res:
-> +	_vdpa_unregister_device(&mvdev->vdev);
->   err_reg:
->   	destroy_workqueue(mvdev->wq);
->   err_res2:
-> @@ -3863,6 +3885,11 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
->   
->   	unregister_link_notifier(ndev);
->   	_vdpa_unregister_device(dev);
-> +
-> +	down_write(&ndev->reslock);
-> +	teardown_vq_resources(ndev);
-> +	up_write(&ndev->reslock);
-> +
->   	wq = mvdev->wq;
->   	mvdev->wq = NULL;
->   	destroy_workqueue(wq);
-> 
-
+Jason
