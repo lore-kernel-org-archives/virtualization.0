@@ -1,138 +1,145 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F3A1BC39
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 07:04:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9545118643
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 07:06:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720422300; cv=none; b=cL2Tl0ot3LeBQre7yOnZkyJg+y6JwcVLEumxp44JZKcM07UMzBX1v+dvHDMdaC+5uW6KfflxpCEE/t+Ppyj0Sci3tNa0W7BNTr/vopzpdxv9DCPKS/mqZ2BFwVVtRQZHo3a2Ax1fP1YgE8D2y1ZLiM1zqO7Z05SHXOQuLuFrvRg=
+	t=1720422365; cv=none; b=fK+7QHr1o/TVGfJuKbDGFIU5y5QabxZ7v4S63HRFCgIQ5HVeuGn/TT9m7SY6K7cDfbrDhwmrnMXd3Vf75bkJ52uVT0edYbL4xa83R2HnA4fT2/rCl0B9EbD0KcjIbfGgA0oumrJwBbyR7BYiPuWRiFitoBNioYW0WwR+3NBNh1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720422300; c=relaxed/simple;
-	bh=Lyh+OGU1qSqkgNUOSt3XboZ5A/fxDtSPgkO065fsa0A=;
+	s=arc-20240116; t=1720422365; c=relaxed/simple;
+	bh=5PpxEpUcZXTUsSxmL3KzijXTV7X465dD3PtkiU/Lq6c=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QPiV/yK4yFJzwuQo+idlmdO6DMD5J7z4T9Mzr7dHiAF0yhMjNp3iCiQwkxRLGIFirWwBocNDydjDBZSeqVbYWanpCnjP3mP6Eo7Xi8e7MERO3GBVIePOWzikIPVlp4t71pgpI4/JSucJvv1Xot+p13AqBFblQauBqRx/jld9sfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DQBk15l7; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=HjYiMyrV5XQOx74SM2H3mjM18xsE0D9/JKa0spvxcQIf+GE+tK9qAHlsrl8boh6hJm1snlr9AIPEnsxmJyEZ/IAEwAC0qnojySdinXg7TSgHDipXbpXgy2AYHmx95bpyoAdkOLmfT2b3+vXMOhiUutfGG6GyWKr/zzpQ/EO1f4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZT5AMKot; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DQBk15l7"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7D91E80FFF
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 07:04:59 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ADCD-b4tcbJN for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Jul 2024 07:04:58 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A46B780EE2
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A46B780EE2
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DQBk15l7
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A46B780EE2
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 07:04:58 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZT5AMKot"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720422297;
+	s=mimecast20190719; t=1720422362;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vuevZFB7MKI/Lq5uYauYhSH0Qsz8j07xL7h/7QL0zAQ=;
-	b=DQBk15l7wcsqDpKfI4wFnm0bKEB3ge33XuOrj8f0EMf/RaXLbnqy+uA1evTowMJooAvrlP
-	bgSVAunfYT/W779EbDVjy+5wrz1QPtxymcqPe2WJQlBsvawYKY6DRACuimB4aPr0F/Eh4v
-	NPICCztreJIGRFcgssvZNGEfCBS+xRg=
-Received: from mail-ua1-f69.google.com (mail-ua1-f69.google.com
- [209.85.222.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=FUC5EM5aqKsivpFfSa2Ci5nWACyLQ337fx39KNuMZpE=;
+	b=ZT5AMKot5G/8ScynKe5RaVkqJzRHGHgc9JfhIU7HECJM20+dFTGtKIw8sw8k2vNo/ejrpg
+	c0uw5IAtRe/UB4mOE5ZUQoSF2GossefeRgFYu3UtN/BpuEkMNKoKa5AHFMS9w41pwzm35Q
+	/05B3mnKjxPVFdJou5TnZwr4IqPJfeI=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-696-rdULlNzVObOahZ8L9GoKVg-1; Mon, 08 Jul 2024 03:04:55 -0400
-X-MC-Unique: rdULlNzVObOahZ8L9GoKVg-1
-Received: by mail-ua1-f69.google.com with SMTP id a1e0cc1a2514c-8101973e274so1079226241.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 08 Jul 2024 00:04:55 -0700 (PDT)
+ us-mta-658-UaY_hk99PzaNkYMzIO3PdQ-1; Mon, 08 Jul 2024 03:06:00 -0400
+X-MC-Unique: UaY_hk99PzaNkYMzIO3PdQ-1
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a77d98ed6ebso170726866b.3
+        for <virtualization@lists.linux.dev>; Mon, 08 Jul 2024 00:05:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720422294; x=1721027094;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vuevZFB7MKI/Lq5uYauYhSH0Qsz8j07xL7h/7QL0zAQ=;
-        b=fw3J/kSkxg3Nb24vGQxfB9QvPWLHvOXei/9huqSFVdr1LxBgqDk0+hLYdZN28KpCG1
-         JrDX8TPuJIgR1JWWTTaMeBUorV2CqfYlYWw7U+/t/ZXiGo4QlxpKEp5TzUZXHFVFCM/n
-         MuXkd48/CrkD+bPMyG6U7ppQmMWfOMqryQdY7xCeZv4K6a5S0aKDSF8fYtNT7cw8hnqm
-         9B4K2L+M3BpM1Hc5bLokmmj502SxEc5yg7qfc9HEKEgYVMN4quSWSsvhLXSV8xgSQS1K
-         BUIEmveh8KzasXStBkDeIxnRFin0k21V0ae/7LxCJ0w6kp0fW5y5FbUEbWJ9m7o1ublt
-         0rVA==
-X-Forwarded-Encrypted: i=1; AJvYcCVfwkivkWAlkwsmpLXIxw5JlSko7VNNMTifkiugpGzXjxkRUimvWwloYSx+TCvUd8Y1v686s9fqXecSiPMgNf9jRde0rFNPTLgz1r3dJlRZVAFy1xW8DD0+mg==
-X-Gm-Message-State: AOJu0YxQW8pZqvjEtVaVawqiY0YYXs76uVcoAGcpfhIj091qejDXNxJc
-	UwujU05Paw7iyJs9CVuMwAaSlyeriYODxXsiPh84z/9TRhvnCHtG6pRadtGUU2FtyDeNMoqrp5G
-	juGhhlAicR2mJig4XN/VvIcMh5eTrI2MXdZZVgoxTUlJHqOV3L4g6F428btwrmRgbe6jAKGof1+
-	D5UWsKNIvtRrQYaB7im5Ovo8N1KGMdQMj11qBVQ7akyxYhqKNNG5FcgQ==
-X-Received: by 2002:a67:fd99:0:b0:48c:376f:fbfe with SMTP id ada2fe7eead31-48fee6dcb3cmr8108040137.14.1720422294483;
-        Mon, 08 Jul 2024 00:04:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHgNBSM7bOK3sbqftf/T7VmMO3M7PHhmrjnMZg1tK5qooR3N3OIZ0nrg5Mz/+IAvFBjtZftOxhqa1SVHpbqFvk=
-X-Received: by 2002:a67:fd99:0:b0:48c:376f:fbfe with SMTP id
- ada2fe7eead31-48fee6dcb3cmr8108021137.14.1720422294089; Mon, 08 Jul 2024
- 00:04:54 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720422359; x=1721027159;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FUC5EM5aqKsivpFfSa2Ci5nWACyLQ337fx39KNuMZpE=;
+        b=a3weLrjqqcsJVrz9IarbSON2cLEYxPDVi9CqfRvqN0uLYrdi4oPfCnW85gD//fGj1i
+         fAWPYrcRlGXiiihMkVbb/OozqBwu7SlEIUCRnglSr68vVAqG2Eypx/CUYICK1H5QVlBT
+         Zk9VgXUYJ2xZotmTpsFxntK4ixjR1FcMlCv2jFVzLRd8OgcWLNhTI0KZwEPQKEIeTRHo
+         2xxmT7+4NTEmfSCcEh3pbZFxTIDBHqCBwXvAP+bfuagaxuRFaSRC+OTdGK/E7wVFcO8h
+         8qeYIMCJ4srBRnRccCZeet6Q8XEp4yfNSFdGg2A8rQYl3dS80/hozpc9ZlECXVmn3So9
+         i/GA==
+X-Forwarded-Encrypted: i=1; AJvYcCVF+m8Zr+C/BVFXwleyBz00pf4UEprWLWFPTdFiAEM3At7cSG/IBNYesRwmzeJPyU3RcJw3hJ5Gl8YK7dOP75dH8n4VRU32i5YGHarOkSI=
+X-Gm-Message-State: AOJu0YxqN4PBGmuMlMVcB32i0TGhCkElNzfM0JWWw+LpQvWxIOPnU1GE
+	kFjGHiMWcNqZNUk3AlY8MaOs0VhZResFHG3P0NYXzkRprzHmnO4SViUx/Nce5LIYpAWazIxa+i1
+	0ryZ6fy479zoMiESlpVmbth3OQsdC2jzAH/g0XTT6SnqzPiNql1UinSG3unsJYoB/Q16G76A18W
+	Or7MPrueY3gdut2qNM9IhMJmAPhSGiSuKrxiESdqM=
+X-Received: by 2002:a17:906:b11:b0:a77:db36:1ccc with SMTP id a640c23a62f3a-a77db361dbcmr512997066b.24.1720422358881;
+        Mon, 08 Jul 2024 00:05:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEJS0DZEsXtrYoLqrPVKVwR9KH5Yv072isEfrtxy78mylm1aqwAVich5MZPYa4GI87sCbQHEPN3vwbfGH+5sWU=
+X-Received: by 2002:a17:906:b11:b0:a77:db36:1ccc with SMTP id
+ a640c23a62f3a-a77db361dbcmr512995966b.24.1720422358470; Mon, 08 Jul 2024
+ 00:05:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240708064820.88955-1-lulu@redhat.com> <20240708064820.88955-2-lulu@redhat.com>
-In-Reply-To: <20240708064820.88955-2-lulu@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 8 Jul 2024 15:04:35 +0800
-Message-ID: <CACGkMEvm59kNPvivACZt8mAZsZyp7O7FO5NUF6abB9XS_SwaEw@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] vdpa: support set mac address from vdpa tool
-To: Cindy Lu <lulu@redhat.com>
-Cc: dtatulea@nvidia.com, mst@redhat.com, parav@nvidia.com, sgarzare@redhat.com, 
-	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+References: <20240705112821.144819-1-sgarzare@redhat.com> <20240705073017-mutt-send-email-mst@kernel.org>
+ <25fehn7xgvqyqgd6zcscsjazzfhktyjrazffyrtbp2oibnhkey@ggobdyv4zxkf>
+In-Reply-To: <25fehn7xgvqyqgd6zcscsjazzfhktyjrazffyrtbp2oibnhkey@ggobdyv4zxkf>
+From: Cindy Lu <lulu@redhat.com>
+Date: Mon, 8 Jul 2024 15:05:21 +0800
+Message-ID: <CACLfguWtcdTM-+GjiXWC-s=d-bvkUedHbCimzsfvYXWJ-=3iDQ@mail.gmail.com>
+Subject: Re: [PATCH] vdpa_sim_blk: add `capacity` module parameter
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowang@redhat.com>, 
+	linux-kernel@vger.kernel.org, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 8, 2024 at 2:48=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+On Fri, 5 Jul 2024 at 20:42, Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
-> Add new UAPI to support the mac address from vdpa tool
-> Function vdpa_nl_cmd_dev_attr_set_doit() will get the
-> new MAC address from the vdpa tool and then set it to the device.
+> On Fri, Jul 05, 2024 at 07:30:51AM GMT, Michael S. Tsirkin wrote:
+> >On Fri, Jul 05, 2024 at 01:28:21PM +0200, Stefano Garzarella wrote:
+> >> The vDPA block simulator always allocated a 128 MiB ram-disk, but some
+> >> filesystems (e.g. XFS) may require larger minimum sizes (see
+> >> https://issues.redhat.com/browse/RHEL-45951).
+> >>
+> >> So to allow us to test these filesystems, let's add a module parameter
+> >> to control the size of the simulated virtio-blk devices.
+> >> The value is mapped directly to the `capacity` field of the virtio-blk
+> >> configuration space, so it must be expressed in sector numbers of 512
+> >> bytes.
+> >>
+> >> The default value (0x40000) is the same as the previous value, so the
+> >> behavior without setting `capacity` remains unchanged.
+> >>
+> >> Before this patch or with this patch without setting `capacity`:
+> >>   $ modprobe vdpa-sim-blk
+> >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
+> >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
+> >>   virtio_blk virtio6: [vdb] 262144 512-byte logical blocks (134 MB/128 MiB)
+> >>
+> >> After this patch:
+> >>   $ modprobe vdpa-sim-blk capacity=614400
+> >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
+> >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
+> >>   virtio_blk virtio6: [vdb] 614400 512-byte logical blocks (315 MB/300 MiB)
+> >>
+> >> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> >
+> >What a hack. Cindy was working on adding control over config
+> >space, why can't that be used?
 >
-> The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
+> If it can be used easily with virtio-blk device too, it will be great.
+> @Cindy do you plan to support that changes for a virtio-blk device too?
 >
-> Here is example:
-> root@L1# vdpa -jp dev config show vdpa0
-> {
->     "config": {
->         "vdpa0": {
->             "mac": "82:4d:e9:5d:d7:e6",
->             "link ": "up",
->             "link_announce ": false,
->             "mtu": 1500
->         }
->     }
-> }
->
-> root@L1# vdpa dev set name vdpa0 mac 00:11:22:33:44:55
->
-> root@L1# vdpa -jp dev config show vdpa0
-> {
->     "config": {
->         "vdpa0": {
->             "mac": "00:11:22:33:44:55",
->             "link ": "up",
->             "link_announce ": false,
->             "mtu": 1500
->         }
->     }
-> }
->
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
+Hi Stefano
+I plan to add support to change the vdpa device's configuration after
+it is created. In the first step, I want to use the vdpa tool to add
+support for changing the MAC address for the network device. the next
+step will also add MTU settings etc
+here is the link
+https://lore.kernel.org/all/20240708064820.88955-1-lulu@redhat.com/T/#t
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+in the device part, the device needs to implement its function of
+int (*dev_set_attr)(struct vdpa_mgmt_dev *mdev, struct vdpa_device *dev,
+       const struct vdpa_dev_set_config *config);
+the configuration will be passed by struct vdpa_dev_set_config. I'm
+not sure if this kind of design is suitable for you? Really thanks and
+any comments are welcome
+thanks
+Cindy
 
-Thanks
+
+> In the mean time, for the simulator I thought that this change was fine.
+> It's just used for testing and debugging...
+>
+> My main question is how to use that when we have `shared_backend` set to
+> true, since we use that setting to test for example live migration. In
+> that case, how do we handle the size of the shared ramdisk between
+> devices?
+>
+> Thanks,
+> Stefano
+>
 
