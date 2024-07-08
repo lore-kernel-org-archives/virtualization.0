@@ -1,937 +1,536 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3B96F067;
-	Mon,  8 Jul 2024 09:29:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F4877580A;
+	Mon,  8 Jul 2024 09:47:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720430981; cv=none; b=JZnvRNMxGxPCVoksApbsgS6OCg0sBTsOQXSHD4OuslLPRLgMQTvsrVDeoH7gWlTm2URBbt3vkFgfAvTu8SUD5MMY8Mlh3IqIT0Lr++lxoK6kQXy/x7mp7D8KZhVUNMto5+8gMPLnh8ECRebNyozueLthyPlXZ8AUIX9lpqBt8+Y=
+	t=1720432052; cv=none; b=P/2xfpRBZzvgs8QKFgvm+oS7yPxKCv5vH/FBzmKtvpzeFWsZCDEmU9+gXTEiAhYxEkRwFuvBXYTItg9CU5NbkokNKH8bAoSL5F/z6XAIhFLmuges2vyuQEN/V/rDMu2V0f/CPXgYVj1YSFnp0f8sbJwJ4Pvcy8HQ5SyU9zwh+7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720430981; c=relaxed/simple;
-	bh=m0EUkFppD+c26nmNRM0FTxWC7NAY9YgK2p00xp+B4DM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=bGk1t6LeZPvgny2q6j7krqStvU/UlPyIOcBeNFjkj4qhDFJsUqvbvVIj6wgoD2gXM5HYOKVmfRAHWDBsnLV+ufbm6bMbBys6D54LheXSBK7JMqI0hULkifUE6umb3Ubtvx/z9Qi2mAODt3PWpUNn5pIQrzFXrAB2nTKy2dTeFSk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=b3gul7qr; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1720432052; c=relaxed/simple;
+	bh=6ZQTAiQVbQo9uYcXEBcFrxIQPxojeGwZ9owxOifNEfw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sJNUChu1JOLWFiLFFB/JnD7FPpQudoXfuoZYvS+E1Ktwrnk5LURX8QYUupy0xK4AlxeeCFT4tCzNYdPitqTF8W4NQMR6Zq2trRHSnSm3aIA7rrOGOG3J/tA47tMUt3bAgmbvywHCqVTJIG3Ox3x3VlwY2VyDTlTAuHPQIhsE3sM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mPnjHn4k; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="b3gul7qr"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Sender:Content-Transfer-Encoding:
-	Content-Type:MIME-Version:Message-ID:Date:Subject:Cc:To:From:Reply-To:
-	Content-ID:Content-Description:In-Reply-To:References;
-	bh=bhYNXSmfiT9IgFTiAf5QYVWGAoT/S/BkinvvQS0a/h8=; b=b3gul7qrWFbMYFN3QBjyepsMpk
-	iKgUsgJtB2es2HWitR6nNRdYlSMJXg7i3dgTC0WvNR9QND5SMYTI7ivBQd+xIGuDgyoKAVabgflQx
-	DwTlXAf+q9r/L/e6+wNMyPiwkeulOTXz6qUfBLecAHZdidPqxqsi4x+MBDzWG1XyHvMdl/eRF6PDT
-	j5izzuxC4zKNG7HYwq+sazpYHcURjpR1Qkf8fUOTJVKgPj+Uyn6lKnkXTtBbZi5sVFhBd+jr79yRI
-	yFZJkUAgs1Gdc3KGzFufjkS5+DS8o0QEw4jOQollUsTdiMnj4/LzzmFJFN/8YgSj8Hr9URjnGNmmS
-	1Fpq0frQ==;
-Received: from [2001:8b0:10b:1::ebe] (helo=i7.infradead.org)
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sQkgY-00000000Zt8-1n00;
-	Mon, 08 Jul 2024 09:29:26 +0000
-Received: from dwoodhou by i7.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sQkgW-00000006BKF-0dFB;
-	Mon, 08 Jul 2024 10:29:24 +0100
-From: David Woodhouse <dwmw2@infradead.org>
-To: Peter Hilber <peter.hilber@opensynergy.com>,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rtc@vger.kernel.org,
-	"Ridoux, Julien" <ridouxj@amazon.com>,
-	virtio-dev@lists.linux.dev,
-	"Luu, Ryan" <rluu@amazon.com>,
-	"Chashper, David" <chashper@amazon.com>
-Cc: "Christopher S . Hall" <christopher.s.hall@intel.com>,
-	Jason Wang <jasowang@redhat.com>,
-	John Stultz <jstultz@google.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	netdev@vger.kernel.org,
-	Richard Cochran <richardcochran@gmail.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Marc Zyngier <maz@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	qemu-devel <qemu-devel@nongnu.org>,
-	Simon Horman <horms@kernel.org>
-Subject: [RFC PATCH v4] ptp: Add vDSO-style vmclock support
-Date: Mon,  8 Jul 2024 10:27:42 +0100
-Message-ID: <20240708092924.1473461-1-dwmw2@infradead.org>
-X-Mailer: git-send-email 2.44.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mPnjHn4k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4DDC4AF0A;
+	Mon,  8 Jul 2024 09:47:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1720432052;
+	bh=6ZQTAiQVbQo9uYcXEBcFrxIQPxojeGwZ9owxOifNEfw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=mPnjHn4krM2syVwybaGnTF5CDuHuUV7OIDsB4/SD0yV2/ZuD5JOEBlt7+W7QceF4O
+	 ezpArvKBPCYN8DvExkhVlIwRj271gWD0dOxdAGxdHmGfoTuoLeZUjmwWSBdxANgi6v
+	 jX3Arzy+pJATi+puf1J6/wd0o8GIYWPfjj1ezbrRCrOq0MW7cZVXtCpJCjCEq04f2I
+	 xPCI6/93vVV+Jb5pOjRTzl0rW47YmSBftmb6XtWapztDWZWh3rmslx6pit8QGyRubW
+	 b21ohGibTtymkWHUt8cLThQeWCMJC54NmDBgHv1P4yVYvUfJTS4uQQm7IUC0blSIxx
+	 vQhZmS1Q0Hb0g==
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a77e2f51496so200328366b.0;
+        Mon, 08 Jul 2024 02:47:31 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUvqzEIIti2MY4b0qPXI1i0oTzwehBvGxrjHg51KvCLIVVVgYRxMDvfwDZe4czt5q1LyT0FZZklvm39ZKSK0v81QezqZUFnT9+xBl45ySoeLhIGmyc2Acdrz1W1CCFubkHcwubru53c08k=
+X-Gm-Message-State: AOJu0YwLaEIchBSGVGvB258dN9X+k3ByuYvsV35xclvAdKLEV73e9zE1
+	oMduPIfFL0ya2k62Plb2bhOO1NQ/wRVt/PNaxi18qsFwiBC9iNt1EZoz7PhpaVbtHKbKKdEviKV
+	+paf1uqRhz5zm3BsA1ewKaRpOAyE=
+X-Google-Smtp-Source: AGHT+IHT7P4R9Gj2HJxbgNAzMvzU8XXQI2iU6qxaLmu63ghvfY2DhAYH0v7X1A/WX9w1E/RHXEXCEzqRX2Tl6sw4ncI=
+X-Received: by 2002:a17:906:4686:b0:a72:5a8c:87c6 with SMTP id
+ a640c23a62f3a-a77ba454c31mr780998566b.10.1720432050300; Mon, 08 Jul 2024
+ 02:47:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: David Woodhouse <dwmw2@infradead.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+References: <20240524073812.731032-1-maobibo@loongson.cn> <20240524073812.731032-2-maobibo@loongson.cn>
+ <CAAhV-H5G7O7tbwzyaoO4iEXuN+_xbVFJDEyv1HH7GqOH24639Q@mail.gmail.com>
+ <1aa110a8-28b9-d1d0-4b39-bc894b31f26c@loongson.cn> <CAAhV-H5oS+KrcGH+1wJCGKCjs2VKHkWyZ5QnorPjFMuE_eBb3g@mail.gmail.com>
+ <ae21f9ef-e043-0f8c-b088-6645fc1f3c30@loongson.cn>
+In-Reply-To: <ae21f9ef-e043-0f8c-b088-6645fc1f3c30@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Mon, 8 Jul 2024 17:47:16 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H7QKqOX0fSyN=wnf_Y_5=CDE2ysP2O3Shj2zex8ce1ZMA@mail.gmail.com>
+Message-ID: <CAAhV-H7QKqOX0fSyN=wnf_Y_5=CDE2ysP2O3Shj2zex8ce1ZMA@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] LoongArch: KVM: Add steal time support in kvm side
+To: maobibo <maobibo@loongson.cn>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>, kvm@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, x86@kernel.org, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+On Mon, Jul 8, 2024 at 9:16=E2=80=AFAM maobibo <maobibo@loongson.cn> wrote:
+>
+>
+>
+> On 2024/7/6 =E4=B8=8B=E5=8D=885:41, Huacai Chen wrote:
+> > On Sat, Jul 6, 2024 at 2:59=E2=80=AFPM maobibo <maobibo@loongson.cn> wr=
+ote:
+> >>
+> >> Huacai,
+> >>
+> >> On 2024/7/6 =E4=B8=8A=E5=8D=8811:00, Huacai Chen wrote:
+> >>> Hi, Bibo,
+> >>>
+> >>> On Fri, May 24, 2024 at 3:38=E2=80=AFPM Bibo Mao <maobibo@loongson.cn=
+> wrote:
+> >>>>
+> >>>> Steal time feature is added here in kvm side, VM can search supporte=
+d
+> >>>> features provided by KVM hypervisor, feature KVM_FEATURE_STEAL_TIME
+> >>>> is added here. Like x86, steal time structure is saved in guest memo=
+ry,
+> >>>> one hypercall function KVM_HCALL_FUNC_NOTIFY is added to notify KVM =
+to
+> >>>> enable the feature.
+> >>>>
+> >>>> One cpu attr ioctl command KVM_LOONGARCH_VCPU_PVTIME_CTRL is added t=
+o
+> >>>> save and restore base address of steal time structure when VM is mig=
+rated.
+> >>>>
+> >>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+> >>>> ---
+> >>>>    arch/loongarch/include/asm/kvm_host.h  |   7 ++
+> >>>>    arch/loongarch/include/asm/kvm_para.h  |  10 ++
+> >>>>    arch/loongarch/include/asm/kvm_vcpu.h  |   4 +
+> >>>>    arch/loongarch/include/asm/loongarch.h |   1 +
+> >>>>    arch/loongarch/include/uapi/asm/kvm.h  |   4 +
+> >>>>    arch/loongarch/kvm/Kconfig             |   1 +
+> >>>>    arch/loongarch/kvm/exit.c              |  38 +++++++-
+> >>>>    arch/loongarch/kvm/vcpu.c              | 124 ++++++++++++++++++++=
++++++
+> >>>>    8 files changed, 187 insertions(+), 2 deletions(-)
+> >>>>
+> >>>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/=
+include/asm/kvm_host.h
+> >>>> index c87b6ea0ec47..2eb2f7572023 100644
+> >>>> --- a/arch/loongarch/include/asm/kvm_host.h
+> >>>> +++ b/arch/loongarch/include/asm/kvm_host.h
+> >>>> @@ -30,6 +30,7 @@
+> >>>>    #define KVM_PRIVATE_MEM_SLOTS          0
+> >>>>
+> >>>>    #define KVM_HALT_POLL_NS_DEFAULT       500000
+> >>>> +#define KVM_REQ_STEAL_UPDATE           KVM_ARCH_REQ(1)
+> >>>>
+> >>>>    #define KVM_GUESTDBG_SW_BP_MASK                \
+> >>>>           (KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP)
+> >>>> @@ -201,6 +202,12 @@ struct kvm_vcpu_arch {
+> >>>>           struct kvm_mp_state mp_state;
+> >>>>           /* cpucfg */
+> >>>>           u32 cpucfg[KVM_MAX_CPUCFG_REGS];
+> >>>> +       /* paravirt steal time */
+> >>>> +       struct {
+> >>>> +               u64 guest_addr;
+> >>>> +               u64 last_steal;
+> >>>> +               struct gfn_to_hva_cache cache;
+> >>>> +       } st;
+> >>>>    };
+> >>>>
+> >>>>    static inline unsigned long readl_sw_gcsr(struct loongarch_csrs *=
+csr, int reg)
+> >>>> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/=
+include/asm/kvm_para.h
+> >>>> index 4ba2312e5f8c..a9ba8185d4af 100644
+> >>>> --- a/arch/loongarch/include/asm/kvm_para.h
+> >>>> +++ b/arch/loongarch/include/asm/kvm_para.h
+> >>>> @@ -14,6 +14,7 @@
+> >>>>
+> >>>>    #define KVM_HCALL_SERVICE              HYPERCALL_ENCODE(HYPERVISO=
+R_KVM, KVM_HCALL_CODE_SERVICE)
+> >>>>    #define  KVM_HCALL_FUNC_IPI            1
+> >>>> +#define  KVM_HCALL_FUNC_NOTIFY         2
+> >>>>
+> >>>>    #define KVM_HCALL_SWDBG                        HYPERCALL_ENCODE(H=
+YPERVISOR_KVM, KVM_HCALL_CODE_SWDBG)
+> >>>>
+> >>>> @@ -24,6 +25,15 @@
+> >>>>    #define KVM_HCALL_INVALID_CODE         -1UL
+> >>>>    #define KVM_HCALL_INVALID_PARAMETER    -2UL
+> >>>>
+> >>>> +#define KVM_STEAL_PHYS_VALID           BIT_ULL(0)
+> >>>> +#define KVM_STEAL_PHYS_MASK            GENMASK_ULL(63, 6)
+> >>>> +struct kvm_steal_time {
+> >>>> +       __u64 steal;
+> >>>> +       __u32 version;
+> >>>> +       __u32 flags;
+> >>> I found that x86 has a preempted field here, in our internal repo the
+> >>> LoongArch version also has this field. Moreover,
+> >>> kvm_steal_time_set_preempted() and kvm_steal_time_clear_preempted()
+> >>> seems needed.
+> >> By my understanding, macro vcpu_is_preempted() is used together with p=
+v
+> >> spinlock, and pv spinlock depends on pv stealtime. So I think preempte=
+d
+> >> flag is not part of pv stealtime, it is part of pv spinlock.
+> >>
+> >> We are going to add preempted field if pv spinlock is added.
+> >>>
+> >>>> +       __u32 pad[12];
+> >>>> +};
+> >>>> +
+> >>>>    /*
+> >>>>     * Hypercall interface for KVM hypervisor
+> >>>>     *
+> >>>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/=
+include/asm/kvm_vcpu.h
+> >>>> index 590a92cb5416..d7e51300a89f 100644
+> >>>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
+> >>>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
+> >>>> @@ -120,4 +120,8 @@ static inline void kvm_write_reg(struct kvm_vcpu=
+ *vcpu, int num, unsigned long v
+> >>>>           vcpu->arch.gprs[num] =3D val;
+> >>>>    }
+> >>>>
+> >>>> +static inline bool kvm_pvtime_supported(void)
+> >>>> +{
+> >>>> +       return !!sched_info_on();
+> >>>> +}
+> >>>>    #endif /* __ASM_LOONGARCH_KVM_VCPU_H__ */
+> >>>> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch=
+/include/asm/loongarch.h
+> >>>> index eb09adda54b7..7a4633ef284b 100644
+> >>>> --- a/arch/loongarch/include/asm/loongarch.h
+> >>>> +++ b/arch/loongarch/include/asm/loongarch.h
+> >>>> @@ -169,6 +169,7 @@
+> >>>>    #define  KVM_SIGNATURE                 "KVM\0"
+> >>>>    #define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
+> >>>>    #define  KVM_FEATURE_IPI               BIT(1)
+> >>>> +#define  KVM_FEATURE_STEAL_TIME                BIT(2)
+> >>>>
+> >>>>    #ifndef __ASSEMBLY__
+> >>>>
+> >>>> diff --git a/arch/loongarch/include/uapi/asm/kvm.h b/arch/loongarch/=
+include/uapi/asm/kvm.h
+> >>>> index f9abef382317..ddc5cab0ffd0 100644
+> >>>> --- a/arch/loongarch/include/uapi/asm/kvm.h
+> >>>> +++ b/arch/loongarch/include/uapi/asm/kvm.h
+> >>>> @@ -81,7 +81,11 @@ struct kvm_fpu {
+> >>>>    #define LOONGARCH_REG_64(TYPE, REG)    (TYPE | KVM_REG_SIZE_U64 |=
+ (REG << LOONGARCH_REG_SHIFT))
+> >>>>    #define KVM_IOC_CSRID(REG)             LOONGARCH_REG_64(KVM_REG_L=
+OONGARCH_CSR, REG)
+> >>>>    #define KVM_IOC_CPUCFG(REG)            LOONGARCH_REG_64(KVM_REG_L=
+OONGARCH_CPUCFG, REG)
+> >>>> +
+> >>>> +/* Device Control API on vcpu fd */
+> >>>>    #define KVM_LOONGARCH_VCPU_CPUCFG      0
+> >>>> +#define KVM_LOONGARCH_VCPU_PVTIME_CTRL 1
+> >>>> +#define  KVM_LOONGARCH_VCPU_PVTIME_GPA 0
+> >>>>
+> >>>>    struct kvm_debug_exit_arch {
+> >>>>    };
+> >>>> diff --git a/arch/loongarch/kvm/Kconfig b/arch/loongarch/kvm/Kconfig
+> >>>> index c4ef2b4d9797..248744b4d086 100644
+> >>>> --- a/arch/loongarch/kvm/Kconfig
+> >>>> +++ b/arch/loongarch/kvm/Kconfig
+> >>>> @@ -29,6 +29,7 @@ config KVM
+> >>>>           select KVM_MMIO
+> >>>>           select HAVE_KVM_READONLY_MEM
+> >>>>           select KVM_XFER_TO_GUEST_WORK
+> >>>> +       select SCHED_INFO
+> >>>>           help
+> >>>>             Support hosting virtualized guest machines using
+> >>>>             hardware virtualization extensions. You will need
+> >>>> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
+> >>>> index c86e099af5ca..e2abd97fb13f 100644
+> >>>> --- a/arch/loongarch/kvm/exit.c
+> >>>> +++ b/arch/loongarch/kvm/exit.c
+> >>>> @@ -24,7 +24,7 @@
+> >>>>    static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
+> >>>>    {
+> >>>>           int rd, rj;
+> >>>> -       unsigned int index;
+> >>>> +       unsigned int index, ret;
+> >>>>
+> >>>>           if (inst.reg2_format.opcode !=3D cpucfg_op)
+> >>>>                   return EMULATE_FAIL;
+> >>>> @@ -50,7 +50,10 @@ static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, =
+larch_inst inst)
+> >>>>                   vcpu->arch.gprs[rd] =3D *(unsigned int *)KVM_SIGNA=
+TURE;
+> >>>>                   break;
+> >>>>           case CPUCFG_KVM_FEATURE:
+> >>>> -               vcpu->arch.gprs[rd] =3D KVM_FEATURE_IPI;
+> >>>> +               ret =3D KVM_FEATURE_IPI;
+> >>>> +               if (sched_info_on())
+> >>> What about replacing it with your helper function kvm_pvtime_supporte=
+d()?
+> >> Sure, will replace it with helper function kvm_pvtime_supported().
+> > If you are sure this is the only issue, then needn't submit a new versi=
+on.
+> OK, thanks.
+>
+> By searching orginal submit of vcpu_is_preempt(), it can be located at
+> https://lore.kernel.org/lkml/1477642287-24104-1-git-send-email-xinhui.pan=
+@linux.vnet.ibm.com/
+>
+> It is separated one, only that is depends on pv-spinlock and
+> pv-stealtime. And there is no capability indicator for guest kernel, it
+> is enabled by default.
+Series applied with some modifications here, you can double-check the
+correctness.
+https://git.kernel.org/pub/scm/linux/kernel/git/chenhuacai/linux-loongson.g=
+it/log/?h=3Dloongarch-kvm
 
-The vmclock "device" provides a shared memory region with precision clock
-information. By using shared memory, it is safe across Live Migration.
-
-Like the KVM PTP clock, this can convert TSC-based cross timestamps into
-KVM clock values. Unlike the KVM PTP clock, it does so only when such is
-actually helpful.
-
-The memory region of the device is also exposed to userspace so it can be
-read or memory mapped by application which need reliable notification of
-clock disruptions.
-
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
----
-
-QEMU implementation at
-https://git.infradead.org/users/dwmw2/qemu.git/shortlog/refs/heads/vmclock
-
-Remaining questions/TODO for virtio-rtc adoption:
- • Use of signed integer for tai_offset field
- • Explicit little-endianness
- • Is picoseconds the right unit for absolute error (I was going to make
-   this (seconds>>64) but that actually reduces the *range* that can be
-   expressed).
- • Are the clock_status values sensible?
-
-v4:
- • Add esterror fields, MONOTONIC flag.
- • Reduce seq_count to 32 bits
- • Expand size to permit 64KiB pages
- • Align with virtio-rtc fields, values and leap handling
- • Drop gettime() method (since we have gettimex())
- • Add leap second smearing hint
- • Use a real _CRS on the ACPI device
-
-v3: (wrong patch sent)
-
-v2:
- • Add gettimex64() support
- • Convert TSC values to KVM clock when appropriate
- • Require int128 support
- • Add counter_period_shift
- • Add timeout when seq_count is invalid
- • Add flags field
- • Better comments in vmclock ABI structure
- • Explicitly forbid smearing (as clock rates would need to change)
-
-
- drivers/ptp/Kconfig              |  13 +
- drivers/ptp/Makefile             |   1 +
- drivers/ptp/ptp_vmclock.c        | 567 +++++++++++++++++++++++++++++++
- include/uapi/linux/vmclock-abi.h | 187 ++++++++++
- 4 files changed, 768 insertions(+)
- create mode 100644 drivers/ptp/ptp_vmclock.c
- create mode 100644 include/uapi/linux/vmclock-abi.h
-
-diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
-index 604541dcb320..e98c9767e0ef 100644
---- a/drivers/ptp/Kconfig
-+++ b/drivers/ptp/Kconfig
-@@ -131,6 +131,19 @@ config PTP_1588_CLOCK_KVM
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called ptp_kvm.
- 
-+config PTP_1588_CLOCK_VMCLOCK
-+	tristate "Virtual machine PTP clock"
-+	depends on X86_TSC || ARM_ARCH_TIMER
-+	depends on PTP_1588_CLOCK && ACPI && ARCH_SUPPORTS_INT128
-+	default y
-+	help
-+	  This driver adds support for using a virtual precision clock
-+	  advertised by the hypervisor. This clock is only useful in virtual
-+	  machines where such a device is present.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called ptp_vmclock.
-+
- config PTP_1588_CLOCK_IDT82P33
- 	tristate "IDT 82P33xxx PTP clock"
- 	depends on PTP_1588_CLOCK && I2C
-diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
-index 68bf02078053..01b5cd91eb61 100644
---- a/drivers/ptp/Makefile
-+++ b/drivers/ptp/Makefile
-@@ -11,6 +11,7 @@ obj-$(CONFIG_PTP_1588_CLOCK_DTE)	+= ptp_dte.o
- obj-$(CONFIG_PTP_1588_CLOCK_INES)	+= ptp_ines.o
- obj-$(CONFIG_PTP_1588_CLOCK_PCH)	+= ptp_pch.o
- obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+= ptp_kvm.o
-+obj-$(CONFIG_PTP_1588_CLOCK_VMCLOCK)	+= ptp_vmclock.o
- obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+= ptp-qoriq.o
- ptp-qoriq-y				+= ptp_qoriq.o
- ptp-qoriq-$(CONFIG_DEBUG_FS)		+= ptp_qoriq_debugfs.o
-diff --git a/drivers/ptp/ptp_vmclock.c b/drivers/ptp/ptp_vmclock.c
-new file mode 100644
-index 000000000000..30f15d7753bb
---- /dev/null
-+++ b/drivers/ptp/ptp_vmclock.c
-@@ -0,0 +1,567 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Virtual PTP 1588 clock for use with LM-safe VMclock device.
-+ *
-+ * Copyright © 2024 Amazon.com, Inc. or its affiliates.
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/file.h>
-+#include <linux/fs.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/miscdevice.h>
-+#include <linux/mm.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+
-+#include <uapi/linux/vmclock-abi.h>
-+
-+#include <linux/ptp_clock_kernel.h>
-+
-+#ifdef CONFIG_X86
-+#include <asm/pvclock.h>
-+#include <asm/kvmclock.h>
-+#endif
-+
-+#ifdef CONFIG_KVM_GUEST
-+#define SUPPORT_KVMCLOCK
-+#endif
-+
-+static DEFINE_IDA(vmclock_ida);
-+
-+ACPI_MODULE_NAME("vmclock");
-+
-+struct vmclock_state {
-+	struct resource res;
-+	struct vmclock_abi *clk;
-+	struct miscdevice miscdev;
-+	struct ptp_clock_info ptp_clock_info;
-+	struct ptp_clock *ptp_clock;
-+	enum clocksource_ids cs_id, sys_cs_id;
-+	int index;
-+	char *name;
-+};
-+
-+#define VMCLOCK_MAX_WAIT ms_to_ktime(100)
-+
-+/*
-+ * Multiply a 64-bit count by a 64-bit tick 'period' in units of seconds >> 64
-+ * and add the fractional second part of the reference time.
-+ *
-+ * The result is a 128-bit value, the top 64 bits of which are seconds, and
-+ * the low 64 bits are (seconds >> 64).
-+ *
-+ * If __int128 isn't available, perform the calculation 32 bits at a time to
-+ * avoid overflow.
-+ */
-+static inline uint64_t mul_u64_u64_shr_add_u64(uint64_t *res_hi, uint64_t delta,
-+					       uint64_t period, uint8_t shift,
-+					       uint64_t frac_sec)
-+{
-+	unsigned __int128 res = (unsigned __int128)delta * period;
-+
-+	res >>= shift;
-+	res += frac_sec;
-+	*res_hi = res >> 64;
-+	return (uint64_t)res;
-+}
-+
-+static inline bool tai_adjust(struct vmclock_abi *clk, uint64_t *sec)
-+{
-+	if (likely(clk->time_type == VMCLOCK_TIME_UTC))
-+		return true;
-+
-+	if (clk->time_type == VMCLOCK_TIME_TAI &&
-+	    (clk->flags & VMCLOCK_FLAG_TAI_OFFSET_VALID)) {
-+		if (sec)
-+			*sec += clk->tai_offset_sec;
-+		return true;
-+	}
-+	return false;
-+}
-+
-+static int vmclock_get_crosststamp(struct vmclock_state *st,
-+				   struct ptp_system_timestamp *sts,
-+				   struct system_counterval_t *system_counter,
-+				   struct timespec64 *tspec)
-+{
-+	ktime_t deadline = ktime_add(ktime_get(), VMCLOCK_MAX_WAIT);
-+	struct system_time_snapshot systime_snapshot;
-+	uint64_t cycle, delta, seq, frac_sec;
-+
-+#ifdef CONFIG_X86
-+	/*
-+	 * We'd expect the hypervisor to know this and to report the clock
-+	 * status as VMCLOCK_STATUS_UNRELIABLE. But be paranoid.
-+	 */
-+	if (check_tsc_unstable())
-+		return -EINVAL;
-+#endif
-+
-+	while (1) {
-+		seq = st->clk->seq_count & ~1ULL;
-+		virt_rmb();
-+
-+		if (st->clk->clock_status == VMCLOCK_STATUS_UNRELIABLE)
-+			return -EINVAL;
-+
-+		/*
-+		 * When invoked for gettimex64(), fill in the pre/post system
-+		 * times. The simple case is when system time is based on the
-+		 * same counter as st->cs_id, in which case all three times
-+		 * will be derived from the *same* counter value.
-+		 *
-+		 * If the system isn't using the same counter, then the value
-+		 * from ktime_get_snapshot() will still be used as pre_ts, and
-+		 * ptp_read_system_postts() is called to populate postts after
-+		 * calling get_cycles().
-+		 *
-+		 * The conversion to timespec64 happens further down, outside
-+		 * the seq_count loop.
-+		 */
-+		if (sts) {
-+			ktime_get_snapshot(&systime_snapshot);
-+			if (systime_snapshot.cs_id == st->cs_id) {
-+				cycle = systime_snapshot.cycles;
-+			} else {
-+				cycle = get_cycles();
-+				ptp_read_system_postts(sts);
-+			}
-+		} else
-+			cycle = get_cycles();
-+
-+		delta = cycle - st->clk->counter_value;
-+
-+		frac_sec = mul_u64_u64_shr_add_u64(&tspec->tv_sec, delta,
-+						   st->clk->counter_period_frac_sec,
-+						   st->clk->counter_period_shift,
-+						   st->clk->time_frac_sec);
-+		tspec->tv_nsec = mul_u64_u64_shr(frac_sec, NSEC_PER_SEC, 64);
-+		tspec->tv_sec += st->clk->time_sec;
-+
-+		if (!tai_adjust(st->clk, &tspec->tv_sec))
-+			return -EINVAL;
-+
-+		virt_rmb();
-+		if (seq == st->clk->seq_count)
-+			break;
-+
-+		if (ktime_after(ktime_get(), deadline))
-+			return -ETIMEDOUT;
-+	}
-+
-+	if (system_counter) {
-+		system_counter->cycles = cycle;
-+		system_counter->cs_id = st->cs_id;
-+	}
-+
-+	if (sts) {
-+		sts->pre_ts = ktime_to_timespec64(systime_snapshot.real);
-+		if (systime_snapshot.cs_id == st->cs_id)
-+			sts->post_ts = sts->pre_ts;
-+	}
-+
-+	return 0;
-+}
-+
-+#ifdef SUPPORT_KVMCLOCK
-+/*
-+ * In the case where the system is using the KVM clock for timekeeping, convert
-+ * the TSC value into a KVM clock time in order to return a paired reading that
-+ * get_device_system_crosststamp() can cope with.
-+ */
-+static int vmclock_get_crosststamp_kvmclock(struct vmclock_state *st,
-+					    struct ptp_system_timestamp *sts,
-+					    struct system_counterval_t *system_counter,
-+					    struct timespec64 *tspec)
-+{
-+	struct pvclock_vcpu_time_info *pvti = this_cpu_pvti();
-+	unsigned pvti_ver;
-+	int ret;
-+
-+	preempt_disable_notrace();
-+
-+	do {
-+		pvti_ver = pvclock_read_begin(pvti);
-+
-+		ret = vmclock_get_crosststamp(st, sts, system_counter, tspec);
-+		if (ret)
-+			break;
-+
-+		system_counter->cycles = __pvclock_read_cycles(pvti,
-+							       system_counter->cycles);
-+		system_counter->cs_id = CSID_X86_KVM_CLK;
-+
-+		/*
-+		 * This retry should never really happen; if the TSC is
-+		 * stable and reliable enough across vCPUS that it is sane
-+		 * for the hypervisor to expose a VMCLOCK device which uses
-+		 * it as the reference counter, then the KVM clock sohuld be
-+		 * in 'master clock mode' and basically never changed. But
-+		 * the KVM clock is a fickle and often broken thing, so do
-+		 * it "properly" just in case.
-+		 */
-+	} while (pvclock_read_retry(pvti, pvti_ver));
-+
-+	preempt_enable_notrace();
-+
-+	return ret;
-+}
-+#endif
-+
-+static int ptp_vmclock_get_time_fn(ktime_t *device_time,
-+				   struct system_counterval_t *system_counter,
-+				   void *ctx)
-+{
-+	struct vmclock_state *st = ctx;
-+	struct timespec64 tspec;
-+	int ret;
-+
-+#ifdef SUPPORT_KVMCLOCK
-+	if (READ_ONCE(st->sys_cs_id) == CSID_X86_KVM_CLK)
-+		ret = vmclock_get_crosststamp_kvmclock(st, NULL, system_counter,
-+						       &tspec);
-+	else
-+#endif
-+		ret = vmclock_get_crosststamp(st, NULL, system_counter, &tspec);
-+
-+	if (!ret)
-+		*device_time = timespec64_to_ktime(tspec);
-+
-+	return ret;
-+}
-+
-+
-+static int ptp_vmclock_getcrosststamp(struct ptp_clock_info *ptp,
-+				      struct system_device_crosststamp *xtstamp)
-+{
-+	struct vmclock_state *st = container_of(ptp, struct vmclock_state,
-+						ptp_clock_info);
-+	int ret = get_device_system_crosststamp(ptp_vmclock_get_time_fn, st,
-+						NULL, xtstamp);
-+#ifdef SUPPORT_KVMCLOCK
-+	/*
-+	 * On x86, the KVM clock may be used for the system time. We can
-+	 * actually convert a TSC reading to that, and return a paired
-+	 * timestamp that get_device_system_crosststamp() *can* handle.
-+	 */
-+	if (ret == -ENODEV) {
-+		struct system_time_snapshot systime_snapshot;
-+		ktime_get_snapshot(&systime_snapshot);
-+
-+		if (systime_snapshot.cs_id == CSID_X86_TSC ||
-+		    systime_snapshot.cs_id == CSID_X86_KVM_CLK) {
-+			WRITE_ONCE(st->sys_cs_id, systime_snapshot.cs_id);
-+			ret = get_device_system_crosststamp(ptp_vmclock_get_time_fn,
-+							    st, NULL, xtstamp);
-+		}
-+	}
-+#endif
-+	return ret;
-+}
-+
-+/*
-+ * PTP clock operations
-+ */
-+
-+static int ptp_vmclock_adjfine(struct ptp_clock_info *ptp, long delta)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int ptp_vmclock_adjtime(struct ptp_clock_info *ptp, s64 delta)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int ptp_vmclock_settime(struct ptp_clock_info *ptp,
-+			   const struct timespec64 *ts)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int ptp_vmclock_gettimex(struct ptp_clock_info *ptp, struct timespec64 *ts,
-+				struct ptp_system_timestamp *sts)
-+{
-+	struct vmclock_state *st = container_of(ptp, struct vmclock_state,
-+						ptp_clock_info);
-+
-+	return vmclock_get_crosststamp(st, sts, NULL, ts);
-+}
-+
-+static int ptp_vmclock_enable(struct ptp_clock_info *ptp,
-+			  struct ptp_clock_request *rq, int on)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static const struct ptp_clock_info ptp_vmclock_info = {
-+	.owner		= THIS_MODULE,
-+	.max_adj	= 0,
-+	.n_ext_ts	= 0,
-+	.n_pins		= 0,
-+	.pps		= 0,
-+	.adjfine	= ptp_vmclock_adjfine,
-+	.adjtime	= ptp_vmclock_adjtime,
-+	.gettimex64	= ptp_vmclock_gettimex,
-+	.settime64	= ptp_vmclock_settime,
-+	.enable		= ptp_vmclock_enable,
-+	.getcrosststamp = ptp_vmclock_getcrosststamp,
-+};
-+
-+static int vmclock_miscdev_mmap(struct file *fp, struct vm_area_struct *vma)
-+{
-+	struct vmclock_state *st = container_of(fp->private_data,
-+						struct vmclock_state, miscdev);
-+
-+	if ((vma->vm_flags & (VM_READ|VM_WRITE)) != VM_READ)
-+		return -EROFS;
-+
-+	if (vma->vm_end - vma->vm_start != PAGE_SIZE || vma->vm_pgoff)
-+		return -EINVAL;
-+
-+        if (io_remap_pfn_range(vma, vma->vm_start,
-+			       st->res.start >> PAGE_SHIFT, PAGE_SIZE,
-+                               vma->vm_page_prot))
-+                return -EAGAIN;
-+
-+        return 0;
-+}
-+
-+static ssize_t vmclock_miscdev_read(struct file *fp, char __user *buf,
-+				    size_t count, loff_t *ppos)
-+{
-+	struct vmclock_state *st = container_of(fp->private_data,
-+						struct vmclock_state, miscdev);
-+	ktime_t deadline = ktime_add(ktime_get(), VMCLOCK_MAX_WAIT);
-+	size_t max_count;
-+	int32_t seq;
-+
-+	if (*ppos >= PAGE_SIZE)
-+		return 0;
-+
-+	max_count = PAGE_SIZE - *ppos;
-+	if (count > max_count)
-+		count = max_count;
-+
-+	while (1) {
-+		seq = st->clk->seq_count & ~1ULL;
-+		virt_rmb();
-+
-+		if (copy_to_user(buf, ((char *)st->clk) + *ppos, count))
-+			return -EFAULT;
-+
-+		virt_rmb();
-+		if (seq == st->clk->seq_count)
-+			break;
-+
-+		if (ktime_after(ktime_get(), deadline))
-+			return -ETIMEDOUT;
-+	}
-+
-+	*ppos += count;
-+	return count;
-+}
-+
-+static const struct file_operations vmclock_miscdev_fops = {
-+        .mmap = vmclock_miscdev_mmap,
-+        .read = vmclock_miscdev_read,
-+};
-+
-+/* module operations */
-+
-+static void vmclock_remove(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct vmclock_state *st = dev_get_drvdata(dev);
-+
-+	if (st->ptp_clock)
-+		ptp_clock_unregister(st->ptp_clock);
-+
-+	if (st->miscdev.minor == MISC_DYNAMIC_MINOR)
-+		misc_deregister(&st->miscdev);
-+}
-+
-+static acpi_status vmclock_acpi_resources(struct acpi_resource *ares, void *data)
-+{
-+	struct vmclock_state *st = data;
-+	struct resource_win win;
-+	struct resource *res = &(win.res);
-+
-+	if (ares->type == ACPI_RESOURCE_TYPE_END_TAG)
-+		return AE_OK;
-+
-+	/* There can be only one */
-+	if (resource_type(&st->res) == IORESOURCE_MEM)
-+		return AE_ERROR;
-+
-+        if (acpi_dev_resource_memory(ares, res) ||
-+	    acpi_dev_resource_address_space(ares, &win)) {
-+
-+		if (resource_type(res) != IORESOURCE_MEM ||
-+		    resource_size(res) < sizeof(st->clk))
-+			return AE_ERROR;
-+
-+		st->res = *res;
-+		return AE_OK;
-+	}
-+
-+	return AE_ERROR;
-+}
-+
-+static int vmclock_probe_acpi(struct device *dev, struct vmclock_state *st)
-+{
-+	struct acpi_device *adev = ACPI_COMPANION(dev);
-+	acpi_status status;
-+
-+        status = acpi_walk_resources(adev->handle, METHOD_NAME__CRS,
-+                                     vmclock_acpi_resources, st);
-+        if (ACPI_FAILURE(status) || resource_type(&st->res) != IORESOURCE_MEM) {
-+                dev_err(dev, "failed to get resources\n");
-+                return -ENODEV;
-+        }
-+
-+	return 0;
-+}
-+
-+static void vmclock_put_idx(void *data)
-+{
-+	struct vmclock_state *st = data;
-+
-+	ida_free(&vmclock_ida, st->index);
-+}
-+
-+static int vmclock_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct vmclock_state *st;
-+	int ret;
-+
-+	st = devm_kzalloc(dev, sizeof (*st), GFP_KERNEL);
-+	if (!st)
-+		return -ENOMEM;
-+
-+	if (has_acpi_companion(dev))
-+		ret = vmclock_probe_acpi(dev, st);
-+	else
-+		ret = -EINVAL; /* Only ACPI for now */
-+
-+	if (ret) {
-+		dev_info(dev, "Failed to obtain physical address: %d\n", ret);
-+		goto out;
-+	}
-+
-+	st->clk = devm_memremap(dev, st->res.start, resource_size(&st->res),
-+				MEMREMAP_WB | MEMREMAP_DEC);
-+	if (IS_ERR(st->clk)) {
-+		ret = PTR_ERR(st->clk);
-+		dev_info(dev, "failed to map shared memory\n");
-+		st->clk = NULL;
-+		goto out;
-+	}
-+
-+	if (st->clk->magic != VMCLOCK_MAGIC ||
-+	    st->clk->size < sizeof(*st->clk) ||
-+	    st->clk->version != 1) {
-+		dev_info(dev, "vmclock magic fields invalid\n");
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	ret = ida_alloc(&vmclock_ida, GFP_KERNEL);
-+	if (ret < 0)
-+		goto out;
-+
-+	st->index = ret;
-+        ret = devm_add_action_or_reset(&pdev->dev, vmclock_put_idx, st);
-+	if (ret)
-+		goto out;
-+
-+	st->name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "vmclock%d", st->index);
-+	if (!st->name) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/* If the structure is big enough, it can be mapped to userspace */
-+	if (st->clk->size >= PAGE_SIZE) {
-+		st->miscdev.minor = MISC_DYNAMIC_MINOR;
-+		st->miscdev.fops = &vmclock_miscdev_fops;
-+		st->miscdev.name = st->name;
-+
-+		ret = misc_register(&st->miscdev);
-+		if (ret)
-+			goto out;
-+	}
-+
-+	/* If there is valid clock information, register a PTP clock */
-+	if (IS_ENABLED(CONFIG_ARM64) &&
-+	    st->clk->counter_id == VMCLOCK_COUNTER_ARM_VCNT) {
-+		/* Can we check it's the virtual counter? */
-+		st->cs_id = CSID_ARM_ARCH_COUNTER;
-+	} else if (IS_ENABLED(CONFIG_X86) &&
-+		   st->clk->counter_id == VMCLOCK_COUNTER_X86_TSC) {
-+		st->cs_id = CSID_X86_TSC;
-+	}
-+
-+	/* Only UTC, or TAI with offset */
-+	if (!tai_adjust(st->clk, NULL)) {
-+		dev_info(dev, "vmclock does not provide unambiguous UTC\n");
-+		st->cs_id = CSID_GENERIC;
-+	}
-+
-+	if (st->cs_id) {
-+		st->sys_cs_id = st->cs_id;
-+
-+		st->ptp_clock_info = ptp_vmclock_info;
-+		strscpy(st->ptp_clock_info.name, st->name);
-+		st->ptp_clock = ptp_clock_register(&st->ptp_clock_info, dev);
-+
-+		if (IS_ERR(st->ptp_clock)) {
-+			ret = PTR_ERR(st->ptp_clock);
-+			st->ptp_clock = NULL;
-+			vmclock_remove(pdev);
-+			goto out;
-+		}
-+	} else if (!st->miscdev.minor) {
-+		/* Neither miscdev nor PTP registered */
-+		dev_info(dev, "vmclock: Neither miscdev nor PTP available; not registering\n");
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+
-+	dev_info(dev, "%s: registered %s%s%s\n", st->name,
-+		 st->miscdev.minor ? "miscdev" : "",
-+		 (st->miscdev.minor && st->ptp_clock) ? ", " : "",
-+		 st->ptp_clock ? "PTP" : "");
-+
-+	dev_set_drvdata(dev, st);
-+
-+ out:
-+	return ret;
-+}
-+
-+static const struct acpi_device_id vmclock_acpi_ids[] = {
-+	{ "VMCLOCK", 0 },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(acpi, vmclock_acpi_ids);
-+
-+static struct platform_driver vmclock_platform_driver = {
-+	.probe		= vmclock_probe,
-+	.remove_new	= vmclock_remove,
-+	.driver	= {
-+		.name	= "vmclock",
-+		.acpi_match_table = vmclock_acpi_ids,
-+	},
-+};
-+
-+module_platform_driver(vmclock_platform_driver)
-+
-+MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org>");
-+MODULE_DESCRIPTION("PTP clock using VMCLOCK");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/uapi/linux/vmclock-abi.h b/include/uapi/linux/vmclock-abi.h
-new file mode 100644
-index 000000000000..84f0e37a8a06
---- /dev/null
-+++ b/include/uapi/linux/vmclock-abi.h
-@@ -0,0 +1,187 @@
-+/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-2-Clause) */
-+
-+/*
-+ * This structure provides a vDSO-style clock to VM guests, exposing the
-+ * relationship (or lack thereof) between the CPU clock (TSC, timebase, arch
-+ * counter, etc.) and real time. It is designed to address the problem of
-+ * live migration, which other clock enlightenments do not.
-+ *
-+ * When a guest is live migrated, this affects the clock in two ways.
-+ *
-+ * First, even between identical hosts the actual frequency of the underlying
-+ * counter will change within the tolerances of its specification (typically
-+ * ±50PPM, or 4 seconds a day). This frequency also varies over time on the
-+ * same host, but can be tracked by NTP as it generally varies slowly. With
-+ * live migration there is a step change in the frequency, with no warning.
-+ *
-+ * Second, there may be a step change in the value of the counter itself, as
-+ * its accuracy is limited by the precision of the NTP synchronization on the
-+ * source and destination hosts.
-+ *
-+ * So any calibration (NTP, PTP, etc.) which the guest has done on the source
-+ * host before migration is invalid, and needs to be redone on the new host.
-+ *
-+ * In its most basic mode, this structure provides only an indication to the
-+ * guest that live migration has occurred. This allows the guest to know that
-+ * its clock is invalid and take remedial action. For applications that need
-+ * reliable accurate timestamps (e.g. distributed databases), the structure
-+ * can be mapped all the way to userspace. This allows the application to see
-+ * directly for itself that the clock is disrupted and take appropriate
-+ * action, even when using a vDSO-style method to get the time instead of a
-+ * system call.
-+ *
-+ * In its more advanced mode. this structure can also be used to expose the
-+ * precise relationship of the CPU counter to real time, as calibrated by the
-+ * host. This means that userspace applications can have accurate time
-+ * immediately after live migration, rather than having to pause operations
-+ * and wait for NTP to recover. This mode does, of course, rely on the
-+ * counter being reliable and consistent across CPUs.
-+ *
-+ * Note that this must be true UTC, never with smeared leap seconds. If a
-+ * guest wishes to construct a smeared clock, it can do so. Presenting a
-+ * smeared clock through this interface would be problematic because it
-+ * actually messes with the apparent counter *period*. A linear smearing
-+ * of 1 ms per second would effectively tweak the counter period by 1000PPM
-+ * at the start/end of the smearing period, while a sinusoidal smear would
-+ * basically be impossible to represent.
-+ *
-+ * This structure is offered with the intent that it be adopted into the
-+ * nascent virtio-rtc standard, as a virtio-rtc that does not address the live
-+ * migration problem seems a little less than fit for purpose. For that
-+ * reason, certain fields use precisely the same numeric definitions as in
-+ * the virtio-rtc proposal. The structure can also be exposed through an ACPI
-+ * device with the CID "VMCLOCK", modelled on the "VMGENID" device except for
-+ * the fact that it uses a real _CRS to convey the address of the structure
-+ * (which should be a full page, to allow for mapping directly to userspace).
-+ */
-+
-+#ifndef __VMCLOCK_ABI_H__
-+#define __VMCLOCK_ABI_H__
-+
-+#ifdef __KERNEL__
-+#include <linux/types.h>
-+#else
-+#include <stdint.h>
-+#endif
-+
-+struct vmclock_abi {
-+	/* CONSTANT FIELDS */
-+	uint32_t magic;
-+#define VMCLOCK_MAGIC	0x4b4c4356 /* "VCLK" */
-+	uint32_t size;		/* Size of region containing this structure */
-+	uint16_t version;	/* 1 */
-+	uint8_t counter_id; /* Matches VIRTIO_RTC_COUNTER_xxx except INVALID */
-+#define VMCLOCK_COUNTER_ARM_VCNT	0
-+#define VMCLOCK_COUNTER_X86_TSC		1
-+#define VMCLOCK_COUNTER_INVALID		0xff
-+	uint8_t time_type; /* Matches VIRTIO_RTC_TYPE_xxx */
-+#define VMCLOCK_TIME_UTC			0	/* Since 1970-01-01 00:00:00z */
-+#define VMCLOCK_TIME_TAI			1	/* Since 1970-01-01 00:00:00z */
-+#define VMCLOCK_TIME_MONOTONIC			2	/* Since undefined epoch */
-+#define VMCLOCK_TIME_INVALID_SMEARED		3	/* Not supported */
-+#define VMCLOCK_TIME_INVALID_MAYBE_SMEARED	4	/* Not supported */
-+
-+	/* NON-CONSTANT FIELDS PROTECTED BY SEQCOUNT LOCK */
-+	uint32_t seq_count;	/* Low bit means an update is in progress */
-+	/*
-+	 * This field changes to another non-repeating value when the CPU
-+	 * counter is disrupted, for example on live migration. This lets
-+	 * the guest know that it should discard any calibration it has
-+	 * performed of the counter against external sources (NTP/PTP/etc.).
-+	 */
-+	uint64_t disruption_marker;
-+	uint64_t flags;
-+	/* Indicates that the tai_offset_sec field is valid */
-+#define VMCLOCK_FLAG_TAI_OFFSET_VALID		(1 << 0)
-+	/*
-+	 * Optionally used to notify guests of pending maintenance events.
-+	 * A guest which provides latency-sensitive services may wish to
-+	 * remove itself from service if an event is coming up. Two flags
-+	 * indicate the approximate imminence of the event.
-+	 */
-+#define VMCLOCK_FLAG_DISRUPTION_SOON		(1 << 1) /* About a day */
-+#define VMCLOCK_FLAG_DISRUPTION_IMMINENT	(1 << 2) /* About an hour */
-+#define VMCLOCK_FLAG_PERIOD_ESTERROR_VALID	(1 << 3)
-+#define VMCLOCK_FLAG_PERIOD_MAXERROR_VALID	(1 << 4)
-+#define VMCLOCK_FLAG_TIME_ESTERROR_VALID	(1 << 5)
-+#define VMCLOCK_FLAG_TIME_MAXERROR_VALID	(1 << 6)
-+	/*
-+	 * Even regardless of leap seconds, the time presented through this
-+	 * mechanism may not be strictly monotonic. If the counter slows down
-+	 * and the host adapts to this discovery, the time calculated from
-+	 * the value of the counter immediately after an update to this
-+	 * structure, may appear to be *earlier* than a calculation just
-+	 * before the update (while the counter was believed to be running
-+	 * faster than it now is). A guest operating system will typically
-+	 * *skew* its own system clock back towards the reference clock
-+	 * exposed here, rather than following this clock directly. If,
-+	 * however, this structure is being populated from such a system
-+	 * clock which is already handled in such a fashion and the results
-+	 * *are* guaranteed to be monotonic, such monotonicity can be
-+	 * advertised by setting this bit.
-+	 */
-+#define VMCLOCK_FLAG_TIME_MONOTONIC		(1 << 7)
-+
-+	uint8_t pad[2];
-+	uint8_t clock_status;
-+#define VMCLOCK_STATUS_UNKNOWN		0
-+#define VMCLOCK_STATUS_INITIALIZING	1
-+#define VMCLOCK_STATUS_SYNCHRONIZED	2
-+#define VMCLOCK_STATUS_FREERUNNING	3
-+#define VMCLOCK_STATUS_UNRELIABLE	4
-+
-+	/*
-+	 * The time exposed through this device is never smeared. This field
-+	 * corresponds to the 'subtype' field in virtio-rtc, which indicates
-+	 * the smearing method. However in this case it provides a *hint* to
-+	 * the guest operating system, such that *if* the guest OS wants to
-+	 * provide its users with an alternative clock which does not follow
-+	 * the POSIX CLOCK_REALTIME standard, it may do so in a fashion
-+	 * consistent with the other systems in the nearby environment.
-+	 */
-+	uint8_t leap_second_smearing_hint; /* Matches VIRTIO_RTC_SUBTYPE_xxx */
-+#define VMCLOCK_SMEARING_STRICT		0
-+#define VMCLOCK_SMEARING_NOON_LINEAR	1
-+#define VMCLOCK_SMEARING_UTC_SLS	2
-+	int16_t tai_offset_sec;
-+	uint8_t leap_indicator; /* Based on VIRTIO_RTC_LEAP_xxx */
-+#define VMCLOCK_LEAP_NONE	0	/* No known nearby leap second */
-+#define VMCLOCK_LEAP_PRE_POS	1	/* Leap second + at end of month */
-+#define VMCLOCK_LEAP_PRE_NEG	2	/* Leap second - at end of month */
-+#define VMCLOCK_LEAP_POS	3	/* Set during 23:59:60 second */
-+#define VMCLOCK_LEAP_NEG	4	/* Not used in VMCLOCK */
-+	/*
-+	 * These values are not (yet) in virtio-rtc. They indicate that a
-+	 * leap second *has* occurred at the start of the month. This allows
-+	 * a guest to generate a smeared clock from the accurate clock which
-+	 * this device provides, as smearing may need to continue for up to a
-+	 * period of time *after* the point of the leap second itself. Must
-+	 * be cleared by the 15th day of the month.
-+	 */
-+#define VMCLOCK_LEAP_POST_POS	5
-+#define VMCLOCK_LEAP_POST_NEG	6
-+
-+	/* Bit shift for counter_period_frac_sec and its error rate */
-+	uint8_t counter_period_shift;
-+	/*
-+	 * Paired values of counter and UTC at a given point in time.
-+	 */
-+	uint64_t counter_value;
-+	/*
-+	 * Counter frequency, and error margin. The unit of these fields is
-+	 * seconds >> (64 + counter_period_shift)
-+	 */
-+	uint64_t counter_period_frac_sec;
-+	uint64_t counter_period_esterror_rate_frac_sec;
-+	uint64_t counter_period_maxerror_rate_frac_sec;
-+
-+	/*
-+	 * Time according to time_type field above.
-+	 */
-+	uint64_t time_sec;		/* Seconds since time_type epoch */
-+	uint64_t time_frac_sec;		/* (seconds >> 64) */
-+	uint64_t time_esterror_picosec;	/* (± picoseconds) */
-+	uint64_t time_maxerror_picosec;	/* (± picoseconds) */
-+};
-+
-+#endif /*  __VMCLOCK_ABI_H__ */
--- 
-2.44.0
-
+Huacai
+>
+> Regards
+> Bibo Mao
+>
+> >
+> > Huacai
+> >
+> >>
+> >> Regards
+> >> Bibo Mao
+> >>>
+> >>> Huacai
+> >>>
+> >>>> +                       ret |=3D KVM_FEATURE_STEAL_TIME;
+> >>>> +               vcpu->arch.gprs[rd] =3D ret;
+> >>>>                   break;
+> >>>>           default:
+> >>>>                   vcpu->arch.gprs[rd] =3D 0;
+> >>>> @@ -687,6 +690,34 @@ static int kvm_handle_fpu_disabled(struct kvm_v=
+cpu *vcpu)
+> >>>>           return RESUME_GUEST;
+> >>>>    }
+> >>>>
+> >>>> +static long kvm_save_notify(struct kvm_vcpu *vcpu)
+> >>>> +{
+> >>>> +       unsigned long id, data;
+> >>>> +
+> >>>> +       id   =3D kvm_read_reg(vcpu, LOONGARCH_GPR_A1);
+> >>>> +       data =3D kvm_read_reg(vcpu, LOONGARCH_GPR_A2);
+> >>>> +       switch (id) {
+> >>>> +       case KVM_FEATURE_STEAL_TIME:
+> >>>> +               if (!kvm_pvtime_supported())
+> >>>> +                       return KVM_HCALL_INVALID_CODE;
+> >>>> +
+> >>>> +               if (data & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VA=
+LID))
+> >>>> +                       return KVM_HCALL_INVALID_PARAMETER;
+> >>>> +
+> >>>> +               vcpu->arch.st.guest_addr =3D data;
+> >>>> +               if (!(data & KVM_STEAL_PHYS_VALID))
+> >>>> +                       break;
+> >>>> +
+> >>>> +               vcpu->arch.st.last_steal =3D current->sched_info.run=
+_delay;
+> >>>> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+> >>>> +               break;
+> >>>> +       default:
+> >>>> +               break;
+> >>>> +       };
+> >>>> +
+> >>>> +       return 0;
+> >>>> +};
+> >>>> +
+> >>>>    /*
+> >>>>     * kvm_handle_lsx_disabled() - Guest used LSX while disabled in r=
+oot.
+> >>>>     * @vcpu:      Virtual CPU context.
+> >>>> @@ -758,6 +789,9 @@ static void kvm_handle_service(struct kvm_vcpu *=
+vcpu)
+> >>>>                   kvm_send_pv_ipi(vcpu);
+> >>>>                   ret =3D KVM_HCALL_SUCCESS;
+> >>>>                   break;
+> >>>> +       case KVM_HCALL_FUNC_NOTIFY:
+> >>>> +               ret =3D kvm_save_notify(vcpu);
+> >>>> +               break;
+> >>>>           default:
+> >>>>                   ret =3D KVM_HCALL_INVALID_CODE;
+> >>>>                   break;
+> >>>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
+> >>>> index 9e8030d45129..382796f1d3e6 100644
+> >>>> --- a/arch/loongarch/kvm/vcpu.c
+> >>>> +++ b/arch/loongarch/kvm/vcpu.c
+> >>>> @@ -31,6 +31,117 @@ const struct kvm_stats_header kvm_vcpu_stats_hea=
+der =3D {
+> >>>>                          sizeof(kvm_vcpu_stats_desc),
+> >>>>    };
+> >>>>
+> >>>> +static void kvm_update_stolen_time(struct kvm_vcpu *vcpu)
+> >>>> +{
+> >>>> +       struct kvm_steal_time __user *st;
+> >>>> +       struct gfn_to_hva_cache *ghc;
+> >>>> +       struct kvm_memslots *slots;
+> >>>> +       gpa_t gpa;
+> >>>> +       u64 steal;
+> >>>> +       u32 version;
+> >>>> +
+> >>>> +       ghc =3D &vcpu->arch.st.cache;
+> >>>> +       gpa =3D vcpu->arch.st.guest_addr;
+> >>>> +       if (!(gpa & KVM_STEAL_PHYS_VALID))
+> >>>> +               return;
+> >>>> +
+> >>>> +       gpa &=3D KVM_STEAL_PHYS_MASK;
+> >>>> +       slots =3D kvm_memslots(vcpu->kvm);
+> >>>> +       if (slots->generation !=3D ghc->generation || gpa !=3D ghc->=
+gpa) {
+> >>>> +               if (kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, gpa,
+> >>>> +                                       sizeof(*st))) {
+> >>>> +                       ghc->gpa =3D INVALID_GPA;
+> >>>> +                       return;
+> >>>> +               }
+> >>>> +       }
+> >>>> +
+> >>>> +       st =3D (struct kvm_steal_time __user *)ghc->hva;
+> >>>> +       unsafe_get_user(version, &st->version, out);
+> >>>> +       if (version & 1)
+> >>>> +               version +=3D 1;
+> >>>> +       version +=3D 1;
+> >>>> +       unsafe_put_user(version, &st->version, out);
+> >>>> +       smp_wmb();
+> >>>> +
+> >>>> +       unsafe_get_user(steal, &st->steal, out);
+> >>>> +       steal +=3D current->sched_info.run_delay -
+> >>>> +               vcpu->arch.st.last_steal;
+> >>>> +       vcpu->arch.st.last_steal =3D current->sched_info.run_delay;
+> >>>> +       unsafe_put_user(steal, &st->steal, out);
+> >>>> +
+> >>>> +       smp_wmb();
+> >>>> +       version +=3D 1;
+> >>>> +       unsafe_put_user(version, &st->version, out);
+> >>>> +out:
+> >>>> +       mark_page_dirty_in_slot(vcpu->kvm, ghc->memslot, gpa_to_gfn(=
+ghc->gpa));
+> >>>> +}
+> >>>> +
+> >>>> +static int kvm_loongarch_pvtime_has_attr(struct kvm_vcpu *vcpu,
+> >>>> +                                       struct kvm_device_attr *attr=
+)
+> >>>> +{
+> >>>> +       if (!kvm_pvtime_supported() ||
+> >>>> +                       attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GP=
+A)
+> >>>> +               return -ENXIO;
+> >>>> +
+> >>>> +       return 0;
+> >>>> +}
+> >>>> +
+> >>>> +static int kvm_loongarch_pvtime_get_attr(struct kvm_vcpu *vcpu,
+> >>>> +                                       struct kvm_device_attr *attr=
+)
+> >>>> +{
+> >>>> +       u64 __user *user =3D (u64 __user *)attr->addr;
+> >>>> +       u64 gpa;
+> >>>> +
+> >>>> +       if (!kvm_pvtime_supported() ||
+> >>>> +                       attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GP=
+A)
+> >>>> +               return -ENXIO;
+> >>>> +
+> >>>> +       gpa =3D vcpu->arch.st.guest_addr;
+> >>>> +       if (put_user(gpa, user))
+> >>>> +               return -EFAULT;
+> >>>> +
+> >>>> +       return 0;
+> >>>> +}
+> >>>> +
+> >>>> +static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
+> >>>> +                                       struct kvm_device_attr *attr=
+)
+> >>>> +{
+> >>>> +       u64 __user *user =3D (u64 __user *)attr->addr;
+> >>>> +       struct kvm *kvm =3D vcpu->kvm;
+> >>>> +       u64 gpa;
+> >>>> +       int ret =3D 0;
+> >>>> +       int idx;
+> >>>> +
+> >>>> +       if (!kvm_pvtime_supported() ||
+> >>>> +                       attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GP=
+A)
+> >>>> +               return -ENXIO;
+> >>>> +
+> >>>> +       if (get_user(gpa, user))
+> >>>> +               return -EFAULT;
+> >>>> +
+> >>>> +       if (gpa & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
+> >>>> +               return -EINVAL;
+> >>>> +
+> >>>> +       if (!(gpa & KVM_STEAL_PHYS_VALID)) {
+> >>>> +               vcpu->arch.st.guest_addr =3D gpa;
+> >>>> +               return 0;
+> >>>> +       }
+> >>>> +
+> >>>> +       /* Check the address is in a valid memslot */
+> >>>> +       idx =3D srcu_read_lock(&kvm->srcu);
+> >>>> +       if (kvm_is_error_hva(gfn_to_hva(kvm, gpa >> PAGE_SHIFT)))
+> >>>> +               ret =3D -EINVAL;
+> >>>> +       srcu_read_unlock(&kvm->srcu, idx);
+> >>>> +
+> >>>> +       if (!ret) {
+> >>>> +               vcpu->arch.st.guest_addr =3D gpa;
+> >>>> +               vcpu->arch.st.last_steal =3D current->sched_info.run=
+_delay;
+> >>>> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+> >>>> +       }
+> >>>> +
+> >>>> +       return ret;
+> >>>> +}
+> >>>> +
+> >>>>    /*
+> >>>>     * kvm_check_requests - check and handle pending vCPU requests
+> >>>>     *
+> >>>> @@ -48,6 +159,9 @@ static int kvm_check_requests(struct kvm_vcpu *vc=
+pu)
+> >>>>           if (kvm_dirty_ring_check_request(vcpu))
+> >>>>                   return RESUME_HOST;
+> >>>>
+> >>>> +       if (kvm_check_request(KVM_REQ_STEAL_UPDATE, vcpu))
+> >>>> +               kvm_update_stolen_time(vcpu);
+> >>>> +
+> >>>>           return RESUME_GUEST;
+> >>>>    }
+> >>>>
+> >>>> @@ -671,6 +785,9 @@ static int kvm_loongarch_vcpu_has_attr(struct kv=
+m_vcpu *vcpu,
+> >>>>           case KVM_LOONGARCH_VCPU_CPUCFG:
+> >>>>                   ret =3D kvm_loongarch_cpucfg_has_attr(vcpu, attr);
+> >>>>                   break;
+> >>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
+> >>>> +               ret =3D kvm_loongarch_pvtime_has_attr(vcpu, attr);
+> >>>> +               break;
+> >>>>           default:
+> >>>>                   break;
+> >>>>           }
+> >>>> @@ -703,6 +820,9 @@ static int kvm_loongarch_vcpu_get_attr(struct kv=
+m_vcpu *vcpu,
+> >>>>           case KVM_LOONGARCH_VCPU_CPUCFG:
+> >>>>                   ret =3D kvm_loongarch_get_cpucfg_attr(vcpu, attr);
+> >>>>                   break;
+> >>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
+> >>>> +               ret =3D kvm_loongarch_pvtime_get_attr(vcpu, attr);
+> >>>> +               break;
+> >>>>           default:
+> >>>>                   break;
+> >>>>           }
+> >>>> @@ -725,6 +845,9 @@ static int kvm_loongarch_vcpu_set_attr(struct kv=
+m_vcpu *vcpu,
+> >>>>           case KVM_LOONGARCH_VCPU_CPUCFG:
+> >>>>                   ret =3D kvm_loongarch_cpucfg_set_attr(vcpu, attr);
+> >>>>                   break;
+> >>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
+> >>>> +               ret =3D kvm_loongarch_pvtime_set_attr(vcpu, attr);
+> >>>> +               break;
+> >>>>           default:
+> >>>>                   break;
+> >>>>           }
+> >>>> @@ -1084,6 +1207,7 @@ static int _kvm_vcpu_load(struct kvm_vcpu *vcp=
+u, int cpu)
+> >>>>
+> >>>>           /* Control guest page CCA attribute */
+> >>>>           change_csr_gcfg(CSR_GCFG_MATC_MASK, CSR_GCFG_MATC_ROOT);
+> >>>> +       kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+> >>>>
+> >>>>           /* Don't bother restoring registers multiple times unless =
+necessary */
+> >>>>           if (vcpu->arch.aux_inuse & KVM_LARCH_HWCSR_USABLE)
+> >>>> --
+> >>>> 2.39.3
+> >>>>
+> >>
+>
+>
