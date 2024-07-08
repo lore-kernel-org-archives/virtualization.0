@@ -1,249 +1,261 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE0201D52B;
-	Mon,  8 Jul 2024 12:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3E5A22F1C
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 12:20:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720441203; cv=none; b=iBN2+uf5Z5NGSjNWbi9tfzoX9tYoQ85IZ4fdN9noLN3yx42Pzg7rUiVaMBRMfv0WO8MzrxAb/n1f27ALdf2jkIGM9/m2Q7oOlRIw5A2top5LDWIO64PFMD4r2O3IiYQLf4sqpQfqg5caBBedPvEZmNSP6WY0Myes2mMpjCxLolU=
+	t=1720441244; cv=none; b=DNixXu58CFvtjuWidKxAygTX8glTe512SnNReKFZ+VQYSlE+cW40Rp6LiLEcZLdI6EPHlxXu2zVNhWpoSEINCg2g2ouM7klA/Ndde3fE23nv4VBuLubV/sjljvW1kjVV1J4hBoI8pjZ5Evjfh+4cGaDHcdAWfn/GRai/8ZU9IkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720441203; c=relaxed/simple;
-	bh=wjvU51ptwqEbDa4csd4lwZbWtSADQIQKj+0neUMIwbk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hlIVqEy5Pu4IePneFlEw8fK2nq5f/rpfdOUOGhjqkUDxVS/bpiK/XzOqlXvLzkHg/YDCqDQI6QWFVIRePwJN8qtqJ9VhZ0otFOPvv9Pqk/8Wr2eSupx8qBh69bWLj+7VZRTBThN1cmcA0VLPkwzNppFrBqHDOjTtbYB9WO2wUoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SW/Czsx3; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1720441244; c=relaxed/simple;
+	bh=JUywPYK7LdYZcdkUZ+5/1PJDqoKNkpUP+hJwIvzPJXE=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=sVOVgqYVls/dhFyuUHG/QVL9Mvujpn9n63qAjmukmJgoI/6LqIXwU8bUSIaejyUvR8wARGPlEizBxQiNKPAITzSEqF1UWdRYDlPMEAB0SpOLOaF9IuZ826rredNl5KNfDjs4EIMeM2zq7EV5KjP1WGpNfYqDilBbt6Klk2iLSeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MtJkaH0z; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SW/Czsx3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1720441202; x=1751977202;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=wjvU51ptwqEbDa4csd4lwZbWtSADQIQKj+0neUMIwbk=;
-  b=SW/Czsx3+g7XO7bPbErC1YyYQ9PpXISBO37s+UBwQa3CPiOEHN3vazO7
-   PMVJRmtT6KFm9lcbjyJ2rl/mKwtkA8rnIg88DJW+MpTxqi6JsnfTf3XdZ
-   +i8XBitlRnuyIu6BXw7tFvrOag0h7ydPmKRfhibCBjZNhwrLLCAGBMATm
-   nMatTauzEvrrWwmHpsNgTm+OWW+ngK76NRzznImcXVTK5xnBLoZgy9sLk
-   vgPe24EkS9ZQcSTsJQQn0sqNPm5YpSMQen1/IWXOu3HaJGw/J/GlDNU4O
-   4Ktd/AwJ+Zwr4JM42FpoqkFaVk70tmYHiu0tQFhMJNExfeWWxk0ecls96
-   g==;
-X-CSE-ConnectionGUID: IuqpEChPTaKja0MZ75r+0g==
-X-CSE-MsgGUID: YrLtOeksQbmVHRrc9zZXBQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11127"; a="17844213"
-X-IronPort-AV: E=Sophos;i="6.09,191,1716274800"; 
-   d="scan'208";a="17844213"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2024 05:20:01 -0700
-X-CSE-ConnectionGUID: HEZVAEHmTwez08r4zwACwg==
-X-CSE-MsgGUID: 6fZXpjtYRNKcITw3+f5wrA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,191,1716274800"; 
-   d="scan'208";a="47560213"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa010.fm.intel.com with ESMTP; 08 Jul 2024 05:19:56 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1000)
-	id D318A1AC; Mon, 08 Jul 2024 15:19:54 +0300 (EEST)
-Date: Mon, 8 Jul 2024 15:19:54 +0300
-From: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-To: Tim Merrifield <tim.merrifield@broadcom.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, Xin Li <xin3.li@intel.com>, 
-	Ard Biesheuvel <ardb@kernel.org>, Kai Huang <kai.huang@intel.com>, 
-	Kevin Loughlin <kevinloughlin@google.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Rick Edgecombe <rick.p.edgecombe@intel.com>, Kees Cook <kees@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Brian Gerst <brgerst@gmail.com>, linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.amakhalov@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, virtualization@lists.linux.dev, alex.james@broadcom.com, 
-	doug.covelli@broadcom.com, jeffrey.sheldon@broadcom.com
-Subject: Re: [PATCH 1/2] x86/tdx: Add prctl to allow userlevel TDX hypercalls
-Message-ID: <wufxrry6smwk25qmsajabx6vgx4vgsrbvtmun2zw4fxz3lo4b4@nfpkscueapt6>
-References: <cover.1720046911.git.tim.merrifield@broadcom.com>
- <90bf00599189c34e77aa77986674be2d5fc19f9c.1720046911.git.tim.merrifield@broadcom.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MtJkaH0z"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1720441239; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=Rx6Ae7eRfpLUjn9z1ZNbbEHUalJk1s+zD1SaKmK9B94=;
+	b=MtJkaH0zdemC0qdd/KIlfiMOMAx6aX+nJmZWPZpxSYrfjlVgeH45U1Sk/RK/lZFOBHcFwCMLeXHYVU8+/l3xK5KUSydsE2BpbfXmhMHPZTVW6jYdrKIy5V0dOAOTxTrL5N7OIRvAgVmAK8UbFJ+KfhIO748njDAJ2vrC+OEkjkY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R471e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045220184;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0WA5tnPr_1720441238;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0WA5tnPr_1720441238)
+          by smtp.aliyun-inc.com;
+          Mon, 08 Jul 2024 20:20:38 +0800
+Message-ID: <1720441175.5614002-23-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v4 2/5] virtio_net: enable irq for the control vq
+Date: Mon, 8 Jul 2024 20:19:35 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: Jason Wang <jasowang@redhat.com>,
+ netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>
+References: <20240619161908.82348-1-hengqi@linux.alibaba.com>
+ <20240619161908.82348-3-hengqi@linux.alibaba.com>
+ <20240619171708-mutt-send-email-mst@kernel.org>
+ <1718868555.2701075-5-hengqi@linux.alibaba.com>
+ <CACGkMEv8jnnO=S3LYW00ypwHfM3Tzt42iuASG_d4FAAk60zoLg@mail.gmail.com>
+ <CACGkMEtryWEbe-07-7GWyntGN+f-sL+uS0ozN0Oc6aMemmsYEw@mail.gmail.com>
+ <1718877195.0503237-9-hengqi@linux.alibaba.com>
+ <20240620060816-mutt-send-email-mst@kernel.org>
+ <20240620061109-mutt-send-email-mst@kernel.org>
+ <1718879494.952194-11-hengqi@linux.alibaba.com>
+ <ZnvI2hJXPJZyveAv@nanopsycho.orion>
+ <20240626040730-mutt-send-email-mst@kernel.org>
+ <ZnvUn-Kq4Al0nMQZ@nanopsycho.orion>
+ <20240626045313-mutt-send-email-mst@kernel.org>
+ <ZnwApCUjIijZ7o0b@nanopsycho.orion>
+ <ZovQOpmfOMs77lJ2@nanopsycho.orion>
+In-Reply-To: <ZovQOpmfOMs77lJ2@nanopsycho.orion>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <90bf00599189c34e77aa77986674be2d5fc19f9c.1720046911.git.tim.merrifield@broadcom.com>
 
-On Wed, Jul 03, 2024 at 11:36:00PM +0000, Tim Merrifield wrote:
-> Add a new prctl option to enable/disable user-level hypercalls when
-> running in a confidential VM. Add support for checking this flag on
-> VMCALL #VE for TDX and transfer control to a hypervisor
-> vendor-specific handler.
-> 
-> Signed-off-by: Tim Merrifield <tim.merrifield@broadcom.com>
-> ---
->  arch/x86/coco/tdx/tdx.c            | 18 ++++++++++++++++++
->  arch/x86/include/asm/thread_info.h |  2 ++
->  arch/x86/include/asm/x86_init.h    |  1 +
->  arch/x86/include/uapi/asm/prctl.h  |  3 +++
->  arch/x86/kernel/process.c          | 20 ++++++++++++++++++++
->  5 files changed, 44 insertions(+)
-> 
-> diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
-> index ef8ec2425998..23111e4c1f91 100644
-> --- a/arch/x86/coco/tdx/tdx.c
-> +++ b/arch/x86/coco/tdx/tdx.c
-> @@ -239,6 +239,7 @@ static int ve_instr_len(struct ve_info *ve)
->  	case EXIT_REASON_MSR_WRITE:
->  	case EXIT_REASON_CPUID:
->  	case EXIT_REASON_IO_INSTRUCTION:
-> +	case EXIT_REASON_VMCALL:
->  		/* It is safe to use ve->instr_len for #VE due instructions */
->  		return ve->instr_len;
->  	case EXIT_REASON_EPT_VIOLATION:
-> @@ -635,6 +636,21 @@ void tdx_get_ve_info(struct ve_info *ve)
->  	ve->instr_info  = upper_32_bits(args.r10);
->  }
->  
-> +/*
-> + * Handle user-initiated, hypervisor-specific VMCALLs.
-> + */
-> +static int handle_user_vmcall(struct pt_regs *regs, struct ve_info *ve)
-> +{
-> +	if (x86_platform.hyper.tdx_hcall &&
-> +	    test_thread_flag(TIF_COCO_USER_HCALL)) {
-> +		if (!x86_platform.hyper.tdx_hcall(regs))
-> +			return -EIO;
-> +		return ve_instr_len(ve);
-> +	} else {
-> +		return -EOPNOTSUPP;
-> +	}
+On Mon, 8 Jul 2024 13:40:42 +0200, Jiri Pirko <jiri@resnulli.us> wrote:
+> Wed, Jun 26, 2024 at 01:51:00PM CEST, jiri@resnulli.us wrote:
+> >Wed, Jun 26, 2024 at 11:58:08AM CEST, mst@redhat.com wrote:
+> >>On Wed, Jun 26, 2024 at 10:43:11AM +0200, Jiri Pirko wrote:
+> >>> Wed, Jun 26, 2024 at 10:08:14AM CEST, mst@redhat.com wrote:
+> >>> >On Wed, Jun 26, 2024 at 09:52:58AM +0200, Jiri Pirko wrote:
+> >>> >> Thu, Jun 20, 2024 at 12:31:34PM CEST, hengqi@linux.alibaba.com wro=
+te:
+> >>> >> >On Thu, 20 Jun 2024 06:11:40 -0400, "Michael S. Tsirkin" <mst@red=
+hat.com> wrote:
+> >>> >> >> On Thu, Jun 20, 2024 at 06:10:51AM -0400, Michael S. Tsirkin wr=
+ote:
+> >>> >> >> > On Thu, Jun 20, 2024 at 05:53:15PM +0800, Heng Qi wrote:
+> >>> >> >> > > On Thu, 20 Jun 2024 16:26:05 +0800, Jason Wang <jasowang@re=
+dhat.com> wrote:
+> >>> >> >> > > > On Thu, Jun 20, 2024 at 4:21=E2=80=AFPM Jason Wang <jasow=
+ang@redhat.com> wrote:
+> >>> >> >> > > > >
+> >>> >> >> > > > > On Thu, Jun 20, 2024 at 3:35=E2=80=AFPM Heng Qi <hengqi=
+@linux.alibaba.com> wrote:
+> >>> >> >> > > > > >
+> >>> >> >> > > > > > On Wed, 19 Jun 2024 17:19:12 -0400, "Michael S. Tsirk=
+in" <mst@redhat.com> wrote:
+> >>> >> >> > > > > > > On Thu, Jun 20, 2024 at 12:19:05AM +0800, Heng Qi w=
+rote:
+> >>> >> >> > > > > > > > @@ -5312,7 +5315,7 @@ static int virtnet_find_vqs=
+(struct virtnet_info *vi)
+> >>> >> >> > > > > > > >
+> >>> >> >> > > > > > > >     /* Parameters for control virtqueue, if any */
+> >>> >> >> > > > > > > >     if (vi->has_cvq) {
+> >>> >> >> > > > > > > > -           callbacks[total_vqs - 1] =3D NULL;
+> >>> >> >> > > > > > > > +           callbacks[total_vqs - 1] =3D virtnet_=
+cvq_done;
+> >>> >> >> > > > > > > >             names[total_vqs - 1] =3D "control";
+> >>> >> >> > > > > > > >     }
+> >>> >> >> > > > > > > >
+> >>> >> >> > > > > > >
+> >>> >> >> > > > > > > If the # of MSIX vectors is exactly for data path V=
+Qs,
+> >>> >> >> > > > > > > this will cause irq sharing between VQs which will =
+degrade
+> >>> >> >> > > > > > > performance significantly.
+> >>> >> >> > > > > > >
+> >>> >> >> > > > >
+> >>> >> >> > > > > Why do we need to care about buggy management? I think =
+libvirt has
+> >>> >> >> > > > > been teached to use 2N+2 since the introduction of the =
+multiqueue[1].
+> >>> >> >> > > >=20
+> >>> >> >> > > > And Qemu can calculate it correctly automatically since:
+> >>> >> >> > > >=20
+> >>> >> >> > > > commit 51a81a2118df0c70988f00d61647da9e298483a4
+> >>> >> >> > > > Author: Jason Wang <jasowang@redhat.com>
+> >>> >> >> > > > Date:   Mon Mar 8 12:49:19 2021 +0800
+> >>> >> >> > > >=20
+> >>> >> >> > > >     virtio-net: calculating proper msix vectors on init
+> >>> >> >> > > >=20
+> >>> >> >> > > >     Currently, the default msix vectors for virtio-net-pc=
+i is 3 which is
+> >>> >> >> > > >     obvious not suitable for multiqueue guest, so we depe=
+nds on the user
+> >>> >> >> > > >     or management tools to pass a correct vectors paramet=
+er. In fact, we
+> >>> >> >> > > >     can simplifying this by calculating the number of vec=
+tors on realize.
+> >>> >> >> > > >=20
+> >>> >> >> > > >     Consider we have N queues, the number of vectors need=
+ed is 2*N + 2
+> >>> >> >> > > >     (#queue pairs + plus one config interrupt and control=
+ vq). We didn't
+> >>> >> >> > > >     check whether or not host support control vq because =
+it was added
+> >>> >> >> > > >     unconditionally by qemu to avoid breaking legacy gues=
+ts such as Minix.
+> >>> >> >> > > >=20
+> >>> >> >> > > >     Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@redh=
+at.com
+> >>> >> >> > > >     Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> >>> >> >> > > >     Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> >>> >> >> > > >     Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >>> >> >> > >=20
+> >>> >> >> > > Yes, devices designed according to the spec need to reserve=
+ an interrupt
+> >>> >> >> > > vector for ctrlq. So, Michael, do we want to be compatible =
+with buggy devices?
+> >>> >> >> > >=20
+> >>> >> >> > > Thanks.
+> >>> >> >> >=20
+> >>> >> >> > These aren't buggy, the spec allows this. So don't fail, but
+> >>> >> >> > I'm fine with using polling if not enough vectors.
+> >>> >> >>=20
+> >>> >> >> sharing with config interrupt is easier code-wise though, FWIW -
+> >>> >> >> we don't need to maintain two code-paths.
+> >>> >> >
+> >>> >> >Yes, it works well - config change irq is used less before - and =
+will not fail.
+> >>> >>=20
+> >>> >> Please note I'm working on such fallback for admin queue. I would =
+Like
+> >>> >> to send the patchset by the end of this week. You can then use it =
+easily
+> >>> >> for cvq.
+> >>> >>=20
+> >>> >> Something like:
+> >>> >> /* the config->find_vqs() implementation */
+> >>> >> int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+> >>> >>                 struct virtqueue *vqs[], vq_callback_t *callbacks[=
+],
+> >>> >>                 const char * const names[], const bool *ctx,
+> >>> >>                 struct irq_affinity *desc)
+> >>> >> {
+> >>> >>         int err;
+> >>> >>=20
+> >>> >>         /* Try MSI-X with one vector per queue. */
+> >>> >>         err =3D vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
+> >>> >>                                VP_VQ_VECTOR_POLICY_EACH, ctx, desc=
+);
+> >>> >>         if (!err)
+> >>> >>                 return 0;
+> >>> >>         /* Fallback: MSI-X with one shared vector for config and
+> >>> >>          * slow path queues, one vector per queue for the rest. */
+> >>> >>         err =3D vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
+> >>> >>                                VP_VQ_VECTOR_POLICY_SHARED_SLOW, ct=
+x, desc);
+> >>> >>         if (!err)
+> >>> >>                 return 0;
+> >>> >>         /* Fallback: MSI-X with one vector for config, one shared =
+for queues. */
+> >>> >>         err =3D vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names,
+> >>> >>                                VP_VQ_VECTOR_POLICY_SHARED, ctx, de=
+sc);
+> >>> >>         if (!err)
+> >>> >>                 return 0;
+> >>> >>         /* Is there an interrupt? If not give up. */
+> >>> >>         if (!(to_vp_device(vdev)->pci_dev->irq))
+> >>> >>                 return err;
+> >>> >>         /* Finally fall back to regular interrupts. */
+> >>> >>         return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names,=
+ ctx);
+> >>> >> }
+> >>> >>=20
+> >>> >>=20
+> >>> >
+> >>> >
+> >>> >Well for cvq, we'll need to adjust the API so core
+> >>> >knows cvq interrupts are be shared with config not
+> >>> >datapath.
+> >>>=20
+> >>> Agreed. I was thinking about introducing some info struct and pass ar=
+ray
+> >>> of it instead of callbacks[] and names[]. Then the struct can contain
+> >>> flag indication. Something like:
+> >>>=20
+> >>> struct vq_info {
+> >>> 	vq_callback_t *callback;
+> >>> 	const char *name;
+> >>> 	bool slow_path;
+> >>> };
+> >>>=20
+> >>
+> >>Yes. Add ctx too? There were attempts at it already btw.
+> >
+> >Yep, ctx too. I can take a stab at it if noone else is interested.
+>=20
+> Since this work is in v4, and I hope it will get merged soon, I plan to
 
-Maybe something like this would be more readable:
+I've seen your set and will help review it tomorrow.
 
-	if (!x86_platform.hyper.tdx_hcall)
-		return -EOPNOTSUPP;
+> send v2 of admin queue parallelization patchset after that. Here it is:
+> https://github.com/jpirko/linux_mlxsw/tree/wip_virtio_parallel_aq2
+>=20
+> Heng, note the last patch:
+> virtio_pci: allow to indicate virtqueue being slow path
+>=20
+> That is not part of my set, it is ment to be merged in your control
+> queue patchset. Then you can just indicate cvq to be slow like this:
+>=20
+>         /* Parameters for control virtqueue, if any */
+>         if (vi->has_cvq) {
+>                 vqs_info[total_vqs - 1].callback =3D virtnet_cvq_done;
+>                 vqs_info[total_vqs - 1].name =3D "control";
+>                 vqs_info[total_vqs - 1].slow_path =3D true;
+>         }
+>=20
+> I just wanted to let you know this is in process so you may prepare.
+> Will keep you informed.
 
-	if (!test_thread_flag(TIF_COCO_USER_HCALL))
-		return -EOPNOTSUPP;
+Thanks for letting me know!
 
-	if (!x86_platform.hyper.tdx_hcall(regs))
-		return -EIO;
+Regards,
+Heng
 
-	return ve_instr_len(ve);
-
-BTW, do we want tdx_hcall() to return errno instead of bool?
-
-> +}
-> +
->  /*
->   * Handle the user initiated #VE.
->   *
-> @@ -646,6 +662,8 @@ static int virt_exception_user(struct pt_regs *regs, struct ve_info *ve)
->  	switch (ve->exit_reason) {
->  	case EXIT_REASON_CPUID:
->  		return handle_cpuid(regs, ve);
-> +	case EXIT_REASON_VMCALL:
-> +		return handle_user_vmcall(regs, ve);
->  	default:
->  		pr_warn("Unexpected #VE: %lld\n", ve->exit_reason);
->  		return -EIO;
-> diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
-> index 12da7dfd5ef1..9f69a26a5e68 100644
-> --- a/arch/x86/include/asm/thread_info.h
-> +++ b/arch/x86/include/asm/thread_info.h
-> @@ -106,6 +106,7 @@ struct thread_info {
->  #define TIF_BLOCKSTEP		25	/* set when we want DEBUGCTLMSR_BTF */
->  #define TIF_LAZY_MMU_UPDATES	27	/* task is updating the mmu lazily */
->  #define TIF_ADDR32		29	/* 32-bit address space on 64 bits */
-> +#define TIF_COCO_USER_HCALL     30      /* Userland hypercalls allowed in CoCo */
-
-Tabs instead of spaces for alignment, please.
-
->  #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
->  #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
-> @@ -128,6 +129,7 @@ struct thread_info {
->  #define _TIF_BLOCKSTEP		(1 << TIF_BLOCKSTEP)
->  #define _TIF_LAZY_MMU_UPDATES	(1 << TIF_LAZY_MMU_UPDATES)
->  #define _TIF_ADDR32		(1 << TIF_ADDR32)
-> +#define _TIF_COCO_USER_HCALL    (1 << TIF_COCO_USER_HCALL)
-
-Ditto.
-
->  
->  /* flags to check in __switch_to() */
->  #define _TIF_WORK_CTXSW_BASE					\
-> diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
-> index 213cf5379a5a..52975bedd33e 100644
-> --- a/arch/x86/include/asm/x86_init.h
-> +++ b/arch/x86/include/asm/x86_init.h
-> @@ -282,6 +282,7 @@ struct x86_hyper_runtime {
->  	void (*sev_es_hcall_prepare)(struct ghcb *ghcb, struct pt_regs *regs);
->  	bool (*sev_es_hcall_finish)(struct ghcb *ghcb, struct pt_regs *regs);
->  	bool (*is_private_mmio)(u64 addr);
-> +	bool (*tdx_hcall)(struct pt_regs *regs);
->  };
->  
->  /**
-> diff --git a/arch/x86/include/uapi/asm/prctl.h b/arch/x86/include/uapi/asm/prctl.h
-> index 384e2cc6ac19..7fa289a1815b 100644
-> --- a/arch/x86/include/uapi/asm/prctl.h
-> +++ b/arch/x86/include/uapi/asm/prctl.h
-> @@ -16,6 +16,9 @@
->  #define ARCH_GET_XCOMP_GUEST_PERM	0x1024
->  #define ARCH_REQ_XCOMP_GUEST_PERM	0x1025
->  
-> +#define ARCH_GET_COCO_USER_HCALL        0x1030
-> +#define ARCH_SET_COCO_USER_HCALL        0x1031
-> +
-
-Ditto.
-
->  #define ARCH_XCOMP_TILECFG		17
->  #define ARCH_XCOMP_TILEDATA		18
->  
-> diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-> index 1b3d417cd6c4..16f8ab6cde2e 100644
-> --- a/arch/x86/kernel/process.c
-> +++ b/arch/x86/kernel/process.c
-> @@ -1039,6 +1039,21 @@ unsigned long __get_wchan(struct task_struct *p)
->  	return addr;
->  }
->  
-> +static int get_coco_user_hcall_mode(void)
-> +{
-> +	return !test_thread_flag(TIF_COCO_USER_HCALL);
-> +}
-> +
-> +static int set_coco_user_hcall_mode(unsigned long enabled)
-> +{
-> +	if (enabled)
-> +		set_thread_flag(TIF_COCO_USER_HCALL);
-> +	else
-> +		clear_thread_flag(TIF_COCO_USER_HCALL);
-> +
-> +	return 0;
-> +}
-> +
-
-Hm. Per-thread flag is odd. I think it should be per-process.
-
->  long do_arch_prctl_common(int option, unsigned long arg2)
->  {
->  	switch (option) {
-> @@ -1052,6 +1067,11 @@ long do_arch_prctl_common(int option, unsigned long arg2)
->  	case ARCH_GET_XCOMP_GUEST_PERM:
->  	case ARCH_REQ_XCOMP_GUEST_PERM:
->  		return fpu_xstate_prctl(option, arg2);
-> +	case ARCH_GET_COCO_USER_HCALL:
-> +		return get_coco_user_hcall_mode();
-> +	case ARCH_SET_COCO_USER_HCALL:
-> +		return set_coco_user_hcall_mode(arg2);
-> +
->  	}
->  
->  	return -EINVAL;
-> -- 
-> 2.40.1
-> 
-
--- 
-  Kiryl Shutsemau / Kirill A. Shutemov
+>=20
+> Thanks.
