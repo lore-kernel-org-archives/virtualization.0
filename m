@@ -1,173 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60936171D2
-	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 06:49:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468F21C68F
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 06:56:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720421392; cv=none; b=Nn2kVJm5BOQQx5f7Cpy36csDyXagDpLBE36uvrHfFP8YQl8pdfqH1CLgZkIfn0o4+DSwCIYzLaxiATdQgA2iRrCa4dydGq4P/nRL4nMTHGemLCXeKtFK5215knTEofy/klAiuHIlhO+S/EtFoxLyi8CGdRtvUkyz4PRbIrSwWl8=
+	t=1720421775; cv=none; b=d+n2icb6x/lkJH+Beb1cVAiF98dVjSrO4S3NlQxkgOVfRmvfmcPdF6rl1maEyyGKLN56U/nSXhGnN7GFojRdtXbEXajK1SZ3OuvH1BnG8odWcyE5o+uJxbocj7dSOCzX2xBccSRm84QKnE22I0NSpRffBb+KPgsnY9DGP3vhdy0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720421392; c=relaxed/simple;
-	bh=3H8vMevzIvzcJrAIQhm87D6MyRx2wml/VHmQuniqz9Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=q4LRkASEQ4J364zC8YgtmU230eOnWPSqkhlEecIom/lugLwEWsb0iq/0J9ZaEGnW12TrgslwOlDi5vZe/Nbr4AL/0FiBJ42PQSR+FX/p3VFChY5hc+N14aIxVz2luEAqKAp4s6P6WiPUF2KGXAgBczQevhke5fLBfSuVfQWfhtA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=inW4Efpl; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1720421775; c=relaxed/simple;
+	bh=4Hp4Do4UGAJLQIKtQ3aFJElV4VFL6fW2NU15zapyEDo=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=LRVmPYjXo1ku2igoEwmqPWC5dcr59r/lQ3br5quX2ECnzr5L+jSF4rhIQgHh/jcwH2QwWdav8GGeEY9nfaXB5dHTmUFOkWCAt85KxWrVmjwOVXdS+eRsPjJKHXS1VuEO4VZGvy5MmN32xgoAcr+WH+Ch2k9a2j0F7lQBSiJS3Xo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LsKH3w9z; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="inW4Efpl"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LsKH3w9z"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0639A4045D
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 06:56:14 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id P0PuavrZhBcg for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Jul 2024 06:56:12 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 8E46F40190
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8E46F40190
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LsKH3w9z
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8E46F40190
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 06:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720421390;
+	s=mimecast20190719; t=1720421771;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pIbDsP10xfc6NaCkPVB60tYpkZUzdhw3HKdYVd55mQA=;
-	b=inW4EfplUMUO/ebqMY+PRfXufmkxoBnLLSAb5SudC8gqlx3ca43+MMJ8pOtK+I1eLHhM9E
-	T3Yala/p+y4u2DFAUYvplHWG8/J8JAXKQU+vMaMmrQycSBxTxZ+crqXeZ2iPku7OGZWPzW
-	PJ3NSFmyfh4QQWdVkvAjh9lko00yD6o=
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
- [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-670-C_odZgdwNBWEt4CLEdXtFw-1; Mon, 08 Jul 2024 02:49:48 -0400
-X-MC-Unique: C_odZgdwNBWEt4CLEdXtFw-1
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-70afd833ba9so1854715b3a.1
-        for <virtualization@lists.linux.dev>; Sun, 07 Jul 2024 23:49:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720421387; x=1721026187;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pIbDsP10xfc6NaCkPVB60tYpkZUzdhw3HKdYVd55mQA=;
-        b=WIZwaTfKG98+eRT/Phf/bOYCLA32+LVAmlJoRutMjGCDPAo/S+K23dGy2LGbjTMe2M
-         0hxh809D067WsmK0kFV3yABP5OrPSIgGdtmyAubQ3++pARE0bCL4P9cV8N2i11L3U+VB
-         hw9Cn0VzNqgL9JHcV/eSrEcCC69PuDvQfdlK1/Ye8AbfTH1phX2S4fLqI2/0mulWtC2o
-         PnIAtXjxQNg1FVbTfJOTdO/4sl7bHDZh9iF1nAC4I3Q855PgVzg/ipba5KyBh7renvxD
-         4tKfXmB8+tqJD6NLO0v2YtuI37dRKetzD5mexYselGYMScNCVfGCJitHQ+S9oV/3fB2a
-         SjNw==
-X-Forwarded-Encrypted: i=1; AJvYcCXb0uRtuEVOTJaxuYX+lpJzn8EzVLmj/DudFLZ12KPq5zOCnLxL1hTnRkTE5fHQ/eturrlsYsUbwsnUk20hNEcfI5p5YcAI0cmwDh9Cny0=
-X-Gm-Message-State: AOJu0YxDimuA8k62SJCCNktTt3M8f7gDWvQVSpjpUsehUdhWn7INWUK/
-	Q8ynlY8gUCKcGoceuDcbMo/9p02h5zZsvS6/gFV5Njf7LfGZ+ArJeMzDFI5ENTfTi7CR+rQKQgu
-	fAI8LwDOp/Gy/G1ZLJoyF44xESkr5wJ3JuHPEGpMVdkKY0lKldvYluemctSRu00pXkCoV+yrCmh
-	UCbb5iq4wrJA0P60TKG0DIjcBQ6DDqhv+UCphuAGU=
-X-Received: by 2002:a05:6a00:1da2:b0:706:6962:4b65 with SMTP id d2e1a72fcca58-70b009520a4mr7278060b3a.14.1720421387503;
-        Sun, 07 Jul 2024 23:49:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFiSyNQPaBEraFONt6FsI9Zk4on4jhj/4ZYxZehc8znesk8Dw39LiQoxSTRODV1PG/sr19cHEtsdkkC0A7SZxw=
-X-Received: by 2002:a05:6a00:1da2:b0:706:6962:4b65 with SMTP id
- d2e1a72fcca58-70b009520a4mr7278051b3a.14.1720421387131; Sun, 07 Jul 2024
- 23:49:47 -0700 (PDT)
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=C5uJuthEpMTO2qIM2IpHkOPsYvzc+S5T4gK4tXYNDBE=;
+	b=LsKH3w9zN3gKU3KQrjsGcg3WvONrk5n8cPglB1zEOKWRMtsBm3WRx25b2TPQUU0GlBT8RI
+	EZ+tDAm38eBgxqhWFEGzZn+u0ylNaXw/Amsem2vwXXhRqAPaI9r4ghE/52GYkKjgRz09Ub
+	9KidVE1uWDQozTPmkDRQW67BQIY047w=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-653-ReXQtQdXOoyQ04FFfwRPgQ-1; Mon,
+ 08 Jul 2024 02:56:07 -0400
+X-MC-Unique: ReXQtQdXOoyQ04FFfwRPgQ-1
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3272A19560B0;
+	Mon,  8 Jul 2024 06:56:06 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.123])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 64A9B19560AE;
+	Mon,  8 Jul 2024 06:55:59 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	dtatulea@nvidia.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	parav@nvidia.com,
+	sgarzare@redhat.com,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: [PATCH] vdpa/mlx5: Add the support of set mac address
+Date: Mon,  8 Jul 2024 14:55:49 +0800
+Message-ID: <20240708065549.89422-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240705073734.93905-1-xuanzhuo@linux.alibaba.com> <20240705073734.93905-9-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240705073734.93905-9-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 8 Jul 2024 14:49:35 +0800
-Message-ID: <CACGkMEvW72oG-HsLiOwKdUkdOdKCFiyUAU6Nhj8Q4FFbnXAAqA@mail.gmail.com>
-Subject: Re: [PATCH net-next v7 08/10] virtio_net: xsk: rx: support fill with
- xsk buffer
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev, 
-	bpf@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Fri, Jul 5, 2024 at 3:37=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
-m> wrote:
->
-> Implement the logic of filling rq with XSK buffers.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->
-> v7:
->    1. some small fixes
->
->  drivers/net/virtio_net.c | 70 +++++++++++++++++++++++++++++++++++++---
->  1 file changed, 66 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 29fa25ce1a7f..2b27f5ada64a 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -354,6 +354,8 @@ struct receive_queue {
->
->         /* xdp rxq used by xsk */
->         struct xdp_rxq_info xsk_rxq_info;
-> +
-> +       struct xdp_buff **xsk_buffs;
->  };
->
->  /* This structure can contain rss message with maximum settings for indi=
-rection table and keysize
-> @@ -1054,6 +1056,53 @@ static void check_sq_full_and_disable(struct virtn=
-et_info *vi,
->         }
->  }
->
-> +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len=
-)
-> +{
-> +       sg->dma_address =3D addr;
-> +       sg->length =3D len;
-> +}
-> +
-> +static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct recei=
-ve_queue *rq,
-> +                                  struct xsk_buff_pool *pool, gfp_t gfp)
-> +{
-> +       struct xdp_buff **xsk_buffs;
-> +       dma_addr_t addr;
-> +       int err =3D 0;
-> +       u32 len, i;
-> +       int num;
-> +
-> +       xsk_buffs =3D rq->xsk_buffs;
-> +
-> +       num =3D xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
-> +       if (!num)
-> +               return -ENOMEM;
-> +
-> +       len =3D xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
-> +
-> +       for (i =3D 0; i < num; ++i) {
-> +               /* use the part of XDP_PACKET_HEADROOM as the virtnet hdr=
- space */
+Add the function to support setting the MAC address.
+For vdpa/mlx5, the function will use mlx5_mpfs_add_mac
+to set the mac address
 
-It's better to also say we assume hdr->len is larger than
-XDP_PACKET_HEADROOM. (see function xyz).
+Tested in ConnectX-6 Dx device
 
-> +               addr =3D xsk_buff_xdp_get_dma(xsk_buffs[i]) - vi->hdr_len=
-;
-> +
-> +               sg_init_table(rq->sg, 1);
-> +               sg_fill_dma(rq->sg, addr, len);
-> +
-> +               err =3D virtqueue_add_inbuf(rq->vq, rq->sg, 1, xsk_buffs[=
-i], gfp);
-> +               if (err)
-> +                       goto err;
-> +       }
-> +
-> +       return num;
-> +
-> +err:
-> +       if (i)
-> +               err =3D i;
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+---
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-Any reason to assign an index to err here?
-
-Others look good.
-
-Thanks
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 26ba7da6b410..f78701386690 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -3616,10 +3616,33 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+ 	destroy_workqueue(wq);
+ 	mgtdev->ndev = NULL;
+ }
++static int mlx5_vdpa_set_attr_mac(struct vdpa_mgmt_dev *v_mdev,
++				  struct vdpa_device *dev,
++				  const struct vdpa_dev_set_config *add_config)
++{
++	struct mlx5_vdpa_dev *mvdev = to_mvdev(dev);
++	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
++	struct mlx5_core_dev *mdev = mvdev->mdev;
++	struct virtio_net_config *config = &ndev->config;
++	int err;
++	struct mlx5_core_dev *pfmdev;
++
++	if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
++		if (!is_zero_ether_addr(add_config->net.mac)) {
++			memcpy(config->mac, add_config->net.mac, ETH_ALEN);
++			pfmdev = pci_get_drvdata(pci_physfn(mdev->pdev));
++			err = mlx5_mpfs_add_mac(pfmdev, config->mac);
++			if (err)
++				return -1;
++		}
++	}
++	return 0;
++}
+ 
+ static const struct vdpa_mgmtdev_ops mdev_ops = {
+ 	.dev_add = mlx5_vdpa_dev_add,
+ 	.dev_del = mlx5_vdpa_dev_del,
++	.dev_set_attr = mlx5_vdpa_set_attr_mac,
+ };
+ 
+ static struct virtio_device_id id_table[] = {
+-- 
+2.45.0
 
