@@ -1,249 +1,224 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72FA0B66F
-	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 08:58:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA525579F
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 09:15:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720429089; cv=none; b=mKS412V3NIdaOZtSB5dwLlUxDftEJesZjPBXEjnYvvVYC5xP9SePKRUHY8/tyPJ5SLmO/7C4DYMPzYpWbpCcfIIn1iEh3ybGsh+eQcU6fK4sq5suzpAzAaknpqrZwhhTdHCx5wDdJ21Ai7zsAEimEB3KCWzxVrqR6aJ8IsaXo7Y=
+	t=1720430159; cv=none; b=VRPpzujg6LMuAhBo9PWXia0Jvbb7eDs/FuLOB/2HOUwl/iM35ge5ovJpvfvgQpOeoZfj1yKxxMV4PC68GTFXAAlR6dU973cYhYWfFxHepMyg8LVlADoapou7BakR0TL7rwqtbfsafxc/1XQYNSxjC7VxJkDTloxgvQR5eguBhl4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720429089; c=relaxed/simple;
-	bh=HHOrMX3jbVWLpdFonXE3P7XTb5wVAStnaQCjxa6gO44=;
+	s=arc-20240116; t=1720430159; c=relaxed/simple;
+	bh=hgN66bAz8IkkTy8CvtHp3JUw6MLJpCYUWOaeBYIssMU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tJlxKgf7xI9uWnOvY0yppyx0fIdhz8brJVI96+o9JdQ4HFre5h3i8F9kxktpMBFvP18ZxUzcfRvfY14xfC28rBWV46QFo0JNI1Wck2nPQvEn2w89964YDD5nwzt5ZOiCn1b4enI33HmgbONqZQQjKTWmL+BMTWXtyvFg6VO2qEM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=PTZ1UqBb; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
+	 Content-Type:Content-Disposition:In-Reply-To; b=i7+uvXk75ydkq28CAPRNv2L7YgrCJHMgQNfL7AN7vLOWaRrnBB9NOakl+0IFYJNgZp1uZw80vEIuNxQ9DtJmWY5sE00xwadYevtKgKcYfScJ/ykdM4ffmqCxPtws03aGmNrL82Q7tzB6H6yLni8TT3+v3OYHIHFbV/+9TYP24bM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=D3qt0lww; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="PTZ1UqBb"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-426607d4eb7so1979775e9.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Jul 2024 01:58:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google; t=1720429086; x=1721033886; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=LMyKqbyil9/Tq34DWS+1DnlmwOF50Yp/OlECGa9z5DM=;
-        b=PTZ1UqBbmS36hL2nqGpPkCdJmOQOl1jbVuKk8QVhr6mnqFGEKVOHGG0cksAQcMk//C
-         VAcwjA1vEqanT7ipsMnTtoaKUzfwfSBZ284w5p/YdAzFI49Tan/hg+5FiIaQcpOmrWFh
-         4fLNl6p6O4Lq//X3O4Vfpl2kcmenUsW9TH+5I=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720429086; x=1721033886;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LMyKqbyil9/Tq34DWS+1DnlmwOF50Yp/OlECGa9z5DM=;
-        b=Ee0BVwkvndXtq/Pg7U8PzzKlB72FKxc8lytr62/T9bYArwDKD3PgnvThr/l0H4V6aE
-         7w1g6fVrAQ6W5NnMGui4W79FpoD8RpjpeCO8I7mjHinKEQS5RXzg8Ki9oMcJ2B9pGW0Z
-         YZBt3O/mrra94a4spMaGusn75vunfcMwyFqBCI9n8uXMa02pfNn2ZvGcLZzcdcrVdKTb
-         uuP6YwKnitx3SCzUgQIvzwJQI/gaYtv8CNfLJlusYjaQ0GaQ3sl3PT87dAo8F8yQux7I
-         OYgV4LC6VFSg6X/tsPKUf9Gs4hC3lcHdnP0pQy60xjiHgETPAFHxE0RPnCVF8TEbirgi
-         y1jQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWhbmHDde6HnjVzIj8XFQlnRI7cuV785huUDlUQlQt9BzbI0C2rSiAHE1rTcUf1YsDJ3N+51ZBo6PR+F6LWcnvm5+Uspk99sspSRhOSPZs=
-X-Gm-Message-State: AOJu0YwloS32Ck5u2F9YimYDW3rmec5LvldlvOxuyEi49YBJ3XLiQ+AR
-	eO7X+nDe220E+bZRn5yfe70TxaFVnuadDt+Wppgp6UJzowpWby6hY1b2zWKTgpo=
-X-Google-Smtp-Source: AGHT+IEgRfZAD4TamAlnn0Yf85HMM/eXJHl7e7yKmoXUefz2s+P9sIXchH0/DmhuDKjCe3s2Xa/6LA==
-X-Received: by 2002:a05:6000:400e:b0:367:95e3:e4c6 with SMTP id ffacd0b85a97d-3679dd12d7fmr7114858f8f.1.1720429085635;
-        Mon, 08 Jul 2024 01:58:05 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3678e5c2b08sm14834906f8f.71.2024.07.08.01.58.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jul 2024 01:58:05 -0700 (PDT)
-Date: Mon, 8 Jul 2024 10:58:03 +0200
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@redhat.com, kraxel@redhat.com, dmitry.osipenko@collabora.com,
-	zack.rusin@broadcom.com, airlied@gmail.com, daniel@ffwll.ch,
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-	regressions@leemhuis.info, virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	David Kaplan <david.kaplan@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Subject: Re: [PATCH] drm/qxl: Pin buffer objects for internal mappings
-Message-ID: <ZouqG20NkG5DdBC_@phenom.ffwll.local>
-References: <20240702142034.32615-1-tzimmermann@suse.de>
- <096287bd-c882-4d9d-bd4d-19c2fa68b8ec@suse.de>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D3qt0lww"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 722D360704
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 09:15:57 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id kQ9J5wQQzkN2 for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Jul 2024 09:15:56 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.20; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 337FE606F9
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 337FE606F9
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=D3qt0lww
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 337FE606F9
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 09:15:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1720430157; x=1751966157;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=hgN66bAz8IkkTy8CvtHp3JUw6MLJpCYUWOaeBYIssMU=;
+  b=D3qt0lwwfw38SAOQZmBgISMvbvhO6pJb2JeMoHkTAFM3u56kq7vGmH+M
+   LRRwqHvg8bikOSth5rf9IG1K7saU8JOM0pxFS/pZnId1qhIYuNJoX8bBh
+   1PLFcpcZcjQ0z/I3iedQv0ymz1H0UQ1ksUTgbamj70N+DCnT5yKFEG5PD
+   A0QYVD5ultnspixrkFZmb173OclLaJrelE483qNvLDf3CFnR/rncWP6w+
+   vrugJkGuVxV5AInh5OszPGiWtLyRfE2aOT0whim42HHDS3zPD+jBVSsiK
+   YZ09fGumt5VAgxAN5IPeSbJyU77aoTfcdHsUfgGwTl4nmaMJZMTFFrwGF
+   g==;
+X-CSE-ConnectionGUID: eyH2+tnnQla94d/XPTZJTQ==
+X-CSE-MsgGUID: vuYV8i37T0Ka/tKBEtmFJA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11126"; a="17437024"
+X-IronPort-AV: E=Sophos;i="6.09,191,1716274800"; 
+   d="scan'208";a="17437024"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2024 02:15:56 -0700
+X-CSE-ConnectionGUID: GrQZXYTkQeW7szw5V2SzlQ==
+X-CSE-MsgGUID: 5eqphG5pS+y70DV+Iv/DwA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,191,1716274800"; 
+   d="scan'208";a="70652136"
+Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
+  by fmviesa002.fm.intel.com with ESMTP; 08 Jul 2024 02:15:52 -0700
+Received: from kbuild by 68891e0c336b with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sQkTO-000Ve0-01;
+	Mon, 08 Jul 2024 09:15:50 +0000
+Date: Mon, 8 Jul 2024 17:15:42 +0800
+From: kernel test robot <lkp@intel.com>
+To: Cindy Lu <lulu@redhat.com>, dtatulea@nvidia.com, mst@redhat.com,
+	jasowang@redhat.com, parav@nvidia.com, sgarzare@redhat.com,
+	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH v3 1/2] vdpa: support set mac address from vdpa tool
+Message-ID: <202407081733.FCiMubD8-lkp@intel.com>
+References: <20240708064820.88955-2-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <096287bd-c882-4d9d-bd4d-19c2fa68b8ec@suse.de>
-X-Operating-System: Linux phenom 6.9.7-amd64 
+In-Reply-To: <20240708064820.88955-2-lulu@redhat.com>
 
-On Mon, Jul 08, 2024 at 10:09:44AM +0200, Thomas Zimmermann wrote:
-> Hi,
-> 
-> ping for a review. This is a bugfix for a serious problem.
+Hi Cindy,
 
-I tried to look around whether there's any place where we could WARN_ON if
-we create a vmap but it's not pinned. But there's lots of places where we
-want the vmap only for the duration of the dma_resv locked section, so
-really can't do that. And your patch removes the unlocked vmap
-implementation, which would be the only place really.
+kernel test robot noticed the following build warnings:
 
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+[auto build test WARNING on linus/master]
+[also build test WARNING on horms-ipvs/master v6.10-rc7 next-20240703]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-> 
-> Best regards
-> Thomas
-> 
-> Am 02.07.24 um 16:20 schrieb Thomas Zimmermann:
-> > Add qxl_bo_pin_and_vmap() that pins and vmaps a buffer object in one
-> > step. Update callers of the regular qxl_bo_vmap(). Fixes a bug where
-> > qxl accesses an unpinned buffer object while it is being moved; such
-> > as with the monitor-description BO. An typical error is shown below.
-> > 
-> > [    4.303586] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
-> > [    4.586883] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
-> > [    4.904036] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65335296x16777216+0+0
-> > [    5.374347] [drm:qxl_release_from_id_locked] *ERROR* failed to find id in release_idr
-> > 
-> > Commit b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
-> > removed the implicit pin operation from qxl's vmap code. This is the
-> > correct behavior for GEM and PRIME interfaces, but the pin is still
-> > needed for qxl internal operation.
-> > 
-> > Also add a corresponding function qxl_bo_vunmap_and_unpin() and remove
-> > the old qxl_bo_vmap() helpers.
-> > 
-> > Future directions: BOs should not be pinned or vmapped unnecessarily.
-> > The pin-and-vmap operation should be removed from the driver and a
-> > temporary mapping should be established with a vmap_local-like helper.
-> > See the client helper drm_client_buffer_vmap_local() for semantics.
-> > 
-> > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> > Fixes: b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
-> > Reported-by: David Kaplan <david.kaplan@amd.com>
-> > Closes: https://lore.kernel.org/dri-devel/ab0fb17d-0f96-4ee6-8b21-65d02bb02655@suse.de/
-> > Tested-by: David Kaplan <david.kaplan@amd.com>
-> > Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> > Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> > Cc: Christian König <christian.koenig@amd.com>
-> > Cc: Zack Rusin <zack.rusin@broadcom.com>
-> > Cc: Dave Airlie <airlied@redhat.com>
-> > Cc: Gerd Hoffmann <kraxel@redhat.com>
-> > Cc: virtualization@lists.linux.dev
-> > Cc: spice-devel@lists.freedesktop.org
-> > ---
-> >   drivers/gpu/drm/qxl/qxl_display.c | 14 +++++++-------
-> >   drivers/gpu/drm/qxl/qxl_object.c  | 11 +++++++++--
-> >   drivers/gpu/drm/qxl/qxl_object.h  |  4 ++--
-> >   3 files changed, 18 insertions(+), 11 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> > index 86a5dea710c0..bc24af08dfcd 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_display.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> > @@ -584,11 +584,11 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
-> >   	if (ret)
-> >   		goto err;
-> > -	ret = qxl_bo_vmap(cursor_bo, &cursor_map);
-> > +	ret = qxl_bo_pin_and_vmap(cursor_bo, &cursor_map);
-> >   	if (ret)
-> >   		goto err_unref;
-> > -	ret = qxl_bo_vmap(user_bo, &user_map);
-> > +	ret = qxl_bo_pin_and_vmap(user_bo, &user_map);
-> >   	if (ret)
-> >   		goto err_unmap;
-> > @@ -614,12 +614,12 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
-> >   		       user_map.vaddr, size);
-> >   	}
-> > -	qxl_bo_vunmap(user_bo);
-> > -	qxl_bo_vunmap(cursor_bo);
-> > +	qxl_bo_vunmap_and_unpin(user_bo);
-> > +	qxl_bo_vunmap_and_unpin(cursor_bo);
-> >   	return cursor_bo;
-> >   err_unmap:
-> > -	qxl_bo_vunmap(cursor_bo);
-> > +	qxl_bo_vunmap_and_unpin(cursor_bo);
-> >   err_unref:
-> >   	qxl_bo_unpin(cursor_bo);
-> >   	qxl_bo_unref(&cursor_bo);
-> > @@ -1205,7 +1205,7 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
-> >   	}
-> >   	qdev->monitors_config_bo = gem_to_qxl_bo(gobj);
-> > -	ret = qxl_bo_vmap(qdev->monitors_config_bo, &map);
-> > +	ret = qxl_bo_pin_and_vmap(qdev->monitors_config_bo, &map);
-> >   	if (ret)
-> >   		return ret;
-> > @@ -1236,7 +1236,7 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
-> >   	qdev->monitors_config = NULL;
-> >   	qdev->ram_header->monitors_config = 0;
-> > -	ret = qxl_bo_vunmap(qdev->monitors_config_bo);
-> > +	ret = qxl_bo_vunmap_and_unpin(qdev->monitors_config_bo);
-> >   	if (ret)
-> >   		return ret;
-> > diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-> > index 5893e27a7ae5..cb1b7c2580ae 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_object.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_object.c
-> > @@ -182,7 +182,7 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map)
-> >   	return 0;
-> >   }
-> > -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
-> > +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map)
-> >   {
-> >   	int r;
-> > @@ -190,7 +190,13 @@ int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
-> >   	if (r)
-> >   		return r;
-> > +	r = qxl_bo_pin_locked(bo);
-> > +	if (r)
-> > +		return r;
-> > +
-> >   	r = qxl_bo_vmap_locked(bo, map);
-> > +	if (r)
-> > +		qxl_bo_unpin_locked(bo);
-> >   	qxl_bo_unreserve(bo);
-> >   	return r;
-> >   }
-> > @@ -241,7 +247,7 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
-> >   	ttm_bo_vunmap(&bo->tbo, &bo->map);
-> >   }
-> > -int qxl_bo_vunmap(struct qxl_bo *bo)
-> > +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo)
-> >   {
-> >   	int r;
-> > @@ -250,6 +256,7 @@ int qxl_bo_vunmap(struct qxl_bo *bo)
-> >   		return r;
-> >   	qxl_bo_vunmap_locked(bo);
-> > +	qxl_bo_unpin_locked(bo);
-> >   	qxl_bo_unreserve(bo);
-> >   	return 0;
-> >   }
-> > diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
-> > index 1cf5bc759101..875f63221074 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_object.h
-> > +++ b/drivers/gpu/drm/qxl/qxl_object.h
-> > @@ -59,9 +59,9 @@ extern int qxl_bo_create(struct qxl_device *qdev,
-> >   			 u32 priority,
-> >   			 struct qxl_surface *surf,
-> >   			 struct qxl_bo **bo_ptr);
-> > -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map);
-> > +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map);
-> >   int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map);
-> > -int qxl_bo_vunmap(struct qxl_bo *bo);
-> > +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo);
-> >   void qxl_bo_vunmap_locked(struct qxl_bo *bo);
-> >   void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, int page_offset);
-> >   void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, void *map);
-> 
-> -- 
-> --
-> Thomas Zimmermann
-> Graphics Driver Developer
-> SUSE Software Solutions Germany GmbH
-> Frankenstrasse 146, 90461 Nuernberg, Germany
-> GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-> HRB 36809 (AG Nuernberg)
-> 
+url:    https://github.com/intel-lab-lkp/linux/commits/Cindy-Lu/vdpa-support-set-mac-address-from-vdpa-tool/20240708-144942
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20240708064820.88955-2-lulu%40redhat.com
+patch subject: [PATCH v3 1/2] vdpa: support set mac address from vdpa tool
+config: i386-buildonly-randconfig-005-20240708 (https://download.01.org/0day-ci/archive/20240708/202407081733.FCiMubD8-lkp@intel.com/config)
+compiler: clang version 18.1.5 (https://github.com/llvm/llvm-project 617a15a9eac96088ae5e9134248d8236e34b91b1)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240708/202407081733.FCiMubD8-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202407081733.FCiMubD8-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/vdpa/vdpa.c:1377:6: warning: variable 'err' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
+         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    1378 |             nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
+         |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/vdpa/vdpa.c:1394:9: note: uninitialized use occurs here
+    1394 |         return err;
+         |                ^~~
+   drivers/vdpa/vdpa.c:1377:2: note: remove the 'if' if its condition is always true
+    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    1378 |             nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
+         |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/vdpa/vdpa.c:1377:6: warning: variable 'err' is used uninitialized whenever '&&' condition is false [-Wsometimes-uninitialized]
+    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
+         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/vdpa/vdpa.c:1394:9: note: uninitialized use occurs here
+    1394 |         return err;
+         |                ^~~
+   drivers/vdpa/vdpa.c:1377:6: note: remove the '&&' if its condition is always true
+    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
+         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/vdpa/vdpa.c:1371:9: note: initialize the variable 'err' to silence this warning
+    1371 |         int err;
+         |                ^
+         |                 = 0
+   2 warnings generated.
+
+
+vim +1377 drivers/vdpa/vdpa.c
+
+  1363	
+  1364	static int vdpa_dev_net_device_attr_set(struct vdpa_device *vdev,
+  1365						struct genl_info *info)
+  1366	{
+  1367		struct vdpa_dev_set_config set_config = {};
+  1368		const u8 *macaddr;
+  1369		struct vdpa_mgmt_dev *mdev = vdev->mdev;
+  1370		struct nlattr **nl_attrs = info->attrs;
+  1371		int err;
+  1372	
+  1373		if (!vdev->mdev)
+  1374			return -EINVAL;
+  1375	
+  1376		down_write(&vdev->cf_lock);
+> 1377		if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
+  1378		    nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
+  1379			set_config.mask |= BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
+  1380			macaddr = nla_data(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]);
+  1381			memcpy(set_config.net.mac, macaddr, ETH_ALEN);
+  1382	
+  1383			if (mdev->ops->dev_set_attr) {
+  1384				err = mdev->ops->dev_set_attr(mdev, vdev, &set_config);
+  1385			} else {
+  1386				NL_SET_ERR_MSG_FMT_MOD(info->extack,
+  1387						       "features 0x%llx not supported",
+  1388						       BIT_ULL(VIRTIO_NET_F_MAC));
+  1389				err = -EINVAL;
+  1390			}
+  1391		}
+  1392		up_write(&vdev->cf_lock);
+  1393	
+  1394		return err;
+  1395	}
+  1396	static int vdpa_nl_cmd_dev_attr_set_doit(struct sk_buff *skb,
+  1397						 struct genl_info *info)
+  1398	{
+  1399		const char *name;
+  1400		int err = 0;
+  1401		struct device *dev;
+  1402		struct vdpa_device *vdev;
+  1403		u64 classes;
+  1404	
+  1405		if (!info->attrs[VDPA_ATTR_DEV_NAME])
+  1406			return -EINVAL;
+  1407	
+  1408		name = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
+  1409	
+  1410		down_write(&vdpa_dev_lock);
+  1411		dev = bus_find_device(&vdpa_bus, NULL, name, vdpa_name_match);
+  1412		if (!dev) {
+  1413			NL_SET_ERR_MSG_MOD(info->extack, "device not found");
+  1414			err = -ENODEV;
+  1415			goto dev_err;
+  1416		}
+  1417		vdev = container_of(dev, struct vdpa_device, dev);
+  1418		if (!vdev->mdev) {
+  1419			NL_SET_ERR_MSG_MOD(
+  1420				info->extack,
+  1421				"Fail to find the specified management device");
+  1422			err = -EINVAL;
+  1423			goto mdev_err;
+  1424		}
+  1425		classes = vdpa_mgmtdev_get_classes(vdev->mdev, NULL);
+  1426		if (classes & BIT_ULL(VIRTIO_ID_NET)) {
+  1427			err = vdpa_dev_net_device_attr_set(vdev, info);
+  1428		} else {
+  1429			NL_SET_ERR_MSG_FMT_MOD(info->extack, "%s device not supported",
+  1430					       name);
+  1431		}
+  1432	
+  1433	mdev_err:
+  1434		put_device(dev);
+  1435	dev_err:
+  1436		up_write(&vdpa_dev_lock);
+  1437		return err;
+  1438	}
+  1439	
 
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
