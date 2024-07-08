@@ -1,112 +1,201 @@
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+Received: from out-175.mta1.migadu.com (out-175.mta1.migadu.com [95.215.58.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFE701E49D
-	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 14:30:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BBCC1482E6
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 16:22:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720449025; cv=none; b=C72MTipr62Lcd49cTSrQxs2N22RDK0quDgOttKxUd0tH91lNjXQF1LiJB4E7K/Lk4Q07zwTlz/86iDasjEiOWODnh4o0orh9u1Ws7Gzwuukunur3SOcI9Ps7vJOG0UMq1IkiX+noj6x2E3vcemykJPr2aBT9xMQmlXB9Q4tRJ7g=
+	t=1720455753; cv=none; b=E4IfF5fQCz5bnijWFgGEo79xnhnfhCuhqzWZTfav7aKG//8HqYtRONdiVUfeEiSZwv2Q8K7DvUiTJ4LSMUzTxovYw1fMQlrjBkbyTW85VrCKIIOSk2qC8eUvDw1la16+4Bi3J3Glhgs5oojGpmmBZokQAkA6UNxrFi5OJMfion8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720449025; c=relaxed/simple;
-	bh=UK1alpRLVojcjqHEMZmxpNsz5oT0x+BMwmb8zL2rljs=;
+	s=arc-20240116; t=1720455753; c=relaxed/simple;
+	bh=PtWdQP9TUf3UnSMasmAy0oliIW93Gy0/rpFK2mRdEJ4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kIBxoNzTy8IxCpUKre95QOm43/wvsM0/dBnCtjZ7RaSgH6FB8HCNXA9ZE3i/no2Upn2VcNUou8MmpKmoeSN1MIT2i5qAgWceqX3Rv09zHEJCvCLgKcy8B9stuQlKnqwV/McX4OnnpaWWPjJSNoKUgu0wJcxcafPTEIQi6mImkGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=qH4/G02J; arc=none smtp.client-ip=46.235.227.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	 In-Reply-To:Content-Type; b=J8OE90q5gSo1wHE136S9V3zvO01xDftbMP7K0koxP+cTm2UaLICRhmUncocZKbkVMnYCT2KTpQ7DbSRwRV3gCkgvJw9Wca1tELjoqt1+hgZbaeic4Dbp5ToPyUetyG/6uBaI4O9094zxcy7yZCRpCbKhrACIdfEHNScq6eLzU54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QJWe8Uzf; arc=none smtp.client-ip=95.215.58.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="qH4/G02J"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1720449022;
-	bh=UK1alpRLVojcjqHEMZmxpNsz5oT0x+BMwmb8zL2rljs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=qH4/G02JPZf6ORUyvihDWgmTXxaRGQkoJHgQhA8/6V8aH9d+9K7wpl0FLOH02ktfL
-	 TtP6QEBx2u6tFNWtK9NcDM5aaHSOPkyzkD10KZs+PFI682EPyd53ilE7GiKvRywgbw
-	 8DZbYc+Rdg0XipfpfLid+GjVdkPBvW8pxVIUa2nlKF7w+KIqgW1b7dh39AF6vxS/mF
-	 DlRibNlH5CYI0oDI5rJdZ2NMAXDy4S0/mjRr/I19KDzilORWeewoe/ObabbnXE8QO3
-	 j+daDceJz+rZlYMy+PHbbIOuVpRxTkIxIvptFYOHiVQsRt1ezMef0qBTu6gUdHwv+p
-	 B2c7u9d8Viwqw==
-Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: dmitry.osipenko)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id D322937811CD;
-	Mon,  8 Jul 2024 14:30:20 +0000 (UTC)
-Message-ID: <21750085-dbb0-4fc5-8644-ebed5373dde9@collabora.com>
-Date: Mon, 8 Jul 2024 17:30:18 +0300
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QJWe8Uzf"
+X-Envelope-To: dtatulea@nvidia.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1720455748;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZRPeq+TIECbg3XiWASLi/Zq5CIq0PmJjCGCHnJ56A2o=;
+	b=QJWe8UzfU5nl9s7j/pqbZ84E8FYKmD4BQ8Q5uOys5WliEQB1P/WBYp0Wg2KuIUwRxkrpI0
+	kbInJY9PF8ekfMVxzjqS21hEotrIzVmLa1rMJbZHPb50Usl1f3IKTRuEwdP7+7bAOCAYoW
+	HKXSLtRaPxdC/HidlS0Ol8/ueek8yqY=
+X-Envelope-To: mst@redhat.com
+X-Envelope-To: jasowang@redhat.com
+X-Envelope-To: xuanzhuo@linux.alibaba.com
+X-Envelope-To: eperezma@redhat.com
+X-Envelope-To: saeedm@nvidia.com
+X-Envelope-To: leon@kernel.org
+X-Envelope-To: tariqt@nvidia.com
+X-Envelope-To: si-wei.liu@oracle.com
+X-Envelope-To: virtualization@lists.linux.dev
+X-Envelope-To: linux-kernel@vger.kernel.org
+X-Envelope-To: linux-rdma@vger.kernel.org
+X-Envelope-To: netdev@vger.kernel.org
+X-Envelope-To: cratiu@nvidia.com
+Message-ID: <34ce285c-d87d-4116-adbc-a2d691cfa4c9@linux.dev>
+Date: Mon, 8 Jul 2024 18:22:26 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/qxl: Pin buffer objects for internal mappings
-To: Thomas Zimmermann <tzimmermann@suse.de>, airlied@redhat.com,
- kraxel@redhat.com, zack.rusin@broadcom.com, airlied@gmail.com,
- daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
- david.kaplan@amd.com, christian.koenig@amd.com
-Cc: regressions@leemhuis.info, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- Daniel Vetter <daniel.vetter@ffwll.ch>
-References: <20240708142208.194361-1-tzimmermann@suse.de>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20240708142208.194361-1-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH vhost 20/23] vdpa/mlx5: Pre-create hardware VQs at vdpa
+ .dev_add time
+To: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>,
+ Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+ Cosmin Ratiu <cratiu@nvidia.com>
+References: <20240617-stage-vdpa-vq-precreate-v1-0-8c0483f0ca2a@nvidia.com>
+ <20240617-stage-vdpa-vq-precreate-v1-20-8c0483f0ca2a@nvidia.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <20240617-stage-vdpa-vq-precreate-v1-20-8c0483f0ca2a@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On 7/8/24 17:21, Thomas Zimmermann wrote:
-> Add qxl_bo_pin_and_vmap() that pins and vmaps a buffer object in one
-> step. Update callers of the regular qxl_bo_vmap(). Fixes a bug where
-> qxl accesses an unpinned buffer object while it is being moved; such
-> as with the monitor-description BO. An typical error is shown below.
+在 2024/6/17 17:07, Dragos Tatulea 写道:
+> Currently, hardware VQs are created right when the vdpa device gets into
+> DRIVER_OK state. That is easier because most of the VQ state is known by
+> then.
 > 
-> [    4.303586] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
-> [    4.586883] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
-> [    4.904036] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65335296x16777216+0+0
-> [    5.374347] [drm:qxl_release_from_id_locked] *ERROR* failed to find id in release_idr
+> This patch switches to creating all VQs and their associated resources
+> at device creation time. The motivation is to reduce the vdpa device
+> live migration downtime by moving the expensive operation of creating
+> all the hardware VQs and their associated resources out of downtime on
+> the destination VM.
+
+Hi, Dragos Tatulea
+
+ From the above, when a device is created, all the VQs and their 
+associated resources are also created.
+If VM live migration does not occur, how much resources are wasted?
+
+I mean, to achieve a better downtime, how much resource are used?
+
+"
+On a 64 CPU, 256 GB VM with 1 vDPA device of 16 VQps, the full VQ
+resource creation + resume time was ~370ms. Now it's down to 60 ms
+(only VQ config and resume). The measurements were done on a ConnectX6DX
+based vDPA device.
+"
+ From the above, the performance is amazing.
+If we expect to use it in the production hosts, how much resources 
+should we prepare to achieve this downtime?
+
+Zhu Yanjun
+
 > 
-> Commit b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
-> removed the implicit pin operation from qxl's vmap code. This is the
-> correct behavior for GEM and PRIME interfaces, but the pin is still
-> needed for qxl internal operation.
+> The VQs are now created in a blank state. The VQ configuration will
+> happen later, on DRIVER_OK. Then the configuration will be applied when
+> the VQs are moved to the Ready state.
 > 
-> Also add a corresponding function qxl_bo_vunmap_and_unpin() and remove
-> the old qxl_bo_vmap() helpers.
+> When .set_vq_ready() is called on a VQ before DRIVER_OK, special care is
+> needed: now that the VQ is already created a resume_vq() will be
+> triggered too early when no mr has been configured yet. Skip calling
+> resume_vq() in this case, let it be handled during DRIVER_OK.
 > 
-> Future directions: BOs should not be pinned or vmapped unnecessarily.
-> The pin-and-vmap operation should be removed from the driver and a
-> temporary mapping should be established with a vmap_local-like helper.
-> See the client helper drm_client_buffer_vmap_local() for semantics.
+> For virtio-vdpa, the device configuration is done earlier during
+> .vdpa_dev_add() by vdpa_register_device(). Avoid calling
+> setup_vq_resources() a second time in that case.
 > 
-> v2:
-> - unreserve BO on errors in qxl_bo_pin_and_vmap() (Dmitry)
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
-> Reported-by: David Kaplan <david.kaplan@amd.com>
-> Closes: https://lore.kernel.org/dri-devel/ab0fb17d-0f96-4ee6-8b21-65d02bb02655@suse.de/
-> Tested-by: David Kaplan <david.kaplan@amd.com>
-> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Cc: Christian König <christian.koenig@amd.com>
-> Cc: Zack Rusin <zack.rusin@broadcom.com>
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux.dev
-> Cc: spice-devel@lists.freedesktop.org
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
 > ---
->  drivers/gpu/drm/qxl/qxl_display.c | 14 +++++++-------
->  drivers/gpu/drm/qxl/qxl_object.c  | 13 +++++++++++--
->  drivers/gpu/drm/qxl/qxl_object.h  |  4 ++--
->  3 files changed, 20 insertions(+), 11 deletions(-)
-
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-
--- 
-Best regards,
-Dmitry
+>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 37 ++++++++++++++++++++++++++++++++-----
+>   1 file changed, 32 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 249b5afbe34a..b2836fd3d1dd 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -2444,7 +2444,7 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready
+>   	mvq = &ndev->vqs[idx];
+>   	if (!ready) {
+>   		suspend_vq(ndev, mvq);
+> -	} else {
+> +	} else if (mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK) {
+>   		if (resume_vq(ndev, mvq))
+>   			ready = false;
+>   	}
+> @@ -3078,10 +3078,18 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+>   				goto err_setup;
+>   			}
+>   			register_link_notifier(ndev);
+> -			err = setup_vq_resources(ndev, true);
+> -			if (err) {
+> -				mlx5_vdpa_warn(mvdev, "failed to setup driver\n");
+> -				goto err_driver;
+> +			if (ndev->setup) {
+> +				err = resume_vqs(ndev);
+> +				if (err) {
+> +					mlx5_vdpa_warn(mvdev, "failed to resume VQs\n");
+> +					goto err_driver;
+> +				}
+> +			} else {
+> +				err = setup_vq_resources(ndev, true);
+> +				if (err) {
+> +					mlx5_vdpa_warn(mvdev, "failed to setup driver\n");
+> +					goto err_driver;
+> +				}
+>   			}
+>   		} else {
+>   			mlx5_vdpa_warn(mvdev, "did not expect DRIVER_OK to be cleared\n");
+> @@ -3142,6 +3150,7 @@ static int mlx5_vdpa_compat_reset(struct vdpa_device *vdev, u32 flags)
+>   		if (mlx5_vdpa_create_dma_mr(mvdev))
+>   			mlx5_vdpa_warn(mvdev, "create MR failed\n");
+>   	}
+> +	setup_vq_resources(ndev, false);
+>   	up_write(&ndev->reslock);
+>   
+>   	return 0;
+> @@ -3836,8 +3845,21 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>   		goto err_reg;
+>   
+>   	mgtdev->ndev = ndev;
+> +
+> +	/* For virtio-vdpa, the device was set up during device register. */
+> +	if (ndev->setup)
+> +		return 0;
+> +
+> +	down_write(&ndev->reslock);
+> +	err = setup_vq_resources(ndev, false);
+> +	up_write(&ndev->reslock);
+> +	if (err)
+> +		goto err_setup_vq_res;
+> +
+>   	return 0;
+>   
+> +err_setup_vq_res:
+> +	_vdpa_unregister_device(&mvdev->vdev);
+>   err_reg:
+>   	destroy_workqueue(mvdev->wq);
+>   err_res2:
+> @@ -3863,6 +3885,11 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+>   
+>   	unregister_link_notifier(ndev);
+>   	_vdpa_unregister_device(dev);
+> +
+> +	down_write(&ndev->reslock);
+> +	teardown_vq_resources(ndev);
+> +	up_write(&ndev->reslock);
+> +
+>   	wq = mvdev->wq;
+>   	mvdev->wq = NULL;
+>   	destroy_workqueue(wq);
+> 
 
