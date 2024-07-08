@@ -1,299 +1,320 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9D222611
-	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 08:09:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FBB23F9D5
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 08:09:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720426141; cv=none; b=WOE5JK09OyV3xyK1Qga5swlrEQSKtZiFo8oSix51OkZXegUd7ogeo75bXWrR5HJUL4xSCifCVZsUqz33e191SgKI5GfTRNUzqQOwDp8pBDwxXxmUuDWTKjMZarOOU+s1bO1pu7sMNQHZCKZVu2S4cpABxPCJCasTYwr3/MARqN4=
+	t=1720426189; cv=none; b=DcAuv/a4E3iM07e91eYmYM2440IlTBInvwVaxwFQD7SeUCxyeNM86YMZHNqVpWVQYuaD6xCnia8GgTUkhnrbyCLTXmd0Al6pL44M4Ef7BCbzNRa+XOgixE5hSj2o/NNJmORV3yJPk5ujp5N+cFDd0dJadKuRbrYLPKrEPRMzcJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720426141; c=relaxed/simple;
-	bh=qMf0cWEIBDJI1wPVxIfS9rEbR2iypK+ArwrlvfqcS4Y=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rYF2aKNDmegNoyX450LF5Xp7aXhx3IeESgPzX7s1At4UQloSKOJ+QuNIB2mr2PRfGW2Q70ZnNDBirb1kJD7c4qrIjTM/i9NaOUhaFZfKLttugPRjcbyxh7sE1GEA4NRSwCGg2vHOIRJlblsu2pLkfhdROHn2IWuabzFvtAPQOaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iO5ne+6Y; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1720426189; c=relaxed/simple;
+	bh=3kRfsRlw+tIO+lNZ/gxAj43QaWBsQtBY4H34eCkFOQM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PLPsyyb6IvmZ/rdoRNEFNfl5WZlMdvrpG7IuCicuNneafbRLULjTldwxPgWpImrE1dAN28dRqPyT3W7dGfaE1ngLpBSQuTZqY0VZUn1ZHQX/n57HtVOLep4euI8s4Ko2GRiTxS1K/5kgcYIYSlcdO5XgcDdhk+MTQOLgUxjsuc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=PbITSVDs; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=zLwtY5bV; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=PbITSVDs; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=zLwtY5bV; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iO5ne+6Y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720426139;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="PbITSVDs";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="zLwtY5bV";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="PbITSVDs";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="zLwtY5bV"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7E52121B5D;
+	Mon,  8 Jul 2024 08:09:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1720426185; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=CLTQ2PKwxy+i8qaPB4UwrsoPh7735CAQV0lSOIofn4k=;
-	b=iO5ne+6YfNCrXBm6xjHmwWjpFA9hYbZU+dl4rOy5VXnpXwBDyWqidm3cU9QfSiemi6oE87
-	LN/t2YOWDkCd/Z/MtJJ4IkhPZeO8wtU08DWfMbFS9cC3R8v+qhhLjzWmg82FytR/DNHDXN
-	yZlEEOeZZLGefHxIb+F+ELoRG8DsviA=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-355-aftSDm4oM4O3OqRxF1AOzw-1; Mon, 08 Jul 2024 04:08:58 -0400
-X-MC-Unique: aftSDm4oM4O3OqRxF1AOzw-1
-Received: by mail-oi1-f197.google.com with SMTP id 5614622812f47-3d929eb4f2dso1396516b6e.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Jul 2024 01:08:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720426137; x=1721030937;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=CLTQ2PKwxy+i8qaPB4UwrsoPh7735CAQV0lSOIofn4k=;
-        b=eOieF3QB0E6FZypZvrf2478/wzuONGaK1Iw3Ab2AvVAhk/xinHOMB8o8GUV8U6InH3
-         lUywik5pJ80AZqs3yoEZ4exX0sODv5XVeIEgO93tDARmugKkWl4Xw9xP9kzq+4GMYChr
-         /VRJ8MUTTFjj+JoIyrW2kU/5N1c5XwxM7XIlh7tlTq0shLZXbUxnEnPvuQfHtLT3uV9B
-         7WXqg53TDVYDsHxpcB41/CRSxhDhiRWkoeOP0sixNjlLs/z2088HNc6iGuiYyqEq7DZY
-         E0+EL5wA/g2zH0w1pNsTaBQsjcuL+VSQsRtgLTcIHoATaTsSpT2eMKBqURLxzS0r36R5
-         O0cw==
-X-Forwarded-Encrypted: i=1; AJvYcCWSHOQTjDiXHX3j0a7mTq3dwslKcG+qn6Za/kr+G+jAFd7UdOQY2cYdi7fXCFFDwxkbS/xuDzA29STpVh57wc5KgcgrE8otLWoNYnQP+Ek=
-X-Gm-Message-State: AOJu0YyJNYo2RLWMI9rVPs5Wba+/ZFXA77npmZpnJU2kumW/F9/x5BsC
-	FgjTYAiS/RbJ0GKQowygrDUqhmPE31hhqzT6O4Yc+vWKtqw+t7b0sx1ONlQHM5jz+ZQBFSjKssn
-	z96K6o1eYna6k/BanREo6cYL3lNrgpspavdXBNmf612EhBX3WZGkiTNNwWfZEPRp1DdeZQSZ9ez
-	SheykDEES8y3tIji1yEUwnttu1/Hflslf/ztavm6M=
-X-Received: by 2002:a05:6808:1392:b0:3d9:1f05:845 with SMTP id 5614622812f47-3d91f050a43mr10973222b6e.19.1720426136698;
-        Mon, 08 Jul 2024 01:08:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHx08npK6Y9eZ9wfcXTZ97ykJuf1vmZybpLRDDSHLjVuDj4PfnM/DqOi0LEjJIYUprg6VDeGTzORQHHaGgkqlk=
-X-Received: by 2002:a05:6808:1392:b0:3d9:1f05:845 with SMTP id
- 5614622812f47-3d91f050a43mr10973179b6e.19.1720426135888; Mon, 08 Jul 2024
- 01:08:55 -0700 (PDT)
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=lEjVKrEvrvIKmylJ/jZ2uU41PHYB3sc6wTTmCyGsZKg=;
+	b=PbITSVDs80kMLltN2+MWhWVYgBIFayj620DLkaySj1ScBPBmCtzR744GxialWt47F4NfEA
+	eMgA9sSFNQEsL3sUvM4YjDsDtgYOt7h/l5URw8pnJHlDw+zPfHtCSndi05bk0dQzfiSg1h
+	YtHsEc43jRuJUVPsEERRnd2HUVY31yc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1720426185;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=lEjVKrEvrvIKmylJ/jZ2uU41PHYB3sc6wTTmCyGsZKg=;
+	b=zLwtY5bVi+3/uOQPL778cii36SH/yRCyx1sEPL8OoMmxKDErpSzQTDnPEmYNM7vzaH6npe
+	f84YoEphxsOKLlAA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1720426185; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=lEjVKrEvrvIKmylJ/jZ2uU41PHYB3sc6wTTmCyGsZKg=;
+	b=PbITSVDs80kMLltN2+MWhWVYgBIFayj620DLkaySj1ScBPBmCtzR744GxialWt47F4NfEA
+	eMgA9sSFNQEsL3sUvM4YjDsDtgYOt7h/l5URw8pnJHlDw+zPfHtCSndi05bk0dQzfiSg1h
+	YtHsEc43jRuJUVPsEERRnd2HUVY31yc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1720426185;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=lEjVKrEvrvIKmylJ/jZ2uU41PHYB3sc6wTTmCyGsZKg=;
+	b=zLwtY5bVi+3/uOQPL778cii36SH/yRCyx1sEPL8OoMmxKDErpSzQTDnPEmYNM7vzaH6npe
+	f84YoEphxsOKLlAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2254F13A7F;
+	Mon,  8 Jul 2024 08:09:45 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id JTEPB8mei2axGwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 08 Jul 2024 08:09:45 +0000
+Message-ID: <096287bd-c882-4d9d-bd4d-19c2fa68b8ec@suse.de>
+Date: Mon, 8 Jul 2024 10:09:44 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240705073734.93905-1-xuanzhuo@linux.alibaba.com>
- <20240705073734.93905-10-xuanzhuo@linux.alibaba.com> <CACGkMEsiMTs=PymmPrrfhmF6W=Oviwg4hWEbSFb1sghGYadSgg@mail.gmail.com>
- <1720424536.972943-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1720424536.972943-1-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 8 Jul 2024 16:08:44 +0800
-Message-ID: <CACGkMEukkp9FxLfBGTXvSGso48Ugy2-m3rWNFiVGuEa52LT_-Q@mail.gmail.com>
-Subject: Re: [PATCH net-next v7 09/10] virtio_net: xsk: rx: support recv small mode
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev, 
-	bpf@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/qxl: Pin buffer objects for internal mappings
+To: airlied@redhat.com, kraxel@redhat.com, dmitry.osipenko@collabora.com,
+ zack.rusin@broadcom.com, airlied@gmail.com, daniel@ffwll.ch,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org
+Cc: regressions@leemhuis.info, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ David Kaplan <david.kaplan@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+References: <20240702142034.32615-1-tzimmermann@suse.de>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20240702142034.32615-1-tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-4.29 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_TO(0.00)[redhat.com,collabora.com,broadcom.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,linux.dev:email]
+X-Spam-Flag: NO
+X-Spam-Score: -4.29
+X-Spam-Level: 
 
-On Mon, Jul 8, 2024 at 3:47=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
-m> wrote:
+Hi,
+
+ping for a review. This is a bugfix for a serious problem.
+
+Best regards
+Thomas
+
+Am 02.07.24 um 16:20 schrieb Thomas Zimmermann:
+> Add qxl_bo_pin_and_vmap() that pins and vmaps a buffer object in one
+> step. Update callers of the regular qxl_bo_vmap(). Fixes a bug where
+> qxl accesses an unpinned buffer object while it is being moved; such
+> as with the monitor-description BO. An typical error is shown below.
 >
-> On Mon, 8 Jul 2024 15:00:50 +0800, Jason Wang <jasowang@redhat.com> wrote=
-:
-> > On Fri, Jul 5, 2024 at 3:38=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibab=
-a.com> wrote:
-> > >
-> > > In the process:
-> > > 1. We may need to copy data to create skb for XDP_PASS.
-> > > 2. We may need to call xsk_buff_free() to release the buffer.
-> > > 3. The handle for xdp_buff is difference from the buffer.
-> > >
-> > > If we pushed this logic into existing receive handle(merge and small)=
-,
-> > > we would have to maintain code scattered inside merge and small (and =
-big).
-> > > So I think it is a good choice for us to put the xsk code into an
-> > > independent function.
-> > >
-> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > ---
-> > >
-> > > v7:
-> > >    1. rename xdp_construct_skb to xsk_construct_skb
-> > >    2. refactor virtnet_receive()
-> > >
-> > >  drivers/net/virtio_net.c | 176 +++++++++++++++++++++++++++++++++++++=
+> [    4.303586] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
+> [    4.586883] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
+> [    4.904036] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65335296x16777216+0+0
+> [    5.374347] [drm:qxl_release_from_id_locked] *ERROR* failed to find id in release_idr
+>
+> Commit b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
+> removed the implicit pin operation from qxl's vmap code. This is the
+> correct behavior for GEM and PRIME interfaces, but the pin is still
+> needed for qxl internal operation.
+>
+> Also add a corresponding function qxl_bo_vunmap_and_unpin() and remove
+> the old qxl_bo_vmap() helpers.
+>
+> Future directions: BOs should not be pinned or vmapped unnecessarily.
+> The pin-and-vmap operation should be removed from the driver and a
+> temporary mapping should be established with a vmap_local-like helper.
+> See the client helper drm_client_buffer_vmap_local() for semantics.
+>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Fixes: b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
+> Reported-by: David Kaplan <david.kaplan@amd.com>
+> Closes: https://lore.kernel.org/dri-devel/ab0fb17d-0f96-4ee6-8b21-65d02bb02655@suse.de/
+> Tested-by: David Kaplan <david.kaplan@amd.com>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> Cc: Christian König <christian.koenig@amd.com>
+> Cc: Zack Rusin <zack.rusin@broadcom.com>
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux.dev
+> Cc: spice-devel@lists.freedesktop.org
+> ---
+>   drivers/gpu/drm/qxl/qxl_display.c | 14 +++++++-------
+>   drivers/gpu/drm/qxl/qxl_object.c  | 11 +++++++++--
+>   drivers/gpu/drm/qxl/qxl_object.h  |  4 ++--
+>   3 files changed, 18 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+> index 86a5dea710c0..bc24af08dfcd 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -584,11 +584,11 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
+>   	if (ret)
+>   		goto err;
+>   
+> -	ret = qxl_bo_vmap(cursor_bo, &cursor_map);
+> +	ret = qxl_bo_pin_and_vmap(cursor_bo, &cursor_map);
+>   	if (ret)
+>   		goto err_unref;
+>   
+> -	ret = qxl_bo_vmap(user_bo, &user_map);
+> +	ret = qxl_bo_pin_and_vmap(user_bo, &user_map);
+>   	if (ret)
+>   		goto err_unmap;
+>   
+> @@ -614,12 +614,12 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
+>   		       user_map.vaddr, size);
+>   	}
+>   
+> -	qxl_bo_vunmap(user_bo);
+> -	qxl_bo_vunmap(cursor_bo);
+> +	qxl_bo_vunmap_and_unpin(user_bo);
+> +	qxl_bo_vunmap_and_unpin(cursor_bo);
+>   	return cursor_bo;
+>   
+>   err_unmap:
+> -	qxl_bo_vunmap(cursor_bo);
+> +	qxl_bo_vunmap_and_unpin(cursor_bo);
+>   err_unref:
+>   	qxl_bo_unpin(cursor_bo);
+>   	qxl_bo_unref(&cursor_bo);
+> @@ -1205,7 +1205,7 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
+>   	}
+>   	qdev->monitors_config_bo = gem_to_qxl_bo(gobj);
+>   
+> -	ret = qxl_bo_vmap(qdev->monitors_config_bo, &map);
+> +	ret = qxl_bo_pin_and_vmap(qdev->monitors_config_bo, &map);
+>   	if (ret)
+>   		return ret;
+>   
+> @@ -1236,7 +1236,7 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
+>   	qdev->monitors_config = NULL;
+>   	qdev->ram_header->monitors_config = 0;
+>   
+> -	ret = qxl_bo_vunmap(qdev->monitors_config_bo);
+> +	ret = qxl_bo_vunmap_and_unpin(qdev->monitors_config_bo);
+>   	if (ret)
+>   		return ret;
+>   
+> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+> index 5893e27a7ae5..cb1b7c2580ae 100644
+> --- a/drivers/gpu/drm/qxl/qxl_object.c
+> +++ b/drivers/gpu/drm/qxl/qxl_object.c
+> @@ -182,7 +182,7 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map)
+>   	return 0;
+>   }
+>   
+> -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
+> +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map)
+>   {
+>   	int r;
+>   
+> @@ -190,7 +190,13 @@ int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
+>   	if (r)
+>   		return r;
+>   
+> +	r = qxl_bo_pin_locked(bo);
+> +	if (r)
+> +		return r;
+> +
+>   	r = qxl_bo_vmap_locked(bo, map);
+> +	if (r)
+> +		qxl_bo_unpin_locked(bo);
+>   	qxl_bo_unreserve(bo);
+>   	return r;
+>   }
+> @@ -241,7 +247,7 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
+>   	ttm_bo_vunmap(&bo->tbo, &bo->map);
+>   }
+>   
+> -int qxl_bo_vunmap(struct qxl_bo *bo)
+> +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo)
+>   {
+>   	int r;
+>   
+> @@ -250,6 +256,7 @@ int qxl_bo_vunmap(struct qxl_bo *bo)
+>   		return r;
+>   
+>   	qxl_bo_vunmap_locked(bo);
+> +	qxl_bo_unpin_locked(bo);
+>   	qxl_bo_unreserve(bo);
+>   	return 0;
+>   }
+> diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
+> index 1cf5bc759101..875f63221074 100644
+> --- a/drivers/gpu/drm/qxl/qxl_object.h
+> +++ b/drivers/gpu/drm/qxl/qxl_object.h
+> @@ -59,9 +59,9 @@ extern int qxl_bo_create(struct qxl_device *qdev,
+>   			 u32 priority,
+>   			 struct qxl_surface *surf,
+>   			 struct qxl_bo **bo_ptr);
+> -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map);
+> +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map);
+>   int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map);
+> -int qxl_bo_vunmap(struct qxl_bo *bo);
+> +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo);
+>   void qxl_bo_vunmap_locked(struct qxl_bo *bo);
+>   void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, int page_offset);
+>   void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, void *map);
+
+-- 
 --
-> > >  1 file changed, 168 insertions(+), 8 deletions(-)
-> > >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 2b27f5ada64a..64d8cd481890 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -498,6 +498,12 @@ struct virtio_net_common_hdr {
-> > >  };
-> > >
-> > >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *b=
-uf);
-> > > +static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp=
-_buff *xdp,
-> > > +                              struct net_device *dev,
-> > > +                              unsigned int *xdp_xmit,
-> > > +                              struct virtnet_rq_stats *stats);
-> > > +static void virtnet_receive_done(struct virtnet_info *vi, struct rec=
-eive_queue *rq,
-> > > +                                struct sk_buff *skb, u8 flags);
-> > >
-> > >  static bool is_xdp_frame(void *ptr)
-> > >  {
-> > > @@ -1062,6 +1068,124 @@ static void sg_fill_dma(struct scatterlist *s=
-g, dma_addr_t addr, u32 len)
-> > >         sg->length =3D len;
-> > >  }
-> > >
-> > > +static struct xdp_buff *buf_to_xdp(struct virtnet_info *vi,
-> > > +                                  struct receive_queue *rq, void *bu=
-f, u32 len)
-> > > +{
-> > > +       struct xdp_buff *xdp;
-> > > +       u32 bufsize;
-> > > +
-> > > +       xdp =3D (struct xdp_buff *)buf;
-> > > +
-> > > +       bufsize =3D xsk_pool_get_rx_frame_size(rq->xsk_pool) + vi->hd=
-r_len;
-> > > +
-> > > +       if (unlikely(len > bufsize)) {
-> > > +               pr_debug("%s: rx error: len %u exceeds truesize %u\n"=
-,
-> > > +                        vi->dev->name, len, bufsize);
-> > > +               DEV_STATS_INC(vi->dev, rx_length_errors);
-> > > +               xsk_buff_free(xdp);
-> > > +               return NULL;
-> > > +       }
-> > > +
-> > > +       xsk_buff_set_size(xdp, len);
-> > > +       xsk_buff_dma_sync_for_cpu(xdp);
-> > > +
-> > > +       return xdp;
-> > > +}
-> > > +
-> > > +static struct sk_buff *xsk_construct_skb(struct receive_queue *rq,
-> > > +                                        struct xdp_buff *xdp)
-> > > +{
-> > > +       unsigned int metasize =3D xdp->data - xdp->data_meta;
-> > > +       struct sk_buff *skb;
-> > > +       unsigned int size;
-> > > +
-> > > +       size =3D xdp->data_end - xdp->data_hard_start;
-> > > +       skb =3D napi_alloc_skb(&rq->napi, size);
-> > > +       if (unlikely(!skb)) {
-> > > +               xsk_buff_free(xdp);
-> > > +               return NULL;
-> > > +       }
-> > > +
-> > > +       skb_reserve(skb, xdp->data_meta - xdp->data_hard_start);
-> > > +
-> > > +       size =3D xdp->data_end - xdp->data_meta;
-> > > +       memcpy(__skb_put(skb, size), xdp->data_meta, size);
-> > > +
-> > > +       if (metasize) {
-> > > +               __skb_pull(skb, metasize);
-> > > +               skb_metadata_set(skb, metasize);
-> > > +       }
-> > > +
-> > > +       xsk_buff_free(xdp);
-> > > +
-> > > +       return skb;
-> > > +}
-> > > +
-> > > +static struct sk_buff *virtnet_receive_xsk_small(struct net_device *=
-dev, struct virtnet_info *vi,
-> > > +                                                struct receive_queue=
- *rq, struct xdp_buff *xdp,
-> > > +                                                unsigned int *xdp_xm=
-it,
-> > > +                                                struct virtnet_rq_st=
-ats *stats)
-> > > +{
-> > > +       struct bpf_prog *prog;
-> > > +       u32 ret;
-> > > +
-> > > +       ret =3D XDP_PASS;
-> > > +       rcu_read_lock();
-> > > +       prog =3D rcu_dereference(rq->xdp_prog);
-> > > +       if (prog)
-> > > +               ret =3D virtnet_xdp_handler(prog, xdp, dev, xdp_xmit,=
- stats);
-> > > +       rcu_read_unlock();
-> > > +
-> > > +       switch (ret) {
-> > > +       case XDP_PASS:
-> > > +               return xsk_construct_skb(rq, xdp);
-> > > +
-> > > +       case XDP_TX:
-> > > +       case XDP_REDIRECT:
-> > > +               return NULL;
-> > > +
-> > > +       default:
-> > > +               /* drop packet */
-> > > +               xsk_buff_free(xdp);
-> > > +               u64_stats_inc(&stats->drops);
-> > > +               return NULL;
-> > > +       }
-> > > +}
-> > > +
-> > > +static void virtnet_receive_xsk_buf(struct virtnet_info *vi, struct =
-receive_queue *rq,
-> > > +                                   void *buf, u32 len,
-> > > +                                   unsigned int *xdp_xmit,
-> > > +                                   struct virtnet_rq_stats *stats)
-> > > +{
-> > > +       struct net_device *dev =3D vi->dev;
-> > > +       struct sk_buff *skb =3D NULL;
-> > > +       struct xdp_buff *xdp;
-> > > +       u8 flags;
-> > > +
-> > > +       len -=3D vi->hdr_len;
-> > > +
-> > > +       u64_stats_add(&stats->bytes, len);
-> > > +
-> > > +       xdp =3D buf_to_xdp(vi, rq, buf, len);
-> > > +       if (!xdp)
-> > > +               return;
-> > > +
-> > > +       if (unlikely(len < ETH_HLEN)) {
-> > > +               pr_debug("%s: short packet %i\n", dev->name, len);
-> > > +               DEV_STATS_INC(dev, rx_length_errors);
-> > > +               xsk_buff_free(xdp);
-> > > +               return;
-> > > +       }
-> > > +
-> > > +       flags =3D ((struct virtio_net_common_hdr *)(xdp->data - vi->h=
-dr_len))->hdr.flags;
-> > > +
-> > > +       if (!vi->mergeable_rx_bufs)
-> > > +               skb =3D virtnet_receive_xsk_small(dev, vi, rq, xdp, x=
-dp_xmit, stats);
-> >
-> > I wonder if we add the mergeable support in the next patch would it be
-> > better to re-order the patch? For example, the xsk binding needs to be
-> > moved to the last patch, otherwise we break xsk with a mergeable
-> > buffer here?
->
-> If you worry that the user works with this commit, I want to say you do n=
-ot
-> worry.
->
-> Because the flags NETDEV_XDP_ACT_XSK_ZEROCOPY is not added. I plan to add=
- that
-> after the tx is completed.
-
-Ok, this is something I missed, it would be better to mention it
-somewhere (or it is already there but I miss it).
-
->
-> I do test by adding this flags locally.
->
-> Thanks.
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
-
->
-> >
-> > Or anything I missed here?
-> >
-> > Thanks
-> >
->
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
