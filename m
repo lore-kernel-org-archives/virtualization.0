@@ -1,55 +1,57 @@
 Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4904B364A9
-	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 07:48:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95D70446B4
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 07:48:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720424900; cv=none; b=DDPlPP6TYxjdoyktwdeyWurQ3SeOd1Gt0qzMicyy36LOnvigFApBLjFc8LGUbKEdOLLJCYnJJpZ4fgHcWVicPoDvSu2iaWKNKAjLM3EE15uhV8l49TcGosD0p990xABOnpm8an4Er7HoVQuUvUZMGjSqs4EAUjwh+pJeyscVWo8=
+	t=1720424902; cv=none; b=t+DTH5kPF1E6ZIiO2BCjqpMhnxLAqX8EAPhiK5vGtaHrgU7LOl/gqaIKQfoEBz41FS1cg+DNZgnMKg0c2gsLg8Y4zCtCc51YG5zojvSlUC6u+UdJicJ3h4jfLX5NiR/QJIPDqIhtC3KOHWRNQafFhVVK9Brjfths+2NlgeEw/qk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720424900; c=relaxed/simple;
-	bh=8ZAYPUsrsqIgdGWK6yObspLNlZwk/n9MZWYyupkvVlc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tj+qDOA2RWQbahbgJVRJU2qOsTj/NUE8AAy4b9QJ1V7glgAcENWMi/bb1q1R6kkWsyhoBDh+o+YShgHOfyrD+cJASdEV9hJ1B4TNgiQJ/b7Ma6cNnGkGibyxSYej3mgxQMehgIMJbaV4pNgMM4SgeP4QN6li/U/qXJsJKG3Wjf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=nPF3HjfQ; arc=none smtp.client-ip=209.85.128.51
+	s=arc-20240116; t=1720424902; c=relaxed/simple;
+	bh=7XOPLSoeUCMBrLUDBatTfCcj6RIpLM8/52ujc7LXvHw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=BC7a7+ClmWoSnH57Pcn8IkzQ0SxpZ1ThCN2Fqnip7OOJCPyQKRNisjRGuexBIc6vz5L7R1GNM0yi6d3xgUVWvYbWwnQrYpqogSomfZVjKaREGRYQfudlmqxuDZ9PxaprJRHSq+rpWEeiHAEdEU9fakF8nXlkchLSCFDhOk4QNOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=ZgZA3PGC; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="nPF3HjfQ"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-42662d80139so7718695e9.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Jul 2024 00:48:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="ZgZA3PGC"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-426640582f4so7127405e9.1
+        for <virtualization@lists.linux.dev>; Mon, 08 Jul 2024 00:48:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720424896; x=1721029696; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ImRxBUc3Mx0xqUIsuXwJUH2z3TRmlvHJ/R6TMwnOI88=;
-        b=nPF3HjfQaDwwlUntNyCqw0OuKNNJ4d1JVQD+/5h2JDMydNFUcr9Yb3s3Rvq+ObDhH7
-         dM6q8+xDE5x/2nBQ7KnQyaFekwWo0+JQPNmzM9caLn+N9lDjneWUFQwxKFKY6Q9Kxeq7
-         lFcUbiJQ10g42o559EtPim4AOYsQRXt3YPckkrbFPFqbf02IOKrheAQH5IuBD7Gp6qjn
-         hyoRDb3zqi7Op/LlkLrR6mLSnVJ7wLo5Ydp1SetZg03jwoHdkDAPlNnRf53mxKkMTwe9
-         mtKz9wkzIv9dIt0r98D/IuAcKpq+ojukpVT2s6hQwpX0R3wYLG249ZZ0auUiuQ6KoU22
-         xTLg==
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720424898; x=1721029698; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KjvVaTKB+IhNdleV7FiBAC7Q7evTCKPLyyvmEihGxoQ=;
+        b=ZgZA3PGCesnaBHQo5tPP+1hl2HMA9CoEoVWRn47ozY6SBYbJZUec9Fr7cDgxUYz6pa
+         G+QVppbszbA1oIeziph3wpw//ZXQpugFHClC3zkpiPoxUUtvk9i29pYNegv2wD/MRviP
+         H2oFpO4G9kJxpShgKU0gSGUCigd126KwyOXcDZCfhJgBcW0Di0p/U6Yo4vTc4t8ZbxkJ
+         UEyxFGuT6JXexrlYMngEX2t3uAMOoHS3Ae7AfMzmlf6ApO+wd0K5d32EPooB7TonnM8y
+         eCRQGieNWrnujmDQndiG0enWFCtQHcZAQfjGGdMnM3t/11aP5nDq63tCWzf5RMMHKSee
+         6LUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720424896; x=1721029696;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ImRxBUc3Mx0xqUIsuXwJUH2z3TRmlvHJ/R6TMwnOI88=;
-        b=Lxzy7r6Ed0xkeEsh/4cQhP+igI2R6BQyIWjvAMxniu5tcj23c9FASITVUYTeuu5Id8
-         Oktf6xg+Nr38BOnv1Iw7ZhRjsVG3qsME5D8qK5Cw7VALFVU8bm5d0ORCk2bwRAZraIxo
-         zCnsQbemTuCw9fGcr1GbK30qnQpWAW6vE2eu5HtSQjR16SkpLBHYVIFVARKcMblG97qS
-         tM/hamuWXEC9cR2ahXozG1gS6FxD4JJ4yYvM95DxpYyzgqQqOVZLnsqSXSU2u+4K29Mc
-         Q81M7S4tR/nHOLNp51bH/G5zhMc/ZZHC65PYzng37OFg+rtNlJ4SXGIVWKuM13vjxJYS
-         uFzA==
-X-Gm-Message-State: AOJu0YxE3/Kma5Kqr+LsE6OltzYfTjVnnBCDVacYUgEXxv2a96I7bVro
-	D5ShepnbC/xl+rJBqbE+qE/2826mpfmAE0hQlMFxM3/5Esk2V9NZFxnAcT77QIkzExXKAPYQbdN
-	fsuk=
-X-Google-Smtp-Source: AGHT+IHjI4ue/cxuot8Dx7DY6FWDGGgc1V6xmEa8wMomOePF79kCOjIdjj45XTI2ERqz0/5BM7MmVw==
-X-Received: by 2002:a05:600c:168a:b0:426:6314:3336 with SMTP id 5b1f17b1804b1-42663143419mr27562815e9.36.1720424896257;
-        Mon, 08 Jul 2024 00:48:16 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720424898; x=1721029698;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KjvVaTKB+IhNdleV7FiBAC7Q7evTCKPLyyvmEihGxoQ=;
+        b=nLq5UdTwr5F1un+21LixJN8D/Ne17PSOdhBo8RWSaUJr8KstGXwRhP54qimcj9hWwX
+         k/yM7EkZVY7+f43+el6Vq86adlEXXRQBZDzj04gD8Cc7ZDecn9onXzPy2famyLhkOj5i
+         QTaJiZSv1f6L2KlzB+ivO/7OjDrEq1d6k8RU2Ol5usMTbZEg5eiDMQj9rq55SD9yNL0p
+         gTa0yfpS2t7ssUpEaLi3Jt8iazSRkupDa8YoXzsA+iWkcfm8bza6cOOiXZLaaD6ACuHM
+         71vWhErh3qED3n5DzK3cZn8vkzy6Ps0HeJwumFoB70eDlzRxtx6ogZ9NghiStjyf05rL
+         Rhmg==
+X-Gm-Message-State: AOJu0YyVyeSRygGOWiT6SD2edTgC8CmzsdJzCrlo9qppMfMgYwquaUv7
+	OAn56p4wYWvcC9OusF+9ndRemOUA1PA8KLwnOYMhunTlD2OTe1btfeLTlzQ5DMUqXJUv7SpgQFc
+	Qc0I=
+X-Google-Smtp-Source: AGHT+IH5aeKDC74ldzdEAqqOmRGH4E95iR0X3ym/bnA/e8Iv6K+8CuD+/IEIq3JkcG88xV88L0FX2w==
+X-Received: by 2002:a05:600c:3ba0:b0:426:6004:cc97 with SMTP id 5b1f17b1804b1-4266004cd86mr39552915e9.38.1720424897978;
+        Mon, 08 Jul 2024 00:48:17 -0700 (PDT)
 Received: from localhost (78-80-19-19.customers.tmcz.cz. [78.80.19.19])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4264a2fc937sm155836565e9.40.2024.07.08.00.48.15
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4264a25181asm156010055e9.30.2024.07.08.00.48.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jul 2024 00:48:15 -0700 (PDT)
+        Mon, 08 Jul 2024 00:48:17 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -59,10 +61,12 @@ Cc: mst@redhat.com,
 	parav@nvidia.com,
 	feliu@nvidia.com,
 	hengqi@linux.alibaba.com
-Subject: [PATCH virtio v4 00/19] virtio: consolidate vq info args of find_vqs()
-Date: Mon,  8 Jul 2024 09:47:55 +0200
-Message-ID: <20240708074814.1739223-1-jiri@resnulli.us>
+Subject: [PATCH virtio v4 01/19] caif_virtio: use virtio_find_single_vq() for single virtqueue finding
+Date: Mon,  8 Jul 2024 09:47:56 +0200
+Message-ID: <20240708074814.1739223-2-jiri@resnulli.us>
 X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240708074814.1739223-1-jiri@resnulli.us>
+References: <20240708074814.1739223-1-jiri@resnulli.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,115 +77,42 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-Currently, virtio_find_vqs() and virtio_find_vqs_ctx() accept array of
-names, callbacks and ctx (in case of the second one) as separate args.
-That became inconvenient as the ctx addition showed.
+Since caif uses only one queue, convert to virtio_find_single_vq()
+helper which is made for this purpose.
 
-For virtio_net control queue, an indication of queue flavour (slow path)
-is going to be needed to be passed to PCI transport in order to
-assign vectors properly, another array added to virtio_find_vqs_ctx()
-arg list would not be nice and convenient.
-
-Instead, introduce a structure to carry vq callback, name and ctx. Pass
-array of these structures to virtio_find_vqs() and all the way down to
-transport find_vqs() op implementation.
-
-That allows to easily extend what needs to be passed down. Also, it
-makes the code a bit more cleaner. We get rid of separate
-virtio_find_vqs_ctx() helper.
-
-This patchset does the conversion in steps, using temporary _info() op
-and helper. Note they are renamed back.
-
-Patch #1 does one forgotten conversion to virtio_find_single_vq().
-Patches #2 and #3 do preparations for find_vqs_info() op introduction.
-Patch #4 introduces new op find_vqs_info() to replace find_vqs() it also
-  introduces struct virtio_queue_info and virtio_find_vqs_info() helper.
-Patches #5 and #6 convert transports to implement find_vqs_info() op
-  that accepts array of virtio_queue_info structs.
-Patch #7 converts virtio_find_single_vq() to use the new way as well.
-Patch #8 removes original find_vqs() op.
-Patch #9 renames find_vqs_info() to find_vqs() and completes first part
-  of conversion this patches does.
-Patches #10-#17 convert virtio_find_vqs() and virtio_find_vqs_ctx()
-  users to use new virtio_find_vqs_info() helper.
-Patch #18 removes no longer used virtio_find_vqs() and
-  virtio_find_vqs_ctx() helpers.
-Patch #19 finalizes the conversion by renaming virtio_find_vqs_info()
-  to virtio_find_vqs().
-
+Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
-v3->v4:
-- changes in patch #5 and #6, one cosmetic issue, one compile issue
+ drivers/net/caif/caif_virtio.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-v2->v3:
-- added proper struct description comment to patch #4
-- added suggested by tag to patches #4, #10-#17
-
-v1->v2:
-- added forgotten VIRTIO_SND_VQ_MAX for array size in virtio_card.c
-- s/virtio_queue_info/virtqueue_info/
-- fixed comments for struct virtqueue_info
-- rebased on top of recent code changes (virtio_fs.c)
-- see individual patches changelog for more details
-
-
-Jiri Pirko (19):
-  caif_virtio: use virtio_find_single_vq() for single virtqueue finding
-  virtio: make virtio_find_vqs() call virtio_find_vqs_ctx()
-  virtio: make virtio_find_single_vq() call virtio_find_vqs()
-  virtio: introduce virtio_queue_info struct and find_vqs_info() config
-    op
-  virtio_pci: convert vp_*find_vqs() ops to find_vqs_info()
-  virtio: convert find_vqs() op implementations to find_vqs_info()
-  virtio: call virtio_find_vqs_info() from virtio_find_single_vq()
-    directly
-  virtio: remove the original find_vqs() op
-  virtio: rename find_vqs_info() op to find_vqs()
-  virtio_blk: convert to use virtio_find_vqs_info()
-  virtio_console: convert to use virtio_find_vqs_info()
-  virtio_crypto: convert to use virtio_find_vqs_info()
-  virtio_net: convert to use virtio_find_vqs_info()
-  scsi: virtio_scsi: convert to use virtio_find_vqs_info()
-  virtiofs: convert to use virtio_find_vqs_info()
-  virtio_balloon: convert to use virtio_find_vqs_info()
-  virtio: convert the rest virtio_find_vqs() users to
-    virtio_find_vqs_info()
-  virtio: remove unused virtio_find_vqs() and virtio_find_vqs_ctx()
-    helpers
-  virtio: rename virtio_find_vqs_info() to virtio_find_vqs()
-
- arch/um/drivers/virt-pci.c                    |  8 ++-
- arch/um/drivers/virtio_uml.c                  | 12 ++--
- drivers/block/virtio_blk.c                    | 20 +++---
- drivers/bluetooth/virtio_bt.c                 | 13 ++--
- drivers/char/virtio_console.c                 | 43 +++++--------
- drivers/crypto/virtio/virtio_crypto_core.c    | 31 ++++-----
- drivers/firmware/arm_scmi/virtio.c            | 11 ++--
- drivers/gpio/gpio-virtio.c                    | 10 +--
- drivers/gpu/drm/virtio/virtgpu_kms.c          |  9 ++-
- drivers/iommu/virtio-iommu.c                  | 11 ++--
- drivers/net/caif/caif_virtio.c                |  8 +--
- drivers/net/virtio_net.c                      | 34 ++++------
- drivers/net/wireless/virtual/mac80211_hwsim.c | 12 ++--
- drivers/platform/mellanox/mlxbf-tmfifo.c      | 10 +--
- drivers/remoteproc/remoteproc_virtio.c        | 12 ++--
- drivers/rpmsg/virtio_rpmsg_bus.c              |  8 ++-
- drivers/s390/virtio/virtio_ccw.c              | 13 ++--
- drivers/scsi/virtio_scsi.c                    | 32 ++++------
- drivers/virtio/virtio_balloon.c               | 32 ++++------
- drivers/virtio/virtio_input.c                 |  9 +--
- drivers/virtio/virtio_mmio.c                  | 12 ++--
- drivers/virtio/virtio_pci_common.c            | 48 +++++++-------
- drivers/virtio/virtio_pci_common.h            |  3 +-
- drivers/virtio/virtio_pci_modern.c            |  5 +-
- drivers/virtio/virtio_vdpa.c                  | 13 ++--
- fs/fuse/virtio_fs.c                           | 22 +++----
- include/linux/virtio_config.h                 | 64 ++++++++++---------
- net/vmw_vsock/virtio_transport.c              | 16 ++---
- sound/virtio/virtio_card.c                    | 23 +++----
- 29 files changed, 242 insertions(+), 302 deletions(-)
-
+diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
+index 99d984851fef..7fea00c7ca8a 100644
+--- a/drivers/net/caif/caif_virtio.c
++++ b/drivers/net/caif/caif_virtio.c
+@@ -646,9 +646,7 @@ static inline void debugfs_init(struct cfv_info *cfv)
+ /* Setup CAIF for the a virtio device */
+ static int cfv_probe(struct virtio_device *vdev)
+ {
+-	vq_callback_t *vq_cbs = cfv_release_cb;
+ 	vrh_callback_t *vrh_cbs = cfv_recv;
+-	const char *names =  "output";
+ 	const char *cfv_netdev_name = "cfvrt";
+ 	struct net_device *netdev;
+ 	struct cfv_info *cfv;
+@@ -675,9 +673,11 @@ static int cfv_probe(struct virtio_device *vdev)
+ 		goto err;
+ 
+ 	/* Get the TX virtio ring. This is a "guest side vring". */
+-	err = virtio_find_vqs(vdev, 1, &cfv->vq_tx, &vq_cbs, &names, NULL);
+-	if (err)
++	cfv->vq_tx = virtio_find_single_vq(vdev, cfv_release_cb, "output");
++	if (IS_ERR(cfv->vq_tx)) {
++		err = PTR_ERR(cfv->vq_tx);
+ 		goto err;
++	}
+ 
+ 	/* Get the CAIF configuration from virtio config space, if available */
+ 	if (vdev->config->get) {
 -- 
 2.45.2
 
