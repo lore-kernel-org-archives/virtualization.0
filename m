@@ -1,224 +1,190 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2086.outbound.protection.outlook.com [40.107.223.86])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5078584DF8
-	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 12:03:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.86
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720440194; cv=fail; b=umW9B0FoP1RWR0wrBNyPvzUr3H4FLri8J+OviNJm+CeZ3Lw2zeTs8aJQgBp84JwXXScGQx5FoM6z8p3XyHNlm2SHFEHlL/ALEdvms89Vz7ES7ZBNhWgAGDXml9hQ2AOzi8BGGUjdS+Uu0KLJ/OeNmmIK9m3WopmNjD0eQHMiG5k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720440194; c=relaxed/simple;
-	bh=WKsy69cp/tQAYU40famgaBl8AYbnVZi2GWGzRX/gcYY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=MuACevtMnXzKFK86Jo7z4rHXhOWiugYH4vR6KBgYFj9UhrqkWg/Ju1C/vC2qFTAl1HmLWX1a0/y9wAj06546q3ZC9fDrC2/EorkTcMqLe483BdJf8GiOyZ5E3PVQ3ATNOjx48hvNU69n9Rzazt+K7tFrXjMmvRDJSDvYUMfvALY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=anRLZWzu; arc=fail smtp.client-ip=40.107.223.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABCC68626C
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 12:11:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720440687; cv=none; b=dqya66LB0/+50oVvNmVpqNYADWGYZjo/FM0yryLFS5QPGcNQCCFyS5bsHkJ6NETeHfueN2W1OJAzdrfkQNWnTn6TkV83w8xEi+t4YtplFVmaOPy9+4bxHDMlQYQWFOHcRHYg5sq4n/Vu1OdIlctYxPJL0pxtpHlq/8CtPosDwHM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720440687; c=relaxed/simple;
+	bh=4eqiu//A/pMFWw/RBfTCTSdzOJi/EUgKxn495Gduiv0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=G38mQ6L680yL6jc2gMSrr1z3j0Ma+Q3F83OrDtSyi1oS2feuXM06JQPqX1tIHUhUrJTU1DAwgg233RzzIBnXNIzZxEGzfo1qVtA200ClJ8zpS/Dnz/ZGOOa+w3DgZNzvIH+/lPgnotpyGbtj2Sw+bL3yjUGvMQAco/Bb0xTISM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=k0iWK1Ne; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qzCi6rLm; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=k0iWK1Ne; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qzCi6rLm; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="anRLZWzu"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lc37Oxu3Q2EescVXwJ2jzxj//Z23H7aHBL9deEvvAQa5LYsfe5f7PWLCuu000DdBwO4+80KYGob7Af1VWGZuIK3kl2T89tL5HZUESjGtT+WRztEo0AdpE9dDL76jD0aIIITQ12ZNywK6oZ0dSQNvfKceu9+mvWhcsqsdpKFD20BtHpbzHk2QJXpUGoIyHdYYEc1Kwvip0JwM635Z+tG8ABYwgM5CJIxQP/R5kNoJzuKgizCRt3mKbSeGcDGFPt3oNq5lXTJWhZTjVHEUvEdRGhcmW4eGWyoUyjRZVXBAbU+sA+g85PY/HItoFZmt8SWK6+bF95mcIulsn2WAvycRsg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2NHhb2gHTPrQWmX8OpgjYueGZ9a3Y81tCMO6jIeAeqg=;
- b=XfQX+EezGT7ADDWMxR2uYe6ASDEYXmEEz5oFW6O3ScAdWL4laaUlUUW4WdtKUjatlobSj/ETc/2nmyZsGgap7IgwvBgjBdIqpI8OdwA/UCc4cwyBRhACV750uz9zDLcYdkEFJi3Nn+xI5GlvLHXC0CrkOLqfG9LRqCHS0SKvxRPg+gxBDtlz/ApCjrNRdHhRCNDTiPWIk+ZlJu1ZnZKb/EW/6xQij2LNwQfBCJTxAXX/vcTd7/T01oTvRYKv+2tCVOTPWajmtRkHZ2nzlwVKsb2RP8/WIgygt2Q2F7Ih1Al3bFDGnro28FvpKYWOZ9h6vFNqqXElKXaUE7Q44qEv4A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=oracle.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2NHhb2gHTPrQWmX8OpgjYueGZ9a3Y81tCMO6jIeAeqg=;
- b=anRLZWzuF9MJ+MidReERHWkQAJ2jI8rGJyte5yGG5hmoNLG9kfbEGGhL/Df+jEsm2tmvNJYGDD9eUPV1rfICbi+RnYvd24/CzTUnrSGcsGZUEx4QApU4TSzomeoIa/YGj082Re7M6ZfLEsJRnPvcA4fd5n8Bxpo/mcptD3iW8jV0iyrdXq+GfDValpPkL+4tnauit8gRDb9CgPPubnPvfZcSehSd/VE2R3nPLelhnPNS0VHYRcz8eUg6tSTAWiNxyDUGk85c44+mO861YS3AmJc6ZNU+GQBEZLudY6ZS10OsBGHz1me/duix/50n/2evwaaLMK8VdkupMkMa4BQGXw==
-Received: from PH8PR22CA0012.namprd22.prod.outlook.com (2603:10b6:510:2d1::8)
- by PH0PR12MB7095.namprd12.prod.outlook.com (2603:10b6:510:21d::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.35; Mon, 8 Jul
- 2024 12:03:09 +0000
-Received: from SA2PEPF000015CB.namprd03.prod.outlook.com
- (2603:10b6:510:2d1:cafe::9f) by PH8PR22CA0012.outlook.office365.com
- (2603:10b6:510:2d1::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.36 via Frontend
- Transport; Mon, 8 Jul 2024 12:03:09 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- SA2PEPF000015CB.mail.protection.outlook.com (10.167.241.201) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7762.17 via Frontend Transport; Mon, 8 Jul 2024 12:03:09 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 8 Jul 2024
- 05:02:32 -0700
-Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 8 Jul 2024
- 05:02:31 -0700
-Received: from dev-l-177.mtl.labs.mlnx (10.127.8.11) by mail.nvidia.com
- (10.129.68.7) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Mon, 8 Jul 2024 05:02:28 -0700
-From: Dragos Tatulea <dtatulea@nvidia.com>
-Date: Mon, 8 Jul 2024 15:00:47 +0300
-Subject: [PATCH vhost v3 23/24] vdpa/mlx5: Don't reset VQs more than
- necessary
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="k0iWK1Ne";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qzCi6rLm";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="k0iWK1Ne";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qzCi6rLm"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id AF28421B2D;
+	Mon,  8 Jul 2024 12:11:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1720440682; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nOiXGBsOgpywM+DauyUIPRqV3HGVVn68xV+Rf1G86Og=;
+	b=k0iWK1Ne4o+0Y0cjFjWD7KQkuE3UhS/3pCYdYaSF/6w9166Mc8YQHjmqUVtri0jxuM/wVY
+	4sqL4Nv4OwKMZzY/Vqc+UUHaAzROmuKDB9e+d0MAkhNofUv0P6nqM90qT3TWcpuTn+6ktQ
+	gDUKrvggJ89QEIfRh48AgZXIB/ePXq8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1720440682;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nOiXGBsOgpywM+DauyUIPRqV3HGVVn68xV+Rf1G86Og=;
+	b=qzCi6rLmWRMizCiQNC0kidgBDzDmHpciOuhMrzX2+IDI1DpJag0ksTBLZOJKB0LBJ196cB
+	vbJpe/xBUjimtUAw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=k0iWK1Ne;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=qzCi6rLm
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1720440682; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nOiXGBsOgpywM+DauyUIPRqV3HGVVn68xV+Rf1G86Og=;
+	b=k0iWK1Ne4o+0Y0cjFjWD7KQkuE3UhS/3pCYdYaSF/6w9166Mc8YQHjmqUVtri0jxuM/wVY
+	4sqL4Nv4OwKMZzY/Vqc+UUHaAzROmuKDB9e+d0MAkhNofUv0P6nqM90qT3TWcpuTn+6ktQ
+	gDUKrvggJ89QEIfRh48AgZXIB/ePXq8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1720440682;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nOiXGBsOgpywM+DauyUIPRqV3HGVVn68xV+Rf1G86Og=;
+	b=qzCi6rLmWRMizCiQNC0kidgBDzDmHpciOuhMrzX2+IDI1DpJag0ksTBLZOJKB0LBJ196cB
+	vbJpe/xBUjimtUAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4EFB413A7F;
+	Mon,  8 Jul 2024 12:11:22 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id dQIPEmrXi2YhaAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 08 Jul 2024 12:11:22 +0000
+Message-ID: <0a83cfa5-8d25-4825-95ab-65d5e6ebd9ce@suse.de>
+Date: Mon, 8 Jul 2024 14:11:21 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-ID: <20240708-stage-vdpa-vq-precreate-v3-23-afe3c766e393@nvidia.com>
-References: <20240708-stage-vdpa-vq-precreate-v3-0-afe3c766e393@nvidia.com>
-In-Reply-To: <20240708-stage-vdpa-vq-precreate-v3-0-afe3c766e393@nvidia.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?utf-8?q?Eugenio_P=C3=A9rez?=
-	<eperezma@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky
-	<leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, Si-Wei Liu
-	<si-wei.liu@oracle.com>
-CC: <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
-	<linux-rdma@vger.kernel.org>, <netdev@vger.kernel.org>, Cosmin Ratiu
-	<cratiu@nvidia.com>, Dragos Tatulea <dtatulea@nvidia.com>
-X-Mailer: b4 0.13.0
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA2PEPF000015CB:EE_|PH0PR12MB7095:EE_
-X-MS-Office365-Filtering-Correlation-Id: b3372913-68b5-4557-81b8-08dc9f45ef6d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|7416014|1800799024|36860700013;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?YlZjYlN3bmFnVU9Jb1pacUtEeU9VMnJyUEdwS1VLdTJ1NTh1UHVXODFlZVhU?=
- =?utf-8?B?eHRiTC9KOVFCL1V6YXBWb1FlZ1B1dTlpbG1RUTZYa0xNYmtyREVidXZ2RGZZ?=
- =?utf-8?B?aXd6U1hPRGhCclJ0OTkxMUpjMkNWRWMvNGJUbGhnV2pJaVB6LzFXNXZVb0w1?=
- =?utf-8?B?VitoNUUvbGE4Vkk1M2lNellSQ2xSVmxRWU1jK3h1eElTSTRMRUV6TmpoZ3Z2?=
- =?utf-8?B?QWExSy9LRW1WRERDVkZ0dndhcVpBVjg0RGk4MkNmWW05Y21la05rd01BVU1N?=
- =?utf-8?B?dkl4bjdwNXpvdFU2NlhNMFNGdUN0WEtxamJpT1NJZE9rWGJYS09LMTlwQTJF?=
- =?utf-8?B?YXp0NENOaW45cXV3UGVYMTBlTTlqVFRON1NyUktVVWtTUTV4bWNSQXV4TUF1?=
- =?utf-8?B?dmVYVXVObWVyalNQRlIwdzBscnZWQ0RIUTdvaWl4L29pVEpDSUw0U2tJNTk4?=
- =?utf-8?B?OTNDdFJnQ2dycnJjakEvRzRJRWdSOWFYNUZqMlBFS2VCb1hhd2NJaXFPckYx?=
- =?utf-8?B?a0gxakszT0xrZ29GdDhseHowME1Nakd0bzh1aWF1NHR5aGtGVysxZkh1N3Ew?=
- =?utf-8?B?d21YSlMySlcvQjg4Z0FxU2MwMVlXb2tHcEJDeHFMNGFwK3plV2ZFYTZ6N3do?=
- =?utf-8?B?OUw0V2JyRHlvdTdTbkprdGF6bkY5MVZjNW02ZXE2em5VYTJSZ0NEZ2ZXV3ZN?=
- =?utf-8?B?ckRjYVFSQnMvb29tNlgrZDQ2VVZlNS8zQzNHL25qZG1IWTNOR2NrSk1Hd2Zj?=
- =?utf-8?B?elJ2bVRFUzBzd2E3QjRqbGlLWmhOaG1Fa2V6KzhYbWdVTGQ5LzJ3OVlQSmV2?=
- =?utf-8?B?aXdiVE5ZV2hXSjJGc0RmSXNKeThXQ0RMYm1mVmNmZHVveG5MZ2F2TGhja3Vs?=
- =?utf-8?B?eUVPWUoyU3kzOTJkQjdzU0VWNkdydUdtb2NPQVZkY3pvc1BzRVpwN21jSmFV?=
- =?utf-8?B?ZDlBL2ROSm80MnlxS3lweDJYY2JwSTBtNUZ0REJjNkxBb3FJTVB4WHVqcUhx?=
- =?utf-8?B?UkZqYU1CaVBBclBqR0xUSzVZNGZ6a1M1dFdJd3pPemU1R25JcVNoVlFUV2tw?=
- =?utf-8?B?dTVQdWJNZGZ3NFFwYkRZbVhqZDNSSXgrbWJydC9hSGtjVW5iT25BT2R6MTcy?=
- =?utf-8?B?SmlSV21QVWNwUUJteEZ2eDVUcFk0R0FpeXFaWU9SNWJ6WlBXNVFqN3I5bitE?=
- =?utf-8?B?NFNXZGd4Qmo2QXMzMW5Mc0gzWjNKWmZ2SWI0eHVBRVFnbytaaEVhZStqZzAy?=
- =?utf-8?B?Q0tQdVkyU1dFanFtMnZlY2o2RGJyQ2NpU1gySlpmOGc3TDExdWszRi9jZSs3?=
- =?utf-8?B?MXdydjVWclE4dFR4TmRvUUF6cjNmZEFIV3dsU0JYdkxMWHlzeTBYVzMrRlpR?=
- =?utf-8?B?c2hwSzNtK1QrRzc0bFB5dnBHT1hGTkpuSG4yMGZLR0NEa1ZOUE5qcFNUZTR4?=
- =?utf-8?B?M09iMHFVWisvdVlUMVQ2QjAvVHdEN25YT3F2a2c2S3NoRWdFa2RYR2VMd01S?=
- =?utf-8?B?a2lva3VMTmthdnQ1ZjZBaGdHWGJWVHo2cVh1TVVLNTNzL1BmZnFlTEZodUVN?=
- =?utf-8?B?ZlhmOXFqZnAvVHhXckUwdCtPakt0dXFLZ2RTeGhqUFpwT1lsLy9lMGRoQXBj?=
- =?utf-8?B?OW1nd1YzOGttRnp6RnhrNGE3enlPNWV2Sk92TDFwc09mN0dYQzdpb3BJcS9T?=
- =?utf-8?B?K1NLK2hPNjFUMThrbzFCOE5VWitsSUp5dGhLM3RJQ2dYS0g0ZVhSWGJKNEh5?=
- =?utf-8?B?UUZDWmxGSE1yT01CVGtiMFBSbGRkSk1YU3E0WGpROEtJcGZ1RTdvTTNxUDlE?=
- =?utf-8?B?NDliRGtpOHhxa3JMZk5kMHp5eG9lVUFJVkJPNWJJellsUjR6OWhhUHlyN2Vk?=
- =?utf-8?B?MGdrNjh0YzlBeTRBOW5wSDM1ODkvNEMxSUN0alFGZmQxRWtNMDE3THdWenhh?=
- =?utf-8?Q?4zolrV9GsFpu5wLwZguNfk5F2d37/+rT?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(376014)(7416014)(1800799024)(36860700013);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jul 2024 12:03:09.6852
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b3372913-68b5-4557-81b8-08dc9f45ef6d
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SA2PEPF000015CB.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7095
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/qxl: Pin buffer objects for internal mappings
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, airlied@redhat.com,
+ kraxel@redhat.com, zack.rusin@broadcom.com, airlied@gmail.com,
+ daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripard@kernel.org
+Cc: regressions@leemhuis.info, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ David Kaplan <david.kaplan@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+References: <20240702142034.32615-1-tzimmermann@suse.de>
+ <b18c4505-efd2-403b-9bde-eed510c832f9@collabora.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <b18c4505-efd2-403b-9bde-eed510c832f9@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: AF28421B2D
+X-Spam-Score: -4.50
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spamd-Result: default: False [-4.50 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	MX_GOOD(-0.01)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	FREEMAIL_TO(0.00)[collabora.com,redhat.com,broadcom.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RCVD_TLS_ALL(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
 
-The vdpa device can be reset many times in sequence without any
-significant state changes in between. Previously this was not a problem:
-VQs were torn down only on first reset. But after VQ pre-creation was
-introduced, each reset will delete and re-create the hardware VQs and
-their associated resources.
+Hi
 
-To solve this problem, avoid resetting hardware VQs if the VQs are still
-in a blank state.
+Am 08.07.24 um 13:55 schrieb Dmitry Osipenko:
+> On 7/2/24 17:20, Thomas Zimmermann wrote:
+>> @@ -190,7 +190,13 @@ int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
+>>   	if (r)
+>>   		return r;
+>>   
+>> +	r = qxl_bo_pin_locked(bo);
+>> +	if (r)
+>> +		return r;
+> Is qxl_bo_unreserve() missing here?
 
-Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
-Acked-by: Eugenio Pérez <eperezma@redhat.com>
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+Yeah, indeed. Thanks for reporting.
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index f2af0ba82dd2..4e464a22381b 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -3134,18 +3134,41 @@ static void init_group_to_asid_map(struct mlx5_vdpa_dev *mvdev)
- 		mvdev->group2asid[i] = 0;
- }
- 
-+static bool needs_vqs_reset(const struct mlx5_vdpa_dev *mvdev)
-+{
-+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-+	struct mlx5_vdpa_virtqueue *mvq = &ndev->vqs[0];
-+
-+	if (mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK)
-+		return true;
-+
-+	if (mvq->fw_state != MLX5_VIRTIO_NET_Q_OBJECT_STATE_INIT)
-+		return true;
-+
-+	return mvq->modified_fields & (
-+		MLX5_VIRTQ_MODIFY_MASK_STATE |
-+		MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_ADDRS |
-+		MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_AVAIL_IDX |
-+		MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_USED_IDX
-+	);
-+}
-+
- static int mlx5_vdpa_compat_reset(struct vdpa_device *vdev, u32 flags)
- {
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-+	bool vq_reset;
- 
- 	print_status(mvdev, 0, true);
- 	mlx5_vdpa_info(mvdev, "performing device reset\n");
- 
- 	down_write(&ndev->reslock);
- 	unregister_link_notifier(ndev);
--	teardown_vq_resources(ndev);
--	mvqs_set_defaults(ndev);
-+	vq_reset = needs_vqs_reset(mvdev);
-+	if (vq_reset) {
-+		teardown_vq_resources(ndev);
-+		mvqs_set_defaults(ndev);
-+	}
- 
- 	if (flags & VDPA_RESET_F_CLEAN_MAP)
- 		mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
-@@ -3165,7 +3188,8 @@ static int mlx5_vdpa_compat_reset(struct vdpa_device *vdev, u32 flags)
- 		if (mlx5_vdpa_create_dma_mr(mvdev))
- 			mlx5_vdpa_warn(mvdev, "create MR failed\n");
- 	}
--	setup_vq_resources(ndev, false);
-+	if (vq_reset)
-+		setup_vq_resources(ndev, false);
- 	up_write(&ndev->reslock);
- 
- 	return 0;
+Best regards
+Thomas
+
+>
+>> +
+>>   	r = qxl_bo_vmap_locked(bo, map);
+>> +	if (r)
+>> +		qxl_bo_unpin_locked(bo);
+>>   	qxl_bo_unreserve(bo);
+>>   	return r;
 
 -- 
-2.45.2
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
