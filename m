@@ -1,224 +1,221 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA525579F
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 09:15:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720430159; cv=none; b=VRPpzujg6LMuAhBo9PWXia0Jvbb7eDs/FuLOB/2HOUwl/iM35ge5ovJpvfvgQpOeoZfj1yKxxMV4PC68GTFXAAlR6dU973cYhYWfFxHepMyg8LVlADoapou7BakR0TL7rwqtbfsafxc/1XQYNSxjC7VxJkDTloxgvQR5eguBhl4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720430159; c=relaxed/simple;
-	bh=hgN66bAz8IkkTy8CvtHp3JUw6MLJpCYUWOaeBYIssMU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i7+uvXk75ydkq28CAPRNv2L7YgrCJHMgQNfL7AN7vLOWaRrnBB9NOakl+0IFYJNgZp1uZw80vEIuNxQ9DtJmWY5sE00xwadYevtKgKcYfScJ/ykdM4ffmqCxPtws03aGmNrL82Q7tzB6H6yLni8TT3+v3OYHIHFbV/+9TYP24bM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=D3qt0lww; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8126254278
+	for <virtualization@lists.linux.dev>; Mon,  8 Jul 2024 09:17:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720430233; cv=fail; b=KFpBAh0BoGKROe1Pwynq86fO7Rf40aJYf2zj7qeqUqOd6HknUdzLpKicwex1Ux7hruGY0J5YxNZl2mW+BOOTRQS/XkWu3xi5OL3RYBMNCN55abNbxJ61AyReKZxc28Dg3rQhoLH7Ie0uDlywqhy6ZRx4+UmAY7L/pWmHEyzjEA8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720430233; c=relaxed/simple;
+	bh=Ao+LYfLnBtDukaK3ZQFhuhZ0F/4p56XpSXcqwn6rIcs=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=pxOhlpQK4m4bCS9YbmlOnn0l9BHGC1J/kXmnht4v8F4V7TN0WMX3ODAf1Bib9zHFTIaLVeJ1vGJLGIVIHzP2hb1WMUz9pGwcNcXw8S2DkCpm4gQJAJ9dG42ayBjBqI3EDIxbDgi3lEV0vFq9TpalhwVOzZ+mPtuMjYN7CknoS5g=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=CAdqGiP4; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=kTg0Jv9s; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D3qt0lww"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 722D360704
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 09:15:57 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id kQ9J5wQQzkN2 for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Jul 2024 09:15:56 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.20; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 337FE606F9
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 337FE606F9
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=D3qt0lww
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 337FE606F9
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 09:15:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1720430157; x=1751966157;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hgN66bAz8IkkTy8CvtHp3JUw6MLJpCYUWOaeBYIssMU=;
-  b=D3qt0lwwfw38SAOQZmBgISMvbvhO6pJb2JeMoHkTAFM3u56kq7vGmH+M
-   LRRwqHvg8bikOSth5rf9IG1K7saU8JOM0pxFS/pZnId1qhIYuNJoX8bBh
-   1PLFcpcZcjQ0z/I3iedQv0ymz1H0UQ1ksUTgbamj70N+DCnT5yKFEG5PD
-   A0QYVD5ultnspixrkFZmb173OclLaJrelE483qNvLDf3CFnR/rncWP6w+
-   vrugJkGuVxV5AInh5OszPGiWtLyRfE2aOT0whim42HHDS3zPD+jBVSsiK
-   YZ09fGumt5VAgxAN5IPeSbJyU77aoTfcdHsUfgGwTl4nmaMJZMTFFrwGF
-   g==;
-X-CSE-ConnectionGUID: eyH2+tnnQla94d/XPTZJTQ==
-X-CSE-MsgGUID: vuYV8i37T0Ka/tKBEtmFJA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11126"; a="17437024"
-X-IronPort-AV: E=Sophos;i="6.09,191,1716274800"; 
-   d="scan'208";a="17437024"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2024 02:15:56 -0700
-X-CSE-ConnectionGUID: GrQZXYTkQeW7szw5V2SzlQ==
-X-CSE-MsgGUID: 5eqphG5pS+y70DV+Iv/DwA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,191,1716274800"; 
-   d="scan'208";a="70652136"
-Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
-  by fmviesa002.fm.intel.com with ESMTP; 08 Jul 2024 02:15:52 -0700
-Received: from kbuild by 68891e0c336b with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sQkTO-000Ve0-01;
-	Mon, 08 Jul 2024 09:15:50 +0000
-Date: Mon, 8 Jul 2024 17:15:42 +0800
-From: kernel test robot <lkp@intel.com>
-To: Cindy Lu <lulu@redhat.com>, dtatulea@nvidia.com, mst@redhat.com,
-	jasowang@redhat.com, parav@nvidia.com, sgarzare@redhat.com,
-	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH v3 1/2] vdpa: support set mac address from vdpa tool
-Message-ID: <202407081733.FCiMubD8-lkp@intel.com>
-References: <20240708064820.88955-2-lulu@redhat.com>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="CAdqGiP4";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="kTg0Jv9s"
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4687fVcX004189;
+	Mon, 8 Jul 2024 09:17:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
+	from:to:cc:subject:date:message-id:content-transfer-encoding
+	:content-type:mime-version; s=corp-2023-11-20; bh=oLKZFO2TI0dlIC
+	277jH5LffnMIClYMsIyT31ttZ254Q=; b=CAdqGiP4daV5Q5qYou1QUrshuqE6Ut
+	nHybLmAYT8VGz2AXJl/9Kv8jDhZzRWXh31FFbPhYA56Zmb1aV5k2B2+wDzXH49Zl
+	9jTgxvnsKsWM418H55smCUNmpGS9C0cfqtPxIiBecxSSxtH8gEo5TvW4EGXyVloa
+	xoctvq93sLO3YFE3XnvMmai9tBqvXzzmb0OAOrs5BgUWe1NCEoLRkefZl1DilUxL
+	+htdMVUuocHzkV/zkFz1Md7uWn25ETY6EsPlNpLNoxrSyWepDukx8D+nWWfoTf+P
+	XoeODp1+jFsHhnZG/nLysQw6Eg9wuilH9IPQzoqmF6uYFRuk62kjm3pQ==
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 406wt8a5tt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 08 Jul 2024 09:17:01 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 468787xF005017;
+	Mon, 8 Jul 2024 09:17:00 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 407tvbvpeh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 08 Jul 2024 09:17:00 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kpO321WbViyZhgTvW+VTmU/d0PN/DsAsmf34Sx3AKPNog8gPDaVuvuyk5KEEsp3Yq/V8PXzyz344ZFMozYrSz8DZHTvRCk5qh188cVxhqg34+zjiSS7P2nGVfe9115YuIn9c4xOETyxTxGxav2pvh7jv7F1Vg0TizpMvnMfZGF0ymvMs0m2cCvA0TjE0XAN3qAB+8M3bbL+hphIyRa5d8LAXgXOdPqbFuvE8M0sPmePGiFWNbUJfA2zTBrTnffEHof1TQG95couMSo6dW54HgahUmMJbDjXxdJ0BgDiapNqcTwtAE1Ud3tkX5o0W0yiw51wWumi6kaSrpgwXVVYhWQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oLKZFO2TI0dlIC277jH5LffnMIClYMsIyT31ttZ254Q=;
+ b=OxAX9+xnwcPl1MO5ObsHqPNgWISiv8GNdfqJRPHXHIhimfV4dtsTZpugF/rsMk10xVsud7aXPdssTc1UZ9rL55TX9GKIns5TPWdWqH2l3Rcqs0iCnnAVYSXdOWtDCIARMdHJHINxi8J1sxfLH4VKt40QytIg5LLN4NMq76neOfdhB71litQbSegcQAMwivFe/wZXxCFrrEhpMzumvY6xhTXAVydU+WIaPRgbrdqSgyXMv3/uLZ6uwwHXFUYLB/4wGmMUnP6pLt0EZvM+hxDi2vL/zeaoyfZyUL8sV0bi5RU10tK6kKgACnVIK6buQKGod0/9P7djTDkY1zzWe7sC2g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oLKZFO2TI0dlIC277jH5LffnMIClYMsIyT31ttZ254Q=;
+ b=kTg0Jv9sN6HyGcmClWhdzdmimyRhyBlRzkS3+7/YH2AsCh1qQ63B2Ng+1I7sNfFk3j2igRc0pARWxF03tcsQ/w4Urq1X0QtkFoxbDy7DWWhhRRCKt4T6CS1v+8e21JK4oVmUwZgl9Vc1Q19DEpOF15YneB07J6mZH0bKyjY6veE=
+Received: from DM6PR10MB4313.namprd10.prod.outlook.com (2603:10b6:5:212::20)
+ by DS0PR10MB6799.namprd10.prod.outlook.com (2603:10b6:8:13f::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.35; Mon, 8 Jul
+ 2024 09:16:58 +0000
+Received: from DM6PR10MB4313.namprd10.prod.outlook.com
+ ([fe80::4f45:f4ab:121:e088]) by DM6PR10MB4313.namprd10.prod.outlook.com
+ ([fe80::4f45:f4ab:121:e088%6]) with mapi id 15.20.7741.033; Mon, 8 Jul 2024
+ 09:16:58 +0000
+From: John Garry <john.g.garry@oracle.com>
+To: axboe@kernel.dk, mst@redhat.com, jasowang@redhat.com,
+        xuanzhuo@linux.alibaba.com, eperezma@redhat.com, pbonzini@redhat.com,
+        stefanha@redhat.com, hare@suse.de, kbusch@kernel.org, hch@lst.de
+Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux.dev, John Garry <john.g.garry@oracle.com>
+Subject: [PATCH v2 0/5] Validate logical block size in blk_validate_limits()
+Date: Mon,  8 Jul 2024 09:16:46 +0000
+Message-Id: <20240708091651.177447-1-john.g.garry@oracle.com>
+X-Mailer: git-send-email 2.31.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BLAPR05CA0040.namprd05.prod.outlook.com
+ (2603:10b6:208:335::21) To DM6PR10MB4313.namprd10.prod.outlook.com
+ (2603:10b6:5:212::20)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240708064820.88955-2-lulu@redhat.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR10MB4313:EE_|DS0PR10MB6799:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8994f060-95c4-4aa7-9799-08dc9f2eb7c8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: 
+	BCL:0;ARA:13230040|376014|7416014|1800799024|366016|921020;
+X-Microsoft-Antispam-Message-Info: 
+	=?us-ascii?Q?tMMBPNMQcCORfNqyPJa6D+pf/cHmDqtbNU8Hgn8WSD8r9uwbfRg+Tvbzh3Y6?=
+ =?us-ascii?Q?VO2X7/hzTJlTkuNclfPVCUE3EgIEYet6xAzQUzD2316bCRqZSN9UoTRWAeyb?=
+ =?us-ascii?Q?Ed7xwdb2GheVrApR4K6v5D8EHLqh25jI2KCVfQyaa26/y1BbNfdc89+JFlAv?=
+ =?us-ascii?Q?DlkacUybwot4UULeepKayMhyV/H/moiLVlU01RPCsiG9Utu0m0coEEBmS/Kz?=
+ =?us-ascii?Q?bdHNRjGZ0qCzgjZJj2E2teP27hpntx3uI5GvFyaUsgeE64VBUe5oZfCox6WA?=
+ =?us-ascii?Q?rYIlQHZsrw0KWh2rSRd9y4fzwlRd90zbQSDqWHNHBl+oS/e/4Y/1Lu0AyfwG?=
+ =?us-ascii?Q?rik1DKenYj9Bt95kcBdSkdeT6TF+uVd0daRB9vx8BtJvzXe0MWLB+YFdEq5q?=
+ =?us-ascii?Q?C+aM9uXGI9VzaqboxLgC32IW6J8ATy/9QjTErmvBMXL8nqu+u4z3RfoRvfDN?=
+ =?us-ascii?Q?DeNkea7aJ39ycKspDP89EZJv1qQp70Bu/EvfDRXGyqFrpyyfY40p38d1fqq6?=
+ =?us-ascii?Q?2PZaQV7aIp4R6bYJjPURW1N9XYG/wKpNCessWouEnE+/JmTakmXU3SV7SWP1?=
+ =?us-ascii?Q?DL8SyWghMAsNiHZiELVbmykU/NBgXnc9gJYFQlaljDfCrWqA5uwp+pf3HiPl?=
+ =?us-ascii?Q?XF+vuelJfEggdGhmJGvear3aBGtj5YMt+78a+TDeWZ6A6iy1iBLKzcZHbeun?=
+ =?us-ascii?Q?Qk7X+Kqv1UolQdZvDbDvCKA/RZ7rGeq05H02m55RVB/4szcBkU4HtIheGBhD?=
+ =?us-ascii?Q?8wU/OXoHMHDEGVfIhCgQsg0lCwvzNq8/Fg9uhPNAsZxOJ9fO2QNkF4861CIk?=
+ =?us-ascii?Q?tW/tvYsc2NxpkTT05tsMnirQ1a4a/weZMwxilGFa5iwQySkQcKiss+g4yZkC?=
+ =?us-ascii?Q?tBvJ2Btm3O3yChlVxLD5rY8N0wns8GajkRB+eIQ1CUOL55uM5ZGqyW26iXhU?=
+ =?us-ascii?Q?iFr+Vsb4Sz/h204RRBHrEhQk8JQ66ZEpHm2TJu13c+gyB+eRbU7xYjRSZaF3?=
+ =?us-ascii?Q?Z2jL8ZSLcqzelHmtr+UfnNrbYaduT4KhpxkNGRjQFHketXUx6vsOpgjVNsCE?=
+ =?us-ascii?Q?6U9H0DyASGPD3iyVDpDoTglf55Xj1HxHkWfsLhcIaXmlmoYq3sZmOWONS6co?=
+ =?us-ascii?Q?v6PRaqDxiDR/vcrRqMLB69JhP5l/thNVRsNRgQWduK1uezeE0gIT2T6/D9Gg?=
+ =?us-ascii?Q?C0O2VBDf5hvN00VJ2ktD5dm9XLYxgOqEAa/bCgm4t485FKFrt1NRbMI5vqc+?=
+ =?us-ascii?Q?dOFAtc7YNWUg24v6MGfFZV/qWjGlMEJ5AodUQZyRWuoSp2oFsn3fUprbjDAF?=
+ =?us-ascii?Q?JfUoVY9iL/ETgNNZOFeTFwtWEqrTsOdt02QnaIxbZVBpeuFWIeTz3wu9dGqQ?=
+ =?us-ascii?Q?4CeoB08=3D?=
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR10MB4313.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?us-ascii?Q?ndv9ggxNamEH95Yw0JGxShTGhfS79a62Ntj3eycq10pwe9X/JjofOJ/s6JLi?=
+ =?us-ascii?Q?RgzCxc8pZzKqag3wASMWgmfRdlF7YGTRoFbBZKzf9QRt0VdZT900+G4uC4PF?=
+ =?us-ascii?Q?C+p5HD4Vif05VnHqnpZyhmE7dIvLCLDoc+zCPTFy1QJil3XM5KIcOQzzog3q?=
+ =?us-ascii?Q?33iH8ma/nqsEauSDK32m2S9T3/REeKxfTn1w8wxG+JMJqGp3i8vjO01Udjt0?=
+ =?us-ascii?Q?40fQIcyW/LFQ3hBWDqQm+rdoGF56tIJu3gtCQ8YDwkGgL3CEYvvBfIPO/R9N?=
+ =?us-ascii?Q?3+/MfYwE39A/0PrSb4D3c92RrE+5eNMRp2YHAjHRwuzumWPkVWC37LrlAip3?=
+ =?us-ascii?Q?RnoQ4DLVxNst2TFOx4pfRQ98NRr60cqDvjtL0rowW1ptv1NXvnFKIX1HKIfG?=
+ =?us-ascii?Q?WAik7F+99SWzj4/yWG95Vqy9qsKEZ8P0GSi4MMeclWQZzupwZ7J5PZgtgVVB?=
+ =?us-ascii?Q?pZqXkAuIzPcVhCoOUO0w42/HxEY76Zz1zOfq2k2avee7+nN955AIDEfnpDmf?=
+ =?us-ascii?Q?986zSvC3XYrACMl0umsrnOJKs5LONfl1Os+Lk1o/yhbX60s1epnurs9O0EhO?=
+ =?us-ascii?Q?sDvvBvSi8dC92vMZcOyWVEd0/8H/i7cLaKiv8FRM6PfislqnjheLLroN5e2y?=
+ =?us-ascii?Q?YDSU2L+Wm9i/6EsXGivs3CRsi8StvtRnqxAm+MhUv5uOKtfYP1zRvGA9TjbA?=
+ =?us-ascii?Q?koPGDB+kYxO5N0wL02hFfyxeYoTSKwytgqQuj8RSdWQa1VYU45BV04OaoY5h?=
+ =?us-ascii?Q?OuLKMxSR9tSbM0wHgOKjSFsJ0Tm5xL7iBLDUMapdqG2SbUJPaQfPQuQlCY9S?=
+ =?us-ascii?Q?UCDuskGcTNEZyxPGIIv/xqhVC1LTOZ8GYQb5tvdZB8N/1Hk2Da858VUDln9h?=
+ =?us-ascii?Q?cj4qIfxdEN4yfYhDWYITJ3gYld8qPrnsrMwuhLRhXUwBLg/Cr9SvpkeSys4z?=
+ =?us-ascii?Q?u+PcdDY8WWSNZPqaCftfQmxkPOSi98if7b1GNfHfhSOxn4Dc4aSHQU14NoTA?=
+ =?us-ascii?Q?k+mJFKEaj7eMlLQIivBarGARV0ftW0LSqi6iw1aR8FFJXrYE9toDM66bnrbz?=
+ =?us-ascii?Q?YL6aC/mrMM+uVZNz2tGXU4Qyu6FviaaHKl9mEiorJ/wbTWT0xc0yvlJRkC34?=
+ =?us-ascii?Q?Yp7MaPhszYI86pgV8xrWtjwqApog9ZERTVKjtZ7DYBX3Ndz93yp8waqvRNag?=
+ =?us-ascii?Q?7vnc04JfSMn7F7lkBpxS9xKj6EmuWulCjIgD8YrhMPNQe0y+UxkwFZbVlkK5?=
+ =?us-ascii?Q?rSoo+aEr6363SWCqFdFi7zSRw6NYLMT2GZutjjDl2814Xo3i1mKs1jEOOJSx?=
+ =?us-ascii?Q?b0wRYR+q2dNGHgEAtHScrYK06WWEgUwk2uP/OYq04VwKQ7T/Eh87INYXkX22?=
+ =?us-ascii?Q?g5ML3d6k0wbncfiKFOflbD/0aSmSEmMyByZyM/A2TAY8HKkUJisMklilPW/8?=
+ =?us-ascii?Q?W1i9R6hmurmNaQciF5kqC32ebqFwF5DFuQmhXVWcH8OP8BNu2D49aPJivkOg?=
+ =?us-ascii?Q?OaqEIA+sx1CLPrtPJLkkPym+Crau6zvwGkBRSdxLTdA4G4FTtoN1kBZeUXIC?=
+ =?us-ascii?Q?GfG9bSle3pq1Y8py1Q5/2cU2CztFW0LsGyhWvR4cn1K+KMRc8lb0VhSXO+zO?=
+ =?us-ascii?Q?VQ=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	ObVfI/e2In84qg/vn8mPKVBOMyecchS57kj2JyxM2RBgMUQHo0G+mYNUfzPLatPa5mkr2af/0UDRWdK931l196hkY8AjtHl+8VMtsdFDVNnQ/kNqS3X/npUQD7bl0H/rM485baFVL0l6tPfqVO4AH0apPqBYHhDABPSOynVxOGCqfYS/YdmcrUFdCKuE/Q8W9ClrJ+9gibpqkNyTdnTEhC20OVEgt3njssCu9wp4523A1QLCWFE8xwaDK5yoLj+nglCoSrgv/eSIFfw92jGCWwWPXL4kDacZz61qWcAYYSPKNMe/YlrzlwqiSe6MQfvAM7S52IysA+pZkHSm6E4z8qtAmcm7L7THcoMrCHfMciI8Ls/V4W7zdgMHDosaMdYxyt32v+qx0w4pYhWUBSyU1Mq6i8YH8g24d+dIhjlUCOv7Ur5e48PtCMiSnivOxT5TxDEAiJsFRBtV7tKKFIQnuVhIMx3B3IlKMfOQXa+GkEuvpi5O+IQpjoCikRmoJL+AZom1Ml400M0ge+TZvgwT0UPqhmoj/v9AodkBARDKE3L7HMZya4khDBbvZDj7Y6GT5uAugyutL12SjHmZ4LEo0OTzo/lhCAY4pQW4q6RPK10=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8994f060-95c4-4aa7-9799-08dc9f2eb7c8
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR10MB4313.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jul 2024 09:16:58.1508
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: i0+tQUs7FY0cOcRLkuGibU2hw5VP+quXojxwJ4/G9FFuUgjFpvifxJsNqs0zItONd+v+JkmPGsbmIq6fXsWFCg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR10MB6799
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-08_04,2024-07-05_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxscore=0
+ mlxlogscore=999 phishscore=0 malwarescore=0 bulkscore=0 adultscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2406180000 definitions=main-2407080071
+X-Proofpoint-GUID: HarITWSbgwtiIm-CTNaNCFuh0J6P7GkS
+X-Proofpoint-ORIG-GUID: HarITWSbgwtiIm-CTNaNCFuh0J6P7GkS
 
-Hi Cindy,
+This series adds validation of the logical block size in
+blk_validate_limits().
 
-kernel test robot noticed the following build warnings:
+Some drivers had already been validating this themselves. As such, we can
+mostly drop that driver validation.
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on horms-ipvs/master v6.10-rc7 next-20240703]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+nbd is problematic, as we cannot only change to just stop calling
+blk_validate_limits(). This is because the LBS is updated in a 2-stage
+process:
+a. update block size in the driver and validate
+b. update queue limits
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Cindy-Lu/vdpa-support-set-mac-address-from-vdpa-tool/20240708-144942
-base:   linus/master
-patch link:    https://lore.kernel.org/r/20240708064820.88955-2-lulu%40redhat.com
-patch subject: [PATCH v3 1/2] vdpa: support set mac address from vdpa tool
-config: i386-buildonly-randconfig-005-20240708 (https://download.01.org/0day-ci/archive/20240708/202407081733.FCiMubD8-lkp@intel.com/config)
-compiler: clang version 18.1.5 (https://github.com/llvm/llvm-project 617a15a9eac96088ae5e9134248d8236e34b91b1)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240708/202407081733.FCiMubD8-lkp@intel.com/reproduce)
+So if we stop validating the limits in a., there is a user-visible change
+in behaviour (as we stop rejecting invalid limits from the NBD_SET_BLKSIZE
+ioctl). So I left that untouched.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202407081733.FCiMubD8-lkp@intel.com/
+This topic was originally mentioned in [0] and then again in [1] by
+Keith.
 
-All warnings (new ones prefixed by >>):
+I have also included a related virtio_blk change to deal with
+blk_size config fallback.
 
->> drivers/vdpa/vdpa.c:1377:6: warning: variable 'err' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
-    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    1378 |             nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
-         |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/vdpa/vdpa.c:1394:9: note: uninitialized use occurs here
-    1394 |         return err;
-         |                ^~~
-   drivers/vdpa/vdpa.c:1377:2: note: remove the 'if' if its condition is always true
-    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
-         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    1378 |             nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
-         |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/vdpa/vdpa.c:1377:6: warning: variable 'err' is used uninitialized whenever '&&' condition is false [-Wsometimes-uninitialized]
-    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/vdpa/vdpa.c:1394:9: note: uninitialized use occurs here
-    1394 |         return err;
-         |                ^~~
-   drivers/vdpa/vdpa.c:1377:6: note: remove the '&&' if its condition is always true
-    1377 |         if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/vdpa/vdpa.c:1371:9: note: initialize the variable 'err' to silence this warning
-    1371 |         int err;
-         |                ^
-         |                 = 0
-   2 warnings generated.
+[0] https://lore.kernel.org/linux-block/10b3e3fe-6ad5-4e0e-b822-f51656c976ee@oracle.com/
+[1] https://lore.kernel.org/linux-block/Zl4dxaQgPbw19Irk@kbusch-mbp.dhcp.thefacebook.com/
 
+Differences to v1:
+- Add RB tags (thanks!)
+- Update comment on blk_validate_block_size() and add print in
+  blk_validate_limits()
 
-vim +1377 drivers/vdpa/vdpa.c
+John Garry (5):
+  virtio_blk: Fix default logical block size fallback
+  block: Validate logical block size in blk_validate_limits()
+  null_blk: Don't bother validating blocksize
+  virtio_blk: Don't bother validating blocksize
+  loop: Don't bother validating blocksize
 
-  1363	
-  1364	static int vdpa_dev_net_device_attr_set(struct vdpa_device *vdev,
-  1365						struct genl_info *info)
-  1366	{
-  1367		struct vdpa_dev_set_config set_config = {};
-  1368		const u8 *macaddr;
-  1369		struct vdpa_mgmt_dev *mdev = vdev->mdev;
-  1370		struct nlattr **nl_attrs = info->attrs;
-  1371		int err;
-  1372	
-  1373		if (!vdev->mdev)
-  1374			return -EINVAL;
-  1375	
-  1376		down_write(&vdev->cf_lock);
-> 1377		if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MAC)) &&
-  1378		    nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
-  1379			set_config.mask |= BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
-  1380			macaddr = nla_data(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]);
-  1381			memcpy(set_config.net.mac, macaddr, ETH_ALEN);
-  1382	
-  1383			if (mdev->ops->dev_set_attr) {
-  1384				err = mdev->ops->dev_set_attr(mdev, vdev, &set_config);
-  1385			} else {
-  1386				NL_SET_ERR_MSG_FMT_MOD(info->extack,
-  1387						       "features 0x%llx not supported",
-  1388						       BIT_ULL(VIRTIO_NET_F_MAC));
-  1389				err = -EINVAL;
-  1390			}
-  1391		}
-  1392		up_write(&vdev->cf_lock);
-  1393	
-  1394		return err;
-  1395	}
-  1396	static int vdpa_nl_cmd_dev_attr_set_doit(struct sk_buff *skb,
-  1397						 struct genl_info *info)
-  1398	{
-  1399		const char *name;
-  1400		int err = 0;
-  1401		struct device *dev;
-  1402		struct vdpa_device *vdev;
-  1403		u64 classes;
-  1404	
-  1405		if (!info->attrs[VDPA_ATTR_DEV_NAME])
-  1406			return -EINVAL;
-  1407	
-  1408		name = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
-  1409	
-  1410		down_write(&vdpa_dev_lock);
-  1411		dev = bus_find_device(&vdpa_bus, NULL, name, vdpa_name_match);
-  1412		if (!dev) {
-  1413			NL_SET_ERR_MSG_MOD(info->extack, "device not found");
-  1414			err = -ENODEV;
-  1415			goto dev_err;
-  1416		}
-  1417		vdev = container_of(dev, struct vdpa_device, dev);
-  1418		if (!vdev->mdev) {
-  1419			NL_SET_ERR_MSG_MOD(
-  1420				info->extack,
-  1421				"Fail to find the specified management device");
-  1422			err = -EINVAL;
-  1423			goto mdev_err;
-  1424		}
-  1425		classes = vdpa_mgmtdev_get_classes(vdev->mdev, NULL);
-  1426		if (classes & BIT_ULL(VIRTIO_ID_NET)) {
-  1427			err = vdpa_dev_net_device_attr_set(vdev, info);
-  1428		} else {
-  1429			NL_SET_ERR_MSG_FMT_MOD(info->extack, "%s device not supported",
-  1430					       name);
-  1431		}
-  1432	
-  1433	mdev_err:
-  1434		put_device(dev);
-  1435	dev_err:
-  1436		up_write(&vdpa_dev_lock);
-  1437		return err;
-  1438	}
-  1439	
+ block/blk-settings.c          |  4 ++++
+ drivers/block/loop.c          | 12 +-----------
+ drivers/block/null_blk/main.c |  3 ---
+ drivers/block/virtio_blk.c    | 31 +++++++++++--------------------
+ include/linux/blkdev.h        |  1 +
+ 5 files changed, 17 insertions(+), 34 deletions(-)
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.31.1
+
