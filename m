@@ -1,205 +1,178 @@
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+Received: from EUR02-DB5-obe.outbound.protection.outlook.com (mail-db5eur02on2086.outbound.protection.outlook.com [40.107.249.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA74E16CD1F
-	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 13:31:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720531875; cv=none; b=lgCmVidCDI7GE3wLH80589KusP7W9/VVlcT9yUjvM8NppIJ2Yzjk3Ymz2G0FPbEZy61N2cD8DIMJBX2D+yhwW+fyfzGfiGFmyuQnJBOo+86jwy8MpZwFm+a+B5aoU2tIzXLm2mY4dY7bl9ZunsE5u4iS8S2nI0mZ52C3cepTaPk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720531875; c=relaxed/simple;
-	bh=dAafrZMcmjS/brpthhtfQuYZamYHc//+YMCv+SUls0k=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PeKKMxtxVYK5tTGDeKXh1qIrP9W8wOwwAkYM8/LHA+2mAl3KVLcQ31qmY6dGC2NS27ThEXmUgCj9XCxVMO9oVotzD6FBuTllEvDLOU0iOJfVdjYbUnkhfxVQxeDmqMU6d1reOPqFDWFQ7/qNJm91eBIA5qbFmxhqdu+lb/kBLOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.48])
-	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4WJMGp5BKwzQl5Q;
-	Tue,  9 Jul 2024 21:27:14 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 8CF08180064;
-	Tue,  9 Jul 2024 21:31:09 +0800 (CST)
-Received: from localhost.localdomain (10.69.192.56) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 9 Jul 2024 21:31:09 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Eric Dumazet <edumazet@google.com>, David
- Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Trond
- Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
-	<chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>,
-	<linux-afs@lists.infradead.org>, <linux-nfs@vger.kernel.org>
-Subject: [PATCH net-next v10 05/15] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Tue, 9 Jul 2024 21:27:30 +0800
-Message-ID: <20240709132741.47751-6-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240709132741.47751-1-linyunsheng@huawei.com>
-References: <20240709132741.47751-1-linyunsheng@huawei.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A05156862
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 13:41:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.249.86
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720532522; cv=fail; b=c3t+wJZafBduPgka4IaS2hYYv2G0iBkjBIGkDRXcSNjvPVL6dzDQRUZNYqHy885kwWmpMJCYAgauq5/qIPRR00lAk5rDFv2SjO4zIatjPRsIGRQq3l10yWVtysCGL6vIvZBKIEoGS9aKg7Gjp2kanSSnFLr7IzMDhofYra/0OJI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720532522; c=relaxed/simple;
+	bh=Q7FSgH1+U/q4gbRzOqfQ84S5/ylbjdsvbfP7q0J5fRg=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=K4RIMGwxBsTNAdR8sUdtpbto3nGjEsC/cKU4taJeR6+cMljB4pvWHrxReV858ygU8ed/wNe2oN9c4TfU7JeYMSvxKq/PA29Xk4ELHDXMouFu7y8KV0hs/ONC+bO1Tz6IgfVpwLPU0qKbHZbxsxWbwPlAqFiSBqOCsZGfXk6ZYns=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (1024-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=ADgmHoIZ; arc=fail smtp.client-ip=40.107.249.86
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="ADgmHoIZ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UldQi4aWtRDqREJCLePuxcA4l5KuFkOdItrBqVe/yGP9PegDJPV77ooRs8RZ6vGVPpPePv6+JP3algWnK4O+NLcCEbSa1Om5R8ZhsagyKSLmV0gzNb+COqEcFBJNv/VPxX5N1qUp7bS34Odw8U3hLiK6vbOTNWFmQvJcvPBCdcGttA1OcuHZ7MwDsLPiR0quljL/59u5itX399TpnopCyRt3LdRZQqyUwM9YTVqitIOedi/3lKxzMz7oCzJsJvPZXaEdzuVP1UznBxm5JPNkOoPCJEIyzOXyXOjjm5zsLSyAoLuSO6UAO7gLFp9Dus7ujrURp/7Ss60B9i2MOYtoMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1gEhF1USxOzmB4xzAb4aj+nN/yRga7wz+2KD+KDTuYM=;
+ b=Da2Jbzu9Oy+D/LQB3xDyrvpSnWzWH76BKtd6oqGTHFoCRK0VSsmG9M1KmnM7mPMRFI87MV2wYJgR5/EcM9SI6WcsvpkU3qeaH5r+4+jTzX1Mg7yldYcbTaUOWuwyty8pm+8vlXxFaacJg5ETE1chbYCNkFyGfQI2nbzeDFiXZVCxO4V5IFWt5F9Px8aPiZ1FV8fG/+OBsHh/wgz0pco+lTHBpjQ4S6Ja5mj12d6tVaVvDt3vp7KQbYrjXSws4C/WuMpUUxcGN+A0hYgRXZD2YW+WaH29EZd8PGlEQ12XkdobAKT0SNumOTB93a6ZULr8tDXU31wd1/2AbYjBZLhxUQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector2-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1gEhF1USxOzmB4xzAb4aj+nN/yRga7wz+2KD+KDTuYM=;
+ b=ADgmHoIZgcGWOG+QT+sZIZNP419bMbhI0037CPGXjrLDETtmL152VvtpsRAhJ0cz7R3SpAQzd2h8XpIv70mSnx5ANsWPXARQs/4qtHNK2nE7BlRCIEReHKTvczuLjTtWGPOpo7ntjL2E2hbdAzgRp53DQc99DOt8n+u1qJOCnV4=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from PAXPR04MB8459.eurprd04.prod.outlook.com (2603:10a6:102:1da::15)
+ by DB9PR04MB9938.eurprd04.prod.outlook.com (2603:10a6:10:4ee::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.35; Tue, 9 Jul
+ 2024 13:41:56 +0000
+Received: from PAXPR04MB8459.eurprd04.prod.outlook.com
+ ([fe80::165a:30a2:5835:9630]) by PAXPR04MB8459.eurprd04.prod.outlook.com
+ ([fe80::165a:30a2:5835:9630%4]) with mapi id 15.20.7741.033; Tue, 9 Jul 2024
+ 13:41:56 +0000
+From: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
+To: sgarzare@redhat.com
+Cc: virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Peng Fan <peng.fan@nxp.com>
+Subject: [PATCH] test/vsock: add install target
+Date: Tue,  9 Jul 2024 21:50:51 +0800
+Message-Id: <20240709135051.3152502-1-peng.fan@oss.nxp.com>
+X-Mailer: git-send-email 2.37.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SI2PR01CA0048.apcprd01.prod.exchangelabs.com
+ (2603:1096:4:193::17) To PAXPR04MB8459.eurprd04.prod.outlook.com
+ (2603:10a6:102:1da::15)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PAXPR04MB8459:EE_|DB9PR04MB9938:EE_
+X-MS-Office365-Filtering-Correlation-Id: e09918b3-5a95-4651-57c3-08dca01ce60a
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|376014|1800799024|52116014|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?QRd8T3uus+5lrfdM68dRflTRvTmAjvtCT9u5tcCZEfuYUsDXnNyxFnzqsTgO?=
+ =?us-ascii?Q?WxtB1IdjB+9KEblRQjiFEQsVWjxTWllmLMb1OAbD5slqSxKDFn1wC4Dkkt2n?=
+ =?us-ascii?Q?taJkJs5UgEWVqAlIK1UptfMa3DRLAk6kEzcWYFyPnI1UTSQv32hb8jrfRuj3?=
+ =?us-ascii?Q?7wabloDDHzRhV/0WttWINGxIo6s3JDXUNGlieM2Ef9fSs2Ct2emZQmZdmOwz?=
+ =?us-ascii?Q?9tNdXPK34v4/2wQd8wNUL3JH37pGBTYUthyH7IGPDfhlZMEPzBC2Xoaa+dMH?=
+ =?us-ascii?Q?4vC/b8Vsg0NirJIdzc3XgRXp6H99jn2JxaaTaEO02fosER9khZTJE9ejAbjC?=
+ =?us-ascii?Q?FMnYGQBCFgnuD23a8rcJVCXGiRfXXHxes+AnUD0LPbV1NoOnjtIxF0hyBieD?=
+ =?us-ascii?Q?fFO0IZ25tVLFFB2SiC/LfMwJ8WiauF8YGulN/wGqMllDqDoJyd+8ujcj7vtN?=
+ =?us-ascii?Q?JaZXXx5mOO4+WmiApf8nd/fK6ca7oXf6qk3TbDxlNsVGYi0nsdm6XCStjJ15?=
+ =?us-ascii?Q?uHWrRSZc72eAGiKPTZUdFKddlMR+9lPLFpbmlkZ5iPeYo7hQ+/Ql5X31we3h?=
+ =?us-ascii?Q?g1ZzvH3rSZzG+6+FbfuIsc9KBidNnpfeOAh+pHuIRA0CZTbqiMN50G49SrMU?=
+ =?us-ascii?Q?zrdyGVDyA3E8q7H9K43KEAipNS5KDQgigT9lIUCB2+QdZjAL7DnSR2zr2x6I?=
+ =?us-ascii?Q?y/vLuUjlU372+7ipzSQ4ANZtFwmeiudlzQkc3QRyrPOU7iHtkZMlOHOHd1KL?=
+ =?us-ascii?Q?qQMHXNm9Vg9IqM81yvHynNTjr1+gk4DhXtFXYY3a+7UUYa5Y6HAkEPVR+kIe?=
+ =?us-ascii?Q?qKQK1wFeWqW1oSE7ZWcCfpPxCIrfwnwvb/H8EDJGE7MudMwPMusVCqAXyssb?=
+ =?us-ascii?Q?NmmUDt540+uNGqLsYhgemclgVttvAUYBbCmQfIQGHgStecy0nYpk5cmXi0pW?=
+ =?us-ascii?Q?wKRNyKky5+Wzjg4OGMryyDaHCcxiIZ73JHgUHD9KIRL8/W9czz7Ke0Q14Vck?=
+ =?us-ascii?Q?r4wvP/usUNiw63+bBJ5pPuhy7goGBQviwDTslBXloAHyN9zC/RSYHHPINcf4?=
+ =?us-ascii?Q?SQJsAxgKGa+ytAbHUA18AFL5fYXQFQZBhzVcQTq3+J+CRQfyvrcwM/GJ/zqK?=
+ =?us-ascii?Q?YoApK5hinHkj0KYNxjc61MrgvKfWn6cceSmqjvxIOOOra+Y4Q/p+SDl0dVWE?=
+ =?us-ascii?Q?npIlg+LieoGiuFcXTpXQk+d04KeTKwiEGRJ1zMAbAm8cbmbxoSZ14THEjDpX?=
+ =?us-ascii?Q?oNlKB5TqfS/M9x4miNh9KrubsfEn6VFrtfRabBl1SRV3VyUoO3VQ4gjI/Stl?=
+ =?us-ascii?Q?9iaivwjTjBvfOFi68L6lYojwt/Tt1zIrtjhmne8qNabveki6PYqy6FW8SniI?=
+ =?us-ascii?Q?i2B0FW9gUzYiWMaVtld67Y/UJ8uedc6E7uix+Ba+oXU/xprZ4A=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR04MB8459.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(52116014)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?NW9kBEItC+29lVtucHOtw6cr+vLpZFoZ9OHztxGT23ZtfpJzu7KLp94ETv8g?=
+ =?us-ascii?Q?qF8o4wapV0eOycdA6UnWqtRuJowAcoNgmppXRKW0RBT68rh/WQPiv/D5djZo?=
+ =?us-ascii?Q?mvWMkbOiKylgZOhUFtMKXFq9k26v0tkGoHINt2+iLNoGXay18g2kUcVAmHAw?=
+ =?us-ascii?Q?y9TZnEKWoKYbtmTK4ROsJBm9gfwHMpBQHH+EpCdK8ya6o7WyfnC46f9P62Ja?=
+ =?us-ascii?Q?3/FnN+A4vIxeQoMx0u/LaBh9e+HRjibFNPLVf33moGpWI1rG1LbDRLiOsO0P?=
+ =?us-ascii?Q?EkCA3lHVz2yM6HmEWsDdechi6OkvpD+DKjkdH2uTc7+d7KtDXCCOAd6PHbOs?=
+ =?us-ascii?Q?gVUiATpS75Yt1VmM/7Y09iT16USjCPlL1ElSXZMen0vsP6kUItws5x8ICiDY?=
+ =?us-ascii?Q?BdV8JbpTPEV0O5HvaQPSEUAJ/1o9NRFdG4LvoNooUGY/6PEzFxNFNChg5qov?=
+ =?us-ascii?Q?9mhoeIN4cVaHk19LmMlXKDquZqOpTnLPRrf1jkBOguJRDzmqZEsMvKP9DwYI?=
+ =?us-ascii?Q?oucNNH11MVt7Twic0UcfEsU3zxCO3SYcqUQUiXaXtsVsF075NBlyuEtH6ufi?=
+ =?us-ascii?Q?qq68JG7cPQvGqhOKshsL/7TRRCfTlotzUNyac4oYCWVGxM8yIot1TuL9Z5Sp?=
+ =?us-ascii?Q?8em+5r3qRCgG3D449JxD/kuP8m2pr5kd3hiVBow5ie8YSroVXjCFZyUwVSsr?=
+ =?us-ascii?Q?zbxhuf7wNvu4p4a5JhlgFeNEzHOAFyVU9SLFXuwVUl5SNgpr6dD9nMjEDxoX?=
+ =?us-ascii?Q?+Se+2FJ28Bik0GxSaJ4vQ3hNKobwaeFNYihX6kGmDpJGjIxfEbbcFnDeS+x8?=
+ =?us-ascii?Q?JMhMZGx38/y8B++6Kc7jg//4hT6T7isAk4gHDVdvUurOWNg1J+VwmlP7b7wH?=
+ =?us-ascii?Q?mQMarfPpQPU+x9W5vKUt06cFkYUTjXnmbqZGiaBwO0kNSZpHrptBeOVFgac5?=
+ =?us-ascii?Q?bzLHENpzXn9Te2at2rWZpAbjN1FFXw6j6J83taKzNct04BtsCVnH1HOEG1oU?=
+ =?us-ascii?Q?TtAoB0zmzaPxQp7SXysVSMQcXRR8HD9YOP1PydyXKBHC73wJcClvPguFvtAE?=
+ =?us-ascii?Q?ShHh9VJrVg/xnRwcOG5wai66v7g6Oz0jLZOLTMMRV5LFIVx3VMBwd1EQpxpe?=
+ =?us-ascii?Q?CPuvGoiofxjZYrEtV/EII/4LIVfWZhvIJbENmgOLeGglIOhkEvo/dABnZF6F?=
+ =?us-ascii?Q?sc/sWa3C8NLWB0uI22q8YZaLQucNdX9PrlV5qgW3TorBGHkOp5XzO3QIk5TJ?=
+ =?us-ascii?Q?00ebDLcVvlrHjxFtlRJy8dNAlxL7NdykByCXRXgT0gvOt9H2FPvDSdP492Yn?=
+ =?us-ascii?Q?+LWzShmXY7eGj+dfzl9sPM45xa5bTkMwqo8YDW1AAtmo5etFLNl/t70ogK0a?=
+ =?us-ascii?Q?WC2cJs1t6Qoh/WOmjm30DJYRPdJua5tzvtK4iPnRXF4TtxC5oCGBh5cLf9qq?=
+ =?us-ascii?Q?fybjjCN0b8uN9qnisbUPNuWKv8t16jZA6P49RWYafv7o1yCD3NQY5ym/T/GQ?=
+ =?us-ascii?Q?xe+AzAHxyaPjWfqK9DhKoH+upmTI8rXpC7jKCURFy1BurEp30jjgZSkQNc8u?=
+ =?us-ascii?Q?hwJ15fmlaP2zqJHk5Q+AuNltOg7/lUZDVf9wadGl?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e09918b3-5a95-4651-57c3-08dca01ce60a
+X-MS-Exchange-CrossTenant-AuthSource: PAXPR04MB8459.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jul 2024 13:41:56.3685
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: mOC12lyLG829weAco3JctSwKZjHiB8BGRuv/Ie4xhzohmo3GC/SbioGlLg5pFrshw0Yp9kyLWcpbeZA0QlO1uQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR04MB9938
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+From: Peng Fan <peng.fan@nxp.com>
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Add install target for vsock to make Yocto easy to install the images.
+
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
 ---
- drivers/vhost/net.c             |  2 +-
- include/linux/page_frag_cache.h | 10 ++++++++++
- mm/page_frag_test.c             |  2 +-
- net/core/skbuff.c               |  6 +++---
- net/rxrpc/conn_object.c         |  4 +---
- net/rxrpc/local_object.c        |  4 +---
- net/sunrpc/svcsock.c            |  6 ++----
- 7 files changed, 19 insertions(+), 15 deletions(-)
+ tools/testing/vsock/Makefile | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 6691fac01e0d..b2737dc0dc50 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
+diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+index a7f56a09ca9f..5c8442fa9460 100644
+--- a/tools/testing/vsock/Makefile
++++ b/tools/testing/vsock/Makefile
+@@ -8,8 +8,20 @@ vsock_perf: vsock_perf.o msg_zerocopy_common.o
+ vsock_uring_test: LDLIBS = -luring
+ vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o msg_zerocopy_common.o
  
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index 185d875e3e6b..0ba96b7b64ad 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -26,6 +26,16 @@ struct page_frag_cache {
- 	bool pfmemalloc;
- };
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
++VSOCK_INSTALL_PATH ?= $(abspath .)
++# Avoid changing the rest of the logic here and lib.mk.
++INSTALL_PATH := $(VSOCK_INSTALL_PATH)
 +
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
+ CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
+ .PHONY: all test clean
+ clean:
+ 	${RM} *.o *.d vsock_test vsock_diag_test vsock_perf vsock_uring_test
+ -include *.d
 +
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_va_align(struct page_frag_cache *nc,
-diff --git a/mm/page_frag_test.c b/mm/page_frag_test.c
-index 50166a059c7d..0d47235b5cf2 100644
---- a/mm/page_frag_test.c
-+++ b/mm/page_frag_test.c
-@@ -340,7 +340,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_frag.va = NULL;
-+	page_frag_cache_init(&test_frag);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 4b8acd967793..76a473b1072d 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -749,14 +749,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
- 
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 
- 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 		local_bh_enable();
-@@ -846,7 +846,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc_va(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index 504453c688d7..a8cffe47cf01 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 42d20412c1c3..4b1e87187614 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1609,7 +1609,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1619,8 +1618,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
++install: all
++	@# Ask all targets to install their files
++	mkdir -p $(INSTALL_PATH)/vsock
++	install -m 744 vsock_test $(INSTALL_PATH)/vsock/
++	install -m 744 vsock_perf $(INSTALL_PATH)/vsock/
++	install -m 744 vsock_diag_test $(INSTALL_PATH)/vsock/
++	install -m 744 vsock_uring_test $(INSTALL_PATH)/vsock/
 -- 
-2.33.0
+2.37.1
 
