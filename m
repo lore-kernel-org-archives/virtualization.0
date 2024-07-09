@@ -1,216 +1,184 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AACA2152E0F
-	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 08:03:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11C361527B8
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 08:13:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720512192; cv=none; b=asr3X4jxWui/nSC0zkmlqDfHJ35mp2wp1XMmCK/SO2jngUmgB+W3H+QbhmceVRBM2AwWF2tCg1keOJyTjSbf9QYvSQqZ+IeqYF/NdkS7Qw6aXuwxpuTSEV5OalapJdvZ3mxYfYLmSJjhbnHexNU8NcbB+7JG8EUEIA4n2JkU7/A=
+	t=1720512839; cv=none; b=eDTwcYc4RyKtXkux2W8iw4+VHk5v1yBYBiwk9msFRpObm9lNPBWrss7A0Hnliu3UuC12B4gBbNP8lONZtF+Lho7WsGUFKGePuIOKXFm1qztfXFD0anWq3tMSyB705Ds1RUE69teptORsUo5qIypRm4TE8JhCQeK2e3qI4ws6KD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720512192; c=relaxed/simple;
-	bh=ItSrSIZhMmKVBhL6QhqgNEBVHBV9MNji+zbTW7wRCZU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LYOANy+iJ4UGgj7QqJs+JvsTDFFwOO3+RhYRR01gJqqpj76reRkDcF/+sZoucvbP2Y0E0KgZEyD9G1+sjSkS/5cB6yzs+50r3smWjon55RCYOUqALHvIv4bpA5SZ7zSicp1KhK+NIckTBUNcvMY8pkUssVCM9YZ3rGZPWl0hQKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HEySZkRQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1720512839; c=relaxed/simple;
+	bh=oJ8hh/8t4vsjU+ysZF9EeLCSM6YbX2RXOLNAbTgTtr0=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=KC2luQUI9I4orp7MJkqYStNI4I6gA8sd/Jdxz9nzup8g/kcAXgXX26NM45zL8AtHOjue8qziOkjBacOaTKmy4scsYvrEigzb2jtqG19ix9BFsC0dFaikHti9ACd566pwgwFuSK1LjFtTftzuf1idV6yaOCEGShDMua7KamO2Kmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=AU3CebR2; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HEySZkRQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720512188;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YltytAobm35KcA9WCi/WWsmTKpYn/PUplt1/do/Zw1c=;
-	b=HEySZkRQt9ZiKCB49OGRHEBGCRiB+Z8Cwo3mMJ2Np31pkgwrmkg77HCWDZMWOQj+bucCjz
-	zZqv49kTQeRMlK1c7QaAjNSdgBVQys/HHo2I1w8RkGxfnEMZ4t3DpNl2AvZ/EMZr4EGBeN
-	1o9/yBdTG1tnAqgwDHVmHfor1h79GDc=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-231-etSNNHcXP1SMaDHgVlctrw-1; Tue,
- 09 Jul 2024 04:02:56 -0400
-X-MC-Unique: etSNNHcXP1SMaDHgVlctrw-1
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8599F1955F65;
-	Tue,  9 Jul 2024 08:02:54 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.72.112.184])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F3FE23000185;
-	Tue,  9 Jul 2024 08:02:47 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="AU3CebR2"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1720512828; h=Message-ID:Subject:Date:From:To;
+	bh=cU7A1IzavM9ch2++8WnhmaPS8oMLehuFnhF2+Q5ihsg=;
+	b=AU3CebR2gW8EO1xnKpEjgZkJU2OlGRJRze1bQ6mNycs4W+RTUXMJdJwhQQfZ4nvbx2vBy8D4E0ixpnlYpkAmG6dJJCqgPC3jJrDtOjnF9Dc7sYPFlUyhIp+qt1ZBYTV9IMPiKDqS0A8OTzV2Nsr+K8bORbzTl0/xxLmOEHlA1kE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045220184;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WABApQw_1720512826;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WABApQw_1720512826)
+          by smtp.aliyun-inc.com;
+          Tue, 09 Jul 2024 16:13:48 +0800
+Message-ID: <1720512816.0395122-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v3 1/3] virtio: rename virtio_config_enabled to virtio_config_core_enabled
+Date: Tue, 9 Jul 2024 16:13:36 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
 Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	netdev@vger.kernel.org,
-	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
-	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
-Subject: [PATCH net-next v3 3/3] virtio-net: synchronize operstate with admin state on up/down
-Date: Tue,  9 Jul 2024 16:02:14 +0800
-Message-ID: <20240709080214.9790-4-jasowang@redhat.com>
-In-Reply-To: <20240709080214.9790-1-jasowang@redhat.com>
+ linux-kernel@vger.kernel.org,
+ davem@davemloft.net,
+ edumazet@google.com,
+ kuba@kernel.org,
+ pabeni@redhat.com,
+ netdev@vger.kernel.org,
+ Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
+ "Gia-Khanh Nguyen" <gia-khanh.nguyen@oracle.com>,
+ mst@redhat.com,
+ jasowang@redhat.com,
+ eperezma@redhat.com
 References: <20240709080214.9790-1-jasowang@redhat.com>
+ <20240709080214.9790-2-jasowang@redhat.com>
+In-Reply-To: <20240709080214.9790-2-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-This patch synchronize operstate with admin state per RFC2863.
+On Tue,  9 Jul 2024 16:02:12 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> Following patch will allow the config interrupt to be disabled by a
+> specific driver via another boolean. So this patch renames
+> virtio_config_enabled and relevant helpers to
+> virtio_config_core_enabled.
+>
+> Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+> Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-This is done by trying to toggle the carrier upon open/close and
-synchronize with the config change work. This allows propagate status
-correctly to stacked devices like:
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-ip link add link enp0s3 macvlan0 type macvlan
-ip link set link enp0s3 down
-ip link show
+Thanks.
 
-Before this patch:
-
-3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
-    link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-......
-5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-    link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-
-After this patch:
-
-3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
-    link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-...
-5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
-    link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-
-Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 64 ++++++++++++++++++++++++----------------
- 1 file changed, 38 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0b4747e81464..e6626ba25b29 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2476,6 +2476,25 @@ static void virtnet_cancel_dim(struct virtnet_info *vi, struct dim *dim)
- 	net_dim_work_cancel(dim);
- }
- 
-+static void virtnet_update_settings(struct virtnet_info *vi)
-+{
-+	u32 speed;
-+	u8 duplex;
-+
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
-+		return;
-+
-+	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
-+
-+	if (ethtool_validate_speed(speed))
-+		vi->speed = speed;
-+
-+	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
-+
-+	if (ethtool_validate_duplex(duplex))
-+		vi->duplex = duplex;
-+}
-+
- static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -2494,6 +2513,18 @@ static int virtnet_open(struct net_device *dev)
- 			goto err_enable_qp;
- 	}
- 
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-+		virtio_config_driver_enable(vi->vdev);
-+		/* Do not schedule the config change work as the
-+		 * config change notification might have been disabled
-+		 * by the virtio core. */
-+		virtio_config_changed(vi->vdev);
-+	} else {
-+		vi->status = VIRTIO_NET_S_LINK_UP;
-+		virtnet_update_settings(vi);
-+		netif_carrier_on(dev);
-+	}
-+
- 	return 0;
- 
- err_enable_qp:
-@@ -2936,12 +2967,19 @@ static int virtnet_close(struct net_device *dev)
- 	disable_delayed_refill(vi);
- 	/* Make sure refill_work doesn't re-enable napi! */
- 	cancel_delayed_work_sync(&vi->refill);
-+	/* Make sure config notification doesn't schedule config work */
-+	virtio_config_driver_disable(vi->vdev);
-+	/* Make sure status updating is cancelled */
-+	cancel_work_sync(&vi->config_work);
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		virtnet_disable_queue_pair(vi, i);
- 		virtnet_cancel_dim(vi, &vi->rq[i].dim);
- 	}
- 
-+	vi->status &= ~VIRTIO_NET_S_LINK_UP;
-+	netif_carrier_off(dev);
-+
- 	return 0;
- }
- 
-@@ -4640,25 +4678,6 @@ static void virtnet_init_settings(struct net_device *dev)
- 	vi->duplex = DUPLEX_UNKNOWN;
- }
- 
--static void virtnet_update_settings(struct virtnet_info *vi)
--{
--	u32 speed;
--	u8 duplex;
--
--	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
--		return;
--
--	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
--
--	if (ethtool_validate_speed(speed))
--		vi->speed = speed;
--
--	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
--
--	if (ethtool_validate_duplex(duplex))
--		vi->duplex = duplex;
--}
--
- static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
- {
- 	return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
-@@ -6000,13 +6019,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	/* Assume link up if device can't report link status,
- 	   otherwise get link status from config. */
- 	netif_carrier_off(dev);
--	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
--		schedule_work(&vi->config_work);
--	} else {
--		vi->status = VIRTIO_NET_S_LINK_UP;
--		virtnet_update_settings(vi);
--		netif_carrier_on(dev);
--	}
- 
- 	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
- 		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
--- 
-2.31.1
-
+> ---
+>  drivers/virtio/virtio.c | 22 +++++++++++-----------
+>  include/linux/virtio.h  |  4 ++--
+>  2 files changed, 13 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index b968b2aa5f4d..73bab89b5326 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -127,7 +127,7 @@ static void __virtio_config_changed(struct virtio_device *dev)
+>  {
+>  	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+>
+> -	if (!dev->config_enabled)
+> +	if (!dev->config_core_enabled)
+>  		dev->config_change_pending = true;
+>  	else if (drv && drv->config_changed)
+>  		drv->config_changed(dev);
+> @@ -143,17 +143,17 @@ void virtio_config_changed(struct virtio_device *dev)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_config_changed);
+>
+> -static void virtio_config_disable(struct virtio_device *dev)
+> +static void virtio_config_core_disable(struct virtio_device *dev)
+>  {
+>  	spin_lock_irq(&dev->config_lock);
+> -	dev->config_enabled = false;
+> +	dev->config_core_enabled = false;
+>  	spin_unlock_irq(&dev->config_lock);
+>  }
+>
+> -static void virtio_config_enable(struct virtio_device *dev)
+> +static void virtio_config_core_enable(struct virtio_device *dev)
+>  {
+>  	spin_lock_irq(&dev->config_lock);
+> -	dev->config_enabled = true;
+> +	dev->config_core_enabled = true;
+>  	if (dev->config_change_pending)
+>  		__virtio_config_changed(dev);
+>  	dev->config_change_pending = false;
+> @@ -322,7 +322,7 @@ static int virtio_dev_probe(struct device *_d)
+>  	if (drv->scan)
+>  		drv->scan(dev);
+>
+> -	virtio_config_enable(dev);
+> +	virtio_config_core_enable(dev);
+>
+>  	return 0;
+>
+> @@ -340,7 +340,7 @@ static void virtio_dev_remove(struct device *_d)
+>  	struct virtio_device *dev = dev_to_virtio(_d);
+>  	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+>
+> -	virtio_config_disable(dev);
+> +	virtio_config_core_disable(dev);
+>
+>  	drv->remove(dev);
+>
+> @@ -455,7 +455,7 @@ int register_virtio_device(struct virtio_device *dev)
+>  		goto out_ida_remove;
+>
+>  	spin_lock_init(&dev->config_lock);
+> -	dev->config_enabled = false;
+> +	dev->config_core_enabled = false;
+>  	dev->config_change_pending = false;
+>
+>  	INIT_LIST_HEAD(&dev->vqs);
+> @@ -512,14 +512,14 @@ int virtio_device_freeze(struct virtio_device *dev)
+>  	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+>  	int ret;
+>
+> -	virtio_config_disable(dev);
+> +	virtio_config_core_disable(dev);
+>
+>  	dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
+>
+>  	if (drv && drv->freeze) {
+>  		ret = drv->freeze(dev);
+>  		if (ret) {
+> -			virtio_config_enable(dev);
+> +			virtio_config_core_enable(dev);
+>  			return ret;
+>  		}
+>  	}
+> @@ -578,7 +578,7 @@ int virtio_device_restore(struct virtio_device *dev)
+>  	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
+>  		virtio_device_ready(dev);
+>
+> -	virtio_config_enable(dev);
+> +	virtio_config_core_enable(dev);
+>
+>  	return 0;
+>
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 96fea920873b..a6f6df72f01a 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -115,7 +115,7 @@ struct virtio_admin_cmd {
+>   * struct virtio_device - representation of a device using virtio
+>   * @index: unique position on the virtio bus
+>   * @failed: saved value for VIRTIO_CONFIG_S_FAILED bit (for restore)
+> - * @config_enabled: configuration change reporting enabled
+> + * @config_core_enabled: configuration change reporting enabled by core
+>   * @config_change_pending: configuration change reported while disabled
+>   * @config_lock: protects configuration change reporting
+>   * @vqs_list_lock: protects @vqs.
+> @@ -132,7 +132,7 @@ struct virtio_admin_cmd {
+>  struct virtio_device {
+>  	int index;
+>  	bool failed;
+> -	bool config_enabled;
+> +	bool config_core_enabled;
+>  	bool config_change_pending;
+>  	spinlock_t config_lock;
+>  	spinlock_t vqs_list_lock;
+> --
+> 2.31.1
+>
