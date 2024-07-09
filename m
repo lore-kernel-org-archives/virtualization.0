@@ -1,56 +1,56 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B8DC13B7A9
-	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 09:48:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C4012E1F1
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 09:57:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720518506; cv=none; b=il0Bypau8nQsey1PWPK3RbH47Tk1rTfCGlrARmIFDkKoGdQuIAa9zq/SNP3Qob2fxX+FC6X6Orfj+62mW83kbn+AB+dFKgVISM5eTXEuiixZtfxM9dLRZM+8C+CcN2AztVY0SJJ8v1O9tu469pKhZgglF5PSwapC/E/LRldWezs=
+	t=1720519033; cv=none; b=E9fTjTFsfi9jjJjcsYmF2OHmWRo7LIX+YKWKrjDM+quTXU/Kd9nZ8CtQwfoqCs47K6wuEdkPfZIIOdSfPRTykN+05ojis6weXyihi5T3uzzTk5X1ZTococSXW05L5KHQagAHZNoHrG/KFwBawUEA/siFDsJelqkneQ0DgoCg8U4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720518506; c=relaxed/simple;
-	bh=qwOtsI/nVKFNDCUqfB2TmP/Uh0XfsEeSoscSdAEj9aQ=;
+	s=arc-20240116; t=1720519033; c=relaxed/simple;
+	bh=07NUeemcLtWy6qEz5y/eWffEHqNLCEAmOp4Lmh25URU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QOphmUUQ6DZAmSjTBheIqbtbQZQ2dkuZ/4vShpSdtgzC5+OzgQ3dzqBwT92ET/pyr5kX9QKvU3c1dbNWq0xRyIa8ErXaBpqxKxxZeCOEaXd86SPTyotAmuZbbhUUhn4ntWdx5BCtsdzdR+C8dfUQp17ywzO8g9tDb0UAlrA2OLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=i8HQXj2M; arc=none smtp.client-ip=209.85.167.51
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ra04f2PLTBKjVSRTeZ3iu3khWhmZcTKmIouuKfsIAT3vtc1uqYqs3vHrjPsjsFH1Djm4DT1Gd+CZNRksP0UXh3E/uusgBqkqZdEc0AQrJO0JdOD8HYgLIWz7tpBQGZGBtlNq4qJI4PldIuR5KsLZRIR7h2GqGSlC5XkZvow7qX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=jAvJ4P2T; arc=none smtp.client-ip=209.85.128.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="i8HQXj2M"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-52ea7d2a039so3971389e87.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jul 2024 02:48:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="jAvJ4P2T"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-426717a2d12so4320145e9.0
+        for <virtualization@lists.linux.dev>; Tue, 09 Jul 2024 02:57:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720518501; x=1721123301; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720519029; x=1721123829; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JWXGtdGbyQUeIWZ5vQZ9HoM+wSLUTIiBVKC/pWIaDHI=;
-        b=i8HQXj2MO2pNK14Da4Vktmt1do+1OaHOXSPYOZmfy6DoyFP1TBQ7wPWC5fiMmLse1J
-         0WMwtYsXxCYefm+itfnco/46U9hYMoxZRxH6Zq5wXGg1tuweg+jnRuRbKvP4DpJ7MNKU
-         UYF6DuWHDoGxocG7vZCec+Uim+6Fxa6iZlKx15Abyu6D7SXYWLi8yV9/N0pyoVjjtZRV
-         IxYcs11cEjTlfczuHj6XxGI3n1MtIHQ9YieZzT21c5kQJAmSL/nt/UmMxv3WB7AS6+l3
-         2Rjp3FvLVSTih5C5rzVskeBYx6TP1DFkLRQ5AIfEPeHIxv9XxLlLs6d85eMjBPpt+04a
-         Kpig==
+        bh=UDpLGTJDFqUc/TrcTQUiBmzT3UKTtXsDWsH0/mtbIyo=;
+        b=jAvJ4P2TK3OogLvTPp7GDSJmqnl9zTV8VCMKsYXVRz63R8ZHVildqh9+0cGJnJYG7y
+         bQq+LuHLpJBx3mQnFL+e5gk2susnngLMA1E/A7ZFtvdd4nk/nwMcy+PMBkzePUs3twpT
+         +SnVLdo09pXKE5yPv1t+JzNhUt3bg8gxydyEfpKf30cJ9LHFcXHqAW5DMNMuDOyxlTv0
+         QCn2hpbkGXY8sv1yM7ENCmcNNZbnMtVZHIJzJRinUhi0MN/tjLp7lXxV8kaW8bTSU8xn
+         3wkk7I0OhVtQn1vZgIZ6fMPu87toKeXWpjDxG9wUAed55o3lY2UYgryvzYZQci/NG+ua
+         VO9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720518501; x=1721123301;
+        d=1e100.net; s=20230601; t=1720519029; x=1721123829;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JWXGtdGbyQUeIWZ5vQZ9HoM+wSLUTIiBVKC/pWIaDHI=;
-        b=Hax/E/f7EJKsY9DzI8NrktDHRKuyw0Xs9aVKlOvoXg3ZhrRouyX0JGYNIOPHB++hMy
-         cupkkaOlfzxOf0L/4wjYsPf9aeIUMq/dMMzQ9tD+Us07mkYC21cjB/SRMBeAJzbGicKG
-         MZZbduJ8BTX7278Wf6sB9L9J99Rfa2mIi0nRSND+x/C0KY9GqsrJlChpmSk0BgRotB+L
-         Eaaol6xWbqlIq+s5GOX7TfTnyHfyAxsyLDyyJd8ldFpYKsStb9JNons/oxUeLly1RxEF
-         Dp+581+LIqeFR42k5quDVQPTG5bATII947jAk7t5Fu8Or/ld01v6INI7D5ZpqTkViwnd
-         PQTw==
-X-Gm-Message-State: AOJu0Yxji5ts9JPxWyy/k48QJ0jVAPyBV6lxvwm2Ijk6c6IHf2swT7VR
-	n9m7QrxAc/o68C/W+SLlQFzFqefUOjOeeChcBq/y6giA40OzecchYnNcSNV+mlI=
-X-Google-Smtp-Source: AGHT+IEMKlNjQAi6l1etrFdZGYk3hhrC0WD5zENaYiTI/4pj91aaA7E6vuexxJguJdVekefXwKAbzg==
-X-Received: by 2002:a05:6512:3f0a:b0:52c:ebd0:609 with SMTP id 2adb3069b0e04-52eb999116cmr1352019e87.7.1720518499815;
-        Tue, 09 Jul 2024 02:48:19 -0700 (PDT)
+        bh=UDpLGTJDFqUc/TrcTQUiBmzT3UKTtXsDWsH0/mtbIyo=;
+        b=d4MHXX1ULGxY5UOCKz3uuqR5PIhgo4t/gUbcCHp1UMjHPC+nLWQA6ZmvcKIteVGzgX
+         jgUiQV6oqS+79AoM/wzpwUgLTJLd7pHlqY2QwSuxDsvzRxoni5xoj0wFgKUduPkwHadM
+         2Bc1vuNSypdPpsjo7ZUtUxVpdJIxRhRgv7se+kv+PrSbEbXNrJy47p0xqjmAU/yK97Fa
+         RbhGORq86dHiG1wniV0WGbF/826SAuduMxy0sXWr4b0ZJVeK/84DqUtMjvJTaGAUHICy
+         MlvCXslg3h2wuPWEMgV5+88+854/KBpyu9Cnyj/JSFUYkEFS6AydclMTSc41Sh8GJDeD
+         uUYQ==
+X-Gm-Message-State: AOJu0YyiYDl/Lz0gzuELh5ribSylUHW+PMJOnFVoWKGFX1Levw6/9d7K
+	yUtT0lp+RSjpE423mRFRbHb0yr5q7OS2t7KKw/FfXv/FMAB1meK5cHdm0NpgSMA=
+X-Google-Smtp-Source: AGHT+IH6GbZA+TJHtD2P24tcL05uW7MLWugTBXpI7Bf50DISkiA+5HG4BLUOu19eNLn/u7VptA9Ffw==
+X-Received: by 2002:a05:600c:63ce:b0:424:895c:b84b with SMTP id 5b1f17b1804b1-426722c5b9emr14420425e9.4.1720519029489;
+        Tue, 09 Jul 2024 02:57:09 -0700 (PDT)
 Received: from localhost ([37.48.50.18])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4266f7416bcsm32689305e9.43.2024.07.09.02.48.18
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4266b03feecsm66791325e9.10.2024.07.09.02.57.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jul 2024 02:48:19 -0700 (PDT)
-Date: Tue, 9 Jul 2024 11:48:17 +0200
+        Tue, 09 Jul 2024 02:57:08 -0700 (PDT)
+Date: Tue, 9 Jul 2024 11:57:07 +0200
 From: Jiri Pirko <jiri@resnulli.us>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
@@ -58,7 +58,7 @@ Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
 	feliu@nvidia.com, hengqi@linux.alibaba.com
 Subject: Re: [PATCH virtio v4 00/19] virtio: consolidate vq info args of
  find_vqs()
-Message-ID: <Zo0HYe_iJnZBc7Tg@nanopsycho.orion>
+Message-ID: <Zo0Jc3gF0E9V-pIA@nanopsycho.orion>
 References: <20240708074814.1739223-1-jiri@resnulli.us>
  <20240708095632-mutt-send-email-mst@kernel.org>
 Precedence: bulk
@@ -119,7 +119,9 @@ Mon, Jul 08, 2024 at 03:58:05PM CEST, mst@redhat.com wrote:
 >to get into next before the merge window opens, we are good.
 >If not it'll have to wait until the next window.
 
-Okay. Thanks!
+Looks like the linux-next merge is done:
+https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=28ab424895157dfea418c12418c5d0fc9263e850
+
 
 >
 >
