@@ -1,178 +1,171 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33ED1158D83
-	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 12:41:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB63F15D5CA
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jul 2024 12:42:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720528871; cv=none; b=sm26SnxhZJleKrcXaF9DhseRhsxnAYRFkbrzUG7HbzU+wfGA4KpeTzIKTENQnwhgkBaugYKTkGNUVP2PHJucXy6EgN0/T3qX1sI29/geJQKDJ8tHqLWn876dPXobuBkEbPS8eE/C8gsaVtYH9LO0ShD171D76cEzu77h2DGkhKc=
+	t=1720528931; cv=none; b=Deee0X9PzhR/dU4ptyY57X+Ty2r3MqvSRR/NqgFQlkAL7k/8g2XO5IifHm+ufvCXHdVe1GSvYhcmF/MonPk7gK/ZgI5lK2ZSshCr09lcih48TabXBrQxwF8bVMiZmVgd2aFcN3zoH3VuSyZGyuDT1CcGpxzU5SbTQWDp/1/IvE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720528871; c=relaxed/simple;
-	bh=ze9AOLrz+ICxdMDLy84M9GybEld7okXJb1nQIVXTDwE=;
+	s=arc-20240116; t=1720528931; c=relaxed/simple;
+	bh=WMRXeklNAFCXPxZX0QKDYEufIJKcpHVBpPvLr8GdPXs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=T2SQewZ8YxfhLjEC+A7wGs8+vfhaQkCSVB5rCR1kzJJ7tsTRRQ9elTAswqRPF04PajELoeP32209Sbcn/mx2YUn6qXXFOW/DLdZy49Rzr2IBScpykug5xsKeLzFdVz/5xIyuX3RptRGBEU6AzyBVUwfbGY1+0+vwaSS4/8ORzWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ckcGj7KF; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=NudGYxF6g12QXdK2onE77qgUSyHYQYluQe8emeQqKAo1uYU6g6udMXLLp14pmOmkWjhbscNVK9iwznp94ulKUkTZe/lFgqsL+JTPAfqrHecrSIaLgO5L2UCjU3mU1twoyx5dem8VtQ51/MtDivydo709d3NjkZ61+rkGounn3+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UV3VCRS1; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ckcGj7KF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UV3VCRS1"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 61FB081CFE
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jul 2024 12:42:09 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 63Mn5Vd13Bdt for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Jul 2024 12:42:08 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org CC35881CE1
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC35881CE1
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UV3VCRS1
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CC35881CE1
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jul 2024 12:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720528869;
+	s=mimecast20190719; t=1720528925;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Q27EruAvCtnaYOsHGXrH845lUZXaPs+eeac1z+AiToY=;
-	b=ckcGj7KFcvjlz9qTYcDhYjkACG/zqZsxeoSakb0jv8L7MQVnzkPy6mMg8cUS+O8kYblV9N
-	lCYA6Vs5LYhagFuFfOQGlnpHgnuM/DHEGGEXWWKpktrV6hUT6AT1Px4x6Fpkdtf6xW1YLl
-	GZ85JjZELt2Vrz4e3FanmYDnXQZKmRk=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=dtU0JGN0EJmcocAYFfRCYWD9D/xkCDMAfPhd/SDuPwo=;
+	b=UV3VCRS1ohyfUSMmo4QL/yin382P0EvXjKqCHD6lJyzdy0atcmv0VIPkcdesm5Tt9s8vAl
+	uugWnbe9OcjywdmgldlRPhT8xv9s8aY9CjHp4p6/I/6XvxNcwJbYLLtt0miePgHlQJimvT
+	ja7s5L/gFTXTzZksJ4V/eshFJk7Lefs=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-332-4mBaKMLHNB-rh26GRRQS2A-1; Tue, 09 Jul 2024 08:41:07 -0400
-X-MC-Unique: 4mBaKMLHNB-rh26GRRQS2A-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a77c8d7b120so358336366b.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jul 2024 05:41:07 -0700 (PDT)
+ us-mta-300-_9kO2563MHG_FEvpirG3DA-1; Tue, 09 Jul 2024 08:42:02 -0400
+X-MC-Unique: _9kO2563MHG_FEvpirG3DA-1
+Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2eebcab13f9so114511fa.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 09 Jul 2024 05:42:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720528866; x=1721133666;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q27EruAvCtnaYOsHGXrH845lUZXaPs+eeac1z+AiToY=;
-        b=fV3chPGXeat4sogZ4cYi7A06WER7x+kudgG27GktKHZPNB37R8YBJRnFD20j7m7OjR
-         ZLb40kujNJDq6WCzldSdkRyAn75m+Kx9Izt8hMRkD0SBcu6HLnVXKStJzUJrE0G61I1L
-         BW0uDZk1kqUXwgwZdlPzlMgcCfBbxk8cGR7SvoyoisqadHFyq4mu4D4SAmt+jeRx7HKl
-         jK1u8cfYUayap6q3Yk9b1zAkjR8a26t7EU+qgy94uDORPcHHn0T1h2WijGG1NOKTCRaE
-         IWpgDhjci/xYcj1b7G+E6WC7WkRABE03weCs3Xu/CA4UjJvh4lzZMYkBV7m0uXwqXlY7
-         ro+g==
-X-Forwarded-Encrypted: i=1; AJvYcCWScgZ8n6J8yt6263HqJEQSjhnlnmL5pOCuoUoyxseSHYXBDYHs0tAmTJYpTw2D1SpA2SDWQaKfNInALxT5/lt19epYB7ukGm9XW7yvPqA=
-X-Gm-Message-State: AOJu0YxuD0Yir+cpb9/36LWDwyNxT8SrMa9Hxwt2FdFK+0iKbKOKAjpp
-	7LC62eMXpNuZP2YO1BWBLclKMLalqFk/wDu+F6Y3G9UupsuV8GAqcKU7lCX8xkKgygQzl+Gu79Z
-	DKjdBjq6b6gkM4h1UITGcTJUIJCRTnuCb4Q0aCxlZrVmkSZ7iy+JnilgQNev9joqC
-X-Received: by 2002:a17:906:260d:b0:a72:b287:1e04 with SMTP id a640c23a62f3a-a780b70106fmr152227866b.34.1720528866422;
-        Tue, 09 Jul 2024 05:41:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGNZGGmkkPI3KvvxS+NzWsyjgFEi+4Hfd0wCUZA4uYxlxSQFOpFm25Vm+Zlvi7CADfxvDpLLA==
-X-Received: by 2002:a17:906:260d:b0:a72:b287:1e04 with SMTP id a640c23a62f3a-a780b70106fmr152225766b.34.1720528865869;
-        Tue, 09 Jul 2024 05:41:05 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-57-51-153.retail.telecomitalia.it. [82.57.51.153])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-594bbe2d006sm1016274a12.31.2024.07.09.05.41.04
+        d=1e100.net; s=20230601; t=1720528921; x=1721133721;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dtU0JGN0EJmcocAYFfRCYWD9D/xkCDMAfPhd/SDuPwo=;
+        b=CEV+zilvt3OxJM5lXuzmDiuPmHn1MVRLMcuRBZedslOPvC8VnTt+pCj4QTzMhpZRsG
+         Y553aOqiV8CPgsxmPkFvcqbxwq7U7vVhWJTHovV++j+beMvb5BTZMpWVaMtCFy82aOSP
+         OmvZPvmyZyir3oIJUv8+9RyXIf0ZusjK1YjWSq38mxB/5EAtLKhBkuBqpKWmnXstMUL4
+         ICxmVFBdwL/8EU0l4fnsBh2uA2wJhkE1vXp8SA39jUbfIuHqoqzn/ucwodPZODWjaB4i
+         YLwaFxeFSwYk/KAo9LVuBZxJ8+PKCUMwrSajuHni5NtoAnwVx4nyumD6Trv2RXnQ+T+a
+         2aug==
+X-Forwarded-Encrypted: i=1; AJvYcCXQZ6QRVbsH8Rj/YFiAPgxp284oELsoctjWhrXF2EA6CP/0ZoTqaHq4rfOmCOIkZLajCOOmr/O8PP9hF7Dh13jMjjqlLBJU7Gq7Yl/eA4bbLoSHw3pJR6FzdA==
+X-Gm-Message-State: AOJu0YxkgOMxZ7JyCH3sCDpZG8ZcfQdBEc+H/utP+BoTDWQNnjILaSse
+	dRqCqE6XX7nEjh7m+AdGvsy31xmrk4TVXEyyWo9o3pivF1rVp0Hsfrd3m9vVK3Ad+TKSGjIQNcT
+	jPNIlIBehPrfiSyl1YA7DqlNF4lpUnqeVk6GCu8WtAHDDH49TUJe6jbcwGDZ+9HXJiRHpbO4ktS
+	BLwRU=
+X-Received: by 2002:a2e:8952:0:b0:2ec:5547:c59e with SMTP id 38308e7fff4ca-2eeb3198ac3mr15823961fa.50.1720528921181;
+        Tue, 09 Jul 2024 05:42:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEJQ/3+1cvJIxlRdKB/u4MEHHTb/Kxc0reqE+YePLpyvQDvI/rkVgTUeLmn/vgIWjxO/a5kxQ==
+X-Received: by 2002:a2e:8952:0:b0:2ec:5547:c59e with SMTP id 38308e7fff4ca-2eeb3198ac3mr15823541fa.50.1720528918592;
+        Tue, 09 Jul 2024 05:41:58 -0700 (PDT)
+Received: from redhat.com ([2.52.29.103])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-367cdfa06b6sm2454398f8f.86.2024.07.09.05.41.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jul 2024 05:41:05 -0700 (PDT)
-Date: Tue, 9 Jul 2024 14:41:01 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	linux-kernel@vger.kernel.org, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
-Subject: Re: [PATCH] vdpa_sim_blk: add `capacity` module parameter
-Message-ID: <xuruyrbkago7w7tjbvqmfvjoqy665srurqozbenfayagfxl72y@wqy56jenfo2u>
-References: <20240705112821.144819-1-sgarzare@redhat.com>
- <20240705073017-mutt-send-email-mst@kernel.org>
- <25fehn7xgvqyqgd6zcscsjazzfhktyjrazffyrtbp2oibnhkey@ggobdyv4zxkf>
- <CACLfguWtcdTM-+GjiXWC-s=d-bvkUedHbCimzsfvYXWJ-=3iDQ@mail.gmail.com>
- <CACGkMEurseUpMKaiLpJEkcT9U_tmqm4yqp3OgR--6XnAY=C9WQ@mail.gmail.com>
- <3f5d33l4c73nudppajvhnjhpdpvft5yolm7vdraikany2tfdjz@i62d45j4ucs5>
- <CACGkMEuqiAx-a0sPJf0Xpvmr=5wbzbuOr0-w+9ZcwQMTWFU1rw@mail.gmail.com>
+        Tue, 09 Jul 2024 05:41:58 -0700 (PDT)
+Date: Tue, 9 Jul 2024 08:41:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: Parav Pandit <parav@nvidia.com>, Dragos Tatulea <dtatulea@nvidia.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>,
+	"sgarzare@redhat.com" <sgarzare@redhat.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Subject: Re: [PATCH v3 0/2] vdpa: support set mac address from vdpa tool
+Message-ID: <20240709084109-mutt-send-email-mst@kernel.org>
+References: <20240708064820.88955-1-lulu@redhat.com>
+ <PH0PR12MB5481AE2FD52AEE1C10411F3DDCDB2@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <CACLfguXk4qiw4efRGK4Gw8OZQ_PKw6j+GVQJCVtbyJ+hxOoE0Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEuqiAx-a0sPJf0Xpvmr=5wbzbuOr0-w+9ZcwQMTWFU1rw@mail.gmail.com>
+In-Reply-To: <CACLfguXk4qiw4efRGK4Gw8OZQ_PKw6j+GVQJCVtbyJ+hxOoE0Q@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 09, 2024 at 10:56:16AM GMT, Jason Wang wrote:
->On Mon, Jul 8, 2024 at 4:15 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
->>
->> Hi Cindy, Jason,
->>
->> On Mon, Jul 08, 2024 at 03:59:34PM GMT, Jason Wang wrote:
->> >On Mon, Jul 8, 2024 at 3:06 PM Cindy Lu <lulu@redhat.com> wrote:
->> >>
->> >> On Fri, 5 Jul 2024 at 20:42, Stefano Garzarella <sgarzare@redhat.com> wrote:
->> >> >
->> >> > On Fri, Jul 05, 2024 at 07:30:51AM GMT, Michael S. Tsirkin wrote:
->> >> > >On Fri, Jul 05, 2024 at 01:28:21PM +0200, Stefano Garzarella wrote:
->> >> > >> The vDPA block simulator always allocated a 128 MiB ram-disk, but some
->> >> > >> filesystems (e.g. XFS) may require larger minimum sizes (see
->> >> > >> https://issues.redhat.com/browse/RHEL-45951).
->> >> > >>
->> >> > >> So to allow us to test these filesystems, let's add a module parameter
->> >> > >> to control the size of the simulated virtio-blk devices.
->> >> > >> The value is mapped directly to the `capacity` field of the virtio-blk
->> >> > >> configuration space, so it must be expressed in sector numbers of 512
->> >> > >> bytes.
->> >> > >>
->> >> > >> The default value (0x40000) is the same as the previous value, so the
->> >> > >> behavior without setting `capacity` remains unchanged.
->> >> > >>
->> >> > >> Before this patch or with this patch without setting `capacity`:
->> >> > >>   $ modprobe vdpa-sim-blk
->> >> > >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
->> >> > >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
->> >> > >>   virtio_blk virtio6: [vdb] 262144 512-byte logical blocks (134 MB/128 MiB)
->> >> > >>
->> >> > >> After this patch:
->> >> > >>   $ modprobe vdpa-sim-blk capacity=614400
->> >> > >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
->> >> > >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
->> >> > >>   virtio_blk virtio6: [vdb] 614400 512-byte logical blocks (315 MB/300 MiB)
->> >> > >>
->> >> > >> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->> >> > >
->> >> > >What a hack. Cindy was working on adding control over config
->> >> > >space, why can't that be used?
->> >> >
->> >> > If it can be used easily with virtio-blk device too, it will be great.
->> >> > @Cindy do you plan to support that changes for a virtio-blk device too?
->> >> >
->> >> Hi Stefano
->> >> I plan to add support to change the vdpa device's configuration after
->> >> it is created.
->> >
->> >I think for Stefano's case, we can just implement it via provisioning
->> >parameters?
->>
->> Yep, I think we don't need to change it after creation, but specifying
->> while creating should be enough.
->>
->> So, IIUC we can already do it, implementing something similar to
->> vdpasim_net_setup_config() to call during vdpasim_blk_dev_add(), right?
->
->Right.
->
->>
->> What about when we have `shared_backend` set to true for the
->> vdpa_sim_blk.ko? In this case the backend is supposed to be shared
->> between all the devices to test live migration.
->
->This seems to be another topic.
+On Tue, Jul 09, 2024 at 02:19:19PM +0800, Cindy Lu wrote:
+> On Tue, 9 Jul 2024 at 11:59, Parav Pandit <parav@nvidia.com> wrote:
+> >
+> > Hi Cindy,
+> >
+> > > From: Cindy Lu <lulu@redhat.com>
+> > > Sent: Monday, July 8, 2024 12:17 PM
+> > >
+> > > Add support for setting the MAC address using the VDPA tool.
+> > > This feature will allow setting the MAC address using the VDPA tool.
+> > > For example, in vdpa_sim_net, the implementation sets the MAC address to
+> > > the config space. However, for other drivers, they can implement their own
+> > > function, not limited to the config space.
+> > >
+> > > Changelog v2
+> > >  - Changed the function name to prevent misunderstanding
+> > >  - Added check for blk device
+> > >  - Addressed the comments
+> > > Changelog v3
+> > >  - Split the function of the net device from vdpa_nl_cmd_dev_attr_set_doit
+> > >  - Add a lock for the network device's dev_set_attr operation
+> > >  - Address the comments
+> > >
+> > > Cindy Lu (2):
+> > >   vdpa: support set mac address from vdpa tool
+> > >   vdpa_sim_net: Add the support of set mac address
+> > >
+> > >  drivers/vdpa/vdpa.c                  | 81 ++++++++++++++++++++++++++++
+> > >  drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 19 ++++++-
+> > >  include/linux/vdpa.h                 |  9 ++++
+> > >  include/uapi/linux/vdpa.h            |  1 +
+> > >  4 files changed, 109 insertions(+), 1 deletion(-)
+> > >
+> > > --
+> > > 2.45.0
+> >
+> > Mlx5 device already allows setting the mac and mtu during the vdpa device creation time.
+> > Once the vdpa device is created, it binds to vdpa bus and other driver vhost_vdpa etc bind to it.
+> > So there was no good reason in the past to support explicit config after device add complicate the flow for synchronizing this.
+> >
+> > The user who wants a device with new attributes, as well destroy and recreate the vdpa device with new desired attributes.
+> >
+> > vdpa_sim_net can also be extended for similar way when adding the vdpa device.
+> >
+> > Have you considered using the existing tool and kernel in place since 2021?
+> > Such as commit d8ca2fa5be1.
+> >
+> > An example of it is,
+> > $ vdpa dev add name bar mgmtdev vdpasim_net mac 00:11:22:33:44:55 mtu 9000
+> >
+> Hi Parav
+> Really thanks for your comments. The reason for adding this function
+> is to support Kubevirt.
+> the problem we meet is that kubevirt chooses one random vdpa device
+> from the pool and we don't know which one it going to pick. That means
+> we can't get to know the Mac address before it is created. So we plan
+> to have this function to change the mac address after it is created
+> Thanks
+> cindy
 
-Yep, but really related. I think we need to handle that case when 
-supporting the `capacity` setting.
+Well you will need to change kubevirt to teach it to set
+mac address, right?
 
->
->>
->> Maybe we can just change the size of the shared ramdisk to be reflected
->> to all devices.
->>
->> Suggestions?
->
->Could we specify the path to tmpfs or others during provisioning
->instead?  It seems more general (but more work).
-
-Then it would almost become a real device, no longer just a simulator.  
-It's enough work, though, as you said, but at that point we'd just have 
-to specify the backend file to use for the device.
-
-In that case what API would we need to use to allow the user to set the 
-backend file?
-
-Thanks,
-Stefano
+-- 
+MST
 
