@@ -1,505 +1,259 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 15D2329422;
-	Tue,  9 Jul 2024 01:39:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E1D9139F
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 02:34:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720489180; cv=none; b=bP5Ln3IsyVlMDp53+vFdt+Om5EFUzJQ3otSGK7o+I4VDLPTcAO8QtoyUmjCnaRPenXkSDAAv8dGosReaUozchHK7AptwVN63bRJR8m2M6qhDhJezpSpa9vAH0ImUx1x4m5pTczi2L5Sy4aAkLe23YmAGrD09Swut9eIswpoS+Xw=
+	t=1720492501; cv=none; b=nXIp8pnKJQIeZH3MFxNgrfxyBzw0bOItUBo8HvFDHcIar3JcWnBAnBQVxKWIVPNH8fj7Z/hvnqe1IQ52SSxhhVzRYsMGWWr7q7ESgTxJj3FhkvmJnoQsIuAoVY3nZNeM+pPdvse7D2JtXqqMxwx7iiSLRSpHx5aCT5jDDqlmd3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720489180; c=relaxed/simple;
-	bh=AqtyCXcFramHe/V0dEdchFFflmOtEOJsSeiRlHBoJ4U=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=SOXcNxRxIeCvpy/v6arfx10Xzz6IfBqxlwHoS76S0Jar2yBEiD1iHaBEo2zQRgRQYzaTyyfrYayyFBbxFXEdCUXl9k2CJ5c+aqdBtpGSFvSMvluZs2Oqrt+nz9pSG8P1KBvUfpWrH9fDPq4miGYTySQbdQP9P8S+gzk9FEYNcQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8BxbPDWlIxmtToCAA--.6597S3;
-	Tue, 09 Jul 2024 09:39:34 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8Axw8TTlIxmwmZAAA--.5936S3;
-	Tue, 09 Jul 2024 09:39:33 +0800 (CST)
-Subject: Re: [PATCH v4 1/2] LoongArch: KVM: Add steal time support in kvm side
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
- kvm@vger.kernel.org, loongarch@lists.linux.dev,
- linux-kernel@vger.kernel.org, x86@kernel.org, virtualization@lists.linux.dev
-References: <20240524073812.731032-1-maobibo@loongson.cn>
- <20240524073812.731032-2-maobibo@loongson.cn>
- <CAAhV-H5G7O7tbwzyaoO4iEXuN+_xbVFJDEyv1HH7GqOH24639Q@mail.gmail.com>
- <1aa110a8-28b9-d1d0-4b39-bc894b31f26c@loongson.cn>
- <CAAhV-H5oS+KrcGH+1wJCGKCjs2VKHkWyZ5QnorPjFMuE_eBb3g@mail.gmail.com>
- <ae21f9ef-e043-0f8c-b088-6645fc1f3c30@loongson.cn>
- <CAAhV-H7QKqOX0fSyN=wnf_Y_5=CDE2ysP2O3Shj2zex8ce1ZMA@mail.gmail.com>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <23405391-1c54-bccb-ff4a-0ae096a042fa@loongson.cn>
-Date: Tue, 9 Jul 2024 09:39:31 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1720492501; c=relaxed/simple;
+	bh=jHcYaampcduspNMeFxE17xx7pAmzEL1vqQOOZDvSZMk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tK+ymYNCrKSsV5mNEL1GaRiioWIJBQGDqLKctx4SRLaDON7NkRHDQESAUiUTpfrRRzaObjkVHqCnR3kwBubb0hda4bvK870vYONoiWjeyLR53GiAIZldILzb9tdjiizTB6y6bYqfBndtgJIXuSxa4nH+yVxA8UHr9Wdy+UP0uuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=JwB8KMXa; arc=none smtp.client-ip=209.85.219.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="JwB8KMXa"
+Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-dff1ccdc17bso5057955276.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Jul 2024 19:34:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1720492498; x=1721097298; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=z4dZUNj7Ai0tPAkLQa+ZYxZkBSNpPYsDwADRfs2ZjOA=;
+        b=JwB8KMXa1Yau8MR5dNl1g+9a568saDRlprDWTkEqEeb4l0BQIkSDxLnKH9t5kr593o
+         TAMXIhAQmd/da2pRuDe7fKhEjRe1qdVMWMOpiJGDL7467ni5mhXCv9b6Y2j1PImTJ6wd
+         lo77mkj8fXC41h1572gL92nweo+KAZy4DoW18=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720492498; x=1721097298;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=z4dZUNj7Ai0tPAkLQa+ZYxZkBSNpPYsDwADRfs2ZjOA=;
+        b=YdDID8l0rDyQ6CY3LvId6xG2KhQS6AN1O1JqCAmVv8hFkbhtoK0bi9YRK+35avYqu1
+         lPOVGw76SYmDNiuU/jURv6ECj4/gjZfspQ482DCEuZ7TC55R2gmKqKGmRLFwCQqq9H48
+         DbUCG3BKl/VXxSamp0FFKd5kM9hFRbdT4dWsu8nGaEkmpA7kDXYWg8ENX1OUYuqvMNHb
+         XexXvQxhNdE5D+nJGLEDEgileY2IueI7a69vbd4F/LrG4yBXXIXTXun8+C7BzojN4I2L
+         9p75JfWqmwQsBcdZSruxgDnLKOOwcYkalOPRvswqWluEOPR8eh3hTjeG92ceQxV8Vtjp
+         agQQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUuDLxNbK7DwY1kT6GevFVpvYshXpe3S4KU8YkF5sUj+vMpBVthkKQIpiC714QrxZ4JLT3tndp1oGUXn76KEToM6pLLnMQOJ0Ch+Pq6wr0=
+X-Gm-Message-State: AOJu0Yzvf7uu+SHhaFu1J9vLQfWndoHHWsFa9Ss+kVKJlGpwc+kapB6X
+	0Jw3VYyIGW7mxFSzAECuSnFenciJPzMT9keaB104DqMNWRDhJRFXP3DOkZmEsmaeIftmh3cvHiw
+	DcLK0+wQJ2fCtlANlFLRO01jqvv4XK4DAbiLN
+X-Google-Smtp-Source: AGHT+IHRLz6lHitxssqZTRc+yeT+WQZsJj6DFqPob2savKD0eCzNZS1ZXY9mfVmu7NLuSY1tnVZZlwLlRPeft/1c8vk=
+X-Received: by 2002:a25:bfc9:0:b0:e02:b7d6:c97 with SMTP id
+ 3f1490d57ef6-e041b03d1b1mr1800960276.8.1720492498382; Mon, 08 Jul 2024
+ 19:34:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H7QKqOX0fSyN=wnf_Y_5=CDE2ysP2O3Shj2zex8ce1ZMA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8Axw8TTlIxmwmZAAA--.5936S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj9fXoW3KFy3GFyfAF17uFWkCF17Jwc_yoW8WrWxZo
-	W5JF1xtr48Jr1UCF1UJ34qq3yjy340yr4UA345ArnxXF1Utw17Ar1UGw4YqF47Wr1DGr13
-	Ga47tw18ZFW3Xwn8l-sFpf9Il3svdjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8wcxFpf
-	9Il3svdxBIdaVrn0xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3
-	UjIYCTnIWjp_UUUYc7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI
-	8IcIk0rVWrJVCq3wAFIxvE14AKwVWUGVWUXwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xG
-	Y2AK021l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14
-	v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
-	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE
-	14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCYjI0SjxkI62AI1c
-	AE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8C
-	rVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8Zw
-	CIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x02
-	67AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr
-	0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxU25Ef
-	UUUUU
+References: <20240708142208.194361-1-tzimmermann@suse.de>
+In-Reply-To: <20240708142208.194361-1-tzimmermann@suse.de>
+From: Zack Rusin <zack.rusin@broadcom.com>
+Date: Mon, 8 Jul 2024 22:34:47 -0400
+Message-ID: <CABQX2QMU+Huk--rKGaRXwL_8DB8Z9aSjfGajhpJCpiVi5oi-dA@mail.gmail.com>
+Subject: Re: [PATCH v2] drm/qxl: Pin buffer objects for internal mappings
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@redhat.com, kraxel@redhat.com, dmitry.osipenko@collabora.com, 
+	airlied@gmail.com, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, 
+	mripard@kernel.org, david.kaplan@amd.com, christian.koenig@amd.com, 
+	regressions@leemhuis.info, virtualization@lists.linux.dev, 
+	spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	Daniel Vetter <daniel.vetter@ffwll.ch>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Jul 8, 2024 at 10:22=E2=80=AFAM Thomas Zimmermann <tzimmermann@suse=
+.de> wrote:
+>
+> Add qxl_bo_pin_and_vmap() that pins and vmaps a buffer object in one
+> step. Update callers of the regular qxl_bo_vmap(). Fixes a bug where
+> qxl accesses an unpinned buffer object while it is being moved; such
+> as with the monitor-description BO. An typical error is shown below.
+>
+> [    4.303586] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong=
+: 65376256x16777216+0+0
+> [    4.586883] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong=
+: 65376256x16777216+0+0
+> [    4.904036] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong=
+: 65335296x16777216+0+0
+> [    5.374347] [drm:qxl_release_from_id_locked] *ERROR* failed to find id=
+ in release_idr
+>
+> Commit b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
+> removed the implicit pin operation from qxl's vmap code. This is the
+> correct behavior for GEM and PRIME interfaces, but the pin is still
+> needed for qxl internal operation.
+>
+> Also add a corresponding function qxl_bo_vunmap_and_unpin() and remove
+> the old qxl_bo_vmap() helpers.
+>
+> Future directions: BOs should not be pinned or vmapped unnecessarily.
+> The pin-and-vmap operation should be removed from the driver and a
+> temporary mapping should be established with a vmap_local-like helper.
+> See the client helper drm_client_buffer_vmap_local() for semantics.
+>
+> v2:
+> - unreserve BO on errors in qxl_bo_pin_and_vmap() (Dmitry)
+>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Fixes: b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
+> Reported-by: David Kaplan <david.kaplan@amd.com>
+> Closes: https://lore.kernel.org/dri-devel/ab0fb17d-0f96-4ee6-8b21-65d02bb=
+02655@suse.de/
+> Tested-by: David Kaplan <david.kaplan@amd.com>
+> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> Cc: Christian K=C3=B6nig <christian.koenig@amd.com>
+> Cc: Zack Rusin <zack.rusin@broadcom.com>
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux.dev
+> Cc: spice-devel@lists.freedesktop.org
+> ---
+>  drivers/gpu/drm/qxl/qxl_display.c | 14 +++++++-------
+>  drivers/gpu/drm/qxl/qxl_object.c  | 13 +++++++++++--
+>  drivers/gpu/drm/qxl/qxl_object.h  |  4 ++--
+>  3 files changed, 20 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_=
+display.c
+> index 86a5dea710c0..bc24af08dfcd 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -584,11 +584,11 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_=
+device *qdev,
+>         if (ret)
+>                 goto err;
+>
+> -       ret =3D qxl_bo_vmap(cursor_bo, &cursor_map);
+> +       ret =3D qxl_bo_pin_and_vmap(cursor_bo, &cursor_map);
+>         if (ret)
+>                 goto err_unref;
+>
+> -       ret =3D qxl_bo_vmap(user_bo, &user_map);
+> +       ret =3D qxl_bo_pin_and_vmap(user_bo, &user_map);
+>         if (ret)
+>                 goto err_unmap;
+>
+> @@ -614,12 +614,12 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_=
+device *qdev,
+>                        user_map.vaddr, size);
+>         }
+>
+> -       qxl_bo_vunmap(user_bo);
+> -       qxl_bo_vunmap(cursor_bo);
+> +       qxl_bo_vunmap_and_unpin(user_bo);
+> +       qxl_bo_vunmap_and_unpin(cursor_bo);
+>         return cursor_bo;
+>
+>  err_unmap:
+> -       qxl_bo_vunmap(cursor_bo);
+> +       qxl_bo_vunmap_and_unpin(cursor_bo);
+>  err_unref:
+>         qxl_bo_unpin(cursor_bo);
+>         qxl_bo_unref(&cursor_bo);
+> @@ -1205,7 +1205,7 @@ int qxl_create_monitors_object(struct qxl_device *q=
+dev)
+>         }
+>         qdev->monitors_config_bo =3D gem_to_qxl_bo(gobj);
+>
+> -       ret =3D qxl_bo_vmap(qdev->monitors_config_bo, &map);
+> +       ret =3D qxl_bo_pin_and_vmap(qdev->monitors_config_bo, &map);
+>         if (ret)
+>                 return ret;
+>
+> @@ -1236,7 +1236,7 @@ int qxl_destroy_monitors_object(struct qxl_device *=
+qdev)
+>         qdev->monitors_config =3D NULL;
+>         qdev->ram_header->monitors_config =3D 0;
+>
+> -       ret =3D qxl_bo_vunmap(qdev->monitors_config_bo);
+> +       ret =3D qxl_bo_vunmap_and_unpin(qdev->monitors_config_bo);
+>         if (ret)
+>                 return ret;
+>
+> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_o=
+bject.c
+> index 5893e27a7ae5..66635c55cf85 100644
+> --- a/drivers/gpu/drm/qxl/qxl_object.c
+> +++ b/drivers/gpu/drm/qxl/qxl_object.c
+> @@ -182,7 +182,7 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosy=
+s_map *map)
+>         return 0;
+>  }
+>
+> -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
+> +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map)
+>  {
+>         int r;
+>
+> @@ -190,7 +190,15 @@ int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map =
+*map)
+>         if (r)
+>                 return r;
+>
+> +       r =3D qxl_bo_pin_locked(bo);
+> +       if (r) {
+> +               qxl_bo_unreserve(bo);
+> +               return r;
+> +       }
+> +
+>         r =3D qxl_bo_vmap_locked(bo, map);
+> +       if (r)
+> +               qxl_bo_unpin_locked(bo);
+>         qxl_bo_unreserve(bo);
+>         return r;
+>  }
+> @@ -241,7 +249,7 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
+>         ttm_bo_vunmap(&bo->tbo, &bo->map);
+>  }
+>
+> -int qxl_bo_vunmap(struct qxl_bo *bo)
+> +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo)
+>  {
+>         int r;
+>
+> @@ -250,6 +258,7 @@ int qxl_bo_vunmap(struct qxl_bo *bo)
+>                 return r;
+>
+>         qxl_bo_vunmap_locked(bo);
+> +       qxl_bo_unpin_locked(bo);
+>         qxl_bo_unreserve(bo);
+>         return 0;
+>  }
+> diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_o=
+bject.h
+> index 1cf5bc759101..875f63221074 100644
+> --- a/drivers/gpu/drm/qxl/qxl_object.h
+> +++ b/drivers/gpu/drm/qxl/qxl_object.h
+> @@ -59,9 +59,9 @@ extern int qxl_bo_create(struct qxl_device *qdev,
+>                          u32 priority,
+>                          struct qxl_surface *surf,
+>                          struct qxl_bo **bo_ptr);
+> -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map);
+> +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map);
+>  int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map);
+> -int qxl_bo_vunmap(struct qxl_bo *bo);
+> +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo);
+>  void qxl_bo_vunmap_locked(struct qxl_bo *bo);
+>  void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo=
+, int page_offset);
+>  void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *b=
+o, void *map);
+> --
+> 2.45.2
+>
 
+That looks good to me.
 
-On 2024/7/8 下午5:47, Huacai Chen wrote:
-> On Mon, Jul 8, 2024 at 9:16 AM maobibo <maobibo@loongson.cn> wrote:
->>
->>
->>
->> On 2024/7/6 下午5:41, Huacai Chen wrote:
->>> On Sat, Jul 6, 2024 at 2:59 PM maobibo <maobibo@loongson.cn> wrote:
->>>>
->>>> Huacai,
->>>>
->>>> On 2024/7/6 上午11:00, Huacai Chen wrote:
->>>>> Hi, Bibo,
->>>>>
->>>>> On Fri, May 24, 2024 at 3:38 PM Bibo Mao <maobibo@loongson.cn> wrote:
->>>>>>
->>>>>> Steal time feature is added here in kvm side, VM can search supported
->>>>>> features provided by KVM hypervisor, feature KVM_FEATURE_STEAL_TIME
->>>>>> is added here. Like x86, steal time structure is saved in guest memory,
->>>>>> one hypercall function KVM_HCALL_FUNC_NOTIFY is added to notify KVM to
->>>>>> enable the feature.
->>>>>>
->>>>>> One cpu attr ioctl command KVM_LOONGARCH_VCPU_PVTIME_CTRL is added to
->>>>>> save and restore base address of steal time structure when VM is migrated.
->>>>>>
->>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
->>>>>> ---
->>>>>>     arch/loongarch/include/asm/kvm_host.h  |   7 ++
->>>>>>     arch/loongarch/include/asm/kvm_para.h  |  10 ++
->>>>>>     arch/loongarch/include/asm/kvm_vcpu.h  |   4 +
->>>>>>     arch/loongarch/include/asm/loongarch.h |   1 +
->>>>>>     arch/loongarch/include/uapi/asm/kvm.h  |   4 +
->>>>>>     arch/loongarch/kvm/Kconfig             |   1 +
->>>>>>     arch/loongarch/kvm/exit.c              |  38 +++++++-
->>>>>>     arch/loongarch/kvm/vcpu.c              | 124 +++++++++++++++++++++++++
->>>>>>     8 files changed, 187 insertions(+), 2 deletions(-)
->>>>>>
->>>>>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
->>>>>> index c87b6ea0ec47..2eb2f7572023 100644
->>>>>> --- a/arch/loongarch/include/asm/kvm_host.h
->>>>>> +++ b/arch/loongarch/include/asm/kvm_host.h
->>>>>> @@ -30,6 +30,7 @@
->>>>>>     #define KVM_PRIVATE_MEM_SLOTS          0
->>>>>>
->>>>>>     #define KVM_HALT_POLL_NS_DEFAULT       500000
->>>>>> +#define KVM_REQ_STEAL_UPDATE           KVM_ARCH_REQ(1)
->>>>>>
->>>>>>     #define KVM_GUESTDBG_SW_BP_MASK                \
->>>>>>            (KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP)
->>>>>> @@ -201,6 +202,12 @@ struct kvm_vcpu_arch {
->>>>>>            struct kvm_mp_state mp_state;
->>>>>>            /* cpucfg */
->>>>>>            u32 cpucfg[KVM_MAX_CPUCFG_REGS];
->>>>>> +       /* paravirt steal time */
->>>>>> +       struct {
->>>>>> +               u64 guest_addr;
->>>>>> +               u64 last_steal;
->>>>>> +               struct gfn_to_hva_cache cache;
->>>>>> +       } st;
->>>>>>     };
->>>>>>
->>>>>>     static inline unsigned long readl_sw_gcsr(struct loongarch_csrs *csr, int reg)
->>>>>> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
->>>>>> index 4ba2312e5f8c..a9ba8185d4af 100644
->>>>>> --- a/arch/loongarch/include/asm/kvm_para.h
->>>>>> +++ b/arch/loongarch/include/asm/kvm_para.h
->>>>>> @@ -14,6 +14,7 @@
->>>>>>
->>>>>>     #define KVM_HCALL_SERVICE              HYPERCALL_ENCODE(HYPERVISOR_KVM, KVM_HCALL_CODE_SERVICE)
->>>>>>     #define  KVM_HCALL_FUNC_IPI            1
->>>>>> +#define  KVM_HCALL_FUNC_NOTIFY         2
->>>>>>
->>>>>>     #define KVM_HCALL_SWDBG                        HYPERCALL_ENCODE(HYPERVISOR_KVM, KVM_HCALL_CODE_SWDBG)
->>>>>>
->>>>>> @@ -24,6 +25,15 @@
->>>>>>     #define KVM_HCALL_INVALID_CODE         -1UL
->>>>>>     #define KVM_HCALL_INVALID_PARAMETER    -2UL
->>>>>>
->>>>>> +#define KVM_STEAL_PHYS_VALID           BIT_ULL(0)
->>>>>> +#define KVM_STEAL_PHYS_MASK            GENMASK_ULL(63, 6)
->>>>>> +struct kvm_steal_time {
->>>>>> +       __u64 steal;
->>>>>> +       __u32 version;
->>>>>> +       __u32 flags;
->>>>> I found that x86 has a preempted field here, in our internal repo the
->>>>> LoongArch version also has this field. Moreover,
->>>>> kvm_steal_time_set_preempted() and kvm_steal_time_clear_preempted()
->>>>> seems needed.
->>>> By my understanding, macro vcpu_is_preempted() is used together with pv
->>>> spinlock, and pv spinlock depends on pv stealtime. So I think preempted
->>>> flag is not part of pv stealtime, it is part of pv spinlock.
->>>>
->>>> We are going to add preempted field if pv spinlock is added.
->>>>>
->>>>>> +       __u32 pad[12];
->>>>>> +};
->>>>>> +
->>>>>>     /*
->>>>>>      * Hypercall interface for KVM hypervisor
->>>>>>      *
->>>>>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/include/asm/kvm_vcpu.h
->>>>>> index 590a92cb5416..d7e51300a89f 100644
->>>>>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
->>>>>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
->>>>>> @@ -120,4 +120,8 @@ static inline void kvm_write_reg(struct kvm_vcpu *vcpu, int num, unsigned long v
->>>>>>            vcpu->arch.gprs[num] = val;
->>>>>>     }
->>>>>>
->>>>>> +static inline bool kvm_pvtime_supported(void)
->>>>>> +{
->>>>>> +       return !!sched_info_on();
->>>>>> +}
->>>>>>     #endif /* __ASM_LOONGARCH_KVM_VCPU_H__ */
->>>>>> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
->>>>>> index eb09adda54b7..7a4633ef284b 100644
->>>>>> --- a/arch/loongarch/include/asm/loongarch.h
->>>>>> +++ b/arch/loongarch/include/asm/loongarch.h
->>>>>> @@ -169,6 +169,7 @@
->>>>>>     #define  KVM_SIGNATURE                 "KVM\0"
->>>>>>     #define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
->>>>>>     #define  KVM_FEATURE_IPI               BIT(1)
->>>>>> +#define  KVM_FEATURE_STEAL_TIME                BIT(2)
->>>>>>
->>>>>>     #ifndef __ASSEMBLY__
->>>>>>
->>>>>> diff --git a/arch/loongarch/include/uapi/asm/kvm.h b/arch/loongarch/include/uapi/asm/kvm.h
->>>>>> index f9abef382317..ddc5cab0ffd0 100644
->>>>>> --- a/arch/loongarch/include/uapi/asm/kvm.h
->>>>>> +++ b/arch/loongarch/include/uapi/asm/kvm.h
->>>>>> @@ -81,7 +81,11 @@ struct kvm_fpu {
->>>>>>     #define LOONGARCH_REG_64(TYPE, REG)    (TYPE | KVM_REG_SIZE_U64 | (REG << LOONGARCH_REG_SHIFT))
->>>>>>     #define KVM_IOC_CSRID(REG)             LOONGARCH_REG_64(KVM_REG_LOONGARCH_CSR, REG)
->>>>>>     #define KVM_IOC_CPUCFG(REG)            LOONGARCH_REG_64(KVM_REG_LOONGARCH_CPUCFG, REG)
->>>>>> +
->>>>>> +/* Device Control API on vcpu fd */
->>>>>>     #define KVM_LOONGARCH_VCPU_CPUCFG      0
->>>>>> +#define KVM_LOONGARCH_VCPU_PVTIME_CTRL 1
->>>>>> +#define  KVM_LOONGARCH_VCPU_PVTIME_GPA 0
->>>>>>
->>>>>>     struct kvm_debug_exit_arch {
->>>>>>     };
->>>>>> diff --git a/arch/loongarch/kvm/Kconfig b/arch/loongarch/kvm/Kconfig
->>>>>> index c4ef2b4d9797..248744b4d086 100644
->>>>>> --- a/arch/loongarch/kvm/Kconfig
->>>>>> +++ b/arch/loongarch/kvm/Kconfig
->>>>>> @@ -29,6 +29,7 @@ config KVM
->>>>>>            select KVM_MMIO
->>>>>>            select HAVE_KVM_READONLY_MEM
->>>>>>            select KVM_XFER_TO_GUEST_WORK
->>>>>> +       select SCHED_INFO
->>>>>>            help
->>>>>>              Support hosting virtualized guest machines using
->>>>>>              hardware virtualization extensions. You will need
->>>>>> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
->>>>>> index c86e099af5ca..e2abd97fb13f 100644
->>>>>> --- a/arch/loongarch/kvm/exit.c
->>>>>> +++ b/arch/loongarch/kvm/exit.c
->>>>>> @@ -24,7 +24,7 @@
->>>>>>     static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
->>>>>>     {
->>>>>>            int rd, rj;
->>>>>> -       unsigned int index;
->>>>>> +       unsigned int index, ret;
->>>>>>
->>>>>>            if (inst.reg2_format.opcode != cpucfg_op)
->>>>>>                    return EMULATE_FAIL;
->>>>>> @@ -50,7 +50,10 @@ static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
->>>>>>                    vcpu->arch.gprs[rd] = *(unsigned int *)KVM_SIGNATURE;
->>>>>>                    break;
->>>>>>            case CPUCFG_KVM_FEATURE:
->>>>>> -               vcpu->arch.gprs[rd] = KVM_FEATURE_IPI;
->>>>>> +               ret = KVM_FEATURE_IPI;
->>>>>> +               if (sched_info_on())
->>>>> What about replacing it with your helper function kvm_pvtime_supported()?
->>>> Sure, will replace it with helper function kvm_pvtime_supported().
->>> If you are sure this is the only issue, then needn't submit a new version.
->> OK, thanks.
->>
->> By searching orginal submit of vcpu_is_preempt(), it can be located at
->> https://lore.kernel.org/lkml/1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com/
->>
->> It is separated one, only that is depends on pv-spinlock and
->> pv-stealtime. And there is no capability indicator for guest kernel, it
->> is enabled by default.
-> Series applied with some modifications here, you can double-check the
-> correctness.
-> https://git.kernel.org/pub/scm/linux/kernel/git/chenhuacai/linux-loongson.git/log/?h=loongarch-kvm
+Reviewed-by: Zack Rusin <zack.rusin@broadcom.com>
 
-Huacai,
-
-I download and test. The stealtime works for me.
-
-
-Regards
-Bibo Mao
-> 
-> Huacai
->>
->> Regards
->> Bibo Mao
->>
->>>
->>> Huacai
->>>
->>>>
->>>> Regards
->>>> Bibo Mao
->>>>>
->>>>> Huacai
->>>>>
->>>>>> +                       ret |= KVM_FEATURE_STEAL_TIME;
->>>>>> +               vcpu->arch.gprs[rd] = ret;
->>>>>>                    break;
->>>>>>            default:
->>>>>>                    vcpu->arch.gprs[rd] = 0;
->>>>>> @@ -687,6 +690,34 @@ static int kvm_handle_fpu_disabled(struct kvm_vcpu *vcpu)
->>>>>>            return RESUME_GUEST;
->>>>>>     }
->>>>>>
->>>>>> +static long kvm_save_notify(struct kvm_vcpu *vcpu)
->>>>>> +{
->>>>>> +       unsigned long id, data;
->>>>>> +
->>>>>> +       id   = kvm_read_reg(vcpu, LOONGARCH_GPR_A1);
->>>>>> +       data = kvm_read_reg(vcpu, LOONGARCH_GPR_A2);
->>>>>> +       switch (id) {
->>>>>> +       case KVM_FEATURE_STEAL_TIME:
->>>>>> +               if (!kvm_pvtime_supported())
->>>>>> +                       return KVM_HCALL_INVALID_CODE;
->>>>>> +
->>>>>> +               if (data & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
->>>>>> +                       return KVM_HCALL_INVALID_PARAMETER;
->>>>>> +
->>>>>> +               vcpu->arch.st.guest_addr = data;
->>>>>> +               if (!(data & KVM_STEAL_PHYS_VALID))
->>>>>> +                       break;
->>>>>> +
->>>>>> +               vcpu->arch.st.last_steal = current->sched_info.run_delay;
->>>>>> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
->>>>>> +               break;
->>>>>> +       default:
->>>>>> +               break;
->>>>>> +       };
->>>>>> +
->>>>>> +       return 0;
->>>>>> +};
->>>>>> +
->>>>>>     /*
->>>>>>      * kvm_handle_lsx_disabled() - Guest used LSX while disabled in root.
->>>>>>      * @vcpu:      Virtual CPU context.
->>>>>> @@ -758,6 +789,9 @@ static void kvm_handle_service(struct kvm_vcpu *vcpu)
->>>>>>                    kvm_send_pv_ipi(vcpu);
->>>>>>                    ret = KVM_HCALL_SUCCESS;
->>>>>>                    break;
->>>>>> +       case KVM_HCALL_FUNC_NOTIFY:
->>>>>> +               ret = kvm_save_notify(vcpu);
->>>>>> +               break;
->>>>>>            default:
->>>>>>                    ret = KVM_HCALL_INVALID_CODE;
->>>>>>                    break;
->>>>>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
->>>>>> index 9e8030d45129..382796f1d3e6 100644
->>>>>> --- a/arch/loongarch/kvm/vcpu.c
->>>>>> +++ b/arch/loongarch/kvm/vcpu.c
->>>>>> @@ -31,6 +31,117 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
->>>>>>                           sizeof(kvm_vcpu_stats_desc),
->>>>>>     };
->>>>>>
->>>>>> +static void kvm_update_stolen_time(struct kvm_vcpu *vcpu)
->>>>>> +{
->>>>>> +       struct kvm_steal_time __user *st;
->>>>>> +       struct gfn_to_hva_cache *ghc;
->>>>>> +       struct kvm_memslots *slots;
->>>>>> +       gpa_t gpa;
->>>>>> +       u64 steal;
->>>>>> +       u32 version;
->>>>>> +
->>>>>> +       ghc = &vcpu->arch.st.cache;
->>>>>> +       gpa = vcpu->arch.st.guest_addr;
->>>>>> +       if (!(gpa & KVM_STEAL_PHYS_VALID))
->>>>>> +               return;
->>>>>> +
->>>>>> +       gpa &= KVM_STEAL_PHYS_MASK;
->>>>>> +       slots = kvm_memslots(vcpu->kvm);
->>>>>> +       if (slots->generation != ghc->generation || gpa != ghc->gpa) {
->>>>>> +               if (kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, gpa,
->>>>>> +                                       sizeof(*st))) {
->>>>>> +                       ghc->gpa = INVALID_GPA;
->>>>>> +                       return;
->>>>>> +               }
->>>>>> +       }
->>>>>> +
->>>>>> +       st = (struct kvm_steal_time __user *)ghc->hva;
->>>>>> +       unsafe_get_user(version, &st->version, out);
->>>>>> +       if (version & 1)
->>>>>> +               version += 1;
->>>>>> +       version += 1;
->>>>>> +       unsafe_put_user(version, &st->version, out);
->>>>>> +       smp_wmb();
->>>>>> +
->>>>>> +       unsafe_get_user(steal, &st->steal, out);
->>>>>> +       steal += current->sched_info.run_delay -
->>>>>> +               vcpu->arch.st.last_steal;
->>>>>> +       vcpu->arch.st.last_steal = current->sched_info.run_delay;
->>>>>> +       unsafe_put_user(steal, &st->steal, out);
->>>>>> +
->>>>>> +       smp_wmb();
->>>>>> +       version += 1;
->>>>>> +       unsafe_put_user(version, &st->version, out);
->>>>>> +out:
->>>>>> +       mark_page_dirty_in_slot(vcpu->kvm, ghc->memslot, gpa_to_gfn(ghc->gpa));
->>>>>> +}
->>>>>> +
->>>>>> +static int kvm_loongarch_pvtime_has_attr(struct kvm_vcpu *vcpu,
->>>>>> +                                       struct kvm_device_attr *attr)
->>>>>> +{
->>>>>> +       if (!kvm_pvtime_supported() ||
->>>>>> +                       attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
->>>>>> +               return -ENXIO;
->>>>>> +
->>>>>> +       return 0;
->>>>>> +}
->>>>>> +
->>>>>> +static int kvm_loongarch_pvtime_get_attr(struct kvm_vcpu *vcpu,
->>>>>> +                                       struct kvm_device_attr *attr)
->>>>>> +{
->>>>>> +       u64 __user *user = (u64 __user *)attr->addr;
->>>>>> +       u64 gpa;
->>>>>> +
->>>>>> +       if (!kvm_pvtime_supported() ||
->>>>>> +                       attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
->>>>>> +               return -ENXIO;
->>>>>> +
->>>>>> +       gpa = vcpu->arch.st.guest_addr;
->>>>>> +       if (put_user(gpa, user))
->>>>>> +               return -EFAULT;
->>>>>> +
->>>>>> +       return 0;
->>>>>> +}
->>>>>> +
->>>>>> +static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
->>>>>> +                                       struct kvm_device_attr *attr)
->>>>>> +{
->>>>>> +       u64 __user *user = (u64 __user *)attr->addr;
->>>>>> +       struct kvm *kvm = vcpu->kvm;
->>>>>> +       u64 gpa;
->>>>>> +       int ret = 0;
->>>>>> +       int idx;
->>>>>> +
->>>>>> +       if (!kvm_pvtime_supported() ||
->>>>>> +                       attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
->>>>>> +               return -ENXIO;
->>>>>> +
->>>>>> +       if (get_user(gpa, user))
->>>>>> +               return -EFAULT;
->>>>>> +
->>>>>> +       if (gpa & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
->>>>>> +               return -EINVAL;
->>>>>> +
->>>>>> +       if (!(gpa & KVM_STEAL_PHYS_VALID)) {
->>>>>> +               vcpu->arch.st.guest_addr = gpa;
->>>>>> +               return 0;
->>>>>> +       }
->>>>>> +
->>>>>> +       /* Check the address is in a valid memslot */
->>>>>> +       idx = srcu_read_lock(&kvm->srcu);
->>>>>> +       if (kvm_is_error_hva(gfn_to_hva(kvm, gpa >> PAGE_SHIFT)))
->>>>>> +               ret = -EINVAL;
->>>>>> +       srcu_read_unlock(&kvm->srcu, idx);
->>>>>> +
->>>>>> +       if (!ret) {
->>>>>> +               vcpu->arch.st.guest_addr = gpa;
->>>>>> +               vcpu->arch.st.last_steal = current->sched_info.run_delay;
->>>>>> +               kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
->>>>>> +       }
->>>>>> +
->>>>>> +       return ret;
->>>>>> +}
->>>>>> +
->>>>>>     /*
->>>>>>      * kvm_check_requests - check and handle pending vCPU requests
->>>>>>      *
->>>>>> @@ -48,6 +159,9 @@ static int kvm_check_requests(struct kvm_vcpu *vcpu)
->>>>>>            if (kvm_dirty_ring_check_request(vcpu))
->>>>>>                    return RESUME_HOST;
->>>>>>
->>>>>> +       if (kvm_check_request(KVM_REQ_STEAL_UPDATE, vcpu))
->>>>>> +               kvm_update_stolen_time(vcpu);
->>>>>> +
->>>>>>            return RESUME_GUEST;
->>>>>>     }
->>>>>>
->>>>>> @@ -671,6 +785,9 @@ static int kvm_loongarch_vcpu_has_attr(struct kvm_vcpu *vcpu,
->>>>>>            case KVM_LOONGARCH_VCPU_CPUCFG:
->>>>>>                    ret = kvm_loongarch_cpucfg_has_attr(vcpu, attr);
->>>>>>                    break;
->>>>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
->>>>>> +               ret = kvm_loongarch_pvtime_has_attr(vcpu, attr);
->>>>>> +               break;
->>>>>>            default:
->>>>>>                    break;
->>>>>>            }
->>>>>> @@ -703,6 +820,9 @@ static int kvm_loongarch_vcpu_get_attr(struct kvm_vcpu *vcpu,
->>>>>>            case KVM_LOONGARCH_VCPU_CPUCFG:
->>>>>>                    ret = kvm_loongarch_get_cpucfg_attr(vcpu, attr);
->>>>>>                    break;
->>>>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
->>>>>> +               ret = kvm_loongarch_pvtime_get_attr(vcpu, attr);
->>>>>> +               break;
->>>>>>            default:
->>>>>>                    break;
->>>>>>            }
->>>>>> @@ -725,6 +845,9 @@ static int kvm_loongarch_vcpu_set_attr(struct kvm_vcpu *vcpu,
->>>>>>            case KVM_LOONGARCH_VCPU_CPUCFG:
->>>>>>                    ret = kvm_loongarch_cpucfg_set_attr(vcpu, attr);
->>>>>>                    break;
->>>>>> +       case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
->>>>>> +               ret = kvm_loongarch_pvtime_set_attr(vcpu, attr);
->>>>>> +               break;
->>>>>>            default:
->>>>>>                    break;
->>>>>>            }
->>>>>> @@ -1084,6 +1207,7 @@ static int _kvm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
->>>>>>
->>>>>>            /* Control guest page CCA attribute */
->>>>>>            change_csr_gcfg(CSR_GCFG_MATC_MASK, CSR_GCFG_MATC_ROOT);
->>>>>> +       kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
->>>>>>
->>>>>>            /* Don't bother restoring registers multiple times unless necessary */
->>>>>>            if (vcpu->arch.aux_inuse & KVM_LARCH_HWCSR_USABLE)
->>>>>> --
->>>>>> 2.39.3
->>>>>>
->>>>
->>
->>
-
+z
