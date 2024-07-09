@@ -1,201 +1,200 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB6631514F8
-	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 08:14:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B8DC13B7A9
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 09:48:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720512888; cv=none; b=JbgJC3j9zR6sCQVVYfpT15nMxD0SLmhFh1his8UdKwsvVIUTq3zRVBmDD1f5Wmk6Aal09XOcaOr5x0sUlEyH4SoZ6Mqmoz9e6nNi7PoMN5qvAE/ah516wymnbmNWmA5+80YjTC/beOaS3Ex+2YgrrWPcOsz3v4Xh5ORBN5Agwts=
+	t=1720518506; cv=none; b=il0Bypau8nQsey1PWPK3RbH47Tk1rTfCGlrARmIFDkKoGdQuIAa9zq/SNP3Qob2fxX+FC6X6Orfj+62mW83kbn+AB+dFKgVISM5eTXEuiixZtfxM9dLRZM+8C+CcN2AztVY0SJJ8v1O9tu469pKhZgglF5PSwapC/E/LRldWezs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720512888; c=relaxed/simple;
-	bh=AZugvt/CV1mGMz/1Cwy0FeNpwjzJM1Le5fb7OlI0U+4=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=ElmKxtAlpYD36woPKUqTvjD2Bdg4fC2OIFS8tBhxxKwDroS9t1cZYkimRztttOceWdbDanjMKLqOukTKBdjIaimfz9EpiWoSnV8qIUgq6HjwuqDnNxTKbnJ3LUK4IdCZW38xaNUgtrq1h7Oo/eI2nC9oqP9zbLzMTK7D44i9zwc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MeAMpNS0; arc=none smtp.client-ip=115.124.30.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1720518506; c=relaxed/simple;
+	bh=qwOtsI/nVKFNDCUqfB2TmP/Uh0XfsEeSoscSdAEj9aQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QOphmUUQ6DZAmSjTBheIqbtbQZQ2dkuZ/4vShpSdtgzC5+OzgQ3dzqBwT92ET/pyr5kX9QKvU3c1dbNWq0xRyIa8ErXaBpqxKxxZeCOEaXd86SPTyotAmuZbbhUUhn4ntWdx5BCtsdzdR+C8dfUQp17ywzO8g9tDb0UAlrA2OLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=i8HQXj2M; arc=none smtp.client-ip=209.85.167.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MeAMpNS0"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1720512884; h=Message-ID:Subject:Date:From:To;
-	bh=gEc0rnc+xdlfvbkmIvh5AehIyDe+JQmaAWvXgvewDuk=;
-	b=MeAMpNS0WcXJUeDc7QhOXGm/T3BozJzMhd8UBVv/e/ZNwHACaZx/KrKrqD2E2HHELeUJZ4dG4yO/ZkSGdwiczoJvV34xhtwd/8OR3JxPyXSKmieJyAQPtw0Kf32hTqBf/67/pbNhl/DjjBiQMifHAqr6AzJCDISiKCh+Qs5Oxl0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R931e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WABApq9_1720512882;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WABApq9_1720512882)
-          by smtp.aliyun-inc.com;
-          Tue, 09 Jul 2024 16:14:42 +0800
-Message-ID: <1720512872.4839034-5-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v3 3/3] virtio-net: synchronize operstate with admin state on up/down
-Date: Tue, 9 Jul 2024 16:14:32 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,
- davem@davemloft.net,
- edumazet@google.com,
- kuba@kernel.org,
- pabeni@redhat.com,
- netdev@vger.kernel.org,
- Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
- "Gia-Khanh Nguyen" <gia-khanh.nguyen@oracle.com>,
- mst@redhat.com,
- jasowang@redhat.com,
- eperezma@redhat.com
-References: <20240709080214.9790-1-jasowang@redhat.com>
- <20240709080214.9790-4-jasowang@redhat.com>
-In-Reply-To: <20240709080214.9790-4-jasowang@redhat.com>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="i8HQXj2M"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-52ea7d2a039so3971389e87.3
+        for <virtualization@lists.linux.dev>; Tue, 09 Jul 2024 02:48:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720518501; x=1721123301; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=JWXGtdGbyQUeIWZ5vQZ9HoM+wSLUTIiBVKC/pWIaDHI=;
+        b=i8HQXj2MO2pNK14Da4Vktmt1do+1OaHOXSPYOZmfy6DoyFP1TBQ7wPWC5fiMmLse1J
+         0WMwtYsXxCYefm+itfnco/46U9hYMoxZRxH6Zq5wXGg1tuweg+jnRuRbKvP4DpJ7MNKU
+         UYF6DuWHDoGxocG7vZCec+Uim+6Fxa6iZlKx15Abyu6D7SXYWLi8yV9/N0pyoVjjtZRV
+         IxYcs11cEjTlfczuHj6XxGI3n1MtIHQ9YieZzT21c5kQJAmSL/nt/UmMxv3WB7AS6+l3
+         2Rjp3FvLVSTih5C5rzVskeBYx6TP1DFkLRQ5AIfEPeHIxv9XxLlLs6d85eMjBPpt+04a
+         Kpig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720518501; x=1721123301;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JWXGtdGbyQUeIWZ5vQZ9HoM+wSLUTIiBVKC/pWIaDHI=;
+        b=Hax/E/f7EJKsY9DzI8NrktDHRKuyw0Xs9aVKlOvoXg3ZhrRouyX0JGYNIOPHB++hMy
+         cupkkaOlfzxOf0L/4wjYsPf9aeIUMq/dMMzQ9tD+Us07mkYC21cjB/SRMBeAJzbGicKG
+         MZZbduJ8BTX7278Wf6sB9L9J99Rfa2mIi0nRSND+x/C0KY9GqsrJlChpmSk0BgRotB+L
+         Eaaol6xWbqlIq+s5GOX7TfTnyHfyAxsyLDyyJd8ldFpYKsStb9JNons/oxUeLly1RxEF
+         Dp+581+LIqeFR42k5quDVQPTG5bATII947jAk7t5Fu8Or/ld01v6INI7D5ZpqTkViwnd
+         PQTw==
+X-Gm-Message-State: AOJu0Yxji5ts9JPxWyy/k48QJ0jVAPyBV6lxvwm2Ijk6c6IHf2swT7VR
+	n9m7QrxAc/o68C/W+SLlQFzFqefUOjOeeChcBq/y6giA40OzecchYnNcSNV+mlI=
+X-Google-Smtp-Source: AGHT+IEMKlNjQAi6l1etrFdZGYk3hhrC0WD5zENaYiTI/4pj91aaA7E6vuexxJguJdVekefXwKAbzg==
+X-Received: by 2002:a05:6512:3f0a:b0:52c:ebd0:609 with SMTP id 2adb3069b0e04-52eb999116cmr1352019e87.7.1720518499815;
+        Tue, 09 Jul 2024 02:48:19 -0700 (PDT)
+Received: from localhost ([37.48.50.18])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4266f7416bcsm32689305e9.43.2024.07.09.02.48.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jul 2024 02:48:19 -0700 (PDT)
+Date: Tue, 9 Jul 2024 11:48:17 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, parav@nvidia.com,
+	feliu@nvidia.com, hengqi@linux.alibaba.com
+Subject: Re: [PATCH virtio v4 00/19] virtio: consolidate vq info args of
+ find_vqs()
+Message-ID: <Zo0HYe_iJnZBc7Tg@nanopsycho.orion>
+References: <20240708074814.1739223-1-jiri@resnulli.us>
+ <20240708095632-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240708095632-mutt-send-email-mst@kernel.org>
 
-On Tue,  9 Jul 2024 16:02:14 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> This patch synchronize operstate with admin state per RFC2863.
+Mon, Jul 08, 2024 at 03:58:05PM CEST, mst@redhat.com wrote:
+>On Mon, Jul 08, 2024 at 09:47:55AM +0200, Jiri Pirko wrote:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> Currently, virtio_find_vqs() and virtio_find_vqs_ctx() accept array of
+>> names, callbacks and ctx (in case of the second one) as separate args.
+>> That became inconvenient as the ctx addition showed.
+>> 
+>> For virtio_net control queue, an indication of queue flavour (slow path)
+>> is going to be needed to be passed to PCI transport in order to
+>> assign vectors properly, another array added to virtio_find_vqs_ctx()
+>> arg list would not be nice and convenient.
+>> 
+>> Instead, introduce a structure to carry vq callback, name and ctx. Pass
+>> array of these structures to virtio_find_vqs() and all the way down to
+>> transport find_vqs() op implementation.
+>> 
+>> That allows to easily extend what needs to be passed down. Also, it
+>> makes the code a bit more cleaner. We get rid of separate
+>> virtio_find_vqs_ctx() helper.
+>> 
+>> This patchset does the conversion in steps, using temporary _info() op
+>> and helper. Note they are renamed back.
+>> 
+>> Patch #1 does one forgotten conversion to virtio_find_single_vq().
+>> Patches #2 and #3 do preparations for find_vqs_info() op introduction.
+>> Patch #4 introduces new op find_vqs_info() to replace find_vqs() it also
+>>   introduces struct virtio_queue_info and virtio_find_vqs_info() helper.
+>> Patches #5 and #6 convert transports to implement find_vqs_info() op
+>>   that accepts array of virtio_queue_info structs.
+>> Patch #7 converts virtio_find_single_vq() to use the new way as well.
+>> Patch #8 removes original find_vqs() op.
+>> Patch #9 renames find_vqs_info() to find_vqs() and completes first part
+>>   of conversion this patches does.
+>> Patches #10-#17 convert virtio_find_vqs() and virtio_find_vqs_ctx()
+>>   users to use new virtio_find_vqs_info() helper.
+>> Patch #18 removes no longer used virtio_find_vqs() and
+>>   virtio_find_vqs_ctx() helpers.
+>> Patch #19 finalizes the conversion by renaming virtio_find_vqs_info()
+>>   to virtio_find_vqs().
 >
-> This is done by trying to toggle the carrier upon open/close and
-> synchronize with the config change work. This allows propagate status
-> correctly to stacked devices like:
->
-> ip link add link enp0s3 macvlan0 type macvlan
-> ip link set link enp0s3 down
-> ip link show
->
-> Before this patch:
->
-> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
->     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-> ......
-> 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
->     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
->
-> After this patch:
->
-> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
->     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-> ...
-> 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
->     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
->
-> Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-> Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>Thanks!
+>I want to wait a couple of days for my current tree to get merged
+>into linux-next, since otherwise all the other stuff there does not
+>get tested. Once there, I'll add your stuff on top - if all this happens
+>to get into next before the merge window opens, we are good.
+>If not it'll have to wait until the next window.
 
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Okay. Thanks!
 
-> ---
->  drivers/net/virtio_net.c | 64 ++++++++++++++++++++++++----------------
->  1 file changed, 38 insertions(+), 26 deletions(-)
 >
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 0b4747e81464..e6626ba25b29 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2476,6 +2476,25 @@ static void virtnet_cancel_dim(struct virtnet_info *vi, struct dim *dim)
->  	net_dim_work_cancel(dim);
->  }
 >
-> +static void virtnet_update_settings(struct virtnet_info *vi)
-> +{
-> +	u32 speed;
-> +	u8 duplex;
-> +
-> +	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
-> +		return;
-> +
-> +	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
-> +
-> +	if (ethtool_validate_speed(speed))
-> +		vi->speed = speed;
-> +
-> +	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
-> +
-> +	if (ethtool_validate_duplex(duplex))
-> +		vi->duplex = duplex;
-> +}
-> +
->  static int virtnet_open(struct net_device *dev)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> @@ -2494,6 +2513,18 @@ static int virtnet_open(struct net_device *dev)
->  			goto err_enable_qp;
->  	}
->
-> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-> +		virtio_config_driver_enable(vi->vdev);
-> +		/* Do not schedule the config change work as the
-> +		 * config change notification might have been disabled
-> +		 * by the virtio core. */
-> +		virtio_config_changed(vi->vdev);
-> +	} else {
-> +		vi->status = VIRTIO_NET_S_LINK_UP;
-> +		virtnet_update_settings(vi);
-> +		netif_carrier_on(dev);
-> +	}
-> +
->  	return 0;
->
->  err_enable_qp:
-> @@ -2936,12 +2967,19 @@ static int virtnet_close(struct net_device *dev)
->  	disable_delayed_refill(vi);
->  	/* Make sure refill_work doesn't re-enable napi! */
->  	cancel_delayed_work_sync(&vi->refill);
-> +	/* Make sure config notification doesn't schedule config work */
-> +	virtio_config_driver_disable(vi->vdev);
-> +	/* Make sure status updating is cancelled */
-> +	cancel_work_sync(&vi->config_work);
->
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		virtnet_disable_queue_pair(vi, i);
->  		virtnet_cancel_dim(vi, &vi->rq[i].dim);
->  	}
->
-> +	vi->status &= ~VIRTIO_NET_S_LINK_UP;
-> +	netif_carrier_off(dev);
-> +
->  	return 0;
->  }
->
-> @@ -4640,25 +4678,6 @@ static void virtnet_init_settings(struct net_device *dev)
->  	vi->duplex = DUPLEX_UNKNOWN;
->  }
->
-> -static void virtnet_update_settings(struct virtnet_info *vi)
-> -{
-> -	u32 speed;
-> -	u8 duplex;
-> -
-> -	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
-> -		return;
-> -
-> -	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
-> -
-> -	if (ethtool_validate_speed(speed))
-> -		vi->speed = speed;
-> -
-> -	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
-> -
-> -	if (ethtool_validate_duplex(duplex))
-> -		vi->duplex = duplex;
-> -}
-> -
->  static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
->  {
->  	return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
-> @@ -6000,13 +6019,6 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	/* Assume link up if device can't report link status,
->  	   otherwise get link status from config. */
->  	netif_carrier_off(dev);
-> -	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-> -		schedule_work(&vi->config_work);
-> -	} else {
-> -		vi->status = VIRTIO_NET_S_LINK_UP;
-> -		virtnet_update_settings(vi);
-> -		netif_carrier_on(dev);
-> -	}
->
->  	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
->  		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
-> --
-> 2.31.1
+>> ---
+>> v3->v4:
+>> - changes in patch #5 and #6, one cosmetic issue, one compile issue
+>> 
+>> v2->v3:
+>> - added proper struct description comment to patch #4
+>> - added suggested by tag to patches #4, #10-#17
+>> 
+>> v1->v2:
+>> - added forgotten VIRTIO_SND_VQ_MAX for array size in virtio_card.c
+>> - s/virtio_queue_info/virtqueue_info/
+>> - fixed comments for struct virtqueue_info
+>> - rebased on top of recent code changes (virtio_fs.c)
+>> - see individual patches changelog for more details
+>> 
+>> 
+>> Jiri Pirko (19):
+>>   caif_virtio: use virtio_find_single_vq() for single virtqueue finding
+>>   virtio: make virtio_find_vqs() call virtio_find_vqs_ctx()
+>>   virtio: make virtio_find_single_vq() call virtio_find_vqs()
+>>   virtio: introduce virtio_queue_info struct and find_vqs_info() config
+>>     op
+>>   virtio_pci: convert vp_*find_vqs() ops to find_vqs_info()
+>>   virtio: convert find_vqs() op implementations to find_vqs_info()
+>>   virtio: call virtio_find_vqs_info() from virtio_find_single_vq()
+>>     directly
+>>   virtio: remove the original find_vqs() op
+>>   virtio: rename find_vqs_info() op to find_vqs()
+>>   virtio_blk: convert to use virtio_find_vqs_info()
+>>   virtio_console: convert to use virtio_find_vqs_info()
+>>   virtio_crypto: convert to use virtio_find_vqs_info()
+>>   virtio_net: convert to use virtio_find_vqs_info()
+>>   scsi: virtio_scsi: convert to use virtio_find_vqs_info()
+>>   virtiofs: convert to use virtio_find_vqs_info()
+>>   virtio_balloon: convert to use virtio_find_vqs_info()
+>>   virtio: convert the rest virtio_find_vqs() users to
+>>     virtio_find_vqs_info()
+>>   virtio: remove unused virtio_find_vqs() and virtio_find_vqs_ctx()
+>>     helpers
+>>   virtio: rename virtio_find_vqs_info() to virtio_find_vqs()
+>> 
+>>  arch/um/drivers/virt-pci.c                    |  8 ++-
+>>  arch/um/drivers/virtio_uml.c                  | 12 ++--
+>>  drivers/block/virtio_blk.c                    | 20 +++---
+>>  drivers/bluetooth/virtio_bt.c                 | 13 ++--
+>>  drivers/char/virtio_console.c                 | 43 +++++--------
+>>  drivers/crypto/virtio/virtio_crypto_core.c    | 31 ++++-----
+>>  drivers/firmware/arm_scmi/virtio.c            | 11 ++--
+>>  drivers/gpio/gpio-virtio.c                    | 10 +--
+>>  drivers/gpu/drm/virtio/virtgpu_kms.c          |  9 ++-
+>>  drivers/iommu/virtio-iommu.c                  | 11 ++--
+>>  drivers/net/caif/caif_virtio.c                |  8 +--
+>>  drivers/net/virtio_net.c                      | 34 ++++------
+>>  drivers/net/wireless/virtual/mac80211_hwsim.c | 12 ++--
+>>  drivers/platform/mellanox/mlxbf-tmfifo.c      | 10 +--
+>>  drivers/remoteproc/remoteproc_virtio.c        | 12 ++--
+>>  drivers/rpmsg/virtio_rpmsg_bus.c              |  8 ++-
+>>  drivers/s390/virtio/virtio_ccw.c              | 13 ++--
+>>  drivers/scsi/virtio_scsi.c                    | 32 ++++------
+>>  drivers/virtio/virtio_balloon.c               | 32 ++++------
+>>  drivers/virtio/virtio_input.c                 |  9 +--
+>>  drivers/virtio/virtio_mmio.c                  | 12 ++--
+>>  drivers/virtio/virtio_pci_common.c            | 48 +++++++-------
+>>  drivers/virtio/virtio_pci_common.h            |  3 +-
+>>  drivers/virtio/virtio_pci_modern.c            |  5 +-
+>>  drivers/virtio/virtio_vdpa.c                  | 13 ++--
+>>  fs/fuse/virtio_fs.c                           | 22 +++----
+>>  include/linux/virtio_config.h                 | 64 ++++++++++---------
+>>  net/vmw_vsock/virtio_transport.c              | 16 ++---
+>>  sound/virtio/virtio_card.c                    | 23 +++----
+>>  29 files changed, 242 insertions(+), 302 deletions(-)
+>> 
+>> -- 
+>> 2.45.2
 >
