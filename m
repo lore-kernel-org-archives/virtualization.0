@@ -1,32 +1,32 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A931815250A
-	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 08:14:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB6631514F8
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 08:14:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720512869; cv=none; b=MmkP9hsTdq6ZUiPYezUtFI1G8IclEfC0CsL7+fw1SZimTwpt7p8hJlQ1k12eeRftmZ/sXDI6kSYQMPv/bh5kF47Vy7B3R63rNnnsmMz4MwayrULI3tPppPYer7HccI8h1JDxFYuqDTOXWkggiHDNCBPrEXKboogvgZ/k7HUp9oE=
+	t=1720512888; cv=none; b=JbgJC3j9zR6sCQVVYfpT15nMxD0SLmhFh1his8UdKwsvVIUTq3zRVBmDD1f5Wmk6Aal09XOcaOr5x0sUlEyH4SoZ6Mqmoz9e6nNi7PoMN5qvAE/ah516wymnbmNWmA5+80YjTC/beOaS3Ex+2YgrrWPcOsz3v4Xh5ORBN5Agwts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720512869; c=relaxed/simple;
-	bh=jHYgOUYZNDN4TT6NaoH4B6KP3j10ThQ1R7SuDQV3Am4=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=EbfV46Gvyxjws2uaG3oheS3ZJSu1R63YRdAS4jiBix4QO7TnoQ+JRdej9Odx7NdRXzigPNz/2GnZfkGEiT8I0dtKaDP12bScx8F6D+TSCcPWWDFfrTKSTsyCQk0yyTdetrt9ClKlPv08pkxuEhF/rT7HLVhdQMUvOOrQCqvivBw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=r23IEEij; arc=none smtp.client-ip=115.124.30.101
+	s=arc-20240116; t=1720512888; c=relaxed/simple;
+	bh=AZugvt/CV1mGMz/1Cwy0FeNpwjzJM1Le5fb7OlI0U+4=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=ElmKxtAlpYD36woPKUqTvjD2Bdg4fC2OIFS8tBhxxKwDroS9t1cZYkimRztttOceWdbDanjMKLqOukTKBdjIaimfz9EpiWoSnV8qIUgq6HjwuqDnNxTKbnJ3LUK4IdCZW38xaNUgtrq1h7Oo/eI2nC9oqP9zbLzMTK7D44i9zwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MeAMpNS0; arc=none smtp.client-ip=115.124.30.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="r23IEEij"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MeAMpNS0"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1720512865; h=Message-ID:Subject:Date:From:To;
-	bh=9ZPXBFessF7YYMvrmhVpEe9L/6/J8peId7eQk6COC6w=;
-	b=r23IEEijW7j/l/r7ZqCXvPZEL+t3Y9EfzubYYYA789a4BOm+jhQwZ6//A6HlB4OFPb1FdhH5/4YdzqLtOXXIHCLING7gac3rCk6jwNFKC8Eot0AZJCj/XGw/S6FqjeCDW4XxnIDty6dWDKyG0PghHFda5BblC5CCG1pZxIdWxQw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WAB1v5Z_1720512864;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WAB1v5Z_1720512864)
+	t=1720512884; h=Message-ID:Subject:Date:From:To;
+	bh=gEc0rnc+xdlfvbkmIvh5AehIyDe+JQmaAWvXgvewDuk=;
+	b=MeAMpNS0WcXJUeDc7QhOXGm/T3BozJzMhd8UBVv/e/ZNwHACaZx/KrKrqD2E2HHELeUJZ4dG4yO/ZkSGdwiczoJvV34xhtwd/8OR3JxPyXSKmieJyAQPtw0Kf32hTqBf/67/pbNhl/DjjBiQMifHAqr6AzJCDISiKCh+Qs5Oxl0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R931e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WABApq9_1720512882;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WABApq9_1720512882)
           by smtp.aliyun-inc.com;
-          Tue, 09 Jul 2024 16:14:24 +0800
-Message-ID: <1720512858.396788-4-xuanzhuo@linux.alibaba.com>
+          Tue, 09 Jul 2024 16:14:42 +0800
+Message-ID: <1720512872.4839034-5-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH net-next v3 3/3] virtio-net: synchronize operstate with admin state on up/down
-Date: Tue, 9 Jul 2024 16:14:18 +0800
+Date: Tue, 9 Jul 2024 16:14:32 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: virtualization@lists.linux.dev,
@@ -81,8 +81,7 @@ On Tue,  9 Jul 2024 16:02:14 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-
-
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
 > ---
 >  drivers/net/virtio_net.c | 64 ++++++++++++++++++++++++----------------
