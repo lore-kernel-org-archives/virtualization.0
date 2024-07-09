@@ -1,111 +1,96 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from out-182.mta1.migadu.com (out-182.mta1.migadu.com [95.215.58.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 216081EB44
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 19:41:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CE2A620
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 00:12:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720467701; cv=none; b=dx/Gzv2iqQE00kcARvLyykR0djC5QHMbXk+74Bx1RgUSu2hVYSXtLZOM5Pv0TGtCub9hdJqbLCM0GdpNi8TJR5Pd5ShNDj7ERCf+mc9ZNKsFM0xAmdHnM4Fffjyt4YaMI/GJUfIAWLLaIwbHJLw/Luz2nbxu834GXBFuetyJu7g=
+	t=1720483976; cv=none; b=iXYginm+LNLaOKb+p6F7/RgrHpDJVfCbepO+RsDWbm5FyKZqyfXXK2/i4AsJq6b8FzdgEUQ+nugdovgKTKXAkz4GVIRpMzACw/5URJe5c1serU8ZjNTaGYsJ3CDM+rCCXwFGj3buUv9dfMpdA2EB/xW/i9CDSUJMtUvc7i1uWD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720467701; c=relaxed/simple;
-	bh=ZYwHIigIhSCIMsMfoGRMJkJk1tF8c24wZcbHSusq7ao=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TJCRWMRLoLJskj8fXfX6XpJEqY+dWKpMNw+9kOFqBpsaRTBDxxb0YaiOSDcySR2KweDWeNRw2yVS9+5burFiLYqqurz8wQ8zmgZ3VJHytRr035k1ny900MMAm3ncDmjdmcvPBxR1SEMCHrW+JhzzKRwdB/tQ9rtWqyM4/QssZbU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=IzjJXRwx; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1720483976; c=relaxed/simple;
+	bh=2Gj8s9nZbYCDFARzegS1muqgRrgVAIxf+e0daMnpTIw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tRRXHCE6pdk+lyCJmWiLBw5G3sJr3hmlpuT5fmhq2EwhwLpXtH/6woVAOnI+Nh4E/2G0JOAHe0jJfiClpuOhYCeClRJPSRwEznpHR4jNoj0YE15OeV0TqDt/DlbscXlfuEmfW5USFQgjYwc5QG6V2y9q4m4IyWCnitXyg9vNQu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=YWBlJ8nS; arc=none smtp.client-ip=95.215.58.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="IzjJXRwx"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BA2A860634
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 19:41:39 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.102
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id NK7fqAvcyg95 for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Jul 2024 19:41:39 +0000 (UTC)
-X-Greylist: delayed 2436 seconds by postgrey-1.37 at util1.osuosl.org; Mon, 08 Jul 2024 19:41:38 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org EC74A605BD
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EC74A605BD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=IzjJXRwx
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=156.67.10.101; helo=vps0.lunn.ch; envelope-from=andrew@lunn.ch; receiver=<UNKNOWN> 
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EC74A605BD
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jul 2024 19:41:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=XGGpiGEn99M1OyeTkZzsgnB6kBfceyDYhXGtdp6H+LU=; b=IzjJXRwxcCU8iVPQpEtfBZ9ZSL
-	UZB/QcbD4oWaRg9SaqqBXc7UsGT8dZTU4Nd9/SVUYmkhw1gOiXPC+WeKskETHk906vqsclC0AlP2v
-	I6+2pQvOThD6jUArmHxfmbGacwlH8SdLYQxI3cIlRgD9xtvQV5u/N4U2ZkjWrsNa+/Uc=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1sQtba-0024I0-IB; Mon, 08 Jul 2024 21:00:54 +0200
-Date: Mon, 8 Jul 2024 21:00:54 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-To: Cindy Lu <lulu@redhat.com>
-Cc: dtatulea@nvidia.com, mst@redhat.com, jasowang@redhat.com,
-	parav@nvidia.com, sgarzare@redhat.com, netdev@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH] vdpa/mlx5: Add the support of set mac address
-Message-ID: <b680300d-d18d-45b8-848f-85824332c7ca@lunn.ch>
-References: <20240708065549.89422-1-lulu@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="YWBlJ8nS"
+X-Envelope-To: john.g.garry@oracle.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1720483972;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XMA7bkz8Stsxvv5DOjBv/YnA9fiCUhmgIbgMYPT3sPk=;
+	b=YWBlJ8nS3SGBDalkBYK3CSr+rpG+RSl/HX3Duq2y/sBCEc4iJ1xMgv4u/zfLGyMAZN0fBJ
+	V5Hvby+2JHz047wArUn9vnNY1YFM2axa8zLKOTNc5+LywU9Nbl98E5KhXhE3THG1q3v6Sn
+	dr4R8W9ax2fDazSebtfag0mtV5Ywni8=
+X-Envelope-To: axboe@kernel.dk
+X-Envelope-To: mst@redhat.com
+X-Envelope-To: jasowang@redhat.com
+X-Envelope-To: xuanzhuo@linux.alibaba.com
+X-Envelope-To: eperezma@redhat.com
+X-Envelope-To: pbonzini@redhat.com
+X-Envelope-To: stefanha@redhat.com
+X-Envelope-To: hare@suse.de
+X-Envelope-To: kbusch@kernel.org
+X-Envelope-To: hch@lst.de
+X-Envelope-To: linux-block@vger.kernel.org
+X-Envelope-To: linux-kernel@vger.kernel.org
+X-Envelope-To: virtualization@lists.linux.dev
+Message-ID: <f92269eb-3664-42ae-83a7-8eb0a3af3f08@linux.dev>
+Date: Tue, 9 Jul 2024 02:12:50 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240708065549.89422-1-lulu@redhat.com>
+Subject: Re: [PATCH v2 3/5] null_blk: Don't bother validating blocksize
+To: John Garry <john.g.garry@oracle.com>, axboe@kernel.dk, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ pbonzini@redhat.com, stefanha@redhat.com, hare@suse.de, kbusch@kernel.org,
+ hch@lst.de
+Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20240708091651.177447-1-john.g.garry@oracle.com>
+ <20240708091651.177447-4-john.g.garry@oracle.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <20240708091651.177447-4-john.g.garry@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Mon, Jul 08, 2024 at 02:55:49PM +0800, Cindy Lu wrote:
-> Add the function to support setting the MAC address.
-> For vdpa/mlx5, the function will use mlx5_mpfs_add_mac
-> to set the mac address
+在 2024/7/8 11:16, John Garry 写道:
+> The block queue limits validation does this for us now.
 > 
-> Tested in ConnectX-6 Dx device
-> 
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: John Garry <john.g.garry@oracle.com>
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 23 +++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
+>   drivers/block/null_blk/main.c | 3 ---
+>   1 file changed, 3 deletions(-)
 > 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 26ba7da6b410..f78701386690 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -3616,10 +3616,33 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
->  	destroy_workqueue(wq);
->  	mgtdev->ndev = NULL;
->  }
-> +static int mlx5_vdpa_set_attr_mac(struct vdpa_mgmt_dev *v_mdev,
-> +				  struct vdpa_device *dev,
-> +				  const struct vdpa_dev_set_config *add_config)
-> +{
-> +	struct mlx5_vdpa_dev *mvdev = to_mvdev(dev);
-> +	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> +	struct mlx5_core_dev *mdev = mvdev->mdev;
-> +	struct virtio_net_config *config = &ndev->config;
-> +	int err;
-> +	struct mlx5_core_dev *pfmdev;
-> +
-> +	if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
-> +		if (!is_zero_ether_addr(add_config->net.mac)) {
+> diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
+> index 9d0f6da77601..2f0431e42c49 100644
+> --- a/drivers/block/null_blk/main.c
+> +++ b/drivers/block/null_blk/main.c
+> @@ -1831,9 +1831,6 @@ static int null_validate_conf(struct nullb_device *dev)
+>   		dev->queue_mode = NULL_Q_MQ;
+>   	}
+>   
+> -	if (blk_validate_block_size(dev->blocksize))
+> -		return -EINVAL;
 
-Is the core happy to call into the driver without validating the MAC
-address? Will the core pass the broadcast address? That is not
-zero. Or a multicast address? Should every driver repeat the same
-validation, and probably get it just as wrong?
+Reviewed-by: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-    Andrew
+Thanks,
+Zhu Yanjun
 
----
-pw-bot: cr
+> -
+>   	if (dev->use_per_node_hctx) {
+>   		if (dev->submit_queues != nr_online_nodes)
+>   			dev->submit_queues = nr_online_nodes;
+
