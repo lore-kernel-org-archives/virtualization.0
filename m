@@ -1,32 +1,32 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD181152515
-	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 08:14:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4F8115251B
+	for <virtualization@lists.linux.dev>; Tue,  9 Jul 2024 08:14:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720512847; cv=none; b=dwwkwNNp4tGPVNz0R1UElJax9/iGMvZl2VzPeFT6kKwYnn6UyvCTE5gu4tt+Twg3Fp4riXv/udfNrFv7gKc9/1AYSRAJBjv1y4JOLT0c4oWEJ2d0jSi1OaGxAYpt+MwHko0zfcWYbEBZcaEhlXazI2ZMbuO/6EFXGcVJf0qE0fw=
+	t=1720512864; cv=none; b=hDpJOad8HXFfE9sI1NTDzfC62lXRf59wG/+qL8ufcf4xQGvI7EmXcyBWlXVItSXNZMvpQSFBAMJM7xeljY6WvemNpIDpSassvy1W1yVRyGOBG1ILE6jj9N7nPLoKwWY8EFM+cebbU6gyuL02Mym7GDz6wFPMHc30xVrPPVaqUR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720512847; c=relaxed/simple;
-	bh=qOYixWHwWz0mDnRBbUEelOVo20hVNaPPF8YAr92jNBw=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Nvju+E/YzLS+L3h4dCvFOs6k0SdxqOkzbrPP+WCS6sxNYvyjqRkQbkircyU5nrpPK60YpoHaoWq7yVP20mWMJ7sC18XhQ5TqO68S1onuNfqVX0My29D9yEnTg6yiqaP94bNdW2u43CajpQNz/+HUzJTuf+yTKrHb/PqDhE9qI6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bE3BeyOZ; arc=none smtp.client-ip=115.124.30.131
+	s=arc-20240116; t=1720512864; c=relaxed/simple;
+	bh=RVtax/cydPCAPKnVI29kmRdNNf9y+jOhNkNxY9oFnzw=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=QbyAq70y7VvckSdd8B6D5uzS91ouK06NHB0s7Z01dSyHHaYXm183JeUnwdO5+jufmKIqTSgJUOPf52gnvpDyRpu4LA1WlgbxTjp1zUv0LvWyYOg/3bbSO3/xVyoKsoXyoiKibTZ7vk1sK6uNTh2eLoZeHBWYPtazW15Faq8VNB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FnlgmJId; arc=none smtp.client-ip=115.124.30.132
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bE3BeyOZ"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FnlgmJId"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1720512836; h=Message-ID:Subject:Date:From:To;
-	bh=GuoyFS15rbzFrB5iVw6huvFAlrEeMu0BC7PmjWh/EUo=;
-	b=bE3BeyOZK20qyFwWZvCIBKOeq94FVdWoE1sSVTaWeyIEwy9b0DvtS+H0d3yfiYcx+rVx08YHOZpldkk52x1EJzU69GWMKEuUCi1WG4b1w7ZVy7++bfvfSab0+5rtdbdEQRlmQ9r6Ua7YIT88AvxGwC+pfBhw+Lou6GyaDNtXIRQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WAB1uuB_1720512835;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WAB1uuB_1720512835)
+	t=1720512854; h=Message-ID:Subject:Date:From:To;
+	bh=k4jnaRkPam0+HSWdw9HZ3KM1KrQVxWzXC5dPh+aQ7+A=;
+	b=FnlgmJIdzxiuWPLuVyV2GnfZHCyi4KguqSta7qaQrxHE2/RxCca0/ur/D0p1LQnv4MHqBXLrgnxbLG45X9jLs2HJh302gJK0RAaaoiBrqi5SjHSjNcA6aaCaUbRiOZFeyY4JG9q2rfhqHENwMk5dOGLJPbdZ4bmEKmNXiM8bH8c=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033023225041;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WAB1v0T_1720512853;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WAB1v0T_1720512853)
           by smtp.aliyun-inc.com;
-          Tue, 09 Jul 2024 16:13:56 +0800
-Message-ID: <1720512832.157104-2-xuanzhuo@linux.alibaba.com>
+          Tue, 09 Jul 2024 16:14:13 +0800
+Message-ID: <1720512843.116356-3-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH net-next v3 2/3] virtio: allow driver to disable the configure change notification
-Date: Tue, 9 Jul 2024 16:13:52 +0800
+Date: Tue, 9 Jul 2024 16:14:03 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: virtualization@lists.linux.dev,
@@ -64,6 +64,7 @@ On Tue,  9 Jul 2024 16:02:13 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
 
 > ---
