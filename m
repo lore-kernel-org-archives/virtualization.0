@@ -1,254 +1,166 @@
-Received: from EUR03-VI1-obe.outbound.protection.outlook.com (mail-vi1eur03on2085.outbound.protection.outlook.com [40.107.103.85])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FEAE18EFCC
-	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 11:34:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.103.85
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720611251; cv=fail; b=oQ4VmGWkr6ISJe8Igp8x3x9wcYYONdzVYhaOOXMQYdvVSR4KM3GsEoKxDkDDV/f/XZAm4RgdVgmFQP0+fjOF2+YtBpKRqgtfnYHCyWgdTJvjhuSE4SPSWGcTdjLla3jmWGP5Tu+MoEW9atWKCYuwbzASDMp3bvjORz2IJ3FqZzc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720611251; c=relaxed/simple;
-	bh=cw9qcLJzPqlECRGiBT8wBOjJdozv+Ew5w1FaYYf/MGw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Gr5lAh4+tNAR8TX/oE4z/E2dSg492rGqR6utZvmYZtJrMJAhjd13Y/Bc8M4qoFjvIVxdYtY/YtUvTyZZirkDoOqxWLQh/FImG51x3tWn1cYQr3VOFC2ecS2Qm/rw+mqIXBQgBLCgF2ixfKM0tGxT+d5QvcNXUQwUlLnfjletFDI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b=IDFCzzwd; arc=fail smtp.client-ip=40.107.103.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F50C7D412
+	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 11:36:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720611374; cv=none; b=iekcWUUUJLoVaSLvkRoyyK8bYO1wQtFmk+OgFijRUE5eoRQCViGO1meSmyR93JUH0hrze0InhzoqbzsAG5koit5rTPXWL2u4EBQK0IRDDyRtbXOhZuybrSpNH39x7s2CIcSw1+S5CY7swyueOTSzjskoHLd4OmlkUJM2srZs1qY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720611374; c=relaxed/simple;
+	bh=X8uDFXcnEE5RI3vslZAxqO3xUCnLxKmC6eeolodP1ls=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=al7XkOCAYpGtoacLnmZV7kpACHTb13TDvSjXWr438uQ5/41yU0tTaP2BkVjpxfVULZeGbieI2TAhxU0shLW1b8+IHLs321xAs3qUvYAzS1BPrRo6ZLGleJ7/jT/BsWQ4t/PoApBloJPN5SJS4bqFp/kCpTttcb0hscyQD9WOMkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QjgXxmrh; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="IDFCzzwd"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VDQ9x1W2yFeEJ3iQGqJIy/iUYDwGBCGdWDcoMhoIOBwWUinFJ4vHI2EXqrMdy69++bepJQyCTbS/Ld1I6BMPyXf/BBDnVmbXRLN58k/at9E9D41MdJUH6lixq3S3e3FAsNkSu5AITKxlKUCtKQ25GQB81OLe8c6235D/B5i6Y5UhlO2HtrqGpUhNUESE8F7X5ymzoT1ZvAg4OdZ5K5k0jotxkEsLmNn93pxKPRAPOVsP5mKAlAQfbwiCoAslZn15YXVxu3f/TC1hf239RhVGgkfkb5/mVSgXZcB5fbwGXVDC8kT6vKShpFAzz7QC7p5K7GGXRafttKX3EU84GVVX1A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LAgjF1+cjjBXJQfPo31OI4wDoKDNFbU5Izw3Y0T1Aag=;
- b=UMwvbL8NssrJzK8biEaeX4JXatio9TcrTQv89wS84a39KBBs8Lw8tXKWJ/lyE2cz/ZNzKC8T/+dLhCxtz+EsxkL5q6IyEsueE7C8bE/hfVnnkJJZ/glM9o+nKajPQ3DqNv0c60kn25/06ZeZ9z8GiXukewiMeS/x8PabsYg9+GR0D33I8OAtxi6cAmNQoXyS/7WYrdKfdEOJnqdQ3e4bNRqM9+c546D9DRzRYgdnz8Sj3j9pngHgQrp/LVHJnYCSLlqfDQeasrJYS+bcYSTgXCKM+0ObLo3sU0Xzg0NL8gpJniMQ8Vcq66lU26bTO+hiuyfwKr+nVAzLpq1p1hvqTA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LAgjF1+cjjBXJQfPo31OI4wDoKDNFbU5Izw3Y0T1Aag=;
- b=IDFCzzwdf4d82HwMpkDpGjtfrEiq7VpKnxJGNJ/Wx+rRzZEKFWxEBsd5yKWZszcQqyoxfj3/EMSA++Wfgz9vRiZpS7PV/+5CCaY0cxNZjYWlE6qpZOvz3AQzoZrqq9eSNAocSXcWr7ouJ9SXRyx7KfXw4WWE8uXipeXtwFIWM+4=
-Received: from PAXPR04MB8459.eurprd04.prod.outlook.com (2603:10a6:102:1da::15)
- by AS8PR04MB9077.eurprd04.prod.outlook.com (2603:10a6:20b:444::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7762.20; Wed, 10 Jul
- 2024 11:34:05 +0000
-Received: from PAXPR04MB8459.eurprd04.prod.outlook.com
- ([fe80::165a:30a2:5835:9630]) by PAXPR04MB8459.eurprd04.prod.outlook.com
- ([fe80::165a:30a2:5835:9630%4]) with mapi id 15.20.7762.016; Wed, 10 Jul 2024
- 11:34:05 +0000
-From: Peng Fan <peng.fan@nxp.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-CC: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] test/vsock: add install target
-Thread-Topic: [PATCH] test/vsock: add install target
-Thread-Index: AQHa0gXDNBM9iTbnZU+dNaZg6A0BnrHvkzMAgAACM/CAABi7gIAAJ5Cg
-Date: Wed, 10 Jul 2024 11:34:05 +0000
-Message-ID:
- <PAXPR04MB845955C754284163737BECE788A42@PAXPR04MB8459.eurprd04.prod.outlook.com>
-References: <20240709135051.3152502-1-peng.fan@oss.nxp.com>
- <twxr5pyfntg6igr4mznbljf6kmukxeqwsd222rhiisxonjst2p@suum7sgl5tss>
- <PAXPR04MB845959D5F558BCC2AB46575788A42@PAXPR04MB8459.eurprd04.prod.outlook.com>
- <pugaghoxmegwtlzcmdaqhi5j77dvqpwg4qiu46knvdfu3bx7vt@cnqycuxo5pjb>
-In-Reply-To: <pugaghoxmegwtlzcmdaqhi5j77dvqpwg4qiu46knvdfu3bx7vt@cnqycuxo5pjb>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PAXPR04MB8459:EE_|AS8PR04MB9077:EE_
-x-ms-office365-filtering-correlation-id: e7ec62b9-7a72-4d47-b5f8-08dca0d43459
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|376014|1800799024|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?wJW5fkts55WVPWhLaKmZq6Ej4hDFVotG/iF204rXRQIvkli9tHxIvMtQ64U+?=
- =?us-ascii?Q?tEeHe435IbcV/XcRZeUFmM5N0fgJvPCio3+Wbs8DkiCzDcBEyLJ88nlDye1N?=
- =?us-ascii?Q?01K815fn8+JShcwe773RPbD1bmr5YpztceIwmJ0kaUYcLukFRW67rXbUVb8B?=
- =?us-ascii?Q?eiu2XdgFtQuQM08w3U7m7DtuUw3bxOxbZnnX4pWiouu3GHFzEAJRzMCZmyNq?=
- =?us-ascii?Q?9nKRnoMuQ/IBXvQh0ei3K7oEL5xSsiOcpP7D/7UFMATUa7sawNOFgD8R0oGB?=
- =?us-ascii?Q?VYdcPyoWxzU+C9zYHL1HJg4MzcNx3+Ba4T0s4b+/Ux018siHBlCMi8sT/mCA?=
- =?us-ascii?Q?JzrYCkflSDeKYJ7Ol7XPRjanrJcJYXnF0QzHOmmtpvnQjNeVTlLvXSAc4DCk?=
- =?us-ascii?Q?KxYj3cYj5SeECbdJMNKjZexZo+e1dbRsZ/8Uq4ZKLKg8m7z+dgoo8k3o9A7c?=
- =?us-ascii?Q?3M2LCWL0O2HxbSGyx54dskVMGD6OIjxS1MXb1+8pAM2VTnx2BxbAPiGh7Epu?=
- =?us-ascii?Q?5QeZMSw+R5cUiKM8ALd040HXA46/x7WE3JMoMSQRNjbcW3H/c+TBeTM1v9XX?=
- =?us-ascii?Q?aS9Vtj8gPmUSOM1g/elcEiaQXO8FwQGvaMP+lwvpBeev/zc16i0jbU3KBpZf?=
- =?us-ascii?Q?D329lZsMVvrzV9+ymU/OOqki0prMCA8gB7cNJy3TdEkxloqYKOWAYfF7XVur?=
- =?us-ascii?Q?NxXwZtBYe0bvRJeL4MHJyBXvuWPwFpvMcwll2oiGIIGCVVJk+uWzYCCjgDtF?=
- =?us-ascii?Q?UDT61kogdRUNDypI9+7NS4g6bWg24Vn8YfBWMHtHkoLcZdf/mtghkd0JS8Wq?=
- =?us-ascii?Q?s+PV/9T/ogeo2YsHIXszEvfaYNVdttO7kt1QNU5LVRJ3NzUfXxTCcU5nUvVj?=
- =?us-ascii?Q?W3OfuYYWFLQPK89j0GE5+Nn0TJjiF4Sj9ALOmGuwYB4ntpAKIMhmATrFAwm6?=
- =?us-ascii?Q?Rn8gspIAJaoXCV/MZbr99ILu5bR1v5IUWfgDXGBhBUIY+XiW5kkL0BnbJ4qC?=
- =?us-ascii?Q?qlAGa10Vnqdp6/SxbryUMr9mPNR9+0IggJxOWUVZWYrkvumTLLVEzzn/M40N?=
- =?us-ascii?Q?MSpJY2wTMpZYbyToEMz5cEqsII7XssAW4VC31l8FUNEITPwF743TmTTXhsFa?=
- =?us-ascii?Q?D0ouDDidJknz+zNXn37AzkFIjJpxEhp58CFdysgAtQy0DF4Xl5qKLlW6eFAf?=
- =?us-ascii?Q?lVmKFb61oARoDpYDGXkXuQNlBkFS57BUoLcwwf1MbQFIgjQVQrIWA85I28sj?=
- =?us-ascii?Q?lt4sq5gyTb/2RC9sMYUtUXUgb1gJy8/A83YohHJmyo2Del+yJO68lKQWkslL?=
- =?us-ascii?Q?goaVxgwAa6SnoQyWEoOhnWx5N/pcnXV3o3LDdQLNh5XFtgpU6NmGt4Aijaux?=
- =?us-ascii?Q?h1d2un6dDl/TDyiCRvEBi6r5RVNGkAHXKUQcAyVG4Y4mWEm2Jg=3D=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR04MB8459.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?SZwCiPQH/y/GjoQKhERC7o4TdhgwEloeAb5h30HixxhBOiJVOhNgNyMUfg/i?=
- =?us-ascii?Q?89rUAkf0cD8OTnr03mwCkNvvPdia2/S902mCIRovQkTXM6udKx3q0y3dZUUg?=
- =?us-ascii?Q?OipKdBCghWAareXjW7H7qhzZqVZSQ5PPyQn36abVpPRFT3rE/AlBXg+h132V?=
- =?us-ascii?Q?vgpOmP+tzoqxCjxTqa3CBvlvoZ7MAqU4T0P45MeDl8Fv40T05PGgohFO+j1i?=
- =?us-ascii?Q?onWRYzaopCFvnyL0ueddT6u9yfqNUWl8fzUZ/RSvIyVP8ZvV8b2YP/SnN6xT?=
- =?us-ascii?Q?MswFXjtLJtVoUU0suKXN9UTH7o+UjpvlIs6trS2KcHVfsjcmNxNFJfjg4p0m?=
- =?us-ascii?Q?GC7MlvailpTLMqlls02JjI7K4Uizf1QVp4M2pyMAwMxNSMeatDYJi6iJa5cJ?=
- =?us-ascii?Q?mUuK68aCxDtWiXcP6OtHjSyHdq9WpQXIpZh8m6SrGb9u1JoZc1hP63RvF28B?=
- =?us-ascii?Q?4ViXR6dn94xpKXK5J96OGpDMT01PEU4Gp6ZSVmMK7il4b9TZZjlGnywO2dkE?=
- =?us-ascii?Q?qq9Ynj4leK2frgXpuWUGgHso+xZtii341Z4AJg5ZsOYk4Rji0893KUGarE5j?=
- =?us-ascii?Q?11lqBXanB/FUQ0XFGQk8oqkz1/poYp98Ntm3F24dbD4RRj069q6ng/u/9uKO?=
- =?us-ascii?Q?5Mwrx8d8tq8bSd+zPXMItkWNwV1L6sXljfAnO6ezL8qOlE1OJCWklHPONM4x?=
- =?us-ascii?Q?6FwwDKtzK8rrj0L5eIYf1gFLxeMXhlxOdT02mB03bsw3O7eBhCFowscxoHoE?=
- =?us-ascii?Q?ILkwd4XEeJyF/4jNpdzxKPFHyPSkYMslwEie9MT3wE0lbrOuW2YpJaDihzV+?=
- =?us-ascii?Q?SSMvtxZ4GPAXeIUAIkWTktvTSxqrK8aRhZzcuJ/V4NvhrMThgZX/W0zepBDW?=
- =?us-ascii?Q?ZvWEp37r20hhh9acfbdcF7m5tSUcW8wfJ4XWybGlPBkqTLBF2NnUAeSqkyRS?=
- =?us-ascii?Q?0qpFknRSoYenoZ8F0mJcoZXFxtEiYQ9zb/BinIKu0tsNPt1giFin7/wAFYW7?=
- =?us-ascii?Q?sENDps56aaj3XUC89lcyncaD2KVquLHIIeyRa6Z6ofkDvs1zdFLOmy5GJek9?=
- =?us-ascii?Q?Prc7WI+vc7Q6dsnsFbGjhtfJ6WjxNWJIRPFxS1gUxbVHP8QTsdVZwyVZ0Ze2?=
- =?us-ascii?Q?x4PEvj+fXfMJyEhq5QUtPOb2Jx9q0xKaBN653kCIELS8csfnPjo0kVEDiW5p?=
- =?us-ascii?Q?aNCy7WqOvPATxHCVJohf9yuPNx9CB2zuYLiBnxxh3Prql45mi2eWBtD0hXBC?=
- =?us-ascii?Q?PnuyZijM7IkkQQWWNQeBnnN7KL97ojgVVgfQI6rH7NY6DhrL+KDpwdlzLRgz?=
- =?us-ascii?Q?QEQA03Ys8VSc0PgureH4xI4rclGZQrfu1odJTZr3qZ1qUhbRED/Ui9zKo18T?=
- =?us-ascii?Q?ULyhIbj8OtjKqSdbe8vohRmRIRq4vZY3JFPssxNu/OTq7s9fZu8ngTfiz8wi?=
- =?us-ascii?Q?2dyVCfReLZfYQHKSNA1TWw8rBPd4FMEi4pJTsBsSa8sMYsjeo0Y6RDTHBc6f?=
- =?us-ascii?Q?niFAQ0Y7GYSdTrZqSZxUFZwKWQRyJsVE/1DjeB2ey2Atvn2/zWb42KfJkmjh?=
- =?us-ascii?Q?KTo13LFwReh9XJKD3zg=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QjgXxmrh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1720611371;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2suduc0eZg9XX+FDprjOHVDzW/H7s1JCz2GVtSoayG0=;
+	b=QjgXxmrhvzqvDRED5uNWxROYATnazhObthV6JhJ+JZ8099Pig5/+3AsyisMyEJcyojPUnU
+	PJaBlEelo2G+vN1fWFa5WCKce6q/DgYDpEkpzLIipZT0TTBxj/hhUnZkPn9nlUfNeECrT/
+	BT5NCuID62RmxuAGgrtmlQymtnsqESc=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-42-O1jWvF36OryOhs_VnkZqiw-1; Wed, 10 Jul 2024 07:36:10 -0400
+X-MC-Unique: O1jWvF36OryOhs_VnkZqiw-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a77bfa15f92so468514166b.0
+        for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 04:36:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720611369; x=1721216169;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2suduc0eZg9XX+FDprjOHVDzW/H7s1JCz2GVtSoayG0=;
+        b=aiWbzv3lVB1E/CIdqth5UdV/QCjSMGDY68laClHKZBumWaDxP+yLAJo6Rm03X8SWlS
+         jxscO9sQaCwpFVwLt3rrYW/UFdzQCP+QzEUxkZDf8iRxv074E8Jxgg9sjLbRzREVJUI8
+         M/1pGoMlb7ZBFrR+B84vmQVJ7k7BZL9QrT8iow1zG8UIbfi6RlXJC08wWOGeqv1jd3/j
+         supFx8fsyc0ipGZu9kT/daUz7JoG5AIJMIna+AdZcE+/AH84jTBTTh5m2f4moFXt0tkr
+         W6gFqI82uIdsSZEmds4m7M1iINU5YR+WMHJ0bvsmEdZYM0e51TyDBoT0OnfrIEpfziKd
+         6rjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXrfFXfgOE+xKafMdbPUgHVo5BlnvWMfv5Gu0P7ibV/TVhGK1s5dVIaq5/VgGW61beA3eZlgI2cidpwX0T5jKrM5n3z1K3Ekn85vt+xa1s=
+X-Gm-Message-State: AOJu0YzWZN7hsaxiMMTU4+EEVjt+0E7JNcjEubaUGzPMjNKBV9w1T/yE
+	ThH8FW7/HFJbrVKUOx2ofYe55y+8ay3oA99Et2Kk0M5O8bD2aYFCH9PeSfmbq+00X77csincfiK
+	FBhnMZcoqs4IRr8byS3fnXPg6tQXvJf4653BcnBtmJlEzrFZOmA7+DoUTBgwRZ21+
+X-Received: by 2002:a17:906:118f:b0:a6c:7181:4ffe with SMTP id a640c23a62f3a-a780b89cae7mr337171566b.66.1720611369134;
+        Wed, 10 Jul 2024 04:36:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH1927fCvntios62qJMLPjpSJ34oAaJFk3+qIAErLv8E/TF32/P37V3lT+hs0r8hE+DUqaNEA==
+X-Received: by 2002:a17:906:118f:b0:a6c:7181:4ffe with SMTP id a640c23a62f3a-a780b89cae7mr337169166b.66.1720611368490;
+        Wed, 10 Jul 2024 04:36:08 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:174:f6ae:a6e3:8cbc:2cbd:b8ff])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a780a854592sm152506866b.146.2024.07.10.04.36.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jul 2024 04:36:07 -0700 (PDT)
+Date: Wed, 10 Jul 2024 07:36:01 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH 1/2] virtio_balloon: add work around for out of spec QEMU
+Message-ID: <20240710065317-mutt-send-email-mst@kernel.org>
+References: <cover.1720173841.git.mst@redhat.com>
+ <14b1a2a1acfcaf6d519db8c67f6f207d7cdd7c3b.1720173841.git.mst@redhat.com>
+ <CACGkMEtszy1YNB1KAtXVdYFkythWDfrYR+w6CSBAQWV1NCc3hA@mail.gmail.com>
+ <20240710021441-mutt-send-email-mst@kernel.org>
+ <CACGkMEv7-si5b9Eq7mEDZHGC2r_6CFudOHj9ge7u3s7a1epNcA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PAXPR04MB8459.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e7ec62b9-7a72-4d47-b5f8-08dca0d43459
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jul 2024 11:34:05.1437
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: MKKl98fqrVKDIpla1C3wq9XOPWyUY8GVgRe1tProGSkJeV5t/PyIB05veb6DSZTn7yH9OyCmgrFuRJT8zNQ0rw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB9077
+In-Reply-To: <CACGkMEv7-si5b9Eq7mEDZHGC2r_6CFudOHj9ge7u3s7a1epNcA@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-> Subject: Re: [PATCH] test/vsock: add install target
->=20
-> On Wed, Jul 10, 2024 at 08:11:32AM GMT, Peng Fan wrote:
-> >> Subject: Re: [PATCH] test/vsock: add install target
-> >>
-> >> On Tue, Jul 09, 2024 at 09:50:51PM GMT, Peng Fan (OSS) wrote:
-> >> >From: Peng Fan <peng.fan@nxp.com>
-> >> >
-> >> >Add install target for vsock to make Yocto easy to install the
-> images.
-> >> >
-> >> >Signed-off-by: Peng Fan <peng.fan@nxp.com>
-> >> >---
-> >> > tools/testing/vsock/Makefile | 12 ++++++++++++
-> >> > 1 file changed, 12 insertions(+)
-> >> >
-> >> >diff --git a/tools/testing/vsock/Makefile
-> >> >b/tools/testing/vsock/Makefile index a7f56a09ca9f..5c8442fa9460
-> >> 100644
-> >> >--- a/tools/testing/vsock/Makefile
-> >> >+++ b/tools/testing/vsock/Makefile
-> >> >@@ -8,8 +8,20 @@ vsock_perf: vsock_perf.o
-> >> msg_zerocopy_common.o
-> >> > vsock_uring_test: LDLIBS =3D -luring
-> >> > vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o
-> >> >msg_zerocopy_common.o
-> >> >
-> >> >+VSOCK_INSTALL_PATH ?=3D $(abspath .)
-> >> >+# Avoid changing the rest of the logic here and lib.mk.
-> >> >+INSTALL_PATH :=3D $(VSOCK_INSTALL_PATH)
-> >> >+
-> >> > CFLAGS +=3D -g -O2 -Werror -Wall -I. -I../../include
-> >> > -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow
-> >> > -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -
-> >> D_GNU_SOURCE
-> >> > .PHONY: all test clean
-> >> > clean:
-> >> > 	${RM} *.o *.d vsock_test vsock_diag_test vsock_perf
-> >> vsock_uring_test
-> >> > -include *.d
-> >> >+
-> >> >+install: all
-> >> >+	@# Ask all targets to install their files
-> >> >+	mkdir -p $(INSTALL_PATH)/vsock
-> >>
-> >> why using the "vsock" subdir?
-> >>
-> >> IIUC you were inspired by selftests/Makefile, but it installs under
-> >> $(INSTALL_PATH)/kselftest/ the scripts used by the main one
-> >> `run_kselftest.sh`, which is installed in $(INSTALL_PATH instead.
-> >> So in this case I would install everything in $(INSTALL_PATH).
-> >>
-> >> WDYT?
+On Wed, Jul 10, 2024 at 03:37:49PM +0800, Jason Wang wrote:
+> On Wed, Jul 10, 2024 at 2:16 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> >I agree.
+> > On Wed, Jul 10, 2024 at 11:23:20AM +0800, Jason Wang wrote:
+> > > On Fri, Jul 5, 2024 at 6:09 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > QEMU implemented the configuration
+> > > >         VIRTIO_BALLOON_F_REPORTING && ! VIRTIO_BALLOON_F_FREE_PAGE_HINT
+> > > > incorrectly: it then uses vq3 for reporting, spec says it is always 4.
+> > > >
+> > > > This is masked by a corresponding bug in driver:
+> > > > add a work around as I'm going to try and fix the driver bug.
+> > > >
+> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > ---
+> > > >  drivers/virtio/virtio_balloon.c | 19 +++++++++++++++++--
+> > > >  1 file changed, 17 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > > > index 9a61febbd2f7..7dc3fcd56238 100644
+> > > > --- a/drivers/virtio/virtio_balloon.c
+> > > > +++ b/drivers/virtio/virtio_balloon.c
+> > > > @@ -597,8 +597,23 @@ static int init_vqs(struct virtio_balloon *vb)
+> > > >
+> > > >         err = virtio_find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX, vqs,
+> > > >                               callbacks, names, NULL);
+> > > > -       if (err)
+> > > > -               return err;
+> > > > +       if (err) {
+> > > > +               /*
+> > > > +                * Try to work around QEMU bug which since 2020 confused vq numbers
+> > > > +                * when VIRTIO_BALLOON_F_REPORTING but not
+> > > > +                * VIRTIO_BALLOON_F_FREE_PAGE_HINT are offered.
+> > > > +                */
+> > > > +               if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING) &&
+> > > > +                   !virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+> > > > +                       names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "reporting_vq";
+> > > > +                       callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = balloon_ack;
+> > > > +                       err = virtio_find_vqs(vb->vdev,
+> > > > +                                             VIRTIO_BALLOON_VQ_REPORTING, vqs, callbacks, names, NULL);
+> > > > +               }
+> > > > +
+> > > > +               if (err)
+> > > > +                       return err;
+> > > > +       }
+> > > >
+> > > >         vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
+> > > >         vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
+> > > > --
+> > > > MST
+> > > >
+> > >
+> > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > >
+> > > Do we need a spec to say this is something that needs to be considered
+> > > by the driver?
+> > >
+> > > Thanks
 > >
-> >>
-> >> >+	install -m 744 vsock_test $(INSTALL_PATH)/vsock/
-> >> >+	install -m 744 vsock_perf $(INSTALL_PATH)/vsock/
-> >> >+	install -m 744 vsock_diag_test $(INSTALL_PATH)/vsock/
-> >> >+	install -m 744 vsock_uring_test $(INSTALL_PATH)/vsock/
-> >>
-> >> Also from selftests/Makefile, what about using the ifdef instead of
-> >> using $(abspath .) as default place?
-> >>
-> >> I mean this:
-> >>
-> >> install: all
-> >> ifdef INSTALL_PATH
-> >>    ...
-> >> else
-> >> 	$(error Error: set INSTALL_PATH to use install) endif
-> >
-> >Is the following looks good to you?
-> >
-> ># Avoid conflict with INSTALL_PATH set by the main Makefile
-> >VSOCK_INSTALL_PATH ?=3D INSTALL_PATH :=3D $(VSOCK_INSTALL_PATH)
->=20
-> I'm not a super Makefile expert, but why do we need both
-> VSOCK_INSTALL_PATH and INSTALL_PATH?
+> > I'd say it's a temporary situation that we won't need to bother
+> > about in several years.
+> 
+> I mean, should a newly-written virtio-balloon driver care about this?
+> If not, it means it can't work for several Qemu versions.
+> 
+> Thanks
 
-INSTALL_PATH is exported by kernel root directory makefile.
-So to user, we need to avoid export INSTALL_PATH here.
-So I just follow selftests/Makefile using KSFT_INSTALL_PATH
+True - I could not find a way to make it work in a way that
+would be compatible with old qemu.
 
-Regards,
-Peng.
 
->=20
-> Stefano
->=20
 > >
-> >install: all
-> >ifdef INSTALL_PATH
-> >        mkdir -p $(INSTALL_PATH)
-> >        install -m 744 vsock_test $(INSTALL_PATH)
-> >        install -m 744 vsock_perf $(INSTALL_PATH)
-> >        install -m 744 vsock_diag_test $(INSTALL_PATH)
-> >        install -m 744 vsock_uring_test $(INSTALL_PATH) else
-> >        $(error Error: set INSTALL_PATH to use install) Endif
-> >
-> >Thanks,
-> >Peng.
-> >>
-> >> Thanks,
-> >> Stefano
+> > --
+> > MST
 > >
 
