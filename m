@@ -1,75 +1,75 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 038B815ADA7
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5F6915E5BA
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720646766; cv=none; b=EnxjbHEwRWIUaaVWYyVhy84F4mPKD1aTE4/uHok6IalCy7MbplCPAq6tWowHn0iTNhW1gEUcELeW4VZRQgXbazk0Vu/zMfhInk2qvGaX2RlRnGWzpheh2wihZOhEDsuX8pdXDlZkMKwWNhRyGxCP2FdcHf7zgva6rHvzo/4P43g=
+	t=1720646767; cv=none; b=E8ueK1c7cggE43Ce1flcCmViMR44o0PcQ+3slnN8Gtio4dTJzfz63ePvoYMbEzKL+GQdQsaQ1QpGqtP4Q7k1a9ocVPljYBz4cPev6MBKZ487gsoI/si+KiU0tPJVAg/3vmKL+KNyleWEod7qS+Ukso1AIQFIuw+glbF207JO4bY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720646766; c=relaxed/simple;
-	bh=J/OYaM6+jTGguEhL1pMHM9vGNQQe8xO7deLzLD0Zrlw=;
+	s=arc-20240116; t=1720646767; c=relaxed/simple;
+	bh=UfwlPBtk149XzS/tcMuqUXOpP079VnWFi28qU26z4ck=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=GzMk9tKqp9Myo19OxC96uXMTwPW/eOM4ikqT2rIseruUC92LMb4QiFQvU6Q3u3YmIFK5Xewo+r2yz97B/N1FOs/9cTPL64k6ddpocemv/9pCSs+2pCGYenG9RY3SeNFertLfLZuwZWUVS1lSUASQUgUuzkmq0O6lJRsKISaNbXs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kfw5tJYC; arc=none smtp.client-ip=140.211.166.137
+	 MIME-Version; b=levIYRL36SUHePxMVd0c9ZeAcZg95AljdJ+Nz/9/a+5g+0mifSHfwrxqfTHcErgG7mN/+0MGLip4chPJAxg/rNnVipkZ7xhIaBxLrzP5VpX4n3sNxEGfnECyYn29lDnz18whNq1ZSz2thf+q/J8CZjqH2TYFOdGHyibcXTikhic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dQ3dPu5h; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kfw5tJYC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dQ3dPu5h"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 989ED40B97
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:04 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id ADD83608A9
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:02 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: 1.236
 X-Spam-Level: *
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 81YRa9pzf3Q5 for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Jul 2024 21:26:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::232; helo=mail-oi1-x232.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org AAFC340B8F
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AAFC340B8F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Kfw5tJYC
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AAFC340B8F
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:03 +0000 (UTC)
-Received: by mail-oi1-x232.google.com with SMTP id 5614622812f47-3d9272287easo127027b6e.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 14:26:03 -0700 (PDT)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 0rFZVvWPoNft for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Jul 2024 21:26:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::729; helo=mail-qk1-x729.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 14D0260EDF
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 14D0260EDF
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=dQ3dPu5h
+Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 14D0260EDF
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:01 +0000 (UTC)
+Received: by mail-qk1-x729.google.com with SMTP id af79cd13be357-79f1be45ca8so14205285a.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 14:26:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1720646762; x=1721251562; darn=lists.linux-foundation.org;
+        d=gmail.com; s=20230601; t=1720646761; x=1721251561; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IZum7xcXnx/YZciY9jm1etfeGDFDR11AzV+Fk8UpldY=;
-        b=Kfw5tJYCp9lfE79idIA1b1L95ErwhYSTxNcvMkZFHd369SwB/dIDNK/Q9bmSDlN/Kq
-         qX+uQ8WRvNO7FY30jd1q1MrlTrJ6K84s2oG1TDMTBfdnEU16kQ4Z+r5iQZxRzSM59vE7
-         U/oOIULSHMgOJLRhcLnOJQBrbMFaDL6TO1xbVfupkhZB2mnGcQ4xYGYIjbn1jRi2Vavn
-         iMW7kOWu4MMzPnho8JuBHys3oxWGj/83NtthQ5Sm+TJ8iNc4+WRRWBiLcZZ/YlOti7+J
-         FNxXF70g6zL71NNF6N+o+ZUkiVAC8OJYOzRnyaMz0mFydQdI48J3k+Am6CrxR0/MIvwT
-         2rrA==
+        bh=BJWi8Leq2jo3M3Yc8XcwnzkcrKsxdOFNGRCXzkErj3E=;
+        b=dQ3dPu5hO+SZwjT8QJSfeWM/UKpUYGK6oiLlg5FX3hfMh3jO0kx38PgZLtYrVy9iT3
+         kGw0ifmjDpQqIuwWCUcEYIYnUnk/a8Q8iX8btsUgysc/OsfRVJLcMlxPJtVsi/N9gH78
+         T+YGiNDNT5Pe0PF+Jm7Eenwj1J1Rv6ALJpJ/e8zQviNd7SU0bhK48S9g86WoQ33kKO/g
+         T0T+vxXYi+5GlIJcikotp6taBRDzzhh/+0PaxxNrA8G25eHS82mY2F+oI72OCAtZIYSs
+         SKmTFDQ2ID698pXCC9wKHD8YHaU/mCPFCeWS30Gh2+tgU3km7jZo0JK8N6VUiMvvH8QT
+         XenA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720646762; x=1721251562;
+        d=1e100.net; s=20230601; t=1720646761; x=1721251561;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IZum7xcXnx/YZciY9jm1etfeGDFDR11AzV+Fk8UpldY=;
-        b=fgnBaEvSziKxWcp4z3LUjzm18GO2s3doYfNE+9OVsW6Hs4qQp8JQaEi4aaG81lIQb2
-         gEoox6uzAAANn8WJvR8aUElporSncklSP/yxWvYw2e3leAamAWaV5MrL2pWNSJuntQnX
-         CBq1TVSF/nmHL61CYVpS+r8XMjFUkIKWtpWw5cmOdWBcONBEuQ0ET6tbHn3O2XTbRhay
-         DfDl3MNs4EoKEPnI8ob+FQlFpbvvttDggwDf7Rag/ZHZKnXWpp1PzJWsdZNZ8Sy/KVJO
-         h1kjxGClBMh6pcyZK6qBcoUW2x+rl8EY+5Xojp8TZWCNv87tVqql7guJi6ABMCqGVDb2
-         cHUA==
-X-Forwarded-Encrypted: i=1; AJvYcCVWl1gPIO5Bm2WkPXeoVPNmkezvx2qFbdbFCka9AqTv2RTP8NsdmtBHwRj88/6PAQkBgySoIVchcMPOwnBtzN2i7ssysmQuS1z5wTA4QlEuE8zAIUrDqbqPZA==
-X-Gm-Message-State: AOJu0YxHtpOynyBLJZcUwtqd2WGYo8SH3gEj4/p57oDpYSR8CJHhn9Zy
-	SfE76iOzv9E0G7ksBstPlfbI+6vSsDEUrjkExryJ1Rg7aEG+mDNvbtCu3A==
-X-Google-Smtp-Source: AGHT+IEwAeV+NVV9eWvJ41Uh/5eeH740eMks+WRw93+ZS4FZF5Q7SDWMuOErRunlQoY//g+dgPPf/A==
-X-Received: by 2002:a05:6808:1455:b0:3d9:2925:cd37 with SMTP id 5614622812f47-3d93bddf767mr8767261b6e.2.1720646762507;
-        Wed, 10 Jul 2024 14:26:02 -0700 (PDT)
+        bh=BJWi8Leq2jo3M3Yc8XcwnzkcrKsxdOFNGRCXzkErj3E=;
+        b=m2nCzinCvxbfzEMcl1TUKAoViUwWoN/YhGw7cNS0e5z+uGvKmuDhr1Dw1avV3/ET2i
+         jd8AaBv6W0KUivq49Tk+0Jj0kNVMwDPLCOR+Jg4i+Un6zIGi/GvUPoTuDH2YOTyN+QjS
+         Kw2baMXSyZk+vF7lrzjuf1wbrVEuIqpFf4rz3gtSxWrds4phgkED8kAJYrW85N1Xakfo
+         Tao8tHbe9L2C7vx4QNzER1w7NI+z6RSdrLNu2rBlKIBi3i/QmX/dNhEU/fmcLZd7cyfL
+         VWi8wz7e1/uDN0ZeoOI9TeXWivrAOMgPRhLIF8iBYiHQ9vzjEkqLLAuqGkYzFNOx+giq
+         OEYw==
+X-Forwarded-Encrypted: i=1; AJvYcCUOfs3v9OzXzAUPNsJ3gxpKNRy1YVIo4XMklwspeMpRKsNObCcgip4RZc9gFUGFyJP8YT/jNFkdWhY/RuvGQi9pXmJIHUVmwoMv9MOtz147QqHLYJ20J2bKRw==
+X-Gm-Message-State: AOJu0Yxvl3JXlclxDUGqb6ToTOUGyGqfD8JvWKAZdph8ESYVBKzRc6ee
+	X6Qrz+wz44OntTXmw8Piu3SWfQGK/RDdJyYaSR8hepxOJUMDfCn+d0DEAA==
+X-Google-Smtp-Source: AGHT+IEeRGnHtiCEw+KM2q98xiDSRuWiiJOOgf2jpC5OHvHQB6LFE7ca10rhiE0Y5d3kMoOxfyhvtw==
+X-Received: by 2002:a05:620a:2186:b0:79c:119e:2b44 with SMTP id af79cd13be357-79f19a51d7fmr733112885a.3.1720646760834;
+        Wed, 10 Jul 2024 14:26:00 -0700 (PDT)
 Received: from n36-183-057.byted.org ([130.44.215.118])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-79f190b0af1sm228791885a.122.2024.07.10.14.26.01
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-79f190b0af1sm228791885a.122.2024.07.10.14.26.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jul 2024 14:26:02 -0700 (PDT)
+        Wed, 10 Jul 2024 14:26:00 -0700 (PDT)
 From: Amery Hung <ameryhung@gmail.com>
 X-Google-Original-From: Amery Hung <amery.hung@bytedance.com>
 To: stefanha@redhat.com,
@@ -102,9 +102,9 @@ Cc: dan.carpenter@linaro.org,
 	amery.hung@bytedance.com,
 	ameryhung@gmail.com,
 	xiyou.wangcong@gmail.com
-Subject: [RFC PATCH net-next v6 08/14] af_vsock: add vsock_find_bound_dgram_socket()
-Date: Wed, 10 Jul 2024 21:25:49 +0000
-Message-Id: <20240710212555.1617795-9-amery.hung@bytedance.com>
+Subject: [RFC PATCH net-next v6 06/14] virtio/vsock: add VIRTIO_VSOCK_TYPE_DGRAM
+Date: Wed, 10 Jul 2024 21:25:47 +0000
+Message-Id: <20240710212555.1617795-7-amery.hung@bytedance.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20240710212555.1617795-1-amery.hung@bytedance.com>
 References: <20240710212555.1617795-1-amery.hung@bytedance.com>
@@ -118,56 +118,27 @@ Content-Transfer-Encoding: 8bit
 
 From: Bobby Eshleman <bobby.eshleman@bytedance.com>
 
-This commit adds vsock_find_bound_dgram_socket() which allows transports
-to find bound dgram sockets in the global dgram bind table. It is
-intended to be used for "routing" incoming packets to the correct
-sockets if the transport uses the global bind table.
+This commit adds the datagram packet type for inclusion in virtio vsock
+packet headers. It is included here as a standalone commit because
+multiple future but distinct commits depend on it.
 
 Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
 ---
- include/net/af_vsock.h   |  1 +
- net/vmw_vsock/af_vsock.c | 16 ++++++++++++++++
- 2 files changed, 17 insertions(+)
+ include/uapi/linux/virtio_vsock.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index 6e97d344ac75..9d0882b82bfa 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -218,6 +218,7 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk);
- bool vsock_find_cid(unsigned int cid);
- const struct vsock_transport *vsock_dgram_lookup_transport(unsigned int cid,
- 							   __u8 flags);
-+struct sock *vsock_find_bound_dgram_socket(struct sockaddr_vm *addr);
+diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
+index 64738838bee5..331be28b1d30 100644
+--- a/include/uapi/linux/virtio_vsock.h
++++ b/include/uapi/linux/virtio_vsock.h
+@@ -69,6 +69,7 @@ struct virtio_vsock_hdr {
+ enum virtio_vsock_type {
+ 	VIRTIO_VSOCK_TYPE_STREAM = 1,
+ 	VIRTIO_VSOCK_TYPE_SEQPACKET = 2,
++	VIRTIO_VSOCK_TYPE_DGRAM = 3,
+ };
  
- struct vsock_skb_cb {
- 	unsigned int src_cid;
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index f83b655fdbe9..f0e5db0eb43a 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -265,6 +265,22 @@ static struct sock *vsock_find_bound_socket_common(struct sockaddr_vm *addr,
- 	return NULL;
- }
- 
-+struct sock *
-+vsock_find_bound_dgram_socket(struct sockaddr_vm *addr)
-+{
-+	struct sock *sk;
-+
-+	spin_lock_bh(&vsock_dgram_table_lock);
-+	sk = vsock_find_bound_socket_common(addr, vsock_bound_dgram_sockets(addr));
-+	if (sk)
-+		sock_hold(sk);
-+
-+	spin_unlock_bh(&vsock_dgram_table_lock);
-+
-+	return sk;
-+}
-+EXPORT_SYMBOL_GPL(vsock_find_bound_dgram_socket);
-+
- static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
- {
- 	return vsock_find_bound_socket_common(addr, vsock_bound_sockets(addr));
+ enum virtio_vsock_op {
 -- 
 2.20.1
 
