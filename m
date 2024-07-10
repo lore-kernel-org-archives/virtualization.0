@@ -1,262 +1,139 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC03A1B86EC
-	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 07:28:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0128984052
+	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 07:34:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720596529; cv=none; b=pyiZPH8pY+cL28Djeh5AoAG60iDjNV3gSJ8kvJTJIl8lNyFPLnwncQ0o1oWKKuiLLRCY/s8il7t9blXO7+s+jpWQWSyUdxnanz8wgLGYEV+ySHrn/s+NvZudxyxvxovsBfYD0fM53gse0SN8hnGF7N/5k1nOocwohdlfM7I1JR0=
+	t=1720596893; cv=none; b=NefjnrHm3KSXtfyg/2DHbC6au9f2TcE7XPHZ/crwT9Yug7ICYhHDX3EAP1ymXpNTtMTWi3Gl2PPu1NQKTU7V7j7bjOCX6M2Mni42zFYsdME3Tk+qc3g4a72xY4cJ2uuZ4iFJ9abxY7St5LyJi1aPHO07BI3isqmgwTbkhODwvTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720596529; c=relaxed/simple;
-	bh=xQh5HU5tluzMTaHOeOkGuFGYbA1Vq50E5qJn6PoW5Ek=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dCqV5tfLKo27fqVYNWlr0q9M6QTzoV1Teo+s3VZC426KSh4zggSbJ49Q+IokGMx8zLH9GhcQsB3EPEJxIfL9I3Fi5oFf0iTYDK5SYQOi/EbvDsUkSP3fzuClPxWaKkdLWSGgadEuvE3VzeYjtbN5egm8kDytU6E51cMqCGypwdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ECa4fzQV; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1720596893; c=relaxed/simple;
+	bh=NfrfV5Vy+VM7vSghradxFkPpeufS31T/y1I2gyDTmrs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=gvn6Q0uoci1yOUkGRNbDLPNc8n0U74mKnCsGcK3u4JLT4JdVcC4cxsBcD+pJ7hIkR8Wg5KpX0cBocXtr7e3gotS9Lc8z9X+NyE3UUmOB6cuD7yOOvTa7HZPD4q1h2wJx/5vIpD6jTBk4DU4EiL2sQLMZeuCiBuFQ72fq8noH3j4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EKia5BPA; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ECa4fzQV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EKia5BPA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720596526;
+	s=mimecast20190719; t=1720596890;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=TxCFFb+O+FYVotTIPR8WWbYkloVGsx7sbWOFar1qXXo=;
-	b=ECa4fzQV7GbOGINJ2gVAxJGosPS9hVBA+AeAZzNQ6jWY3K2fHYU0XVLMbYio6SVEXd/1SP
-	5eZM/ilEkKnMInegCyzLx3wWX7xcsuJkCuMuDsemCY04iBdRlaFuHvmSYiDmKz6NhR/PEc
-	mrh3Ga7NDJrQBuKg0pq5aU4weiMdsZQ=
-Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
- [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=D2M3DvwDrSJcyOfWVtdeker8I2MWaBFXWRzk+di5ddk=;
+	b=EKia5BPAfD8DeU4s52TsWwZa0JHiHIlZJf+muVIv/RuBA7tp55kaGycrve82ac0CcLS8yp
+	G36mMU04XdsPaawcSs0T2pRaTOVpe9A60PDzxecc/CP3KMvpvgmLthH4PopcOxWGxI2nNb
+	GAz4YIJZJi90/1bbT3/HFh/beuUdc0E=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-649-GvoLw9a-Oiu77DmwCLAOYw-1; Wed, 10 Jul 2024 03:28:44 -0400
-X-MC-Unique: GvoLw9a-Oiu77DmwCLAOYw-1
-Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-25e08ee43f6so4208200fac.3
-        for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 00:28:44 -0700 (PDT)
+ us-mta-610-FJVUwHPeMe-_CwrlwJnOGw-1; Wed, 10 Jul 2024 03:34:45 -0400
+X-MC-Unique: FJVUwHPeMe-_CwrlwJnOGw-1
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-58d6fdee657so5378470a12.2
+        for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 00:34:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720596524; x=1721201324;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TxCFFb+O+FYVotTIPR8WWbYkloVGsx7sbWOFar1qXXo=;
-        b=oz23HFeP2mzjCnsdHJeJQ5UE0IjwxZDes3kMsXXUwe4mcmmFiMuyIZK/Vn83lvGhdN
-         yVUVuSAz4invia8nndJ6+zQQps/OHHl1qEOBKA2htF5E6ixuxW+EES3xKMtR6/2N6SvC
-         woNBbHEhsbzLqulk+My5cN070AmBm2nT2LJVUBbrPYnJOoo41ldZ2tBK/CGjzbuxnrsK
-         PXjMl3pyo9Bdb+/dHKxXu1KpbhfxKmn0Rf3jaJgEFsO3tyvPWoRqfXTBUBpykEL/oI2O
-         cuTT3Tdd+b6J5PXZjR77I/+LnWnflLKgQWQNytVl6bOBmmhI5ZgbHwVUjx15X8mDLJks
-         0omA==
-X-Forwarded-Encrypted: i=1; AJvYcCVZhU22H4O3ha5UxmQ9LzcuN9LXwV48KFY8VdN16xFsqyp4vYQ41vuJHN1YPQD1x/68XyY5q0DYywjWqGRmrchW9ujFxPZGTAES+LSxVys=
-X-Gm-Message-State: AOJu0YyZSLWir1g+0MpdBoZw1T2lDj9etYMw1ukalCarQ6+xlT77iZTD
-	UQb/d2JSRtR6+AJgxyTG601+cnxECNRBqMWIzmhWov3h+C8VKY9GIK2Vu0ptwzrz9T4ybevSnPR
-	qpEQ+03bkuqSwjEbNsdCQkDgOQinskh9HVjNpO50mdHwM6cAbsce7v7ZjOjCuEFzntV5/1FGbZv
-	gTj9WgTQJNs79hiFfDSYcWHyZRa8r8L2pPWN9KVjo=
-X-Received: by 2002:a05:6870:71c9:b0:25e:ebb:b4f4 with SMTP id 586e51a60fabf-25eae75fa03mr3659221fac.2.1720596524025;
-        Wed, 10 Jul 2024 00:28:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEOTIeMcESujn8AqeMOf7hlU3PPNIoV11WktqFb+Dz6M9e/IfuDLcZm0kQUi5duDpXKsbY8UOxkXk1JPmgkqvQ=
-X-Received: by 2002:a05:6870:71c9:b0:25e:ebb:b4f4 with SMTP id
- 586e51a60fabf-25eae75fa03mr3659213fac.2.1720596523579; Wed, 10 Jul 2024
- 00:28:43 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720596885; x=1721201685;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=D2M3DvwDrSJcyOfWVtdeker8I2MWaBFXWRzk+di5ddk=;
+        b=X3uv9MacdJ3Y4cTWqvhw2iGcSLxdtvKTrLdc9HEGf56vHvxBboasH4mk8E0G/bPYUz
+         /Ho0rC4NTKloA4AFGHIvuX/JUPTlHNIyODHtrZiS0Lz8v3kXuXifvTUgTr67ayHfq24C
+         27o+NmlgM8rXaHoV5kmbuNCvbua8zRLp587Q9RGxRNrtx9B+MrWP/cu1/2SjpqPwKMkR
+         wy7Zf/qEmLvSAjyZGYp2FXlYb+Y38zzZatExB++2Ma4dn6IiNUI5Pee/JE5vNz5w4/E8
+         WOLJkskJH1yukX3/fuzfQ1ILAKRIs3PiF8zWGcJ9EG4CwhYSyybSmo7WWMu1f20+vMcc
+         2FqA==
+X-Gm-Message-State: AOJu0YxxiXixUn8ITWYZCuxTaJwNaBufH+dWVP/u3uomWCmi3v3p7kkO
+	H99qN5m+h+IMNXrWBuGy0eHLrQt0W0dN9LudXS81gCKVf4w9MK280i6+guD95Q2QpKJJBISF2xq
+	Hzu38nQbRw0qeIq0YXFIPLmm9T0EQTt+irYro/4OMYU+wyuV7vHD83hbpIGobH3F6
+X-Received: by 2002:a17:906:d925:b0:a77:c364:c4f2 with SMTP id a640c23a62f3a-a780b883457mr263385466b.52.1720596884832;
+        Wed, 10 Jul 2024 00:34:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFdCK3sPHoX5ymCLdtTzOFCG6cqJ6FCKNdOKjpgNsX4y+qO5d6Ij6ITF6psUTIa6WmxdNi7Pw==
+X-Received: by 2002:a17:906:d925:b0:a77:c364:c4f2 with SMTP id a640c23a62f3a-a780b883457mr263384166b.52.1720596884237;
+        Wed, 10 Jul 2024 00:34:44 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-153.retail.telecomitalia.it. [82.57.51.153])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a780a6dc520sm136516266b.51.2024.07.10.00.34.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jul 2024 00:34:43 -0700 (PDT)
+Date: Wed, 10 Jul 2024 09:34:40 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
+Subject: Re: [PATCH] test/vsock: add install target
+Message-ID: <twxr5pyfntg6igr4mznbljf6kmukxeqwsd222rhiisxonjst2p@suum7sgl5tss>
+References: <20240709135051.3152502-1-peng.fan@oss.nxp.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240705112821.144819-1-sgarzare@redhat.com> <20240705073017-mutt-send-email-mst@kernel.org>
- <25fehn7xgvqyqgd6zcscsjazzfhktyjrazffyrtbp2oibnhkey@ggobdyv4zxkf>
- <CACLfguWtcdTM-+GjiXWC-s=d-bvkUedHbCimzsfvYXWJ-=3iDQ@mail.gmail.com>
- <CACGkMEurseUpMKaiLpJEkcT9U_tmqm4yqp3OgR--6XnAY=C9WQ@mail.gmail.com>
- <3f5d33l4c73nudppajvhnjhpdpvft5yolm7vdraikany2tfdjz@i62d45j4ucs5>
- <CACGkMEuqiAx-a0sPJf0Xpvmr=5wbzbuOr0-w+9ZcwQMTWFU1rw@mail.gmail.com>
- <xuruyrbkago7w7tjbvqmfvjoqy665srurqozbenfayagfxl72y@wqy56jenfo2u>
- <CACGkMEtB1maGywWRPNHgVGJog+rbowXvKG0nEDXPn_9-VB0Azw@mail.gmail.com> <emhlvvttkq5yqcbphdkyrcmcxpyk22uxe2eiohmrapmjrv4vsz@zbiixmblizcj>
-In-Reply-To: <emhlvvttkq5yqcbphdkyrcmcxpyk22uxe2eiohmrapmjrv4vsz@zbiixmblizcj>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 10 Jul 2024 15:28:31 +0800
-Message-ID: <CACGkMEtT-UeLk6Hv1AFXk_yhiVxx-5tWknqs=OYg8+cAGDmd9w@mail.gmail.com>
-Subject: Re: [PATCH] vdpa_sim_blk: add `capacity` module parameter
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+In-Reply-To: <20240709135051.3152502-1-peng.fan@oss.nxp.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Wed, Jul 10, 2024 at 3:19=E2=80=AFPM Stefano Garzarella <sgarzare@redhat=
-.com> wrote:
+On Tue, Jul 09, 2024 at 09:50:51PM GMT, Peng Fan (OSS) wrote:
+>From: Peng Fan <peng.fan@nxp.com>
 >
-> On Wed, Jul 10, 2024 at 11:08:48AM GMT, Jason Wang wrote:
-> >On Tue, Jul 9, 2024 at 8:41=E2=80=AFPM Stefano Garzarella <sgarzare@redh=
-at.com> wrote:
-> >>
-> >> On Tue, Jul 09, 2024 at 10:56:16AM GMT, Jason Wang wrote:
-> >> >On Mon, Jul 8, 2024 at 4:15=E2=80=AFPM Stefano Garzarella <sgarzare@r=
-edhat.com> wrote:
-> >> >>
-> >> >> Hi Cindy, Jason,
-> >> >>
-> >> >> On Mon, Jul 08, 2024 at 03:59:34PM GMT, Jason Wang wrote:
-> >> >> >On Mon, Jul 8, 2024 at 3:06=E2=80=AFPM Cindy Lu <lulu@redhat.com> =
-wrote:
-> >> >> >>
-> >> >> >> On Fri, 5 Jul 2024 at 20:42, Stefano Garzarella <sgarzare@redhat=
-.com> wrote:
-> >> >> >> >
-> >> >> >> > On Fri, Jul 05, 2024 at 07:30:51AM GMT, Michael S. Tsirkin wro=
-te:
-> >> >> >> > >On Fri, Jul 05, 2024 at 01:28:21PM +0200, Stefano Garzarella =
-wrote:
-> >> >> >> > >> The vDPA block simulator always allocated a 128 MiB ram-dis=
-k, but some
-> >> >> >> > >> filesystems (e.g. XFS) may require larger minimum sizes (se=
-e
-> >> >> >> > >> https://issues.redhat.com/browse/RHEL-45951).
-> >> >> >> > >>
-> >> >> >> > >> So to allow us to test these filesystems, let's add a modul=
-e parameter
-> >> >> >> > >> to control the size of the simulated virtio-blk devices.
-> >> >> >> > >> The value is mapped directly to the `capacity` field of the=
- virtio-blk
-> >> >> >> > >> configuration space, so it must be expressed in sector numb=
-ers of 512
-> >> >> >> > >> bytes.
-> >> >> >> > >>
-> >> >> >> > >> The default value (0x40000) is the same as the previous val=
-ue, so the
-> >> >> >> > >> behavior without setting `capacity` remains unchanged.
-> >> >> >> > >>
-> >> >> >> > >> Before this patch or with this patch without setting `capac=
-ity`:
-> >> >> >> > >>   $ modprobe vdpa-sim-blk
-> >> >> >> > >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
-> >> >> >> > >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
-> >> >> >> > >>   virtio_blk virtio6: [vdb] 262144 512-byte logical blocks =
-(134 MB/128 MiB)
-> >> >> >> > >>
-> >> >> >> > >> After this patch:
-> >> >> >> > >>   $ modprobe vdpa-sim-blk capacity=3D614400
-> >> >> >> > >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
-> >> >> >> > >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
-> >> >> >> > >>   virtio_blk virtio6: [vdb] 614400 512-byte logical blocks =
-(315 MB/300 MiB)
-> >> >> >> > >>
-> >> >> >> > >> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> >> >> >> > >
-> >> >> >> > >What a hack. Cindy was working on adding control over config
-> >> >> >> > >space, why can't that be used?
-> >> >> >> >
-> >> >> >> > If it can be used easily with virtio-blk device too, it will b=
-e great.
-> >> >> >> > @Cindy do you plan to support that changes for a virtio-blk de=
-vice too?
-> >> >> >> >
-> >> >> >> Hi Stefano
-> >> >> >> I plan to add support to change the vdpa device's configuration =
-after
-> >> >> >> it is created.
-> >> >> >
-> >> >> >I think for Stefano's case, we can just implement it via provision=
-ing
-> >> >> >parameters?
-> >> >>
-> >> >> Yep, I think we don't need to change it after creation, but specify=
-ing
-> >> >> while creating should be enough.
-> >> >>
-> >> >> So, IIUC we can already do it, implementing something similar to
-> >> >> vdpasim_net_setup_config() to call during vdpasim_blk_dev_add(), ri=
-ght?
-> >> >
-> >> >Right.
-> >> >
-> >> >>
-> >> >> What about when we have `shared_backend` set to true for the
-> >> >> vdpa_sim_blk.ko? In this case the backend is supposed to be shared
-> >> >> between all the devices to test live migration.
-> >> >
-> >> >This seems to be another topic.
-> >>
-> >> Yep, but really related. I think we need to handle that case when
-> >> supporting the `capacity` setting.
-> >
-> >Ok, so if I was not wrong, the goal is to test migration.
+>Add install target for vsock to make Yocto easy to install the images.
 >
-> Sorry, I was not clear, I try to rephrase:
-> vdpa_sim_blk already supports a module parameter called `shared_backend`
-> introduced mainly to test live migration on the same host. When that
-> parameter is on, all the created devices share the same backend and so
-> we can easily do migration from one to another.
+>Signed-off-by: Peng Fan <peng.fan@nxp.com>
+>---
+> tools/testing/vsock/Makefile | 12 ++++++++++++
+> 1 file changed, 12 insertions(+)
 >
-> With that parameter on or off, the device is always 128 MB, but now
-> that's a problem for testing, because it looks like XFS requires at
-> least 300 MB: https://issues.redhat.com/browse/RHEL-45951
+>diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+>index a7f56a09ca9f..5c8442fa9460 100644
+>--- a/tools/testing/vsock/Makefile
+>+++ b/tools/testing/vsock/Makefile
+>@@ -8,8 +8,20 @@ vsock_perf: vsock_perf.o msg_zerocopy_common.o
+> vsock_uring_test: LDLIBS = -luring
+> vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o msg_zerocopy_common.o
 >
-> That's why I sent this patch.
->
-> When `shared_backend` is off (default), using the provisioning
-> parameters seems feasible to me, but when it's on, how do I deal with
-> it?
->
-> Being a simulator, we can maybe make it so that only the first device
-> can change the size for example, or that all devices control the size,
-> but then we would have to handle the size change at runtime, which I
-> think is feasible, but it requires some work to send a notification of
-> configuration change, etc.
+>+VSOCK_INSTALL_PATH ?= $(abspath .)
+>+# Avoid changing the rest of the logic here and lib.mk.
+>+INSTALL_PATH := $(VSOCK_INSTALL_PATH)
+>+
+> CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
+> .PHONY: all test clean
+> clean:
+> 	${RM} *.o *.d vsock_test vsock_diag_test vsock_perf vsock_uring_test
+> -include *.d
+>+
+>+install: all
+>+	@# Ask all targets to install their files
+>+	mkdir -p $(INSTALL_PATH)/vsock
 
-Can we mandate the size parameter to be exactly the same as the first
-vDPA block simulator?
+why using the "vsock" subdir?
 
->
-> >
-> >>
-> >> >
-> >> >>
-> >> >> Maybe we can just change the size of the shared ramdisk to be refle=
-cted
-> >> >> to all devices.
-> >> >>
-> >> >> Suggestions?
-> >> >
-> >> >Could we specify the path to tmpfs or others during provisioning
-> >> >instead?  It seems more general (but more work).
-> >>
-> >> Then it would almost become a real device, no longer just a simulator.
-> >> It's enough work, though, as you said, but at that point we'd just hav=
-e
-> >> to specify the backend file to use for the device.
-> >>
-> >> In that case what API would we need to use to allow the user to set th=
-e
-> >> backend file?
-> >
-> >Yes, I think we can allow some vendor specific provisioning parameters.
-> >
-> >But not sure it's an overkill for the use case here. If others are
-> >happy with the shared_backed. I'm fine.
->
-> Yeah, maybe it's overkill and I don't have much time these days :-(
->
-> I think the easiest way is to merge this patch, but I understand that a
-> module parameter is not very beautiful
->
-> I'll try to see if I can implement provisioning parameters for
-> vdpa_sim_blk. Allowing capacity to be set only to the first device if
-> `shared_backend` is on.
->
-> WDYT?
+IIUC you were inspired by selftests/Makefile, but it installs under 
+$(INSTALL_PATH)/kselftest/ the scripts used by the main one 
+`run_kselftest.sh`, which is installed in $(INSTALL_PATH instead.
+So in this case I would install everything in $(INSTALL_PATH).
 
-Something like this.
+WDYT?
 
-When there's no block simulator, allow an arbitrary capacity. When
-there is one, fail the creation when the capacity doesn't match. (when
-'shared_backend' is on).
+>+	install -m 744 vsock_test $(INSTALL_PATH)/vsock/
+>+	install -m 744 vsock_perf $(INSTALL_PATH)/vsock/
+>+	install -m 744 vsock_diag_test $(INSTALL_PATH)/vsock/
+>+	install -m 744 vsock_uring_test $(INSTALL_PATH)/vsock/
 
-Thanks
+Also from selftests/Makefile, what about using the ifdef instead of 
+using $(abspath .) as default place?
 
->
-> Thanks,
-> Stefano
->
+I mean this:
+
+install: all
+ifdef INSTALL_PATH
+   ...
+else
+	$(error Error: set INSTALL_PATH to use install)
+endif
+
+Thanks,
+Stefano
 
