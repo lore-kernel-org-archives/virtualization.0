@@ -1,220 +1,225 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D84216D4D2
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 780ED1411ED
+	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 22:55:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720646774; cv=none; b=GkHkZWlyhfH8LAEpjNzfVJCwvUU+B6Mm6ZiAWXge+eJt1goo6DRXlWRlmjvrtK1k6q4/XSvvCfFReHs5ER3UeJxLsEcFEf8iZ796Roqb5fy8cbt6B+jE4Gx9psZU8YJpZuCKuYrDl4IaqsZbCM0wUuJnLPI33qvqQ+wlKIx6S/w=
+	t=1720652115; cv=none; b=flgNC5SLEpZCvK6dTzTX3xlyeeZllqRjROV2sU8wijvnTI1fmsZR5q5J1ExW5inFK+c2lGOoqqFkjo+UniBcVGvjbr59uUY11rt2kDM31cf/e+eHqzHvUHBxA9pLHHfeMVi8+o58cHXMVGLPKa13fwtdKvpPoY34vzJGNp0Sj18=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720646774; c=relaxed/simple;
-	bh=gGDd9b+eIPhJKP6IsUlyGBx9zga4xIilMlUsKve5RCs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=QHjW+1uqbCdkLBH+jgAiG++qHsk6YgrPoc4jw+kQWhhJjKyWyu44hzaMAOJR/QlRLhLOOO1A0jYET15exNZEY8zlL2r8H0QM1SuYxjaGp6iMdzKfU7tm1WAEC5QJFeVWUQxe4jH3Tv9eLGC2Ex+72/e3Y51z5GReFs6waZIw1Vw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=km3avahs; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1720652115; c=relaxed/simple;
+	bh=cDOzi+ZXwS5C7Idx4dnKQ0UYYVdAQXQ23kbJX7qsTSo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P3J7zsNP++YHPuhQZ9XdzFOhYswWZr+xAobPFJ+mU7SlYHKlQxE4DZ/p2Y7/QzNMBjrswaifHTkPbe/VLnfM8jXycXFnUhwrwLFNQp5MP5G/116ki2oJRDlsBnSoXCTeexpOn27mygjVsVkvdA4RrL1j5RBUrXOg4JBSOdJ1OYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=JwCr0Yr/; arc=none smtp.client-ip=209.85.208.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="km3avahs"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9145A40B97
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:08 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: 1.236
-X-Spam-Level: *
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id oEwta3nnRaWB for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Jul 2024 21:26:07 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::732; helo=mail-qk1-x732.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8EC9140B8F
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8EC9140B8F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=km3avahs
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8EC9140B8F
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 21:26:07 +0000 (UTC)
-Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-79ef8e0c294so92119685a.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jul 2024 14:26:07 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="JwCr0Yr/"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-58b447c5112so362763a12.3
+        for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 15:55:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1720646766; x=1721251566; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1720652111; x=1721256911; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pVIqbNrhEav3W0++Ik3CGMaAVVSiaEFKng5Yf5v/RzU=;
-        b=km3avahsGWojPIknpmyV5dfPN2cZd62JlicT81VC5kAO/rKqTZtweHz7HV26CzGTHD
-         6viUu0i2/+d1/EMXt1r07rYS9lwxDgDxcLM/k48fTVejPf/S2CxSwHt6pTLVSE7qNrgy
-         gj5JNHeuoGwr9srJdbC5+UnO93+Fdlcp5PJfdgF2ZeontejDDnPzldfGmbNj2Z5YgVxy
-         JEPO6Ll05w3yENacgm9DzSbCgbkWa2iTJezEWIciRMiJqv58xfIBDqWUxuVqLLZRd8vf
-         s1mzk1Y3w9q7cQYEfpxiTnXrSJLJJBHA6IcnfsULsM+wPuWJvo52xEdm2TgWIOvg2RJm
-         gDnw==
+        bh=8XJJfsxcbaqihoVxsU56HYN19zV6cTHgOtHzTxAFpq0=;
+        b=JwCr0Yr/mG25EnHEp5bCXbpv3eLVOF1IS69IOpF4yHw9mGRZ0zZnsFh09GUtcUPA1J
+         4r/2c4Rck8Q3DLnemYf6dH+y9xDUzUsdPv4LFsvwvX1NEhU62UzMpyQc1G3rMRp+jp+Q
+         IjPzbDFdYF6m7Tv91dxCqbyDE+iwrOoz4QyR4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720646766; x=1721251566;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1720652111; x=1721256911;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pVIqbNrhEav3W0++Ik3CGMaAVVSiaEFKng5Yf5v/RzU=;
-        b=Q4KLGm8a1ggIAqbk8s8+zyCgao4epxrEAkGLS8pBTEkM09sWy44p4LmZiBDEYVM8CH
-         VVfvr98zDGhvCdU1N6LtFSauw7Y8HQCyojq+WAvnrVlcicIP69rSlQ/ZkXs+kzfIP7fp
-         os4+nKvEwcdeXzf0Hc9v0EXsD6NRKPfV6Vef+mxTDIxzpWq263i4AiwICC4jNTSfoPQM
-         nN6JFCG9r8CUmsWEWhIgjWs41CrqV8x93RZniCx9dGy5W+k5QaKfZY4P+9M9A7hUxLFd
-         11LfdrCz6JQ/3rfUHMZpkPsXzN4odJhWsfnJWGHyEd+e+M0+X5Y0z7lRVmDGvcBajt8j
-         nWOw==
-X-Forwarded-Encrypted: i=1; AJvYcCUPtzXo1Ts5SgsRhKtRdZUHbYkwoTqKP/jT4ANEYTOdjklQzadKe+3wW0vrsSS/r8p+2c9E0uBgbsUeU1sXyRGuOnmS9BAuPt+L0Y18c+lrAtuht4ay+Wv4JA==
-X-Gm-Message-State: AOJu0YwinEOBgymM4OX48lOPwFuhkJkEzNOecs/Y4UUHKAiVdZXw4Lss
-	bu+aL0bZ4lGZcMHjCpSdAyUVx3ZTrSfcB5HSkjBlrcE2ItwXm/FT
-X-Google-Smtp-Source: AGHT+IFI320bP+IbIdMehUjmnO755tB0kWKy6r95fV4jib7ke50hwNQJtvQqfOpqotKxyY96hgBfNw==
-X-Received: by 2002:a05:620a:4011:b0:79e:fb4c:2fb7 with SMTP id af79cd13be357-7a1469bce83mr198013985a.12.1720646766248;
-        Wed, 10 Jul 2024 14:26:06 -0700 (PDT)
-Received: from n36-183-057.byted.org ([130.44.215.118])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-79f190b0af1sm228791885a.122.2024.07.10.14.26.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jul 2024 14:26:06 -0700 (PDT)
-From: Amery Hung <ameryhung@gmail.com>
-X-Google-Original-From: Amery Hung <amery.hung@bytedance.com>
-To: stefanha@redhat.com,
-	sgarzare@redhat.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	kys@microsoft.com,
-	haiyangz@microsoft.com,
-	wei.liu@kernel.org,
-	decui@microsoft.com,
-	bryantan@vmware.com,
-	vdasa@vmware.com,
-	pv-drivers@vmware.com
-Cc: dan.carpenter@linaro.org,
-	simon.horman@corigine.com,
-	oxffffaa@gmail.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	bpf@vger.kernel.org,
-	bobby.eshleman@bytedance.com,
-	jiang.wang@bytedance.com,
-	amery.hung@bytedance.com,
-	ameryhung@gmail.com,
-	xiyou.wangcong@gmail.com
-Subject: [RFC PATCH net-next v6 13/14] virtio/vsock: implement datagram support
-Date: Wed, 10 Jul 2024 21:25:54 +0000
-Message-Id: <20240710212555.1617795-14-amery.hung@bytedance.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20240710212555.1617795-1-amery.hung@bytedance.com>
-References: <20240710212555.1617795-1-amery.hung@bytedance.com>
+        bh=8XJJfsxcbaqihoVxsU56HYN19zV6cTHgOtHzTxAFpq0=;
+        b=omnRpfbZ18rRxP/aG0TVp1soW3AbKGDGWINtEcc1OwwPFtAdGxAhWfGLgUI9W18866
+         PYY/KhDvjDJ2cu5xF+9q00wMJok6cSPapBEyXiU+5fZ+QTF0jM5SLI2nprmpEwDuyldh
+         z7uby2DE4gukZgM41dXFKUCWGEy7EUhjSpM8dSMJlmPzy/NpB0SRMhLd8m1wQiJejUhk
+         7fhadvImuqj4XNCNm+dFueGa8Dg+nExQj6JdywToLzyLQGovP3VuXHUgODj+4osff2OJ
+         r1VZGCUDJB+Ddb8zwDjqeFBmmK5rEdiI66f89WK88tRdX+buIyiy9In+Z/l8eWB/seHD
+         v7GA==
+X-Forwarded-Encrypted: i=1; AJvYcCUZdXm9PnwtmHM9FuQFW/zvGBaQP7eluKYicp5cm4Zk2b6GEDhQ9LZecSpq9nzIapuebSK28wpmWk2PHYrZUryDNHed0pMrQUWwXQc6y5s=
+X-Gm-Message-State: AOJu0YyRb9w4uds0fkwsQJynJ0BqMoAGZbmBacKCY5GTKBMaWsBCpJzv
+	2N4tr3tbLQE6dCOh4UZR1M2QneWCIXKE2akYQaWFC3IodP+baKfT0UyEaWa2YHl03uzej12oH2s
+	4edONjPg=
+X-Google-Smtp-Source: AGHT+IHbRSaLPJYouovWBTYR+l+4EO7nFxCaIN9iKAxobgIMpfBvXuY53VNe8wIXfkgYz3EDMFY1Lg==
+X-Received: by 2002:a05:6402:2707:b0:57c:6234:e95b with SMTP id 4fb4d7f45d1cf-594ba98fafdmr5325806a12.5.1720652111567;
+        Wed, 10 Jul 2024 15:55:11 -0700 (PDT)
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-594bc4e81a6sm2710540a12.49.2024.07.10.15.55.09
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jul 2024 15:55:10 -0700 (PDT)
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-a77c9c5d68bso42366166b.2
+        for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 15:55:09 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWbFhtObdrRC9iOU5jJtXYLIPmRmvMJNWuNzKXmdBDoUXXy5qFD9QegP5Sel/sMRk/pDXBrEFGhzVbyLgZgYXGnYlb8vSHZL0NuFsma494=
+X-Received: by 2002:a17:907:7f12:b0:a77:db34:42ca with SMTP id
+ a640c23a62f3a-a780b88347amr588125666b.49.1720652088624; Wed, 10 Jul 2024
+ 15:54:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <cover.1720611677.git.mst@redhat.com> <3d655be73ce220f176b2c163839d83699f8faf43.1720611677.git.mst@redhat.com>
+ <CABVzXAnjAdQqVNtir_8SYc+2dPC-weFRxXNMBLRcmFsY8NxBhQ@mail.gmail.com>
+ <20240710142239-mutt-send-email-mst@kernel.org> <CABVzXAmp_exefHygEGvznGS4gcPg47awyOpOchLPBsZgkAUznw@mail.gmail.com>
+ <20240710162640-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240710162640-mutt-send-email-mst@kernel.org>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Date: Wed, 10 Jul 2024 15:54:22 -0700
+X-Gmail-Original-Message-ID: <CABVzXA=W0C6NNNSYnjop67B=B3nA2MwAetkxM1vY3VggbBVsMg@mail.gmail.com>
+Message-ID: <CABVzXA=W0C6NNNSYnjop67B=B3nA2MwAetkxM1vY3VggbBVsMg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] virtio: fix vq # for balloon
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, 
+	Alexander Duyck <alexander.h.duyck@linux.intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Jason Wang <jasowang@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Bobby Eshleman <bobby.eshleman@bytedance.com>
+On Wed, Jul 10, 2024 at 1:39=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Wed, Jul 10, 2024 at 12:58:11PM -0700, Daniel Verkamp wrote:
+> > On Wed, Jul 10, 2024 at 11:39=E2=80=AFAM Michael S. Tsirkin <mst@redhat=
+.com> wrote:
+> > >
+> > > On Wed, Jul 10, 2024 at 11:12:34AM -0700, Daniel Verkamp wrote:
+> > > > On Wed, Jul 10, 2024 at 4:43=E2=80=AFAM Michael S. Tsirkin <mst@red=
+hat.com> wrote:
+> > > > >
+> > > > > virtio balloon communicates to the core that in some
+> > > > > configurations vq #s are non-contiguous by setting name
+> > > > > pointer to NULL.
+> > > > >
+> > > > > Unfortunately, core then turned around and just made them
+> > > > > contiguous again. Result is that driver is out of spec.
+> > > >
+> > > > Thanks for fixing this - I think the overall approach of the patch =
+looks good.
+> > > >
+> > > > > Implement what the API was supposed to do
+> > > > > in the 1st place. Compatibility with buggy hypervisors
+> > > > > is handled inside virtio-balloon, which is the only driver
+> > > > > making use of this facility, so far.
+> > > >
+> > > > In addition to virtio-balloon, I believe the same problem also affe=
+cts
+> > > > the virtio-fs device, since queue 1 is only supposed to be present =
+if
+> > > > VIRTIO_FS_F_NOTIFICATION is negotiated, and the request queues are
+> > > > meant to be queue indexes 2 and up. From a look at the Linux driver
+> > > > (virtio_fs.c), it appears like it never acks VIRTIO_FS_F_NOTIFICATI=
+ON
+> > > > and assumes that request queues start at index 1 rather than 2, whi=
+ch
+> > > > looks out of spec to me, but the current device implementations (th=
+at
+> > > > I am aware of, anyway) are also broken in the same way, so it ends =
+up
+> > > > working today. Queue numbering in a spec-compliant device and the
+> > > > current Linux driver would mismatch; what the driver considers to b=
+e
+> > > > the first request queue (index 1) would be ignored by the device si=
+nce
+> > > > queue index 1 has no function if F_NOTIFICATION isn't negotiated.
+> > >
+> > >
+> > > Oh, thanks a lot for pointing this out!
+> > >
+> > > I see so this patch is no good as is, we need to add a workaround for
+> > > virtio-fs first.
+> > >
+> > > QEMU workaround is simple - just add an extra queue. But I did not
+> > > reasearch how this would interact with vhost-user.
+> > >
+> > > From driver POV, I guess we could just ignore queue # 1 - would that =
+be
+> > > ok or does it have performance implications?
+> >
+> > As a driver workaround for non-compliant devices, I think ignoring the
+> > first request queue would be a reasonable approach if the device's
+> > config advertises num_request_queues > 1. Unfortunately, both
+> > virtiofsd and crosvm's virtio-fs device have hard-coded
+> > num_request_queues =3D1, so this won't help with those existing devices=
+.
+>
+> Do they care what the vq # is though?
+> We could do some magic to translate VQ #s in qemu.
+>
+>
+> > Maybe there are other devices that we would need to consider as well;
+> > commit 529395d2ae64 ("virtio-fs: add multi-queue support") quotes
+> > benchmarks that seem to be from a different virtio-fs implementation
+> > that does support multiple request queues, so the workaround could
+> > possibly be used there.
+> >
+> > > Or do what I did for balloon here: try with spec compliant #s first,
+> > > if that fails then assume it's the spec issue and shift by 1.
+> >
+> > If there is a way to "guess and check" without breaking spec-compliant
+> > devices, that sounds reasonable too; however, I'm not sure how this
+> > would work out in practice: an existing non-compliant device may fail
+> > to start if the driver tries to enable queue index 2 when it only
+> > supports one request queue,
+>
+> You don't try to enable queue - driver starts by checking queue size.
+> The way my patch works is that it assumes a non existing queue has
+> size 0 if not available.
+>
+> This was actually a documented way to check for PCI and MMIO:
+>         Read the virtqueue size from queue_size. This controls how big th=
+e virtqueue is (see 2.6 Virtqueues).
+>         If this field is 0, the virtqueue does not exist.
+> MMIO:
+>         If the returned value is zero (0x0) the queue is not available.
+>
+> unfortunately not for CCW, but I guess CCW implementations outside
+> of QEMU are uncommon enough that we can assume it's the same?
+>
+>
+> To me the above is also a big hint that drivers are allowed to
+> query size for queues that do not exist.
 
-This commit implements datagram support with a new version of
-->dgram_allow().
+Ah, that makes total sense - detecting queue presence by non-zero
+queue size sounds good to me, and it should work in the normal virtio
+device case.
 
-Additionally, it drops virtio_transport_dgram_allow() as an exported
-symbol because it is no longer used in other transports.
+I am not sure about vhost-user, since there is no way for the
+front-end to ask the back-end for a queue's size; the confusingly
+named VHOST_USER_SET_VRING_NUM allows the front-end to configure the
+size of a queue, but there's no corresponding GET message.
 
-Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
-Signed-off-by: Amery Hung <amery.hung@bytedance.com>
----
- include/linux/virtio_vsock.h            |  1 -
- net/vmw_vsock/virtio_transport.c        | 22 +++++++++++++++++++++-
- net/vmw_vsock/virtio_transport_common.c |  6 ------
- 3 files changed, 21 insertions(+), 8 deletions(-)
+> > and a spec-compliant device would probably
+> > balk if the driver tries to enable queue 1 but does not negotiate
+> > VIRTIO_FS_F_NOTIFICATION. If there's a way to reset and retry the
+> > whole virtio device initialization process if a device fails like
+> > this, then maybe it's feasible. (Or can the driver tweak the virtqueue
+> > configuration and try to set DRIVER_OK repeatedly until it works? It's
+> > not clear to me if this is allowed by the spec, or what device
+> > implementations actually do in practice in this scenario.)
+> >
+> > Thanks,
+> > -- Daniel
+>
+> My patch starts with a spec compliant behaviour. If that fails,
+> try non-compliant one as a fallback.
 
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index 4408749febd2..fe8fa0a9669d 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -222,7 +222,6 @@ void virtio_transport_notify_buffer_size(struct vsock_sock *vsk, u64 *val);
- u64 virtio_transport_stream_rcvhiwat(struct vsock_sock *vsk);
- bool virtio_transport_stream_is_active(struct vsock_sock *vsk);
- bool virtio_transport_stream_allow(u32 cid, u32 port);
--bool virtio_transport_dgram_allow(u32 cid, u32 port);
- 
- int virtio_transport_connect(struct vsock_sock *vsk);
- 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 4891b845fcde..4e1ed3b11e26 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -63,6 +63,7 @@ struct virtio_vsock {
- 
- 	u32 guest_cid;
- 	bool seqpacket_allow;
-+	bool dgram_allow;
- 
- 	/* These fields are used only in tx path in function
- 	 * 'virtio_transport_send_pkt_work()', so to save
-@@ -492,6 +493,21 @@ static bool virtio_transport_msgzerocopy_allow(void)
- 	return true;
- }
- 
-+static bool virtio_transport_dgram_allow(u32 cid, u32 port)
-+{
-+	struct virtio_vsock *vsock;
-+	bool dgram_allow;
-+
-+	dgram_allow = false;
-+	rcu_read_lock();
-+	vsock = rcu_dereference(the_virtio_vsock);
-+	if (vsock)
-+		dgram_allow = vsock->dgram_allow;
-+	rcu_read_unlock();
-+
-+	return dgram_allow;
-+}
-+
- static bool virtio_transport_seqpacket_allow(u32 remote_cid);
- 
- static struct virtio_transport virtio_transport = {
-@@ -753,6 +769,9 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
- 		vsock->seqpacket_allow = true;
- 
-+	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_DGRAM))
-+		vsock->dgram_allow = true;
-+
- 	vdev->priv = vsock;
- 
- 	ret = virtio_vsock_vqs_init(vsock);
-@@ -850,7 +869,8 @@ static struct virtio_device_id id_table[] = {
- };
- 
- static unsigned int features[] = {
--	VIRTIO_VSOCK_F_SEQPACKET
-+	VIRTIO_VSOCK_F_SEQPACKET,
-+	VIRTIO_VSOCK_F_DGRAM
- };
- 
- static struct virtio_driver virtio_vsock_driver = {
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index a571b575fde9..52f671287fe3 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1010,12 +1010,6 @@ bool virtio_transport_stream_allow(u32 cid, u32 port)
- }
- EXPORT_SYMBOL_GPL(virtio_transport_stream_allow);
- 
--bool virtio_transport_dgram_allow(u32 cid, u32 port)
--{
--	return false;
--}
--EXPORT_SYMBOL_GPL(virtio_transport_dgram_allow);
--
- int virtio_transport_connect(struct vsock_sock *vsk)
- {
- 	struct virtio_vsock_pkt_info info = {
--- 
-2.20.1
+Got it, that sounds reasonable to me given the explanation above.
 
+Thanks,
+-- Daniel
