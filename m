@@ -1,332 +1,249 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from EUR02-DB5-obe.outbound.protection.outlook.com (mail-db5eur02on2051.outbound.protection.outlook.com [40.107.249.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19F3283CD2
-	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 07:38:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720597137; cv=none; b=jWXRxUSTghOGD+FzQv5+v/dteH0xV4F9l076cX3Ga/f+dAViUmVtJguGEPhOOqy7x0yuvaJiZ/6B8dkMxW6pdK74xno7Eu/wLn//31yV1BJ4ApD3pd3D7rm9bi3JCYvv3mAcT41yOwzPe7V1hQEbX8uUzk/I38SWRP7Dha47c5M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720597137; c=relaxed/simple;
-	bh=s7ydTuOgz27W5utldXFRrOZlDAmx9F8xGalRckJdELU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RZvxYmnvA4DATQ5A1j4Hf+NoqwBbcQvbGrrQcnjqftemFLp4yhDhGlLtRfzUUfDmICo3Mt7nJbKIbzeZ2vx2ivp4F+smnBv3vKl1ttQESFvzLvMnXDAm3ELxjCstJSdbuLUB4YmSC8cdwWtlv+Ge4TprINELX5ZQwFGdq/bNGIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=E+KQoGKZ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7RCRTubI; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=f5FSs/g9; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=jaoIwuCC; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F77F6EB4A
+	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 08:11:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.249.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720599098; cv=fail; b=cAILL0eO1oTCd49Pk4Hb2FzivuKp34J9gwoN3suSIH1GQ8wyqclk64dePyzFiHrgpDqcxnkcg7EsE/u2RHx7am31cWxMiU6C/vjxFFk2wHRSHfRDprasLEttTv4zpfUInatjkccLXlHnw87tDzKJ088IBgWfYtMIJfGEtKN5nOs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720599098; c=relaxed/simple;
+	bh=w5YdMNc/RQtxnspAC+nZDiv/jmZ9ACMc2duigZRh5xU=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=oLPXvgAHNpo0BcKqRkwwc42iigg15i0clfaCo47nlPxuEcGdUTCwuC5eZarjVym36lV19kQsnFTt6qFk23N4TrZDwDWxEFgK4FYVAb5Iwh2HpsJnLRuY0Tn1NhdwddNxjT0znSJcQQivku99orntXRsbw80pDmOb/woTVyIQ5VA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b=e3QZBEEK; arc=fail smtp.client-ip=40.107.249.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="E+KQoGKZ";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7RCRTubI";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="f5FSs/g9";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="jaoIwuCC"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 7F1112199E;
-	Wed, 10 Jul 2024 07:38:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1720597134; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=n9On8tM2Ic5Vm+QZr6PzwTrqkiAjFI+VqwseI958GCA=;
-	b=E+KQoGKZV1rTaUsC30N4UzM1x0Q2LDGr5iO12v8pSr3Vgd2Dal0zwgu0FFAIJJHkUp6R0D
-	6q9pN9GVPcdNy0xJR0ecGh/Y8WQA/8t7g5mfrh0g7VfZkBtwQNZFuehAppxLmwwkJdBlAR
-	4eScmydJ9Z8pJ3zR4JUZQY1eWaXakAk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1720597134;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=n9On8tM2Ic5Vm+QZr6PzwTrqkiAjFI+VqwseI958GCA=;
-	b=7RCRTubImI8Ntpb4aMURBGqjdMDlo/6hkC8iDOIazlqpu3IsWWo+/82NMURdIJ0j6oHlRr
-	1jS//Idg+VUXBTBA==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="f5FSs/g9";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=jaoIwuCC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1720597133; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=n9On8tM2Ic5Vm+QZr6PzwTrqkiAjFI+VqwseI958GCA=;
-	b=f5FSs/g9JnNEPu6FxU+QyJzjaGI5ZSqVddkaLdfeqIeR2mr3aNgxvt1kHTjucNdYHsoVWO
-	XXlraL/EaZlZG3grcrrw4w9446Vf45ZIlhcf2BSQyQytwX9x4cV33l5b91xv8erlG+I/3L
-	3AG8X1rXNvcQkxdBG681mEEE+qDP8Fo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1720597133;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=n9On8tM2Ic5Vm+QZr6PzwTrqkiAjFI+VqwseI958GCA=;
-	b=jaoIwuCCpD0qzWFroA2P68ZJvQV5FgR6lY9h2+tGpX4dYGevHHE6tP/WbuuK32gqKqQrvC
-	hCtGg3A/tiKSVAAQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 15734137D2;
-	Wed, 10 Jul 2024 07:38:52 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id mjDuAYw6jmYdNQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 10 Jul 2024 07:38:52 +0000
-Message-ID: <122f8dad-543e-4f76-bd50-59d6d9ec0db3@suse.de>
-Date: Wed, 10 Jul 2024 09:38:51 +0200
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="e3QZBEEK"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dWJyfMMMlszA1nb79xKA81NJMspmkRphhRKOI2av5WXkeeLXDm6YJk/zOYTQhN2LmWDCPlhey30TsT5ALI0JOhhvVxytvLzCQijNmfdTf4HiuNKUfdXytpvuNJQ27BEYiiCMnMFcjf06AM+7xZwLvVywcHYrEF9Edy1Er69EmXDm78JaungHj+avNLrBNmC4VSqENmfPvJ+zG6eLf7ThGZDvOPHv7ZbdmmZTUOuTTnj6FH8iA7IE2unheIVXlMjpFt/CTGthNditfsa7jvrCZHRMe5zOw/pDz6qfIM5yjROD0Plw/lO4i+AFRBUEwjJ6VYa6qqueIPRoUPagwLCuKw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=aG/bdtgGAAAcRBDnu7e168YlH4We0avNu5UCn8njEFE=;
+ b=kXjilLGfdaYtKolcTVcy5d22hWTpDmmDaGVJrf3mE/lFTyfnBIudAhoVsAkqq9cKsrTQwEbbL3yzc/IyeOqjiZAT+FSePU7Jl+MEVJVQn8XFLZ9YNDyQeuONFDtbx9fXG1dmDea1yKbAGpr7iF9xisz3fSH6b4R0cpTWp3Ou/bO5D5fGr6bxy78eYdpc1FANKDhxRPECLkccmQki+rnS+cNr0fGfRaLYcxOvallQEJewXbtPh0kJZg2iCsF2lSkn4ePOJXc/vE7OX6a23DMkXeJvOzzCjnnNf4+JCc2QsEqUjfEFz3qcqeTiAdFuXqbaIAChDCRurPi01l1Sf7qtuA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aG/bdtgGAAAcRBDnu7e168YlH4We0avNu5UCn8njEFE=;
+ b=e3QZBEEKQRCXnhfwGOod7zc5/kthoeXAYF0B8S1wz9c5iKqTjt7sbzb29qYiVwuCdkjjMzPjOv71UPgLetGDJehJnq7VXlY+BiJXQ4c4GmNI9KX/B5j+Yfra9tASQNlj0qltnf/qfZQCBx/UW4Lr6xqOj3TexHEP+XliryQIouk=
+Received: from PAXPR04MB8459.eurprd04.prod.outlook.com (2603:10a6:102:1da::15)
+ by VI1PR04MB7151.eurprd04.prod.outlook.com (2603:10a6:800:129::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.35; Wed, 10 Jul
+ 2024 08:11:33 +0000
+Received: from PAXPR04MB8459.eurprd04.prod.outlook.com
+ ([fe80::165a:30a2:5835:9630]) by PAXPR04MB8459.eurprd04.prod.outlook.com
+ ([fe80::165a:30a2:5835:9630%4]) with mapi id 15.20.7762.016; Wed, 10 Jul 2024
+ 08:11:33 +0000
+From: Peng Fan <peng.fan@nxp.com>
+To: Stefano Garzarella <sgarzare@redhat.com>, "Peng Fan (OSS)"
+	<peng.fan@oss.nxp.com>
+CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] test/vsock: add install target
+Thread-Topic: [PATCH] test/vsock: add install target
+Thread-Index: AQHa0gXDNBM9iTbnZU+dNaZg6A0BnrHvkzMAgAACM/A=
+Date: Wed, 10 Jul 2024 08:11:32 +0000
+Message-ID:
+ <PAXPR04MB845959D5F558BCC2AB46575788A42@PAXPR04MB8459.eurprd04.prod.outlook.com>
+References: <20240709135051.3152502-1-peng.fan@oss.nxp.com>
+ <twxr5pyfntg6igr4mznbljf6kmukxeqwsd222rhiisxonjst2p@suum7sgl5tss>
+In-Reply-To: <twxr5pyfntg6igr4mznbljf6kmukxeqwsd222rhiisxonjst2p@suum7sgl5tss>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PAXPR04MB8459:EE_|VI1PR04MB7151:EE_
+x-ms-office365-filtering-correlation-id: bb723345-5c1f-494e-ef20-08dca0b7e946
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|366016|376014|38070700018;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?5WDnf5vcS12h3mxBTZEjlP+2+HZIrpIKqR233wXyfgA8+gpRtM2jrDyvxudL?=
+ =?us-ascii?Q?uAegKg/8GeTvdlw+GRhyg4XGQcETl/rUBMM5dGQaYuMZ9Ce3/WCQxjk9Erre?=
+ =?us-ascii?Q?hLSgaPnqlVeGdfot12E2RXc11P14c3YmUjRZuJLfbJvd9Hd7Y+fZlBhmlmGm?=
+ =?us-ascii?Q?fZ1SJiR8LoMHE+qx4Thlcedhqf0zdBpuJEzp4HQ5N5lxEvitplWuFk0shYGE?=
+ =?us-ascii?Q?dk/jSUvdlNU1o6S1igOT4lJ4u9dUOSTrftRCbgCSKr9LDSbrqgiXBRoiCS/u?=
+ =?us-ascii?Q?ZDYxii7NS3BXuV9b77ofS0bn29fkbZlE42dL3dv6y2FKu/44Nf+ZfBefqBE7?=
+ =?us-ascii?Q?eWoY1QVKPtoBiU2e1DdOHNbyRDknB6g83eRPsZidzkhV5JxD6lQRVxzYK3dW?=
+ =?us-ascii?Q?mWMYp1akaIBZdD/54kh5NFfOl6JmvKg/3RA6WoG1owdX2ArAphqjsEaskYsQ?=
+ =?us-ascii?Q?CHE5WwiXRyciavm5OO6ch73OsLNkxKqJGOWqvP1yxDIenYci/wvqAt7PC0E2?=
+ =?us-ascii?Q?wI2owOxtzBAeNpvSXqY/sazDcXLmDg3NPyjAIiPbxJkwoSUs2bDqfxRZCJeJ?=
+ =?us-ascii?Q?6vJSdXzbsr3PyRW+teF0SHkCM1KwjI799mQp50TlR59LTAtsyLYytSpCLglv?=
+ =?us-ascii?Q?5r7W3gk/ZzvA2aazjg5++tQ6iLxPWsF6gQAdTDpgsfRUn7Y8+rqiL5L8A+pX?=
+ =?us-ascii?Q?5dqR7foGIco1flZ02s/MVVf4EFANt6pddRWfLldEnoKCw5pEy8vUNZXweK7R?=
+ =?us-ascii?Q?BiD6mLOlHxvSciHoQ95MvIFzfb/rQbTVliDqb095aJdlnkdOiAqWc8AuCLS6?=
+ =?us-ascii?Q?88pNZ5JZ4GL6pVFmBi0iVYTEALQy8UrJmaZVCFarQPHy94YqTcGTyHxTjD31?=
+ =?us-ascii?Q?pPHZ9qtTd4GR4wyBIhwhB3yktvmBahBczLHbTaV3PSOKaf609q+BcSDjXOJK?=
+ =?us-ascii?Q?bBv6T3Cm+IAuDP+v+3M6zezY/S1Jdgbmd+TQ8C5G77GO2iK+FgEzLxU8U1Qp?=
+ =?us-ascii?Q?kPpBBcGiBSnrEJid422H7YTjfbNKoizAqkzoHtFa2IYUs1kdbSMNnSlA+q8j?=
+ =?us-ascii?Q?wHRYK5QqDlO/vifcGPM7esvpDKiwU+DVOCZujgbAfODDUl9sOyQpXY8Tho3U?=
+ =?us-ascii?Q?4F+Om+se/lyQEq26DJg0JJ4Ap84al1dOux4osm120RDxV86JzQXet7YwHXqy?=
+ =?us-ascii?Q?Qofpn3vtEnzEYP0DnoaurcUWjTcyYann5U1SWzdk2rbIbZ46QNowbyzxL9xR?=
+ =?us-ascii?Q?Rfv9fsnvD7qEOT1tknGrljeNfRyJvOCTL47+4Ds/ok8MBtfWfQu69riHYCFV?=
+ =?us-ascii?Q?21Y9dOvN/WwvfF5GeaySi3dLlJo0+6r7DpIS6VtQMr7j8IVkIJwOq4nA1sTU?=
+ =?us-ascii?Q?itD02Z3AJBk5ahs+zseLy63hniXm9HPTumsQJn3tRB585RJKsA=3D=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR04MB8459.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?GDyoHrXYI8xV97cu2+LyQgrVBTphXlLnt2ZTVgycJkHR2tjho+jAo0F/9j8O?=
+ =?us-ascii?Q?H+9p1mBnadeEoEuAFb2AUkgRpZVcJ2FY5uaFXJZK9mTrj/goH41il2R+YrW5?=
+ =?us-ascii?Q?z0RYGZauF2CjsH1YrDUjuy3OR+6Wv3oODXUiUJmR4i4oOF2twcxZc73Qm60H?=
+ =?us-ascii?Q?wHc3xdqVu/os2cvnDZqkPbrgYuFB+nsWFaH7P+1wkyzL3WaZmL2JPoxsxBIM?=
+ =?us-ascii?Q?H0zJQl3hZU3c6AGUceEyMLbepEv2irL5Tisqach6uL1IWvb9Q84C9Q7Zq3xV?=
+ =?us-ascii?Q?w1g+ZjQcXPXo36jF981LrDY827vGd5RHvv2d9BACq8+Mu/U/TMxxPNVv+SZ8?=
+ =?us-ascii?Q?QLtzEVLnKs6LOPaZW/GqPtLXtRzGPMf9i0FkoP1t2UgtWzSniXYqGOWmiTIR?=
+ =?us-ascii?Q?aPf1oWwAOQlZX5o4d62zx7blEIQP1E9XYA3x481cqdyd2IAg256rb+QN1/my?=
+ =?us-ascii?Q?KPl4iMIvoaDaqJHpD+eg2Mh1sm9GftO+x9ZJJbRB42IXEkJlf2p2y94zCaw6?=
+ =?us-ascii?Q?ctke0TKYBehEGPnSqp0qUpbc7CFHj457DlAXNOH2AeCblqdolkI4xZC3yai4?=
+ =?us-ascii?Q?3x9LJF9MQFL+ikVrtIWr5S6M2Gz2J378MIgnb0vBiBlsQ1WsFoa5Z768ufsh?=
+ =?us-ascii?Q?6y3UoREakki+HKzlRwm/P7s8arZJ4Q2PtxmH7V1P3t1W/ctiLnZAm8WVj8IY?=
+ =?us-ascii?Q?KXCW4mnA1tZt+1yjDaBdzld6bPHo/C0IP1QXC9PoxfU/yjCP2B5ZtaR0PaHA?=
+ =?us-ascii?Q?feIYjfLyHQuJBe3/MdeP7esdOmuZjMWPo6RTBjTB2nx8wEOAvb0YnpxY4rO4?=
+ =?us-ascii?Q?HqmoSLIt/mfyWz37Y1LyMdSMsjwhjPwLNJ4CdFMH9bCcaFs/1v7BnjC13S4w?=
+ =?us-ascii?Q?XG3l7kxWS1vGPXAuR5Z61WxNuhB71+I6sd/hTakMTOldh3UvAol9qj2ppgn6?=
+ =?us-ascii?Q?VMghf4wQ4lE83iQWiyMe1gmp1S2ngxo0jcuG7ek1ZRfkepkuPeqF7KZTdv5/?=
+ =?us-ascii?Q?qmcSaKshvyAz/qFVdrhKmxXv7Fld8MtmK4namOXMAkyAHGmOLL2f9P1k9/ux?=
+ =?us-ascii?Q?86J4Lc/WWB5WO6Oh0uU+KsgsiFL+LmMx8PnLhpu3gEd+B2rHaeiDV56jKGCx?=
+ =?us-ascii?Q?jGHoIrB9j9JbGkjDE40OCV0GwSYUkw3Tk48NCgassKqNdRpG0auUs3BmZ4ea?=
+ =?us-ascii?Q?JkwbtHDOvTfUO/9wM4VBJHx4MYeI4p8OUrn/k1pxbhgyCWLNT551kzOE6RXN?=
+ =?us-ascii?Q?QXHE7rTw/J8/z3IejGbHHY4msNEgaAMzm6yhY5Z2KyyTk/8Gy+5R3RXtwRU6?=
+ =?us-ascii?Q?vj9BERpy0eV1mxRlDP+9xYxVPKPgHwKnJXzZQfmisv/jzDdqAgzO9xiTBbDJ?=
+ =?us-ascii?Q?CJJWzleUbTfQSR6AyWeB/yblnqKornhHGbpmPSSoYCR8C55VWqOUnGzfD2hV?=
+ =?us-ascii?Q?0ovLxZT7lVGT7xiDNYxDB6Kj3SvoM6SyiqUt/5MXG0OAcyL14qUJYajRe9/7?=
+ =?us-ascii?Q?s79XjCBCebUwYqluwSeOadrQg922AU3B829ulVojHacHtb7MVI56Y434CpTh?=
+ =?us-ascii?Q?yVRL03lMHkYAcLK1EUM=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/qxl: Pin buffer objects for internal mappings
-To: airlied@redhat.com, kraxel@redhat.com, dmitry.osipenko@collabora.com,
- zack.rusin@broadcom.com, airlied@gmail.com, daniel@ffwll.ch,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, david.kaplan@amd.com,
- christian.koenig@amd.com
-Cc: regressions@leemhuis.info, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- Daniel Vetter <daniel.vetter@ffwll.ch>
-References: <20240708142208.194361-1-tzimmermann@suse.de>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20240708142208.194361-1-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-4.50 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	XM_UA_NO_VERSION(0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_TWELVE(0.00)[15];
-	FREEMAIL_TO(0.00)[redhat.com,collabora.com,broadcom.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org,amd.com];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[amd.com:email,linux.dev:email,suse.de:email,suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 7F1112199E
-X-Spam-Flag: NO
-X-Spam-Score: -4.50
-X-Spam-Level: 
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PAXPR04MB8459.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bb723345-5c1f-494e-ef20-08dca0b7e946
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jul 2024 08:11:33.2406
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: +ZKd0tBdTFdXv1WjkG63CK1XiDI3n8vFVjR1csYSkLRvHRwD4eXcmIXc2s5zvEB7FZHtp9Q8WyCqmfXD42R2IA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB7151
 
-Merged into drm-misc-next-fixes
+> Subject: Re: [PATCH] test/vsock: add install target
+>=20
+> On Tue, Jul 09, 2024 at 09:50:51PM GMT, Peng Fan (OSS) wrote:
+> >From: Peng Fan <peng.fan@nxp.com>
+> >
+> >Add install target for vsock to make Yocto easy to install the images.
+> >
+> >Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> >---
+> > tools/testing/vsock/Makefile | 12 ++++++++++++
+> > 1 file changed, 12 insertions(+)
+> >
+> >diff --git a/tools/testing/vsock/Makefile
+> >b/tools/testing/vsock/Makefile index a7f56a09ca9f..5c8442fa9460
+> 100644
+> >--- a/tools/testing/vsock/Makefile
+> >+++ b/tools/testing/vsock/Makefile
+> >@@ -8,8 +8,20 @@ vsock_perf: vsock_perf.o
+> msg_zerocopy_common.o
+> > vsock_uring_test: LDLIBS =3D -luring
+> > vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o
+> >msg_zerocopy_common.o
+> >
+> >+VSOCK_INSTALL_PATH ?=3D $(abspath .)
+> >+# Avoid changing the rest of the logic here and lib.mk.
+> >+INSTALL_PATH :=3D $(VSOCK_INSTALL_PATH)
+> >+
+> > CFLAGS +=3D -g -O2 -Werror -Wall -I. -I../../include
+> > -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow
+> > -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -
+> D_GNU_SOURCE
+> > .PHONY: all test clean
+> > clean:
+> > 	${RM} *.o *.d vsock_test vsock_diag_test vsock_perf
+> vsock_uring_test
+> > -include *.d
+> >+
+> >+install: all
+> >+	@# Ask all targets to install their files
+> >+	mkdir -p $(INSTALL_PATH)/vsock
+>=20
+> why using the "vsock" subdir?
+>=20
+> IIUC you were inspired by selftests/Makefile, but it installs under
+> $(INSTALL_PATH)/kselftest/ the scripts used by the main one
+> `run_kselftest.sh`, which is installed in $(INSTALL_PATH instead.
+> So in this case I would install everything in $(INSTALL_PATH).
+>=20
+> WDYT?
 
-Am 08.07.24 um 16:21 schrieb Thomas Zimmermann:
-> Add qxl_bo_pin_and_vmap() that pins and vmaps a buffer object in one
-> step. Update callers of the regular qxl_bo_vmap(). Fixes a bug where
-> qxl accesses an unpinned buffer object while it is being moved; such
-> as with the monitor-description BO. An typical error is shown below.
->
-> [    4.303586] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
-> [    4.586883] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65376256x16777216+0+0
-> [    4.904036] [drm:drm_atomic_helper_commit_planes] *ERROR* head 1 wrong: 65335296x16777216+0+0
-> [    5.374347] [drm:qxl_release_from_id_locked] *ERROR* failed to find id in release_idr
->
-> Commit b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
-> removed the implicit pin operation from qxl's vmap code. This is the
-> correct behavior for GEM and PRIME interfaces, but the pin is still
-> needed for qxl internal operation.
->
-> Also add a corresponding function qxl_bo_vunmap_and_unpin() and remove
-> the old qxl_bo_vmap() helpers.
->
-> Future directions: BOs should not be pinned or vmapped unnecessarily.
-> The pin-and-vmap operation should be removed from the driver and a
-> temporary mapping should be established with a vmap_local-like helper.
-> See the client helper drm_client_buffer_vmap_local() for semantics.
->
-> v2:
-> - unreserve BO on errors in qxl_bo_pin_and_vmap() (Dmitry)
->
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: b33651a5c98d ("drm/qxl: Do not pin buffer objects for vmap")
-> Reported-by: David Kaplan <david.kaplan@amd.com>
-> Closes: https://lore.kernel.org/dri-devel/ab0fb17d-0f96-4ee6-8b21-65d02bb02655@suse.de/
-> Tested-by: David Kaplan <david.kaplan@amd.com>
-> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Cc: Christian König <christian.koenig@amd.com>
-> Cc: Zack Rusin <zack.rusin@broadcom.com>
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux.dev
-> Cc: spice-devel@lists.freedesktop.org
-> ---
->   drivers/gpu/drm/qxl/qxl_display.c | 14 +++++++-------
->   drivers/gpu/drm/qxl/qxl_object.c  | 13 +++++++++++--
->   drivers/gpu/drm/qxl/qxl_object.h  |  4 ++--
->   3 files changed, 20 insertions(+), 11 deletions(-)
->
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index 86a5dea710c0..bc24af08dfcd 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -584,11 +584,11 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
->   	if (ret)
->   		goto err;
->   
-> -	ret = qxl_bo_vmap(cursor_bo, &cursor_map);
-> +	ret = qxl_bo_pin_and_vmap(cursor_bo, &cursor_map);
->   	if (ret)
->   		goto err_unref;
->   
-> -	ret = qxl_bo_vmap(user_bo, &user_map);
-> +	ret = qxl_bo_pin_and_vmap(user_bo, &user_map);
->   	if (ret)
->   		goto err_unmap;
->   
-> @@ -614,12 +614,12 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
->   		       user_map.vaddr, size);
->   	}
->   
-> -	qxl_bo_vunmap(user_bo);
-> -	qxl_bo_vunmap(cursor_bo);
-> +	qxl_bo_vunmap_and_unpin(user_bo);
-> +	qxl_bo_vunmap_and_unpin(cursor_bo);
->   	return cursor_bo;
->   
->   err_unmap:
-> -	qxl_bo_vunmap(cursor_bo);
-> +	qxl_bo_vunmap_and_unpin(cursor_bo);
->   err_unref:
->   	qxl_bo_unpin(cursor_bo);
->   	qxl_bo_unref(&cursor_bo);
-> @@ -1205,7 +1205,7 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
->   	}
->   	qdev->monitors_config_bo = gem_to_qxl_bo(gobj);
->   
-> -	ret = qxl_bo_vmap(qdev->monitors_config_bo, &map);
-> +	ret = qxl_bo_pin_and_vmap(qdev->monitors_config_bo, &map);
->   	if (ret)
->   		return ret;
->   
-> @@ -1236,7 +1236,7 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
->   	qdev->monitors_config = NULL;
->   	qdev->ram_header->monitors_config = 0;
->   
-> -	ret = qxl_bo_vunmap(qdev->monitors_config_bo);
-> +	ret = qxl_bo_vunmap_and_unpin(qdev->monitors_config_bo);
->   	if (ret)
->   		return ret;
->   
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-> index 5893e27a7ae5..66635c55cf85 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.c
-> +++ b/drivers/gpu/drm/qxl/qxl_object.c
-> @@ -182,7 +182,7 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map)
->   	return 0;
->   }
->   
-> -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
-> +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map)
->   {
->   	int r;
->   
-> @@ -190,7 +190,15 @@ int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
->   	if (r)
->   		return r;
->   
-> +	r = qxl_bo_pin_locked(bo);
-> +	if (r) {
-> +		qxl_bo_unreserve(bo);
-> +		return r;
-> +	}
-> +
->   	r = qxl_bo_vmap_locked(bo, map);
-> +	if (r)
-> +		qxl_bo_unpin_locked(bo);
->   	qxl_bo_unreserve(bo);
->   	return r;
->   }
-> @@ -241,7 +249,7 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
->   	ttm_bo_vunmap(&bo->tbo, &bo->map);
->   }
->   
-> -int qxl_bo_vunmap(struct qxl_bo *bo)
-> +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo)
->   {
->   	int r;
->   
-> @@ -250,6 +258,7 @@ int qxl_bo_vunmap(struct qxl_bo *bo)
->   		return r;
->   
->   	qxl_bo_vunmap_locked(bo);
-> +	qxl_bo_unpin_locked(bo);
->   	qxl_bo_unreserve(bo);
->   	return 0;
->   }
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
-> index 1cf5bc759101..875f63221074 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.h
-> +++ b/drivers/gpu/drm/qxl/qxl_object.h
-> @@ -59,9 +59,9 @@ extern int qxl_bo_create(struct qxl_device *qdev,
->   			 u32 priority,
->   			 struct qxl_surface *surf,
->   			 struct qxl_bo **bo_ptr);
-> -int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map);
-> +int qxl_bo_pin_and_vmap(struct qxl_bo *bo, struct iosys_map *map);
->   int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map);
-> -int qxl_bo_vunmap(struct qxl_bo *bo);
-> +int qxl_bo_vunmap_and_unpin(struct qxl_bo *bo);
->   void qxl_bo_vunmap_locked(struct qxl_bo *bo);
->   void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, int page_offset);
->   void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, void *map);
+I agree.
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+>=20
+> >+	install -m 744 vsock_test $(INSTALL_PATH)/vsock/
+> >+	install -m 744 vsock_perf $(INSTALL_PATH)/vsock/
+> >+	install -m 744 vsock_diag_test $(INSTALL_PATH)/vsock/
+> >+	install -m 744 vsock_uring_test $(INSTALL_PATH)/vsock/
+>=20
+> Also from selftests/Makefile, what about using the ifdef instead of
+> using $(abspath .) as default place?
+>=20
+> I mean this:
+>=20
+> install: all
+> ifdef INSTALL_PATH
+>    ...
+> else
+> 	$(error Error: set INSTALL_PATH to use install) endif
+
+Is the following looks good to you?
+
+# Avoid conflict with INSTALL_PATH set by the main Makefile                =
+                        =20
+VSOCK_INSTALL_PATH ?=3D                                                    =
+                          =20
+INSTALL_PATH :=3D $(VSOCK_INSTALL_PATH)                                    =
+                          =20
+                                                                           =
+                        =20
+install: all                                                               =
+                        =20
+ifdef INSTALL_PATH                                                         =
+                        =20
+        mkdir -p $(INSTALL_PATH)                                           =
+                        =20
+        install -m 744 vsock_test $(INSTALL_PATH)                          =
+                        =20
+        install -m 744 vsock_perf $(INSTALL_PATH)                          =
+                        =20
+        install -m 744 vsock_diag_test $(INSTALL_PATH)                     =
+                        =20
+        install -m 744 vsock_uring_test $(INSTALL_PATH)                    =
+                        =20
+else                                                                       =
+                        =20
+        $(error Error: set INSTALL_PATH to use install)                    =
+                        =20
+Endif
+
+Thanks,
+Peng.
+>=20
+> Thanks,
+> Stefano
 
