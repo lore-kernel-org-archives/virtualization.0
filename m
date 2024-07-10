@@ -1,206 +1,183 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C6F428683
-	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 03:09:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE73934545
+	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 03:11:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720580949; cv=none; b=L6N9PTg0AI8AuxulLKLdRABYL7evoppIDpcOONXYlK/GLXxQEoiteYRRYOZl4KYqF6n9+PSKKWi0xGRYheqZ1bN8gSvLB2VklzMcJiIQl+Z1GWch7ZyLZzjmHFOHEkw+ucOM6PBzbodz2VWSqd7/HfqaXTSliNcxx820WlN05nY=
+	t=1720581069; cv=none; b=QQ7xIpZH8Hvx6X1rqKTphQLjr02vl/1+Qr6xQ+oB/BFtf10Lm+2zXSgfPGGOA8BsD+hoTigbSlBiPuQc6HsEbYzKU+CwcOW6O6wcDReV7ZswXEQYKTuRKRQ8kjeEFgVqX3teMdB/kJ+gSGnIQqMQhEiqiicxcvRT6pAYaCk/w1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720580949; c=relaxed/simple;
-	bh=/MvzhGdw8waONEHA70dA0HzNSDYITuwzxeG8ol/+5kM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=O2ZBJw1nfxz5Ec+AKRh0btVIgOifyFlPEKD7H/MabqmeQNKb7aegyI7+sNQE/Ah+oiEMVjlyvFUT5ZUBhSw0OITj11G8sw78ZddXCLA8qd+RYDe40C/JAgVAmH04MrlKX7727xRkFCm/OVU6okzD/ZhvrM+poUDAWoBfKVX4VDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XEL/+NFQ; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1720581069; c=relaxed/simple;
+	bh=Brip5FaXwQSB5D6viWoAEJQjzdOuVYWrAXox5Ir7vew=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jvOm5Qdvrcd5vjPaXG0p/gyJ3pu+CzZFApwNXROr0gIvjSAc7i+7ARjGgxEAjrlEMdirPmgbq2yJFu2cjRQYrGUt4M58GhKDbWZNq093cQpIwh+DvWX0avPsKbpvUtcHyGi4/NJqPs1GVbvkGK+RfBHQHJceLMQJQ6cm0gM8MVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Crwep4qs; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XEL/+NFQ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Crwep4qs"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720580945;
+	s=mimecast20190719; t=1720581066;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FtjUgfBnvEdcnuYkpErjDK0yllYPZKaeYZrSgLDplBQ=;
-	b=XEL/+NFQreYKaD7fGEt+iIuZZgsEUNIY0h3uunSnO/WoOut1mmngFqZ9cSxCepfB+pp1Gj
-	m6k1oo/VhAUaT773GsZYGu5AFacZU+8NQqtzjc0RJKp+e/isowsJtAK8DVYCVc3ylll6fg
-	upoOGF01FMvL/YNGcWsW7v+DZUZT6iU=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=3q2k0aK+nHm0+rP8SX0FxDxoWTsYNIFUUylFS3XcLTg=;
+	b=Crwep4qsip8QUOFyBZvuAxzSymM+LmqZ7qEb6nb32Tmo82WojpWiD1HqPwh3g+V4zIoHBF
+	HURiHaZbnPzdHk4k990TfooYBwJNzXq/Adt2PcGWIKZjkyB78NCxBFZP/IpQnEuGouVhTS
+	9ZzwtaCiqFnhMDEGjaOgjNitCtJpSAY=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-41-AadNMdMcPYu-PJu8k-8qvA-1; Tue, 09 Jul 2024 23:09:03 -0400
-X-MC-Unique: AadNMdMcPYu-PJu8k-8qvA-1
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-78296514ec8so264712a12.0
-        for <virtualization@lists.linux.dev>; Tue, 09 Jul 2024 20:09:03 -0700 (PDT)
+ us-mta-596-uHei4aozOsm8K97v5n5QkA-1; Tue, 09 Jul 2024 23:11:05 -0400
+X-MC-Unique: uHei4aozOsm8K97v5n5QkA-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-71a43a07997so3354369a12.3
+        for <virtualization@lists.linux.dev>; Tue, 09 Jul 2024 20:11:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720580942; x=1721185742;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FtjUgfBnvEdcnuYkpErjDK0yllYPZKaeYZrSgLDplBQ=;
-        b=OeqHqvZHfPUDlwzXkConWEy5uZoQeaN1v61Uy1QAYlXFwUVpi6sPMhjXZdSUzBDEMq
-         KiARBAfM4lJOW1Gxf8F6D0FS7bpxBgnnnEU0TKda69jPr0tVZ8M+qI8jVVDauuUHum7V
-         53lF3H5qPUwbB002H+ZLPmLBckVYgIsEBIuDKVyOOvUOeunQ/l/masejSoFTAVIgdtub
-         Kdmc4E9K01HejnER9FwfgZzJW4P7XZVN/AibiwuTjK+nWmYLb5OuXMkRAtag7lYhMFsn
-         hk6mtH4MldE+kylIF31ROb/I+El29VPQUKFyCqitCEliBk5KU/jXQffngRScso9pf+n6
-         XXLA==
-X-Forwarded-Encrypted: i=1; AJvYcCWnqNdrmGEF4dXlOFXKJlIl0B+jswQwp3hTv8RFxa7yrZ/9/GZXuLV2EwUMCSK8PloK6ymQFPyd4UJ3woKSGxNVq5IoiQJpnfE7K/eeCTA=
-X-Gm-Message-State: AOJu0YzEQuZJFraUH/ScMZHmJZT1XASHJyhnWHQFjAHGPuuv/Urj+FB5
-	M+tuE9MqT0025eWim3+i1hGiii1jz2gvq38W0M30YUIuvRxkxGBGE70oQnv8ErHkTfnYzRNEHz/
-	MQaxc42zOP5Mj8ok1r4lC24rvXKnx0Denx+fgXz9+NgfH0mdzoBXhcMFG7If8OS+BBHuAmY2xhf
-	PAHlXSG+qF0CZCDaZ7Wyz1J/TxsChHwIjy1qtMSZhL2YGNjz4=
-X-Received: by 2002:a17:90b:23d6:b0:2c3:2f5a:17d4 with SMTP id 98e67ed59e1d1-2ca3a7afcf8mr5871264a91.4.1720580941677;
-        Tue, 09 Jul 2024 20:09:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEKDc/1Dtvd390ol22IDK0nztZPRuQFQegrbwO23fBGP+oSlzmkMroUM5jdeYtFVpiK621EJ8u9fx6xJpJeXac=
-X-Received: by 2002:a17:90b:23d6:b0:2c3:2f5a:17d4 with SMTP id
- 98e67ed59e1d1-2ca3a7afcf8mr5871237a91.4.1720580941065; Tue, 09 Jul 2024
- 20:09:01 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720581064; x=1721185864;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=3q2k0aK+nHm0+rP8SX0FxDxoWTsYNIFUUylFS3XcLTg=;
+        b=G3xcqxsHJBz93r/jR1/6saVOpVi7QUKBmgDfgcMMabCHf1Gb4RQ3HrUqnPg96N+SZj
+         ZZBPx8qx/15lWpSf6P3/TS6q4CXvdsS9bTnxTUgPVveCP8tS1DfWxP+YrIY0VqhQ/Ns8
+         Ibu4D/YXX/86ewZoMk9gYyhQZoCKF9EHCKQ44RLEw5YaTvasYEWGdfOiqZJNsroEmfli
+         xGXeMk5TlznF4F4apQ6MnlxcM9tzIK+M22s/P0AxcbqsV+lcVPgzCId8FrlXJII4QAfk
+         UEGqu/7zOkDWJaGo7TEqoAt3wWb9icDLMsP4L9xvwvCJafYVXG3ha+Oead6ZbgqQnkud
+         ZhYA==
+X-Forwarded-Encrypted: i=1; AJvYcCV3e7l3St30LquqA2lP7CJjLRAylzQi/GpXLuGzJKs4Jzkt13Jh2ENsn0HWhRujBcW2R4HW9g92LV7p3/0/9DBaqUp90KKHK20/Q/6Syuk=
+X-Gm-Message-State: AOJu0YxqeW1txCHebvRjWJwg52u3S0cFJ9FbXtgHRS/en6UBAxmkp6+G
+	bfy3mo4j/Libbw30KXywWbzTSUidnJSJonECmOUGGTaOvRvZJBTavW2n/f6M8Xm40+P71VvgRrT
+	W8qM9C3FSOd8Rq9U6yJY27NpqnMnyjKdmajrAw67xPfatkXlTnVb3zgu1nPicl06I
+X-Received: by 2002:a05:6a20:12ca:b0:1be:c947:f17a with SMTP id adf61e73a8af0-1c29821fadfmr5199434637.24.1720581064296;
+        Tue, 09 Jul 2024 20:11:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFwXqK/RmBGtKXJTYs/VK3YJiSgKXG7DZ9QplJpn6ejNV3sduoK9f1h6m5vA8ggf0/vGgDOeg==
+X-Received: by 2002:a05:6a20:12ca:b0:1be:c947:f17a with SMTP id adf61e73a8af0-1c29821fadfmr5199425637.24.1720581063908;
+        Tue, 09 Jul 2024 20:11:03 -0700 (PDT)
+Received: from [172.20.2.228] ([4.28.11.157])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1fbb6a0fc38sm23180415ad.17.2024.07.09.20.11.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Jul 2024 20:11:03 -0700 (PDT)
+Message-ID: <e9658837-1613-4277-8b21-867f48d34cd9@redhat.com>
+Date: Wed, 10 Jul 2024 05:11:02 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240705112821.144819-1-sgarzare@redhat.com> <20240705073017-mutt-send-email-mst@kernel.org>
- <25fehn7xgvqyqgd6zcscsjazzfhktyjrazffyrtbp2oibnhkey@ggobdyv4zxkf>
- <CACLfguWtcdTM-+GjiXWC-s=d-bvkUedHbCimzsfvYXWJ-=3iDQ@mail.gmail.com>
- <CACGkMEurseUpMKaiLpJEkcT9U_tmqm4yqp3OgR--6XnAY=C9WQ@mail.gmail.com>
- <3f5d33l4c73nudppajvhnjhpdpvft5yolm7vdraikany2tfdjz@i62d45j4ucs5>
- <CACGkMEuqiAx-a0sPJf0Xpvmr=5wbzbuOr0-w+9ZcwQMTWFU1rw@mail.gmail.com> <xuruyrbkago7w7tjbvqmfvjoqy665srurqozbenfayagfxl72y@wqy56jenfo2u>
-In-Reply-To: <xuruyrbkago7w7tjbvqmfvjoqy665srurqozbenfayagfxl72y@wqy56jenfo2u>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 10 Jul 2024 11:08:48 +0800
-Message-ID: <CACGkMEtB1maGywWRPNHgVGJog+rbowXvKG0nEDXPn_9-VB0Azw@mail.gmail.com>
-Subject: Re: [PATCH] vdpa_sim_blk: add `capacity` module parameter
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] virtio_balloon: add work around for out of spec QEMU
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Jason Wang <jasowang@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ virtualization@lists.linux.dev
+References: <cover.1720173841.git.mst@redhat.com>
+ <14b1a2a1acfcaf6d519db8c67f6f207d7cdd7c3b.1720173841.git.mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <14b1a2a1acfcaf6d519db8c67f6f207d7cdd7c3b.1720173841.git.mst@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jul 9, 2024 at 8:41=E2=80=AFPM Stefano Garzarella <sgarzare@redhat.=
-com> wrote:
->
-> On Tue, Jul 09, 2024 at 10:56:16AM GMT, Jason Wang wrote:
-> >On Mon, Jul 8, 2024 at 4:15=E2=80=AFPM Stefano Garzarella <sgarzare@redh=
-at.com> wrote:
-> >>
-> >> Hi Cindy, Jason,
-> >>
-> >> On Mon, Jul 08, 2024 at 03:59:34PM GMT, Jason Wang wrote:
-> >> >On Mon, Jul 8, 2024 at 3:06=E2=80=AFPM Cindy Lu <lulu@redhat.com> wro=
-te:
-> >> >>
-> >> >> On Fri, 5 Jul 2024 at 20:42, Stefano Garzarella <sgarzare@redhat.co=
-m> wrote:
-> >> >> >
-> >> >> > On Fri, Jul 05, 2024 at 07:30:51AM GMT, Michael S. Tsirkin wrote:
-> >> >> > >On Fri, Jul 05, 2024 at 01:28:21PM +0200, Stefano Garzarella wro=
-te:
-> >> >> > >> The vDPA block simulator always allocated a 128 MiB ram-disk, =
-but some
-> >> >> > >> filesystems (e.g. XFS) may require larger minimum sizes (see
-> >> >> > >> https://issues.redhat.com/browse/RHEL-45951).
-> >> >> > >>
-> >> >> > >> So to allow us to test these filesystems, let's add a module p=
-arameter
-> >> >> > >> to control the size of the simulated virtio-blk devices.
-> >> >> > >> The value is mapped directly to the `capacity` field of the vi=
-rtio-blk
-> >> >> > >> configuration space, so it must be expressed in sector numbers=
- of 512
-> >> >> > >> bytes.
-> >> >> > >>
-> >> >> > >> The default value (0x40000) is the same as the previous value,=
- so the
-> >> >> > >> behavior without setting `capacity` remains unchanged.
-> >> >> > >>
-> >> >> > >> Before this patch or with this patch without setting `capacity=
-`:
-> >> >> > >>   $ modprobe vdpa-sim-blk
-> >> >> > >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
-> >> >> > >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
-> >> >> > >>   virtio_blk virtio6: [vdb] 262144 512-byte logical blocks (13=
-4 MB/128 MiB)
-> >> >> > >>
-> >> >> > >> After this patch:
-> >> >> > >>   $ modprobe vdpa-sim-blk capacity=3D614400
-> >> >> > >>   $ vdpa dev add mgmtdev vdpasim_blk name blk0
-> >> >> > >>   virtio_blk virtio6: 1/0/0 default/read/poll queues
-> >> >> > >>   virtio_blk virtio6: [vdb] 614400 512-byte logical blocks (31=
-5 MB/300 MiB)
-> >> >> > >>
-> >> >> > >> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> >> >> > >
-> >> >> > >What a hack. Cindy was working on adding control over config
-> >> >> > >space, why can't that be used?
-> >> >> >
-> >> >> > If it can be used easily with virtio-blk device too, it will be g=
-reat.
-> >> >> > @Cindy do you plan to support that changes for a virtio-blk devic=
-e too?
-> >> >> >
-> >> >> Hi Stefano
-> >> >> I plan to add support to change the vdpa device's configuration aft=
-er
-> >> >> it is created.
-> >> >
-> >> >I think for Stefano's case, we can just implement it via provisioning
-> >> >parameters?
-> >>
-> >> Yep, I think we don't need to change it after creation, but specifying
-> >> while creating should be enough.
-> >>
-> >> So, IIUC we can already do it, implementing something similar to
-> >> vdpasim_net_setup_config() to call during vdpasim_blk_dev_add(), right=
-?
-> >
-> >Right.
-> >
-> >>
-> >> What about when we have `shared_backend` set to true for the
-> >> vdpa_sim_blk.ko? In this case the backend is supposed to be shared
-> >> between all the devices to test live migration.
-> >
-> >This seems to be another topic.
->
-> Yep, but really related. I think we need to handle that case when
-> supporting the `capacity` setting.
+On 05.07.24 12:08, Michael S. Tsirkin wrote:
+> QEMU implemented the configuration
+> 	VIRTIO_BALLOON_F_REPORTING && ! VIRTIO_BALLOON_F_FREE_PAGE_HINT
+> incorrectly: it then uses vq3 for reporting, spec says it is always 4.
+> 
+> This is masked by a corresponding bug in driver:
+> add a work around as I'm going to try and fix the driver bug.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>   drivers/virtio/virtio_balloon.c | 19 +++++++++++++++++--
+>   1 file changed, 17 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 9a61febbd2f7..7dc3fcd56238 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -597,8 +597,23 @@ static int init_vqs(struct virtio_balloon *vb)
+>   
+>   	err = virtio_find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX, vqs,
+>   			      callbacks, names, NULL);
+> -	if (err)
+> -		return err;
+> +	if (err) {
+> +		/*
+> +		 * Try to work around QEMU bug which since 2020 confused vq numbers
+> +		 * when VIRTIO_BALLOON_F_REPORTING but not
+> +		 * VIRTIO_BALLOON_F_FREE_PAGE_HINT are offered.
+> +		 */
+> +		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING) &&
+> +		    !virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+> +			names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "reporting_vq";
+> +			callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = balloon_ack;
+> +			err = virtio_find_vqs(vb->vdev,
+> +					      VIRTIO_BALLOON_VQ_REPORTING, vqs, callbacks, names, NULL);
+> +		}
+> +
+> +		if (err)
+> +			return err;
+> +	}
+>   
+>   	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
+>   	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
 
-Ok, so if I was not wrong, the goal is to test migration.
+Acked-by: David Hildenbrand <david@redhat.com>
 
->
-> >
-> >>
-> >> Maybe we can just change the size of the shared ramdisk to be reflecte=
-d
-> >> to all devices.
-> >>
-> >> Suggestions?
-> >
-> >Could we specify the path to tmpfs or others during provisioning
-> >instead?  It seems more general (but more work).
->
-> Then it would almost become a real device, no longer just a simulator.
-> It's enough work, though, as you said, but at that point we'd just have
-> to specify the backend file to use for the device.
->
-> In that case what API would we need to use to allow the user to set the
-> backend file?
+-- 
+Cheers,
 
-Yes, I think we can allow some vendor specific provisioning parameters.
-
-But not sure it's an overkill for the use case here. If others are
-happy with the shared_backed. I'm fine.
-
-Thanks
-
->
-> Thanks,
-> Stefano
->
+David / dhildenb
 
