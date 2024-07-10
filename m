@@ -1,125 +1,289 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CDA9191F8E
-	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 12:43:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83FE583CD4
+	for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 13:03:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720615437; cv=none; b=BJ+c4Ro3QVDWRuF8O+gWpyuQKgYgW0gPGYnDi8mlqzsy5zcywpjjYqVIzfaUvxoXJdu/lW8qKDU4BtS6yqlPsiKurYKbFnfKo/HHoLGI1U2jGxWDocU0JM65MgiRHufPtPn5tUciv9I9DBLY3smCsrutX2i0rBTXUECfleqJuys=
+	t=1720616621; cv=none; b=YEviXFGfvWr4V/5iEZDO0D0qTYDE1YLUPaRLjqplNzVLF7sO8XfX86/AssyRrILUp4VbrdDGyQwzmYX5LYI9zCPqIv3zkfRDxEY73MIPUizZHq8uK41nSOdOpy3nnGwOiS2YDeUgA40rmAbxTM+JJrynOlPKbqD0eOQjZflQDjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720615437; c=relaxed/simple;
-	bh=43DDJK4SeQY7M8v3PtNKvgwHxdoCohqLSGhU/xmdabo=;
+	s=arc-20240116; t=1720616621; c=relaxed/simple;
+	bh=zHA2edNBKD5TyQ7XQpng+rmKmGP55X9ikEUmjW6FASg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=URkozw9v88mtisKi+5FkesjPP++lE1kr4ZKoxGlOcL4WMdOVFVeI4XGUaVC2XSbvDWAUGQ8rTsNjVx8RhBxg6eZJYMe/t4mTI+3ZP9vLU5xVbmjzAFnKE/1Pon5enYUfpKtYQYbQl56R4Y0YCfa+OCkyEv9EGf3USRc5FSK2+wM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DiM4/0qg; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=k9ojn40MN9kvH3ytvOWwGdxKk2QWRGlkBdvhlh769LCdV3Pm9h2v1k0uHBHy27O1ouw/87ICtc3gU51oUBQjdXgBR+N0FR3uciMBXE6SoR7pp4ddR7HFkoaUKNivfBGoqYrpprW8entgoAqLJCqDQ923NsYjjddWszwf8Ig0hEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=jyxGLoJh; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DiM4/0qg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720615435;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2/9lippDLEXmtWgWziQzdujSsOrakrUjnFWOu2HZ5zc=;
-	b=DiM4/0qggXba+56ZPlmcdU+bfyzX3YC/hSfFcs/IXO57yoTw+c8knJZxN7RtJhqO4MPq/y
-	9/gwofdusvxKysTnkCggn3INBxEyWG+eg7biwcF7ACwuln6vh+vVX7lDBMvcB4ZVdFi0yl
-	sJoVe6BZs833OjGybjjUxlsF1Iyl8ks=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-438-E-5zoNiKO-G_sH5J8fySrw-1; Wed, 10 Jul 2024 08:43:53 -0400
-X-MC-Unique: E-5zoNiKO-G_sH5J8fySrw-1
-Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-57c93227bbeso6014906a12.3
-        for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 05:43:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="jyxGLoJh"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-42795086628so3734215e9.3
+        for <virtualization@lists.linux.dev>; Wed, 10 Jul 2024 06:03:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1720616616; x=1721221416; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=0mszwoJHAWEOb1Rdvi04TadZZz0iDSmITaqkQeQgzDY=;
+        b=jyxGLoJhsBHoJde13A/VJ4J8fN7DTEQXZXzYwrybtzLfS7FdtOrUixrq1TGnCjd2j3
+         Sc6jWhqVlO4FzOamQBbE9lAYEE/fEvKgvKiY/uZojb8dxSfOtMK/V1q1z8ucv6Z07IXd
+         ZiOKgLBHSFUxVAHcU4LAhreDxBhuIfnjNb5FBiQWOmfjxt8Ce2I//GC/+q+pk9dLzNAY
+         mP30wmBvwTGyR8FbXUHe9N3OoH7JVD/sNsz7/I9wPiyok409S8r16ZaCSh/B342WXyHm
+         Tbw55pKoMStrQOEhXwrFkZ//hcb5OvL6CJmTQBjoviOaBLfV1P9Ki5XytRZHJ4Vlb+l3
+         L3Xg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720615432; x=1721220232;
+        d=1e100.net; s=20230601; t=1720616616; x=1721221416;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2/9lippDLEXmtWgWziQzdujSsOrakrUjnFWOu2HZ5zc=;
-        b=n+CNeuV2IpUmNf3EKKK4kywoaaiHKm3tx3vUKpjnnd6muBOjaNkvEGSEbcR07i0KIY
-         4iilrXU5dXvD62dO8HWfrMzf+fDUA2r/lgIXu7oSVFpwKh8A7qXdPd7WhJbuJOgUrmmZ
-         jxJbrbp4CKxjtRCLNdoG6NSaUK2gT5/uR5bo+hilOCQREl6kduQcOypZylQLFm5W0ULS
-         EhSBDGbuN9RE50hb5ImAA/I0hG7BliGJ8BtjFCiWy5TAYmn6CFJWPeCCV+XVBTcecsMw
-         uEUI3gX/FoZb+GDnGw8b5SupyYuFWtXrh7rMxSIZuo3pA3G11HxBtRkkA/AXadFu8IPv
-         72kQ==
-X-Gm-Message-State: AOJu0YwVWPO2Ke3u/n67/n0Bxmf98lGs3JfhDVZ1Cfvcq2gkhXs/G6b4
-	y6vC8UJyOq12xL7xKpjFuT24iwVmwD1243fokcXEEMVxVoLFEP5PgO+RGibrXQN7PxnTx6HyDda
-	Fy8LvOIwFdLnT56FvK+v8oewpV/DHnD7I5XGqKUZhC1Z9hc+eJiS56OyG+LapAf1WfA0k/nMs
-X-Received: by 2002:a05:6402:270c:b0:58c:ccc1:17f7 with SMTP id 4fb4d7f45d1cf-594baf87f81mr3887202a12.15.1720615432394;
-        Wed, 10 Jul 2024 05:43:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGizrLSJI1qs8JqxXWm1KqqiwDtq78ZjQ4fIt6a38oE7t7gbjWggSz07taF+RS8p94KE7RgCw==
-X-Received: by 2002:a05:6402:270c:b0:58c:ccc1:17f7 with SMTP id 4fb4d7f45d1cf-594baf87f81mr3887184a12.15.1720615431778;
-        Wed, 10 Jul 2024 05:43:51 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-57-51-153.retail.telecomitalia.it. [82.57.51.153])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-594bbe2cc82sm2177127a12.23.2024.07.10.05.43.50
+        bh=0mszwoJHAWEOb1Rdvi04TadZZz0iDSmITaqkQeQgzDY=;
+        b=NAZRyY4ddSxIucyiGshSZP1L9XgWTuxR44Ub57IE+OxG+pqvpyCqQLjLJLs+Np46h4
+         EXhWo709fq58+/RojyIvBXZrSYkGvAfoIHHuYmF8mEYqRJc1Mt/jP3wQur9/UuE5tAWw
+         csIw7obHfAsfOg6KiickzlN5xzrBtQWcbBXs2r2Snxmk4QTcoBCtZeDXMU8CnkU8mVZ7
+         YWie8qiAL9ycMUR/7kLmSFGkiZ4IYs2MZHUkDswk0uB3qZ8Mj5zMaYwxcXf0m5CrisY1
+         7nBePRoDgaW7lVvjDSyqr8anwKxw1JvfzgQzjo/K81oKbIDQOmDCgvX/LVqiUy2skoLq
+         TZSg==
+X-Gm-Message-State: AOJu0Yzay3xZS0/u+rI9f6fTkTDvzfZj/TtzY6FIIwggleNM2bPExZ5U
+	gLfdy1Eu49VxcQQqOzs1IkA9cbwn1PZ+s2hrYaaovMvgyHwJl9WPUrCoB8DjiAM=
+X-Google-Smtp-Source: AGHT+IEa01Jv+CWjaU2SEf/OjZDLzmUksADifQDAJWPg+SzSqthXhfDtycyxopcA7OdNu+3LgKVYNg==
+X-Received: by 2002:a05:600c:a:b0:426:63b8:2cce with SMTP id 5b1f17b1804b1-426707cc06emr35605815e9.7.1720616615493;
+        Wed, 10 Jul 2024 06:03:35 -0700 (PDT)
+Received: from localhost (37-48-50-18.nat.epc.tmcz.cz. [37.48.50.18])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4266f6f1ff9sm82256995e9.18.2024.07.10.06.03.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jul 2024 05:43:50 -0700 (PDT)
-Date: Wed, 10 Jul 2024 14:43:46 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: Re: [PATCH V2] test/vsock: add install target
-Message-ID: <e6oxt6gw36mhv54qbgc2bihcaym2xrquxtsjhyvm2u7wj76nu5@zneaxujp6oei>
-References: <20240710122728.45044-1-peng.fan@oss.nxp.com>
+        Wed, 10 Jul 2024 06:03:34 -0700 (PDT)
+Date: Wed, 10 Jul 2024 15:03:33 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, parav@nvidia.com,
+	feliu@nvidia.com, hengqi@linux.alibaba.com
+Subject: Re: [PATCH virtio v2 12/13] virtio_pci_modern: use completion
+ instead of busy loop to wait on admin cmd result
+Message-ID: <Zo6GpTOCJ-MJdU8P@nanopsycho.orion>
+References: <20240710063601.2000149-1-jiri@resnulli.us>
+ <20240710063601.2000149-13-jiri@resnulli.us>
+ <20240710073925-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240710122728.45044-1-peng.fan@oss.nxp.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20240710073925-mutt-send-email-mst@kernel.org>
 
-On Wed, Jul 10, 2024 at 08:27:28PM GMT, Peng Fan (OSS) wrote:
->From: Peng Fan <peng.fan@nxp.com>
+Wed, Jul 10, 2024 at 01:47:22PM CEST, mst@redhat.com wrote:
+>On Wed, Jul 10, 2024 at 08:36:00AM +0200, Jiri Pirko wrote:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> Currently, the code waits in a busy loop on every admin virtqueue issued
+>> command to get a reply. That prevents callers from issuing multiple
+>> commands in parallel.
+>> 
+>> To overcome this limitation, introduce a virtqueue event callback for
+>> admin virtqueue. For every issued command, use completion mechanism
+>> to wait on a reply. In the event callback, trigger the completion
+>> is done for every incoming reply.
+>> 
+>> Alongside with that, introduce a spin lock to protect the admin
+>> virtqueue operations.
+>> 
+>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> ---
+>> v1->v2:
+>> - rebased on top of newly added patches
+>> - rebased on top of changes in previous patches (vq info, vqs[])
+>> - removed WARN_ON_ONCE() when calling virtqueue_kick()
+>> - added virtqueue_is_broken check in virtqueue_exec_admin_cmd() loop
+>> - added vp_modern_avq_cleanup() implementation to handle surprise
+>>   removal case
+>> ---
+>>  drivers/virtio/virtio_pci_common.c | 13 ++++--
+>>  drivers/virtio/virtio_pci_common.h |  3 ++
+>>  drivers/virtio/virtio_pci_modern.c | 74 +++++++++++++++++++++++++-----
+>>  include/linux/virtio.h             |  3 ++
+>>  4 files changed, 77 insertions(+), 16 deletions(-)
+>> 
+>> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+>> index 267643bb1cd5..c44d8ba00c02 100644
+>> --- a/drivers/virtio/virtio_pci_common.c
+>> +++ b/drivers/virtio/virtio_pci_common.c
+>> @@ -395,6 +395,8 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+>>  			if (vqi->name && vqi->callback)
+>>  				++nvectors;
+>>  		}
+>> +		if (avq_num && vector_policy == VP_VQ_VECTOR_POLICY_EACH)
+>> +			++nvectors;
+>>  	} else {
+>>  		/* Second best: one for change, shared for all vqs. */
+>>  		nvectors = 2;
+>> @@ -425,9 +427,9 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+>>  	if (!avq_num)
+>>  		return 0;
+>>  	sprintf(avq->name, "avq.%u", avq->vq_index);
+>> -	vq = vp_find_one_vq_msix(vdev, avq->vq_index, NULL, avq->name, false,
+>> -				 true, &allocated_vectors, vector_policy,
+>> -				 &vp_dev->admin_vq.info);
+>> +	vq = vp_find_one_vq_msix(vdev, avq->vq_index, vp_modern_avq_done,
+>> +				 avq->name, false, true, &allocated_vectors,
+>> +				 vector_policy, &vp_dev->admin_vq.info);
+>>  	if (IS_ERR(vq)) {
+>>  		err = PTR_ERR(vq);
+>>  		goto error_find;
+>> @@ -486,8 +488,9 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+>>  	if (!avq_num)
+>>  		return 0;
+>>  	sprintf(avq->name, "avq.%u", avq->vq_index);
+>> -	vq = vp_setup_vq(vdev, queue_idx++, NULL, avq->name, false,
+>> -			 VIRTIO_MSI_NO_VECTOR, &vp_dev->admin_vq.info);
+>> +	vq = vp_setup_vq(vdev, queue_idx++, vp_modern_avq_done, avq->name,
+>> +			 false, VIRTIO_MSI_NO_VECTOR,
+>> +			 &vp_dev->admin_vq.info);
+>>  	if (IS_ERR(vq)) {
+>>  		err = PTR_ERR(vq);
+>>  		goto out_del_vqs;
+>> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+>> index de59bb06ec3c..90df381fbbcf 100644
+>> --- a/drivers/virtio/virtio_pci_common.h
+>> +++ b/drivers/virtio/virtio_pci_common.h
+>> @@ -47,6 +47,8 @@ struct virtio_pci_admin_vq {
+>>  	struct virtio_pci_vq_info *info;
+>>  	/* serializing admin commands execution. */
+>>  	struct mutex cmd_lock;
+>> +	/* Protects virtqueue access. */
+>> +	spinlock_t lock;
+>>  	u64 supported_cmds;
+>>  	/* Name of the admin queue: avq.$vq_index. */
+>>  	char name[10];
+>> @@ -178,6 +180,7 @@ struct virtio_device *virtio_pci_vf_get_pf_dev(struct pci_dev *pdev);
+>>  #define VIRTIO_ADMIN_CMD_BITMAP 0
+>>  #endif
+>>  
+>> +void vp_modern_avq_done(struct virtqueue *vq);
+>>  int vp_modern_admin_cmd_exec(struct virtio_device *vdev,
+>>  			     struct virtio_admin_cmd *cmd);
+>>  
+>> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+>> index 0fd344d1eaf9..608df3263df1 100644
+>> --- a/drivers/virtio/virtio_pci_modern.c
+>> +++ b/drivers/virtio/virtio_pci_modern.c
+>> @@ -53,6 +53,23 @@ static bool vp_is_avq(struct virtio_device *vdev, unsigned int index)
+>>  	return index == vp_dev->admin_vq.vq_index;
+>>  }
+>>  
+>> +void vp_modern_avq_done(struct virtqueue *vq)
+>> +{
+>> +	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+>> +	struct virtio_pci_admin_vq *admin_vq = &vp_dev->admin_vq;
+>> +	struct virtio_admin_cmd *cmd;
+>> +	unsigned long flags;
+>> +	unsigned int len;
+>> +
+>> +	spin_lock_irqsave(&admin_vq->lock, flags);
+>> +	do {
+>> +		virtqueue_disable_cb(vq);
+>> +		while ((cmd = virtqueue_get_buf(vq, &len)))
+>> +			complete(&cmd->completion);
+>> +	} while (!virtqueue_enable_cb(vq));
+>> +	spin_unlock_irqrestore(&admin_vq->lock, flags);
+>> +}
+>> +
+>>  static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+>>  				    u16 opcode,
+>>  				    struct scatterlist **sgs,
+>> @@ -61,7 +78,8 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+>>  				    struct virtio_admin_cmd *cmd)
+>>  {
+>>  	struct virtqueue *vq;
+>> -	int ret, len;
+>> +	unsigned long flags;
+>> +	int ret;
+>>  
+>>  	vq = admin_vq->info->vq;
+>>  	if (!vq)
+>> @@ -72,21 +90,33 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+>>  	    !((1ULL << opcode) & admin_vq->supported_cmds))
+>>  		return -EOPNOTSUPP;
+>>  
+>> -	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
+>> -	if (ret < 0)
+>> -		return -EIO;
+>> +	init_completion(&cmd->completion);
+>>  
+>> -	if (unlikely(!virtqueue_kick(vq)))
+>> +again:
+>> +	if (virtqueue_is_broken(vq))
+>>  		return -EIO;
+>>  
+>> -	while (!virtqueue_get_buf(vq, &len) &&
+>> -	       !virtqueue_is_broken(vq))
+>> -		cpu_relax();
+>> +	spin_lock_irqsave(&admin_vq->lock, flags);
+>> +	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
+>> +	if (ret < 0) {
+>> +		if (ret == -ENOSPC) {
+>> +			spin_unlock_irqrestore(&admin_vq->lock, flags);
+>> +			cpu_relax();
+>> +			goto again;
+>> +		}
+>> +		goto unlock_err;
+>> +	}
+>> +	if (!virtqueue_kick(vq))
+>> +		goto unlock_err;
+>> +	spin_unlock_irqrestore(&admin_vq->lock, flags);
+>>  
+>> -	if (virtqueue_is_broken(vq))
+>> -		return -EIO;
+>> +	wait_for_completion(&cmd->completion);
+>>  
+>> -	return 0;
+>> +	return cmd->ret;
+>> +
+>> +unlock_err:
+>> +	spin_unlock_irqrestore(&admin_vq->lock, flags);
+>> +	return -EIO;
+>>  }
+>>  
+>>  int vp_modern_admin_cmd_exec(struct virtio_device *vdev,
+>> @@ -209,6 +239,25 @@ static void vp_modern_avq_activate(struct virtio_device *vdev)
+>>  	virtio_pci_admin_cmd_list_init(vdev);
+>>  }
+>>  
+>> +static void vp_modern_avq_cleanup(struct virtio_device *vdev)
+>> +{
+>> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+>> +	struct virtio_admin_cmd *cmd;
+>> +	struct virtqueue *vq;
+>> +
+>> +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
+>> +		return;
+>> +
+>> +	vq = vp_dev->vqs[vp_dev->admin_vq.vq_index]->vq;
+>> +	if (!vq)
+>> +		return;
+>> +
+>> +	while ((cmd = virtqueue_detach_unused_buf(vq))) {
+>> +		cmd->ret = -EIO;
+>> +		complete(&cmd->completion);
+>> +	}
+>> +}
+>> +
 >
->Add install target for vsock to make Yocto easy to install the images.
 >
->Signed-off-by: Peng Fan <peng.fan@nxp.com>
->---
+>I think surprise removal is still broken with this.
 
-LGTM! This is a net-next material, so next time better to specify it 
-(e.g. [PATCH net-next]).
+Why do you think so? I will drain the remaining buffers from the queue
+and complete them all. What's missing?
 
-If not queued within a week, please resend specifying net-next.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+>You need to add a callback and signal the completion.
+
+Callback to what?
+
+
+
 
 >
->V2:
-> Use VSOCK_INSTALL_PATH, drop INSTALL_PATH
->
-> tools/testing/vsock/Makefile | 13 +++++++++++++
-> 1 file changed, 13 insertions(+)
->
->diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
->index a7f56a09ca9f..6e0b4e95e230 100644
->--- a/tools/testing/vsock/Makefile
->+++ b/tools/testing/vsock/Makefile
->@@ -13,3 +13,16 @@ CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-p
-> clean:
-> 	${RM} *.o *.d vsock_test vsock_diag_test vsock_perf vsock_uring_test
-> -include *.d
->+
->+VSOCK_INSTALL_PATH ?=
->+
->+install: all
->+ifdef VSOCK_INSTALL_PATH
->+	mkdir -p $(VSOCK_INSTALL_PATH)
->+	install -m 744 vsock_test $(VSOCK_INSTALL_PATH)
->+	install -m 744 vsock_perf $(VSOCK_INSTALL_PATH)
->+	install -m 744 vsock_diag_test $(VSOCK_INSTALL_PATH)
->+	install -m 744 vsock_uring_test $(VSOCK_INSTALL_PATH)
->+else
->+	$(error Error: set VSOCK_INSTALL_PATH to use install)
->+endif
 >-- 
->2.37.1
+>MST
 >
-
