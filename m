@@ -1,72 +1,68 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B6F15EFB8;
-	Thu, 11 Jul 2024 13:16:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7585314A601;
+	Thu, 11 Jul 2024 13:24:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720703805; cv=none; b=I+NNbqhDth08z89HrzJ4X6JJQUfj8eXIZZg/RukhRJIgJUwHY78xxrZxJADm9e2olk7zcNop3+r6tYOGiHxRzOPGPbUV4CoAuRjO5OTlGeoi9OoZKHkRM9X4CKMpp1L9whrNT14rsYj52BPUt4OMXEpbon3t3/2NY+gmHqo+apg=
+	t=1720704271; cv=none; b=Ez/zWOzKNxwGr9lj/mM2MjPUX+NUl2TnG1mz1Ts4Q8p8dZPj4EXj5BAD9qtrT+b73h5n9+aoznr2+J526YljZePZvjdgECg6N0OYa0Qq8bW3oJiGP2f/Stf1QF2MiCTywx4rQJR+AFWwi/mIdthcUUAnJJ53YW/R2dL/NPg5WTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720703805; c=relaxed/simple;
-	bh=r4dU6vqYjav3VvaXX3Sjsxc+xsxGdgu1+j2zgdtBir0=;
+	s=arc-20240116; t=1720704271; c=relaxed/simple;
+	bh=KAnGBHpCxcNlVVtwdfdNAWR48fJas1MfIdvTMUQRyEU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WJa5EmFW7FfxjZDQ0owg66GiXK8Q0Z49ZQTBz4vGbDLyilX7H6EoG7RnouTomFaF7KGabZZt8QJLLTbO5x/ggfHYDW4KHZMKQ1qri4+FFN945p1P59IN2WEwOWstZtbJIsnzv+7jcTOUeC+8vEA1NpvTdPzADWKy07qDZxSlqC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p6+2Cwc3; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=AsZ+ePkpU51UZ6PjXp/m6Y7JULvl6FFEtumI79MIReBjgylGMslhUEr16XfYLbZDUSPawacyp9lJ8K8QdDbIItjSnYnsqHz+xs2Y3PnvbFupalcBtToFxB5UUi1w+zAYBtYBbm5ewDy+EgiyfpcQbrOhasgQ4nGgbhkMj2fuEyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=haSB2/xE; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p6+2Cwc3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEA8C4AF07;
-	Thu, 11 Jul 2024 13:16:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720703804;
-	bh=r4dU6vqYjav3VvaXX3Sjsxc+xsxGdgu1+j2zgdtBir0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=p6+2Cwc3E4O2uSx+DH2Km80jUBJZO8J64ERrKxq9KkUeFczRflG9OflmEO510OaXv
-	 45jt2cHUGxBY/BUC0Z9hW6R8nyC6DamtRdsZkHJARIg7E3kp7GzysSngCujqlP3VWR
-	 TPqx6sTZQOFskGr1UzbUnP1+s/mtIHMsYSvjvwH86bewjS89AL3t0A4IeTK4ozMmE9
-	 VfQlqnSZYJdUae8LIwJEfllYADu4Q5SdM6BISkS88tS/ThyaimP+0SKo9mM2mVW7a1
-	 WrZ7yUkx93n0H/pTz8Qc0943VkrKQagoUfasatX2jprIFXJOAYW6pqWFKD3Q2FcVk5
-	 vMsq9BOw/f7RA==
-Date: Thu, 11 Jul 2024 15:16:40 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Ajay Gupta <ajayg@nvidia.com>, 
-	Alain Volmat <alain.volmat@foss.st.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>, Andrew Lunn <andrew@lunn.ch>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, asahi@lists.linux.dev, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Bartosz Golaszewski <brgl@bgdev.pl>, 
-	Baruch Siach <baruch@tkos.co.il>, Bence =?utf-8?B?Q3PDs2vDoXM=?= <bence98@sch.bme.hu>, 
-	Benson Leung <bleung@chromium.org>, Binbin Zhou <zhoubinbin@loongson.cn>, 
-	Chen-Yu Tsai <wens@csie.org>, Chris Brandt <chris.brandt@renesas.com>, 
-	Chris Packham <chris.packham@alliedtelesis.co.nz>, chrome-platform@lists.linux.dev, 
-	Chunyan Zhang <zhang.lyra@gmail.com>, Conghui Chen <conghui.chen@intel.com>, 
-	Eddie James <eajames@linux.ibm.com>, Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Florian Fainelli <florian.fainelli@broadcom.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, 
-	Guenter Roeck <linux@roeck-us.net>, Hans de Goede <hdegoede@redhat.com>, 
-	Hans Hu <hanshu@zhaoxin.com>, Hector Martin <marcan@marcan.st>, 
-	Heiko Stuebner <heiko@sntech.de>, Jean Delvare <jdelvare@suse.com>, 
-	Jernej Skrabec <jernej.skrabec@gmail.com>, Jochen Friedrich <jochen@scram.de>, 
-	Jonathan Hunter <jonathanh@nvidia.com>, Kamal Dasu <kamal.dasu@broadcom.com>, 
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, linux-actions@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	linux-mediatek@lists.infradead.org, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org, 
-	linux-rpi-kernel@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Michael Shych <michaelsh@nvidia.com>, openbmc@lists.ozlabs.org, 
-	Orson Zhai <orsonzhai@gmail.com>, Patrice Chotard <patrice.chotard@foss.st.com>, 
-	Paul Cercueil <paul@crapouillou.net>, Peter Korsgaard <peter@korsgaard.com>, 
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, Ray Jui <rjui@broadcom.com>, Robert Richter <rric@kernel.org>, 
-	Samuel Holland <samuel@sholland.org>, Scott Branden <sbranden@broadcom.com>, Stefan Roese <sr@denx.de>, 
-	Sven Peter <sven@svenpeter.dev>, Thierry Reding <thierry.reding@gmail.com>, 
-	Thor Thayer <thor.thayer@linux.intel.com>, Till Harbaum <till@harbaum.org>, 
-	Vadim Pasternak <vadimp@nvidia.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
-	virtualization@lists.linux.dev, Vladimir Zapolskiy <vz@mleia.com>, 
-	Yicong Yang <yangyicong@hisilicon.com>
-Subject: Re: [PATCH v2 00/60] i2c: reword first drivers according to newest
- specification
-Message-ID: <nbi3fngfcipt35gzguk2mh4zzh3vy5a5gsk7dti5smm2iimytl@drm7p2iqsinp>
-References: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="haSB2/xE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1720704269; x=1752240269;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=KAnGBHpCxcNlVVtwdfdNAWR48fJas1MfIdvTMUQRyEU=;
+  b=haSB2/xEW7znONVEKYqXH77iAxJymTjFNu/wpSuM8bH5oCwop85fdHBR
+   8QiSSC+E72M80+5hJz5NaOiwdcplrKFcFC4v6/KQZx0jawBRoh3HaU9V7
+   uoN7Joym8p8xfmMyKdSK5hsK6od/sG8Y0cif0wRO23CSz90f8639lccSm
+   8Gm4V47Djy+yIDJ1p3aMZyX3A4H63FpCyrgKDCuo5FhNNOvssmLr8Hh74
+   ecGVH2nk1cVXj4ZloNexOCy1L31Y8yDZL5qo8ZkOzeBunHx/eHINl1Br2
+   GTSC5nVUcaf/MbR0wJw9EGVX7SBjschxOBZmwqzh7ETl44kf/QORFI9Z8
+   g==;
+X-CSE-ConnectionGUID: fouj+wqvSGqs12Bx0t0s9Q==
+X-CSE-MsgGUID: WI64HkRTT5C2RT9eECG3Jw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11130"; a="18027818"
+X-IronPort-AV: E=Sophos;i="6.09,200,1716274800"; 
+   d="scan'208";a="18027818"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jul 2024 06:24:29 -0700
+X-CSE-ConnectionGUID: pEL7xV6+SeaKGCCdyc7XKQ==
+X-CSE-MsgGUID: Bzn3bDKVSPeVyTDsl7qAwA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,200,1716274800"; 
+   d="scan'208";a="53733484"
+Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
+  by orviesa004.jf.intel.com with ESMTP; 11 Jul 2024 06:24:26 -0700
+Received: from kbuild by 68891e0c336b with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sRtmZ-000ZJu-2d;
+	Thu, 11 Jul 2024 13:24:23 +0000
+Date: Thu, 11 Jul 2024 21:23:52 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v2 1/2] virtio_balloon: add work around for out of spec
+ QEMU
+Message-ID: <202407112126.plGUWi8I-lkp@intel.com>
+References: <19d916257b76148f89de7386389eeb7267b1b61c.1720611677.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,187 +71,136 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <19d916257b76148f89de7386389eeb7267b1b61c.1720611677.git.mst@redhat.com>
 
-Hi Wolfram,
+Hi Michael,
 
-pushed in i2c/i2c-host.
+kernel test robot noticed the following build errors:
 
-Thanks for this big work, at the end it turned out quite nice and
-I'm happy of the outcome!
+[auto build test ERROR on next-20240710]
+[cannot apply to uml/next remoteproc/rproc-next s390/features linus/master uml/fixes v6.10-rc7 v6.10-rc6 v6.10-rc5 v6.10-rc7]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Thanks
-Andi
+url:    https://github.com/intel-lab-lkp/linux/commits/Michael-S-Tsirkin/virtio_balloon-add-work-around-for-out-of-spec-QEMU/20240711-004346
+base:   next-20240710
+patch link:    https://lore.kernel.org/r/19d916257b76148f89de7386389eeb7267b1b61c.1720611677.git.mst%40redhat.com
+patch subject: [PATCH v2 1/2] virtio_balloon: add work around for out of spec QEMU
+config: i386-randconfig-005-20240711 (https://download.01.org/0day-ci/archive/20240711/202407112126.plGUWi8I-lkp@intel.com/config)
+compiler: clang version 18.1.5 (https://github.com/llvm/llvm-project 617a15a9eac96088ae5e9134248d8236e34b91b1)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240711/202407112126.plGUWi8I-lkp@intel.com/reproduce)
 
-On Sat, Jul 06, 2024 at 01:20:00PM GMT, Wolfram Sang wrote:
-> Start changing the wording of the I2C main header wrt. the newest I2C
-> v7 and SMBus 3.2 specifications and replace "master/slave" with more
-> appropriate terms. This first step renames the members of struct
-> i2c_algorithm. Once all in-tree users are converted, the anonymous union
-> will go away again. All this work will also pave the way for finally
-> seperating the monolithic header into more fine-grained headers like
-> "i2c/clients.h" etc. So, this is not a simple renaming-excercise but
-> also a chance to update the I2C core to recent Linux standards.
-> 
-> Changes since v1:
-> 
-> * changed wording according to the terminology we agreed on and defined
->   upstream. That means consistent use of "controller/target", and no
->   more "host/client". I added "local/remote target" where necessary.
-> * added tags which I kept despite some changes in wording. The approach
->   and code changes (if necessary) did not change.
-> * rebased to Andi's for-next branch
-> * this series only contains patches which convert the drivers fully. If
->   all goes well, no more updates for them are needed. The previous
->   series converted all users of "master_xfer". But to avoid tons of
->   incremental patches to one driver, I will incrementally improve i2c.h
->   and see which drivers can be fully converted step-by-step.
-> * do not mention I3C specs in commit messages, not really relevant here
-> 
-> Please note that I am not super strict with the 80 char limit. And, as
-> agreed, I did not convert occasions where old terminology is used in
-> register names or bits etc. or in function names outside of the I2C
-> realm.
-> 
-> The outcome is that before this series 115 drivers use old terminology,
-> after this only 54. Hooray.
-> 
-> And a comment to all janitors: Do not convert I2C drivers outside of
-> drivers/i2c yet. Let us first gain experience here and present the
-> well-tested results of what we figured out to other maintainers then.
-> This ensures they have to deal with way less patch revisions.
-> 
-> Thanks and happy hacking!
-> 
-> 
-> Wolfram Sang (60):
->   i2c: reword i2c_algorithm according to newest specification
->   i2c: ali15x3: reword according to newest specification
->   i2c: altera: reword according to newest specification
->   i2c: au1550: reword according to newest specification
->   i2c: bcm-kona: reword according to newest specification
->   i2c: bcm2835: reword according to newest specification
->   i2c: brcmstb: reword according to newest specification
->   i2c: cht-wc: reword according to newest specification
->   i2c: cp2615: reword according to newest specification
->   i2c: cros-ec-tunnel: reword according to newest specification
->   i2c: davinci: reword according to newest specification
->   i2c: digicolor: reword according to newest specification
->   i2c: diolan-u2c: reword according to newest specification
->   i2c: dln2: reword according to newest specification
->   i2c: fsi: reword according to newest specification
->   i2c: gpio: reword according to newest specification
->   i2c: highlander: reword according to newest specification
->   i2c: hisi: reword according to newest specification
->   i2c: hix5hd2: reword according to newest specification
->   i2c: i801: reword according to newest specification
->   i2c: ibm_iic: reword according to newest specification
->   i2c: iop3xx: reword according to newest specification
->   i2c: isch: reword according to newest specification
->   i2c: jz4780: reword according to newest specification
->   i2c: kempld: reword according to newest specification
->   i2c: ljca: reword according to newest specification
->   i2c: lpc2k: reword according to newest specification
->   i2c: ls2x: reword according to newest specification
->   i2c: mlxcpld: reword according to newest specification
->   i2c: mpc: reword according to newest specification
->   i2c: mt7621: reword according to newest specification
->   i2c: mv64xxx: reword according to newest specification
->   i2c: ocores: reword according to newest specification
->   i2c: octeon: reword according to newest specification
->   i2c: opal: reword according to newest specification
->   i2c: owl: reword according to newest specification
->   i2c: pasemi: reword according to newest specification
->   i2c: piix4: reword according to newest specification
->   i2c: powermac: reword according to newest specification
->   i2c: pxa-pci: reword according to newest specification
->   i2c: riic: reword according to newest specification
->   i2c: rk3x: reword according to newest specification
->   i2c: robotfuzz-osif: reword according to newest specification
->   i2c: rzv2m: reword according to newest specification
->   i2c: sis5595: reword according to newest specification
->   i2c: sprd: reword according to newest specification
->   i2c: stm32f4: reword according to newest specification
->   i2c: sun6i-p2wi: reword according to newest specification
->   i2c: taos-evm: reword according to newest specification
->   i2c: tegra-bpmp: reword according to newest specification
->   i2c: thunderx-pcidrv: reword according to newest specification
->   i2c: tiny-usb: reword according to newest specification
->   i2c: uniphier-f: reword according to newest specification
->   i2c: uniphier: reword according to newest specification
->   i2c: viperboard: reword according to newest specification
->   i2c: viai2c: reword according to newest specification
->   i2c: nvidia-gpu: reword according to newest specification
->   i2c: virtio: reword according to newest specification
->   i2c: cpm: reword according to newest specification
->   i2c: st: reword according to newest specification
-> 
->  drivers/i2c/busses/i2c-ali15x3.c         |  2 +-
->  drivers/i2c/busses/i2c-altera.c          |  4 +-
->  drivers/i2c/busses/i2c-au1550.c          | 15 +++----
->  drivers/i2c/busses/i2c-bcm-kona.c        | 13 +++---
->  drivers/i2c/busses/i2c-bcm2835.c         | 10 ++---
->  drivers/i2c/busses/i2c-brcmstb.c         | 11 +++--
->  drivers/i2c/busses/i2c-cht-wc.c          |  8 ++--
->  drivers/i2c/busses/i2c-cp2615.c          |  8 ++--
->  drivers/i2c/busses/i2c-cpm.c             |  4 +-
->  drivers/i2c/busses/i2c-cros-ec-tunnel.c  |  4 +-
->  drivers/i2c/busses/i2c-davinci.c         | 17 ++++---
->  drivers/i2c/busses/i2c-digicolor.c       |  6 +--
->  drivers/i2c/busses/i2c-diolan-u2c.c      |  2 +-
->  drivers/i2c/busses/i2c-dln2.c            |  4 +-
->  drivers/i2c/busses/i2c-fsi.c             | 56 ++++++++++++------------
->  drivers/i2c/busses/i2c-gpio.c            |  8 ++--
->  drivers/i2c/busses/i2c-highlander.c      |  2 +-
->  drivers/i2c/busses/i2c-hisi.c            |  8 ++--
->  drivers/i2c/busses/i2c-hix5hd2.c         |  6 +--
->  drivers/i2c/busses/i2c-i801.c            | 12 ++---
->  drivers/i2c/busses/i2c-ibm_iic.c         | 27 +++++-------
->  drivers/i2c/busses/i2c-iop3xx.c          | 15 +++----
->  drivers/i2c/busses/i2c-isch.c            |  2 +-
->  drivers/i2c/busses/i2c-jz4780.c          |  4 +-
->  drivers/i2c/busses/i2c-kempld.c          |  4 +-
->  drivers/i2c/busses/i2c-ljca.c            | 20 ++++-----
->  drivers/i2c/busses/i2c-lpc2k.c           | 10 ++---
->  drivers/i2c/busses/i2c-ls2x.c            | 11 +++--
->  drivers/i2c/busses/i2c-mlxcpld.c         | 14 +++---
->  drivers/i2c/busses/i2c-mpc.c             |  4 +-
->  drivers/i2c/busses/i2c-mt7621.c          | 26 +++++------
->  drivers/i2c/busses/i2c-mv64xxx.c         | 12 ++---
->  drivers/i2c/busses/i2c-nvidia-gpu.c      |  7 ++-
->  drivers/i2c/busses/i2c-ocores.c          |  8 ++--
->  drivers/i2c/busses/i2c-octeon-core.c     |  6 +--
->  drivers/i2c/busses/i2c-octeon-core.h     |  4 +-
->  drivers/i2c/busses/i2c-octeon-platdrv.c  |  2 +-
->  drivers/i2c/busses/i2c-opal.c            | 10 ++---
->  drivers/i2c/busses/i2c-owl.c             | 12 ++---
->  drivers/i2c/busses/i2c-pasemi-core.c     |  6 +--
->  drivers/i2c/busses/i2c-piix4.c           |  2 +-
->  drivers/i2c/busses/i2c-powermac.c        | 14 +++---
->  drivers/i2c/busses/i2c-pxa-pci.c         |  2 +-
->  drivers/i2c/busses/i2c-riic.c            |  8 ++--
->  drivers/i2c/busses/i2c-rk3x.c            | 20 ++++-----
->  drivers/i2c/busses/i2c-robotfuzz-osif.c  |  4 +-
->  drivers/i2c/busses/i2c-rzv2m.c           | 12 ++---
->  drivers/i2c/busses/i2c-sis5595.c         |  2 +-
->  drivers/i2c/busses/i2c-sprd.c            | 16 +++----
->  drivers/i2c/busses/i2c-st.c              |  8 ++--
->  drivers/i2c/busses/i2c-stm32f4.c         |  8 ++--
->  drivers/i2c/busses/i2c-sun6i-p2wi.c      | 20 ++++-----
->  drivers/i2c/busses/i2c-taos-evm.c        |  2 +-
->  drivers/i2c/busses/i2c-tegra-bpmp.c      |  4 +-
->  drivers/i2c/busses/i2c-thunderx-pcidrv.c |  2 +-
->  drivers/i2c/busses/i2c-tiny-usb.c        |  6 +--
->  drivers/i2c/busses/i2c-uniphier-f.c      | 26 +++++------
->  drivers/i2c/busses/i2c-uniphier.c        | 15 +++----
->  drivers/i2c/busses/i2c-viai2c-common.c   |  2 +-
->  drivers/i2c/busses/i2c-viai2c-wmt.c      |  8 ++--
->  drivers/i2c/busses/i2c-viai2c-zhaoxin.c  | 12 ++---
->  drivers/i2c/busses/i2c-viperboard.c      | 10 ++---
->  drivers/i2c/busses/i2c-virtio.c          |  2 +-
->  include/linux/i2c.h                      | 24 +++++++---
->  64 files changed, 313 insertions(+), 320 deletions(-)
-> 
-> -- 
-> 2.43.0
-> 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202407112126.plGUWi8I-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> drivers/virtio/virtio_balloon.c:603:55: error: too few arguments to function call, expected 5, have 4
+     602 |                         err = virtio_find_vqs(vb->vdev,
+         |                               ~~~~~~~~~~~~~~~
+     603 |                                               VIRTIO_BALLOON_VQ_REPORTING, vqs_info, NULL);
+         |                                                                                          ^
+   include/linux/virtio_config.h:225:5: note: 'virtio_find_vqs' declared here
+     225 | int virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+         |     ^               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     226 |                     struct virtqueue *vqs[],
+         |                     ~~~~~~~~~~~~~~~~~~~~~~~~
+     227 |                     struct virtqueue_info vqs_info[],
+         |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     228 |                     struct irq_affinity *desc)
+         |                     ~~~~~~~~~~~~~~~~~~~~~~~~~
+   1 error generated.
+
+
+vim +603 drivers/virtio/virtio_balloon.c
+
+   560	
+   561	static int init_vqs(struct virtio_balloon *vb)
+   562	{
+   563		struct virtqueue_info vqs_info[VIRTIO_BALLOON_VQ_MAX] = {};
+   564		struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
+   565		int err;
+   566	
+   567		/*
+   568		 * Inflateq and deflateq are used unconditionally. The names[]
+   569		 * will be NULL if the related feature is not enabled, which will
+   570		 * cause no allocation for the corresponding virtqueue in find_vqs.
+   571		 */
+   572		vqs_info[VIRTIO_BALLOON_VQ_INFLATE].callback = balloon_ack;
+   573		vqs_info[VIRTIO_BALLOON_VQ_INFLATE].name = "inflate";
+   574		vqs_info[VIRTIO_BALLOON_VQ_DEFLATE].callback = balloon_ack;
+   575		vqs_info[VIRTIO_BALLOON_VQ_DEFLATE].name = "deflate";
+   576	
+   577		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+   578			vqs_info[VIRTIO_BALLOON_VQ_STATS].name = "stats";
+   579			vqs_info[VIRTIO_BALLOON_VQ_STATS].callback = stats_request;
+   580		}
+   581	
+   582		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+   583			vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].name = "free_page_vq";
+   584	
+   585		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
+   586			vqs_info[VIRTIO_BALLOON_VQ_REPORTING].name = "reporting_vq";
+   587			vqs_info[VIRTIO_BALLOON_VQ_REPORTING].callback = balloon_ack;
+   588		}
+   589	
+   590		err = virtio_find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX, vqs,
+   591				      vqs_info, NULL);
+   592		if (err) {
+   593			/*
+   594			 * Try to work around QEMU bug which since 2020 confused vq numbers
+   595			 * when VIRTIO_BALLOON_F_REPORTING but not
+   596			 * VIRTIO_BALLOON_F_FREE_PAGE_HINT are offered.
+   597			 */
+   598			if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING) &&
+   599			    !virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+   600				vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].name = "reporting_vq";
+   601				vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].callback = balloon_ack;
+   602				err = virtio_find_vqs(vb->vdev,
+ > 603						      VIRTIO_BALLOON_VQ_REPORTING, vqs_info, NULL);
+   604			}
+   605	
+   606			if (err)
+   607				return err;
+   608		}
+   609	
+   610		vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
+   611		vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
+   612		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+   613			struct scatterlist sg;
+   614			unsigned int num_stats;
+   615			vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
+   616	
+   617			/*
+   618			 * Prime this virtqueue with one buffer so the hypervisor can
+   619			 * use it to signal us later (it can't be broken yet!).
+   620			 */
+   621			num_stats = update_balloon_stats(vb);
+   622	
+   623			sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
+   624			err = virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
+   625						   GFP_KERNEL);
+   626			if (err) {
+   627				dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
+   628					 __func__);
+   629				return err;
+   630			}
+   631			virtqueue_kick(vb->stats_vq);
+   632		}
+   633	
+   634		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+   635			vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
+   636	
+   637		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
+   638			vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
+   639	
+   640		return 0;
+   641	}
+   642	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
