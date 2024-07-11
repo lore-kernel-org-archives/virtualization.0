@@ -1,146 +1,86 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from 14.mo550.mail-out.ovh.net (14.mo550.mail-out.ovh.net [178.32.97.215])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAB181A0AE7
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jul 2024 23:07:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA9819EED4
+	for <virtualization@lists.linux.dev>; Thu, 11 Jul 2024 23:20:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.32.97.215
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720739251; cv=none; b=IcGgcAnet57p+MVWoItGDSTEu7jtm9tBfKIuExLVgFHIeu7PmPpjLKMeHlV0sVDF5IxeCJFzkcM6zLGMMifG/LRqblUTixUOfVzRbhB/kGnjswsMmnSwDRT71FB/An3hFj1eb/FDC5ROMRVYKppdAVGB6IO9oUd65D6wSs6TDJE=
+	t=1720740022; cv=none; b=VpVdVDgQtHUDs8NDgNSwsbY4KXFsr3jpa0g3++D8pSfS/Z90RdT3/6KlHQRfj3YqiolvbyFQW48VsSCtt5cFQ2H80jfVLCqyF3ZaN4IqZx3+H/8ARVmUNUAnZvjWB+aixBQCJo0wV/aOFsSYkUoB4v9/bFJ70C5rZchog+HWJrI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720739251; c=relaxed/simple;
-	bh=UcMXaEV7R/bUuyeSozVX/+Hj1QoPeLuD2nEoxOWGzU0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=l8AnLKUqStkyyxtujG7RszlTbV1uTKgWltz5vRLprAtr3W8RrnxQYqz/XTPyTa2nLzsYKuvsplSToWFgsNViinVDsOUQiyti4ILnCGBrL/iPgV6efkH3bwXOnb+D81w520EyjiuGKb5+Jd0klMWlkf7j4vWhfCS1Z2aqhGF3N9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IuzWovHJ; arc=none smtp.client-ip=140.211.166.133
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IuzWovHJ"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9D7F9404A4
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jul 2024 23:07:29 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id rdZdU-49m3Bu for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Jul 2024 23:07:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b36; helo=mail-yb1-xb36.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 70A014037C
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 70A014037C
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=IuzWovHJ
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 70A014037C
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jul 2024 23:07:28 +0000 (UTC)
-Received: by mail-yb1-xb36.google.com with SMTP id 3f1490d57ef6-e036d1ce4f7so1243580276.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 11 Jul 2024 16:07:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1720739247; x=1721344047; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=i2hBswY+u8xjK1Kzvor9fB+2gLyEPUsUoItxFLjtkvk=;
-        b=IuzWovHJ7f7cHiATgrLkQyCABHOXNcMfKgAxiNiJsjWPvS1YLAv9SUwTx/R8h5p931
-         f25nwGqHVCEQoPUd97WcO2MPctB4Azx5J+eVldMn3TXlpztbbT+TPPvKDrsyySCnX2zj
-         YCN0TURMrVO55fXeSG1NaWgzRJMRefoT37DB3nISmPPwZztRY0OVwbvXpyF3dgFU9evj
-         Ug3wu1vby/qrJJ191MsCMLNYLhNJvuK947RZC2bWBfeRgSNIOUSDnerBqeNXd7xRhjmM
-         28csQ8ttpK5UU7lT1/1y/GqGdhWkTsMO5LYGD7zSq137N/5iCi5QIDszEU//A+G0QaKN
-         O3aA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720739247; x=1721344047;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=i2hBswY+u8xjK1Kzvor9fB+2gLyEPUsUoItxFLjtkvk=;
-        b=qqkjXQr3M3d87R00q5lPUafE7JYOs/iAldFKKCvwoOj8hC5WSMRcgnVsv+jiaEEk/A
-         ntwKw9LA7Tmm0nK6Sfki+5LMd2JmemuwHZc5xAvtEKQQvIAdMrD/R+xBW9YfKGwRnDsT
-         8drKRoGas0cSCyN5QDNYGUTE6qd5F5ZTWZT3Oj84y3eBEXRzmIZPrMeFaRvaTAkVIMcl
-         oN4CcZtAkZ2Es/tLwUrfEo4eV05hvPVu3kf5XiGtSQh6cSj0E7aTBt/K9TtuqTK9XpxD
-         zct56J9qXT4Mt0ph65vZ6+z0nhxce8PpuRRMli81nPUfNgU+ifqjGLj/mCG1BERo3EGI
-         p7zw==
-X-Forwarded-Encrypted: i=1; AJvYcCUCTdVl6PUa0+4EgfGojVfKbNTx6XcU6SFAd+/aN7aRoCuM95Dmz/9vObam6WgYfjEKONxxXYVkRvhuO69ZZXnvJYkIROcf9pLK2mBuXsIVfS3lv4aSbhnDGA==
-X-Gm-Message-State: AOJu0YwF0PNazsBtspiEID7kfdjIw1HWQqT/8aIYILWuQMvbabGrRCkV
-	6zbnIiWCBHXoxU+Gm3nigdDOTHygB4UTsCW3MN2ADW3GGwusGeYGWysU7t+rJULLaLcDgx5xXuJ
-	K1aT9el6aDgMv4q1/pY/ZVX/W4ck=
-X-Google-Smtp-Source: AGHT+IESAzgUImuWHbpxSCeLvNle2lAnCtNiymuxM6do/gswGHb65EvzDJ50dh8SH6D3heE0PgCKfCSwNt2zccYk0iI=
-X-Received: by 2002:a25:4ac6:0:b0:e02:becd:d5eb with SMTP id
- 3f1490d57ef6-e058a4d4875mr967584276.13.1720739246975; Thu, 11 Jul 2024
- 16:07:26 -0700 (PDT)
+	s=arc-20240116; t=1720740022; c=relaxed/simple;
+	bh=GK3R50NkNch+lbRG9vDNLoiia9t8YCkGRD93QMmXbH0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Ub0PBsN75oV9nwi0DD/yTUCMuTLvapnd5Rf/TtHkorR6uC8tbsBhaa3Dtcm3XGFJDDMOE1GuxOfBZQIzd7aY/QAd5fgDB3QbtgG7SJxkzfECTK6mtyZgQTi7b/EkMTnYds8+sBTM0Olt34T2znQ8WM9fDZkeZAemUmJcjWbPM0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.32.97.215
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
+Received: from director7.ghost.mail-out.ovh.net (unknown [10.108.17.245])
+	by mo550.mail-out.ovh.net (Postfix) with ESMTP id 4WKrL544SCz1Fks
+	for <virtualization@lists.linux.dev>; Thu, 11 Jul 2024 23:20:13 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-276s8 (unknown [10.110.96.35])
+	by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id B92B51FDE0;
+	Thu, 11 Jul 2024 23:20:11 +0000 (UTC)
+Received: from etezian.org ([37.59.142.102])
+	by ghost-submission-6684bf9d7b-276s8 with ESMTPSA
+	id d61dKKtokGYCRycAIhEDZw
+	(envelope-from <andi@etezian.org>); Thu, 11 Jul 2024 23:20:11 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-102R004025ef779-b8ef-47a1-8f81-7534dfa48c8c,
+                    47FBFB77BDCA57EA66E7955FCDEBFA84A3B4AB1A) smtp.auth=andi@etezian.org
+X-OVh-ClientIp:194.230.248.195
+From: Andi Shyti <andi.shyti@kernel.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH 1/2] MAINTAINERS: i2c-virtio: Drop Conghui Chen from Maintainers
+Date: Fri, 12 Jul 2024 01:19:25 +0200
+Message-ID: <20240711231927.3103820-2-andi.shyti@kernel.org>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240711231927.3103820-1-andi.shyti@kernel.org>
+References: <20240711231927.3103820-1-andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240710212555.1617795-14-amery.hung@bytedance.com> <AS2P194MB21709F0B79D6FB686D373B199AA52@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-In-Reply-To: <AS2P194MB21709F0B79D6FB686D373B199AA52@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-From: Amery Hung <ameryhung@gmail.com>
-Date: Thu, 11 Jul 2024 16:07:15 -0700
-Message-ID: <CAMB2axMyA2TDZmXaO_BaFHk4Lh3Ri1LgEc7UU7ZoNsBsqANivQ@mail.gmail.com>
-Subject: Re: [RFC PATCH net-next v6 13/14] virtio/vsock: implement datagram support
-To: Luigi Leonardi <luigi.leonardi@outlook.com>
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, amery.hung@bytedance.com, 
-	bpf@vger.kernel.org, bryantan@vmware.com, dan.carpenter@linaro.org, 
-	davem@davemloft.net, decui@microsoft.com, edumazet@google.com, 
-	haiyangz@microsoft.com, jasowang@redhat.com, jiang.wang@bytedance.com, 
-	kuba@kernel.org, kvm@vger.kernel.org, kys@microsoft.com, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	netdev@vger.kernel.org, oxffffaa@gmail.com, pabeni@redhat.com, 
-	pv-drivers@vmware.com, sgarzare@redhat.com, simon.horman@corigine.com, 
-	stefanha@redhat.com, vdasa@vmware.com, 
-	virtualization@lists.linux-foundation.org, wei.liu@kernel.org, 
-	xiyou.wangcong@gmail.com, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 7542684953390811759
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeeftddrfeehgddvudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpeefvddvgefhhfdtffefleehheevfeffhfefudehudejhefhjedtgfffhfekvedvtdenucffohhmrghinhepihhnthgvlhdrtghomhenucfkphepuddvjedrtddrtddruddpudelgedrvdeftddrvdegkedrudelhedpfeejrdehledrudegvddruddtvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtohepvhhirhhtuhgrlhhiiigrthhiohhnsehlihhsthhsrdhlihhnuhigrdguvghvpdfovfetjfhoshhtpehmohehhedtpdhmohguvgepshhmthhpohhuth
 
-On Thu, Jul 11, 2024 at 4:03=E2=80=AFPM Luigi Leonardi
-<luigi.leonardi@outlook.com> wrote:
->
-> Hi Bobby, Amery
->
-> Thank you for working on this!
->
-> > This commit implements datagram support with a new version of
-> > ->dgram_allow().
->
-> Commit messages should be imperative "This commit implements X" -> "Imple=
-ments X".
-> https://www.kernel.org/doc/html/latest/process/submitting-patches.html#de=
-scribe-your-changes
-> This suggestion applies to many of the commits in this series.
+E-mails to Conghui Chen have bounced back:
 
-Thanks for pointing this out. I will change the commit message in the
-next version.
+  <conghui.chen@intel.com>: host mgamail.eglb.intel.com[198.175.65.14] said: 550
+      #5.1.0 Address rejected. (in reply to RCPT TO command)
 
->
-> > +static bool virtio_transport_dgram_allow(u32 cid, u32 port)
-> > +{
-> > +     struct virtio_vsock *vsock;
-> > +     bool dgram_allow;
-> > +
-> > +     dgram_allow =3D false;
->
-> I think you can initialize the variable in the declaration.
+Remove him as maintainer of the i2c Virtio driver in the
+MAINTAINERS file.
 
-Got it.
+Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org
+Cc: virtualization@lists.linux.dev
+---
+ MAINTAINERS | 1 -
+ 1 file changed, 1 deletion(-)
 
-Thanks,
-Amery
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 3e26555e52bfd..96745f7971100 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -23859,7 +23859,6 @@ S:	Maintained
+ F:	drivers/vhost/scsi.c
+ 
+ VIRTIO I2C DRIVER
+-M:	Conghui Chen <conghui.chen@intel.com>
+ M:	Viresh Kumar <viresh.kumar@linaro.org>
+ L:	linux-i2c@vger.kernel.org
+ L:	virtualization@lists.linux.dev
+-- 
+2.45.2
 
->
-> > +     rcu_read_lock();
-> > +     vsock =3D rcu_dereference(the_virtio_vsock);
-> > +     if (vsock)
-> > +             dgram_allow =3D vsock->dgram_allow;
-> > +     rcu_read_unlock();
-> > +
-> > +     return dgram_allow;
-> > +}
-> > +
->
-> The rest LGTM.
->
-> Thanks,
-> Luigi
