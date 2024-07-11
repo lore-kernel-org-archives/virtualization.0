@@ -1,131 +1,189 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAFBA1EA85
-	for <virtualization@lists.linux.dev>; Thu, 11 Jul 2024 19:23:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720725790; cv=none; b=PG3KR3r/ksAlC41E3Qak2BBOq54lnZWEnQZTFQsJyye7HunwaT71rk4LMgDn3RhwGGxYtI4qi7792ahsDAgcD6zE05h5BJQCZ8ixww5kRZJ9pRQb+zOOzb2GAubWJJgwTko1nuIMegNVl/mJdp6NLvkzA+YDg3u+QS3IQseJeOc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720725790; c=relaxed/simple;
-	bh=qd4JfM9C7XhNkDZ9MKhcRdWS74czpvCBniJo+nnNLbI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=F1HjoiRUJmWeSO2anyN4HAaJhUw7kvHSEtYNjoZ3l2PokM2j+MJ8PvpxPqJh3zttuWdujvRn/ws7JtOBVQ14Ea89GMrnW4f4MwjjqZlrnY9/2CltOFISoQznW8Da85UwL/1G6elBzsZ9Q5WH6mnhP20iIXRnD0w9ZIic4Bp1qAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BxqjWXdj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDB541A00E7
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jul 2024 23:03:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720738999; cv=fail; b=Xnd6iAcSYQxi1/babeV49cKw9ntkujzkAmF+KvWJ57N92QuiqOVvmK5tBS63gOtOyqwtG/S3w+XkMTD81XkizfEc4UqPOPHUAEexgF7mARtVTg+ybVwRNoQA1MjlKTTTcAzcv2erFKuC/MrJ2piEw9MDnGM8zIEYKPEA/9ROXDg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720738999; c=relaxed/simple;
+	bh=KhdJT6G6cuPSNO6V3YNucSCgvyCeaik8Xnt3mqxFbXw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=h28lJGhzvYC+f1uNdbzeUnogu7uaB3YvwOqC6cTI9ilAqNAI7KvFIJVFPVLQV03cqwYLNn2v9JG42+x57DfsHUkvjgJU7fsskzpZmq3sEArAu/E49wWeIFI135mJzMH/gVAdSU2kcPxg++bDEDQjlXIeo1WpjRXxXk3Hfh7o68I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=BLYwrL8a; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BxqjWXdj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720725787;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qHMyJXBeRkRSNluth1L1mz9hL7fSL3Kwm56sBWnC+jg=;
-	b=BxqjWXdjwZOFsSrrvBoM8LHeJQfp8nTxqaGxv3cR2jJZHbuNLuSncq8Mm0JAffOY1Sp8H1
-	bfqgH0RzsTz1jtBf5pFrNjghhbrpSREoPGoDW92otwe4iMoWiWNLR0oQnlJ/582y8sGFht
-	7mzwUTL9A0wVaaQ4urnqYjvKoW22jlU=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-159-t3PVDG69Oc2e6I_lWKC_hA-1; Thu, 11 Jul 2024 15:23:06 -0400
-X-MC-Unique: t3PVDG69Oc2e6I_lWKC_hA-1
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2ee8b7eafffso11831931fa.1
-        for <virtualization@lists.linux.dev>; Thu, 11 Jul 2024 12:23:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720725785; x=1721330585;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qHMyJXBeRkRSNluth1L1mz9hL7fSL3Kwm56sBWnC+jg=;
-        b=AYDc5iVBLNQRhZFMbZ7WlGlE06U6oPdWW8Qb0ccpYfuTxT+a+I7IcUeKNLFQ6JIfN0
-         C3Ph3AiSEDIkss6XBeAUGnKZgxCt0TWmtIjwYELxKVxm20LH52/gNPK7Vl4TYMMdNf8C
-         IlLeeXuiZhbeEYwQCFEL+BgwFA9Nn1Jbv410Sif12YQ6HGaDKAUM6WkWLn+I3d/89dYz
-         TmsTJdOHSWASM5wMU1Iko7gHV3ZuJGvRMB7WIuGOF5u8PfxcwETFGF+CePE8BgbQ3jjI
-         pApLlIrivsYOx8XoCpSn+eCtSDKK4x4zlB+u7hUy4Phv18LC1rjBdfgfu9HwYh/kxsy3
-         wqJw==
-X-Forwarded-Encrypted: i=1; AJvYcCVMz3V8YCEu5Woa0akCKizw8diYtegav/YlyosJ79iJ4VmV90VgIE59PJ4qqZPAD1ppDdveg8XE6QL2Aa8jQlx7Ed2EK+oGj3HQc58FNzk=
-X-Gm-Message-State: AOJu0YxcKsBayAV0xY42Ec2XkMGmO866ti8efZFjLSgmfc/fmmN5Q9yd
-	a/u2nikLcVZx4IGNpjKGXW+Qqq08+OzUlHHrexnUJGEDCxeqf4b6mC2+652yad9GS/UE2KV1TsR
-	5yRdfsBeswlMkSNyhXq/WyjUnAfXKaGWVK2S2h1wdpxIpYgcLRgXTG2E81Q6KaBX1
-X-Received: by 2002:a2e:8691:0:b0:2ee:6a72:f006 with SMTP id 38308e7fff4ca-2eeb30e3ademr61595751fa.21.1720725784994;
-        Thu, 11 Jul 2024 12:23:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFlcdhPzF+B/x+wWIA8iNp5tqQGZgR9yQ+XfTnwuaunKMFe59pESZv2NmWVtBCYCvMz/J6DmQ==
-X-Received: by 2002:a2e:8691:0:b0:2ee:6a72:f006 with SMTP id 38308e7fff4ca-2eeb30e3ademr61595591fa.21.1720725784330;
-        Thu, 11 Jul 2024 12:23:04 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:173:2166:83a4:d566:a055:a5a3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4266f7362d9sm125253225e9.30.2024.07.11.12.23.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jul 2024 12:23:03 -0700 (PDT)
-Date: Thu, 11 Jul 2024 15:22:58 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jeff Johnson <quic_jjohnson@quicinc.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] virtio: add missing MODULE_DESCRIPTION() macro
-Message-ID: <20240711152235-mutt-send-email-mst@kernel.org>
-References: <20240602-md-virtio_dma_buf-v1-1-ce602d47e257@quicinc.com>
- <ef8f00f2-210c-454e-a7f8-ab724a18bf96@quicinc.com>
- <b8b23dc1-7df6-489d-9638-db64a89c8a83@quicinc.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="BLYwrL8a"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 65AD96084B
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jul 2024 23:03:17 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id lwoOQPxYIUIi for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Jul 2024 23:03:16 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2e13::801; helo=eur05-vi1-obe.outbound.protection.outlook.com; envelope-from=luigi.leonardi@outlook.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 3914D608A1
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3914D608A1
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=outlook.com header.i=@outlook.com header.a=rsa-sha256 header.s=selector1 header.b=BLYwrL8a
+Received: from EUR05-VI1-obe.outbound.protection.outlook.com (mail-vi1eur05olkn20801.outbound.protection.outlook.com [IPv6:2a01:111:f403:2e13::801])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3914D608A1
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jul 2024 23:03:15 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=OvMtcIcTQpaaQ7ke7AOIyO1NARgxA//iNH20PsoiHY6mEB8YzxevIVIuVW1X7ReTvoPY7xYoHLx0XETvrMTxHE6ZiWaPvvoJaH+2o2jjzef098VT+7DgAT9N2etb8jcx5espjMz1C9mqnl/JzxvgjnkewxZQu6Yzae9+M7e/Hd4UQOFYlWSEsil8TzNNBASpoiPDchZBFzIywhi7HmrXw6hCU9Dej6bzfMPQ9p5QK6bOiacFZ8ptArmBPhJ6wXdqWBS2tmw0nqN8AsTp56acHz+EDDHM9D/xazsZkEQ5EKZnEfpPlLLW4vD+s7B0jRTovlGR6XgMAYdIFDP1oPpC4w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Ey5Pppju13kYq4n671ekdoo5C/aUqFl5pdYMwATPk/0=;
+ b=xUR4njevrULupIGJnLzzo20GKAQMFydWX+cFcOHYwkEYJiFiuZXPzEi/L1axxtIwujMa5m36vUAQk0CZ0+ByR3Ex6IzxlaX6tJV3glzE2pbtuqVGhhglRZ3SfoyEdKlw8ugXuFUcy00FwCuxPW0QpumKXE18Ep/s0u3SSB6nesiipHQZL2PkUTLlgrjIEk7dz16WksQdbW3R7dOudb6ws6sCaIrYFS0qJwY4F1E7U2vuXJkA7pXV3NJ2D7p/k7E5sQFSf2nfP5QhX1kDLYYf7AaNv6V0w8JEnzsVpN+EOa8JjBz6cV3iJ1e1FgZjGZDHUPR8sxmPZeSbebVfO+S9/w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ey5Pppju13kYq4n671ekdoo5C/aUqFl5pdYMwATPk/0=;
+ b=BLYwrL8afnWlc7/9sjvy1cr5KCwToFOyPzS9E7GX2Rlo75Da/Vy/QbT2ret62lBGpS3MTPMmAI5ClRjEFU+Zcr+PlkhmYzVteTQeZwxYL37UeO9qV/4zpWZr5/66TqKbWO/cx2srhKFz50ZQIstBkaYVZdeZbML1/tuFN8PYFDbCKrsr9bZzC1OAXatU5BKOXWTkiteVMKmUjew75smQIcb38bardVbWI6Y1y+IaE2MJBUBEpWhJ2p+8DFIwUHZrK1sqJ6F0E1JUsA+cv3s+ROC5QytBunGK01g1vNdaliioohzvOCNNlxvIL22YJuEEqkghsirhIOH66GpT5TQr7w==
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
+ by GV1P194MB2290.EURP194.PROD.OUTLOOK.COM (2603:10a6:150:1c6::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.35; Thu, 11 Jul
+ 2024 23:03:12 +0000
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930%4]) with mapi id 15.20.7741.033; Thu, 11 Jul 2024
+ 23:03:12 +0000
+From: Luigi Leonardi <luigi.leonardi@outlook.com>
+To: ameryhung@gmail.com,
+	Bobby Eshleman <bobby.eshleman@bytedance.com>
+Cc: amery.hung@bytedance.com,
+	bpf@vger.kernel.org,
+	bryantan@vmware.com,
+	dan.carpenter@linaro.org,
+	davem@davemloft.net,
+	decui@microsoft.com,
+	edumazet@google.com,
+	haiyangz@microsoft.com,
+	jasowang@redhat.com,
+	jiang.wang@bytedance.com,
+	kuba@kernel.org,
+	kvm@vger.kernel.org,
+	kys@microsoft.com,
+	linux-hyperv@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	oxffffaa@gmail.com,
+	pabeni@redhat.com,
+	pv-drivers@vmware.com,
+	sgarzare@redhat.com,
+	simon.horman@corigine.com,
+	stefanha@redhat.com,
+	vdasa@vmware.com,
+	virtualization@lists.linux-foundation.org,
+	wei.liu@kernel.org,
+	xiyou.wangcong@gmail.com,
+	xuanzhuo@linux.alibaba.com,
+	Luigi Leonardi <luigi.leonardi@outlook.com>
+Subject: Re: [RFC PATCH net-next v6 13/14] virtio/vsock: implement datagram support
+Date: Fri, 12 Jul 2024 01:02:00 +0200
+Message-ID:
+ <AS2P194MB21709F0B79D6FB686D373B199AA52@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240710212555.1617795-14-amery.hung@bytedance.com>
+References: <20240710212555.1617795-14-amery.hung@bytedance.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [bubQ4t3BhOrcK8ElVNEmwde1g2LjRP5/]
+X-ClientProxiedBy: MI1P293CA0024.ITAP293.PROD.OUTLOOK.COM (2603:10a6:290:3::6)
+ To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
+X-Microsoft-Original-Message-ID:
+ <20240711230200.9740-1-luigi.leonardi@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <b8b23dc1-7df6-489d-9638-db64a89c8a83@quicinc.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|GV1P194MB2290:EE_
+X-MS-Office365-Filtering-Correlation-Id: bba13848-c049-441d-a94d-08dca1fda35e
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|461199028|8060799006|19110799003|4302099013|440099028|3412199025|1602099012|1710799026;
+X-Microsoft-Antispam-Message-Info:
+	C6lscFQqpIO49xnDKcRYfginOV96xgr5N+evYut+qOQeH6/yzRqqb4ardcx1hA2PS6hxjDfe3kh8S0lcJ5xzidvkFFrOZK6y9z5mdm3g3rp6r1O1yAteJhcEI61slqLASUdxZe0aCGlbOF/pT7KI/dAivncFMpaqgy2aKaRZNQJ0iGqwke3yETOXLgsWrvbgC48mHFvPKEE3QvwWq3cOEFB4/xU/E+yhPRBFHFzf1iEzZaIR/K/mof2IPkGSXp5HjDkmF6IHutjQ8piarEASPxHHfXP5O20ghiLeN4JDl6ENOsllrYIE6LjV3xKpn0Pw0XvInCZovAh48armx+eWOWlb4eYxOLs9JZ2lHzEle+Uh298I8IesdaGtkYcnkivr3L3lb5MVXnvwfzFOimqxzzDpYrakX5DE5c5UhW5KQ4bb/RrkoOtAuCqmt21ukUQ8bX6R4C4y6u/4b/VV56g2ZeC5yXoKoTS7OthSx+VS4a65yhBFVx7GeK91xkUnhsJhYJOz4MZ9eCTkek4ZrIm3c6h8PEMae6wDQKg6xiXkfOCzsGHAvOGIAnenpDOATj1G6UwZ+YyB3ySrcgAOCJc6tiTndhNqsKYII0Zuj2y/l0yq6tKmGXRQF49aRnPSizWj2Nm7ONtzI0mjXMGbAHH4GJFKeHxKOPOtpmmgql67KL7Ev8Po0pxsg79jGkYCh3xDsGvDsoRHrf5737408dKiaUtXRXfCKDu1glJ9J9yScN/AEvYB5fX50skufPUOB+nXW70ADuCGKjJP0XEw0Ng86p4Ud6EUf/VjgJngV+myx2I=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?57858njTtXcLx1ZnQuGgTfUJk4N91jFqcy+BQFihGZOJqtUmb5HSrvO2YVXy?=
+ =?us-ascii?Q?o6PTgJlPUvmB1FwB8xzUbnfEAY++ZTHfJwdMRslI0uRPpJcbpihPUgNB+5Ju?=
+ =?us-ascii?Q?NwcWxikzWfdACebMorOY3TSL8a9lxz16z4jHUuHBYPPfrNevq84/pKF8pe4x?=
+ =?us-ascii?Q?lN8u+Ic/KRDwSDWnJF8r7RbjuI1v5anMgxQAkg0zjAdKseiKSBJpKPXlngHD?=
+ =?us-ascii?Q?qXGkhvCdxy516bFKu8skHOCVW36Q3MJunc/04jUM7DxcdJAjQOPUZzqC9K/J?=
+ =?us-ascii?Q?w5ygSrME/GxqhgkevQAkz3SekVd19ShNuaQh3jLxg1Cl1o3+xfoIKxRxCO6M?=
+ =?us-ascii?Q?kX9+RYsWiZFdMwVoM9D44fBCUiSc4SwvHOuEwdcVUitPDVqyDqGJ8j03QwFm?=
+ =?us-ascii?Q?ecyyEna5gvYOWpg544yIycKPwqKkY/41W9eGJGXUVZEBxIAMNCsGlZQLHzHM?=
+ =?us-ascii?Q?NZClfy6VSmcpP5/UrO0kq2GxDvBMvKTaRj35p27iWEHzuS30wWToUECm+DGR?=
+ =?us-ascii?Q?RYIizdp3EipMHDJR7nZmPLXhTN3rt+HmmgUzF1TAcIHa9CD8E4PsNA5GHy4K?=
+ =?us-ascii?Q?5fXjEiRPkLZxNpxPhXgsJ3W1l5ivm0PoecR3an7+S4dc4W1RTYCrMOGhQZij?=
+ =?us-ascii?Q?iLtKzfdseklzm63SYxoXDfOQmWJfeC5+9gRp7qDkO9jjA+qyEQadenzEmDR1?=
+ =?us-ascii?Q?y62AQKwl9i24AerVFmitwy+hqBys9cMwjShg5HuGw4iFDdA5rpdX6GhuAphg?=
+ =?us-ascii?Q?C0+0+IXLto5jrWW9DQ3YYPFtUVs32U5esB53LEpS4SExbdEbkLYK+hSkyGlR?=
+ =?us-ascii?Q?qabIjwmOijNgySdB+Rcd0opiocTJ8B0i8xuYHvY/AJXtsEfoX6jh0eLC93Fp?=
+ =?us-ascii?Q?7YopXYqBquD/fgu1m3QqG4xiVhSs1z1VUtetr/622TqEzZXt9OoFSekVY6j2?=
+ =?us-ascii?Q?fTUBfuD84nRuWuIZpzMYAtS2XwlMsXSrR/MnrWQLkrmSZGkOz9Fc3xK1wLBm?=
+ =?us-ascii?Q?AdsdYmx/SAeI47wS8SyBCRDEMOZPBrhO/nl5QD3Kx8jxJLwtq1WeHivOm39Y?=
+ =?us-ascii?Q?68zI197PnStsf0LzDOmLeqRd/iJuPsOBwZom5hJknP4G7RWkUQvtuiQLjNZ/?=
+ =?us-ascii?Q?J3UiLiQLGTbALVMuDn94T5VLlHflElc2OgZ09r2lYOzAiPxxmGOAWI+NdkNf?=
+ =?us-ascii?Q?Pg+0u2b3VuGs98uFCO9Qbly6GJk+NMoHIBccURR8foOgq1uKPk9dloycgD1Y?=
+ =?us-ascii?Q?/TYKHqCjC3GjquzHMtKF?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bba13848-c049-441d-a94d-08dca1fda35e
+X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jul 2024 23:03:12.3078
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV1P194MB2290
 
-On Thu, Jul 11, 2024 at 11:43:18AM -0700, Jeff Johnson wrote:
-> On 6/23/24 10:36, Jeff Johnson wrote:
-> > On 6/2/2024 1:25 PM, Jeff Johnson wrote:
-> > > make allmodconfig && make W=1 C=1 reports:
-> > > WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/virtio/virtio_dma_buf.o
-> > > 
-> > > Add the missing invocation of the MODULE_DESCRIPTION() macro.
-> > > 
-> > > Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
-> > > ---
-> > >   drivers/virtio/virtio_dma_buf.c | 1 +
-> > >   1 file changed, 1 insertion(+)
-> > > 
-> > > diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
-> > > index 2521a75009c3..3034a2f605c8 100644
-> > > --- a/drivers/virtio/virtio_dma_buf.c
-> > > +++ b/drivers/virtio/virtio_dma_buf.c
-> > > @@ -85,5 +85,6 @@ int virtio_dma_buf_get_uuid(struct dma_buf *dma_buf,
-> > >   }
-> > >   EXPORT_SYMBOL(virtio_dma_buf_get_uuid);
-> > > +MODULE_DESCRIPTION("dma-bufs for virtio exported objects");
-> > >   MODULE_LICENSE("GPL");
-> > >   MODULE_IMPORT_NS(DMA_BUF);
-> > > 
-> > > ---
-> > > base-commit: 83814698cf48ce3aadc5d88a3f577f04482ff92a
-> > > change-id: 20240602-md-virtio_dma_buf-b3552ca6c5d5
-> > > 
-> > 
-> > Following up to see if anything else is needed from me.
-> > Hoping to see this in linux-next :)
-> 
-> I still don't see this in linux-next so following up to see if anything else
-> is needed to get this merged. Adding Greg KH since he's signed off on this
-> file before and he's taken quite a few of my cleanups through his trees.
-> 
-> I'm hoping to have all of these warnings fixed tree-wide in 6.11.
-> 
-> /jeff
+Hi Bobby, Amery
 
-not sure why I tag it and it gets cleared again.
-tagged again hope it holds now.
+Thank you for working on this!
 
--- 
-MST
+> This commit implements datagram support with a new version of
+> ->dgram_allow().
 
+Commit messages should be imperative "This commit implements X" -> "Implements X".
+https://www.kernel.org/doc/html/latest/process/submitting-patches.html#describe-your-changes
+This suggestion applies to many of the commits in this series.
+
+> +static bool virtio_transport_dgram_allow(u32 cid, u32 port)
+> +{
+> +	struct virtio_vsock *vsock;
+> +	bool dgram_allow;
+> +
+> +	dgram_allow = false;
+
+I think you can initialize the variable in the declaration.
+
+> +	rcu_read_lock();
+> +	vsock = rcu_dereference(the_virtio_vsock);
+> +	if (vsock)
+> +		dgram_allow = vsock->dgram_allow;
+> +	rcu_read_unlock();
+> +
+> +	return dgram_allow;
+> +}
+> +
+
+The rest LGTM.
+
+Thanks,
+Luigi
