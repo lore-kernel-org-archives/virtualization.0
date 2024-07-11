@@ -1,203 +1,130 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FE2E1EB2B
-	for <virtualization@lists.linux.dev>; Thu, 11 Jul 2024 14:45:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C347516A934;
+	Thu, 11 Jul 2024 14:58:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720709133; cv=none; b=DHna9Ha6j0SM4/sQogZXxfakkLZUrCaueDCfsQ73Y6yR6T3c64fuFEuhuGuDdWk6qdMFdVbeML/Lq3C3NMvcUqKw7vO7e1dAP06xYrixfD+0C+YMIuzPVMFBEGq0zFyn553l9HUfNzXKkfjM6VqGIA5D2kDhsHgQshGcsggrT7s=
+	t=1720709937; cv=none; b=q7juwat867hdMb2oM0VQHE7pGmPrCt3LtCRPccRjEZvrbVS+fyalPfOZKenDp0iWUVLxyzomsBVwI69yIXGaNG3+/bX6/WyhxuAAiNgEGg7PMNMfM6PhD+mgkMBT+xXGZSZ3mRuPfVGPeSZtuPVK0NEnwr8zSggDDNphmg+QFAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720709133; c=relaxed/simple;
-	bh=X/Vus3odAr0nVoUkxLttzX7Pk94wValiSx+VwO4R69w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eYkgNsBEJ4E+LXYoV77uIBkcvHM0HLBl1T6wpiRMKex7fN+BN64DoCF/4YKz+xO4ydCKu6G1yicxcspVK70EKZRcrabpvM0NVxJEMWBnsEUBMuhbdFSgkMRtAkG0fPUOAjJk/mJowXioEhoybCJMJs48tNh3HRiaF4+XGRlFcow=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=AuPvm2HY; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1720709937; c=relaxed/simple;
+	bh=4GyMZnbR7RiPhK1S6uAJ8PduAHpuNhc35bIXtjWWqbQ=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=jA/sdPRoKZcvnSHI1EpU+741+peBOqfhOf92BP1RzKvAuHCZOtZpbAsZxxrSbjipyGW2/nYyBgkPCwE0/1slNTJh0oK3iOFjZCSNqXPSZ/hrjtsgal+91223SYKXs96eQ2+89jWNMoO3lSBnLsApoeraECsqi7HbAZwnmGQZ7dA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EQt3hj46; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="AuPvm2HY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=X/Vu
-	s3odAr0nVoUkxLttzX7Pk94wValiSx+VwO4R69w=; b=AuPvm2HYrBBxPCRmojQD
-	7CRnGb08OzEAMIGsRtGo1cADF0LX2II9QCJrZUl8IaFo/ZZrZu7J+SrEBWtj60Pv
-	1FkcrDPS/qIZnwEyGkXZcTAvUt2AcDbXPu9bRoCsRQVJ3yq7hI4gN1/pRnYBoxmm
-	LrVreSCYG9WfR6AIcwartOTLwI8fldcBkiqrbY/9wh/UHI5zzHySLqznxmN0E27e
-	CL+TVhOO2A9S47NlInzK62SsP9b7IiXAGum0KbJErYmlY66z9pmjZt/lJ/IEYVUY
-	0s8pI4FRRnO0k8J6sY5OSdOg4ouZH//OI4WOka5wh84Dzu3nFqTCzDfn3u4TXjEA
-	qA==
-Received: (qmail 877093 invoked from network); 11 Jul 2024 16:45:16 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 11 Jul 2024 16:45:16 +0200
-X-UD-Smtp-Session: l3s3148p1@33mez/kc+ORehhtW
-Date: Thu, 11 Jul 2024 16:45:15 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, Ajay Gupta <ajayg@nvidia.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
-	Andrew Lunn <andrew@lunn.ch>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	asahi@lists.linux.dev, Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Baruch Siach <baruch@tkos.co.il>,
-	Bence =?utf-8?B?Q3PDs2vDoXM=?= <bence98@sch.bme.hu>,
-	Benson Leung <bleung@chromium.org>,
-	Binbin Zhou <zhoubinbin@loongson.cn>, Chen-Yu Tsai <wens@csie.org>,
-	Chris Brandt <chris.brandt@renesas.com>,
-	Chris Packham <chris.packham@alliedtelesis.co.nz>,
-	chrome-platform@lists.linux.dev,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Conghui Chen <conghui.chen@intel.com>,
-	Eddie James <eajames@linux.ibm.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Hans de Goede <hdegoede@redhat.com>, Hans Hu <hanshu@zhaoxin.com>,
-	Hector Martin <marcan@marcan.st>, Heiko Stuebner <heiko@sntech.de>,
-	Jean Delvare <jdelvare@suse.com>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Jochen Friedrich <jochen@scram.de>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Kamal Dasu <kamal.dasu@broadcom.com>,
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-	linux-actions@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org, linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-renesas-soc@vger.kernel.org,
-	linux-rockchip@lists.infradead.org,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michael Shych <michaelsh@nvidia.com>, openbmc@lists.ozlabs.org,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Patrice Chotard <patrice.chotard@foss.st.com>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Peter Korsgaard <peter@korsgaard.com>,
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Ray Jui <rjui@broadcom.com>, Robert Richter <rric@kernel.org>,
-	Samuel Holland <samuel@sholland.org>,
-	Scott Branden <sbranden@broadcom.com>, Stefan Roese <sr@denx.de>,
-	Sven Peter <sven@svenpeter.dev>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Thor Thayer <thor.thayer@linux.intel.com>,
-	Till Harbaum <till@harbaum.org>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	virtualization@lists.linux.dev, Vladimir Zapolskiy <vz@mleia.com>,
-	Yicong Yang <yangyicong@hisilicon.com>
-Subject: Re: [PATCH v2 00/60] i2c: reword first drivers according to newest
- specification
-Message-ID: <Zo_v-xk3Hh_88sNa@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	Ajay Gupta <ajayg@nvidia.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
-	Andrew Lunn <andrew@lunn.ch>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	asahi@lists.linux.dev, Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Baruch Siach <baruch@tkos.co.il>,
-	Bence =?utf-8?B?Q3PDs2vDoXM=?= <bence98@sch.bme.hu>,
-	Benson Leung <bleung@chromium.org>,
-	Binbin Zhou <zhoubinbin@loongson.cn>, Chen-Yu Tsai <wens@csie.org>,
-	Chris Brandt <chris.brandt@renesas.com>,
-	Chris Packham <chris.packham@alliedtelesis.co.nz>,
-	chrome-platform@lists.linux.dev,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Conghui Chen <conghui.chen@intel.com>,
-	Eddie James <eajames@linux.ibm.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Hans de Goede <hdegoede@redhat.com>, Hans Hu <hanshu@zhaoxin.com>,
-	Hector Martin <marcan@marcan.st>, Heiko Stuebner <heiko@sntech.de>,
-	Jean Delvare <jdelvare@suse.com>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Jochen Friedrich <jochen@scram.de>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Kamal Dasu <kamal.dasu@broadcom.com>,
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-	linux-actions@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org, linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-renesas-soc@vger.kernel.org,
-	linux-rockchip@lists.infradead.org,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michael Shych <michaelsh@nvidia.com>, openbmc@lists.ozlabs.org,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Patrice Chotard <patrice.chotard@foss.st.com>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Peter Korsgaard <peter@korsgaard.com>,
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Ray Jui <rjui@broadcom.com>, Robert Richter <rric@kernel.org>,
-	Samuel Holland <samuel@sholland.org>,
-	Scott Branden <sbranden@broadcom.com>, Stefan Roese <sr@denx.de>,
-	Sven Peter <sven@svenpeter.dev>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Thor Thayer <thor.thayer@linux.intel.com>,
-	Till Harbaum <till@harbaum.org>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	virtualization@lists.linux.dev, Vladimir Zapolskiy <vz@mleia.com>,
-	Yicong Yang <yangyicong@hisilicon.com>
-References: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
- <nbi3fngfcipt35gzguk2mh4zzh3vy5a5gsk7dti5smm2iimytl@drm7p2iqsinp>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EQt3hj46"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4F79CC116B1;
+	Thu, 11 Jul 2024 14:58:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1720709937;
+	bh=4GyMZnbR7RiPhK1S6uAJ8PduAHpuNhc35bIXtjWWqbQ=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=EQt3hj462HVtv8t7gwaJVzRsId2xhPA5K1Iq4x6shc7r70N+2E0N4CUI8kpgcRPfY
+	 Xw54ltVGnoOTRawhBxtsPlusVHUBxMGJgSZqb47+3c/n6sdDmBl7jLGlwViklznptw
+	 YXpL8gqEaJ6gAbBpGAnveiXiWVuVfmDXFBGZwTPUKLCr42rI6boEFit0PjEU+VP7DH
+	 V0sFYEvfGqL3SDQVIkqb5z8Z5BmF34QB0383GnF+9JfIZAsYPGt8d6VqoppvUJ0jWS
+	 0Wb4oEOq05KxLPtDjLLDsER/G2ojB4ZP4DAO0t6zhQLo2UePctiOgeo5gEVzokMEms
+	 MOnE0PPonKoDA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44310C3DA49;
+	Thu, 11 Jul 2024 14:58:57 +0000 (UTC)
+From: Luigi Leonardi via B4 Relay <devnull+luigi.leonardi.outlook.com@kernel.org>
+Subject: [PATCH net-next v3 0/2] vsock: avoid queuing on workqueue if
+ possible
+Date: Thu, 11 Jul 2024 16:58:45 +0200
+Message-Id: <20240711-pinna-v3-0-697d4164fe80@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Vk6JWgUmE7mz+Biu"
-Content-Disposition: inline
-In-Reply-To: <nbi3fngfcipt35gzguk2mh4zzh3vy5a5gsk7dti5smm2iimytl@drm7p2iqsinp>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIACXzj2YC/x3MQQqAIBBA0avErBPGEsKuEi20xprNJBoRiHdPW
+ j74/AKZElOGuSuQ6OHMlzSMfQfb6eQgxXszDDgYnLRWkUWcMtYHdB6tRQutjYkCv/9nAaFbCb0
+ 3rLV+RekMaGEAAAA=
+To: Stefan Hajnoczi <stefanha@redhat.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Luigi Leonardi <luigi.leonardi@outlook.com>, 
+ Marco Pinna <marco.pinn95@gmail.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1720709936; l=2312;
+ i=luigi.leonardi@outlook.com; s=20240626; h=from:subject:message-id;
+ bh=4GyMZnbR7RiPhK1S6uAJ8PduAHpuNhc35bIXtjWWqbQ=;
+ b=OKe8ArgWw5s3u221y8cYuzl/lSRKwV/KLQr+zKG2+UoJkwwYco3/h7ze8TQ2g7Tou2mH9sYna
+ ymMojPaSHiSBhA1oKQ0WLMtDg4CnXUz90W6JcWVVr7GBamNlm0wr8C3
+X-Developer-Key: i=luigi.leonardi@outlook.com; a=ed25519;
+ pk=RYXD8JyCxGnx/izNc/6b3g3pgpohJMAI0LJ7ynxXzi8=
+X-Endpoint-Received: by B4 Relay for luigi.leonardi@outlook.com/20240626
+ with auth_id=177
+X-Original-From: Luigi Leonardi <luigi.leonardi@outlook.com>
+Reply-To: luigi.leonardi@outlook.com
+
+This series introduces an optimization for vsock/virtio to reduce latency
+and increase the throughput: When the guest sends a packet to the host, 
+and the workqueue is empty, if there is enough space, the packet is put
+directly in the virtqueue.
+
+v2->v3
+- Performed more experiments using iperf3 using multiple streams
+- Handling of reply packets removed from virtio_transport_send_skb,
+  as is needed just by the worker. 
+- Removed atomic_inc/atomic_sub when queuing directly to the vq.
+- Introduced virtio_transport_send_skb_fast_path that handles the
+  steps for sending on the vq. 
+- Fixed a missing mutex_unlock in error path.
+- Changed authorship of the second commit
+- Rebased on latest net-next
+
+v1->v2
+In this v2 I replaced a mutex_lock with a mutex_trylock because it was
+insidea RCU critical section. I also added a check on tx_run, so if the
+module is being removed the packet is not queued. I'd like to thank Stefano
+for reporting the tx_run issue.
+
+Applied all Stefano's suggestions:
+    - Minor code style changes
+    - Minor commit text rewrite
+Performed more experiments:
+     - Check if all the packets go directly to the vq (Matias' suggestion)
+     - Used iperf3 to see if there is any improvement in overall throughput
+      from guest to host
+     - Pinned the vhost process to a pCPU.
+     - Run fio using 512B payload
+Rebased on latest net-next
+
+To: Stefan Hajnoczi <stefanha@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+To: David S. Miller <davem@davemloft.net>
+To: Eric Dumazet <edumazet@google.com>
+To: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: virtualization@lists.linux.dev
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+---
+Luigi Leonardi (1):
+      vsock/virtio: avoid queuing packets when work queue is empty
+
+Marco Pinna (1):
+      vsock/virtio: refactor virtio_transport_send_pkt_work
+
+ net/vmw_vsock/virtio_transport.c | 143 +++++++++++++++++++++++++--------------
+ 1 file changed, 93 insertions(+), 50 deletions(-)
+---
+base-commit: 58f9416d413aa2c20b2515233ce450a1607ef843
+change-id: 20240711-pinna-49bf0ab09909
+
+Best regards,
+-- 
+Luigi Leonardi <luigi.leonardi@outlook.com>
 
 
---Vk6JWgUmE7mz+Biu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Thanks for this big work, at the end it turned out quite nice and
-> I'm happy of the outcome!
-
-Me too. And thanks for the enormous review work!
-
-
---Vk6JWgUmE7mz+Biu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmaP7/sACgkQFA3kzBSg
-Kbbq3A/9FNY+7cgd8CU9HNabmoXmMSCsOVflmaDNapeEn/iIYZUiBBFhDcYnJczI
-T429i2bK95+lup88Nhn9fzXQ4hoPFa2TuPkQ5n3M7A9hjFnAOxLmTd91uO98BfVm
-8IYBr6EIu/AfX/+D6Rj1Ro1VpSwK4laze5p9WGyNjp6QIzJ+KqmRh+vf9Shg1urk
-9gNjTClxMD1OjQ60X0Vr4XmDONnsK8guT/Zkkk1gtDRDC8P92Jw17/3vtuBQnwP6
-S1NAFaqvdLbLKuRBsK7KwJ6oJ4sH5jq2LCiJk87GHsXnQBerXSR3AFORTQWjvEBF
-6qz8rHh0/GrQklzbs/VgVlqV3NygU4D2T18NZMyLxaJAGPmDPGeL5YvcweblR0TL
-yMMuXmSq7ACO+aTJgqIqt2Wx1PS4cbvSmaHUnG52eGrX28o1PgjIW5y0xGu9G5FU
-Funcvt0JlI2HtC1FI2FGDsCW77U3mh3U5N5NEo7y24XPebmTVhGifj2kWp/WkA3F
-UPgJdkXF0gUzDxQj3Febmvmeh3m58s+Io+3LWBncCK2eRgL4YyEaKpEegQfA43Rl
-PJGODikSLI1gh/8qN/WE44DGio65TYItOJrPX3b8VwOQLCgKgwz0y+a37vy2Jd7W
-X/LXLwb8txlca1gF88Bg07eWwR/jwNoHp4c/k2C80iwHtJ12Kcg=
-=ribe
------END PGP SIGNATURE-----
-
---Vk6JWgUmE7mz+Biu--
