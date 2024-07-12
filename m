@@ -1,140 +1,130 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B610E1411E0
-	for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 11:54:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CF3416F904
+	for <virtualization@lists.linux-foundation.org>; Fri, 12 Jul 2024 13:00:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720785264; cv=none; b=I2xckDTS4SDfhIzJ4LQ5/s9H7vru6m18+lJSg+Vm4hm7fV5jivck5caS+0AeEf5KUOXoL6LuuPZQmeY3g63J1nsqVc3M3ditK+hqlmBncp4mJ5/a3ZeLv7lSMXQlKACjevN505MjkPycs393LzTP5NN7XPVqVRnw1TotYJ5R4EI=
+	t=1720789243; cv=none; b=kv30CkdNNoPRTV4D2tVj8cELUXYfwd4rRffw0VcqvsmQ9ISHsZaE3b08BM8I4VLp2dR/jcG1zGRBz9wNslonztp7bltzK9FGPD2vYNagyg6SiALI7bkxdeXebkFawW1DeS+D0Rynnr/smMhrqXWkt0Opqk9VO1M/KHdXt7t2M4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720785264; c=relaxed/simple;
-	bh=6jQq9w4RlXoevsFAm7Zi5RQIGcv8h3svhEsJaymp9as=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=soYvhLa05BZ5QvQPy2zorxcfY2iqwS6e/lb93cOpl5Ra+8RpgyibiNjA8IT2foAWGsM4D72neKyfCj2ieOup+zpv83BK2/XiVXgfhzefbCFNMPZwlNje1SZL9pyKjX1ujDmbDgMcy0l3XWPvgE5waqf0bHS+M0qnLcRZsB/0QkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-59589a9be92so2719275a12.2
-        for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 04:54:22 -0700 (PDT)
+	s=arc-20240116; t=1720789243; c=relaxed/simple;
+	bh=4vaan9lVCWHn6tCkQmfCAQNwBS43BDI/yL/E404vsrY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=B1DntB7PJZk1gvuxTh5AVNHHLIZZ+O/7F+7rDNDuoac9/ZZ6yZi9gCIgnt7SwW0x0eSXmEfZOFq3S3GZnEBzuhxf5MJ5b6kwStcBs6Uz7OqM8cYaBa5u4xeQHPT4xzfHw7vk9xu2HXjoKR+TjZaEymaPKekKwJ5Es/VtJwhnNog=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=AY1p1ZV1; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="AY1p1ZV1"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 42F3C607B4
+	for <virtualization@lists.linux-foundation.org>; Fri, 12 Jul 2024 13:00:42 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id oJyw4lLo4OJL for <virtualization@lists.linux-foundation.org>;
+ Fri, 12 Jul 2024 13:00:41 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b2a; helo=mail-yb1-xb2a.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 9907B6071E
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9907B6071E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=AY1p1ZV1
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9907B6071E
+	for <virtualization@lists.linux-foundation.org>; Fri, 12 Jul 2024 13:00:40 +0000 (UTC)
+Received: by mail-yb1-xb2a.google.com with SMTP id 3f1490d57ef6-e036d1ce4f7so1664068276.0
+        for <virtualization@lists.linux-foundation.org>; Fri, 12 Jul 2024 06:00:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1720789239; x=1721394039; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=T/w0zwGhNPKt9SyZTMl06PaCMjOKZYwYdrSeXLeSiM4=;
+        b=AY1p1ZV1csuCF44fg7cJ4v8D+b2nZoR9eZWltDRdmnFoLXsaUBAVl/BKW01qogIuXb
+         1QXc4owXNzw9+AvZMDbl40KyjuE4YcANLoAu0jvTiE195RzQBvROF1ehquo8D4GBsW71
+         8bsknjPZy1BPojyZ5VL+7fl+JV/DxhzfwcAeaH7rM9TBriVKyiAAC71qQ8uyUIQLn5t/
+         BwGylz/BhRTomXGec868KAV5aGxsPFrGiCdepAU6xyGWwLsSMQvtzGx3R9gj35QOEK/7
+         d86KTrqrufvLDmNZaG6ZBoIS3g3p0stTx3Io160ErC+Aqw5zR1aqzqFIFb4e61jqNnkt
+         S4xQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720785261; x=1721390061;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=aylUUjY+eZRZ5UTaJ9YsIwls7PGxo5tR8Y5wxZlssUg=;
-        b=BVfQqO7abC9MIACsnPXUunSdjJkoyuBqla1UdUfFovJYRpdtc4jzZFnJIgVLRYwYoI
-         tb8lqAOmLM/0HtMKyojonT//YYr2R153/TgNyd0s9hEM3sekDMHZuS+5P7VGS2KSVNAv
-         psmSIF9HFr19G36Qaoa8in2yq1iKA+/pYkMQo01vNrWjefBwxBQZEDKOdQFDr6DmyKEQ
-         qTtG5CpZEVLuMN0+T5xVX/VVCIPpE8EyYq1FRFrKzpLGKm/gW0c+rw7uInmER401/daW
-         bG2/8JIzQFUckj4xJBXUoJMubempI9v7GsrI3k9lJdBb2V5FTtU2GjW50oGXgF9cBiHB
-         i77Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWJbGkalmkpLZtKEtfz7KqR9j4HRBOS2/7kr6VjfmYO255DfMNAvED6K5SpZGJ5KU87+aT2xud1jG4z342T8UnwiOUVHyTpYEuwXsA78PY=
-X-Gm-Message-State: AOJu0YyWwD+Vd2zSlqsbJa9mnoCZNKGCV7dKAgS7dOyuvaxBIyN7YuER
-	UQptOaN+vZO09gomjK8V0mwGTMvV5p0+Z3ZeOGsRa9I3cSV8DPNP
-X-Google-Smtp-Source: AGHT+IFjCvvGOIX9tsFRJ9Dy0AlCrRfCMApaUx1noM7pWNy8sfC/jqsyqBLhaPGYhuXidj8vb8G5sQ==
-X-Received: by 2002:a05:6402:210f:b0:58b:6096:5554 with SMTP id 4fb4d7f45d1cf-594bcba7e40mr9350900a12.37.1720785260712;
-        Fri, 12 Jul 2024 04:54:20 -0700 (PDT)
-Received: from localhost (fwdproxy-lla-002.fbsv.net. [2a03:2880:30ff:2::face:b00c])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-594bbe2d0f4sm4570995a12.35.2024.07.12.04.54.20
+        d=1e100.net; s=20230601; t=1720789239; x=1721394039;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=T/w0zwGhNPKt9SyZTMl06PaCMjOKZYwYdrSeXLeSiM4=;
+        b=Q5zXdJc78Z1Y7YE4B1FQ3j92aHgI/sg8NFzTARvBUoro7c71fdaS8r1F8zg6OYnTQc
+         BsTDd4QoQGiF2ri9v9YKxOWUanMHWC8Pn06+JWIXX82sbseZljToIRJeMqvnM1avaZSV
+         NhiWhAO9FV1Ps5NuyPmN5dIaLy4FNXbJcTgAjXkWPQ+AnogSfmg5TgtYDdoD3pbjtnbp
+         Oy+gmn4wQCmdz9nJuP9BgYBzt6dBU43L4phb0G5ZUCWgjUepPXMk+/Hb3uEx+ywdhVQ0
+         wtjpCxK8CNz6lgj79mds475mIDcR3yUtvYo4tQNsx/PqP4yKsjZ+X5J4a5xcuoQQyP5t
+         MSFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUV9CEK8I2ykVKsauOhAIJGWazDxKLGmi2t7b+9tPfcjuIGCWQYZh43dRRZDvMELmyhdl+O5zknQuT9mBiQ+19ZLMgqYl8AwRvVLnHDIW8tME8Qu/0iWPkQlA==
+X-Gm-Message-State: AOJu0YxQqSutbi9a/kdEpTpxBh9UTK2Z2wJ6+8kpPLAuH8QywijsB4GA
+	Gg8aW6ZBzts+OVLGScnlZObXsjw19UqXOAv9nEBQGEdorKCTRrrpusIJn1RFzAI=
+X-Google-Smtp-Source: AGHT+IGrtfbkVyeqhWaqWAqPeH9PGe1fIAllaalk3hPaJxwrAsvjR5TxMPnud6p1klxpbKWWS6qKSA==
+X-Received: by 2002:a25:69ca:0:b0:dff:2b97:b06b with SMTP id 3f1490d57ef6-e058a4eb6c3mr1874869276.18.1720789238613;
+        Fri, 12 Jul 2024 06:00:38 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-447f9bd25d2sm40132481cf.61.2024.07.12.06.00.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jul 2024 04:54:20 -0700 (PDT)
-From: Breno Leitao <leitao@debian.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Cc: rbc@meta.com,
-	horms@kernel.org,
-	virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
-	netdev@vger.kernel.org (open list:NETWORKING DRIVERS),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
-Date: Fri, 12 Jul 2024 04:53:25 -0700
-Message-ID: <20240712115325.54175-1-leitao@debian.org>
-X-Mailer: git-send-email 2.43.0
+        Fri, 12 Jul 2024 06:00:38 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1sSFt7-000J4s-JG;
+	Fri, 12 Jul 2024 10:00:37 -0300
+Date: Fri, 12 Jul 2024 10:00:37 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Nicolin Chen <nicolinc@nvidia.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v8 06/10] iommufd: Add iommufd fault object
+Message-ID: <20240712130037.GA14050@ziepe.ca>
+References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
+ <20240702063444.105814-7-baolu.lu@linux.intel.com>
+ <ZoXZZ2SJ/WdlMJaX@Asurada-Nvidia>
+ <20240708162957.GB14050@ziepe.ca>
+ <ZowxyUQAcqDJ4yZ6@Asurada-Nvidia>
+ <20240709170038.GG14050@ziepe.ca>
+ <Zo10duoguPCADKSY@Asurada-Nvidia>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Zo10duoguPCADKSY@Asurada-Nvidia>
 
-After the commit bdacf3e34945 ("net: Use nested-BH locking for
-napi_alloc_cache.") was merged, the following warning began to appear:
+On Tue, Jul 09, 2024 at 10:33:42AM -0700, Nicolin Chen wrote:
 
-	 WARNING: CPU: 5 PID: 1 at net/core/skbuff.c:1451 napi_skb_cache_put+0x82/0x4b0
+> > We are potentially talking about 5-10 physical smmus and 2-3 FDs per
+> > physical? Does that scare anyone?
+> 
+> I think we can share the same FD by adding a viommu_id somewhere
+> to indicate what the data/event belongs to. Yet, it seemed that
+> you had a counter-argument that a shared FD (queue) might have a
+> security concern as well?
+> https://lore.kernel.org/linux-iommu/20240522232833.GH20229@nvidia.com/
 
-	  __warn+0x12f/0x340
-	  napi_skb_cache_put+0x82/0x4b0
-	  napi_skb_cache_put+0x82/0x4b0
-	  report_bug+0x165/0x370
-	  handle_bug+0x3d/0x80
-	  exc_invalid_op+0x1a/0x50
-	  asm_exc_invalid_op+0x1a/0x20
-	  __free_old_xmit+0x1c8/0x510
-	  napi_skb_cache_put+0x82/0x4b0
-	  __free_old_xmit+0x1c8/0x510
-	  __free_old_xmit+0x1c8/0x510
-	  __pfx___free_old_xmit+0x10/0x10
+That was for the physical HW queue not so much the FD.
 
-The issue arises because virtio is assuming it's running in NAPI context
-even when it's not, such as in the netpoll case.
+We need to be mindful that these events can't DOS the hypervisor, that
+constrains how we track pending events in the kernel, not how they get
+marshaled to FDs to deliver to user space.
 
-To resolve this, modify virtnet_poll_tx() to only set NAPI when budget
-is available. Same for virtnet_poll_cleantx(), which always assumed that
-it was in a NAPI context.
+Thinking more, it makes sense that a FD would tie 1:1 with a queue in
+the VM.
 
-Fixes: df133f3f9625 ("virtio_net: bulk free tx skbs")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
- drivers/net/virtio_net.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+That way backpressure on a queue will not cause head of line blocking
+to other queues because they multiplex onto a single FD.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0b4747e81464..fb1331827308 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2341,7 +2341,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 	return packets;
- }
- 
--static void virtnet_poll_cleantx(struct receive_queue *rq)
-+static void virtnet_poll_cleantx(struct receive_queue *rq, int budget)
- {
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
- 	unsigned int index = vq2rxq(rq->vq);
-@@ -2359,7 +2359,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 
- 		do {
- 			virtqueue_disable_cb(sq->vq);
--			free_old_xmit(sq, txq, true);
-+			free_old_xmit(sq, txq, !!budget);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
- 
- 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
-@@ -2404,7 +2404,7 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	unsigned int xdp_xmit = 0;
- 	bool napi_complete;
- 
--	virtnet_poll_cleantx(rq);
-+	virtnet_poll_cleantx(rq, budget);
- 
- 	received = virtnet_receive(rq, budget, &xdp_xmit);
- 	rq->packets_in_napi += received;
-@@ -2526,7 +2526,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
- 	virtqueue_disable_cb(sq->vq);
--	free_old_xmit(sq, txq, true);
-+	free_old_xmit(sq, txq, !!budget);
- 
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
- 		if (netif_tx_queue_stopped(txq)) {
--- 
-2.43.0
-
+Jason
