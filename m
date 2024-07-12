@@ -1,96 +1,105 @@
-Received: from 8.mo582.mail-out.ovh.net (8.mo582.mail-out.ovh.net [178.33.42.204])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6346716D9B2
-	for <virtualization@lists.linux.dev>; Thu, 11 Jul 2024 23:56:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.33.42.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 664637E76D
+	for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 06:34:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720742196; cv=none; b=BRqCyBzMFOdE1WekT4H4WGRr+7OQtT5SrNjtJqyppb+arEnad7r1AHPRF67vURe5VO0DuTj9ySiY6CMgTqmNjtFAkZQtT5s29OEpTOm94bUAvEW/hozVq8lgfuk7P2yvsow3EmLUBEBPxy9B4PyBQ5kv7IiKK4rcuAupwTl9LZ8=
+	t=1720766057; cv=none; b=hRUMsu4H9eEhqPtkagKr1yaye8/YAodQ482FtEHMPx4xlJ26s6AiWP+8QOz2KSwRBA/nMplmS6pLuuHsdz7rKKE6zr4xbYYSNxxxHW6Tka1XM9In1kxdbG3D7LWhCIl2yHDTZJuknzcollUsJgMn8CRgRx/UgP/o92jW0GxiYlU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720742196; c=relaxed/simple;
-	bh=NZ8T7Ds3iZep5vO1ifYcykqOpLll7nDm1BsynJvV7Oo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HhYxgXDGYeMa+It9Er/qDi3g85PsFKzDify6yXeGKj6EN2u+vjpKL7DpKImFXFGKpi54BtCYHlni6XLewC20/+HYQEAZXoM/v/wsQcjicbA9iLdiQ5No5PoWlAJgPd/VxOO5yM9z2ndaWupk765VF4b3aLt/efmNjOmu6DL8EJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.33.42.204
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director10.ghost.mail-out.ovh.net (unknown [10.109.139.198])
-	by mo582.mail-out.ovh.net (Postfix) with ESMTP id 4WKrL25HKtz1LVn
-	for <virtualization@lists.linux.dev>; Thu, 11 Jul 2024 23:20:10 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-8rwxz (unknown [10.108.42.201])
-	by director10.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 50E101FDFC;
-	Thu, 11 Jul 2024 23:20:07 +0000 (UTC)
-Received: from etezian.org ([37.59.142.96])
-	by ghost-submission-6684bf9d7b-8rwxz with ESMTPSA
-	id PzeKC6dokGZO4gsAyuFlTg
-	(envelope-from <andi@etezian.org>); Thu, 11 Jul 2024 23:20:07 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-96R001e9cb5549-685d-425f-a6a9-8576c3d7597e,
-                    47FBFB77BDCA57EA66E7955FCDEBFA84A3B4AB1A) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:194.230.248.195
-From: Andi Shyti <andi.shyti@kernel.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andy@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Lee Jones <lee@kernel.org>,
+	s=arc-20240116; t=1720766057; c=relaxed/simple;
+	bh=qE5WNhqkcyor/YY7ME6FLDIzgVykP89zYw6hRQEWuw4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HjM7XKEA3AluFbHOaMRdJ1juZdao5Q6CiJEIPGAurFFwcC8xfdCy07hp8Qb0wmWInWbTo9xob2UWfkwvZROogwdoWYUAx0rupYfo0a8goJbSsdAkM6wNS9T62z/AM7wx+u+h/8x4cPPH4D0nxsMBZr7DiC5iSqU5KdIMec/4mW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=ItZhMV1s; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="ItZhMV1s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=qMwy
+	j100TZiXpEG1RkEKy9X56Sq1twYVjHIju4RLaFo=; b=ItZhMV1szYGS1WAmXbFR
+	3D3U0ITPsuZvoYTG+kgCBPNlT3NKNBEQ6I4k80QfCn8ZHMWwVU45AdI3YzHY4O77
+	Wng30gi0zKJnKAnJRTrnGkj9yoNCj6pCezQ0KoBgKPN7npgl2d+lCBbwD5JNYQoq
+	/og/oef8+jyAm3N8sEDt/R0fboin03ekCop7YCPyjlZvsTuDH5H+uBMGmbAZrXXI
+	NLR+evTRZSXR9CqCZYkv1z/kxkC+bPWNJfxARtl911eeA/CNMkiCZOUsLhDnwW3i
+	PO9A34o0qQL7Fcgky41OKFZqddNtJIzCVfKXodcyJT6TYCnSSSGPJKS7cErp1kBQ
+	oQ==
+Received: (qmail 1055845 invoked from network); 12 Jul 2024 08:34:11 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 12 Jul 2024 08:34:11 +0200
+X-UD-Smtp-Session: l3s3148p1@b6c7EQcdgIQgAwDPXwmZAIsFIv4n+Dpm
+Date: Fri, 12 Jul 2024 08:34:11 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andy Shevchenko <andy@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>, Lee Jones <lee@kernel.org>,
 	Linus Walleij <linus.walleij@linaro.org>,
 	Philipp Zabel <p.zabel@pengutronix.de>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH 0/2] Cleanup the MAINTAINER's file
-Date: Fri, 12 Jul 2024 01:19:24 +0200
-Message-ID: <20240711231927.3103820-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.45.2
+	Viresh Kumar <viresh.kumar@linaro.org>, linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH 0/2] Cleanup the MAINTAINER's file
+Message-ID: <ZpDOY5KKee93lToM@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Andy Shevchenko <andy@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>, Lee Jones <lee@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Viresh Kumar <viresh.kumar@linaro.org>, linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org, virtualization@lists.linux.dev
+References: <20240711231927.3103820-1-andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 7541840528265644655
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeeftddrfeehgddvudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpedtveeuieehfeetudejhfehleeijedvveetleefhfehuedtleektdevjedujefgvdenucfkphepuddvjedrtddrtddruddpudelgedrvdeftddrvdegkedrudelhedpfeejrdehledrudegvddrleeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehvihhrthhurghlihiirghtihhonheslhhishhtshdrlhhinhhugidruggvvhdpoffvtefjohhsthepmhhoheekvddpmhhouggvpehsmhhtphhouhht
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="Z5uXCEPNnIb2FR7S"
+Content-Disposition: inline
+In-Reply-To: <20240711231927.3103820-1-andi.shyti@kernel.org>
 
-Hi,
 
-while reviewing Wolfram's series, I received some delivery
-failure notifications for e-mails that don't exist anymore.
+--Z5uXCEPNnIb2FR7S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With this series I'm removing:
+On Fri, Jul 12, 2024 at 01:19:24AM +0200, Andi Shyti wrote:
+> Hi,
+>=20
+> while reviewing Wolfram's series, I received some delivery
+> failure notifications for e-mails that don't exist anymore.
+>=20
+> With this series I'm removing:
+>=20
+>  - Conghui Chen <conghui.chen@intel.com>
+>  - Thor Thayer <thor.thayer@linux.intel.com>
 
- - Conghui Chen <conghui.chen@intel.com>
- - Thor Thayer <thor.thayer@linux.intel.com>
+Fixes for these two are already in my for-current branch. (And the
+patches were on the i2c list, Andi ;))
 
-unfortunately both from Intel :-(
 
-In the case of Altera's subsystems (except for the i2c), I didn't
-really know what to do with them, so that I marked them as
-Orphan.
+--Z5uXCEPNnIb2FR7S
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Andi
+-----BEGIN PGP SIGNATURE-----
 
-Cc: Andy Shevchenko <andy@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Lee Jones <lee@kernel.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-gpio@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
-Cc: virtualization@lists.linux.dev
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmaQzl8ACgkQFA3kzBSg
+KbZC2w/+LZgnWmlJBwxQh5TSmeMsk2dilwE2eiHsoXwVM6TaE9idkTF8nwm3wGOZ
+0gk3iJD5XHOwHkPuUK0S9qnnDnRWsf2lR9sg9MGLnXc5i8PTvO7HHEGRxBrApi61
+FTLg1OQCZUDBaRT7Pf6Yqb99dXMvlVRkdoojYsCTbqY49YDPdBhS1989f4hfXeuw
+FQLAH5oJ9DrpfylZOMRiCXhsGmXCb+zpcaeJo3rR2jaJNyfKdBKBEx4CiYP4Bcrk
+DBO3Bxt9xQqjLyUVQXvwWntrnSXpyadUYEVvAF8fB2v1x0FYeKLc9DPEIZuX+XAw
+aKpjTMOmHwjWkXoTdT/0HphfE5MRJsqfNnpOJXyyM+Z833ty5JTT/+BkybDVaE9q
+330Dolj9RFVE//+/Y34bbmb6wfSmbX8L4R7NSSC22qsCD1VHqcMnFsaacE3/CrpH
+pJyAvmZ79NhPoPsj6OHkP/4xYw8thbwXzk9kv9k8EQpr1JgI9BL+EKp/DVHB6SYJ
+7nHDtGM2MLEkjzhgYRbEFQPZKfRf8OZzjUT7HRwhDk1DhqDjItjbnJ0js0lGtAR7
+IWbdYpdxBvLx9xVhfrpxFc+TJLT90i3qz2dSIWm655HpsBTV/I9FW3pb+Qb7Q52Y
+0luzSdaNkNUrokqW8biZflYENJ4Hadacfl4ZTc+wx1f45QZesqA=
+=1rBW
+-----END PGP SIGNATURE-----
 
-Andi Shyti (2):
-  MAINTAINERS: i2c-virtio: Drop Conghui Chen from Maintainers
-  MAINTAINERS: Drop Thor Thayer from maintainers
-
- MAINTAINERS | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
-
--- 
-2.45.2
-
+--Z5uXCEPNnIb2FR7S--
