@@ -1,171 +1,250 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65FB116F8F2
-	for <virtualization@lists.linux-foundation.org>; Fri, 12 Jul 2024 13:19:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F37CB17107A
+	for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 13:42:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720790351; cv=none; b=t5PJOJdd1jrd7hvhS8Wi19o5O+9TpXlEsEfMVlnpuukMlqgJ3EzVX0LE5jXHoJ/5kPTupdXuI/ADOl0aCJo5hLxdqB7TYoNCN3/32jNJVJEk3ybO/i5p/JvG7YseuanDSm+OJMbamAEAfLON5SQsdR+oA/CH5vEMLKsa7IV+XT0=
+	t=1720791724; cv=none; b=hR9/gfPa2E529EKjoJyp7oZSpOFGWGirnbwl4nlv+7+p0LjWTTowCwHE09J0QsD6FeO4+ou6lEcnjU/WCqsWcY3NXMBKOUFEQdekDyN8U5/OG4LtMa6fCiCwmhStBi3U3ODq/I0SJ75NkhjM3U3CA9SlZOfxGch7dgSiIxYdsW4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720790351; c=relaxed/simple;
-	bh=J++OFspK0s948cJ/z0bfVt1131RkLmWjkZNgDRGElYs=;
-	h=From:To:Cc:Subject:Date:Message-Id; b=JZgsnHURt4fE9A9mXC78Yz/HMGkMRdSHLNutr4i1o6YTwIGPJk7WeqJZsAeRCe/VRcJNRLwc24NbxrEgIg8O7/xF9BDAWWooj3qkpG5o2Iaq7cBFq+omM/8gtQhDGXobGUsHFBhRpZStgiE+7EF0vebqGbiFA8hBadDh97+ZnjU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=Zos1Mp0l; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1720791724; c=relaxed/simple;
+	bh=VlSHi9RK0cz8oHSgiEYUsmDxeuGYyWFs8bFgo7jHaYc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZkeyJHGnDWVW0Y7GGMzx7LTX9MfTQ4y876AiRvsrhxbkPNb5mIEaJi6lH6df+MXOWQUkPSWSaCVFkgeXpQroR7a+vDkT58wmsJ6wVsStWk34JixqrGXXp7BmcRxHhp4NNxfZkYQdZ2h9ZYJ9uRlDtk8oVZy2TwLP4wEwMqT4vQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I2f1EYCi; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Zos1Mp0l"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4511A6071D
-	for <virtualization@lists.linux-foundation.org>; Fri, 12 Jul 2024 13:19:06 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.799
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id tenN9gvyoLSe for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Jul 2024 13:19:04 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=steven.sistare@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CF733605E9
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CF733605E9
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=Zos1Mp0l
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CF733605E9
-	for <virtualization@lists.linux-foundation.org>; Fri, 12 Jul 2024 13:19:01 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46CDILHC006318;
-	Fri, 12 Jul 2024 13:18:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
-	from:to:cc:subject:date:message-id; s=corp-2023-11-20; bh=/mLzJn
-	fK9hbmI4aVSg93fjSCOKiTf+2F+YF/zpFRuvQ=; b=Zos1Mp0lqN3G4lGsFl6a04
-	lwzWNzaib/NFjM9jR2HEP9QSJMw6FQNOzWef0qls/f4pY2+xx9efAIoaC6fZ4Qz4
-	EPUB79Cyc4obvNt5vwfaFZ3TQsrs6Hgx5YyjXTpSqa/Mepg6d7UoQBLIuQC86NRq
-	SOuCNQnSrxlM8hw1X5iYcV6hUGg0gF2cD/YzuLEW1tDjgMUwkyxyWAfqCu7MiRGf
-	6gjWDRTdbjTv5RDUR8g2jccc+aKnyv0CnrqZtWwe0dzNUOX6HcYJE8HCjaOAWicD
-	XuusQtEaLiBIimwxBfjdoWryDO+jTJemnK9QQGFlSqJHtjm4+OSUTRZG+JmA0V6g
-	==
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 406wkcks2n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 12 Jul 2024 13:18:55 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 46CBVCWk022685;
-	Fri, 12 Jul 2024 13:18:54 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 409vv3snpc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 12 Jul 2024 13:18:54 +0000
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 46CDIsD7029886;
-	Fri, 12 Jul 2024 13:18:54 GMT
-Received: from ca-dev63.us.oracle.com (ca-dev63.us.oracle.com [10.211.8.221])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 409vv3snp2-1;
-	Fri, 12 Jul 2024 13:18:54 +0000
-From: Steve Sistare <steven.sistare@oracle.com>
-To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        Si-Wei Liu <si-wei.liu@oracle.com>,
-        Eugenio Perez Martin <eperezma@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Dragos Tatulea <dtatulea@nvidia.com>,
-        Steve Sistare <steven.sistare@oracle.com>
-Subject: [PATCH V2 0/7] vdpa live update
-Date: Fri, 12 Jul 2024 06:18:46 -0700
-Message-Id: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-12_09,2024-07-11_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0 mlxscore=0
- mlxlogscore=803 bulkscore=0 spamscore=0 adultscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2406180000
- definitions=main-2407120089
-X-Proofpoint-ORIG-GUID: 4uNO_745FSyIFbcgYAq8p1SXMMel9gKu
-X-Proofpoint-GUID: 4uNO_745FSyIFbcgYAq8p1SXMMel9gKu
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I2f1EYCi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1720791722;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mk+WM1arm/64ZpMrIxPRFx219R8+aXz4jqZ8C+xP4gc=;
+	b=I2f1EYCiuS3yEPvFIdGFdRXy3rvo4hCWZWoBXCyygoEGvTKkW2M9UKmHyaK25FfzQWtVZg
+	B0lZznOseth4OKlhY99BXFeMT4QV0kkvdcIam5t65yeinXWlb/neyj+53OD4G7PfWDFPah
+	GBvBc2EyH0QNGfIRxwg7YKAy31vWfh8=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-49-tHBtb57POoe4d4JefWADCQ-1; Fri, 12 Jul 2024 09:41:58 -0400
+X-MC-Unique: tHBtb57POoe4d4JefWADCQ-1
+Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-52e9cc6a99eso2134576e87.3
+        for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 06:41:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720791716; x=1721396516;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Mk+WM1arm/64ZpMrIxPRFx219R8+aXz4jqZ8C+xP4gc=;
+        b=CVGRoRLCT8FK4lKg2SsJX2hBkTtOS/0TrGsDkwBKZte7mN1Ob7rwVVEhe4xiA3xfia
+         A1t0P1VvbRZSTkmP9d5Bq1p7KYb3hRP0oX/X6DPTFlpK+0Z+FrWvGoPDT/F7N6ThXh+i
+         X5Xy5BAufmIecj2dyrTFratroKjBWM3elXQyNpZhZWob+EYCq9ntF8wrvM4JoKfii03H
+         6TqyW9SenQLVxw0e0vE+vXcAXbm2yR9vFjePiUWeGen+GxVhBJ3wPvNr57kHGz3ru9/Q
+         YQlOQ7U7ygAfc437VbQTqozVSg5qn+QJPxvXFMkdkFD2SJHACGLGQ0vd0IiuLvkajJ7w
+         0lGg==
+X-Forwarded-Encrypted: i=1; AJvYcCXPg5wEdGI6/jEmo0dhJY6chOQOyndQN8FRzcH0/csI4kfNKOaJyPfpj5T5rJ+YAGcG+P0OdmSIWoUc0zYUwmpmdBwgrJN3fSLKTs253lQ=
+X-Gm-Message-State: AOJu0Yx9fR5qtgJCMOa2KAewkmbGw+PSQdGpiCAQ403WWrpEPoG1eHtN
+	7QhT8K+UhpF+Xp2fWLQJWPTsBbr0KuMusJyQmZEn2TlrUWUwQFOqwO0Ocw+nbtXboGFiAz6mDBq
+	Wsax8vgGTF0XZv1r+7YE6C4sGJ8h+S0ILbNjZ+wumOig1xsib7Vt8X4UMh7csTNXq
+X-Received: by 2002:a05:6512:3a8a:b0:52c:e402:4dc1 with SMTP id 2adb3069b0e04-52eb99cc600mr7617112e87.55.1720791716571;
+        Fri, 12 Jul 2024 06:41:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEUaf4mxN3q9ATPhlcpzBYwPRxW6N5KDcX6uHj3/W1daAmMkIG36ncQyE+RQl/Wv+1PaDvSBA==
+X-Received: by 2002:a05:6512:3a8a:b0:52c:e402:4dc1 with SMTP id 2adb3069b0e04-52eb99cc600mr7617095e87.55.1720791715892;
+        Fri, 12 Jul 2024 06:41:55 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-153.retail.telecomitalia.it. [82.57.51.153])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a780a85431fsm343736466b.153.2024.07.12.06.41.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jul 2024 06:41:55 -0700 (PDT)
+Date: Fri, 12 Jul 2024 15:41:51 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: luigi.leonardi@outlook.com
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Marco Pinna <marco.pinn95@gmail.com>
+Subject: Re: [PATCH net-next v3 1/2] vsock/virtio: refactor
+ virtio_transport_send_pkt_work
+Message-ID: <5myg3te4nmgrddh3dvh6t4guvmr4i73uwksyf2g4h4n3gjqk74@mf43vrv5gym2>
+References: <20240711-pinna-v3-0-697d4164fe80@outlook.com>
+ <20240711-pinna-v3-1-697d4164fe80@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20240711-pinna-v3-1-697d4164fe80@outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Live update is a technique wherein an application saves its state, exec's
-to an updated version of itself, and restores its state.  Clients of the
-application experience a brief suspension of service, on the order of
-100's of milliseconds, but are otherwise unaffected.
+On Thu, Jul 11, 2024 at 04:58:46PM GMT, Luigi Leonardi via B4 Relay wrote:
+>From: Marco Pinna <marco.pinn95@gmail.com>
+>
+>Preliminary patch to introduce an optimization to the
+>enqueue system.
+>
+>All the code used to enqueue a packet into the virtqueue
+>is removed from virtio_transport_send_pkt_work()
+>and moved to the new virtio_transport_send_skb() function.
+>
+>Co-developed-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+>Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+>Signed-off-by: Marco Pinna <marco.pinn95@gmail.com>
+>---
+> net/vmw_vsock/virtio_transport.c | 105 ++++++++++++++++++++++-----------------
+> 1 file changed, 59 insertions(+), 46 deletions(-)
 
-Define and implement interfaces that allow vdpa devices to be preserved
-across fork or exec, to support live update for applications such as QEMU.
-The device must be suspended during the update, but its DMA mappings are
-preserved, so the suspension is brief.
+LGTM
 
-The VHOST_NEW_OWNER ioctl transfers device ownership and pinned memory
-accounting from one process to another.
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-The VHOST_BACKEND_F_NEW_OWNER backend capability indicates that
-VHOST_NEW_OWNER is supported.
-
-The VHOST_IOTLB_REMAP message type updates a DMA mapping with its userland
-address in the new process.
-
-The VHOST_BACKEND_F_IOTLB_REMAP backend capability indicates that
-VHOST_IOTLB_REMAP is supported and required.  Some devices do not
-require it, because the userland address of each DMA mapping is discarded
-after being translated to a physical address.
-
-Here is a pseudo-code sequence for performing live update, based on
-suspend + reset because resume is not yet widely available.  The vdpa device
-descriptor, fd, remains open across the exec.
-
-  ioctl(fd, VHOST_VDPA_SUSPEND)
-  ioctl(fd, VHOST_VDPA_SET_STATUS, 0)
-  exec
-
-  ioctl(fd, VHOST_NEW_OWNER)
-
-  issue ioctls to re-create vrings
-
-  if VHOST_BACKEND_F_IOTLB_REMAP
-      foreach dma mapping
-          write(fd, {VHOST_IOTLB_REMAP, new_addr})
-
-  ioctl(fd, VHOST_VDPA_SET_STATUS,
-            ACKNOWLEDGE | DRIVER | FEATURES_OK | DRIVER_OK)
-
-This is faster than VHOST_RESET_OWNER + VHOST_SET_OWNER + VHOST_IOTLB_UPDATE,
-as that would would unpin and repin physical pages, which would cost multiple
-seconds for large memories.
-
-This is implemented in QEMU by the patch series "Live update: vdpa"
-  https://lore.kernel.org/qemu-devel/TBD  (reference to be posted shortly)
-
-The QEMU implementation leverages the live migration code path, but after
-CPR exec's new QEMU:
-  - vhost_vdpa_set_owner() calls VHOST_NEW_OWNER instead of VHOST_SET_OWNER
-  - vhost_vdpa_dma_map() sets type VHOST_IOTLB_REMAP instead of
-    VHOST_IOTLB_UPDATE
-
-Changes in V2:
-  - clean up handling of set_map vs dma_map vs platform iommu in remap
-  - augment and clarify commit messages and comments
-
-Steve Sistare (7):
-  vhost-vdpa: count pinned memory
-  vhost-vdpa: pass mm to bind
-  vhost-vdpa: VHOST_NEW_OWNER
-  vhost-vdpa: VHOST_BACKEND_F_NEW_OWNER
-  vhost-vdpa: VHOST_IOTLB_REMAP
-  vhost-vdpa: VHOST_BACKEND_F_IOTLB_REMAP
-  vdpa/mlx5: new owner capability
-
- drivers/vdpa/mlx5/net/mlx5_vnet.c |   3 +-
- drivers/vhost/vdpa.c              | 125 ++++++++++++++++++++++++++++--
- drivers/vhost/vhost.c             |  15 ++++
- drivers/vhost/vhost.h             |   1 +
- include/uapi/linux/vhost.h        |  10 +++
- include/uapi/linux/vhost_types.h  |  15 +++-
- 6 files changed, 161 insertions(+), 8 deletions(-)
-
--- 
-2.39.3
+>
+>diff --git a/net/vmw_vsock/virtio_transport.c 
+>b/net/vmw_vsock/virtio_transport.c
+>index 43d405298857..c4205c22f40b 100644
+>--- a/net/vmw_vsock/virtio_transport.c
+>+++ b/net/vmw_vsock/virtio_transport.c
+>@@ -94,6 +94,63 @@ static u32 virtio_transport_get_local_cid(void)
+> 	return ret;
+> }
+>
+>+/* Caller need to hold vsock->tx_lock on vq */
+>+static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+>+				     struct virtio_vsock *vsock)
+>+{
+>+	int ret, in_sg = 0, out_sg = 0;
+>+	struct scatterlist **sgs;
+>+
+>+	sgs = vsock->out_sgs;
+>+	sg_init_one(sgs[out_sg], virtio_vsock_hdr(skb),
+>+		    sizeof(*virtio_vsock_hdr(skb)));
+>+	out_sg++;
+>+
+>+	if (!skb_is_nonlinear(skb)) {
+>+		if (skb->len > 0) {
+>+			sg_init_one(sgs[out_sg], skb->data, skb->len);
+>+			out_sg++;
+>+		}
+>+	} else {
+>+		struct skb_shared_info *si;
+>+		int i;
+>+
+>+		/* If skb is nonlinear, then its buffer must contain
+>+		 * only header and nothing more. Data is stored in
+>+		 * the fragged part.
+>+		 */
+>+		WARN_ON_ONCE(skb_headroom(skb) != sizeof(*virtio_vsock_hdr(skb)));
+>+
+>+		si = skb_shinfo(skb);
+>+
+>+		for (i = 0; i < si->nr_frags; i++) {
+>+			skb_frag_t *skb_frag = &si->frags[i];
+>+			void *va;
+>+
+>+			/* We will use 'page_to_virt()' for the userspace page
+>+			 * here, because virtio or dma-mapping layers will call
+>+			 * 'virt_to_phys()' later to fill the buffer descriptor.
+>+			 * We don't touch memory at "virtual" address of this page.
+>+			 */
+>+			va = page_to_virt(skb_frag_page(skb_frag));
+>+			sg_init_one(sgs[out_sg],
+>+				    va + skb_frag_off(skb_frag),
+>+				    skb_frag_size(skb_frag));
+>+			out_sg++;
+>+		}
+>+	}
+>+
+>+	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
+>+	/* Usually this means that there is no more space available in
+>+	 * the vq
+>+	 */
+>+	if (ret < 0)
+>+		return ret;
+>+
+>+	virtio_transport_deliver_tap_pkt(skb);
+>+	return 0;
+>+}
+>+
+> static void
+> virtio_transport_send_pkt_work(struct work_struct *work)
+> {
+>@@ -111,66 +168,22 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+> 	vq = vsock->vqs[VSOCK_VQ_TX];
+>
+> 	for (;;) {
+>-		int ret, in_sg = 0, out_sg = 0;
+>-		struct scatterlist **sgs;
+> 		struct sk_buff *skb;
+> 		bool reply;
+>+		int ret;
+>
+> 		skb = virtio_vsock_skb_dequeue(&vsock->send_pkt_queue);
+> 		if (!skb)
+> 			break;
+>
+> 		reply = virtio_vsock_skb_reply(skb);
+>-		sgs = vsock->out_sgs;
+>-		sg_init_one(sgs[out_sg], virtio_vsock_hdr(skb),
+>-			    sizeof(*virtio_vsock_hdr(skb)));
+>-		out_sg++;
+>-
+>-		if (!skb_is_nonlinear(skb)) {
+>-			if (skb->len > 0) {
+>-				sg_init_one(sgs[out_sg], skb->data, skb->len);
+>-				out_sg++;
+>-			}
+>-		} else {
+>-			struct skb_shared_info *si;
+>-			int i;
+>-
+>-			/* If skb is nonlinear, then its buffer must contain
+>-			 * only header and nothing more. Data is stored in
+>-			 * the fragged part.
+>-			 */
+>-			WARN_ON_ONCE(skb_headroom(skb) != sizeof(*virtio_vsock_hdr(skb)));
+>-
+>-			si = skb_shinfo(skb);
+>
+>-			for (i = 0; i < si->nr_frags; i++) {
+>-				skb_frag_t *skb_frag = &si->frags[i];
+>-				void *va;
+>-
+>-				/* We will use 'page_to_virt()' for the userspace page
+>-				 * here, because virtio or dma-mapping layers will call
+>-				 * 'virt_to_phys()' later to fill the buffer descriptor.
+>-				 * We don't touch memory at "virtual" address of this page.
+>-				 */
+>-				va = page_to_virt(skb_frag_page(skb_frag));
+>-				sg_init_one(sgs[out_sg],
+>-					    va + skb_frag_off(skb_frag),
+>-					    skb_frag_size(skb_frag));
+>-				out_sg++;
+>-			}
+>-		}
+>-
+>-		ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
+>-		/* Usually this means that there is no more space available in
+>-		 * the vq
+>-		 */
+>+		ret = virtio_transport_send_skb(skb, vq, vsock);
+> 		if (ret < 0) {
+> 			virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, skb);
+> 			break;
+> 		}
+>
+>-		virtio_transport_deliver_tap_pkt(skb);
+>-
+> 		if (reply) {
+> 			struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
+> 			int val;
+>
+>-- 
+>2.45.2
+>
+>
 
