@@ -1,59 +1,44 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C608172BB1
-	for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 14:58:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5297A18EA2;
+	Fri, 12 Jul 2024 18:20:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720796335; cv=none; b=p35ff2AHhseFsAmrTbvJG6Du5W8A57FxCR+rREEEFaXzj3DAo93lCoXrtDL4IQ+ZMLW2Cf1bLup6HsWMSB+9rwfqhvC9TwKngHSYdeKDTwSguXWEoWcmdZzvD7qp+JU3Y8sqY530BS5naMVlCkZr2mexnsKzuJJ0qESUc0D4PXg=
+	t=1720808426; cv=none; b=TJMfb4qyd5xCi4PKCA5EOz8uR3ELK5ugoGHbl4fMHuDFbPmbZNrmpDpdLWnEjfPfGaQziZEmJ83jRw11/vcLT7OzjIQGdP/Luyauur3Q3xjVLx4s4zLlAhvvX0oxGddhgNa/U+PfQb+B1iCsAKuUv6K98wIOtF6FuAH9N7DHISk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720796335; c=relaxed/simple;
-	bh=M0fdYPs04XFI4MSEL3cVB60IKS2hZVnJ4hxKRPFY7Gc=;
+	s=arc-20240116; t=1720808426; c=relaxed/simple;
+	bh=i/tK8RDXFn4KoGAhILklscvA71+oECCSOQkenxyUpbo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=P86eNU17omEhogWVZE2LFt9U3LktzhO4Vs3BhWxS3kCoP/6BIxLnRO8vvuh1brcoSlVOe3rT2sos9OizGMHDkvyTHaORv26MQhjHTmkBBbUkMAs7mJk4sGZG1YFNj8c883BRqoZZXpbEpmbo4jYZn4qctJXf7QP4Mxuz59Wy7N4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-a77bf336171so369969766b.1
-        for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 07:58:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720796333; x=1721401133;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iOROqOLL+ICKvSM0IWop1tHiRymkbqTwAK7mSurQUfQ=;
-        b=UszA5a69LZ0ELF7ewlBaC9EJiiG8W0pOrwx/jVWj30IKHgi2rsM/RJPGcvuFmSIITM
-         F+Z+NoKX8VPDWtuTgyxEJKsVfTWr31N/r0XLIOgPzf4T/6Y3+j3js+/NexiHFl5Fc3WW
-         AcmKBt9yPcE8v9oeODBWgj1qD0qq6yxd8o0OYORtsjIkgPPpwcLc6IRWZfjRg+GMv8iR
-         Dw6zKcENsZS/QxdUc0a0i7h2Y+jh3yBt1vaH1F5n1NiiaNNqGTE2mor66ZLgY4Nj4qOD
-         zb4PQPloPEDqR0wNjtVpwEhStq3g2a9h2wyR+1uKE7Gf++IoP5SshOujzp0zLSI3q8KS
-         k93w==
-X-Forwarded-Encrypted: i=1; AJvYcCX4nbKayzjdv4rV+VYGqIk14BOm5ObH983W0SJUINWcHvtKCpXITHpKXvQDbkxxNT1vzMvacGBi25IyFagNieahJetBQToTRHXup84UumQ=
-X-Gm-Message-State: AOJu0YzGBZpuujcSLiPZCwRd67OhmZ39vgIuPa7zxXfgTnLBnhuJVNsL
-	in6kpjmXX1Hw2IDcAr8NUeNwEdcl9t/+776Q+pmvvfS+BgWNyjoQ
-X-Google-Smtp-Source: AGHT+IGdKQn3Gzt2+l/urCVxX8FiOJWgFC28dwbx3rOWY/5MmxMdbQp+jutRVTdORLMXHS7jdj6eVg==
-X-Received: by 2002:a17:907:948b:b0:a72:afd9:6109 with SMTP id a640c23a62f3a-a799cc6abb2mr241330966b.16.1720796332394;
-        Fri, 12 Jul 2024 07:58:52 -0700 (PDT)
-Received: from gmail.com (fwdproxy-lla-115.fbsv.net. [2a03:2880:30ff:73::face:b00c])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a780a6bc85dsm353984166b.41.2024.07.12.07.58.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jul 2024 07:58:52 -0700 (PDT)
-Date: Fri, 12 Jul 2024 07:58:49 -0700
-From: Breno Leitao <leitao@debian.org>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	rbc@meta.com, horms@kernel.org,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
-Message-ID: <ZpFEqbibtxoK0Xcn@gmail.com>
-References: <20240712115325.54175-1-leitao@debian.org>
- <20240712075432.7918767a@kernel.org>
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y7qNIVykjdLYfEhop02tlddr51k/fX/++wJZ7d46Ya5TbRXHo2qWexHca27wtU0jayW0dxvRyEvHR/3WqhsbhO/nhDgfsZImKHCeptEtrfhsMGVo6ObSS9YdEOCObYUU21BqgKlWc7oob+6qSLIJ9c7zu+1h1lrUCkIW58DdMlo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=haKkiWwW; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="haKkiWwW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 900DEC4AF09;
+	Fri, 12 Jul 2024 18:20:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1720808426;
+	bh=i/tK8RDXFn4KoGAhILklscvA71+oECCSOQkenxyUpbo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=haKkiWwWEeXzBUAUfEvsHVmQs3SovcnVCl0c58as20YBRukHOtgPETQwktVMtuDMX
+	 fzeCXDKLrAfbElg2Bjo3xHEKq3vuJhbdobw8uUOsyfmTdJDZj8oxRAerdX4mLko3X7
+	 RgP2c1TBTT19mYN+ntSa2Qr1vgUBhXHAjoYvgmUcsoVzV9XnaaErUMXemF6Uq/gkq+
+	 /wy8YuzkHkBzieJ/urc1ZH9HJ+IYZH+A4bQuxtuP+pKhGhgR1AsDt8IEFJbXzaudkR
+	 CLTW/N8zjHc1f/nde/xfdpw9jKJ21vEQG5hMEkUb/1j07piUbgMNGMQIpMPa9dOupv
+	 2RcVLW5kb9YWw==
+Date: Fri, 12 Jul 2024 19:20:21 +0100
+From: Simon Horman <horms@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, Aishwarya TCV <aishwarya.tcv@arm.com>
+Subject: Re: [PATCH net-next] net: virtio: fix virtnet_sq_free_stats
+ initialization
+Message-ID: <20240712182021.GC120802@kernel.org>
+References: <20240712080329.197605-2-jean-philippe@linaro.org>
+ <20240712064019-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,22 +47,32 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240712075432.7918767a@kernel.org>
+In-Reply-To: <20240712064019-mutt-send-email-mst@kernel.org>
 
-Hello Jakub,
-
-On Fri, Jul 12, 2024 at 07:54:32AM -0700, Jakub Kicinski wrote:
-> On Fri, 12 Jul 2024 04:53:25 -0700 Breno Leitao wrote:
-> > Subject: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
+On Fri, Jul 12, 2024 at 06:41:34AM -0400, Michael S. Tsirkin wrote:
+> On Fri, Jul 12, 2024 at 09:03:30AM +0100, Jean-Philippe Brucker wrote:
+> > Commit c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits")
+> > added two new fields to struct virtnet_sq_free_stats, but commit
+> > 23c81a20b998 ("net: virtio: unify code to init stats") accidentally
+> > removed their initialization. In the worst case this can trigger the BUG
+> > at lib/dynamic_queue_limits.c:99 because dql_completed() receives a
+> > random value as count. Initialize the whole structure.
+> > 
+> > Fixes: 23c81a20b998 ("net: virtio: unify code to init stats")
+> > Reported-by: Aishwarya TCV <aishwarya.tcv@arm.com>
+> > Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 > 
-> [PATCH net] for fixes so that the bot knows what to test against :)
-> No need to repost (this time).
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> > ---
+> > Both these patches are still in next so it might be possible to fix it
+> > up directly.
+> 
+> I'd be fine with squashing but I don't think it's done in net-next.
 
-I didn't send to `net` since this WARNING is only "showing" in net-next,
-due to commit bdacf3e34945 ("net: Use nested-BH locking for
-napi_alloc_cache.") being only in net-next.
+True, but this patch doesn't apply to net-next.
+And 23c81a20b998 ("net: virtio: unify code to init stats")
+isn't present in net-next.
 
-But you have a good point, this is a fix and it should go through `net`.
-sorry about it.
-
---breno
+...
