@@ -1,109 +1,184 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4317229402
-	for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 19:57:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96F4A8F5E;
+	Sat, 13 Jul 2024 00:43:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720814266; cv=none; b=a/gy7BM22qo6n6NXpD2SGwvSOllvZQn2VgNz8sqyPJGwevCAZ+dCuVjS+K2tC5tMfh4i1SzdCk0F/VBVdHdf5/mAfJDliGBbaTQZ/ArjMcPcqjVLLzeuzYTJVGyIkHGh2JXjBSImA9CIG86cU3Mjb8H7cV9Z4Dqp6TnbhBYNS0U=
+	t=1720831402; cv=none; b=PZcQW5u7L/02OgAhza6cQxdrN1XAlYiw0n9wrx4R0SNT86U5rqsgZTfmAOPWwoMEAyXAfvBVlzck1IJZMkkgX1quFYADe7K4MHwEEp7fINVNqmVu4X16elxu+dRyktnqkz3uiDvYt51QZ47hEJ41FEaEwXwwOWnpdEybs5Lj8As=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720814266; c=relaxed/simple;
-	bh=wSshsgGED8HPu10U3N0UkRgySoxyARkIZVNYAB+8/Rk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=anxpRpyKDfwR5IpHuT1YgnI7SNdqUw7xh88GfXBM54U1c1BArrVhjbsLkLIykdZQDXMY2InJuxTYp15/6Zil77S1Aza/5CYBsTf0W/RG3JOl1uPinV6WhI4S4FAnVYUfvHSdVNlBkQ0aLAegWXfkv7Kb3yhQ6flk8Xs5WMXJcrE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=yn0i+74x; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1720831402; c=relaxed/simple;
+	bh=R8JyO3eqqWBetdzBaHSoU9utazIuaOWoUNvGuk9O3GM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Awt1qcHpZnUz8KZZiPA+Iv6sTtA4YAaGgE/lPGp2fJ58rFNBvaFTXk7tpH2xkjvADmAicB6tWB90G6+wO1vRpv/Px8Tfmt9h1LJt0qUe2ITc/TMs2kfBqgn1A3Dz/lhv5gxi3LF3nQO8oFAER90Fgt53SUXvLTB3z3Gm4RmOuUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IU7EV15N; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="yn0i+74x"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-36799fb93baso1340605f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 12 Jul 2024 12:57:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1720814262; x=1721419062; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=OsMYxX3ARgmF2dcWznWm0q60TUYZFPMB1J4kCza84kA=;
-        b=yn0i+74xX2d5ROXSp6t37ykE0f0FOZQ8FRirXmKKko9OwTacOodUWmJXqZuMXgYg/k
-         3bMP78wHWM8bfo48yaLAD94f6SlVEbL8TT264UjgsxrcGOAOoe64VFgeTqsHGGo3Lcbi
-         Rkc89NcgwQcbYVpTFLJkENZLufmaI5d9N3ARs4hCjFLWNcRrNec8L3Gi+ej06ojaw9Em
-         ixjoCOj3X7IOa1RK8/63JpxeXAkcn+sRPZxDBNeJLVRYgsH0CEM2egM3oaeZEAalGyae
-         F1wn4dZAomo3uAQFw5q3SqS3qR2XsD1tR+4ZLJIFZa0DskeOjABN0FoBB/lNrX16FyF2
-         XlVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720814262; x=1721419062;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OsMYxX3ARgmF2dcWznWm0q60TUYZFPMB1J4kCza84kA=;
-        b=pG//OV0/AQ/n8TxiQiMI0GG1TRFJeu1oXi+0n9ECVVVfld83QzPG2a9etLVWzNp/qO
-         QvL9JY1v/WrwhiT7D12qN3J7RrePlLjrqnWWbNXYBGVPDNIAii1YojxnYVtAB1PIMDr3
-         c09UcJ2XJxOn702WvmZv1SNZIxMv+e0UW+mN7eKjT8HebHPUq5mNkDrDbFeiuRUQSyMy
-         UtwCgX8m6ghymjWHNPij5waJYlSvLYN0Z3VpX3y7WXZk6gnJiBOfOvUvMfPxglDup+uW
-         E1bNrVd1hQZm1yUevLHKzd8cip6bYXGo85zwhXIFzyj0HpIajhifebourJs274/hGVsD
-         3Dhg==
-X-Forwarded-Encrypted: i=1; AJvYcCVoDjk61uHbHzgzEFQh9xPOBRn6Z+8+cewUJeR9Y2YFJ5LyJfoMnWxT/iLG5LQ62Xu1RxJY75iPv+I2dQSfZkk2b176JJTUHbnME5nvlho=
-X-Gm-Message-State: AOJu0Yw7JD2vqRtWZK+WxEnOpA6n3CFwQm+U+RHNR71jlgtXkT7gbuYY
-	kVWUWhvkvVQtnj91iMqxjJLtnT0Twq77dGb5zM1JlbyIzWdtMd5Qn0S3lwke5Bs=
-X-Google-Smtp-Source: AGHT+IG3l5o5+v6d2/YWNdG57jy0GH9496uZjsVKZv+F5Bh1e+Q20sQIL9icSK4kLKf/YCbIMoS55g==
-X-Received: by 2002:adf:e7cf:0:b0:367:8f81:f9fc with SMTP id ffacd0b85a97d-367cead1615mr8665684f8f.50.1720814262341;
-        Fri, 12 Jul 2024 12:57:42 -0700 (PDT)
-Received: from myrica ([2.221.137.100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-367cdfab815sm10819916f8f.110.2024.07.12.12.57.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jul 2024 12:57:41 -0700 (PDT)
-Date: Fri, 12 Jul 2024 20:57:59 +0100
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Simon Horman <horms@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, Aishwarya TCV <aishwarya.tcv@arm.com>
-Subject: Re: [PATCH net-next] net: virtio: fix virtnet_sq_free_stats
- initialization
-Message-ID: <20240712195759.GA2972562@myrica>
-References: <20240712080329.197605-2-jean-philippe@linaro.org>
- <20240712064019-mutt-send-email-mst@kernel.org>
- <20240712182021.GC120802@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IU7EV15N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E910DC32782;
+	Sat, 13 Jul 2024 00:43:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1720831402;
+	bh=R8JyO3eqqWBetdzBaHSoU9utazIuaOWoUNvGuk9O3GM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=IU7EV15NqUZZ1kCxiPvOWkzjimxWfxZ0tJmlJh8H9plJ6HR/hnWONIF0rbWUI/aoV
+	 e3zyHnjLGOyhyyVnu0G2Ir2srvw5x5FQ6gzmcJ7oBipDRlt+tpE1vmtvVa8d3SrUYG
+	 9ramxz/qPe/Z3sqX11a2CvuBLBEJcHobQbTF5UK6a/+V7de/XYYsTelG6xfBN+/kCs
+	 cu2qcMWa1xPh2dpkxMNhlbeuyCcwDoUylr2cF4wzsSL/Z8NJEJpZBNYLPBYh8KzyO7
+	 1avBhd86tS4kfkIisBv9GTz8OiCAkK7v8eHeuq21eInEnAnRovyNkMvDguVaONZS5K
+	 Kp8dUvf2pW+AA==
+Date: Fri, 12 Jul 2024 17:43:21 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: xiujianfeng <xiujianfeng@huawei.com>, <netdev@vger.kernel.org>, Linux
+ kernel mailing list <linux-kernel@vger.kernel.org>, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ virtualization@lists.linux.dev
+Subject: Re: [BUG REPORT] kernel BUG at lib/dynamic_queue_limits.c:99!
+Message-ID: <20240712174321.603b4436@kernel.org>
+In-Reply-To: <8036617e-62f3-17cb-f43a-80531e10e241@huawei.com>
+References: <08227db9-6ed7-4909-838d-ce9a0233fba3@huawei.com>
+	<8036617e-62f3-17cb-f43a-80531e10e241@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240712182021.GC120802@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jul 12, 2024 at 07:20:21PM +0100, Simon Horman wrote:
-> On Fri, Jul 12, 2024 at 06:41:34AM -0400, Michael S. Tsirkin wrote:
-> > On Fri, Jul 12, 2024 at 09:03:30AM +0100, Jean-Philippe Brucker wrote:
-> > > Commit c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits")
-> > > added two new fields to struct virtnet_sq_free_stats, but commit
-> > > 23c81a20b998 ("net: virtio: unify code to init stats") accidentally
-> > > removed their initialization. In the worst case this can trigger the BUG
-> > > at lib/dynamic_queue_limits.c:99 because dql_completed() receives a
-> > > random value as count. Initialize the whole structure.
-> > > 
-> > > Fixes: 23c81a20b998 ("net: virtio: unify code to init stats")
-> > > Reported-by: Aishwarya TCV <aishwarya.tcv@arm.com>
-> > > Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+CC: virtio_net maintainers and Jiri who added BQL
+
+On Fri, 12 Jul 2024 10:12:42 +0800 xiujianfeng wrote:
+> On 2024/7/12 10:08, xiujianfeng wrote:
+> > I found a problem with my QEMU environment, and the log is as follows.
 > > 
-> > 
-> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > 
-> > > ---
-> > > Both these patches are still in next so it might be possible to fix it
-> > > up directly.
-> > 
-> > I'd be fine with squashing but I don't think it's done in net-next.
+> > After I did the bisect to locate the issue, I found
+> > 8490dd0592e85e0cceefa6b48d66dbdd73df0fb3 is the first bad commit,
+> > however this is a merge commit, and I cannot further confirm which
+> > specific commit caused this issue.  
 > 
-> True, but this patch doesn't apply to net-next.
-> And 23c81a20b998 ("net: virtio: unify code to init stats")
-> isn't present in net-next.
+> It's on
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git and
+> the base commit is f477dd6eede3
+> 
+> > 
+> > ------------[ cut here ]------------
+> > kernel BUG at lib/dynamic_queue_limits.c:99!
+> > Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+> > CPU: 1 UID: 0 PID: 203 Comm: ip Not tainted
+> > 6.10.0-rc7-next-20240711-12643-gf477dd6eede3 #613
+> > Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1
+> > 04/01/2014
+> > RIP: 0010:dql_completed+0x212/0x230
+> > Code: 41 1c 01 48 89 57 58 e9 85 fe ff ff 85 ed 40 0f 95 c5 41 39 d8 0f
+> > 95 c1 40 84 cd 74 05 45 85 e4 78 0a 44 89 d9 e9 67 fe fe
+> > RSP: 0018:ffffc900000f0d70 EFLAGS: 00000213
+> > RAX: 0000000000000000 RBX: ffff88800413b800 RCX: ffff888005925240
+> > RDX: 0000000000000000 RSI: 0000000081df1116 RDI: ffff888003a0d700
+> > RBP: ffff888003a0d600 R08: 0000000000000000 R09: 0000000000000000
+> > R10: 0000000000000000 R11: ffff88800a403c90 R12: 0000000000000001
+> > R13: ffffc900000f0db0 R14: ffff888003a0d680 R15: ffff88803cc80000
+> > FS:  00007fcf4229f1c0(0000) GS:ffff88803cc80000(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > CR2: 00005596d60d1290 CR3: 00000000093c0000 CR4: 00000000000006f0
+> > Call Trace:
+> >  <IRQ>
+> >  ? die+0x32/0x90
+> >  ? do_trap+0xdc/0x100
+> >  ? dql_completed+0x212/0x230
+> >  ? do_error_trap+0x60/0x80
+> >  ? dql_completed+0x212/0x230
+> >  ? exc_invalid_op+0x4f/0x70
+> >  ? dql_completed+0x212/0x230
+> >  ? asm_exc_invalid_op+0x1a/0x20
+> >  ? dql_completed+0x212/0x230
+> >  __free_old_xmit+0xb2/0x120
+> >  free_old_xmit+0x23/0x70
+> >  ? _raw_spin_trylock+0x46/0x60
+> >  virtnet_poll+0xe0/0x590
+> >  ? update_curr+0xf9/0x1c0
+> >  ? find_held_lock+0x2b/0x80
+> >  __napi_poll+0x25/0x160
+> >  net_rx_action+0x177/0x310
+> >  ? clockevents_program_event+0x53/0x100
+> >  ? lock_release+0xa4/0x1d0
+> >  ? ktime_get+0x76/0x100
+> >  ? lapic_next_event+0x10/0x20
+> >  handle_softirqs+0xd0/0x210
+> >  do_softirq+0x3b/0x60
+> >  </IRQ>
+> >  <TASK>
+> >  __local_bh_enable_ip+0x55/0x70
+> >  virtnet_open+0xac/0x2d0
+> >  __dev_open+0xda/0x190
+> >  __dev_change_flags+0x1b3/0x230
+> >  ? __pfx_stack_trace_consume_entry+0x10/0x10
+> >  ? arch_stack_walk+0x9d/0xf0
+> >  dev_change_flags+0x20/0x60
+> >  do_setlink+0x27e/0x1120
+> >  ? set_track_prepare+0x3b/0x60
+> >  ? rtnl_newlink+0x5a/0xa0
+> >  ? rtnetlink_rcv_msg+0x199/0x4c0
+> >  ? __nla_validate_parse+0x5e/0xed0
+> >  ? netlink_sendmsg+0x1e3/0x420
+> >  ? __sock_sendmsg+0x5e/0x60
+> >  ? ____sys_sendmsg+0x1da/0x210
+> >  ? ___sys_sendmsg+0x7b/0xc0
+> >  ? __sys_sendmsg+0x50/0x90
+> >  ? do_syscall_64+0x4b/0x110
+> >  ? entry_SYSCALL_64_after_hwframe+0x76/0x7e
+> >  __rtnl_newlink+0x50d/0x990
+> >  ? __kmalloc_cache_noprof+0x1a0/0x260
+> >  ? __kmalloc_cache_noprof+0x204/0x260
+> >  ? rtnetlink_rcv_msg+0x14e/0x4c0
+> >  ? rtnl_newlink+0x5a/0xa0
+> >  rtnl_newlink+0x73/0xa0
+> >  rtnetlink_rcv_msg+0x199/0x4c0
+> >  ? find_held_lock+0x2b/0x80
+> >  ? __pfx_rtnetlink_rcv_msg+0x10/0x10
+> >  netlink_rcv_skb+0x56/0x100
+> >  ? netlink_unicast+0x69/0x3a0
+> >  netlink_unicast+0x283/0x3a0
+> >  netlink_sendmsg+0x1e3/0x420
+> >  __sock_sendmsg+0x5e/0x60
+> >  ____sys_sendmsg+0x1da/0x210
+> >  ? copy_msghdr_from_user+0x68/0xa0
+> >  ___sys_sendmsg+0x7b/0xc0
+> >  ? stack_depot_save_flags+0x2e/0x8a0
+> >  ? check_bytes_and_report.constprop.0+0x48/0x120
+> >  ? check_object+0xb5/0x3a0
+> >  ? find_held_lock+0x2b/0x80
+> >  __sys_sendmsg+0x50/0x90
+> >  do_syscall_64+0x4b/0x110
+> >  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+> > RIP: 0033:0x7fcf423c7f03
+> > Code: 64 89 02 48 c7 c0 ff ff ff ff eb b7 66 2e 0f 1f 84 00 00 00 00 00
+> > 90 64 8b 04 25 18 00 00 00 85 c0 75 14 b8 2e 00 00 00 08
+> > RSP: 002b:00007ffcbfa59528 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+> > RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fcf423c7f03
+> > RDX: 0000000000000000 RSI: 00007ffcbfa59590 RDI: 0000000000000003
+> > RBP: 0000000066907e78 R08: 0000000000000001 R09: 00007fcf42499be0
+> > R10: 0000000000000076 R11: 0000000000000246 R12: 0000000000000001
+> > R13: 00007ffcbfa59660 R14: 0000000000000000 R15: 00005596d6088020
+> >  </TASK>
+> > Modules linked in:
+> > ---[ end trace 0000000000000000 ]---
+> > RIP: 0010:dql_completed+0x212/0x230
+> > Code: 41 1c 01 48 89 57 58 e9 85 fe ff ff 85 ed 40 0f 95 c5 41 39 d8 0f
+> > 95 c1 40 84 cd 74 05 45 85 e4 78 0a 44 89 d9 e9 67 fe fe
+> > RSP: 0018:ffffc900000f0d70 EFLAGS: 00000213
+> > RAX: 0000000000000000 RBX: ffff88800413b800 RCX: ffff888005925240
+> > RDX: 0000000000000000 RSI: 0000000081df1116 RDI: ffff888003a0d700
+> > RBP: ffff888003a0d600 R08: 0000000000000000 R09: 0000000000000000
+> > R10: 0000000000000000 R11: ffff88800a403c90 R12: 0000000000000001
+> > R13: ffffc900000f0db0 R14: ffff888003a0d680 R15: ffff88803cc80000
+> > FS:  00007fcf4229f1c0(0000) GS:ffff88803cc80000(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > CR2: 00005596d60d1290 CR3: 00000000093c0000 CR4: 00000000000006f0
+> > Kernel panic - not syncing: Fatal exception in interrupt
+> > Kernel Offset: disabled
+> > ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+> >   
+> 
 
-Oh right, it's in linux-next but it looks like it came from
-git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-
-Thanks,
-Jean
