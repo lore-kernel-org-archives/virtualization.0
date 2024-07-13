@@ -1,75 +1,65 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A016229401;
-	Sat, 13 Jul 2024 22:30:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B073A17C73;
+	Sat, 13 Jul 2024 22:59:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720909831; cv=none; b=lp0/0GpEpf0/RwgiSfgpGI2NzgS68Ejq1cL8EQs//YDLTsmfXyryy6rqNVJEcp7HfVUlNJqg20kOEADP4nMqraFIuInLqKM6+MpbnKfAvLwh7SKk843jL7/AxWniNqsAJPfzRJdnSoLmSyOK/i7oSNFlZg/+hMvJ0/5/XSSxuNs=
+	t=1720911546; cv=none; b=P1d2EGWutLeKpzbPLB9oP4tOR12zfICqTZnrTiIMQ3Lca+gvKNGHj/ZFuYK9Vq1nxnkF0zgbGoo+WDJpHVgnAFSG8g4yP8oTQ6ysnUZ7/reVCZ0GrN+KYSmvzHCxigrO4RlGKpFbc1BkhQXurdomOyhtE9I7nU3eZUpDTts67uU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720909831; c=relaxed/simple;
-	bh=/kxyB3Qgh1/+WecZvn2L0QpS3PENQuiFBDO4kA7IrKQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=sZSv5/PjvLnyLnb5BPWt4WiL+LCnwVT9dIT8b5z4UKerfrL7FXMIOfgjqt1Frag639CFd8zErDLgss+o/p3NOKFeBmijBeruBXnFOwBFYiwvSfxd81qNrHs4vxNLWyUCRkHmXM+PFO78QVvUoODN5uHz7/Q+rniWKjB3Glx6Hl0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Uw4Q4Sjo; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1720911546; c=relaxed/simple;
+	bh=+M6TpI7CsdoKFXDrBfjCGt4Ql1FDaJ6r33Y/sLj0Zdc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Bl7kUyWd2y0ZFpGYdcXPtDR9zWGCCXrkbE32963cZ5Sh7Znur7/CB4BjJH7S1WP6erTUw5fZQHehyesyhkYbMS/umNzT8wvrW6bgl9qnfaHtdW+hmj9d2Zb6fiKNUr8J5vDsH6zmC+ivoLanoG0dr4wxTvyy1/RcnBI6OhLxQdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BHSt7CYz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Uw4Q4Sjo"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 07B4DC4AF09;
-	Sat, 13 Jul 2024 22:30:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BHSt7CYz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA3D8C32781;
+	Sat, 13 Jul 2024 22:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720909831;
-	bh=/kxyB3Qgh1/+WecZvn2L0QpS3PENQuiFBDO4kA7IrKQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=Uw4Q4SjoXKWIMLfvkKqlr9g0N9FIgf48q+7Bk7KrTFRJrUK+bc+c6R/PNP7o63SHs
-	 CArs28OgQOkxWdAhVgcDu/2AOBfQXZ9q8VyDCuihI0vCY/b73KvnQmKtlAifPw9gCJ
-	 We6M76uuuNcIrdX8YRe+Prkcrb07x6TbtD1q7Z/yvhIv6GK6v2Jyfsiph7PlnfPrpO
-	 YFnDoXnvIG0lzrxAhWQipd3UFou4hNKAMvaOZZns5uNp+V/0vdFHMZiKLSO3KJ6Hwa
-	 KbzZXEpP6m9FeS/9Hcm1Q3vuwLaGbwt/fz0OSj/PnoQx7oKEht54/oyIqh+WtTP8tk
-	 5uIZ5iNFKNGZg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id E98C3C43168;
-	Sat, 13 Jul 2024 22:30:30 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1720911546;
+	bh=+M6TpI7CsdoKFXDrBfjCGt4Ql1FDaJ6r33Y/sLj0Zdc=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=BHSt7CYzqE6hXo458ENPoqMcc5zO8KG9qm+OTL2rnihSHVl9lzgo03z6xvik2Zw5O
+	 m3kqsjpv/8wbUZXXK/95FJEy/6xQG5rCW8+8K/IJQlPgyjqqHSQa/ZEzKP3E3vegh5
+	 mOkoKRhLGc8wJu0ZToWA3LVtdTkMfjiycMI3Eej2CYpobqmLQOY9Ybj+jLBzzwycxc
+	 x/AZ6XtyLRjz4gKVvcitMUViztd09FbDxLI8oYbjCaMVCiH0nXPpS/zXfcn7NF3jkk
+	 qbyC3mJjlxyymzqZH/DkKjZ6Tb0FBWTQFFEWY77z18r2MqWnrtexJdHF3tuTT9cbuF
+	 3vHPwEI2vqjiA==
+Date: Sat, 13 Jul 2024 15:59:04 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Breno Leitao <leitao@debian.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ rbc@meta.com, horms@kernel.org, "open list:VIRTIO CORE AND NET DRIVERS"
+ <virtualization@lists.linux.dev>, "open list:NETWORKING DRIVERS"
+ <netdev@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
+Message-ID: <20240713155904.72326bfb@kernel.org>
+In-Reply-To: <ZpFEqbibtxoK0Xcn@gmail.com>
+References: <20240712115325.54175-1-leitao@debian.org>
+	<20240712075432.7918767a@kernel.org>
+	<ZpFEqbibtxoK0Xcn@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH V2] test/vsock: add install target
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <172090983095.21567.16489087258072186235.git-patchwork-notify@kernel.org>
-Date: Sat, 13 Jul 2024 22:30:30 +0000
-References: <20240710122728.45044-1-peng.fan@oss.nxp.com>
-In-Reply-To: <20240710122728.45044-1-peng.fan@oss.nxp.com>
-To: Peng Fan (OSS) <peng.fan@oss.nxp.com>
-Cc: sgarzare@redhat.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, peng.fan@nxp.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Wed, 10 Jul 2024 20:27:28 +0800 you wrote:
-> From: Peng Fan <peng.fan@nxp.com>
+On Fri, 12 Jul 2024 07:58:49 -0700 Breno Leitao wrote:
+> I didn't send to `net` since this WARNING is only "showing" in net-next,
+> due to commit bdacf3e34945 ("net: Use nested-BH locking for
+> napi_alloc_cache.") being only in net-next.
 > 
-> Add install target for vsock to make Yocto easy to install the images.
-> 
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
-> ---
-> 
-> [...]
+> But you have a good point, this is a fix and it should go through `net`.
+> sorry about it.
 
-Here is the summary with links:
-  - [V2] test/vsock: add install target
-    https://git.kernel.org/netdev/net-next/c/42ffe242860c
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Hah, but it doesn't seem to apply to net. Let's wait and see if Linus
+cuts final on Sunday. If he does I'll apply to net-next and you'll have
+to send the net version for stable to Greg. Less merge conflicts for me
+that way ;) If there's -rc8 please rebase.
