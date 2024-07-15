@@ -1,105 +1,129 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41D351891B0
-	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 11:25:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B4351850B4
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 13:24:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721042712; cv=none; b=InYeI4dH8zAL7ahfCVtqhWomGMG17YFZtavMnEItAAjtQtIbbi+D0EwSISvB9WDPoNEVzV8MixAR53OC76Ido66xCv2J3ho6yNX+P5M16Cz1Ne+zDOIWAs/P0sau+qgGI4CYnX52n76Aw5lWOJ1SSDj1MWd2scFVSkTWBlhNJQo=
+	t=1721049900; cv=none; b=lJsAosEzmTCPuKTB1Jz9S3xkfFoP9zNLTyT1mAHAUmYUpgW/HXNN2FNtARW0HfLec8x/RiohZPvx1Alsc5G3gp1xNv9OkRab4j8Az1xC23uCGfTixSJRIBHOwQKgCbHYPKb356e5f/241TMSqrfHPRU8w27f7r3QXAubzdNhZNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721042712; c=relaxed/simple;
-	bh=ty+USuCasgyD0q5WV6y+xqpiIL59dUuUhJrHdOnICuM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LM4x19/myLF5avv/x5Hw6d4OwNJ4svedEygwIZ6K1KmNwnsUhj7rb+SJxn6edqeSK5OB2xyRzzQsG0P6mO4yXNqdURimcP4pIXYc9NVAZVzYUiR1FuRNqY6Ehv7tDGC6m0od4AZWwfU3AjKAZpVNBsku+RdiOmbiRwijL/YPD+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-52ea79e689eso5854676e87.1
-        for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 04:25:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721042709; x=1721647509;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	s=arc-20240116; t=1721049900; c=relaxed/simple;
+	bh=xk1pKpDrrJ4ME8nxWcd3e0eG7YK54L7cSIG2cINo52g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=INiUvblE/AYKQmVCpF6iv6Wm8EFdWzn05b3cncPpJXMWkeuXBIuXmxKcDgBjqo4F5ij6du/JmPygdTkXjKqIkUVvV8d8a3vvmQmc58sNtn3xEJLzKbnUddKSieFYbG2m034N2CCtR6srbZJhK+q6KVjAisPDYAgKy3OuJXlh2xs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DJxjmwFD; arc=none smtp.client-ip=209.85.219.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DJxjmwFD"
+Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-6b7734055d1so6123256d6.3
+        for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 06:24:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1721049898; x=1721654698; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nIjlZKoODIvZ5ta3ient2GVc/jl/vGg+wUu4XZXyR/w=;
-        b=XEAICuy9x7rXUN9H/fOfm7nrnXYZjYKgwUBMuUDGOdam7n1BHgg2tHa5EfJutJszCi
-         q2/La0oP6qMLoT49PHTI5TDcF61QaR8mvPOL+4FDZFzUIl0wCG0/6+tdPc1I+jryCWIL
-         ncAa+fScoebiSQtivJuTQy/298McVMAq1RwT4a4kO6vGuvrO/Nn2+M4obTq7w1AZ1QP3
-         v2SgcpDVhsG1l+DNQISDkzvxZyeY86ASKRFC32dnjanBRcNa6lP8/x7NhAWldXXjL2n8
-         CY9C4DukS8chHpuuVAQ9lFa1fFkNB2jTXUCf3H/PshDIOMlBmSy6L9zP6Z0YReawSKL6
-         kN2Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVWBN+vD+2qxPzZk232+hSv6CdBKJUEcb1Z8OHrqrvcKO3CCAax/S2QS0nzVEDMae+v//alNbu3G80KdfgC2XNquuIjoa0JZEKpC/0/AfU=
-X-Gm-Message-State: AOJu0YzlxXbBa+wR6Ml3t6VicLO+F9Pgwi3kC/e5GDD3E93R7W38E86p
-	kvjxPQQs/+17iaVQEqSo1hU5S39RB3j7+sVwZcFVihq9ZXc+zEiI
-X-Google-Smtp-Source: AGHT+IG78sUAzx9I4a7vE8/3T/SQW4az1utlpNNwNzPZzbTFoS9BD8x4sD9BV4nV2NExq/Pw+CcMGQ==
-X-Received: by 2002:a05:6512:36d3:b0:52c:daa4:2f6a with SMTP id 2adb3069b0e04-52eb99d670dmr12258120e87.64.1721042709246;
-        Mon, 15 Jul 2024 04:25:09 -0700 (PDT)
-Received: from gmail.com (fwdproxy-lla-004.fbsv.net. [2a03:2880:30ff:4::face:b00c])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a79bc820fb5sm204451066b.212.2024.07.15.04.25.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jul 2024 04:25:08 -0700 (PDT)
-Date: Mon, 15 Jul 2024 04:25:06 -0700
-From: Breno Leitao <leitao@debian.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	rbc@meta.com, horms@kernel.org,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
-Message-ID: <ZpUHEszCj16rNoGy@gmail.com>
-References: <20240712115325.54175-1-leitao@debian.org>
- <20240714033803-mutt-send-email-mst@kernel.org>
+        bh=7opJP8hZLo8A1Yz8YsvF6o/Qh3jQFX7aKd0c0LvybYo=;
+        b=DJxjmwFDI8BM/ZERyYAy2Ph2BpvoOPWo4Ha8Zsx+JTl33ivbQ9Lk1GBdkIwgRSuvX5
+         1apwujLb+Dh5aJeB9US2wW46jI9v7CZKIDPbnACx4cUV9n86l/QqY/obGv5fIBMmRhta
+         MRrIDaSSq/ISJtP8mrHwjj+Ck7t2ex4ra4548GeH3Ow6x4rj403fCX6nhXpFHlfjfeT0
+         MaHFxwuGP5BuQYAJyj8xyfNcZhheo6GweweAVNeOq9h7KfdpnZwQPdptd8ug3hu0+w9D
+         nIBR/qlbIMGWCzMahJAFfnQO9UKUdyvwpRy6EVenAYEG1EBXlsTCZsnRYNljr4HTKm94
+         S1Iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721049898; x=1721654698;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7opJP8hZLo8A1Yz8YsvF6o/Qh3jQFX7aKd0c0LvybYo=;
+        b=nx5Fhpug3wlhX5jZ7crabeCpyjNscH3L3JAJiD+d4RmXNfdkTXkyFOaU4QXW3XBBL7
+         oxs10ETeqJLOL+ovWT+n3z5VZ6679qYPnBi0GlYeLVYaWBCr9J7YaD9xKK5k8+nkNpnK
+         hOKRMHCuntHl+t2hhWRsuZ80lITXSBkGxRCYPP9O5AtQ7dmwaM+eF2ELRte7l2mRQSss
+         ZGLaEp0DVHehfCbt8qtdUvjl0VJVIsBiCGJXCWFuly2//idBkArTYVBXP5Ygnt+KDm3+
+         eLHYdFqXadebMo4JS1e29CQbJWeZ3TXlJQc+KBDYF9hlt6mp1T0ZRwtW3j4rmXzsucp1
+         s/tg==
+X-Forwarded-Encrypted: i=1; AJvYcCXke7vm7hERvcXWW+F5EcLTsli1aIBCWjL3o5QKe6uYE997GeSgJZ32vVoJftbAUc82Rb9BdaBqKNafjd/SbP5sI2u+YEtve7nMgi2sJrY=
+X-Gm-Message-State: AOJu0YxYtE71DffYsrjqTeeoDr/ttWFOZbhz1axYyidRATcZ4UHRQTa1
+	VHbpVzsX2jwcLP+/yKH/UKL+lK+iv2o/8p+YxERjJAtr8JrQxlpZ+JFG+WJ5+/5kD6YycwzBHIj
+	LRrG3qTwGxwRmgPUx8Ss4KdNXZdx9ZtisUZpb
+X-Google-Smtp-Source: AGHT+IFZYSfVrrrIO/5GSmnwoYYAwtFi16mDYrOGQA6Hf2wtpPbsxn0gn31sgtzjIkkCrqNNhziX282QCcdh0ckTb/8=
+X-Received: by 2002:a05:6214:21e7:b0:6b5:7f56:e50a with SMTP id
+ 6a1803df08f44-6b61bf30075mr234321716d6.35.1721049897711; Mon, 15 Jul 2024
+ 06:24:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240714033803-mutt-send-email-mst@kernel.org>
+References: <20240606111345.93600-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtZWJJ1TxnbDLio28M1_0mUZmDd_HbQrZOVB9ixKoLbMQ@mail.gmail.com>
+ <CAG_fn=Xe+XQROUqZ9zy94BXVj8SRKprW3fUj_0rD3AhSAvtn-w@mail.gmail.com> <20240624095629-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240624095629-mutt-send-email-mst@kernel.org>
+From: Alexander Potapenko <glider@google.com>
+Date: Mon, 15 Jul 2024 15:24:17 +0200
+Message-ID: <CAG_fn=VwB_EepsY7GcMM2ihz77vtWDR3tsxJ6iD0Sdx-wQVx+g@mail.gmail.com>
+Subject: Re: [PATCH] virtio_ring: fix KMSAN error for premapped mode
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Ilya Leoshkevich <iii@linux.ibm.com>, Aleksandr Nogikh <nogikh@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello Michael,
+On Mon, Jun 24, 2024 at 3:57=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Mon, Jun 24, 2024 at 03:51:50PM +0200, Alexander Potapenko wrote:
+> > On Fri, Jun 7, 2024 at 8:34=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> > >
+> > > On Thu, Jun 6, 2024 at 7:13=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alib=
+aba.com> wrote:
+> > > >
+> > > > Add kmsan for virtqueue_dma_map_single_attrs to fix:
+> > > >
+> > > > BUG: KMSAN: uninit-value in receive_buf+0x45ca/0x6990
+> > > >  receive_buf+0x45ca/0x6990
+> > > >  virtnet_poll+0x17e0/0x3130
+> > > >  net_rx_action+0x832/0x26e0
+> > > >  handle_softirqs+0x330/0x10f0
+> > > >  [...]
+> > > >
+> > > > Uninit was created at:
+> > > >  __alloc_pages_noprof+0x62a/0xe60
+> > > >  alloc_pages_noprof+0x392/0x830
+> > > >  skb_page_frag_refill+0x21a/0x5c0
+> > > >  virtnet_rq_alloc+0x50/0x1500
+> > > >  try_fill_recv+0x372/0x54c0
+> > > >  virtnet_open+0x210/0xbe0
+> > > >  __dev_open+0x56e/0x920
+> > > >  __dev_change_flags+0x39c/0x2000
+> > > >  dev_change_flags+0xaa/0x200
+> > > >  do_setlink+0x197a/0x7420
+> > > >  rtnl_setlink+0x77c/0x860
+> > > >  [...]
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > Tested-by: Alexander Potapenko <glider@google.com>
+> > >
+> > > Acked-by: Jason Wang <jasowang@redhat.com>
+> >
+> > Jason, Michael, any chance this patch can make it to 6.10?
+> > The bug in question has essentially been blocking KMSAN on syzbot for
+> > the past month:
+> > https://syzkaller.appspot.com/bug?id=3D2819883f3d376b703e686e700fde00a0=
+1eec62fa
+> >
+> > The patch should probably have
+> >   Fixes: b6253b4e21939 ("virtio_ring: introduce dma map api for virtque=
+ue")
+> >
+> > , but I am not exactly sure why syzkaller only started triggering the
+> > bug this year, given that the patch dates back to 2023.
+>
+> Yes that's probably a good idea. I will queue it with this tag.
 
-On Sun, Jul 14, 2024 at 03:38:42AM -0400, Michael S. Tsirkin wrote:
-> On Fri, Jul 12, 2024 at 04:53:25AM -0700, Breno Leitao wrote:
-> > After the commit bdacf3e34945 ("net: Use nested-BH locking for
-> > napi_alloc_cache.") was merged, the following warning began to appear:
-> > 
-> > 	 WARNING: CPU: 5 PID: 1 at net/core/skbuff.c:1451 napi_skb_cache_put+0x82/0x4b0
-> > 
-> > 	  __warn+0x12f/0x340
-> > 	  napi_skb_cache_put+0x82/0x4b0
-> > 	  napi_skb_cache_put+0x82/0x4b0
-> > 	  report_bug+0x165/0x370
-> > 	  handle_bug+0x3d/0x80
-> > 	  exc_invalid_op+0x1a/0x50
-> > 	  asm_exc_invalid_op+0x1a/0x20
-> > 	  __free_old_xmit+0x1c8/0x510
-> > 	  napi_skb_cache_put+0x82/0x4b0
-> > 	  __free_old_xmit+0x1c8/0x510
-> > 	  __free_old_xmit+0x1c8/0x510
-> > 	  __pfx___free_old_xmit+0x10/0x10
-> > 
-> > The issue arises because virtio is assuming it's running in NAPI context
-> > even when it's not, such as in the netpoll case.
-> > 
-> > To resolve this, modify virtnet_poll_tx() to only set NAPI when budget
-> > is available. Same for virtnet_poll_cleantx(), which always assumed that
-> > it was in a NAPI context.
-> > 
-> > Fixes: df133f3f9625 ("virtio_net: bulk free tx skbs")
-> > Suggested-by: Jakub Kicinski <kuba@kernel.org>
-> > Signed-off-by: Breno Leitao <leitao@debian.org>
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> though I'm not sure I understand the connection with bdacf3e34945.
+Hi Michael,
 
-The warning above appeared after bdacf3e34945 landed.
+Looks like the patch is still stuck in the limbo :(
