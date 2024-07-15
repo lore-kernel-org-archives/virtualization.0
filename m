@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6201369B6;
-	Mon, 15 Jul 2024 03:40:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A4E1836D8;
+	Mon, 15 Jul 2024 04:40:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721014835; cv=none; b=FQuWi573sIx+5v0/p3mIEXMEH7N1khrUbvewo7zUK3pvsbB2x48P4Iym8DuAPy9BtFdXKZZNaOi4H3XZW28FZ49fb1MsI+UgIQpEkOpiFWvFtZsq0rdSbWVuM3OfP+20Nk+jz/HmG0sYXUbOk+nA2+LKc9teoV/FKmmbDoCqWTw=
+	t=1721018433; cv=none; b=OYi/2/aJsqTIrNdWLZFcpgekIZryWBvI3osEmTDPF7j6x9EHgZnmEKC3lgoucJurnw+WBburHeHQBUE6zz7VOG6C07pABRkrk5ouAK2ywbMmZaxlhlMxHGI2lP0BPkNr/QPHD266iKwR7fLRPQnH2nIxFtP/eOJLOIABqec0QmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721014835; c=relaxed/simple;
-	bh=PDJuxP6Ik0GQFxu6cyp8erirAQhjhmcqoIGkf+qYnn0=;
+	s=arc-20240116; t=1721018433; c=relaxed/simple;
+	bh=/vzwV7HRYHzys+EVj+QnBgpvcTGEB5OGpRN370BoHOM=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Kh83ITXxWGOC1h8OfylC5JqkkQLN3EqcQlS+cNp8O9OzoCYx3EYOnrFpUYtr9dd1YLvi4uglGFNVYwxwPhbXnxQ7ai9iGeBQwpkfJrEgc0vf/+AA12x7DJ4/prrPiMmOG71tdAoiL/gHiX6f4Mr3op9oxVpju0hnnI6yMrQrOUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dcNJezyF; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=jo2gMwhne0SNpXu2WlzmtRqoiQXscVd9AzVcfn6H9kN4t9/xd/77yhgBmXvB52dRWtR7HL+6B8Qlt64hwqDlXE6sX3Xcmx8kZFh8WdoPxvDm6kq86bbzVDqTT7qwd6FN0KcLBJ6UqP+765O9aMoiBLPSbc18XjjFcK9aj/2fc6M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iUoRr9gH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dcNJezyF"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 59E4EC4AF0B;
-	Mon, 15 Jul 2024 03:40:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iUoRr9gH"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id DEFD7C4AF0F;
+	Mon, 15 Jul 2024 04:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1721014835;
-	bh=PDJuxP6Ik0GQFxu6cyp8erirAQhjhmcqoIGkf+qYnn0=;
+	s=k20201202; t=1721018432;
+	bh=/vzwV7HRYHzys+EVj+QnBgpvcTGEB5OGpRN370BoHOM=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=dcNJezyFy7sGaRUDLtT8Pxr+3WTQr8OJZw6frEz/TqkFSpCzdT+o4turBjLVQqNPq
-	 U8QOIgtq4nZ1jlJhtoeJMYi/AzBZpju5huSrnRFvBRDmGoOhpYwr6VwHsH5JHu6Qt6
-	 +q9ITYniOQ+uWQU3CZTGRyj4kGt/9Hloul3Y7QiC3GYvI0obtHnKbn0nqj2vAJ3az4
-	 TjmX5Es/YdvFSRCgmh6dX6m62oh3bSgudECiN3OI/8SJRGy1AI6KdsvNUvBN/b/XBH
-	 DvohuT6KaY14Xo6UzRh1eJ9h7KKbP+uV+n2pK9HgXm5yk57PolVvkB0WsdHDF4SlXV
-	 h7AAAzkgtCb2A==
+	b=iUoRr9gHdsUG87iRlVGiMS0N4NzXJ8d6SDmd+/UcptvUOhuiK+tp1guHXsgZtPHIm
+	 BJpSvCrJ+b3bFvacmQtRg5cqOcwuducfGE1jbCTwb1Eaw/h0xHZ1KY8QtxFmg30FrW
+	 0PnnO+VrFLSTsO+VQxpkNWbsC87dGCTZHmPljok2rGXCIiR919CISZTtlr2Ld+C9qB
+	 8WQBIhult8yVnOgKoTqwLUDdwZwMZzq/MhlTcUWkBFdojlys0I9ycv9r7hh+0q57/z
+	 rVXro1BSIhDfKhLxxVT8MiPXIljwCqEQEdWVKRJbwR6Q8MsRVaWe9a6thYkH4FxKmz
+	 eGSsXh2unuREg==
 Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 43936C43614;
-	Mon, 15 Jul 2024 03:40:35 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id D6A45C43614;
+	Mon, 15 Jul 2024 04:40:32 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -37,58 +37,49 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v8 00/10] virtio-net: support AF_XDP zero copy
+Subject: Re: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <172101483527.5253.18173513079187430530.git-patchwork-notify@kernel.org>
-Date: Mon, 15 Jul 2024 03:40:35 +0000
-References: <20240708112537.96291-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240708112537.96291-1-xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ <172101843287.2749.15465946602900508880.git-patchwork-notify@kernel.org>
+Date: Mon, 15 Jul 2024 04:40:32 +0000
+References: <20240712115325.54175-1-leitao@debian.org>
+In-Reply-To: <20240712115325.54175-1-leitao@debian.org>
+To: Breno Leitao <leitao@debian.org>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
  eperezma@redhat.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, ast@kernel.org, daniel@iogearbox.net,
- hawk@kernel.org, john.fastabend@gmail.com, virtualization@lists.linux.dev,
- bpf@vger.kernel.org
+ kuba@kernel.org, pabeni@redhat.com, rbc@meta.com, horms@kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 
 Hello:
 
-This series was applied to netdev/net-next.git (main)
+This patch was applied to netdev/net-next.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Mon,  8 Jul 2024 19:25:27 +0800 you wrote:
-> v8:
->     1. virtnet_add_recvbuf_xsk() always return err, when encounters error
+On Fri, 12 Jul 2024 04:53:25 -0700 you wrote:
+> After the commit bdacf3e34945 ("net: Use nested-BH locking for
+> napi_alloc_cache.") was merged, the following warning began to appear:
 > 
-> v7:
->     1. some small fixes
+> 	 WARNING: CPU: 5 PID: 1 at net/core/skbuff.c:1451 napi_skb_cache_put+0x82/0x4b0
 > 
-> v6:
->     1. start from supporting the rx zerocopy
+> 	  __warn+0x12f/0x340
+> 	  napi_skb_cache_put+0x82/0x4b0
+> 	  napi_skb_cache_put+0x82/0x4b0
+> 	  report_bug+0x165/0x370
+> 	  handle_bug+0x3d/0x80
+> 	  exc_invalid_op+0x1a/0x50
+> 	  asm_exc_invalid_op+0x1a/0x20
+> 	  __free_old_xmit+0x1c8/0x510
+> 	  napi_skb_cache_put+0x82/0x4b0
+> 	  __free_old_xmit+0x1c8/0x510
+> 	  __free_old_xmit+0x1c8/0x510
+> 	  __pfx___free_old_xmit+0x10/0x10
 > 
 > [...]
 
 Here is the summary with links:
-  - [net-next,v8,01/10] virtio_net: replace VIRTIO_XDP_HEADROOM by XDP_PACKET_HEADROOM
-    https://git.kernel.org/netdev/net-next/c/41d4a174201e
-  - [net-next,v8,02/10] virtio_net: separate virtnet_rx_resize()
-    https://git.kernel.org/netdev/net-next/c/47879b7322fa
-  - [net-next,v8,03/10] virtio_net: separate virtnet_tx_resize()
-    https://git.kernel.org/netdev/net-next/c/391aa2aad022
-  - [net-next,v8,04/10] virtio_net: separate receive_buf
-    https://git.kernel.org/netdev/net-next/c/c86c120fde29
-  - [net-next,v8,05/10] virtio_net: separate receive_mergeable
-    https://git.kernel.org/netdev/net-next/c/5db481059d79
-  - [net-next,v8,06/10] virtio_net: xsk: bind/unbind xsk for rx
-    https://git.kernel.org/netdev/net-next/c/09d2b3182c8e
-  - [net-next,v8,07/10] virtio_net: xsk: support wakeup
-    https://git.kernel.org/netdev/net-next/c/19a5a7710ee1
-  - [net-next,v8,08/10] virtio_net: xsk: rx: support fill with xsk buffer
-    (no matching commit)
-  - [net-next,v8,09/10] virtio_net: xsk: rx: support recv small mode
-    https://git.kernel.org/netdev/net-next/c/a4e7ba702701
-  - [net-next,v8,10/10] virtio_net: xsk: rx: support recv merge mode
-    https://git.kernel.org/netdev/net-next/c/99c861b44eb1
+  - [net-next] virtio_net: Fix napi_skb_cache_put warning
+    https://git.kernel.org/netdev/net-next/c/f8321fa75102
 
 You are awesome, thank you!
 -- 
