@@ -1,245 +1,144 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02olkn2071.outbound.protection.outlook.com [40.92.49.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1465D1862AA
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 09:07:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721034465; cv=none; b=YI4nBeGgizi5MWj9NbQzoEOt0M1c6vfkPgs7+MljiZ0BMOVjx542n+xRD5ukaXM9k0fIRdgMzU/Ld4saJWQsUrTeP+bG2fOg9Fop4IH09ApXsY7JoJw5/uP9im18GfR5gy3FtvmzBf9MGUsIPadDKb7me5pw0v4W9i670aD64jk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721034465; c=relaxed/simple;
-	bh=SaagXfvjOJrqhWp5wq/kmkkFgsOqTCTh0w/zLSlrF+U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=reViliZrpfBLLcxzw+iSgm/LsRlmZfgAg9WcsU2tCyQHSCKxxF3I2VDzc5+rSOzrByOdvKX4fwhGgsBdpW0PquCN0kgGLDJuYXDuSdxKgyPGxS0JWm/n3e0CbxxBRWbobAFrVxn7HfZrAJFGgnai+m4Q6v/LpqMDOnGR4MDTVP4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ze3eCgGF; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F2EF18411C
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 10:45:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.49.71
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1721040335; cv=fail; b=dJ6n4dYEfmjmwQ9N5jJEt3u0nK6SjiYifkhrWgGY8lcJsKBPznOhcxiYmBbBA4TZpb44p73XE3o5MhyX1jZxEDmcFmaz2GwICp98vEd0B9Rt30SLT67O85u/IkxJCF3P6lr5SNZxKEX6p+Ji4RH+sdCRazw79noxsa0qYRacYjw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1721040335; c=relaxed/simple;
+	bh=tbqSF1cYUhkzFmFjeNZdZFOvvXuKqkqNqT0I6ZzoyjM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Li/N2p9vGs7lGQvtFnGS/iVcDdbDEx5Ut4mwQ6L5/eC10YSbX+i8r8rZ9BiEZ+lJTVvUWHmO0FR5TJfMPFRSodNRsdX7Bli+WEqvMOfFwl1R3O6P/EwQkY2eSPXgWuQyeQp/gCu89mqSH7uG1CBJ/lvHwWGPmV+FowDelYTv3kY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=U05jbKfb; arc=fail smtp.client-ip=40.92.49.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ze3eCgGF"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9F8AF404F5
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 09:07:43 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 0VeDW8aZsu3C for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Jul 2024 09:07:42 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 5B640404C5
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5B640404C5
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ze3eCgGF
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5B640404C5
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 09:07:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721034460;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eH72eS6Nfsd8BGGyd0s/cB539dWJLqVScR1RR0nuva0=;
-	b=Ze3eCgGFvQiAi1cm7zqSbCtp3ud6dHThrTvizkVO49K00zHw3n3sO4Ia32dy2TA4WOfaAf
-	i8/KU4j85/irCZzvO4SOv4oS5NagpqSH/GGh51FxXPvH9i9G8yT2Of7G/MOStRX7I/lWAm
-	003AngH3UuLIEVh8XUwOg8bV3nKcA30=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-355-baCfIrrlMzKL18oD8JHySQ-1; Mon, 15 Jul 2024 05:07:36 -0400
-X-MC-Unique: baCfIrrlMzKL18oD8JHySQ-1
-Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2ee8b7eafffso43029211fa.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 02:07:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721034455; x=1721639255;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eH72eS6Nfsd8BGGyd0s/cB539dWJLqVScR1RR0nuva0=;
-        b=s8DS2T/fb1ybJ3ylUUvSRzanzqzvVtIjtwpFfRm3KxAX3mdK+TxzF08phW5Kyfr2xC
-         V/kC1C6uh7uDKOYMxVJPU7FWjdcZTMOG8UfdgeML6nlj/ZmumxS54dYb/3VLUm1Dd7F7
-         43jbZ0oy+iDN+CoX0P471d2gf2/bFX31up+qBObt0yzwiP8RO9ojT5or3f7C063K3jbo
-         XFCJHGX0nIFXMdEifJjH/TgyiITlI9p1zdRRSqgeB5r+Tnk7U7IV11Vyo4wdNOU9JQ6G
-         c0bGWx6aL4ETRWdRaMH45sJnfebim9IXJ6vADQJgbFXzIVfDWyyQAS+haiX5evT/1qvC
-         Uc/g==
-X-Gm-Message-State: AOJu0Yweizupi/RGje1iQPPipU77BBYiqKNaAMs9SAWCRP+jfFYLzYf/
-	jqosniGL8pUOWENsQfLvG6XqgIDEFw4NB6ZB61rFrsF/m08jG378NQUVONKUXFlCCS635NhbtJm
-	ZEI0qqtyhUjdMxF9yum258ecSQV8wu5spfLkYMXbEHb5FzTz2R6IQ7CX1xMbKMmyspmZb1Hhbm3
-	2qDTc=
-X-Received: by 2002:a05:6512:214e:b0:52c:8920:875 with SMTP id 2adb3069b0e04-52eb9994aecmr8544223e87.20.1721034455158;
-        Mon, 15 Jul 2024 02:07:35 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEFhfLgY+bn99BkvxgIHF9fTJuKWkSpE3lF6FxeMKlgnydVdlFufzTjpZYisBAUDPH3nAsusA==
-X-Received: by 2002:a05:6512:214e:b0:52c:8920:875 with SMTP id 2adb3069b0e04-52eb9994aecmr8544197e87.20.1721034454471;
-        Mon, 15 Jul 2024 02:07:34 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:240:5146:27c:20a3:47d4:904])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4279f25942csm111837255e9.15.2024.07.15.02.07.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jul 2024 02:07:33 -0700 (PDT)
-Date: Mon, 15 Jul 2024 05:07:30 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Steve Sistare <steven.sistare@oracle.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>,
-	Si-Wei Liu <si-wei.liu@oracle.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Dragos Tatulea <dtatulea@nvidia.com>
-Subject: Re: [PATCH V2 3/7] vhost-vdpa: VHOST_NEW_OWNER
-Message-ID: <20240715050637-mutt-send-email-mst@kernel.org>
-References: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com>
- <1720790333-456232-4-git-send-email-steven.sistare@oracle.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="U05jbKfb"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=uZmDKHOsfqe0saZlw1oifvi2wyOw65zoc8zn4sDKmxWiyxJyzVOkVuk4Lf6ZYrdjJ4fZazvHu5/uzz9BLYCGFuK087bfbzVGqioeSFqiN8eQm5heFSyH1m1Wf7i4Pnx8+N1aDitOb8x4y5ugAZe/QJKBHinM+W0eZJSNLCrDifOZNNfa6jZX5gVb2TufIkNpNq6NYruhlooAa01uMmzTbatReiCEPTRCxY7cZs3YHorQI1bJhn7Vrcit0Bc1+s0M3yz/+3ri40WizVgZvpdH+2JBGH2qB/6ZvhUESbiEss92sTOZLrAHZU8+CgKhK3ufSgRK87Icq+ag7cdDUL513g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tbqSF1cYUhkzFmFjeNZdZFOvvXuKqkqNqT0I6ZzoyjM=;
+ b=KLrUoz08ek05liRoRTGUL4jUY/pigZvKBuPgaX7BLlDSWsgDt1ixpjLy55xqvJ0vuJAQGNTfxtJEqU4ftSUtbbH254WAaN6MXxyqJBrADcdUq508FB3lVk5M7O6tQ4wS0yhN9smNaCqfGKqfqapxe8AN79z8YteSCLrgUAFm7+yVbAsyHSc3EHHjNDAhaW6G6rLhuN68L80Uy4N65lOsyNR3A3nGUz8dJKueTuI19SqQEEf69h3GYh13P6916/D84OhkajNQSIA/9XhAPzr4H8PjxwyVu/3NXFP71R2yTl+e/waHtV+Tx5TZUiCOjN1VFV+Y6B7O2nFPLXqljL6RZQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tbqSF1cYUhkzFmFjeNZdZFOvvXuKqkqNqT0I6ZzoyjM=;
+ b=U05jbKfbvJYrsdOCXQ+yPBqavpV+QjEyQxlgXqOyVhx5vhWNlKZR6OKTltqjnLbOw/qofIJ+GUSWSbTVkQWphMztxGlh7PiIatoqePrYOd4n9BkXLj6QWkp+qP+4Q795JdAdovFSrYeVO45zS3QlkgDdD6XwMhbHd7mqEPjWutmY82cGHbho5FhV5wFT0U4WirSdxstnz5FFPxgRFBn91P4g6WVmx243KECYR1iGIFs9KwokIDf3sPeEntBS9bYAIgIwQ42U7mJqMQ/izwoeeKWR0qP6x94FYMzIgyBlmLcNB86O40T/EdkgmUv+FKYjT3KoK4r0YBz6SnyvaaRN4A==
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
+ by PA4P194MB1135.EURP194.PROD.OUTLOOK.COM (2603:10a6:102:c3::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7762.28; Mon, 15 Jul
+ 2024 10:45:29 +0000
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930%4]) with mapi id 15.20.7762.027; Mon, 15 Jul 2024
+ 10:45:29 +0000
+From: Luigi Leonardi <luigi.leonardi@outlook.com>
+To: sgarzare@redhat.com
+Cc: davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	luigi.leonardi@outlook.com,
+	marco.pinn95@gmail.com,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	stefanha@redhat.com,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v3 2/2] vsock/virtio: avoid queuing packets when work queue is empty
+Date: Mon, 15 Jul 2024 12:44:49 +0200
+Message-ID:
+ <VI1P194MB2166D217DAB34D4A774FA2129AA12@VI1P194MB2166.EURP194.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <4ou6pj632vwst652fcnfiz4hklncc6g4djel5byabdb3hpyap2@ebxpk7ovewv3>
+References: <4ou6pj632vwst652fcnfiz4hklncc6g4djel5byabdb3hpyap2@ebxpk7ovewv3>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [7I9CNCLVGfv0eEWN2jEbHUk1JDj3EcXX]
+X-ClientProxiedBy: MI2P293CA0003.ITAP293.PROD.OUTLOOK.COM
+ (2603:10a6:290:45::16) To VI1P194MB2166.EURP194.PROD.OUTLOOK.COM
+ (2603:10a6:800:1c4::11)
+X-Microsoft-Original-Message-ID:
+ <20240715104449.14687-1-luigi.leonardi@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1720790333-456232-4-git-send-email-steven.sistare@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|PA4P194MB1135:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2448f90f-57ee-4c70-fd63-08dca4bb3d7b
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|461199028|8060799006|19110799003|440099028|3412199025|1710799026;
+X-Microsoft-Antispam-Message-Info:
+	6UllsjvSSIsN8/WDapz9qMl7r2kBYS6uDRnfllxVO+j6CdFTg19N8ZHULkXYDH3LjG/EhjR97us21ClLCYg4+z7+QQrjO7zqDAArmFvbJoVkRo/4VrLvlBVoe+ETtZh6l9FVh37K0RcA/uMXIByIK4gwD3ZwngIAYpEkDRyZF10JBcqMPnWDj2ByPnBIpz186cezLy/f6ch00Cap6duLENOUTG+GwPLShYjP/W2DkiuQg5ghEJJaHEwwhHz19Pd+vvpxEVFP6QgbgUfxpC1F5oaH1wqkz1ijR8zRL3qQ+cER86B4uE1JRrGF3f7zRMKCb5zhBwc8E0py+O4MB2PoNo9UzWS354vPoE+Di7IfHsrIZE1AYRUjV3tBIhRWkE66nwhPsrJVGaH+uBTh7CSjmWxBMJ3l78ffr0qcmabsxbWbqFwa3BHUu3Y9HMp132BNAtTQ02WNh3CNmzSRH8/cVacrf6WvNHdcJ941i7PWt4FaOtN0VznGe9DtCtgTdaYJ7rN6n1JCaPUW+RmZmKhDX8cbbPVMv7VDrssBOEXsqRfajC/x585kWLRPVRKww6kbp3AKGw0aHgQmd6M1TS/6NJQlJOBA8Qv5PwUqO78g6BPe/frLWbuXEJgF+3o8o3fDOIpjjTSJVGH6lVTmOrxSVd9egGrUq5e3QU1zf62amVXYViPX9906EUxM30BSjMgL
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?euqBBuYain5aIP2usZS7QBbozl8wCBeqW5xZNpof9D2AoJYAv5QJFyIc/EEE?=
+ =?us-ascii?Q?ucal/FHSKJ8Ux6VYSWW9vgFw0nse2GyjvSDlHMlvhfrEZQBvCn83ueaLLrh7?=
+ =?us-ascii?Q?qOyet42XaeJU6SKqeI0eLSPMZRhxSUdk3gzqglc/wpXm2GgJfm1AHVlwUo+p?=
+ =?us-ascii?Q?Kyhxqr2wxQ5ex3GPlvOqKpe6J2DCOz3Gc0UHxy+K/cC87Vs1McwVddQ1yQol?=
+ =?us-ascii?Q?AMFN8Oxhxu6+Be3pDpUp/vKG8SfweHaKVT6gnbOmZwz8xsKZR9J/TVbAjzHh?=
+ =?us-ascii?Q?JoHN6aJIITTkhiPWAu17XFa9dWqyRcSebJhMiZWuGMobfT6ex1osfRQtZ6Va?=
+ =?us-ascii?Q?Hlwa8sT+d04zgVYL+hybrOlizYprhoScGXWon0TX6dRdz1iWWgK5UicDoW6P?=
+ =?us-ascii?Q?YiHoU3izvhPn8qkHAJbHMTDS/7gCrmIEXkPiQkfgJG9RAH1Q2vA8JIB1Vj6Z?=
+ =?us-ascii?Q?C+heTJ9NRF/l5qEFLtGr8ydHp4xAM99xWk0wbUz7AN+7bcjmyzhT689Le3cj?=
+ =?us-ascii?Q?D1w+njzzBjLuAshHA2XHI9c+behv3aUzLo0UdY+YK0yI/y7pIBb3w/1worwP?=
+ =?us-ascii?Q?76GNgBsnOrqAvj5qcSKk/Z8U3cMA9lBiQSDB+7KaISDEcVy2cuxxbcrYYwz6?=
+ =?us-ascii?Q?WsmQksTOWK5wTEL3TFQRjELtT/GamhitLtyw9cXMZiDF+Wwq1ucwl4X8TlRH?=
+ =?us-ascii?Q?xKDy/5rOj/6WmGkXTHpvTBGawKG57hM1gga58ujZMwfnGzbwAIuBTwzumHSQ?=
+ =?us-ascii?Q?RvXyckneRvy0hot9lHY+jGuDicLAtqbugPstdNJt730irGQfdcC6GUukXXAk?=
+ =?us-ascii?Q?UrLyP++SgmFWiI+q+buTMRSVDKB4utXG5ko51zt4IeNl9d4hdJnhE+6qmIfY?=
+ =?us-ascii?Q?dJ+EZy76hqCmUu6aDhd9bcR+Vd1wK/fGBNUo1BBWW0gnC5ENA6cnWLImwUV0?=
+ =?us-ascii?Q?G4Mq4sBiIE5hK/xSD5gnRhzEnezb1HOVA4NHwDR6PguixMJCnoobKptxQeeC?=
+ =?us-ascii?Q?erHM8OunmNky3gbAjGZvlV+Ixd+sJLN0AdeenmCAaOrGNt4NIUsVk7Ujxnon?=
+ =?us-ascii?Q?Tl105euVHNsw+uLhfl4Q4nQJ0zSX10CfoCEScDg5XuVtkzRPf6Awwn6ei5kS?=
+ =?us-ascii?Q?qpreqIo/xyVb9/cwNjUSPwDRKjO3mADUQOj2CO2oJy0iSOcNch5sIEG24LKf?=
+ =?us-ascii?Q?iH/po9iejyKVMFAkKdiy1Tu2JUHijscAVGWX1t8FYLj9QzKNWUZUu6xpueX8?=
+ =?us-ascii?Q?W5xaNTnGOTQX6GflTXi0?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2448f90f-57ee-4c70-fd63-08dca4bb3d7b
+X-MS-Exchange-CrossTenant-AuthSource: VI1P194MB2166.EURP194.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2024 10:45:29.5369
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4P194MB1135
 
-On Fri, Jul 12, 2024 at 06:18:49AM -0700, Steve Sistare wrote:
-> Add an ioctl to transfer file descriptor ownership and pinned memory
-> accounting from one process to another.
-> 
-> This is more efficient than VHOST_RESET_OWNER followed by VHOST_SET_OWNER,
-> as that would unpin all physical pages, requiring them to be repinned in
-> the new process.  That would cost multiple seconds for large memories, and
-> be incurred during a virtual machine's pause time during live update.
-> 
-> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+Hi Stefano,
 
-Please, we just need to switch to use iommufd for pinning.
-Piling up all these hacks gets us nowhere.
+Thanks for your review!
 
+> On Thu, Jul 11, 2024 at 04:58:47PM GMT, Luigi Leonardi via B4 Relay wrote:
+> >From: Luigi Leonardi <luigi.leonardi@outlook.com>
+> >
+> >Introduce an optimization in virtio_transport_send_pkt:
+> >when the work queue (send_pkt_queue) is empty the packet is
+>
+> Note: send_pkt_queue is just a queue of sk_buff, is not really a work
+> queue.
+>
+> >put directly in the virtqueue increasing the throughput.
+>
+> Why?
+My guess is that is due to the hotpath being faster, there is (potentially) one less
+step!
+>
+> I tested the patch and everything seems to be fine, all my comments are
+> minor and style, the code should be fine!
+Great, I'll send a v4 addressing all your comments :)
 
-> ---
->  drivers/vhost/vdpa.c       | 41 ++++++++++++++++++++++++++++++++++++++
->  drivers/vhost/vhost.c      | 15 ++++++++++++++
->  drivers/vhost/vhost.h      |  1 +
->  include/uapi/linux/vhost.h | 10 ++++++++++
->  4 files changed, 67 insertions(+)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index b49e5831b3f0..5cf55ca4ec02 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -632,6 +632,44 @@ static long vhost_vdpa_resume(struct vhost_vdpa *v)
->  	return ret;
->  }
->  
-> +static long vhost_vdpa_new_owner(struct vhost_vdpa *v)
-> +{
-> +	int r;
-> +	struct vhost_dev *vdev = &v->vdev;
-> +	struct mm_struct *mm_old = vdev->mm;
-> +	struct mm_struct *mm_new = current->mm;
-> +	long pinned_vm = v->pinned_vm;
-> +	unsigned long lock_limit = PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
-> +
-> +	if (!mm_old)
-> +		return -EINVAL;
-> +	mmgrab(mm_old);
-> +
-> +	if (!v->vdpa->use_va &&
-> +	    pinned_vm + atomic64_read(&mm_new->pinned_vm) > lock_limit) {
-> +		r = -ENOMEM;
-> +		goto out;
-> +	}
-> +	r = vhost_vdpa_bind_mm(v, mm_new);
-> +	if (r)
-> +		goto out;
-> +
-> +	r = vhost_dev_new_owner(vdev);
-> +	if (r) {
-> +		vhost_vdpa_bind_mm(v, mm_old);
-> +		goto out;
-> +	}
-> +
-> +	if (!v->vdpa->use_va) {
-> +		atomic64_sub(pinned_vm, &mm_old->pinned_vm);
-> +		atomic64_add(pinned_vm, &mm_new->pinned_vm);
-> +	}
-> +
-> +out:
-> +	mmdrop(mm_old);
-> +	return r;
-> +}
-> +
->  static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->  				   void __user *argp)
->  {
-> @@ -876,6 +914,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
->  	case VHOST_VDPA_RESUME:
->  		r = vhost_vdpa_resume(v);
->  		break;
-> +	case VHOST_NEW_OWNER:
-> +		r = vhost_vdpa_new_owner(v);
-> +		break;
->  	default:
->  		r = vhost_dev_ioctl(&v->vdev, cmd, argp);
->  		if (r == -ENOIOCTLCMD)
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index b60955682474..ab40ae50552f 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -963,6 +963,21 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
->  }
->  EXPORT_SYMBOL_GPL(vhost_dev_set_owner);
->  
-> +/* Caller should have device mutex */
-> +long vhost_dev_new_owner(struct vhost_dev *dev)
-> +{
-> +	if (dev->mm == current->mm)
-> +		return -EBUSY;
-> +
-> +	if (!vhost_dev_has_owner(dev))
-> +		return -EINVAL;
-> +
-> +	vhost_detach_mm(dev);
-> +	vhost_attach_mm(dev);
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(vhost_dev_new_owner);
-> +
->  static struct vhost_iotlb *iotlb_alloc(void)
->  {
->  	return vhost_iotlb_alloc(max_iotlb_entries,
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index bb75a292d50c..8b2018bb02b1 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -187,6 +187,7 @@ void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs,
->  		    int (*msg_handler)(struct vhost_dev *dev, u32 asid,
->  				       struct vhost_iotlb_msg *msg));
->  long vhost_dev_set_owner(struct vhost_dev *dev);
-> +long vhost_dev_new_owner(struct vhost_dev *dev);
->  bool vhost_dev_has_owner(struct vhost_dev *dev);
->  long vhost_dev_check_owner(struct vhost_dev *);
->  struct vhost_iotlb *vhost_dev_reset_owner_prepare(void);
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index b95dd84eef2d..543d0e3434c3 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -123,6 +123,16 @@
->  #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
->  #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
->  
-> +/* Set current process as the new owner of this file descriptor.  The fd must
-> + * already be owned, via a prior call to VHOST_SET_OWNER.  The pinned memory
-> + * count is transferred from the previous to the new owner.
-> + * Errors:
-> + *   EINVAL: not owned
-> + *   EBUSY:  caller is already the owner
-> + *   ENOMEM: RLIMIT_MEMLOCK exceeded
-> + */
-> +#define VHOST_NEW_OWNER _IO(VHOST_VIRTIO, 0x27)
-> +
->  /* VHOST_NET specific defines */
->  
->  /* Attach virtio net ring to a raw socket, or tap device.
-> -- 
-> 2.39.3
-
+Thanks,
+Luigi
