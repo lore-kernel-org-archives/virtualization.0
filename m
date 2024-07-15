@@ -1,110 +1,110 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DAA318EA85
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:29:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2055518EA84
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:29:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721053755; cv=fail; b=OtFLSFF7g1I80/md8revodq9bTbhMbk3QuDPO0xy267OEyq0Zfqf89x8nogVxKW6f/O8sJbHqzNf7IYHbXL7d6VB3xBpqaRJQi8KWxnxTR9U1DOHXlzkruBr8xo0lohRgtsFwtb60kG3Nyq1KKN4MKbdxEUbUiMtLBBvwyKKslE=
+	t=1721053781; cv=fail; b=MqX+AvHAXg+IFymjaH4mMo4MoOzCT2O3/uWFyFSD6c9k5HR4Uv1V231P+H6WqoAR4FDszOVP95FX0Tsk2xg9O6+cAr+MeV1do+kB3yQtfpV70senEkeTpvJDoou/lDUzbBjTk0YJMhh0NBhikVY/uK/dkhNc1XMOe5MIdaNl994=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721053755; c=relaxed/simple;
-	bh=j6prWY4I82xU264QRfyxgQJA3tL9NzsPTxzOR79zsSs=;
+	s=arc-20240116; t=1721053781; c=relaxed/simple;
+	bh=Wvh5RwMR4Q41b+TJgzvLppzzVg/J/dqNsPkLRinI9FM=;
 	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=mxwXnhlHUm8HU5cNQ36Jx7/nbTbus2F6r6OZVGzZYzohzO4cNFU8VmGehWS57g3tb7NVxY5tV+4xX7HMu4HlsE3bB6N2w3q5eJRhKKJa47UdoRdj9uz3YtRrt/DDZeTEjwITHMX9MMjdMVtqAWbgjReUEUOuhTgcQWexS3bCku8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=MpUTCMLi; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=R8zdnTx6; arc=fail smtp.client-ip=140.211.166.136
+	 Content-Type:MIME-Version; b=BHD8zoqG/S8kZpkObZvf+7c/+JAenLC5B02eN2hBUq873ka1VUnymvDOYEuFmJjd+nIbepV94F8vtbjAvwndteCUH4rut2/l71rmcbQXfeFv7qszY5BEPVuSkROcVZoXMWI1PuRxsLwlpyObt//nQrmbH1YoJefFx5zNgDXc8iA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=JbUp6qSw; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=h42l2kPH; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="MpUTCMLi";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="R8zdnTx6"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="JbUp6qSw";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="h42l2kPH"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 41AD0605C3
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:29:14 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B1B4840608
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:29:39 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.098
+X-Spam-Score: -2.798
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id S1E1cOvTwKIH for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Jul 2024 14:29:13 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=steven.sistare@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 01AA3605BD
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 01AA3605BD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=MpUTCMLi;
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=R8zdnTx6
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 01AA3605BD
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:29:12 +0000 (UTC)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46FENq3V022752;
-	Mon, 15 Jul 2024 14:29:07 GMT
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id yIgZDNNargKf for <virtualization@lists.linux-foundation.org>;
+ Mon, 15 Jul 2024 14:29:38 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=steven.sistare@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 32A53400D8
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 32A53400D8
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=JbUp6qSw;
+	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=h42l2kPH
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 32A53400D8
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:29:37 +0000 (UTC)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46FENdi6002335;
+	Mon, 15 Jul 2024 14:29:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
 	message-id:date:subject:to:cc:references:from:in-reply-to
 	:content-type:content-transfer-encoding:mime-version; s=
-	corp-2023-11-20; bh=iwIImHkvkKLJdlp0by2swMVCfVU8VKSPS+KpkDIMlEY=; b=
-	MpUTCMLiXgQdt3zBIdwRBSC31Qr5SKLjjxYEGQ93u7L2Z/DgmE5ylLLPAqrQMFGI
-	Icd5OvEwC9qYFFvZ8cIDL1ErLsXLxDpRzgkm5EigW6z+1RxIT4kEA6reFm8XRFlK
-	oLY3dTs9Wq7tbYfqGznTtQ4A29a5VChqz6oUCAHv2IHIVSpfl8y1EYuTAB0LpA36
-	/uhmS4fwbx9ap1sNNPJ1O+T9sMBAQ54Yp3621oz6wv6HPW4EFHKfdCF+4HfBJf8P
-	ftkGOvWdGCy0Q75VlWmQgwIRc4NBmSxY+TFBeTaU9vNkWq2DRlxud9nDq0Xu7LAa
-	VWrhTu68+cPb/ckUI0RfXg==
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 40bj4tk4g1-1
+	corp-2023-11-20; bh=XYiRB5+WTeiHSbzrOZtZ/9128hlHXJPhUY9ycDAY2kQ=; b=
+	JbUp6qSwnRkpC+n3go1PlsGZ6rezn11YaYpkti3dIusDa6nyKM5D9TS9CombGFer
+	pGYDvApFC7WpLUX2QdYA796OaAqzGWrBzfnSVtzlmhsOW9N0gXIYP1hFX4uvHqOQ
+	J/jJp1Zsl1X3XV33oLPxwe3NlX5q7lTkTSyUWKPgBBOCgS98dtO4PfLz0AfvEOch
+	bW+czX/DMw89SebXhntQwFzAdSqFIZr+EPhh0S1MgOBdUqpKwP1y7KUq2aRh95lx
+	Y736TOnPpYGPlTTjPYnVlbhwnk9U234kFriYzQIIs9h96W2cVjOzI+MPMdqnyWz6
+	jPpAx0vUC2tlxcdn06wyLw==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 40bg0ckk3p-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Jul 2024 14:29:06 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 46FDLkaO038921;
-	Mon, 15 Jul 2024 14:29:05 GMT
-Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2048.outbound.protection.outlook.com [104.47.55.48])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 40bg17ms35-1
+	Mon, 15 Jul 2024 14:29:33 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 46FDQDs9002694;
+	Mon, 15 Jul 2024 14:29:32 GMT
+Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10lp2101.outbound.protection.outlook.com [104.47.58.101])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 40bg1dsshc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Jul 2024 14:29:05 +0000
+	Mon, 15 Jul 2024 14:29:32 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=bCkOSvqe3T7y655S8+dDPy2pwLD8EwFcZgugcIXbYZQNHFSYRvDi1iUsPGO47v4BPQybBilrTUwy/OFPFTPl8lNrmIC/ppJzImIi+06zcM2/G8d7KvQEW7ozHIM/xJjpRLux2SokVIA0Q8+nlIyLL8H6u7Tk0yURh7NZST4Ge807/yyNhXe20Ij87LDlo1cWYKNluVrkEElpO1Ww4stDYiBY/9ySL5w462tQmQ4kofH7MbPruYvLDbZ8HkwOXSXfXcmvwDMCerAkXJbGqQ8HJwyLvzk5GdiPtLGxVlxOItlF+QwEIETdtPSBG7WP/8YiF86FY9oyDimRQ+GDH9pUKg==
+ b=p05wxSZjKYSYcehbWFEX1SnqwD+kF2mma+rCddLwbSS/xLotlcPItTszEKkM28mdVtTIS6dR7x3gzn3I7gPbVFT/qsGu9dcOreuSpZ364Sd/Dy/yzWYHzH5/FjTQWXUaHeGP3EwjEGWYuNKUmsCDmPBWBOlPI4rKr8vMoWjtYooBNvPRg6t4WGZizJ2jEtRNIaxPE+eO1f3cu9Qj34jjJDhFuoOW24odD1wTTzCE7C/LG5zw3MBlAbG6pp04saG6K2oTnxf49JF6s3beE0vI8BvasgGk19G5H7RNc0zxNlrR5yxfNrszdlPwngeHCwxKEdosIMEXfeA+uU5VodleeA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iwIImHkvkKLJdlp0by2swMVCfVU8VKSPS+KpkDIMlEY=;
- b=XvYPeHXX7/ZljfmfqKREhkMMZ0XGUgQf9H35+7taWX7rZtmtDY+GpAqxfz7qT1qyXxE7NdeXCalIWZMwweBAeghKXMekm+RgD4a6cmpweI3ADRB2eBNET3IgGIapCn3QMiV+GODBajqEYc4JZLVhhW/bPxBtjsO5308tk24MFMPEdQJfUx7DDpfvQtl4h8cuBCnebNLbQUjSZGpO9BzKAUfN6kvhCjV2H5m+oGKEL0QzJsh08/xIiZe3Cnhvth+QsJ0OJb+4BylgUXGaPNUgczmXbCneyhb+AZ/xYBG3baMz1QmxfNZsFeVZhHmBNx4+Hnjm7J90oTwvonUmZ7E0Sg==
+ bh=XYiRB5+WTeiHSbzrOZtZ/9128hlHXJPhUY9ycDAY2kQ=;
+ b=BtGDrWXs67oqQJmZSajnoE7NnYz2XKqHoxtfIKGoMKUId3mJxlaW0o3tK/rEtcxVs9VN4UnOAj1gUzUyjVa9vk/hHaZ6zPKXs2YPyLqjnG23bdimBDFanLhDERYgmV8YsKa5YTaUoiETBCDjsQOYiqP7eb5u8TS6Prs48qDztVuxx6INJbPwrVMKgX+pjKSJ6k3OZn0NBrT9HFbJa/HcMtLbNcbT9dOfEUHmies0RWihwZdD4EH4pr3q6EqXdpzc7qLqA8kLF+NI3YAa8XNh/+p7/y4M5dv81iF3Bl9DgJZddzKoIt8UkaIlHdZXbrpZiYZaeJUeqvZN1mbg9JMTHA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iwIImHkvkKLJdlp0by2swMVCfVU8VKSPS+KpkDIMlEY=;
- b=R8zdnTx6PL7rwT+/7HGpvIRb9SeV+/7HqG4EfesKQzLHuI1Y2hVAAEiazMpjkhHVsvgfwTmWfPzCCJVhHOUN9w7Cc9DakJYoWtXS/5ltEOgx27P83bxLqDEAfCGlCmx66bVM7xgJIJ77W5V74Q0WLvLg1pl6gTZ7AaVndujLmQk=
+ bh=XYiRB5+WTeiHSbzrOZtZ/9128hlHXJPhUY9ycDAY2kQ=;
+ b=h42l2kPHlCBjhBfJ8AN4OrXOurQ5mGSXJj3BmI5T4udk7+JVqvOGhfWV4ZG3HuUZzlwtHG0sZZLcGeq88sLj8LixxjdYb6byJhYxvOg+P8PFzeJCg/VChgVPju8LMMrckbzsyRKafgPDHNFrIfLx5i/0cqBsLj4sAdC4QqpNc/Q=
 Received: from IA1PR10MB7447.namprd10.prod.outlook.com (2603:10b6:208:44c::10)
  by CO1PR10MB4545.namprd10.prod.outlook.com (2603:10b6:303:9a::20) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7762.28; Mon, 15 Jul
- 2024 14:29:03 +0000
+ 2024 14:29:28 +0000
 Received: from IA1PR10MB7447.namprd10.prod.outlook.com
  ([fe80::f2fe:d6c6:70c4:4572]) by IA1PR10MB7447.namprd10.prod.outlook.com
  ([fe80::f2fe:d6c6:70c4:4572%6]) with mapi id 15.20.7762.027; Mon, 15 Jul 2024
- 14:29:03 +0000
-Message-ID: <911f018b-c273-4983-90ac-0a8f925ab6e7@oracle.com>
-Date: Mon, 15 Jul 2024 10:28:57 -0400
+ 14:29:28 +0000
+Message-ID: <d414f28e-8887-418f-963a-bb986dbdcaea@oracle.com>
+Date: Mon, 15 Jul 2024 10:29:26 -0400
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V2 0/7] vdpa live update
-To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 3/7] vhost-vdpa: VHOST_NEW_OWNER
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Si-Wei Liu <si-wei.liu@oracle.com>,
+        Jason Wang <jasowang@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
         Eugenio Perez Martin <eperezma@redhat.com>,
         Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         Dragos Tatulea <dtatulea@nvidia.com>
 References: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com>
- <CACGkMEs9SvtW=Dkg1aU6HuFqTP5eekD1JdR2w377u3iGsOR-Aw@mail.gmail.com>
+ <1720790333-456232-4-git-send-email-steven.sistare@oracle.com>
+ <20240715050637-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 From: Steven Sistare <steven.sistare@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <CACGkMEs9SvtW=Dkg1aU6HuFqTP5eekD1JdR2w377u3iGsOR-Aw@mail.gmail.com>
+In-Reply-To: <20240715050637-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SJ0PR05CA0135.namprd05.prod.outlook.com
- (2603:10b6:a03:33d::20) To IA1PR10MB7447.namprd10.prod.outlook.com
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BL6PEPF0001640C.NAMP222.PROD.OUTLOOK.COM
+ (2603:10b6:22e:400:0:1004:0:13) To IA1PR10MB7447.namprd10.prod.outlook.com
  (2603:10b6:208:44c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -114,216 +114,257 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: IA1PR10MB7447:EE_|CO1PR10MB4545:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4011e6f3-86ee-4caa-6197-08dca4da798c
+X-MS-Office365-Filtering-Correlation-Id: eb91db67-8eb2-4ae2-f183-08dca4da888f
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014;
 X-Microsoft-Antispam-Message-Info: 
-	=?utf-8?B?S3YzbXdHSkx4ZGYxQUhuSjZFTm5nZFVVeVRrNFdHYkN3UkhWb2pwa3pBVDVD?=
- =?utf-8?B?bC9KcmF3KzFuQjd5bWx4MFBPV0dqVTVNUWovMGVjSmtOK001dUpMY2k0Q0lG?=
- =?utf-8?B?NUtBdG1waW05Y091aDdoNmpqblkyaEJaY3QySVp3dUkydnZtVXNkelE0YVZ2?=
- =?utf-8?B?aHo0ZDNEUE1ZQ0NJWG1mRTlUaExVR3ZuNmFwRHZTOUl6MXpETS85VEJaeEhw?=
- =?utf-8?B?Q0RTQTJHUjJwZHNtUTYrQmloTndodUtMa0dPV002VU44ZWRlOFdzQkhZaDdC?=
- =?utf-8?B?SWRVenN0Tms4aWJ1OElVenJJbnJVUmE3djVFWndLRldDRWFjbVdtOGkrdFNX?=
- =?utf-8?B?RlFpRU05Y3NvTlZEK2VwN3MvZW40N2ZsNUZFSzJuNlZBbk8vM0NHTVhJUnBv?=
- =?utf-8?B?VnNwQ29OR1lmZEVsblRrQWFvY2xnK2F3ZHVlRjF4bC9iRDZkYlA2dm42TG1K?=
- =?utf-8?B?bHF1Q2FaQTRybmhMNTJwNHNIbXRMM2pURU10ajV4YVRqUGd2VnpyWUgydVpx?=
- =?utf-8?B?WmV0RmdseFJTcVBVV0NpYjNNVkNuN0Z1UHNxT1dYZlFwdkxjMmQ5czBPbk1p?=
- =?utf-8?B?cjIyTTVmc0o4MmplZ3EvVlhUTFhlOElRT0dtSDRsZkpJUkt2aXordVpTVG1W?=
- =?utf-8?B?dmpkSnJBZ2pZMFgzSGlyTXJvWVJkT2JIUFI3bzRkZFVSYVk4bmRqS0V1VFpH?=
- =?utf-8?B?VU14dHZRVE1raVNadnQzbWNLOEd1S1Q4SzRXNm5ZYW9UK1lZcXdsNWNFL0Rp?=
- =?utf-8?B?TzBrTlp6cU00U2xiWVdHQUdGczdoMnJtRmVxV1B6U2NORmh6aXViUDhmZDg4?=
- =?utf-8?B?Q1FQeitweU1QeDdaT2U2ckxQNHk4dFVVdTE3VkMxRkhGRExnL3NLS2JiWDhr?=
- =?utf-8?B?aXJ2dWo4Q0E1U3o3Y3ZQN1hQZnhvbFZINjVPQ2I1aU81VEFRaTg2NEZzdWIz?=
- =?utf-8?B?M2F1bFNvUFJPeHJMdXNJT3JVT0Qrcko5dDZnbHhTTXRtT0ZYWGdTVE1tZUFB?=
- =?utf-8?B?NG1Lbk0xeDdia0RuT0lzUnZVam1QaTNQT3UySGpnTlgzeGN0cEpFMlQ5OVFn?=
- =?utf-8?B?MFQxbVAyM1l5c2NDSlBZTE1BU0VVbFNWQUNLSEVNQU11S3JFOXllK3FxMEpO?=
- =?utf-8?B?ZlNZVnBDU2RDOFJOMWgyMzhveHdMeFphUzltejhUVDQwRVJob0JqODRQRUZF?=
- =?utf-8?B?bVF5bXRvczg3cThUeUdVcDdhQkVUZlluL04rVVhMaHcwSEVoM3owZThiOFBn?=
- =?utf-8?B?SVAyaEtZelpPVEV4SExwbHRYZnpWVTRDMU1XNUtXRUdUVHV1UmxWMmtiMWky?=
- =?utf-8?B?V2xtNGdCSng0NTBnMG9jOUJNTG5aK0JpZlZmYTZtaDNqd0V1cmNPTmtYblM5?=
- =?utf-8?B?QkxNYkU1enJTZUVtKzR2eWtvR2k5d09lTFdJcitkTndtZ0VGSWVwcVUzUkhT?=
- =?utf-8?B?WGQ5Ykp0UWlUL1NPbTVULzA5ODl1RG1OdndPaEIzU3laWE1mSU93dW16MFhX?=
- =?utf-8?B?c1JGejl6MmxFYW80RXJnSFFXSlkvdEo1TmdoS0tlRzl4aEN3UjJzU095MjVr?=
- =?utf-8?B?aiszd1M0VStpb1UwZmRFcHZ3U0JjVEZjblJpcFFZS2sxQ2dKb0wyaGQrS1pq?=
- =?utf-8?B?RkJpOFVuUllYb1ZMeFg4V2drbU8xOHZTYjF3aVUyNkJnSWVRdk1Wdm8xNUdO?=
- =?utf-8?B?em9Lc09UejRQVjU4SXBFSmRteXoreVFEb01LZThIWHRUaHJTOUtJTkdPb3kv?=
- =?utf-8?Q?rCVcbPSRenRtKHmYWs=3D?=
+	=?utf-8?B?Z2pyTkNPYXpFeG5RWElOVExsTHc3dEI3ejJlNDIzMU85eGZzTG5TWTcvME8w?=
+ =?utf-8?B?aXoyb2JldmNHQ3R5WUQ5UVlyY0NMeFJ0MXk2OWVxUFdPYzFBblQ0NzFheGFy?=
+ =?utf-8?B?azJUaXhTZkFYeTBJYnl1aUNNOXpkajMvWHVzTE9NWW1PRksyckpHR2NsVk5t?=
+ =?utf-8?B?NHYweCs3eXhFeWNSMGdsRG1lR0N3TWk0MnRNOTVKTjJNWnlqdkZsbnVUa0Zs?=
+ =?utf-8?B?N0JCSlByU0tQcWJ0YkZtYUNBUnFISW52Zjd0Q2owbFF0ZW9Za0Vqb24renY4?=
+ =?utf-8?B?WjlFaTV1Wk4vR3A5LzVrelhqeGduSnlyejFDcE1IbFJJUlgxcGhjcE1GRUNE?=
+ =?utf-8?B?K2tnMGw0TnNLZ1JNWFh5ZUF6ZzRXZ3JOWFNvOHowNWtyU0VyN3k2U0JSaTF4?=
+ =?utf-8?B?SHpORWZlK21RSnBmdjJvSGRqNjdMMWo1cEU2RE5RZkowWVFQM3NEWW12cXp4?=
+ =?utf-8?B?cjlGaEJGWU1aQmo1Y1NrZnEyMFUxU0lpWllhNHovNEIvNEZtUGpKSXdRUHpW?=
+ =?utf-8?B?MEhueGdxREFiWUJrNEVxa1FPdmRWK1JuOGNXbDJJRTVSeUZoT3BsaEFVeDNn?=
+ =?utf-8?B?WmZFZTZ1TWhySDk5UEEzTUxBWENkaTE0cUk5NDVpZ0JRaUdYVDlLUVNjSXJS?=
+ =?utf-8?B?UTRHbnRwakFkZmtWaHFxNCsxVndOL0dFY05GanRBRGtJRzdHYy91VnVNaXpz?=
+ =?utf-8?B?OVp0ckZuUzFWRXRkS0VtQi9lc1B6SFNGdExKME80YjdyWHFmbjF6cEcrck42?=
+ =?utf-8?B?WHdiQ21KMzFoU2tmZm8yU0NwdEY3dVU2Rm5icHplMi9SOXg3bFRic3Ayak9w?=
+ =?utf-8?B?NG1ITTgrTythRjM2OHRacWVHNk1wZGtydVJHQ1loT0xjdU8way9QNnFsQXBM?=
+ =?utf-8?B?ZGpCbDNVeVVDSTI0V1Z0djViN1pvU1poRFRGd2hEeDBGLzBFNkd6TUMvZEtG?=
+ =?utf-8?B?OFhWc3hzZWtqRWVtczg2SzB1Wit4QTlvMS9yYW5jWGJOVTRzZHc3SHVXZFFp?=
+ =?utf-8?B?MGRPZ3BRWURIcFNiTitkTzcxbEJKd2dJQ1VtVGhOWU52Q3V6blJaK2FCTk9S?=
+ =?utf-8?B?RGZCZlBFVERjcmNYb2w3VnVBa1JzTDdobzE3Ym9Na2NlUDNQRVRJYlJiYlp3?=
+ =?utf-8?B?bkl1eWdJWWhSR1lHcjNmVFZCam12RjZKVWk1L3prTW9VU1dFNUJpM25UVEJY?=
+ =?utf-8?B?dEJRQTFFbEZkV3l6UStMTDhKYkJOcUdiNFp0NVpNaGN5d3V6STZKV25ka0Rx?=
+ =?utf-8?B?TCt1Qkp4aS9OanZZZDBFdm9IU2dUajZwM3JtaEQzK2dSVjNGUitOcHViZXdQ?=
+ =?utf-8?B?RmZnMGZWeERaN09uc3BiL1ZRUkVIaTZVMFk3OWdlZkpXSzhUeTRZMGtFUDBY?=
+ =?utf-8?B?Q3Z5M1ZxanJvOEhJL3BnRG9XMFJsb09SRjdWdFdzSWJ4Ym90ZUhUeFlQV2Nz?=
+ =?utf-8?B?MFo0YU9zQXFqOGJLWFRWU3VEMHFoOUdOdHBicVRaYmV5WVBxeUowZm9tZ05P?=
+ =?utf-8?B?ZjVud3FYUGw4MnhhM3ZLYm9Ha05JUUxHZmZtVjVXUUEwTjM3aWkxY2lsYUZj?=
+ =?utf-8?B?RVVaRmh0WDUzZytTNUN3WFRqbUlCd01kVWF0RFNOZDF5UG0xbXI3OTNOVG01?=
+ =?utf-8?B?U0gwTFZHSHViQW1PRG1SVjFJTk5kQXNnRjRXLzViWndIOUVBUTF5VUkwMk5x?=
+ =?utf-8?B?YzNOajVaenlPa05Gc2pRSGdYTVFvbjNtT0pmemhWVi9oUXZZOXViYk9reHlt?=
+ =?utf-8?B?R05NWXhsRHNlUk92NW5XbnVjcVFnNVBnelJjenlVMThzZm9vWmFRSkY2QzZx?=
+ =?utf-8?B?Qnd4SEZsdXFFdHdxV0Iwdz09?=
 X-Forefront-Antispam-Report: 
 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR10MB7447.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?Q2lSTmtHMzhQMUpYZkxQVXdDR3VWQy9hekdyTkgya3YvSU9LSk9UWGRSTHhL?=
- =?utf-8?B?bXBxZkl4dGhQL3NPNTdFU3VBK2lNTDgyek43S0xVMEpOODBWUk9UU2ZlWTA0?=
- =?utf-8?B?UzJOd0xQcmJaMjRUVjg1cGs1VkdnYnJIakVEcm9XQ29kaEkwdHV2T1N1Mkx4?=
- =?utf-8?B?Wk1EZS9YVUlSR0wzYTN2RXRIZnNXTWNKcCtyVzQxbFpZQ2dPcERBK3V4N0tI?=
- =?utf-8?B?KzVsTVg3RW1tNEo5WWFDT2ZLam5DMnpYcWx2V1ordWliSWtPc3QvZXNDZGFm?=
- =?utf-8?B?REJNNWxSMW1acXlZOTBiMWhqdWZJbWtQWGRlRklvK2tvQ0dmSldvRzhJa0Uw?=
- =?utf-8?B?U3h0L3JaSnF6aEJsUWpPOXpUV2lXcjcxTDJ0aU9DUTA1eis5LzBEVFVPcDJH?=
- =?utf-8?B?Ry9hMkdiak5pZkIrYVF6Z1MzZWZaVTh3OVBUYkQzY3U0UDI1QTdZNDRHN3Zz?=
- =?utf-8?B?TzI1ZEprRHdPOHZNdndFUS9PL0g0MXhDcFluV1p1WjBxM25BY3Q5Z3dOWFA2?=
- =?utf-8?B?N1gyVHpQNGRITjZRUkwxOU5meVBHbmx1RU5OUWNrRkdZQktDSUxvaVRhYnY2?=
- =?utf-8?B?TFdzd2lVeXVxbTdQRmJhUExwZlBZZm1BWWE2UFo4bFNJOFRVK3Z6OW9TcHRq?=
- =?utf-8?B?eFhxMTNUanVlSnhZRHZTQnVreGNlbHZrYjc1UDJQUUEzOXFkQm1oTWhFMDNq?=
- =?utf-8?B?NS9kWms2U3M5MHhsdklDbmg0ZGdkMTB3K2R4QXZ5Um9Jc1ZwNVNJejFicFI0?=
- =?utf-8?B?ZGxPcVhoNTRTakJlNnY2RjQ1MlVOZnY0Y3JZbHltdWl0L250T2hscTJ3MjlI?=
- =?utf-8?B?eEpBSTRkVmtBUkVpNkFIeDU4Z0l0MHJUbTl3a21pQ21RWVQ3djE2Vk9aT1JV?=
- =?utf-8?B?QWQ0MW9XOWRMdGhwTGFXSGtYWEs2Z1NwdEl1K2Nxd3I3TVFGOXBML1FYeXdt?=
- =?utf-8?B?TmxwbTRxVGk3UncrRi9LM1dMZk8rQ3FFRXp3TXZrMmtJZGRWczFMU2FlWVZF?=
- =?utf-8?B?MExibHh6L3ZCOWdmK0wxYXRyM0kzVlJSeGZMYlJNSHhUa2l5c2FNUUdrak9w?=
- =?utf-8?B?QTFIL083NThUaTdoOGRUN1lvL1hMaWJPbjlSOTdoaUVueWNEZ2IyQjhraWlw?=
- =?utf-8?B?ZWEzeEhvYmJpR0xkOVhUaTQvemRHVzE0ZWhlS0p4UzlJR1gyVzV1dlloSmVs?=
- =?utf-8?B?elhYL1pSL2xYYlZPWHl0cm1RbUMvMlZnWVE0TWo4aHoyTXVzdjNMcW1NeEJa?=
- =?utf-8?B?THAvZ0pyL2pLOTBhQnc1d1JPNEQ4WThLK0JoUmFXbnRRT3NxcFRRRmFYZG5E?=
- =?utf-8?B?bzRNRVFEU0N6MUdkT1BoemZwM1hIdDVZOVZMUjJYenhidEcydnIvT3VRNUEx?=
- =?utf-8?B?SHNlR0RxUDNUdC8wQm9RRTJ2NkNRZzJGd1UyNVJQUUhHbVptQ3lOR0pGL3Iy?=
- =?utf-8?B?L0RIUXJJcExOY3BRLytnUlpjSmFIaUF1MWs3dlpic0pyR2F6SlRES0FwQVEz?=
- =?utf-8?B?MkZWcVNmVEFxbEd2YjBtUWd6ODUxVW1XSTVIeWtUWlhFbGpBa1V6VVQycWl1?=
- =?utf-8?B?NjVMcHdaaE8vVU5yTGVSb2xoZ2ZMWnNlNlg5U2l5MGpJYkpoY2ZRMDh1NHhN?=
- =?utf-8?B?eldKc1NKM0tNb2xNcEhnT3d0WG45eUJ2bTlVODN5cGVteWFyZjMzK1NRQk5C?=
- =?utf-8?B?WXBRbVFzRXNpM3ZUSUlBTzFoTnQ5bk9EL29vczlJVUt3Vkd0Sm41MXFlelVv?=
- =?utf-8?B?RHhzczlvUUQxUWdZOVdkU0RIQVhreGU4dEhCVjlOUUo1VExyM296RWpCdnFP?=
- =?utf-8?B?S0ptSFhTcVF3c0pNWXA3c09zRnpDQW05MWhvSTN2RTlFSUd1ZmhDNUpOaUha?=
- =?utf-8?B?SkhjKzhrazJGNnlzaHBTT3FCV3RqbUtJTkozeW10U1ByWlRJQXVITW9meFVN?=
- =?utf-8?B?b2J1bC9kMWx3L1hudTFTTTlxQjR4Tm9CK3Y0ekRORjUzMXZvV2NrMWNtV0Vr?=
- =?utf-8?B?d1krcndGK0RwcUtLck1RZ1FlMFluUGRNWVJZZW5mZzhpdVNHM0dlakpPbFdC?=
- =?utf-8?B?b092b3QzSldoU2JkUTI4WUdnZDFUT1RZMWFYY2QxQ1V3ZHVzT0R0bWJqajE4?=
- =?utf-8?B?NWdkU2hNcGh1KzBuMi8xMFRrK0JkR1pmRHVIemhXbGU0Q2hVb2JzeUltYnJX?=
- =?utf-8?B?VEE9PQ==?=
+	=?utf-8?B?WThPY2lac2tSQ3JEbW55MFY5TFYxTEJ1SHYwdGYxYzJ1TVBhSUFpeG84QklM?=
+ =?utf-8?B?N245bVJKSjV2Z0s5a1N1LzhnQlRpTlRReVU2cXJzTUhRaHYxR3V5a0ZkZ3hL?=
+ =?utf-8?B?RVU0eTY1VnN2aFh6RUhmNVZhd0paNE1pT3pOTytIRUI3K1hmaklTVW5xd0d3?=
+ =?utf-8?B?MkxWdU1xYkFyUExIR1BYeStKNDJjY3pJQUU2MTltTVlpRkdvZm5KWXg5dFJr?=
+ =?utf-8?B?N3krcEVFdkI3aWp1VU16aTZxVzdITjNyKzNyZ3R0cm12YjJDTHB2NEplT24z?=
+ =?utf-8?B?R0NNeDlQR204cWpIbk05TWdPZWFjd0xETTVHS2JnZWlXY0kwZE50YmdhOEda?=
+ =?utf-8?B?MWtWdFExUFZPN0NSUjMwL0FpSjBZcU81YUFhMjNHeWRZZCs1aEZNbTBjS0VG?=
+ =?utf-8?B?djRjcnlaUXpCQmlRY2oySTZLeVB4M2pyZWZ6bU1Ra2xZY1pNUE1PdUZtZFFD?=
+ =?utf-8?B?KzJpM2w1YWVwNjNseTJiZjkzRUxHV045QTltZlhjYXVmQVFDK3cxbDEyQmtO?=
+ =?utf-8?B?c2dMMjhNSlBxaTM3QVc4UzZOREZPalNqSGREUmlkSU5zSUwzTTRYQnprT1I5?=
+ =?utf-8?B?VERWZjEwM3hqRzIvbTBFWTFPV25rREJ3Slo4bWh6c0xNODIyNTlGU2pJb2FF?=
+ =?utf-8?B?UmJ2YXJUS2NZMDZWLytuamRlenJDK0RmVlpINy9WR0JSblNjM09WS3c2dEJI?=
+ =?utf-8?B?UDZ4VEFucjFwbkJPSmEvZjNNeFBSOExubWZrSmxQNGpBOEtzcWVYdkh2WTV0?=
+ =?utf-8?B?RXBpZXZmbW1qUnZSVTYweHpTOHdqM3dwcG9oc1JVRmk3c1R5K0s2b0d5QkZG?=
+ =?utf-8?B?OWhEY01ES20yWW1NWXBuQjRGbFVqbmhVZ0hDNVdMaTA0WjVlWGRiZVlGcHdZ?=
+ =?utf-8?B?SUtNTkVCeWZoWDZEdHM2Mmd5eU1rd2NQVDI1L2VNVjZFSC9QQndsSVB4MmtN?=
+ =?utf-8?B?Q3o5N3d6dXFIUFBEMkZ6VU9FL2d4N2ZreWE5cm1zdTlrZlNhLzZmc3VacTBk?=
+ =?utf-8?B?b20zdEVRZGJ1RFhOTElEaHNuNHBGUmg2QXZlRVRJRXhIOXR4R3FkTnlOSlRV?=
+ =?utf-8?B?UlIwRFVteUJkallZOVVSTXZPVS9qNnRzTXdVWXZEdTYrZlBoZmZuQVczQWZ6?=
+ =?utf-8?B?OVROb3QrSUtjZHpBcFJ0RVV0eGVCQ2xHbVNGR0owVlRQZ2lwa3ZBejcwUW9r?=
+ =?utf-8?B?N2UxMkNaUFJESmRLQ2kwWWJNOTlyNnBsVU5jbnorbm0vZGtvK0xDdkdhRHV2?=
+ =?utf-8?B?S0lvZ1gybHZDdXhPdHpIdGc3T1RTSHpHRHZDOUFQSWd2UitUU29PK3JFTjll?=
+ =?utf-8?B?NlVwL3pXeDZWTUNsaVQwajdZaUNxT2tJajlhZkV5NjZKUndaTk81WldPZmkz?=
+ =?utf-8?B?dFVYeThnVGsxQmRTdnlKOWxrKytud3AwWjhMajZ3KzhsL0hkOFBmdWNBWTFK?=
+ =?utf-8?B?TEJ5bms0cVlhb21xdU9lTzc3Vk95K04rYmQzWVl3clJWazBZdEE2MzR6cFVI?=
+ =?utf-8?B?enB2a0YrSnp4bFNEdjRkYld4OUFGUG9kVHBKanpMZlMzOG9JMDlEc0IwM0F6?=
+ =?utf-8?B?dlZZVWV6cWZYSHRWTEN2eWJmQVZQQzk5RjdyTHFmRWtSQzNMc09hNjgrOUl1?=
+ =?utf-8?B?cGtZK1ExT01HeUhwV3J4dHlKK1B5endzbXc1U0lDYzBrVXBWc0VVTzhCcmYy?=
+ =?utf-8?B?WFZuSHo1TUQ0akhQZHo1ZnoyVzcyS1JWbTB1YitZZFJGME5rRTdxUGhOOGZ2?=
+ =?utf-8?B?YVp0ckVEQTZvUTlpT3NWOTNVdHd2aCttVVZHbldRc3p2NVZuVnZ3ZEVleXBF?=
+ =?utf-8?B?RGo1WC9mVTdoWHJHSjdRSkl5YUxwWXV1OVc4Z3JzODUzVEZkQWxTak5mYm1n?=
+ =?utf-8?B?QlNDMUo0Q0dGVGRZOUhOZHZSRjNkUWk5b1dRZ2tNcENSNXJVbG5PdzJHVzN4?=
+ =?utf-8?B?QmkwTHowTUFXLzFlbmQ4MkEyaGVJSk9ScWJRZktJVVVTSm5TT2pkVkYwRGtl?=
+ =?utf-8?B?ejkxblBva3phWlZIZitXQ0RMeHgzZlZWUFJDVEZwV044VDhmRHBTQVY4YU0x?=
+ =?utf-8?B?aFZxbGJ0bzFzdWxKMDlKUExGUXdVMWplcXNYbWlYVW9oRTV6TGlSNHFwSHlE?=
+ =?utf-8?B?dmpHemgxUGxRODgwbEkyWHVFK2ovRnEwczVOZWpldWJXdFUzNXAwdVd0ZXoz?=
+ =?utf-8?B?Q2c9PQ==?=
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	+4LqSRJoufWue8ZV9mmg+wAwz1Ata7s8i72eGX/CP4tSTD/+G/sR4ppeNHJjhSw9+bXU+wV/jaAtElda1lUwCjZeye6sdyU2FltG/P11DLqeb1ElCs7du5/8YeRK9w9zD/lDWuC939B9vzjcV9v55eZo4klbNBXNHY6ctY21Ad73F7l7jqsZgORrvoIPBDHMQ840LmTdeJYjNJfvkf418p2EWAh0bGKPZtteTj8JbxbtIhI2bP+SqyaOE/FXTGZ4FPsD5JZGT9lLdmi/WIupNLAFhD67CXB7HNEhbSsZFcKu2NBLLkuq+Vfk0E+T9F1RO1+rSyvtqD4njGV2p48qEU1qQRNBMSA8a16lyIavnnaZWuZ/R/Ldf9TyYVs9Q/frPzi7tB/o/YagsujfcjCbuvLPSn1zMEdstuSJCzkaMNfVepeppgxw2Z6dysUFzpOeXqw7rNSDHa1eEMHm9qo+SzKe+rO1fBcRCjdWbO5gKLkCfq16aQc5NIooZgMu6eEd8hDP3iM1Ba5FdQH/mudFfNm7KiCVYFZtlQKZyonit6zE18Wvl2OyYEQNPio37Hv8vw/cfRLjAtyDsPu4RT9nUga+dfNAHEyUFJW8ZVnBWec=
+	3rzCCadXu+RuJ85hUKe2NREahNBQ+fqM+aZywJ0h5vky4ig1xSXk//rdusnlSCNDZELGQjtUhgmWmfnNit1GjwUL1H3CHTeBnG0c+9+/6mYX8cTivEzsIhCPNGDFh969pqpzoAvFfCQzITtI4HEcFTkgiPQE7EaPkMr9+YrZUpOlGNpRwr96Ysr+G91G9/B3SAldXDwpAAhGCDvLNTTi0BDpdE0rsvylWz1554yuXhZ1swqgpYBvM8+M+u1tPt3brMFez+nlu9bJyfri6G0MgR8SVh6li7IoqnwKicxQA89pAeb23ReSvZ6wW0EkH1Q1hEzZ9geCzAT5dwU2rnEod09+jzoK0SGlnQIMkOQkEESnqzK8HpvimwzUSMoP+Jn/6RzQfRgA5OzosfkdH1bJsADwiiuosL5DoqiuFFf9opdWtsbCt39fVg96Xh2A4JCAmrho4dEWdw3yK5WEMlBdEn60ePbqFwB5ZKGVVxzAfc5XCPqZqBkvPTwoYeKOkLEKBTifjQ8oU5BTwfloBYBrT+rkYxE4J+tVgH0srahg/FmdJrR95+voR8E9m5eQSRzZdBby1MDvj46P4HNVuS8eM9Aqspkml1L/kAH/dYTnnxw=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4011e6f3-86ee-4caa-6197-08dca4da798c
+X-MS-Exchange-CrossTenant-Network-Message-Id: eb91db67-8eb2-4ae2-f183-08dca4da888f
 X-MS-Exchange-CrossTenant-AuthSource: IA1PR10MB7447.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2024 14:29:03.0695
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2024 14:29:28.1661
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HPoFlWYjA7FaSE7q+Dp9mz3Jm0O9479UvMCL1i5jRg4nq4EoodLrkDzbPX7PA9Wevr2Kzl9b82VdfiEI1HBSJ3xaN+9fAmKiqNpbbbqfP+0=
+X-MS-Exchange-CrossTenant-UserPrincipalName: wVNtATxw/UiIh46eGEc9nxjfX7OYXuetq4yGfTRQu20BuGQYiNqVqtPHCzgLgsDpp+mkV7uu2r+h+vQqsfQP6r9s3XZ7wU9CG1x0OfDXwyU=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4545
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-07-15_09,2024-07-11_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
- malwarescore=0 mlxscore=0 phishscore=0 spamscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2406180000 definitions=main-2407150114
-X-Proofpoint-ORIG-GUID: _nQLrv12pm7qzBenThwQGdHkJSNQusTU
-X-Proofpoint-GUID: _nQLrv12pm7qzBenThwQGdHkJSNQusTU
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxscore=0 adultscore=0
+ bulkscore=0 mlxlogscore=999 malwarescore=0 phishscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2406180000
+ definitions=main-2407150114
+X-Proofpoint-GUID: zLh_jZD_Rr7st7QvYV0qJV2amMtWcrzl
+X-Proofpoint-ORIG-GUID: zLh_jZD_Rr7st7QvYV0qJV2amMtWcrzl
 
-On 7/14/2024 10:14 PM, Jason Wang wrote:
-> On Fri, Jul 12, 2024 at 9:19 PM Steve Sistare <steven.sistare@oracle.com> wrote:
->>
->> Live update is a technique wherein an application saves its state, exec's
->> to an updated version of itself, and restores its state.  Clients of the
->> application experience a brief suspension of service, on the order of
->> 100's of milliseconds, but are otherwise unaffected.
->>
->> Define and implement interfaces that allow vdpa devices to be preserved
->> across fork or exec, to support live update for applications such as QEMU.
->> The device must be suspended during the update, but its DMA mappings are
->> preserved, so the suspension is brief.
->>
->> The VHOST_NEW_OWNER ioctl transfers device ownership and pinned memory
+On 7/15/2024 5:07 AM, Michael S. Tsirkin wrote:
+> On Fri, Jul 12, 2024 at 06:18:49AM -0700, Steve Sistare wrote:
+>> Add an ioctl to transfer file descriptor ownership and pinned memory
 >> accounting from one process to another.
 >>
->> The VHOST_BACKEND_F_NEW_OWNER backend capability indicates that
->> VHOST_NEW_OWNER is supported.
+>> This is more efficient than VHOST_RESET_OWNER followed by VHOST_SET_OWNER,
+>> as that would unpin all physical pages, requiring them to be repinned in
+>> the new process.  That would cost multiple seconds for large memories, and
+>> be incurred during a virtual machine's pause time during live update.
 >>
->> The VHOST_IOTLB_REMAP message type updates a DMA mapping with its userland
->> address in the new process.
->>
->> The VHOST_BACKEND_F_IOTLB_REMAP backend capability indicates that
->> VHOST_IOTLB_REMAP is supported and required.  Some devices do not
->> require it, because the userland address of each DMA mapping is discarded
->> after being translated to a physical address.
->>
->> Here is a pseudo-code sequence for performing live update, based on
->> suspend + reset because resume is not yet widely available.  The vdpa device
->> descriptor, fd, remains open across the exec.
->>
->>    ioctl(fd, VHOST_VDPA_SUSPEND)
->>    ioctl(fd, VHOST_VDPA_SET_STATUS, 0)
+>> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
 > 
-> I don't understand why we need a reset after suspend, it looks to me
-> the previous suspend became meaningless.
+> Please, we just need to switch to use iommufd for pinning.
+> Piling up all these hacks gets us nowhere.
 
-The suspend guarantees completion of in-progress DMA.  At least, that is
-my interpretation of why that is done for live migration in QEMU, which
-also does suspend + reset + re-create.  I am following the live migration
-model.
+I am working on iommufd kernel interfaces and QEMU changes.  But who is working
+on iommufd support for vdpa? If no one, or not for years, then adding these
+small interfaces to vdpa plugs a signficant gap in live update coverage.
 
->>    exec
->>
->>    ioctl(fd, VHOST_NEW_OWNER)
->>
->>    issue ioctls to re-create vrings
->>
->>    if VHOST_BACKEND_F_IOTLB_REMAP
-> 
-> So the idea is for a device that is using a virtual address, it
-> doesn't need VHOST_BACKEND_F_IOTLB_REMAP at all?
-
-Actually the reverse: if the device translates virtual to physical when
-the mappings are created, and discards the virtual, then VHOST_IOTLB_REMAP
-is not needed.
-
->>        foreach dma mapping
->>            write(fd, {VHOST_IOTLB_REMAP, new_addr})
->>
->>    ioctl(fd, VHOST_VDPA_SET_STATUS,
->>              ACKNOWLEDGE | DRIVER | FEATURES_OK | DRIVER_OK)
-> 
->  From API level, this seems to be asymmetric as we have suspending but
-> not resuming?
-
-Again, I am just following the path taken by live migration.
-I will be happy to use resume when the devices and QEMU support it.
-The decision to use reset vs resume should not affect the definition
-and use of VHOST_NEW_OWNER and VHOST_IOTLB_REMAP.
+FWIW, the iommufd interfaces for live update will look much the same: change owner
+and pinned memory accounting, and update virtual addresses.  So adding that to vdpa
+will not make it look like an odd duck.
 
 - Steve
 
->> This is faster than VHOST_RESET_OWNER + VHOST_SET_OWNER + VHOST_IOTLB_UPDATE,
->> as that would would unpin and repin physical pages, which would cost multiple
->> seconds for large memories.
+>> ---
+>>   drivers/vhost/vdpa.c       | 41 ++++++++++++++++++++++++++++++++++++++
+>>   drivers/vhost/vhost.c      | 15 ++++++++++++++
+>>   drivers/vhost/vhost.h      |  1 +
+>>   include/uapi/linux/vhost.h | 10 ++++++++++
+>>   4 files changed, 67 insertions(+)
 >>
->> This is implemented in QEMU by the patch series "Live update: vdpa"
->>    https://lore.kernel.org/qemu-devel/TBD  (reference to be posted shortly)
->>
->> The QEMU implementation leverages the live migration code path, but after
->> CPR exec's new QEMU:
->>    - vhost_vdpa_set_owner() calls VHOST_NEW_OWNER instead of VHOST_SET_OWNER
->>    - vhost_vdpa_dma_map() sets type VHOST_IOTLB_REMAP instead of
->>      VHOST_IOTLB_UPDATE
->>
->> Changes in V2:
->>    - clean up handling of set_map vs dma_map vs platform iommu in remap
->>    - augment and clarify commit messages and comments
->>
->> Steve Sistare (7):
->>    vhost-vdpa: count pinned memory
->>    vhost-vdpa: pass mm to bind
->>    vhost-vdpa: VHOST_NEW_OWNER
->>    vhost-vdpa: VHOST_BACKEND_F_NEW_OWNER
->>    vhost-vdpa: VHOST_IOTLB_REMAP
->>    vhost-vdpa: VHOST_BACKEND_F_IOTLB_REMAP
->>    vdpa/mlx5: new owner capability
->>
->>   drivers/vdpa/mlx5/net/mlx5_vnet.c |   3 +-
->>   drivers/vhost/vdpa.c              | 125 ++++++++++++++++++++++++++++--
->>   drivers/vhost/vhost.c             |  15 ++++
->>   drivers/vhost/vhost.h             |   1 +
->>   include/uapi/linux/vhost.h        |  10 +++
->>   include/uapi/linux/vhost_types.h  |  15 +++-
->>   6 files changed, 161 insertions(+), 8 deletions(-)
->>
->> --
+>> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+>> index b49e5831b3f0..5cf55ca4ec02 100644
+>> --- a/drivers/vhost/vdpa.c
+>> +++ b/drivers/vhost/vdpa.c
+>> @@ -632,6 +632,44 @@ static long vhost_vdpa_resume(struct vhost_vdpa *v)
+>>   	return ret;
+>>   }
+>>   
+>> +static long vhost_vdpa_new_owner(struct vhost_vdpa *v)
+>> +{
+>> +	int r;
+>> +	struct vhost_dev *vdev = &v->vdev;
+>> +	struct mm_struct *mm_old = vdev->mm;
+>> +	struct mm_struct *mm_new = current->mm;
+>> +	long pinned_vm = v->pinned_vm;
+>> +	unsigned long lock_limit = PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
+>> +
+>> +	if (!mm_old)
+>> +		return -EINVAL;
+>> +	mmgrab(mm_old);
+>> +
+>> +	if (!v->vdpa->use_va &&
+>> +	    pinned_vm + atomic64_read(&mm_new->pinned_vm) > lock_limit) {
+>> +		r = -ENOMEM;
+>> +		goto out;
+>> +	}
+>> +	r = vhost_vdpa_bind_mm(v, mm_new);
+>> +	if (r)
+>> +		goto out;
+>> +
+>> +	r = vhost_dev_new_owner(vdev);
+>> +	if (r) {
+>> +		vhost_vdpa_bind_mm(v, mm_old);
+>> +		goto out;
+>> +	}
+>> +
+>> +	if (!v->vdpa->use_va) {
+>> +		atomic64_sub(pinned_vm, &mm_old->pinned_vm);
+>> +		atomic64_add(pinned_vm, &mm_new->pinned_vm);
+>> +	}
+>> +
+>> +out:
+>> +	mmdrop(mm_old);
+>> +	return r;
+>> +}
+>> +
+>>   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+>>   				   void __user *argp)
+>>   {
+>> @@ -876,6 +914,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+>>   	case VHOST_VDPA_RESUME:
+>>   		r = vhost_vdpa_resume(v);
+>>   		break;
+>> +	case VHOST_NEW_OWNER:
+>> +		r = vhost_vdpa_new_owner(v);
+>> +		break;
+>>   	default:
+>>   		r = vhost_dev_ioctl(&v->vdev, cmd, argp);
+>>   		if (r == -ENOIOCTLCMD)
+>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>> index b60955682474..ab40ae50552f 100644
+>> --- a/drivers/vhost/vhost.c
+>> +++ b/drivers/vhost/vhost.c
+>> @@ -963,6 +963,21 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+>>   }
+>>   EXPORT_SYMBOL_GPL(vhost_dev_set_owner);
+>>   
+>> +/* Caller should have device mutex */
+>> +long vhost_dev_new_owner(struct vhost_dev *dev)
+>> +{
+>> +	if (dev->mm == current->mm)
+>> +		return -EBUSY;
+>> +
+>> +	if (!vhost_dev_has_owner(dev))
+>> +		return -EINVAL;
+>> +
+>> +	vhost_detach_mm(dev);
+>> +	vhost_attach_mm(dev);
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL_GPL(vhost_dev_new_owner);
+>> +
+>>   static struct vhost_iotlb *iotlb_alloc(void)
+>>   {
+>>   	return vhost_iotlb_alloc(max_iotlb_entries,
+>> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+>> index bb75a292d50c..8b2018bb02b1 100644
+>> --- a/drivers/vhost/vhost.h
+>> +++ b/drivers/vhost/vhost.h
+>> @@ -187,6 +187,7 @@ void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs,
+>>   		    int (*msg_handler)(struct vhost_dev *dev, u32 asid,
+>>   				       struct vhost_iotlb_msg *msg));
+>>   long vhost_dev_set_owner(struct vhost_dev *dev);
+>> +long vhost_dev_new_owner(struct vhost_dev *dev);
+>>   bool vhost_dev_has_owner(struct vhost_dev *dev);
+>>   long vhost_dev_check_owner(struct vhost_dev *);
+>>   struct vhost_iotlb *vhost_dev_reset_owner_prepare(void);
+>> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+>> index b95dd84eef2d..543d0e3434c3 100644
+>> --- a/include/uapi/linux/vhost.h
+>> +++ b/include/uapi/linux/vhost.h
+>> @@ -123,6 +123,16 @@
+>>   #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
+>>   #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
+>>   
+>> +/* Set current process as the new owner of this file descriptor.  The fd must
+>> + * already be owned, via a prior call to VHOST_SET_OWNER.  The pinned memory
+>> + * count is transferred from the previous to the new owner.
+>> + * Errors:
+>> + *   EINVAL: not owned
+>> + *   EBUSY:  caller is already the owner
+>> + *   ENOMEM: RLIMIT_MEMLOCK exceeded
+>> + */
+>> +#define VHOST_NEW_OWNER _IO(VHOST_VIRTIO, 0x27)
+>> +
+>>   /* VHOST_NET specific defines */
+>>   
+>>   /* Attach virtio net ring to a raw socket, or tap device.
+>> -- 
 >> 2.39.3
->>
-> 
-> Thanks
 > 
