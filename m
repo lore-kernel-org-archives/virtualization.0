@@ -1,140 +1,176 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C82D13D531
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:38:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EA0318785B
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 15:30:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721054308; cv=none; b=jvoUJ0oosdySi6PPogba519YyCsOLL4zUF2xpj8N/uhDo6zaM6ILCxkeJPmgHMbqqE89mapVZ9odWAuzDnzgcpEl8MNb6GQPTINFQdjomjAZrFqAAPLhePucGkqoEiZplzy1dJNefHW5IpP0YBBhLZaJ7c3NfSh9VQJH98MeV2I=
+	t=1721057460; cv=none; b=FlCySdCDZRlg4C3NKDQPzGTMVje6bcOJFKlg3vgoWop3GiszvltGNVokfY7zdl72if+Rv6KwHLcOo+Gy7TPbZhJJ768qgYV6DJkkqb0CDpPoqUP58fLkOdbD1Mj7DcINEvO2Brd/Vdw/Q4XF4lDfgImkwTrjJ8fmXmDdInhIXJ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721054308; c=relaxed/simple;
-	bh=2tudeH4asXQXZSaak3ZzzRDXUzzwEGH9p0h3Dri/+Zc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rwagKUlnd4H9qkW89fvfPy4h1JmawJSilfO7jAYKYfhdyhJEaMQzkiN+FzRTXaDSSuZvPxbEC8rrw0XF6OFLAS0cMycSdaH1qozvPnkdlXTx9AKcEAP69jPH/+GO93gOPH9wzy+LFF6Su9/tX6DQx8sS2SsLJsEtaCjWDgvhnJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P7XgPkFM; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1721057460; c=relaxed/simple;
+	bh=FhJFss3S/yHa/GMdCgQmJl//GsZVUXtvz4fxE1Xri28=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=mhVeKqeOIlwDf4e+rAyNqcU8lFaq9HmX7rlUkZKoKIqJoZUrr5lZ0gbdrErq3npmC2fR0pg1Fhsop8H582us7JQiDw8KmfFgmFmwGpKmQ4HXOavqEoZD7rbcQCPZXhDDwO6pybRE9VY13aJ3XetjAR9wR7G5nh2kGdUXdyEqzV4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VgzPORPA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P7XgPkFM"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 05C148112C
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:38:27 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id oPwJzLu9M63D for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Jul 2024 14:38:26 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 00A7181119
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 00A7181119
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P7XgPkFM
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 00A7181119
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 14:38:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721054304;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JqnhsUJX2tl6nAh5V2Gectwmc33hA1nj9475HkyrKUs=;
-	b=P7XgPkFMFq+H6F8SsORFMFMbWDtyQqCVzysv9yvZtrm8KZec6hlFE8mURlMInAzJsTLX+m
-	UY4Da+6VzoLxojzf3qNaA/G0ISnstBW50Ac2Em3jnIKT9lpSBsfk/ZHaLUhMHSWaaSVD63
-	tQc3OqEtKJqa8tjMzk4TwvTQFwp+874=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-681-el7QyalGMAaPAd9yoWBHwg-1; Mon, 15 Jul 2024 10:38:23 -0400
-X-MC-Unique: el7QyalGMAaPAd9yoWBHwg-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3678ff75122so3123783f8f.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 07:38:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721054302; x=1721659102;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JqnhsUJX2tl6nAh5V2Gectwmc33hA1nj9475HkyrKUs=;
-        b=XHR+IBg6WflXzModA/BSu5HC/tVeL4zN741SMo3TxMqdmB/4ODrBBk+VNMmMjnSK1I
-         NWGAze5X1/jNUrVvex0zJx4H9ufhrbq3fdZWybWfy+qzLDFlG85C8JOI674+fxxMAeA0
-         sYrSjT6SQF+AoIeEhl0nwpHikQ4DaWNoI8wSabMPC6Ajvz8p1yPGHj//caukJMjPeeck
-         OVxkN6dEIxYHioEFlwAJeXOaVDPtlmvyM8fvug5oOJDnm2xx7aaeFBUDe0dUnkVU+URd
-         qkSkXH8IvdvtuuIYjdrbeQDnwhwYmyM3TgD7futhV8i9NT1VYUtd/wcxSgjN55VevlwR
-         OKPA==
-X-Gm-Message-State: AOJu0Yy1u9V53qjBBWFKHn4JguDMMvd8mgexrlFaHRRSfM8wJ0IQ39fV
-	3tKureRcstZQURsPIEM+RvnUIpiS+rnqy+FYE2AO4Zvx79iJ8wpKA5+TNTz99CLGVVZNKXC8XSr
-	oMCq6DtnBl08VJvx3ii2W9qpkZqAi1QoKtMfthYKzGjsrky6XN3IyJYRSqw76XmxOciJF89ziVd
-	to6eQ=
-X-Received: by 2002:adf:8bd6:0:b0:364:8e3f:89f8 with SMTP id ffacd0b85a97d-367ceadb06amr12929791f8f.67.1721054302155;
-        Mon, 15 Jul 2024 07:38:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHEkTfPqTxDGRze09YdNkKZnLzIuew1RR5dRU6IAqmRqu1plKwM3L5a7zPdQxNzmrWp4dCkqg==
-X-Received: by 2002:adf:8bd6:0:b0:364:8e3f:89f8 with SMTP id ffacd0b85a97d-367ceadb06amr12929759f8f.67.1721054301584;
-        Mon, 15 Jul 2024 07:38:21 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:243:da88:7ff9:68fc:2f43:bcdf])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3680daccacdsm6593721f8f.62.2024.07.15.07.38.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jul 2024 07:38:20 -0700 (PDT)
-Date: Mon, 15 Jul 2024 10:38:09 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Steven Sistare <steven.sistare@oracle.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>,
-	Si-Wei Liu <si-wei.liu@oracle.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Dragos Tatulea <dtatulea@nvidia.com>
-Subject: Re: [PATCH V2 3/7] vhost-vdpa: VHOST_NEW_OWNER
-Message-ID: <20240715103021-mutt-send-email-mst@kernel.org>
-References: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com>
- <1720790333-456232-4-git-send-email-steven.sistare@oracle.com>
- <20240715050637-mutt-send-email-mst@kernel.org>
- <d414f28e-8887-418f-963a-bb986dbdcaea@oracle.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VgzPORPA"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46FDvj0a002761
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 15:30:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	FhJFss3S/yHa/GMdCgQmJl//GsZVUXtvz4fxE1Xri28=; b=VgzPORPAMsg/H5tX
+	87EAZnp/scPkhA5U/ciBVKga+BXr/zrCTg6bVR0uwZu/7YCFfevQo0biZB0slhBW
+	skxWXXfdiSyRuLet4Bq436DQSrjHulunSFcL6pViMqsughWfCSAOEQ9QApQYIAcj
+	srS90ZUos5tNqt7fzlAIAilgLTaS+cXoF25u5dsJV5LxqXtu4i+hemfVfl4mqlaw
+	p6PAHXqqU5Oh73WyaUD+UURm9pWkKm6/NtGIymFNEBvdatb6Z9pv/dAUfzZ+n/P4
+	PyGJz9m+PTbhl6VP5VFhVek7G2lynAfbpPOul3xFKc9XWV9ZmbwG3i19esH8lpDK
+	YsYDcw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40d4p9ga7d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 15:30:55 +0000 (GMT)
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46FFUZui014940
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 15:30:54 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40d4p9ga78-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Jul 2024 15:30:54 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46FCR11O030685;
+	Mon, 15 Jul 2024 15:30:54 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40c4a0fre9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Jul 2024 15:30:53 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46FFUolG48890356
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 15 Jul 2024 15:30:52 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ECD6120043;
+	Mon, 15 Jul 2024 15:30:49 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7DD2A20040;
+	Mon, 15 Jul 2024 15:30:49 +0000 (GMT)
+Received: from [127.0.0.1] (unknown [9.152.108.100])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 15 Jul 2024 15:30:49 +0000 (GMT)
+Message-ID: <090a8152eab55555b23b1a7605520567ce0bffa3.camel@linux.ibm.com>
+Subject: Re: [PATCH] virtio_ring: fix KMSAN error for premapped mode
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+        Alexander Potapenko
+	 <glider@google.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>,
+        virtualization@lists.linux.dev,
+        Eugenio
+ =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Aleksandr Nogikh
+ <nogikh@google.com>
+Date: Mon, 15 Jul 2024 17:30:49 +0200
+In-Reply-To: <20240715102018-mutt-send-email-mst@kernel.org>
+References: <20240606111345.93600-1-xuanzhuo@linux.alibaba.com>
+	 <CACGkMEtZWJJ1TxnbDLio28M1_0mUZmDd_HbQrZOVB9ixKoLbMQ@mail.gmail.com>
+	 <CAG_fn=Xe+XQROUqZ9zy94BXVj8SRKprW3fUj_0rD3AhSAvtn-w@mail.gmail.com>
+	 <20240624095629-mutt-send-email-mst@kernel.org>
+	 <CAG_fn=VwB_EepsY7GcMM2ihz77vtWDR3tsxJ6iD0Sdx-wQVx+g@mail.gmail.com>
+	 <20240715102018-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CZo7mgIIrCnd74VPf0X29R1UPhpt1iSA
+X-Proofpoint-GUID: QRaKX5caLPTYGi0HCPRtjsnttHuUdYx5
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <d414f28e-8887-418f-963a-bb986dbdcaea@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-15_10,2024-07-11_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 priorityscore=1501 mlxlogscore=474 phishscore=0 mlxscore=0
+ adultscore=0 spamscore=0 bulkscore=0 clxscore=1011 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2407150121
 
-On Mon, Jul 15, 2024 at 10:29:26AM -0400, Steven Sistare wrote:
-> On 7/15/2024 5:07 AM, Michael S. Tsirkin wrote:
-> > On Fri, Jul 12, 2024 at 06:18:49AM -0700, Steve Sistare wrote:
-> > > Add an ioctl to transfer file descriptor ownership and pinned memory
-> > > accounting from one process to another.
-> > > 
-> > > This is more efficient than VHOST_RESET_OWNER followed by VHOST_SET_OWNER,
-> > > as that would unpin all physical pages, requiring them to be repinned in
-> > > the new process.  That would cost multiple seconds for large memories, and
-> > > be incurred during a virtual machine's pause time during live update.
-> > > 
-> > > Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
-> > 
-> > Please, we just need to switch to use iommufd for pinning.
-> > Piling up all these hacks gets us nowhere.
-> 
-> I am working on iommufd kernel interfaces and QEMU changes.  But who is working
-> on iommufd support for vdpa? If no one, or not for years, then adding these
-> small interfaces to vdpa plugs a signficant gap in live update coverage.
-> 
-> FWIW, the iommufd interfaces for live update will look much the same: change owner
-> and pinned memory accounting, and update virtual addresses.  So adding that to vdpa
-> will not make it look like an odd duck.
-> 
-> - Steve
+On Mon, 2024-07-15 at 10:20 -0400, Michael S. Tsirkin wrote:
+> On Mon, Jul 15, 2024 at 03:24:17PM +0200, Alexander Potapenko wrote:
+> > On Mon, Jun 24, 2024 at 3:57=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+com>
+> > wrote:
+> > >=20
+> > > On Mon, Jun 24, 2024 at 03:51:50PM +0200, Alexander Potapenko
+> > > wrote:
+> > > > On Fri, Jun 7, 2024 at 8:34=E2=80=AFAM Jason Wang <jasowang@redhat.=
+com>
+> > > > wrote:
+> > > > >=20
+> > > > > On Thu, Jun 6, 2024 at 7:13=E2=80=AFPM Xuan Zhuo
+> > > > > <xuanzhuo@linux.alibaba.com> wrote:
+> > > > > >=20
+> > > > > > Add kmsan for virtqueue_dma_map_single_attrs to fix:
+> > > > > >=20
+> > > > > > BUG: KMSAN: uninit-value in receive_buf+0x45ca/0x6990
+> > > > > > =C2=A0receive_buf+0x45ca/0x6990
+> > > > > > =C2=A0virtnet_poll+0x17e0/0x3130
+> > > > > > =C2=A0net_rx_action+0x832/0x26e0
+> > > > > > =C2=A0handle_softirqs+0x330/0x10f0
+> > > > > > =C2=A0[...]
+> > > > > >=20
+> > > > > > Uninit was created at:
+> > > > > > =C2=A0__alloc_pages_noprof+0x62a/0xe60
+> > > > > > =C2=A0alloc_pages_noprof+0x392/0x830
+> > > > > > =C2=A0skb_page_frag_refill+0x21a/0x5c0
+> > > > > > =C2=A0virtnet_rq_alloc+0x50/0x1500
+> > > > > > =C2=A0try_fill_recv+0x372/0x54c0
+> > > > > > =C2=A0virtnet_open+0x210/0xbe0
+> > > > > > =C2=A0__dev_open+0x56e/0x920
+> > > > > > =C2=A0__dev_change_flags+0x39c/0x2000
+> > > > > > =C2=A0dev_change_flags+0xaa/0x200
+> > > > > > =C2=A0do_setlink+0x197a/0x7420
+> > > > > > =C2=A0rtnl_setlink+0x77c/0x860
+> > > > > > =C2=A0[...]
+> > > > > >=20
+> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > Tested-by: Alexander Potapenko <glider@google.com>
+> > > > >=20
+> > > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > >=20
+> > > > Jason, Michael, any chance this patch can make it to 6.10?
+> > > > The bug in question has essentially been blocking KMSAN on
+> > > > syzbot for
+> > > > the past month:
+> > > > https://syzkaller.appspot.com/bug?id=3D2819883f3d376b703e686e700fde=
+00a01eec62fa
+> > > >=20
+> > > > The patch should probably have
+> > > > =C2=A0 Fixes: b6253b4e21939 ("virtio_ring: introduce dma map api for
+> > > > virtqueue")
+> > > >=20
+> > > > , but I am not exactly sure why syzkaller only started
+> > > > triggering the
+> > > > bug this year, given that the patch dates back to 2023.
+> > >=20
+> > > Yes that's probably a good idea. I will queue it with this tag.
+> >=20
+> > Hi Michael,
+> >=20
+> > Looks like the patch is still stuck in the limbo :(
+>=20
+> It should be in linux next. Don't you see it there?
 
-I think that no one is working on it - Cindy posted some rfcs in January
-("vhost-vdpa: add support for iommufd").  Feel free to pick that up.
-What you described is just more of a reason not to duplicate this code.
-And it's always the same: a small extension here, a small extension there.
-If you can make do with existing kernel interfaces, fine,
-one can argue that userspace code is useful to support existing kernels.
+FWIW I ran linux-next with KMSAN today and this fix was already there.
 
--- 
-MST
+But in the meantime another similarly looking issue crept in:
 
+https://lore.kernel.org/netdev/20240712195759.GA2972562@myrica/T/
