@@ -1,249 +1,130 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC0453A9
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 02:35:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C9368825
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 02:45:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721010912; cv=none; b=Vy4xJbGAuCc13kY3ootITQRcawoEypM6Ui4hijiq6DRxpgPHEBHESkTZ8dw15tow3XIpxeNFPBOf0+8tNa69cGsIKCM9Sixk6lkUDCYpZK/yBLv7h+A3VUSEkykjtDkPIEi2G9NHIh4qmSbLnhlpME3T0mVolBD0KGjt0/YfamQ=
+	t=1721011539; cv=none; b=nfrP/YEMwkWqRaU6eGjTwMiUY1zmlETDnawBJEluqpZ3ssh+RHcKAQU1FK4OXkTurXDvOjpwR1dd91Qjv3FV7Nye/7CCwzgGXAaT/ykYnxcsJ1qUnvAjq/75nu2QX9fPqsAuUBMrjCAEOeQ2vimVo1QC8yH9g0ydu+oIPG9OVII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721010912; c=relaxed/simple;
-	bh=kB41NnpfhwQpkmS6Ee8KfAI26ATy3gY4gwt3M1klEsg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jDCO+E64McUfVVmRX8DlIdxq5Y85tV96tJy/uX9ThexLFomBdllF1aFXSiy4GflmLWgAKOyPC0ZDdeAK41OFcHhCZjHUoTkYcuaPpHo3iJSntAAmhyFsJYpa0Vwb4fjkAnMofEm4YuC142QD3rit5ZJxLBFusL2R3dpJNQUfAgw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cm5Cikw8; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1721011539; c=relaxed/simple;
+	bh=ctGWsdO0ej5tPQjRZHOPvi6pJHzhlFIKiR3w9xWi2hM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uLYUA7mjCEDqF9iRBWG+EJ8Bo/gUQWFzdHkPmyBGxTpbkDQDmN9GhCsoxiUOgg85jyPDyAbMoglgp11ymMUjNMa2JJt2+7LUAMsbv21Y3ML/0Xe2zs/b/vvco9UcaiHosAm9GAN+O4R5+1NHfxFpn/5j4pAPtVIonxQhdCexdR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=pbZAsAVi; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cm5Cikw8"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E25D9605E8
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 02:35:10 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 3LA3X0T6dAGz for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Jul 2024 02:35:10 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org EBFF0605D1
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EBFF0605D1
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Cm5Cikw8
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EBFF0605D1
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 02:35:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721010908;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=55lW7NJ8ejky4hgV7bfotKSxsKudqxlk6ZTrH104m/o=;
-	b=Cm5Cikw80a4QEHy7fkRrypDLegLU8VdYm9bzR1A5cLaKMfmZEBIQ+YicFNyU93f2q/LRyM
-	Eg2cmNrKHl3WsFGGsvPkQnC+HL00EwMAAuCxHhr19t9zwBHyher2CxuoIiPG59cyp21ExE
-	EH3sZvyw2rviWXWlahB/S+KiAkjpzog=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-108-l8xs5XtOP5Sj-DcaRpBlCQ-1; Sun, 14 Jul 2024 22:35:05 -0400
-X-MC-Unique: l8xs5XtOP5Sj-DcaRpBlCQ-1
-Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-7035ae4e205so3408550a34.2
-        for <virtualization@lists.linux-foundation.org>; Sun, 14 Jul 2024 19:35:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721010902; x=1721615702;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=55lW7NJ8ejky4hgV7bfotKSxsKudqxlk6ZTrH104m/o=;
-        b=LjYuGJBtfFRwKk/9iLjlnHJAmvsJkguLNkXyeuIJrpSfjpRoqXnDCQNP5oewSF6LaW
-         VRq5CIZelvfH37NVeYbZv7lFdAyHyDwUbdAbpvL8NSfHwfoMszGXCMQwRl4uKxLuCrqe
-         YsrBqrvow4mqY94ATLkAyTVkzXZYTRVKhyNrOHCKyrAqlERPYffZtlMriOarzam59iDT
-         QQhbOebojxxHY9kGn6HMxTZxxliKc4N4Y63zQ61cdrtfF5p5eXLXPPNY+8sv4uXTFcD+
-         7g5900MrjBXwtankcfOL8kVFrI2OfBz0+Yp4qBG+q7IvRb6V0rRlZmaSDwzF3FvlvYez
-         hm2w==
-X-Gm-Message-State: AOJu0YxjBB12bfduDVs51zIFrz/Nm7trAKiBVT4V0JOj00VwuWkXZ64n
-	a2SUW19jS/LGh8eZrIS9HzeiGqk/2PKRulRl+g6enmdbc4GtuxUVqsrZyAXQTgekqdNPvs5Uskv
-	vYBHhyAc+AJVwqgZ3YaUfGD3x7N3HyYvwK+UeYBZZzPxdPvLh3xzV9OV+nj1AynYqFZUZ5ZKKr5
-	eqTTJl9FxooZXNlAHz7DweYV29MwBuEcgLy6ti9BsgAsUYEnkgph98Sw==
-X-Received: by 2002:a05:6358:c3a2:b0:1aa:a47a:e377 with SMTP id e5c5f4694b2df-1aade12371emr1339237755d.26.1721010902409;
-        Sun, 14 Jul 2024 19:35:02 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG96a3p14oLy4GL8DbB6MuIRFczhmVFQ6RSraL00N0CU6BYVS+mlAiqGbLqvzwybXhZhjedSoJCg6BC+9j2eT4=
-X-Received: by 2002:a05:6358:c3a2:b0:1aa:a47a:e377 with SMTP id
- e5c5f4694b2df-1aade12371emr1339236155d.26.1721010901998; Sun, 14 Jul 2024
- 19:35:01 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="pbZAsAVi"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1721011528; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=aFJAiJacnHMlZNMvKXDirjWe+OPAnESCR9uHIfCE5gE=;
+	b=pbZAsAViEERhM5NVqoAQ8zgwkUQm0rB1wWYNplh50ruEo2jQ8bIylVA4yUg2kcutwZPqkJOHEuGsoJPitOKJyN1UJNxs/Un9gjLfHOqWtlxmy68eC0zAdeO1+cciiEPtz2hLYKRFsl7B8xf37xpw0QnXaoN8CkVFaVPIaRkxSiw=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0WAUnIPg_1721011527;
+Received: from 30.221.148.126(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0WAUnIPg_1721011527)
+          by smtp.aliyun-inc.com;
+          Mon, 15 Jul 2024 10:45:27 +0800
+Message-ID: <dfd6b17e-ada5-41ce-8922-d97dd192ddb3@linux.alibaba.com>
+Date: Mon, 15 Jul 2024 10:45:24 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com> <1720790333-456232-6-git-send-email-steven.sistare@oracle.com>
-In-Reply-To: <1720790333-456232-6-git-send-email-steven.sistare@oracle.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 15 Jul 2024 10:34:51 +0800
-Message-ID: <CACGkMEurG88fXiThyainxbuzpgBUzzGkmvyQB5vuXsU7_6XBBw@mail.gmail.com>
-Subject: Re: [PATCH V2 5/7] vhost-vdpa: VHOST_IOTLB_REMAP
-To: Steve Sistare <steven.sistare@oracle.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	Eugenio Perez Martin <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Dragos Tatulea <dtatulea@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
+To: Breno Leitao <leitao@debian.org>
+Cc: rbc@meta.com, horms@kernel.org,
+ "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+ "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>
+References: <20240712115325.54175-1-leitao@debian.org>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <20240712115325.54175-1-leitao@debian.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 12, 2024 at 9:19=E2=80=AFPM Steve Sistare <steven.sistare@oracl=
-e.com> wrote:
+
+在 2024/7/12 下午7:53, Breno Leitao 写道:
+> After the commit bdacf3e34945 ("net: Use nested-BH locking for
+> napi_alloc_cache.") was merged, the following warning began to appear:
 >
-> When device ownership is passed to a new process via VHOST_NEW_OWNER,
-> some devices need to know the new userland addresses of the dma mappings.
-> Define the new iotlb message type VHOST_IOTLB_REMAP to update the uaddr
-> of a mapping.  The new uaddr must address the same memory object as
-> originally mapped.
+> 	 WARNING: CPU: 5 PID: 1 at net/core/skbuff.c:1451 napi_skb_cache_put+0x82/0x4b0
 >
-> The user must suspend the device before the old address is invalidated,
-> and cannot resume it until after VHOST_IOTLB_REMAP is called, but this
-> requirement is not enforced by the API.
+> 	  __warn+0x12f/0x340
+> 	  napi_skb_cache_put+0x82/0x4b0
+> 	  napi_skb_cache_put+0x82/0x4b0
+> 	  report_bug+0x165/0x370
+> 	  handle_bug+0x3d/0x80
+> 	  exc_invalid_op+0x1a/0x50
+> 	  asm_exc_invalid_op+0x1a/0x20
+> 	  __free_old_xmit+0x1c8/0x510
+> 	  napi_skb_cache_put+0x82/0x4b0
+> 	  __free_old_xmit+0x1c8/0x510
+> 	  __free_old_xmit+0x1c8/0x510
+> 	  __pfx___free_old_xmit+0x10/0x10
 >
-> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+> The issue arises because virtio is assuming it's running in NAPI context
+> even when it's not, such as in the netpoll case.
+>
+> To resolve this, modify virtnet_poll_tx() to only set NAPI when budget
+> is available. Same for virtnet_poll_cleantx(), which always assumed that
+> it was in a NAPI context.
+>
+> Fixes: df133f3f9625 ("virtio_net: bulk free tx skbs")
+> Suggested-by: Jakub Kicinski <kuba@kernel.org>
+> Signed-off-by: Breno Leitao <leitao@debian.org>
 > ---
->  drivers/vhost/vdpa.c             | 58 ++++++++++++++++++++++++++++++++
->  include/uapi/linux/vhost_types.h | 11 +++++-
->  2 files changed, 68 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 4396fe1a90c4..51f71c45c4a9 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -1257,6 +1257,61 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
->
->  }
->
-> +static int vhost_vdpa_process_iotlb_remap(struct vhost_vdpa *v,
-> +                                         struct vhost_iotlb *iotlb,
-> +                                         struct vhost_iotlb_msg *msg)
-> +{
-> +       struct vdpa_device *vdpa =3D v->vdpa;
-> +       const struct vdpa_config_ops *ops =3D vdpa->config;
-> +       u32 asid =3D iotlb_to_asid(iotlb);
-> +       u64 start =3D msg->iova;
-> +       u64 last =3D start + msg->size - 1;
-> +       struct vhost_iotlb_map *map;
-> +       int r =3D 0;
-> +
-> +       if (msg->perm || !msg->size)
-> +               return -EINVAL;
-> +
-> +       map =3D vhost_iotlb_itree_first(iotlb, start, last);
-> +       if (!map)
-> +               return -ENOENT;
-> +
-> +       if (map->start !=3D start || map->last !=3D last)
-> +               return -EINVAL;
+>   drivers/net/virtio_net.c | 8 ++++----
+>   1 file changed, 4 insertions(+), 4 deletions(-)
 
-I had a question here, if a buggy user space that:
-
-1) forget to update some of the mappings
-2) address is wrong
-3) other cases.
-
-Does this mean the device can DMA to the previous owner? If yes, does
-this have security implications?
-
-> +
-> +       /*
-> +        * The current implementation does not support the platform iommu
-> +        * with use_va.  And if !use_va, remap is not necessary.
-> +        */
-> +       if (!ops->set_map && !ops->dma_map)
-> +               return -EINVAL;
-> +
-> +       /*
-> +        * The current implementation supports set_map but not dma_map.
-> +        */
-> +       if (!ops->set_map)
-> +               return -EINVAL;
-> +
-> +       /*
-> +        * Do not verify that the new size@uaddr points to the same physi=
-cal
-> +        * pages as the old size@uaddr, because that would take time O(np=
-ages),
-> +        * and would increase guest down time during live update.  If the=
- app
-> +        * is buggy and they differ, then the app may corrupt its own mem=
-ory,
-> +        * but no one else's.
-> +        */
-> +
-> +       /*
-> +        * Batch will finish later in BATCH_END by calling set_map for th=
-e new
-> +        * addresses collected here.  Non-batch must do it now.
-> +        */
-> +       if (!v->in_batch)
-> +               r =3D ops->set_map(vdpa, asid, iotlb);
-> +       if (!r)
-> +               map->addr =3D msg->uaddr;
-> +
-> +       return r;
-> +}
-> +
->  static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
->                                            struct vhost_iotlb *iotlb,
->                                            struct vhost_iotlb_msg *msg)
-> @@ -1336,6 +1391,9 @@ static int vhost_vdpa_process_iotlb_msg(struct vhos=
-t_dev *dev, u32 asid,
->                         ops->set_map(vdpa, asid, iotlb);
->                 v->in_batch =3D false;
->                 break;
-> +       case VHOST_IOTLB_REMAP:
-> +               r =3D vhost_vdpa_process_iotlb_remap(v, iotlb, msg);
-> +               break;
->         default:
->                 r =3D -EINVAL;
->                 break;
-> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_=
-types.h
-> index 9177843951e9..35908315ff55 100644
-> --- a/include/uapi/linux/vhost_types.h
-> +++ b/include/uapi/linux/vhost_types.h
-> @@ -79,7 +79,7 @@ struct vhost_iotlb_msg {
->  /*
->   * VHOST_IOTLB_BATCH_BEGIN and VHOST_IOTLB_BATCH_END allow modifying
->   * multiple mappings in one go: beginning with
-> - * VHOST_IOTLB_BATCH_BEGIN, followed by any number of
-> + * VHOST_IOTLB_BATCH_BEGIN, followed by any number of VHOST_IOTLB_REMAP =
-or
->   * VHOST_IOTLB_UPDATE messages, and ending with VHOST_IOTLB_BATCH_END.
->   * When one of these two values is used as the message type, the rest
->   * of the fields in the message are ignored. There's no guarantee that
-> @@ -87,6 +87,15 @@ struct vhost_iotlb_msg {
->   */
->  #define VHOST_IOTLB_BATCH_BEGIN    5
->  #define VHOST_IOTLB_BATCH_END      6
-> +
-> +/*
-> + * VHOST_IOTLB_REMAP registers a new uaddr for the existing mapping at i=
-ova.
-> + * The new uaddr must address the same memory object as originally mappe=
-d.
-> + * Failure to do so will result in user memory corruption and/or device
-> + * misbehavior.  iova and size must match the arguments used to create t=
-he
-> + * an existing mapping.  Protection is not changed, and perm must be 0.
-> + */
-> +#define VHOST_IOTLB_REMAP          7
->         __u8 type;
->  };
-
-Thanks
+Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
 
 >
-> --
-> 2.39.3
->
-
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0b4747e81464..fb1331827308 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2341,7 +2341,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+>   	return packets;
+>   }
+>   
+> -static void virtnet_poll_cleantx(struct receive_queue *rq)
+> +static void virtnet_poll_cleantx(struct receive_queue *rq, int budget)
+>   {
+>   	struct virtnet_info *vi = rq->vq->vdev->priv;
+>   	unsigned int index = vq2rxq(rq->vq);
+> @@ -2359,7 +2359,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>   
+>   		do {
+>   			virtqueue_disable_cb(sq->vq);
+> -			free_old_xmit(sq, txq, true);
+> +			free_old_xmit(sq, txq, !!budget);
+>   		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>   
+>   		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+> @@ -2404,7 +2404,7 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>   	unsigned int xdp_xmit = 0;
+>   	bool napi_complete;
+>   
+> -	virtnet_poll_cleantx(rq);
+> +	virtnet_poll_cleantx(rq, budget);
+>   
+>   	received = virtnet_receive(rq, budget, &xdp_xmit);
+>   	rq->packets_in_napi += received;
+> @@ -2526,7 +2526,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+>   	txq = netdev_get_tx_queue(vi->dev, index);
+>   	__netif_tx_lock(txq, raw_smp_processor_id());
+>   	virtqueue_disable_cb(sq->vq);
+> -	free_old_xmit(sq, txq, true);
+> +	free_old_xmit(sq, txq, !!budget);
+>   
+>   	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
+>   		if (netif_tx_queue_stopped(txq)) {
