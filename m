@@ -1,144 +1,105 @@
-Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02olkn2071.outbound.protection.outlook.com [40.92.49.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F2EF18411C
-	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 10:45:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.49.71
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721040335; cv=fail; b=dJ6n4dYEfmjmwQ9N5jJEt3u0nK6SjiYifkhrWgGY8lcJsKBPznOhcxiYmBbBA4TZpb44p73XE3o5MhyX1jZxEDmcFmaz2GwICp98vEd0B9Rt30SLT67O85u/IkxJCF3P6lr5SNZxKEX6p+Ji4RH+sdCRazw79noxsa0qYRacYjw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721040335; c=relaxed/simple;
-	bh=tbqSF1cYUhkzFmFjeNZdZFOvvXuKqkqNqT0I6ZzoyjM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Li/N2p9vGs7lGQvtFnGS/iVcDdbDEx5Ut4mwQ6L5/eC10YSbX+i8r8rZ9BiEZ+lJTVvUWHmO0FR5TJfMPFRSodNRsdX7Bli+WEqvMOfFwl1R3O6P/EwQkY2eSPXgWuQyeQp/gCu89mqSH7uG1CBJ/lvHwWGPmV+FowDelYTv3kY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=U05jbKfb; arc=fail smtp.client-ip=40.92.49.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="U05jbKfb"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uZmDKHOsfqe0saZlw1oifvi2wyOw65zoc8zn4sDKmxWiyxJyzVOkVuk4Lf6ZYrdjJ4fZazvHu5/uzz9BLYCGFuK087bfbzVGqioeSFqiN8eQm5heFSyH1m1Wf7i4Pnx8+N1aDitOb8x4y5ugAZe/QJKBHinM+W0eZJSNLCrDifOZNNfa6jZX5gVb2TufIkNpNq6NYruhlooAa01uMmzTbatReiCEPTRCxY7cZs3YHorQI1bJhn7Vrcit0Bc1+s0M3yz/+3ri40WizVgZvpdH+2JBGH2qB/6ZvhUESbiEss92sTOZLrAHZU8+CgKhK3ufSgRK87Icq+ag7cdDUL513g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tbqSF1cYUhkzFmFjeNZdZFOvvXuKqkqNqT0I6ZzoyjM=;
- b=KLrUoz08ek05liRoRTGUL4jUY/pigZvKBuPgaX7BLlDSWsgDt1ixpjLy55xqvJ0vuJAQGNTfxtJEqU4ftSUtbbH254WAaN6MXxyqJBrADcdUq508FB3lVk5M7O6tQ4wS0yhN9smNaCqfGKqfqapxe8AN79z8YteSCLrgUAFm7+yVbAsyHSc3EHHjNDAhaW6G6rLhuN68L80Uy4N65lOsyNR3A3nGUz8dJKueTuI19SqQEEf69h3GYh13P6916/D84OhkajNQSIA/9XhAPzr4H8PjxwyVu/3NXFP71R2yTl+e/waHtV+Tx5TZUiCOjN1VFV+Y6B7O2nFPLXqljL6RZQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tbqSF1cYUhkzFmFjeNZdZFOvvXuKqkqNqT0I6ZzoyjM=;
- b=U05jbKfbvJYrsdOCXQ+yPBqavpV+QjEyQxlgXqOyVhx5vhWNlKZR6OKTltqjnLbOw/qofIJ+GUSWSbTVkQWphMztxGlh7PiIatoqePrYOd4n9BkXLj6QWkp+qP+4Q795JdAdovFSrYeVO45zS3QlkgDdD6XwMhbHd7mqEPjWutmY82cGHbho5FhV5wFT0U4WirSdxstnz5FFPxgRFBn91P4g6WVmx243KECYR1iGIFs9KwokIDf3sPeEntBS9bYAIgIwQ42U7mJqMQ/izwoeeKWR0qP6x94FYMzIgyBlmLcNB86O40T/EdkgmUv+FKYjT3KoK4r0YBz6SnyvaaRN4A==
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
- by PA4P194MB1135.EURP194.PROD.OUTLOOK.COM (2603:10a6:102:c3::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7762.28; Mon, 15 Jul
- 2024 10:45:29 +0000
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930%4]) with mapi id 15.20.7762.027; Mon, 15 Jul 2024
- 10:45:29 +0000
-From: Luigi Leonardi <luigi.leonardi@outlook.com>
-To: sgarzare@redhat.com
-Cc: davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	luigi.leonardi@outlook.com,
-	marco.pinn95@gmail.com,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v3 2/2] vsock/virtio: avoid queuing packets when work queue is empty
-Date: Mon, 15 Jul 2024 12:44:49 +0200
-Message-ID:
- <VI1P194MB2166D217DAB34D4A774FA2129AA12@VI1P194MB2166.EURP194.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <4ou6pj632vwst652fcnfiz4hklncc6g4djel5byabdb3hpyap2@ebxpk7ovewv3>
-References: <4ou6pj632vwst652fcnfiz4hklncc6g4djel5byabdb3hpyap2@ebxpk7ovewv3>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN: [7I9CNCLVGfv0eEWN2jEbHUk1JDj3EcXX]
-X-ClientProxiedBy: MI2P293CA0003.ITAP293.PROD.OUTLOOK.COM
- (2603:10a6:290:45::16) To VI1P194MB2166.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:800:1c4::11)
-X-Microsoft-Original-Message-ID:
- <20240715104449.14687-1-luigi.leonardi@outlook.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41D351891B0
+	for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 11:25:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1721042712; cv=none; b=InYeI4dH8zAL7ahfCVtqhWomGMG17YFZtavMnEItAAjtQtIbbi+D0EwSISvB9WDPoNEVzV8MixAR53OC76Ido66xCv2J3ho6yNX+P5M16Cz1Ne+zDOIWAs/P0sau+qgGI4CYnX52n76Aw5lWOJ1SSDj1MWd2scFVSkTWBlhNJQo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1721042712; c=relaxed/simple;
+	bh=ty+USuCasgyD0q5WV6y+xqpiIL59dUuUhJrHdOnICuM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LM4x19/myLF5avv/x5Hw6d4OwNJ4svedEygwIZ6K1KmNwnsUhj7rb+SJxn6edqeSK5OB2xyRzzQsG0P6mO4yXNqdURimcP4pIXYc9NVAZVzYUiR1FuRNqY6Ehv7tDGC6m0od4AZWwfU3AjKAZpVNBsku+RdiOmbiRwijL/YPD+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-52ea79e689eso5854676e87.1
+        for <virtualization@lists.linux.dev>; Mon, 15 Jul 2024 04:25:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721042709; x=1721647509;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nIjlZKoODIvZ5ta3ient2GVc/jl/vGg+wUu4XZXyR/w=;
+        b=XEAICuy9x7rXUN9H/fOfm7nrnXYZjYKgwUBMuUDGOdam7n1BHgg2tHa5EfJutJszCi
+         q2/La0oP6qMLoT49PHTI5TDcF61QaR8mvPOL+4FDZFzUIl0wCG0/6+tdPc1I+jryCWIL
+         ncAa+fScoebiSQtivJuTQy/298McVMAq1RwT4a4kO6vGuvrO/Nn2+M4obTq7w1AZ1QP3
+         v2SgcpDVhsG1l+DNQISDkzvxZyeY86ASKRFC32dnjanBRcNa6lP8/x7NhAWldXXjL2n8
+         CY9C4DukS8chHpuuVAQ9lFa1fFkNB2jTXUCf3H/PshDIOMlBmSy6L9zP6Z0YReawSKL6
+         kN2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVWBN+vD+2qxPzZk232+hSv6CdBKJUEcb1Z8OHrqrvcKO3CCAax/S2QS0nzVEDMae+v//alNbu3G80KdfgC2XNquuIjoa0JZEKpC/0/AfU=
+X-Gm-Message-State: AOJu0YzlxXbBa+wR6Ml3t6VicLO+F9Pgwi3kC/e5GDD3E93R7W38E86p
+	kvjxPQQs/+17iaVQEqSo1hU5S39RB3j7+sVwZcFVihq9ZXc+zEiI
+X-Google-Smtp-Source: AGHT+IG78sUAzx9I4a7vE8/3T/SQW4az1utlpNNwNzPZzbTFoS9BD8x4sD9BV4nV2NExq/Pw+CcMGQ==
+X-Received: by 2002:a05:6512:36d3:b0:52c:daa4:2f6a with SMTP id 2adb3069b0e04-52eb99d670dmr12258120e87.64.1721042709246;
+        Mon, 15 Jul 2024 04:25:09 -0700 (PDT)
+Received: from gmail.com (fwdproxy-lla-004.fbsv.net. [2a03:2880:30ff:4::face:b00c])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a79bc820fb5sm204451066b.212.2024.07.15.04.25.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jul 2024 04:25:08 -0700 (PDT)
+Date: Mon, 15 Jul 2024 04:25:06 -0700
+From: Breno Leitao <leitao@debian.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	rbc@meta.com, horms@kernel.org,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
+Message-ID: <ZpUHEszCj16rNoGy@gmail.com>
+References: <20240712115325.54175-1-leitao@debian.org>
+ <20240714033803-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|PA4P194MB1135:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2448f90f-57ee-4c70-fd63-08dca4bb3d7b
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|461199028|8060799006|19110799003|440099028|3412199025|1710799026;
-X-Microsoft-Antispam-Message-Info:
-	6UllsjvSSIsN8/WDapz9qMl7r2kBYS6uDRnfllxVO+j6CdFTg19N8ZHULkXYDH3LjG/EhjR97us21ClLCYg4+z7+QQrjO7zqDAArmFvbJoVkRo/4VrLvlBVoe+ETtZh6l9FVh37K0RcA/uMXIByIK4gwD3ZwngIAYpEkDRyZF10JBcqMPnWDj2ByPnBIpz186cezLy/f6ch00Cap6duLENOUTG+GwPLShYjP/W2DkiuQg5ghEJJaHEwwhHz19Pd+vvpxEVFP6QgbgUfxpC1F5oaH1wqkz1ijR8zRL3qQ+cER86B4uE1JRrGF3f7zRMKCb5zhBwc8E0py+O4MB2PoNo9UzWS354vPoE+Di7IfHsrIZE1AYRUjV3tBIhRWkE66nwhPsrJVGaH+uBTh7CSjmWxBMJ3l78ffr0qcmabsxbWbqFwa3BHUu3Y9HMp132BNAtTQ02WNh3CNmzSRH8/cVacrf6WvNHdcJ941i7PWt4FaOtN0VznGe9DtCtgTdaYJ7rN6n1JCaPUW+RmZmKhDX8cbbPVMv7VDrssBOEXsqRfajC/x585kWLRPVRKww6kbp3AKGw0aHgQmd6M1TS/6NJQlJOBA8Qv5PwUqO78g6BPe/frLWbuXEJgF+3o8o3fDOIpjjTSJVGH6lVTmOrxSVd9egGrUq5e3QU1zf62amVXYViPX9906EUxM30BSjMgL
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?euqBBuYain5aIP2usZS7QBbozl8wCBeqW5xZNpof9D2AoJYAv5QJFyIc/EEE?=
- =?us-ascii?Q?ucal/FHSKJ8Ux6VYSWW9vgFw0nse2GyjvSDlHMlvhfrEZQBvCn83ueaLLrh7?=
- =?us-ascii?Q?qOyet42XaeJU6SKqeI0eLSPMZRhxSUdk3gzqglc/wpXm2GgJfm1AHVlwUo+p?=
- =?us-ascii?Q?Kyhxqr2wxQ5ex3GPlvOqKpe6J2DCOz3Gc0UHxy+K/cC87Vs1McwVddQ1yQol?=
- =?us-ascii?Q?AMFN8Oxhxu6+Be3pDpUp/vKG8SfweHaKVT6gnbOmZwz8xsKZR9J/TVbAjzHh?=
- =?us-ascii?Q?JoHN6aJIITTkhiPWAu17XFa9dWqyRcSebJhMiZWuGMobfT6ex1osfRQtZ6Va?=
- =?us-ascii?Q?Hlwa8sT+d04zgVYL+hybrOlizYprhoScGXWon0TX6dRdz1iWWgK5UicDoW6P?=
- =?us-ascii?Q?YiHoU3izvhPn8qkHAJbHMTDS/7gCrmIEXkPiQkfgJG9RAH1Q2vA8JIB1Vj6Z?=
- =?us-ascii?Q?C+heTJ9NRF/l5qEFLtGr8ydHp4xAM99xWk0wbUz7AN+7bcjmyzhT689Le3cj?=
- =?us-ascii?Q?D1w+njzzBjLuAshHA2XHI9c+behv3aUzLo0UdY+YK0yI/y7pIBb3w/1worwP?=
- =?us-ascii?Q?76GNgBsnOrqAvj5qcSKk/Z8U3cMA9lBiQSDB+7KaISDEcVy2cuxxbcrYYwz6?=
- =?us-ascii?Q?WsmQksTOWK5wTEL3TFQRjELtT/GamhitLtyw9cXMZiDF+Wwq1ucwl4X8TlRH?=
- =?us-ascii?Q?xKDy/5rOj/6WmGkXTHpvTBGawKG57hM1gga58ujZMwfnGzbwAIuBTwzumHSQ?=
- =?us-ascii?Q?RvXyckneRvy0hot9lHY+jGuDicLAtqbugPstdNJt730irGQfdcC6GUukXXAk?=
- =?us-ascii?Q?UrLyP++SgmFWiI+q+buTMRSVDKB4utXG5ko51zt4IeNl9d4hdJnhE+6qmIfY?=
- =?us-ascii?Q?dJ+EZy76hqCmUu6aDhd9bcR+Vd1wK/fGBNUo1BBWW0gnC5ENA6cnWLImwUV0?=
- =?us-ascii?Q?G4Mq4sBiIE5hK/xSD5gnRhzEnezb1HOVA4NHwDR6PguixMJCnoobKptxQeeC?=
- =?us-ascii?Q?erHM8OunmNky3gbAjGZvlV+Ixd+sJLN0AdeenmCAaOrGNt4NIUsVk7Ujxnon?=
- =?us-ascii?Q?Tl105euVHNsw+uLhfl4Q4nQJ0zSX10CfoCEScDg5XuVtkzRPf6Awwn6ei5kS?=
- =?us-ascii?Q?qpreqIo/xyVb9/cwNjUSPwDRKjO3mADUQOj2CO2oJy0iSOcNch5sIEG24LKf?=
- =?us-ascii?Q?iH/po9iejyKVMFAkKdiy1Tu2JUHijscAVGWX1t8FYLj9QzKNWUZUu6xpueX8?=
- =?us-ascii?Q?W5xaNTnGOTQX6GflTXi0?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2448f90f-57ee-4c70-fd63-08dca4bb3d7b
-X-MS-Exchange-CrossTenant-AuthSource: VI1P194MB2166.EURP194.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2024 10:45:29.5369
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4P194MB1135
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240714033803-mutt-send-email-mst@kernel.org>
 
-Hi Stefano,
+Hello Michael,
 
-Thanks for your review!
+On Sun, Jul 14, 2024 at 03:38:42AM -0400, Michael S. Tsirkin wrote:
+> On Fri, Jul 12, 2024 at 04:53:25AM -0700, Breno Leitao wrote:
+> > After the commit bdacf3e34945 ("net: Use nested-BH locking for
+> > napi_alloc_cache.") was merged, the following warning began to appear:
+> > 
+> > 	 WARNING: CPU: 5 PID: 1 at net/core/skbuff.c:1451 napi_skb_cache_put+0x82/0x4b0
+> > 
+> > 	  __warn+0x12f/0x340
+> > 	  napi_skb_cache_put+0x82/0x4b0
+> > 	  napi_skb_cache_put+0x82/0x4b0
+> > 	  report_bug+0x165/0x370
+> > 	  handle_bug+0x3d/0x80
+> > 	  exc_invalid_op+0x1a/0x50
+> > 	  asm_exc_invalid_op+0x1a/0x20
+> > 	  __free_old_xmit+0x1c8/0x510
+> > 	  napi_skb_cache_put+0x82/0x4b0
+> > 	  __free_old_xmit+0x1c8/0x510
+> > 	  __free_old_xmit+0x1c8/0x510
+> > 	  __pfx___free_old_xmit+0x10/0x10
+> > 
+> > The issue arises because virtio is assuming it's running in NAPI context
+> > even when it's not, such as in the netpoll case.
+> > 
+> > To resolve this, modify virtnet_poll_tx() to only set NAPI when budget
+> > is available. Same for virtnet_poll_cleantx(), which always assumed that
+> > it was in a NAPI context.
+> > 
+> > Fixes: df133f3f9625 ("virtio_net: bulk free tx skbs")
+> > Suggested-by: Jakub Kicinski <kuba@kernel.org>
+> > Signed-off-by: Breno Leitao <leitao@debian.org>
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> though I'm not sure I understand the connection with bdacf3e34945.
 
-> On Thu, Jul 11, 2024 at 04:58:47PM GMT, Luigi Leonardi via B4 Relay wrote:
-> >From: Luigi Leonardi <luigi.leonardi@outlook.com>
-> >
-> >Introduce an optimization in virtio_transport_send_pkt:
-> >when the work queue (send_pkt_queue) is empty the packet is
->
-> Note: send_pkt_queue is just a queue of sk_buff, is not really a work
-> queue.
->
-> >put directly in the virtqueue increasing the throughput.
->
-> Why?
-My guess is that is due to the hotpath being faster, there is (potentially) one less
-step!
->
-> I tested the patch and everything seems to be fine, all my comments are
-> minor and style, the code should be fine!
-Great, I'll send a v4 addressing all your comments :)
-
-Thanks,
-Luigi
+The warning above appeared after bdacf3e34945 landed.
