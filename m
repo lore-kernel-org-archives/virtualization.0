@@ -1,78 +1,78 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E00811CA80
-	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:17:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1453110A11
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:29:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721107043; cv=none; b=SZI3c8QJv0F37Xt9mTlE38qdIlRtWaPNWqDXkpHBEcn9Slreu7Q6kUwribEHwu7KvqIY9okstalMR6LmlwwZrtnX0xwl0mU1YxyOhx5jaF7UD5v4ggEUVlOtozpRxbN9NMiu65OWU/jjaMkneS9YSYutYvfPW8IxWfPbBJkj680=
+	t=1721107743; cv=none; b=PCCsLNl4qBg50D4R81QIj35BAGI4NAM3AYOSEiCbWrNO/IBSTz2hGeg08S/itSy5aqpgTNvs3grqsJ6K/HkJ9T29CxYyhoc71zVUwSR/k5+O82LGTJjxxQkQJ/U739C9Gpnjng4cyuWY3yt5Nn4MNb4Py5buiyEqxYAU0zDQASk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721107043; c=relaxed/simple;
-	bh=Ei8Zh+WUYz9gyI6jvfia3vMDKTzpVSDcVJwlBtwjSN0=;
+	s=arc-20240116; t=1721107743; c=relaxed/simple;
+	bh=MXVC+nb+mFTLSbcgUCk86uGQXs06nd5Go8mt3o5mB8c=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gkm6mSPbdteNsoXqL3tulycLPiRW8axKIliaxrBTi4bWBBlSX8MvErlzxQe2CAwAUaHWrRPJ2Q92+c5KLpn1vCuWuUJp8p9VRC5/ict1cFId2jOBmtlZd5y1iLsu+l/xkAU3lItERoy2X1JPEUeZmJxUBAS1gzQ+TsmpSlYy+Is=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WCpwQ2ei; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=XF7oOojg8SgP0V0eVPvAlmvKvzyRPAcGXfmUQr4JvKfyLGp7nOG1kJRTR/az1HGDsn1TMtTThbr8MSKgnnNS0MNjPrHTEf8b6N8Emh/g563VmsVb0Tto7q8dcr0E5MXC0i3frBs3nm5pX4hcwiib6kDwqB32ZXrGYcB2JNOHmIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bA0VnssW; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WCpwQ2ei"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bA0VnssW"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8099B810B6
-	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:17:21 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 99E04402BC
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:29:01 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id N_sRwXeI8IqU for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Jul 2024 05:17:20 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id jrHqnD0TFPT2 for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Jul 2024 05:29:00 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7544E810A6
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7544E810A6
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WCpwQ2ei
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 304AE40010
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 304AE40010
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bA0VnssW
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7544E810A6
-	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:17:19 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 304AE40010
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721107037;
+	s=mimecast20190719; t=1721107738;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iV35LYaNNEGWx8EBWfuJaXV5qmmqt8q3YPSyBVDLw84=;
-	b=WCpwQ2ei2CgPgeATdYARUnWY2jdRAWR+rFBJDonlhygl3ctA8Z2m4cuahNIuLi7I0BYNHZ
-	6Z5QS7neyXJJqy7TXA6gXZGZ2MN/YVAy4ZO1pUj/6/IxaJM0O5xeG9cZcIUc49n5MBR1Vl
-	aUhCcfCF3OTwo6zQq3Lhv86hV4AYKUQ=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=gsIOpb9KWrrSWH+khCy+irTM/PEKQIZUWtlNy0wC+B4=;
+	b=bA0VnssWjItSPhM1OdSZEsXCI54QQ6OCtmiL2iVWZ9FwYfdkH5gOgYfVPalADC6rqwHkEb
+	C0e8bq3njy5qhjTFGrhF9YGMlTdK/4Yu1VXRq78OHzehQraIw0MNKRkmCUf/blFE/VN44p
+	CE/pdDObbz27alA+9nHds1aOb56a0yI=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-389-qE_6cjIxNlO3AIN0AKLonQ-1; Tue, 16 Jul 2024 01:17:13 -0400
-X-MC-Unique: qE_6cjIxNlO3AIN0AKLonQ-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2c99c1075c9so4304972a91.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 22:17:12 -0700 (PDT)
+ us-mta-593-q95wfjbmMQedUP1Da8x2ZA-1; Tue, 16 Jul 2024 01:28:57 -0400
+X-MC-Unique: q95wfjbmMQedUP1Da8x2ZA-1
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-75decd57647so4633665a12.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 22:28:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721107032; x=1721711832;
+        d=1e100.net; s=20230601; t=1721107735; x=1721712535;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iV35LYaNNEGWx8EBWfuJaXV5qmmqt8q3YPSyBVDLw84=;
-        b=vXHYeTNG9gQJx29PZm2Pps63WhE+a0EG9Np2Z8XWu6CzN2ldqozVUeCW1FHWkqKkL8
-         MILqqxdaW8Dg9e58Y8fK8JvG/9pLK0hHv8t4YHNS5T/pBNn2qldsSvQMeY8qdPEL2A/i
-         Rd2X1s3b8eUdbb+fII2sbe5oNxp4zCLGvhLLXYl5VahXoJJcXcLg61SAvx8P14oZ28Hn
-         /4tPA52y/haM1Dcoe5vqPzdzbmTynFvvsUPMswGYT5pE4h9QZTPdp+rs8xQWT2ewH8Zp
-         73fJtlfOZvMW8qGIKrk1QAhfniV+ILfFLLFLqN5xMh2EIgOo7oIr4O1bLOf4f+xSJppD
-         bgKw==
-X-Gm-Message-State: AOJu0YzrF+74d9ccUEXmQ2IKhbntVmsBuYVWWvXtUMxhws4o4RZ2w1rn
-	DIQYq1LDRa9vVD7Msik/XIhm+T240b4i2hG7D1LYzP+3XPPdJocGE+KXU78p+1hkRZDzk1AL3yV
-	ukD/+qumKeChSKotkgZWtWeLxPUWDNzATmvZFR488yAVuigVB276Xx2QMH6+B30DoAU6ixJ82IH
-	fISA3IuLLZl3CqQMetCSreJzd7zHupa2nn4iWfz89qIiNpIfpZ6Tdx7g==
-X-Received: by 2002:a17:90a:bb07:b0:2c8:f3b4:425 with SMTP id 98e67ed59e1d1-2cb3740ee4emr790011a91.23.1721107031940;
-        Mon, 15 Jul 2024 22:17:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE9ANQt5ows3QOa5bdpVKACuf5yOTcvmdotzZ6xqk3YrNrhe/6vFwXEh88rK+S5GL0Jwr+RG+N864dnR4xWlNg=
-X-Received: by 2002:a17:90a:bb07:b0:2c8:f3b4:425 with SMTP id
- 98e67ed59e1d1-2cb3740ee4emr790002a91.23.1721107031501; Mon, 15 Jul 2024
- 22:17:11 -0700 (PDT)
+        bh=gsIOpb9KWrrSWH+khCy+irTM/PEKQIZUWtlNy0wC+B4=;
+        b=O1zAnwr4fFcXP84veux0sC/E4TI+zKZyiCK93qhIgDWc0W+MyemUgTksz7G/w1nd99
+         qsHkHXoMEgRJSPpTJU5RQNEXXtEAgM/y0Um7eTbmzS5aPQC8XAq5pBLqoGUmZgMueE65
+         JmXytDiwMGG9RsY9nLZ4wocVr9sFRdOP3KXOK3/9mCBoA7OQ6uN9cjaFG9BcJUSckYMC
+         f7YKf28XXqgvULYR5UOB0jKY/htHZ7dYbp70Fzz3I8lE0Ct4ZLdzJWjYsq7Pa2xgxrTz
+         f2C1uEJImg6scfhzkuq+DVWbhGK5jW3i7eqn5h0RU4OtMQxuFAd2efCCcrez6/3LWwuY
+         L5/w==
+X-Gm-Message-State: AOJu0YyEhw9vqOBkmwNHPtpxYSN9QBqa8pSfhxpEKzAbe5jqdBt/+HSK
+	km4rkYRWS75JJUWWKs/wG6pvOWW9q13F/VMslLUU3Wm+i1XrM0pb9oOQUlVpIa1vXDy3Ct3Ks+2
+	g3dBHW12qQbTS/RoZRDkCnubHF7K/HgqsPAaKxRG/r4k4vMDCzzcenLUtMBdCH2KoPSHPKjxcb/
+	ZwSCTwq9ItgFtbQALzorr1ozc9K6SkKILrpy/BjbiNWTh1WsGYP9tbAg==
+X-Received: by 2002:a05:6a20:3946:b0:1c3:7405:80d0 with SMTP id adf61e73a8af0-1c3f1211cfdmr1304607637.18.1721107735510;
+        Mon, 15 Jul 2024 22:28:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHw0k4wnJZ6JiyMBimDNiLpa7AGdMM0EuO2N/PMl66auR/7kGFYq4Rv8muHy8OJ4V1I5y5HjebZFkoXdDsb9P8=
+X-Received: by 2002:a05:6a20:3946:b0:1c3:7405:80d0 with SMTP id
+ adf61e73a8af0-1c3f1211cfdmr1304572637.18.1721107734712; Mon, 15 Jul 2024
+ 22:28:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,13 +80,13 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com>
- <1720790333-456232-4-git-send-email-steven.sistare@oracle.com>
- <CACGkMEu0sNx=saZOaVRbuV7Gz7+_GD-v42i+Bdk-NCp6syABbw@mail.gmail.com> <acfccf72-2883-407d-977a-9c2566cf8cb3@oracle.com>
-In-Reply-To: <acfccf72-2883-407d-977a-9c2566cf8cb3@oracle.com>
+ <1720790333-456232-6-git-send-email-steven.sistare@oracle.com>
+ <CACGkMEurG88fXiThyainxbuzpgBUzzGkmvyQB5vuXsU7_6XBBw@mail.gmail.com> <d738a0e2-5a17-4323-9c86-b5a806066292@oracle.com>
+In-Reply-To: <d738a0e2-5a17-4323-9c86-b5a806066292@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 16 Jul 2024 13:16:59 +0800
-Message-ID: <CACGkMEtL7Fkj+srq+beK8UBZ5QDowpz+hT2HZ8RZR00UsRJcVA@mail.gmail.com>
-Subject: Re: [PATCH V2 3/7] vhost-vdpa: VHOST_NEW_OWNER
+Date: Tue, 16 Jul 2024 13:28:43 +0800
+Message-ID: <CACGkMEuj-6EcEPo9xKkmuPSaQPQnH6zG+j2cqLRiScWUB4oqXw@mail.gmail.com>
+Subject: Re: [PATCH V2 5/7] vhost-vdpa: VHOST_IOTLB_REMAP
 To: Steven Sistare <steven.sistare@oracle.com>
 Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
 	"Michael S. Tsirkin" <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
@@ -97,152 +97,205 @@ X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 15, 2024 at 10:27=E2=80=AFPM Steven Sistare
+On Mon, Jul 15, 2024 at 10:28=E2=80=AFPM Steven Sistare
 <steven.sistare@oracle.com> wrote:
 >
-> On 7/14/2024 10:26 PM, Jason Wang wrote:
+> On 7/14/2024 10:34 PM, Jason Wang wrote:
 > > On Fri, Jul 12, 2024 at 9:19=E2=80=AFPM Steve Sistare <steven.sistare@o=
 racle.com> wrote:
 > >>
-> >> Add an ioctl to transfer file descriptor ownership and pinned memory
-> >> accounting from one process to another.
+> >> When device ownership is passed to a new process via VHOST_NEW_OWNER,
+> >> some devices need to know the new userland addresses of the dma mappin=
+gs.
+> >> Define the new iotlb message type VHOST_IOTLB_REMAP to update the uadd=
+r
+> >> of a mapping.  The new uaddr must address the same memory object as
+> >> originally mapped.
 > >>
-> >> This is more efficient than VHOST_RESET_OWNER followed by VHOST_SET_OW=
-NER,
-> >> as that would unpin all physical pages, requiring them to be repinned =
-in
-> >> the new process.  That would cost multiple seconds for large memories,=
- and
-> >> be incurred during a virtual machine's pause time during live update.
+> >> The user must suspend the device before the old address is invalidated=
+,
+> >> and cannot resume it until after VHOST_IOTLB_REMAP is called, but this
+> >> requirement is not enforced by the API.
 > >>
 > >> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
 > >> ---
-> >>   drivers/vhost/vdpa.c       | 41 ++++++++++++++++++++++++++++++++++++=
+> >>   drivers/vhost/vdpa.c             | 58 ++++++++++++++++++++++++++++++=
 ++
-> >>   drivers/vhost/vhost.c      | 15 ++++++++++++++
-> >>   drivers/vhost/vhost.h      |  1 +
-> >>   include/uapi/linux/vhost.h | 10 ++++++++++
-> >>   4 files changed, 67 insertions(+)
+> >>   include/uapi/linux/vhost_types.h | 11 +++++-
+> >>   2 files changed, 68 insertions(+), 1 deletion(-)
 > >>
 > >> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> >> index b49e5831b3f0..5cf55ca4ec02 100644
+> >> index 4396fe1a90c4..51f71c45c4a9 100644
 > >> --- a/drivers/vhost/vdpa.c
 > >> +++ b/drivers/vhost/vdpa.c
-> >> @@ -632,6 +632,44 @@ static long vhost_vdpa_resume(struct vhost_vdpa *=
-v)
-> >>          return ret;
+> >> @@ -1257,6 +1257,61 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa =
+*v,
+> >>
 > >>   }
 > >>
-> >> +static long vhost_vdpa_new_owner(struct vhost_vdpa *v)
+> >> +static int vhost_vdpa_process_iotlb_remap(struct vhost_vdpa *v,
+> >> +                                         struct vhost_iotlb *iotlb,
+> >> +                                         struct vhost_iotlb_msg *msg)
 > >> +{
-> >> +       int r;
-> >> +       struct vhost_dev *vdev =3D &v->vdev;
-> >> +       struct mm_struct *mm_old =3D vdev->mm;
-> >> +       struct mm_struct *mm_new =3D current->mm;
-> >> +       long pinned_vm =3D v->pinned_vm;
-> >> +       unsigned long lock_limit =3D PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
+> >> +       struct vdpa_device *vdpa =3D v->vdpa;
+> >> +       const struct vdpa_config_ops *ops =3D vdpa->config;
+> >> +       u32 asid =3D iotlb_to_asid(iotlb);
+> >> +       u64 start =3D msg->iova;
+> >> +       u64 last =3D start + msg->size - 1;
+> >> +       struct vhost_iotlb_map *map;
+> >> +       int r =3D 0;
 > >> +
-> >> +       if (!mm_old)
+> >> +       if (msg->perm || !msg->size)
 > >> +               return -EINVAL;
-> >> +       mmgrab(mm_old);
 > >> +
-> >> +       if (!v->vdpa->use_va &&
-> >> +           pinned_vm + atomic64_read(&mm_new->pinned_vm) > lock_limit=
-) {
-> >> +               r =3D -ENOMEM;
-> >> +               goto out;
-> >> +       }
+> >> +       map =3D vhost_iotlb_itree_first(iotlb, start, last);
+> >> +       if (!map)
+> >> +               return -ENOENT;
+> >> +
+> >> +       if (map->start !=3D start || map->last !=3D last)
+> >> +               return -EINVAL;
 > >
-> > So this seems to allow an arbitrary process to execute this. Seems to b=
-e unsafe.
+> > I had a question here, if a buggy user space that:
 > >
-> > I wonder if we need to add some checks here, maybe PID or other stuff
-> > to only allow the owner process to do this.
+> > 1) forget to update some of the mappings
+> > 2) address is wrong
+> > 3) other cases.
+> >
+> > Does this mean the device can DMA to the previous owner?
 >
-> The original owner must send the file descriptor to the new owner.
+> Yes, but only to the mappings which were already pinned for DMA for this
+> device, and the old owner is giving the new owner permission to DMA to th=
+at
+> memory even without bugs.
+>
+> > If yes, does
+> > this have security implications?
+>
+> No.  The previous owner has given the new owner permission to take over. =
+ They
+> trust each other completely. In the live update case, they are the same; =
+the new
+> owner is the old owner reincarnated.
 
-This seems not to be in the steps you put in the cover letter.
+I understand the processes may trust each other but I meant the kernel
+may not trust those processes.
 
-> That constitutes permission to take ownership.
+For example:
 
-This seems like a relaxed version of the reset_owner:
+1) old owner pass fd to new owner which is another process
+2) the new owner do VHOST_NEW_OWNER
+3) new owner doesn't do remap correctly
 
-Currently, reset_owner have the following check:
-
-/* Caller should have device mutex */
-long vhost_dev_check_owner(struct vhost_dev *dev)
-{
-        /* Are you the owner? If not, I don't think you mean to do that */
-        return dev->mm =3D=3D current->mm ? 0 : -EPERM;
-}
-EXPORT_SYMBOL_GPL(vhost_dev_check_owner);
-
-It means even if the fd is passed to some other process, the reset
-owner won't work there.
+There's no way for the old owner to remove/unpin the mappings as we
+have the owner check in IOTLB_UPDATE. Looks like a potential way for
+DOS.
 
 Thanks
 
 >
-> >> +       r =3D vhost_vdpa_bind_mm(v, mm_new);
-> >> +       if (r)
-> >> +               goto out;
+> - Steve
+>
 > >> +
-> >> +       r =3D vhost_dev_new_owner(vdev);
-> >> +       if (r) {
-> >> +               vhost_vdpa_bind_mm(v, mm_old);
-> >> +               goto out;
-> >> +       }
+> >> +       /*
+> >> +        * The current implementation does not support the platform io=
+mmu
+> >> +        * with use_va.  And if !use_va, remap is not necessary.
+> >> +        */
+> >> +       if (!ops->set_map && !ops->dma_map)
+> >> +               return -EINVAL;
 > >> +
-> >> +       if (!v->vdpa->use_va) {
-> >> +               atomic64_sub(pinned_vm, &mm_old->pinned_vm);
-> >> +               atomic64_add(pinned_vm, &mm_new->pinned_vm);
-> >> +       }
+> >> +       /*
+> >> +        * The current implementation supports set_map but not dma_map=
+.
+> >> +        */
+> >> +       if (!ops->set_map)
+> >> +               return -EINVAL;
 > >> +
-> >> +out:
-> >> +       mmdrop(mm_old);
+> >> +       /*
+> >> +        * Do not verify that the new size@uaddr points to the same ph=
+ysical
+> >> +        * pages as the old size@uaddr, because that would take time O=
+(npages),
+> >> +        * and would increase guest down time during live update.  If =
+the app
+> >> +        * is buggy and they differ, then the app may corrupt its own =
+memory,
+> >> +        * but no one else's.
+> >> +        */
+> >> +
+> >> +       /*
+> >> +        * Batch will finish later in BATCH_END by calling set_map for=
+ the new
+> >> +        * addresses collected here.  Non-batch must do it now.
+> >> +        */
+> >> +       if (!v->in_batch)
+> >> +               r =3D ops->set_map(vdpa, asid, iotlb);
+> >> +       if (!r)
+> >> +               map->addr =3D msg->uaddr;
+> >> +
 > >> +       return r;
 > >> +}
 > >> +
-> >>   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned in=
-t cmd,
-> >>                                     void __user *argp)
-> >>   {
-> >> @@ -876,6 +914,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file =
-*filep,
-> >>          case VHOST_VDPA_RESUME:
-> >>                  r =3D vhost_vdpa_resume(v);
+> >>   static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
+> >>                                             struct vhost_iotlb *iotlb,
+> >>                                             struct vhost_iotlb_msg *ms=
+g)
+> >> @@ -1336,6 +1391,9 @@ static int vhost_vdpa_process_iotlb_msg(struct v=
+host_dev *dev, u32 asid,
+> >>                          ops->set_map(vdpa, asid, iotlb);
+> >>                  v->in_batch =3D false;
 > >>                  break;
-> >> +       case VHOST_NEW_OWNER:
-> >> +               r =3D vhost_vdpa_new_owner(v);
+> >> +       case VHOST_IOTLB_REMAP:
+> >> +               r =3D vhost_vdpa_process_iotlb_remap(v, iotlb, msg);
 > >> +               break;
 > >>          default:
-> >>                  r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
-> >>                  if (r =3D=3D -ENOIOCTLCMD)
-> >> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> >> index b60955682474..ab40ae50552f 100644
-> >> --- a/drivers/vhost/vhost.c
-> >> +++ b/drivers/vhost/vhost.c
-> >> @@ -963,6 +963,21 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
-> >>   }
-> >>   EXPORT_SYMBOL_GPL(vhost_dev_set_owner);
-> >>
-> >> +/* Caller should have device mutex */
-> >> +long vhost_dev_new_owner(struct vhost_dev *dev)
-> >> +{
-> >> +       if (dev->mm =3D=3D current->mm)
-> >> +               return -EBUSY;
+> >>                  r =3D -EINVAL;
+> >>                  break;
+> >> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vho=
+st_types.h
+> >> index 9177843951e9..35908315ff55 100644
+> >> --- a/include/uapi/linux/vhost_types.h
+> >> +++ b/include/uapi/linux/vhost_types.h
+> >> @@ -79,7 +79,7 @@ struct vhost_iotlb_msg {
+> >>   /*
+> >>    * VHOST_IOTLB_BATCH_BEGIN and VHOST_IOTLB_BATCH_END allow modifying
+> >>    * multiple mappings in one go: beginning with
+> >> - * VHOST_IOTLB_BATCH_BEGIN, followed by any number of
+> >> + * VHOST_IOTLB_BATCH_BEGIN, followed by any number of VHOST_IOTLB_REM=
+AP or
+> >>    * VHOST_IOTLB_UPDATE messages, and ending with VHOST_IOTLB_BATCH_EN=
+D.
+> >>    * When one of these two values is used as the message type, the res=
+t
+> >>    * of the fields in the message are ignored. There's no guarantee th=
+at
+> >> @@ -87,6 +87,15 @@ struct vhost_iotlb_msg {
+> >>    */
+> >>   #define VHOST_IOTLB_BATCH_BEGIN    5
+> >>   #define VHOST_IOTLB_BATCH_END      6
 > >> +
-> >> +       if (!vhost_dev_has_owner(dev))
-> >> +               return -EINVAL;
-> >> +
-> >> +       vhost_detach_mm(dev);
-> >> +       vhost_attach_mm(dev);
+> >> +/*
+> >> + * VHOST_IOTLB_REMAP registers a new uaddr for the existing mapping a=
+t iova.
+> >> + * The new uaddr must address the same memory object as originally ma=
+pped.
+> >> + * Failure to do so will result in user memory corruption and/or devi=
+ce
+> >> + * misbehavior.  iova and size must match the arguments used to creat=
+e the
+> >> + * an existing mapping.  Protection is not changed, and perm must be =
+0.
+> >> + */
+> >> +#define VHOST_IOTLB_REMAP          7
+> >>          __u8 type;
+> >>   };
 > >
-> > This seems to do nothing unless I miss something.
->
-> vhost_detach mm drops dev->mm.
-> vhost_attach_mm grabs current->mm.
->
-> - Steve
+> > Thanks
+> >
+> >>
+> >> --
+> >> 2.39.3
+> >>
+> >
 >
 
