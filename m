@@ -1,57 +1,57 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68A8715491
-	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 11:36:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF16F15491
+	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 11:36:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721129779; cv=none; b=gWfYHyMCLVwCTuMBDRjR8yEzlufCbdsRfiB7pGDKx10GB/AhQ7iwTxFv5R3dy1Hfetsl61VSzdUnBGYc2jaCFgzpURcEF+K7qq0aeiojqKbUkRRCIc7RC+xM/0RVG4jUoHSblQ4NxPu0E6ytaWfThSnvLN2b+RZr0HkoBgAdRi8=
+	t=1721129782; cv=none; b=IlgAAQkrQdkk7Og65IrtRAMllUWrfexqNy7ldXl1akkmoZZTM+D2Q5fA3AAerbzUwzLZaIQ/zxh79i2NQveNkGNFDQJtcxtvsDQODEBUJi08CV0gFfgEFFpZV0w52tYKYS9nUGHd0hI0woi/kYZrovwmgo+TxQHJozlJ7xsdaDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721129779; c=relaxed/simple;
-	bh=l9UwLBhildOoBuY5KRYqc2BDA/EDGR/7i1OHOPuYDFI=;
+	s=arc-20240116; t=1721129782; c=relaxed/simple;
+	bh=nteVyXjgfpS4fSC8Dpr+1qY1lavd9fMKprQgm5QLxVY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hdG5unYzL1GIGS3Or1W2N3DV5cdub+01pxt9PAMkPc8aIOqIyoehvXjHY9pkZzrJNhpRx43BMREh9qn2mlpJeER3YEJ6+dJ/vRb8HyJZeiE5/52H70awl02OaGwreaL9mTBPgo3llqRIzsacbfQAv6vozEA9UcbQriTH8Ip7EJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=XrVKbLxf; arc=none smtp.client-ip=209.85.221.52
+	 MIME-Version; b=bYPw8olZrVQf70c6asRGx2+Hlzac5RFWLeKbdc2l3aegIuJp9vBbg8sV62B0cjzFWXBuYa80MMKCDwmvVX/kdCW623fQdm6RadoMjpHFlFq42O5KNKpN//DpQRO/YmihCpbfgZiqVSKGCxqxyrYvj8F57NQJUixm5QCZlGgGKNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=ZreiECqk; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="XrVKbLxf"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-3679f806223so3755376f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 04:36:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="ZreiECqk"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-427b9dcbb09so5313235e9.3
+        for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 04:36:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1721129776; x=1721734576; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1721129779; x=1721734579; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=E4NKa7Gl943UHlo1VjLtOfPEs+ZBMkPhsfnci4A3iK4=;
-        b=XrVKbLxfr6IsVkvGU9Wk6AaWQkS/zY3RWDjqzYxx3bOHekigsjNWX5u+szEadRMgSl
-         0hijAxc80BkEy7soX2PlJESwEe6SDam5aZ3UnKueCdTn2a7W4bBgiUAuw+Q6SujDfMQD
-         5X0Mh3YkiVBaHiBRbGHpDmeP79aA1RvpBO9bU3k3AZ3geweWGbp3tw1BFVBtS1N87Eaz
-         vCpsxwddYtMNm0/u7SWvkAVMng7lntHodefK/4+ps7uueVjL2SQUWggVT/zWSlO5c4Es
-         Kj4TSsTJCXVC/lEMd6IwPP+KuBs/7JP0ulN3n/nqtc45a2LuoM8YdpSUDljtSBN86Ce9
-         gXoQ==
+        bh=jbu9oMg7pQfBqvpQVyX/tLEKFDsAREKU93l2yotCovU=;
+        b=ZreiECqkXRuiU6rJ3s+gZDSQAbJzDbv7i3ChVQWl48KbFwL+m/L2SVEiFM4TSGsdYW
+         5b2RaWwqRWVOH2AhYY4EDpSPpnazqQ9kMGwdZYefCfJBt8JWtpZ0aEfWmWnhtMZvsc5P
+         lD4DZoGbtwIU3yCbmzTE/qycUJuyZFSHl7sRAvidNO7Du94FdeEX6S3LZXYOAzkDoH0X
+         o8iYAxYVKhsP0aRFX3cSh5dU7fqsCnoY2E7P7Dhv2OBzAwTb3xKcYoUL5aemFKGAhO/D
+         vwSZyMIxv5G+Oycynwf72wak6e/biPmaZ+Wt+TpzrnISUc2ytpzqgfiOADy+iHiN+egR
+         T5TA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721129776; x=1721734576;
+        d=1e100.net; s=20230601; t=1721129779; x=1721734579;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=E4NKa7Gl943UHlo1VjLtOfPEs+ZBMkPhsfnci4A3iK4=;
-        b=aEFPsmqrnCUaeEzQRlD2F8cpRiV10umznx4t5Lc1sDXy9F+KnYbCQtSV+V8gspNIGg
-         jWyry/orvTp2lSCrmYCQFFKhe22BAh0EaIDht6OVaJc75ISL7cwkHEWjVgDRI1JnEzFl
-         8Ioq+NWrt6FMKAfu6gjKnT4jMV7yqRR84ZgaIBDMvCJr9/7bvlUEq7fjfqLsTgwh44bS
-         uwSYevCp9iyIydIcAH6JKPwR15tOqBM3utouYUOpQf4GUTYsAGRYjPcVwZpPTT8dlR3k
-         DqJJccrX7CLd8sGYU5tZwilHl0fyv1uUjMfCueXzr19jkr5MEJ8k4P8vWDx2HCgjTUYS
-         MJCg==
-X-Gm-Message-State: AOJu0Yy2jjM3QU6mLE8f89HPrbctohxPrtl1eftYxUxLvNLrGNn8b1iS
-	nBLmtLBYI0nNkErfKTU/QWqjHKA0nnmL/30dAPc3zzO6UFpibTV2k4cN0P89hIokPW8ThuU8Aqr
-	WXF4=
-X-Google-Smtp-Source: AGHT+IFrOlk1feHGxpmH0KNgl4wTBD3CPL/93OXhROKGajaBZADXOUOhVeBjXl7HTDDqB6bvAY16/Q==
-X-Received: by 2002:a5d:56c4:0:b0:362:4679:b5a with SMTP id ffacd0b85a97d-3682742d229mr1062101f8f.16.1721129775734;
-        Tue, 16 Jul 2024 04:36:15 -0700 (PDT)
+        bh=jbu9oMg7pQfBqvpQVyX/tLEKFDsAREKU93l2yotCovU=;
+        b=SC4DZBUBjvzRXOz1FUDCzf3caoDAbLL6qZ1ZI7NuqbImhrT+vAUN9iALcYby9XSyDe
+         S0L212NSQWGPIzsb2zSqfL9L7vveN5B7GKqbmeiXCR8KQfb1AkQBG7tsb/RJVGzlIjwQ
+         YSJvyqTP5LNcyVMXN8EsbzOH5TtQXmp+wwdUYwjQOypBxTUrzfkd2lTASI2gJv+dIfBI
+         s2YchgpXp8de1ACRwJJ0EPm9YiblajxasYJ/bYFx7xo6th6AKJd9FHHb57VIIk/Wosc9
+         VUagPAqz53WSSg+53L4oU3KXg0+5NC0tNzOh+yAHNeib2VcoJoDVhm5AJrSzykPq6bJa
+         cAuw==
+X-Gm-Message-State: AOJu0Ywyyhql62xsrTBlZ7evTyUSCgFS5yjaGvGMIDZ/nLG/z33o91Gc
+	AEIOXINRuT6NxShwKqxfOt+rJRHH6UGM9wkWrJTBZFgBP4QujypUiraXefRZs9ngZ+bd1yGuIBp
+	tFKQ=
+X-Google-Smtp-Source: AGHT+IGbE5uhuXpmx/42xwXCcBBLPfc7UWredjGChtRL/NqRw4sHmUI5ZTMTXfWWX2ZvXY8kKASn9w==
+X-Received: by 2002:adf:e68e:0:b0:367:8876:68e1 with SMTP id ffacd0b85a97d-3682613a0dfmr1270797f8f.33.1721129779251;
+        Tue, 16 Jul 2024 04:36:19 -0700 (PDT)
 Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3680dabf151sm8758733f8f.29.2024.07.16.04.36.14
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3681c30a024sm4524730f8f.96.2024.07.16.04.36.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jul 2024 04:36:15 -0700 (PDT)
+        Tue, 16 Jul 2024 04:36:18 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -61,9 +61,9 @@ Cc: mst@redhat.com,
 	parav@nvidia.com,
 	feliu@nvidia.com,
 	hengqi@linux.alibaba.com
-Subject: [PATCH virtio v3 05/13] virtio_pci: introduce vector allocation fallback for slow path virtqueues
-Date: Tue, 16 Jul 2024 13:35:44 +0200
-Message-ID: <20240716113552.80599-6-jiri@resnulli.us>
+Subject: [PATCH virtio v3 06/13] virtio_pci_modern: treat vp_dev->admin_vq.info.vq pointer as static
+Date: Tue, 16 Jul 2024 13:35:45 +0200
+Message-ID: <20240716113552.80599-7-jiri@resnulli.us>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240716113552.80599-1-jiri@resnulli.us>
 References: <20240716113552.80599-1-jiri@resnulli.us>
@@ -77,199 +77,60 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-If there is not enough vectors to satisfy all virtqueues, currently
-the fallback is to use one vector for all virtqueues.
-
-That may be unnecessary in some cases, when there is enough vectors per
-data queues.
-
-Introduce another fallback policy that tries to allocate vector for all
-data queues, however for slow path queues (control/admin) it shares
-config vector.
+It is guaranteed by the virtio_pci and PCI layers that none of the VFs
+is probed before setup_vq() is called for admin queue and after del_vq()
+is called for admin queue. Therefore treat vp_dev->admin_vq.info.vq as
+static, don't null it and don't take cmd lock during assign.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
-v1->v2:
-- new patch
----
- drivers/virtio/virtio_pci_common.c | 53 ++++++++++++++++++++++++++----
- drivers/virtio/virtio_pci_common.h |  7 ++--
- 2 files changed, 51 insertions(+), 9 deletions(-)
+ drivers/virtio/virtio_pci_common.h |  2 +-
+ drivers/virtio/virtio_pci_modern.c | 11 +----------
+ 2 files changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 628f003db79b..cb8bbe6c1a9f 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -46,12 +46,26 @@ bool vp_notify(struct virtqueue *vq)
- 	return true;
- }
- 
-+/* Notify all slow path virtqueues on an interrupt. */
-+static void vp_vring_slow_path_interrupt(int irq,
-+					 struct virtio_pci_device *vp_dev)
-+{
-+	struct virtio_pci_vq_info *info;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&vp_dev->lock, flags);
-+	list_for_each_entry(info, &vp_dev->slow_virtqueues, node)
-+		vring_interrupt(irq, info->vq);
-+	spin_unlock_irqrestore(&vp_dev->lock, flags);
-+}
-+
- /* Handle a configuration change: Tell driver if it wants to know. */
- static irqreturn_t vp_config_changed(int irq, void *opaque)
- {
- 	struct virtio_pci_device *vp_dev = opaque;
- 
- 	virtio_config_changed(&vp_dev->vdev);
-+	vp_vring_slow_path_interrupt(irq, vp_dev);
- 	return IRQ_HANDLED;
- }
- 
-@@ -174,6 +188,11 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 	return err;
- }
- 
-+static bool vp_is_slow_path_vector(u16 msix_vec)
-+{
-+	return msix_vec == VP_MSIX_CONFIG_VECTOR;
-+}
-+
- static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned int index,
- 				     void (*callback)(struct virtqueue *vq),
- 				     const char *name,
-@@ -197,7 +216,10 @@ static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned int in
- 	info->vq = vq;
- 	if (callback) {
- 		spin_lock_irqsave(&vp_dev->lock, flags);
--		list_add(&info->node, &vp_dev->virtqueues);
-+		if (!vp_is_slow_path_vector(msix_vec))
-+			list_add(&info->node, &vp_dev->virtqueues);
-+		else
-+			list_add(&info->node, &vp_dev->slow_virtqueues);
- 		spin_unlock_irqrestore(&vp_dev->lock, flags);
- 	} else {
- 		INIT_LIST_HEAD(&info->node);
-@@ -245,7 +267,8 @@ void vp_del_vqs(struct virtio_device *vdev)
- 		if (vp_dev->per_vq_vectors) {
- 			int v = vp_dev->vqs[vq->index]->msix_vector;
- 
--			if (v != VIRTIO_MSI_NO_VECTOR) {
-+			if (v != VIRTIO_MSI_NO_VECTOR &&
-+			    !vp_is_slow_path_vector(v)) {
- 				int irq = pci_irq_vector(vp_dev->pci_dev, v);
- 
- 				irq_update_affinity_hint(irq, NULL);
-@@ -289,13 +312,14 @@ void vp_del_vqs(struct virtio_device *vdev)
- 
- enum vp_vq_vector_policy {
- 	VP_VQ_VECTOR_POLICY_EACH,
-+	VP_VQ_VECTOR_POLICY_SHARED_SLOW,
- 	VP_VQ_VECTOR_POLICY_SHARED,
- };
- 
- static struct virtqueue *
- vp_find_one_vq_msix(struct virtio_device *vdev, int queue_idx,
- 		    vq_callback_t *callback, const char *name, bool ctx,
--		    int *allocated_vectors,
-+		    bool slow_path, int *allocated_vectors,
- 		    enum vp_vq_vector_policy vector_policy)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-@@ -305,8 +329,13 @@ vp_find_one_vq_msix(struct virtio_device *vdev, int queue_idx,
- 
- 	if (!callback)
- 		msix_vec = VIRTIO_MSI_NO_VECTOR;
--	else if (vector_policy == VP_VQ_VECTOR_POLICY_EACH)
-+	else if (vector_policy == VP_VQ_VECTOR_POLICY_EACH ||
-+		 (vector_policy == VP_VQ_VECTOR_POLICY_SHARED_SLOW &&
-+		 !slow_path))
- 		msix_vec = (*allocated_vectors)++;
-+	else if (vector_policy != VP_VQ_VECTOR_POLICY_EACH &&
-+		 slow_path)
-+		msix_vec = VP_MSIX_CONFIG_VECTOR;
- 	else
- 		msix_vec = VP_MSIX_VQ_VECTOR;
- 	vq = vp_setup_vq(vdev, queue_idx, callback, name, ctx, msix_vec);
-@@ -314,7 +343,8 @@ vp_find_one_vq_msix(struct virtio_device *vdev, int queue_idx,
- 		return vq;
- 
- 	if (vector_policy == VP_VQ_VECTOR_POLICY_SHARED ||
--	    msix_vec == VIRTIO_MSI_NO_VECTOR)
-+	    msix_vec == VIRTIO_MSI_NO_VECTOR ||
-+	    vp_is_slow_path_vector(msix_vec))
- 		return vq;
- 
- 	/* allocate per-vq irq if available and necessary */
-@@ -374,7 +404,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
- 			continue;
- 		}
- 		vqs[i] = vp_find_one_vq_msix(vdev, queue_idx++, vqi->callback,
--					     vqi->name, vqi->ctx,
-+					     vqi->name, vqi->ctx, false,
- 					     &allocated_vectors, vector_policy);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
-@@ -440,6 +470,13 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 			       VP_VQ_VECTOR_POLICY_EACH, desc);
- 	if (!err)
- 		return 0;
-+	/* Fallback: MSI-X with one shared vector for config and
-+	 * slow path queues, one vector per queue for the rest.
-+	 */
-+	err = vp_find_vqs_msix(vdev, nvqs, vqs, vqs_info,
-+			       VP_VQ_VECTOR_POLICY_SHARED_SLOW, desc);
-+	if (!err)
-+		return 0;
- 	/* Fallback: MSI-X with one vector for config, one shared for queues. */
- 	err = vp_find_vqs_msix(vdev, nvqs, vqs, vqs_info,
- 			       VP_VQ_VECTOR_POLICY_SHARED, desc);
-@@ -493,7 +530,8 @@ const struct cpumask *vp_get_vq_affinity(struct virtio_device *vdev, int index)
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
- 	if (!vp_dev->per_vq_vectors ||
--	    vp_dev->vqs[index]->msix_vector == VIRTIO_MSI_NO_VECTOR)
-+	    vp_dev->vqs[index]->msix_vector == VIRTIO_MSI_NO_VECTOR ||
-+	    vp_is_slow_path_vector(vp_dev->vqs[index]->msix_vector))
- 		return NULL;
- 
- 	return pci_irq_get_affinity(vp_dev->pci_dev,
-@@ -601,6 +639,7 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	vp_dev->vdev.dev.release = virtio_pci_release_dev;
- 	vp_dev->pci_dev = pci_dev;
- 	INIT_LIST_HEAD(&vp_dev->virtqueues);
-+	INIT_LIST_HEAD(&vp_dev->slow_virtqueues);
- 	spin_lock_init(&vp_dev->lock);
- 
- 	/* enable the device */
 diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index 3c4bb2d6163a..0cb6fdc8c354 100644
+index 0cb6fdc8c354..aa43875b6353 100644
 --- a/drivers/virtio/virtio_pci_common.h
 +++ b/drivers/virtio/virtio_pci_common.h
-@@ -35,7 +35,7 @@ struct virtio_pci_vq_info {
- 	/* the actual virtqueue */
- 	struct virtqueue *vq;
+@@ -45,7 +45,7 @@ struct virtio_pci_vq_info {
+ struct virtio_pci_admin_vq {
+ 	/* Virtqueue info associated with this admin queue. */
+ 	struct virtio_pci_vq_info info;
+-	/* serializing admin commands execution and virtqueue deletion */
++	/* serializing admin commands execution. */
+ 	struct mutex cmd_lock;
+ 	u64 supported_cmds;
+ 	/* Name of the admin queue: avq.$vq_index. */
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 3b5b9499a53a..6d653bea9a87 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -580,11 +580,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 		goto err;
+ 	}
  
--	/* the list node for the virtqueues list */
-+	/* the list node for the virtqueues or slow_virtqueues list */
- 	struct list_head node;
+-	if (is_avq) {
+-		mutex_lock(&vp_dev->admin_vq.cmd_lock);
++	if (is_avq)
+ 		vp_dev->admin_vq.info.vq = vq;
+-		mutex_unlock(&vp_dev->admin_vq.cmd_lock);
+-	}
  
- 	/* MSI-X vector (or none) */
-@@ -66,9 +66,12 @@ struct virtio_pci_device {
- 	/* Where to read and clear interrupt */
- 	u8 __iomem *isr;
+ 	return vq;
  
--	/* a list of queues so we can dispatch IRQs */
-+	/* Lists of queues and potentially slow path queues
-+	 * so we can dispatch IRQs.
-+	 */
- 	spinlock_t lock;
- 	struct list_head virtqueues;
-+	struct list_head slow_virtqueues;
+@@ -620,12 +617,6 @@ static void del_vq(struct virtio_pci_vq_info *info)
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+ 	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
  
- 	/* Array of all virtqueues reported in the
- 	 * PCI common config num_queues field
+-	if (vp_is_avq(&vp_dev->vdev, vq->index)) {
+-		mutex_lock(&vp_dev->admin_vq.cmd_lock);
+-		vp_dev->admin_vq.info.vq = NULL;
+-		mutex_unlock(&vp_dev->admin_vq.cmd_lock);
+-	}
+-
+ 	if (vp_dev->msix_enabled)
+ 		vp_modern_queue_vector(mdev, vq->index,
+ 				       VIRTIO_MSI_NO_VECTOR);
 -- 
 2.45.2
 
