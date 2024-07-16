@@ -1,118 +1,127 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 652D71991D4;
-	Tue, 16 Jul 2024 12:32:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DDFAB19AA7F;
+	Tue, 16 Jul 2024 12:58:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721133166; cv=none; b=kUHdXD8DXCFSZCJ2qxbu1ru0zAJ0FwAhhSV+SSeoa5Ud7OrcyHjfQE4w/kmJLZy0b5ynQGqOUD/Em7YSYFq3RP8UMYzqFvCET3nqcm1bT4N9LXfl1aiusf0tLNgGlrfz4R5IxcC/bLz8IZvm0Vn/M4vWHImUoO5VWL8iDhUxrqs=
+	t=1721134725; cv=none; b=IqfvYtnWxMaamrVT4alYUld1ZxQh0xCmE5RxJcFUFgSfsYNrLx4sjqpGzosELaUaKqzvswnwNvKosrp8buKqcP4M2ecJKPGiX5DNFaYtiH4V4tAdqWOyiQbzPL6G4tGWpf4HBnsN7RLqQQhpY7IyI/0E9wKXAl7xxDFGkHBwBgg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721133166; c=relaxed/simple;
-	bh=pIaGDgIPn1RkSG3S4gNRvlKDZuOR2m7qNGyMbFeFaBw=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=HRHHey0mRYBGQBMaGG4QLZQrngcsmpnqVG+x+YzSRMWl1enmqi1aCnxgO5QVGMQ2AFIAHFAAb2uMysx5gHSbC0HzK7t0ygEbUfoTPXGzfXeQJOPQJZ+XS75gOCENihoqRye7AbBAI3KKCyT7PXYvAigcCD/CyuPKIWfLxD0S9UQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HUhFCbCx; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HUhFCbCx"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
-	:MIME-Version:Message-ID:References:In-Reply-To:Subject:CC:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=pIaGDgIPn1RkSG3S4gNRvlKDZuOR2m7qNGyMbFeFaBw=; b=HUhFCbCxxO2O7trQKKBZU716z5
-	aR2jjJdEcONiiwl2owyirfMJPyFi2oyoP4SGPANW+ddVi57IkYviI0BIqrMOWOdVbHU7lWwHso4+y
-	Qy0VwdVg22UdQ7MsBfyRRNQXLJ5lnib7a/zEOWn8xnYIsOCwJqzxshAF8l/HlKqfmO+Tc0TraQgtF
-	ytML3yO5HpNe/A8j6ovesLNBYW1BnnMxj8mDF3B7PXCOvdpYwEcZLnbN3+XSF6pRVsMHGB88TVCR1
-	9JtEQJNUCCiTWwmEZq+1rtPt2HGwupqlFoNipkuGbRvXeH5JRbKDVrEV3JTPk0/bQb9eNenFTCVeu
-	rcHF+c7A==;
-Received: from [2a00:23ee:2468:1b84:edcd:8de9:5f89:1a4a] (helo=[IPv6:::1])
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sThM7-000000022Mx-1So8;
-	Tue, 16 Jul 2024 12:32:34 +0000
-Date: Tue, 16 Jul 2024 13:32:23 +0100
-From: David Woodhouse <dwmw2@infradead.org>
-To: Peter Hilber <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
- virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
- "Chashper, David" <chashper@amazon.com>
-CC: "Christopher S . Hall" <christopher.s.hall@intel.com>,
- Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Richard Cochran <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
-Subject: Re: [RFC PATCH v4] ptp: Add vDSO-style vmclock support
-User-Agent: K-9 Mail for Android
-In-Reply-To: <9f132922-2bf7-4749-b8c7-4c57445f9cde@opensynergy.com>
-References: <20240708092924.1473461-1-dwmw2@infradead.org> <060f392c-7ba9-4ff6-be82-c64f542abaa1@opensynergy.com> <98b20feebf4e7a11870dca725c03ee4e411b1aa3.camel@infradead.org> <1c24e450-5180-46c2-8892-b10709a881e5@opensynergy.com> <1ca48fb47723ed16f860611ac230ded7a1ca07f1.camel@infradead.org> <9f132922-2bf7-4749-b8c7-4c57445f9cde@opensynergy.com>
-Message-ID: <DD886A0D-B8E2-4749-AB21-7B26A4B70374@infradead.org>
+	s=arc-20240116; t=1721134725; c=relaxed/simple;
+	bh=M2McNn1TDJEXoE8lkDdMuk6Xw2H50/F77YmP1osHO2A=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aoiGA6HFHxgm82r7v8V3UfFCp+omXrNLY6C71MVfPKNftdDEKE4dtYjFfrAn6sqQ8f6CcYzCd1p7n4/CPoM8f/meE5KvC1nQS4h/SpPcNi1Y71vw3F0pbrOKrD7OClLMJEwNDyW94idI8pLx9sa/xrmuROduFu5rCkeLfOKnJIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8AxRup4bpZmvA8FAA--.3945S3;
+	Tue, 16 Jul 2024 20:58:32 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8DxPMd4bpZmezpLAA--.39798S2;
+	Tue, 16 Jul 2024 20:58:32 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>,
+	kvm@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH] LoongArch: KVM: Implement function kvm_arch_para_features
+Date: Tue, 16 Jul 2024 20:58:31 +0800
+Message-Id: <20240716125831.1621975-1-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8DxPMd4bpZmezpLAA--.39798S2
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
-On 16 July 2024 12:54:52 BST, Peter Hilber <peter=2Ehilber@opensynergy=2Eco=
-m> wrote:
->On 11=2E07=2E24 09:50, David Woodhouse wrote:
->> On Thu, 2024-07-11 at 09:25 +0200, Peter Hilber wrote:
->>>
->>> IMHO this phrasing is better, since it directly refers to the state of=
- the
->>> structure=2E
->>=20
->> Thanks=2E I'll update it=2E
->>=20
->>> AFAIU if there would be abnormal delays in store buffers, causing some
->>> driver to still see the old clock for some time, the monotonicity coul=
-d be
->>> violated:
->>>
->>> 1=2E device writes new, much slower clock to store buffer
->>> 2=2E some time passes
->>> 3=2E driver reads old, much faster clock
->>> 4=2E device writes store buffer to cache
->>> 5=2E driver reads new, much slower clock
->>>
->>> But I hope such delays do not occur=2E
->>=20
->> For the case of the hypervisor=E2=86=90=E2=86=92guest interface this sh=
-ould be handled
->> by the use of memory barriers and the seqcount lock=2E
->>=20
->> The guest driver reads the seqcount, performs a read memory barrier,
->> then reads the contents of the structure=2E Then performs *another* rea=
-d
->> memory barrier, and checks the seqcount hasn't changed:
->> https://git=2Einfradead=2Eorg/?p=3Dusers/dwmw2/linux=2Egit;a=3Dblob;f=
-=3Ddrivers/ptp/ptp_vmclock=2Ec;hb=3Dvmclock#l351
->>=20
->> The converse happens with write barriers on the hypervisor side:
->> https://git=2Einfradead=2Eorg/?p=3Dusers/dwmw2/qemu=2Egit;a=3Dblob;f=3D=
-hw/acpi/vmclock=2Ec;hb=3Dvmclock#l68
->
->My point is that, looking at the above steps 1=2E - 5=2E:
->
->3=2E read HW counter, smp_rmb, read seqcount
->4=2E store seqcount, smp_wmb, stores, smp_wmb, store seqcount become effe=
-ctive
->5=2E read seqcount, smp_rmb, read HW counter
->
->AFAIU this would still be a theoretical problem suggesting the use of
->stronger barriers=2E
+Function kvm_arch_para_features() is to detect supported para features,
+it can be used by device driver to detect and enable para features,
+such as extioi irqchip driver to detect KVM_FEATURE_VIRT_EXTIOI.
 
-This seems like a bug on the guest side=2E The HW counter needs to be read=
- *within* the (paired, matching) seqcount reads, not before or after=2E
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/include/asm/kvm_para.h | 10 ++++++++++
+ arch/loongarch/kernel/paravirt.c      | 14 ++++++++++----
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
+diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
+index 4ba2312e5f8c..955f4ee85d55 100644
+--- a/arch/loongarch/include/asm/kvm_para.h
++++ b/arch/loongarch/include/asm/kvm_para.h
+@@ -143,10 +143,20 @@ static __always_inline long kvm_hypercall5(u64 fid,
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_PARAVIRT
++bool kvm_para_available(void);
++unsigned int kvm_arch_para_features(void);
++#else
++static inline bool kvm_para_available(void)
++{
++	return false;
++}
++
+ static inline unsigned int kvm_arch_para_features(void)
+ {
+ 	return 0;
+ }
++#endif
+ 
+ static inline unsigned int kvm_arch_para_hints(void)
+ {
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+index 1633ed4f692f..c3240e85baa7 100644
+--- a/arch/loongarch/kernel/paravirt.c
++++ b/arch/loongarch/kernel/paravirt.c
+@@ -114,11 +114,14 @@ static void pv_init_ipi(void)
+ }
+ #endif
+ 
+-static bool kvm_para_available(void)
++bool kvm_para_available(void)
+ {
+ 	int config;
+ 	static int hypervisor_type;
+ 
++	if (!cpu_has_hypervisor)
++		return false;
++
+ 	if (!hypervisor_type) {
+ 		config = read_cpucfg(CPUCFG_KVM_SIG);
+ 		if (!memcmp(&config, KVM_SIGNATURE, 4))
+@@ -128,16 +131,19 @@ static bool kvm_para_available(void)
+ 	return hypervisor_type == HYPERVISOR_KVM;
+ }
+ 
++unsigned int kvm_arch_para_features(void)
++{
++	return read_cpucfg(CPUCFG_KVM_FEATURE);
++}
++
+ int __init pv_ipi_init(void)
+ {
+ 	int feature;
+ 
+-	if (!cpu_has_hypervisor)
+-		return 0;
+ 	if (!kvm_para_available())
+ 		return 0;
+ 
+-	feature = read_cpucfg(CPUCFG_KVM_FEATURE);
++	feature = kvm_arch_para_features();
+ 	if (!(feature & KVM_FEATURE_IPI))
+ 		return 0;
+ 
+
+base-commit: 1467b49869df43c4ee51bdaa0ec1cb69e333407d
+-- 
+2.39.3
 
