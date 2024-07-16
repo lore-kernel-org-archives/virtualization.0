@@ -1,57 +1,57 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 360661991C6
-	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 11:36:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69D2C55897
+	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 11:36:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721129768; cv=none; b=JaK0dlXspua+pahBZI0r/hk/jHFvthHW9xy1VxzFeKGmqx7thDOaPyhLw9QnKEnZDBQINVNdg7I+5QSHcvyT3/Fpkj/qgpTBcwW/rE18bJz3vIAoAnYtySNte2mpV7qEW/DEFwM/l1UopVZorMpkWUSKog65r2RpzbBF5zji9Zo=
+	t=1721129772; cv=none; b=SWPZl9SZ/cDss45taHGb6n0Bf6GRlYWIY4U+DdLVXp0oK3hM76tzx003ZFhExisyk8n29ogtMTSlMvnMZoSkkGRRfzb5AW6lc6BAEh8yCzbUCQiaLdAddvXrtblZ2a9Njkd9i6qfAuUYNUlc03aF3lEQsBgjr+rTLAY9DGDmWoA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721129768; c=relaxed/simple;
-	bh=VMvzt0STg1hEcgswaVYvSlNInE21YIcDZBn1YU9g7fw=;
+	s=arc-20240116; t=1721129772; c=relaxed/simple;
+	bh=bec4iyc1Sbq8yz22gt4sGJY5B9VhdZtggRzMHArlerw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mWT/zmbkyZEzCnN3k5lNO+B+1fWcbw2XosLLxx9NJt64161SmnOWXwtkHjYfii3VNyd+u1h+b5FuytR12STC6YjhhDBTWFGCvrmBX2NGw/2KC38w3yy5hLd+eSEnPt9nNvPs0BoQBY8DysTPW97/wAToN0sOPVLywAEV5KISEOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=Eb1FvAzY; arc=none smtp.client-ip=209.85.221.50
+	 MIME-Version; b=Kf/XDfwU6sx4LXwKUuDseRWeDqjhPfuex/Z+ELQ+QigJfdZiNRc1efH7D1t03XLFgNwDrvizKffWAg41v6+D0z1wHwH8z+8KPZic/EKQVrcc+eHlEpwOhiupA6h7TguMHPAB98gVMXfCgijJIfj0ypjggXq9ZNbYBG/veRgAXH4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=i1g0v+lU; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="Eb1FvAzY"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-367a081d1cdso2880800f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 04:36:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="i1g0v+lU"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4266eda81c5so42487625e9.0
+        for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 04:36:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1721129764; x=1721734564; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1721129769; x=1721734569; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Xq0z7qDnKLcuG2bdgPVenX7I5loiNYf7yPy5HkHLATM=;
-        b=Eb1FvAzYkuXyBOU3lekzpmTF5sSpV7bRfJYpyh31Z5UKn0yOknlDaa6Vp5HpmiKHz8
-         Sr4vXY7LX+6s5NpJuhj52n+rN/x/V92wNvFknoEn8t4HYWL/5rIfTEqkNw+H2xoWbSLM
-         VUt6x28+fzTqyV8Ta/wxsqQyok0gGyrRYqOx8P7hGD1a9d7Lk5cW5f0GSQNA+qRBLaI1
-         6Vr8iE5WN5GL2efYBm7WFLsCSDLCXKVOIp2ibtLx/1q1/466zGOasSvHN/7902VFLVov
-         Esev6Ur4HVG20PoaLJYJyQrV0bIdyaXrR2R0Q6HzdECqOJWZ0hIU/IdkpAUU0AwTi+fv
-         yhXQ==
+        bh=rnc5ZKFUsODytzmx/tV2yHyZn0mfCK3BqMy05RDjN4k=;
+        b=i1g0v+lUzm/pSMwPOX3OdsFBrSZk88ri9gRfw3zMqQfwiYmBRNdsVGGTyu10LuKxrY
+         Dfu0xIgPU72rqCisEdjUUWWAL1skLIYY3gBBHCHV/e9tMKAeqQHkMjsauQiFFtfU9udv
+         6BEyPKHRQIi2pyd2q2qZkQ21dJk65+OXbFuVSUKLY+nIzJVzcwOzPQMESY6WasPlQO97
+         9XLKxZZrzDRyAetE08FS0LJ/SPEJeGaBtxfzCHY6hlonsAHCS5Yzb9Znu3PRKfEry90W
+         Muy8dKDdGgN3AsT5/ZOufJ7Tit8CqnkcyuQq+jr6WHKEoaBXXzqzR1cGGHuhwZ4MjgBQ
+         qAOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721129764; x=1721734564;
+        d=1e100.net; s=20230601; t=1721129769; x=1721734569;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Xq0z7qDnKLcuG2bdgPVenX7I5loiNYf7yPy5HkHLATM=;
-        b=HdzKaONxWXkl1GxkxyHy1byW2l2N/Vf/ie3J0k8GvCJZzKa/CmqbDpxCp8Al4/BpX0
-         p/M2MWx3Ru8HkzVbeEj5n8bm7dcCGBS4iyi9+Y6Q5OEIEIqI/f+zyX1aYeBb1ELt559s
-         7zC+nczoRE0hbwSpj4PfABE3WWwdOAvIpcce9PU3Umg2SZrtclE7OIbxLI5MROT6LVDr
-         mOSFUdebLbQFxFUNyYJTSno2KqEL5Rx62R3hpPQzocMJK2KpqYHynq3kp/yvZW0L4kp/
-         91Z0qL+YDMtJUnbbBDhLbVJ60kHqNSsoH5sDpAnaRreAKdqRi9mVFDQxM/XjquXpvm0y
-         kHhQ==
-X-Gm-Message-State: AOJu0YyucvPSi8OwtCa3vbQ8t5if3u7pAOTjphFCPf7C5puBbaK4+3gA
-	8HlIyacBUu011QBcPqmy6lb00+Kp3QIpwTNOYWsmaXMmHWIZRLa3if9d4r+kFSYSooDBC3zxKHJ
-	Yb+g=
-X-Google-Smtp-Source: AGHT+IE0k9yhzrWAF1ivTJ/UUxCLJpt+uRGKB3dy1BY1ywYKnX8XKWqdJgN2SM8LdSFozA3Wjin+7w==
-X-Received: by 2002:a5d:6d05:0:b0:367:f13b:ae8c with SMTP id ffacd0b85a97d-36826324a0emr1474170f8f.47.1721129764682;
-        Tue, 16 Jul 2024 04:36:04 -0700 (PDT)
+        bh=rnc5ZKFUsODytzmx/tV2yHyZn0mfCK3BqMy05RDjN4k=;
+        b=t5fkPAdfUxuBuQfO9ouB09QTAOvDR1WXONBwaHKiqK2sNyWnDhlva4UUGTsYABI4jm
+         X3TDuyz1+a6TEI7Quhfb4mz6zMP6C3n5cfh7BVcbLD1V7CpOnoL27wAD06/vMnZGoZhK
+         przEXW0Qz5y+O8TdfsOKC/0h21J2j+1FQenhS2jjAbXtxM6r2mophrgU6w5QnarlRjBT
+         WUAZGShf/83VP/2/FiEqs5fwgz6z1pWFvHbQQ1Om5COptyVxVGSxmhsvmzOTHfVy/ReS
+         MLoZ0XHOO1Uwf2osMgD+K51U1AbDCok3D6XOnknmvP+HoPIooBRQPhYn9WzYGk5Fz2lP
+         bpPQ==
+X-Gm-Message-State: AOJu0Yw4F5RokMMCxrLP+up8fC+OxO3TS2VUf+KMUvysOwpiie/9wEkj
+	yBxQlsj/uIg2GR10ONbDsthCNGu4v/gbNkgKb1UWbfA6/Pzn0qiU3cllFzZsrWuXSjCRC9Ej3Xg
+	wz6o=
+X-Google-Smtp-Source: AGHT+IEiomJXtzBs2FkH7a+wVPU41hiPGw4w96hgFH8Au7e2S6GJdvPl+etnMSuJOHLLXhBfBjtPjA==
+X-Received: by 2002:a05:600c:4708:b0:426:673a:2904 with SMTP id 5b1f17b1804b1-427ba71ecdamr16108315e9.36.1721129768584;
+        Tue, 16 Jul 2024 04:36:08 -0700 (PDT)
 Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3680d9771aasm8989573f8f.0.2024.07.16.04.36.03
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-427a5e93c92sm125031205e9.22.2024.07.16.04.36.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jul 2024 04:36:04 -0700 (PDT)
+        Tue, 16 Jul 2024 04:36:08 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -61,9 +61,9 @@ Cc: mst@redhat.com,
 	parav@nvidia.com,
 	feliu@nvidia.com,
 	hengqi@linux.alibaba.com
-Subject: [PATCH virtio v3 02/13] virtio_pci: simplify vp_request_msix_vectors() call a bit
-Date: Tue, 16 Jul 2024 13:35:41 +0200
-Message-ID: <20240716113552.80599-3-jiri@resnulli.us>
+Subject: [PATCH virtio v3 03/13] virtio_pci: pass vector policy enum to vp_find_vqs_msix()
+Date: Tue, 16 Jul 2024 13:35:42 +0200
+Message-ID: <20240716113552.80599-4-jiri@resnulli.us>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240716113552.80599-1-jiri@resnulli.us>
 References: <20240716113552.80599-1-jiri@resnulli.us>
@@ -77,38 +77,72 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-Pass desc arg as it is always to vp_request_msix_vectors(). There rely
-on per_vq_vectors arg and null desc in case it is false.
+In preparation for another irq allocation fallback,
+introduce vector policy enum and pass the values
+to vp_find_vqs_msix() instead of bool arg.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
- drivers/virtio/virtio_pci_common.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+v1->v2:
+- rebased on top if find_vqs() arg conversion patchset
+---
+ drivers/virtio/virtio_pci_common.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 277591a6ab96..cda0d35dd9e1 100644
+index cda0d35dd9e1..7fec2258d125 100644
 --- a/drivers/virtio/virtio_pci_common.c
 +++ b/drivers/virtio/virtio_pci_common.c
-@@ -125,6 +125,9 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 					GFP_KERNEL))
- 			goto error;
+@@ -287,6 +287,11 @@ void vp_del_vqs(struct virtio_device *vdev)
+ 	vp_dev->vqs = NULL;
+ }
  
-+	if (!per_vq_vectors)
-+		desc = NULL;
++enum vp_vq_vector_policy {
++	VP_VQ_VECTOR_POLICY_EACH,
++	VP_VQ_VECTOR_POLICY_SHARED,
++};
 +
- 	if (desc) {
- 		flags |= PCI_IRQ_AFFINITY;
- 		desc->pre_vectors++; /* virtio config vector */
-@@ -349,8 +352,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
- 		nvectors = 2;
- 	}
+ static struct virtqueue *vp_find_one_vq_msix(struct virtio_device *vdev,
+ 					     int queue_idx,
+ 					     vq_callback_t *callback,
+@@ -328,17 +333,20 @@ static struct virtqueue *vp_find_one_vq_msix(struct virtio_device *vdev,
+ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+ 			    struct virtqueue *vqs[],
+ 			    struct virtqueue_info vqs_info[],
+-			    bool per_vq_vectors,
++			    enum vp_vq_vector_policy vector_policy,
+ 			    struct irq_affinity *desc)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	struct virtqueue_info *vqi;
+ 	int i, err, nvectors, allocated_vectors, queue_idx = 0;
++	bool per_vq_vectors;
  
--	err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors,
--				      per_vq_vectors ? desc : NULL);
-+	err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors, desc);
- 	if (err)
- 		goto error_find;
+ 	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+ 	if (!vp_dev->vqs)
+ 		return -ENOMEM;
  
++	per_vq_vectors = vector_policy != VP_VQ_VECTOR_POLICY_SHARED;
++
+ 	if (per_vq_vectors) {
+ 		/* Best option: one for change interrupt, one per vq. */
+ 		nvectors = 1;
+@@ -427,11 +435,13 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 	int err;
+ 
+ 	/* Try MSI-X with one vector per queue. */
+-	err = vp_find_vqs_msix(vdev, nvqs, vqs, vqs_info, true, desc);
++	err = vp_find_vqs_msix(vdev, nvqs, vqs, vqs_info,
++			       VP_VQ_VECTOR_POLICY_EACH, desc);
+ 	if (!err)
+ 		return 0;
+ 	/* Fallback: MSI-X with one vector for config, one shared for queues. */
+-	err = vp_find_vqs_msix(vdev, nvqs, vqs, vqs_info, false, desc);
++	err = vp_find_vqs_msix(vdev, nvqs, vqs, vqs_info,
++			       VP_VQ_VECTOR_POLICY_SHARED, desc);
+ 	if (!err)
+ 		return 0;
+ 	/* Is there an interrupt? If not give up. */
 -- 
 2.45.2
 
