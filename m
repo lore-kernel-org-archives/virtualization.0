@@ -1,30 +1,30 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88772339A8
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2E8B37171
 	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 06:46:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721112404; cv=none; b=YMl9UYeqnYmhqb9KZjvzt78YPGb80HD6KJC4oGdrxdlmY18ZY46HCfJwxMv/kFkDUiS3CKzo0U/TD4utcVUEIBKS2wgXCFlMxWAzPXRx6mxRQs4EcHq2KZNST4vrINl+H6U2T4fVlngyb1sVFdcExTEvntdfopJTxJDRI0gy4mg=
+	t=1721112405; cv=none; b=AfXUSfpzof0pKiaKw6ZEApCrpD1l6RCnWpoRxZ4O8/ycdq0G2+D4Cf/ApSy1gOIhFoJMoLDXUW9ZZE7b4TqMmRMKnZO8yoQqtjpmz7i8jLV15dWK7mVQwEN2kBcU5qUYpxGbg1LJkFGBbI3elUSNGFN2k7f5DdcFzORKZgvutKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721112404; c=relaxed/simple;
-	bh=AwWTdD3g8fjefujmou3OCOk06OrarqWBGNWppryTigo=;
+	s=arc-20240116; t=1721112405; c=relaxed/simple;
+	bh=Fo0tLIRdCpCNr3DcPkSLf0thbd11uDRBZaotNgPF6og=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=b8BPBXxx6gxRX5SjvWjybjuKQqTiIsdDytj1qQ/2xOCD38MNFvgcvzZmxrHw8E+cPX3yLMhS8xoJ7NYxLX9BUYLCMO6PLD81rEA6d0y7P2pFL0chXHAZ+1kmoEUSKsYYL+IlHBu39IkvTiSCirbrV198GO06gVOpbsj5U6yuuvg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=QKHIRbeB; arc=none smtp.client-ip=115.124.30.99
+	 MIME-Version; b=AqLiRP0tEhm16QCrHkY/6m2vkTFGP4thwHdMwyeirYm3zsJZJcsYsLKT+WW0O1do7MTeTmOf130BYBbqNrdFWJo2heRgrwcfI4eIV21p0eDLKT+3Ixo5Uf5eGjnPXCs7qJSsdsVoM+FRj9l91q0yH+e8uxSBhpYBcrCA3twaJYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rfFbIv7j; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="QKHIRbeB"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rfFbIv7j"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1721112400; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=yiCOhmhFBRs0pws3fbKmQFX9Az2kdIsOs7vf0zpw8Dc=;
-	b=QKHIRbeBMM5CiKwuEYDmpORaKymKes67Ty6hETfeQoGZ1ZMrmb+KI5kwI+4iYK4rng5V6p278BeCZZppUOS9u9U8OdRIB10Aycd7lkylibp+yLfSyB4RAT+/6gwlWW035w9KYMoSQEx2JqTNfMvNCkl3b1re+WRqi+nJiSq/t9o=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032019045;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0WAgSzlG_1721112399;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WAgSzlG_1721112399)
+	t=1721112395; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=mwmfqBaZ7Ox3HOKtuwZ+8paiPA3duaqjUnc9bH3Pg30=;
+	b=rfFbIv7jdwsZLMZ6XZY29KD5z4/qN/su9NoH50WyIJ5CllE1Y74N2sCTkoKU8rT6LsWqPaurboLBbiJgj1iHXj94zJ3AqSA5kNVGLZvmkwzRIhNM7QPoKTBUc2iwMXxB6LTK6uf45KY844caUO+7bcmx2oZAeKaMOqod/cQxAII=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0WAgbUhp_1721112393;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WAgbUhp_1721112393)
           by smtp.aliyun-inc.com;
-          Tue, 16 Jul 2024 14:46:39 +0800
+          Tue, 16 Jul 2024 14:46:33 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -41,9 +41,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [RFC net-next 12/13] virtio_net: update tx timeout record
-Date: Tue, 16 Jul 2024 14:46:27 +0800
-Message-Id: <20240716064628.1950-13-xuanzhuo@linux.alibaba.com>
+Subject: [RFC net-next 05/13] virtio-net: rq submits premapped buffer per buffer
+Date: Tue, 16 Jul 2024 14:46:20 +0800
+Message-Id: <20240716064628.1950-6-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240716064628.1950-1-xuanzhuo@linux.alibaba.com>
 References: <20240716064628.1950-1-xuanzhuo@linux.alibaba.com>
@@ -56,33 +56,84 @@ MIME-Version: 1.0
 X-Git-Hash: d3e48bf059c8
 Content-Transfer-Encoding: 8bit
 
-If send queue sent some packets, we update the tx timeout
-record to prevent the tx timeout.
+virtio-net rq submits premapped buffer per buffer.
+And removes the call of the virtnet_rq_set_premapped().
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/virtio_net.c | 31 ++++++++-----------------------
+ 1 file changed, 8 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 700d080d8c5b..38af9f0b632e 100644
+index af474cc191d0..ce83826df90f 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1478,6 +1478,13 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
- 		check_sq_full_and_disable(vi, vi->dev, sq);
+@@ -539,6 +539,13 @@ static struct sk_buff *ptr_to_skb(void *ptr)
+ 	return (struct sk_buff *)((unsigned long)ptr & ~VIRTIO_ORPHAN_FLAG);
+ }
  
-+	if (stats.packets) {
-+		struct netdev_queue *txq;
++static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
++{
++	sg_assign_page(sg, NULL);
++	sg->dma_address = addr;
++	sg->length = len;
++}
 +
-+		txq = netdev_get_tx_queue(vi->dev, sq - vi->sq);
-+		txq_trans_cond_update(txq);
-+	}
-+
- 	u64_stats_update_begin(&sq->stats.syncp);
- 	u64_stats_add(&sq->stats.packets, stats.packets);
- 	u64_stats_add(&sq->stats.bytes,   stats.bytes);
+ static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
+ 			    bool in_napi, struct virtnet_sq_free_stats *stats)
+ {
+@@ -907,8 +914,7 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+ 	addr = dma->addr - sizeof(*dma) + offset;
+ 
+ 	sg_init_table(rq->sg, 1);
+-	rq->sg[0].dma_address = addr;
+-	rq->sg[0].length = len;
++	sg_fill_dma(&rq->sg[0], addr, len);
+ }
+ 
+ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+@@ -967,19 +973,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+ 	return buf;
+ }
+ 
+-static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+-{
+-	int i;
+-
+-	/* disable for big mode */
+-	if (!vi->mergeable_rx_bufs && vi->big_packets)
+-		return;
+-
+-	for (i = 0; i < vi->max_queue_pairs; i++)
+-		/* error should never happen */
+-		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
+-}
+-
+ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+ {
+ 	struct virtnet_info *vi = vq->vdev->priv;
+@@ -1071,12 +1064,6 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 	}
+ }
+ 
+-static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
+-{
+-	sg->dma_address = addr;
+-	sg->length = len;
+-}
+-
+ static struct xdp_buff *buf_to_xdp(struct virtnet_info *vi,
+ 				   struct receive_queue *rq, void *buf, u32 len)
+ {
+@@ -6088,8 +6075,6 @@ static int init_vqs(struct virtnet_info *vi)
+ 	if (ret)
+ 		goto err_free;
+ 
+-	virtnet_rq_set_premapped(vi);
+-
+ 	cpus_read_lock();
+ 	virtnet_set_affinity(vi);
+ 	cpus_read_unlock();
 -- 
 2.32.0.3.g01195cf9f
 
