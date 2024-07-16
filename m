@@ -1,62 +1,129 @@
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D007E4D8A3
-	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 11:31:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FBF615491
+	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 11:35:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721129476; cv=none; b=GPvNNG5DZfXg3QoWMe1d0QDJh5E5fKW1VxDFTzXkjy/FlpjP04lzZ4IYomCKRhzSS0QKCpc3e6S7pwQSKqQhVkSLIHxS39TMroyeFA42ayN0ODCdw+9aZz9yOZs5tn4VOOCOMOpTZZXJhiZYcTbgAq3LLxeQ19h+rO9NWBwjYng=
+	t=1721129761; cv=none; b=dOK7FEFPvP53pDd+EXKzZxeI+MiPsBaNabOHCXoOXwOL2Q8RUWag3Wkorw9yrrFZQT37Kb1I30v/uIKh28nLEhOCidakk4rOgcfC8e/kS7ppkodaZEbaqju9WFpkQXcNz0sEG35zzL5RvIJsLKDVu5ALvkx9j9D9Xln4vgceK0c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721129476; c=relaxed/simple;
-	bh=L33uyFI7RX8PO4QK0+4vl3nNe+GsaGHQL1/SAZSmmPE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=XVgatJZbsfXWRVG2/KF3JLZhKHM+dnGakmLZDkzgEaiEG42LCWgE9u+quxdVhU0lMSddWFjrdh8+FZeOlZYQvQF0kT5u+JKXC2JH6Mnuaa80EVdW1WQ2qMjFx314UORJQi1BTonK/lpziEnTf9I3rAK9ACk+1b0gouL7/OSWf5c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4WNcG45cQXz1JClG;
-	Tue, 16 Jul 2024 19:26:20 +0800 (CST)
-Received: from dggpeml500023.china.huawei.com (unknown [7.185.36.114])
-	by mail.maildlp.com (Postfix) with ESMTPS id 4346014038F;
-	Tue, 16 Jul 2024 19:31:11 +0800 (CST)
-Received: from [10.67.110.112] (10.67.110.112) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Tue, 16 Jul 2024 19:31:11 +0800
-Message-ID: <80276e4a-87be-9cc3-76c6-ad0e5d4238b0@huawei.com>
-Date: Tue, 16 Jul 2024 19:31:10 +0800
+	s=arc-20240116; t=1721129761; c=relaxed/simple;
+	bh=4yklOWkKrVpApwzZZw7FmQXgRKNFYuWvonlubqC+/w4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OQEx2ptIBFfQ8uqGEitfADDRUdJTka/DUAnw2WVsLxTlfZJ4wkxD9TwXG1RabcdeAmSdIih0dAJcbu85xppNFQuYJBbAFBT0AIN6eHYp33QST/ot20PYvu6dfuYccF/klbhYTsT2oHRx43FAfBnjIJh5nSZSOynT1P3l+s/8Ops=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=ejfJjW+s; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="ejfJjW+s"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4265b7514fcso36948935e9.1
+        for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 04:35:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1721129756; x=1721734556; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Tq+V8e6E3TORmmEIhljg9inuMoGXfl58B4jGhHe1ocE=;
+        b=ejfJjW+sZszPQmbICYHK4LfLLgv4zUkqvymy+A8g7lOBf2bs1zM5zu1djOAszRpNd1
+         gHxte/V9WeC9IMHugYN3MO7+zHuxLFWUeMJccXfh1fKkDlhgVnZ4UTAcm0+e/rCj9kmo
+         BYMhSHWdDcCN9Eb9Dq2jAzO0WI+Lelh8ihpwmQsprcKmil2wzJaG5btOb8c48b8STZLH
+         twBS3+wCZlLQB9cW2X7+fyMlrXgl1gELbOZpxb8XIERi1JfBUImvT+lpXD0QYVVtAa0T
+         QU9hQ/5/9991eJDM+7TQOqCFhS2EDkz8VwtjVB02jNkSmCPO1/mzT6Wz7BBVxwJezHqr
+         Sv1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721129756; x=1721734556;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Tq+V8e6E3TORmmEIhljg9inuMoGXfl58B4jGhHe1ocE=;
+        b=ngRf9hYjpZN5BtIH/4m3bdxFvmu0pqTmG2C8OoB9kbQ3bJmjioK0+2YjEk2w7NYLJt
+         CRkfPeW7yvyUTuofYbKbz0JH9Jcxw94r8vLV2pXSicHZxNztORzU7S2dT15YUPqZuKMS
+         C9hYqA5q2owGTKieWFdctOXaa8eQbTqjA1JTeoTGYXk8zCh+Hr7+g+wN6rBICEdGmlpj
+         X0CZwSzrBg/LZFlraGu1unJL59TDWZhRmvCzuuTECepWyUnVHS9JM3/+spmD5xRq7OwL
+         nx/7FtrWG6YT6aJ96yYOOZuAOFAiFcRwhcAe5LLvmmEGUGraTr5wZ4F013X96foq+pjf
+         iu1Q==
+X-Gm-Message-State: AOJu0YwUUhAObR8txsXxmh1QyMyEWNA+EnADevamfIpSmoQ5jltUf+uT
+	y2ZwqK3tJaOcuuxdPN/0EJhojV31f0DA/ZdTeTFJIkKV5zn+t4UB3IhtjgaTacsWN45jVemOGE2
+	eTyM=
+X-Google-Smtp-Source: AGHT+IFsgcYRN2iwv6UKGOv2bmROZbKqJLHyubJjrddFOkiTsiVdn/U00vZxDWWFwbebzOBeu9idHA==
+X-Received: by 2002:a05:6000:243:b0:367:8fe2:7d8b with SMTP id ffacd0b85a97d-368275928cdmr1106569f8f.31.1721129756408;
+        Tue, 16 Jul 2024 04:35:56 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4279f25942csm155643095e9.15.2024.07.16.04.35.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jul 2024 04:35:55 -0700 (PDT)
+From: Jiri Pirko <jiri@resnulli.us>
+To: virtualization@lists.linux.dev
+Cc: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	parav@nvidia.com,
+	feliu@nvidia.com,
+	hengqi@linux.alibaba.com
+Subject: [PATCH virtio v3 00/13] virtio_pci_modern: allow parallel admin queue commands execution
+Date: Tue, 16 Jul 2024 13:35:39 +0200
+Message-ID: <20240716113552.80599-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [BUG REPORT] kernel BUG at lib/dynamic_queue_limits.c:99!
-Content-Language: en-US
-To: Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>
-CC: <netdev@vger.kernel.org>, Linux kernel mailing list
-	<linux-kernel@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-	<xuanzhuo@linux.alibaba.com>, <virtualization@lists.linux.dev>
-References: <08227db9-6ed7-4909-838d-ce9a0233fba3@huawei.com>
- <8036617e-62f3-17cb-f43a-80531e10e241@huawei.com>
- <20240712174321.603b4436@kernel.org> <20240712174412.5226dd28@kernel.org>
-From: xiujianfeng <xiujianfeng@huawei.com>
-In-Reply-To: <20240712174412.5226dd28@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml500023.china.huawei.com (7.185.36.114)
+Content-Transfer-Encoding: 8bit
 
-Hi,
+From: Jiri Pirko <jiri@nvidia.com>
 
-On 2024/7/13 8:44, Jakub Kicinski wrote:
-> On Fri, 12 Jul 2024 17:43:21 -0700 Jakub Kicinski wrote:
->> CC: virtio_net maintainers and Jiri who added BQL
-> 
-> Oh, sounds like the fix may be already posted:
-> https://lore.kernel.org/all/20240712080329.197605-2-jean-philippe@linaro.org/
+Currently the admin queue command execution is serialized by a lock.
+This patchsets lifts this limitation allowing to execute admin queue
+commands in parallel. To do that, admin queue processing needs to be
+converted from polling to interrupt based completion. Note that admin
+queue is treated as a slow path virtqueue. That means that under
+circumstance there are not enough vectors available, the admin queue
+will share config vector.
 
-Thanks, this patch indeed resolved the issue.
+Patches #1-#11 are preparations, making things a bit smoother as well.
+  Worth mentioning is Patch #5, which introduces another vector
+  allocation fallback for slow path virtqueues.
+Patch #12 implements interrupt based completion for admin queue.
+Patch #13 finally removes the admin queue serialization lock.
+
+Please note that this patchset prepares ground for control queue vector
+implementation as well, treating it as a slow path virtqueue as well.
+
+---
+v2->v3:
+- removed forgotten struct member docs in patch #9
+v1->v2:
+- rebased
+- added slow path vector allocation fallback
+- fixed couple of bugs and issues
+- see individual patches for detailed changelog
+
+Jiri Pirko (13):
+  virtio_pci: push out single vq find code to vp_find_one_vq_msix()
+  virtio_pci: simplify vp_request_msix_vectors() call a bit
+  virtio_pci: pass vector policy enum to vp_find_vqs_msix()
+  virtio_pci: pass vector policy enum to vp_find_one_vq_msix()
+  virtio_pci: introduce vector allocation fallback for slow path
+    virtqueues
+  virtio_pci_modern: treat vp_dev->admin_vq.info.vq pointer as static
+  virtio: push out code to vp_avq_index()
+  virtio_pci: pass vq info as an argument to vp_setup_vq()
+  virtio: create admin queues alongside other virtqueues
+  virtio_pci_modern: create admin queue of queried size
+  virtio_pci_modern: pass cmd as an identification token
+  virtio_pci_modern: use completion instead of busy loop to wait on
+    admin cmd result
+  virtio_pci_modern: remove admin queue serialization lock
+
+ drivers/virtio/virtio.c            |  28 +----
+ drivers/virtio/virtio_pci_common.c | 190 +++++++++++++++++++++++------
+ drivers/virtio/virtio_pci_common.h |  16 ++-
+ drivers/virtio/virtio_pci_modern.c | 159 +++++++++++-------------
+ include/linux/virtio.h             |   3 +
+ include/linux/virtio_config.h      |   4 -
+ 6 files changed, 239 insertions(+), 161 deletions(-)
+
+-- 
+2.45.2
+
