@@ -1,493 +1,248 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8CAF143891
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 23:40:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E00811CA80
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:17:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721086811; cv=none; b=fgUUpYsUTONYh28NoksWuBNpPhIWCM0AGfIiR9PYWqE8vt9lHxFziC1xh7w2zCePgZEqNv8hB+17iZBp/d6bNS6F1fIERDGT2/4oKpRku+2dmbp7KOJOmfN1KC8UZPO1jlnw6Ddf3rAZ3e8Xe76p2mpkK5EW9AOyuN3Pc+urAxo=
+	t=1721107043; cv=none; b=SZI3c8QJv0F37Xt9mTlE38qdIlRtWaPNWqDXkpHBEcn9Slreu7Q6kUwribEHwu7KvqIY9okstalMR6LmlwwZrtnX0xwl0mU1YxyOhx5jaF7UD5v4ggEUVlOtozpRxbN9NMiu65OWU/jjaMkneS9YSYutYvfPW8IxWfPbBJkj680=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721086811; c=relaxed/simple;
-	bh=IYxflzTkvvDnzo/O5Exeaaz6QZwX1+dOjhXFIdh5qjM=;
+	s=arc-20240116; t=1721107043; c=relaxed/simple;
+	bh=Ei8Zh+WUYz9gyI6jvfia3vMDKTzpVSDcVJwlBtwjSN0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BWnnIgGndrnhbFApPdu+4F78/QNMuP+TBGtbkw2qLmJwV6cCykxOoo4MjsWXprvb6Gq9iChfvd624f5g4U7w0/4OvPLmTx78qfvpCG4vCbt3SnJXBiKboLM1g7eanhPcU5JIOmqA8a8cPaNaNdafdVlQ441J4b1nk52N7y/A9l4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RWzqJcpk; arc=none smtp.client-ip=140.211.166.133
+	 To:Cc:Content-Type; b=gkm6mSPbdteNsoXqL3tulycLPiRW8axKIliaxrBTi4bWBBlSX8MvErlzxQe2CAwAUaHWrRPJ2Q92+c5KLpn1vCuWuUJp8p9VRC5/ict1cFId2jOBmtlZd5y1iLsu+l/xkAU3lItERoy2X1JPEUeZmJxUBAS1gzQ+TsmpSlYy+Is=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WCpwQ2ei; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RWzqJcpk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WCpwQ2ei"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7582D40169
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 23:40:09 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8099B810B6
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:17:21 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id sw3D_NEjQRYO for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Jul 2024 23:40:08 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b2f; helo=mail-yb1-xb2f.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org A9B4940142
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A9B4940142
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=RWzqJcpk
-Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A9B4940142
-	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 23:40:07 +0000 (UTC)
-Received: by mail-yb1-xb2f.google.com with SMTP id 3f1490d57ef6-e03a17a50a9so5081735276.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 16:40:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721086806; x=1721691606; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=11nSWK2DsfMrraLYfcTYiqBnSNQFLOrBGZBeHRpNduU=;
-        b=RWzqJcpkttOYKRLsMvupkCmMgzGUIJzoZiqBCf3fNKy/6r6fWtSNSrXg8hZ5aipknt
-         9zvmTqpgyeIXX5Dvz1HYdltbONBDGrB19hjXt4yhUEFnOpAa3/7NeDLOJJkAtjdMckjz
-         d3QbhEoL6GzYf/s+fYBRTQ1Z8cW+NzF2Gk5M9N9L3RTRJtIZWHkPicwVwnKkXsodMWA8
-         4yde09oIhIS7S+NgS32HkaBpj2S4djVfouAL3WMGLI63kqAaAWZR0Yj5j8pLEX4MHj1b
-         P9OyAu/7sY0MocYv3soTlOw84dGqWSX5Ca7I93LyD+a3s+3gGpV6kLOy60/vA7OK3evm
-         JfbQ==
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id N_sRwXeI8IqU for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Jul 2024 05:17:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7544E810A6
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7544E810A6
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WCpwQ2ei
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7544E810A6
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jul 2024 05:17:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1721107037;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iV35LYaNNEGWx8EBWfuJaXV5qmmqt8q3YPSyBVDLw84=;
+	b=WCpwQ2ei2CgPgeATdYARUnWY2jdRAWR+rFBJDonlhygl3ctA8Z2m4cuahNIuLi7I0BYNHZ
+	6Z5QS7neyXJJqy7TXA6gXZGZ2MN/YVAy4ZO1pUj/6/IxaJM0O5xeG9cZcIUc49n5MBR1Vl
+	aUhCcfCF3OTwo6zQq3Lhv86hV4AYKUQ=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-389-qE_6cjIxNlO3AIN0AKLonQ-1; Tue, 16 Jul 2024 01:17:13 -0400
+X-MC-Unique: qE_6cjIxNlO3AIN0AKLonQ-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2c99c1075c9so4304972a91.1
+        for <virtualization@lists.linux-foundation.org>; Mon, 15 Jul 2024 22:17:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721086806; x=1721691606;
+        d=1e100.net; s=20230601; t=1721107032; x=1721711832;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=11nSWK2DsfMrraLYfcTYiqBnSNQFLOrBGZBeHRpNduU=;
-        b=oYXLk6n094baPSl/A9IEKupTOru58hwgSSv8hFe7/H0VZB2zfkR4pn0tn7Y1nl70O0
-         wp+CAm9+cWC+PSEqA9nI6P9iMp9qkX/1oWwSl5fyidcxoRG3IZxeeI+kMKJZ9mr3xZ3o
-         r486ZWgEvYV3U56t+9yDANrrEKKLdVbUQ9m7+DshT0y/OYUh/DYs/n9oguNSldrbEV6d
-         L1IUFcFcQJxfD8phybX00C0pnQkov61i9/SWrQ9p4T7ceN4JRDc+j1Un0/VPJY+ZDi/S
-         CD80mhvLGp9FHSJkMOqbJ44SRfQK6I4P1YVv1LM4A/fpTyrx2Jo0uDHxpdX3R7p5HboZ
-         nW+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVUZ65384uImYi/mC/n2qfw7zE+uZLK0Bu4/vB8+aQY0d399OGcUTpDddwbpkrvzmeBpF1PZqAzHL4tvWLvq9go9glR6it8BDDAthH4x0Qv3N0AHods/aywPw==
-X-Gm-Message-State: AOJu0Yzo1w/aQejX4KDLa8kCuovK937PLhCfRRWd6y/AylQ2JTweIPu2
-	xjxTeeebMxBtJy5+OH5F4G47cELRXC/qgkct+GRwA5TCn/UDvn723OG2z1GMfKVzo604LOAWqcZ
-	Gsx2NR3wXYREjpu8QwJwg0kFMzNI=
-X-Google-Smtp-Source: AGHT+IEBq0pvl8kIIqh5kP5RjyqtMxsRfTwvg+dA7+/RIKG3tCsg9lQtVLnTQrLXFec1OXYriekS+isTPIt8B7q07RA=
-X-Received: by 2002:a05:6902:114c:b0:e03:ab31:9aa6 with SMTP id
- 3f1490d57ef6-e05d56d3d2dmr919642276.24.1721086806098; Mon, 15 Jul 2024
- 16:40:06 -0700 (PDT)
+        bh=iV35LYaNNEGWx8EBWfuJaXV5qmmqt8q3YPSyBVDLw84=;
+        b=vXHYeTNG9gQJx29PZm2Pps63WhE+a0EG9Np2Z8XWu6CzN2ldqozVUeCW1FHWkqKkL8
+         MILqqxdaW8Dg9e58Y8fK8JvG/9pLK0hHv8t4YHNS5T/pBNn2qldsSvQMeY8qdPEL2A/i
+         Rd2X1s3b8eUdbb+fII2sbe5oNxp4zCLGvhLLXYl5VahXoJJcXcLg61SAvx8P14oZ28Hn
+         /4tPA52y/haM1Dcoe5vqPzdzbmTynFvvsUPMswGYT5pE4h9QZTPdp+rs8xQWT2ewH8Zp
+         73fJtlfOZvMW8qGIKrk1QAhfniV+ILfFLLFLqN5xMh2EIgOo7oIr4O1bLOf4f+xSJppD
+         bgKw==
+X-Gm-Message-State: AOJu0YzrF+74d9ccUEXmQ2IKhbntVmsBuYVWWvXtUMxhws4o4RZ2w1rn
+	DIQYq1LDRa9vVD7Msik/XIhm+T240b4i2hG7D1LYzP+3XPPdJocGE+KXU78p+1hkRZDzk1AL3yV
+	ukD/+qumKeChSKotkgZWtWeLxPUWDNzATmvZFR488yAVuigVB276Xx2QMH6+B30DoAU6ixJ82IH
+	fISA3IuLLZl3CqQMetCSreJzd7zHupa2nn4iWfz89qIiNpIfpZ6Tdx7g==
+X-Received: by 2002:a17:90a:bb07:b0:2c8:f3b4:425 with SMTP id 98e67ed59e1d1-2cb3740ee4emr790011a91.23.1721107031940;
+        Mon, 15 Jul 2024 22:17:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE9ANQt5ows3QOa5bdpVKACuf5yOTcvmdotzZ6xqk3YrNrhe/6vFwXEh88rK+S5GL0Jwr+RG+N864dnR4xWlNg=
+X-Received: by 2002:a17:90a:bb07:b0:2c8:f3b4:425 with SMTP id
+ 98e67ed59e1d1-2cb3740ee4emr790002a91.23.1721107031501; Mon, 15 Jul 2024
+ 22:17:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240710212555.1617795-2-amery.hung@bytedance.com> <AS2P194MB2170B9984C55A5F460F9E03E9AA12@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-In-Reply-To: <AS2P194MB2170B9984C55A5F460F9E03E9AA12@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-From: Amery Hung <ameryhung@gmail.com>
-Date: Mon, 15 Jul 2024 16:39:55 -0700
-Message-ID: <CAMB2axPcjTvbriw7rNXRy5dN4n8Zq-myesXWsH1USM44XFyMxA@mail.gmail.com>
-Subject: Re: [RFC PATCH net-next v6 01/14] af_vsock: generalize
- vsock_dgram_recvmsg() to all transports
-To: Luigi Leonardi <luigi.leonardi@outlook.com>
-Cc: amery.hung@bytedance.com, bobby.eshleman@bytedance.com, 
-	bpf@vger.kernel.org, bryantan@vmware.com, dan.carpenter@linaro.org, 
-	davem@davemloft.net, decui@microsoft.com, edumazet@google.com, 
-	haiyangz@microsoft.com, jasowang@redhat.com, jiang.wang@bytedance.com, 
-	kuba@kernel.org, kvm@vger.kernel.org, kys@microsoft.com, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	netdev@vger.kernel.org, oxffffaa@gmail.com, pabeni@redhat.com, 
-	pv-drivers@vmware.com, sgarzare@redhat.com, simon.horman@corigine.com, 
-	stefanha@redhat.com, vdasa@vmware.com, 
-	virtualization@lists.linux-foundation.org, wei.liu@kernel.org, 
-	xiyou.wangcong@gmail.com, xuanzhuo@linux.alibaba.com
+References: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com>
+ <1720790333-456232-4-git-send-email-steven.sistare@oracle.com>
+ <CACGkMEu0sNx=saZOaVRbuV7Gz7+_GD-v42i+Bdk-NCp6syABbw@mail.gmail.com> <acfccf72-2883-407d-977a-9c2566cf8cb3@oracle.com>
+In-Reply-To: <acfccf72-2883-407d-977a-9c2566cf8cb3@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 16 Jul 2024 13:16:59 +0800
+Message-ID: <CACGkMEtL7Fkj+srq+beK8UBZ5QDowpz+hT2HZ8RZR00UsRJcVA@mail.gmail.com>
+Subject: Re: [PATCH V2 3/7] vhost-vdpa: VHOST_NEW_OWNER
+To: Steven Sistare <steven.sistare@oracle.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	Eugenio Perez Martin <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Dragos Tatulea <dtatulea@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 15, 2024 at 1:02=E2=80=AFAM Luigi Leonardi
-<luigi.leonardi@outlook.com> wrote:
+On Mon, Jul 15, 2024 at 10:27=E2=80=AFPM Steven Sistare
+<steven.sistare@oracle.com> wrote:
 >
-> Hi Amery, Bobby
+> On 7/14/2024 10:26 PM, Jason Wang wrote:
+> > On Fri, Jul 12, 2024 at 9:19=E2=80=AFPM Steve Sistare <steven.sistare@o=
+racle.com> wrote:
+> >>
+> >> Add an ioctl to transfer file descriptor ownership and pinned memory
+> >> accounting from one process to another.
+> >>
+> >> This is more efficient than VHOST_RESET_OWNER followed by VHOST_SET_OW=
+NER,
+> >> as that would unpin all physical pages, requiring them to be repinned =
+in
+> >> the new process.  That would cost multiple seconds for large memories,=
+ and
+> >> be incurred during a virtual machine's pause time during live update.
+> >>
+> >> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+> >> ---
+> >>   drivers/vhost/vdpa.c       | 41 ++++++++++++++++++++++++++++++++++++=
+++
+> >>   drivers/vhost/vhost.c      | 15 ++++++++++++++
+> >>   drivers/vhost/vhost.h      |  1 +
+> >>   include/uapi/linux/vhost.h | 10 ++++++++++
+> >>   4 files changed, 67 insertions(+)
+> >>
+> >> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> >> index b49e5831b3f0..5cf55ca4ec02 100644
+> >> --- a/drivers/vhost/vdpa.c
+> >> +++ b/drivers/vhost/vdpa.c
+> >> @@ -632,6 +632,44 @@ static long vhost_vdpa_resume(struct vhost_vdpa *=
+v)
+> >>          return ret;
+> >>   }
+> >>
+> >> +static long vhost_vdpa_new_owner(struct vhost_vdpa *v)
+> >> +{
+> >> +       int r;
+> >> +       struct vhost_dev *vdev =3D &v->vdev;
+> >> +       struct mm_struct *mm_old =3D vdev->mm;
+> >> +       struct mm_struct *mm_new =3D current->mm;
+> >> +       long pinned_vm =3D v->pinned_vm;
+> >> +       unsigned long lock_limit =3D PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
+> >> +
+> >> +       if (!mm_old)
+> >> +               return -EINVAL;
+> >> +       mmgrab(mm_old);
+> >> +
+> >> +       if (!v->vdpa->use_va &&
+> >> +           pinned_vm + atomic64_read(&mm_new->pinned_vm) > lock_limit=
+) {
+> >> +               r =3D -ENOMEM;
+> >> +               goto out;
+> >> +       }
+> >
+> > So this seems to allow an arbitrary process to execute this. Seems to b=
+e unsafe.
+> >
+> > I wonder if we need to add some checks here, maybe PID or other stuff
+> > to only allow the owner process to do this.
 >
-> > From: Bobby Eshleman <bobby.eshleman@bytedance.com>
-> >
-> > This commit drops the transport->dgram_dequeue callback and makes
-> > vsock_dgram_recvmsg() generic to all transports.
-> >
-> > To make this possible, two transport-level changes are introduced:
-> > - transport in the receiving path now stores the cid and port into
-> >   the control buffer of an skb when populating an skb. The information
-> >   later is used to initialize sockaddr_vm structure in recvmsg()
-> >   without referencing vsk->transport.
-> > - transport implementations set the skb->data pointer to the beginning
-> >   of the payload prior to adding the skb to the socket's receive queue.
-> >   That is, they must use skb_pull() before enqueuing. This is an
-> >   agreement between the transport and the socket layer that skb->data
-> >   always points to the beginning of the payload (and not, for example,
-> >   the packet header).
-> >
-> Like in the other patch, please use imperative in the commit message.
-> >
-> > Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
-> > Signed-off-by: Amery Hung <amery.hung@bytedance.com>
-> > ---
-> >  drivers/vhost/vsock.c                   |  1 -
-> >  include/linux/virtio_vsock.h            |  5 ---
-> >  include/net/af_vsock.h                  | 11 ++++-
-> >  net/vmw_vsock/af_vsock.c                | 42 +++++++++++++++++-
-> >  net/vmw_vsock/hyperv_transport.c        |  7 ---
-> >  net/vmw_vsock/virtio_transport.c        |  1 -
-> >  net/vmw_vsock/virtio_transport_common.c |  9 ----
-> >  net/vmw_vsock/vmci_transport.c          | 59 +++----------------------
-> >  net/vmw_vsock/vsock_loopback.c          |  1 -
-> >  9 files changed, 55 insertions(+), 81 deletions(-)
-> >
-> > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> > index ec20ecff85c7..97fffa914e66 100644
-> > --- a/drivers/vhost/vsock.c
-> > +++ b/drivers/vhost/vsock.c
-> > @@ -419,7 +419,6 @@ static struct virtio_transport vhost_transport =3D =
+> The original owner must send the file descriptor to the new owner.
+
+This seems not to be in the steps you put in the cover letter.
+
+> That constitutes permission to take ownership.
+
+This seems like a relaxed version of the reset_owner:
+
+Currently, reset_owner have the following check:
+
+/* Caller should have device mutex */
+long vhost_dev_check_owner(struct vhost_dev *dev)
 {
-> >               .cancel_pkt               =3D vhost_transport_cancel_pkt,
-> >
-> >               .dgram_enqueue            =3D virtio_transport_dgram_enqu=
-eue,
-> > -             .dgram_dequeue            =3D virtio_transport_dgram_dequ=
-eue,
-> >               .dgram_bind               =3D virtio_transport_dgram_bind=
-,
-> >               .dgram_allow              =3D virtio_transport_dgram_allo=
-w,
-> >
-> > diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.=
-h
-> > index c82089dee0c8..8b56b8a19ddd 100644
-> > --- a/include/linux/virtio_vsock.h
-> > +++ b/include/linux/virtio_vsock.h
-> > @@ -177,11 +177,6 @@ virtio_transport_stream_dequeue(struct vsock_sock =
-*vsk,
-> >                               size_t len,
-> >                               int type);
-> >  int
-> > -virtio_transport_dgram_dequeue(struct vsock_sock *vsk,
-> > -                            struct msghdr *msg,
-> > -                            size_t len, int flags);
-> > -
-> > -int
-> >  virtio_transport_seqpacket_enqueue(struct vsock_sock *vsk,
-> >                                  struct msghdr *msg,
-> >                                  size_t len);
-> > diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> > index 535701efc1e5..7aa1f5f2b1a5 100644
-> > --- a/include/net/af_vsock.h
-> > +++ b/include/net/af_vsock.h
-> > @@ -120,8 +120,6 @@ struct vsock_transport {
-> >
-> >       /* DGRAM. */
-> >       int (*dgram_bind)(struct vsock_sock *, struct sockaddr_vm *);
-> > -     int (*dgram_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
-> > -                          size_t len, int flags);
-> >       int (*dgram_enqueue)(struct vsock_sock *, struct sockaddr_vm *,
-> >                            struct msghdr *, size_t len);
-> >       bool (*dgram_allow)(u32 cid, u32 port);
-> > @@ -219,6 +217,15 @@ void vsock_for_each_connected_socket(struct vsock_=
-transport *transport,
-> >  int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *=
-psk);
-> >  bool vsock_find_cid(unsigned int cid);
-> >
-> > +struct vsock_skb_cb {
-> > +     unsigned int src_cid;
-> > +     unsigned int src_port;
-> > +};
-> > +
-> > +static inline struct vsock_skb_cb *vsock_skb_cb(struct sk_buff *skb) {
-> > +     return (struct vsock_skb_cb *)skb->cb;
-> > +};
-> > +
-> >
+        /* Are you the owner? If not, I don't think you mean to do that */
+        return dev->mm =3D=3D current->mm ? 0 : -EPERM;
+}
+EXPORT_SYMBOL_GPL(vhost_dev_check_owner);
+
+It means even if the fd is passed to some other process, the reset
+owner won't work there.
+
+Thanks
+
 >
-> Running scripts/checkpatch.pl --strict --codespell on the patch shows thi=
-s error:
+> >> +       r =3D vhost_vdpa_bind_mm(v, mm_new);
+> >> +       if (r)
+> >> +               goto out;
+> >> +
+> >> +       r =3D vhost_dev_new_owner(vdev);
+> >> +       if (r) {
+> >> +               vhost_vdpa_bind_mm(v, mm_old);
+> >> +               goto out;
+> >> +       }
+> >> +
+> >> +       if (!v->vdpa->use_va) {
+> >> +               atomic64_sub(pinned_vm, &mm_old->pinned_vm);
+> >> +               atomic64_add(pinned_vm, &mm_new->pinned_vm);
+> >> +       }
+> >> +
+> >> +out:
+> >> +       mmdrop(mm_old);
+> >> +       return r;
+> >> +}
+> >> +
+> >>   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned in=
+t cmd,
+> >>                                     void __user *argp)
+> >>   {
+> >> @@ -876,6 +914,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file =
+*filep,
+> >>          case VHOST_VDPA_RESUME:
+> >>                  r =3D vhost_vdpa_resume(v);
+> >>                  break;
+> >> +       case VHOST_NEW_OWNER:
+> >> +               r =3D vhost_vdpa_new_owner(v);
+> >> +               break;
+> >>          default:
+> >>                  r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
+> >>                  if (r =3D=3D -ENOIOCTLCMD)
+> >> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> >> index b60955682474..ab40ae50552f 100644
+> >> --- a/drivers/vhost/vhost.c
+> >> +++ b/drivers/vhost/vhost.c
+> >> @@ -963,6 +963,21 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+> >>   }
+> >>   EXPORT_SYMBOL_GPL(vhost_dev_set_owner);
+> >>
+> >> +/* Caller should have device mutex */
+> >> +long vhost_dev_new_owner(struct vhost_dev *dev)
+> >> +{
+> >> +       if (dev->mm =3D=3D current->mm)
+> >> +               return -EBUSY;
+> >> +
+> >> +       if (!vhost_dev_has_owner(dev))
+> >> +               return -EINVAL;
+> >> +
+> >> +       vhost_detach_mm(dev);
+> >> +       vhost_attach_mm(dev);
+> >
+> > This seems to do nothing unless I miss something.
 >
->  ERROR: open brace '{' following function definitions go on the next line
->  #183: FILE: include/net/af_vsock.h:225:
->  +static inline struct vsock_skb_cb *vsock_skb_cb(struct sk_buff *skb) {
+> vhost_detach mm drops dev->mm.
+> vhost_attach_mm grabs current->mm.
 >
->  total: 1 errors, 0 warnings, 0 checks, 235 lines checked
-> >
-> >  /**** TAP ****/
-> >
-> >  struct vsock_tap {
-> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> > index 4b040285aa78..5e7d4d99ea2c 100644
-> > --- a/net/vmw_vsock/af_vsock.c
-> > +++ b/net/vmw_vsock/af_vsock.c
-> > @@ -1273,11 +1273,15 @@ static int vsock_dgram_connect(struct socket *s=
-ock,
-> >  int vsock_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
-> >                       size_t len, int flags)
-> >  {
-> > +     struct vsock_skb_cb *vsock_cb;
-> >  #ifdef CONFIG_BPF_SYSCALL
-> >       const struct proto *prot;
-> >  #endif
-> >       struct vsock_sock *vsk;
-> > +     struct sk_buff *skb;
-> > +     size_t payload_len;
-> >       struct sock *sk;
-> > +     int err;
-> >
-> >       sk =3D sock->sk;
-> >       vsk =3D vsock_sk(sk);
-> > @@ -1288,7 +1292,43 @@ int vsock_dgram_recvmsg(struct socket *sock, str=
-uct msghdr *msg,
-> >               return prot->recvmsg(sk, msg, len, flags, NULL);
-> >  #endif
-> >
-> > -     return vsk->transport->dgram_dequeue(vsk, msg, len, flags);
-> > +     if (flags & MSG_OOB || flags & MSG_ERRQUEUE)
-> > +             return -EOPNOTSUPP;
-> > +
-> > +     if (unlikely(flags & MSG_ERRQUEUE))
-> > +             return sock_recv_errqueue(sk, msg, len, SOL_VSOCK, 0);
-> >
-> This if statement is always false!
-> >
-> > +
-> > +     /* Retrieve the head sk_buff from the socket's receive queue. */
-> > +     err =3D 0;
-> > +     skb =3D skb_recv_datagram(sk_vsock(vsk), flags, &err);
-> > +     if (!skb)
-> > +             return err;
-> > +
-> > +     payload_len =3D skb->len;
-> > +
-> nit: I'd remove this blank line.
-> > +     if (payload_len > len) {
-> > +             payload_len =3D len;
-> > +             msg->msg_flags |=3D MSG_TRUNC;
-> > +     }
-> > +
-> > +     /* Place the datagram payload in the user's iovec. */
-> > +     err =3D skb_copy_datagram_msg(skb, 0, msg, payload_len);
-> > +     if (err)
-> > +             goto out;
-> > +
-> > +     if (msg->msg_name) {
-> > +             /* Provide the address of the sender. */
-> > +             DECLARE_SOCKADDR(struct sockaddr_vm *, vm_addr, msg->msg_=
-name);
-> > +
-> > +             vsock_cb =3D vsock_skb_cb(skb);
-> > +             vsock_addr_init(vm_addr, vsock_cb->src_cid, vsock_cb->src=
-_port);
-> > +             msg->msg_namelen =3D sizeof(*vm_addr);
-> > +     }
-> > +     err =3D payload_len;
-> > +
-> > +out:
-> > +     skb_free_datagram(&vsk->sk, skb);
-> > +     return err;
-> >  }
-> >  EXPORT_SYMBOL_GPL(vsock_dgram_recvmsg);
-> >
-> > diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_tr=
-ansport.c
-> > index e2157e387217..326dd41ee2d5 100644
-> > --- a/net/vmw_vsock/hyperv_transport.c
-> > +++ b/net/vmw_vsock/hyperv_transport.c
-> > @@ -556,12 +556,6 @@ static int hvs_dgram_bind(struct vsock_sock *vsk, =
-struct sockaddr_vm *addr)
-> >       return -EOPNOTSUPP;
-> >  }
-> >
-> > -static int hvs_dgram_dequeue(struct vsock_sock *vsk, struct msghdr *ms=
-g,
-> > -                          size_t len, int flags)
-> > -{
-> > -     return -EOPNOTSUPP;
-> > -}
-> > -
-> >  static int hvs_dgram_enqueue(struct vsock_sock *vsk,
-> >                            struct sockaddr_vm *remote, struct msghdr *m=
-sg,
-> >                            size_t dgram_len)
-> > @@ -833,7 +827,6 @@ static struct vsock_transport hvs_transport =3D {
-> >       .shutdown                 =3D hvs_shutdown,
-> >
-> >       .dgram_bind               =3D hvs_dgram_bind,
-> > -     .dgram_dequeue            =3D hvs_dgram_dequeue,
-> >       .dgram_enqueue            =3D hvs_dgram_enqueue,
-> >       .dgram_allow              =3D hvs_dgram_allow,
-> >
-> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_tr=
-ansport.c
-> > index 43d405298857..a8c97e95622a 100644
-> > --- a/net/vmw_vsock/virtio_transport.c
-> > +++ b/net/vmw_vsock/virtio_transport.c
-> > @@ -508,7 +508,6 @@ static struct virtio_transport virtio_transport =3D=
- {
-> >               .cancel_pkt               =3D virtio_transport_cancel_pkt=
-,
-> >
-> >               .dgram_bind               =3D virtio_transport_dgram_bind=
-,
-> > -             .dgram_dequeue            =3D virtio_transport_dgram_dequ=
-eue,
-> >               .dgram_enqueue            =3D virtio_transport_dgram_enqu=
-eue,
-> >               .dgram_allow              =3D virtio_transport_dgram_allo=
-w,
-> >
-> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vi=
-rtio_transport_common.c
-> > index 16ff976a86e3..4bf73d20c12a 100644
-> > --- a/net/vmw_vsock/virtio_transport_common.c
-> > +++ b/net/vmw_vsock/virtio_transport_common.c
-> > @@ -810,15 +810,6 @@ virtio_transport_seqpacket_enqueue(struct vsock_so=
-ck *vsk,
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtio_transport_seqpacket_enqueue);
-> >
-> > -int
-> > -virtio_transport_dgram_dequeue(struct vsock_sock *vsk,
-> > -                            struct msghdr *msg,
-> > -                            size_t len, int flags)
-> > -{
-> > -     return -EOPNOTSUPP;
-> > -}
-> > -EXPORT_SYMBOL_GPL(virtio_transport_dgram_dequeue);
-> > -
-> >  s64 virtio_transport_stream_has_data(struct vsock_sock *vsk)
-> >  {
-> >       struct virtio_vsock_sock *vvs =3D vsk->trans;
-> > diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transp=
-ort.c
-> > index b370070194fa..b39df3ed8c8d 100644
-> > --- a/net/vmw_vsock/vmci_transport.c
-> > +++ b/net/vmw_vsock/vmci_transport.c
-> > @@ -610,6 +610,7 @@ vmci_transport_datagram_create_hnd(u32 resource_id,
-> >
-> >  static int vmci_transport_recv_dgram_cb(void *data, struct vmci_datagr=
-am *dg)
-> >  {
-> > +     struct vsock_skb_cb *vsock_cb;
-> >       struct sock *sk;
-> >       size_t size;
-> >       struct sk_buff *skb;
-> > @@ -637,10 +638,14 @@ static int vmci_transport_recv_dgram_cb(void *dat=
-a, struct vmci_datagram *dg)
-> >       if (!skb)
-> >               return VMCI_ERROR_NO_MEM;
-> >
-> > +     vsock_cb =3D vsock_skb_cb(skb);
-> > +     vsock_cb->src_cid =3D dg->src.context;
-> > +     vsock_cb->src_port =3D dg->src.resource;
-> >       /* sk_receive_skb() will do a sock_put(), so hold here. */
-> >       sock_hold(sk);
-> >       skb_put(skb, size);
-> >       memcpy(skb->data, dg, size);
-> > +     skb_pull(skb, VMCI_DG_HEADERSIZE);
-> >       sk_receive_skb(sk, skb, 0);
-> >
-> >       return VMCI_SUCCESS;
-> > @@ -1731,59 +1736,6 @@ static int vmci_transport_dgram_enqueue(
-> >       return err - sizeof(*dg);
-> >  }
-> >
-> > -static int vmci_transport_dgram_dequeue(struct vsock_sock *vsk,
-> > -                                     struct msghdr *msg, size_t len,
-> > -                                     int flags)
-> > -{
-> > -     int err;
-> > -     struct vmci_datagram *dg;
-> > -     size_t payload_len;
-> > -     struct sk_buff *skb;
-> > -
-> > -     if (flags & MSG_OOB || flags & MSG_ERRQUEUE)
-> > -             return -EOPNOTSUPP;
-> > -
-> > -     /* Retrieve the head sk_buff from the socket's receive queue. */
-> > -     err =3D 0;
-> > -     skb =3D skb_recv_datagram(&vsk->sk, flags, &err);
-> > -     if (!skb)
-> > -             return err;
-> > -
-> > -     dg =3D (struct vmci_datagram *)skb->data;
-> > -     if (!dg)
-> > -             /* err is 0, meaning we read zero bytes. */
-> > -             goto out;
-> > -
-> > -     payload_len =3D dg->payload_size;
-> > -     /* Ensure the sk_buff matches the payload size claimed in the pac=
-ket. */
-> > -     if (payload_len !=3D skb->len - sizeof(*dg)) {
-> > -             err =3D -EINVAL;
-> > -             goto out;
-> > -     }
-> > -
-> > -     if (payload_len > len) {
-> > -             payload_len =3D len;
-> > -             msg->msg_flags |=3D MSG_TRUNC;
-> > -     }
-> > -
-> > -     /* Place the datagram payload in the user's iovec. */
-> > -     err =3D skb_copy_datagram_msg(skb, sizeof(*dg), msg, payload_len)=
-;
-> > -     if (err)
-> > -             goto out;
-> > -
-> > -     if (msg->msg_name) {
-> > -             /* Provide the address of the sender. */
-> > -             DECLARE_SOCKADDR(struct sockaddr_vm *, vm_addr, msg->msg_=
-name);
-> > -             vsock_addr_init(vm_addr, dg->src.context, dg->src.resourc=
-e);
-> > -             msg->msg_namelen =3D sizeof(*vm_addr);
-> > -     }
-> > -     err =3D payload_len;
-> > -
-> > -out:
-> > -     skb_free_datagram(&vsk->sk, skb);
-> > -     return err;
-> > -}
-> > -
-> >  static bool vmci_transport_dgram_allow(u32 cid, u32 port)
-> >  {
-> >       if (cid =3D=3D VMADDR_CID_HYPERVISOR) {
-> > @@ -2040,7 +1992,6 @@ static struct vsock_transport vmci_transport =3D =
-{
-> >       .release =3D vmci_transport_release,
-> >       .connect =3D vmci_transport_connect,
-> >       .dgram_bind =3D vmci_transport_dgram_bind,
-> > -     .dgram_dequeue =3D vmci_transport_dgram_dequeue,
-> >       .dgram_enqueue =3D vmci_transport_dgram_enqueue,
-> >       .dgram_allow =3D vmci_transport_dgram_allow,
-> >       .stream_dequeue =3D vmci_transport_stream_dequeue,
-> > diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopb=
-ack.c
-> > index 6dea6119f5b2..11488887a5cc 100644
-> > --- a/net/vmw_vsock/vsock_loopback.c
-> > +++ b/net/vmw_vsock/vsock_loopback.c
-> > @@ -66,7 +66,6 @@ static struct virtio_transport loopback_transport =3D=
- {
-> >               .cancel_pkt               =3D vsock_loopback_cancel_pkt,
-> >
-> >               .dgram_bind               =3D virtio_transport_dgram_bind=
-,
-> > -             .dgram_dequeue            =3D virtio_transport_dgram_dequ=
-eue,
-> >               .dgram_enqueue            =3D virtio_transport_dgram_enqu=
-eue,
-> >               .dgram_allow              =3D virtio_transport_dgram_allo=
-w,
-> >
-> > --
-> > 2.20.1
-> >
-> >
->
-> Small changes :)
-> Rest LGTM!
+> - Steve
 >
 
-I will fix the two style issues.
-
-Thank you,
-Amery
-
-> Thanks,
-> Luigi
