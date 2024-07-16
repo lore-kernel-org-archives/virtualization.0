@@ -1,30 +1,30 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B38B446D2
-	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 06:46:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B62DB13AD38
+	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 06:46:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721112406; cv=none; b=cIRo/EX62GKMTfCYI2sCKnL6v4KlxjT/JLXmvnElDo8Tf3TE1xuA2WVPYzbHloL7NAv0omaBbBQOXP3jspA7cE12/JQTGWMrduunnr0dPWsN8wAI9v9sFpKsIl1GfObyxlbVMUals/aqRQHZVsLEJ3hPrx7fo5Zrtutr6VJj5oY=
+	t=1721112408; cv=none; b=LGf00RpeLng589nPRq7CEaaTqByeksY2tBm3FyXfl8+lF/7OFVsfWWLA+TK37wwqM/5Bk1rNtfo665v2Y/wB6jLsFSAIt6mlWhSromrmJuZOo57uiocj/MyoYKTebpPrxT0j47sVRO2AA10WkaiETwEHtuiaATBFkRujfCqt66Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721112406; c=relaxed/simple;
-	bh=0C5+FDJY0BXZ4xDdxz+ej1I37yo3lwQlgPgTRpQAsj4=;
+	s=arc-20240116; t=1721112408; c=relaxed/simple;
+	bh=WHLznmunrFJqsDomNr0ljEJ+qOoHDP4ixc0QzjyPE3s=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ScABrmCKWuJdKsBWQyS+4t4c97Xx/F8A2RLtpUKskZY22kksjrdYDAWB3h8SHCLvv8pZrBc7+jOJEeOCFALMG8hICfPjZyr/0tfSnGAKu4aLcicmyNCrZQs66iky79ShFIlU/WhM4af7mP/a60LdfM524tmw8nyNLpBLmiVHO0Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=saFgceen; arc=none smtp.client-ip=115.124.30.100
+	 MIME-Version; b=HmyVQfzuDoWlr2KwBjrB7qw6yabT3I/vWO+wBDmHrsdubtf5c5PVF5x2VSSsw6Go26TprZmXoQ7a9h6Mra0ornXFNyoYjSTkW89HZZWnL6PIsgebiVEnpDYuq8xtQoS5qfPKRG4tsqo9jYip33l3jmvqjyvC0pxryc3W+s1+95o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Rxvsh7if; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="saFgceen"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Rxvsh7if"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1721112396; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=kzG6BmesP3ErofVGTifad/vz8//tve2WHW3/xWHmFQY=;
-	b=saFgceenxNU3D8pUxWA6QlO6N2kk1qQpKbbpRzfeyA7D6xtfovK2EyPnfNMT2xHZmusY1Faz1d9VeMv/8SoNBVVLz2WG3TzUvY5LfmpQey5GyE0vI2ltALi5fwJe0aDEH6vPeEksVV7wjkXtFhliYd23mqgplQzkcWvetcEJoCk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0WAgbUiw_1721112395;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WAgbUiw_1721112395)
+	t=1721112398; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=j8Dt4w38MVRI3mIcj2wAyL9QIthBdyfrxya5ylrMtIw=;
+	b=Rxvsh7ifIBjcvDU0aWrAhu0sv5oqnie0IyFCesXxjtuotwqXqpms+fP9jsOJJjIIj3hetSQGn4MY/bVBnfAKBM/dKPwYkQKC0jxXvTELbnwonSZHF3J9t3CLRurfSYeIBKKkSbrvSMxnA6vfrMMU/Y+XwPE9RW3qKzAXT8Yocsg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0WAgSzkU_1721112396;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WAgSzkU_1721112396)
           by smtp.aliyun-inc.com;
-          Tue, 16 Jul 2024 14:46:35 +0800
+          Tue, 16 Jul 2024 14:46:37 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -41,9 +41,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [RFC net-next 07/13] virtio_net: refactor the xmit type
-Date: Tue, 16 Jul 2024 14:46:22 +0800
-Message-Id: <20240716064628.1950-8-xuanzhuo@linux.alibaba.com>
+Subject: [RFC net-next 09/13] virtio_net: xsk: prevent disable tx napi
+Date: Tue, 16 Jul 2024 14:46:24 +0800
+Message-Id: <20240716064628.1950-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240716064628.1950-1-xuanzhuo@linux.alibaba.com>
 References: <20240716064628.1950-1-xuanzhuo@linux.alibaba.com>
@@ -56,177 +56,43 @@ MIME-Version: 1.0
 X-Git-Hash: d3e48bf059c8
 Content-Transfer-Encoding: 8bit
 
-Because the af-xdp will introduce a new xmit type, so I refactor the
-xmit type mechanism first.
-
-We use the last two bits of the pointer to distinguish the xmit type,
-so we can distinguish four xmit types. Now we have three types: skb,
-orphan and xdp.
+Since xsk's TX queue is consumed by TX NAPI, if sq is bound to xsk, then
+we must stop tx napi from being disabled.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 90 +++++++++++++++++++++++-----------------
- 1 file changed, 51 insertions(+), 39 deletions(-)
+ drivers/net/virtio_net.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index ce83826df90f..f5edd8be4668 100644
+index c0aba5d4aa48..b02fc118b0b8 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -45,9 +45,6 @@ module_param(napi_tx, bool, 0644);
- #define VIRTIO_XDP_TX		BIT(0)
- #define VIRTIO_XDP_REDIR	BIT(1)
- 
--#define VIRTIO_XDP_FLAG		BIT(0)
--#define VIRTIO_ORPHAN_FLAG	BIT(1)
--
- /* RX packet size EWMA. The average packet size is used to determine the packet
-  * buffer size when refilling RX rings. As the entire RX ring may be refilled
-  * at once, the weight is chosen so that the EWMA will be insensitive to short-
-@@ -509,34 +506,35 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
- 					       struct page *page, void *buf,
- 					       int len, int truesize);
- 
--static bool is_xdp_frame(void *ptr)
--{
--	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
--}
-+enum virtnet_xmit_type {
-+	VIRTNET_XMIT_TYPE_SKB,
-+	VIRTNET_XMIT_TYPE_ORPHAN,
-+	VIRTNET_XMIT_TYPE_XDP,
-+};
- 
--static void *xdp_to_ptr(struct xdp_frame *ptr)
--{
--	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
--}
-+#define VIRTNET_XMIT_TYPE_MASK (VIRTNET_XMIT_TYPE_SKB | VIRTNET_XMIT_TYPE_ORPHAN \
-+				| VIRTNET_XMIT_TYPE_XDP)
- 
--static struct xdp_frame *ptr_to_xdp(void *ptr)
-+static enum virtnet_xmit_type virtnet_xmit_ptr_strip(void **ptr)
+@@ -4957,7 +4957,7 @@ static int virtnet_set_coalesce(struct net_device *dev,
+ 				struct netlink_ext_ack *extack)
  {
--	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
--}
-+	unsigned long p = (unsigned long)*ptr;
+ 	struct virtnet_info *vi = netdev_priv(dev);
+-	int ret, queue_number, napi_weight;
++	int ret, queue_number, napi_weight, i;
+ 	bool update_napi = false;
  
--static bool is_orphan_skb(void *ptr)
--{
--	return (unsigned long)ptr & VIRTIO_ORPHAN_FLAG;
-+	*ptr = (void *)(p & ~VIRTNET_XMIT_TYPE_MASK);
+ 	/* Can't change NAPI weight if the link is up */
+@@ -4986,6 +4986,14 @@ static int virtnet_set_coalesce(struct net_device *dev,
+ 		return ret;
+ 
+ 	if (update_napi) {
++		/* xsk xmit depends on the tx napi. So if xsk is active,
++		 * prevent modifications to tx napi.
++		 */
++		for (i = queue_number; i < vi->max_queue_pairs; i++) {
++			if (vi->sq[i].xsk_pool)
++				return -EBUSY;
++		}
 +
-+	return p & VIRTNET_XMIT_TYPE_MASK;
- }
- 
--static void *skb_to_ptr(struct sk_buff *skb, bool orphan)
-+static void *virtnet_xmit_ptr_mix(void *ptr, enum virtnet_xmit_type type)
- {
--	return (void *)((unsigned long)skb | (orphan ? VIRTIO_ORPHAN_FLAG : 0));
-+	return (void *)((unsigned long)ptr | type);
- }
- 
--static struct sk_buff *ptr_to_skb(void *ptr)
-+static int virtnet_add_outbuf(struct send_queue *sq, int num, void *data,
-+			      enum virtnet_xmit_type type)
- {
--	return (struct sk_buff *)((unsigned long)ptr & ~VIRTIO_ORPHAN_FLAG);
-+	return virtqueue_add_outbuf(sq->vq, sq->sg, num,
-+				    virtnet_xmit_ptr_mix(data, type),
-+				    GFP_ATOMIC);
- }
- 
- static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
-@@ -549,29 +547,37 @@ static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
- static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
- 			    bool in_napi, struct virtnet_sq_free_stats *stats)
- {
-+	struct xdp_frame *frame;
-+	struct sk_buff *skb;
- 	unsigned int len;
- 	void *ptr;
- 
- 	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (!is_xdp_frame(ptr)) {
--			struct sk_buff *skb = ptr_to_skb(ptr);
-+		switch (virtnet_xmit_ptr_strip(&ptr)) {
-+		case VIRTNET_XMIT_TYPE_SKB:
-+			skb = ptr;
- 
- 			pr_debug("Sent skb %p\n", skb);
-+			stats->napi_packets++;
-+			stats->napi_bytes += skb->len;
-+			napi_consume_skb(skb, in_napi);
-+			break;
- 
--			if (is_orphan_skb(ptr)) {
--				stats->packets++;
--				stats->bytes += skb->len;
--			} else {
--				stats->napi_packets++;
--				stats->napi_bytes += skb->len;
--			}
-+		case VIRTNET_XMIT_TYPE_ORPHAN:
-+			skb = ptr;
-+
-+			stats->packets++;
-+			stats->bytes += skb->len;
- 			napi_consume_skb(skb, in_napi);
--		} else {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
-+			break;
-+
-+		case VIRTNET_XMIT_TYPE_XDP:
-+			frame = ptr;
- 
- 			stats->packets++;
- 			stats->bytes += xdp_get_frame_len(frame);
- 			xdp_return_frame(frame);
-+			break;
- 		}
+ 		for (; queue_number < vi->max_queue_pairs; queue_number++)
+ 			vi->sq[queue_number].napi.weight = napi_weight;
  	}
- 	netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi_bytes);
-@@ -1421,8 +1427,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
- 			    skb_frag_size(frag), skb_frag_off(frag));
- 	}
- 
--	err = virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
--				   xdp_to_ptr(xdpf), GFP_ATOMIC);
-+	err = virtnet_add_outbuf(sq, nr_frags + 1, xdpf, VIRTNET_XMIT_TYPE_XDP);
- 	if (unlikely(err))
- 		return -ENOSPC; /* Caller handle free/refcnt */
- 
-@@ -3000,8 +3005,9 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
- 			return num_sg;
- 		num_sg++;
- 	}
--	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg,
--				    skb_to_ptr(skb, orphan), GFP_ATOMIC);
-+
-+	return virtnet_add_outbuf(sq, num_sg, skb,
-+				  orphan ? VIRTNET_XMIT_TYPE_ORPHAN : VIRTNET_XMIT_TYPE_SKB);
- }
- 
- static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-@@ -5877,10 +5883,16 @@ static void free_receive_page_frags(struct virtnet_info *vi)
- 
- static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
- {
--	if (!is_xdp_frame(buf))
-+	switch (virtnet_xmit_ptr_strip(&buf)) {
-+	case VIRTNET_XMIT_TYPE_SKB:
-+	case VIRTNET_XMIT_TYPE_ORPHAN:
- 		dev_kfree_skb(buf);
--	else
--		xdp_return_frame(ptr_to_xdp(buf));
-+		break;
-+
-+	case VIRTNET_XMIT_TYPE_XDP:
-+		xdp_return_frame(buf);
-+		break;
-+	}
- }
- 
- static void free_unused_bufs(struct virtnet_info *vi)
 -- 
 2.32.0.3.g01195cf9f
 
