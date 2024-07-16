@@ -1,146 +1,62 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7124D17D371
-	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 10:57:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D007E4D8A3
+	for <virtualization@lists.linux.dev>; Tue, 16 Jul 2024 11:31:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721127443; cv=none; b=PVDUgFJQctKbkyc1TrkEDJgZlDnIYZFSHR96SQEntvzh/0IMWnExrFQUdH4poWWEQSMK4avojD3WMZpWMAAJDJs8BEuxxHMLWW6wxIi13VQYslUdh37WNCK0FuZ8zsOZgN1pID4BQUN1zc5BypBwqCFPD66dT2CqeeVpe9fLWJo=
+	t=1721129476; cv=none; b=GPvNNG5DZfXg3QoWMe1d0QDJh5E5fKW1VxDFTzXkjy/FlpjP04lzZ4IYomCKRhzSS0QKCpc3e6S7pwQSKqQhVkSLIHxS39TMroyeFA42ayN0ODCdw+9aZz9yOZs5tn4VOOCOMOpTZZXJhiZYcTbgAq3LLxeQ19h+rO9NWBwjYng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721127443; c=relaxed/simple;
-	bh=u3tdViBmCFTWsqM5V2S0H18K58R1pakhIEDmxZF6AJE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UJbvL3Mfa4v8xoHlxVA0IpWHG/KGDnac7XQF++voHdl3qKcvslXjV/3oksZSQEnM5UixyiJDw/DV65XHDedehkoipS1ISd5AQM4GLc+s3VhczwNmNB8lSUfQvy+Sa6HW48b/awWKSDOqgnbM98hKKeP1Ttsa4KmJt0kPDWddncA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g1MqdYC1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g1MqdYC1"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46GAlTkY013924;
-	Tue, 16 Jul 2024 10:57:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	5YpLZBFHa4u/yz0h1zDRTMe6ArvUdZ8SFwam82a19uI=; b=g1MqdYC16MSvXnSC
-	RNEUUAV6nWW70hptfnT8bMAMjyQxdsV2SFbXGn8CI13yDWySB4Ja2XsLnHD9WD+w
-	F4dCLeD19qYDE+Hanm7ADpvxXUtJ+1xh5ydIb236y6HJVCuAM4FiZ0ezaYWbFPWo
-	U7LlV9dh+yAjYN6Gb5wAk9KzmylwwBSXGUU8sHtOPAyl6dLSWYDhnfYOoOfLw2LK
-	Jjps/xcGLznmIpWBejvZ+cjh5WYclyfHesVhYvVizdkJrLT2GFOHnaw6GCqLTnF0
-	zWJAk0TggqHOX5ZKbTf8tqrhLJRIFC2PNVQcUcIwBt/7tpZF7ckkIM9OMD6GC/Vo
-	XPo38A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40dq4wr1fr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jul 2024 10:57:06 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46GAv5nb025254;
-	Tue, 16 Jul 2024 10:57:05 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40dq4wr1cv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jul 2024 10:57:05 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46G8jlL1030523;
-	Tue, 16 Jul 2024 10:52:27 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40c4a0ktt3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jul 2024 10:52:27 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46GAqMU322872322
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Jul 2024 10:52:24 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EA57920043;
-	Tue, 16 Jul 2024 10:52:21 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8C3D220040;
-	Tue, 16 Jul 2024 10:52:21 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 16 Jul 2024 10:52:21 +0000 (GMT)
-Date: Tue, 16 Jul 2024 12:52:20 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
-        Alexander Duyck
- <alexander.h.duyck@linux.intel.com>,
-        Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg
- <johannes@sipsolutions.net>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck
- <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Jason
- Wang <jasowang@redhat.com>,
-        Eugenio =?UTF-8?B?UMOpcmV6?=
- <eperezma@redhat.com>,
-        linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        kvm@vger.kernel.org, Halil Pasic
- <pasic@linux.ibm.com>
-Subject: Re: [PATCH v2 2/2] virtio: fix vq # for balloon
-Message-ID: <20240716125220.677dccf4.pasic@linux.ibm.com>
-In-Reply-To: <3d655be73ce220f176b2c163839d83699f8faf43.1720611677.git.mst@redhat.com>
-References: <cover.1720611677.git.mst@redhat.com>
-	<3d655be73ce220f176b2c163839d83699f8faf43.1720611677.git.mst@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	s=arc-20240116; t=1721129476; c=relaxed/simple;
+	bh=L33uyFI7RX8PO4QK0+4vl3nNe+GsaGHQL1/SAZSmmPE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=XVgatJZbsfXWRVG2/KF3JLZhKHM+dnGakmLZDkzgEaiEG42LCWgE9u+quxdVhU0lMSddWFjrdh8+FZeOlZYQvQF0kT5u+JKXC2JH6Mnuaa80EVdW1WQ2qMjFx314UORJQi1BTonK/lpziEnTf9I3rAK9ACk+1b0gouL7/OSWf5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.105])
+	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4WNcG45cQXz1JClG;
+	Tue, 16 Jul 2024 19:26:20 +0800 (CST)
+Received: from dggpeml500023.china.huawei.com (unknown [7.185.36.114])
+	by mail.maildlp.com (Postfix) with ESMTPS id 4346014038F;
+	Tue, 16 Jul 2024 19:31:11 +0800 (CST)
+Received: from [10.67.110.112] (10.67.110.112) by
+ dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Tue, 16 Jul 2024 19:31:11 +0800
+Message-ID: <80276e4a-87be-9cc3-76c6-ad0e5d4238b0@huawei.com>
+Date: Tue, 16 Jul 2024 19:31:10 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -ciPuNbu1ulB9x3MDH6mw0VxJdTjfl_5
-X-Proofpoint-ORIG-GUID: _zkRs-FyWlqEBV9NEtx1Xwx1HT6kmSDZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-15_19,2024-07-16_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 bulkscore=0 clxscore=1011 priorityscore=1501 adultscore=0
- impostorscore=0 phishscore=0 mlxlogscore=866 spamscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2407160079
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [BUG REPORT] kernel BUG at lib/dynamic_queue_limits.c:99!
+Content-Language: en-US
+To: Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>
+CC: <netdev@vger.kernel.org>, Linux kernel mailing list
+	<linux-kernel@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<xuanzhuo@linux.alibaba.com>, <virtualization@lists.linux.dev>
+References: <08227db9-6ed7-4909-838d-ce9a0233fba3@huawei.com>
+ <8036617e-62f3-17cb-f43a-80531e10e241@huawei.com>
+ <20240712174321.603b4436@kernel.org> <20240712174412.5226dd28@kernel.org>
+From: xiujianfeng <xiujianfeng@huawei.com>
+In-Reply-To: <20240712174412.5226dd28@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpeml500023.china.huawei.com (7.185.36.114)
 
-On Wed, 10 Jul 2024 07:42:46 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Hi,
 
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -694,7 +694,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->  	dma64_t *indicatorp = NULL;
-> -	int ret, i, queue_idx = 0;
-> +	int ret, i;
->  	struct ccw1 *ccw;
->  	dma32_t indicatorp_dma = 0;
->  
-> @@ -710,7 +710,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			continue;
->  		}
->  
-> -		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, vqi->callback,
-> +		vqs[i] = virtio_ccw_setup_vq(vdev, i, vqi->callback,
->  					     vqi->name, vqi->ctx, ccw);
->  		if (IS_ERR(vqs[i])) {
->  			ret = PTR_ERR(vqs[i]);
+On 2024/7/13 8:44, Jakub Kicinski wrote:
+> On Fri, 12 Jul 2024 17:43:21 -0700 Jakub Kicinski wrote:
+>> CC: virtio_net maintainers and Jiri who added BQL
+> 
+> Oh, sounds like the fix may be already posted:
+> https://lore.kernel.org/all/20240712080329.197605-2-jean-philippe@linaro.org/
 
-Acked-by: Halil Pasic <pasic@linux.ibm.com> #s390
+Thanks, this patch indeed resolved the issue.
