@@ -1,95 +1,111 @@
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 427357470
-	for <virtualization@lists.linux.dev>; Thu, 18 Jul 2024 13:20:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60AA6144D3E;
+	Thu, 18 Jul 2024 18:07:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.229.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721308810; cv=none; b=WYSJfcmXfEymIggqlrEujE7Rxe2dslFiRBQsO3jZUJk/dmoFxvHdhXmlwiGcIZDePXBilb3IBr3RKgdAfT2hj78yasShfrUrGm5o78IxDwu8KxV4p0rhUQM08arQ8ppKNg/+RAZY+XxyNOBx9zcjL5R6lP5LBzZMjx9fLo8wwrI=
+	t=1721326063; cv=none; b=Ve054BZibmrNXV2aZsWoOuE4HHfh3Mz69jCz16E9XA6k7pLtTdZNw5/ouCJQejRB4SsYpHOeK99WkR9sweQqDnyinGvL9uinK9/DvhMW4a1EcRBCP1FsnvQAZzti6DqjxFqZ4TI+8YqkKVQGYE12bugiZ+eMNgpmXXa0Wo6vMyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721308810; c=relaxed/simple;
-	bh=u1ydoeJetj7OnTwlspd7NujvxnGdBTPi52Ky8FokXdg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mbJBQ+rYlgdRh1UNrdwNmoIrMLt7nFuP7zVnvZLO0SNB1kd/qGciSAguZxmXcvIr6GQCnwYoVH3KBQGxl1CqwNUsKJgoOut1kv+B9PnKMrvxnaMVkJLQh8UiIJT30ORvW6pFbLh3wtHYKCNBCisX6dFMBL8MA9umtHPNjjEazwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from icess-ProLiant-DL380-Gen10.. (unknown [183.174.60.14])
-	by APP-01 (Coremail) with SMTP id qwCowABXXMh1Fplm_aoRBA--.954S2;
-	Thu, 18 Jul 2024 21:19:59 +0800 (CST)
-From: Ma Ke <make24@iscas.ac.cn>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	daniel@ffwll.ch,
-	noralf@tronnes.org
-Cc: virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	Ma Ke <make24@iscas.ac.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH v2] drm/qxl: fix null pointer dereference in qxl_add_mode
-Date: Thu, 18 Jul 2024 21:19:46 +0800
-Message-Id: <20240718131946.769560-1-make24@iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1721326063; c=relaxed/simple;
+	bh=MuGwjsrqOuOL8dcjqF/50eGuFl9GeK4wCccvyIbYNlY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eep/XQ57tzxXUPU0bvcomWpcjlj8h+YTUCkENwqIATWdagrtV6rEFt7ku6RZTSgkPRQFZXSnzTQIl7hXYVJJyrtEIvK9uAatGfrJZrT5ut+zHPxeNb2DPAxgsaKuqdS+Wbhb/Av8gLILOSoM3wZEgUUebkoW150N3UnQO1tPL+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=cVlclxxK; arc=none smtp.client-ip=46.235.229.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="cVlclxxK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
+	; s=bytemarkmx; h=Content-Type:MIME-Version:Message-ID:Subject:From:Date:From
+	:Subject; bh=pNPzX9/f1fflPWhQ0Y4MLIXv5qeY3FjYkS91vi3UiC4=; b=cVlclxxKg//V4BXD
+	3EPziRfpL/bM4tIk/uqlVexdaCpPl2dh7VKPKgN0WaZJMyrK7OUBM4wOfmMiinUoXplm8k9R0Lqbu
+	CZ4ZEdDmJezjYPdjOaV/5aTngvUvK5lYCZpuec+zfl0GnDiXTjjJ3fhj3cLuXzBmaTRVM+KUyLID9
+	ZMOdSnDVDlpug3I8tl1YCbHYet88JE/eJW80uh1dCmOGRJMWYcxFdIa0JoCcrHKWFjubGnWKgohTR
+	JDwec4YYl0Ss/P/qsg/lKK7k1XDXOObYWxkQFYO3y6UaPIj0V3+5dUUmgtqXjhZmm/oqE4sTBGzNe
+	T1iRYwuKL/MqCXeXug==;
+Received: from dg by mx.treblig.org with local (Exim 4.96)
+	(envelope-from <dg@treblig.org>)
+	id 1sUVAZ-00CLO7-08;
+	Thu, 18 Jul 2024 17:43:55 +0000
+Date: Thu, 18 Jul 2024 17:43:54 +0000
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+To: Fei Li <fei1.li@intel.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH] virt: acrn: Remove unusted list 'acrn_irqfd_clients'
+Message-ID: <ZplUWugKFu37t3PF@gallifrey>
+References: <20240504174725.93495-1-linux@treblig.org>
+ <ZkfyfrDysJ2WnSZq@gallifrey>
+ <Zkq183IzBA6cV9FE@louislifei-OptiPlex-7090>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qwCowABXXMh1Fplm_aoRBA--.954S2
-X-Coremail-Antispam: 1UD129KBjvdXoWruF13Kr4UuryDuw4kurW3Wrg_yoWDXrb_ur
-	18Zrn7WryDuF1v9r47ZryfuF4SvFykZFWxXr1xta4Sq3y8G3ZrXr43Z3Z5Z3y7Z348CFnr
-	Aw4UG3Z5Aan7GjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUb3xFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6r1S6rWUM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
-	Cr1l84ACjcxK6I8E87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
-	0DM2vYz4IE04k24VAvwVAKI4IrM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI
-	64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8Jw
-	Am72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAG
-	YxC7M4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMI
-	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4l
-	IxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvf
-	C2KfnxnUUI43ZEXa7VUbZmitUUUUU==
-X-CM-SenderInfo: ppdnvj2u6l2u1dvotugofq/
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Zkq183IzBA6cV9FE@louislifei-OptiPlex-7090>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/6.1.0-21-amd64 (x86_64)
+X-Uptime: 17:43:27 up 71 days,  4:57,  1 user,  load average: 0.00, 0.00, 0.00
+User-Agent: Mutt/2.2.12 (2023-09-09)
 
-In qxl_add_mode(), the return value of drm_cvt_mode() is assigned to mode,
-which will lead to a possible NULL pointer dereference on failure of
-drm_cvt_mode(). Add a check to avoid npd.
+* Fei Li (fei1.li@intel.com) wrote:
+> On 2024-05-18 at 00:12:46 +0000, Dr. David Alan Gilbert wrote:
+> > * linux@treblig.org (linux@treblig.org) wrote:
+> > > From: "Dr. David Alan Gilbert" <linux@treblig.org>
+> > > 
+> > > It doesn't look like this was ever used.
+> > > 
+> > > Build tested only.
+> > > 
+> > > Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
+> > 
+> > Ping
+> 
+> Acked-by: Fei Li <fei1.li@intel.com>
 
-Cc: stable@vger.kernel.org
-Fixes: 1b043677d4be ("drm/qxl: add qxl_add_mode helper function")
-Signed-off-by: Ma Ke <make24@iscas.ac.cn>
----
-Changes in v2:
-- added a blank line;
-- added Cc line.
----
- drivers/gpu/drm/qxl/qxl_display.c | 3 +++
- 1 file changed, 3 insertions(+)
+Hi Fei,
+  Do you know which way this is likely to get picked up?
+(I don't see it in -next)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index c6d35c33d5d6..c371ee59ab07 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -236,6 +236,9 @@ static int qxl_add_mode(struct drm_connector *connector,
- 		return 0;
- 
- 	mode = drm_cvt_mode(dev, width, height, 60, false, false, false);
-+	if (!mode)
-+		return -ENOMEM;
-+
- 	if (preferred)
- 		mode->type |= DRM_MODE_TYPE_PREFERRED;
- 	mode->hdisplay = width;
+ Thanks,
+
+Dave
+
+> Thanks.
+> 
+> > 
+> > > ---
+> > >  drivers/virt/acrn/irqfd.c | 2 --
+> > >  1 file changed, 2 deletions(-)
+> > > 
+> > > diff --git a/drivers/virt/acrn/irqfd.c b/drivers/virt/acrn/irqfd.c
+> > > index d4ad211dce7a3..346cf0be4aac7 100644
+> > > --- a/drivers/virt/acrn/irqfd.c
+> > > +++ b/drivers/virt/acrn/irqfd.c
+> > > @@ -16,8 +16,6 @@
+> > >  
+> > >  #include "acrn_drv.h"
+> > >  
+> > > -static LIST_HEAD(acrn_irqfd_clients);
+> > > -
+> > >  /**
+> > >   * struct hsm_irqfd - Properties of HSM irqfd
+> > >   * @vm:		Associated VM pointer
+> > > -- 
+> > > 2.45.0
+> > > 
+> > -- 
+> >  -----Open up your eyes, open up your mind, open up your code -------   
+> > / Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \ 
+> > \        dave @ treblig.org |                               | In Hex /
+> >  \ _________________________|_____ http://www.treblig.org   |_______/
+> > 
+> 
 -- 
-2.25.1
-
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \ 
+\        dave @ treblig.org |                               | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/
