@@ -1,86 +1,97 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B83D148312
-	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 19:38:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3154137E
+	for <virtualization@lists.linux.dev>; Fri, 19 Jul 2024 22:17:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721417910; cv=none; b=c3FF3a+AqN0snLW59adpIyNjZX6hBRQ6y01kdxmm+Xqz02oVPt/F6Bw6cRbIVc0fdguXNwjoyZJtNpmEzCmxm2mSKODBnl4l7LcEsFecmL5k3qBnmOiFu7LXgmwvp6/xrawJbQvHxTQSYHJSQV6HSDaSNTvhmBLmwWdfahkan68=
+	t=1721427479; cv=none; b=lcxIo8LGVpAogX1fa7On0XSlE+vszEiNz+mqytSiVm093MsYnXnLsoRv7HxUftCyqqXA5vMFiwVCUKJ9sA/cgJRJ25PstkKeO6h3Woki2DFOIoG9jxzsjSacit+yDVCQORMASaFE8h5YN71K/WoR05Ul4yeXXLRi5u7dPzVuGlE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721417910; c=relaxed/simple;
-	bh=NWxD6l+tF/NnFkaZBW9wWD7Mbr238N1lcgMrmU841ac=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=f7E6tQ/0MvDuodPtK1KFW8/vBs9V1NZr4L7EfWo6vxlvXGdbYWLZ+Uve4fnL0SSHWvXE6SZSaDeAG0iWPYxqjSNSzBaoQnaSg6gQbO7j8PwS1MH1Txkt89Ru5Sy2qSyZgs6xqNkSuhRciSLES+BxRiv3FzSFbRDwhqqNCLMQ2+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S1Oj05aE; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1721427479; c=relaxed/simple;
+	bh=YOATFkfgNS+3rS6QLnE83pbgBotZYqzYcAIJg3mkgOg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=od+8KSiH0TCFV28JVwh5wZMa9dQCiKl5/WdDK/1+63hENZFyQIJfkw+Z8K9eZF55Q+qyUTNqgQlQ2XpZUTtDMw3MUAXsgpzWrNhX3eQrAamQ/JPDh4x91gRE/IHEt/pyDDDcfHQCZjpn0Dpr+dm20KrMRTCTIuSCX7Vokearvsw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IAoSoEIQ; arc=none smtp.client-ip=209.85.219.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S1Oj05aE"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B454360804
-	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 19:38:28 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id bAO-JPMRdgdQ for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Jul 2024 19:38:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org ADD22605F5
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ADD22605F5
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=S1Oj05aE
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id ADD22605F5
-	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 19:38:27 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 972D3CE08D5;
-	Fri, 19 Jul 2024 19:38:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D53CEC4AF0A;
-	Fri, 19 Jul 2024 19:38:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1721417902;
-	bh=NWxD6l+tF/NnFkaZBW9wWD7Mbr238N1lcgMrmU841ac=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=S1Oj05aEkv1Rq7+5YWuTNb+c31C6T7n7dlmWIk0GI46m1Ifi+jb67QW1POoLQe9yp
-	 vrMQjFMtCnxOUNezVTJ/l3MBSGsUT1/CBSYKiUpiBN9c1RMeI6/x4ohp2ouRENfKzy
-	 aVDrX7StH3MufZwvUVietRcChvbQ7UJCH00xN6qxZt8VChmKeB6+oH/4DIOzVS2m38
-	 kD6osb6RFRvAszTEHhQITeGPKYI0biZ1cte/+6QZ4RL9f/6vitGSwtjDfLaE9oE0fe
-	 Ddtwf2eTmg7I9Yhr85dV8yEoTwr+HwOxqmdd5Xbk7PArAjr4iQb8LgcXV3bNohsDng
-	 09iiFV5rTS5qA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C8C62C4332D;
-	Fri, 19 Jul 2024 19:38:22 +0000 (UTC)
-Subject: Re: [GIT PULL] virtio: features, fixes, cleanups
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20240717053034-mutt-send-email-mst@kernel.org>
-References: <20240717053034-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20240717053034-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 6c85d6b653caeba2ef982925703cbb4f2b3b3163
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: f4f92db4391285ef3a688cdad25d5c76db200a30
-Message-Id: <172141790281.26000.2833728574962008166.pr-tracker-bot@kernel.org>
-Date: Fri, 19 Jul 2024 19:38:22 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, aha310510@gmail.com, arefev@swemel.ru, arseny.krasnov@kaspersky.com, davem@davemloft.net, dtatulea@nvidia.com, eperezma@redhat.com, glider@google.com, iii@linux.ibm.com, jasowang@redhat.com, jiri@nvidia.com, jiri@resnulli.us, kuba@kernel.org, lingshan.zhu@intel.com, mst@redhat.com, ndabilpuram@marvell.com, pgootzen@nvidia.com, pizhenwei@bytedance.com, quic_jjohnson@quicinc.com, schalla@marvell.com, stefanha@redhat.com, sthotton@marvell.com, syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com, vattunuru@marvell.com, will@kernel.org, xuanzhuo@linux.alibaba.com, yskelg@gmail.com
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IAoSoEIQ"
+Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e0857a11862so1890904276.1
+        for <virtualization@lists.linux.dev>; Fri, 19 Jul 2024 15:17:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1721427476; x=1722032276; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=1jGXfdWpQJJrTSSla9HtO9pAwH9DpMOp4sTEA70VfYc=;
+        b=IAoSoEIQ5CrNS8e2zxAspjPLcDxbexQ8jXjgr3ZGmSN1YH7Pyl/kseKdYnIwaMPq2C
+         LQ+k4+Cv2U6ddFHgckI211EPC67ReGuHXJfeR/JT0TDf4eaQQZ/5/sz5qQO5O4du5CSf
+         wq02MMDObv/luYl5ovLYn6JtLRi+ksQcp/46wnrV9lahBjF3uvE+hQmpLYBIQQYypo1P
+         Lzy3RN8dRDfwPupk5TcuKg8+7dVhjLLnEXW818JerBpj+GqmhzB7WCjLi7xjGeGSEa3D
+         EBda/9t72iwPoG8JLDVtMu9dHMBIlSs26mnkpxAPDz3uqLJMN7TpjRDE77oY71YLsR5z
+         OO0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721427476; x=1722032276;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1jGXfdWpQJJrTSSla9HtO9pAwH9DpMOp4sTEA70VfYc=;
+        b=oCOt/kxP7BWpoSROvYmHf9R5bCOXp8wyMMFC0JZWCL9Y8wA85bOWJceOeKAtxHADje
+         zMZ5XZ7/ZbmYoF/Opo43g8/hKMP/b6KVpBxKLlGxg0VM5ILB8wRV99xPg8+YD7ALHlIZ
+         Gkn52gi6ft/9/OcT6JE9lc/VQyZZ9K+eB+BgmjVinAv3jYwBrHhx5qcMRGvr7KfO9WOA
+         Izml4WWEx5+4CwpnprieKn6Q2fALD89vU+PLX+o4Q4kK15B3MLY/brKkZSf7Cmu4Yh69
+         HXW9x/ffpCA0XfkCrAFZmx+BmlLgkq6MNwfpewlnB1hrrBTAlR17CQWWq0uHjM+uvLHV
+         s5Ew==
+X-Gm-Message-State: AOJu0YyC6WxOLth1oySdc7sm2whbTpWEs/kI0yE3UxSPEc0TjOQwtR3x
+	w9QWRJEWcd+D1SoU6XWdVllunGvjavo5NN0dOOo/59rfisxUkJE+TIPKKBQV1vM=
+X-Google-Smtp-Source: AGHT+IHhRWHIqrLeN0dMZIGiVUQ12x7cCGbAIK/yxE/fhPtRa9Jeirwo0a7tM6aWk/2XMcYJ+8VQzw==
+X-Received: by 2002:a05:6902:1206:b0:e05:7ae1:5386 with SMTP id 3f1490d57ef6-e05ed6ddb3dmr11730016276.13.1721427476470;
+        Fri, 19 Jul 2024 15:17:56 -0700 (PDT)
+Received: from fedora ([2800:e6:4000:47e:7c52:7bd4:cfe5:9874])
+        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e0860ae9c1asm692009276.50.2024.07.19.15.17.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Jul 2024 15:17:56 -0700 (PDT)
+Date: Fri, 19 Jul 2024 17:17:53 -0500
+From: Juan =?iso-8859-1?Q?Jos=E9?= Arboleda <soyjuanarbol@gmail.com>
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev
+Subject: Re: [PATCH] virtio: Fix various coding style issues
+Message-ID: <ZprmEaNIiQk8Mkob@fedora>
+References: <Zpn9t5xJCPMhvpZO@fedora>
+ <CAJaqyWfU0th74hJ3Vww6QXqewvSyOobgogT=Vt57M+HqaTZ0ig@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJaqyWfU0th74hJ3Vww6QXqewvSyOobgogT=Vt57M+HqaTZ0ig@mail.gmail.com>
 
-The pull request you sent on Wed, 17 Jul 2024 05:30:34 -0400:
+> > -device_param_cb(device, &vm_cmdline_param_ops, NULL, S_IRUSR);
+> > +device_param_cb(device, &vm_cmdline_param_ops, NULL, 0400);
+> 
+> What is this warning? It sounds more reasonable to me to go from
+> hardcoded value to macro, am I missing something?
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Hey! I believe that the hardcoded value seems better as well. I got the
+warning from this:
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/f4f92db4391285ef3a688cdad25d5c76db200a30
+./scripts/checkpatch.pl --file --terse drivers/virtio/virtio_mmio.c
+...
+drivers/virtio/virtio_mmio.c:802: WARNING: Symbolic permissions 'S_IRUSR' are
+not preferred. Consider using octal permissions '0400'.
+...
 
-Thank you!
+I can bring the 'S_IRUSR' again in a V2 patch if you prefer that.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+> 
+> The rest looks good to me.
+> 
+> Thanks!
+> 
+
+Thanks for taking the time to review!
+
+Regards,
+-Juan
