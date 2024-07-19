@@ -1,187 +1,183 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A526423A0
-	for <virtualization@lists.linux.dev>; Fri, 19 Jul 2024 01:19:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA915A35
+	for <virtualization@lists.linux.dev>; Fri, 19 Jul 2024 05:46:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721351991; cv=none; b=ESPgIPrOp3iDkXQ1bK0idAB9IalAziTTn1nZPtn6wIMTqymgBonMUESwwOdnpLE/bHx/z8kxYwc4s3T2SaeYjG4mYBPLJPi6bofL/cQjgcG8QmMgOWJH0rfaWfUt/vvrDGa4wHEESotQ/pQaVsf6YyICtMMn/LcvT6b83lGPRJ0=
+	t=1721367997; cv=none; b=iomlSWJFnumDdt49qkEuqt0Sjz8Qs2LswszWHM9hKpbQfVQeSn9C63Cf1s9XsiL/Svz94HKvcRXPlj+E2A8t1xfxojY41V1ORKy8KXPfHOqBGWMPE6TiDD4P+Dvx0zwlwiLIN7mZdADFCEXLIIe+bpCuKw0ZgFDtNH0ZlLav8sU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721351991; c=relaxed/simple;
-	bh=93QVP4WJoS9Hpv2j9SWPhGJjYy+NR2J0K6SXL1NRHxI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ill2yyjPrALBz7SVcPNywgAYAi8dmfnAjrwzpW4MLpfYtP52Zt9rAt/mp3cViWW7qtOT3fDPYhIwj8DhwEfTBCuFo50M/wshY7rje4SlfLyCS6vXRXgqJ843emKRUT9I/4qgGcQxCLhtGNWKElP0cckDD6QB2aPsjwtAU9dpnjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H9jYEYUA; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1721367997; c=relaxed/simple;
+	bh=zN9/+1rjuerro0jVu0FzfAdAWYuIzI1B6N+VFbumnxY=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=HPNVfyDKkmyS3wJT+9W6QIAGRQqcTQp5SX+X0aQuTz31E2f74C1EJbatlxoP0pWKxkMBbo9TNBg8Rvw/aeiHvERvHbB63gKsAdGDfVzw0P+QlSV/WvXeZWd2gWyAyHXUL6t3MkiZr0xTZXYzDkQG2oxDWtanJzI81TiG8ujyQgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UwWfwbwb; arc=none smtp.client-ip=209.85.128.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H9jYEYUA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721351988;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jwmop9WL4f0jJYAYbZ5p9p7R5dVY3Lpor/+2jEVRnP0=;
-	b=H9jYEYUAt03F3GOZPrAfeMp/DLE9rLbZHSJr0SEXCBGhGJndkPfGXISQ0gOrb/yybTC7rs
-	jT7HK018KyRgM6IKnnp5ptslC7LkR05lG3WO7ZSOSCb669NuGc9So1qm9m1xs4dV4k76Ov
-	y9/Dwmai/dlUnkJC73pvtkix0yd5QSg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-527-FoS--FWRO9eDa6NkUC5onQ-1; Thu, 18 Jul 2024 21:19:47 -0400
-X-MC-Unique: FoS--FWRO9eDa6NkUC5onQ-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-368448dfe12so137540f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 18 Jul 2024 18:19:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UwWfwbwb"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-66526e430e0so17364257b3.2
+        for <virtualization@lists.linux.dev>; Thu, 18 Jul 2024 22:46:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1721367995; x=1721972795; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-disposition:mime-version
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WJjS/wLv9JaYG5E9s7DpraVtwtjmPgBNfmPRbaC7JfU=;
+        b=UwWfwbwbnYWYNVBMXFllILsFHBVr6bVxnotTVVum1lvyeyjs1LAfJ/H//qgYks4cXG
+         oC8OLs4qkI03zRxZOzfKa82Lw0X0VkN7Hf6jowztc5iuEzwXNkPLvNWjWCySYw0wBa2R
+         rArbdrxR2rLfPpgVG8tUvWiiEV58R6JGYAeog/LPW1QDHUPiab5xqid4p4R6AabfLyd9
+         Fag6baecF1+F5/gkEH5u0xORwXDAfpllH5qCCYs+LTAtwxTLnM4ME/+t/txHW10/NU1P
+         VHC2j9CvkFRv3PmCVwHE+E2IIyqKeQFnoehxueNEWPSnDaeCTRLiFKEszm00/f2ZSJna
+         HbcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721351986; x=1721956786;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jwmop9WL4f0jJYAYbZ5p9p7R5dVY3Lpor/+2jEVRnP0=;
-        b=RzZ1BtSPDZlR48KZgL5ft4MF5yBzjwL8ETUD2DUpEIhxtkMqGNtcPwTzsyQ2msZwiV
-         MHihZ4LXx/EJvXRJmQ0OCHCiwBbqxMb+FQXDuWDjmALIRQsseHLGMjYJ2vzXoAL+IdJ/
-         hRSlx2P3iRxYo2yrvNsKl7vchgj6/cFyY7oc8b86flbDYwIgA+6TvvYqyyKyE9jpLT/P
-         aXuaTmkv4hXMKgs5u2wcb74u3xGhcnLRxakA4PwGQK6pvgOKVH8D72G0hBTaEuSnUGtU
-         fq3ooMeZFpEsiqCIjHaFQ48ITuK34fLvE6rPZUVOZbAKdz+sTYzBFPqsG7d0JDXYqDc+
-         0ytg==
-X-Forwarded-Encrypted: i=1; AJvYcCUuWfIYXw/5ITc6fJa3aJc2xEBeTAb8+u2cydvXNnx5SBfoPV25r2ANwU/IWbjIOYr//hf7V2KpYF8c595/nitW6X5Lod/yfdsQ+56rvAk=
-X-Gm-Message-State: AOJu0Yx6dAgaLnLFgIWxNLShxFyBzCC7VapbIY/zLyc7fRd8oHFiHEjN
-	K/b7FHjTHQg3gV7eBClg4bexPnqObdjDR3DXuX+sK/oLv0QHYtyvQSmVqUVopUEoZ1pIL45J21x
-	+3ohD3j0M0pevOK+i6bkY/rg2SQESPIZMxy9CT8AYa3bd3vX0Ym5RgcEQUTCO1Kep
-X-Received: by 2002:a5d:69ca:0:b0:360:7856:fa62 with SMTP id ffacd0b85a97d-36873ed7d99mr569850f8f.15.1721351985999;
-        Thu, 18 Jul 2024 18:19:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE9Rox38d1XVqs4VIGXwyGyO0EsaiwHZh55nSHLLk1r/xY/5ex8srk4eo3DwsusIcXSuOqn2Q==
-X-Received: by 2002:a5d:69ca:0:b0:360:7856:fa62 with SMTP id ffacd0b85a97d-36873ed7d99mr569841f8f.15.1721351985275;
-        Thu, 18 Jul 2024 18:19:45 -0700 (PDT)
-Received: from redhat.com (mob-5-90-112-15.net.vodafone.it. [5.90.112.15])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-427d2a3b800sm35187425e9.5.2024.07.18.18.19.43
+        d=1e100.net; s=20230601; t=1721367995; x=1721972795;
+        h=content-transfer-encoding:content-disposition:mime-version
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WJjS/wLv9JaYG5E9s7DpraVtwtjmPgBNfmPRbaC7JfU=;
+        b=KFlvvX4i2eFrYKeLdI0CZoW7hannxyukAjg2dpqPUsbOIQ10zwb5SfLlynjai5S5GO
+         FDrmkYweDnDr0WEhiChdYcuB4TlrTO2Yf5t4itFRE1LEbUEswIwCBxjctn/7+Uj0lIDv
+         0g4APrKN3YOQ7gdObj/zHm6iopS2fRO9Xjy5xRsblRMXWy/FdFibi2r8MYnx/+DIm2UM
+         72it2vzwG4D5mTJ8B3pL2M+FEJBAcDQRXNxeKGTtwgWjvgUwvEHLmJkstfndtHdMaSE5
+         emmvHosgqNBiWLzO2IJxSoRe09Nq3OTQnHE57U1rysUuTYti8IVgxHccZ8yBlwYtXeo9
+         0gaA==
+X-Gm-Message-State: AOJu0Yzn3HiTuUReHIoNNsvGVPZKOOCilKprj61X6gJojSLlhzrrE+yW
+	o6LaqcGIHfl8yTSswNcSGcrr02zRIQr/a0LZCle/CQFVXSPivV88
+X-Google-Smtp-Source: AGHT+IFG9O8rwQBcgRxDxDzzVmRJF2TUN2KgKHijtF82ufeDzuBXEgsDqFJYDAReQlEE3I9qLat9QA==
+X-Received: by 2002:a81:7c02:0:b0:664:66d8:634f with SMTP id 00721157ae682-664ffeae0dbmr75546997b3.44.1721367994907;
+        Thu, 18 Jul 2024 22:46:34 -0700 (PDT)
+Received: from fedora ([2800:e6:4000:47e:7c52:7bd4:cfe5:9874])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-669541b9f7esm2564757b3.114.2024.07.18.22.46.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jul 2024 18:19:44 -0700 (PDT)
-Date: Thu, 18 Jul 2024 21:19:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, netdev@vger.kernel.org,
-	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
-	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
-Subject: Re: [PATCH net-next v3 3/3] virtio-net: synchronize operstate with
- admin state on up/down
-Message-ID: <20240718211816-mutt-send-email-mst@kernel.org>
-References: <20240709080214.9790-1-jasowang@redhat.com>
- <20240709080214.9790-4-jasowang@redhat.com>
- <20240709090743-mutt-send-email-mst@kernel.org>
- <CACGkMEv4CVK4YdOvHEbMY3dLc3cxF_tPN8H4YO=0rvFLaK-Upw@mail.gmail.com>
- <CACGkMEvDiQHfLaBRoaFtpYJHKTqicqbrpeZWzat43YveTa9Wyg@mail.gmail.com>
- <20240717015904-mutt-send-email-mst@kernel.org>
- <CACGkMEtntsAyddgrtxrbQe407dZkitac4ogC7cASF=iYgsum_A@mail.gmail.com>
- <CACGkMEsd63vH3J5m_4srO3ww2MWGOPc31L4171PfQ7uersN7PQ@mail.gmail.com>
+        Thu, 18 Jul 2024 22:46:34 -0700 (PDT)
+Date: Fri, 19 Jul 2024 00:46:31 -0500
+From: Juan =?iso-8859-1?Q?Jos=E9?= Arboleda <soyjuanarbol@gmail.com>
+To: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: virtualization@lists.linux.dev, trivial@kernel.org
+Subject: [PATCH] virtio: Fix various coding style issues
+Message-ID: <Zpn9t5xJCPMhvpZO@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsd63vH3J5m_4srO3ww2MWGOPc31L4171PfQ7uersN7PQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 19, 2024 at 09:02:29AM +0800, Jason Wang wrote:
-> On Wed, Jul 17, 2024 at 2:53 PM Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > On Wed, Jul 17, 2024 at 2:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Wed, Jul 17, 2024 at 09:19:02AM +0800, Jason Wang wrote:
-> > > > On Wed, Jul 10, 2024 at 11:03 AM Jason Wang <jasowang@redhat.com> wrote:
-> > > > >
-> > > > > On Tue, Jul 9, 2024 at 9:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > >
-> > > > > > On Tue, Jul 09, 2024 at 04:02:14PM +0800, Jason Wang wrote:
-> > > > > > > This patch synchronize operstate with admin state per RFC2863.
-> > > > > > >
-> > > > > > > This is done by trying to toggle the carrier upon open/close and
-> > > > > > > synchronize with the config change work. This allows propagate status
-> > > > > > > correctly to stacked devices like:
-> > > > > > >
-> > > > > > > ip link add link enp0s3 macvlan0 type macvlan
-> > > > > > > ip link set link enp0s3 down
-> > > > > > > ip link show
-> > > > > > >
-> > > > > > > Before this patch:
-> > > > > > >
-> > > > > > > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
-> > > > > > >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-> > > > > > > ......
-> > > > > > > 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-> > > > > > >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-> > > > > > >
-> > > > > > > After this patch:
-> > > > > > >
-> > > > > > > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
-> > > > > > >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
-> > > > > > > ...
-> > > > > > > 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
-> > > > > > >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
-> > > > > >
-> > > > > > I think that the commit log is confusing. It seems to say that
-> > > > > > the issue fixed is synchronizing state with hardware
-> > > > > > config change.
-> > > > > > But your example does not show any
-> > > > > > hardware change. Isn't this example really just
-> > > > > > a side effect of setting carrier off on close?
-> > > > >
-> > > > > The main goal for this patch is to make virtio-net follow RFC2863. The
-> > > > > main thing that is missed is to synchronize the operstate with admin
-> > > > > state, if we do this, we get several good results, one of the obvious
-> > > > > one is to allow virtio-net to propagate status to the upper layer, for
-> > > > > example if the admin state of the lower virtio-net is down it should
-> > > > > be propagated to the macvlan on top, so I give the example of using a
-> > > > > stacked device. I'm not we had others but the commit log is probably
-> > > > > too small to say all of it.
-> > > >
-> > > > Michael, any more comments on this?
-> > > >
-> > > > Thans
-> > >
-> > >
-> > > Still don't get it, sorry.
-> > > > > > > This is done by trying to toggle the carrier upon open/close and
-> > > > > > > synchronize with the config change work.
-> > > What does this sentence mean? What is not synchronized with config
-> > > change that needs to be?
-> >
-> > I meant,
-> >
-> > 1) maclvan depends on the linkwatch to transfer operstate from the
-> > lower device to itself.
-> > 2) ndo_open()/close() will not trigger the linkwatch so we need to do
-> > it by ourselves in virtio-net to make sure macvlan get the correct
-> > opersate
-> > 3) consider config change work can change the state so ndo_close()
-> > needs to synchronize with it
-> >
-> > Thanks
-> 
-> Michael, are you fine with the above or I miss something there?
-> 
-> Thanks
+Address various coding style warnings in the virtio_mmio driver:
 
+- Move trailing `*/` to a new line in block comments.
+- Use parentheses with sizeof for consistency.
+- Add missing blank line after declarations.
+- Replace 'S_IRUSR' with '0400' for permissions.
 
-I don't understand 3. config change can always trigger.
-what I do not like is all these reads from config space
-that now trigger on open/close. previously we did
-read
-- on probe
-- after probe, if config changed
+Signed-off-by: Juan Jos� Arboleda <soyjuanarbol@gmail.com>
+---
+ drivers/virtio/virtio_mmio.c | 33 ++++++++++++++++++---------------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
 
-
-and that made sense.
-
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 173596589c71..7e6e41b2fb5a 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -74,7 +74,8 @@
+ 
+ 
+ /* The alignment to use between consumer and producer parts of vring.
+- * Currently hardcoded to the page size. */
++ * Currently hardcoded to the page size.
++ */
+ #define VIRTIO_MMIO_VRING_ALIGN		PAGE_SIZE
+ 
+ 
+@@ -167,21 +168,21 @@ static void vm_get(struct virtio_device *vdev, unsigned int offset,
+ 	switch (len) {
+ 	case 1:
+ 		b = readb(base + offset);
+-		memcpy(buf, &b, sizeof b);
++		memcpy(buf, &b, sizeof(b));
+ 		break;
+ 	case 2:
+ 		w = cpu_to_le16(readw(base + offset));
+-		memcpy(buf, &w, sizeof w);
++		memcpy(buf, &w, sizeof(w));
+ 		break;
+ 	case 4:
+ 		l = cpu_to_le32(readl(base + offset));
+-		memcpy(buf, &l, sizeof l);
++		memcpy(buf, &l, sizeof(l));
+ 		break;
+ 	case 8:
+ 		l = cpu_to_le32(readl(base + offset));
+-		memcpy(buf, &l, sizeof l);
+-		l = cpu_to_le32(ioread32(base + offset + sizeof l));
+-		memcpy(buf + sizeof l, &l, sizeof l);
++		memcpy(buf, &l, sizeof(l));
++		l = cpu_to_le32(ioread32(base + offset + sizeof(l)));
++		memcpy(buf + sizeof(l), &l, sizeof(l));
+ 		break;
+ 	default:
+ 		BUG();
+@@ -209,22 +210,22 @@ static void vm_set(struct virtio_device *vdev, unsigned int offset,
+ 
+ 	switch (len) {
+ 	case 1:
+-		memcpy(&b, buf, sizeof b);
++		memcpy(&b, buf, sizeof(b));
+ 		writeb(b, base + offset);
+ 		break;
+ 	case 2:
+-		memcpy(&w, buf, sizeof w);
++		memcpy(&w, buf, sizeof(w));
+ 		writew(le16_to_cpu(w), base + offset);
+ 		break;
+ 	case 4:
+-		memcpy(&l, buf, sizeof l);
++		memcpy(&l, buf, sizeof(l));
+ 		writel(le32_to_cpu(l), base + offset);
+ 		break;
+ 	case 8:
+-		memcpy(&l, buf, sizeof l);
++		memcpy(&l, buf, sizeof(l));
+ 		writel(le32_to_cpu(l), base + offset);
+-		memcpy(&l, buf + sizeof l, sizeof l);
+-		writel(le32_to_cpu(l), base + offset + sizeof l);
++		memcpy(&l, buf + sizeof(l), sizeof(l));
++		writel(le32_to_cpu(l), base + offset + sizeof(l));
+ 		break;
+ 	default:
+ 		BUG();
+@@ -281,7 +282,8 @@ static bool vm_notify(struct virtqueue *vq)
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+ 
+ 	/* We write the queue's selector into the notification register to
+-	 * signal the other end */
++	 * signal the other end
++	 */
+ 	writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
+ 	return true;
+ }
+@@ -699,6 +701,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+ static void virtio_mmio_remove(struct platform_device *pdev)
+ {
+ 	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
++
+ 	unregister_virtio_device(&vm_dev->vdev);
+ }
+ 
+@@ -799,7 +802,7 @@ static const struct kernel_param_ops vm_cmdline_param_ops = {
+ 	.get = vm_cmdline_get,
+ };
+ 
+-device_param_cb(device, &vm_cmdline_param_ops, NULL, S_IRUSR);
++device_param_cb(device, &vm_cmdline_param_ops, NULL, 0400);
+ 
+ static int vm_unregister_cmdline_device(struct device *dev,
+ 		void *data)
 -- 
-MST
+2.45.2
 
