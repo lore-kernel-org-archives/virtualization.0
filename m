@@ -1,177 +1,183 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688222CA6
-	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 01:02:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6897C137E
+	for <virtualization@lists.linux.dev>; Fri, 19 Jul 2024 01:02:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721350937; cv=none; b=i4v5FKDMyts9XCMbcd7KxJjTFs7sNuLQt4O5dS/+HQbcAHZ5Or0mfkaubcrd9zZsWXb6hTomnVmtGM40sCA/TW4mOpIfiS6maE/DTiJHHmkyc1AK9haZFM4MDzTgD9S01Hc3SOTiAWEzzTO0dd2d6Kyr/Iu8Ss3pah3zxFUca04=
+	t=1721350966; cv=none; b=sza/xkQppytypmkhQ8CGKuwNHGZbXkK3glCUQCCvt22vWwX8/xueVyV0LBKXhdU8tiGMvjoxkgnSY4OWFgG9knyOYmlPdDKguKILDxfbGBk5F1NPbNywO5Poja7I89/qGiGpI5ig+6oqksnOFx4yjoOeqAGsYyra+13i0xxt9CI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721350937; c=relaxed/simple;
-	bh=egPWD6SvkPUOxMbhJVXX/ZmlFwvqOXO8b8h7S1FD3o8=;
+	s=arc-20240116; t=1721350966; c=relaxed/simple;
+	bh=ssP1jVPg8sd9HM1MFutiAyB41wofOCNUt/B8SWda9hI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XJxyYQRP4yumIt0K8FhYZJCxXdxwARL+OnTcFJCV/ytSc1rJ8QIMo7ADHauZjlsYGzNBYxp3dP59oYE+AqOO7bW3wNgt/SkS00k7FlkX5Xa9Cp0R3zWa3hRTcRZtRwajbd1XBVRmhb6kaxiy8yO3nczD+4/ugwyfkZlI2/BN7Xs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iq9NnMdw; arc=none smtp.client-ip=140.211.166.137
+	 To:Cc:Content-Type; b=Ksb2NJCLlfpSYjv0jltS0hS/XxMCfHFp4IkmnL44dySfm3oDYfVDsBWtHwi54DZtnaAWys5hHp2PHtcDWGwziZ9W26iozTgaOrcl/JhqVbDcL4Zf9fDWH0gmCWeVstWWRtfiwsrOaRzw0BVKISK8/npaiNFrEq86cAi92LyU0DI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UdJDWT3o; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iq9NnMdw"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E5C784094F
-	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 01:02:15 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id XLezAs0IiWxE for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Jul 2024 01:02:14 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8D48540929
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D48540929
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iq9NnMdw
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8D48540929
-	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 01:02:14 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UdJDWT3o"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721350933;
+	s=mimecast20190719; t=1721350964;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Juhk1rxXqcv0LvjBmmBek/yRx3F0GQ+A2PArt9J+ciU=;
-	b=iq9NnMdwi5blWniQX7AW6SwfEjroBweI+CEbahidY6S1co786zw/Bh4vHsCBQBMJEoxlo4
-	iUwnBj5U4FjUKwjxdw7Ev+NM86HODzI72vfh3b9ommDF8L7awY1ZCGfDVf7nWdKQoOMZoE
-	w8zdtQ4L9PLSC3u8Xi+XQNlJdAYuW/8=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=kRSaE06iHm1lpAkfBSdbhgUw/gaP3pFzc6w4e5ilsgk=;
+	b=UdJDWT3oidicJhvnxmXIY0OncVvJJHNLezb2WoiHQasA08qpDVaufmjgar3GAn6CaA/EXX
+	ycoq4NN0l40WTofJcpWA4PgZXOsRVB1Dlu1mgPCRZIDycHqh/jJwAMnkn4bI3DFZ+EOt1H
+	jE7++9sx+OnAU76N46eo0PBMe6RYMos=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-321-zZ2rMAv1PhKmARiktfEH2A-1; Thu, 18 Jul 2024 21:02:11 -0400
-X-MC-Unique: zZ2rMAv1PhKmARiktfEH2A-1
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-1fc52d3c76eso14059605ad.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 18 Jul 2024 18:02:11 -0700 (PDT)
+ us-mta-177-n-Ftg3v8Nv2w4GK6ZSMfWA-1; Thu, 18 Jul 2024 21:02:42 -0400
+X-MC-Unique: n-Ftg3v8Nv2w4GK6ZSMfWA-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2cb685d5987so988619a91.2
+        for <virtualization@lists.linux.dev>; Thu, 18 Jul 2024 18:02:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721350930; x=1721955730;
+        d=1e100.net; s=20230601; t=1721350962; x=1721955762;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Juhk1rxXqcv0LvjBmmBek/yRx3F0GQ+A2PArt9J+ciU=;
-        b=SWqAVXvDLGwf+LZAMZqmRlFK42U5aP23JBgD/gN0l6saXBmc+L7FsUiCikgRKJetqQ
-         NLx6N6341gKiaIrpAZ3vKf8PLRFfXVHTcDGYOUvzLysG2wd10MzqW2P6hrCI9r3dl9Ws
-         h5r2RgXbDrG3GmN5eNA+NHmjsChN5QmSQ0cjz5pHYUtSSN5lDZy13pNo2L8CNNE7uNce
-         bC3eE85MRrCoMMBIKijDVD4wNTRE3Ba7LqV7MCMWA6IsislX81c12UwrIXsScohHsLSF
-         TgesVEjH95UyxCvX4OTNntc+roGb/sAN/oQmF1ManXW8ysthSWWIKiEWMiVtgEe7QrYZ
-         pOVg==
-X-Forwarded-Encrypted: i=1; AJvYcCXFJuxKYJpKa2KD0aimwi9fJiUX3OykoQHI6KmCulqkoZ68gMEOJI7b9iw2jAewaefgg66+/B4kWdbZnn7iFT3VF8Sgt76saa42vhWO9F/lwVyx7ShERXC5cg==
-X-Gm-Message-State: AOJu0YyvOiXHa7mYIrhqIO7Y3yE6yI9CXKnLND/dssdwpYghP0XJRpv9
-	u/CaVAd4B782h+aQgRwtY7RyqoI0DcJP57wTGhNpVzW1gMtOqsWh7BihJ0nfLkZTeSctWVHrkKc
-	qREuxf+jnsumOuNzj4xvcgMIod86TbiVo6fdLuqT/OTH42MWY4zdivWC3WovdmT+JrrzYZ1pvv9
-	bqYADT6mjLTKAFWvCXdNTEH3M7vUybYYQiwVyJAtnmjZoi1AqNo+jA1w==
-X-Received: by 2002:a05:6a21:39a:b0:1c0:f529:af05 with SMTP id adf61e73a8af0-1c3fdd4d914mr6793196637.43.1721350930346;
-        Thu, 18 Jul 2024 18:02:10 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEIRWijrC51r9BOXUiE6Aug7hDC6Lr0jyTkTo6KMrQRu/t6/fcr6+L8+BQ4wl7rzCezfYFnYOWyCyo72nnIjgU=
-X-Received: by 2002:a05:6a21:39a:b0:1c0:f529:af05 with SMTP id
- adf61e73a8af0-1c3fdd4d914mr6793160637.43.1721350929827; Thu, 18 Jul 2024
- 18:02:09 -0700 (PDT)
+        bh=kRSaE06iHm1lpAkfBSdbhgUw/gaP3pFzc6w4e5ilsgk=;
+        b=r5lj2E/8dcPIVyR/j9qvwTgiUYP3JIaXk2xons7u/pzA2k7JAApUm36AmXxgt6DbIG
+         o/8o6rimOjTsdmzExJTKKVy0DHwCWw/IgjhK9tyDZtpXUcphzm7U6WJzy22jkhHArzKg
+         R1iuoKtFivyEwXwENSPaUuAqAVuNn7/82u9NfEdA7X8HMpolwlQjgdt7RTMPAVzgTbnD
+         ow7626uqZDzwzlAd9Sc/t9XEoj1Yzb9FxR87cfgRJY/uxwPiipOPPWODluofvS8aP2Ty
+         a1GJ4rmOunESXWnl7kWwB6gVyCly+FYZtySYoB+WvrFfldkzn9cvQcTxuNhLusII1jke
+         8Krw==
+X-Forwarded-Encrypted: i=1; AJvYcCWRuG1ASi0ZrvDKU0OY4ODH3+h6w6jMObnBkQ4w00Q/IMIoISTz3zpBAhN7ovkg+sHkrcLjENNLyt3onqabqXBLK6+Ji+qq+nzBI7AB3sg=
+X-Gm-Message-State: AOJu0Yz+sxyipGUyCdzooME9WHgvbkqf/dMhXGWxIvhmWX5URIX1E6jg
+	hukkUcUwyTs8U8qT8/CpJJ/Ka/HfN90+9NTbF3E4u9lBcmF7dWQe2zTQGqetjc/hYw2pjrRnuF/
+	9V8n2KqZ/N6MDh0QkR/qM1UZjwE76MBlev3qpSVnNN4ABSsZccP/N51147pm0nuD54cfzVYoLYh
+	xfBn+DfsjQzi0USWftZHS7DaSWYwiisDQEixb/BWs=
+X-Received: by 2002:a17:90b:70b:b0:2c9:5c63:29f4 with SMTP id 98e67ed59e1d1-2cb773360eemr2375424a91.25.1721350961720;
+        Thu, 18 Jul 2024 18:02:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGO4PmCb6HCsLcpCTX7+pQS+hbt8McQL9YjmzCLoXlpXD9+R3TxIFIRGIBhygHbZmPLDNFndBQeKcYJI+L2igo=
+X-Received: by 2002:a17:90b:70b:b0:2c9:5c63:29f4 with SMTP id
+ 98e67ed59e1d1-2cb773360eemr2375398a91.25.1721350961206; Thu, 18 Jul 2024
+ 18:02:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240717053034-mutt-send-email-mst@kernel.org>
- <CACGkMEura9v43QtBmWSd1+E_jpEUeXf+u5UmUzP1HT5vZOw3NA@mail.gmail.com> <20240718152712-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240718152712-mutt-send-email-mst@kernel.org>
+References: <20240709080214.9790-1-jasowang@redhat.com> <20240709080214.9790-4-jasowang@redhat.com>
+ <20240709090743-mutt-send-email-mst@kernel.org> <CACGkMEv4CVK4YdOvHEbMY3dLc3cxF_tPN8H4YO=0rvFLaK-Upw@mail.gmail.com>
+ <CACGkMEvDiQHfLaBRoaFtpYJHKTqicqbrpeZWzat43YveTa9Wyg@mail.gmail.com>
+ <20240717015904-mutt-send-email-mst@kernel.org> <CACGkMEtntsAyddgrtxrbQe407dZkitac4ogC7cASF=iYgsum_A@mail.gmail.com>
+In-Reply-To: <CACGkMEtntsAyddgrtxrbQe407dZkitac4ogC7cASF=iYgsum_A@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 19 Jul 2024 09:01:58 +0800
-Message-ID: <CACGkMEtTVmKYMdvjzE753+czmEcts4caG859_jW7nHQt7ATgkw@mail.gmail.com>
-Subject: Re: [GIT PULL] virtio: features, fixes, cleanups
+Date: Fri, 19 Jul 2024 09:02:29 +0800
+Message-ID: <CACGkMEsd63vH3J5m_4srO3ww2MWGOPc31L4171PfQ7uersN7PQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v3 3/3] virtio-net: synchronize operstate with
+ admin state on up/down
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, aha310510@gmail.com, arefev@swemel.ru, 
-	arseny.krasnov@kaspersky.com, davem@davemloft.net, dtatulea@nvidia.com, 
-	eperezma@redhat.com, glider@google.com, iii@linux.ibm.com, jiri@nvidia.com, 
-	jiri@resnulli.us, kuba@kernel.org, lingshan.zhu@intel.com, 
-	ndabilpuram@marvell.com, pgootzen@nvidia.com, pizhenwei@bytedance.com, 
-	quic_jjohnson@quicinc.com, schalla@marvell.com, stefanha@redhat.com, 
-	sthotton@marvell.com, syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com, 
-	vattunuru@marvell.com, will@kernel.org, xuanzhuo@linux.alibaba.com, 
-	yskelg@gmail.com
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>, 
+	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 19, 2024 at 3:28=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On Wed, Jul 17, 2024 at 2:53=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+ote:
 >
-> On Thu, Jul 18, 2024 at 08:52:28AM +0800, Jason Wang wrote:
-> > On Wed, Jul 17, 2024 at 5:30=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+> On Wed, Jul 17, 2024 at 2:00=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
+m> wrote:
+> >
+> > On Wed, Jul 17, 2024 at 09:19:02AM +0800, Jason Wang wrote:
+> > > On Wed, Jul 10, 2024 at 11:03=E2=80=AFAM Jason Wang <jasowang@redhat.=
 com> wrote:
+> > > >
+> > > > On Tue, Jul 9, 2024 at 9:28=E2=80=AFPM Michael S. Tsirkin <mst@redh=
+at.com> wrote:
+> > > > >
+> > > > > On Tue, Jul 09, 2024 at 04:02:14PM +0800, Jason Wang wrote:
+> > > > > > This patch synchronize operstate with admin state per RFC2863.
+> > > > > >
+> > > > > > This is done by trying to toggle the carrier upon open/close an=
+d
+> > > > > > synchronize with the config change work. This allows propagate =
+status
+> > > > > > correctly to stacked devices like:
+> > > > > >
+> > > > > > ip link add link enp0s3 macvlan0 type macvlan
+> > > > > > ip link set link enp0s3 down
+> > > > > > ip link show
+> > > > > >
+> > > > > > Before this patch:
+> > > > > >
+> > > > > > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast stat=
+e DOWN mode DEFAULT group default qlen 1000
+> > > > > >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> > > > > > ......
+> > > > > > 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mt=
+u 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+> > > > > >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> > > > > >
+> > > > > > After this patch:
+> > > > > >
+> > > > > > 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast stat=
+e DOWN mode DEFAULT group default qlen 1000
+> > > > > >     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> > > > > > ...
+> > > > > > 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> =
+mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen=
+ 1000
+> > > > > >     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> > > > >
+> > > > > I think that the commit log is confusing. It seems to say that
+> > > > > the issue fixed is synchronizing state with hardware
+> > > > > config change.
+> > > > > But your example does not show any
+> > > > > hardware change. Isn't this example really just
+> > > > > a side effect of setting carrier off on close?
+> > > >
+> > > > The main goal for this patch is to make virtio-net follow RFC2863. =
+The
+> > > > main thing that is missed is to synchronize the operstate with admi=
+n
+> > > > state, if we do this, we get several good results, one of the obvio=
+us
+> > > > one is to allow virtio-net to propagate status to the upper layer, =
+for
+> > > > example if the admin state of the lower virtio-net is down it shoul=
+d
+> > > > be propagated to the macvlan on top, so I give the example of using=
+ a
+> > > > stacked device. I'm not we had others but the commit log is probabl=
+y
+> > > > too small to say all of it.
 > > >
-> > > This is relatively small.
-> > > I had to drop a buggy commit in the middle so some hashes
-> > > changed from what was in linux-next.
-> > > Deferred admin vq scalability fix to after rc2 as a minor issue was
-> > > found with it recently, but the infrastructure for it
-> > > is there now.
+> > > Michael, any more comments on this?
 > > >
-> > > The following changes since commit e9d22f7a6655941fc8b2b942ed354ec780=
-936b3e:
-> > >
-> > >   Merge tag 'linux_kselftest-fixes-6.10-rc7' of git://git.kernel.org/=
-pub/scm/linux/kernel/git/shuah/linux-kselftest (2024-07-02 13:53:24 -0700)
-> > >
-> > > are available in the Git repository at:
-> > >
-> > >   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/=
-for_linus
-> > >
-> > > for you to fetch changes up to 6c85d6b653caeba2ef982925703cbb4f2b3b31=
-63:
-> > >
-> > >   virtio: rename virtio_find_vqs_info() to virtio_find_vqs() (2024-07=
--17 05:20:58 -0400)
-> > >
-> > > ----------------------------------------------------------------
-> > > virtio: features, fixes, cleanups
-> > >
-> > > Several new features here:
-> > >
-> > > - Virtio find vqs API has been reworked
-> > >   (required to fix the scalability issue we have with
-> > >    adminq, which I hope to merge later in the cycle)
-> > >
-> > > - vDPA driver for Marvell OCTEON
-> > >
-> > > - virtio fs performance improvement
-> > >
-> > > - mlx5 migration speedups
-> > >
-> > > Fixes, cleanups all over the place.
-> > >
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
+> > > Thans
 > >
-> > It looks like this one is missing?
 > >
-> > https://lore.kernel.org/kvm/20240701033159.18133-1-jasowang@redhat.com/=
-T/
-> >
-> > Thanks
+> > Still don't get it, sorry.
+> > > > > > This is done by trying to toggle the carrier upon open/close an=
+d
+> > > > > > synchronize with the config change work.
+> > What does this sentence mean? What is not synchronized with config
+> > change that needs to be?
 >
-> It's not included in the full but it's a bugfix and it's subtel enough
-> that I decided it's best to merge later, in particular when I'm not on
-> vacation ;)
+> I meant,
+>
+> 1) maclvan depends on the linkwatch to transfer operstate from the
+> lower device to itself.
+> 2) ndo_open()/close() will not trigger the linkwatch so we need to do
+> it by ourselves in virtio-net to make sure macvlan get the correct
+> opersate
+> 3) consider config change work can change the state so ndo_close()
+> needs to synchronize with it
+>
+> Thanks
 
-Understood.
+Michael, are you fine with the above or I miss something there?
 
 Thanks
-
->
-> --
-> MST
->
 
