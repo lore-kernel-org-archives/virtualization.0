@@ -1,254 +1,171 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EB2D28F5
-	for <virtualization@lists.linux.dev>; Fri, 19 Jul 2024 00:37:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.21
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721349455; cv=fail; b=UvyOjjflBtJqq8lnfMzPcMpOdDcF4lRr7cdCyfCZjI20Dw8qIPdG6FjSzm7vtygTpSOjy19klWFPeprQL4qRXFar1jXOML/GP5BHRNsMsCZ3pT35vxm1i26bm6D2XmZjuq7GSMwJNlc3dGkyXDma/SSa/wPa23Z/8tp+z6Q0v4w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721349455; c=relaxed/simple;
-	bh=V+OsLoO1wU477WM8VOAtAiyB6AlvIUP/9oVEAyQEPAM=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=F9xBQVDzJNpecngXcscdOGneSL0cQV2F+qBOyWKHDCdKoF8a0agBvdaK1tkcEKZ3ouAQVWTo99+lH2FKIS8y2audQUjYcKj+9zU1WpGQOFqmzNQpSN9DVNL8R92aufAcYPKcQRnTbOn9t4EhcgHh1Xq03Fxub2Jf8zJ+nay2xJ8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Kln3vFWW; arc=fail smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD221EBE
+	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 01:01:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1721350911; cv=none; b=XZKB/CdR9PNZd0/+UI7VWPR7nul7uj2XjZXH6XCpAvXd4AANYEntb7v7+BgkVpUd9b3BDURaLmDXQxBh/CTvucrh+/JZlMAskVKHkFFF63W3V5Xs/7VlbdHtvnPg4Hw2tcKgp9Ga1dhz7cYmKjCYro5gT+RnN8Cw/xhwQ31Sqjg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1721350911; c=relaxed/simple;
+	bh=8KnAlU9cYLXcno95Q36TTWbBLhvPugdWp/i7BifU7nI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KnJo26kZFskVOVdGMPK5VfZAomCpTjQ/iCu5/0S+i04BBIFIVz4vpHlnoRqsSVKKGJfkvYcvslmB8GP8COyUCCA5OPYFgy4GM+np/1u1sjt2s1zY9JU2U5vKk0TmAOqHqEUiw6lIKrRU6tw45FVfMt55ZdJvbgYb6hpZM8//dsk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BxyA/uNn; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Kln3vFWW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1721349453; x=1752885453;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=V+OsLoO1wU477WM8VOAtAiyB6AlvIUP/9oVEAyQEPAM=;
-  b=Kln3vFWW/jDEwpiICM1ZTtcoirN7DfwqPRe5UI0eHFxo67VUiw8cHy+Q
-   QSjdBgBBPPeOOabv1FGNQbNhtcABGuCE9acCKydQROR1VQpHRNQJldPiw
-   oGraXu3/sk54wICHLUY7SooWEaE8akOPpcj8yBKRN8vNc23uAF40sfk95
-   xINwq8vvkQlDlKvPOzcI0gIGZE5lY8q/d2k1z5Lhz++4kEVNp7cPEvEYF
-   HohtXtCgxctMKmrJVjNhkHY5xeCEEg71sKPmLdvy/yKtrZR8eWM8RTzlL
-   EzYB6OpZKkMtGoCAOUsTvV/ezgLrQ/jsTli5873Ylj+Jm8azYMzJAadOc
-   w==;
-X-CSE-ConnectionGUID: gpS3XJJpRAicavUa8jcvRg==
-X-CSE-MsgGUID: Fq0e7JxsSJqNRoMLQhiE6Q==
-X-IronPort-AV: E=McAfee;i="6700,10204,11137"; a="18905242"
-X-IronPort-AV: E=Sophos;i="6.09,219,1716274800"; 
-   d="scan'208";a="18905242"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jul 2024 17:37:33 -0700
-X-CSE-ConnectionGUID: RvcEz+PGRuqSOb6oIGIr4Q==
-X-CSE-MsgGUID: azbHxleYSYKyM7vMzUokYA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,219,1716274800"; 
-   d="scan'208";a="50696163"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by fmviesa007.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 18 Jul 2024 17:37:32 -0700
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Thu, 18 Jul 2024 17:37:32 -0700
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Thu, 18 Jul 2024 17:37:31 -0700
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Thu, 18 Jul 2024 17:37:31 -0700
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.48) by
- edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Thu, 18 Jul 2024 17:37:31 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ndQcXNkFA5/WzywGSqR5aVOX3psRNTSM2flm6sHkUG1pR4j/1uu3owcXmkqBwD+Z96utjAGPR85r1OBoklu64Y2MCCJvrH5C2aCruFwzwMyKTRcTzFYUtiVOvmUfBrpkhXFwaO/ws85zAFFyUpE+FMotY/WyIAFfrUxvVkJAfSDmnygJylm5ahg0PA8o86Krthhooo5VA58BnqSvSmw0YdMDd5rZ11OlwsEufXasLyODouRIdbFeAStK4tD503cAcDG8xEs6f39dlDSqfKf8QbhBWPNL6m1g5HSEbPtlGc4SsgqzXQ+jMz5XvxXXUxcIfQgzJMGZaBZzeUhdZCh7+Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ffv2FWMCtdW7DKIbvqYTZjj2NcijP+JP5NphdddHFEk=;
- b=B5+Bhy40+JmsJkZkDCU9mcYhToqlcbg5WmGYrKkjG5hiSgYSNEh0r328IzJiTIiHJd2t7+WCFt16UAZP+Q1lsiR+HRqn3mJBQ3aEb0w44YCG6fMrY39hY2ba6nJahX9SkF6PFR4eeUyH0uS+jF+kBh7Ewqseh6ntYkkXPWnkR0AgNbs5UGEgANclKocdhwnkbY1B+3pAVFBKBWM6idxenP7QsBEBzDppx3MWfbzY4O0RLIkIO64gtoFTnaSu+9g+q3NFZOdjKIpoYo2RLTyHRDvL6Z3pfzhCJcuGMoM686v9xir62YRJJOhg8ajQ4Yh/StJzuRfqIiZgaJLrYrlCMg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from SJ1PR11MB6153.namprd11.prod.outlook.com (2603:10b6:a03:488::18)
- by LV8PR11MB8559.namprd11.prod.outlook.com (2603:10b6:408:1e6::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7784.20; Fri, 19 Jul
- 2024 00:37:28 +0000
-Received: from SJ1PR11MB6153.namprd11.prod.outlook.com
- ([fe80::9546:aa5b:ecae:4fd2]) by SJ1PR11MB6153.namprd11.prod.outlook.com
- ([fe80::9546:aa5b:ecae:4fd2%5]) with mapi id 15.20.7762.027; Fri, 19 Jul 2024
- 00:37:28 +0000
-From: "Li, Fei1" <fei1.li@intel.com>
-To: "Dr. David Alan Gilbert" <linux@treblig.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: RE: [PATCH] virt: acrn: Remove unusted list 'acrn_irqfd_clients'
-Thread-Topic: [PATCH] virt: acrn: Remove unusted list 'acrn_irqfd_clients'
-Thread-Index: AQHanksvCLqY0CXNw0iisCpi64p+7rGcM6EAgANLW4CAXbiLAIAAcaQA
-Date: Fri, 19 Jul 2024 00:37:28 +0000
-Message-ID: <SJ1PR11MB615385A66E65F156BE177D20BFAD2@SJ1PR11MB6153.namprd11.prod.outlook.com>
-References: <20240504174725.93495-1-linux@treblig.org>
- <ZkfyfrDysJ2WnSZq@gallifrey> <Zkq183IzBA6cV9FE@louislifei-OptiPlex-7090>
- <ZplUWugKFu37t3PF@gallifrey>
-In-Reply-To: <ZplUWugKFu37t3PF@gallifrey>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SJ1PR11MB6153:EE_|LV8PR11MB8559:EE_
-x-ms-office365-filtering-correlation-id: dc7749d8-eada-46ba-4ef6-08dca78af7fc
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
-x-microsoft-antispam-message-info: =?us-ascii?Q?H3EmO5c3XQmWDg2c1W5Nh8tpoEyloE5zC+izljA4yO6kh+113hfVf6GKr9+H?=
- =?us-ascii?Q?sMW3nDhsOUHzPqHp4Obos5z0SOEnf0GfgkdrLqILB5Q6X3XnpJll2sJuALtQ?=
- =?us-ascii?Q?tNUOygk8QhLFXQgI3dYyVjFESsSZBTq5+NFp6RP3YKNrHND9kQAwBEOAwf/E?=
- =?us-ascii?Q?5Z9/4mtt1F+wKepkbAAnv04hG8CLZ7bzzSNkY8M4BYhZ3jmuOsZViUB+tV5R?=
- =?us-ascii?Q?yxfI4RPLKilMCQISYkubeobIZBQL47a5wEd+DXuviEVv2XS1DWmb4iyRnv+h?=
- =?us-ascii?Q?c0RCGMGRHzt1ydOAcuY2aYMYX6THXGXHx48niOHqxoOkmS5bmAiEfP2p9dUm?=
- =?us-ascii?Q?Qe8Q0HuM2uWzimfws1IWdL/OpfzD7KD8SODTCfmyjPoqIS/2vpzVqZXJtiNH?=
- =?us-ascii?Q?QruPO1oN3F8/2OhZrVE88fvL1P/mvUIBBo+tqJL11mbPaS47atUE4dyVdCjt?=
- =?us-ascii?Q?MzuPNDuek9njKGFYeN7PtO0hh+mZOOCnZ4fxcpR95jGJP3ljFhByKiIXnl5H?=
- =?us-ascii?Q?Q6xJiKzZide8jEKzEyNCWTt3uIA6zF0QCwcngqK1weQptFIscQNuk+lYksJK?=
- =?us-ascii?Q?nM8vD1ha8+PqJB7S8EOviFtzfKOm4G4Ytg0vE+YI+cdKAyUP+103XmVau6uW?=
- =?us-ascii?Q?Cgg5+33nZBqTer86mUYSvcv0qSL4nRSNDCJ3ZF7HSjlociyuyDM+nzL1ECYi?=
- =?us-ascii?Q?tTS7vqeKskD0e9fdDjKGSqGDVqOMfCFnecrOF0SeVpYWJWP91fx/07dXBNK+?=
- =?us-ascii?Q?z6S5CAPcWeVS2taCH8TM+Sj4AsSBQuytrJDz8DM0DVzC86rGFn+xMmJcDDOS?=
- =?us-ascii?Q?qMB8v+VQboM3l3KjhEFbkpEJiI2r9DSvE2Sy2NoFIhdUEC+wW5mjtTYLk3bo?=
- =?us-ascii?Q?vj8fDvuWP9cikBzGykJKPglXR/3Kfd7lLkS7n4YqWNY13Q5NL3aznCsxa7/c?=
- =?us-ascii?Q?sXWovV8FdEK/jhBm8ewC7Qd1qHSfzxziTmvnmr5TKozQhoOyEkTb9GnTMSRK?=
- =?us-ascii?Q?qtwfGSt0PrfJwPiLN0pVWjDdnMW8PTZ4vvokrjWL9l3AZgwcRY6gHGsBWF3c?=
- =?us-ascii?Q?9jvcwrSGsawZJAO4jGSiK2wsl/nqiqbaDK2b4RgFjLloBrkslm1oI1pRDtwW?=
- =?us-ascii?Q?sNMP1lhfMRias65YE0WX3zF+jL9KjcpVUPSHBD8TjQQtD2G4guU1pnCTW52m?=
- =?us-ascii?Q?bcxKj4+G9oU27HWWnsFuuLcDiDilvbmRocZsZ0t/jPd8y/gWFYUAqRmAL3tk?=
- =?us-ascii?Q?5F5pDahN3Pc7kNibIHe4rQGBx44iXoK4S2jMdE+RTzqauKTVtWJosXhrlIxY?=
- =?us-ascii?Q?o/lj7SH8DqphMrejzkH4LUuJnUtq+3yh3dpJRFxicJwpTIzhqQi5mT2+aIEw?=
- =?us-ascii?Q?YDI3rh4=3D?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ1PR11MB6153.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?RiyAkGwIWGPZHJln4SKcsAohk3Ae9mXDW9qs/vTCz7WE4fP4utecY3HdX7ba?=
- =?us-ascii?Q?wi/7/gen6bSA/P6x2a9Q3INLZwEguvjI7/v250eHt91Wx4hAviXW+fYKF0Xd?=
- =?us-ascii?Q?3oHTqVYZhzG0u1wHCsKkitp4CdJMDGzBNZzT4zqcFyRypB3tN/af0fJz3ZDf?=
- =?us-ascii?Q?oOAlYfEOkOW+bL44X8F/G98O6ROP4+NqUJM8zPv0wlcGqZLH1mbGkPPfX0mP?=
- =?us-ascii?Q?d3+cppsr7XRcnbp+byi/f2CxVXqtPXdkTNtvJyDAo9E+3ZPa/hRcC6O9jvFj?=
- =?us-ascii?Q?1iri3d9842NmBSegjgdHGBi8r9wrC5OfuU1aS3fz0v5D3QKnYwVItz7HZYMd?=
- =?us-ascii?Q?n5drC84LmAh+QaUXn7jx2jcrHfOxRrzDainWrzxLWWB2+1bPW0j+tAjy4vQT?=
- =?us-ascii?Q?9NCypSnCiTIdrFRvzzu3LG6CphKO8TWddUJkROjGGH67dfXJEicI7/8RBIyD?=
- =?us-ascii?Q?OP1gVdD0BmP/pW6QYu0UGG+hnLnLiP6J9e73u9hedSnfdisPid06BEIS/k3s?=
- =?us-ascii?Q?JN0VE+uGI8wDiqJ+MiGoc53rXuGVIZqyQ2bZMN1h7S7dl3OjoS2W1UsUenJn?=
- =?us-ascii?Q?KiI3fu0P7H3RaZjP+DKLQdwkyr6+tZG7OdpGK/oLTaiooRkJDBx5gfVBTUQX?=
- =?us-ascii?Q?JupQeaVeAZ+K1UR2g8VKEoghGQC87FFrDcu44WzRK0IfFJKCn/e7FPMu+gdc?=
- =?us-ascii?Q?yrCGoMhgHHkIB33yNSmoe+CYwXd/gAcePD/agnr8SAFgTRkI2EFstV1Z6IV+?=
- =?us-ascii?Q?VbcyKC60iMSlDzOxia1TutJudfr8aRxp+xSY2sXmDVMhEwzwOL+aqyh9yaCc?=
- =?us-ascii?Q?TlNZNSipQ7Y8u7RapP+Tv1yQ4dEgcxDLo//Jg/48rpeH5X504vbibM08NK65?=
- =?us-ascii?Q?NSp4oQoq/rnQhcYGxxj+/l6Dz6VSJPhvCV/4xSinuWV6xaZ1gMiKVjuvPQwO?=
- =?us-ascii?Q?0Acvl2AXBUtLHjShMEkRK/6crkEe9u3UyQ7LsmAXIAU8guf8X2xCer3HM+DJ?=
- =?us-ascii?Q?2eDTLfCKuuFU5n/v8V0UrSQ8axXWVsOJn57o0mkFAbpUoh9Ex+En+G9rlKZB?=
- =?us-ascii?Q?IlL4hvTnuGP1suv1Gz1jE4X8s9wjihu8U0jckH3hs+sctfYCiOlwIEmx0lBj?=
- =?us-ascii?Q?NdZRXCs3anGDY0v/Lm7WRGz2cGYcFkFAj9tfHs6gaEbwa0eaOJ8RpkUFUcMC?=
- =?us-ascii?Q?+How6uApHHQeMCpH7I3nVm4Z1P5P4yf6xTjUFvUl5SfC+TEAQMjSRTLyeDb4?=
- =?us-ascii?Q?G3frnrcijgk4t2eB5mRpfu2D9t6n/kowI5+pJesBAxvJvzak+dNAh7KSiOGu?=
- =?us-ascii?Q?i3sg+GgtPUVy8rWkOyEjxLVlyxVjyu2VMpfK9HGMj3ebGa64deC5H60AiE8P?=
- =?us-ascii?Q?3PWoxobVPAV47cV34M0hN4fFVxy5iFzjkkHS5EIWkHPWeNHdT1k5Nfp5CG9P?=
- =?us-ascii?Q?yY4m5MKW6Xcaug1mLAUX8g1Xr3OHj1tOwSybVQpDfjF11PO7cHx1SBixr1/z?=
- =?us-ascii?Q?Popn4TlT1UjmV+RgRoa3xjZ7RIutwE1/be5TwfmDs+uHzdo464TgMzNLQkK+?=
- =?us-ascii?Q?fsoKKaMK+it5JeP0oNE=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BxyA/uNn"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4660B40929
+	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 01:01:49 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id FUSKCbjjsjPy for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Jul 2024 01:01:47 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 90B0C40353
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 90B0C40353
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BxyA/uNn
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 90B0C40353
+	for <virtualization@lists.linux-foundation.org>; Fri, 19 Jul 2024 01:01:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1721350905;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=MPg8UfS1mNa8nZOIH+oSnc/vQVgPs0AeEqj7g3NW3eA=;
+	b=BxyA/uNncngj0NuFI+Jc4x8E6dvWzraXCFOxhVjbcwqAjNAJ5ZJNaw8/d//GPkGUjZVsvg
+	1abw68ezVHXPqfChs4zgBicRMl4UflMHVTsLc09Kv/ANqoR102bKO0Rtbk3mPh8rYTzlBJ
+	xiL8sWRZ4TfiTkw8XyhA05i1w9meCfU=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-116-_RNSjqnOOIObZkyMt0RKlg-1; Thu, 18 Jul 2024 21:01:43 -0400
+X-MC-Unique: _RNSjqnOOIObZkyMt0RKlg-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2cb4bcd9671so1004281a91.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 18 Jul 2024 18:01:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721350902; x=1721955702;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=MPg8UfS1mNa8nZOIH+oSnc/vQVgPs0AeEqj7g3NW3eA=;
+        b=e9d2DLQzR0Qq1tIzNI5GH8g1vrL0IQVBdmI/hoe/6Aha+Yiqwv0DSGrIH/gtG9MzcS
+         d6JZG6yidXFjzTop76ilc+vT1rzJN8XUQ1W89FVSDGwgjY/53MVRz+sY7c9oNeKr/6Ne
+         saPjZZObi44/3eiJu9RYAWZTkNOB+Hq0tR0CKR6pGRXcyGS2iNNCPJETmEWofrSiWUhQ
+         dZIBaew83iGnxEDtU78gK42x+ZAJbY+dk5rZuRV5Em1o4/eBJPYisZfedliyWcoH0vWL
+         LKPm7ucsz0e9LuVTbuk8fZOfxDN3VpezyW/xdFtWL2VJM0Nu3gdqNY44Pd+KtTh1fDc0
+         L/Bg==
+X-Forwarded-Encrypted: i=1; AJvYcCXG7dZAJ6XhuvVsmRFHoHRMsepW8tqLGqiIPiBZKTMUTOVDi78TvpAADjKbEMhb7YDgBpFBCSgbDNMxxOp/CHxESAqaqYpArJHxn4aUe/zDp5CMW7WrYTJiyA==
+X-Gm-Message-State: AOJu0YxCwmVL1N0uj1PeUoS6TqEmqxPesFADielTVkfK/+a7+dO+qzNg
+	BL6IVzzYHW+5jpd8ki+kva4h4kIPn3CwQwSoQBBLSBC+Q7/6YkN0uqn3z1SF/2/QFu2OiJcNWbk
+	SrkBGSru5GrT7rUYFwtZMHwPtruq9WXLI2OSwCIaaM+GanR0XVgKMFPQnn2I/w7v6TQsWrRavIU
+	4M8GeYfLFC6fmGrFx8b8xkOiyx+UVJOBoVdDpOp9QJXLWbZpzzKT3xYw==
+X-Received: by 2002:a17:90a:c598:b0:2c9:e0e3:e507 with SMTP id 98e67ed59e1d1-2cb51e5efe9mr5425327a91.0.1721350901997;
+        Thu, 18 Jul 2024 18:01:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGoOtmyeavURvGXMlZW9QiwWpBgy/DTMI/26rVaTyG7HUyL1xELz/5e17Got+cyMz7yEPSyXmZm+BjeeWh1l0g=
+X-Received: by 2002:a17:90a:c598:b0:2c9:e0e3:e507 with SMTP id
+ 98e67ed59e1d1-2cb51e5efe9mr5425292a91.0.1721350901557; Thu, 18 Jul 2024
+ 18:01:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SJ1PR11MB6153.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dc7749d8-eada-46ba-4ef6-08dca78af7fc
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Jul 2024 00:37:28.7238
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 1DmUowd0iwRlzUOgEUHR5Kiwm4OGoRUsDVN2K+tEwXsybfhh04MpQder7pORZ/BCwVttelQxozeJm8QuOtlvEw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR11MB8559
-X-OriginatorOrg: intel.com
+References: <1720790333-456232-1-git-send-email-steven.sistare@oracle.com>
+ <1720790333-456232-6-git-send-email-steven.sistare@oracle.com>
+ <CACGkMEurG88fXiThyainxbuzpgBUzzGkmvyQB5vuXsU7_6XBBw@mail.gmail.com>
+ <d738a0e2-5a17-4323-9c86-b5a806066292@oracle.com> <CACGkMEuj-6EcEPo9xKkmuPSaQPQnH6zG+j2cqLRiScWUB4oqXw@mail.gmail.com>
+ <5a1cfaaf-64aa-426a-b1b4-da84a66b362a@oracle.com> <CACGkMEtuErg+nd96k6FkL9dfSxOv2o38L1HSsK9jU-xmmkv8oQ@mail.gmail.com>
+ <20240718153724-mutt-send-email-mst@kernel.org> <53630267-d22f-45ab-8919-3103739e360c@oracle.com>
+In-Reply-To: <53630267-d22f-45ab-8919-3103739e360c@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 19 Jul 2024 09:01:30 +0800
+Message-ID: <CACGkMEuUBbTADGL8dVHZ+J=-5d8Kkye2xHHNCwjzLnwAPz6dBA@mail.gmail.com>
+Subject: Re: [PATCH V2 5/7] vhost-vdpa: VHOST_IOTLB_REMAP
+To: Steven Sistare <steven.sistare@oracle.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, 
+	linux-kernel@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	Eugenio Perez Martin <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Dragos Tatulea <dtatulea@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> -----Original Message-----
-> From: Dr. David Alan Gilbert <linux@treblig.org>
-> Sent: Friday, July 19, 2024 1:44 AM
-> To: Li, Fei1 <fei1.li@intel.com>
-> Cc: linux-kernel@vger.kernel.org; virtualization@lists.linux.dev
-> Subject: Re: [PATCH] virt: acrn: Remove unusted list 'acrn_irqfd_clients'
->=20
-> * Fei Li (fei1.li@intel.com) wrote:
-> > On 2024-05-18 at 00:12:46 +0000, Dr. David Alan Gilbert wrote:
-> > > * linux@treblig.org (linux@treblig.org) wrote:
-> > > > From: "Dr. David Alan Gilbert" <linux@treblig.org>
-> > > >
-> > > > It doesn't look like this was ever used.
-> > > >
-> > > > Build tested only.
-> > > >
-> > > > Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
-> > >
-> > > Ping
+On Fri, Jul 19, 2024 at 4:19=E2=80=AFAM Steven Sistare
+<steven.sistare@oracle.com> wrote:
+>
+> On 7/18/2024 3:39 PM, Michael S. Tsirkin wrote:
+> > On Thu, Jul 18, 2024 at 08:45:31AM +0800, Jason Wang wrote:
+> >>>> For example:
+> >>>>
+> >>>> 1) old owner pass fd to new owner which is another process
+> >>>> 2) the new owner do VHOST_NEW_OWNER
+> >>>> 3) new owner doesn't do remap correctly
+> >>>>
+> >>>> There's no way for the old owner to remove/unpin the mappings as we
+> >>>> have the owner check in IOTLB_UPDATE. Looks like a potential way for
+> >>>> DOS.
+> >>>
+> >>> This is a bug in the second cooperating process, not a DOS.  The appl=
+ication
+> >>> must fix it.  Sometimes you cannot recover from an application bug at=
+ run time.
+> >>>
+> >>> BTW, at one time vfio enforced the concept of an owner, but Alex dele=
+ted it.
+> >>> It adds no value, because possession of the fd is the key.
+> >>>     ffed0518d871 ("vfio: remove useless judgement")
+> >>
+> >> This seems to be a great relaxation of the ownership check. I would
+> >> like to hear from Michael first.
+> >>
+> >> Thanks
 > >
-> > Acked-by: Fei Li <fei1.li@intel.com>
->=20
-> Hi Fei,
->   Do you know which way this is likely to get picked up?
-> (I don't see it in -next)
->=20
->  Thanks,
->=20
-> Dave
->=20
-> > Thanks.
+> > It could be that the ownership model is too restrictive.
+> > But again, this is changing a security assumption.
+> > Looks like yes another reason to tie this to the switch to iommufd.
+>
+> iommufd, like vfio, does not impose an ownership requirement.  If vdpa ha=
+s a
+> stricter requirement, such as allowing the vhost-net sharing that Jason
+> described, then we need to surface that now, and extend it to allow chang=
+e
+> of ownership for live update.
+>
+> Is the vhost-net scenario currently used, or aspirational?
 
-Hi Dave
+This question is very hard. But for my understanding, what Michael meant is=
+:
 
-For this patch, you could refer to https://lore.kernel.org/all/202109100947=
-08.3430340-1-bigeasy@linutronix.de/ to cc Thomas Gleixner <tglx@linutronix.=
-de> to help review.
+1) the current proposal changes the security assumption
+2) iommufd require uAPI changes which may imply security assumption
+changes or other user space noticeable behaviour changes
 
-Thanks.
+My understanding is:
 
-> >
-> > >
-> > > > ---
-> > > >  drivers/virt/acrn/irqfd.c | 2 --
-> > > >  1 file changed, 2 deletions(-)
-> > > >
-> > > > diff --git a/drivers/virt/acrn/irqfd.c b/drivers/virt/acrn/irqfd.c
-> > > > index d4ad211dce7a3..346cf0be4aac7 100644
-> > > > --- a/drivers/virt/acrn/irqfd.c
-> > > > +++ b/drivers/virt/acrn/irqfd.c
-> > > > @@ -16,8 +16,6 @@
-> > > >
-> > > >  #include "acrn_drv.h"
-> > > >
-> > > > -static LIST_HEAD(acrn_irqfd_clients);
-> > > > -
-> > > >  /**
-> > > >   * struct hsm_irqfd - Properties of HSM irqfd
-> > > >   * @vm:		Associated VM pointer
-> > > > --
-> > > > 2.45.0
-> > > >
-> > > --
-> > >  -----Open up your eyes, open up your mind, open up your code -------
-> > > / Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  =
-\
-> > > \        dave @ treblig.org |                               | In Hex =
-/
-> > >  \ _________________________|_____ http://www.treblig.org   |_______/
-> > >
-> >
-> --
->  -----Open up your eyes, open up your mind, open up your code -------
-> / Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \
-> \        dave @ treblig.org |                               | In Hex /
->  \ _________________________|_____ http://www.treblig.org   |_______/
+If we want to go without iommufd, we may need to find a way to stick
+to the assumption (not sure how hard it is). If we want to go with
+iommufd, we probably won't worry about that, as you've pointed out,
+there's no ownership requirement.
+
+> Copying from Jason's email:
+>    1) Two processes (A and B) share a part of the memory
+>    2) A is the owner of the vhost-net who is in charge of building memory
+>    mappings via IOTLB
+>    3) A passes vhost-net fd to process B
+>
+> - Steve
+>
+
+Thanks
+
