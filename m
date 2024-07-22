@@ -1,237 +1,187 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A32315884D
-	for <virtualization@lists.linux.dev>; Mon, 22 Jul 2024 07:51:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B31F51607B0
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:57:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721634666; cv=none; b=Ds4KnP0sFr7xbN0/zn0QeS3fj6VFPH5YQ4fxqYDH/UyXLG3Ui4eG4ju5b1cdKZhj4+UNLT2Y8NOWwgzZJR3bKOAM40tkcKpAzLs8Oo5D1TGXOFY5fZfIov/ghKJJtNyp52zxNs3RiClytdqON0BOZt2608IpycJIZG11AQODnKo=
+	t=1721635043; cv=none; b=fjU9ER0M9CbK45YYgVUSmRA8edRpTpiAWiSrrnGtU7bhTJmQdhNupzVh+iCtXbyH5HqIBWYWbnBAUIvdgwUqSaznQhPiUNHi62Cew2npFP1lFPhsi+CvoejtwSfcUE13rX2qb7Qbn3BE1JzAUD2u4GF0mO1ON9/mVHC6PQmciCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721634666; c=relaxed/simple;
-	bh=kM6B4WAqrzKJYRnZ3i57Pt1wk2HOfSOUPmwzvzL2Eqc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VQtl75hdvQs++sAKpuDog+uIHhpGIHdloh7a6sfhp3gB5YpvUxGgjTKLJTh17xmgROlUak9Wrqf95K9cAVp2tPC1ehBASXpHiO09VhMIsTtHRYBqaNPWaIQr7dZB+8gTwqEy6bI58m9eA+7b5YFkGcrnq+STRgtzyZbB1IYBqXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fgHQY1F3; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1721635043; c=relaxed/simple;
+	bh=HWNPQ/1vUrq7iKlpWAUp1cUMrSt4KvhLV953piOX8g8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NzlgsizDO/6UK6CFm3n/fWwUswm5PXUHka5Xt+j8VJcfc0EM1opNjwmfC5E8JJ3Ag5xWNPh9BOXUtG5WEB/GVnNewRHzkgqNu8hCkRfKwLmDNm7ylDFjvrLT+3+Hyxt2mHHLYouQ7OAqNMe0XYiBwhMMlmzpUVVHPKdD68XLb2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gjg/kFvT; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fgHQY1F3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gjg/kFvT"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 33AC14033F
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:57:21 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id gCElrKbuOtmj for <virtualization@lists.linux-foundation.org>;
+ Mon, 22 Jul 2024 07:57:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2F91A4036E
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2F91A4036E
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gjg/kFvT
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2F91A4036E
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721634663;
+	s=mimecast20190719; t=1721635038;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=B4m+0XDjcJxkqMhrA2nKcWximGlfkXdZjIEPwvCiPVg=;
-	b=fgHQY1F3zq7xixL7ZJb2brvqQvSkHSAA8+m/QMuRSwHbPHqvH4XyW4mWiB3wr6uqzNwXS9
-	gKfimzgTq+E4EtAScsF/QNj13KGAQ6wcxmoDSGPrD0xP0DGKJPHlH3lEhp2Cu5HwxMf6pW
-	oSDC9+A1zUM44DR5Zv7dXSX/MJ9Kk9I=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YQEopZwHga4C7qzVJPruzVlevn1Kn/ATvarPGUPiBhY=;
+	b=gjg/kFvTrkQVmSalBfgCMjsw1Z628iwt+5gl/V9lMmyMu2L68mNFYKEvDcvg3MYw//be9l
+	svCu7LWRcMGnvVd5H56ipgVwnUvX2tffBNwW8FS5c8t9E7xAU+U4EQghM9EegfzTbikCoo
+	731QFpOfj40P1CVxdN4Kw1LvwPENiSI=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-596-oQem2zcoNKmVjOjBasS9ow-1; Mon, 22 Jul 2024 03:51:01 -0400
-X-MC-Unique: oQem2zcoNKmVjOjBasS9ow-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4266fbae4c6so30068225e9.0
-        for <virtualization@lists.linux.dev>; Mon, 22 Jul 2024 00:51:00 -0700 (PDT)
+ us-mta-184-TtbKkydpO-qBpRGWkr9ClQ-1; Mon, 22 Jul 2024 03:57:16 -0400
+X-MC-Unique: TtbKkydpO-qBpRGWkr9ClQ-1
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2ef23d3650fso11894021fa.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 00:57:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721634660; x=1722239460;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=B4m+0XDjcJxkqMhrA2nKcWximGlfkXdZjIEPwvCiPVg=;
-        b=eqfSb+tJS3xEdd9aPNbmmKl9aYcsDNkcV8JlYlCX5dp9AdhO1wIZHqJNbUNmJzZvNx
-         l8SRxkrGNzRZxZZITfydnttNLWr6OjqFxNl08hnPhIlI5dx/ob6eAbMClHVkLiO/RC20
-         pwPIj3wNG/8/ELVTUIqT88Lf685qpr+UADQiJQmNEBD4vdthbtr7QZkKvAiW5dhI2b68
-         cDYNPEjb8Zvi9OEebnxTp55XlUTNbmfLdgPCuEod+AMVCbBIutonWhXw3xdtDE/A1rlY
-         LypUDLQFDui15CXQ0g+A+wHXi3nyEUbWoQUEKbTQcXgw8Y83bgASZRGJAhbnQxPgPy9C
-         zvjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWpYdN4tR6qxa/sUIu8U0/JecBgwzjr2TPQu+6zeqXmDcxFsCNlvQ0xlU9gda8QxBL4GB/9r+ULUDU/SJCBkpofH8HnfNYUb7PpbcB9pyY=
-X-Gm-Message-State: AOJu0Yxm8O7OQnbely9q5fofuPRPYcAre7TnkJzd8oOZOekLbzRos9yi
-	KYvFRamR1Y4/sXHXUzdkaAXyQVf7MgDQG0aCvBr0PrjdEx80CMf+jCY9ao6S8+wuRQQ2eUP/eBG
-	/PV4V57Ae6HQ1tMyG6vP7LTWgxZk1aKG/pRvn3c+upeu94NKEhXfwq/epGuQHjGKD
-X-Received: by 2002:a05:600c:1c9a:b0:426:5b29:b5c8 with SMTP id 5b1f17b1804b1-427dc5584e3mr34941925e9.28.1721634659997;
-        Mon, 22 Jul 2024 00:50:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IER9CrSDIlh48t2FoOJgwrt+CviGGbRpwDi/tE9y0nnBt94oBE08Sl1oSSe2KOtiibfXqbzEg==
-X-Received: by 2002:a05:600c:1c9a:b0:426:5b29:b5c8 with SMTP id 5b1f17b1804b1-427dc5584e3mr34941625e9.28.1721634659331;
-        Mon, 22 Jul 2024 00:50:59 -0700 (PDT)
-Received: from redhat.com (mob-5-90-115-88.net.vodafone.it. [5.90.115.88])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-427d2a53ccfsm143632605e9.11.2024.07.22.00.50.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jul 2024 00:50:58 -0700 (PDT)
-Date: Mon, 22 Jul 2024 03:50:56 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Srujana Challa <schalla@marvell.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	Vamsi Krishna Attunuru <vattunuru@marvell.com>,
-	Shijith Thotton <sthotton@marvell.com>,
-	Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
-	Jerin Jacob <jerinj@marvell.com>,
-	"joro@8bytes.org" <joro@8bytes.org>,
-	"will@kernel.org" <will@kernel.org>
-Subject: Re: [EXTERNAL] Re: [PATCH] vdpa: Add support for no-IOMMU mode
-Message-ID: <20240722034957-mutt-send-email-mst@kernel.org>
-References: <20240530101823.1210161-1-schalla@marvell.com>
- <20240717054547-mutt-send-email-mst@kernel.org>
- <DS0PR18MB536893E8C3A628A95BF8DDA0A0AD2@DS0PR18MB5368.namprd18.prod.outlook.com>
- <CACGkMEtQ3SWBpS-00BBCJxoUK5AQRB=FhKGEqigh81GTbRf61A@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1721635035; x=1722239835;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=YQEopZwHga4C7qzVJPruzVlevn1Kn/ATvarPGUPiBhY=;
+        b=I6hboS3/yrsGZsc4xE+9rfldbARwdYsGykGLCZjASf2GWHn3LF1YMtX0NIcGvtzq13
+         49kDq6PaIWGlVhwHLZO/LF7W96bh26mc3AwbR1ei6WeJVsWs0Zu1DX8cxoABDJt37B9W
+         4cxPOmI9ZBObNZswiwuFMBuFjedYsUSTtmkumqrGUVdAZKJQv/QDMSA2iyZMXO6VhiVO
+         STNBIEqZ08J/zWVYufZKbEILYfxCpIQ2L7g7jyjDaKVJaLyvc/pl3nKxYK4BgCoC2cEo
+         g2Jx6p5gOvZPOgGP0Mrcv/9xmWmemgR3Dfrj7TayHb6mT5u0LVQusWsjCsSscuBfhAHp
+         GbVg==
+X-Forwarded-Encrypted: i=1; AJvYcCVuwJYIzBjYMYhemUV4mKIdiRmPOxDKuYrSzhpIIIGb8k+lH3MQhtDnLgZWUB9Ksbin+fMH0tuSyBOC//B4MkjlyWJNfdwEtgoNjK81cF/TzEzc81JqFrbY3A==
+X-Gm-Message-State: AOJu0YwiXi+pVTb4VF49R0rqeJVIJHVB7zZw2+7XdkR3B1ycts+XUBio
+	Ytz3+LpF7R6bkGX7g7QZhe/1rJhwpggB5yJmrzd0btLxfKdGwOSPvJdcXwiTr38GpMACGjE2Dqk
+	23xJxpzKH7Zxaz6DX2PmNU6jcIDzGqMUPJSpwFR/L15nkzQTxknIyGkD5uZ89bhG+pN/Rh0SFIq
+	S4JSbGFQUpS952s/RBybrQBNa5b/UCD+pTeG3Gm05iDQUVbzhMBKZ+IA==
+X-Received: by 2002:a05:651c:50d:b0:2ef:17ee:62b0 with SMTP id 38308e7fff4ca-2ef17ee6747mr44078071fa.2.1721635035151;
+        Mon, 22 Jul 2024 00:57:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFYfWrHNz6DUflgtw/ZcTjXibd8jwa6+RV9ykMQ9YOOIBFKj5ChXg/RudR/hIBIlgmdHIluX8YxfscwNFeCP2U=
+X-Received: by 2002:a05:651c:50d:b0:2ef:17ee:62b0 with SMTP id
+ 38308e7fff4ca-2ef17ee6747mr44077821fa.2.1721635034786; Mon, 22 Jul 2024
+ 00:57:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtQ3SWBpS-00BBCJxoUK5AQRB=FhKGEqigh81GTbRf61A@mail.gmail.com>
+References: <20240722010625.1016854-1-lulu@redhat.com> <20240722010625.1016854-3-lulu@redhat.com>
+ <CACGkMEtq=2yO=4te+qQxwSzi4G-4E_kdq=tCQq_N94Pk8Ro3Zw@mail.gmail.com>
+In-Reply-To: <CACGkMEtq=2yO=4te+qQxwSzi4G-4E_kdq=tCQq_N94Pk8Ro3Zw@mail.gmail.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Mon, 22 Jul 2024 15:56:38 +0800
+Message-ID: <CACLfguUaDo3seJZT_yQNp_fa4bELHwwAb8OTbXGwBLw2fGdj+w@mail.gmail.com>
+Subject: Re: [PATH v4 2/3] vdpa_sim_net: Add the support of set mac address
+To: Jason Wang <jasowang@redhat.com>
+Cc: dtatulea@nvidia.com, mst@redhat.com, parav@nvidia.com, sgarzare@redhat.com, 
+	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 22, 2024 at 03:22:22PM +0800, Jason Wang wrote:
-> On Fri, Jul 19, 2024 at 11:40 PM Srujana Challa <schalla@marvell.com> wrote:
+On Mon, 22 Jul 2024 at 15:48, Jason Wang <jasowang@redhat.com> wrote:
+>
+> On Mon, Jul 22, 2024 at 9:06=E2=80=AFAM Cindy Lu <lulu@redhat.com> wrote:
 > >
-> > > On Thu, May 30, 2024 at 03:48:23PM +0530, Srujana Challa wrote:
-> > > > This commit introduces support for an UNSAFE, no-IOMMU mode in the
-> > > > vhost-vdpa driver. When enabled, this mode provides no device
-> > > > isolation, no DMA translation, no host kernel protection, and cannot
-> > > > be used for device assignment to virtual machines. It requires RAWIO
-> > > > permissions and will taint the kernel.
-> > > > This mode requires enabling the
-> > > "enable_vhost_vdpa_unsafe_noiommu_mode"
-> > > > option on the vhost-vdpa driver. This mode would be useful to get
-> > > > better performance on specifice low end machines and can be leveraged
-> > > > by embedded platforms where applications run in controlled environment.
-> > > >
-> > > > Signed-off-by: Srujana Challa <schalla@marvell.com>
-> > >
-> > > Thought hard about that.
-> > > I think given vfio supports this, we can do that too, and the extension is small.
-> > >
-> > > However, it looks like setting this parameter will automatically change the
-> > > behaviour for existing userspace when IOMMU_DOMAIN_IDENTITY is set.
-> > >
-> > > I suggest a new domain type for use just for this purpose.
-> 
-> I'm not sure I get this, we want to bypass IOMMU, so it doesn't even
-> have a doman.
-
-yes, a fake one. or come up with some other flag that userspace
-will set.
-
-> > This way if host has
-> > > an iommu, then the same kernel can run both VMs with isolation and unsafe
-> > > embedded apps without.
-> > Could you provide further details on this concept? What criteria would determine
-> > the configuration of the new domain type? Would this require a boot parameter
-> > similar to IOMMU_DOMAIN_IDENTITY, such as iommu.passthrough=1 or iommu.pt?
-> 
+> > Add the function to support setting the MAC address.
+> > For vdpa_sim_net, the driver will write the MAC address
+> > to the config space, and other devices can implement
+> > their own functions to support this.
+> >
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > ---
+> >  drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 22 +++++++++++++++++++++-
+> >  1 file changed, 21 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_s=
+im/vdpa_sim_net.c
+> > index cfe962911804..936e33e5021a 100644
+> > --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+> > +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+> > @@ -414,6 +414,25 @@ static void vdpasim_net_get_config(struct vdpasim =
+*vdpasim, void *config)
+> >         net_config->status =3D cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_L=
+INK_UP);
+> >  }
+> >
+> > +static int vdpasim_net_set_attr(struct vdpa_mgmt_dev *mdev,
+> > +                               struct vdpa_device *dev,
+> > +                               const struct vdpa_dev_set_config *confi=
+g)
+> > +{
+> > +       struct vdpasim *vdpasim =3D container_of(dev, struct vdpasim, v=
+dpa);
+> > +       struct virtio_net_config *vio_config =3D vdpasim->config;
+> > +
+> > +       mutex_lock(&vdpasim->mutex);
+> > +
+> > +       if (config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
+> > +               memcpy(vio_config->mac, config->net.mac, ETH_ALEN);
+> > +               mutex_unlock(&vdpasim->mutex);
+> > +               return 0;
+> > +       }
+> > +
+> > +       mutex_unlock(&vdpasim->mutex);
+>
+> Do we need to protect:
+>
+>         case VIRTIO_NET_CTRL_MAC_ADDR_SET:
+> read =3D vringh_iov_pull_iotlb(&cvq->vring, &cvq->in_iov,
+>                                              vio_config->mac, ETH_ALEN);
+>                 if (read =3D=3D ETH_ALEN)
+>                         status =3D VIRTIO_NET_OK;
+>                 break;
+>
+> As both are modifying vio_config?
+>
 > Thanks
-> 
-> > >
-> > > > ---
-> > > >  drivers/vhost/vdpa.c | 23 +++++++++++++++++++++++
-> > > >  1 file changed, 23 insertions(+)
-> > > >
-> > > > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c index
-> > > > bc4a51e4638b..d071c30125aa 100644
-> > > > --- a/drivers/vhost/vdpa.c
-> > > > +++ b/drivers/vhost/vdpa.c
-> > > > @@ -36,6 +36,11 @@ enum {
-> > > >
-> > > >  #define VHOST_VDPA_IOTLB_BUCKETS 16
-> > > >
-> > > > +bool vhost_vdpa_noiommu;
-> > > > +module_param_named(enable_vhost_vdpa_unsafe_noiommu_mode,
-> > > > +              vhost_vdpa_noiommu, bool, 0644);
-> > > > +MODULE_PARM_DESC(enable_vhost_vdpa_unsafe_noiommu_mode,
-> > > "Enable
-> > > > +UNSAFE, no-IOMMU mode.  This mode provides no device isolation, no
-> > > > +DMA translation, no host kernel protection, cannot be used for device
-> > > > +assignment to virtual machines, requires RAWIO permissions, and will
-> > > > +taint the kernel.  If you do not know what this is for, step away.
-> > > > +(default: false)");
-> > > > +
-> > > >  struct vhost_vdpa_as {
-> > > >     struct hlist_node hash_link;
-> > > >     struct vhost_iotlb iotlb;
-> > > > @@ -60,6 +65,7 @@ struct vhost_vdpa {
-> > > >     struct vdpa_iova_range range;
-> > > >     u32 batch_asid;
-> > > >     bool suspended;
-> > > > +   bool noiommu_en;
-> > > >  };
-> > > >
-> > > >  static DEFINE_IDA(vhost_vdpa_ida);
-> > > > @@ -887,6 +893,10 @@ static void vhost_vdpa_general_unmap(struct
-> > > > vhost_vdpa *v,  {
-> > > >     struct vdpa_device *vdpa = v->vdpa;
-> > > >     const struct vdpa_config_ops *ops = vdpa->config;
-> > > > +
-> > > > +   if (v->noiommu_en)
-> > > > +           return;
-> > > > +
-> > > >     if (ops->dma_map) {
-> > > >             ops->dma_unmap(vdpa, asid, map->start, map->size);
-> > > >     } else if (ops->set_map == NULL) {
-> > > > @@ -980,6 +990,9 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
-> > > struct vhost_iotlb *iotlb,
-> > > >     if (r)
-> > > >             return r;
-> > > >
-> > > > +   if (v->noiommu_en)
-> > > > +           goto skip_map;
-> > > > +
-> > > >     if (ops->dma_map) {
-> > > >             r = ops->dma_map(vdpa, asid, iova, size, pa, perm, opaque);
-> > > >     } else if (ops->set_map) {
-> > > > @@ -995,6 +1008,7 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
-> > > struct vhost_iotlb *iotlb,
-> > > >             return r;
-> > > >     }
-> > > >
-> > > > +skip_map:
-> > > >     if (!vdpa->use_va)
-> > > >             atomic64_add(PFN_DOWN(size), &dev->mm->pinned_vm);
-> > > >
-> > > > @@ -1298,6 +1312,7 @@ static int vhost_vdpa_alloc_domain(struct
-> > > vhost_vdpa *v)
-> > > >     struct vdpa_device *vdpa = v->vdpa;
-> > > >     const struct vdpa_config_ops *ops = vdpa->config;
-> > > >     struct device *dma_dev = vdpa_get_dma_dev(vdpa);
-> > > > +   struct iommu_domain *domain;
-> > > >     const struct bus_type *bus;
-> > > >     int ret;
-> > > >
-> > > > @@ -1305,6 +1320,14 @@ static int vhost_vdpa_alloc_domain(struct
-> > > vhost_vdpa *v)
-> > > >     if (ops->set_map || ops->dma_map)
-> > > >             return 0;
-> > > >
-> > > > +   domain = iommu_get_domain_for_dev(dma_dev);
-> > > > +   if ((!domain || domain->type == IOMMU_DOMAIN_IDENTITY) &&
-> > > > +       vhost_vdpa_noiommu && capable(CAP_SYS_RAWIO)) {
-> > >
-> > > So if userspace does not have CAP_SYS_RAWIO instead of failing with a
-> > > permission error the functionality changes silently?
-> > > That's confusing, I think.
-> > Yes, you are correct. I will modify the code to return error when vhost_vdpa_noiommu
-> > is set and CAP_SYS_RAWIO is not set.
+>
+i have added a lock for this; CVQ also needs to take this lock to
+change the MAC address.I thinks maybe this can protect?
+Do you mean I need to compare the mac address from the vdpa_tool and
+mac address in vio_config?
+this vdpa tool should not be used after the guest load, if this is
+different this is also acceptable
+thanks
+Cindy
+
+> > +       return -EINVAL;
+> > +}
+> > +
+> >  static void vdpasim_net_setup_config(struct vdpasim *vdpasim,
+> >                                      const struct vdpa_dev_set_config *=
+config)
+> >  {
+> > @@ -510,7 +529,8 @@ static void vdpasim_net_dev_del(struct vdpa_mgmt_de=
+v *mdev,
 > >
-> > Thanks.
-> > >
-> > >
-> > > > +           add_taint(TAINT_USER, LOCKDEP_STILL_OK);
-> > > > +           dev_warn(&v->dev, "Adding kernel taint for noiommu on
-> > > device\n");
-> > > > +           v->noiommu_en = true;
-> > > > +           return 0;
-> > > > +   }
-> > > >     bus = dma_dev->bus;
-> > > >     if (!bus)
-> > > >             return -EFAULT;
-> > > > --
-> > > > 2.25.1
+> >  static const struct vdpa_mgmtdev_ops vdpasim_net_mgmtdev_ops =3D {
+> >         .dev_add =3D vdpasim_net_dev_add,
+> > -       .dev_del =3D vdpasim_net_dev_del
+> > +       .dev_del =3D vdpasim_net_dev_del,
+> > +       .dev_set_attr =3D vdpasim_net_set_attr
+> >  };
 > >
+> >  static struct virtio_device_id id_table[] =3D {
+> > --
+> > 2.45.0
+> >
+>
 
