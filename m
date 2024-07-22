@@ -1,91 +1,91 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C83A71BDCF
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:48:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64CD15FD13
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:49:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721634507; cv=none; b=FrWd2FjrX8vXA6WZzw3VfM+TU7fF9PepjUsgbuew5afVIj+VUHK1GNHw6jlJPC8sFypQcp7g7hH62ZLEw8IlpgsbCRR0NTSbntripprk+LkyxpDKYiOBtdykxEGeTmUPCEcrOMP0LmJPFV78q9BThpcbytyEFVAUrvhzQj/vlAc=
+	t=1721634541; cv=none; b=gRWgBwQflWLlFaXwBgWz6aygvyzh/pVWLoqi5DXN4qng8aFA9w8/eYdLEZs3yHpMKO5s0PIFLCd2RBl/xsdW4OBTeK8PAjSJrlZGgUEbv+gnZSH/MItJVz7Mw5oRlzuKGmaUeCY9AnnIHfTzOfLIcSk3xGfi3Iw8KKfm88Jjw/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721634507; c=relaxed/simple;
-	bh=qwelGQSOHsBlu5/R+Td9lnRymixbgCg1HZ+vhkQvB5E=;
+	s=arc-20240116; t=1721634541; c=relaxed/simple;
+	bh=f+fV8aZHLjNJDmqj0f9UlS/89ETfJ+867t5eBxYZL68=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lmrMXH672huMasqx/1Zrvw/dBs63XWj7eI/gnbJo/Asj/QAHMW0igL06VWhsUWALGwGk+8KP8oG163OFWSjTS+Oe98PO11OOPBfAb4Hr6wLT9Tw2ZcgfUtey2gEXCllr6f/1S0c89lqhOtB6Uj+ybwTfnZwfSqHI9fW6SEzAnhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KTbO/VFi; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=Ae0P9XphWvl2t63BZ9QQwElyt8LIYBugO6RPzwDD5+WvxbezVWFaihP81tQy7ucX5z6kxlacOUZ2UGR6lCrwlYXaMdPLoOHpR+iovVthyZnLdZZrTdKKqeQnCXcpXFZnFC0/FO6PhWxYT6+Y5tlWLnO7ckJJg9ce/BSMJlBMmTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gE7qVl0j; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KTbO/VFi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gE7qVl0j"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 60CAE80E65
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:48:26 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4036280E65
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:49:00 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id b74aplVJOVLf for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Jul 2024 07:48:25 +0000 (UTC)
+ id Lu9SLCCAYIy3 for <virtualization@lists.linux-foundation.org>;
+ Mon, 22 Jul 2024 07:48:59 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 88D8F80E62
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7940F80E62
 Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 88D8F80E62
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7940F80E62
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KTbO/VFi
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gE7qVl0j
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 88D8F80E62
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:48:24 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7940F80E62
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 07:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721634503;
+	s=mimecast20190719; t=1721634538;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=I/mcqTp3y3xN2oxPQLtpcs5nTeZV7vOd20nAM2VvMok=;
-	b=KTbO/VFi5CytpzLem0P+0H6ZGGcMrjJBF0hmv4wLItT34qXYzjntyT3d9tJiWMLSU7q9Qk
-	2HKjucdXULBxobGyZAysi/BYB0Ir35JeKpYANXAJN6jsyB5H2R9qxQb25QKYILqP8MEKfa
-	BA7UsbRG5FQ9F3at2UoZ89vHICwY44E=
-Received: from mail-ua1-f72.google.com (mail-ua1-f72.google.com
- [209.85.222.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=k9Wijau/U3n0K7Jlrn8r30G3DxAJjcM6+ifaqnBRTZQ=;
+	b=gE7qVl0j0tirf63JdaCAimgciov1V9jp4LZWXn+IEQO8cttqw4rXvyq7YjG8kuufT59Nvy
+	nTbEYaFWt4tydLrR4CvCeqAGVyFGCr3NOSm4rHOSeIFz4L9FnIg02wlIKnCuMAvcE89Xui
+	KEeB/IlX3PVAAZTVl8/OEkTj+nmzqTs=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-643-vy6uZb0TMQaiBcWCP2TSkA-1; Mon, 22 Jul 2024 03:48:19 -0400
-X-MC-Unique: vy6uZb0TMQaiBcWCP2TSkA-1
-Received: by mail-ua1-f72.google.com with SMTP id a1e0cc1a2514c-8217d09688eso1044573241.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 00:48:19 -0700 (PDT)
+ us-mta-643-1L6wwjtaOF-w02r5tCoEuw-1; Mon, 22 Jul 2024 03:48:57 -0400
+X-MC-Unique: 1L6wwjtaOF-w02r5tCoEuw-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2cd72aa5328so314457a91.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 22 Jul 2024 00:48:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721634499; x=1722239299;
+        d=1e100.net; s=20230601; t=1721634536; x=1722239336;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=I/mcqTp3y3xN2oxPQLtpcs5nTeZV7vOd20nAM2VvMok=;
-        b=dJ+dX+2JlqzLDk95L+a1L5CEE3KOoszqOvH/0WIRtmFsYdYA3yKqS9cv6DYs7TnyDx
-         FejPQm8OMdFvO84QSr+EpEyKz8JFHo5qSrL001uuGgWQjBU6kH78bJlRXMyuXATmdrwt
-         1ozJlewj32RGG3L599zlJIey942oHqm8cCCIIGnR2R2dTLNRjyqVEFsik29B+tAJx4nL
-         vRwIJKKzDWVgtUhIJ5314TTEu2RjXJ4y9ysKzedebc/40wPnT6XkylP74jhF2zs0G3ke
-         +Zk4J69yh4PQU/itYauOwkU375kO/U739dJEyaR1JZGfTerw6FIPOJEgs1HPFNtbqhcq
-         RQzw==
-X-Forwarded-Encrypted: i=1; AJvYcCXMBnxzPSdcRmxRmwOxvqvlAoE5OTEQsHTszgJi2Tj2IEU65aCKN1v1fHEZDrQ5/Mnfvz/f39+VN8rrNhpf4a/+r5xKhUxAPHiRo7g1/b9Xb/VIYenkhqYTxw==
-X-Gm-Message-State: AOJu0Ywp+b/TJfPNCjWblkZtZo983mzUF/Og1NxHGV9R2rdGLuiWkXYa
-	35YwYa1iYxnlAAxGZLs4cJ2iKCftOoALkbA2rxMHxns+/2uDRtsc1bI4kj9OhquoSJ2QsE2xM00
-	iadYlUBl6Pt/OEkzkvnW8bKd8Bjmy0sMVKpd3CenLPQQYJaotp6oiX1sR+R75VJkSyyg4sH6nHA
-	OMJa2MPXGlkycRl5mQVHqrVFHTwf3EUbQMd6XrMxamipmILey+kG8/Hg==
-X-Received: by 2002:a05:6102:5e96:b0:48d:a5ff:2f5f with SMTP id ada2fe7eead31-49283e2b004mr4468187137.12.1721634498690;
-        Mon, 22 Jul 2024 00:48:18 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGAp5cOsjJMIxSSgdrU2NI/bo+MBLdUDPozloHXQyx7N7sL3/bEoMgtqLF7ISAqIr6HhTEILPOLPhO3xtGIBgs=
-X-Received: by 2002:a05:6102:5e96:b0:48d:a5ff:2f5f with SMTP id
- ada2fe7eead31-49283e2b004mr4468168137.12.1721634498275; Mon, 22 Jul 2024
- 00:48:18 -0700 (PDT)
+        bh=k9Wijau/U3n0K7Jlrn8r30G3DxAJjcM6+ifaqnBRTZQ=;
+        b=AuBh7RG/xaJN1W3j83PpEdpM/cIninoL0r/HEVQxn6D+6YhJCBPULYcjndiFn2ICJG
+         AGmeJi67ZttTGvq3RYo2h46e5QHe0zLbivOZFhG2quXBE3Nxd8laUJhKjRA9pAIgAeOE
+         csdSugTMFKehstF13su2m0kxKI0tG99uY502C84xk9zHG/iYMukmqhmiYn/qn0H3Cimw
+         QnojOjWC56dB8RWR0mVcd3itXxVbEjIQ0phIrjSPOZhtDVGze6NmkNZNPFOQyoxpebY9
+         UGQXXoy+MOzlAGyOWIr0rKxoZG31qf9dFm+Ub2g8hppB/YGH5iklgNr8yK10QdDD/r7h
+         RJ2g==
+X-Forwarded-Encrypted: i=1; AJvYcCURaQcGls8setodPG7OHo2dNqr5yf9Ezn+H6W4VyDgFqZ9mATScrTi7XY5w1qilKzJIa59PwYIHFMRJbdpa8RUnyderr8jlXKvkrG1ZgwvSrGczPCo7y5xmyw==
+X-Gm-Message-State: AOJu0Yxt6lgnEICfVWwiFEbc7MYMZE7ReYk19uXC5M7Hkvx//bQB3a4k
+	LoTumXv5i8b6TEXohpYXyIwchlxyOpXt1pAhhaGmb4A16C4UgCvbrMAwj4SUdVF/+0DmaAkxf+0
+	p1Np9mszEawB1stFNII8HLZcR+a41PEWFIsLrT89qQGw+gFyuvVwpOfVjHFzfyjnzCWkLFJeJEt
+	fDrci7Sq8l9akDeGD5Y+HtiISZcFSlrBN0026fNmSqpgc8Hf2G3KzZPA==
+X-Received: by 2002:a17:90b:1997:b0:2c9:8020:1b51 with SMTP id 98e67ed59e1d1-2cd273f776dmr2791080a91.3.1721634535898;
+        Mon, 22 Jul 2024 00:48:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEXRzsCMJv/6tknO7a6u+ZBcL+U7UQuyw2cdT0yYEkm2DsQ1rWAMN0KuDM6A4GO1xcfnMyjBEi8/MfpUnx4Ou0=
+X-Received: by 2002:a17:90b:1997:b0:2c9:8020:1b51 with SMTP id
+ 98e67ed59e1d1-2cd273f776dmr2791063a91.3.1721634535409; Mon, 22 Jul 2024
+ 00:48:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240722010625.1016854-1-lulu@redhat.com> <20240722010625.1016854-3-lulu@redhat.com>
-In-Reply-To: <20240722010625.1016854-3-lulu@redhat.com>
+References: <20240722010625.1016854-1-lulu@redhat.com> <20240722010625.1016854-4-lulu@redhat.com>
+In-Reply-To: <20240722010625.1016854-4-lulu@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 22 Jul 2024 15:48:02 +0800
-Message-ID: <CACGkMEtq=2yO=4te+qQxwSzi4G-4E_kdq=tCQq_N94Pk8Ro3Zw@mail.gmail.com>
-Subject: Re: [PATH v4 2/3] vdpa_sim_net: Add the support of set mac address
+Date: Mon, 22 Jul 2024 15:48:44 +0800
+Message-ID: <CACGkMEvXk8_sXRtugePAMv8PM0qGU-su0eFUsFZ=-=_TjcGZNg@mail.gmail.com>
+Subject: Re: [PATH v4 3/3] vdpa/mlx5: Add the support of set mac address
 To: Cindy Lu <lulu@redhat.com>
 Cc: dtatulea@nvidia.com, mst@redhat.com, parav@nvidia.com, sgarzare@redhat.com, 
 	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
@@ -98,72 +98,66 @@ Content-Transfer-Encoding: quoted-printable
 On Mon, Jul 22, 2024 at 9:06=E2=80=AFAM Cindy Lu <lulu@redhat.com> wrote:
 >
 > Add the function to support setting the MAC address.
-> For vdpa_sim_net, the driver will write the MAC address
-> to the config space, and other devices can implement
-> their own functions to support this.
+> For vdpa/mlx5, the function will use mlx5_mpfs_add_mac
+> to set the mac address
+>
+> Tested in ConnectX-6 Dx device
 >
 > Signed-off-by: Cindy Lu <lulu@redhat.com>
 > ---
->  drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 22 +++++++++++++++++++++-
->  1 file changed, 21 insertions(+), 1 deletion(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 >
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim=
-/vdpa_sim_net.c
-> index cfe962911804..936e33e5021a 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> @@ -414,6 +414,25 @@ static void vdpasim_net_get_config(struct vdpasim *v=
-dpasim, void *config)
->         net_config->status =3D cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LIN=
-K_UP);
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index ecfc16151d61..415b527a9c72 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -3785,10 +3785,35 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_de=
+v *v_mdev, struct vdpa_device *
+>         destroy_workqueue(wq);
+>         mgtdev->ndev =3D NULL;
 >  }
->
-> +static int vdpasim_net_set_attr(struct vdpa_mgmt_dev *mdev,
-> +                               struct vdpa_device *dev,
-> +                               const struct vdpa_dev_set_config *config)
+> +static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev,
+> +                             struct vdpa_device *dev,
+> +                             const struct vdpa_dev_set_config *add_confi=
+g)
 > +{
-> +       struct vdpasim *vdpasim =3D container_of(dev, struct vdpasim, vdp=
-a);
-> +       struct virtio_net_config *vio_config =3D vdpasim->config;
+> +       struct mlx5_vdpa_dev *mvdev;
+> +       struct mlx5_vdpa_net *ndev;
+> +       struct mlx5_core_dev *mdev;
+> +       struct virtio_net_config *config;
+> +       struct mlx5_core_dev *pfmdev;
+> +       int err =3D -EOPNOTSUPP;
 > +
-> +       mutex_lock(&vdpasim->mutex);
+> +       mvdev =3D to_mvdev(dev);
+> +       ndev =3D to_mlx5_vdpa_ndev(mvdev);
+> +       mdev =3D mvdev->mdev;
+> +       config =3D &ndev->config;
 > +
-> +       if (config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
-> +               memcpy(vio_config->mac, config->net.mac, ETH_ALEN);
-> +               mutex_unlock(&vdpasim->mutex);
-> +               return 0;
+> +       if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
+> +               pfmdev =3D pci_get_drvdata(pci_physfn(mdev->pdev));
+> +               err =3D mlx5_mpfs_add_mac(pfmdev, config->mac);
+> +               if (!err)
+> +                       memcpy(config->mac, add_config->net.mac, ETH_ALEN=
+);
 > +       }
-> +
-> +       mutex_unlock(&vdpasim->mutex);
+> +       return err;
 
-Do we need to protect:
+Similar to net simulator, how could be serialize the modification to
+mac address:
 
-        case VIRTIO_NET_CTRL_MAC_ADDR_SET:
-read =3D vringh_iov_pull_iotlb(&cvq->vring, &cvq->in_iov,
-                                             vio_config->mac, ETH_ALEN);
-                if (read =3D=3D ETH_ALEN)
-                        status =3D VIRTIO_NET_OK;
-                break;
-
-As both are modifying vio_config?
+1) from vdpa tool
+2) via control virtqueue
 
 Thanks
 
-> +       return -EINVAL;
 > +}
-> +
->  static void vdpasim_net_setup_config(struct vdpasim *vdpasim,
->                                      const struct vdpa_dev_set_config *co=
-nfig)
->  {
-> @@ -510,7 +529,8 @@ static void vdpasim_net_dev_del(struct vdpa_mgmt_dev =
-*mdev,
 >
->  static const struct vdpa_mgmtdev_ops vdpasim_net_mgmtdev_ops =3D {
->         .dev_add =3D vdpasim_net_dev_add,
-> -       .dev_del =3D vdpasim_net_dev_del
-> +       .dev_del =3D vdpasim_net_dev_del,
-> +       .dev_set_attr =3D vdpasim_net_set_attr
+>  static const struct vdpa_mgmtdev_ops mdev_ops =3D {
+>         .dev_add =3D mlx5_vdpa_dev_add,
+>         .dev_del =3D mlx5_vdpa_dev_del,
+> +       .dev_set_attr =3D mlx5_vdpa_set_attr,
 >  };
 >
 >  static struct virtio_device_id id_table[] =3D {
