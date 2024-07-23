@@ -1,350 +1,218 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4938014A62B;
-	Tue, 23 Jul 2024 07:38:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721720312; cv=none; b=F7qtyvoKa62zBqBLcuCBH7sBGFqa4xXf98D2VgbSU5G054juDeh+2jvW456vtcfCcBrqQsp7/OBloytxDXr6aa63YQsAejRkFlOkXLlq/+jyG73h5nb6662yghOL7HwXZO/PQ0RaXDw03RekYVyJTNo3Y/PAMo6IBUJD5gyRlWU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721720312; c=relaxed/simple;
-	bh=2QBpHT0ze2oXtG0u7q1lbwjm7BGMngAeMpX/dwQ+BnQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=cpqM1R3Pt305hg/AszkiX6ZK9zyFbuRHEU3Jw9fcpxuHRNVRUkfWqosmTZx077PQe1b71M1pQRkznF9p3ER+t+F1NRdtNCUIeJSFBGolMr6hLkGA3sglVtsmn3rLfphjDSTLzuUi2TI7CE9x1Bm5L7+y1Hke6TRSt5GZrp47KJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8AxGurzXZ9m72AAAA--.1434S3;
-	Tue, 23 Jul 2024 15:38:27 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.2.5.213])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8DxusbxXZ9m+l9VAA--.59486S4;
-	Tue, 23 Jul 2024 15:38:26 +0800 (CST)
-From: Bibo Mao <maobibo@loongson.cn>
-To: Huacai Chen <chenhuacai@kernel.org>,
-	Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Waiman Long <longman@redhat.com>
-Cc: WANG Xuerui <kernel@xen0n.name>,
-	loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH 2/2] LoongArch: KVM: Add paravirt qspinlock in guest side
-Date: Tue, 23 Jul 2024 15:38:25 +0800
-Message-Id: <20240723073825.1811600-3-maobibo@loongson.cn>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240723073825.1811600-1-maobibo@loongson.cn>
-References: <20240723073825.1811600-1-maobibo@loongson.cn>
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3326214B950
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 07:49:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1721720994; cv=fail; b=edBbJDsuXVGXW5eZshmufUzunzosp7hrJL9YEMUTHp7aLh44Q3oUix3uYg0EU/OoZTLRP4jyRhWMm0ZcunbOjOwyS4yre83fVJR4gxZ1GKVk/SC/lMxTig9MLV1iyowes69Pqqe9h9TGrpnVnTi1umHAEic/TPIDwcSe3/nR1MI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1721720994; c=relaxed/simple;
+	bh=WNFgekNCgm4UEWBipfRc0BqU7ZqmM7onRZx5NW+ra0g=;
+	h=From:To:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=K0GQ0V6UL9ZaeIJKPgAfD+zK/1tWixHaXcljbX7S1KjqoJpGUCtAj+aOttU+HvC4SJIdKlHgGcp84J/R1v4rnau+gWoCXi74qQd3urR9DOhDksWz4YmZ9SvzZHXG4svRx8M5Vm/4BzO8Iw1BCvPd4dhgEeYNiPXk+yw4oBCMrzY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YS80zzbx; arc=fail smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YS80zzbx"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id CBA8F40190
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 07:49:52 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id wwXAdhf9UC4Q for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Jul 2024 07:49:51 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2407::60e; helo=nam02-bn1-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8D5F34018A
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D5F34018A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=YS80zzbx
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2060e.outbound.protection.outlook.com [IPv6:2a01:111:f403:2407::60e])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8D5F34018A
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 07:49:51 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Wyh2BiyCSOcY6KGD7jFXLeqhEjsf5RvmXwt4tY6GjX2lNwsKUug4tsBG0DHo1j+0eZY2ALIeMMMqDs50OurCUlZMHHwRg0+j0CbyWqLEp+u0wEwYXTozkLR6b8F6ksTLTqVM9iXtr4rxAWp6/40j/Z3VXVGOUci9oiQwuFgplStuSRIceyrNiio4EmE17NxPjBrHnf0R5kMNQ3IxQQXOeRb9XmfU9ZjR32n1XUMeDe3lYjCcdYo1BL7oPy8TOgL1JJtBFtWW9mzymnhPcsmqNxztzatLFTPKacfExQIgdpfNP7myi8a9uk9QLDROodOfaMfWbsga2XFUOy9Lt+XJxg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=WNFgekNCgm4UEWBipfRc0BqU7ZqmM7onRZx5NW+ra0g=;
+ b=ojmXczOPSqzAGY5XFEiQSs7e7ZuiNvC3XH391k9fRQ9KpfSMGtGQr57lTZl1EdNa0/zf6eehLjmsbrcl22BUpqRA/Tzd9VNA1OOrAO1Zz3D0a+vZDgOL0mdEemAyJmiARcX8wGOJ+LN/j3kTFhFf4uxu8awRw6bVPMpAxoqC34raA2UiKgEzhfygn5nIkr/u7iXsfN6Sa80rOp216SzMSgCVOgEFVtN9Cby02SVdWL/gvc10DOL1Y+T7hGRuWhZdMJD4wucGVATfTvuuwWl3s6aWEK30aAYASFpKIBno154G/5GTVFCGpkVo19UcaiRHGad8obr+MDFuNGiKFILg2w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=WNFgekNCgm4UEWBipfRc0BqU7ZqmM7onRZx5NW+ra0g=;
+ b=YS80zzbxqqe5oeasHDESoqq5ASLytuZOZXHL8Z+jFvNwrsItEhjFUfqiSGDZir9+H3n6jZ2W+OWxun6yGrhwZHnjWtPbBPtzEBTsb3ehYkoLJ1MVm1QWueWVlR2FiHxpybzIMzk2C6tf3+qyTAxvm88BotEPTD1y/q69yHexi1Lbvk3berJpdS2dgSKkUMl5ZQQ9ixH5mT569PuK/xq4jWOLl7S7DiXSGvLSTPhx39RkjFwokWvvrMib/aqyfMLqn5D5mkHG9IymB4CLs4YUYVIqhCnSLIT9dod2D8OqCgaTbdE/tkmWsoP0CHorF11kWR89D8lqahXkfmK3yZ157g==
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
+ by CH3PR12MB8972.namprd12.prod.outlook.com (2603:10b6:610:169::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7784.16; Tue, 23 Jul
+ 2024 07:49:44 +0000
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::17f8:a49a:ebba:71f1]) by DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::17f8:a49a:ebba:71f1%3]) with mapi id 15.20.7784.017; Tue, 23 Jul 2024
+ 07:49:44 +0000
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: Parav Pandit <parav@nvidia.com>, "sgarzare@redhat.com"
+	<sgarzare@redhat.com>, "virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "lulu@redhat.com" <lulu@redhat.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, "mst@redhat.com"
+	<mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>
+Subject: Re: [PATH v5 3/3] vdpa/mlx5: Add the support of set mac address
+Thread-Topic: [PATH v5 3/3] vdpa/mlx5: Add the support of set mac address
+Thread-Index: AQHa3MLxYDFDU1uqukChj1IJMYy3M7ID8DyA
+Date: Tue, 23 Jul 2024 07:49:44 +0000
+Message-ID: <d8031e518cf47c57c31b903cb9613692bbff7d0d.camel@nvidia.com>
+References: <20240723054047.1059994-1-lulu@redhat.com>
+	 <20240723054047.1059994-4-lulu@redhat.com>
+In-Reply-To: <20240723054047.1059994-4-lulu@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Evolution 3.52.3 (3.52.3-1.fc40) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|CH3PR12MB8972:EE_
+x-ms-office365-filtering-correlation-id: fb2e2428-4cc7-4875-93ab-08dcaaec0463
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|38070700018;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?WkgwVzVyNWpSeGcxNkR2cEdaclNBSXFYMVFnLzE4V2puK09tU21wbkZuYlBD?=
+ =?utf-8?B?QnBLOGVrNEQvRWpEcm9iQTVQYnVDcG15VlJLN2NGdmRmbzJPU1FTbW1GMk14?=
+ =?utf-8?B?Yjh3MmxBc3crUCszWnlhQUlHbEZhS0F0TTFBWEZpQmFZWXdqK0MvU3lkNTRy?=
+ =?utf-8?B?WFB5VUFmTit3eEpTV2FHeUNUL1ZjZ2NVcnAwQ01Zb0tWVy9tVjRiOEJFcUtH?=
+ =?utf-8?B?OTJGdTkzdHN4Wkx1bXUvVm9rZGVOYzhmSE9HNkpRd21HL1hMWmtPcFdZNlJR?=
+ =?utf-8?B?SXRQTUZiblRpNSs1WE9UKzdTelFCejJaQ2IwQyt1cmNmaUpxcVpaSDZWK2xR?=
+ =?utf-8?B?Y1Nyc3pVTnZUUk0yeHFyOXRJZ1lpZTF3WnhCaGxLV1hTczU2ZktjNFEvdWpF?=
+ =?utf-8?B?N1JRVDVqY25vbm84MFYvQ2wrU3JQeDJxVXdKeHc3YjhBWU5MYkZJbmkvWHB1?=
+ =?utf-8?B?R2t2RlZWS1NsdEVTNzA2YWlzK2o4T3hBaG5sR204TE9BaVhSaWNSTTVScVFZ?=
+ =?utf-8?B?MHZGOGNYaDc1MnZOcVZKUG1ibXdGSytXNHJwMmx3Y2t6UVRvallYZjN3dnlo?=
+ =?utf-8?B?alNqZ25SOXNsMndPWnNEOUxLcVlyOEx5dmhnRk5iR2NWcUhLUUVxQlBFZjZN?=
+ =?utf-8?B?OTd3ZkFabWVPc0Z6dkZXcUt4SDF1T1J6TFA4WStnZnBRRnlXakdrbytGTGt1?=
+ =?utf-8?B?amRQMGFmY2F6ZEt6dm1QeHl6Vno3N2E0MkxJUklwQ0hMVEl4RHRqc2d1YTJj?=
+ =?utf-8?B?TmxoQTBnNndpZUExckhCaXVvWlB1QlQvcWRXaEJiVUZSRHAwSlJpa2Jxd1pi?=
+ =?utf-8?B?QU54THhORWNjaWp4VW5BWkNtYzRmYjhzSGh6NGd1YklRQjhUWjNSN0hzYWt6?=
+ =?utf-8?B?bzRDOG5ZZWE3MzFIZElzZi9jMVNIUUdWTGFrVlU5R3BFTlNMMlgrNjNvL1Ns?=
+ =?utf-8?B?Z25UWjVTUmhFYzdWTUE3c1RwcjhndHRqZzJlc1pGUmtpNytrd2NPWHBaSmtr?=
+ =?utf-8?B?a0ZVWHU1MVAxQ0dwZVkzQ0YvOVJoUjhXb0Y5RjIxSzRpKzNkM1NsQWVKcDV1?=
+ =?utf-8?B?UFVyU0Y5Q2ZkZUtwa0NPakRSRkNFNWZYK0RsZUdNUFBxYVkxbFFjWkNpd2Zo?=
+ =?utf-8?B?L2xoQ2xlTVR0cDJtUlBNOGMzUU94WWZGaTAxNU92akxCRUFDOVVPL3c0UUZ1?=
+ =?utf-8?B?ZkRBMWo0SndEOFFuS2J2ZVJuYkZnRTlndFNOMU9LSUh0SEt0YStyL041bVBt?=
+ =?utf-8?B?RE11OUVFV0twVERkN2ExbENxVDFJT0sydGdPM3F3RzlCNG5NdG5scFRWL2V4?=
+ =?utf-8?B?ODVZYXZoUWkyZENwc292Q05EUFNMLytma3l3dkJwRmt2UmFkWGdYY3dpZnhS?=
+ =?utf-8?B?VEFCSnNDMHRnK1dSVk0rTkMxR1dyUlFZNzZIK2Z4MVlvWDhZVVUrd3JzeHgz?=
+ =?utf-8?B?SkFIQWJiVDA3czVTS3Urbm5IQVhKbEFHUjhJdUtOUGJ1VTgxMGxKdnZhaERt?=
+ =?utf-8?B?bmdvTDNDRDVyMHlWVGZwVVA0d3RwSjhreEtMOGZzSG9LK1BPV0xSbFJDN2U0?=
+ =?utf-8?B?RW1IaFFTOFNVSDhrL1RJbEZLSXBrdkRnNUI0M0JKaFlBeTVXTldOZ3BEcXVV?=
+ =?utf-8?B?R0FmYXJISGMyZ21EcGNiZWkvK2l0MjErZVg4bG51aUU4RmcveWZ0TXEvMklG?=
+ =?utf-8?B?L3lLemhHcTJlMjdtV2JTbjFuRUFpUmJOVlVTMGI3aG41QkxhWllrNS80dFJr?=
+ =?utf-8?B?UFlLZ05LL1p1UWhLVmhFcGpKTGZEVTFuWXhVcHN3U3FRb3NOYkgyZkt1VkFa?=
+ =?utf-8?B?bFBMQzFlYUU0dzBUaXR5bHlhNXArTEFGRnNvQ0laYWNqb0hPWU9BODRxN2pC?=
+ =?utf-8?B?bVNpWjduRTFuWkNYWTBhbEZoaWg2cTFhUHFyV1dTaWpUR3c9PQ==?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB5565.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?a0ZnUC80ai8rM25mUWdtb0k3dkQ1blVzQmhJTUJ3VG8vNG53MW1uQk9tdDRN?=
+ =?utf-8?B?Skh2RXlzMHJiQzNiek5GRlQwRm03SndGMlB0Q0g0ODYySmxNbzY5bDJ0V0Rz?=
+ =?utf-8?B?b2xHaW92QklNVVJHbnlET2RKK3BmdWNjbktEU0JCVHhKYWp5TFRsWmdPQ3hG?=
+ =?utf-8?B?MnlsWlZCcmVaMnZhL2YwMnlzU0p1R2JZa2Fta3E3NWpiQTRFVlVLSlJ6eVg2?=
+ =?utf-8?B?Z1NGdE1jREptYjVPUytGWStyVE9JdmdtamlBTCtuNzAxdmw2ekN4c0tsY3Vl?=
+ =?utf-8?B?QjlRT0JGTlNSR3g0ck1zUGZaWkpLNDhLZytRbzFaNHJmek11VFZGbXpzV01o?=
+ =?utf-8?B?SzRiVUR2Z0RBV0hHN1JEelg4aWJma2djS01ESHBYWjh6ZFB0Q05PS3M1dG5P?=
+ =?utf-8?B?Ym1GSlhIdUIzcDNndDM4Z2dCVHBVcHdEUW1UM0RoMXVoaEk1ai9kUEx4NWRu?=
+ =?utf-8?B?N3NSbVNmRVA5Ri9TNTB1aE5qeEVlYTdTRG9sVkVxdVpUcGN2T1VRVU14RUdJ?=
+ =?utf-8?B?R2ZDRW1PeVAzWC8zM2xwNWFKUlBGNW5uMFdrTWY2MkhqNUlIUXc2QTgxbUdY?=
+ =?utf-8?B?ZGgwVEJFQXJhcDRKbnc2eEZyQzU3WFVtcGw3Q0Z5L2l2SURkb0xlMVpzQ3hm?=
+ =?utf-8?B?elB2Nk8xaVRFaGl3NUp2R0FGbzBtUlVDMzAvQkk0ZW1OaG9XZDZFTDd6eXB1?=
+ =?utf-8?B?OHJweU0rWG1DNXE0ZnhGYU8yeVNMLzlWWm1sZUUrT2p4UlByem1rQldNSFlH?=
+ =?utf-8?B?a2NjaThPaVR3WVJnK212cklQRTJmM0FnMEFyQ0VITXhsUVEva1RMVlVlWGhw?=
+ =?utf-8?B?MTAzMHdDQTg2L1RlYW51K3FqeHB4T1dMaFExSVRrZTduQVFObHk2eFFRNXBM?=
+ =?utf-8?B?SWhyUEo2Vmc1alRKZ3pYSnV0UitwTXF3VFA1Z0U2clhaaU9ja0VsQnQzMUc0?=
+ =?utf-8?B?OTVIUWpMNVJiOHdUM0NSaDdlY3ZsYXgxWFc0ZWxYQzhqOTZyL2FweTZnTGJP?=
+ =?utf-8?B?K2RScGdjZk8wRFEzREJsOGJOcGJ0aHZkTExVb1FVZytlenVBTHBDcXl4bnlv?=
+ =?utf-8?B?ckJ6OGhNdHlWNGhBU1FIQ1NZVmFlQi80K0tkc1BQSTRBeW1uZVF2YmdFTi9w?=
+ =?utf-8?B?Mnh2NlkrbFU3SUVpYVM5anE1d0JkZ3VUaGMwTTQ2ajdOak53UjdPOGpJRWsw?=
+ =?utf-8?B?MWR3VEhTckpLd3pOL2Vvem5kdHFuUlJSNWRnUllrZ1htcG55aW91cEJPNlZO?=
+ =?utf-8?B?SkxMaHNyaHh6YWEwd0RndVRaNzQ0b1VGb21uVXY2ZEE1ZW5xYUNreGczWWNq?=
+ =?utf-8?B?bVNCRzZjWXlqRXhDNTNIMlRldkxKWjc2SkxuTGI2clE2dkFyN2pJbWppNndh?=
+ =?utf-8?B?QjhBQjBoUDIyMExsS1JWUUE0ckRpSjRTK3QramdDZ3VzRGJ0SkRkQXFlR0dv?=
+ =?utf-8?B?bjFMTmc0bkFQTWphZFY4WjdoOEhJWGhqbkNHN3FTQ3paSFJvSlUxZnJ6ZXow?=
+ =?utf-8?B?eTlCMVUycGZmb3hYNWFtdDhhbkhRTmRGRG9FSE80MGJXbE5jeVoweDhmeUlH?=
+ =?utf-8?B?amdSM1phV0J3bWxLVU5kOFAxM3FvT0dvZnpMTEZDZXJSeHY1cGN3cE5mQjg1?=
+ =?utf-8?B?ejNLSlBmYnMrZ2krMUVhVmRrTDBuVkhvWWNYaUVUZjZrRjNUNzVqU1dSdmNp?=
+ =?utf-8?B?WVdMRGlqMVhiR1NmWEpVQWhGTDEwcFpJSk0rdnNHRUVsZklsM1B6dk5lZE9F?=
+ =?utf-8?B?aG5oVTNrNzlTOUVrM2JYOVFhMW1hYU9YT1RKVXNJY3UwWXhBczdWRVZjcE1C?=
+ =?utf-8?B?UERuc2I4WmMxSnR5T2U0RHVZNTZwMVhWb2h1bEtsZkdrQmtqbG9JNkt5TUlZ?=
+ =?utf-8?B?NVd2S2ZEUFdhaDd0OXl4M3ZabXAvbjdnbWFaY0ttVXJIeEFKSENSRFAyTUI0?=
+ =?utf-8?B?cTF1bmpadHhkMXhNY09IVk5rOTNTZWdkSUZWOUt3b3lKeWtIb09LRlVqRW9H?=
+ =?utf-8?B?aFZreERDQkI0UVRUS0o5NEhINVUxcnVPamliQm5kNUVPamV3TE1DcDgwcXRw?=
+ =?utf-8?B?RG95UkE5SHRacTNTQWxRVE1EMy9vVEZGaUFKQkNNUmEwQkIzZkRYcFNMY1JU?=
+ =?utf-8?B?dERFYlp4Tk4wSUxMVVpKV1NCb2ZTbm0xUlg2Z2t3SWxhZzZoam9qUmtDcU5H?=
+ =?utf-8?Q?veHiIZeIWj1qy7CTK3fwp1U3wjofW6p6k+sOgUlcUgrY?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <D3ED16BD79EF2949A4B918E6DB464A95@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8DxusbxXZ9m+l9VAA--.59486S4
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
-	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
-	nUUI43ZEXa7xR_UUUUUUUUU==
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fb2e2428-4cc7-4875-93ab-08dcaaec0463
+X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Jul 2024 07:49:44.2049
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ptie1WS66UxVg4a1mRAJLwPPnYyvA0iPSF7DkUN9KqsSDKLQ08HvM3q3q6VrPvBQYqmXTtErSH6I9Ka188eXxw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8972
 
-Option PARAVIRT_SPINLOCKS is added on LoongArch system, and
-pv_lock_ops template is added here. If option PARAVIRT_SPINLOCKS
-is enabled, the native ops works on host machine.
-
-Two functions kvm_wait() and kvm_kick_cpu() are added specicial for
-VM, if VM detects hypervisor supports pv spinlock. With kvm_wait()
-vCPU thread will exit to hypervisor and give up scheduleing on pCPU,
-and with function kvm_kick_cpu() one hypercall function is used
-to notify hypervisor to wakeup previously waited vCPU.
-
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
----
- arch/loongarch/Kconfig                        | 14 +++
- arch/loongarch/include/asm/Kbuild             |  1 -
- arch/loongarch/include/asm/paravirt.h         | 47 ++++++++++
- arch/loongarch/include/asm/qspinlock.h        | 39 ++++++++
- .../include/asm/qspinlock_paravirt.h          |  6 ++
- arch/loongarch/kernel/paravirt.c              | 88 +++++++++++++++++++
- arch/loongarch/kernel/smp.c                   |  4 +-
- 7 files changed, 197 insertions(+), 2 deletions(-)
- create mode 100644 arch/loongarch/include/asm/qspinlock.h
- create mode 100644 arch/loongarch/include/asm/qspinlock_paravirt.h
-
-diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-index b81d0eba5c7e..7ad63db2fafd 100644
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -660,6 +660,20 @@ config PARAVIRT_TIME_ACCOUNTING
- 
- 	  If in doubt, say N here.
- 
-+config PARAVIRT_SPINLOCKS
-+	bool "Paravirtual queued spinlocks"
-+	select PARAVIRT
-+	depends on SMP
-+	help
-+	  Paravirtualized spinlocks allow a pvops backend to replace the
-+	  spinlock implementation with something virtualization-friendly
-+	  (for example, block the virtual CPU rather than spinning).
-+
-+	  It has a minimal impact on native kernels and gives a nice performance
-+	  benefit on paravirtualized kernels.
-+
-+	  If you are unsure how to answer this question, answer Y.
-+
- endmenu
- 
- config ARCH_SELECT_MEMORY_MODEL
-diff --git a/arch/loongarch/include/asm/Kbuild b/arch/loongarch/include/asm/Kbuild
-index 2bb3676429c0..4635b755b2b4 100644
---- a/arch/loongarch/include/asm/Kbuild
-+++ b/arch/loongarch/include/asm/Kbuild
-@@ -6,7 +6,6 @@ generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += early_ioremap.h
- generic-y += qrwlock.h
--generic-y += qspinlock.h
- generic-y += user.h
- generic-y += ioctl.h
- generic-y += statfs.h
-diff --git a/arch/loongarch/include/asm/paravirt.h b/arch/loongarch/include/asm/paravirt.h
-index dddec49671ae..2617d635171b 100644
---- a/arch/loongarch/include/asm/paravirt.h
-+++ b/arch/loongarch/include/asm/paravirt.h
-@@ -20,6 +20,47 @@ static inline u64 paravirt_steal_clock(int cpu)
- int __init pv_ipi_init(void);
- int __init pv_time_init(void);
- 
-+#if defined(CONFIG_PARAVIRT_SPINLOCKS)
-+struct qspinlock;
-+struct pv_lock_ops {
-+	void (*queued_spin_lock_slowpath)(struct qspinlock *lock, u32 val);
-+	void (*queued_spin_unlock)(struct qspinlock *lock);
-+	void (*wait)(u8 *ptr, u8 val);
-+	void (*kick)(int cpu);
-+	bool (*vcpu_is_preempted)(int cpu);
-+};
-+
-+extern struct pv_lock_ops pv_lock_ops;
-+
-+void __init kvm_spinlock_init(void);
-+bool pv_is_native_spin_unlock(void);
-+
-+static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
-+		u32 val)
-+{
-+	pv_lock_ops.queued_spin_lock_slowpath(lock, val);
-+}
-+
-+static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
-+{
-+	pv_lock_ops.queued_spin_unlock(lock);
-+}
-+
-+static __always_inline void pv_wait(u8 *ptr, u8 val)
-+{
-+	pv_lock_ops.wait(ptr, val);
-+}
-+
-+static __always_inline void pv_kick(int cpu)
-+{
-+	pv_lock_ops.kick(cpu);
-+}
-+
-+static __always_inline bool pv_vcpu_is_preempted(long cpu)
-+{
-+	return pv_lock_ops.vcpu_is_preempted(cpu);
-+}
-+#endif /* PARAVIRT_SPINLOCKS */
- #else
- 
- static inline int pv_ipi_init(void)
-@@ -32,4 +73,10 @@ static inline int pv_time_init(void)
- 	return 0;
- }
- #endif // CONFIG_PARAVIRT
-+
-+#ifndef CONFIG_PARAVIRT_SPINLOCKS
-+static inline void kvm_spinlock_init(void)
-+{
-+}
-+#endif
- #endif
-diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/include/asm/qspinlock.h
-new file mode 100644
-index 000000000000..8e1b14c9e906
---- /dev/null
-+++ b/arch/loongarch/include/asm/qspinlock.h
-@@ -0,0 +1,39 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_LOONGARCH_QSPINLOCK_H
-+#define _ASM_LOONGARCH_QSPINLOCK_H
-+
-+#include <asm/paravirt.h>
-+
-+#define _Q_PENDING_LOOPS       (1 << 9)
-+
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+/* How long a lock should spin before we consider blocking */
-+#define SPIN_THRESHOLD  (1 << 15)
-+
-+extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-+extern void __pv_init_lock_hash(void);
-+extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-+extern void __pv_queued_spin_unlock(struct qspinlock *lock);
-+extern bool nopvspin;
-+
-+static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
-+{
-+	pv_queued_spin_lock_slowpath(lock, val);
-+}
-+
-+#define queued_spin_unlock queued_spin_unlock
-+static inline void queued_spin_unlock(struct qspinlock *lock)
-+{
-+	pv_queued_spin_unlock(lock);
-+}
-+
-+#define vcpu_is_preempted vcpu_is_preempted
-+static inline bool vcpu_is_preempted(long cpu)
-+{
-+	return pv_vcpu_is_preempted(cpu);
-+}
-+#endif
-+
-+#include <asm-generic/qspinlock.h>
-+
-+#endif // _ASM_LOONGARCH_QSPINLOCK_H
-diff --git a/arch/loongarch/include/asm/qspinlock_paravirt.h b/arch/loongarch/include/asm/qspinlock_paravirt.h
-new file mode 100644
-index 000000000000..d6d7f487daea
---- /dev/null
-+++ b/arch/loongarch/include/asm/qspinlock_paravirt.h
-@@ -0,0 +1,6 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_QSPINLOCK_PARAVIRT_H
-+#define __ASM_QSPINLOCK_PARAVIRT_H
-+
-+void __lockfunc __pv_queued_spin_unlock_slowpath(struct qspinlock *lock, u8 locked);
-+#endif
-diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
-index aee44610007d..758039eabdde 100644
---- a/arch/loongarch/kernel/paravirt.c
-+++ b/arch/loongarch/kernel/paravirt.c
-@@ -298,3 +298,91 @@ int __init pv_time_init(void)
- 
- 	return 0;
- }
-+
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+static  bool native_vcpu_is_preempted(int cpu)
-+{
-+	return false;
-+}
-+
-+/**
-+ * queued_spin_unlock - release a queued spinlock
-+ * @lock : Pointer to queued spinlock structure
-+ */
-+static void native_queued_spin_unlock(struct qspinlock *lock)
-+{
-+	/*
-+	 * unlock() needs release semantics:
-+	 */
-+	smp_store_release(&lock->locked, 0);
-+}
-+
-+static void paravirt_nop_kick(int cpu)
-+{
-+}
-+
-+static void paravirt_nop_wait(u8 *ptr, u8 val)
-+{
-+}
-+
-+static void kvm_wait(u8 *ptr, u8 val)
-+{
-+	if (READ_ONCE(*ptr) != val)
-+		return;
-+
-+	__asm__ __volatile__("idle 0\n\t" : : : "memory");
-+}
-+
-+/* Kick a cpu. Used to wake up a halted vcpu */
-+static void kvm_kick_cpu(int cpu)
-+{
-+	kvm_hypercall1(KVM_HCALL_FUNC_KICK, cpu_logical_map(cpu));
-+}
-+
-+bool pv_is_native_spin_unlock(void)
-+{
-+	return pv_lock_ops.queued_spin_unlock == native_queued_spin_unlock;
-+}
-+
-+/*
-+ * Setup pv_lock_ops for guest kernel.
-+ */
-+void __init kvm_spinlock_init(void)
-+{
-+	int feature;
-+
-+	/*
-+	 * pv_hash()/pv_unhas() need it whatever pv spinlock is
-+	 * enabled or not
-+	 */
-+	__pv_init_lock_hash();
-+
-+	if (!kvm_para_available())
-+		return;
-+
-+	/* Don't use the pvqspinlock code if there is only 1 vCPU. */
-+	if (num_possible_cpus() == 1)
-+		return;
-+
-+	feature = kvm_arch_para_features();
-+	if (!(feature & KVM_FEATURE_PARAVIRT_SPINLOCK))
-+		return;
-+
-+	if (nopvspin)
-+		return;
-+
-+	pr_info("Using paravirt qspinlock\n");
-+	pv_lock_ops.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
-+	pv_lock_ops.queued_spin_unlock = __pv_queued_spin_unlock;
-+	pv_lock_ops.wait = kvm_wait;
-+	pv_lock_ops.kick = kvm_kick_cpu;
-+}
-+
-+struct pv_lock_ops pv_lock_ops = {
-+	.queued_spin_lock_slowpath = native_queued_spin_lock_slowpath,
-+	.queued_spin_unlock = native_queued_spin_unlock,
-+	.wait = paravirt_nop_wait,
-+	.kick = paravirt_nop_kick,
-+	.vcpu_is_preempted = native_vcpu_is_preempted,
-+};
-+#endif /* CONFIG_PARAVIRT_SPINLOCKS */
-diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
-index 1436d2465939..6bc0b182a2ce 100644
---- a/arch/loongarch/kernel/smp.c
-+++ b/arch/loongarch/kernel/smp.c
-@@ -463,7 +463,7 @@ core_initcall(ipi_pm_init);
- #endif
- 
- /* Preload SMP state for boot cpu */
--void smp_prepare_boot_cpu(void)
-+void __init smp_prepare_boot_cpu(void)
- {
- 	unsigned int cpu, node, rr_node;
- 
-@@ -496,6 +496,8 @@ void smp_prepare_boot_cpu(void)
- 			rr_node = next_node_in(rr_node, node_online_map);
- 		}
- 	}
-+
-+	kvm_spinlock_init();
- }
- 
- /* called from main before smp_init() */
--- 
-2.39.3
-
+T24gVHVlLCAyMDI0LTA3LTIzIGF0IDEzOjM5ICswODAwLCBDaW5keSBMdSB3cm90ZToNCj4gQWRk
+IHRoZSBmdW5jdGlvbiB0byBzdXBwb3J0IHNldHRpbmcgdGhlIE1BQyBhZGRyZXNzLg0KPiBGb3Ig
+dmRwYS9tbHg1LCB0aGUgZnVuY3Rpb24gd2lsbCB1c2UgbWx4NV9tcGZzX2FkZF9tYWMNCj4gdG8g
+c2V0IHRoZSBtYWMgYWRkcmVzcw0KPiANCj4gVGVzdGVkIGluIENvbm5lY3RYLTYgRHggZGV2aWNl
+DQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBDaW5keSBMdSA8bHVsdUByZWRoYXQuY29tPg0KPiAtLS0N
+Cj4gIGRyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyB8IDI4ICsrKysrKysrKysrKysr
+KysrKysrKysrKysrKysNCj4gIDEgZmlsZSBjaGFuZ2VkLCAyOCBpbnNlcnRpb25zKCspDQo+IA0K
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jIGIvZHJpdmVy
+cy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jDQo+IGluZGV4IGVjZmMxNjE1MWQ2MS4uN2ZjZTk1
+MmQ2NTBmIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMN
+Cj4gKysrIGIvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jDQo+IEBAIC0zNzg1LDEw
+ICszNzg1LDM4IEBAIHN0YXRpYyB2b2lkIG1seDVfdmRwYV9kZXZfZGVsKHN0cnVjdCB2ZHBhX21n
+bXRfZGV2ICp2X21kZXYsIHN0cnVjdCB2ZHBhX2RldmljZSAqDQo+ICAJZGVzdHJveV93b3JrcXVl
+dWUod3EpOw0KPiAgCW1ndGRldi0+bmRldiA9IE5VTEw7DQo+ICB9DQo+ICtzdGF0aWMgaW50IG1s
+eDVfdmRwYV9zZXRfYXR0cihzdHJ1Y3QgdmRwYV9tZ210X2RldiAqdl9tZGV2LA0KPiArCQkJICAg
+ICAgc3RydWN0IHZkcGFfZGV2aWNlICpkZXYsDQo+ICsJCQkgICAgICBjb25zdCBzdHJ1Y3QgdmRw
+YV9kZXZfc2V0X2NvbmZpZyAqYWRkX2NvbmZpZykNCj4gK3sNCj4gKwlzdHJ1Y3QgdmlydGlvX25l
+dF9jb25maWcgKmNvbmZpZzsNCj4gKwlzdHJ1Y3QgbWx4NV9jb3JlX2RldiAqcGZtZGV2Ow0KPiAr
+CXN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldjsNCj4gKwlzdHJ1Y3QgbWx4NV92ZHBhX25ldCAq
+bmRldjsNCj4gKwlzdHJ1Y3QgbWx4NV9jb3JlX2RldiAqbWRldjsNCj4gKwlpbnQgZXJyID0gLUVJ
+TlZBTDsNCj4gKw0KPiArCW12ZGV2ID0gdG9fbXZkZXYoZGV2KTsNCj4gKwluZGV2ID0gdG9fbWx4
+NV92ZHBhX25kZXYobXZkZXYpOw0KPiArCW1kZXYgPSBtdmRldi0+bWRldjsNCj4gKwljb25maWcg
+PSAmbmRldi0+Y29uZmlnOw0KPiArDQo+ICsJZG93bl93cml0ZSgmbmRldi0+cmVzbG9jayk7DQo+
+ICsJaWYgKGFkZF9jb25maWctPm1hc2sgJiAoMSA8PCBWRFBBX0FUVFJfREVWX05FVF9DRkdfTUFD
+QUREUikpIHsNCj4gKwkJcGZtZGV2ID0gcGNpX2dldF9kcnZkYXRhKHBjaV9waHlzZm4obWRldi0+
+cGRldikpOw0KPiArCQllcnIgPSBtbHg1X21wZnNfYWRkX21hYyhwZm1kZXYsIGNvbmZpZy0+bWFj
+KTsNCj4gKwkJaWYgKDAgPT0gZXJyKQ0KaWYgKCFlcnIpIHdvdWxkIGJlIG5pY2VyLiBOb3QgYSBk
+ZWFsIGJyZWFrZXIgdGhvdWdoLg0KDQpSZXZpZXdlZC1ieTogRHJhZ29zIFRhdHVsZWEgPGR0YXR1
+bGVhQG52aWRpYS5jb20+DQoNCj4gKwkJCW1lbWNweShjb25maWctPm1hYywgYWRkX2NvbmZpZy0+
+bmV0Lm1hYywgRVRIX0FMRU4pOw0KPiArCX0NCj4gKw0KPiArCXVwX3dyaXRlKCZuZGV2LT5yZXNs
+b2NrKTsNCj4gKwlyZXR1cm4gZXJyOw0KPiArfQ0KPiAgDQo+ICBzdGF0aWMgY29uc3Qgc3RydWN0
+IHZkcGFfbWdtdGRldl9vcHMgbWRldl9vcHMgPSB7DQo+ICAJLmRldl9hZGQgPSBtbHg1X3ZkcGFf
+ZGV2X2FkZCwNCj4gIAkuZGV2X2RlbCA9IG1seDVfdmRwYV9kZXZfZGVsLA0KPiArCS5kZXZfc2V0
+X2F0dHIgPSBtbHg1X3ZkcGFfc2V0X2F0dHIsDQo+ICB9Ow0KPiAgDQo+ICBzdGF0aWMgc3RydWN0
+IHZpcnRpb19kZXZpY2VfaWQgaWRfdGFibGVbXSA9IHsNCg0K
