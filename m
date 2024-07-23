@@ -1,133 +1,192 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 973C3142648;
-	Tue, 23 Jul 2024 19:57:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 708E2288D1;
+	Tue, 23 Jul 2024 22:31:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721764675; cv=none; b=cLFIKhp2Fa9OVOjRGcwjaYEZStx4XLWZerIwxxcjnQSd9Qk+nEqopYixHY37xqx6t4hvVpG2zNYr0RIaQx3srPLJAlnS+Z6A8GCB4aE+xWECy60+9r/l8rgwMC/a+Ph5aOsix6Rj+plLtkCBa3SPfiUJzBkEhbInzei+LE/NFj4=
+	t=1721773872; cv=none; b=HrBx/bWY8MiWA5oRx6eaFFBtFM96PIMsBl5fi23rDB06AijhFm5hdOLqnxfb7g/mTuz051gexzBJNzz0nxXP+3Jf5ETvPwkcLOY3zN+PnxA0VwupKmPqqKPIa7keZrJBohZc8CL0My1qxOPTJnsYtpgjZsUU+LWoefTGx6Jn1As=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721764675; c=relaxed/simple;
-	bh=F7oV1U3Aj4pE+kbk85/bZihDwGPL4aFznra86IAEkRc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BkCa5TgwtT+MaFuCL0cb2Hhi4V+qZIC6IabNCGjILAeNr+FfFXMk1ava/LUjqayNLPlD129riaB/CPI5BY3XG60Fw527u+8wXkN5TMkYgHLMDEqxPNOMsty1AqsMrODIBLb+XDOdYBQ+C1RkNAKZL5QzZSKBxm8/jNxPFTm3gJ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=O4vCf/Yp; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1721773872; c=relaxed/simple;
+	bh=IxBRar1RxH89c3TNuKgry7Njs57mT04USb7aaNO0aFM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GwqhrJkeYswzbcnl7ffLJLuDKKVtH815xjZwXZ3Co2xAYV2SGDroYlQTMZOzYbdxoSxK9sOmIcrK+vzVpX9QGNLqBiTs5QthdpG9AQZK5OgPja0nFybvP0CT9ib5pyZ6ulFJHtzLWwqHaftYc0/IdqvFUj1hOqpUzgpPOpmmV5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IlWCgZgm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="O4vCf/Yp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1721764673; x=1753300673;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=F7oV1U3Aj4pE+kbk85/bZihDwGPL4aFznra86IAEkRc=;
-  b=O4vCf/YppWqKGW9GYiONKpbI/AzyqnFGQTOBIQZ9NF6734XCGkFHNfn2
-   X55rnnlsJiVXzhUDkb0bSiRKCE5Yjg7NQ7yqF0BvrRFzjtuzIUjDY/TCQ
-   rXXfuWexb87FQKrEMD1UiRUOnwUnU/mpIhpZ5je9cgu2cYIb3OZoATBqC
-   8+O9QXgkiuMZnCvglIj2zk33R6/6OIttz/GYhxiuZ2bsQ9CTbwnP/mjvy
-   RYli3NS2Fc05NTVaDavb87nV1f7mzrzHqHGX3YOxInwVIqgrlkvFrvLyT
-   02xOc933B2aRSNsL3IohxHN/cdpvfx48Pq3I0bjGelFPCbkanI0hTiTeO
-   w==;
-X-CSE-ConnectionGUID: sxLF7INmQ8y47q9T4kVFTw==
-X-CSE-MsgGUID: VrvUaEh2S7+iuYTBknfhgQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11142"; a="19597412"
-X-IronPort-AV: E=Sophos;i="6.09,231,1716274800"; 
-   d="scan'208";a="19597412"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jul 2024 12:57:53 -0700
-X-CSE-ConnectionGUID: BtbfYRwFQ0SaLgP0xDjQUw==
-X-CSE-MsgGUID: P6YDV3w2TPi6cmQybAH2pw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,231,1716274800"; 
-   d="scan'208";a="52065548"
-Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
-  by fmviesa007.fm.intel.com with ESMTP; 23 Jul 2024 12:57:50 -0700
-Received: from kbuild by 68891e0c336b with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sWLds-000mJc-1L;
-	Tue, 23 Jul 2024 19:57:48 +0000
-Date: Wed, 24 Jul 2024 03:57:35 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bibo Mao <maobibo@loongson.cn>, Huacai Chen <chenhuacai@kernel.org>,
-	Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Waiman Long <longman@redhat.com>
-Cc: oe-kbuild-all@lists.linux.dev, WANG Xuerui <kernel@xen0n.name>,
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH 2/2] LoongArch: KVM: Add paravirt qspinlock in guest side
-Message-ID: <202407240320.qqd1uWiE-lkp@intel.com>
-References: <20240723073825.1811600-3-maobibo@loongson.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IlWCgZgm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F83C4AF09;
+	Tue, 23 Jul 2024 22:31:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1721773872;
+	bh=IxBRar1RxH89c3TNuKgry7Njs57mT04USb7aaNO0aFM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=IlWCgZgmE18s7gUIX33ab9+TiYNgSArnBFSsBpEWH9JQoLa4QjkY8tD5HKD2Z/Zzt
+	 dSjY13vNr2PIxRd+0ufUbvCK86Rbd9FQCwf7jdbgf9wRQwk+/DnWmBV/HCA5MCofVK
+	 sqmyrYsTzSi6HL/4vYTLIkzsKWSnbPuaV2wstEaeJ7gocgSLvkYZ4VKy+qMF4I/vY3
+	 fHVZmXRSpNgblqXsZpRn0YA5sI8AkRx/jvwAo1wugyzD0rCzXPeYsRmh9HD+gee3O7
+	 q946DsnCvY+0NhVTdWL6XyejDnWlrrzl1W+dDcmDFIApAEs/RmBmQJCoTmLJHUWuGf
+	 C0mRQx+mdVthA==
+From: Jakub Kicinski <kuba@kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	Jakub Kicinski <kuba@kernel.org>,
+	willemdebruijn.kernel@gmail.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	shuah@kernel.org,
+	arefev@swemel.ru,
+	virtualization@lists.linux.dev,
+	linux-kselftest@vger.kernel.org
+Subject: [PATCH net] virtio: fix GSO with frames unaligned to size
+Date: Tue, 23 Jul 2024 15:31:09 -0700
+Message-ID: <20240723223109.2196886-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240723073825.1811600-3-maobibo@loongson.cn>
+Content-Transfer-Encoding: 8bit
 
-Hi Bibo,
+The commit under fixes added a questionable check to
+virtio_net_hdr_to_skb(). I'm guessing the check was supposed
+to protect from csum offset being outside of a segment
+(especially if len is not multiple of segment size).
 
-kernel test robot noticed the following build errors:
+The condition can't be right, tho, as it breaks previously
+working sending of GSO frames with only one segment
+(i.e. when gso_size <= len we silently ignore the GSO
+request and send a single non-GSO frame).
 
-[auto build test ERROR on 7846b618e0a4c3e08888099d1d4512722b39ca99]
+Fix the logic and move it to the GSO part.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Add-paravirt-qspinlock-in-kvm-side/20240723-160536
-base:   7846b618e0a4c3e08888099d1d4512722b39ca99
-patch link:    https://lore.kernel.org/r/20240723073825.1811600-3-maobibo%40loongson.cn
-patch subject: [PATCH 2/2] LoongArch: KVM: Add paravirt qspinlock in guest side
-config: loongarch-allmodconfig (https://download.01.org/0day-ci/archive/20240724/202407240320.qqd1uWiE-lkp@intel.com/config)
-compiler: loongarch64-linux-gcc (GCC) 14.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240724/202407240320.qqd1uWiE-lkp@intel.com/reproduce)
+This has been caught by net/tap and net/psock_send.sh tests.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202407240320.qqd1uWiE-lkp@intel.com/
+Fixes: e269d79c7d35 ("net: missing check virtio")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+CC: willemdebruijn.kernel@gmail.com
+CC: mst@redhat.com
+CC: jasowang@redhat.com
+CC: xuanzhuo@linux.alibaba.com
+CC: eperezma@redhat.com
+CC: shuah@kernel.org
+CC: arefev@swemel.ru
+CC: virtualization@lists.linux.dev
+CC: linux-kselftest@vger.kernel.org
+---
+ include/linux/virtio_net.h        | 27 ++++++++++++++++-----------
+ tools/testing/selftests/net/tap.c | 30 ++++++++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+), 11 deletions(-)
 
-All error/warnings (new ones prefixed by >>):
-
->> arch/loongarch/kernel/paravirt.c:309: warning: expecting prototype for queued_spin_unlock(). Prototype was for native_queued_spin_unlock() instead
---
-   In file included from include/linux/atomic.h:80,
-                    from include/asm-generic/bitops/atomic.h:5,
-                    from arch/loongarch/include/asm/bitops.h:27,
-                    from include/linux/bitops.h:63,
-                    from include/linux/kernel.h:23,
-                    from include/linux/cpumask.h:11,
-                    from include/linux/smp.h:13,
-                    from kernel/locking/qspinlock.c:16:
-   kernel/locking/qspinlock_paravirt.h: In function 'pv_kick_node':
->> include/linux/atomic/atomic-arch-fallback.h:242:34: error: initialization of 'u8 *' {aka 'unsigned char *'} from incompatible pointer type 'enum vcpu_state *' [-Wincompatible-pointer-types]
-     242 |         typeof(*(_ptr)) *___op = (_oldp), ___o = *___op, ___r; \
-         |                                  ^
-   include/linux/atomic/atomic-instrumented.h:4908:9: note: in expansion of macro 'raw_try_cmpxchg_relaxed'
-    4908 |         raw_try_cmpxchg_relaxed(__ai_ptr, __ai_oldp, __VA_ARGS__); \
-         |         ^~~~~~~~~~~~~~~~~~~~~~~
-   kernel/locking/qspinlock_paravirt.h:377:14: note: in expansion of macro 'try_cmpxchg_relaxed'
-     377 |         if (!try_cmpxchg_relaxed(&pn->state, &old, vcpu_hashed))
-         |              ^~~~~~~~~~~~~~~~~~~
-
-
-vim +309 arch/loongarch/kernel/paravirt.c
-
-   303	
-   304	/**
-   305	 * queued_spin_unlock - release a queued spinlock
-   306	 * @lock : Pointer to queued spinlock structure
-   307	 */
-   308	static void native_queued_spin_unlock(struct qspinlock *lock)
- > 309	{
-   310		/*
-   311		 * unlock() needs release semantics:
-   312		 */
-   313		smp_store_release(&lock->locked, 0);
-   314	}
-   315	
-
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index d1d7825318c3..c54b7aa42921 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -52,11 +52,11 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 					bool little_endian)
+ {
+ 	unsigned int nh_min_len = sizeof(struct iphdr);
++	unsigned int csum_needed = 0;
+ 	unsigned int gso_type = 0;
+ 	unsigned int thlen = 0;
+ 	unsigned int p_off = 0;
+ 	unsigned int ip_proto;
+-	u64 ret, remainder, gso_size;
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+@@ -99,16 +99,6 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
+ 		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
+ 
+-		if (hdr->gso_size) {
+-			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+-			ret = div64_u64_rem(skb->len, gso_size, &remainder);
+-			if (!(ret && (hdr->gso_size > needed) &&
+-						((remainder > needed) || (remainder == 0)))) {
+-				return -EINVAL;
+-			}
+-			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
+-		}
+-
+ 		if (!pskb_may_pull(skb, needed))
+ 			return -EINVAL;
+ 
+@@ -119,6 +109,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 		p_off = nh_min_len + thlen;
+ 		if (!pskb_may_pull(skb, p_off))
+ 			return -EINVAL;
++
++		csum_needed = needed;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+ 		 * probe and drop if does not match one of the above types.
+@@ -188,6 +180,19 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 		if (gso_size == GSO_BY_FRAGS)
+ 			return -EINVAL;
+ 
++		if (csum_needed) {
++			unsigned int p_rem, p_size;
++
++			p_size = gso_size;
++			p_rem = (skb->len - nh_off) % gso_size;
++			if (p_rem)
++				p_size = p_rem;
++
++			/* Make sure csum still within packet after GSO */
++			if (p_size + nh_off < csum_needed)
++				return -EINVAL;
++		}
++
+ 		/* Too small packets are not really GSO ones. */
+ 		if (skb->len - nh_off > gso_size) {
+ 			shinfo->gso_size = gso_size;
+diff --git a/tools/testing/selftests/net/tap.c b/tools/testing/selftests/net/tap.c
+index 247c3b3ac1c9..8527d51449cf 100644
+--- a/tools/testing/selftests/net/tap.c
++++ b/tools/testing/selftests/net/tap.c
+@@ -418,6 +418,36 @@ TEST_F(tap, test_packet_valid_udp_csum)
+ 	ASSERT_EQ(ret, off);
+ }
+ 
++TEST_F(tap, test_packet_invalid_udp_gso_csum)
++{
++	uint8_t pkt[TEST_PACKET_SZ];
++	uint16_t payload;
++	size_t off;
++	int ret;
++	int i;
++
++	payload = ETH_DATA_LEN - sizeof(struct iphdr) - sizeof(struct udphdr);
++
++	memset(pkt, 0, sizeof(pkt));
++	off = build_test_packet_valid_udp_gso(pkt, payload);
++
++	for (i = -16; i < 16; i++) {
++		ret = write(self->fd, pkt, off + i);
++
++		if (i <= 0 ||
++		    i > __builtin_offsetof(struct udphdr, check) + 1) {
++			EXPECT_EQ(ret, off + i)
++				TH_LOG("mismatch with offset: %d (%zd)",
++				       i, off + i);
++		} else {
++			EXPECT_EQ(ret, -1)
++				TH_LOG("mismatch with offset: %d (%zd)",
++				       i, off + i);
++			EXPECT_EQ(errno, 22);
++		}
++	}
++}
++
+ TEST_F(tap, test_packet_crash_tap_invalid_eth_proto)
+ {
+ 	uint8_t pkt[TEST_PACKET_SZ];
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.45.2
+
