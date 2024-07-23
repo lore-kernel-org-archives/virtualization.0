@@ -1,82 +1,82 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BB47155A30
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:38:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AFAE155739
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:40:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721745534; cv=none; b=NAgI7gYRPJQvRXqmvpwY71MRf7SiMxisdgzvaR+4KqP5NyAh1IynhoTM9P3FKivCw3GUdCtYVvNPgpKmhlRnm1YITAsVNOHIxDBvgWn5Lf+pZ21PsR2Dq1/uEyRSo9yjKeQ2mw2vDpm3+euxwr9/imwAb4/u02/MazXjhTINWFw=
+	t=1721745608; cv=none; b=udAUAjhIcV74haGZjTIcFhUZJuz2nx2rwQih4FuSc1Z8gCKH6VBz9YJ1B8GB4DYxoF1r2ghI7Kdp0d5e2RflvNOJkFVKL33HwIZJ/+OAMqfGhCrCYhtb/8FeUFHBaZjZl09T5T71J16AYrSh4RfiiSRLxO87wKbcjAKQ6VNUvmw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721745534; c=relaxed/simple;
-	bh=FWZ7L31FilGlYNAsUr06+iq7uJW1afQnO+E9VdJEghI=;
+	s=arc-20240116; t=1721745608; c=relaxed/simple;
+	bh=Vx994ZBr7B2D6O1BQBny1VeJblQKimuyws1bzs1/KJ0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=aueLm2P0WY+gZoI9VeK6U83l8Te/gEN1dN31enYeTtRgFQtXozY59B7Jc6NZEUTd2WUCQHQMltJdGQSM/TA7XXuuH+tX0AB+Z8tptLzCDPhKsM5B9hdPNyYue6gZMFtzPPf8HSmCfbazHbQ2kcDHPgwxTe4c9zmLoiDoGLN7hzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RCmiElOA; arc=none smtp.client-ip=140.211.166.133
+	 In-Reply-To:Content-Type:Content-Disposition; b=VJ2lHqcBD7XxSFaoiF146wK82VWeAiqEqN3fG4hWqeGrCNG9sJuEr4iAA7nHCFfaWeU0L5HJSRTfCOvbvL8VoJGAMK0ocwYdh2U/VlvhObpM0gNeJgG46emP9Vb4ZR5oJoHhCdF5q/KwermVKMxqEpDlMI92UcvQtjZzV4GmWmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VyPaJmWu; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RCmiElOA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VyPaJmWu"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id ACAFA4027F
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:38:52 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id AE12C40304
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:40:06 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id fIPrPOXqliBt for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Jul 2024 14:38:51 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E2D8D40112
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E2D8D40112
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RCmiElOA
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E2D8D40112
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:38:49 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id umZ-aaHHPA50 for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Jul 2024 14:40:05 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9CFC240491
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9CFC240491
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VyPaJmWu
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9CFC240491
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721745528;
+	s=mimecast20190719; t=1721745604;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=U8D9zZcUE0U3hHmqSilSWN7yBwFstQGaORKtcOXi3Go=;
-	b=RCmiElOA49TkbHuDg47EgsNF+tQ42zXjsTo85jAAJf+VDCncpNCyRjXrokwWRTK9gUKRwU
-	90vJBOr5aBOYusWPcJTQrlI17rfcjaJfPxCdh8HXIsqLNeUp1XdSwQX/RKhT6T6CHdZTtN
-	uWbC8QZpWziQoYa9jPY6cBmng73SdiY=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=uNxU/3bNa0j4H+fhGmWX47X5Nrds4z8nYGKNg8PjixM=;
+	b=VyPaJmWu3Db99Plh4iEauR9ikiIvIicNhKysRL9buKBPA8ZN0F2OoJjXXDXYVL5+n8QRj2
+	uzlQDZrcNPcNcEEOT++w6a/w0lU4PH2IcjQa3DQY5c36fLS9T5kGU4/2dZSK9ITCMCQHmI
+	Xi7VySu3s4HOETnF/Ahb4PTm00VuvYY=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-175-3JtmXy4MPGiBVmiAA2_ctA-1; Tue, 23 Jul 2024 10:38:45 -0400
-X-MC-Unique: 3JtmXy4MPGiBVmiAA2_ctA-1
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-79f06a617a4so930267985a.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 07:38:45 -0700 (PDT)
+ us-mta-596-jm0pLutQPo2-2vv6AHxX3g-1; Tue, 23 Jul 2024 10:40:00 -0400
+X-MC-Unique: jm0pLutQPo2-2vv6AHxX3g-1
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-44f76198e97so95035571cf.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 07:40:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721745525; x=1722350325;
+        d=1e100.net; s=20230601; t=1721745600; x=1722350400;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U8D9zZcUE0U3hHmqSilSWN7yBwFstQGaORKtcOXi3Go=;
-        b=SbgfnQkl99UhUqHxjAeZEQg9yJtLuimwFIP0rUN2QYzROFWaGMod4GMiLOOHfPq+QU
-         V7tmqWVRLgLrBQgd8dTiM9DkNK0/OV1njN3ICPUQoLXX27LGLDZeMsEHyOeddiMerEuD
-         DghuklFNgDPZ2t5D2xsHyuQau+A+dezUi8TOxpPyNYi1bju5IxRTwiYx0UWFVwaJvD6/
-         UxF0aMBfvGV2Qzb5QhSvLBg7zqJSPOkwAdFxoAUTlRER2ViQvIg81gdLYannIj0szUvb
-         0S4t2YEee8Bxi87ROBw1boicUUwuNsFOpKA8qNrkcIjrRqIKobTZzrxetJyyEP7pPtRG
-         JwCw==
-X-Forwarded-Encrypted: i=1; AJvYcCXNWM1tvewGvLtpSNOJL41xW+5gCNeLjkNtKK8B9unNPSyfXvqj8FRA+PsFcqO9NPKuJqTiw2gtFAqqhX22RBRt3jsNDKa+D7TkYQ4sd2nNp7BnVnAVeQbeog==
-X-Gm-Message-State: AOJu0YzLQ6eHrHPi/DrMiRv86/vXeKnSbVvUgfkRNja4bzAW6fwJFz9a
-	zgYXkR6/YOH0zwi87xp5/j6/jtL6YjUwSzsEwYwJ475xik79FqpE6oHOj5pkDm6WIAMvrEVCjQR
-	VGkVOnRYqFC0m2EVhn1Eg0lHEcqFAPdE+jH7bFTpiWzvPPIqAfhKcNdKYveMa+UzjqoDNGZm401
-	rO7yM=
-X-Received: by 2002:a05:620a:4509:b0:795:5f15:f9e8 with SMTP id af79cd13be357-7a1c2f7a688mr357763185a.31.1721745524773;
-        Tue, 23 Jul 2024 07:38:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEt+6RarktAqnam78KX5eGOY82IGXpcHtmA5V03az2mrl145h+XI2RXXmH48ChifXYWujtFZQ==
-X-Received: by 2002:a05:620a:4509:b0:795:5f15:f9e8 with SMTP id af79cd13be357-7a1c2f7a688mr357755685a.31.1721745524147;
-        Tue, 23 Jul 2024 07:38:44 -0700 (PDT)
+        bh=uNxU/3bNa0j4H+fhGmWX47X5Nrds4z8nYGKNg8PjixM=;
+        b=LUgNV1j0MXTThccZcp8ZVaEr3Zl6ktCtKPaSmL5ugrkszqwhS7HJe9gIO+4sfU0G+8
+         plGmKMfolSCBE8iV1xQWIqLkoZy2464S1zskyg+OJIGTgKGcQtd7ODpmzV1BlpZCu38B
+         HJwI/OWx3Uc9h50L6Zc7RvOx9uYoeFa29M4ZcXwRpchpDbic+f2bAJZ1J0BUdiolCHon
+         UPXjOtQYkngTyEmj13lwqzl7aasqBZWeGMxFGKuATeaPkNLBlqVm3UvvA8LfYe4cB29a
+         3w40b+9oe1JI6wk0joO8l1zYeQDcHBcj/acDnc8Kqa8bzr72ey+ahp3rr1B2qWAF4Czk
+         RIDg==
+X-Forwarded-Encrypted: i=1; AJvYcCWmzKt3fj5Il0W2S3hKzEDEVBfTm5M/0D3HTgI07qxRFZLM2ysSfhpNVwy3JUbYVoulRCONIXiDA04vQh0OZ3FPiEQgSzW7OKphS+AYTZumrfvzHDSiszOqyw==
+X-Gm-Message-State: AOJu0YzWclMjkP9LGX77CSkAKWlf8Ay63OOKHMGZqgksASDHjpu2JS8S
+	YXjjE5BDjViUI0i08esMrll7fxAnqlPrXIoieUHghThGIUMhE5gf7wEPFQPlGUwJ0RByRw1A471
+	RwAVQyQEJFY/NhWnUkIDS85YnIDQOO8NgZVZHupLBy4HGtS2Gf3TSH7oaAvAnpGCDTk6dfcrUGK
+	Ht6NY=
+X-Received: by 2002:ac8:5907:0:b0:447:e1ea:ef7 with SMTP id d75a77b69052e-44fc7f5fdd3mr32125451cf.9.1721745600392;
+        Tue, 23 Jul 2024 07:40:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFiMZj0dsaL52oy96COzOxwC33HyqPV0AzPadJvk/DwDmZBHiZG8Nq4+kUIoA7ql1zFm7LEkw==
+X-Received: by 2002:ac8:5907:0:b0:447:e1ea:ef7 with SMTP id d75a77b69052e-44fc7f5fdd3mr32125021cf.9.1721745599845;
+        Tue, 23 Jul 2024 07:39:59 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-79.retail.telecomitalia.it. [82.57.51.79])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a198ffe9d4sm480822485a.63.2024.07.23.07.38.38
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-44f9cd04062sm45383271cf.40.2024.07.23.07.39.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jul 2024 07:38:43 -0700 (PDT)
-Date: Tue, 23 Jul 2024 16:38:33 +0200
+        Tue, 23 Jul 2024 07:39:59 -0700 (PDT)
+Date: Tue, 23 Jul 2024 16:39:51 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Amery Hung <ameryhung@gmail.com>
 Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
@@ -88,197 +88,146 @@ Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com,
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
 	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
 	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
-Subject: Re: [RFC PATCH net-next v6 00/14] virtio/vsock: support datagrams
-Message-ID: <ufohkq4g3v6mzpmheftdac5rtuy36ocvc4mczuhwc6fv456kmh@kyttvegsdxva>
+Subject: Re: [RFC PATCH net-next v6 04/14] af_vsock: generalize bind table
+ functions
+Message-ID: <CAGxU2F7wCUR-KhDRBopK+0gv=bM0PCKeWM87j1vEYmbvhO8WHQ@mail.gmail.com>
 References: <20240710212555.1617795-1-amery.hung@bytedance.com>
+ <20240710212555.1617795-5-amery.hung@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240710212555.1617795-1-amery.hung@bytedance.com>
+In-Reply-To: <20240710212555.1617795-5-amery.hung@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi Amery,
+On Wed, Jul 10, 2024 at 09:25:45PM GMT, Amery Hung wrote:
+>From: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>
+>This commit makes the bind table management functions in vsock usable
+>for different bind tables. Future work will introduce a new table for
+>datagrams to avoid address collisions, and these functions will be used
+>there.
+>
+>Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>---
+> net/vmw_vsock/af_vsock.c | 34 +++++++++++++++++++++++++++-------
+> 1 file changed, 27 insertions(+), 7 deletions(-)
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index acc15e11700c..d571be9cdbf0 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -232,11 +232,12 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
+>       sock_put(&vsk->sk);
+> }
+>
+>-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+>+static struct sock *vsock_find_bound_socket_common(struct sockaddr_vm *addr,
+>+                                                 struct list_head *bind_table)
+> {
+>       struct vsock_sock *vsk;
+>
+>-      list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
+>+      list_for_each_entry(vsk, bind_table, bound_table) {
+>               if (vsock_addr_equals_addr(addr, &vsk->local_addr))
+>                       return sk_vsock(vsk);
+>
+>@@ -249,6 +250,11 @@ static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+>       return NULL;
+> }
+>
+>+static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+>+{
+>+      return vsock_find_bound_socket_common(addr, vsock_bound_sockets(addr));
+>+}
+>+
+> static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
+>                                                 struct sockaddr_vm *dst)
+> {
+>@@ -671,12 +677,18 @@ static void vsock_pending_work(struct work_struct *work)
+>
+> /**** SOCKET OPERATIONS ****/
+>
+>-static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>-                                  struct sockaddr_vm *addr)
+>+static int vsock_bind_common(struct vsock_sock *vsk,
+>+                           struct sockaddr_vm *addr,
+>+                           struct list_head *bind_table,
+>+                           size_t table_size)
+> {
+>       static u32 port;
+>       struct sockaddr_vm new_addr;
+>
+>+      if (WARN_ONCE(table_size < VSOCK_HASH_SIZE,
+>+                    "table size too small, may cause overflow"))
+>+              return -EINVAL;
+>+
 
-On Wed, Jul 10, 2024 at 09:25:41PM GMT, Amery Hung wrote:
->Hey all!
->
->This series introduces support for datagrams to virtio/vsock.
->
->It is a spin-off (and smaller version) of this series from the summer:
->  https://lore.kernel.org/all/cover.1660362668.git.bobby.eshleman@bytedance.com/
+I'd add this in another commit.
 
-Cool! Thanks for restarting this work!
+>       if (!port)
+>               port = get_random_u32_above(LAST_RESERVED_PORT);
+>
+>@@ -692,7 +704,8 @@ static int __vsock_bind_connectible(struct
+>vsock_sock *vsk,
+>
+>                       new_addr.svm_port = port++;
+>
+>-                      if (!__vsock_find_bound_socket(&new_addr)) {
+>+                      if (!vsock_find_bound_socket_common(&new_addr,
+>+                                                          &bind_table[VSOCK_HASH(addr)])) {
 
->
->Please note that this is an RFC and should not be merged until
->associated changes are made to the virtio specification, which will
->follow after discussion from this series.
->
->Another aside, the v4 of the series has only been mildly tested with a
->run of tools/testing/vsock/vsock_test. Some code likely needs cleaning
->up, but I'm hoping to get some of the design choices agreed upon before
->spending too much time making it pretty.
+Can we add a macro for `&bind_table[VSOCK_HASH(addr)])` ?
 
-What are the main points where you would like an agreement?
+>                               found = true;
+>                               break;
+>                       }
+>@@ -709,7 +722,8 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>                       return -EACCES;
+>               }
+>
+>-              if (__vsock_find_bound_socket(&new_addr))
+>+              if (vsock_find_bound_socket_common(&new_addr,
+>+                                                 &bind_table[VSOCK_HASH(addr)]))
+>                       return -EADDRINUSE;
+>       }
+>
+>@@ -721,11 +735,17 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>        * by AF_UNIX.
+>        */
+>       __vsock_remove_bound(vsk);
+>-      __vsock_insert_bound(vsock_bound_sockets(&vsk->local_addr), vsk);
+>+      __vsock_insert_bound(&bind_table[VSOCK_HASH(&vsk->local_addr)], vsk);
+>
+>       return 0;
+> }
+>
+>+static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>+                                  struct sockaddr_vm *addr)
+>+{
+>+      return vsock_bind_common(vsk, addr, vsock_bind_table, VSOCK_HASH_SIZE + 1);
 
->
->This series first supports datagrams in a basic form for virtio, and
->then optimizes the sendpath for all datagram transports.
+What about using ARRAY_SIZE(x) ?
 
-What kind of optimization?
-
->
->The result is a very fast datagram communication protocol that
->outperforms even UDP on multi-queue virtio-net w/ vhost on a variety
->of multi-threaded workload samples.
->
->For those that are curious, some summary data comparing UDP and VSOCK
->DGRAM (N=5):
->
->	vCPUS: 16
->	virtio-net queues: 16
->	payload size: 4KB
->	Setup: bare metal + vm (non-nested)
->
->	UDP: 287.59 MB/s
->	VSOCK DGRAM: 509.2 MB/s
-
-Nice!
-
-I have not tested because the series does not compile as has already 
-been pointed out, I will test the next version.
-
->
->Some notes about the implementation...
->
->This datagram implementation forces datagrams to self-throttle according
->to the threshold set by sk_sndbuf. It behaves similar to the credits
->used by streams in its effect on throughput and memory consumption, but
->it is not influenced by the receiving socket as credits are.
->
->The device drops packets silently.
->
->As discussed previously, this series introduces datagrams and defers
->fairness to future work. See discussion in v2 for more context around
->datagrams, fairness, and this implementation.
-
-So IIUC we are re-using the same virtqueues used by stream/seqpacket, 
-right?
-
-I did a fast review, there's something to fix, but it looks like this 
-can work well, so I'd start to discuss virtio spec changes ASAP.
+BTW we are using that size just to check it, but all the arrays we use
+are statically allocated, so what about a compile time check like
+BUILD_BUG_ON()?
 
 Thanks,
 Stefano
 
->
->Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
->Signed-off-by: Amery Hung <amery.hung@bytedance.com>
->---
->Changes in v6:
->- allow empty transport in datagram vsock
->- add empty transport checks in various paths
->- transport layer now saves source cid and port to control buffer of skb
->  to remove the dependency of transport in recvmsg()
->- fix virtio dgram_enqueue() by looking up the transport to be used when
->  using sendto(2)
->- fix skb memory leaks in two places
->- add dgram auto-bind test
->- Link to v5: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v5-0-581bd37fdb26@bytedance.com
->
->Changes in v5:
->- teach vhost to drop dgram when a datagram exceeds the receive buffer
->  - now uses MSG_ERRQUEUE and depends on Arseniy's zerocopy patch:
->	"vsock: read from socket's error queue"
->- replace multiple ->dgram_* callbacks with single ->dgram_addr_init()
->  callback
->- refactor virtio dgram skb allocator to reduce conflicts w/ zerocopy series
->- add _fallback/_FALLBACK suffix to dgram transport variables/macros
->- add WARN_ONCE() for table_size / VSOCK_HASH issue
->- add static to vsock_find_bound_socket_common
->- dedupe code in vsock_dgram_sendmsg() using module_got var
->- drop concurrent sendmsg() for dgram and defer to future series
->- Add more tests
->  - test EHOSTUNREACH in errqueue
->  - test stream + dgram address collision
->- improve clarity of dgram msg bounds test code
->- Link to v4: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v4-0-0cebbb2ae899@bytedance.com
->
->Changes in v4:
->- style changes
->  - vsock: use sk_vsock(vsk) in vsock_dgram_recvmsg instead of
->    &sk->vsk
->  - vsock: fix xmas tree declaration
->  - vsock: fix spacing issues
->  - virtio/vsock: virtio_transport_recv_dgram returns void because err
->    unused
->- sparse analysis warnings/errors
->  - virtio/vsock: fix unitialized skerr on destroy
->  - virtio/vsock: fix uninitialized err var on goto out
->  - vsock: fix declarations that need static
->  - vsock: fix __rcu annotation order
->- bugs
->  - vsock: fix null ptr in remote_info code
->  - vsock/dgram: make transport_dgram a fallback instead of first
->    priority
->  - vsock: remove redundant rcu read lock acquire in getname()
->- tests
->  - add more tests (message bounds and more)
->  - add vsock_dgram_bind() helper
->  - add vsock_dgram_connect() helper
->
->Changes in v3:
->- Support multi-transport dgram, changing logic in connect/bind
->  to support VMCI case
->- Support per-pkt transport lookup for sendto() case
->- Fix dgram_allow() implementation
->- Fix dgram feature bit number (now it is 3)
->- Fix binding so dgram and connectible (cid,port) spaces are
->  non-overlapping
->- RCU protect transport ptr so connect() calls never leave
->  a lockless read of the transport and remote_addr are always
->  in sync
->- Link to v2: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v2-0-079cc7cee62e@bytedance.com
->
->
->Bobby Eshleman (14):
->  af_vsock: generalize vsock_dgram_recvmsg() to all transports
->  af_vsock: refactor transport lookup code
->  af_vsock: support multi-transport datagrams
->  af_vsock: generalize bind table functions
->  af_vsock: use a separate dgram bind table
->  virtio/vsock: add VIRTIO_VSOCK_TYPE_DGRAM
->  virtio/vsock: add common datagram send path
->  af_vsock: add vsock_find_bound_dgram_socket()
->  virtio/vsock: add common datagram recv path
->  virtio/vsock: add VIRTIO_VSOCK_F_DGRAM feature bit
->  vhost/vsock: implement datagram support
->  vsock/loopback: implement datagram support
->  virtio/vsock: implement datagram support
->  test/vsock: add vsock dgram tests
->
-> drivers/vhost/vsock.c                   |   62 +-
-> include/linux/virtio_vsock.h            |    9 +-
-> include/net/af_vsock.h                  |   24 +-
-> include/uapi/linux/virtio_vsock.h       |    2 +
-> net/vmw_vsock/af_vsock.c                |  343 ++++++--
-> net/vmw_vsock/hyperv_transport.c        |   13 -
-> net/vmw_vsock/virtio_transport.c        |   24 +-
-> net/vmw_vsock/virtio_transport_common.c |  188 ++++-
-> net/vmw_vsock/vmci_transport.c          |   61 +-
-> net/vmw_vsock/vsock_loopback.c          |    9 +-
-> tools/testing/vsock/util.c              |  177 +++-
-> tools/testing/vsock/util.h              |   10 +
-> tools/testing/vsock/vsock_test.c        | 1032 ++++++++++++++++++++---
-> 13 files changed, 1638 insertions(+), 316 deletions(-)
->
->-- 
+
+>+}
+>+
+> static int __vsock_bind_dgram(struct vsock_sock *vsk,
+>                             struct sockaddr_vm *addr)
+> {
+>--
 >2.20.1
 >
 
