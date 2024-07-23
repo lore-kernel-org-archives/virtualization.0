@@ -1,112 +1,284 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2E1714F138
-	for <virtualization@lists.linux.dev>; Tue, 23 Jul 2024 11:49:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BB47155A30
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:38:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721735378; cv=none; b=qIkQlMGlMgoM8YGVubKm7JL5FIuU4AJ9ipe2pKpa9GiMDTUrv4dyCuXks/OMu0wR8WXOzbSnY452NiN9sZDi0wynUmbB/LqFj5kP39er0NmUZI6s8pV1bfK5B38IRXDtjKuvgeWtgeSEsAkf4670Nqk1WcEP7Gz6Vj3qT5hPAfY=
+	t=1721745534; cv=none; b=NAgI7gYRPJQvRXqmvpwY71MRf7SiMxisdgzvaR+4KqP5NyAh1IynhoTM9P3FKivCw3GUdCtYVvNPgpKmhlRnm1YITAsVNOHIxDBvgWn5Lf+pZ21PsR2Dq1/uEyRSo9yjKeQ2mw2vDpm3+euxwr9/imwAb4/u02/MazXjhTINWFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721735378; c=relaxed/simple;
-	bh=W20Y5jd8rcOGW4zRWp02ji5VTBe4Z4gZv26VOYRZ4aU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R9RKPQyppTrwSq7D7c3V1b4aHHI3eZJHikFLNTy2HC0GMCHQQBKUNx4TxolnmYUeu9q+Hud9V4kbACLGIYJ9jPCgQ2ndvPE+QzYYcfnwmeUeCPpCzRtVMJJPH3N3H27o6c/BLtNtXJwBEkb9Krvvft661xaD5f94iuVVFGzYfyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AvgZwEKW; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1721745534; c=relaxed/simple;
+	bh=FWZ7L31FilGlYNAsUr06+iq7uJW1afQnO+E9VdJEghI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=aueLm2P0WY+gZoI9VeK6U83l8Te/gEN1dN31enYeTtRgFQtXozY59B7Jc6NZEUTd2WUCQHQMltJdGQSM/TA7XXuuH+tX0AB+Z8tptLzCDPhKsM5B9hdPNyYue6gZMFtzPPf8HSmCfbazHbQ2kcDHPgwxTe4c9zmLoiDoGLN7hzI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RCmiElOA; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AvgZwEKW"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RCmiElOA"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id ACAFA4027F
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:38:52 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id fIPrPOXqliBt for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Jul 2024 14:38:51 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E2D8D40112
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E2D8D40112
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RCmiElOA
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E2D8D40112
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 14:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721735375;
+	s=mimecast20190719; t=1721745528;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SoZ4ac74sAxgJ25UnglgRusvIosH8Eh3J0j/ykgSWV4=;
-	b=AvgZwEKWsALzSLZHtZ4oUQw0CpIKxdvh4swjAQdW1IyPjZYSOdXmJ7OvknF/FedhYVTdSh
-	ROm3cU739QT3PVtFGa75begjsUSc6jftFY6MxW3dCboauv76jixwOyZ/BBpM4fiajUXXst
-	8p1VnnkTkUYdV0vvBg8lx+l01oK1po4=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-373-eKo4MkR6NYeQ-gBgfmquzw-1; Tue,
- 23 Jul 2024 07:49:30 -0400
-X-MC-Unique: eKo4MkR6NYeQ-gBgfmquzw-1
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9170B195608A;
-	Tue, 23 Jul 2024 11:49:28 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.39.194.104])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 99D9E1955D4A;
-	Tue, 23 Jul 2024 11:49:24 +0000 (UTC)
-From: Sergio Lopez <slp@redhat.com>
-To: gurchetansingh@chromium.org,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	olvaffe@gmail.com,
-	kraxel@redhat.com,
-	daniel@ffwll.ch,
-	maarten.lankhorst@linux.intel.com,
-	airlied@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	Sergio Lopez <slp@redhat.com>
-Subject: [PATCH 2/2] drm/virtio: add VIRTGPU_PARAM_HOST_PAGE_SIZE to params
-Date: Tue, 23 Jul 2024 07:49:14 -0400
-Message-ID: <20240723114914.53677-3-slp@redhat.com>
-In-Reply-To: <20240723114914.53677-1-slp@redhat.com>
-References: <20240723114914.53677-1-slp@redhat.com>
+	bh=U8D9zZcUE0U3hHmqSilSWN7yBwFstQGaORKtcOXi3Go=;
+	b=RCmiElOA49TkbHuDg47EgsNF+tQ42zXjsTo85jAAJf+VDCncpNCyRjXrokwWRTK9gUKRwU
+	90vJBOr5aBOYusWPcJTQrlI17rfcjaJfPxCdh8HXIsqLNeUp1XdSwQX/RKhT6T6CHdZTtN
+	uWbC8QZpWziQoYa9jPY6cBmng73SdiY=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-175-3JtmXy4MPGiBVmiAA2_ctA-1; Tue, 23 Jul 2024 10:38:45 -0400
+X-MC-Unique: 3JtmXy4MPGiBVmiAA2_ctA-1
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-79f06a617a4so930267985a.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 23 Jul 2024 07:38:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721745525; x=1722350325;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=U8D9zZcUE0U3hHmqSilSWN7yBwFstQGaORKtcOXi3Go=;
+        b=SbgfnQkl99UhUqHxjAeZEQg9yJtLuimwFIP0rUN2QYzROFWaGMod4GMiLOOHfPq+QU
+         V7tmqWVRLgLrBQgd8dTiM9DkNK0/OV1njN3ICPUQoLXX27LGLDZeMsEHyOeddiMerEuD
+         DghuklFNgDPZ2t5D2xsHyuQau+A+dezUi8TOxpPyNYi1bju5IxRTwiYx0UWFVwaJvD6/
+         UxF0aMBfvGV2Qzb5QhSvLBg7zqJSPOkwAdFxoAUTlRER2ViQvIg81gdLYannIj0szUvb
+         0S4t2YEee8Bxi87ROBw1boicUUwuNsFOpKA8qNrkcIjrRqIKobTZzrxetJyyEP7pPtRG
+         JwCw==
+X-Forwarded-Encrypted: i=1; AJvYcCXNWM1tvewGvLtpSNOJL41xW+5gCNeLjkNtKK8B9unNPSyfXvqj8FRA+PsFcqO9NPKuJqTiw2gtFAqqhX22RBRt3jsNDKa+D7TkYQ4sd2nNp7BnVnAVeQbeog==
+X-Gm-Message-State: AOJu0YzLQ6eHrHPi/DrMiRv86/vXeKnSbVvUgfkRNja4bzAW6fwJFz9a
+	zgYXkR6/YOH0zwi87xp5/j6/jtL6YjUwSzsEwYwJ475xik79FqpE6oHOj5pkDm6WIAMvrEVCjQR
+	VGkVOnRYqFC0m2EVhn1Eg0lHEcqFAPdE+jH7bFTpiWzvPPIqAfhKcNdKYveMa+UzjqoDNGZm401
+	rO7yM=
+X-Received: by 2002:a05:620a:4509:b0:795:5f15:f9e8 with SMTP id af79cd13be357-7a1c2f7a688mr357763185a.31.1721745524773;
+        Tue, 23 Jul 2024 07:38:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEt+6RarktAqnam78KX5eGOY82IGXpcHtmA5V03az2mrl145h+XI2RXXmH48ChifXYWujtFZQ==
+X-Received: by 2002:a05:620a:4509:b0:795:5f15:f9e8 with SMTP id af79cd13be357-7a1c2f7a688mr357755685a.31.1721745524147;
+        Tue, 23 Jul 2024 07:38:44 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-79.retail.telecomitalia.it. [82.57.51.79])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a198ffe9d4sm480822485a.63.2024.07.23.07.38.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Jul 2024 07:38:43 -0700 (PDT)
+Date: Tue, 23 Jul 2024 16:38:33 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Amery Hung <ameryhung@gmail.com>
+Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org, 
+	decui@microsoft.com, bryantan@vmware.com, vdasa@vmware.com, pv-drivers@vmware.com, 
+	dan.carpenter@linaro.org, simon.horman@corigine.com, oxffffaa@gmail.com, 
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
+	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
+Subject: Re: [RFC PATCH net-next v6 00/14] virtio/vsock: support datagrams
+Message-ID: <ufohkq4g3v6mzpmheftdac5rtuy36ocvc4mczuhwc6fv456kmh@kyttvegsdxva>
+References: <20240710212555.1617795-1-amery.hung@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+In-Reply-To: <20240710212555.1617795-1-amery.hung@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Add VIRTGPU_PARAM_HOST_PAGE_SIZE as a param that can be read with
-VIRTGPU_GETPARAM by userspace applications running in the guest to
-obtain the host's page size and find out the right alignment to be used
-in shared memory allocations.
+Hi Amery,
 
-Signed-off-by: Sergio Lopez <slp@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 5 +++++
- include/uapi/drm/virtgpu_drm.h         | 1 +
- 2 files changed, 6 insertions(+)
+On Wed, Jul 10, 2024 at 09:25:41PM GMT, Amery Hung wrote:
+>Hey all!
+>
+>This series introduces support for datagrams to virtio/vsock.
+>
+>It is a spin-off (and smaller version) of this series from the summer:
+>  https://lore.kernel.org/all/cover.1660362668.git.bobby.eshleman@bytedance.com/
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index e4f76f315550..c16cdf2d64b4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -117,6 +117,11 @@ static int virtio_gpu_getparam_ioctl(struct drm_device *dev, void *data,
- 	case VIRTGPU_PARAM_EXPLICIT_DEBUG_NAME:
- 		value = vgdev->has_context_init ? 1 : 0;
- 		break;
-+	case VIRTGPU_PARAM_HOST_PAGE_SIZE:
-+		if (!vgdev->has_host_page_size)
-+			return -EINVAL;
-+		value = vgdev->host_page_size;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-index c2ce71987e9b..505f87263a15 100644
---- a/include/uapi/drm/virtgpu_drm.h
-+++ b/include/uapi/drm/virtgpu_drm.h
-@@ -98,6 +98,7 @@ struct drm_virtgpu_execbuffer {
- #define VIRTGPU_PARAM_CONTEXT_INIT 6 /* DRM_VIRTGPU_CONTEXT_INIT */
- #define VIRTGPU_PARAM_SUPPORTED_CAPSET_IDs 7 /* Bitmask of supported capability set ids */
- #define VIRTGPU_PARAM_EXPLICIT_DEBUG_NAME 8 /* Ability to set debug name from userspace */
-+#define VIRTGPU_PARAM_HOST_PAGE_SIZE 9 /* Host's page size */
- 
- struct drm_virtgpu_getparam {
- 	__u64 param;
--- 
-2.45.2
+Cool! Thanks for restarting this work!
+
+>
+>Please note that this is an RFC and should not be merged until
+>associated changes are made to the virtio specification, which will
+>follow after discussion from this series.
+>
+>Another aside, the v4 of the series has only been mildly tested with a
+>run of tools/testing/vsock/vsock_test. Some code likely needs cleaning
+>up, but I'm hoping to get some of the design choices agreed upon before
+>spending too much time making it pretty.
+
+What are the main points where you would like an agreement?
+
+>
+>This series first supports datagrams in a basic form for virtio, and
+>then optimizes the sendpath for all datagram transports.
+
+What kind of optimization?
+
+>
+>The result is a very fast datagram communication protocol that
+>outperforms even UDP on multi-queue virtio-net w/ vhost on a variety
+>of multi-threaded workload samples.
+>
+>For those that are curious, some summary data comparing UDP and VSOCK
+>DGRAM (N=5):
+>
+>	vCPUS: 16
+>	virtio-net queues: 16
+>	payload size: 4KB
+>	Setup: bare metal + vm (non-nested)
+>
+>	UDP: 287.59 MB/s
+>	VSOCK DGRAM: 509.2 MB/s
+
+Nice!
+
+I have not tested because the series does not compile as has already 
+been pointed out, I will test the next version.
+
+>
+>Some notes about the implementation...
+>
+>This datagram implementation forces datagrams to self-throttle according
+>to the threshold set by sk_sndbuf. It behaves similar to the credits
+>used by streams in its effect on throughput and memory consumption, but
+>it is not influenced by the receiving socket as credits are.
+>
+>The device drops packets silently.
+>
+>As discussed previously, this series introduces datagrams and defers
+>fairness to future work. See discussion in v2 for more context around
+>datagrams, fairness, and this implementation.
+
+So IIUC we are re-using the same virtqueues used by stream/seqpacket, 
+right?
+
+I did a fast review, there's something to fix, but it looks like this 
+can work well, so I'd start to discuss virtio spec changes ASAP.
+
+Thanks,
+Stefano
+
+>
+>Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>Signed-off-by: Amery Hung <amery.hung@bytedance.com>
+>---
+>Changes in v6:
+>- allow empty transport in datagram vsock
+>- add empty transport checks in various paths
+>- transport layer now saves source cid and port to control buffer of skb
+>  to remove the dependency of transport in recvmsg()
+>- fix virtio dgram_enqueue() by looking up the transport to be used when
+>  using sendto(2)
+>- fix skb memory leaks in two places
+>- add dgram auto-bind test
+>- Link to v5: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v5-0-581bd37fdb26@bytedance.com
+>
+>Changes in v5:
+>- teach vhost to drop dgram when a datagram exceeds the receive buffer
+>  - now uses MSG_ERRQUEUE and depends on Arseniy's zerocopy patch:
+>	"vsock: read from socket's error queue"
+>- replace multiple ->dgram_* callbacks with single ->dgram_addr_init()
+>  callback
+>- refactor virtio dgram skb allocator to reduce conflicts w/ zerocopy series
+>- add _fallback/_FALLBACK suffix to dgram transport variables/macros
+>- add WARN_ONCE() for table_size / VSOCK_HASH issue
+>- add static to vsock_find_bound_socket_common
+>- dedupe code in vsock_dgram_sendmsg() using module_got var
+>- drop concurrent sendmsg() for dgram and defer to future series
+>- Add more tests
+>  - test EHOSTUNREACH in errqueue
+>  - test stream + dgram address collision
+>- improve clarity of dgram msg bounds test code
+>- Link to v4: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v4-0-0cebbb2ae899@bytedance.com
+>
+>Changes in v4:
+>- style changes
+>  - vsock: use sk_vsock(vsk) in vsock_dgram_recvmsg instead of
+>    &sk->vsk
+>  - vsock: fix xmas tree declaration
+>  - vsock: fix spacing issues
+>  - virtio/vsock: virtio_transport_recv_dgram returns void because err
+>    unused
+>- sparse analysis warnings/errors
+>  - virtio/vsock: fix unitialized skerr on destroy
+>  - virtio/vsock: fix uninitialized err var on goto out
+>  - vsock: fix declarations that need static
+>  - vsock: fix __rcu annotation order
+>- bugs
+>  - vsock: fix null ptr in remote_info code
+>  - vsock/dgram: make transport_dgram a fallback instead of first
+>    priority
+>  - vsock: remove redundant rcu read lock acquire in getname()
+>- tests
+>  - add more tests (message bounds and more)
+>  - add vsock_dgram_bind() helper
+>  - add vsock_dgram_connect() helper
+>
+>Changes in v3:
+>- Support multi-transport dgram, changing logic in connect/bind
+>  to support VMCI case
+>- Support per-pkt transport lookup for sendto() case
+>- Fix dgram_allow() implementation
+>- Fix dgram feature bit number (now it is 3)
+>- Fix binding so dgram and connectible (cid,port) spaces are
+>  non-overlapping
+>- RCU protect transport ptr so connect() calls never leave
+>  a lockless read of the transport and remote_addr are always
+>  in sync
+>- Link to v2: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v2-0-079cc7cee62e@bytedance.com
+>
+>
+>Bobby Eshleman (14):
+>  af_vsock: generalize vsock_dgram_recvmsg() to all transports
+>  af_vsock: refactor transport lookup code
+>  af_vsock: support multi-transport datagrams
+>  af_vsock: generalize bind table functions
+>  af_vsock: use a separate dgram bind table
+>  virtio/vsock: add VIRTIO_VSOCK_TYPE_DGRAM
+>  virtio/vsock: add common datagram send path
+>  af_vsock: add vsock_find_bound_dgram_socket()
+>  virtio/vsock: add common datagram recv path
+>  virtio/vsock: add VIRTIO_VSOCK_F_DGRAM feature bit
+>  vhost/vsock: implement datagram support
+>  vsock/loopback: implement datagram support
+>  virtio/vsock: implement datagram support
+>  test/vsock: add vsock dgram tests
+>
+> drivers/vhost/vsock.c                   |   62 +-
+> include/linux/virtio_vsock.h            |    9 +-
+> include/net/af_vsock.h                  |   24 +-
+> include/uapi/linux/virtio_vsock.h       |    2 +
+> net/vmw_vsock/af_vsock.c                |  343 ++++++--
+> net/vmw_vsock/hyperv_transport.c        |   13 -
+> net/vmw_vsock/virtio_transport.c        |   24 +-
+> net/vmw_vsock/virtio_transport_common.c |  188 ++++-
+> net/vmw_vsock/vmci_transport.c          |   61 +-
+> net/vmw_vsock/vsock_loopback.c          |    9 +-
+> tools/testing/vsock/util.c              |  177 +++-
+> tools/testing/vsock/util.h              |   10 +
+> tools/testing/vsock/vsock_test.c        | 1032 ++++++++++++++++++++---
+> 13 files changed, 1638 insertions(+), 316 deletions(-)
+>
+>-- 
+>2.20.1
+>
 
