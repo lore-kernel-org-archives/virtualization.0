@@ -1,136 +1,289 @@
-Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com [209.85.221.172])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3730433B5
-	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 09:58:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C7A41C2AD
+	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 10:03:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721815130; cv=none; b=V3FQfuvPw1YZ893w7ceTB59HNGToy2jqnr2pWigYH1PNGfUTcrj1/svKQo/ww/H6W1/tw2UVu3+00e/gkfmhCRtSFT9iOVexQIpQT95RNA9/kvk9BUiaU7Y2C3zOq3yLBm7/CGfHzdym41Gf6EKmGhKKao/eE+i2P770IBP3ydU=
+	t=1721815398; cv=none; b=T1EQZm2fT8OHlAa0jWWnDqrTzjUKU3UZLWP+9+0sGSrTtydDUmS+Dhvix99vn7orT0RACHVCU2m2+Jd9hsCD5DaA9+9iputVgWDkl+hrH/Ka4dr/Ytt8hh8taXplhAJkOEvCsGKDuHbgxg6zM9RgmDO4b833cOrWs5rN0bKf/Wo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721815130; c=relaxed/simple;
-	bh=ZIuy1KkPciQ06s/tvwPjFhX24nxwwKBRL2oselv5qB4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HJbEyXFt19KXgJdKZ+mdom1MAFXXCoidjeK/AoT8xHGlcEdd82I52mEjj64SW/wy3cEdCrtU8Vyw54Y9Z5xi4j6zcaEKdCVYLvyT4lIg/2cNeb4WEWXE4M0qxYhK5v3btlVV6fdVUefNv6xO4vYV0kLSH2lGWJL5HWsI9mepDU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O7L11mFC; arc=none smtp.client-ip=209.85.221.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1721815398; c=relaxed/simple;
+	bh=rE/4MwdbY8zc6YnJDOuNCTSgZu0ArCaSsbriBux/ZTA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NaH3WenhJCUdP/ffDCIMRSeub4xObMwPS++xqADqcTsmyTyVETYNADQ04Dlxkn1/diWgb2zKgwqP7QeXn4ZL0TKrobm9BAGFzwlpi3h903gxMFUh1V5Qhk/3lJUXSdYT5q0/HJDBluCm6J+QReMSitNyGk6J3AGGY/R9KK+eD6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=kJdDUVCJ; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=bQXg0myB; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=kJdDUVCJ; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=bQXg0myB; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O7L11mFC"
-Received: by mail-vk1-f172.google.com with SMTP id 71dfb90a1353d-4f4cdb520f3so407225e0c.0
-        for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 02:58:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721815127; x=1722419927; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=icEcTqINznzODsWfdqc/Q8asd/h63sMaAFn10AYwBYc=;
-        b=O7L11mFCVorQNLzT7bMN+q1jNJEUvpt1Y6PMchCYLncjU+qtMKU06LldsoHpd+vwuO
-         4mMy1wkOjoOjd/OyslPR9guPHULnnGXglOO+o9oqAdpZ0nTzbHcyk/lqoDvsf7FOvKEW
-         suf3AWBVFdFV1EqJkogTLU/wqHkLF68DM8THiDQX6WLrEK1louX6DMMLP6DEy6PFbIeZ
-         OUhV0QorPeXMrXH0K647EUwTdDYiLLy2kLEss5NQ6q+YKOVk6gFkqVVVx/PXO+FZ2RQL
-         +EW8t8lqQUAAHdp0mG2oKRMMZT0JvaW/rxya3FOPno3NkTfLrVJJTsAsIDLy528nhCpw
-         dwnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721815127; x=1722419927;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=icEcTqINznzODsWfdqc/Q8asd/h63sMaAFn10AYwBYc=;
-        b=eCe9hZiAB7Y4NOc/1vrwZCYaGeQHZqYr88erpVZKDbv8rsvp+UQ9IClZqnxEawEAz4
-         rCYZfzmJOvpYTQDq5Y+xS7C3J9+Aqj2v35Poys3r5UZshDDljXWI495LRP8sf7uNI3lK
-         O5wbDTUIdmjuWDPi8BooxK7V4fs/lKoYVAjV3de7jcvJILq9vlArx4grszFvdm/1t3U7
-         5FT673hQ638K/MeHDeRyhpTBZcLpbEUiuf+M8vOlS/HnVrDi7AsQxbmTMY3rcqAQoQN2
-         0BjVjghC0WLQyBEBMvtrvYxpOUSWmkFBCX/RRh2kA9IGVxL2nq2BiGBlfgYyuM6BhdHk
-         7Sgg==
-X-Forwarded-Encrypted: i=1; AJvYcCW7w15ClxD7fEvUIdKWSh5x48vC5pJk+ZL6JzMhoSl4xwkZAQyRLW6DOpo38o7J72u2pNHYBSmIdJ50rOvsRzSbxwIuFai+HGgIwZtXutg=
-X-Gm-Message-State: AOJu0Yy67k9Ol1s+Qqu8Ps6kNhoscSfshGBMOw9zZcRTbqcVYR9VRuIP
-	h6IPAkv8oWzoDpfMQbcmQbFFD9p6V1mOqe5zUT1a3MHD+tWhiT7v1RYRBba79n1GlO6/vScNnmd
-	6K9Vjj97EhpVM+EaPNQQ2BdbGw18=
-X-Google-Smtp-Source: AGHT+IE4A4/rfIGsWG7h/GFLk7I52t/+PtQ1YnklxECswLZ63Y7dCMMBteobGf6eFHtUrClt1pRtRRtwA0W49WQ+RnU=
-X-Received: by 2002:a05:6122:3c83:b0:4ef:58c8:4777 with SMTP id
- 71dfb90a1353d-4f6b849f989mr451732e0c.4.1721815127606; Wed, 24 Jul 2024
- 02:58:47 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="kJdDUVCJ";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="bQXg0myB";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="kJdDUVCJ";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="bQXg0myB"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 751791FBF2;
+	Wed, 24 Jul 2024 10:03:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1721815394; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=g9t9sbmET8zALqzanAQ8QhLWEPCS3o8bNnX5IvuUfqA=;
+	b=kJdDUVCJXMQThnUdZbksxYEjjUccv0y2nsSrV/KHWKW+9xOcuoBOxT3BFiOgGT9p3RQQUd
+	1eklQO7QnPbynv+5uLcQkGUO0JmltN6trYJ2LWDphcjInSe4VwNBlv9PgOqgihmv0KOzVT
+	aDsK1CsJhMCk11y/SMZ7tE4l+Y19jHs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1721815394;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=g9t9sbmET8zALqzanAQ8QhLWEPCS3o8bNnX5IvuUfqA=;
+	b=bQXg0myBsF5AoNNkfnIl/wjLOYxLisBnQacmpy6g8FiDSKhTdIJKK48rQ0BnW68NTj2TP7
+	Af5w2aPKP18moLBw==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1721815394; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=g9t9sbmET8zALqzanAQ8QhLWEPCS3o8bNnX5IvuUfqA=;
+	b=kJdDUVCJXMQThnUdZbksxYEjjUccv0y2nsSrV/KHWKW+9xOcuoBOxT3BFiOgGT9p3RQQUd
+	1eklQO7QnPbynv+5uLcQkGUO0JmltN6trYJ2LWDphcjInSe4VwNBlv9PgOqgihmv0KOzVT
+	aDsK1CsJhMCk11y/SMZ7tE4l+Y19jHs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1721815394;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=g9t9sbmET8zALqzanAQ8QhLWEPCS3o8bNnX5IvuUfqA=;
+	b=bQXg0myBsF5AoNNkfnIl/wjLOYxLisBnQacmpy6g8FiDSKhTdIJKK48rQ0BnW68NTj2TP7
+	Af5w2aPKP18moLBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4E4A013411;
+	Wed, 24 Jul 2024 10:03:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id Sa3GEmLRoGZvXwAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Wed, 24 Jul 2024 10:03:14 +0000
+Message-ID: <419e9b88-de76-4f17-a785-2579f62ad880@suse.cz>
+Date: Wed, 24 Jul 2024 12:03:14 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240724085544.299090-1-21cnbao@gmail.com> <20240724085544.299090-6-21cnbao@gmail.com>
- <68ee812b-3b96-4c8b-9a54-70d4742488bb@suse.cz>
-In-Reply-To: <68ee812b-3b96-4c8b-9a54-70d4742488bb@suse.cz>
-From: Barry Song <21cnbao@gmail.com>
-Date: Wed, 24 Jul 2024 21:58:36 +1200
-Message-ID: <CAGsJ_4ywzECk0tE+HUHO-Em75hZ1gsDtbh9aN_XnYoJjecHRrg@mail.gmail.com>
-Subject: Re: [PATCH RFC 5/5] non-mm: discourage the usage of __GFP_NOFAIL and
- encourage GFP_NOFAIL
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com, 
-	cl@linux.com, hch@infradead.org, iamjoonsoo.kim@lge.com, lstoakes@gmail.com, 
-	mhocko@suse.com, penberg@kernel.org, rientjes@google.com, 
-	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com, 
-	virtualization@lists.linux.dev, hailong.liu@oppo.com, 
-	torvalds@linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/5] mm: BUG_ON to avoid NULL deference while __GFP_NOFAIL
+ fails
+Content-Language: en-US
+To: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
+ linux-mm@kvack.org
+Cc: 42.hyeyoo@gmail.com, cl@linux.com, hch@infradead.org,
+ iamjoonsoo.kim@lge.com, lstoakes@gmail.com, mhocko@suse.com,
+ penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
+ urezki@gmail.com, v-songbaohua@oppo.com, virtualization@lists.linux.dev,
+ hailong.liu@oppo.com, torvalds@linux-foundation.org,
+ Kees Cook <kees@kernel.org>
+References: <20240724085544.299090-1-21cnbao@gmail.com>
+ <20240724085544.299090-4-21cnbao@gmail.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ EP+ylKVEKb0Q2A==
+In-Reply-To: <20240724085544.299090-4-21cnbao@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spamd-Result: default: False [-2.59 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[gmail.com,linux-foundation.org,kvack.org];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[18];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[gmail.com,linux.com,infradead.org,lge.com,suse.com,kernel.org,google.com,linux.dev,oppo.com,lists.linux.dev,linux-foundation.org];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[linux.com:email,infradead.org:email,imap1.dmz-prg2.suse.org:helo,suse.cz:email,suse.com:email]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -2.59
 
-On Wed, Jul 24, 2024 at 9:53=E2=80=AFPM Vlastimil Babka <vbabka@suse.cz> wr=
-ote:
->
-> On 7/24/24 10:55 AM, Barry Song wrote:
-> > From: Barry Song <v-songbaohua@oppo.com>
-> >
-> > GFP_NOFAIL includes the meaning of block and direct reclamation, which
-> > is essential for a true no-fail allocation. We are gradually starting
-> > to enforce this block semantics to prevent the potential misuse of
-> > __GFP_NOFAIL in atomic contexts in the future.
-> >
-> > A typical example of incorrect usage is in VDPA, where GFP_ATOMIC
-> > and __GFP_NOFAIL are used together.
-> >
-> > [RFC]: This patch seems quite large; I don't mind splitting it into
-> > multiple patches for different subsystems after patches 1 ~ 4 have
-> > been applied.
-> >
-> > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> >
-> > diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xi=
-ve/common.c
-> > index fa01818c1972..29eaf8b84b52 100644
-> > --- a/arch/powerpc/sysdev/xive/common.c
-> > +++ b/arch/powerpc/sysdev/xive/common.c
-> > @@ -1146,7 +1146,7 @@ static int __init xive_init_ipis(void)
-> >       if (!ipi_domain)
-> >               goto out_free_fwnode;
-> >
-> > -     xive_ipis =3D kcalloc(nr_node_ids, sizeof(*xive_ipis), GFP_KERNEL=
- | __GFP_NOFAIL);
-> > +     xive_ipis =3D kcalloc(nr_node_ids, sizeof(*xive_ipis), GFP_KERNEL=
- | GFP_NOFAIL);
->
-> This (and others) doesn't look great. Normally there's just one GFP_MAIN
-> that combines several commonly used together flags internally, with possi=
-bly
-> some | __GFP_EXTRA addition for less common modifications. Now you're
-> combining two GFP_MAIN's and that's just confusing.
+On 7/24/24 10:55 AM, Barry Song wrote:
+> From: Barry Song <v-songbaohua@oppo.com>
+> 
+> We have cases we still fail though callers might have __GFP_NOFAIL.
+> Since they don't check the return, we are exposed to the security
+> risks for NULL deference.
+> 
+> Though BUG_ON() is not encouraged by Linus, this is an unrecoverable
+> situation.
+> 
+> Christoph Hellwig:
+> The whole freaking point of __GFP_NOFAIL is that callers don't handle
+> allocation failures.  So in fact a straight BUG is the right thing
+> here.
+> 
+> Vlastimil Babka:
+> It's just not a recoverable situation (WARN_ON is for recoverable
+> situations). The caller cannot handle allocation failure and at the same
+> time asked for an impossible allocation. BUG_ON() is a guaranteed oops
+> with stracktrace etc. We don't need to hope for the later NULL pointer
+> dereference (which might if really unlucky happen from a different
+> context where it's no longer obvious what lead to the allocation failing).
 
-This is true, but I assume this won't incur overhead at runtime since the
-compiler resolves GFP_KERNEL | GFP_NOFAIL at compile-time.
-Only readers might find some bits are duplicated OR twice?
+Note that quote was meant specifically for the "too large" allocation, which
+is truly impossible. That includes the kvmalloc_array() overflow, order >
+MAX_ORDER etc.
 
->
-> So if we want to go this way, you'd need e.g.
->
-> GFP_KERNEL_NOFAIL which is GFP_KERNEL | __GFP_NOFAIL
+The "can't sleep/reclaim" is a bit more nuanced as there's the alternative
+in just warning and looping and hoping kswapd or some other direct reclaimer
+saves the day. If yes, great, we have a system that still works and a
+warning to repor. If no, there's still a warning, but later soft/hardlockup
+hits. These might be eventually worse than an immediate BUG_ON so it's not a
+clear cut. At least I think these cases should be handled in two different
+patches and not together.
 
-I actually considered this, but it doesn't always work because we have
-many cases:
+> Michal Hocko:
+> Linus tends to be against adding new BUG() calls unless the failure is
+> absolutely unrecoverable (e.g. corrupted data structures etc.). I am
+> not sure how he would look at simply incorrect memory allocator usage to
+> blow up the kernel. Now the argument could be made that those failures
+> could cause subtle memory corruptions or even be exploitable which might
+> be a sufficient reason to stop them early.
+> 
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> Cc: Christoph Hellwig <hch@infradead.org>
+> Cc: Lorenzo Stoakes <lstoakes@gmail.com>
+> Cc: Christoph Lameter <cl@linux.com>
+> Cc: Pekka Enberg <penberg@kernel.org>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Roman Gushchin <roman.gushchin@linux.dev>
+> Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Kees Cook <kees@kernel.org>
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+> ---
+>  include/linux/slab.h |  4 +++-
+>  mm/page_alloc.c      | 10 +++++-----
+>  mm/util.c            |  1 +
+>  3 files changed, 9 insertions(+), 6 deletions(-)
+> 
+> diff --git a/include/linux/slab.h b/include/linux/slab.h
+> index c9cb42203183..4a4d1fdc2afe 100644
+> --- a/include/linux/slab.h
+> +++ b/include/linux/slab.h
+> @@ -827,8 +827,10 @@ kvmalloc_array_node_noprof(size_t n, size_t size, gfp_t flags, int node)
+>  {
+>  	size_t bytes;
+>  
+> -	if (unlikely(check_mul_overflow(n, size, &bytes)))
+> +	if (unlikely(check_mul_overflow(n, size, &bytes))) {
+> +		BUG_ON(flags & __GFP_NOFAIL);
+>  		return NULL;
+> +	}
+>  
+>  	return kvmalloc_node_noprof(bytes, flags, node);
+>  }
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 45d2f41b4783..4d6af00fccd4 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -4435,11 +4435,11 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>  	 */
+>  	if (gfp_mask & __GFP_NOFAIL) {
+>  		/*
+> -		 * All existing users of the __GFP_NOFAIL are blockable, so warn
+> -		 * of any new users that actually require GFP_NOWAIT
+> +		 * All existing users of the __GFP_NOFAIL are blockable
+> +		 * otherwise we introduce a busy loop with inside the page
+> +		 * allocator from non-sleepable contexts
+>  		 */
+> -		if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+> -			goto fail;
+> +		BUG_ON(!can_direct_reclaim);
+>  
+>  		/*
+>  		 * PF_MEMALLOC request from this context is rather bizarre
+> @@ -4470,7 +4470,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>  		cond_resched();
+>  		goto retry;
+>  	}
+> -fail:
+> +
+>  	warn_alloc(gfp_mask, ac->nodemask,
+>  			"page allocation failure: order:%u", order);
+>  got_pg:
+> diff --git a/mm/util.c b/mm/util.c
+> index 0ff5898cc6de..a1be50c243f1 100644
+> --- a/mm/util.c
+> +++ b/mm/util.c
+> @@ -668,6 +668,7 @@ void *__kvmalloc_node_noprof(DECL_BUCKET_PARAMS(size, b), gfp_t flags, int node)
+>  	/* Don't even allow crazy sizes */
+>  	if (unlikely(size > INT_MAX)) {
+>  		WARN_ON_ONCE(!(flags & __GFP_NOWARN));
+> +		BUG_ON(flags & __GFP_NOFAIL);
+>  		return NULL;
+>  	}
+>  
 
-variable |=3D __GFP_NOFAIL.
-
->
-> And probably also GFP_NOFS_NOFAIL and GFP_NOIO_NOFAIL (sigh).
->
-> >       if (!xive_ipis)
-> >               goto out_free_domain;
->
