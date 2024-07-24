@@ -1,57 +1,57 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45FEB156886
-	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 12:10:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85316156871
+	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 12:12:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721823035; cv=none; b=IfXpRWeRyYTXSic8Gawg13+LnP0rGuxNKSvZ3Ty/2pPWAPpMQBHMBTiEIW7dMn454dAVTWMzj6KlP+TWhNaBp+EupiLiBCd1xwovCnp4QNF+PL2d722ynXNldTOIrwhWxMt77L22gXJZFmJFZ52e9Kn9h+uSlfsXxBhhLKD2riI=
+	t=1721823154; cv=none; b=CyOrABDAd5esYw27wEpvVjtExpTNpFn1eVmv7VUXlHyZSd3BkLu2zGHpQXYZ6E31mSi5QC37KnHzbkAbrFKLhUR2aqYBjABsB+cfXbYP3liF0kOGietPNZYtmOPfdiOfPe2Jkos9vEL+5RSbJJwEyTiFguMWQWqlykNUg1SRMz8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721823035; c=relaxed/simple;
-	bh=SXd12xPDjqOKUQ/q+y7n++lmeRZ7j1SjDqRav9BMJSw=;
+	s=arc-20240116; t=1721823154; c=relaxed/simple;
+	bh=8d23P+WpUlVVpByMUCawBsaK7f+BG7TCooMSC1ojpoQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fYrDLtPEkYsN9xTxoeNC7uxoVKIJxR5pQ8q+dqAGyi6g+8MSPzQP5NVQxV6Atp8J6j3V8PUSl9htvy8ZI8quFIgq0mIcX6vBM0SJjBx6QcJ4ksp3brzgoVNtAf8EJyWCAcXqCV6WBq4UwOK+yb6PoUk1CiPR6l3pY+y/X18MP50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=hGdQ4m8I; arc=none smtp.client-ip=209.85.218.53
+	 Content-Type:Content-Disposition:In-Reply-To; b=A3vcNbwAXvWgO/VGX73ZVDwHp7ricExsZ6/au09s/JCmvW+IQRE0IbOOtkILY1s0E/exK2pWm/fLCKOw5bZmDCwjWFAxGTq9EpRnjPa8PVGXQ4zwfTq8qyohRKcDfpNjqESUFgY/9KBAXudIehwKes9ivsn95dKDf7LWs71WO1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Uo/Gje2d; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="hGdQ4m8I"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a7a843bef98so205935466b.2
-        for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 05:10:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Uo/Gje2d"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a7a9a369055so175319066b.3
+        for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 05:12:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1721823030; x=1722427830; darn=lists.linux.dev;
+        d=suse.com; s=google; t=1721823151; x=1722427951; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=pmjzYU2EWBaeA6HHqDKF1v64IPSOiylq5fYsLCB9w2k=;
-        b=hGdQ4m8IEAtHo3E8JZ8su+z9e9UN4bPhudtTip8KfTPUSiH2c8DFPsXsVk/iu+OzVf
-         9VVTI0LM7PQbG+n0g/iKAI5QB9auA9r0QBdOHihMmcYtX8iC/5FvAysYwSygVP9V77Dr
-         EUq68KdYX1ZcKMl5kFeVza9eQraMBZwE55KJNnANDyjEiXREaiZdpARVFnt6Mux6jWwb
-         5VUYqgblYuY2SEf8ybEX1eQtZHL27+gwBcOwIoeDQwo5WJAE/9xq41EX31V1FqKu4TvA
-         o5CXX6KsjXRC+JZBsKblMC7qOvJe1SXItfVu8hqzXAGS+LYeBDbAR8O2zw9H6JyYBM5m
-         2Azw==
+        bh=ghJe96YJfLJ4KqIEOf8cCUZC/HL1XAAC6O7pos/y8DE=;
+        b=Uo/Gje2d8I8nG22eVhttdS05Kt+yroDh4ZX4anYFozkfu7FD44WI4h8awp+nXBpozo
+         NKE8WsgAKIVnQLsPbuk44d/i8rscSwkLGVt8QYHZ3xjEAJS1aHuTubIQ9kBS00oQt/Ek
+         T+5Q2TpMfGz+c6H77JjlBpBZ5nIVomJzxBpdCtHfLWvwfYSxzIgKk0w0HvczY9KulYHR
+         8kr/AvxamwQonbsvM4XIJpIKmYsLESDuwj4pwIXp2wqTs1JgChL7SPfT3wP/+s5Synch
+         Rt9+DqxFDcqik3Jvcfg34WsBnbHLDmw5HROlSxHLW1jaf3GrnzJV0KdnJj9SJRU5G/Nb
+         rQUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721823030; x=1722427830;
+        d=1e100.net; s=20230601; t=1721823151; x=1722427951;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pmjzYU2EWBaeA6HHqDKF1v64IPSOiylq5fYsLCB9w2k=;
-        b=n/BcmL++2OHDY2ilv+AAaDt4ARiqm7E828mwqfT3OqVy5pqPlBh5hTn9cUMJ9KNOmP
-         rYv8y6we134JWoKcjfRI8mMNU4kfiV1nvY0TSuzmq0QdP0Om5aLFYFu6oi0jHy6UuCNh
-         ZdcJMQqvmL+CxFo0fuRxEQ5NwHI+M8Dz6SacxW00vlwQoeupdYzeQDeeDfRTfG7Jf50u
-         wGD0ePFfJmSvRA3nymIQpkSSmlN2//YQ4cco7osmoi5DrJu7MQAt/xKke2BxthlB9c5d
-         NfhwTLhZpMqoB5c4MBR5kD8SXo4rmyGqBnbgLNAsaCGiO5m+5aZc6lbdnAx0ObXkkWF8
-         zWhQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW3MS9ZsTFFmYKMLPdNTyt+VUUtU9lUpToJXxiqTvMHPwhMZNXirG6vv8DE6EYZpFthB/lKIIShgEZDOnaqjONDeHJq20ukqGtCPyTgFlE=
-X-Gm-Message-State: AOJu0YyZsyigeYJ5PNrSLgCdlIJkua5jPDGRoy96CuixweWYAqNy3UJC
-	/8juAzvOZhPGiYjqzLv+ESigXXvbJ0Ak27ZVUdUkGX3E8udFfdl/LgCFPgvMHyw=
-X-Google-Smtp-Source: AGHT+IGzjeQyB8/dl1lPzvBVM7XthAbOmjwuVzyXWnY8xsK8r3+hn2IIGBuBNGkNEQhpk7RXNQ9QSg==
-X-Received: by 2002:a17:907:2d29:b0:a7a:a46e:dc39 with SMTP id a640c23a62f3a-a7ab094a9f3mr141553566b.0.1721823030481;
-        Wed, 24 Jul 2024 05:10:30 -0700 (PDT)
+        bh=ghJe96YJfLJ4KqIEOf8cCUZC/HL1XAAC6O7pos/y8DE=;
+        b=kHIMygf40AKqpxc27zyKnz+AEG5IbeRmLF76FrZWoroFwtLfQr/9o1zrGznxVc8lkk
+         HIpQmNP0wMv9+Jlrihy4HOLWe9vhbc6A0eEcLOLTiWkkz8jUOEntYHbI/8vVsCIHrt8q
+         4bmEo9ZQS/wgrm3lGd91ZZLpmIaxZr9aifWxAPbs/ZrUkyem0qbPHz9je6j4gIZVXGpf
+         qSqtEorTcmGJCoUrAB8JitKeqXh2X+Nzt+uA3ad4XC6MKNDHM8rtiJOzarAIFB0c+6sS
+         I2sAnSmW3WSoZM7YyEK4F29X1yUbesSjd6FgxlTw66SpUM6y09iotR7X1xLBd3CaUoAO
+         Epdg==
+X-Forwarded-Encrypted: i=1; AJvYcCXfthGINwAghW60eOn/35uJtypiOCWOhZ198CGOAMaiGEdhB279g11R55qitM5PLuDe46Rh1FgLOKD1rUwYqeCwo9QPJ9KKZ6p+o+ZxnQM=
+X-Gm-Message-State: AOJu0Yz1ej8GdQ8YkyJ3sSPrT1FTtN6xipgnXLQgNIPdiyhdCUMVqFg1
+	wvu3KtZso7K2XNi75LjwH70Rlvh2wf278e9ihQq/ezSghzve8JO29nTstmf/B58=
+X-Google-Smtp-Source: AGHT+IErPb2sPBolZaki/APF7JGOMN7AOYwHQhoOiHJyA96Ir8YFs9PrTcbMZwJFV0d8bqL+SzDXgg==
+X-Received: by 2002:a17:907:7f24:b0:a7a:ab1a:2d64 with SMTP id a640c23a62f3a-a7ab10ef64amr138491766b.58.1721823149822;
+        Wed, 24 Jul 2024 05:12:29 -0700 (PDT)
 Received: from localhost (109-81-94-157.rct.o2.cz. [109.81.94.157])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7a3c8bebe5sm632739266b.119.2024.07.24.05.10.30
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7a4e7a13b5sm544627766b.47.2024.07.24.05.12.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Jul 2024 05:10:30 -0700 (PDT)
-Date: Wed, 24 Jul 2024 14:10:29 +0200
+        Wed, 24 Jul 2024 05:12:29 -0700 (PDT)
+Date: Wed, 24 Jul 2024 14:12:28 +0200
 From: Michal Hocko <mhocko@suse.com>
 To: Barry Song <21cnbao@gmail.com>
 Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com,
@@ -59,13 +59,12 @@ Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com,
 	lstoakes@gmail.com, penberg@kernel.org, rientjes@google.com,
 	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com,
 	vbabka@suse.cz, virtualization@lists.linux.dev,
-	hailong.liu@oppo.com, torvalds@linux-foundation.org,
-	Kees Cook <kees@kernel.org>
-Subject: Re: [PATCH 3/5] mm: BUG_ON to avoid NULL deference while
- __GFP_NOFAIL fails
-Message-ID: <ZqDvNZkF93yAm6MJ@tiehlicka>
+	hailong.liu@oppo.com, torvalds@linux-foundation.org
+Subject: Re: [PATCH 4/5] mm: Introduce GFP_NOFAIL with the inclusion of
+ __GFP_RECLAIM
+Message-ID: <ZqDvrN73W6F89O6K@tiehlicka>
 References: <20240724085544.299090-1-21cnbao@gmail.com>
- <20240724085544.299090-4-21cnbao@gmail.com>
+ <20240724085544.299090-5-21cnbao@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -74,71 +73,48 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240724085544.299090-4-21cnbao@gmail.com>
+In-Reply-To: <20240724085544.299090-5-21cnbao@gmail.com>
 
-On Wed 24-07-24 20:55:42, Barry Song wrote:
+On Wed 24-07-24 20:55:43, Barry Song wrote:
 > From: Barry Song <v-songbaohua@oppo.com>
 > 
-> We have cases we still fail though callers might have __GFP_NOFAIL.
-> Since they don't check the return, we are exposed to the security
-> risks for NULL deference.
+> Introducing GFP_NOFAIL and gradually increasing enforcement to prevent
+> direct use of __GFP_NOFAIL which might be misused within non-sleepable
+> contexts with GFP_ATOMIC and GFP_NOWAIT.
+
+I do not think this makes sense without removing __GFP_NOFAIL and
+changing existing users because a new flag will very likely not be used
+and therefore it will not achieve the ultimate goal to remove a
+potential abuse.
+
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+> ---
+>  include/linux/gfp_types.h | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-> Though BUG_ON() is not encouraged by Linus, this is an unrecoverable
-> situation.
-> 
-> Christoph Hellwig:
-> The whole freaking point of __GFP_NOFAIL is that callers don't handle
-> allocation failures.  So in fact a straight BUG is the right thing
-> here.
-> 
-> Vlastimil Babka:
-> It's just not a recoverable situation (WARN_ON is for recoverable
-> situations). The caller cannot handle allocation failure and at the same
-> time asked for an impossible allocation. BUG_ON() is a guaranteed oops
-> with stracktrace etc. We don't need to hope for the later NULL pointer
-> dereference (which might if really unlucky happen from a different
-> context where it's no longer obvious what lead to the allocation failing).
-> 
-> Michal Hocko:
-> Linus tends to be against adding new BUG() calls unless the failure is
-> absolutely unrecoverable (e.g. corrupted data structures etc.). I am
-> not sure how he would look at simply incorrect memory allocator usage to
-> blow up the kernel. Now the argument could be made that those failures
-> could cause subtle memory corruptions or even be exploitable which might
-> be a sufficient reason to stop them early.
-
-I think it is worth adding that size checks are not really actionable
-because they either cause unexpected failure or BUG_ON. It is not too
-much of a stretch to expect some of the user triggerable codepaths could
-hit this - e.g. when input is not checked properly. Silent failure is
-then a potential security risk.
-
-The page allocator, on the other hand, can chose to keep retrying even
-if that means that there is not reclaim going on and essentially cause a
-busy loop in the kernel space. That would eventually cause soft/hard
-lockup detector to fire (if an architecture offers a reliable one).
-So essentially there is choice between two bad solutions and you have
-chosen one that reliably bugs on rather than rely on something external
-to intervene. The reasoning for that should be mentioned in the
-changelog.
-
-[...]
-> diff --git a/mm/util.c b/mm/util.c
-> index 0ff5898cc6de..a1be50c243f1 100644
-> --- a/mm/util.c
-> +++ b/mm/util.c
-> @@ -668,6 +668,7 @@ void *__kvmalloc_node_noprof(DECL_BUCKET_PARAMS(size, b), gfp_t flags, int node)
->  	/* Don't even allow crazy sizes */
->  	if (unlikely(size > INT_MAX)) {
->  		WARN_ON_ONCE(!(flags & __GFP_NOWARN));
-> +		BUG_ON(flags & __GFP_NOFAIL);
-
-I guess you want to switch the ordering. WARNING on top of BUG on seems
-rather pointless IMHO.
-
->  		return NULL;
->  	}
->  
+> diff --git a/include/linux/gfp_types.h b/include/linux/gfp_types.h
+> index 0dad2c7914be..1666db74f25c 100644
+> --- a/include/linux/gfp_types.h
+> +++ b/include/linux/gfp_types.h
+> @@ -339,6 +339,10 @@ enum {
+>   * recurse into the FS layer with a short explanation why. All allocation
+>   * requests will inherit GFP_NOFS implicitly.
+>   *
+> + * %GFP_NOFAIL employs direct memory reclaim and continuously retries until
+> + * successful memory allocation. It should never be used in contexts where
+> + * sleeping is not allowed.
+> + *
+>   * %GFP_USER is for userspace allocations that also need to be directly
+>   * accessibly by the kernel or hardware. It is typically used by hardware
+>   * for buffers that are mapped to userspace (e.g. graphics) that hardware
+> @@ -378,6 +382,7 @@ enum {
+>  #define GFP_NOWAIT	(__GFP_KSWAPD_RECLAIM | __GFP_NOWARN)
+>  #define GFP_NOIO	(__GFP_RECLAIM)
+>  #define GFP_NOFS	(__GFP_RECLAIM | __GFP_IO)
+> +#define GFP_NOFAIL	(__GFP_RECLAIM | __GFP_NOFAIL)
+>  #define GFP_USER	(__GFP_RECLAIM | __GFP_IO | __GFP_FS | __GFP_HARDWALL)
+>  #define GFP_DMA		__GFP_DMA
+>  #define GFP_DMA32	__GFP_DMA32
 > -- 
 > 2.34.1
 
