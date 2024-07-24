@@ -1,87 +1,81 @@
-Received: from mail-vk1-f169.google.com (mail-vk1-f169.google.com [209.85.221.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6182A15F3F9
-	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 17:22:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D922F4655F
+	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 19:00:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721841730; cv=none; b=ivTmStbJRshi6yhQwUgTI++19hkTGF7G9ePPG3PVNznpKo4nALl0xiTrciB5SqcWERCq2Kh6cnReeDBYrrJi9ahDwuAEatBTdskU9rbBuFCHt1zx9rliu/4MpHPA11dKYPQc1C1UjfVPG/M2hg0uGCcMf6D5QWuFGONRss+rSAg=
+	t=1721847645; cv=none; b=Bg1Lr7wm6275xtzTICuzQDecwoBk70syLlzOfXTZ9FmzxZlZXSmrNlrnsqwrls++hYZhY2veq533xcqFLBGCzZkLNYP8gB/f8ALs+bHnWTbMXWOqKmLvHQm0ckZ4GIcWqxCH5eRpxl6vf0GIgKA2sVydIPZteCrrDZRijEARgIs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721841730; c=relaxed/simple;
-	bh=e35cdCpA4LhllwkRXD5p+aA3bbV183QGT1UYMqTKgFE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g5INK9cC4mxDLccXcYAABmBIk2Ny0dOwdOP7+2GQVkAREdPTd0GlCFo5y8xLZk4tSHT+br7hVES0M9L7GtyurgLldyH97bekohK096vQ7bDNhDnfjCQytRws3yX+D71Xv8l0SVo8Y36SboiHsccyXTW9yj4YJqhrRlwHOLTraGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VYnGZ3BO; arc=none smtp.client-ip=209.85.221.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1721847645; c=relaxed/simple;
+	bh=NkPLrp+DvJ2qkX/aT+LXxDGVGJDmAwtqvl6lVPEpaYo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Gamv3jzDeE2E1Nkzg66WZD5i5iz0InKVDCCeFSZdYGao8xJuBg3Rl6GqgqBtuemXN+HQMUnQ3+er/wimKatOuHaeejJyo72snOzWtnjzE87cXKBASZuL4/jYSpA43Kr6lrpAyd+NM5Wom+3A8Gnn1TYJQoXAViocMSqz7uQUpoQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=XuErSEQV; arc=none smtp.client-ip=46.235.227.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VYnGZ3BO"
-Received: by mail-vk1-f169.google.com with SMTP id 71dfb90a1353d-4f6ba99286cso29976e0c.0
-        for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 10:22:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721841728; x=1722446528; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=e35cdCpA4LhllwkRXD5p+aA3bbV183QGT1UYMqTKgFE=;
-        b=VYnGZ3BOPvwxLwA0VQ7u1cL8IMPp4KNQUhab+b7yI5sGLN5Uhp1rkwRiGPYkoxYjv1
-         n54S2rDT17aJWx4V+2xIq6pdYX+Kxuin6kln9Ok6edxCrx4QPD2QySdu/1hx/ZO+sP4D
-         5d5Hzi3ey+0PJhgZUcHxyPRyGvjvXG5y63jApI34xPqR5g7B6lvhcdYTI7V5jJG0qhiW
-         J7Kk8W5NXOPbNdeLdMu/HciUZejcOrQQUuF2mUpgUeHSIfliw3jX6mqR6Lxv22ZeJ5ij
-         pTKXRYZKScSYeKXjsCBhBXEvgG9TI5qREpJ2ON64ieRy7jkCaaCRR+wIadibY3PSZ4ec
-         o+tw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721841728; x=1722446528;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=e35cdCpA4LhllwkRXD5p+aA3bbV183QGT1UYMqTKgFE=;
-        b=YXXmNFeVBYFRNJf8FBqGj+DxH/KE4ybQRBlm/mTosu2slQScSD7hETwsEK262QgRRY
-         aj1j2iheUn7xmg86R/bUCar100XA2dM4T+bdvghjwtW7UgtCyIJgmRy4QHBkhocR1zOa
-         N7LEd0FdnudSP75wStOnbmckWnEv19SO78AwT766hstHSN80mYw+qHQm7b4C6ttPSWrR
-         GCir5z2v31BZRR9fopqEK8l+Olp2Gdd+PSZUwkRkt5rUUBzQeGI1dSrvwXqx6xFY6uru
-         1UIYFNdVgoWqzyeW11zDTpxDg/f+ztN7LiD8gD7upvQViT7jM9xac2/Qrsz5+EsJJO+e
-         mkqQ==
-X-Gm-Message-State: AOJu0Yw5HhdBpu4Lwu48Bdq2Pti5Q83LrotICyF3Y2OunlNdTqnla781
-	v4Uxu/lxKoCwT3EgHCFnrCNjLCLOL3A9sY8pV2SozkOOHI1B1ovO4xwCtU8P
-X-Google-Smtp-Source: AGHT+IF2wlbj0hbtsXUkX19eiRW0M+qL9pXHP+SqFN0vxnGvT6lFsOto7WjkirQvBy6EVRCjGy3vQg==
-X-Received: by 2002:a05:6122:3b14:b0:4f6:b478:767c with SMTP id 71dfb90a1353d-4f6c5d889dfmr562614e0c.6.1721841727951;
-        Wed, 24 Jul 2024 10:22:07 -0700 (PDT)
-Received: from fedora ([2800:e6:4000:47e:7c52:7bd4:cfe5:9874])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-4f51f9aa7b9sm1922643e0c.44.2024.07.24.10.22.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Jul 2024 10:22:07 -0700 (PDT)
-Date: Wed, 24 Jul 2024 12:22:07 -0500
-From: Juan =?iso-8859-1?Q?Jos=E9?= Arboleda <soyjuanarbol@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev
-Subject: Re: [PATCH] virtio: Fix various coding style issues
-Message-ID: <ZqE4P1EjiLI9iQj-@fedora>
-References: <Zpn9t5xJCPMhvpZO@fedora>
- <CAJaqyWfU0th74hJ3Vww6QXqewvSyOobgogT=Vt57M+HqaTZ0ig@mail.gmail.com>
- <20240719140906-mutt-send-email-mst@kernel.org>
- <ZpromZpQ7ajhEJHB@fedora>
- <20240724100022-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="XuErSEQV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1721847635;
+	bh=NkPLrp+DvJ2qkX/aT+LXxDGVGJDmAwtqvl6lVPEpaYo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=XuErSEQV8D2cc650zcKHplavmK3SBilWlD1wTlM2guWzSzAz46fTok5+K1hHZbZmy
+	 o/JFlHI1+M1+JFi8NDFgLB7bQZSxNu5bLV56SFFKN73shodONVSCxs+54quiLYa74F
+	 dRumTEZlC2wsK2f4A/CSPUyBV8nySXGOZOeA3LAIzNaANEazgnjal9qvArz/hgyk4w
+	 Wuq2hSetTGXdlIgk/wm9nnUlC+l8NX9Gj0gKOTN6JXhj9TtJuKotXeok3+rzG18IK6
+	 l/RdnoLtSGQ1Fs4sMKnbShXEchvVRmcrsyA6T9VS1z8du8EF2cx/K2pz1UrgR2XdDA
+	 PsHQQyou6JN4w==
+Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: dmitry.osipenko)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 76C2237813E1;
+	Wed, 24 Jul 2024 19:00:34 +0000 (UTC)
+Message-ID: <942afa37-a24c-48ed-ae10-c811849165bf@collabora.com>
+Date: Wed, 24 Jul 2024 22:00:31 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240724100022-mutt-send-email-mst@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
+To: Sergio Lopez <slp@redhat.com>, gurchetansingh@chromium.org,
+ tzimmermann@suse.de, mripard@kernel.org, olvaffe@gmail.com,
+ kraxel@redhat.com, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com,
+ airlied@redhat.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ dri-devel@lists.freedesktop.org
+References: <20240723114914.53677-1-slp@redhat.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20240723114914.53677-1-slp@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-> Makes backports harder for little gain.
-> Code gets tweaked naturally as someone works on it.
+On 7/23/24 14:49, Sergio Lopez wrote:
+> There's an incresing number of machines supporting multiple page sizes
+> and on these machines the host and a guest can be running, each one,
+> with a different page size.
+> 
+> For what pertains to virtio-gpu, this is not a problem if the page size
+> of the guest happens to be bigger or equal than the host, but will
+> potentially lead to failures in memory allocations and/or mappings
+> otherwise.
 
-I understand your concern about backports. However, this patch only updates
-the coding style to match kernel-wide standards without altering behavior.
-Consistent style improves readability and maintainability without impacting
-functionality, thus not complicating backports.
+Please describe concrete problem you're trying to solve. Guest memory
+allocation consists of guest pages, I don't see how knowledge of host
+page size helps anything in userspace.
 
-Thank you for considering this.
+I suspect you want this for host blobs, but then it should be
+virtio_gpu_vram_create() that should use max(host_page_sz,
+guest_page_size), AFAICT. It's kernel who is responsible for memory
+management, userspace can't be trusted for doing that.
 
-Best,
-- Juan José
+-- 
+Best regards,
+Dmitry
+
