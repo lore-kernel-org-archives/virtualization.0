@@ -1,108 +1,158 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 194DA45976
-	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 10:45:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C1465695
+	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 11:58:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721817922; cv=none; b=IBrrfPbjkBAidmF8LWd4gZnUcyMhYHUs7uJmXey+t3DuxrMxAa8MLZjD3ZE0As963Z1sZm4ERGoFtc/i/kZ6JC6YVS5r4j7AbsLck5YU+dC3CwSuoqcNZVFXdRT9/jQPUucG8G4V1MUqjbTxWidgOKJqz6kQYm1LOWOqgJP0lRg=
+	t=1721822295; cv=none; b=pmno8YEgGDDsbn9LM5AL7IHtsuxBXZIACzqAEUY5s5/7deKWNGEOjUFbdKh/0iGinJRrlj6K56mLijxgl+obXHY/qdkYkUpesidUUW/6SNH391YUb2Q6TK70Uq8WKxRIjMnAi4fepsjwJjcsrMwpYFgRIOhVNMndtcv1Euxzicw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721817922; c=relaxed/simple;
-	bh=NbHJh6RRHy684SrYZUNu5LAFgHVtJvGwtoD+uECKw/c=;
+	s=arc-20240116; t=1721822295; c=relaxed/simple;
+	bh=pTtzIZvfksjXgHZbeHEGJbdmq/jxxyPYsmAsM9XJtMo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ZEnnXzq0MXkBC11T/VTxSWiLFN7g6TNCfcEkQ9Zm2WAeiEKF7rkOHqR+p/W6m1S8dnSKClzsyakJwAERPYt/sWVQQlzDKV2sagSrDvTJpyq+IGp+090mdvGAOvw0BkLPBmX836y/1IH7L8aVVsW3koeeRwWAjWtm/OQ+sMR3TUI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f/+zNoir; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=hQuAKk6+zUVuNT/xeWmRfpBLTSVxmy8FckIJjSFQb8mhwhsfoUnkjMmJjzvTxBHBvfIDG31b51Mdeg2Sq4zfa+tJUaVrNkMRztS3ai+QVztNYTNVZlCo3UCtJSHSBtpH0ggsEGLDBKyoGVR9liSanCCgig9MUWPcbBUkdSk2WBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=ezrHJvOw; arc=none smtp.client-ip=209.85.218.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f/+zNoir"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721817919;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xn9TfjA6NiXJtkfI9W0qDv8xc0kKr5AGDpzztiNdZF8=;
-	b=f/+zNoir7q3ec9uNbgGLVK5+ga8apF+0F8lY6k9A6SExxZ6h9fr0osa0LA3QntherMSYhb
-	9sxf+0V2teuV0bjo5r8JfpR6WgJQ614WMgTCSrtptZm0C5oEsfXaJinFtb45u1FJRi/Ihz
-	GUlmFRGUUWq37cAlQLpcBMEvQ+x+Drg=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-454-Jqt06VpWPiCI8HoydEChxg-1; Wed, 24 Jul 2024 06:45:18 -0400
-X-MC-Unique: Jqt06VpWPiCI8HoydEChxg-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-368665a3fdfso3577289f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 03:45:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="ezrHJvOw"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a7a8e73b29cso170376966b.3
+        for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 04:58:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1721822291; x=1722427091; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=96LiP4EJKTbJ9zW7jWWaw9Mt26G4l1eFWQe0YZezUgo=;
+        b=ezrHJvOw4+C4j+/sgk7oxFavU6TXroTha9dJJEiyx/not05D/AKqc9ldeDRgWSJGpY
+         NLlmuAyx8GRL5C1AisrsF7WGiu9DK81th41X7sifm7Di8eXxIudD93f5ewE4pKeduZd6
+         0KH1xZdQ7/Gl5VB7XP03oC844YwoLEOnZGe7dN29tsrM5S1P5HCevB3Xka60+4BN6Z5O
+         vT+H+Hu9N7yT2lovZ9HhYoNra86xzdTkitDpwbKCCBmzHmPxDGdB0AdwWy9KKcZOJk/7
+         4/OqcpJc73fdRiYCL/yANKpFKY9WY7W8pMDbdMo4zz1MnPvFjODnlVfuWIcKauiP2XaV
+         TW1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721817917; x=1722422717;
+        d=1e100.net; s=20230601; t=1721822291; x=1722427091;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xn9TfjA6NiXJtkfI9W0qDv8xc0kKr5AGDpzztiNdZF8=;
-        b=VaWH/iu0d3Hwl0Q74RYGB1sHvimVSzRLrIHqsbRWIGjgYfoj6/U3VzvBJ5yd13Egsd
-         TSiD2TA6wBnyBpTN3NprvcHWVXo84mfsCHjgw0wmRah1EsqENyIo861Ik31sY9NPmlmp
-         gJDSIi15J1GM/Og/YtDWKmzBHd93Tbhx2gZKnSCeQmnWidZwV7pvGhW8sYSe+zULSE1L
-         v/JPgIyoJGLaRkQy8Y0gDt0vO1lN7b0dM8lSZV/FyayeFedWSGu8km6Rb4ocxa/gcVBs
-         h8IO2fK8Mi4tfphlh9DaxIJ5ZnIPZoOMPnsARgEgcs/Fa3XKNEIhc88zwWRJKTnA9/dD
-         D/uw==
-X-Forwarded-Encrypted: i=1; AJvYcCVqLcAF3wyow6GIiuWX94RGzLsJWqDfMwl7Ed45lSj8bXs13kABdSq1cHEVHOOpHXviZTOFANxk8UMUTaqMJ9kiIoVcm3XrOJGPi99FvE0=
-X-Gm-Message-State: AOJu0Yz9QAq862dWee1/+mYHPMV8IJRrgJYtieKKwb3aC3VGYcJcHeAT
-	EJLvaFmGwbyL5Bjt7vaIc8Rdhd7eu3JZ9Vio47lW/MDmiTzecquS77etWtZyobCu+jGe+YS1KJC
-	sdSD08m4V+bda8y0zHJuGdK0ELQ4AtyqMmPXdBIK+em1voj5jboiJFmRKffhw4T4O
-X-Received: by 2002:adf:eb82:0:b0:367:8a3e:c127 with SMTP id ffacd0b85a97d-369f5bb57ddmr1076829f8f.63.1721817917282;
-        Wed, 24 Jul 2024 03:45:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEeiMpsWcqeCFCR3YjRVhYw58gnKNcIGwvJmtVpjFuFH/aFmGbZKpc7S+Um/rqoZCaNJ3M9OQ==
-X-Received: by 2002:adf:eb82:0:b0:367:8a3e:c127 with SMTP id ffacd0b85a97d-369f5bb57ddmr1076804f8f.63.1721817916632;
-        Wed, 24 Jul 2024 03:45:16 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f4:6083:a67a:e8a9:2855:2683])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-368787ed580sm13850744f8f.112.2024.07.24.03.45.15
+        bh=96LiP4EJKTbJ9zW7jWWaw9Mt26G4l1eFWQe0YZezUgo=;
+        b=t1XB+XRd4eqCs305gJEqP+0i3roCPdqdPLGe7E+QhbXK3EpjOzVLZr2Y1omnbqARAr
+         1cpceV+FNZwsgV5BGTiJuv2GQnqk0t/V8TAQE/pQ6H1QkfaG1V8lPhKq/TeDQOgACicV
+         JzJpii4lEFuzj1ThgzNy5KrOyMa3IPtVhqlzP5N3EJIZFlSZWsknu7HbxaMM622/zyF5
+         C5sB6FnZEJnhVXjEk2sLm0hVGgVS/6LBRHfgvtA4bWoiD/U549RoQhbopjz9H0Mtn46R
+         EJW94FembG0b25HNImiwwd/1U+J6s2jubEyRo5VjAbcVuo1DVJ1gN9cEG5/iY0UmrtLG
+         ky8w==
+X-Forwarded-Encrypted: i=1; AJvYcCWQFc8tDbjkRNga/bhP+oSE+yh+DkvJ1U+Fm61oN5RcSJdr3N8T2+9WXcEqSUbiS4NxbJJuOKJzdZHUgE9czooZSPGMy1yqBS51af5uA+8=
+X-Gm-Message-State: AOJu0YyKVncx/c71hkgS7VmAlr+tiO9S1LRh2afsDd8Q+lYNpuU6K8PO
+	takmBOXpZ57d2htuNwGBVyMFbIC3fAM7mifSdEx3tDZDkAYZeUj7y3wT25IyNc4=
+X-Google-Smtp-Source: AGHT+IHvmNN4dfiaiUDQcItBMdEPOzv0avhX3W76e+XHKZ1xVDZEPV+rLot70dQKgkRZ3N8l9bDrvw==
+X-Received: by 2002:a17:907:980a:b0:a7a:bd5a:1eb7 with SMTP id a640c23a62f3a-a7abd5a1fbcmr40793666b.59.1721822290912;
+        Wed, 24 Jul 2024 04:58:10 -0700 (PDT)
+Received: from localhost (109-81-94-157.rct.o2.cz. [109.81.94.157])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7ab999db8esm33348766b.184.2024.07.24.04.58.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Jul 2024 03:45:16 -0700 (PDT)
-Date: Wed, 24 Jul 2024 06:45:12 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Zhu Jun <zhujun2@cmss.chinamobile.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tools/virtio:Fix the wrong format specifier
-Message-ID: <20240724064459-mutt-send-email-mst@kernel.org>
-References: <20240724074108.9530-1-zhujun2@cmss.chinamobile.com>
+        Wed, 24 Jul 2024 04:58:10 -0700 (PDT)
+Date: Wed, 24 Jul 2024 13:58:09 +0200
+From: Michal Hocko <mhocko@suse.com>
+To: Barry Song <21cnbao@gmail.com>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com,
+	cl@linux.com, hch@infradead.org, iamjoonsoo.kim@lge.com,
+	lstoakes@gmail.com, penberg@kernel.org, rientjes@google.com,
+	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com,
+	vbabka@suse.cz, virtualization@lists.linux.dev,
+	hailong.liu@oppo.com, torvalds@linux-foundation.org
+Subject: Re: [PATCH 2/5] mm: Document __GFP_NOFAIL must be blockable
+Message-ID: <ZqDsUZDLZOXTPwuA@tiehlicka>
+References: <20240724085544.299090-1-21cnbao@gmail.com>
+ <20240724085544.299090-3-21cnbao@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240724074108.9530-1-zhujun2@cmss.chinamobile.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20240724085544.299090-3-21cnbao@gmail.com>
 
-On Wed, Jul 24, 2024 at 12:41:08AM -0700, Zhu Jun wrote:
-> The unsigned int should use "%u" instead of "%d".
+On Wed 24-07-24 20:55:41, Barry Song wrote:
+> From: Barry Song <v-songbaohua@oppo.com>
 > 
-> Signed-off-by: Zhu Jun <zhujun2@cmss.chinamobile.com>
+> Non-blocking allocation with __GFP_NOFAIL is not supported and may
+> still result in NULL pointers (if we don't return NULL, we result
+> in busy-loop within non-sleepable contexts):
+> 
+> static inline struct page *
+> __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+> 						struct alloc_context *ac)
+> {
+> 	...
+> 	/*
+> 	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
+> 	 * we always retry
+> 	 */
+> 	if (gfp_mask & __GFP_NOFAIL) {
+> 		/*
+> 		 * All existing users of the __GFP_NOFAIL are blockable, so warn
+> 		 * of any new users that actually require GFP_NOWAIT
+> 		 */
+> 		if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+> 			goto fail;
+> 		...
+> 	}
+> 	...
+> fail:
+> 	warn_alloc(gfp_mask, ac->nodemask,
+> 			"page allocation failure: order:%u", order);
+> got_pg:
+> 	return page;
+> }
+> 
+> Highlight this in the documentation of __GFP_NOFAIL so that non-mm
+> subsystems can reject any illegal usage of __GFP_NOFAIL with
+> GFP_ATOMIC, GFP_NOWAIT, etc.
+> 
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
 
-which matters why?
+Acked-by: Michal Hocko <mhocko@suse.com>
 
 > ---
->  tools/virtio/ringtest/main.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  include/linux/gfp_types.h | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/tools/virtio/ringtest/main.c b/tools/virtio/ringtest/main.c
-> index 5a18b2301a63..e471d8e7cfaa 100644
-> --- a/tools/virtio/ringtest/main.c
-> +++ b/tools/virtio/ringtest/main.c
-> @@ -276,7 +276,7 @@ static void help(void)
->  	fprintf(stderr, "Usage: <test> [--help]"
->  		" [--host-affinity H]"
->  		" [--guest-affinity G]"
-> -		" [--ring-size R (default: %d)]"
-> +		" [--ring-size R (default: %u)]"
->  		" [--run-cycles C (default: %d)]"
->  		" [--batch b]"
->  		" [--outstanding o]"
+> diff --git a/include/linux/gfp_types.h b/include/linux/gfp_types.h
+> index 313be4ad79fd..0dad2c7914be 100644
+> --- a/include/linux/gfp_types.h
+> +++ b/include/linux/gfp_types.h
+> @@ -246,6 +246,8 @@ enum {
+>   * cannot handle allocation failures. The allocation could block
+>   * indefinitely but will never return with failure. Testing for
+>   * failure is pointless.
+> + * It _must_ be blockable and used together with __GFP_DIRECT_RECLAIM.
+> + * It should _never_ be used in non-sleepable contexts.
+>   * New users should be evaluated carefully (and the flag should be
+>   * used only when there is no reasonable failure policy) but it is
+>   * definitely preferable to use the flag rather than opencode endless
 > -- 
-> 2.17.1
-> 
-> 
+> 2.34.1
 
+Do you think the following addendum should be folded in just for
+completness?
+
+diff --git a/include/linux/gfp_types.h b/include/linux/gfp_types.h
+index 313be4ad79fd..d024cfd1af8e 100644
+--- a/include/linux/gfp_types.h
++++ b/include/linux/gfp_types.h
+@@ -215,7 +215,8 @@ enum {
+  * the caller still has to check for failures) while costly requests try to be
+  * not disruptive and back off even without invoking the OOM killer.
+  * The following three modifiers might be used to override some of these
+- * implicit rules.
++ * implicit rules. Please note that all of them must be used along with
++ * %__GFP_DIRECT_RECLAIM flag.
+  *
+  * %__GFP_NORETRY: The VM implementation will try only very lightweight
+  * memory direct reclaim to get some memory under memory pressure (thus
+
+-- 
+Michal Hocko
+SUSE Labs
