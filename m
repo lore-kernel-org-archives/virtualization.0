@@ -1,78 +1,99 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D11313A3FD
-	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 13:55:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EFD9613D
+	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 14:01:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721829311; cv=none; b=RbUuMFv8nbOZxM6Qo7ez6qaIgBUNbXcs899DEXFeR0aVtNNWvwvj4qFjd1inHD1+QQh+Na2DhvRXyR14Tn6M0wy0ZfPT+K1fUh48CWnfK11emqXUCkDr9Dk7RvSSe+QlnxGjUKQa1opltr6AqF2C+oAj6uhfwMZNGSBru7G5708=
+	t=1721829700; cv=none; b=SRqCG8YmF+nIZDHLE8QXITCBpetBN2hsRjpqTG7WdMpnOzg3sJ96Rc5uq5kHD+vL6LQTbCiLAj+t0Ru8qbPlARPtGqSMRht4rM2bUEzh1jGBwFbSh8IUpmU1MHaWAM/6+tC2Ap63WOZPhTUynTa5U6C8a0LbYkdWENmwieECoyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721829311; c=relaxed/simple;
-	bh=PahFC0lyvlrBYnxKY7AMx8m5hNxr3/ZXsW7cm6JpSic=;
+	s=arc-20240116; t=1721829700; c=relaxed/simple;
+	bh=7zbYSvMfxQPTM5rStvV9PO4vr7mYiKgSxIueimZutnI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cdeVrARsPA3keZ1vtoZxsgq3uxTneWEcuKXvSNlcKOrLLkCI8Gjngx/7b1E72/huW3FgM4uvp1MJwt0kOQwU15/G9MwJmH/c1i1dEY9uuWamo22HWEAPO2kBolcnmxUAAjOM/vz6GPNMH5hYsLMnwFt29knaX74gk6jVLkR5cUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=iqF91SDp; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	 In-Reply-To:Content-Type:Content-Disposition; b=XCEJreAyCzI1mFp9qOE12XphbQuRDByX0YUXOdM4QXUpqIYsJglNTjIhrtZs+9d9qWaeKbXKlk/M+wp51iHhvGGFaolsmRZJOfPSpEfWgPM6gvdKqcH4M06PgX6fgrRiuyyszEhs11Uxz/wytWanpZYwkY2e/QDJ7HGqbtLv5bI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TpHGyzD+; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="iqF91SDp"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Transfer-Encoding
-	:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=cAmODblFkfgQYO+fg2NXIynxfhH6O07W/NkOwpVIwFA=; b=iqF91SDpFlK91KZ4kuPVALI5cQ
-	+Jo7Jr/UpwVA79kZtB/R3C0tOEFnuV5JuPk4DweMV5S5HI9+Pi/+OPZy000aM4jKijW+6rXG9rjhZ
-	65TgKdQz+LdJ88jihco4P849FdW/IikpdrlvBGVzmwmBTshRDg6a2AK8nLIqTthGoRAXZsop8/ND5
-	nboANjoudbSMm6kYq+14RrDUZNDj9q66XL65ZYII5Sy10MRr2vG/lKyBiSkttAtIJ/LRxnFSEzdcH
-	LRpk5qa5Ln7JTCW41HEqTMJ/GZdF9b8u9o/wUrNfPjbPiXOYvHJINpea3ocFQBNEAkuQQLjBUfPVa
-	8nkkznMA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sWcSP-0000000FVmX-0RJX;
-	Wed, 24 Jul 2024 13:55:05 +0000
-Date: Wed, 24 Jul 2024 06:55:05 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Michal Hocko <mhocko@suse.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Vlastimil Babka <vbabka@suse.cz>,
-	Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
-	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com,
-	iamjoonsoo.kim@lge.com, lstoakes@gmail.com, penberg@kernel.org,
-	rientjes@google.com, roman.gushchin@linux.dev, urezki@gmail.com,
-	v-songbaohua@oppo.com, virtualization@lists.linux.dev,
-	hailong.liu@oppo.com, torvalds@linux-foundation.org
-Subject: Re: [PATCH RFC 5/5] non-mm: discourage the usage of __GFP_NOFAIL and
- encourage GFP_NOFAIL
-Message-ID: <ZqEHuaUGuuUaL_AY@infradead.org>
-References: <20240724085544.299090-1-21cnbao@gmail.com>
- <20240724085544.299090-6-21cnbao@gmail.com>
- <68ee812b-3b96-4c8b-9a54-70d4742488bb@suse.cz>
- <ZqD9-yzGxQIFlxGQ@infradead.org>
- <ZqD_ydjhUI_GCgSg@tiehlicka>
- <ZqEAUbtkIMCwVpgB@infradead.org>
- <ZqECPiU-3fJozzpB@tiehlicka>
- <400b2f6f-f7f0-4888-99ee-7327faad7e5c@suse.cz>
- <ZqED4bEIJGGHxsHY@infradead.org>
- <ZqEGAh6R7yoR5L1n@tiehlicka>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TpHGyzD+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1721829697;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NG6SBCD4f6wTxv8P8uRrrWCf5UozNX+yQ9rwJbTAlU8=;
+	b=TpHGyzD+PY68sJMTBaQpi0PWw6tLCo45TGfrnqlC2XdqFAEYeXkSthmfunG4GHLVtywl6O
+	q9m2UO7GaMsht9ov13DEVL+unD+PoTuOVb9Hpa1g5h6OROYykcVezr07pHVsPkA/9hx6zV
+	iVXmM3bXznQvbsAuCHohk4oGge5Xnos=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-100-G8rpa2DkMcyRm2QZYw16TA-1; Wed, 24 Jul 2024 10:01:35 -0400
+X-MC-Unique: G8rpa2DkMcyRm2QZYw16TA-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a79d8586cb4so72630466b.2
+        for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 07:01:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721829693; x=1722434493;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NG6SBCD4f6wTxv8P8uRrrWCf5UozNX+yQ9rwJbTAlU8=;
+        b=MbtYrN0hYgWONmfQcf7h0czrwKpPStUIZgchIw7huOktDhAYcS4eRtg9O1qJCJGrH/
+         s1RbSqh6mRko92zHtDyvBboN3zFXJaHQ6WPnxYsWaKxHg0oDdk9kV9qRegfcuR26vChb
+         mfvlv63viEKEGaPQvn3fhUM1P7lo31wqbuLzhbe4lCwY44YBh1AQHaSKL8fpaHw1fAvP
+         cNqmI9PNA01RNpR8Xk5bM4uL+obXNHE6QhWZYV+W5wKlzLV+shX3TZG+snImTKoQBTFw
+         lSnD+lT+RfzfPC9ngrit3rXuL0L3+9nxuQkqDrD3CZV297wOqfua2c9YmeueU468oWzx
+         krZA==
+X-Gm-Message-State: AOJu0YwqBO6LA+sSbaXrd7CFUGQiXl5MRDDDd45G/wxGvtuhswQxMfvv
+	SxphENawTnHKQ0IiYkXM0URThdMD01kvOOvAvwqB3iqmJrHz40jduyVArtANUOph5H0F2qJC0SC
+	bZCGIu0ErXPprRzDws+jlYTZSZ/1SdoeupeHwKQKQvcq0psF5xpY5HnFh1v5d+br3
+X-Received: by 2002:a17:907:3ea1:b0:a75:2495:a6a3 with SMTP id a640c23a62f3a-a7a4c584107mr1015218066b.67.1721829691612;
+        Wed, 24 Jul 2024 07:01:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFhgOA6+BjIvIUdVRQyeVzmtenjL15Kk2rb7ZqQVZIXNWXQXvfjil7YNkILxsNSInsCeM0C3Q==
+X-Received: by 2002:a17:907:3ea1:b0:a75:2495:a6a3 with SMTP id a640c23a62f3a-a7a4c584107mr1015203866b.67.1721829689442;
+        Wed, 24 Jul 2024 07:01:29 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f4:6083:a67a:e8a9:2855:2683])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7a9f463194sm158866466b.112.2024.07.24.07.01.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Jul 2024 07:01:28 -0700 (PDT)
+Date: Wed, 24 Jul 2024 10:01:24 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Juan =?iso-8859-1?Q?Jos=E9?= Arboleda <soyjuanarbol@gmail.com>
+Cc: virtualization@lists.linux.dev
+Subject: Re: [PATCH] virtio: Fix various coding style issues
+Message-ID: <20240724100022-mutt-send-email-mst@kernel.org>
+References: <Zpn9t5xJCPMhvpZO@fedora>
+ <CAJaqyWfU0th74hJ3Vww6QXqewvSyOobgogT=Vt57M+HqaTZ0ig@mail.gmail.com>
+ <20240719140906-mutt-send-email-mst@kernel.org>
+ <ZpromZpQ7ajhEJHB@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <ZpromZpQ7ajhEJHB@fedora>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZqEGAh6R7yoR5L1n@tiehlicka>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On Wed, Jul 24, 2024 at 03:47:46PM +0200, Michal Hocko wrote:
-> OK, now it makes more sense ;) I have absolutely no objections to
-> prefering scoped NO{FS,IO} interfaces of course. And that would indeed
-> eliminate a need for defining GFP_NO{FS,IO}_NOFAIL alternatives.
+On Fri, Jul 19, 2024 at 05:28:41PM -0500, Juan José Arboleda wrote:
+> > warnings from which tool?
+> 
+> Hi! Thanks for taking the time to review this!
+> 
+> >From the 'checkpatch.pl' script
+> 
+> Regards,
+> -Juan José
 
-Yes.  My proposal would be:
+As a rule, we don't just tweak coding style by running checkpatch
+on existing code. Makes backports harder for little gain.
+Code gets tweaked naturally as someone works on it.
 
-GFP_NOFAIL without any modifiers it the only valid nofail API.
-
-File systems / drivers can combine Ñ–t with the scoped nofs/noio if
-needed.
+-- 
+MST
 
