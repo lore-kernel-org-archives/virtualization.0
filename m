@@ -1,128 +1,201 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f48.google.com (mail-ua1-f48.google.com [209.85.222.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A30D1C2AD;
-	Wed, 24 Jul 2024 03:38:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51E511CAAF
+	for <virtualization@lists.linux.dev>; Wed, 24 Jul 2024 03:49:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721792319; cv=none; b=S3dAd9/h+AmVtwYc3Swtvr7fpj3AZTHsSarj89fVaU2MnfrDVFSi1hDV6aryGjqMW/KD3LZEObpp2Pxk2ipSurld5pdoii683kCl9ZKx8KUcC4XcQ+1XCUPYhfNEeEKsAybCeP3XgoQlPo518rELZDAN4FADy4ug4tGAbjEcDcA=
+	t=1721792945; cv=none; b=tDfi/2/dFHZBF0KM1j4PkU8JCMN3yySGp8GWcKFB4gF0kH7Zbq8MwpW/Y95F9kC19DANJ1tgeaGr7vvDvSmAc/QJZWcDig67BflTf6e4FF6qyi0x2MAVVW/MFdRwDncm5FDGXGEwvZ97Id4rvT7aUVeu2A7+8CYyDGuVWTtOvr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721792319; c=relaxed/simple;
-	bh=vRsRJaBHX9AGWpTcYgPUKJik6E/U1RRmVWwWqnTTM+4=;
-	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=mem8m1RhS3XiqU9/mTh9U8wZgACqWL5n+lKzR8vh+KVdIL58Y/AcwvoqVq0R0M2dnlvLTK779nb207cP/1wddWKliaTuAOB5W5ntakqmfigam2pn3iUhWG8SFTWLf7QZrMpj2+5PIdQoT5DAo4S3Kjvu25BzIhDCJi3xS5tyybs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=HmD2qwz9; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1721792945; c=relaxed/simple;
+	bh=NKrj4Xe15h7P+/8akw56axN+QjFD9WXReSS4RVzKxwI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Q3HTPSDppaIQSYFbTTmpJkDHqBOBLSWSUrD9LkMu1crRTEp2isGY8RoPh08SgYy16aGhx9bFfnmLOQkRcdyaM2T8VyLI6MjDpAhcYsJ55BdCB7f7t16Wd0AYQIKLMvWHje8NYVYUGHdquKtOJnykADFqwzlREiRsIyfChpzl/PM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HcCQ22Cr; arc=none smtp.client-ip=209.85.222.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="HmD2qwz9"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46NKt0FF011194;
-	Wed, 24 Jul 2024 03:38:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-type:date:from:message-id:mime-version:reply-to
-	:subject:to; s=qcppdkim1; bh=vRsRJaBHX9AGWpTcYgPUKJik6E/U1RRmVWw
-	WqnTTM+4=; b=HmD2qwz9u21JmKjvooCx+k3pY9g3/xL3FKWozeU/dV9IJhHp/me
-	sVVXP+4yKY08y9wuXhNUacsR13T5WShwTyP3FhBcEBPgB3L/Vv81KsMIu84YcQiV
-	Wxikx4xzUw96MFXZw+4GbH5tRm94d4MDnBZQUQhFUbdakkH6lm3DlwkUFlUF/FUy
-	RLc5wjQhbcTZtkolQzjeGAkdkySPrFLzvEoilBrw79aRieB6EP+wM+1TfJk8Todg
-	I51Ffb+gjXOfZvioLzhbfk2UMldeVua9H9xZm/Lw7qAl15sZx/4RmFqZaDcgqzWz
-	TgwPcQQ7WQWXxmauNKh107N8Hj9tyYNeytQ==
-Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 40g6dk0pdk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 24 Jul 2024 03:38:25 +0000 (GMT)
-Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA04.qualcomm.com (8.17.1.19/8.17.1.19) with ESMTPS id 46O3cOuD006659
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 24 Jul 2024 03:38:24 GMT
-Received: from quicinc.com (10.80.80.8) by nalasex01b.na.qualcomm.com
- (10.47.209.197) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Tue, 23 Jul
- 2024 20:38:20 -0700
-Date: Wed, 24 Jul 2024 09:08:16 +0530
-From: Srivatsa Vaddagiri <quic_svaddagi@quicinc.com>
-To: <xieyongji@bytedance.com>, <jasowang@redhat.com>, <stefanha@redhat.com>
-CC: <virtio-dev@lists.linux.dev>, <virtualization@lists.linux.dev>,
-        <quic_svaddagi@quicinc.com>, <quic_mnalajal@quicinc.com>,
-        <quic_eberman@quicinc.com>, <quic_pheragu@quicinc.com>,
-        <quic_pderrin@quicinc.com>, <quic_cvanscha@quicinc.com>,
-        <quic_pkondeti@quicinc.com>, <quic_tsoni@quicinc.com>
-Subject: [RFC] vduse config write support
-Message-ID: <20240724033816.GD492231@quicinc.com>
-Reply-To: Srivatsa Vaddagiri <quic_svaddagi@quicinc.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HcCQ22Cr"
+Received: by mail-ua1-f48.google.com with SMTP id a1e0cc1a2514c-8307e9b9d9fso55889241.3
+        for <virtualization@lists.linux.dev>; Tue, 23 Jul 2024 20:49:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1721792942; x=1722397742; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WIIzMgLof7Cy8pOJkAUdfmjOzPX18xl1X4zt9wdck1I=;
+        b=HcCQ22CrPlqQ1ez9CdzMFdYxpXuus/n3pTAoLzLeMSG2YvdUPLmwz/6x5CrNbPF9dV
+         +3XipACgcTfDL2HHjRES5TrebxWXq1u3JHcXTeVrkP60p3f+rlDLXRzoyqmEzNDv6hXQ
+         Yg4ezaVuu6n1Jv+dOsl1reCcxR8UloJryhqxIEF50r1xPohnbyInvt8BMkqJgCh9cq2h
+         P6kYfX2bVxU+Ck1+nJ/wI0Ren2nH3jqoXpltTCF4u5EePEEzrel9/eCHaxcjf3tjoaut
+         MX+e7IRwDFZplqatzDyTZQteT+imH+X8goM9mVDicqSbn8LLQPSbLiS9M0P1u/cE8iRZ
+         Qkwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721792942; x=1722397742;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WIIzMgLof7Cy8pOJkAUdfmjOzPX18xl1X4zt9wdck1I=;
+        b=Rm/6h+JWtZ6xyiBAFKaP4qQU0wLTZvZocgUshAbh+mSdJW5IApTnlzt1OieryssRu1
+         oJGZTMCXKIRnH0iknYXxNPxGEGAJkKRyZgLM+JuFDQVOJKg7uFL9RVdo5GfdbE7vuZGG
+         1TMp3dncOL15XJQtFDzEsV6bdDMka35VzM3tq0UwEMAfIk+sCz0C5Xav1Hb6efezRf4N
+         6kUuDVoEvrJPPdOFYJWSTE+IQLdmlKNnbIlpeRFK9FadkpFyfgAXufV/dTuyysdTz3g8
+         MJ3ta+eabImE4a2jX/u833RxbtLu1/ex9PRjCMZcLuhUURflr7mXiqKPKPafUI/lGnSx
+         RmtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUO0/MJ4Gb0WSebU8kaMiIuccqVIPtRQwKNPtmGSjiSi/1j77z0mJ1BuiE7n3nZtN5RZ8o7UK1DAsi+fleoYEC23VQdeSgOGxDpNAUOMQE=
+X-Gm-Message-State: AOJu0YwmuCkWISHLLEuoNHA1aw6iIiPyUi0O1mWvfKpDfKa0rby1XK38
+	fqC8JLe9gcbJoHFIKiXwkZBEIqW7FuNiUd+nwQ688/WefBO/E9Rfxu1AHJp6YVs4S0/4d89vMji
+	7b30COWbSDlS0MWtUr8SMhyezNaI=
+X-Google-Smtp-Source: AGHT+IFDvtbe82NNASQ0oM9M0v5+nZcAsCCLz1k3PmRjYQzgoGqz5vUMO4HDkw4dQsjBUNVozxiQ1PzitWivbSxe5zU=
+X-Received: by 2002:a05:6102:158b:b0:493:c631:5eda with SMTP id
+ ada2fe7eead31-493c63160d9mr769729137.9.1721792941922; Tue, 23 Jul 2024
+ 20:49:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: ulQgpG6SXlIrzDWYFnW9bBxRO3EBc4aj
-X-Proofpoint-ORIG-GUID: ulQgpG6SXlIrzDWYFnW9bBxRO3EBc4aj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-24_01,2024-07-23_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1011 suspectscore=0 impostorscore=0 phishscore=0 mlxlogscore=999
- malwarescore=0 spamscore=0 adultscore=0 bulkscore=0 mlxscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2407240026
+References: <20240723223109.2196886-1-kuba@kernel.org>
+In-Reply-To: <20240723223109.2196886-1-kuba@kernel.org>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Tue, 23 Jul 2024 23:48:24 -0400
+Message-ID: <CAF=yD-LJ+-S4gC9EVo6ijJTGjR6KfPMNPrpxoffgoQBFpo8GNQ@mail.gmail.com>
+Subject: Re: [PATCH net] virtio: fix GSO with frames unaligned to size
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com, 
+	pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, shuah@kernel.org, 
+	arefev@swemel.ru, virtualization@lists.linux.dev, 
+	linux-kselftest@vger.kernel.org, Alexander Duyck <alexander.duyck@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Currently vduse does not seem to support configuration space writes
-(vduse_vdpa_set_config does nothing). Is there any plan to lift that
-limitation? I am aware of the discussions that took place here:
+On Tue, Jul 23, 2024 at 3:31=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> wr=
+ote:
+>
+> The commit under fixes added a questionable check to
+> virtio_net_hdr_to_skb(). I'm guessing the check was supposed
+> to protect from csum offset being outside of a segment
+> (especially if len is not multiple of segment size).
+>
+> The condition can't be right, tho, as it breaks previously
+> working sending of GSO frames with only one segment
+> (i.e. when gso_size <=3D len we silently ignore the GSO
+> request and send a single non-GSO frame).
+>
+> Fix the logic and move it to the GSO part.
 
-https://patchwork.kernel.org/project/netdevbpf/patch/20210615141331.407-11-xieyongji@bytedance.com/
+I missed the previous patch. Should we revert that and create a new
+fix against the original issue?
 
-Perhaps writes can be supported *selectively* without violating safety concerns
-expressed in the above email discussion?
+Normally the checksum start + offset should always be in the header,
+so not even part of gso_size. So needed need not be related to
+gso_size.
 
-We are thinking of using vduse for hypervisor assisted virtio devices, which
-may need config write support and hence this question.
+The exception to this is UDP fragmentation offload, I suppose. As
+there the network and transport headers are part of the UFO payload.
 
-To provide more details, we have a untrusted host that spins off a protected
-(confidential) guest VM on a Type-1 hypervisor (Gunyah). VMM in untrusted host
-leads to couple of issues:
+But even for the normal TSO and USO cases we cannot verify in
+virtio_net_hdr_to_skb that the csum_start + csum_off passed from
+userspace are really pointing into the transport header.
 
-1) Latency of (virtio) register access. VMM can take too long to respond with
-VCPU stalled all that while. I think vduse shares a similar concern, due to
-which it maintains a cache of configuratin registers inside kernel.
+For SKB_GSO_UDP_L4 I added a minimal check that csum_off must be
+offsetof(struct udphdr, check). We can arguably tighten these csum_off
+for all requests, as only UDP and TCP offsets are valid. But no such
+simple check exists for csum_start. This requires full packet parsing,
+which we don't do until skb_gso_segment.
 
-2) For PCI pass-through devices, we are concerned of letting VMM be in charge of
-emulating the complete configuration space (how can VM defend against invalid
-attributes presented for passthr devices)? I am aware of TDISP, but I think it
-may not be available for some of the devices on our platform.
+One option may be to test csum_start in tcp_gso_segment and
+udp_gso_fragment and fail segmentation when it points not where
+expected.
 
-One option we are considering is for hypervisor to be in charge of virtio-PCI
-bus emulation, allowing only select devices (with recognized features) to be
-registered on the bus. VMM would need to register devices/features with
-hypervisor, which would verify it (as per some policy) and present them to VM on
-the virtio-PCI bus it would emulate. Protected VM should be shielded from
-invalid device configuration information that it may otherwise read from a
-compromised VMM.
+Btw, do we have a better idea what exact packet triggered this
+WARN_ON_ONCE in skb_checksum_help? Usually, more interesting than the
+skb_dump of the segment that reached the WARN is the skb_dump at the
+time of virtio_net_hdr_to_skb, along with the vnet_hdr.
 
-For virtio devices, the hypervisor would also service most register read/writes
-(to address concern #1), which implies it would need to cache a copy of the
-device configuration information (similar to vduse).
+> This has been caught by net/tap and net/psock_send.sh tests.
 
-We think vduse can be leveraged here to initialize the hypervisor cache of
-virtio registers. Basically have a vdpa-gunyah driver registered on the vdpa
-bus to which vduse devices are bound (rather than virtio-vdpa or vhost-vdpa).
-vdpa-gunyah driver can pull configuration information from vduse and pass that
-on to hypervisor. It will also help inject IRQ and pass on queue notifications
-(using hypervisor specific APIs).
+That's very nice!
 
-We will however likely need vduse to support configuration writes (guest VM
-updating configuration space, for ex: writing to 'events_clear' field in case of
-virtio-gpu). Would vduse maintainers be willing to accept config_write support
-for select devices/features (as long as the writes don't violate any safety
-concerns we may have)?
+> Fixes: e269d79c7d35 ("net: missing check virtio")
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-Thanks
-vatsa
+> +               if (csum_needed) {
+> +                       unsigned int p_rem, p_size;
+> +
+> +                       p_size =3D gso_size;
+> +                       p_rem =3D (skb->len - nh_off) % gso_size;
+> +                       if (p_rem)
+> +                               p_size =3D p_rem;
+> +
+> +                       /* Make sure csum still within packet after GSO *=
+/
+> +                       if (p_size + nh_off < csum_needed)
+> +                               return -EINVAL;
+> +               }
+> +
+
+A check could even go in the below branch.
+
+The warning apparently was not that csum_needed is outside the segment
+entirely, but that the segment is non-linear and csum_start points in
+the non-linear part (offset >=3D skb_headlen(skb)).
+
+I don't think we should be playing SKBFL_SHARED_FRAG tricks to trigger
+linearization, to be clear.
+
+We also cannot just silence the WARN and trust that the stack detects
+these bad packets and drops them (as ip_do_fragment does), as they
+might end up not in ip_do_fragment, but in a device ndo_start_xmit.
+
+>                 /* Too small packets are not really GSO ones. */
+>                 if (skb->len - nh_off > gso_size) {
+>                         shinfo->gso_size =3D gso_size;
+> diff --git a/tools/testing/selftests/net/tap.c b/tools/testing/selftests/=
+net/tap.c
+> index 247c3b3ac1c9..8527d51449cf 100644
+> --- a/tools/testing/selftests/net/tap.c
+> +++ b/tools/testing/selftests/net/tap.c
+> @@ -418,6 +418,36 @@ TEST_F(tap, test_packet_valid_udp_csum)
+>         ASSERT_EQ(ret, off);
+>  }
+>
+> +TEST_F(tap, test_packet_invalid_udp_gso_csum)
+> +{
+> +       uint8_t pkt[TEST_PACKET_SZ];
+> +       uint16_t payload;
+> +       size_t off;
+> +       int ret;
+> +       int i;
+> +
+> +       payload =3D ETH_DATA_LEN - sizeof(struct iphdr) - sizeof(struct u=
+dphdr);
+> +
+> +       memset(pkt, 0, sizeof(pkt));
+> +       off =3D build_test_packet_valid_udp_gso(pkt, payload);
+> +
+> +       for (i =3D -16; i < 16; i++) {
+> +               ret =3D write(self->fd, pkt, off + i);
+> +
+> +               if (i <=3D 0 ||
+> +                   i > __builtin_offsetof(struct udphdr, check) + 1) {
+> +                       EXPECT_EQ(ret, off + i)
+> +                               TH_LOG("mismatch with offset: %d (%zd)",
+> +                                      i, off + i);
+> +               } else {
+> +                       EXPECT_EQ(ret, -1)
+> +                               TH_LOG("mismatch with offset: %d (%zd)",
+> +                                      i, off + i);
+> +                       EXPECT_EQ(errno, 22);
+> +               }
+> +       }
+> +}
+> +
+>  TEST_F(tap, test_packet_crash_tap_invalid_eth_proto)
+>  {
+>         uint8_t pkt[TEST_PACKET_SZ];
+> --
+> 2.45.2
+>
