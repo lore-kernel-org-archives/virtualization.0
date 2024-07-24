@@ -1,192 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 708E2288D1;
-	Tue, 23 Jul 2024 22:31:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 26C10290F;
+	Wed, 24 Jul 2024 01:30:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721773872; cv=none; b=HrBx/bWY8MiWA5oRx6eaFFBtFM96PIMsBl5fi23rDB06AijhFm5hdOLqnxfb7g/mTuz051gexzBJNzz0nxXP+3Jf5ETvPwkcLOY3zN+PnxA0VwupKmPqqKPIa7keZrJBohZc8CL0My1qxOPTJnsYtpgjZsUU+LWoefTGx6Jn1As=
+	t=1721784617; cv=none; b=PeofuY5E6m4As/cWjiNuXL88qKOIvaXpWvH8S/LAul2Rg//yh9B2cPoD1R2PT6d5Ov+JXUOWTdm78xvmHPJY3o1EVj6mpE+vKMnv+Nrz7PGHqnzJc4/282MUDIONGS1hpsf4vXQOrrndrH3IhPVWVwHwcX2sHgJoUco669Q+890=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721773872; c=relaxed/simple;
-	bh=IxBRar1RxH89c3TNuKgry7Njs57mT04USb7aaNO0aFM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GwqhrJkeYswzbcnl7ffLJLuDKKVtH815xjZwXZ3Co2xAYV2SGDroYlQTMZOzYbdxoSxK9sOmIcrK+vzVpX9QGNLqBiTs5QthdpG9AQZK5OgPja0nFybvP0CT9ib5pyZ6ulFJHtzLWwqHaftYc0/IdqvFUj1hOqpUzgpPOpmmV5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IlWCgZgm; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IlWCgZgm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F83C4AF09;
-	Tue, 23 Jul 2024 22:31:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1721773872;
-	bh=IxBRar1RxH89c3TNuKgry7Njs57mT04USb7aaNO0aFM=;
-	h=From:To:Cc:Subject:Date:From;
-	b=IlWCgZgmE18s7gUIX33ab9+TiYNgSArnBFSsBpEWH9JQoLa4QjkY8tD5HKD2Z/Zzt
-	 dSjY13vNr2PIxRd+0ufUbvCK86Rbd9FQCwf7jdbgf9wRQwk+/DnWmBV/HCA5MCofVK
-	 sqmyrYsTzSi6HL/4vYTLIkzsKWSnbPuaV2wstEaeJ7gocgSLvkYZ4VKy+qMF4I/vY3
-	 fHVZmXRSpNgblqXsZpRn0YA5sI8AkRx/jvwAo1wugyzD0rCzXPeYsRmh9HD+gee3O7
-	 q946DsnCvY+0NhVTdWL6XyejDnWlrrzl1W+dDcmDFIApAEs/RmBmQJCoTmLJHUWuGf
-	 C0mRQx+mdVthA==
-From: Jakub Kicinski <kuba@kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	Jakub Kicinski <kuba@kernel.org>,
-	willemdebruijn.kernel@gmail.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	shuah@kernel.org,
-	arefev@swemel.ru,
-	virtualization@lists.linux.dev,
-	linux-kselftest@vger.kernel.org
-Subject: [PATCH net] virtio: fix GSO with frames unaligned to size
-Date: Tue, 23 Jul 2024 15:31:09 -0700
-Message-ID: <20240723223109.2196886-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.45.2
+	s=arc-20240116; t=1721784617; c=relaxed/simple;
+	bh=bSV/tn8rgIr3LZKicy7ygBdBwp4x2cZxxscf4ukTabw=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=rbC4fvyuKM1GN937IJstE/HmFvLMwMxnXqtQn7+eN+qmLrJsJbLJ66XLxGS1Y/hQAkJt94hEMmvmPqFtSOfNe1eTKf9h4bLhPkL9mGVAwgjxT45GFtTx+cZ78TGeDMSR5Z2OWR0MsP+hz5la4H+6RQD6b8xvKZ3QJDNhpGoefV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8Ax2ekdWaBm1cQAAA--.2880S3;
+	Wed, 24 Jul 2024 09:30:05 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8AxhsUXWaBm2ZNWAA--.50225S3;
+	Wed, 24 Jul 2024 09:30:01 +0800 (CST)
+Subject: Re: [PATCH 2/2] LoongArch: KVM: Add paravirt qspinlock in guest side
+To: kernel test robot <lkp@intel.com>, Huacai Chen <chenhuacai@kernel.org>,
+ Tianrui Zhao <zhaotianrui@loongson.cn>, Peter Zijlstra
+ <peterz@infradead.org>, Waiman Long <longman@redhat.com>
+Cc: oe-kbuild-all@lists.linux.dev, WANG Xuerui <kernel@xen0n.name>,
+ loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev
+References: <20240723073825.1811600-3-maobibo@loongson.cn>
+ <202407240320.qqd1uWiE-lkp@intel.com>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <7a145178-633c-afd7-4aba-45546a4c7a75@loongson.cn>
+Date: Wed, 24 Jul 2024 09:29:59 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <202407240320.qqd1uWiE-lkp@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8AxhsUXWaBm2ZNWAA--.50225S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxGFW3Zw4UZryruF17KryxXrc_yoW5CFWDpa
+	48CF1DJFW8Jr48Z3yUKw15uF1Dtan8W3sIvF9Y9ryxCFW2qFyDWws2krWa9w1jyws29Fyj
+	gry7WF1qya4UA3gCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUv0b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r106r15M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
+	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AK
+	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
+	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
+	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
+	wI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
+	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU1EksDUU
+	UUU==
 
-The commit under fixes added a questionable check to
-virtio_net_hdr_to_skb(). I'm guessing the check was supposed
-to protect from csum offset being outside of a segment
-(especially if len is not multiple of segment size).
 
-The condition can't be right, tho, as it breaks previously
-working sending of GSO frames with only one segment
-(i.e. when gso_size <= len we silently ignore the GSO
-request and send a single non-GSO frame).
 
-Fix the logic and move it to the GSO part.
+On 2024/7/24 上午3:57, kernel test robot wrote:
+> Hi Bibo,
+> 
+> kernel test robot noticed the following build errors:
+yes, forgot to mention, it depends on this patch
+https://lore.kernel.org/lkml/20240721164552.50175-1-ubizjak@gmail.com/
 
-This has been caught by net/tap and net/psock_send.sh tests.
-
-Fixes: e269d79c7d35 ("net: missing check virtio")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-CC: willemdebruijn.kernel@gmail.com
-CC: mst@redhat.com
-CC: jasowang@redhat.com
-CC: xuanzhuo@linux.alibaba.com
-CC: eperezma@redhat.com
-CC: shuah@kernel.org
-CC: arefev@swemel.ru
-CC: virtualization@lists.linux.dev
-CC: linux-kselftest@vger.kernel.org
----
- include/linux/virtio_net.h        | 27 ++++++++++++++++-----------
- tools/testing/selftests/net/tap.c | 30 ++++++++++++++++++++++++++++++
- 2 files changed, 46 insertions(+), 11 deletions(-)
-
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index d1d7825318c3..c54b7aa42921 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -52,11 +52,11 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 					bool little_endian)
- {
- 	unsigned int nh_min_len = sizeof(struct iphdr);
-+	unsigned int csum_needed = 0;
- 	unsigned int gso_type = 0;
- 	unsigned int thlen = 0;
- 	unsigned int p_off = 0;
- 	unsigned int ip_proto;
--	u64 ret, remainder, gso_size;
- 
- 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
- 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-@@ -99,16 +99,6 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
- 		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
- 
--		if (hdr->gso_size) {
--			gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
--			ret = div64_u64_rem(skb->len, gso_size, &remainder);
--			if (!(ret && (hdr->gso_size > needed) &&
--						((remainder > needed) || (remainder == 0)))) {
--				return -EINVAL;
--			}
--			skb_shinfo(skb)->tx_flags |= SKBFL_SHARED_FRAG;
--		}
--
- 		if (!pskb_may_pull(skb, needed))
- 			return -EINVAL;
- 
-@@ -119,6 +109,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		p_off = nh_min_len + thlen;
- 		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
-+
-+		csum_needed = needed;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
- 		 * probe and drop if does not match one of the above types.
-@@ -188,6 +180,19 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		if (gso_size == GSO_BY_FRAGS)
- 			return -EINVAL;
- 
-+		if (csum_needed) {
-+			unsigned int p_rem, p_size;
-+
-+			p_size = gso_size;
-+			p_rem = (skb->len - nh_off) % gso_size;
-+			if (p_rem)
-+				p_size = p_rem;
-+
-+			/* Make sure csum still within packet after GSO */
-+			if (p_size + nh_off < csum_needed)
-+				return -EINVAL;
-+		}
-+
- 		/* Too small packets are not really GSO ones. */
- 		if (skb->len - nh_off > gso_size) {
- 			shinfo->gso_size = gso_size;
-diff --git a/tools/testing/selftests/net/tap.c b/tools/testing/selftests/net/tap.c
-index 247c3b3ac1c9..8527d51449cf 100644
---- a/tools/testing/selftests/net/tap.c
-+++ b/tools/testing/selftests/net/tap.c
-@@ -418,6 +418,36 @@ TEST_F(tap, test_packet_valid_udp_csum)
- 	ASSERT_EQ(ret, off);
- }
- 
-+TEST_F(tap, test_packet_invalid_udp_gso_csum)
-+{
-+	uint8_t pkt[TEST_PACKET_SZ];
-+	uint16_t payload;
-+	size_t off;
-+	int ret;
-+	int i;
-+
-+	payload = ETH_DATA_LEN - sizeof(struct iphdr) - sizeof(struct udphdr);
-+
-+	memset(pkt, 0, sizeof(pkt));
-+	off = build_test_packet_valid_udp_gso(pkt, payload);
-+
-+	for (i = -16; i < 16; i++) {
-+		ret = write(self->fd, pkt, off + i);
-+
-+		if (i <= 0 ||
-+		    i > __builtin_offsetof(struct udphdr, check) + 1) {
-+			EXPECT_EQ(ret, off + i)
-+				TH_LOG("mismatch with offset: %d (%zd)",
-+				       i, off + i);
-+		} else {
-+			EXPECT_EQ(ret, -1)
-+				TH_LOG("mismatch with offset: %d (%zd)",
-+				       i, off + i);
-+			EXPECT_EQ(errno, 22);
-+		}
-+	}
-+}
-+
- TEST_F(tap, test_packet_crash_tap_invalid_eth_proto)
- {
- 	uint8_t pkt[TEST_PACKET_SZ];
--- 
-2.45.2
+Regards
+Bibo Mao
+> 
+> [auto build test ERROR on 7846b618e0a4c3e08888099d1d4512722b39ca99]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Add-paravirt-qspinlock-in-kvm-side/20240723-160536
+> base:   7846b618e0a4c3e08888099d1d4512722b39ca99
+> patch link:    https://lore.kernel.org/r/20240723073825.1811600-3-maobibo%40loongson.cn
+> patch subject: [PATCH 2/2] LoongArch: KVM: Add paravirt qspinlock in guest side
+> config: loongarch-allmodconfig (https://download.01.org/0day-ci/archive/20240724/202407240320.qqd1uWiE-lkp@intel.com/config)
+> compiler: loongarch64-linux-gcc (GCC) 14.1.0
+> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240724/202407240320.qqd1uWiE-lkp@intel.com/reproduce)
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202407240320.qqd1uWiE-lkp@intel.com/
+> 
+> All error/warnings (new ones prefixed by >>):
+> 
+>>> arch/loongarch/kernel/paravirt.c:309: warning: expecting prototype for queued_spin_unlock(). Prototype was for native_queued_spin_unlock() instead
+> --
+>     In file included from include/linux/atomic.h:80,
+>                      from include/asm-generic/bitops/atomic.h:5,
+>                      from arch/loongarch/include/asm/bitops.h:27,
+>                      from include/linux/bitops.h:63,
+>                      from include/linux/kernel.h:23,
+>                      from include/linux/cpumask.h:11,
+>                      from include/linux/smp.h:13,
+>                      from kernel/locking/qspinlock.c:16:
+>     kernel/locking/qspinlock_paravirt.h: In function 'pv_kick_node':
+>>> include/linux/atomic/atomic-arch-fallback.h:242:34: error: initialization of 'u8 *' {aka 'unsigned char *'} from incompatible pointer type 'enum vcpu_state *' [-Wincompatible-pointer-types]
+>       242 |         typeof(*(_ptr)) *___op = (_oldp), ___o = *___op, ___r; \
+>           |                                  ^
+>     include/linux/atomic/atomic-instrumented.h:4908:9: note: in expansion of macro 'raw_try_cmpxchg_relaxed'
+>      4908 |         raw_try_cmpxchg_relaxed(__ai_ptr, __ai_oldp, __VA_ARGS__); \
+>           |         ^~~~~~~~~~~~~~~~~~~~~~~
+>     kernel/locking/qspinlock_paravirt.h:377:14: note: in expansion of macro 'try_cmpxchg_relaxed'
+>       377 |         if (!try_cmpxchg_relaxed(&pn->state, &old, vcpu_hashed))
+>           |              ^~~~~~~~~~~~~~~~~~~
+> 
+> 
+> vim +309 arch/loongarch/kernel/paravirt.c
+> 
+>     303	
+>     304	/**
+>     305	 * queued_spin_unlock - release a queued spinlock
+>     306	 * @lock : Pointer to queued spinlock structure
+>     307	 */
+>     308	static void native_queued_spin_unlock(struct qspinlock *lock)
+>   > 309	{
+>     310		/*
+>     311		 * unlock() needs release semantics:
+>     312		 */
+>     313		smp_store_release(&lock->locked, 0);
+>     314	}
+>     315	
+> 
 
