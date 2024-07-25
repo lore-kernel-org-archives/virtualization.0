@@ -1,111 +1,184 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38E7919A28F
-	for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 12:17:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFCE1198E7D
+	for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 12:21:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721909846; cv=none; b=J2maBgwTHSAkr/z77J42/zi7vH8Boih3/Vd73SlH+YoMBlX7Qp7StTeGro3qdAXZGxtH/9NYwYwRNKvpw0KL6AKnywteFa8jBXG9q0KcciIjHtWjG/wmw3lgMHASzY63Kzw5qag6fsC4KXEWOdClmWC4iWJTJ0guns266UP6d7A=
+	t=1721910110; cv=none; b=bLrqt0tWzo2Khoqnyn4vLfOznlcjulaw50ul+LEuRclKb61NlCe4Z/acJwF1O3OXW+E3NZgADYfBzEIu6v1XKZ8uhOcnjEHpmMo0JNZ9OwoyoaO9d0sH//Cdisc7LyYHdn9RzZnhiOf9N2qzQ3WCrKjsTW2k6Vji3Ba8jGOAgTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721909846; c=relaxed/simple;
-	bh=HVM0mVlaCtLos7f5wbrHV96ayPcblkpUKWT9CLfBrMk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AXCClgnHlRl17qdTxzgzNQr4E7XPiQnrNYfnWmVzoN+CWpT1lNVcGN1XDZAG8wbZ9W4ynrUY9p1++ncnZi/g8Kwx5wfi5neFF4wKGHFYc2kAEdksxTMb+ZlYbZDrkBny4kyIOCs+FeV20KbkggiOqWyHkzV5oimDOL5aWTKUF+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WjEZWket; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WjEZWket"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721909844;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=S3UGu/KRztNRY0Bp3FrBUk5j7TGUvdGU0FLKSCgJsvw=;
-	b=WjEZWketa0yiquvy94lDLg026dn26dZaGXbJFOBtXYzJQiVIx9Wgmvgq2DFHs+trJRPPCh
-	b70sWYVIFo98Y07furRnuFanzQiRpyKOdst3T+LHpXYTNrSlEEt062/HWxJWpADjYEyTOq
-	bMtYM0pxBNAU4+uktjbtd8mlEf5UmuY=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-84-fr2CHHDMMZesEkW0HC3Weg-1; Thu, 25 Jul 2024 08:17:22 -0400
-X-MC-Unique: fr2CHHDMMZesEkW0HC3Weg-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3687eca5980so481561f8f.0
-        for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 05:17:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721909841; x=1722514641;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=S3UGu/KRztNRY0Bp3FrBUk5j7TGUvdGU0FLKSCgJsvw=;
-        b=nMyjAPkBhbraEUMmn6xcc8/e+9EV040ZHtyJilKqm6B1g5E74iozgOw4ayX7jpBs4N
-         /yTafeCQIhjQPJRYvUUW1oC1aQRblVSEYKpLqj4f43kV2sUQwmrDi9OplHuvQJQx97MM
-         EjsHaGrcMaGy3X0WvFsH3lyW8z42bHe9FhArv3BC4LIBxvp7eDTiAGON74mzt4ghVqS4
-         jThrIcm3TWdgGhboTrfOKpTk4NbaB/xJ6CzeFdufRULpzKfQRqExA11MHcOCJbJnQ/iS
-         CG2jxwVrZsUKsPeXokgWSQsOkVa8iy3N/ZU0uP1otIk6iuLc4tjMJGAQ1jcrspb2wYET
-         TmtQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXZzSNzFYYuwdX5bx2r5179W22aQPVekE66irVpTgJWoUGTYAAIRMfhNTE9kPlRJIGw050hUTetDEeTPy4n4xX+jvbcOmj7Hwpix8orz3E=
-X-Gm-Message-State: AOJu0YylOv+uaagIZiuhaRaEdVUpHTtusWouh4zvX/PGDhnipPuh40Ax
-	wBHZm0yMIuxGW2w9VpTw/jczzhSojDVUruzmnwA+Lf10OdWKt5EaWGFKaj52yn45SDSoWWcbmpy
-	LaRXtj+ntv00pNQs6rUic3bbZ0D3eFGZkPogGvobEkDk9TbtPGqyssqDEVKaorrYh
-X-Received: by 2002:a05:6000:10c4:b0:367:f281:260e with SMTP id ffacd0b85a97d-36b31ac7126mr1799098f8f.3.1721909841501;
-        Thu, 25 Jul 2024 05:17:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGEKfa12+yv+9oCURpazLfKX3NylqFM0NYsmdlmyULxdYJys5id/PrGbgGHwZdmlDCg2IQWng==
-X-Received: by 2002:a05:6000:10c4:b0:367:f281:260e with SMTP id ffacd0b85a97d-36b31ac7126mr1799053f8f.3.1721909840718;
-        Thu, 25 Jul 2024 05:17:20 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f8:1b05:4ed8:7577:e2b:7ae3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36b36863aa7sm1983920f8f.109.2024.07.25.05.17.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jul 2024 05:17:20 -0700 (PDT)
-Date: Thu, 25 Jul 2024 08:17:14 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Richard Cochran <richardcochran@gmail.com>,
-	Peter Hilber <peter.hilber@opensynergy.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	"Ridoux, Julien" <ridouxj@amazon.com>, virtio-dev@lists.linux.dev,
-	"Luu, Ryan" <rluu@amazon.com>,
-	"Chashper, David" <chashper@amazon.com>,
-	"Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
-	"Christopher S . Hall" <christopher.s.hall@intel.com>,
-	Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
-	netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
-Message-ID: <20240725081502-mutt-send-email-mst@kernel.org>
-References: <14d1626bc9ddae9d8ad19d3c508538d10f5a8e44.camel@infradead.org>
- <20240725012730-mutt-send-email-mst@kernel.org>
- <7de7da1122e61f8c64bbaab04a35af93fafac454.camel@infradead.org>
+	s=arc-20240116; t=1721910110; c=relaxed/simple;
+	bh=Uxjq9RUhwjCqcw4st/SYfJ6kRT6AQmYokckDdcljTK0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=aDsZ+j0niadoHBIrsFxwqmCZGBBw479yWqZWp0KMSLFRaZNjqYllZaO5Cwo9aWcchDoeYmiO/ta05iDTW46CKEMq6GGxHlqYjlWPRM1EGYg67C0yuXgKvGrV4MqX0t03IG92710pFnVqiD3CIwVSWGf9yQvrP0UX0CZHaCKPILY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WV93n3b0KzxVFN;
+	Thu, 25 Jul 2024 20:21:41 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 406D6140121;
+	Thu, 25 Jul 2024 20:21:45 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Thu, 25 Jul 2024 20:21:44 +0800
+Message-ID: <11187fe4-9419-4341-97b5-6dad7583b5b6@huawei.com>
+Date: Thu, 25 Jul 2024 20:21:42 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <7de7da1122e61f8c64bbaab04a35af93fafac454.camel@infradead.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC v11 04/14] mm: page_frag: add '_va' suffix to page_frag API
+To: Alexander Duyck <alexander.duyck@gmail.com>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya Sundeep
+	<sbhatta@marvell.com>, Jeroen de Borst <jeroendb@google.com>, Praveen
+ Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
+	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
+	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
+	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
+ Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
+ Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
+	<hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, Chaitanya Kulkarni
+	<kch@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov
+	<ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard
+ Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Andrii
+ Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
+ Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
+	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
+	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck
+ Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
+	<neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>
+References: <20240719093338.55117-1-linyunsheng@huawei.com>
+ <20240719093338.55117-5-linyunsheng@huawei.com>
+ <CAKgT0UcqELiXntRA_uD8eJGjt-OCLO64ax=YFXrCHNnaj9kD8g@mail.gmail.com>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <CAKgT0UcqELiXntRA_uD8eJGjt-OCLO64ax=YFXrCHNnaj9kD8g@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On Thu, Jul 25, 2024 at 10:56:05AM +0100, David Woodhouse wrote:
-> > Do you want to just help complete virtio-rtc then? Would be easier than
-> > trying to keep two specs in sync.
+On 2024/7/22 4:41, Alexander Duyck wrote:
+> On Fri, Jul 19, 2024 at 2:37 AM Yunsheng Lin <linyunsheng@huawei.com> wrote:
+>>
+>> Currently the page_frag API is returning 'virtual address'
+>> or 'va' when allocing and expecting 'virtual address' or
+>> 'va' as input when freeing.
+>>
+>> As we are about to support new use cases that the caller
+>> need to deal with 'struct page' or need to deal with both
+>> 'va' and 'struct page'. In order to differentiate the API
+>> handling between 'va' and 'struct page', add '_va' suffix
+>> to the corresponding API mirroring the page_pool_alloc_va()
+>> API of the page_pool. So that callers expecting to deal with
+>> va, page or both va and page may call page_frag_alloc_va*,
+>> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
+>>
+>> CC: Alexander Duyck <alexander.duyck@gmail.com>
+>> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+>> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
 > 
-> The ACPI version is much more lightweight and doesn't take up a
-> valuable PCI slot#. (I know, you can do virtio without PCI but that's
-> complex in other ways).
+> Rather than renaming the existing API I would rather see this follow
+> the same approach as we use with the other memory subsystem functions.
+
+I am not sure if I understand what 'the other memory subsystem functions'
+is referring to, it would be better to be more specific about that.
+
+For allocation side:
+alloc_pages*()
+extern unsigned long get_free_page*(gfp_t gfp_mask, unsigned int order);
+
+For free side, it seems we have:
+extern void __free_pages(struct page *page, unsigned int order);
+extern void free_pages(unsigned long addr, unsigned int order);
+static inline void put_page(struct page *page)
+
+So there seems to be no clear pattern that the mm APIs with double
+underscore is dealing with 'struct page' and the one without double
+underscore is dealing with virtual address, at least not from the
+allocation side.
+
+> A specific example being that with free_page it is essentially passed
+> a virtual address, while the double underscore version is passed a
+> page. I would be more okay with us renaming the double underscore
+> version of any functions we might have to address that rather than
+> renaming all the functions with "va".
+
+Before this patchset, page_frag has the below APIs as below:
+
+void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
+			      gfp_t gfp_mask, unsigned int align_mask);
+
+static inline void *page_frag_alloc_align(struct page_frag_cache *nc,
+					  unsigned int fragsz, gfp_t gfp_mask,
+					  unsigned int align)
+
+extern void page_frag_free(void *addr);
+
+It would be better to be more specific about what renaming does the above
+APIs need in order to support the new usecases.
+
 > 
+> In general I would say this patch is adding no value as what it is
 
-Hmm, should we support virtio over ACPI? Just asking.
+As above, it would be better to give a more specific suggestion to
+back up the above somewhat abstract agrument, otherwise it is hard
+to tell if there is better option here, and why it is better than
+the one proposed in this patchset.
 
--- 
-MST
+> doing is essentially pushing the primary users of this API to change
+> to support use cases that won't impact most of them. It is just
+> creating a ton of noise in terms of changes with no added value so we
+> can reuse the function names.
 
+
+After this patchset, we have the below page_frag APIs:
+
+For allocation side, we have below APIs:
+struct page *page_frag_alloc_pg*(struct page_frag_cache *nc,
+                                unsigned int *offset, unsigned int fragsz,
+                                gfp_t gfp);
+void *page_frag_alloc_va*(struct page_frag_cache *nc,
+                                 unsigned int fragsz, gfp_t gfp_mask,
+                                 unsigned int align_mask);
+struct page *page_frag_alloc*(struct page_frag_cache *nc,
+                                     unsigned int *offset,
+                                     unsigned int fragsz,
+                                     void **va, gfp_t gfp);
+
+For allocation side, we have below APIs:
+void page_frag_free_va(void *addr);
+
+The main rules for the about naming are:
+1. The API with 'align' suffix ensure the offset or va is aligned
+2. The API with double underscore has no checking for the algin parameter.
+3. The API with 'va' suffix is dealing with virtual address.
+4. The API with 'pg' suffix is dealing with 'struct page'.
+5. The API without 'pg' and 'va' suffix is dealing with both 'struct page'
+   and virtual address.
+
+Yes, I suppose it is not perfect mainly because we reuse some existing mm
+API for page_frag free API.
+
+As mentioned before, I would be happy to change it if what you are proposing
+is indeed the better option.
