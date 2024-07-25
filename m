@@ -1,52 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A89C13BC11
-	for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 12:00:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38E7919A28F
+	for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 12:17:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721908853; cv=none; b=XIRSFnNH02x7Lk638rJI4WcGih0IHupDI70ij0aE3x3LTz9p8T539Llzus7DvRB5HStkn3DIErcgrCwTdrFwlkat23DguXdQFMmTu2OU2pN8ZwRdFY+rkBtPOXSaHN+U31Pl0ITaae910WzEHM18stmMUZfidvsJLL53umQZ8Dc=
+	t=1721909846; cv=none; b=J2maBgwTHSAkr/z77J42/zi7vH8Boih3/Vd73SlH+YoMBlX7Qp7StTeGro3qdAXZGxtH/9NYwYwRNKvpw0KL6AKnywteFa8jBXG9q0KcciIjHtWjG/wmw3lgMHASzY63Kzw5qag6fsC4KXEWOdClmWC4iWJTJ0guns266UP6d7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721908853; c=relaxed/simple;
-	bh=P5jGrdaBYAwkwtyNWIgiyvQvfBY3BKYxB8RMoQ1g3XI=;
+	s=arc-20240116; t=1721909846; c=relaxed/simple;
+	bh=HVM0mVlaCtLos7f5wbrHV96ayPcblkpUKWT9CLfBrMk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=APfng7ZkfKHym8hlUvAQfsovqI+f6R2g1LFZTAxqJVy6w2x05DzYrKquiwTPYIeWh54IkR73vzEMFidtxoQoU9haWnYkndZ7zUu+EqZjuk3XAYNSq9VzfmJE12+5drtmVGgdaRvyCDjUZ0Bq2/YIenlLf+p8Z5EkzzfpobcZUn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iLNrTagt; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=AXCClgnHlRl17qdTxzgzNQr4E7XPiQnrNYfnWmVzoN+CWpT1lNVcGN1XDZAG8wbZ9W4ynrUY9p1++ncnZi/g8Kwx5wfi5neFF4wKGHFYc2kAEdksxTMb+ZlYbZDrkBny4kyIOCs+FeV20KbkggiOqWyHkzV5oimDOL5aWTKUF+g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WjEZWket; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iLNrTagt"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WjEZWket"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721908850;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
+	s=mimecast20190719; t=1721909844;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ys2kUGxklyDGscsOVEN9kILYtzx3YDKJ1q7CjI4xn9U=;
-	b=iLNrTagtzzlmuRUSc/ZZGpGhxvZ7Di9Sv8qnuy+q0jv0BZoQ8wB+u+svJ/ltV8ATGAlLyp
-	pLY9OhFRfMKdwkF9GFh5JFENXQV0QlChrI5oerjUvJRoTRfKUL+Y7o2YWutHTPhIIKUopL
-	dgVOcpSM1qhtV4fnYDHh+ydg4ngObGI=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-362-p9345v9QP3yM6LJRRw8iOg-1; Thu,
- 25 Jul 2024 08:00:46 -0400
-X-MC-Unique: p9345v9QP3yM6LJRRw8iOg-1
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 75078195608A;
-	Thu, 25 Jul 2024 12:00:41 +0000 (UTC)
-Received: from redhat.com (unknown [10.42.28.144])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 423C51955D45;
-	Thu, 25 Jul 2024 12:00:22 +0000 (UTC)
-Date: Thu, 25 Jul 2024 13:00:15 +0100
-From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+	bh=S3UGu/KRztNRY0Bp3FrBUk5j7TGUvdGU0FLKSCgJsvw=;
+	b=WjEZWketa0yiquvy94lDLg026dn26dZaGXbJFOBtXYzJQiVIx9Wgmvgq2DFHs+trJRPPCh
+	b70sWYVIFo98Y07furRnuFanzQiRpyKOdst3T+LHpXYTNrSlEEt062/HWxJWpADjYEyTOq
+	bMtYM0pxBNAU4+uktjbtd8mlEf5UmuY=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-84-fr2CHHDMMZesEkW0HC3Weg-1; Thu, 25 Jul 2024 08:17:22 -0400
+X-MC-Unique: fr2CHHDMMZesEkW0HC3Weg-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3687eca5980so481561f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 05:17:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721909841; x=1722514641;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=S3UGu/KRztNRY0Bp3FrBUk5j7TGUvdGU0FLKSCgJsvw=;
+        b=nMyjAPkBhbraEUMmn6xcc8/e+9EV040ZHtyJilKqm6B1g5E74iozgOw4ayX7jpBs4N
+         /yTafeCQIhjQPJRYvUUW1oC1aQRblVSEYKpLqj4f43kV2sUQwmrDi9OplHuvQJQx97MM
+         EjsHaGrcMaGy3X0WvFsH3lyW8z42bHe9FhArv3BC4LIBxvp7eDTiAGON74mzt4ghVqS4
+         jThrIcm3TWdgGhboTrfOKpTk4NbaB/xJ6CzeFdufRULpzKfQRqExA11MHcOCJbJnQ/iS
+         CG2jxwVrZsUKsPeXokgWSQsOkVa8iy3N/ZU0uP1otIk6iuLc4tjMJGAQ1jcrspb2wYET
+         TmtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXZzSNzFYYuwdX5bx2r5179W22aQPVekE66irVpTgJWoUGTYAAIRMfhNTE9kPlRJIGw050hUTetDEeTPy4n4xX+jvbcOmj7Hwpix8orz3E=
+X-Gm-Message-State: AOJu0YylOv+uaagIZiuhaRaEdVUpHTtusWouh4zvX/PGDhnipPuh40Ax
+	wBHZm0yMIuxGW2w9VpTw/jczzhSojDVUruzmnwA+Lf10OdWKt5EaWGFKaj52yn45SDSoWWcbmpy
+	LaRXtj+ntv00pNQs6rUic3bbZ0D3eFGZkPogGvobEkDk9TbtPGqyssqDEVKaorrYh
+X-Received: by 2002:a05:6000:10c4:b0:367:f281:260e with SMTP id ffacd0b85a97d-36b31ac7126mr1799098f8f.3.1721909841501;
+        Thu, 25 Jul 2024 05:17:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGEKfa12+yv+9oCURpazLfKX3NylqFM0NYsmdlmyULxdYJys5id/PrGbgGHwZdmlDCg2IQWng==
+X-Received: by 2002:a05:6000:10c4:b0:367:f281:260e with SMTP id ffacd0b85a97d-36b31ac7126mr1799053f8f.3.1721909840718;
+        Thu, 25 Jul 2024 05:17:20 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f8:1b05:4ed8:7577:e2b:7ae3])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36b36863aa7sm1983920f8f.109.2024.07.25.05.17.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Jul 2024 05:17:20 -0700 (PDT)
+Date: Thu, 25 Jul 2024 08:17:14 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
+Cc: Richard Cochran <richardcochran@gmail.com>,
 	Peter Hilber <peter.hilber@opensynergy.com>,
 	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
@@ -65,56 +79,33 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
 Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
-Message-ID: <ZqI-TyjlMe-G_xFs@redhat.com>
-Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+Message-ID: <20240725081502-mutt-send-email-mst@kernel.org>
 References: <14d1626bc9ddae9d8ad19d3c508538d10f5a8e44.camel@infradead.org>
  <20240725012730-mutt-send-email-mst@kernel.org>
  <7de7da1122e61f8c64bbaab04a35af93fafac454.camel@infradead.org>
- <ZqI3ntUR6bfY1kxo@redhat.com>
- <603aa858ca961a5c4fdfc9b44834343adf1c73d2.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <7de7da1122e61f8c64bbaab04a35af93fafac454.camel@infradead.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <603aa858ca961a5c4fdfc9b44834343adf1c73d2.camel@infradead.org>
-User-Agent: Mutt/2.2.12 (2023-09-09)
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On Thu, Jul 25, 2024 at 12:53:34PM +0100, David Woodhouse wrote:
-> On Thu, 2024-07-25 at 12:31 +0100, Daniel P. Berrangé wrote:
-> > On Thu, Jul 25, 2024 at 10:56:05AM +0100, David Woodhouse wrote:
-> > > Hi Michael, thanks for the review!
-> > > 
-> > > On Thu, 2024-07-25 at 01:48 -0400, Michael S. Tsirkin wrote:
-> > > > Do you want to just help complete virtio-rtc then? Would be easier than
-> > > > trying to keep two specs in sync.
-> > > 
-> > > The ACPI version is much more lightweight and doesn't take up a
-> > > valuable PCI slot#. (I know, you can do virtio without PCI but that's
-> > > complex in other ways).
-> > 
-> > In general it shouldn't have to take up a PCI slot, that's just
-> > a common default policy. virtio-devices only need a dedicated
-> > slot if there's a need to do hotplug/unplug of them. There is a
-> > set of core devices for which hotplug doesn't make sense, which
-> > could all be put as functions in the same slot. ie virtio-rng,
-> > virtio-balloon and virtio-rtc, could all live in one slot.
+On Thu, Jul 25, 2024 at 10:56:05AM +0100, David Woodhouse wrote:
+> > Do you want to just help complete virtio-rtc then? Would be easier than
+> > trying to keep two specs in sync.
 > 
-> But if you don't have any virtio devices already, you still need one
-> slot to put them in.
+> The ACPI version is much more lightweight and doesn't take up a
+> valuable PCI slot#. (I know, you can do virtio without PCI but that's
+> complex in other ways).
+> 
 
-Perhaps - it may still be practical to be a function within a slot
-shared with non-virtio PCI devices too.
+Hmm, should we support virtio over ACPI? Just asking.
 
-With regards,
-Daniel
 -- 
-|: https://berrange.com      -o-    https://www.flickr.com/photos/dberrange :|
-|: https://libvirt.org         -o-            https://fstop138.berrange.com :|
-|: https://entangle-photo.org    -o-    https://www.instagram.com/dberrange :|
+MST
 
