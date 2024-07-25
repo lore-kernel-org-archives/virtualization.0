@@ -1,121 +1,120 @@
-Received: from lounge.grep.be (lounge.grep.be [144.76.219.42])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A24523C3C;
-	Thu, 25 Jul 2024 11:57:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.76.219.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A89C13BC11
+	for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 12:00:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721908683; cv=none; b=T6O4KC99b08b+g+WWGqY8FZEe1qOcoUmJTNxAJ/eFLguczN5rReawo91ht6N+gMpbapMr3Z/1oLF3T4TSaKk8a0NLq581AgTnMLn34hQQYHI5GRs+Mq4bm6DNlYnzn8ykfKaYWmnGZlrA82BESQZV0eRdR80xtcXCF/sp6Y6EYQ=
+	t=1721908853; cv=none; b=XIRSFnNH02x7Lk638rJI4WcGih0IHupDI70ij0aE3x3LTz9p8T539Llzus7DvRB5HStkn3DIErcgrCwTdrFwlkat23DguXdQFMmTu2OU2pN8ZwRdFY+rkBtPOXSaHN+U31Pl0ITaae910WzEHM18stmMUZfidvsJLL53umQZ8Dc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721908683; c=relaxed/simple;
-	bh=SUGuNHYDGosNycUsgB3AByvAAi9UaKUxeW+YSC9jcyw=;
+	s=arc-20240116; t=1721908853; c=relaxed/simple;
+	bh=P5jGrdaBYAwkwtyNWIgiyvQvfBY3BKYxB8RMoQ1g3XI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KzvJeReR8fKFPiAdwy7sdOG8OAge3ZGHb2wvDKg/Mn/0ZT2/9jLKDKf+Et4HXwrocgFXzVI+z1wKxI3qApuSwv7OMqmBQFUG3aqzhkybfMhIfgaZIUNc4JsFM6N0smbKlZJ87az7v80bQYCL71QMyB7cGTto17V914xdsLGAHaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uter.be; spf=pass smtp.mailfrom=uter.be; dkim=pass (2048-bit key) header.d=uter.be header.i=@uter.be header.b=HRSnzfY+; arc=none smtp.client-ip=144.76.219.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uter.be
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uter.be
+	 Content-Type:Content-Disposition:In-Reply-To; b=APfng7ZkfKHym8hlUvAQfsovqI+f6R2g1LFZTAxqJVy6w2x05DzYrKquiwTPYIeWh54IkR73vzEMFidtxoQoU9haWnYkndZ7zUu+EqZjuk3XAYNSq9VzfmJE12+5drtmVGgdaRvyCDjUZ0Bq2/YIenlLf+p8Z5EkzzfpobcZUn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iLNrTagt; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=uter.be header.i=@uter.be header.b="HRSnzfY+"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=uter.be;
-	s=2021.lounge; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=A2VuDAKeSGGGRwdNEgASvdRePK2jE6LTgdknFzfGiVg=; b=HRSnzfY+SxqUo9lzjJBHswdyNO
-	izEqhcP/7tFCFgJJGzzhTZHV+hkIJ95lvet5keDsrZB2SVJh4LM2TT0rY+nfGtvBDiOATcCiQ/ZZp
-	NX14nRCfBdImELKCJsEds0YwtB87PNneYsFwhe69klvX8hKaVd3bPAdUOO5oKLpwqsdI1TpEV3xHA
-	zPeruYumASMydrGBh8+RD0p+DiFqZyJ0vUaImcbHlwd7Aik2LDO+RgK3xJUkwPiJj9pwJIeGrrPKF
-	y3yZwQEUsA40VBWzlQvQ+rZPVwPFNOT65DR9yRxPQziuObFSyUbJuGiw7PBH1R7FTtIfgagxi0sHi
-	wC/6XZ8A==;
-Received: from [102.39.153.168] (helo=pc220518)
-	by lounge.grep.be with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <w@uter.be>)
-	id 1sWwlF-001dJr-31;
-	Thu, 25 Jul 2024 13:35:53 +0200
-Received: from wouter by pc220518 with local (Exim 4.98)
-	(envelope-from <w@uter.be>)
-	id 1sWwl8-00000002sGZ-0mps;
-	Thu, 25 Jul 2024 13:35:46 +0200
-Date: Thu, 25 Jul 2024 13:35:46 +0200
-From: Wouter Verhelst <w@uter.be>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Weinberger <richard@nod.at>,
-	Philipp Reisner <philipp.reisner@linbit.com>,
-	Lars Ellenberg <lars.ellenberg@linbit.com>,
-	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
-	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
-	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai3@huawei.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com, nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
-	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
-	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
-	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org,
-	Damien Le Moal <dlemoal@kernel.org>
-Subject: Re: [PATCH 14/26] block: move the nonrot flag to queue_limits
-Message-ID: <ZqI4kosy20WkLC2P@pc220518.home.grep.be>
-References: <20240617060532.127975-1-hch@lst.de>
- <20240617060532.127975-15-hch@lst.de>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iLNrTagt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1721908850;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ys2kUGxklyDGscsOVEN9kILYtzx3YDKJ1q7CjI4xn9U=;
+	b=iLNrTagtzzlmuRUSc/ZZGpGhxvZ7Di9Sv8qnuy+q0jv0BZoQ8wB+u+svJ/ltV8ATGAlLyp
+	pLY9OhFRfMKdwkF9GFh5JFENXQV0QlChrI5oerjUvJRoTRfKUL+Y7o2YWutHTPhIIKUopL
+	dgVOcpSM1qhtV4fnYDHh+ydg4ngObGI=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-362-p9345v9QP3yM6LJRRw8iOg-1; Thu,
+ 25 Jul 2024 08:00:46 -0400
+X-MC-Unique: p9345v9QP3yM6LJRRw8iOg-1
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 75078195608A;
+	Thu, 25 Jul 2024 12:00:41 +0000 (UTC)
+Received: from redhat.com (unknown [10.42.28.144])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 423C51955D45;
+	Thu, 25 Jul 2024 12:00:22 +0000 (UTC)
+Date: Thu, 25 Jul 2024 13:00:15 +0100
+From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Peter Hilber <peter.hilber@opensynergy.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+	"Ridoux, Julien" <ridouxj@amazon.com>, virtio-dev@lists.linux.dev,
+	"Luu, Ryan" <rluu@amazon.com>,
+	"Chashper, David" <chashper@amazon.com>,
+	"Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
+	"Christopher S . Hall" <christopher.s.hall@intel.com>,
+	Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+	netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
+Message-ID: <ZqI-TyjlMe-G_xFs@redhat.com>
+Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+References: <14d1626bc9ddae9d8ad19d3c508538d10f5a8e44.camel@infradead.org>
+ <20240725012730-mutt-send-email-mst@kernel.org>
+ <7de7da1122e61f8c64bbaab04a35af93fafac454.camel@infradead.org>
+ <ZqI3ntUR6bfY1kxo@redhat.com>
+ <603aa858ca961a5c4fdfc9b44834343adf1c73d2.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240617060532.127975-15-hch@lst.de>
-X-Speed: Gates' Law: Every 18 months, the speed of software halves.
-Organization: none
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <603aa858ca961a5c4fdfc9b44834343adf1c73d2.camel@infradead.org>
+User-Agent: Mutt/2.2.12 (2023-09-09)
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On Mon, Jun 17, 2024 at 08:04:41AM +0200, Christoph Hellwig wrote:
-> Use the chance to switch to defaulting to non-rotational and require
-> the driver to opt into rotational, which matches the polarity of the
-> sysfs interface.
-[...]
-> diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-> index cb1c86a6a3fb9d..6cddf5baffe02a 100644
-> --- a/drivers/block/nbd.c
-> +++ b/drivers/block/nbd.c
-> @@ -1867,11 +1867,6 @@ static struct nbd_device *nbd_dev_add(int index, unsigned int refs)
->  		goto out_err_disk;
->  	}
->  
-> -	/*
-> -	 * Tell the block layer that we are not a rotational device
-> -	 */
-> -	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
-> -
->  	mutex_init(&nbd->config_lock);
->  	refcount_set(&nbd->config_refs, 0);
->  	/*
+On Thu, Jul 25, 2024 at 12:53:34PM +0100, David Woodhouse wrote:
+> On Thu, 2024-07-25 at 12:31 +0100, Daniel P. Berrangé wrote:
+> > On Thu, Jul 25, 2024 at 10:56:05AM +0100, David Woodhouse wrote:
+> > > Hi Michael, thanks for the review!
+> > > 
+> > > On Thu, 2024-07-25 at 01:48 -0400, Michael S. Tsirkin wrote:
+> > > > Do you want to just help complete virtio-rtc then? Would be easier than
+> > > > trying to keep two specs in sync.
+> > > 
+> > > The ACPI version is much more lightweight and doesn't take up a
+> > > valuable PCI slot#. (I know, you can do virtio without PCI but that's
+> > > complex in other ways).
+> > 
+> > In general it shouldn't have to take up a PCI slot, that's just
+> > a common default policy. virtio-devices only need a dedicated
+> > slot if there's a need to do hotplug/unplug of them. There is a
+> > set of core devices for which hotplug doesn't make sense, which
+> > could all be put as functions in the same slot. ie virtio-rng,
+> > virtio-balloon and virtio-rtc, could all live in one slot.
+> 
+> But if you don't have any virtio devices already, you still need one
+> slot to put them in.
 
-NBD actually exports a flag for rotational devices; it's defined in
-nbd.h in the NBD userland source as
+Perhaps - it may still be practical to be a function within a slot
+shared with non-virtio PCI devices too.
 
-#define NBD_FLAG_ROTATIONAL     (1 << 4)        /* Use elevator algorithm - rotational media */
-
-which is passed in the same flags field which also contains the
-NBD_FLAG_SEND_FLUSH and NBD_FLAG_SEND_FUA flags.
-
-Perhaps we might want to look at that flag and set the device to
-rotational if it is specified?
-
+With regards,
+Daniel
 -- 
-     w@uter.{be,co.za}
-wouter@{grep.be,fosdem.org,debian.org}
+|: https://berrange.com      -o-    https://www.flickr.com/photos/dberrange :|
+|: https://libvirt.org         -o-            https://fstop138.berrange.com :|
+|: https://entangle-photo.org    -o-    https://www.instagram.com/dberrange :|
 
-I will have a Tin-Actinium-Potassium mixture, thanks.
