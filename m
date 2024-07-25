@@ -1,137 +1,186 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f182.google.com (mail-vk1-f182.google.com [209.85.221.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5B7133987
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jul 2024 06:41:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B10191662EF
+	for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 07:00:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721889697; cv=none; b=iHYagkLfOUs14U+A1hIqc8f7j7niT9af2QPsVh6ojs8bUgC2KHBLt6z7kk1ndTG+oI6kxlwrLlNt88HPzdzSHmG+gABp9T8tCEMZSF27T2MKh8k2ThFR8a7LjiKC3zADbdqX4MbxycVoPmTnZE0gE03szqvC2SjRyIdZgiIl4J8=
+	t=1721890816; cv=none; b=ZQmK4tljD3YHLbDgamYDZclwolgszKdUTy1h8rgWUQudEe6xTIlHfEFv0YizZzxHNkY42r6IBqk9zGYLCqnTgaYRlyTyvnP0eWv9nZ/aBAKHdLLgap9XQiz77IVM/4a0xtyf0KWs+/sefbia7vCN6jaIukpeGUvMKS76j8E3UnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721889697; c=relaxed/simple;
-	bh=rAVu9ZElq2tHrFn2OocNT/B8uUEx8GhOMKP/3T/ippQ=;
-	h=Message-ID:Date:MIME-Version:In-Reply-To:To:CC:From:Subject:
-	 Content-Type; b=md9N1FOQILY2FawcriOA8O90lnMexm1YdvZyfbRpfEGjQcxzEhKsnPgovAXFPLB1TX7JGwz0nJ3gAbvGDNPts23iWtca55kl/5tIE37/w3bJ0BLl4WqjaYnZ8gfmx5Rcm5GScwe8AZgZYKGQd7ChmSrm+wuc+3kv7XBydHhNVCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=e1WSj6n7; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1721890816; c=relaxed/simple;
+	bh=Lp0IEG/Br5aA9Q0TTtgOcO3tblikfArv9u5fT9wc40U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZsqYwczpXANvpvq4SeuJdcDiNdgGROJJyNNwPmXuUTIdsdFabtPiVUoev7QsOOrIycQ+Sa1+StsC7BXXocdGpVLj3rMMeE4ahgKdR41gbO8PMjUfv+yHFamIUGFA/JD5mDE3PnJK8zbxDVjh/nbSmW1Twc9LyYVczp7sv+mAFaI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=amyLUfLH; arc=none smtp.client-ip=209.85.221.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="e1WSj6n7"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8E74A40754
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jul 2024 06:41:34 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.102
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id sMXJrXoI1-Vs for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Jul 2024 06:41:33 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.89.224.132; helo=mx1.sberdevices.ru; envelope-from=avkrasnov@salutedevices.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E2A9B406C6
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E2A9B406C6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=e1WSj6n7
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E2A9B406C6
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jul 2024 06:41:29 +0000 (UTC)
-Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 5AC2A120010;
-	Thu, 25 Jul 2024 09:41:25 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 5AC2A120010
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1721889685;
-	bh=jFOZBtASNS8TD+cMyjYdZRjS87a0iHpCBSElLaKs7aQ=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type:From;
-	b=e1WSj6n72ah5AKw6aDdw2DQiwtn86ftA4q4Z2fO84ADOVy40UGZEE3Q22XggVXW+9
-	 gzXtuDHbiqGg41nozJh2wWO/CgBD+HvFwK5kuClMxL2p3I4XFBYoYVgpwwa+c5jgJC
-	 O56pc747ZwxEvEj8XhL3n3q9n04L1wNPkX5uZx/epDvFvclKmOpxoo/mWtTwopfKLg
-	 RqXrPCfQrDrv4HxhHYAsnwWAbMMFfihXOZdizZlhMSPSo1IUc/3rp2jyPX1bfXhRJZ
-	 EiQ+AJiDwF8RHXvXEjUWxrVOIkYpwLEP1HIvcXKM13R2BRzlrZvKL2/rZUfRttc+wf
-	 /1f21J8Z6qzAQ==
-Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Thu, 25 Jul 2024 09:41:25 +0300 (MSK)
-Received: from [172.28.192.160] (100.64.160.123) by
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Thu, 25 Jul 2024 09:41:23 +0300
-Message-ID: <8d7dc8cb-0211-8e20-2391-c16d266b8be6@salutedevices.com>
-Date: Thu, 25 Jul 2024 09:29:10 +0300
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="amyLUfLH"
+Received: by mail-vk1-f182.google.com with SMTP id 71dfb90a1353d-4f6abcf0567so280772e0c.0
+        for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 00:00:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1721890813; x=1722495613; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qV/f4NBfUFd9uJAepvJzg2m9PwLZoTqyu3DOODQLyjc=;
+        b=amyLUfLHLDc6wdqc2WFadmdWdPkl/lC3Q9ar60cIOFR6IKY9bUDDeX/lExPUASXgNZ
+         +Qqz07A20WzvnwtiC90/tok4bO8Wen1B5A3AbuN6kB42LKZz11ANFmFI+Ek7xwgeHxdU
+         UT4xN8OyX990+wqr6N2aFkTtzueVKmybQ1E2WphfLkz8SDbRAyHfPx+9pK7hzGqxEUJ7
+         GKVkxKDUHj0eewpBjNgqDvTWCKOHaBYT2iOTd1P7g8yWrj75vXRHIqufCfaSTAGei4nQ
+         tjKnj2Ljrths6L9NgrXig1VbxCBPTVDU2JyFm6CiV/HixiH293f3S+h5hEXv4U2fOEn1
+         9HDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721890813; x=1722495613;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qV/f4NBfUFd9uJAepvJzg2m9PwLZoTqyu3DOODQLyjc=;
+        b=m6tLPsYGxsdpm79gMyQFHyEzCGraYlJc68Dmuini6bqRC7pbk++a3TerNPuxiML430
+         u3BUGNljJ81t5wQgEaxOqUW7bcM4EV/TtpRjeUXDQElGoGMAwLcnHQtO3bwRsQvvYMkR
+         ScZbItZwL3LEygcg4+Ca9UIuBmnhEhOhtt9M020CgWWwqCN7PS9OoOkETQuOHM5zMoEj
+         0sTXj8/7YM07ixWLtSeirXi0PiWA61JWIFZOHX1r4DkoWmXEOSq1L/IIb0AdLmCZLxUH
+         2+y11iwGs4RM9JeHhhO28oinYbtoKHx0P5mNLmEBUF22WuweKjn5m02fK57eItF+6VkQ
+         40LQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVNHVWhhs38umczrSQh0/ot4fGSQxSH3+5+mrfbjE1EHZwIJJ7Yxm4tuSy9+7mR9pBbODEHR5jcGCMM2CmFXUz9zEFRGycr3yag0Q7DviQ=
+X-Gm-Message-State: AOJu0YxRy30IOeOwfexGFek0ErajL4KdoDPNi4XF9VDRiTxqttesvgLA
+	pbQ/x8FNWEaOPkx4FM1vcgjEs57FcY42NwHXdkPtkeJGSFqyzY6ilkhaYW8jTv7zytB2InsDQcA
+	3xOygYKv9Bx8TEiCyOR6zXjX2jnU=
+X-Google-Smtp-Source: AGHT+IHumo2GqIIeqiUctsxeloUYAcJ7t/cwEkcaWuL9SPuIEGK/BZu/XVYwb9DQnLhbg8wlEuUrr0yr35mHWTu9sMU=
+X-Received: by 2002:a05:6122:1311:b0:4f5:261a:bdc7 with SMTP id
+ 71dfb90a1353d-4f6ca2c499emr1040648e0c.4.1721890813466; Thu, 25 Jul 2024
+ 00:00:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Content-Language: en-US
-In-Reply-To: <20240710212555.1617795-3-amery.hung@bytedance.com>
-To: <stefanha@redhat.com>, <sgarzare@redhat.com>, <mst@redhat.com>,
-	<jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<kys@microsoft.com>, <haiyangz@microsoft.com>, <wei.liu@kernel.org>,
-	<decui@microsoft.com>, <bryantan@vmware.com>, <vdasa@vmware.com>,
-	<pv-drivers@vmware.com>
-CC: <dan.carpenter@linaro.org>, <simon.horman@corigine.com>,
-	<oxffffaa@gmail.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
-	<bpf@vger.kernel.org>, <bobby.eshleman@bytedance.com>,
-	<jiang.wang@bytedance.com>, <amery.hung@bytedance.com>,
-	<ameryhung@gmail.com>, <xiyou.wangcong@gmail.com>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: [RFC PATCH net-next v6 02/14] af_vsock: refactor transport lookup
- code
+References: <20240724085544.299090-1-21cnbao@gmail.com> <20240724085544.299090-2-21cnbao@gmail.com>
+ <ZqDzErEQbC49F4j9@tiehlicka> <CAGsJ_4z+iMXqJP68HQzbmkmWGHa-houPUKth=vbYgL=1OLV4Gg@mail.gmail.com>
+ <ZqHr9OQPDVKr-1Cs@tiehlicka>
+In-Reply-To: <ZqHr9OQPDVKr-1Cs@tiehlicka>
+From: Barry Song <21cnbao@gmail.com>
+Date: Thu, 25 Jul 2024 19:00:02 +1200
+Message-ID: <CAGsJ_4x+V8jVuM307uGUCXVrZTWGHNKHYqGsj6UAN=QH=yWpqw@mail.gmail.com>
+Subject: Re: [PATCH RFC 1/5] vpda: try to fix the potential crash due to
+ misusing __GFP_NOFAIL
+To: Michal Hocko <mhocko@suse.com>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com, 
+	cl@linux.com, hch@infradead.org, iamjoonsoo.kim@lge.com, lstoakes@gmail.com, 
+	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev, 
+	urezki@gmail.com, v-songbaohua@oppo.com, vbabka@suse.cz, 
+	virtualization@lists.linux.dev, hailong.liu@oppo.com, 
+	torvalds@linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Maxime Coquelin <maxime.coquelin@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 186705 [Jul 25 2024]
-X-KSMG-AntiSpam-Version: 6.1.0.4
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 24 0.3.24 186c4d603b899ccfd4883d230c53f273b80e467f, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;smtp.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/07/24 23:24:00 #26143731
-X-KSMG-AntiVirus-Status: Clean, skipped
+Content-Transfer-Encoding: quoted-printable
 
-Hi
+On Thu, Jul 25, 2024 at 6:08=E2=80=AFPM Michal Hocko <mhocko@suse.com> wrot=
+e:
+>
+> On Thu 25-07-24 10:50:45, Barry Song wrote:
+> > On Thu, Jul 25, 2024 at 12:27=E2=80=AFAM Michal Hocko <mhocko@suse.com>=
+ wrote:
+> > >
+> > > On Wed 24-07-24 20:55:40, Barry Song wrote:
+> [...]
+> > > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vd=
+pa_user/iova_domain.c
+> > > > index 791d38d6284c..eff700e5f7a2 100644
+> > > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > @@ -287,28 +287,44 @@ void vduse_domain_remove_user_bounce_pages(st=
+ruct vduse_iova_domain *domain)
+> > > >  {
+> > > >       struct vduse_bounce_map *map;
+> > > >       unsigned long i, count;
+> > > > +     struct page **pages =3D NULL;
+> > > >
+> > > >       write_lock(&domain->bounce_lock);
+> > > >       if (!domain->user_bounce_pages)
+> > > >               goto out;
+> > > > -
+> > > >       count =3D domain->bounce_size >> PAGE_SHIFT;
+> > > > +     write_unlock(&domain->bounce_lock);
+> > > > +
+> > > > +     pages =3D kmalloc_array(count, sizeof(*pages), GFP_KERNEL | _=
+_GFP_NOFAIL);
+> > > > +     for (i =3D 0; i < count; i++)
+> > > > +             pages[i] =3D alloc_page(GFP_KERNEL | __GFP_NOFAIL);
+> > >
+> > > AFAICS vduse_domain_release calls this function with
+> > > spin_lock(&domain->iotlb_lock) so dropping &domain->bounce_lock is no=
+t
+> > > sufficient.
+> >
+> > yes. this is true:
+> >
+> > static int vduse_domain_release(struct inode *inode, struct file *file)
+> > {
+> >         struct vduse_iova_domain *domain =3D file->private_data;
+> >
+> >         spin_lock(&domain->iotlb_lock);
+> >         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
+> >         vduse_domain_remove_user_bounce_pages(domain);
+> >         vduse_domain_free_kernel_bounce_pages(domain);
+> >         spin_unlock(&domain->iotlb_lock);
+> >         put_iova_domain(&domain->stream_iovad);
+> >         put_iova_domain(&domain->consistent_iovad);
+> >         vhost_iotlb_free(domain->iotlb);
+> >         vfree(domain->bounce_maps);
+> >         kfree(domain);
+> >
+> >         return 0;
+> > }
+> >
+> > This is quite a pain. I admit I don't have knowledge of this driver, an=
+d I don't
+> > think it's safe to release two locks and then reacquire them. The situa=
+tion is
+> > rather complex. Therefore, I would prefer if the VDPA maintainers could
+> > take the lead in implementing a proper fix.
+>
+> Would it be possible to move all that work to a deferred context?
 
-+static const struct vsock_transport *
-+vsock_connectible_lookup_transport(unsigned int cid, __u8 flags)
-                                                      ^^^ may be just 'u8' ?
-+{
-+	const struct vsock_transport *transport;
-                                       ^^^ do we really need this variable now?
-                                       May be shorter like:
-                                       if (A)
-                                           return transport_local;
-                                       else if (B)
-                                           return transport_g2h;
-                                       else
-                                           return transport_h2g;
-+
-+	if (vsock_use_local_transport(cid))
-+		transport = transport_local;
-+	else if (cid <= VMADDR_CID_HOST || !transport_h2g ||
-+		 (flags & VMADDR_FLAG_TO_HOST))
-+		transport = transport_g2h;
-+	else
-+		transport = transport_h2g;
-+
-+	return transport;
-+}
-+
+My understanding is that we need to be aware of both the iotlb_lock and
+bounce_lock to implement the correct changes. As long as we still need
+to acquire these two locks in a deferred context, there doesn't seem to
+be any difference.
 
-Thanks
+I can do the memory pre-allocation before spin_lock(&domain->iotlb_lock),
+but I have no knowledge whether the "count" will change after I make
+the preallocation.
+
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.c
+b/drivers/vdpa/vdpa_user/iova_domain.c
+index 791d38d6284c..7ec87ef33d42 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.c
++++ b/drivers/vdpa/vdpa_user/iova_domain.c
+@@ -544,9 +544,12 @@ static int vduse_domain_release(struct inode
+*inode, struct file *file)
+ {
+        struct vduse_iova_domain *domain =3D file->private_data;
+
++      struct page **pages;
++      spin_lock(&domain->iotlb_lock); maybe also + bounce_lock?
++      count =3D domain->bounce_size >> PAGE_SHIFT;
++      spin_unlock(&domain->iotlb_lock);
++
++       preallocate_count_pages(pages, count);
++
+....
+        spin_lock(&domain->iotlb_lock);
+        vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
+-       vduse_domain_remove_user_bounce_pages(domain);
++       vduse_domain_remove_user_bounce_pages(domain, pages);
+        vduse_domain_free_kernel_bounce_pages(domain);
+        spin_unlock(&domain->iotlb_lock);
+        put_iova_domain(&domain->stream_iovad);
+
+
+> --
+> Michal Hocko
+> SUSE Labs
