@@ -1,173 +1,136 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E64739879;
-	Fri, 26 Jul 2024 18:29:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F2613032A
+	for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 18:49:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722018596; cv=none; b=Mp/IluttCpDvizQBCfId9wvFwTBuwdzBpbSVZTOex+8WzfMEmriRBBozuxpHZIX/TXkeVTy+H/9q/jLMRESCgW87vQXaK2IatMuPnQkvoAwZnMsHMkXFRh65dcC5uwvTzEtPjLVQgJEhbKFe3nDweanRt5CzIhlr/3DULCEGxU0=
+	t=1722019756; cv=none; b=qOD1ezUD2d7NCpsQ/DtI6y0EREs4eFuhHVjmdyvB5Fq09VW1Un/whdg+U/Sf/2huIyGa73959mHwqYzi5PNN/mMNTlAZeuRUpLV2ZR1WEdqN60v+3G/KuXq3Xmp4esLqC3Qb+VvCM23dWFNMPKMobVLfeQfb+cZWtydlE+GaRa8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722018596; c=relaxed/simple;
-	bh=PZyG589zZ1RF4v7wI64IEAe5dRLqrmXnoHxqLhuExaE=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=EHQq2PiCZqdcdtcGGX1qGOTWUJqq9g0GmD/Tb6VrXb46KLUywU/ewx5iIShddQtEhrl3e8s5uRVzNlfpDxSc7wYMwEnWaJ+IleXkx9KGSIhRLzELKwEx7WLxzlFVhIhatwYaA4oDgDi3OIfFtZAql5lJX9a+eKqQncQreI6rr2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=k7Io4BRC; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1722019756; c=relaxed/simple;
+	bh=rJT+2RXiOIACYPnpmYqep6RPxcQ8+lwK/J+Sl6kgKbM=;
+	h=From:To:Subject:Date:Message-Id:MIME-Version; b=L01HpuFylVL8iQiiEmWUP/5FgXxoHk8Ja3UuYbmB9mUwKm04MRsvktez5jEGgY09rrhFfWAcLCPRANUufPEa8CB6BnpwsNnQ0sx5j/lhW8qf0tvz27jbqN0hm4ubHwvBB+oAbIfHffcTBqQ6YeFFMkSsSWmYZve6SIzj0Jf1Uj0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Se4b3WmD; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="k7Io4BRC"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
-	:MIME-Version:Message-ID:References:In-Reply-To:Subject:CC:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=BHfyk4lid0LBsgW6Qbi96iERQ2QA5oUayAU6ZwaA/x4=; b=k7Io4BRCAEY+B/E02cjwN2TFVm
-	+XHmCVyNg8Y/B/1ka63hMSeyuetois+YaavQDKjEOStsB/3GlrSkaLnkcLeud3Sda/9pPA3vMjuQ4
-	Fi/K0ZTyQip2ElONaLATr7HDwSfL905Y2MdZG5E0BS8HcRUSXQJhE4s0yXdFXCQ5Vb+aClxHP2P5v
-	3GImoefAgGKngWdw6A4bIhx1CO2ZBKanZZ+kWgZLi66ksDuxO3IeaRG8Ac0immDTdSA6ul8wY2Ofq
-	mrMv04ta0ABbpXgLBgqzgD6D0Kt+GE6htuFWvKmbGvfL8NDSXRUMWdT/Hn9Lxtc/K1sOAWS2Lewfu
-	RlWsRviA==;
-Received: from [2a00:23ee:1008:2bab:d45e:a5c6:d63:3c97] (helo=[IPv6:::1])
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sXPhG-00000004HMP-3wSJ;
-	Fri, 26 Jul 2024 18:29:43 +0000
-Date: Fri, 26 Jul 2024 19:28:28 +0100
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-CC: "Michael S. Tsirkin" <mst@redhat.com>,
- Richard Cochran <richardcochran@gmail.com>,
- Peter Hilber <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
- virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
- "Chashper, David" <chashper@amazon.com>,
- "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
- "Christopher S . Hall" <christopher.s.hall@intel.com>,
- Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
- netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20240726174958.00007d10@Huawei.com>
-References: <14d1626bc9ddae9d8ad19d3c508538d10f5a8e44.camel@infradead.org> <20240725012730-mutt-send-email-mst@kernel.org> <7de7da1122e61f8c64bbaab04a35af93fafac454.camel@infradead.org> <20240725081502-mutt-send-email-mst@kernel.org> <f55e6dfc4242d69eed465f26d6ad7719193309dc.camel@infradead.org> <20240725082828-mutt-send-email-mst@kernel.org> <db786be69aed3800f1aca71e8c4c2a6930e3bb0b.camel@infradead.org> <20240725083215-mutt-send-email-mst@kernel.org> <98813a70f6d3377d3a9d502fd175be97334fcc87.camel@infradead.org> <20240726174958.00007d10@Huawei.com>
-Message-ID: <811E8A25-3DBC-452D-B594-F9B7B0B61335@infradead.org>
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Se4b3WmD"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-1fc569440e1so9031985ad.3
+        for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 11:49:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1722019754; x=1722624554; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TyyLiY8on/nX+zSo6X6ltjiyPizeUUW7zJGnozG/PPc=;
+        b=Se4b3WmDIi4C8POOwlnonNeZR2vw3jvDBIQAXQ/wjyNr4n3Hx4HCBffZGFsiWRubsI
+         CGQasWkzg5e8dxjIJTj3jX7j1rasO2uNWiHlb1XEISsaVkPL5QfFWZRGS2AXLoMAwlEx
+         A1GwN4F949sMaKkh/sU41zli2aUH1rOemdd6M=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722019754; x=1722624554;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TyyLiY8on/nX+zSo6X6ltjiyPizeUUW7zJGnozG/PPc=;
+        b=gn8Y2LQFxcKpqZaOsVgHLAWvaR6YLFa8iHIis/2HKVK8cPpvjySkZHAEwK8Wi1rs8h
+         b3lNd7V66nnDKWY5YjIxn2gd3eJldlpS7giyifGlYXwDiYIiqFmwwkiGKLpU7tETB7as
+         lHasxWQ7T5lzQ6KjtMTXfY17whZJN3xOOVXK2MD/yN1qcMwc2VzOT4KyoK9bLg7Ux14E
+         i9wpyjf4O0MTJKcdzO4BviNZCiJ3DPgyW9cJyI7yXCIgpLczKwJHtpk0amvPEw/UeGh8
+         Qsk02LLvdwU5e0a/xHax31kXbX7XCWvbLFDiCre58tmY/rKxUq9nMGXVh9Id3+XVtsl6
+         3ODw==
+X-Forwarded-Encrypted: i=1; AJvYcCW/NxXGQH2e6Ya5RCS6h+5/OWlbIU0pdM5cFUns49BoBmIdIPwwXcKDCb30dMwn7RfBESjvu0SkCQXYUC4b3l8O9NZqagEewQW9uUPcob8=
+X-Gm-Message-State: AOJu0Yzb9l5SqJW/7JJYJX2KXe12kz9AUMgiZNt3mEEo37nem/J7+8D4
+	3YcaVCbKhwIk/LAxIueuP/KfEUKpLKWFd60T+TrcjBmTei+FhTa4NNFFVfBETg==
+X-Google-Smtp-Source: AGHT+IEe/GXCjaZeMJ7CY6MD82mYGLTfebQ/ql8mw+rh6V2dg4j2flKyEoVmRkELRDQrUqwpRFdxew==
+X-Received: by 2002:a17:903:22c2:b0:1fb:6663:b647 with SMTP id d9443c01a7336-1ff047e4486mr9277595ad.3.1722019753694;
+        Fri, 26 Jul 2024 11:49:13 -0700 (PDT)
+Received: from ubuntu.eng.vmware.com ([66.170.99.2])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1fed7ee8494sm36285245ad.159.2024.07.26.11.49.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Jul 2024 11:49:13 -0700 (PDT)
+From: Tim Merrifield <tim.merrifield@broadcom.com>
+To: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Xin Li <xin3.li@intel.com>,
+	Tim Merrifield <tim.merrifield@broadcom.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Kai Huang <kai.huang@intel.com>,
+	Kevin Loughlin <kevinloughlin@google.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Kees Cook <kees@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Brian Gerst <brgerst@gmail.com>,
+	linux-coco@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	virtualization@lists.linux.dev,
+	alex.james@broadcom.com,
+	doug.covelli@broadcom.com,
+	jeffrey.sheldon@broadcom.com,
+	kevin.christopher@broadcom.com,
+	aravind-as.srinivasan@broadcom.com,
+	ravindra.kumar@broadcom.com
+Subject: [PATCH v2 0/2] Support userspace hypercalls for TDX
+Date: Fri, 26 Jul 2024 18:57:59 +0000
+Message-Id: <cover.1722019360.git.tim.merrifield@broadcom.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
 
-On 26 July 2024 17:49:58 BST, Jonathan Cameron <Jonathan=2ECameron@Huawei=
-=2Ecom> wrote:
->On Thu, 25 Jul 2024 14:50:50 +0100
->David Woodhouse <dwmw2@infradead=2Eorg> wrote:
->
->> On Thu, 2024-07-25 at 08:33 -0400, Michael S=2E Tsirkin wrote:
->> > On Thu, Jul 25, 2024 at 01:31:19PM +0100, David Woodhouse wrote: =20
->> > > On Thu, 2024-07-25 at 08:29 -0400, Michael S=2E Tsirkin wrote: =20
->> > > > On Thu, Jul 25, 2024 at 01:27:49PM +0100, David Woodhouse wrote: =
-=20
->> > > > > On Thu, 2024-07-25 at 08:17 -0400, Michael S=2E Tsirkin wrote: =
-=20
->> > > > > > On Thu, Jul 25, 2024 at 10:56:05AM +0100, David Woodhouse wro=
-te: =20
->> > > > > > > > Do you want to just help complete virtio-rtc then? Would =
-be easier than
->> > > > > > > > trying to keep two specs in sync=2E =20
->> > > > > > >=20
->> > > > > > > The ACPI version is much more lightweight and doesn't take =
-up a
->> > > > > > > valuable PCI slot#=2E (I know, you can do virtio without PC=
-I but that's
->> > > > > > > complex in other ways)=2E
->> > > > > > >  =20
->> > > > > >=20
->> > > > > > Hmm, should we support virtio over ACPI? Just asking=2E =20
->> > > > >=20
->> > > > > Given that we support virtio DT bindings, and the ACPI "PRP0001=
-" device
->> > > > > exists with a DSM method which literally returns DT properties,
->> > > > > including such properties as "compatible=3Dvirtio,mmio" =2E=2E=
-=2E do we
->> > > > > already?
->> > > > >=20
->> > > > >  =20
->> > > >=20
->> > > > In a sense, but you are saying that is too complex?
->> > > > Can you elaborate? =20
->> > >=20
->> > > No, I think it's fine=2E I encourage the use of the PRP0001 device =
-to
->> > > expose DT devices through ACPI=2E I was just reminding you of its
->> > > existence=2E =20
->> >=20
->> > Confused=2E You said "I know, you can do virtio without PCI but that'=
-s
->> > complex in other ways" as the explanation why you are doing a custom
->> > protocol=2E =20
->>=20
->> Ah, apologies, I wasn't thinking that far back in the conversation=2E
->>=20
->> If we wanted to support virtio over ACPI, I think PRP0001 can be made
->> to work and isn't too complex (even though it probably doesn't yet work
->> out of the box)=2E
->>=20
->> But for the VMCLOCK thing, yes, the simple ACPI device is a lot simpler
->> than virtio-rtc and much more attractive=2E
->>=20
->> Even if the virtio-rtc specification were official today, and I was
->> able to expose it via PCI, I probably wouldn't do it that way=2E There'=
-s
->> just far more in virtio-rtc than we need; the simple shared memory
->> region is perfectly sufficient for most needs, and especially ours=2E
->>=20
->> I have reworked
->> https://git=2Einfradead=2Eorg/users/dwmw2/linux=2Egit/shortlog/refs/hea=
-ds/vmclock
->> to take your other feedback into account=2E
->>=20
->> It's now more flexible about the size handling, and explicitly checking
->> that specific fields are present before using them=2E=20
->>=20
->> I think I'm going to add a method on the ACPI device to enable the
->> precise clock information=2E I haven't done that in the driver yet; it
->> still just consumes the precise clock information if it happens to be
->> present already=2E The enable method can be added in a compatible fashi=
-on
->> (the failure mode is that guests which don't invoke this method when
->> the hypervisor needs them to will see only the disruption signal and
->> not precise time)=2E
->>=20
->> For the HID I'm going to use AMZNVCLK=2E I had used QEMUVCLK in the QEM=
-U
->> patches, but I'll change that to use AMZNVCLK too when I repost the
->> QEMU patch=2E
->
->That doesn't fit with ACPI _HID definitions=2E
->Second set 4 characters need to be hex digits as this is an
->ACPI style ID (which I assume this is given AMZN is a valid
->vendor ID=2E  6=2E1=2E5 in ACPI v6=2E5
->
->Maybe I'm missing something=2E=2E=2E
->
->J
->
->
+Hypercall instructions like VMCALL and VMMCALL are not restricted to CPL 0.
+This allows userspace software like open-vm-tools to communicate directly
+with the VMM.
 
+For TDX VMs, this communication may violate the security model. Today,
+VMCALLs are not forwarded to the host VMM, which breaks open-vm-tools
+and any other userspace software that uses VMCALL.
 
+But if userspace is aware of the risks and has been hardened to
+address any known violations of the security model, then it seems
+reasonable to allow hypercalls from this process to proceed.
 
-Hm, is the same not true for QEMUVGID and AMZNVGID, which I was using as a=
-n example?
+This patchset introduces a new x86 process control flag to address this
+concern. By setting the MM_CONTEXT_COCO_USER_HCALL flag, the process opts
+in to user-level hypercalls. When TDX is enabled, the VMCALL will #VE and
+control will be transferred to a hypervisor-specific hypercall handler
+(similar to how things work today for SEV with
+sev_es_hcall_prepare/sev_es_hcall_finish). The flag has no effect on
+non-TDX VMs. Other confidential computing technologies could use this flag
+to provide limited access to user-level hypercalls.
 
-QEMU seemed to get to 0002, and AFAICT the VMGENID patches were initially =
-posted using QEMU0003, but what's actually in QEMU now is QEMUVGID=2E So I =
-presumed that was now the preferred option=2E
+v1->v2 changes:
+- Updated coverletter to get to the point a little faster.
+- Patch 1: Changed to use a per-process flag rather than a per-thread
+flag, based on feedback from Kirill Shutemov. I believe this also addresses
+the issue of inheritance raised by Dave Hansen.
+- Patch 1: Refactored the logic in tdx.c to be made more clear. Also,
+tdx_hcall now returns an error code. Both suggested by Kirill.
+- Patch 2: We now zero tdx_module_args to prevent data leakage to the VMM,
+pointed out by Kirill.
+
+Tim Merrifield (2):
+  Add prctl to allow userlevel TDX hypercalls
+  x86/vmware: VMware support for TDX userspace hypercalls
+
+ arch/x86/coco/tdx/tdx.c           | 23 ++++++++++++++
+ arch/x86/include/asm/mmu.h        |  2 ++
+ arch/x86/include/asm/x86_init.h   |  1 +
+ arch/x86/include/uapi/asm/prctl.h |  3 ++
+ arch/x86/kernel/cpu/vmware.c      | 51 ++++++++++++++++++++++++-------
+ arch/x86/kernel/process.c         | 22 +++++++++++++
+ 6 files changed, 91 insertions(+), 11 deletions(-)
+
+-- 
+2.40.1
+
