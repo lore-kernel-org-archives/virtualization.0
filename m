@@ -1,196 +1,145 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13B2E47796
-	for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 18:49:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DCE9748A
+	for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 20:48:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722019769; cv=none; b=t06SUvenI0A9XAN2kEn+0eK+W4RVwixqsAc/maSX6esGOyVtDc3+SPF6vhKEZrtFQitnaqkdt/NMqb3NUEqTFl0ATvP/z//HovnUrDMNNUmw1pLksSKx2f4CgCSSCp6RU908RXv2JV0iUDpNJbvfZCqlnyD3fJ6Lx75JKCyJoec=
+	t=1722026928; cv=none; b=A6kEHZ3UpY1U/9qsisVvnYqZhL/CAYBRqn0rUToOuxuZ0HZTmHQq4QTx/f98LS1i1bQLZilf3w03+CpYFichqSAjAbQZSs9X3ovDRqUxfTWsS4bmM/MF9Udl5ubvrBW0HTqbDRbnETKsjgf/YhH44/Bx+8E4KUQcHBFuKaQwu80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722019769; c=relaxed/simple;
-	bh=F5uTvikwGa469CPiqSv/UwSQuF/Im5tcCJwBQMDUZRs=;
-	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ok0FI0a9B/VPoz85SLxtYgziLpBZ+GXZ+Gu7O3is4h2QVua2cU+D4bW2zzkNkCBFeWDxcDeHfRXg0vA88mi6TKppiySDi8qh2oCFWWRZPohlnlHlkCAOrrGNz0NSl7zfO4kj83asP7sem3spOjQQHQBlD0wRQ+JTOBe3HaRL7XE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=OehfhKWM; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1722026928; c=relaxed/simple;
+	bh=0ptgAo76sEALm0wWfTfRkIhC3WoPOl25PxfbjjWdvOc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:MIME-Version:
+	 Content-Type; b=scdnDlpSKI0wdYH+iETIm81MgNOzL5fIwVxLvyXVRtcEp8DJf/Dfi3eyM5fHz2rOkbFWzmCdkn777OZx4f/f6Foa9n76V4qCIi/ArEPpLkTho4IufwnelTj+4iagyrfy1JRcxPQ53Oyt/ngHNcuh9YR0fCQseKOjzR0G+6V40uo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NYc+4LEx; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="OehfhKWM"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-1fb3b7d0d3aso5988975ad.2
-        for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 11:49:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NYc+4LEx"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-5a1337cfbb5so3408253a12.3
+        for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 13:48:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1722019767; x=1722624567; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=SP8XMNFql20U92EUMwQ8uLQcBAxfl5BFzyB/ky8QH4M=;
-        b=OehfhKWM3qZUx5psVKDm//P7IRY5fxmEz+2roGgsZcHz8Y54x9IXadOmX8trYSq4Km
-         NTlKFis3vNLHC+OXdmJ1d+Fpve1LGl6NkvxDgajUGJbXyzseZiFrOSRzrikJ22v4QI9T
-         lndB+Ur76BV3IW/OLcDkclfCxyNGh6i6z4B+Y=
+        d=gmail.com; s=20230601; t=1722026925; x=1722631725; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:in-reply-to:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=GBMgfixy+x8J4chK+XEr8yM6u1+DycWp9/E02fNR+AA=;
+        b=NYc+4LExPTDOKGnsgKlL7FLw6MyOIYGCew3XwJ+z1FNUt3eUcYwDFyJT7JaCG0A6gt
+         fAKGkWsf6E5ojEvdDtJDukCJPQpqdGdwMpVHwvsXWf+3hrCvjZNuFLSxUzwkoLY3qgxZ
+         /ekS1eJmAeU601Y7aJToexiaIbvNjzyljv8hyFEdwlZLkRxL/x4Cvh4vW7e4zJvfATXf
+         xHEqWTpB+KKEriLYptOqAyZppqS3uWoM6WVVyZfOQVx4gvUo0BfPd5f3HWPbSM9KLUl7
+         PWpbxrV7giSJQvBxlsyUOhtki2xLBadNWhjIDfJyQnDO/HvA/sx2gHcUUBYltyLaoe50
+         KYog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722019767; x=1722624567;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SP8XMNFql20U92EUMwQ8uLQcBAxfl5BFzyB/ky8QH4M=;
-        b=PcRrQDoqfBLhzk3LVZTsyagUp6rbWgyRV1EM5KpKETndr7edJV+icygMFlezavHzfW
-         uXzDJC6+n1WVV61XxlKlB6hn3z6uaxHOqyIrlo6vr3nlpLBdmyxq53oQDp+YEVjNMDpd
-         X6CMScv47Oq6DA3mUy9ZbXhUlw2okzcYViBGLBl27xtkRnAe8oSC4yOlCHrT1zxUKXgA
-         mj8DU6QHSnHt5+JiwVK+sHLkUpVsaWDRAxFau5adphDYyeKw+e+e3NnF7hDpFH6u9S3n
-         JeAzLZDlLgKWyXvHt+Y9RXgTNeSebh2s9cc2U71DINlhI4lfOjkSVKL6HviQLmZRzsql
-         aF3w==
-X-Forwarded-Encrypted: i=1; AJvYcCX9DtmRQ1u2uQLlIp6q0Vweor3jfity33bjyIAA5aOkKgEazhGQ2w3i+mNOkaJEt8RC0wQ+58RHxSCEZLRzTKw7t8G70sjhTtRtK+en1/c=
-X-Gm-Message-State: AOJu0Yx+wOVjhOPA8Drjy/8wMYuQBv1znJvGjcp/IwA2yqEASCRjdxMe
-	ov5STWRzk5xOdYMETIRsXMlySzcAfDHpw42zdzAZGoEYVlvVJ0C8REpM8UrOWQ==
-X-Google-Smtp-Source: AGHT+IHqeFWXvj6c9AvP0XqWmwcnueQalx00FQi4Am7FJWKWloEtv1/6XY/0WZADAvL3M2Abx2ARRQ==
-X-Received: by 2002:a17:903:1245:b0:1fd:93d2:fb76 with SMTP id d9443c01a7336-1ff04852a8emr7839905ad.31.1722019767356;
-        Fri, 26 Jul 2024 11:49:27 -0700 (PDT)
-Received: from ubuntu.eng.vmware.com ([66.170.99.2])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1fed7ee8494sm36285245ad.159.2024.07.26.11.49.25
+        d=1e100.net; s=20230601; t=1722026925; x=1722631725;
+        h=content-transfer-encoding:mime-version:in-reply-to:message-id:date
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GBMgfixy+x8J4chK+XEr8yM6u1+DycWp9/E02fNR+AA=;
+        b=PXLdUcJtjCcEf+IV7Viq8UH5RQG0R6jvmEMacFQTqRL7WgyXAkoqL+dJ8VOclIX2z0
+         uqXTHHPHNgxjYqHtNWt04r8TM0jNrattn7YlUHyNBaQknhsQ730gLz7KtBnE6tLrXk6+
+         3tMYJmiINokAUSNMVXFsixmrOczosGKeft/pxzi2iYeUqBJztH4Ba7wVX7fuxMPk7SvB
+         mnHPB1rxLuBaZOytHWi4kWi+u13c2VHNLcUNuk20a1i9NuVg9vKoRez/k63SVvqidKgm
+         9RbJSW9JMQSCmaBFj907gnUca7/bGry27P0jl67GiYT4G1mxaIgXApc5fSS/t470iKQu
+         siSw==
+X-Forwarded-Encrypted: i=1; AJvYcCXo2CmMsMooYUjak2iw7JESR2rgHo6q+pPoOIvZ3nFZGOMjUJ1p/Z3lMtsYpNGiv4DzeuyVUVcA1Jk1I4R/5Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YytPX+469kG4zstq4gPbuzufHveiyOsXfisrzbLPbASM55/mMc7
+	rDaY9z8UgRO+2RXpVYiOaoV9d2F3KLJ2NfcB//tpJLa0khFcNmGd
+X-Google-Smtp-Source: AGHT+IH/Wk3yKHVOGm6Q2V0uGvjeJYCJriHVdyxX3OVHO2TxkE0uWiwh2D6R3c+mhA8SO2IVFuazNQ==
+X-Received: by 2002:a17:907:72cc:b0:a7a:9d74:21c3 with SMTP id a640c23a62f3a-a7d400a1a61mr52676966b.35.1722026924592;
+        Fri, 26 Jul 2024 13:48:44 -0700 (PDT)
+Received: from shift.daheim (p200300d5ff30930050f496fffe46beef.dip0.t-ipconnect.de. [2003:d5:ff30:9300:50f4:96ff:fe46:beef])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7acab2302dsm212952766b.39.2024.07.26.13.48.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Jul 2024 11:49:27 -0700 (PDT)
-From: Tim Merrifield <tim.merrifield@broadcom.com>
-To: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	x86@kernel.org,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	Xin Li <xin3.li@intel.com>,
-	Tim Merrifield <tim.merrifield@broadcom.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Kai Huang <kai.huang@intel.com>,
-	Kevin Loughlin <kevinloughlin@google.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Kees Cook <kees@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Brian Gerst <brgerst@gmail.com>,
-	linux-coco@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	virtualization@lists.linux.dev,
-	alex.james@broadcom.com,
-	doug.covelli@broadcom.com,
-	jeffrey.sheldon@broadcom.com,
-	kevin.christopher@broadcom.com,
-	aravind-as.srinivasan@broadcom.com,
-	ravindra.kumar@broadcom.com
-Subject: [PATCH v2 2/2] x86/vmware: VMware support for TDX userspace hypercalls
-Date: Fri, 26 Jul 2024 18:58:01 +0000
-Message-Id: <0599d2f477dd07483d31a9d1aabdf64d69d29570.1722019360.git.tim.merrifield@broadcom.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <cover.1722019360.git.tim.merrifield@broadcom.com>
-References: <cover.1722019360.git.tim.merrifield@broadcom.com>
+        Fri, 26 Jul 2024 13:48:44 -0700 (PDT)
+Received: from localhost.daheim ([127.0.0.1] helo=shift.localnet)
+	by shift.daheim with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98)
+	(envelope-from <chunkeey@gmail.com>)
+	id 1sXSkR-00000000zGU-3SKI;
+	Fri, 26 Jul 2024 22:48:43 +0200
+From: Christian Lamparter <chunkeey@gmail.com>
+To: hch@lst.de
+Cc: axboe@kernel.dk, dlemoal@kernel.org, jasowang@redhat.com,
+ kbusch@kernel.org, linux-block@vger.kernel.org,
+ linux-nvme@lists.infradead.org, martin.petersen@oracle.com, mst@redhat.com,
+ pbonzini@redhat.com, sagi@grimberg.me, stefanha@redhat.com,
+ virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+ linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 04/15] block: add an API to atomically update queue limits
+Date: Fri, 26 Jul 2024 22:48:43 +0200
+Message-ID: <2011786.tdWV9SEqCh@shift>
+In-Reply-To: <20240213073425.1621680-5-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 
-This change adds a handler for tdx_hcall in the x86_hyper_runtime type for
-VMware hypervisors which will ultimately invoke __tdx_hypercall. The
-handler (vmware_tdx_user_hcall) does not reuse the existing
-vmware_tdx_hypercall for a couple of reasons.
+Hi,
 
-First, while the few hypercalls that are invoked from the kernel expect
-uint32 outputs, this may not be the case for every backdoor userspace may
-call. So the existing interface is not sufficient. Additionally, we don't
-require the branches based on output arguments. Finally, the
-VMWARE_CMD_MASK employed in vmware_tdx_hypercall is applicable to only
-hypercalls expected from the kernel.
+got a WARNING splatch (=> boot harddrive is inaccessible - device fails to boot) 
 
-Signed-off-by: Tim Merrifield <tim.merrifield@broadcom.com>
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 29 at block/blk-settings.c:185 blk_validate_limits+0x154/0x294
+Modules linked in:
+CPU: 0 PID: 29 Comm: kworker/u4:2 Tainted: G        W          6.10.0+ #1
+Hardware name: MyBook Live APM821XX 0x12c41c83 PowerPC 44x Platform
+Workqueue: async async_run_entry_fn
+NIP:  c02f1f00 LR: c02eef3c CTR: 00000000
+REGS: c114bbc0 TRAP: 0700   Tainted: G        W           (6.10.0+)
+MSR:  0002b000 <CE,EE,FP,ME>  CR: 84000008  XER: 00000000
+
+GPR00: c02eef28 c114bcb0 c116cf40 c114bda8 00000082 ffffffff ffffffff 00000200
+GPR08: 00000200 0000ffff 00001fff c114bc80 44000008 00000000 c00433f0 c119b440
+GPR16: 00000000 00000000 00000000 00000000 c105d505 c1101880 c11b6250 00000001
+GPR24: 00000000 c0ab0000 c114bda8 ffffffff c0a1eb68 00000000 00000014 c1b683d0
+NIP [c02f1f00] blk_validate_limits+0x154/0x294
+LR [c02eef3c] blk_alloc_queue+0x80/0x1f0
+Call Trace:
+[c114bcb0] [c02ffa54] blk_alloc_queue_stats+0x20/0x48 (unreliable)
+[c114bcc0] [c02eef28] blk_alloc_queue+0x6c/0x1f0
+[c114bcf0] [c02fde24] blk_mq_alloc_queue+0x50/0xa8
+[c114bd90] [c04393b4] scsi_alloc_sdev+0x190/0x2b8
+[c114be40] [c04395a8] scsi_probe_and_add_lun+0xcc/0x2a0
+[c114bea0] [c043a008] __scsi_add_device+0xe4/0x134
+[c114bee0] [c045296c] ata_scsi_scan_host+0x84/0x27c
+[c114bf30] [c0048158] async_run_entry_fn+0x34/0xcc
+[c114bf50] [c003c800] process_scheduled_works+0x170/0x244
+[c114bf90] [c003cc48] worker_thread+0x184/0x1d4
+[c114bfc0] [c00434bc] kthread+0xcc/0xd0
+[c114bff0] [c000c210] start_kernel_thread+0x10/0x14
+Code: 81430050 7c085040 40810008 91030050 81430004 2c0a0000 40820010 3940ffff 91430004 48000014 280a3ffe 41a1000c <0fe00000> 48000130 80c30008 81430020
+---[ end trace 0000000000000000 ]---
+scsi_alloc_sdev: Allocation failure during SCSI scanning, some SCSI devices might not be configured
+
 ---
- arch/x86/kernel/cpu/vmware.c | 51 ++++++++++++++++++++++++++++--------
- 1 file changed, 40 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 00189cdeb775..e379facc3a5b 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -494,6 +494,24 @@ static bool __init vmware_legacy_x2apic_available(void)
-  * TDCALL[TDG.VP.VMCALL] uses %rax (arg0) and %rcx (arg2). Therefore,
-  * we remap those registers to %r12 and %r13, respectively.
-  */
-+static inline void vmware_init_tdx_args(struct tdx_module_args *args, bool is_user,
-+					unsigned long cmd, unsigned long in1,
-+					unsigned long in3, unsigned long in4,
-+					unsigned long in5, unsigned long in6)
-+{
-+	args->rbx = in1;
-+	args->rdx = in3;
-+	args->rsi = in4;
-+	args->rdi = in5;
-+	args->r10 = VMWARE_TDX_VENDOR_LEAF;
-+	args->r11 = VMWARE_TDX_HCALL_FUNC;
-+	args->r12 = VMWARE_HYPERVISOR_MAGIC;
-+	args->r13 = cmd;
-+	args->r14 = in6;
-+	/* CPL */
-+	args->r15 = is_user ? 3 : 0;
-+}
-+
- unsigned long vmware_tdx_hypercall(unsigned long cmd,
- 				   unsigned long in1, unsigned long in3,
- 				   unsigned long in4, unsigned long in5,
-@@ -512,17 +530,7 @@ unsigned long vmware_tdx_hypercall(unsigned long cmd,
- 		return ULONG_MAX;
- 	}
- 
--	args.rbx = in1;
--	args.rdx = in3;
--	args.rsi = in4;
--	args.rdi = in5;
--	args.r10 = VMWARE_TDX_VENDOR_LEAF;
--	args.r11 = VMWARE_TDX_HCALL_FUNC;
--	args.r12 = VMWARE_HYPERVISOR_MAGIC;
--	args.r13 = cmd;
--	/* CPL */
--	args.r15 = 0;
--
-+	vmware_init_tdx_args(&args, false, cmd, in1, in3, in4, in5, 0);
- 	__tdx_hypercall(&args);
- 
- 	if (out1)
-@@ -539,6 +547,24 @@ unsigned long vmware_tdx_hypercall(unsigned long cmd,
- 	return args.r12;
- }
- EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-+
-+static int vmware_tdx_user_hcall(struct pt_regs *regs)
-+{
-+	struct tdx_module_args args = {};
-+
-+	vmware_init_tdx_args(&args, true, regs->cx, regs->bx,
-+			     regs->dx, regs->si, regs->di, regs->bp);
-+	__tdx_hypercall(&args);
-+	regs->ax = args.r12;
-+	regs->bx = args.rbx;
-+	regs->cx = args.r13;
-+	regs->dx = args.rdx;
-+	regs->si = args.rsi;
-+	regs->di = args.rdi;
-+	regs->bp = args.r14;
-+
-+	return 0;
-+}
- #endif
- 
- #ifdef CONFIG_AMD_MEM_ENCRYPT
-@@ -586,4 +612,7 @@ const __initconst struct hypervisor_x86 x86_hyper_vmware = {
- 	.runtime.sev_es_hcall_prepare	= vmware_sev_es_hcall_prepare,
- 	.runtime.sev_es_hcall_finish	= vmware_sev_es_hcall_finish,
- #endif
-+#ifdef CONFIG_INTEL_TDX_GUEST
-+	.runtime.tdx_hcall		= vmware_tdx_user_hcall,
-+#endif
- };
--- 
-2.40.1
+This is due to this patch adds
+| /*
+|   * By default there is no limit on the segment boundary alignment,
+|   * but if there is one it can't be smaller than the page size as
+|   * that would break all the normal I/O patterns.
+|   */
+|   if (!lim->seg_boundary_mask)
+|           lim->seg_boundary_mask = BLK_SEG_BOUNDARY_MASK;
+|   if (WARN_ON_ONCE(lim->seg_boundary_mask < PAGE_SIZE - 1)) <----- this warning gets triggered
+|          return -EINVAL;
+
+My guess is that this is caused by the kernel has a 16K page size.
+
+CONFIG_HAVE_PAGE_SIZE_16KB=y
+CONFIG_PAGE_SIZE_16KB=y
+CONFIG_PAGE_SIZE_LESS_THAN_64KB=y
+CONFIG_PAGE_SIZE_LESS_THAN_256KB=y
+CONFIG_PAGE_SHIFT=14
+
+This worked fine (sata driver is sata_dwc_460ex.c) in the past (and using 16K pages was
+slightly faster than 4k pages)... and yes: using a 4K page size works (as in: device boots again).
+
+Regards,
+Christian
+
 
