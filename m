@@ -1,63 +1,64 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5664415666F
-	for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 05:55:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AA4D33981
+	for <virtualization@lists.linux.dev>; Fri, 26 Jul 2024 06:06:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721973357; cv=none; b=SQjGiTMYjRtotwnQf3ug28QV1NsBTk5YndwIdrLTI6y8MPSNwxfCNG9AeCu+8+5MRXSipyvhHcMGd/CGQvSTl9FSsRHO7kcSy41HXqCKugiUKo8UB7c8rdtKXK0OqmFiJN3eEy2gHlfoAD4TqKr6pFGfz3JElCHs3AkizlDEF3E=
+	t=1721973986; cv=none; b=U49WDvFYjOinY8ow1BlBj3WrNR7FvhTkzYcyJBSn3cYyAKuVzkK3Pr2t3zfi38ROEeuf796csOp10CCS10fnJ26+DXedgq0yNBUzYSA3HnwGecLZBTs/zpA4iEcggvSlpdolmTFrczvPFAQ95V4+Bij+lAm/VI06Bg1dvyW72rQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721973357; c=relaxed/simple;
-	bh=fkYfLB7BkpI4W3EQOlvtcDUJr9taWUaCe/cQpnY7uc8=;
+	s=arc-20240116; t=1721973986; c=relaxed/simple;
+	bh=6a7x76ue8Tb/QiSBhzrn7bO0FzEBds6B8ZU9VxKhPik=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=tgysXtaVNbI3K+TPgxTH8IQLYMjqXSkdD/GrxiSdFuivsQe3XElLjf3/hJGV813Fq0ljj+uG97rJsKRrIucEpH6CgIc2Y05U5uOopccRkyRDNuNAa8Pm252oRwsj/f8mcTuuB0iV/Lq6uJW2jZcu3oErvzOslbEW3w0/3LwapT0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e1Te7lWn; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=PjLKSDUmYRyfugEZZTMFx4OreMNhj/hTj9rFxDqw6MqA45iH24fdJbuu3XDFEtU3faMpPYdVY1WC51r7/hTH9jy8EqD0CmQ2lDRrmdHBdN78bfDSWlTkxCU5c0ekdxhBrTmWxZtu7RUmQ9bJ8L+FF+IcG0wqoa0N5TanC1dKvj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NzmDsLME; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e1Te7lWn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NzmDsLME"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721973354;
+	s=mimecast20190719; t=1721973984;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YQThcy6xed9kn8EJsXisAuikWbZtGIN23SlH2PNZkcA=;
-	b=e1Te7lWn/sdLgdUQ1fEX0vdHcLlV0BWzR3f6Uk7ZI/V8Zc6lT1Dh16H7WqZfJ7jQySt8li
-	FlIEY4VQL3DtX+Xh5xtY3JZf3vfrgRp7dArX5E5XEa+FMiQgRq66qYaNkaCV5Isd6CUxDo
-	tK85QSt8yNWc1jMkyFM1XjVJcCy5GCE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=SsMd5ReUoNivIVt7CipMVyDPULIY2oYNW6l4qiM7rgQ=;
+	b=NzmDsLMEH51FVrxuW8qTQIm4jt/MsjPaxk+KOCognl04vjKTxqVyTskmGzpugtznMYFp3A
+	y5l9Yped6e6+oJGORlxSekLMGRfVmmvlq+Cwc/BvvVgWuKUj3H79i+4PZuiayoC3q37qR5
+	fp4Gnz2tswU7Wo061mKpzGvYYeT3uSc=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-536-VXcaXSZxMiq5eb_keublQQ-1; Fri, 26 Jul 2024 01:55:52 -0400
-X-MC-Unique: VXcaXSZxMiq5eb_keublQQ-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4280d8e685eso1658785e9.1
-        for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 22:55:52 -0700 (PDT)
+ us-mta-218-mm3wvPxZN5WwV28kDjkqWA-1; Fri, 26 Jul 2024 02:06:22 -0400
+X-MC-Unique: mm3wvPxZN5WwV28kDjkqWA-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-368374dc565so925655f8f.2
+        for <virtualization@lists.linux.dev>; Thu, 25 Jul 2024 23:06:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721973351; x=1722578151;
+        d=1e100.net; s=20230601; t=1721973980; x=1722578780;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YQThcy6xed9kn8EJsXisAuikWbZtGIN23SlH2PNZkcA=;
-        b=doFDVKOVcKcZwPX+wATc+W/Dv0qoEzZpVkRgxsGlRgw5BRVWhQwQk9kjg2otgF3s0D
-         FYVJTjwH/S69jJRslPcqsGoPNAe+fj2K0+a5e/Ir0qp1gUNi6sNHMck2PLKfJsYroxWP
-         e/aP1EBBdihHKp5d8V3a+PqJVDSa6jZi8WFBiPs7gxz1UCyWSRbM6OFdubCNd/WynNTJ
-         BrM+cuvOwQzOBuddxo89uZKqk3aZvadPveJCQBOIt4aKVSsWgw023gwO5hN1x2X8isKO
-         9O5IxC7PDwLQ4hHVvvdjkyx46BaOuDMOL+AEMtpVH6Qru1Fc9vkn94p3EOjUs0XDsdSY
-         IAuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUssTDRdwa+NrJEVO3c77P6b9JpoUG4vaFPIOoSuUnbvz2noE5QRW0JynT7Ng3qMaLyB+EjsLAW9vKBpBNHKsxXNeW3K8AIx2ujJeb4F8w=
-X-Gm-Message-State: AOJu0YzhR5aG4G4hIGFIxcSkAXh2WIEvOZfA07k4yZs0RKD6nPlGyL/K
-	lNaiNtX2gfKnn2tleM3Iqr5LFqGR95j6ebrOKbk7CWnWABKB9EIP6G3qoXKlI5WBPON0niMDleD
-	sOILdiLD0bk34cYa7QrbPpI/uPbLB+LJXx/nvCyEQEoOTBorMITsK/DROEtyqMDNo
-X-Received: by 2002:adf:c08b:0:b0:367:8875:dd4c with SMTP id ffacd0b85a97d-36b31ae2541mr2973102f8f.23.1721973351696;
-        Thu, 25 Jul 2024 22:55:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGwUk9Ft0dVUiNjmu7f1QTIXu6q3o+g6VMlVMK1lSks1buGboeYtzHjiLlkzq1mSCBI88a7sA==
-X-Received: by 2002:adf:c08b:0:b0:367:8875:dd4c with SMTP id ffacd0b85a97d-36b31ae2541mr2973059f8f.23.1721973351027;
-        Thu, 25 Jul 2024 22:55:51 -0700 (PDT)
+        bh=SsMd5ReUoNivIVt7CipMVyDPULIY2oYNW6l4qiM7rgQ=;
+        b=KYJYW2HoehWddkVNXiRlsBWF/pf1v0eStvJy1Zy51g8uAT3DFFvhvuLyxC1sg8ARwr
+         4UHHFVvZPMABRUWU3b5Ny5EYtKIRR/glkLcwytTBKMCLt7KvbZKiM3BcufDXKMpX+TFD
+         wwhx5sx2SlAgghO2SS2RmpjK9UDTcKsdv3hjQNq+6nMHqsqXwVZic7R7HvdleRqE46gT
+         NSdQ94X17X+8akYjdseFYYFfDX4DfRKypCTkr0QjLLKUFlK2rlHxymOapMCFY6AnHXTS
+         k16c1iJVqtNksQppkFchEnJxnSgAZVauoKwQc63WUJx5bLHL+kvGLOmzTcowgtgfHVOS
+         P4oA==
+X-Forwarded-Encrypted: i=1; AJvYcCXYUUIjw9OEm5jaW17enQVTDvEqNekaKl1IrzppG5QOEdZGDqs3/dxV0kW55EEnn9zi6QnfoKAh84F8vzKXCTLNRm6YGUV2bHMB2GavXn4=
+X-Gm-Message-State: AOJu0YxnFfAwbYo6ctIPyubVaQb9XTEJ8puTRl5YIo2qdcEjP+1sqgJo
+	7exY3yjGy/MrQ+e4GTfjuOU8t0WV4M3uDW/uTP0l1NVrZpd2M4y9NSxNERe/uiJiltbKi8xtrzH
+	dLx4YORGqne1zZtSNPbbRuKmbJ1+TccI+O+DQIwUmvbQQTIqUDXfyyFDmaSDJQ0s7a4cz+NXqjg
+	4=
+X-Received: by 2002:adf:e3d0:0:b0:368:3731:1614 with SMTP id ffacd0b85a97d-36b3639c90cmr2555960f8f.32.1721973980464;
+        Thu, 25 Jul 2024 23:06:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IECcqinn2RbOzn7J7peOWcha9uEPwJVbe5Fk8jNLudEw/NhTNHYXX4sldsTgb73GWvF/16VyA==
+X-Received: by 2002:adf:e3d0:0:b0:368:3731:1614 with SMTP id ffacd0b85a97d-36b3639c90cmr2555913f8f.32.1721973979719;
+        Thu, 25 Jul 2024 23:06:19 -0700 (PDT)
 Received: from redhat.com ([2a02:14f:1f7:28ce:f21a:7e1e:6a9:f708])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4280573edbfsm63673365e9.15.2024.07.25.22.55.47
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36b36863aa7sm4031338f8f.109.2024.07.25.23.06.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jul 2024 22:55:50 -0700 (PDT)
-Date: Fri, 26 Jul 2024 01:55:45 -0400
+        Thu, 25 Jul 2024 23:06:19 -0700 (PDT)
+Date: Fri, 26 Jul 2024 02:06:10 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: David Woodhouse <dwmw2@infradead.org>
 Cc: Richard Cochran <richardcochran@gmail.com>,
@@ -79,9 +80,8 @@ Cc: Richard Cochran <richardcochran@gmail.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
 Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
-Message-ID: <20240726012933-mutt-send-email-mst@kernel.org>
-References: <98813a70f6d3377d3a9d502fd175be97334fcc87.camel@infradead.org>
- <20240725100351-mutt-send-email-mst@kernel.org>
+Message-ID: <20240726015613-mutt-send-email-mst@kernel.org>
+References: <20240725100351-mutt-send-email-mst@kernel.org>
  <2a27205bfc61e19355d360f428a98e2338ff68c3.camel@infradead.org>
  <20240725122603-mutt-send-email-mst@kernel.org>
  <0959390cad71b451dc19e5f9396d3f4fdb8fd46f.camel@infradead.org>
@@ -89,116 +89,36 @@ References: <98813a70f6d3377d3a9d502fd175be97334fcc87.camel@infradead.org>
  <d62925d94a28b4f8e07d14c1639023f3b78b0769.camel@infradead.org>
  <20240725170328-mutt-send-email-mst@kernel.org>
  <c5a48c032a2788ecd98bbcec71f6f3fb0fb65e8c.camel@infradead.org>
- <20240726010511-mutt-send-email-mst@kernel.org>
+ <20240725174327-mutt-send-email-mst@kernel.org>
+ <9261e393083bcd151a017a5af3345a1364b3e0f3.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240726010511-mutt-send-email-mst@kernel.org>
+In-Reply-To: <9261e393083bcd151a017a5af3345a1364b3e0f3.camel@infradead.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jul 26, 2024 at 01:09:24AM -0400, Michael S. Tsirkin wrote:
-> On Thu, Jul 25, 2024 at 10:29:18PM +0100, David Woodhouse wrote:
-> > > > > Then can't we fix it by interrupting all CPUs right after LM?
-> > > > > 
-> > > > > To me that seems like a cleaner approach - we then compartmentalize
-> > > > > the ABI issue - kernel has its own ABI against userspace,
-> > > > > devices have their own ABI against kernel.
-> > > > > It'd mean we need a way to detect that interrupt was sent,
-> > > > > maybe yet another counter inside that structure.
-> > > > > 
-> > > > > WDYT?
-> > > > > 
-> > > > > By the way the same idea would work for snapshots -
-> > > > > some people wanted to expose that info to userspace, too.
-> > 
-> > Those people included me. I wanted to interrupt all the vCPUs, even the
-> > ones which were in userspace at the moment of migration, and have the
-> > kernel deal with passing it on to userspace via a different ABI.
-> > 
-> > It ends up being complex and intricate, and requiring a lot of new
-> > kernel and userspace support. I gave up on it in the end for snapshots,
-> > and didn't go there again for this.
-> 
-> Maybe become you insist on using ACPI?
-> I see a fairly simple way to do it. For example, with virtio:
-> 
-> one vq per CPU, with a single outstanding buffer,
-> callback copies from the buffer into the userspace
-> visible memory.
-> 
-> Want me to show you the code?
+On Thu, Jul 25, 2024 at 11:20:56PM +0100, David Woodhouse wrote:
+> We're rolling out the AMZNVCLK device for internal use cases, and plan
+> to add it in public instances some time later.
 
-Couldn't resist, so I wrote a bit of this code.
-Fundamentally, we keep a copy of the hypervisor abi
-in the device:
+Let's be real. If amazon does something in its own hypervisor, and the
+only way to use that is to expose the interface to userspace, there is
+very little the linux community can do.  Moreover, userspace will be
+written to this ABI, and be locked in to the specific hypervisor. It
+might be a win for amazon short term but long term you will want to
+extend things and it will be a mess.
 
-struct virtclk_info *vci {
-	struct vmclock_abi abi;
-};
-
-each vq will has its own copy:
-
-struct virtqueue_info {
-	struct scatterlist sg[];
-	struct vmclock_abi abi;
-}
-
-we add it during probe:
-        sg_init_one(vqi->sg, &vqi->abi, sizeof(vqi->abi));
-	virtqueue_add_inbuf(vq,
-                        vqi->sg, 1,
-                        &vq->vabi,
-                        GFP_ATOMIC);
-
-
-
-We set the affinity for each vq:
-
-       for (i = 0; i < num_online_cpus(); i++)
-               virtqueue_set_affinity(vi->vq[i], i);
-
-(virtio net does it, and it handles cpu hotplug as well)
-
-each vq callback would do:
-
-static void vmclock_cb(struct virtqueue *vq)
-{
-        struct virtclk_info *vci = vq->vdev->priv;
-        struct virtqueue_info *vqi = vq->priv;
-	void *buf;
-        unsigned int len;
-
-	buf = virtqueue_get_buf(vq, &len);
-	if (!buf)
-		return;
-
-	BUG_ON(buf != &vq->abi);
-
-	spin_lock(vci->lock);
-	if (memcmp(&vci->abi, &vqi->abi, sizeof(vqi->abi))) {
-		memcpy(&vci->abi, &vqi->abi, sizeof(vqi->abi));
-	}
-
-	/* Update the userspace visible structure now */
-	.....
-
-	/* Re-add the buffer */
-	virtqueue_add_inbuf(vq,
-                        vqi->sg, 1,
-                        &vqi->abi,
-                        GFP_ATOMIC);
-
-	spin_unlock(vi->lock);
-}
-
-That's it!
-Where's the problem here?
+So I feel you have chosen ACPI badly.  It just does not have the APIs
+that you need. Virtio does, and would not create a userpspace lock-in
+to a specific hypervisor. It's not really virtio specific either,
+you can write a bare pci device with a BAR and a bunch of msix
+vectors and it will get you the same effect.
 
 -- 
 MST
