@@ -1,53 +1,53 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1ACF2C6BD;
-	Sat, 27 Jul 2024 07:14:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85483374EA;
+	Sat, 27 Jul 2024 07:25:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722064467; cv=none; b=Golppq4h06s0N9qONTlkC/SF8xDzOrBKbRVNq9tGcmWyaQX1NdlqSpesEac1qb2+JUuadlHv5XrEbQZCTIiPwhi+PC88TQtSOGzoU4GV3ITwouIv8ZXWzCOGpPnSpkoGTpNNAyMcEzBpMwpD8rrakQikE7t784wpY+XJYyjE2bM=
+	t=1722065128; cv=none; b=JGHG+Y4zcblbjGaMUjcW1W1vDuNgH6M4h4qgU5WqchuZfQlxzRZhukfStDSn0jYFR+NmIqCB7oXTIPiL8TdoW/3Fu4FB2bNTS09dQavb3uW3wLzIvucSghvqw2Jtfj8ahUskoP1V2mRescKfG7NNSnHYlvinE0FQYgjoC+kz+YQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722064467; c=relaxed/simple;
-	bh=PDrDSG679tZgrgzWDkMYt0FDb+JhOwYtt2rOW8etHWk=;
+	s=arc-20240116; t=1722065128; c=relaxed/simple;
+	bh=N8sbAXOrGNq9MafR41Ns3GNaJEO1tU2bnnRUrxQXi5A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dYkypEaiq/0jptIiUaSANfR1u8zhWGNqAVwhlu+hGfbbDlmWq5q5yxpb01UhK9DnoONh+sqflJ4zxyAfF71VWApOXolfcgum6L5Gx2sx9BA1eo9jnNWgRD3BYrrJVyM/gR/b3kGhDIsWIp88+eOxKtJzDB2ynk4zu0FzKeCsJYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RGH90k3i; arc=none smtp.client-ip=192.198.163.11
+	 Content-Type:Content-Disposition:In-Reply-To; b=c+TmFTbRRmONZx2QRxAGt0nQX8zvA9vL6nrtg1DbbEJVjcr6sdthPQYSaq+l6qdLRbaUtiOydXepE/s8lzYgPynf7GWlQn/FsNfOup/llJ9GeK3M20vRuQKLWr2khCYZWlgpXzCVS5Wajht1Mbzf1Zk4tfkMT1NdMhJoLKXo2Wo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jR9Xk8dP; arc=none smtp.client-ip=192.198.163.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RGH90k3i"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jR9Xk8dP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1722064465; x=1753600465;
+  t=1722065126; x=1753601126;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=PDrDSG679tZgrgzWDkMYt0FDb+JhOwYtt2rOW8etHWk=;
-  b=RGH90k3iU6FtjA6LpvOnGZCL6uxS1qWucbsmAHW719fD66t/1MtIlO6g
-   QoMgeHqsJZsBrhU9ZF804cgpJhcWP2nEhnvsjsR0JPuAr/jzIxsA+SvLo
-   CKiJqeadT7zXXhhxULG9+kRNCoEM4nmthUbJq+JOb1F0OBETyjZqXTAgf
-   hJWw3ldxt17x6M7uI6SMhAdvBwDqHLmMOs53d+2daVugRLZoHtsBFb/e0
-   CNghZ41pQZNG+p24j+gNhvMa9c1GyUfTY/ZBRPggpyT+L/TawIPr+GSgb
-   +QN2hxJChCQvJy6MKWx74mfZnv5IB1xZ6Av6j3O7RkhpLDQ6NhgGnILPk
+  bh=N8sbAXOrGNq9MafR41Ns3GNaJEO1tU2bnnRUrxQXi5A=;
+  b=jR9Xk8dPSFmmk3kwVTLVJRDtn6FLgDcGiSfO5xQXL38o50t/HYpTXtcW
+   S0DhC98k57vMV6vQO+Zti9qHR/3zaiXqh+25EUUMQd0eeTKv5/7Hv0ngR
+   uum+5Qw9PvfAZPlwF7zt8R8J94AEGiBVkHw04VNH2hehhy2YanZX2Q2ww
+   Yu7/IM2/syidZLFCT0fth8kgrAPlrZak8kmBSfFgzbHqQf6gevNXTuZA9
+   yG+0w7XEaTWVEoWXRcVLUchKfwiRNlxIsEIgUXlKRMseERuM2Cdbp+S6V
+   A5gdDRlpjL8ai0mGlDTNwOba5zwaQq0lz8Nq6hl+jLfkfNuZNX0rMGOO2
    w==;
-X-CSE-ConnectionGUID: Z0wVFYPgR7mVcQD4Y1XdKw==
-X-CSE-MsgGUID: 8uc0vySrTT+4T7migFuwUA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11145"; a="30474620"
+X-CSE-ConnectionGUID: q26qctsjQO2+ViNwOYjE6w==
+X-CSE-MsgGUID: ozT5/Cf5St6SMH/oJHcnig==
+X-IronPort-AV: E=McAfee;i="6700,10204,11145"; a="20051414"
 X-IronPort-AV: E=Sophos;i="6.09,240,1716274800"; 
-   d="scan'208";a="30474620"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2024 00:14:24 -0700
-X-CSE-ConnectionGUID: K4q1gM87SDGxQEzAl3vBjg==
-X-CSE-MsgGUID: 6QD6XAxERwisc8lAKMYJtw==
+   d="scan'208";a="20051414"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2024 00:25:26 -0700
+X-CSE-ConnectionGUID: F7qawGQUTz2BRCzV8TI8Xw==
+X-CSE-MsgGUID: miuXKPi+SdyZwTPHTUeAVQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.09,240,1716274800"; 
-   d="scan'208";a="53150571"
+   d="scan'208";a="58288846"
 Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
-  by fmviesa006.fm.intel.com with ESMTP; 27 Jul 2024 00:14:18 -0700
+  by orviesa003.jf.intel.com with ESMTP; 27 Jul 2024 00:25:19 -0700
 Received: from kbuild by 68891e0c336b with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1sXbd9-000phs-2e;
-	Sat, 27 Jul 2024 07:14:15 +0000
-Date: Sat, 27 Jul 2024 15:13:52 +0800
+	id 1sXbno-000piS-07;
+	Sat, 27 Jul 2024 07:25:16 +0000
+Date: Sat, 27 Jul 2024 15:24:33 +0800
 From: kernel test robot <lkp@intel.com>
 To: Tim Merrifield <tim.merrifield@broadcom.com>,
 	"Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
@@ -71,7 +71,7 @@ To: Tim Merrifield <tim.merrifield@broadcom.com>,
 	ravindra.kumar@broadcom.com
 Cc: oe-kbuild-all@lists.linux.dev
 Subject: Re: [PATCH v2 1/2] Add prctl to allow userlevel TDX hypercalls
-Message-ID: <202407271423.sLLB8VXR-lkp@intel.com>
+Message-ID: <202407271528.NcCDP6PG-lkp@intel.com>
 References: <651ceb5a89721621d522419e8a5d901632a78a22.1722019360.git.tim.merrifield@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -98,76 +98,76 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Tim-Merrifield/Add-prctl-
 base:   tip/x86/vmware
 patch link:    https://lore.kernel.org/r/651ceb5a89721621d522419e8a5d901632a78a22.1722019360.git.tim.merrifield%40broadcom.com
 patch subject: [PATCH v2 1/2] Add prctl to allow userlevel TDX hypercalls
-config: i386-buildonly-randconfig-001-20240727 (https://download.01.org/0day-ci/archive/20240727/202407271423.sLLB8VXR-lkp@intel.com/config)
-compiler: gcc-13 (Ubuntu 13.2.0-4ubuntu3) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240727/202407271423.sLLB8VXR-lkp@intel.com/reproduce)
+config: i386-buildonly-randconfig-003-20240727 (https://download.01.org/0day-ci/archive/20240727/202407271528.NcCDP6PG-lkp@intel.com/config)
+compiler: gcc-8 (Ubuntu 8.4.0-3ubuntu2) 8.4.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240727/202407271528.NcCDP6PG-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202407271423.sLLB8VXR-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202407271528.NcCDP6PG-lkp@intel.com/
 
-All error/warnings (new ones prefixed by >>):
+All errors (new ones prefixed by >>):
 
    In file included from include/linux/kernel.h:23,
                     from arch/x86/kernel/process.c:5:
    arch/x86/kernel/process.c: In function 'get_coco_user_hcall_mode':
->> arch/x86/kernel/process.c:1041:46: error: 'mm_context_t' has no member named 'flags'
-    1041 |                         &current->mm->context.flags);
-         |                                              ^
-   include/linux/bitops.h:45:44: note: in definition of macro 'bitop'
-      45 |           __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) && \
-         |                                            ^~~~
-   arch/x86/kernel/process.c:1040:17: note: in expansion of macro 'test_bit'
-    1040 |         return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
-         |                 ^~~~~~~~
->> arch/x86/kernel/process.c:1041:46: error: 'mm_context_t' has no member named 'flags'
-    1041 |                         &current->mm->context.flags);
-         |                                              ^
-   include/linux/bitops.h:46:23: note: in definition of macro 'bitop'
-      46 |           (uintptr_t)(addr) != (uintptr_t)NULL &&                       \
-         |                       ^~~~
-   arch/x86/kernel/process.c:1040:17: note: in expansion of macro 'test_bit'
-    1040 |         return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
-         |                 ^~~~~~~~
->> arch/x86/kernel/process.c:1041:46: error: 'mm_context_t' has no member named 'flags'
-    1041 |                         &current->mm->context.flags);
-         |                                              ^
-   include/linux/bitops.h:47:57: note: in definition of macro 'bitop'
-      47 |           __builtin_constant_p(*(const unsigned long *)(addr))) ?       \
-         |                                                         ^~~~
-   arch/x86/kernel/process.c:1040:17: note: in expansion of macro 'test_bit'
-    1040 |         return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
-         |                 ^~~~~~~~
->> arch/x86/kernel/process.c:1041:46: error: 'mm_context_t' has no member named 'flags'
-    1041 |                         &current->mm->context.flags);
-         |                                              ^
-   include/linux/bitops.h:48:24: note: in definition of macro 'bitop'
-      48 |          const##op(nr, addr) : op(nr, addr))
-         |                        ^~~~
-   arch/x86/kernel/process.c:1040:17: note: in expansion of macro 'test_bit'
-    1040 |         return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
-         |                 ^~~~~~~~
->> arch/x86/kernel/process.c:1041:46: error: 'mm_context_t' has no member named 'flags'
-    1041 |                         &current->mm->context.flags);
-         |                                              ^
-   include/linux/bitops.h:48:39: note: in definition of macro 'bitop'
-      48 |          const##op(nr, addr) : op(nr, addr))
-         |                                       ^~~~
-   arch/x86/kernel/process.c:1040:17: note: in expansion of macro 'test_bit'
-    1040 |         return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
-         |                 ^~~~~~~~
+>> arch/x86/kernel/process.c:1041:25: error: 'mm_context_t' {aka 'struct <anonymous>'} has no member named 'flags'
+       &current->mm->context.flags);
+                            ^
+   include/linux/bitops.h:45:37: note: in definition of macro 'bitop'
+       __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) && \
+                                        ^~~~
+   arch/x86/kernel/process.c:1040:10: note: in expansion of macro 'test_bit'
+     return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
+             ^~~~~~~~
+>> arch/x86/kernel/process.c:1041:25: error: 'mm_context_t' {aka 'struct <anonymous>'} has no member named 'flags'
+       &current->mm->context.flags);
+                            ^
+   include/linux/bitops.h:46:16: note: in definition of macro 'bitop'
+       (uintptr_t)(addr) != (uintptr_t)NULL &&   \
+                   ^~~~
+   arch/x86/kernel/process.c:1040:10: note: in expansion of macro 'test_bit'
+     return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
+             ^~~~~~~~
+>> arch/x86/kernel/process.c:1041:25: error: 'mm_context_t' {aka 'struct <anonymous>'} has no member named 'flags'
+       &current->mm->context.flags);
+                            ^
+   include/linux/bitops.h:47:50: note: in definition of macro 'bitop'
+       __builtin_constant_p(*(const unsigned long *)(addr))) ? \
+                                                     ^~~~
+   arch/x86/kernel/process.c:1040:10: note: in expansion of macro 'test_bit'
+     return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
+             ^~~~~~~~
+>> arch/x86/kernel/process.c:1041:25: error: 'mm_context_t' {aka 'struct <anonymous>'} has no member named 'flags'
+       &current->mm->context.flags);
+                            ^
+   include/linux/bitops.h:48:17: note: in definition of macro 'bitop'
+      const##op(nr, addr) : op(nr, addr))
+                    ^~~~
+   arch/x86/kernel/process.c:1040:10: note: in expansion of macro 'test_bit'
+     return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
+             ^~~~~~~~
+>> arch/x86/kernel/process.c:1041:25: error: 'mm_context_t' {aka 'struct <anonymous>'} has no member named 'flags'
+       &current->mm->context.flags);
+                            ^
+   include/linux/bitops.h:48:32: note: in definition of macro 'bitop'
+      const##op(nr, addr) : op(nr, addr))
+                                   ^~~~
+   arch/x86/kernel/process.c:1040:10: note: in expansion of macro 'test_bit'
+     return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
+             ^~~~~~~~
    arch/x86/kernel/process.c: In function 'set_coco_user_hcall_mode':
-   arch/x86/kernel/process.c:1048:46: error: 'mm_context_t' has no member named 'flags'
-    1048 |                         &current->mm->context.flags);
-         |                                              ^
-   arch/x86/kernel/process.c:1051:48: error: 'mm_context_t' has no member named 'flags'
-    1051 |                           &current->mm->context.flags);
-         |                                                ^
+   arch/x86/kernel/process.c:1048:25: error: 'mm_context_t' {aka 'struct <anonymous>'} has no member named 'flags'
+       &current->mm->context.flags);
+                            ^
+   arch/x86/kernel/process.c:1051:27: error: 'mm_context_t' {aka 'struct <anonymous>'} has no member named 'flags'
+         &current->mm->context.flags);
+                              ^
    arch/x86/kernel/process.c: In function 'get_coco_user_hcall_mode':
->> arch/x86/kernel/process.c:1042:1: warning: control reaches end of non-void function [-Wreturn-type]
-    1042 | }
-         | ^
+   arch/x86/kernel/process.c:1042:1: warning: control reaches end of non-void function [-Wreturn-type]
+    }
+    ^
 
 
 vim +1041 arch/x86/kernel/process.c
@@ -177,7 +177,7 @@ vim +1041 arch/x86/kernel/process.c
   1039	{
   1040		return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
 > 1041				&current->mm->context.flags);
-> 1042	}
+  1042	}
   1043	
 
 -- 
