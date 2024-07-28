@@ -1,120 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 705AC51C3E
-	for <virtualization@lists.linux.dev>; Sun, 28 Jul 2024 15:24:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45E6874058
+	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:46:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722180245; cv=none; b=DT9iY/W2EDaRSzd9ERTbY+pj75ViGBCxEYwCxwBV9zHiTpe5tbyjBY71SUutqSg3kGgXQyJgkJmKGWb8lBNKemdty77+XmS+TTm++PiPV7aUTDrlMFQsVQkzSEvGSw9f2is9V1zqBQoEsgYo0vEzbpws7yKHdU5VRCaD1P+F6XY=
+	t=1722192369; cv=none; b=dwGBVbXg/2hOMeDS5IToYJQ/tY5FQbnUgrPM34Vgd5TWZYmqazsabB53C1e7KOPPla3TlIlC1V6VqeaW6FXtlbViUzZZCA7YMqW+oWoyEjInKCj3uR8AiWevG3v3JxfXM2yS8NcfNaTqzTn/8jxuuINr5esAtpDk/XmnF86PdbU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722180245; c=relaxed/simple;
-	bh=IOwAsnqgHoluJc7mNb67jddHNZA6RYbBXNw2KHo1ji0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TY6PsT7anpMJZp4ayKEa0U18O7pPIxG0Vh07y0SKXTCoe2zBASTLTaN5lLnmSO82ED78AUz/By+fYgLaqxrTknmqc1Vnlh+1LaiDjuH4GZX3kF3nbnG3km/e4yUEIehY6F5XJlgwQMgAev6ZgoiyS7GBv67kZpAjpH2bMw7mrD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dcT+0eM8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1722192369; c=relaxed/simple;
+	bh=mhY5V8J8gB/UGyxNjmHjbbLGoVlGOg7JOoBSPBcGpo0=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=u9aB0Y5C7p2qSjbqNyR6hYTmmCcKcRW+G2ab+Q6AV4C2JDwqLtjoMUrdg5ldMli0K7RYg4E86IA84wK7G083U1ggUHScCEJads9JL6Rnf51U53++D8da1CILxuOA1XHkKFwLHkCrpiEXRAbNOKW39mAk6hUpE6I0Lq16dAi7bt8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=pnBwJN1j; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dcT+0eM8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722180242;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5bC7CjlZdsdHI4lvHiT2ExOZBWJ7XMhmuhfoptCNZqw=;
-	b=dcT+0eM8BW7APhf0SQlvSFgEGeGTGM2vi8sD/0ZaVLUCS96cyeSh5EAC6kCj6QYNaxx/WI
-	Afl6CtwiI08M/Tf1qwzRF1Pq9MnTpfkALAjRMU7knEbxZ2w1eWQBnxN9KIljmvF17lEMZ5
-	kixlI7Ox6S1Mzcht22PUMcTldXuNNXU=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-502-l1Lr68IGMBO3fbLJvC2edg-1; Sun, 28 Jul 2024 11:24:00 -0400
-X-MC-Unique: l1Lr68IGMBO3fbLJvC2edg-1
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2ef244cdd30so29777081fa.0
-        for <virtualization@lists.linux.dev>; Sun, 28 Jul 2024 08:24:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722180239; x=1722785039;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5bC7CjlZdsdHI4lvHiT2ExOZBWJ7XMhmuhfoptCNZqw=;
-        b=ttMahjJywW0MSGpaDKgkR2eb2BOlNr99zAE2HzkyKHh1tOhqokWbWdccOUb5jNK5Y1
-         gr28tLVDEDPz1xMqmSHYCxaoYoGtk9oqj+X5gYfWH45K0aIQY7LbwP+M0c6Av/KG/URN
-         VxWqKcPz9hdHUxhnhPe9p3kduMoTytWtK4QgPcg73ZkWf60Abf7eZ8mWR1iCUOrwG7yg
-         VgGN95HuLZ8CoRCVSJtEgRgb6GEDp4XWnH9AF+7RCDF22msALUxIIbKiyVmcFMNPrjWU
-         TCBljzQuThcgD0UuRZsd5+sKUPSZY5ZKnodECV0cl8Vx6jpx+qhjae6/7DY073799xzv
-         JnXQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU4rD+tgbejq4Noal68HgbLAtzFpgFIPmspo6dVreVTFO+Q1raJGcccDXhQyGp4ixnHpw03UlQgZFHzGVus0eOA/r6wX9wBaMkCQTnZLeE=
-X-Gm-Message-State: AOJu0Yy3/2/0Vt3yuH49HLiRiBU+ngzZd3IwEB6xnApocre9RiI4Uafr
-	DRy6KC7zfZlwuKw8614MTdtVPxtwno/NUJzgD48uOBuQNXRYE29pyd0bVUR6XYeP28Hm+X78Qk2
-	MzACr1SHpfRiyr/l10waqzfmQyQ6tc908TJUReW9XUEJMBuMXSQizBXICmr6ClreXHf8WiVmz
-X-Received: by 2002:a2e:be22:0:b0:2ef:1c0a:9b94 with SMTP id 38308e7fff4ca-2f12edfddc0mr34329371fa.16.1722180238923;
-        Sun, 28 Jul 2024 08:23:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEU13tBt+N37F7ob3Jx0ruuvo8+dsNp9muZtzaqjHOl31gS3qTrnO0jECcjoxvWesNrjNQyHQ==
-X-Received: by 2002:a2e:be22:0:b0:2ef:1c0a:9b94 with SMTP id 38308e7fff4ca-2f12edfddc0mr34329181fa.16.1722180238084;
-        Sun, 28 Jul 2024 08:23:58 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:55d:98c4:742e:26be:b52d:dd54])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-428054b9196sm147521925e9.0.2024.07.28.08.23.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jul 2024 08:23:57 -0700 (PDT)
-Date: Sun, 28 Jul 2024 11:23:49 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Peter Hilber <peter.hilber@opensynergy.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	"Ridoux, Julien" <ridouxj@amazon.com>, virtio-dev@lists.linux.dev,
-	"Luu, Ryan" <rluu@amazon.com>,
-	"Chashper, David" <chashper@amazon.com>,
-	"Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
-	"Christopher S . Hall" <christopher.s.hall@intel.com>,
-	Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
-	netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
-Message-ID: <20240728111746-mutt-send-email-mst@kernel.org>
-References: <20240725081502-mutt-send-email-mst@kernel.org>
- <f55e6dfc4242d69eed465f26d6ad7719193309dc.camel@infradead.org>
- <20240725082828-mutt-send-email-mst@kernel.org>
- <db786be69aed3800f1aca71e8c4c2a6930e3bb0b.camel@infradead.org>
- <20240725083215-mutt-send-email-mst@kernel.org>
- <98813a70f6d3377d3a9d502fd175be97334fcc87.camel@infradead.org>
- <20240726174958.00007d10@Huawei.com>
- <811E8A25-3DBC-452D-B594-F9B7B0B61335@infradead.org>
- <20240728062521-mutt-send-email-mst@kernel.org>
- <9817300C-9280-4CC3-B9DB-37D24C8C20B5@infradead.org>
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="pnBwJN1j"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 88C69606D3
+	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:46:06 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.102
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id O6gzJ6ZFhJNr for <virtualization@lists.linux-foundation.org>;
+ Sun, 28 Jul 2024 18:46:03 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.89.224.132; helo=mx1.sberdevices.ru; envelope-from=avkrasnov@salutedevices.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 722B46067D
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 722B46067D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=pnBwJN1j
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 722B46067D
+	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:45:59 +0000 (UTC)
+Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 1103D120002;
+	Sun, 28 Jul 2024 21:45:56 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 1103D120002
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1722192356;
+	bh=9o/ZHYQE9Ij66yuCyWy+gG83haFDOx+z13e/Jm3klnw=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
+	b=pnBwJN1jbm1YYoOrc2eLRaKGOMhHelFfy4q3n8cwSJtAEGQhQlnmRg/XMwjRCy4m9
+	 2njHXqz8gps8KVY0I98cUMoCZns8W3YwsK8+Gh+cVBAjnQm/Xy4lFOwG3OPK5Yz7JQ
+	 NxdeDSzZQYJDS5N5b8orQUb+a7c8e6PIEq0eS6nDCJXoStpBZGWV2QIaUiQ6+HiAg/
+	 wMQS16KDygtKrjdie3jok2MV7Lwu7PL5McEit48jt5YzHhUY8xIqOVLmPgYTvOL2z8
+	 /yTWiESxZzE41Ksd2q76a9abi11hjdD4IMQxqBPymJxB5GW7BIqICgLlP2ZshEjvSG
+	 r72uUPZkqABDg==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Sun, 28 Jul 2024 21:45:55 +0300 (MSK)
+Received: from localhost.localdomain (100.64.160.123) by
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Sun, 28 Jul 2024 21:45:54 +0300
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
+Subject: [PATCH v1] MAINTAINERS: add me as reviewer of AF_VSOCK and virtio-vsock
+Date: Sun, 28 Jul 2024 21:33:25 +0300
+Message-ID: <20240728183325.1295283-1-avkrasnov@salutedevices.com>
+X-Mailer: git-send-email 2.35.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <9817300C-9280-4CC3-B9DB-37D24C8C20B5@infradead.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 186756 [Jul 28 2024]
+X-KSMG-AntiSpam-Version: 6.1.0.4
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 24 0.3.24 186c4d603b899ccfd4883d230c53f273b80e467f, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;smtp.sberdevices.ru:5.0.1,7.1.1;100.64.160.123:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/07/28 16:08:00 #26170679
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Sun, Jul 28, 2024 at 02:07:01PM +0100, David Woodhouse wrote:
-> On 28 July 2024 11:37:04 BST, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >Glad you asked :)
-> 
-> Heh, I'm not sure I'm so glad. Did I mention I hate ACPI? Perhaps it's still not too late for me just to define a DT binding and use PRP0001 for it :)
-> 
-> >Long story short, QEMUVGID is indeed out of spec, but it works
-> >both because of guest compatibility with ACPI 1.0, and because no one
-> >much uses it.
-> 
-> 
-> I think it's reasonable enough to follow that example and use AMZNVCLK (or QEMUVCLK, but there seems little point in both) then?
+I'm working on AF_VSOCK and virtio-vsock.
 
-I'd stick to spec. If you like puns, QEMUC10C maybe?
+Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+---
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c0a3d9e93689..2bf0987d87ed 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -24131,6 +24131,7 @@ F:	virt/lib/
+ VIRTIO AND VHOST VSOCK DRIVER
+ M:	Stefan Hajnoczi <stefanha@redhat.com>
+ M:	Stefano Garzarella <sgarzare@redhat.com>
++R:	Arseniy Krasnov <avkrasnov@salutedevices.com>
+ L:	kvm@vger.kernel.org
+ L:	virtualization@lists.linux.dev
+ L:	netdev@vger.kernel.org
+@@ -24370,6 +24371,7 @@ F:	drivers/media/test-drivers/vivid/*
+ 
+ VM SOCKETS (AF_VSOCK)
+ M:	Stefano Garzarella <sgarzare@redhat.com>
++R:	Arseniy Krasnov <avkrasnov@salutedevices.com>
+ L:	virtualization@lists.linux.dev
+ L:	netdev@vger.kernel.org
+ S:	Maintained
+-- 
+2.35.0
 
