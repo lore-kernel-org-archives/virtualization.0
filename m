@@ -1,127 +1,258 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45E6874058
-	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:46:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CC8574076
+	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:53:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722192369; cv=none; b=dwGBVbXg/2hOMeDS5IToYJQ/tY5FQbnUgrPM34Vgd5TWZYmqazsabB53C1e7KOPPla3TlIlC1V6VqeaW6FXtlbViUzZZCA7YMqW+oWoyEjInKCj3uR8AiWevG3v3JxfXM2yS8NcfNaTqzTn/8jxuuINr5esAtpDk/XmnF86PdbU=
+	t=1722192789; cv=none; b=E9wg3OxV7tyGcJlX2y1BEN5pgXTBaL1RvtXYrIZNAHQtJd/SQ4w41MlB+E8ZPWiqLVMp0n0yaorcKsAxxqplcPyx2EKjzhHiXkNEspHlD97o962+MP60LhQe707fnRLaCSTDifDichgXQXgddbfN+MBLCNDIZglxRzgpk/K8vro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722192369; c=relaxed/simple;
-	bh=mhY5V8J8gB/UGyxNjmHjbbLGoVlGOg7JOoBSPBcGpo0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=u9aB0Y5C7p2qSjbqNyR6hYTmmCcKcRW+G2ab+Q6AV4C2JDwqLtjoMUrdg5ldMli0K7RYg4E86IA84wK7G083U1ggUHScCEJads9JL6Rnf51U53++D8da1CILxuOA1XHkKFwLHkCrpiEXRAbNOKW39mAk6hUpE6I0Lq16dAi7bt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=pnBwJN1j; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1722192789; c=relaxed/simple;
+	bh=PPREMhC5736ADe8UjUj7yOVHwR1uO6w7vYqpo8l6SzM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=F+yJaZhi3KYGtUsFOvNDmjdBretYOtujBjct/Wyx0lT/LIMcm/P8n4MIfXcwdcArWyjWnHA1fl6EJdNyCF4H02N/N6m+YFGtJiUhgSOL/NSnuDrcLMabW+DrJr8AosBFsVsZPdQgT01wmfO1nHew9LRxfFX7u2wFWSJ9FoicPLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fmsa0w1H; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="pnBwJN1j"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fmsa0w1H"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 88C69606D3
-	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:46:06 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E534740357
+	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:53:07 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.102
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id O6gzJ6ZFhJNr for <virtualization@lists.linux-foundation.org>;
- Sun, 28 Jul 2024 18:46:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.89.224.132; helo=mx1.sberdevices.ru; envelope-from=avkrasnov@salutedevices.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 722B46067D
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 722B46067D
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=pnBwJN1j
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 722B46067D
-	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:45:59 +0000 (UTC)
-Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 1103D120002;
-	Sun, 28 Jul 2024 21:45:56 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 1103D120002
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1722192356;
-	bh=9o/ZHYQE9Ij66yuCyWy+gG83haFDOx+z13e/Jm3klnw=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=pnBwJN1jbm1YYoOrc2eLRaKGOMhHelFfy4q3n8cwSJtAEGQhQlnmRg/XMwjRCy4m9
-	 2njHXqz8gps8KVY0I98cUMoCZns8W3YwsK8+Gh+cVBAjnQm/Xy4lFOwG3OPK5Yz7JQ
-	 NxdeDSzZQYJDS5N5b8orQUb+a7c8e6PIEq0eS6nDCJXoStpBZGWV2QIaUiQ6+HiAg/
-	 wMQS16KDygtKrjdie3jok2MV7Lwu7PL5McEit48jt5YzHhUY8xIqOVLmPgYTvOL2z8
-	 /yTWiESxZzE41Ksd2q76a9abi11hjdD4IMQxqBPymJxB5GW7BIqICgLlP2ZshEjvSG
-	 r72uUPZkqABDg==
-Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Sun, 28 Jul 2024 21:45:55 +0300 (MSK)
-Received: from localhost.localdomain (100.64.160.123) by
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Sun, 28 Jul 2024 21:45:54 +0300
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [PATCH v1] MAINTAINERS: add me as reviewer of AF_VSOCK and virtio-vsock
-Date: Sun, 28 Jul 2024 21:33:25 +0300
-Message-ID: <20240728183325.1295283-1-avkrasnov@salutedevices.com>
-X-Mailer: git-send-email 2.35.0
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 7yXnT7e60HJz for <virtualization@lists.linux-foundation.org>;
+ Sun, 28 Jul 2024 18:53:07 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b2b; helo=mail-yb1-xb2b.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org CC24740352
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CC24740352
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Fmsa0w1H
+Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id CC24740352
+	for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 18:53:06 +0000 (UTC)
+Received: by mail-yb1-xb2b.google.com with SMTP id 3f1490d57ef6-e0857a11862so1407173276.1
+        for <virtualization@lists.linux-foundation.org>; Sun, 28 Jul 2024 11:53:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1722192785; x=1722797585; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+WaFwUhUy7huwacOsYHZwdSyihUsKnDhkCHGxr+gg2M=;
+        b=Fmsa0w1HBjcUOb0H/0o9O4x9cgbmPFuZ44UJywMBuReSVJsXSCGUfp31+KM1qlETQk
+         vRX4HJsWyz0sF9tHdzkwF375EdmdbkZScJtB/BRVJ4cbjWWq4Bsx33RMAO0kyxxxH6dh
+         dgj9dXNai2GdJfG3sG3164heCmcOtogczSzJkwpJ5YgxD+wQpefNZEOZULSUDBH7ZucB
+         m3UEG4Ai8DO1C4lUQxQAQryRcMYyeeVClW291/6RiqjqIq8vKlApOwGXUP+r4iJk2Mn8
+         Rhr20O0QI2zpskFjnKMc0gBwplL6D/xcIKbzU8zt224mTknEgsgQ6HvLY0TXn7xB8647
+         zqrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722192785; x=1722797585;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+WaFwUhUy7huwacOsYHZwdSyihUsKnDhkCHGxr+gg2M=;
+        b=gcqCp+i3nOlH+6866qu9j4anW2bY3DDW3kHbKt4zcrDauwySrkX5dtc6RfJQ/me2Hx
+         nc2xOT2VLXoz0k4/FQiORGwZrdmHbAhZH+0UDWQ6LcGBJnNermMNM4FBVK9ScFfTuUsx
+         Ax7ptSBstKdpXNxEiDePKQLwnJ+Kq0zGzXnpBUi7gjY5EEmr8prLC7RJxyjmXRFoF8xT
+         yjmEPGbh+S/vwBEOxUdTCkuwqdRe9Jae56LUrGdSs8e0eb9WgEcuuL9l9hLfDG90KHn+
+         vZPj9TIa+wYEo1t5bfGpy5Pk0kP9CcPZ/kWeQSxrFLOMxll5Oq3JuPgwp047rwc+sbgW
+         yaow==
+X-Forwarded-Encrypted: i=1; AJvYcCWEh3RFrsb7ETg5/+MquV01MxjweCx1dhQ3KpdZJIpZDwatNAZvev87tC+xoVThdpXEzoUgw5v9SnsX+qFTDFEBjc9keOysAAXszikkU6uBNd4+Hw7+T3UgFg==
+X-Gm-Message-State: AOJu0YwkBWcAiK9JUXkKsGm35PRUHJdO29OtqGZxMXbT0hHUMCt4gybx
+	DeFy3tc/cyCu+iBNrY2jBpLRjBDkTUpIsYa9P2S0ms4Ygu3a03RQKyvoIIkAp9NLwYC2zimlf/R
+	S7FK8wrqDm6/P8bgSTqAu68Y96lk=
+X-Google-Smtp-Source: AGHT+IFTRoCPd34HHWfTgIQNU+sTEkr3o4CgrkzGKLra2JgW08IJHV2eZgSUAorTK4dr8M4YsaVo8uy6TqxmtUJfv/0=
+X-Received: by 2002:a25:854f:0:b0:e08:70e7:91d3 with SMTP id
+ 3f1490d57ef6-e0b546070aamr5384474276.56.1722192784965; Sun, 28 Jul 2024
+ 11:53:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 186756 [Jul 28 2024]
-X-KSMG-AntiSpam-Version: 6.1.0.4
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 24 0.3.24 186c4d603b899ccfd4883d230c53f273b80e467f, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;smtp.sberdevices.ru:5.0.1,7.1.1;100.64.160.123:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/07/28 16:08:00 #26170679
-X-KSMG-AntiVirus-Status: Clean, skipped
+References: <20240710212555.1617795-1-amery.hung@bytedance.com>
+ <20240710212555.1617795-5-amery.hung@bytedance.com> <CAGxU2F7wCUR-KhDRBopK+0gv=bM0PCKeWM87j1vEYmbvhO8WHQ@mail.gmail.com>
+In-Reply-To: <CAGxU2F7wCUR-KhDRBopK+0gv=bM0PCKeWM87j1vEYmbvhO8WHQ@mail.gmail.com>
+From: Amery Hung <ameryhung@gmail.com>
+Date: Sun, 28 Jul 2024 11:52:54 -0700
+Message-ID: <CAMB2axNUZa221WKTjLt0G5KNdtkAbm20ViDZRGBh6pL9y3wosg@mail.gmail.com>
+Subject: Re: [RFC PATCH net-next v6 04/14] af_vsock: generalize bind table functions
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, pabeni@redhat.com, kys@microsoft.com, haiyangz@microsoft.com, 
+	wei.liu@kernel.org, decui@microsoft.com, bryantan@vmware.com, 
+	vdasa@vmware.com, pv-drivers@vmware.com, dan.carpenter@linaro.org, 
+	simon.horman@corigine.com, oxffffaa@gmail.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
+	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I'm working on AF_VSOCK and virtio-vsock.
+On Tue, Jul 23, 2024 at 7:40=E2=80=AFAM Stefano Garzarella <sgarzare@redhat=
+.com> wrote:
+>
+> On Wed, Jul 10, 2024 at 09:25:45PM GMT, Amery Hung wrote:
+> >From: Bobby Eshleman <bobby.eshleman@bytedance.com>
+> >
+> >This commit makes the bind table management functions in vsock usable
+> >for different bind tables. Future work will introduce a new table for
+> >datagrams to avoid address collisions, and these functions will be used
+> >there.
+> >
+> >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+> >---
+> > net/vmw_vsock/af_vsock.c | 34 +++++++++++++++++++++++++++-------
+> > 1 file changed, 27 insertions(+), 7 deletions(-)
+> >
+> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> >index acc15e11700c..d571be9cdbf0 100644
+> >--- a/net/vmw_vsock/af_vsock.c
+> >+++ b/net/vmw_vsock/af_vsock.c
+> >@@ -232,11 +232,12 @@ static void __vsock_remove_connected(struct vsock_=
+sock *vsk)
+> >       sock_put(&vsk->sk);
+> > }
+> >
+> >-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+> >+static struct sock *vsock_find_bound_socket_common(struct sockaddr_vm *=
+addr,
+> >+                                                 struct list_head *bind=
+_table)
+> > {
+> >       struct vsock_sock *vsk;
+> >
+> >-      list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) =
+{
+> >+      list_for_each_entry(vsk, bind_table, bound_table) {
+> >               if (vsock_addr_equals_addr(addr, &vsk->local_addr))
+> >                       return sk_vsock(vsk);
+> >
+> >@@ -249,6 +250,11 @@ static struct sock *__vsock_find_bound_socket(struc=
+t sockaddr_vm *addr)
+> >       return NULL;
+> > }
+> >
+> >+static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+> >+{
+> >+      return vsock_find_bound_socket_common(addr, vsock_bound_sockets(a=
+ddr));
+> >+}
+> >+
+> > static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *s=
+rc,
+> >                                                 struct sockaddr_vm *dst=
+)
+> > {
+> >@@ -671,12 +677,18 @@ static void vsock_pending_work(struct work_struct =
+*work)
+> >
+> > /**** SOCKET OPERATIONS ****/
+> >
+> >-static int __vsock_bind_connectible(struct vsock_sock *vsk,
+> >-                                  struct sockaddr_vm *addr)
+> >+static int vsock_bind_common(struct vsock_sock *vsk,
+> >+                           struct sockaddr_vm *addr,
+> >+                           struct list_head *bind_table,
+> >+                           size_t table_size)
+> > {
+> >       static u32 port;
+> >       struct sockaddr_vm new_addr;
+> >
+> >+      if (WARN_ONCE(table_size < VSOCK_HASH_SIZE,
+> >+                    "table size too small, may cause overflow"))
+> >+              return -EINVAL;
+> >+
+>
+> I'd add this in another commit.
+>
+> >       if (!port)
+> >               port =3D get_random_u32_above(LAST_RESERVED_PORT);
+> >
+> >@@ -692,7 +704,8 @@ static int __vsock_bind_connectible(struct
+> >vsock_sock *vsk,
+> >
+> >                       new_addr.svm_port =3D port++;
+> >
+> >-                      if (!__vsock_find_bound_socket(&new_addr)) {
+> >+                      if (!vsock_find_bound_socket_common(&new_addr,
+> >+                                                          &bind_table[V=
+SOCK_HASH(addr)])) {
+>
+> Can we add a macro for `&bind_table[VSOCK_HASH(addr)])` ?
+>
 
-Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
----
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+Definitely. I will add the following macro:
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c0a3d9e93689..2bf0987d87ed 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -24131,6 +24131,7 @@ F:	virt/lib/
- VIRTIO AND VHOST VSOCK DRIVER
- M:	Stefan Hajnoczi <stefanha@redhat.com>
- M:	Stefano Garzarella <sgarzare@redhat.com>
-+R:	Arseniy Krasnov <avkrasnov@salutedevices.com>
- L:	kvm@vger.kernel.org
- L:	virtualization@lists.linux.dev
- L:	netdev@vger.kernel.org
-@@ -24370,6 +24371,7 @@ F:	drivers/media/test-drivers/vivid/*
- 
- VM SOCKETS (AF_VSOCK)
- M:	Stefano Garzarella <sgarzare@redhat.com>
-+R:	Arseniy Krasnov <avkrasnov@salutedevices.com>
- L:	virtualization@lists.linux.dev
- L:	netdev@vger.kernel.org
- S:	Maintained
--- 
-2.35.0
+#define vsock_bound_sockets_in_table(bind_table, addr) \
+        (&bind_table[VSOCK_HASH(addr)])
 
+> >                               found =3D true;
+> >                               break;
+> >                       }
+> >@@ -709,7 +722,8 @@ static int __vsock_bind_connectible(struct vsock_soc=
+k *vsk,
+> >                       return -EACCES;
+> >               }
+> >
+> >-              if (__vsock_find_bound_socket(&new_addr))
+> >+              if (vsock_find_bound_socket_common(&new_addr,
+> >+                                                 &bind_table[VSOCK_HASH=
+(addr)]))
+> >                       return -EADDRINUSE;
+> >       }
+> >
+> >@@ -721,11 +735,17 @@ static int __vsock_bind_connectible(struct vsock_s=
+ock *vsk,
+> >        * by AF_UNIX.
+> >        */
+> >       __vsock_remove_bound(vsk);
+> >-      __vsock_insert_bound(vsock_bound_sockets(&vsk->local_addr), vsk);
+> >+      __vsock_insert_bound(&bind_table[VSOCK_HASH(&vsk->local_addr)], v=
+sk);
+> >
+> >       return 0;
+> > }
+> >
+> >+static int __vsock_bind_connectible(struct vsock_sock *vsk,
+> >+                                  struct sockaddr_vm *addr)
+> >+{
+> >+      return vsock_bind_common(vsk, addr, vsock_bind_table, VSOCK_HASH_=
+SIZE + 1);
+>
+> What about using ARRAY_SIZE(x) ?
+>
+> BTW we are using that size just to check it, but all the arrays we use
+> are statically allocated, so what about a compile time check like
+> BUILD_BUG_ON()?
+>
+
+I will remove the table_size check you mentioned earlier and the
+argument here as the arrays are allocated statically like you
+mentioned.
+
+If you think this check may be a good addition, I can add a
+BUILD_BUG_ON() in the new vsock_bound_sockets_in_table() macro.
+
+Thanks,
+Amery
+
+> Thanks,
+> Stefano
+>
+>
+> >+}
+> >+
+> > static int __vsock_bind_dgram(struct vsock_sock *vsk,
+> >                             struct sockaddr_vm *addr)
+> > {
+> >--
+> >2.20.1
+> >
+>
