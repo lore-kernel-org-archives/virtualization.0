@@ -1,385 +1,96 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7250B7E1
-	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 06:05:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE1F12119;
+	Mon, 29 Jul 2024 06:46:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722233153; cv=none; b=uMBsa3JdtrdXQiR56fdmxFNex96b6TfPUMGuox3PyrsTkEFMq85KagthxXX5hTsy2VD9yU/XVK/qcxDd/tVj1bTwk+b4DuVOlCKagLLIPzCsngbT0y/j/pcvRGKa+x1SAsZi4tgAvLhrpCxpGsHic0F4sdUAydMml0FFpOdkqwY=
+	t=1722235574; cv=none; b=G6ZSWRvNb4TUwWbKevNiY2qnR0s88mHU04S8uZvQUMjNM10hG13LEYTsHb82Y0TJzDPcUCA1kHVsK+aGsDxDLGjKPKJblpojnM6nQ1U5ZMCjiMUAgpHKrgUvfiO8HIaJXpcEHmHSbvuYDFY4Nt0dgR3KqKFuA3mEucpvBvzxni4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722233153; c=relaxed/simple;
-	bh=jiTzv8gRgGpp3NZNmEDT+uK7ips7GKPiBDsoF41jvNA=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qYx7rxGQpyrvYFrq6duD8WhfX9u8Op2iDyFtqZ8bLIzf+v24czJesXrg14QZ0wDbQMflZGdUHzsxxEAZJj5Esab/w+ihfXtf8Cz/bDSMeAVV4nlh4ySOTIDl5oQ0ylV2OvFxl4+BrsV1PilONTDn/7nbFm2rLY2R9P2CmW07/lA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A+EBVEWi; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1722235574; c=relaxed/simple;
+	bh=R3wogILUarLMuOKLK0lDpfm3PIGb/vJu4lEvZa0OeBM=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=UQ9JftTsImWvYkkVtsDpE66x1SDp3MLHtbiTr7g+RbimHe9JR7mNeZKg5/EGYqFA3LroCuBb5NGTsKkaAspkDfvJsPtNZPSdBugbecpMqzlzuyGv8fsjZLCu/muA8JiSgFH4VIMo0cr43VL5M04I7rRMrt1bVRv3xLzC0fXxF+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Fxru4Y+t; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+EBVEWi"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-2cf93dc11c6so947478a91.1
-        for <virtualization@lists.linux.dev>; Sun, 28 Jul 2024 23:05:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722233151; x=1722837951; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eT3+lq1z1ZjHF+rQzFZqGRDbKroE3rXEn1/7JfMa1Lw=;
-        b=A+EBVEWi/McSLr4VpuzSCgw9hOwut3X8V+R4phiEUlu5k3OYXSm7OBX+Sv8d3rJziQ
-         2sb58IztrJOIGxFr1lFI89cCvdFLLKANmElW2c+8TrA2RkUEyfUpGgK9kQW4HkPENu1f
-         Ujg+9RNMlXhCUDxGmI+cKpWPKYg/JJIyjzti+oujez/xYKjS5v+urocxEgI/GUrEY7TP
-         gHWBjbEC/dib2uUG45spfptCk2QCaqgGO2b6YO7trxCeel8Is9QmUUEW8NLUGMqHKpk+
-         SCHuaUWqHcs9mdXk2hFCC1+RUFbEGuVVjMAtUxVyRYL2LIp8kYz/1m8TmDtn/DSx4BVe
-         0s+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722233151; x=1722837951;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=eT3+lq1z1ZjHF+rQzFZqGRDbKroE3rXEn1/7JfMa1Lw=;
-        b=q0aK+NdyCoCJmjC26uXsZVESJPgu8NuSRApBB9BmlW+n60chbiyUsrLlcdxoLyqpoy
-         9jgJWQnDPxOdfOitb6bxj2c6OdTF3rXBDVJJsXeVUzTYCXEyb9RPQRSz8Wrx5tn7jsEL
-         KTiQuiaDS9HHSpETqv47bHte4lMylXWbLP1xiXY4BKvgSjAwUx3kSP6b9rA2TXycBXyj
-         a/lLAZAXEw1am8rckIEA2GR8PR9KsGoPQUILWJKpQyC2NtI1BFUpQiqHphsmTbeqOsfo
-         MXZFM405962KlpBCVh4xIytWHcm+ptmDiF7FMnOk8hGIFdVpveD/oQR5H2M2Q39/6c9W
-         w6lg==
-X-Forwarded-Encrypted: i=1; AJvYcCX+YjUAJ44DOTVMne5SjnwynRtYvVUgH0OEgU0NRU0w9+vB9+PHFXyJXY4mDqsiwwYKQlveR74RE3wJA1rv1F3QpRL5M5smCC+8hQDeIMM=
-X-Gm-Message-State: AOJu0YxMkGJjzV9HWa64OiK4cfXAM5Trf6QHn024o09MoRll5rNcpvvQ
-	LQDC6JgxAeiX6oaXyOaB2YkoMHyVp31r7V92uB9WB0SxKncIQHI2
-X-Google-Smtp-Source: AGHT+IEdEQUKUD1f/Ydw97yQv/cLZoGHfR7AP2bCzE4mGmm+B40OT2kvmDxGJpFvjolmsy7BX38Y3Q==
-X-Received: by 2002:a17:90a:ae17:b0:2cf:28c1:4cc2 with SMTP id 98e67ed59e1d1-2cf7e1ac75cmr8202569a91.3.1722233150582;
-        Sun, 28 Jul 2024 23:05:50 -0700 (PDT)
-Received: from localhost.localdomain ([2407:7000:8942:5500:aaa1:59ff:fe57:eb97])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2cdb75de01dsm9612607a91.36.2024.07.28.23.05.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jul 2024 23:05:50 -0700 (PDT)
-From: Barry Song <21cnbao@gmail.com>
-To: jasowang@redhat.com
-Cc: 21cnbao@gmail.com,
-	42.hyeyoo@gmail.com,
-	akpm@linux-foundation.org,
-	cl@linux.com,
-	eperezma@redhat.com,
-	hailong.liu@oppo.com,
-	hch@infradead.org,
-	iamjoonsoo.kim@lge.com,
-	linux-mm@kvack.org,
-	lstoakes@gmail.com,
-	maxime.coquelin@redhat.com,
-	mhocko@suse.com,
-	mst@redhat.com,
-	penberg@kernel.org,
-	rientjes@google.com,
-	roman.gushchin@linux.dev,
-	torvalds@linux-foundation.org,
-	urezki@gmail.com,
-	v-songbaohua@oppo.com,
-	vbabka@suse.cz,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH RFC 1/5] vpda: try to fix the potential crash due to misusing __GFP_NOFAIL
-Date: Mon, 29 Jul 2024 18:05:29 +1200
-Message-Id: <20240729060529.93243-1-21cnbao@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <CACGkMEs49KckODWSpe7VPfTeshogni0_eOdkMO0b7zW2A5YX2w@mail.gmail.com>
-References: <CACGkMEs49KckODWSpe7VPfTeshogni0_eOdkMO0b7zW2A5YX2w@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Fxru4Y+t"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
+	:MIME-Version:Message-ID:References:In-Reply-To:Subject:CC:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description;
+	bh=R3wogILUarLMuOKLK0lDpfm3PIGb/vJu4lEvZa0OeBM=; b=Fxru4Y+toyFmdCw6icmB/YNWlv
+	j9jVZ7bm1SbESqDXtPHmtxrXQAOQOE0H0oSCGedJ1I+Kc8/K3MyMnf2Pu4vsPR7LMk1BXMWKPUb01
+	TmuScp7QY9dxgDUhr0TOehkRw/RxA6kQqBZKWWoG+yAMXxloOiUiS3NkCZcI/oXAYfDzOaRk4n+r1
+	it7UJNTjsT6qv1P4Rh0fbB6HtCA9CHciNGmKxWIOvJWn6LAEitXfz1ga200CmJGS4uLQcKHRElUuM
+	kUFWYuhQFhY3qQnO/g99i0aAQLE5YuhJvXFdEdXwcjPDfkRGI6tVlRU45gi05n64a/SPKI24bCNFj
+	WWshRG+w==;
+Received: from dyn-224.woodhou.se ([90.155.92.224] helo=[127.0.0.1])
+	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sYK8s-00000004jfc-44xo;
+	Mon, 29 Jul 2024 06:45:59 +0000
+Date: Mon, 29 Jul 2024 07:45:59 +0100
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+ Richard Cochran <richardcochran@gmail.com>,
+ Peter Hilber <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
+ virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
+ "Chashper, David" <chashper@amazon.com>,
+ "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
+ "Christopher S . Hall" <christopher.s.hall@intel.com>,
+ Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+ netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20240728111746-mutt-send-email-mst@kernel.org>
+References: <20240725081502-mutt-send-email-mst@kernel.org> <f55e6dfc4242d69eed465f26d6ad7719193309dc.camel@infradead.org> <20240725082828-mutt-send-email-mst@kernel.org> <db786be69aed3800f1aca71e8c4c2a6930e3bb0b.camel@infradead.org> <20240725083215-mutt-send-email-mst@kernel.org> <98813a70f6d3377d3a9d502fd175be97334fcc87.camel@infradead.org> <20240726174958.00007d10@Huawei.com> <811E8A25-3DBC-452D-B594-F9B7B0B61335@infradead.org> <20240728062521-mutt-send-email-mst@kernel.org> <9817300C-9280-4CC3-B9DB-37D24C8C20B5@infradead.org> <20240728111746-mutt-send-email-mst@kernel.org>
+Message-ID: <92D47BE5-4D57-4C4A-A250-20B9C9EFD862@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
 
-On Mon, Jul 29, 2024 at 3:42 PM Jason Wang <jasowang@redhat.com> wrote:
+On 28 July 2024 16:23:49 BST, "Michael S=2E Tsirkin" <mst@redhat=2Ecom> wro=
+te:
+>On Sun, Jul 28, 2024 at 02:07:01PM +0100, David Woodhouse wrote:
+>> On 28 July 2024 11:37:04 BST, "Michael S=2E Tsirkin" <mst@redhat=2Ecom>=
+ wrote:
+>> >Glad you asked :)
+>>=20
+>> Heh, I'm not sure I'm so glad=2E Did I mention I hate ACPI? Perhaps it'=
+s still not too late for me just to define a DT binding and use PRP0001 for=
+ it :)
+>>=20
+>> >Long story short, QEMUVGID is indeed out of spec, but it works
+>> >both because of guest compatibility with ACPI 1=2E0, and because no on=
+e
+>> >much uses it=2E
+
+But why *did* it change from QEMU0003 which was in some of the patches tha=
+t got posted?
+
+>> I think it's reasonable enough to follow that example and use AMZNVCLK =
+(or QEMUVCLK, but there seems little point in both) then?
 >
-> On Thu, Jul 25, 2024 at 3:00 PM Barry Song <21cnbao@gmail.com> wrote:
-> >
-> > On Thu, Jul 25, 2024 at 6:08 PM Michal Hocko <mhocko@suse.com> wrote:
-> > >
-> > > On Thu 25-07-24 10:50:45, Barry Song wrote:
-> > > > On Thu, Jul 25, 2024 at 12:27 AM Michal Hocko <mhocko@suse.com> wrote:
-> > > > >
-> > > > > On Wed 24-07-24 20:55:40, Barry Song wrote:
-> > > [...]
-> > > > > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
-> > > > > > index 791d38d6284c..eff700e5f7a2 100644
-> > > > > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> > > > > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> > > > > > @@ -287,28 +287,44 @@ void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain)
-> > > > > >  {
-> > > > > >       struct vduse_bounce_map *map;
-> > > > > >       unsigned long i, count;
-> > > > > > +     struct page **pages = NULL;
-> > > > > >
-> > > > > >       write_lock(&domain->bounce_lock);
-> > > > > >       if (!domain->user_bounce_pages)
-> > > > > >               goto out;
-> > > > > > -
-> > > > > >       count = domain->bounce_size >> PAGE_SHIFT;
-> > > > > > +     write_unlock(&domain->bounce_lock);
-> > > > > > +
-> > > > > > +     pages = kmalloc_array(count, sizeof(*pages), GFP_KERNEL | __GFP_NOFAIL);
-> > > > > > +     for (i = 0; i < count; i++)
-> > > > > > +             pages[i] = alloc_page(GFP_KERNEL | __GFP_NOFAIL);
-> > > > >
-> > > > > AFAICS vduse_domain_release calls this function with
-> > > > > spin_lock(&domain->iotlb_lock) so dropping &domain->bounce_lock is not
-> > > > > sufficient.
-> > > >
-> > > > yes. this is true:
-> > > >
-> > > > static int vduse_domain_release(struct inode *inode, struct file *file)
-> > > > {
-> > > >         struct vduse_iova_domain *domain = file->private_data;
-> > > >
-> > > >         spin_lock(&domain->iotlb_lock);
-> > > >         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
-> > > >         vduse_domain_remove_user_bounce_pages(domain);
-> > > >         vduse_domain_free_kernel_bounce_pages(domain);
-> > > >         spin_unlock(&domain->iotlb_lock);
-> > > >         put_iova_domain(&domain->stream_iovad);
-> > > >         put_iova_domain(&domain->consistent_iovad);
-> > > >         vhost_iotlb_free(domain->iotlb);
-> > > >         vfree(domain->bounce_maps);
-> > > >         kfree(domain);
-> > > >
-> > > >         return 0;
-> > > > }
-> > > >
-> > > > This is quite a pain. I admit I don't have knowledge of this driver, and I don't
-> > > > think it's safe to release two locks and then reacquire them. The situation is
-> > > > rather complex. Therefore, I would prefer if the VDPA maintainers could
-> > > > take the lead in implementing a proper fix.
-> > >
-> > > Would it be possible to move all that work to a deferred context?
-> >
-> > My understanding is that we need to be aware of both the iotlb_lock and
-> > bounce_lock to implement the correct changes. As long as we still need
-> > to acquire these two locks in a deferred context, there doesn't seem to
-> > be any difference.
-> >
-> > I can do the memory pre-allocation before spin_lock(&domain->iotlb_lock),
-> > but I have no knowledge whether the "count" will change after I make
-> > the preallocation.
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c
-> > b/drivers/vdpa/vdpa_user/iova_domain.c
-> > index 791d38d6284c..7ec87ef33d42 100644
-> > --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> > @@ -544,9 +544,12 @@ static int vduse_domain_release(struct inode
-> > *inode, struct file *file)
-> >  {
-> >         struct vduse_iova_domain *domain = file->private_data;
-> >
-> > +      struct page **pages;
-> > +      spin_lock(&domain->iotlb_lock); maybe also + bounce_lock?
-> > +      count = domain->bounce_size >> PAGE_SHIFT;
-> > +      spin_unlock(&domain->iotlb_lock);
->
-> We probably don't need any lock here as bounce_size won't be changed .
->
-> > +
-> > +       preallocate_count_pages(pages, count);
-> > +
-> > ....
-> >         spin_lock(&domain->iotlb_lock);
-> >         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
-> > -       vduse_domain_remove_user_bounce_pages(domain);
-> > +       vduse_domain_remove_user_bounce_pages(domain, pages);
-> >         vduse_domain_free_kernel_bounce_pages(domain);
-> >         spin_unlock(&domain->iotlb_lock);
-> >         put_iova_domain(&domain->stream_iovad);
->
-> This seems to work.
+>I'd stick to spec=2E If you like puns, QEMUC10C maybe?
 
-Thanks, Jason. I personally have no knowledge of vDPA. Could you please help
-review and test the patch below?
-
-From 1f3cae091159bfcaffdb4a999a4a8e37db2eacf1 Mon Sep 17 00:00:00 2001
-From: Barry Song <v-songbaohua@oppo.com>
-Date: Wed, 24 Jul 2024 20:55:40 +1200
-Subject: [PATCH RFC v2] vpda: try to fix the potential crash due to misusing
- __GFP_NOFAIL
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
-__GFP_NOFAIL without direct reclamation may just result in a busy
-loop within non-sleepable contexts.
-
-static inline struct page *
-__alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
-                                                struct alloc_context *ac)
-{
-        ...
-        /*
-         * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
-         * we always retry
-         */
-        if (gfp_mask & __GFP_NOFAIL) {
-                /*
-                 * All existing users of the __GFP_NOFAIL are blockable, so warn
-                 * of any new users that actually require GFP_NOWAIT
-                 */
-                if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
-                        goto fail;
-                ...
-        }
-        ...
-fail:
-        warn_alloc(gfp_mask, ac->nodemask,
-                        "page allocation failure: order:%u", order);
-got_pg:
-        return page;
-}
-
-Let's move the memory allocation out of the atomic context and use
-the normal sleepable context to get pages.
-
-[RFC]: This has only been compile-tested; I'd prefer if the VDPA maintainers
-handles it.
-
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Eugenio Pérez" <eperezma@redhat.com>
-Cc: Maxime Coquelin <maxime.coquelin@redhat.com>
-Signed-off-by: Barry Song <v-songbaohua@oppo.com>
----
- drivers/vdpa/vdpa_user/iova_domain.c | 21 ++++++++++++++++-----
- drivers/vdpa/vdpa_user/iova_domain.h |  3 ++-
- drivers/vdpa/vdpa_user/vduse_dev.c   | 13 ++++++++++++-
- 3 files changed, 30 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
-index 791d38d6284c..014809ac2b7c 100644
---- a/drivers/vdpa/vdpa_user/iova_domain.c
-+++ b/drivers/vdpa/vdpa_user/iova_domain.c
-@@ -283,7 +283,7 @@ int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
- 	return ret;
- }
- 
--void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain)
-+void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain, struct page **pages)
- {
- 	struct vduse_bounce_map *map;
- 	unsigned long i, count;
-@@ -294,15 +294,16 @@ void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain)
- 
- 	count = domain->bounce_size >> PAGE_SHIFT;
- 	for (i = 0; i < count; i++) {
--		struct page *page = NULL;
-+		struct page *page = pages[i];
- 
- 		map = &domain->bounce_maps[i];
--		if (WARN_ON(!map->bounce_page))
-+		if (WARN_ON(!map->bounce_page)) {
-+			put_page(page);
- 			continue;
-+		}
- 
- 		/* Copy user page to kernel page if it's in use */
- 		if (map->orig_phys != INVALID_PHYS_ADDR) {
--			page = alloc_page(GFP_ATOMIC | __GFP_NOFAIL);
- 			memcpy_from_page(page_address(page),
- 					 map->bounce_page, 0, PAGE_SIZE);
- 		}
-@@ -543,10 +544,19 @@ static int vduse_domain_mmap(struct file *file, struct vm_area_struct *vma)
- static int vduse_domain_release(struct inode *inode, struct file *file)
- {
- 	struct vduse_iova_domain *domain = file->private_data;
-+	struct page **pages = NULL;
-+	unsigned long count, i;
-+
-+	if (domain->user_bounce_pages) {
-+		count = domain->bounce_size >> PAGE_SHIFT;
-+		pages = kmalloc_array(count, sizeof(*pages), GFP_KERNEL | __GFP_NOFAIL);
-+		for (i = 0; i < count; i++)
-+			pages[i] = alloc_page(GFP_KERNEL | __GFP_NOFAIL);
-+	}
- 
- 	spin_lock(&domain->iotlb_lock);
- 	vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
--	vduse_domain_remove_user_bounce_pages(domain);
-+	vduse_domain_remove_user_bounce_pages(domain, pages);
- 	vduse_domain_free_kernel_bounce_pages(domain);
- 	spin_unlock(&domain->iotlb_lock);
- 	put_iova_domain(&domain->stream_iovad);
-@@ -554,6 +564,7 @@ static int vduse_domain_release(struct inode *inode, struct file *file)
- 	vhost_iotlb_free(domain->iotlb);
- 	vfree(domain->bounce_maps);
- 	kfree(domain);
-+	kfree(pages);
- 
- 	return 0;
- }
-diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
-index f92f22a7267d..db0b793d86db 100644
---- a/drivers/vdpa/vdpa_user/iova_domain.h
-+++ b/drivers/vdpa/vdpa_user/iova_domain.h
-@@ -74,7 +74,8 @@ void vduse_domain_reset_bounce_map(struct vduse_iova_domain *domain);
- int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
- 				       struct page **pages, int count);
- 
--void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain);
-+void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain,
-+					   struct page **pages);
- 
- void vduse_domain_destroy(struct vduse_iova_domain *domain);
- 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 7ae99691efdf..df7c1b6f1350 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1030,6 +1030,8 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
- static int vduse_dev_dereg_umem(struct vduse_dev *dev,
- 				u64 iova, u64 size)
- {
-+	struct page **pages = NULL;
-+	unsigned long count, i;
- 	int ret;
- 
- 	mutex_lock(&dev->mem_lock);
-@@ -1044,13 +1046,22 @@ static int vduse_dev_dereg_umem(struct vduse_dev *dev,
- 	if (dev->umem->iova != iova || size != dev->domain->bounce_size)
- 		goto unlock;
- 
--	vduse_domain_remove_user_bounce_pages(dev->domain);
-+	if (dev->domain->user_bounce_pages) {
-+		count = dev->domain->bounce_size >> PAGE_SHIFT;
-+		pages = kmalloc_array(count, sizeof(*pages),
-+				      GFP_KERNEL | __GFP_NOFAIL);
-+		for (i = 0; i < count; i++)
-+			pages[i] = alloc_page(GFP_KERNEL | __GFP_NOFAIL);
-+	}
-+
-+	vduse_domain_remove_user_bounce_pages(dev->domain, pages);
- 	unpin_user_pages_dirty_lock(dev->umem->pages,
- 				    dev->umem->npages, true);
- 	atomic64_sub(dev->umem->npages, &dev->umem->mm->pinned_vm);
- 	mmdrop(dev->umem->mm);
- 	vfree(dev->umem->pages);
- 	kfree(dev->umem);
-+	kfree(pages);
- 	dev->umem = NULL;
- 	ret = 0;
- unlock:
--- 
-2.34.1
-
->
-> Thanks
->
-> >
-> >
-> > > --
-> > > Michal Hocko
-> > > SUSE Labs
-> >
-
-Thanks
-Barry
+Meh, might as well be sensible=2E I'll chase up which of my colleagues cur=
+ates the AMZN space (which will no doubt be me by the end of that thread), =
+and issue the next one from that=2E
 
