@@ -1,233 +1,86 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B386186E2A
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 20:13:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A44818A92F
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 20:16:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722283985; cv=none; b=XSVNy7A0+PuSkIQqq1rGThdyUly8wiAxj2f5EsC7cq8sOMsqM24GjdeSf85ORRnVSZTRhizplFx4uCi6A1IVfp3hrlZTPSMmK37+GdpSLyzK3efo1q3BMnvMJ5+RavEFXJBXVegG+kiNanXts4y9mWH+RulGIMMLvq7SDhgON54=
+	t=1722284187; cv=none; b=hkwxWN0AdTQ+bx6XV97ElgqZbkhKIiV3Lo8peaRYihuuZ9/CDo33BTD8AkePBGVtu/ZG9GF5xMumZp7aEnYuPIS5wkepkd1m19OoBR494HXoRwJJ96IWBIGg7Ujl0K2g9XgYaTs6jCMVQPhnyHgCHS58sJYY/v1RQafLo/23l3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722283985; c=relaxed/simple;
-	bh=crICF1i5RQKEnw5gmthwsCxsW7dV+fc7ifqG4NAJLHE=;
-	h=Message-ID:Date:MIME-Version:In-Reply-To:To:CC:From:Subject:
-	 Content-Type; b=p8nipSTG2oX1pi47qN4t68iVb/hThyadiqbKtU7ZGEKN1RvpZlkCaeyWkMfmxiEaqJyHg2gB1mkHChli2j8oLbS/aVoHYUYW3yfMmBSjiLGWzqSU8f1NPzO6ZJO1rY9rCN/VlEqo3nMDVGQOd7sinqzbldZdaVl4xI1/92UAg2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=X1ABmKZ4; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1722284187; c=relaxed/simple;
+	bh=W6KAHewPqBWvTYeXUfCgX1Srngxie2xftkjBbCQbEF4=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=M05HeATkYjKIrjcN+mEAJYy0zpkUswq3Q4vy0OFoE3mxfaSvYrF9c7l308D07IuBYY2JfSOMKWkNnM4EAY80kdjt0nRts0ER/MLXlYb++GgdiAvHItji2PhF1fqrcW/9+XCRbBC1QZuWqbJKERil4CrrphMIxGk62IpIRyJqdrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s8noHZtj; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="X1ABmKZ4"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s8noHZtj"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2FA60402E1
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 20:13:02 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 680A080D85
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 20:16:25 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.102
+X-Spam-Score: -7.101
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Wm_tLnfkBtct for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Jul 2024 20:13:01 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.89.224.132; helo=mx1.sberdevices.ru; envelope-from=avkrasnov@salutedevices.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8E07840290
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E07840290
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=X1ABmKZ4
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8E07840290
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 20:13:00 +0000 (UTC)
-Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id E8F50120003;
-	Mon, 29 Jul 2024 23:12:56 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru E8F50120003
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1722283976;
-	bh=wqCOH0OMZnBR80J18ev/8FeOuZRcI6ZPg6yEni5bP5E=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type:From;
-	b=X1ABmKZ44Jlf8L31CHuQAeIk4ZIqA6FntZHkexU9nNc/jFP1zP/GqdXt8tmR7aRMK
-	 hEXlF60medUb1VpmwEdY2Y78WUdmT8XBBB5wJSljFT6TrIDVQZWlSFJxxKpxTzxL67
-	 TIpv7Dctt1Rxat40rZVpl75dUMp+7ohkUBxK5f2qxfZbad28FuC5mqduVUtMX29L2B
-	 uKqrvUuC76txADmCn6hykswCviJN2lJe2SS/Yw0nyaOwe2P/Fp8a/Ub9npGnph8hhp
-	 tpMLqcRmiINh5AiqbgvlWCWZECR6KtPcgC5d2cEBoEohi196cjA4z5FnM+CJuNRAQM
-	 L/wZAreMfwHOw==
-Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Mon, 29 Jul 2024 23:12:56 +0300 (MSK)
-Received: from [172.28.128.200] (100.64.160.123) by
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Mon, 29 Jul 2024 23:12:55 +0300
-Message-ID: <e1647f5f-5056-5cf0-e81c-5ef71fd6efd0@salutedevices.com>
-Date: Mon, 29 Jul 2024 23:00:36 +0300
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id VC8DrjD2oF_M for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Jul 2024 20:16:24 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A2FF080D77
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A2FF080D77
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=s8noHZtj
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A2FF080D77
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 20:16:24 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 752D560D58;
+	Mon, 29 Jul 2024 20:16:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 28276C32786;
+	Mon, 29 Jul 2024 20:16:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722284183;
+	bh=W6KAHewPqBWvTYeXUfCgX1Srngxie2xftkjBbCQbEF4=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=s8noHZtj4DzASuJ0hCImeSNqJ4oIYIvM0G9Ejy0llG7ik/UwAXt3mYcV5QHSt5SE8
+	 /Sd95zOMejXL5aT5L/L4iKdXapONFue2IW1ibFX+cmzNUISmHX/4X/JXXcYaox03zF
+	 UJyXyCied2UO7WSFKVmKqm7pb3OC3FXDrJCdjTLP6/7zxIqopmd8i79i/TTxPrBWU4
+	 S4if9oFBi1AI9NG+4POLOVsRh6gVF2Hn370ggtmmajmNM2AHmXAZcZgBYZvC+ul9Ka
+	 Bg3S537620AAIqWqocYyw2kXvgfGMkxlddleZiMcFSgqubG/yL7vNixdQXwHua8s+u
+	 LWkPVuU8soQbQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 1AA73C43445;
+	Mon, 29 Jul 2024 20:16:23 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio: fixes for rc1
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20240728191956-mutt-send-email-mst@kernel.org>
+References: <20240728191956-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20240728191956-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: 6d834691da474ed1c648753d3d3a3ef8379fa1c1
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 10826505f52357c7c9e12358db97a3acbe82e958
+Message-Id: <172228418309.31709.8455898722757053480.pr-tracker-bot@kernel.org>
+Date: Mon, 29 Jul 2024 20:16:23 +0000
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, dan.carpenter@linaro.org, jiri@nvidia.com, jiri@resnulli.us, mst@redhat.com, quic_jjohnson@quicinc.com
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Content-Language: en-US
-In-Reply-To: <20240710212555.1617795-8-amery.hung@bytedance.com>
-To: <stefanha@redhat.com>, <sgarzare@redhat.com>, <mst@redhat.com>,
-	<jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<kys@microsoft.com>, <haiyangz@microsoft.com>, <wei.liu@kernel.org>,
-	<decui@microsoft.com>, <bryantan@vmware.com>, <vdasa@vmware.com>,
-	<pv-drivers@vmware.com>
-CC: <dan.carpenter@linaro.org>, <simon.horman@corigine.com>,
-	<oxffffaa@gmail.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
-	<bpf@vger.kernel.org>, <bobby.eshleman@bytedance.com>,
-	<jiang.wang@bytedance.com>, <amery.hung@bytedance.com>,
-	<ameryhung@gmail.com>, <xiyou.wangcong@gmail.com>, <kernel@sberdevices.ru>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: [RFC PATCH net-next v6 07/14] virtio/vsock: add common datagram send
- path
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 186779 [Jul 29 2024]
-X-KSMG-AntiSpam-Version: 6.1.0.4
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 24 0.3.24 186c4d603b899ccfd4883d230c53f273b80e467f, {Tracking_from_domain_doesnt_match_to}, smtp.sberdevices.ru:5.0.1,7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;salutedevices.com:7.1.1;100.64.160.123:7.1.2;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/07/29 16:49:00 #26175127
-X-KSMG-AntiVirus-Status: Clean, skipped
 
-Hi,
+The pull request you sent on Sun, 28 Jul 2024 19:19:56 -0400:
 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index a1c76836d798..46cd1807f8e3 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1040,13 +1040,98 @@ int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
->  }
->  EXPORT_SYMBOL_GPL(virtio_transport_shutdown);
->  
-> +static int virtio_transport_dgram_send_pkt_info(struct vsock_sock *vsk,
-> +						struct virtio_vsock_pkt_info *info)
-> +{
-> +	u32 src_cid, src_port, dst_cid, dst_port;
-> +	const struct vsock_transport *transport;
-> +	const struct virtio_transport *t_ops;
-> +	struct sock *sk = sk_vsock(vsk);
-> +	struct virtio_vsock_hdr *hdr;
-> +	struct sk_buff *skb;
-> +	void *payload;
-> +	int noblock = 0;
-> +	int err;
-> +
-> +	info->type = virtio_transport_get_type(sk_vsock(vsk));
-> +
-> +	if (info->pkt_len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
-> +		return -EMSGSIZE;
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Small suggestion, i think we can check for packet length earlier ? Before
-info->type = ...
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/10826505f52357c7c9e12358db97a3acbe82e958
 
-> +
-> +	transport = vsock_dgram_lookup_transport(info->remote_cid, info->remote_flags);
-> +	t_ops = container_of(transport, struct virtio_transport, transport);
-> +	if (unlikely(!t_ops))
-> +		return -EFAULT;
-> +
-> +	if (info->msg)
-> +		noblock = info->msg->msg_flags & MSG_DONTWAIT;
-> +
-> +	/* Use sock_alloc_send_skb to throttle by sk_sndbuf. This helps avoid
-> +	 * triggering the OOM.
-> +	 */
-> +	skb = sock_alloc_send_skb(sk, info->pkt_len + VIRTIO_VSOCK_SKB_HEADROOM,
-> +				  noblock, &err);
-> +	if (!skb)
-> +		return err;
-> +
-> +	skb_reserve(skb, VIRTIO_VSOCK_SKB_HEADROOM);
-> +
-> +	src_cid = t_ops->transport.get_local_cid();
-> +	src_port = vsk->local_addr.svm_port;
-> +	dst_cid = info->remote_cid;
-> +	dst_port = info->remote_port;
-> +
-> +	hdr = virtio_vsock_hdr(skb);
-> +	hdr->type	= cpu_to_le16(info->type);
-> +	hdr->op		= cpu_to_le16(info->op);
-> +	hdr->src_cid	= cpu_to_le64(src_cid);
-> +	hdr->dst_cid	= cpu_to_le64(dst_cid);
-> +	hdr->src_port	= cpu_to_le32(src_port);
-> +	hdr->dst_port	= cpu_to_le32(dst_port);
-> +	hdr->flags	= cpu_to_le32(info->flags);
-> +	hdr->len	= cpu_to_le32(info->pkt_len);
+Thank you!
 
-There is function 'virtio_transport_init_hdr()' in this file, may be reuse it ?
-
-> +
-> +	if (info->msg && info->pkt_len > 0) {
-
-If pkt_len is 0, do we really need to send such packets ? Because for connectible
-sockets, we ignore empty OP_RW packets.
-
-> +		payload = skb_put(skb, info->pkt_len);
-> +		err = memcpy_from_msg(payload, info->msg, info->pkt_len);
-> +		if (err)
-> +			goto out;
-> +	}
-> +
-> +	trace_virtio_transport_alloc_pkt(src_cid, src_port,
-> +					 dst_cid, dst_port,
-> +					 info->pkt_len,
-> +					 info->type,
-> +					 info->op,
-> +					 info->flags,
-> +					 false);
-
-^^^ For SOCK_DGRAM, include/trace/events/vsock_virtio_transport_common.h also should
-be updated?
-
-> +
-> +	return t_ops->send_pkt(skb);
-> +out:
-> +	kfree_skb(skb);
-> +	return err;
-> +}
-> +
->  int
->  virtio_transport_dgram_enqueue(struct vsock_sock *vsk,
->  			       struct sockaddr_vm *remote_addr,
->  			       struct msghdr *msg,
->  			       size_t dgram_len)
->  {
-> -	return -EOPNOTSUPP;
-> +	/* Here we are only using the info struct to retain style uniformity
-> +	 * and to ease future refactoring and merging.
-> +	 */
-> +	struct virtio_vsock_pkt_info info = {
-> +		.op = VIRTIO_VSOCK_OP_RW,
-> +		.remote_cid = remote_addr->svm_cid,
-> +		.remote_port = remote_addr->svm_port,
-> +		.remote_flags = remote_addr->svm_flags,
-> +		.msg = msg,
-> +		.vsk = vsk,
-> +		.pkt_len = dgram_len,
-> +	};
-> +
-> +	return virtio_transport_dgram_send_pkt_info(vsk, &info);
->  }
->  EXPORT_SYMBOL_GPL(virtio_transport_dgram_enqueue);
->  
-> -- 
-> 2.20.1
-
-Thanks, Arseniy
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
