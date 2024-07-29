@@ -1,122 +1,226 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8927146D6D
-	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 12:48:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7203F13BC3F
+	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 15:33:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722257287; cv=none; b=udk9ceRx2KVh1en09rcrBFO8sxRGMBeWIutRlafDU0uAEtfYccGjsN6m6ixCfKehS4DiAjAFmYWMsDFa26JiiudlKCMB1fz/AMTBfUD8wA3e6OY2tEo9NzHFTNMFAT928Te+aA9/qr/QHVl0KDOGQ3Hz9P65IHbQ+NKYaS07Wmw=
+	t=1722267230; cv=none; b=L/Ggb/xJGZCJgjp3bCrGEwSyIlST2Att/fB4CP1gexSKInlu/kqEKnas54T39Gerzj/aGWtnqWgBpvHcE4VDgleJGWudReYmTaz0v3dM8d/jcqlVBbQj+KsJik6xB2nTERWHRB2XV1DDn8iG12jndQrAO7vXfVlghypN96JRrm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722257287; c=relaxed/simple;
-	bh=igE+HtJT8zZ0cFXeIrI6FitI2VfseQpKEFSgzHO3Sf4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DzPo82jWQgakccbXN0LTMjbG7OBVKZEcGKPmapBBSACm5RA8018ZK+HYWdd41DcXExz92A5xfq3Kwu8yqy6vO9oqJRul2d+uEjcTc11cLl16ujpC/dKHwA1YTyjwxTRAx9fDt7jC+DpLCJ7Si49o2Rn0HffzQ+or/NpZ4qPObXs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sssjVpFj; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1722267230; c=relaxed/simple;
+	bh=wqWUVlf7aP1OH80LKZ4ptLvsSw+/kbCzCArTFsf8Z2Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=WKgcpeDTUmQB0HknAhsgEqi3hcICMCOGWb9JhG4Q0DQARJo8+rwWm6OyfwJLEczWrJqBiPit4DugRJZlQK4egEFTvxsr3suX/RqVVOt6RQVX9DSmmA3genE/EqNOBi45SEU6p3vsD++pcPeYR2LGDH87Cdz7F4ub1fckpyrdTKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cDbh7m7V; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sssjVpFj"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1722257277; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=+OBdQR7y6nQXG3Qmm9hHKCHP3uBvPQTWwwC7JEBJ6Uk=;
-	b=sssjVpFjEdeBLYD/z+CSu3fj3tNSrU/ulYDasKALWmVcyWM22L8dLJ9hSOSENFFftGxER1XAy3gFEkXe6AJMZQLQ66PxpxXRzEOQK//AYjQlEhjK7+RADtD3aCsSxZjo+63+ni85E2GoeX88n2RFXQyJPBTN8WUBe5AnOfV6lH8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0WBb8gbw_1722257275;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0WBb8gbw_1722257275)
-          by smtp.aliyun-inc.com;
-          Mon, 29 Jul 2024 20:47:56 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing commands
-Date: Mon, 29 Jul 2024 20:47:55 +0800
-Message-Id: <20240729124755.35719-1-hengqi@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cDbh7m7V"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722267227;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gOdxuhlC0hKorSyQVfDMKmXgVB7ow0l5OK4sY+cYrK0=;
+	b=cDbh7m7VbzIKhMO5u5xWiUUGUsNSRVDF78yNY0FhwVVgq/k2poyVTpJOd9YOVAsb70wq+V
+	VsBq2Q76kSSi471Hoby4bJCd/FMQ9rcahPl2m1vdHCqMuZCqzL/ve7nMbkG90XvPAZQa5L
+	Ehos8NgSttWDrf/0Fs+LIosEiwOGi5I=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-342-ZqYy6oLHOVS7F7Zc2WHu9A-1; Mon, 29 Jul 2024 11:33:46 -0400
+X-MC-Unique: ZqYy6oLHOVS7F7Zc2WHu9A-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4280b119a74so19835935e9.3
+        for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 08:33:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722267225; x=1722872025;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gOdxuhlC0hKorSyQVfDMKmXgVB7ow0l5OK4sY+cYrK0=;
+        b=E/WJqY79Oj+eWBGMVTGoUY5ZqH2qeTBqMvNEgdNDM020CWNHKFciaE3/9nwM8pEdNt
+         nozZR5hSpw9Re5NaTM5gd1A+SnAjMIkV8d24uxFTBwFm1QBNvIFpZVoQDGrRgfT8IJTa
+         P4KjhiBlI6fWmf9a0wbnqjkMs59lInhxJZfJvgNAcis4WHgyV5A7PADEW4eXMu/+6vgo
+         olETkAXZShP8loMZWbfjf8EKd6Ejb82+s5zYVaWEJMGvcAREepVe4X1mzgJtwIwpW1ub
+         J5swkx7wI/K3xq80W56ifNnrx43SP2hKSROg4WQsMg5PTgEZ//+NmuM6tnTb1cfrzQG/
+         Dq7w==
+X-Forwarded-Encrypted: i=1; AJvYcCVnnXVNSMwVqKYKP1amg4aOfraSOmxAV4QD2s0FmMmAEPFBjdK5TRlsiAhGMqPh398qWI4LxKxn9X+ZgDAsgaXJgBwgoZ91mHcw3zVaieo=
+X-Gm-Message-State: AOJu0YwHI3B8Qeu28BMEv5gEFiT5gNBRD81UQdndRX6LzK7XHVSx2aAB
+	cQSynRVOOWOsI19dUz2pV0mZz85K586gj1Z4goSbz9WOQwQS7kbJm/gu0Yo5Gs4ITXT7VCd8X54
+	I1NBAqZ2kSiXaRCanA86QNTrt1sWpkBPm1NGwlGEi/su+gqcwHfBugGfVoSCk8CO8
+X-Received: by 2002:a05:600c:3b99:b0:426:5269:9827 with SMTP id 5b1f17b1804b1-42811a94590mr60054385e9.0.1722267224672;
+        Mon, 29 Jul 2024 08:33:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH11CwyPhlrH2xJ/R5zuEwuK8l7eeYYGyXEbvzQ/zeQzSr5tEaXptiR7TnM3lG3ZWRGuUwuXg==
+X-Received: by 2002:a05:600c:3b99:b0:426:5269:9827 with SMTP id 5b1f17b1804b1-42811a94590mr60053985e9.0.1722267223937;
+        Mon, 29 Jul 2024 08:33:43 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:55d:98c4:742e:26be:b52d:dd54])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4281fd617desm21464125e9.35.2024.07.29.08.33.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jul 2024 08:33:43 -0700 (PDT)
+Date: Mon, 29 Jul 2024 11:33:36 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Richard Cochran <richardcochran@gmail.com>,
+	Peter Hilber <peter.hilber@opensynergy.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+	"Ridoux, Julien" <ridouxj@amazon.com>, virtio-dev@lists.linux.dev,
+	"Luu, Ryan" <rluu@amazon.com>,
+	"Chashper, David" <chashper@amazon.com>,
+	"Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
+	"Christopher S . Hall" <christopher.s.hall@intel.com>,
+	Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+	netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH v3] ptp: Add vDSO-style vmclock support
+Message-ID: <20240729113320-mutt-send-email-mst@kernel.org>
+References: <e3164fc80e21336cbf13e24f98c9e5706afb77ab.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <e3164fc80e21336cbf13e24f98c9e5706afb77ab.camel@infradead.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From the virtio spec:
+On Mon, Jul 29, 2024 at 11:42:22AM +0100, David Woodhouse wrote:
+> +struct vmclock_abi {
+> +	/* CONSTANT FIELDS */
+> +	uint32_t magic;
+> +#define VMCLOCK_MAGIC	0x4b4c4356 /* "VCLK" */
+> +	uint32_t size;		/* Size of region containing this structure */
+> +	uint16_t version;	/* 1 */
+> +	uint8_t counter_id; /* Matches VIRTIO_RTC_COUNTER_xxx except INVALID */
+> +#define VMCLOCK_COUNTER_ARM_VCNT	0
+> +#define VMCLOCK_COUNTER_X86_TSC		1
+> +#define VMCLOCK_COUNTER_INVALID		0xff
+> +	uint8_t time_type; /* Matches VIRTIO_RTC_TYPE_xxx */
+> +#define VMCLOCK_TIME_UTC			0	/* Since 1970-01-01 00:00:00z */
+> +#define VMCLOCK_TIME_TAI			1	/* Since 1970-01-01 00:00:00z */
+> +#define VMCLOCK_TIME_MONOTONIC			2	/* Since undefined epoch */
+> +#define VMCLOCK_TIME_INVALID_SMEARED		3	/* Not supported */
+> +#define VMCLOCK_TIME_INVALID_MAYBE_SMEARED	4	/* Not supported */
+> +
+> +	/* NON-CONSTANT FIELDS PROTECTED BY SEQCOUNT LOCK */
+> +	uint32_t seq_count;	/* Low bit means an update is in progress */
+> +	/*
+> +	 * This field changes to another non-repeating value when the CPU
+> +	 * counter is disrupted, for example on live migration. This lets
+> +	 * the guest know that it should discard any calibration it has
+> +	 * performed of the counter against external sources (NTP/PTP/etc.).
+> +	 */
+> +	uint64_t disruption_marker;
+> +	uint64_t flags;
+> +	/* Indicates that the tai_offset_sec field is valid */
+> +#define VMCLOCK_FLAG_TAI_OFFSET_VALID		(1 << 0)
+> +	/*
+> +	 * Optionally used to notify guests of pending maintenance events.
+> +	 * A guest which provides latency-sensitive services may wish to
+> +	 * remove itself from service if an event is coming up. Two flags
+> +	 * indicate the approximate imminence of the event.
+> +	 */
+> +#define VMCLOCK_FLAG_DISRUPTION_SOON		(1 << 1) /* About a day */
+> +#define VMCLOCK_FLAG_DISRUPTION_IMMINENT	(1 << 2) /* About an hour */
+> +#define VMCLOCK_FLAG_PERIOD_ESTERROR_VALID	(1 << 3)
+> +#define VMCLOCK_FLAG_PERIOD_MAXERROR_VALID	(1 << 4)
+> +#define VMCLOCK_FLAG_TIME_ESTERROR_VALID	(1 << 5)
+> +#define VMCLOCK_FLAG_TIME_MAXERROR_VALID	(1 << 6)
+> +	/*
+> +	 * If the MONOTONIC flag is set then (other than leap seconds) it is
+> +	 * guaranteed that the time calculated according this structure at
+> +	 * any given moment shall never appear to be later than the time
+> +	 * calculated via the structure at any *later* moment.
+> +	 *
+> +	 * In particular, a timestamp based on a counter reading taken
+> +	 * immediately after setting the low bit of seq_count (and the
+> +	 * associated memory barrier), using the previously-valid time and
+> +	 * period fields, shall never be later than a timestamp based on
+> +	 * a counter reading taken immediately before *clearing* the low
+> +	 * bit again after the update, using the about-to-be-valid fields.
+> +	 */
+> +#define VMCLOCK_FLAG_TIME_MONOTONIC		(1 << 7)
+> +
+> +	uint8_t pad[2];
+> +	uint8_t clock_status;
+> +#define VMCLOCK_STATUS_UNKNOWN		0
+> +#define VMCLOCK_STATUS_INITIALIZING	1
+> +#define VMCLOCK_STATUS_SYNCHRONIZED	2
+> +#define VMCLOCK_STATUS_FREERUNNING	3
+> +#define VMCLOCK_STATUS_UNRELIABLE	4
+> +
+> +	/*
+> +	 * The time exposed through this device is never smeared. This field
+> +	 * corresponds to the 'subtype' field in virtio-rtc, which indicates
+> +	 * the smearing method. However in this case it provides a *hint* to
+> +	 * the guest operating system, such that *if* the guest OS wants to
+> +	 * provide its users with an alternative clock which does not follow
+> +	 * UTC, it may do so in a fashion consistent with the other systems
+> +	 * in the nearby environment.
+> +	 */
+> +	uint8_t leap_second_smearing_hint; /* Matches VIRTIO_RTC_SUBTYPE_xxx */
+> +#define VMCLOCK_SMEARING_STRICT		0
+> +#define VMCLOCK_SMEARING_NOON_LINEAR	1
+> +#define VMCLOCK_SMEARING_UTC_SLS	2
+> +	int16_t tai_offset_sec;
+> +	uint8_t leap_indicator;
+> +	/*
+> +	 * This field is based on the the VIRTIO_RTC_LEAP_xxx values as
+> +	 * defined in the current draft of virtio-rtc, but since smearing
+> +	 * cannot be used with the shared memory device, some values are
+> +	 * not used.
+> +	 *
+> +	 * The _POST_POS and _POST_NEG values allow the guest to perform
+> +	 * its own smearing during the day or so after a leap second when
+> +	 * such smearing may need to continue being applied for a leap
+> +	 * second which is now theoretically "historical".
+> +	 */
+> +#define VMCLOCK_LEAP_NONE	0x00	/* No known nearby leap second */
+> +#define VMCLOCK_LEAP_PRE_POS	0x01	/* Positive leap second at EOM */
+> +#define VMCLOCK_LEAP_PRE_NEG	0x02	/* Negative leap second at EOM */
+> +#define VMCLOCK_LEAP_POS	0x03	/* Set during 23:59:60 second */
+> +#define VMCLOCK_LEAP_POST_POS	0x04
+> +#define VMCLOCK_LEAP_POST_NEG	0x05
+> +
+> +	/* Bit shift for counter_period_frac_sec and its error rate */
+> +	uint8_t counter_period_shift;
+> +	/*
+> +	 * Paired values of counter and UTC at a given point in time.
+> +	 */
+> +	uint64_t counter_value;
+> +	/*
+> +	 * Counter period, and error margin of same. The unit of these
+> +	 * fields is 1/2^(64 + counter_period_shift) of a second.
+> +	 */
+> +	uint64_t counter_period_frac_sec;
+> +	uint64_t counter_period_esterror_rate_frac_sec;
+> +	uint64_t counter_period_maxerror_rate_frac_sec;
+> +
+> +	/*
+> +	 * Time according to time_type field above.
+> +	 */
+> +	uint64_t time_sec;		/* Seconds since time_type epoch */
+> +	uint64_t time_frac_sec;		/* Units of 1/2^64 of a second */
+> +	uint64_t time_esterror_nanosec;
+> +	uint64_t time_maxerror_nanosec;
+> +};
+> +
+> +#endif /*  __VMCLOCK_ABI_H__ */
+> -- 
+> 2.44.0
+> 
+> 
 
-	The driver MUST have negotiated the VIRTIO_NET_F_VQ_NOTF_COAL
-	feature when issuing commands VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET
-	and VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET.
 
-The driver must not send vq notification coalescing commands if
-VIRTIO_NET_F_VQ_NOTF_COAL is not negotiated. This limitation of course
-applies to vq resize.
 
-Fixes: f61fe5f081cf ("virtio-net: fix the vq coalescing setting for vq resize")
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0383a3e136d6..eb115e807882 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3708,6 +3708,7 @@ static int virtnet_set_ringparam(struct net_device *dev,
- 	u32 rx_pending, tx_pending;
- 	struct receive_queue *rq;
- 	struct send_queue *sq;
-+	u32 pkts, usecs;
- 	int i, err;
- 
- 	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
-@@ -3740,11 +3741,13 @@ static int virtnet_set_ringparam(struct net_device *dev,
- 			 * through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET command, or, if the driver
- 			 * did not set any TX coalescing parameters, to 0.
- 			 */
--			err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
--							       vi->intr_coal_tx.max_usecs,
--							       vi->intr_coal_tx.max_packets);
--			if (err)
--				return err;
-+			if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
-+				usecs = vi->intr_coal_tx.max_usecs;
-+				pkts = vi->intr_coal_tx.max_packets;
-+				err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i, usecs, pkts);
-+				if (err)
-+					return err;
-+			}
- 		}
- 
- 		if (ring->rx_pending != rx_pending) {
-@@ -3753,13 +3756,15 @@ static int virtnet_set_ringparam(struct net_device *dev,
- 				return err;
- 
- 			/* The reason is same as the transmit virtqueue reset */
--			mutex_lock(&vi->rq[i].dim_lock);
--			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
--							       vi->intr_coal_rx.max_usecs,
--							       vi->intr_coal_rx.max_packets);
--			mutex_unlock(&vi->rq[i].dim_lock);
--			if (err)
--				return err;
-+			if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
-+				usecs = vi->intr_coal_rx.max_usecs;
-+				pkts = vi->intr_coal_rx.max_packets;
-+				mutex_lock(&vi->rq[i].dim_lock);
-+				err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i, usecs, pkts);
-+				mutex_unlock(&vi->rq[i].dim_lock);
-+				if (err)
-+					return err;
-+			}
- 		}
- 	}
- 
--- 
-2.32.0.3.g01195cf9f
+you said you will use __le here?
 
