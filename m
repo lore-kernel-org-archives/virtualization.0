@@ -1,208 +1,125 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D6781E864
-	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 03:42:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0ACE80BF7
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 05:22:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722224558; cv=none; b=F3t6tlxE2ujZG2fSQOMDEw1zDG31FH1QLe0mY49iJvsx1/hGGpYtV8nn2TGBeWMtLayczyGVVkPX+MwjQ7O/zE1lM9GzaEbJr87e746rgiwZ6GDwCmspP13IvJqN2R6a6cuYEncg3yV3Hvl76E/npI/94PFM+0TANvK7eGRAxlA=
+	t=1722230526; cv=none; b=fy6juHHMVfddawedEE+/SJqSGC9dtjT124kDd9A8iFD8Qw1z68If5iYG1SDgztc/2FDAR+39W4VPn/VsrPPIr2XepacSsZ1cJkiTFAo6JeCVTXydypDG0E66sZq9hy521BMc5cTiT7YmES/xj2ZP/3L8sViQifbf7pFLvIeugmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722224558; c=relaxed/simple;
-	bh=Zhbv1X2Wu3WIckzhAyvFgzq6RTG9LbYvaiFiJV6TY2M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cxxS5qMV9N3BWk+mOz33yc0R1DpMOFd6vyy4hldYRekzGOPvGMMkSsP8S6dRbSZfSEeYqmZsyEmcXZ5EkFXSimIJpsh6XMSdHiIonfHyPgVnY/p60EV/W2un5Dq5VoIR3L+6PvNif8HX6I5EXCmS6YJA88YVvXMitC/1LkPmAt4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f7TKPMYQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1722230526; c=relaxed/simple;
+	bh=GPN0jjFfT/BA6h8jFrFebf2Sdt919SK6NeB4CTedbn8=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=aDpVgk00LnCWQaYjyju+HnZ+odwuaeysop2/3bVDa7t/BbFkA/yzzgXqQyyLvZ0PobHODAShfLXRFmJhJxFEQcYq3QfgQHOx0Z8QTTfjPD/wp2EmUoOun2+w3OyFu1x2Q6cUhNWCoFPLO3s/hf7iNZx+twRbMoDcTaRya+q66Ss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HRT6bqOa; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f7TKPMYQ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HRT6bqOa"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4C68481154
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 05:22:04 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id F-UyhJZXu8xC for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Jul 2024 05:22:03 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 60A4581184
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 60A4581184
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HRT6bqOa
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 60A4581184
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 05:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722224555;
+	s=mimecast20190719; t=1722230521;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zejeV14JwQZnD2gzIg7+ARzepmzNQuxM/rkGlI3CoV0=;
-	b=f7TKPMYQ1PzOihjnEbb49C1zVWxKMUUMip7j/m32veuvtWutEu9/f4PYUHQvn2PDTTZP97
-	QJLyNktCE+17Delv/VB1JyLLew4mWlT21BX1hsczfV7w871f/C73TVjMVO0RsZ/KpWuKRo
-	53L3CUzGiCE9/Rasawg5OILAiTUK0Hg=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-347-Obxek-XhOF23-aboOGUgBg-1; Sun, 28 Jul 2024 23:42:32 -0400
-X-MC-Unique: Obxek-XhOF23-aboOGUgBg-1
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-7a23a0fb195so3107485a12.0
-        for <virtualization@lists.linux.dev>; Sun, 28 Jul 2024 20:42:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722224552; x=1722829352;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zejeV14JwQZnD2gzIg7+ARzepmzNQuxM/rkGlI3CoV0=;
-        b=rvrEkh0qGeW0BgDxBKhuu4MqD5s9RCS/0qpEs1fEPUFdMOb9NDP9FVGdXGDDbv4/VT
-         mLYDbQ6gAPn55dArBagQN2qewiIfSkNq/9N0kdwrMjzr87mRMfxiQ0/jMYt4pCyj150v
-         MUNNOancuPngVpUclh87OCtR5/FwCeQszcSCajOMg/Nq+4zpDkSeNxcRVx6FkGgFWbXC
-         oxSQSQCInGfZtWNxoo+ydfpI+20dl24JBqzDXm7KxzDDMC5RMieX8OuknR2i6E0YSU2u
-         PcxSDDJoWJG7iNDI+IVAzx7gvuT2pgKe/8/NuGLML337HgFK04G0vBcSpUzJhfJhOla2
-         c0cw==
-X-Forwarded-Encrypted: i=1; AJvYcCUlUQUWRApplCdfFTlC/LjGAUFAFmnzmnrBrnWY2VHsKE4+TPChE/lLbM0puRo9ISKcuVS3XOZT2F7CvEnxJBLoD8Jsw/kNUKnFwBOtDsw=
-X-Gm-Message-State: AOJu0YzQ2d5NHD2+wxJI9/CCXGZt43bDZ+gpmf6fscslSu1auV72phMu
-	U5Ti3yPJVAlDwkSu8WIpOYlkqGjQ4F5j4R5WpEZj5mZTWF6+Ib5XvTVcq9WOEZRqAtZpCJ/hQCE
-	UyqO276HTV6q8dlJqdzEslqN31H5wlE9vmmDFyo8WJCcsQHvT0dXb/tSmOermvjfjcRHAEYiV0g
-	GVa6+ZVqw4J3etTfq4aT4tWdPadOxCCR/39JVp7aA=
-X-Received: by 2002:a17:90a:4216:b0:2c8:84b:580e with SMTP id 98e67ed59e1d1-2cf7e71e4e1mr6699091a91.41.1722224551848;
-        Sun, 28 Jul 2024 20:42:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE33V26cEZs+EJ6bDmy8FUIcOWVkQb3PPY03dbWhGpNHswimOZ80QlIlZDw1IFq5t4SbZQJnVwguOAI274+5kw=
-X-Received: by 2002:a17:90a:4216:b0:2c8:84b:580e with SMTP id
- 98e67ed59e1d1-2cf7e71e4e1mr6699073a91.41.1722224551326; Sun, 28 Jul 2024
- 20:42:31 -0700 (PDT)
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=vQfZN7k4ZxQj4iZl6k75EO3jnmshySL3thsmTEvOARc=;
+	b=HRT6bqOajbYMMciVaOS/nWPEhTV+9Vx7z1xuK7w1i1uXTBU8Kvi/jojhcG1dd58wSAg3HG
+	7KOePk41lipaX3U2SETEaqrvTEVwznraxjC1gcPz6R4QlkzVfgk+0X0iSTg4y7x6aabuDU
+	NL0FvqxvXGWf5CrLuQ3pgItuafz03hg=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-615-4mKCWyYdO3--p_2ma8hYYw-1; Mon,
+ 29 Jul 2024 01:21:59 -0400
+X-MC-Unique: 4mKCWyYdO3--p_2ma8hYYw-1
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CA5001955D4F;
+	Mon, 29 Jul 2024 05:21:57 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.168])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B9ADB195605F;
+	Mon, 29 Jul 2024 05:21:50 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	dtatulea@nvidia.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	parav@nvidia.com,
+	sgarzare@redhat.com,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v7 0/3] vdpa: support set mac address from vdpa tool
+Date: Mon, 29 Jul 2024 13:20:44 +0800
+Message-ID: <20240729052146.621924-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240724085544.299090-1-21cnbao@gmail.com> <20240724085544.299090-2-21cnbao@gmail.com>
- <ZqDzErEQbC49F4j9@tiehlicka> <CAGsJ_4z+iMXqJP68HQzbmkmWGHa-houPUKth=vbYgL=1OLV4Gg@mail.gmail.com>
- <ZqHr9OQPDVKr-1Cs@tiehlicka> <CAGsJ_4x+V8jVuM307uGUCXVrZTWGHNKHYqGsj6UAN=QH=yWpqw@mail.gmail.com>
-In-Reply-To: <CAGsJ_4x+V8jVuM307uGUCXVrZTWGHNKHYqGsj6UAN=QH=yWpqw@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 29 Jul 2024 11:42:19 +0800
-Message-ID: <CACGkMEs49KckODWSpe7VPfTeshogni0_eOdkMO0b7zW2A5YX2w@mail.gmail.com>
-Subject: Re: [PATCH RFC 1/5] vpda: try to fix the potential crash due to
- misusing __GFP_NOFAIL
-To: Barry Song <21cnbao@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
-	42.hyeyoo@gmail.com, cl@linux.com, hch@infradead.org, iamjoonsoo.kim@lge.com, 
-	lstoakes@gmail.com, penberg@kernel.org, rientjes@google.com, 
-	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com, 
-	vbabka@suse.cz, virtualization@lists.linux.dev, hailong.liu@oppo.com, 
-	torvalds@linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Maxime Coquelin <maxime.coquelin@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-On Thu, Jul 25, 2024 at 3:00=E2=80=AFPM Barry Song <21cnbao@gmail.com> wrot=
-e:
->
-> On Thu, Jul 25, 2024 at 6:08=E2=80=AFPM Michal Hocko <mhocko@suse.com> wr=
-ote:
-> >
-> > On Thu 25-07-24 10:50:45, Barry Song wrote:
-> > > On Thu, Jul 25, 2024 at 12:27=E2=80=AFAM Michal Hocko <mhocko@suse.co=
-m> wrote:
-> > > >
-> > > > On Wed 24-07-24 20:55:40, Barry Song wrote:
-> > [...]
-> > > > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/=
-vdpa_user/iova_domain.c
-> > > > > index 791d38d6284c..eff700e5f7a2 100644
-> > > > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> > > > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> > > > > @@ -287,28 +287,44 @@ void vduse_domain_remove_user_bounce_pages(=
-struct vduse_iova_domain *domain)
-> > > > >  {
-> > > > >       struct vduse_bounce_map *map;
-> > > > >       unsigned long i, count;
-> > > > > +     struct page **pages =3D NULL;
-> > > > >
-> > > > >       write_lock(&domain->bounce_lock);
-> > > > >       if (!domain->user_bounce_pages)
-> > > > >               goto out;
-> > > > > -
-> > > > >       count =3D domain->bounce_size >> PAGE_SHIFT;
-> > > > > +     write_unlock(&domain->bounce_lock);
-> > > > > +
-> > > > > +     pages =3D kmalloc_array(count, sizeof(*pages), GFP_KERNEL |=
- __GFP_NOFAIL);
-> > > > > +     for (i =3D 0; i < count; i++)
-> > > > > +             pages[i] =3D alloc_page(GFP_KERNEL | __GFP_NOFAIL);
-> > > >
-> > > > AFAICS vduse_domain_release calls this function with
-> > > > spin_lock(&domain->iotlb_lock) so dropping &domain->bounce_lock is =
-not
-> > > > sufficient.
-> > >
-> > > yes. this is true:
-> > >
-> > > static int vduse_domain_release(struct inode *inode, struct file *fil=
-e)
-> > > {
-> > >         struct vduse_iova_domain *domain =3D file->private_data;
-> > >
-> > >         spin_lock(&domain->iotlb_lock);
-> > >         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
-> > >         vduse_domain_remove_user_bounce_pages(domain);
-> > >         vduse_domain_free_kernel_bounce_pages(domain);
-> > >         spin_unlock(&domain->iotlb_lock);
-> > >         put_iova_domain(&domain->stream_iovad);
-> > >         put_iova_domain(&domain->consistent_iovad);
-> > >         vhost_iotlb_free(domain->iotlb);
-> > >         vfree(domain->bounce_maps);
-> > >         kfree(domain);
-> > >
-> > >         return 0;
-> > > }
-> > >
-> > > This is quite a pain. I admit I don't have knowledge of this driver, =
-and I don't
-> > > think it's safe to release two locks and then reacquire them. The sit=
-uation is
-> > > rather complex. Therefore, I would prefer if the VDPA maintainers cou=
-ld
-> > > take the lead in implementing a proper fix.
-> >
-> > Would it be possible to move all that work to a deferred context?
->
-> My understanding is that we need to be aware of both the iotlb_lock and
-> bounce_lock to implement the correct changes. As long as we still need
-> to acquire these two locks in a deferred context, there doesn't seem to
-> be any difference.
->
-> I can do the memory pre-allocation before spin_lock(&domain->iotlb_lock),
-> but I have no knowledge whether the "count" will change after I make
-> the preallocation.
->
-> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c
-> b/drivers/vdpa/vdpa_user/iova_domain.c
-> index 791d38d6284c..7ec87ef33d42 100644
-> --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> @@ -544,9 +544,12 @@ static int vduse_domain_release(struct inode
-> *inode, struct file *file)
->  {
->         struct vduse_iova_domain *domain =3D file->private_data;
->
-> +      struct page **pages;
-> +      spin_lock(&domain->iotlb_lock); maybe also + bounce_lock?
-> +      count =3D domain->bounce_size >> PAGE_SHIFT;
-> +      spin_unlock(&domain->iotlb_lock);
+Add support for setting the MAC address using the VDPA tool.
+This feature will allow setting the MAC address using the VDPA tool.
+For example, in vdpa_sim_net, the implementation sets the MAC address
+to the config space. However, for other drivers, they can implement their
+own function, not limited to the config space.
 
-We probably don't need any lock here as bounce_size won't be changed .
+Changelog v2
+ - Changed the function name to prevent misunderstanding
+ - Added check for blk device
+ - Addressed the comments
+Changelog v3
+ - Split the function of the net device from vdpa_nl_cmd_dev_attr_set_doit
+ - Add a lock for the network device's dev_set_attr operation
+ - Address the comments
+Changelog v4
+ - Address the comments
+ - Add a lock for the vdap_sim?_net device's dev_set_attr operation
+Changelog v5
+ - Address the comments
+Changelog v6 
+- Replace all the memcpy of mac address with ether_addr_copy()
+- Remove the check for VIRTIO_NET_F_MAC in vdpa_dev_net_device_attr_set
+- Remove unnecessary check
+- Enhance the error log
+Changelog v7
+ - change the code to reverse-xmas tree style
+ - make all patches pass the check of ./scripts/checkpatch.pl --strict 
+ - Address other comments
 
-> +
-> +       preallocate_count_pages(pages, count);
-> +
-> ....
->         spin_lock(&domain->iotlb_lock);
->         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
-> -       vduse_domain_remove_user_bounce_pages(domain);
-> +       vduse_domain_remove_user_bounce_pages(domain, pages);
->         vduse_domain_free_kernel_bounce_pages(domain);
->         spin_unlock(&domain->iotlb_lock);
->         put_iova_domain(&domain->stream_iovad);
+Cindy Lu (3):
+  vdpa: support set mac address from vdpa tool
+  vdpa_sim_net: Add the support of set mac address
+  vdpa/mlx5: Add the support of set mac address
 
-This seems to work.
+ drivers/vdpa/mlx5/net/mlx5_vnet.c    | 28 ++++++++++
+ drivers/vdpa/vdpa.c                  | 80 ++++++++++++++++++++++++++++
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 21 +++++++-
+ include/linux/vdpa.h                 |  9 ++++
+ include/uapi/linux/vdpa.h            |  1 +
+ 5 files changed, 138 insertions(+), 1 deletion(-)
 
-Thanks
-
->
->
-> > --
-> > Michal Hocko
-> > SUSE Labs
->
+-- 
+2.45.0
 
