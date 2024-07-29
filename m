@@ -1,175 +1,141 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com [209.85.217.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97D7181AC7
-	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 06:55:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F4E1428FE
+	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 09:57:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722236141; cv=none; b=jqRc3d55vTpI73ylA97yC9hYTlFaSyBwZ+zVwDQJT9wsbI5S1dlV/3AN9gCLGsLLP9COYpRNWFP8KSvnlwzMzAUDLbADYE97psPfUpnzNer3c3Ic5+SToE9rG7bInehbMucn8a0LtdPdyNNxScO4AXKom9OSR9oBfkyXOi4F1XM=
+	t=1722247029; cv=none; b=f6aFhTxc+4HWNAb7sdvvN/pnTYVefVGktRVnFhW2DKDaHUp3CUjOaCxu06ApPNS/1WZMu9UfGENyeUCXXTDZcXaHprXrHXutgn/dAEasj6Epp3GfIciBNHq9w35DQ7lBvJtna+Q4Cfie9edfSXIY89vPn8kzy3z0d5t3hGtss9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722236141; c=relaxed/simple;
-	bh=t9WFIarv73AZEvBKbhxzMcs+pS7bmSdYAtdum2xSX3s=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=QGMJoTpwJcUyd5v+sKaDrs+odA3dirpxtbvXDhmAAakzkHz6VFzmRsjR3ku0YBzvP+DmAePftwMhBJrrOB/3tc8sOK7W+dU0lhkcSwOHKHPA39bhM+kB7nrNqoTEETb4s1w51JbNHlrIYwIJ6LudRaSA5Gw5sVqj+SkCHHIxWDw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QQASMdqF; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1722247029; c=relaxed/simple;
+	bh=A7eWnbfXGTl1KlFHy2G42hxeBgGVyPevrXi2EarTDg8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qqAK2c7KZioWcXrxIRT5JwC5mrYFb3ekbS9etPmFluvF8J2JD7kunwSa6MPbUk2Lm7X7CYF1kKsDHqJQGVtQuzEK6blbQYt059bQ1pM7Rv9+MKPXWVgOwXBW7QKZrw1ypZkE6QZCiIXvx2KCm0ADmR7QRyN4EJsqrvhqI1vVZYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dCFpNER1; arc=none smtp.client-ip=209.85.217.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QQASMdqF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1722236139; x=1753772139;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=t9WFIarv73AZEvBKbhxzMcs+pS7bmSdYAtdum2xSX3s=;
-  b=QQASMdqFytu2OgMuWed7fEGEn7gxihZ5lzZVW3+tmogAdOba6go0zypy
-   dq3KgMStGBoKjZ9eTUh6VJNnNQrXMCeCi12ZbOMt6ocW9H1YxsmD5yhPJ
-   FxVQwTQVE9hDeCYCPFTOOyBE9l729VWJgZLN1GDNpQBQOyUpeDVa0wTTf
-   +w+rcOwPDyTckT4eOJfuPiRW1KwABlR7UA53/OMDBJWfrMiC90Cy0sAOt
-   vwqBSk+VOenCWLeV/qcjZOqgJky6NnMuql1/mQmpMBYjWObqKr5v4Qnm7
-   VV7KY/8iERHr4fKHNssjEvdmhhlzbQXs74T4jCrMPIGGBfaW5iT8bK3Qz
-   A==;
-X-CSE-ConnectionGUID: +VOEb1S0QdW3cQkr2dgDJw==
-X-CSE-MsgGUID: KLggv1C4SCWf+kBuXB3bkg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11147"; a="12761494"
-X-IronPort-AV: E=Sophos;i="6.09,245,1716274800"; 
-   d="scan'208";a="12761494"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2024 23:55:38 -0700
-X-CSE-ConnectionGUID: UMLHWNZQQHSj58Y/F6dpQg==
-X-CSE-MsgGUID: OwZd8RdyS+eHATiRHxBPCA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,245,1716274800"; 
-   d="scan'208";a="54120129"
-Received: from chenyu-dev.sh.intel.com ([10.239.62.164])
-  by orviesa006.jf.intel.com with ESMTP; 28 Jul 2024 23:55:35 -0700
-From: Chen Yu <yu.c.chen@intel.com>
-To: Dave Hansen <dave.hansen@linux.intel.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Juergen Gross <jgross@suse.com>,
-	"Nikolay Borisov" <nik.borisov@suse.com>,
-	Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-	Chen Yu <yu.c.chen@intel.com>,
-	Prem Nath Dey <prem.nath.dey@intel.com>,
-	Xiaoping Zhou <xiaoping.zhou@intel.com>
-Subject: [PATCH v4] x86/paravirt: Disable virt spinlock on bare metal
-Date: Mon, 29 Jul 2024 14:52:36 +0800
-Message-Id: <20240729065236.407758-1-yu.c.chen@intel.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dCFpNER1"
+Received: by mail-vs1-f51.google.com with SMTP id ada2fe7eead31-49297fca3c2so579969137.1
+        for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 02:57:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1722247026; x=1722851826; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LzU93lQ9FAwpzZ+7J4zdxDrvnFfiQFQdWcvlDlZf8z8=;
+        b=dCFpNER1Ygj2jH7CMn/FtSXyQQ7Bwmb3L/PPl0v/SSWXL6kvLkiP1lCm9Qo+V5VgCR
+         npNB8XCMRZyhRhqdLT5fu1FFGz3Uby4C6QEj1QqnfGY5RFeGbQoGiJTdFBL4tIDxh/8p
+         JZSY2ZBTPhfBh3sUJGAg6l9fQ4nma2dCqdQjaSO5Tdh8XJ4QUK6s2RHcQwIA8vATKhW1
+         rHIPQROj8ciTEGoFdhlbKNA8T84e52tTMHZW9oA7QTIRqnfEOqXr9OXeg62KtlK8/zcG
+         ekPodLXksUVxDeeVv2VhHQn3APSeYr+aCLrxc9HgCOzbSZQP33e5KZGqbXcM21FbG2qM
+         Pu4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722247026; x=1722851826;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LzU93lQ9FAwpzZ+7J4zdxDrvnFfiQFQdWcvlDlZf8z8=;
+        b=GnWJAk7FySHe1MgaTa/NUQVAdA6F5qZIEgdL8JH6TVcLsptOeLSbyozZiGu6XxcdU5
+         xe7CnWflLcu/xSm/QBRH5EN0t8KAHM7YZAd65VLVVHxfv4aT95VKs2sV4Nr9GGkVFIu0
+         PbQ0zRGxOgq8cFXYh573rGgPSwPqGC2K5dgG9T9Jk5TnPvluo6hSfsCU1A74XeNJqMdS
+         6j731Hmel+KsVceXs+O+iZURgy7wppXUBbpK3tem1T1QVA5CqqXZISOUqGhdux7bQMuc
+         IOhymPhRtPjJpU2haypInoEx2BUu6wT6Y8ZonVJnr/MOWKRHNJd2SllpE0+zhUra00OY
+         1m3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCU+JbmOqjc6AjV3mX32X7/5PKJbtESSjkQ3X2Z/I8CwBxDy7GTVCDLkCctv9apZYaQuCQ/ThMycyZxlqyD6+NCxfHPqnVVtJU/vwx+kqNs=
+X-Gm-Message-State: AOJu0YwN1IbVfDS0q8SmTxD70imE4qo0nBZwELpCZTvkcFMP6DHkY1K/
+	M/QSPjjHK1equMHF/J5OAupXHQDaQzAE1aDxHaEJWuM0Lri0kNZnok3bdy1EUiBJl2ml6sob7Rp
+	3vFrP2plRg5aYBFmk70/F16c6q3c=
+X-Google-Smtp-Source: AGHT+IHccuHFy05pU/JKx3gRIyZrGS2DgXoads5elgRjnIOEgRwTZvjj+/SANGJyL3jI7JJ+xzMsaQ0XB+LZ0UsbTH0=
+X-Received: by 2002:a05:6102:3048:b0:493:e1ba:123b with SMTP id
+ ada2fe7eead31-493faa8c6bbmr7987835137.16.1722247026292; Mon, 29 Jul 2024
+ 02:57:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <68ee812b-3b96-4c8b-9a54-70d4742488bb@suse.cz> <ZqD9-yzGxQIFlxGQ@infradead.org>
+ <ZqD_ydjhUI_GCgSg@tiehlicka> <ZqEAUbtkIMCwVpgB@infradead.org>
+ <ZqECPiU-3fJozzpB@tiehlicka> <400b2f6f-f7f0-4888-99ee-7327faad7e5c@suse.cz>
+ <ZqED4bEIJGGHxsHY@infradead.org> <ZqEGAh6R7yoR5L1n@tiehlicka>
+ <ZqEHuaUGuuUaL_AY@infradead.org> <5b9fa06a-bcef-447c-899b-fe3fb10315bf@suse.cz>
+ <ZqESn11SG7fU4cG-@infradead.org> <CAGsJ_4w5Ypv7qOmibB6g1zw_hdvG-ijsM=QtM8=YiybUqxdh2A@mail.gmail.com>
+In-Reply-To: <CAGsJ_4w5Ypv7qOmibB6g1zw_hdvG-ijsM=QtM8=YiybUqxdh2A@mail.gmail.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Mon, 29 Jul 2024 21:56:55 +1200
+Message-ID: <CAGsJ_4zqW=P6gPTtzT5_E-5ry2xQSCKfPNpcvbmApregUofVbw@mail.gmail.com>
+Subject: Re: [PATCH RFC 5/5] non-mm: discourage the usage of __GFP_NOFAIL and
+ encourage GFP_NOFAIL
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>, Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org, 
+	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, iamjoonsoo.kim@lge.com, 
+	lstoakes@gmail.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com, 
+	virtualization@lists.linux.dev, hailong.liu@oppo.com, 
+	torvalds@linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The kernel can change spinlock behavior when running as a guest. But
-this guest-friendly behavior causes performance problems on bare metal.
-So there's a 'virt_spin_lock_key' static key to switch between the two
-modes.
+On Thu, Jul 25, 2024 at 1:47=E2=80=AFPM Barry Song <21cnbao@gmail.com> wrot=
+e:
+>
+> On Thu, Jul 25, 2024 at 2:41=E2=80=AFAM Christoph Hellwig <hch@infradead.=
+org> wrote:
+> >
+> > On Wed, Jul 24, 2024 at 04:39:11PM +0200, Vlastimil Babka wrote:
+> > > On 7/24/24 3:55 PM, Christoph Hellwig wrote:
+> > > > On Wed, Jul 24, 2024 at 03:47:46PM +0200, Michal Hocko wrote:
+> > > >> OK, now it makes more sense ;) I have absolutely no objections to
+> > > >> prefering scoped NO{FS,IO} interfaces of course. And that would in=
+deed
+> > > >> eliminate a need for defining GFP_NO{FS,IO}_NOFAIL alternatives.
+> > > >
+> > > > Yes.  My proposal would be:
+> > > >
+> > > > GFP_NOFAIL without any modifiers it the only valid nofail API.
+> > >
+> > > Where GFP_NOFAIL is GFP_KERNEL | __GFP_NOFAIL (and not the more limit=
+ed one
+> > > as defined in patch 4/5).
+> >
+> > Yes.
+> >
+> > > > File systems / drivers can combine =D1=96t with the scoped nofs/noi=
+o if
+> > > > needed.
+> > >
+> > > Sounds good, how quickly we can convert existing __GFP_NOFAIL users r=
+emains
+> > > to be seen...
+> >
+> > I took a quick look at the file system ones and they look pretty easy. =
+ I
+> > think it would be good to a quick scriped run for everything that does
+> > GFP_KERNEL | __GFP_NOFAIL right now, and then spend a little time on
+> > the rest.
 
-In current code, the static key is always enabled by default when
-running in guest mode. The key is disabled for bare metal (and in
-some guests that want native behavior).
+I assume you mean something as the below?
 
-Large performance regression is reported when running encode/decode
-workload and BenchSEE cache sub-workload on the bare metal.
-Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
-native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
-is disabled, the virt_spin_lock_key is incorrectly set to true on bare
-metal. The qspinlock degenerates to test-and-set spinlock, which
-decrease the performance on bare metal.
-
-Set the default value of virt_spin_lock_key to false. If booting in
-a VM, enable this key. Later during the VM initialization, if other
-high-efficient spinlock is detected(paravirt-spinlock eg), the
-virt_spin_lock_key is disabled. According to the description above,
-the final effect will be as followed:
-
-X86_FEATURE_HYPERVISOR         Y    Y    Y     N
-CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
-PV spinlock                    Y    N    N     Y/N
-
-virt_spin_lock_key             N    N    Y     N
-
-To summarize, the virt_spin_lock_key is disabled on the bare metal
-no matter what other condidtion is. And the virt_spin_lock_key is
-also disabled when other spinlock mechanism is detected in the VM
-guest.
-
-Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Suggested-by: Nikolay Borisov <nik.borisov@suse.com>
-Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
-Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-Reviewed-by: Nikolay Borisov <nik.borisov@suse.com>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
----
-v3->v4:
-  Refine the commit log.
-  Added Reviewed-by tag from Nikolay.
-v2->v3:
-  Change the default value of virt_spin_lock_key from true to false.
-  Enable this key when it is in the VM, and disable it when needed.
-  This makes the code more readable. (Nikolay Borisov)
-  Dropped Reviewed-by because the code has been changed.
-v1->v2:
-  Refine the commit log per Dave's suggestion.
-  Simplify the fix by directly disabling the virt_spin_lock_key on bare metal.
-  Collect Reviewed-by from Juergen.
----
- arch/x86/include/asm/qspinlock.h | 4 ++--
- arch/x86/kernel/paravirt.c       | 7 +++----
- 2 files changed, 5 insertions(+), 6 deletions(-)
-
-diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-index a053c1293975..a32bd2aabdf9 100644
---- a/arch/x86/include/asm/qspinlock.h
-+++ b/arch/x86/include/asm/qspinlock.h
-@@ -66,13 +66,13 @@ static inline bool vcpu_is_preempted(long cpu)
- 
- #ifdef CONFIG_PARAVIRT
- /*
-- * virt_spin_lock_key - enables (by default) the virt_spin_lock() hijack.
-+ * virt_spin_lock_key - disables (by default) the virt_spin_lock() hijack.
-  *
-  * Native (and PV wanting native due to vCPU pinning) should disable this key.
-  * It is done in this backwards fashion to only have a single direction change,
-  * which removes ordering between native_pv_spin_init() and HV setup.
-  */
--DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
-+DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
- 
- /*
-  * Shortcut for the queued_spin_lock_slowpath() function that allows
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 5358d43886ad..fec381533555 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
- DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
- #endif
- 
--DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
-+DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
- 
- void __init native_pv_lock_init(void)
+diff --git a/drivers/md/dm-region-hash.c b/drivers/md/dm-region-hash.c
+index a4550975c27d..b90ef94b1a09 100644
+--- a/drivers/md/dm-region-hash.c
++++ b/drivers/md/dm-region-hash.c
+@@ -291,10 +291,13 @@ static void __rh_insert(struct dm_region_hash
+*rh, struct dm_region *reg)
+ static struct dm_region *__rh_alloc(struct dm_region_hash *rh, region_t re=
+gion)
  {
--	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
--	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
--		static_branch_disable(&virt_spin_lock_key);
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		static_branch_enable(&virt_spin_lock_key);
- }
- 
- static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
--- 
-2.25.1
+        struct dm_region *reg, *nreg;
++       int orig_flags;
 
+        nreg =3D mempool_alloc(&rh->region_pool, GFP_ATOMIC);
++       orig_flags =3D memalloc_noio_save();
+        if (unlikely(!nreg))
+-               nreg =3D kmalloc(sizeof(*nreg), GFP_NOIO | __GFP_NOFAIL);
++               nreg =3D kmalloc(sizeof(*nreg), GFP_NOFAIL);
++       memalloc_noio_restore(orig_flags);
+
+        nreg->state =3D rh->log->type->in_sync(rh->log, region, 1) ?
+                      DM_RH_CLEAN : DM_RH_NOSYNC;
