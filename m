@@ -1,96 +1,175 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE1F12119;
-	Mon, 29 Jul 2024 06:46:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97D7181AC7
+	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 06:55:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722235574; cv=none; b=G6ZSWRvNb4TUwWbKevNiY2qnR0s88mHU04S8uZvQUMjNM10hG13LEYTsHb82Y0TJzDPcUCA1kHVsK+aGsDxDLGjKPKJblpojnM6nQ1U5ZMCjiMUAgpHKrgUvfiO8HIaJXpcEHmHSbvuYDFY4Nt0dgR3KqKFuA3mEucpvBvzxni4=
+	t=1722236141; cv=none; b=jqRc3d55vTpI73ylA97yC9hYTlFaSyBwZ+zVwDQJT9wsbI5S1dlV/3AN9gCLGsLLP9COYpRNWFP8KSvnlwzMzAUDLbADYE97psPfUpnzNer3c3Ic5+SToE9rG7bInehbMucn8a0LtdPdyNNxScO4AXKom9OSR9oBfkyXOi4F1XM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722235574; c=relaxed/simple;
-	bh=R3wogILUarLMuOKLK0lDpfm3PIGb/vJu4lEvZa0OeBM=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=UQ9JftTsImWvYkkVtsDpE66x1SDp3MLHtbiTr7g+RbimHe9JR7mNeZKg5/EGYqFA3LroCuBb5NGTsKkaAspkDfvJsPtNZPSdBugbecpMqzlzuyGv8fsjZLCu/muA8JiSgFH4VIMo0cr43VL5M04I7rRMrt1bVRv3xLzC0fXxF+A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Fxru4Y+t; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1722236141; c=relaxed/simple;
+	bh=t9WFIarv73AZEvBKbhxzMcs+pS7bmSdYAtdum2xSX3s=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=QGMJoTpwJcUyd5v+sKaDrs+odA3dirpxtbvXDhmAAakzkHz6VFzmRsjR3ku0YBzvP+DmAePftwMhBJrrOB/3tc8sOK7W+dU0lhkcSwOHKHPA39bhM+kB7nrNqoTEETb4s1w51JbNHlrIYwIJ6LudRaSA5Gw5sVqj+SkCHHIxWDw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QQASMdqF; arc=none smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Fxru4Y+t"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
-	:MIME-Version:Message-ID:References:In-Reply-To:Subject:CC:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=R3wogILUarLMuOKLK0lDpfm3PIGb/vJu4lEvZa0OeBM=; b=Fxru4Y+toyFmdCw6icmB/YNWlv
-	j9jVZ7bm1SbESqDXtPHmtxrXQAOQOE0H0oSCGedJ1I+Kc8/K3MyMnf2Pu4vsPR7LMk1BXMWKPUb01
-	TmuScp7QY9dxgDUhr0TOehkRw/RxA6kQqBZKWWoG+yAMXxloOiUiS3NkCZcI/oXAYfDzOaRk4n+r1
-	it7UJNTjsT6qv1P4Rh0fbB6HtCA9CHciNGmKxWIOvJWn6LAEitXfz1ga200CmJGS4uLQcKHRElUuM
-	kUFWYuhQFhY3qQnO/g99i0aAQLE5YuhJvXFdEdXwcjPDfkRGI6tVlRU45gi05n64a/SPKI24bCNFj
-	WWshRG+w==;
-Received: from dyn-224.woodhou.se ([90.155.92.224] helo=[127.0.0.1])
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sYK8s-00000004jfc-44xo;
-	Mon, 29 Jul 2024 06:45:59 +0000
-Date: Mon, 29 Jul 2024 07:45:59 +0100
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
- Richard Cochran <richardcochran@gmail.com>,
- Peter Hilber <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
- virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
- "Chashper, David" <chashper@amazon.com>,
- "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
- "Christopher S . Hall" <christopher.s.hall@intel.com>,
- Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
- netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH] ptp: Add vDSO-style vmclock support
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20240728111746-mutt-send-email-mst@kernel.org>
-References: <20240725081502-mutt-send-email-mst@kernel.org> <f55e6dfc4242d69eed465f26d6ad7719193309dc.camel@infradead.org> <20240725082828-mutt-send-email-mst@kernel.org> <db786be69aed3800f1aca71e8c4c2a6930e3bb0b.camel@infradead.org> <20240725083215-mutt-send-email-mst@kernel.org> <98813a70f6d3377d3a9d502fd175be97334fcc87.camel@infradead.org> <20240726174958.00007d10@Huawei.com> <811E8A25-3DBC-452D-B594-F9B7B0B61335@infradead.org> <20240728062521-mutt-send-email-mst@kernel.org> <9817300C-9280-4CC3-B9DB-37D24C8C20B5@infradead.org> <20240728111746-mutt-send-email-mst@kernel.org>
-Message-ID: <92D47BE5-4D57-4C4A-A250-20B9C9EFD862@infradead.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QQASMdqF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1722236139; x=1753772139;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=t9WFIarv73AZEvBKbhxzMcs+pS7bmSdYAtdum2xSX3s=;
+  b=QQASMdqFytu2OgMuWed7fEGEn7gxihZ5lzZVW3+tmogAdOba6go0zypy
+   dq3KgMStGBoKjZ9eTUh6VJNnNQrXMCeCi12ZbOMt6ocW9H1YxsmD5yhPJ
+   FxVQwTQVE9hDeCYCPFTOOyBE9l729VWJgZLN1GDNpQBQOyUpeDVa0wTTf
+   +w+rcOwPDyTckT4eOJfuPiRW1KwABlR7UA53/OMDBJWfrMiC90Cy0sAOt
+   vwqBSk+VOenCWLeV/qcjZOqgJky6NnMuql1/mQmpMBYjWObqKr5v4Qnm7
+   VV7KY/8iERHr4fKHNssjEvdmhhlzbQXs74T4jCrMPIGGBfaW5iT8bK3Qz
+   A==;
+X-CSE-ConnectionGUID: +VOEb1S0QdW3cQkr2dgDJw==
+X-CSE-MsgGUID: KLggv1C4SCWf+kBuXB3bkg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11147"; a="12761494"
+X-IronPort-AV: E=Sophos;i="6.09,245,1716274800"; 
+   d="scan'208";a="12761494"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2024 23:55:38 -0700
+X-CSE-ConnectionGUID: UMLHWNZQQHSj58Y/F6dpQg==
+X-CSE-MsgGUID: OwZd8RdyS+eHATiRHxBPCA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,245,1716274800"; 
+   d="scan'208";a="54120129"
+Received: from chenyu-dev.sh.intel.com ([10.239.62.164])
+  by orviesa006.jf.intel.com with ESMTP; 28 Jul 2024 23:55:35 -0700
+From: Chen Yu <yu.c.chen@intel.com>
+To: Dave Hansen <dave.hansen@linux.intel.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Juergen Gross <jgross@suse.com>,
+	"Nikolay Borisov" <nik.borisov@suse.com>,
+	Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+	Chen Yu <yu.c.chen@intel.com>,
+	Prem Nath Dey <prem.nath.dey@intel.com>,
+	Xiaoping Zhou <xiaoping.zhou@intel.com>
+Subject: [PATCH v4] x86/paravirt: Disable virt spinlock on bare metal
+Date: Mon, 29 Jul 2024 14:52:36 +0800
+Message-Id: <20240729065236.407758-1-yu.c.chen@intel.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
 
-On 28 July 2024 16:23:49 BST, "Michael S=2E Tsirkin" <mst@redhat=2Ecom> wro=
-te:
->On Sun, Jul 28, 2024 at 02:07:01PM +0100, David Woodhouse wrote:
->> On 28 July 2024 11:37:04 BST, "Michael S=2E Tsirkin" <mst@redhat=2Ecom>=
- wrote:
->> >Glad you asked :)
->>=20
->> Heh, I'm not sure I'm so glad=2E Did I mention I hate ACPI? Perhaps it'=
-s still not too late for me just to define a DT binding and use PRP0001 for=
- it :)
->>=20
->> >Long story short, QEMUVGID is indeed out of spec, but it works
->> >both because of guest compatibility with ACPI 1=2E0, and because no on=
-e
->> >much uses it=2E
+The kernel can change spinlock behavior when running as a guest. But
+this guest-friendly behavior causes performance problems on bare metal.
+So there's a 'virt_spin_lock_key' static key to switch between the two
+modes.
 
-But why *did* it change from QEMU0003 which was in some of the patches tha=
-t got posted?
+In current code, the static key is always enabled by default when
+running in guest mode. The key is disabled for bare metal (and in
+some guests that want native behavior).
 
->> I think it's reasonable enough to follow that example and use AMZNVCLK =
-(or QEMUVCLK, but there seems little point in both) then?
->
->I'd stick to spec=2E If you like puns, QEMUC10C maybe?
+Large performance regression is reported when running encode/decode
+workload and BenchSEE cache sub-workload on the bare metal.
+Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
+native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
+is disabled, the virt_spin_lock_key is incorrectly set to true on bare
+metal. The qspinlock degenerates to test-and-set spinlock, which
+decrease the performance on bare metal.
 
-Meh, might as well be sensible=2E I'll chase up which of my colleagues cur=
-ates the AMZN space (which will no doubt be me by the end of that thread), =
-and issue the next one from that=2E
+Set the default value of virt_spin_lock_key to false. If booting in
+a VM, enable this key. Later during the VM initialization, if other
+high-efficient spinlock is detected(paravirt-spinlock eg), the
+virt_spin_lock_key is disabled. According to the description above,
+the final effect will be as followed:
+
+X86_FEATURE_HYPERVISOR         Y    Y    Y     N
+CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
+PV spinlock                    Y    N    N     Y/N
+
+virt_spin_lock_key             N    N    Y     N
+
+To summarize, the virt_spin_lock_key is disabled on the bare metal
+no matter what other condidtion is. And the virt_spin_lock_key is
+also disabled when other spinlock mechanism is detected in the VM
+guest.
+
+Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Suggested-by: Nikolay Borisov <nik.borisov@suse.com>
+Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
+Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
+Reviewed-by: Nikolay Borisov <nik.borisov@suse.com>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+---
+v3->v4:
+  Refine the commit log.
+  Added Reviewed-by tag from Nikolay.
+v2->v3:
+  Change the default value of virt_spin_lock_key from true to false.
+  Enable this key when it is in the VM, and disable it when needed.
+  This makes the code more readable. (Nikolay Borisov)
+  Dropped Reviewed-by because the code has been changed.
+v1->v2:
+  Refine the commit log per Dave's suggestion.
+  Simplify the fix by directly disabling the virt_spin_lock_key on bare metal.
+  Collect Reviewed-by from Juergen.
+---
+ arch/x86/include/asm/qspinlock.h | 4 ++--
+ arch/x86/kernel/paravirt.c       | 7 +++----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
+index a053c1293975..a32bd2aabdf9 100644
+--- a/arch/x86/include/asm/qspinlock.h
++++ b/arch/x86/include/asm/qspinlock.h
+@@ -66,13 +66,13 @@ static inline bool vcpu_is_preempted(long cpu)
+ 
+ #ifdef CONFIG_PARAVIRT
+ /*
+- * virt_spin_lock_key - enables (by default) the virt_spin_lock() hijack.
++ * virt_spin_lock_key - disables (by default) the virt_spin_lock() hijack.
+  *
+  * Native (and PV wanting native due to vCPU pinning) should disable this key.
+  * It is done in this backwards fashion to only have a single direction change,
+  * which removes ordering between native_pv_spin_init() and HV setup.
+  */
+-DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
++DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
+ 
+ /*
+  * Shortcut for the queued_spin_lock_slowpath() function that allows
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 5358d43886ad..fec381533555 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
+ DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
+ #endif
+ 
+-DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
++DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
+ 
+ void __init native_pv_lock_init(void)
+ {
+-	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
+-	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
+-		static_branch_disable(&virt_spin_lock_key);
++	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
++		static_branch_enable(&virt_spin_lock_key);
+ }
+ 
+ static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
+-- 
+2.25.1
 
