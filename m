@@ -1,350 +1,208 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF10517C61
-	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 02:17:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D6781E864
+	for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 03:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722219427; cv=none; b=M+Wd+NC8ZPXEN6f4BYrqoMnx1pZyd63MLeEab//dz0/FpWlbX3pFeIAgcSdtP2jhkg43sRjhUtUwrmTCdFX8BaVE4e20MDoZrui65utIm5zMeS/pcK4Xk8USD+E0Bg1ukuQE2GneG9mjGRGp39Ft2b2a7eVOo0Yw0KqlE3zx/ZE=
+	t=1722224558; cv=none; b=F3t6tlxE2ujZG2fSQOMDEw1zDG31FH1QLe0mY49iJvsx1/hGGpYtV8nn2TGBeWMtLayczyGVVkPX+MwjQ7O/zE1lM9GzaEbJr87e746rgiwZ6GDwCmspP13IvJqN2R6a6cuYEncg3yV3Hvl76E/npI/94PFM+0TANvK7eGRAxlA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722219427; c=relaxed/simple;
-	bh=L03jNnVo3oc5W/e4WB1NyUCikaVjOEADlO57C5GzFJQ=;
+	s=arc-20240116; t=1722224558; c=relaxed/simple;
+	bh=Zhbv1X2Wu3WIckzhAyvFgzq6RTG9LbYvaiFiJV6TY2M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t2CtIHmarXbgLaSO1Z83bL4p1eFowmJaXRCDXiA3IeRF8W2s+cjGo5ibVoG2YNuc6bPLVnUdB54BSup6ZZ7zkZPUJae1ozy+mVeLbr7v3/rQcbpgVYDeB/khhQMX2UOy8CF5f311huSs3AyWDDhJxzogSLpEydczILscpJiealo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IlQ1dXx+; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=cxxS5qMV9N3BWk+mOz33yc0R1DpMOFd6vyy4hldYRekzGOPvGMMkSsP8S6dRbSZfSEeYqmZsyEmcXZ5EkFXSimIJpsh6XMSdHiIonfHyPgVnY/p60EV/W2un5Dq5VoIR3L+6PvNif8HX6I5EXCmS6YJA88YVvXMitC/1LkPmAt4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f7TKPMYQ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IlQ1dXx+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f7TKPMYQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722219424;
+	s=mimecast20190719; t=1722224555;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/xgPy2/4qi1bw2j0+tV2H2autbl58b7uFXuel8vkU2Y=;
-	b=IlQ1dXx+4GTP279aTnyQls3uxiQEkY5zIQ58cyukGXqN6x/HYUTuFswyNDbCho3aUM/t/5
-	ftJzExtmE2XIhR1KAjSRCIL1KW9oMH9iOEogYayUlS+KQ9gWe2ZMbT4MpCnkcAZCELmFHJ
-	NudLJe58Z7x5tjShEcEevq0p3YO7gWI=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=zejeV14JwQZnD2gzIg7+ARzepmzNQuxM/rkGlI3CoV0=;
+	b=f7TKPMYQ1PzOihjnEbb49C1zVWxKMUUMip7j/m32veuvtWutEu9/f4PYUHQvn2PDTTZP97
+	QJLyNktCE+17Delv/VB1JyLLew4mWlT21BX1hsczfV7w871f/C73TVjMVO0RsZ/KpWuKRo
+	53L3CUzGiCE9/Rasawg5OILAiTUK0Hg=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-142-CNGfy4IPNJS8y_pn9eUSMw-1; Sun, 28 Jul 2024 22:17:02 -0400
-X-MC-Unique: CNGfy4IPNJS8y_pn9eUSMw-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2cb4bcdd996so2734263a91.1
-        for <virtualization@lists.linux.dev>; Sun, 28 Jul 2024 19:17:02 -0700 (PDT)
+ us-mta-347-Obxek-XhOF23-aboOGUgBg-1; Sun, 28 Jul 2024 23:42:32 -0400
+X-MC-Unique: Obxek-XhOF23-aboOGUgBg-1
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-7a23a0fb195so3107485a12.0
+        for <virtualization@lists.linux.dev>; Sun, 28 Jul 2024 20:42:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722219421; x=1722824221;
+        d=1e100.net; s=20230601; t=1722224552; x=1722829352;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/xgPy2/4qi1bw2j0+tV2H2autbl58b7uFXuel8vkU2Y=;
-        b=Wg358yUPcV7PhoopK6nNItJFxGokeunhqp7eIVk3bODX67lCiS6apOcR78X+SLK3lj
-         62vj86/KP1EWfJxeebH3A1jpXx7vWu3fgJpZvZdU8voxO1ae55Buq2KayMlg8TsLcI+3
-         DCH6CffmzxrResEbNq91+82bTjp83oeUHsK7nc/lCUBVUqWWTn6rhCESuv/d7mGSzIaG
-         +CM9bjUDa2jL1zYCYd8A0hEJV9fwjZRr8ieXgNeh4beeteXj8+opHyki7DfEXwyyFAGN
-         yloTc7qtF5y4dAQb08pCL7MbH9AxTE6VftoFc3cmybld7kX5PJHC/VSQKQmrcPmILTnN
-         nkhA==
-X-Forwarded-Encrypted: i=1; AJvYcCVaHwTAPQBM320LDbZeZ3JcNfIu/Yh2fTAkfKPrPQGswj0YtrgFCMxBgT9zF+uBQ1Hnjpff+8Nzk+8Anx5oYrVkgrGvRlMPVHb1Qa95zfY=
-X-Gm-Message-State: AOJu0YxDyyjBiMxoX9mWJGmi5TbtXdJwYIk7zUQYMRh4j0Ma57HYikKq
-	foXi3Q11fuibPA6N5T9kDFHSUxhpTHdBL/DT1eszOrLWklYcqhClKm/slvEWBkeTEGcoKTKKXPO
-	MJnvgEwGeHKne3wqK91D8O6pgMLyzDzuO19FAnak781odx48iwEY/DavzS6Bfp1G7i3sQYmB7e8
-	khPeYLl+d2/Cy9ZF/06r7LRkmYVtBasW/H/TcLt8s=
-X-Received: by 2002:a17:90b:3b42:b0:2cb:4b31:1c48 with SMTP id 98e67ed59e1d1-2cf7cfae241mr9270019a91.22.1722219421143;
-        Sun, 28 Jul 2024 19:17:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHJuNpRw77lqwh4iJVXUNHoFzwDf+akQ5L680oOg9a1ao4SuJuy00gUAOCuCo0SnCRbSfp20NM4w+bbqUNTQ+o=
-X-Received: by 2002:a17:90b:3b42:b0:2cb:4b31:1c48 with SMTP id
- 98e67ed59e1d1-2cf7cfae241mr9269981a91.22.1722219420585; Sun, 28 Jul 2024
- 19:17:00 -0700 (PDT)
+        bh=zejeV14JwQZnD2gzIg7+ARzepmzNQuxM/rkGlI3CoV0=;
+        b=rvrEkh0qGeW0BgDxBKhuu4MqD5s9RCS/0qpEs1fEPUFdMOb9NDP9FVGdXGDDbv4/VT
+         mLYDbQ6gAPn55dArBagQN2qewiIfSkNq/9N0kdwrMjzr87mRMfxiQ0/jMYt4pCyj150v
+         MUNNOancuPngVpUclh87OCtR5/FwCeQszcSCajOMg/Nq+4zpDkSeNxcRVx6FkGgFWbXC
+         oxSQSQCInGfZtWNxoo+ydfpI+20dl24JBqzDXm7KxzDDMC5RMieX8OuknR2i6E0YSU2u
+         PcxSDDJoWJG7iNDI+IVAzx7gvuT2pgKe/8/NuGLML337HgFK04G0vBcSpUzJhfJhOla2
+         c0cw==
+X-Forwarded-Encrypted: i=1; AJvYcCUlUQUWRApplCdfFTlC/LjGAUFAFmnzmnrBrnWY2VHsKE4+TPChE/lLbM0puRo9ISKcuVS3XOZT2F7CvEnxJBLoD8Jsw/kNUKnFwBOtDsw=
+X-Gm-Message-State: AOJu0YzQ2d5NHD2+wxJI9/CCXGZt43bDZ+gpmf6fscslSu1auV72phMu
+	U5Ti3yPJVAlDwkSu8WIpOYlkqGjQ4F5j4R5WpEZj5mZTWF6+Ib5XvTVcq9WOEZRqAtZpCJ/hQCE
+	UyqO276HTV6q8dlJqdzEslqN31H5wlE9vmmDFyo8WJCcsQHvT0dXb/tSmOermvjfjcRHAEYiV0g
+	GVa6+ZVqw4J3etTfq4aT4tWdPadOxCCR/39JVp7aA=
+X-Received: by 2002:a17:90a:4216:b0:2c8:84b:580e with SMTP id 98e67ed59e1d1-2cf7e71e4e1mr6699091a91.41.1722224551848;
+        Sun, 28 Jul 2024 20:42:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE33V26cEZs+EJ6bDmy8FUIcOWVkQb3PPY03dbWhGpNHswimOZ80QlIlZDw1IFq5t4SbZQJnVwguOAI274+5kw=
+X-Received: by 2002:a17:90a:4216:b0:2c8:84b:580e with SMTP id
+ 98e67ed59e1d1-2cf7e71e4e1mr6699073a91.41.1722224551326; Sun, 28 Jul 2024
+ 20:42:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240724033816.GD492231@quicinc.com> <CACGkMEs_FHg6xZAw2V7AKvj5XFCmaA0Xm+ei7z4OFJPNgO5Thw@mail.gmail.com>
- <20240726070324.GA723942@quicinc.com>
-In-Reply-To: <20240726070324.GA723942@quicinc.com>
+References: <20240724085544.299090-1-21cnbao@gmail.com> <20240724085544.299090-2-21cnbao@gmail.com>
+ <ZqDzErEQbC49F4j9@tiehlicka> <CAGsJ_4z+iMXqJP68HQzbmkmWGHa-houPUKth=vbYgL=1OLV4Gg@mail.gmail.com>
+ <ZqHr9OQPDVKr-1Cs@tiehlicka> <CAGsJ_4x+V8jVuM307uGUCXVrZTWGHNKHYqGsj6UAN=QH=yWpqw@mail.gmail.com>
+In-Reply-To: <CAGsJ_4x+V8jVuM307uGUCXVrZTWGHNKHYqGsj6UAN=QH=yWpqw@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 29 Jul 2024 10:16:48 +0800
-Message-ID: <CACGkMEtin7mb=rA_nS6ArinP4k_v-Zsa05tMb_KXXUvfuCMiKw@mail.gmail.com>
-Subject: Re: [RFC] vduse config write support
-To: Srivatsa Vaddagiri <quic_svaddagi@quicinc.com>
-Cc: xieyongji@bytedance.com, stefanha@redhat.com, virtio-dev@lists.linux.dev, 
-	virtualization@lists.linux.dev, quic_mnalajal@quicinc.com, 
-	quic_eberman@quicinc.com, quic_pheragu@quicinc.com, quic_pderrin@quicinc.com, 
-	quic_cvanscha@quicinc.com, quic_pkondeti@quicinc.com, quic_tsoni@quicinc.com, 
-	eperezma <eperezma@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, mst <mst@redhat.com>, 
-	Cindy Lu <lulu@redhat.com>
+Date: Mon, 29 Jul 2024 11:42:19 +0800
+Message-ID: <CACGkMEs49KckODWSpe7VPfTeshogni0_eOdkMO0b7zW2A5YX2w@mail.gmail.com>
+Subject: Re: [PATCH RFC 1/5] vpda: try to fix the potential crash due to
+ misusing __GFP_NOFAIL
+To: Barry Song <21cnbao@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	42.hyeyoo@gmail.com, cl@linux.com, hch@infradead.org, iamjoonsoo.kim@lge.com, 
+	lstoakes@gmail.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com, 
+	vbabka@suse.cz, virtualization@lists.linux.dev, hailong.liu@oppo.com, 
+	torvalds@linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Maxime Coquelin <maxime.coquelin@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 26, 2024 at 3:04=E2=80=AFPM Srivatsa Vaddagiri
-<quic_svaddagi@quicinc.com> wrote:
+On Thu, Jul 25, 2024 at 3:00=E2=80=AFPM Barry Song <21cnbao@gmail.com> wrot=
+e:
 >
-> * Jason Wang <jasowang@redhat.com> [2024-07-26 10:47:59]:
->
-> > On Wed, Jul 24, 2024 at 11:45???AM Srivatsa Vaddagiri
-> > <quic_svaddagi@quicinc.com> wrote:
+> On Thu, Jul 25, 2024 at 6:08=E2=80=AFPM Michal Hocko <mhocko@suse.com> wr=
+ote:
+> >
+> > On Thu 25-07-24 10:50:45, Barry Song wrote:
+> > > On Thu, Jul 25, 2024 at 12:27=E2=80=AFAM Michal Hocko <mhocko@suse.co=
+m> wrote:
+> > > >
+> > > > On Wed 24-07-24 20:55:40, Barry Song wrote:
+> > [...]
+> > > > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/=
+vdpa_user/iova_domain.c
+> > > > > index 791d38d6284c..eff700e5f7a2 100644
+> > > > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > > @@ -287,28 +287,44 @@ void vduse_domain_remove_user_bounce_pages(=
+struct vduse_iova_domain *domain)
+> > > > >  {
+> > > > >       struct vduse_bounce_map *map;
+> > > > >       unsigned long i, count;
+> > > > > +     struct page **pages =3D NULL;
+> > > > >
+> > > > >       write_lock(&domain->bounce_lock);
+> > > > >       if (!domain->user_bounce_pages)
+> > > > >               goto out;
+> > > > > -
+> > > > >       count =3D domain->bounce_size >> PAGE_SHIFT;
+> > > > > +     write_unlock(&domain->bounce_lock);
+> > > > > +
+> > > > > +     pages =3D kmalloc_array(count, sizeof(*pages), GFP_KERNEL |=
+ __GFP_NOFAIL);
+> > > > > +     for (i =3D 0; i < count; i++)
+> > > > > +             pages[i] =3D alloc_page(GFP_KERNEL | __GFP_NOFAIL);
+> > > >
+> > > > AFAICS vduse_domain_release calls this function with
+> > > > spin_lock(&domain->iotlb_lock) so dropping &domain->bounce_lock is =
+not
+> > > > sufficient.
 > > >
-> > > Currently vduse does not seem to support configuration space writes
-> > > (vduse_vdpa_set_config does nothing). Is there any plan to lift that
-> > > limitation? I am aware of the discussions that took place here:
+> > > yes. this is true:
 > > >
-> > > https://patchwork.kernel.org/project/netdevbpf/patch/20210615141331.4=
-07-11-xieyongji@bytedance.com/
+> > > static int vduse_domain_release(struct inode *inode, struct file *fil=
+e)
+> > > {
+> > >         struct vduse_iova_domain *domain =3D file->private_data;
 > > >
-> > > Perhaps writes can be supported *selectively* without violating safet=
-y concerns
-> > > expressed in the above email discussion?
-> >
-> > Adding more relevant people here.
-> >
-> > It can probably be done case by case. The main reason for avoiding
-> > config writing is
-> >
-> > 1) to prevent buggy/malicious userspace from hanging kernel driver for =
-ever
-> > 2) to prevent buggy/malicious userspace device to break the semantic
-> >
-> > Basically, it is the traditional trust model where the kernel doesn't
-> > trust userspace.
-> >
-> > E.g current virtio-blk has the following codes:
-> >
-> > tatic ssize_t
-> > cache_type_store(struct device *dev, struct device_attribute *attr,
-> >          const char *buf, size_t count)
-> > {
-> >         struct gendisk *disk =3D dev_to_disk(dev);
-> >         struct virtio_blk *vblk =3D disk->private_data;
-> >         struct virtio_device *vdev =3D vblk->vdev;
-> >         int i;
-> >
-> >         BUG_ON(!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_CONFIG_WCE)=
-);
-> >         i =3D sysfs_match_string(virtblk_cache_types, buf);
-> >         if (i < 0)
-> >         return i;
-> >
-> >         virtio_cwrite8(vdev, offsetof(struct virtio_blk_config, wce), i=
-);
-> >         virtblk_update_cache_mode(vdev);
-> >         return count;
-> > }
-> >
-> > So basically the question is if we make the config write a posted
-> > write or non-posted one.
-> >
-> > If we make vduse config write a posted one, it means vduse doesn't
-> > need to wait for the usersapce response. This is much more safe but it
-> > breaks the above code as it looks like it requires a non-posted
-> > semantic. We need to filter out virtio-blk or change the code to have
-> > a read after the write:
-> >
-> > while (virtio_cread8(vdev, offsetof(struct virtio_blk_config, wce) & XX=
-X)
-> >        /* sleep or other */
-> >
-> > But we may suffer from the userspace who doesn't update the wce bit
-> > forever, or maybe we can have a timeout there.
-> >
-> > If we make vduse config write a non posted one, it means the vduse
-> > needs to wait for the response from the userspace.
->
-> I was thinking only a read followed by write will needs to stall on a res=
-ponse
-> from userspace, but yes we will have the same issue of dealing with buggy
-> userspace. At least for PCI, I think there is provision to use surprise r=
-emoval
-> facility, where guest can be notified of malfunctioning device. In case o=
-f
-> userspace (vduse daemon) not responding in time, can the surprise removal=
- event
-> be injected by VMM (hypervisor in our case)? Guest can decide what to do =
-with it
-> next.
-
-I think it's a good point, we can try to implement this.
-
->
-> > It satisfies the
-> > above code's assumption but it needs to deal with the buggy userspace
-> > which might be challenging.  Technically, we can have a device
-> > emulation in the kernel but it looks like overkill for wce (or I don't
-> > know how it can mandate wce for userspace devices).
-> >
-> > I feel it might make sense for other devices that only require posted
-> > write semantics.
-> >
+> > >         spin_lock(&domain->iotlb_lock);
+> > >         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
+> > >         vduse_domain_remove_user_bounce_pages(domain);
+> > >         vduse_domain_free_kernel_bounce_pages(domain);
+> > >         spin_unlock(&domain->iotlb_lock);
+> > >         put_iova_domain(&domain->stream_iovad);
+> > >         put_iova_domain(&domain->consistent_iovad);
+> > >         vhost_iotlb_free(domain->iotlb);
+> > >         vfree(domain->bounce_maps);
+> > >         kfree(domain);
 > > >
-> > > We are thinking of using vduse for hypervisor assisted virtio devices=
-, which
-> > > may need config write support and hence this question.
+> > >         return 0;
+> > > }
 > > >
-> > > To provide more details, we have a untrusted host that spins off a pr=
-otected
-> > > (confidential) guest VM on a Type-1 hypervisor (Gunyah). VMM in untru=
-sted host
-> > > leads to couple of issues:
-> > >
-> > > 1) Latency of (virtio) register access. VMM can take too long to resp=
-ond with
-> > > VCPU stalled all that while. I think vduse shares a similar concern, =
-due to
-> > > which it maintains a cache of configuratin registers inside kernel.
+> > > This is quite a pain. I admit I don't have knowledge of this driver, =
+and I don't
+> > > think it's safe to release two locks and then reacquire them. The sit=
+uation is
+> > > rather complex. Therefore, I would prefer if the VDPA maintainers cou=
+ld
+> > > take the lead in implementing a proper fix.
 > >
-> > Maybe you can give an example for this? We cache the configuration
-> > space to a faster access to that.
+> > Would it be possible to move all that work to a deferred context?
 >
-> Yes for the same reason of faster access, we wish to have config informat=
-ion
-> cached in hypervisor. In case of VDUSE,
+> My understanding is that we need to be aware of both the iotlb_lock and
+> bounce_lock to implement the correct changes. As long as we still need
+> to acquire these two locks in a deferred context, there doesn't seem to
+> be any difference.
 >
-> Guest read -> (VM exit) -> VHOST_VDPA_GET_CONFIG -> vduse_vdpa_get_config
+> I can do the memory pre-allocation before spin_lock(&domain->iotlb_lock),
+> but I have no knowledge whether the "count" will change after I make
+> the preallocation.
 >
-> Basically a guest read terminates in host kernel, before resuming.
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c
+> b/drivers/vdpa/vdpa_user/iova_domain.c
+> index 791d38d6284c..7ec87ef33d42 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> @@ -544,9 +544,12 @@ static int vduse_domain_release(struct inode
+> *inode, struct file *file)
+>  {
+>         struct vduse_iova_domain *domain =3D file->private_data;
 >
-> In our case,
->
-> Guest read - (VM exit) - Hyp emulates read - (VM resume)
->
-> So a guest read would terminate in hypervisor itself, before it is resume=
-d.
+> +      struct page **pages;
+> +      spin_lock(&domain->iotlb_lock); maybe also + bounce_lock?
+> +      count =3D domain->bounce_size >> PAGE_SHIFT;
+> +      spin_unlock(&domain->iotlb_lock);
 
-It looks like the only difference so far is there is a userspace
-assistance in the case of VDUSE.
+We probably don't need any lock here as bounce_size won't be changed .
 
->
-> Without this optimization, guest VCPU would have stalled until VMM in hos=
-t can
-> emulate it, which can be long, especially a concern when the read is issu=
-ed in
-> hot path (interrupt handler, w/o MSI_X).
+> +
+> +       preallocate_count_pages(pages, count);
+> +
+> ....
+>         spin_lock(&domain->iotlb_lock);
+>         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
+> -       vduse_domain_remove_user_bounce_pages(domain);
+> +       vduse_domain_remove_user_bounce_pages(domain, pages);
+>         vduse_domain_free_kernel_bounce_pages(domain);
+>         spin_unlock(&domain->iotlb_lock);
+>         put_iova_domain(&domain->stream_iovad);
 
-I think I agree with Michael, let's try to use MSI-X here where
-there's a lot of existing optimizations in various layers.
-
->
-> > > 2) For PCI pass-through devices, we are concerned of letting VMM be i=
-n charge of
-> > > emulating the complete configuration space (how can VM defend against=
- invalid
-> > > attributes presented for passthr devices)?
-> >
-> > Virtio driver has been hardened for this, for example:
-> >
-> > commit 72b5e8958738aaa453db5149e6ca3bcf416023b9
-> > Author: Jason Wang <jasowang@redhat.com>
-> > Date:   Fri Jun 4 13:53:50 2021 +0800
-> >
-> >     virtio-ring: store DMA metadata in desc_extra for split virtqueue
-> >
-> > More hardening work is ongoing.
->
-> Any additional pointers you can share? I will go over them and revert.
-
-Yes, used buffer length and IRQ hardening are reverted as we need to
-deal with the legacy device more carefully. New version will be posted
-in the near future.
-
->
-> > > I am aware of TDISP, but I think it
-> > > may not be available for some of the devices on our platform.
-> > >
-> > > One option we are considering is for hypervisor to be in charge of vi=
-rtio-PCI
-> > > bus emulation, allowing only select devices (with recognized features=
-) to be
-> > > registered on the bus. VMM would need to register devices/features wi=
-th
-> > > hypervisor, which would verify it (as per some policy) and present th=
-em to VM on
-> > > the virtio-PCI bus it would emulate. Protected VM should be shielded =
-from
-> > > invalid device configuration information that it may otherwise read f=
-rom a
-> > > compromised VMM.
-> > >
-> > > For virtio devices, the hypervisor would also service most register r=
-ead/writes
-> > > (to address concern #1), which implies it would need to cache a copy =
-of the
-> > > device configuration information (similar to vduse).
-> > >
-> > > We think vduse can be leveraged here to initialize the hypervisor cac=
-he of
-> > > virtio registers. Basically have a vdpa-gunyah driver registered on t=
-he vdpa
-> > > bus to which vduse devices are bound (rather than virtio-vdpa or vhos=
-t-vdpa).
-> > > vdpa-gunyah driver can pull configuration information from vduse and =
-pass that
-> > > on to hypervisor. It will also help inject IRQ and pass on queue noti=
-fications
-> > > (using hypervisor specific APIs).
-> >
-> > Just to make sure I understand the design here, is vdpa-gunyah
-> > expected to have a dedicated uAPI other than vhost-vDPA?
->
-> I didn't think vdpa-gunyah would need to provide any UAPI. VDUSE daemon
-> functionality would be inside VMM itself. For example, the virtio-block b=
-ackend
-> in VMM would create a VDUSE device and pass on key configuration informat=
-ion to
-> VDUSE kernel module. The vdpa device created subsequently (vdpa dev add .=
-.)
-> will be bound to vdpa-gunyah driver, which pulls the configuration inform=
-ation
-> and passes on to hypervisor, which will emulate all further access from V=
-M.
-
-Ok, so those drivers will talk to the VMM.
-
->
-> > Wonder any reason why vhost-vDPA can be used here.
->
-> I think vhost-vDPA will imply that VMM still tracks the device on its PCI=
-/MMIO
-> transports and will be involved for any register read from VM?
-
-Yes, and it is done with the assistance of the userspace.
-
-> We didn't want
-> VMM to be involved in emulating register access of VM. Instead hyp will e=
-mulate
-> most of those accesses.  I need to think more, but I am thinking the VMM =
-will
-> not even track this device on its PCI/MMIO transports, but rather on a
-> different, vdpa?, transport.
-
-Right, you need to emulate a virtio device with an existing transport
-anyhow. MMIO might be easy. If you want a PCI transport it means a
-huge number of devices emulation needs to be done by the hypervisor.
-
->
-> > > We will however likely need vduse to support configuration writes (gu=
-est VM
-> > > updating configuration space, for ex: writing to 'events_clear' field=
- in case of
-> > > virtio-gpu). Would vduse maintainers be willing to accept config_writ=
-e support
-> > > for select devices/features (as long as the writes don't violate any =
-safety
-> > > concerns we may have)?
-> >
-> > I think so, looking at virtio_gpu_config_changed_work_func(), the
-> > events_clear seems to be fine to have a posted semantic.
-> >
-> > Maybe you can post an RFC to support config writing and let's start fro=
-m there?
->
-> Ok thanks for your feedback!
->
-> - vatsa
->
+This seems to work.
 
 Thanks
+
+>
+>
+> > --
+> > Michal Hocko
+> > SUSE Labs
+>
 
