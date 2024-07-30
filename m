@@ -1,122 +1,176 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 213F118FC64
-	for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 09:39:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48CB6198E81
+	for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 11:05:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722332354; cv=none; b=WdIY2qJUck17gxiw+zelDRAQvmq3dqrkay/hQK7cHMAD2OfeJvBzo+cEOYiA0PDTqlTTBRAFLUm9KlKnrDR6clZ2xOMIrwKPu2b/3zrCeindPMf7uGGJ69FDtA94UXPzg4n2+eTX1klCskb+aKwkyYkTLmXBnR1VjlZqmAufeM8=
+	t=1722337507; cv=none; b=krLrFtg4hPY4cUKHLyTsbEhyyT2g5maiTfDsZS8mqqDjbrrW7AXQfeay+0oEbuXWQFUXslC5zkm+LwVDbUzwooRND9Wn+CT0AdDVWg5JF/Xbwzox18YAyIjjEk+xVvictrlOcH/34uygYGdEwIcmFFWCJ1iEgdOdXQyJ/JmtUyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722332354; c=relaxed/simple;
-	bh=ZpZUCOXm2bxyXLbnktr7N+JowT37ciaOdv8Y9vqxlZo=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=P7YvgV6MKT6/Z7nI7yquYrtKkegbbbiZNWRi4wvWpJ/rX6PVbw6FRMylCNWn4x6CEeUqc2r1Yp+E3QeLHxXBJDn/nfpZrwqJ2p6oFYxb0UYYjd8di9wJLtHCEGARTdcJhPQH1E0h4RJaQG8B/QRHIPLFt0IhWtsKx6p5Q++WBGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8AxGuq+tKhml2IEAA--.15185S3;
-	Tue, 30 Jul 2024 17:39:10 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by front1 (Coremail) with SMTP id qMiowMBxmcW7tKhmcVoGAA--.31521S3;
-	Tue, 30 Jul 2024 17:39:09 +0800 (CST)
-Subject: Re: [PATCH v4] x86/paravirt: Disable virt spinlock on bare metal
-To: Chen Yu <yu.c.chen@intel.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Juergen Gross <jgross@suse.com>,
- Nikolay Borisov <nik.borisov@suse.com>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
- Prem Nath Dey <prem.nath.dey@intel.com>,
- Xiaoping Zhou <xiaoping.zhou@intel.com>,
- Peter Zijlstra <peterz@infradead.org>
-References: <20240729065236.407758-1-yu.c.chen@intel.com>
- <08d75c12-215e-3781-ed89-b1ed5c1e39c8@loongson.cn>
- <ZqiofczTqmn4bvhy@chenyu5-mobl2>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <76216f5d-ade4-bd5b-980e-d616e77370a5@loongson.cn>
-Date: Tue, 30 Jul 2024 17:39:06 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1722337507; c=relaxed/simple;
+	bh=f/gw5g15wTHKr48hY+hyHzqdgUY3CrBD090e33xvywA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qdNsBARCBbgLTsdfCrP0B9RhpNfdyJTPpoB235uH53hzPK+PqbZVIak7ey3wfIjq1rVbI1B8LJ1Smiz5vbGSLHjMn/qEoJOOfLU8ng1cfQAH7DqUGhFyQLUPd9RA37zz0Ag9KgUuNzoJP/K3/PUX0brK6xN6/wKlZepfclqeqAs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R1zR4TUC; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R1zR4TUC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722337505;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=S79Mm994sEW4BvAIyVoQYJTT5VMn2Pbd/zrnW1wpgO8=;
+	b=R1zR4TUCAeKPHzWsHb2rzxAkPADzUh4PFxAHDcN4UY8aLxz93HUrqQvV3upB7MaKgGIISh
+	7fgdgmki5AEzSBQO0/Ki1srYEDPZ6TVyOfg5sD1ToLQbVBOTyM/fbh+WYc6lWyr5lhKpo9
+	9uda2M6p7JVTcNq8jIbSU64G8WV1Uis=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-250-GjfoPEPLPmi0b4_GdTnGCg-1; Tue, 30 Jul 2024 07:05:02 -0400
+X-MC-Unique: GjfoPEPLPmi0b4_GdTnGCg-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-666010fb35cso55826307b3.0
+        for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 04:05:01 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722337499; x=1722942299;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=S79Mm994sEW4BvAIyVoQYJTT5VMn2Pbd/zrnW1wpgO8=;
+        b=aSiYZKCgFKaiQ6ddMdWin8F2OtPo/od5zKglFUYPahlCxQml2LmAdkdx3SIj6bOS9H
+         M6pVH5w0NGD+i9OG03Ea76M2tFNB1WveGR9+ZYAz0ksLXH6vtEUwZmZOvRpTkfK39YpX
+         PUDzI9WG8443EJzHM1593YnMV4z5P9VFvVv96EIJU5EImtLgwpWKyrLdFOxTFim0wVBz
+         7vSmtZvHZjqFC62eWn6qoWJ8ODrB447XniGuLsoTPKdXuCiHdBL7yA2SGzmp5PTomyTt
+         EMJjZ8yfCOCE/BVhVGl3D2QcGOnE+f89kcD+t7ZvDpDwdfNr+r40cyaGZlVM4064g4nV
+         K2Rg==
+X-Forwarded-Encrypted: i=1; AJvYcCWfqVbmunlgSdw6O6WJoeiw2AZiDB68p1q4g7MYWJAjrEJch+r70yVFFte15Q/RRVkr9Cv8IoMwTZUxz0E3EhFdTIl8DfiPvxqrwdzYF5Q=
+X-Gm-Message-State: AOJu0YzGtBn9LGFCf70fm9LHYXg/FnDl0G2NfEutp94QhFLPC3t6u0WQ
+	0sRBHvLyWkT4DHP36xk6t24yPTkhQ/jkBYs8RwgVPjysopsmSi3GTJP2Klw4k3WAHpuwKRGN5Mp
+	uaSSRWOZkYc1XFoPrfEFjdXxsAdzLH9PE/UF+Q/B4Kbkp9KqCQfjAQIhgImzPvGQuEDJm/2zDnS
+	uQumwd48MRxu9ORU0HH9WKhLCq7qgCmtwrJIZGF2lK5bXLSqpFrg==
+X-Received: by 2002:a0d:fec4:0:b0:65f:cdb7:46a7 with SMTP id 00721157ae682-6826d4349a5mr14880067b3.22.1722337499248;
+        Tue, 30 Jul 2024 04:04:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHvq5rMoFu9LqacC+P0Kfq2pQmfz3t1RdLZrFXLSzkvnEneXakdi1b8mE4ArvawUUBUj04oZUqGLTJf0qaz+K4=
+X-Received: by 2002:a0d:fec4:0:b0:65f:cdb7:46a7 with SMTP id
+ 00721157ae682-6826d4349a5mr14879897b3.22.1722337498953; Tue, 30 Jul 2024
+ 04:04:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ZqiofczTqmn4bvhy@chenyu5-mobl2>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowMBxmcW7tKhmcVoGAA--.31521S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoW7WrWxur1UZrW3tFyrGFy8WFX_yoW8CrWkpF
-	WUtana9Fs7Jr48Zw47AFWvkry8C397Gr1qqr1xWFy8A39xWr9xtryktr1Yv3W7tF97Zr92
-	ya1FqrWDAayDZagCm3ZEXasCq-sJn29KB7ZKAUJUUUUx529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUPab4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2kKe7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
-	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-	AVWUtwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
-	8JMxk0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vI
-	r41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67
-	AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIY
-	rxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14
-	v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWx
-	JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU4SoGDU
-	UUU
+References: <20240729124755.35719-1-hengqi@linux.alibaba.com>
+In-Reply-To: <20240729124755.35719-1-hengqi@linux.alibaba.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 30 Jul 2024 13:04:23 +0200
+Message-ID: <CAJaqyWd+euHy1S_eaxTEY3v9QmAH6pCSG=CnRiZJuNE07=mMTw@mail.gmail.com>
+Subject: Re: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing commands
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Jul 29, 2024 at 2:48=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> =
+wrote:
+>
+> From the virtio spec:
+>
+>         The driver MUST have negotiated the VIRTIO_NET_F_VQ_NOTF_COAL
+>         feature when issuing commands VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET
+>         and VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET.
+>
+> The driver must not send vq notification coalescing commands if
+> VIRTIO_NET_F_VQ_NOTF_COAL is not negotiated. This limitation of course
+> applies to vq resize.
+>
+> Fixes: f61fe5f081cf ("virtio-net: fix the vq coalescing setting for vq re=
+size")
 
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-On 2024/7/30 下午4:46, Chen Yu wrote:
-> Hi Bibo,
-> 
-> On 2024-07-30 at 09:21:45 +0800, maobibo wrote:
->> Chenyu,
->>
->> Sorry to bother you, I am porting pv spinlock to LoongArch platform, I do
->> not know the history about function virt_spin_lock().
->>
->> When CONFIG_PARAVIRT_SPINLOCKS is enabled, there is pv_enabled() before
->> virt_spin_lock(), it seems that virt_spin_lock is never called in this
->> condition.
-> 
-> Right, if CONFIG_PARAVIRT_SPINLOCKS is enabled, virt_spin_lock() will not be
-> checked at all and go directly to pv_queue lock section.
-> 
->>          if (pv_enabled())
->>                  goto pv_queue;
->>
->>          if (virt_spin_lock(lock))
->>                  return;
->>
->> When CONFIG_PARAVIRT_SPINLOCKS is disabled, there is no pv qspinlock
->> compiled, so what is the usage about function virt_spin_lock()?
->> Is it to switch spinlock method from test-set spinlock to qspinlock?
->> why is there such requirement for spinlock switching method?
-> 
-> Firstly, according to the commit 2aa79af64263 ("locking/qspinlock: Revert
-> to test-and-set on hypervisors"), virt_spin_lock() was originally introduced
-> to avoid the over-preemption of native qspinlock(when paravirt-spinlock is
-> disabled).
-Chenyu,
-
-Thanks for the information. It seems that test-and-set spinlock is 
-suggested rather than qspinlock on VM when paravirt-spinlock is disabled.
-
-Regards
-Bibo Mao
-> 
-> Secondly, there is user requirement to use native qspinlock over test-set lock
-> in the VM. For example, nopvspin parameter is parsed in xen_init_spinlocks().
-> commit 9043442b43b1 ("locking/paravirt: Use new static key for controlling call
-> of virt_spin_lock()") was introduced to adjust the key from user boot up commandline.
-> so the key switches between test-set and the native qspinlock. I've Cced
-> Juergen and Peter in case I misunderstood.
-> 
-> thanks,
-> Chenyu
-> 
+> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> ---
+>  drivers/net/virtio_net.c | 29 +++++++++++++++++------------
+>  1 file changed, 17 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0383a3e136d6..eb115e807882 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3708,6 +3708,7 @@ static int virtnet_set_ringparam(struct net_device =
+*dev,
+>         u32 rx_pending, tx_pending;
+>         struct receive_queue *rq;
+>         struct send_queue *sq;
+> +       u32 pkts, usecs;
+>         int i, err;
+>
+>         if (ring->rx_mini_pending || ring->rx_jumbo_pending)
+> @@ -3740,11 +3741,13 @@ static int virtnet_set_ringparam(struct net_devic=
+e *dev,
+>                          * through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET c=
+ommand, or, if the driver
+>                          * did not set any TX coalescing parameters, to 0=
+.
+>                          */
+> -                       err =3D virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
+> -                                                              vi->intr_c=
+oal_tx.max_usecs,
+> -                                                              vi->intr_c=
+oal_tx.max_packets);
+> -                       if (err)
+> -                               return err;
+> +                       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_=
+NOTF_COAL)) {
+> +                               usecs =3D vi->intr_coal_tx.max_usecs;
+> +                               pkts =3D vi->intr_coal_tx.max_packets;
+> +                               err =3D virtnet_send_tx_ctrl_coal_vq_cmd(=
+vi, i, usecs, pkts);
+> +                               if (err)
+> +                                       return err;
+> +                       }
+>                 }
+>
+>                 if (ring->rx_pending !=3D rx_pending) {
+> @@ -3753,13 +3756,15 @@ static int virtnet_set_ringparam(struct net_devic=
+e *dev,
+>                                 return err;
+>
+>                         /* The reason is same as the transmit virtqueue r=
+eset */
+> -                       mutex_lock(&vi->rq[i].dim_lock);
+> -                       err =3D virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
+> -                                                              vi->intr_c=
+oal_rx.max_usecs,
+> -                                                              vi->intr_c=
+oal_rx.max_packets);
+> -                       mutex_unlock(&vi->rq[i].dim_lock);
+> -                       if (err)
+> -                               return err;
+> +                       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_=
+NOTF_COAL)) {
+> +                               usecs =3D vi->intr_coal_rx.max_usecs;
+> +                               pkts =3D vi->intr_coal_rx.max_packets;
+> +                               mutex_lock(&vi->rq[i].dim_lock);
+> +                               err =3D virtnet_send_rx_ctrl_coal_vq_cmd(=
+vi, i, usecs, pkts);
+> +                               mutex_unlock(&vi->rq[i].dim_lock);
+> +                               if (err)
+> +                                       return err;
+> +                       }
+>                 }
+>         }
+>
+> --
+> 2.32.0.3.g01195cf9f
+>
 
