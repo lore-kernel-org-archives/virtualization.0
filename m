@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D1F18C93F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64CD618C93D;
 	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722368604; cv=none; b=P3IIBSBx1xoVMEeopTPjOetG8kpAyDKSMGkJzdaHRc1XZ2OnC8/EYveWgVXjC9hbz16NwmvfOg3Y0QrRz15PpvE5NeGvdP+5QfsnAsj/l/F24Nx3XlDf4d5rBqoVxhBFQspSMWTvefat4ZntYjMvvXIVFGBp4myjaHqeZ8NBeJ0=
+	t=1722368604; cv=none; b=nJiYEEvq8ORUwIJSVOuYbqRIfc5dqPooaJh4KGFjEeGoD7CpCo+4OEZ0i9QRvzddVOPnC01G6PIbkQbjek+MiPRHnbYc5aU2JG+naMQOTNlenT94GP9VRBwFX1dcDmT4Y64c/oA09pgzG8z8xT+fIUKNgqUfkExSH11EMPcDoY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1722368604; c=relaxed/simple;
-	bh=j/fo2OFH999A9qSU4xh304Mv47Te5RJL6dmqOmXHt78=;
+	bh=2oMqxCijArVpVFEZmIIabQFSTOLGEfB8i/8bIevjDUI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=AyMdo9BrRutevkGZZ6tQ7g9Wj7FeMzCySJUTYOE5QISDK7r6m+Sw7BA64XLJ+0/JP3LAbvmPFsJWiF4sJCq9Op3EhqpU1XD1nKDZftdFyOT2YR8pj8PdZWqNnE2tOOarimaajtKFbPs6cV9fNQJU+xA3YC9HFc066wek4nAJniI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NdbqZI7j; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=oDLmngBtsReajB3AMlgtysLli9D73yzRk0v5Mc99lTm2Z+bxlBbBMuzrUDrRJABGPTYaRx2Mx2HNetBLUFLZleN+/kgaUZdWAy38ZPVM+q5nlLgvJeQhiLSWZdASrL/dxn2ibsJOOIE8kiJ7rLNPdkpNPDQ+AjO2L5Qj2b8AH88=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nLvgud9X; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NdbqZI7j"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 173AAC4AF10;
-	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nLvgud9X"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 0044AC4AF0B;
+	Tue, 30 Jul 2024 19:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1722368604;
-	bh=j/fo2OFH999A9qSU4xh304Mv47Te5RJL6dmqOmXHt78=;
+	bh=2oMqxCijArVpVFEZmIIabQFSTOLGEfB8i/8bIevjDUI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=NdbqZI7j1mwKpVlKIHiv4WHnHCpVfeKAcqqRkQgQHqfl1eudE6Bjh5MjkrdJGIUY/
-	 S8axWZDy5X3t7qBgUgCdl2rdVhSEu1vpuxW2gu7PgDYPYCrtiUOSE4XRdTiQCPtdXo
-	 f+R5K9qE9hUpB47alAOecHwfAPcFvhYmRLj8GAfEsYOVRReD9rCYjbn6pm+Dg5Y7ZC
-	 hCTECxJaLEALk8GTDgCv+pb3AkGoGTqIf+1UZBuu4Ef9b0IWm8ElKkjqzeVe4OgAm0
-	 H1GGI4h84Rss/s7dsPSGqyTlFQR8WWnbZuOyyZ4qPst1pxHg/dTQEdNp5mSERBz//2
-	 EXYrRa/12JKeQ==
+	b=nLvgud9XoJBQqXgsjpfsJHJgtoKB706LD3EHiJjVUIVXznBH6F5xAKblnIwPHaaU0
+	 shFUS9/7NahcqVphrjCvCBHS/NDOYTHZsx19gyVjap25dJAuuzqRC7j4wfA7szxH1U
+	 m1BZoenP+G6c5f/dlFRAFt3bYHNBxQu5/N2eTgoUE3QTDY+rFXhgtDtIYGcq9kCHK7
+	 64aZraLt1lj43XSCZOmDRalEUMw4znVmDYy+/2Te4d8Ss3mElX6ZYDGFpG8luICcrk
+	 qp0MDgVU/mUlUBnK/8PpYL/zb95x0mb8uzJlropydaod0g1YvhQB/KzXArj2NfaD8W
+	 TxlqG5s3gbYgA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C2A5C52D1F;
-	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFB03C49EA1;
+	Tue, 30 Jul 2024 19:43:23 +0000 (UTC)
 From: Luigi Leonardi via B4 Relay <devnull+luigi.leonardi.outlook.com@kernel.org>
-Date: Tue, 30 Jul 2024 21:43:08 +0200
-Subject: [PATCH net-next v4 3/3] test/vsock: add ioctl unsent bytes test
+Date: Tue, 30 Jul 2024 21:43:06 +0200
+Subject: [PATCH net-next v4 1/3] vsock: add support for SIOCOUTQ ioctl
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240730-ioctl-v4-3-16d89286a8f0@outlook.com>
+Message-Id: <20240730-ioctl-v4-1-16d89286a8f0@outlook.com>
 References: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
 In-Reply-To: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, 
@@ -52,13 +52,14 @@ To: Stefano Garzarella <sgarzare@redhat.com>,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
  linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
- Luigi Leonardi <luigi.leonardi@outlook.com>
+ Luigi Leonardi <luigi.leonardi@outlook.com>, 
+ Daan De Meyer <daan.j.demeyer@gmail.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1722368602; l=5479;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722368602; l=3574;
  i=luigi.leonardi@outlook.com; s=20240730; h=from:subject:message-id;
- bh=APW6nchLTElCgi+y0wB3e/LaM6SJ5yQdNDfK3On80wM=;
- b=97r8rgp6DZOr8aqfPUPmSUoJA44xtHMwxUN0Qd1Fq+lBE3fV89JC0Hdhe3Vr/alBrGB3UwUTv
- gP1THUkXLHgDaGhyqwvFNLlIbMJHyqjYztEWQQVPTRTHmhhsnGz8eu3
+ bh=tOduH9idPiKnZwf8CNAIhL2hOnk+kmfFKHFRY8F+vZM=;
+ b=m6IeOxKV94c/A2Fvb6bE47RYUV0qqkJUbC8xQLVVj2UxvOD1NtURB/iR9TuFCMbiOxL7fnyUd
+ rxD+/qqDzKOBKe+W8z66BNVsf8aAA6cmV7l69XNyXvxetEpaWaqJNIh
 X-Developer-Key: i=luigi.leonardi@outlook.com; a=ed25519;
  pk=rejHGgcyJQFeByIJsRIz/gA6pOPZJ1I2fpxoFD/jris=
 X-Endpoint-Received: by B4 Relay for luigi.leonardi@outlook.com/20240730
@@ -68,169 +69,129 @@ Reply-To: luigi.leonardi@outlook.com
 
 From: Luigi Leonardi <luigi.leonardi@outlook.com>
 
-Introduce two tests, one for SOCK_STREAM and one for SOCK_SEQPACKET,
-which use SIOCOUTQ ioctl to check that the number of unsent bytes is
-zero after delivering a packet.
+Add support for ioctl(s) in AF_VSOCK.
+The only ioctl available is SIOCOUTQ/TIOCOUTQ, which returns the number
+of unsent bytes in the socket. This information is transport-specific
+and is delegated to them using a callback.
 
-vsock_connect and vsock_accept are no longer static: this is to
-create more generic tests, allowing code to be reused for SEQPACKET
-and STREAM.
-
+Suggested-by: Daan De Meyer <daan.j.demeyer@gmail.com>
 Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
 ---
- tools/testing/vsock/util.c       |  6 +--
- tools/testing/vsock/util.h       |  3 ++
- tools/testing/vsock/vsock_test.c | 85 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 91 insertions(+), 3 deletions(-)
+ include/net/af_vsock.h   |  3 +++
+ net/vmw_vsock/af_vsock.c | 58 +++++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 58 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index 554b290fefdc..a3d448a075e3 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -139,7 +139,7 @@ int vsock_bind_connect(unsigned int cid, unsigned int port, unsigned int bind_po
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 535701efc1e5..fc504d2da3d0 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -169,6 +169,9 @@ struct vsock_transport {
+ 	void (*notify_buffer_size)(struct vsock_sock *, u64 *);
+ 	int (*notify_set_rcvlowat)(struct vsock_sock *vsk, int val);
+ 
++	/* SIOCOUTQ ioctl */
++	ssize_t (*unsent_bytes)(struct vsock_sock *vsk);
++
+ 	/* Shutdown. */
+ 	int (*shutdown)(struct vsock_sock *, int);
+ 
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 4b040285aa78..58e639e82942 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -112,6 +112,7 @@
+ #include <net/sock.h>
+ #include <net/af_vsock.h>
+ #include <uapi/linux/vm_sockets.h>
++#include <uapi/asm-generic/ioctls.h>
+ 
+ static int __vsock_bind(struct sock *sk, struct sockaddr_vm *addr);
+ static void vsock_sk_destruct(struct sock *sk);
+@@ -1292,6 +1293,57 @@ int vsock_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
  }
+ EXPORT_SYMBOL_GPL(vsock_dgram_recvmsg);
  
- /* Connect to <cid, port> and return the file descriptor. */
--static int vsock_connect(unsigned int cid, unsigned int port, int type)
-+int vsock_connect(unsigned int cid, unsigned int port, int type)
- {
- 	union {
- 		struct sockaddr sa;
-@@ -226,8 +226,8 @@ static int vsock_listen(unsigned int cid, unsigned int port, int type)
- /* Listen on <cid, port> and return the first incoming connection.  The remote
-  * address is stored to clientaddrp.  clientaddrp may be NULL.
-  */
--static int vsock_accept(unsigned int cid, unsigned int port,
--			struct sockaddr_vm *clientaddrp, int type)
-+int vsock_accept(unsigned int cid, unsigned int port,
-+		 struct sockaddr_vm *clientaddrp, int type)
- {
- 	union {
- 		struct sockaddr sa;
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index e95e62485959..fff22d4a14c0 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -39,6 +39,9 @@ struct test_case {
- void init_signals(void);
- unsigned int parse_cid(const char *str);
- unsigned int parse_port(const char *str);
-+int vsock_connect(unsigned int cid, unsigned int port, int type);
-+int vsock_accept(unsigned int cid, unsigned int port,
-+		 struct sockaddr_vm *clientaddrp, int type);
- int vsock_stream_connect(unsigned int cid, unsigned int port);
- int vsock_bind_connect(unsigned int cid, unsigned int port,
- 		       unsigned int bind_port, int type);
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index f851f8961247..8d38dbf8f41f 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -20,6 +20,8 @@
- #include <sys/mman.h>
- #include <poll.h>
- #include <signal.h>
-+#include <sys/ioctl.h>
-+#include <linux/sockios.h>
- 
- #include "vsock_test_zerocopy.h"
- #include "timeout.h"
-@@ -1238,6 +1240,79 @@ static void test_double_bind_connect_client(const struct test_opts *opts)
- 	}
- }
- 
-+#define MSG_BUF_IOCTL_LEN 64
-+static void test_unsent_bytes_server(const struct test_opts *opts, int type)
++static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
++			  int __user *arg)
 +{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int client_fd;
++	struct sock *sk = sock->sk;
++	struct vsock_sock *vsk;
++	int ret;
 +
-+	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
-+	if (client_fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
++	vsk = vsock_sk(sk);
 +
-+	recv_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("RECEIVED");
++	switch (cmd) {
++	case SIOCOUTQ: {
++		ssize_t n_bytes;
 +
-+	close(client_fd);
-+}
-+
-+static void test_unsent_bytes_client(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int ret, fd, sock_bytes_unsent;
-+
-+	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	for (int i = 0; i < sizeof(buf); i++)
-+		buf[i] = rand() & 0xFF;
-+
-+	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_expectln("RECEIVED");
-+
-+	ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-+	if (ret < 0) {
-+		if (errno == EOPNOTSUPP) {
-+			fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
-+		} else {
-+			perror("ioctl");
-+			exit(EXIT_FAILURE);
++		if (!vsk->transport || !vsk->transport->unsent_bytes) {
++			ret = -EOPNOTSUPP;
++			break;
 +		}
-+	} else if (ret == 0 && sock_bytes_unsent != 0) {
-+		fprintf(stderr,
-+			"Unexpected 'SIOCOUTQ' value, expected 0, got %i\n",
-+			sock_bytes_unsent);
-+		exit(EXIT_FAILURE);
++
++		if (sock_type_connectible(sk->sk_type) && sk->sk_state == TCP_LISTEN) {
++			ret = -EINVAL;
++			break;
++		}
++
++		n_bytes = vsk->transport->unsent_bytes(vsk);
++		if (n_bytes < 0) {
++			ret = n_bytes;
++			break;
++		}
++
++		ret = put_user(n_bytes, arg);
++		break;
++	}
++	default:
++		ret = -ENOIOCTLCMD;
 +	}
 +
-+	close(fd);
++	return ret;
 +}
 +
-+static void test_stream_unsent_bytes_client(const struct test_opts *opts)
++static int vsock_ioctl(struct socket *sock, unsigned int cmd,
++		       unsigned long arg)
 +{
-+	test_unsent_bytes_client(opts, SOCK_STREAM);
++	int ret;
++
++	lock_sock(sock->sk);
++	ret = vsock_do_ioctl(sock, cmd, (int __user *)arg);
++	release_sock(sock->sk);
++
++	return ret;
 +}
 +
-+static void test_stream_unsent_bytes_server(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_server(opts, SOCK_STREAM);
-+}
-+
-+static void test_seqpacket_unsent_bytes_client(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_client(opts, SOCK_SEQPACKET);
-+}
-+
-+static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
-+}
-+
- #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
- /* This define is the same as in 'include/linux/virtio_vsock.h':
-  * it is used to decide when to send credit update message during
-@@ -1523,6 +1598,16 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_rcvlowat_def_cred_upd_client,
- 		.run_server = test_stream_cred_upd_on_low_rx_bytes,
- 	},
-+	{
-+		.name = "SOCK_STREAM ioctl(SIOCOUTQ) 0 unsent bytes",
-+		.run_client = test_stream_unsent_bytes_client,
-+		.run_server = test_stream_unsent_bytes_server,
-+	},
-+	{
-+		.name = "SOCK_SEQPACKET ioctl(SIOCOUTQ) 0 unsent bytes",
-+		.run_client = test_seqpacket_unsent_bytes_client,
-+		.run_server = test_seqpacket_unsent_bytes_server,
-+	},
- 	{},
- };
- 
+ static const struct proto_ops vsock_dgram_ops = {
+ 	.family = PF_VSOCK,
+ 	.owner = THIS_MODULE,
+@@ -1302,7 +1354,7 @@ static const struct proto_ops vsock_dgram_ops = {
+ 	.accept = sock_no_accept,
+ 	.getname = vsock_getname,
+ 	.poll = vsock_poll,
+-	.ioctl = sock_no_ioctl,
++	.ioctl = vsock_ioctl,
+ 	.listen = sock_no_listen,
+ 	.shutdown = vsock_shutdown,
+ 	.sendmsg = vsock_dgram_sendmsg,
+@@ -2286,7 +2338,7 @@ static const struct proto_ops vsock_stream_ops = {
+ 	.accept = vsock_accept,
+ 	.getname = vsock_getname,
+ 	.poll = vsock_poll,
+-	.ioctl = sock_no_ioctl,
++	.ioctl = vsock_ioctl,
+ 	.listen = vsock_listen,
+ 	.shutdown = vsock_shutdown,
+ 	.setsockopt = vsock_connectible_setsockopt,
+@@ -2308,7 +2360,7 @@ static const struct proto_ops vsock_seqpacket_ops = {
+ 	.accept = vsock_accept,
+ 	.getname = vsock_getname,
+ 	.poll = vsock_poll,
+-	.ioctl = sock_no_ioctl,
++	.ioctl = vsock_ioctl,
+ 	.listen = vsock_listen,
+ 	.shutdown = vsock_shutdown,
+ 	.setsockopt = vsock_connectible_setsockopt,
 
 -- 
 2.45.2
