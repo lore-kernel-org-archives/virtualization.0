@@ -1,142 +1,156 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C33944E
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 01:29:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BBF72A1D5
+	for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 02:16:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722302960; cv=none; b=P+wTmn8z8AUwyfu5MUtAtYqu8yo0C2PiJbTlR4RS5d/47w6C5I4P+jxQv7s3StLkDQOnJ4i2BvDoljyIhYDDTgxv+Fp3x/CpEObjriK1ehcO8oqqJnEymwOem7TcLRRAAHDtzli4xf41q//RSAJDbIIk4wpTc664l2+RgMy8OQo=
+	t=1722305800; cv=none; b=njAdSmjQBqN6jc76Ntf/odRtl+XbfnaNLCuzGFaMz+KBpFi5D59I6P6waCoshXdLzqA1DUpk4T/d8o2+KuOaE5jTm3+LwBvXxzTDwu3TzON6eviyZJ0Oe7MMcS9th5iGy+S04hOj6IQSz3fzai6TJmqUsJAvepkYk0znMPZ0oWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722302960; c=relaxed/simple;
-	bh=6V2Eg0+AV6C5wE2oxMFjIOKPbugqLyq7K0dfTJQYrkA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=L8h2KcIdFSrA0Q+wz7gqAlc67uJkISQVB/yXXliK+zZ17eZorP6q6HscVVlrfRm0PbvBpHyuthAVVpcC497vAdRanlgWNRvBGRb8z4eONpPv9heas5LPnicWwy77OE1PAxjmo7bE12nK22gfjjIcdEbnsgZ0JhPrNLJjtfqkSak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cjbpV/ti; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1722305800; c=relaxed/simple;
+	bh=9oRikuIjBeqowAAlsBB19ZugmBxBNVEEhZNvOJNY0EM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RmFyPhVBUVM75RS5eFc+d7NQFXPRMAQuNvGfdEp8HVMqFhDxZXpeHZLjotp6uhbQVTYWAS7UwnhnDq468gE8GJ2XdObF9pPM42ndm7zdUxWX5okP4PWQkFhDE5Ur5/KXcz23OpY1JalLCzTvftpudpxa9PviDlFlebwvgSkl6NM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=d7+7tAMz; arc=none smtp.client-ip=46.235.227.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cjbpV/ti"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A02D4608E9
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 01:29:18 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id yBsGisdJnwZm for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Jul 2024 01:29:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CD1D5608E8
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CD1D5608E8
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cjbpV/ti
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CD1D5608E8
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 01:29:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722302956;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=O7worZc1WoS5CXw2Mg6pRcBJ9Od3yKPnwBVoMm0OgZU=;
-	b=cjbpV/tiZGvODTayr3j4CoXyfisOtLhAP72sMGUo6+kGpIwVwOc9SQ1TnPi28SaWdqh6qP
-	RKLg4V4YKyOG9CDt8v4sIG5mbwQQ64bdVrlhBpdTXjjqU/u4CKj3xQjzvtJI8ZVJGytuLB
-	CiudeAMWH9FwWwp3SR8vec/kj17foRY=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-637-CfV6ljkNPL-iePgecMozMQ-1; Mon, 29 Jul 2024 21:29:14 -0400
-X-MC-Unique: CfV6ljkNPL-iePgecMozMQ-1
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-58bd84067fdso3570134a12.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 18:29:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722302953; x=1722907753;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=O7worZc1WoS5CXw2Mg6pRcBJ9Od3yKPnwBVoMm0OgZU=;
-        b=Re+ycz6MIbxiEtQz/VyZMFGLs0p7aJlXAFHjVCOhboZ9S8JwORJpRRws+Tzy3ZNd1n
-         P36RInVL/9RvEzwD1p/PE4mNbuMXSBbJWh8GMK9ABggW9nwnXP1wc50/GKdiBzs5HS7d
-         F9RdyGRda80vh4RSD7FkZVhNaEltcQ2u3c73FHEQPmLK4ChMCexoUakSqwnbhrrZXMh/
-         NAFnsMfT6hUNBEm+QezUCDaZbCPC/H5ZSreLJPnZ/wY8ScYiKR50y2aPbX3awepA4pdx
-         ESjxu7jrBqgjDWXfjO2Ey6yYKG8uGom4Nkj54ri+vMV9lBwbEPO+o9ZKvDZ8RL7/+1+k
-         5dMA==
-X-Forwarded-Encrypted: i=1; AJvYcCU7zD6pbvM9v6/7Tps9NMvfpitjMyk00jbHR86Tv0ZswlP7PgPZjIWX8MUXgX59+qb+VfFBGMjPhFOcXAqV3I4DXP0fDH8aEM/pXXB9ynKHO9M8IEI6dI7duQ==
-X-Gm-Message-State: AOJu0YyWIAZ4cwzAxT8MBPFzJPcFtZ1140CyDZj+t04LJnWRdzmPTWL8
-	HMQ25/zOrMcb+tFgDyPFTNoB0zwQxK+C4AKw1/koCxDdx80IPl7DCBLIBql5+oXzRAocM0gyMU9
-	y9tte8CAg7Xv691sZ9BhuvzB/XUhnrkrx3tXmyHw/cMlo3Ll3O7iN/rc9RhVb5DTUJ07C1wMJu8
-	boBOuMdMs79F1iV7nMmhIzQpQPWOgQ8suihH0wzy0UTmv7JmGiwpL5kg==
-X-Received: by 2002:a50:aadb:0:b0:5a3:3b44:ae00 with SMTP id 4fb4d7f45d1cf-5b020ea8945mr5859944a12.20.1722302953771;
-        Mon, 29 Jul 2024 18:29:13 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGLuOO7m5Qr5P8MSrVRUXIug1lSaQ0AKlobOKhsrzfg5Qpeu0JjwO/i2NWbI/Rn9Tgkhkq9CAnEijp0eyxafS0=
-X-Received: by 2002:a50:aadb:0:b0:5a3:3b44:ae00 with SMTP id
- 4fb4d7f45d1cf-5b020ea8945mr5859930a12.20.1722302953410; Mon, 29 Jul 2024
- 18:29:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="d7+7tAMz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1722305797;
+	bh=9oRikuIjBeqowAAlsBB19ZugmBxBNVEEhZNvOJNY0EM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=d7+7tAMzg034Q6hb+PheTRmGGdCSeSco+Y1qjunn9X4foOCRvBCjvMbviWdmRiezw
+	 GwO1fSlOIHN8KFMIyx+0MpWkL1/VnrV/LHsOKPmvrNtJEug2L5c2000yTWWXHdVZgp
+	 nwtHY5W7nhyInReyTCExYmisJfIDMXFKqXzj8sr1RJai258jBHUo8xl7dy6pzNxjue
+	 9++jWqQBiACeZwgxBrXtkdFGMrdqTAfubOJdGIpAYRemCOqj9qOhRVDzp0pigneKd5
+	 L7nBKx6Fmv9Ufrmb4Dv32oTT3Uluz/6bDP/eCC/eGI3ZTpLkv4yI1N0MU7c1+/iun7
+	 LoLkBx3RjdLbQ==
+Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id B741F3780521;
+	Tue, 30 Jul 2024 02:16:32 +0000 (UTC)
+From: Vignesh Raman <vignesh.raman@collabora.com>
+To: dri-devel@lists.freedesktop.org
+Cc: daniels@collabora.com,
+	helen.koike@collabora.com,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	robdclark@gmail.com,
+	guilherme.gallo@collabora.com,
+	sergi.blanch.torne@collabora.com,
+	deborah.brouwer@collabora.com,
+	dmitry.baryshkov@linaro.org,
+	mcanal@igalia.com,
+	melissa.srw@gmail.com,
+	linux-mediatek@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v9 0/6] drm/ci: Add support for GPU and display testing
+Date: Tue, 30 Jul 2024 07:45:35 +0530
+Message-ID: <20240730021545.912271-1-vignesh.raman@collabora.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240729052146.621924-1-lulu@redhat.com> <20240729052146.621924-4-lulu@redhat.com>
- <aa0ffd28-bfb8-4b25-8730-a522861bca98@lunn.ch>
-In-Reply-To: <aa0ffd28-bfb8-4b25-8730-a522861bca98@lunn.ch>
-From: Cindy Lu <lulu@redhat.com>
-Date: Tue, 30 Jul 2024 09:28:36 +0800
-Message-ID: <CACLfguWt1Uw=tpKCViz9+Hv-s3EvuAc6YeHP3yWYtg6tnuC9Hg@mail.gmail.com>
-Subject: Re: [PATCH v7 3/3] vdpa/mlx5: Add the support of set mac address
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: dtatulea@nvidia.com, mst@redhat.com, jasowang@redhat.com, parav@nvidia.com, 
-	sgarzare@redhat.com, netdev@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, 30 Jul 2024 at 03:16, Andrew Lunn <andrew@lunn.ch> wrote:
->
-> > +static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdp=
-a_device *dev,
-> > +                           const struct vdpa_dev_set_config *add_confi=
-g)
-> > +{
-> > +     struct virtio_net_config *config;
-> > +     struct mlx5_core_dev *pfmdev;
-> > +     struct mlx5_vdpa_dev *mvdev;
-> > +     struct mlx5_vdpa_net *ndev;
-> > +     struct mlx5_core_dev *mdev;
-> > +     int err =3D -EINVAL;
->
-> I would say this should also be EOPNOTSUPP.
->
-sure=EF=BC=8C will change this
-Thanks
-cindy
-> > +
-> > +     mvdev =3D to_mvdev(dev);
-> > +     ndev =3D to_mlx5_vdpa_ndev(mvdev);
-> > +     mdev =3D mvdev->mdev;
-> > +     config =3D &ndev->config;
-> > +
-> > +     down_write(&ndev->reslock);
-> > +     if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
-> > +             pfmdev =3D pci_get_drvdata(pci_physfn(mdev->pdev));
-> > +             err =3D mlx5_mpfs_add_mac(pfmdev, config->mac);
-> > +             if (!err)
-> > +                     ether_addr_copy(config->mac, add_config->net.mac)=
-;
-> > +     }
-> > +
-> > +     up_write(&ndev->reslock);
-> > +     return err;
->
->
->     Andrew
->
-> ---
-> pw-bot: cr
->
+Some ARM SOCs have a separate display controller and GPU, each with
+different drivers. For mediatek mt8173, the GPU driver is powervr,
+and the display driver is mediatek. In the case of mediatek mt8183,
+the GPU driver is panfrost, and the display driver is mediatek.
+With rockchip rk3288/rk3399, the GPU driver is panfrost, while the
+display driver is rockchip. For amlogic meson G12B (A311D) SOC, the
+GPU driver is panfrost, and the display driver is meson.
+
+IGT tests run various tests with different xfails and can test both
+GPU devices and KMS/display devices. Currently, in drm-ci for MediaTek,
+Rockchip, and Amlogic Meson platforms, only the GPU driver is tested.
+This leads to incomplete coverage since the display is never tested on
+these platforms. This commit series adds support in drm-ci to run tests
+for both GPU and display drivers for MediaTek mt8173/mt8183, Rockchip
+rk3288/rk3399, and Amlogic Meson G12B (A311D) platforms.
+
+Update the expectations file, and skip driver-specific tests and
+tools_test on non-intel platforms.
+
+Working pipeline link,
+https://gitlab.freedesktop.org/vigneshraman/linux/-/pipelines/1235518
+
+Vignesh Raman (6):
+  drm/ci: arm64.config: Enable CONFIG_DRM_ANALOGIX_ANX7625
+  drm/ci: skip tools_test on non-intel platforms
+  drm/ci: mediatek: add tests for mediatek display driver
+  drm/ci: mediatek: add tests for powervr gpu driver
+  drm/ci: meson: add tests for meson display driver
+  drm/ci: rockchip: add tests for rockchip display driver
+
+ MAINTAINERS                                   |   2 +
+ drivers/gpu/drm/ci/arm64.config               |   1 +
+ drivers/gpu/drm/ci/gitlab-ci.yml              |   3 +-
+ drivers/gpu/drm/ci/igt_runner.sh              |  10 --
+ drivers/gpu/drm/ci/test.yml                   | 123 ++++++++++++++----
+ .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |   1 -
+ .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt |   1 +
+ .../drm/ci/xfails/mediatek-mt8173-fails.txt   |   1 -
+ .../drm/ci/xfails/mediatek-mt8173-skips.txt   |   1 +
+ .../drm/ci/xfails/mediatek-mt8183-fails.txt   |  28 +++-
+ .../drm/ci/xfails/mediatek-mt8183-flakes.txt  |  20 +++
+ .../drm/ci/xfails/mediatek-mt8183-skips.txt   |   5 +-
+ .../gpu/drm/ci/xfails/meson-g12b-fails.txt    |  19 ++-
+ .../gpu/drm/ci/xfails/meson-g12b-skips.txt    |   5 +-
+ .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |   1 -
+ .../gpu/drm/ci/xfails/msm-apq8016-skips.txt   |   1 +
+ .../gpu/drm/ci/xfails/msm-apq8096-fails.txt   |   1 -
+ .../gpu/drm/ci/xfails/msm-apq8096-skips.txt   |   1 +
+ .../msm-sc7180-trogdor-kingoftown-fails.txt   |   1 -
+ .../msm-sc7180-trogdor-kingoftown-skips.txt   |   1 +
+ ...sm-sc7180-trogdor-lazor-limozeen-fails.txt |   1 -
+ ...sm-sc7180-trogdor-lazor-limozeen-skips.txt |   1 +
+ .../gpu/drm/ci/xfails/msm-sdm845-fails.txt    |   1 -
+ .../gpu/drm/ci/xfails/msm-sdm845-skips.txt    |   1 +
+ .../gpu/drm/ci/xfails/panfrost-g12b-fails.txt |   1 +
+ .../gpu/drm/ci/xfails/panfrost-g12b-skips.txt |  23 ++++
+ .../drm/ci/xfails/panfrost-mt8183-fails.txt   |   1 +
+ .../drm/ci/xfails/panfrost-mt8183-skips.txt   |  23 ++++
+ .../drm/ci/xfails/panfrost-rk3288-fails.txt   |   1 +
+ .../drm/ci/xfails/panfrost-rk3288-skips.txt   |  26 ++++
+ .../drm/ci/xfails/panfrost-rk3399-fails.txt   |   1 +
+ .../drm/ci/xfails/panfrost-rk3399-flakes.txt  |   6 +
+ .../drm/ci/xfails/panfrost-rk3399-skips.txt   |  26 ++++
+ .../drm/ci/xfails/rockchip-rk3288-fails.txt   |  22 +++-
+ .../drm/ci/xfails/rockchip-rk3288-flakes.txt  |   6 +
+ .../drm/ci/xfails/rockchip-rk3288-skips.txt   |  55 +-------
+ .../drm/ci/xfails/rockchip-rk3399-fails.txt   |  90 ++++++++++++-
+ .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  50 ++++++-
+ .../drm/ci/xfails/rockchip-rk3399-skips.txt   |   8 +-
+ .../drm/ci/xfails/virtio_gpu-none-fails.txt   |   1 -
+ .../drm/ci/xfails/virtio_gpu-none-skips.txt   |   1 +
+ drivers/gpu/drm/ci/xfails/vkms-none-fails.txt |   1 -
+ drivers/gpu/drm/ci/xfails/vkms-none-skips.txt |   1 +
+ 43 files changed, 433 insertions(+), 140 deletions(-)
+ create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8183-flakes.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-g12b-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-g12b-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-mt8183-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-mt8183-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3288-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3288-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3399-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3399-flakes.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3399-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3288-flakes.txt
+
+-- 
+2.43.0
 
