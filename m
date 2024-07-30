@@ -1,339 +1,125 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2B024A2D
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 00:35:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57CFC79CC
+	for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 01:16:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722299717; cv=none; b=BpH2vTSDmauUT1AZdJcd57EiD5imb3ajadksvsABFq4auBRBEIfMzRBWgz4ViSlcJ25XXybvirF2nN2VIc8C+CxvjNOJQqcQQ+VvUERy+Bn/fDhWyL+nRPeTghbmt580yCD0lN6yQxccM67M0fL637Y+CW7lu0EihIYwMF56vak=
+	t=1722302213; cv=none; b=BEVcBOeebr8OxpWF6PaESRpq41GY0jem3KG2pKw1Qhc4WLu12pL9GColseIyXbb/djLhFAehLqu4cIn/+tr10xUxqR68kc7pp2rNPc+v5NbP/Zhb+KEekJoOJslsjga5dmHW0CG9lLRRhs2fpN/4MaRsTnjEpsyDxMZdrRLsQ+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722299717; c=relaxed/simple;
-	bh=d/kFBuKQNh0Q9UbIyHywcyGbDWYA2LZn99Y1/6hKjlw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MptABeKtgbb558/F7cHhAwlXmi7eRAx7z3FlEz9sdm+BsMR7CnUnNFp4fya2XrNZNDB5iEN0tSV2cSAWL7DkQ5l/Nuot+ak6rVk8HHqfGpaYojEGF8zTK+9z8gtSzSCgztWcVeZCsLFQ2hPHS+EYOrMf3n9hckvjoz2o+3ocTic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lj8rKl4c; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1722302213; c=relaxed/simple;
+	bh=mDbX44iHFAur30ptnsNO/rYztiZYmHy6rFTH9+fEUaE=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=qLkvqU+QMR6TO/CaRO7LRcwRTLXboj57W3aoGLSDvbjIhXXiGRceJv8fd7QNTtNCM2fRFNFnODB6rajq2y/PCBgFsnizY0wk61b7469NdiXVhtEvkFYZKrzaNeFD9nDmEy0NnRMO6KN7vo1qVXM9zA+zkTDPWvvzaxCCvmWzraM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=SEC8cJ2b; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lj8rKl4c"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 32589405F3
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 00:35:15 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ra6rReypiuzy for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Jul 2024 00:35:14 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b29; helo=mail-yb1-xb29.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A86CC405EF
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A86CC405EF
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=lj8rKl4c
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A86CC405EF
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 00:35:13 +0000 (UTC)
-Received: by mail-yb1-xb29.google.com with SMTP id 3f1490d57ef6-dff1ccdc17bso2587574276.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 29 Jul 2024 17:35:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722299712; x=1722904512; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XQC8o6WuYV9zIhufZ9MsbGx/4n9VJXXESMMI8zl3XZ8=;
-        b=lj8rKl4cmm9NFsCbCtCeCcBIy1Ax98wXpJ5h/mMXNoHccWe5Yz83kmelJ5gqwQwhLy
-         W1yBeD82U5ow8deZiOi2VGdZCJKWo9hbhzyv/HWABgSRsuHvmdpwQlmXnpDnvfOlqf8M
-         07usM82/O02bc97MM9jTlWD2calpjH9i6pdUdvPEMSdG5SKwgY+BrH4S6H7df8SVw7Sk
-         UA3cFAT9QLkA1kfzl/mL0J88vlIMb3Skzp4ZAtkbOBKlVMQcHk9dky9z1t40AsvtspK+
-         7tLwnjB/Hbi/1H3AZY3luYvbggwomFY8pwDt7e7F9xniemzvNFXZUJGdG5GlM1f6xao9
-         /bKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722299712; x=1722904512;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XQC8o6WuYV9zIhufZ9MsbGx/4n9VJXXESMMI8zl3XZ8=;
-        b=f9Abul2D9CpizENA7odQ2YYXRxgNV1OtY2u/66FqZ6olS4wADMQpazOcIWS+6GLxMN
-         HozH7neuQCIyEuJEYUQc5bE6v3m67hMCDq1pxnBjiAuLPPUz4yko8xNFS7p+14HvWFaU
-         jhyfg2LTKkSQfyO7Qpy+xKe/oYERUyKCFJpNvy1Tfl4AqAuguerD50rt/1PwLL0944w0
-         WZmQn6cW6K4lOTJoI+SlRMZnMhE0GtVeQEcK+482kq4Y4fq5XCNW/Gw/yhWpoXhUAmJ6
-         um9Hy86Qs/jO1giGshU6z7uVA+OnFoFQBIPJUXWTzmLvdIKkXzgAxp6QC1ffuwZV/tnr
-         1xsA==
-X-Forwarded-Encrypted: i=1; AJvYcCXOxxwiiF2vhY7mOG0M3jfed/cQNZWe3eDd40S2MZi088Vs5aFi7OakFnM862TVGmch00LbK8t/mMk8FAKEN22RGoylQ1MV/1L2Q4gK7sxqXOvngYPIXvTJkw==
-X-Gm-Message-State: AOJu0YxVo9qaWFGp3Q5ZW+q4cu11Fdmi8lJ/YrLQHelLJPgg7JugWQil
-	/hMHdi3eWeOLgdZUo305+UmHZLjdjgkiG7rZq+crwoxvRWLBCbtjoA5+kt77hVDfADDI2uwW6dP
-	/Ml6oQL9vD0VoWqX2W1JAWZJGvms=
-X-Google-Smtp-Source: AGHT+IFQjYAiuUNdG3Z25QWxW/dvCFzkKCQJekH2WlgkA5EDri9u87GttBOpsXZ4ybgaGUzALcovMGKdNQVJv65VoNw=
-X-Received: by 2002:a05:6902:10cd:b0:e08:5b14:dfb4 with SMTP id
- 3f1490d57ef6-e0b545f178bmr10382412276.55.1722299712320; Mon, 29 Jul 2024
- 17:35:12 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="SEC8cJ2b"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722302208; h=Message-ID:Subject:Date:From:To;
+	bh=NurZJnjIPPIG2Wgu5pBlZBRDBNoK5/FjLiE+OAyWfI4=;
+	b=SEC8cJ2bnZ7H4LKpzssQtPuuMF251IXxaL4rXQOHEZjNZVwEkOlUfzJcCS+JiiGmYqf2iik1z7xs/SWRVo/apsNDhyV/CSCGd/vVy9IP9e/kmfN0chbKs8o4yo4K79Abdgys6XB6jLvLqddaqS9YUSfxcBsLHDPHS5ymywoxKQY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032019045;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0WBdYe0X_1722301889;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WBdYe0X_1722301889)
+          by smtp.aliyun-inc.com;
+          Tue, 30 Jul 2024 09:11:30 +0800
+Message-ID: <1722301882.5491223-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing commands
+Date: Tue, 30 Jul 2024 09:11:22 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>
+References: <20240729124755.35719-1-hengqi@linux.alibaba.com>
+In-Reply-To: <20240729124755.35719-1-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20240710212555.1617795-1-amery.hung@bytedance.com>
- <20240710212555.1617795-10-amery.hung@bytedance.com> <ldyfzp5k2qmhlydflu7biz6bcrekothacitzgbmw2k264zwuxh@hmgoku5kgghp>
-In-Reply-To: <ldyfzp5k2qmhlydflu7biz6bcrekothacitzgbmw2k264zwuxh@hmgoku5kgghp>
-From: Amery Hung <ameryhung@gmail.com>
-Date: Mon, 29 Jul 2024 17:35:01 -0700
-Message-ID: <CAMB2axNx=nCh-B-=XLtto2nEsKsV0p+b7yzXRX9OKSgUbRzzWA@mail.gmail.com>
-Subject: Re: [RFC PATCH net-next v6 09/14] virtio/vsock: add common datagram
- recv path
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, kys@microsoft.com, haiyangz@microsoft.com, 
-	wei.liu@kernel.org, decui@microsoft.com, bryantan@vmware.com, 
-	vdasa@vmware.com, pv-drivers@vmware.com, dan.carpenter@linaro.org, 
-	simon.horman@corigine.com, oxffffaa@gmail.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
-	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 23, 2024 at 7:42=E2=80=AFAM Stefano Garzarella <sgarzare@redhat=
-.com> wrote:
+On Mon, 29 Jul 2024 20:47:55 +0800, Heng Qi <hengqi@linux.alibaba.com> wrote:
+> From the virtio spec:
 >
-> On Wed, Jul 10, 2024 at 09:25:50PM GMT, Amery Hung wrote:
-> >From: Bobby Eshleman <bobby.eshleman@bytedance.com>
-> >
-> >This commit adds the common datagram receive functionality for virtio
-> >transports. It does not add the vhost/virtio users of that
-> >functionality.
-> >
-> >This functionality includes:
-> >- changes to the virtio_transport_recv_pkt() path for finding the
-> >  bound socket receiver for incoming packets
-> >- virtio_transport_recv_pkt() saves the source cid and port to the
-> >  control buffer for recvmsg() to initialize sockaddr_vm structure
-> >  when using datagram
-> >
-> >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
-> >Signed-off-by: Amery Hung <amery.hung@bytedance.com>
-> >---
-> > net/vmw_vsock/virtio_transport_common.c | 79 +++++++++++++++++++++----
-> > 1 file changed, 66 insertions(+), 13 deletions(-)
-> >
-> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vir=
-tio_transport_common.c
-> >index 46cd1807f8e3..a571b575fde9 100644
-> >--- a/net/vmw_vsock/virtio_transport_common.c
-> >+++ b/net/vmw_vsock/virtio_transport_common.c
-> >@@ -235,7 +235,9 @@ EXPORT_SYMBOL_GPL(virtio_transport_deliver_tap_pkt);
-> >
-> > static u16 virtio_transport_get_type(struct sock *sk)
-> > {
-> >-      if (sk->sk_type =3D=3D SOCK_STREAM)
-> >+      if (sk->sk_type =3D=3D SOCK_DGRAM)
-> >+              return VIRTIO_VSOCK_TYPE_DGRAM;
-> >+      else if (sk->sk_type =3D=3D SOCK_STREAM)
-> >               return VIRTIO_VSOCK_TYPE_STREAM;
-> >       else
-> >               return VIRTIO_VSOCK_TYPE_SEQPACKET;
-> >@@ -1422,6 +1424,33 @@ virtio_transport_recv_enqueue(struct vsock_sock *=
-vsk,
-> >               kfree_skb(skb);
-> > }
-> >
-> >+static void
-> >+virtio_transport_dgram_kfree_skb(struct sk_buff *skb, int err)
-> >+{
-> >+      if (err =3D=3D -ENOMEM)
-> >+              kfree_skb_reason(skb, SKB_DROP_REASON_SOCKET_RCVBUFF);
-> >+      else if (err =3D=3D -ENOBUFS)
-> >+              kfree_skb_reason(skb, SKB_DROP_REASON_PROTO_MEM);
-> >+      else
-> >+              kfree_skb(skb);
-> >+}
-> >+
-> >+/* This function takes ownership of the skb.
-> >+ *
-> >+ * It either places the skb on the sk_receive_queue or frees it.
-> >+ */
-> >+static void
-> >+virtio_transport_recv_dgram(struct sock *sk, struct sk_buff *skb)
-> >+{
-> >+      int err;
-> >+
-> >+      err =3D sock_queue_rcv_skb(sk, skb);
-> >+      if (err) {
-> >+              virtio_transport_dgram_kfree_skb(skb, err);
-> >+              return;
-> >+      }
-> >+}
-> >+
-> > static int
-> > virtio_transport_recv_connected(struct sock *sk,
-> >                               struct sk_buff *skb)
-> >@@ -1591,7 +1620,8 @@ virtio_transport_recv_listen(struct sock *sk, stru=
-ct sk_buff *skb,
-> > static bool virtio_transport_valid_type(u16 type)
-> > {
-> >       return (type =3D=3D VIRTIO_VSOCK_TYPE_STREAM) ||
-> >-             (type =3D=3D VIRTIO_VSOCK_TYPE_SEQPACKET);
-> >+             (type =3D=3D VIRTIO_VSOCK_TYPE_SEQPACKET) ||
-> >+             (type =3D=3D VIRTIO_VSOCK_TYPE_DGRAM);
-> > }
-> >
-> > /* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->=
-mutex
-> >@@ -1601,44 +1631,57 @@ void virtio_transport_recv_pkt(struct virtio_tra=
-nsport *t,
-> >                              struct sk_buff *skb)
-> > {
-> >       struct virtio_vsock_hdr *hdr =3D virtio_vsock_hdr(skb);
-> >+      struct vsock_skb_cb *vsock_cb;
+> 	The driver MUST have negotiated the VIRTIO_NET_F_VQ_NOTF_COAL
+> 	feature when issuing commands VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET
+> 	and VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET.
 >
-> This can be defined in the block where it's used.
+> The driver must not send vq notification coalescing commands if
+> VIRTIO_NET_F_VQ_NOTF_COAL is not negotiated. This limitation of course
+> applies to vq resize.
 >
+> Fixes: f61fe5f081cf ("virtio-net: fix the vq coalescing setting for vq resize")
+> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
 
-Got it.
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-> >       struct sockaddr_vm src, dst;
-> >       struct vsock_sock *vsk;
-> >       struct sock *sk;
-> >       bool space_available;
-> >+      u16 type;
-> >
-> >       vsock_addr_init(&src, le64_to_cpu(hdr->src_cid),
-> >                       le32_to_cpu(hdr->src_port));
-> >       vsock_addr_init(&dst, le64_to_cpu(hdr->dst_cid),
-> >                       le32_to_cpu(hdr->dst_port));
-> >
-> >+      type =3D le16_to_cpu(hdr->type);
-> >+
-> >       trace_virtio_transport_recv_pkt(src.svm_cid, src.svm_port,
-> >                                       dst.svm_cid, dst.svm_port,
-> >                                       le32_to_cpu(hdr->len),
-> >-                                      le16_to_cpu(hdr->type),
-> >+                                      type,
-> >                                       le16_to_cpu(hdr->op),
-> >                                       le32_to_cpu(hdr->flags),
-> >                                       le32_to_cpu(hdr->buf_alloc),
-> >                                       le32_to_cpu(hdr->fwd_cnt));
-> >
-> >-      if (!virtio_transport_valid_type(le16_to_cpu(hdr->type))) {
-> >+      if (!virtio_transport_valid_type(type)) {
-> >               (void)virtio_transport_reset_no_sock(t, skb);
-> >               goto free_pkt;
-> >       }
-> >
-> >-      /* The socket must be in connected or bound table
-> >-       * otherwise send reset back
-> >+      /* For stream/seqpacket, the socket must be in connected or bound=
- table
-> >+       * otherwise send reset back.
-> >+       *
-> >+       * For datagrams, no reset is sent back.
-> >        */
-> >       sk =3D vsock_find_connected_socket(&src, &dst);
-> >       if (!sk) {
-> >-              sk =3D vsock_find_bound_socket(&dst);
-> >-              if (!sk) {
-> >-                      (void)virtio_transport_reset_no_sock(t, skb);
-> >-                      goto free_pkt;
-> >+              if (type =3D=3D VIRTIO_VSOCK_TYPE_DGRAM) {
-> >+                      sk =3D vsock_find_bound_dgram_socket(&dst);
-> >+                      if (!sk)
-> >+                              goto free_pkt;
-> >+              } else {
-> >+                      sk =3D vsock_find_bound_socket(&dst);
-> >+                      if (!sk) {
-> >+                              (void)virtio_transport_reset_no_sock(t, s=
-kb);
-> >+                              goto free_pkt;
-> >+                      }
-> >               }
-> >       }
-> >
-> >-      if (virtio_transport_get_type(sk) !=3D le16_to_cpu(hdr->type)) {
-> >-              (void)virtio_transport_reset_no_sock(t, skb);
-> >+      if (virtio_transport_get_type(sk) !=3D type) {
-> >+              if (type !=3D VIRTIO_VSOCK_TYPE_DGRAM)
-> >+                      (void)virtio_transport_reset_no_sock(t, skb);
-> >               sock_put(sk);
-> >               goto free_pkt;
-> >       }
-> >@@ -1654,12 +1697,21 @@ void virtio_transport_recv_pkt(struct virtio_tra=
-nsport *t,
-> >
-> >       /* Check if sk has been closed before lock_sock */
-> >       if (sock_flag(sk, SOCK_DONE)) {
-> >-              (void)virtio_transport_reset_no_sock(t, skb);
-> >+              if (type !=3D VIRTIO_VSOCK_TYPE_DGRAM)
-> >+                      (void)virtio_transport_reset_no_sock(t, skb);
-> >               release_sock(sk);
-> >               sock_put(sk);
-> >               goto free_pkt;
-> >       }
-> >
-> >+      if (sk->sk_type =3D=3D SOCK_DGRAM) {
-> >+              vsock_cb =3D vsock_skb_cb(skb);
-> >+              vsock_cb->src_cid =3D src.svm_cid;
-> >+              vsock_cb->src_port =3D src.svm_port;
-> >+              virtio_transport_recv_dgram(sk, skb);
+> ---
+>  drivers/net/virtio_net.c | 29 +++++++++++++++++------------
+>  1 file changed, 17 insertions(+), 12 deletions(-)
 >
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0383a3e136d6..eb115e807882 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3708,6 +3708,7 @@ static int virtnet_set_ringparam(struct net_device *dev,
+>  	u32 rx_pending, tx_pending;
+>  	struct receive_queue *rq;
+>  	struct send_queue *sq;
+> +	u32 pkts, usecs;
+>  	int i, err;
 >
-> What about adding an API that transports can use to hide this?
+>  	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
+> @@ -3740,11 +3741,13 @@ static int virtnet_set_ringparam(struct net_device *dev,
+>  			 * through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET command, or, if the driver
+>  			 * did not set any TX coalescing parameters, to 0.
+>  			 */
+> -			err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
+> -							       vi->intr_coal_tx.max_usecs,
+> -							       vi->intr_coal_tx.max_packets);
+> -			if (err)
+> -				return err;
+> +			if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+> +				usecs = vi->intr_coal_tx.max_usecs;
+> +				pkts = vi->intr_coal_tx.max_packets;
+> +				err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i, usecs, pkts);
+> +				if (err)
+> +					return err;
+> +			}
+>  		}
 >
-> I mean something that hide vsock_cb creation and queue packet in the
-> socket receive queue. I'd also not expose vsock_skb_cb in an header, but
-> I'd handle it internally in af_vsock.c. So I'd just expose API to
-> queue/dequeue them.
+>  		if (ring->rx_pending != rx_pending) {
+> @@ -3753,13 +3756,15 @@ static int virtnet_set_ringparam(struct net_device *dev,
+>  				return err;
 >
-
-Got it. I will move vsock_skb_cb to af_vsock.c and create an API:
-
-vsock_dgram_skb_save_src_addr(struct sk_buff *skb, u32 cid, u32 port)
-
-Different dgram implementations will call this API instead of the code
-block above to save the source address information into the control
-buffer.
-
-A side note on why this is a vsock API instead of a member function in
-transport: As we move to support multi-transport dgram, different
-transport implementations can place skb into the sk->sk_receive_queue.
-Therefore, we cannot call transport-specific function in
-vsock_dgram_recvmsg() to initialize struct sockaddr_vm. Hence, the
-receiving paths of different transports need to call this API to save
-source address.
-
-> Also why VMCI is using sk_receive_skb(), while we are using
-> sock_queue_rcv_skb()?
+>  			/* The reason is same as the transmit virtqueue reset */
+> -			mutex_lock(&vi->rq[i].dim_lock);
+> -			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
+> -							       vi->intr_coal_rx.max_usecs,
+> -							       vi->intr_coal_rx.max_packets);
+> -			mutex_unlock(&vi->rq[i].dim_lock);
+> -			if (err)
+> -				return err;
+> +			if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+> +				usecs = vi->intr_coal_rx.max_usecs;
+> +				pkts = vi->intr_coal_rx.max_packets;
+> +				mutex_lock(&vi->rq[i].dim_lock);
+> +				err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i, usecs, pkts);
+> +				mutex_unlock(&vi->rq[i].dim_lock);
+> +				if (err)
+> +					return err;
+> +			}
+>  		}
+>  	}
 >
-
-I _think_ originally we referred to UDP and UDS when designing virtio
-dgram, and ended up with placing skb into sk_receive_queue directly. I
-will look into this to provide better justification.
-
-Thank you,
-Amery
-
-> Thanks,
-> Stefano
->
-> >+              goto out;
-> >+      }
-> >+
-> >       space_available =3D virtio_transport_space_update(sk, skb);
-> >
-> >       /* Update CID in case it has changed after a transport reset even=
-t */
-> >@@ -1691,6 +1743,7 @@ void virtio_transport_recv_pkt(struct virtio_trans=
-port *t,
-> >               break;
-> >       }
-> >
-> >+out:
-> >       release_sock(sk);
-> >
-> >       /* Release refcnt obtained when we fetched this socket out of the
-> >--
-> >2.20.1
-> >
+> --
+> 2.32.0.3.g01195cf9f
 >
