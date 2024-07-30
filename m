@@ -1,98 +1,82 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8302194A57
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 12:32:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A46BD1B5808
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 15:47:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722342747; cv=none; b=kanOCqvAvvIUhQkRDYwkhSxIGqsZCxfXhHnTww8C/4iQZCBpoNhbQ3/4myLliyn9xdPLKJSu90uE5MSiVik3ROaSkiNH/qzfeVNQFGKCO6YbtB0ctDXXcW5+zhgs0iy28N7vprCpMb2tp2BYzsj8eHQtpZXNL8CpssWcsx7wUqA=
+	t=1722354436; cv=none; b=ZLeS5A6gK1fBvTLtOeDZzVIeVB2f9rYIus7O9SWse0VCbWkMZIlx+6BGIMGcTUOA7ZkjRYXlAWMuPRo7TMhFURKuZABqkyvnKtDJ/DnxK0FhFnd3m5yL8YbkscDQdinHgcqANGSvX5u/389Wujcgpu5SIO3aNX8qTTazVVso690=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722342747; c=relaxed/simple;
-	bh=S4TKs36zuyYQhQC2wNo65S9DbOgKoxAMU4qhwPg6ZC0=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G9h9Z0oxmDAjCziozgNqDO7Kmgnd2wN0B0JI20FM+2PL2l1jmo/DLZplVJjn3A/TMbiko9w/zZhWA3SsZZp+f2NhJ2JSwsN20uhPCU959ItPRbDhpnLfB2X69012G0G+1bV63iDYNDzbf85DYwXzJ9vyEpwKfSqCSsNW2IB1rlU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=DRGoe7jK; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1722354436; c=relaxed/simple;
+	bh=tZTmCW5GZ93dLZfDm1v8+9DRshuBQgUPfGjqVhe9ZhM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=PF5cnEEVzDLA4dGkAirOsX1FVQxt2B6DNYCG+qfFU2eXwAmqamfg5qYUkb+I2dGxgqd3KkjjiFeBnJVJJLr0yODYo4OeVVKav8mM20uiiqfVUyof4a2vWz4A7r5N5mndKBO86ER0x6VG185yvtudTPNOhWDsEGy75F3j1RtAGoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DiaPHkjE; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="DRGoe7jK"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DiaPHkjE"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4832940485;
-	Tue, 30 Jul 2024 12:32:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3228240482
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 15:47:15 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.404
+X-Spam-Score: -4.401
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id LWlYwH-7HoDz; Tue, 30 Jul 2024 12:32:24 +0000 (UTC)
-X-Greylist: delayed 5567 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 30 Jul 2024 12:32:22 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org A65F34046C
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A65F34046C
+ id 4cBDkN4YLFNI for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 Jul 2024 15:47:14 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=kuba@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 408B8400F1
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 408B8400F1
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=ti.com header.i=@ti.com header.a=rsa-sha256 header.s=ti-com-17Q1 header.b=DRGoe7jK
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.47.23.249; helo=lelv0142.ext.ti.com; envelope-from=a-singh21@ti.com; receiver=<UNKNOWN> 
-Received: from lelv0142.ext.ti.com (lelv0142.ext.ti.com [198.47.23.249])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A65F34046C;
-	Tue, 30 Jul 2024 12:32:22 +0000 (UTC)
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-	by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 46UAxNdt007163;
-	Tue, 30 Jul 2024 05:59:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-	s=ti-com-17Q1; t=1722337163;
-	bh=S4TKs36zuyYQhQC2wNo65S9DbOgKoxAMU4qhwPg6ZC0=;
-	h=From:To:CC:Subject:Date:In-Reply-To:References;
-	b=DRGoe7jKXTG+0vpSFv46vZ0XAtzs/e8IZ4vj7YQ8NCMFawEj8PxHEu4BOVegSmwnI
-	 RJQnJI8asevu6QgxWmHceCp1RQ5p9oDKhYLEYqE0YSitIEwfIXd4ltf4I1cm5EkoyN
-	 0/orT05a8NzXl1mFbCCRAVdn6lIJ9aiWG0Y6YkxI=
-Received: from DLEE104.ent.ti.com (dlee104.ent.ti.com [157.170.170.34])
-	by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 46UAxN3S122728
-	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-	Tue, 30 Jul 2024 05:59:23 -0500
-Received: from DLEE107.ent.ti.com (157.170.170.37) by DLEE104.ent.ti.com
- (157.170.170.34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23; Tue, 30
- Jul 2024 05:59:23 -0500
-Received: from lelvsmtp6.itg.ti.com (10.180.75.249) by DLEE107.ent.ti.com
- (157.170.170.37) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23 via
- Frontend Transport; Tue, 30 Jul 2024 05:59:23 -0500
-Received: from localhost (nightbug.dhcp.ti.com [10.24.68.118])
-	by lelvsmtp6.itg.ti.com (8.15.2/8.15.2) with ESMTP id 46UAxMmB042060;
-	Tue, 30 Jul 2024 05:59:23 -0500
-From: Amneesh Singh <a-singh21@ti.com>
-To: <sstabellini@kernel.org>
-CC: <boris.ostrovsky@oracle.com>, <hch@infradead.org>,
-        <iommu@lists.linux-foundation.org>, <jasowang@redhat.com>,
-        <jgross@suse.com>, <konrad.wilk@oracle.com>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-imx@nxp.com>,
-        <linux-kernel@vger.kernel.org>, <mst@redhat.com>, <peng.fan@nxp.com>,
-        <virtualization@lists.linux-foundation.org>, <x86@kernel.org>,
-        <xen-devel@lists.xenproject.org>
-Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
-Date: Tue, 30 Jul 2024 16:29:10 +0530
-Message-ID: <20240730105910.443753-1-a-singh21@ti.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <alpine.DEB.2.21.2007151001140.4124@sstabellini-ThinkPad-T480s>
-References: <alpine.DEB.2.21.2007151001140.4124@sstabellini-ThinkPad-T480s>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=DiaPHkjE
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 408B8400F1
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 15:47:14 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 1984ECE111F;
+	Tue, 30 Jul 2024 15:47:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE5C0C32782;
+	Tue, 30 Jul 2024 15:47:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722354429;
+	bh=tZTmCW5GZ93dLZfDm1v8+9DRshuBQgUPfGjqVhe9ZhM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=DiaPHkjErpIoh7tbTHA2BkSuyZEHOL2luROddx81dyCDgV/01X9oMpto6T6HMOuiW
+	 eufkPP1TytFgdz6OiWzOStPlVMJPLLM+woeYyq1qNZc6jz2u6LijjWnkx3EQ5vfn5i
+	 RwYmufBnLVyPFnfnCubsnk4XE0JfPj5EaYk3PIcLiPzgHACZcf0bvmEeSCAvBjNBhO
+	 2V9TRCEurUbvSJrhoEiZsYOYigVH5e91KIgEFU7UkLxp3TLGMOSou5fQvsC/BV9oAF
+	 +uXf06D8Js/wPCs4W8Tz+rKxQG+pbHZuFFdR8RRLUzDYE6OYt14MnFqOFuuS3+Dki8
+	 E4h74czh47JzA==
+Date: Tue, 30 Jul 2024 08:47:07 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+ <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "Michael S.
+ Tsirkin" <mst@redhat.com>, <kvm@vger.kernel.org>,
+ <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>,
+ <oxffffaa@gmail.com>
+Subject: Re: [PATCH v1] MAINTAINERS: add me as reviewer of AF_VSOCK and
+ virtio-vsock
+Message-ID: <20240730084707.72ff802c@kernel.org>
+In-Reply-To: <20240728183325.1295283-1-avkrasnov@salutedevices.com>
+References: <20240728183325.1295283-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Stefano,
+On Sun, 28 Jul 2024 21:33:25 +0300 Arseniy Krasnov wrote:
+> I'm working on AF_VSOCK and virtio-vsock.
 
-First off, apologies for bumping this dead thread.
+If you want to review the code perhaps you can use lore+lei
+and filter on the paths?
 
-I came across this patch signed off by you recently
-https://github.com/Xilinx/linux-xlnx/commit/72cb5514953be3aa2ac00c57c9eaa100ecc67176
-
-and was wondering if a patch replacing xen_domain() with xen_pv_domain() in
-vring_use_dma_api() can be sent upstream? If not, is there a reason why?
-
-Regards
-Amneesh
+Adding people to MAINTAINERS is somewhat fraught.
