@@ -1,265 +1,256 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B44A4189B86
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 17:57:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32F9718C905;
+	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722362222; cv=none; b=VdFv//mb+SvuuR1FrLK9KJ0YWXL2XehKwC2ZsZ5+6cKH11ll2/xS64Em3gE2AQqtWB+LmhpvohqVvYitFRU57gqXjuvN35cAk/cMtK6LSSR/A1pJcNzc4AtcqlCwV4KZZO3EWKi3JawUDSdbhIBf8xjvbexuGuXVDBfrMmbtMtU=
+	t=1722368604; cv=none; b=N+6T2cv2Bx5tN0Nu8FFp37f8M9iRRk64bRzD7Tb5rENb9h90WAuvk8/PL/n0v42uPpIFGvkHCdvfn+jHvVzMl0Gs618iyNqMGXLPpkdxaM5EEwywlmea4+3lkE5IQ4Nz1CV0W9dt6LjSfUWsLB4OR0RchdTnMfcB9yWrkMnQqNQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722362222; c=relaxed/simple;
-	bh=Yq/ggOUNW+hktq+nK4p6E6tkRE5rk8sFRRmqvpaJpcc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=c7J5Oc068mctlhKCENiatp2YF4h/a+ii5DgNDqK6bLSLdQ53ZbE/iQ1BDkJKWm6M+PFbWtvmCg6bMyogQngb2wLkTUuRJg4Xinf3NEj2Zw93qmQg2BcWEsZDThYFrdA0s+9zDwV8AljM8FxxMSYkyZx3zoiMgMW2OP8osMaVl7U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kPnrM3H5; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1722368604; c=relaxed/simple;
+	bh=6lCPGgT/MjQ71CyNAkh9/mHfe5+s94LaNyBMunL30ug=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=YxNirjLH07JU16luBQMLbc61E0Bhb5rER+3tq6EimCZ7mXBhkWpsXqOS0dEm4e+BIh1I3HAUWsCIzv3y3pgHvX0IKuefdtglbss8NX+p8QiJ8jFlGBb6lWnprQFNxe6gMJ2ik5/d7aEHGka78vREij9qKaLAAj9kTIqVHeMhNWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qktH8i96; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kPnrM3H5"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5F2DD812CB
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 17:57:00 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id CpWz8ZFDMSz3 for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Jul 2024 17:56:59 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b2d; helo=mail-yb1-xb2d.google.com; envelope-from=ameryhung@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 68F62812C8
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 68F62812C8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=kPnrM3H5
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 68F62812C8
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 17:56:59 +0000 (UTC)
-Received: by mail-yb1-xb2d.google.com with SMTP id 3f1490d57ef6-e05ef3aefcfso3571755276.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 10:56:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722362218; x=1722967018; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2tJ9LmFr+EeYpInIUds90yt7v1m8/2stEKp9e7T6m1w=;
-        b=kPnrM3H5WG+Tz8nnwvE0PugrQLosImrz/W91XkaCFafJb10PYv0DfjJaZb8g14owhY
-         aaJX60Fy9u+PYcUY09Qs4dAAMOOEJTALzRw8k9yCiusYO8xvPJlf4qIRqKokz60rmEmx
-         wodNXZ2xDZtaHRh3KxBMQEVVSlmXR6ubbA3Q9VobJ9JwAK2dKMMymWkm/MW/mmzV9EdT
-         vRvsQ9gMEtuetpdS3XDvRRTFHlF7w2IoYAfq4cWpWIN3EyxBQC5JOVWi08ldDP5wgQaZ
-         sSTIlMKnbS6+9kcPWPoHySgPUr/N/8Zc4l+gFpAGWQIU9AvcstN0/JMugam++2uzI1d/
-         Ya7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722362218; x=1722967018;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2tJ9LmFr+EeYpInIUds90yt7v1m8/2stEKp9e7T6m1w=;
-        b=HcgdI3zxOg2sgAx1bqX6Y8CBhPaFnabZtoqW7UG5qLc5tpH5VKyoSZ194ujxyeOmdO
-         O/qcvxcLc88tjZ2Z8VtYHK9bmukk5enU1UxpCBX3CUA1Ayi/XTqud8A6Ig4o15kHe8Bp
-         C7DeajyMf8xanmxHIl1la4FpABZfPGNlCCcrnNLusfFyZG+pzCeTCDpAvomacLydPGOJ
-         b/lb7bEklRyn9vWYkKqIBcC3YbgV8VT/wfGZR0t3wjrs38buq+jCPXLm1EJJERycLhsv
-         SY4JehFhAxTtGLQGgAeefhE8lO7qvCupqYncg0mR4yL7VrLXaUqnXQpm0+Bc6SMivoFE
-         1OCg==
-X-Forwarded-Encrypted: i=1; AJvYcCX/C+rb6H555diJ76ktBTyUjYXnclMvXZV1f5JoQIZHo71ew/dPYT1zEiFtSWtJuM5N2N+bSDrMkGTxcVw1bUyZa2l4/42hE79bJbztJvOibwb0fa1EbrJTDw==
-X-Gm-Message-State: AOJu0Yw85rMQcEVq3h3LzfDcUpKdEaPSFLEApenlcJonmy8957rd4MFU
-	sdtOYBhERqSFxInthUkbgeUeeYnXVBGuy7CVcL563gqWIjkSzRiwZXIXK6zhYY11Tk13stkZJB7
-	m2O2obdz+ek9EN7IDuFaxK/NrSUE=
-X-Google-Smtp-Source: AGHT+IEeFCqCt/8oTNqAY4RtLq00QVkD5Ag05gXDYxk2tQVY/F4tyERpQH8H3d42Bd+DygSbMlFnsnAzg7VIuPpEhJA=
-X-Received: by 2002:a05:6902:2742:b0:e0b:b2d6:f528 with SMTP id
- 3f1490d57ef6-e0bb2d701c8mr529006276.38.1722362218035; Tue, 30 Jul 2024
- 10:56:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qktH8i96"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 0B3A6C4AF0A;
+	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722368604;
+	bh=6lCPGgT/MjQ71CyNAkh9/mHfe5+s94LaNyBMunL30ug=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=qktH8i96nf7OMM662osvtEDoFegl2szUZkLc+7RnC58qxhGLYwK6Jvg+sZVfSOCNh
+	 8VK0Vv7NSg1uZ/GOmqsajCXr4kapxf3qfGErTQ+35WlnCPPiJ2xmXbKdT+f4VFUK+1
+	 bJJb6FaPCLe5OgtaygM6yiWrfCLXLBAkd5xfCKl2LlPAgQQKg/8+Ral+RWiSQazCVG
+	 ArHj+bpwpvMN+GAX16w1qz4tmDlVz3jsafLlhvhebaEqDmPNjP0LatAXPud1ZRWiFx
+	 W19EXFgXaYW8npjE+VimCA0jNoO8UjK1TWOC+t9Sur4avxa4BL7kSvz1QLh2CuiNYE
+	 3hMzoYMl/46RQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD37C3DA49;
+	Tue, 30 Jul 2024 19:43:23 +0000 (UTC)
+From: Luigi Leonardi via B4 Relay <devnull+luigi.leonardi.outlook.com@kernel.org>
+Date: Tue, 30 Jul 2024 21:43:07 +0200
+Subject: [PATCH net-next v4 2/3] vsock/virtio: add SIOCOUTQ support for all
+ virtio based transports
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240710212555.1617795-1-amery.hung@bytedance.com>
- <20240710212555.1617795-5-amery.hung@bytedance.com> <CAGxU2F7wCUR-KhDRBopK+0gv=bM0PCKeWM87j1vEYmbvhO8WHQ@mail.gmail.com>
- <CAMB2axNUZa221WKTjLt0G5KNdtkAbm20ViDZRGBh6pL9y3wosg@mail.gmail.com> <ba2hivznnjcyeftr7ch7gvrwjvkimx5u2t2anv7wv7n7yb3j36@dbagnaylvu6o>
-In-Reply-To: <ba2hivznnjcyeftr7ch7gvrwjvkimx5u2t2anv7wv7n7yb3j36@dbagnaylvu6o>
-From: Amery Hung <ameryhung@gmail.com>
-Date: Tue, 30 Jul 2024 10:56:46 -0700
-Message-ID: <CAMB2axPfz0kOFau0tX2=87e=2EPSLxX1AXHPpsv3QyaLYaBvoA@mail.gmail.com>
-Subject: Re: [RFC PATCH net-next v6 04/14] af_vsock: generalize bind table functions
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, kys@microsoft.com, haiyangz@microsoft.com, 
-	wei.liu@kernel.org, decui@microsoft.com, bryantan@vmware.com, 
-	vdasa@vmware.com, pv-drivers@vmware.com, dan.carpenter@linaro.org, 
-	simon.horman@corigine.com, oxffffaa@gmail.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
-	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240730-ioctl-v4-2-16d89286a8f0@outlook.com>
+References: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
+In-Reply-To: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+ Luigi Leonardi <luigi.leonardi@outlook.com>
+X-Mailer: b4 0.14.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722368602; l=6312;
+ i=luigi.leonardi@outlook.com; s=20240730; h=from:subject:message-id;
+ bh=WM5tJQ1sMl6dPQu1pIvYS3xrLkM7dMksggWh3AWnClI=;
+ b=7Ojx1gE9NnSDikaMVsaz93NrWsStuAfd1/SUnR9xgkS9GPgrokXgxWZA5dlwMmbmIKIiiTfc6
+ 4Y/HE6BjCg+D6gmA8jb40qnVhOKCl2P6XlxA0TJ7xLhdyQgHlI05eWS
+X-Developer-Key: i=luigi.leonardi@outlook.com; a=ed25519;
+ pk=rejHGgcyJQFeByIJsRIz/gA6pOPZJ1I2fpxoFD/jris=
+X-Endpoint-Received: by B4 Relay for luigi.leonardi@outlook.com/20240730
+ with auth_id=192
+X-Original-From: Luigi Leonardi <luigi.leonardi@outlook.com>
+Reply-To: luigi.leonardi@outlook.com
 
-On Tue, Jul 30, 2024 at 1:00=E2=80=AFAM Stefano Garzarella <sgarzare@redhat=
-.com> wrote:
->
-> On Sun, Jul 28, 2024 at 11:52:54AM GMT, Amery Hung wrote:
-> >On Tue, Jul 23, 2024 at 7:40=E2=80=AFAM Stefano Garzarella <sgarzare@red=
-hat.com> wrote:
-> >>
-> >> On Wed, Jul 10, 2024 at 09:25:45PM GMT, Amery Hung wrote:
-> >> >From: Bobby Eshleman <bobby.eshleman@bytedance.com>
-> >> >
-> >> >This commit makes the bind table management functions in vsock usable
-> >> >for different bind tables. Future work will introduce a new table for
-> >> >datagrams to avoid address collisions, and these functions will be us=
-ed
-> >> >there.
-> >> >
-> >> >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
-> >> >---
-> >> > net/vmw_vsock/af_vsock.c | 34 +++++++++++++++++++++++++++-------
-> >> > 1 file changed, 27 insertions(+), 7 deletions(-)
-> >> >
-> >> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> >> >index acc15e11700c..d571be9cdbf0 100644
-> >> >--- a/net/vmw_vsock/af_vsock.c
-> >> >+++ b/net/vmw_vsock/af_vsock.c
-> >> >@@ -232,11 +232,12 @@ static void __vsock_remove_connected(struct vso=
-ck_sock *vsk)
-> >> >       sock_put(&vsk->sk);
-> >> > }
-> >> >
-> >> >-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *ad=
-dr)
-> >> >+static struct sock *vsock_find_bound_socket_common(struct sockaddr_v=
-m *addr,
-> >> >+                                                 struct list_head *b=
-ind_table)
-> >> > {
-> >> >       struct vsock_sock *vsk;
-> >> >
-> >> >-      list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_tabl=
-e) {
-> >> >+      list_for_each_entry(vsk, bind_table, bound_table) {
-> >> >               if (vsock_addr_equals_addr(addr, &vsk->local_addr))
-> >> >                       return sk_vsock(vsk);
-> >> >
-> >> >@@ -249,6 +250,11 @@ static struct sock *__vsock_find_bound_socket(st=
-ruct sockaddr_vm *addr)
-> >> >       return NULL;
-> >> > }
-> >> >
-> >> >+static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *ad=
-dr)
-> >> >+{
-> >> >+      return vsock_find_bound_socket_common(addr, vsock_bound_socket=
-s(addr));
-> >> >+}
-> >> >+
-> >> > static struct sock *__vsock_find_connected_socket(struct sockaddr_vm=
- *src,
-> >> >                                                 struct sockaddr_vm *=
-dst)
-> >> > {
-> >> >@@ -671,12 +677,18 @@ static void vsock_pending_work(struct work_stru=
-ct *work)
-> >> >
-> >> > /**** SOCKET OPERATIONS ****/
-> >> >
-> >> >-static int __vsock_bind_connectible(struct vsock_sock *vsk,
-> >> >-                                  struct sockaddr_vm *addr)
-> >> >+static int vsock_bind_common(struct vsock_sock *vsk,
-> >> >+                           struct sockaddr_vm *addr,
-> >> >+                           struct list_head *bind_table,
-> >> >+                           size_t table_size)
-> >> > {
-> >> >       static u32 port;
-> >> >       struct sockaddr_vm new_addr;
-> >> >
-> >> >+      if (WARN_ONCE(table_size < VSOCK_HASH_SIZE,
-> >> >+                    "table size too small, may cause overflow"))
-> >> >+              return -EINVAL;
-> >> >+
-> >>
-> >> I'd add this in another commit.
-> >>
-> >> >       if (!port)
-> >> >               port =3D get_random_u32_above(LAST_RESERVED_PORT);
-> >> >
-> >> >@@ -692,7 +704,8 @@ static int __vsock_bind_connectible(struct
-> >> >vsock_sock *vsk,
-> >> >
-> >> >                       new_addr.svm_port =3D port++;
-> >> >
-> >> >-                      if (!__vsock_find_bound_socket(&new_addr)) {
-> >> >+                      if (!vsock_find_bound_socket_common(&new_addr,
-> >> >+                                                          &bind_tabl=
-e[VSOCK_HASH(addr)])) {
-> >>
-> >> Can we add a macro for `&bind_table[VSOCK_HASH(addr)])` ?
-> >>
-> >
-> >Definitely. I will add the following macro:
-> >
-> >#define vsock_bound_sockets_in_table(bind_table, addr) \
-> >        (&bind_table[VSOCK_HASH(addr)])
->
-> yeah.
->
-> >
-> >> >                               found =3D true;
-> >> >                               break;
-> >> >                       }
-> >> >@@ -709,7 +722,8 @@ static int __vsock_bind_connectible(struct vsock_=
-sock *vsk,
-> >> >                       return -EACCES;
-> >> >               }
-> >> >
-> >> >-              if (__vsock_find_bound_socket(&new_addr))
-> >> >+              if (vsock_find_bound_socket_common(&new_addr,
-> >> >+                                                 &bind_table[VSOCK_H=
-ASH(addr)]))
-> >> >                       return -EADDRINUSE;
-> >> >       }
-> >> >
-> >> >@@ -721,11 +735,17 @@ static int __vsock_bind_connectible(struct vsoc=
-k_sock *vsk,
-> >> >        * by AF_UNIX.
-> >> >        */
-> >> >       __vsock_remove_bound(vsk);
-> >> >-      __vsock_insert_bound(vsock_bound_sockets(&vsk->local_addr), vs=
-k);
-> >> >+      __vsock_insert_bound(&bind_table[VSOCK_HASH(&vsk->local_addr)]=
-, vsk);
-> >> >
-> >> >       return 0;
-> >> > }
-> >> >
-> >> >+static int __vsock_bind_connectible(struct vsock_sock *vsk,
-> >> >+                                  struct sockaddr_vm *addr)
-> >> >+{
-> >> >+      return vsock_bind_common(vsk, addr, vsock_bind_table, VSOCK_HA=
-SH_SIZE + 1);
-> >>
-> >> What about using ARRAY_SIZE(x) ?
-> >>
-> >> BTW we are using that size just to check it, but all the arrays we use
-> >> are statically allocated, so what about a compile time check like
-> >> BUILD_BUG_ON()?
-> >>
-> >
-> >I will remove the table_size check you mentioned earlier and the
-> >argument here as the arrays are allocated statically like you
-> >mentioned.
-> >
-> >If you think this check may be a good addition, I can add a
-> >BUILD_BUG_ON() in the new vsock_bound_sockets_in_table() macro.
->
-> If you want to add it, we need to do it in a separate commit. But since
-> we already have so many changes and both arrays are statically allocated
-> in the same file, IMHO we can avoid the check.
->
-> Stefano
->
+From: Luigi Leonardi <luigi.leonardi@outlook.com>
 
-Okay. I will not add the check.
+Introduce support for virtio_transport_unsent_bytes
+ioctl for virtio_transport, vhost_vsock and vsock_loopback.
 
-Thanks,
-Amery
+For all transports the unsent bytes counter is incremented
+in virtio_transport_get_credit.
+
+In virtio_transport (G2H) and in vhost-vsock (H2G) the counter
+is decremented when the skbuff is consumed. In vsock_loopback the
+same skbuff is passed from the transmitter to the receiver, so
+the counter is decremented before queuing the skbuff to the
+receiver.
+
+Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+---
+ drivers/vhost/vsock.c                   |  4 +++-
+ include/linux/virtio_vsock.h            |  6 ++++++
+ net/vmw_vsock/virtio_transport.c        |  4 +++-
+ net/vmw_vsock/virtio_transport_common.c | 35 +++++++++++++++++++++++++++++++++
+ net/vmw_vsock/vsock_loopback.c          |  6 ++++++
+ 5 files changed, 53 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index bf664ec9341b..802153e23073 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -244,7 +244,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 					restart_tx = true;
+ 			}
+ 
+-			consume_skb(skb);
++			virtio_transport_consume_skb_sent(skb, true);
+ 		}
+ 	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 	if (added)
+@@ -451,6 +451,8 @@ static struct virtio_transport vhost_transport = {
+ 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+ 		.notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat,
+ 
++		.unsent_bytes             = virtio_transport_unsent_bytes,
++
+ 		.read_skb = virtio_transport_read_skb,
+ 	},
+ 
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index c82089dee0c8..0387d64e2c66 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -133,6 +133,7 @@ struct virtio_vsock_sock {
+ 	u32 tx_cnt;
+ 	u32 peer_fwd_cnt;
+ 	u32 peer_buf_alloc;
++	size_t bytes_unsent;
+ 
+ 	/* Protected by rx_lock */
+ 	u32 fwd_cnt;
+@@ -193,6 +194,11 @@ s64 virtio_transport_stream_has_data(struct vsock_sock *vsk);
+ s64 virtio_transport_stream_has_space(struct vsock_sock *vsk);
+ u32 virtio_transport_seqpacket_has_data(struct vsock_sock *vsk);
+ 
++ssize_t virtio_transport_unsent_bytes(struct vsock_sock *vsk);
++
++void virtio_transport_consume_skb_sent(struct sk_buff *skb,
++				       bool consume);
++
+ int virtio_transport_do_socket_init(struct vsock_sock *vsk,
+ 				 struct vsock_sock *psk);
+ int
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 64a07acfef12..e0160da4ef43 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -311,7 +311,7 @@ static void virtio_transport_tx_work(struct work_struct *work)
+ 
+ 		virtqueue_disable_cb(vq);
+ 		while ((skb = virtqueue_get_buf(vq, &len)) != NULL) {
+-			consume_skb(skb);
++			virtio_transport_consume_skb_sent(skb, true);
+ 			added = true;
+ 		}
+ 	} while (!virtqueue_enable_cb(vq));
+@@ -540,6 +540,8 @@ static struct virtio_transport virtio_transport = {
+ 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+ 		.notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat,
+ 
++		.unsent_bytes             = virtio_transport_unsent_bytes,
++
+ 		.read_skb = virtio_transport_read_skb,
+ 	},
+ 
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 16ff976a86e3..884ee128851e 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -463,6 +463,26 @@ void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct sk_buff *
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_inc_tx_pkt);
+ 
++void virtio_transport_consume_skb_sent(struct sk_buff *skb, bool consume)
++{
++	struct sock *s = skb->sk;
++
++	if (s && skb->len) {
++		struct vsock_sock *vs = vsock_sk(s);
++		struct virtio_vsock_sock *vvs;
++
++		vvs = vs->trans;
++
++		spin_lock_bh(&vvs->tx_lock);
++		vvs->bytes_unsent -= skb->len;
++		spin_unlock_bh(&vvs->tx_lock);
++	}
++
++	if (consume)
++		consume_skb(skb);
++}
++EXPORT_SYMBOL_GPL(virtio_transport_consume_skb_sent);
++
+ u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 credit)
+ {
+ 	u32 ret;
+@@ -475,6 +495,7 @@ u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 credit)
+ 	if (ret > credit)
+ 		ret = credit;
+ 	vvs->tx_cnt += ret;
++	vvs->bytes_unsent += ret;
+ 	spin_unlock_bh(&vvs->tx_lock);
+ 
+ 	return ret;
+@@ -488,6 +509,7 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit)
+ 
+ 	spin_lock_bh(&vvs->tx_lock);
+ 	vvs->tx_cnt -= credit;
++	vvs->bytes_unsent -= credit;
+ 	spin_unlock_bh(&vvs->tx_lock);
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_put_credit);
+@@ -1090,6 +1112,19 @@ void virtio_transport_destruct(struct vsock_sock *vsk)
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_destruct);
+ 
++ssize_t virtio_transport_unsent_bytes(struct vsock_sock *vsk)
++{
++	struct virtio_vsock_sock *vvs = vsk->trans;
++	size_t ret;
++
++	spin_lock_bh(&vvs->tx_lock);
++	ret = vvs->bytes_unsent;
++	spin_unlock_bh(&vvs->tx_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(virtio_transport_unsent_bytes);
++
+ static int virtio_transport_reset(struct vsock_sock *vsk,
+ 				  struct sk_buff *skb)
+ {
+diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+index 6dea6119f5b2..6e78927a598e 100644
+--- a/net/vmw_vsock/vsock_loopback.c
++++ b/net/vmw_vsock/vsock_loopback.c
+@@ -98,6 +98,8 @@ static struct virtio_transport loopback_transport = {
+ 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+ 		.notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat,
+ 
++		.unsent_bytes             = virtio_transport_unsent_bytes,
++
+ 		.read_skb = virtio_transport_read_skb,
+ 	},
+ 
+@@ -123,6 +125,10 @@ static void vsock_loopback_work(struct work_struct *work)
+ 	spin_unlock_bh(&vsock->pkt_queue.lock);
+ 
+ 	while ((skb = __skb_dequeue(&pkts))) {
++		/* Decrement the bytes_unsent counter without deallocating skb
++		 * It is freed by the receiver.
++		 */
++		virtio_transport_consume_skb_sent(skb, false);
+ 		virtio_transport_deliver_tap_pkt(skb);
+ 		virtio_transport_recv_pkt(&loopback_transport, skb);
+ 	}
+
+-- 
+2.45.2
+
+
