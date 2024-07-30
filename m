@@ -1,272 +1,155 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACEFB160883
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 05:21:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6BD92191484;
+	Tue, 30 Jul 2024 07:53:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722316916; cv=none; b=QqGE6BKcqIRNYnyb2ZKUCeSm5W1BLl6JWkpK5sghxEvoPJ+gaTKVldCtTdBAcDkR6T7MZPSCdC9k33NLFzBkn7OyI9kJmIKvgVGvKCt5KQNETauAn8tpa4+JwxuZOOCwbGjeBFJxAPRKI/ZZcC4VPwd9kJ2TTRLAW2Rh0xeEsiU=
+	t=1722326030; cv=none; b=N4iXUfIKZayWAVHIpemw+oP6daMLKcKc+cpo3OgfZv0Daw5JKRyIhr46XHrI75XeCGBgKoW7j9VkfbIlDoEOogj32T8QJQxDyRB+CCGwcuM2MExz7EHqDKwMSA2wEVISBrgfrkiTTa4YRLbHzRGHp72lLU4y2OSf19ARW99C3ys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722316916; c=relaxed/simple;
-	bh=Kk9Q3R4jaeKgwoXtf8T50QoXGM27YdMm/UT0HVVSXvk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=ZUG3vTv9vBNwAMOgdh+SfR6KBAE0zS8ErBAfEg4rIBKBsL18Y/VnOh0R3WlGJTnI2dEYjZ9ZGOQryWJVvLwaTO8LiyQsBDxbdt0z5JwE0XTxAozdCcM7y23ppPoBev4yZonmepAIFM6wNE6VFvy8MOuRANe+e6ljAGMDAzpekso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=tkJgpyGF; arc=none smtp.client-ip=140.211.166.136
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="tkJgpyGF"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D816C608EA
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 05:21:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 7iU8f4-SSxNC for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Jul 2024 05:21:50 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=37.18.73.165; helo=mx1.sberdevices.ru; envelope-from=avkrasnov@salutedevices.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C678B608DD
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C678B608DD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=tkJgpyGF
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C678B608DD
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 05:21:47 +0000 (UTC)
-Received: from p-infra-ksmg-sc-msk01.sberdevices.ru (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id D1ADB10000E;
-	Tue, 30 Jul 2024 08:21:43 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru D1ADB10000E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1722316903;
-	bh=HltX1eHB+gX6/FvTdK5jTFQKH3MsCpYQvWl2DuJkA3Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=tkJgpyGF5AdvkBtheLV/1Gjn0MDuaK6RvazH8JrIxxpEoJCweReC3PILvSx+RLq81
-	 brNejISPFG39LPM71bNMpQUu4BZesh/aPcNb8P1dc9jlP6FNIVu3bnLf0ltlLW+XQR
-	 yV9do1oOhbYketRJVq4Y36RauYBqx1KjOjzaNq+foklJ6lX57RsdOb5zAAMd1vWBPP
-	 8MlE6YoOJUqiwpZsO+WwdUXdStuombWNhNpmvKdrGCow7gqMQI1tz1xvDUsP6dVgUv
-	 HlNd+kpk/gWN2KHG0V4Nq2L+kZExhnqEh1I3F39jCx/I68RJBFqVveyLO2px8lMchW
-	 S4WuwJRTEP7fA==
-Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Tue, 30 Jul 2024 08:21:43 +0300 (MSK)
-Received: from [172.28.128.200] (100.64.160.123) by
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Tue, 30 Jul 2024 08:21:42 +0300
-Message-ID: <41421bd7-e6e1-db2d-6a43-06d6a44cfeb8@salutedevices.com>
-Date: Tue, 30 Jul 2024 08:09:23 +0300
+	s=arc-20240116; t=1722326030; c=relaxed/simple;
+	bh=sntPLk9JUczN3t1GG9IWiP1HHqBUQTpUXd2iKWnCP/Q=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=lwhL9IJCl+6bO+h+3sR90Dk/Iid2IA8zCFXBGyBa51vi+SI5QpzlR+1W+ys7kAi2kdxQSGt3Onl9F22LWmb+31TKyMaz5HJDxPDhyMM2ld6Fjswek6L/pKe7c+TCWddMglmooNVSc5Vwe0Art8MdgEsQ4uyn1CQqY4Fe9/WCrzY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8CxvOoJnKhmEVEEAA--.15092S3;
+	Tue, 30 Jul 2024 15:53:45 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by front1 (Coremail) with SMTP id qMiowMBxLscInKhmVjQGAA--.31411S4;
+	Tue, 30 Jul 2024 15:53:45 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>
+Cc: WANG Xuerui <kernel@xen0n.name>,
+	kvm@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	x86@kernel.org,
+	Song Gao <gaosong@loongson.cn>
+Subject: [PATCH v4 2/3] LoongArch: KVM: Implement function kvm_para_has_feature
+Date: Tue, 30 Jul 2024 15:53:43 +0800
+Message-Id: <20240730075344.1215681-3-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240730075344.1215681-1-maobibo@loongson.cn>
+References: <20240730075344.1215681-1-maobibo@loongson.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [RFC PATCH net-next v6 07/14] virtio/vsock: add common datagram
- send path
-Content-Language: en-US
-To: Amery Hung <ameryhung@gmail.com>
-CC: <stefanha@redhat.com>, <sgarzare@redhat.com>, <mst@redhat.com>,
-	<jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<kys@microsoft.com>, <haiyangz@microsoft.com>, <wei.liu@kernel.org>,
-	<decui@microsoft.com>, <bryantan@vmware.com>, <vdasa@vmware.com>,
-	<pv-drivers@vmware.com>, <dan.carpenter@linaro.org>,
-	<simon.horman@corigine.com>, <oxffffaa@gmail.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
-	<bpf@vger.kernel.org>, <bobby.eshleman@bytedance.com>,
-	<jiang.wang@bytedance.com>, <amery.hung@bytedance.com>,
-	<xiyou.wangcong@gmail.com>, <kernel@sberdevices.ru>
-References: <20240710212555.1617795-8-amery.hung@bytedance.com>
- <e1647f5f-5056-5cf0-e81c-5ef71fd6efd0@salutedevices.com>
- <CAMB2axMXzcxrFr+zWV6CFJxDrKwH+U85F7dkeXfJjAO10EmSAg@mail.gmail.com>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <CAMB2axMXzcxrFr+zWV6CFJxDrKwH+U85F7dkeXfJjAO10EmSAg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 186782 [Jul 29 2024]
-X-KSMG-AntiSpam-Version: 6.1.0.4
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 24 0.3.24 186c4d603b899ccfd4883d230c53f273b80e467f, {Tracking_from_domain_doesnt_match_to}, 100.64.160.123:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;smtp.sberdevices.ru:5.0.1,7.1.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/07/30 01:23:00 #26176971
-X-KSMG-AntiVirus-Status: Clean, skipped
+X-CM-TRANSID:qMiowMBxLscInKhmVjQGAA--.31411S4
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
+Function kvm_para_has_feature() is to detect supported paravirt features,
+it can be used by device driver to detect and enable paravirt features,
+such as extioi irqchip driver can detect KVM_FEATURE_VIRT_EXTIOI and do
+some optimization.
 
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/include/asm/kvm_para.h | 10 ++++++++++
+ arch/loongarch/kernel/paravirt.c      | 28 +++++++++++++++------------
+ 2 files changed, 26 insertions(+), 12 deletions(-)
 
-On 30.07.2024 01:51, Amery Hung wrote:
-> On Mon, Jul 29, 2024 at 1:12 PM Arseniy Krasnov
-> <avkrasnov@salutedevices.com> wrote:
->>
->> Hi,
->>
->>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>> index a1c76836d798..46cd1807f8e3 100644
->>> --- a/net/vmw_vsock/virtio_transport_common.c
->>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>> @@ -1040,13 +1040,98 @@ int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
->>>  }
->>>  EXPORT_SYMBOL_GPL(virtio_transport_shutdown);
->>>
->>> +static int virtio_transport_dgram_send_pkt_info(struct vsock_sock *vsk,
->>> +                                             struct virtio_vsock_pkt_info *info)
->>> +{
->>> +     u32 src_cid, src_port, dst_cid, dst_port;
->>> +     const struct vsock_transport *transport;
->>> +     const struct virtio_transport *t_ops;
->>> +     struct sock *sk = sk_vsock(vsk);
->>> +     struct virtio_vsock_hdr *hdr;
->>> +     struct sk_buff *skb;
->>> +     void *payload;
->>> +     int noblock = 0;
->>> +     int err;
->>> +
->>> +     info->type = virtio_transport_get_type(sk_vsock(vsk));
->>> +
->>> +     if (info->pkt_len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
->>> +             return -EMSGSIZE;
->>
->> Small suggestion, i think we can check for packet length earlier ? Before
->> info->type = ...
-> 
-> Certainly.
-> 
->>
->>> +
->>> +     transport = vsock_dgram_lookup_transport(info->remote_cid, info->remote_flags);
->>> +     t_ops = container_of(transport, struct virtio_transport, transport);
->>> +     if (unlikely(!t_ops))
->>> +             return -EFAULT;
->>> +
->>> +     if (info->msg)
->>> +             noblock = info->msg->msg_flags & MSG_DONTWAIT;
->>> +
->>> +     /* Use sock_alloc_send_skb to throttle by sk_sndbuf. This helps avoid
->>> +      * triggering the OOM.
->>> +      */
->>> +     skb = sock_alloc_send_skb(sk, info->pkt_len + VIRTIO_VSOCK_SKB_HEADROOM,
->>> +                               noblock, &err);
->>> +     if (!skb)
->>> +             return err;
->>> +
->>> +     skb_reserve(skb, VIRTIO_VSOCK_SKB_HEADROOM);
->>> +
->>> +     src_cid = t_ops->transport.get_local_cid();
->>> +     src_port = vsk->local_addr.svm_port;
->>> +     dst_cid = info->remote_cid;
->>> +     dst_port = info->remote_port;
->>> +
->>> +     hdr = virtio_vsock_hdr(skb);
->>> +     hdr->type       = cpu_to_le16(info->type);
->>> +     hdr->op         = cpu_to_le16(info->op);
->>> +     hdr->src_cid    = cpu_to_le64(src_cid);
->>> +     hdr->dst_cid    = cpu_to_le64(dst_cid);
->>> +     hdr->src_port   = cpu_to_le32(src_port);
->>> +     hdr->dst_port   = cpu_to_le32(dst_port);
->>> +     hdr->flags      = cpu_to_le32(info->flags);
->>> +     hdr->len        = cpu_to_le32(info->pkt_len);
->>
->> There is function 'virtio_transport_init_hdr()' in this file, may be reuse it ?
-> 
-> Will do.
-> 
->>
->>> +
->>> +     if (info->msg && info->pkt_len > 0) {
->>
->> If pkt_len is 0, do we really need to send such packets ? Because for connectible
->> sockets, we ignore empty OP_RW packets.
-> 
-> Thanks for pointing this out. I think virtio dgram should also follow that.
-> 
->>
->>> +             payload = skb_put(skb, info->pkt_len);
->>> +             err = memcpy_from_msg(payload, info->msg, info->pkt_len);
->>> +             if (err)
->>> +                     goto out;
->>> +     }
->>> +
->>> +     trace_virtio_transport_alloc_pkt(src_cid, src_port,
->>> +                                      dst_cid, dst_port,
->>> +                                      info->pkt_len,
->>> +                                      info->type,
->>> +                                      info->op,
->>> +                                      info->flags,
->>> +                                      false);
->>
->> ^^^ For SOCK_DGRAM, include/trace/events/vsock_virtio_transport_common.h also should
->> be updated?
-> 
-> Can you elaborate what needs to be changed?
+diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
+index 9814d56b8d0e..327f331d5237 100644
+--- a/arch/loongarch/include/asm/kvm_para.h
++++ b/arch/loongarch/include/asm/kvm_para.h
+@@ -155,10 +155,20 @@ static __always_inline long kvm_hypercall5(u64 fid,
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_PARAVIRT
++bool kvm_para_available(void);
++unsigned int kvm_arch_para_features(void);
++#else
++static inline bool kvm_para_available(void)
++{
++	return false;
++}
++
+ static inline unsigned int kvm_arch_para_features(void)
+ {
+ 	return 0;
+ }
++#endif
+ 
+ static inline unsigned int kvm_arch_para_hints(void)
+ {
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+index cc6bf096cb88..10683e25b6b3 100644
+--- a/arch/loongarch/kernel/paravirt.c
++++ b/arch/loongarch/kernel/paravirt.c
+@@ -151,11 +151,14 @@ static void pv_init_ipi(void)
+ }
+ #endif
+ 
+-static bool kvm_para_available(void)
++bool kvm_para_available(void)
+ {
+ 	int config;
+ 	static int hypervisor_type;
+ 
++	if (!cpu_has_hypervisor)
++		return false;
++
+ 	if (!hypervisor_type) {
+ 		config = read_cpucfg(CPUCFG_KVM_SIG);
+ 		if (!memcmp(&config, KVM_SIGNATURE, 4))
+@@ -165,17 +168,21 @@ static bool kvm_para_available(void)
+ 	return hypervisor_type == HYPERVISOR_KVM;
+ }
+ 
+-int __init pv_ipi_init(void)
++unsigned int kvm_arch_para_features(void)
+ {
+-	int feature;
++	static int feature;
+ 
+-	if (!cpu_has_hypervisor)
+-		return 0;
++	if (!feature)
++		feature = read_cpucfg(CPUCFG_KVM_FEATURE);
++	return feature;
++}
++
++int __init pv_ipi_init(void)
++{
+ 	if (!kvm_para_available())
+ 		return 0;
+ 
+-	feature = read_cpucfg(CPUCFG_KVM_FEATURE);
+-	if (!(feature & BIT(KVM_FEATURE_IPI)))
++	if (!kvm_para_has_feature(KVM_FEATURE_IPI))
+ 		return 0;
+ 
+ #ifdef CONFIG_SMP
+@@ -258,15 +265,12 @@ static struct notifier_block pv_reboot_nb = {
+ 
+ int __init pv_time_init(void)
+ {
+-	int r, feature;
++	int r;
+ 
+-	if (!cpu_has_hypervisor)
+-		return 0;
+ 	if (!kvm_para_available())
+ 		return 0;
+ 
+-	feature = read_cpucfg(CPUCFG_KVM_FEATURE);
+-	if (!(feature & BIT(KVM_FEATURE_STEAL_TIME)))
++	if (!kvm_para_has_feature(KVM_FEATURE_STEAL_TIME))
+ 		return 0;
+ 
+ 	has_steal_clock = 1;
+-- 
+2.39.3
 
-Sure, there are:
-
-TRACE_DEFINE_ENUM(VIRTIO_VSOCK_TYPE_STREAM);
-TRACE_DEFINE_ENUM(VIRTIO_VSOCK_TYPE_SEQPACKET);
-
-#define show_type(val) \
-	__print_symbolic(val, \
-			 { VIRTIO_VSOCK_TYPE_STREAM, "STREAM" }, \
-			 { VIRTIO_VSOCK_TYPE_SEQPACKET, "SEQPACKET" })
-
-I guess SOCK_DGRAM handling should be added to print type of socket.
-
-Thanks, Arseniy
-
-> 
-> Thank you,
-> Amery
-> 
->>
->>> +
->>> +     return t_ops->send_pkt(skb);
->>> +out:
->>> +     kfree_skb(skb);
->>> +     return err;
->>> +}
->>> +
->>>  int
->>>  virtio_transport_dgram_enqueue(struct vsock_sock *vsk,
->>>                              struct sockaddr_vm *remote_addr,
->>>                              struct msghdr *msg,
->>>                              size_t dgram_len)
->>>  {
->>> -     return -EOPNOTSUPP;
->>> +     /* Here we are only using the info struct to retain style uniformity
->>> +      * and to ease future refactoring and merging.
->>> +      */
->>> +     struct virtio_vsock_pkt_info info = {
->>> +             .op = VIRTIO_VSOCK_OP_RW,
->>> +             .remote_cid = remote_addr->svm_cid,
->>> +             .remote_port = remote_addr->svm_port,
->>> +             .remote_flags = remote_addr->svm_flags,
->>> +             .msg = msg,
->>> +             .vsk = vsk,
->>> +             .pkt_len = dgram_len,
->>> +     };
->>> +
->>> +     return virtio_transport_dgram_send_pkt_info(vsk, &info);
->>>  }
->>>  EXPORT_SYMBOL_GPL(virtio_transport_dgram_enqueue);
->>>
->>> --
->>> 2.20.1
->>
->> Thanks, Arseniy
