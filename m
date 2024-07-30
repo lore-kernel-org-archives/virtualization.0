@@ -1,610 +1,430 @@
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC358167D80
-	for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 02:17:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE5327FBD1
+	for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 02:49:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722305831; cv=none; b=rl0Bdxz28CyiZLLRaHStI/gR2Gmf4W8WFQas9QRl2W9TiHZnxlarfB/dkEeZFlKUnFmcWflYK9plt/f8lu8lRj/qnJEtwoSSichx9pMFrUBC82tJgtbem5+1nmjtlBm2ecIBtcIqjATSgnD8B1PMe+wt3sO/VBbhfd1dOHxTRm8=
+	t=1722307742; cv=none; b=L1ZlDFrQ8vWhQA52rTEEsmAKgmAwZEaUrImjo+dCJ+WwVBoHj4PztFvINWEeBBHRn5pxLsiLfE5wUI5Im/btMPqxfjfeb0TYL8ORoh/EqbkVO2Yf98mK2tPosNqf4xv2m732wZ/gQwCpk8vAyFr75ApN1sGH7hr7T01fZgoIW1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722305831; c=relaxed/simple;
-	bh=pMAK4ghJn79zu6qjMPzKmx0UMNpwVcVW8pDsTGD9Ahk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hIWKySF7T59RBIgovaB2qIy9WEgP3lsdJPmo1IJJ6jKjDOBNqQra7xXVSKvsxUPmkH5iDuoQwD/iUL97xhztCI5TnPx0rtuJrf9x8g+v7tiRndxSiqyLnEYRYhZtEaGbrKWU3wO83WdqJOouQix8CidNvnjLnn3o6HV+WeRl5AU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=BJhwpa6X; arc=none smtp.client-ip=46.235.227.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1722307742; c=relaxed/simple;
+	bh=CN4oBLV7oPPC0x0IBPU4jZj3bve7Ad4RaWjSPS36orI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jKXhlNi3Rramf04XdbzYtkRafxypK8hpvSkUfRBiVshNN+39wC5FMTtweRDhX9CRTPMgp9RWVtcc5XIt2qYz8SIUqnCGw85SxxVmbHeXnGYcM7EIgURp66s9jIZwlIgQJqtJyzz8/aDKiajtDFC2guODfn6f9Zw1l8jcxyVSQ5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JDaYzMVA; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="BJhwpa6X"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1722305826;
-	bh=pMAK4ghJn79zu6qjMPzKmx0UMNpwVcVW8pDsTGD9Ahk=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=BJhwpa6XXzX7fq7uhuIc5KXBAUnED7e+E1/hVdm48XXLXrhz51+mZ9hqGn0avQu7G
-	 bSBDPp9zyFaExpEYsZT9adz3pLGIiK6zSsOExphu0u7dUFW71xe55g479Of1nzjZfw
-	 3O85oNlW+RFhEmiCFMCKxJwB2eQ86XTL3xJPYAbnRpqQE3+nwoxZH8ChJ/gu9hjVUR
-	 t6mnqd9EK47gP7MPSyki1ZFcbx8ROJeK9wMBFGn0JT2Kh/GGfzf1+QACp3kWvJ3Ca/
-	 ECpVBd777AUc/paIbjL9ns0PLDUJiZGlydclo1K1xy+JcV0VvmpWf/Hl7LR3H6PfWT
-	 X/4eWcZNwsaJA==
-Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 1BBFE3782191;
-	Tue, 30 Jul 2024 02:17:01 +0000 (UTC)
-From: Vignesh Raman <vignesh.raman@collabora.com>
-To: dri-devel@lists.freedesktop.org
-Cc: daniels@collabora.com,
-	helen.koike@collabora.com,
-	airlied@gmail.com,
-	daniel@ffwll.ch,
-	robdclark@gmail.com,
-	guilherme.gallo@collabora.com,
-	sergi.blanch.torne@collabora.com,
-	deborah.brouwer@collabora.com,
-	dmitry.baryshkov@linaro.org,
-	mcanal@igalia.com,
-	melissa.srw@gmail.com,
-	linux-mediatek@lists.infradead.org,
-	linux-amlogic@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	amd-gfx@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v9 6/6] drm/ci: rockchip: add tests for rockchip display driver
-Date: Tue, 30 Jul 2024 07:45:41 +0530
-Message-ID: <20240730021545.912271-7-vignesh.raman@collabora.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240730021545.912271-1-vignesh.raman@collabora.com>
-References: <20240730021545.912271-1-vignesh.raman@collabora.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JDaYzMVA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722307739;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iODY1leMHYWVIGb4Xzg4M+NjPzry465TvBbXtmSDHsA=;
+	b=JDaYzMVAJRW7VFEAGUtUdaGsyivf0IE0K9h+7lw5KD0oQe8UAoLrJmwHTANUkrPRTLyg/J
+	iY+nCETRhlSWTmjQPLZksx1OhX7N5/+JKkfwAMeuVJsTsJ1cpT7TUX7GX9zJK2nNu7+F8b
+	KnWemWxBdRi3cAU0eOc0zHizEsBCMdQ=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-517-A5fjQoksMbWBbhOm9FD8xA-1; Mon, 29 Jul 2024 22:48:54 -0400
+X-MC-Unique: A5fjQoksMbWBbhOm9FD8xA-1
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-7a28217cfecso4357552a12.2
+        for <virtualization@lists.linux.dev>; Mon, 29 Jul 2024 19:48:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722307733; x=1722912533;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iODY1leMHYWVIGb4Xzg4M+NjPzry465TvBbXtmSDHsA=;
+        b=ZBiolFv90m5NPEIEwYv2B2bzeWf5lm4GNzayqVJWf4r5GyMMOaON00o0fFF/cDLDVG
+         k8/woO6CQ+odM9pRxb30uYrPsJBa6wqM2OqG7AHvB15MjE7UZ7dRODkWHBrd7+8fCw1D
+         Mso0fvyTc6txznfpKRCVTcbvInIlG6MVvXygEj0FBrsHnXyhKhJtHaeXMc2eRLnMTLfN
+         /+pUHYC/bGOjTMsXpGyz5a2/yHS0gtsODzilNJFTY3fKLy4Nyxidh8RVUnWDCPUolJs9
+         3iYCkgNogga6ysNB1e6bISmmwfkYGnpJJ4sfaSCkgQ7Oxdj/PfnIK8Addzfk2KURNCaq
+         iuKg==
+X-Forwarded-Encrypted: i=1; AJvYcCVE8MOb2C/VtayWvJvAODveoAdsuTHPvC7BGWlvwOJmCg+Y8RkBZN6HnbfXzjkkBF0MoejQA3LZykVAj0VQUXqVuhpuqE0eid7DcJ7QxME=
+X-Gm-Message-State: AOJu0YzjWXyxpHAUl14agTaRb6Sv0MynX4c8q94xvqvZ6pnyFmXl5LbR
+	3f+IpJmCvsUYXaC3sKKLenttcGIPTy8LWY60IzY1FEKjJSueTFQPAqGTv6ifC13Qi7a6hzHJOPG
+	Ykx+hxO4++snoSuBfAWihRk7IYqT4+tsiJpTmvMX3i2kMfgrRLqfckXWnm6lnGw6NePY7zCGWPg
+	XKhm2XHPDsPyCmTrjfXaP5GpvsHKRvmfGOrx84sJk=
+X-Received: by 2002:a05:6a20:1125:b0:1bd:a048:7fcc with SMTP id adf61e73a8af0-1c4a14f9962mr8765568637.46.1722307733623;
+        Mon, 29 Jul 2024 19:48:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGGhehkFOKLNQ5aUQSJXM+7gJWaTZq73T0ej7zgx3l+6K5YfYEu7MXBzJ5Lmk1/6eevl5afbwOPhT0m2bXmcTM=
+X-Received: by 2002:a05:6a20:1125:b0:1bd:a048:7fcc with SMTP id
+ adf61e73a8af0-1c4a14f9962mr8765538637.46.1722307733089; Mon, 29 Jul 2024
+ 19:48:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CACGkMEs49KckODWSpe7VPfTeshogni0_eOdkMO0b7zW2A5YX2w@mail.gmail.com>
+ <20240729060529.93243-1-21cnbao@gmail.com>
+In-Reply-To: <20240729060529.93243-1-21cnbao@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 30 Jul 2024 10:48:40 +0800
+Message-ID: <CACGkMEuv4M_NaUQPHH59MPevGoJJoYb70LykcCODD=nUvik3ZQ@mail.gmail.com>
+Subject: Re: [PATCH RFC 1/5] vpda: try to fix the potential crash due to
+ misusing __GFP_NOFAIL
+To: Barry Song <21cnbao@gmail.com>
+Cc: 42.hyeyoo@gmail.com, akpm@linux-foundation.org, cl@linux.com, 
+	eperezma@redhat.com, hailong.liu@oppo.com, hch@infradead.org, 
+	iamjoonsoo.kim@lge.com, linux-mm@kvack.org, lstoakes@gmail.com, 
+	maxime.coquelin@redhat.com, mhocko@suse.com, mst@redhat.com, 
+	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev, 
+	torvalds@linux-foundation.org, urezki@gmail.com, v-songbaohua@oppo.com, 
+	vbabka@suse.cz, virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-For rockchip rk3288 and rk3399, the display driver is rockchip
-and gpu driver is panfrost. Currently, in drm-ci for rockchip
-rk3288 and rk3399, only the gpu driver is tested. Refactor
-the existing rockchip jobs to test both display and gpu driver
-and update xfails.
+On Mon, Jul 29, 2024 at 2:05=E2=80=AFPM Barry Song <21cnbao@gmail.com> wrot=
+e:
+>
+> On Mon, Jul 29, 2024 at 3:42=E2=80=AFPM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Thu, Jul 25, 2024 at 3:00=E2=80=AFPM Barry Song <21cnbao@gmail.com> =
+wrote:
+> > >
+> > > On Thu, Jul 25, 2024 at 6:08=E2=80=AFPM Michal Hocko <mhocko@suse.com=
+> wrote:
+> > > >
+> > > > On Thu 25-07-24 10:50:45, Barry Song wrote:
+> > > > > On Thu, Jul 25, 2024 at 12:27=E2=80=AFAM Michal Hocko <mhocko@sus=
+e.com> wrote:
+> > > > > >
+> > > > > > On Wed 24-07-24 20:55:40, Barry Song wrote:
+> > > > [...]
+> > > > > > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/v=
+dpa/vdpa_user/iova_domain.c
+> > > > > > > index 791d38d6284c..eff700e5f7a2 100644
+> > > > > > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > > > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > > > > @@ -287,28 +287,44 @@ void vduse_domain_remove_user_bounce_pa=
+ges(struct vduse_iova_domain *domain)
+> > > > > > >  {
+> > > > > > >       struct vduse_bounce_map *map;
+> > > > > > >       unsigned long i, count;
+> > > > > > > +     struct page **pages =3D NULL;
+> > > > > > >
+> > > > > > >       write_lock(&domain->bounce_lock);
+> > > > > > >       if (!domain->user_bounce_pages)
+> > > > > > >               goto out;
+> > > > > > > -
+> > > > > > >       count =3D domain->bounce_size >> PAGE_SHIFT;
+> > > > > > > +     write_unlock(&domain->bounce_lock);
+> > > > > > > +
+> > > > > > > +     pages =3D kmalloc_array(count, sizeof(*pages), GFP_KERN=
+EL | __GFP_NOFAIL);
+> > > > > > > +     for (i =3D 0; i < count; i++)
+> > > > > > > +             pages[i] =3D alloc_page(GFP_KERNEL | __GFP_NOFA=
+IL);
+> > > > > >
+> > > > > > AFAICS vduse_domain_release calls this function with
+> > > > > > spin_lock(&domain->iotlb_lock) so dropping &domain->bounce_lock=
+ is not
+> > > > > > sufficient.
+> > > > >
+> > > > > yes. this is true:
+> > > > >
+> > > > > static int vduse_domain_release(struct inode *inode, struct file =
+*file)
+> > > > > {
+> > > > >         struct vduse_iova_domain *domain =3D file->private_data;
+> > > > >
+> > > > >         spin_lock(&domain->iotlb_lock);
+> > > > >         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
+> > > > >         vduse_domain_remove_user_bounce_pages(domain);
+> > > > >         vduse_domain_free_kernel_bounce_pages(domain);
+> > > > >         spin_unlock(&domain->iotlb_lock);
+> > > > >         put_iova_domain(&domain->stream_iovad);
+> > > > >         put_iova_domain(&domain->consistent_iovad);
+> > > > >         vhost_iotlb_free(domain->iotlb);
+> > > > >         vfree(domain->bounce_maps);
+> > > > >         kfree(domain);
+> > > > >
+> > > > >         return 0;
+> > > > > }
+> > > > >
+> > > > > This is quite a pain. I admit I don't have knowledge of this driv=
+er, and I don't
+> > > > > think it's safe to release two locks and then reacquire them. The=
+ situation is
+> > > > > rather complex. Therefore, I would prefer if the VDPA maintainers=
+ could
+> > > > > take the lead in implementing a proper fix.
+> > > >
+> > > > Would it be possible to move all that work to a deferred context?
+> > >
+> > > My understanding is that we need to be aware of both the iotlb_lock a=
+nd
+> > > bounce_lock to implement the correct changes. As long as we still nee=
+d
+> > > to acquire these two locks in a deferred context, there doesn't seem =
+to
+> > > be any difference.
+> > >
+> > > I can do the memory pre-allocation before spin_lock(&domain->iotlb_lo=
+ck),
+> > > but I have no knowledge whether the "count" will change after I make
+> > > the preallocation.
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c
+> > > b/drivers/vdpa/vdpa_user/iova_domain.c
+> > > index 791d38d6284c..7ec87ef33d42 100644
+> > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> > > @@ -544,9 +544,12 @@ static int vduse_domain_release(struct inode
+> > > *inode, struct file *file)
+> > >  {
+> > >         struct vduse_iova_domain *domain =3D file->private_data;
+> > >
+> > > +      struct page **pages;
+> > > +      spin_lock(&domain->iotlb_lock); maybe also + bounce_lock?
+> > > +      count =3D domain->bounce_size >> PAGE_SHIFT;
+> > > +      spin_unlock(&domain->iotlb_lock);
+> >
+> > We probably don't need any lock here as bounce_size won't be changed .
+> >
+> > > +
+> > > +       preallocate_count_pages(pages, count);
+> > > +
+> > > ....
+> > >         spin_lock(&domain->iotlb_lock);
+> > >         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
+> > > -       vduse_domain_remove_user_bounce_pages(domain);
+> > > +       vduse_domain_remove_user_bounce_pages(domain, pages);
+> > >         vduse_domain_free_kernel_bounce_pages(domain);
+> > >         spin_unlock(&domain->iotlb_lock);
+> > >         put_iova_domain(&domain->stream_iovad);
+> >
+> > This seems to work.
+>
+> Thanks, Jason. I personally have no knowledge of vDPA. Could you please h=
+elp
+> review and test the patch below?
+>
+> From 1f3cae091159bfcaffdb4a999a4a8e37db2eacf1 Mon Sep 17 00:00:00 2001
+> From: Barry Song <v-songbaohua@oppo.com>
+> Date: Wed, 24 Jul 2024 20:55:40 +1200
+> Subject: [PATCH RFC v2] vpda: try to fix the potential crash due to misus=
+ing
+>  __GFP_NOFAIL
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=3DUTF-8
+> Content-Transfer-Encoding: 8bit
+>
+> mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
+> __GFP_NOFAIL without direct reclamation may just result in a busy
+> loop within non-sleepable contexts.
+>
+> static inline struct page *
+> __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>                                                 struct alloc_context *ac)
+> {
+>         ...
+>         /*
+>          * Make sure that __GFP_NOFAIL request doesn't leak out and make =
+sure
+>          * we always retry
+>          */
+>         if (gfp_mask & __GFP_NOFAIL) {
+>                 /*
+>                  * All existing users of the __GFP_NOFAIL are blockable, =
+so warn
+>                  * of any new users that actually require GFP_NOWAIT
+>                  */
+>                 if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+>                         goto fail;
+>                 ...
+>         }
+>         ...
+> fail:
+>         warn_alloc(gfp_mask, ac->nodemask,
+>                         "page allocation failure: order:%u", order);
+> got_pg:
+>         return page;
+> }
+>
+> Let's move the memory allocation out of the atomic context and use
+> the normal sleepable context to get pages.
+>
+> [RFC]: This has only been compile-tested; I'd prefer if the VDPA maintain=
+ers
+> handles it.
+>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Cc: "Eugenio P=C3=A9rez" <eperezma@redhat.com>
+> Cc: Maxime Coquelin <maxime.coquelin@redhat.com>
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+> ---
+>  drivers/vdpa/vdpa_user/iova_domain.c | 21 ++++++++++++++++-----
+>  drivers/vdpa/vdpa_user/iova_domain.h |  3 ++-
+>  drivers/vdpa/vdpa_user/vduse_dev.c   | 13 ++++++++++++-
+>  3 files changed, 30 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_use=
+r/iova_domain.c
+> index 791d38d6284c..014809ac2b7c 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> @@ -283,7 +283,7 @@ int vduse_domain_add_user_bounce_pages(struct vduse_i=
+ova_domain *domain,
+>         return ret;
+>  }
+>
+> -void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *dom=
+ain)
+> +void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *dom=
+ain, struct page **pages)
+>  {
+>         struct vduse_bounce_map *map;
+>         unsigned long i, count;
+> @@ -294,15 +294,16 @@ void vduse_domain_remove_user_bounce_pages(struct v=
+duse_iova_domain *domain)
+>
+>         count =3D domain->bounce_size >> PAGE_SHIFT;
+>         for (i =3D 0; i < count; i++) {
+> -               struct page *page =3D NULL;
+> +               struct page *page =3D pages[i];
+>
+>                 map =3D &domain->bounce_maps[i];
+> -               if (WARN_ON(!map->bounce_page))
+> +               if (WARN_ON(!map->bounce_page)) {
+> +                       put_page(page);
+>                         continue;
+> +               }
+>
+>                 /* Copy user page to kernel page if it's in use */
+>                 if (map->orig_phys !=3D INVALID_PHYS_ADDR) {
+> -                       page =3D alloc_page(GFP_ATOMIC | __GFP_NOFAIL);
+>                         memcpy_from_page(page_address(page),
+>                                          map->bounce_page, 0, PAGE_SIZE);
+>                 }
+> @@ -543,10 +544,19 @@ static int vduse_domain_mmap(struct file *file, str=
+uct vm_area_struct *vma)
+>  static int vduse_domain_release(struct inode *inode, struct file *file)
+>  {
+>         struct vduse_iova_domain *domain =3D file->private_data;
+> +       struct page **pages =3D NULL;
+> +       unsigned long count, i;
+> +
+> +       if (domain->user_bounce_pages) {
+> +               count =3D domain->bounce_size >> PAGE_SHIFT;
+> +               pages =3D kmalloc_array(count, sizeof(*pages), GFP_KERNEL=
+ | __GFP_NOFAIL);
+> +               for (i =3D 0; i < count; i++)
+> +                       pages[i] =3D alloc_page(GFP_KERNEL | __GFP_NOFAIL=
+);
+> +       }
+>
+>         spin_lock(&domain->iotlb_lock);
+>         vduse_iotlb_del_range(domain, 0, ULLONG_MAX);
+> -       vduse_domain_remove_user_bounce_pages(domain);
+> +       vduse_domain_remove_user_bounce_pages(domain, pages);
+>         vduse_domain_free_kernel_bounce_pages(domain);
+>         spin_unlock(&domain->iotlb_lock);
+>         put_iova_domain(&domain->stream_iovad);
+> @@ -554,6 +564,7 @@ static int vduse_domain_release(struct inode *inode, =
+struct file *file)
+>         vhost_iotlb_free(domain->iotlb);
+>         vfree(domain->bounce_maps);
+>         kfree(domain);
+> +       kfree(pages);
+>
+>         return 0;
+>  }
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_use=
+r/iova_domain.h
+> index f92f22a7267d..db0b793d86db 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.h
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.h
+> @@ -74,7 +74,8 @@ void vduse_domain_reset_bounce_map(struct vduse_iova_do=
+main *domain);
+>  int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
+>                                        struct page **pages, int count);
+>
+> -void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *dom=
+ain);
+> +void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *dom=
+ain,
+> +                                          struct page **pages);
+>
+>  void vduse_domain_destroy(struct vduse_iova_domain *domain);
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index 7ae99691efdf..df7c1b6f1350 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -1030,6 +1030,8 @@ static int vduse_dev_queue_irq_work(struct vduse_de=
+v *dev,
+>  static int vduse_dev_dereg_umem(struct vduse_dev *dev,
+>                                 u64 iova, u64 size)
+>  {
+> +       struct page **pages =3D NULL;
+> +       unsigned long count, i;
+>         int ret;
+>
+>         mutex_lock(&dev->mem_lock);
+> @@ -1044,13 +1046,22 @@ static int vduse_dev_dereg_umem(struct vduse_dev =
+*dev,
+>         if (dev->umem->iova !=3D iova || size !=3D dev->domain->bounce_si=
+ze)
+>                 goto unlock;
+>
+> -       vduse_domain_remove_user_bounce_pages(dev->domain);
+> +       if (dev->domain->user_bounce_pages) {
+> +               count =3D dev->domain->bounce_size >> PAGE_SHIFT;
+> +               pages =3D kmalloc_array(count, sizeof(*pages),
+> +                                     GFP_KERNEL | __GFP_NOFAIL);
+> +               for (i =3D 0; i < count; i++)
+> +                       pages[i] =3D alloc_page(GFP_KERNEL | __GFP_NOFAIL=
+);
+> +       }
 
-Since the correct driver name is passed from the job to test gpu
-and display driver, remove the check to set IGT_FORCE_DRIVER
-based on driver name for rockchip jobs.
+Nit: there's some code duplication with vduse_domain_release().
 
-Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
----
+Others look good to me.
 
-v2:
-  - Refactor the patch to rename job to indicate display driver testing,
-    rename the existing xfail files.
+Would you like to post a formal patch?
 
-v3:
-  - Add the job name in GPU_VERSION and use it for xfail file names
-    instead of using DRIVER_NAME. Also update xfails.
+Thanks
 
-v4:
-  - Remove the display suffix in job and rename xfails accordingly.
-    Remove the change adding job name in GPU_VERSION.
-
-v5:
-  - Add rockchip-display job and skip driver-specfic tests.
-
-v6:
-  - Squash commits for display and gpu driver testing. Reword the commit message.
-
-v7:
-  - Rebase with recent drm-ci fixes and retest with latest IGT.
-
-v8:
-  - Add the link to the flaky test bug report and add header for each flaky test.
-
-v9:
-  - Skip display functionality tests for GPU-only drivers and update expectation files.
-
----
- drivers/gpu/drm/ci/igt_runner.sh              |  3 -
- drivers/gpu/drm/ci/test.yml                   | 48 +++++++---
- .../drm/ci/xfails/panfrost-rk3288-fails.txt   |  1 +
- .../drm/ci/xfails/panfrost-rk3288-skips.txt   | 26 ++++++
- .../drm/ci/xfails/panfrost-rk3399-fails.txt   |  1 +
- .../drm/ci/xfails/panfrost-rk3399-flakes.txt  |  6 ++
- .../drm/ci/xfails/panfrost-rk3399-skips.txt   | 26 ++++++
- .../drm/ci/xfails/rockchip-rk3288-fails.txt   | 21 +++--
- .../drm/ci/xfails/rockchip-rk3288-flakes.txt  |  6 ++
- .../drm/ci/xfails/rockchip-rk3288-skips.txt   | 54 +----------
- .../drm/ci/xfails/rockchip-rk3399-fails.txt   | 89 +++++++++++++++++--
- .../drm/ci/xfails/rockchip-rk3399-flakes.txt  | 50 ++++++++++-
- .../drm/ci/xfails/rockchip-rk3399-skips.txt   |  7 +-
- 13 files changed, 249 insertions(+), 89 deletions(-)
- create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3288-fails.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3288-skips.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3399-fails.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3399-flakes.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-rk3399-skips.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3288-flakes.txt
-
-diff --git a/drivers/gpu/drm/ci/igt_runner.sh b/drivers/gpu/drm/ci/igt_runner.sh
-index 1578a2a47a54..f38836ec837c 100755
---- a/drivers/gpu/drm/ci/igt_runner.sh
-+++ b/drivers/gpu/drm/ci/igt_runner.sh
-@@ -20,9 +20,6 @@ cat /sys/kernel/debug/dri/*/state
- set -e
- 
- case "$DRIVER_NAME" in
--    rockchip)
--        export IGT_FORCE_DRIVER="panfrost"
--        ;;
-     amdgpu|vkms)
-         # Cannot use HWCI_KERNEL_MODULES as at that point we don't have the module in /lib
-         mv /install/modules/lib/modules/* /lib/modules/. || true
-diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
-index 5ccf57b3bf91..b22b2cf8f06f 100644
---- a/drivers/gpu/drm/ci/test.yml
-+++ b/drivers/gpu/drm/ci/test.yml
-@@ -160,33 +160,57 @@ msm:sdm845:
-   script:
-     - ./install/bare-metal/cros-servo.sh
- 
--rockchip:rk3288:
--  extends:
--    - .lava-igt:arm32
-+.rockchip-device:
-+  variables:
-+    DTB: ${DEVICE_TYPE}
-+    BOOT_METHOD: depthcharge
-+
-+.rockchip-display:
-   stage: rockchip
-   variables:
-     DRIVER_NAME: rockchip
-+
-+.rk3288:
-+  extends:
-+    - .lava-igt:arm32
-+    - .rockchip-device
-+  variables:
-     DEVICE_TYPE: rk3288-veyron-jaq
--    DTB: ${DEVICE_TYPE}
--    BOOT_METHOD: depthcharge
--    KERNEL_IMAGE_TYPE: "zimage"
-     GPU_VERSION: rk3288
-+    KERNEL_IMAGE_TYPE: "zimage"
-     RUNNER_TAG: mesa-ci-x86-64-lava-rk3288-veyron-jaq
- 
--rockchip:rk3399:
-+.rk3399:
-   extends:
-     - .lava-igt:arm64
--  stage: rockchip
-+    - .rockchip-device
-   parallel: 2
-   variables:
--    DRIVER_NAME: rockchip
-     DEVICE_TYPE: rk3399-gru-kevin
--    DTB: ${DEVICE_TYPE}
--    BOOT_METHOD: depthcharge
--    KERNEL_IMAGE_TYPE: ""
-     GPU_VERSION: rk3399
-+    KERNEL_IMAGE_TYPE: ""
-     RUNNER_TAG: mesa-ci-x86-64-lava-rk3399-gru-kevin
- 
-+rockchip:rk3288:
-+  extends:
-+    - .rk3288
-+    - .rockchip-display
-+
-+panfrost:rk3288:
-+  extends:
-+    - .rk3288
-+    - .panfrost-gpu
-+
-+rockchip:rk3399:
-+  extends:
-+    - .rk3399
-+    - .rockchip-display
-+
-+panfrost:rk3399:
-+  extends:
-+    - .rk3399
-+    - .panfrost-gpu
-+
- .i915:
-   extends:
-     - .lava-igt:x86_64
-diff --git a/drivers/gpu/drm/ci/xfails/panfrost-rk3288-fails.txt b/drivers/gpu/drm/ci/xfails/panfrost-rk3288-fails.txt
-new file mode 100644
-index 000000000000..4a2f4b6b14c1
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/panfrost-rk3288-fails.txt
-@@ -0,0 +1 @@
-+panfrost/panfrost_prime@gem-prime-import,Crash
-diff --git a/drivers/gpu/drm/ci/xfails/panfrost-rk3288-skips.txt b/drivers/gpu/drm/ci/xfails/panfrost-rk3288-skips.txt
-new file mode 100644
-index 000000000000..feeed89b6c3f
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/panfrost-rk3288-skips.txt
-@@ -0,0 +1,26 @@
-+# Suspend to RAM seems to be broken on this machine
-+.*suspend.*
-+
-+# Skip driver specific tests
-+^amdgpu.*
-+^msm.*
-+nouveau_.*
-+^v3d.*
-+^vc4.*
-+^vmwgfx*
-+
-+# Skip intel specific tests
-+gem_.*
-+i915_.*
-+tools_test.*
-+
-+# Panfrost is not a KMS driver, so skip the KMS tests
-+kms_.*
-+
-+# Skip display functionality tests for GPU-only drivers
-+dumb_buffer.*
-+fbdev.*
-+
-+# Currently fails and causes coverage loss for other tests
-+# since core_getversion also fails.
-+core_hotunplug.*
-diff --git a/drivers/gpu/drm/ci/xfails/panfrost-rk3399-fails.txt b/drivers/gpu/drm/ci/xfails/panfrost-rk3399-fails.txt
-new file mode 100644
-index 000000000000..fe8ce2ce33e6
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/panfrost-rk3399-fails.txt
-@@ -0,0 +1 @@
-+panfrost/panfrost_prime@gem-prime-import,Fail
-diff --git a/drivers/gpu/drm/ci/xfails/panfrost-rk3399-flakes.txt b/drivers/gpu/drm/ci/xfails/panfrost-rk3399-flakes.txt
-new file mode 100644
-index 000000000000..ac4f8f7244d4
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/panfrost-rk3399-flakes.txt
-@@ -0,0 +1,6 @@
-+# Board Name: rk3399-gru-kevin
-+# Bug Report: https://lore.kernel.org/dri-devel/5cc34a8b-c1fa-4744-9031-2d33ecf41011@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-g0df7b9b97
-+# Linux Version: 6.9.0-rc7
-+panfrost/panfrost_submit@pan-unhandled-pagefault
-diff --git a/drivers/gpu/drm/ci/xfails/panfrost-rk3399-skips.txt b/drivers/gpu/drm/ci/xfails/panfrost-rk3399-skips.txt
-new file mode 100644
-index 000000000000..feeed89b6c3f
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/panfrost-rk3399-skips.txt
-@@ -0,0 +1,26 @@
-+# Suspend to RAM seems to be broken on this machine
-+.*suspend.*
-+
-+# Skip driver specific tests
-+^amdgpu.*
-+^msm.*
-+nouveau_.*
-+^v3d.*
-+^vc4.*
-+^vmwgfx*
-+
-+# Skip intel specific tests
-+gem_.*
-+i915_.*
-+tools_test.*
-+
-+# Panfrost is not a KMS driver, so skip the KMS tests
-+kms_.*
-+
-+# Skip display functionality tests for GPU-only drivers
-+dumb_buffer.*
-+fbdev.*
-+
-+# Currently fails and causes coverage loss for other tests
-+# since core_getversion also fails.
-+core_hotunplug.*
-diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt
-index 99928a24e636..ea7b2ceb95b9 100644
---- a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt
-+++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt
-@@ -1,7 +1,18 @@
-+core_setmaster@master-drop-set-root,Crash
-+core_setmaster@master-drop-set-user,Crash
-+core_setmaster_vs_auth,Crash
-+device_reset@cold-reset-bound,Crash
-+device_reset@reset-bound,Crash
-+device_reset@unbind-cold-reset-rebind,Crash
-+device_reset@unbind-reset-rebind,Crash
- dumb_buffer@create-clear,Crash
--dumb_buffer@create-valid-dumb,Crash
- dumb_buffer@invalid-bpp,Crash
--dumb_buffer@map-invalid-size,Crash
--dumb_buffer@map-uaf,Crash
--dumb_buffer@map-valid,Crash
--panfrost/panfrost_prime@gem-prime-import,Crash
-+fbdev@pan,Crash
-+kms_cursor_crc@cursor-onscreen-32x10,Crash
-+kms_cursor_crc@cursor-onscreen-32x32,Crash
-+kms_cursor_crc@cursor-random-32x10,Crash
-+kms_cursor_crc@cursor-sliding-32x32,Crash
-+kms_cursor_legacy@basic-flip-before-cursor-atomic,Fail
-+kms_cursor_legacy@cursor-vs-flip-legacy,Fail
-+kms_prop_blob@invalid-set-prop,Crash
-+kms_prop_blob@invalid-set-prop-any,Crash
-diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-flakes.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-flakes.txt
-new file mode 100644
-index 000000000000..7ede273aab20
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-flakes.txt
-@@ -0,0 +1,6 @@
-+# Board Name: rk3288-veyron-jaq
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
-+# Failure Rate: 100
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_cursor_legacy@flip-vs-cursor-atomic
-diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt
-index e86ff00dc58a..eb16b29dee48 100644
---- a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt
-+++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-skips.txt
-@@ -1,60 +1,11 @@
- # Suspend to RAM seems to be broken on this machine
- .*suspend.*
- 
--# Too unstable, machine ends up hanging after lots of Oopses
--kms_cursor_legacy.*
--
--# Started hanging the machine on Linux 5.19-rc2:
--#
--# [IGT] kms_plane_lowres: executing
--# [IGT] kms_plane_lowres: starting subtest pipe-F-tiling-y
--# [IGT] kms_plane_lowres: exiting, ret=77
--# Console: switching to colour frame buffer device 170x48
--# rockchip-drm display-subsystem: [drm] *ERROR* flip_done timed out
--# rockchip-drm display-subsystem: [drm] *ERROR* [CRTC:35:crtc-0] commit wait timed out
--# BUG: spinlock bad magic on CPU#3, kms_plane_lowre/482
--# 8<--- cut here ---
--# Unable to handle kernel paging request at virtual address 7812078e
--# [7812078e] *pgd=00000000
--# Internal error: Oops: 5 [#1] SMP ARM
--# Modules linked in:
--# CPU: 3 PID: 482 Comm: kms_plane_lowre Tainted: G        W         5.19.0-rc2-323596-g00535de92171 #1
--# Hardware name: Rockchip (Device Tree)
--# Process kms_plane_lowre (pid: 482, stack limit = 0x1193ac2b)
--#  spin_dump from do_raw_spin_lock+0xa4/0xe8
--#  do_raw_spin_lock from wait_for_completion_timeout+0x2c/0x120
--#  wait_for_completion_timeout from drm_crtc_commit_wait+0x18/0x7c
--#  drm_crtc_commit_wait from drm_atomic_helper_wait_for_dependencies+0x44/0x168
--#  drm_atomic_helper_wait_for_dependencies from commit_tail+0x34/0x180
--#  commit_tail from drm_atomic_helper_commit+0x164/0x18c
--#  drm_atomic_helper_commit from drm_atomic_commit+0xac/0xe4
--#  drm_atomic_commit from drm_client_modeset_commit_atomic+0x23c/0x284
--#  drm_client_modeset_commit_atomic from drm_client_modeset_commit_locked+0x60/0x1c8
--#  drm_client_modeset_commit_locked from drm_client_modeset_commit+0x24/0x40
--#  drm_client_modeset_commit from drm_fbdev_client_restore+0x58/0x94
--#  drm_fbdev_client_restore from drm_client_dev_restore+0x70/0xbc
--#  drm_client_dev_restore from drm_release+0xf4/0x114
--#  drm_release from __fput+0x74/0x240
--#  __fput from task_work_run+0x84/0xb4
--#  task_work_run from do_exit+0x34c/0xa20
--#  do_exit from do_group_exit+0x34/0x98
--#  do_group_exit from __wake_up_parent+0x0/0x18
--# Code: e595c008 12843d19 03e00000 03093168 (15940508)
--# ---[ end trace 0000000000000000 ]---
--# note: kms_plane_lowre[482] exited with preempt_count 1
--# Fixing recursive fault but reboot is needed!
--kms_plane_lowres@pipe-F-tiling-y
--
--# Take too long, we have only two machines, and these are very flaky
--kms_cursor_crc.*
--
--# Machine is hanging in this test, so skip it
--kms_pipe_crc_basic@disable-crc-after-crtc
--
- # Skip driver specific tests
- ^amdgpu.*
- ^msm.*
- nouveau_.*
-+^panfrost.*
- ^v3d.*
- ^vc4.*
- ^vmwgfx*
-@@ -64,9 +15,6 @@ gem_.*
- i915_.*
- tools_test.*
- 
--# Panfrost is not a KMS driver, so skip the KMS tests
--kms_.*
--
- # Currently fails and causes coverage loss for other tests
- # since core_getversion also fails.
- core_hotunplug.*
-diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt
-index 70053ea74b5d..9309ff15e23a 100644
---- a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt
-+++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt
-@@ -1,7 +1,84 @@
--dumb_buffer@create-clear,Fail
--dumb_buffer@create-valid-dumb,Fail
-+device_reset@cold-reset-bound,Fail
-+device_reset@reset-bound,Fail
-+device_reset@unbind-cold-reset-rebind,Fail
-+device_reset@unbind-reset-rebind,Fail
-+dumb_buffer@create-clear,Crash
- dumb_buffer@invalid-bpp,Fail
--dumb_buffer@map-invalid-size,Fail
--dumb_buffer@map-uaf,Fail
--dumb_buffer@map-valid,Fail
--panfrost/panfrost_prime@gem-prime-import,Fail
-+kms_atomic_transition@modeset-transition,Fail
-+kms_atomic_transition@modeset-transition-fencing,Fail
-+kms_atomic_transition@plane-toggle-modeset-transition,Fail
-+kms_color@gamma,Fail
-+kms_color@legacy-gamma,Fail
-+kms_cursor_crc@cursor-alpha-opaque,Fail
-+kms_cursor_crc@cursor-alpha-transparent,Fail
-+kms_cursor_crc@cursor-dpms,Fail
-+kms_cursor_crc@cursor-offscreen-32x10,Fail
-+kms_cursor_crc@cursor-offscreen-32x32,Fail
-+kms_cursor_crc@cursor-offscreen-64x21,Fail
-+kms_cursor_crc@cursor-offscreen-64x64,Fail
-+kms_cursor_crc@cursor-onscreen-32x10,Fail
-+kms_cursor_crc@cursor-onscreen-32x32,Fail
-+kms_cursor_crc@cursor-onscreen-64x21,Fail
-+kms_cursor_crc@cursor-onscreen-64x64,Fail
-+kms_cursor_crc@cursor-random-32x10,Fail
-+kms_cursor_crc@cursor-random-32x32,Fail
-+kms_cursor_crc@cursor-random-64x21,Fail
-+kms_cursor_crc@cursor-random-64x64,Fail
-+kms_cursor_crc@cursor-rapid-movement-32x10,Fail
-+kms_cursor_crc@cursor-rapid-movement-32x32,Fail
-+kms_cursor_crc@cursor-rapid-movement-64x21,Fail
-+kms_cursor_crc@cursor-rapid-movement-64x64,Fail
-+kms_cursor_crc@cursor-size-change,Fail
-+kms_cursor_crc@cursor-sliding-32x10,Fail
-+kms_cursor_crc@cursor-sliding-32x32,Fail
-+kms_cursor_crc@cursor-sliding-64x21,Fail
-+kms_cursor_crc@cursor-sliding-64x64,Fail
-+kms_cursor_edge_walk@64x64-left-edge,Fail
-+kms_cursor_legacy@basic-flip-before-cursor-atomic,Fail
-+kms_cursor_legacy@basic-flip-before-cursor-legacy,Fail
-+kms_cursor_legacy@cursor-vs-flip-atomic,Fail
-+kms_cursor_legacy@cursor-vs-flip-legacy,Fail
-+kms_cursor_legacy@cursor-vs-flip-toggle,Fail
-+kms_cursor_legacy@flip-vs-cursor-atomic,Fail
-+kms_cursor_legacy@flip-vs-cursor-crc-atomic,Fail
-+kms_cursor_legacy@flip-vs-cursor-crc-legacy,Fail
-+kms_cursor_legacy@flip-vs-cursor-legacy,Fail
-+kms_cursor_legacy@long-nonblocking-modeset-vs-cursor-atomic,Fail
-+kms_flip@basic-flip-vs-wf_vblank,Fail
-+kms_flip@blocking-wf_vblank,Fail
-+kms_flip@dpms-vs-vblank-race,Fail
-+kms_flip@flip-vs-absolute-wf_vblank,Fail
-+kms_flip@flip-vs-blocking-wf-vblank,Fail
-+kms_flip@flip-vs-modeset-vs-hang,Fail
-+kms_flip@flip-vs-panning,Fail
-+kms_flip@flip-vs-panning-interruptible,Fail
-+kms_flip@flip-vs-panning-vs-hang,Fail
-+kms_flip@modeset-vs-vblank-race,Fail
-+kms_flip@modeset-vs-vblank-race-interruptible,Fail
-+kms_flip@plain-flip-fb-recreate,Fail
-+kms_flip@plain-flip-fb-recreate-interruptible,Fail
-+kms_flip@plain-flip-ts-check,Fail
-+kms_flip@plain-flip-ts-check-interruptible,Fail
-+kms_flip@wf_vblank-ts-check,Fail
-+kms_flip@wf_vblank-ts-check-interruptible,Fail
-+kms_invalid_mode@int-max-clock,Fail
-+kms_lease@lease-uevent,Fail
-+kms_lease@page-flip-implicit-plane,Fail
-+kms_pipe_crc_basic@compare-crc-sanitycheck-nv12,Fail
-+kms_pipe_crc_basic@compare-crc-sanitycheck-xr24,Fail
-+kms_pipe_crc_basic@disable-crc-after-crtc,Fail
-+kms_pipe_crc_basic@nonblocking-crc,Fail
-+kms_pipe_crc_basic@nonblocking-crc-frame-sequence,Fail
-+kms_pipe_crc_basic@read-crc,Fail
-+kms_pipe_crc_basic@read-crc-frame-sequence,Fail
-+kms_plane@pixel-format,Crash
-+kms_plane@pixel-format-source-clamping,Crash
-+kms_plane@plane-panning-bottom-right,Fail
-+kms_plane@plane-panning-top-left,Fail
-+kms_plane@plane-position-covered,Fail
-+kms_plane@plane-position-hole,Fail
-+kms_plane@plane-position-hole-dpms,Fail
-+kms_plane_cursor@primary,Fail
-+kms_plane_multiple@tiling-none,Fail
-+kms_rmfb@close-fd,Fail
-+kms_universal_plane@universal-plane-functional,Fail
-diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt
-index ac4f8f7244d4..d98f6a17343c 100644
---- a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt
-+++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt
-@@ -1,6 +1,48 @@
- # Board Name: rk3399-gru-kevin
--# Bug Report: https://lore.kernel.org/dri-devel/5cc34a8b-c1fa-4744-9031-2d33ecf41011@collabora.com/T/#u
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
- # Failure Rate: 50
--# IGT Version: 1.28-g0df7b9b97
--# Linux Version: 6.9.0-rc7
--panfrost/panfrost_submit@pan-unhandled-pagefault
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_bw@linear-tiling-1-displays-2560x1440p
-+
-+# Board Name: rk3399-gru-kevin
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_cursor_legacy@nonblocking-modeset-vs-cursor-atomic
-+
-+# Board Name: rk3399-gru-kevin
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_flip@dpms-vs-vblank-race-interruptible
-+
-+# Board Name: rk3399-gru-kevin
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_flip@flip-vs-absolute-wf_vblank-interruptible
-+
-+# Board Name: rk3399-gru-kevin
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_flip@flip-vs-wf_vblank-interruptible
-+
-+# Board Name: rk3399-gru-kevin
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_setmode@basic
-+
-+# Board Name: rk3399-gru-kevin
-+# Bug Report: https://lore.kernel.org/linux-rockchip/3e267d0c-fde4-4533-b001-6ab7d7c03546@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-gf13702b8e
-+# Linux Version: 6.10.0-rc5
-+kms_bw@connected-linear-tiling-1-displays-2560x1440p
-diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
-index 8f22ff6d8cb7..eb16b29dee48 100644
---- a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
-+++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
-@@ -1,13 +1,11 @@
- # Suspend to RAM seems to be broken on this machine
- .*suspend.*
- 
--# Too unstable, machine ends up hanging after lots of Oopses
--kms_cursor_legacy.*
--
- # Skip driver specific tests
- ^amdgpu.*
- ^msm.*
- nouveau_.*
-+^panfrost.*
- ^v3d.*
- ^vc4.*
- ^vmwgfx*
-@@ -17,9 +15,6 @@ gem_.*
- i915_.*
- tools_test.*
- 
--# Panfrost is not a KMS driver, so skip the KMS tests
--kms_.*
--
- # Currently fails and causes coverage loss for other tests
- # since core_getversion also fails.
- core_hotunplug.*
--- 
-2.43.0
+> +
+> +       vduse_domain_remove_user_bounce_pages(dev->domain, pages);
+>         unpin_user_pages_dirty_lock(dev->umem->pages,
+>                                     dev->umem->npages, true);
+>         atomic64_sub(dev->umem->npages, &dev->umem->mm->pinned_vm);
+>         mmdrop(dev->umem->mm);
+>         vfree(dev->umem->pages);
+>         kfree(dev->umem);
+> +       kfree(pages);
+>         dev->umem =3D NULL;
+>         ret =3D 0;
+>  unlock:
+> --
+> 2.34.1
+>
+> >
+> > Thanks
+> >
+> > >
+> > >
+> > > > --
+> > > > Michal Hocko
+> > > > SUSE Labs
+> > >
+>
+> Thanks
+> Barry
+>
 
