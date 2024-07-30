@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 585731AA3C1;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D1F18C93F;
 	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722368604; cv=none; b=XRo8pQbi3GhI6WW7vrXkeZn5nuWpBQilua+HJ4MbsEpR8wUUrl6HohML6kdTXzpCQbCC4FwvwTZQBFv6NwVZsmF65fu6BpeVNGxVQ6Prt1tzOojE1KAJuvLVSCCG8FWkf0ZuLKhDUlC6ZXQMhIkE4LJPltFOH/150dLJ5vfOJWk=
+	t=1722368604; cv=none; b=P3IIBSBx1xoVMEeopTPjOetG8kpAyDKSMGkJzdaHRc1XZ2OnC8/EYveWgVXjC9hbz16NwmvfOg3Y0QrRz15PpvE5NeGvdP+5QfsnAsj/l/F24Nx3XlDf4d5rBqoVxhBFQspSMWTvefat4ZntYjMvvXIVFGBp4myjaHqeZ8NBeJ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1722368604; c=relaxed/simple;
-	bh=jStHrVvNAMto3VMCwoFU19s4xerZyWvjOXpxzysnaOY=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=i0ymdk4MVKGiasuu3dvkbsIcJyMLcsvxk6GCPy9Baz7MZmFJnoUXmHX0A7+X49OXMFcITBYg0wQApODJS3d/3jWGa2aQoUz8SMnGDgaPIJHF22sdYhiYqZh1B7DUVT3xGpSaeZ8ku6q0OW9azPqzTb6OuqsBbxCkQQsBxI7eBxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UBQamUAb; arc=none smtp.client-ip=10.30.226.201
+	bh=j/fo2OFH999A9qSU4xh304Mv47Te5RJL6dmqOmXHt78=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=AyMdo9BrRutevkGZZ6tQ7g9Wj7FeMzCySJUTYOE5QISDK7r6m+Sw7BA64XLJ+0/JP3LAbvmPFsJWiF4sJCq9Op3EhqpU1XD1nKDZftdFyOT2YR8pj8PdZWqNnE2tOOarimaajtKFbPs6cV9fNQJU+xA3YC9HFc066wek4nAJniI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NdbqZI7j; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UBQamUAb"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DB8BEC32782;
-	Tue, 30 Jul 2024 19:43:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NdbqZI7j"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 173AAC4AF10;
+	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722368603;
-	bh=jStHrVvNAMto3VMCwoFU19s4xerZyWvjOXpxzysnaOY=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=UBQamUAbjkVbje/654hbxXutOTWGhQ9pIzDhQpgNGZYbFVJxo+9AFn7loTeFZfHDN
-	 Qa8R/rcJVL2rhRdJF7IC56fFtRBHUv1l4frjfDfqvLgNW2NhmF27rwqbanIRHzVA6/
-	 zyVMofk03ANG4UEwbY54eeYUb/XBBOza7qyCKXkph/7P0S3TSDT5vEf/0riXSbXV0f
-	 m+/DxEdsSsF/4Na3IuCneEgf9W5cXPOhNyf66Lkyr5pz10Q9kdrr0zMIZ6q2sKnKZw
-	 KSkhLxmKU5ifrun4C4c79uDxqaqMf4ODWWjYTfpEDbmqNh+6WCUqMR9yYWZUHFtoGK
-	 jWAfa9oWfervQ==
+	s=k20201202; t=1722368604;
+	bh=j/fo2OFH999A9qSU4xh304Mv47Te5RJL6dmqOmXHt78=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=NdbqZI7j1mwKpVlKIHiv4WHnHCpVfeKAcqqRkQgQHqfl1eudE6Bjh5MjkrdJGIUY/
+	 S8axWZDy5X3t7qBgUgCdl2rdVhSEu1vpuxW2gu7PgDYPYCrtiUOSE4XRdTiQCPtdXo
+	 f+R5K9qE9hUpB47alAOecHwfAPcFvhYmRLj8GAfEsYOVRReD9rCYjbn6pm+Dg5Y7ZC
+	 hCTECxJaLEALk8GTDgCv+pb3AkGoGTqIf+1UZBuu4Ef9b0IWm8ElKkjqzeVe4OgAm0
+	 H1GGI4h84Rss/s7dsPSGqyTlFQR8WWnbZuOyyZ4qPst1pxHg/dTQEdNp5mSERBz//2
+	 EXYrRa/12JKeQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4EC3C3DA70;
-	Tue, 30 Jul 2024 19:43:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C2A5C52D1F;
+	Tue, 30 Jul 2024 19:43:24 +0000 (UTC)
 From: Luigi Leonardi via B4 Relay <devnull+luigi.leonardi.outlook.com@kernel.org>
-Subject: [PATCH net-next v4 0/3] ioctl support for AF_VSOCK and
- virtio-based transports
-Date: Tue, 30 Jul 2024 21:43:05 +0200
-Message-Id: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
+Date: Tue, 30 Jul 2024 21:43:08 +0200
+Subject: [PATCH net-next v4 3/3] test/vsock: add ioctl unsent bytes test
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,9 +40,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAElCqWYC/x3MQQqAIBRF0a3IHyeYGUJbiQaVr/oQGiohRHtPG
- h643IcSIiPRIB6KuDlx8BWmEbQes98h2VWTVtoo2ynJYc2nVG62DmgXq3uq7RWxcfk/I3lk6VE
- yTe/7AVk6YbthAAAA
+Message-Id: <20240730-ioctl-v4-3-16d89286a8f0@outlook.com>
+References: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
+In-Reply-To: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -53,14 +52,13 @@ To: Stefano Garzarella <sgarzare@redhat.com>,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
  linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
- Luigi Leonardi <luigi.leonardi@outlook.com>, 
- Daan De Meyer <daan.j.demeyer@gmail.com>
+ Luigi Leonardi <luigi.leonardi@outlook.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1722368602; l=2445;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722368602; l=5479;
  i=luigi.leonardi@outlook.com; s=20240730; h=from:subject:message-id;
- bh=jStHrVvNAMto3VMCwoFU19s4xerZyWvjOXpxzysnaOY=;
- b=eqym0Ppsx5dpCzMQoiM/1cKMD/+ebz8mGeFylVwkxwL8mGlRCHqBIg/k3R70eCQDn2G/A9Yti
- R9Ku7AXyrOjDW5U1DxugU3XXRsqwD8EB/UJ6+9Z++WCr/FQh6ESD5LA
+ bh=APW6nchLTElCgi+y0wB3e/LaM6SJ5yQdNDfK3On80wM=;
+ b=97r8rgp6DZOr8aqfPUPmSUoJA44xtHMwxUN0Qd1Fq+lBE3fV89JC0Hdhe3Vr/alBrGB3UwUTv
+ gP1THUkXLHgDaGhyqwvFNLlIbMJHyqjYztEWQQVPTRTHmhhsnGz8eu3
 X-Developer-Key: i=luigi.leonardi@outlook.com; a=ed25519;
  pk=rejHGgcyJQFeByIJsRIz/gA6pOPZJ1I2fpxoFD/jris=
 X-Endpoint-Received: by B4 Relay for luigi.leonardi@outlook.com/20240730
@@ -68,68 +66,173 @@ X-Endpoint-Received: by B4 Relay for luigi.leonardi@outlook.com/20240730
 X-Original-From: Luigi Leonardi <luigi.leonardi@outlook.com>
 Reply-To: luigi.leonardi@outlook.com
 
-This patch series introduce the support for ioctl(s) in AF_VSOCK.
-The only ioctl currently available is SIOCOUTQ, which returns
-the number of unsent or unacked packets. It is available for
-SOCK_STREAM, SOCK_SEQPACKET and SOCK_DGRAM.
+From: Luigi Leonardi <luigi.leonardi@outlook.com>
 
-As this information is transport-dependent, a new optional callback
-is introduced: unsent_bytes.
+Introduce two tests, one for SOCK_STREAM and one for SOCK_SEQPACKET,
+which use SIOCOUTQ ioctl to check that the number of unsent bytes is
+zero after delivering a packet.
 
-The first patch add ioctl support in AF_VSOCK, while the second
-patch introduce support for SOCK_STREAM and SOCK_SEQPACKET
-in all virtio-based transports: virtio_transport (G2H),
-vhost-vsock (H2G) and vsock-loopback.
-
-The latest patch introduce two tests for this new feature.
-More details can be found in each patch changelog.
-
-v3->v4
-- Fixed warnings produced by kernel test robots
-- Functions are now *_unsent_bytes
-- Minor style changes pointed out by Stefano
-- Using opts->peer_port in tests
-- Rebased to latest net-next
-- Link to v3: https://lore.kernel.org/r/20240626-ioctl_next-v3-0-63be5bf19a40@outlook.com
-
-v2->v3
-Applied all reviewers' suggetions:
-    - Minor style and code changes
-    - atomic_int replaced with an existing spin_lock.
-Introduced lock_sock on ioctl call.
-Rebased to latest net-next
-
-v1->v2
-Applied all Stefano's suggestions:
-    - vsock_do_ioctl has been rewritten
-    - ioctl(SIOCOUTQ) test is skipped when it is not supported
-    - Minor variable/function name changes
-    - rebased to latest net-next
+vsock_connect and vsock_accept are no longer static: this is to
+create more generic tests, allowing code to be reused for SEQPACKET
+and STREAM.
 
 Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
 ---
-Luigi Leonardi (3):
-      vsock: add support for SIOCOUTQ ioctl
-      vsock/virtio: add SIOCOUTQ support for all virtio based transports
-      test/vsock: add ioctl unsent bytes test
+ tools/testing/vsock/util.c       |  6 +--
+ tools/testing/vsock/util.h       |  3 ++
+ tools/testing/vsock/vsock_test.c | 85 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 91 insertions(+), 3 deletions(-)
 
- drivers/vhost/vsock.c                   |  4 +-
- include/linux/virtio_vsock.h            |  6 +++
- include/net/af_vsock.h                  |  3 ++
- net/vmw_vsock/af_vsock.c                | 58 ++++++++++++++++++++--
- net/vmw_vsock/virtio_transport.c        |  4 +-
- net/vmw_vsock/virtio_transport_common.c | 35 ++++++++++++++
- net/vmw_vsock/vsock_loopback.c          |  6 +++
- tools/testing/vsock/util.c              |  6 +--
- tools/testing/vsock/util.h              |  3 ++
- tools/testing/vsock/vsock_test.c        | 85 +++++++++++++++++++++++++++++++++
- 10 files changed, 202 insertions(+), 8 deletions(-)
----
-base-commit: 1722389b0d863056d78287a120a1d6cadb8d4f7b
-change-id: 20240730-ioctl-0da7dee1b725
+diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+index 554b290fefdc..a3d448a075e3 100644
+--- a/tools/testing/vsock/util.c
++++ b/tools/testing/vsock/util.c
+@@ -139,7 +139,7 @@ int vsock_bind_connect(unsigned int cid, unsigned int port, unsigned int bind_po
+ }
+ 
+ /* Connect to <cid, port> and return the file descriptor. */
+-static int vsock_connect(unsigned int cid, unsigned int port, int type)
++int vsock_connect(unsigned int cid, unsigned int port, int type)
+ {
+ 	union {
+ 		struct sockaddr sa;
+@@ -226,8 +226,8 @@ static int vsock_listen(unsigned int cid, unsigned int port, int type)
+ /* Listen on <cid, port> and return the first incoming connection.  The remote
+  * address is stored to clientaddrp.  clientaddrp may be NULL.
+  */
+-static int vsock_accept(unsigned int cid, unsigned int port,
+-			struct sockaddr_vm *clientaddrp, int type)
++int vsock_accept(unsigned int cid, unsigned int port,
++		 struct sockaddr_vm *clientaddrp, int type)
+ {
+ 	union {
+ 		struct sockaddr sa;
+diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+index e95e62485959..fff22d4a14c0 100644
+--- a/tools/testing/vsock/util.h
++++ b/tools/testing/vsock/util.h
+@@ -39,6 +39,9 @@ struct test_case {
+ void init_signals(void);
+ unsigned int parse_cid(const char *str);
+ unsigned int parse_port(const char *str);
++int vsock_connect(unsigned int cid, unsigned int port, int type);
++int vsock_accept(unsigned int cid, unsigned int port,
++		 struct sockaddr_vm *clientaddrp, int type);
+ int vsock_stream_connect(unsigned int cid, unsigned int port);
+ int vsock_bind_connect(unsigned int cid, unsigned int port,
+ 		       unsigned int bind_port, int type);
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index f851f8961247..8d38dbf8f41f 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -20,6 +20,8 @@
+ #include <sys/mman.h>
+ #include <poll.h>
+ #include <signal.h>
++#include <sys/ioctl.h>
++#include <linux/sockios.h>
+ 
+ #include "vsock_test_zerocopy.h"
+ #include "timeout.h"
+@@ -1238,6 +1240,79 @@ static void test_double_bind_connect_client(const struct test_opts *opts)
+ 	}
+ }
+ 
++#define MSG_BUF_IOCTL_LEN 64
++static void test_unsent_bytes_server(const struct test_opts *opts, int type)
++{
++	unsigned char buf[MSG_BUF_IOCTL_LEN];
++	int client_fd;
++
++	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
++	if (client_fd < 0) {
++		perror("accept");
++		exit(EXIT_FAILURE);
++	}
++
++	recv_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
++	control_writeln("RECEIVED");
++
++	close(client_fd);
++}
++
++static void test_unsent_bytes_client(const struct test_opts *opts, int type)
++{
++	unsigned char buf[MSG_BUF_IOCTL_LEN];
++	int ret, fd, sock_bytes_unsent;
++
++	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
++	if (fd < 0) {
++		perror("connect");
++		exit(EXIT_FAILURE);
++	}
++
++	for (int i = 0; i < sizeof(buf); i++)
++		buf[i] = rand() & 0xFF;
++
++	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
++	control_expectln("RECEIVED");
++
++	ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
++	if (ret < 0) {
++		if (errno == EOPNOTSUPP) {
++			fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
++		} else {
++			perror("ioctl");
++			exit(EXIT_FAILURE);
++		}
++	} else if (ret == 0 && sock_bytes_unsent != 0) {
++		fprintf(stderr,
++			"Unexpected 'SIOCOUTQ' value, expected 0, got %i\n",
++			sock_bytes_unsent);
++		exit(EXIT_FAILURE);
++	}
++
++	close(fd);
++}
++
++static void test_stream_unsent_bytes_client(const struct test_opts *opts)
++{
++	test_unsent_bytes_client(opts, SOCK_STREAM);
++}
++
++static void test_stream_unsent_bytes_server(const struct test_opts *opts)
++{
++	test_unsent_bytes_server(opts, SOCK_STREAM);
++}
++
++static void test_seqpacket_unsent_bytes_client(const struct test_opts *opts)
++{
++	test_unsent_bytes_client(opts, SOCK_SEQPACKET);
++}
++
++static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
++{
++	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
++}
++
+ #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
+ /* This define is the same as in 'include/linux/virtio_vsock.h':
+  * it is used to decide when to send credit update message during
+@@ -1523,6 +1598,16 @@ static struct test_case test_cases[] = {
+ 		.run_client = test_stream_rcvlowat_def_cred_upd_client,
+ 		.run_server = test_stream_cred_upd_on_low_rx_bytes,
+ 	},
++	{
++		.name = "SOCK_STREAM ioctl(SIOCOUTQ) 0 unsent bytes",
++		.run_client = test_stream_unsent_bytes_client,
++		.run_server = test_stream_unsent_bytes_server,
++	},
++	{
++		.name = "SOCK_SEQPACKET ioctl(SIOCOUTQ) 0 unsent bytes",
++		.run_client = test_seqpacket_unsent_bytes_client,
++		.run_server = test_seqpacket_unsent_bytes_server,
++	},
+ 	{},
+ };
+ 
 
-Best regards,
 -- 
-Luigi Leonardi <luigi.leonardi@outlook.com>
+2.45.2
 
 
