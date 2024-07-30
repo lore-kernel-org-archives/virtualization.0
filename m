@@ -1,418 +1,250 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5FF72191F98;
-	Tue, 30 Jul 2024 07:53:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27AD1193074
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 08:00:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722326033; cv=none; b=E5G7CgZSG9LeJH+rV8xQ9M+9BrdoIFfle2CFDHmr5VhOOJFpjOPwGM89Foc/RrbA8p2W19Xi5RsVypaNdRYsd55/uCwXBvCWuDbIedE7+/S+0Qf4R7dhHgE57060GC7qs1A1TZ77mf31uzjAbpbsUV1mYxx4JWjoykvH1mEAjjY=
+	t=1722326439; cv=none; b=MFC0KvzJ5Unvrc4Yw+Kh0iejF0VAHHA+LZimTty2V7Vz00TD/HFoxnBh11zNibmVayYW/WlUWSnknQTVzNgaRwuWnsXHdIN9zkGozxsE4ifdIhrKwHnnfCZeJH9uKTH6yY5/YS6o103YBzMfvkZDIDYr+wlIaEhxnLl3hiFr+pI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722326033; c=relaxed/simple;
-	bh=X5+BfydsHGNwsSpS+hrd4A24Sfb0I28isXGm3Zg0Tes=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sfcGpTyki/tXnD/G/+4VA2ocRAcXtjIQgVoUYkS34cAa6hgW9uE4I5lA0U8J2L146QUmy4jo9AV1C/6w4jqOeVVTzLkPcCDSEtb3qQkikMZg/otqNdYGcu90MHG5nn7V8aGPEx0xs3WZexO6CaYJVydMGA8oxLy/yLZpz40fJik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8AxW+oNnKhmGlEEAA--.15079S3;
-	Tue, 30 Jul 2024 15:53:49 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.2.5.213])
-	by front1 (Coremail) with SMTP id qMiowMBxLscInKhmVjQGAA--.31411S5;
-	Tue, 30 Jul 2024 15:53:48 +0800 (CST)
-From: Bibo Mao <maobibo@loongson.cn>
-To: Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>
-Cc: WANG Xuerui <kernel@xen0n.name>,
-	kvm@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	x86@kernel.org,
-	Song Gao <gaosong@loongson.cn>
-Subject: [PATCH v4 3/3] irqchip/loongson-eiointc: Add extioi virt extension support
-Date: Tue, 30 Jul 2024 15:53:44 +0800
-Message-Id: <20240730075344.1215681-4-maobibo@loongson.cn>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240730075344.1215681-1-maobibo@loongson.cn>
-References: <20240730075344.1215681-1-maobibo@loongson.cn>
+	s=arc-20240116; t=1722326439; c=relaxed/simple;
+	bh=trwZ6o7rehpDaqVsUVCfcq0HbmYKcWR5iz0dYHW4Jrs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=APeRQx8bjVfSabqtU5MeICEIvmag84+7SvusVEOj0KM/rn+wjn8qUfk7Y624cskADH3+S4JZP4pA787nUQDU1GaPugLxTezKdXEaEiui7c/0+tE9YRSTiQEhYqBCDl7oQdk9ZxwuvqMJQSoPiC2NUXQFnAZS55CNUTbzvF9VUaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OHUnyPR5; arc=none smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OHUnyPR5"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id C572840607
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 08:00:36 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id gc_Tyqna67Cg for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 Jul 2024 08:00:35 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9D569405FA
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9D569405FA
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OHUnyPR5
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9D569405FA
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 08:00:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722326433;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pxacbdL3FJeAXrV3TFbvw9W3EhUwqie1OGKtk+yVIvU=;
+	b=OHUnyPR5tUrIx9f43PlTJSWq7kTZuVh9nneo6/R/miyZRfIWIEGNAwHmGBHrGwdwdQc6Ti
+	JgyTZkBQkaCYE/Bt+THW9lNtnegz4TDZZqrDLc7U/eF6tAo1LsiM0ZR/bv02hvdZukGO07
+	2kcTZlAwdtAEbsEjZn9ILToZtB3UGL0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-19-JRS3liLAMDWoGYsgNML7eQ-1; Tue, 30 Jul 2024 04:00:31 -0400
+X-MC-Unique: JRS3liLAMDWoGYsgNML7eQ-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4280c6b3614so25014395e9.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 01:00:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722326431; x=1722931231;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=pxacbdL3FJeAXrV3TFbvw9W3EhUwqie1OGKtk+yVIvU=;
+        b=AbdIFssnspp55cRv16zTiM+lqh5JUfkPXR4uSDDVY4t8AklqQCLPTjLsb5YbzgeBMs
+         rmwnZvt6kGeoASNDfouW3TEzzm19Dmi4Dz2tCrF6GVxkz23oS5mNfyk5xxtJpquDLLOO
+         ocxPXjCscAfs4KEaAtVmHDvCUgMocNyGyYrwT59zcCKQe1v2PjRGldca8UtUYuj1WgCS
+         lLUQq+6IWcZAliIv8ZriWe5D9MV+Ia42h786zb3L04Ys9dgR99RtBGOaei7ahvPeLVLI
+         L59UCC+CNy+z98e15ZjAzpGqllyseKd1N+xcXnxWLsYXP06qYfOchT/DrukMwFVdUpH8
+         UDrA==
+X-Forwarded-Encrypted: i=1; AJvYcCWWqyzmR92+7mKbmOxk33O0d8nXYWF2wqfCSC/NKBqxMC6U4UvsnoxdBG6ubVAdhoWk5nplB+psb++LmNzhcu+mjt39rUTdkA0WaDox6UKZ1xJ5LixifmYLPA==
+X-Gm-Message-State: AOJu0Yxw3u+CGBA8YRCzGavUhgzj7ezipy4i253IeoPpnjRvvoJM/WG7
+	oDIIVyYxw8MHbIT9oE0vC/wXkGplgP0VnlvCsC3M3njAEEmE0RuOwDiRmGmR1MVsxNxv9H50Q7w
+	gB/3etuj4Mx4uk1o0KpHzs/UlA3SNND2J9017bCcluNlgpfvTbLuHhlQOV4Z6TsMkj28HCBNV7j
+	70A6M=
+X-Received: by 2002:a05:600c:1c83:b0:426:622d:9e6b with SMTP id 5b1f17b1804b1-42811dd79fbmr66277005e9.23.1722326430689;
+        Tue, 30 Jul 2024 01:00:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGOWCFqW/SaDwkVD/PGge9k+/l+vMiylzg43IopSMzOrTgQOVgmPKCvBcKQbTb1kZSxSstYJw==
+X-Received: by 2002:a05:600c:1c83:b0:426:622d:9e6b with SMTP id 5b1f17b1804b1-42811dd79fbmr66276385e9.23.1722326429913;
+        Tue, 30 Jul 2024 01:00:29 -0700 (PDT)
+Received: from sgarzare-redhat ([62.205.9.89])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36b36857e3bsm13973574f8f.81.2024.07.30.01.00.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Jul 2024 01:00:28 -0700 (PDT)
+Date: Tue, 30 Jul 2024 10:00:25 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Amery Hung <ameryhung@gmail.com>
+Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org, 
+	decui@microsoft.com, bryantan@vmware.com, vdasa@vmware.com, pv-drivers@vmware.com, 
+	dan.carpenter@linaro.org, simon.horman@corigine.com, oxffffaa@gmail.com, 
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
+	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
+Subject: Re: [RFC PATCH net-next v6 04/14] af_vsock: generalize bind table
+ functions
+Message-ID: <ba2hivznnjcyeftr7ch7gvrwjvkimx5u2t2anv7wv7n7yb3j36@dbagnaylvu6o>
+References: <20240710212555.1617795-1-amery.hung@bytedance.com>
+ <20240710212555.1617795-5-amery.hung@bytedance.com>
+ <CAGxU2F7wCUR-KhDRBopK+0gv=bM0PCKeWM87j1vEYmbvhO8WHQ@mail.gmail.com>
+ <CAMB2axNUZa221WKTjLt0G5KNdtkAbm20ViDZRGBh6pL9y3wosg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAMB2axNUZa221WKTjLt0G5KNdtkAbm20ViDZRGBh6pL9y3wosg@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowMBxLscInKhmVjQGAA--.31411S5
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
-	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
-	nUUI43ZEXa7xR_UUUUUUUUU==
 
-Interrupts can be routed to maximal four virtual CPUs with one external
-hardware interrupt. Add the extioi virt extension support so that
-Interrupts can be routed to 256 vcpus on hypervisor mode.
+On Sun, Jul 28, 2024 at 11:52:54AM GMT, Amery Hung wrote:
+>On Tue, Jul 23, 2024 at 7:40 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>
+>> On Wed, Jul 10, 2024 at 09:25:45PM GMT, Amery Hung wrote:
+>> >From: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>> >
+>> >This commit makes the bind table management functions in vsock usable
+>> >for different bind tables. Future work will introduce a new table for
+>> >datagrams to avoid address collisions, and these functions will be used
+>> >there.
+>> >
+>> >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>> >---
+>> > net/vmw_vsock/af_vsock.c | 34 +++++++++++++++++++++++++++-------
+>> > 1 file changed, 27 insertions(+), 7 deletions(-)
+>> >
+>> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>> >index acc15e11700c..d571be9cdbf0 100644
+>> >--- a/net/vmw_vsock/af_vsock.c
+>> >+++ b/net/vmw_vsock/af_vsock.c
+>> >@@ -232,11 +232,12 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
+>> >       sock_put(&vsk->sk);
+>> > }
+>> >
+>> >-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+>> >+static struct sock *vsock_find_bound_socket_common(struct sockaddr_vm *addr,
+>> >+                                                 struct list_head *bind_table)
+>> > {
+>> >       struct vsock_sock *vsk;
+>> >
+>> >-      list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
+>> >+      list_for_each_entry(vsk, bind_table, bound_table) {
+>> >               if (vsock_addr_equals_addr(addr, &vsk->local_addr))
+>> >                       return sk_vsock(vsk);
+>> >
+>> >@@ -249,6 +250,11 @@ static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+>> >       return NULL;
+>> > }
+>> >
+>> >+static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+>> >+{
+>> >+      return vsock_find_bound_socket_common(addr, vsock_bound_sockets(addr));
+>> >+}
+>> >+
+>> > static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
+>> >                                                 struct sockaddr_vm *dst)
+>> > {
+>> >@@ -671,12 +677,18 @@ static void vsock_pending_work(struct work_struct *work)
+>> >
+>> > /**** SOCKET OPERATIONS ****/
+>> >
+>> >-static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>> >-                                  struct sockaddr_vm *addr)
+>> >+static int vsock_bind_common(struct vsock_sock *vsk,
+>> >+                           struct sockaddr_vm *addr,
+>> >+                           struct list_head *bind_table,
+>> >+                           size_t table_size)
+>> > {
+>> >       static u32 port;
+>> >       struct sockaddr_vm new_addr;
+>> >
+>> >+      if (WARN_ONCE(table_size < VSOCK_HASH_SIZE,
+>> >+                    "table size too small, may cause overflow"))
+>> >+              return -EINVAL;
+>> >+
+>>
+>> I'd add this in another commit.
+>>
+>> >       if (!port)
+>> >               port = get_random_u32_above(LAST_RESERVED_PORT);
+>> >
+>> >@@ -692,7 +704,8 @@ static int __vsock_bind_connectible(struct
+>> >vsock_sock *vsk,
+>> >
+>> >                       new_addr.svm_port = port++;
+>> >
+>> >-                      if (!__vsock_find_bound_socket(&new_addr)) {
+>> >+                      if (!vsock_find_bound_socket_common(&new_addr,
+>> >+                                                          &bind_table[VSOCK_HASH(addr)])) {
+>>
+>> Can we add a macro for `&bind_table[VSOCK_HASH(addr)])` ?
+>>
+>
+>Definitely. I will add the following macro:
+>
+>#define vsock_bound_sockets_in_table(bind_table, addr) \
+>        (&bind_table[VSOCK_HASH(addr)])
 
-Co-developed-by: Song Gao <gaosong@loongson.cn>
-Signed-off-by: Song Gao <gaosong@loongson.cn>
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
----
- .../arch/loongarch/irq-chip-model.rst         |  64 ++++++++++
- .../zh_CN/arch/loongarch/irq-chip-model.rst   |  55 +++++++++
- arch/loongarch/include/asm/irq.h              |   1 +
- drivers/irqchip/irq-loongson-eiointc.c        | 109 ++++++++++++++----
- 4 files changed, 209 insertions(+), 20 deletions(-)
+yeah.
 
-diff --git a/Documentation/arch/loongarch/irq-chip-model.rst b/Documentation/arch/loongarch/irq-chip-model.rst
-index 7988f4192363..7fba0f163cc8 100644
---- a/Documentation/arch/loongarch/irq-chip-model.rst
-+++ b/Documentation/arch/loongarch/irq-chip-model.rst
-@@ -85,6 +85,70 @@ to CPUINTC directly::
-     | Devices |
-     +---------+
- 
-+Virtual extended IRQ model
-+==========================
-+
-+In this model, IPI (Inter-Processor Interrupt) and CPU Local Timer interrupt
-+go to CPUINTC directly, CPU UARTS interrupts go to PCH-PIC, while all other
-+devices interrupts go to PCH-PIC/PCH-MSI and gathered by V-EIOINTC (Virtual
-+Extended I/O Interrupt Controller), and then go to CPUINTC directly::
-+
-+       +-----+    +-------------------+     +-------+
-+       | IPI |--> | CPUINTC(0-255vcpu)| <-- | Timer |
-+       +-----+    +-------------------+     +-------+
-+                            ^
-+                            |
-+                      +-----------+
-+                      | V-EIOINTC |
-+                      +-----------+
-+                       ^         ^
-+                       |         |
-+                +---------+ +---------+
-+                | PCH-PIC | | PCH-MSI |
-+                +---------+ +---------+
-+                  ^      ^          ^
-+                  |      |          |
-+           +--------+ +---------+ +---------+
-+           | UARTs  | | Devices | | Devices |
-+           +--------+ +---------+ +---------+
-+
-+
-+Description
-+-----------
-+V-EIOINTC (Virtual Extended I/O Interrupt Controller) is an extension of
-+EIOINTC, it only works in VM mode which runs in KVM hypervisor. Interrupts can
-+be routed to up to four vCPUs via standard EIOINTC, however with V-EIOINTC
-+interrupts can be routed to up to 256 virtual cpus.
-+
-+With standard EIOINTC, interrupt routing setting includes two parts: eight
-+bits for CPU selection and four bits for CPU IP (Interrupt Pin) selection.
-+For CPU selection there is four bits for EIOINTC node selection, four bits
-+for EIOINTC CPU selection. Bitmap method is used for CPU selection and
-+CPU IP selection, so interrupt can only route to CPU0 - CPU3 and IP0-IP3 in
-+one EIOINTC node.
-+
-+With V-EIOINTC it supports to route more CPUs and CPU IP (Interrupt Pin),
-+there are two newly added registers with V-EIOINTC.
-+
-+EXTIOI_VIRT_FEATURES
-+--------------------
-+This register is read-only register, which indicates supported features with
-+V-EIOINTC. Feature EXTIOI_HAS_INT_ENCODE and EXTIOI_HAS_CPU_ENCODE is added.
-+
-+Feature EXTIOI_HAS_INT_ENCODE is part of standard EIOINTC. If it is 1, it
-+indicates that CPU Interrupt Pin selection can be normal method rather than
-+bitmap method, so interrupt can be routed to IP0 - IP15.
-+
-+Feature EXTIOI_HAS_CPU_ENCODE is entension of V-EIOINTC. If it is 1, it
-+indicates that CPU selection can be normal method rather than bitmap method,
-+so interrupt can be routed to CPU0 - CPU255.
-+
-+EXTIOI_VIRT_CONFIG
-+------------------
-+This register is read-write register, for compatibility intterupt routed uses
-+the default method which is the same with standard EIOINTC. If the bit is set
-+with 1, it indicated HW to use normal method rather than bitmap method.
-+
- ACPI-related definitions
- ========================
- 
-diff --git a/Documentation/translations/zh_CN/arch/loongarch/irq-chip-model.rst b/Documentation/translations/zh_CN/arch/loongarch/irq-chip-model.rst
-index f1e9ab18206c..d696bd394c02 100644
---- a/Documentation/translations/zh_CN/arch/loongarch/irq-chip-model.rst
-+++ b/Documentation/translations/zh_CN/arch/loongarch/irq-chip-model.rst
-@@ -87,6 +87,61 @@ PCH-LPC/PCH-MSI，然后被EIOINTC统一收集，再直接到达CPUINTC::
-     | Devices |
-     +---------+
- 
-+虚拟扩展IRQ模型
-+===============
-+
-+在这种模型里面, IPI(Inter-Processor Interrupt) 和CPU本地时钟中断直接发送到CPUINTC,
-+CPU串口 (UARTs) 中断发送到PCH-PIC, 而其他所有设备的中断则分别发送到所连接的PCH_PIC/
-+PCH-MSI, 然后V-EIOINTC统一收集，再直接到达CPUINTC::
-+
-+        +-----+    +-------------------+     +-------+
-+        | IPI |--> | CPUINTC(0-255vcpu)| <-- | Timer |
-+        +-----+    +-------------------+     +-------+
-+                             ^
-+                             |
-+                       +-----------+
-+                       | V-EIOINTC |
-+                       +-----------+
-+                        ^         ^
-+                        |         |
-+                 +---------+ +---------+
-+                 | PCH-PIC | | PCH-MSI |
-+                 +---------+ +---------+
-+                   ^      ^          ^
-+                   |      |          |
-+            +--------+ +---------+ +---------+
-+            | UARTs  | | Devices | | Devices |
-+            +--------+ +---------+ +---------+
-+
-+V-EIOINTC 是EIOINTC的扩展, 仅工作在hyperisor模式下, 中断经EIOINTC最多可个路由到４个
-+虚拟cpu. 但中断经V-EIOINTC最多可个路由到256个虚拟cpu.
-+
-+传统的EIOINTC中断控制器，中断路由分为两个部分：8比特用于控制路由到哪个CPU，
-+4比特用于控制路由到特定CPU的哪个中断管脚.控制CPU路由的8比特前4比特用于控制
-+路由到哪个EIOINTC节点，后4比特用于控制此节点哪个CPU。中断路由在选择CPU路由
-+和CPU中断管脚路由时，使用bitmap编码方式而不是正常编码方式，所以对于一个
-+EIOINTC中断控制器节点，中断只能路由到CPU0 - CPU3，中断管教IP0-IP3。
-+
-+V-EIOINTC新增了两个寄存器，支持中断路由到更多CPU个和中断管脚。
-+
-+V-EIOINTC功能寄存器
-+-------------------
-+功能寄存器是只读寄存器，用于显示V-EIOINTC支持的特性，目前两个支持两个特性
-+EXTIOI_HAS_INT_ENCODE 和 EXTIOI_HAS_CPU_ENCODE。
-+
-+特性EXTIOI_HAS_INT_ENCODE是传统EIOINTC中断控制器的一个特性，如果此比特为1，
-+显示CPU中断管脚路由方式支持正常编码，而不是bitmap编码，所以中断可以路由到
-+管脚IP0 - IP15。
-+
-+特性EXTIOI_HAS_CPU_ENCODE是V-EIOINTC新增特性，如果此比特为1，表示CPU路由
-+方式支持正常编码，而不是bitmap编码，所以中断可以路由到CPU0 - CPU255。
-+
-+V-EIOINTC配置寄存器
-+-------------------
-+配置寄存器是可读写寄存器，为了兼容性考虑，如果不写此寄存器，中断路由采用
-+和传统EIOINTC相同的路由设置。如果对应比特设置为1，表示采用正常路由方式而
-+不是bitmap编码的路由方式。
-+
- ACPI相关的定义
- ==============
- 
-diff --git a/arch/loongarch/include/asm/irq.h b/arch/loongarch/include/asm/irq.h
-index 480418bc5071..ce85d4c7d225 100644
---- a/arch/loongarch/include/asm/irq.h
-+++ b/arch/loongarch/include/asm/irq.h
-@@ -54,6 +54,7 @@ extern struct acpi_vector_group pch_group[MAX_IO_PICS];
- extern struct acpi_vector_group msi_group[MAX_IO_PICS];
- 
- #define CORES_PER_EIO_NODE	4
-+#define CORES_PER_VEIO_NODE	256
- 
- #define LOONGSON_CPU_UART0_VEC		10 /* CPU UART0 */
- #define LOONGSON_CPU_THSENS_VEC		14 /* CPU Thsens */
-diff --git a/drivers/irqchip/irq-loongson-eiointc.c b/drivers/irqchip/irq-loongson-eiointc.c
-index b1f2080be2be..770e4a1a7445 100644
---- a/drivers/irqchip/irq-loongson-eiointc.c
-+++ b/drivers/irqchip/irq-loongson-eiointc.c
-@@ -14,6 +14,7 @@
- #include <linux/irqdomain.h>
- #include <linux/irqchip/chained_irq.h>
- #include <linux/kernel.h>
-+#include <linux/kvm_para.h>
- #include <linux/syscore_ops.h>
- #include <asm/numa.h>
- 
-@@ -24,15 +25,36 @@
- #define EIOINTC_REG_ISR		0x1800
- #define EIOINTC_REG_ROUTE	0x1c00
- 
-+#define EXTIOI_VIRT_FEATURES           0x40000000
-+#define  EXTIOI_HAS_VIRT_EXTENSION     BIT(0)
-+#define  EXTIOI_HAS_ENABLE_OPTION      BIT(1)
-+#define  EXTIOI_HAS_INT_ENCODE         BIT(2)
-+#define  EXTIOI_HAS_CPU_ENCODE         BIT(3)
-+#define EXTIOI_VIRT_CONFIG             0x40000004
-+#define  EXTIOI_ENABLE                 BIT(1)
-+#define  EXTIOI_ENABLE_INT_ENCODE      BIT(2)
-+#define  EXTIOI_ENABLE_CPU_ENCODE      BIT(3)
-+
- #define VEC_REG_COUNT		4
- #define VEC_COUNT_PER_REG	64
- #define VEC_COUNT		(VEC_REG_COUNT * VEC_COUNT_PER_REG)
- #define VEC_REG_IDX(irq_id)	((irq_id) / VEC_COUNT_PER_REG)
- #define VEC_REG_BIT(irq_id)     ((irq_id) % VEC_COUNT_PER_REG)
- #define EIOINTC_ALL_ENABLE	0xffffffff
-+#define EIOINTC_ALL_ENABLE_VEC_MASK(vector)	(EIOINTC_ALL_ENABLE & ~BIT(vector & 0x1F))
-+#define EIOINTC_REG_ENABLE_VEC(vector)		(EIOINTC_REG_ENABLE + ((vector >> 5) << 2))
- 
- #define MAX_EIO_NODES		(NR_CPUS / CORES_PER_EIO_NODE)
- 
-+/*
-+ * Routing registers are 32bit, and there is 8-bit route setting for every
-+ * interrupt vector. So one Route register contains four vectors routing
-+ * information.
-+ */
-+#define EIOINTC_REG_ROUTE_VEC(vector)		(EIOINTC_REG_ROUTE + (vector & ~0x03))
-+#define EIOINTC_REG_ROUTE_VEC_SHIFT(vector)	((vector & 0x03) << 3)
-+#define EIOINTC_REG_ROUTE_VEC_MASK(vector)	(0xff << EIOINTC_REG_ROUTE_VEC_SHIFT(vector))
-+
- static int nr_pics;
- 
- struct eiointc_priv {
-@@ -42,6 +64,7 @@ struct eiointc_priv {
- 	cpumask_t		cpuspan_map;
- 	struct fwnode_handle	*domain_handle;
- 	struct irq_domain	*eiointc_domain;
-+	bool			cpu_encoded;
- };
- 
- static struct eiointc_priv *eiointc_priv[MAX_IO_PICS];
-@@ -57,7 +80,13 @@ static void eiointc_enable(void)
- 
- static int cpu_to_eio_node(int cpu)
- {
--	return cpu_logical_map(cpu) / CORES_PER_EIO_NODE;
-+	int cores;
-+
-+	if (kvm_para_available() && kvm_para_has_feature(KVM_FEATURE_VIRT_EXTIOI))
-+		cores = CORES_PER_VEIO_NODE;
-+	else
-+		cores = CORES_PER_EIO_NODE;
-+	return cpu_logical_map(cpu) / cores;
- }
- 
- #ifdef CONFIG_SMP
-@@ -89,6 +118,16 @@ static void eiointc_set_irq_route(int pos, unsigned int cpu, unsigned int mnode,
- 
- static DEFINE_RAW_SPINLOCK(affinity_lock);
- 
-+static void virt_extioi_set_irq_route(unsigned int vector, unsigned int cpu)
-+{
-+	unsigned long reg = EIOINTC_REG_ROUTE_VEC(vector);
-+	u32 data = iocsr_read32(reg);
-+
-+	data &= ~EIOINTC_REG_ROUTE_VEC_MASK(vector);
-+	data |= cpu_logical_map(cpu) << EIOINTC_REG_ROUTE_VEC_SHIFT(vector);
-+	iocsr_write32(data, reg);
-+}
-+
- static int eiointc_set_irq_affinity(struct irq_data *d, const struct cpumask *affinity, bool force)
- {
- 	unsigned int cpu;
-@@ -105,18 +144,24 @@ static int eiointc_set_irq_affinity(struct irq_data *d, const struct cpumask *af
- 	}
- 
- 	vector = d->hwirq;
--	regaddr = EIOINTC_REG_ENABLE + ((vector >> 5) << 2);
--
--	/* Mask target vector */
--	csr_any_send(regaddr, EIOINTC_ALL_ENABLE & (~BIT(vector & 0x1F)),
--			0x0, priv->node * CORES_PER_EIO_NODE);
--
--	/* Set route for target vector */
--	eiointc_set_irq_route(vector, cpu, priv->node, &priv->node_map);
--
--	/* Unmask target vector */
--	csr_any_send(regaddr, EIOINTC_ALL_ENABLE,
--			0x0, priv->node * CORES_PER_EIO_NODE);
-+	regaddr = EIOINTC_REG_ENABLE_VEC(vector);
-+
-+	if (priv->cpu_encoded) {
-+		iocsr_write32(EIOINTC_ALL_ENABLE_VEC_MASK(vector), regaddr);
-+		virt_extioi_set_irq_route(vector, cpu);
-+		iocsr_write32(EIOINTC_ALL_ENABLE, regaddr);
-+	} else {
-+		/* Mask target vector */
-+		csr_any_send(regaddr, EIOINTC_ALL_ENABLE_VEC_MASK(vector),
-+			     0x0, priv->node * CORES_PER_EIO_NODE);
-+
-+		/* Set route for target vector */
-+		eiointc_set_irq_route(vector, cpu, priv->node, &priv->node_map);
-+
-+		/* Unmask target vector */
-+		csr_any_send(regaddr, EIOINTC_ALL_ENABLE,
-+			     0x0, priv->node * CORES_PER_EIO_NODE);
-+	}
- 
- 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
- 
-@@ -140,17 +185,23 @@ static int eiointc_index(int node)
- 
- static int eiointc_router_init(unsigned int cpu)
- {
--	int i, bit;
--	uint32_t data;
--	uint32_t node = cpu_to_eio_node(cpu);
--	int index = eiointc_index(node);
-+	uint32_t data, node;
-+	int i, bit, cores, index;
-+
-+	node = cpu_to_eio_node(cpu);
-+	index = eiointc_index(node);
- 
- 	if (index < 0) {
- 		pr_err("Error: invalid nodemap!\n");
--		return -1;
-+		return -EINVAL;
- 	}
- 
--	if ((cpu_logical_map(cpu) % CORES_PER_EIO_NODE) == 0) {
-+	if (eiointc_priv[index]->cpu_encoded)
-+		cores = CORES_PER_VEIO_NODE;
-+	else
-+		cores = CORES_PER_EIO_NODE;
-+
-+	if ((cpu_logical_map(cpu) % cores) == 0) {
- 		eiointc_enable();
- 
- 		for (i = 0; i < eiointc_priv[0]->vec_count / 32; i++) {
-@@ -166,7 +217,9 @@ static int eiointc_router_init(unsigned int cpu)
- 
- 		for (i = 0; i < eiointc_priv[0]->vec_count / 4; i++) {
- 			/* Route to Node-0 Core-0 */
--			if (index == 0)
-+			if (eiointc_priv[index]->cpu_encoded)
-+				bit = cpu_logical_map(0);
-+			else if (index == 0)
- 				bit = BIT(cpu_logical_map(0));
- 			else
- 				bit = (eiointc_priv[index]->node << 4) | 1;
-@@ -367,6 +420,19 @@ static int __init acpi_cascade_irqdomain_init(void)
- 	return 0;
- }
- 
-+static void __init kvm_eiointc_init(struct eiointc_priv *priv)
-+{
-+	u32 val;
-+
-+	val = iocsr_read32(EXTIOI_VIRT_FEATURES);
-+	if (val & EXTIOI_HAS_CPU_ENCODE) {
-+		val = iocsr_read32(EXTIOI_VIRT_CONFIG);
-+		val |= EXTIOI_ENABLE_CPU_ENCODE;
-+		iocsr_write32(val, EXTIOI_VIRT_CONFIG);
-+		priv->cpu_encoded = true;
-+	}
-+}
-+
- static int __init eiointc_init(struct eiointc_priv *priv, int parent_irq,
- 			       u64 node_map)
- {
-@@ -390,6 +456,9 @@ static int __init eiointc_init(struct eiointc_priv *priv, int parent_irq,
- 		return -ENOMEM;
- 	}
- 
-+	if (kvm_para_available() && kvm_para_has_feature(KVM_FEATURE_VIRT_EXTIOI))
-+		kvm_eiointc_init(priv);
-+
- 	eiointc_priv[nr_pics++] = priv;
- 	eiointc_router_init(0);
- 	irq_set_chained_handler_and_data(parent_irq, eiointc_irq_dispatch, priv);
--- 
-2.39.3
+>
+>> >                               found = true;
+>> >                               break;
+>> >                       }
+>> >@@ -709,7 +722,8 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>> >                       return -EACCES;
+>> >               }
+>> >
+>> >-              if (__vsock_find_bound_socket(&new_addr))
+>> >+              if (vsock_find_bound_socket_common(&new_addr,
+>> >+                                                 &bind_table[VSOCK_HASH(addr)]))
+>> >                       return -EADDRINUSE;
+>> >       }
+>> >
+>> >@@ -721,11 +735,17 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>> >        * by AF_UNIX.
+>> >        */
+>> >       __vsock_remove_bound(vsk);
+>> >-      __vsock_insert_bound(vsock_bound_sockets(&vsk->local_addr), vsk);
+>> >+      __vsock_insert_bound(&bind_table[VSOCK_HASH(&vsk->local_addr)], vsk);
+>> >
+>> >       return 0;
+>> > }
+>> >
+>> >+static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>> >+                                  struct sockaddr_vm *addr)
+>> >+{
+>> >+      return vsock_bind_common(vsk, addr, vsock_bind_table, VSOCK_HASH_SIZE + 1);
+>>
+>> What about using ARRAY_SIZE(x) ?
+>>
+>> BTW we are using that size just to check it, but all the arrays we use
+>> are statically allocated, so what about a compile time check like
+>> BUILD_BUG_ON()?
+>>
+>
+>I will remove the table_size check you mentioned earlier and the
+>argument here as the arrays are allocated statically like you
+>mentioned.
+>
+>If you think this check may be a good addition, I can add a
+>BUILD_BUG_ON() in the new vsock_bound_sockets_in_table() macro.
+
+If you want to add it, we need to do it in a separate commit. But since 
+we already have so many changes and both arrays are statically allocated 
+in the same file, IMHO we can avoid the check.
+
+Stefano
 
