@@ -1,82 +1,118 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A46BD1B5808
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 15:47:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6EB0189915
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 16:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722354436; cv=none; b=ZLeS5A6gK1fBvTLtOeDZzVIeVB2f9rYIus7O9SWse0VCbWkMZIlx+6BGIMGcTUOA7ZkjRYXlAWMuPRo7TMhFURKuZABqkyvnKtDJ/DnxK0FhFnd3m5yL8YbkscDQdinHgcqANGSvX5u/389Wujcgpu5SIO3aNX8qTTazVVso690=
+	t=1722358387; cv=none; b=CqwDIMkkb2mJTuO1KOmww106hFmE7DauNxxqafER2b59zQ1SUVrJGI3ezQykZmAmwoXRsyC3jy5sWM+juc7tCJGZrKfJwdTg7GQzj2MVZGDl2anfYJ40sUdvsjFfcfZN4f5ABJK9LXDrcxWVIfHgI3au+0nTuhQJGxD9txoHVm4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722354436; c=relaxed/simple;
-	bh=tZTmCW5GZ93dLZfDm1v8+9DRshuBQgUPfGjqVhe9ZhM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PF5cnEEVzDLA4dGkAirOsX1FVQxt2B6DNYCG+qfFU2eXwAmqamfg5qYUkb+I2dGxgqd3KkjjiFeBnJVJJLr0yODYo4OeVVKav8mM20uiiqfVUyof4a2vWz4A7r5N5mndKBO86ER0x6VG185yvtudTPNOhWDsEGy75F3j1RtAGoc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DiaPHkjE; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1722358387; c=relaxed/simple;
+	bh=acYkmx7Yj8SYjPzp076P9isbfl8X0+qYp4Ms1MYvVR4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=cL4j99RvmatQAm/wi2HwwqT0qMDjo8tjVcaOfReu/m7hoiRdaTWel48liWqait18V5lT/C4E3JsZeTA3gL+PACVXbWjV4+FMFtbT7WdkTCCyAJMFgc/w5VzBpCJYxUsgRIK4kS4sqB9mjPHzq+KDOHEQmtmrdjZXqYD59qQKqws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=U+jckZV0; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DiaPHkjE"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="U+jckZV0"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3228240482
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 15:47:15 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8EF31403CE
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 16:53:04 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 4cBDkN4YLFNI for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Jul 2024 15:47:14 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=kuba@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 408B8400F1
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 408B8400F1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=DiaPHkjE
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 408B8400F1
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 15:47:14 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 1984ECE111F;
-	Tue, 30 Jul 2024 15:47:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE5C0C32782;
-	Tue, 30 Jul 2024 15:47:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722354429;
-	bh=tZTmCW5GZ93dLZfDm1v8+9DRshuBQgUPfGjqVhe9ZhM=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=DiaPHkjErpIoh7tbTHA2BkSuyZEHOL2luROddx81dyCDgV/01X9oMpto6T6HMOuiW
-	 eufkPP1TytFgdz6OiWzOStPlVMJPLLM+woeYyq1qNZc6jz2u6LijjWnkx3EQ5vfn5i
-	 RwYmufBnLVyPFnfnCubsnk4XE0JfPj5EaYk3PIcLiPzgHACZcf0bvmEeSCAvBjNBhO
-	 2V9TRCEurUbvSJrhoEiZsYOYigVH5e91KIgEFU7UkLxp3TLGMOSou5fQvsC/BV9oAF
-	 +uXf06D8Js/wPCs4W8Tz+rKxQG+pbHZuFFdR8RRLUzDYE6OYt14MnFqOFuuS3+Dki8
-	 E4h74czh47JzA==
-Date: Tue, 30 Jul 2024 08:47:07 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
- <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, <kvm@vger.kernel.org>,
- <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>,
- <oxffffaa@gmail.com>
-Subject: Re: [PATCH v1] MAINTAINERS: add me as reviewer of AF_VSOCK and
- virtio-vsock
-Message-ID: <20240730084707.72ff802c@kernel.org>
-In-Reply-To: <20240728183325.1295283-1-avkrasnov@salutedevices.com>
-References: <20240728183325.1295283-1-avkrasnov@salutedevices.com>
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id xapUxHmz8Sny for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 Jul 2024 16:53:03 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.89.224.132; helo=mx1.sberdevices.ru; envelope-from=avkrasnov@salutedevices.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 802F9403B7
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 802F9403B7
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=U+jckZV0
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 802F9403B7
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jul 2024 16:52:58 +0000 (UTC)
+Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 76D6B120007;
+	Tue, 30 Jul 2024 19:52:53 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 76D6B120007
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1722358373;
+	bh=KLiTVr2w5RM4rRcfqLd3HLJ6BUMlDc+UogIM6fL3jyA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
+	b=U+jckZV0lF6/nktaviqUpB9QWpKZ06bSA5nKna95gYkPvul1lkIBb2cFM8BYMmUcH
+	 TgH+M9jgyeT7zyZVwy23k+SWNWwrWT/lr5O+ZPTuT6JNkY9y2gcngS+k/BAQvbMs+y
+	 /djj49R67rVazN97GwFt83B4XsQb9bLhIZ2l6CVmPZsKcAgfXgqccb+h2Tzi0ZpMyx
+	 uHDc+OerhWlHH5A3R8UGaTuG0Dk8S8m5EASRDJpXjsvTukCYJfnEkmxrANpd6sovf2
+	 YmnPlxpV77UoHxh/tzMKAp22ZTomr05YVr5+EYvc1kP6yl/W+mr9CzBr3Syi4CdcOI
+	 c5jQ0wjbYV7lA==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Tue, 30 Jul 2024 19:52:53 +0300 (MSK)
+Received: from [172.28.192.160] (100.64.160.123) by
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Tue, 30 Jul 2024 19:52:52 +0300
+Message-ID: <510e1114-abac-7ad3-c690-94b8b14ffe69@salutedevices.com>
+Date: Tue, 30 Jul 2024 19:40:32 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v1] MAINTAINERS: add me as reviewer of AF_VSOCK and
+ virtio-vsock
+Content-Language: en-US
+To: Jakub Kicinski <kuba@kernel.org>
+CC: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
+References: <20240728183325.1295283-1-avkrasnov@salutedevices.com>
+ <20240730084707.72ff802c@kernel.org>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+In-Reply-To: <20240730084707.72ff802c@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 186794 [Jul 30 2024]
+X-KSMG-AntiSpam-Version: 6.1.0.4
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 24 0.3.24 186c4d603b899ccfd4883d230c53f273b80e467f, {Tracking_arrow_text}, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;smtp.sberdevices.ru:7.1.1,5.0.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;100.64.160.123:7.1.2;salutedevices.com:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/07/30 15:23:00 #26184428
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Sun, 28 Jul 2024 21:33:25 +0300 Arseniy Krasnov wrote:
-> I'm working on AF_VSOCK and virtio-vsock.
 
-If you want to review the code perhaps you can use lore+lei
-and filter on the paths?
 
-Adding people to MAINTAINERS is somewhat fraught.
+On 30.07.2024 18:47, Jakub Kicinski wrote:
+> On Sun, 28 Jul 2024 21:33:25 +0300 Arseniy Krasnov wrote:
+>> I'm working on AF_VSOCK and virtio-vsock.
+> 
+> If you want to review the code perhaps you can use lore+lei
+> and filter on the paths?
+> 
+> Adding people to MAINTAINERS is somewhat fraught.
+
+Ah ok, got it.
+
+Thanks, Arseniy
