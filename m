@@ -1,103 +1,96 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0FE14F70
-	for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 03:11:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85E8B1FA4
+	for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 03:13:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722395490; cv=none; b=ALCVT32I2JzjxeC0taIEF8K+fxHYIfakCF5D/ZoJT7Mq+w0lDmBpKeih4/sULpG9ASn+8iHl7PWogCcni3SK4XMbLzjer7+11l8HTKZE1Z6NmZ3Bl5ba5s9pY5DF/4PIH6bBGTbG5ata2FE9RF74Db32jDmvQhdxAC8ogVZqJsc=
+	t=1722395600; cv=none; b=sQtG+tjMehsl7kESnuQNmBT5vx7qDCHHBl2WlEG52JLik1pMd5i9huHKtJ0fo+UREFIyx4cc4M9YZxlYLCvSqg3RXqhcgSuNnH7tDY5sZ+xn4fe0VX+hGEVRVZpkr+378TLsvWbavB6u8wefrGAJHdHHzUZWPuzq8DTJW2rKk38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722395490; c=relaxed/simple;
-	bh=DwQLvRUThF01vAGn1WxpvhmQL57pItU0ZwjmUKgEutU=;
+	s=arc-20240116; t=1722395600; c=relaxed/simple;
+	bh=2QXPLbv8fw3NvYw8Bln5EqfyJklqNgMg6tLmX+z8Ai4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ARjE98AWsSLUmmz2jr0yO78aoosT3mT5c7LnqdnCJU/i3Q/yNMbffar9qqQQL6yo9+guvBwHNt3Ht8FNqGPEMdWSqFrg5IsAfI+K9F9rmxMiYEAdJuoliPfCsMjFtQjVgjaZhMD/ZOqxmCf1R6t3MjWoCxVgdaAOkM1936C4WFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B/V8oP3Y; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=oVvRwgmkdeKIvewOiWtsZp/vLEMnNnOVz+ihf85qbS2NSzCZtpAtzC/k+ubv9elarxWERAKSi8yCBCij40uxTBFnioKbn+V9bCCIamdwiXJ7aLfmvw6zhR6WSUgk+iHJz5dJFRQ5LJWs/i9Dyiu9n9iN8g/YXhohF0oUHSJquMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jJi8qm41; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B/V8oP3Y"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jJi8qm41"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722395488;
+	s=mimecast20190719; t=1722395597;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=QWwLp1Ih+u6gHfiUIAuOqbUDdnoH9hCbh7uBar0a72c=;
-	b=B/V8oP3YyE324VbDZ63Ehe4M3Gh6sDWtUTJCFASh68JxBoX9wuRgQl196KCqFD55J3QVz8
-	ou6h13Aatp8D8it3JPtD4DTyaD7R66SioYsQfSLytNnraufanvHPnBbXlkg3+jt3nWN+oW
-	7Oxn6uUpHOo5lPhVOKi8llnwaM+zu/A=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=2QXPLbv8fw3NvYw8Bln5EqfyJklqNgMg6tLmX+z8Ai4=;
+	b=jJi8qm41fiEaeN0xtno+cGvPp4rEdQBNeT+0VvZWtbmtaW3/sqnZvmxEXIyw1yBXLXGb6C
+	YABNzuWRrNo9Z2LP7QA4Kio+FRu6l6a7AOoXzX3bOsP/nhd7gsy/j5YOzLoOCixBuukyjd
+	k2GNkaQPqJP+yYPO7TWpmtF+2NIry8o=
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
+ [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-180-yIzvP_KaPqSiaWQeXwAPQg-1; Tue, 30 Jul 2024 23:11:26 -0400
-X-MC-Unique: yIzvP_KaPqSiaWQeXwAPQg-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2cb54eac976so5197082a91.0
-        for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 20:11:26 -0700 (PDT)
+ us-mta-513-9t6zsw7KONeYiU9wIXgLkw-1; Tue, 30 Jul 2024 23:13:16 -0400
+X-MC-Unique: 9t6zsw7KONeYiU9wIXgLkw-1
+Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-7104d2cac39so296925b3a.1
+        for <virtualization@lists.linux.dev>; Tue, 30 Jul 2024 20:13:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722395486; x=1723000286;
+        d=1e100.net; s=20230601; t=1722395595; x=1723000395;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=QWwLp1Ih+u6gHfiUIAuOqbUDdnoH9hCbh7uBar0a72c=;
-        b=Gpv2ukjbXoBYR+96NppyI8+zVZSsxZgsZo9aDRsmsgMpQCAmnI7yRGbZv2GrB85Muh
-         zzx53LfgyonKVAQnCErQm5pb3tZE4IfieMZ5dfl1G2eNs1R+m0BXi3M7tg0ruWRyxP/E
-         oFmicrqggjCc2+wH1n5RR7Cc874NvRvtK/NzJhBAN+Ga8LwCkjyiN0FZBejTFnJdCYJs
-         glABDrjhhtT8VqV8TsaZjHdbwUs5jFuu7rkdB2eQuNcKEL/8/KXozGNpSmohRP+BsDIC
-         rDrT3cA6WGjiKwP5AqbO2ucSq8By51OiiRcpiS/CwLADeWQiuBJH51MekwCQONHSd36q
-         85XA==
-X-Forwarded-Encrypted: i=1; AJvYcCVlMCAN2t6hpNv3zCfz1ZPQBXV4+veAWhF4tD0rk8xIqeVhX/rcJ9kmKzSR3KXG6lNuSfXBvKmJmd02paW5EEo3R/xFudW0yihjETh4w1Y=
-X-Gm-Message-State: AOJu0YwYW/U6UMuWUi6WpepB78kQ1nSGkSsBAOQBdBjo5JVk1v8SRTdf
-	WKLDzC4OOy3+H2TaeNlXrHqtLTiWCMbGx2U2JUTREQROYP8DP/QR9bm9HVba94RHfF9ouvLHw13
-	CUaY19zNew/XLI+lVuBVNZayvT/DVWJAxmlWK2aELIiCjU117dGs2jcDmlJk5iVzNgBS4AY2bGP
-	5mjmxeTQfXb7KwHS1A7jTTP0tM/bZDs19NC7u7610=
-X-Received: by 2002:a17:90a:8d02:b0:2c5:3dbd:58bc with SMTP id 98e67ed59e1d1-2cf7e1ff521mr11519136a91.25.1722395485796;
-        Tue, 30 Jul 2024 20:11:25 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IExASsgvEQCSJuoJ8g3UUDEN5BjkkKwxLgLE2D9X91t6mmIgyrqyRPAqowIGVUDuDM9ayTpLd7IIbn/CwV/4LA=
-X-Received: by 2002:a17:90a:8d02:b0:2c5:3dbd:58bc with SMTP id
- 98e67ed59e1d1-2cf7e1ff521mr11519113a91.25.1722395485350; Tue, 30 Jul 2024
- 20:11:25 -0700 (PDT)
+        bh=2QXPLbv8fw3NvYw8Bln5EqfyJklqNgMg6tLmX+z8Ai4=;
+        b=mpeueJridqM+w1NgWdfl4xaEw8WRH/mid8oqlKMxOcu5ESukjCKAk1sNsXhlt64OeZ
+         ON2P+2pKn5b2vZ8NdWRL7N2crV4HIGMwWRcrgDUfGba/X0hf9MDpdOQK8RW8lG3to3yn
+         lEYd8IMZVUZRniJp8CVMQJyuqOi+hzMPf6+QTL3dtWE8U3zHNonL8v8WUeNcKQ26vlYe
+         0iqNhXTcSGOSsmqhHBrzkzmzKmf/fcASo4IWZ7Q7DW599j+dzSUQ37+QstzYistx0Y0K
+         1vXe2fXc8UaPd77ifk6uGPw6SEltnwx2rw/t4GboZzdy6K0VCR1ncMC1iY47tMiDCbfq
+         xagQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWiSi6Kob2P0mYIM6ElnWmBSlKaij6mJxW8uIaUr0GcIjmgAqaaY+QGIhX6wGHjAdvW/Dr6PMV5+C/JFHZAnQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz9UeSwZBjA4m92opEVA2gRvLwRaN+rsgH4j4co6UZr8wpIroxT
+	Hb4TTdRLD65Fwoj3NNwhksCXA+jG8jtxJKzYre+oA4GyKyFg6JZWfwBC1Mgb9pYFvdrtuSckxDr
+	ySNyFjdGY1HEKKlBgoTVlDGFXS/rIpYfUpfEzrX+w21Kfy/Gx2meyhnBH7ACfjN/hQYwDro7zga
+	LcjamILe77T+sfMbzVXWm7r6eo/yxbGJR1zXuHM8XcbuCNl90raw==
+X-Received: by 2002:a05:6a21:6daa:b0:1c4:8293:76db with SMTP id adf61e73a8af0-1c4a12f65eemr13100312637.29.1722395594834;
+        Tue, 30 Jul 2024 20:13:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFvWLIEukL31v5QVulnv3XiOgnyvuE+tF13uwsuSJxLKEt/9oZ3s6vbViz6RDp5OX0m0i/Kp92DHcVMBTzewS0=
+X-Received: by 2002:a05:6a21:6daa:b0:1c4:8293:76db with SMTP id
+ adf61e73a8af0-1c4a12f65eemr13100287637.29.1722395594365; Tue, 30 Jul 2024
+ 20:13:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240729124755.35719-1-hengqi@linux.alibaba.com>
-In-Reply-To: <20240729124755.35719-1-hengqi@linux.alibaba.com>
+References: <20240729124755.35719-1-hengqi@linux.alibaba.com> <20240730182020.75639070@kernel.org>
+In-Reply-To: <20240730182020.75639070@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 31 Jul 2024 11:11:13 +0800
-Message-ID: <CACGkMEt9PoT4XDw1TKBaQ_GYihOAdnyzBosVYNVL62MTrYD0rg@mail.gmail.com>
+Date: Wed, 31 Jul 2024 11:13:03 +0800
+Message-ID: <CACGkMEuxvLVLuKCLNi2eBy5ipzNn+ZGM+RSRBXk-UA0bJCKgZg@mail.gmail.com>
 Subject: Re: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing commands
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
 	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
 	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+	Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 29, 2024 at 8:48=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> =
-wrote:
+On Wed, Jul 31, 2024 at 9:20=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> wr=
+ote:
 >
-> From the virtio spec:
+> On Mon, 29 Jul 2024 20:47:55 +0800 Heng Qi wrote:
+> > Subject: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescin=
+g commands
 >
->         The driver MUST have negotiated the VIRTIO_NET_F_VQ_NOTF_COAL
->         feature when issuing commands VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET
->         and VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET.
->
-> The driver must not send vq notification coalescing commands if
-> VIRTIO_NET_F_VQ_NOTF_COAL is not negotiated. This limitation of course
-> applies to vq resize.
->
-> Fixes: f61fe5f081cf ("virtio-net: fix the vq coalescing setting for vq re=
-size")
-> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> ---
+> subject currently reads like this is an optimization, could you
+> rephrase?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+It might be "virtio-net: unbreak vq resizing when coalescing is not
+negotiated" ?
 
 Thanks
 
