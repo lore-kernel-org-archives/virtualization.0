@@ -1,241 +1,218 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 603FA1A76C1
-	for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 07:40:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 05B192E62B;
+	Wed, 31 Jul 2024 10:08:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722411603; cv=none; b=h0xIMdv36FRkBCrOx9gRXBN7R4rbBVh5D0QsIA2xxzHy5zwpYVbtGW8lksNQYi+r/Q1YP1DVqFIIdX73t0HD2j2BeltontZeFV8DcNN/zgharHUheOu+mzFczU6LqBUBuelvFBSVIgoanvKtXHIygN23ySfoXMee0HqyUthEE58=
+	t=1722420526; cv=none; b=XoNyWynqEuSIv7ZN79FsuOIOHrGdrTcTCI1vNWChy333BgiOnaTC/KtFK4Gd7SscNreg/J8BhxIT6/6fWZFB0Q9pqZzorv7LlLOepQhddQiWHyURE1khNx0UHE+y/Nno1bxPCZybk5+AWw0lG0YsvuSya+/yhzDSmO/vMXxq//k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722411603; c=relaxed/simple;
-	bh=BaxCt27OZsHcMWoUAgXJmK2Vffoa7dbbJn3AJYpv87s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=myuV+MPyZlZUgpikncc+1XBrYJhJdFb1DhFw4hSBKvUdGQgEqsTPGsTm97RF8hEFVgDbRzMWd+X63R3lcgyubuYfXOiBiKtLEB6tt5RpEc78PZjrXed6+CTVAD2tjdJBB+wd+JYs6Qu91h4oMle7IkgKRPzDdS0RR6plZKgJIs8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S1Dc/DDP; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S1Dc/DDP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722411600;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BHg5YCh5BA7hqCWyo1rRiqsfxT+DXFPGHFeuupOZS4M=;
-	b=S1Dc/DDPXRar//2tmceqEJUqj6JqWl8hk+F12JHQ8hbkeYHG4toNImdk1pVYt4HhzY4Dao
-	TLxOXmuR7tdn2jqalt4m9KkSTLuhCuBReNkEVJ23ayWVlo9T/yY7Z++fiqANsXYh+8qJKK
-	XnFDKKJX6pxJiEdElbsZcP8wFouWmiY=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-210-J4M56yl4OUmpwJXwCQl0RQ-1; Wed, 31 Jul 2024 03:39:57 -0400
-X-MC-Unique: J4M56yl4OUmpwJXwCQl0RQ-1
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2ef2a44c3dfso45369441fa.1
-        for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 00:39:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722411596; x=1723016396;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BHg5YCh5BA7hqCWyo1rRiqsfxT+DXFPGHFeuupOZS4M=;
-        b=CQ+5nLq/9ThvnBeQZHLw2ic6JQOt58Es79fGTeHZ4Bx4XFpPjU4Zli2lj+yTL1opLd
-         o0InW9AXl8N0xRljF0HKqxXjDoqrpA9kxaCIhm896LfJADqTpO+Hwk7IfRm3HO+tA/fR
-         25vRgHgSie8JqzbG2EqOVXSnQYF6f/V+NminK8ax9v9g4iGQQRN0AiYvE2RmkcEBaMDY
-         UnLKcaRKu3Rtppyk6v5qhNKUAROJRVekjtb522trX+ducOaCt/P1etTvQ0Bb10WVQ6Cl
-         GzwMN1K95Y6RYHiTYqq5cw53f9U99QHjsktBoj1N5bdK8YVpNWbC9HHvxms9RwFA0iij
-         71Rg==
-X-Forwarded-Encrypted: i=1; AJvYcCU+heTA9qi9KMLzlrJ1tCj+ssHIQgPuzqvTaW/SIRuagFuROtxyribxun1l+aDzQ7+bT958IM9dgpJ0v2+zQiSc2lTqH2qnR0qngOzJ1CQ=
-X-Gm-Message-State: AOJu0Yw7FymYV5oHSWX/sV1o52yt3Pe+1URmoCoZrV1uFTiIKPYXrPc3
-	kWL/CFpNjkgr8pNbpy2T0v6amLOjfPoWFJ9lQ0U926RD32BLb2j9Fke7MBG7hmU/Ia1kb4zX4YE
-	rv3RZzFKGviK5d8vD/x4N6t7HS/YsD6tJ9ij3VkPQnyGonUCroNe3VZ0vJ8yT0ZF+
-X-Received: by 2002:a2e:9687:0:b0:2ef:23ec:9357 with SMTP id 38308e7fff4ca-2f12ea9b35bmr88693031fa.0.1722411596255;
-        Wed, 31 Jul 2024 00:39:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFQrkoDxw+l0VIlIR0+Qgk+955MiL63klXTLU5DFu/vj4R5NQt4RkfZvM7Q37gJtl9EWRqz2w==
-X-Received: by 2002:a2e:9687:0:b0:2ef:23ec:9357 with SMTP id 38308e7fff4ca-2f12ea9b35bmr88692741fa.0.1722411595293;
-        Wed, 31 Jul 2024 00:39:55 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-57-51-79.retail.telecomitalia.it. [82.57.51.79])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4282bb6403bsm10938855e9.35.2024.07.31.00.39.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Jul 2024 00:39:54 -0700 (PDT)
-Date: Wed, 31 Jul 2024 09:39:50 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: luigi.leonardi@outlook.com
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Marco Pinna <marco.pinn95@gmail.com>
-Subject: Re: [PATCH net-next v4 2/2] vsock/virtio: avoid queuing packets when
- intermediate queue is empty
-Message-ID: <yrw4u5lwsiovb36i2vhc7qtwcai2us5uoqhb5zpabfqgxp267g@nmqtvj4oqndc>
-References: <20240730-pinna-v4-0-5c9179164db5@outlook.com>
- <20240730-pinna-v4-2-5c9179164db5@outlook.com>
+	s=arc-20240116; t=1722420526; c=relaxed/simple;
+	bh=uz2t1NnpwQFIdWvonAV+fm4haMvGFvMDaxcUxXo2Yh8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=diwFypxgjNTkFbeXV69JYJ7+Vu+kjMwJKZf0rFzdpX82CRoTnBioTYQcJD3R6ZCwmncd4T15N1aMAB92s28Ss2eNVOXXdFon1KeSla6QAMIkaYE0oMH90MgVaqpbTf1ZTJ3OiF4k9xzhoPzzVD+YdL2AY2kRwH7u00LQY687n1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8Dxh+khDapmXxgFAA--.16375S3;
+	Wed, 31 Jul 2024 18:08:33 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by front1 (Coremail) with SMTP id qMiowMBxmcUgDapmPygIAA--.41017S2;
+	Wed, 31 Jul 2024 18:08:32 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Waiman Long <longman@redhat.com>,
+	loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH] LoongArch: Revert qspinlock to test-and-set on VMs
+Date: Wed, 31 Jul 2024 18:08:32 +0800
+Message-Id: <20240731100832.2255320-1-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240730-pinna-v4-2-5c9179164db5@outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowMBxmcUgDapmPygIAA--.41017S2
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
-On Tue, Jul 30, 2024 at 09:47:32PM GMT, Luigi Leonardi via B4 Relay wrote:
->From: Luigi Leonardi <luigi.leonardi@outlook.com>
->
->When the driver needs to send new packets to the device, it always
->queues the new sk_buffs into an intermediate queue (send_pkt_queue)
->and schedules a worker (send_pkt_work) to then queue them into the
->virtqueue exposed to the device.
->
->This increases the chance of batching, but also introduces a lot of
->latency into the communication. So we can optimize this path by
->adding a fast path to be taken when there is no element in the
->intermediate queue, there is space available in the virtqueue,
->and no other process that is sending packets (tx_lock held).
->
->The following benchmarks were run to check improvements in latency and
->throughput. The test bed is a host with Intel i7-10700KF CPU @ 3.80GHz
->and L1 guest running on QEMU/KVM with vhost process and all vCPUs
->pinned individually to pCPUs.
->
->- Latency
->   Tool: Fio version 3.37-56
->   Mode: pingpong (h-g-h)
->   Test runs: 50
->   Runtime-per-test: 50s
->   Type: SOCK_STREAM
->
->In the following fio benchmark (pingpong mode) the host sends
->a payload to the guest and waits for the same payload back.
->
->fio process pinned both inside the host and the guest system.
->
->Before: Linux 6.9.8
->
->Payload 64B:
->
->	1st perc.	overall		99th perc.
->Before	12.91		16.78		42.24		us
->After	9.77		13.57		39.17		us
->
->Payload 512B:
->
->	1st perc.	overall		99th perc.
->Before	13.35		17.35		41.52		us
->After	10.25		14.11		39.58		us
->
->Payload 4K:
->
->	1st perc.	overall		99th perc.
->Before	14.71		19.87		41.52		us
->After	10.51		14.96		40.81		us
->
->- Throughput
->   Tool: iperf-vsock
->
->The size represents the buffer length (-l) to read/write
->P represents the number of parallel streams
->
->P=1
->	4K	64K	128K
->Before	6.87	29.3	29.5 Gb/s
->After	10.5	39.4	39.9 Gb/s
->
->P=2
->	4K	64K	128K
->Before	10.5	32.8	33.2 Gb/s
->After	17.8	47.7	48.5 Gb/s
->
->P=4
->	4K	64K	128K
->Before	12.7	33.6	34.2 Gb/s
->After	16.9	48.1	50.5 Gb/s
+Similar with x86, when VM is detected, revert to a simple test-and-set
+lock to avoid the horrors of queue preemption.
 
-Great improvement! Thanks again for this work!
+Tested on 3C5000 Dual-way machine with 32 cores and 2 numa nodes,
+test case is kcbench on kernel mainline 6.10, the detailed command is
+"kcbench --src /root/src/linux"
 
->
->The performance improvement is related to this optimization,
->I used a ebpf kretprobe on virtio_transport_send_skb to check
->that each packet was sent directly to the virtqueue
->
->Co-developed-by: Marco Pinna <marco.pinn95@gmail.com>
->Signed-off-by: Marco Pinna <marco.pinn95@gmail.com>
->Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
->---
-> net/vmw_vsock/virtio_transport.c | 39 +++++++++++++++++++++++++++++++++++----
-> 1 file changed, 35 insertions(+), 4 deletions(-)
+Performance on host machine
+                      kernel compile time       performance impact
+   Original           150.29 seconds
+   With patch         150.19 seconds            almost no impact
 
-All my comments have been resolved. I let iperf run bidirectionally for 
-a long time and saw no problems, so:
+Performance on virtual machine:
+1. 1 VM with 32 vCPUs and 2 numa node, numa node pinned
+                      kernel compile time       performance impact
+   Original           170.87 seconds
+   With patch         171.73 seconds            almost no impact
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+2. 2 VMs, each VM with 32 vCPUs and 2 numa node, numa node pinned
+                      kernel compile time       performance impact
+   Original           2362.04 seconds
+   With patch         354.73  seconds            +565%
 
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/include/asm/Kbuild      |  1 -
+ arch/loongarch/include/asm/paravirt.h  |  3 ++
+ arch/loongarch/include/asm/qspinlock.h | 41 ++++++++++++++++++++++++++
+ arch/loongarch/kernel/paravirt.c       |  9 ++++++
+ arch/loongarch/kernel/setup.c          |  5 ++++
+ arch/loongarch/kernel/smp.c            |  2 ++
+ 6 files changed, 60 insertions(+), 1 deletion(-)
+ create mode 100644 arch/loongarch/include/asm/qspinlock.h
 
->
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index f641e906f351..f992f9a216f0 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -208,6 +208,28 @@ virtio_transport_send_pkt_work(struct work_struct *work)
-> 		queue_work(virtio_vsock_workqueue, &vsock->rx_work);
-> }
->
->+/* Caller need to hold RCU for vsock.
->+ * Returns 0 if the packet is successfully put on the vq.
->+ */
->+static int virtio_transport_send_skb_fast_path(struct virtio_vsock *vsock, struct sk_buff *skb)
->+{
->+	struct virtqueue *vq = vsock->vqs[VSOCK_VQ_TX];
->+	int ret;
->+
->+	/* Inside RCU, can't sleep! */
->+	ret = mutex_trylock(&vsock->tx_lock);
->+	if (unlikely(ret == 0))
->+		return -EBUSY;
->+
->+	ret = virtio_transport_send_skb(skb, vq, vsock);
->+	if (ret == 0)
->+		virtqueue_kick(vq);
->+
->+	mutex_unlock(&vsock->tx_lock);
->+
->+	return ret;
->+}
->+
-> static int
-> virtio_transport_send_pkt(struct sk_buff *skb)
-> {
->@@ -231,11 +253,20 @@ virtio_transport_send_pkt(struct sk_buff *skb)
-> 		goto out_rcu;
-> 	}
->
->-	if (virtio_vsock_skb_reply(skb))
->-		atomic_inc(&vsock->queued_replies);
->+	/* If send_pkt_queue is empty, we can safely bypass this queue
->+	 * because packet order is maintained and (try) to put the packet
->+	 * on the virtqueue using virtio_transport_send_skb_fast_path.
->+	 * If this fails we simply put the packet on the intermediate
->+	 * queue and schedule the worker.
->+	 */
->+	if (!skb_queue_empty_lockless(&vsock->send_pkt_queue) ||
->+	    virtio_transport_send_skb_fast_path(vsock, skb)) {
->+		if (virtio_vsock_skb_reply(skb))
->+			atomic_inc(&vsock->queued_replies);
->
->-	virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, skb);
->-	queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
->+		virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, skb);
->+		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
->+	}
->
-> out_rcu:
-> 	rcu_read_unlock();
->
->-- 
->2.45.2
->
->
+diff --git a/arch/loongarch/include/asm/Kbuild b/arch/loongarch/include/asm/Kbuild
+index 2bb3676429c0..4635b755b2b4 100644
+--- a/arch/loongarch/include/asm/Kbuild
++++ b/arch/loongarch/include/asm/Kbuild
+@@ -6,7 +6,6 @@ generic-y += mcs_spinlock.h
+ generic-y += parport.h
+ generic-y += early_ioremap.h
+ generic-y += qrwlock.h
+-generic-y += qspinlock.h
+ generic-y += user.h
+ generic-y += ioctl.h
+ generic-y += statfs.h
+diff --git a/arch/loongarch/include/asm/paravirt.h b/arch/loongarch/include/asm/paravirt.h
+index dddec49671ae..dcc2b46d31fe 100644
+--- a/arch/loongarch/include/asm/paravirt.h
++++ b/arch/loongarch/include/asm/paravirt.h
+@@ -19,6 +19,7 @@ static inline u64 paravirt_steal_clock(int cpu)
+ 
+ int __init pv_ipi_init(void);
+ int __init pv_time_init(void);
++void __init pv_spinlock_init(void);
+ 
+ #else
+ 
+@@ -31,5 +32,7 @@ static inline int pv_time_init(void)
+ {
+ 	return 0;
+ }
++
++static inline void pv_spinlock_init(void) { }
+ #endif // CONFIG_PARAVIRT
+ #endif
+diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/include/asm/qspinlock.h
+new file mode 100644
+index 000000000000..b2d53b8c6679
+--- /dev/null
++++ b/arch/loongarch/include/asm/qspinlock.h
+@@ -0,0 +1,41 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_LOONGARCH_QSPINLOCK_H
++#define _ASM_LOONGARCH_QSPINLOCK_H
++
++#include <linux/jump_label.h>
++#include <asm/cpu-features.h>
++
++#ifdef CONFIG_PARAVIRT
++
++DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
++
++#define virt_spin_lock virt_spin_lock
++static inline bool virt_spin_lock(struct qspinlock *lock)
++{
++	int val;
++
++	if (static_branch_likely(&virt_spin_lock_key))
++		return false;
++
++	/*
++	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
++	 * back to a Test-and-Set spinlock, because fair locks have
++	 * horrible lock 'holder' preemption issues.
++	 */
++
++__retry:
++	val = atomic_read(&lock->val);
++
++	if (val || !atomic_try_cmpxchg(&lock->val, &val, _Q_LOCKED_VAL)) {
++		cpu_relax();
++		goto __retry;
++	}
++
++	return true;
++}
++
++#endif /* CONFIG_PARAVIRT */
++
++#include <asm-generic/qspinlock.h>
++
++#endif // _ASM_LOONGARCH_QSPINLOCK_H
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+index 9c9b75b76f62..49ebc54bdbcb 100644
+--- a/arch/loongarch/kernel/paravirt.c
++++ b/arch/loongarch/kernel/paravirt.c
+@@ -9,6 +9,7 @@
+ #include <linux/static_call.h>
+ #include <asm/paravirt.h>
+ 
++DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
+ static int has_steal_clock;
+ struct static_key paravirt_steal_enabled;
+ struct static_key paravirt_steal_rq_enabled;
+@@ -300,3 +301,11 @@ int __init pv_time_init(void)
+ 
+ 	return 0;
+ }
++
++void __init pv_spinlock_init(void)
++{
++	if (!cpu_has_hypervisor)
++		return;
++
++	static_branch_disable(&virt_spin_lock_key);
++}
+diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.c
+index 0f0740f0be27..70a670efe3cf 100644
+--- a/arch/loongarch/kernel/setup.c
++++ b/arch/loongarch/kernel/setup.c
+@@ -599,6 +599,11 @@ void __init setup_arch(char **cmdline_p)
+ 	parse_early_param();
+ 	reserve_initrd_mem();
+ 
++	/*
++	 * Initialise the static keys early as they may be enabled by the
++	 * cpufeature code and early parameters.
++	 */
++	jump_label_init();
+ 	platform_init();
+ 	arch_mem_init(cmdline_p);
+ 
+diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
+index ca405ab86aae..f499bff1050b 100644
+--- a/arch/loongarch/kernel/smp.c
++++ b/arch/loongarch/kernel/smp.c
+@@ -509,6 +509,8 @@ void smp_prepare_boot_cpu(void)
+ 			rr_node = next_node_in(rr_node, node_online_map);
+ 		}
+ 	}
++
++	pv_spinlock_init();
+ }
+ 
+ /* called from main before smp_init() */
+
+base-commit: 94ede2a3e9135764736221c080ac7c0ad993dc2d
+-- 
+2.39.3
 
