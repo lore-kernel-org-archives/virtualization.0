@@ -1,62 +1,64 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F34E1803D
-	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jul 2024 03:17:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4753C1B978
+	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jul 2024 03:17:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722395835; cv=none; b=SzAf2M/RmicwSaCHCANiqr9/22qkPMloxBYHqcDRSai1b9JPz6HgNCVZGaxmFqDI0FBgopAnGSgqHwdgsczsTrqxV6K3DqIvL90uawj3QSxft7ZqKmYdpY5S/kfUgmYIpVBJ3QcoBiFf+BpUUAu+57ETnAB1ecPv7uwfhoQtMjk=
+	t=1722395842; cv=none; b=S3au4yWursOU+YxAp43uao5FNg3LvVPQW8re+f2v8nxemkJcVFxgJDUXc0MWeRGA7p8MWpAMeEl9g834irt/8oSE3hGpG7igQZ4H+HPjaybc0mTO9tVbAC6fYTwQFHfTOVnyf3nlMSHq7lN9EpsbiPpKlgtl+R1sZOU3p5H9svQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722395835; c=relaxed/simple;
-	bh=JkBRTB0ebER9e6F0wnfv+1oao0kqLVhNaXL7YIZG5VY=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=FeXGIScrf5jkFHpsVOlLQ2/uiQrcBG6OWfXXaeMbagjERuxY6LZTMZocLqRITW0GGkudZiOEIFDV8EUe8n6JRrS2PGGLQkBo8OOySZoC8aIf0W7LR/doVSa1uyJtak1WBjstZ6RCjxaLWxgcHUb2el8eNS+awPDTYYhZyM2iW1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NR6ATMOg; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1722395842; c=relaxed/simple;
+	bh=9WIFvbrpzeQ2PtK15CACNwbApGCAkZJr9gGeqs2a1mA=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=D2QWL4F1+wG6n+1FR4h5j+FQqxFwgSCo/t9xPuLQyv8kLqGR2v4Ll3grjnWbveE1pqWvKRjOg4GIj39sdqjXvjBbn4IgsyYqukDAjsizspICwK/VwCofSvo1+Te5nZgKhUYpYGXe7ueftolxFRRTAkUpvaDOzcSubfHWJOZMiCQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QdVAeQRd; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NR6ATMOg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QdVAeQRd"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C0949401EF
-	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jul 2024 03:17:13 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id CF32E401DC
+	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jul 2024 03:17:20 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id KsJ2-F5dj1iz for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Jul 2024 03:17:12 +0000 (UTC)
+ id LIuxGKJnqjBM for <virtualization@lists.linux-foundation.org>;
+ Wed, 31 Jul 2024 03:17:19 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org AC483401D4
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8B6E1401D4
 Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AC483401D4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8B6E1401D4
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NR6ATMOg
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QdVAeQRd
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AC483401D4
-	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jul 2024 03:17:11 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8B6E1401D4
+	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jul 2024 03:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722395830;
+	s=mimecast20190719; t=1722395838;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=KK/99rFb/OJa+qbI6cUHEnX47Fd/3MtoZJKyHfCgvOE=;
-	b=NR6ATMOgsuCaLFvZSmv0nOenVgWGla2aeI+apE60bZ9V0V0b/NpucLBbXI6a8YOOV0pK0T
-	G/JjWjvWvMsH4wnRqOSEPtawm82YnSHlsRaotv+0mHZ6P7vyiXZ0cIB3kzJUCh4wSn4DLf
-	vuEl+l39dDc8iwY11OjFDsua3V89qtA=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4GSF1XXw5KCNkxntPHVHsMW71OFJvtJGKMF8yxwLhgI=;
+	b=QdVAeQRd5365zpBOpHEFB9H9RU6ZMA1xtvY4Ek/jiuIL46TpBKCVh0bWVXa8cqf6XY+BQK
+	omTHg9SsxGtCXcP9AfFOTQhPbL5g/YP3peE8ri+4KRg+rbap0MOlbJji/J8/9C+melohEz
+	EwpoH0N0PemblZhWguDPc/5NZkKPvds=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-436-nVVNNzlmNjm10iqHNzMEoQ-1; Tue,
- 30 Jul 2024 23:17:07 -0400
-X-MC-Unique: nVVNNzlmNjm10iqHNzMEoQ-1
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-124-2aDYmGXwMyWKObLIzugWGw-1; Tue,
+ 30 Jul 2024 23:17:12 -0400
+X-MC-Unique: 2aDYmGXwMyWKObLIzugWGw-1
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9E2221955D44;
-	Wed, 31 Jul 2024 03:17:05 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 527B61955F45;
+	Wed, 31 Jul 2024 03:17:11 +0000 (UTC)
 Received: from server.redhat.com (unknown [10.72.112.168])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A610C1955F3B;
-	Wed, 31 Jul 2024 03:16:59 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 36A701955F3B;
+	Wed, 31 Jul 2024 03:17:05 +0000 (UTC)
 From: Cindy Lu <lulu@redhat.com>
 To: lulu@redhat.com,
 	dtatulea@nvidia.com,
@@ -67,9 +69,11 @@ To: lulu@redhat.com,
 	netdev@vger.kernel.org,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v8 0/3] vdpa: support set mac address from vdpa tool
-Date: Wed, 31 Jul 2024 11:16:00 +0800
-Message-ID: <20240731031653.1047692-1-lulu@redhat.com>
+Subject: [PATCH v8 1/3] vdpa: support set mac address from vdpa tool
+Date: Wed, 31 Jul 2024 11:16:01 +0800
+Message-ID: <20240731031653.1047692-2-lulu@redhat.com>
+In-Reply-To: <20240731031653.1047692-1-lulu@redhat.com>
+References: <20240731031653.1047692-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,51 +83,180 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Add support for setting the MAC address using the VDPA tool.
-This feature will allow setting the MAC address using the VDPA tool.
-For example, in vdpa_sim_net, the implementation sets the MAC address
-to the config space. However, for other drivers, they can implement their
-own function, not limited to the config space.
+Add new UAPI to support the mac address from vdpa tool
+Function vdpa_nl_cmd_dev_attr_set_doit() will get the
+new MAC address from the vdpa tool and then set it to the device.
 
-Changelog v2
- - Changed the function name to prevent misunderstanding
- - Added check for blk device
- - Addressed the comments
-Changelog v3
- - Split the function of the net device from vdpa_nl_cmd_dev_attr_set_doit
- - Add a lock for the network device's dev_set_attr operation
- - Address the comments
-Changelog v4
- - Address the comments
- - Add a lock for the vdap_sim?_net device's dev_set_attr operation
-Changelog v5
- - Address the comments
-Changelog v6 
-- Replace all the memcpy of mac address with ether_addr_copy()
-- Remove the check for VIRTIO_NET_F_MAC in vdpa_dev_net_device_attr_set
-- Remove unnecessary check
-- Enhance the error log
-Changelog v7
- - change the code to reverse-xmas tree style
- - make all patches pass the check of ./scripts/checkpatch.pl --strict 
- - Address other comments
-Changelog v8
-- Change the fail return value to -EOPNOTSUPP
-- Improve the error log
-- remove the  unnecessary memcpy
-  
-Cindy Lu (3):
-  vdpa: support set mac address from vdpa tool
-  vdpa_sim_net: Add the support of set mac address
-  vdpa/mlx5: Add the support of set mac address
+The usage is: vdpa dev set name vdpa_name mac **:**:**:**:**:**
 
- drivers/vdpa/mlx5/net/mlx5_vnet.c    | 28 ++++++++++
- drivers/vdpa/vdpa.c                  | 79 ++++++++++++++++++++++++++++
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 21 +++++++-
- include/linux/vdpa.h                 |  9 ++++
- include/uapi/linux/vdpa.h            |  1 +
- 5 files changed, 137 insertions(+), 1 deletion(-)
+Here is example:
+root@L1# vdpa -jp dev config show vdpa0
+{
+    "config": {
+        "vdpa0": {
+            "mac": "82:4d:e9:5d:d7:e6",
+            "link ": "up",
+            "link_announce ": false,
+            "mtu": 1500
+        }
+    }
+}
 
+root@L1# vdpa dev set name vdpa0 mac 00:11:22:33:44:55
+
+root@L1# vdpa -jp dev config show vdpa0
+{
+    "config": {
+        "vdpa0": {
+            "mac": "00:11:22:33:44:55",
+            "link ": "up",
+            "link_announce ": false,
+            "mtu": 1500
+        }
+    }
+}
+
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+---
+ drivers/vdpa/vdpa.c       | 79 +++++++++++++++++++++++++++++++++++++++
+ include/linux/vdpa.h      |  9 +++++
+ include/uapi/linux/vdpa.h |  1 +
+ 3 files changed, 89 insertions(+)
+
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index 8d391947eb8d..0b3f44c25c58 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -1361,6 +1361,80 @@ static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff *skb, struct genl_info
+ 	return err;
+ }
+ 
++static int vdpa_dev_net_device_attr_set(struct vdpa_device *vdev,
++					struct genl_info *info)
++{
++	struct vdpa_dev_set_config set_config = {};
++	struct vdpa_mgmt_dev *mdev = vdev->mdev;
++	struct nlattr **nl_attrs = info->attrs;
++	const u8 *macaddr;
++	int err = -EOPNOTSUPP;
++
++	down_write(&vdev->cf_lock);
++	if (nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
++		set_config.mask |= BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
++		macaddr = nla_data(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]);
++
++		if (is_valid_ether_addr(macaddr)) {
++			ether_addr_copy(set_config.net.mac, macaddr);
++			if (mdev->ops->dev_set_attr) {
++				err = mdev->ops->dev_set_attr(mdev, vdev,
++							      &set_config);
++			} else {
++				NL_SET_ERR_MSG_FMT_MOD(info->extack,
++						       "Operation not supported by the device.");
++			}
++		} else {
++			NL_SET_ERR_MSG_FMT_MOD(info->extack,
++					       "Invalid MAC address");
++		}
++	}
++	up_write(&vdev->cf_lock);
++	return err;
++}
++
++static int vdpa_nl_cmd_dev_attr_set_doit(struct sk_buff *skb,
++					 struct genl_info *info)
++{
++	struct vdpa_device *vdev;
++	struct device *dev;
++	const char *name;
++	u64 classes;
++	int err = 0;
++
++	if (!info->attrs[VDPA_ATTR_DEV_NAME])
++		return -EINVAL;
++
++	name = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
++
++	down_write(&vdpa_dev_lock);
++	dev = bus_find_device(&vdpa_bus, NULL, name, vdpa_name_match);
++	if (!dev) {
++		NL_SET_ERR_MSG_MOD(info->extack, "device not found");
++		err = -ENODEV;
++		goto dev_err;
++	}
++	vdev = container_of(dev, struct vdpa_device, dev);
++	if (!vdev->mdev) {
++		NL_SET_ERR_MSG_MOD(info->extack, "unmanaged vdpa device");
++		err = -EINVAL;
++		goto mdev_err;
++	}
++	classes = vdpa_mgmtdev_get_classes(vdev->mdev, NULL);
++	if (classes & BIT_ULL(VIRTIO_ID_NET)) {
++		err = vdpa_dev_net_device_attr_set(vdev, info);
++	} else {
++		NL_SET_ERR_MSG_FMT_MOD(info->extack, "%s device not supported",
++				       name);
++	}
++
++mdev_err:
++	put_device(dev);
++dev_err:
++	up_write(&vdpa_dev_lock);
++	return err;
++}
++
+ static int vdpa_dev_config_dump(struct device *dev, void *data)
+ {
+ 	struct vdpa_device *vdev = container_of(dev, struct vdpa_device, dev);
+@@ -1497,6 +1571,11 @@ static const struct genl_ops vdpa_nl_ops[] = {
+ 		.doit = vdpa_nl_cmd_dev_stats_get_doit,
+ 		.flags = GENL_ADMIN_PERM,
+ 	},
++	{
++		.cmd = VDPA_CMD_DEV_ATTR_SET,
++		.doit = vdpa_nl_cmd_dev_attr_set_doit,
++		.flags = GENL_ADMIN_PERM,
++	},
+ };
+ 
+ static struct genl_family vdpa_nl_family __ro_after_init = {
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index 7977ca03ac7a..2e7a30fe6b92 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -582,11 +582,20 @@ void vdpa_set_status(struct vdpa_device *vdev, u8 status);
+  *	     @dev: vdpa device to remove
+  *	     Driver need to remove the specified device by calling
+  *	     _vdpa_unregister_device().
++ * @dev_set_attr: change a vdpa device's attr after it was create
++ *	     @mdev: parent device to use for device
++ *	     @dev: vdpa device structure
++ *	     @config:Attributes to be set for the device.
++ *	     The driver needs to check the mask of the structure and then set
++ *	     the related information to the vdpa device. The driver must return 0
++ *	     if set successfully.
+  */
+ struct vdpa_mgmtdev_ops {
+ 	int (*dev_add)(struct vdpa_mgmt_dev *mdev, const char *name,
+ 		       const struct vdpa_dev_set_config *config);
+ 	void (*dev_del)(struct vdpa_mgmt_dev *mdev, struct vdpa_device *dev);
++	int (*dev_set_attr)(struct vdpa_mgmt_dev *mdev, struct vdpa_device *dev,
++			    const struct vdpa_dev_set_config *config);
+ };
+ 
+ /**
+diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+index 842bf1201ac4..71edf2c70cc3 100644
+--- a/include/uapi/linux/vdpa.h
++++ b/include/uapi/linux/vdpa.h
+@@ -19,6 +19,7 @@ enum vdpa_command {
+ 	VDPA_CMD_DEV_GET,		/* can dump */
+ 	VDPA_CMD_DEV_CONFIG_GET,	/* can dump */
+ 	VDPA_CMD_DEV_VSTATS_GET,
++	VDPA_CMD_DEV_ATTR_SET,
+ };
+ 
+ enum vdpa_attr {
 -- 
 2.45.0
 
