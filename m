@@ -1,109 +1,105 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B59B0539A;
-	Wed, 31 Jul 2024 00:42:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CF0A4C80;
+	Wed, 31 Jul 2024 01:20:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722386532; cv=none; b=d2STT6pR46drAmh1MexU1NK94j5cv/JvsAfiJ7qZRcKdmTVwjrMf7VxUIM7inKbd/qip/GmLmaEIGFFCwNBaClbD/mc9zfVi9/4+5FP6J4EpKaa0Oq7l0aD1uqDtBOF4pK4DwP6nFnIcdyuey+xU3MM+DY+PtiOgWJlE5cvoJhk=
+	t=1722388822; cv=none; b=ux06CJQ16JHbI8vxFDJlgkenKqKq+AUTNVm/yvzWfShBdQZxPUpyXcwY+6/FC/T3rYYR8qqn7yJOLF/efHc0AaBnyB63bxsm3LNOaiMDMzYr1Syj6RNhOOVeuK19cBvYsRAhXrxd5YYNdTThrCN7i/q7gt9wZTh73P0D8Ww+Lh0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722386532; c=relaxed/simple;
-	bh=O4xKrZS0mD61y2mmy9XSZokqEuXtHHJywllfTfjU1Qs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=B3XJwU1mkw4wf2ETAdTvFUdB3XKSulXH1No3uO14R1CumTkv8LHyN/acl+LEB40SbhMxqzLa5QNv4bEtmzwg/hX9kZCH0USK8t9wAZR1TZuUta3Jb3KuMsGTwIk1oR5dSk929CzDQXZ3okhNz7UdNvtBAMJyXsPhfcHe+Dpfzo0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OvEHpz9l; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1722388822; c=relaxed/simple;
+	bh=k2MWMZVN+gSbg1lYV39k//TGqnZsbiq2ed/o3H2/EjA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=LjuPLnSQ+udCSBT5GoaxYb9eWN3tGRVR9Vsr9pZguzNMuVX4MsJEWGp1RPyTCRiN3hhZXCWTwzVka7PPuT1UkP7hA5uvc26yPdoh1evUuIKCzir6es1X0PTx9LD05xVXMplHmngti1LoAb8UPh+lqto4UH/aQOBCA021NGw/Vlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NUKOqtf7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OvEHpz9l"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1722386531; x=1753922531;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=O4xKrZS0mD61y2mmy9XSZokqEuXtHHJywllfTfjU1Qs=;
-  b=OvEHpz9lVDjKx+RNEG82MpAGmKOhszSBLEHuGYW7kjd2bsUsspoqS/nm
-   hLpUSoM0CiImBWWI/yAC/HUPkEZsQqvrZrO9EOsTcsDtxB+XtNk4VsYCh
-   b3k4aisBONIE1mQCEEOvUHZUV01fxOncagSsO3VJx38E7y2JeP2l8fTel
-   pCHrFNMSMH+rEuDN1XGjT4uz1lq3dlZjgljZ1LLyF8COzm0SFSeKsk8tX
-   NlZr5GHXW3PmmVXiTf2IvIVmYXFBS/9xHvAk6Cn7F7GpZPQjGS2IBmXNk
-   2g3uYaBMW/Xl5vuuEmKZjmgRzt2BoGfBFNTLsMNoCLswTpeBRLoFqxc/5
-   Q==;
-X-CSE-ConnectionGUID: nO+yuO9rS2Wnh21DtUIZUQ==
-X-CSE-MsgGUID: N/vrqWQES7q1sX9se92fgA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11149"; a="20366625"
-X-IronPort-AV: E=Sophos;i="6.09,248,1716274800"; 
-   d="scan'208";a="20366625"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2024 17:42:09 -0700
-X-CSE-ConnectionGUID: bnJBAGRGRsuyS6UmKTgdCA==
-X-CSE-MsgGUID: Oi3+YHQ+RA2GPR1+qmLOoA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,248,1716274800"; 
-   d="scan'208";a="54205829"
-Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
-  by fmviesa006.fm.intel.com with ESMTP; 30 Jul 2024 17:42:08 -0700
-Received: from kbuild by 68891e0c336b with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sYxPo-000tXp-0g;
-	Wed, 31 Jul 2024 00:42:04 +0000
-Date: Wed, 31 Jul 2024 08:41:18 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bibo Mao <maobibo@loongson.cn>, Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>
-Cc: oe-kbuild-all@lists.linux.dev, WANG Xuerui <kernel@xen0n.name>,
-	kvm@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	x86@kernel.org, Song Gao <gaosong@loongson.cn>
-Subject: Re: [PATCH v4 1/3] LoongArch: KVM: Enable paravirt feature control
- from VMM
-Message-ID: <202407310823.RbRdbUkV-lkp@intel.com>
-References: <20240730075344.1215681-2-maobibo@loongson.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NUKOqtf7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79054C32782;
+	Wed, 31 Jul 2024 01:20:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722388822;
+	bh=k2MWMZVN+gSbg1lYV39k//TGqnZsbiq2ed/o3H2/EjA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=NUKOqtf7goZs+vFsigZdVk/KOtpCmnV7CgeYE+GO9kWcnovpwHku2GTlc8PUkePBC
+	 Po/e8OPxT45lGxZt6/gThSwu8ovuFTmc5JcR/UkTsVL+rI61HW03OvbLmsGpLU/Dl7
+	 VyeJe5a7+PJRavc9im0HqKllveC+axFcANyNZ7HXRjNaSs87o342cLGtMtW/SZUokY
+	 TxpD+7Z/5UUJ6BsXCPGYAPMJzzIJkyCLBfallPQwiUrGVuhfoHbing+AZLlvdffNVd
+	 2MXhBe45wh/+4t3oWMZQpIUiYhydzcWiEmbCdcTAgZ7Ema9ZAzF3L7Oxk6yXP1Gnb2
+	 9WbsKl1GG94bg==
+Date: Tue, 30 Jul 2024 18:20:20 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason
+ Wang <jasowang@redhat.com>, virtualization@lists.linux.dev, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo Abeni
+ <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing
+ commands
+Message-ID: <20240730182020.75639070@kernel.org>
+In-Reply-To: <20240729124755.35719-1-hengqi@linux.alibaba.com>
+References: <20240729124755.35719-1-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240730075344.1215681-2-maobibo@loongson.cn>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Bibo,
+On Mon, 29 Jul 2024 20:47:55 +0800 Heng Qi wrote:
+> Subject: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing commands
 
-kernel test robot noticed the following build errors:
+subject currently reads like this is an optimization, could you
+rephrase?
 
-[auto build test ERROR on 8400291e289ee6b2bf9779ff1c83a291501f017b]
+> From the virtio spec:
+> 
+> 	The driver MUST have negotiated the VIRTIO_NET_F_VQ_NOTF_COAL
+> 	feature when issuing commands VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET
+> 	and VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET.
+> 
+> The driver must not send vq notification coalescing commands if
+> VIRTIO_NET_F_VQ_NOTF_COAL is not negotiated. This limitation of course
+> applies to vq resize.
+> 
+> Fixes: f61fe5f081cf ("virtio-net: fix the vq coalescing setting for vq resize")
+> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> ---
+>  drivers/net/virtio_net.c | 29 +++++++++++++++++------------
+>  1 file changed, 17 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0383a3e136d6..eb115e807882 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3708,6 +3708,7 @@ static int virtnet_set_ringparam(struct net_device *dev,
+>  	u32 rx_pending, tx_pending;
+>  	struct receive_queue *rq;
+>  	struct send_queue *sq;
+> +	u32 pkts, usecs;
+>  	int i, err;
+>  
+>  	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
+> @@ -3740,11 +3741,13 @@ static int virtnet_set_ringparam(struct net_device *dev,
+>  			 * through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET command, or, if the driver
+>  			 * did not set any TX coalescing parameters, to 0.
+>  			 */
+> -			err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
+> -							       vi->intr_coal_tx.max_usecs,
+> -							       vi->intr_coal_tx.max_packets);
+> -			if (err)
+> -				return err;
+> +			if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+> +				usecs = vi->intr_coal_tx.max_usecs;
+> +				pkts = vi->intr_coal_tx.max_packets;
+> +				err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i, usecs, pkts);
+> +				if (err)
+> +					return err;
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Enable-paravirt-feature-control-from-VMM/20240730-155814
-base:   8400291e289ee6b2bf9779ff1c83a291501f017b
-patch link:    https://lore.kernel.org/r/20240730075344.1215681-2-maobibo%40loongson.cn
-patch subject: [PATCH v4 1/3] LoongArch: KVM: Enable paravirt feature control from VMM
-config: loongarch-allyesconfig (https://download.01.org/0day-ci/archive/20240731/202407310823.RbRdbUkV-lkp@intel.com/config)
-compiler: loongarch64-linux-gcc (GCC) 14.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240731/202407310823.RbRdbUkV-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202407310823.RbRdbUkV-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   scripts/genksyms/parse.y: warning: 9 shift/reduce conflicts [-Wconflicts-sr]
-   scripts/genksyms/parse.y: warning: 5 reduce/reduce conflicts [-Wconflicts-rr]
-   scripts/genksyms/parse.y: note: rerun with option '-Wcounterexamples' to generate conflict counterexamples
->> error: arch/loongarch/include/uapi/asm/kvm_para.h: missing "WITH Linux-syscall-note" for SPDX-License-Identifier
-   make[3]: *** [scripts/Makefile.headersinst:63: usr/include/asm/kvm_para.h] Error 1
-   make[3]: Target '__headers' not remade because of errors.
-   make[2]: *** [Makefile:1290: headers] Error 2
-   make[2]: Target 'prepare' not remade because of errors.
-   make[1]: *** [Makefile:224: __sub-make] Error 2
-   make[1]: Target 'prepare' not remade because of errors.
-   make: *** [Makefile:224: __sub-make] Error 2
-   make: Target 'prepare' not remade because of errors.
-
+Can you check the feature inside the
+virtnet_send_.x_ctrl_coal_vq_cmd() helpers?
+5 levels of indentation is a bit much
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+pw-bot: cr
