@@ -1,105 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CF0A4C80;
-	Wed, 31 Jul 2024 01:20:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C92DA19478
+	for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 03:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722388822; cv=none; b=ux06CJQ16JHbI8vxFDJlgkenKqKq+AUTNVm/yvzWfShBdQZxPUpyXcwY+6/FC/T3rYYR8qqn7yJOLF/efHc0AaBnyB63bxsm3LNOaiMDMzYr1Syj6RNhOOVeuK19cBvYsRAhXrxd5YYNdTThrCN7i/q7gt9wZTh73P0D8Ww+Lh0=
+	t=1722394809; cv=none; b=CaulmG5Obf8rA34lhxJSJFV6ObefnZRzKi1+2V/ZdDUFcHbozRLatvvXloNLwywhlC3G/n5rJy+aidYLS0A6p0bPcMQ2b2JnzmG2eR5HU4jU1Kq0beYwLiSplIYlkpOBYwzA3ZkSGblfpoT5qp+sE+I5TXU/bk2GlrOSG3JMPTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722388822; c=relaxed/simple;
-	bh=k2MWMZVN+gSbg1lYV39k//TGqnZsbiq2ed/o3H2/EjA=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LjuPLnSQ+udCSBT5GoaxYb9eWN3tGRVR9Vsr9pZguzNMuVX4MsJEWGp1RPyTCRiN3hhZXCWTwzVka7PPuT1UkP7hA5uvc26yPdoh1evUuIKCzir6es1X0PTx9LD05xVXMplHmngti1LoAb8UPh+lqto4UH/aQOBCA021NGw/Vlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NUKOqtf7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1722394809; c=relaxed/simple;
+	bh=Q+Q1m+vLids3NlJc16uiC90sWDgJXboiteurhSqjF1M=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=Ckqw53+muSOBI0mlIfJqgr8PaOE6Kvx/7LMnZ3PVP+e/3dgKsO8WC7FoZl9pnesZa6iUE4530pW1/EByFU+U9qXRJZDDpCYmrJeFmRYxn8bTSAlHizG4YIMNpGW4/TmnddAbuB7z5rXRTU5BYfrQTkHEis+l0ojQkkIvDeqUw9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LTt2lCD0; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NUKOqtf7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79054C32782;
-	Wed, 31 Jul 2024 01:20:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722388822;
-	bh=k2MWMZVN+gSbg1lYV39k//TGqnZsbiq2ed/o3H2/EjA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=NUKOqtf7goZs+vFsigZdVk/KOtpCmnV7CgeYE+GO9kWcnovpwHku2GTlc8PUkePBC
-	 Po/e8OPxT45lGxZt6/gThSwu8ovuFTmc5JcR/UkTsVL+rI61HW03OvbLmsGpLU/Dl7
-	 VyeJe5a7+PJRavc9im0HqKllveC+axFcANyNZ7HXRjNaSs87o342cLGtMtW/SZUokY
-	 TxpD+7Z/5UUJ6BsXCPGYAPMJzzIJkyCLBfallPQwiUrGVuhfoHbing+AZLlvdffNVd
-	 2MXhBe45wh/+4t3oWMZQpIUiYhydzcWiEmbCdcTAgZ7Ema9ZAzF3L7Oxk6yXP1Gnb2
-	 9WbsKl1GG94bg==
-Date: Tue, 30 Jul 2024 18:20:20 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason
- Wang <jasowang@redhat.com>, virtualization@lists.linux.dev, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo Abeni
- <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing
- commands
-Message-ID: <20240730182020.75639070@kernel.org>
-In-Reply-To: <20240729124755.35719-1-hengqi@linux.alibaba.com>
-References: <20240729124755.35719-1-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LTt2lCD0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722394806;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=g3ueNxcpvWBth7FZxP9OVlHGH7k6EvAMvYrp/ny07d0=;
+	b=LTt2lCD0bhTsNjNsqhRZRVT7d6m2Zmkh6zcYe7YmfwH+cPoa5BeKQsL3Hj/Ntvgq+xjzB1
+	E84fusAcFazeiLttLGp3ZQlIcvyN0EUjZ//R2eTKV8nVoY2X8O9Cbzm2tDD2B1AaqjcF3/
+	eVAyH9b2dRLZzleNbcdw5IbQXmVpHbk=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-304-QDOpaav9Oh-L1lZxILXxiw-1; Tue,
+ 30 Jul 2024 23:00:01 -0400
+X-MC-Unique: QDOpaav9Oh-L1lZxILXxiw-1
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1096719560B0;
+	Wed, 31 Jul 2024 03:00:00 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.247])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 00A7819560AA;
+	Wed, 31 Jul 2024 02:59:53 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH V4 net-next 0/3] virtio-net: synchronize op/admin state
+Date: Wed, 31 Jul 2024 10:59:44 +0800
+Message-ID: <20240731025947.23157-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-On Mon, 29 Jul 2024 20:47:55 +0800 Heng Qi wrote:
-> Subject: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing commands
+Hi All:
 
-subject currently reads like this is an optimization, could you
-rephrase?
+This series tries to synchronize the operstate with the admin state
+which allows the lower virtio-net to propagate the link status to the
+upper devices like macvlan.
 
-> From the virtio spec:
-> 
-> 	The driver MUST have negotiated the VIRTIO_NET_F_VQ_NOTF_COAL
-> 	feature when issuing commands VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET
-> 	and VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET.
-> 
-> The driver must not send vq notification coalescing commands if
-> VIRTIO_NET_F_VQ_NOTF_COAL is not negotiated. This limitation of course
-> applies to vq resize.
-> 
-> Fixes: f61fe5f081cf ("virtio-net: fix the vq coalescing setting for vq resize")
-> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> ---
->  drivers/net/virtio_net.c | 29 +++++++++++++++++------------
->  1 file changed, 17 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 0383a3e136d6..eb115e807882 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3708,6 +3708,7 @@ static int virtnet_set_ringparam(struct net_device *dev,
->  	u32 rx_pending, tx_pending;
->  	struct receive_queue *rq;
->  	struct send_queue *sq;
-> +	u32 pkts, usecs;
->  	int i, err;
->  
->  	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
-> @@ -3740,11 +3741,13 @@ static int virtnet_set_ringparam(struct net_device *dev,
->  			 * through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET command, or, if the driver
->  			 * did not set any TX coalescing parameters, to 0.
->  			 */
-> -			err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
-> -							       vi->intr_coal_tx.max_usecs,
-> -							       vi->intr_coal_tx.max_packets);
-> -			if (err)
-> -				return err;
-> +			if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
-> +				usecs = vi->intr_coal_tx.max_usecs;
-> +				pkts = vi->intr_coal_tx.max_packets;
-> +				err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i, usecs, pkts);
-> +				if (err)
-> +					return err;
+This is done by toggling carrier during ndo_open/stop while doing
+other necessary serialization about the carrier settings during probe.
 
-Can you check the feature inside the
-virtnet_send_.x_ctrl_coal_vq_cmd() helpers?
-5 levels of indentation is a bit much
+Changes since V3:
+
+- when driver tries to enable config interrupt, check pending
+  interrupt and execute the nofitication change callback if necessary
+- do not unconditonally trigger the config space read
+- do not set LINK_UP flag in ndo_open/close but depends on the
+  notification change
+- disable config change notification until ndo_open()
+- read the link status under the rtnl_lock() to prevent a race with
+  ndo_open()
+
+Changes since V2:
+
+- introduce config_driver_disabled and helpers
+- schedule config change work unconditionally
+
+Thanks
+
+Jason Wang (3):
+  virtio: rename virtio_config_enabled to virtio_config_core_enabled
+  virtio: allow driver to disable the configure change notification
+  virtio-net: synchronize operstate with admin state on up/down
+
+ drivers/net/virtio_net.c | 84 ++++++++++++++++++++++++++--------------
+ drivers/virtio/virtio.c  | 59 +++++++++++++++++++++-------
+ include/linux/virtio.h   | 11 +++++-
+ 3 files changed, 109 insertions(+), 45 deletions(-)
+
 -- 
-pw-bot: cr
+2.31.1
+
