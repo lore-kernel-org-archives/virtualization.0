@@ -1,177 +1,74 @@
-Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com [209.85.222.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A835A1B1418
-	for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 11:08:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD82F1A4B2D
+	for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 11:23:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722424138; cv=none; b=ej6Qh7yESKrDpKS6KN3t8trsmDY4w+7/WdQH3NtDlNJRrfYxECN7R8nNbhZlc3DqPLmo4WgJEOrCedTq2bH2j+iruSKYxCmA8ef9uLw3Za5D/if94eaXLN02VnfQe4ug5qdF8TA6gDK606ocPpo/pS1uGhcPm7Ab9x36Pj/bwx4=
+	t=1722425030; cv=none; b=EbkBzh9GIRECDpjPmml5sqEeNhN+p+c0/+UNnGenJZosGZimKx1J+1Ynw7ot7NSvtlr93+A4lmipH24CgTpqm5yVKv+2WHopHrHTetJcFI1pS08K1TDi8hhZMz1SeL1HAYN81DMqKwYt1n6s9XSySjAEmwGyM7xsS0N5zzGnKmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722424138; c=relaxed/simple;
-	bh=9UnkDg0dQtmSlXbVGPJQ3oHjAYouQcrzCA1DiDVeR50=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VrOKEhkG+GKMw/Ck0KNx9gEYFz3ZVEHhNSHAra0wOIqUdVQLlv2Huwk9iHbO2YX1CoQNGL1haddx/aIu1ChOmYQK94Q3jwLeu5KrvqtYuhTbNE4P1YVFu0YCHJGiRINL30EuX50fkf5ZMujCOY/Kx9GMkNidSp611FUtQHtmtUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hX5fEZUJ; arc=none smtp.client-ip=209.85.222.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1722425030; c=relaxed/simple;
+	bh=HATaWdQZWZIzAvM9h+SZ6bUQcK7RXstln/FD6gO0xe8=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=LLgA/p8rhauZbMnuSGS+AUAhojmtfm5+e1s3snVWQzYFlXI7ut/h+PYS6a0w6FoTfuS70VShv2+1Jr8KNJ+ekPNKesXu09QK6XFL2+RsSL2zpTLVrbHRw4+wIZ0W59fCrgUDdcd78nhTnyfp4T2BcbDJkwSmIKwOmLdthdlrNTc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Bhwd0MR6; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hX5fEZUJ"
-Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-821b8d887b8so1519737241.2
-        for <virtualization@lists.linux.dev>; Wed, 31 Jul 2024 04:08:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722424135; x=1723028935; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/Zk+cYfQy3/R+fSl4ijqOgCFd7jf0+0jsTHIqgoyTv8=;
-        b=hX5fEZUJLwOHrI05Y4USE49DQjwY9XrUAatoj+Z0YenhmaJ7e2YJKKoGdsKlOtuO+c
-         31bygDHODoiEVDIhLtpOcOqI27VYBkKdZPnTFtj6fc+Qu3NNX8cgudJ6UjKSZbuQfIj4
-         BB8RQqjFfHAjE1W3+oQAhBe29NfwevJfp8qizAbmy0aIH4+yvPwusuEH6GYLcr2VG45U
-         SLhFqi9FujF+zUku3Zw72ya0i/flrk8JdB2dXYjqi2m5DW28URc4ajoOZ/SXOCwtAmo/
-         jhlF+UVaHLKQEUfv+I0O5sRXg45BvFzJN/a8Dti7C509ETgLFX+Rmr/tPPBaAwlaI1lR
-         yYAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722424135; x=1723028935;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/Zk+cYfQy3/R+fSl4ijqOgCFd7jf0+0jsTHIqgoyTv8=;
-        b=AZF17MsTi5A0gaUzrx34evyiP1epSxYfqOjsLu8bjio3AvHr6WMJ6raW0jRaa8Wvxd
-         vA2wJBhGOsYon2hrkhKWcE8jCIH6vVyrU22oeXUFXLGGZIh9sdm5l2suCfeX2VolRumV
-         aFBMcFMQt7wUKTRMjZ/2t3k9aakTcysd3a03QPL0c6faD5Nn2W8EamCJOorcIJ9hXsAj
-         A7mD+NTgIONVgRHg/f9zPsM/EZ0C98BhFnxnSCT5WE2teshmS3Tyy5s03zHV5xHreuuI
-         zRixpyGWJr87fuHmJPXvanus4FkhhjOEA6S8wKqsOuno+L73tJoIfFeZ7QFqUoRj2H0D
-         sx1A==
-X-Forwarded-Encrypted: i=1; AJvYcCWZAY75oKel3Q80WAQHFP7CZblsuPQkDAq6XwJmGFaHXQ0YDFr3ErWNuhUkLHLv8/PPzjUp+lsqtlLiISomk5F3L/+6Wjo2mJ+NGBuSqHc=
-X-Gm-Message-State: AOJu0YxNgPmm3bFm2CIEmE4gptg90XdkSgqbfqqcaKNM29HEuneiQbMa
-	wsVhb9qvBtNHu2w28CYynJMVdnSes5FOkuPWHwNeXWqrz2jZOIX07ng841D5AZq6n+8ckwkRm+m
-	RZH8ieiiqIQVp8CHUEiy8YNpQAWcUax8AZg4=
-X-Google-Smtp-Source: AGHT+IFx//wnEVQXnfiGegpRRqukUM3xN1R0pbdxyTIOXbkqjXkzWbl45gqbN6xoDEdxHdqqxxslJLvapfxTJK9qfp0=
-X-Received: by 2002:a05:6122:210f:b0:4eb:39c9:c935 with SMTP id
- 71dfb90a1353d-4f6e6989ff8mr10127941e0c.14.1722424135422; Wed, 31 Jul 2024
- 04:08:55 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Bhwd0MR6"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722425020; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=HATaWdQZWZIzAvM9h+SZ6bUQcK7RXstln/FD6gO0xe8=;
+	b=Bhwd0MR6Djdg7R0TGfvM4aL+Gj2SDXZfiBxOtmfhSOXeDBWA9ejQHWJqNWjf/9Jfl3FkYuKTH9ClSH9Jrw3nlwJP1/jMjhi6pRNXv/k28P50kXt5K4BNYiqik2UMX8p51fTokxbO5r4tY5iWJkGm1xstO0GoRonQ7D82MNm6+eM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R861e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0WBjLas6_1722425017;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0WBjLas6_1722425017)
+          by smtp.aliyun-inc.com;
+          Wed, 31 Jul 2024 19:23:38 +0800
+Message-ID: <1722424933.7532778-1-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio_net: Avoid sending unnecessary vq coalescing commands
+Date: Wed, 31 Jul 2024 19:22:13 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux.dev,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Jakub Kicinski <kuba@kernel.org>
+References: <20240729124755.35719-1-hengqi@linux.alibaba.com>
+ <20240730182020.75639070@kernel.org>
+ <CACGkMEuxvLVLuKCLNi2eBy5ipzNn+ZGM+RSRBXk-UA0bJCKgZg@mail.gmail.com>
+In-Reply-To: <CACGkMEuxvLVLuKCLNi2eBy5ipzNn+ZGM+RSRBXk-UA0bJCKgZg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20240731000155.109583-1-21cnbao@gmail.com> <20240731000155.109583-5-21cnbao@gmail.com>
- <19981556-cecd-4f58-8b3b-bc3bb85a6ac4@suse.cz>
-In-Reply-To: <19981556-cecd-4f58-8b3b-bc3bb85a6ac4@suse.cz>
-From: Barry Song <21cnbao@gmail.com>
-Date: Wed, 31 Jul 2024 19:08:44 +0800
-Message-ID: <CAGsJ_4xnRCMAQLPb5XAYPL3NHA7K4firyWL_yseT+-a8Kz5OZw@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] mm: prohibit NULL deference exposed for
- unsupported non-blockable __GFP_NOFAIL
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com, 
-	cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com, 
-	mhocko@suse.com, penberg@kernel.org, rientjes@google.com, 
-	roman.gushchin@linux.dev, torvalds@linux-foundation.org, urezki@gmail.com, 
-	v-songbaohua@oppo.com, virtualization@lists.linux.dev, 
-	Kees Cook <kees@kernel.org>, lorenzo.stoakes@oracle.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 31, 2024 at 6:55=E2=80=AFPM Vlastimil Babka <vbabka@suse.cz> wr=
-ote:
->
-> On 7/31/24 2:01 AM, Barry Song wrote:
-> > From: Barry Song <v-songbaohua@oppo.com>
+On Wed, 31 Jul 2024 11:13:03 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Wed, Jul 31, 2024 at 9:20=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> =
+wrote:
 > >
-> > When users allocate memory with the __GFP_NOFAIL flag, they might
-> > incorrectly use it alongside GFP_ATOMIC, GFP_NOWAIT, etc. This kind
-> > of non-blockable __GFP_NOFAIL is not supported and is pointless. If
-> > we attempt and still fail to allocate memory for these users, we have
-> > two choices:
+> > On Mon, 29 Jul 2024 20:47:55 +0800 Heng Qi wrote:
+> > > Subject: [PATCH net] virtio_net: Avoid sending unnecessary vq coalesc=
+ing commands
 > >
-> >     1. We could busy-loop and hope that some other direct reclamation o=
-r
-> >     kswapd rescues the current process. However, this is unreliable
-> >     and could ultimately lead to hard or soft lockups, which might not
-> >     be well supported by some architectures.
-> >
-> >     2. We could use BUG_ON to trigger a reliable system crash, avoiding
-> >     exposing NULL dereference.
-> >
-> > This patch chooses the second option because the first is unreliable. E=
-ven
-> > if the process incorrectly using __GFP_NOFAIL is sometimes rescued, the
-> > long latency might be unacceptable, especially considering that misusin=
-g
-> > GFP_ATOMIC and __GFP_NOFAIL is likely to occur in atomic contexts with
-> > strict timing requirements.
-> >
-> > Cc: Michal Hocko <mhocko@suse.com>
-> > Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-> > Cc: Christoph Hellwig <hch@infradead.org>
-> > Cc: Lorenzo Stoakes <lstoakes@gmail.com>
-> > Cc: Christoph Lameter <cl@linux.com>
-> > Cc: Pekka Enberg <penberg@kernel.org>
-> > Cc: David Rientjes <rientjes@google.com>
-> > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-> > Cc: Vlastimil Babka <vbabka@suse.cz>
-> > Cc: Roman Gushchin <roman.gushchin@linux.dev>
-> > Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Kees Cook <kees@kernel.org>
-> > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> > ---
-> >  mm/page_alloc.c | 10 +++++-----
-> >  1 file changed, 5 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > index cc179c3e68df..ed1bd8f595bd 100644
-> > --- a/mm/page_alloc.c
-> > +++ b/mm/page_alloc.c
-> > @@ -4439,11 +4439,11 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned=
- int order,
-> >        */
-> >       if (gfp_mask & __GFP_NOFAIL) {
-> >               /*
-> > -              * All existing users of the __GFP_NOFAIL are blockable, =
-so warn
-> > -              * of any new users that actually require GFP_NOWAIT
-> > +              * All existing users of the __GFP_NOFAIL are blockable
-> > +              * otherwise we introduce a busy loop with inside the pag=
-e
-> > +              * allocator from non-sleepable contexts
-> >                */
-> > -             if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
-> > -                     goto fail;
-> > +             BUG_ON(!can_direct_reclaim);
->
-> We might get more useful output if here we did just "if
-> (!can_direct_reclaim) goto fail; and let warn_alloc() print it, and then
-> there would be a BUG_ON(gfp_mask & __GFP_NOFAIL)?
-> Additionally we could mask out __GFP_NOWARN from gfp_mask before the goto=
-,
-> as a __GFP_NOWARN would suppress the output in a non-recoverable situatio=
-n
-> so it would be wrong.
+> > subject currently reads like this is an optimization, could you
+> > rephrase?
+>=20
+> It might be "virtio-net: unbreak vq resizing when coalescing is not
+> negotiated" ?
 
-If we use BUG_ON, it seems like we don't need to do anything else, as the B=
-UG_ON
-report gives developers all the information they need. If we go with
-approach 1=E2=80=94doing
-a busy loop until rescued or a lockup occurs=E2=80=94I agree it might be
-better to add more
-warnings.
+It's great.
 
->
-> >
-> >               /*
-> >                * PF_MEMALLOC request from this context is rather bizarr=
-e
-> > @@ -4474,7 +4474,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned i=
-nt order,
-> >               cond_resched();
-> >               goto retry;
-> >       }
-> > -fail:
-> > +
-> >       warn_alloc(gfp_mask, ac->nodemask,
-> >                       "page allocation failure: order:%u", order);
-> >  got_pg:
->
+Thanks.
+
+>=20
+> Thanks
+>=20
