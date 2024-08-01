@@ -1,299 +1,144 @@
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2044.outbound.protection.outlook.com [40.107.92.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42AF713667E
-	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 15:17:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722525468; cv=fail; b=mpCk06YPuQDmGpzbUxd1x9mQ0RQBDYk3asOWBkr9Bjxfdwr/udGf039riCJ+Lv7oZTOPaIDCRnpYMMFsDhpM2ANh3Ct8yLTZyL/zaZwg3LkqBN7UoW4AWCCYzByXNzXd1bztjTp87XOJAOOADK2kKldAz8C4lbz45Atdpqy6mJI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722525468; c=relaxed/simple;
-	bh=W1+cTQUkN/58W7oq1SwTGrlqt8UmPMlLx+RztFAGpcw=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=DrQKLvhGKDwC3+xWNLVMu2dOMPo6Kp2KPaE5Nfzp8PQC73NkJWvu/JU5tJ8DYRQYOgsaufnV9w4VKUGM4Xibb9BSTiRhAyekJ7myxEwNpRNwI9cxSVMan0Zo/j23KxtnNhcSzm5j9mnGqiSMMAvqdNO2YPmIc0gUCwSST5wa+Qw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Dc4aFWGY; arc=fail smtp.client-ip=40.107.92.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41B57132139
+	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 15:22:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1722525760; cv=none; b=gn9XprmJpJ6WjLMGNr4q/ooiiwBM+NrrTML30YuhpxDuVfkz0CPq/04oxObwMDiQSOPyFcq+ibgwCRkzFrZTKGGBxN5Z5diWAft4gtoW82s5wBOhi13WuSh32axwbb8a5GbQOOpYpEzau5y+NJ9IT5bZI9Ui8JIWRm2rHM7Py6Q=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1722525760; c=relaxed/simple;
+	bh=8Dx2Bv0d2od3Km7MjoXRYzhl1VfhP4WqwsY5gBZHcjc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fE28F938iGfEfrdV3ayPQWECxkFMpXRpAzBGiKNtkYo9eJZ6Ygx5s6Th173Pm8FW1UIuKKQQs03VY0Fgmr5njGUiD0iRT58zM/xTkc7L4QU4GlknEXI+U33HdGZaZXYaR5/pCQcK+UhO5/D0mJr9wZop1sdijWtrEpjtc1d6J/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P1GLlaw5; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Dc4aFWGY"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=wFndk9acZFaYlrZ6rWdSNLvoU8dOONqxUxceHuIVqz+Qye4qEPOqhkV6UUUb8RE2sXzhvwrVFRd5j2521J+QVI6eI4pNYLqOpCjxOqAhD39IWTyJdLfRCWl083588iAQfBLoACDY9SWy+XkPXUyRHEqSJJVR8ED3fP7bp5/5++t1NOYZyaLjs5qH7R1qe05ng3HlL/HpGQXkcAdxy/aC8pY4AETd+eravsrQiVqa5Rtcu7Nj+eAWl2wlNvEuqzN1OrDB9eIPsOIVkxaDoqCtiQFb9n8LogVLcRzhz5LmcuMN9Fskva8AiJ5OYqRPjIiusL/8D1/XFrBOojq14AlLAg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=o6wVGxF9C+uLxTK+WcKTaWO8EIwrOJwe8xy+9MXabTY=;
- b=kD2inIIU7W2RoickCkyn7bhWthfu+m4n7BEUFntVSyl851f3/dGeSHL3i/igHCKhI0/j2otwEqmKLAALd8bTo5MVEmWOXZ2aRpx+2YNYN61zXl+mQtMgqucyLY1bZmgzh6XhDyPvz1uvIKAaqx/kTC6RvlyWQuxMxLYoEePcg+J8b/sWI2x2CtyQakBE7c2InrXUcgRz55B8ayIT/cWClv8r/+wnTHLk5aPKm6EJ3rM/cRvAdgZEpoeHjDkPrqnAQWGGS/RP6slQ2/LtKMGuB3P2/6RqK56uXP8+rHUK2jtFADTrNjzU3lzcWCBNEsVBaf7m3/otb4wMr+7OvLhKSw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=o6wVGxF9C+uLxTK+WcKTaWO8EIwrOJwe8xy+9MXabTY=;
- b=Dc4aFWGYValqet/K549EnbAoXWdIaQHtIMASHzLN3EAEuWkLsIarmf7L4Ww6Lt3nJmblg2YEhSf7G9F+T6vLeeAfE31fntLJincv9hGlmnz5Qi4vXOraUcLjQEjUVEsvwb+Q63IzZ+mKx2Ib+H5mF9RSKmjtlalfoQS5NZ3g1FAo3ZPx/R/CZpD9iCPt94DDNL81FW3oGYRW0OKUSmpYT8s93pH9L625mrOzKpt1z5KjMC/zUbaYYH3JWcGL+o28GmeeJbVgU/aWKspY8bZw8G6O3u+Ks3g+AUh14h4as8OYCB/64qvJ81CinbyhLUUYQKhMeG6EE23ESWc4Z+LW6g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com (2603:10b6:930:21::10)
- by DM4PR12MB5914.namprd12.prod.outlook.com (2603:10b6:8:67::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.19; Thu, 1 Aug
- 2024 15:17:34 +0000
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6]) by CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6%4]) with mapi id 15.20.7828.016; Thu, 1 Aug 2024
- 15:17:34 +0000
-Message-ID: <0888da3b-3283-405b-b1a8-a315e2623289@nvidia.com>
-Date: Thu, 1 Aug 2024 18:17:21 +0300
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] virtio_blk: implement init_hctx MQ operation
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: stefanha@redhat.com, virtualization@lists.linux.dev, axboe@kernel.dk,
- kvm@vger.kernel.org, linux-block@vger.kernel.org, oren@nvidia.com
-References: <20240801151137.14430-1-mgurtovoy@nvidia.com>
- <20240801111337-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
-In-Reply-To: <20240801111337-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: LO4P265CA0182.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:311::12) To CY5PR12MB6369.namprd12.prod.outlook.com
- (2603:10b6:930:21::10)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P1GLlaw5"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-428e0d184b4so6439315e9.2
+        for <virtualization@lists.linux.dev>; Thu, 01 Aug 2024 08:22:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1722525756; x=1723130556; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8Dx2Bv0d2od3Km7MjoXRYzhl1VfhP4WqwsY5gBZHcjc=;
+        b=P1GLlaw5VSw7Apl5kxolmZdZ8amM5YSaOSIvrFPKIJ+IUFXMk54XzythQhwF8Nsst+
+         /P3u9UPIfUcc5AMLI3l+6RW2wXgiWCzhglX7YRfYx3k6H3npSDgdRrMtfjMP+IUV4czF
+         KpyB9k63lqAnpHbqM7KHTUf9CirXKNQkoPhgbb8Y6cLyCsYE6ANZ79vaOVNeBfSP3zGX
+         DU5bMzScdcciCMhTLv68iiVbHtJJYHy9aQbWqwDv/iSGUOq0eFVXspS3MaGMLpwptz8R
+         n7FzQ0H12o5xTm6H2O3GDr4stgYHm7htxPKxsGapDALrV/EaYiSE7NrTA+cpc2Ehtooo
+         gKbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722525756; x=1723130556;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8Dx2Bv0d2od3Km7MjoXRYzhl1VfhP4WqwsY5gBZHcjc=;
+        b=MRyx3NnqhZtERIdTyBiIM5Z70IjiKIx0fHiven9F6oIPrm7SWevQ89o6NFCg76t7ex
+         Tk55h7bAy/P61kWgdr4XSZVrK5D6nPZoe8wzeLfIj+Q7wjmbdhuUxohG8O83moTbDtxz
+         VTdoEWZcs8o3AnafFWbecmpw5MtBThCYCxb74O5p2QNF9QYLwP2faFxLtXdwxuHwPqCf
+         XgjWunDk6RdXrPz9ZWj5+/u2p+6ZC/O6NajFkGZ1J87gPL50lp8GJeFAfJbU4CW6BDxt
+         OurcgCQQGkEQcwB8+3lpssx8GtCIUl5P04/ZWkSmtWIv4Y/nFggZoqV40VJ3s2aUmYxV
+         2o9w==
+X-Forwarded-Encrypted: i=1; AJvYcCWHu1HFlJVJuOglfLdvcCYeY7SCqfa8M4y4zXcQmYNFruZh5sOYxEV/H1K4Im0lXNgxIxAkWHwSp3bgycf4eckAz7du1M7OrZz2xAVh0KA=
+X-Gm-Message-State: AOJu0YwcxW4Du7P/47nJxD5rgUUgsAaEKDByDo/6vQyi5Z6kTxYdIqbc
+	TyT0N/JcU3SrLtB2qZykrLAC2ptOO2xEjb68+85XfGajhX6APz2Y4DsE8g9ae1Hf071WS0P3Ood
+	CEXNUmKn03AkRXgdjdlcf+rwvAyg=
+X-Google-Smtp-Source: AGHT+IHJwpMJUuvVBDGd0+iVwndbV1UbEfs+MYBNb+0c/veShsqCR+fklPSjDi/gK00dEDB9UQYZf/nj06+15imHIwM=
+X-Received: by 2002:adf:f14d:0:b0:368:4bc0:9211 with SMTP id
+ ffacd0b85a97d-36bbc0f3459mr125871f8f.17.1722525756248; Thu, 01 Aug 2024
+ 08:22:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6369:EE_|DM4PR12MB5914:EE_
-X-MS-Office365-Filtering-Correlation-Id: d0217171-59fd-4c2b-a0f1-08dcb23d120f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?Qm9NeDJpejJOVG05cWxYeGhTcTdCUGN5N1VXRENwU0prVnpyTEFmbG5oSXF3?=
- =?utf-8?B?cTVRN2ZGYmsza2paeS9ZdnkxcXZwSm9pMFBGUzAwekREQmtrVWtKVzFlVlhZ?=
- =?utf-8?B?R2NOeTBFSTBpUGlpSUtERmpzQjFWSUhFZ0xYSHNYTGJmRi9BcTB6aGNZR1VG?=
- =?utf-8?B?R1creitTRTV0Q0Q0bnRCOThTY2Q1SWxiZ2NFQkpCWjVNQzJpUXdrMXlMVzFt?=
- =?utf-8?B?UW9ZbnhvbUJ1Qlh1MzBCQTBuRGFNSU5HOWF5bG9iNVhVT3NtTVJFNXp3Mk9F?=
- =?utf-8?B?Ryt4WUh3azlIV1B2SE1rVG9kYU5qYWNxWVVSeGNPbmNkUEVHVXVZOTlaRE9o?=
- =?utf-8?B?MDQvc0ZEclJjNHhBMWNITndyYTA4MURNVEVzbGZFbHZPNVdkSmZIUkFVNnRx?=
- =?utf-8?B?TDhRQUw2WmdyS0ZRMmhVV0I4c0VHVXIvV0h3NlJlUUw5WjVrWnFoaWRkcjFh?=
- =?utf-8?B?Q3Z0cTA2MkZteW5CQlQ0c1NBS085ZDVRSlpmc3JiZ0pZOHRwZHA5OTYxemJJ?=
- =?utf-8?B?Q29USEVXaDRwT1c1N2NWb1Y4azI4U1RjS2dYb21pc09Ia1FJOS82d0ZLRERG?=
- =?utf-8?B?NHdtbFEwZVlocEN1ODdBZEFXWXBSTkU5NTFmdHdGQS9TWnNET1hsV1lvMzNT?=
- =?utf-8?B?QjlNbnV5VUhPT1pXMWRCWXVRMlI0WXhJLzJHWHMvQmpHckc1dzVkbmhkaWh1?=
- =?utf-8?B?czd6M0dIS3p5Vit1L1ZuYVhVV2NVUCtEL3c2VUd0elRMUUpxUzRlMWZzYytr?=
- =?utf-8?B?azAvOFhTd3loWG12MW91MXBnVXk4WVVmMGxiMWRoWlBmcHRUSWtZWUljbE4y?=
- =?utf-8?B?K3V0a0VldExNc0FoSldKcG9IcXRObURyTk9LQUFQYUE5WTJCVmh1QmxLcmFO?=
- =?utf-8?B?ck9XR0JUb0JzdE9Iak9LNEZwWE9TQ0x1NlJuanJJREIrQ0FqZ0IyVUhvemtS?=
- =?utf-8?B?YVdPcTdzZ3ZMbld1dTFBd041ZGpOMjVqZ0ZsdUxlbU5oR1dJZHUwRmhROG9G?=
- =?utf-8?B?MktQNEdycUVyS21XdVA0RkZ2c1pjT3hrcmYvRjRDQ1J4RUVvTmFRS0xjejRL?=
- =?utf-8?B?V2pMMzBHYlFtMHpQNFpEZWk1djNseGs2eUk3UmhBVGpqeW9WWEc4aDNMTXkr?=
- =?utf-8?B?LzBwNExZanJsTFhOZ1U4bFRWeWgvRUFXMUNtNFRXcW5MYThyUFRHUHF1VnpC?=
- =?utf-8?B?VWtLQWtYd3IvMXErWERReGNOYTlLVHpaREEwNCsyRFlzdU9pRlZHeEI0ZzdQ?=
- =?utf-8?B?YWNFaXZ1bE1LclN5NEpLVCtmNGVyTklzeWI2amhPRXowZjF5N25ybkg2cktx?=
- =?utf-8?B?SVBVNDlmOUdudEVvd3AvKzdNdEZtb1hQcHg5QUZlQjJjLzNjRFltdlFZcG5F?=
- =?utf-8?B?U29DWGVWRXhzL3YwdHlUVUFXRElFeDJLb0prN1Q0WG5oWTNHOG04TGN0TzAx?=
- =?utf-8?B?d3IrVENjSzNDQTY0UUtnc2YyVXJUTy9lRjcxOUk1YS9tSlNJaHl4L3BaQ0NE?=
- =?utf-8?B?WUxoQ2NJY3N5aEJqT2hmOER2R3pzSi9SNEdKNE4zR1BFRlByM2NKYzFYNysx?=
- =?utf-8?B?OWZ6bUduOTVvcVpWSDJEQ2pISnE1cm9Ta1d0TW9mZ2pQMTRGdzFYTHhhQ1ZX?=
- =?utf-8?B?MGRXajNOaFl0NWcvb3MrV1A2ZEw3eUVmczdwajVENWxLSDMvdnh3c1lxajFD?=
- =?utf-8?B?U0ZYU2ZUdVB0MmFGNjV1b1c2bGxVUks5aU9LajhFczh5WlJ5bnZmcjh5NWVF?=
- =?utf-8?B?cGdQcEx6aUtha2tHMVNmUGFaTWg1VjRrcW5uTVhOOTFyWkpzWldqdXY2MURv?=
- =?utf-8?B?VCtSRVB2ekdYVkJWWXp0dz09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR12MB6369.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?d2k1QlFCY28wRnVWbnY2MWpWUFk4VWVmU2ZGTWN4UFNQRUVBVC8xZkRhaUY4?=
- =?utf-8?B?ZThiVmpUdnFBQ0pNbzI4WTRyZ3BRSkUzSlRjQUNPMTRteTB5cm9PdDZ5QjFk?=
- =?utf-8?B?UlNHMzdPY0Z0aGFmVTArRDVTSmZwK2I4aGhiNlJWM2hpL1J3cnRDdENYaTcw?=
- =?utf-8?B?ZVJrY0lBYzVoQzVQNEU3U0tHWXJVdUtzTnZSZWduTTBOVUhUWGxrZXY4dUVH?=
- =?utf-8?B?MUY2LzF3SlN2YVhIdjlaN2xQbmpsRHdWQUhwQ2kvdER1UzF1U09sWmZYM0RJ?=
- =?utf-8?B?dmREU3puL3hpb0NxYWM0cFh6M20wWWZUS1JRdzkvdkNiWFdZcGNENEhxVGh5?=
- =?utf-8?B?Nnp5cFJOUHFtSFdIdDBwdXdtWnNwTkhnTDVWQ0wxdWJWQ2U5UHhvdjNqRE5C?=
- =?utf-8?B?SzlRYS9OOXVmc3owOUJkMW5vNUN5N0gzZGVxZ1lJZFF4L3p5KytzZmRkQ3Zq?=
- =?utf-8?B?Rk5ySklSa1h5dmI4N0Rkb3JTbmlnb2szeHY3N1NUUzE3WHdkOXZ6aW5BL2Iy?=
- =?utf-8?B?RzcxMmMzd1paeXJKbk1xeTlBeGZsd2xneEpqL0l1UTlyMytCQ2k5UUcrMTFk?=
- =?utf-8?B?eDcwenhud29IN1UrMzhPaFlseldvOStMYVdHZ2JBMXI2MU1IT28zUzAra0N4?=
- =?utf-8?B?bGNtdjBVYU9HR0FPc1UrWGpXU2NNd0Y3azB5VkN3YnJFbGR5djhabzRSdHNj?=
- =?utf-8?B?bkRzWDUzRTljSStEbkpmWlFBZjlNRkxwWC9GMWJKM0s3NUJxTlBzNUkrYSt2?=
- =?utf-8?B?eXl2YW5uMWNjaFE0Q2doaW5oNWJqUzJrWkZwNHk4V1RXUks3bEVvNWx0UkIz?=
- =?utf-8?B?Z2RnT2pnd0VWZGhEMnNQSjFrWlR0Wkw1SE5ZcmplT2pZUndNN3l4cXVTcThl?=
- =?utf-8?B?TXVtYW5kdGc2NGdVM2JUKzNYY3l0UlNQSGp5R3o3YlRGeVlGNWsrZVZ4Ri8x?=
- =?utf-8?B?Lzk2aUpQOE1XTXQ1dUFkd3NCUmVMdTRYOS8xNUkwRlFpWjgxdjhIa0hOVUZ4?=
- =?utf-8?B?ZVpKd3ZSc3dEaEFXOUg0Z3RKclgyT2kxcW9vY0xicnNqY3FOTjJpdGNOaVcv?=
- =?utf-8?B?aDh2d2tFYk95NlVRTFNGL2c0NXkyRk9LSGRaTU51Vlo2S2hFajNoczFsZmRk?=
- =?utf-8?B?TEtydnJmV1BrZENyK3U2VlVHVEdUSEFteG53b2VNMm5KTndKbFVCa1hKVUNJ?=
- =?utf-8?B?OWhTNnBNaWFRSkhOOEg2dnZqTm0ydUIxc2tQNittTytzbGhlNy9uMWcwRzlN?=
- =?utf-8?B?aWhnK0dxbkl6aktyOWMyZEppdkFxcU5SeVQ5ZHZJU0VmVm9yTlo1aEtFeXVI?=
- =?utf-8?B?cnIwd0Q0NmhHNzMrem1CQ2JRNDdsRW5IV0hpdUZnS3pIRitnazhyeFJJWEFq?=
- =?utf-8?B?VHpaT0dVWVBGbW9pUUNoUGg2MWZQWEQ0TE1Tc2s1dTcvbDZNZkFiNXZIZ0hZ?=
- =?utf-8?B?WEV2eDJ2QWNOS0JBZkw1T0RpKzBRdW1yMzhkMjY3TmNwVkhQc3ZpcTNaeUQw?=
- =?utf-8?B?cE8yTi9SV1MxTUZuck1hTUtIN2toSTlpQTNKYkVNMjl5MS92U1NoL2pwV1px?=
- =?utf-8?B?clZITnl0ODRLZ1cvVWpBb0pxZDlheHJ2cnBCbTF5c2I0Qyt3dnU3akxCU2Ix?=
- =?utf-8?B?ekVnZzRadzNQbFFNdHFtbk9yWXpQemlQemFzZWlkL3gzVkdzZ2xQSjJkYVRu?=
- =?utf-8?B?b2dsK202eDI1QThrTldIblR6d3ZPUEkvK0c4QkZYNXVodWg5aVhhYWtrVXEv?=
- =?utf-8?B?TkUzUC94Nk81ekF6bVFWeFFpdUlDYVhkTmpETFAyM3JVdmNteUp1RUlSdXkx?=
- =?utf-8?B?YS9WK2NqUGdWTmpvOUtXWmx4eVZjK1NPbmtybjVEcmhCSkJtdmxpUjF2YTJu?=
- =?utf-8?B?VFcxRk9hVXRubldmZTdUaEhoblhhaks2MElQZmZKT2IyZ1cvNndVaUlrWFA0?=
- =?utf-8?B?bWJyUkRSTjZjbzlBZ3Q0SlFMTTR0alNRTUNHRW1JaEZQN3VjSS9JNnM1S0xF?=
- =?utf-8?B?U0VJTnpLMllsQlE3Q0ViSUdMZ3JLb3FmRHBvRVV5TEdsei9tTThJVnFZYXlw?=
- =?utf-8?B?aFhZQ2NNSVlHWnZDVjZPMnY3MVlFWFpaU3BUekxEVmt4cTczTFVTQU1Jb2dn?=
- =?utf-8?Q?8S8Rm10OxzvRW0Qw47aXPjyLm?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d0217171-59fd-4c2b-a0f1-08dcb23d120f
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6369.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Aug 2024 15:17:34.7924
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 2RMHH3oY72tRjMFyfR6Ib1NfM7hAydXTgKWj8yKMaJjhlIL5DxA+B6OtwGVmRD5TfbCU/Y9MPh2EmKMJfkNeWw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5914
+References: <20240731124505.2903877-1-linyunsheng@huawei.com>
+ <20240731124505.2903877-5-linyunsheng@huawei.com> <CAKgT0UcqdeSJdjZ_FfwyCnT927TwOkE4zchHLOkrBEmhGzex9g@mail.gmail.com>
+ <22fda86c-d688-42e7-99e8-e2f8fcf1a5ba@huawei.com>
+In-Reply-To: <22fda86c-d688-42e7-99e8-e2f8fcf1a5ba@huawei.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Date: Thu, 1 Aug 2024 08:21:59 -0700
+Message-ID: <CAKgT0UcuGj8wvC87=A+hkarRupfhjGM0BPzLUT2AJc8Ovg_TFg@mail.gmail.com>
+Subject: Re: [PATCH net-next v12 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Subbaraya Sundeep <sbhatta@marvell.com>, Jeroen de Borst <jeroendb@google.com>, 
+	Praveen Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>, 
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham <sgoutham@marvell.com>, 
+	Geetha sowjanya <gakula@marvell.com>, hariprasad <hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, 
+	Sean Wang <sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, 
+	Lorenzo Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith Busch <kbusch@kernel.org>, 
+	Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+	Chaitanya Kulkarni <kch@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, 
+	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, 
+	Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, 
+	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, intel-wired-lan@lists.osuosl.org, 
+	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+	linux-nvme@lists.infradead.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
+	linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-On 01/08/2024 18:13, Michael S. Tsirkin wrote:
-> On Thu, Aug 01, 2024 at 06:11:37PM +0300, Max Gurtovoy wrote:
->> In this operation set the driver data of the hctx to point to the virtio
->> block queue. By doing so, we can use this reference in the and reduce
-> in the .... ?
-
-sorry for the type.
-
-should be :
-
-"By doing so, we can use this reference and reduce the number of operations in the fast path."
-
-
+On Thu, Aug 1, 2024 at 6:01=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.com=
+> wrote:
 >
->> the number of operations in the fast path.
->>
->> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
->> ---
->>   drivers/block/virtio_blk.c | 42 ++++++++++++++++++++------------------
->>   1 file changed, 22 insertions(+), 20 deletions(-)
->>
->> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->> index 2351f411fa46..35a7a586f6f5 100644
->> --- a/drivers/block/virtio_blk.c
->> +++ b/drivers/block/virtio_blk.c
->> @@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8 status)
->>   	}
->>   }
->>   
->> -static inline struct virtio_blk_vq *get_virtio_blk_vq(struct blk_mq_hw_ctx *hctx)
->> -{
->> -	struct virtio_blk *vblk = hctx->queue->queuedata;
->> -	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
->> -
->> -	return vq;
->> -}
->> -
->>   static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr)
->>   {
->>   	struct scatterlist out_hdr, in_hdr, *sgs[3];
->> @@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
->>   
->>   static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
->>   {
->> -	struct virtio_blk *vblk = hctx->queue->queuedata;
->> -	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
->> +	struct virtio_blk_vq *vq = hctx->driver_data;
->>   	bool kick;
->>   
->>   	spin_lock_irq(&vq->lock);
->> @@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->>   			   const struct blk_mq_queue_data *bd)
->>   {
->>   	struct virtio_blk *vblk = hctx->queue->queuedata;
->> +	struct virtio_blk_vq *vq = hctx->driver_data;
->>   	struct request *req = bd->rq;
->>   	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
->>   	unsigned long flags;
->> -	int qid = hctx->queue_num;
->>   	bool notify = false;
->>   	blk_status_t status;
->>   	int err;
->> @@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->>   	if (unlikely(status))
->>   		return status;
->>   
->> -	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
->> -	err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
->> +	spin_lock_irqsave(&vq->lock, flags);
->> +	err = virtblk_add_req(vq->vq, vbr);
->>   	if (err) {
->> -		virtqueue_kick(vblk->vqs[qid].vq);
->> +		virtqueue_kick(vq->vq);
->>   		/* Don't stop the queue if -ENOMEM: we may have failed to
->>   		 * bounce the buffer due to global resource outage.
->>   		 */
->>   		if (err == -ENOSPC)
->>   			blk_mq_stop_hw_queue(hctx);
->> -		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->> +		spin_unlock_irqrestore(&vq->lock, flags);
->>   		virtblk_unmap_data(req, vbr);
->>   		return virtblk_fail_to_queue(req, err);
->>   	}
->>   
->> -	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
->> +	if (bd->last && virtqueue_kick_prepare(vq->vq))
->>   		notify = true;
->> -	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->> +	spin_unlock_irqrestore(&vq->lock, flags);
->>   
->>   	if (notify)
->> -		virtqueue_notify(vblk->vqs[qid].vq);
->> +		virtqueue_notify(vq->vq);
->>   	return BLK_STS_OK;
->>   }
->>   
->> @@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request **rqlist)
->>   	struct request *requeue_list = NULL;
->>   
->>   	rq_list_for_each_safe(rqlist, req, next) {
->> -		struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
->> +		struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
->>   		bool kick;
->>   
->>   		if (!virtblk_prep_rq_batch(req)) {
->> @@ -1164,6 +1155,16 @@ static const struct attribute_group *virtblk_attr_groups[] = {
->>   	NULL,
->>   };
->>   
->> +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
->> +		unsigned int hctx_idx)
->> +{
->> +	struct virtio_blk *vblk = data;
->> +	struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
->> +
->> +	hctx->driver_data = vq;
->> +	return 0;
->> +}
->> +
->>   static void virtblk_map_queues(struct blk_mq_tag_set *set)
->>   {
->>   	struct virtio_blk *vblk = set->driver_data;
->> @@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct io_comp_batch *iob)
->>   static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
->>   {
->>   	struct virtio_blk *vblk = hctx->queue->queuedata;
->> -	struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
->> +	struct virtio_blk_vq *vq = hctx->driver_data;
->>   	struct virtblk_req *vbr;
->>   	unsigned long flags;
->>   	unsigned int len;
->> @@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
->>   	.queue_rqs	= virtio_queue_rqs,
->>   	.commit_rqs	= virtio_commit_rqs,
->>   	.complete	= virtblk_request_done,
->> +	.init_hctx	= virtblk_init_hctx,
->>   	.map_queues	= virtblk_map_queues,
->>   	.poll		= virtblk_poll,
->>   };
->> -- 
->> 2.18.1
+> On 2024/8/1 2:13, Alexander Duyck wrote:
+> > On Wed, Jul 31, 2024 at 5:50=E2=80=AFAM Yunsheng Lin <linyunsheng@huawe=
+i.com> wrote:
+> >>
+> >> Currently the page_frag API is returning 'virtual address'
+> >> or 'va' when allocing and expecting 'virtual address' or
+> >> 'va' as input when freeing.
+> >>
+> >> As we are about to support new use cases that the caller
+> >> need to deal with 'struct page' or need to deal with both
+> >> 'va' and 'struct page'. In order to differentiate the API
+> >> handling between 'va' and 'struct page', add '_va' suffix
+> >> to the corresponding API mirroring the page_pool_alloc_va()
+> >> API of the page_pool. So that callers expecting to deal with
+> >> va, page or both va and page may call page_frag_alloc_va*,
+> >> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
+> >>
+> >> CC: Alexander Duyck <alexander.duyck@gmail.com>
+> >> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+> >> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
+> >
+> > I am naking this patch. It is a pointless rename that is just going to
+> > obfuscate the git history for these callers.
+>
+> I responded to your above similar comment in v2, and then responded more
+> detailedly in v11, both got not direct responding, it would be good to
+> have more concrete feedback here instead of abstract argument.
+>
+> https://lore.kernel.org/all/74e7259a-c462-e3c1-73ac-8e3f49fb80b8@huawei.c=
+om/
+> https://lore.kernel.org/all/11187fe4-9419-4341-97b5-6dad7583b5b6@huawei.c=
+om/
+
+I will make this much more understandable. This patch is one of the
+ones that will permanently block this set in my opinion. As such I
+will never ack this patch as I see no benefit to it. Arguing with me
+on this is moot as you aren't going to change my mind, and I don't
+have all day to argue back and forth with you on every single patch.
+
+As far as your API extension and naming maybe you should look like
+something like bio_vec and borrow the naming from that since that is
+essentially what you are passing back and forth is essentially that
+instead of a page frag which is normally a virtual address.
