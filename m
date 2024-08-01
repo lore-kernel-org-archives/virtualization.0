@@ -1,195 +1,184 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 39C3A8BE0
-	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 08:00:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722499230; cv=none; b=VgwjrrXcgxj7n75zxIzwuGSeNRcYPzl7+8x74RwgNgXtAhHUc00O3rGfcZ9aoIADIE9pjqA8QW8T0lNTtf9Et5X25U4Pyc87hQnwVsbeHMdyK1zN/2noc43Kb/al2dy84c3FZq/0JNP72ZkhH0HsOlfpg0HEnck8oTe4OCisNS8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722499230; c=relaxed/simple;
-	bh=IRx6ViHd+hgFWkDpF0kdvEKAfipqLXwSTj1Re4NASyk=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=rduSLnaf/BjSV26vIEBEScvXrW3q1g0rNqxu9MJvpNgB/BOvGtXqtrDgcTusO926zdXGmUPyyWsVlgZgbjyKFrLdAeqyg/dYcXEOMFXk8k3cchtjhjRJm+QZSGlZhP+qIXNQJAQA6cshgtNcdnIYUN4cENC6ww9LOla4WMAkC00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8Cx+emXQKtmCa8FAA--.19793S3;
-	Thu, 01 Aug 2024 16:00:23 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by front1 (Coremail) with SMTP id qMiowMAxRuSUQKtma8EJAA--.48582S3;
-	Thu, 01 Aug 2024 16:00:20 +0800 (CST)
-Subject: Re: [PATCH v4] x86/paravirt: Disable virt spinlock on bare metal
-To: Chen Yu <yu.c.chen@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- Juergen Gross <jgross@suse.com>, Nikolay Borisov <nik.borisov@suse.com>,
- Qiuxu Zhuo <qiuxu.zhuo@intel.com>, Prem Nath Dey <prem.nath.dey@intel.com>,
- Xiaoping Zhou <xiaoping.zhou@intel.com>
-References: <20240729065236.407758-1-yu.c.chen@intel.com>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <4d31e1b4-2113-c557-b60a-3a45b2840f26@loongson.cn>
-Date: Thu, 1 Aug 2024 16:00:19 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390DB19DFBF
+	for <virtualization@lists.linux-foundation.org>; Thu,  1 Aug 2024 12:18:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1722514708; cv=fail; b=qh2F8XjIHrY+iugwvNNQSL1y+1BOQC6EgM+IjbmkDjC1y5M7BQFp8Qh3OxqAMzYEfrNtYb/fK1PJT1Biwlpnfo9oZLivjH3PtQL47Cg5JDsCUtRPPINHU2HTBP5l9t+nRYYlPxO2zvdUQAwehkoUFx7agl7XRy+hXwt/dSfxsdw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1722514708; c=relaxed/simple;
+	bh=yn1T5EXFnpN2UyQBUCV1nN/Jp5AAkivUHNzAtG20zkQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=KPIYMyN4StVZXNwrUtU4rRWzmeTWTtB0ywpEnZNqxVx4XWXnx6dFTxW9y1LIGgq79pHsXN5gYfS8aF7kQ0WzPN+CzuCp3Y113jEm8fpYatn3sVyWRDrgY0Nh296+yJv4GGhIvzJuTkW79QBWx2Iq7Lpr4EcRkYjNugkeAtHh9ig=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=aF9reSw0; arc=fail smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="aF9reSw0"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id C1E3C60F1D
+	for <virtualization@lists.linux-foundation.org>; Thu,  1 Aug 2024 12:18:25 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id A4Lw98-BPpH9 for <virtualization@lists.linux-foundation.org>;
+ Thu,  1 Aug 2024 12:18:25 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2e13::800; helo=eur05-vi1-obe.outbound.protection.outlook.com; envelope-from=luigi.leonardi@outlook.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CA90060B57
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CA90060B57
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=outlook.com header.i=@outlook.com header.a=rsa-sha256 header.s=selector1 header.b=aF9reSw0
+Received: from EUR05-VI1-obe.outbound.protection.outlook.com (mail-vi1eur05olkn20800.outbound.protection.outlook.com [IPv6:2a01:111:f403:2e13::800])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CA90060B57
+	for <virtualization@lists.linux-foundation.org>; Thu,  1 Aug 2024 12:18:24 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=LQy8Nk6G1Yvb2qiInlHhpjTPUXjpB3+JlrI8Prysd8LJAq6dvl8Z6ikTQ4kseuky5FLBMkronBMRXvN6tm5KbD2BQAYUGrNYQDzGXvOYrcK+NKMUewfKL8i1Al8FAtCzbjBERlzyNBSOzTr490BtTU/eYAR3NBVnhDxvuzDy7Ylz7Ms1duEQhfBKvSHpqw1L3ZDcMUjO6QlrKU4GKFapzg5v40dtuQ4spAOO+MMcNVdYV0nhDeS9LtO3U91M6yqwGULPmYjFnGJVziCjFkXGjQ/Du9QRlEc371YLci3t3eiV2O+K6inWVRKdi14/hBm2lPrB7dDqjI+K/vcCThvgLQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=uGnO4fXcZ2TaTfZ2jZ6hPVgOHSGEofFcIDJJISTrQNg=;
+ b=qczie6djIjn1oBoluwkv7XwZeaT3k7PvD5lybtLLtcZjJTPbA9xE6ewAVxVE39kQ5GAAgs5TUanEq9Oc01cGnQGMyW6E9MJN9mvN1HdgpIM0ohCBs2RdH22pHL0m3MSech+hLogJjQ+hO1Zaa7p2O2jKhPowxk4DKIEvTGea7nMcA4+/9Xx5z/iIsczWjnHEz58gLEE0L0ma2RlPKQIhVG4Gkg5hz5/kmCK1IQqQrvqS03O2URbZlUr0UXr3F6zmBVXYJz08YuwpGwf5o8Irl7VB8ACLxV49EPppxnX8yhnz8zC0bDzZ0g360s6WvCe+l2+zDV3NxvP5TjdKBdztRw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uGnO4fXcZ2TaTfZ2jZ6hPVgOHSGEofFcIDJJISTrQNg=;
+ b=aF9reSw0bdlNG6bZH6h4OPollJEAHR0vk6e1YclzLVw5I8JVhgrmrgFDYa1Uqm0FV/6bPfWuyGYSumiAgWakrNui9iTpVhXXhsHyenbDKQJTYCuDdtrnppvchWboIrhhf7fS077JQa/dqMB9tDCuiSCofW/1lQTg/cqjSWc9pg9a048aiur+ZSI0GY7Fd6HSc1P6N7xCvHea3vouJwjifBlspKeHVM3cWIOUqlL7rp9v38BLX8ztj7VwaungzHCJjqagd2ZAFTUHH37nuLDZNKpmqm9vVCmZHpZdCfW3Mh+LOK5MiqNHphQP5IrS10MtDEKhXxvYiuLvGLNHljXyYg==
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
+ by AS8P194MB1622.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:371::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.22; Thu, 1 Aug
+ 2024 12:18:20 +0000
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::3d63:e123:2c2f:c930%4]) with mapi id 15.20.7828.021; Thu, 1 Aug 2024
+ 12:18:20 +0000
+From: Luigi Leonardi <luigi.leonardi@outlook.com>
+To: ameryhung@gmail.com
+Cc: amery.hung@bytedance.com,
+	bobby.eshleman@bytedance.com,
+	bpf@vger.kernel.org,
+	bryantan@vmware.com,
+	dan.carpenter@linaro.org,
+	davem@davemloft.net,
+	decui@microsoft.com,
+	edumazet@google.com,
+	haiyangz@microsoft.com,
+	jasowang@redhat.com,
+	jiang.wang@bytedance.com,
+	kuba@kernel.org,
+	kvm@vger.kernel.org,
+	kys@microsoft.com,
+	linux-hyperv@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	oxffffaa@gmail.com,
+	pabeni@redhat.com,
+	pv-drivers@vmware.com,
+	sgarzare@redhat.com,
+	simon.horman@corigine.com,
+	stefanha@redhat.com,
+	vdasa@vmware.com,
+	virtualization@lists.linux-foundation.org,
+	wei.liu@kernel.org,
+	xiyou.wangcong@gmail.com,
+	xuanzhuo@linux.alibaba.com,
+	Luigi Leonardi <luigi.leonardi@outlook.com>
+Subject: Re: [RFC PATCH net-next v6 12/14] vsock/loopback: implement datagram support
+Date: Thu,  1 Aug 2024 14:18:10 +0200
+Message-ID:
+ <AS2P194MB2170C5B197652F909252BA809AB22@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240710212555.1617795-13-amery.hung@bytedance.com>
+References: <20240710212555.1617795-13-amery.hung@bytedance.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [AIzebGsfxEzyNksU4t6mV/+sZHX+k9gt]
+X-ClientProxiedBy: MI1P293CA0011.ITAP293.PROD.OUTLOOK.COM
+ (2603:10a6:290:2::20) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ (2603:10a6:20b:642::8)
+X-Microsoft-Original-Message-ID:
+ <20240801121810.51876-1-luigi.leonardi@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240729065236.407758-1-yu.c.chen@intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowMAxRuSUQKtma8EJAA--.48582S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoW3GrWUGFWfKF4kXr18XF4xAFc_yoW7Ww1xpF
-	W7J3sYqFs5WFy0vrWDuw4Dur17Aws2kw13Wr4UWryDXan8Wr9Igr48tw4Y93WIgan2va4r
-	tF10qr9ruw1DZagCm3ZEXasCq-sJn29KB7ZKAUJUUUUx529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUPIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2kKe7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
-	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-	AVWUtwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
-	8JMxk0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vI
-	r41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67
-	AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIY
-	rxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14
-	v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8
-	JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07j5o7tUUU
-	UU=
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|AS8P194MB1622:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6a383474-8592-4338-3f16-08dcb224078e
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|8060799006|5072599009|19110799003|461199028|3412199025|440099028|1710799026;
+X-Microsoft-Antispam-Message-Info:
+	iuVfgoNLWmbaopQ6N6AfRJRdewbMW6OZksW7Fbf8+fxs0utHvKemxrWJntQxVTdEv6LqV3FXU7snXPIVCGM/wlhg+makz7Hu9uSl3XAFxLn+me2u6neJftBKrDrSGNcxY0chdKWxg0i6tXV9FUM8qsEO972D4Cj/yBXnOZJMocongAyGs1NhRHYlQ7ZVWMJNvR7kGt1GorQVFgCv41HRGF7CN45yvj/b6eOHn6U8cvJLrUixGB7efmWsKUPgcV13tzP76wYMFp7wSR2i/SBHqT2Xu4tT9oXpNt/BZ6zxU2FP9TT5hs06WxwOrJ7DI+z02r8F1iYigW029oKyoB9/XuwWqxTew1JjHGAEKX2kB3lC//1AxGPuERzFVTgHTjefX9tIyWEEmZm0yPofbVAZ89jc2pTeDf1fSvrTW3g2RhNFinASg8/+CTTciBhanMrwMNmtycEq7FqnAOV3MJP9IC9oNvaL6W4TuhuUl2hndPbrzIjvM+jE68CdK75bkC24gSWsbRwCZvx7ozZHXQswPGJORRfRjBenMrmTRAVccnO3EQ+mQ0kUwYmAPxBr3fXfZh3UlN7VHbqwz+g6qNL8kie1U54mSPKQ0tWKPvDFfc0li5MIU4jFrgSHoIzfgNp06e1oDhokVENEgwf1Qx9sENh+FNhz4AO9++BmCRrwVq5aIJhEmolpsp1QxTQWDUgmccxDeG/q4vElu6Ux1M7EZQ==
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?rJYFAblC/gDnMVbKFjlQRTLAf6ZBpUtpFt53lvjX1eItiaai8geDs/Dm+yiP?=
+ =?us-ascii?Q?R37Fs8rm8GpOKoGzPRVlSlkiZ+RENFkQnQIqAiwjpsdLaFP91nnDW8dQHlCz?=
+ =?us-ascii?Q?jcPQPWGSwQzQla1cjOSiucxzE59NPz+qKbsFmQJsA8ZapDqUlcgUr2/RcrNG?=
+ =?us-ascii?Q?Is3bWYh4sHqyFwDzxywfLcoBQzflXI8nyGNnOu6WxJT52YT0Stlz+cDJEETf?=
+ =?us-ascii?Q?L5XUCJah36m9j8Jk1v0wRSjifvRq9Phe5LFMS6TazGcztHBSh/0PkyJlf+GM?=
+ =?us-ascii?Q?qtkYGHSZdAVOsUWZUKEjq2Gx1U5XycsdvkrYm4p5wh5Navlv2mtlg/pl1k+g?=
+ =?us-ascii?Q?6bFefcZ8oxZz06O2NnpdE/3TeJCWBs6pJAXsbPStjUH8cCOJKqh9xwmpb9sJ?=
+ =?us-ascii?Q?DUa09ByueE/w6/vWbkn81XfzYzVWPYxZvdm1ObqL8LHWTq/wFmwHLCUUknhQ?=
+ =?us-ascii?Q?TzLygcvFCB+SG035LfYb3lz8rPK9upftTF29EsHeWF5VCfadtdMD5vrD36IX?=
+ =?us-ascii?Q?/lXr4aFuX+JKv0ez4SvcIT5BUa7MbYq9HKOu4ao8cuR5XiwucoKdqZ0YDDV/?=
+ =?us-ascii?Q?sKii7NEPN2ALhttcG1B9Tve2YkrOkCFlkLlZthbLNHtEIFVjeaH6ia8IrACZ?=
+ =?us-ascii?Q?MQvUNkPhsQwjcar8qGdCTWsK9AMbXx+dd6+MXBuIkCdx3DH8yGrxASdFMt0C?=
+ =?us-ascii?Q?cNVr4WXi9qKwN+/iqeJf3IXLNZ4bOBHZeDRyAwaH0jxvBtXpbAk6yliotgfd?=
+ =?us-ascii?Q?HPAQGp3vdlHquabUKovYvp7GaK6BNpqawxLmbZt7Lq2x4rCe5peUkKxq4zpo?=
+ =?us-ascii?Q?Nbo1XgdIxflp835zm0vxYLVvKqh3hp6X9PEM7nBbw2FtKlwwZUWphPrJOb2F?=
+ =?us-ascii?Q?x9QY0vr9rvq59zNFkND2kwlRd8j+Oi1T7NqbgbAPWb74sM7ubN9dqIIxc6wK?=
+ =?us-ascii?Q?tYubwAGh9A2B+06CG8INY6LJmmQAxHcBwTCXCRW9n5iqpMO2n68rxNRNiQzE?=
+ =?us-ascii?Q?A3GnVC/IA2SPp/R3VzYOssASMW9REhqQX63FJqlAXrZRDG5XRswjS/aUpLNm?=
+ =?us-ascii?Q?3rQmn2U3B/lTvBaoduWh0uRA/bV2t6PMcBBV7Kv+Nt1aoJvw9Fw378KMupQB?=
+ =?us-ascii?Q?EuU/4BtIXg6eaVEs1Bopbj36Ts54ue3YAjKbAbuew671a0DFu1UU2K4Cy0Wx?=
+ =?us-ascii?Q?SSg9Nxj2jfX9NpzCtuw3FU6JOnA9LZ/ovYUetqfEZKlxJ9lB7ZvuA20W0U9I?=
+ =?us-ascii?Q?fp7W6xFaQ/fpywtEDFO0?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6a383474-8592-4338-3f16-08dcb224078e
+X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Aug 2024 12:18:20.0028
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8P194MB1622
 
-Chenyu,
+> +static bool vsock_loopback_dgram_allow(u32 cid, u32 port)
+> +{
+> +	return true;
+> +}
+> +
+>  static bool vsock_loopback_seqpacket_allow(u32 remote_cid);
+>  static bool vsock_loopback_msgzerocopy_allow(void)
+>  {
+> @@ -66,7 +71,7 @@ static struct virtio_transport loopback_transport = {
+>  		.cancel_pkt               = vsock_loopback_cancel_pkt,
+>
+>  		.dgram_enqueue            = virtio_transport_dgram_enqueue,
+> -		.dgram_allow              = virtio_transport_dgram_allow,
+> +		.dgram_allow              = vsock_loopback_dgram_allow,
+>
+>  		.stream_dequeue           = virtio_transport_stream_dequeue,
+>  		.stream_enqueue           = virtio_transport_stream_enqueue,
+> --
+> 2.20.1
 
-I do not know much about x86, just give some comments(probably 
-incorrected) from the code.
+Code LGTM! Just because you have to send a new version I'd modify
+the commit message to something like:
+"Add 'vsock_loopback_dgram_allow' callback for datagram support."
 
-On 2024/7/29 下午2:52, Chen Yu wrote:
-> The kernel can change spinlock behavior when running as a guest. But
-> this guest-friendly behavior causes performance problems on bare metal.
-> So there's a 'virt_spin_lock_key' static key to switch between the two
-> modes.
-> 
-> In current code, the static key is always enabled by default when
-> running in guest mode. The key is disabled for bare metal (and in
-> some guests that want native behavior).
-> 
-> Large performance regression is reported when running encode/decode
-> workload and BenchSEE cache sub-workload on the bare metal.
-> Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
-> native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
-> is disabled, the virt_spin_lock_key is incorrectly set to true on bare
-> metal. The qspinlock degenerates to test-and-set spinlock, which
-> decrease the performance on bare metal.
-> 
-> Set the default value of virt_spin_lock_key to false. If booting in
-> a VM, enable this key. Later during the VM initialization, if other
-> high-efficient spinlock is detected(paravirt-spinlock eg), the
-> virt_spin_lock_key is disabled. According to the description above,
-> the final effect will be as followed:
-> 
-> X86_FEATURE_HYPERVISOR         Y    Y    Y     N
-> CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
-> PV spinlock                    Y    N    N     Y/N
-> 
-> virt_spin_lock_key             N    N    Y     N
-> 
-> To summarize, the virt_spin_lock_key is disabled on the bare metal
-> no matter what other condidtion is. And the virt_spin_lock_key is
-> also disabled when other spinlock mechanism is detected in the VM
-> guest.
-> 
-> Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
-> Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-> Suggested-by: Nikolay Borisov <nik.borisov@suse.com>
-> Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
-> Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-> Reviewed-by: Nikolay Borisov <nik.borisov@suse.com>
-> Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-> ---
-> v3->v4:
->    Refine the commit log.
->    Added Reviewed-by tag from Nikolay.
-> v2->v3:
->    Change the default value of virt_spin_lock_key from true to false.
->    Enable this key when it is in the VM, and disable it when needed.
->    This makes the code more readable. (Nikolay Borisov)
->    Dropped Reviewed-by because the code has been changed.
-> v1->v2:
->    Refine the commit log per Dave's suggestion.
->    Simplify the fix by directly disabling the virt_spin_lock_key on bare metal.
->    Collect Reviewed-by from Juergen.
-> ---
->   arch/x86/include/asm/qspinlock.h | 4 ++--
->   arch/x86/kernel/paravirt.c       | 7 +++----
->   2 files changed, 5 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-> index a053c1293975..a32bd2aabdf9 100644
-> --- a/arch/x86/include/asm/qspinlock.h
-> +++ b/arch/x86/include/asm/qspinlock.h
-> @@ -66,13 +66,13 @@ static inline bool vcpu_is_preempted(long cpu)
->   
->   #ifdef CONFIG_PARAVIRT
->   /*
-> - * virt_spin_lock_key - enables (by default) the virt_spin_lock() hijack.
-> + * virt_spin_lock_key - disables (by default) the virt_spin_lock() hijack.
->    *
->    * Native (and PV wanting native due to vCPU pinning) should disable this key.
->    * It is done in this backwards fashion to only have a single direction change,
->    * which removes ordering between native_pv_spin_init() and HV setup.
->    */
-> -DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
-> +DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
+Feel free to change it :)
 
-@@ -87,7 +87,7 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
-  {
-         int val;
-
--       if (!static_branch_likely(&virt_spin_lock_key))
-+       if (!static_branch_unlikely(&virt_spin_lock_key))
-                 return false;
-
-Do we need change it with static_branch_unlikely() if value of key is 
-false by fault?
->   
->   /*
->    * Shortcut for the queued_spin_lock_slowpath() function that allows
-> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> index 5358d43886ad..fec381533555 100644
-> --- a/arch/x86/kernel/paravirt.c
-> +++ b/arch/x86/kernel/paravirt.c
-> @@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
->   DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
->   #endif
->   
-> -DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
-> +DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
->   
->   void __init native_pv_lock_init(void)
->   {
-> -	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
-> -	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
-> -		static_branch_disable(&virt_spin_lock_key);
-> +	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-> +		static_branch_enable(&virt_spin_lock_key);
->   }
-
- From my point, the sentence static_branch_disable(&virt_spin_lock_key) 
-can be removed in file arch/x86/xen/spinlock.c and 
-arch/x86/kernel/kvm.c, since function native_smp_prepare_boot_cpu() is 
-already called by xen_smp_prepare_boot_cpu() and kvm_smp_prepare_boot_cpu().
-
-Regards
-Bibo Mao
-
->   
->   static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
-> 
-
+Thank you,
+Luigi
