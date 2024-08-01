@@ -1,184 +1,97 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390DB19DFBF
-	for <virtualization@lists.linux-foundation.org>; Thu,  1 Aug 2024 12:18:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722514708; cv=fail; b=qh2F8XjIHrY+iugwvNNQSL1y+1BOQC6EgM+IjbmkDjC1y5M7BQFp8Qh3OxqAMzYEfrNtYb/fK1PJT1Biwlpnfo9oZLivjH3PtQL47Cg5JDsCUtRPPINHU2HTBP5l9t+nRYYlPxO2zvdUQAwehkoUFx7agl7XRy+hXwt/dSfxsdw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722514708; c=relaxed/simple;
-	bh=yn1T5EXFnpN2UyQBUCV1nN/Jp5AAkivUHNzAtG20zkQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=KPIYMyN4StVZXNwrUtU4rRWzmeTWTtB0ywpEnZNqxVx4XWXnx6dFTxW9y1LIGgq79pHsXN5gYfS8aF7kQ0WzPN+CzuCp3Y113jEm8fpYatn3sVyWRDrgY0Nh296+yJv4GGhIvzJuTkW79QBWx2Iq7Lpr4EcRkYjNugkeAtHh9ig=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=aF9reSw0; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532941A00FA
+	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 12:27:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1722515267; cv=none; b=PazmpjY81e7PFXlpPQbN/qINlTbfw/4N99NK1nGRLSL0MGAZh2U8QYZtH4LpeyB+ISgXfi4Ep8eDyQfLr32I6n/EMJQjWxYAeHNfmAMelurV5yrrs/VzefbQCIvN01XI2QMJiDCgaLzMbDvOWsnEs+MRnzKPdWM/XobNHO2pClQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1722515267; c=relaxed/simple;
+	bh=ZCbf4dagKeXob6Jv7lK9X2wnUSfRPgMXFasbsE/FxhU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hhhMpx9YtIKS/nux3kvRRb2mAnJjZeWiQErdqKmr6Ovrk4TRfu+22c3TslGvPakyVMBEDqkMEnXL/6vTIEA4h+Y8lQouL6w/vO9VCUCK8365YdIDUDGpC0ROIE1jk2tAciPXL9FByYVaLXwNICEwHHnpESYpypApFLxtfXUEcfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cK16eBMQ; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="aF9reSw0"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C1E3C60F1D
-	for <virtualization@lists.linux-foundation.org>; Thu,  1 Aug 2024 12:18:25 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id A4Lw98-BPpH9 for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Aug 2024 12:18:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2e13::800; helo=eur05-vi1-obe.outbound.protection.outlook.com; envelope-from=luigi.leonardi@outlook.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CA90060B57
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CA90060B57
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=outlook.com header.i=@outlook.com header.a=rsa-sha256 header.s=selector1 header.b=aF9reSw0
-Received: from EUR05-VI1-obe.outbound.protection.outlook.com (mail-vi1eur05olkn20800.outbound.protection.outlook.com [IPv6:2a01:111:f403:2e13::800])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CA90060B57
-	for <virtualization@lists.linux-foundation.org>; Thu,  1 Aug 2024 12:18:24 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=LQy8Nk6G1Yvb2qiInlHhpjTPUXjpB3+JlrI8Prysd8LJAq6dvl8Z6ikTQ4kseuky5FLBMkronBMRXvN6tm5KbD2BQAYUGrNYQDzGXvOYrcK+NKMUewfKL8i1Al8FAtCzbjBERlzyNBSOzTr490BtTU/eYAR3NBVnhDxvuzDy7Ylz7Ms1duEQhfBKvSHpqw1L3ZDcMUjO6QlrKU4GKFapzg5v40dtuQ4spAOO+MMcNVdYV0nhDeS9LtO3U91M6yqwGULPmYjFnGJVziCjFkXGjQ/Du9QRlEc371YLci3t3eiV2O+K6inWVRKdi14/hBm2lPrB7dDqjI+K/vcCThvgLQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uGnO4fXcZ2TaTfZ2jZ6hPVgOHSGEofFcIDJJISTrQNg=;
- b=qczie6djIjn1oBoluwkv7XwZeaT3k7PvD5lybtLLtcZjJTPbA9xE6ewAVxVE39kQ5GAAgs5TUanEq9Oc01cGnQGMyW6E9MJN9mvN1HdgpIM0ohCBs2RdH22pHL0m3MSech+hLogJjQ+hO1Zaa7p2O2jKhPowxk4DKIEvTGea7nMcA4+/9Xx5z/iIsczWjnHEz58gLEE0L0ma2RlPKQIhVG4Gkg5hz5/kmCK1IQqQrvqS03O2URbZlUr0UXr3F6zmBVXYJz08YuwpGwf5o8Irl7VB8ACLxV49EPppxnX8yhnz8zC0bDzZ0g360s6WvCe+l2+zDV3NxvP5TjdKBdztRw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uGnO4fXcZ2TaTfZ2jZ6hPVgOHSGEofFcIDJJISTrQNg=;
- b=aF9reSw0bdlNG6bZH6h4OPollJEAHR0vk6e1YclzLVw5I8JVhgrmrgFDYa1Uqm0FV/6bPfWuyGYSumiAgWakrNui9iTpVhXXhsHyenbDKQJTYCuDdtrnppvchWboIrhhf7fS077JQa/dqMB9tDCuiSCofW/1lQTg/cqjSWc9pg9a048aiur+ZSI0GY7Fd6HSc1P6N7xCvHea3vouJwjifBlspKeHVM3cWIOUqlL7rp9v38BLX8ztj7VwaungzHCJjqagd2ZAFTUHH37nuLDZNKpmqm9vVCmZHpZdCfW3Mh+LOK5MiqNHphQP5IrS10MtDEKhXxvYiuLvGLNHljXyYg==
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
- by AS8P194MB1622.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:371::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.22; Thu, 1 Aug
- 2024 12:18:20 +0000
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::3d63:e123:2c2f:c930%4]) with mapi id 15.20.7828.021; Thu, 1 Aug 2024
- 12:18:20 +0000
-From: Luigi Leonardi <luigi.leonardi@outlook.com>
-To: ameryhung@gmail.com
-Cc: amery.hung@bytedance.com,
-	bobby.eshleman@bytedance.com,
-	bpf@vger.kernel.org,
-	bryantan@vmware.com,
-	dan.carpenter@linaro.org,
-	davem@davemloft.net,
-	decui@microsoft.com,
-	edumazet@google.com,
-	haiyangz@microsoft.com,
-	jasowang@redhat.com,
-	jiang.wang@bytedance.com,
-	kuba@kernel.org,
-	kvm@vger.kernel.org,
-	kys@microsoft.com,
-	linux-hyperv@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	oxffffaa@gmail.com,
-	pabeni@redhat.com,
-	pv-drivers@vmware.com,
-	sgarzare@redhat.com,
-	simon.horman@corigine.com,
-	stefanha@redhat.com,
-	vdasa@vmware.com,
-	virtualization@lists.linux-foundation.org,
-	wei.liu@kernel.org,
-	xiyou.wangcong@gmail.com,
-	xuanzhuo@linux.alibaba.com,
-	Luigi Leonardi <luigi.leonardi@outlook.com>
-Subject: Re: [RFC PATCH net-next v6 12/14] vsock/loopback: implement datagram support
-Date: Thu,  1 Aug 2024 14:18:10 +0200
-Message-ID:
- <AS2P194MB2170C5B197652F909252BA809AB22@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240710212555.1617795-13-amery.hung@bytedance.com>
-References: <20240710212555.1617795-13-amery.hung@bytedance.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN: [AIzebGsfxEzyNksU4t6mV/+sZHX+k9gt]
-X-ClientProxiedBy: MI1P293CA0011.ITAP293.PROD.OUTLOOK.COM
- (2603:10a6:290:2::20) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:20b:642::8)
-X-Microsoft-Original-Message-ID:
- <20240801121810.51876-1-luigi.leonardi@outlook.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cK16eBMQ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722515263; h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type;
+	bh=39RrBFAmDzvWDA7/34qtG1o/5bUpFe1kib+dVzow0vA=;
+	b=cK16eBMQ5w8dCfO1szQj8khcsXJ9ubrfWcGAB7I/t5mtLUVIRdKlbZfc/Ou0F2lKg/nAXoA42dj7l1rw2DkW62XFGK28naWYxysO3oWgq02ZWBQRV9wNmfhI8EGAP4cQhr5AUKgbJI2LtzpdQPoQxfShMcreHZOEExTAiHcExg0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0WBtHmkj_1722515261;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0WBtHmkj_1722515261)
+          by smtp.aliyun-inc.com;
+          Thu, 01 Aug 2024 20:27:42 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net v3 2/2] virtio-net: unbreak vq resizing when coalescing is not negotiated
+Date: Thu,  1 Aug 2024 20:27:39 +0800
+Message-Id: <20240801122739.49008-3-hengqi@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240801122739.49008-1-hengqi@linux.alibaba.com>
+References: <20240801122739.49008-1-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|AS8P194MB1622:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6a383474-8592-4338-3f16-08dcb224078e
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|8060799006|5072599009|19110799003|461199028|3412199025|440099028|1710799026;
-X-Microsoft-Antispam-Message-Info:
-	iuVfgoNLWmbaopQ6N6AfRJRdewbMW6OZksW7Fbf8+fxs0utHvKemxrWJntQxVTdEv6LqV3FXU7snXPIVCGM/wlhg+makz7Hu9uSl3XAFxLn+me2u6neJftBKrDrSGNcxY0chdKWxg0i6tXV9FUM8qsEO972D4Cj/yBXnOZJMocongAyGs1NhRHYlQ7ZVWMJNvR7kGt1GorQVFgCv41HRGF7CN45yvj/b6eOHn6U8cvJLrUixGB7efmWsKUPgcV13tzP76wYMFp7wSR2i/SBHqT2Xu4tT9oXpNt/BZ6zxU2FP9TT5hs06WxwOrJ7DI+z02r8F1iYigW029oKyoB9/XuwWqxTew1JjHGAEKX2kB3lC//1AxGPuERzFVTgHTjefX9tIyWEEmZm0yPofbVAZ89jc2pTeDf1fSvrTW3g2RhNFinASg8/+CTTciBhanMrwMNmtycEq7FqnAOV3MJP9IC9oNvaL6W4TuhuUl2hndPbrzIjvM+jE68CdK75bkC24gSWsbRwCZvx7ozZHXQswPGJORRfRjBenMrmTRAVccnO3EQ+mQ0kUwYmAPxBr3fXfZh3UlN7VHbqwz+g6qNL8kie1U54mSPKQ0tWKPvDFfc0li5MIU4jFrgSHoIzfgNp06e1oDhokVENEgwf1Qx9sENh+FNhz4AO9++BmCRrwVq5aIJhEmolpsp1QxTQWDUgmccxDeG/q4vElu6Ux1M7EZQ==
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?rJYFAblC/gDnMVbKFjlQRTLAf6ZBpUtpFt53lvjX1eItiaai8geDs/Dm+yiP?=
- =?us-ascii?Q?R37Fs8rm8GpOKoGzPRVlSlkiZ+RENFkQnQIqAiwjpsdLaFP91nnDW8dQHlCz?=
- =?us-ascii?Q?jcPQPWGSwQzQla1cjOSiucxzE59NPz+qKbsFmQJsA8ZapDqUlcgUr2/RcrNG?=
- =?us-ascii?Q?Is3bWYh4sHqyFwDzxywfLcoBQzflXI8nyGNnOu6WxJT52YT0Stlz+cDJEETf?=
- =?us-ascii?Q?L5XUCJah36m9j8Jk1v0wRSjifvRq9Phe5LFMS6TazGcztHBSh/0PkyJlf+GM?=
- =?us-ascii?Q?qtkYGHSZdAVOsUWZUKEjq2Gx1U5XycsdvkrYm4p5wh5Navlv2mtlg/pl1k+g?=
- =?us-ascii?Q?6bFefcZ8oxZz06O2NnpdE/3TeJCWBs6pJAXsbPStjUH8cCOJKqh9xwmpb9sJ?=
- =?us-ascii?Q?DUa09ByueE/w6/vWbkn81XfzYzVWPYxZvdm1ObqL8LHWTq/wFmwHLCUUknhQ?=
- =?us-ascii?Q?TzLygcvFCB+SG035LfYb3lz8rPK9upftTF29EsHeWF5VCfadtdMD5vrD36IX?=
- =?us-ascii?Q?/lXr4aFuX+JKv0ez4SvcIT5BUa7MbYq9HKOu4ao8cuR5XiwucoKdqZ0YDDV/?=
- =?us-ascii?Q?sKii7NEPN2ALhttcG1B9Tve2YkrOkCFlkLlZthbLNHtEIFVjeaH6ia8IrACZ?=
- =?us-ascii?Q?MQvUNkPhsQwjcar8qGdCTWsK9AMbXx+dd6+MXBuIkCdx3DH8yGrxASdFMt0C?=
- =?us-ascii?Q?cNVr4WXi9qKwN+/iqeJf3IXLNZ4bOBHZeDRyAwaH0jxvBtXpbAk6yliotgfd?=
- =?us-ascii?Q?HPAQGp3vdlHquabUKovYvp7GaK6BNpqawxLmbZt7Lq2x4rCe5peUkKxq4zpo?=
- =?us-ascii?Q?Nbo1XgdIxflp835zm0vxYLVvKqh3hp6X9PEM7nBbw2FtKlwwZUWphPrJOb2F?=
- =?us-ascii?Q?x9QY0vr9rvq59zNFkND2kwlRd8j+Oi1T7NqbgbAPWb74sM7ubN9dqIIxc6wK?=
- =?us-ascii?Q?tYubwAGh9A2B+06CG8INY6LJmmQAxHcBwTCXCRW9n5iqpMO2n68rxNRNiQzE?=
- =?us-ascii?Q?A3GnVC/IA2SPp/R3VzYOssASMW9REhqQX63FJqlAXrZRDG5XRswjS/aUpLNm?=
- =?us-ascii?Q?3rQmn2U3B/lTvBaoduWh0uRA/bV2t6PMcBBV7Kv+Nt1aoJvw9Fw378KMupQB?=
- =?us-ascii?Q?EuU/4BtIXg6eaVEs1Bopbj36Ts54ue3YAjKbAbuew671a0DFu1UU2K4Cy0Wx?=
- =?us-ascii?Q?SSg9Nxj2jfX9NpzCtuw3FU6JOnA9LZ/ovYUetqfEZKlxJ9lB7ZvuA20W0U9I?=
- =?us-ascii?Q?fp7W6xFaQ/fpywtEDFO0?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6a383474-8592-4338-3f16-08dcb224078e
-X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Aug 2024 12:18:20.0028
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8P194MB1622
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-> +static bool vsock_loopback_dgram_allow(u32 cid, u32 port)
-> +{
-> +	return true;
-> +}
-> +
->  static bool vsock_loopback_seqpacket_allow(u32 remote_cid);
->  static bool vsock_loopback_msgzerocopy_allow(void)
->  {
-> @@ -66,7 +71,7 @@ static struct virtio_transport loopback_transport = {
->  		.cancel_pkt               = vsock_loopback_cancel_pkt,
->
->  		.dgram_enqueue            = virtio_transport_dgram_enqueue,
-> -		.dgram_allow              = virtio_transport_dgram_allow,
-> +		.dgram_allow              = vsock_loopback_dgram_allow,
->
->  		.stream_dequeue           = virtio_transport_stream_dequeue,
->  		.stream_enqueue           = virtio_transport_stream_enqueue,
-> --
-> 2.20.1
+Don't break the resize action if the vq coalescing feature
+named VIRTIO_NET_F_VQ_NOTF_COAL is not negotiated.
 
-Code LGTM! Just because you have to send a new version I'd modify
-the commit message to something like:
-"Add 'vsock_loopback_dgram_allow' callback for datagram support."
+Fixes: f61fe5f081cf ("virtio-net: fix the vq coalescing setting for vq resize")
+Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Eugenio Pé rez <eperezma@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+v2->v3:
+  - Break out the feature check and the fix into separate patches.
 
-Feel free to change it :)
+v1->v2:
+  - Rephrase the subject.
+  - Put the feature check inside the virtnet_send_{r,t}x_ctrl_coal_vq_cmd().
 
-Thank you,
-Luigi
+ drivers/net/virtio_net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index b1176be8fcfd..2b566d893ea3 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3749,7 +3749,7 @@ static int virtnet_set_ringparam(struct net_device *dev,
+ 			err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
+ 							       vi->intr_coal_tx.max_usecs,
+ 							       vi->intr_coal_tx.max_packets);
+-			if (err)
++			if (err && err != -EOPNOTSUPP)
+ 				return err;
+ 		}
+ 
+@@ -3764,7 +3764,7 @@ static int virtnet_set_ringparam(struct net_device *dev,
+ 							       vi->intr_coal_rx.max_usecs,
+ 							       vi->intr_coal_rx.max_packets);
+ 			mutex_unlock(&vi->rq[i].dim_lock);
+-			if (err)
++			if (err && err != -EOPNOTSUPP)
+ 				return err;
+ 		}
+ 	}
+-- 
+2.32.0.3.g01195cf9f
+
