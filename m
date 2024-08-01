@@ -1,92 +1,269 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A6551B4C5D
-	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 16:35:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D48241B9B36
+	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 17:46:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722530120; cv=none; b=kmDwEn9VB0sw+UTG3kU8onnXBwjUSK28kMwOGuIxIgx82/FA6U3L/wC8O+XCsaQUmHga8L+b+sN2zsA4OAXc8J5TFIBZyUi5KuIyYmnS7N6xFdt1DhL20zqj80fBMlLAdEcg0BtYeUhaF+9AuIklGHTGaSGErZK5O+jampf+htA=
+	t=1722534384; cv=none; b=lgpn9uwUkCuUnLSAHy4IqC6URMzqyeWBdRVLf7Fk7oWv5JAxwHH9XgnScM9ovbJWX3vID2nmU/S/H3L2Iy7Y6zi/X9zxHoQEapCBxUblMQ6ReZ5wNx1GLFNeZ+cjLAuozFlHBrRjkAiehhAf+wXfUDUqExtoDl3AOFGAUMMimo0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722530120; c=relaxed/simple;
-	bh=epQcZml1KFHD/cAYF1EPI6sbtGZHn6QCLdxUDPlEPdk=;
+	s=arc-20240116; t=1722534384; c=relaxed/simple;
+	bh=S/Mv3Wi0XxKRfho/EEiSu5bKedBF5iWrW1AFWA2W2RQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RkcGwLMgSnNdHM5lkd4kdhadZhPSykXyvFQQNrgP+oZWe77t7Iy17akndFpQIa0svLwwG55imZj4WXgEuzlNnn5b8ofE93WjQ71xY7tNqhPLQ2YxWTOUKL9B7jFNWydfq1mrx3tR95+b5J2mcOpx80i1h+EvWOCm6Er9pvdiRbo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OVTlc5eq; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=jS7248l7bVZJkt52avX814Ln/HE/JpQ0u9sQsDhsNkamdMaEVElGDxpXxuorH978ay08bmKZ3FJ6/Oo0Ss8Ob3fbOwMz2kHDjSwAmQVb3T8dak9IQqoGTciyBGSb+oymzb34bPuN5iL0+8AN5yvdniuO0WyDobCSjOK0IO8tufs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b8e2T4AD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OVTlc5eq"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-2cfdafdb914so1591995a91.2
-        for <virtualization@lists.linux.dev>; Thu, 01 Aug 2024 09:35:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722530118; x=1723134918; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=J/T4t3jzF+nFkAWEOEP+qO2FrWc+IPdqT2e1MH6ST1k=;
-        b=OVTlc5eqsDmQa4XRyaeEYuypROebgAeFH5gQ39AP48qqWGlwJfuHjvAoBBahbBsVa0
-         8vs381IsACDDxYDv5vgYQtfrjSAgSOddZDQaHYe4WG+ZrRJgSpD9p9Rw9HQ7WiY9JBZn
-         04TAmPQWVIIUfUvakzj+EcaJRJtHZywbKTjZd8CDFmrT7MmGVH6sjnXLbVqu9iEc+G8b
-         zOcX8T6r5xoAcU9DWN0dSdknVys/wpLBa8e3C5IqdZnSXjruUrRh/Ow8RH3DdiBBDFwq
-         ljw7IYGn5C148j25hm+1fGUQKfTDb6qn0DPc2o7VZFz2+6ku35GVMH2PCYl22zP7cGhm
-         ko1A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b8e2T4AD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722534381;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+BLoP++haBF1SBJAkcfrAS/uc+VDIQyGiu5MLwvra18=;
+	b=b8e2T4ADM1ZcH3gMrYFs9vdmwr8YXBPDvKdJU2R34ghqFzi29bi7GC4L0DzgoYr/jE6wRz
+	x9en3NDx4AXH2VNcJLIEi7fYnn6XxABm/7cdh3mLllmsope2v0Qtu1Zl0g2AC8Q4U7WWLl
+	FqYJDV5Zi1oL3NugOzOvnAyWWlde8aQ=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-619-VvhqZSmdPCSWzqKMHIzXMw-1; Thu, 01 Aug 2024 13:46:18 -0400
+X-MC-Unique: VvhqZSmdPCSWzqKMHIzXMw-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a7d2f42df2dso316635666b.1
+        for <virtualization@lists.linux.dev>; Thu, 01 Aug 2024 10:46:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722530118; x=1723134918;
+        d=1e100.net; s=20230601; t=1722534376; x=1723139176;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=J/T4t3jzF+nFkAWEOEP+qO2FrWc+IPdqT2e1MH6ST1k=;
-        b=oO/bSotc55BjYAKmrD1LvOI/G6lDL3ne9/96kc+UxB05iu2yNdKkgjzeRtG9g0/Vqx
-         DRK+cndWgQOr4vjZhD1CR+4eydiXT6QW6FgCX6eOFYTdQaQlVI5ZwsGytOCiPw9Rkptb
-         jciggr/PNq0WVHjtOwu5Qhbp18eZ0Jq4dnWZHIxawCBZwCC+h9I7mo4egazBIlRL2jyp
-         K7s97SFq/iosd9gO1IE1PAuB/XUehGuEnE2dT7u708YZDo1BkwFUIaGxDgjppjHkqcMv
-         j99fdyuvIr3iU7jw8Ow5ByYRiM28zDj8egzYGIiePzJ3W5Obqu3Xpty316E99pTfT0mM
-         Gmeg==
-X-Forwarded-Encrypted: i=1; AJvYcCU7Yt8odHP9gDXrPyhU5L4Y6meVbYr7JmAqIe+8tEhBOBRz7rYTd7uRM1DJYTlh1iTgm9qRLPbCww91R5mNsgKZ48KRGaa20iaguUk3la0=
-X-Gm-Message-State: AOJu0YxjZgEV1OWcVUkaGeTQRfDto2FwYLrRPIebi/bi+eBwJT2U+mAo
-	8/5NJ9eNrr7mMCKoBB7d/Yo/wLX0vA7KBQWFecZ4qaKaluTMI/T1
-X-Google-Smtp-Source: AGHT+IFPzIKAAGtrIboS0JIgBIcn/RCGQZX+i6sR6dJvOvCnViybU/zZEgesDQpsFrg3VVwYreSuHA==
-X-Received: by 2002:a17:90a:d34c:b0:2c9:80fd:a111 with SMTP id 98e67ed59e1d1-2cff941b716mr996111a91.18.1722530118409;
-        Thu, 01 Aug 2024 09:35:18 -0700 (PDT)
-Received: from localhost ([2601:647:6881:9060:dc43:fce:b051:e6e8])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2cfdc42f9d3sm3599577a91.18.2024.08.01.09.35.17
+        bh=+BLoP++haBF1SBJAkcfrAS/uc+VDIQyGiu5MLwvra18=;
+        b=qtEQNhbstlPaEeehI7OKFYMTRWCfkXE0iGPkSA6+98Y42ZRPOk9FpFfSiFcjCrPH07
+         Ms7R56+rp5b+YQXCdZist88dRG+tbBZXFCvLMGWDAxCBOp41+hc9xnAK3XjKgZ5j27cO
+         S+UnjnY0NKDq5BgAK6/KXQkMwPxoGMoIIPUezUQPFeOWIFb6dH/m0xzgN61MHvLbbl1v
+         67SwZQQSifTeRq00oqRGr5YJK3ktjbxhJaUW2V90KjiUOPBBFXj4dtJMhB7JIphvgf5j
+         SqqZ6DdjmptYR1dI1Yv+iRkND9TUulROUvP8m7oFABTq8FgSxvH4ik9HsyHRMX6uOetH
+         Z2ag==
+X-Forwarded-Encrypted: i=1; AJvYcCUk6BfLjqqpXfid7EMuJ3sQfa6mP/lo9zym9QB72CsVAwCqqqj1EgJ7B4tnslqaPQh8ehu/HxRtk9GD1TCUeHPSRxP+DzZrf+iqi+1koGc=
+X-Gm-Message-State: AOJu0Yzcjm7yW1q3x9wmnRHJzFHfvvXWSHBVguj+vN2pUmpwIlc/uT/Q
+	xjKMK2WvS862h4mZg0WfJ56ecHzYYPShHOedW0JwjRi1fsAy8UnpneiQh6zHx0bNXmk8iF43+oQ
+	v8zglfc4noOpEf/DXT4YCeGMzWollI1+sK4r2/0MhZJvJuFbkDQQ7qqV5bHrYHFfi
+X-Received: by 2002:a17:907:1c29:b0:a72:5f3f:27a2 with SMTP id a640c23a62f3a-a7dc6245605mr68399366b.26.1722534376016;
+        Thu, 01 Aug 2024 10:46:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGluWoPoZuFojIcMYbcrlIlUC2pOTT8jJXDWoMiqz8L4MVa8bpMy/PKXPNWhUL6AruwHt/8/A==
+X-Received: by 2002:a17:907:1c29:b0:a72:5f3f:27a2 with SMTP id a640c23a62f3a-a7dc6245605mr68396966b.26.1722534375136;
+        Thu, 01 Aug 2024 10:46:15 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:176:b4e2:f32f:7caa:572:123e])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7dc9ec8dafsm5085966b.220.2024.08.01.10.46.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Aug 2024 09:35:17 -0700 (PDT)
-Date: Thu, 1 Aug 2024 09:35:16 -0700
-From: Cong Wang <xiyou.wangcong@gmail.com>
-To: luigi.leonardi@outlook.com
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	Daan De Meyer <daan.j.demeyer@gmail.com>
-Subject: Re: [PATCH net-next v4 0/3] ioctl support for AF_VSOCK and
- virtio-based transports
-Message-ID: <Zqu5RHO2x+1uLmeD@pop-os.localdomain>
-References: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
+        Thu, 01 Aug 2024 10:46:14 -0700 (PDT)
+Date: Thu, 1 Aug 2024 13:46:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Cc: stefanha@redhat.com, virtualization@lists.linux.dev, axboe@kernel.dk,
+	kvm@vger.kernel.org, linux-block@vger.kernel.org, oren@nvidia.com
+Subject: Re: [PATCH 1/1] virtio_blk: implement init_hctx MQ operation
+Message-ID: <20240801133937-mutt-send-email-mst@kernel.org>
+References: <20240801151137.14430-1-mgurtovoy@nvidia.com>
+ <20240801111337-mutt-send-email-mst@kernel.org>
+ <0888da3b-3283-405b-b1a8-a315e2623289@nvidia.com>
+ <20240801112843-mutt-send-email-mst@kernel.org>
+ <9400fb28-47c2-4629-af17-df2a95f2d3d8@nvidia.com>
+ <20240801114205-mutt-send-email-mst@kernel.org>
+ <6a8f0c72-ba77-42c3-8d85-6bb23a23f025@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <6a8f0c72-ba77-42c3-8d85-6bb23a23f025@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240730-ioctl-v4-0-16d89286a8f0@outlook.com>
 
-On Tue, Jul 30, 2024 at 09:43:05PM +0200, Luigi Leonardi via B4 Relay wrote:
-> This patch series introduce the support for ioctl(s) in AF_VSOCK.
-> The only ioctl currently available is SIOCOUTQ, which returns
-> the number of unsent or unacked packets. It is available for
-> SOCK_STREAM, SOCK_SEQPACKET and SOCK_DGRAM.
+On Thu, Aug 01, 2024 at 06:56:44PM +0300, Max Gurtovoy wrote:
+> 
+> On 01/08/2024 18:43, Michael S. Tsirkin wrote:
+> 
+>     On Thu, Aug 01, 2024 at 06:39:16PM +0300, Max Gurtovoy wrote:
+> 
+>         On 01/08/2024 18:29, Michael S. Tsirkin wrote:
+> 
+>             On Thu, Aug 01, 2024 at 06:17:21PM +0300, Max Gurtovoy wrote:
+> 
+>                 On 01/08/2024 18:13, Michael S. Tsirkin wrote:
+> 
+>                     On Thu, Aug 01, 2024 at 06:11:37PM +0300, Max Gurtovoy wrote:
+> 
+>                         In this operation set the driver data of the hctx to point to the virtio
+>                         block queue. By doing so, we can use this reference in the and reduce
+> 
+>                     in the .... ?
+> 
+>                 sorry for the type.
+> 
+>                 should be :
+> 
+>                 "By doing so, we can use this reference and reduce the number of operations in the fast path."
+> 
+>             ok. what kind of benefit do you see with this patch?
+> 
+>         As mentioned. This is a micro optimization that reduce the number of
+>         instructions/dereferences in the fast path.
+> 
+>     By how much? How random code tweaks affect object code is unpredictable.
+>     Pls show results of objdump to prove it does anything
+>     useful.
+> 
+> This is the way all modern block drivers such as NVMe PCI/RDMA/TCP use the
+> driver_data.
+> 
+> These drivers don't have driver specific mechanisms to find the queue from the 
+> hctx->queue->queuedata like vblk driver has for some unknown reason.
+> 
+> It is pretty easy to review this patch and see its benefits, isn't it ?
+> 
+> It is not expected to provide extreme perf improvement.
+> 
+> It is introduced for aligning the driver to use common MQ mechanisms and reduce
+> dereferences.
+> 
+> This is not "random code tweaks".
+
+
+Then pls say so in the commit log.
+
+Look I don't have anything for or against this patch.
+
+I do however want to establish that if something is billed as
+an "optimization" it has to come with numbers (even if
+it's as simple as "size" run on the object file).
+
+If it's just cleaner/simpler, say so.
+
+
+I'll wait for an ack from Paolo/Stefan, anyway.
+
+
+
+>                         the number of operations in the fast path.
+> 
+>                         Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+>                         ---
+>                            drivers/block/virtio_blk.c | 42 ++++++++++++++++++++------------------
+>                            1 file changed, 22 insertions(+), 20 deletions(-)
+> 
+>                         diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>                         index 2351f411fa46..35a7a586f6f5 100644
+>                         --- a/drivers/block/virtio_blk.c
+>                         +++ b/drivers/block/virtio_blk.c
+>                         @@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8 status)
+>                                 }
+>                            }
+>                         -static inline struct virtio_blk_vq *get_virtio_blk_vq(struct blk_mq_hw_ctx *hctx)
+>                         -{
+>                         -       struct virtio_blk *vblk = hctx->queue->queuedata;
+>                         -       struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>                         -
+>                         -       return vq;
+>                         -}
+>                         -
+>                            static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr)
+>                            {
+>                                 struct scatterlist out_hdr, in_hdr, *sgs[3];
+>                         @@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
+>                            static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+>                            {
+>                         -       struct virtio_blk *vblk = hctx->queue->queuedata;
+>                         -       struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>                         +       struct virtio_blk_vq *vq = hctx->driver_data;
+>                                 bool kick;
+>                                 spin_lock_irq(&vq->lock);
+>                         @@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+>                                                    const struct blk_mq_queue_data *bd)
+>                            {
+>                                 struct virtio_blk *vblk = hctx->queue->queuedata;
+>                         +       struct virtio_blk_vq *vq = hctx->driver_data;
+>                                 struct request *req = bd->rq;
+>                                 struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+>                                 unsigned long flags;
+>                         -       int qid = hctx->queue_num;
+>                                 bool notify = false;
+>                                 blk_status_t status;
+>                                 int err;
+>                         @@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+>                                 if (unlikely(status))
+>                                         return status;
+>                         -       spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+>                         -       err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
+>                         +       spin_lock_irqsave(&vq->lock, flags);
+>                         +       err = virtblk_add_req(vq->vq, vbr);
+>                                 if (err) {
+>                         -               virtqueue_kick(vblk->vqs[qid].vq);
+>                         +               virtqueue_kick(vq->vq);
+>                                         /* Don't stop the queue if -ENOMEM: we may have failed to
+>                                          * bounce the buffer due to global resource outage.
+>                                          */
+>                                         if (err == -ENOSPC)
+>                                                 blk_mq_stop_hw_queue(hctx);
+>                         -               spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+>                         +               spin_unlock_irqrestore(&vq->lock, flags);
+>                                         virtblk_unmap_data(req, vbr);
+>                                         return virtblk_fail_to_queue(req, err);
+>                                 }
+>                         -       if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
+>                         +       if (bd->last && virtqueue_kick_prepare(vq->vq))
+>                                         notify = true;
+>                         -       spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+>                         +       spin_unlock_irqrestore(&vq->lock, flags);
+>                                 if (notify)
+>                         -               virtqueue_notify(vblk->vqs[qid].vq);
+>                         +               virtqueue_notify(vq->vq);
+>                                 return BLK_STS_OK;
+>                            }
+>                         @@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request **rqlist)
+>                                 struct request *requeue_list = NULL;
+>                                 rq_list_for_each_safe(rqlist, req, next) {
+>                         -               struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
+>                         +               struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
+>                                         bool kick;
+>                                         if (!virtblk_prep_rq_batch(req)) {
+>                         @@ -1164,6 +1155,16 @@ static const struct attribute_group *virtblk_attr_groups[] = {
+>                                 NULL,
+>                            };
+>                         +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
+>                         +               unsigned int hctx_idx)
+>                         +{
+>                         +       struct virtio_blk *vblk = data;
+>                         +       struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
+>                         +
+>                         +       hctx->driver_data = vq;
+>                         +       return 0;
+>                         +}
+>                         +
+>                            static void virtblk_map_queues(struct blk_mq_tag_set *set)
+>                            {
+>                                 struct virtio_blk *vblk = set->driver_data;
+>                         @@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct io_comp_batch *iob)
+>                            static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
+>                            {
+>                                 struct virtio_blk *vblk = hctx->queue->queuedata;
+>                         -       struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
+>                         +       struct virtio_blk_vq *vq = hctx->driver_data;
+>                                 struct virtblk_req *vbr;
+>                                 unsigned long flags;
+>                                 unsigned int len;
+>                         @@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
+>                                 .queue_rqs      = virtio_queue_rqs,
+>                                 .commit_rqs     = virtio_commit_rqs,
+>                                 .complete       = virtblk_request_done,
+>                         +       .init_hctx      = virtblk_init_hctx,
+>                                 .map_queues     = virtblk_map_queues,
+>                                 .poll           = virtblk_poll,
+>                            };
+>                         --
+>                         2.18.1
 > 
 
-Why not using sock diag to dump it? Like ->idiag_wqueue for TCP.
-
-Thanks.
