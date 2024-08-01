@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 619891D47CE;
-	Thu,  1 Aug 2024 00:18:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38BD7130AC8;
+	Thu,  1 Aug 2024 00:25:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722471496; cv=none; b=Ov6bEOmW4ZRqtMvzEj2wogUCU6zkf4ZUOIY9v5V9czPbWXv1wRYnU51IZHIq4dLHCDRY6J78gbCK2HTXze08EvrRWZmcIGPVc9P64VJ3qmUDWO3kNUqOC7Ahuy/ZdbLxehAn7AP5apiKi10F6+XKQm90xNLO3MB/18UheAc/B9w=
+	t=1722471959; cv=none; b=Bic50nx78kqtKiuE2WD/YzT+HEFfk95a2doZ/Kt4h9VN4fpHw1OxXbPIvUziXw3HCW648gTtxnUhrDQWM1n/nsJjxZEo6qtSPj8+x4hyVjGACrVKzXW27PFzc8nSWsXTdJQZyVh+stpKaBK7harxlQFJPUwxk/34CaDW0+BNaqo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722471496; c=relaxed/simple;
-	bh=wag2EdHIZdxEG4+gqnKzwVyymOV8FPNUDb/+SD0UuTs=;
+	s=arc-20240116; t=1722471959; c=relaxed/simple;
+	bh=EDYZzjC771Qx559qsRLXwCDDw+Gia+YTMRMYJxjam9I=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i7Q7zRv3gJr5e9sROLDol5mhkIakk7tKa6RC5wwuJmeCWtNQsXutzea3+2RCcSZHw9O6VmLW49bmR+pqY7iqBfCV2rp9obzHu69+LPLBGOl9gKNtXcl3Q5EMXJ5+3Elqr70/VGimw52pjcBM8EUqV6F7L+cWCzwD8wGnJxk7p/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=izesAVkA; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=j+lkudQFQtVsaHeziq1bUb4ZHHA3pOEJGpFXikrktS2ivBWUWeqvJk3eDZgEUOEaK0qucUzNQWtl2ihXCIljb+Y+4YGfVEl0UaV/su+iMpzmxaRJqIWIaeGb140UeEeoYd4o4m/buchrgILz/3g0hrUV621Za4e645bZN0W7dWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OzD7XwaG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="izesAVkA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8535C4AF0C;
-	Thu,  1 Aug 2024 00:18:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OzD7XwaG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 831ABC4AF0E;
+	Thu,  1 Aug 2024 00:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722471495;
-	bh=wag2EdHIZdxEG4+gqnKzwVyymOV8FPNUDb/+SD0UuTs=;
+	s=k20201202; t=1722471958;
+	bh=EDYZzjC771Qx559qsRLXwCDDw+Gia+YTMRMYJxjam9I=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=izesAVkAes6BIGw9ZXxDxoMRjo+2qhH9gE/OlVcBj6RAoNHc0+/9GNpd09/JqZnLX
-	 skaiUKYhyKV4Xb9To7MO4lE2BeBQppShGrp3EEh//uB6p3EBCNVO/iI24xGXVMGt5U
-	 euws2T/ss6YEbCbifbNgsP3W9eoL28SxRK33LE6Gd88/o0dXgTWwvEx2fbduu6MyWa
-	 S+keZm0BKzbR5yoaXhjLBj13oDmRyUtXV/nRrJvS30lvxNQMUCDa1PdI1OO7jVc+aC
-	 DKBvQSxo6F1p7ieUGTktJCLmr1RxBn9eb3TuWn3M59FIhH9GIjQ5OqEe0kriRwGMUq
-	 xT8RdpABx/M5g==
+	b=OzD7XwaGTAHE0D1Hqy2i/S7DpPOFpu9sgs+K203/yekX7Cbe8NGVEC5Ua1Jw23NS5
+	 VP9YP44HpSO5S+StYUmv6rfItu+FLVEeYdeIJrf38MBM4CIsOnIfWFSU3N6e9lY7Gy
+	 lwSvc9dswr7/u2+EMkZ/W7Q+RYLU523CTADqoLXVm6Tn+9WsmemN8d7hVgA92XZvn+
+	 RLH66LN6X30PrXrD7rVBE1xI9Cjghv5LwzlumxIpiwBy7qYa9PYjkVGuJ5l00hdThf
+	 YxyI7CEoft3pPsHOXeGoKcnMZkypcE2EjWTc8KxvFL4dxFwQqbKolNC2BbGqzPaHNO
+	 P156oYuDzxWXg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -36,12 +36,12 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
 	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.10 111/121] virtio_ring: fix KMSAN error for premapped mode
-Date: Wed, 31 Jul 2024 20:00:49 -0400
-Message-ID: <20240801000834.3930818-111-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 75/83] virtio_ring: fix KMSAN error for premapped mode
+Date: Wed, 31 Jul 2024 20:18:30 -0400
+Message-ID: <20240801002107.3934037-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240801000834.3930818-1-sashal@kernel.org>
-References: <20240801000834.3930818-1-sashal@kernel.org>
+In-Reply-To: <20240801002107.3934037-1-sashal@kernel.org>
+References: <20240801002107.3934037-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -50,7 +50,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.10.2
+X-stable-base: Linux 6.6.43
 Content-Transfer-Encoding: 8bit
 
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
@@ -92,10 +92,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 2a972752ff1bc..9d3a9942c8c82 100644
+index 6f7e5010a6735..80669e05bf0ee 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -3121,8 +3121,10 @@ dma_addr_t virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr,
+@@ -3126,8 +3126,10 @@ dma_addr_t virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr,
  {
  	struct vring_virtqueue *vq = to_vvq(_vq);
  
