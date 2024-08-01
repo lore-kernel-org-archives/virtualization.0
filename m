@@ -1,158 +1,97 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B88191BC07C
-	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 13:01:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB942157467
+	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 13:23:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722517288; cv=none; b=NnJyf4FVuAl7C2Oe/vxmgOJyU2SLzWu4cqdNRk5rVf2jfxbuYR1iK/xDnDmgcOcVXPxTE8BdaG0L2zB7qQVParhALffB0Xor3PBOWQ4+gU5bPy0y2RHfekDNR7PgkprrOmL9Y+eTxjZD+d2NyP7JLLRRahaniJ1pjmJk9lBNHiQ=
+	t=1722518626; cv=none; b=Ug2YFHs1UAUcbI6Ga8xreq6qZllq/pxZ/pJQMujQ6KFAEnflNqaKVuSKgP3prLBmq5qSwqkjLlYtPm6ubBzc4S6f0VF48GXwey4B5JnxgSpQw6+hWIUcxIexictGy6/FoHJNhv1nLSUgq1tIzKM0//m1nWccFZdBwKYfvFN3iWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722517288; c=relaxed/simple;
-	bh=GkaiSM13/qrTUC0ROStPflXea/cNRgCiSONvV34+KIc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=VplkbM12fAomPtSaNGdhy0yC1hKGYNKkc+9CCcc7+rZC2fHFFEdadez7j+Hmhn1b37BpQX42aVyEEgi0yhc66+VJsliUTaTcGPz27MgIIkZMAs8mnMfP73zuqVjdat3JC3SUwgGbnHssHqhG0rmUL7LxDHWK0qLkBCo5qLEPT4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.174])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WZTc54FXfzxW3F;
-	Thu,  1 Aug 2024 21:01:09 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 996A7140109;
-	Thu,  1 Aug 2024 21:01:22 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 1 Aug 2024 21:01:22 +0800
-Message-ID: <22fda86c-d688-42e7-99e8-e2f8fcf1a5ba@huawei.com>
-Date: Thu, 1 Aug 2024 21:01:21 +0800
+	s=arc-20240116; t=1722518626; c=relaxed/simple;
+	bh=pxAMgUl6RpgEzddwp0OuSLVZnmbZKSASw1sE3RPnW5A=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=nqCY7ydCRulx661I/XBSGazoZmpeb3n1KkuvU00z0bVeLhTomE4/uWONWMdnm2hCc4pjHZ3aKlDOeAfSQY0/IPVyVjwiOKgDkXXQCZbvu1cZPDIgBa7J345KvJ8CMXjf49m5iNL5CE+U4Gh/0b3AiGIGNQyp2ohHpl/Z/rADDu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bUjp3cXX; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bUjp3cXX"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722518621; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=nmlezCt3y4sHPiSBV8DTZAgWvKS3ESvpRmOQCDwrnNQ=;
+	b=bUjp3cXXWg/lvCir4fkpVeV3G3hTN590HU4FhC2Gku7bKQ+ad1XUNUl8GZlayE4ympVqdC1+BFXgyLnrVqd/vVD/d7hxssykkeDj8kuiTH69ucwC6m3sAKcFaYegLi/B6dLXEC83eYPzLtSecj1RiKEmGyibDsvejORQDlxSfgM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0WBtoWuU_1722518620;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0WBtoWuU_1722518620)
+          by smtp.aliyun-inc.com;
+          Thu, 01 Aug 2024 21:23:40 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net v4 1/2] virtio-net: check feature before configuring the vq coalescing command
+Date: Thu,  1 Aug 2024 21:23:37 +0800
+Message-Id: <20240801132338.107025-2-hengqi@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240801132338.107025-1-hengqi@linux.alibaba.com>
+References: <20240801132338.107025-1-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v12 04/14] mm: page_frag: add '_va' suffix to
- page_frag API
-To: Alexander Duyck <alexander.duyck@gmail.com>
-CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya Sundeep
-	<sbhatta@marvell.com>, Jeroen de Borst <jeroendb@google.com>, Praveen
- Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
-	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
-	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
-	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
-	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
- Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
- Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
-	<hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, Chaitanya Kulkarni
-	<kch@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov
-	<ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard
- Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Andrii
- Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
- Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
-	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
-	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
-	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil
- Brown <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Trond Myklebust
-	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
-	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>
-References: <20240731124505.2903877-1-linyunsheng@huawei.com>
- <20240731124505.2903877-5-linyunsheng@huawei.com>
- <CAKgT0UcqdeSJdjZ_FfwyCnT927TwOkE4zchHLOkrBEmhGzex9g@mail.gmail.com>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <CAKgT0UcqdeSJdjZ_FfwyCnT927TwOkE4zchHLOkrBEmhGzex9g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemf200006.china.huawei.com (7.185.36.61)
 
-On 2024/8/1 2:13, Alexander Duyck wrote:
-> On Wed, Jul 31, 2024 at 5:50 AM Yunsheng Lin <linyunsheng@huawei.com> wrote:
->>
->> Currently the page_frag API is returning 'virtual address'
->> or 'va' when allocing and expecting 'virtual address' or
->> 'va' as input when freeing.
->>
->> As we are about to support new use cases that the caller
->> need to deal with 'struct page' or need to deal with both
->> 'va' and 'struct page'. In order to differentiate the API
->> handling between 'va' and 'struct page', add '_va' suffix
->> to the corresponding API mirroring the page_pool_alloc_va()
->> API of the page_pool. So that callers expecting to deal with
->> va, page or both va and page may call page_frag_alloc_va*,
->> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
->>
->> CC: Alexander Duyck <alexander.duyck@gmail.com>
->> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
->> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
-> 
-> I am naking this patch. It is a pointless rename that is just going to
-> obfuscate the git history for these callers.
+Virtio spec says:
 
-I responded to your above similar comment in v2, and then responded more
-detailedly in v11, both got not direct responding, it would be good to
-have more concrete feedback here instead of abstract argument.
+	The driver MUST have negotiated the VIRTIO_NET_F_VQ_NOTF_COAL
+	feature when issuing commands VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET
+	and VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET.
 
-https://lore.kernel.org/all/74e7259a-c462-e3c1-73ac-8e3f49fb80b8@huawei.com/
-https://lore.kernel.org/all/11187fe4-9419-4341-97b5-6dad7583b5b6@huawei.com/
+So we add the feature negotiation check to
+virtnet_send_{r,t}x_ctrl_coal_vq_cmd as a basis for the next bugfix patch.
 
-> 
-> As I believe I said before I would prefer to see this work more like
-> the handling of __get_free_pages and __free_pages in terms of the use
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+---
+v2->v3:
+  - Break out the feature check and the fix into separate patches.
 
-I am not even sure why are you bringing up  __get_free_pages() and
-__free_pages() here, as the declaration of them is something like below:
+ drivers/net/virtio_net.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order);
-void __free_pages(struct page *page, unsigned int order);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0383a3e136d6..b1176be8fcfd 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3658,6 +3658,9 @@ static int virtnet_send_rx_ctrl_coal_vq_cmd(struct virtnet_info *vi,
+ {
+ 	int err;
+ 
++	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
++		return -EOPNOTSUPP;
++
+ 	err = virtnet_send_ctrl_coal_vq_cmd(vi, rxq2vq(queue),
+ 					    max_usecs, max_packets);
+ 	if (err)
+@@ -3675,6 +3678,9 @@ static int virtnet_send_tx_ctrl_coal_vq_cmd(struct virtnet_info *vi,
+ {
+ 	int err;
+ 
++	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
++		return -EOPNOTSUPP;
++
+ 	err = virtnet_send_ctrl_coal_vq_cmd(vi, txq2vq(queue),
+ 					    max_usecs, max_packets);
+ 	if (err)
+-- 
+2.32.0.3.g01195cf9f
 
-And I add another related one for completeness here:
-extern void free_pages(unsigned long addr, unsigned int order);
-
-I am failing to see there is any pattern or rule for the above API
-naming. If there is some pattern for the above existing APIs, please
-describe them in detail so that we have common understanding.
-
-After the renaming, the declaration for both new and old APIs is
-below, please be more specific about what exactly is the confusion
-about them, what is the better naming for the below APIs in your
-mind:
-struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
-                               unsigned int *offset, unsigned int fragsz,
-                               gfp_t gfp);
-void *page_frag_alloc_va(struct page_frag_cache *nc,
-                         unsigned int fragsz, gfp_t gfp_mask);
-struct page *page_frag_alloc(struct page_frag_cache *nc,
-                             unsigned int *offset,
-                             unsigned int fragsz,
-                             void **va, gfp_t gfp);
-
-> of pages versus pointers and/or longs. Pushing this API aside because
-> you want to reuse the name for something different isn't a valid
-> reason to rename an existing API and will just lead to confusion.
-
-Before this patchset, all the page_frag API renamed with a '_va' suffix
-in this patch are dealing with virtual address, it would be better to be
-more specific about what exactly is the confusion here by adding a explicit
-'va' suffix for them in this patch?
-
-I would argue that the renaming may avoid some confusion about whether
-page_frag_alloc() returning a 'struct page' or returning a virtual address
-instead of leading to confusion.
-
-Anyway, naming is always hard, any better naming is welcome. But don't deny
-any existing API renaming when we have not really started doing detailed
-comparison between different API naming options yet.
