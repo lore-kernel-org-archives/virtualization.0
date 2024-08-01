@@ -1,265 +1,259 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2056.outbound.protection.outlook.com [40.107.220.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA7C01A4884
-	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 14:41:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F673A1DA
+	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 15:11:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.56
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722523285; cv=fail; b=sSKViqoKMnWMn6B7kmPgg8jQ5cbpiahcXefOM72NoMoMi0xoQSq/cajdKfqWd9+xTa6CuzIxVtnHmf89picWY3pOL2ZOz/xWTe+9XL2O3ICtustzo3BwbOl2sT+aOUWBaJjJ6bAvy6mgVAysvjJfkzg6i+xj4ASVgIpQc8IHLOE=
+	t=1722525120; cv=fail; b=nHGKEmDlx0cPMLBtx11EoHv7cGZF+14FKTPxyYdGZJHII8snZhooHy9CnvwxIvsA+lLOayv56IaX/8TROj9zTl2MCOhHqcw90MI/HbNZ7DX6hIij2F6nm7arPIX2rGIHvOzezfepdp3YW0SrPfotUn+ApK0mT9SP5NDcGdnROyY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722523285; c=relaxed/simple;
-	bh=dr7Xm07oqmyrsbpbi1nPf6GDFWapFXz7pejL2uplbQQ=;
-	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=BzFluQbNQ1weGXVvfQD9p4SgcvrW5Q8fXJMS7hi2gCS0ygzN8y14BNxQzzaIuiW72IRNZeYXATymy++MhVVjOdIRZmzOY4dJcEVsL0XkN15T4i1ysYQ/SdAKBHzOOvQE/1kb/alEDxvzwXA+fZ8klWtDivYP4MrJHNpswDyozDk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NJc10Hb9; arc=fail smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1722525120; c=relaxed/simple;
+	bh=7Xzs+XIsiCBfw4zDeighDDZ1+h3jfaEjzsxr9cng4co=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=F0dYneJzWFX5mq774sSzEjJJim39EWQ7qXVCF+OOaglAeQEuwlft21p5Y2a6/YxH0JlGUUnU+Vh0gSXVjTUcITIRQWYxMMoOtiLrs0TzD/9VYkPsmdSU0bEP5CpYaUH+E+z7Af70m5chhN6QV0fbPXEFYTbHtWLKU8h1tF+84c4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=fZxZZbUv; arc=fail smtp.client-ip=40.107.220.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NJc10Hb9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1722523283; x=1754059283;
-  h=date:from:to:cc:subject:message-id:references:
-   content-transfer-encoding:in-reply-to:mime-version;
-  bh=dr7Xm07oqmyrsbpbi1nPf6GDFWapFXz7pejL2uplbQQ=;
-  b=NJc10Hb9JFmt32yWgWreupiI4g+/Gy+9CI4STt3YCmEPTE1hYt1F7GoX
-   Xavol6tTzu5mSodFSCs8JbTRzmB8WuzoY4G2gjOpPC1Vrw5SmOCV2Kru3
-   IfAQ8aWxpnfWXOxha3DrlTE3hlmZhBWAAiGAScXK5xtRp6W9sGvSJVPnW
-   pjF0LQpure+1LPW51HmXThZdVAgAvEuY9XaSgVOgUgJSlZ+SpUgTTogpU
-   oUfpnQ+GovrNSoK9jcEZS6gZ66GY/4VuV0uaWqw36FXnGJs+nPwrXuLaT
-   QHi22pP5m5V0Js0RoAPOc9KRW7GrX29cjeQUgza8ZFMHitUhgEH2j/xY4
-   A==;
-X-CSE-ConnectionGUID: 3NnJOnqdTqC7ogRRzfK3bw==
-X-CSE-MsgGUID: 7CLF0TQOS7OCmaGNyEnhFg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11151"; a="37944785"
-X-IronPort-AV: E=Sophos;i="6.09,254,1716274800"; 
-   d="scan'208";a="37944785"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Aug 2024 07:40:53 -0700
-X-CSE-ConnectionGUID: wFxSkbSQQWuM0+H/I1m+qw==
-X-CSE-MsgGUID: jWfLWEU7T42+pp8n8wMMyQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,254,1716274800"; 
-   d="scan'208";a="59706119"
-Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
-  by fmviesa004.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 01 Aug 2024 07:40:49 -0700
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Thu, 1 Aug 2024 07:40:48 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Thu, 1 Aug 2024 07:40:48 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Thu, 1 Aug 2024 07:40:48 -0700
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.168)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Thu, 1 Aug 2024 07:40:48 -0700
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="fZxZZbUv"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=m16fL6mcURdsiTsBWbq2RphqpRaOn67r1dye9zyaZ94UmmE8coukblWY6KG5oPgUD4sWquVAjK2yXbBYkpACCiymzhdPM5ILavZMTjyuFfELiAgzu46Zn3l9NXcoM4UwaPtMSPrjDS23O9/qDkHtp8NbxMrI4LilrJ1W6BJN2V2KXX7BUDf+CCokwzbX1duUNxXKiCyFtzHIg5tKsRXGNdzanEFexkILWQ/3QZwLMjPaFBKjJioCWTo95rg0lH8kttEAc0hAy6nGTOgKSWB3kHcJSKcUJ2iCohutVpOxl7HoFHW6j/YXB7b8f53fhy4oh8rGXLPgSC+7FvIR0tystA==
+ b=G74dVZyEsMrWOerjN2BtUZDqblyWkJT00wtwSKgGeiQbTzM6wkQfjwuAFF1YyAppLqWY2fU1enjTHy4A2tLw5fhfkcPJ5+HKPZ2KNOdB/p8s5FFs22keE359bMYHrWIYgQt6DRwaJi5o2+dRVaHLCYU6D47FFB2hfrNyyDaU1/82rvP4k51/xkphb6Q9XtjiVS8f7WBGbFWsntpdWCdZb13pbT/ugnUGnt2p7VNDb1NKXHfp0fL6XhkO1E10H2ySEjIKgtHcum4g0S9AV8qucYIBV/xOvR/kvvq8kETxJQccejzk8QqrmEmEdvGAGyZCghVEQXaehKP8BNpt8xB6Uw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6olSpFO/CJ2PuUC3gaQRbNJg2NcnaGra5XzgiLe9k5M=;
- b=gJH9rx7oPxMFDhATOuewL1paCkE8qxD40xeAiYT/PiPQqeR7n+HAOdrmyuj1va/m/jlXyiGDmm5oxxRZH/urYOQ711WuGcqghLyZcm1xI55IJvyH+Ld4h0YppVGd5cdw41WboU7MhO7xrLv6iTzP+LTFHsdH7cAddVWBkGT7G08TDrheqj6PjFhHAoK68G8tcxn5ps1WzI0aOC2BHTXSsLbrd4yLyIxdQDjCNWB4udzGpiZTVsU5vuLZAyGcSu+YqBkDfzfVADCKz4rlMszZ2P7HF4tADBqw7gFT9n59+vfGjbQWp0fX/Jkvvvu95jvzfk5qCJZX9xnhncqzMcMNag==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DM4PR11MB6020.namprd11.prod.outlook.com (2603:10b6:8:61::19) by
- PH0PR11MB4805.namprd11.prod.outlook.com (2603:10b6:510:32::12) with Microsoft
+ bh=fu8rmhbJnl7tgcFCis1wrZ3Uh6mk200GBW6OiM+Y1aU=;
+ b=E7xdY6pQXzsJS3QGvBfQsBqTCdvPEb1mcS46q+WirpJYIaodmzhBLt6gHmuSzgnhZ1fgsAjth7YWw/71J7xIOlzDkDdA1t5qItlrRr7K8AUbEDP4wmJhGiaEt5B113BlIBh+QQiudf7+KHmW6IoYVHKf2VevZ9VHS5gX/LPYv76hCCL0yB2wq2i+L24LP36a7Uv/1D8Rx6XYsGJ1C+Uih2fW47kXQIiJzjdAFSj8hU9dTwmEtgfxPSkeQOUWu3/HNo0goEn8fGY3tdkU+umONT8EKe8gD5y5G54B/k82Q6cMQfQ1xP1A8ny7g2uqIaPBoQqQJeowfCqKKVjEAegKcQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fu8rmhbJnl7tgcFCis1wrZ3Uh6mk200GBW6OiM+Y1aU=;
+ b=fZxZZbUvxaOTgwetmomlWALcpO7bQF9etxiB8ZwotuNY3sZMs1fzKtZM6kvIoyIFC8Ryywmm5At45xw7EiXjES29cV6oYugXY1Uf9EZUvQrvcI8oHd72Nwn5Yt/3nY8cYfzfo5OtsGKB9YlJWSemxKnUQtlDJI81AMNkXIojIBEpxUDsPPYRPh2Bgbs4sPfye4cazwpCBzIeE3NCzSr7dj6L7Po4krurHSShCQ4dQBqeUS+yTYHqA4/q4bDtNtoDJ5CEzILrzchLuXg0V6Rf7f5TqYTu1+3z5c2RtB8AaigBCvTVg60gpJb3w/0y11LQj4gTF/kSyB8Q8kPN/PB8uA==
+Received: from BN9PR03CA0130.namprd03.prod.outlook.com (2603:10b6:408:fe::15)
+ by CY8PR12MB9035.namprd12.prod.outlook.com (2603:10b6:930:77::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7807.28; Thu, 1 Aug
+ 2024 15:11:54 +0000
+Received: from BN3PEPF0000B371.namprd21.prod.outlook.com
+ (2603:10b6:408:fe:cafe::28) by BN9PR03CA0130.outlook.office365.com
+ (2603:10b6:408:fe::15) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.22 via Frontend
+ Transport; Thu, 1 Aug 2024 15:11:54 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ BN3PEPF0000B371.mail.protection.outlook.com (10.167.243.168) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7828.23; Thu, 1 Aug 2024 14:40:45 +0000
-Received: from DM4PR11MB6020.namprd11.prod.outlook.com
- ([fe80::4af6:d44e:b6b0:fdce]) by DM4PR11MB6020.namprd11.prod.outlook.com
- ([fe80::4af6:d44e:b6b0:fdce%4]) with mapi id 15.20.7807.026; Thu, 1 Aug 2024
- 14:40:45 +0000
-Date: Thu, 1 Aug 2024 22:40:26 +0800
-From: Chen Yu <yu.c.chen@intel.com>
-To: maobibo <maobibo@loongson.cn>
-CC: Dave Hansen <dave.hansen@linux.intel.com>, Thomas Gleixner
-	<tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
-	<bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann
-	<arnd@arndb.de>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, Juergen Gross <jgross@suse.com>, "Nikolay
- Borisov" <nik.borisov@suse.com>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>, "Prem
- Nath Dey" <prem.nath.dey@intel.com>, Xiaoping Zhou <xiaoping.zhou@intel.com>
-Subject: Re: [PATCH v4] x86/paravirt: Disable virt spinlock on bare metal
-Message-ID: <ZqueWhX6lqS+1vwg@chenyu5-mobl2>
-References: <20240729065236.407758-1-yu.c.chen@intel.com>
- <4d31e1b4-2113-c557-b60a-3a45b2840f26@loongson.cn>
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4d31e1b4-2113-c557-b60a-3a45b2840f26@loongson.cn>
-X-ClientProxiedBy: SG3P274CA0008.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:be::20)
- To DM4PR11MB6020.namprd11.prod.outlook.com (2603:10b6:8:61::19)
+ 15.20.7828.11 via Frontend Transport; Thu, 1 Aug 2024 15:11:54 +0000
+Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 1 Aug 2024
+ 08:11:41 -0700
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.4; Thu, 1 Aug 2024 08:11:40 -0700
+Received: from r-arch-stor03.mtr.labs.mlnx (10.127.8.14) by mail.nvidia.com
+ (10.126.190.181) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Thu, 1 Aug 2024 08:11:38 -0700
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
+To: <stefanha@redhat.com>, <virtualization@lists.linux.dev>, <mst@redhat.com>,
+	<axboe@kernel.dk>
+CC: <kvm@vger.kernel.org>, <linux-block@vger.kernel.org>, <oren@nvidia.com>,
+	Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: [PATCH 1/1] virtio_blk: implement init_hctx MQ operation
+Date: Thu, 1 Aug 2024 18:11:37 +0300
+Message-ID: <20240801151137.14430-1-mgurtovoy@nvidia.com>
+X-Mailer: git-send-email 2.18.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM4PR11MB6020:EE_|PH0PR11MB4805:EE_
-X-MS-Office365-Filtering-Correlation-Id: 31ddc097-3713-4c95-2f95-08dcb237ed3a
+X-MS-TrafficTypeDiagnostic: BN3PEPF0000B371:EE_|CY8PR12MB9035:EE_
+X-MS-Office365-Filtering-Correlation-Id: f6970d8e-06d3-4280-4cd4-08dcb23c477f
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?Z2xrZVhLK3hqSWFqMnpQVzM4MVhXaXVJOUgxQytLQkR5cmd0aHl1eW8wOEh4?=
- =?utf-8?B?dGZ4MXhqV25HcnNMVHhaelJkc1lEcVpoRVdSaUdPSWlhQ014U1phRzFSMGR6?=
- =?utf-8?B?VkQ5LytHeUordFEyUmpXdVBuOHZJWWZMZmR4enZSV2NlRkZpMDVlbTRyMk9F?=
- =?utf-8?B?QXpPcDcxeU4yMXQ0U2ZZZWZrcHFhMWtvZi9qWjJFc2pWVmU5dkFVRTlaRFEy?=
- =?utf-8?B?UUw5L0ZsdVRDaEdFcUJRRnRBenpzbEg4bndNckNwbTJjeEhjVCtVTHZQUUpj?=
- =?utf-8?B?WXFnajZWYm9YMzQ5d09sM1kvczJsVkI5RlJFN2hDVUs0NzhLN3hoTUhiZmJt?=
- =?utf-8?B?cFJ5bDlwcElPVjBuTS9RK1JWV0p0WnZnRTlpY0RQN2E1RHlPYkdZeEJURVBC?=
- =?utf-8?B?Vk80V2ZKUEZMbU1FMTIySmY5bTRlRW9tNk45cmI4UEFhcFpxcTNsazVWYm9h?=
- =?utf-8?B?aUhpMGtKS0JzWUMyRkttSGpjbnd3bjJMbDlRdWNOaTJ2c0NGUzdXZHpxWVhI?=
- =?utf-8?B?dWE5WGtLUnhLTkxGRGMrYUFWOHBTcC9MRWlrSFpLc1IzbmR3MW5RejY3S1VI?=
- =?utf-8?B?WVpxNEhWMUlXTkhMc3p6M0ROb0JreitYc0JGeU1taE1Dbm1YZ1craStCRmxr?=
- =?utf-8?B?NnlJZ0xrS1BoUmlQZGUwd01Pa3RSMWhVVHN4amNnT3pZanptcmV0Y09jM2pa?=
- =?utf-8?B?Q09rT2lucGVOb1F0dFZGc29naWZhNDFRMDd1a0FQaGpkbTBJT0pSWUNYY0xa?=
- =?utf-8?B?MnZMNFMvcEZsd3FWM2xtQndRT1RsZDcremk5K0VvM1pHZ0pPamE0NThMQ214?=
- =?utf-8?B?SXNkdkRSSEhNV29vc1hZdWZySmtDa2JDRHFqTW1zYk8yUWoxdVc0MGh6YnUz?=
- =?utf-8?B?UnVyWVRYWDJSanlZMHZUdFlpUDFIREFwelo4ZEZ2cHJudWdLLzRiS0F0amJT?=
- =?utf-8?B?RzkySGJ4WmJhUE93QXVuY0hVZzluWTYzY21KcFdlejVCdEF4WGhzOVZUYjgv?=
- =?utf-8?B?a2dFR1ZHMHJvNVV4VitSeENqUUJhTEpFdkJZUEdvdDJZVXNBYVUzMmZpU1h0?=
- =?utf-8?B?eDlDdVh5VWFxazhBODN0eEYrSmY1Wmk1eVFBcVlDY1JiVEViZDlJWDFCbS9M?=
- =?utf-8?B?RDB5MTRDN1hUamtneVRZd01YUURsdEZiczJDaHAxOVNZYUJ1UHdKVXRSeDNi?=
- =?utf-8?B?TFpSb2h4ZDRlSzhqenJjek10ZU1FdUJyODdNQ0lFNlRPSTVaQXBzOUlZVSti?=
- =?utf-8?B?N09JQ3R1WDZ2KzA0ZkJDTTBtWHEwYmJDanAzME94M01CcStxd1AxQzRmNFNY?=
- =?utf-8?B?UXovc2s5WTdJZTBleFdDOTBUQkJOTDQ5SHF1anV0OU4xMEd2amkxS3N6eXFj?=
- =?utf-8?B?RFRaUmRBSWFQN1kxZWNSdURHY3BtTmxKRFlZR216ZlRnd2tTcXc0V1pxOHcr?=
- =?utf-8?B?bllWUXZDN3RuYzRIbHdhQUpWaUh3enhWR1BYOWRyWnlJbHpKUHFjeTg2Z0J3?=
- =?utf-8?B?UHplMUVINGhEdGluUm8zYkMvd1FuNjB6S2VORkJ3VFhNWkEyckhLKzk1N3pJ?=
- =?utf-8?B?L3NVKzQvdnZnQVpsaFBGazM2NTl0Nm00U1NzNkwzNUt5YzR6eEtmWS9mczJZ?=
- =?utf-8?B?SUd6VHZmRk5XdW9DcmxRRk9hQmlHS2Y0WDlrbEVvZmNOa0EvTkFOdGFuVjJ2?=
- =?utf-8?B?VlhPd3ExKzRSalNhbm9OTGxZYWlSZElKUVRLYTYxR3lhQzlkTmQ1THRGMHAy?=
- =?utf-8?B?VEtJZTdNcFlBTGIxZnpxaEkxd3JZVnFDNWg4cUlmVzBNcmNPWWJYVU1mTzU1?=
- =?utf-8?B?ZHFDcW1VdFd1NUJ4VmphZz09?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB6020.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?c0tBc09RMlQzMlZ1Tkh1YzlrNDNJRks2QU9RZkNyTEtzR2hFckh3N0dEMm9N?=
- =?utf-8?B?MTZkb2FBZHQvd1hPU3g4SWYrTytPNnN4NThIbExSd2ZzRXRaUnRudTVjMzAz?=
- =?utf-8?B?ZXFCOG1NOWNzRFV6TFIrVDZtYkIzZEZ2V3I1bnB0anRFVVJnYzJmZEFmVDFH?=
- =?utf-8?B?bXd3Tjg0QWY2eFJaa1R5a1ovclp1aEZVNHlERk9XbHQ2NEduUUhEZ0FGQ0N3?=
- =?utf-8?B?SEQ3TUpQOGVTNUg4QXY4eHRHKzdVSGtMZ1NFSlZGa2Q4aTNiOFlEZUx2VEkx?=
- =?utf-8?B?cDhpZW40VGkyS24vQWVFV2pWdFhrckRzbnpRSUR1N0huRjVCcE1nVm9WL1p5?=
- =?utf-8?B?bFh1Q2xWLzA0NzlXN0cwZklvWk5GeStHZGowVENOSkFpUWdWZXFMSXhtbTdv?=
- =?utf-8?B?Mi9DcG0rUCtIeGZzMFlsQkRtUkltc3dPTFp4c00zSXdKc1QyRkZ4N0JyYm42?=
- =?utf-8?B?SDNNK0h3bzBUYmZCQWVRNGxTSG1BNFErbjUyejlIcEdvTFdLVklpQ2EzTkxU?=
- =?utf-8?B?NW82QUdpSC84MU1nTHk1ZEd2WVdiZDNPNHE5eEhERlBBa0xDY2VraGhYUThn?=
- =?utf-8?B?M2FGTnNpYk1yRFM4NEpkRFZhK2cwdk1UcUxpZE9QZVIwZUF5Sm9DYkZLbEE0?=
- =?utf-8?B?WUx3bGwzK3pndU9NMHVuOWQ3QU5jK3FkdmMva055VmVPWVNzN2pNRCtrUEl1?=
- =?utf-8?B?KzhPOGs5R3g1SXNYUlhsTzNjWFBzanljbDhuSUc5dVhTcGp0MXdKYlBRVUF5?=
- =?utf-8?B?U09xTEFyZjBaSXZtcmxPRUZka2tBbTNEbyt1NFFRNEMxRERWZ01qN1JML3ha?=
- =?utf-8?B?K2R6ODF4ckJzbkM1bTBtczJYa3RCVmJYYkxONThJT3dvSzJSMnNGQk51ODJr?=
- =?utf-8?B?S0plWkdWby83VFFjTDF3NVBMR0JTYlpYcm9mUWRsMUVFaThrcFB4a1lUcXMy?=
- =?utf-8?B?akxPbStGL2xTcWhnc2oxcVV5TTlwRmxPajVOYU43N21mMk93UW9uWG1jbnZR?=
- =?utf-8?B?cTFPclRBT3AvbURrczR4dUxlRUZaYTkreFpheHBnTEt5c2JxZUFpbXZTbUpE?=
- =?utf-8?B?TTNZZkFRN3hIcmFZUCs0WHFEQjUxSERKdnRUSEFxZm9LSXBpUXdqS3N2a3RR?=
- =?utf-8?B?RWZNVnRLRkRGcXdnV2J5RXdsRGlrNVJPa3lRMGdTbElMTlFaMndKYjlWL0VF?=
- =?utf-8?B?elZVcFV2QkZ2amtzbTE4OXNVSFRLWEZ2OEhtUS9UNk5YMzFFejRxOVBBTHVZ?=
- =?utf-8?B?QXd6djM5WU5aSy9KeUhhTUhTUUdVL2kvN3ZUVlBsV0pVSVRiUHRRaC91dENn?=
- =?utf-8?B?SUJ6MU9mWnczbnJCRnhIZjRkS2J4TXdqckFQbU9SRUlQY0tlNVg4ZW5wSHlH?=
- =?utf-8?B?dHRJUEYxTUxtT3RydHpKeEZRMGxYWkQyV1drTzEwWk1GM0JRdElKWFZ4c29N?=
- =?utf-8?B?ai85OC9ZQ2lDRUlBVDBLWXBTRTNEUTFGQjVUWktEN2lRM3NwOXpGOFhjRU1P?=
- =?utf-8?B?SnZUZEhLNGtzZW13OEdVbjZXaWVrU0RzSnhiSjIxUTlUMEdQYURxWTkwZmZx?=
- =?utf-8?B?WSthSVl0Q3h1L1ZmZmNTRzEvTmRMQ0xPTTJOZVo1c3kwMHVEdzhYV0ZLeWxw?=
- =?utf-8?B?Q0FHY1Q2ZExIcHpVc3g0aXN4TzBETzhER1pjdnpscnY2RkJ5TkplUHhleldK?=
- =?utf-8?B?YTZvYUpmVldleERLNDFiY0twYnJ6R05qVm1LWkRFRkgzUERmb1Mvd3F3UVRH?=
- =?utf-8?B?aER1d1lNUWFQWjZBMzBVbVFodUNLb29UWEFudmxBbVJVYjVacGs3NVAreXhQ?=
- =?utf-8?B?dkVSa1hkM3A0SWdXc2VTakF3aGVqK00zSFo5MzBYcmxKVHNNd25lbEJaeWlV?=
- =?utf-8?B?ZTYxeVV3dlJBZWtpem1aOXMwZ250NWM2dEF6dkhkYzhHamg5cW1kYndEMDdR?=
- =?utf-8?B?SjcrTG5lN0VMMC9ZcEhYRElnQzFhWXRzMnpYV2VVc3V4THhJSzNNQSt4L1lR?=
- =?utf-8?B?MGlIY1l2MEtvYmVzMGhyTERLQkhRem03TWJ5RVVnM2hrSzFMTkMwMTh2YTNl?=
- =?utf-8?B?YWxnSWFhU1RiNTAwYmxIYjljR216Q0NzRlVzVjRRK0VIWC9uc0pXZE13MzIv?=
- =?utf-8?Q?VaZw1gBGqTAWMIUswdO9WFhgf?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 31ddc097-3713-4c95-2f95-08dcb237ed3a
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB6020.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Aug 2024 14:40:45.4266
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|36860700013|82310400026;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?xTD1iqV5IMdCE5t5qpR/iVd4CTBVLqHI35gPVCYTVwhG3UIbopwIXWD5Vekn?=
+ =?us-ascii?Q?2g5xFQTncmHwk5aP74nkzJKU8Cp3zZBtnUnZrgfk73/W5lBHyD6JSgdZfeYC?=
+ =?us-ascii?Q?Ze/93swxS71pyW4iMrWJbpyHf9R7PfUhxrIzLVDKNe5Q+S7uWzitNj67PFW3?=
+ =?us-ascii?Q?SR1MmqJWsxdDg7y2Of1kCTy62tbiB3cWaG1kdu9YdjxQNSQX6CJebgi3Dlr+?=
+ =?us-ascii?Q?ziRkBKR1t/rd+TLm0kyFAfHucA2dBWmAe1tuJNvkgNLjpaNakLH+PC9SQKUZ?=
+ =?us-ascii?Q?PE+OsZiSWKSdbhSSH8iX37DvhTyDFj6D9IV63yn2Uwlx8UigcEtbnh6nU6YZ?=
+ =?us-ascii?Q?OpbYw6Zf7jUM75d6ORJ1NxrhNKWDQ4SRncOuOWBEgBJLtEES0ids8kHzySHR?=
+ =?us-ascii?Q?VHHoq5xP9E+JhiSQn7uiq9CKvV5se3NhoZ37LpO4879FIgOGHnRb5cvCS4RC?=
+ =?us-ascii?Q?CUOAP2u/EWnj66B/k3ue+I+3/5nwmjR0sDWCyMf4IvI86kZ7hfBgicNW/16f?=
+ =?us-ascii?Q?KeN++1NJv/knjQPRcMZNiXlcyCU5MqSbmYRwG6MWlAvfOkROEhDAx09cFoxe?=
+ =?us-ascii?Q?iAH1e0FwQpHFADrM1D8kyCUjDKZmUNXmdFn7QBMtJcKYAOoW4J65M7xk1fSY?=
+ =?us-ascii?Q?/eIW9DgolLQuTztTrER6VivpkX77PmpnfRgjdOrQUoJna3Jk+3072zDQUci/?=
+ =?us-ascii?Q?FmEtCMMhjyGCJnBIhrFh6WDhdPlOoAYu9CD0JqYNY0DgJ413Icb6qbxVBGr4?=
+ =?us-ascii?Q?w3x/xRZCqFKK05/CJIM5WYtQxm5Lu8fRlzwXYO9SI+SYMyUsDCXGkOGcm1y7?=
+ =?us-ascii?Q?kwrqoVTBYg6DIdbfav2W0sKYkRd0Rb5x7EH6poMlt9k2Bezpm8S9YSlkpyuK?=
+ =?us-ascii?Q?ulP2AClvj2BwGa2Wl9MierE/e9ahasAcfKPjRQpTQTeZ7QdMKzzmd6qksWvZ?=
+ =?us-ascii?Q?rtjU1yxWrkvQvrrlLBgCXvNrcIulyxXzXJ+pnBaw9rgl2IPp/R8a077DdYwT?=
+ =?us-ascii?Q?drJ2J0YKVTqlt3pSY9Io2yqtS497NM6+hvU0HVJ2JF1eId0Fdv2vG2lihL9B?=
+ =?us-ascii?Q?9tFKvA1miWS0lJ3YUVR3ht71UPdLy5YQG/k0TvWdJhgIy+nZXderuxuXjw98?=
+ =?us-ascii?Q?WlGpUeoSb0WD9qdnD0HXe0mrKNjwQuXFo5/9EsqqK2Pjulf8UDeg4xxGcFMr?=
+ =?us-ascii?Q?1atPf8jJuP+8S2Cp7E/OCNJA/VOZTfY4cfl7VK3bXtMTqgIA3Yin3mOdnC0b?=
+ =?us-ascii?Q?RX/a40+JXC7VIIBfirZVcoBxH4rpazGKih4st90zvR2sgwf8Y/SgIXa/SkSL?=
+ =?us-ascii?Q?JFLL2dgbO4nhkGCInAi7OSJcxiEIjsDYwdtc2F0Vraz+KSCdK4yW4AInv5rT?=
+ =?us-ascii?Q?/w8OLgVaX4fNssLobBIPmW+wABZx4NB5I7Dl/SeWrf3mVefirbi5pdJ6VFvD?=
+ =?us-ascii?Q?3ylTTAKoQOLBo6Aup0zylotGK9PZYhQ5?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(376014)(36860700013)(82310400026);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Aug 2024 15:11:54.5199
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EToCGQaAKnqLHkKdD1I6b+tzsPFBd2GDOJX722kWRyielQ9Eam2Z3Xna/FMpAyHX4jPrdivkCmn47iZBDzZbzw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR11MB4805
-X-OriginatorOrg: intel.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f6970d8e-06d3-4280-4cd4-08dcb23c477f
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN3PEPF0000B371.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB9035
 
-Hi Bibo,
+In this operation set the driver data of the hctx to point to the virtio
+block queue. By doing so, we can use this reference in the and reduce
+the number of operations in the fast path.
 
-On 2024-08-01 at 16:00:19 +0800, maobibo wrote:
-> Chenyu,
-> 
-> I do not know much about x86, just give some comments(probably incorrected)
-> from the code.
-> 
-> On 2024/7/29 下午2:52, Chen Yu wrote:
-> > X86_FEATURE_HYPERVISOR         Y    Y    Y     N
-> > CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
-> > PV spinlock                    Y    N    N     Y/N
-> > 
-> > virt_spin_lock_key             N    N    Y     N
-> > 
-> > -DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
-> > +DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
-> 
-> @@ -87,7 +87,7 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
->  {
->         int val;
-> 
-> -       if (!static_branch_likely(&virt_spin_lock_key))
-> +       if (!static_branch_unlikely(&virt_spin_lock_key))
->                 return false;
-> 
-> Do we need change it with static_branch_unlikely() if value of key is false
-> by fault?
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+---
+ drivers/block/virtio_blk.c | 42 ++++++++++++++++++++------------------
+ 1 file changed, 22 insertions(+), 20 deletions(-)
 
-My understanding is that, firstly, whether it is likely() or unlikely()
-depends on the 'expected' value of the key, rather than its default
-initialized value. The compiler can arrange the if 'jump' condition to
-avoid the overhead of branch jump(to keep the instruction pipeline)
-as much as possible. Secondly, before this patch, the 'expected' value
-of virt_spin_lock_key is 'true', so I'm not sure if we should change
-its behavior. Although it seems that in most VM guest, with para-virt
-spinlock enabled, this key should be false at most time, but just in
-case of any regression...
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2351f411fa46..35a7a586f6f5 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8 status)
+ 	}
+ }
+ 
+-static inline struct virtio_blk_vq *get_virtio_blk_vq(struct blk_mq_hw_ctx *hctx)
+-{
+-	struct virtio_blk *vblk = hctx->queue->queuedata;
+-	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+-
+-	return vq;
+-}
+-
+ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr)
+ {
+ 	struct scatterlist out_hdr, in_hdr, *sgs[3];
+@@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
+ 
+ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+ {
+-	struct virtio_blk *vblk = hctx->queue->queuedata;
+-	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
++	struct virtio_blk_vq *vq = hctx->driver_data;
+ 	bool kick;
+ 
+ 	spin_lock_irq(&vq->lock);
+@@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 			   const struct blk_mq_queue_data *bd)
+ {
+ 	struct virtio_blk *vblk = hctx->queue->queuedata;
++	struct virtio_blk_vq *vq = hctx->driver_data;
+ 	struct request *req = bd->rq;
+ 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+ 	unsigned long flags;
+-	int qid = hctx->queue_num;
+ 	bool notify = false;
+ 	blk_status_t status;
+ 	int err;
+@@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	if (unlikely(status))
+ 		return status;
+ 
+-	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+-	err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
++	spin_lock_irqsave(&vq->lock, flags);
++	err = virtblk_add_req(vq->vq, vbr);
+ 	if (err) {
+-		virtqueue_kick(vblk->vqs[qid].vq);
++		virtqueue_kick(vq->vq);
+ 		/* Don't stop the queue if -ENOMEM: we may have failed to
+ 		 * bounce the buffer due to global resource outage.
+ 		 */
+ 		if (err == -ENOSPC)
+ 			blk_mq_stop_hw_queue(hctx);
+-		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
++		spin_unlock_irqrestore(&vq->lock, flags);
+ 		virtblk_unmap_data(req, vbr);
+ 		return virtblk_fail_to_queue(req, err);
+ 	}
+ 
+-	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
++	if (bd->last && virtqueue_kick_prepare(vq->vq))
+ 		notify = true;
+-	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
++	spin_unlock_irqrestore(&vq->lock, flags);
+ 
+ 	if (notify)
+-		virtqueue_notify(vblk->vqs[qid].vq);
++		virtqueue_notify(vq->vq);
+ 	return BLK_STS_OK;
+ }
+ 
+@@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request **rqlist)
+ 	struct request *requeue_list = NULL;
+ 
+ 	rq_list_for_each_safe(rqlist, req, next) {
+-		struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
++		struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
+ 		bool kick;
+ 
+ 		if (!virtblk_prep_rq_batch(req)) {
+@@ -1164,6 +1155,16 @@ static const struct attribute_group *virtblk_attr_groups[] = {
+ 	NULL,
+ };
+ 
++static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
++		unsigned int hctx_idx)
++{
++	struct virtio_blk *vblk = data;
++	struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
++
++	hctx->driver_data = vq;
++	return 0;
++}
++
+ static void virtblk_map_queues(struct blk_mq_tag_set *set)
+ {
+ 	struct virtio_blk *vblk = set->driver_data;
+@@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct io_comp_batch *iob)
+ static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
+ {
+ 	struct virtio_blk *vblk = hctx->queue->queuedata;
+-	struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
++	struct virtio_blk_vq *vq = hctx->driver_data;
+ 	struct virtblk_req *vbr;
+ 	unsigned long flags;
+ 	unsigned int len;
+@@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
+ 	.queue_rqs	= virtio_queue_rqs,
+ 	.commit_rqs	= virtio_commit_rqs,
+ 	.complete	= virtblk_request_done,
++	.init_hctx	= virtblk_init_hctx,
+ 	.map_queues	= virtblk_map_queues,
+ 	.poll		= virtblk_poll,
+ };
+-- 
+2.18.1
 
-> >   /*
-> >    * Shortcut for the queued_spin_lock_slowpath() function that allows
-> > diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> > index 5358d43886ad..fec381533555 100644
-> > --- a/arch/x86/kernel/paravirt.c
-> > +++ b/arch/x86/kernel/paravirt.c
-> > @@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
-> >   DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
-> >   #endif
-> > -DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
-> > +DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
-> >   void __init native_pv_lock_init(void)
-> >   {
-> > -	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
-> > -	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
-> > -		static_branch_disable(&virt_spin_lock_key);
-> > +	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-> > +		static_branch_enable(&virt_spin_lock_key);
-> >   }
-> 
-> From my point, the sentence static_branch_disable(&virt_spin_lock_key) can
-> be removed in file arch/x86/xen/spinlock.c and arch/x86/kernel/kvm.c, since
-> function native_smp_prepare_boot_cpu() is already called by
-> xen_smp_prepare_boot_cpu() and kvm_smp_prepare_boot_cpu().
->
-
-The key is enabled by native_smp_prepare_boot_cpu() for VM guest as
-the initial value(default to true). And later either arch/x86/xen/spinlock.c
-or arch/x86/kernel/kvm.c disable this key in a on-demand manner.
-
-thanks,
-Chenyu
