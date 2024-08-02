@@ -1,68 +1,68 @@
 Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2044.outbound.protection.outlook.com [40.107.220.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADCAB1C0DEA
-	for <virtualization@lists.linux.dev>; Fri,  2 Aug 2024 07:24:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C12F1C0DF4
+	for <virtualization@lists.linux.dev>; Fri,  2 Aug 2024 07:24:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722583491; cv=fail; b=Qr+2mepgdX8lSBu8PW3BpBptrJECrS0fzJktTf9E7rWm1R6i3A28YnGIt11FrP/xdfWqov75o2e+OAh95eiQZQ84TPQYJvCAnzKNTA7nlLmKREPp7ONOX1VLBDATo7k7AaA1OxdNkIdUhe31BPRaafZDOlUzjk1vRvaEcQ58Z3M=
+	t=1722583494; cv=fail; b=A9zryrw80+Qq16CHYDi0GvFnqNPSXeQrnXJ8om29ZOyVsFpwMNdOnzjW/t/YLEG9vxKRMACJxSNttll+ErLi0zzbNCeyFlNxcRHcEnIwdCat0Yeab+nM6oBA79oBj2Kz0MIi8/5JTtANkmYSPm0GflaxA8UR49SCDN97S2dkp3I=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722583491; c=relaxed/simple;
-	bh=wKSqH8znK4M4oTd9KiEjOJvpDzQoYGFesAbMWqEeCk4=;
+	s=arc-20240116; t=1722583494; c=relaxed/simple;
+	bh=AQC6nrmSXuQue3Ae81zOXQbcl5D7ZHr/xGNZcvgcDL8=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ELHYTmZ79J7jTAmoEhD6n/rDcOoI5j1WN83os/FNeb+XzMzKai0WATZkbWRwq/DTJp+C++VvqYT2zRdPFRCHvqAh1GFknu0P1/uQvSTLRhE8m3AayrWAHktVW4Y99p4LES26UaCpdK9AvpXOLeyVRr5P2Y84eGAh39Cpwwhp6/w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=m6Ny+BqH; arc=fail smtp.client-ip=40.107.220.44
+	 MIME-Version:Content-Type; b=eE2BN19BJd/dNCLbwcqIf+lDNoNHjDgKByDbjay/HI+ChIqLnOAtnocUhXOxaAhDs6DA+BiRejERRrHR3FSgDGcCEw+YIfl60KPRFa25y5ENTYZiAtcfIsqq1INGke3AbaN2l/BihjsM3Aq3QUBwKt5PWu08G2B/dJ0mhjuS8Hc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rOcE1IYD; arc=fail smtp.client-ip=40.107.220.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="m6Ny+BqH"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rOcE1IYD"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=U47xHfO6qZVIi/xRreMxoSVbWL1J85snQEhLADb+kNyful2UD72SIpQZlScRXLdV3J+Os6NbhglKrK0eFXOPyhYc9ZbJsyPkw6LsItZDXX5XJhVHkQWFiQUNFuy6n7bMVDBE/7oMj5V2H6SOTqYn1JeTcvlDdNMlGObSQ8aZzafQ9CVsYRR7BRBvSwdZ+/6PaPeAcObjBEhwC1VZEYneOxrVD9wZ3XSG44H9IRoLzp0XoyDY13xAeroL/aKZkqFkN6GU2OdF0NTUdo12R5zC0Hs1jskwWxNZk18L27WdAGUmN3KsEJC+1nezQVqsM6Xl61yauGsiawqiNYXlMwMYIg==
+ b=Bzq7fV0mofnLYDMb99bEDGFm/eQ46t6H/n/4cCFcSPvY1tGA8HH9z8chR9LBqg836FY9n/HsuT67oZnDqSZdzNqdOUhZe/jLGlYcnzbiZUnzWnHsF2m7zRSqVELpStQpLwOJcPM+jaJw/4b9MjdxKwAbzsEj1nfSRew3QOJR5K6VECXMf+zXwCl1JGq6v/x23MLmQEauZWlhQUV386DqjcVMZDWJD9BS+wk0DGatqsBJqa89w3zdtn7hKq95Im4p4RAmQFt99z8+co0TreUSfrV3MPlog6BS5BsXJ1yTMlm4KQEfAybaQUM7F8OrXjpMahuSvXHlhlVZF28EuJZyDg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=V7TDu4w+AWZFYWCpX79TnGAvuCvTI8JjqdZiFtdNwFo=;
- b=rGDcjNH7zwq3euE5nHsyX1q75nccT700Ah4YRHydAyitDctPhgvahNHWf5WnKeDE4sJkpJT3GDjWEO7IJmUAARlyNyX6eEjuJrCGAqbXco5SfKS2jJXKg5uAyDxwewsgQ5WmecSdVmRgwpub3oiCbQB+Oufoi9KKAI/rd08IuFkwwHnIbNj7yyQFzt90x6ow17gi88nMbyAbm9CBDNGO+5SS6jHsZQ6G4IcmbZorY6cPEqwYrxyJVn3FLavEix7YA9XgRdEBxHx2UyqEM0QLvhqb5sHZQ4MUTVA/sEQPYEtazj0tLUBkupZjvzDOG2rS82oaSqDdiNczKotqSfsw7Q==
+ bh=GmD8ZNeHPCAb5iNDNcSObGVC0wf0GlR1gfYLa+WmHGw=;
+ b=GhE+8RDs5H9NjYlB1JjktkLB140ae++VaEp4+KgTkQBuqS/o3Ovqm+uYecqHPWBTF8Zkr+XGwAX3HkBzdX5Lx30dhEizC1YBz/iDV37NYTa/7m+FsAJhzkfxcpIKNWVkqa3Y+fcyrECp8RjeUR7DBoGgcJqsHOdgOhyaff0k1SWaMRHqUa/Te8OHHrQXmJcu1Xn2tjUUdtZTiArZpztlfoHN6HRSByv1klil3nH4/tE5tTsTvL3fZvTGkIhnlX7ANs8hvUnQcyW8TLO+9VCoZE7aYcwhZqVNE0bw6HNC4J8XUO2YktZfi3j1dM3clkaNKPwc/O+TmyX+mXTBznsGpA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=V7TDu4w+AWZFYWCpX79TnGAvuCvTI8JjqdZiFtdNwFo=;
- b=m6Ny+BqHAXcXVmBfrzgZFS5EkOk2a3h83QBV/zfXyAAKPNeAYOSWzYCMsSn1TXUtqkHDLqW7kPX1h74+y5UD9Dh3c/F5rxLf+8mtGOMq5QS4t1Mb1O6G1niMt1HSZlv7f/iSCs5E+jUolj3YcifUpJ08ItLd5y3hc9pNwOhyvtzBabPCm0YiRgQLSStG/XdTUByMqUaXsn9eoFSFy34I55BQ8HaVySwA5fjyFOn7kBW8lqbHlVcz11tAAnANAn97DoC/BxVRmEKTX4HS7xV6rVfgQqWqiugTtDb1Y0yUtRKU0wjmdeLV2Eqqv+nP90oxucvYjfueVXYxBjGg7gR+dw==
-Received: from BL1PR13CA0129.namprd13.prod.outlook.com (2603:10b6:208:2bb::14)
- by SJ0PR12MB8113.namprd12.prod.outlook.com (2603:10b6:a03:4e0::20) with
+ bh=GmD8ZNeHPCAb5iNDNcSObGVC0wf0GlR1gfYLa+WmHGw=;
+ b=rOcE1IYDi4gIY1ZoVXIQTZkRCJB6Frad741dvmx12qKAlunmQ+KpChhBFk342Im1o8yMJfBTVfhWCKWEEOLXdv3rMabYESJ3sQnGeXKJr6WqTV9w+0O54fP0fEbECSY5QIQZY3TsNEKAAOrgx8mSZ9LBZvepSlAsEL3ptvlNRd0ttup/XwVixxW2xsycu0ZN3iNJmLjvjFT9OMiXFzxdBA7mI2iFhyXk7gF+Cy0kfxLGC9mS2LCjVQ7aJzqiScu+4Bmcr8wk40WO15hVW8RzyLE8i8GIt9dEMkYJTs+ALO82CGsDsFAlxX+QPuNyjjowqNM237IUBjVax9BWy7lFqw==
+Received: from CH5PR03CA0008.namprd03.prod.outlook.com (2603:10b6:610:1f1::26)
+ by DM4PR12MB6541.namprd12.prod.outlook.com (2603:10b6:8:88::11) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7807.28; Fri, 2 Aug
- 2024 07:24:46 +0000
-Received: from BL6PEPF0001AB4F.namprd04.prod.outlook.com
- (2603:10b6:208:2bb:cafe::f1) by BL1PR13CA0129.outlook.office365.com
- (2603:10b6:208:2bb::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7849.7 via Frontend
- Transport; Fri, 2 Aug 2024 07:24:45 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.23; Fri, 2 Aug
+ 2024 07:24:49 +0000
+Received: from CH2PEPF00000143.namprd02.prod.outlook.com
+ (2603:10b6:610:1f1:cafe::79) by CH5PR03CA0008.outlook.office365.com
+ (2603:10b6:610:1f1::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.23 via Frontend
+ Transport; Fri, 2 Aug 2024 07:24:49 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
 Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- BL6PEPF0001AB4F.mail.protection.outlook.com (10.167.242.73) with Microsoft
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ CH2PEPF00000143.mail.protection.outlook.com (10.167.244.100) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7828.19 via Frontend Transport; Fri, 2 Aug 2024 07:24:45 +0000
-Received: from rnnvmail204.nvidia.com (10.129.68.6) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ 15.20.7828.19 via Frontend Transport; Fri, 2 Aug 2024 07:24:49 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Fri, 2 Aug 2024
- 00:24:32 -0700
-Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail204.nvidia.com
- (10.129.68.6) with Microsoft SMTP Server (version=TLS1_2,
+ 00:24:36 -0700
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail202.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Fri, 2 Aug 2024
- 00:24:32 -0700
+ 00:24:35 -0700
 Received: from dev-l-177.mtl.labs.mlnx (10.127.8.11) by mail.nvidia.com
  (10.129.68.6) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Fri, 2 Aug 2024 00:24:29 -0700
+ Transport; Fri, 2 Aug 2024 00:24:33 -0700
 From: Dragos Tatulea <dtatulea@nvidia.com>
 To: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S. Tsirkin"
 	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
@@ -70,9 +70,9 @@ To: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S. Tsirkin"
 	<eperezma@redhat.com>
 CC: Si-Wei Liu <si-wei.liu@oracle.com>, Tariq Toukan <tariqt@nvidia.com>,
 	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH vhost 3/7] vdpa/mlx5: Use async API for vq query command
-Date: Fri, 2 Aug 2024 10:20:20 +0300
-Message-ID: <20240802072039.267446-4-dtatulea@nvidia.com>
+Subject: [PATCH vhost 4/7] vdpa/mlx5: Use async API for vq modify commands
+Date: Fri, 2 Aug 2024 10:20:21 +0300
+Message-ID: <20240802072039.267446-5-dtatulea@nvidia.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240802072039.267446-1-dtatulea@nvidia.com>
 References: <20240802072039.267446-1-dtatulea@nvidia.com>
@@ -87,327 +87,308 @@ Content-Type: text/plain
 X-NV-OnPremToCloud: ExternallySecured
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB4F:EE_|SJ0PR12MB8113:EE_
-X-MS-Office365-Filtering-Correlation-Id: 83c293d2-4184-4ec2-e1b6-08dcb2c42f68
+X-MS-TrafficTypeDiagnostic: CH2PEPF00000143:EE_|DM4PR12MB6541:EE_
+X-MS-Office365-Filtering-Correlation-Id: d9813031-532d-48d6-4d97-08dcb2c43188
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|376014|36860700013;
+	BCL:0;ARA:13230040|376014|82310400026|1800799024|36860700013;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?RQJp61l7tuHXuNkgbfeJ+qHOyL0UJ6nKkMoPcRik/tyb7M0k1WVuIEVceTQa?=
- =?us-ascii?Q?Dboo6jsYsW0mroXhiul2no1faBXjojGuG92PrLe7LzZX3KEK4hWsotz8mSii?=
- =?us-ascii?Q?9SRhy/Wa/56V09gAoYlSWBARrJFcmPkJt29Nn7SQ0rUfcD9R8wwWQoeHbxsX?=
- =?us-ascii?Q?cFKiH1yaG0JZTUSU0he94vN9I0qMlLKTglUILIB4yjOb/buzk1EE/5GY2UkD?=
- =?us-ascii?Q?FlywN0wd035PRFr7tRKohsXskJfm8gg2Bd/xoOIWvGD5urlEZ+mG175Yg4D1?=
- =?us-ascii?Q?YCgGfCQag6hWlykH2inyQyJKmk6UUSWg1deiC3JYO6O6fV7fy27FJunkPPW0?=
- =?us-ascii?Q?8ZUMgXwuhlR8Aehh2cMjjzC44Jpix/ckwLKrizrNL2QVdxZdzderw6qzvsc7?=
- =?us-ascii?Q?FJzZMkLm8e8BSLX6lW027a62JHCIdbHRphQQPoVzcrk0DRv/KBF52VPodshM?=
- =?us-ascii?Q?j8eDHWd+ENrcWFX1ywA/4+sQvts6pCkcHdJqoUpWh3i9u8gLS/RqvEG7Tr9o?=
- =?us-ascii?Q?FT8RIAJOC5/Sg/+2m3vukjwrzbJPG6WzcxdEmUQo+DwsKYA5KBvLNV0KZeFX?=
- =?us-ascii?Q?NEcSI2d3lUEuQGZ2df2sUKSibNcM8qRXTDjz11uiCPl/TAcTNZda8obChHZX?=
- =?us-ascii?Q?b8ZvDaF+m6xOVHDtPDA5rWwh4Ac8pqqoZ/IZzCiffKUnqJmt6H3jdKxaVwnJ?=
- =?us-ascii?Q?rkuur82um8FkS24ZhqvYeif/MEw7w8MJ8+JV1cGkjhKK82zX+SkiI69p44y8?=
- =?us-ascii?Q?ZG+M+mGBpIh6PcNY3SgbC5G906vIT2GxyemEtDJFIwWeEf3MD8fhvA0uz8Fs?=
- =?us-ascii?Q?SM3Y4ulNuTqs93ovW5BBCtZ7YlYebMtFsb/+1hSMVgE/KCU9EKDZ2CKeRYUc?=
- =?us-ascii?Q?1PO6QVX7Q+UaJNyz1S+3G9xr1mcwvL0RUxhNfLYsOEpEmzrkKBEwHbUwdZNv?=
- =?us-ascii?Q?a/NKgNfix35M340h/I2w2xSWBnBSMQd+rbCybgTJZgUEmiwZAeMpD1etcbDY?=
- =?us-ascii?Q?ceeT5wvYoM5nmaK9niGZuRKMhQn2GT4eQ/I6LXk5bXiHd+/CtL6naqUEwUl9?=
- =?us-ascii?Q?A9c6K8wbl2aNGj/Wb4MIWGIlEJxjLoy4P+rFYl4pNgFZdO8c8EHLcI/45X3N?=
- =?us-ascii?Q?rWW5xUMrqFkb4tHZxpzGnvUCEZBwxX7RAs1X+ZpKqWkX6dlZ6iryz5ym+QlX?=
- =?us-ascii?Q?1xe8JvZKe9qEwn2cxcUM12/AdK8pH20/zIGBRW/jGfpWdh3i9wWmbNDJhHHP?=
- =?us-ascii?Q?pxwzWx6gZCT3FgnabtAXZmHIxWmj5M2gCbNGMGD8VJxqIPUFExwuqXpVeF3j?=
- =?us-ascii?Q?TCq1o9/KkwC/hy+7CBzyZQ9bzrPNsih7AH50ODN84zqOGoJSEkKsilAcvlJ8?=
- =?us-ascii?Q?4eJvqGHqwHzj8gIJzIP4k4RtlMy08S6PqJOnogFMtLzZgJ1vIvsfjAlwXmV8?=
- =?us-ascii?Q?TvsRtHdKddMAjBk/qGPvB4FTkIMV37yd?=
+	=?us-ascii?Q?OJc9a7/6HyeP1j1cCr11SSK7OU/ry9HU1SdLkCrbX/m6GtD55cjWY3UQKOXg?=
+ =?us-ascii?Q?So4MJkHXCbnXJRDvYiCGXoPZJvuuttRCZIHqzpKp0ShDAu/ILeJsbVX20pNQ?=
+ =?us-ascii?Q?RisVjUsaEU9nzeSFqLv4M2WkXln95JU42YmqVbACCKPQa4o/KiExX8I8Y00M?=
+ =?us-ascii?Q?hXxLtApB+nyi1zBDXBC7gadr2ToSYUxihfmQWJjwzWSVXxCFs+kKy86i65Hv?=
+ =?us-ascii?Q?EHP7k3ZN8vDc99dyrrxRWwJnuXOidW3yciRtlFHgW0KFaF+IITBP7IzKT5ye?=
+ =?us-ascii?Q?RxBFiDx1JxBGWdgEXfjSyWiUiOejdjZynqN3oSsKSFRjS4AcEkGXB2UXevYc?=
+ =?us-ascii?Q?MeG8iFO6x2BHyEenoCceWeLQ5sAyiMhwKnT4XrIP0pIKP4p8U5SRAdew+LmS?=
+ =?us-ascii?Q?dLw1FmWGPaKZuGevWVN634hLxEEpPk5htZGO0z6GgXqv9hbbNHAHm9ZI6yoe?=
+ =?us-ascii?Q?kiDKS45ZdNzMQ06YpVbx0Dltds+LrQziOU4hrhCullc+ImCnA7CtCAnn0/fF?=
+ =?us-ascii?Q?7mrSHf0XpwuHw9SSLdDiAqNF6b1hZwn9wIt2vUHYxnI5qaq/Z3poBoc1ov4J?=
+ =?us-ascii?Q?+kqH32uhnfoVuTYw6SYOVhv21DiVv0A8HXrXWF/IF1LQe34kAZdirl7PVkGu?=
+ =?us-ascii?Q?xg60ENMi4Kd+2h/Kerv5yqUX/i39Jobuq8ssiHRTe90pOcrD4eadDbhvU2eI?=
+ =?us-ascii?Q?O0E5KC634wGguXCR0DywHvo5O9QD1+7Wlf5qT+fsypdHAYjx1oYM+KxmlgmC?=
+ =?us-ascii?Q?BR7suBaxH1de0+NBZT4u423NgTdKzQdmJs0MHPf6yiW9qf/+oyLmg+AXVSv7?=
+ =?us-ascii?Q?00TZSf64rKg9uLiDHobYs6sf5O6Yv4MakIlAn99Vnfk/ahsYkfNp0lJga/9s?=
+ =?us-ascii?Q?zL9OczGp/ROSwYTtNS664MhLcp9x7Cv3qDu9xN4IFoTwEict/RgEhfLTlxkX?=
+ =?us-ascii?Q?KIEacRAsX7mosqKbD+JTusOZBiyYmAa/4CaIO1Uf0EApqJYN34v/OSXcJGqA?=
+ =?us-ascii?Q?DpIHwJz1mxKBfNsBbqcbT5EDASXj6w4Tm7dXBvcdiUB8sExuS8t+KZXMjKT5?=
+ =?us-ascii?Q?fK4k2AU2LEBxOgHyiWjSlqe+/7n8ayWmFRaUBbKUs2b7TvaJ0sHjV/YewLuP?=
+ =?us-ascii?Q?+5RT39a1YV+RwgMrvGckn/MiBZvS1dGXNiFElQn0vQe23sEMSCiGTv9BfbO4?=
+ =?us-ascii?Q?GK8zHrRiuujqv0BMF9fymlVaDAaFGcSK+dodqwKqhOm30fzb1zKh4r0Db5GR?=
+ =?us-ascii?Q?3GBRvA5sD0KmHjlH4G49qlQUqpxxwy3LxMsnRSsdweMlwQtJPGEwkiOoBmZ1?=
+ =?us-ascii?Q?SwvKrw2gHJH3RP77L4FH5Tk+euRAUYzY39v1+urZctiFMvxqb3AJUUtazFds?=
+ =?us-ascii?Q?gHjbD7EozEtb6VeqNta+tSVdkO8pDkijObJz/+9ra2yqqfpEPtZyTGHW1GXQ?=
+ =?us-ascii?Q?cklpM0lIZAM4LTHD6mqL+eBoV4e/PXMF?=
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(376014)(36860700013);DIR:OUT;SFP:1101;
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(82310400026)(1800799024)(36860700013);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Aug 2024 07:24:45.6317
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Aug 2024 07:24:49.2555
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 83c293d2-4184-4ec2-e1b6-08dcb2c42f68
+X-MS-Exchange-CrossTenant-Network-Message-Id: d9813031-532d-48d6-4d97-08dcb2c43188
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	BL6PEPF0001AB4F.namprd04.prod.outlook.com
+	CH2PEPF00000143.namprd02.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB8113
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6541
 
-Switch firmware vq query command to be issued via the async API to
-allow future parallelization.
+Switch firmware vq modify command to be issued via the async API to
+allow future parallelization. The new refactored function applies the
+modify on a range of vqs and waits for their execution to complete.
 
-exec_virtqueue_async_cmds() is a generic execution function that will be
-used to issue other async operations as well. Handling of throttled
-commands is built in.
-
-For now the command is still serial but the infrastructure is there
-to issue commands in parallel, including ratelimiting the number
-of issued async commands to firmware.
-
-A later patch will switch to issuing more commands at a time.
+For now the command is still used in a serial fashion. A later patch
+will switch to modifying multiple vqs in parallel.
 
 Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
 Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 ---
- drivers/vdpa/mlx5/core/mlx5_vdpa.h |   2 +
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 181 +++++++++++++++++++++++++----
- 2 files changed, 161 insertions(+), 22 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 150 ++++++++++++++++++++----------
+ 1 file changed, 103 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index 424d445ebee4..12136163d8ad 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -103,6 +103,8 @@ struct mlx5_vdpa_dev {
- 	struct workqueue_struct *wq;
- 	unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
- 	bool suspended;
-+
-+	struct mlx5_async_ctx async_ctx;
- };
- 
- int mlx5_vdpa_create_tis(struct mlx5_vdpa_dev *mvdev, void *in, u32 *tisn);
 diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 12133e5d1285..be8df9d9f4df 100644
+index be8df9d9f4df..e56a0ee1b725 100644
 --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1184,40 +1184,173 @@ struct mlx5_virtq_attr {
- 	u16 used_index;
+@@ -1189,6 +1189,12 @@ struct mlx5_virtqueue_query_mem {
+ 	u8 out[MLX5_ST_SZ_BYTES(query_virtio_net_q_out)];
  };
  
--static int query_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq,
--			   struct mlx5_virtq_attr *attr)
--{
--	int outlen = MLX5_ST_SZ_BYTES(query_virtio_net_q_out);
--	u32 in[MLX5_ST_SZ_DW(query_virtio_net_q_in)] = {};
-+struct mlx5_virtqueue_query_mem {
-+	u8 in[MLX5_ST_SZ_BYTES(query_virtio_net_q_in)];
-+	u8 out[MLX5_ST_SZ_BYTES(query_virtio_net_q_out)];
++struct mlx5_virtqueue_modify_mem {
++	u8 in[MLX5_ST_SZ_BYTES(modify_virtio_net_q_in)];
++	u8 out[MLX5_ST_SZ_BYTES(modify_virtio_net_q_out)];
 +};
 +
-+struct mlx5_vdpa_async_virtqueue_cmd {
-+	int err;
-+	struct mlx5_async_work cb_work;
-+	struct completion cmd_done;
 +
-+	void *in;
-+	size_t inlen;
-+
- 	void *out;
--	void *obj_context;
--	void *cmd_hdr;
-+	size_t outlen;
-+
-+	union {
-+		struct mlx5_virtqueue_query_mem query;
-+	};
-+};
-+
-+static void virtqueue_cmd_callback(int status, struct mlx5_async_work *context)
-+{
-+	struct mlx5_vdpa_async_virtqueue_cmd *cmd =
-+		container_of(context, struct mlx5_vdpa_async_virtqueue_cmd, cb_work);
-+
-+	cmd->err = mlx5_cmd_check(context->ctx->dev, status, cmd->in, cmd->out);
-+	complete(&cmd->cmd_done);
-+}
-+
-+static int issue_async_cmd(struct mlx5_vdpa_net *ndev,
-+			   struct mlx5_vdpa_async_virtqueue_cmd *cmds,
-+			   int issued,
-+			   int *completed)
-+
-+{
-+	struct mlx5_vdpa_async_virtqueue_cmd *cmd = &cmds[issued];
+ struct mlx5_vdpa_async_virtqueue_cmd {
  	int err;
+ 	struct mlx5_async_work cb_work;
+@@ -1202,6 +1208,7 @@ struct mlx5_vdpa_async_virtqueue_cmd {
  
--	out = kzalloc(outlen, GFP_KERNEL);
--	if (!out)
+ 	union {
+ 		struct mlx5_virtqueue_query_mem query;
++		struct mlx5_virtqueue_modify_mem modify;
+ 	};
+ };
+ 
+@@ -1384,51 +1391,35 @@ static bool modifiable_virtqueue_fields(struct mlx5_vdpa_virtqueue *mvq)
+ 	return true;
+ }
+ 
+-static int modify_virtqueue(struct mlx5_vdpa_net *ndev,
+-			    struct mlx5_vdpa_virtqueue *mvq,
+-			    int state)
++static void fill_modify_virtqueue_cmd(struct mlx5_vdpa_net *ndev,
++				      struct mlx5_vdpa_virtqueue *mvq,
++				      int state,
++				      struct mlx5_vdpa_async_virtqueue_cmd *cmd)
+ {
+-	int inlen = MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
+-	u32 out[MLX5_ST_SZ_DW(modify_virtio_net_q_out)] = {};
+ 	struct mlx5_vdpa_dev *mvdev = &ndev->mvdev;
+ 	struct mlx5_vdpa_mr *desc_mr = NULL;
+ 	struct mlx5_vdpa_mr *vq_mr = NULL;
+-	bool state_change = false;
+ 	void *obj_context;
+ 	void *cmd_hdr;
+ 	void *vq_ctx;
+-	void *in;
+-	int err;
+ 
+-	if (mvq->fw_state == MLX5_VIRTIO_NET_Q_OBJECT_NONE)
+-		return 0;
+-
+-	if (!modifiable_virtqueue_fields(mvq))
+-		return -EINVAL;
+-
+-	in = kzalloc(inlen, GFP_KERNEL);
+-	if (!in)
 -		return -ENOMEM;
-+retry:
-+	err = mlx5_cmd_exec_cb(&ndev->mvdev.async_ctx,
-+			       cmd->in, cmd->inlen,
-+			       cmd->out, cmd->outlen,
-+			       virtqueue_cmd_callback,
-+			       &cmd->cb_work);
-+	if (err == -EBUSY) {
-+		if (*completed < issued) {
-+			/* Throttled by own commands: wait for oldest completion. */
-+			wait_for_completion(&cmds[*completed].cmd_done);
-+			(*completed)++;
-+
-+			goto retry;
-+		} else {
-+			/* Throttled by external commands: switch to sync api. */
-+			err = mlx5_cmd_exec(ndev->mvdev.mdev,
-+					    cmd->in, cmd->inlen,
-+					    cmd->out, cmd->outlen);
-+			if (!err)
-+				(*completed)++;
-+		}
-+	}
-+
-+	return err;
-+}
-+
-+static int exec_virtqueue_async_cmds(struct mlx5_vdpa_net *ndev,
-+				     struct mlx5_vdpa_async_virtqueue_cmd *cmds,
-+				     int num_cmds)
-+{
-+	int completed = 0;
-+	int issued = 0;
-+	int err = 0;
-+
-+	for (int i = 0; i < num_cmds; i++)
-+		init_completion(&cmds[i].cmd_done);
-+
-+	while (issued < num_cmds) {
-+
-+		err = issue_async_cmd(ndev, cmds, issued, &completed);
-+		if (err) {
-+			mlx5_vdpa_err(&ndev->mvdev, "error issuing command %d of %d: %d\n",
-+				      issued, num_cmds, err);
-+			break;
-+		}
-+
-+		issued++;
-+	}
-+
-+	while (completed < issued)
-+		wait_for_completion(&cmds[completed++].cmd_done);
++	cmd->in = &cmd->modify.in;
++	cmd->inlen = sizeof(cmd->modify.in);
++	cmd->out = &cmd->modify.out;
++	cmd->outlen = sizeof(cmd->modify.out);
  
--	cmd_hdr = MLX5_ADDR_OF(query_virtio_net_q_in, in, general_obj_in_cmd_hdr);
-+	return err;
-+}
-+
-+static void fill_query_virtqueue_cmd(struct mlx5_vdpa_net *ndev,
-+				     struct mlx5_vdpa_virtqueue *mvq,
-+				     struct mlx5_vdpa_async_virtqueue_cmd *cmd)
-+{
-+	void *cmd_hdr;
-+
-+	cmd->in = &cmd->query.in;
-+	cmd->inlen = sizeof(cmd->query.in);
-+	cmd->out = &cmd->query.out;
-+	cmd->outlen = sizeof(cmd->query.out);
-+
-+	cmd_hdr = MLX5_ADDR_OF(query_virtio_net_q_in, cmd->query.in, general_obj_in_cmd_hdr);
+-	cmd_hdr = MLX5_ADDR_OF(modify_virtio_net_q_in, in, general_obj_in_cmd_hdr);
++	cmd_hdr = MLX5_ADDR_OF(modify_virtio_net_q_in, cmd->in, general_obj_in_cmd_hdr);
  
- 	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, opcode, MLX5_CMD_OP_QUERY_GENERAL_OBJECT);
+ 	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, opcode, MLX5_CMD_OP_MODIFY_GENERAL_OBJECT);
  	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, obj_type, MLX5_OBJ_TYPE_VIRTIO_NET_Q);
  	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, obj_id, mvq->virtq_id);
  	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, uid, ndev->mvdev.res.uid);
--	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, sizeof(in), out, outlen);
+ 
+-	obj_context = MLX5_ADDR_OF(modify_virtio_net_q_in, in, obj_context);
++	obj_context = MLX5_ADDR_OF(modify_virtio_net_q_in, cmd->in, obj_context);
+ 	vq_ctx = MLX5_ADDR_OF(virtio_net_q_object, obj_context, virtio_q_context);
+ 
+-	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_STATE) {
+-		if (!is_valid_state_change(mvq->fw_state, state, is_resumable(ndev))) {
+-			err = -EINVAL;
+-			goto done;
+-		}
+-
++	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_STATE)
+ 		MLX5_SET(virtio_net_q_object, obj_context, state, state);
+-		state_change = true;
+-	}
+ 
+ 	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_ADDRS) {
+ 		MLX5_SET64(virtio_q, vq_ctx, desc_addr, mvq->desc_addr);
+@@ -1474,38 +1465,36 @@ static int modify_virtqueue(struct mlx5_vdpa_net *ndev,
+ 	}
+ 
+ 	MLX5_SET64(virtio_net_q_object, obj_context, modify_field_select, mvq->modified_fields);
+-	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(out));
 -	if (err)
--		goto err_cmd;
-+}
-+
-+static void query_virtqueue_end(struct mlx5_vdpa_net *ndev,
-+				struct mlx5_vdpa_async_virtqueue_cmd *cmd,
-+				struct mlx5_virtq_attr *attr)
-+{
-+	void *obj_context = MLX5_ADDR_OF(query_virtio_net_q_out, cmd->query.out, obj_context);
- 
--	obj_context = MLX5_ADDR_OF(query_virtio_net_q_out, out, obj_context);
- 	memset(attr, 0, sizeof(*attr));
- 	attr->state = MLX5_GET(virtio_net_q_object, obj_context, state);
- 	attr->available_index = MLX5_GET(virtio_net_q_object, obj_context, hw_available_index);
- 	attr->used_index = MLX5_GET(virtio_net_q_object, obj_context, hw_used_index);
--	kfree(out);
--	return 0;
+-		goto done;
 +}
  
--err_cmd:
--	kfree(out);
-+static int query_virtqueues(struct mlx5_vdpa_net *ndev,
-+			    int start_vq,
-+			    int num_vqs,
-+			    struct mlx5_virtq_attr *attrs)
+-	if (state_change)
+-		mvq->fw_state = state;
++static void modify_virtqueue_end(struct mlx5_vdpa_net *ndev,
++				 struct mlx5_vdpa_virtqueue *mvq,
++				 int state)
 +{
 +	struct mlx5_vdpa_dev *mvdev = &ndev->mvdev;
+ 
+ 	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY) {
++		unsigned int asid = mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP];
++		struct mlx5_vdpa_mr *vq_mr = mvdev->mr[asid];
++
+ 		mlx5_vdpa_put_mr(mvdev, mvq->vq_mr);
+ 		mlx5_vdpa_get_mr(mvdev, vq_mr);
+ 		mvq->vq_mr = vq_mr;
+ 	}
+ 
+ 	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY) {
++		unsigned int asid = mvdev->group2asid[MLX5_VDPA_DATAVQ_DESC_GROUP];
++		struct mlx5_vdpa_mr *desc_mr = mvdev->mr[asid];
++
+ 		mlx5_vdpa_put_mr(mvdev, mvq->desc_mr);
+ 		mlx5_vdpa_get_mr(mvdev, desc_mr);
+ 		mvq->desc_mr = desc_mr;
+ 	}
+ 
+-	mvq->modified_fields = 0;
+-
+-done:
+-	kfree(in);
+-	return err;
+-}
++	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_STATE)
++		mvq->fw_state = state;
+ 
+-static int modify_virtqueue_state(struct mlx5_vdpa_net *ndev,
+-				  struct mlx5_vdpa_virtqueue *mvq,
+-				  unsigned int state)
+-{
+-	mvq->modified_fields |= MLX5_VIRTQ_MODIFY_MASK_STATE;
+-	return modify_virtqueue(ndev, mvq, state);
++	mvq->modified_fields = 0;
+ }
+ 
+ static int counter_set_alloc(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
+@@ -1658,6 +1647,73 @@ static int setup_vq(struct mlx5_vdpa_net *ndev,
+ 	return err;
+ }
+ 
++static int modify_virtqueues(struct mlx5_vdpa_net *ndev, int start_vq, int num_vqs, int state)
++{
 +	struct mlx5_vdpa_async_virtqueue_cmd *cmds;
++	struct mlx5_vdpa_dev *mvdev = &ndev->mvdev;
 +	int err = 0;
 +
-+	WARN(start_vq + num_vqs > mvdev->max_vqs, "query vq range invalid [%d, %d), max_vqs: %u\n",
++	WARN(start_vq + num_vqs > mvdev->max_vqs, "modify vq range invalid [%d, %d), max_vqs: %u\n",
 +	     start_vq, start_vq + num_vqs, mvdev->max_vqs);
 +
 +	cmds = kvcalloc(num_vqs, sizeof(*cmds), GFP_KERNEL);
 +	if (!cmds)
 +		return -ENOMEM;
 +
-+	for (int i = 0; i < num_vqs; i++)
-+		fill_query_virtqueue_cmd(ndev, &ndev->vqs[start_vq + i], &cmds[i]);
++	for (int i = 0; i < num_vqs; i++) {
++		struct mlx5_vdpa_async_virtqueue_cmd *cmd = &cmds[i];
++		struct mlx5_vdpa_virtqueue *mvq;
++		int vq_idx = start_vq + i;
++
++		mvq = &ndev->vqs[vq_idx];
++
++		if (!modifiable_virtqueue_fields(mvq)) {
++			err = -EINVAL;
++			goto done;
++		}
++
++		if (mvq->fw_state != state) {
++			if (!is_valid_state_change(mvq->fw_state, state, is_resumable(ndev))) {
++				err = -EINVAL;
++				goto done;
++			}
++
++			mvq->modified_fields |= MLX5_VIRTQ_MODIFY_MASK_STATE;
++		}
++
++		fill_modify_virtqueue_cmd(ndev, mvq, state, cmd);
++	}
 +
 +	err = exec_virtqueue_async_cmds(ndev, cmds, num_vqs);
 +	if (err) {
-+		mlx5_vdpa_err(mvdev, "error issuing query cmd for vq range [%d, %d): %d\n",
-+			      start_vq, start_vq + num_vqs, err);
++		mlx5_vdpa_err(mvdev, "error issuing modify cmd for vq range [%d, %d)\n",
++			      start_vq, start_vq + num_vqs);
 +		goto done;
 +	}
 +
 +	for (int i = 0; i < num_vqs; i++) {
 +		struct mlx5_vdpa_async_virtqueue_cmd *cmd = &cmds[i];
++		struct mlx5_vdpa_virtqueue *mvq;
 +		int vq_idx = start_vq + i;
 +
++		mvq = &ndev->vqs[vq_idx];
++
 +		if (cmd->err) {
-+			mlx5_vdpa_err(mvdev, "query vq %d failed, err: %d\n", vq_idx, err);
++			mlx5_vdpa_err(mvdev, "modify vq %d failed, state: %d -> %d, err: %d\n",
++				      vq_idx, mvq->fw_state, state, err);
 +			if (!err)
 +				err = cmd->err;
 +			continue;
 +		}
 +
-+		query_virtqueue_end(ndev, cmd, &attrs[i]);
++		modify_virtqueue_end(ndev, mvq, state);
 +	}
 +
 +done:
 +	kfree(cmds);
- 	return err;
- }
- 
-@@ -1542,7 +1675,7 @@ static int suspend_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mv
- 		return err;
- 	}
- 
--	err = query_virtqueue(ndev, mvq, &attr);
-+	err = query_virtqueues(ndev, mvq->index, 1, &attr);
- 	if (err) {
- 		mlx5_vdpa_err(&ndev->mvdev, "failed to query virtqueue, err: %d\n", err);
- 		return err;
-@@ -2528,7 +2661,7 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa
++	return err;
++}
++
+ static int suspend_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
+ {
+ 	struct mlx5_virtq_attr attr;
+@@ -1669,7 +1725,7 @@ static int suspend_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mv
+ 	if (mvq->fw_state != MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY)
  		return 0;
- 	}
  
--	err = query_virtqueue(ndev, mvq, &attr);
-+	err = query_virtqueues(ndev, mvq->index, 1, &attr);
+-	err = modify_virtqueue_state(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJECT_STATE_SUSPEND);
++	err = modify_virtqueues(ndev, mvq->index, 1, MLX5_VIRTIO_NET_Q_OBJECT_STATE_SUSPEND);
  	if (err) {
- 		mlx5_vdpa_err(mvdev, "failed to query virtqueue\n");
+ 		mlx5_vdpa_err(&ndev->mvdev, "modify to suspend failed, err: %d\n", err);
  		return err;
-@@ -2879,7 +3012,7 @@ static int save_channel_info(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqu
- 	int err;
- 
- 	if (mvq->initialized) {
--		err = query_virtqueue(ndev, mvq, &attr);
-+		err = query_virtqueues(ndev, mvq->index, 1, &attr);
- 		if (err)
- 			return err;
+@@ -1716,7 +1772,7 @@ static int resume_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq
+ 		/* Due to a FW quirk we need to modify the VQ fields first then change state.
+ 		 * This should be fixed soon. After that, a single command can be used.
+ 		 */
+-		err = modify_virtqueue(ndev, mvq, 0);
++		err = modify_virtqueues(ndev, mvq->index, 1, mvq->fw_state);
+ 		if (err) {
+ 			mlx5_vdpa_err(&ndev->mvdev,
+ 				"modify vq properties failed for vq %u, err: %d\n",
+@@ -1738,7 +1794,7 @@ static int resume_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq
+ 		return -EINVAL;
  	}
-@@ -3854,6 +3987,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
- 		ndev->rqt_size = 1;
- 	}
  
-+	mlx5_cmd_init_async_ctx(mdev, &mvdev->async_ctx);
-+
- 	ndev->mvdev.mlx_features = device_features;
- 	mvdev->vdev.dma_dev = &mdev->pdev->dev;
- 	err = mlx5_vdpa_alloc_resources(&ndev->mvdev);
-@@ -3935,6 +4070,8 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
- 	mvdev->wq = NULL;
- 	destroy_workqueue(wq);
- 	mgtdev->ndev = NULL;
-+
-+	mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
- }
- 
- static const struct vdpa_mgmtdev_ops mdev_ops = {
+-	err = modify_virtqueue_state(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY);
++	err = modify_virtqueues(ndev, mvq->index, 1, MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY);
+ 	if (err)
+ 		mlx5_vdpa_err(&ndev->mvdev, "modify to resume failed for vq %u, err: %d\n",
+ 			      mvq->index, err);
 -- 
 2.45.2
 
