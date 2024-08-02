@@ -1,169 +1,269 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B8F73848D
-	for <virtualization@lists.linux.dev>; Fri,  2 Aug 2024 01:27:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BCCBA955
+	for <virtualization@lists.linux.dev>; Fri,  2 Aug 2024 02:48:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722562066; cv=none; b=qeJp70Qun2s6aqh//QUzXhB/9KAscSiUkIjV3yXHq0I122QrB7VVWOkEzcMRxvqntQdS7MNYePZRM4aH3gw444jRf+G2dcbTSOpE9JK3W0kMmLmITWYuPStN570nyNOdE7i6SR+MlC4cqgNFPAblfgye4QFzrpkYmsEt3ldfn/s=
+	t=1722566883; cv=none; b=dqu4ldJO8Kkpst+1ZP2KJR8qfdgMcNYUFLEPD4Afrrz7yeC+3LHgQE9C3JhH9dK9q95sLVYccL1C5EZceoGtAj9X545SCpJHkROlnPUkxn4IK494gfzguhX0IDFvT1BfAu2489XmJFbxbSTMGh8EbVk2GMyED878LKYXBk0Dy9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722562066; c=relaxed/simple;
-	bh=Bo7CyCSCfTo4lFIIiFGKSmBdMQs6UBJCBOSER2j2Pxo=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=F0toD2CzgDhijZNyK2S+VaiLjVUbkTuttmJefvq1hNbgD1/NPPqUUHxpnE13hgdE1i0+IcqmlhfQA8BdEMjeLN++qAukFxAvyjDCsXL5/udi6taOI1I8wqJVVR7ZBmvAMtudk1WEGtYkzsXloE8P96VrbIHs6+PToPashK8v8nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8Dxi+oGNqxm7TQGAA--.22034S3;
-	Fri, 02 Aug 2024 09:27:34 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by front1 (Coremail) with SMTP id qMiowMAxysUFNqxmGwMLAA--.53376S3;
-	Fri, 02 Aug 2024 09:27:33 +0800 (CST)
-Subject: Re: [PATCH v4] x86/paravirt: Disable virt spinlock on bare metal
-To: Chen Yu <yu.c.chen@intel.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Juergen Gross <jgross@suse.com>,
- Nikolay Borisov <nik.borisov@suse.com>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
- Prem Nath Dey <prem.nath.dey@intel.com>,
- Xiaoping Zhou <xiaoping.zhou@intel.com>
-References: <20240729065236.407758-1-yu.c.chen@intel.com>
- <4d31e1b4-2113-c557-b60a-3a45b2840f26@loongson.cn>
- <ZqueWhX6lqS+1vwg@chenyu5-mobl2>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <a3c4b603-fc8d-bfa4-7e5d-0b2d8043131b@loongson.cn>
-Date: Fri, 2 Aug 2024 09:27:32 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1722566883; c=relaxed/simple;
+	bh=2Z7F72icVevQ1klL6R8O/uXtJuDgEBr7qbZrA7LfdCs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kQWbQY/cQXMc6crgjCX8ANlcgO2xaB4z5PsmJGJFRVHf5vECYN3vRLiiDNi3oCpBYkQUGM23z8oEYxUlWCGpUpQ01vH5NyJU3jjkRAb4HlFBSNgCRc3F5hl7sMGNWiopp6RGLUF8AqCLqwScxWqBYqkXmGPsvw29A4x5loLyV5U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZzM1hgzs; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZzM1hgzs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722566880;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UPbaOUpXucwyKskl8GQVof98KSpY8idJ/l1lT8SrGMU=;
+	b=ZzM1hgzsLc3kE4vCQxMjU3RtTa8C7bHQ08+LkTETn6LzRwv7St7sOqursThCbgIGjAcHjY
+	hfr3GRiOIN+bgUAwIHX76T7IfiE7gmMfi6bOq0u15cHsDZW7Od+kddNr76vN6vPmyt+C/3
+	ZLcnchzHsWTFE5PfEmR/YHtNKp/83Qk=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-470-KQHdQ8FyOhuE-RuU7j3XEQ-1; Thu, 01 Aug 2024 22:47:58 -0400
+X-MC-Unique: KQHdQ8FyOhuE-RuU7j3XEQ-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2cb6c5f9810so7824502a91.2
+        for <virtualization@lists.linux.dev>; Thu, 01 Aug 2024 19:47:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722566878; x=1723171678;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UPbaOUpXucwyKskl8GQVof98KSpY8idJ/l1lT8SrGMU=;
+        b=PBfcvpc8DXvnAUmsXhyEN6FG6yQlq9qEWSkJ+oiGneX+AqrbWgcdxk9kiO5yOejoUK
+         ZHadxr/JOkHOr2rmcf6z8t4jVyvqsRkR6ruwF+4K9EpgH6b1h0JvsCHdNmcAt/z2mR7P
+         J+iV7vkXfdGYFqTmjYJy/FRscX/i0GAO85M3rMgI7x81mCIiJ6HC1pwVvWLceT9BWjjn
+         qNDdTXjw6trnPtW5xEoMrCFIMgVChko3fbAdWa/SriiyeNGsaPYf1a6tTbl27WVbP3JX
+         +u59hxSmfwXkEK6OJHwyw9AF6CiVpG9/Z5m9K5pVz6gmCW0pI4EsGTx+GpDuj0QQZBgw
+         xtuA==
+X-Forwarded-Encrypted: i=1; AJvYcCWqlujZ5fU7Y9mi/a9Z05mMsLbWj085sYWB6obAEBDpcP1yMoRctFe8YGr8wNk4J5+7PcweXYzi0svCWiW/VVcbjZa6raxOb2wJL/rdwmU=
+X-Gm-Message-State: AOJu0YwcMfEpSUGzTlNGaTo14MbVGjpWyt1jRaFDz49V8xq68Qz79nSI
+	xNAgUn2tSVPwMw49KbSKcglQEmi4a+AwhBxlJnY64aPXuqpXDE0iW/31pomXI6DgQBX/wiZHFKL
+	eM5Rr7LL6UvtnsitDzFnNRPl9ziCIv5n3SbRnSq+/s+RgKnyPo+iak7xc9Zy6yDGyf/083UX+Ow
+	YTik7lPQ/x2josYYGRtlX2WrEnkLqwsL7KS49Z4dM=
+X-Received: by 2002:a17:90a:f312:b0:2c1:9892:8fb with SMTP id 98e67ed59e1d1-2cff93c8c70mr2602189a91.5.1722566877672;
+        Thu, 01 Aug 2024 19:47:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHeLENXJVak8i6LUD6xkK9QeCQ0ui20F9d4wF1PE7Y7MhEpsWmqKdbHbMdIxvUwX7XDh8XJUw3RS6da5qlMqT4=
+X-Received: by 2002:a17:90a:f312:b0:2c1:9892:8fb with SMTP id
+ 98e67ed59e1d1-2cff93c8c70mr2602176a91.5.1722566877185; Thu, 01 Aug 2024
+ 19:47:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ZqueWhX6lqS+1vwg@chenyu5-mobl2>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowMAxysUFNqxmGwMLAA--.53376S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxJF48uFWDKFWrXF4DXr15ZFc_yoWrWrWrpr
-	W7JFnYqF1kXF4FvwsIvw4vqr4jy39Fkw1DXrn8Grn5Xan8ZrnIqr48tws093W2qr1Iy34r
-	tF45XrZxZayUZagCm3ZEXasCq-sJn29KB7ZKAUJUUUU7529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUPYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYI
-	kI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUAVWU
-	twAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
-	k0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l
-	4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67AKxV
-	WUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI
-	7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r
-	1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI
-	42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jOiSdUUUUU=
+References: <20240731025947.23157-1-jasowang@redhat.com> <20240731025947.23157-4-jasowang@redhat.com>
+ <20240731172020-mutt-send-email-mst@kernel.org> <CACGkMEvXfZJbCs0Fyi3EdYja37+D-o+79csXJYsBo0s+j2e5iA@mail.gmail.com>
+ <20240801015344-mutt-send-email-mst@kernel.org> <CACGkMEstXNPWqhxBXiU3_VnXgQrwHgJKPONRTisbG9mRMkosuA@mail.gmail.com>
+ <20240801024012-mutt-send-email-mst@kernel.org> <CACGkMEu1MO_UWObYY99SVMigjbRv0oaaKZKqXeVjdiFmUzUM2A@mail.gmail.com>
+ <20240801025654-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240801025654-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 2 Aug 2024 10:47:46 +0800
+Message-ID: <CACGkMEtGMtg4ggTBv5GW-p2HqF9YUzpVGJYEmUdeGXeYoEwEkg@mail.gmail.com>
+Subject: Re: [PATCH V4 net-next 3/3] virtio-net: synchronize operstate with
+ admin state on up/down
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, 
+	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>, 
+	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Chenyu,
+On Thu, Aug 1, 2024 at 3:00=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
+>
+> On Thu, Aug 01, 2024 at 02:55:10PM +0800, Jason Wang wrote:
+> > On Thu, Aug 1, 2024 at 2:42=E2=80=AFPM Michael S. Tsirkin <mst@redhat.c=
+om> wrote:
+> > >
+> > > On Thu, Aug 01, 2024 at 02:13:18PM +0800, Jason Wang wrote:
+> > > > On Thu, Aug 1, 2024 at 1:58=E2=80=AFPM Michael S. Tsirkin <mst@redh=
+at.com> wrote:
+> > > > >
+> > > > > On Thu, Aug 01, 2024 at 10:16:00AM +0800, Jason Wang wrote:
+> > > > > > > > @@ -2885,6 +2886,25 @@ static void virtnet_cancel_dim(struc=
+t virtnet_info *vi, struct dim *dim)
+> > > > > > > >       net_dim_work_cancel(dim);
+> > > > > > > >  }
+> > > > > > > >
+> > > > > > > > +static void virtnet_update_settings(struct virtnet_info *v=
+i)
+> > > > > > > > +{
+> > > > > > > > +     u32 speed;
+> > > > > > > > +     u8 duplex;
+> > > > > > > > +
+> > > > > > > > +     if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_=
+DUPLEX))
+> > > > > > > > +             return;
+> > > > > > > > +
+> > > > > > > > +     virtio_cread_le(vi->vdev, struct virtio_net_config, s=
+peed, &speed);
+> > > > > > > > +
+> > > > > > > > +     if (ethtool_validate_speed(speed))
+> > > > > > > > +             vi->speed =3D speed;
+> > > > > > > > +
+> > > > > > > > +     virtio_cread_le(vi->vdev, struct virtio_net_config, d=
+uplex, &duplex);
+> > > > > > > > +
+> > > > > > > > +     if (ethtool_validate_duplex(duplex))
+> > > > > > > > +             vi->duplex =3D duplex;
+> > > > > > > > +}
+> > > > > > > > +
+> > > > > > >
+> > > > > > > I already commented on this approach.  This is now invoked on=
+ each open,
+> > > > > > > lots of extra VM exits. No bueno, people are working hard to =
+keep setup
+> > > > > > > overhead under control. Handle this in the config change inte=
+rrupt -
+> > > > > > > your new infrastructure is perfect for this.
+> > > > > >
+> > > > > > No, in this version it doesn't. Config space read only happens =
+if
+> > > > > > there's a pending config interrupt during ndo_open:
+> > > > > >
+> > > > > > +       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) =
+{
+> > > > > > +               if (vi->status & VIRTIO_NET_S_LINK_UP)
+> > > > > > +                       netif_carrier_on(vi->dev);
+> > > > > > +               virtio_config_driver_enable(vi->vdev);
+> > > > > > +       } else {
+> > > > > > +               vi->status =3D VIRTIO_NET_S_LINK_UP;
+> > > > > > +               netif_carrier_on(dev);
+> > > > > > +               virtnet_update_settings(vi);
+> > > > > > +       }
+> > > > >
+> > > > > Sorry for being unclear, I was referring to !VIRTIO_NET_F_STATUS.
+> > > > > I do not see why do we need to bother re-reading settings in this=
+ case at all,
+> > > > > status is not there, nothing much changes.
+> > > >
+> > > > Ok, let me remove it from the next version.
+> > > >
+> > > > >
+> > > > >
+> > > > > > >
+> > > > > > >
+> > > > > > > >  static int virtnet_open(struct net_device *dev)
+> > > > > > > >  {
+> > > > > > > >       struct virtnet_info *vi =3D netdev_priv(dev);
+> > > > > > > > @@ -2903,6 +2923,16 @@ static int virtnet_open(struct net_d=
+evice *dev)
+> > > > > > > >                       goto err_enable_qp;
+> > > > > > > >       }
+> > > > > > > >
+> > > > > > > > +     if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)=
+) {
+> > > > > > > > +             if (vi->status & VIRTIO_NET_S_LINK_UP)
+> > > > > > > > +                     netif_carrier_on(vi->dev);
+> > > > > > > > +             virtio_config_driver_enable(vi->vdev);
+> > > > > > > > +     } else {
+> > > > > > > > +             vi->status =3D VIRTIO_NET_S_LINK_UP;
+> > > > > > > > +             netif_carrier_on(dev);
+> > > > > > > > +             virtnet_update_settings(vi);
+> > > > > > > > +     }
+> > > > > > > > +
+> > > > > > > >       return 0;
+> > > > > > > >
+> > > > > > > >  err_enable_qp:
+> > > > > > > > @@ -3381,12 +3411,18 @@ static int virtnet_close(struct net=
+_device *dev)
+> > > > > > > >       disable_delayed_refill(vi);
+> > > > > > > >       /* Make sure refill_work doesn't re-enable napi! */
+> > > > > > > >       cancel_delayed_work_sync(&vi->refill);
+> > > > > > > > +     /* Make sure config notification doesn't schedule con=
+fig work */
+> > > > > > >
+> > > > > > > it's clear what this does even without a comment.
+> > > > > > > what you should comment on, and do not, is *why*.
+> > > > > >
+> > > > > > Well, it just follows the existing style, for example the above=
+ said
+> > > > > >
+> > > > > > "/* Make sure refill_work doesn't re-enable napi! */"
+> > > > >
+> > > > > only at the grammar level.
+> > > > > you don't see the difference?
+> > > > >
+> > > > >         /* Make sure refill_work doesn't re-enable napi! */
+> > > > >         cancel_delayed_work_sync(&vi->refill);
+> > > > >
+> > > > > it explains why we cancel: to avoid re-enabling napi.
+> > > > >
+> > > > > why do you cancel config callback and work?
+> > > > > comment should say that.
+> > > >
+> > > > Something like "Prevent the config change callback from changing
+> > > > carrier after close"?
+> > >
+> > >
+> > > sounds good.
+> > >
+> > > > >
+> > > > >
+> > > > >
+> > > > > > >
+> > > > > > > > +     virtio_config_driver_disable(vi->vdev);
+> > > > > > > > +     /* Make sure status updating is cancelled */
+> > > > > > >
+> > > > > > > same
+> > > > > > >
+> > > > > > > also what "status updating"? confuses more than this clarifie=
+s.
+> > > > > >
+> > > > > > Does "Make sure the config changed work is cancelled" sounds be=
+tter?
+> > > > >
+> > > > > no, this just repeats what code does.
+> > > > > explain why you cancel it.
+> > > >
+> > > > Does something like "Make sure carrier changes have been done by th=
+e
+> > > > config change callback" works?
+> > > >
+> > > > Thanks
+> > >
+> > > I don't understand what this means.
+> >
+> > Maybe "Ensure the configuration change callback successfully modifies
+> > the carrier status"?
+> >
+> > Thanks
+>
+> I don't know what this means either.
+> Do you mean:
+>
+> /* Stop getting status/speed updates: we don't care until next open */
 
-On 2024/8/1 下午10:40, Chen Yu wrote:
-> Hi Bibo,
-> 
-> On 2024-08-01 at 16:00:19 +0800, maobibo wrote:
->> Chenyu,
->>
->> I do not know much about x86, just give some comments(probably incorrected)
->> from the code.
->>
->> On 2024/7/29 下午2:52, Chen Yu wrote:
->>> X86_FEATURE_HYPERVISOR         Y    Y    Y     N
->>> CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
->>> PV spinlock                    Y    N    N     Y/N
->>>
->>> virt_spin_lock_key             N    N    Y     N
->>>
->>> -DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
->>> +DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
->>
->> @@ -87,7 +87,7 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
->>   {
->>          int val;
->>
->> -       if (!static_branch_likely(&virt_spin_lock_key))
->> +       if (!static_branch_unlikely(&virt_spin_lock_key))
->>                  return false;
->>
->> Do we need change it with static_branch_unlikely() if value of key is false
->> by fault?
-> 
-> My understanding is that, firstly, whether it is likely() or unlikely()
-> depends on the 'expected' value of the key, rather than its default
-> initialized value. The compiler can arrange the if 'jump' condition to
-> avoid the overhead of branch jump(to keep the instruction pipeline)
-> as much as possible. Secondly, before this patch, the 'expected' value
-> of virt_spin_lock_key is 'true', so I'm not sure if we should change
-> its behavior. Although it seems that in most VM guest, with para-virt
-> spinlock enabled, this key should be false at most time, but just in
-> case of any regression...
-yes, it does not inflect the result, it is a trivial thing and depends 
-on personal like or dislike.
+Somehow yes.
 
-> 
->>>    /*
->>>     * Shortcut for the queued_spin_lock_slowpath() function that allows
->>> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
->>> index 5358d43886ad..fec381533555 100644
->>> --- a/arch/x86/kernel/paravirt.c
->>> +++ b/arch/x86/kernel/paravirt.c
->>> @@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
->>>    DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
->>>    #endif
->>> -DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
->>> +DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
->>>    void __init native_pv_lock_init(void)
->>>    {
->>> -	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
->>> -	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
->>> -		static_branch_disable(&virt_spin_lock_key);
->>> +	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
->>> +		static_branch_enable(&virt_spin_lock_key);
->>>    }
->>
->>  From my point, the sentence static_branch_disable(&virt_spin_lock_key) can
->> be removed in file arch/x86/xen/spinlock.c and arch/x86/kernel/kvm.c, since
->> function native_smp_prepare_boot_cpu() is already called by
->> xen_smp_prepare_boot_cpu() and kvm_smp_prepare_boot_cpu().
->>
-> 
-> The key is enabled by native_smp_prepare_boot_cpu() for VM guest as
-> the initial value(default to true). And later either arch/x86/xen/spinlock.c
-> or arch/x86/kernel/kvm.c disable this key in a on-demand manner.
-I understand that you only care about host machine and do not want to 
-change behavior of VM. Only that from the view of VM, there are two 
-conditions such as:
+Thanks
 
-1. If option CONFIG_PARAVIRT_SPINLOCKS is disabled, virt_spin_lock_key 
-is disabled with your patch. VM will use test-set spinlock rather than 
-qspinlock to avoid the over-preemption of native qspinlock, just the 
-same with commit 2aa79af64263. And it is the same for all the hypervisor 
-types.
-
-2. If option CONFIG_PARAVIRT_SPINLOCKS is enable, pv spinlock cannot be 
-used because some reasons, such as host hypervisor has no 
-KVM_FEATURE_PV_UNHALT feature or nopvspin kernel parameter is added. The 
-behavior to use test-set spinlock or native qspinlock is different on 
-different hypervisor types.
-
-Even on KVM hypervisor, if KVM_FEATURE_PV_UNHALT is not supported, 
-test-set spinlock will be used on VM; For nopvspin kernel parameter, 
-native spinlock is used on VM. What is the rule for this? :)
-
-Regards
-Bibo Mao
-> 
-> thanks,
-> Chenyu
-> 
+>
+>
+> > >
+> > > > >
+> > > > >
+> > > > >
+> > > > > --
+> > > > > MST
+> > > > >
+> > >
+>
 
