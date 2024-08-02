@@ -1,170 +1,100 @@
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FBE214B952
-	for <virtualization@lists.linux.dev>; Fri,  2 Aug 2024 10:06:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 107091E3CA1;
+	Fri,  2 Aug 2024 12:47:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722593172; cv=none; b=jaOJdjXsABx/0j9gx3+NhUHEmbpHZebYyzN21rYfU8vjQHzgRR5+Ndhz/tuxGb9iYMiWZa/Jd062Xs6UQigbrIGsZXp2tqS2+rzBmGGg6szMvxAmCjWLiEe6MDOH8EOhYnpCvWy8NtaTAgSKpwBjIBl/4vbco5ZYP6w7GAr2VHA=
+	t=1722602846; cv=none; b=YMaehudGpDI4Pw6NyywecWOgz9fP5t3qJKxh+NGbbg+r2tw4jvoMZWiFF7dDhXZizMbgLrOEFJ/DhAt1c0l8iuWSC5GGErSgBRVL0BqS9zU4tB4i0lnGDSAQHUbKqwO0Rdydlmlwynrdzw74gBox3DDVh0HIWbgJtQ2Xmca4OnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722593172; c=relaxed/simple;
-	bh=p8KHDp5T541LzcauHdbygkcHm9Fm1n44ZnrMVKkUu6w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=gIqxMnFAxinFGsXdSNXaaCZl8r/pHw0Knlw9y5c39rtWAVEK4DjC/PmaLg0hJpKtu2N/bDxBPs7FA+W/vKQQ7R4Y9S56zRnDmTs5AjMV9QjzfwWuMqWPLWPNNGsD0/ASNurlBJR81K5xWSeoJ7UrEM6o3fcT6v5CaxQKz9gzZN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.48])
-	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4Wb1ZM6Y7HzQnl8;
-	Fri,  2 Aug 2024 18:01:31 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 0F1351800A1;
-	Fri,  2 Aug 2024 18:05:53 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Fri, 2 Aug 2024 18:05:52 +0800
-Message-ID: <877efebe-f316-4192-aada-dd2657b74125@huawei.com>
-Date: Fri, 2 Aug 2024 18:05:52 +0800
+	s=arc-20240116; t=1722602846; c=relaxed/simple;
+	bh=T3dNCXJURRRkxySqwgtV8ojNjDh9wCEAmFfwbrdC/8k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PPIIEmkmIwY8adAKZmy3YuSyKOOMwe9t1vgT7zeR9tP/Q2wgo3yYyIJ5YEw64fuJv1gzUmhNCaqytdz6w7/SRrHmR5ntQiFNKIRYY5cbc/xy8T2P7Ixplr28IfKLXGXmkf/meCa5fbcyefj9BYYSJr91h2VGv+ST/Ep9c6JYkXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iMzr/r2s; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iMzr/r2s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1722602845; x=1754138845;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=T3dNCXJURRRkxySqwgtV8ojNjDh9wCEAmFfwbrdC/8k=;
+  b=iMzr/r2sYR8k7BJPQm3Pbz4m6e00zD7POYp+lBvYvntMInoC2asX7Q7W
+   cY79EFxNHf5SaQxgQeW3/rSV9Yb0t/qZhusyBdaDzIu5gunpX2RJC4Kv3
+   3hxZ3G6JZDT7LHcPa78wg/mW/388NNGeWf9Kai3X2yZNah1RkJbi1fcoT
+   rd1GMPRyd8ithn6EusHXWmtFAg3i1V5ruSxz/BIa+MRTYTLPqWjuhak04
+   T6MpK33A4l+QpjtHwtkH9kivywZrB2TunARaJUm26mPqCEPL4CGM8/Jin
+   7nyuPJufVUbeU0SGIU7pqv5ELpjBHu4CTWc8PxLGVPSVuFJZddkFdQ+j1
+   g==;
+X-CSE-ConnectionGUID: /Bl549O9Qk+PX7hTCF2iog==
+X-CSE-MsgGUID: HOd02/+HT/mtaD1kwP1W9A==
+X-IronPort-AV: E=McAfee;i="6700,10204,11152"; a="31995647"
+X-IronPort-AV: E=Sophos;i="6.09,257,1716274800"; 
+   d="scan'208";a="31995647"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Aug 2024 05:47:24 -0700
+X-CSE-ConnectionGUID: NaDYw3I0Sg+OqUuONhJFww==
+X-CSE-MsgGUID: mStR05z2TvaPico6O1qerQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,257,1716274800"; 
+   d="scan'208";a="59724145"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmviesa005.fm.intel.com with ESMTP; 02 Aug 2024 05:47:18 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1000)
+	id 7DCD4268; Fri, 02 Aug 2024 15:47:17 +0300 (EEST)
+Date: Fri, 2 Aug 2024 15:47:17 +0300
+From: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+To: Tim Merrifield <tim.merrifield@broadcom.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, Xin Li <xin3.li@intel.com>, 
+	Ard Biesheuvel <ardb@kernel.org>, Kai Huang <kai.huang@intel.com>, 
+	Kevin Loughlin <kevinloughlin@google.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Rick Edgecombe <rick.p.edgecombe@intel.com>, Kees Cook <kees@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Brian Gerst <brgerst@gmail.com>, linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, virtualization@lists.linux.dev, alex.james@broadcom.com, 
+	doug.covelli@broadcom.com, jeffrey.sheldon@broadcom.com, kevin.christopher@broadcom.com, 
+	aravind-as.srinivasan@broadcom.com, ravindra.kumar@broadcom.com
+Subject: Re: [PATCH v2 1/2] Add prctl to allow userlevel TDX hypercalls
+Message-ID: <djcj4rubfrjdha64bdea5mvujfbtf2j5lgipywvkkdugbrl5u5@xbg5ofqfp6ix>
+References: <cover.1722019360.git.tim.merrifield@broadcom.com>
+ <651ceb5a89721621d522419e8a5d901632a78a22.1722019360.git.tim.merrifield@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v12 04/14] mm: page_frag: add '_va' suffix to
- page_frag API
-To: Alexander Duyck <alexander.duyck@gmail.com>
-CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya Sundeep
-	<sbhatta@marvell.com>, Jeroen de Borst <jeroendb@google.com>, Praveen
- Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
-	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
-	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
-	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
-	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
- Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
- Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
-	<hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, Chaitanya Kulkarni
-	<kch@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov
-	<ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard
- Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Andrii
- Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
- Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
-	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
-	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
-	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil
- Brown <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Trond Myklebust
-	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
-	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>
-References: <20240731124505.2903877-1-linyunsheng@huawei.com>
- <20240731124505.2903877-5-linyunsheng@huawei.com>
- <CAKgT0UcqdeSJdjZ_FfwyCnT927TwOkE4zchHLOkrBEmhGzex9g@mail.gmail.com>
- <22fda86c-d688-42e7-99e8-e2f8fcf1a5ba@huawei.com>
- <CAKgT0UcuGj8wvC87=A+hkarRupfhjGM0BPzLUT2AJc8Ovg_TFg@mail.gmail.com>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <CAKgT0UcuGj8wvC87=A+hkarRupfhjGM0BPzLUT2AJc8Ovg_TFg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <651ceb5a89721621d522419e8a5d901632a78a22.1722019360.git.tim.merrifield@broadcom.com>
 
-On 2024/8/1 23:21, Alexander Duyck wrote:
-> On Thu, Aug 1, 2024 at 6:01 AM Yunsheng Lin <linyunsheng@huawei.com> wrote:
->>
->> On 2024/8/1 2:13, Alexander Duyck wrote:
->>> On Wed, Jul 31, 2024 at 5:50 AM Yunsheng Lin <linyunsheng@huawei.com> wrote:
->>>>
->>>> Currently the page_frag API is returning 'virtual address'
->>>> or 'va' when allocing and expecting 'virtual address' or
->>>> 'va' as input when freeing.
->>>>
->>>> As we are about to support new use cases that the caller
->>>> need to deal with 'struct page' or need to deal with both
->>>> 'va' and 'struct page'. In order to differentiate the API
->>>> handling between 'va' and 'struct page', add '_va' suffix
->>>> to the corresponding API mirroring the page_pool_alloc_va()
->>>> API of the page_pool. So that callers expecting to deal with
->>>> va, page or both va and page may call page_frag_alloc_va*,
->>>> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
->>>>
->>>> CC: Alexander Duyck <alexander.duyck@gmail.com>
->>>> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
->>>> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
->>>
->>> I am naking this patch. It is a pointless rename that is just going to
->>> obfuscate the git history for these callers.
->>
->> I responded to your above similar comment in v2, and then responded more
->> detailedly in v11, both got not direct responding, it would be good to
->> have more concrete feedback here instead of abstract argument.
->>
->> https://lore.kernel.org/all/74e7259a-c462-e3c1-73ac-8e3f49fb80b8@huawei.com/
->> https://lore.kernel.org/all/11187fe4-9419-4341-97b5-6dad7583b5b6@huawei.com/
-> 
-> I will make this much more understandable. This patch is one of the
-> ones that will permanently block this set in my opinion. As such I
-> will never ack this patch as I see no benefit to it. Arguing with me
-> on this is moot as you aren't going to change my mind, and I don't
-> have all day to argue back and forth with you on every single patch.
+On Fri, Jul 26, 2024 at 06:58:00PM +0000, Tim Merrifield wrote:
+> Add a new process-level prctl option to enable/disable user-level
+> hypercalls when running in a confidential VM. Add support for
+> checking this flag on VMCALL #VE for TDX and transfer control to
+> a hypervisor vendor-specific handler.
 
-Let's move on to more specific technical discussion then.
+We need more context from the cover letter here.
 
-> 
-> As far as your API extension and naming maybe you should look like
-> something like bio_vec and borrow the naming from that since that is
-> essentially what you are passing back and forth is essentially that
-> instead of a page frag which is normally a virtual address.
+> diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+> index f63f8fd00a91..198431919fd2 100644
+> --- a/arch/x86/kernel/process.c
+> +++ b/arch/x86/kernel/process.c
+> @@ -1042,6 +1042,24 @@ unsigned long __get_wchan(struct task_struct *p)
+>  	return addr;
+>  }
+>  
+> +static int get_coco_user_hcall_mode(void)
+> +{
+> +	return !test_bit(MM_CONTEXT_COCO_USER_HCALL,
+> +			&current->mm->context.flags);
 
-I thought about adding something like bio_vec before, but I am not sure
-what you have in mind is somthing like I considered before?
-Let's say that we reuse bio_vec like something below for the new APIs:
+Hm. Why "!"?
 
-struct bio_vec {
-	struct page	*bv_page;
-	void		*va;
-	unsigned int	bv_len;
-	unsigned int	bv_offset;
-};
-
-It seems we have the below options for the new API:
-
-option 1, it seems like a better option from API naming point of view, but
-it needs to return a bio_vec pointer to the caller, it seems we need to have
-extra space for the pointer, I am not sure how we can avoid the memory waste
-for sk_page_frag() case in patch 12:
-struct bio_vec *page_frag_alloc_bio(struct page_frag_cache *nc,
-				    unsigned int fragsz, gfp_t gfp_mask);
-
-option 2, it need both the caller and callee to have a its own local space
-for 'struct bio_vec ', I am not sure if passing the content instead of
-the pointer of a struct through the function returning is the common pattern
-and if it has any performance impact yet:
-struct bio_vec page_frag_alloc_bio(struct page_frag_cache *nc,
-				   unsigned int fragsz, gfp_t gfp_mask);
-
-option 3, the caller passes the pointer of 'struct bio_vec ' to the callee,
-and page_frag_alloc_bio() fills in the data, I am not sure what is the point
-of indirect using 'struct bio_vec ' instead of passing 'va' & 'fragsz' &
-'offset' through pointers directly:
-bool page_frag_alloc_bio(struct page_frag_cache *nc,
-			 unsigned int fragsz, gfp_t gfp_mask, struct bio_vec *bio);
-
-If one of the above option is something in your mind? Yes, please be more specific
-about which one is the prefer option, and why it is the prefer option than the one
-introduced in this patchset?
-
-If no, please be more specific what that is in your mind?
-
+-- 
+  Kiryl Shutsemau / Kirill A. Shutemov
