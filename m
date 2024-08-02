@@ -1,141 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D0A1B4C2A
-	for <virtualization@lists.linux.dev>; Thu,  1 Aug 2024 17:56:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B8F73848D
+	for <virtualization@lists.linux.dev>; Fri,  2 Aug 2024 01:27:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722534986; cv=none; b=CEN3qdtH33obeaxAhPWggXs382wMICJ7+vfdAJ/4KLj9Fmx7X9MEwOSct1MQAmHy10EK+cpbn/hmIR2i+Txi1pxEE4f0l1O+s8C3siqIJNeuBPD0m/ggXKYcB+yTD91OTCDbpAdo2IVt5HuypVLPSemdJ69lh7MnuS8eXwmpwk0=
+	t=1722562066; cv=none; b=qeJp70Qun2s6aqh//QUzXhB/9KAscSiUkIjV3yXHq0I122QrB7VVWOkEzcMRxvqntQdS7MNYePZRM4aH3gw444jRf+G2dcbTSOpE9JK3W0kMmLmITWYuPStN570nyNOdE7i6SR+MlC4cqgNFPAblfgye4QFzrpkYmsEt3ldfn/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722534986; c=relaxed/simple;
-	bh=C5svpa1fPsliHutAflKdjrMRwnUl28cggDEP+yfJEe4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RmkpzDwQUVUuByU/RVaZvwmVtYnD/CWNkISBSusp4eFowD++fiHJpQep4jaGQSk2cnrJ1QDWGR901/CKWvWQFzW5+kckmqxEkGIWSPmKSmQ5U597LWCfeme7RzE+9+jjGGDWZOVNoIwe/YvztELxv1YqNQaeTD3EQG5sZCRYYTs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WQXPJdAp; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WQXPJdAp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722534983;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=C5svpa1fPsliHutAflKdjrMRwnUl28cggDEP+yfJEe4=;
-	b=WQXPJdAp2qHRtzroSnoppMmVv77VaAc9dtpqOHIndqDLw/YmCGkpHswNDxPo9jN2dDfB7V
-	Cry6QF4NDDYu8Ih62Fva9sivcNvPs5kL2SmiN9P3cfhe+RIRT9LlA73sTyFTYXAg0kjBQ2
-	pJCR7NjshbMviN0wa5Lc+hitcc48fcM=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-414-DdLC8e1wNLmXp9KCuo5Odg-1; Thu,
- 01 Aug 2024 13:56:22 -0400
-X-MC-Unique: DdLC8e1wNLmXp9KCuo5Odg-1
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C533019560A3;
-	Thu,  1 Aug 2024 17:56:19 +0000 (UTC)
-Received: from localhost (unknown [10.2.16.116])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6658C19560AE;
-	Thu,  1 Aug 2024 17:56:18 +0000 (UTC)
-Date: Thu, 1 Aug 2024 13:56:17 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
-	axboe@kernel.dk, kvm@vger.kernel.org, linux-block@vger.kernel.org,
-	oren@nvidia.com
-Subject: Re: [PATCH 1/1] virtio_blk: implement init_hctx MQ operation
-Message-ID: <20240801175617.GA1133773@fedora.redhat.com>
-References: <20240801151137.14430-1-mgurtovoy@nvidia.com>
- <20240801111337-mutt-send-email-mst@kernel.org>
- <0888da3b-3283-405b-b1a8-a315e2623289@nvidia.com>
- <20240801112843-mutt-send-email-mst@kernel.org>
- <9400fb28-47c2-4629-af17-df2a95f2d3d8@nvidia.com>
- <20240801114205-mutt-send-email-mst@kernel.org>
- <6a8f0c72-ba77-42c3-8d85-6bb23a23f025@nvidia.com>
+	s=arc-20240116; t=1722562066; c=relaxed/simple;
+	bh=Bo7CyCSCfTo4lFIIiFGKSmBdMQs6UBJCBOSER2j2Pxo=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=F0toD2CzgDhijZNyK2S+VaiLjVUbkTuttmJefvq1hNbgD1/NPPqUUHxpnE13hgdE1i0+IcqmlhfQA8BdEMjeLN++qAukFxAvyjDCsXL5/udi6taOI1I8wqJVVR7ZBmvAMtudk1WEGtYkzsXloE8P96VrbIHs6+PToPashK8v8nw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8Dxi+oGNqxm7TQGAA--.22034S3;
+	Fri, 02 Aug 2024 09:27:34 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowMAxysUFNqxmGwMLAA--.53376S3;
+	Fri, 02 Aug 2024 09:27:33 +0800 (CST)
+Subject: Re: [PATCH v4] x86/paravirt: Disable virt spinlock on bare metal
+To: Chen Yu <yu.c.chen@intel.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+ Nikolay Borisov <nik.borisov@suse.com>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+ Prem Nath Dey <prem.nath.dey@intel.com>,
+ Xiaoping Zhou <xiaoping.zhou@intel.com>
+References: <20240729065236.407758-1-yu.c.chen@intel.com>
+ <4d31e1b4-2113-c557-b60a-3a45b2840f26@loongson.cn>
+ <ZqueWhX6lqS+1vwg@chenyu5-mobl2>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <a3c4b603-fc8d-bfa4-7e5d-0b2d8043131b@loongson.cn>
+Date: Fri, 2 Aug 2024 09:27:32 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="c2XeR3n4E+7rtcIW"
-Content-Disposition: inline
-In-Reply-To: <6a8f0c72-ba77-42c3-8d85-6bb23a23f025@nvidia.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+In-Reply-To: <ZqueWhX6lqS+1vwg@chenyu5-mobl2>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowMAxysUFNqxmGwMLAA--.53376S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxJF48uFWDKFWrXF4DXr15ZFc_yoWrWrWrpr
+	W7JFnYqF1kXF4FvwsIvw4vqr4jy39Fkw1DXrn8Grn5Xan8ZrnIqr48tws093W2qr1Iy34r
+	tF45XrZxZayUZagCm3ZEXasCq-sJn29KB7ZKAUJUUUU7529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUPYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr0_Gr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYI
+	kI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUAVWU
+	twAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
+	k0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l
+	4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67AKxV
+	WUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI
+	7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r
+	1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI
+	42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jOiSdUUUUU=
 
+Hi Chenyu,
 
---c2XeR3n4E+7rtcIW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 2024/8/1 下午10:40, Chen Yu wrote:
+> Hi Bibo,
+> 
+> On 2024-08-01 at 16:00:19 +0800, maobibo wrote:
+>> Chenyu,
+>>
+>> I do not know much about x86, just give some comments(probably incorrected)
+>> from the code.
+>>
+>> On 2024/7/29 下午2:52, Chen Yu wrote:
+>>> X86_FEATURE_HYPERVISOR         Y    Y    Y     N
+>>> CONFIG_PARAVIRT_SPINLOCKS      Y    Y    N     Y/N
+>>> PV spinlock                    Y    N    N     Y/N
+>>>
+>>> virt_spin_lock_key             N    N    Y     N
+>>>
+>>> -DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
+>>> +DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
+>>
+>> @@ -87,7 +87,7 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
+>>   {
+>>          int val;
+>>
+>> -       if (!static_branch_likely(&virt_spin_lock_key))
+>> +       if (!static_branch_unlikely(&virt_spin_lock_key))
+>>                  return false;
+>>
+>> Do we need change it with static_branch_unlikely() if value of key is false
+>> by fault?
+> 
+> My understanding is that, firstly, whether it is likely() or unlikely()
+> depends on the 'expected' value of the key, rather than its default
+> initialized value. The compiler can arrange the if 'jump' condition to
+> avoid the overhead of branch jump(to keep the instruction pipeline)
+> as much as possible. Secondly, before this patch, the 'expected' value
+> of virt_spin_lock_key is 'true', so I'm not sure if we should change
+> its behavior. Although it seems that in most VM guest, with para-virt
+> spinlock enabled, this key should be false at most time, but just in
+> case of any regression...
+yes, it does not inflect the result, it is a trivial thing and depends 
+on personal like or dislike.
 
-On Thu, Aug 01, 2024 at 06:56:44PM +0300, Max Gurtovoy wrote:
->=20
-> On 01/08/2024 18:43, Michael S. Tsirkin wrote:
-> > On Thu, Aug 01, 2024 at 06:39:16PM +0300, Max Gurtovoy wrote:
-> > > On 01/08/2024 18:29, Michael S. Tsirkin wrote:
-> > > > On Thu, Aug 01, 2024 at 06:17:21PM +0300, Max Gurtovoy wrote:
-> > > > > On 01/08/2024 18:13, Michael S. Tsirkin wrote:
-> > > > > > On Thu, Aug 01, 2024 at 06:11:37PM +0300, Max Gurtovoy wrote:
-> > > > > > > In this operation set the driver data of the hctx to point to=
- the virtio
-> > > > > > > block queue. By doing so, we can use this reference in the an=
-d reduce
-> > > > > > in the .... ?
-> > > > > sorry for the type.
-> > > > >=20
-> > > > > should be :
-> > > > >=20
-> > > > > "By doing so, we can use this reference and reduce the number of =
-operations in the fast path."
-> > > > ok. what kind of benefit do you see with this patch?
-> > > As mentioned. This is a micro optimization that reduce the number of
-> > > instructions/dereferences in the fast path.
-> > By how much? How random code tweaks affect object code is unpredictable.
-> > Pls show results of objdump to prove it does anything
-> > useful.
->=20
-> This is the way all modern block drivers such as NVMe PCI/RDMA/TCP use the
-> driver_data.
->=20
-> These drivers don't have driver specific mechanisms to find the queue from
-> the hctx->queue->queuedata like vblk driver has for some unknown reason.
->=20
-> It is pretty easy to review this patch and see its benefits, isn't it ?
->=20
-> It is not expected to provide extreme perf improvement.
->=20
-> It is introduced for aligning the driver to use common MQ mechanisms and
-> reduce dereferences.
->=20
-> This is not "random code tweaks".
+> 
+>>>    /*
+>>>     * Shortcut for the queued_spin_lock_slowpath() function that allows
+>>> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+>>> index 5358d43886ad..fec381533555 100644
+>>> --- a/arch/x86/kernel/paravirt.c
+>>> +++ b/arch/x86/kernel/paravirt.c
+>>> @@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
+>>>    DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
+>>>    #endif
+>>> -DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
+>>> +DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
+>>>    void __init native_pv_lock_init(void)
+>>>    {
+>>> -	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
+>>> -	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
+>>> -		static_branch_disable(&virt_spin_lock_key);
+>>> +	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
+>>> +		static_branch_enable(&virt_spin_lock_key);
+>>>    }
+>>
+>>  From my point, the sentence static_branch_disable(&virt_spin_lock_key) can
+>> be removed in file arch/x86/xen/spinlock.c and arch/x86/kernel/kvm.c, since
+>> function native_smp_prepare_boot_cpu() is already called by
+>> xen_smp_prepare_boot_cpu() and kvm_smp_prepare_boot_cpu().
+>>
+> 
+> The key is enabled by native_smp_prepare_boot_cpu() for VM guest as
+> the initial value(default to true). And later either arch/x86/xen/spinlock.c
+> or arch/x86/kernel/kvm.c disable this key in a on-demand manner.
+I understand that you only care about host machine and do not want to 
+change behavior of VM. Only that from the view of VM, there are two 
+conditions such as:
 
-If you cannot observe a performance change, then adjusting the commit
-description to explain this as a code cleanup to reduce dereferences and
-local variables, improving code readability seems fine to me. I think
-it's a nice cleanup when presented as such rather than a performance
-optimization.
+1. If option CONFIG_PARAVIRT_SPINLOCKS is disabled, virt_spin_lock_key 
+is disabled with your patch. VM will use test-set spinlock rather than 
+qspinlock to avoid the over-preemption of native qspinlock, just the 
+same with commit 2aa79af64263. And it is the same for all the hypervisor 
+types.
 
-Stefan
+2. If option CONFIG_PARAVIRT_SPINLOCKS is enable, pv spinlock cannot be 
+used because some reasons, such as host hypervisor has no 
+KVM_FEATURE_PV_UNHALT feature or nopvspin kernel parameter is added. The 
+behavior to use test-set spinlock or native qspinlock is different on 
+different hypervisor types.
 
---c2XeR3n4E+7rtcIW
-Content-Type: application/pgp-signature; name="signature.asc"
+Even on KVM hypervisor, if KVM_FEATURE_PV_UNHALT is not supported, 
+test-set spinlock will be used on VM; For nopvspin kernel parameter, 
+native spinlock is used on VM. What is the rule for this? :)
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmarzEAACgkQnKSrs4Gr
-c8jZyQf/Z3f/9y0UpEZzE/+QHEVZJvD55lQQZOw8ARH01kX2XfoQyGqHgujocw1k
-j12kKIk1PmgmjKMnV8vCxSF5s+LpPON1J0fnBm3Ke3uJuKYwcK9T0xdV0ECKc0+e
-pXEYV96W9OrB9t9NN7fgSAhRXfWmefVcIn8+fG1/waltnBJMowPHlgnjVMrTT2bE
-FC6z8PqbAjcTGZab4IE12ZA1AAlfmkVH7fULl6kWlLXfV+RuxkLNsRSP0nRmSBbM
-WmMtinpOhSg2n0o/qxsR0LAd4mqbEAL+9PYnYKhVS5P6LuG5ENBwcvkJp0gx7Ftd
-+pQ20Kc0BvzxAYosRTVY632SeZTvjg==
-=n19p
------END PGP SIGNATURE-----
-
---c2XeR3n4E+7rtcIW--
+Regards
+Bibo Mao
+> 
+> thanks,
+> Chenyu
+> 
 
