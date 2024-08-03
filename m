@@ -1,55 +1,70 @@
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2062.outbound.protection.outlook.com [40.107.94.62])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8022EB67E
-	for <virtualization@lists.linux.dev>; Fri,  2 Aug 2024 22:07:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.62
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722636470; cv=fail; b=NdPOjXcklL3hxuuzhFhYn65zn1nxetoZTS9RDn2bQ0ZByTXcjHBJ8ZaRnUbOfdfaaIdmJeDkbv3fz7jalhpZv0vUrqrDMkYv1W81P4nLRQiiHI0/MkPqUfyjnISjL8R4DXZQfVsnKUST0kzg0/du27KH7bQUWEJkCCuSxthv9AY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722636470; c=relaxed/simple;
-	bh=vAELnMOm2AeWjtF/eO9g2YlyQM/RmHN4IhnWmbvJvLE=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=MFTdJVUDGXBESk7WfrVHgSIzkKdfEWNO6hCml9a5tEiurCliBAqZ+N5/glcN057fHP+89zwQGLyLaDnJR9yfO699MWVb2uRUzqMQVshS2K6otZfCnu9NzJjasRYFznU+qmd5AXeSfhwtWlDUR/PXqsFRapTJ/XOEbw3DgsSO1Us=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=oxUYpSUc; arc=fail smtp.client-ip=40.107.94.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 012D0D53B
+	for <virtualization@lists.linux.dev>; Sat,  3 Aug 2024 12:39:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1722688789; cv=none; b=GXBZYfw9Fjxi1ppBlrnKKAGVToTQcIgMR3dFLBhE35hJKXuEN/oIIIO+KCVLdgo1iOKDqQC1AfB1aZtPVQB1qyUtFSGBGLokqn+4Y5C3JHtYZoFLJiIYJJ/2KCVGwetEFJFXmzEsBiOuN45WT6D4c2R9EnlOhlTg9Y1XV1t+pDo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1722688789; c=relaxed/simple;
+	bh=gD2FpfB39EnjPLFzGX1h9zd6wgd7sajf8+31wkVyNEM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=MtFvM7Nd6ymKpFb9fgEBkefPOJfbDicio39AJiMsuJwUscIiRGWtqSABf/qdDoBe/qZiIcE+3hR/VgchYhOinLji9C2hoIBRE2mBjGN4CuPl1iP/M6bOJl9bzTXlBdibQQc0wzlr0gFyk7JKXefqJexZrEdhBWjmce4CMrgCgd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G5foG/q0; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="oxUYpSUc"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=wwzafAXeyprm6ZsW16EJtCjjQOeysACjoIL6X60CZ5CDvSKd4IuRSMUoD+I45CotM8ACM/k+CMu3tnRTEHc0Fk4E4YXpagmEKF4PnKlCdy55M0DWXU7fgIdUTtT0JQRpajdh5eLB0uUswvRekEi3krTRchLqgckUH7xwnzD207Wve4RSkUbrMnPQfC3MBXr0cYbfvd4Tz42pBypISzLaAuEVzGU/q0hOsQvSxVgXAXBsaCzTtsDyK3eQ4cTajgTZHHdFpFlf3FXwwf2+JyxP6adolyTbrVpkfTMKS3zWGAZ+8xoLPpsSqhMhJPm/uNJnwKXLr4zMYPUlMYPriy073Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=vAELnMOm2AeWjtF/eO9g2YlyQM/RmHN4IhnWmbvJvLE=;
- b=BIpEdjxId6SD5nBIGCiUmoFA8MVpxkvxYnAWnpOQBbH8GK9Kpbc4Z/WN9X3f/Yx+UGB31l2taiJPHIt986ba4MISEFFLYThtjFELKTYmGAH3kxFSJE9acVpvyAPqRtuWoEFxNNRBlQ69QE9FDMKMgU9vfh5qCpcLEgbm0KauzFX9sx2qM5Q/e1QaTvbPcaxZCe1EEgnmOQLLEEcWmKYl3i1d30rRAdW+oKNmh1FAY2tAURiK+SM35lzTCOfuKy0p7spVoox3JHUG0v5Z+QEGj1dSnZNw1H1mXXi4Tqlyu+/mta5CAv2U42yX5kum/xHip7dFKmygRg8WLp2xcEro2g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vAELnMOm2AeWjtF/eO9g2YlyQM/RmHN4IhnWmbvJvLE=;
- b=oxUYpSUcXuo19dQwIR3RvpQXzjovL6A3QccgmilUbpVmoGwDUyu9EjuwI3D2vGdot2jetsqHYd7Osfv1naUfGfO1hdiGavReTRvE8hqgSnebISBAPjlw9xx49UdAGoiCa6RnMJKa0C+X81mDCcn7MNaaGebzJIN0mRWoqS4C7ZlDhnehSWB675KWD1r2tPPpzc8BmzmOMYAZcsvYFdowIJ7yUvNWoQWJFO8Q3siHYVLTzML7AIVZ7M4+P1WUIlkw/vNrj0lnQD1zF46fMUpH/i3kL86bb+I67QfTRLr8h0e+Ae6iJnkYJLzg0A/rSvqJiddXP6Dy+RskCO/Qfy8eHw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com (2603:10b6:930:21::10)
- by SA1PR12MB7341.namprd12.prod.outlook.com (2603:10b6:806:2ba::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7784.16; Fri, 2 Aug
- 2024 22:07:45 +0000
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6]) by CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6%4]) with mapi id 15.20.7828.024; Fri, 2 Aug 2024
- 22:07:45 +0000
-Message-ID: <a10e97ce-792a-410f-b68e-d00292987b3a@nvidia.com>
-Date: Sat, 3 Aug 2024 01:07:27 +0300
-User-Agent: Mozilla Thunderbird
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G5foG/q0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722688785;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bud4nRKRklECKnm96ltuCrae8m0qJHJoxUo8AttxE8U=;
+	b=G5foG/q0WlT+tCXXk3WnerCZrBytWinnjqC73jtejLIZ33E9ORKYXjxrNfRVHoXy5i1cBU
+	KW+CWSVFHrZBivbpshuVq8jTa2vrXV5ahNXKX2yTTS2l6M4pZmocuXdE76dd9TRTLi5Twz
+	tqqWR7jjBUwBaHUWoJEPI7SiNsz3giI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-556-jGzBka6kPZuAKhU-wM5n0g-1; Sat, 03 Aug 2024 08:39:44 -0400
+X-MC-Unique: jGzBka6kPZuAKhU-wM5n0g-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-427b7a2052bso86985755e9.2
+        for <virtualization@lists.linux.dev>; Sat, 03 Aug 2024 05:39:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722688783; x=1723293583;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bud4nRKRklECKnm96ltuCrae8m0qJHJoxUo8AttxE8U=;
+        b=UuZNVh9UgQA4YxQFvipocb157Kn2PsUM33FiPTX6gHikrTJOPpLBZIdD8mKYgxIMKM
+         laPROc5bW5hCUplDNs1Ef2l8RQmPNvhnXCmu0f32cYmQE0QyoNrtqhOjcL3kw+Ya/Y9i
+         e8sW/DLi6Y9nmXdUV91q+kRp2ugLvr3bEEADZV+suAbQ7ORPgjtTtZWPuey9wS6I9cFc
+         5mVbGxft2+yxbaedQ+62QGENnbuk+ZV3450TsWSCBNCpv9nSGD2kG0vfMsyUBWd2x8Ch
+         SP7kmHQXgQpTlr1eMEK0vkA0DEEqZfF0Lg2/s5W9ldARq4vvLcQZfuFjQD+jTEhoYsWq
+         PaIg==
+X-Forwarded-Encrypted: i=1; AJvYcCWePddxSPp3dGcZ8RvrObWDW1OAXd331av7R5YAHFD/2ejefhaX/qfHwPzUelk5yn+UehCW9wQmYf4XKKgDQrO2GX+xFo+J1C7LUrgCEBs=
+X-Gm-Message-State: AOJu0YzSCfDkkDnuBligFYy8Kr/E3QDvgVw/2V83exlH8orhU7U9xMz4
+	KdmsfDkh7Wn5MEpt/6/L/4MAm90Ah9dd3EsBpbo52YEbro4Oyv/dDGp17/SGL6VvuFVzZFmRSzl
+	jUud10Nt8ASpGlYnfwDC0A8WRUcg+dGMdSM3grIKdyIqa92318pLLMk8klccocufO
+X-Received: by 2002:a05:600c:46d5:b0:428:e820:37b6 with SMTP id 5b1f17b1804b1-428e8203ceamr44618485e9.31.1722688783174;
+        Sat, 03 Aug 2024 05:39:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHztpDlicRIdPi/ph07KPQz9rUp5hL3ZffxDp857thGb8EBxST2h/nU6rQ6f3ID+f0aHwyskA==
+X-Received: by 2002:a05:600c:46d5:b0:428:e820:37b6 with SMTP id 5b1f17b1804b1-428e8203ceamr44618275e9.31.1722688782353;
+        Sat, 03 Aug 2024 05:39:42 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:743c:ac00:6ba3:915a:fea:a61d])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4282b89a862sm127450475e9.4.2024.08.03.05.39.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 03 Aug 2024 05:39:41 -0700 (PDT)
+Date: Sat, 3 Aug 2024 08:39:38 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev,
+	axboe@kernel.dk, kvm@vger.kernel.org, linux-block@vger.kernel.org,
+	oren@nvidia.com
 Subject: Re: [PATCH 1/1] virtio_blk: implement init_hctx MQ operation
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
- axboe@kernel.dk, kvm@vger.kernel.org, linux-block@vger.kernel.org,
- oren@nvidia.com
+Message-ID: <20240803083824-mutt-send-email-mst@kernel.org>
 References: <20240801151137.14430-1-mgurtovoy@nvidia.com>
  <20240801111337-mutt-send-email-mst@kernel.org>
  <0888da3b-3283-405b-b1a8-a315e2623289@nvidia.com>
@@ -58,162 +73,77 @@ References: <20240801151137.14430-1-mgurtovoy@nvidia.com>
  <20240801114205-mutt-send-email-mst@kernel.org>
  <6a8f0c72-ba77-42c3-8d85-6bb23a23f025@nvidia.com>
  <20240801175617.GA1133773@fedora.redhat.com>
-Content-Language: en-US
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
-In-Reply-To: <20240801175617.GA1133773@fedora.redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: LO2P265CA0054.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:60::18) To CY5PR12MB6369.namprd12.prod.outlook.com
- (2603:10b6:930:21::10)
+ <a10e97ce-792a-410f-b68e-d00292987b3a@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6369:EE_|SA1PR12MB7341:EE_
-X-MS-Office365-Filtering-Correlation-Id: 17173dba-dc43-4587-3d18-08dcb33f894b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?dHZINGJRVVZtMWhsN2tEY3B4UGp1VjNYTEE4OFIzb1laNlFwU2Z2VU8rV0FY?=
- =?utf-8?B?S0YwMHVuVjQwZ1FrUjRSalBDdWgyNnlpQ1JxUENKeDlyN0thKzBSR3hYUjND?=
- =?utf-8?B?Q2JJRU5aV2N3ZkE1bDBXdDFwK05RR2IxL3dtMStncTUyZUZHbnpZWENuVlgy?=
- =?utf-8?B?S09memxrUXlIVXJLRUVHRHlXYysrcHNyczN2ME5GU2doK21xMGhXazdiSW52?=
- =?utf-8?B?Y3JYN3BvZ3lrVHpDT0ZocE02QnZOaGZSMDdKQUJnWHBacWg1czJrOE50UExt?=
- =?utf-8?B?OExPSWhMTlVkWGxYZUJobUxTWXdmcmlhdVgzZHlPV2loTFdhMHhER3d2Wnpm?=
- =?utf-8?B?VWgwMGN3emhDaC9DN2kzSmtDQ2I0R0xIWFZEWkhnR1JCeW1TekNTd0VuQ204?=
- =?utf-8?B?RzJ6NnJCdGZqaEVjdVZqd3NndEtpMXBRK1gzem9wMy9JSEFCbERzMWVXR1Fx?=
- =?utf-8?B?NGxDTWtVb25tRW1MODVHbENpMkxyNFh4b3ZJbmpIUmZraDZzTWZIZnN1Z3N6?=
- =?utf-8?B?T0cvNWY4emhTc1VOd3ZweW1uSUlFL0hZaWhjeFNEdm9jdXQvU0dhbDArbm5E?=
- =?utf-8?B?OGFzU3Bnalpld0NUblRkT1F1WGowWHJ0dE0za0Z2K01vWEdTMmFnbjV2Ympm?=
- =?utf-8?B?QWtxL2lBTlZqMTF0WDFUQVhtNDMxVmlqOUVKNnFtZTR2QTRYaGJ5M1JQWkor?=
- =?utf-8?B?N3ZNaEJmRm5mc0FmYWNkV3VrcnF4N0xKS0xCc1d4M0xXc3pyUzlhaGZIdDl6?=
- =?utf-8?B?TnJiQTgveHB5UXlLK1I2Zy9wak0yT3JFRGxzaG9heFdtSGNMbGIyQWdqYkxJ?=
- =?utf-8?B?UWRoa2lYb25qK0pvSWZVaXQwLzRwOVllNHRwR0JnemJUWjViLzRDVy9SQ3po?=
- =?utf-8?B?VlA5N0J2b1VRQ1pGU0NJQU1Bb2VlV1BsUWVKSUtTaklCTG1xVnNEMmpUOERW?=
- =?utf-8?B?b2JBVHB1S3RHMEFTRy9yOGFBb1J5THRIZVg3Sm9UT1pVK3pLbURIbWtSb3RW?=
- =?utf-8?B?WGtMZmNvREI1OVlwQ0taYUlQRlQ5THRNVzZxWi9tMENuaGZOaE1lTjVhRVBB?=
- =?utf-8?B?R2lDNXZvS3N1UlpTSldkNzh0dTZtM29IdFJwL00yQmJnWUNIMzdmamwzdEJZ?=
- =?utf-8?B?cHdmZCswVnJRNE8ydmd3UjRibUxlVmJDcFEyTUVnUzVhVkd5N2kxYTNvUFdX?=
- =?utf-8?B?bWlxc3hMV0R4cmhLR2wyVjZYUWxZeFplOEZWS05oTW5pcTE0WFkyVGxUQmNx?=
- =?utf-8?B?NmpzdzhDNG5uK1VoY2t6czJZcU11bVFHc2Y1VTRxUWJ2NTcxVGhkeWFuaG9X?=
- =?utf-8?B?bnRLc0FYL3BZSXRseDlCMVNKeXBXQncwVWZIeXRvdnp0TTF0L0NvZ29FUVdB?=
- =?utf-8?B?U2VLdGxLWDdVRFhyUys5aW5UY0xrL2g2eFZ3M1MyU25wQnB1OXNscjNMcVd1?=
- =?utf-8?B?UGZ2ZW41azBqMm5YN01vdld0TGprci9rOXBNdmFWUVV6Q3dYNGNsemF1QUdX?=
- =?utf-8?B?cDdsOTNhUXp3d2ljZWJ0OTZ0YXIyQk5uNWo2RG5JeFBSNTh0bWRqQVNKZWlo?=
- =?utf-8?B?VW9LSmFkRjRIYkRFMlNadThCMTVoRjcyVnRiOEo3eTR3UHJrY3JIYzVybWRD?=
- =?utf-8?B?V3JXMmVoRHo3L1hRaFY0d2FOalEzZXUydWNZTnhOb01Ya0xQR3pscHpnRFVP?=
- =?utf-8?B?Tndpdnh1SXJiWnhkaEFkUnhKUUdDcnIxWjlVSnZOa1hGTXdUem43Wmp4SGx0?=
- =?utf-8?B?ZTBvNlBNOWM3SXlaSUI5eDVFclh4MjVNWkt0Z2twcUh6US9OTWlnTG5mNit3?=
- =?utf-8?B?NmRhZ0U1Y2hkeWR0TlZiQT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR12MB6369.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?c3Jva2IvSUpiTVdudW02MENPay9wYVExMEUvOEg3Mk1yTFlzc0ZCQVAzMnIw?=
- =?utf-8?B?TkNGNWJFMjd2b3gvZmlsOXF2ZWRPY0lCNytJbHZvQzhnWGNYUEtDWjZCcWRX?=
- =?utf-8?B?Tm9Zd3RwMzd2dy9TWmNvc3dBTHBoV0t0UFUzbVVHUEo2NzZOajNzZHZWMys5?=
- =?utf-8?B?aER2TVdWM3hUNkt0YkpNY3RlVkZ3emxwV3lBVTIvcm8zWW8zL21HanJLS01u?=
- =?utf-8?B?bVlGQjN0QnlROXd1cTFLMVJpb0cwc0RzNk0waXdyRFVOY3hKTXY5cmwxWUgy?=
- =?utf-8?B?TVZVZjNBdlJUMDYrRTZvcFphd0FvSmdCSEljZnVFQnZYSlRMSS9xZlBvOG5E?=
- =?utf-8?B?d3pkWE1EWGxkZ0xwcElwYzd5OXEwNHNjeWViTjFGQ1h4alBZcklSRFJ3SGhs?=
- =?utf-8?B?NmxWZ1NFajlyVXk2Qkg2OFNJTlE4eHN0MGcwM014T0lOcDlQWEF1a2RkOHY1?=
- =?utf-8?B?U0w3bTJyck11NWZOSWlqOUZNZElPT1p5bkJWOXJiNEExSHBzejhKNUR4WVFB?=
- =?utf-8?B?Mmh4MW5rcGxUVHlIbldHT0p2RVd0Tmp6Sys4T3ZzZkxrWUV6ZWxLY0ZOMEZj?=
- =?utf-8?B?M2Y1R1JyQjFTK1BDVGlmWi9DSDd4ZHh4dWVjMS9kaXFEaU44UHh4KzRDZFRJ?=
- =?utf-8?B?YmhkT0pZQWNjd3JLYS80cERwTjlZU0ZDaEwwNkNRdmgvaEJjZ3plZHZYNGtP?=
- =?utf-8?B?R0tRQVE5WkZVdWZsdzl2WHNOV01RRUx1RjZTQlQ4TytidEZrU255WWQrRytr?=
- =?utf-8?B?azZ2QXFmWTh3RVJ2M1BQdWpBejRFZGl3ajFUMlZuaENmcFBFZmVOanIrN0tK?=
- =?utf-8?B?RlBZL2N0WVVaWE10c0JOMjZGSlpIdjJvdDh3TVQvbnZKRERJT2xydFR1OWt3?=
- =?utf-8?B?WS91Y1R6SnpNU3UwVThoTEJneXZVeG5CZzV3YnErM1k0a1F3czVtMm16SU9n?=
- =?utf-8?B?Wk1ROU9kRnNWREI0cFJ5c21HbkZ2QUY5NkQyZ0s5a2xlaFl2SVY1RnkyeEE4?=
- =?utf-8?B?L0dDdkVMZS9QMTZMVUY2R29CeUd5QTU2cksyRUpGY3RUb0U4VlVpVHJ2Mk5m?=
- =?utf-8?B?SkZVZU9vTVU1NUF2OUVPYW10NmhEYlVxTW91TzFFOG1ab2xFNlRjNzRzczVm?=
- =?utf-8?B?OFplU1hzYUFaQjRaZnptQk9tbFVkL2p0Z0x1d3ppVkJCdTR0dHlDNkJ5UEZh?=
- =?utf-8?B?VEg1c0VJOHRocGFjbGk1VVVUMHM4VHA3c0xRbkxaWXNXcEJPZ0NZMEVmNXRB?=
- =?utf-8?B?Z05ydmZvM1RmRDlGME5OaFUyWHRqY0xIWG5SRjNrR1N5bzd6QkhydUZCVFhU?=
- =?utf-8?B?aUZDTXZ5SzVrWjVrSExqMFR4Y1NSeGxVV0tWM095NTRwOGk2M3JqWjhUeWlr?=
- =?utf-8?B?c21TZjdza1VONVUzYXZ5cTkwR0w1YlZ6ajE5WHgwbStUTkR4N0U1QXlnOGlT?=
- =?utf-8?B?QmkvMkp2M3VqTHFpWUdUTlQwNDYzdy9nUVlLTitIcEF0Q1p5YnBVS1pZbWJM?=
- =?utf-8?B?bXNycDIwWkpRdUV6RXFTaUhxbGlQTVRIREMrU3J6TTRFMC8zczFBNHdTeXpG?=
- =?utf-8?B?U3NRZ1R6alIvb3dkakhaOTVLTU9WNW9sdVNsOHlFdnpYejZUK1FOZjgrNktF?=
- =?utf-8?B?cTVlYUVxaUFXaDFRM2FicUttM05KSkRDdjZtenBMSjNwZmp2eUhITTlqdmVj?=
- =?utf-8?B?Q25xSHpRYVB5VFI1bzczd2V1S080UkZKK0VVT2N0VTd2UmI3R1RwdlVmQVla?=
- =?utf-8?B?WUp0YlJ6TFA2VURSNkh5KytxYkliRFhoVUExRGIwcTZqM0FPWFJaRjdxUi9k?=
- =?utf-8?B?SFZ5VnpUdkgxNTJXelRIMCszdHZQYWo4emRiRXdoazh1RXdBNUlPRFBybm9w?=
- =?utf-8?B?dnJ5WnUxWGE5ZERYV0IyUnpVczdVK2xEQmRKZjJTMm9Pc0FISUJrblNjanRv?=
- =?utf-8?B?T0g0T3ZIZ1laYnh4L21vb3JTN085ZWdWeWNZei9oWFR2OHlWeWx1b0hxYmZ3?=
- =?utf-8?B?cEQwQzJMbHhnNndGay9NK3FzQ0NzZzM1SlNRQjNNSU9SNWxPVFJCUDErMjZv?=
- =?utf-8?B?cWphaVlpenNEM0phWWN6M0Rjem5HcTB6ZUpoYzNuUjBidUdzY05PL0RnZjZN?=
- =?utf-8?Q?Lhi7UF8yaVyOCk/tUfSl0qKRN?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 17173dba-dc43-4587-3d18-08dcb33f894b
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6369.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Aug 2024 22:07:44.9750
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: p5X2muO3vrD4Z9H0ftVKaWz4scQMXdJl9k7TvyNM6baadyCdnlWLJMeUdMY3Y5A/7wt9nMJioGDcc0GZlPuabg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB7341
+In-Reply-To: <a10e97ce-792a-410f-b68e-d00292987b3a@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Sat, Aug 03, 2024 at 01:07:27AM +0300, Max Gurtovoy wrote:
+> 
+> On 01/08/2024 20:56, Stefan Hajnoczi wrote:
+> > On Thu, Aug 01, 2024 at 06:56:44PM +0300, Max Gurtovoy wrote:
+> > > On 01/08/2024 18:43, Michael S. Tsirkin wrote:
+> > > > On Thu, Aug 01, 2024 at 06:39:16PM +0300, Max Gurtovoy wrote:
+> > > > > On 01/08/2024 18:29, Michael S. Tsirkin wrote:
+> > > > > > On Thu, Aug 01, 2024 at 06:17:21PM +0300, Max Gurtovoy wrote:
+> > > > > > > On 01/08/2024 18:13, Michael S. Tsirkin wrote:
+> > > > > > > > On Thu, Aug 01, 2024 at 06:11:37PM +0300, Max Gurtovoy wrote:
+> > > > > > > > > In this operation set the driver data of the hctx to point to the virtio
+> > > > > > > > > block queue. By doing so, we can use this reference in the and reduce
+> > > > > > > > in the .... ?
+> > > > > > > sorry for the type.
+> > > > > > > 
+> > > > > > > should be :
+> > > > > > > 
+> > > > > > > "By doing so, we can use this reference and reduce the number of operations in the fast path."
+> > > > > > ok. what kind of benefit do you see with this patch?
+> > > > > As mentioned. This is a micro optimization that reduce the number of
+> > > > > instructions/dereferences in the fast path.
+> > > > By how much? How random code tweaks affect object code is unpredictable.
+> > > > Pls show results of objdump to prove it does anything
+> > > > useful.
+> > > This is the way all modern block drivers such as NVMe PCI/RDMA/TCP use the
+> > > driver_data.
+> > > 
+> > > These drivers don't have driver specific mechanisms to find the queue from
+> > > the hctx->queue->queuedata like vblk driver has for some unknown reason.
+> > > 
+> > > It is pretty easy to review this patch and see its benefits, isn't it ?
+> > > 
+> > > It is not expected to provide extreme perf improvement.
+> > > 
+> > > It is introduced for aligning the driver to use common MQ mechanisms and
+> > > reduce dereferences.
+> > > 
+> > > This is not "random code tweaks".
+> > If you cannot observe a performance change, then adjusting the commit
+> > description to explain this as a code cleanup to reduce dereferences and
+> > local variables, improving code readability seems fine to me. I think
+> > it's a nice cleanup when presented as such rather than a performance
+> > optimization.
+> > 
+> > Stefan
+> 
+> Sure. Please check the bellow adjustment:
+> 
+> virtio_blk: implement init_hctx MQ operation
+> 
+> Set the driver data of the hardware context (hctx) to point directly to
+> the virtio block queue. This cleanup improves code readability, reduces
+> the number of dereferences, and minimizes local variables in the fast
+> path.
 
-On 01/08/2024 20:56, Stefan Hajnoczi wrote:
-> On Thu, Aug 01, 2024 at 06:56:44PM +0300, Max Gurtovoy wrote:
->> On 01/08/2024 18:43, Michael S. Tsirkin wrote:
->>> On Thu, Aug 01, 2024 at 06:39:16PM +0300, Max Gurtovoy wrote:
->>>> On 01/08/2024 18:29, Michael S. Tsirkin wrote:
->>>>> On Thu, Aug 01, 2024 at 06:17:21PM +0300, Max Gurtovoy wrote:
->>>>>> On 01/08/2024 18:13, Michael S. Tsirkin wrote:
->>>>>>> On Thu, Aug 01, 2024 at 06:11:37PM +0300, Max Gurtovoy wrote:
->>>>>>>> In this operation set the driver data of the hctx to point to the virtio
->>>>>>>> block queue. By doing so, we can use this reference in the and reduce
->>>>>>> in the .... ?
->>>>>> sorry for the type.
->>>>>>
->>>>>> should be :
->>>>>>
->>>>>> "By doing so, we can use this reference and reduce the number of operations in the fast path."
->>>>> ok. what kind of benefit do you see with this patch?
->>>> As mentioned. This is a micro optimization that reduce the number of
->>>> instructions/dereferences in the fast path.
->>> By how much? How random code tweaks affect object code is unpredictable.
->>> Pls show results of objdump to prove it does anything
->>> useful.
->> This is the way all modern block drivers such as NVMe PCI/RDMA/TCP use the
->> driver_data.
->>
->> These drivers don't have driver specific mechanisms to find the queue from
->> the hctx->queue->queuedata like vblk driver has for some unknown reason.
->>
->> It is pretty easy to review this patch and see its benefits, isn't it ?
->>
->> It is not expected to provide extreme perf improvement.
->>
->> It is introduced for aligning the driver to use common MQ mechanisms and
->> reduce dereferences.
->>
->> This is not "random code tweaks".
-> If you cannot observe a performance change, then adjusting the commit
-> description to explain this as a code cleanup to reduce dereferences and
-> local variables, improving code readability seems fine to me. I think
-> it's a nice cleanup when presented as such rather than a performance
-> optimization.
->
-> Stefan
+I'd drop the local variables part, it is not at all clear why is that
+a win.
 
-Sure. Please check the bellow adjustment:
-
-virtio_blk: implement init_hctx MQ operation
-
-Set the driver data of the hardware context (hctx) to point directly to
-the virtio block queue. This cleanup improves code readability, reduces
-the number of dereferences, and minimizes local variables in the fast
-path.
-
+-- 
+MST
 
