@@ -1,199 +1,160 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1F94149C45
-	for <virtualization@lists.linux.dev>; Mon,  5 Aug 2024 08:26:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BED6513D628
+	for <virtualization@lists.linux.dev>; Mon,  5 Aug 2024 08:39:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722846363; cv=none; b=DeIoSOYPYIQ7fmcLc42TF94NLJ9+LNQ6qcCemwFV14jgXbzWRDjC+p9YMWWYpKArMj6tK+8UI/Vp8h0vJDjVialukKlklCk4bCD7RTgGGe+KvUsojkmdgeBMJmN1oMqzgkKUGBv59zGS377KjnKDI4OrruJPMbFsbeZL0Iod0lg=
+	t=1722847173; cv=none; b=P5H84wZU4pPcTKCzWLpSKO6Sl542XaWQaI+QrA0/r8SqvTXRUv4fCAuufL+Di5KsTL/wi6orB8Gufsqzf9EtB2Qxq6vqM9oA9+EFVVSeaM1sMiUkaUyqShYmpLTf2UGwZJ6jElZC0mek1xOFj9/aYhc2W9EdmQ/U+Q8X+/UQ+64=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722846363; c=relaxed/simple;
-	bh=6dwbUCoI5S7wePU7otIi5xZ534cvsIdQTEVDfXae6E0=;
+	s=arc-20240116; t=1722847173; c=relaxed/simple;
+	bh=2VhGFoDqNEQQcvojz0IpiTyJYqSkpD3J7Qze2aHR3fo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pKni1XtXRupzybtHjryByycHJWTI3RPyzduMpt21fzafRRNQDKuj1qw0KQ9lPCp0WXmEW6iUk5efb8ukT4tY3I6TzrW41D6YVqupQlWOni173XpWYSVysj2YBxdzCfuRTxSuHv52I8RXr7EOY1NeV8Q16mdzks8XuGicszWEyVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=amzWsDSx; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=i2y39Cp2BKgbBVHMFVqBpSKUgRcQm8YBKvqs1b+JfFNteFnyTkMMbRRJPjmnuI7Ti+9sJ+XWdGIyHJppWNJYr16OExGgFISJrqZuJ3XZ7s7Ee96JkiVxA+ZEuwnUr95JI1+9rNDXmmSt1Y4hEkX87lvjhAqvcj2Gx3nzCGugpjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HlqEQqTu; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="amzWsDSx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HlqEQqTu"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722846360;
+	s=mimecast20190719; t=1722847170;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=IdnDLnsXWEQ6RVAumOXnOOh7mrwkaymI4Jc/Y5qxz/8=;
-	b=amzWsDSxVGfYfFhlnFWiE5MeVEdI/6n0EGXLYn/ZmZAY+zlDFY4WZrbsc4k0V8eGpxeHLW
-	RAjSzitqiiJp0aD2e1G5k53TTxCVr4KFBH3e0NUloHWPcUgg5rzAS7W/APzjJe5Bel+qej
-	A/qswJ1AW7I6DPvYkh/Fehhzf6+IPkM=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ea4hswH1u1nPlUlDCZA86v40saWII4j79Dw05H185hU=;
+	b=HlqEQqTudZTwfRFte6v3aqmUm/xm6hxgqfslGIK/SlkfXmqlQuGn2morkL6a0xzW7T8FSx
+	trsg84S6IYz/rtJw6+b+rt3dsUOfctbCUrnOEckjyAKalymt8Pj+NTHpeTstH5B6G1WkpE
+	h3IauC+vd43JCj2+MIIxu6FwSmPE1Oo=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-418-voGSnRCeOr2sDYm-LyVnMA-1; Mon, 05 Aug 2024 04:25:59 -0400
-X-MC-Unique: voGSnRCeOr2sDYm-LyVnMA-1
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2ef17c96309so109830641fa.2
-        for <virtualization@lists.linux.dev>; Mon, 05 Aug 2024 01:25:58 -0700 (PDT)
+ us-mta-681-7XB69ATkPkq1qne-CLP3mQ-1; Mon, 05 Aug 2024 04:39:29 -0400
+X-MC-Unique: 7XB69ATkPkq1qne-CLP3mQ-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-428207daff2so54354765e9.0
+        for <virtualization@lists.linux.dev>; Mon, 05 Aug 2024 01:39:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722846357; x=1723451157;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IdnDLnsXWEQ6RVAumOXnOOh7mrwkaymI4Jc/Y5qxz/8=;
-        b=Q1Y5lifEZcm7Ycjtn/rmdE+qcpMLS8r2r5CKvvee0bTbV3evE9iXXH17I87lk9uNA+
-         avpZM8IWonYGrfOlzc6zNeBY2UJ6JWntEEQwYyJLoMqIPV7pHTb1pcgscpiY2QOraAor
-         hdBDEaS2kPWRZ8gUqk/V0yNzDPnsYMhZqF4vnVRpLXx/z30s+auY+SrF77/fIVhOlCuT
-         H7kO3PReZI/1XCBuhvbrZxZFTg8nYl1BwS35DrRp+vKJBkyYCftZ8/fbRqd/+IYsL/rs
-         vkqcDToQYDtGKoLNoWBlcwsH2laGeTbi3S/BJJxxgkRSadYwaaHVSZL5vGQX22+0gIVE
-         r4EQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVFA6spZZt3riT0dsmb3rXZYMiDTdyytSOvOknCDc/dykMjOaqegZFyeS9Fsh6twOhmda7r6s6ccYcX61Kn6cnSE+Zas997YLw33/Te4zw=
-X-Gm-Message-State: AOJu0YyCyMry6JjcvuF5wD2NVi2tMBDdZqd6A9Cwv6ErI5KyYdRxj/SQ
-	xHmGy6Sao8WnjYSQE47GiRDsUsMNK6VJw9C7tcKobA6R9/Ke5L59SwRPHDXGpquU9uMdxA3E6Qd
-	jyXw98bpeN9JxaHf2quaZ8/X+Y492nE9hHcxN/Fls7EO47vRU0RmpF9EBsK83nMp0
-X-Received: by 2002:a2e:9ecb:0:b0:2ee:87b9:91a7 with SMTP id 38308e7fff4ca-2f15aa87cedmr67676031fa.18.1722846357419;
-        Mon, 05 Aug 2024 01:25:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEsXonxhnbF7y/SEo+8UNCkXh1OH8gxWMWHsntkfxFG8gi9ahQmlsboo+pmk8i2fc4VpWKqgw==
-X-Received: by 2002:a2e:9ecb:0:b0:2ee:87b9:91a7 with SMTP id 38308e7fff4ca-2f15aa87cedmr67675681fa.18.1722846356422;
-        Mon, 05 Aug 2024 01:25:56 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:17d:dd95:f049:da1a:7ecb:6d9])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4282bb9d54esm188671405e9.43.2024.08.05.01.25.54
+        d=1e100.net; s=20230601; t=1722847168; x=1723451968;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ea4hswH1u1nPlUlDCZA86v40saWII4j79Dw05H185hU=;
+        b=k2fzyYxfy9QRzkRearyRP9iUPV/ZYfD/prZA18xN0TD4YZEg1CUfwqRD3SdHTv7eIq
+         /hyWuBmUpaYkTfseiADIAmSNJNxjeaChQdbjY3KPxPVcH2glNRrr1njON0fgtArQ5T7W
+         VEmLM/L8//GzzyAcJueALl7Np/NSI+SGnKys9LQfpjh2kojiO1CLKjXZgA9GXanSqOAp
+         wbWfDI7YqotfxZ8hplm4pr9OtWuvYz0WtzTaC+g4br1BA5/wzsDviyDu2DVlR1JM3OUa
+         TZ2VO4EFxBfMz2T5Bof13FcpHs6+ItsH51IYVkc30Vw9kbgiunjcfizPV3vFaXOy5/Yy
+         rlaA==
+X-Forwarded-Encrypted: i=1; AJvYcCWY+pEq9eBUpeR/9xX0eY/NAn8NKBm0KKimUUyTTojM8D4zLGqYKuJQ4XNot8As/Vu+qT0qgwAV95rXdl70qPmwBb0JtOS4cVXl4FGkWIU=
+X-Gm-Message-State: AOJu0YyYLNH0J1T5ih/FnDSSjkaXzFPYnHxql/kKQ4L3yb0K76FoWdNM
+	QsWomgMoJKpvhyOiaoFapVVioRBQ+qY45w1V7f9X/jMNrYqi1dc4xo/+MMLvPPVz0gm/FWyFdo0
+	x06inCBLxBGphs7U1buRPyWjyH57JcqaGo/FUOuYH0Rx8v7/tcx0veuaFSUeIWVeP
+X-Received: by 2002:adf:b196:0:b0:369:b849:61b0 with SMTP id ffacd0b85a97d-36bbc17132dmr7003635f8f.43.1722847168039;
+        Mon, 05 Aug 2024 01:39:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFM8/anathdf0+itad/SmXLJr8Ha3hpgUqxCdeZR+OeBw6j4Do78FnDxdF5vJm5uH7+QdreGg==
+X-Received: by 2002:adf:b196:0:b0:369:b849:61b0 with SMTP id ffacd0b85a97d-36bbc17132dmr7003601f8f.43.1722847167114;
+        Mon, 05 Aug 2024 01:39:27 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-79.retail.telecomitalia.it. [82.57.51.79])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36bbd169697sm9050176f8f.107.2024.08.05.01.39.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Aug 2024 01:25:55 -0700 (PDT)
-Date: Mon, 5 Aug 2024 04:25:52 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	maxime.coquelin@redhat.com, xieyongji@bytedance.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	21cnbao@gmail.com, penguin-kernel@i-love.sakura.ne.jp,
-	linux-mm@kvack.org, akpm@linux-foundation.org
-Subject: Re: [PATCH] vduse: avoid using __GFP_NOFAIL
-Message-ID: <20240805042421-mutt-send-email-mst@kernel.org>
-References: <20240805082106.65847-1-jasowang@redhat.com>
+        Mon, 05 Aug 2024 01:39:26 -0700 (PDT)
+Date: Mon, 5 Aug 2024 10:39:23 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: luigi.leonardi@outlook.com, mst@redhat.com
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Marco Pinna <marco.pinn95@gmail.com>
+Subject: Re: [PATCH net-next v4 0/2] vsock: avoid queuing on intermediate
+ queue if possible
+Message-ID: <tblrar34qivcwsvai7z5fepxhi4irknbyne5xqqoqowwf3nwt5@kyd2nmqghews>
+References: <20240730-pinna-v4-0-5c9179164db5@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240805082106.65847-1-jasowang@redhat.com>
+In-Reply-To: <20240730-pinna-v4-0-5c9179164db5@outlook.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 05, 2024 at 04:21:06PM +0800, Jason Wang wrote:
-> Barry said [1]:
-> 
-> """
-> mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
-> __GFP_NOFAIL without direct reclamation may just result in a busy
-> loop within non-sleepable contexts.
-> ""“
-> 
-> Unfortuantely, we do that under read lock. A possible way to fix that
-> is to move the pages allocation out of the lock into the caller, but
-> having to allocate a huge number of pages and auxiliary page array
-> seems to be problematic as well per Tetsuon [2]:
-> 
-> """
-> You should implement proper error handling instead of using
-> __GFP_NOFAIL if count can become large.
-> """
-> 
-> So I choose another way, which does not release kernel bounce pages
-> when user tries to register usersapce bounce pages. Then we don't need
+Hi Michael,
+this series is marked as "Not Applicable" for the net-next tree:
+https://patchwork.kernel.org/project/netdevbpf/patch/20240730-pinna-v4-2-5c9179164db5@outlook.com/
 
-userspace
+Actually this is more about the virtio-vsock driver, so can you queue 
+this on your tree?
 
-> to do allocation in the path which is not expected to be fail (e.g in
-> the release). We pay this for more memory usage but further
+Thanks,
+Stefano
 
-what does "we pay this for more memory usage" mean?
-Do you mean "we pay for this by using more memory"?
-How much more?
-
-> optimizations could be done on top.
-> 
-> [1] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2saLnUdfOGOLg@mail.gmail.com/T/#m3caef86a66ea6318ef94f9976ddb3a0ccfe6fcf8
-> [2] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2saLnUdfOGOLg@mail.gmail.com/T/#m7ad10eaba48ade5abf2d572f24e185d9fb146480
-> 
-> Fixes: 6c77ed22880d ("vduse: Support using userspace pages as bounce buffer")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vdpa/vdpa_user/iova_domain.c | 18 ++++++++++--------
->  drivers/vdpa/vdpa_user/iova_domain.h |  1 +
->  2 files changed, 11 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
-> index 791d38d6284c..933d2f7cd49a 100644
-> --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> @@ -162,6 +162,7 @@ static void vduse_domain_bounce(struct vduse_iova_domain *domain,
->  				enum dma_data_direction dir)
->  {
->  	struct vduse_bounce_map *map;
-> +	struct page *page;
->  	unsigned int offset;
->  	void *addr;
->  	size_t sz;
-> @@ -178,7 +179,10 @@ static void vduse_domain_bounce(struct vduse_iova_domain *domain,
->  			    map->orig_phys == INVALID_PHYS_ADDR))
->  			return;
->  
-> -		addr = kmap_local_page(map->bounce_page);
-> +		page = domain->user_bounce_pages ?
-> +		       map->user_bounce_page : map->bounce_page;
-> +
-> +		addr = kmap_local_page(page);
->  		do_bounce(map->orig_phys + offset, addr + offset, sz, dir);
->  		kunmap_local(addr);
->  		size -= sz;
-> @@ -270,9 +274,8 @@ int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
->  				memcpy_to_page(pages[i], 0,
->  					       page_address(map->bounce_page),
->  					       PAGE_SIZE);
-> -			__free_page(map->bounce_page);
->  		}
-> -		map->bounce_page = pages[i];
-> +		map->user_bounce_page = pages[i];
->  		get_page(pages[i]);
->  	}
->  	domain->user_bounce_pages = true;
-> @@ -297,17 +300,16 @@ void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain)
->  		struct page *page = NULL;
->  
->  		map = &domain->bounce_maps[i];
-> -		if (WARN_ON(!map->bounce_page))
-> +		if (WARN_ON(!map->user_bounce_page))
->  			continue;
->  
->  		/* Copy user page to kernel page if it's in use */
->  		if (map->orig_phys != INVALID_PHYS_ADDR) {
-> -			page = alloc_page(GFP_ATOMIC | __GFP_NOFAIL);
-> +			page = map->bounce_page;
->  			memcpy_from_page(page_address(page),
-> -					 map->bounce_page, 0, PAGE_SIZE);
-> +					 map->user_bounce_page, 0, PAGE_SIZE);
->  		}
-> -		put_page(map->bounce_page);
-> -		map->bounce_page = page;
-> +		put_page(map->user_bounce_page);
->  	}
->  	domain->user_bounce_pages = false;
->  out:
-> diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
-> index f92f22a7267d..7f3f0928ec78 100644
-> --- a/drivers/vdpa/vdpa_user/iova_domain.h
-> +++ b/drivers/vdpa/vdpa_user/iova_domain.h
-> @@ -21,6 +21,7 @@
->  
->  struct vduse_bounce_map {
->  	struct page *bounce_page;
-> +	struct page *user_bounce_page;
->  	u64 orig_phys;
->  };
->  
-> -- 
-> 2.31.1
+On Tue, Jul 30, 2024 at 09:47:30PM GMT, Luigi Leonardi via B4 Relay wrote:
+>This series introduces an optimization for vsock/virtio to reduce latency
+>and increase the throughput: When the guest sends a packet to the host,
+>and the intermediate queue (send_pkt_queue) is empty, if there is enough
+>space, the packet is put directly in the virtqueue.
+>
+>v3->v4
+>While running experiments on fio with 64B payload, I realized that there
+>was a mistake in my fio configuration, so I re-ran all the experiments
+>and now the latency numbers are indeed lower with the patch applied.
+>I also noticed that I was kicking the host without the lock.
+>
+>- Fixed a configuration mistake on fio and re-ran all experiments.
+>- Fio latency measurement using 64B payload.
+>- virtio_transport_send_skb_fast_path sends kick with the tx_lock acquired
+>- Addressed all minor style changes requested by maintainer.
+>- Rebased on latest net-next
+>- Link to v3: https://lore.kernel.org/r/20240711-pinna-v3-0-697d4164fe80@outlook.com
+>
+>v2->v3
+>- Performed more experiments using iperf3 using multiple streams
+>- Handling of reply packets removed from virtio_transport_send_skb,
+>  as is needed just by the worker.
+>- Removed atomic_inc/atomic_sub when queuing directly to the vq.
+>- Introduced virtio_transport_send_skb_fast_path that handles the
+>  steps for sending on the vq.
+>- Fixed a missing mutex_unlock in error path.
+>- Changed authorship of the second commit
+>- Rebased on latest net-next
+>
+>v1->v2
+>In this v2 I replaced a mutex_lock with a mutex_trylock because it was
+>insidea RCU critical section. I also added a check on tx_run, so if the
+>module is being removed the packet is not queued. I'd like to thank Stefano
+>for reporting the tx_run issue.
+>
+>Applied all Stefano's suggestions:
+>    - Minor code style changes
+>    - Minor commit text rewrite
+>Performed more experiments:
+>     - Check if all the packets go directly to the vq (Matias' suggestion)
+>     - Used iperf3 to see if there is any improvement in overall throughput
+>      from guest to host
+>     - Pinned the vhost process to a pCPU.
+>     - Run fio using 512B payload
+>Rebased on latest net-next
+>
+>---
+>Luigi Leonardi (1):
+>      vsock/virtio: avoid queuing packets when intermediate queue is empty
+>
+>Marco Pinna (1):
+>      vsock/virtio: refactor virtio_transport_send_pkt_work
+>
+> net/vmw_vsock/virtio_transport.c | 144 +++++++++++++++++++++++++--------------
+> 1 file changed, 94 insertions(+), 50 deletions(-)
+>---
+>base-commit: 1722389b0d863056d78287a120a1d6cadb8d4f7b
+>change-id: 20240730-pinna-db8cc1b8b037
+>
+>Best regards,
+>-- 
+>Luigi Leonardi <luigi.leonardi@outlook.com>
+>
+>
+>
 
