@@ -1,215 +1,278 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5446FEDC
-	for <virtualization@lists.linux.dev>; Mon,  5 Aug 2024 03:17:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FF731448ED
+	for <virtualization@lists.linux.dev>; Mon,  5 Aug 2024 05:52:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722827851; cv=none; b=j2UfzVtM3L0+Gu50/di3F+TPHDCSJzvD8qgMJm/ejJDv1zoxDJpxt2RXzl9ezA4VLx8Gx+rsbWoPYkr6Py5vV5QKs9+6coOy0pUthQDM7cG0XVEyR42KTNmoo4GXo9DIRyxAJiH9WPljqaK+k7I95h09o/t+jjXQqJ9u62IBSSM=
+	t=1722837154; cv=none; b=qxHXMQ5mGYsQPvIbgB7bSc7OD5UX4faH3j5EDi3uuWTDXSESIpjzFH4nqVgLJV81cMChG6Frc5urD3Pzd6bxEXu0xqwbuTwJvMkO5LFJUZ7xfCQGzdA10YoxT07fLOYBWqapvtXs9YvwgsQPHU1shy368hQcK0k1ruaF+FyvFbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722827851; c=relaxed/simple;
-	bh=HWTzlxbLSR9s0+KuMLVg4GGTIeRTYe128A5WIkWNFwc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QFWe3IPdWxMkBS0o83GJwZKUxybLv/1m3tkT039GYlDOX9RYMCeb63PoQdrV8N5lzkGQnAPz4+7YxFK7KMX+vq3p42XKClerSbTvBBw6NNN6OyfsvWtiJsWCnm4ehbYBaRFUjvoWSMYKL+JsUmh4bZfjvDCYU0ZbKNqwoN7yJa8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CzIaQVlw; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1722837154; c=relaxed/simple;
+	bh=D4mZImU22arsEREEh+abHrXNb7bqP3pmKWJaqmOKv8A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=GFfln++8TpL6kePYsReUYKLbwKUBlqr61w78KRbm9vsRCzOq15M6mZjLoPgD/wcAXE5D+OVNzBHD753amuLA0XsSN1cgYqHDQHoZUXNPlacOzbdyXUzS5lW5TdgqbOi4de3XdbiraRpovk+I3TwgHB2B0t4z9RKCxxhujIqHrUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pl6/TGPV; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CzIaQVlw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pl6/TGPV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722827848;
+	s=mimecast20190719; t=1722837151;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jZmGo3XfbtNpcJRA7Fn1zMK1Nav07/DYxRfLLC/gTe8=;
-	b=CzIaQVlwk/4PIZW1GmLC23JGkFZJ5YvE7V3nKkIEcwbppIK4KRujOYTeJt3jwRdr/vBFoX
-	4p+AcE4h1XRTiheJhgTjapSRSqlQ+J2r+tSpziM1S74cKbQoxRPMf7/I44EWF4iXmLRvQA
-	XXKmXRzHf837DosWk/9bR33AY/914kk=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=yY3ZlmNQoxZJfnobrEKSrd91AZgKABUVpX64d54Ifn0=;
+	b=Pl6/TGPV4KmCkD2MAMyNKrsXvoMjILXnbTs1QFxyNlCF8+Vu5zwY0TwgNtAW6xmaIKPsUG
+	pNv40E2OWeup76CL92OW1HGdpuuV8EGOZdY66Qj6PteuFypUul4uSJplhigKVIYtONzvYH
+	C46bfH6/Fx49gIawL7ijVtv3fhu6NtI=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-39-Smc14y6gNNiCTnW0OUayKg-1; Sun, 04 Aug 2024 23:17:26 -0400
-X-MC-Unique: Smc14y6gNNiCTnW0OUayKg-1
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-7a2787eb33dso10439181a12.1
-        for <virtualization@lists.linux.dev>; Sun, 04 Aug 2024 20:17:26 -0700 (PDT)
+ us-mta-668-dcp2fc8XNMeV2iGkY8VtdQ-1; Mon, 05 Aug 2024 01:52:29 -0400
+X-MC-Unique: dcp2fc8XNMeV2iGkY8VtdQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-368665a3fdfso5226701f8f.1
+        for <virtualization@lists.linux.dev>; Sun, 04 Aug 2024 22:52:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722827845; x=1723432645;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jZmGo3XfbtNpcJRA7Fn1zMK1Nav07/DYxRfLLC/gTe8=;
-        b=OW3+1iEizkomP9Q2EtalYg04s1RQOklfR2OUCJOmH5UYcQnQWrMGoW9VnRG0OsGKip
-         sa1URtY1jZBe125ahr5eLbslExpZVyO/vY3i/H3i7iVHVvVjU/TtkE1VwRaCmrIiC8ZB
-         AtV0b6GETRo1hbFYXGg3Vx7j2LuI9V575c09p6j7aWIggU8RW2Av7MM+V5zsURjBEh4x
-         TGHg3eHEM4Rxi7kn4atDsToRqUrYnxrVCpoUfim2HD8cX001yAaU0HRUMot1O0mks/7d
-         Hs1KBerBp74m1RAfo2/bm+7mhi0fejSznBNndpj6KbiVV51hQmHdi2cmPcDiowupl9fS
-         Xe/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWPIkmPEtKNpFGbwOzU0lIjljX8G72+//8sUSVJnxY7FVvb8kcIXnxowptnS9hnO4VqMD6Rp6HpwfcwtliahKuRF1wxjxlyUm2n73bxRsA=
-X-Gm-Message-State: AOJu0Yxlyn7CzVKO3yIkEUYqMv4eiw0B7G/aazodzjtnRuPB/PdOpZY3
-	7sncOCNBdyYd3dGXbOnzPv5aEHz8xnWBylZ+eWg9pZibX7MA/jnZgR6dA5OkBVeWmK2DyIzNcCB
-	eHrcVs/Em03HZUhI00XSdNVIc6lvTDytOgYRispCy6Pkk8wi+pYW4moxVL+ds8Bl7nXJZU8bTzQ
-	DOFRt3AC3dv6m9OfDc3bnogjodqRrSLyq8crpJX+SiJqD3QPMEsWzG
-X-Received: by 2002:a17:90a:a08e:b0:2c9:95ae:b0ac with SMTP id 98e67ed59e1d1-2cff958245bmr11111437a91.40.1722827845018;
-        Sun, 04 Aug 2024 20:17:25 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEOfwNCgY5YLUhP/7xUiEpHpXVnCxUhXX352MzgNc8HM/UvylmZut+yOxshrN3S6IDoMY9FMpdvCM5saGz+Gz4=
-X-Received: by 2002:a17:90a:a08e:b0:2c9:95ae:b0ac with SMTP id
- 98e67ed59e1d1-2cff958245bmr11111416a91.40.1722827844369; Sun, 04 Aug 2024
- 20:17:24 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1722837149; x=1723441949;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yY3ZlmNQoxZJfnobrEKSrd91AZgKABUVpX64d54Ifn0=;
+        b=PZV0RlvBFxeTnK9LK2R4QTfJfIjpqr+4X81cZMHZ+oA/NVKDpzGvrhESOIhXZYHHRM
+         ko0IviCf9TizWNMmnNPG92WjrC14btUW+KKlyBt5WwciNqq0kU2qNSVurRuYYmJ9HQsu
+         bNRG9fWuccj9POjiLalssIRSG4aV7fFLyWAdtv2rXmb4kkF3b+TWN57PcvM+GbfZa4M9
+         mMgT9WycUKQ6BtpRmnRDfqMrAtb+jOV+yPiijPNQt9G0Wd8K3dkvdpkNBmkYx/YUUmfp
+         vA6HjuDYJ+8y57YExnoEsAQJy9osuHQvEkzzJEmJ2Gfn4f5Fek7r3MXFvBpP7zc4cRnl
+         AbzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV5HnXb076jvoGR+6zfYx/0hLz4tKNgRhG1/n4Bsxg2EGAFTT2qOhbp0GHSYy49XQaWW8dAQ6gjnLAHQwAtHSu8L1xRqM3kqBN1qZWkd1s=
+X-Gm-Message-State: AOJu0Yy8SFZCmWLpNXaH2U24ZmxBoVyZm/XPL9mAt+b14tLT22yC2VoI
+	oJ9JaWH7d0SSiPBiO8uKIJ2U6ZpJIGbcC9yZhAhlTYbaFVLsR2AdjdbVVJsWd+bed5aAgmoEHcC
+	AHdd0xrPr4VN6VxIUQoLf6V7moJfaoAb1oRe0JcwkojuiPYr/5o2eeLRBFktc6EC9
+X-Received: by 2002:adf:f18a:0:b0:362:4ce:2171 with SMTP id ffacd0b85a97d-36bbc1657f1mr6624198f8f.52.1722837148680;
+        Sun, 04 Aug 2024 22:52:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFEkym7lde2/Fw8MPIUxZ0ooZX0XQmN1ihWR9EClWvK4Q2zQn1BAchxK9PqJ2C/S7CY9LK4Pw==
+X-Received: by 2002:adf:f18a:0:b0:362:4ce:2171 with SMTP id ffacd0b85a97d-36bbc1657f1mr6624175f8f.52.1722837147834;
+        Sun, 04 Aug 2024 22:52:27 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:17d:dd95:f049:da1a:7ecb:6d9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-428e6e03d74sm121895045e9.14.2024.08.04.22.52.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Aug 2024 22:52:27 -0700 (PDT)
+Date: Mon, 5 Aug 2024 01:52:22 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
+	Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+Subject: Re: [PATCH V5 net-next 3/3] virtio-net: synchronize operstate with
+ admin state on up/down
+Message-ID: <20240805014422-mutt-send-email-mst@kernel.org>
+References: <20240805030242.62390-1-jasowang@redhat.com>
+ <20240805030242.62390-4-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240801153722.191797-2-dtatulea@nvidia.com> <CACGkMEutqWK+N+yddiTsnVW+ZDwyM+EV-gYC8WHHPpjiDzY4_w@mail.gmail.com>
- <51e9ed8f37a1b5fbee9603905b925aedec712131.camel@nvidia.com>
-In-Reply-To: <51e9ed8f37a1b5fbee9603905b925aedec712131.camel@nvidia.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 5 Aug 2024 11:17:13 +0800
-Message-ID: <CACGkMEuHECjNVEu=QhMDCc5xT_ajaETqAxNFPfb2-_wRwgvyrA@mail.gmail.com>
-Subject: Re: [RFC PATCH vhost] vhost-vdpa: Fix invalid irq bypass unregister
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, 
-	"eperezma@redhat.com" <eperezma@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20240805030242.62390-4-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, Aug 2, 2024 at 2:51=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com>=
- wrote:
->
-> On Fri, 2024-08-02 at 11:29 +0800, Jason Wang wrote:
-> > On Thu, Aug 1, 2024 at 11:38=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia=
-.com> wrote:
-> > >
-> > > The following workflow triggers the crash referenced below:
-> > >
-> > > 1) vhost_vdpa_unsetup_vq_irq() unregisters the irq bypass producer
-> > >    but the producer->token is still valid.
-> > > 2) vq context gets released and reassigned to another vq.
-> >
-> > Just to make sure I understand here, which structure is referred to as
-> > "vq context" here? I guess it's not call_ctx as it is a part of the vq
-> > itself.
-> >
-> > > 3) That other vq registers it's producer with the same vq context
-> > >    pointer as token in vhost_vdpa_setup_vq_irq().
-> >
-> > Or did you mean when a single eventfd is shared among different vqs?
-> >
-> Yes, that's what I mean: vq->call_ctx.ctx which is a eventfd_ctx.
->
-> But I don't think it's shared in this case, only that the old eventfd_ctx=
- value
-> is lingering in producer->token. And this old eventfd_ctx is assigned now=
- to
-> another vq.
+On Mon, Aug 05, 2024 at 11:02:42AM +0800, Jason Wang wrote:
+> This patch synchronize operstate with admin state per RFC2863.
 
-Just to make sure I understand the issue. The eventfd_ctx should be
-still valid until a new VHOST_SET_VRING_CALL().
 
-I may miss something but the only way to assign exactly the same
-eventfd_ctx value to another vq is where the guest tries to share the
-MSI-X vector among virtqueues, then qemu will use a single eventfd as
-the callback for multiple virtqueues. If this is true:
+synchronizes
 
-For bypass registering, only the first registering can succeed as the
-following registering will fail because the irq bypass manager already
-had exactly the same producer token.
-For registering, all unregistering can succeed:
+> 
+> This is done by trying to toggle the carrier upon open/close and
+> synchronize with the config change work. This allows propagate status
 
-1) the first unregistering will do the real job that unregister the token
-2) the following unregistering will do nothing by iterating the
-producer token list without finding a match one
+to propagate
 
-Maybe you can show me the userspace behaviour (ioctls) when you see this?
+> correctly to stacked devices like:
+> 
+> ip link add link enp0s3 macvlan0 type macvlan
+> ip link set link enp0s3 down
+> ip link show
+> 
+> Before this patch:
+> 
+> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+>     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> ......
+> 5: macvlan0@enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+>     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
+> 
+> After this patch:
+> 
+> 3: enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+>     link/ether 00:00:05:00:00:09 brd ff:ff:ff:ff:ff:ff
+> ...
+> 5: macvlan0@enp0s3: <NO-CARRIER,BROADCAST,MULTICAST,UP,M-DOWN> mtu 1500 qdisc noqueue state LOWERLAYERDOWN mode DEFAULT group default qlen 1000
+>     link/ether b2:a9:c5:04:da:53 brd ff:ff:ff:ff:ff:ff
 
-Thanks
+Add an empty line here pls.
 
->
-> > > 4) The original vq tries to unregister it's producer which it has
-> > >    already unlinked in step 1. irq_bypass_unregister_producer() will =
-go
-> > >    ahead and unlink the producer once again. That happens because:
-> > >       a) The producer has a token.
-> > >       b) An element with that token is found. But that element comes
-> > >          from step 3.
-> > >
-> > > I see 3 ways to fix this:
-> > > 1) Fix the vhost-vdpa part. What this patch does. vfio has a differen=
-t
-> > >    workflow.
-> > > 2) Set the token to NULL directly in irq_bypass_unregister_producer()
-> > >    after unlinking the producer. But that makes the API asymmetrical.
-> > > 3) Make irq_bypass_unregister_producer() also compare the pointer
-> > >    elements not just the tokens and do the unlink only on match.
-> > >
-> > > Any thoughts?
-> > >
-> > > Oops: general protection fault, probably for non-canonical address 0x=
-dead000000000108: 0000 [#1] SMP
-> > > CPU: 8 PID: 5190 Comm: qemu-system-x86 Not tainted 6.10.0-rc7+ #6
-> > > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0=
--gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-> > > RIP: 0010:irq_bypass_unregister_producer+0xa5/0xd0
-> > > RSP: 0018:ffffc900034d7e50 EFLAGS: 00010246
-> > > RAX: dead000000000122 RBX: ffff888353d12718 RCX: ffff88810336a000
-> > > RDX: dead000000000100 RSI: ffffffff829243a0 RDI: 0000000000000000
-> > > RBP: ffff888353c42000 R08: ffff888104882738 R09: ffff88810336a000
-> > > R10: ffff888448ab2050 R11: 0000000000000000 R12: ffff888353d126a0
-> > > R13: 0000000000000004 R14: 0000000000000055 R15: 0000000000000004
-> > > FS:  00007f9df9403c80(0000) GS:ffff88852cc00000(0000) knlGS:000000000=
-0000000
-> > > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > CR2: 0000562dffc6b568 CR3: 000000012efbb006 CR4: 0000000000772ef0
-> > > PKRU: 55555554
-> > > Call Trace:
-> > >  <TASK>
-> > >  ? die_addr+0x36/0x90
-> > >  ? exc_general_protection+0x1a8/0x390
-> > >  ? asm_exc_general_protection+0x26/0x30
-> > >  ? irq_bypass_unregister_producer+0xa5/0xd0
-> > >  vhost_vdpa_setup_vq_irq+0x5a/0xc0 [vhost_vdpa]
-> > >  vhost_vdpa_unlocked_ioctl+0xdcd/0xe00 [vhost_vdpa]
-> > >  ? vhost_vdpa_config_cb+0x30/0x30 [vhost_vdpa]
-> > >  __x64_sys_ioctl+0x90/0xc0
-> > >  do_syscall_64+0x4f/0x110
-> > >  entry_SYSCALL_64_after_hwframe+0x4b/0x53
-> > > RIP: 0033:0x7f9df930774f
-> > > RSP: 002b:00007ffc55013080 EFLAGS: 00000246 ORIG_RAX: 000000000000001=
-0
-> > > RAX: ffffffffffffffda RBX: 0000562dfe134d20 RCX: 00007f9df930774f
-> > > RDX: 00007ffc55013200 RSI: 000000004008af21 RDI: 0000000000000011
-> > > RBP: 00007ffc55013200 R08: 0000000000000002 R09: 0000000000000000
-> > > R10: 0000000000000000 R11: 0000000000000246 R12: 0000562dfe134360
-> > > R13: 0000562dfe134d20 R14: 0000000000000000 R15: 00007f9df801e190
-> > >
-> > > Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> > > ---
-> > >  drivers/vhost/vdpa.c | 1 +
-> > >  1 file changed, 1 insertion(+)
-> > >
-> > > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> > > index 478cd46a49ed..d4a7a3918d86 100644
-> > > --- a/drivers/vhost/vdpa.c
-> > > +++ b/drivers/vhost/vdpa.c
-> > > @@ -226,6 +226,7 @@ static void vhost_vdpa_unsetup_vq_irq(struct vhos=
-t_vdpa *v, u16 qid)
-> > >         struct vhost_virtqueue *vq =3D &v->vqs[qid];
-> > >
-> > >         irq_bypass_unregister_producer(&vq->call_ctx.producer);
-> > > +       vq->call_ctx.producer.token =3D NULL;
-> > >  }
-> > >
-> > >  static int _compat_vdpa_reset(struct vhost_vdpa *v)
-> > > --
-> > > 2.45.2
-> > >
-> >
-> Thanks
->
+> Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+> Cc: Gia-Khanh Nguyen <gia-khanh.nguyen@oracle.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 78 +++++++++++++++++++++++++---------------
+>  1 file changed, 50 insertions(+), 28 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0383a3e136d6..fc5196ca8d51 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2885,6 +2885,25 @@ static void virtnet_cancel_dim(struct virtnet_info *vi, struct dim *dim)
+>  	net_dim_work_cancel(dim);
+>  }
+>  
+> +static void virtnet_update_settings(struct virtnet_info *vi)
+> +{
+> +	u32 speed;
+> +	u8 duplex;
+> +
+> +	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> +		return;
+> +
+> +	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+> +
+> +	if (ethtool_validate_speed(speed))
+> +		vi->speed = speed;
+> +
+> +	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+> +
+> +	if (ethtool_validate_duplex(duplex))
+> +		vi->duplex = duplex;
+> +}
+> +
+>  static int virtnet_open(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -2903,6 +2922,15 @@ static int virtnet_open(struct net_device *dev)
+>  			goto err_enable_qp;
+>  	}
+>  
+> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> +		if (vi->status & VIRTIO_NET_S_LINK_UP)
+> +			netif_carrier_on(vi->dev);
+> +		virtio_config_driver_enable(vi->vdev);
+> +	} else {
+> +		vi->status = VIRTIO_NET_S_LINK_UP;
+> +		netif_carrier_on(dev);
+> +	}
+> +
+>  	return 0;
+>  
+>  err_enable_qp:
+> @@ -3381,12 +3409,22 @@ static int virtnet_close(struct net_device *dev)
+>  	disable_delayed_refill(vi);
+>  	/* Make sure refill_work doesn't re-enable napi! */
+>  	cancel_delayed_work_sync(&vi->refill);
+> +	/* Prevent the config change callback from changing carrier
+> +	 * after close
+> +	 */
+> +	virtio_config_driver_disable(vi->vdev);
+> +	/* Stop getting status/speed updates: we don't care until next
+> +	 * open
+> +	 */
+> +	cancel_work_sync(&vi->config_work);
+>  
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		virtnet_disable_queue_pair(vi, i);
+>  		virtnet_cancel_dim(vi, &vi->rq[i].dim);
+>  	}
+>  
+> +	netif_carrier_off(dev);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -5085,25 +5123,6 @@ static void virtnet_init_settings(struct net_device *dev)
+>  	vi->duplex = DUPLEX_UNKNOWN;
+>  }
+>  
+> -static void virtnet_update_settings(struct virtnet_info *vi)
+> -{
+> -	u32 speed;
+> -	u8 duplex;
+> -
+> -	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
+> -		return;
+> -
+> -	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+> -
+> -	if (ethtool_validate_speed(speed))
+> -		vi->speed = speed;
+> -
+> -	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+> -
+> -	if (ethtool_validate_duplex(duplex))
+> -		vi->duplex = duplex;
+> -}
+> -
+>  static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
+>  {
+>  	return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
+> @@ -6514,6 +6533,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		goto free_failover;
+>  	}
+>  
+> +	/* Disable config change notification until ndo_open. */
+> +	virtio_config_driver_disable(vi->vdev);
+> +
+>  	virtio_device_ready(vdev);
+>  
+>  	virtnet_set_queues(vi, vi->curr_queue_pairs);
+> @@ -6563,25 +6585,25 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		vi->device_stats_cap = le64_to_cpu(v);
+>  	}
+>  
+> -	rtnl_unlock();
+> -
+> -	err = virtnet_cpu_notif_add(vi);
+> -	if (err) {
+> -		pr_debug("virtio_net: registering cpu notifier failed\n");
+> -		goto free_unregister_netdev;
+> -	}
+> -
+>  	/* Assume link up if device can't report link status,
+>  	   otherwise get link status from config. */
+>  	netif_carrier_off(dev);
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> -		schedule_work(&vi->config_work);
+> +		virtnet_config_changed_work(&vi->config_work);
+>  	} else {
+>  		vi->status = VIRTIO_NET_S_LINK_UP;
+>  		virtnet_update_settings(vi);
+>  		netif_carrier_on(dev);
+>  	}
+>  
+> +	rtnl_unlock();
+
+
+OK I guess you are moving rtnl to make sure this does not
+run in parallel with ndo_open/close.
+I do, however, wonder whether ndo_set_features
+can happen before guest_offloads_capable calculation below.
+WDYT?
+
+> +	err = virtnet_cpu_notif_add(vi);
+> +	if (err) {
+> +		pr_debug("virtio_net: registering cpu notifier failed\n");
+> +		goto free_unregister_netdev;
+> +	}
+> +
+>  	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
+>  		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
+>  			set_bit(guest_offloads[i], &vi->guest_offloads);
+> -- 
+> 2.31.1
 
