@@ -1,110 +1,179 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35CD213CABC
-	for <virtualization@lists.linux.dev>; Mon,  5 Aug 2024 07:49:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D4E143738
+	for <virtualization@lists.linux.dev>; Mon,  5 Aug 2024 08:19:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722844152; cv=none; b=CkDdTnypIdJYQA2bdmfEaixX4sj4N3LqBklgBP8mbOQkDHLJN3fQsIhy2mXoufq3agqVbQTkOMKkYdzsZm8xkqdSi/BzLVaGrhYwkXZfQIZNQUZX74NN7xLdEu09bgZoKIfYkMNRkC6LRI9TZoENHQF3mnFyCEUwzETmYdHgMB4=
+	t=1722845973; cv=none; b=Z2l0aEVcPUDUEqKt1KgtMLAppcbKHTaZi8XYHtaOEdK5lXQqQvjNf08BXSbXD2grkkbZAYFVl+FaHS5uftslHE43/vAMrLbAyvqyW5y/O2nyxmtz+S6l1UJWEaM7rRxkw+UYzIViBB6KJP5RXk03w76LEQuelm0IYkQvwt18RcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722844152; c=relaxed/simple;
-	bh=eWvg3OTo6Ibwbq3fvy/YAjBt81d0d/am0z/U4Ys76oU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pbPp6I75LPyVxwRn5rObsEVX54d+lxXmJ1lNteZ6BOGi/fRcGbbi+HucYMkPInbp7cZqzsoDmEzu3Ut1y0THmeYxYh6adoIENGr7OamfsAOCoOPfKqfCCldafgAgB0Lk62OyYiilP+qfxjHC5z2yhrSVXzCK+tQCNJShZW21KIY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=D0RnrgA3; arc=none smtp.client-ip=209.85.208.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1722845973; c=relaxed/simple;
+	bh=g+IntHaUbwkjKC1IfB5Zdnvi1DBuRYl5ekTYvQrip+U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=o6Dy3T6ffD5sVMxdwv+hzChohgxgJoh+9wmffSB8iTUrj5TLw92uZftGjM/P7Op0fXNUUob1SsB4XP9mfoH60cfKfO7/eJPV+wcCFHw/VOVSF5MSBBDinmhwV8S99jvOAfPUFpmzIEuwbcGvglyIGMwuIJDPLHwBW8sCoTo34yo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dAI3zcXH; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="D0RnrgA3"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-5a2a90243c9so11712864a12.0
-        for <virtualization@lists.linux.dev>; Mon, 05 Aug 2024 00:49:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1722844148; x=1723448948; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QqtCFJHZfxqjuoiQwN6L9m6lEWWbZo6e4mfJzb21QCo=;
-        b=D0RnrgA3Y/iMRj5vYrhfUSjHY9ANhZbOlKvGJOg/WB/yn7nopUzc3HJEihG2L9fs6f
-         xq8l0H4O7jPg+hBThYXOpa506r64E918p9nOxsV8EpQSFnXYEqN+W3NKtAAXFhiUG5yV
-         o//ubeLpiUSXAShQEhTB7tWVsfaXQoeIQXMaKz9o963PQykUgS+ScW51ySerVvjvoTG0
-         VXoZOHOLbljP2GkvbNeba8qAMsSg95WckzM+rlsR0QB3xcl2GbMPI6wnoI0cXpUF/za4
-         XJyThiWsziTxXliDuuGaszY5qo7B3Va5YT7wjuPbmUzUHX7kMihf9GJ85YjTOZ3nwehp
-         GQbg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dAI3zcXH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722845971;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nPeV1gsloDiYR3vfei+0mC3bzo4TVj+mZW32CL0XRQs=;
+	b=dAI3zcXH/InGOrN5yUkG/Bpcxlwuw4pQ+FhhOhOTJiivopgQ3Qdj0q+kXLurclYDcEHOBR
+	vtbJdWqjTHHKg3bjsdxuelWhsEOKU9ZvZS1Zm5M/jB+o/sTqD6EJ4IvZLecEPuboviL2R8
+	aSeO+obhy6KYTc1ViJblndvVlJW7P0Y=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-516-MLGZF4nCN1CIpazu0pqIxA-1; Mon, 05 Aug 2024 04:19:20 -0400
+X-MC-Unique: MLGZF4nCN1CIpazu0pqIxA-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-70f5ef74143so6743642b3a.2
+        for <virtualization@lists.linux.dev>; Mon, 05 Aug 2024 01:19:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722844148; x=1723448948;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QqtCFJHZfxqjuoiQwN6L9m6lEWWbZo6e4mfJzb21QCo=;
-        b=VMACYeQoDL5jq6AtVujvX4YyE2LAcwv4HqQ9zZ9frK6XxldR5QiTaWNlmGEuP3cnI1
-         rUu2xYczCuZ6JVTjY7CBSH3MHhPvLBqvtQFZUHundWnXQOn3G2i3gZoCXf5mkHmMZvpI
-         aeh8Hy7nJf2ErORF9+7NqS3DPMxx1SeNEq3bxctbNcf+wzNkdp/hO4IiC6fQOl1JWpRx
-         PddR0EfDXMJtGzSKfsfzPXBmYyj3Cp8tLK/PhLqWaK7Xsc1RpFzx0RwVUMm+J0Be2I3n
-         Al0Lsobe6CeWGAffevZKtHUG8vVY9Oe5MKSTlkiC7+NqMj9gyI9hD/9R0LQ/NSm120cG
-         kngg==
-X-Forwarded-Encrypted: i=1; AJvYcCWwZgg9FSx/MSfmrOq8Wo7S0q9I6x4H9kIJZfg5xrx+lSY6Bxk+GXdFLAtdsha+7YE3fdWTjmsNNujg6kRq73kn7UyORm9l36bX3QWMKWM=
-X-Gm-Message-State: AOJu0YyWDpx2n/Pi4JxBHr8In45gc2zdxbj5U/utb6mPqhfUN25Udibo
-	D44NFEXwhinhMFiwiW1fIv3eIGj/nqimjidtwECcIUpdybQ1zWQvK8KhyXvK/Gk=
-X-Google-Smtp-Source: AGHT+IFu7JUzbPPWsUCf+S7g+aZkSaH2v5evE4d3+S4cYsPWK0lpIiuHybfx4lO+A8DgucpZYEc4aA==
-X-Received: by 2002:a17:907:6d17:b0:a77:de2a:af00 with SMTP id a640c23a62f3a-a7dc5179808mr899865966b.44.1722844147758;
-        Mon, 05 Aug 2024 00:49:07 -0700 (PDT)
-Received: from localhost (109-81-94-215.rct.o2.cz. [109.81.94.215])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7dc9c0c0e0sm421128866b.67.2024.08.05.00.49.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Aug 2024 00:49:07 -0700 (PDT)
-Date: Mon, 5 Aug 2024 09:49:06 +0200
-From: Michal Hocko <mhocko@suse.com>
-To: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
-	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com,
-	hch@infradead.org, iamjoonsoo.kim@lge.com, lstoakes@gmail.com,
-	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
-	urezki@gmail.com, v-songbaohua@oppo.com, vbabka@suse.cz,
-	virtualization@lists.linux.dev, hailong.liu@oppo.com,
-	torvalds@linux-foundation.org
-Subject: Re: [PATCH RFC 5/5] non-mm: discourage the usage of __GFP_NOFAIL and
- encourage GFP_NOFAIL
-Message-ID: <ZrCD8kRTLD67MrRw@tiehlicka>
-References: <20240724085544.299090-1-21cnbao@gmail.com>
- <20240724085544.299090-6-21cnbao@gmail.com>
- <ZqDw7qoaopnYt3-P@tiehlicka>
- <CAGsJ_4x1k-z7OcQPSgqXhxTM8Z_D3Og6mGkC1pWu2+pR3YRKvw@mail.gmail.com>
- <ZqHtwqyj4seB-eut@tiehlicka>
- <l47ief3pnjdymvciylpnzkiuto7tsth6bc3q2mum3l42queggg@q573yeen4a5s>
- <ZqeCFLykU059gNmN@tiehlicka>
- <3mevqjzu2emxd2f3zkrurnzcal67k4lpkcdqzfs75qhp4uflbn@skz6q5odetdr>
+        d=1e100.net; s=20230601; t=1722845959; x=1723450759;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nPeV1gsloDiYR3vfei+0mC3bzo4TVj+mZW32CL0XRQs=;
+        b=mvfzLWHXBk+a7CrAZzmfkI+2+Es16UlLsgnmL6kqPkHIKyZzQOGpdB73+68dkxmB5M
+         FTyceIQldDrliOEa/gOnaPI4p/c1NZoblxX3NAPYA7P8L4wy3w7PWeRJohI+WdegUKD2
+         5I3Q+NBjk2Z72zwPrMHp8NvCQJVZNdfJij6RfqbFfqqkhQxabH2WEUiKwbQuU4mt9flL
+         SfdOzFoTM46dNniqm2uzEzIxdojbLD2Nw6+TF9ba2iIzWKdDAEKF5wGwA24yp2ePV/4K
+         8M5MjKVBYSaXiGjqzXPUl8mnxp+L1Wo7LyDm1HjF21MTs+/qwJ0dUMHZOJeXVnBTSUeV
+         8S0Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUqEzwjX19UVJQthTYLfvz6UnRiod3ZdWvfcV76IKZv98SWn4aguaQrIeuZ7d3NyRkbW2HDP0gdXPjiCHVo1bYXyLiJF337gX/QVaH8WYM=
+X-Gm-Message-State: AOJu0YzlouJOPGXX/J3kKftpyaXED5qpS3aDkyG82Fy1WiIXOmEpk62W
+	LXFLvwTyq8fCKaD/E56BPsnXBqYRdBkrRpNFrBMe/qaDdZgg/6y4P1Wm1CimRFRip1+HWKh2ngb
+	ozr3LAr8lRCX1tApapQUY/LhTuEym0hWjNsHifyxzZLKvdJuOh4iQ8JBIw0vI5jkgluowQdbBbv
+	NhWCRcx8GcZLi97ZcDenm3/NMSuK8XUVrJoOMwmS4=
+X-Received: by 2002:a05:6a20:1596:b0:1c0:e540:7336 with SMTP id adf61e73a8af0-1c69953c6d7mr11417885637.6.1722845959149;
+        Mon, 05 Aug 2024 01:19:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGCgBhtG+yOFYmHSFTJlmGmVO1awlwisnl4+298Q5sNjvlwKIWZTqtBD1h3Jrw4qpJK8bHVieJFMVTQ/lthEdo=
+X-Received: by 2002:a05:6a20:1596:b0:1c0:e540:7336 with SMTP id
+ adf61e73a8af0-1c69953c6d7mr11417853637.6.1722845958564; Mon, 05 Aug 2024
+ 01:19:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3mevqjzu2emxd2f3zkrurnzcal67k4lpkcdqzfs75qhp4uflbn@skz6q5odetdr>
+References: <20240731000155.109583-1-21cnbao@gmail.com> <20240731000155.109583-2-21cnbao@gmail.com>
+ <CACGkMEsZPBbQfh+kyjn0nFb76Ad8_o=CXxD2hJt5fxoPa3rhvA@mail.gmail.com>
+ <CAGsJ_4wDOH1WoR0viTMO7vf_K6r1ET0VQ4-A4gwqirHvsqwE8A@mail.gmail.com>
+ <CACGkMEuzYXp51h2tPk29HKhvSfgsC5WSYtGt==SVMDU-0YSPEg@mail.gmail.com>
+ <CAGsJ_4z+-XdAEt+XrxGTnoB4PnimKXhg0JciiwPST-OQYit+-g@mail.gmail.com>
+ <CACGkMEvnfFVWWd9++BkZu=7iL8+yo71Fr=R00sTJ+pZUbKbiXw@mail.gmail.com>
+ <CAGsJ_4w9UrgBR9gs-J74036JBXaod2OE0WOtPiMYyw+ov7VcHQ@mail.gmail.com>
+ <a7276007-7567-4f8b-a9c8-e491e571c80f@I-love.SAKURA.ne.jp>
+ <CACGkMEuqnkN2LUwUkRzmR4jQtDHBb02KJY0assOhc+s9wQ-qUQ@mail.gmail.com> <CAGsJ_4yJ1XO0_9OUW+jhosi02=6bC6yPFhRQ=P5tSckikSV3bg@mail.gmail.com>
+In-Reply-To: <CAGsJ_4yJ1XO0_9OUW+jhosi02=6bC6yPFhRQ=P5tSckikSV3bg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 5 Aug 2024 16:19:07 +0800
+Message-ID: <CACGkMEvjCZW65CssoBseZJg1R-eobb4Tvdwik8yhLyGUqm1OxA@mail.gmail.com>
+Subject: Re: [PATCH RFT v2 1/4] vpda: try to fix the potential crash due to
+ misusing __GFP_NOFAIL
+To: Barry Song <21cnbao@gmail.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, akpm@linux-foundation.org, 
+	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, 
+	hch@infradead.org, iamjoonsoo.kim@lge.com, lstoakes@gmail.com, 
+	mhocko@suse.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, torvalds@linux-foundation.org, urezki@gmail.com, 
+	v-songbaohua@oppo.com, vbabka@suse.cz, virtualization@lists.linux.dev, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Maxime Coquelin <maxime.coquelin@redhat.com>, Yongji Xie <xieyongji@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat 03-08-24 15:15:56, Davidlohr Bueso wrote:
-> On Mon, 29 Jul 2024, Michal Hocko wrote:
-> > Because it is really hard to figure out what it is supposed to mean.
-> > If the caller uses __GFP_NOFAIL then it is (should be) impossible and if
-> > NOFAIL is not used then why does it need to check for
-> > 	(gfp & ~__GFP_NOFAIL) != GFP_KERNEL?
-> 
-> Agreed, this is pointless - and cannot recall why it was justified to have
-> in the first place.
-> 
-> But I think we should revert back to the original check then, which is there
-> to distinguish failure cases between normal (GFP_KERNEL) and nested (GFP_ATOMIC)
-> contexts. Removing the check altogether would change the fallback for regular
-> allocations.
-> 
-> So this would be:
-> 
-> -       if (tbl == NULL && (gfp & ~__GFP_NOFAIL) != GFP_KERNEL) {
-> +       if (tbl == NULL && gfp != GFP_KERNEL) {
+On Mon, Aug 5, 2024 at 9:32=E2=80=AFAM Barry Song <21cnbao@gmail.com> wrote=
+:
+>
+> On Thu, Aug 1, 2024 at 2:37=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
+rote:
+> >
+> > On Wed, Jul 31, 2024 at 6:21=E2=80=AFPM Tetsuo Handa
+> > <penguin-kernel@i-love.sakura.ne.jp> wrote:
+> > >
+> > > On 2024/07/31 14:05, Barry Song wrote:
+> > > > Jason,
+> > > > Thank you very much. Also, Tetsuo reminded me that kmalloc_array() =
+might be
+> > > > problematic if the count is too large:
+> > > >  pages =3D kmalloc_array(count, sizeof(*pages), GFP_KERNEL | __GFP_=
+NOFAIL);
+> > >
+> > > If "count" is guaranteed to be count <=3D 16, this might be tolerable=
+.
+> >
+> > It's not unfortunately, the maximum bounce buffer size is:
+> >
+> > #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
+> >
+> > >
+> > > Consider a situation where current thread was chosen as an global OOM=
+ victim.
+> > > Trying to allocate "count" pages using
+> > >
+> > >         for (i =3D 0; i < count; i++)
+> > >                 pages[i] =3D alloc_page(GFP_KERNEL | __GFP_NOFAIL);
+> > >
+> > > is not good.
+> >
+> > Right, I wonder if we need to add a shrink to reclaim the pages that
+> > belong to VDUSE bounce pages.
+> >
+> > >
+> > > >
+> > > > You might want to consider using vmalloc_array() or kvmalloc_array(=
+) instead
+> > > > when you send a new version.
+> > >
+> > > There is a limitation at https://elixir.bootlin.com/linux/v6.11-rc1/s=
+ource/mm/page_alloc.c#L3033
+> > > that you must satisfy count <=3D PAGE_SIZE * 2 / sizeof(*pages) if yo=
+u use __GFP_NOFAIL.
+> > >
+> > > But as already explained above, allocating 1024 pages (assuming PAGE_=
+SIZE is 4096 and
+> > > pointer size is 8) when current thread was chosen as an OOM victim is=
+ not recommended.
+> > > You should implement proper error handling instead of using __GFP_NOF=
+AIL if count can
+> > > become large.
+> >
+> > I think I need to consider a way to avoid __GFP_NOFAIL. A easy way is
+> > not to free the kernel bounce pages, then we don't need to allocate
+> > them again.
+>
+> Let's try to do a fix for this patch as we are waiting for your official =
+patch
+> in mm.
 
-If you want to tell between sleeping and atomic allocations then already
-mentioned gfpflags_allow_blocking would be more readable IMHO but the
-above is much better already.
--- 
-Michal Hocko
-SUSE Labs
+Will post this soon. One note here is that I don't have handy
+usersapce that uses userspace bounce pages (neither libvduse nor DPDK
+did that).
+
+I hope YongJi can review and give a test on that.
+
+Thanks
+
+>
+> I guess, further optimization can be a separate patch later in the driver=
+'s
+> tree :-)
+>
+> >
+> > Thanks
+> >
+> > >
+> > >
+> >
+>
+
