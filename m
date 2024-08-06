@@ -1,193 +1,127 @@
-Received: from mail.nearlyone.de (mail.nearlyone.de [49.12.199.46])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDB2C1CB33F
-	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 12:07:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.12.199.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8088F3EA76
+	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 12:25:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722946067; cv=none; b=W6PaDVqxUXsPIiZv/bnf2yyMb2hWi/QqLsAhim062JZ2z1UIUAiJswrilYegX/Rm0qwjQJepOwssIf/WCJV/sLA4LpNAecIzgyoLBqUUKHv2JWMz2TMKqFKqbaJxPnEB04lFtsD5R9PB1SUtdsRcYBeVZJrPJbFGSfp6ycZapoY=
+	t=1722947109; cv=none; b=sUd70TkEjdMIoPihu5LU0ybgeIXB957fWYZmiFzpgU7Eh7ET20KDv1HUau1mgaRcGX4AwBX1ByYteesdgJ0HUxFXKhRs0NUK2ZDFRvtqMExky5yB07Kjmg8TW7rp+bXWGOECEIuEvoRD8c7eu+lUFsEByPOUz159HFNun+K2ukI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722946067; c=relaxed/simple;
-	bh=EeSlh6HQgSapOe5YllNashjoq27f1osI04/1RQlyu0w=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=u7MJCVIwNNpKNv2NXmYYumFWQLkrA7Saxp6KPsL01c30yIm42OljrbBt4Q3rbtVtK+uoW4ZAdgQMQOtAGS7wX35tX14d574wUa3RsbGXoMgl0IiGhs5+LfyEbhfVBl79m0+NTABu9MCuNoJOxp77H3Ql+iFODcUczuLBNppyi/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=monom.org; dkim=pass (2048-bit key) header.d=monom.org header.i=@monom.org header.b=tTGUux5A; arc=none smtp.client-ip=49.12.199.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=monom.org
+	s=arc-20240116; t=1722947109; c=relaxed/simple;
+	bh=Zu5nxB10vxcRfClXXeGH1h4cUWEuoT+5MdHAObYksrs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jgMOSw0WG8DDPYUFtiCw42QmGJ1Yl3imP/1cgspH4zHIKt5MgcEGCMHftvswjn6xlhBO0gVd4h9o35esOF+uJ78KUQtKjL+yXkthP/aXYPEt+nr4/q+CQEhERf8n66vZ6AiAOa66Ma3UZ5f92B4qVdgPhY9jBdfpwLf0B6yDP/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D1Jx+n+W; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=monom.org header.i=@monom.org header.b="tTGUux5A"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 89206DAE28;
-	Tue,  6 Aug 2024 14:07:42 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=monom.org; s=dkim;
-	t=1722946063; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=K2bsze7ezb+slXPQ4bNAIIy8wybtR+D2TJArZapU+cQ=;
-	b=tTGUux5AC/Uk20RXr+NxBO7HWhYzxcUt11TumR8DSPHGCBv6uxLlApfR3XG9AePQeQU5h+
-	BV7HB7CPO6RrdHe/ocJaAE3caYnM1dn8AkvFhgikgXbNIxfR2ZB01H7LEc8WStUJ5Go0AP
-	d/nx/I4+hCNzkMbRXoTyG1zsxM7fDyDqzhhzVSN/foeQsfFtIHF50v0GmEgi3VvLNWWTAW
-	Dv5n56BIWsEkZ2AmjpksM5dqns6lO/Xw/9Q034k0hIgHiph0dSB1myGy5w3caNIE2BjiDn
-	V+0Y5eN0PMpFkison9rMooG+Yfa+CduSYwsFSxqO5N1HvDYUAwIMvO/lSkJO6Q==
-From: Daniel Wagner <dwagner@suse.de>
-Date: Tue, 06 Aug 2024 14:06:47 +0200
-Subject: [PATCH v3 15/15] blk-mq: use hk cpus only when isolcpus=io_queue
- is enabled
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D1Jx+n+W"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722947106;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PactkZyJX0Ag5OakZPEWVf1Vde5VXyxtGsMlaDiA2ks=;
+	b=D1Jx+n+WLgy/rmeHRaN1b9yxx7t881oFAd5qiTFcCVd7ayTFQ/PEeycYgEr9p7ews+JNnj
+	50dk3+df1/ZBXYvKg4jjz6vmO+1WV79S77ALG8JA0SSf+XhZVfGGUNXSyHORRog/6rMqKl
+	xDdD28T6U0SaqKuGudSy+wcgPVxKEto=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-290-M6FJd6b5MK-WS6-1g-y4Eg-1; Tue, 06 Aug 2024 08:25:05 -0400
+X-MC-Unique: M6FJd6b5MK-WS6-1g-y4Eg-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-427ffa0c9c7so6854435e9.1
+        for <virtualization@lists.linux.dev>; Tue, 06 Aug 2024 05:25:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722947104; x=1723551904;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PactkZyJX0Ag5OakZPEWVf1Vde5VXyxtGsMlaDiA2ks=;
+        b=X6c0yc14hcvq3zo/n/TXI4O7ZNadeTSirhve6iNZUXn9kxFflZ0bvNTHxiU1+bfWP8
+         hhZfGefSQ9gpt2O4G23yMWGpwn5WEC04YC88ajZ8+nq7SnXuLn2f7H78efs0kMw8zgpm
+         VdUbn3mk62M5omPYBONa33qlHHhNFXKYU3IYez8jFneucfRFfU9qqrx6epi4a7qmPD5X
+         FAvAoYn5zUmNtdKoll23cCnADHjvQ7iZLlHvTPTouUa9vcD03QZWEJrYfcYg1GFj5iBh
+         VF7MaKamwc912PkfianuCeHt0Mz1XgcbNFmi4pOM4Hl4KFBiW7dZmI+1p9soAb4vAQ1l
+         dlDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXDC1v2Hf1+4S900qFOdlKQC4RPQl0H/1mhCuXdls6w5C5CXOc91xbItZyuWbrqHHjbrW6gySdXPvoU7alhVjOhuRUGmaCYdrt/+d8POuk=
+X-Gm-Message-State: AOJu0YwleGqEEvMKCwe347U453RdSDnrxuDTCW9UMSTawtU2tAirQn74
+	CC/1AEjfF3hFOi1Kg5XTOo1xjaI8BRq96KHaWC6fElC5sZOgfZncBpP3tDn9ibKp3PlvzXwtdTs
+	L6RRJhJJrQF+ruJNbNu2G4o5JwvUMxpt6QcvL4ep2MQY2/nfBPSoeqeWNWFNGcbSy
+X-Received: by 2002:a05:600c:3b16:b0:426:6822:5aa8 with SMTP id 5b1f17b1804b1-428e6b2a6ffmr145329825e9.18.1722947103951;
+        Tue, 06 Aug 2024 05:25:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGzVU9aAZD5lCQaBSPg04gI2QuPw/TNVwvVCA7OZglja6VMFhHphFFZfNM7ojHYJSFxf3gR6Q==
+X-Received: by 2002:a05:600c:3b16:b0:426:6822:5aa8 with SMTP id 5b1f17b1804b1-428e6b2a6ffmr145329395e9.18.1722947103082;
+        Tue, 06 Aug 2024 05:25:03 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:175:c9eb:d9d4:606a:87dc:59c7])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4282b89aa4bsm241485275e9.7.2024.08.06.05.25.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Aug 2024 05:25:02 -0700 (PDT)
+Date: Tue, 6 Aug 2024 08:24:57 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	inux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next V6 4/4] virtio-net: synchronize probe with
+ ndo_set_features
+Message-ID: <20240806082436-mutt-send-email-mst@kernel.org>
+References: <20240806022224.71779-1-jasowang@redhat.com>
+ <20240806022224.71779-5-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240806-isolcpus-io-queues-v3-15-da0eecfeaf8b@suse.de>
-References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
-In-Reply-To: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
-To: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>, 
- Sagi Grimberg <sagi@grimberg.me>, Thomas Gleixner <tglx@linutronix.de>, 
- Christoph Hellwig <hch@lst.de>, 
- "Martin K. Petersen" <martin.petersen@oracle.com>, 
- John Garry <john.g.garry@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, 
- Kashyap Desai <kashyap.desai@broadcom.com>, 
- Sumit Saxena <sumit.saxena@broadcom.com>, 
- Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, 
- Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
- Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>, 
- Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>, 
- Nilesh Javali <njavali@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com, 
- Jonathan Corbet <corbet@lwn.net>
-Cc: Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
- Hannes Reinecke <hare@suse.de>, 
- Sridhar Balaraman <sbalaraman@parallelwireless.com>, 
- "brookxu.cn" <brookxu.cn@gmail.com>, Ming Lei <ming.lei@redhat.com>, 
- linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
- linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, 
- virtualization@lists.linux.dev, megaraidlinux.pdl@broadcom.com, 
- mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, 
- storagedev@microchip.com, linux-doc@vger.kernel.org, 
- Daniel Wagner <dwagner@suse.de>
-X-Mailer: b4 0.14.0
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <20240806022224.71779-5-jasowang@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-When isolcpus=io_queue is enabled all hardware queues should run on the
-housekeeping CPUs only. Thus ignore the affinity mask provided by the
-driver. Also we can't use blk_mq_map_queues because it will map all CPUs
-to first hctx unless, the CPU is the same as the hctx has the affinity
-set to, e.g. 8 CPUs with isolcpus=io_queue,2-3,6-7 config
+On Tue, Aug 06, 2024 at 10:22:24AM +0800, Jason Wang wrote:
+> We calculate guest offloads during probe without the protection of
+> rtnl_lock. This lead to race between probe and ndo_set_features. Fix
+> this by moving the calculation under the rtnl_lock.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-  queue mapping for /dev/nvme0n1
-        hctx0: default 2 3 4 6 7
-        hctx1: default 5
-        hctx2: default 0
-        hctx3: default 1
+Fixes tag pls?
 
-  PCI name is 00:05.0: nvme0n1
-        irq 57 affinity 0-1 effective 1 is_managed:0 nvme0q0
-        irq 58 affinity 4 effective 4 is_managed:1 nvme0q1
-        irq 59 affinity 5 effective 5 is_managed:1 nvme0q2
-        irq 60 affinity 0 effective 0 is_managed:1 nvme0q3
-        irq 61 affinity 1 effective 1 is_managed:1 nvme0q4
-
-where as with blk_mq_hk_map_queues we get
-
-  queue mapping for /dev/nvme0n1
-        hctx0: default 2 4
-        hctx1: default 3 5
-        hctx2: default 0 6
-        hctx3: default 1 7
-
-  PCI name is 00:05.0: nvme0n1
-        irq 56 affinity 0-1 effective 1 is_managed:0 nvme0q0
-        irq 61 affinity 4 effective 4 is_managed:1 nvme0q1
-        irq 62 affinity 5 effective 5 is_managed:1 nvme0q2
-        irq 63 affinity 0 effective 0 is_managed:1 nvme0q3
-        irq 64 affinity 1 effective 1 is_managed:1 nvme0q4
-
-Signed-off-by: Daniel Wagner <dwagner@suse.de>
----
- block/blk-mq-cpumap.c | 56 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
-
-diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
-index c1277763aeeb..7e026c2ffa02 100644
---- a/block/blk-mq-cpumap.c
-+++ b/block/blk-mq-cpumap.c
-@@ -60,11 +60,64 @@ unsigned int blk_mq_num_online_queues(unsigned int max_queues)
- }
- EXPORT_SYMBOL_GPL(blk_mq_num_online_queues);
- 
-+static bool blk_mq_hk_map_queues(struct blk_mq_queue_map *qmap)
-+{
-+	struct cpumask *hk_masks;
-+	cpumask_var_t isol_mask;
-+
-+	unsigned int queue, cpu;
-+
-+	if (!housekeeping_enabled(HK_TYPE_IO_QUEUE))
-+		return false;
-+
-+	/* map housekeeping cpus to matching hardware context */
-+	hk_masks = group_cpus_evenly(qmap->nr_queues);
-+	if (!hk_masks)
-+		goto fallback;
-+
-+	for (queue = 0; queue < qmap->nr_queues; queue++) {
-+		for_each_cpu(cpu, &hk_masks[queue])
-+			qmap->mq_map[cpu] = qmap->queue_offset + queue;
-+	}
-+
-+	kfree(hk_masks);
-+
-+	/* map isolcpus to hardware context */
-+	if (!alloc_cpumask_var(&isol_mask, GFP_KERNEL))
-+		goto fallback;
-+
-+	queue = 0;
-+	cpumask_andnot(isol_mask,
-+		       cpu_possible_mask,
-+		       housekeeping_cpumask(HK_TYPE_IO_QUEUE));
-+
-+	for_each_cpu(cpu, isol_mask) {
-+		qmap->mq_map[cpu] = qmap->queue_offset + queue;
-+		queue = (queue + 1) % qmap->nr_queues;
-+	}
-+
-+	free_cpumask_var(isol_mask);
-+
-+	return true;
-+
-+fallback:
-+	/* map all cpus to hardware context ignoring any affinity */
-+	queue = 0;
-+	for_each_possible_cpu(cpu) {
-+		qmap->mq_map[cpu] = qmap->queue_offset + queue;
-+		queue = (queue + 1) % qmap->nr_queues;
-+	}
-+	return true;
-+}
-+
- void blk_mq_map_queues(struct blk_mq_queue_map *qmap)
- {
- 	const struct cpumask *masks;
- 	unsigned int queue, cpu;
- 
-+	if (blk_mq_hk_map_queues(qmap))
-+		return;
-+
- 	masks = group_cpus_evenly(qmap->nr_queues);
- 	if (!masks) {
- 		for_each_possible_cpu(cpu)
-@@ -118,6 +171,9 @@ void blk_mq_dev_map_queues(struct blk_mq_queue_map *qmap,
- 	const struct cpumask *mask;
- 	unsigned int queue, cpu;
- 
-+	if (blk_mq_hk_map_queues(qmap))
-+		return;
-+
- 	for (queue = 0; queue < qmap->nr_queues; queue++) {
- 		mask = get_queue_affinity(dev_data, dev_off, queue);
- 		if (!mask)
-
--- 
-2.46.0
+> ---
+>  drivers/net/virtio_net.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index fc5196ca8d51..1d86aa07c871 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -6596,6 +6596,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		netif_carrier_on(dev);
+>  	}
+>  
+> +	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
+> +		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
+> +			set_bit(guest_offloads[i], &vi->guest_offloads);
+> +	vi->guest_offloads_capable = vi->guest_offloads;
+> +
+>  	rtnl_unlock();
+>  
+>  	err = virtnet_cpu_notif_add(vi);
+> @@ -6604,11 +6609,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		goto free_unregister_netdev;
+>  	}
+>  
+> -	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
+> -		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
+> -			set_bit(guest_offloads[i], &vi->guest_offloads);
+> -	vi->guest_offloads_capable = vi->guest_offloads;
+> -
+>  	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
+>  		 dev->name, max_queue_pairs);
+>  
+> -- 
+> 2.31.1
 
