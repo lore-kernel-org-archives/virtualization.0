@@ -1,178 +1,272 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7A2C13B2AC
-	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 11:26:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DCFE1C2303
+	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 11:37:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722943600; cv=none; b=IxnLADFsj36eNVF/IaD2PaH+dZRFz7NoRHaUozXVqjABteM76hfp+doHGCpGA2Y+qb2ZBSCnZZdIYMGYSqJNFHcMt8J4M4xZjXhlKvPTw9n2kSeGui75jhRask79iRYmA8BdkWBeBKjbNEGf73md69bTNYek3L3OcsoK+0bkiwE=
+	t=1722944259; cv=none; b=G96AJu1leWBWIvqjbHE8T7Mm4M6TFQRZ7+MBnzABIL8NRgKOlyGPXwBrvQiPLPnWTGb6gMKSZdYU9GW7qX1hlvda1jH1nRr7RN+7NyoprE3VrhOjIJFdn7lsPIV+6nRs7ML6FOtW55oKizJI0DqWsJjFO2ElkV3H7ZL57sGiaCw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722943600; c=relaxed/simple;
-	bh=v/a5DFPpY0qcChhPxBd1nbKJvdBByOpbdxLltssAPYE=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ECDHirJC9Q1VHGvtSQaP1nVLcYOhWqS95K27SJ1cmauNn4O4OEqQIzq81wPU8jJG6z5mrSfIBNZikNkuLM9ts0nF7AJyhACUsl/l+wesUHPreLkQQI9NmeBlSL10tVYj2LldCI3ehDMHIAZ5wnO6N3xVHVMeNMD6uf+2EvOaKko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iHjnCtSE; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iHjnCtSE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1722943597; x=1754479597;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=v/a5DFPpY0qcChhPxBd1nbKJvdBByOpbdxLltssAPYE=;
-  b=iHjnCtSEQMvmSlrWq21ghdi54ku/FzZHl5N8sPCdWyZe1RKsR5uexpkt
-   J09MXIOTdcQHC4L1dDdXYqZq1MOqepZNRdhkw2H5FdPrftXXd5bunUeVF
-   bXt+ET3xfqiI+ex/zGqMtJ3ATZvOKbdUjBbZ88u7GrVKnorLTKVcH1t51
-   zXDftip7Y1J85LC/uTqf9NnNdg3B2ht1stsEkt1feqqWWu871ZvV4sDKI
-   dUjbF0IRYmOAcMjdwo94y6Sebbhli6vwYOwwNQ+P/1tmOeVHpjrPjhZbA
-   SSSxxior0q59i1V4QFcSM6sgJ68IyEGbJB0yem/RqduUehrMxu81KNtgM
-   Q==;
-X-CSE-ConnectionGUID: K13iw438Q5CPCuvDGRS6cQ==
-X-CSE-MsgGUID: 5UinvVGYS9mOSRAMJmMF+w==
-X-IronPort-AV: E=McAfee;i="6700,10204,11155"; a="21074707"
-X-IronPort-AV: E=Sophos;i="6.09,267,1716274800"; 
-   d="scan'208";a="21074707"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Aug 2024 04:26:29 -0700
-X-CSE-ConnectionGUID: A9Ymho5/Q2KAjDUlCp/qVg==
-X-CSE-MsgGUID: D87H8QQTQ6GI9qLuzWUJgg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,267,1716274800"; 
-   d="scan'208";a="61353463"
-Received: from chenyu-dev.sh.intel.com ([10.239.62.164])
-  by orviesa005.jf.intel.com with ESMTP; 06 Aug 2024 04:26:26 -0700
-From: Chen Yu <yu.c.chen@intel.com>
-To: Dave Hansen <dave.hansen@linux.intel.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Peter Zijlstra <peterz@infradead.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Juergen Gross <jgross@suse.com>,
-	"Nikolay Borisov" <nik.borisov@suse.com>,
-	Chen Yu <yu.chen.surf@gmail.com>,
-	Bibo Mao <maobibo@loongson.cn>,
-	Chen Yu <yu.c.chen@intel.com>,
-	Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-	Prem Nath Dey <prem.nath.dey@intel.com>,
-	Xiaoping Zhou <xiaoping.zhou@intel.com>
-Subject: [PATCH v5] x86/paravirt: Fix incorrect virt spinlock setting on bare metal
-Date: Tue,  6 Aug 2024 19:22:07 +0800
-Message-Id: <20240806112207.29792-1-yu.c.chen@intel.com>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1722944259; c=relaxed/simple;
+	bh=1gxwcgZ/sQL7GrYA0U4zcsjJGmDnxtE/DBKVYG5CoxY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=lbz910fI83BING3XDWWVmAGEbbnw70Iy2dPYFhbyx21M9g6utATjNynztbAEMu5gy0bR+3NAShYMjNM26c3H2ydEnAG4+TVqbz2ha/wb0MfiI0w4fKcPxQuUHb9yXGmx5zBxKcY2CLgjSzqjdkxy7N/AfI1l8TzXzVaZfO8Oy+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4WdWQD3tK9zQpC4;
+	Tue,  6 Aug 2024 19:33:08 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 28868180102;
+	Tue,  6 Aug 2024 19:37:34 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Tue, 6 Aug 2024 19:37:33 +0800
+Message-ID: <ca6be29e-ab53-4673-9624-90d41616a154@huawei.com>
+Date: Tue, 6 Aug 2024 19:37:33 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v12 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+To: Alexander Duyck <alexander.duyck@gmail.com>, Yunsheng Lin
+	<yunshenglin0825@gmail.com>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya Sundeep
+	<sbhatta@marvell.com>, Jeroen de Borst <jeroendb@google.com>, Praveen
+ Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
+	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
+	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
+	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
+ Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
+ Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
+	<hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, Chaitanya Kulkarni
+	<kch@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov
+	<ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard
+ Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Andrii
+ Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
+ Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
+	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
+	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil
+ Brown <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Trond Myklebust
+	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
+	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>
+References: <20240731124505.2903877-1-linyunsheng@huawei.com>
+ <20240731124505.2903877-5-linyunsheng@huawei.com>
+ <CAKgT0UcqdeSJdjZ_FfwyCnT927TwOkE4zchHLOkrBEmhGzex9g@mail.gmail.com>
+ <22fda86c-d688-42e7-99e8-e2f8fcf1a5ba@huawei.com>
+ <CAKgT0UcuGj8wvC87=A+hkarRupfhjGM0BPzLUT2AJc8Ovg_TFg@mail.gmail.com>
+ <877efebe-f316-4192-aada-dd2657b74125@huawei.com>
+ <CAKgT0UfUkqR2TJQt6cSEdANNxQEOkjGqpPXhaXmrrxB0KwXmEQ@mail.gmail.com>
+ <2a29ce61-7136-4b9b-9940-504228b10cba@gmail.com>
+ <CAKgT0Uc6yw4u5Tjw1i0cV=C_ph+A5w0b_mtQMXmnBfKN_vvaDA@mail.gmail.com>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <CAKgT0Uc6yw4u5Tjw1i0cV=C_ph+A5w0b_mtQMXmnBfKN_vvaDA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-The kernel can change spinlock behavior when running as a guest. But
-this guest-friendly behavior causes performance problems on bare metal.
-So there's a 'virt_spin_lock_key' static key to switch between the two
-modes.
+On 2024/8/6 8:52, Alexander Duyck wrote:
+> On Sun, Aug 4, 2024 at 10:00 AM Yunsheng Lin <yunshenglin0825@gmail.com> wrote:
+>>
+>> On 8/3/2024 1:00 AM, Alexander Duyck wrote:
+>>
+>>>>
+>>>>>
+>>>>> As far as your API extension and naming maybe you should look like
+>>>>> something like bio_vec and borrow the naming from that since that is
+>>>>> essentially what you are passing back and forth is essentially that
+>>>>> instead of a page frag which is normally a virtual address.
+>>>>
+>>>> I thought about adding something like bio_vec before, but I am not sure
+>>>> what you have in mind is somthing like I considered before?
+>>>> Let's say that we reuse bio_vec like something below for the new APIs:
+>>>>
+>>>> struct bio_vec {
+>>>>          struct page     *bv_page;
+>>>>          void            *va;
+>>>>          unsigned int    bv_len;
+>>>>          unsigned int    bv_offset;
+>>>> };
+>>>
+>>> I wasn't suggesting changing the bio_vec. I was suggesting that be
+>>> what you pass as a pointer reference instead of the offset. Basically
+>>> your use case is mostly just for populating bio_vec style structures
+>>> anyway.
+>>
+>> I wasn't trying/going to reuse/change bio_vec for page_frag, I was just
+>> having a hard time coming with a good new name for it.
+>> The best one I came up with is pfrag_vec, but I am not sure about the
+>> 'vec' as the "vec" portion of the name would suggest, iovec structures
+>> tend to come in arrays, mentioned in the below article:
+>> https://lwn.net/Articles/625077/
+>>
+>> Anther one is page_frag, which is currently in use.
+>>
+>> Or any better one in your mind?
+> 
+> I was suggesting using bio_vec, not some new structure. The general
+> idea is that almost all the values you are using are exposed by that
+> structure already in the case of the page based calls you were adding,
+> so it makes sense to use what is there rather than reinventing the
+> wheel.
 
-In theory, the static key is enabled by default (run in guest mode) and
-should be disabled for bare metal (and in some guests that want native
-behavior or paravirt spinlock).
+Through a quick look, there seems to be at least three structs which have
+similar values: struct bio_vec & struct skb_frag & struct page_frag.
 
-Performance drop is reported when running encode/decode workload and
-BenchSEE cache sub-workload.
-Bisect points to commit ce0a1b608bfc ("x86/paravirt: Silence unused
-native_pv_lock_init() function warning"). When CONFIG_PARAVIRT_SPINLOCKS
-is disabled the virt_spin_lock_key is incorrectly set to true on bare
-metal. The qspinlock degenerates to test-and-set spinlock, which
-decrease the performance on bare metal.
+As your above agrument about using bio_vec, it seems it is ok to use any
+one of them as each one of them seems to have almost all the values we
+are using?
 
-Set the default value of virt_spin_lock_key to false. If booting in a VM,
-enable this key. Later during the VM initialization, if other
-high-efficient spinlock is preferred(paravirt-spinlock eg), or the user
-wants the native qspinlock(via nopvspin boot commandline), the
-virt_spin_lock_key is disabled accordingly.
+Personally, my preference over them: 'struct page_frag' > 'struct skb_frag'
+> 'struct bio_vec', as the naming of 'struct page_frag' seems to best match
+the page_frag API, 'struct skb_frag' is the second preference because we
+mostly need to fill skb frag anyway, and 'struct bio_vec' is the last
+preference because it just happen to have almost all the values needed.
 
-The relation is described as below:
+Is there any specific reason other than the above "almost all the values you
+are using are exposed by that structure already " that you prefer bio_vec?
 
-X86_FEATURE_HYPERVISOR         Y    Y       Y     N
-CONFIG_PARAVIRT_SPINLOCKS      Y    Y       N     Y/N
-PV spinlock                    Y    N       N     Y/N
+> 
+>>>
+>>>> It seems we have the below options for the new API:
+>>>>
+>>>> option 1, it seems like a better option from API naming point of view, but
+>>>> it needs to return a bio_vec pointer to the caller, it seems we need to have
+>>>> extra space for the pointer, I am not sure how we can avoid the memory waste
+>>>> for sk_page_frag() case in patch 12:
+>>>> struct bio_vec *page_frag_alloc_bio(struct page_frag_cache *nc,
+>>>>                                      unsigned int fragsz, gfp_t gfp_mask);
+>>>>
+>>>> option 2, it need both the caller and callee to have a its own local space
+>>>> for 'struct bio_vec ', I am not sure if passing the content instead of
+>>>> the pointer of a struct through the function returning is the common pattern
+>>>> and if it has any performance impact yet:
+>>>> struct bio_vec page_frag_alloc_bio(struct page_frag_cache *nc,
+>>>>                                     unsigned int fragsz, gfp_t gfp_mask);
+>>>>
+>>>> option 3, the caller passes the pointer of 'struct bio_vec ' to the callee,
+>>>> and page_frag_alloc_bio() fills in the data, I am not sure what is the point
+>>>> of indirect using 'struct bio_vec ' instead of passing 'va' & 'fragsz' &
+>>>> 'offset' through pointers directly:
+>>>> bool page_frag_alloc_bio(struct page_frag_cache *nc,
+>>>>                           unsigned int fragsz, gfp_t gfp_mask, struct bio_vec *bio);
+>>>>
+>>>> If one of the above option is something in your mind? Yes, please be more specific
+>>>> about which one is the prefer option, and why it is the prefer option than the one
+>>>> introduced in this patchset?
+>>>>
+>>>> If no, please be more specific what that is in your mind?
+>>>
+>>> Option 3 is more or less what I had in mind. Basically you would
+>>> return an int to indicate any errors and you would be populating a
+>>> bio_vec during your allocation. In addition you would use the bio_vec
+>>
+>> Actually using this new bio_vec style structures does not seem to solve
+>> the APIs naming issue this patch is trying to solve as my understanding,
+>> as the new struct is only about passing one pointer or multi-pointers
+>> from API naming perspective. It is part of the API naming, but not all
+>> of it.
+> 
+> I have no idea what you are talking about. The issue was you were
+> splitting things page_frag_alloc_va and page_frag_alloc_pg. Now it
+> would be page_frag_alloc and page_frag_alloc_bio or maybe
+> page_frag_fill_bio which would better explain what you are doing with
+> this function.
 
-virt_spin_lock_key             N    Y/N     Y     N
+There are three types of API as proposed in this patchset instead of
+two types of API:
+1. page_frag_alloc_va() returns [va].
+2. page_frag_alloc_pg() returns [page, offset].
+3. page_frag_alloc() returns [va] & [page, offset].
 
-Fixes: ce0a1b608bfc ("x86/paravirt: Silence unused native_pv_lock_init() function warning")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Suggested-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Suggested-by: Nikolay Borisov <nik.borisov@suse.com>
-Reported-by: Prem Nath Dey <prem.nath.dey@intel.com>
-Reported-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-Reviewed-by: Nikolay Borisov <nik.borisov@suse.com>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
----
-v4->v5:
-  Fix the comments around virt_spin_lock_key. (Thomas Gleixner)
-v3->v4:
-  Refine the commit log.
-  Added Reviewed-by tag from Nikolay.
-v2->v3:
-  Change the default value of virt_spin_lock_key from true to false.
-  Enable this key when it is in the VM, and disable it when needed.
-  This makes the code more readable. (Nikolay Borisov)
-  Dropped Reviewed-by because the code has been changed.
-v1->v2:
-  Refine the commit log per Dave's suggestion.
-  Simplify the fix by directly disabling the virt_spin_lock_key on bare metal.
-  Collect Reviewed-by from Juergen.
----
- arch/x86/include/asm/qspinlock.h | 8 ++++----
- arch/x86/kernel/paravirt.c       | 7 +++----
- 2 files changed, 7 insertions(+), 8 deletions(-)
+You seemed to miss that we need a third naming for the type 3 API.
+Do you see type 3 API as a valid API? if yes, what naming are you
+suggesting for it? if no, why it is not a valid API?
 
-diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-index a053c1293975..dd5b0ea4955f 100644
---- a/arch/x86/include/asm/qspinlock.h
-+++ b/arch/x86/include/asm/qspinlock.h
-@@ -66,13 +66,13 @@ static inline bool vcpu_is_preempted(long cpu)
- 
- #ifdef CONFIG_PARAVIRT
- /*
-- * virt_spin_lock_key - enables (by default) the virt_spin_lock() hijack.
-+ * virt_spin_lock_key - disables (by default) the virt_spin_lock() hijack.
-  *
-  * Native (and PV wanting native due to vCPU pinning) should disable this key.
-- * It is done in this backwards fashion to only have a single direction change,
-- * which removes ordering between native_pv_spin_init() and HV setup.
-+ * native_pv_lock_init() is invoked before the HV setup. The former enable
-+ * the key by default on the VM guest and the latter disable it ondemand.
-  */
--DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
-+DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
- 
- /*
-  * Shortcut for the queued_spin_lock_slowpath() function that allows
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 5358d43886ad..fec381533555 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -51,13 +51,12 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
- DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
- #endif
- 
--DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
-+DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
- 
- void __init native_pv_lock_init(void)
- {
--	if (IS_ENABLED(CONFIG_PARAVIRT_SPINLOCKS) &&
--	    !boot_cpu_has(X86_FEATURE_HYPERVISOR))
--		static_branch_disable(&virt_spin_lock_key);
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		static_branch_enable(&virt_spin_lock_key);
- }
- 
- static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
--- 
-2.25.1
+> 
+>>> as a tracker of the actual fragsz so when you commit you are
+>>> committing with the fragsz as it was determined at the time of putting
+>>> the bio_vec together so you can theoretically catch things like if the
+>>> underlying offset had somehow changed from the time you setup the
+>>
+>> I think we might need a stronger argument than the above to use the new
+>> *vec thing other than the above debugging feature.
+>>
+>> I looked throught the bio_vec related info, and come along somewhat not
+>> really related, but really helpful "What’s all this get us" section:
+>> https://docs.kernel.org/block/biovecs.html
+>>
+>> So the question seems to be: what is this new struct for page_frag get
+>> us?
+>>
+>> Generally, I am argeed with the new struct thing if it does bring us
+>> something other than the above debugging feature. Otherwise we should
+>> avoid introducing a new thing which is hard to argue about its existent.
+> 
+> I don't want a new structure. I just want you to use the bio_vec for
+> spots where you are needing to use a page because you are populating a
+> bio_vec.
+> 
+>>> allocation. It would fit well into your probe routines since they are
+>>> all essentially passing the page, offset, and fragsz throughout the
+>>> code.
+>>
+>> For the current probe routines, the 'va' need to be passed, do you
+>> expect the 'va' to be passed by function return, double pointer, or
+>> new the *_vec pointer?
+> 
+> I would suggest doing so via the *_vec pointer. The problem as I see
 
+As your above suggestion, I can safely assume *_ve is 'struct bio_vec',
+right?
+
+I am really confused here, you just clarified that you wasn't suggesting
+changing the bio_vec, and now you are suggesting passing 'va' via the
+'struct bio_vec' pointer?  How is it possible with current definition of
+'struct bio_vec'?
+
+struct bio_vec {
+	struct page	*bv_page;
+	unsigned int	bv_len;
+	unsigned int	bv_offset;
+};
+
+Or am I mising something obvious here?
+
+> it is that the existing code is exposing too much of the internals and
+> setting up the possibility for a system to get corrupted really
+
+If most of the page_frag API callers doesn't access 'struct bio_vec'
+directly and use something like bvec_iter_* API to do the accessing,
+then I am agreed with the above argument.
+
+But right now, most of the page_frag API callers are accessing 'va'
+directly to do the memcpy'ing, and accessing 'page & off & len' directly
+to do skb frag filling, so I am not really sure what's the point of
+indirection using the 'struct bio_vec' here.
+
+And adding 'struct bio_vec' for page_frag and accessing the value of it
+directly may be against of the design choice of 'struct bio_vec', as
+there seems to be no inline helper defined to access the value of
+'struct bio_vec' directly in bvec.h
