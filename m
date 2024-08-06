@@ -1,65 +1,71 @@
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2112.outbound.protection.outlook.com [40.107.243.112])
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2056.outbound.protection.outlook.com [40.107.100.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 902EF1BC9E8
-	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 06:20:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A6D2165EE7
+	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 08:18:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.56
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722925256; cv=fail; b=TF+8uEMjCWQbTDcwk5GyBip5KWnSZYGScodaEjzjGOvit6KHSZ8al1ip+72WtEmLK1Tucalwq3l7bmG/CBB4yPTrDXbTCGwkew0yXW/C6iv57W5iMZEoy9KiK+oRQxa/z/nwf0J2dbdAscUQHX5GC33+1hK0oGr7ZgM2F/7qbvM=
+	t=1722932295; cv=fail; b=HGrqfHYTs0C7o9EnJ+F982DlMzr0t77ZKIhi5tH2xS1ZgGb7l0aCEoop6W3ioT0DwIGHC0Ru90CzCvGMZQZ3+MCPSdBT93rjaJiPn0Dwl6L/q+w92TpYMgoHxFkVkUp1/pBPstPbpmOjVphrd42Kojrh+bYnK51qNNnB/MCiSdQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722925256; c=relaxed/simple;
-	bh=Uu1UMppI6hYXMsS1pjWOJ2CQpDnrUiuOI5t02sIRm+U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=kv7mbQRuRpVXLDioNLlqMejTECCw643ZYNTSpyftqhuf+IoasBxOF1VDODrdLN9PCKxHaNm0qjkxgZrZIzFjeSVfqbX+GTL/0FkO458IVwK2CNxu8Jw0d0FVVWko9XqkG3mcTAn6hojQbaBI6KIdJ1ll2DOkfCFl7Z++Y7r8tN8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=corigine.com; spf=pass smtp.mailfrom=corigine.com; dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.b=SafigM5W; arc=fail smtp.client-ip=40.107.243.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=corigine.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=corigine.com
+	s=arc-20240116; t=1722932295; c=relaxed/simple;
+	bh=/IDCvvhtKMiUIND0XN5p3reetfRuasG0y98Nv9BQjYg=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=bN6TvKMlDmEL7xZ9wNtkSYErfOjdPfaL1dEUF8P0KlFKshPpq1SRHT6aCi9d7inGYxt8pWawqBHf4zFmri4FSKKUYbabvKZnpJ114FQnCLInSwaQ5JycudMiVKu4q+TzHdOdNtr6EXfynI8WbwYE8xMKnlwr5YqbWSJOZB83VbY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FG11IDgj; arc=fail smtp.client-ip=40.107.100.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.b="SafigM5W"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FG11IDgj"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=SkoZLeFKR57EvjOA2VgUQZsNt4Eb6ZUCDOK2aSMw2vnpazAqgn8hesYZHRUfuQCA7NMJ28H2IgxSTMjMlwpOGFnihg0Kfm2cBa+plzhhBAt1On23SOT7t+djEJiGZ1kIpgBIa81WLvqUsr2VevN7sq/DezHhAXYESVgX85OufiW8NJ7E0cAbD5teDrjfiSxpz1+OWfTv++zRycZ2vG7eWrELiNV+p+WkXBqaAFF161sojs9MNyQjESLTLzHZbyvCllhF2UfDspnQOw0eXwTfA7wQANjRT1aXeCi1rOStRryv0gwzguI0xLXsKh6h1SSINDunrZ5GrXRVGhjP8DF7qQ==
+ b=TteWGAqCyoRRyTTjuxr4JfJymE2K+odPlvk4SPKpT4k3eASwIlRQw/kM9LqNXow4LVXk9wH1mMMlY7lnBZ5STt5yXaS+bhCHt09nj4RIshVpW2IXcyKSdnuRymWNzaxY7+j/0/nzFKdv9RVhVBQjqvGXS38FwzKBbSNZRE84liZYi8UU4PAQcDZYQeiY6rNpHXbe1s7PPrFv+YTySRhQVksb0gXcjFam0rIg50UgJGIYc8yvE3KPNbUxJVf1fc1P+m8+NYRWs96L8WskwC+BPsy/GmnjouVsIRp92v3uWs394f0c4Q0APApVrHK724nY9qRrAoQHqc+7boANDxFsqQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nN5hwpinST4kjI6JGooGjIpok4Ndyy+4flKxjI6zWFk=;
- b=IA/7X7MWtRExNquSLtQfUH5SXcOMhVwedjT6iDlxdNpJiL4ei2JGTxubwcXFGzglb1+/kpTi/g8YnrN1SeTjfsCERSihN7E70EINhFYGPgywhph50ooQ17qM3RV/wQhy96MzVhbYi9I5rQj99qs51opaSfcOIpWJKWCW0Sa8mf005gKAeQ5jIZFlgFML0DGAH92GRdNU6X5/S58ITJf0dcRi4r794vcbDOWZq26o7YOmW+s5Iz9RvtYldMU0nqRpn0yOAKbTdnUL56F8V+dffSk5KwcFSAkusNFS5KipyGar9vGrTXxsmNoWexDp4i5VVulDzf/Jqpdnh9lDAwppqg==
+ bh=cmL7shNahY5xrmbaRksm5VWH5mbrRZMpxHUILcKUz8g=;
+ b=t/GzBwbRwH5uD6ZJIC+9hCoqnmHkyH61wJ044JimjA9J8PN3OQ2Y60VeY95cVdBg9z/3swdcQzth7MDKerVv0PDcd0Emy5UGVjhPUGLaZsrptrtkDpaPAMNA8Wt8o5RHCN1sElfD1nSxwZrwEk4K4qtHgBqzZ/leIPih1BqtHzSV5rWfKQTw5RK7jxu8jGIQKGWKpZzA8GyNXaj7d7rOp1nysjqsToCQyUwfNGRajKL6C697vbqhvRaIbsG2SSeB2onXB4Vj9Hyya91pNV0nS3orkooyINWn3qvhrxfvcGR7k1IOMla8hjJf+xX3R2xrHIueDuaJ3EZ7rXoHJex6JA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nN5hwpinST4kjI6JGooGjIpok4Ndyy+4flKxjI6zWFk=;
- b=SafigM5WUq5ZuvnyPnQLeGjDtxz5dHtjugALRzh9RRRKwopWBNet7jgJqbdsxHsA/x+jU261d62A0HXegOJuEdy99wLZFhgAUHbbmWyoV69MlvaEMj6oZCXo11KNLLbB6ZgRV77n21SWQUHO8yVYJIbgIGzzb/gZHinLxlHuPPo=
+ bh=cmL7shNahY5xrmbaRksm5VWH5mbrRZMpxHUILcKUz8g=;
+ b=FG11IDgjvaLIS94RXU66CuWU9iG0Amk5O9zX4nHsFBUwz3H0/CLtM28i+84jJGnErH8vnUbm8ylPF7xukJNYa/M6oZW0XSwiPvFZTnRD/17oEa0WieU4GYqAmdEyA8SwmJOHR1XoiCYHNxCrX/iobXdJnTsBSAV3SXyVSh95IdF7nY8gB4BGu9ROcFvltSl+NohjbYYTyieNsJ2ytUsewN/GVESv9cP7VNjrtErXDbaIfEqam6s+7rPwwjKwtbOVK4SbZ1pc9UId8M0xNPx4r7lnq3GqAIDR1sP2CRSq0SVqE6OrxvYEooY3QsKv0AtaTqv2OQ3C60mrnL8fmH8hhQ==
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from BL0PR13MB4403.namprd13.prod.outlook.com (2603:10b6:208:1c4::8)
- by LV3PR13MB6358.namprd13.prod.outlook.com (2603:10b6:408:198::5) with
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
+ by SJ2PR12MB8133.namprd12.prod.outlook.com (2603:10b6:a03:4af::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7807.28; Tue, 6 Aug
- 2024 06:20:51 +0000
-Received: from BL0PR13MB4403.namprd13.prod.outlook.com
- ([fe80::bbcb:1c13:7639:bdc0]) by BL0PR13MB4403.namprd13.prod.outlook.com
- ([fe80::bbcb:1c13:7639:bdc0%5]) with mapi id 15.20.7828.023; Tue, 6 Aug 2024
- 06:20:51 +0000
-Date: Tue, 6 Aug 2024 08:20:39 +0200
-From: Louis Peens <louis.peens@corigine.com>
+ 2024 08:18:09 +0000
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4%7]) with mapi id 15.20.7828.023; Tue, 6 Aug 2024
+ 08:18:09 +0000
+Message-ID: <b603ff51-88d6-4066-aafa-64a60335db37@nvidia.com>
+Date: Tue, 6 Aug 2024 10:18:05 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH vhost] vhost-vdpa: Fix invalid irq bypass unregister
 To: Jason Wang <jasowang@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>, eperezma@redhat.com,
-	Kyle Xu <zhenbing.xu@corigine.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, oss-drivers@corigine.com
-Subject: Re: [RFC net-next 3/3] drivers/vdpa: add NFP devices vDPA driver
-Message-ID: <ZrHAtypv8LqNuWF8@LouisNoVo>
-References: <20240802095931.24376-1-louis.peens@corigine.com>
- <20240802095931.24376-4-louis.peens@corigine.com>
- <CACGkMEuVKDv9H-OuhoaSHXppQsiLAueewccAKPQNn_YKZT4ocQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "mst@redhat.com" <mst@redhat.com>, "eperezma@redhat.com"
+ <eperezma@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20240801153722.191797-2-dtatulea@nvidia.com>
+ <CACGkMEutqWK+N+yddiTsnVW+ZDwyM+EV-gYC8WHHPpjiDzY4_w@mail.gmail.com>
+ <51e9ed8f37a1b5fbee9603905b925aedec712131.camel@nvidia.com>
+ <CACGkMEuHECjNVEu=QhMDCc5xT_ajaETqAxNFPfb2-_wRwgvyrA@mail.gmail.com>
+ <cc771916-62fe-4f6b-88d2-9c17dff65523@nvidia.com>
+ <CACGkMEvPNvdhYmAofP5Xoqf7mPZ97Sv2EaooyEtZVBoGuA-8vA@mail.gmail.com>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <CACGkMEvPNvdhYmAofP5Xoqf7mPZ97Sv2EaooyEtZVBoGuA-8vA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEuVKDv9H-OuhoaSHXppQsiLAueewccAKPQNn_YKZT4ocQ@mail.gmail.com>
-X-ClientProxiedBy: JNAP275CA0037.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:4e::7)
- To BL0PR13MB4403.namprd13.prod.outlook.com (2603:10b6:208:1c4::8)
+X-ClientProxiedBy: FR0P281CA0110.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:a8::6) To CY8PR12MB8297.namprd12.prod.outlook.com
+ (2603:10b6:930:79::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,123 +73,301 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL0PR13MB4403:EE_|LV3PR13MB6358:EE_
-X-MS-Office365-Filtering-Correlation-Id: 82db3c93-b39b-44dd-49c3-08dcb5dfeb26
+X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|SJ2PR12MB8133:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4991a1f1-6eff-4cbc-cd5b-08dcb5f04e7f
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014;
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?NG1EOElvbmF2M3I5cU8rN3lITGZPbkdNZW0wK2VZYXdzZjdoWThNWm53T0gy?=
- =?utf-8?B?MzBtS0x1eXNpVUZVREhTM3kvVC9MQmxaSWp6VXozcjFORys5N3lMcVVITVFi?=
- =?utf-8?B?R2dNY3hIZjl3VlNLazFsU3lTZkk0ZTFLTkZzUVhtM0R4OHR6NUtzQlYyeGVq?=
- =?utf-8?B?SmFwbURid3Z0alRvaGlSb1EyRnppUnl6cFNvamxoZXYzdkp3aHBob1YrQ0lM?=
- =?utf-8?B?eVNyTWVNd3ZhVXBqMFdnTjlkdmlmVHVFRnBUZ1Jqb1R6SVl0RzFiUTRzLzVw?=
- =?utf-8?B?aTd6b09TbFk1blVlSitUYnduOVNYdHlreGhoNUI0aXYyQjhpQTMrL25HcFRq?=
- =?utf-8?B?bXhvRHNkMkExUXA2aXdVOEdQWnZWTWt3aEVrSlVQb0cxZU01NjlHVUFNcVJj?=
- =?utf-8?B?bDYvM1NSOTlBWWROUlZrYUFMWEV1Wm50aXhQUzZ4TFFzUTMwWE85U0FvTHY0?=
- =?utf-8?B?Zjlrc3dPVTVBWUpjeFdnSTg0a0F5UXE4bkhBa2MwM1NrWnk0eTNTYVR1NlBE?=
- =?utf-8?B?TTVjRDdFLzNsa3dNWUJBRW9qYUsvVVZqTGtIZDhKWGdNd244UGFGQ1RsM2ha?=
- =?utf-8?B?WDQwelVSRCtrNFZSZVdUYzFnc0VzWlZKemJUQXRwclFaMDVBeEhmcGcvakxk?=
- =?utf-8?B?ak5iYTFzQy9WTk45QU5WZllMbjkyR0NqL0R1cUE2SmVCWXd3eWNzNEhxeHgw?=
- =?utf-8?B?VTZpRkhNdkphTFI1NzFpcDUxbnVjV1NMelRNYm54eUlNcGUxS242Vm9vR0du?=
- =?utf-8?B?QzNzU2VrTzJpSkhYKzJqVkhEQlZ4YStYSHJhNjNuNVIzRlU3dXZsYVdJS3pT?=
- =?utf-8?B?Z3RPVW9jMVJVTlkrbnM1QWp4MDIzVk5JUk9CaS81VENlTGphS1IycUs4OHBF?=
- =?utf-8?B?SllER1BETVFtVUVMOHhtSWd1eWRaMmptL2pKVnc3WFRoZ0NrS05aYnZwS1NN?=
- =?utf-8?B?dUJnc2N1SDRUZ1orbnpjZThDS2toQ2VNZUMwTHE1NHBnQnV4WW9NYVM0WEVT?=
- =?utf-8?B?OENDdHJiVi94N2Nod0hWNXFkTHh0MkxmRlFaNk1WQmtlU3RKeG9wSUtvL3dY?=
- =?utf-8?B?NjREcE8wYzFrMEhobmxjQXB4bU5ha1IyekdSVSt6N1Y5SWdtb3ZhTnk4Rm9E?=
- =?utf-8?B?cGVTYkFrMlZYUmxVTVBEZnY4RTc4Ymt0YmdTcHJnRy9wQVZzYWxrbnlabmhv?=
- =?utf-8?B?L09sZko2SG95SzZWNXpqcHl4U0VwZlpYdHZ3N1dlWmdaU0xpWGtVd0FmSC9a?=
- =?utf-8?B?d2FlTkNFQVROQVpSVHliRGs1TUtRbjJXTnpZWGpqOVNFVnpjVWxOMTVmeEtj?=
- =?utf-8?B?VTk1WHV5aWs4dzRnSCtzN2tZSUo1VmxSd3NLa2FQazVxMjVPaTZ2b1VVOHo0?=
- =?utf-8?B?ekJ6Mk1rRXJmNDdQczZmV1N3ajF2RzBMWGxKVjdEU09NSy9UaVRVaGVwSGxN?=
- =?utf-8?B?VmRSbHNSMVNvbUEySTF4MkI2OWhzMFlsdDN1L3k0bE0zSmVwUXdOL1NZU2tx?=
- =?utf-8?B?YTFHM1h4ODFuUEdkM04vdjdGOFd3dE5XcFZhVTEyVVJ1em04Q1kzcmhxWjFD?=
- =?utf-8?B?aXVvZjc3SUF5Z1RDREpXNzYwUWpUU0hSaiszVndRQXZ1YzZJK0VSVEQ2OGpZ?=
- =?utf-8?B?V3JvczFSQTkrOWJUT29KNi9rZ09kRXhlL0dJM24vUlFKeTBEMSs5Tnl3MDVU?=
- =?utf-8?B?c0FWTGl5U0N2MjBxRnR0eStyOGF6ZG5mK2I5MFcyTkhhOXlnL2dJeTI2VkVY?=
- =?utf-8?B?bjNEV3M4bUJJRjhTMGwzSnd3Sm5ZaDZkRmoydlpleENwaFg4ZTd4ODVBM25u?=
- =?utf-8?B?YkwrQjA3bUM0KzY2WkNwdz09?=
+	=?utf-8?B?enFjV3FTVGJWYjNpSFBpenpaN245S3F2Z0ZlTjBDcGVaN08xWDg3bnhYdFh0?=
+ =?utf-8?B?S3dvN2FUNUFTUTBEeHdMc1ZSSGw4MDkzc3lKb1BqRkMzYTJ1SW55UUdROHRK?=
+ =?utf-8?B?cXY0UUhSMkFCNjhlYmFkRHRVMDNwTUVxUVl2TGQ2WWZ2d29Ga0NvTVdjNEIv?=
+ =?utf-8?B?bVAxdTQyWjlqdTg4R2NzMFZTQVBmVDBhZk8wUjc1WE10cmJSTFlwSzdEelBp?=
+ =?utf-8?B?VFErZGxaWU0zTjl3blRRY1ExWXg3UXpiNHZBOHVKR3ZyZHQyTVpYUHVCQWYx?=
+ =?utf-8?B?OGgraEs4Ykw3NlowTHRWTnA0MThkUjRMeTFzeG5wY0NqbmF6WFhCSjFkeExU?=
+ =?utf-8?B?SlIzbUZWVnFVN0IxREk4cG5tUWtzVUQzTFpjUDlaUlpUSnNLS2VKcmU3Yk1O?=
+ =?utf-8?B?dEE5cGFaaUdvWVBmZU1sVkF2czEwWWduZFZFaFlzb283NU5yRVNaS0RJcGx6?=
+ =?utf-8?B?YUlqYlh3dHJOc3UybHRPWW5QVkZXcnZVSlJSWXFPeGJXR3lXK2pEWWFxSWM3?=
+ =?utf-8?B?WFVEZVpXbW90YXRUWlk2eHIyS01qbEVYS3M2ck9SUFhjNVRReXpLT1dLSDA4?=
+ =?utf-8?B?dDcrWUZ1SEFGSWl3Rm1JbjFyQUFadlVNOHZLZmdoTEtMRFNXUCt1Q2dHeGZP?=
+ =?utf-8?B?enVyV2JoNEpSWllvQVRhWEs0dU96UjdPbVdLak9xSlpwY3A0L2lqRDY3SWJy?=
+ =?utf-8?B?N1hka0J4U0V2aW1KVGxYbkVxdk94SGM5TnIwZnRLWnRjVzF0MG5CbzU1SFAx?=
+ =?utf-8?B?NVJWbjZPVU1IRk5QQXY1V2VVRkt6NFQ1Q3doUENsdzQvRk1jK1lQamlNTkRF?=
+ =?utf-8?B?TXQ2aWV4OVU3ZFN2bWc5bEh2L3VQbHowakRaZW1VNzVUbHRyQWVROXNjK1VE?=
+ =?utf-8?B?MzhlTFJLcHRtN0o0Q2g0RjBNaTRsVGYzaEczWXpWQlhjK0Y1ZWpua2lEZzNL?=
+ =?utf-8?B?NGNWSWNUWlEweVhhcG44V2wzRk5xV1Fid2JoRys2S3hzendKR1c0WmJobEpK?=
+ =?utf-8?B?Z2x0cE5CQWxFaDhMbS9PaldYT3BBQWREVERrWWZDZmZQSkV0ay9GdWo0S1ZG?=
+ =?utf-8?B?akdiS2pHZ0VpNjVuZ0NnZGxPNEF6UW9Zb292SUd5YzEzNGQvSWowKzBpcDNI?=
+ =?utf-8?B?TElHSlBwbTQrb0V4SkpyaXIzWlcraERBeFJ3WldFNnBPcUtjVDEraWgvNjNm?=
+ =?utf-8?B?YmJ2SXIraE1GUmd4Wnd3cVB3WnFiSURkQ2dLUklCYnQ5U0RZUHZPVnA3Qy84?=
+ =?utf-8?B?WGVBQ0pWbFNGVVdqSWFIVHh6SDkrMm9vamtQVlcrY0E3dFNDc1E0V01lQ2dW?=
+ =?utf-8?B?RnN4TTRMVWdIRk1yb0tieHp6V0tTZ2owanJsQzJxTkMzVGFKZmNxajM0QklD?=
+ =?utf-8?B?ZUtMdElDa3Znak96T01lbUF5UDFoZ254RGhwakM0MWhZMFJvT1Rod1p3OGY2?=
+ =?utf-8?B?YnRFOXZObyttbkN1V214ZWJ1RmM0ajhRZmdVVEJNVlF6Q3RxczVaUk1jTzk0?=
+ =?utf-8?B?QVBtUFk3M2EzS2Z1NmpmUFRoZEFWUjVnZmdjVTI5QjV3WjJwVFNQMXhnSVRj?=
+ =?utf-8?B?M3dHTGx4M0pBbnBSaU5SV3gwZnY5dzU1elE1MFZDcEorV1BRKzZsS0NHRDZl?=
+ =?utf-8?B?aVEvRjhscUdSc3MvaGlrc3U5dS8zSll4dUdsdTdxNlN5djRudTZQVTBqUkFM?=
+ =?utf-8?B?TEh3VGwycGlhQTZDVDdRRjYwY3J2OFNxMGgyQWlJelhKWlA1MlpSOXRDVC9u?=
+ =?utf-8?B?a0RuaDc2enFXT0F6UzE1bFhQU1JJMlkwa2NjREJTTUxqVFA1ME1qdW5PcnJV?=
+ =?utf-8?B?cDRJNWxhamlkb09USkVyUT09?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR13MB4403.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014);DIR:OUT;SFP:1102;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?bjgydFBNM3h5Zk1HUFlPYzQ5a3dOenU4Q3ArVDNQNXBtVGFZT0FtckhFcWIw?=
- =?utf-8?B?T1lVWjN1NnUxSVI1S2xvV2pjUmMyRzFja3JBZXBkMCs1WUgxaEFiSnYzUXFk?=
- =?utf-8?B?Y3lDYVZ4azJlQXUzOUxCdEZUNmNOR3JLTzltK2JlWmc1OWF5TDhlcTE0S3Nh?=
- =?utf-8?B?UVEwZGxRZGk2WnduVFpzV0lqQW53Mmsxc3pkVGpFektNNkJ0TU9LUWpuVm1I?=
- =?utf-8?B?UktzWHlUZ05DclNFVFE0Y3BnZ2RhSkt5UVNHeC9pY2hlcDFRRUE0ei9MbW9i?=
- =?utf-8?B?WFhZdThISXF5OWNFZFJTbGo4czJLQ0EwYW05U2MyRUpHUWROdjlhTExnNi9k?=
- =?utf-8?B?VWRHS1lmOTl1TUl3VXltOTlMVC9OcW8vdUFBRTM2bG1jY2ErZ3diZHRRa2VW?=
- =?utf-8?B?VndlMUo1MjlRd0NQa3IwM1lNbG1EY2lrbWZFbVZab0ZlakUzSXVTMjF2WTZ2?=
- =?utf-8?B?YTQzbFpxcDR4REt6Mmpka2haMGtYZXhpSmd1VFpDUHQ3UUtzMDR1VVBpY0ZG?=
- =?utf-8?B?QWZMbys1OUs5c0k0Vy82bnR0ZEZJa2JTaGcxbWYvdnZqK1JJeE5hYWNzZG03?=
- =?utf-8?B?WWloWHVYRGJoRHFTSVlLY003Y0RGVWtBTGlCOU1zN0tUQjhlL2NuWXNBRWFG?=
- =?utf-8?B?TnpLdjFZWUFRMlVzaEVhcWVWdkpFR1V5anNCVkN5OU81bEZiRFFBY0RybXEv?=
- =?utf-8?B?dXFCbVZTSjdONWNrL1k1TnNWYks5UzQ3V3NzaGJwSytSV2xjZGxobWllZk9k?=
- =?utf-8?B?d25RaVhDeEUxQ0lKWThWc3JXczM3aDMvQ2hocnZRc25Ra3lmWURxakRmaStz?=
- =?utf-8?B?RVAxc3lJOGRFNVBnNVJiajBDRVIveHlzMkdlZWVWN0hGNmRYRU9BTUd5NWQ4?=
- =?utf-8?B?YUU3ME1XYWV0TjRJN1NmVkxvQjc1K2UzdS9IT1BSOUJjYVBrZlU3Uy83Skkr?=
- =?utf-8?B?MGVtNzZJWkJlRmoxSWMrdE8vRVBCR2d6QVFzME5FOVN0VlFrRmpYcythdUVJ?=
- =?utf-8?B?cjFGZ0JrNnRmMkFEZm9qQ1I3RG9VKzRJeER3c3F0TlkxRElVSVZGMEc4NGxU?=
- =?utf-8?B?ZDF6Z1JoM0xFUHFPZ29zdUpYR2s4NVNHcWdwdS8zNG1oK2REZ1dsRTJaUlhn?=
- =?utf-8?B?Vktta0d0KzZzS3ZYcEpXVHE4RW0yelkwajNMZUlUWFYwYXNESUF6S3lCRUpi?=
- =?utf-8?B?SDRHdWpMR3c2T3lsVjV1eWVwWWJ4dGVOejF2eXBFa0FnelBYbHpIc2ZYMyt4?=
- =?utf-8?B?TjNuSTBuRUZWNmhpRmo2TFRZNHkxNzdVck5UY2NSMkJONzhNMDNSUXlPQ0cz?=
- =?utf-8?B?SXduRE9IamVXaXRDc0RhTEg1Rkx4QTAxaHd6ajFhY1lXTDNCdFlYRGI1cTFW?=
- =?utf-8?B?RE1aR21FVjNVZjZXVXl0eGx3SUR3QVdVa0IybEx4MzB3Unk3RkE1QlQ5Nkpi?=
- =?utf-8?B?VHI1bDg5dEkzVlZxdXVFNDd5N3JPdW55SE1EOXUvUStBWkpMcWpVdW9xQ2Vv?=
- =?utf-8?B?U0gyd1lsakFtdUoxd3hpaXpnY0FPeUpkeWRhMWhZSCtyT1pmZEpmY1FRZnNy?=
- =?utf-8?B?cFJuL0YvWHBZRkRDMS9XN09yVnF3L2ttU2tjQkw1Ni92OWJxdVBQSHUveHBm?=
- =?utf-8?B?Mk8rNlVEYzFTWUNaVnpwK0xucUVDK3RUV0tUV2owb2VVNHErK0VzQUZIZ1d0?=
- =?utf-8?B?MTdtWnJJbHYrenZYbEU3RTBta2RLWVBRRU54Z0ZEZTg4TUtieFR6QVpIV002?=
- =?utf-8?B?RFNWQUZtMEM1WERLM2UremFKQVBHTXNwakUzemErZWF2bG14RlVpamRnbWdl?=
- =?utf-8?B?c1RpaE41TXpKeEtadWpGZE5TQkhMbTBtc0tidWY2NHpMSC80UDJCeXB3UDZh?=
- =?utf-8?B?eTFDMU1EWGxacTFRNTJ0Q3pSU2xrdHJudm10cUZwU0FXRXc1NGZDNzJrZ0dp?=
- =?utf-8?B?dWRsSDFoQWVWREhNa1BZSytiUHVOV2dtTmhLZXBIOTdpTGw1QTJkeXVmcVJF?=
- =?utf-8?B?OTRIUFZkby9vbE1TOUdnQ2ZDbXd5b2R4eC9PSmFncEVKWDI4SjAxaVh3K3kv?=
- =?utf-8?B?Tm83bFpXWmM4emhzeGFmZm8ydzNOTjVpSWcxS3V2R2RRWFdlMFZtaTNHbmll?=
- =?utf-8?B?aXBEZm51cCtLaE15SmlsU1hEbHFFMlVBSk5MeEc1UEZzSHZVQldtM3FWb0tX?=
- =?utf-8?B?TGc9PQ==?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 82db3c93-b39b-44dd-49c3-08dcb5dfeb26
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR13MB4403.namprd13.prod.outlook.com
+	=?utf-8?B?SmdORmZEN2NXQmhDNTZ0VG9IaFpUY0lZWWsrSTdGdVhQRzJQR05ocFQrb3Ay?=
+ =?utf-8?B?K0FaSCtIb3l3K0FuYnZGR2cxRmxBSGxsNW9DU2JId0licjA0K3FpcXJmRnJG?=
+ =?utf-8?B?RXBXQVAzUGpUSk9qWUlOMS81SDF1dW54TkVTMFl0WUk1ZUc5ZG9MaURKQzFr?=
+ =?utf-8?B?UTJHbTkrUXNDaDlJYVlOa3dlVGJMVFZDUGxWNEZLaEVJTDZMbGVVa0Zkc25q?=
+ =?utf-8?B?OHlDdFViTEFuZk5Tb3pORUwyTGpEUkdjai8wQ3JGL1c0dmxQUmpCdW1iK0VQ?=
+ =?utf-8?B?TVdvd1dqVVFYWkl2TnBhWVd6ZmhNaFVJbWJWVEhCU2FJVVlDNVJXQks5V1hU?=
+ =?utf-8?B?UzVyNjhOL0g4eVBRVEdXWHJLc1dTRS90KzVUazQ3S3Q3OEZTbXVSZDBJL3lx?=
+ =?utf-8?B?ZTRZSGdOb2VtVCtYdjdUaHZ3dlpOc2s0dE1lL0gwenFNbUdKRUNMeDd0TmNz?=
+ =?utf-8?B?V3dnODByYVpWbFRzaDhRdlQvWmlvckdJUkFBcjF0dGJqSDQrNUhTUUdVYXJo?=
+ =?utf-8?B?Rm5zOFliMUNUczRLTUhJdWcySTMvM0QvdTZBaDhab1hVUTRTamljT0hTR29Q?=
+ =?utf-8?B?aldCV1c5bU1pcUFhQ01kTDN6TnBGK1plMDlVRUhoZnpMT0RCWlJTZVN5VHNu?=
+ =?utf-8?B?bjJ0RkFkeWhDNkJYdUF6R3hlcXRoV2hUbU45QzFCMUg4RUYrVFFTa01HU3Ry?=
+ =?utf-8?B?bkc3YUJ5R3duR2MxamkyWmdhTWRhelVXZmNLSXVIOU41bzdyVHlwaXFlWW10?=
+ =?utf-8?B?NHVvQ2VnSWdOM0ZkdEJEMVJyYlFWdWdJaGIveFpBcVJKeWFGWE9kd3daRUpT?=
+ =?utf-8?B?eVlWanRMZER5RUpuOTVNODQ5ZUZFVmdrUGdFaG9yc3VLVXpBUjhRQU9UYXJ5?=
+ =?utf-8?B?MEJnUEpRYmZLc0dmOWU2dDFFdHNTNU01Q0piVStySlFlWjM5azFucWQ0YlQw?=
+ =?utf-8?B?UlVwcGFueTNsSEhHcGRvV2EwYkkvMmMrUDRFYTdFRG9MbHdRNGZ0S2VLRGZt?=
+ =?utf-8?B?R1dJczB5MTFBYVRlRk9mcjZYd3ZwMytHYzZTRFRoWFB4cEU5TU1obmgyNFlw?=
+ =?utf-8?B?THREeUoyaXlKV2FESzNTaXBlUXVjeDZoWjdVb1pnb2d4Ym9QUlZKbkVzaWRt?=
+ =?utf-8?B?RitNUW04b2RUUTh1Q0tZcy9aRi9wRHJFNjlLSml6ODJoNW9VcisrK0g1bThD?=
+ =?utf-8?B?aVAybnJrRUdWcmdnT2VZWjhnS24yRG1KRk9pbmFGejVMZC83YlZGaTFRL200?=
+ =?utf-8?B?OVRCZ1RXWW5wUGlyVzFkSkpRaXBJRXZFdFpGK0x1TTQ5ZU9ubjg3U3VpYzZI?=
+ =?utf-8?B?T3E3d1RHWEhUaTNYRDliWGJBblZEOHRDTjloc3c5VUF6dlNhYllKV3IwcEdz?=
+ =?utf-8?B?aVQ5UThQUE1ZTEx5SXlkVm8xT1BQYVN1dzE4b25pS1NDK2FlYjVITHN2bCtR?=
+ =?utf-8?B?Tmphb3FEWEZDdjFkay9hL2hZNmRJVy9vTDFwUlpqSTlZU2JCYmk5ajNacDFv?=
+ =?utf-8?B?TE9IcnlZM3Y4MktHa09OSEFvUDdyVG5IUUFrOEpkOTI5Sm9KM1IwUU1ZaFFp?=
+ =?utf-8?B?b1hmVTN6YlYwblJpMDQ2dzNvcHh3UjU5Z3Q0blBrL2xqTHVOc052VG9PcXBt?=
+ =?utf-8?B?ZU5zRUxPeWZFSE9xZU1JdkZ1MVBFUFdaQmZPaGVNTDdmOWJ3OUh4bVVieExR?=
+ =?utf-8?B?VzZCT21IRmJYOUlRTFN4dUdud296aWYxNnkxUmpTUkVGblBXOFJ0NXhMRlBn?=
+ =?utf-8?B?c1NvS3NPeDZyR2tDUDZMbk1KK2VuUkFkclNSdW83QU55eWNTYnRmRDhURE9y?=
+ =?utf-8?B?N3pTWUx4OHpPSW1ubEQzMFZ5UHV5N2J0UzFscFIzNUdpMWNuZVhwdTVtMXRS?=
+ =?utf-8?B?bk12T01ob0l3U2ZZUDNybEcvNDZ5TmRUVjhobEF2N3NHNmFFdTVmUnRkd2VC?=
+ =?utf-8?B?anVpL2ZyYXpRU21taHRZbDdqNEVxRW4xbU1SZEM2d3pCYzNJdE0xNHZRU2Q0?=
+ =?utf-8?B?bmZmR2l3MklkNGpRU2hVbElnOGNZRmJYaVQ4aDlOQW93MU81bzNIM254Zk1K?=
+ =?utf-8?B?Nm1aUjJYbmhvVkY2Y2srNzluL2VEUE4zOXpOUXNMRWtxei9iRStjT1lVY3lP?=
+ =?utf-8?Q?jkE+6h/wipmQ7uumNyCpEemln?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4991a1f1-6eff-4cbc-cd5b-08dcb5f04e7f
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Aug 2024 06:20:51.1506
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Aug 2024 08:18:09.5665
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: hafJjyvuxdB8vvCZ1bEpdiGh2Jf4y77ifiT04/g6Rq+jDDvCd0mlgvc5RZDUbLbugkB73z5GIriC2v3T5RNclBxfZZqRhQn8BKgyr0FEwz4=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR13MB6358
+X-MS-Exchange-CrossTenant-UserPrincipalName: JUykBzVDx4MVc2KX4mq4kvJpg9tgzZ4Oys30Ugw8Wf7UWcV46ku54/852uzAEdXyoSBi8+pQZROwzFiw3CfQhQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8133
 
-On Tue, Aug 06, 2024 at 12:35:44PM +0800, Jason Wang wrote:
-> On Fri, Aug 2, 2024 at 6:00 PM Louis Peens <louis.peens@corigine.com> wrote:
-> >
-> > From: Kyle Xu <zhenbing.xu@corigine.com>
-> >
-> > Add a new kernel module ‘nfp_vdpa’ for the NFP vDPA networking driver.
-> >
-> > The vDPA driver initializes the necessary resources on the VF and the
-> > data path will be offloaded. It also implements the ‘vdpa_config_ops’
-> > and the corresponding callback interfaces according to the requirement
-> > of kernel vDPA framework.
-> >
-> > Signed-off-by: Kyle Xu <zhenbing.xu@corigine.com>
-> > Signed-off-by: Louis Peens <louis.peens@corigine.com>
-> 
-> Are there performance numbers for this card?
-I don't think it is well-optimized yet, but I'll request to have some
-data captured for interest sake.
+(Re-sending. I messed up the previous message, sorry about that.)
 
-[...]
+On 06.08.24 04:57, Jason Wang wrote:
+> On Mon, Aug 5, 2024 at 11:59 PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
+>>
+>> On 05.08.24 05:17, Jason Wang wrote:
+>>> On Fri, Aug 2, 2024 at 2:51 PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
+>>>>
+>>>> On Fri, 2024-08-02 at 11:29 +0800, Jason Wang wrote:
+>>>>> On Thu, Aug 1, 2024 at 11:38 PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
+>>>>>>
+>>>>>> The following workflow triggers the crash referenced below:
+>>>>>>
+>>>>>> 1) vhost_vdpa_unsetup_vq_irq() unregisters the irq bypass producer
+>>>>>>    but the producer->token is still valid.
+>>>>>> 2) vq context gets released and reassigned to another vq.
+>>>>>
+>>>>> Just to make sure I understand here, which structure is referred to as
+>>>>> "vq context" here? I guess it's not call_ctx as it is a part of the vq
+>>>>> itself.
+>>>>>
+>>>>>> 3) That other vq registers it's producer with the same vq context
+>>>>>>    pointer as token in vhost_vdpa_setup_vq_irq().
+>>>>>
+>>>>> Or did you mean when a single eventfd is shared among different vqs?
+>>>>>
+>>>> Yes, that's what I mean: vq->call_ctx.ctx which is a eventfd_ctx.
+>>>>
+>>>> But I don't think it's shared in this case, only that the old eventfd_ctx value
+>>>> is lingering in producer->token. And this old eventfd_ctx is assigned now to
+>>>> another vq.
+>>>
+>>> Just to make sure I understand the issue. The eventfd_ctx should be
+>>> still valid until a new VHOST_SET_VRING_CALL().
+>>>
+>> I think it's not about the validity of the eventfd_ctx. More about
+>> the lingering ctx value of the producer after vhost_vdpa_unsetup_vq_irq().
 > 
+> Probably, but
+> 
+>> That value is the eventfd ctx, but it could be anything else really...
+> 
+> I mean we hold a refcnt of the eventfd so it should be valid until the
+> next set_vring_call() or vhost_dev_cleanup().
+> 
+> But I do spot some possible issue:
+> 
+> 1) We swap and assign new ctx in vhost_vring_ioctl():
+> 
+>                 swap(ctx, vq->call_ctx.ctx);
+> 
+> 2) and old ctx will be put there as well:
+> 
+>                 if (!IS_ERR_OR_NULL(ctx))
+>                         eventfd_ctx_put(ctx);
+> 
+> 3) but in vdpa, we try to unregister the producer with the new token:
+> 
+> static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+>                            void __user *argp)
+> {
+> ...
+>         r = vhost_vring_ioctl(&v->vdev, cmd, argp);
+> ...
+>         switch (cmd) {
+> ...
+>         case VHOST_SET_VRING_CALL:
+>                 if (vq->call_ctx.ctx) {
+>                         cb.callback = vhost_vdpa_virtqueue_cb;
+>                         cb.private = vq;
+>                         cb.trigger = vq->call_ctx.ctx;
+>                 } else {
+>                         cb.callback = NULL;
+>                         cb.private = NULL;
+>                         cb.trigger = NULL;
+>                 }
+>                 ops->set_vq_cb(vdpa, idx, &cb);
+>                 vhost_vdpa_setup_vq_irq(v, idx);
+> 
+> in vhost_vdpa_setup_vq_irq() we had:
+> 
+>         irq_bypass_unregister_producer(&vq->call_ctx.producer);
+> 
+> here the producer->token still points to the old one...
+> 
+> Is this what you have seen?
+Yup. That is the issue. The unregister already happened at
+vhost_vdpa_unsetup_vq_irq(). So this second unregister will
+work on an already unregistered element due to the token still
+being set.
+
+> 
+>>
+>>
+>>> I may miss something but the only way to assign exactly the same
+>>> eventfd_ctx value to another vq is where the guest tries to share the
+>>> MSI-X vector among virtqueues, then qemu will use a single eventfd as
+>>> the callback for multiple virtqueues. If this is true:
+>>>
+>> I don't think this is the case. I see the issue happening when running qemu vdpa
+>> live migration tests on the same host. From a vdpa device it's basically a device
+>> starting on a VM over and over.
+>>
+>>> For bypass registering, only the first registering can succeed as the
+>>> following registering will fail because the irq bypass manager already
+>>> had exactly the same producer token.
+>>> For registering, all unregistering can succeed:
+>>>
+>>> 1) the first unregistering will do the real job that unregister the token
+>>> 2) the following unregistering will do nothing by iterating the
+>>> producer token list without finding a match one
+>>>
+>>> Maybe you can show me the userspace behaviour (ioctls) when you see this?
+>>>
+>> Sure, what would you need? qemu traces?
+> 
+> Yes, that would be helpful.
+> 
+Will try to get them.
+
+Thanks,
+Dragos
 > Thanks
 > 
-Thanks Jason for taking the time to review, these are good questions and
-suggestions, will take some time to look over this with the team. We'll
-then make some updates and/or provide answers on the questions for
-further discussion where needed.
+>>
+>> Thanks,
+>> Dragos
+>>
+>>> Thanks
+>>>
+>>>>
+>>>>>> 4) The original vq tries to unregister it's producer which it has
+>>>>>>    already unlinked in step 1. irq_bypass_unregister_producer() will go
+>>>>>>    ahead and unlink the producer once again. That happens because:
+>>>>>>       a) The producer has a token.
+>>>>>>       b) An element with that token is found. But that element comes
+>>>>>>          from step 3.
+>>>>>>
+>>>>>> I see 3 ways to fix this:
+>>>>>> 1) Fix the vhost-vdpa part. What this patch does. vfio has a different
+>>>>>>    workflow.
+>>>>>> 2) Set the token to NULL directly in irq_bypass_unregister_producer()
+>>>>>>    after unlinking the producer. But that makes the API asymmetrical.
+>>>>>> 3) Make irq_bypass_unregister_producer() also compare the pointer
+>>>>>>    elements not just the tokens and do the unlink only on match.
+>>>>>>
+>>>>>> Any thoughts?
+>>>>>>
+>>>>>> Oops: general protection fault, probably for non-canonical address 0xdead000000000108: 0000 [#1] SMP
+>>>>>> CPU: 8 PID: 5190 Comm: qemu-system-x86 Not tainted 6.10.0-rc7+ #6
+>>>>>> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+>>>>>> RIP: 0010:irq_bypass_unregister_producer+0xa5/0xd0
+>>>>>> RSP: 0018:ffffc900034d7e50 EFLAGS: 00010246
+>>>>>> RAX: dead000000000122 RBX: ffff888353d12718 RCX: ffff88810336a000
+>>>>>> RDX: dead000000000100 RSI: ffffffff829243a0 RDI: 0000000000000000
+>>>>>> RBP: ffff888353c42000 R08: ffff888104882738 R09: ffff88810336a000
+>>>>>> R10: ffff888448ab2050 R11: 0000000000000000 R12: ffff888353d126a0
+>>>>>> R13: 0000000000000004 R14: 0000000000000055 R15: 0000000000000004
+>>>>>> FS:  00007f9df9403c80(0000) GS:ffff88852cc00000(0000) knlGS:0000000000000000
+>>>>>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>>>>> CR2: 0000562dffc6b568 CR3: 000000012efbb006 CR4: 0000000000772ef0
+>>>>>> PKRU: 55555554
+>>>>>> Call Trace:
+>>>>>>  <TASK>
+>>>>>>  ? die_addr+0x36/0x90
+>>>>>>  ? exc_general_protection+0x1a8/0x390
+>>>>>>  ? asm_exc_general_protection+0x26/0x30
+>>>>>>  ? irq_bypass_unregister_producer+0xa5/0xd0
+>>>>>>  vhost_vdpa_setup_vq_irq+0x5a/0xc0 [vhost_vdpa]
+>>>>>>  vhost_vdpa_unlocked_ioctl+0xdcd/0xe00 [vhost_vdpa]
+>>>>>>  ? vhost_vdpa_config_cb+0x30/0x30 [vhost_vdpa]
+>>>>>>  __x64_sys_ioctl+0x90/0xc0
+>>>>>>  do_syscall_64+0x4f/0x110
+>>>>>>  entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>>>>>> RIP: 0033:0x7f9df930774f
+>>>>>> RSP: 002b:00007ffc55013080 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+>>>>>> RAX: ffffffffffffffda RBX: 0000562dfe134d20 RCX: 00007f9df930774f
+>>>>>> RDX: 00007ffc55013200 RSI: 000000004008af21 RDI: 0000000000000011
+>>>>>> RBP: 00007ffc55013200 R08: 0000000000000002 R09: 0000000000000000
+>>>>>> R10: 0000000000000000 R11: 0000000000000246 R12: 0000562dfe134360
+>>>>>> R13: 0000562dfe134d20 R14: 0000000000000000 R15: 00007f9df801e190
+>>>>>>
+>>>>>> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+>>>>>> ---
+>>>>>>  drivers/vhost/vdpa.c | 1 +
+>>>>>>  1 file changed, 1 insertion(+)
+>>>>>>
+>>>>>> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+>>>>>> index 478cd46a49ed..d4a7a3918d86 100644
+>>>>>> --- a/drivers/vhost/vdpa.c
+>>>>>> +++ b/drivers/vhost/vdpa.c
+>>>>>> @@ -226,6 +226,7 @@ static void vhost_vdpa_unsetup_vq_irq(struct vhost_vdpa *v, u16 qid)
+>>>>>>         struct vhost_virtqueue *vq = &v->vqs[qid];
+>>>>>>
+>>>>>>         irq_bypass_unregister_producer(&vq->call_ctx.producer);
+>>>>>> +       vq->call_ctx.producer.token = NULL;
+>>>>>>  }
+>>>>>>
+>>>>>>  static int _compat_vdpa_reset(struct vhost_vdpa *v)
+>>>>>> --
+>>>>>> 2.45.2
+>>>>>>
+>>>>>
+>>>> Thanks
+>>>>
+>>>
+>>
+> 
 
-Regards
-Louis
