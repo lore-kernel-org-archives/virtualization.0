@@ -1,22 +1,22 @@
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 405251D1752
-	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 13:24:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422EA1C9EA5
+	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 13:25:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722950684; cv=none; b=eLO3iuTaFQBicJtff0wnKEZJBk8IdN5OZJu1o8y/wSrDs9K4VRsmZ+u7xarVwPNTxQcpikr+8M7Hk6nIhZFHkYgOLQxR8dvjvthN8mM244oqHKitRBa3zQN3TQ7cxRkkmGlRoQYionl/R9riKGxTqsj17XXuk9wJbmqtK2fR5F4=
+	t=1722950719; cv=none; b=P/ckBfkKi5LOTIHAN2lS+JTP587aHelT8rgEBcrctXozlBlnS49JdQ5/LckY8vC00xVNIlgbj1zTzqQeU1WISBPEjyoZc0lAdnlaREwIUBbXgKVhlBJ6TZOGrkZQYqX9yvVxpLeTkh7mYjbn/DrqQP1NMF7G7CLM5Fayzh1ZhEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722950684; c=relaxed/simple;
-	bh=v8S/qR7q/YQjq2VA+RZtWtgslFht7FkNANIfnd1ek6E=;
+	s=arc-20240116; t=1722950719; c=relaxed/simple;
+	bh=U5dDV/v2PIx6PWOnrbWyAkbIQP9B98XqOWPeWZdUje8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HCTqgsoL1n9MC6YhbaSt79GpYCC1Jm9zOp/TTdL3h/ZkSlNlABU2Gb1A2uvfi+h8u0WkL33I1UUKkpfzRNnc20zFBocFbCCyHhc7U5pymV/1puGqeGorO6slXruLptQWWbYuL1+9tiHL0m5Ib7r9KxS3xvj4ZgE6AXByXT1kMoU=
+	 Content-Type:Content-Disposition:In-Reply-To; b=J54m7uuRtQxm8z8bKPoZrdTZsNK9E0WQnH/hZcdfchzi+Ot7nxBxrtokIvQfxjjPGsFA0uP4Uvsc5GeJpfir5VU7QMc6bwp67MaXeoaHABMjYuLWI/EE0k1/+KnuGjLFaR+8hO1KIWqS2+uRLTu9XagllwyYQel/8z/kCn91qQw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
 Received: by verein.lst.de (Postfix, from userid 2407)
-	id F1A5B68D07; Tue,  6 Aug 2024 15:24:35 +0200 (CEST)
-Date: Tue, 6 Aug 2024 15:24:35 +0200
+	id 443B368CFE; Tue,  6 Aug 2024 15:25:15 +0200 (CEST)
+Date: Tue, 6 Aug 2024 15:25:15 +0200
 From: Christoph Hellwig <hch@lst.de>
 To: Daniel Wagner <dwagner@suse.de>
 Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
@@ -45,10 +45,9 @@ Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
 	virtualization@lists.linux.dev, megaraidlinux.pdl@broadcom.com,
 	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com,
 	storagedev@microchip.com, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v3 01/15] scsi: pm8001: do not overwrite PCI queue
- mapping
-Message-ID: <20240806132435.GA13883@lst.de>
-References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de> <20240806-isolcpus-io-queues-v3-1-da0eecfeaf8b@suse.de>
+Subject: Re: [PATCH v3 02/15] virito: add APIs for retrieving vq affinity
+Message-ID: <20240806132515.GB13883@lst.de>
+References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de> <20240806-isolcpus-io-queues-v3-2-da0eecfeaf8b@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -57,15 +56,8 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240806-isolcpus-io-queues-v3-1-da0eecfeaf8b@suse.de>
+In-Reply-To: <20240806-isolcpus-io-queues-v3-2-da0eecfeaf8b@suse.de>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Tue, Aug 06, 2024 at 02:06:33PM +0200, Daniel Wagner wrote:
-> blk_mq_pci_map_queues maps all queues but right after this, we
-> overwrite these mappings by calling blk_mq_map_queues. Just use one
-> helper but not both.
-
-Looks good:
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-
+The title should spell virtio I think, and the commit log could explain
+a bit more why this is needed.
