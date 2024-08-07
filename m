@@ -1,142 +1,239 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2089.outbound.protection.outlook.com [40.107.237.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48D4C77F08
-	for <virtualization@lists.linux.dev>; Wed,  7 Aug 2024 13:51:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723038700; cv=none; b=WM1jj7M48jyF4GmgEteqGUnkUHz3iqRxm4woo/+4CkC5qMyT85yZwPAe9++U2np51uEnqfj6vM6kaUMRzVP6xnnoi2KBTfX+kllJtpXGF8hrQ8VSLWAo0giCGUHooQzwmFk1qe3+par0MGE6mIlvbWtRSjX4KXJxO5k/Qkc7Uug=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723038700; c=relaxed/simple;
-	bh=BGi0niil7ZhDHyq+NZ6JdNNg1TfEYTESPyfrYYgGC6A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=s+SOvbmyOHpX++mJQq1UGGX+6CHh5vcI54NYXPbeAfoU4H1/WFg66RJD6LjkHcu2Zu6tERwWlxP2lGCILtEg+bLYwiVcalZFYfZOI7nc8eDVWexF3hJvb9d0c+WU7Fg9Q5e9pL14n23EOni1E94hJudsKeV/+yv9E5E0Ie8sOR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z52g//A4; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04DB37B3F3
+	for <virtualization@lists.linux.dev>; Wed,  7 Aug 2024 14:54:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.89
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723042475; cv=fail; b=a0MQDvhunkCTYdeMqFQ31RqqRaWXZVBlYs+gzKy3z52O9OFJf7Z/tue/SdQKDrTyfRZ8xm1IY+1ziD/fYxatfpFdW54hqhuauYG7+9biFZzYpOhnh0LHwtsLOjDQKgsXjES9oH7FSF3tRziU6xWqzsCnOmgaLeK3Dz51lNkVg3I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723042475; c=relaxed/simple;
+	bh=A2KQRnGp2eDJqNBdd7w1ExxtCaKnyPNmMpjmHpHoFjY=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=AwJ8aKjo2IJFTNVL/B01iXLWXJQdYG8p592Yl/por0kcMYbGtwmQZ+y1yIeFCSCmU6Bxkn+e4VVFpRLd6Nq5GAmV7CGDpxgA54VyBgl+CZtZvfP57RvOuYOshnk7Tzp8Ypsml45eNY8FxiWAxYqVtAZhF5rKMWbyupxKom6iHok=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CjqtGTZ8; arc=fail smtp.client-ip=40.107.237.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z52g//A4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723038698;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VeN30O0br2KcNUsWMzAJND3zzsH9WsTjuBPNWdcC/qM=;
-	b=Z52g//A45+/H4mvOPCThUEmRZFwzDnq7XE9s2k+MsipATPyATumeG2ih3Oz3ZM1qcr5Hmt
-	7mof0LGBs/o0fNSJcy5PITry+MROhA82La+XSPN/ZhOAohXDHsN+WvIyVU5wPHLQhkgZrD
-	lQGq86e7v+0dc1p+YPo9HYewQToZtmY=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-231-Zjktv9f5P5COD5dYCKLY2Q-1; Wed, 07 Aug 2024 09:51:36 -0400
-X-MC-Unique: Zjktv9f5P5COD5dYCKLY2Q-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42820c29a76so13303975e9.2
-        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 06:51:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723038695; x=1723643495;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VeN30O0br2KcNUsWMzAJND3zzsH9WsTjuBPNWdcC/qM=;
-        b=IVA/OdILJBjK8fHMYsD9mkgljLr4LHJWPLP9ATByowBkP9i+jZdBbobrLKZG5/VXH+
-         3f9XjVKtjywX+cEmHrWoU4MT84rwJKlQb1LQ3rh6e0dMczCcjInm1iNrlQbjyxQkXwRL
-         V4ukXtoGobFSx+5zJrNhyNoy69NHTMWQohHbR/Np4KXBfL/JCTIQdLfaZN2C5DKz4reM
-         hZUliO0NwaTJ03B9txF2ds7jYv/tOBF9GlsdD/BOAHQNLeQVprDPGPOceaH9bRiVStQe
-         iszkuwt9CuAAkqvD2RMBwZzWPzuLTaALA7cPH8lDaA9Pee9OIKcssaz/ilYogPvrr4yE
-         zZcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVSVaXozsG563ynzG6akhD97q5jVLmHVp1ttIn3A//WNH66VNQSk/q99xatjItbBRfOmJmBASsVgqPQLePcXzlUq7x8g72IHgQeSrGxOtg=
-X-Gm-Message-State: AOJu0YyDm0FrXidI91OHbMTMsrsGYfxbIk8tDiDREY/pSXgsrbVhXDB/
-	SZRCV9mXuCZwtQDbqMw1is8dA0hHoS5B2A7TUyA4XqjZDvlaSrgUiejzXfVmdA1uwiE2uv4woZP
-	OSVL4UeV/r/dk5OvzpbEc4tHql/8x/AKh26KaexBGY+d+LtizLbsGZ0uHjDCwVeCK
-X-Received: by 2002:a05:600c:4f12:b0:425:7974:2266 with SMTP id 5b1f17b1804b1-428e6b7c13amr127656945e9.24.1723038694934;
-        Wed, 07 Aug 2024 06:51:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHhVFXgTXOjAYJDRv4mghT8BBwotFekv1SrhkpxYI+/Pu124Fj0jnbNi/dHqZyErUwSt44fSg==
-X-Received: by 2002:a05:600c:4f12:b0:425:7974:2266 with SMTP id 5b1f17b1804b1-428e6b7c13amr127656675e9.24.1723038694161;
-        Wed, 07 Aug 2024 06:51:34 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f4:efe1:812e:e83a:2c34:ce60])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429059713adsm30818505e9.11.2024.08.07.06.51.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Aug 2024 06:51:33 -0700 (PDT)
-Date: Wed, 7 Aug 2024 09:51:30 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	inux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next V6 0/4] virtio-net: synchronize op/admin state
-Message-ID: <20240807095118-mutt-send-email-mst@kernel.org>
-References: <20240806022224.71779-1-jasowang@redhat.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CjqtGTZ8"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=MnFCHJwyc/G3n+CXT7P1vr/ZfdIijIq9dCj/O2+WBhADeC6slxDtrAovbKPo/Z4WnnhfQn0tJDZsrSs5xDXSRw7J/osHmcOR4jgsq9OyT3N8+o331KHexHlE5bEtfuTVV07UpS9wDyRvgwgdz59VEkglUIRdVHOVFPeGE1i7nEkpe2b8psb+xlWP1SZFoogOpoGAoe7t4YUTvHMoaY//BfSHi5EoV5yPCjcEsKDHI8d01948qQHAqD73KjednhKG1wLzdpQ45+8jcNHhBSVELU/xsC0y0oxQLIi7DUxpfu36U0q9LWwSZIB0BDV1j54ir5vMpB9euKSrwVvtYJ/Tcg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=hRMn1gDqhXXJFnBP5HZYT2yYy6Lt3zXMx/pKQUPSfdY=;
+ b=BuT4pK1LMPIF8xriAyjjv8le+k8bw63NIgnmAir/GtlTjwVOQLr/wWlPsODEjYu7bIgX/USpYglgjlAP+HMltM7hpM4DOs0unIZYqkcc2F+Pc6b20nQ54vDfVh8PS3/S/SNQZ/tPmHONs6zNm6Ea23Gb2PU1Gd/2hShvr7dBmQIg8KD3MfXXTeTgClEllIwFBwxi4LDJhPWaaPP5P+1Frmz5w0Gdos9/eIcGFmYmYlO+wuiUqa+Nt7eavugS4W1Clt/RnZFAuP0tLS9P9/RYDaRFobE1edkfUis64yb7UySUgI3DmdVyCbLiRkGQhD96AceJCnw2kYI0kQbF3HaWUA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hRMn1gDqhXXJFnBP5HZYT2yYy6Lt3zXMx/pKQUPSfdY=;
+ b=CjqtGTZ8K6mQA+QO+o9Os9bzU4YLxk1BsdtbHeNo5qHUqEhVJz9GO1htfkw8UmLKX8Os+Se8GE1vH3U13y3f3SOe9KnFQqATtgIpIQak6V8NTpcMJNYCSEAoPR5H8wj/7Z4yVlKa/EKzXYJVIHH2uJZYOr81eDwp2PzWfgIdLzcbkK7z9xBElBkefzqYoak5G3vLc3cDmRDaBw4ATMu4Xd/JJDB8M1SBTfOBog0WDRqiOYNATPUr5c5VIwUMXamVh+lPgciylFPTlHLPYOtOcq/+7QMMq6tq61MseBpZugSIYwqpJp9ZsNDpuQiUHLpJpqIWTItSsrlSm1zHXPKt4g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
+ by BL1PR12MB5707.namprd12.prod.outlook.com (2603:10b6:208:386::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.24; Wed, 7 Aug
+ 2024 14:54:25 +0000
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4%7]) with mapi id 15.20.7849.008; Wed, 7 Aug 2024
+ 14:54:23 +0000
+Message-ID: <6582792d-8db2-4bc0-bf3a-248fe5c8fc56@nvidia.com>
+Date: Wed, 7 Aug 2024 16:54:17 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH vhost 0/7] vdpa/mlx5: Parallelize device suspend/resume
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+ Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Si-Wei Liu <si-wei.liu@oracle.com>, netdev@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20240802072039.267446-1-dtatulea@nvidia.com>
+ <CAJaqyWdGNfJ3n-E2-PvkuvCiOMsLkEzYaUi5wi-C_n84-a_LAw@mail.gmail.com>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <CAJaqyWdGNfJ3n-E2-PvkuvCiOMsLkEzYaUi5wi-C_n84-a_LAw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: FR0P281CA0203.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:ad::9) To CY8PR12MB8297.namprd12.prod.outlook.com
+ (2603:10b6:930:79::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240806022224.71779-1-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|BL1PR12MB5707:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5cfd15f8-8850-43c6-2a86-08dcb6f0d37c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?Z2RiR3hCWDl3K1RBNGNXazRJQUR2L2ZZaFFyRU5ZSVRBMnFnNGNIakFMM05L?=
+ =?utf-8?B?TjkvL2Q4YUZrUzVaZ1JNbXZXa21Ga1UyVk9sSEYvbDl4WXNYT0VSaEllVm5K?=
+ =?utf-8?B?U0Noa2NYdGZNS1ZTVmFtZmtxRFVZTW1SOHRidUxtdUJma2hPeUlJakEzcENN?=
+ =?utf-8?B?d0d5VXBtdU42bTJaTURGVUtURzZOSk1LQXVnKzNCaEY3RWRmQnUwblBDbHQ0?=
+ =?utf-8?B?U3UzOHl4aFZNQkxpVjl6SngyNTNyY1A5STNOc1pvMkVrOEVTakxzQnQ4eEZj?=
+ =?utf-8?B?NTZPVjllQmpveFVYb0dLUFVRNTV4THJkenlGTkNDMnZTTyt6VjhkeUpIZUY1?=
+ =?utf-8?B?NHJOQlJJL1l1azFvbUNmWkF2bXk3VUE4eEJLRnZ2bERYMENqdjhHeVM0aGpm?=
+ =?utf-8?B?WDMvenJGOE5iN01WaDZVR3g5YUVKWGc1YkJCSkRYbzJkbDAxQzhISXowTk8z?=
+ =?utf-8?B?ajRVOU5PUjJDSmdzdWMzYjd4TVdVeWhReXh1Yjk1RHZiZitvOGhtLzYyTGNh?=
+ =?utf-8?B?cXRVd2dtUVNwcnRIbU01M3puQ3dqTURscXg0YnFOdnJhMmxNL0srS0FvSWMr?=
+ =?utf-8?B?VExPSjFqL1lZaUhPZG4yNXhDSklBeVZEaW10VkZLQVAvd0RVWkxGcmgvZWVP?=
+ =?utf-8?B?T1ZGVUc2T2txdm1xYnJwT3IzMkd3emxVUTF2MHJiVWl1NGVpSER5SnBPSm1O?=
+ =?utf-8?B?RFd3ejl1bEhIb2puQWNjLzBKSEE3OW9xa1lRUGgwc1MxczF2d1E2VVVORUtC?=
+ =?utf-8?B?bDU1LzJOcnpqRllYcy9zYktwM0tmR3dWUGNvUnloYWhrWDNRcTNYUWtiK0ww?=
+ =?utf-8?B?SEc3ZGNMWXN2RyswSjZrOWpUTDB0VWI2M1VvZFBBTVFKZWE5VzRoSnpVWDJn?=
+ =?utf-8?B?S3ExSGpXbE5XVlpjcmhmczlQcXBrdzBldEZBSlVpdWRiYjNDYnR0YVhMSFR4?=
+ =?utf-8?B?aEFqaUhtOTlQN29IN3FVWlA0N0dUZUM4ZGVEcWVwd1VJUlBoYWR0K3J6MlE2?=
+ =?utf-8?B?TmxjRnFqTmROZ0tDcFFHZHFiUEphTUUrb1piYUNwQkJLelpxcmdYdXVoeWlG?=
+ =?utf-8?B?a0xTY1VHVmhtNFFSb3g1azdER1RGRXU1M0UrRXdNeHZ0WGdCeitmektQN1Iy?=
+ =?utf-8?B?ZmIwQUhQRTA1RDVXZnhxSlpnTVU0WUZCcEtpcWlYekNhVmJxV1VBNHJIZ3lV?=
+ =?utf-8?B?aGZwRERKemZnR1FBU0JzN1lDYnNmdHd0RklvOTlveVljRHJvdi9aTFlPcDQx?=
+ =?utf-8?B?Q0J0QUNXQVJkUnBjNXc5R21pdDNzZ0V3d3NyUkRqUUhVZDNSN2NIZ1FvSHRK?=
+ =?utf-8?B?YkY3MUJKdTdubTJjbHVrU1ZySjRmVE8wSUpPTzY2WVkvRnZLRm9PMUZXWm45?=
+ =?utf-8?B?M0pya3lHMjlUMUtSVlk2OTlHeFNvREVmWXV0dWgrMUlyVytqQUtTMjFaTXJY?=
+ =?utf-8?B?ejhPREpzQkJLWUVXSXQwTk0vci9xR2h2MTJiMDFYUjY3d0YrZUtvZnZMdW04?=
+ =?utf-8?B?a050b3U5Z04wclRBaDNkSnZWTXhYZVREM1IwU3VwMGNuOEJpck9HNnozME9W?=
+ =?utf-8?B?SUdQcEVMWlg0eEZ0YmUzbzNSc2pMQnRseVJDQktQVk1OUnN4QUc2RDlGKzR6?=
+ =?utf-8?B?SW5JYncwMUpTOG9xSkJIY1lWMzk5Sk8rc2FKK1lpajdGOENPTWp6NnVwcnIv?=
+ =?utf-8?B?aURBVzdjOThrYkh5SDdOY0FBNWFJNGViSkhuUVRyQU84NGpGU2tCRlgyeFNl?=
+ =?utf-8?B?SWROS1p0NW5zbVByT3VWbElDWkxVblRaZEl5STBjcEFNWm9LMXd1OFBualFk?=
+ =?utf-8?B?YUY4WFo4T1VBY3k1ZFVOQT09?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?ZjlTK0ZodndjMnV1eVF4NjF1dDVncHJVWittVG9CMWpzN3NGZjdaTFdqT0tI?=
+ =?utf-8?B?dzIzVkpTYXBUc1M2OG83S1N2L202ZjFYSlJpZWgxdStsTGxwNXpZTWZ3SWlD?=
+ =?utf-8?B?SzNjN0FPZzZVVkRLTE4waXppT2FxS3BLTEMxMlMxTndGNGZRWWEvVDNNK1NU?=
+ =?utf-8?B?WDlmZElhSHl0RHJueUUvRWxEaFZ4Rnd6L3RBWm4xTGZHaklQTGwzMkNpcVJ6?=
+ =?utf-8?B?SFRndVZkd3l4RFFnOUlNdGtkMTVQUU1pd0pibmhncDU4Q1U2YXRBM1BKa1JN?=
+ =?utf-8?B?c3NPSURxMkdId3JoVjMxSThJL00wYVJ0MXhHQ2N2OEFVdFB2QzFrSXNBNTl1?=
+ =?utf-8?B?TTBRcHg4b0pXY0t6ekgwblo1TzEyT3I5OUpTRkx3eUNyNGVmb3FHZVg1K21V?=
+ =?utf-8?B?bHc2bnMzY2lOczVFNFZhd0g4UGpHK05sVi82ZFFsRkJMUVQyZEJzMld4N2ZS?=
+ =?utf-8?B?SGo5eDd1ZjBjRytJOUJhUHFFNlh5UFRsc2NQcjZzTDBVY3ZOZ3YrRnVJM2ZM?=
+ =?utf-8?B?dlhHVzFCTnpGNlF0ZnorYXZFRFBsN0szMGwzdzhIOGZXVVJ1TW1hbVFUMUh2?=
+ =?utf-8?B?c2FvWTNHeFY3Q2FmVFNCYzYyVU9xR2NDeFBBNGF5dGtYNjFJdm5HWTJoRERG?=
+ =?utf-8?B?QktHTGVCZ251amZlYXpKUks3bVJHYVlwODc3VmU5T0xIR0xtUjF3dmpqSkY5?=
+ =?utf-8?B?VmJIWDVtMXVSRVVCM1VKM2hNaTdQWmhuL0VPOGIwczhvYkZrN3hqV0FPdmdN?=
+ =?utf-8?B?amFOV3ZXN0d4QU9JcktNeHdqRW1WNjdQa1poOFBGcnVpMW9hRkUyYkg4LzlI?=
+ =?utf-8?B?d0Y2M3pDT0IwUnJhZ09IaDZkek5ESURQRGNnR2F4MmRaeU93b1hsbWZ3MXpZ?=
+ =?utf-8?B?NzZTTk4wejNwNXlXOEFyT2cvOTRrSUNLcnZBSTBvVUR3T2prOHJ4Vkt0Nmtm?=
+ =?utf-8?B?NjJiTFBKdERGa2xPZzVXbHZ5SUE5VXhrS3hnSVdTV25zbStJemJYcWhSc3RL?=
+ =?utf-8?B?RiswcFhZcUMvbU5tK2ltdy9KUHJMbTdVWHZVNDgyTlo4SWx1YjFYM3Y1RnJP?=
+ =?utf-8?B?Q3NpV3dlclcvTWZ2bENCTkRiN2ZBeHpRT0VRbDZsUTZvd1V0cDlZZzBORDhn?=
+ =?utf-8?B?Ri9lSC9jNnp4eVNVcC9WWE1Jbi91UmhDcU54TTJFc0R2Z1BabU1wNldCaG5Y?=
+ =?utf-8?B?aWg4aXpORzhidE1Pa0dFcUlRR3MzMVVwcnY2N1Y0RU5JMXlzU0kxd05Fc2dr?=
+ =?utf-8?B?QnVMdStKbWpndnR3MWRRNmdINGV4M0ZLUjVhaWR5N0prUDNtTEtYMHlISmRk?=
+ =?utf-8?B?cHhwN1pwM1pYODBJbzc0Z0JkRTBjdGZpMXJwZGJQMURINzFxeVBubzZSTTM2?=
+ =?utf-8?B?b0g5MWxaUldBQ3NoZ0tFa2Q1bFBYcy80N2RncXdHdm9JNjFkZXNpMGpaeWNq?=
+ =?utf-8?B?TDNVZkpCTFowVzVDVGNmc25GWDlacFFMT2dvV3dMNEtzZFFsMS8xVDZOc2F2?=
+ =?utf-8?B?Q2U1WC8wZ0x0VHpOTy9UT2lPQm51aGdBTElvdWhzOEYxMHgvTFhuRzFmV1pt?=
+ =?utf-8?B?OFJVZUwxcmhxQTVFTjEzaEJKaUFFMHdEaGZjcGRpSHJNMS9MN2w5UkpQQXFS?=
+ =?utf-8?B?WjhoNXJUaHFLQzJ0UlNOYjZ4dU9iMklhQW9JZGU5bGphTGxWTnNTZFE5NTVZ?=
+ =?utf-8?B?QmkzMkJLbDB1RkhMWWRyVENmU3lOaFUvNjJiRFFqY3F3RTJvcCsvci83NXNy?=
+ =?utf-8?B?Vk5QKzlHME01ZnoyRkN5TnZzOTFqZEE0YjlXZHhUTUlScHowcVQxVE9SWEd3?=
+ =?utf-8?B?WEFWdVEzSENzM1Q4emVuVkV2eG9zS05YcHlOWkJhZUY2NStLMnJIb2lncGRW?=
+ =?utf-8?B?bjZqMzNObGRjaEdLTmR4cmFwSGp0SlNCK2JsWi9MZUFQbVQ3c0JjQVJhVk9y?=
+ =?utf-8?B?cytHR1loaTZIZjF5OGhuUlZJRVNRVDZ6YVFVbmV0RWtNZitoV3JPUDRZOVFI?=
+ =?utf-8?B?S01kakQwdXZXdWphVGhUQ0Fwbk56VUlwaXNyclhFYjJHMWE5RG0zMEdGSEd6?=
+ =?utf-8?B?eVFONGdTZXc4eW1NZUszWlhqVGpiRVNaRmZkSUNpZ2lYaU9TeGx4TTBtemtQ?=
+ =?utf-8?Q?FFM/iKHoDavJsLjEE506h9IxK?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5cfd15f8-8850-43c6-2a86-08dcb6f0d37c
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Aug 2024 14:54:23.8768
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vhegpFw88p1JyOwvYKsqLc6huMSJSIkXdzjpUXGfiuiwR0LRhrGfYDsxy1X+rDuamq5Jm29SaYa3HAE18CZvnw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5707
 
-On Tue, Aug 06, 2024 at 10:22:20AM +0800, Jason Wang wrote:
-> Hi All:
-> 
-> This series tries to synchronize the operstate with the admin state
-> which allows the lower virtio-net to propagate the link status to the
-> upper devices like macvlan.
-> 
-> This is done by toggling carrier during ndo_open/stop while doing
-> other necessary serialization about the carrier settings during probe.
-> 
-> While at it, also fix a race between probe and ndo_set_features as we
-> didn't initalize the guest offload setting under rtnl lock.
 
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+On 07.08.24 15:25, Eugenio Perez Martin wrote:
+> On Fri, Aug 2, 2024 at 9:24 AM Dragos Tatulea <dtatulea@nvidia.com> wrote:
+>>
+>> This series parallelizes the mlx5_vdpa device suspend and resume
+>> operations through the firmware async API. The purpose is to reduce live
+>> migration downtime.
+>>
+>> The series starts with changing the VQ suspend and resume commands
+>> to the async API. After that, the switch is made to issue multiple
+>> commands of the same type in parallel.
+>>
+> 
+> There is a missed opportunity processing the CVQ MQ command here,
+> isn't it? It can be applied on top in another series for sure.
+> 
+Initially I considered that it would complicate the code too much in
+change_num_qps(). But in the current state of the patches it's doable.
 
-> Changes since V5:
+Will send a V2 with an extra patch for this.
+
+>> Finally, a bonus improvement is thrown in: keep the notifierd enabled
+>> during suspend but make it a NOP. Upon resume make sure that the link
+>> state is forwarded. This shaves around 30ms per device constant time.
+>>
+>> For 1 vDPA device x 32 VQs (16 VQPs), on a large VM (256 GB RAM, 32 CPUs
+>> x 2 threads per core), the improvements are:
+>>
+>> +-------------------+--------+--------+-----------+
+>> | operation         | Before | After  | Reduction |
+>> |-------------------+--------+--------+-----------|
+>> | mlx5_vdpa_suspend | 37 ms  | 2.5 ms |     14x   |
+>> | mlx5_vdpa_resume  | 16 ms  | 5 ms   |      3x   |
+>> +-------------------+--------+--------+-----------+
+>>
 > 
-> - Fix sevreal typos
-> - Include a new patch to synchronize probe with ndo_set_features
+> Looks great :).
 > 
-> Changes since V4:
+> Apart from the nitpick,
+>
+> Acked-by: Eugenio Pérez <eperezma@redhat.com>
 > 
-> - do not update settings during ndo_open()
-> - do not try to canel config noticiation during probe() as core make
->   sure the config notificaiton won't be triggered before probe is
->   done.
-> - Tweak sevreal comments.
+> For the vhost part.
+Thanks!
+
 > 
-> Changes since V3:
+> Thanks!
 > 
-> - when driver tries to enable config interrupt, check pending
->   interrupt and execute the nofitication change callback if necessary
-> - do not unconditonally trigger the config space read
-> - do not set LINK_UP flag in ndo_open/close but depends on the
->   notification change
-> - disable config change notification until ndo_open()
-> - read the link status under the rtnl_lock() to prevent a race with
->   ndo_open()
+>> Note for the maintainers:
+>> The first patch contains changes for mlx5_core. This must be applied
+>> into the mlx5-vhost tree [0] first. Once this patch is applied on
+>> mlx5-vhost, the change has to be pulled from mlx5-vdpa into the vhost
+>> tree and only then the remaining patches can be applied.
+>>
+>> [0] https://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git/log/?h=mlx5-vhost
+>>
+>> Dragos Tatulea (7):
+>>   net/mlx5: Support throttled commands from async API
+>>   vdpa/mlx5: Introduce error logging function
+>>   vdpa/mlx5: Use async API for vq query command
+>>   vdpa/mlx5: Use async API for vq modify commands
+>>   vdpa/mlx5: Parallelize device suspend
+>>   vdpa/mlx5: Parallelize device resume
+>>   vdpa/mlx5: Keep notifiers during suspend but ignore
+>>
+>>  drivers/net/ethernet/mellanox/mlx5/core/cmd.c |  21 +-
+>>  drivers/vdpa/mlx5/core/mlx5_vdpa.h            |   7 +
+>>  drivers/vdpa/mlx5/net/mlx5_vnet.c             | 435 +++++++++++++-----
+>>  3 files changed, 333 insertions(+), 130 deletions(-)
+>>
+>> --
+>> 2.45.2
+>>
 > 
-> Changes since V2:
-> 
-> - introduce config_driver_disabled and helpers
-> - schedule config change work unconditionally
-> 
-> Thanks
-> 
-> Jason Wang (4):
->   virtio: rename virtio_config_enabled to virtio_config_core_enabled
->   virtio: allow driver to disable the configure change notification
->   virtio-net: synchronize operstate with admin state on up/down
->   virtio-net: synchronize probe with ndo_set_features
-> 
->  drivers/net/virtio_net.c | 78 +++++++++++++++++++++++++---------------
->  drivers/virtio/virtio.c  | 59 +++++++++++++++++++++++-------
->  include/linux/virtio.h   | 11 ++++--
->  3 files changed, 105 insertions(+), 43 deletions(-)
-> 
-> -- 
-> 2.31.1
 
