@@ -1,143 +1,165 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E66318D640
-	for <virtualization@lists.linux.dev>; Tue,  6 Aug 2024 20:15:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B901D2119
+	for <virtualization@lists.linux.dev>; Wed,  7 Aug 2024 02:38:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722975330; cv=none; b=nplid6PEuvUh+NfrpS1Wumg8PxoUOjwe4NaJr5oXe5SMW6WjsxcbmNfb5V0fDkzs/xDEU1Zfo68WZxWiMPJkZEyYHpFJu7/f2keaHByLrVKhPlr+jGuxukOvKM+U90i9VV+Ve5U4S6PuOnzAtxPHnToqVPv77MReFfftGoDQ0hQ=
+	t=1722998338; cv=none; b=c36fLJ4LyGXtbpt9azK7szA6vSUWVIPYoVM3N/yyC/A9DxOBB3+xit0/eubWGnDYUDPdfV1kBpZrHS600FfMXEPklva4CmvgtiRzRM4h21MFzEXmcu+MYkRpuKGQGluSqdZxL29rCeTT+1ru6yMaid1/u6AipxX89oQXvxhlTho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722975330; c=relaxed/simple;
-	bh=VxB/cGylhChdxmwTFCI5s1BrAh/xNUENUOMwnFLA+fc=;
+	s=arc-20240116; t=1722998338; c=relaxed/simple;
+	bh=j7DELF6Ao0UKpO6uVhlXClIeUSt1Tugi/IGtg7SeFX4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Lm4Ty+FdnTwGIuRMJCSKQGF1gSLyEyl9nEw1w7bPVGnDgVq8X3NhdlyrWFOrrCZMwubYyezmiRKlk/H8qP3H+J6RULsCYAKU0uTJ+jSpRxrxtDyMQ2PMIorP1qmMN9USk50ii4OeD6bo5l77fBSXt5hlKyIjulIjfeI9+zD6F3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q2YPrzY0; arc=none smtp.client-ip=209.85.167.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=rTgcoNVIuUUIU4fyVbLF1+DL6lcABOQEpvoKPamMcBcza3v2jAPPs3PtnbTfyRcLRG+6NCnLNlDzqbkIEWyJoI7VLTpINQhfZqbzCdGJji8pQXZ1dsO9eU9uUAAHxDr9J4PNA7CzNwNbfXH9t00eiu7SsnK/hHKUz4YPVzV2RLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hXba6Bo4; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q2YPrzY0"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-52efabf5d7bso1441815e87.1
-        for <virtualization@lists.linux.dev>; Tue, 06 Aug 2024 13:15:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722975327; x=1723580127; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Dcr4nYm/ORNQ3/y4PL408hIFoTg8Yy+y6wFiPltrL7k=;
-        b=Q2YPrzY0xdR2zZKejo1O0G03E56Ur903WSy/YgNxix6jtudMQNzKRvwZ9h54V6W108
-         vwm8OqdwwYPj6n+p7qVDPGnYPHShb2BroaGhjKb0XopPRhqsaYQVCFosjrdvtFLXimmP
-         WaJIKAI87JoCRLNJozJ6oFeRBC87aRBMVrJYMOipcl1NFSeQIV93t+MzuBmtj4JPHkkT
-         drLNs49kJBc3ZDzuhhefeWGMN8QPiz3hg14E1A+x+euxgNGVZfGOzs9Tk8oMt9u4ARNb
-         +GQHhR8mXG2wq3VAKzhTa6UHKkBKF7BPv000xYaH22/1ORUg0l6x/QWTQUK0uz/d+B/Z
-         vf3A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hXba6Bo4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1722998335;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j7DELF6Ao0UKpO6uVhlXClIeUSt1Tugi/IGtg7SeFX4=;
+	b=hXba6Bo4Aue2GGYk6GYFdZJ3yA/FIxJZZuvuiplPQ+B84mXOwBbe51W50TXbXaw6qsGKm9
+	/y4ZDvBGa39DEgio65GY5w5bPJOU37AAVQuU5SQmMcjOl1DF2nPfmewVp4A9RRooSNt0cb
+	9GjPjJbLKIFAlAKTUHVBdw1BMa6qXR0=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-681-dAQE4bqaOJqQ2LRes9Rcyw-1; Tue, 06 Aug 2024 22:38:54 -0400
+X-MC-Unique: dAQE4bqaOJqQ2LRes9Rcyw-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2cb68c23a00so435134a91.0
+        for <virtualization@lists.linux.dev>; Tue, 06 Aug 2024 19:38:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722975327; x=1723580127;
+        d=1e100.net; s=20230601; t=1722998333; x=1723603133;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Dcr4nYm/ORNQ3/y4PL408hIFoTg8Yy+y6wFiPltrL7k=;
-        b=LILhmXCXF+0vmjHLl9M5qJDf6bc81t9ykdor86qkQPr2M39evKHmdSsFa+dVKDkL74
-         2E3YD07+NhNxrDsZ2mV9XRLXrwvwPHL4Ojae5VbB0lVKevfphRWJ+OJ7sLrvF1zazJjG
-         BPP40Honz7bLA5YTbXhXB/ChtJX/jG1xaMkt4rAUUGDPHupSgIa+oKSIPtm0xj8ZIYzH
-         l1Lxg1Ou47Gi8OZAPS4EXvA3K1HDR4GFSIn1c0KxYg0QNI9UnW4Zp3uyNPsuTvaLeRHV
-         dLSbfxKOhejMJmIcdxGZnddHxCNe4ysa1VOK5wm1aQDcRspameXa57Rw9rCeQfwXr75n
-         yHRA==
-X-Forwarded-Encrypted: i=1; AJvYcCXBwNJ4Ij6x4ceHDx0IdWIaHlSc5WuNDE748Cf6NVP1vlyUzn9CEpiXke/TwE/4HGYyKUduk1x7+A8oRkJEI1apcBnB14/iETA91PX16p4=
-X-Gm-Message-State: AOJu0YyqYfQLzyeI2Sy8qXXRGlTqBrtiVO8XtXw32rUI2HCxyNnv/c94
-	aBc2NUB24huuEMmG9sZTKV1SBoadZXBHo0UJLBtnunJxLvVPptYRuOaAKtThUmbQRDhfaGGKl27
-	DNOsOaX/XB+i0v7/Ow+INy0alhlE=
-X-Google-Smtp-Source: AGHT+IH3Tp44NrqMDhvMRbQhQ0+Eoa5hP8pm5fmmlYU+SDu3IykCst1EwAebrsLtDb/dcR3chM8jUFPBcOJNtaDvxNA=
-X-Received: by 2002:a05:6512:a8a:b0:52f:ccb0:9ea7 with SMTP id
- 2adb3069b0e04-530bb3e0ba6mr9551626e87.60.1722975326329; Tue, 06 Aug 2024
- 13:15:26 -0700 (PDT)
+        bh=j7DELF6Ao0UKpO6uVhlXClIeUSt1Tugi/IGtg7SeFX4=;
+        b=qmjp40B6avO59/zWCTXt4fcI0++GM0LbdIh7//oOyq7NVHxicV7+j66XEm3vhv9WBB
+         BqLUb9OyBAr/wdEOQFFPdGjD48vL7BdSvVvcaw0XMXXoshjUsnhLI+4jgKfG1thVUUak
+         52zisL88z67Ti05D6oOaCfC6r5GP7vXpz+276/Zt6tqSl1UR1o24WBwZSrCjizk7pV/A
+         eUeIfAwSauNg5m6g2h+4wSgTYoMRqiVkJqX+LznXcNKvZSnXtS2Gu1difhPzEtnmDdJU
+         ASYuAnj4+xlXGpA7AMeUofW2GQ/WpPrrqdYPiATbJ6DmwnULeXce2+bcyhYx2/21pMZE
+         68+g==
+X-Forwarded-Encrypted: i=1; AJvYcCWFVaOii09zV4keOoQYqBSRwQzZn8dv0X5eeHtcHheQ37i7/t5T6SwtQPMRIPlXfk3axqeUFMKi+vpsvK7GguLH3lFXc0lAVqzjCtxmfzE=
+X-Gm-Message-State: AOJu0YyvfmlK2s4DE5Jqdr9YI4rttSUP2h+ipJJ2Tbm9YaLDDW1ptrdj
+	5g5SNd3cvSRCuxPhkzJV1Oqg+gIMxZm0C7kM/E/TF+d31M7WCssOmRePAOOFLMYaqOqkiDiPuQu
+	NQpu45tT+7ppX+zUC2psQSdgH4I4ofpEkP0oziBPUkedlMFc/ZJHD338iDnHbwJafud0TnRSv3u
+	fdKVkfvOfk2s0I+BiImtufpNkEgjawTvKN+WbKBLg=
+X-Received: by 2002:a17:90b:1dca:b0:2cb:5d90:2b9 with SMTP id 98e67ed59e1d1-2d1b2d66ee5mr1213066a91.11.1722998332982;
+        Tue, 06 Aug 2024 19:38:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGXhzqKMjR4CUA+ig12Q1cVFNkUlvYHC13DYz9oSS0II3mJkGVS+YLXGG1k/cvTUOboyvLitgHuy70DXVaSIas=
+X-Received: by 2002:a17:90b:1dca:b0:2cb:5d90:2b9 with SMTP id
+ 98e67ed59e1d1-2d1b2d66ee5mr1213046a91.11.1722998332437; Tue, 06 Aug 2024
+ 19:38:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240723114914.53677-1-slp@redhat.com> <942afa37-a24c-48ed-ae10-c811849165bf@collabora.com>
- <CAAiTLFV6mAgrMj=itcxoBCibvYRyrAk02wYp-gYJ8kxhF0EPmw@mail.gmail.com> <CAAfnVBkWKn3+YEhNz0CTmw-T_jjL72axkWqYgkzkSa72t_Gf0A@mail.gmail.com>
-In-Reply-To: <CAAfnVBkWKn3+YEhNz0CTmw-T_jjL72axkWqYgkzkSa72t_Gf0A@mail.gmail.com>
-From: Rob Clark <robdclark@gmail.com>
-Date: Tue, 6 Aug 2024 13:15:14 -0700
-Message-ID: <CAF6AEGsnpEYFsCfZUAPopWzY=wv_GWn0P5f5D6U9y-JrWGQVnw@mail.gmail.com>
-Subject: Re: [PATCH 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
-To: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: Sergio Lopez Pascual <slp@redhat.com>, Dmitry Osipenko <dmitry.osipenko@collabora.com>, tzimmermann@suse.de, 
-	mripard@kernel.org, olvaffe@gmail.com, kraxel@redhat.com, daniel@ffwll.ch, 
-	maarten.lankhorst@linux.intel.com, airlied@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	dri-devel@lists.freedesktop.org
+References: <20240805082106.65847-1-jasowang@redhat.com> <CACGkMEvNyB_+fHV5aAeCQhebA8aF8+9hnjkjeEzt5bgrVgqw5Q@mail.gmail.com>
+ <CACycT3sz-OOKKcmH=FgD7gp_Bhi9=nwnkTn0VgRhQBxS2Dp4qw@mail.gmail.com>
+ <CACGkMEs4YWr5zu0_nVCvqLSFBG9U_A_mw+7AdkMwrPo_6X-gOA@mail.gmail.com> <CACycT3vYF3nwZ3k5_8G=Zok9c4qRjCcGLVQ7+RfSpK=5PToMuA@mail.gmail.com>
+In-Reply-To: <CACycT3vYF3nwZ3k5_8G=Zok9c4qRjCcGLVQ7+RfSpK=5PToMuA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 7 Aug 2024 10:38:41 +0800
+Message-ID: <CACGkMEue9RU+MMgOC0t4Yuk5wRHfTdnJeZZs38g2h+gyZv+3VQ@mail.gmail.com>
+Subject: Re: [PATCH] vduse: avoid using __GFP_NOFAIL
+To: Yongji Xie <xieyongji@bytedance.com>
+Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Eugenio Perez Martin <eperezma@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel <linux-kernel@vger.kernel.org>, 21cnbao@gmail.com, 
+	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
+	Andrew Morton <akpm@linux-foundation.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 6, 2024 at 9:15=E2=80=AFAM Gurchetan Singh
-<gurchetansingh@chromium.org> wrote:
+On Tue, Aug 6, 2024 at 11:10=E2=80=AFAM Yongji Xie <xieyongji@bytedance.com=
+> wrote:
 >
+> On Tue, Aug 6, 2024 at 10:28=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Mon, Aug 5, 2024 at 6:42=E2=80=AFPM Yongji Xie <xieyongji@bytedance.=
+com> wrote:
+> > >
+> > > On Mon, Aug 5, 2024 at 4:24=E2=80=AFPM Jason Wang <jasowang@redhat.co=
+m> wrote:
+> > > >
+> > > > On Mon, Aug 5, 2024 at 4:21=E2=80=AFPM Jason Wang <jasowang@redhat.=
+com> wrote:
+> > > > >
+> > > > > Barry said [1]:
+> > > > >
+> > > > > """
+> > > > > mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
+> > > > > __GFP_NOFAIL without direct reclamation may just result in a busy
+> > > > > loop within non-sleepable contexts.
+> > > > > ""=E2=80=9C
+> > > > >
+> > > > > Unfortuantely, we do that under read lock. A possible way to fix =
+that
+> > > > > is to move the pages allocation out of the lock into the caller, =
+but
+> > > > > having to allocate a huge number of pages and auxiliary page arra=
+y
+> > > > > seems to be problematic as well per Tetsuon [2]:
+> > > > >
+> > > > > """
+> > > > > You should implement proper error handling instead of using
+> > > > > __GFP_NOFAIL if count can become large.
+> > > > > """
+> > > > >
+> > >
+> > > I think the problem is it's hard to do the error handling in
+> > > fops->release() currently.
+> >
+> > vduse_dev_dereg_umem() should be the same, it's very hard to allow it t=
+o fail.
+> >
+> > >
+> > > So can we temporarily hold the user page refcount, and release it whe=
+n
+> > > vduse_dev_open()/vduse_domain_release() is executed. The kernel page
+> > > allocation and memcpy can be done in vduse_dev_open() which allows
+> > > some error handling.
+> >
+> > Just to make sure I understand this, the free is probably not the big
+> > issue but the allocation itself.
+> >
 >
+> Yes, so defer the allocation might be a solution.
+
+Would you mind posting a patch for this?
+
 >
-> On Mon, Aug 5, 2024 at 2:14=E2=80=AFAM Sergio Lopez Pascual <slp@redhat.c=
-om> wrote:
->>
->> Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
->>
->> > On 7/23/24 14:49, Sergio Lopez wrote:
->> >> There's an incresing number of machines supporting multiple page size=
-s
->> >> and on these machines the host and a guest can be running, each one,
->> >> with a different page size.
->> >>
->> >> For what pertains to virtio-gpu, this is not a problem if the page si=
-ze
->> >> of the guest happens to be bigger or equal than the host, but will
->> >> potentially lead to failures in memory allocations and/or mappings
->> >> otherwise.
->> >
->> > Please describe concrete problem you're trying to solve. Guest memory
->> > allocation consists of guest pages, I don't see how knowledge of host
->> > page size helps anything in userspace.
->> >
->> > I suspect you want this for host blobs, but then it should be
->> > virtio_gpu_vram_create() that should use max(host_page_sz,
->> > guest_page_size), AFAICT. It's kernel who is responsible for memory
->> > management, userspace can't be trusted for doing that.
->>
->> Mesa's Vulkan/Venus uses CREATE_BLOB to request the host the creation
->> and mapping into the guest of device-backed memory and shmem regions.
->> The CREATE_BLOB ioctl doesn't update drm_virtgpu_resource_create->size,
->> so the guest kernel (and, as a consequence, the host kernel) can't
->> override the user's request.
->>
->> I'd like Mesa's Vulkan/Venus in the guest to be able to obtain the host
->> page size to align the size of the CREATE_BLOB requests as required.
+> > And if we do the memcpy() in open(), it seems to be a subtle userspace
+> > noticeable change? (Or I don't get how copying in vduse_dev_open() can
+> > help here).
+> >
 >
+> Maybe we don't need to do the copy in open(). We can hold the user
+> page refcount until the inflight I/O is completed. That means the
+> allocation of new kernel pages can be done in
+> vduse_domain_map_bounce_page() and the release of old user pages can
+> be done in vduse_domain_unmap_bounce_page().
+
+This seems to be a subtle userspace noticeable behaviour?
+
+> Of course, we still have
+> a copy (old user page -> new user spage) if the daemon calls
+> vduse_dev_reg_umem() again.
 >
-> gfxstream solves this problem by putting the relevant information in the =
-capabilities obtained from the host:
->
-> https://android.googlesource.com/platform/hardware/google/gfxstream/+/ref=
-s/heads/main/host/virtio-gpu-gfxstream-renderer.cpp#1691
->
-> If you want to be paranoid, you can also validate the ResourceCreateBlob:=
-:size is properly host-page aligned when that request reaches the host.
->
-> So you can probably solve this problem using current interfaces.  Whether=
- it's cleaner for all context types to use the capabilities, or have all VM=
-Ms to expose VIRTIO_GPU_F_HOST_PAGE_SIZE, would be the cost/benefit tradeof=
-f.
+> Thanks,
+> Yongji
 >
 
-I guess solving it in a context-type specific way is possible.  But I
-think it is a relatively universal constraint.  And maybe it makes
-sense for virtgpu guest kernel to enforce alignment (at least it can
-return an error synchronously) in addition to the host.
+Thanks
 
-BR,
--R
-
->>
->>
->> Thanks,
->> Sergio.
->>
