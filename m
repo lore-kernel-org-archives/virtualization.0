@@ -1,239 +1,1073 @@
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2089.outbound.protection.outlook.com [40.107.237.89])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04DB37B3F3
-	for <virtualization@lists.linux.dev>; Wed,  7 Aug 2024 14:54:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.89
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723042475; cv=fail; b=a0MQDvhunkCTYdeMqFQ31RqqRaWXZVBlYs+gzKy3z52O9OFJf7Z/tue/SdQKDrTyfRZ8xm1IY+1ziD/fYxatfpFdW54hqhuauYG7+9biFZzYpOhnh0LHwtsLOjDQKgsXjES9oH7FSF3tRziU6xWqzsCnOmgaLeK3Dz51lNkVg3I=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723042475; c=relaxed/simple;
-	bh=A2KQRnGp2eDJqNBdd7w1ExxtCaKnyPNmMpjmHpHoFjY=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=AwJ8aKjo2IJFTNVL/B01iXLWXJQdYG8p592Yl/por0kcMYbGtwmQZ+y1yIeFCSCmU6Bxkn+e4VVFpRLd6Nq5GAmV7CGDpxgA54VyBgl+CZtZvfP57RvOuYOshnk7Tzp8Ypsml45eNY8FxiWAxYqVtAZhF5rKMWbyupxKom6iHok=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CjqtGTZ8; arc=fail smtp.client-ip=40.107.237.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 926058286F
+	for <virtualization@lists.linux.dev>; Wed,  7 Aug 2024 14:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723042592; cv=none; b=f8uLgDFbNtEtov4XBgqUELK9JjMfsYNeJ8Nr6BuaxgMNEvAPuvLnujy6pbXOw67ptnaBWnqrQn3OxlR4VqZdq/KYWwb22KBG8Bem/apqvU/o1Lwyms9LbgKMvc0AWyd3R5aygs6nYOr1dEJh2KAmIkwLUUpFmGAJTznCbpRTnec=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723042592; c=relaxed/simple;
+	bh=Uh/MWqMzzl0h+aGDlEE/YtBLmpQMVnfV0SWb2wSwk2s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oc5MIlyb/NspTWVvWt0TIafOJPYor1DFircIU4sGsB966pQtOSBwr4L9ERF3qPbIRTYM4lfgVU4tOpwRwPlji88hBUhhjeD8h3bWNiG7ay1OTNwZ6t0yWbSuk+acLBuQeGhEAnGKk39fI+r7P5QawjWB05dhp6jFDUGSTjwnd8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OXPcTwqz; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CjqtGTZ8"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=MnFCHJwyc/G3n+CXT7P1vr/ZfdIijIq9dCj/O2+WBhADeC6slxDtrAovbKPo/Z4WnnhfQn0tJDZsrSs5xDXSRw7J/osHmcOR4jgsq9OyT3N8+o331KHexHlE5bEtfuTVV07UpS9wDyRvgwgdz59VEkglUIRdVHOVFPeGE1i7nEkpe2b8psb+xlWP1SZFoogOpoGAoe7t4YUTvHMoaY//BfSHi5EoV5yPCjcEsKDHI8d01948qQHAqD73KjednhKG1wLzdpQ45+8jcNHhBSVELU/xsC0y0oxQLIi7DUxpfu36U0q9LWwSZIB0BDV1j54ir5vMpB9euKSrwVvtYJ/Tcg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hRMn1gDqhXXJFnBP5HZYT2yYy6Lt3zXMx/pKQUPSfdY=;
- b=BuT4pK1LMPIF8xriAyjjv8le+k8bw63NIgnmAir/GtlTjwVOQLr/wWlPsODEjYu7bIgX/USpYglgjlAP+HMltM7hpM4DOs0unIZYqkcc2F+Pc6b20nQ54vDfVh8PS3/S/SNQZ/tPmHONs6zNm6Ea23Gb2PU1Gd/2hShvr7dBmQIg8KD3MfXXTeTgClEllIwFBwxi4LDJhPWaaPP5P+1Frmz5w0Gdos9/eIcGFmYmYlO+wuiUqa+Nt7eavugS4W1Clt/RnZFAuP0tLS9P9/RYDaRFobE1edkfUis64yb7UySUgI3DmdVyCbLiRkGQhD96AceJCnw2kYI0kQbF3HaWUA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hRMn1gDqhXXJFnBP5HZYT2yYy6Lt3zXMx/pKQUPSfdY=;
- b=CjqtGTZ8K6mQA+QO+o9Os9bzU4YLxk1BsdtbHeNo5qHUqEhVJz9GO1htfkw8UmLKX8Os+Se8GE1vH3U13y3f3SOe9KnFQqATtgIpIQak6V8NTpcMJNYCSEAoPR5H8wj/7Z4yVlKa/EKzXYJVIHH2uJZYOr81eDwp2PzWfgIdLzcbkK7z9xBElBkefzqYoak5G3vLc3cDmRDaBw4ATMu4Xd/JJDB8M1SBTfOBog0WDRqiOYNATPUr5c5VIwUMXamVh+lPgciylFPTlHLPYOtOcq/+7QMMq6tq61MseBpZugSIYwqpJp9ZsNDpuQiUHLpJpqIWTItSsrlSm1zHXPKt4g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
- by BL1PR12MB5707.namprd12.prod.outlook.com (2603:10b6:208:386::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.24; Wed, 7 Aug
- 2024 14:54:25 +0000
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4%7]) with mapi id 15.20.7849.008; Wed, 7 Aug 2024
- 14:54:23 +0000
-Message-ID: <6582792d-8db2-4bc0-bf3a-248fe5c8fc56@nvidia.com>
-Date: Wed, 7 Aug 2024 16:54:17 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost 0/7] vdpa/mlx5: Parallelize device suspend/resume
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Si-Wei Liu <si-wei.liu@oracle.com>, netdev@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20240802072039.267446-1-dtatulea@nvidia.com>
- <CAJaqyWdGNfJ3n-E2-PvkuvCiOMsLkEzYaUi5wi-C_n84-a_LAw@mail.gmail.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <CAJaqyWdGNfJ3n-E2-PvkuvCiOMsLkEzYaUi5wi-C_n84-a_LAw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR0P281CA0203.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:ad::9) To CY8PR12MB8297.namprd12.prod.outlook.com
- (2603:10b6:930:79::18)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OXPcTwqz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1723042588;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D7XS14Rp99DiHzzmnfJ9ZxvQ7vPKgGWF1We83XDN5hI=;
+	b=OXPcTwqzCX1P3vYSa4KZ+rmdp4eNvHpuVP3w/TpHxriF+QnEdT7cHJfUb6iBKe5esqSiKM
+	bddEmShrjlTYSkfvstD9LkzLOfhom85fDqT1afIheP8oofhJ97luNXknps6pkEyd8cHQil
+	IV+LQgICMjZ9mo0DlF8ZfasC0eREd10=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-498-UfMU0bbYPWWvFmX_OrEpRA-1; Wed, 07 Aug 2024 10:56:25 -0400
+X-MC-Unique: UfMU0bbYPWWvFmX_OrEpRA-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-6698f11853aso40493957b3.0
+        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 07:56:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723042585; x=1723647385;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=D7XS14Rp99DiHzzmnfJ9ZxvQ7vPKgGWF1We83XDN5hI=;
+        b=wmUzCxeF5I11AarHENQbfUBkyvyZbeMDHJJdhACxNsUhj3Gnxm+URgIf7br4F/+6Fs
+         p4yx5qvU5iOtacOehp1IRKosQXPxWHG+R04btbCn6+4Iw4Uc/B9SvAOL7rCWFGpZnZ0I
+         c4CHMSSIL209qT7VOEOwFxaEIvfWQTeN1JD0TZhjRO6ajGI9IeF3Sd371G9e0ggwB1Qa
+         yQdJpUGWILukDyzPXHG2nUQQMxrcHqxP0J8+A5PX6ES50po7PgbkcelUW7NfSGcJpVbX
+         nu0XaAlE1C+Y0r0OD8bu4kt37F0y7hh5OdjehIbEW2mzhshwYgK1rMYpFaf5nMiHCivn
+         I2Qg==
+X-Forwarded-Encrypted: i=1; AJvYcCWI3XfaxUA67EHxDSMvmOfcBOx/4DXiS63EzErUFYJCa1G2l5UkFW+zmDQg54UCKLEeyk19gYBQbVqS4rgRPVKt21XtrGWCRKI1IBz6Rn0=
+X-Gm-Message-State: AOJu0YxZtjC4BI6+7tSdOzQJE/P6eenuuwOm/BFuHTCLVQtUXN6d3B/P
+	FBwTjLgEHY8AYzDixSaGMZPtCMtbiaTGxU5qiCcPeq2pRm1mSf1Lro7nQOODOvlNhAI/aedF2qV
+	bJFlUhqVRS+GCQ0Q9tR6Q6OOIxdfH0zifPcEYoFqGU0uKdfW2jNWAJACH8x0dUfKmz5Spb6rT0m
+	d6lCWaG/OqwsTkRRuSCiyqxOE23L1Siv+PN4e7MyI=
+X-Received: by 2002:a81:c20e:0:b0:63c:aa2:829d with SMTP id 00721157ae682-689637fccd4mr216733137b3.44.1723042585015;
+        Wed, 07 Aug 2024 07:56:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFPRthvBmmpGFq+gGcFUD1IFvGcQuXwaKL9Ygnzu35GTMGehx3rIcR+0CewGcdfLropPfl1bqV3v5ZDUA8Z53Q=
+X-Received: by 2002:a81:c20e:0:b0:63c:aa2:829d with SMTP id
+ 00721157ae682-689637fccd4mr216732867b3.44.1723042584580; Wed, 07 Aug 2024
+ 07:56:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|BL1PR12MB5707:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5cfd15f8-8850-43c6-2a86-08dcb6f0d37c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?Z2RiR3hCWDl3K1RBNGNXazRJQUR2L2ZZaFFyRU5ZSVRBMnFnNGNIakFMM05L?=
- =?utf-8?B?TjkvL2Q4YUZrUzVaZ1JNbXZXa21Ga1UyVk9sSEYvbDl4WXNYT0VSaEllVm5K?=
- =?utf-8?B?U0Noa2NYdGZNS1ZTVmFtZmtxRFVZTW1SOHRidUxtdUJma2hPeUlJakEzcENN?=
- =?utf-8?B?d0d5VXBtdU42bTJaTURGVUtURzZOSk1LQXVnKzNCaEY3RWRmQnUwblBDbHQ0?=
- =?utf-8?B?U3UzOHl4aFZNQkxpVjl6SngyNTNyY1A5STNOc1pvMkVrOEVTakxzQnQ4eEZj?=
- =?utf-8?B?NTZPVjllQmpveFVYb0dLUFVRNTV4THJkenlGTkNDMnZTTyt6VjhkeUpIZUY1?=
- =?utf-8?B?NHJOQlJJL1l1azFvbUNmWkF2bXk3VUE4eEJLRnZ2bERYMENqdjhHeVM0aGpm?=
- =?utf-8?B?WDMvenJGOE5iN01WaDZVR3g5YUVKWGc1YkJCSkRYbzJkbDAxQzhISXowTk8z?=
- =?utf-8?B?ajRVOU5PUjJDSmdzdWMzYjd4TVdVeWhReXh1Yjk1RHZiZitvOGhtLzYyTGNh?=
- =?utf-8?B?cXRVd2dtUVNwcnRIbU01M3puQ3dqTURscXg0YnFOdnJhMmxNL0srS0FvSWMr?=
- =?utf-8?B?VExPSjFqL1lZaUhPZG4yNXhDSklBeVZEaW10VkZLQVAvd0RVWkxGcmgvZWVP?=
- =?utf-8?B?T1ZGVUc2T2txdm1xYnJwT3IzMkd3emxVUTF2MHJiVWl1NGVpSER5SnBPSm1O?=
- =?utf-8?B?RFd3ejl1bEhIb2puQWNjLzBKSEE3OW9xa1lRUGgwc1MxczF2d1E2VVVORUtC?=
- =?utf-8?B?bDU1LzJOcnpqRllYcy9zYktwM0tmR3dWUGNvUnloYWhrWDNRcTNYUWtiK0ww?=
- =?utf-8?B?SEc3ZGNMWXN2RyswSjZrOWpUTDB0VWI2M1VvZFBBTVFKZWE5VzRoSnpVWDJn?=
- =?utf-8?B?S3ExSGpXbE5XVlpjcmhmczlQcXBrdzBldEZBSlVpdWRiYjNDYnR0YVhMSFR4?=
- =?utf-8?B?aEFqaUhtOTlQN29IN3FVWlA0N0dUZUM4ZGVEcWVwd1VJUlBoYWR0K3J6MlE2?=
- =?utf-8?B?TmxjRnFqTmROZ0tDcFFHZHFiUEphTUUrb1piYUNwQkJLelpxcmdYdXVoeWlG?=
- =?utf-8?B?a0xTY1VHVmhtNFFSb3g1azdER1RGRXU1M0UrRXdNeHZ0WGdCeitmektQN1Iy?=
- =?utf-8?B?ZmIwQUhQRTA1RDVXZnhxSlpnTVU0WUZCcEtpcWlYekNhVmJxV1VBNHJIZ3lV?=
- =?utf-8?B?aGZwRERKemZnR1FBU0JzN1lDYnNmdHd0RklvOTlveVljRHJvdi9aTFlPcDQx?=
- =?utf-8?B?Q0J0QUNXQVJkUnBjNXc5R21pdDNzZ0V3d3NyUkRqUUhVZDNSN2NIZ1FvSHRK?=
- =?utf-8?B?YkY3MUJKdTdubTJjbHVrU1ZySjRmVE8wSUpPTzY2WVkvRnZLRm9PMUZXWm45?=
- =?utf-8?B?M0pya3lHMjlUMUtSVlk2OTlHeFNvREVmWXV0dWgrMUlyVytqQUtTMjFaTXJY?=
- =?utf-8?B?ejhPREpzQkJLWUVXSXQwTk0vci9xR2h2MTJiMDFYUjY3d0YrZUtvZnZMdW04?=
- =?utf-8?B?a050b3U5Z04wclRBaDNkSnZWTXhYZVREM1IwU3VwMGNuOEJpck9HNnozME9W?=
- =?utf-8?B?SUdQcEVMWlg0eEZ0YmUzbzNSc2pMQnRseVJDQktQVk1OUnN4QUc2RDlGKzR6?=
- =?utf-8?B?SW5JYncwMUpTOG9xSkJIY1lWMzk5Sk8rc2FKK1lpajdGOENPTWp6NnVwcnIv?=
- =?utf-8?B?aURBVzdjOThrYkh5SDdOY0FBNWFJNGViSkhuUVRyQU84NGpGU2tCRlgyeFNl?=
- =?utf-8?B?SWROS1p0NW5zbVByT3VWbElDWkxVblRaZEl5STBjcEFNWm9LMXd1OFBualFk?=
- =?utf-8?B?YUY4WFo4T1VBY3k1ZFVOQT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?ZjlTK0ZodndjMnV1eVF4NjF1dDVncHJVWittVG9CMWpzN3NGZjdaTFdqT0tI?=
- =?utf-8?B?dzIzVkpTYXBUc1M2OG83S1N2L202ZjFYSlJpZWgxdStsTGxwNXpZTWZ3SWlD?=
- =?utf-8?B?SzNjN0FPZzZVVkRLTE4waXppT2FxS3BLTEMxMlMxTndGNGZRWWEvVDNNK1NU?=
- =?utf-8?B?WDlmZElhSHl0RHJueUUvRWxEaFZ4Rnd6L3RBWm4xTGZHaklQTGwzMkNpcVJ6?=
- =?utf-8?B?SFRndVZkd3l4RFFnOUlNdGtkMTVQUU1pd0pibmhncDU4Q1U2YXRBM1BKa1JN?=
- =?utf-8?B?c3NPSURxMkdId3JoVjMxSThJL00wYVJ0MXhHQ2N2OEFVdFB2QzFrSXNBNTl1?=
- =?utf-8?B?TTBRcHg4b0pXY0t6ekgwblo1TzEyT3I5OUpTRkx3eUNyNGVmb3FHZVg1K21V?=
- =?utf-8?B?bHc2bnMzY2lOczVFNFZhd0g4UGpHK05sVi82ZFFsRkJMUVQyZEJzMld4N2ZS?=
- =?utf-8?B?SGo5eDd1ZjBjRytJOUJhUHFFNlh5UFRsc2NQcjZzTDBVY3ZOZ3YrRnVJM2ZM?=
- =?utf-8?B?dlhHVzFCTnpGNlF0ZnorYXZFRFBsN0szMGwzdzhIOGZXVVJ1TW1hbVFUMUh2?=
- =?utf-8?B?c2FvWTNHeFY3Q2FmVFNCYzYyVU9xR2NDeFBBNGF5dGtYNjFJdm5HWTJoRERG?=
- =?utf-8?B?QktHTGVCZ251amZlYXpKUks3bVJHYVlwODc3VmU5T0xIR0xtUjF3dmpqSkY5?=
- =?utf-8?B?VmJIWDVtMXVSRVVCM1VKM2hNaTdQWmhuL0VPOGIwczhvYkZrN3hqV0FPdmdN?=
- =?utf-8?B?amFOV3ZXN0d4QU9JcktNeHdqRW1WNjdQa1poOFBGcnVpMW9hRkUyYkg4LzlI?=
- =?utf-8?B?d0Y2M3pDT0IwUnJhZ09IaDZkek5ESURQRGNnR2F4MmRaeU93b1hsbWZ3MXpZ?=
- =?utf-8?B?NzZTTk4wejNwNXlXOEFyT2cvOTRrSUNLcnZBSTBvVUR3T2prOHJ4Vkt0Nmtm?=
- =?utf-8?B?NjJiTFBKdERGa2xPZzVXbHZ5SUE5VXhrS3hnSVdTV25zbStJemJYcWhSc3RL?=
- =?utf-8?B?RiswcFhZcUMvbU5tK2ltdy9KUHJMbTdVWHZVNDgyTlo4SWx1YjFYM3Y1RnJP?=
- =?utf-8?B?Q3NpV3dlclcvTWZ2bENCTkRiN2ZBeHpRT0VRbDZsUTZvd1V0cDlZZzBORDhn?=
- =?utf-8?B?Ri9lSC9jNnp4eVNVcC9WWE1Jbi91UmhDcU54TTJFc0R2Z1BabU1wNldCaG5Y?=
- =?utf-8?B?aWg4aXpORzhidE1Pa0dFcUlRR3MzMVVwcnY2N1Y0RU5JMXlzU0kxd05Fc2dr?=
- =?utf-8?B?QnVMdStKbWpndnR3MWRRNmdINGV4M0ZLUjVhaWR5N0prUDNtTEtYMHlISmRk?=
- =?utf-8?B?cHhwN1pwM1pYODBJbzc0Z0JkRTBjdGZpMXJwZGJQMURINzFxeVBubzZSTTM2?=
- =?utf-8?B?b0g5MWxaUldBQ3NoZ0tFa2Q1bFBYcy80N2RncXdHdm9JNjFkZXNpMGpaeWNq?=
- =?utf-8?B?TDNVZkpCTFowVzVDVGNmc25GWDlacFFMT2dvV3dMNEtzZFFsMS8xVDZOc2F2?=
- =?utf-8?B?Q2U1WC8wZ0x0VHpOTy9UT2lPQm51aGdBTElvdWhzOEYxMHgvTFhuRzFmV1pt?=
- =?utf-8?B?OFJVZUwxcmhxQTVFTjEzaEJKaUFFMHdEaGZjcGRpSHJNMS9MN2w5UkpQQXFS?=
- =?utf-8?B?WjhoNXJUaHFLQzJ0UlNOYjZ4dU9iMklhQW9JZGU5bGphTGxWTnNTZFE5NTVZ?=
- =?utf-8?B?QmkzMkJLbDB1RkhMWWRyVENmU3lOaFUvNjJiRFFqY3F3RTJvcCsvci83NXNy?=
- =?utf-8?B?Vk5QKzlHME01ZnoyRkN5TnZzOTFqZEE0YjlXZHhUTUlScHowcVQxVE9SWEd3?=
- =?utf-8?B?WEFWdVEzSENzM1Q4emVuVkV2eG9zS05YcHlOWkJhZUY2NStLMnJIb2lncGRW?=
- =?utf-8?B?bjZqMzNObGRjaEdLTmR4cmFwSGp0SlNCK2JsWi9MZUFQbVQ3c0JjQVJhVk9y?=
- =?utf-8?B?cytHR1loaTZIZjF5OGhuUlZJRVNRVDZ6YVFVbmV0RWtNZitoV3JPUDRZOVFI?=
- =?utf-8?B?S01kakQwdXZXdWphVGhUQ0Fwbk56VUlwaXNyclhFYjJHMWE5RG0zMEdGSEd6?=
- =?utf-8?B?eVFONGdTZXc4eW1NZUszWlhqVGpiRVNaRmZkSUNpZ2lYaU9TeGx4TTBtemtQ?=
- =?utf-8?Q?FFM/iKHoDavJsLjEE506h9IxK?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5cfd15f8-8850-43c6-2a86-08dcb6f0d37c
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Aug 2024 14:54:23.8768
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vhegpFw88p1JyOwvYKsqLc6huMSJSIkXdzjpUXGfiuiwR0LRhrGfYDsxy1X+rDuamq5Jm29SaYa3HAE18CZvnw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5707
+References: <20240802095931.24376-1-louis.peens@corigine.com> <20240802095931.24376-4-louis.peens@corigine.com>
+In-Reply-To: <20240802095931.24376-4-louis.peens@corigine.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 7 Aug 2024 16:55:48 +0200
+Message-ID: <CAJaqyWfHP0UYoaVVJDVv1ouy22eMb9EQrV4dTRV6urOXNdRMJw@mail.gmail.com>
+Subject: Re: [RFC net-next 3/3] drivers/vdpa: add NFP devices vDPA driver
+To: Louis Peens <louis.peens@corigine.com>
+Cc: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Kyle Xu <zhenbing.xu@corigine.com>, 
+	netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	oss-drivers@corigine.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-
-On 07.08.24 15:25, Eugenio Perez Martin wrote:
-> On Fri, Aug 2, 2024 at 9:24 AM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>
->> This series parallelizes the mlx5_vdpa device suspend and resume
->> operations through the firmware async API. The purpose is to reduce live
->> migration downtime.
->>
->> The series starts with changing the VQ suspend and resume commands
->> to the async API. After that, the switch is made to issue multiple
->> commands of the same type in parallel.
->>
-> 
-> There is a missed opportunity processing the CVQ MQ command here,
-> isn't it? It can be applied on top in another series for sure.
-> 
-Initially I considered that it would complicate the code too much in
-change_num_qps(). But in the current state of the patches it's doable.
-
-Will send a V2 with an extra patch for this.
-
->> Finally, a bonus improvement is thrown in: keep the notifierd enabled
->> during suspend but make it a NOP. Upon resume make sure that the link
->> state is forwarded. This shaves around 30ms per device constant time.
->>
->> For 1 vDPA device x 32 VQs (16 VQPs), on a large VM (256 GB RAM, 32 CPUs
->> x 2 threads per core), the improvements are:
->>
->> +-------------------+--------+--------+-----------+
->> | operation         | Before | After  | Reduction |
->> |-------------------+--------+--------+-----------|
->> | mlx5_vdpa_suspend | 37 ms  | 2.5 ms |     14x   |
->> | mlx5_vdpa_resume  | 16 ms  | 5 ms   |      3x   |
->> +-------------------+--------+--------+-----------+
->>
-> 
-> Looks great :).
-> 
-> Apart from the nitpick,
+On Fri, Aug 2, 2024 at 12:00=E2=80=AFPM Louis Peens <louis.peens@corigine.c=
+om> wrote:
 >
-> Acked-by: Eugenio Pérez <eperezma@redhat.com>
-> 
-> For the vhost part.
-Thanks!
+> From: Kyle Xu <zhenbing.xu@corigine.com>
+>
+> Add a new kernel module =E2=80=98nfp_vdpa=E2=80=99 for the NFP vDPA netwo=
+rking driver.
+>
+> The vDPA driver initializes the necessary resources on the VF and the
+> data path will be offloaded. It also implements the =E2=80=98vdpa_config_=
+ops=E2=80=99
+> and the corresponding callback interfaces according to the requirement
+> of kernel vDPA framework.
+>
+> Signed-off-by: Kyle Xu <zhenbing.xu@corigine.com>
+> Signed-off-by: Louis Peens <louis.peens@corigine.com>
+> ---
+>  MAINTAINERS                            |   1 +
+>  drivers/vdpa/Kconfig                   |  10 +
+>  drivers/vdpa/Makefile                  |   1 +
+>  drivers/vdpa/netronome/Makefile        |   5 +
+>  drivers/vdpa/netronome/nfp_vdpa_main.c | 821 +++++++++++++++++++++++++
+>  5 files changed, 838 insertions(+)
+>  create mode 100644 drivers/vdpa/netronome/Makefile
+>  create mode 100644 drivers/vdpa/netronome/nfp_vdpa_main.c
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index c0a3d9e93689..3231b80af331 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -15836,6 +15836,7 @@ R:      Jakub Kicinski <kuba@kernel.org>
+>  L:     oss-drivers@corigine.com
+>  S:     Maintained
+>  F:     drivers/net/ethernet/netronome/
+> +F:     drivers/vdpa/netronome/
+>
+>  NETWORK BLOCK DEVICE (NBD)
+>  M:     Josef Bacik <josef@toxicpanda.com>
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 5265d09fc1c4..da5a8461359e 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -137,4 +137,14 @@ config OCTEONEP_VDPA
+>           Please note that this driver must be built as a module and it
+>           cannot be loaded until the Octeon emulation software is running=
+.
+>
+> +config NFP_VDPA
+> +       tristate "vDPA driver for NFP devices"
+> +       depends on NFP
+> +       help
+> +         VDPA network driver for NFP4000 NFP5000 NFP6000 and newer. Prov=
+ides
+> +         offloading of virtio_net datapath such that descriptors put on =
+the
+> +         ring will be executed by the hardware. It also supports a varie=
+ty
+> +         of stateless offloads depending on the actual device used and
+> +         firmware version.
+> +
+>  endif # VDPA
+> diff --git a/drivers/vdpa/Makefile b/drivers/vdpa/Makefile
+> index 5654d36707af..a8e335756829 100644
+> --- a/drivers/vdpa/Makefile
+> +++ b/drivers/vdpa/Makefile
+> @@ -9,3 +9,4 @@ obj-$(CONFIG_ALIBABA_ENI_VDPA) +=3D alibaba/
+>  obj-$(CONFIG_SNET_VDPA) +=3D solidrun/
+>  obj-$(CONFIG_PDS_VDPA) +=3D pds/
+>  obj-$(CONFIG_OCTEONEP_VDPA) +=3D octeon_ep/
+> +obj-$(CONFIG_NFP_VDPA) +=3D netronome/
+> diff --git a/drivers/vdpa/netronome/Makefile b/drivers/vdpa/netronome/Mak=
+efile
+> new file mode 100644
+> index 000000000000..ccba4ead3e4f
+> --- /dev/null
+> +++ b/drivers/vdpa/netronome/Makefile
+> @@ -0,0 +1,5 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +ccflags-y +=3D -I$(srctree)/drivers/net/ethernet/netronome/nfp
+> +ccflags-y +=3D -I$(srctree)/drivers/net/ethernet/netronome/nfp/nfpcore
+> +obj-$(CONFIG_NFP_VDPA) +=3D nfp_vdpa.o
+> +nfp_vdpa-$(CONFIG_NFP_VDPA) +=3D nfp_vdpa_main.o
+> diff --git a/drivers/vdpa/netronome/nfp_vdpa_main.c b/drivers/vdpa/netron=
+ome/nfp_vdpa_main.c
+> new file mode 100644
+> index 000000000000..a60905848094
+> --- /dev/null
+> +++ b/drivers/vdpa/netronome/nfp_vdpa_main.c
+> @@ -0,0 +1,821 @@
+> +// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +/* Copyright (C) 2023 Corigine, Inc. */
+> +/*
+> + * nfp_vdpa_main.c
+> + * Main entry point for vDPA device driver.
+> + * Author: Xinying Yu <xinying.yu@corigine.com>
+> + *         Zhenbing Xu <zhenbing.xu@corigine.com>
+> + */
+> +#include <linux/module.h>
+> +#include <linux/pci.h>
+> +#include <linux/vdpa.h>
+> +
+> +#include <uapi/linux/virtio_config.h>
+> +#include <uapi/linux/virtio_ids.h>
+> +#include <uapi/linux/virtio_net.h>
+> +#include <uapi/linux/virtio_ring.h>
+> +
+> +#include "nfp_net.h"
+> +#include "nfp_dev.h"
+> +
+> +/* Only one queue pair for now. */
+> +#define NFP_VDPA_NUM_QUEUES 2
+> +
+> +/* RX queue index in queue pair */
+> +#define NFP_VDPA_RX_QUEUE 0
+> +
+> +/* TX queue index in queue pair */
+> +#define NFP_VDPA_TX_QUEUE 1
+> +
+> +/* Max MTU supported */
+> +#define NFP_VDPA_MTU_MAX 9216
+> +
+> +/* Default freelist buffer size */
+> +#define NFP_VDPA_FL_BUF_SZ 10240
+> +
+> +/* Max queue supported */
 
-> 
-> Thanks!
-> 
->> Note for the maintainers:
->> The first patch contains changes for mlx5_core. This must be applied
->> into the mlx5-vhost tree [0] first. Once this patch is applied on
->> mlx5-vhost, the change has to be pulled from mlx5-vdpa into the vhost
->> tree and only then the remaining patches can be applied.
->>
->> [0] https://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git/log/?h=mlx5-vhost
->>
->> Dragos Tatulea (7):
->>   net/mlx5: Support throttled commands from async API
->>   vdpa/mlx5: Introduce error logging function
->>   vdpa/mlx5: Use async API for vq query command
->>   vdpa/mlx5: Use async API for vq modify commands
->>   vdpa/mlx5: Parallelize device suspend
->>   vdpa/mlx5: Parallelize device resume
->>   vdpa/mlx5: Keep notifiers during suspend but ignore
->>
->>  drivers/net/ethernet/mellanox/mlx5/core/cmd.c |  21 +-
->>  drivers/vdpa/mlx5/core/mlx5_vdpa.h            |   7 +
->>  drivers/vdpa/mlx5/net/mlx5_vnet.c             | 435 +++++++++++++-----
->>  3 files changed, 333 insertions(+), 130 deletions(-)
->>
->> --
->> 2.45.2
->>
-> 
+Just some nitpicks,
+
+Max queue *size* supported.
+
+> +#define NFP_VDPA_QUEUE_MAX 256
+> +
+> +/* Queue space stride */
+> +#define NFP_VDPA_QUEUE_SPACE_STRIDE 4
+> +
+> +/* Notification area base on VF CFG BAR */
+> +#define NFP_VDPA_NOTIFY_AREA_BASE 0x4000
+> +
+> +/* Notification area offset of each queue */
+> +#define NFP_VDPA_QUEUE_NOTIFY_OFFSET 0x1000
+> +
+> +/* Maximum number of rings supported */
+
+I guess it should be *queue pairs*, as we have one ring for tx and
+another for rx.
+
+> +#define NFP_VDPA_QUEUE_RING_MAX 1
+> +
+> +/* VF auxiliary device name */
+> +#define NFP_NET_VF_ADEV_NAME "nfp"
+> +
+> +#define NFP_NET_SUPPORTED_FEATURES \
+> +               ((1ULL << VIRTIO_F_ANY_LAYOUT)                  | \
+> +                (1ULL << VIRTIO_F_VERSION_1)                   | \
+> +                (1ULL << VIRTIO_F_ACCESS_PLATFORM)             | \
+> +                (1ULL << VIRTIO_NET_F_MTU)                     | \
+> +                (1ULL << VIRTIO_NET_F_MAC)                     | \
+> +                (1ULL << VIRTIO_NET_F_STATUS))
+> +
+> +struct nfp_vdpa_virtqueue {
+> +       u64 desc;
+> +       u64 avail;
+> +       u64 used;
+> +       u16 size;
+> +       u16 last_avail_idx;
+> +       u16 last_used_idx;
+> +       bool ready;
+> +
+> +       void __iomem *kick_addr;
+> +       struct vdpa_callback cb;
+> +};
+> +
+> +struct nfp_vdpa_net {
+> +       struct vdpa_device vdpa;
+> +
+> +       void __iomem *ctrl_bar;
+> +       void __iomem *q_bar;
+> +       void __iomem *qcp_cfg;
+> +
+> +       struct nfp_vdpa_virtqueue vring[NFP_VDPA_NUM_QUEUES];
+> +
+> +       u32 ctrl;
+> +       u32 ctrl_w1;
+> +
+> +       u32 reconfig_in_progress_update;
+> +       struct semaphore bar_lock;
+> +
+> +       u8 status;
+> +       u64 features;
+> +       struct virtio_net_config config;
+> +
+> +       struct msix_entry vdpa_rx_irq;
+> +       struct nfp_net_r_vector vdpa_rx_vec;
+> +
+> +       struct msix_entry vdpa_tx_irq;
+> +       struct nfp_net_r_vector vdpa_tx_vec;
+> +};
+> +
+> +struct nfp_vdpa_mgmt_dev {
+> +       struct vdpa_mgmt_dev mdev;
+> +       struct nfp_vdpa_net *ndev;
+> +       struct pci_dev *pdev;
+> +       const struct nfp_dev_info *dev_info;
+> +};
+> +
+> +static uint16_t vdpa_cfg_readw(struct nfp_vdpa_net *ndev, int off)
+> +{
+> +       return readw(ndev->ctrl_bar + off);
+> +}
+> +
+> +static u32 vdpa_cfg_readl(struct nfp_vdpa_net *ndev, int off)
+> +{
+> +       return readl(ndev->ctrl_bar + off);
+> +}
+> +
+> +static void vdpa_cfg_writeb(struct nfp_vdpa_net *ndev, int off, uint8_t =
+val)
+> +{
+> +       writeb(val, ndev->ctrl_bar + off);
+> +}
+> +
+> +static void vdpa_cfg_writel(struct nfp_vdpa_net *ndev, int off, u32 val)
+> +{
+> +       writel(val, ndev->ctrl_bar + off);
+> +}
+> +
+> +static void vdpa_cfg_writeq(struct nfp_vdpa_net *ndev, int off, u64 val)
+> +{
+> +       writeq(val, ndev->ctrl_bar + off);
+> +}
+> +
+> +static bool nfp_vdpa_is_little_endian(struct nfp_vdpa_net *ndev)
+> +{
+> +       return virtio_legacy_is_little_endian() ||
+> +               (ndev->features & BIT_ULL(VIRTIO_F_VERSION_1));
+> +}
+> +
+> +static __virtio16 cpu_to_nfpvdpa16(struct nfp_vdpa_net *ndev, u16 val)
+> +{
+> +       return __cpu_to_virtio16(nfp_vdpa_is_little_endian(ndev), val);
+> +}
+> +
+> +static void nfp_vdpa_net_reconfig_start(struct nfp_vdpa_net *ndev, u32 u=
+pdate)
+> +{
+> +       vdpa_cfg_writel(ndev, NFP_NET_CFG_UPDATE, update);
+> +       /* Flush posted PCI writes by reading something without side effe=
+cts */
+> +       vdpa_cfg_readl(ndev, NFP_NET_CFG_VERSION);
+> +       /* Write a none-zero value to the QCP pointer for configuration n=
+otification */
+> +       writel(1, ndev->qcp_cfg + NFP_QCP_QUEUE_ADD_WPTR);
+> +       ndev->reconfig_in_progress_update |=3D update;
+> +}
+> +
+> +static bool nfp_vdpa_net_reconfig_check_done(struct nfp_vdpa_net *ndev, =
+bool last_check)
+> +{
+> +       u32 reg;
+> +
+> +       reg =3D vdpa_cfg_readl(ndev, NFP_NET_CFG_UPDATE);
+> +       if (reg =3D=3D 0)
+> +               return true;
+> +       if (reg & NFP_NET_CFG_UPDATE_ERR) {
+> +               dev_err(ndev->vdpa.dma_dev, "Reconfig error (status: 0x%0=
+8x update: 0x%08x ctrl: 0x%08x)\n",
+> +                       reg, ndev->reconfig_in_progress_update,
+> +                       vdpa_cfg_readl(ndev, NFP_NET_CFG_CTRL));
+> +               return true;
+> +       } else if (last_check) {
+> +               dev_err(ndev->vdpa.dma_dev, "Reconfig timeout (status: 0x=
+%08x update: 0x%08x ctrl: 0x%08x)\n",
+> +                       reg, ndev->reconfig_in_progress_update,
+> +                       vdpa_cfg_readl(ndev, NFP_NET_CFG_CTRL));
+> +               return true;
+> +       }
+> +
+> +       return false;
+> +}
+> +
+> +static bool __nfp_vdpa_net_reconfig_wait(struct nfp_vdpa_net *ndev, unsi=
+gned long deadline)
+> +{
+> +       bool timed_out =3D false;
+> +       int i;
+> +
+> +       /* Poll update field, waiting for NFP to ack the config.
+> +        * Do an opportunistic wait-busy loop, afterward sleep.
+> +        */
+> +       for (i =3D 0; i < 50; i++) {
+> +               if (nfp_vdpa_net_reconfig_check_done(ndev, false))
+> +                       return false;
+> +               udelay(4);
+> +       }
+> +
+> +       while (!nfp_vdpa_net_reconfig_check_done(ndev, timed_out)) {
+> +               usleep_range(250, 500);
+> +               timed_out =3D time_is_before_eq_jiffies(deadline);
+> +       }
+> +
+> +       return timed_out;
+> +}
+> +
+> +static int nfp_vdpa_net_reconfig_wait(struct nfp_vdpa_net *ndev, unsigne=
+d long deadline)
+> +{
+> +       if (__nfp_vdpa_net_reconfig_wait(ndev, deadline))
+> +               return -EIO;
+> +
+> +       if (vdpa_cfg_readl(ndev, NFP_NET_CFG_UPDATE) & NFP_NET_CFG_UPDATE=
+_ERR)
+> +               return -EIO;
+> +
+> +       return 0;
+> +}
+> +
+> +static int nfp_vdpa_net_reconfig(struct nfp_vdpa_net *ndev, u32 update)
+> +{
+> +       int ret;
+> +
+> +       down(&ndev->bar_lock);
+> +
+> +       nfp_vdpa_net_reconfig_start(ndev, update);
+> +       ret =3D nfp_vdpa_net_reconfig_wait(ndev, jiffies + HZ * NFP_NET_P=
+OLL_TIMEOUT);
+> +       ndev->reconfig_in_progress_update =3D 0;
+> +
+> +       up(&ndev->bar_lock);
+> +       return ret;
+> +}
+> +
+> +static irqreturn_t nfp_vdpa_irq_rx(int irq, void *data)
+> +{
+> +       struct nfp_net_r_vector *r_vec =3D data;
+> +       struct nfp_vdpa_net      *ndev;
+> +
+> +       ndev =3D container_of(r_vec, struct nfp_vdpa_net, vdpa_rx_vec);
+> +
+> +       ndev->vring[NFP_VDPA_RX_QUEUE].cb.callback(ndev->vring[NFP_VDPA_R=
+X_QUEUE].cb.private);
+> +
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_ICR(ndev->vdpa_rx_irq.entry), N=
+FP_NET_CFG_ICR_UNMASKED);
+> +
+> +       /* The FW auto-masks any interrupt, either via the MASK bit in
+> +        * the MSI-X table or via the per entry ICR field. So there
+> +        * is no need to disable interrupts here.
+> +        */
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +static irqreturn_t nfp_vdpa_irq_tx(int irq, void *data)
+> +{
+> +       struct nfp_net_r_vector *r_vec =3D data;
+> +       struct nfp_vdpa_net      *ndev;
+> +
+> +       ndev =3D container_of(r_vec, struct nfp_vdpa_net, vdpa_tx_vec);
+> +
+> +       /* This memory barrier is needed to make sure the used ring and i=
+ndex
+> +        * has been written back before we notify the frontend driver.
+> +        */
+> +       dma_rmb();
+> +
+> +       ndev->vring[NFP_VDPA_TX_QUEUE].cb.callback(ndev->vring[NFP_VDPA_T=
+X_QUEUE].cb.private);
+> +
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_ICR(ndev->vdpa_tx_irq.entry), N=
+FP_NET_CFG_ICR_UNMASKED);
+> +
+> +       /* The FW auto-masks any interrupt, either via the MASK bit in
+> +        * the MSI-X table or via the per entry ICR field. So there
+> +        * is no need to disable interrupts here.
+> +        */
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +static struct nfp_vdpa_net *vdpa_to_ndev(struct vdpa_device *vdpa_dev)
+> +{
+> +       return container_of(vdpa_dev, struct nfp_vdpa_net, vdpa);
+> +}
+> +
+> +static void nfp_vdpa_ring_addr_cfg(struct nfp_vdpa_net *ndev)
+> +{
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_TXR_ADDR(0), ndev->vring[NFP_VD=
+PA_TX_QUEUE].desc);
+> +       vdpa_cfg_writeb(ndev, NFP_NET_CFG_TXR_SZ(0), ilog2(ndev->vring[NF=
+P_VDPA_TX_QUEUE].size));
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_TXR_ADDR(1), ndev->vring[NFP_VD=
+PA_TX_QUEUE].avail);
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_TXR_ADDR(2), ndev->vring[NFP_VD=
+PA_TX_QUEUE].used);
+> +
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_RXR_ADDR(0), ndev->vring[NFP_VD=
+PA_RX_QUEUE].desc);
+> +       vdpa_cfg_writeb(ndev, NFP_NET_CFG_RXR_SZ(0), ilog2(ndev->vring[NF=
+P_VDPA_RX_QUEUE].size));
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_RXR_ADDR(1), ndev->vring[NFP_VD=
+PA_RX_QUEUE].avail);
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_RXR_ADDR(2), ndev->vring[NFP_VD=
+PA_RX_QUEUE].used);
+> +}
+> +
+> +static int nfp_vdpa_setup_driver(struct vdpa_device *vdpa_dev)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +       u32 new_ctrl, new_ctrl_w1, update =3D 0;
+> +
+> +       nfp_vdpa_ring_addr_cfg(ndev);
+> +
+> +       vdpa_cfg_writeb(ndev, NFP_NET_CFG_TXR_VEC(1), ndev->vdpa_tx_vec.i=
+rq_entry);
+> +       vdpa_cfg_writeb(ndev, NFP_NET_CFG_RXR_VEC(0), ndev->vdpa_rx_vec.i=
+rq_entry);
+> +
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_TXRS_ENABLE, 1);
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_RXRS_ENABLE, 1);
+> +
+> +       vdpa_cfg_writel(ndev, NFP_NET_CFG_MTU, NFP_VDPA_MTU_MAX);
+> +       vdpa_cfg_writel(ndev, NFP_NET_CFG_FLBUFSZ, NFP_VDPA_FL_BUF_SZ);
+> +
+> +       /* Enable device */
+> +       new_ctrl =3D NFP_NET_CFG_CTRL_ENABLE;
+> +       new_ctrl_w1 =3D NFP_NET_CFG_CTRL_VIRTIO | NFP_NET_CFG_CTRL_ENABLE=
+_VNET;
+> +       update |=3D NFP_NET_CFG_UPDATE_GEN | NFP_NET_CFG_UPDATE_RING | NF=
+P_NET_CFG_UPDATE_MSIX;
+> +
+> +       vdpa_cfg_writel(ndev, NFP_NET_CFG_CTRL, new_ctrl);
+> +       vdpa_cfg_writel(ndev, NFP_NET_CFG_CTRL_WORD1, new_ctrl_w1);
+> +       if (nfp_vdpa_net_reconfig(ndev, update) < 0)
+> +               return -EINVAL;
+> +
+> +       ndev->ctrl =3D new_ctrl;
+> +       ndev->ctrl_w1 =3D new_ctrl_w1;
+> +       return 0;
+> +}
+> +
+> +static void nfp_reset_vring(struct nfp_vdpa_net *ndev)
+> +{
+> +       unsigned int i;
+> +
+> +       for (i =3D 0; i < NFP_VDPA_NUM_QUEUES; i++) {
+> +               ndev->vring[i].last_avail_idx =3D 0;
+> +               ndev->vring[i].desc =3D 0;
+> +               ndev->vring[i].avail =3D 0;
+> +               ndev->vring[i].used =3D 0;
+> +               ndev->vring[i].ready =3D 0;
+> +               ndev->vring[i].cb.callback =3D NULL;
+> +               ndev->vring[i].cb.private =3D NULL;
+
+The member vring[i].size is not reset here. Since it is not modifiable
+at this moment, isn't it better to remove the member and just inline
+NFP_VDPA_QUEUE_MAX?
+
+> +       }
+> +}
+> +
+> +static int nfp_vdpa_set_vq_address(struct vdpa_device *vdpa_dev, u16 qid=
+,
+> +                                  u64 desc_area, u64 driver_area,
+> +                                  u64 device_area)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       ndev->vring[qid].desc =3D desc_area;
+> +       ndev->vring[qid].avail =3D driver_area;
+> +       ndev->vring[qid].used =3D device_area;
+> +
+> +       return 0;
+> +}
+> +
+> +static void nfp_vdpa_set_vq_num(struct vdpa_device *vdpa_dev, u16 qid, u=
+32 num)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       ndev->vring[qid].size =3D num;
+> +}
+> +
+> +static void nfp_vdpa_kick_vq(struct vdpa_device *vdpa_dev, u16 qid)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       if (!ndev->vring[qid].ready)
+> +               return;
+> +
+> +       writel(qid, ndev->vring[qid].kick_addr);
+> +}
+> +
+> +static void nfp_vdpa_set_vq_cb(struct vdpa_device *vdpa_dev, u16 qid,
+> +                              struct vdpa_callback *cb)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       ndev->vring[qid].cb =3D *cb;
+> +}
+> +
+> +static void nfp_vdpa_set_vq_ready(struct vdpa_device *vdpa_dev, u16 qid,
+> +                                 bool ready)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       ndev->vring[qid].ready =3D ready;
+> +}
+> +
+> +static bool nfp_vdpa_get_vq_ready(struct vdpa_device *vdpa_dev, u16 qid)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       return ndev->vring[qid].ready;
+> +}
+> +
+> +static int nfp_vdpa_set_vq_state(struct vdpa_device *vdev, u16 idx,
+> +                                const struct vdpa_vq_state *state)
+> +{
+> +       /* Required by live migration, leave for future work */
+> +       return 0;
+> +}
+> +
+> +static int nfp_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx,
+> +                                struct vdpa_vq_state *state)
+> +{
+> +       /* Required by live migration, leave for future work */
+> +       return 0;
+> +}
+> +
+> +static u32 nfp_vdpa_get_vq_align(struct vdpa_device *vdpa_dev)
+> +{
+> +       return PAGE_SIZE;
+> +}
+> +
+> +static u64 nfp_vdpa_get_features(struct vdpa_device *vdpa_dev)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       return ndev->features;
+> +}
+> +
+> +static int nfp_vdpa_set_features(struct vdpa_device *vdpa_dev, u64 featu=
+res)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       /* DMA mapping must be done by driver */
+> +       if (!(features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM)))
+> +               return -EINVAL;
+> +
+> +       ndev->features =3D features & NFP_NET_SUPPORTED_FEATURES;
+> +
+> +       return 0;
+> +}
+> +
+> +static void nfp_vdpa_set_config_cb(struct vdpa_device *vdpa_dev,
+> +                                  struct vdpa_callback *cb)
+> +{
+> +       /* Don't support config interrupt yet */
+> +}
+> +
+> +static u16 nfp_vdpa_get_vq_num_max(struct vdpa_device *vdpa)
+> +{
+> +       /* Currently the firmware for kernel vDPA only support ring size =
+256 */
+> +       return NFP_VDPA_QUEUE_MAX;
+> +}
+> +
+> +static u32 nfp_vdpa_get_device_id(struct vdpa_device *vdpa_dev)
+> +{
+> +       return VIRTIO_ID_NET;
+> +}
+> +
+> +static u32 nfp_vdpa_get_vendor_id(struct vdpa_device *vdpa_dev)
+> +{
+> +       struct nfp_vdpa_mgmt_dev *mgmt;
+> +
+> +       mgmt =3D container_of(vdpa_dev->mdev, struct nfp_vdpa_mgmt_dev, m=
+dev);
+> +       return mgmt->pdev->vendor;
+> +}
+> +
+> +static u8 nfp_vdpa_get_status(struct vdpa_device *vdpa_dev)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       return ndev->status;
+> +}
+> +
+> +static void nfp_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +
+> +       if ((status ^ ndev->status) & VIRTIO_CONFIG_S_DRIVER_OK) {
+> +               if ((status & VIRTIO_CONFIG_S_DRIVER_OK) =3D=3D 0) {
+> +                       dev_err(ndev->vdpa.dma_dev,
+> +                               "Did not expect DRIVER_OK to be cleared\n=
+");
+> +                       return;
+> +               }
+> +
+> +               if (nfp_vdpa_setup_driver(vdpa_dev)) {
+> +                       ndev->status |=3D VIRTIO_CONFIG_S_FAILED;
+> +                       dev_err(ndev->vdpa.dma_dev,
+> +                               "Failed to setup driver\n");
+> +                       return;
+> +               }
+> +       }
+> +
+> +       ndev->status =3D status;
+> +}
+> +
+> +static int nfp_vdpa_reset(struct vdpa_device *vdpa_dev)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdpa_dev);
+> +       u32 new_ctrl, new_ctrl_w1, update =3D 0;
+> +
+> +       if (ndev->status =3D=3D 0)
+> +               return 0;
+> +
+> +       vdpa_cfg_writeb(ndev, NFP_NET_CFG_TXR_VEC(1), 0);
+> +       vdpa_cfg_writeb(ndev, NFP_NET_CFG_RXR_VEC(0), 0);
+> +
+> +       nfp_vdpa_ring_addr_cfg(ndev);
+> +
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_TXRS_ENABLE, 0);
+> +       vdpa_cfg_writeq(ndev, NFP_NET_CFG_RXRS_ENABLE, 0);
+> +
+> +       new_ctrl =3D ndev->ctrl & ~NFP_NET_CFG_CTRL_ENABLE;
+> +       update =3D NFP_NET_CFG_UPDATE_GEN | NFP_NET_CFG_UPDATE_RING | NFP=
+_NET_CFG_UPDATE_MSIX;
+> +       vdpa_cfg_writel(ndev, NFP_NET_CFG_CTRL, new_ctrl);
+> +
+> +       new_ctrl_w1 =3D ndev->ctrl_w1 & ~NFP_NET_CFG_CTRL_VIRTIO;
+> +       vdpa_cfg_writel(ndev, NFP_NET_CFG_CTRL_WORD1, new_ctrl_w1);
+> +
+> +       if (nfp_vdpa_net_reconfig(ndev, update) < 0)
+> +               return -EINVAL;
+> +
+> +       nfp_reset_vring(ndev);
+> +
+> +       ndev->ctrl =3D new_ctrl;
+> +       ndev->ctrl_w1 =3D new_ctrl_w1;
+> +
+> +       ndev->status =3D 0;
+> +       return 0;
+> +}
+> +
+> +static size_t nfp_vdpa_get_config_size(struct vdpa_device *vdev)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdev);
+> +
+> +       return sizeof(ndev->config);
+> +}
+> +
+> +static void nfp_vdpa_get_config(struct vdpa_device *vdev, unsigned int o=
+ffset,
+> +                               void *buf, unsigned int len)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdev);
+> +
+> +       if (offset + len > sizeof(ndev->config))
+> +               return;
+> +
+> +       memcpy(buf, (void *)&ndev->config + offset, len);
+> +}
+> +
+> +static void nfp_vdpa_set_config(struct vdpa_device *vdev, unsigned int o=
+ffset,
+> +                               const void *buf, unsigned int len)
+> +{
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(vdev);
+> +
+> +       if (offset + len > sizeof(ndev->config))
+> +               return;
+> +
+> +       memcpy((void *)&ndev->config + offset, buf, len);
+> +}
+> +
+> +static const struct vdpa_config_ops nfp_vdpa_ops =3D {
+> +       .set_vq_address         =3D nfp_vdpa_set_vq_address,
+> +       .set_vq_num             =3D nfp_vdpa_set_vq_num,
+> +       .kick_vq                =3D nfp_vdpa_kick_vq,
+> +       .set_vq_cb              =3D nfp_vdpa_set_vq_cb,
+> +       .set_vq_ready           =3D nfp_vdpa_set_vq_ready,
+> +       .get_vq_ready           =3D nfp_vdpa_get_vq_ready,
+> +       .set_vq_state           =3D nfp_vdpa_set_vq_state,
+> +       .get_vq_state           =3D nfp_vdpa_get_vq_state,
+> +       .get_vq_align           =3D nfp_vdpa_get_vq_align,
+> +       .get_device_features    =3D nfp_vdpa_get_features,
+> +       .get_driver_features    =3D nfp_vdpa_get_features,
+> +       .set_driver_features    =3D nfp_vdpa_set_features,
+> +       .set_config_cb          =3D nfp_vdpa_set_config_cb,
+> +       .get_vq_num_max         =3D nfp_vdpa_get_vq_num_max,
+> +       .get_device_id          =3D nfp_vdpa_get_device_id,
+> +       .get_vendor_id          =3D nfp_vdpa_get_vendor_id,
+> +       .get_status             =3D nfp_vdpa_get_status,
+> +       .set_status             =3D nfp_vdpa_set_status,
+> +       .reset                  =3D nfp_vdpa_reset,
+> +       .get_config_size        =3D nfp_vdpa_get_config_size,
+> +       .get_config             =3D nfp_vdpa_get_config,
+> +       .set_config             =3D nfp_vdpa_set_config,
+> +};
+> +
+> +static int nfp_vdpa_map_resources(struct nfp_vdpa_net *ndev,
+> +                                 struct pci_dev *pdev,
+> +                                 const struct nfp_dev_info *dev_info)
+> +{
+> +       unsigned int bar_off, bar_sz, tx_bar_sz, rx_bar_sz;
+> +       unsigned int max_tx_rings, max_rx_rings, txq, rxq;
+> +       u64 tx_bar_off, rx_bar_off;
+> +       resource_size_t map_addr;
+> +       void __iomem  *tx_bar;
+> +       void __iomem  *rx_bar;
+> +       int err;
+> +
+> +       /* Map CTRL BAR */
+> +       ndev->ctrl_bar =3D ioremap(pci_resource_start(pdev, NFP_NET_CTRL_=
+BAR),
+> +                                NFP_NET_CFG_BAR_SZ);
+> +       if (!ndev->ctrl_bar)
+> +               return -EIO;
+> +
+> +       /* Find out how many rings are supported */
+> +       max_tx_rings =3D readl(ndev->ctrl_bar + NFP_NET_CFG_MAX_TXRINGS);
+> +       max_rx_rings =3D readl(ndev->ctrl_bar + NFP_NET_CFG_MAX_RXRINGS);
+> +       /* Currently, only one ring is supported */
+> +       if (max_tx_rings !=3D NFP_VDPA_QUEUE_RING_MAX || max_rx_rings !=
+=3D NFP_VDPA_QUEUE_RING_MAX) {
+> +               err =3D -EINVAL;
+> +               goto ctrl_bar_unmap;
+> +       }
+> +
+> +       /* Map Q0_BAR as a single overlapping BAR mapping */
+> +       tx_bar_sz =3D NFP_QCP_QUEUE_ADDR_SZ * max_tx_rings * NFP_VDPA_QUE=
+UE_SPACE_STRIDE;
+> +       rx_bar_sz =3D NFP_QCP_QUEUE_ADDR_SZ * max_rx_rings * NFP_VDPA_QUE=
+UE_SPACE_STRIDE;
+> +
+> +       txq =3D readl(ndev->ctrl_bar + NFP_NET_CFG_START_TXQ);
+> +       tx_bar_off =3D nfp_qcp_queue_offset(dev_info, txq);
+> +       rxq =3D readl(ndev->ctrl_bar + NFP_NET_CFG_START_RXQ);
+> +       rx_bar_off =3D nfp_qcp_queue_offset(dev_info, rxq);
+> +
+> +       bar_off =3D min(tx_bar_off, rx_bar_off);
+> +       bar_sz =3D max(tx_bar_off + tx_bar_sz, rx_bar_off + rx_bar_sz);
+> +       bar_sz -=3D bar_off;
+> +
+> +       map_addr =3D pci_resource_start(pdev, NFP_NET_Q0_BAR) + bar_off;
+> +       ndev->q_bar =3D ioremap(map_addr, bar_sz);
+> +       if (!ndev->q_bar) {
+> +               err =3D -EIO;
+> +               goto ctrl_bar_unmap;
+> +       }
+> +
+> +       tx_bar =3D ndev->q_bar + (tx_bar_off - bar_off);
+> +       rx_bar =3D ndev->q_bar + (rx_bar_off - bar_off);
+> +
+> +       /* TX queues */
+> +       ndev->vring[txq].kick_addr =3D ndev->ctrl_bar + NFP_VDPA_NOTIFY_A=
+REA_BASE
+> +                                    + txq * NFP_VDPA_QUEUE_NOTIFY_OFFSET=
+;
+> +       /* RX queues */
+> +       ndev->vring[rxq].kick_addr =3D ndev->ctrl_bar + NFP_VDPA_NOTIFY_A=
+REA_BASE
+> +                                    + rxq * NFP_VDPA_QUEUE_NOTIFY_OFFSET=
+;
+> +       /* Stash the re-configuration queue away. First odd queue in TX B=
+ar */
+> +       ndev->qcp_cfg =3D tx_bar + NFP_QCP_QUEUE_ADDR_SZ;
+> +
+> +       return 0;
+> +
+> +ctrl_bar_unmap:
+> +       iounmap(ndev->ctrl_bar);
+> +       return err;
+> +}
+> +
+> +static int nfp_vdpa_init_ndev(struct nfp_vdpa_net *ndev)
+> +{
+> +       ndev->features =3D NFP_NET_SUPPORTED_FEATURES;
+> +
+> +       ndev->config.mtu =3D cpu_to_nfpvdpa16(ndev, NFP_NET_DEFAULT_MTU);
+> +       ndev->config.status =3D cpu_to_nfpvdpa16(ndev, VIRTIO_NET_S_LINK_=
+UP);
+> +
+> +       put_unaligned_be32(vdpa_cfg_readl(ndev, NFP_NET_CFG_MACADDR + 0),=
+ &ndev->config.mac[0]);
+> +       put_unaligned_be16(vdpa_cfg_readw(ndev, NFP_NET_CFG_MACADDR + 6),=
+ &ndev->config.mac[4]);
+> +
+> +       return 0;
+> +}
+> +
+> +static int nfp_vdpa_mgmt_dev_add(struct vdpa_mgmt_dev *mdev,
+> +                                const char *name,
+> +                                const struct vdpa_dev_set_config *add_co=
+nfig)
+> +{
+> +       struct nfp_vdpa_mgmt_dev *mgmt =3D container_of(mdev, struct nfp_=
+vdpa_mgmt_dev, mdev);
+> +       struct msix_entry vdpa_irq[NFP_VDPA_NUM_QUEUES];
+> +       struct device *dev =3D &mgmt->pdev->dev;
+> +       struct nfp_vdpa_net *ndev;
+> +       int ret;
+> +
+> +       /* Only allow one ndev at a time. */
+> +       if (mgmt->ndev)
+> +               return -EOPNOTSUPP;
+> +
+> +       ndev =3D vdpa_alloc_device(struct nfp_vdpa_net, vdpa, dev, &nfp_v=
+dpa_ops, 1, 1, name, false);
+> +
+> +       if (IS_ERR(ndev))
+> +               return PTR_ERR(ndev);
+> +
+> +       mgmt->ndev =3D ndev;
+> +
+> +       ret =3D nfp_net_irqs_alloc(mgmt->pdev, (struct msix_entry *)&vdpa=
+_irq, 2, 2);
+> +       if (!ret) {
+> +               ret =3D -ENOMEM;
+> +               goto free_dev;
+> +       }
+> +
+> +       ndev->vdpa_rx_irq.entry =3D vdpa_irq[NFP_VDPA_RX_QUEUE].entry;
+> +       ndev->vdpa_rx_irq.vector =3D vdpa_irq[NFP_VDPA_RX_QUEUE].vector;
+> +
+> +       snprintf(ndev->vdpa_rx_vec.name, sizeof(ndev->vdpa_rx_vec.name), =
+"nfp-vdpa-rx0");
+> +       ndev->vdpa_rx_vec.irq_entry =3D ndev->vdpa_rx_irq.entry;
+> +       ndev->vdpa_rx_vec.irq_vector =3D ndev->vdpa_rx_irq.vector;
+> +
+> +       ndev->vdpa_tx_irq.entry =3D vdpa_irq[NFP_VDPA_TX_QUEUE].entry;
+> +       ndev->vdpa_tx_irq.vector =3D vdpa_irq[NFP_VDPA_TX_QUEUE].vector;
+> +
+> +       snprintf(ndev->vdpa_tx_vec.name, sizeof(ndev->vdpa_tx_vec.name), =
+"nfp-vdpa-tx0");
+> +       ndev->vdpa_tx_vec.irq_entry =3D ndev->vdpa_tx_irq.entry;
+> +       ndev->vdpa_tx_vec.irq_vector =3D ndev->vdpa_tx_irq.vector;
+> +
+> +       ret =3D request_irq(ndev->vdpa_tx_vec.irq_vector, nfp_vdpa_irq_tx=
+,
+> +                         0, ndev->vdpa_tx_vec.name, &ndev->vdpa_tx_vec);
+> +       if (ret)
+> +               goto disable_irq;
+> +
+> +       ret =3D request_irq(ndev->vdpa_rx_vec.irq_vector, nfp_vdpa_irq_rx=
+,
+> +                         0, ndev->vdpa_rx_vec.name, &ndev->vdpa_rx_vec);
+> +       if (ret)
+> +               goto free_tx_irq;
+> +
+> +       ret =3D nfp_vdpa_map_resources(mgmt->ndev, mgmt->pdev, mgmt->dev_=
+info);
+> +       if (ret)
+> +               goto free_rx_irq;
+> +
+> +       ret =3D nfp_vdpa_init_ndev(mgmt->ndev);
+> +       if (ret)
+> +               goto unmap_resources;
+> +
+> +       sema_init(&ndev->bar_lock, 1);
+> +
+> +       ndev->vdpa.dma_dev =3D dev;
+> +       ndev->vdpa.mdev =3D &mgmt->mdev;
+> +
+> +       mdev->supported_features =3D NFP_NET_SUPPORTED_FEATURES;
+> +       mdev->max_supported_vqs =3D NFP_VDPA_QUEUE_MAX;
+> +
+
+This should be NFP_VDPA_NUM_QUEUES actually?
+
+> +       ret =3D _vdpa_register_device(&ndev->vdpa, NFP_VDPA_NUM_QUEUES);
+> +       if (ret)
+> +               goto unmap_resources;
+> +
+> +       return 0;
+> +
+> +unmap_resources:
+> +       iounmap(ndev->ctrl_bar);
+> +       iounmap(ndev->q_bar);
+> +free_rx_irq:
+> +       free_irq(ndev->vdpa_rx_vec.irq_vector, &ndev->vdpa_rx_vec);
+> +free_tx_irq:
+> +       free_irq(ndev->vdpa_tx_vec.irq_vector, &ndev->vdpa_tx_vec);
+> +disable_irq:
+> +       nfp_net_irqs_disable(mgmt->pdev);
+> +free_dev:
+> +       put_device(&ndev->vdpa.dev);
+> +       return ret;
+> +}
+> +
+> +static void nfp_vdpa_mgmt_dev_del(struct vdpa_mgmt_dev *mdev,
+> +                                 struct vdpa_device *dev)
+> +{
+> +       struct nfp_vdpa_mgmt_dev *mgmt =3D container_of(mdev, struct nfp_=
+vdpa_mgmt_dev, mdev);
+> +       struct nfp_vdpa_net *ndev =3D vdpa_to_ndev(dev);
+> +
+> +       free_irq(ndev->vdpa_rx_vec.irq_vector, &ndev->vdpa_rx_vec);
+> +       free_irq(ndev->vdpa_tx_vec.irq_vector, &ndev->vdpa_tx_vec);
+> +       nfp_net_irqs_disable(mgmt->pdev);
+> +       _vdpa_unregister_device(dev);
+> +
+> +       iounmap(ndev->ctrl_bar);
+> +       iounmap(ndev->q_bar);
+> +
+> +       mgmt->ndev =3D NULL;
+> +}
+> +
+> +static const struct vdpa_mgmtdev_ops nfp_vdpa_mgmt_dev_ops =3D {
+> +       .dev_add =3D nfp_vdpa_mgmt_dev_add,
+> +       .dev_del =3D nfp_vdpa_mgmt_dev_del,
+> +};
+> +
+> +static struct virtio_device_id nfp_vdpa_mgmt_id_table[] =3D {
+> +       { VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+> +       { 0 },
+> +};
+> +
+> +static int nfp_vdpa_probe(struct auxiliary_device *adev, const struct au=
+xiliary_device_id *id)
+> +{
+> +       struct nfp_net_vf_aux_dev *nfp_vf_aux_dev;
+> +       struct nfp_vdpa_mgmt_dev *mgmt;
+> +       int ret;
+> +
+> +       nfp_vf_aux_dev =3D container_of(adev, struct nfp_net_vf_aux_dev, =
+aux_dev);
+> +
+> +       mgmt =3D kzalloc(sizeof(*mgmt), GFP_KERNEL);
+> +       if (!mgmt)
+> +               return -ENOMEM;
+> +
+> +       mgmt->pdev =3D nfp_vf_aux_dev->pdev;
+> +
+> +       mgmt->mdev.device =3D &nfp_vf_aux_dev->pdev->dev;
+> +       mgmt->mdev.ops =3D &nfp_vdpa_mgmt_dev_ops;
+> +       mgmt->mdev.id_table =3D nfp_vdpa_mgmt_id_table;
+> +       mgmt->dev_info =3D nfp_vf_aux_dev->dev_info;
+> +
+> +       ret =3D vdpa_mgmtdev_register(&mgmt->mdev);
+> +       if (ret)
+> +               goto err_free_mgmt;
+> +
+> +       auxiliary_set_drvdata(adev, mgmt);
+> +
+> +       return 0;
+> +
+> +err_free_mgmt:
+> +       kfree(mgmt);
+> +
+> +       return ret;
+> +}
+> +
+> +static void nfp_vdpa_remove(struct auxiliary_device *adev)
+> +{
+> +       struct nfp_vdpa_mgmt_dev *mgmt;
+> +
+> +       mgmt =3D auxiliary_get_drvdata(adev);
+> +       if (!mgmt)
+> +               return;
+> +
+> +       vdpa_mgmtdev_unregister(&mgmt->mdev);
+> +       kfree(mgmt);
+> +
+> +       auxiliary_set_drvdata(adev, NULL);
+> +}
+> +
+> +static const struct auxiliary_device_id nfp_vdpa_id_table[] =3D {
+> +       { .name =3D NFP_NET_VF_ADEV_NAME "." NFP_NET_VF_ADEV_DRV_MATCH_NA=
+ME, },
+> +       {},
+> +};
+> +
+> +MODULE_DEVICE_TABLE(auxiliary, nfp_vdpa_id_table);
+> +
+> +static struct auxiliary_driver nfp_vdpa_driver =3D {
+> +       .name =3D NFP_NET_VF_ADEV_DRV_MATCH_NAME,
+> +       .probe =3D nfp_vdpa_probe,
+> +       .remove =3D nfp_vdpa_remove,
+> +       .id_table =3D nfp_vdpa_id_table,
+> +};
+> +
+> +module_auxiliary_driver(nfp_vdpa_driver);
+> +
+> +MODULE_AUTHOR("Corigine, Inc. <oss-drivers@corigine.com>");
+> +MODULE_DESCRIPTION("NFP vDPA driver");
+> +MODULE_LICENSE("GPL");
+> --
+> 2.34.1
+>
 
