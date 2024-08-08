@@ -1,102 +1,135 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 253FE146584
-	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 11:15:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723115761; cv=pass; b=CUbjNTGNKGa5cvsQMmWuJUprQzSvcwvRUtSnKnssqzM86JNF8+Ahw9STHbTdo/RYAkCCP+6q/NcWbZEUKmWutpCUkO6Lb/7HcTatT0lS1ugWwqQHx+prVChylonDt2+ON7wBpSMUh1wkW+9Y02EV6MjPatdF4amecXaYK/k0Who=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723115761; c=relaxed/simple;
-	bh=UVR2SrPn7TfiyI2n+o13LgTQHFTc9rIQLreQ/h9YWr4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p0b+jotlBImXFcjy5NcAmSIdUDxJo39EM4Onlyn3C/340I9WmzMAhQiF4gZL4G3f/2Ky+kUHrxZSf5Qd9AVVvhWtX4z8xzNjDGAUQ/C+EcHaUMzBYq2H0+ytR7yqnkEMHwydFLPH5I7oKvBMROpBM+JCYAoeBkLlc1aheVeRQrA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Sc/xyviu; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01A0C18D651
+	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 11:37:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723117069; cv=none; b=VswSKEJWBWJYstqa0o40Q0i9X/yRdZ5mkASZKx+9Wz+CitYhzgQpl6c96XXs34su0JTksVOhJo+9BvK78QjMs6LDQigG019awEY3d0V6w523okAm3nrTxNbGX/TyTCb2ZxfNavcTsBk8lGkCSr1KJG1PjuRiFljkLDIjB6YnlTY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723117069; c=relaxed/simple;
+	bh=PcDtehXPOnRp+0v2GaOgoZgVtGYtvFdOku2SbV4p6wU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=so0Nhx7ZGtLrlygutKRkXPzSZzITclo2d/inKh5aqxV5MSTFYAE4CBVb0DakilI7c6fQKH/pECf0wIz7ez2ilndXQHwqgOVXB0hkoWxLwMi8iHYwdCa36SrEvmy1UAAQc4JRNjX9V0m/6RfP/ZTBRoqAdILdayldssSvi+1kV9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=wGMGDW07; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Sc/xyviu"
-ARC-Seal: i=1; a=rsa-sha256; t=1723115751; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=NmoWDyJHJvOIY3I9aFGH4B4qHLIdTkCYMAC0kf2ZbaPDJmyvEmtp7uXUneWPjKblrBu4zQ5wgb1HXnX/W8ZbTLEyjFfDVKHaRifGNnMWpzLmrorBRTixf+GsdhM488ffNUhIMAAbQDYUvbviIBh435Lpt0abRcDDywpEtm2XyLw=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1723115751; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=r6rU7KtJozi23kp1co+hrLn3/E9giDDQH5pgqpu/Kbk=; 
-	b=JjMyn9cc0sqhwUMzRIB9d+iuSO+8OvqM+7uDdDKW89kMWgQ3GDjpmSPNuV1tS1Xcm2LH2re+gmGYcwJV3JvCWEcvXAsLNc0X+ttaGbnfYGqCdDZPrAM8wla1vz8OeAI6YxMAbaBOPHOs1bn9s0/trYvoXeqIxDal7cp2+tWwxGM=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1723115751;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=r6rU7KtJozi23kp1co+hrLn3/E9giDDQH5pgqpu/Kbk=;
-	b=Sc/xyviub8Rihuny+btlNpBFekCiHMcZwhM3MuRYZVYvSIfUvpl7hvkDnpdiNzvP
-	6aSo9Leg/D61BS75VTiGdm7hdMEyLrxBljJf5oIPiP2lzWz1ZAy5//EeulQU1FSY6wR
-	gh8KiPiwKDAbh+E5Zy7W8vjtGcewgkEr9JqKsSq0=
-Received: by mx.zohomail.com with SMTPS id 1723115749738452.2823392389888;
-	Thu, 8 Aug 2024 04:15:49 -0700 (PDT)
-Message-ID: <46a5ec89-be9b-4342-820d-019b595fa379@collabora.com>
-Date: Thu, 8 Aug 2024 14:15:45 +0300
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="wGMGDW07"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4281ca54fd3so6339305e9.2
+        for <virtualization@lists.linux.dev>; Thu, 08 Aug 2024 04:37:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1723117064; x=1723721864; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=qYjuaeJy2Pvg9rMTABhna8aZrftptocvWC4VLyaxXc4=;
+        b=wGMGDW07otoRYUDo5TkfjvP21lt7y/1JlGsTZy9M1e2DfMw/QbcjYTkRyP7suH2QOz
+         tTik6wHiCrzMPV8bTvYKaqgk7AzwiXy785ePdOQQ1v0ah3QSwdbSdFfZOD/hH15rM/Np
+         Aq8inAJ873/b98lNzHQYJtkq15VS3TyEo8juVAzffDfkckHOYzcLTC4f/LmT50+rn2yM
+         LQLMQAE7nO6HZckbxuYOd8p9PLKNfJuu5kX6xGd5jf8Jfb4lgaODl8bAFGAb4bc/aVW1
+         z8lK7kIjKbrXLPwKG00Ri71t1VQ3piXDRt1KQcXI+h7rSzjlNg9/Txm6zd0TEHyuJuXX
+         b50g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723117064; x=1723721864;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qYjuaeJy2Pvg9rMTABhna8aZrftptocvWC4VLyaxXc4=;
+        b=l3pZVXCQeMIFszJkh4h8y/gf4+llz70PaWJLSnIb0eSaINYsWc6sXw6+1cfhnNKYXD
+         HxQruPzbkAJ2KsnTxUINxG366cBYpVpS0rV3EvdgGV/BE/DDUKexfoycu31zn9OXIIfo
+         RmpfiyxMW8WsF/5oljsjPY9/4pkMzCPy03JERaacmW2vSn0nYc0BXKTAJZPl68PekVPt
+         5uSF0ToeuigggZHISbrBFt5oULC00yv7lwmR0qOK5QTB0kJykPe1uLpdL00SbsRcotTZ
+         t6R7kMSDaPTQ+XHf6tkdrsfIXtB0slGMvVD7rw4UvBUyFBUCeSYBbDxTpXK1+m0T+Zmd
+         S2QA==
+X-Forwarded-Encrypted: i=1; AJvYcCV1uWxdsrNfJH+pqIFYi7blu/qa1fXW3cErBbkzevWRQxe2MMHb+VrcNd/0vkfl4SkMDZQD5uWzCFw6I4+pibj87CebPBqip4N1v2RmDZ0=
+X-Gm-Message-State: AOJu0YyuVPiG66EA+JDmHpMphbKvyUXlofXW6fMtdQUHRmnZR5qEOr3f
+	I+95RMre/VcqjdX4YyBvrQ9APC1PpqVIsw/PMTOD8TZ6XA1X2XvcGIz7vNgwGr0=
+X-Google-Smtp-Source: AGHT+IGBaalm8I6v0NRwaz9hlc6hExrICBmkwG4RPAmXg++Ta5D8Vis1zmZkzdJ+0LOm4jWmhw0pRg==
+X-Received: by 2002:a05:600c:1d10:b0:426:62c5:4742 with SMTP id 5b1f17b1804b1-4290aee068cmr16351235e9.7.1723117063943;
+        Thu, 08 Aug 2024 04:37:43 -0700 (PDT)
+Received: from localhost ([213.235.133.109])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4290c72d6d3sm18713035e9.6.2024.08.08.04.37.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Aug 2024 04:37:43 -0700 (PDT)
+Date: Thu, 8 Aug 2024 13:37:42 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	Hongyu Ning <hongyu.ning@linux.intel.com>
+Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
+Message-ID: <ZrSuBlWkE-USicQw@nanopsycho.orion>
+References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
-To: Rob Clark <robdclark@gmail.com>
-Cc: Sergio Lopez <slp@redhat.com>, gurchetansingh@chromium.org,
- tzimmermann@suse.de, mripard@kernel.org, olvaffe@gmail.com,
- kraxel@redhat.com, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com,
- airlied@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org
-References: <20240723114914.53677-1-slp@redhat.com>
- <942afa37-a24c-48ed-ae10-c811849165bf@collabora.com>
- <CAF6AEGvwrYiN6nMSsRAdc3qq+qQGWEvdW_3+xJh6y2iAyW6rkw@mail.gmail.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <CAF6AEGvwrYiN6nMSsRAdc3qq+qQGWEvdW_3+xJh6y2iAyW6rkw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
 
-On 8/5/24 19:24, Rob Clark wrote:
-> On Wed, Jul 24, 2024 at 12:00 PM Dmitry Osipenko
-> <dmitry.osipenko@collabora.com> wrote:
->>
->> On 7/23/24 14:49, Sergio Lopez wrote:
->>> There's an incresing number of machines supporting multiple page sizes
->>> and on these machines the host and a guest can be running, each one,
->>> with a different page size.
->>>
->>> For what pertains to virtio-gpu, this is not a problem if the page size
->>> of the guest happens to be bigger or equal than the host, but will
->>> potentially lead to failures in memory allocations and/or mappings
->>> otherwise.
->>
->> Please describe concrete problem you're trying to solve. Guest memory
->> allocation consists of guest pages, I don't see how knowledge of host
->> page size helps anything in userspace.
->>
->> I suspect you want this for host blobs, but then it should be
->> virtio_gpu_vram_create() that should use max(host_page_sz,
->> guest_page_size), AFAICT. It's kernel who is responsible for memory
->> management, userspace can't be trusted for doing that.
+Thu, Aug 08, 2024 at 09:51:41AM CEST, kirill.shutemov@linux.intel.com wrote:
+>Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
+>accesses during the hang.
+>
+>	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
+>	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
+>	...
+>
+>It was traced down to virtio-console. Kexec works fine if virtio-console
+>is not in use.
+>
+>Looks like virtio-console continues to write to the MMIO even after
+>underlying virtio-pci device is removed.
+>
+>The problem can be mitigated by removing all virtio devices on virtio
+>bus shutdown.
+>
+>Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+>Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+
+Could you provide a "Fixes:" tag pointing to the commit that introduced
+the bug?
+
+
+
+>---
+> drivers/virtio/virtio.c | 10 ++++++++++
+> 1 file changed, 10 insertions(+)
+>
+>diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>index a9b93e99c23a..6c2f908eb22c 100644
+>--- a/drivers/virtio/virtio.c
+>+++ b/drivers/virtio/virtio.c
+>@@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
+> 	of_node_put(dev->dev.of_node);
+> }
 > 
-> fwiw virtgpu native context would require this as well, mesa would
-> need to know the host page size to correctly align GPU VA allocations
-> (which must be a multiple of the host page size).
+>+static void virtio_dev_shutdown(struct device *_d)
+>+{
+>+	struct virtio_device *dev = dev_to_virtio(_d);
+>+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+>+
+>+	if (drv && drv->remove)
+>+		drv->remove(dev);
+>+}
+>+
+> static const struct bus_type virtio_bus = {
+> 	.name  = "virtio",
+> 	.match = virtio_dev_match,
+>@@ -363,6 +372,7 @@ static const struct bus_type virtio_bus = {
+> 	.uevent = virtio_uevent,
+> 	.probe = virtio_dev_probe,
+> 	.remove = virtio_dev_remove,
+>+	.shutdown = virtio_dev_shutdown,
+> };
 > 
-> So a-b for adding this and exposing it to userspace.
-
-In general, GPU page size has no connection to the CPU page size. It
-happens that MSM driver uses same page size for both GPU and CPU. Likely
-you could configure a different GPU page size if you wanted. dGPUs would
-often use 64k pages.
-
--- 
-Best regards,
-Dmitry
-
+> int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
+>-- 
+>2.43.0
+>
+>
