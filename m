@@ -1,209 +1,137 @@
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19C4618E751
-	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 12:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7D8EEA8
+	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 13:15:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723120992; cv=none; b=ptFM5UruknoqRVXoFVUZgc3fpJ9xB2ld+s9KgSNDp418PtkVWY3ulzvS/5SEEcgYZrQ+E8eacZq7cZTmRpC6zF7UOL8wGvG0rQaN/Bz3ezb4MoC2a+mWIu+0QzdjcWljlXwUadmYU9VYQC8V9VVTB1Jc/UziiVK0mu+5fom4tIg=
+	t=1723122931; cv=none; b=loJE7L1eVttvVXo8v5mM9bfH+gYCyK9WPPXq4MwmX099H+XlAZVFdbKGicPdvzbESzuExenjDJ0TMZ4LlgoBRBn9x7n7Ap5ql/1F6Jv1En6QXmjCI/EZgGfmKf4l+3x2CGybZzoF0LeooTIHfdpjZzJtLYdXDegK5DOMsmy7MLw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723120992; c=relaxed/simple;
-	bh=CI3zxLH0zZj018ZWJV+vX4G8HpwhfIULDnyKWg02Dwo=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=aD8ngFfjPxbRbtbIT+0fXBfIGey9PnemsCqD4htRwy3HhPP9g+Il0iIK2h2VzDZrPpbXrPz23VpVtD8BtQyaNzHFhTBgg/e3Nv56qyLWnGtZJPCX9Jd6FN2a5n9oAb6oiQ4MWqQDMmaqUZFRwOBdY4ZV7i7QGm22dFVaNQtGk8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Wfmsf2PcYz1T6t7;
-	Thu,  8 Aug 2024 20:42:46 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 4515D180106;
-	Thu,  8 Aug 2024 20:43:08 +0800 (CST)
-Received: from localhost.localdomain (10.90.30.45) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 8 Aug 2024 20:43:07 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
-	Alexander Duyck <alexanderduyck@fb.com>, Chuck Lever
-	<chuck.lever@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Eric
- Dumazet <edumazet@google.com>, David Howells <dhowells@redhat.com>, Marc
- Dionne <marc.dionne@auristor.com>, Trond Myklebust <trondmy@kernel.org>, Anna
- Schumaker <anna@kernel.org>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Shuah Khan
-	<shuah@kernel.org>, <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-Subject: [PATCH net-next v13 05/14] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Thu, 8 Aug 2024 20:37:05 +0800
-Message-ID: <20240808123714.462740-6-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20240808123714.462740-1-linyunsheng@huawei.com>
-References: <20240808123714.462740-1-linyunsheng@huawei.com>
+	s=arc-20240116; t=1723122931; c=relaxed/simple;
+	bh=N8pWANWB+eqxnggvwNDLltgkeHdajqd+8sIVS1brylI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dF9JctvBakFIVV2jttrzzWaNvRY4PnQoSNZid0XNXJfZ2MU1oEHGBjvlygbdD66Dus+/nc689nwYO+IFF4gh271zPQgrRkyQfbg1Q6a5vudn1slkoMAotAZFNa3f9uKR6glvuLS2GA5pcChPlyHrWKJHjmImLzPXfaDBdWtxFr4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XL2leIiv; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XL2leIiv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1723122928; x=1754658928;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=N8pWANWB+eqxnggvwNDLltgkeHdajqd+8sIVS1brylI=;
+  b=XL2leIivuevWbbmf2ogS1VtxXWVJgMMB3k+yf1+DjJVsId8pdWj3lvkQ
+   DZxO9OluPnIUCCx6E+o4b/fwinarzWJ2fQ2snZPI3vkU6GfXJOytzTEQh
+   sL5Fd2lierjEk8wt/4g4KlH3dLj6W3F7e/qWHvcojc2E+K1CsJgzi9cLY
+   WlVuRyb6mN4jNZ3KspJXGtVONBa0T3KRotmi7NhR8Z2fJkHrRS8GCsL0k
+   8Doq0Rorol4ts3PD/PJPXMV3++CVzK/UZXMeFDWFQRIuIa62BJv/D9iYl
+   /ndA+b4sgYxJvJZQkyp4sVZpWittBPXRba34Qewhu22bcIQpfr8ektAp7
+   g==;
+X-CSE-ConnectionGUID: o5KbxHYCScOpsDWa5UWdEw==
+X-CSE-MsgGUID: JPKVZMNXRFKvg+Cbo7vgWw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11158"; a="46650392"
+X-IronPort-AV: E=Sophos;i="6.09,273,1716274800"; 
+   d="scan'208";a="46650392"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Aug 2024 06:15:28 -0700
+X-CSE-ConnectionGUID: j/tvhK6nRT+q6G028onx/A==
+X-CSE-MsgGUID: tS4X46kUTs2ZDrR463gOUg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,273,1716274800"; 
+   d="scan'208";a="57178231"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmviesa008.fm.intel.com with ESMTP; 08 Aug 2024 06:15:26 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1000)
+	id 515A64C7; Thu, 08 Aug 2024 16:15:25 +0300 (EEST)
+Date: Thu, 8 Aug 2024 16:15:25 +0300
+From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Hongyu Ning <hongyu.ning@linux.intel.com>
+Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
+Message-ID: <yknu4iege3drk6t2x7pvm2l2cocg4r5qk5jzmboej6dqk5ym2z@g4clogtuuibe>
+References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
+ <20240808075701-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240808075701-mutt-send-email-mst@kernel.org>
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+On Thu, Aug 08, 2024 at 08:10:34AM -0400, Michael S. Tsirkin wrote:
+> On Thu, Aug 08, 2024 at 10:51:41AM +0300, Kirill A. Shutemov wrote:
+> > Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
+> > accesses during the hang.
+> > 
+> > 	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
+> > 	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
+> > 	...
+> > 
+> > It was traced down to virtio-console. Kexec works fine if virtio-console
+> > is not in use.
+> 
+> virtio is not doing a lot of 16 bit reads.
+> Are these the reads:
+> 
+>                 virtio_cread(vdev, struct virtio_console_config, cols, &cols);
+>                 virtio_cread(vdev, struct virtio_console_config, rows, &rows);
+> 
+> ?
+> 
+> write is a bit puzzling too. This one?
+> 
+> bool vp_notify(struct virtqueue *vq)
+> {       
+>         /* we write the queue's selector into the notification register to
+>          * signal the other end */
+>         iowrite16(vq->index, (void __iomem *)vq->priv);
+>         return true;
+> }
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
----
- drivers/vhost/net.c                                   |  2 +-
- include/linux/page_frag_cache.h                       | 10 ++++++++++
- net/core/skbuff.c                                     |  6 +++---
- net/rxrpc/conn_object.c                               |  4 +---
- net/rxrpc/local_object.c                              |  4 +---
- net/sunrpc/svcsock.c                                  |  6 ++----
- tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
- 7 files changed, 19 insertions(+), 15 deletions(-)
+Given that we are talking about console issue, any suggestion on how to
+check?
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 6691fac01e0d..b2737dc0dc50 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index ef038a07925c..7c9125a9aed3 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -7,6 +7,16 @@
- #include <linux/types.h>
- #include <linux/mm_types_task.h>
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_va_align(struct page_frag_cache *nc,
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 6cf2c51a34e1..bb77c3fd192f 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -752,14 +752,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
- 
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc_va(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 
- 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 		local_bh_enable();
-@@ -849,7 +849,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc_va(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index 504453c688d7..a8cffe47cf01 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 42d20412c1c3..4b1e87187614 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1609,7 +1609,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1619,8 +1618,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
-diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-index e522611452c9..3b98df379ce6 100644
---- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
-+++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-@@ -120,7 +120,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_frag.va = NULL;
-+	page_frag_cache_init(&test_frag);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
+> > 
+> > Looks like virtio-console continues to write to the MMIO even after
+> > underlying virtio-pci device is removed.
+> 
+> You mention both MMIO and pci, I am confused.
+
+By MMIO, I mean accesses to PCI BARs. But it is only my *guess* on the
+situation, I have limited knowledge of the area. I am not drivers guy.
+
+> Removed by what? In what sense?
+
+So device_shutdown() iterates over all device and we hit the problem when
+we get to virtio-pci devices and call pci_device_shutdown on them.
+
+I *think* PCI BAR (or something else?) becomes unavailable after that but
+it is still accessed.
+
+> > 
+> > The problem can be mitigated by removing all virtio devices on virtio
+> > bus shutdown.
+> > 
+> > Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+> 
+> A bit worried about doing so much activity on shutdown,
+> and for all devices, too. I'd like to understand what
+> is going on a bit better - could be a symptom of
+> a bigger problem (e.g. missing handling for suprise
+> removal?).
+
+I probably should have marked the patch as RFC. The patch was intended to
+start conversation. I am not sure it is correct. This patch just happened
+to work in our setup.
+
 -- 
-2.33.0
-
+  Kiryl Shutsemau / Kirill A. Shutemov
