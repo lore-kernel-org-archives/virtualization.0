@@ -1,260 +1,279 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2085.outbound.protection.outlook.com [40.107.223.85])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A354E145B26
-	for <virtualization@lists.linux.dev>; Wed,  7 Aug 2024 22:41:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.85
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723070511; cv=fail; b=aLCZ60d+++4OnWxQzGvgF8EwO/I6C1Q1MWCF+ZTZ6NRt3DsRHODUJ4j2N8J2vd+zkPorZ415jo8CD8pAcJRFFUxsgGDSBTMkc55Xeu+F9zfOuZPIMaZiAdFDGB47uFTTsRfjV3f0DYmGBzhC2CRKcXjb8R/VUCSRyicHH5MKcYg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723070511; c=relaxed/simple;
-	bh=+OOVJx+oZ3mA7y2n2ucNNovYvh+RsakGflK1nEG3wmo=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=E+LESF9uYx1WbLHUW2JPnryn9mUmtXJ/ccyzUEB8eB2QNJH8nYDNUL7cNpXzaxYk7CzoKGfSD/YbJB07QyZBwVD0dhR7SnTM5YJkYaVksHUuLcKex49Rp3+E5QwYxH7GMZPXoGsMxfLgGu93kfkvK7SF6WCXv8m74Hi4591JL2A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Xmny7Ji3; arc=fail smtp.client-ip=40.107.223.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F1062A1D8
+	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 02:57:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723085834; cv=none; b=rWU2IsAAtB0/eeJtRlV4Bjvsu5FkXlaqa3IjZOnf80cBkDYW9k6AxLIvWXBT9dE3KM5krtj+1pyEgo0V86/KwNfm+8YHCP8jQm4dOynd2qVauFhv7aElZjvc35jTVaCOP3vx/hyhHqJohVrBgfm8Tj4b4suXKn4wER3L/dRgoms=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723085834; c=relaxed/simple;
+	bh=A7MOeA3UL/op8WV3k7OjWeb7EkBqbSKTQqT0eNN45Js=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=U6pZkgVzdJJ2NiLyLCea7V4y/QJAFDtFr7H1UA7X1liJLAph6qkaDFWjQozc8MQmHukQqKqXU5daqNj/VJXTRKC7yn7bSNkjCTho7dKjqKLrzavvph0Rv+OGpSFUQe3yCPUDm0p64kXJh8vHtKNxB6NT42O0oLWRt6huAE3AfLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E4eFsXct; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Xmny7Ji3"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=p0ld5f1CngEpcnZvbltQKgWiUukeVg6J1SxqkXhn6rN3pjhAv3bVrm0Lct+UKbA72Rk4HS/tcxXRSe4/ThSPDCwT+mILkZkpZsXyFYtmn8KNIAKTuDBiNMSkDvXfKez7+3oob3GX7YPCT9MsAV3xWOkcUDyNQvFgp//K6Zae9HQ1WsU3zvSQZ3ix8sm1YcUaGoQfhYk+/IL6ratd+/Ny3DeJRwsHVZ7ftJ1yU0gJt2kzifNnLgXqAyf7u4tsPhLW2Hf791TcrOowgMppFFHHKjKnv0REdxQ8t04s4XrJURIC89Gx6svki/cBFdhnkCD1l453mEvebhBjN6Qdn7ocLA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=H2CzQ0CmMxzzrpO0I/9AQ4gzwGh/pa5CVmBoWKnSsZc=;
- b=KCGf43v9+NCvy5WcETB/rDuUDBb2dKaGVKB0UMV9478H06OZk3lO9VHOq58qKCx/QwpmkUsOfJnTfcKir0PF8U7yA+3HwSqrh/2aPpHP0ZixUFGOATBPfn99JDnYI7ceC3q1uV3s2Dr787rIa2isFnklZ1St8y42xqzYouchzN5HnFXmWvBMwZFlxz+gY/n8Jggh05yDOr6e1WD9gEdW8AP66S/hZG6NZHnnE9DH6vG/6ltpfCJzlrlBCH2UNil84BG4WcY97EkjwnZMR7FH3bqOEbF2V/1ixJ/PMFsnlq352gIpYuDTCLVtXMI7JZi1bcLHAfNNb95aOpgH4S769g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=H2CzQ0CmMxzzrpO0I/9AQ4gzwGh/pa5CVmBoWKnSsZc=;
- b=Xmny7Ji3CSFqwdGYS4W0LPvMDIrYeo0D/BfHtNE0t4hRsERowuJqYYXdiIRrRlgroo9tVswQJZYRizcwBi+InZ5nUtWiUBkBAtzO8/l/nM3rVgVmGWn9WkZAGpX/mQ927yBVoVmgSHJUzLCGx40DUhwkP3Oo1J41P0v7fJH+L+/VhS8hnK2uVALHdJkbHSiz8/h2ctVhPxVpYHJ0SzQBfpNAScQClNQp5BQMRUHRys1S7KZdD8FntgkD2bR5ggdZljMlvxN2l7SvzndZnNNkx681/8RYdTQsjdBbywPeKh+4yeF/ayCJhlVm472ftuUGRHUZck04xOLtApj25l11Iw==
-Received: from BN9PR03CA0589.namprd03.prod.outlook.com (2603:10b6:408:10d::24)
- by PH8PR12MB6699.namprd12.prod.outlook.com (2603:10b6:510:1ce::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.22; Wed, 7 Aug
- 2024 22:41:46 +0000
-Received: from BN2PEPF000044A1.namprd02.prod.outlook.com
- (2603:10b6:408:10d:cafe::d2) by BN9PR03CA0589.outlook.office365.com
- (2603:10b6:408:10d::24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.30 via Frontend
- Transport; Wed, 7 Aug 2024 22:41:45 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- BN2PEPF000044A1.mail.protection.outlook.com (10.167.243.152) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7849.8 via Frontend Transport; Wed, 7 Aug 2024 22:41:45 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 7 Aug 2024
- 15:41:32 -0700
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Wed, 7 Aug 2024 15:41:32 -0700
-Received: from r-arch-stor03.mtr.labs.mlnx (10.127.8.14) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Wed, 7 Aug 2024 15:41:30 -0700
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
-To: <stefanha@redhat.com>, <virtualization@lists.linux.dev>, <mst@redhat.com>,
-	<axboe@kernel.dk>
-CC: <kvm@vger.kernel.org>, <linux-block@vger.kernel.org>, <oren@nvidia.com>,
-	Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: [PATCH v2] virtio_blk: implement init_hctx MQ operation
-Date: Thu, 8 Aug 2024 01:41:29 +0300
-Message-ID: <20240807224129.34237-1-mgurtovoy@nvidia.com>
-X-Mailer: git-send-email 2.18.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E4eFsXct"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1723085831;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ae0DB/1sQCe1W+1yx9i6v3XKM9QebP5sAVrnebmOqZ4=;
+	b=E4eFsXctwTlZZYSZzvR5JLSxk66RJWmgp6Xii2KX0UEHxpuY9TB8wwdudLPPzMtXfIM5oe
+	JKBK6+YcCXx1uiwm2tSAuedJq+G8Jpc9D7+U/Q0Jmk2j2Hdfin2fnlXxj3DzhH15irCgXO
+	Ey3Ny0Ds3YRiAufgeAO0i4ENdPZro4o=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-247-QTgi4PO_M86kriRMaNgPkw-1; Wed, 07 Aug 2024 22:57:09 -0400
+X-MC-Unique: QTgi4PO_M86kriRMaNgPkw-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2cb5ba80e77so745143a91.1
+        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 19:57:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723085828; x=1723690628;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ae0DB/1sQCe1W+1yx9i6v3XKM9QebP5sAVrnebmOqZ4=;
+        b=O1sbkpxrz6RUz9adjpTrRwfkJDDDvWCrrT4deHDI3rtTt/dSlftTvVbo9e4KkNS+A8
+         bwXOuVGZN3B4fRNVQh2nh9FpBXoyGhKcI228IWLlcdQB82zYF9/WcSBNzBLPIaKHaP20
+         ZpykNkgWHxEIOKXwDOIYirxJhZLX8hSCtfI8WDOHYffRU0zk4RUZxh0LbZTrhEa9125O
+         qNDo9b8ClvTQF7Vmyd4F3wxtN0lw7NnEiJNFjroTc6SLFAIOgpv/VUJ7WwRYk1fGG7Cn
+         sIJMb2j648XuHvrBWgH6L8x6ZCmAACVirxd0ezWIuEAtg0aA37XS8LznEUhucl9Hl3Qb
+         PRMA==
+X-Forwarded-Encrypted: i=1; AJvYcCXg/QocgfqVuGXRpI1cS83vHu1224xuza6rTOuzkC6lj4d4MZesM3DWBZCCKI8CpWa2riC/BSoqQ1WBPBzB633xlBBBJohMBABPTkJi1mw=
+X-Gm-Message-State: AOJu0YxscWR2PyHGzHvKbmJfUI6zQphf/XEOpHvlYjPnfbdBq6O49wRk
+	05YNRnSHD90SYZxEeRmmUJ9ab63SZNyhaKhBGfQCvh/Tw6GDWc6qsLNlxgq6G/FTjmlFrLsdxR4
+	LLDFHDwElxmK3TmtshK7hwkxdmOps2ojmDzgURLJs2KBpvrtE6r+pWhy1oJz05eU6UWpCBt7pua
+	Lgy+hk9lswNkZvwx7tZrVGqb/51d9+ljknrE9PxB0=
+X-Received: by 2002:a17:90a:d902:b0:2cd:2992:e8e5 with SMTP id 98e67ed59e1d1-2d1c347b7cemr653882a91.33.1723085828029;
+        Wed, 07 Aug 2024 19:57:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGQ6JTZ0RtS1Dyd7BEfalQbLVIcX0tMFw7LvwpP2rWuDcd5abCtSZR6T/OTg7PYtj1F6XOJF/zOHLeUF1RAkGw=
+X-Received: by 2002:a17:90a:d902:b0:2cd:2992:e8e5 with SMTP id
+ 98e67ed59e1d1-2d1c347b7cemr653866a91.33.1723085827386; Wed, 07 Aug 2024
+ 19:57:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN2PEPF000044A1:EE_|PH8PR12MB6699:EE_
-X-MS-Office365-Filtering-Correlation-Id: 288d3d4b-9851-41e4-0805-08dcb7321dc1
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|1800799024|36860700013;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?Nbh1s61WkqWkJ59r+u4oEixuIC3hmGzTKkfp54xN6IQeGFhxA7fTlwzUx6Tt?=
- =?us-ascii?Q?5ABH42pflMB7PqhARL0E+M5jA0pjUOTXVIwgDLQ+Bvlwzd7u+CjQkiPHrXkJ?=
- =?us-ascii?Q?UCnG44yDEoy16aT1QdD4+o/ws21aUEBYUvLZUfB2h3r8HiO9IZ5YcjyAqk5o?=
- =?us-ascii?Q?hbORji387daofbw2afzhR1curlai6Gnyozspn7Rg/MLCFmKfLqM2j1m5H24R?=
- =?us-ascii?Q?QI3GYD8e5e8SgZccHLscR+pj36tC9lAMke+XzK2YFXuwJejviRljNUa5aC3R?=
- =?us-ascii?Q?I8HuR+7dIYj73eGVxS2/5gfpV0s3cU5sJxfsfnwZUtbJNUWDfTAO2oMTXOj/?=
- =?us-ascii?Q?UTpwf0Dhjaaagg3Plk8Ur3ZOBr9Ao3eL+FVsWlwpbhtaYepAyLCwOWkzNecE?=
- =?us-ascii?Q?NE0jWX0KdreMINl9TU8UnGWgke5/omKhD5tw23PNAD2pPWIFvKag0xBeccNS?=
- =?us-ascii?Q?JLhUPIyHLPwwcNurn1U2tGUUVulKfmzLcXZ+eA9oRHaDt3ZewSTaB8A67SdK?=
- =?us-ascii?Q?5QjoKl4Zootkngu0egUeGJTdKw/ATT10hzriQwEkdZAa9U1mpMzlwW53eNO4?=
- =?us-ascii?Q?4UIVbXCDAjaEpB5FA1cY1KQkoBIcFcPnJsG2Tsqw/LhfJDlAvXLReQEmmg03?=
- =?us-ascii?Q?t01iEBM081OHXnG6RA1wGi3tS+FcbQbUwpVVaX14OnboDMdHrZEQ3r6eDbff?=
- =?us-ascii?Q?EAS0T1BzzrPF5MZDhcR/xS4L0LPt+BqwhiSZj1dYs7OaccaC0G2UG2kLM/Gd?=
- =?us-ascii?Q?RFXav87GeynPi1PhPIVe4TCbdYS5XoaynkrSytoWdAd5pN7o6108MRIxlcrZ?=
- =?us-ascii?Q?2laPBeRqewdASJ6Gwf/Ql3pl3nLF/GjCeI9fgGtZQ8Sg6Ybz8gemWv8wZ+aw?=
- =?us-ascii?Q?VqKAEi+Wcgy/X+W3zeotK8vQdvrZeHYl3Hk1FJ+0A07wsd8PaGGQnde6h2sS?=
- =?us-ascii?Q?zV5cztCxvmvbjPZ5+jAInj8Prg41D4TqCCP9DCd4XfQSNzkd86ZK9QS+7Rqb?=
- =?us-ascii?Q?lwdbpnLkOag2VSOIU1oLQf7F5wpyrlVRfaKNBrcdJWW409tManxu1K+ZtS33?=
- =?us-ascii?Q?KSdqsAJhGq7mAb0agjvFwmUehUKDkfTDKW3VNpntr4zcBQfXP2UC/cKmzVX+?=
- =?us-ascii?Q?93mrvwMSHABe6YNNCiFMj8pGGtQ43djexGrlyjrisdPFs1/6vt/7HsdIKVyB?=
- =?us-ascii?Q?fTAIKeFEmZMoxN+u1hY20f4jj2yNjwAWW2bYWvstiAZcKK1Esv698rP/2lEH?=
- =?us-ascii?Q?wLQLSeHH3XlfzfAeLgWbemn9ICVTZRNQ+D8yGKkajyQRa5kuHJgYlyCZmCpl?=
- =?us-ascii?Q?nsllLNcFEmOr72OSLm7hCZuO0NVLjgJR4UCJ220Sb0/si1xGtrgvhr3tO7W9?=
- =?us-ascii?Q?UPqEKjLSCj/Klj+kk/c+lht7X5LTyxBZp6skCrHDLIDdnfroO5j/W5vgPjXH?=
- =?us-ascii?Q?jh5HhI3EpqzRzgSbRtGpIBBts/S5YRKH?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(376014)(1800799024)(36860700013);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Aug 2024 22:41:45.3330
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 288d3d4b-9851-41e4-0805-08dcb7321dc1
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BN2PEPF000044A1.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB6699
+References: <20240801153722.191797-2-dtatulea@nvidia.com> <CACGkMEutqWK+N+yddiTsnVW+ZDwyM+EV-gYC8WHHPpjiDzY4_w@mail.gmail.com>
+ <51e9ed8f37a1b5fbee9603905b925aedec712131.camel@nvidia.com>
+ <CACGkMEuHECjNVEu=QhMDCc5xT_ajaETqAxNFPfb2-_wRwgvyrA@mail.gmail.com>
+ <cc771916-62fe-4f6b-88d2-9c17dff65523@nvidia.com> <CACGkMEvPNvdhYmAofP5Xoqf7mPZ97Sv2EaooyEtZVBoGuA-8vA@mail.gmail.com>
+ <b603ff51-88d6-4066-aafa-64a60335db37@nvidia.com> <69850046-6b14-4910-9a89-cca8305c1bb9@nvidia.com>
+In-Reply-To: <69850046-6b14-4910-9a89-cca8305c1bb9@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 8 Aug 2024 10:56:55 +0800
+Message-ID: <CACGkMEt3Zuv9UcF6YoUgw1UPyHhZCpZufCSejTp6mA6aNVB4oA@mail.gmail.com>
+Subject: Re: [RFC PATCH vhost] vhost-vdpa: Fix invalid irq bypass unregister
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, 
+	"eperezma@redhat.com" <eperezma@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Set the driver data of the hardware context (hctx) to point directly to
-the virtio block queue. This cleanup improves code readability and
-reduces the number of dereferences in the fast path.
+On Tue, Aug 6, 2024 at 10:45=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+>
+>
+> On 06.08.24 10:18, Dragos Tatulea wrote:
+> > (Re-sending. I messed up the previous message, sorry about that.)
+> >
+> > On 06.08.24 04:57, Jason Wang wrote:
+> >> On Mon, Aug 5, 2024 at 11:59=E2=80=AFPM Dragos Tatulea <dtatulea@nvidi=
+a.com> wrote:
+> >>>
+> >>> On 05.08.24 05:17, Jason Wang wrote:
+> >>>> On Fri, Aug 2, 2024 at 2:51=E2=80=AFPM Dragos Tatulea <dtatulea@nvid=
+ia.com> wrote:
+> >>>>>
+> >>>>> On Fri, 2024-08-02 at 11:29 +0800, Jason Wang wrote:
+> >>>>>> On Thu, Aug 1, 2024 at 11:38=E2=80=AFPM Dragos Tatulea <dtatulea@n=
+vidia.com> wrote:
+> >>>>>>>
+> >>>>>>> The following workflow triggers the crash referenced below:
+> >>>>>>>
+> >>>>>>> 1) vhost_vdpa_unsetup_vq_irq() unregisters the irq bypass produce=
+r
+> >>>>>>>    but the producer->token is still valid.
+> >>>>>>> 2) vq context gets released and reassigned to another vq.
+> >>>>>>
+> >>>>>> Just to make sure I understand here, which structure is referred t=
+o as
+> >>>>>> "vq context" here? I guess it's not call_ctx as it is a part of th=
+e vq
+> >>>>>> itself.
+> >>>>>>
+> >>>>>>> 3) That other vq registers it's producer with the same vq context
+> >>>>>>>    pointer as token in vhost_vdpa_setup_vq_irq().
+> >>>>>>
+> >>>>>> Or did you mean when a single eventfd is shared among different vq=
+s?
+> >>>>>>
+> >>>>> Yes, that's what I mean: vq->call_ctx.ctx which is a eventfd_ctx.
+> >>>>>
+> >>>>> But I don't think it's shared in this case, only that the old event=
+fd_ctx value
+> >>>>> is lingering in producer->token. And this old eventfd_ctx is assign=
+ed now to
+> >>>>> another vq.
+> >>>>
+> >>>> Just to make sure I understand the issue. The eventfd_ctx should be
+> >>>> still valid until a new VHOST_SET_VRING_CALL().
+> >>>>
+> >>> I think it's not about the validity of the eventfd_ctx. More about
+> >>> the lingering ctx value of the producer after vhost_vdpa_unsetup_vq_i=
+rq().
+> >>
+> >> Probably, but
+> >>
+> >>> That value is the eventfd ctx, but it could be anything else really..=
+.
+> >>
+> >> I mean we hold a refcnt of the eventfd so it should be valid until the
+> >> next set_vring_call() or vhost_dev_cleanup().
+> >>
+> >> But I do spot some possible issue:
+> >>
+> >> 1) We swap and assign new ctx in vhost_vring_ioctl():
+> >>
+> >>                 swap(ctx, vq->call_ctx.ctx);
+> >>
+> >> 2) and old ctx will be put there as well:
+> >>
+> >>                 if (!IS_ERR_OR_NULL(ctx))
+> >>                         eventfd_ctx_put(ctx);
+> >>
+> >> 3) but in vdpa, we try to unregister the producer with the new token:
+> >>
+> >> static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int =
+cmd,
+> >>                            void __user *argp)
+> >> {
+> >> ...
+> >>         r =3D vhost_vring_ioctl(&v->vdev, cmd, argp);
+> >> ...
+> >>         switch (cmd) {
+> >> ...
+> >>         case VHOST_SET_VRING_CALL:
+> >>                 if (vq->call_ctx.ctx) {
+> >>                         cb.callback =3D vhost_vdpa_virtqueue_cb;
+> >>                         cb.private =3D vq;
+> >>                         cb.trigger =3D vq->call_ctx.ctx;
+> >>                 } else {
+> >>                         cb.callback =3D NULL;
+> >>                         cb.private =3D NULL;
+> >>                         cb.trigger =3D NULL;
+> >>                 }
+> >>                 ops->set_vq_cb(vdpa, idx, &cb);
+> >>                 vhost_vdpa_setup_vq_irq(v, idx);
+> >>
+> >> in vhost_vdpa_setup_vq_irq() we had:
+> >>
+> >>         irq_bypass_unregister_producer(&vq->call_ctx.producer);
+> >>
+> >> here the producer->token still points to the old one...
+> >>
+> >> Is this what you have seen?
+> > Yup. That is the issue. The unregister already happened at
+> > vhost_vdpa_unsetup_vq_irq(). So this second unregister will
+> > work on an already unregistered element due to the token still
+> > being set.
+> >
+> >>
+> >>>
+> >>>
+> >>>> I may miss something but the only way to assign exactly the same
+> >>>> eventfd_ctx value to another vq is where the guest tries to share th=
+e
+> >>>> MSI-X vector among virtqueues, then qemu will use a single eventfd a=
+s
+> >>>> the callback for multiple virtqueues. If this is true:
+> >>>>
+> >>> I don't think this is the case. I see the issue happening when runnin=
+g qemu vdpa
+> >>> live migration tests on the same host. From a vdpa device it's basica=
+lly a device
+> >>> starting on a VM over and over.
+> >>>
+> >>>> For bypass registering, only the first registering can succeed as th=
+e
+> >>>> following registering will fail because the irq bypass manager alrea=
+dy
+> >>>> had exactly the same producer token.
+> >>>> For registering, all unregistering can succeed:
+> >>>>
+> >>>> 1) the first unregistering will do the real job that unregister the =
+token
+> >>>> 2) the following unregistering will do nothing by iterating the
+> >>>> producer token list without finding a match one
+> >>>>
+> >>>> Maybe you can show me the userspace behaviour (ioctls) when you see =
+this?
+> >>>>
+> >>> Sure, what would you need? qemu traces?
+> >>
+> >> Yes, that would be helpful.
+> >>
+> > Will try to get them.
+> As the traces are quite large (~5MB), I uploaded them in this location [0=
+].
+> I used the following qemu traces:
+> --trace vhost_vdpa* --trace virtio_net_handle*
+>
+> [0] https://drive.google.com/file/d/1XyXYyockJ_O7zMgI7vot6AxYjze9Ljju/vie=
+w?usp=3Dsharing
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
----
- drivers/block/virtio_blk.c | 42 ++++++++++++++++++++------------------
- 1 file changed, 22 insertions(+), 20 deletions(-)
+Thanks for doing this.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2351f411fa46..35a7a586f6f5 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8 status)
- 	}
- }
- 
--static inline struct virtio_blk_vq *get_virtio_blk_vq(struct blk_mq_hw_ctx *hctx)
--{
--	struct virtio_blk *vblk = hctx->queue->queuedata;
--	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
--
--	return vq;
--}
--
- static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr)
- {
- 	struct scatterlist out_hdr, in_hdr, *sgs[3];
-@@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
- 
- static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
- {
--	struct virtio_blk *vblk = hctx->queue->queuedata;
--	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
-+	struct virtio_blk_vq *vq = hctx->driver_data;
- 	bool kick;
- 
- 	spin_lock_irq(&vq->lock);
-@@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
- 			   const struct blk_mq_queue_data *bd)
- {
- 	struct virtio_blk *vblk = hctx->queue->queuedata;
-+	struct virtio_blk_vq *vq = hctx->driver_data;
- 	struct request *req = bd->rq;
- 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
- 	unsigned long flags;
--	int qid = hctx->queue_num;
- 	bool notify = false;
- 	blk_status_t status;
- 	int err;
-@@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	if (unlikely(status))
- 		return status;
- 
--	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
--	err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
-+	spin_lock_irqsave(&vq->lock, flags);
-+	err = virtblk_add_req(vq->vq, vbr);
- 	if (err) {
--		virtqueue_kick(vblk->vqs[qid].vq);
-+		virtqueue_kick(vq->vq);
- 		/* Don't stop the queue if -ENOMEM: we may have failed to
- 		 * bounce the buffer due to global resource outage.
- 		 */
- 		if (err == -ENOSPC)
- 			blk_mq_stop_hw_queue(hctx);
--		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
-+		spin_unlock_irqrestore(&vq->lock, flags);
- 		virtblk_unmap_data(req, vbr);
- 		return virtblk_fail_to_queue(req, err);
- 	}
- 
--	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
-+	if (bd->last && virtqueue_kick_prepare(vq->vq))
- 		notify = true;
--	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
-+	spin_unlock_irqrestore(&vq->lock, flags);
- 
- 	if (notify)
--		virtqueue_notify(vblk->vqs[qid].vq);
-+		virtqueue_notify(vq->vq);
- 	return BLK_STS_OK;
- }
- 
-@@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request **rqlist)
- 	struct request *requeue_list = NULL;
- 
- 	rq_list_for_each_safe(rqlist, req, next) {
--		struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
-+		struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
- 		bool kick;
- 
- 		if (!virtblk_prep_rq_batch(req)) {
-@@ -1164,6 +1155,16 @@ static const struct attribute_group *virtblk_attr_groups[] = {
- 	NULL,
- };
- 
-+static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
-+		unsigned int hctx_idx)
-+{
-+	struct virtio_blk *vblk = data;
-+	struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
-+
-+	hctx->driver_data = vq;
-+	return 0;
-+}
-+
- static void virtblk_map_queues(struct blk_mq_tag_set *set)
- {
- 	struct virtio_blk *vblk = set->driver_data;
-@@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct io_comp_batch *iob)
- static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
- {
- 	struct virtio_blk *vblk = hctx->queue->queuedata;
--	struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
-+	struct virtio_blk_vq *vq = hctx->driver_data;
- 	struct virtblk_req *vbr;
- 	unsigned long flags;
- 	unsigned int len;
-@@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
- 	.queue_rqs	= virtio_queue_rqs,
- 	.commit_rqs	= virtio_commit_rqs,
- 	.complete	= virtblk_request_done,
-+	.init_hctx	= virtblk_init_hctx,
- 	.map_queues	= virtblk_map_queues,
- 	.poll		= virtblk_poll,
- };
--- 
-2.18.1
+So it looks not like a case of eventfd sharing:
+
+"""
+153@1722953531.918958:vhost_vdpa_iotlb_begin_batch vdpa:0x7f6f9cfb5190
+fd: 17 msg_type: 2 type: 5
+153@1722953531.918959:vhost_vdpa_set_vring_base dev: 0x55573cc9ca70
+index: 6 num: 0 svq 1
+153@1722953531.918961:vhost_vdpa_set_vring_kick dev: 0x55573cc9ca70
+index: 6 fd: 237
+153@1722953531.918964:vhost_vdpa_set_vring_call dev: 0x55573cc9ca70
+index: 6 fd: 238
+153@1722953531.918978:vhost_vdpa_dma_map vdpa:0x7f6f9cfb5190 fd: 17
+msg_type: 2 asid: 1 iova: 0x13000 size: 0x2000 uaddr: 0x7f6f9da1a000
+perm: 0x1 type: 2
+153@1722953531.918984:vhost_vdpa_dma_map vdpa:0x7f6f9cfb5190 fd: 17
+msg_type: 2 asid: 1 iova: 0x15000 size: 0x1000 uaddr: 0x7f6f9da19000
+perm: 0x3 type: 2
+153@1722953531.918987:vhost_vdpa_set_vring_addr dev: 0x55573cc9ca70
+index: 6 flags: 0x0 desc_user_addr: 0x13000 used_user_addr: 0x15000
+avail_user_addr: 0x14000 log_guest_\
+addr: 0x0
+153@1722953531.918989:vhost_vdpa_set_vring_base dev: 0x55573cc9ca70
+index: 7 num: 0 svq 1
+153@1722953531.918991:vhost_vdpa_set_vring_kick dev: 0x55573cc9ca70
+index: 7 fd: 239
+153@1722953531.918993:vhost_vdpa_set_vring_call dev: 0x55573cc9ca70
+index: 7 fd: 240
+"""
+
+I think a more proper way is to unregister and clean the token before
+calling vhost_vring_ioctl() in the case of SET_VRING_KICK. Let me try
+to draft a patch and see.
+
+Thanks
+
+>
+> Thanks,
+> Dragos
+>
 
