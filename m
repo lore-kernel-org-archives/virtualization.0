@@ -1,88 +1,88 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86BBFD2FB
-	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 02:58:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDD0FC133
+	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 03:02:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723085905; cv=none; b=Db7t7FRg6lpKnGj3e6H1g4iQZrk63kOZhMgSbS3aAZWjBZ1VFlBxG5nZ/bioeIIpEbk15/rvI6181z+I+eAkzQbUJjYvMZJtwe4KFpEkCjLVkZY+hWyznsZP0/rz4vQIUAhDJEAFGdoRw+CbGUfiy5vxLg8FLyEuT2bRkPclMyw=
+	t=1723086141; cv=none; b=fEDvmQtLegqtTcGlCA4KdhtDDYBurc99/Kz068cH1/PsKX6/7CvhUr+G3dIYCZrEE//AeLf48dj7ietV3xLW1gHjXmpu0N12sEG5X+QCzBkza66lsjjmehypJvoEFX8iMWyzng7MEbVhWZyEzyu/ER7QaBa2r4ItHY1QJPPd8WQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723085905; c=relaxed/simple;
-	bh=VNMGCN3K7dYB2D1yFW8pEkV/m/ZDheqzNYCNmyk0nZc=;
+	s=arc-20240116; t=1723086141; c=relaxed/simple;
+	bh=p6xx58xWZKdfb6c1AAu8Mu+FmCVOdJIJVmtwQFvNPYI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mrw2CDz1PysTq3v1+beUftYZkGzCfmez0Svm4zpkdMPhWlnx/2bndnsEwRhtsQ6ttA5O9dI/ARpuS/a/c1OotMcuoZgwtkxwnSmkw6fYjx+6WN9hF0Ccg7nBJ4AcSebNR5vkbrM5Yk/vr0gRIj9QnBxKnsaMfNYWoemWlq/Wx/o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QFazmJH4; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=KzTDajWk+xQ1ahrtp8sRBNVLzpXEb39R+XY8ohijbgGfbQAeJ9MHnDA9YgBDwMxLqrqZfMyc+o0P3efLD0OqX8vlH5up0m9TmKsFVrOdeVYBxXEOtaHCzFzOhjNR649jfQa5tVpW2rsXk7Bb8rIC81+ISMwuYwDnDOyf5C8Wc/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SROHoQYX; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QFazmJH4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SROHoQYX"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723085902;
+	s=mimecast20190719; t=1723086138;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Ms7GM5nBFpICUPNkIa1lvEOGwID30MEVHv5V6CEvL58=;
-	b=QFazmJH4KJ2v5xyjUVbVFWu01EHbzbNfooPXw8Swu0O0jkdIo17JPjYOCn8OLoDp8/UwNV
-	oLjrg9wWMLyNgntlsQH78pkwd2rqQb6OtoSXf7euPND0myAs/RAgRr/OA1Hq0h1dkeNxE3
-	7lNnEY1uPI1j+kzt3YweZFEEymZzk3E=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Hb2Rpkxt3LSPGve30aAKDHxWvpSeSXCq/ixX+f0TGsw=;
+	b=SROHoQYX/B7hS7RSDDnmJTwuEm4bBXnzV1X3VjBqS3gUywvVG/XElx2XT4RhHt8iCF2Gdt
+	4hiHCuohk6ZSbOPzwcqJ1RBc6bL2oHf17n4VMtqHQ9+Y4dwTCu7rEErVsvRomC9TRUqE6v
+	gqbJ3/DJ6pe76PcJ4ZMn96vlx7hsRZ8=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-56-a7AocKVgNx6B_hk_vDCN5g-1; Wed, 07 Aug 2024 22:58:20 -0400
-X-MC-Unique: a7AocKVgNx6B_hk_vDCN5g-1
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-7b04199911bso1356733a12.1
-        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 19:58:20 -0700 (PDT)
+ us-mta-466-dTxJ2AQ_N7Kd5f4Gvi1ooQ-1; Wed, 07 Aug 2024 23:02:17 -0400
+X-MC-Unique: dTxJ2AQ_N7Kd5f4Gvi1ooQ-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2cb5d93c529so668125a91.0
+        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 20:02:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723085899; x=1723690699;
+        d=1e100.net; s=20230601; t=1723086136; x=1723690936;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ms7GM5nBFpICUPNkIa1lvEOGwID30MEVHv5V6CEvL58=;
-        b=SHWW7YziiQwfJf6VWF6w6CsVCGZEV9QTGLCfEdXZ/wSCERL2rBtMQJBDXocg7qdaLq
-         xsBLzbdpRF6IaD9+XfC83lXIqYPmnDLFiGxa/lyzzzOKk33SSPsLBkLeF6GIPF+aTAMs
-         66joplBOaSnfGwl+gpj53gZa6XfyrPgCnJ0BtsZOXpUqbAYxFCEJwlnHEZC8+Kb/JPiI
-         FwzCcmKlMkPjzi7oCCz+spvohtGtEhhldllB5umNDnMeCR5Vhsy6tqrOdiH8Dt7MZQ7o
-         ZzHTaVyxWnwYv3MeFzSAR3byIFsDR3NBs97zRJF9VJKxT5EEvfXT0UxmM3gkIPB7obSA
-         ZBmg==
-X-Forwarded-Encrypted: i=1; AJvYcCUL3EdNTKk4waFKJwmev2nPpB2TopHqM5/0XN9wjYk114ltAESNtohdX2tjQA4sJIEgfU+1BRYRmrwtIMRw3Bbp//ZyFI3fXjQ2s1W5ybU=
-X-Gm-Message-State: AOJu0Yyqvx216ai/4KjgUdaGS07Fw1thetSWdsl0lvGLu51yWwJf3K18
-	FqKoxoajklxt5WbfCZ2RhhqyExk6/kYo4JkzVPmHxFFtU+ue2aP/nc2Od+2ooP4q6P7rjKkvJA/
-	eI2ftdY4nOAJMdONVEuT6BRxJJBvfoJ9+gUu77A4dnbet5BAJkoisd5sxhoLALrRkZsWwjTHmhK
-	bpWFJL3rkW4AOZcFvyl/GsLIRXfdElLPHRMWm8/bI4nTkgUe2A+g==
-X-Received: by 2002:a17:90a:17ec:b0:2c9:36bf:ba6f with SMTP id 98e67ed59e1d1-2d1c4f7ffcemr449633a91.3.1723085899405;
-        Wed, 07 Aug 2024 19:58:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEHPsusqODlyN/Y2NKkNEN5MV4OvfYjQpK1hVjQHlsFtCjwUc/HVVj2xAjML9dJtaAFFSkIKjg4vo+eHiHKsy4=
-X-Received: by 2002:a17:90a:17ec:b0:2c9:36bf:ba6f with SMTP id
- 98e67ed59e1d1-2d1c4f7ffcemr449586a91.3.1723085898669; Wed, 07 Aug 2024
- 19:58:18 -0700 (PDT)
+        bh=Hb2Rpkxt3LSPGve30aAKDHxWvpSeSXCq/ixX+f0TGsw=;
+        b=D/VUCba3X0bAhVO8A6S6GD+wNwvpm8am5/178D9+SfhGWHCDHlK1t6nXLyQBuZETaz
+         FGmh9p3REtLghsk6mP85HyVuT1QRkIW+t+VnQdwJd0kMIctvmj+JhTqpgpbF1n//2T03
+         JUKj7nZw6GxnGt9/axJ94Uc5iAR8ns7U/HHuy3lE9TOiIVK4aoXuI6txPc2ssEfGeTWN
+         nK4lOVEtEn7CctXXbVnpaOFMGl+KXmewq3iCPrkaJFcMWE7jKKqtP7eYg5n7wlVbLzbQ
+         SHEePVeJBjLaxc2bUPh7T6Vj/m1u+mqCYSAKmc0o9F0brKmUZqnqdwqNKVvRZQk/4fvA
+         GJ/g==
+X-Forwarded-Encrypted: i=1; AJvYcCX+7Y+tFHc+8q7LLf7koXCNEEv9aWbpquBzBNqL3gjPxJ2DK2IVsMQWk7wudyuhWQwq991FaMFohYyHXu8ORsjU2SN4GP/UTg+wtkrAaLE=
+X-Gm-Message-State: AOJu0YyCUVvqVxPm1smriVC0c5GmfCNbSmqjXKDRF/yST++Fx6lN76yz
+	w4sVltJAOdXrIV085jccRG+u5u1xxgX+0sXA0RF/HGfM+2taECjZy4ElN+pYiVcjTUv9lhl8yAC
+	NAnzcN5S4gRvob36yqtnovBWDKtsejGBScLTgPIwkymHbjLznrHZx2iQutKV5yXO3ku4YwplTl5
+	+x+YhqlDCdu4BHIxGl+tm4Yt5f1jj4R28GUF/RGQs=
+X-Received: by 2002:a17:90b:380f:b0:2c9:923e:faf1 with SMTP id 98e67ed59e1d1-2d1c3396a72mr713373a91.18.1723086136155;
+        Wed, 07 Aug 2024 20:02:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHvLiP+h2FOcxwnVHbI3oWaDXPgf/3hnuTAiuAbXo2hpysu/kx+KNhjeKucP6obJyqvU5B/srn4WX8udRClcYs=
+X-Received: by 2002:a17:90b:380f:b0:2c9:923e:faf1 with SMTP id
+ 98e67ed59e1d1-2d1c3396a72mr713344a91.18.1723086135668; Wed, 07 Aug 2024
+ 20:02:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240805082106.65847-1-jasowang@redhat.com> <CACycT3uM1jSdqFT0LGqy1zXZkWF8BNQN=8EMKYMoyP_wjRtsng@mail.gmail.com>
-In-Reply-To: <CACycT3uM1jSdqFT0LGqy1zXZkWF8BNQN=8EMKYMoyP_wjRtsng@mail.gmail.com>
+References: <20240805082106.65847-1-jasowang@redhat.com> <CAGsJ_4yHU3hBZp2ub1qokf2rCvK7yM0fK9CXQUwxVLn5uaVpcQ@mail.gmail.com>
+In-Reply-To: <CAGsJ_4yHU3hBZp2ub1qokf2rCvK7yM0fK9CXQUwxVLn5uaVpcQ@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 8 Aug 2024 10:58:07 +0800
-Message-ID: <CACGkMEtYE1OY+okxHAj=cVfW-Qz45an28oO=Wv15yOtpD6UqdQ@mail.gmail.com>
+Date: Thu, 8 Aug 2024 11:02:04 +0800
+Message-ID: <CACGkMEtjGZQ1phKKSNK2gv5ZSyuXf7G=+OKZAzixBtJT53jCZg@mail.gmail.com>
 Subject: Re: [PATCH] vduse: avoid using __GFP_NOFAIL
-To: Yongji Xie <xieyongji@bytedance.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio Perez Martin <eperezma@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>, 
-	virtualization@lists.linux.dev, linux-kernel <linux-kernel@vger.kernel.org>, 
-	21cnbao@gmail.com, penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
-	Andrew Morton <akpm@linux-foundation.org>
+To: Barry Song <21cnbao@gmail.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	maxime.coquelin@redhat.com, xieyongji@bytedance.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
+	akpm@linux-foundation.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 7, 2024 at 2:52=E2=80=AFPM Yongji Xie <xieyongji@bytedance.com>=
- wrote:
+On Tue, Aug 6, 2024 at 10:30=E2=80=AFAM Barry Song <21cnbao@gmail.com> wrot=
+e:
 >
-> On Mon, Aug 5, 2024 at 4:21=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
+> On Mon, Aug 5, 2024 at 8:21=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
 rote:
 > >
 > > Barry said [1]:
@@ -92,132 +92,49 @@ rote:
 > > __GFP_NOFAIL without direct reclamation may just result in a busy
 > > loop within non-sleepable contexts.
 > > ""=E2=80=9C
-> >
-> > Unfortuantely, we do that under read lock. A possible way to fix that
-> > is to move the pages allocation out of the lock into the caller, but
-> > having to allocate a huge number of pages and auxiliary page array
-> > seems to be problematic as well per Tetsuon [2]:
-> >
-> > """
-> > You should implement proper error handling instead of using
-> > __GFP_NOFAIL if count can become large.
-> > """
-> >
-> > So I choose another way, which does not release kernel bounce pages
-> > when user tries to register usersapce bounce pages. Then we don't need
-> > to do allocation in the path which is not expected to be fail (e.g in
-> > the release). We pay this for more memory usage but further
-> > optimizations could be done on top.
-> >
-> > [1] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2=
-saLnUdfOGOLg@mail.gmail.com/T/#m3caef86a66ea6318ef94f9976ddb3a0ccfe6fcf8
-> > [2] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2=
-saLnUdfOGOLg@mail.gmail.com/T/#m7ad10eaba48ade5abf2d572f24e185d9fb146480
-> >
-> > Fixes: 6c77ed22880d ("vduse: Support using userspace pages as bounce bu=
-ffer")
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
 >
-> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-> Tested-by: Xie Yongji <xieyongji@bytedance.com>
+> the current code will result in returning a NULL pointer but
+> not a busy-loop.
+>
+> static inline struct page *
+> __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>                                                 struct alloc_context *ac)
+> {
+>         ...
+>         /*
+>          * Make sure that __GFP_NOFAIL request doesn't leak out and make =
+sure
+>          * we always retry
+>          */
+>         if (gfp_mask & __GFP_NOFAIL) {
+>                 /*
+>                  * All existing users of the __GFP_NOFAIL are blockable, =
+so warn
+>                  * of any new users that actually require GFP_NOWAIT
+>                  */
+>                 if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+>                         goto fail;
+>                 ...
+>         }
+>         ...
+> fail:
+>         warn_alloc(gfp_mask, ac->nodemask,
+>                         "page allocation failure: order:%u", order);
+> got_pg:
+>         return page;
+> }
+>
+>
+> We have two choices to address the issue:
+> 1. busy-loop
+> 2. BUG_ON
+>
+> the below patch chose 2:
+> https://lore.kernel.org/linux-mm/20240731000155.109583-5-21cnbao@gmail.co=
+m/
+>
 
-Thanks.
-
->
-> Have tested it with qemu-storage-daemon [1]:
->
-> $ qemu-storage-daemon \
->     --chardev socket,id=3Dcharmonitor,path=3D/tmp/qmp.sock,server=3Don,wa=
-it=3Doff \
->     --monitor chardev=3Dcharmonitor \
->     --blockdev driver=3Dhost_device,cache.direct=3Don,aio=3Dnative,filena=
-me=3D/dev/nullb0,node-name=3Ddisk0
-> \
->     --export type=3Dvduse-blk,id=3Dvduse-test,name=3Dvduse-test,node-name=
-=3Ddisk0,writable=3Don
->
-> [1] https://github.com/bytedance/qemu/tree/vduse-umem
-
-Great, would you want to post them to the Qemu?
-
->
-> >  drivers/vdpa/vdpa_user/iova_domain.c | 18 ++++++++++--------
-> >  drivers/vdpa/vdpa_user/iova_domain.h |  1 +
-> >  2 files changed, 11 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_u=
-ser/iova_domain.c
-> > index 791d38d6284c..933d2f7cd49a 100644
-> > --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> > @@ -162,6 +162,7 @@ static void vduse_domain_bounce(struct vduse_iova_d=
-omain *domain,
-> >                                 enum dma_data_direction dir)
-> >  {
-> >         struct vduse_bounce_map *map;
-> > +       struct page *page;
-> >         unsigned int offset;
-> >         void *addr;
-> >         size_t sz;
-> > @@ -178,7 +179,10 @@ static void vduse_domain_bounce(struct vduse_iova_=
-domain *domain,
-> >                             map->orig_phys =3D=3D INVALID_PHYS_ADDR))
-> >                         return;
-> >
-> > -               addr =3D kmap_local_page(map->bounce_page);
-> > +               page =3D domain->user_bounce_pages ?
-> > +                      map->user_bounce_page : map->bounce_page;
-> > +
-> > +               addr =3D kmap_local_page(page);
-> >                 do_bounce(map->orig_phys + offset, addr + offset, sz, d=
-ir);
-> >                 kunmap_local(addr);
-> >                 size -=3D sz;
-> > @@ -270,9 +274,8 @@ int vduse_domain_add_user_bounce_pages(struct vduse=
-_iova_domain *domain,
-> >                                 memcpy_to_page(pages[i], 0,
-> >                                                page_address(map->bounce=
-_page),
-> >                                                PAGE_SIZE);
-> > -                       __free_page(map->bounce_page);
-> >                 }
-> > -               map->bounce_page =3D pages[i];
-> > +               map->user_bounce_page =3D pages[i];
-> >                 get_page(pages[i]);
-> >         }
-> >         domain->user_bounce_pages =3D true;
-> > @@ -297,17 +300,16 @@ void vduse_domain_remove_user_bounce_pages(struct=
- vduse_iova_domain *domain)
-> >                 struct page *page =3D NULL;
-> >
-> >                 map =3D &domain->bounce_maps[i];
-> > -               if (WARN_ON(!map->bounce_page))
-> > +               if (WARN_ON(!map->user_bounce_page))
-> >                         continue;
-> >
-> >                 /* Copy user page to kernel page if it's in use */
-> >                 if (map->orig_phys !=3D INVALID_PHYS_ADDR) {
-> > -                       page =3D alloc_page(GFP_ATOMIC | __GFP_NOFAIL);
-> > +                       page =3D map->bounce_page;
-> >                         memcpy_from_page(page_address(page),
-> > -                                        map->bounce_page, 0, PAGE_SIZE=
-);
-> > +                                        map->user_bounce_page, 0, PAGE=
-_SIZE);
-> >                 }
-> > -               put_page(map->bounce_page);
-> > -               map->bounce_page =3D page;
-> > +               put_page(map->user_bounce_page);
->
-> map->user_bounce_page =3D NULL?
-
-For safety, it might be better. Let me add this and post a V2/
+I will add those to V2.
 
 Thanks
-
->
-> Thanks,
-> Yongji
->
 
