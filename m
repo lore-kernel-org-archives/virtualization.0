@@ -1,140 +1,154 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDD0FC133
-	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 03:02:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3760615A868
+	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 05:27:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723086141; cv=none; b=fEDvmQtLegqtTcGlCA4KdhtDDYBurc99/Kz068cH1/PsKX6/7CvhUr+G3dIYCZrEE//AeLf48dj7ietV3xLW1gHjXmpu0N12sEG5X+QCzBkza66lsjjmehypJvoEFX8iMWyzng7MEbVhWZyEzyu/ER7QaBa2r4ItHY1QJPPd8WQ=
+	t=1723094838; cv=none; b=FFgq7IYiPE8n5tjUF7MMo6spoRSSjvm5TH1vAvgj2NO6+Qb8VwYSBbp4eUzB/wVg2V8xSoAN+piAssW7CgNzQ7/dSmfzBMy7GyQkdqX1LVV+MGeNgkRMoVO0XEnP44hmapxsDb2rqAqWcSdFA63BLnCYWdgivFN2EOgYd6e1KUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723086141; c=relaxed/simple;
-	bh=p6xx58xWZKdfb6c1AAu8Mu+FmCVOdJIJVmtwQFvNPYI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KzTDajWk+xQ1ahrtp8sRBNVLzpXEb39R+XY8ohijbgGfbQAeJ9MHnDA9YgBDwMxLqrqZfMyc+o0P3efLD0OqX8vlH5up0m9TmKsFVrOdeVYBxXEOtaHCzFzOhjNR649jfQa5tVpW2rsXk7Bb8rIC81+ISMwuYwDnDOyf5C8Wc/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SROHoQYX; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1723094838; c=relaxed/simple;
+	bh=kBRi4gpSlyjcXYiBHMX5gJMTKxwVFjKDnN2/DwuAYPc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a3VUxLRrWQr0SCBRXycxZwMefLiO0UC7DLuUeThW9x2LnIZWVhSLow8Ai9In18hij+nFXDBSKeL+Rs4EHRcabCD65ZsP+0O+k2Y27/Nziu31Eq2wBUHbMRdFLELxvFqB90wnVOz+FwBzNTUjoAgUORB3UF7J8Y9BCvt03WZTetY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DEqDG8uJ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SROHoQYX"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DEqDG8uJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723086138;
+	s=mimecast20190719; t=1723094836;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Hb2Rpkxt3LSPGve30aAKDHxWvpSeSXCq/ixX+f0TGsw=;
-	b=SROHoQYX/B7hS7RSDDnmJTwuEm4bBXnzV1X3VjBqS3gUywvVG/XElx2XT4RhHt8iCF2Gdt
-	4hiHCuohk6ZSbOPzwcqJ1RBc6bL2oHf17n4VMtqHQ9+Y4dwTCu7rEErVsvRomC9TRUqE6v
-	gqbJ3/DJ6pe76PcJ4ZMn96vlx7hsRZ8=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-466-dTxJ2AQ_N7Kd5f4Gvi1ooQ-1; Wed, 07 Aug 2024 23:02:17 -0400
-X-MC-Unique: dTxJ2AQ_N7Kd5f4Gvi1ooQ-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2cb5d93c529so668125a91.0
-        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 20:02:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723086136; x=1723690936;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Hb2Rpkxt3LSPGve30aAKDHxWvpSeSXCq/ixX+f0TGsw=;
-        b=D/VUCba3X0bAhVO8A6S6GD+wNwvpm8am5/178D9+SfhGWHCDHlK1t6nXLyQBuZETaz
-         FGmh9p3REtLghsk6mP85HyVuT1QRkIW+t+VnQdwJd0kMIctvmj+JhTqpgpbF1n//2T03
-         JUKj7nZw6GxnGt9/axJ94Uc5iAR8ns7U/HHuy3lE9TOiIVK4aoXuI6txPc2ssEfGeTWN
-         nK4lOVEtEn7CctXXbVnpaOFMGl+KXmewq3iCPrkaJFcMWE7jKKqtP7eYg5n7wlVbLzbQ
-         SHEePVeJBjLaxc2bUPh7T6Vj/m1u+mqCYSAKmc0o9F0brKmUZqnqdwqNKVvRZQk/4fvA
-         GJ/g==
-X-Forwarded-Encrypted: i=1; AJvYcCX+7Y+tFHc+8q7LLf7koXCNEEv9aWbpquBzBNqL3gjPxJ2DK2IVsMQWk7wudyuhWQwq991FaMFohYyHXu8ORsjU2SN4GP/UTg+wtkrAaLE=
-X-Gm-Message-State: AOJu0YyCUVvqVxPm1smriVC0c5GmfCNbSmqjXKDRF/yST++Fx6lN76yz
-	w4sVltJAOdXrIV085jccRG+u5u1xxgX+0sXA0RF/HGfM+2taECjZy4ElN+pYiVcjTUv9lhl8yAC
-	NAnzcN5S4gRvob36yqtnovBWDKtsejGBScLTgPIwkymHbjLznrHZx2iQutKV5yXO3ku4YwplTl5
-	+x+YhqlDCdu4BHIxGl+tm4Yt5f1jj4R28GUF/RGQs=
-X-Received: by 2002:a17:90b:380f:b0:2c9:923e:faf1 with SMTP id 98e67ed59e1d1-2d1c3396a72mr713373a91.18.1723086136155;
-        Wed, 07 Aug 2024 20:02:16 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHvLiP+h2FOcxwnVHbI3oWaDXPgf/3hnuTAiuAbXo2hpysu/kx+KNhjeKucP6obJyqvU5B/srn4WX8udRClcYs=
-X-Received: by 2002:a17:90b:380f:b0:2c9:923e:faf1 with SMTP id
- 98e67ed59e1d1-2d1c3396a72mr713344a91.18.1723086135668; Wed, 07 Aug 2024
- 20:02:15 -0700 (PDT)
+	bh=MoXDJcmwahQwk2XNAkzjBbC4Ch2PiqhVaEdN/JPLwgQ=;
+	b=DEqDG8uJ+QiW5tlQDvTQ3w17NnWuhcULu8yVxPYfrowaCLJLZ5/urdVPaV6Iy1ji1x81sw
+	T/CtEEduQjns4R4Tl4+oBKnzvkpHcf8I9tmBfHaggw3p5IK3Fv07Rh/XSYqecH6Jzr3bef
+	lTLgVC/hG2qgE4N+qoxe6kQrDvp9RSs=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-561-Q2ixB890NQ-YxhEHAlmKHQ-1; Thu,
+ 08 Aug 2024 01:27:12 -0400
+X-MC-Unique: Q2ixB890NQ-YxhEHAlmKHQ-1
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 741021977003;
+	Thu,  8 Aug 2024 05:27:07 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.25])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CD6F61955F2E;
+	Thu,  8 Aug 2024 05:26:47 +0000 (UTC)
+Date: Thu, 8 Aug 2024 13:26:41 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Daniel Wagner <dwagner@suse.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Christoph Hellwig <hch@lst.de>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	John Garry <john.g.garry@oracle.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Kashyap Desai <kashyap.desai@broadcom.com>,
+	Sumit Saxena <sumit.saxena@broadcom.com>,
+	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+	Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+	Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+	Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>,
+	Nilesh Javali <njavali@marvell.com>,
+	GR-QLogic-Storage-Upstream@marvell.com,
+	Jonathan Corbet <corbet@lwn.net>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
+	Sridhar Balaraman <sbalaraman@parallelwireless.com>,
+	"brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
+	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
+	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
+	linux-doc@vger.kernel.org, ming.lei@redhat.com
+Subject: Re: [PATCH v3 15/15] blk-mq: use hk cpus only when isolcpus=io_queue
+ is enabled
+Message-ID: <ZrRXEUko5EwKJaaP@fedora>
+References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
+ <20240806-isolcpus-io-queues-v3-15-da0eecfeaf8b@suse.de>
+ <ZrI5TcaAU82avPZn@fedora>
+ <253ec223-98e1-4e7e-b138-0a83ea1a7b0e@flourine.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240805082106.65847-1-jasowang@redhat.com> <CAGsJ_4yHU3hBZp2ub1qokf2rCvK7yM0fK9CXQUwxVLn5uaVpcQ@mail.gmail.com>
-In-Reply-To: <CAGsJ_4yHU3hBZp2ub1qokf2rCvK7yM0fK9CXQUwxVLn5uaVpcQ@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 8 Aug 2024 11:02:04 +0800
-Message-ID: <CACGkMEtjGZQ1phKKSNK2gv5ZSyuXf7G=+OKZAzixBtJT53jCZg@mail.gmail.com>
-Subject: Re: [PATCH] vduse: avoid using __GFP_NOFAIL
-To: Barry Song <21cnbao@gmail.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	maxime.coquelin@redhat.com, xieyongji@bytedance.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
-	akpm@linux-foundation.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <253ec223-98e1-4e7e-b138-0a83ea1a7b0e@flourine.local>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Tue, Aug 6, 2024 at 10:30=E2=80=AFAM Barry Song <21cnbao@gmail.com> wrot=
-e:
->
-> On Mon, Aug 5, 2024 at 8:21=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > Barry said [1]:
-> >
-> > """
-> > mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
-> > __GFP_NOFAIL without direct reclamation may just result in a busy
-> > loop within non-sleepable contexts.
-> > ""=E2=80=9C
->
-> the current code will result in returning a NULL pointer but
-> not a busy-loop.
->
-> static inline struct page *
-> __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
->                                                 struct alloc_context *ac)
-> {
->         ...
->         /*
->          * Make sure that __GFP_NOFAIL request doesn't leak out and make =
-sure
->          * we always retry
->          */
->         if (gfp_mask & __GFP_NOFAIL) {
->                 /*
->                  * All existing users of the __GFP_NOFAIL are blockable, =
-so warn
->                  * of any new users that actually require GFP_NOWAIT
->                  */
->                 if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
->                         goto fail;
->                 ...
->         }
->         ...
-> fail:
->         warn_alloc(gfp_mask, ac->nodemask,
->                         "page allocation failure: order:%u", order);
-> got_pg:
->         return page;
-> }
->
->
-> We have two choices to address the issue:
-> 1. busy-loop
-> 2. BUG_ON
->
-> the below patch chose 2:
-> https://lore.kernel.org/linux-mm/20240731000155.109583-5-21cnbao@gmail.co=
-m/
->
+On Wed, Aug 07, 2024 at 02:40:11PM +0200, Daniel Wagner wrote:
+> On Tue, Aug 06, 2024 at 10:55:09PM GMT, Ming Lei wrote:
+> > On Tue, Aug 06, 2024 at 02:06:47PM +0200, Daniel Wagner wrote:
+> > > When isolcpus=io_queue is enabled all hardware queues should run on the
+> > > housekeeping CPUs only. Thus ignore the affinity mask provided by the
+> > > driver. Also we can't use blk_mq_map_queues because it will map all CPUs
+> > > to first hctx unless, the CPU is the same as the hctx has the affinity
+> > > set to, e.g. 8 CPUs with isolcpus=io_queue,2-3,6-7 config
+> > 
+> > What is the expected behavior if someone still tries to submit IO on isolated
+> > CPUs?
+> 
+> If a user thread is issuing an IO the IO is handled by the housekeeping
+> CPU, which will cause some noise on the submitting CPU. As far I was
+> told this is acceptable. Our customers really don't want to have any
+> IO not from their application ever hitting the isolcpus. When their
+> application is issuing an IO.
+> 
+> > BTW, I don't see any change in blk_mq_get_ctx()/blk_mq_map_queue() in this
+> > patchset,
+> 
+> I was trying to figure out what you tried to explain last time with
+> hangs, but didn't really understand what the conditions are for this
+> problem to occur.
 
-I will add those to V2.
+Isolated CPUs are removed from queue mapping in this patchset, when someone
+submit IOs from the isolated CPU, what is the correct hctx used for handling
+these IOs?
 
-Thanks
+From current implementation, it depends on implied zero filled
+tag_set->map[type].mq_map[isolated_cpu], so hctx 0 is used.
+
+During CPU offline, in blk_mq_hctx_notify_offline(),
+blk_mq_hctx_has_online_cpu() returns true even though the last cpu in
+hctx 0 is offline because isolated cpus join hctx 0 unexpectedly, so IOs in
+hctx 0 won't be drained.
+
+However managed irq core code still shutdowns the hw queue's irq because all
+CPUs in this hctx are offline now. Then IO hang is triggered, isn't it?
+
+The current blk-mq takes static & global queue/CPUs mapping, in which all CPUs
+are covered. This patchset removes isolated CPUs from the mapping, and the
+change is big from viewpoint of blk-mq queue mapping.
+
+> 
+> > that means one random hctx(or even NULL) may be used for submitting
+> > IO from isolated CPUs,
+> > then there can be io hang risk during cpu hotplug, or
+> > kernel panic when submitting bio.
+> 
+> Can you elaborate a bit more? I must miss something important here.
+> 
+> Anyway, my understanding is that when the last CPU of a hctx goes
+> offline the affinity is broken and assigned to an online HK CPU. And we
+> ensure all flight IO have finished and also ensure we don't submit any
+> new IO to a CPU which goes offline.
+> 
+> FWIW, I tried really hard to get an IO hang with cpu hotplug.
+ 
+Please see above.
+
+
+thanks,
+Ming
 
