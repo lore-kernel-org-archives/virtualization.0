@@ -1,279 +1,223 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F1062A1D8
-	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 02:57:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86BBFD2FB
+	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 02:58:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723085834; cv=none; b=rWU2IsAAtB0/eeJtRlV4Bjvsu5FkXlaqa3IjZOnf80cBkDYW9k6AxLIvWXBT9dE3KM5krtj+1pyEgo0V86/KwNfm+8YHCP8jQm4dOynd2qVauFhv7aElZjvc35jTVaCOP3vx/hyhHqJohVrBgfm8Tj4b4suXKn4wER3L/dRgoms=
+	t=1723085905; cv=none; b=Db7t7FRg6lpKnGj3e6H1g4iQZrk63kOZhMgSbS3aAZWjBZ1VFlBxG5nZ/bioeIIpEbk15/rvI6181z+I+eAkzQbUJjYvMZJtwe4KFpEkCjLVkZY+hWyznsZP0/rz4vQIUAhDJEAFGdoRw+CbGUfiy5vxLg8FLyEuT2bRkPclMyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723085834; c=relaxed/simple;
-	bh=A7MOeA3UL/op8WV3k7OjWeb7EkBqbSKTQqT0eNN45Js=;
+	s=arc-20240116; t=1723085905; c=relaxed/simple;
+	bh=VNMGCN3K7dYB2D1yFW8pEkV/m/ZDheqzNYCNmyk0nZc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U6pZkgVzdJJ2NiLyLCea7V4y/QJAFDtFr7H1UA7X1liJLAph6qkaDFWjQozc8MQmHukQqKqXU5daqNj/VJXTRKC7yn7bSNkjCTho7dKjqKLrzavvph0Rv+OGpSFUQe3yCPUDm0p64kXJh8vHtKNxB6NT42O0oLWRt6huAE3AfLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E4eFsXct; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=mrw2CDz1PysTq3v1+beUftYZkGzCfmez0Svm4zpkdMPhWlnx/2bndnsEwRhtsQ6ttA5O9dI/ARpuS/a/c1OotMcuoZgwtkxwnSmkw6fYjx+6WN9hF0Ccg7nBJ4AcSebNR5vkbrM5Yk/vr0gRIj9QnBxKnsaMfNYWoemWlq/Wx/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QFazmJH4; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E4eFsXct"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QFazmJH4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723085831;
+	s=mimecast20190719; t=1723085902;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ae0DB/1sQCe1W+1yx9i6v3XKM9QebP5sAVrnebmOqZ4=;
-	b=E4eFsXctwTlZZYSZzvR5JLSxk66RJWmgp6Xii2KX0UEHxpuY9TB8wwdudLPPzMtXfIM5oe
-	JKBK6+YcCXx1uiwm2tSAuedJq+G8Jpc9D7+U/Q0Jmk2j2Hdfin2fnlXxj3DzhH15irCgXO
-	Ey3Ny0Ds3YRiAufgeAO0i4ENdPZro4o=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Ms7GM5nBFpICUPNkIa1lvEOGwID30MEVHv5V6CEvL58=;
+	b=QFazmJH4KJ2v5xyjUVbVFWu01EHbzbNfooPXw8Swu0O0jkdIo17JPjYOCn8OLoDp8/UwNV
+	oLjrg9wWMLyNgntlsQH78pkwd2rqQb6OtoSXf7euPND0myAs/RAgRr/OA1Hq0h1dkeNxE3
+	7lNnEY1uPI1j+kzt3YweZFEEymZzk3E=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-247-QTgi4PO_M86kriRMaNgPkw-1; Wed, 07 Aug 2024 22:57:09 -0400
-X-MC-Unique: QTgi4PO_M86kriRMaNgPkw-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2cb5ba80e77so745143a91.1
-        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 19:57:09 -0700 (PDT)
+ us-mta-56-a7AocKVgNx6B_hk_vDCN5g-1; Wed, 07 Aug 2024 22:58:20 -0400
+X-MC-Unique: a7AocKVgNx6B_hk_vDCN5g-1
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-7b04199911bso1356733a12.1
+        for <virtualization@lists.linux.dev>; Wed, 07 Aug 2024 19:58:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723085828; x=1723690628;
+        d=1e100.net; s=20230601; t=1723085899; x=1723690699;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ae0DB/1sQCe1W+1yx9i6v3XKM9QebP5sAVrnebmOqZ4=;
-        b=O1sbkpxrz6RUz9adjpTrRwfkJDDDvWCrrT4deHDI3rtTt/dSlftTvVbo9e4KkNS+A8
-         bwXOuVGZN3B4fRNVQh2nh9FpBXoyGhKcI228IWLlcdQB82zYF9/WcSBNzBLPIaKHaP20
-         ZpykNkgWHxEIOKXwDOIYirxJhZLX8hSCtfI8WDOHYffRU0zk4RUZxh0LbZTrhEa9125O
-         qNDo9b8ClvTQF7Vmyd4F3wxtN0lw7NnEiJNFjroTc6SLFAIOgpv/VUJ7WwRYk1fGG7Cn
-         sIJMb2j648XuHvrBWgH6L8x6ZCmAACVirxd0ezWIuEAtg0aA37XS8LznEUhucl9Hl3Qb
-         PRMA==
-X-Forwarded-Encrypted: i=1; AJvYcCXg/QocgfqVuGXRpI1cS83vHu1224xuza6rTOuzkC6lj4d4MZesM3DWBZCCKI8CpWa2riC/BSoqQ1WBPBzB633xlBBBJohMBABPTkJi1mw=
-X-Gm-Message-State: AOJu0YxscWR2PyHGzHvKbmJfUI6zQphf/XEOpHvlYjPnfbdBq6O49wRk
-	05YNRnSHD90SYZxEeRmmUJ9ab63SZNyhaKhBGfQCvh/Tw6GDWc6qsLNlxgq6G/FTjmlFrLsdxR4
-	LLDFHDwElxmK3TmtshK7hwkxdmOps2ojmDzgURLJs2KBpvrtE6r+pWhy1oJz05eU6UWpCBt7pua
-	Lgy+hk9lswNkZvwx7tZrVGqb/51d9+ljknrE9PxB0=
-X-Received: by 2002:a17:90a:d902:b0:2cd:2992:e8e5 with SMTP id 98e67ed59e1d1-2d1c347b7cemr653882a91.33.1723085828029;
-        Wed, 07 Aug 2024 19:57:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGQ6JTZ0RtS1Dyd7BEfalQbLVIcX0tMFw7LvwpP2rWuDcd5abCtSZR6T/OTg7PYtj1F6XOJF/zOHLeUF1RAkGw=
-X-Received: by 2002:a17:90a:d902:b0:2cd:2992:e8e5 with SMTP id
- 98e67ed59e1d1-2d1c347b7cemr653866a91.33.1723085827386; Wed, 07 Aug 2024
- 19:57:07 -0700 (PDT)
+        bh=Ms7GM5nBFpICUPNkIa1lvEOGwID30MEVHv5V6CEvL58=;
+        b=SHWW7YziiQwfJf6VWF6w6CsVCGZEV9QTGLCfEdXZ/wSCERL2rBtMQJBDXocg7qdaLq
+         xsBLzbdpRF6IaD9+XfC83lXIqYPmnDLFiGxa/lyzzzOKk33SSPsLBkLeF6GIPF+aTAMs
+         66joplBOaSnfGwl+gpj53gZa6XfyrPgCnJ0BtsZOXpUqbAYxFCEJwlnHEZC8+Kb/JPiI
+         FwzCcmKlMkPjzi7oCCz+spvohtGtEhhldllB5umNDnMeCR5Vhsy6tqrOdiH8Dt7MZQ7o
+         ZzHTaVyxWnwYv3MeFzSAR3byIFsDR3NBs97zRJF9VJKxT5EEvfXT0UxmM3gkIPB7obSA
+         ZBmg==
+X-Forwarded-Encrypted: i=1; AJvYcCUL3EdNTKk4waFKJwmev2nPpB2TopHqM5/0XN9wjYk114ltAESNtohdX2tjQA4sJIEgfU+1BRYRmrwtIMRw3Bbp//ZyFI3fXjQ2s1W5ybU=
+X-Gm-Message-State: AOJu0Yyqvx216ai/4KjgUdaGS07Fw1thetSWdsl0lvGLu51yWwJf3K18
+	FqKoxoajklxt5WbfCZ2RhhqyExk6/kYo4JkzVPmHxFFtU+ue2aP/nc2Od+2ooP4q6P7rjKkvJA/
+	eI2ftdY4nOAJMdONVEuT6BRxJJBvfoJ9+gUu77A4dnbet5BAJkoisd5sxhoLALrRkZsWwjTHmhK
+	bpWFJL3rkW4AOZcFvyl/GsLIRXfdElLPHRMWm8/bI4nTkgUe2A+g==
+X-Received: by 2002:a17:90a:17ec:b0:2c9:36bf:ba6f with SMTP id 98e67ed59e1d1-2d1c4f7ffcemr449633a91.3.1723085899405;
+        Wed, 07 Aug 2024 19:58:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEHPsusqODlyN/Y2NKkNEN5MV4OvfYjQpK1hVjQHlsFtCjwUc/HVVj2xAjML9dJtaAFFSkIKjg4vo+eHiHKsy4=
+X-Received: by 2002:a17:90a:17ec:b0:2c9:36bf:ba6f with SMTP id
+ 98e67ed59e1d1-2d1c4f7ffcemr449586a91.3.1723085898669; Wed, 07 Aug 2024
+ 19:58:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240801153722.191797-2-dtatulea@nvidia.com> <CACGkMEutqWK+N+yddiTsnVW+ZDwyM+EV-gYC8WHHPpjiDzY4_w@mail.gmail.com>
- <51e9ed8f37a1b5fbee9603905b925aedec712131.camel@nvidia.com>
- <CACGkMEuHECjNVEu=QhMDCc5xT_ajaETqAxNFPfb2-_wRwgvyrA@mail.gmail.com>
- <cc771916-62fe-4f6b-88d2-9c17dff65523@nvidia.com> <CACGkMEvPNvdhYmAofP5Xoqf7mPZ97Sv2EaooyEtZVBoGuA-8vA@mail.gmail.com>
- <b603ff51-88d6-4066-aafa-64a60335db37@nvidia.com> <69850046-6b14-4910-9a89-cca8305c1bb9@nvidia.com>
-In-Reply-To: <69850046-6b14-4910-9a89-cca8305c1bb9@nvidia.com>
+References: <20240805082106.65847-1-jasowang@redhat.com> <CACycT3uM1jSdqFT0LGqy1zXZkWF8BNQN=8EMKYMoyP_wjRtsng@mail.gmail.com>
+In-Reply-To: <CACycT3uM1jSdqFT0LGqy1zXZkWF8BNQN=8EMKYMoyP_wjRtsng@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 8 Aug 2024 10:56:55 +0800
-Message-ID: <CACGkMEt3Zuv9UcF6YoUgw1UPyHhZCpZufCSejTp6mA6aNVB4oA@mail.gmail.com>
-Subject: Re: [RFC PATCH vhost] vhost-vdpa: Fix invalid irq bypass unregister
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, 
-	"eperezma@redhat.com" <eperezma@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 8 Aug 2024 10:58:07 +0800
+Message-ID: <CACGkMEtYE1OY+okxHAj=cVfW-Qz45an28oO=Wv15yOtpD6UqdQ@mail.gmail.com>
+Subject: Re: [PATCH] vduse: avoid using __GFP_NOFAIL
+To: Yongji Xie <xieyongji@bytedance.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio Perez Martin <eperezma@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel <linux-kernel@vger.kernel.org>, 
+	21cnbao@gmail.com, penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
+	Andrew Morton <akpm@linux-foundation.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 6, 2024 at 10:45=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
+On Wed, Aug 7, 2024 at 2:52=E2=80=AFPM Yongji Xie <xieyongji@bytedance.com>=
+ wrote:
 >
->
->
-> On 06.08.24 10:18, Dragos Tatulea wrote:
-> > (Re-sending. I messed up the previous message, sorry about that.)
+> On Mon, Aug 5, 2024 at 4:21=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
+rote:
 > >
-> > On 06.08.24 04:57, Jason Wang wrote:
-> >> On Mon, Aug 5, 2024 at 11:59=E2=80=AFPM Dragos Tatulea <dtatulea@nvidi=
-a.com> wrote:
-> >>>
-> >>> On 05.08.24 05:17, Jason Wang wrote:
-> >>>> On Fri, Aug 2, 2024 at 2:51=E2=80=AFPM Dragos Tatulea <dtatulea@nvid=
-ia.com> wrote:
-> >>>>>
-> >>>>> On Fri, 2024-08-02 at 11:29 +0800, Jason Wang wrote:
-> >>>>>> On Thu, Aug 1, 2024 at 11:38=E2=80=AFPM Dragos Tatulea <dtatulea@n=
-vidia.com> wrote:
-> >>>>>>>
-> >>>>>>> The following workflow triggers the crash referenced below:
-> >>>>>>>
-> >>>>>>> 1) vhost_vdpa_unsetup_vq_irq() unregisters the irq bypass produce=
-r
-> >>>>>>>    but the producer->token is still valid.
-> >>>>>>> 2) vq context gets released and reassigned to another vq.
-> >>>>>>
-> >>>>>> Just to make sure I understand here, which structure is referred t=
-o as
-> >>>>>> "vq context" here? I guess it's not call_ctx as it is a part of th=
-e vq
-> >>>>>> itself.
-> >>>>>>
-> >>>>>>> 3) That other vq registers it's producer with the same vq context
-> >>>>>>>    pointer as token in vhost_vdpa_setup_vq_irq().
-> >>>>>>
-> >>>>>> Or did you mean when a single eventfd is shared among different vq=
-s?
-> >>>>>>
-> >>>>> Yes, that's what I mean: vq->call_ctx.ctx which is a eventfd_ctx.
-> >>>>>
-> >>>>> But I don't think it's shared in this case, only that the old event=
-fd_ctx value
-> >>>>> is lingering in producer->token. And this old eventfd_ctx is assign=
-ed now to
-> >>>>> another vq.
-> >>>>
-> >>>> Just to make sure I understand the issue. The eventfd_ctx should be
-> >>>> still valid until a new VHOST_SET_VRING_CALL().
-> >>>>
-> >>> I think it's not about the validity of the eventfd_ctx. More about
-> >>> the lingering ctx value of the producer after vhost_vdpa_unsetup_vq_i=
-rq().
-> >>
-> >> Probably, but
-> >>
-> >>> That value is the eventfd ctx, but it could be anything else really..=
-.
-> >>
-> >> I mean we hold a refcnt of the eventfd so it should be valid until the
-> >> next set_vring_call() or vhost_dev_cleanup().
-> >>
-> >> But I do spot some possible issue:
-> >>
-> >> 1) We swap and assign new ctx in vhost_vring_ioctl():
-> >>
-> >>                 swap(ctx, vq->call_ctx.ctx);
-> >>
-> >> 2) and old ctx will be put there as well:
-> >>
-> >>                 if (!IS_ERR_OR_NULL(ctx))
-> >>                         eventfd_ctx_put(ctx);
-> >>
-> >> 3) but in vdpa, we try to unregister the producer with the new token:
-> >>
-> >> static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int =
-cmd,
-> >>                            void __user *argp)
-> >> {
-> >> ...
-> >>         r =3D vhost_vring_ioctl(&v->vdev, cmd, argp);
-> >> ...
-> >>         switch (cmd) {
-> >> ...
-> >>         case VHOST_SET_VRING_CALL:
-> >>                 if (vq->call_ctx.ctx) {
-> >>                         cb.callback =3D vhost_vdpa_virtqueue_cb;
-> >>                         cb.private =3D vq;
-> >>                         cb.trigger =3D vq->call_ctx.ctx;
-> >>                 } else {
-> >>                         cb.callback =3D NULL;
-> >>                         cb.private =3D NULL;
-> >>                         cb.trigger =3D NULL;
-> >>                 }
-> >>                 ops->set_vq_cb(vdpa, idx, &cb);
-> >>                 vhost_vdpa_setup_vq_irq(v, idx);
-> >>
-> >> in vhost_vdpa_setup_vq_irq() we had:
-> >>
-> >>         irq_bypass_unregister_producer(&vq->call_ctx.producer);
-> >>
-> >> here the producer->token still points to the old one...
-> >>
-> >> Is this what you have seen?
-> > Yup. That is the issue. The unregister already happened at
-> > vhost_vdpa_unsetup_vq_irq(). So this second unregister will
-> > work on an already unregistered element due to the token still
-> > being set.
+> > Barry said [1]:
 > >
-> >>
-> >>>
-> >>>
-> >>>> I may miss something but the only way to assign exactly the same
-> >>>> eventfd_ctx value to another vq is where the guest tries to share th=
-e
-> >>>> MSI-X vector among virtqueues, then qemu will use a single eventfd a=
-s
-> >>>> the callback for multiple virtqueues. If this is true:
-> >>>>
-> >>> I don't think this is the case. I see the issue happening when runnin=
-g qemu vdpa
-> >>> live migration tests on the same host. From a vdpa device it's basica=
-lly a device
-> >>> starting on a VM over and over.
-> >>>
-> >>>> For bypass registering, only the first registering can succeed as th=
-e
-> >>>> following registering will fail because the irq bypass manager alrea=
-dy
-> >>>> had exactly the same producer token.
-> >>>> For registering, all unregistering can succeed:
-> >>>>
-> >>>> 1) the first unregistering will do the real job that unregister the =
-token
-> >>>> 2) the following unregistering will do nothing by iterating the
-> >>>> producer token list without finding a match one
-> >>>>
-> >>>> Maybe you can show me the userspace behaviour (ioctls) when you see =
-this?
-> >>>>
-> >>> Sure, what would you need? qemu traces?
-> >>
-> >> Yes, that would be helpful.
-> >>
-> > Will try to get them.
-> As the traces are quite large (~5MB), I uploaded them in this location [0=
-].
-> I used the following qemu traces:
-> --trace vhost_vdpa* --trace virtio_net_handle*
+> > """
+> > mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
+> > __GFP_NOFAIL without direct reclamation may just result in a busy
+> > loop within non-sleepable contexts.
+> > ""=E2=80=9C
+> >
+> > Unfortuantely, we do that under read lock. A possible way to fix that
+> > is to move the pages allocation out of the lock into the caller, but
+> > having to allocate a huge number of pages and auxiliary page array
+> > seems to be problematic as well per Tetsuon [2]:
+> >
+> > """
+> > You should implement proper error handling instead of using
+> > __GFP_NOFAIL if count can become large.
+> > """
+> >
+> > So I choose another way, which does not release kernel bounce pages
+> > when user tries to register usersapce bounce pages. Then we don't need
+> > to do allocation in the path which is not expected to be fail (e.g in
+> > the release). We pay this for more memory usage but further
+> > optimizations could be done on top.
+> >
+> > [1] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2=
+saLnUdfOGOLg@mail.gmail.com/T/#m3caef86a66ea6318ef94f9976ddb3a0ccfe6fcf8
+> > [2] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2=
+saLnUdfOGOLg@mail.gmail.com/T/#m7ad10eaba48ade5abf2d572f24e185d9fb146480
+> >
+> > Fixes: 6c77ed22880d ("vduse: Support using userspace pages as bounce bu=
+ffer")
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
 >
-> [0] https://drive.google.com/file/d/1XyXYyockJ_O7zMgI7vot6AxYjze9Ljju/vie=
-w?usp=3Dsharing
+> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+> Tested-by: Xie Yongji <xieyongji@bytedance.com>
 
-Thanks for doing this.
+Thanks.
 
-So it looks not like a case of eventfd sharing:
+>
+> Have tested it with qemu-storage-daemon [1]:
+>
+> $ qemu-storage-daemon \
+>     --chardev socket,id=3Dcharmonitor,path=3D/tmp/qmp.sock,server=3Don,wa=
+it=3Doff \
+>     --monitor chardev=3Dcharmonitor \
+>     --blockdev driver=3Dhost_device,cache.direct=3Don,aio=3Dnative,filena=
+me=3D/dev/nullb0,node-name=3Ddisk0
+> \
+>     --export type=3Dvduse-blk,id=3Dvduse-test,name=3Dvduse-test,node-name=
+=3Ddisk0,writable=3Don
+>
+> [1] https://github.com/bytedance/qemu/tree/vduse-umem
 
-"""
-153@1722953531.918958:vhost_vdpa_iotlb_begin_batch vdpa:0x7f6f9cfb5190
-fd: 17 msg_type: 2 type: 5
-153@1722953531.918959:vhost_vdpa_set_vring_base dev: 0x55573cc9ca70
-index: 6 num: 0 svq 1
-153@1722953531.918961:vhost_vdpa_set_vring_kick dev: 0x55573cc9ca70
-index: 6 fd: 237
-153@1722953531.918964:vhost_vdpa_set_vring_call dev: 0x55573cc9ca70
-index: 6 fd: 238
-153@1722953531.918978:vhost_vdpa_dma_map vdpa:0x7f6f9cfb5190 fd: 17
-msg_type: 2 asid: 1 iova: 0x13000 size: 0x2000 uaddr: 0x7f6f9da1a000
-perm: 0x1 type: 2
-153@1722953531.918984:vhost_vdpa_dma_map vdpa:0x7f6f9cfb5190 fd: 17
-msg_type: 2 asid: 1 iova: 0x15000 size: 0x1000 uaddr: 0x7f6f9da19000
-perm: 0x3 type: 2
-153@1722953531.918987:vhost_vdpa_set_vring_addr dev: 0x55573cc9ca70
-index: 6 flags: 0x0 desc_user_addr: 0x13000 used_user_addr: 0x15000
-avail_user_addr: 0x14000 log_guest_\
-addr: 0x0
-153@1722953531.918989:vhost_vdpa_set_vring_base dev: 0x55573cc9ca70
-index: 7 num: 0 svq 1
-153@1722953531.918991:vhost_vdpa_set_vring_kick dev: 0x55573cc9ca70
-index: 7 fd: 239
-153@1722953531.918993:vhost_vdpa_set_vring_call dev: 0x55573cc9ca70
-index: 7 fd: 240
-"""
+Great, would you want to post them to the Qemu?
 
-I think a more proper way is to unregister and clean the token before
-calling vhost_vring_ioctl() in the case of SET_VRING_KICK. Let me try
-to draft a patch and see.
+>
+> >  drivers/vdpa/vdpa_user/iova_domain.c | 18 ++++++++++--------
+> >  drivers/vdpa/vdpa_user/iova_domain.h |  1 +
+> >  2 files changed, 11 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_u=
+ser/iova_domain.c
+> > index 791d38d6284c..933d2f7cd49a 100644
+> > --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> > @@ -162,6 +162,7 @@ static void vduse_domain_bounce(struct vduse_iova_d=
+omain *domain,
+> >                                 enum dma_data_direction dir)
+> >  {
+> >         struct vduse_bounce_map *map;
+> > +       struct page *page;
+> >         unsigned int offset;
+> >         void *addr;
+> >         size_t sz;
+> > @@ -178,7 +179,10 @@ static void vduse_domain_bounce(struct vduse_iova_=
+domain *domain,
+> >                             map->orig_phys =3D=3D INVALID_PHYS_ADDR))
+> >                         return;
+> >
+> > -               addr =3D kmap_local_page(map->bounce_page);
+> > +               page =3D domain->user_bounce_pages ?
+> > +                      map->user_bounce_page : map->bounce_page;
+> > +
+> > +               addr =3D kmap_local_page(page);
+> >                 do_bounce(map->orig_phys + offset, addr + offset, sz, d=
+ir);
+> >                 kunmap_local(addr);
+> >                 size -=3D sz;
+> > @@ -270,9 +274,8 @@ int vduse_domain_add_user_bounce_pages(struct vduse=
+_iova_domain *domain,
+> >                                 memcpy_to_page(pages[i], 0,
+> >                                                page_address(map->bounce=
+_page),
+> >                                                PAGE_SIZE);
+> > -                       __free_page(map->bounce_page);
+> >                 }
+> > -               map->bounce_page =3D pages[i];
+> > +               map->user_bounce_page =3D pages[i];
+> >                 get_page(pages[i]);
+> >         }
+> >         domain->user_bounce_pages =3D true;
+> > @@ -297,17 +300,16 @@ void vduse_domain_remove_user_bounce_pages(struct=
+ vduse_iova_domain *domain)
+> >                 struct page *page =3D NULL;
+> >
+> >                 map =3D &domain->bounce_maps[i];
+> > -               if (WARN_ON(!map->bounce_page))
+> > +               if (WARN_ON(!map->user_bounce_page))
+> >                         continue;
+> >
+> >                 /* Copy user page to kernel page if it's in use */
+> >                 if (map->orig_phys !=3D INVALID_PHYS_ADDR) {
+> > -                       page =3D alloc_page(GFP_ATOMIC | __GFP_NOFAIL);
+> > +                       page =3D map->bounce_page;
+> >                         memcpy_from_page(page_address(page),
+> > -                                        map->bounce_page, 0, PAGE_SIZE=
+);
+> > +                                        map->user_bounce_page, 0, PAGE=
+_SIZE);
+> >                 }
+> > -               put_page(map->bounce_page);
+> > -               map->bounce_page =3D page;
+> > +               put_page(map->user_bounce_page);
+>
+> map->user_bounce_page =3D NULL?
+
+For safety, it might be better. Let me add this and post a V2/
 
 Thanks
 
 >
 > Thanks,
-> Dragos
+> Yongji
 >
 
