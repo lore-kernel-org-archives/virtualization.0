@@ -1,292 +1,200 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 654D814431C
-	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 08:23:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F323E18C912
+	for <virtualization@lists.linux.dev>; Thu,  8 Aug 2024 10:38:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723105399; cv=none; b=EDkUBMu+kdnjHiyqVeaEXaXV1GOW5lTSymVykXZb430JPyxrhQ8dUr0seoc2dxpJK9fVKhyHaNsohWyNcZFomqgS14bo03v+I5/U8oDv/2l/pGOlIdtQ++PcOwGk+yfd/sqnVyXwGlfOmbOTxH8AFfwn7O/8QAfSoiav4BVyLVU=
+	t=1723113521; cv=none; b=moUkTaLpHC2foRWXzhue0w1jo/uabgu9xiJqwhjRhDc15/nblF5Uw/2MMEXaxyF9gdgqrzqwcB+W1XMFipFkXLGd4NMvkcytrKpYAYkpOpYzxujHjfqKlisFVIguBN7ptQhpd9TfkJtT0ehFqtJe3EavW5N5uixhTwaVcZLl+L4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723105399; c=relaxed/simple;
-	bh=rYs0xBw0Gjql2y66a/D5Zjd80I5J6xFemY/YYFHA1vk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N7rs6Upb3IFX4iShgG5O1aVmWPEDVMwFDG2s4yyFTYE0FHFjZdLsdjKbZHVqjGNXGT4t+6tDxIz/QPksT1TIKlzZoclWbk/+XK+VeQ1j0Ngu1H3Fl0Ju6m9ngCtPoQyvI52Y7K9cq0t4yvKfmeCf0yFNWAdfbasEWfL1GfLOgRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WxiCYovO; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1723113521; c=relaxed/simple;
+	bh=3za7BURotfmf25pYrluOSaycbV9zOEtwXOCNqO+bgvQ=;
+	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JBsxz8ZronrVz5z/Lm8XD/QKkOdl0vRgnoH3c603QP6zTclIB3U2udjHiQZ+/r5JiG6uTfn/n1UaXSZxNz8FMycP81nLin8RAabDjC8Vb5tZI/a13/yr7zrULLP7ku96GRtJdhd9w8kRFWTKH6r5NHl2E3ltQH/x/n5RiflgAF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZiTmUFQo; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WxiCYovO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZiTmUFQo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723105396;
+	s=mimecast20190719; t=1723113517;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=l0A20Uov+OyNtb3al7aHaWJQ9qEXD3mIhigIcXWDeEM=;
-	b=WxiCYovOtKMSdUyOg1vJ25G/8cTculLNEtl7QAr/qsOOIx+Wmw83AtMcla3zJDVszoBH6a
-	M+rXRJcmjRQLOKEmBgUp12B7fNRaedODojGyh5XubK642wfHrmUs0igvlsEoa/tPv8Y0s3
-	dsZkDkRZzI9URZVWw4u8txqiIiDvRXg=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=MRwnpUIdbkqOIA1QwdrH67QxUD8NaDJn9Y50HZQIuz4=;
+	b=ZiTmUFQo5VS3f1dlSUdQhzy4/hCtq3Nvkh2IHpEpjrYpsa91IWYTs27dxQ/2ZC1YZMEooZ
+	6tnktsTswxZcbE8MkyAZA58oVNzZ5ITFmMFtHW037zffTKq/bHSfGZSaHriPQVg1tqbWrs
+	mp0t97nzh1geZVTryhagG3vcJMjauz8=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-556-SFgaYozUP42gOhfjPkcPHw-1; Thu, 08 Aug 2024 04:23:14 -0400
-X-MC-Unique: SFgaYozUP42gOhfjPkcPHw-1
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-1fc596b86a6so17609695ad.1
-        for <virtualization@lists.linux.dev>; Thu, 08 Aug 2024 01:23:14 -0700 (PDT)
+ us-mta-98-_Ek9sPFXPaGu9lOCeyIHAw-1; Thu, 08 Aug 2024 06:38:36 -0400
+X-MC-Unique: _Ek9sPFXPaGu9lOCeyIHAw-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2cb5ab2f274so1120838a91.3
+        for <virtualization@lists.linux.dev>; Thu, 08 Aug 2024 03:38:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723105393; x=1723710193;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=l0A20Uov+OyNtb3al7aHaWJQ9qEXD3mIhigIcXWDeEM=;
-        b=lUX1VajnnJgD1tpIx8Zw5SERg1IKiTULpA+GIwGRWO5UotVXybngBRN3VHTGrqWnqL
-         ATlmTyijz5rMn8qxXGUcxM4z7UaonrQlGPlvstxwNjzPOYAwm7aHkKGLb2So5esshKV3
-         4OS6xta1yNKKaaktjgnCCi9vkf0WYm0Vk/Z2bhF2vSBjxi6y04TkrlbrL1fwXwGkMwo7
-         aVxfqL4gnGkWnd0PCL5rFkXdPzgUvs1h618Om7THpHD+m1Ln+T4EoK5z3IqQxgho2GrQ
-         kdTmsFWr66frBQgTA0bbq4U75FVfdnCYDM4qX7sVBeGkugOe9dj/9YeG/YpPPXyZPvVX
-         rbnQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX47CbnQr8DTI/ICRB9sVuwqHcFllLqVB1wHN81QrArnDLIgEaK701XxXPFt4pbNPC+bzBBT3qyYodyGHdnHKm/gHkyYYJ6LV9bmCUfQ7U=
-X-Gm-Message-State: AOJu0Yx2AgDRnoVZi6OcchJBy3JePPRIWpTgM74Mx65vaUYlF0z49daD
-	BAgf0RLyBzOU1szyFNnGmi4h66+h3rgpvGVNy64qK1aIdXGF/4JKkO1EqClMkxjCRkenAGdOvYW
-	9KwrOP7t+sUzh/eXovowSEY1D1Tkz2oqknPUu8ZTjE1erVZI5QF/+1XWqESBkQTC1aY+PEtPNUf
-	JMADs7yPKyYrFGREbGPK/1CRSEt/g+Pi8FNyED/60=
-X-Received: by 2002:a17:90a:1101:b0:2c9:63fb:d3ab with SMTP id 98e67ed59e1d1-2d1c516396emr1412644a91.22.1723105392624;
-        Thu, 08 Aug 2024 01:23:12 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHXkUKCyr84JcKtnNjWT4uFvHMb5WKTN4thytsIwauo27ntH/qn52Bv+h4iEAijzx22xOWvDB9gGJpUvf9V5+o=
-X-Received: by 2002:a17:90a:1101:b0:2c9:63fb:d3ab with SMTP id
- 98e67ed59e1d1-2d1c516396emr1412602a91.22.1723105391894; Thu, 08 Aug 2024
- 01:23:11 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1723113515; x=1723718315;
+        h=content-transfer-encoding:cc:to:subject:message-id:date
+         :mime-version:references:in-reply-to:from:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=MRwnpUIdbkqOIA1QwdrH67QxUD8NaDJn9Y50HZQIuz4=;
+        b=rZh482WQIolMps7ghXy5VYDBE7VkmIWj0/6oOiOwEcPkkacVGf3RlqCIsgkOTyaQ6X
+         QnJ7VR4J5pEVy4ia5jt5u8vjgpBa2dcFZn84DmAOV1cnkzJdnaBvBV/YSeBNRGutz9Nd
+         zUDEw19PWz/8fLQHMX+FlC9Z017v0grKdVnCrqmLHbKTv4wNFRv6KuBwWiVMi0k4nTOH
+         6XUXM/33SP6mPHhEdHrDHJ2wFnsI8LFbunAiGz9IhgGGcB9DTXjOwYSPCIPESnCbKdHo
+         rEzdJhqdMsWIES3OMPfbMMTDljmbVSusznYwmjToXeXl+Ubl/XJ3ZJKy5CLS3x6qv9pg
+         HpdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXIJYCK5va44IAlxEgh/yv3/r3FNS2XPdBDdubgrNBKtPpsnvXxd9fXnngZAMXvQeCnQBDTCMpQD0qXWppYMuf3dlgS04YSDJMsa3NRfiA=
+X-Gm-Message-State: AOJu0YyyL1kzTcw0iUohu7L1sDRdPlpFDyAZRiLrfnTwsLIfQ6q1OUmu
+	ZH00XydGMkuZURVG7Ns8zLn+IrX/GDDc5dmQxp2KXEnqGyrZ8/CGxTcKrY1BJG5CdLzRozg2RpC
+	E+YDhsXFZCGcG9CqUvJFIT6n18zbQ/uCnBGBjNd16ArbNVy660eg59UFe9+SjTcoo7gLGQcNe3N
+	I1PFA3P/28PPTPpCxJ1EPZuhCdCYkqfnFoa0knWMy6RZl+ivrx9w==
+X-Received: by 2002:a17:90a:5d12:b0:2cd:3445:f87e with SMTP id 98e67ed59e1d1-2d1c3363e33mr1679353a91.2.1723113515122;
+        Thu, 08 Aug 2024 03:38:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFOzJRKQe2DGOfVTSSGEssWue8gMrWTXP9ffNqImYaeYOp5wav62zp54H1TgQfbyYloERWPOSL4qaV62zRFwW0=
+X-Received: by 2002:a17:90a:5d12:b0:2cd:3445:f87e with SMTP id
+ 98e67ed59e1d1-2d1c3363e33mr1679323a91.2.1723113514650; Thu, 08 Aug 2024
+ 03:38:34 -0700 (PDT)
+Received: from 753933720722 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 8 Aug 2024 05:38:33 -0500
+From: Sergio Lopez Pascual <slp@redhat.com>
+In-Reply-To: <CAAfnVBki816fSPuQ_FcvuwYzbSwiS_WaYsGSA1AyitmAA5OsXg@mail.gmail.com>
+References: <20240723114914.53677-1-slp@redhat.com> <942afa37-a24c-48ed-ae10-c811849165bf@collabora.com>
+ <CAAiTLFV6mAgrMj=itcxoBCibvYRyrAk02wYp-gYJ8kxhF0EPmw@mail.gmail.com>
+ <CAAfnVBkWKn3+YEhNz0CTmw-T_jjL72axkWqYgkzkSa72t_Gf0A@mail.gmail.com>
+ <CAF6AEGsnpEYFsCfZUAPopWzY=wv_GWn0P5f5D6U9y-JrWGQVnw@mail.gmail.com> <CAAfnVBki816fSPuQ_FcvuwYzbSwiS_WaYsGSA1AyitmAA5OsXg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240801153722.191797-2-dtatulea@nvidia.com> <CACGkMEutqWK+N+yddiTsnVW+ZDwyM+EV-gYC8WHHPpjiDzY4_w@mail.gmail.com>
- <51e9ed8f37a1b5fbee9603905b925aedec712131.camel@nvidia.com>
- <CACGkMEuHECjNVEu=QhMDCc5xT_ajaETqAxNFPfb2-_wRwgvyrA@mail.gmail.com>
- <cc771916-62fe-4f6b-88d2-9c17dff65523@nvidia.com> <CACGkMEvPNvdhYmAofP5Xoqf7mPZ97Sv2EaooyEtZVBoGuA-8vA@mail.gmail.com>
- <b603ff51-88d6-4066-aafa-64a60335db37@nvidia.com> <69850046-6b14-4910-9a89-cca8305c1bb9@nvidia.com>
- <CACGkMEt3Zuv9UcF6YoUgw1UPyHhZCpZufCSejTp6mA6aNVB4oA@mail.gmail.com>
-In-Reply-To: <CACGkMEt3Zuv9UcF6YoUgw1UPyHhZCpZufCSejTp6mA6aNVB4oA@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 8 Aug 2024 16:23:00 +0800
-Message-ID: <CACGkMEtzmYwoOj7Z0fnDkB+t6HCx+387_VjH0byWcsOxm3thmg@mail.gmail.com>
-Subject: Re: [RFC PATCH vhost] vhost-vdpa: Fix invalid irq bypass unregister
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, 
-	"eperezma@redhat.com" <eperezma@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 8 Aug 2024 05:38:33 -0500
+Message-ID: <CAAiTLFUWhP+wy694MbYDvzHgUD_pZZf7Jj=AfVvTj6CWAYZ+zA@mail.gmail.com>
+Subject: Re: [PATCH 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
+To: Gurchetan Singh <gurchetansingh@chromium.org>, Rob Clark <robdclark@gmail.com>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, tzimmermann@suse.de, mripard@kernel.org, 
+	olvaffe@gmail.com, kraxel@redhat.com, daniel@ffwll.ch, 
+	maarten.lankhorst@linux.intel.com, airlied@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	dri-devel@lists.freedesktop.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 8, 2024 at 10:56=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+Gurchetan Singh <gurchetansingh@chromium.org> writes:
+
+> On Tue, Aug 6, 2024 at 1:15=E2=80=AFPM Rob Clark <robdclark@gmail.com> wr=
 ote:
 >
-> On Tue, Aug 6, 2024 at 10:45=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.c=
-om> wrote:
-> >
-> >
-> >
-> > On 06.08.24 10:18, Dragos Tatulea wrote:
-> > > (Re-sending. I messed up the previous message, sorry about that.)
-> > >
-> > > On 06.08.24 04:57, Jason Wang wrote:
-> > >> On Mon, Aug 5, 2024 at 11:59=E2=80=AFPM Dragos Tatulea <dtatulea@nvi=
-dia.com> wrote:
-> > >>>
-> > >>> On 05.08.24 05:17, Jason Wang wrote:
-> > >>>> On Fri, Aug 2, 2024 at 2:51=E2=80=AFPM Dragos Tatulea <dtatulea@nv=
-idia.com> wrote:
-> > >>>>>
-> > >>>>> On Fri, 2024-08-02 at 11:29 +0800, Jason Wang wrote:
-> > >>>>>> On Thu, Aug 1, 2024 at 11:38=E2=80=AFPM Dragos Tatulea <dtatulea=
-@nvidia.com> wrote:
-> > >>>>>>>
-> > >>>>>>> The following workflow triggers the crash referenced below:
-> > >>>>>>>
-> > >>>>>>> 1) vhost_vdpa_unsetup_vq_irq() unregisters the irq bypass produ=
-cer
-> > >>>>>>>    but the producer->token is still valid.
-> > >>>>>>> 2) vq context gets released and reassigned to another vq.
-> > >>>>>>
-> > >>>>>> Just to make sure I understand here, which structure is referred=
- to as
-> > >>>>>> "vq context" here? I guess it's not call_ctx as it is a part of =
-the vq
-> > >>>>>> itself.
-> > >>>>>>
-> > >>>>>>> 3) That other vq registers it's producer with the same vq conte=
-xt
-> > >>>>>>>    pointer as token in vhost_vdpa_setup_vq_irq().
-> > >>>>>>
-> > >>>>>> Or did you mean when a single eventfd is shared among different =
-vqs?
-> > >>>>>>
-> > >>>>> Yes, that's what I mean: vq->call_ctx.ctx which is a eventfd_ctx.
-> > >>>>>
-> > >>>>> But I don't think it's shared in this case, only that the old eve=
-ntfd_ctx value
-> > >>>>> is lingering in producer->token. And this old eventfd_ctx is assi=
-gned now to
-> > >>>>> another vq.
-> > >>>>
-> > >>>> Just to make sure I understand the issue. The eventfd_ctx should b=
-e
-> > >>>> still valid until a new VHOST_SET_VRING_CALL().
-> > >>>>
-> > >>> I think it's not about the validity of the eventfd_ctx. More about
-> > >>> the lingering ctx value of the producer after vhost_vdpa_unsetup_vq=
-_irq().
-> > >>
-> > >> Probably, but
-> > >>
-> > >>> That value is the eventfd ctx, but it could be anything else really=
-...
-> > >>
-> > >> I mean we hold a refcnt of the eventfd so it should be valid until t=
+>> On Tue, Aug 6, 2024 at 9:15=E2=80=AFAM Gurchetan Singh
+>> <gurchetansingh@chromium.org> wrote:
+>> >
+>> >
+>> >
+>> > On Mon, Aug 5, 2024 at 2:14=E2=80=AFAM Sergio Lopez Pascual <slp@redha=
+t.com>
+>> wrote:
+>> >>
+>> >> Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
+>> >>
+>> >> > On 7/23/24 14:49, Sergio Lopez wrote:
+>> >> >> There's an incresing number of machines supporting multiple page
+>> sizes
+>> >> >> and on these machines the host and a guest can be running, each on=
+e,
+>> >> >> with a different page size.
+>> >> >>
+>> >> >> For what pertains to virtio-gpu, this is not a problem if the page
+>> size
+>> >> >> of the guest happens to be bigger or equal than the host, but will
+>> >> >> potentially lead to failures in memory allocations and/or mappings
+>> >> >> otherwise.
+>> >> >
+>> >> > Please describe concrete problem you're trying to solve. Guest memo=
+ry
+>> >> > allocation consists of guest pages, I don't see how knowledge of ho=
+st
+>> >> > page size helps anything in userspace.
+>> >> >
+>> >> > I suspect you want this for host blobs, but then it should be
+>> >> > virtio_gpu_vram_create() that should use max(host_page_sz,
+>> >> > guest_page_size), AFAICT. It's kernel who is responsible for memory
+>> >> > management, userspace can't be trusted for doing that.
+>> >>
+>> >> Mesa's Vulkan/Venus uses CREATE_BLOB to request the host the creation
+>> >> and mapping into the guest of device-backed memory and shmem regions.
+>> >> The CREATE_BLOB ioctl doesn't update drm_virtgpu_resource_create->siz=
+e,
+>> >> so the guest kernel (and, as a consequence, the host kernel) can't
+>> >> override the user's request.
+>> >>
+>> >> I'd like Mesa's Vulkan/Venus in the guest to be able to obtain the ho=
+st
+>> >> page size to align the size of the CREATE_BLOB requests as required.
+>> >
+>> >
+>> > gfxstream solves this problem by putting the relevant information in t=
 he
-> > >> next set_vring_call() or vhost_dev_cleanup().
-> > >>
-> > >> But I do spot some possible issue:
-> > >>
-> > >> 1) We swap and assign new ctx in vhost_vring_ioctl():
-> > >>
-> > >>                 swap(ctx, vq->call_ctx.ctx);
-> > >>
-> > >> 2) and old ctx will be put there as well:
-> > >>
-> > >>                 if (!IS_ERR_OR_NULL(ctx))
-> > >>                         eventfd_ctx_put(ctx);
-> > >>
-> > >> 3) but in vdpa, we try to unregister the producer with the new token=
-:
-> > >>
-> > >> static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned in=
-t cmd,
-> > >>                            void __user *argp)
-> > >> {
-> > >> ...
-> > >>         r =3D vhost_vring_ioctl(&v->vdev, cmd, argp);
-> > >> ...
-> > >>         switch (cmd) {
-> > >> ...
-> > >>         case VHOST_SET_VRING_CALL:
-> > >>                 if (vq->call_ctx.ctx) {
-> > >>                         cb.callback =3D vhost_vdpa_virtqueue_cb;
-> > >>                         cb.private =3D vq;
-> > >>                         cb.trigger =3D vq->call_ctx.ctx;
-> > >>                 } else {
-> > >>                         cb.callback =3D NULL;
-> > >>                         cb.private =3D NULL;
-> > >>                         cb.trigger =3D NULL;
-> > >>                 }
-> > >>                 ops->set_vq_cb(vdpa, idx, &cb);
-> > >>                 vhost_vdpa_setup_vq_irq(v, idx);
-> > >>
-> > >> in vhost_vdpa_setup_vq_irq() we had:
-> > >>
-> > >>         irq_bypass_unregister_producer(&vq->call_ctx.producer);
-> > >>
-> > >> here the producer->token still points to the old one...
-> > >>
-> > >> Is this what you have seen?
-> > > Yup. That is the issue. The unregister already happened at
-> > > vhost_vdpa_unsetup_vq_irq(). So this second unregister will
-> > > work on an already unregistered element due to the token still
-> > > being set.
-> > >
-> > >>
-> > >>>
-> > >>>
-> > >>>> I may miss something but the only way to assign exactly the same
-> > >>>> eventfd_ctx value to another vq is where the guest tries to share =
-the
-> > >>>> MSI-X vector among virtqueues, then qemu will use a single eventfd=
- as
-> > >>>> the callback for multiple virtqueues. If this is true:
-> > >>>>
-> > >>> I don't think this is the case. I see the issue happening when runn=
-ing qemu vdpa
-> > >>> live migration tests on the same host. From a vdpa device it's basi=
-cally a device
-> > >>> starting on a VM over and over.
-> > >>>
-> > >>>> For bypass registering, only the first registering can succeed as =
-the
-> > >>>> following registering will fail because the irq bypass manager alr=
-eady
-> > >>>> had exactly the same producer token.
-> > >>>> For registering, all unregistering can succeed:
-> > >>>>
-> > >>>> 1) the first unregistering will do the real job that unregister th=
-e token
-> > >>>> 2) the following unregistering will do nothing by iterating the
-> > >>>> producer token list without finding a match one
-> > >>>>
-> > >>>> Maybe you can show me the userspace behaviour (ioctls) when you se=
-e this?
-> > >>>>
-> > >>> Sure, what would you need? qemu traces?
-> > >>
-> > >> Yes, that would be helpful.
-> > >>
-> > > Will try to get them.
-> > As the traces are quite large (~5MB), I uploaded them in this location =
-[0].
-> > I used the following qemu traces:
-> > --trace vhost_vdpa* --trace virtio_net_handle*
-> >
-> > [0] https://drive.google.com/file/d/1XyXYyockJ_O7zMgI7vot6AxYjze9Ljju/v=
-iew?usp=3Dsharing
+>> capabilities obtained from the host:
+>> >
+>> >
+>> https://android.googlesource.com/platform/hardware/google/gfxstream/+/re=
+fs/heads/main/host/virtio-gpu-gfxstream-renderer.cpp#1691
+>> >
+>> > If you want to be paranoid, you can also validate the
+>> ResourceCreateBlob::size is properly host-page aligned when that request
+>> reaches the host.
+>> >
+>> > So you can probably solve this problem using current interfaces.
+>> Whether it's cleaner for all context types to use the capabilities, or h=
+ave
+>> all VMMs to expose VIRTIO_GPU_F_HOST_PAGE_SIZE, would be the cost/benefi=
+t
+>> tradeoff.
+>> >
+>>
+>> I guess solving it in a context-type specific way is possible.  But I
+>> think it is a relatively universal constraint.  And maybe it makes
+>> sense for virtgpu guest kernel to enforce alignment (at least it can
+>> return an error synchronously) in addition to the host.
+>>
 >
-> Thanks for doing this.
+> virtio-media may have support for VIRTIO_MEDIA_CMD_MMAP too, so could run
+> into this issue.
 >
-> So it looks not like a case of eventfd sharing:
+> https://github.com/chromeos/virtio-media?tab=3Dreadme-ov-file#shared-memo=
+ry-regions
 >
-> """
-> 153@1722953531.918958:vhost_vdpa_iotlb_begin_batch vdpa:0x7f6f9cfb5190
-> fd: 17 msg_type: 2 type: 5
-> 153@1722953531.918959:vhost_vdpa_set_vring_base dev: 0x55573cc9ca70
-> index: 6 num: 0 svq 1
-> 153@1722953531.918961:vhost_vdpa_set_vring_kick dev: 0x55573cc9ca70
-> index: 6 fd: 237
-> 153@1722953531.918964:vhost_vdpa_set_vring_call dev: 0x55573cc9ca70
-> index: 6 fd: 238
-> 153@1722953531.918978:vhost_vdpa_dma_map vdpa:0x7f6f9cfb5190 fd: 17
-> msg_type: 2 asid: 1 iova: 0x13000 size: 0x2000 uaddr: 0x7f6f9da1a000
-> perm: 0x1 type: 2
-> 153@1722953531.918984:vhost_vdpa_dma_map vdpa:0x7f6f9cfb5190 fd: 17
-> msg_type: 2 asid: 1 iova: 0x15000 size: 0x1000 uaddr: 0x7f6f9da19000
-> perm: 0x3 type: 2
-> 153@1722953531.918987:vhost_vdpa_set_vring_addr dev: 0x55573cc9ca70
-> index: 6 flags: 0x0 desc_user_addr: 0x13000 used_user_addr: 0x15000
-> avail_user_addr: 0x14000 log_guest_\
-> addr: 0x0
-> 153@1722953531.918989:vhost_vdpa_set_vring_base dev: 0x55573cc9ca70
-> index: 7 num: 0 svq 1
-> 153@1722953531.918991:vhost_vdpa_set_vring_kick dev: 0x55573cc9ca70
-> index: 7 fd: 239
-> 153@1722953531.918993:vhost_vdpa_set_vring_call dev: 0x55573cc9ca70
-> index: 7 fd: 240
-> """
+> virtio-fs also has the DAX window which uses the same memory mapping
+> mechanism.
 >
-> I think a more proper way is to unregister and clean the token before
-> calling vhost_vring_ioctl() in the case of SET_VRING_KICK. Let me try
-> to draft a patch and see.
+> https://virtio-fs.gitlab.io/design.html
+>
+> Maybe this should not be a virtio-gpu thing, but a virtio thing?
 
-I've posted a RFC patch, please try to see if it works.
+This is true, but finding a common place to put the page size is really
+hard in practice. I don't think we can borrow space in the feature bits
+for that (and that would probably be abusing its purpose quite a bit)
+and extending the transport configuration registers is quite cumbersome
+and, in general, undesirable.
 
-Thanks
+That leaves us with the device-specific config space, and that implies a
+device-specific feature bit as it's implemented in this series.
 
->
-> Thanks
->
-> >
-> > Thanks,
-> > Dragos
-> >
+The Shared Memory Regions on the VIRTIO spec, while doesn't talk
+specifically about page size, also gives us a hint about this being the
+right direction:
+
+"
+2.10 Shared Memory Regions
+(...)
+Memory consistency rules vary depending on the region and the device
+and they will be specified as required by each device."
+"
+
+Thanks,
+Sergio.
 
