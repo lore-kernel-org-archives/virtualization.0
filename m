@@ -1,223 +1,262 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8941C198842
-	for <virtualization@lists.linux.dev>; Fri,  9 Aug 2024 15:24:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D3B5A4D5
+	for <virtualization@lists.linux.dev>; Fri,  9 Aug 2024 17:42:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723217077; cv=none; b=u0m4Co5fCbYSu3Gk+ufbS4AqitsIwmDDRwMhLh91nOxjNO68gQFNTpHqURHfkl+QuujVrXRGgk2BnTEffk64mp12bk78arAdeuwfNmwCtmxYZO35JkoymD+pK4chvP1Oieu+mU11E3sOTYk+2Kr2cA8sovcr+138lP4hTGj/MC4=
+	t=1723225344; cv=none; b=oQq/93cTYSYXE3/XUuNxtS2XxYfZklDbwqTL28waWJ16gDqXRyJVdwnkj2rCCrVjSVVQGnXasLlFOw2r1S8EHn8NSMih3oxsRltjiHuqGN7C8lHDtHu69lxCVQCUfaK8tObixactQrHNv5SXghnLOyCXVbGawRdUH2JLy2iVDeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723217077; c=relaxed/simple;
-	bh=g2iDrSBzxfQonyXIKogSC1gkM1FpY3qwgPMDIgnkaXI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=klQVzERFNNt4xiOZH8n8qTmoTjyIB8DpVsJ3It5/gK6x0WSu+s7hn4dTFGocflnX/lJZX7Dg/Eneh9S9x3zTbYB1H5ON7X4XYt1AHGPcjjVgYalSdgz2AQ4aqutsHT5EleLG09unDSGW1GqknDTubiJq3jGhtRxcer1ReQlQAMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CySNPi2m; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CySNPi2m"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723217074;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=O0M5zXAWQyeF4Jzk4EMsV0bzXAk2k6LTOOLJMOg7+eQ=;
-	b=CySNPi2mdT0dcHIroXEP6kx1zywEZrpG/Gpj1xQeCju8pXbWzJ2/f+wUxEkOuhDxCNgG7M
-	Ov/LjSzJ1sraFukHGMqUC6/ZraIrNSpiWsNCslCTUFpSvi2XIKYmNjwNDe1MdrfT8U4yes
-	UWOmHxxgPdI/H9DMds7YeZbHkibMDsM=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-185-uBgThbOOPc2IUzmiZF41Lw-1; Fri,
- 09 Aug 2024 11:24:29 -0400
-X-MC-Unique: uBgThbOOPc2IUzmiZF41Lw-1
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 50FBF1944CC9;
-	Fri,  9 Aug 2024 15:24:24 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.16])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D74043000199;
-	Fri,  9 Aug 2024 15:24:04 +0000 (UTC)
-Date: Fri, 9 Aug 2024 23:23:58 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Daniel Wagner <dwagner@suse.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Christoph Hellwig <hch@lst.de>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	John Garry <john.g.garry@oracle.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Kashyap Desai <kashyap.desai@broadcom.com>,
-	Sumit Saxena <sumit.saxena@broadcom.com>,
-	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-	Chandrakanth patil <chandrakanth.patil@broadcom.com>,
-	Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
-	Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>,
-	Nilesh Javali <njavali@marvell.com>,
-	GR-QLogic-Storage-Upstream@marvell.com,
-	Jonathan Corbet <corbet@lwn.net>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
-	Sridhar Balaraman <sbalaraman@parallelwireless.com>,
-	"brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
-	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
-	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
-	linux-doc@vger.kernel.org
-Subject: Re: [PATCH v3 15/15] blk-mq: use hk cpus only when isolcpus=io_queue
- is enabled
-Message-ID: <ZrY0jp7S0Xnk9VUw@fedora>
-References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
- <20240806-isolcpus-io-queues-v3-15-da0eecfeaf8b@suse.de>
+	s=arc-20240116; t=1723225344; c=relaxed/simple;
+	bh=2EPSHaSW0yT5CPf+czwsFP98vo+s3mtIrzY0EJqp4nY=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=l86vDd5W6qQ7sBhF3o27VuxNS+y3vt06rUJPpWG7pytCErpzPrxay2+ikU8TcOPqQgAI7R9NhHUlj9dOeMwnjrlVfiI19RNIo6fS6WQAXLxiV3VHEy9f2b8zfbHPO45rsE1o6A38FhnYYEzAVIjQPPpFLBiQw6zPn215p230K5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-8223c3509a9so296791739f.3
+        for <virtualization@lists.linux.dev>; Fri, 09 Aug 2024 10:42:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723225342; x=1723830142;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=r9SikiXrI54ueCXpMjmkzPfTZL2o5GTEvSUXBGW0l+c=;
+        b=Dw7oBdj3dtqN17FoPhABw2S+n226jrLgCebO3YlG895GtiPmgclOiItuE5Xz775emh
+         6/c1gXSoHSMJDSz/CMja3PByaAbLAUDm1ZwIs+CQFM047+rrFv5iEACA2mOfgTj0umxW
+         zLGrGwBpCKcVQVLHHpPRxN8W8vKMCgy3K5BtduAY/5hMWnf77zPAMjXuG8phJYIa04hl
+         rmwAPbwzAjg6YrMCaGEl1cxYngjmx+y2wNtC/a9zj6XgRt1RrLrISlOa9YxU6TlFNIkp
+         NbLMximukRVKer1GzEvRRdkhWX0fqUSrqV7YtamRB/V4FIln1ogPnZULMMuu7KXl34cY
+         tt3g==
+X-Forwarded-Encrypted: i=1; AJvYcCXclNVCl/GEXPX1+lcgKTHbh5qNyB5chf95ZrwZR3aKLt7ZPzHXJrks14YjOgMlRFdhaXFeYJ1Bk/fZReCUR6nsZ6j8j5KNXG/N7IiHZkU=
+X-Gm-Message-State: AOJu0Yxb3WXkz4qOy7szXewsM9yu3VluMDoAyTGsifgCKlkSEbTHbItZ
+	93J8nCfLsQGYy77JHL+JpPMIfiPQHcfZbTzi00Ykj878AzcnVrBYpvrV5vpPidiMzUK0F4YC2b0
+	e/XxAcmd4nyTTzML4M/ka16EwvyDeky8bsQVu5RDcu0dJQROzKtQ6Qto=
+X-Google-Smtp-Source: AGHT+IG9Oc8XZg6vWyomVTHNWwBsWAUBtRLh7A5wdI4Uy01LkStS9EX8Y34o0MyDKdmQ4OK7nIWE3jiqaRJ3GuUFnwOr/Q4SRsMU
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240806-isolcpus-io-queues-v3-15-da0eecfeaf8b@suse.de>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+X-Received: by 2002:a05:6602:13c3:b0:81f:c103:3e70 with SMTP id
+ ca18e2360f4ac-8225ee71692mr8376839f.4.1723225341905; Fri, 09 Aug 2024
+ 10:42:21 -0700 (PDT)
+Date: Fri, 09 Aug 2024 10:42:21 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000005f5a6d061f43aabe@google.com>
+Subject: [syzbot] [net?] [virt?] BUG: stack guard page was hit in vsock_bpf_recvmsg
+From: syzbot <syzbot+bdb4bd87b5e22058e2a4@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
+	sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Aug 06, 2024 at 02:06:47PM +0200, Daniel Wagner wrote:
-> When isolcpus=io_queue is enabled all hardware queues should run on the
-> housekeeping CPUs only. Thus ignore the affinity mask provided by the
-> driver. Also we can't use blk_mq_map_queues because it will map all CPUs
-> to first hctx unless, the CPU is the same as the hctx has the affinity
-> set to, e.g. 8 CPUs with isolcpus=io_queue,2-3,6-7 config
-> 
->   queue mapping for /dev/nvme0n1
->         hctx0: default 2 3 4 6 7
->         hctx1: default 5
->         hctx2: default 0
->         hctx3: default 1
-> 
->   PCI name is 00:05.0: nvme0n1
->         irq 57 affinity 0-1 effective 1 is_managed:0 nvme0q0
->         irq 58 affinity 4 effective 4 is_managed:1 nvme0q1
->         irq 59 affinity 5 effective 5 is_managed:1 nvme0q2
->         irq 60 affinity 0 effective 0 is_managed:1 nvme0q3
->         irq 61 affinity 1 effective 1 is_managed:1 nvme0q4
-> 
-> where as with blk_mq_hk_map_queues we get
-> 
->   queue mapping for /dev/nvme0n1
->         hctx0: default 2 4
->         hctx1: default 3 5
->         hctx2: default 0 6
->         hctx3: default 1 7
-> 
->   PCI name is 00:05.0: nvme0n1
->         irq 56 affinity 0-1 effective 1 is_managed:0 nvme0q0
->         irq 61 affinity 4 effective 4 is_managed:1 nvme0q1
->         irq 62 affinity 5 effective 5 is_managed:1 nvme0q2
->         irq 63 affinity 0 effective 0 is_managed:1 nvme0q3
->         irq 64 affinity 1 effective 1 is_managed:1 nvme0q4
-> 
-> Signed-off-by: Daniel Wagner <dwagner@suse.de>
-> ---
->  block/blk-mq-cpumap.c | 56 +++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 56 insertions(+)
-> 
-> diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
-> index c1277763aeeb..7e026c2ffa02 100644
-> --- a/block/blk-mq-cpumap.c
-> +++ b/block/blk-mq-cpumap.c
-> @@ -60,11 +60,64 @@ unsigned int blk_mq_num_online_queues(unsigned int max_queues)
->  }
->  EXPORT_SYMBOL_GPL(blk_mq_num_online_queues);
->  
-> +static bool blk_mq_hk_map_queues(struct blk_mq_queue_map *qmap)
-> +{
-> +	struct cpumask *hk_masks;
-> +	cpumask_var_t isol_mask;
-> +
-> +	unsigned int queue, cpu;
-> +
-> +	if (!housekeeping_enabled(HK_TYPE_IO_QUEUE))
-> +		return false;
-> +
-> +	/* map housekeeping cpus to matching hardware context */
-> +	hk_masks = group_cpus_evenly(qmap->nr_queues);
-> +	if (!hk_masks)
-> +		goto fallback;
-> +
-> +	for (queue = 0; queue < qmap->nr_queues; queue++) {
-> +		for_each_cpu(cpu, &hk_masks[queue])
-> +			qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> +	}
-> +
-> +	kfree(hk_masks);
-> +
-> +	/* map isolcpus to hardware context */
-> +	if (!alloc_cpumask_var(&isol_mask, GFP_KERNEL))
-> +		goto fallback;
-> +
-> +	queue = 0;
-> +	cpumask_andnot(isol_mask,
-> +		       cpu_possible_mask,
-> +		       housekeeping_cpumask(HK_TYPE_IO_QUEUE));
-> +
-> +	for_each_cpu(cpu, isol_mask) {
-> +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> +		queue = (queue + 1) % qmap->nr_queues;
-> +	}
-> +
-> +	free_cpumask_var(isol_mask);
-> +
-> +	return true;
-> +
-> +fallback:
-> +	/* map all cpus to hardware context ignoring any affinity */
-> +	queue = 0;
-> +	for_each_possible_cpu(cpu) {
-> +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> +		queue = (queue + 1) % qmap->nr_queues;
-> +	}
-> +	return true;
-> +}
-> +
->  void blk_mq_map_queues(struct blk_mq_queue_map *qmap)
->  {
->  	const struct cpumask *masks;
->  	unsigned int queue, cpu;
->  
-> +	if (blk_mq_hk_map_queues(qmap))
-> +		return;
-> +
->  	masks = group_cpus_evenly(qmap->nr_queues);
->  	if (!masks) {
->  		for_each_possible_cpu(cpu)
-> @@ -118,6 +171,9 @@ void blk_mq_dev_map_queues(struct blk_mq_queue_map *qmap,
->  	const struct cpumask *mask;
->  	unsigned int queue, cpu;
->  
-> +	if (blk_mq_hk_map_queues(qmap))
-> +		return;
-> +
->  	for (queue = 0; queue < qmap->nr_queues; queue++) {
->  		mask = get_queue_affinity(dev_data, dev_off, queue);
->  		if (!mask)
+Hello,
 
-From above implementation, "isolcpus=io_queue" is actually just one
-optimization on "isolcpus=managed_irq", and there isn't essential
-difference between the two.
+syzbot found the following issue on:
 
-And I'd suggest to optimize 'isolcpus=managed_irq' directly, such as:
+HEAD commit:    eb3ab13d997a net: ti: icssg_prueth: populate netdev of_node
+git tree:       net-next
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=16bc9dbd980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=e8a2eef9745ade09
+dashboard link: https://syzkaller.appspot.com/bug?extid=bdb4bd87b5e22058e2a4
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=11d4f4f5980000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=17522ec5980000
 
-- reduce nr_queues or numgrps for group_cpus_evenly() according to
-house-keeping cpu mask
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/451ec795f57e/disk-eb3ab13d.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/e6f090c32577/vmlinux-eb3ab13d.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/ac63cb5127b1/bzImage-eb3ab13d.xz
 
-- spread house-keeping & isolate cpu mask evenly on each queue, and
-you can use the existed two-stage spread for doing that
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+bdb4bd87b5e22058e2a4@syzkaller.appspotmail.com
+
+BUG: TASK stack guard page was hit at ffffc9000358ff58 (stack is ffffc90003590000..ffffc90003598000)
+Oops: stack guard page: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 0 UID: 0 PID: 5231 Comm: syz-executor149 Not tainted 6.11.0-rc2-syzkaller-00271-geb3ab13d997a #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/27/2024
+RIP: 0010:validate_chain+0x1f/0x5900 kernel/locking/lockdep.c:3824
+Code: 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 55 48 89 e5 41 57 41 56 41 55 41 54 53 48 83 e4 e0 48 81 ec c0 02 00 00 49 89 ce <89> 54 24 58 48 89 bc 24 80 00 00 00 65 48 8b 04 25 28 00 00 00 48
+RSP: 0018:ffffc9000358ff60 EFLAGS: 00010086
+RAX: 1ffffffff268c780 RBX: ffffffff93463c00 RCX: 7195f92be3ffb448
+RDX: 0000000000000001 RSI: ffff88807cc6c6e0 RDI: ffff88807cc6bc00
+RBP: ffffc90003590260 R08: ffffffff9372e8cf R09: 1ffffffff26e5d19
+R10: dffffc0000000000 R11: fffffbfff26e5d1a R12: 0000000000000001
+R13: ffff88807cc6c6d8 R14: 7195f92be3ffb448 R15: ffff88807cc6c700
+FS:  000055556f04f380(0000) GS:ffff8880b9200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffc9000358ff58 CR3: 0000000023e1e000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <#DF>
+ </#DF>
+ <TASK>
+ __lock_acquire+0x137a/0x2040 kernel/locking/lockdep.c:5142
+ reacquire_held_locks+0x3eb/0x690 kernel/locking/lockdep.c:5284
+ __lock_release kernel/locking/lockdep.c:5473 [inline]
+ lock_release+0x396/0xa30 kernel/locking/lockdep.c:5780
+ sock_release_ownership include/net/sock.h:1722 [inline]
+ release_sock+0x12f/0x1f0 net/core/sock.c:3564
+ vsock_bpf_recvmsg+0x60f/0x1090 net/vmw_vsock/vsock_bpf.c:88
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ vsock_bpf_recvmsg+0xcf5/0x1090
+ sock_recvmsg_nosec net/socket.c:1046 [inline]
+ sock_recvmsg+0x22f/0x280 net/socket.c:1068
+ ____sys_recvmsg+0x1db/0x470 net/socket.c:2816
+ ___sys_recvmsg net/socket.c:2858 [inline]
+ __sys_recvmsg+0x2f0/0x3e0 net/socket.c:2888
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f66591e2c79
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 c1 17 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffe616028d8 EFLAGS: 00000246 ORIG_RAX: 000000000000002f
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f66591e2c79
+RDX: 0000000000010042 RSI: 00000000200003c0 RDI: 0000000000000005
+RBP: 0000000000000000 R08: 0000000000000006 R09: 0000000000000006
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 431bde82d7b634db R14: 0000000000000001 R15: 0000000000000001
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:validate_chain+0x1f/0x5900 kernel/locking/lockdep.c:3824
+Code: 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 55 48 89 e5 41 57 41 56 41 55 41 54 53 48 83 e4 e0 48 81 ec c0 02 00 00 49 89 ce <89> 54 24 58 48 89 bc 24 80 00 00 00 65 48 8b 04 25 28 00 00 00 48
+RSP: 0018:ffffc9000358ff60 EFLAGS: 00010086
+RAX: 1ffffffff268c780 RBX: ffffffff93463c00 RCX: 7195f92be3ffb448
+RDX: 0000000000000001 RSI: ffff88807cc6c6e0 RDI: ffff88807cc6bc00
+RBP: ffffc90003590260 R08: ffffffff9372e8cf R09: 1ffffffff26e5d19
+R10: dffffc0000000000 R11: fffffbfff26e5d1a R12: 0000000000000001
+R13: ffff88807cc6c6d8 R14: 7195f92be3ffb448 R15: ffff88807cc6c700
+FS:  000055556f04f380(0000) GS:ffff8880b9200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffc9000358ff58 CR3: 0000000023e1e000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+----------------
+Code disassembly (best guess):
+   0:	90                   	nop
+   1:	90                   	nop
+   2:	90                   	nop
+   3:	90                   	nop
+   4:	90                   	nop
+   5:	90                   	nop
+   6:	90                   	nop
+   7:	90                   	nop
+   8:	90                   	nop
+   9:	90                   	nop
+   a:	90                   	nop
+   b:	f3 0f 1e fa          	endbr64
+   f:	55                   	push   %rbp
+  10:	48 89 e5             	mov    %rsp,%rbp
+  13:	41 57                	push   %r15
+  15:	41 56                	push   %r14
+  17:	41 55                	push   %r13
+  19:	41 54                	push   %r12
+  1b:	53                   	push   %rbx
+  1c:	48 83 e4 e0          	and    $0xffffffffffffffe0,%rsp
+  20:	48 81 ec c0 02 00 00 	sub    $0x2c0,%rsp
+  27:	49 89 ce             	mov    %rcx,%r14
+* 2a:	89 54 24 58          	mov    %edx,0x58(%rsp) <-- trapping instruction
+  2e:	48 89 bc 24 80 00 00 	mov    %rdi,0x80(%rsp)
+  35:	00
+  36:	65 48 8b 04 25 28 00 	mov    %gs:0x28,%rax
+  3d:	00 00
+  3f:	48                   	rex.W
 
 
-thanks,
-Ming
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
