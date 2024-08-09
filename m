@@ -1,102 +1,243 @@
-Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0944190067
-	for <virtualization@lists.linux.dev>; Fri,  9 Aug 2024 08:36:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10693197A92
+	for <virtualization@lists.linux.dev>; Fri,  9 Aug 2024 14:53:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723192568; cv=none; b=fxbKkTZ39a12F9Vv3n+1NGzis5B1CpXx4JiTtEzum77YwE9xdCBdlc7DKG9+xvze/qAhJhHwPiQ5S5hGvV+a7Nnf7yQoKaWOKEjhz9n76lzGfjjlhxxBZkW/SRobjvyWvetdzRw8aSf0UnyS2Yd74HKcrJtmhMXvsJceIUJfZxM=
+	t=1723215236; cv=none; b=E5/yJ2x7LrYQi8w/+NpfbTJKep9GcFaTJ1MIT+p9Ro62Qm5UiD3IMJ/am6exxnCgZjBcfCu42wp0Zbx6EWhuEDl4jLW+rxV98n86G/QFvmPL5Rz/3RO4Zsqt0W/hOjfT1mLOX2pNnMcGVhx532ytdw/Rgk5PG4Xhr48J4dzf3dE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723192568; c=relaxed/simple;
-	bh=fxzAAnyjhajstMY7ILsQe6gw/ivTul+Ck8i7HDnuODs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=fk23xTPc9gU/TuK1UEWrpzdBFBqpWEcLWkCHHwM7OovU5yoNPthz9QDFYxGtid7KqhVTTX7ar9WcPNALhYmS/pxOezp9lRXv5yI3isYv/B7o7OW63pr3ctPe8CgpMbPkXVxAtFeu4dPRBGN44nITVlGnYN1JZIxb1Cbqt8epYEY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=VrfXzutG; arc=none smtp.client-ip=209.85.167.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1723215236; c=relaxed/simple;
+	bh=GSzMuwNbO0R/haLtymCCrn2VcacmkVi1sA+7fw+Ikp4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ge9kvD4Rn3ZRI6X29bp/3WBc4dLilo/81xgPDtzPN6ODlnZ6VB3X2spfjcFbZaK1tq3WEWzufXXy9aIL8BLeBqjxTtTgB18CBF4rV7RiVyTW/aD5lQArGsED4SRz9xMPTwO+ySqlrucWIWggyHgKyG4bMAaGBIFNo7wen5QeEzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dEL1kvmI; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="VrfXzutG"
-Received: by mail-oi1-f171.google.com with SMTP id 5614622812f47-3db35ec5688so1100136b6e.3
-        for <virtualization@lists.linux.dev>; Fri, 09 Aug 2024 01:36:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1723192566; x=1723797366; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YX0owJGjTUZGW1ZSw8u/h2+6HycvjGlnJbGmlknVqK8=;
-        b=VrfXzutGoWfq8su47d2N+73NCoGGVwX1JmDMYPSGOnYHJDlnISqr2Hswm7TnXDWV/c
-         +2nbGYkokm0keTr8hIPtrwV7PQZG+vGu/xnxHt5Bdu7T2Gw+EUscge6tflusu/ZfVlLt
-         8pP2HmgrCiOkY+TjFIQvxknuh6wp5re1/B1TNwKqX34XZgcyyQ7pD2J1JrOIkoANnZhX
-         yr0+nwGfcROfMh4s+FrBsVLFVQ1RwSSuZHQtnBOJsBCwVd2F4y3nJrgCbkkJoaaVa2A4
-         ezQPn5g5jUj12O9uGuWo6Jp9SW/4gFIGazrwXS57uCxXMzQTy327rGdA95+RqZUsYrKn
-         7G+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723192566; x=1723797366;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YX0owJGjTUZGW1ZSw8u/h2+6HycvjGlnJbGmlknVqK8=;
-        b=uq+8w2bL0nsRHmJ+XWgPbQzwCZrwsjNbghZjdzVBFKz3LgtAvR9UxszuMAG1UYI0i0
-         5dxAa9F54Fvud+al5JUGzDYD7w1IEyu4xjI923SWEQE9XcZq1t6gMsJpMfVYAuOa9ksh
-         VVcHk7JRrC4Do0s3gvTc8B052wDE4kfI7Fr2y/RIgqdoNaPXYl+F2hFK3mWrw6ptTHsJ
-         KA3d979DzboM7lnZnad4QHl9Cp6/GvnskZoVWBV39DIpGJcZYHrdJ9R+P+lte2hj2TFj
-         KQftGnEJHNyKK61XH2szCwdpEFyoW/PkDUtBPkw3BawhXpzvaCkDgdx2HIhFXKWJr0Xw
-         HC0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXo7+FXcB+nVA4XqmJnh6kYNMlGHMwK4+VfpYdEo180z4RzA0ZDNcxmkL5AET7DgStRRb96ZWsDUGhJR3HXjHzHU6RHVnWOac8/CA16/tk=
-X-Gm-Message-State: AOJu0YxrMfoZ1Irv91o5HFqzmi4tdlPrlPgukpAt1GYIk8pLfHE0mI37
-	P9boo5v+EBVczOjDLhsTCmrSFaz6rYL6/TN35l4vt7FlntlkVmkle+n/wK4pRg==
-X-Google-Smtp-Source: AGHT+IFQVkg6ZtSfIaU+uod33S25nOMqpwS+RsKZODiyjnqKnTlSOE1Vz+YL/yyYCs3UpYV31uiAqQ==
-X-Received: by 2002:a05:6808:38c5:b0:3d9:3a00:cc8f with SMTP id 5614622812f47-3dc41676675mr728490b6e.7.1723192566111;
-        Fri, 09 Aug 2024 01:36:06 -0700 (PDT)
-Received: from localhost.localdomain ([117.213.100.70])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-710cb22971fsm2207254b3a.51.2024.08.09.01.36.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Aug 2024 01:36:05 -0700 (PDT)
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 2/2] virtio-pci: Do not break the error message for VIRTIO_F_VERSION_1
-Date: Fri,  9 Aug 2024 14:05:48 +0530
-Message-Id: <20240809083549.14772-2-manivannan.sadhasivam@linaro.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20240809083549.14772-1-manivannan.sadhasivam@linaro.org>
-References: <20240809083549.14772-1-manivannan.sadhasivam@linaro.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dEL1kvmI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1723215234;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=S3hmYgUok+ozXUThpLpe+47uXAQDhVMRnl+vdYpiArY=;
+	b=dEL1kvmI80s436Tr4fmzTpScvPelGrHOCsXQWCd0u5ziwz1vGGWl/pBdfk+cBBV1CLXzVw
+	1ZvEkg+XUBxGjvPlkrLAiE2HxwSLeaeEYd+eiRbzB0FB2riG3KpQcZXW/uqmOOmf9gLplV
+	huzJeRdBUhJlmXXfwuQ+XppE4ZUdUsw=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-112-tLJEm6q_PmKvEMMDC9bkdg-1; Fri,
+ 09 Aug 2024 10:53:47 -0400
+X-MC-Unique: tLJEm6q_PmKvEMMDC9bkdg-1
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5B25119560A2;
+	Fri,  9 Aug 2024 14:53:42 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.16])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0EEFF19560AA;
+	Fri,  9 Aug 2024 14:53:22 +0000 (UTC)
+Date: Fri, 9 Aug 2024 22:53:16 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Daniel Wagner <dwagner@suse.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Christoph Hellwig <hch@lst.de>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	John Garry <john.g.garry@oracle.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Kashyap Desai <kashyap.desai@broadcom.com>,
+	Sumit Saxena <sumit.saxena@broadcom.com>,
+	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+	Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+	Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+	Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>,
+	Nilesh Javali <njavali@marvell.com>,
+	GR-QLogic-Storage-Upstream@marvell.com,
+	Jonathan Corbet <corbet@lwn.net>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
+	Sridhar Balaraman <sbalaraman@parallelwireless.com>,
+	"brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
+	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
+	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
+	linux-doc@vger.kernel.org
+Subject: Re: [PATCH v3 15/15] blk-mq: use hk cpus only when isolcpus=io_queue
+ is enabled
+Message-ID: <ZrYtXDrdPjn48r6k@fedora>
+References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
+ <20240806-isolcpus-io-queues-v3-15-da0eecfeaf8b@suse.de>
+ <ZrI5TcaAU82avPZn@fedora>
+ <253ec223-98e1-4e7e-b138-0a83ea1a7b0e@flourine.local>
+ <ZrRXEUko5EwKJaaP@fedora>
+ <856091db-431f-48f5-9daa-38c292a6bbd2@flourine.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <856091db-431f-48f5-9daa-38c292a6bbd2@flourine.local>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-Breaking the error message will make it harder to grep for it in the
-driver. So let's put the error message in a single line.
+On Fri, Aug 09, 2024 at 09:22:11AM +0200, Daniel Wagner wrote:
+> On Thu, Aug 08, 2024 at 01:26:41PM GMT, Ming Lei wrote:
+> > Isolated CPUs are removed from queue mapping in this patchset, when someone
+> > submit IOs from the isolated CPU, what is the correct hctx used for handling
+> > these IOs?
+> 
+> No, every possible CPU gets a mapping. What this patch series does, is
+> to limit/aligns the number of hardware context to the number of
+> housekeeping CPUs. There is still a complete ctx-hctc mapping. So
 
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
----
- drivers/virtio/virtio_pci_modern.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+OK, then I guess patch 1~7 aren't supposed to belong to this series,
+cause you just want to reduce nr_hw_queues, meantime spread
+house-keeping CPUs first for avoiding queues with all isolated cpu mask.
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index e34ed4870af4..1bb55a3167a5 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -274,8 +274,8 @@ static int vp_finalize_features(struct virtio_device *vdev)
- 	vp_transport_features(vdev, features);
+> whenever an user thread on an isolated CPU is issuing an IO a
+> housekeeping CPU will also be involved (with the additional overhead,
+> which seems to be okay for these users).
+> 
+> Without hardware queue on the isolated CPUs ensures we really never get
+> any unexpected IO on those CPUs unless userspace does it own its own.
+> It's a safety net.
+> 
+> Just to illustrate it, the non isolcpus configuration (default) map
+> for an 8 CPU setup:
+> 
+> queue mapping for /dev/vda
+>         hctx0: default 0
+>         hctx1: default 1
+>         hctx2: default 2
+>         hctx3: default 3
+>         hctx4: default 4
+>         hctx5: default 5
+>         hctx6: default 6
+>         hctx7: default 7
+> 
+> and with isolcpus=io_queue,2-3,6-7
+> 
+> queue mapping for /dev/vda
+>         hctx0: default 0 2
+>         hctx1: default 1 3
+>         hctx2: default 4 6
+>         hctx3: default 5 7
+
+OK, Looks I missed the point in patch 15 in which you added isolated cpu
+into mapping manually, just wondering why not take the current two-stage
+policy to cover both house-keeping and isolated CPUs in group_cpus_evenly()?
+
+Such as spread house-keeping CPUs first, then isolated CPUs, just like
+what we did for present & non-present cpus.
+
+Then the whole patchset can be simplified a lot.
+
+> 
+> > From current implementation, it depends on implied zero filled
+> > tag_set->map[type].mq_map[isolated_cpu], so hctx 0 is used.
+> > 
+> > During CPU offline, in blk_mq_hctx_notify_offline(),
+> > blk_mq_hctx_has_online_cpu() returns true even though the last cpu in
+> > hctx 0 is offline because isolated cpus join hctx 0 unexpectedly, so IOs in
+> > hctx 0 won't be drained.
+> > 
+> > However managed irq core code still shutdowns the hw queue's irq because all
+> > CPUs in this hctx are offline now. Then IO hang is triggered, isn't
+> > it?
+> 
+> Thanks for the explanation. I was able to reproduce this scenario, that
+> is a hardware context with two CPUs which go offline. Initially, I used
+> fio for creating the workload but this never hit the hanger. Instead
+> some background workload from systemd-journald is pretty reliable to
+> trigger the hanger you describe.
+> 
+> Example:
+> 
+>   hctx2: default 4 6
+> 
+> CPU 0 stays online, CPU 1-5 are offline. CPU 6 is offlined:
+> 
+>   smpboot: CPU 5 is now offline
+>   blk_mq_hctx_has_online_cpu:3537 hctx3 offline
+>   blk_mq_hctx_has_online_cpu:3537 hctx2 offline
+> 
+> and there is no forward progress anymore, the cpuhotplug state machine
+> is blocked and an IO is hanging:
+> 
+>   # grep busy /sys/kernel/debug/block/*/hctx*/tags | grep -v busy=0
+>   /sys/kernel/debug/block/vda/hctx2/tags:busy=61
+> 
+> and blk_mq_hctx_notify_offline busy loops forever:
+> 
+>    task:cpuhp/6         state:D stack:0     pid:439   tgid:439   ppid:2      flags:0x00004000
+>    Call Trace:
+>     <TASK>
+>     __schedule+0x79d/0x15c0
+>     ? lockdep_hardirqs_on_prepare+0x152/0x210
+>     ? kvm_sched_clock_read+0xd/0x20
+>     ? local_clock_noinstr+0x28/0xb0
+>     ? local_clock+0x11/0x30
+>     ? lock_release+0x122/0x4a0
+>     schedule+0x3d/0xb0
+>     schedule_timeout+0x88/0xf0
+>     ? __pfx_process_timeout+0x10/0x10d
+>     msleep+0x28/0x40
+>     blk_mq_hctx_notify_offline+0x1b5/0x200
+>     ? cpuhp_thread_fun+0x41/0x1f0
+>     cpuhp_invoke_callback+0x27e/0x780
+>     ? __pfx_blk_mq_hctx_notify_offline+0x10/0x10
+>     ? cpuhp_thread_fun+0x42/0x1f0
+>     cpuhp_thread_fun+0x178/0x1f0
+>     smpboot_thread_fn+0x12e/0x1c0
+>     ? __pfx_smpboot_thread_fn+0x10/0x10
+>     kthread+0xe8/0x110
+>     ? __pfx_kthread+0x10/0x10
+>     ret_from_fork+0x33/0x40
+>     ? __pfx_kthread+0x10/0x10
+>     ret_from_fork_asm+0x1a/0x30
+>     </TASK>
+> 
+> I don't think this is a new problem this code introduces. This problem
+> exists for any hardware context which has more than one CPU. As far I
+> understand it, the problem is that there is no forward progress possible
+> for the IO itself (I assume the corresponding resources for the CPU
+
+When blk_mq_hctx_notify_offline() is running, the current CPU isn't
+offline yet, and the hctx is active, same with the managed irq, so it is fine
+to wait until all in-flight IOs originated from this hctx completed there.
+
+The reason is why these requests can't be completed? And the forward
+progress is provided by blk-mq. And these requests are very likely
+allocated & submitted from CPU6.
+
+Can you figure out what is effective mask for irq of hctx2?  It is
+supposed to be cpu6. And block debugfs for vda should provide helpful
+hint.
+
+> going offline have already been shutdown, thus no progress?) and
+> blk_mq_hctx_notifiy_offline isn't doing anything in this scenario.
+
+RH has internal cpu hotplug stress test, but not see such report so far.
+
+I will try to setup such kind of setting and see if it can be
+reproduced.
+
+> 
+> Couldn't we do something like:
+
+I usually won't thinking about any solution until root-cause is figured
+out, :-)
  
- 	if (!__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
--		dev_err(&vdev->dev, "device uses modern interface "
--			"but does not have VIRTIO_F_VERSION_1\n");
-+		dev_err(&vdev->dev,
-+			"device uses modern interface but does not have VIRTIO_F_VERSION_1\n");
- 		return -EINVAL;
- 	}
- 
--- 
-2.25.1
+
+Thanks, 
+Ming
 
