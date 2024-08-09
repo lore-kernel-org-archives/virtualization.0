@@ -1,264 +1,312 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF0081745
-	for <virtualization@lists.linux-foundation.org>; Thu,  8 Aug 2024 18:04:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723140253; cv=fail; b=RnyWJkpUTouA42ADeUjso4QdJmwynUnFHuoOkOXjCOuFr+XLn585J0CQOe84f7cmxRb5FvFhqjG/jWsdxu0QPn8nQCFX1Zw89hpSmdbj69pUnpY+VHBqCAblx6+Viibn4vIcJM7ClxUlXKPhYD0QpCGnwb5pHAuy6s0w7ZZSqYo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723140253; c=relaxed/simple;
-	bh=jQ3fKatCzq+uPRe0HREy5tqQoAW7E+za+3pluq/xP5E=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ShhWVWPkOhLuBfVmf6pzV8pryiVF2XsDpsZkEQSZwqPId0tbUyqKUxtcbXpUMvFWXR5D/xe6GZJC/dEAQT/fAdxoQaOcvpcQiUYWKGdoMoTxhf8bKP9ZD+O42DzxLQ9J7hBhZAc/NOxURF1L6dpn/CNKCLym+5sOfb7zNrFqdQk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qSd5i5VD; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76F1F17107D
+	for <virtualization@lists.linux.dev>; Fri,  9 Aug 2024 07:22:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723188136; cv=none; b=Wxfm0OcdYalEnscJng0SYS9KZE6RcLi+/YGU60/VZ3RYHRxEGs2Wtzcapx96RVVXvwMJ4+Rab6CyiQ/cqbfIDSkJGOegz3cL0MjMS2OthSkNJD9uHv+4Ab/Sm0enDZyrg+mDp06ZKObL2sPkwMENc8kSilQ8TYhpq6EeKRwfZT4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723188136; c=relaxed/simple;
+	bh=gYlIP+lBGZf9p56OPaappGgP1Xv0GKlrY9dqQFRES04=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aT8Y8NUpAUzuKv8i6xxlvmTANFjudqyHEMwGrJDCV1uTpxpqymqCDn7w1AUwZFnP6YCfep/Kdeo1eJxkJF/GrjV+rHk76BfTI8gO1Sr3GZnIemOIuTIt3LGgUDYrU7L6qaQHA5gRiak6Nx7lzB9Mk/odZ8JYqsch27amym38WWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qRBJYlZP; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=NTTbxdNS; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qRBJYlZP; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=NTTbxdNS; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qSd5i5VD"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 73BB781EB5
-	for <virtualization@lists.linux-foundation.org>; Thu,  8 Aug 2024 18:04:11 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id bZWoK32dYgRb for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Aug 2024 18:04:10 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f400:7e88::600; helo=nam10-dm6-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 4C0D481EAC
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C0D481EAC
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=qSd5i5VD
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20600.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::600])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4C0D481EAC
-	for <virtualization@lists.linux-foundation.org>; Thu,  8 Aug 2024 18:04:09 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=hLkHI31lpN8OwOXtntnI2xRNrRXgFYPB4p4AQMFfYPOs0muH/582XV22Q2S8dd7bElEo8CK8SCvj3ea9t0d9sVfHqXC8e0SZSwdgt9cAYFMY1kk1LwvbI/cRQ4eftPA+FZscJuogTUgNy/JkrksmEN/lHi0jW/+fgxo6L4/mh8ySKnyjmmJK+odLz/hem2x4MzcgdP8bVFTUDIGc77zJy/mHfGAcobj3nBbZ20bbVTW++hmIt5RxTW1s+Cbh0U436ENUyjQAPc3MpWra4+OIrFNhhxueZ/ujo+b6UoU6uQizp9g87PZjmTV5tdydfPio1pVjr4QN7Pe5Zc1zwv7vaA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tdAofM7MDhUZ88cazV58UNzk4XAlj1fswhTBg2wBm7c=;
- b=Y9HMPWb2L1e3/IZjLhKPRo1sbW6LCZUJjg2c8UilJx6Llg12ZRyj5IwpPFA5B4yo26MrZZcBUSxGBzX8maAb13jv5o/6G88wmaBAtPmfXGjYjBI1UFz77r10pgWIskJzz0M9VgS5WkFEoFRPlihVGgtkZ1vB5LZVBm65RV6G6N4SZAa2AewH5xKW1RFH5mpI1opb1AxbBfdjOGvgwOrDOQqrekPNtOC+uXRBAJpsdWwB1TttWIhfJ08FbTtOF1c2QV0FNAWX5ZLnzdaCJsejuqyXKceg/l6jdCJu8ilcLExmbhTBkhuNe07ulbwBRjyDHQg497smMfL0LUExex++vQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tdAofM7MDhUZ88cazV58UNzk4XAlj1fswhTBg2wBm7c=;
- b=qSd5i5VDs6g72mzS+giJTYq/qzBp4KmjmHIkJai7S02JUvVDgcwMVEeqhjyQ9qT3mP9hFRngaIdLbEdVuQhfS2PzZ2QXkniX+R06r/m9ii8P+Rt0s0VSZ8OZ1uM5gzoQop1GIGtPirfDgqD4p/UbPtt7pvJMMmDamiDfvR4vT3aR6MbhDP9VIemC2u1HBRX1FfZJJDY33HVEsUkEb6hDJ7nI06oYYrBcfbxP/A8OTnkOOkVV9RB6DxGvDyYHcMfaOy3UWM9uqAdDWF0xOgNqLDmXi2l+DtO+JyViRLERXFdPjxn+KfYN+108I+ZXyOpUM8VFf+y9OlY6oNVTWwerng==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
- by CY8PR12MB8068.namprd12.prod.outlook.com (2603:10b6:930:75::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7828.21; Thu, 8 Aug
- 2024 18:04:06 +0000
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4%7]) with mapi id 15.20.7849.008; Thu, 8 Aug 2024
- 18:04:06 +0000
-Message-ID: <9da68127-23d8-48a4-b56f-a3ff54fa213c@nvidia.com>
-Date: Thu, 8 Aug 2024 20:04:01 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] vhost_vdpa: assign irq bypass producer token
- correctly
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com
-Cc: lingshan.zhu@intel.com, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240808082044.11356-1-jasowang@redhat.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <20240808082044.11356-1-jasowang@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR4P281CA0258.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:e8::12) To CY8PR12MB8297.namprd12.prod.outlook.com
- (2603:10b6:930:79::18)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qRBJYlZP";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="NTTbxdNS";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qRBJYlZP";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="NTTbxdNS"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 9170B21EB4;
+	Fri,  9 Aug 2024 07:22:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1723188132; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ahmUJlG6cvn11dfUj1+gsMh+RJ6l5CH2DKkmdQtjC1M=;
+	b=qRBJYlZP10SZWLOuW224PwXJnb9NdkAwHqyzI4zJIbxa7x82Kn5LIRVQo6gYVBZJq/fRhb
+	jWCfop6Rgz7eKAjnPVkWyPujE5f1ZWPn/Td/6U1/1QIQrXNw7NV1SxMc0TZBIg/oh8VFE+
+	GigUI+02Aw/lncykX5e1s4atPk9xdak=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1723188132;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ahmUJlG6cvn11dfUj1+gsMh+RJ6l5CH2DKkmdQtjC1M=;
+	b=NTTbxdNSv22I/uNcvvM5kXc2YMty5QSKzyvVojSy9LCXC0bfiOUc+vbfTpPux/FGx2cW/V
+	7qqDBipp3r8IDEAA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1723188132; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ahmUJlG6cvn11dfUj1+gsMh+RJ6l5CH2DKkmdQtjC1M=;
+	b=qRBJYlZP10SZWLOuW224PwXJnb9NdkAwHqyzI4zJIbxa7x82Kn5LIRVQo6gYVBZJq/fRhb
+	jWCfop6Rgz7eKAjnPVkWyPujE5f1ZWPn/Td/6U1/1QIQrXNw7NV1SxMc0TZBIg/oh8VFE+
+	GigUI+02Aw/lncykX5e1s4atPk9xdak=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1723188132;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ahmUJlG6cvn11dfUj1+gsMh+RJ6l5CH2DKkmdQtjC1M=;
+	b=NTTbxdNSv22I/uNcvvM5kXc2YMty5QSKzyvVojSy9LCXC0bfiOUc+vbfTpPux/FGx2cW/V
+	7qqDBipp3r8IDEAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 77DA513A7D;
+	Fri,  9 Aug 2024 07:22:12 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 5Yc7HaTDtWbgEAAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Fri, 09 Aug 2024 07:22:12 +0000
+Date: Fri, 9 Aug 2024 09:22:11 +0200
+From: Daniel Wagner <dwagner@suse.de>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>, 
+	Sagi Grimberg <sagi@grimberg.me>, Thomas Gleixner <tglx@linutronix.de>, 
+	Christoph Hellwig <hch@lst.de>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	John Garry <john.g.garry@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Kashyap Desai <kashyap.desai@broadcom.com>, 
+	Sumit Saxena <sumit.saxena@broadcom.com>, Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, 
+	Chandrakanth patil <chandrakanth.patil@broadcom.com>, Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>, 
+	Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>, Nilesh Javali <njavali@marvell.com>, 
+	GR-QLogic-Storage-Upstream@marvell.com, Jonathan Corbet <corbet@lwn.net>, 
+	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
+	Sridhar Balaraman <sbalaraman@parallelwireless.com>, "brookxu.cn" <brookxu.cn@gmail.com>, 
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	linux-scsi@vger.kernel.org, virtualization@lists.linux.dev, megaraidlinux.pdl@broadcom.com, 
+	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com, 
+	linux-doc@vger.kernel.org
+Subject: Re: [PATCH v3 15/15] blk-mq: use hk cpus only when isolcpus=io_queue
+ is enabled
+Message-ID: <856091db-431f-48f5-9daa-38c292a6bbd2@flourine.local>
+References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
+ <20240806-isolcpus-io-queues-v3-15-da0eecfeaf8b@suse.de>
+ <ZrI5TcaAU82avPZn@fedora>
+ <253ec223-98e1-4e7e-b138-0a83ea1a7b0e@flourine.local>
+ <ZrRXEUko5EwKJaaP@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|CY8PR12MB8068:EE_
-X-MS-Office365-Filtering-Correlation-Id: 466513d3-cba6-4943-e254-08dcb7d47e8d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?alMyVEpDc0tUdEtIdy9nRHR2em1nQ3p3ajRyaEVDK2lDTE4yOStob2VadXcw?=
- =?utf-8?B?MXlEckpRWFljYjVBQlJkYUNzWkFER1cycnFSRTZvdjNmMTdoTzlJVnhBV1RD?=
- =?utf-8?B?QzlTL3hlREoxRW1MUkZISXlYUFE0a0NqaXpCWXQxem9KUlNDRVBpaFQ2MEo2?=
- =?utf-8?B?NDRGdnMyb0Vrbi9jWGNTZHBWL2JqT3FnUXlTTEM5NklwWTNEVkNFcy9nTGdP?=
- =?utf-8?B?QUsrL3RabnIxTG14ZldDNnpvSnJoQjRNNDdEeDRvVk80K29qQnpxTkhyUzVo?=
- =?utf-8?B?ME0vUzFrSzgxNXorZG8zQ1dWNXB3QnlhTlBHS0xlSllUYmdRVjd0MG16cFBh?=
- =?utf-8?B?elIzSWpWRVJrNVpKSkRwYjdwMmF1cTRCV2NpWnZqU1dCblJydmNjdjAvQkJx?=
- =?utf-8?B?S2JnQ1JpNnhaa1Z6eWQ0RXgxbU1GTDZBSWlnMHpXODlTRGo3ME5VcHRDdUJa?=
- =?utf-8?B?L0NIblp2bUJ1TGdUL1FzeTdBSk50dXg0bmExK0ZpTEgzb2RQNzJycWtjTnFU?=
- =?utf-8?B?R0Z0UkVSQnlCb0VLbU9lQmVKN3hLcnZRaW1uT3BYR0tjUys2aGlTM0c2YkNv?=
- =?utf-8?B?ZEdPSDZBMk96NDB1ZXNENTc4RHdDUTFjNjl4V0JkVDZUMXRVd1kvQWdFZEdG?=
- =?utf-8?B?amdMemxSbVdmdzNOdmFWSDlPTVUvMHlPSVk1TkFFbDRGOGxEazhVU3RaSjVy?=
- =?utf-8?B?WlhQdzRLVjBUdzFDOVBNWVp0WDVrMzlKT2p2MlhZMzBHVEJlSnlSNVFCaGVL?=
- =?utf-8?B?ZTFyWDR4VFhmcmJITkNYM3JPcU1BdlhkTG0xelFuZkJkKzlCdDh0OXU5S3Rp?=
- =?utf-8?B?dEVZUCtmMzRhZFJrejZpa2NmOG9tLy9yOXlrcjBmZkJheTN5VEN3c2xTbVZi?=
- =?utf-8?B?MXFUcTBtb3ZJaDY2cGtVK0J0cjZKRytyOFZacGxLbUUrbHhpZHgyT1FvMHFa?=
- =?utf-8?B?cGpzVVoxb0lrcVVId3I4S0RNRlN6VEJGNDFhTWI1dHp2bUtFZHlsUEVTT1BW?=
- =?utf-8?B?YmEydk9oV1owdHZQUy84ZVo4aWNCQ3kxSWgrbGszVDNSNVNVNFZFbHNiTk1E?=
- =?utf-8?B?NStaN3lGMnJRc2hCMHFjOVpFeU1peXY0Tm5xcFVSSzRjR2o4aFhNVkpzZDQ1?=
- =?utf-8?B?c1NOQmR1cFVURmxvY21odTV6SUErK1BPRzZkTnJCTUd1cjBkTEhOL0t5WjBk?=
- =?utf-8?B?eVA0S1ovWUx2eVdHKzFIWjJ5eFY3OFhsd1Z1a1JoTUFzS2IxTmtNbkx0Nmg4?=
- =?utf-8?B?ZkF1VmNTWkZDVUtjUkVCZWhzNFMzYWRhZk1NZzU4RWFXMlJGbnd1Y1F0b1U4?=
- =?utf-8?B?UDR1aERuUkpxcVZnN21vc3ZlSzZ6eVc1d0oyaUVySEpIRnJQQmEzcWJHMVRW?=
- =?utf-8?B?dSthWFQxeS92bU9lcDZ3all4YTJOdmxnRDlQZG5ydE40eHBLeHhxaUtEL1oy?=
- =?utf-8?B?SllqeVV5bEpoR0VqczZNS3ZMOWxOYmd1NGszcC8yZGRoZjAzc0hMV3crZkdn?=
- =?utf-8?B?Nlp3dUlxS0FMeU1vMndmb2k2aXdxTVZiSU9RdHRLUmYza0s2Vkk2V3BubUFq?=
- =?utf-8?B?M3dQSnNwNkFoU0lPNHpqVTN5NVlwTmJNczZ1NmgrSzF4cllJdEFhN2NLd3N5?=
- =?utf-8?B?YmtYMUhGYVVtbU9ZODhFVExKTUo2TGlRdHIxZ25kSUtSb2dqdGhtSFdiTjlK?=
- =?utf-8?B?VEJYN1N2OCs4RW5ML0ZTVzdDTkI2WDBGcFUvZmVLbUhwMVJDNGpDWkJNa3lU?=
- =?utf-8?B?bmJFc2RYZ25TZjQyK2dnWElpVlpsbkxidzY2M3pyYnkrbGRJMXg2UGt3VHpI?=
- =?utf-8?B?dFZPNU9IM3E2b3I3Z1pmdz09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?cGVXazJlc0hSTm55bExGQS9SeHpxYXNodTZVNXFYNHpwOVNNako2dE8ybkdz?=
- =?utf-8?B?WkVZV1V0QXYrT3NEazFNWWtlNGprT20wT0wvZTcxdW8vcnZMY09Ba09rbTU2?=
- =?utf-8?B?LzE4OTlwMXZaR24zdXo0Ymd6VDY4cFFKK0gxRDdReEM1MFZPMTlsSHo1UnJC?=
- =?utf-8?B?ZEhJc0VkZGsyOUtteTA5WktNd3o4WjBTWkJtcThyY3RCM2FqS1JNWTJxdGMy?=
- =?utf-8?B?Sjd4NEdUdG5XLzF4QWFPNTZDK21aSmQvR01OTy9JeGRjNTM3THkwNWc1Q0JU?=
- =?utf-8?B?NmNBdjBXMFJXRkl3ZzlOV3IxTVppWndqTHBkTC9xNmx2bjJvZnRxQnBHNzNh?=
- =?utf-8?B?b0pOTjkzQVpVUmpBRkVZSC9OemQ3bk40WkIvaXFkZWRRWkwyS2JhOXZtOFdG?=
- =?utf-8?B?enZKdm1hdHZaU0ZSZUt3TzVnR3J5ZG0xUzlDZDYySSszT3lsZVFCSUp6WFJS?=
- =?utf-8?B?VW9KNTdGSEpEUmpWSEE0QXpqMWNrb21kNjEwelFtVlJjdEJiODBmVHpreWhN?=
- =?utf-8?B?SmszOS9NelhQa2d1QW1Cd29udVE3cTN1VmpyajltbVo0YkZlRzE0aXlpUGtG?=
- =?utf-8?B?R1Zkb2dwRSt1dEFQcTdNUkZaMEhFS3pPelpPTUVDMk1VSlFEN0hwaTBmd281?=
- =?utf-8?B?Nm11T2JWV0o3Q1NsZ1A5YlY5eUZBeUlxRjFnZ3B4WjYxaFVPVlRYMGhGMmNC?=
- =?utf-8?B?MDNzN0l2NjdvTGlwanZNRWRINnhlWXJtcmd0M21BTzVxRzRJaWhTcjFPOGtL?=
- =?utf-8?B?SnpWNXZzd28vYWdKS1RzVHJObi9UYTgwd01ieG5WTmVnTkZIcGNJSTRUNUQ0?=
- =?utf-8?B?eDlEUFdGZEtnOWJWejgxblB4Z0hYaFlIRG9QYzVoZFZYUG5jbW5udlRUbTZ2?=
- =?utf-8?B?b0dEMlFJK2Fycm5oNVJqUEJVZDd5NllQSWJ1YlZrRFo1cndqdnMxaWRXSHdM?=
- =?utf-8?B?SkF5ckt3VzcwVWpXUk5wRHFwWEMwMGt3ZkxlRG9jajFzVFNneEJEMldSMGk0?=
- =?utf-8?B?Q2M0V0tRbm9ZUysrT2JOY3hKZWRwaXU3dTVFWS8yR1ZERTFzdHlhbExUSGhh?=
- =?utf-8?B?VFNNenlWWjFtYm43YytXQnFZZ3hadUJ4UkJzMzNOVUJSSlRsRXd2UHpHdk9W?=
- =?utf-8?B?eGxSbzJxaEQ3RmNaVWFsVURWNzJNUFlnZEx5WFBoKzZrRnh4QlNqTldiWmI4?=
- =?utf-8?B?ci8zSW1tYVozVkdKVDIreWtHWnkzQk9CalVMbjFPdTZrS3EzS0huakNrbFJk?=
- =?utf-8?B?Vzc4N3cyc3ZmZlZYRlVJV0ZBL3YzYW5ReVdhTXdmaWRleUhMdjBQV1ZEbVZm?=
- =?utf-8?B?ajNlV1NLQU1zMEwvb1AxRWlMcnZRZDAyZ1FNc3FUNHpUR0lLcmhya1lTUTRU?=
- =?utf-8?B?L1BmOS9GMUVCMlE0bnBtL3lTbWlWbXhUWmwyMUpXY2lkZzNucWluNUNrNlVx?=
- =?utf-8?B?Ui9PQjJUcnNrZkYyTS9CVjduajlyMmJCZEp3RExSbWtlWWpOSjZ1UDh3dVda?=
- =?utf-8?B?M0RWeTh2WXF3cGIyN1NHZmtLNWZDMFBkeWZFTC9SYkN1WUFYMUQ4b1puL3Nj?=
- =?utf-8?B?NTIreElIcDU3QXlRQmJaWVNhSEQ0alV3RDQ3Z0Z2VG1nVUdxRnQ4MktvMkVj?=
- =?utf-8?B?VVpGNmlCQnJtQ0c2MTZXekpCZFk3dGE5RDFpVjlxdkc2cU81aGhnTzZldHI1?=
- =?utf-8?B?S3hkTkxySjE5ZDdOcUlGWnJGUE1qZmlwMTdRdWpuamRQSk9XT3pOK1NmcUVR?=
- =?utf-8?B?SlgwMHM2OVBYY3VNNFYzdFV2ZVJyMG9ERld3TElvSHBXU045R25JY08xWGdU?=
- =?utf-8?B?WFNYdEJZNmVvQ0kwL09ENGlUSkF2dHR5MEU0R3lqdzhOb2ZlV3lEeDBkeGVM?=
- =?utf-8?B?YTMyTTVoaUNDSnJOU3EzKzZsUTRQQ3E4dG0zNElRbU5UVmM3ZXhkbXB6QmVs?=
- =?utf-8?B?YlFYbEpMVTVJVTRCblVubDQ5cXFabXFzOWNkZ0laelRkLy8yaVU3K01KOG5W?=
- =?utf-8?B?NmVKVDBGRVdxSkhDVVlPOTliRFJjQXhtenNBaVdFMEJCTis3VnNtRE1CWG5k?=
- =?utf-8?B?Tm55dU5SVEc3NUlxZEY0bmFmTVY3cDc1bWxMbm1FZlQzSnJ4dUo5RkNDbWFj?=
- =?utf-8?Q?31BBQMrp8xpilaIpCE5tbxXHP?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 466513d3-cba6-4943-e254-08dcb7d47e8d
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Aug 2024 18:04:06.7469
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: TwePpbGz4/1M5Dk68HrMHKT/yJwcxO9hwwvC4OJFCAfWXS/VR7vc/0PPIjS9TUIwtDg50FMhpAuyCOxWMehY4Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB8068
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZrRXEUko5EwKJaaP@fedora>
+X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[34];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.dk,kernel.org,grimberg.me,linutronix.de,lst.de,oracle.com,redhat.com,broadcom.com,marvell.com,lwn.net,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,lists.linux.dev,microchip.com];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Level: 
 
+On Thu, Aug 08, 2024 at 01:26:41PM GMT, Ming Lei wrote:
+> Isolated CPUs are removed from queue mapping in this patchset, when someone
+> submit IOs from the isolated CPU, what is the correct hctx used for handling
+> these IOs?
 
+No, every possible CPU gets a mapping. What this patch series does, is
+to limit/aligns the number of hardware context to the number of
+housekeeping CPUs. There is still a complete ctx-hctc mapping. So
+whenever an user thread on an isolated CPU is issuing an IO a
+housekeeping CPU will also be involved (with the additional overhead,
+which seems to be okay for these users).
 
-On 08.08.24 10:20, Jason Wang wrote:
-> We used to call irq_bypass_unregister_producer() in
-> vhost_vdpa_setup_vq_irq() which is problematic as we don't know if the
-> token pointer is still valid or not.
+Without hardware queue on the isolated CPUs ensures we really never get
+any unexpected IO on those CPUs unless userspace does it own its own.
+It's a safety net.
+
+Just to illustrate it, the non isolcpus configuration (default) map
+for an 8 CPU setup:
+
+queue mapping for /dev/vda
+        hctx0: default 0
+        hctx1: default 1
+        hctx2: default 2
+        hctx3: default 3
+        hctx4: default 4
+        hctx5: default 5
+        hctx6: default 6
+        hctx7: default 7
+
+and with isolcpus=io_queue,2-3,6-7
+
+queue mapping for /dev/vda
+        hctx0: default 0 2
+        hctx1: default 1 3
+        hctx2: default 4 6
+        hctx3: default 5 7
+
+> From current implementation, it depends on implied zero filled
+> tag_set->map[type].mq_map[isolated_cpu], so hctx 0 is used.
 > 
-> Actually, we use the eventfd_ctx as the token so the life cycle of the
-> token should be bound to the VHOST_SET_VRING_CALL instead of
-> vhost_vdpa_setup_vq_irq() which could be called by set_status().
+> During CPU offline, in blk_mq_hctx_notify_offline(),
+> blk_mq_hctx_has_online_cpu() returns true even though the last cpu in
+> hctx 0 is offline because isolated cpus join hctx 0 unexpectedly, so IOs in
+> hctx 0 won't be drained.
 > 
-> Fixing this by setting up  irq bypass producer's token when handling
-> VHOST_SET_VRING_CALL and un-registering the producer before calling
-> vhost_vring_ioctl() to prevent a possible use after free as eventfd
-> could have been released in vhost_vring_ioctl().
-> 
-> Fixes: 2cf1ba9a4d15 ("vhost_vdpa: implement IRQ offloading in vhost_vdpa")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Note for Dragos: Please check whether this fixes your issue. I
-> slightly test it with vp_vdpa in L2.
-> ---
->  drivers/vhost/vdpa.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index e31ec9ebc4ce..388226a48bcc 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -209,11 +209,9 @@ static void vhost_vdpa_setup_vq_irq(struct vhost_vdpa *v, u16 qid)
->  	if (irq < 0)
->  		return;
->  
-> -	irq_bypass_unregister_producer(&vq->call_ctx.producer);
->  	if (!vq->call_ctx.ctx)
->  		return;
->  
-> -	vq->call_ctx.producer.token = vq->call_ctx.ctx;
->  	vq->call_ctx.producer.irq = irq;
->  	ret = irq_bypass_register_producer(&vq->call_ctx.producer);
->  	if (unlikely(ret))
-> @@ -709,6 +707,12 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->  			vq->last_avail_idx = vq_state.split.avail_index;
->  		}
->  		break;
-> +	case VHOST_SET_VRING_CALL:
-> +		if (vq->call_ctx.ctx) {
-> +			vhost_vdpa_unsetup_vq_irq(v, idx);
-> +			vq->call_ctx.producer.token = NULL;
-> +		}
-> +		break;
->  	}
->  
->  	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
-> @@ -747,13 +751,14 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->  			cb.callback = vhost_vdpa_virtqueue_cb;
->  			cb.private = vq;
->  			cb.trigger = vq->call_ctx.ctx;
-> +			vq->call_ctx.producer.token = vq->call_ctx.ctx;
-> +			vhost_vdpa_setup_vq_irq(v, idx);
->  		} else {
->  			cb.callback = NULL;
->  			cb.private = NULL;
->  			cb.trigger = NULL;
->  		}
->  		ops->set_vq_cb(vdpa, idx, &cb);
-> -		vhost_vdpa_setup_vq_irq(v, idx);
->  		break;
->  
->  	case VHOST_SET_VRING_NUM:
-> @@ -1419,6 +1424,7 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
->  	for (i = 0; i < nvqs; i++) {
->  		vqs[i] = &v->vqs[i];
->  		vqs[i]->handle_kick = handle_vq_kick;
-> +		vqs[i]->call_ctx.ctx = NULL;
->  	}
->  	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0, false,
->  		       vhost_vdpa_process_iotlb_msg);
+> However managed irq core code still shutdowns the hw queue's irq because all
+> CPUs in this hctx are offline now. Then IO hang is triggered, isn't
+> it?
 
-No more crashes, but now getting a lot of:
- vhost-vdpa-X: vq Y, irq bypass producer (token 00000000a66e28ab) registration fails, ret =  -16
+Thanks for the explanation. I was able to reproduce this scenario, that
+is a hardware context with two CPUs which go offline. Initially, I used
+fio for creating the workload but this never hit the hanger. Instead
+some background workload from systemd-journald is pretty reliable to
+trigger the hanger you describe.
 
-... seems like the irq_bypass_unregister_producer() that was removed
-might still be needed somewhere?
+Example:
 
-Thanks,
-Dragos
+  hctx2: default 4 6
 
+CPU 0 stays online, CPU 1-5 are offline. CPU 6 is offlined:
+
+  smpboot: CPU 5 is now offline
+  blk_mq_hctx_has_online_cpu:3537 hctx3 offline
+  blk_mq_hctx_has_online_cpu:3537 hctx2 offline
+
+and there is no forward progress anymore, the cpuhotplug state machine
+is blocked and an IO is hanging:
+
+  # grep busy /sys/kernel/debug/block/*/hctx*/tags | grep -v busy=0
+  /sys/kernel/debug/block/vda/hctx2/tags:busy=61
+
+and blk_mq_hctx_notify_offline busy loops forever:
+
+   task:cpuhp/6         state:D stack:0     pid:439   tgid:439   ppid:2      flags:0x00004000
+   Call Trace:
+    <TASK>
+    __schedule+0x79d/0x15c0
+    ? lockdep_hardirqs_on_prepare+0x152/0x210
+    ? kvm_sched_clock_read+0xd/0x20
+    ? local_clock_noinstr+0x28/0xb0
+    ? local_clock+0x11/0x30
+    ? lock_release+0x122/0x4a0
+    schedule+0x3d/0xb0
+    schedule_timeout+0x88/0xf0
+    ? __pfx_process_timeout+0x10/0x10d
+    msleep+0x28/0x40
+    blk_mq_hctx_notify_offline+0x1b5/0x200
+    ? cpuhp_thread_fun+0x41/0x1f0
+    cpuhp_invoke_callback+0x27e/0x780
+    ? __pfx_blk_mq_hctx_notify_offline+0x10/0x10
+    ? cpuhp_thread_fun+0x42/0x1f0
+    cpuhp_thread_fun+0x178/0x1f0
+    smpboot_thread_fn+0x12e/0x1c0
+    ? __pfx_smpboot_thread_fn+0x10/0x10
+    kthread+0xe8/0x110
+    ? __pfx_kthread+0x10/0x10
+    ret_from_fork+0x33/0x40
+    ? __pfx_kthread+0x10/0x10
+    ret_from_fork_asm+0x1a/0x30
+    </TASK>
+
+I don't think this is a new problem this code introduces. This problem
+exists for any hardware context which has more than one CPU. As far I
+understand it, the problem is that there is no forward progress possible
+for the IO itself (I assume the corresponding resources for the CPU
+going offline have already been shutdown, thus no progress?) and
+blk_mq_hctx_notifiy_offline isn't doing anything in this scenario.
+
+Couldn't we do something like:
+
++static bool blk_mq_hctx_timeout_rq(struct request *rq, void *data)
++{
++       blk_mq_rq_timed_out(rq);
++       return true;
++}
++
++static void blk_mq_hctx_timeout_rqs(struct blk_mq_hw_ctx *hctx)
++{
++       struct blk_mq_tags *tags = hctx->sched_tags ?
++                       hctx->sched_tags : hctx->tags;
++       blk_mq_all_tag_iter(tags, blk_mq_hctx_timeout_rq, NULL);
++}
++
++
+ static int blk_mq_hctx_notify_offline(unsigned int cpu, struct hlist_node *node)
+ {
+        struct blk_mq_hw_ctx *hctx = hlist_entry_safe(node,
+                        struct blk_mq_hw_ctx, cpuhp_online);
++       int i;
+
+        if (blk_mq_hctx_has_online_cpu(hctx, cpu))
+                return 0;
+@@ -3551,9 +3589,16 @@ static int blk_mq_hctx_notify_offline(unsigned int cpu, struct hlist_node *node)
+         * requests.  If we could not grab a reference the queue has been
+         * frozen and there are no requests.
+         */
++       i = 0;
+        if (percpu_ref_tryget(&hctx->queue->q_usage_counter)) {
+-               while (blk_mq_hctx_has_requests(hctx))
++               while (blk_mq_hctx_has_requests(hctx) && i++ < 10)
+                        msleep(5);
++               if (blk_mq_hctx_has_requests(hctx)) {
++                       pr_info("%s:%d hctx %d force timeout request\n",
++                               __func__, __LINE__, hctx->queue_num);
++                       blk_mq_hctx_timeout_rqs(hctx);
++               }
++
+
+This guarantees forward progress and it worked in my test scenario, got
+the corresponding log entries
+
+  blk_mq_hctx_notify_offline:3598 hctx 2 force timeout request
+
+and the hotplug state machine continued. Didn't see an IO error either,
+but I haven't looked closely, this is just a POC.
+
+BTW, when looking at the tag allocator, I didn't see any hctx state
+checks for the batched alloction path. Don't we need to check if the
+corresponding hardware context is active there too?
+
+@ -486,6 +487,15 @@ static struct request *__blk_mq_alloc_requests(struct blk_mq_alloc_data *data)
+        if (data->nr_tags > 1) {
+                rq = __blk_mq_alloc_requests_batch(data);
+                if (rq) {
++                       if (unlikely(test_bit(BLK_MQ_S_INACTIVE,
++                                             &data->hctx->state))) {
++                               blk_mq_put_tag(blk_mq_tags_from_data(data),
++                                              rq->mq_ctx, rq->tag);
++                               msleep(3);
++                               goto retry;
++                       }
+                        blk_mq_rq_time_init(rq, alloc_time_ns);
+                        return rq;
+                }
+
+But given this is the hotpath and the hotplug path is very unlikely to
+be used at all, at least for the majority of users, I would suggest to
+try to get blk_mq_hctx_notify_offline to guarantee forward progress?.
+This would make the hotpath an 'if' less.
