@@ -1,22 +1,22 @@
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 131902E3F7
-	for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 09:03:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B79454759
+	for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 09:04:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723453442; cv=none; b=nO+GIy5g+toZnhO6BK7qXEVotqARVHzecggvAAVA2U5TmdWgU2CD3sgn1+EX+B515rmrZsQ9FMG2ImDbMBbigP5xVvLk5yZzpVPrdoJ+ljHTWBMfGPI6YYEkRAlXmY6iXFZcqkWiRC6r6r8JpJHYl0AuThYq3JXl7Q7xKXR4s30=
+	t=1723453456; cv=none; b=DMBKoDUBiASYFD0HCaSgw5mJFs/jSLr99k98YFaOwh8oBQSe0MU8Th47YIBg9qIrF5WmClY4kAtrgqehjuIVMqbXRHA13GyK5phtNTYOCz9UigFnOIIVeM0VxkRyCUqm/zTL48BKQZ/9pN+DSfOa20fSPi/Fb6vw8wasNtdKIGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723453442; c=relaxed/simple;
+	s=arc-20240116; t=1723453456; c=relaxed/simple;
 	bh=M7NmYC/Iylm9myghHwqILim55SAUt9QrM+UZYk0eJlw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oTwwBvaD7gnhiox2KvpYBXHPL3CuDnqsRIk3y/xxkgrkphIHZXNLApU3TiRygCB0K62voNtHnDv7/ZfAZYytBznOoupo+2hk8xA2ybbYKWav0f999faybIzBumyQO8Gdqs9v+7ZtjSPGIKG+Nw+wTkO9W1HquVtXwdGsXnaJNKM=
+	 Content-Type:Content-Disposition:In-Reply-To; b=Fe9BFOtjTzERhws3aVzYWWJFc9cB9AAmEq5Ma+a7zhX91NUFzU3wuwMqSzoA+800nZ6Vy/ToQPrGVaYrZKfDNANiXbdRjQrcWmfL+1V7zLEGnvvaOQ4pZi9/jY3sW/9o/5+LCoM4Iu3msmbCUxKstaa555rae4zkiit/kTR7EQc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
 Received: by verein.lst.de (Postfix, from userid 2407)
-	id ED7FC227A8E; Mon, 12 Aug 2024 11:03:56 +0200 (CEST)
-Date: Mon, 12 Aug 2024 11:03:56 +0200
+	id 4630C227AA8; Mon, 12 Aug 2024 11:04:11 +0200 (CEST)
+Date: Mon, 12 Aug 2024 11:04:10 +0200
 From: Christoph Hellwig <hch@lst.de>
 To: Daniel Wagner <dwagner@suse.de>
 Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
@@ -45,9 +45,10 @@ Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
 	virtualization@lists.linux.dev, megaraidlinux.pdl@broadcom.com,
 	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com,
 	storagedev@microchip.com, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v3 10/15] blk-mq: add number of queue calc helper
-Message-ID: <20240812090356.GB5497@lst.de>
-References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de> <20240806-isolcpus-io-queues-v3-10-da0eecfeaf8b@suse.de>
+Subject: Re: [PATCH v3 11/15] nvme-pci: use block layer helpers to
+ calculate num of queues
+Message-ID: <20240812090410.GC5497@lst.de>
+References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de> <20240806-isolcpus-io-queues-v3-11-da0eecfeaf8b@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,10 +57,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240806-isolcpus-io-queues-v3-10-da0eecfeaf8b@suse.de>
+In-Reply-To: <20240806-isolcpus-io-queues-v3-11-da0eecfeaf8b@suse.de>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 
 Looks good:
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-
