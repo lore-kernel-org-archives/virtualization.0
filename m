@@ -1,239 +1,319 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 864D3183087
-	for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 14:57:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723474658; cv=none; b=MNfx1q1RzxyWTauCPHC1pxXgBQweQQMljMYolVNms7AB6xFnGsSLrvWhbjjN4GKzJ7cnUbyUfJ1KW9379I4rFB/51n8Z+1d8cB1W9cW33O9bwnd/RRHfyudxLsyLFqcv6o3uwZsOqNSCZs8R5v00NouV93EtWpfS0KMm64XaQgA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723474658; c=relaxed/simple;
-	bh=g6PtTwiUKlTHX6ZycttORBJIYtvWhDaalZEdqnPESeM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=lAvmmKFnkbGqpR5YPyzRyLjnYmU+GXdYRV1gYSZ30/RoO/OgL5C1f7QsrKF4KEWZphlEgXeT+QGIK14EdYP4kGLw2+kTN6JAjUiuCaY0AWTYPVt+jvwODU1l/MWG7pRiQ50y3DM+FtzIZegiH2S4N+qizRSBEHGhuxxmlo2f2to=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=i0jUSxi8; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E5F6184554
+	for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 15:32:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723476730; cv=fail; b=bgYyi8Hda4/uEJX8bHGNpn84hoRlB3L7tHgsEirPfZ62Nc9pdEF9IznixWg8FU2WI199EW4WMdfJlY5mkcXodQ+72iF3OmsS9j1FLgSeuNyF6ADqwVaJLW9ycre1P6jg+rTk4RzyrJpogrw/6SLQtNY8s2gbouS3XIlVEqRNYIo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723476730; c=relaxed/simple;
+	bh=bNhg5+agyOtP1kD8hILznj8l4vZuLlMLFp+2jleWgWE=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=KuBI4wkchqCjpg3PmJR5c+VL1avGf7LFmD8GlrY1H71dANz63MrPVZnNDTpua4D2Lh/EJXTj3eifFb7CF9oVvwR1Ms6+g0wzEbS/gjqnJq/8Qp5seoMJH6OUkqyPnrXVUDKpDFsz51ju+ayD+0uRCxaKCvdr0cwmBdL46lTPb4o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=ivhIBd2u; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=VjIDM8Zi; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="i0jUSxi8"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240812145728euoutp02700ef08303f1013663f35ec1ce93e38c~rAw-E3xZq2797827978euoutp02G
-	for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 14:57:28 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240812145728euoutp02700ef08303f1013663f35ec1ce93e38c~rAw-E3xZq2797827978euoutp02G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1723474648;
-	bh=YHpqFJhw08LROWBMtjS2SDqcDJG9wJEsec8d94UkT5U=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=i0jUSxi8eKMS76iV+Jhgbb1uQQ47kJojsIeYM6MIsmg3jeYJp7Qbo9CDRdFIaDv1P
-	 kUBiyJEKi0JHCohqJsBdl9+PdiMpzt6xn6WaYqQkjgQ4Zc24Qua9kAGR76UOlF9Vxd
-	 lXzXJCWPdgNXLA1g/3JVNm8rVJ5rU7PTP4GstQ7A=
-Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
-	20240812145728eucas1p27d6c19a4ac139db2d3903f21dafa3152~rAw_nO_wH1779817798eucas1p2G;
-	Mon, 12 Aug 2024 14:57:28 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-	eusmges1new.samsung.com (EUCPMTA) with SMTP id 4E.7F.09624.7D22AB66; Mon, 12
-	Aug 2024 15:57:27 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14~rAw9-t5f72668426684eucas1p2v;
-	Mon, 12 Aug 2024 14:57:27 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20240812145727eusmtrp194062271b04d9f3055d45a2605056f9f~rAw95nmPx0765207652eusmtrp1N;
-	Mon, 12 Aug 2024 14:57:27 +0000 (GMT)
-X-AuditID: cbfec7f2-bfbff70000002598-dd-66ba22d793cd
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-	eusmgms1.samsung.com (EUCPMTA) with SMTP id 4E.39.08810.7D22AB66; Mon, 12
-	Aug 2024 15:57:27 +0100 (BST)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20240812145725eusmtip28605f6e7a3df78773133dd4b351be62c~rAw7ssL100394203942eusmtip2S;
-	Mon, 12 Aug 2024 14:57:24 +0000 (GMT)
-Message-ID: <cabe5701-6e25-4a15-b711-924034044331@samsung.com>
-Date: Mon, 12 Aug 2024 16:57:24 +0200
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="ivhIBd2u";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="VjIDM8Zi"
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47CEtZCh016214;
+	Mon, 12 Aug 2024 15:31:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
+	message-id:date:subject:to:cc:references:from:in-reply-to
+	:content-type:content-transfer-encoding:mime-version; s=
+	corp-2023-11-20; bh=helsMiJKvns+Qj5t+nfqXmlrSPbn2Sor+HRi0uyPLQ0=; b=
+	ivhIBd2uTOmNXIhuahllFvgj2o0iSN6T7q8aT82Z7j/pwODI7zxZ2gaq0IWRy7+j
+	MiiwLciPo8pn0C/vy5nqahvEtnZrMRnM2nIv/+7q5OhkQyobglGtz/W+n6c+Lwxd
+	BxbpWO/1vdaO49uClKTvtd+YDodGbk57mYjXmvI/AdNwVGEEwlBsE+G9Sk4y/2IW
+	eWA9K7OA0Al+TQ/9fIWmTlnjfAMg9vtOrgNqTEuldTzkjuAyeDBbR6aOu0y3m8jL
+	9vBdGJCugyGaSF4G8qoI+C9CkhzYhSnSFXA6m7TzaB6dpZ/92y+xrl+gBBE8aoRx
+	58Zfc+gyIjD0wDFNSoRp5w==
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 40wy02twre-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 12 Aug 2024 15:31:43 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 47CETaBB000661;
+	Mon, 12 Aug 2024 15:31:42 GMT
+Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2044.outbound.protection.outlook.com [104.47.70.44])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 40wxn791ah-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 12 Aug 2024 15:31:42 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=c2S8nudV9YTckMgGk4le0TVD2bpkHorRdeBbZXEaC/M6gE9/0C/Ax7yu3AGYlewKypMKPGN+SQ9Q2A8ppAfYpzx0OGZp2YcP5EtcrII165s0T1IzirrJLeB3DFYTgkvxcsvvGtfVFfPEjeY+fX/RrnBb40lScsOIPBUOoGHBsLnvGz+crVYBbzcEnNfjWOU/ouAXj377JnMq7T68IX+XdkUpez1CnN+Gy33QHeZ2kAXG3yprKaeESLPMJ182qJxQ4WnN6cQut6RE4NGwzV3uIxZR5loAhaxGF0mGiz9aQeP4IonMMl1u898dxOg5ZKAhrmmjKRokhWFHr6KZZZmJJA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=helsMiJKvns+Qj5t+nfqXmlrSPbn2Sor+HRi0uyPLQ0=;
+ b=iuXMUWkTmJNl3h6Npd0qat27t7cbSDkm1f7uvG5Zcc4NDGfy619zKeA5rOiUHHW5aQJDBVF5ftsqeFTC40O/0UalhPDdGJvLlMPkpq5fLGM/KYweNj6LZcQ1eTHpVcA1VNp9LI5vkqjOk6FKQmoBzdo2NDGdagZaQ4CwKtIntrABbAMaOOhRTdmue2n7lUQplPBE5FtnZkf9ubD9fTfstizFMSNQ5NY2j4s4l2iwL6SXxNs8tP0+wQPeFdJoEedP7H2w5nfJWzrLovtkO2uEwfx5/Qlg0izirs1hK/xdsz+HpgLQWTs/1vAJ0bgeOEgxHABWVX7TEoDWfbj404YuwA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=helsMiJKvns+Qj5t+nfqXmlrSPbn2Sor+HRi0uyPLQ0=;
+ b=VjIDM8Zi4Wwa4uZHTDY/DMdpIqLPr9zO2S4arSYfhrQOcI31Yt1nE2uvxnEGSSJDMS8DiQROAao90WXRS0nvcvo4UIWGFNPTMX4X4+Ikc4EHoVqG0Vp4ZttTi+l1PtChwFGe2snUY1uQXk+qGRqZGUFR5tH7qWXHW/I0GRjNsAM=
+Received: from DM6PR10MB4313.namprd10.prod.outlook.com (2603:10b6:5:212::20)
+ by MN6PR10MB8046.namprd10.prod.outlook.com (2603:10b6:208:4fe::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.15; Mon, 12 Aug
+ 2024 15:31:39 +0000
+Received: from DM6PR10MB4313.namprd10.prod.outlook.com
+ ([fe80::4f45:f4ab:121:e088]) by DM6PR10MB4313.namprd10.prod.outlook.com
+ ([fe80::4f45:f4ab:121:e088%7]) with mapi id 15.20.7875.015; Mon, 12 Aug 2024
+ 15:31:39 +0000
+Message-ID: <038a3990-6ca2-4260-a36e-b5f0c16d8f76@oracle.com>
+Date: Mon, 12 Aug 2024 16:31:32 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 04/15] scsi: replace blk_mq_pci_map_queues with
+ blk_mq_dev_map_queues
+To: Daniel Wagner <dwagner@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
+        Thomas Gleixner <tglx@linutronix.de>, Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Kashyap Desai <kashyap.desai@broadcom.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        GR-QLogic-Storage-Upstream@marvell.com,
+        Jonathan Corbet <corbet@lwn.net>
+Cc: Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>,
+        Hannes Reinecke <hare@suse.de>,
+        Sridhar Balaraman <sbalaraman@parallelwireless.com>,
+        "brookxu.cn" <brookxu.cn@gmail.com>, Ming Lei <ming.lei@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+        virtualization@lists.linux.dev, megaraidlinux.pdl@broadcom.com,
+        mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com,
+        storagedev@microchip.com, linux-doc@vger.kernel.org
+References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
+ <20240806-isolcpus-io-queues-v3-4-da0eecfeaf8b@suse.de>
+Content-Language: en-US
+From: John Garry <john.g.garry@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <20240806-isolcpus-io-queues-v3-4-da0eecfeaf8b@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: AM0PR02CA0153.eurprd02.prod.outlook.com
+ (2603:10a6:20b:28d::20) To DM6PR10MB4313.namprd10.prod.outlook.com
+ (2603:10b6:5:212::20)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3] virtio_net: add support for Byte Queue
- Limits
-To: Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, ast@kernel.org,
-	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
-	dave.taht@gmail.com, kerneljasonxing@gmail.com, hengqi@linux.alibaba.com
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <20240618144456.1688998-1-jiri@resnulli.us>
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrEKsWRmVeSWpSXmKPExsWy7djPc7rXlXalGRzfbmPx5edtdovFC78x
-	W+zZeJLFYs75FhaLp8cesVvsad/ObNF4VdJi2aXPTBYXr6ZbNO1YwWSxe9t0dosL2/pYLf7/
-	esVqcWyBmMW3028YLY5uX8lqca3JwkHQY8vKm0weO2fdZfdYsKnUo+vGJWaPTas62Tx2PrT0
-	eLF5JqPH+31X2Tyu3qz2+LxJLoArissmJTUnsyy1SN8ugSvj09rXrAVXNStaTnYwNTAuVepi
-	5OSQEDCRuL/9L1MXIxeHkMAKRokPW3awQjhfGCUWfF3HDOF8ZpS48GM6C0zLj0lzoFqWM0pM
-	vH0fquUjo8Tl6YvZuxg5OHgF7CSadvuANLAIqErsnT2NCcTmFRCUODnzCdggUQF5ifu3ZrCD
-	2MICARINT9+BxUUELCW+3vsNtplZ4AqTxPnbjWDNzALiEreezAez2QQMJbredrGB2JwCFhKr
-	F69nh6iRl2jeOhusWULgFKfEkdmr2EAOkhBwkZj0NAfiA2GJV8e3sEPYMhKnJ/ewQNS3A/38
-	+z4ThDOBUaLh+S1GiCpriTvnfoENYhbQlFi/Sx8i7ChxdfsCdoj5fBI33gpC3MAnMWnbdGaI
-	MK9ER5sQRLWaxKzj6+DWHrxwiXkCo9IspGCZheTLWUi+mYWwdwEjyypG8dTS4tz01GLDvNRy
-	veLE3OLSvHS95PzcTYzAZHj63/FPOxjnvvqod4iRiYPxEKMEB7OSCO/qlzvThHhTEiurUovy
-	44tKc1KLDzFKc7AoifOqpsinCgmkJ5akZqemFqQWwWSZODilGphUlueFr/i1s/Z/bACbi9La
-	c9eTFGqkhe8vOih6z2Wq9x2fU8X8rjnnl/3PaNzuFm0TMklM2+wU57w1ca8KFpyYNnfy5aUX
-	7z18cFf6yLWnGlGhB4OfBT3f2dvQwxwh/9UzhKlrl6Ir+5wTn/RiUuuT3H7+Z9aWuBr1tEn5
-	s0BU84xMhw3d7jvmrVaJyjU6tm3VncNBm34UR9g+CN/xtW/57DdflfNDt009vjS/bOvyvAMr
-	/n1x2XI68OrBWU589g/LZ4fy3p477WBzlGLYnGLhCysOSGYEKd+tmXJxbt+pu9wlG7I2Hrpx
-	7nT4TNdogeZjmvsENNazG6Z+Xqv48q7jNJ+5rTwekRtmVxvdN3dZrMRSnJFoqMVcVJwIADv8
-	CMP1AwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrCIsWRmVeSWpSXmKPExsVy+t/xe7rXlXalGfxbxmvx5edtdovFC78x
-	W+zZeJLFYs75FhaLp8cesVvsad/ObNF4VdJi2aXPTBYXr6ZbNO1YwWSxe9t0dosL2/pYLf7/
-	esVqcWyBmMW3028YLY5uX8lqca3JwkHQY8vKm0weO2fdZfdYsKnUo+vGJWaPTas62Tx2PrT0
-	eLF5JqPH+31X2Tyu3qz2+LxJLoArSs+mKL+0JFUhI7+4xFYp2tDCSM/Q0kLPyMRSz9DYPNbK
-	yFRJ384mJTUnsyy1SN8uQS/j09rXrAVXNStaTnYwNTAuVepi5OSQEDCR+DFpDlMXIxeHkMBS
-	Ronj5x6xQiRkJE5Oa4CyhSX+XOtigyh6zyhx/fIqoAQHB6+AnUTTbh+QGhYBVYm9s6cxgdi8
-	AoISJ2c+YQGxRQXkJe7fmsEOYgsL+EncmPQTbKaIgKXE13u/mUFmMgtcYZKYdPUxM0hCSMBc
-	4tipjWANzALiEreezAcbyiZgKNH1FuQITg5OAQuJ1YvXQ9WYSXRt7WKEsOUlmrfOZp7AKDQL
-	yR2zkIyahaRlFpKWBYwsqxhFUkuLc9Nziw31ihNzi0vz0vWS83M3MQKjf9uxn5t3MM579VHv
-	ECMTB+MhRgkOZiUR3tUvd6YJ8aYkVlalFuXHF5XmpBYfYjQFBsZEZinR5Hxg+skriTc0MzA1
-	NDGzNDC1NDNWEuf1LOhIFBJITyxJzU5NLUgtgulj4uCUamDK6TFWZWQImB7wM0qq5Pzrnffv
-	5nBnbM17GPJ1ccqEhpqJ2w+t/PXAV3/is5VztZ/359nv8FTj0ezhmP2Z6atEpuacSe2KJy85
-	8n4u6VA58nvWXEOGurydd3Ke7WZvFA8u3ycYKbUhew17rODWtZO/lS7//V27Wn61RkarQk0w
-	2/skweyHidbrTUJC7sR+LDxVEr68I8aKVfqJ5acy4T8uX7rPf2vg/Bf8WpHZd90+rSMbHA7d
-	sFGu6T35//nX9yt36lXNaT617P25des/+WUzatqeePfp+fQfPIFfL505rX2ms2eWhYfM/XTx
-	uYuEfTXWW6vbiT4Wcnz1oFh0ujf3vbu7V6ov3nVwslDh4TuXlViKMxINtZiLihMB24H/b4cD
-	AAA=
-X-CMS-MailID: 20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14
-References: <20240618144456.1688998-1-jiri@resnulli.us>
-	<CGME20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14@eucas1p2.samsung.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR10MB4313:EE_|MN6PR10MB8046:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8363909f-73d1-4c68-d404-08dcbae3dbfd
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|376014|366016|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?YTYydjdEK0szRGpqakZVY2o5RlBuOUVXNlkrOFA2ZDUrdU14M05ISTBQRnpG?=
+ =?utf-8?B?ZlR0WW5QVmZIUERSd0QrN0E1dzdPS3B3UHVqeGhlNUVSNGVWc0hWVGdtSE9p?=
+ =?utf-8?B?VXBGTCtYb05PaTBlOTNBaC9FQ04zVzF5R3ZmK1JmYWtyS29lZVlaUlVyalRK?=
+ =?utf-8?B?ZjF4bnpta2doaFlEUmVFL0RlaSs5MHRKWEFENkZ4MHJoNlEvdXlFSHFSMnEv?=
+ =?utf-8?B?bDA2NzhXTHhyTlBzNmt1cFJnOUthazBEN2VKL21CaVA5bTBDMTVSMUpPS0JO?=
+ =?utf-8?B?dmxocmFiSlZ4UGYrY1pLNnBjcjFoZjdVdjJXOEJsKzZPUzcwU2lqVDZydW8y?=
+ =?utf-8?B?OGZobEtXQzE3QjM5ZzhGR3lGZ09aWDg3eFRPTDVHREIxeExjUE1menIyRlNU?=
+ =?utf-8?B?WS9WSFJkaXNPbUlSSWxhdnNGVTI3aWhhOGkxM1preXBEY09rbWN0ZmhDMFFH?=
+ =?utf-8?B?a3lWaDZ4Vyt0STJ2MlQyNklWVzN4bHlkTWhkcElzWFdPeDN0V0N5a1NGQ0VF?=
+ =?utf-8?B?ajZubEQzOXZmZC9Da3duWkR2VVQ3SFhGbFA2VjY5bmJLN1k3V0F2akR3N2ZK?=
+ =?utf-8?B?WUhIMmRDWGxhL0k4OXVwdHJmeEdjbEd1Z0xlSU1jYU1zTUU4c1FwMGJsNU5M?=
+ =?utf-8?B?cU5XdDAwbytWTzJLVlpobThmR1FjT05tcDRZVzRMN2ZSczk4MTFPVTZUZUdE?=
+ =?utf-8?B?YkQvT2tEM2p0dGtGSjhYbENvR0hpRzBGb01tQlY0U1VZa21reDFlYlVyNFBp?=
+ =?utf-8?B?RS9rc0FGNzJqeXR0YWkrYy9RTXdVSW10S3FpQ0RjYnpSU1NtM2EweXRtdFVl?=
+ =?utf-8?B?OWN6bGtuczc5YTBFT0ZpTjVFWFVuOE9tMGV0YnRjTUg3WWNuMXpEUFNuNDZY?=
+ =?utf-8?B?WVd4aHZEZzNwT0RMQ1B6R29oNkx0OUwwRnpTRXg5SndaZHNXTk50V2x6UC9m?=
+ =?utf-8?B?MDlLdnNDQ3pQeHFSeU5QWjBRbGxoSDE3NWZqeVlYTExnaGxlRWRPMFVoQlJI?=
+ =?utf-8?B?N2FneWFob1gwdVI4WmFGY0VzdVdNVVlrUGVqR0UyL09NckxBVFN1bWFmdTRW?=
+ =?utf-8?B?VzRTYnhSQTNlVC83K3htdU9MZE9IT2t3MW1FTklhUmwxakMyemFiMFFwS0ZK?=
+ =?utf-8?B?T1lwSUVQci9nb2tHMzRmNlU0TWdkUUhJTmFxNkQwMUQyWHVERmFJTy9jK2xI?=
+ =?utf-8?B?OFNJTU5hWUhoeTRFMElFaEM3VnV4N2c0N0pXRk9kRFBCczN0WUc5VnZlalJ2?=
+ =?utf-8?B?eFVaZlhyaDIvN2ZlVHVHT3EyVjhhbFM0dmcyYm9IZnZ3Y2dUcVZTMWJGYVRO?=
+ =?utf-8?B?L2tIMHNYcWZvelNnYUtHa1EvUm5RZ2R4cjhvNUtYR2pDSlVrcTg3M29PcExv?=
+ =?utf-8?B?WGIxNW9QK3JwRDJ5U2R5aEJLSnRhQ1NKZGZIcWw0VmIvRHVqOVE5Y1FQUzdm?=
+ =?utf-8?B?U3FYa2JuaWRQZHZmck5mVG93T05xL2Y1dHMyalJUaDBNbjlMcGxOaER5eUpC?=
+ =?utf-8?B?eEMrK0pUSVFHN2lBY2xlY2tYMnQrTkVhSUNnS05OMXY5L05WYzlvSGZnN29p?=
+ =?utf-8?B?U3MyVGdnSjVGNWJjTDkweXphNkdlMGhtVGExdlZ5VTFGWFFvd0VIWWMzZllD?=
+ =?utf-8?B?SDhBQTl1WGpEakU5ZmFmYkpxcktzc2k1WjNKalMwOGpMdFZwSXMrMDRSSVBt?=
+ =?utf-8?B?eXVCVDJqUzY5ZFJYK1lZdWhmbFYyVlV2dnZ4TWFsVEI4OU50c2VicW9vU0Fm?=
+ =?utf-8?B?M1NFb2w4c1RmYmRxT3F2SEprZFdCd01VZENvbE1HRUx1WlJqOFNJc2Q4L1Zs?=
+ =?utf-8?B?NkZ1MU0yNm1JR2VyTm9CK0diVDMzQWxBNEM5aUhleGVxRU51VXdYN2FkVGNx?=
+ =?utf-8?Q?4m68yGPOP7hMQ?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR10MB4313.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?VzhiMVFDSXpkWGNuc1JyQ09MYy9ZV3M0Zzk1NE03UGxzQmgyM0hWTmNmaXFx?=
+ =?utf-8?B?UHVRSW9heXVtTzFNVFF2amRxU3FobVFxRkI3cTU5WHA2VFVEL2kzQXdZQmRo?=
+ =?utf-8?B?cGVzUTVCNnpLTzRqSHhjdmlVSWd6bG5QaHhtUDFFUmY4bGpQQnVCRXZabjl6?=
+ =?utf-8?B?OU9zcUwxVTVLRitLdDRCd2pNY0JOMk8rdTNMU3d1QUxKdS9RMHFRZlVtUFUr?=
+ =?utf-8?B?K29XekhSVkMrcEhZQVQwWGJUK25JeXgydnptY2pSRGVXZEVtSVdTblJiOTMz?=
+ =?utf-8?B?VWJudWgzRzdCT3lJMGs1ak1hQmdBdGtjZTRzd1lXOG9FdE9LZ0t2alNRSGU5?=
+ =?utf-8?B?MEtGYUIxQ1FrNFNUdndoRENNWmU3U1RISlE3QnlJd0hybjJScWxPdXBxZUE2?=
+ =?utf-8?B?Ty9YbTdQbXQ2N3prN1pmeDdNRm9zdUJiVVNwNkNWV1NOdUNma2g4TEJXTm9v?=
+ =?utf-8?B?Snd1L2ZWSVdSVllRU21seTBRdVVzZk15emt4NGJKRDVEYnNsYS9Oa25oeFFj?=
+ =?utf-8?B?aHRBODV3Z0V5SWM2YVBGWkFkQkFkNmRxOHU1d2l3ZmQ4WmhvMTJzRUIrVWJT?=
+ =?utf-8?B?S3crM1RNSVI2NHFLMUpVQ3FvVGdaSmRyRDMybjNQdU45SThvY1VqdW01QW55?=
+ =?utf-8?B?NkxjdC9DaUlMcWJ2YlAxT0wySGVjQmx4VHQyZGticnhhaWU1SnBRM3ZNUnlj?=
+ =?utf-8?B?ckVtS1dWSk95dkdUaDg3OU9VWmJRRldKTnZCNlhiMXJhRkVGM0VPRG4xQmtl?=
+ =?utf-8?B?TDIwd0YvWHh3RU1qRU8wR3lHOHJrbTUra3lQcjN3RVBVcms3TkVtRlBsVjM4?=
+ =?utf-8?B?Mys1R1FaQmU5Lys4ZXZWbkJoaFJweW1WUG83eVd2NGxWNVRBSHFzNmwycVNL?=
+ =?utf-8?B?ekJPdVF5ajhsQjNvb0FWQlMzSG5JL1lMa2Y1bDMzOUNJMTVFRmhyN2VacEho?=
+ =?utf-8?B?Z1E4VWs5V0IzWTJITi9BdXJ1S0J1T2ZsWlMzTE9ZSE9yTko0UkxTc2syQk5Q?=
+ =?utf-8?B?T1hHQUpUSkJPajlMSENWYWVuSkFsMVVDWmNVTzhndXpUSW5NNjBHNnQ4SDIw?=
+ =?utf-8?B?NzNWZnFuRmJjVWJHZjFZNElnbTRYTmlYOGJJZFhRaFo2Sk1HWDZkS3JKMDVN?=
+ =?utf-8?B?ZWJFdG1yUXJVV3dsb0hnZnBzQmU4K09IcHA0aHJheXA5QXRRRnNoUFk4elEw?=
+ =?utf-8?B?YnN3ZjNPTmtxTjBTUHlHNTk5MEI4YWFqMCs1VnQ4VENuTjFPUzA4OVB6bmxs?=
+ =?utf-8?B?cTVNb3pPdnFtaWFOYVk2ZWxMRHBVekFOYXJBU0VrSHo3d1FWQ0tJeFRyTzdy?=
+ =?utf-8?B?UGdkeTVsbzBkREZZQmllOGNrWXhXNllMMVVLU3NkWHR3bzhYN0FuOEIyS1dv?=
+ =?utf-8?B?UE95RVBMeUxzeHJmQm9ibm1JNmUyYWYxeFZrYy82a2p3VU1JVWN5UlpSTmNr?=
+ =?utf-8?B?Z2NpVVArWEs5SFIrVkZxK0VlUGkvbUY4OWx3WEhxWDRnVWdLbEU3TjA5YUc3?=
+ =?utf-8?B?WW52QVBsN2ZhMGxyQXE0MDdvaTcrVXdXVHA2OHpwQXFxWG1XSFFtNWc4QWd3?=
+ =?utf-8?B?a2plZGw0OGZMYisvZ1Y5b2xQSUFEaWpuazlQakw1N3gyTkVqalprZ3BOKzBz?=
+ =?utf-8?B?OHVaQTZQclpEZ2JmZm5aZkFzV2ZLeit3Q0NyK2NtZ1M3dHhVa3ljQU5ZRlBX?=
+ =?utf-8?B?R3g0ZE1BZlNoc0V1R3oxK0RxVDZoKysxNHRIT1VrSXNaeE1aUTB2K21GSU5F?=
+ =?utf-8?B?RUM0eWZPQUgvK1FtbTk0aEFKM1phQld5K3A4em5TUXBteVR6eGVjQUY4RStp?=
+ =?utf-8?B?K0huYUQrWWd3UFVTL2daenR0TjcyZ29LRVhXeHUzVlQ5TzlFelZnM0Q4WFR3?=
+ =?utf-8?B?Q0lYSEcrUkE1VTczZXY2TmR3RjlocS95UFEzYnFxUnByN1JtdVFKdTNsRkR0?=
+ =?utf-8?B?bi9SaVR3RndSV1Vzd0tGdUtOQW91VDYxWGxjcC9FZmU5bHVXV2dQakVybFl4?=
+ =?utf-8?B?YVhkTGYwK25WVzEvT0lvNDNwd1UvRk1JditmRGpReVlsU05FTUVJZmVpUnF3?=
+ =?utf-8?B?VjQ1d29sbkhaM3M4ZEpQSm9YcTVBZGxOWmN6cmdEK2dLNm0yWDExL0pPc0Nu?=
+ =?utf-8?Q?UNb0BR0N7JtKoLHxLkBpaSonV?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	WMcMQLLmAkCeoDJDSN8anTZ6JwbKy1ir4xhXnNgxiFSvOTNosy3/hnIGmgH4naUVjnKSyEZUbzP71RrZGQUhuSLWwbXRQfdPuNJbfzWSwafXh0A7GiartvNu+yFwgutbJ3SJwFPiphJbwXtI0l7sqTHVIXXL3pOBD8hErq9XnKmrJXo8riNoTgeRUkx8G5kX0NC42OsoYreBkEIgOfF1hXqzyOIcWi8ArMpPJflO2XDP5cGIP1C9aGtkOT/s7FAYtB2WJ+6LSNbqoVtychzBkwjUzNF8r2dGNJxikT/2hQF3bzh724yI2A4GRnHp+uQfe+6jFGx2xSX/SSTB13vedC++fkdqumz2aswnU+8jaCap2sGr/Ou68VebtoNh7h1aa0iE5wYPeYsJqERURd44ACihaeRrV3dIaIomuwp25TxEa/SoDytfYwFTvA8gbAhj8kBV5wDuRzSxS1PstSjxtzziYJajey0HVVYofmVbh5fcjMNXKrsYAAX2s0ZYEL+1uW0MAyukTqpZ4MkZjfAIHJALAVrNniWsuO8/E4WIhL1Pyx1spwQGsO/mA4BE/3RSOhO8uXlb5E/SWmNG7yvInBrxASOC6KUUNNlEVEWASdA=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8363909f-73d1-4c68-d404-08dcbae3dbfd
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR10MB4313.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Aug 2024 15:31:39.3404
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: pDge5RCK8AHgrw0Q+5SLcBnph/DdysM0pn/b2LWTRovGF1SVWtbFoepeGVqTp4uB204+uh4BmjTONt97QLt1qQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN6PR10MB8046
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-12_04,2024-08-12_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0
+ mlxlogscore=999 bulkscore=0 phishscore=0 mlxscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2407110000 definitions=main-2408120114
+X-Proofpoint-GUID: rQcbAK-zoY32svGpL2OzREBmNiKyOJTx
+X-Proofpoint-ORIG-GUID: rQcbAK-zoY32svGpL2OzREBmNiKyOJTx
 
-Hi,
+On 06/08/2024 13:06, Daniel Wagner wrote:
+> Replace all users of blk_mq_pci_map_queues with the more generic
+> blk_mq_dev_map_queues. This in preparation to retire
+> blk_mq_pci_map_queues.
 
-On 18.06.2024 16:44, Jiri Pirko wrote:
-> From: Jiri Pirko <jiri@nvidia.com>
->
-> Add support for Byte Queue Limits (BQL).
->
-> Tested on qemu emulated virtio_net device with 1, 2 and 4 queues.
-> Tested with fq_codel and pfifo_fast. Super netperf with 50 threads is
-> running in background. Netperf TCP_RR results:
->
-> NOBQL FQC 1q:  159.56  159.33  158.50  154.31    agv: 157.925
-> NOBQL FQC 2q:  184.64  184.96  174.73  174.15    agv: 179.62
-> NOBQL FQC 4q:  994.46  441.96  416.50  499.56    agv: 588.12
-> NOBQL PFF 1q:  148.68  148.92  145.95  149.48    agv: 148.2575
-> NOBQL PFF 2q:  171.86  171.20  170.42  169.42    agv: 170.725
-> NOBQL PFF 4q: 1505.23 1137.23 2488.70 3507.99    agv: 2159.7875
->    BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
->    BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
->    BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
->    BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
->    BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
->    BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
->
-> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+nit: About blk_mq_dev_map_queues(), from the name it gives the 
+impression that we deal in struct device, which is not the case.
+
+> 
+> Signed-off-by: Daniel Wagner <dwagner@suse.de>
 > ---
-> v2->v3:
-> - fixed the switch from/to orphan mode while skbs are yet to be
->    completed by using the second least significant bit in virtqueue
->    token pointer to indicate skb is orphan. Don't account orphan
->    skbs in completion.
-> - reorganized parallel skb/xdp free stats accounting to napi/others.
-> - fixed kick condition check in orphan mode
-> v1->v2:
-> - moved netdev_tx_completed_queue() call into __free_old_xmit(),
->    propagate use_napi flag to __free_old_xmit() and only call
->    netdev_tx_completed_queue() in case it is true
-> - added forgotten call to netdev_tx_reset_queue()
-> - fixed stats for xdp packets
-> - fixed bql accounting when __free_old_xmit() is called from xdp path
-> - handle the !use_napi case in start_xmit() kick section
-> ---
->   drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++------------
->   1 file changed, 57 insertions(+), 24 deletions(-)
+>   drivers/scsi/fnic/fnic_main.c             |  3 ++-
+>   drivers/scsi/hisi_sas/hisi_sas.h          |  1 -
+>   drivers/scsi/hisi_sas/hisi_sas_v2_hw.c    | 20 ++++++++++----------
+>   drivers/scsi/hisi_sas/hisi_sas_v3_hw.c    |  5 +++--
+>   drivers/scsi/megaraid/megaraid_sas_base.c |  3 ++-
+>   drivers/scsi/mpi3mr/mpi3mr_os.c           |  3 ++-
+>   drivers/scsi/mpt3sas/mpt3sas_scsih.c      |  3 ++-
+>   drivers/scsi/pm8001/pm8001_init.c         |  3 ++-
+>   drivers/scsi/qla2xxx/qla_nvme.c           |  3 ++-
+>   drivers/scsi/qla2xxx/qla_os.c             |  3 ++-
+>   drivers/scsi/smartpqi/smartpqi_init.c     |  7 ++++---
+>   11 files changed, 31 insertions(+), 23 deletions(-)
+> 
+> diff --git a/drivers/scsi/fnic/fnic_main.c b/drivers/scsi/fnic/fnic_main.c
+> index 29eead383eb9..dee7f241c38a 100644
+> --- a/drivers/scsi/fnic/fnic_main.c
+> +++ b/drivers/scsi/fnic/fnic_main.c
+> @@ -601,7 +601,8 @@ void fnic_mq_map_queues_cpus(struct Scsi_Host *host)
+>   		return;
+>   	}
+>   
+> -	blk_mq_pci_map_queues(qmap, l_pdev, FNIC_PCI_OFFSET);
+> +	blk_mq_dev_map_queues(qmap, l_pdev, FNIC_PCI_OFFSET,
+> +			      blk_mq_pci_get_queue_affinity);
+>   }
+>   
+>   static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+> index d223f482488f..010479a354ee 100644
+> --- a/drivers/scsi/hisi_sas/hisi_sas.h
+> +++ b/drivers/scsi/hisi_sas/hisi_sas.h
+> @@ -9,7 +9,6 @@
+>   
+>   #include <linux/acpi.h>
+>   #include <linux/blk-mq.h>
+> -#include <linux/blk-mq-pci.h>
+>   #include <linux/clk.h>
+>   #include <linux/debugfs.h>
+>   #include <linux/dmapool.h>
+> diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+> index 342d75f12051..91daf57f328c 100644
+> --- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+> +++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+> @@ -3549,21 +3549,21 @@ static const struct attribute_group *sdev_groups_v2_hw[] = {
+>   	NULL
+>   };
+>   
+> +static const struct cpumask *hisi_hba_get_queue_affinity(void *dev_data,
+> +							 int offset, int idx)
 
-I've recently found an issue with virtio-net driver and system 
-suspend/resume. Bisecting pointed to the c8bd1f7f3e61 ("virtio_net: add 
-support for Byte Queue Limits") commit and this patch. Once it got 
-merged to linux-next and then Linus trees, the driver occasionally 
-crashes with the following log (captured on QEMU's ARM 32bit 'virt' 
-machine):
+personally I think that name "queue" would be better than "idx"
 
-root@target:~# time rtcwake -s10 -mmem
-rtcwake: wakeup from "mem" using /dev/rtc0 at Sat Aug 10 12:40:26 2024
-PM: suspend entry (s2idle)
-Filesystems sync: 0.000 seconds
-Freezing user space processes
-Freezing user space processes completed (elapsed 0.006 seconds)
-OOM killer disabled.
-Freezing remaining freezable tasks
-Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
-------------[ cut here ]------------
-kernel BUG at lib/dynamic_queue_limits.c:99!
-Internal error: Oops - BUG: 0 [#1] SMP ARM
-Modules linked in: bluetooth ecdh_generic ecc libaes
-CPU: 1 PID: 1282 Comm: rtcwake Not tainted 
-6.10.0-rc3-00732-gc8bd1f7f3e61 #15240
-Hardware name: Generic DT based system
-PC is at dql_completed+0x270/0x2cc
-LR is at __free_old_xmit+0x120/0x198
-pc : [<c07ffa54>]    lr : [<c0c42bf4>]    psr: 80000013
-...
-Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-Control: 10c5387d  Table: 43a4406a  DAC: 00000051
-...
-Process rtcwake (pid: 1282, stack limit = 0xfbc21278)
-Stack: (0xe0805e80 to 0xe0806000)
-...
-Call trace:
-  dql_completed from __free_old_xmit+0x120/0x198
-  __free_old_xmit from free_old_xmit+0x44/0xe4
-  free_old_xmit from virtnet_poll_tx+0x88/0x1b4
-  virtnet_poll_tx from __napi_poll+0x2c/0x1d4
-  __napi_poll from net_rx_action+0x140/0x2b4
-  net_rx_action from handle_softirqs+0x11c/0x350
-  handle_softirqs from call_with_stack+0x18/0x20
-  call_with_stack from do_softirq+0x48/0x50
-  do_softirq from __local_bh_enable_ip+0xa0/0xa4
-  __local_bh_enable_ip from virtnet_open+0xd4/0x21c
-  virtnet_open from virtnet_restore+0x94/0x120
-  virtnet_restore from virtio_device_restore+0x110/0x1f4
-  virtio_device_restore from dpm_run_callback+0x3c/0x100
-  dpm_run_callback from device_resume+0x12c/0x2a8
-  device_resume from dpm_resume+0x12c/0x1e0
-  dpm_resume from dpm_resume_end+0xc/0x18
-  dpm_resume_end from suspend_devices_and_enter+0x1f0/0x72c
-  suspend_devices_and_enter from pm_suspend+0x270/0x2a0
-  pm_suspend from state_store+0x68/0xc8
-  state_store from kernfs_fop_write_iter+0x10c/0x1cc
-  kernfs_fop_write_iter from vfs_write+0x2b0/0x3dc
-  vfs_write from ksys_write+0x5c/0xd4
-  ksys_write from ret_fast_syscall+0x0/0x54
-Exception stack(0xe8bf1fa8 to 0xe8bf1ff0)
-...
----[ end trace 0000000000000000 ]---
-Kernel panic - not syncing: Fatal exception in interrupt
----[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+> +{
+> +	struct hisi_hba *hba = dev_data;
+> +
+> +	return irq_get_affinity_mask(hba->irq_map[offset + idx]);
+> +}
+> +
+>   static void map_queues_v2_hw(struct Scsi_Host *shost)
+>   {
+>   	struct hisi_hba *hisi_hba = shost_priv(shost);
+>   	struct blk_mq_queue_map *qmap = &shost->tag_set.map[HCTX_TYPE_DEFAULT];
+> -	const struct cpumask *mask;
+> -	unsigned int queue, cpu;
+>   
+> -	for (queue = 0; queue < qmap->nr_queues; queue++) {
+> -		mask = irq_get_affinity_mask(hisi_hba->irq_map[96 + queue]);
+> -		if (!mask)
+> -			continue;
+> -
+> -		for_each_cpu(cpu, mask)
+> -			qmap->mq_map[cpu] = qmap->queue_offset + queue;
+> -	}
+> +	return blk_mq_dev_map_queues(qmap, hisi_hba, 96,
 
-I have fully reproducible setup for this issue. Reverting it together 
-with f8321fa75102 ("virtio_net: Fix napi_skb_cache_put warning") (due to 
-some code dependencies) fixes this issue on top of Linux v6.11-rc1 and 
-recent linux-next releases. Let me know if I can help debugging this 
-issue further and help fixing.
+blk_mq_dev_map_queues() returns void, and so we should not return the 
+value (which is void).
 
- > ...
+And I know that the current code is like this, but using CQ0_IRQ_INDEX 
+instead of 96 would be nicer.
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
-
+> +				     hisi_hba_get_queue_affinity);
+>   }
+>   
+>   static const struct scsi_host_template sht_v2_hw = {
+> diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+> index feda9b54b443..0b3c7b49813a 100644
+> --- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+> +++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+> @@ -3322,8 +3322,9 @@ static void hisi_sas_map_queues(struct Scsi_Host *shost)
+>   		if (i == HCTX_TYPE_POLL)
