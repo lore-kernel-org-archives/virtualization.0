@@ -1,128 +1,104 @@
-Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F183189B89
-	for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 18:22:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09DF218E11
+	for <virtualization@lists.linux.dev>; Tue, 13 Aug 2024 03:43:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723486946; cv=none; b=LgLKYnkgjhvc0diobu8mKNY9KPWl/Lx5a8A+SX7p4yuWnEIyi70uuyk4Q1jfpVa0wUuYZ1+6tgc8l7JiiBak2dwRofiSpBvriYszNRAFplevEMBuuDLkHKRclTUkfJ+9rt17fZkawLyCp3ECv7QqGQIHYHFMt9uW9EvVk1rlrDU=
+	t=1723520641; cv=none; b=f7hXuL3dl+P7JC00GoubLHwqCFotG/geCSiqAw5WC6b+FIkgfB6Mt2E4YM+WnS/dxv6ASUNjpQBdbnn0sNH81UQuisvh4XJ87SCxL23832lX533Q7wnQr7j8rslGg/YbmFh1dcccAQDRLSm/4vitG0xiG31UnWTnEaRzjClqOkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723486946; c=relaxed/simple;
-	bh=MN6EVSg50cIdsGQkQdCredezsAWU82dFVedyLLRBeYU=;
+	s=arc-20240116; t=1723520641; c=relaxed/simple;
+	bh=Su7MAzd9Yy/Zx73BwnjeRJHKXm/Dqxa7oKm3l/+o2+k=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=G69jsTsSM+FF9MsUxnQcbtlntM1QM4/N76etSW2oBj7qaXCLwta3hu0oXW8J/9szMNNf7oHyZV6RTO9QVQ+seWftyWKT/sJPb0gA3wZ1iZ9OqJt7r7GWEaR3yU7VY4g4ZsS3ACk8ZUPJybTochywrSzjxGmqkcbddRo5nZ2P8wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KjXWEMCF; arc=none smtp.client-ip=209.85.208.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=PwOQo9mDv2/FD8Bc7ERnJDxKwkBcOy6rLjrMHmYGuy1FZRnYHWTj1XjsllwS+QansSN052aMFt2vU9jTzQkPlvvtxaMEu3D+GfBMXOvLcMBblRfk/WhqNpCnVhVxlvrfKbr+v32suSg8vCX7OsfwMq1Zg1/hAtVb4hZ4/yL6HZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WH0KMPrc; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KjXWEMCF"
-Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-2f15790b472so58536881fa.0
-        for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 11:22:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723486943; x=1724091743; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=coUi0/ohCVhoxzgHSkTjcFNIQKRPd60M4TbuFg/3kwI=;
-        b=KjXWEMCFQKGdyOluvf57cfVQg+u+wB+ovww0aGVx2VNHFbQg+2Y0xi30mVjy/bi9WZ
-         cGo5jk1skHC3YqSfG6dkXVE+dzhFxG8oafmH8ELYJmwG5Av0fDLuqGxD8TvyJ9GDEdhr
-         bKLnW28kJ/goWXQuntR/LfNXLarhSMGpL3fgSQqqjVLw+GoVWikiZdsBGsJsckb6Amd1
-         TPSXXWqR6gfEhzzUNlpnIDvr3cHDQbcUEKEZ9BwN0K4DPz5bHZcKhDDlGc3DtxQjR6Fe
-         P6dC7ZOutHHq9wOGS1IAChHopuS4gEsu5AuLxgyZ7hAczRUNFjUuKRNJGI9rkQNcecyD
-         POrA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WH0KMPrc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1723520638;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Su7MAzd9Yy/Zx73BwnjeRJHKXm/Dqxa7oKm3l/+o2+k=;
+	b=WH0KMPrccpouVT5y8WXWF5uSGxPoS+Pm74sh4C8pTWd1mfkvErFD9zAGcW/5cp0riYQ3PC
+	QdQ9t6xZz+kCxSTQq/A6BpI+maWGfc577BdEHatL7Le2fbcXPmNwRzuvbGjg+hNNQWvxVV
+	1vk3WjkZxToaTrr0Wk1HeIRHzqdJDAU=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-624-7A0KDvVtNwevAFmvquwN3w-1; Mon, 12 Aug 2024 23:43:56 -0400
+X-MC-Unique: 7A0KDvVtNwevAFmvquwN3w-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2cb5847ff53so6270627a91.2
+        for <virtualization@lists.linux.dev>; Mon, 12 Aug 2024 20:43:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723486943; x=1724091743;
+        d=1e100.net; s=20230601; t=1723520635; x=1724125435;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=coUi0/ohCVhoxzgHSkTjcFNIQKRPd60M4TbuFg/3kwI=;
-        b=Xioqn+s3QydW11dKPPkeqJcrf/PN6rs4kQaHPwd8xaObKBKkP4y6jbhziSImzRj57E
-         kFHMbzH4i8sV0+q6l7Rq3Rgau5MdJdO+lVZ41rYTqHOlJGoyIS+9xPLyG/xCOcXg3V9j
-         WDauWOYvmahUo/fk8m76emoBR4q04X17UQr/uWwHBdZ/jJKACTWqX7tg88fp6n3GrJ9u
-         v5dHNn+JnyVV/VS5OXPA9JoC7iK8P7p8XuDm2bNi46I9HNCJPIyqe/59ZxFRue5v5DuP
-         CnrKlb1dxuUipXpS6fSLtRfcC7kxY29gpJFoHrUvRLzmcrelwUBuU98mvfo5J1T2Po5j
-         wGOA==
-X-Forwarded-Encrypted: i=1; AJvYcCUfY3q1kglB4NHczhP+P+PbIb3pc2GnHWGEHjvqMH4yNzqf5WnCcsAqWv5BQV8kSbjfJqP+kgdv+oAtkA52l5AA6DKUCt6YvXsSxOTSKFg=
-X-Gm-Message-State: AOJu0YxcMfERd+DWogi8mZnzRsXZpjIFoneGsyneMnwKKMAFxZV1YHHg
-	av66rO6DhIV6bbEAMerkEfU8tilhlpvuJTzu2L1uacgNbz6xtcxqktZxpyLVDQaPPCeoEuSQt3q
-	YDhNfI5QoEDaSeP8ylXj6V/eijvGK8w==
-X-Google-Smtp-Source: AGHT+IGsw5wOKenJ4/S6cK3uyE7tsHyzF1jzrmqdqVsPGZnCBKOLdTZr3nAw3POmcblOWHUs99+JFc65/My6jbBmV4M=
-X-Received: by 2002:a2e:98c3:0:b0:2ef:2eb9:5e55 with SMTP id
- 38308e7fff4ca-2f2b7150337mr7651301fa.13.1723486942050; Mon, 12 Aug 2024
- 11:22:22 -0700 (PDT)
+        bh=Su7MAzd9Yy/Zx73BwnjeRJHKXm/Dqxa7oKm3l/+o2+k=;
+        b=KVddCUvIXlXByOznrzZnuAvvxrMMSRbI/iv+fwAOcbQQ8Dh8TQBoQmck+OrH7OwdPI
+         x6ug2ZsgnIqEigVNlwnqciZRua751+KNZ4+gnIUDsAikKA8RL0ATbRYAek8JbfqKnECu
+         h4eUS0sjO2xA69ki1vfMDU/AxtPA4e7WucP9GOCROFL5vRZZB+xwZrvn6wRPdjweytku
+         tBJKccISK8IlbXsYuaSLRLJORI/tcbYViiKqAioBjPEqQ8vEMZJeRlI43vr0q5gr16FP
+         8Q6F5PeAOVTI+C3DqUyNbFGIxLwPMWyGsR653I5sth61Fcro7QE0i29YLfp+1FxrXpGV
+         NldQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVpP/56krx9I+LvPnrM1dBVb5z0O7uoDGvV/RFxlrZ8BbZSw69DcOiheqtuJS0GNPnYwpaMd9qKLwBNXxzF802HWqp7a+sXiao3UCuBo7c=
+X-Gm-Message-State: AOJu0Yz2EiAyNXP5CzSP9H1PEgOiYeCex970vxAdtyILjLPbcyqwu7gm
+	zR50azm8jLfu4CBNwAMd7y5szqvfuWdkz9FocJ0R9BfMlh2fepMFWtKj9t04FTzV9iKzD7oJO2A
+	Wz7fwX+lp7pwLEBG8Q2NywSAEGzdS9l48R9brEnaY+sjjHJwI5mLDjMXwZjX0wNOvIO1NOqcwLS
+	MQ/awazw5Iqf++dg4pCw6kgasBotSGvALqzQa+79xNPX5nlkTiKA==
+X-Received: by 2002:a17:90b:89:b0:2c9:9c25:7581 with SMTP id 98e67ed59e1d1-2d39250f3c4mr2566944a91.16.1723520635523;
+        Mon, 12 Aug 2024 20:43:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH6MA9BP6pmDHbnjy1bE7jxyzt0JSd6+Jor/U4mIPatBQ31eFjzMETJs1p+NZwb9A9w16BoIT6DhGKyBeNG3Y0=
+X-Received: by 2002:a17:90b:89:b0:2c9:9c25:7581 with SMTP id
+ 98e67ed59e1d1-2d39250f3c4mr2566923a91.16.1723520634973; Mon, 12 Aug 2024
+ 20:43:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240723114914.53677-1-slp@redhat.com> <942afa37-a24c-48ed-ae10-c811849165bf@collabora.com>
- <CAF6AEGvwrYiN6nMSsRAdc3qq+qQGWEvdW_3+xJh6y2iAyW6rkw@mail.gmail.com> <46a5ec89-be9b-4342-820d-019b595fa379@collabora.com>
-In-Reply-To: <46a5ec89-be9b-4342-820d-019b595fa379@collabora.com>
-From: Rob Clark <robdclark@gmail.com>
-Date: Mon, 12 Aug 2024 11:22:10 -0700
-Message-ID: <CAF6AEGseD2=+vZG=ZfigLhDXt4WJ=XkP=NeT3ERTiiPifpbd+Q@mail.gmail.com>
-Subject: Re: [PATCH 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: Sergio Lopez <slp@redhat.com>, gurchetansingh@chromium.org, tzimmermann@suse.de, 
-	mripard@kernel.org, olvaffe@gmail.com, kraxel@redhat.com, daniel@ffwll.ch, 
-	maarten.lankhorst@linux.intel.com, airlied@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	dri-devel@lists.freedesktop.org
+References: <20240806022224.71779-1-jasowang@redhat.com> <20240807095118-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240807095118-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 13 Aug 2024 11:43:43 +0800
+Message-ID: <CACGkMEvht5_yswTOGisfOhrjLTc4m4NEMA-=ws_wpmOiMjKoGw@mail.gmail.com>
+Subject: Re: [PATCH net-next V6 0/4] virtio-net: synchronize op/admin state
+To: davem@davemloft.net, pabeni@redhat.com, kuba@kernel.org
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, edumazet@google.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	inux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 8, 2024 at 4:16=E2=80=AFAM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
+On Wed, Aug 7, 2024 at 9:51=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
 >
-> On 8/5/24 19:24, Rob Clark wrote:
-> > On Wed, Jul 24, 2024 at 12:00=E2=80=AFPM Dmitry Osipenko
-> > <dmitry.osipenko@collabora.com> wrote:
-> >>
-> >> On 7/23/24 14:49, Sergio Lopez wrote:
-> >>> There's an incresing number of machines supporting multiple page size=
-s
-> >>> and on these machines the host and a guest can be running, each one,
-> >>> with a different page size.
-> >>>
-> >>> For what pertains to virtio-gpu, this is not a problem if the page si=
-ze
-> >>> of the guest happens to be bigger or equal than the host, but will
-> >>> potentially lead to failures in memory allocations and/or mappings
-> >>> otherwise.
-> >>
-> >> Please describe concrete problem you're trying to solve. Guest memory
-> >> allocation consists of guest pages, I don't see how knowledge of host
-> >> page size helps anything in userspace.
-> >>
-> >> I suspect you want this for host blobs, but then it should be
-> >> virtio_gpu_vram_create() that should use max(host_page_sz,
-> >> guest_page_size), AFAICT. It's kernel who is responsible for memory
-> >> management, userspace can't be trusted for doing that.
+> On Tue, Aug 06, 2024 at 10:22:20AM +0800, Jason Wang wrote:
+> > Hi All:
 > >
-> > fwiw virtgpu native context would require this as well, mesa would
-> > need to know the host page size to correctly align GPU VA allocations
-> > (which must be a multiple of the host page size).
+> > This series tries to synchronize the operstate with the admin state
+> > which allows the lower virtio-net to propagate the link status to the
+> > upper devices like macvlan.
 > >
-> > So a-b for adding this and exposing it to userspace.
+> > This is done by toggling carrier during ndo_open/stop while doing
+> > other necessary serialization about the carrier settings during probe.
+> >
+> > While at it, also fix a race between probe and ndo_set_features as we
+> > didn't initalize the guest offload setting under rtnl lock.
 >
-> In general, GPU page size has no connection to the CPU page size. It
-> happens that MSM driver uses same page size for both GPU and CPU. Likely
-> you could configure a different GPU page size if you wanted. dGPUs would
-> often use 64k pages.
+>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-The smmu actually supports various different page sizes (4k, 64k,
-etc.. I think up to 2g), and will try to map larger contiguous sets of
-pages using larger page sizes to reduce TLB pressure.  This
-restriction about aligning to host page size is because the kernel
-expects allocations and therefore (currently, pre-sparse) gpu mappings
-to be a multiple of the host page size.
+Hello netdev maintainers.
 
-As far as whether this should be something outside of virtio-gpu, this
-does feel a bit specific to how GEM buffer allocations work and how
-host blob resources work.  Maybe other subsystems like media end up
-with similar constraints for similar reasons, idk.  But it at least
-feels like something applicable to all/most virtgpu context types.
+Could we get this series merged?
 
-BR,
--R
+Thanks
+
