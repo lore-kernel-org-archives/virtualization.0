@@ -1,160 +1,129 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8268C183CB0
-	for <virtualization@lists.linux.dev>; Tue, 13 Aug 2024 09:42:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 71EC51AACC;
+	Tue, 13 Aug 2024 09:48:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723542121; cv=none; b=YOtn2h8ynpMverZGt+pQmrv4rVapiPG1xP59KUZBVVUpFAfCHTPAiXXZl6h62ZQLCC9Xdkz5gSFJoaUBJPeJIR/kDMy8rdcvHgCM+1tblmX1IGNtLXm2Fd3lC4ETQNYTty+LsEnBHHYeaGUfGl2eBk5INXWhGAfHRtu3Z3J2gYA=
+	t=1723542517; cv=none; b=pqlUvNauAKPkcf1v4rtevwryyy6XtXxmXa5WspDHIBivWYFv2xWBvXYHCIq3Qiup0EXkuua6BL0KshWQVztzUb+0paYAMCtnFX+KIutH4GFPavJVcR+Iqca2CuEx3odAKUfFARHAajEfSyfPHZk9YfsnvH1Vhv4EoF6Zm0DBY3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723542121; c=relaxed/simple;
-	bh=lqnWFnGXEbRQdDNV6/VYyCoDRdrnqpfZzHdXdr1V1p4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JOlW0n0PzBAizzZAoYeO4mDS1WKCvVfxvMUoEAgdG07muDycTBRAm192NRCb7zbSoqtoWvEB4BBh2Qzkl+iH+Ug9/zYPr7F48OUyDuaS74gLee/RuJo8GpN5k4NQMR84vu2AXEOHdop7/qBrTBHT6H5NBZDuqu3/PcdGS790GmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ifiMyxZs; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=y8ZsKrMt; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ifiMyxZs; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=y8ZsKrMt; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ifiMyxZs";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="y8ZsKrMt";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ifiMyxZs";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="y8ZsKrMt"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id A5E082272C;
-	Tue, 13 Aug 2024 09:41:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1723542118; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FE5no6wq38CpWswWx2uoo4/gsjYvCTGI7gMAOBb4YS8=;
-	b=ifiMyxZsOkp+pjyu2jCxMc1kcA1fuJtRpzCKtdkwDndw5N/XHk95hgiV+0Ud/MDhXxyB/C
-	3oYudBYpKM3X++RgFYZ+8/TXpccriQsYJ6PzFtnycSSCuLK8O3WEFwpoY8Vo+27ZpybE5u
-	C29l2hFLcd3Ovqd/VHEzut4Ck9aKE4k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1723542118;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FE5no6wq38CpWswWx2uoo4/gsjYvCTGI7gMAOBb4YS8=;
-	b=y8ZsKrMtpi6Rs3i2ujWlOwlVrIu/gtEuF1KEMC6tVQmjUT/bMVFXpTxFrMIgTE2KcdmukZ
-	8+8zBHeaMzq7PYAg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=ifiMyxZs;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=y8ZsKrMt
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1723542118; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FE5no6wq38CpWswWx2uoo4/gsjYvCTGI7gMAOBb4YS8=;
-	b=ifiMyxZsOkp+pjyu2jCxMc1kcA1fuJtRpzCKtdkwDndw5N/XHk95hgiV+0Ud/MDhXxyB/C
-	3oYudBYpKM3X++RgFYZ+8/TXpccriQsYJ6PzFtnycSSCuLK8O3WEFwpoY8Vo+27ZpybE5u
-	C29l2hFLcd3Ovqd/VHEzut4Ck9aKE4k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1723542118;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FE5no6wq38CpWswWx2uoo4/gsjYvCTGI7gMAOBb4YS8=;
-	b=y8ZsKrMtpi6Rs3i2ujWlOwlVrIu/gtEuF1KEMC6tVQmjUT/bMVFXpTxFrMIgTE2KcdmukZ
-	8+8zBHeaMzq7PYAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8CFF913ABD;
-	Tue, 13 Aug 2024 09:41:58 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id NYNnImYqu2bxSwAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Tue, 13 Aug 2024 09:41:58 +0000
-Date: Tue, 13 Aug 2024 11:41:57 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>, 
-	Sagi Grimberg <sagi@grimberg.me>, Thomas Gleixner <tglx@linutronix.de>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, John Garry <john.g.garry@oracle.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Kashyap Desai <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>, 
-	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
-	Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>, Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>, 
-	Nilesh Javali <njavali@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com, 
-	Jonathan Corbet <corbet@lwn.net>, Frederic Weisbecker <frederic@kernel.org>, 
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
-	Sridhar Balaraman <sbalaraman@parallelwireless.com>, "brookxu.cn" <brookxu.cn@gmail.com>, 
-	Ming Lei <ming.lei@redhat.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, virtualization@lists.linux.dev, 
-	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com, 
-	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v3 07/15] blk-mq: remove unused queue mapping helpers
-Message-ID: <12ba2ff0-b8c9-46b3-bea0-56304cf7a7dc@flourine.local>
-References: <20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de>
- <20240806-isolcpus-io-queues-v3-7-da0eecfeaf8b@suse.de>
- <20240812090848.GH5497@lst.de>
+	s=arc-20240116; t=1723542517; c=relaxed/simple;
+	bh=5eEQBLOKihWzM3QLvLfq+LLVS7GxmKbFaPn8j8IJ27Q=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HAHogCEL77JU2z2YKgv5vOxp7a8Ai+NNYCOMzvWq/GDOxrQmRLM5tQDhNtvIGeex2XzNFcvs3C19bUFdCUOrz3BAzLQKiUWb2crIDdUNW9/LW67CSChbGvY+YyixzY0WyFgTLmgYvn+p45kaAZVRS0a5IZt4XG5j0xO00XrFzfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8BxnpvwK7tm1CgSAA--.18856S3;
+	Tue, 13 Aug 2024 17:48:32 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by front1 (Coremail) with SMTP id qMiowMDxnWfvK7tmegMSAA--.56069S2;
+	Tue, 13 Aug 2024 17:48:31 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>,
+	loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH] LoongArch: Fix AP booting issue in VM mode
+Date: Tue, 13 Aug 2024 17:48:31 +0800
+Message-Id: <20240813094831.678729-1-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240812090848.GH5497@lst.de>
-X-Spam-Score: -5.01
-X-Rspamd-Queue-Id: A5E082272C
-X-Spamd-Result: default: False [-5.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	DWL_DNSWL_MED(-2.00)[suse.de:dkim];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	RCPT_COUNT_TWELVE(0.00)[34];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	TO_DN_SOME(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[kernel.dk,kernel.org,grimberg.me,linutronix.de,oracle.com,redhat.com,broadcom.com,marvell.com,lwn.net,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,lists.linux.dev,microchip.com];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	TAGGED_RCPT(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLbomrtoisjzkgzhj6iko5ju7u)];
-	MISSING_XM_UA(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim]
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Level: 
-X-Spam-Flag: NO
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowMDxnWfvK7tmegMSAA--.56069S2
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
-On Mon, Aug 12, 2024 at 11:08:48AM GMT, Christoph Hellwig wrote:
-> On Tue, Aug 06, 2024 at 02:06:39PM +0200, Daniel Wagner wrote:
-> >   * Copyright (c) 2016 Christoph Hellwig.
-> 
-> None of my code left at this point :)
+If paravirt IPI is used, native IPI is still necessary for AP booting,
+which is boot interface between OS and BIOS firmware, and the paravirt ipi
+is used inside OS.
 
-I do my best to reduce code :)
+During AP boot stage, AP executes idle instruction and waits for interrupt
+or SW events, if AP is woke up, it clears IPI interrupt and jumps to kernel
+entry from HW mailbox. BP writes kernel entry address in the HW mailbox of
+AP and sends IPI interrupt to notify AP.
 
-> >  /**
-> >   * blk_mq_pci_get_queue_affinity - get affinity mask queue mapping for PCI device
-> >   * @dev_data:	Pointer to struct pci_dev.
-> 
-> But on to something more substancial:  thes get_queue_affinity
-> wrappers have nothing specific in them.  So maybe move them into
-> the PCI and virtio subsystems instead and kill off these files
-> entirely.
+Between BP writes HW mailbox and is ready to send IPI to AP, AP is woken
+up by SW events and jumps to kernel entry, so ACTION_BOOT_CPU IPI
+interrupt sent from BP will keep pending during AP booting. And native IPI
+interrupt handler needs be registered so that it can clear pending native
+IPI, else there will be endless IRQ handling during AP boot stage.
 
-Make sense!
+Here native ipi interrupt is initialized even if paravirt IPI is used.
+
+Fixes: 74c16b2e2b0c ("LoongArch: KVM: Add PV IPI support on guest side")
+
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/kernel/paravirt.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+index 9c9b75b76f62..348920b25460 100644
+--- a/arch/loongarch/kernel/paravirt.c
++++ b/arch/loongarch/kernel/paravirt.c
+@@ -13,6 +13,9 @@ static int has_steal_clock;
+ struct static_key paravirt_steal_enabled;
+ struct static_key paravirt_steal_rq_enabled;
+ static DEFINE_PER_CPU(struct kvm_steal_time, steal_time) __aligned(64);
++#ifdef CONFIG_SMP
++static struct smp_ops old_ops;
++#endif
+ 
+ static u64 native_steal_clock(int cpu)
+ {
+@@ -55,6 +58,11 @@ static void pv_send_ipi_single(int cpu, unsigned int action)
+ 	int min, old;
+ 	irq_cpustat_t *info = &per_cpu(irq_stat, cpu);
+ 
++	if (unlikely(action == ACTION_BOOT_CPU)) {
++		old_ops.send_ipi_single(cpu, action);
++		return;
++	}
++
+ 	old = atomic_fetch_or(BIT(action), &info->message);
+ 	if (old)
+ 		return;
+@@ -71,6 +79,12 @@ static void pv_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+ 	__uint128_t bitmap = 0;
+ 	irq_cpustat_t *info;
+ 
++	if (unlikely(action == ACTION_BOOT_CPU)) {
++		/* Use native IPI to boot AP */
++		old_ops.send_ipi_mask(mask, action);
++		return;
++	}
++
+ 	if (cpumask_empty(mask))
+ 		return;
+ 
+@@ -141,6 +155,8 @@ static void pv_init_ipi(void)
+ {
+ 	int r, swi;
+ 
++	/* Init native ipi irq since AP booting uses it */
++	old_ops.init_ipi();
+ 	swi = get_percpu_irq(INT_SWI0);
+ 	if (swi < 0)
+ 		panic("SWI0 IRQ mapping failed\n");
+@@ -179,6 +195,9 @@ int __init pv_ipi_init(void)
+ 		return 0;
+ 
+ #ifdef CONFIG_SMP
++	old_ops.init_ipi	= mp_ops.init_ipi;
++	old_ops.send_ipi_single = mp_ops.send_ipi_single;
++	old_ops.send_ipi_mask	= mp_ops.send_ipi_mask;
+ 	mp_ops.init_ipi		= pv_init_ipi;
+ 	mp_ops.send_ipi_single	= pv_send_ipi_single;
+ 	mp_ops.send_ipi_mask	= pv_send_ipi_mask;
+
+base-commit: 7c626ce4bae1ac14f60076d00eafe71af30450ba
+-- 
+2.39.3
+
