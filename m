@@ -1,182 +1,140 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2874B143C6C
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Aug 2024 07:27:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3058488
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 07:46:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723620448; cv=none; b=SGTA7vYsR86Q7iSiCGTPn3hR5OiZGgWimAlteuucCqEil1nmf15Gel2i4kCmCeQXq1Rmq3PzyGdh6y2BdQrg9jwvBXpA04/6EjkkUDYqDEpj+h3O+gyqPJ7MmVZtnHae0pNW6uNmRlxffy9eZ93y8uUCVzT/lTzmKLlt6sivnoo=
+	t=1723621619; cv=none; b=uBmt5Lvwc18EbDLxPCUd8IhnkiY69Q/o6vhKj5ePo1tRUpjYNNtz0Y3BPyqx4DA+CF4uMBl5z/c5SzSqd9S8TCfasTlumzfztzxKc3INCWAl1I706rzD9zlUkB8Jrd/YW4X52pQVpVHJbeRHO6W9MOG7MCm6+0sk7HorGheAGMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723620448; c=relaxed/simple;
-	bh=1UP383j6hjG1P69n1FRHYze421i09BJSQebpheB6rVc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WrQ1EExOI2GUSp/h1r49IcfeKyAaVCx96EILshuSgt8h1wdi6PEZMeVJC/BLA1mfdlBJjiY0U/wp5Czoi1/6yaHzZCqucfbxPAiMAtNjJ1a3TXAb7djqGHHtUkPycl7YQRQvEoVbyDMo8JQy7SnNAj72TBugkWdP3bw6OzrMInM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ih4OhHVA; arc=none smtp.client-ip=140.211.166.137
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ih4OhHVA"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B23C040391
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Aug 2024 07:27:26 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id XhT7og5Q806x for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Aug 2024 07:27:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 945C84038A
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 945C84038A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ih4OhHVA
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 945C84038A
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Aug 2024 07:27:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723620443;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lWW6/JtLLOdbS2RriwQ1Xt/j+3UDgvX+fkiP4SLbmfs=;
-	b=Ih4OhHVAICbUeWWP6Tgwb5apy9vBT1ETH2CNM8owRiUdiSPhhG+bXggByXmOJfQlC34hNY
-	9ml8wSSi9U4GRzOqzzgsRLW6sLC6kSMMBu28ZAwUmC+LbpeUxTU4d33J+tnZMy/ErTTtDD
-	b5yqGCyidS9uLAvHrAi7dxcPVgUY4Kg=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-83-RTzbTfJcP2CbbmqmwqR7GQ-1; Wed, 14 Aug 2024 03:27:21 -0400
-X-MC-Unique: RTzbTfJcP2CbbmqmwqR7GQ-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a7dc32f39c6so481897466b.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 14 Aug 2024 00:27:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723620440; x=1724225240;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lWW6/JtLLOdbS2RriwQ1Xt/j+3UDgvX+fkiP4SLbmfs=;
-        b=KFR+PBcw8TU7unXEyRn/3bTqoF+cHJr5YVOWTW31ru8YJaHQxtZPliZy38RShWPvQC
-         G5yORy6M8lZjDeIwjBnC0z1TvF1lYEGpx/q7kUXbOhUL9truinCOnYzpwD3mN1XPB7ev
-         Djgv0XUggkZJrsS1Eb/rxIjR0sJPFtFx0AMNYgGpHEv3/y5WEOLA30l4Yg6EAS2iis9I
-         safq4PtAU0dU52qpodBJMGU6ZphjSMoxjktGuW7zRuCrHjqEDcv5cMyo63PNHRW4HKoK
-         0Uess/ylOerWnMIpR5qXYeo07nS7XzsU55i6gNUg8JbE1Hd5jmqKv3A/Y6wDoOVU1ogQ
-         5oNw==
-X-Forwarded-Encrypted: i=1; AJvYcCXmsdzr64s9uOzP3ePsMx43XsbQg8N7BPBqhYU/i8+oFqVEwy5AIbbeEx4GCsx+95OnHPuFEw90XbTkmRcrhJUlEmykoAgFoalm5uGM1NCgPNtMPbRQnqyzSw==
-X-Gm-Message-State: AOJu0YzqWNnZGtD+Qv+a0i1YWVlZvNVClM29JDyA1783S98r9ykZ63JX
-	SUjZKyq+deAtPNN+itsbCGN0RHMZPDvikJ0TxJvqTt3h0t043ej9nPnKkPEDJPUH86o2apBWTKJ
-	rTC9wBIWy1juAkVKIhmVJCSyyIcNMAK5rkdD5uVXtjyY0X4W9b5wX8pSyoVsdpXZB9h0euJYSPe
-	vkp/8=
-X-Received: by 2002:a17:907:e6cb:b0:a7a:83f8:cfd5 with SMTP id a640c23a62f3a-a8366c31b00mr116566266b.18.1723620440174;
-        Wed, 14 Aug 2024 00:27:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFWLP3dpgqeL2l8ABzufX/5DIla/d7Ejaojfhfx0OWK/1bdtH+0ljIF9zLiuDaMf7faqOl25Q==
-X-Received: by 2002:a17:907:e6cb:b0:a7a:83f8:cfd5 with SMTP id a640c23a62f3a-a8366c31b00mr116563466b.18.1723620439327;
-        Wed, 14 Aug 2024 00:27:19 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:346:dcde:9c09:aa95:551d:d374])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a80f411d225sm137283666b.107.2024.08.14.00.27.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Aug 2024 00:27:18 -0700 (PDT)
-Date: Wed, 14 Aug 2024 03:27:14 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: dtatulea@nvidia.com, lingshan.zhu@intel.com, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] vhost_vdpa: assign irq bypass producer token
- correctly
-Message-ID: <20240814032700-mutt-send-email-mst@kernel.org>
-References: <20240808082044.11356-1-jasowang@redhat.com>
+	s=arc-20240116; t=1723621619; c=relaxed/simple;
+	bh=Ipzj0sSXoWYnXcb1649fej8UVGQS6iweSmsx+0AT6+s=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=o8LMdBEao36B+qd4IDepEILd72AeNU7SZ+RjkExkDGdBlisEdEdcfaWSB7yGlLCtM6du0KBVBsjbtqOMQcniDYkrS91v+EGRm/dq/nv5g8oTGFsSJSt60MK8VNd0fwfzliyl1ziuck4ffeXZdJp+bWbe5aIgUH7gnRBnK8aI0iQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.93.142])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WkL1B0ZZLz4f3kvl
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 15:46:38 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id C416E1A0359
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 15:46:52 +0800 (CST)
+Received: from [10.174.176.117] (unknown [10.174.176.117])
+	by APP1 (Coremail) with SMTP id cCh0CgAneUvnYLxmv5JoBg--.58949S2;
+	Wed, 14 Aug 2024 15:46:51 +0800 (CST)
+Subject: Re: [PATCH v3 0/2] virtiofs: fix the warning for kernel direct IO
+To: Jingbo Xu <jefflexu@linux.alibaba.com>, linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Bernd Schubert <bernd.schubert@fastmail.fm>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox
+ <willy@infradead.org>, Benjamin Coddington <bcodding@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ houtao1@huawei.com
+References: <20240426143903.1305919-1-houtao@huaweicloud.com>
+ <5d809485-7e29-41ce-b683-7d19b829f86c@linux.alibaba.com>
+From: Hou Tao <houtao@huaweicloud.com>
+Message-ID: <dbd4499a-8359-6d59-83f6-50f8dba84747@huaweicloud.com>
+Date: Wed, 14 Aug 2024 15:46:47 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240808082044.11356-1-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <5d809485-7e29-41ce-b683-7d19b829f86c@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-CM-TRANSID:cCh0CgAneUvnYLxmv5JoBg--.58949S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxXry8CF43Zr1fWrW3uF45ZFb_yoW5ArWrpF
+	WrGa1Y9rsrJryxAr9ak3WkuryFkws5GF17t3s3Ww1rCrZxZF1I9rnFkF4YgFy7ArW8CF4j
+	qr4Iva4qgr9Fv3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUU92b4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
+	0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7I2V7IY0VAS
+	07AlzVAYIcxG8wCY1x0262kKe7AKxVWUtVW8ZwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4
+	IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1r
+	MI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJV
+	WUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j
+	6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYx
+	BIdaVFxhVjvjDU0xZFpf9x07UAwIDUUUUU=
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-On Thu, Aug 08, 2024 at 04:20:44PM +0800, Jason Wang wrote:
-> We used to call irq_bypass_unregister_producer() in
-> vhost_vdpa_setup_vq_irq() which is problematic as we don't know if the
-> token pointer is still valid or not.
-> 
-> Actually, we use the eventfd_ctx as the token so the life cycle of the
-> token should be bound to the VHOST_SET_VRING_CALL instead of
-> vhost_vdpa_setup_vq_irq() which could be called by set_status().
-> 
-> Fixing this by setting up  irq bypass producer's token when handling
-> VHOST_SET_VRING_CALL and un-registering the producer before calling
-> vhost_vring_ioctl() to prevent a possible use after free as eventfd
-> could have been released in vhost_vring_ioctl().
-> 
-> Fixes: 2cf1ba9a4d15 ("vhost_vdpa: implement IRQ offloading in vhost_vdpa")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+Hi,
 
-Want to post a non-RFC version?
+On 8/14/2024 2:34 PM, Jingbo Xu wrote:
+> Hi, Tao,
+>
+> On 4/26/24 10:39 PM, Hou Tao wrote:
+>> From: Hou Tao <houtao1@huawei.com>
+>>
+>> Hi,
+>>
+>> The patch set aims to fix the warning related to an abnormal size
+>> parameter of kmalloc() in virtiofs. Patch #1 fixes it by introducing
+>> use_pages_for_kvec_io option in fuse_conn and enabling it in virtiofs.
+>> Beside the abnormal size parameter for kmalloc, the gfp parameter is
+>> also questionable: GFP_ATOMIC is used even when the allocation occurs
+>> in a kworker context. Patch #2 fixes it by using GFP_NOFS when the
+>> allocation is initiated by the kworker. For more details, please check
+>> the individual patches.
+>>
+>> As usual, comments are always welcome.
+>>
+>> Change Log:
+>>
+>> v3:
+>>  * introduce use_pages_for_kvec_io for virtiofs. When the option is
+>>    enabled, fuse will use iov_iter_extract_pages() to construct a page
+>>    array and pass the pages array instead of a pointer to virtiofs.
+>>    The benefit is twofold: the length of the data passed to virtiofs is
+>>    limited by max_pages, and there is no memory copy compared with v2.
+>>
+>> v2: https://lore.kernel.org/linux-fsdevel/20240228144126.2864064-1-houtao@huaweicloud.com/
+>>   * limit the length of ITER_KVEC dio by max_pages instead of the
+>>     newly-introduced max_nopage_rw. Using max_pages make the ITER_KVEC
+>>     dio being consistent with other rw operations.
+>>   * replace kmalloc-allocated bounce buffer by using a bounce buffer
+>>     backed by scattered pages when the length of the bounce buffer for
+>>     KVEC_ITER dio is larger than PAG_SIZE, so even on hosts with
+>>     fragmented memory, the KVEC_ITER dio can be handled normally by
+>>     virtiofs. (Bernd Schubert)
+>>   * merge the GFP_NOFS patch [1] into this patch-set and use
+>>     memalloc_nofs_{save|restore}+GFP_KERNEL instead of GFP_NOFS
+>>     (Benjamin Coddington)
+>>
+>> v1: https://lore.kernel.org/linux-fsdevel/20240103105929.1902658-1-houtao@huaweicloud.com/
+>>
+>> [1]: https://lore.kernel.org/linux-fsdevel/20240105105305.4052672-1-houtao@huaweicloud.com/
+>>
+>> Hou Tao (2):
+>>   virtiofs: use pages instead of pointer for kernel direct IO
+>>   virtiofs: use GFP_NOFS when enqueuing request through kworker
+>>
+>>  fs/fuse/file.c      | 12 ++++++++----
+>>  fs/fuse/fuse_i.h    |  3 +++
+>>  fs/fuse/virtio_fs.c | 25 ++++++++++++++++---------
+>>  3 files changed, 27 insertions(+), 13 deletions(-)
+>>
+> We also encountered the same issue as [1] these days when attempting to
+> insmod a module with ~6MB size, which is upon a virtiofs filesystem.
+>
+> It would be much helpful if this issue has a standard fix in the
+> upstream.  I see there will be v4 when reading through the mailing
+> thread.  Glad to know if there's any update to this series.
 
-> ---
-> Note for Dragos: Please check whether this fixes your issue. I
-> slightly test it with vp_vdpa in L2.
-> ---
->  drivers/vhost/vdpa.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index e31ec9ebc4ce..388226a48bcc 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -209,11 +209,9 @@ static void vhost_vdpa_setup_vq_irq(struct vhost_vdpa *v, u16 qid)
->  	if (irq < 0)
->  		return;
->  
-> -	irq_bypass_unregister_producer(&vq->call_ctx.producer);
->  	if (!vq->call_ctx.ctx)
->  		return;
->  
-> -	vq->call_ctx.producer.token = vq->call_ctx.ctx;
->  	vq->call_ctx.producer.irq = irq;
->  	ret = irq_bypass_register_producer(&vq->call_ctx.producer);
->  	if (unlikely(ret))
-> @@ -709,6 +707,12 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->  			vq->last_avail_idx = vq_state.split.avail_index;
->  		}
->  		break;
-> +	case VHOST_SET_VRING_CALL:
-> +		if (vq->call_ctx.ctx) {
-> +			vhost_vdpa_unsetup_vq_irq(v, idx);
-> +			vq->call_ctx.producer.token = NULL;
-> +		}
-> +		break;
->  	}
->  
->  	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
-> @@ -747,13 +751,14 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->  			cb.callback = vhost_vdpa_virtqueue_cb;
->  			cb.private = vq;
->  			cb.trigger = vq->call_ctx.ctx;
-> +			vq->call_ctx.producer.token = vq->call_ctx.ctx;
-> +			vhost_vdpa_setup_vq_irq(v, idx);
->  		} else {
->  			cb.callback = NULL;
->  			cb.private = NULL;
->  			cb.trigger = NULL;
->  		}
->  		ops->set_vq_cb(vdpa, idx, &cb);
-> -		vhost_vdpa_setup_vq_irq(v, idx);
->  		break;
->  
->  	case VHOST_SET_VRING_NUM:
-> @@ -1419,6 +1424,7 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
->  	for (i = 0; i < nvqs; i++) {
->  		vqs[i] = &v->vqs[i];
->  		vqs[i]->handle_kick = handle_vq_kick;
-> +		vqs[i]->call_ctx.ctx = NULL;
->  	}
->  	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0, false,
->  		       vhost_vdpa_process_iotlb_msg);
-> -- 
-> 2.31.1
+Being busy with other stuff these days. I hope to send v4 before next
+weekend.
+>
+> [1]
+> https://lore.kernel.org/linux-fsdevel/20240103105929.1902658-1-houtao@huaweicloud.com/
+>
 
