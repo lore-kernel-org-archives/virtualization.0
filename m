@@ -1,89 +1,128 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DAB413D28F
-	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 08:17:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B47013D52F
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 09:17:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723623442; cv=none; b=JG8QU7FmZ9XriY08AwT1MephZGYEzE30ezMwJPxY5aruNBdePO58cNWAP3dgoNm3pl/ew783WXTRmEVs+EmeJKLbyzVa7+2GwAdUpwuQpAlQ5NyShZSgiKQy0hVT6UNk9TI4NDS497ei77LoGWo+KRm3spa/I4Cdq9kqPg7dqhg=
+	t=1723627062; cv=none; b=k+ilpxCtdm9AoRka7fhL4b3mV0ZRrKTTKSHXQgZom1UIBDk58H6wY8O3cRYKvWLpU+zm+J0+VXe1toPo9lP1QCUMVRE2DmvjcgfR6dZCbgzIfQDUTCvS3T+YNNopwUAcWQX8w4rdRo0Pi8yJSnotvFtdQRgpXeD9RiIW2G4M2i8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723623442; c=relaxed/simple;
-	bh=4WZ0OzGPLTIXH39Ubaflx7d0PRdTJVJTTnLk0JUUY2M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ngf9TYyPcXyIxhZGsJJm5T1U8ERLoUw4F6EipdbzCG3pJXoEZ8Yxxky7h/il1BTtphTWPi7IU33QB1dmT/9Ouq07gRHdniKeeqCKgqJniPl6jt8PoGU48YhDtoTHKnRrLqd9Tuq3GZ+5IsY2eHaGXg4ag++39+Qz00JZfIWM6vY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=TdyYPVsC; arc=none smtp.client-ip=209.85.218.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1723627062; c=relaxed/simple;
+	bh=IiV0RxcJZJ556aDHHRYgvbV2rs2jKY1q4HntWw6DD9w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=cCCmtwEn8B143RyBs6R0tv4kLejikwwKHt5EFRo+a22Jvty9WAcZfxDyXHB1ldZbmOW5pfyC3+w1kw0uMRzNHd1xAg+UTmTpdV22w7Is1CrDkKiVeLcGzR3OszLrnifOmK89k+WbmjpBlNm3FrGkiIkrlDfHmIzFPz5rsmCDDzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=AY8dGWQ4; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="TdyYPVsC"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a7d638a1f27so251074966b.2
-        for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 01:17:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1723623437; x=1724228237; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=uGKH4VT+6oIZ05Mg/wtc5j5EPbFWisi/zDz8nVxU9W8=;
-        b=TdyYPVsCxcx2qFG9Hz8A/UKtlmn3D2L1I3NHRJVPRtEQGO33+wTP5mNWzJTg31Bo9k
-         RQPnL45dMfGh61lU5GAC5TZH1bkNV9pnhUhqahQalsY7KxPpQxCh31vRdKFzNdTpUIKl
-         qw3rv2omSESVzAZsUueI304jKYLUyAvntd7tjofWZr4O8qSXLBWFcrH68lwKuFl7flIQ
-         s2G4e80UnvO+yZ6IgVCvQuUCc7Z3Tb04NAVFl9E2WkIeDFwK0HiIUyg6aDRWzmXctR4+
-         B5HThjJ14f0umfn2/WVb2m6l0+ZHKfc4j5yZOM3O9tZjkSRY1oSy1rX5JLTGWyy3OhGQ
-         7JFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723623437; x=1724228237;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uGKH4VT+6oIZ05Mg/wtc5j5EPbFWisi/zDz8nVxU9W8=;
-        b=WFALoXd3saYBx2B+K50hnjNWNOlDbe+sWlkHZtY6RQ5W+ZWTnF0y+Ichvq6iqx5cO2
-         LFuv4cOAigrTnjt5E85zTICTgzfZprBNHRrRA4JHg+HrcUFP0A1IYAKNCbBiKM7IDu1N
-         rRVT2UlclWJ8m0izCtIY/fSeovKKG3s9/HiQwX/hzlH9jQ7IOYsjRMxa7Sqykw4aiKyx
-         gjNIKgt71bV3ckhJcVzl0348ttmTc16EwVGqeud/0+HVYCHRrzYod6T0B9Ije/IZBC6o
-         YmMG1dMXU0gWuJW4E5VOImE+5Ivj/ttDr/RYhWdH+gzNM80eyQnoC0XnTBrYpEihj1oW
-         9jdQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVxyTQXopP7ugE3FEaARFurrJzjwsTLSbt5O9m7NIGy5WOwTOqKr1vtPq6bKO0iCRnxnGmbk6UCoCTReRrttAD9R3J8NnZA2CpyNgGJrdY=
-X-Gm-Message-State: AOJu0YykY++9+bbJSheroavfv7RaGZFGz3gzrIepUxQOodi8HY/3Gxii
-	EFE1cxe7oFKDW07oa/T0uD9EEfH23S3fB06aKPs7KBfGa1TVw4du2EbxmbadHcM=
-X-Google-Smtp-Source: AGHT+IGJUV9VKtFAaK5scsW7KwbH6afPR2cjc8d17/h0tffxEHW4y7gQog39aiaK6j22dbIHpYoXzA==
-X-Received: by 2002:a05:6402:26c7:b0:5a2:6142:24c1 with SMTP id 4fb4d7f45d1cf-5bea1c6abe2mr2073402a12.5.1723623437150;
-        Wed, 14 Aug 2024 01:17:17 -0700 (PDT)
-Received: from localhost (37-48-50-18.nat.epc.tmcz.cz. [37.48.50.18])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a80f411bd72sm142852966b.140.2024.08.14.01.17.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Aug 2024 01:17:16 -0700 (PDT)
-Date: Wed, 14 Aug 2024 10:17:15 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, ast@kernel.org,
-	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
-	dave.taht@gmail.com, kerneljasonxing@gmail.com,
-	hengqi@linux.alibaba.com
-Subject: Re: [PATCH net-next v3] virtio_net: add support for Byte Queue Limits
-Message-ID: <ZrxoC_jCc00MzD-o@nanopsycho.orion>
-References: <20240618144456.1688998-1-jiri@resnulli.us>
- <CGME20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14@eucas1p2.samsung.com>
- <cabe5701-6e25-4a15-b711-924034044331@samsung.com>
- <Zro8l2aPwgmMLlbW@nanopsycho.orion>
- <e632e378-d019-4de7-8f13-07c572ab37a9@samsung.com>
- <Zrxhpa4fkVlMPf3Z@nanopsycho.orion>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="AY8dGWQ4"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20240814091738euoutp01afd5ee39d0d60df984528c217bafbef0~rja1njK3T2051820518euoutp01W
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 09:17:38 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20240814091738euoutp01afd5ee39d0d60df984528c217bafbef0~rja1njK3T2051820518euoutp01W
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1723627058;
+	bh=QhK1cKoU8sizfe/t+U+tE+B4zOedDSabkjaVo1gdge4=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=AY8dGWQ4YxWEWBUsZgdhjpL43G/ROPbkTYsKIxjciRvlO4xDPxFfHaKmytiNNzvyT
+	 GiFj6LlXp8/0a7dsoSao+asH4Ia4HwWa80X5IHYg2Q1d2AdZC3ZXyLrSw/H3E0hovG
+	 6C+/xE493ZLyDe5+WyrBL59sUaZ4gwOOgM1tRyXg=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+	20240814091738eucas1p2817e3afb338cd15e7c22327520a363cb~rja1YJS-22962729627eucas1p2a;
+	Wed, 14 Aug 2024 09:17:38 +0000 (GMT)
+Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
+	eusmges3new.samsung.com (EUCPMTA) with SMTP id 38.C6.09620.1367CB66; Wed, 14
+	Aug 2024 10:17:37 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20240814091737eucas1p1c01d53efc2d15cd0f563c7e16800f77e~rja04jgn91333613336eucas1p1V;
+	Wed, 14 Aug 2024 09:17:37 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+	20240814091737eusmtrp17604687fb2254513c63e9b510b86c5d8~rja03Yatw1379913799eusmtrp1P;
+	Wed, 14 Aug 2024 09:17:37 +0000 (GMT)
+X-AuditID: cbfec7f5-d31ff70000002594-46-66bc7631c268
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+	eusmgms2.samsung.com (EUCPMTA) with SMTP id 27.91.09010.1367CB66; Wed, 14
+	Aug 2024 10:17:37 +0100 (BST)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20240814091736eusmtip1f755428318a2ab760ec811ee8c70557d~rjazjuGCH0106201062eusmtip1Z;
+	Wed, 14 Aug 2024 09:17:36 +0000 (GMT)
+Message-ID: <2d98cdcb-19c6-4a70-b8c6-b978b40663ee@samsung.com>
+Date: Wed, 14 Aug 2024 11:17:35 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3] virtio_net: add support for Byte Queue
+ Limits
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, ast@kernel.org,
+	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
+	dave.taht@gmail.com, kerneljasonxing@gmail.com, hengqi@linux.alibaba.com
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 In-Reply-To: <Zrxhpa4fkVlMPf3Z@nanopsycho.orion>
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrMKsWRmVeSWpSXmKPExsWy7djPc7qGZXvSDF5OMLX48vM2u8Xihd+Y
+	LfZsPMliMed8C4vF02OP2C32tG9ntmi8Kmmx7NJnJouLV9MtmnasYLLYvW06u8WFbX2sFv9/
+	vWK1OLZAzOLb6TeMFke3r2S1uNZk4SDosWXlTSaPnbPusnss2FTq0XXjErPHplWdbB47H1p6
+	vNg8k9Hj/b6rbB5Xb1Z7fN4kF8AVxWWTkpqTWZZapG+XwJWxdfEn9oImy4rfm6azNTA26ncx
+	cnJICJhIHD51gbmLkYtDSGAFo8Stl3vZIZwvjBILTu1ihXA+M0qsmLmTCablyNlVUC3LGSW+
+	z+2Gcj4ySnQ3XmXrYuTg4BWwk9j6XA2kgUVAVWJP+ykWEJtXQFDi5MwnYLaogLzE/Vsz2EFs
+	YYEAiYan78DiIgKKEju/rAabySzwhkli8u4ZYJuZBcQlbj2ZD2azCRhKdL3tYgOxOQUMJKZt
+	P8cKUSMv0bx1NlizhMApTolLvYuZIc52kXh56RQ7hC0s8er4FihbRuL05B4WiIZ2oKd/32eC
+	cCYwSjQ8v8UIUWUtcefcL7DXmAU0Jdbvggafo8TV7QvYQcISAnwSN94KQhzBJzFp23RmiDCv
+	REebEES1msSs4+vg1h68cIl5AqPSLKRwmYXkzVlI3pmFsHcBI8sqRvHU0uLc9NRi47zUcr3i
+	xNzi0rx0veT83E2MwHR4+t/xrzsYV7z6qHeIkYmD8RCjBAezkghvoMmuNCHelMTKqtSi/Pii
+	0pzU4kOM0hwsSuK8qinyqUIC6YklqdmpqQWpRTBZJg5OqQYm52dqx+YHBO65c99i6/GoW7mr
+	Tp9xMOlvKHriWfRQRWFJ6cIO++agW8UrlJwO7Lp8PPTvFyv1uJ8dsssnvD89+2f5myURB8Vn
+	HAiU/p5SGDQ92rzKoZvL/oxGadkN8aZn31IlGbujpoYezj4Yf5FfwvvQz4AMX1+hyx2L7PpM
+	vNuLb0Uufh92My2gS+2Z+Zp1l3YXbHS4ZVb2dTVbzYzLP/5Vit6Y8ebXjoKrFbfsvS/IWLXG
+	n6x3MEh+uKxnbyGf+oPsWcd2spZ8Tji85otz9Ipsk5brUWZvPOLW/nnokR+wUq2g/yr7Z7e5
+	qqw+C0J8Tl3dI7Pz86F7Xcbv656FFeRIBIrfWJAx44Kl77E5SizFGYmGWsxFxYkAR7JMIPYD
+	AAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKIsWRmVeSWpSXmKPExsVy+t/xu7qGZXvSDBbvFbT48vM2u8Xihd+Y
+	LfZsPMliMed8C4vF02OP2C32tG9ntmi8Kmmx7NJnJouLV9MtmnasYLLYvW06u8WFbX2sFv9/
+	vWK1OLZAzOLb6TeMFke3r2S1uNZk4SDosWXlTSaPnbPusnss2FTq0XXjErPHplWdbB47H1p6
+	vNg8k9Hj/b6rbB5Xb1Z7fN4kF8AVpWdTlF9akqqQkV9cYqsUbWhhpGdoaaFnZGKpZ2hsHmtl
+	ZKqkb2eTkpqTWZZapG+XoJexdfEn9oImy4rfm6azNTA26ncxcnJICJhIHDm7irmLkYtDSGAp
+	o0THm7VsEAkZiZPTGlghbGGJP9e62CCK3jNKbG++ytLFyMHBK2AnsfW5GkgNi4CqxJ72Uywg
+	Nq+AoMTJmU/AbFEBeYn7t2awg9jCAn4SNyb9BJspIqAosfPLarDFzAJvmCT+tx9hhFhwkEni
+	84F+RpAqZgFxiVtP5jOB2GwChhJdb7vAruMUMJCYtv0cK0SNmUTX1i6oenmJ5q2zmScwCs1C
+	csgsJKNmIWmZhaRlASPLKkaR1NLi3PTcYiO94sTc4tK8dL3k/NxNjMD433bs55YdjCtffdQ7
+	xMjEwXiIUYKDWUmEN9BkV5oQb0piZVVqUX58UWlOavEhRlNgaExklhJNzgcmoLySeEMzA1ND
+	EzNLA1NLM2MlcV7Pgo5EIYH0xJLU7NTUgtQimD4mDk6pBib2uS5b08WOvq3srp90RtLGu8Ly
+	/JXHUkwNLbLvbEXeTPYM+X1B9Onif/aCz8uW9dd9FquYaPLlsIG19UYjawfbxV17klabXj6t
+	fDE9a8bz8oCP8659/dP14/Df52wtbnfKkqJ3ZL279aShynJW25fjv37fWPMsdvHlTQXCtsfl
+	D5cmPnNfKrQwvHl1rVVD/9ddS+f37Sgy++zkP7HrddS+t0q7529Kz1nz8mmq0a4DG15P2MYW
+	q6GoYyh88Mpk6dx7cp8U1qbYRy59+XsC36dbUh4pWyU3uWxmLJ/7rHkSm+B1r1fdF3rZb3MG
+	rmQz+yRUIDtz/lOHLw6vnlg5MEjI+5UXT/xt+ej5o/lXfV+/VGIpzkg01GIuKk4EAIFtVreI
+	AwAA
+X-CMS-MailID: 20240814091737eucas1p1c01d53efc2d15cd0f563c7e16800f77e
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14
+References: <20240618144456.1688998-1-jiri@resnulli.us>
+	<CGME20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14@eucas1p2.samsung.com>
+	<cabe5701-6e25-4a15-b711-924034044331@samsung.com>
+	<Zro8l2aPwgmMLlbW@nanopsycho.orion>
+	<e632e378-d019-4de7-8f13-07c572ab37a9@samsung.com>
+	<Zrxhpa4fkVlMPf3Z@nanopsycho.orion>
 
-Wed, Aug 14, 2024 at 09:49:57AM CEST, jiri@resnulli.us wrote:
->Mon, Aug 12, 2024 at 06:55:26PM CEST, m.szyprowski@samsung.com wrote:
->>On 12.08.2024 18:47, Jiri Pirko wrote:
+On 14.08.2024 09:49, Jiri Pirko wrote:
+> Mon, Aug 12, 2024 at 06:55:26PM CEST, m.szyprowski@samsung.com wrote:
+>> On 12.08.2024 18:47, Jiri Pirko wrote:
 >>> Mon, Aug 12, 2024 at 04:57:24PM CEST, m.szyprowski@samsung.com wrote:
 >>>> On 18.06.2024 16:44, Jiri Pirko wrote:
 >>>>> From: Jiri Pirko <jiri@nvidia.com>
@@ -100,33 +139,33 @@ Wed, Aug 14, 2024 at 09:49:57AM CEST, jiri@resnulli.us wrote:
 >>>>> NOBQL PFF 1q:  148.68  148.92  145.95  149.48    agv: 148.2575
 >>>>> NOBQL PFF 2q:  171.86  171.20  170.42  169.42    agv: 170.725
 >>>>> NOBQL PFF 4q: 1505.23 1137.23 2488.70 3507.99    agv: 2159.7875
->>>>>     BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
->>>>>     BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
->>>>>     BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
->>>>>     BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
->>>>>     BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
->>>>>     BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
+>>>>>      BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
+>>>>>      BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
+>>>>>      BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
+>>>>>      BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
+>>>>>      BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
+>>>>>      BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
 >>>>>
 >>>>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 >>>>> ---
 >>>>> v2->v3:
 >>>>> - fixed the switch from/to orphan mode while skbs are yet to be
->>>>>     completed by using the second least significant bit in virtqueue
->>>>>     token pointer to indicate skb is orphan. Don't account orphan
->>>>>     skbs in completion.
+>>>>>      completed by using the second least significant bit in virtqueue
+>>>>>      token pointer to indicate skb is orphan. Don't account orphan
+>>>>>      skbs in completion.
 >>>>> - reorganized parallel skb/xdp free stats accounting to napi/others.
 >>>>> - fixed kick condition check in orphan mode
 >>>>> v1->v2:
 >>>>> - moved netdev_tx_completed_queue() call into __free_old_xmit(),
->>>>>     propagate use_napi flag to __free_old_xmit() and only call
->>>>>     netdev_tx_completed_queue() in case it is true
+>>>>>      propagate use_napi flag to __free_old_xmit() and only call
+>>>>>      netdev_tx_completed_queue() in case it is true
 >>>>> - added forgotten call to netdev_tx_reset_queue()
 >>>>> - fixed stats for xdp packets
 >>>>> - fixed bql accounting when __free_old_xmit() is called from xdp path
 >>>>> - handle the !use_napi case in start_xmit() kick section
 >>>>> ---
->>>>>    drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++------------
->>>>>    1 file changed, 57 insertions(+), 24 deletions(-)
+>>>>>     drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++------------
+>>>>>     1 file changed, 57 insertions(+), 24 deletions(-)
 >>>> I've recently found an issue with virtio-net driver and system
 >>>> suspend/resume. Bisecting pointed to the c8bd1f7f3e61 ("virtio_net: add
 >>>> support for Byte Queue Limits") commit and this patch. Once it got
@@ -152,38 +191,38 @@ Wed, Aug 14, 2024 at 09:49:57AM CEST, jiri@resnulli.us wrote:
 >>>> Hardware name: Generic DT based system
 >>>> PC is at dql_completed+0x270/0x2cc
 >>>> LR is at __free_old_xmit+0x120/0x198
->>>> pc : [<c07ffa54>]    lr : [<c0c42bf4>]    psr: 80000013
+>>>> pc : [<c07ffa54>]Â Â Â  lr : [<c0c42bf4>]Â Â Â  psr: 80000013
 >>>> ...
->>>> Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
->>>> Control: 10c5387d  Table: 43a4406a  DAC: 00000051
+>>>> Flags: NzcvÂ  IRQs onÂ  FIQs onÂ  Mode SVC_32Â  ISA ARMÂ  Segment none
+>>>> Control: 10c5387dÂ  Table: 43a4406aÂ  DAC: 00000051
 >>>> ...
 >>>> Process rtcwake (pid: 1282, stack limit = 0xfbc21278)
 >>>> Stack: (0xe0805e80 to 0xe0806000)
 >>>> ...
 >>>> Call trace:
->>>>   dql_completed from __free_old_xmit+0x120/0x198
->>>>   __free_old_xmit from free_old_xmit+0x44/0xe4
->>>>   free_old_xmit from virtnet_poll_tx+0x88/0x1b4
->>>>   virtnet_poll_tx from __napi_poll+0x2c/0x1d4
->>>>   __napi_poll from net_rx_action+0x140/0x2b4
->>>>   net_rx_action from handle_softirqs+0x11c/0x350
->>>>   handle_softirqs from call_with_stack+0x18/0x20
->>>>   call_with_stack from do_softirq+0x48/0x50
->>>>   do_softirq from __local_bh_enable_ip+0xa0/0xa4
->>>>   __local_bh_enable_ip from virtnet_open+0xd4/0x21c
->>>>   virtnet_open from virtnet_restore+0x94/0x120
->>>>   virtnet_restore from virtio_device_restore+0x110/0x1f4
->>>>   virtio_device_restore from dpm_run_callback+0x3c/0x100
->>>>   dpm_run_callback from device_resume+0x12c/0x2a8
->>>>   device_resume from dpm_resume+0x12c/0x1e0
->>>>   dpm_resume from dpm_resume_end+0xc/0x18
->>>>   dpm_resume_end from suspend_devices_and_enter+0x1f0/0x72c
->>>>   suspend_devices_and_enter from pm_suspend+0x270/0x2a0
->>>>   pm_suspend from state_store+0x68/0xc8
->>>>   state_store from kernfs_fop_write_iter+0x10c/0x1cc
->>>>   kernfs_fop_write_iter from vfs_write+0x2b0/0x3dc
->>>>   vfs_write from ksys_write+0x5c/0xd4
->>>>   ksys_write from ret_fast_syscall+0x0/0x54
+>>>>   Â dql_completed from __free_old_xmit+0x120/0x198
+>>>>   Â __free_old_xmit from free_old_xmit+0x44/0xe4
+>>>>   Â free_old_xmit from virtnet_poll_tx+0x88/0x1b4
+>>>>   Â virtnet_poll_tx from __napi_poll+0x2c/0x1d4
+>>>>   Â __napi_poll from net_rx_action+0x140/0x2b4
+>>>>   Â net_rx_action from handle_softirqs+0x11c/0x350
+>>>>   Â handle_softirqs from call_with_stack+0x18/0x20
+>>>>   Â call_with_stack from do_softirq+0x48/0x50
+>>>>   Â do_softirq from __local_bh_enable_ip+0xa0/0xa4
+>>>>   Â __local_bh_enable_ip from virtnet_open+0xd4/0x21c
+>>>>   Â virtnet_open from virtnet_restore+0x94/0x120
+>>>>   Â virtnet_restore from virtio_device_restore+0x110/0x1f4
+>>>>   Â virtio_device_restore from dpm_run_callback+0x3c/0x100
+>>>>   Â dpm_run_callback from device_resume+0x12c/0x2a8
+>>>>   Â device_resume from dpm_resume+0x12c/0x1e0
+>>>>   Â dpm_resume from dpm_resume_end+0xc/0x18
+>>>>   Â dpm_resume_end from suspend_devices_and_enter+0x1f0/0x72c
+>>>>   Â suspend_devices_and_enter from pm_suspend+0x270/0x2a0
+>>>>   Â pm_suspend from state_store+0x68/0xc8
+>>>>   Â state_store from kernfs_fop_write_iter+0x10c/0x1cc
+>>>>   Â kernfs_fop_write_iter from vfs_write+0x2b0/0x3dc
+>>>>   Â vfs_write from ksys_write+0x5c/0xd4
+>>>>   Â ksys_write from ret_fast_syscall+0x0/0x54
 >>>> Exception stack(0xe8bf1fa8 to 0xe8bf1ff0)
 >>>> ...
 >>>> ---[ end trace 0000000000000000 ]---
@@ -197,64 +236,41 @@ Wed, Aug 14, 2024 at 09:49:57AM CEST, jiri@resnulli.us wrote:
 >>>> issue further and help fixing.
 >>> Will fix this tomorrow. In the meantime, could you provide full
 >>> reproduce steps?
+>> Well, it is easy to reproduce it simply by calling
 >>
->>Well, it is easy to reproduce it simply by calling
+>> # time rtcwake -s10 -mmem
 >>
->># time rtcwake -s10 -mmem
->>
->>a few times and sooner or later it will cause a kernel panic.
->
->I found the problem. Following patch will help:
+>> a few times and sooner or later it will cause a kernel panic.
+> I found the problem. Following patch will help:
 >
 >
->diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->index 3f10c72743e9..c6af18948092 100644
->--- a/drivers/net/virtio_net.c
->+++ b/drivers/net/virtio_net.c
->@@ -2867,8 +2867,8 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-> 	if (err < 0)
-> 		goto err_xdp_reg_mem_model;
-> 
->-	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
-> 	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
->+	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
-> 	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 3f10c72743e9..c6af18948092 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2867,8 +2867,8 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>   	if (err < 0)
+>   		goto err_xdp_reg_mem_model;
+>   
+> -	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+>   	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
+> +	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+>   	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+>   
+>   	return 0;
+>
+>
+> Will submit the patch in a jiff. Thanks!
 
-Hmm, I have to look at this a bit more. I think this might be accidental
-fix. The thing is, napi can be triggered even if it is disabled:
+Confirmed. The above change fixed this issue in my tests.
 
-       ->__local_bh_enable_ip()
-         -> net_rx_action()
-           -> __napi_poll()
+Feel free to add:
 
-Here __napi_poll() calls napi_is_scheduled() and calls virtnet_poll_tx()
-in case napi is scheduled. napi_is_scheduled() checks NAPI_STATE_SCHED
-bit in napi state.
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 
-However, this bit is set previously by netif_napi_add_weight().
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
-
->
-> > ...
->
->Best regards
->-- 
->Marek Szyprowski, PhD
->Samsung R&D Institute Poland
->
-
-
-> 
-> 	return 0;
->
->
->Will submit the patch in a jiff. Thanks!
->
->
->
->>
->>Best regards
->>-- 
->>Marek Szyprowski, PhD
->>Samsung R&D Institute Poland
->>
