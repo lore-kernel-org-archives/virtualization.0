@@ -1,233 +1,128 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00CAC13DDC6
-	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 07:50:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42E91420A8
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 07:50:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723621804; cv=none; b=GiNJZpaR+QjbBzTFKhAs6ZCXrfjdsEkD//6S5W8Ls3J803EhLc0i5amzrKJAZJUz5bCT8IpMKjNZFciP5wAH/BRIDdesl1SwxnEXdPhkm4zQpVFdPG9/L8IYchuzKHxF4Sp9fjxRq8gdYJJPtGKr+qIIRAvfHYcECOxbrAkEGUY=
+	t=1723621806; cv=none; b=srCxqPm08B6iXUKDbCOv669iYcEpVr8C4SVlVsLD0ucbJ3G7CLrTfXojTbnnsf2AjiQ/qiz8tcZe+mrkr27qMKayHBFBJuhSBwEsAkIqEorVs/YyRL/PPANwhzwVPfixQbnsPxBaIk6VK2C8ghIFEJGFlUSOEHMSJpN39r5mNDA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723621804; c=relaxed/simple;
-	bh=3XyxrEltgK1nQeckRz3DVUv5HnufWJ/MNwMkq/665R8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t1EpYyzu9oR3D1HRnJ+z+FAsS77ayL8uaO31C1DVKDNUQMIvOMTZGx4X8OpgVPMSG7ahxhJVwsq4S1gu+7XI6tMwg2nlA/kdltOupMCApdA6wjVeCrcQdJyIt1kfFo9JmjB04z/Og4GcdrQ4P5+xVxctHhQlylpw6gZf2jHGE2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=zZ+8XvpR; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1723621806; c=relaxed/simple;
+	bh=qjFyWqGVssj1+G9jgMuIQV67hYnTfCZUr57iNzX3JuA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=K3JNgh+81cIJP8PdhrKqMp9vQSvsx7XPNkAn6Fwb7r3wP5kzkE1KsbeaIvm+qvcbySc2BNVAen+XWVFu5E8PqiQ9fbal7aivVoUXcdhDFGDPwatfF0je4nyA3ZCFoWIzMwAr1V9dPvE8Xgto1aBrZq3UsaFGzPkWoa/7AUQN6k4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=M7h5sGEJ; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="zZ+8XvpR"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-3685a5e7d3cso3897444f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 00:50:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1723621800; x=1724226600; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=KnxJF5vH42xnqLu8xE2L8+p5aHLeiaYjf9bYmJEwKy4=;
-        b=zZ+8XvpR14frBRB8AjCibRHU2BRvUzX12YVMWWH+5HVwHf4yX/zSFOq0NHiRj2L6UG
-         DUXvMU1AJ+hPIoPmLqO/XMrZZnLfQvZNk9iijhcrZLbC49aahUiL4NR8UXM52hsmnYO0
-         MoPnHcqZkijolvly/kNiHALJbdKM14tjmi3fWFXan+O1dp3TXvVFQffseiflYaYkE+qG
-         o67Ylpi6T99FZ+FvB3RegD1wlDcrLiVcDdylWwf3KNxPwHIgKE3PL73Rtu+o8fdVUVIM
-         sSjp/BgiFrrg7EI/MAcTTZhB21xcgqdzsHZmUUFcgRoPETw642rbG7crBqKia4BB8YW2
-         9Qtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723621800; x=1724226600;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=KnxJF5vH42xnqLu8xE2L8+p5aHLeiaYjf9bYmJEwKy4=;
-        b=BcYyB1I71GMobOgPLbG4kFdWqTg8CDvTjRwZqEH/47+cE4nnUzX27iNtViCsYkQnas
-         gbIvVnzR0eNyWvdtHLuaQKZ11WiMa6+SbVWi114M+X8QXB23cR6f+iiI2lUhTbBTPvW2
-         Fhks8Bbo/jisn+ep9T5korSMGGILpxGKm/2tgseRzUfuN3eYzp2mO9s8PeDfD+Xkd0sN
-         6PV3c8kN/onsNhVVkLBnrvu7hirtaOr+nqoxJZ7clVY2qsUKM9gZ1p23qVVHyMzqrE/P
-         aw1bbm7KPH0b1umPRGV3sm8Nv41tjU3ze7YsU4VZhX6srTIvVr7WX7j9K7yZjKfJZMbh
-         S2fA==
-X-Forwarded-Encrypted: i=1; AJvYcCUEJaMWgJDQrLsoSRoSykQAme8jp3VDpu/idSMI5DvzKYndnNqQYTZ61sSdOs4tE9kLVDaOrd1OL/AKn/PmBVJq/aO0FkDhAsFq0KsKMWU=
-X-Gm-Message-State: AOJu0YwVRYZ/vR5QXQ2nEkbJ/piRpbQiFxyXCzMBH3sx+BY46O9c8eMI
-	DS9D0wf+1kyPDj4+GMB7kQTQS3b3H7DbO6f9kUjja36i2L/OwSqHJdkgUYYZZLE=
-X-Google-Smtp-Source: AGHT+IFDEahJ5TuQ6wfQ74bhe+20YkRc8SKFzJOg0+w9UOAlQ4KsmXfVhIzwImvRfdT1x+E4Q/i4uA==
-X-Received: by 2002:adf:eb08:0:b0:36b:a3c7:b9fd with SMTP id ffacd0b85a97d-3717780b10bmr1110647f8f.56.1723621799872;
-        Wed, 14 Aug 2024 00:49:59 -0700 (PDT)
-Received: from localhost ([37.48.50.18])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429ded71ed8sm11708075e9.31.2024.08.14.00.49.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Aug 2024 00:49:59 -0700 (PDT)
-Date: Wed, 14 Aug 2024 09:49:57 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, ast@kernel.org,
-	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
-	dave.taht@gmail.com, kerneljasonxing@gmail.com,
-	hengqi@linux.alibaba.com
-Subject: Re: [PATCH net-next v3] virtio_net: add support for Byte Queue Limits
-Message-ID: <Zrxhpa4fkVlMPf3Z@nanopsycho.orion>
-References: <20240618144456.1688998-1-jiri@resnulli.us>
- <CGME20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14@eucas1p2.samsung.com>
- <cabe5701-6e25-4a15-b711-924034044331@samsung.com>
- <Zro8l2aPwgmMLlbW@nanopsycho.orion>
- <e632e378-d019-4de7-8f13-07c572ab37a9@samsung.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="M7h5sGEJ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1723621796; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=I5pDPKJB+T80C8NVQjfj99TTYk+U6Sl12RWOlJDvLPA=;
+	b=M7h5sGEJmCtfTG7FNF/K7ESPkocUb/WsBb64jgC2ynrIeT01wGCOFyihsfNtJEk8/+3DiwUcD0SW9TfPKqCdY6sZUn1o50d4OmJD+Nchp2Svs6nVS1CuZ01UWFh2ca1dapjnHNLF4UYm5py08smGtm6MiSdG90NBCCQyBFMMO5Y=
+Received: from 30.221.146.67(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0WCraOrA_1723621793)
+          by smtp.aliyun-inc.com;
+          Wed, 14 Aug 2024 15:49:54 +0800
+Message-ID: <7444ba50-20ba-4908-9f46-0fda488f905b@linux.alibaba.com>
+Date: Wed, 14 Aug 2024 15:49:52 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e632e378-d019-4de7-8f13-07c572ab37a9@samsung.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 0/2] virtiofs: fix the warning for kernel direct IO
+To: Hou Tao <houtao@huaweicloud.com>, linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Bernd Schubert <bernd.schubert@fastmail.fm>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox
+ <willy@infradead.org>, Benjamin Coddington <bcodding@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ houtao1@huawei.com
+References: <20240426143903.1305919-1-houtao@huaweicloud.com>
+ <5d809485-7e29-41ce-b683-7d19b829f86c@linux.alibaba.com>
+ <dbd4499a-8359-6d59-83f6-50f8dba84747@huaweicloud.com>
+Content-Language: en-US
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+In-Reply-To: <dbd4499a-8359-6d59-83f6-50f8dba84747@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Mon, Aug 12, 2024 at 06:55:26PM CEST, m.szyprowski@samsung.com wrote:
->On 12.08.2024 18:47, Jiri Pirko wrote:
->> Mon, Aug 12, 2024 at 04:57:24PM CEST, m.szyprowski@samsung.com wrote:
->>> On 18.06.2024 16:44, Jiri Pirko wrote:
->>>> From: Jiri Pirko <jiri@nvidia.com>
->>>>
->>>> Add support for Byte Queue Limits (BQL).
->>>>
->>>> Tested on qemu emulated virtio_net device with 1, 2 and 4 queues.
->>>> Tested with fq_codel and pfifo_fast. Super netperf with 50 threads is
->>>> running in background. Netperf TCP_RR results:
->>>>
->>>> NOBQL FQC 1q:  159.56  159.33  158.50  154.31    agv: 157.925
->>>> NOBQL FQC 2q:  184.64  184.96  174.73  174.15    agv: 179.62
->>>> NOBQL FQC 4q:  994.46  441.96  416.50  499.56    agv: 588.12
->>>> NOBQL PFF 1q:  148.68  148.92  145.95  149.48    agv: 148.2575
->>>> NOBQL PFF 2q:  171.86  171.20  170.42  169.42    agv: 170.725
->>>> NOBQL PFF 4q: 1505.23 1137.23 2488.70 3507.99    agv: 2159.7875
->>>>     BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
->>>>     BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
->>>>     BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
->>>>     BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
->>>>     BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
->>>>     BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
->>>>
->>>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->>>> ---
->>>> v2->v3:
->>>> - fixed the switch from/to orphan mode while skbs are yet to be
->>>>     completed by using the second least significant bit in virtqueue
->>>>     token pointer to indicate skb is orphan. Don't account orphan
->>>>     skbs in completion.
->>>> - reorganized parallel skb/xdp free stats accounting to napi/others.
->>>> - fixed kick condition check in orphan mode
->>>> v1->v2:
->>>> - moved netdev_tx_completed_queue() call into __free_old_xmit(),
->>>>     propagate use_napi flag to __free_old_xmit() and only call
->>>>     netdev_tx_completed_queue() in case it is true
->>>> - added forgotten call to netdev_tx_reset_queue()
->>>> - fixed stats for xdp packets
->>>> - fixed bql accounting when __free_old_xmit() is called from xdp path
->>>> - handle the !use_napi case in start_xmit() kick section
->>>> ---
->>>>    drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++------------
->>>>    1 file changed, 57 insertions(+), 24 deletions(-)
->>> I've recently found an issue with virtio-net driver and system
->>> suspend/resume. Bisecting pointed to the c8bd1f7f3e61 ("virtio_net: add
->>> support for Byte Queue Limits") commit and this patch. Once it got
->>> merged to linux-next and then Linus trees, the driver occasionally
->>> crashes with the following log (captured on QEMU's ARM 32bit 'virt'
->>> machine):
+
+
+On 8/14/24 3:46 PM, Hou Tao wrote:
+> Hi,
+> 
+> On 8/14/2024 2:34 PM, Jingbo Xu wrote:
+>> Hi, Tao,
+>>
+>> On 4/26/24 10:39 PM, Hou Tao wrote:
+>>> From: Hou Tao <houtao1@huawei.com>
 >>>
->>> root@target:~# time rtcwake -s10 -mmem
->>> rtcwake: wakeup from "mem" using /dev/rtc0 at Sat Aug 10 12:40:26 2024
->>> PM: suspend entry (s2idle)
->>> Filesystems sync: 0.000 seconds
->>> Freezing user space processes
->>> Freezing user space processes completed (elapsed 0.006 seconds)
->>> OOM killer disabled.
->>> Freezing remaining freezable tasks
->>> Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
->>> ------------[ cut here ]------------
->>> kernel BUG at lib/dynamic_queue_limits.c:99!
->>> Internal error: Oops - BUG: 0 [#1] SMP ARM
->>> Modules linked in: bluetooth ecdh_generic ecc libaes
->>> CPU: 1 PID: 1282 Comm: rtcwake Not tainted
->>> 6.10.0-rc3-00732-gc8bd1f7f3e61 #15240
->>> Hardware name: Generic DT based system
->>> PC is at dql_completed+0x270/0x2cc
->>> LR is at __free_old_xmit+0x120/0x198
->>> pc : [<c07ffa54>]    lr : [<c0c42bf4>]    psr: 80000013
->>> ...
->>> Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
->>> Control: 10c5387d  Table: 43a4406a  DAC: 00000051
->>> ...
->>> Process rtcwake (pid: 1282, stack limit = 0xfbc21278)
->>> Stack: (0xe0805e80 to 0xe0806000)
->>> ...
->>> Call trace:
->>>   dql_completed from __free_old_xmit+0x120/0x198
->>>   __free_old_xmit from free_old_xmit+0x44/0xe4
->>>   free_old_xmit from virtnet_poll_tx+0x88/0x1b4
->>>   virtnet_poll_tx from __napi_poll+0x2c/0x1d4
->>>   __napi_poll from net_rx_action+0x140/0x2b4
->>>   net_rx_action from handle_softirqs+0x11c/0x350
->>>   handle_softirqs from call_with_stack+0x18/0x20
->>>   call_with_stack from do_softirq+0x48/0x50
->>>   do_softirq from __local_bh_enable_ip+0xa0/0xa4
->>>   __local_bh_enable_ip from virtnet_open+0xd4/0x21c
->>>   virtnet_open from virtnet_restore+0x94/0x120
->>>   virtnet_restore from virtio_device_restore+0x110/0x1f4
->>>   virtio_device_restore from dpm_run_callback+0x3c/0x100
->>>   dpm_run_callback from device_resume+0x12c/0x2a8
->>>   device_resume from dpm_resume+0x12c/0x1e0
->>>   dpm_resume from dpm_resume_end+0xc/0x18
->>>   dpm_resume_end from suspend_devices_and_enter+0x1f0/0x72c
->>>   suspend_devices_and_enter from pm_suspend+0x270/0x2a0
->>>   pm_suspend from state_store+0x68/0xc8
->>>   state_store from kernfs_fop_write_iter+0x10c/0x1cc
->>>   kernfs_fop_write_iter from vfs_write+0x2b0/0x3dc
->>>   vfs_write from ksys_write+0x5c/0xd4
->>>   ksys_write from ret_fast_syscall+0x0/0x54
->>> Exception stack(0xe8bf1fa8 to 0xe8bf1ff0)
->>> ...
->>> ---[ end trace 0000000000000000 ]---
->>> Kernel panic - not syncing: Fatal exception in interrupt
->>> ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+>>> Hi,
 >>>
->>> I have fully reproducible setup for this issue. Reverting it together
->>> with f8321fa75102 ("virtio_net: Fix napi_skb_cache_put warning") (due to
->>> some code dependencies) fixes this issue on top of Linux v6.11-rc1 and
->>> recent linux-next releases. Let me know if I can help debugging this
->>> issue further and help fixing.
->> Will fix this tomorrow. In the meantime, could you provide full
->> reproduce steps?
->
->Well, it is easy to reproduce it simply by calling
->
-># time rtcwake -s10 -mmem
->
->a few times and sooner or later it will cause a kernel panic.
+>>> The patch set aims to fix the warning related to an abnormal size
+>>> parameter of kmalloc() in virtiofs. Patch #1 fixes it by introducing
+>>> use_pages_for_kvec_io option in fuse_conn and enabling it in virtiofs.
+>>> Beside the abnormal size parameter for kmalloc, the gfp parameter is
+>>> also questionable: GFP_ATOMIC is used even when the allocation occurs
+>>> in a kworker context. Patch #2 fixes it by using GFP_NOFS when the
+>>> allocation is initiated by the kworker. For more details, please check
+>>> the individual patches.
+>>>
+>>> As usual, comments are always welcome.
+>>>
+>>> Change Log:
+>>>
+>>> v3:
+>>>  * introduce use_pages_for_kvec_io for virtiofs. When the option is
+>>>    enabled, fuse will use iov_iter_extract_pages() to construct a page
+>>>    array and pass the pages array instead of a pointer to virtiofs.
+>>>    The benefit is twofold: the length of the data passed to virtiofs is
+>>>    limited by max_pages, and there is no memory copy compared with v2.
+>>>
+>>> v2: https://lore.kernel.org/linux-fsdevel/20240228144126.2864064-1-houtao@huaweicloud.com/
+>>>   * limit the length of ITER_KVEC dio by max_pages instead of the
+>>>     newly-introduced max_nopage_rw. Using max_pages make the ITER_KVEC
+>>>     dio being consistent with other rw operations.
+>>>   * replace kmalloc-allocated bounce buffer by using a bounce buffer
+>>>     backed by scattered pages when the length of the bounce buffer for
+>>>     KVEC_ITER dio is larger than PAG_SIZE, so even on hosts with
+>>>     fragmented memory, the KVEC_ITER dio can be handled normally by
+>>>     virtiofs. (Bernd Schubert)
+>>>   * merge the GFP_NOFS patch [1] into this patch-set and use
+>>>     memalloc_nofs_{save|restore}+GFP_KERNEL instead of GFP_NOFS
+>>>     (Benjamin Coddington)
+>>>
+>>> v1: https://lore.kernel.org/linux-fsdevel/20240103105929.1902658-1-houtao@huaweicloud.com/
+>>>
+>>> [1]: https://lore.kernel.org/linux-fsdevel/20240105105305.4052672-1-houtao@huaweicloud.com/
+>>>
+>>> Hou Tao (2):
+>>>   virtiofs: use pages instead of pointer for kernel direct IO
+>>>   virtiofs: use GFP_NOFS when enqueuing request through kworker
+>>>
+>>>  fs/fuse/file.c      | 12 ++++++++----
+>>>  fs/fuse/fuse_i.h    |  3 +++
+>>>  fs/fuse/virtio_fs.c | 25 ++++++++++++++++---------
+>>>  3 files changed, 27 insertions(+), 13 deletions(-)
+>>>
+>> We also encountered the same issue as [1] these days when attempting to
+>> insmod a module with ~6MB size, which is upon a virtiofs filesystem.
+>>
+>> It would be much helpful if this issue has a standard fix in the
+>> upstream.  I see there will be v4 when reading through the mailing
+>> thread.  Glad to know if there's any update to this series.
+> 
+> Being busy with other stuff these days. I hope to send v4 before next
+> weekend.
 
-I found the problem. Following patch will help:
+Many thanks, Tao.
 
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 3f10c72743e9..c6af18948092 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2867,8 +2867,8 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
- 	if (err < 0)
- 		goto err_xdp_reg_mem_model;
- 
--	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
- 	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
-+	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
- 	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
- 
- 	return 0;
-
-
-Will submit the patch in a jiff. Thanks!
-
-
-
->
->Best regards
->-- 
->Marek Szyprowski, PhD
->Samsung R&D Institute Poland
->
+-- 
+Thanks,
+Jingbo
