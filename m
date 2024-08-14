@@ -1,346 +1,158 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 576DA20DE8
-	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 15:19:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723648769; cv=fail; b=IfNb4p1lpmx2DLDE7Ivku2G2eKTeyZXaZ8qB536XkGEqRY03iQtiPueJi+KdHiKraqZhBcm2LUsL64kfxViT9jJ9a7YmDbgRTkmjCHdhZZwyzqSWVNJFFGHwuK9AxngdLKyVzDAhbdq5nT7oFlCIfhg4/2RM4aZPl1mUJsBdVmY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723648769; c=relaxed/simple;
-	bh=jkqxBl4wQMb5cC5oe4EjJ4P+h87zGuM+37x5AR9IiOA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 Content-Type:MIME-Version; b=abxaDV3XYlV6SdsGvJ6bvysmto1y/hPUr6q22bhiQvKa5S4nGIAWtw3ETQVdV3S+S3AjATExETetk9BnwLtYYS/mw52gohZuCyFp8EDG7wQ+em6g4LGCJonVkqTiFHbEwXbfriWoSqrdp58kvcjB88kgj1mnsvNA2yNiA5g/3Ho=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=CacciOpy; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=THp4xp8b; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274AF1B29CF
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 15:50:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723650603; cv=none; b=Lf4EGFq8nxqEd4iCgpjllRyqb/dT+g1+i6T/H1HQEKBv6liimriCJihg3Ig7HrpCzoZfa/AIoYEla51RCe9rNp9v8afAdNo9LAZEgCmCIgntvkfXpqhePoISIL9S9T0BA+H9pfG4yVx/hMjQ7/QicTNPO3D7MBgbV7B4jN+Qh+c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723650603; c=relaxed/simple;
+	bh=6vcFZWl/iSCK/BZGfGXgt8ur06Ij2rRs68cC5ThdJyg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=D20GnioOuo7Y3RSFxdkcXGvgWTiCxDfwCYk6XbN26nk76MiDCUutewRuQwYvDJZpn2HS7ugOwCrhqyg/DYSQ8fJ4fpA23YcQpAIzZVPk7E2bOqBLli6NOLnoWR2M9aVHW/w6h0uPHtyrTnB/s5Kk6/d9cjHzm/BDxf4nwwSxCT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L4UT6HB2; arc=none smtp.client-ip=209.85.210.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="CacciOpy";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="THp4xp8b"
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47EBtWmV015143;
-	Wed, 14 Aug 2024 15:19:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
-	from:to:cc:subject:in-reply-to:references:date:message-id
-	:content-type:mime-version; s=corp-2023-11-20; bh=Gt5BATB4Nz08zy
-	IwtSdC6S8yykdCaxEMU9BHQZS3dag=; b=CacciOpyihCFtH6uXRxDxXfu5oScTw
-	zK3YBDK3WqJlULuulplLnE0AaVE73XjnP3cE1mpLCA8LdBxw80HqdIHTbaW9Ryad
-	yyOyInBGdIQ997C8M8IIai9SPinCD6rAnnYMU8kxu9wr2k4/n0d6/85o5fQ0SOI/
-	3TBWDMv2mmvp2SX2k4tsQx6+ORtpQKUlBHZtehpgJuSrnF0ib9o/hq86FfTiS5Yg
-	vd6tszvDwieR8QnpCRV8bX675h2M1PxX70jF+A9XMaffMEbu+6AENhQh1K0WqKLn
-	DuTBbo4neFQ4/x3+nER10zY7tt6DP9l7ZbSSe3C0LSDOusP9CBCUPo5A==
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 40wy030q1m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Aug 2024 15:19:14 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 47EEPN50001390;
-	Wed, 14 Aug 2024 15:19:14 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2044.outbound.protection.outlook.com [104.47.70.44])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 40wxna097a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Aug 2024 15:19:13 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=miuoRriBSJPRzvIwz1CGwUea+CkTxfuYlq5opQKjcUteyHJKO+jxeqvsElMuLN5IFwUXJEqvlpeik0RpLzrJdy4bGYV/qvre/4VrCESfljgRAnCVMFiSFYTqdB6qLhz23leAQC7Qc/f0oAKKfPkIdF8Ws5tF2PSSyYPsjmfXXZtIHrndX7sjVQdzhuDNopJE65G5AV1f2VEAK9kKeU4S4AHZZgRCBkOQeO3fG80APAhs3iXO5w5UY21txBwEpwAgHznwbI8bmCeiiN3g+h/VVybYa+wUvIBz3hkOq94LxX520Mxoz5Zc+pYb48+i1bVG78TKkhBdrJpGJyWtr5TIag==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Gt5BATB4Nz08zyIwtSdC6S8yykdCaxEMU9BHQZS3dag=;
- b=kPnHrnvNA4x4yyCziewOe7fv9suKczS54adfRHzOYXlyzon+LZpCDFY+TZ7Nng2bdfAUtWvZSPp3VOkIF6xjId2v4BkGk+tbAKVVfzYuaK+jnUgSub+HxPkCm7fF8GUE5cIBWN5i49ECkyKoWVnmQbGCMaqEZ3yJjt0LwR3hHQF0AZ0udoAqdWsdWZQtR4aq6sFEYqKOylDQz7o8gzVHqBGMOn8lhPeyh09E1YvGhyDlUKtO9LvDrBnisgwkaNDReTE9AFLQJDR1Wt382UAvgOWB7vbrTmDmiTIXvsDs9gER79+daLfQVVZLMVrJw31j9oRSkRjZR9bZD1H9SO+ZTg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L4UT6HB2"
+Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-7093efbade6so4611810a34.2
+        for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 08:50:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Gt5BATB4Nz08zyIwtSdC6S8yykdCaxEMU9BHQZS3dag=;
- b=THp4xp8bUBRPDuUrD628HzX9Qtc9WKNg5ZgPxf8CXp+UAGgRbVimGQkR3dylGFTUFvjrTNGaatnAXU5oCO0dkw1YTu7EDTe5mYRyPyuNaDeZ0Ht0tX7j/w50cyNDJ30ll9rbEuOuBr8dH7WrEnH0diXU+iLUFLtGxRH0WHCq2mI=
-Received: from PH8PR10MB6622.namprd10.prod.outlook.com (2603:10b6:510:222::5)
- by BL3PR10MB6044.namprd10.prod.outlook.com (2603:10b6:208:3b4::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.15; Wed, 14 Aug
- 2024 15:19:11 +0000
-Received: from PH8PR10MB6622.namprd10.prod.outlook.com
- ([fe80::510e:23a9:3022:5990]) by PH8PR10MB6622.namprd10.prod.outlook.com
- ([fe80::510e:23a9:3022:5990%6]) with mapi id 15.20.7875.015; Wed, 14 Aug 2024
- 15:19:10 +0000
-From: Darren Kenny <darren.kenny@oracle.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang
- <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo
- Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev,
-        Boris Ostrovsky
- <boris.ostrovsky@oracle.com>,
-        Si-Wei Liu <si-wei.liu@oracle.com>,
-        Eugenio
- =?utf-8?Q?P=C3=A9rez?= <eperezma@redhat.com>
-Subject: Re: [PATCH RFC 1/3] Revert "virtio_net: rx remove premapped
- failover code"
-In-Reply-To: <7774ac707743ad8ce3afeacbd4bee63ac96dd927.1723617902.git.mst@redhat.com>
-References: <cover.1723617902.git.mst@redhat.com>
- <7774ac707743ad8ce3afeacbd4bee63ac96dd927.1723617902.git.mst@redhat.com>
-Date: Wed, 14 Aug 2024 16:19:06 +0100
-Message-ID: <m2y14zrv2t.fsf@oracle.com>
-Content-Type: text/plain
-X-ClientProxiedBy: DUZPR01CA0077.eurprd01.prod.exchangelabs.com
- (2603:10a6:10:46a::15) To PH8PR10MB6622.namprd10.prod.outlook.com
- (2603:10b6:510:222::5)
+        d=gmail.com; s=20230601; t=1723650600; x=1724255400; darn=lists.linux.dev;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=fDv9V0v7KkpdJrpMs0piYzLNRxXj+irK5gUuUzZpGhs=;
+        b=L4UT6HB2x7QSxKIEr+eLSD2bfSBL1De7EeI1P8phiCIgamtfLBUinJQO/thPNOsshN
+         u14hXVeCp8hyx3dHTSVQKkjNkPJatLe/+XlApA0sqRrKI5hoSNlac+b5E9KuRy8S3pCL
+         kqJH9kvTvgOykmd8CLBuvrc0Vr3caHdncaq9gpErteblb0hJU3pm90iEolKzrkEV9J0H
+         MPuTYutzhjlb29qlntAXIm4vd/Fm1llTZ1ixffciARrHUqZsEYY7342u70Dj6JNhhOKQ
+         EGjwQ+Wbho/ZbdwYOGLjy1eOFbvBiPSoZTDwgZzZ3+iPo32eSB6By3G4KhyfrQN0Ktuh
+         c3Cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723650600; x=1724255400;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=fDv9V0v7KkpdJrpMs0piYzLNRxXj+irK5gUuUzZpGhs=;
+        b=w26gHAl+MXadolVaGGi1JFrwW9aNMh4RTYAz4QUpg0uv8XQ1JkHny+l5JTrQNzemeu
+         Xkw3xWl0eg7L5/t47/XW36gTVMS8ztj5UAVQ6jHNiwmsMI2SJ0cjeEi2095+vTx3w16G
+         c7++1NbkM3TJwSmpsfGudMZ7JVjS8rjAr/LHDzwBNMjz0DOniU/hhrQdTiw33yXcXPu5
+         1HED+vXBu77KROhRRb3oQiLHpwC2cPXvkwxPuM801rK0jl9owXvQ2Gj8aj8hUQBrGrAU
+         XS348GxUORfzOdcoybuKU7ONjQu1epvPVQhmaNNqpBO1hOUUopDGShryFpV1WamE3xQY
+         QesA==
+X-Forwarded-Encrypted: i=1; AJvYcCWnAQLzKITI0OZopYyehsMIm78juxDVeFdteRNCBfGdyN2BNMlE7VOm93GTDYTpLHCR3P3N4ia/t0jHFodE28Fer3mXsd2EEw1Bm98oQRg=
+X-Gm-Message-State: AOJu0Yzy4jyhXOgh5e5C69tB2oX0ZUIXlWG+KmXKtFHVJXVJthZrWt4K
+	4hIhbEGbP66+Xncm518jKJNUiHJqhKI8+ZTkRwiUqP6sN2wUEVeT
+X-Google-Smtp-Source: AGHT+IF+xU5hTvBzD845HScA3WjHDYwvu17hmSc7al7mxeLt+8xp5o7SMvsr67KFPwp2VJkvDAOPFA==
+X-Received: by 2002:a05:6830:638b:b0:709:3f84:c1e0 with SMTP id 46e09a7af769-70c9d9c25a1mr3660423a34.26.1723650600144;
+        Wed, 14 Aug 2024 08:50:00 -0700 (PDT)
+Received: from ?IPv6:2605:59c8:829:4c00:82ee:73ff:fe41:9a02? ([2605:59c8:829:4c00:82ee:73ff:fe41:9a02])
+        by smtp.googlemail.com with ESMTPSA id 46e09a7af769-70c7b880badsm2269478a34.54.2024.08.14.08.49.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Aug 2024 08:49:59 -0700 (PDT)
+Message-ID: <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+From: Alexander H Duyck <alexander.duyck@gmail.com>
+To: Yunsheng Lin <linyunsheng@huawei.com>, davem@davemloft.net,
+ kuba@kernel.org,  pabeni@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Subbaraya Sundeep
+ <sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, Sagi Grimberg
+ <sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, Praveen
+ Kaligineedi <pkaligineedi@google.com>, Shailend Chand
+ <shailend@google.com>, Eric Dumazet <edumazet@google.com>, Tony Nguyen
+ <anthony.l.nguyen@intel.com>, Przemek Kitszel
+ <przemyslaw.kitszel@intel.com>, Sunil Goutham <sgoutham@marvell.com>,
+ Geetha sowjanya <gakula@marvell.com>, hariprasad <hkelam@marvell.com>,
+ Felix Fietkau <nbd@nbd.name>, Sean Wang <sean.wang@mediatek.com>, Mark Lee
+ <Mark-MC.Lee@mediatek.com>, Lorenzo Bianconi <lorenzo@kernel.org>, Matthias
+ Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
+ <angelogioacchino.delregno@collabora.com>, Keith Busch <kbusch@kernel.org>,
+  Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Chaitanya
+ Kulkarni <kch@nvidia.com>,  "Michael S. Tsirkin" <mst@redhat.com>, Jason
+ Wang <jasowang@redhat.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
+ <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, Martin
+ KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>,
+ Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, KP
+ Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>, Hao Luo
+ <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,  David Howells
+ <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Jeff Layton
+ <jlayton@kernel.org>,  Neil Brown <neilb@suse.de>, Olga Kornievskaia
+ <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
+ <tom@talpey.com>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
+ <anna@kernel.org>,  Shuah Khan <shuah@kernel.org>,
+ intel-wired-lan@lists.osuosl.org, linux-arm-kernel@lists.infradead.org, 
+ linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org, 
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+ bpf@vger.kernel.org, linux-afs@lists.infradead.org,
+ linux-nfs@vger.kernel.org,  linux-kselftest@vger.kernel.org
+Date: Wed, 14 Aug 2024 08:49:53 -0700
+In-Reply-To: <20240808123714.462740-5-linyunsheng@huawei.com>
+References: <20240808123714.462740-1-linyunsheng@huawei.com>
+	 <20240808123714.462740-5-linyunsheng@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH8PR10MB6622:EE_|BL3PR10MB6044:EE_
-X-MS-Office365-Filtering-Correlation-Id: ed8d1cd6-b63b-462b-2fb9-08dcbc74726c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	SO4tPlBcto/48RNvb+t01HvI1knG6CvPyC6e7i+iybvAf1WsEXtntWuMI02KlwGk4+y+1BEDNGE5yqoenuYrZd1/lcD/Wv+oO2fpkWUax/A3IuAokSt3wW3X620RtKKP07VhKrsbp/EwbKljdAZyTc7hJ1p/+TX8cVliAsmpNPbRXJIMAyrfQYsbRjlWDLG6Lofbn0CUnqy5+tt2p1CoY+yP/FH+S7iY9Ft5JxjSMVItdl+dmIP7yHccy2zm1/HLFDVlR0fLTcVSXN0gK04P3DsRlrU/4cQbbIdbSc9HWDOXughVxp62ON0NA+ogX4ihhxmitGasjNace7o+cwFKnXNWszHOoVJ6ln3pi662h5SCj4Nkq5iuGqVNOjWfFL1iT3rPP4HCmhL13LBDKljhqbFAAqXFiZoPP2Qx2P+USii2jW5+WmrVSVAf4UIf/5GKpR8TYfuv+mRMQMkrNffaPPGZNu+hOSZASR/UdvVF6hIboNDYaydN1gDoHsVXYflPLH4l4fnKGWSx5AKAkJNbz4Y810B4ITE6xkXK+weOojjT9AJbrQ26citqLGz4h3IttN43aRrGUWIhb/cwJj3Z+0XYKx2luiuX5mKFKORdYwdIwJCcNw3QuZ3pfv2u1k280ZRaMWHObP9rMpASLAvDAYKx2xqX3CcxGpEnJ2N72xI=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR10MB6622.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?ZnVXGRz3szPNWDhvxa6cIpipqEVqnDw5JGAG0+b0ws14vwNdhtGVYqkO4VLa?=
- =?us-ascii?Q?ZTUreer1MkMlOHy2ZD+lZMLDIgPjWoV+l9yfy+COOGwvHsdhP581cYCZwF8s?=
- =?us-ascii?Q?curd9y2zXySyyhWqj4zbO1eL5q+SfSOiCqrjQnwe70tXQB06ixo+KR2IBcbP?=
- =?us-ascii?Q?LaCRiCjBD1FeRJeE7cklNh0nkFeHx3VreJdiXYhLP/lGQWlwCSNpFPUXJRGJ?=
- =?us-ascii?Q?J75cTpEOcjNTHFvLVZp1x2yNe0sSK0kMhJt8RWPbw1LZZUDQJAiP+Op0zM++?=
- =?us-ascii?Q?DZLtIJdyuyetvRgRGzNMCzFwtbevU+3yfsz2wUQ2wlygWe0HG2fJ5B5KR6GV?=
- =?us-ascii?Q?9gU03xeKTz5JCWMEch7h4pNs23md16GjxZYeKGnryBkVHfUIElrU8swoL+i9?=
- =?us-ascii?Q?yRHL7jZWJ5Y6F3obo3192n4AnRD75hjhTU6SD4B102YvAx8eV6fLZTRQSddh?=
- =?us-ascii?Q?aAd5qTXXTDX5UPTlDI4RqLZgjbozRNroNO0RibCJs96LXLnaTTeFfniMdS5H?=
- =?us-ascii?Q?rg7zn6zCKgGRdsvxdNQhqOzYPzDxqRiRBFTlFW/PzrYYMYXDR9ywJ+9XX7P3?=
- =?us-ascii?Q?SMtfMeQgw8wTVoAA2NSTZn3EjQXsxOoSqb2Y7nwrhC/nrrwh+XOSnwN3byHW?=
- =?us-ascii?Q?ylAZ3fMrytde1I1kmiaA09M3d1b3qEm6ubHMQ69U1qD32u2TSiR3OUQrkuMb?=
- =?us-ascii?Q?OBk0A49w0eEnMK6m90TRx5Rj2LiPkNtbw0lwOYuJmUtIan3kJ7tCaImjuZtK?=
- =?us-ascii?Q?il8HSjXUl7YtHa/7k/vFE9Eb4H5iFjjnTOH28r4Hgls1XmpfLtyxDTlvIQDm?=
- =?us-ascii?Q?sdKbx/+GMumamvPlTWKfYmbAMia4dD1Nd+AqaUEGsSYfVbwBtb//zjYt0ZoF?=
- =?us-ascii?Q?lSxlBMJzch3URLfcjEjNFc2xL4ZzNkXh/VGnnwBhXeyINU7XeJyilVO8osSi?=
- =?us-ascii?Q?6Rafi6FDUdOjZ/5ng6+ZFb9hLLwSQFtCSi/ETTk9ogjGmLzT9+18SyH+yGb1?=
- =?us-ascii?Q?8Ay2He7WBZSfahMmJTTuqdQR6vuxBl3E3qqIFKlx92Uobr1fDBaNBw89R78+?=
- =?us-ascii?Q?PP6OovK+VMPrVCQ5AcsUovTOLyos7C6AjhG6qwahjPZaJ+be4mBP09seq218?=
- =?us-ascii?Q?yJffwTFK2ExEd0klKP0SvJRVxM/FA5FCjg332/+biVJK3Q69xF9xgGDkGtni?=
- =?us-ascii?Q?i6xQEn17WjjCwaobSSLAcptMEB2GRD2ARlCbmOXpQKn1i9XDPP5gYAmQA0wj?=
- =?us-ascii?Q?n0oXPEY4j/1ZYM81ODuWy3z6weetLNXBi0ETrQevdSdh5qkZViskISBowcyk?=
- =?us-ascii?Q?X4C5Q5G23yy4oaDQawH1uJUOxHgCvuaYYbc37UeuL76dEj5WVN86czzqmSQ1?=
- =?us-ascii?Q?ZXHP5S9FrtZpiQd7YmvTvHxRk+oat99oINUjutTx5jdkYFuu8G6fy0RQhHtH?=
- =?us-ascii?Q?qNGg210WQJh5k7Cts8xSRitl+x5EvT4e0XXoCJQEvYdT3kjNTorAkZe9Po81?=
- =?us-ascii?Q?Uxhk8FtON2TpgePjQKlBFChuLTSjFSK83VDSLwRkA9aFY4gz0J3YjWzsT1cq?=
- =?us-ascii?Q?Rx6gYfxxk11pFmdZzl9Zy2YGPAq1kqXudOIFfcJW4HilNnpNcL3o02zA3rzD?=
- =?us-ascii?Q?+f50w0hY+2KEa1XBBfodsPM7q6IGYTfMT4AkMZtK7IXUcYZ8hAtDre2r263J?=
- =?us-ascii?Q?0/BjuQ=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	e4HWf54yIS2wUhY2HhmY0ESs6HRQQLKrRGGV42rZaVnGUDwjA7KBWaxgpxyCtXcxDSHLL0Dxoc7sZVyJvKqUKPukMHrn0ccYQrq6ck1puzvyq9cJ8xXs4N5oLqNvUoSH2hrB0Zrv/fiZvpqU6CH4LjgghNbmHalz9csAmyarkwJiS2261P+ja8Hx6z9drK7bddZqQsrFoSeqPB1eiwH3EuLrmUodZ+hMQg0QDso8+MsIFPGrZ4d28Ea4XLGxOSY8fXQS+qnhKQbGCTRj0s0M2whE5mO9pYhV4wWK5WjDmXGhhALhBXSnE1i1UpT8JqRXCOYgvdEgAsDW5s9WxKlAD572n/DBtiALfMvboAT1RN40FIGdyQ7ismiplq8xV0dNop11IHi1vcrs2M04tvdwweCl5CP3KC67kzIa6EsxJPVDdWe5aDHtlwX2al5gnVTZtduNP0yLABSQEaOV4jeAYforbLLB/V0ahDocd8Wtj0DaGPCJwmWW3ugHLfvRKnjG7JiXf5ZlhwPdgnBMpbGQqNtHL2EBSrWVnVdnhSkTPPkdNI6oTh14ZkSU5/d4QbMnUnjybDKuRYqNBvrTezITnU5nry71LODdAlKDyDY/T/4=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ed8d1cd6-b63b-462b-2fb9-08dcbc74726c
-X-MS-Exchange-CrossTenant-AuthSource: PH8PR10MB6622.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Aug 2024 15:19:10.7398
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /s1+WQ5EEZJn1eZJBlniMZptME2Rj0o+Xzlev1FPLrYsALQ/K0bD3H3anxExpGevLs1J9MdL1yZgpCBZGPSiyg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR10MB6044
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-14_11,2024-08-13_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0
- mlxlogscore=999 bulkscore=0 phishscore=0 mlxscore=0 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2407110000 definitions=main-2408140106
-X-Proofpoint-GUID: y1pymA2Ffycf3WvDZthLda_5f7LyQBEu
-X-Proofpoint-ORIG-GUID: y1pymA2Ffycf3WvDZthLda_5f7LyQBEu
 
-Hi Michael,
-
-I've tested this on the system that was reproducing the panic, and it
-everything is working now as expected.
-
-For the series then:
-
-Tested-by: Darren Kenny <darren.kenny@oracle.com>
-
-Thanks,
-
-Darren.
-
-On Wednesday, 2024-08-14 at 02:59:20 -04, Michael S. Tsirkin wrote:
-> This reverts commit defd28aa5acb0fd7c15adc6bc40a8ac277d04dea.
->
-> leads to crashes with no ACCESS_PLATFORM when
-> sysctl net.core.high_order_alloc_disable=1
->
-> Reported-by: Si-Wei Liu <si-wei.liu@oracle.com>
-> Message-ID: <8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On Thu, 2024-08-08 at 20:37 +0800, Yunsheng Lin wrote:
+> Currently the page_frag API is returning 'virtual address'
+> or 'va' when allocing and expecting 'virtual address' or
+> 'va' as input when freeing.
+>=20
+> As we are about to support new use cases that the caller
+> need to deal with 'struct page' or need to deal with both
+> 'va' and 'struct page'. In order to differentiate the API
+> handling between 'va' and 'struct page', add '_va' suffix
+> to the corresponding API mirroring the page_pool_alloc_va()
+> API of the page_pool. So that callers expecting to deal with
+> va, page or both va and page may call page_frag_alloc_va*,
+> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
+>=20
+> CC: Alexander Duyck <alexander.duyck@gmail.com>
+> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
+> Acked-by: Chuck Lever <chuck.lever@oracle.com>
+> Acked-by: Sagi Grimberg <sagi@grimberg.me>
 > ---
->  drivers/net/virtio_net.c | 89 +++++++++++++++++++++++-----------------
->  1 file changed, 52 insertions(+), 37 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index fd3d7e926022..4f7e686b8bf9 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -348,6 +348,9 @@ struct receive_queue {
->  
->  	/* Record the last dma info to free after new pages is allocated. */
->  	struct virtnet_rq_dma *last_dma;
-> +
-> +	/* Do dma by self */
-> +	bool do_dma;
->  };
->  
->  /* This structure can contain rss message with maximum settings for indirection table and keysize
-> @@ -848,7 +851,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
->  	void *buf;
->  
->  	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> -	if (buf)
-> +	if (buf && rq->do_dma)
->  		virtnet_rq_unmap(rq, buf, *len);
->  
->  	return buf;
-> @@ -861,6 +864,11 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
->  	u32 offset;
->  	void *head;
->  
-> +	if (!rq->do_dma) {
-> +		sg_init_one(rq->sg, buf, len);
-> +		return;
-> +	}
-> +
->  	head = page_address(rq->alloc_frag.page);
->  
->  	offset = buf - head;
-> @@ -886,42 +894,44 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
->  
->  	head = page_address(alloc_frag->page);
->  
-> -	dma = head;
-> +	if (rq->do_dma) {
-> +		dma = head;
->  
-> -	/* new pages */
-> -	if (!alloc_frag->offset) {
-> -		if (rq->last_dma) {
-> -			/* Now, the new page is allocated, the last dma
-> -			 * will not be used. So the dma can be unmapped
-> -			 * if the ref is 0.
-> +		/* new pages */
-> +		if (!alloc_frag->offset) {
-> +			if (rq->last_dma) {
-> +				/* Now, the new page is allocated, the last dma
-> +				 * will not be used. So the dma can be unmapped
-> +				 * if the ref is 0.
-> +				 */
-> +				virtnet_rq_unmap(rq, rq->last_dma, 0);
-> +				rq->last_dma = NULL;
-> +			}
-> +
-> +			dma->len = alloc_frag->size - sizeof(*dma);
-> +
-> +			addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
-> +							      dma->len, DMA_FROM_DEVICE, 0);
-> +			if (virtqueue_dma_mapping_error(rq->vq, addr))
-> +				return NULL;
-> +
-> +			dma->addr = addr;
-> +			dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
-> +
-> +			/* Add a reference to dma to prevent the entire dma from
-> +			 * being released during error handling. This reference
-> +			 * will be freed after the pages are no longer used.
->  			 */
-> -			virtnet_rq_unmap(rq, rq->last_dma, 0);
-> -			rq->last_dma = NULL;
-> +			get_page(alloc_frag->page);
-> +			dma->ref = 1;
-> +			alloc_frag->offset = sizeof(*dma);
-> +
-> +			rq->last_dma = dma;
->  		}
->  
-> -		dma->len = alloc_frag->size - sizeof(*dma);
-> -
-> -		addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
-> -						      dma->len, DMA_FROM_DEVICE, 0);
-> -		if (virtqueue_dma_mapping_error(rq->vq, addr))
-> -			return NULL;
-> -
-> -		dma->addr = addr;
-> -		dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
-> -
-> -		/* Add a reference to dma to prevent the entire dma from
-> -		 * being released during error handling. This reference
-> -		 * will be freed after the pages are no longer used.
-> -		 */
-> -		get_page(alloc_frag->page);
-> -		dma->ref = 1;
-> -		alloc_frag->offset = sizeof(*dma);
-> -
-> -		rq->last_dma = dma;
-> +		++dma->ref;
->  	}
->  
-> -	++dma->ref;
-> -
->  	buf = head + alloc_frag->offset;
->  
->  	get_page(alloc_frag->page);
-> @@ -938,9 +948,12 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
->  	if (!vi->mergeable_rx_bufs && vi->big_packets)
->  		return;
->  
-> -	for (i = 0; i < vi->max_queue_pairs; i++)
-> -		/* error should never happen */
-> -		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
-> +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> +		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
-> +			continue;
-> +
-> +		vi->rq[i].do_dma = true;
-> +	}
->  }
->  
->  static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
-> @@ -2036,7 +2049,8 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
->  
->  	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
->  	if (err < 0) {
-> -		virtnet_rq_unmap(rq, buf, 0);
-> +		if (rq->do_dma)
-> +			virtnet_rq_unmap(rq, buf, 0);
->  		put_page(virt_to_head_page(buf));
->  	}
->  
-> @@ -2150,7 +2164,8 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
->  	ctx = mergeable_len_to_ctx(len + room, headroom);
->  	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
->  	if (err < 0) {
-> -		virtnet_rq_unmap(rq, buf, 0);
-> +		if (rq->do_dma)
-> +			virtnet_rq_unmap(rq, buf, 0);
->  		put_page(virt_to_head_page(buf));
->  	}
->  
-> @@ -5231,7 +5246,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
->  	int i;
->  	for (i = 0; i < vi->max_queue_pairs; i++)
->  		if (vi->rq[i].alloc_frag.page) {
-> -			if (vi->rq[i].last_dma)
-> +			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
->  				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
->  			put_page(vi->rq[i].alloc_frag.page);
->  		}
-> -- 
-> MST
+>  drivers/net/ethernet/google/gve/gve_rx.c      |  4 ++--
+>  drivers/net/ethernet/intel/ice/ice_txrx.c     |  2 +-
+>  drivers/net/ethernet/intel/ice/ice_txrx.h     |  2 +-
+>  drivers/net/ethernet/intel/ice/ice_txrx_lib.c |  2 +-
+>  .../net/ethernet/intel/ixgbevf/ixgbevf_main.c |  4 ++--
+>  .../marvell/octeontx2/nic/otx2_common.c       |  2 +-
+>  drivers/net/ethernet/mediatek/mtk_wed_wo.c    |  4 ++--
+>  drivers/nvme/host/tcp.c                       |  8 +++----
+>  drivers/nvme/target/tcp.c                     | 22 +++++++++----------
+>  drivers/vhost/net.c                           |  6 ++---
+>  include/linux/page_frag_cache.h               | 21 +++++++++---------
+>  include/linux/skbuff.h                        |  2 +-
+>  kernel/bpf/cpumap.c                           |  2 +-
+>  mm/page_frag_cache.c                          | 12 +++++-----
+>  net/core/skbuff.c                             | 16 +++++++-------
+>  net/core/xdp.c                                |  2 +-
+>  net/rxrpc/txbuf.c                             | 15 +++++++------
+>  net/sunrpc/svcsock.c                          |  6 ++---
+>  .../selftests/mm/page_frag/page_frag_test.c   | 13 ++++++-----
+>  19 files changed, 75 insertions(+), 70 deletions(-)
+>=20
+
+I still say no to this patch. It is an unnecessary name change and adds
+no value. If you insist on this patch I will reject the set every time.
+
+The fact is it is polluting the git history and just makes things
+harder to maintain without adding any value as you aren't changing what
+the function does and there is no need for this. In addition it just
+makes it that much harder to backport fixes in the future as people
+will have to work around the rename.
+
