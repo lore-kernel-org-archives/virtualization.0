@@ -1,401 +1,260 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F1FB13D51C
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Aug 2024 07:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723622328; cv=fail; b=Ny10hqAroxitWzeuuuP1N0SPzFyyLJLKulTASNCwOly5mq+D5UimGDnydkHEiIoeC7wXWi83wvLEDXf9bkh6K9/iiGa0ThexAtBn1xs43X9mqLR+rIsaBSiCbyiCrQe1u8QKVbXDRQ/OolxBfqCx6LO7L3noGdc3f9V6VCQ7Ps0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723622328; c=relaxed/simple;
-	bh=+9V2nvWsDLQ5czrRemdgSPdtGafHF5BgyW4HPbmBpac=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=PpJ51F3Lfx1CmndLVeS3DW2Sh+YT/jeL5wUVOVaswjcQnhw4gIsaTGuycHYizjgnw1maIpngF/M323rZX50HoloXglVd6fYy7jiWebupwXNzmsxkho3BIGW8oHzlSeGKbh18A0zVgFt03JJ5Ii0JUhsUU6yOkqWiLF0Z2sqZPEE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=SZ5KyJGE; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DAB413D28F
+	for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 08:17:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723623442; cv=none; b=JG8QU7FmZ9XriY08AwT1MephZGYEzE30ezMwJPxY5aruNBdePO58cNWAP3dgoNm3pl/ew783WXTRmEVs+EmeJKLbyzVa7+2GwAdUpwuQpAlQ5NyShZSgiKQy0hVT6UNk9TI4NDS497ei77LoGWo+KRm3spa/I4Cdq9kqPg7dqhg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723623442; c=relaxed/simple;
+	bh=4WZ0OzGPLTIXH39Ubaflx7d0PRdTJVJTTnLk0JUUY2M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ngf9TYyPcXyIxhZGsJJm5T1U8ERLoUw4F6EipdbzCG3pJXoEZ8Yxxky7h/il1BTtphTWPi7IU33QB1dmT/9Ouq07gRHdniKeeqCKgqJniPl6jt8PoGU48YhDtoTHKnRrLqd9Tuq3GZ+5IsY2eHaGXg4ag++39+Qz00JZfIWM6vY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=TdyYPVsC; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="SZ5KyJGE"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E80A56080F
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Aug 2024 07:58:45 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id tVMbW6YTDFi3 for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Aug 2024 07:58:45 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2417::601; helo=nam12-dm6-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 82960607AA
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 82960607AA
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=SZ5KyJGE
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20601.outbound.protection.outlook.com [IPv6:2a01:111:f403:2417::601])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 82960607AA
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Aug 2024 07:58:44 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=bzEq4GptIaKcQ5hqsCiP/knJBFU+eDP5QCJXuV6uSbD/D8gR657V/6e3yTkOkRNYqytv5XeJXLzARAw5EyX68lyJE6/diRMVMCV5neR0ParvZgUKZBa8qvmRb/D0Ki4qJqFTRhj1VpDuh+HTBB6RvrQv112EqncJ5QmI2IAvvkgx0jFCn8sRmJnvLikpaMPXFeuUhc9jHQzGA0jijz7H13nVBdE3HGU7DFHrQ8uRcArneCAo9n/gouWhbo/Re0b/UPrCXb8Y1/rOxVS3vC7NCVtZWxKoqyb3ZwlHHdJ434iPjRLTY7neifCeXyVU4VFGLJZa3meGqDrBh6BVFT6B6A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=K7kriZNlyp44Zv0azIsrkSHCNjHf+2EuvNDZJUXNq4o=;
- b=QUA/dLJzBeS+kPzL+lbnt880rjUmSK8njXskvkrB6qOXsrxq0Ziruh2d7WyOq080WZsNuuKh0VNVo5v/m+uhx3LQr+bslUKXJ3+5tqw7OJrEAy3qDWXg0yLO0348DRiZOIBINxHLy5WfmajUIBOGxe9gxe4rXidPePJgEwO06E9b0Igf7xHSbykveV0D6j1Ifq1039utPteHI+uffH1QMVgVTqn/WF2s47M7yVXLPpJc9nc4pEnf1gDIWv8tLaI/n/AAU3gsIir73I1eJHGkTjkfiqWroo45iSouJhdoSs7W43QbPyg572g5AJDTwJXs++5yJWiFzs5bhFfxWKTjfg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=K7kriZNlyp44Zv0azIsrkSHCNjHf+2EuvNDZJUXNq4o=;
- b=SZ5KyJGE2yNFWgHOf6n5SLcj+/ljY0+yNHgBbouIAnf07AHCr8xybh1Kajuwol0oOoU1XPcu3h+RsWWZAXYXwHm+A0GczUUWQd4Zx6r+dkUaGwV+BVUnAd4gFzb8/OnKBZ0uroPBIhHWQLjddT1WWbc4Q3TQVac1KZUdf8AyfkNQnoc6a/06jVmmLMgSLTTWhnZdJOgsHrfjKHtB/LVe/GAO8Ipqkof3+7488WRaF+EwTf6vkhklvr2NMNL3OEyklit06f6b4eKAZt7J7lzr3yjFDdRCgOkcLLMPmVDXLaaFCEwayLvTDmGGm4dIIuziVbcBasNQM7d9JCBifK4ASQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
- by PH7PR12MB6665.namprd12.prod.outlook.com (2603:10b6:510:1a7::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7849.19; Wed, 14 Aug
- 2024 07:58:40 +0000
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4%4]) with mapi id 15.20.7849.021; Wed, 14 Aug 2024
- 07:58:40 +0000
-Message-ID: <1431d84b-2d92-4a78-af49-702f005359f9@nvidia.com>
-Date: Wed, 14 Aug 2024 09:58:35 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] vhost_vdpa: assign irq bypass producer token
- correctly
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, lingshan.zhu@intel.com, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240808082044.11356-1-jasowang@redhat.com>
- <9da68127-23d8-48a4-b56f-a3ff54fa213c@nvidia.com>
- <CACGkMEshq0=djGQ0gJe=AinZ2EHSpgE6CykspxRgLS_Ok55FKw@mail.gmail.com>
- <CACGkMEvAVM+KLpq7=+m8q1Wajs_FSSfftRGE+HN16OrFhqX=ow@mail.gmail.com>
- <ede5a20f-0314-4281-9100-89a265ff6411@nvidia.com>
- <CACGkMEtVMq83rK9ykrN3OvGDYKg6L1Jnpa2wsnfDEbswpcnM1g@mail.gmail.com>
- <b4c144f8-5941-4bca-afdb-5feeb23b14c1@nvidia.com>
- <CACGkMEs2Sr_uEd+7Ry1e5MOcD5eKuSeCzHDLRodD0RbuweJ0qA@mail.gmail.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <CACGkMEs2Sr_uEd+7Ry1e5MOcD5eKuSeCzHDLRodD0RbuweJ0qA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR3P281CA0186.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:a4::13) To CY8PR12MB8297.namprd12.prod.outlook.com
- (2603:10b6:930:79::18)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="TdyYPVsC"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a7d638a1f27so251074966b.2
+        for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 01:17:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1723623437; x=1724228237; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=uGKH4VT+6oIZ05Mg/wtc5j5EPbFWisi/zDz8nVxU9W8=;
+        b=TdyYPVsCxcx2qFG9Hz8A/UKtlmn3D2L1I3NHRJVPRtEQGO33+wTP5mNWzJTg31Bo9k
+         RQPnL45dMfGh61lU5GAC5TZH1bkNV9pnhUhqahQalsY7KxPpQxCh31vRdKFzNdTpUIKl
+         qw3rv2omSESVzAZsUueI304jKYLUyAvntd7tjofWZr4O8qSXLBWFcrH68lwKuFl7flIQ
+         s2G4e80UnvO+yZ6IgVCvQuUCc7Z3Tb04NAVFl9E2WkIeDFwK0HiIUyg6aDRWzmXctR4+
+         B5HThjJ14f0umfn2/WVb2m6l0+ZHKfc4j5yZOM3O9tZjkSRY1oSy1rX5JLTGWyy3OhGQ
+         7JFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723623437; x=1724228237;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uGKH4VT+6oIZ05Mg/wtc5j5EPbFWisi/zDz8nVxU9W8=;
+        b=WFALoXd3saYBx2B+K50hnjNWNOlDbe+sWlkHZtY6RQ5W+ZWTnF0y+Ichvq6iqx5cO2
+         LFuv4cOAigrTnjt5E85zTICTgzfZprBNHRrRA4JHg+HrcUFP0A1IYAKNCbBiKM7IDu1N
+         rRVT2UlclWJ8m0izCtIY/fSeovKKG3s9/HiQwX/hzlH9jQ7IOYsjRMxa7Sqykw4aiKyx
+         gjNIKgt71bV3ckhJcVzl0348ttmTc16EwVGqeud/0+HVYCHRrzYod6T0B9Ije/IZBC6o
+         YmMG1dMXU0gWuJW4E5VOImE+5Ivj/ttDr/RYhWdH+gzNM80eyQnoC0XnTBrYpEihj1oW
+         9jdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVxyTQXopP7ugE3FEaARFurrJzjwsTLSbt5O9m7NIGy5WOwTOqKr1vtPq6bKO0iCRnxnGmbk6UCoCTReRrttAD9R3J8NnZA2CpyNgGJrdY=
+X-Gm-Message-State: AOJu0YykY++9+bbJSheroavfv7RaGZFGz3gzrIepUxQOodi8HY/3Gxii
+	EFE1cxe7oFKDW07oa/T0uD9EEfH23S3fB06aKPs7KBfGa1TVw4du2EbxmbadHcM=
+X-Google-Smtp-Source: AGHT+IGJUV9VKtFAaK5scsW7KwbH6afPR2cjc8d17/h0tffxEHW4y7gQog39aiaK6j22dbIHpYoXzA==
+X-Received: by 2002:a05:6402:26c7:b0:5a2:6142:24c1 with SMTP id 4fb4d7f45d1cf-5bea1c6abe2mr2073402a12.5.1723623437150;
+        Wed, 14 Aug 2024 01:17:17 -0700 (PDT)
+Received: from localhost (37-48-50-18.nat.epc.tmcz.cz. [37.48.50.18])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a80f411bd72sm142852966b.140.2024.08.14.01.17.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Aug 2024 01:17:16 -0700 (PDT)
+Date: Wed, 14 Aug 2024 10:17:15 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev, ast@kernel.org,
+	daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
+	dave.taht@gmail.com, kerneljasonxing@gmail.com,
+	hengqi@linux.alibaba.com
+Subject: Re: [PATCH net-next v3] virtio_net: add support for Byte Queue Limits
+Message-ID: <ZrxoC_jCc00MzD-o@nanopsycho.orion>
+References: <20240618144456.1688998-1-jiri@resnulli.us>
+ <CGME20240812145727eucas1p22360b410908e41aeafa7c9f09d52ca14@eucas1p2.samsung.com>
+ <cabe5701-6e25-4a15-b711-924034044331@samsung.com>
+ <Zro8l2aPwgmMLlbW@nanopsycho.orion>
+ <e632e378-d019-4de7-8f13-07c572ab37a9@samsung.com>
+ <Zrxhpa4fkVlMPf3Z@nanopsycho.orion>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|PH7PR12MB6665:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8de1cced-3483-4b24-ce9b-08dcbc36e8e4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?Uk1Sa0dFaGF1V2NzRkFwTm5HMSt5dDVGOU5POHhkUmJleko2M3pMZ2FvL3Yz?=
- =?utf-8?B?eGNhcXMySHRWeGFTM2l5VGZqT3poaFhJSUJSS1A1d25zZlA4d2F0RXBTM1lw?=
- =?utf-8?B?T1NtQTNZZVNuWXh2Y2plZXhkcGdoeHFva1J4cmtUa2tKcXhXRnVxVDVENHlw?=
- =?utf-8?B?MGpOd1czUGZ5NjNxUFFkQkZ3NzJGdFpIaG50RXBrbkpwRDJYMTdhc2FCaWk5?=
- =?utf-8?B?VzcvU3R2SXYrQzVCMVA3L0lPZTljeDczSlpNMHpvaWI4amNGVXdjbmNOZHNp?=
- =?utf-8?B?Rm1MN1B1WTBqaEV2S0dSZmZEWEk1VXVZNmpMTTZVUy9hdEZncG02c3VQdTZ0?=
- =?utf-8?B?N2ZnY3hXbWNDTU84V1VaSUVLNEdkN3Y5aFNvWFk1WGhTcEE2VWkzbWI3N2Mw?=
- =?utf-8?B?U3lCWTkrNU5TT3ZkdnIzQVFBVDl0aW9pL3FUOSs1bUtOMjJCL2NYUWk2aCtl?=
- =?utf-8?B?U3JWTXArS3o1M0FkN0ErVFpWUWpYaENLL1RydzZ6WUsyRlpsM004TVh5blMr?=
- =?utf-8?B?em1PUCttUElpdzVlZGFzSElHRy9KL3NYZ09wblpaWk5qc3pWU1JFa2Vobnk1?=
- =?utf-8?B?VEhOT1dGMWpac0hFTU5UWEtoanlhNmJlQ0RJN2Q3bmxoKzIzWkpkRkhueE9B?=
- =?utf-8?B?TnF5YjNHY1p4ZkRNYUViSE13UjJ5VC9YNnh6WThBWGVHWjNhMUhWaTFDQ3hx?=
- =?utf-8?B?UzZjUldtbzVibVhvbUVqZDBySEZiNDlNbVRwbGkzZVBHYzgxeDVFbUk5Vm1H?=
- =?utf-8?B?eWNBTWttOHBFc0g5aDdUT0l3WENnN3Rsb2NWNDBPU2xpNGxMWW5UM0FZWFo3?=
- =?utf-8?B?VHYxUituLzd2SnlwNnEwM29heFArZ0hCeUxtVDNLWTV5UWxpVVVaSDY3ZEc2?=
- =?utf-8?B?bGFGeVUzTWx0aVRQWWxDWmlwWmpLR21tR1RmTlRiQ2dRTi9oSmJBeURMbWZX?=
- =?utf-8?B?UHczSVNYM3Q2SnJ2dmJLTDd6dXlydmlvYnFGUHd3TTY2QThyOG45WnM1Rzh4?=
- =?utf-8?B?UFRIdngzNTVTS2cvb1lxWUQyL3FNb1dvQU9XK3pFSkN5MWhQYTlkVmFMazJi?=
- =?utf-8?B?bGxEWmtDVTdlRHNaQnRteFZCa2RCMXhhd1gxSEpVbFVqWmIyTlliRWJEdldl?=
- =?utf-8?B?c0lZbzVzNVBPZXBwZ1ZKRDJMd2JwY0Z5RFh3VnRnd3NUODU3YW5vb1A0ck9E?=
- =?utf-8?B?K0c0ZVd6enBJT3h0Rk0yQUxYTExoK1lNMnhIcnpYcjJ3c3BHMXMwa3JQMkYx?=
- =?utf-8?B?a0dvT1R2TjdRMmtLRHNsUHZnTkMvM0Q0NHAwZEJuMGk1K0FMNGxDUWh4WU52?=
- =?utf-8?B?UUw5dnJCMERrVFZLcUhZVlRiUDJ0MWd5TzY5ZGZJbVJ5RXA3bWh5Qm9uSWU1?=
- =?utf-8?B?dnFuNTEyUGw1d0ZyTjRBSUNaRGF5NlhrVTV0REpJOFZTbVZSZGQvUGdmTCt1?=
- =?utf-8?B?VHo2QnNhVUJ4VlQzZ0ZTV3dINGdKNXd4UmE0eGZCaXJCcDhlaEFSK2pVZmsx?=
- =?utf-8?B?TkdzQVJpdHJKb0JUdkNIc1Rua2ExMlhmQnpjK2w1UVAxTVBoLzQvZCt5b0dx?=
- =?utf-8?B?NGI1MWcxMGJraU1kcDlvWGFPdFVyR20zT1lLVzVLcHp6MU8zNVI4SDFLWXhs?=
- =?utf-8?B?aWlZNXU2b3lnTzBtM3hkZEpUZGQ5NXhSRldJbkZXZFk2WGNRK0haS09NRDFw?=
- =?utf-8?B?MWlyVXJVSlRFNFFkLzdjSWtxbkdvaG9mL08yWWlobjh3encvUzhOdGYzOUw5?=
- =?utf-8?B?d3VxRHB0WTNwcnNFVTFSb3RkSXVwdk1YWitSdDJJTTJJbEUrWFViS1FKbHp0?=
- =?utf-8?B?Lzk0UHJsOW5qdk16bWFTZz09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?cW5hQ2hHOEpSNmNsOGpqbTVHYzQ1bmI2WWc2VEVDVWJHRlhJVFhWam5ZZjk5?=
- =?utf-8?B?N29CQUlacUZMWmhaOUs0S0tyWi9IY0kraXdnaFJqQnY3eHdTTFRQY0I1emtH?=
- =?utf-8?B?bS93dFJJd2VXaVZIUUFOeHBmRSt1cUw5R0dGMENyTXlKTDdJdDVhWmNRVWFw?=
- =?utf-8?B?SkhvaVpsOWpFeGZPUitOMHpmd21XSUg0QXVEVzhWZVhLdkNsZWN4M3pSc0Fq?=
- =?utf-8?B?U0VhUGwyVGdlTE0yeFdSTGhmRHFrc1RGZEJ2MjNCRzhhNlgvN3o0MEF2SU5D?=
- =?utf-8?B?OGpocDJqbzRxOUJTdnNla3N1ckl0ZlBPbUQ4bkZPY1FxcDg0MDdQaGtzd1Za?=
- =?utf-8?B?TlVHYldJT1poSHFCQXRWVERnalcwUi91Ly80dlNkZW1XTFNsQmd1THY4U3Ja?=
- =?utf-8?B?Ty9OdGx0VE9SeEo0UnZPaFo1V1diMVdjNG9TWXhjOE1WeDlGYUhrYkZyVjBF?=
- =?utf-8?B?WlMya25WT2RNRkszNjhzaE1ZVys2VEVFVi9lMTduajlyVThqc2psTWNrdTc0?=
- =?utf-8?B?Y1VCR0VXdy9TVzdveVRJNExDRERoa3V5eXR5M0pHbys5aE04cWM3M250bGlH?=
- =?utf-8?B?V1RYcFBWR21DYUQrRktRREZDOHU2RkVvVVNFdWFTTGdWRUV1d3l4dmtxVW5r?=
- =?utf-8?B?TzJyamJNQXMxakRMZ3JVN0h2QzBCMmtlVUk4Ly9ZcFJNaCtwbUZWa01INEFw?=
- =?utf-8?B?QVdZenBSMGNWdFdXeXdRYWFsaG11bHhRQkovMW40VE81L3l6Qnp5UW5ZV1Ro?=
- =?utf-8?B?ZGpGKzBQZS9jR0M2ZnJQcGFwbU81dFQ1ZGlRQkkxeGRnN0hSY2lhamZRbnV0?=
- =?utf-8?B?K0pURURJT0w0SHNESmlqZXdsTUFBZ2xobVk4dUxnb3liajQ0SmtiUFNXL3RU?=
- =?utf-8?B?K2ZJd3MwdDJLdUxUYWRCM0NCVURRMXRvK0hMT1F1OUx0K01PTjhFb01CM3NK?=
- =?utf-8?B?c2ZYU00xNzd6akFKVDNpdG5HU1E4Y1ROSmxrVDRGc1ZqK1VLSk9xZGlpazJ1?=
- =?utf-8?B?bElGNVJKVHFDOTBPRmo1a3JyYW1tZld2akRxMXRrbC9ZMUVDS2Voc1FUcFlz?=
- =?utf-8?B?Ym9wQ0NUZ3JMUzQ5Um1RcnNqT1FIMGpTbjR4NDJPckJnQU9lNkxiNUE2Y3RF?=
- =?utf-8?B?L2ZZNlA5Y0wzK3pZQk4ydzV1cnVxdXZSR0c1SU1hZ09YcktiUExBNmFRRkg3?=
- =?utf-8?B?bEhPcWRkZ0dQTXNRZ0xxMWVXaWRnYitVREUwZUxKUFoxbCtLS2M4bU8vU2g1?=
- =?utf-8?B?cGVuR1l3dEhiajYyWlZvVlNZS0J5TjRlS1JJbVl4VFdDNGFSdTJ6Wm16dXdU?=
- =?utf-8?B?M2IyaWdIdzdqOEM5WVZNdHNuUExNVmtpc0hLd0JyVEtyR2Q2eHl2bmdJLzdV?=
- =?utf-8?B?R2hkTjQ4VFM5NEduVXAydXVIcTJrNVJEbkhuZFpEU0ZQMGJLYzg3TUkzaDJv?=
- =?utf-8?B?TWhMWVZ2elZvWWNZTlRFTXR4UTZlR0doV1UzNGxCbmdMdncrWXVoRHRlREdh?=
- =?utf-8?B?RjVNeTE0STZqSVhSWmJCYzhjbS9YSitFSEVvVC9uTnR4bFdHUDhPcndVM3lJ?=
- =?utf-8?B?WUVkei81dGJ2SVkyelA0UG01OVNkUzQ3NnJLUWgwd2Vyemd5Q25QbzJKdkd0?=
- =?utf-8?B?SFRNcXFPQjU5RmNoaWE4LzVyOWNKYjhzTUU2R0xPVWpuc0txNzcwT2pncEVa?=
- =?utf-8?B?d3RaQVpEVEVZdk5PNHkrUHRQM2p2N2RtdkplcXF3cHNXZUdlK0puczVxS1Yw?=
- =?utf-8?B?dzErcDB6YzY1MGh3QnRMRGYyR1BVMzNZajdsZGF1MlUvdXEzM2pYZHRBRXhv?=
- =?utf-8?B?ZUxvblZrMi9FMlhhUG9JSGZyckRxVmF0Y1JYMFFXdERIeGF6Z2RqdFNFRmly?=
- =?utf-8?B?WTFUMHAxTWJoaUhuOXJZOW14TTIxclJwaUtmc1QwOVhSNTJ2dUltemttM2FM?=
- =?utf-8?B?Uit2eTlHdEhmRXVvZFZHQmZ3WTBOL3lBTVRJNzk1YzArSWFjdjdteEQ5UGFx?=
- =?utf-8?B?ZVJKYllZczlXNkQ2eDc5aCtxd09RUy9LZEZISUpGVzg2RUk1NFBnY0FQWUpF?=
- =?utf-8?B?N0ZKYzF4QkIwR0lzNjFkdmtGdVhVT3VCR0wrQ2NaNkJxS2FRWG5MT0dUem9O?=
- =?utf-8?Q?BMCoXUfXIG4+B/BaScYovVl0+?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8de1cced-3483-4b24-ce9b-08dcbc36e8e4
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Aug 2024 07:58:40.3255
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5I0QL2wR19Xy81D3BvrC0vXk095f667zTUefg0lA1UXIAby9yRvhWCIpR2rOg6sL3Fv3B7QXMyaPJbRkejKBPQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6665
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Zrxhpa4fkVlMPf3Z@nanopsycho.orion>
 
-
-
-On 14.08.24 07:29, Jason Wang wrote:
-> On Tue, Aug 13, 2024 at 8:53â€¯PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>
->>
->>
->> On 13.08.24 08:26, Jason Wang wrote:
->>> On Mon, Aug 12, 2024 at 7:22â€¯PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>>>
->>>>
->>>>
->>>> On 12.08.24 08:49, Jason Wang wrote:
->>>>> On Mon, Aug 12, 2024 at 1:47â€¯PM Jason Wang <jasowang@redhat.com> wrote:
->>>>>>
->>>>>> On Fri, Aug 9, 2024 at 2:04â€¯AM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>> On 08.08.24 10:20, Jason Wang wrote:
->>>>>>>> We used to call irq_bypass_unregister_producer() in
->>>>>>>> vhost_vdpa_setup_vq_irq() which is problematic as we don't know if the
->>>>>>>> token pointer is still valid or not.
->>>>>>>>
->>>>>>>> Actually, we use the eventfd_ctx as the token so the life cycle of the
->>>>>>>> token should be bound to the VHOST_SET_VRING_CALL instead of
->>>>>>>> vhost_vdpa_setup_vq_irq() which could be called by set_status().
->>>>>>>>
->>>>>>>> Fixing this by setting up  irq bypass producer's token when handling
->>>>>>>> VHOST_SET_VRING_CALL and un-registering the producer before calling
->>>>>>>> vhost_vring_ioctl() to prevent a possible use after free as eventfd
->>>>>>>> could have been released in vhost_vring_ioctl().
->>>>>>>>
->>>>>>>> Fixes: 2cf1ba9a4d15 ("vhost_vdpa: implement IRQ offloading in vhost_vdpa")
->>>>>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
->>>>>>>> ---
->>>>>>>> Note for Dragos: Please check whether this fixes your issue. I
->>>>>>>> slightly test it with vp_vdpa in L2.
->>>>>>>> ---
->>>>>>>>  drivers/vhost/vdpa.c | 12 +++++++++---
->>>>>>>>  1 file changed, 9 insertions(+), 3 deletions(-)
->>>>>>>>
->>>>>>>> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
->>>>>>>> index e31ec9ebc4ce..388226a48bcc 100644
->>>>>>>> --- a/drivers/vhost/vdpa.c
->>>>>>>> +++ b/drivers/vhost/vdpa.c
->>>>>>>> @@ -209,11 +209,9 @@ static void vhost_vdpa_setup_vq_irq(struct vhost_vdpa *v, u16 qid)
->>>>>>>>       if (irq < 0)
->>>>>>>>               return;
->>>>>>>>
->>>>>>>> -     irq_bypass_unregister_producer(&vq->call_ctx.producer);
->>>>>>>>       if (!vq->call_ctx.ctx)
->>>>>>>>               return;
->>>>>>>>
->>>>>>>> -     vq->call_ctx.producer.token = vq->call_ctx.ctx;
->>>>>>>>       vq->call_ctx.producer.irq = irq;
->>>>>>>>       ret = irq_bypass_register_producer(&vq->call_ctx.producer);
->>>>>>>>       if (unlikely(ret))
->>>>>>>> @@ -709,6 +707,12 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->>>>>>>>                       vq->last_avail_idx = vq_state.split.avail_index;
->>>>>>>>               }
->>>>>>>>               break;
->>>>>>>> +     case VHOST_SET_VRING_CALL:
->>>>>>>> +             if (vq->call_ctx.ctx) {
->>>>>>>> +                     vhost_vdpa_unsetup_vq_irq(v, idx);
->>>>>>>> +                     vq->call_ctx.producer.token = NULL;
->>>>>>>> +             }
->>>>>>>> +             break;
->>>>>>>>       }
->>>>>>>>
->>>>>>>>       r = vhost_vring_ioctl(&v->vdev, cmd, argp);
->>>>>>>> @@ -747,13 +751,14 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->>>>>>>>                       cb.callback = vhost_vdpa_virtqueue_cb;
->>>>>>>>                       cb.private = vq;
->>>>>>>>                       cb.trigger = vq->call_ctx.ctx;
->>>>>>>> +                     vq->call_ctx.producer.token = vq->call_ctx.ctx;
->>>>>>>> +                     vhost_vdpa_setup_vq_irq(v, idx);
->>>>>>>>               } else {
->>>>>>>>                       cb.callback = NULL;
->>>>>>>>                       cb.private = NULL;
->>>>>>>>                       cb.trigger = NULL;
->>>>>>>>               }
->>>>>>>>               ops->set_vq_cb(vdpa, idx, &cb);
->>>>>>>> -             vhost_vdpa_setup_vq_irq(v, idx);
->>>>>>>>               break;
->>>>>>>>
->>>>>>>>       case VHOST_SET_VRING_NUM:
->>>>>>>> @@ -1419,6 +1424,7 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
->>>>>>>>       for (i = 0; i < nvqs; i++) {
->>>>>>>>               vqs[i] = &v->vqs[i];
->>>>>>>>               vqs[i]->handle_kick = handle_vq_kick;
->>>>>>>> +             vqs[i]->call_ctx.ctx = NULL;
->>>>>>>>       }
->>>>>>>>       vhost_dev_init(dev, vqs, nvqs, 0, 0, 0, false,
->>>>>>>>                      vhost_vdpa_process_iotlb_msg);
->>>>>>>
->>>>>>> No more crashes, but now getting a lot of:
->>>>>>>  vhost-vdpa-X: vq Y, irq bypass producer (token 00000000a66e28ab) registration fails, ret =  -16
->>>>>>>
->>>>>>> ... seems like the irq_bypass_unregister_producer() that was removed
->>>>>>> might still be needed somewhere?
->>>>>>
->>>> My statement above was not quite correct. The error comes from the
->>>> VQ irq being registered twice:
->>>>
->>>> 1) VHOST_SET_VRING_CALL ioctl gets called for vq 0. VQ irq is unregistered
->>>>    (vhost_vdpa_unsetup_vq_irq() and re-registered (vhost_vdpa_setup_vq_irq())
->>>>    successfully. So far so good.
->>>>
->>>> 2) set status !DRIVER_OK -> DRIVER_OK happens. VQ irq setup is done
->>>>    once again (vhost_vdpa_setup_vq_irq()). As the producer unregister
->>>>    was removed in this patch, the register will complain because the producer
->>>>    token already exists.
->>>
->>> I see. I think it's probably too tricky to try to register/unregister
->>> a producer during set_vring_call if DRIVER_OK is not set.
->>>
->>> Does it work if we only do vhost_vdpa_unsetup/setup_vq_irq() if
->>> DRIVER_OK is set in vhost_vdpa_vring_ioctl() (on top of this patch)?
->>>
->>> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
->>> index 388226a48bcc..ab441b8ccd2e 100644
->>> --- a/drivers/vhost/vdpa.c
->>> +++ b/drivers/vhost/vdpa.c
->>> @@ -709,7 +709,9 @@ static long vhost_vdpa_vring_ioctl(struct
->>> vhost_vdpa *v, unsigned int cmd,
->>>                 break;
->>>         case VHOST_SET_VRING_CALL:
->>>                 if (vq->call_ctx.ctx) {
->>> -                       vhost_vdpa_unsetup_vq_irq(v, idx);
->>> +                       if (ops->get_status(vdpa) &
->>> +                           VIRTIO_CONFIG_S_DRIVER_OK)
->>> +                               vhost_vdpa_unsetup_vq_irq(v, idx);
->>>                         vq->call_ctx.producer.token = NULL;
->> I was wondering if it's safe to set NULL also for !DRIVER_OK case,
->> but then I noticed that the !DRIVER_OK transition doesn't set .token to
->> NULL so this is actually beneficial. Did I get it right?
-> 
-> Yes, actually the reason is that we use eventfd as the token, so the
-> life cycle of the token is tied to eventfd itself. If we don't set the
-> token to NULL here the vhost_vring_ioctl() may just release it which
-> may lead to a use-after-free. So this patch doesn't set a token during
-> DRIVER_OK transition but during SET_VRING_CALL.
-> 
-Ack. Thanks for the explanation.
-
->>
->>>                 }
->>>                 break;
->>> @@ -752,7 +754,9 @@ static long vhost_vdpa_vring_ioctl(struct
->>> vhost_vdpa *v, unsigned int cmd,
->>>                         cb.private = vq;
->>>                         cb.trigger = vq->call_ctx.ctx;
->>>                         vq->call_ctx.producer.token = vq->call_ctx.ctx;
->>> -                       vhost_vdpa_setup_vq_irq(v, idx);
->>> +                       if (ops->get_status(vdpa) &
->>> +                           VIRTIO_CONFIG_S_DRIVER_OK)
->>> +                               vhost_vdpa_setup_vq_irq(v, idx);
->>>                 } else {
->>>                         cb.callback = NULL;
->>>                         cb.private = NULL;
->>>
->> Yup, this works.
->>
->> I do understand the fix, but I don't fully understand why this is
->> better than setting the .token to NULL in vhost_vdpa_unsetup_vq_irq()
->> and keeping the token logic inside the vhost_vdpa_setup/unsetup_vq_irq()
->> API.
-> 
-> See the above explanation, hope it clarifies things.
-> 
-Yes it does.
-
->>
->> In any case, if you send this fix:
->> Tested-by: Dragos Tatulea <dtatulea@nvidia.com>
-FWIW:
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
-
-> 
-> Thanks
-> 
->>
->> Thanks,
->> Dragos
->>>>
->>>>
->>>>>> Probably, but I didn't see this when testing vp_vdpa.
->>>>>>
->>>>>> When did you meet those warnings? Is it during the boot or migration?
->>>> During boot, on the first 2 VQs only (so before the QPs are resized).
->>>> Traffic does work though when the VM is booted.
->>>
->>> Right.
->>>
->>>>
+Wed, Aug 14, 2024 at 09:49:57AM CEST, jiri@resnulli.us wrote:
+>Mon, Aug 12, 2024 at 06:55:26PM CEST, m.szyprowski@samsung.com wrote:
+>>On 12.08.2024 18:47, Jiri Pirko wrote:
+>>> Mon, Aug 12, 2024 at 04:57:24PM CEST, m.szyprowski@samsung.com wrote:
+>>>> On 18.06.2024 16:44, Jiri Pirko wrote:
+>>>>> From: Jiri Pirko <jiri@nvidia.com>
 >>>>>
->>>>> Btw, it would be helpful to check if mlx5_get_vq_irq() works
->>>>> correctly. I believe it should return an error if the virtqueue
->>>>> interrupt is not allocated. After a glance at the code, it seems not
->>>>> straightforward to me.
+>>>>> Add support for Byte Queue Limits (BQL).
 >>>>>
->>>> I think we're good on that front:
->>>> mlx5_get_vq_irq() returns EOPNOTSUPP if the vq irq is not allocated.
->>>
->>> Good to know that.
->>>
->>> Thanks
->>>
+>>>>> Tested on qemu emulated virtio_net device with 1, 2 and 4 queues.
+>>>>> Tested with fq_codel and pfifo_fast. Super netperf with 50 threads is
+>>>>> running in background. Netperf TCP_RR results:
+>>>>>
+>>>>> NOBQL FQC 1q:  159.56  159.33  158.50  154.31    agv: 157.925
+>>>>> NOBQL FQC 2q:  184.64  184.96  174.73  174.15    agv: 179.62
+>>>>> NOBQL FQC 4q:  994.46  441.96  416.50  499.56    agv: 588.12
+>>>>> NOBQL PFF 1q:  148.68  148.92  145.95  149.48    agv: 148.2575
+>>>>> NOBQL PFF 2q:  171.86  171.20  170.42  169.42    agv: 170.725
+>>>>> NOBQL PFF 4q: 1505.23 1137.23 2488.70 3507.99    agv: 2159.7875
+>>>>>     BQL FQC 1q: 1332.80 1297.97 1351.41 1147.57    agv: 1282.4375
+>>>>>     BQL FQC 2q:  768.30  817.72  864.43  974.40    agv: 856.2125
+>>>>>     BQL FQC 4q:  945.66  942.68  878.51  822.82    agv: 897.4175
+>>>>>     BQL PFF 1q:  149.69  151.49  149.40  147.47    agv: 149.5125
+>>>>>     BQL PFF 2q: 2059.32  798.74 1844.12  381.80    agv: 1270.995
+>>>>>     BQL PFF 4q: 1871.98 4420.02 4916.59 13268.16   agv: 6119.1875
+>>>>>
+>>>>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>>>>> ---
+>>>>> v2->v3:
+>>>>> - fixed the switch from/to orphan mode while skbs are yet to be
+>>>>>     completed by using the second least significant bit in virtqueue
+>>>>>     token pointer to indicate skb is orphan. Don't account orphan
+>>>>>     skbs in completion.
+>>>>> - reorganized parallel skb/xdp free stats accounting to napi/others.
+>>>>> - fixed kick condition check in orphan mode
+>>>>> v1->v2:
+>>>>> - moved netdev_tx_completed_queue() call into __free_old_xmit(),
+>>>>>     propagate use_napi flag to __free_old_xmit() and only call
+>>>>>     netdev_tx_completed_queue() in case it is true
+>>>>> - added forgotten call to netdev_tx_reset_queue()
+>>>>> - fixed stats for xdp packets
+>>>>> - fixed bql accounting when __free_old_xmit() is called from xdp path
+>>>>> - handle the !use_napi case in start_xmit() kick section
+>>>>> ---
+>>>>>    drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++------------
+>>>>>    1 file changed, 57 insertions(+), 24 deletions(-)
+>>>> I've recently found an issue with virtio-net driver and system
+>>>> suspend/resume. Bisecting pointed to the c8bd1f7f3e61 ("virtio_net: add
+>>>> support for Byte Queue Limits") commit and this patch. Once it got
+>>>> merged to linux-next and then Linus trees, the driver occasionally
+>>>> crashes with the following log (captured on QEMU's ARM 32bit 'virt'
+>>>> machine):
 >>>>
+>>>> root@target:~# time rtcwake -s10 -mmem
+>>>> rtcwake: wakeup from "mem" using /dev/rtc0 at Sat Aug 10 12:40:26 2024
+>>>> PM: suspend entry (s2idle)
+>>>> Filesystems sync: 0.000 seconds
+>>>> Freezing user space processes
+>>>> Freezing user space processes completed (elapsed 0.006 seconds)
+>>>> OOM killer disabled.
+>>>> Freezing remaining freezable tasks
+>>>> Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+>>>> ------------[ cut here ]------------
+>>>> kernel BUG at lib/dynamic_queue_limits.c:99!
+>>>> Internal error: Oops - BUG: 0 [#1] SMP ARM
+>>>> Modules linked in: bluetooth ecdh_generic ecc libaes
+>>>> CPU: 1 PID: 1282 Comm: rtcwake Not tainted
+>>>> 6.10.0-rc3-00732-gc8bd1f7f3e61 #15240
+>>>> Hardware name: Generic DT based system
+>>>> PC is at dql_completed+0x270/0x2cc
+>>>> LR is at __free_old_xmit+0x120/0x198
+>>>> pc : [<c07ffa54>]    lr : [<c0c42bf4>]    psr: 80000013
+>>>> ...
+>>>> Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+>>>> Control: 10c5387d  Table: 43a4406a  DAC: 00000051
+>>>> ...
+>>>> Process rtcwake (pid: 1282, stack limit = 0xfbc21278)
+>>>> Stack: (0xe0805e80 to 0xe0806000)
+>>>> ...
+>>>> Call trace:
+>>>>   dql_completed from __free_old_xmit+0x120/0x198
+>>>>   __free_old_xmit from free_old_xmit+0x44/0xe4
+>>>>   free_old_xmit from virtnet_poll_tx+0x88/0x1b4
+>>>>   virtnet_poll_tx from __napi_poll+0x2c/0x1d4
+>>>>   __napi_poll from net_rx_action+0x140/0x2b4
+>>>>   net_rx_action from handle_softirqs+0x11c/0x350
+>>>>   handle_softirqs from call_with_stack+0x18/0x20
+>>>>   call_with_stack from do_softirq+0x48/0x50
+>>>>   do_softirq from __local_bh_enable_ip+0xa0/0xa4
+>>>>   __local_bh_enable_ip from virtnet_open+0xd4/0x21c
+>>>>   virtnet_open from virtnet_restore+0x94/0x120
+>>>>   virtnet_restore from virtio_device_restore+0x110/0x1f4
+>>>>   virtio_device_restore from dpm_run_callback+0x3c/0x100
+>>>>   dpm_run_callback from device_resume+0x12c/0x2a8
+>>>>   device_resume from dpm_resume+0x12c/0x1e0
+>>>>   dpm_resume from dpm_resume_end+0xc/0x18
+>>>>   dpm_resume_end from suspend_devices_and_enter+0x1f0/0x72c
+>>>>   suspend_devices_and_enter from pm_suspend+0x270/0x2a0
+>>>>   pm_suspend from state_store+0x68/0xc8
+>>>>   state_store from kernfs_fop_write_iter+0x10c/0x1cc
+>>>>   kernfs_fop_write_iter from vfs_write+0x2b0/0x3dc
+>>>>   vfs_write from ksys_write+0x5c/0xd4
+>>>>   ksys_write from ret_fast_syscall+0x0/0x54
+>>>> Exception stack(0xe8bf1fa8 to 0xe8bf1ff0)
+>>>> ...
+>>>> ---[ end trace 0000000000000000 ]---
+>>>> Kernel panic - not syncing: Fatal exception in interrupt
+>>>> ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
 >>>>
->>>> Thanks,
->>>> Dragos
->>>>
->>>
+>>>> I have fully reproducible setup for this issue. Reverting it together
+>>>> with f8321fa75102 ("virtio_net: Fix napi_skb_cache_put warning") (due to
+>>>> some code dependencies) fixes this issue on top of Linux v6.11-rc1 and
+>>>> recent linux-next releases. Let me know if I can help debugging this
+>>>> issue further and help fixing.
+>>> Will fix this tomorrow. In the meantime, could you provide full
+>>> reproduce steps?
 >>
+>>Well, it is easy to reproduce it simply by calling
+>>
+>># time rtcwake -s10 -mmem
+>>
+>>a few times and sooner or later it will cause a kernel panic.
+>
+>I found the problem. Following patch will help:
+>
+>
+>diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>index 3f10c72743e9..c6af18948092 100644
+>--- a/drivers/net/virtio_net.c
+>+++ b/drivers/net/virtio_net.c
+>@@ -2867,8 +2867,8 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+> 	if (err < 0)
+> 		goto err_xdp_reg_mem_model;
 > 
+>-	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+> 	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
+>+	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+> 	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
 
+Hmm, I have to look at this a bit more. I think this might be accidental
+fix. The thing is, napi can be triggered even if it is disabled:
+
+       ->__local_bh_enable_ip()
+         -> net_rx_action()
+           -> __napi_poll()
+
+Here __napi_poll() calls napi_is_scheduled() and calls virtnet_poll_tx()
+in case napi is scheduled. napi_is_scheduled() checks NAPI_STATE_SCHED
+bit in napi state.
+
+However, this bit is set previously by netif_napi_add_weight().
+
+
+>
+> > ...
+>
+>Best regards
+>-- 
+>Marek Szyprowski, PhD
+>Samsung R&D Institute Poland
+>
+
+
+> 
+> 	return 0;
+>
+>
+>Will submit the patch in a jiff. Thanks!
+>
+>
+>
+>>
+>>Best regards
+>>-- 
+>>Marek Szyprowski, PhD
+>>Samsung R&D Institute Poland
+>>
