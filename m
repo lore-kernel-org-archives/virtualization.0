@@ -1,151 +1,162 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 782ADF9E6
-	for <virtualization@lists.linux.dev>; Thu, 15 Aug 2024 03:00:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E44618D65F
+	for <virtualization@lists.linux.dev>; Thu, 15 Aug 2024 06:03:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723690804; cv=none; b=BZpr/dIsmzu51DEXUPWUuCL4zbEmboTpmp2n+O3gsyJou5m2NigWkYinDVXFvgVRbeFAX/r3dSAOZBawZ64+AdJZnxTt6cdxbBEbWIasXfjoV+y5fufCRTL7ZMDva3CUg/INxDCwb1obm+HGhgWufM7W75u+TfkQ2xrBWX4JsHg=
+	t=1723701825; cv=none; b=l2WqnYd4ibgLTlzR35Ssc5x62NUdkQF2HdJwcHmP4bIn4xagSL0Gt156nkoXs+i9FGsyUcJbVvNE7fyZceaJwO9exVrX4KPRcPLA8rK3M/62AFFxehSdOXhgn2/xWTknokAnvT0vzPwoM8X2e1+aq303wSHz8Cb6XaWt4WMJplU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723690804; c=relaxed/simple;
-	bh=9ppxBCocPnEtgPPka1NCRYp9zcY55WpRrtq/MyyUvHs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=mCaraMZSJbBp0ysmZ7WN29CG2XLGDL5kmNMz+UB7X+pGQ2MFzHQGSo9IwCT9x09lI8h0D2FCtXjq83xyspAKXG/+4CIveBnm+G6njp/FGmeRbeMZW8S1PTLG3qN6EPSjxfpca4N6PavK8aazlxC8hwH52Ltzir117TK7upStVCo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4WkqXP209yz1HGKB;
-	Thu, 15 Aug 2024 10:56:53 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 5EBEA1A0188;
-	Thu, 15 Aug 2024 10:59:58 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 15 Aug 2024 10:59:57 +0800
-Message-ID: <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com>
-Date: Thu, 15 Aug 2024 10:59:57 +0800
+	s=arc-20240116; t=1723701825; c=relaxed/simple;
+	bh=GPmCQM5NNtOtJ+QKbX7iV3ZV7O48A4U90cWlAd0yZ9E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CIzgYIsOz9gO6Ay9KeXdXyWIMLceB84In3om+gR3ZfNjCWX5PRH8WffKcPdoF8D+cFbR3DFMc1yBSHuG2wNfGyx9auS0J0BE+xXtuqARrF9TPFNEoqlXS0k/zG/73lkHjTvxlIVHfXF0ZGn1VmxTIoD7l+eeF4cx+BB/sC2AoLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MnCSm4BA; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MnCSm4BA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1723701820;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nP+XUpr7erg5BEw8ptLFA9XGqDGjBrYwvameBbwmgBo=;
+	b=MnCSm4BAZyKohFKFYOryGD9sQH16dXS0Op3xvymDMesu3JMhYYqt8P03HjWYkSzGvIBllW
+	jW+Np6IdvDXe2j758DBNNM3DAM32c47mVX7wVWbzegkt6AeWVBPTZuYf1yefE045PCosQo
+	5KqifEWw4StywtfG0FKcJuWtsCN7ggQ=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-302-cayPxFEWPbWogjlG74Oajg-1; Thu, 15 Aug 2024 02:03:39 -0400
+X-MC-Unique: cayPxFEWPbWogjlG74Oajg-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2d3acc5b48bso525378a91.0
+        for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 23:03:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723701818; x=1724306618;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nP+XUpr7erg5BEw8ptLFA9XGqDGjBrYwvameBbwmgBo=;
+        b=NR5rEuxlrX19y4Cj5LobUBr/D1DLAF6PEQQZEgj49IH4bz+VqM5VOAMOMFo1yjs/gZ
+         zpf+I1EojAYJ5sDoJD3BXxt5vsbc/uiHeQ7iXaYa3jYefHQYLxOitM4hEJame6WOKqkF
+         OffpB7PFJpcIlPp2Ajzqu3yZcRvSY88Lr0X/J/VzXU9POvf5oR+Op7u8MiRa1nMw1UaI
+         GGh/i2fTbMQCh32ITBX+37h6jpgkO8nUAfk3gR2EIXKu6kU05b0G72lMVdsW8cd0wCRk
+         DOsbc0X1oCyieOMlfCh1EUtdiP/an0ihlmJaN13Y+HizqVd/7wYNQP0/gkPljNRmMVcY
+         MkLw==
+X-Forwarded-Encrypted: i=1; AJvYcCWN6eaieW3xztRFejUTYiv1jeT5szuDlzWgLMFvSYbp1gcGZNtbGwFF5ah9asV9CYdG3d/jeiSu2osPMBcMADAHlf5RB4XPv8hzy9sZ0c0=
+X-Gm-Message-State: AOJu0Yyraxx8wTK30oYev2xfnk9U0BkahQCnWOx+Rdg+XN1WhVXVX6mH
+	DN0XgmZ0f3stEWl2NHmJuOtatc6u8qjx+pQPQLy3w4ORhPc5z5Xxk8Jj3YxDpLVi2ECZquc8d8+
+	RhDg//a67U1X2MqVJLxRXKUMACkj4ka7jF5L0xCs5nJkygDQLwwAZr2YfBeO7f7vPYMghfQhwW5
+	g967VCYg92RrNOeCv83Eam4E2oq+4IDXmu0N0lmgA=
+X-Received: by 2002:a17:90b:fc2:b0:2cb:58e1:abc8 with SMTP id 98e67ed59e1d1-2d3c3a42365mr2924994a91.21.1723701817951;
+        Wed, 14 Aug 2024 23:03:37 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFJMYffQL25EyjWVnQ4NUjaSE8aOAOz8i+jSgGBXnLjj5FeFCVVf+JMIo8QSYAppGmiytb6+co8QXxky2rc1Tc=
+X-Received: by 2002:a17:90b:fc2:b0:2cb:58e1:abc8 with SMTP id
+ 98e67ed59e1d1-2d3c3a42365mr2924951a91.21.1723701817365; Wed, 14 Aug 2024
+ 23:03:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
- page_frag API
-To: Alexander H Duyck <alexander.duyck@gmail.com>, <davem@davemloft.net>,
-	<kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya
- Sundeep <sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, Sagi
- Grimberg <sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, Praveen
- Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
-	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
-	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
-	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
-	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
- Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
- Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
-	<hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko
-	<andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
- Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
-	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
-	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga
- Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
-	<tom@talpey.com>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
-	<anna@kernel.org>, Shuah Khan <shuah@kernel.org>,
-	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-References: <20240808123714.462740-1-linyunsheng@huawei.com>
- <20240808123714.462740-5-linyunsheng@huawei.com>
- <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+References: <20240814122500.1710279-1-jiri@resnulli.us> <20240814082835-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240814082835-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 15 Aug 2024 14:03:26 +0800
+Message-ID: <CACGkMEs3X8KH3zHLkT74COqHa6N9noKT8TaUj-KRLkaok4Pv_w@mail.gmail.com>
+Subject: Re: [PATCH net] virtio_net: move netdev_tx_reset_queue() call before
+ RX napi enable
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jiri Pirko <jiri@resnulli.us>, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, m.szyprowski@samsung.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+Content-Transfer-Encoding: quoted-printable
 
-On 2024/8/14 23:49, Alexander H Duyck wrote:
-> On Thu, 2024-08-08 at 20:37 +0800, Yunsheng Lin wrote:
->> Currently the page_frag API is returning 'virtual address'
->> or 'va' when allocing and expecting 'virtual address' or
->> 'va' as input when freeing.
->>
->> As we are about to support new use cases that the caller
->> need to deal with 'struct page' or need to deal with both
->> 'va' and 'struct page'. In order to differentiate the API
->> handling between 'va' and 'struct page', add '_va' suffix
->> to the corresponding API mirroring the page_pool_alloc_va()
->> API of the page_pool. So that callers expecting to deal with
->> va, page or both va and page may call page_frag_alloc_va*,
->> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
->>
->> CC: Alexander Duyck <alexander.duyck@gmail.com>
->> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
->> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
->> Acked-by: Chuck Lever <chuck.lever@oracle.com>
->> Acked-by: Sagi Grimberg <sagi@grimberg.me>
->> ---
->>  drivers/net/ethernet/google/gve/gve_rx.c      |  4 ++--
->>  drivers/net/ethernet/intel/ice/ice_txrx.c     |  2 +-
->>  drivers/net/ethernet/intel/ice/ice_txrx.h     |  2 +-
->>  drivers/net/ethernet/intel/ice/ice_txrx_lib.c |  2 +-
->>  .../net/ethernet/intel/ixgbevf/ixgbevf_main.c |  4 ++--
->>  .../marvell/octeontx2/nic/otx2_common.c       |  2 +-
->>  drivers/net/ethernet/mediatek/mtk_wed_wo.c    |  4 ++--
->>  drivers/nvme/host/tcp.c                       |  8 +++----
->>  drivers/nvme/target/tcp.c                     | 22 +++++++++----------
->>  drivers/vhost/net.c                           |  6 ++---
->>  include/linux/page_frag_cache.h               | 21 +++++++++---------
->>  include/linux/skbuff.h                        |  2 +-
->>  kernel/bpf/cpumap.c                           |  2 +-
->>  mm/page_frag_cache.c                          | 12 +++++-----
->>  net/core/skbuff.c                             | 16 +++++++-------
->>  net/core/xdp.c                                |  2 +-
->>  net/rxrpc/txbuf.c                             | 15 +++++++------
->>  net/sunrpc/svcsock.c                          |  6 ++---
->>  .../selftests/mm/page_frag/page_frag_test.c   | 13 ++++++-----
->>  19 files changed, 75 insertions(+), 70 deletions(-)
->>
-> 
-> I still say no to this patch. It is an unnecessary name change and adds
-> no value. If you insist on this patch I will reject the set every time.
-> 
-> The fact is it is polluting the git history and just makes things
-> harder to maintain without adding any value as you aren't changing what
-> the function does and there is no need for this. In addition it just
+On Wed, Aug 14, 2024 at 8:29=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Wed, Aug 14, 2024 at 02:25:00PM +0200, Jiri Pirko wrote:
+> > From: Jiri Pirko <jiri@nvidia.com>
+> >
+> > During suspend/resume the following BUG was hit:
+> > ------------[ cut here ]------------
+> > kernel BUG at lib/dynamic_queue_limits.c:99!
+> > Internal error: Oops - BUG: 0 [#1] SMP ARM
+> > Modules linked in: bluetooth ecdh_generic ecc libaes
+> > CPU: 1 PID: 1282 Comm: rtcwake Not tainted
+> > 6.10.0-rc3-00732-gc8bd1f7f3e61 #15240
+> > Hardware name: Generic DT based system
+> > PC is at dql_completed+0x270/0x2cc
+> > LR is at __free_old_xmit+0x120/0x198
+> > pc : [<c07ffa54>]    lr : [<c0c42bf4>]    psr: 80000013
+> > ...
+> > Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+> > Control: 10c5387d  Table: 43a4406a  DAC: 00000051
+> > ...
+> > Process rtcwake (pid: 1282, stack limit =3D 0xfbc21278)
+> > Stack: (0xe0805e80 to 0xe0806000)
+> > ...
+> > Call trace:
+> >   dql_completed from __free_old_xmit+0x120/0x198
+> >   __free_old_xmit from free_old_xmit+0x44/0xe4
+> >   free_old_xmit from virtnet_poll_tx+0x88/0x1b4
+> >   virtnet_poll_tx from __napi_poll+0x2c/0x1d4
+> >   __napi_poll from net_rx_action+0x140/0x2b4
+> >   net_rx_action from handle_softirqs+0x11c/0x350
+> >   handle_softirqs from call_with_stack+0x18/0x20
+> >   call_with_stack from do_softirq+0x48/0x50
+> >   do_softirq from __local_bh_enable_ip+0xa0/0xa4
+> >   __local_bh_enable_ip from virtnet_open+0xd4/0x21c
+> >   virtnet_open from virtnet_restore+0x94/0x120
+> >   virtnet_restore from virtio_device_restore+0x110/0x1f4
+> >   virtio_device_restore from dpm_run_callback+0x3c/0x100
+> >   dpm_run_callback from device_resume+0x12c/0x2a8
+> >   device_resume from dpm_resume+0x12c/0x1e0
+> >   dpm_resume from dpm_resume_end+0xc/0x18
+> >   dpm_resume_end from suspend_devices_and_enter+0x1f0/0x72c
+> >   suspend_devices_and_enter from pm_suspend+0x270/0x2a0
+> >   pm_suspend from state_store+0x68/0xc8
+> >   state_store from kernfs_fop_write_iter+0x10c/0x1cc
+> >   kernfs_fop_write_iter from vfs_write+0x2b0/0x3dc
+> >   vfs_write from ksys_write+0x5c/0xd4
+> >   ksys_write from ret_fast_syscall+0x0/0x54
+> > Exception stack(0xe8bf1fa8 to 0xe8bf1ff0)
+> > ...
+> > ---[ end trace 0000000000000000 ]---
+> >
+> > After virtnet_napi_enable() is called, the following path is hit:
+> >   __napi_poll()
+> >     -> virtnet_poll()
+> >       -> virtnet_poll_cleantx()
+> >         -> netif_tx_wake_queue()
+> >
+> > That wakes the TX queue and allows skbs to be submitted and accounted b=
+y
+> > BQL counters.
+> >
+> > Then netdev_tx_reset_queue() is called that resets BQL counters and
+> > eventually leads to the BUG in dql_completed().
+> >
+> > Move virtnet_napi_tx_enable() what does BQL counters reset before RX
+> > napi enable to avoid the issue.
+> >
+> > Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> > Closes: https://lore.kernel.org/netdev/e632e378-d019-4de7-8f13-07c572ab=
+37a9@samsung.com/
+> > Fixes: c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits")
+> > Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> > Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-I guess I have to disagree with the above 'no need for this' part for
-now, as mentioned in [1]:
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-"There are three types of API as proposed in this patchset instead of
-two types of API:
-1. page_frag_alloc_va() returns [va].
-2. page_frag_alloc_pg() returns [page, offset].
-3. page_frag_alloc() returns [va] & [page, offset].
+Thanks
 
-You seemed to miss that we need a third naming for the type 3 API.
-Do you see type 3 API as a valid API? if yes, what naming are you
-suggesting for it? if no, why it is not a valid API?"
-
-
-1. https://lore.kernel.org/all/ca6be29e-ab53-4673-9624-90d41616a154@huawei.com/
-
-> makes it that much harder to backport fixes in the future as people
-> will have to work around the rename.
-> 
