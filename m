@@ -1,105 +1,151 @@
-Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com [209.85.161.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5100315D1
-	for <virtualization@lists.linux.dev>; Thu, 15 Aug 2024 01:03:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 782ADF9E6
+	for <virtualization@lists.linux.dev>; Thu, 15 Aug 2024 03:00:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723683823; cv=none; b=Qq2l0Vt5YX255AkwQoDOmFyczynkV3JH36tWaZUN+9I71Kqoza+dmhaGWHXuLeQRtJzc4e0jIfHx77+sOXPYgl7gZ/oZFl0+ey65uy32+gvT+omroPTsMQNpbGgeN9bzr4rBuxje8v73/TUlnPyzyoaSZRkYrvIOMPRIteGSEc4=
+	t=1723690804; cv=none; b=BZpr/dIsmzu51DEXUPWUuCL4zbEmboTpmp2n+O3gsyJou5m2NigWkYinDVXFvgVRbeFAX/r3dSAOZBawZ64+AdJZnxTt6cdxbBEbWIasXfjoV+y5fufCRTL7ZMDva3CUg/INxDCwb1obm+HGhgWufM7W75u+TfkQ2xrBWX4JsHg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723683823; c=relaxed/simple;
-	bh=cUxt0up1TK679P2htGrK886ysRT04vOMzqU3A8VSJ8Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ec9jj3ycpZ8sKkahF+8Spb8TUNN/dQUDHLTYQ8IiO+yVpA+GzmXwlzeJoxidcGgcPoJ9Dh03vJ44QXsC0/3so0RLP3aCtIORnDjK67SuWzH6hTOWq1UZsQ/RUkr+si2+ywpmoSDn41NthWNRUiRtyYCKmz9uFE6BK3CSvPWfZIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=mcyCmLhe; arc=none smtp.client-ip=209.85.161.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="mcyCmLhe"
-Received: by mail-oo1-f46.google.com with SMTP id 006d021491bc7-5d5e2de5d78so27948eaf.2
-        for <virtualization@lists.linux.dev>; Wed, 14 Aug 2024 18:03:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1723683821; x=1724288621; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=khMHVPKCTDHVonG/wiILjKhvjw+3YZpJ69x4MahYmgM=;
-        b=mcyCmLhew9Lrn0JTBFwbjd2V/H9beIalWdATfg76Axsi81mC7HjSeT4++a4bXcGD5A
-         vshcE+ZVS3rjQGoXo1CWtzKFEAEBtI4AyTU2HGVHjnnICh70ZkmqM3EVtFJjhN1IlF2M
-         6c3IVbGQod+Zd3IYUu1e+OwMik8DSx+ZXcoA0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723683821; x=1724288621;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=khMHVPKCTDHVonG/wiILjKhvjw+3YZpJ69x4MahYmgM=;
-        b=uy5WzURmxjafo+e/aPxW/gopy1wgRLCF/77BMCmUZ7aGSmFh759dVIWfEzD92uoR8a
-         Vcg35k4Co1a/L1e3coeXB/Cj+VuLCy960VbYIu9bwAgMv6LOwWqwMEY/t7SF3jikQDr/
-         kXervqSgSDLT2nNGNsMdy9OCQF39b/Rvhi1SRs/sxiv5w8Ws1V639NKClkCLBTJnq/Bz
-         ohSDYh+E5VL4UXrONNxzS9fxfDuATqNpoOzu7BVEB/ZEZ20OhtTItY5YMMy6MnGVUKVb
-         dxjqfWThJ8Qfjb5evs3z5WdPXneHUxOLf+ElgGWK/4VR2TWNrJBZ00NO3Am4HMc01F93
-         MO7A==
-X-Gm-Message-State: AOJu0YyXs6uWNtvpbO6n8Hf3hXgFtUdBI7y/6ouFsNXpQbUq4ZkUY1r+
-	+2bKnggosYrNCmv4rDJLfW9d8vG8Ezo5OtyRph7X4pNL11ra22lu4g+dyFLH5Q==
-X-Google-Smtp-Source: AGHT+IF+8XgKQDkaXk0vfQAks7fyXcwVXvAv57Id3YITxLxh/ZxwgsaZs42QqdKu7qhMO+nTdLC4Iw==
-X-Received: by 2002:a05:6358:4883:b0:1ac:f436:c8ca with SMTP id e5c5f4694b2df-1b385ac1c24mr111855755d.1.1723683821360;
-        Wed, 14 Aug 2024 18:03:41 -0700 (PDT)
-Received: from philipchen.c.googlers.com.com (140.248.236.35.bc.googleusercontent.com. [35.236.248.140])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a4ff02c7e1sm24485285a.15.2024.08.14.18.03.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Aug 2024 18:03:41 -0700 (PDT)
-From: Philip Chen <philipchen@chromium.org>
-To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Ira Weiny <ira.weiny@intel.com>
-Cc: virtualization@lists.linux.dev,
-	nvdimm@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Philip Chen <philipchen@chromium.org>
-Subject: [PATCH v2] virtio_pmem: Check device status before requesting flush
-Date: Thu, 15 Aug 2024 01:03:37 +0000
-Message-ID: <20240815010337.2334245-1-philipchen@chromium.org>
-X-Mailer: git-send-email 2.46.0.76.ge559c4bf1a-goog
+	s=arc-20240116; t=1723690804; c=relaxed/simple;
+	bh=9ppxBCocPnEtgPPka1NCRYp9zcY55WpRrtq/MyyUvHs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=mCaraMZSJbBp0ysmZ7WN29CG2XLGDL5kmNMz+UB7X+pGQ2MFzHQGSo9IwCT9x09lI8h0D2FCtXjq83xyspAKXG/+4CIveBnm+G6njp/FGmeRbeMZW8S1PTLG3qN6EPSjxfpca4N6PavK8aazlxC8hwH52Ltzir117TK7upStVCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.17])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4WkqXP209yz1HGKB;
+	Thu, 15 Aug 2024 10:56:53 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 5EBEA1A0188;
+	Thu, 15 Aug 2024 10:59:58 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Thu, 15 Aug 2024 10:59:57 +0800
+Message-ID: <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com>
+Date: Thu, 15 Aug 2024 10:59:57 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+To: Alexander H Duyck <alexander.duyck@gmail.com>, <davem@davemloft.net>,
+	<kuba@kernel.org>, <pabeni@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya
+ Sundeep <sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, Sagi
+ Grimberg <sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, Praveen
+ Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
+	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
+	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
+	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
+ Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
+ Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
+	<hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Daniel
+ Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko
+	<andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
+ Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
+	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
+	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga
+ Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
+	<tom@talpey.com>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
+	<anna@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
+References: <20240808123714.462740-1-linyunsheng@huawei.com>
+ <20240808123714.462740-5-linyunsheng@huawei.com>
+ <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-If a pmem device is in a bad status, the driver side could wait for
-host ack forever in virtio_pmem_flush(), causing the system to hang.
+On 2024/8/14 23:49, Alexander H Duyck wrote:
+> On Thu, 2024-08-08 at 20:37 +0800, Yunsheng Lin wrote:
+>> Currently the page_frag API is returning 'virtual address'
+>> or 'va' when allocing and expecting 'virtual address' or
+>> 'va' as input when freeing.
+>>
+>> As we are about to support new use cases that the caller
+>> need to deal with 'struct page' or need to deal with both
+>> 'va' and 'struct page'. In order to differentiate the API
+>> handling between 'va' and 'struct page', add '_va' suffix
+>> to the corresponding API mirroring the page_pool_alloc_va()
+>> API of the page_pool. So that callers expecting to deal with
+>> va, page or both va and page may call page_frag_alloc_va*,
+>> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
+>>
+>> CC: Alexander Duyck <alexander.duyck@gmail.com>
+>> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+>> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
+>> Acked-by: Chuck Lever <chuck.lever@oracle.com>
+>> Acked-by: Sagi Grimberg <sagi@grimberg.me>
+>> ---
+>>  drivers/net/ethernet/google/gve/gve_rx.c      |  4 ++--
+>>  drivers/net/ethernet/intel/ice/ice_txrx.c     |  2 +-
+>>  drivers/net/ethernet/intel/ice/ice_txrx.h     |  2 +-
+>>  drivers/net/ethernet/intel/ice/ice_txrx_lib.c |  2 +-
+>>  .../net/ethernet/intel/ixgbevf/ixgbevf_main.c |  4 ++--
+>>  .../marvell/octeontx2/nic/otx2_common.c       |  2 +-
+>>  drivers/net/ethernet/mediatek/mtk_wed_wo.c    |  4 ++--
+>>  drivers/nvme/host/tcp.c                       |  8 +++----
+>>  drivers/nvme/target/tcp.c                     | 22 +++++++++----------
+>>  drivers/vhost/net.c                           |  6 ++---
+>>  include/linux/page_frag_cache.h               | 21 +++++++++---------
+>>  include/linux/skbuff.h                        |  2 +-
+>>  kernel/bpf/cpumap.c                           |  2 +-
+>>  mm/page_frag_cache.c                          | 12 +++++-----
+>>  net/core/skbuff.c                             | 16 +++++++-------
+>>  net/core/xdp.c                                |  2 +-
+>>  net/rxrpc/txbuf.c                             | 15 +++++++------
+>>  net/sunrpc/svcsock.c                          |  6 ++---
+>>  .../selftests/mm/page_frag/page_frag_test.c   | 13 ++++++-----
+>>  19 files changed, 75 insertions(+), 70 deletions(-)
+>>
+> 
+> I still say no to this patch. It is an unnecessary name change and adds
+> no value. If you insist on this patch I will reject the set every time.
+> 
+> The fact is it is polluting the git history and just makes things
+> harder to maintain without adding any value as you aren't changing what
+> the function does and there is no need for this. In addition it just
 
-Signed-off-by: Philip Chen <philipchen@chromium.org>
----
-Change since v1:
-- Remove change id from the patch description
+I guess I have to disagree with the above 'no need for this' part for
+now, as mentioned in [1]:
+
+"There are three types of API as proposed in this patchset instead of
+two types of API:
+1. page_frag_alloc_va() returns [va].
+2. page_frag_alloc_pg() returns [page, offset].
+3. page_frag_alloc() returns [va] & [page, offset].
+
+You seemed to miss that we need a third naming for the type 3 API.
+Do you see type 3 API as a valid API? if yes, what naming are you
+suggesting for it? if no, why it is not a valid API?"
 
 
- drivers/nvdimm/nd_virtio.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+1. https://lore.kernel.org/all/ca6be29e-ab53-4673-9624-90d41616a154@huawei.com/
 
-diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-index 35c8fbbba10e..3b4d07aa8447 100644
---- a/drivers/nvdimm/nd_virtio.c
-+++ b/drivers/nvdimm/nd_virtio.c
-@@ -44,6 +44,15 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
- 	unsigned long flags;
- 	int err, err1;
- 
-+	/*
-+	 * Don't bother to send the request to the device if the device is not
-+	 * acticated.
-+	 */
-+	if (vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_NEEDS_RESET) {
-+		dev_info(&vdev->dev, "virtio pmem device needs a reset\n");
-+		return -EIO;
-+	}
-+
- 	might_sleep();
- 	req_data = kmalloc(sizeof(*req_data), GFP_KERNEL);
- 	if (!req_data)
--- 
-2.46.0.76.ge559c4bf1a-goog
-
+> makes it that much harder to backport fixes in the future as people
+> will have to work around the rename.
+> 
