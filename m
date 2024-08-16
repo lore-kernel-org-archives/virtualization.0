@@ -1,142 +1,255 @@
-Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
+Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com [209.85.221.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C222C370
-	for <virtualization@lists.linux.dev>; Thu, 15 Aug 2024 23:53:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A062818C36
+	for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 00:17:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723765996; cv=none; b=o2k8ObrADuTGq005unx+KA+Yk5vKKal86Jl+ZYvH1kpSc2Ie5u+prA7/NDhu9cL0uvfoO1a6+iKTXQjNf5e7fTlNcrlv6hiCXjsCCke7jEfPckypESam4xegnm0LnaJ3IBXqC0rteNYoZf6wo5UX4/+1UO9oGbTxlrIBnjCoCFs=
+	t=1723767449; cv=none; b=GOBzaj/cA2xhxgTZ82aw8d0jPkAFxuqQB0BN+OCf/QLE5wM7s8cz3Bl/l9TTwMKyh5udZjgrII1PZSzEYd0EuRjZNqqz5gFGWTW1CnHbHAlFQrdPI001loaXEZWvI9EpxAGKJYpvc2pwlBpyxdNJzyYzm0xhLEMoGL/F6ykysOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723765996; c=relaxed/simple;
-	bh=LwOB566dtP6iRZ/PRNhmquNN3Lyoz+ETk3sAEqaNH6M=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=aLtB0ce34H1vutFpR22+l7XKTX6amflQLpz2Ev/nACmXH7aBmAD0pmbb6UyX4V/xuXjZIKXmnh6kEmIyKJ3uc5Ok474+Hskbx1frgpD9Ykoh6ZySGypm1w2U647Hl6oyJ3vYnHAryrlBenzzBP7Bl31+5ijHNKTMkPSPVd0Z5V8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Ttba9Wn5; arc=none smtp.client-ip=209.85.219.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1723767449; c=relaxed/simple;
+	bh=ZwYyn8JbhkHG8k3gvkoDcn6Gy9hLkeQeH18puVBeNH4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lJo/pWQ9jpIbuOxYj9P9RkFy/SWg9XiISSKfiTjZ11W93KU6TxnTkfxzgT/e3i6l1sjaI23Hfx4D3+R2b2NqDb1UPxklAsKl4Y+y0pmTgTNS4W5yLYHnK7b10VYI4LDonnMugLe3CV+JKaI4cnzQuAbCZcVkgu14dxWEANHpyEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P+FgjBP3; arc=none smtp.client-ip=209.85.221.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Ttba9Wn5"
-Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-6bf7a2035d9so7120866d6.1
-        for <virtualization@lists.linux.dev>; Thu, 15 Aug 2024 16:53:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P+FgjBP3"
+Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-4ef2006dcdbso529843e0c.3
+        for <virtualization@lists.linux.dev>; Thu, 15 Aug 2024 17:17:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1723765994; x=1724370794; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1723767446; x=1724372246; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UMmHtGDxLP15DSwvGW0oZzm4yIn7Z3SZOYyZ/cXfFzU=;
-        b=Ttba9Wn5V97ArVt9oGUK1lWijTnt7Fb/E294tHJ7ks/NPXPWeBcu/kTC55qoMLFECg
-         2JmdEPiHOstRej9ayP00ML8gPdU71+Ej6TkqcJAll7m7dPmk/J1UAb1DaUeqGpiPlttZ
-         9OjEndimj2gQw3SIFz+WnmXSk4Us7anyYa2Wo=
+        bh=d2YrHTGtF+jpWM5UfiAgi4NfEMMQPWNtG43MOc6x070=;
+        b=P+FgjBP3LvhSA8lSKlQ7qUDvkWeoiUKp2+g6x9FqGfc3yGgj4wVjI/gNlb550CWUm8
+         WKQ2Sm/GjrSY/LNugwj1UtTbwUs01JdK20WvmpV6vq1DrRH/4pAQzwjh7mbdJ1Kdmq+d
+         lIrjMKoe480VvIX4jC+xhvS+3zDLP/JHoAAHuDdzauyi5SgzCBntRgXq8iCH4sN9IEmj
+         6vDH9KFbLm2TXlZAewICKNVzO5Pn1tnTH5k/KVd6T3zFqOgjld5ltm5t1HszWzCQy5Db
+         yDVcRyZicVuXrTZT7xJPY8TFb5+JMafXGX63G8KgtqGl21mbf7hF8drfu1gjNxQYuk3h
+         F4QQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723765994; x=1724370794;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1723767446; x=1724372246;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UMmHtGDxLP15DSwvGW0oZzm4yIn7Z3SZOYyZ/cXfFzU=;
-        b=ims2wvnkfg/3ehUEO1fSE4pY0cfr5atJ2YCe7qHt7ck0WlCz5TDuIzUPfoK1fok+uz
-         r1COQTfxaQOgYkjXm2FVSrpUuG80jTVOmcexelkjwxDCisoThAJvKJuCIdfnWvyB2xD5
-         Sg6j0Tz9g+NaqavdqKf0LB/BlaPLIW+NAITBMgzgMQ5eY+zEo3bZjdWt+tAgLLGCkjrh
-         EUy4tqWdMNHZW8Wfe8AhgdIMVceJwjkfrNbcUH15aVknvyig/zl1Uj5C7X25UASJ8Ygx
-         AA0H2Q4JIcEs4rf6r2RXaF2EXZ9VDzF4Z+/KdT745+fctu4hit5/Po8Jz97dKQdEa3hJ
-         lC3A==
-X-Forwarded-Encrypted: i=1; AJvYcCXN94CZGQepguLfVF6tdJAALqjRQSJASbgmlJdKId47pBZLxfprIlf3AMGK+LefpsSo4pAfJqYpJ7IPVkRHuQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx9k/qaa4HvCHyIXQB663D19XCHUVDw+nDG3Lw7SNReiEw90K6s
-	rUX2r59ggkrIsPkyWaT85AS26tqh/q9dz56/WCNgYHlDtPhfx+JUtwQqiHplgw==
-X-Google-Smtp-Source: AGHT+IFqiX06nF1pNMk7dYe8eZHjyfLcc0SwlXL8916skbzdi+3d1cwROPT64eYGuDiUUO1ovmbeCw==
-X-Received: by 2002:a05:6214:4198:b0:6af:33ed:87de with SMTP id 6a1803df08f44-6bf7d5b1021mr15618336d6.20.1723765993660;
-        Thu, 15 Aug 2024 16:53:13 -0700 (PDT)
-Received: from amakhalov-build-vm.eng.vmware.com ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6bf6fdd8880sm11277296d6.22.2024.08.15.16.53.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Aug 2024 16:53:13 -0700 (PDT)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de
-Cc: x86@kernel.org,
-	ajay.kaher@broadcom.com,
-	bo.gan@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>
-Subject: [PATCH v2 2/2] x86/vmware: Fix steal time clock under SEV
-Date: Thu, 15 Aug 2024 16:52:46 -0700
-Message-Id: <20240815235246.806522-1-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.4
-In-Reply-To: <20240814210731.761010-2-alexey.makhalov@broadcom.com>
-References: <20240814210731.761010-2-alexey.makhalov@broadcom.com>
+        bh=d2YrHTGtF+jpWM5UfiAgi4NfEMMQPWNtG43MOc6x070=;
+        b=ssOhSKKAq1ZN4lZouStCEXK6ZeTPpeWanz1ZeKembObo8U0EXLYB0TI/9p5BlSLhUu
+         OcE4XJtjlyNdkK5Ra8k5oRONjAZDV4034vhBHHR83Yll8ofwpd1tFe/MPD9Rpvn7v6Nl
+         xI0JedYuwtHPmNaSPuijMQZyHypwSn46Mdzry+vkvAXynHTtZU2LSNsuOZzK+hmuA5Fo
+         2egn6EhlkLEZp+G3IctOmxcipmiSX2j2qYWUI/riCEaHkNxCzfHI6MjjHiLpSnMmb4Ej
+         rGxHUdut0hAB4J0wEyFHZbKdBzYIzZR/E7HwB/a/J1zzs5GbOFChvy19UFGM9Bw4exrF
+         Cjkg==
+X-Forwarded-Encrypted: i=1; AJvYcCVWKwXP58K66F9WjYj8QAJc6UmBeoRsH1ZxKzCx5xl2aScG206JdnDvvRKTqhpHyLu1nY+37LzhL0snpKDS6rxvwpmC5YGe9F15OTM+LYY=
+X-Gm-Message-State: AOJu0YzeJS0sgJoN5MPEDRBk+9YMfFjCS/F9qAhAQwaw0oY4ORDUjpdk
+	foUeBFVy51hMY6PNWKuHkrYXoipMRSEg4H4WLNlh9NuiH87MBf4RDB6xOZJNNU+Bkqiyg1NvQ90
+	ENrh60CNcdNeZsoAS2gEAbkdjBeQ=
+X-Google-Smtp-Source: AGHT+IG2EoyBilLVQRqv96CAY/4lhYl5dk+AsKpgy8jtfXimSLSsr1+QAjSQU2FxDWwQSJPkVV+riCGX4oxoxLLt55Q=
+X-Received: by 2002:a05:6102:6cd:b0:48f:e9d9:3ad4 with SMTP id
+ ada2fe7eead31-4977997657fmr1965982137.19.1723767446049; Thu, 15 Aug 2024
+ 17:17:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240808054320.10017-1-jasowang@redhat.com>
+In-Reply-To: <20240808054320.10017-1-jasowang@redhat.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Fri, 16 Aug 2024 12:17:14 +1200
+Message-ID: <CAGsJ_4ze4YAOSfM5+6Wj1-EcGNaaJQ-S2Ljzm4egjRsXdDp5MA@mail.gmail.com>
+Subject: Re: [PATCH v2] vduse: avoid using __GFP_NOFAIL
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	maxime.coquelin@redhat.com, xieyongji@bytedance.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
+	akpm@linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Shared memory containing steal time counter should be set to
-decrypted when SEV is active.
+On Thu, Aug 8, 2024 at 5:43=E2=80=AFPM Jason Wang <jasowang@redhat.com> wro=
+te:
+>
+> Barry said [1]:
+>
+> """
+> mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
+> __GFP_NOFAIL without direct reclamation may just result in a busy
+> loop within non-sleepable contexts.
+>
+> The current code will result in returning a NULL pointer but
+> not a busy-loop.
+>
+> static inline struct page *
+> __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>                                                 struct alloc_context *ac)
+> {
+>         ...
+>         /*
+>          * Make sure that __GFP_NOFAIL request doesn't leak out and make =
+sure
+>          * we always retry
+>          */
+>         if (gfp_mask & __GFP_NOFAIL) {
+>                 /*
+>                  * All existing users of the __GFP_NOFAIL are blockable, =
+so warn
+>                  * of any new users that actually require GFP_NOWAIT
+>                  */
+>                 if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+>                         goto fail;
+>                 ...
+>         }
+>         ...
+> fail:
+>         warn_alloc(gfp_mask, ac->nodemask,
+>                         "page allocation failure: order:%u", order);
+> got_pg:
+>         return page;
+> }
+>
+> We have two choices to address the issue:
+> 1. busy-loop
+> 2. BUG_ON
+>
+> the below patch chose 2:
+> https://lore.kernel.org/linux-mm/20240731000155.109583-5-21cnbao@gmail.co=
+m/
+> ""=E2=80=9C
+>
+> Unfortuantely, we do that under read lock. A possible way to fix that
+> is to move the pages allocation out of the lock into the caller, but
+> having to allocate a huge number of pages and auxiliary page array
+> seems to be problematic as well per Tetsuon [2]:
+>
+> """
+> You should implement proper error handling instead of using
+> __GFP_NOFAIL if count can become large.
+> """
+>
+> So I choose another way, which does not release kernel bounce pages
+> when user tries to register usersapce bounce pages. Then we don't need
+> to do allocation in the path which is not expected to be fail (e.g in
+> the release). We pay this for more memory usage as we don't release
+> kernel bounce pages but further optimizations could be done on top.
+>
+> [1] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2sa=
+LnUdfOGOLg@mail.gmail.com/T/#m3caef86a66ea6318ef94f9976ddb3a0ccfe6fcf8
+> [2] https://lore.kernel.org/all/CACGkMEtcOJAA96SF9B8m-nZ1X04-XZr+nq8ZQ2sa=
+LnUdfOGOLg@mail.gmail.com/T/#m7ad10eaba48ade5abf2d572f24e185d9fb146480
+>
+> Fixes: 6c77ed22880d ("vduse: Support using userspace pages as bounce buff=
+er")
+> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+> Tested-by: Xie Yongji <xieyongji@bytedance.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Co-developed-by: Bo Gan <bo.gan@broadcom.com>
-Signed-off-by: Bo Gan <bo.gan@broadcom.com>
-Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
----
- arch/x86/kernel/cpu/vmware.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+Hi Jason,
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 9883766715fe..b4e57d6ec2f5 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -36,6 +36,7 @@
- #include <asm/apic.h>
- #include <asm/vmware.h>
- #include <asm/svm.h>
-+#include <asm/coco.h>
- 
- #undef pr_fmt
- #define pr_fmt(fmt)	"vmware: " fmt
-@@ -306,9 +307,30 @@ static struct notifier_block vmware_pv_reboot_nb = {
- 	.notifier_call = vmware_pv_reboot_notify,
- };
- 
-+static void __init sev_map_percpu_data(void)
-+{
-+	int cpu;
-+
-+	if (cc_vendor != CC_VENDOR_AMD ||
-+	    !cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-+		return;
-+
-+	for_each_possible_cpu(cpu) {
-+		early_set_memory_decrypted(
-+			(unsigned long)&per_cpu(vmw_steal_time, cpu),
-+			sizeof(vmw_steal_time));
-+	}
-+}
-+
- #ifdef CONFIG_SMP
- static void __init vmware_smp_prepare_boot_cpu(void)
- {
-+	/*
-+	 * Map the per-cpu variables as decrypted before vmware_guest_cpu_init()
-+	 * shares the guest physical address with the hypervisor.
-+	 */
-+	sev_map_percpu_data();
-+
- 	vmware_guest_cpu_init();
- 	native_smp_prepare_boot_cpu();
- }
-@@ -371,6 +393,7 @@ static void __init vmware_paravirt_ops_setup(void)
- 					      vmware_cpu_down_prepare) < 0)
- 			pr_err("vmware_guest: Failed to install cpu hotplug callbacks\n");
- #else
-+		sev_map_percpu_data();
- 		vmware_guest_cpu_init();
- #endif
- 	}
--- 
-2.39.4
+Is this the final version to fix __GFP_NOFAIL issue, or will you have a new
+version?
+Do you prefer it to go through the mm tree or the drivers subsystem tree?
+If it's the former, I can send a new version that includes this one in my
+series[1].
 
+[1] https://lore.kernel.org/linux-mm/20240731000155.109583-1-21cnbao@gmail.=
+com/
+
+> ---
+> Changes since V1:
+> - Tweak the commit log
+> - Assign map->user_bounce_page to NULL for safety
+> ---
+>  drivers/vdpa/vdpa_user/iova_domain.c | 19 +++++++++++--------
+>  drivers/vdpa/vdpa_user/iova_domain.h |  1 +
+>  2 files changed, 12 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_use=
+r/iova_domain.c
+> index 791d38d6284c..58116f89d8da 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> @@ -162,6 +162,7 @@ static void vduse_domain_bounce(struct vduse_iova_dom=
+ain *domain,
+>                                 enum dma_data_direction dir)
+>  {
+>         struct vduse_bounce_map *map;
+> +       struct page *page;
+>         unsigned int offset;
+>         void *addr;
+>         size_t sz;
+> @@ -178,7 +179,10 @@ static void vduse_domain_bounce(struct vduse_iova_do=
+main *domain,
+>                             map->orig_phys =3D=3D INVALID_PHYS_ADDR))
+>                         return;
+>
+> -               addr =3D kmap_local_page(map->bounce_page);
+> +               page =3D domain->user_bounce_pages ?
+> +                      map->user_bounce_page : map->bounce_page;
+> +
+> +               addr =3D kmap_local_page(page);
+>                 do_bounce(map->orig_phys + offset, addr + offset, sz, dir=
+);
+>                 kunmap_local(addr);
+>                 size -=3D sz;
+> @@ -270,9 +274,8 @@ int vduse_domain_add_user_bounce_pages(struct vduse_i=
+ova_domain *domain,
+>                                 memcpy_to_page(pages[i], 0,
+>                                                page_address(map->bounce_p=
+age),
+>                                                PAGE_SIZE);
+> -                       __free_page(map->bounce_page);
+>                 }
+> -               map->bounce_page =3D pages[i];
+> +               map->user_bounce_page =3D pages[i];
+>                 get_page(pages[i]);
+>         }
+>         domain->user_bounce_pages =3D true;
+> @@ -297,17 +300,17 @@ void vduse_domain_remove_user_bounce_pages(struct v=
+duse_iova_domain *domain)
+>                 struct page *page =3D NULL;
+>
+>                 map =3D &domain->bounce_maps[i];
+> -               if (WARN_ON(!map->bounce_page))
+> +               if (WARN_ON(!map->user_bounce_page))
+>                         continue;
+>
+>                 /* Copy user page to kernel page if it's in use */
+>                 if (map->orig_phys !=3D INVALID_PHYS_ADDR) {
+> -                       page =3D alloc_page(GFP_ATOMIC | __GFP_NOFAIL);
+> +                       page =3D map->bounce_page;
+>                         memcpy_from_page(page_address(page),
+> -                                        map->bounce_page, 0, PAGE_SIZE);
+> +                                        map->user_bounce_page, 0, PAGE_S=
+IZE);
+>                 }
+> -               put_page(map->bounce_page);
+> -               map->bounce_page =3D page;
+> +               put_page(map->user_bounce_page);
+> +               map->user_bounce_page =3D NULL;
+>         }
+>         domain->user_bounce_pages =3D false;
+>  out:
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_use=
+r/iova_domain.h
+> index f92f22a7267d..7f3f0928ec78 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.h
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.h
+> @@ -21,6 +21,7 @@
+>
+>  struct vduse_bounce_map {
+>         struct page *bounce_page;
+> +       struct page *user_bounce_page;
+>         u64 orig_phys;
+>  };
+>
+> --
+> 2.31.1
+>
+
+Thanks
+Barry
