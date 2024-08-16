@@ -1,149 +1,106 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B3B52F46
-	for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 03:19:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC33C77105;
+	Fri, 16 Aug 2024 05:03:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.237.130.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723778364; cv=none; b=tm+MzZhs009yVDDMqhSFVIClc7mFjOkw0KWurWdypkMHdMDPnmroxAiMzfpT8LzoAQdtVk3opVkg1i5OKe2ooIerf9Idr+IIFHh/qfbqTm0awp8GazADxGFax4TspWL+0VZf7a2xsfo/QcPUT9H5tFxtrjPrsM/137jZQzDyEmo=
+	t=1723784638; cv=none; b=rcSVJRgDOzNLH/LTUEcXSj8B++SjmOStPXaMwrgAebTvBgj8tKAdIf5QJQTMyQDj1csHOJ8j8wqa1jhZPHfvJCHnuLeT1T8wxAIthOm0949xcuJfwAQOGlKGvJbknUOXIQ8CN9SVkWVQtuZ91h0tuctlDpAD///DpcycXEXbFO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723778364; c=relaxed/simple;
-	bh=ZkQQ4Cn19YreRFLNnok9iQL5GCdwO+jNaxblnhNi22A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NYmXU0nE9raohYGkifL8uoZ20BmkmTMClFvNbR1RlBFg/wKe4g7ICGHltoececR3BV2TqZ09ERJxnqe3ns57BHPuV28soy7SacodBlXgnGQVerSHyzukUNTB7OE1gLJpl5fawnw17PfmlAnNtY7TUdIVASqRl4t059hT9WqMmsc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aWoEoirC; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1723784638; c=relaxed/simple;
+	bh=B5pKNxQq47mR1PSLdcFE+nJoBZ1+Ub4soJBgBS4ov9E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fJMOo7XGgN5LJdy4znc9ptWa76z2BGyI3fNu9JdptEsAMb3ikSFzNczF7gv9iguX9XrMAU8yKuN+3mLI5rJzpHJ9OqbRb794EWWcnmLZ14Y/MTH7EgVpDbika3jhGDPWRs8F8HwR82iGiHKIrfkSENv6axx+aoZIEyEUbSjl1eM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=beVfNyYv; arc=none smtp.client-ip=80.237.130.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aWoEoirC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723778360;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=fZBYM8BcEh6UxLDFpr2Et6wTf1D5qI6MuKpCzNtcKvM=;
-	b=aWoEoirCpUIRqPtPKn5z2Mhuq/FE5zZHyCCZOfuUxoQs1zZBRoVNsjTWBhZRtcuFtPMHKo
-	tvJKW3ZoyYDlJuGHmqTLETuO6+X29u8Tm/726pTcUeGBGuQv0KODy+krpMErVRqdUJLLBc
-	kJhcHUe+DeUz6JQcbGuBknU0fnvj3nY=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-486-18kBQJvbOmubpsBwjKuhGA-1; Thu,
- 15 Aug 2024 23:19:17 -0400
-X-MC-Unique: 18kBQJvbOmubpsBwjKuhGA-1
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C9E061955D4C;
-	Fri, 16 Aug 2024 03:19:15 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.72.112.147])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F044F1955F43;
-	Fri, 16 Aug 2024 03:19:08 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	eperezma@redhat.com
-Cc: lingshan.zhu@intel.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Dragos Tatulea <dtatulea@nvidia.com>
-Subject: [PATCH] vhost_vdpa: assign irq bypass producer token correctly
-Date: Fri, 16 Aug 2024 11:19:00 +0800
-Message-ID: <20240816031900.18013-1-jasowang@redhat.com>
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="beVfNyYv"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:
+	Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
+	In-Reply-To:References; bh=6amONoml4yC14YwrkWl2obGeotHupqEWZAFYL4LGlHQ=;
+	t=1723784637; x=1724216637; b=beVfNyYvbamdSaMXvR0Ra+hNh5mWyHg+RCXT5X3uNA0s9kv
+	JSfyGPoZmi1xIdil4m+VN4bFIN42T6fm6n7OyjssL1G9K6caZr2RWgebbi5hWBpGef8o4KACEec4l
+	GE/JwOfVCo/MKz5v+kEWJm17/fy/0pGBw6Of/HgxaAerUx7jIKKFR5qf4r9GBSwPnNCAWLqy/0PZG
+	O+gLI7Bgv/U643nZnFdyRXKVsfFtFNPgy61afkz1C5/NDTnt83zPCRbr+LvHJ/eCbSdOuRCs6AZh5
+	EWwDp6KMMvAFuXitJSB18gNas4mwGCTMBRDbKd04LAOUmFel2fQ5ODYpMcpGbZqA==;
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+	id 1sep7u-0002Ah-Q9; Fri, 16 Aug 2024 07:03:50 +0200
+Message-ID: <a3ba7028-b6c8-4d0d-b53a-8ecf9e69978c@leemhuis.info>
+Date: Fri, 16 Aug 2024 07:03:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 0/3] Revert "virtio_net: rx enable premapped mode by
+ default"
+To: Darren Kenny <darren.kenny@oracle.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev, Boris Ostrovsky
+ <boris.ostrovsky@oracle.com>,
+ Linux kernel regressions list <regressions@lists.linux.dev>,
+ Takero Funaki <flintglass@gmail.com>
+References: <20240511031404.30903-1-xuanzhuo@linux.alibaba.com>
+ <a6ec1c84-428f-41b7-9a57-183f2aeca289@leemhuis.info>
+ <m2r0aqrsq6.fsf@oracle.com>
+From: "Linux regression tracking (Thorsten Leemhuis)"
+ <regressions@leemhuis.info>
+Content-Language: en-US, de-DE
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+In-Reply-To: <m2r0aqrsq6.fsf@oracle.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1723784637;33b23499;
+X-HE-SMSGID: 1sep7u-0002Ah-Q9
 
-We used to call irq_bypass_unregister_producer() in
-vhost_vdpa_setup_vq_irq() which is problematic as we don't know if the
-token pointer is still valid or not.
+On 15.08.24 12:22, Darren Kenny wrote:
+> On Thursday, 2024-08-15 at 09:14:27 +02, Linux regression tracking (Thorsten Leemhuis) wrote:
+>> On 14.08.24 08:59, Michael S. Tsirkin wrote:
+>>> Note: Xuan Zhuo, if you have a better idea, pls post an alternative
+>>> patch.
+>>>
+>>> Note2: untested, posting for Darren to help with testing.
+>>>
+>>> Turns out unconditionally enabling premapped 
+>>> virtio-net leads to a regression on VM with no ACCESS_PLATFORM, and with
+>>> sysctl net.core.high_order_alloc_disable=1
+>>>
+>>> where crashes and scp failures were reported (scp a file 100M in size to VM):
+>>> [...]
+>>
+>> TWIMC, there is a regression report on lore
 
-Actually, we use the eventfd_ctx as the token so the life cycle of the
-token should be bound to the VHOST_SET_VRING_CALL instead of
-vhost_vdpa_setup_vq_irq() which could be called by set_status().
+Obviously I meant bugzilla here, sorry.
 
-Fixing this by setting up irq bypass producer's token when handling
-VHOST_SET_VRING_CALL and un-registering the producer before calling
-vhost_vring_ioctl() to prevent a possible use after free as eventfd
-could have been released in vhost_vring_ioctl(). And such registering
-and unregistering will only be done if DRIVER_OK is set.
+>> and I wonder if this might
+>> be related or the same problem, as it also mentioned a "get_swap_device:
+>> Bad swap file entry" error:
+>> https://bugzilla.kernel.org/show_bug.cgi?id=219154
+> 
+> I took a look at the stack traces, they don't look similar to what I was
+> seeing, but I wasn't running with an ASAN enabled in the kernel.
+> [...]
 
-Reported-by: Dragos Tatulea <dtatulea@nvidia.com>
-Tested-by: Dragos Tatulea <dtatulea@nvidia.com>
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
-Fixes: 2cf1ba9a4d15 ("vhost_vdpa: implement IRQ offloading in vhost_vdpa")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-Changes since RFC:
-- only do the reg/dereg of the producer when DRIVER_OK is set
----
- drivers/vhost/vdpa.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+Yeah, but in the end it seems it is the same problem: The reporter,
+Takero Funaki (now CCed) meanwhile performed a bisection that ended up
+on f9dac92ba908 (virtio_ring: enable premapped mode regardless of
+use_dma_api) -- and later confirmed in bugzilla that reverting the three
+patches resolved the problem. Feel free to CC Takero on further mails
+about this.
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index e31ec9ebc4ce..ab441b8ccd2e 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -209,11 +209,9 @@ static void vhost_vdpa_setup_vq_irq(struct vhost_vdpa *v, u16 qid)
- 	if (irq < 0)
- 		return;
- 
--	irq_bypass_unregister_producer(&vq->call_ctx.producer);
- 	if (!vq->call_ctx.ctx)
- 		return;
- 
--	vq->call_ctx.producer.token = vq->call_ctx.ctx;
- 	vq->call_ctx.producer.irq = irq;
- 	ret = irq_bypass_register_producer(&vq->call_ctx.producer);
- 	if (unlikely(ret))
-@@ -709,6 +707,14 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 			vq->last_avail_idx = vq_state.split.avail_index;
- 		}
- 		break;
-+	case VHOST_SET_VRING_CALL:
-+		if (vq->call_ctx.ctx) {
-+			if (ops->get_status(vdpa) &
-+			    VIRTIO_CONFIG_S_DRIVER_OK)
-+				vhost_vdpa_unsetup_vq_irq(v, idx);
-+			vq->call_ctx.producer.token = NULL;
-+		}
-+		break;
- 	}
- 
- 	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
-@@ -747,13 +753,16 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 			cb.callback = vhost_vdpa_virtqueue_cb;
- 			cb.private = vq;
- 			cb.trigger = vq->call_ctx.ctx;
-+			vq->call_ctx.producer.token = vq->call_ctx.ctx;
-+			if (ops->get_status(vdpa) &
-+			    VIRTIO_CONFIG_S_DRIVER_OK)
-+				vhost_vdpa_setup_vq_irq(v, idx);
- 		} else {
- 			cb.callback = NULL;
- 			cb.private = NULL;
- 			cb.trigger = NULL;
- 		}
- 		ops->set_vq_cb(vdpa, idx, &cb);
--		vhost_vdpa_setup_vq_irq(v, idx);
- 		break;
- 
- 	case VHOST_SET_VRING_NUM:
-@@ -1419,6 +1428,7 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
- 	for (i = 0; i < nvqs; i++) {
- 		vqs[i] = &v->vqs[i];
- 		vqs[i]->handle_kick = handle_vq_kick;
-+		vqs[i]->call_ctx.ctx = NULL;
- 	}
- 	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0, false,
- 		       vhost_vdpa_process_iotlb_msg);
--- 
-2.31.1
+Ciao, Thorsten
 
+#regzbot report:
+https://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com/
+#regzbot dup: https://bugzilla.kernel.org/show_bug.cgi?id=219154
