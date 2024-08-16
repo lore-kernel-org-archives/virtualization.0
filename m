@@ -1,35 +1,57 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7AC226AEC;
-	Fri, 16 Aug 2024 02:30:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B3B52F46
+	for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 03:19:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723775430; cv=none; b=rMhorextXK5OsDyWLEw3cYVg2Ui5kbbFs3DyUvMzb59zCI2TgIEQHow1kCb3pmg+MR4owjv4smuiKOg439JtnmelYNErWVB/DywLM9kJXv/blLJjhNraOltdltEeJXMz6F/if9q2K1kviZ0psCKl7NP+ycL8PoNlW5jc3UfyCEs=
+	t=1723778364; cv=none; b=tm+MzZhs009yVDDMqhSFVIClc7mFjOkw0KWurWdypkMHdMDPnmroxAiMzfpT8LzoAQdtVk3opVkg1i5OKe2ooIerf9Idr+IIFHh/qfbqTm0awp8GazADxGFax4TspWL+0VZf7a2xsfo/QcPUT9H5tFxtrjPrsM/137jZQzDyEmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723775430; c=relaxed/simple;
-	bh=hzUJ/E2eUKeArWi0F2V9BHPbmRWaVSw9I47k+z0KSIQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=K6LjIKNAYCCxemzdmrrSfncuNJWmV7jrmMWF/sp0pMaQzk/LW6lzjgLDi6qh7I8tncJUeN39A1tafRVlOTatSHmSKCwoymiVJ0AQpvy87CPXod6/anTIyjDuGBs71RK8j2UH2e0KoLP84da3sDh4qrB/VDqWDfy79ZlF5izdwMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N51vbFM+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1723778364; c=relaxed/simple;
+	bh=ZkQQ4Cn19YreRFLNnok9iQL5GCdwO+jNaxblnhNi22A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NYmXU0nE9raohYGkifL8uoZ20BmkmTMClFvNbR1RlBFg/wKe4g7ICGHltoececR3BV2TqZ09ERJxnqe3ns57BHPuV28soy7SacodBlXgnGQVerSHyzukUNTB7OE1gLJpl5fawnw17PfmlAnNtY7TUdIVASqRl4t059hT9WqMmsc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aWoEoirC; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N51vbFM+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34585C32786;
-	Fri, 16 Aug 2024 02:30:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1723775430;
-	bh=hzUJ/E2eUKeArWi0F2V9BHPbmRWaVSw9I47k+z0KSIQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=N51vbFM+burVcbcX0eUAQuB4jYwayU465oQ1beIs9J55/doOCcPr2zDPHRRLWdOOD
-	 aVJtsrEqCMFqWMF4pv8mfIAZhIuctMOKmQY/ZAkmTNb8GxIb8NXFslXVyuEH8o935z
-	 vNN9XdoJzHVZQ5jGp/QwGQx531B3PGCBcdhf8wIkqX4hie2+k5Aa8Ilzz8MH6kZwlI
-	 RdF3aeopCh4MmJBTo1ZxeASeaZxrQbwjgU6vR9AQWrLI42gzrbS3ckXgcrf+2oHkVr
-	 /Yo+1KzUMUImcGGfrWjop+aUUKqde90P35ReXB1YUGH/cQ7yIIsdh/edeTfSzwwvHW
-	 ozj1Ako3I+7Eg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADD18382327A;
-	Fri, 16 Aug 2024 02:30:30 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aWoEoirC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1723778360;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=fZBYM8BcEh6UxLDFpr2Et6wTf1D5qI6MuKpCzNtcKvM=;
+	b=aWoEoirCpUIRqPtPKn5z2Mhuq/FE5zZHyCCZOfuUxoQs1zZBRoVNsjTWBhZRtcuFtPMHKo
+	tvJKW3ZoyYDlJuGHmqTLETuO6+X29u8Tm/726pTcUeGBGuQv0KODy+krpMErVRqdUJLLBc
+	kJhcHUe+DeUz6JQcbGuBknU0fnvj3nY=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-486-18kBQJvbOmubpsBwjKuhGA-1; Thu,
+ 15 Aug 2024 23:19:17 -0400
+X-MC-Unique: 18kBQJvbOmubpsBwjKuhGA-1
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C9E061955D4C;
+	Fri, 16 Aug 2024 03:19:15 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.147])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F044F1955F43;
+	Fri, 16 Aug 2024 03:19:08 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	eperezma@redhat.com
+Cc: lingshan.zhu@intel.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Dragos Tatulea <dtatulea@nvidia.com>
+Subject: [PATCH] vhost_vdpa: assign irq bypass producer token correctly
+Date: Fri, 16 Aug 2024 11:19:00 +0800
+Message-ID: <20240816031900.18013-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,50 +59,91 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v7 0/4] virtio-net: synchronize op/admin state
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <172377542949.3096750.12975894410138970761.git-patchwork-notify@kernel.org>
-Date: Fri, 16 Aug 2024 02:30:29 +0000
-References: <20240814052228.4654-1-jasowang@redhat.com>
-In-Reply-To: <20240814052228.4654-1-jasowang@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, venkat.x.venkatsubra@oracle.com,
- gia-khanh.nguyen@oracle.com
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Hello:
+We used to call irq_bypass_unregister_producer() in
+vhost_vdpa_setup_vq_irq() which is problematic as we don't know if the
+token pointer is still valid or not.
 
-This series was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Actually, we use the eventfd_ctx as the token so the life cycle of the
+token should be bound to the VHOST_SET_VRING_CALL instead of
+vhost_vdpa_setup_vq_irq() which could be called by set_status().
 
-On Wed, 14 Aug 2024 13:22:24 +0800 you wrote:
-> Hi All:
-> 
-> This series tries to synchronize the operstate with the admin state
-> which allows the lower virtio-net to propagate the link status to the
-> upper devices like macvlan.
-> 
-> This is done by toggling carrier during ndo_open/stop while doing
-> other necessary serialization about the carrier settings during probe.
-> 
-> [...]
+Fixing this by setting up irq bypass producer's token when handling
+VHOST_SET_VRING_CALL and un-registering the producer before calling
+vhost_vring_ioctl() to prevent a possible use after free as eventfd
+could have been released in vhost_vring_ioctl(). And such registering
+and unregistering will only be done if DRIVER_OK is set.
 
-Here is the summary with links:
-  - [net-next,v7,1/4] virtio: rename virtio_config_enabled to virtio_config_core_enabled
-    https://git.kernel.org/netdev/net-next/c/0cb70ee4a6ee
-  - [net-next,v7,2/4] virtio: allow driver to disable the configure change notification
-    https://git.kernel.org/netdev/net-next/c/224de6f886f8
-  - [net-next,v7,3/4] virtio-net: synchronize operstate with admin state on up/down
-    https://git.kernel.org/netdev/net-next/c/df28de7b0050
-  - [net-next,v7,4/4] virtio-net: synchronize probe with ndo_set_features
-    https://git.kernel.org/netdev/net-next/c/c392d6019398
+Reported-by: Dragos Tatulea <dtatulea@nvidia.com>
+Tested-by: Dragos Tatulea <dtatulea@nvidia.com>
+Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+Fixes: 2cf1ba9a4d15 ("vhost_vdpa: implement IRQ offloading in vhost_vdpa")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes since RFC:
+- only do the reg/dereg of the producer when DRIVER_OK is set
+---
+ drivers/vhost/vdpa.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-You are awesome, thank you!
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index e31ec9ebc4ce..ab441b8ccd2e 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -209,11 +209,9 @@ static void vhost_vdpa_setup_vq_irq(struct vhost_vdpa *v, u16 qid)
+ 	if (irq < 0)
+ 		return;
+ 
+-	irq_bypass_unregister_producer(&vq->call_ctx.producer);
+ 	if (!vq->call_ctx.ctx)
+ 		return;
+ 
+-	vq->call_ctx.producer.token = vq->call_ctx.ctx;
+ 	vq->call_ctx.producer.irq = irq;
+ 	ret = irq_bypass_register_producer(&vq->call_ctx.producer);
+ 	if (unlikely(ret))
+@@ -709,6 +707,14 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 			vq->last_avail_idx = vq_state.split.avail_index;
+ 		}
+ 		break;
++	case VHOST_SET_VRING_CALL:
++		if (vq->call_ctx.ctx) {
++			if (ops->get_status(vdpa) &
++			    VIRTIO_CONFIG_S_DRIVER_OK)
++				vhost_vdpa_unsetup_vq_irq(v, idx);
++			vq->call_ctx.producer.token = NULL;
++		}
++		break;
+ 	}
+ 
+ 	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
+@@ -747,13 +753,16 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 			cb.callback = vhost_vdpa_virtqueue_cb;
+ 			cb.private = vq;
+ 			cb.trigger = vq->call_ctx.ctx;
++			vq->call_ctx.producer.token = vq->call_ctx.ctx;
++			if (ops->get_status(vdpa) &
++			    VIRTIO_CONFIG_S_DRIVER_OK)
++				vhost_vdpa_setup_vq_irq(v, idx);
+ 		} else {
+ 			cb.callback = NULL;
+ 			cb.private = NULL;
+ 			cb.trigger = NULL;
+ 		}
+ 		ops->set_vq_cb(vdpa, idx, &cb);
+-		vhost_vdpa_setup_vq_irq(v, idx);
+ 		break;
+ 
+ 	case VHOST_SET_VRING_NUM:
+@@ -1419,6 +1428,7 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
+ 	for (i = 0; i < nvqs; i++) {
+ 		vqs[i] = &v->vqs[i];
+ 		vqs[i]->handle_kick = handle_vq_kick;
++		vqs[i]->call_ctx.ctx = NULL;
+ 	}
+ 	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0, false,
+ 		       vhost_vdpa_process_iotlb_msg);
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.31.1
 
