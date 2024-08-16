@@ -1,37 +1,81 @@
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC33C77105;
-	Fri, 16 Aug 2024 05:03:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.237.130.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61E1484A21
+	for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 07:05:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723784638; cv=none; b=rcSVJRgDOzNLH/LTUEcXSj8B++SjmOStPXaMwrgAebTvBgj8tKAdIf5QJQTMyQDj1csHOJ8j8wqa1jhZPHfvJCHnuLeT1T8wxAIthOm0949xcuJfwAQOGlKGvJbknUOXIQ8CN9SVkWVQtuZ91h0tuctlDpAD///DpcycXEXbFO8=
+	t=1723791952; cv=none; b=NJqWCZZG/vYu0NkSnw32YlcgsQsgs0V7hFG/Ga82sx8GRuvQM1H/ADtkSbCjEOx+wlM1DCTNB5G5Tgk1J0/hGUMdx5Hmr6V6Iy+x6544RfwJbGF68BOC0WciKjYp38CpRdeG4Z3GFvde28twTVztjEDEIrIIIG2EJAlRf5nFkII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723784638; c=relaxed/simple;
-	bh=B5pKNxQq47mR1PSLdcFE+nJoBZ1+Ub4soJBgBS4ov9E=;
+	s=arc-20240116; t=1723791952; c=relaxed/simple;
+	bh=B+T70af5D8BGKDp69+Q8PkkK9/XebdK6d82N/6CYxAw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fJMOo7XGgN5LJdy4znc9ptWa76z2BGyI3fNu9JdptEsAMb3ikSFzNczF7gv9iguX9XrMAU8yKuN+3mLI5rJzpHJ9OqbRb794EWWcnmLZ14Y/MTH7EgVpDbika3jhGDPWRs8F8HwR82iGiHKIrfkSENv6axx+aoZIEyEUbSjl1eM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=beVfNyYv; arc=none smtp.client-ip=80.237.130.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	 In-Reply-To:Content-Type; b=YQFTKmgdaFEndMLifbP9MDihi8pAUUTjGnAUy77NsgUnLxnQNfSjKR2ybKfZTCy1xoe8Iq39/1kVUq0qCoIviS/t36xaYyy8Uz9wJyXhgQqcp3AsWY202jxbG0IyzaFYmlT2ZQcYoYYddlAi74ELcpcm4UgNxWwBEYi5XE9ETDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tTg+ANcz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=p0EEYejf; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tTg+ANcz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=p0EEYejf; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="beVfNyYv"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:
-	Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
-	In-Reply-To:References; bh=6amONoml4yC14YwrkWl2obGeotHupqEWZAFYL4LGlHQ=;
-	t=1723784637; x=1724216637; b=beVfNyYvbamdSaMXvR0Ra+hNh5mWyHg+RCXT5X3uNA0s9kv
-	JSfyGPoZmi1xIdil4m+VN4bFIN42T6fm6n7OyjssL1G9K6caZr2RWgebbi5hWBpGef8o4KACEec4l
-	GE/JwOfVCo/MKz5v+kEWJm17/fy/0pGBw6Of/HgxaAerUx7jIKKFR5qf4r9GBSwPnNCAWLqy/0PZG
-	O+gLI7Bgv/U643nZnFdyRXKVsfFtFNPgy61afkz1C5/NDTnt83zPCRbr+LvHJ/eCbSdOuRCs6AZh5
-	EWwDp6KMMvAFuXitJSB18gNas4mwGCTMBRDbKd04LAOUmFel2fQ5ODYpMcpGbZqA==;
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-	id 1sep7u-0002Ah-Q9; Fri, 16 Aug 2024 07:03:50 +0200
-Message-ID: <a3ba7028-b6c8-4d0d-b53a-8ecf9e69978c@leemhuis.info>
-Date: Fri, 16 Aug 2024 07:03:49 +0200
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tTg+ANcz";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="p0EEYejf";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tTg+ANcz";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="p0EEYejf"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 8D2101FDCE;
+	Fri, 16 Aug 2024 07:05:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1723791948; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
+	b=tTg+ANczlHUA1K9DXrR1Uiv+05Wg2zV8g4vfN1qhzXWQduxbRQW8+LGdSCEMNPUrkXTxQ2
+	BENxRbfSkTpzAclkVaWwIzwxW0PsoeNCw949GlMpBQbTIAXZgG4TzMy74vW0s0EYw+mp+l
+	7nMbp0LjzSsolyp9iwfvlNUo9h4BCTo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1723791948;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
+	b=p0EEYejfF76V6qlUViyyjqKb83a3BgPPY2QqTsoGjctQdwBMbTv/5P2AYSLilaH121a9In
+	b1JwlsJKwoAovTBg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=tTg+ANcz;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=p0EEYejf
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1723791948; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
+	b=tTg+ANczlHUA1K9DXrR1Uiv+05Wg2zV8g4vfN1qhzXWQduxbRQW8+LGdSCEMNPUrkXTxQ2
+	BENxRbfSkTpzAclkVaWwIzwxW0PsoeNCw949GlMpBQbTIAXZgG4TzMy74vW0s0EYw+mp+l
+	7nMbp0LjzSsolyp9iwfvlNUo9h4BCTo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1723791948;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
+	b=p0EEYejfF76V6qlUViyyjqKb83a3BgPPY2QqTsoGjctQdwBMbTv/5P2AYSLilaH121a9In
+	b1JwlsJKwoAovTBg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C27C613A2F;
+	Fri, 16 Aug 2024 07:05:47 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id EDDLLUv6vmbJAwAAD6G6ig
+	(envelope-from <hare@suse.de>); Fri, 16 Aug 2024 07:05:47 +0000
+Message-ID: <904a433c-0471-4f11-a34b-cef8adf1663c@suse.de>
+Date: Fri, 16 Aug 2024 09:05:46 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -39,68 +83,94 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 0/3] Revert "virtio_net: rx enable premapped mode by
- default"
-To: Darren Kenny <darren.kenny@oracle.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev, Boris Ostrovsky
- <boris.ostrovsky@oracle.com>,
- Linux kernel regressions list <regressions@lists.linux.dev>,
- Takero Funaki <flintglass@gmail.com>
-References: <20240511031404.30903-1-xuanzhuo@linux.alibaba.com>
- <a6ec1c84-428f-41b7-9a57-183f2aeca289@leemhuis.info>
- <m2r0aqrsq6.fsf@oracle.com>
-From: "Linux regression tracking (Thorsten Leemhuis)"
- <regressions@leemhuis.info>
-Content-Language: en-US, de-DE
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <m2r0aqrsq6.fsf@oracle.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1723784637;33b23499;
-X-HE-SMSGID: 1sep7u-0002Ah-Q9
+Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
+ specific, multi host shared)
+Content-Language: en-US
+To: Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
+ David Hildenbrand <david@redhat.com>, linux-mm@kvack.org,
+ linux-cxl@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>,
+ Ira Weiny <ira.weiny@intel.com>, John Groves <John@Groves.net>,
+ virtualization@lists.linux.dev
+Cc: Oscar Salvador <osalvador@suse.de>, qemu-devel@nongnu.org,
+ Dave Jiang <dave.jiang@intel.com>, Dan Williams <dan.j.williams@intel.com>,
+ linuxarm@huawei.com, wangkefeng.wang@huawei.com,
+ John Groves <jgroves@micron.com>, Fan Ni <fan.ni@samsung.com>,
+ Navneet Singh <navneet.singh@intel.com>,
+ =?UTF-8?B?4oCcTWljaGFlbCBTLiBUc2lya2lu4oCd?= <mst@redhat.com>,
+ Igor Mammedov <imammedo@redhat.com>,
+ =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@linaro.org>
+References: <20240815172223.00001ca7@Huawei.com>
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20240815172223.00001ca7@Huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[20];
+	MIME_TRACE(0.00)[0:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email]
+X-Rspamd-Queue-Id: 8D2101FDCE
+X-Spam-Flag: NO
+X-Rspamd-Action: no action
+X-Spam-Level: 
+X-Spam-Score: -4.51
 
-On 15.08.24 12:22, Darren Kenny wrote:
-> On Thursday, 2024-08-15 at 09:14:27 +02, Linux regression tracking (Thorsten Leemhuis) wrote:
->> On 14.08.24 08:59, Michael S. Tsirkin wrote:
->>> Note: Xuan Zhuo, if you have a better idea, pls post an alternative
->>> patch.
->>>
->>> Note2: untested, posting for Darren to help with testing.
->>>
->>> Turns out unconditionally enabling premapped 
->>> virtio-net leads to a regression on VM with no ACCESS_PLATFORM, and with
->>> sysctl net.core.high_order_alloc_disable=1
->>>
->>> where crashes and scp failures were reported (scp a file 100M in size to VM):
->>> [...]
->>
->> TWIMC, there is a regression report on lore
-
-Obviously I meant bugzilla here, sorry.
-
->> and I wonder if this might
->> be related or the same problem, as it also mentioned a "get_swap_device:
->> Bad swap file entry" error:
->> https://bugzilla.kernel.org/show_bug.cgi?id=219154
+On 8/15/24 18:22, Jonathan Cameron wrote:
+> Introduction
+> ============
 > 
-> I took a look at the stack traces, they don't look similar to what I was
-> seeing, but I wasn't running with an ASAN enabled in the kernel.
-> [...]
+> If we think application specific memory (including inter-host shared memory) is
+> a thing, it will also be a thing people want to use with virtual machines,
+> potentially nested. So how do we present it at the Host to VM boundary?
+> 
+> This RFC is perhaps premature given we haven't yet merged upstream support for
+> the bare metal case. However I'd like to get the discussion going given we've
+> touched briefly on this in a number of CXL sync calls and it is clear no one is
+> entirely sure what direction make sense.  We may briefly touch on this in the
+> LPC CXL uconf, but time will be very limited.
+> 
+Thanks for the detailed write-up.
 
-Yeah, but in the end it seems it is the same problem: The reporter,
-Takero Funaki (now CCed) meanwhile performed a bisection that ended up
-on f9dac92ba908 (virtio_ring: enable premapped mode regardless of
-use_dma_api) -- and later confirmed in bugzilla that reverting the three
-patches resolved the problem. Feel free to CC Takero on further mails
-about this.
+Can't we have an ad-hoc meeting at OSS/LPC to gather interested/relevant 
+people to explore ideas around this?
 
-Ciao, Thorsten
+In particular I'd be interested on how to _get_ the application specific 
+memory to the application in question. It's easy if you have your own 
+application and design it to work on DAX devices. Obviously this 
+approach won't work for unmodified applications; however, they really
+might want to use this, too.
 
-#regzbot report:
-https://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com/
-#regzbot dup: https://bugzilla.kernel.org/show_bug.cgi?id=219154
+And, of course, the other mentioned problems are worth discussing, and I 
+do agree that the uconf will probably not providing sufficient time for 
+this.
+
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+
