@@ -1,176 +1,221 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61E1484A21
-	for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 07:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723791952; cv=none; b=NJqWCZZG/vYu0NkSnw32YlcgsQsgs0V7hFG/Ga82sx8GRuvQM1H/ADtkSbCjEOx+wlM1DCTNB5G5Tgk1J0/hGUMdx5Hmr6V6Iy+x6544RfwJbGF68BOC0WciKjYp38CpRdeG4Z3GFvde28twTVztjEDEIrIIIG2EJAlRf5nFkII=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723791952; c=relaxed/simple;
-	bh=B+T70af5D8BGKDp69+Q8PkkK9/XebdK6d82N/6CYxAw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YQFTKmgdaFEndMLifbP9MDihi8pAUUTjGnAUy77NsgUnLxnQNfSjKR2ybKfZTCy1xoe8Iq39/1kVUq0qCoIviS/t36xaYyy8Uz9wJyXhgQqcp3AsWY202jxbG0IyzaFYmlT2ZQcYoYYddlAi74ELcpcm4UgNxWwBEYi5XE9ETDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tTg+ANcz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=p0EEYejf; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tTg+ANcz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=p0EEYejf; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8807513A89B
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Aug 2024 09:02:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723798951; cv=fail; b=RK+82R85eGe/DLWrWOVozZh25IUdAmunUQ8BQ/1o3csdtYtpHR0Uxb28gzmNoXrySxHe2P0IsfBkdK6fZbPlqcVVM410zfhuPa9nOQ6Wp/imY2XWh5SBUAAr7rnsspCw3tS6jwuweP9mW29j4ENGSmcLJ9NJRP1qIlfIH/+hbjU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723798951; c=relaxed/simple;
+	bh=O3hrw2uqZVO+Ng3Wmb3L1/ANuso2egFzTs5hCPezlKI=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gcF7iMbKIE9L8ejR59AA7KR4sIHpp8AomKn+wLx8aEB7a51oQnuY9kRmr4qBQ/M5/uKfhbxuCf0S3VyS17tynOmQj5RbYhWfHKfRvcVSnGUHeIrDJH51xwD52S/4E9wvQ+S37ZreCiQct3ndbHrVWyhoU4ljFbrwHaxEMFH9yIk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=tQrktY0l; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tTg+ANcz";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="p0EEYejf";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tTg+ANcz";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="p0EEYejf"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 8D2101FDCE;
-	Fri, 16 Aug 2024 07:05:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1723791948; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
-	b=tTg+ANczlHUA1K9DXrR1Uiv+05Wg2zV8g4vfN1qhzXWQduxbRQW8+LGdSCEMNPUrkXTxQ2
-	BENxRbfSkTpzAclkVaWwIzwxW0PsoeNCw949GlMpBQbTIAXZgG4TzMy74vW0s0EYw+mp+l
-	7nMbp0LjzSsolyp9iwfvlNUo9h4BCTo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1723791948;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
-	b=p0EEYejfF76V6qlUViyyjqKb83a3BgPPY2QqTsoGjctQdwBMbTv/5P2AYSLilaH121a9In
-	b1JwlsJKwoAovTBg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=tTg+ANcz;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=p0EEYejf
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1723791948; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
-	b=tTg+ANczlHUA1K9DXrR1Uiv+05Wg2zV8g4vfN1qhzXWQduxbRQW8+LGdSCEMNPUrkXTxQ2
-	BENxRbfSkTpzAclkVaWwIzwxW0PsoeNCw949GlMpBQbTIAXZgG4TzMy74vW0s0EYw+mp+l
-	7nMbp0LjzSsolyp9iwfvlNUo9h4BCTo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1723791948;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=at5DFSP6c81qT5KRnYgWvCQnog+7QeKU+7pgyjRGQaE=;
-	b=p0EEYejfF76V6qlUViyyjqKb83a3BgPPY2QqTsoGjctQdwBMbTv/5P2AYSLilaH121a9In
-	b1JwlsJKwoAovTBg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C27C613A2F;
-	Fri, 16 Aug 2024 07:05:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id EDDLLUv6vmbJAwAAD6G6ig
-	(envelope-from <hare@suse.de>); Fri, 16 Aug 2024 07:05:47 +0000
-Message-ID: <904a433c-0471-4f11-a34b-cef8adf1663c@suse.de>
-Date: Fri, 16 Aug 2024 09:05:46 +0200
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="tQrktY0l"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 063614049A
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Aug 2024 09:02:30 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id kakfHk-S9mFO for <virtualization@lists.linux-foundation.org>;
+ Fri, 16 Aug 2024 09:02:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2417::629; helo=nam12-dm6-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 717E74010D
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 717E74010D
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=tQrktY0l
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20629.outbound.protection.outlook.com [IPv6:2a01:111:f403:2417::629])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 717E74010D
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Aug 2024 09:02:28 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=AhmUrYsXOKwrRujKjPFvMmIqtQ5YS7Q5gskAsdJvPsPE1iy7Mep0ekqYEUWBDD9ADd9arV8tNExs9I9bfW/3BfbjkVEYRX0FHD8s5Dq/OfhVjgI6IzxeamaLGh3tAJ7Hnz/OqytCDPfJuRU9ElaR263vhMJ0MQDx3c0bdYlR0U1Rv2TAXqisEAgyxcBunhDa3TiARll8KpuHupertDq9THHWXFwh0vdOh+RK5WVCEPN/NWyDGu/hdUI5353WnNmOwrzgZKy0XkgyYtsC/nRJoINj94HIiZ4TqI0nRi328XOa7MOqRf0wQiyWctmJ6ql7mMoklu4sgvQbA/s5zKd6mA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fGU4NNPPZIHw3djCcMjA06hE2NvtAYJGu9zwZShkqUw=;
+ b=wOPbbqU+VM1p8IBXOEsYpJ8jYOgM6mU/ptW2xvvh44fc4kTF8P+NfgmzNMdWjD9kl/+4nZGjSX+F2xXNcZM1mE6KyX1sFB6ShuPX+E3RlAFC0HdTr7Um6KGhjSzHnMx/1kROowJAjME5knhp2cM5h1eJf7LuEApKofNnCchFYUdd1CF2Mk8c+1Z0TLlkL5JcTasqewd5KaUKx9H6tPa2nH9WLm4swPnNrbhkd4CU5+ebwQ55uAxu3kqpXIOiMpI5PLkKNkdTskkLY6D43207Fdi+uGFfyVsssPkoIVUmczMWkEZAdAML+osX7s7JTQ+gAHF1k4GccWGQ2W9IbYI3Cg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fGU4NNPPZIHw3djCcMjA06hE2NvtAYJGu9zwZShkqUw=;
+ b=tQrktY0l+kGOvQI/xx+rmQEcXeQMWcMa0OjDCJoRUl+N6CD3cBlDvUmiX6EHDXHIND161J7cbTtfjpwgFKq7pqrappWhazesOJ15rWuEPYNKFzL60tz1ljGu+j33b9QPEPgVt8RE7xSo60B+qxOY6zzRyx7zBwiAX/wUzoce1achH42Io208wCrwfeYTM1izsdFNHz9UHSrVt0tSuqPN1R24n8Cose9UylRzxj6hPL7ZWzHWE77XTM8FwtA/eLwtD7TDtR8XQotgtlJ1V51Cwzvohfca8rB9zotPQ1oEDmfueRLIqOBOOYSYuu21S7IPdELpnvCEA99zcwv7p+xqcA==
+Received: from BN0PR07CA0026.namprd07.prod.outlook.com (2603:10b6:408:141::26)
+ by SA1PR12MB6946.namprd12.prod.outlook.com (2603:10b6:806:24d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.19; Fri, 16 Aug
+ 2024 09:02:23 +0000
+Received: from BN1PEPF0000468B.namprd05.prod.outlook.com
+ (2603:10b6:408:141:cafe::96) by BN0PR07CA0026.outlook.office365.com
+ (2603:10b6:408:141::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7849.22 via Frontend
+ Transport; Fri, 16 Aug 2024 09:02:22 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ BN1PEPF0000468B.mail.protection.outlook.com (10.167.243.136) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7849.8 via Frontend Transport; Fri, 16 Aug 2024 09:02:22 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Fri, 16 Aug
+ 2024 02:02:10 -0700
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Fri, 16 Aug
+ 2024 02:02:09 -0700
+Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
+ mail.nvidia.com (10.129.68.8) with Microsoft SMTP Server id 15.2.1544.4 via
+ Frontend Transport; Fri, 16 Aug 2024 02:02:06 -0700
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio Perez Martin <eperezma@redhat.com>,
+	<virtualization@lists.linux-foundation.org>
+CC: Dragos Tatulea <dtatulea@nvidia.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
+	Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+	<kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Gal Pressman
+	<gal@nvidia.com>, Parav Pandit <parav@nvidia.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device suspend/resume
+Date: Fri, 16 Aug 2024 12:01:49 +0300
+Message-ID: <20240816090159.1967650-1-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.45.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
- specific, multi host shared)
-Content-Language: en-US
-To: Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
- David Hildenbrand <david@redhat.com>, linux-mm@kvack.org,
- linux-cxl@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>,
- Ira Weiny <ira.weiny@intel.com>, John Groves <John@Groves.net>,
- virtualization@lists.linux.dev
-Cc: Oscar Salvador <osalvador@suse.de>, qemu-devel@nongnu.org,
- Dave Jiang <dave.jiang@intel.com>, Dan Williams <dan.j.williams@intel.com>,
- linuxarm@huawei.com, wangkefeng.wang@huawei.com,
- John Groves <jgroves@micron.com>, Fan Ni <fan.ni@samsung.com>,
- Navneet Singh <navneet.singh@intel.com>,
- =?UTF-8?B?4oCcTWljaGFlbCBTLiBUc2lya2lu4oCd?= <mst@redhat.com>,
- Igor Mammedov <imammedo@redhat.com>,
- =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@linaro.org>
-References: <20240815172223.00001ca7@Huawei.com>
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20240815172223.00001ca7@Huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FROM_HAS_DN(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	RCPT_COUNT_TWELVE(0.00)[20];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email]
-X-Rspamd-Queue-Id: 8D2101FDCE
-X-Spam-Flag: NO
-X-Rspamd-Action: no action
-X-Spam-Level: 
-X-Spam-Score: -4.51
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN1PEPF0000468B:EE_|SA1PR12MB6946:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9e0f819e-9ae4-4861-950a-08dcbdd2242b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|82310400026|36860700013;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?OUZrbFZqUGlML1IwaGZpWEdLNksyd243N1Q0TmZ0NUM3UUdEUjNjU1p4ajVr?=
+ =?utf-8?B?L1BZemZEVVVLamg4cGFqSXdodFk0TTc3VU9TalFKYWlwY24ya0hLRk5TS3VO?=
+ =?utf-8?B?Z29FckRmczVpdTg0a0hRdHhhbFdobWFjTFRISFFzdEt3YlFhdWhsVSs4bmlG?=
+ =?utf-8?B?Vk1IQTZzTitzTmhsWGt3QXVmOUpjSlN5TmFoYjRQYnl5aFVjVEdzVDNiZllN?=
+ =?utf-8?B?Z0wyK0xlQWV2MTdaeVRLVjRMdGtrc0YrYzFMdGxVL3VWM3lIZlJuZnJJZE5C?=
+ =?utf-8?B?YU5TNm9POTA5ZEtLNENLcXVLdmRzUWJBNU8yQ1loMm5XOTBYN3RMWHFETElU?=
+ =?utf-8?B?OG5sb3lubm94TWxvR3NreC9HZC9oNTdpUTQvRkh1QUlMbHM5ZWhicWFwT0Jz?=
+ =?utf-8?B?bE9QMSs3MDloTmtIbkpNNTZkZmw2N0hmL1pvWVJTaEY5VmVqL2ZORjFtQ09o?=
+ =?utf-8?B?eENudTh6ZlpJY1kwcVdYZnNlSHJ6eWNPMjhteUtJcm1PQ2dvYlN4TVh5L3dK?=
+ =?utf-8?B?NUpveFpwQWcwdjRwSXBKNHMxUXJPNHRlbHZhRURiY0RKMlZYWkpKdllPNnpS?=
+ =?utf-8?B?amFkTk5PcW5UUTJsQm41MzlaMENza1c2NHdORHpRU3JjNFUwQjdxU3FLOFRq?=
+ =?utf-8?B?dGxtVktmczRwandraHlRa09EQkVWVnRPNzIwN01JVW83TGNSTGJ3c1NHaTJl?=
+ =?utf-8?B?Z2xYWmVzdTVXVDRZb1JodHNoaUNTODVDUzVrVFoxVGlpejhhTHNxOU9xeEh4?=
+ =?utf-8?B?VzNPeFRDQ2lWVTZMU1dyQW9CT2FQbmxjL1RzZVAvSFJTVUVmUTErME52RE1D?=
+ =?utf-8?B?NUpNNnZodkovWTllRjRNUDZRblVtT1dTSm1NdDB4V3hmVXlTTm56aHVCWjcy?=
+ =?utf-8?B?ZzM4cjZTSnQwbDB3ZVNqd2huZXQ4OEF6OGxyTnFoZmQ0Vm9ReDBZTDhaVVRE?=
+ =?utf-8?B?NnZ0aG5qd1Y5YzdXVFV6NGRsbW9xNXIvUHJEWkkvUnc0KzV3eEhmUXBDVXUr?=
+ =?utf-8?B?U2E0dC9rbzBxNmcrSjNiSmpHbjM3VVlWVElUMWVBcDRhTTJTdGNMQzNGUGNS?=
+ =?utf-8?B?V1dLeGtzbEFzRmtQWTNLZ1hBVVAvakVqaXpLcjB2cDdoTmMzcmRnZnFZMHRU?=
+ =?utf-8?B?enlEUlhWUnZ4NU93K2E1cFZVbEF1Y0dnQUl3L0NMbTJFN2ZpajZUZmZHYkVB?=
+ =?utf-8?B?dVdiLy83ak05RXk1ZGgzNzgySFQ3MmhPQTUyY0RGZjlhY3pQcjhKTXdiV09X?=
+ =?utf-8?B?T045VVVrRmtMSDNzZFRTRmlCQk9WbDZrb2tGenNhTkw4UjJ2dmNHNDhpMHJB?=
+ =?utf-8?B?U3NHak52cHJQak1tR1l1K0U2ZlBDL2tESE1VT2d6Vmw5bmdCTTE5a3hJZjdr?=
+ =?utf-8?B?UmtIcU1abWw2K1dBOXVWWVVCQXBMV1o4ZlkxMGhIbko2Ylcya1dJbmNWODNj?=
+ =?utf-8?B?MDNTZEVzNDQ0NERNdU9wbDBSMkFRcFRtTCtSWHozUVZnNHpQWlNnMFEyUUdp?=
+ =?utf-8?B?WHJYOEJtZXZYeVFsb0dicEF5MFZGRk1LZ3V1VEtIMTVURzZzSUIwdWlQRmtv?=
+ =?utf-8?B?Wk5TWEtOVUZlMTBEODRrblQrUnBSRzhtVzBzYTkxdFZCL1prR2Fvbjk5YzZa?=
+ =?utf-8?B?R2pISjZXb0FCa0dqNmRMd1cwUm0rMzAyWUp6SVhiY0xuODJ2dCtBMG5VeFpH?=
+ =?utf-8?B?MTg0RHd1NG94RlV3RkNnQTV1amVVeHEyWWFHMldPQlVBb1FHS21DMUV4Mldx?=
+ =?utf-8?B?TXBUaVlUeU1BR2QrdEIzNUs4VzExbHZ0cDArcnhqemJpOGhwa2dCbGxmOTZt?=
+ =?utf-8?B?aEdWYmpXMnNFRUcvMlpMdGFNS3ZsYmx6M3hrYlVtOEk1dmhPMXo1UEVDSlBI?=
+ =?utf-8?B?RDQ3WTcva2F1ckQ0dm1ZbWtxejd4RmtNUEJiZzJTTzZ3NHBNakt1K0dmeHZt?=
+ =?utf-8?Q?/ktaP6514bTl+HSGrztxVIcUP6HRE7n3?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(376014)(82310400026)(36860700013);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Aug 2024 09:02:22.5041
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9e0f819e-9ae4-4861-950a-08dcbdd2242b
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN1PEPF0000468B.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6946
 
-On 8/15/24 18:22, Jonathan Cameron wrote:
-> Introduction
-> ============
-> 
-> If we think application specific memory (including inter-host shared memory) is
-> a thing, it will also be a thing people want to use with virtual machines,
-> potentially nested. So how do we present it at the Host to VM boundary?
-> 
-> This RFC is perhaps premature given we haven't yet merged upstream support for
-> the bare metal case. However I'd like to get the discussion going given we've
-> touched briefly on this in a number of CXL sync calls and it is clear no one is
-> entirely sure what direction make sense.  We may briefly touch on this in the
-> LPC CXL uconf, but time will be very limited.
-> 
-Thanks for the detailed write-up.
+This series parallelizes the mlx5_vdpa device suspend and resume
+operations through the firmware async API. The purpose is to reduce live
+migration downtime.
 
-Can't we have an ad-hoc meeting at OSS/LPC to gather interested/relevant 
-people to explore ideas around this?
+The series starts with changing the VQ suspend and resume commands
+to the async API. After that, the switch is made to issue multiple
+commands of the same type in parallel.
 
-In particular I'd be interested on how to _get_ the application specific 
-memory to the application in question. It's easy if you have your own 
-application and design it to work on DAX devices. Obviously this 
-approach won't work for unmodified applications; however, they really
-might want to use this, too.
+Then, the an additional improvement is added: keep the notifiers enabled
+during suspend but make it a NOP. Upon resume make sure that the link
+state is forwarded. This shaves around 30ms per device constant time.
 
-And, of course, the other mentioned problems are worth discussing, and I 
-do agree that the uconf will probably not providing sufficient time for 
-this.
+Finally, use parallel VQ suspend and resume during the CVQ MQ command.
 
-Cheers,
+For 1 vDPA device x 32 VQs (16 VQPs), on a large VM (256 GB RAM, 32 CPUs
+x 2 threads per core), the improvements are:
 
-Hannes
++-------------------+--------+--------+-----------+
+| operation         | Before | After  | Reduction |
+|-------------------+--------+--------+-----------|
+| mlx5_vdpa_suspend | 37 ms  | 2.5 ms |     14x   |
+| mlx5_vdpa_resume  | 16 ms  | 5 ms   |      3x   |
++-------------------+--------+--------+-----------+
+
+---
+v2:
+- Changed to parallel VQ suspend/resume during CVQ MQ command.
+  Support added in the last 2 patches.
+- Made the fw async command more generic and moved it to resources.c.
+  Did that because the following series (parallel mkey ops) needs this
+  code as well.
+  Dropped Acked-by from Eugenio on modified patches.
+- Fixed kfree -> kvfree.
+- Removed extra newline caught during review.
+- As discussed in the v1, the series can be pulled in completely in
+  the vhost tree [0]. The mlx5_core patch was reviewed by Tariq who is
+  also a maintainer for mlx5_core.
+
+[0] - https://lore.kernel.org/virtualization/6582792d-8db2-4bc0-bf3a-248fe5c8fc56@nvidia.com/T/#maefabb2fde5adfb322d16ca16ae64d540f75b7d2
+
+Dragos Tatulea (10):
+  net/mlx5: Support throttled commands from async API
+  vdpa/mlx5: Introduce error logging function
+  vdpa/mlx5: Introduce async fw command wrapper
+  vdpa/mlx5: Use async API for vq query command
+  vdpa/mlx5: Use async API for vq modify commands
+  vdpa/mlx5: Parallelize device suspend
+  vdpa/mlx5: Parallelize device resume
+  vdpa/mlx5: Keep notifiers during suspend but ignore
+  vdpa/mlx5: Small improvement for change_num_qps()
+  vdpa/mlx5: Parallelize VQ suspend/resume for CVQ MQ command
+
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |  21 +-
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h            |  22 +
+ drivers/vdpa/mlx5/core/resources.c            |  73 ++++
+ drivers/vdpa/mlx5/net/mlx5_vnet.c             | 396 +++++++++++-------
+ 4 files changed, 361 insertions(+), 151 deletions(-)
+
 -- 
-Dr. Hannes Reinecke                  Kernel Storage Architect
-hare@suse.de                                +49 911 74053 688
-SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
-HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+2.45.1
 
