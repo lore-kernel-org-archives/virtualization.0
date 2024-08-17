@@ -1,129 +1,154 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 655E68288C
-	for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 18:17:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60454BA2D
+	for <virtualization@lists.linux.dev>; Sat, 17 Aug 2024 06:25:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723832263; cv=none; b=DSM6vvYdxeTwCqaGiltQWynBag8bzTsKKjy8jEO9irnTCvzuyQzugU4Od8idkI7wK/OxJGiw2hkySOB6XsXDjyqm8VZIU+qRjoBEcx1XSVlcILRxuRUaMGwQWJGUhiqbAFAYbdV+VeRFjvQTgf/bhKH+bXBDSd+lI7D0/BPT110=
+	t=1723875906; cv=none; b=NCmJcUhWQQoez8Kv+g/JGAR7MscSrQ6IkT1BU9sgUlgX4Ugxb+hAtss6H3s0ok9jztS4Pj2OQMuW/0FgVmQayLBhBR51D4MFKSo47BnoY4VsuhNnTogRfmB3FleRT0KWnj+KitWuYj1Iftb05/5pd0xhRxC8yYVFepO+eIVbW+w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723832263; c=relaxed/simple;
-	bh=v7H2v+aBQQQLBDa/xPhBwsCdZvnTeVlc3DtFHbYiIsQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YNhyjZ2i8G27tMGMS7VPKiVbWltGF1aJPtqwJhCrTsCB4TUZWHFw8OIedf6pVxNt85l4Avsf6bSLdSlq1AKYI6ohfIfaQru72Hky5PcO7Mpszf+i4uJdfmaMpoN5FQlqhIPN9MmHw20Xz+mfXEOh3FKJKeOAZxq0Rs3XJMywg9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KMz5fnqE; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1723875906; c=relaxed/simple;
+	bh=wCp7sXRpRS+h1MksC/hNeEh9slfTD1gVuvqlKJNWTkE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=uB4zFiftn2yWEomx8UB4p5wcYKXCaVaG+w7d3wiWElnv03mR66s/SbwDe/1yPHgNDQycfsNYBfdxbvM9D+R44GdRWgZWAt076xg4bEVi/Os0FZ7TzvR7QHlKWqds5V7qa2IirPWTIaYRqiGiuEkye9O/YH8LiVjA/mXbejMcRr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XVzeuVQR; arc=none smtp.client-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KMz5fnqE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723832260;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w26DEP6I/1hWgkgvxN7UFiv+/Y1lgQMQcXbYEa3Fu2c=;
-	b=KMz5fnqEbw2nqbcr/oE9MHLKAWacDMzj4a2JHiG32tmEUg0Qx9M8Hzbxqn0GvJXHJCN0PY
-	ubC94CL/9mBU7N93cJ678W7LPRhcbI3Dlg7SaS2djlyRgTHtc8V4Xiq9p44V30IvuTP7KB
-	7bQTtLDOBjThfo7riKl3noZcBBzhRjI=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-180-sCCYIVjxPRGEarSPoGzt0g-1; Fri, 16 Aug 2024 14:17:39 -0400
-X-MC-Unique: sCCYIVjxPRGEarSPoGzt0g-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-52f0108a53dso2955811e87.0
-        for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 11:17:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XVzeuVQR"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-2d41b082aecso8038a91.0
+        for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 23:25:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723875904; x=1724480704; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fghbe/uTAWmKHUS8am3aPE9oJQfSOdjuZEbStAX9aZE=;
+        b=XVzeuVQR+IJ/kLGu08bqqLQEP4D5HxY3/hx+aEl8/PH/fyFZLZGN+L2EO5VZgbVBo4
+         f7vAmh0asX9HHUqEH2wHMlERN1VChz9um+WVFwobogie3YGEm5zuFher4PeHVUbHs2WC
+         MyCS2ilOUjY77n80edgjSKIufuvm9WNDmF/AYBG9F3qxyFoRfLwIe2ssHUNbNA+Th9Z5
+         1qK8U7c6xqz1LUmXGXJOTWGwPHi9SWR8d4ZumL77l8SaA4t74rIRRbmH8dmf2vDiGL57
+         STGA167zU4TwtrQPRWxEKzxrxA5dehdGXtgj70/+RqdhXQ6QRDU6+JJEBfnoLwqy05Fy
+         OQoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723832257; x=1724437057;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=w26DEP6I/1hWgkgvxN7UFiv+/Y1lgQMQcXbYEa3Fu2c=;
-        b=aiPyBEE0MEV9YK/8P9F8/mP4SYATKTLPCKqFlAZ1nlRMMx/trmBRVbZF7K/acUVqyO
-         1X97gGTYpLWzUx6zerotWFR+eKqyDixEbSu5I4TomY3Dv1hTFp8OEPE0+C1fcaT4AqQu
-         U1gbLjz6Bm89ezA+lDHVcPB7hyq0Y8s+00coPlFYtPdn3Uy0b9kRa0C6Q5/ocY5l3gWO
-         eVQJaJPf0AymLeZw5ZsQr15tMkTYRQBCGzjuwS9oXW0rYVUKcy6nPXJYXg4dmAPvN/6C
-         LWez0d/xivsrazIzxmmes7+HPe7BmtiRfjFaIBJ33Pbf8Gh8bU1qAGC9IfAVKsi5GD0l
-         9uzA==
-X-Forwarded-Encrypted: i=1; AJvYcCVHKSC0ldXcOTyHRmHxjWLYIBzRxlCf4sy8XqstNgGQ6pHhJBveB9Zt/NcN/Q1oLN8gCnoMuctzQIhieOBRGTEgx4nBkW9paQtjKfNU0Xo=
-X-Gm-Message-State: AOJu0Yy8rKvl1hHeKHGsTrUSyx5/9rIp8daPFWWLpq2jEkavXUu3oRMK
-	cVlGBz5+PA0tksrn5zJeTPHr1pwaDQrRjko7xF7ek31e03iqstOlQjAOViK0e9mgIN6XPy5gGlq
-	jZhMN1OkzyIEwQszz4O6oFW2Knyc1fPyGxsi/Zah0yovHZQpn/hBJI92AV8FDFQ2D
-X-Received: by 2002:a05:6512:39c6:b0:52e:bdfc:1d09 with SMTP id 2adb3069b0e04-5331c69e8b3mr2425633e87.18.1723832257395;
-        Fri, 16 Aug 2024 11:17:37 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHxDJoZ5Qb2jeEyehNoICNOwZ2FOl92B7t2o0prXKfmYgWxwCynxbb3IvNph8kIMcufJQDgVA==
-X-Received: by 2002:a05:6512:39c6:b0:52e:bdfc:1d09 with SMTP id 2adb3069b0e04-5331c69e8b3mr2425597e87.18.1723832256432;
-        Fri, 16 Aug 2024 11:17:36 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f5:b635:69bf:864a:d81a:d278])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83838cf40csm288443666b.57.2024.08.16.11.17.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Aug 2024 11:17:35 -0700 (PDT)
-Date: Fri, 16 Aug 2024 14:17:30 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Sean Christopherson <seanjc@google.com>
-Cc: syzbot <syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com>,
-	eperezma@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
-	Mike Christie <michael.christie@oracle.com>, oleg@redhat.com,
-	ebiederm@xmission.com, sgarzare@redhat.com, stefanha@redhat.com,
-	brauner@kernel.org
-Subject: Re: [syzbot] [kvm?] [net?] [virt?] INFO: task hung in
- __vhost_worker_flush
-Message-ID: <20240816141505-mutt-send-email-mst@kernel.org>
-References: <Zr-VGSRrn0PDafoF@google.com>
- <000000000000fd6343061fd0d012@google.com>
- <Zr-WGJtLd3eAJTTW@google.com>
+        d=1e100.net; s=20230601; t=1723875904; x=1724480704;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fghbe/uTAWmKHUS8am3aPE9oJQfSOdjuZEbStAX9aZE=;
+        b=V7nwdPqByJRi704CRnB7lVY1G1zlZ1BVFwEaKP6Qo8OA4AmM42ZNfhl/D3vCsFEYea
+         C796f6U+/3Iyz5uhcJLWrRk+PRL6IET8pe9BCZX10Vsaf0oN6IbHZ3CsJLk2TDT1zE79
+         BFyfCFOXx9quaK+KR+J9YLZ4DH1XeyHziJfirTaMKqtVTuRVXnlF5toiCzAnMzF6wfRy
+         mTD6/wBuS/KSHGUs2ejXlj7yLoycvxenzhvssDAC1tOAjFrTVZCIIW7U30Y0I61xKgXI
+         pHJUN3FiDOwS5Ajm84EWdF9zupseRzX4FUs49JZYStGsuBs69ZnvvV8oVDk4pa4dtMHR
+         u9aQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUsmCkP6x8Ya/vxAJfDwe78u679Dw0V3LIzn2viqKw4qTF4WWiOLK4PrsgDCW7fBynFX2bxmeXRlqUdKPm9895NYnSSPT3URzX9N2lTLqw=
+X-Gm-Message-State: AOJu0YyKiRq1YyjSxBtGpn5Ze9iIA+/PHZiBozSl+vsrRUb6AhgLtbV3
+	1RMzftxFe8D2O3kUR6AT0e/cgOfETas/8V7DNZjOqToGVI+zyERVS8ggz9JO
+X-Google-Smtp-Source: AGHT+IGsKQP7phlZrMQES1TfZT80/j8UfqPE65YWyVkI9qgq9GoOjg8IBWskUSJYiyrWCebaEF1qxw==
+X-Received: by 2002:a17:90b:3597:b0:2d3:d79f:e8b7 with SMTP id 98e67ed59e1d1-2d3e4537f86mr7473378a91.5.1723875904457;
+        Fri, 16 Aug 2024 23:25:04 -0700 (PDT)
+Received: from Barrys-MBP.hub ([2407:7000:8942:5500:fd84:292a:c6d0:8b67])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2d3ac854f3bsm6768404a91.51.2024.08.16.23.24.58
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 16 Aug 2024 23:25:04 -0700 (PDT)
+From: Barry Song <21cnbao@gmail.com>
+To: akpm@linux-foundation.org,
+	linux-mm@kvack.org
+Cc: 42.hyeyoo@gmail.com,
+	cl@linux.com,
+	hailong.liu@oppo.com,
+	hch@infradead.org,
+	iamjoonsoo.kim@lge.com,
+	mhocko@suse.com,
+	penberg@kernel.org,
+	rientjes@google.com,
+	roman.gushchin@linux.dev,
+	torvalds@linux-foundation.org,
+	urezki@gmail.com,
+	v-songbaohua@oppo.com,
+	vbabka@suse.cz,
+	virtualization@lists.linux.dev
+Subject: [PATCH v3 0/4] mm: clarify nofail memory allocation
+Date: Sat, 17 Aug 2024 18:24:45 +1200
+Message-Id: <20240817062449.21164-1-21cnbao@gmail.com>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <Zr-WGJtLd3eAJTTW@google.com>
-X-Mimecast-Spam-Score: 1
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, Aug 16, 2024 at 11:10:32AM -0700, Sean Christopherson wrote:
-> On Fri, Aug 16, 2024, syzbot wrote:
-> > > On Wed, May 29, 2024, syzbot wrote:
-> > >> Hello,
-> > >> 
-> > >> syzbot found the following issue on:
-> > >> 
-> > >> HEAD commit:    9b62e02e6336 Merge tag 'mm-hotfixes-stable-2024-05-25-09-1..
-> > >> git tree:       upstream
-> > >> console output: https://syzkaller.appspot.com/x/log.txt?x=16cb0eec980000
-> > >> kernel config:  https://syzkaller.appspot.com/x/.config?x=3e73beba72b96506
-> > >> dashboard link: https://syzkaller.appspot.com/bug?extid=7f3bbe59e8dd2328a990
-> > >> compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-> > >> 
-> > >> Unfortunately, I don't have any reproducer for this issue yet.
-> > >> 
-> > >> Downloadable assets:
-> > >> disk image: https://storage.googleapis.com/syzbot-assets/61b507f6e56c/disk-9b62e02e.raw.xz
-> > >> vmlinux: https://storage.googleapis.com/syzbot-assets/6991f1313243/vmlinux-9b62e02e.xz
-> > >> kernel image: https://storage.googleapis.com/syzbot-assets/65f88b96d046/bzImage-9b62e02e.xz
-> > >> 
-> > >> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> > >> Reported-by: syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com
-> > >
-> > > #syz unset kvm
-> > 
-> > The following labels did not exist: kvm
-> 
-> Hrm, looks like there's no unset for a single subsytem, so:
-> 
-> #syz set subsystems: net,virt
+From: Barry Song <v-songbaohua@oppo.com>
 
-Must be this patchset:
+-v3:
+ * collect reviewed-by, acked-by etc. Michal, Christoph, Vlastimil, Davidlohr,
+   thanks!
+ * use Jason's patch[1] to fix vdpa and refine his changelog.
+ * refine changelogs
+[1] https://lore.kernel.org/all/20240808054320.10017-1-jasowang@redhat.com/
 
-https://lore.kernel.org/all/20240316004707.45557-1-michael.christie@oracle.com/
+-v2:
+ https://lore.kernel.org/linux-mm/20240731000155.109583-1-21cnbao@gmail.com/
 
-but I don't see anything obvious there to trigger it, and it's not
-reproducible yet...
+ * adjust vpda fix according to Jason and Michal's feedback, I would
+   expect Jason to test it, thanks!
+ * split BUG_ON of unavoidable failure and the case GFP_ATOMIC |
+   __GFP_NOFAIL into two patches according to Vlastimil and Michal.
+ * collect Michal's acked-by for patch 2 - the doc;
+ * remove the new GFP_NOFAIL from this series, that one would be a
+   separate enhancement patchset later on.
+
+-v1:
+ https://lore.kernel.org/linux-mm/20240724085544.299090-1-21cnbao@gmail.com/
+
+__GFP_NOFAIL carries the semantics of never failing, so its callers
+do not check the return value:
+  %__GFP_NOFAIL: The VM implementation _must_ retry infinitely: the caller
+  cannot handle allocation failures. The allocation could block
+  indefinitely but will never return with failure. Testing for
+  failure is pointless.
+
+However, __GFP_NOFAIL can sometimes fail if it exceeds size limits
+or is used with GFP_ATOMIC/GFP_NOWAIT in a non-sleepable context.
+This can expose security vulnerabilities due to potential NULL
+dereferences.
+
+Since __GFP_NOFAIL does not support non-blocking allocation, we introduce
+GFP_NOFAIL with inclusive blocking semantics and encourage using GFP_NOFAIL
+as a replacement for __GFP_NOFAIL in non-mm.
+
+If we must still fail a nofail allocation, we should trigger a BUG rather
+than exposing NULL dereferences to callers who do not check the return
+value.
+
+* The discussion started from this topic:
+ [PATCH RFC] mm: warn potential return NULL for kmalloc_array and
+             kvmalloc_array with __GFP_NOFAIL
+
+ https://lore.kernel.org/linux-mm/20240717230025.77361-1-21cnbao@gmail.com/
+
+Thank you to Michal, Christoph, Vlastimil, and Hailong for all the
+comments.
+
+Barry Song (3):
+  mm: document __GFP_NOFAIL must be blockable
+  mm: BUG_ON to avoid NULL deference while __GFP_NOFAIL fails
+  mm: prohibit NULL deference exposed for unsupported non-blockable
+    __GFP_NOFAIL
+
+Jason Wang (1):
+  vduse: avoid using __GFP_NOFAIL
+
+ drivers/vdpa/vdpa_user/iova_domain.c | 19 +++++++++++--------
+ drivers/vdpa/vdpa_user/iova_domain.h |  1 +
+ include/linux/gfp_types.h            |  5 ++++-
+ include/linux/slab.h                 |  4 +++-
+ mm/page_alloc.c                      | 14 ++++++++------
+ mm/util.c                            |  1 +
+ 6 files changed, 28 insertions(+), 16 deletions(-)
 
 -- 
-MST
+2.39.3 (Apple Git-146)
 
