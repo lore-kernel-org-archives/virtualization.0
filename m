@@ -1,57 +1,57 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32B5BBA2D
-	for <virtualization@lists.linux.dev>; Sat, 17 Aug 2024 06:25:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18D3CBA2D
+	for <virtualization@lists.linux.dev>; Sat, 17 Aug 2024 06:25:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723875931; cv=none; b=F33h3wmNvTWdULMWJG6VAKh9oDE5AE1BhXNLAVpH/Y4qwsMk7KI/1jo1tw+868ZatDsvilVvslZDIyY+66c9I8eI1f298RT1sWeAiso51JmK20s1W8P1XFOkxbHO+q8XNKXWMnp3elYEGeyg5J47PB0B9HUM/r1nk7JwolMp12s=
+	t=1723875941; cv=none; b=U/lbC6cJMtNyJyF2swRnm8k4ie3ruR4OIf5H0jzZRnM54WbVfFAb+dnhPhzoQ0ohL/RZfKLRm0m4mX/BJv8CoLKfFJYoyuleKm+xYTcCUegOj+YVQ6XIYjmFIKgGt2qfn+i2dPP2kCM4k26XF6zSfEjZf8RXHB0gJvfpwqTEItA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723875931; c=relaxed/simple;
-	bh=LsTLQAiHmLY0zt4h7mj2CNdEO73P0Tsxp/pf6dLKyEk=;
+	s=arc-20240116; t=1723875941; c=relaxed/simple;
+	bh=j8TmWYZ5AqPrE22RnKJHbiVEX1QhW/f0MKWiEEz/HDQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cR4NIDHBa4GK5y/l9uT8C9OfeIBeRY42ZD0GqEpna6nsWj2OmpTSbpQCQC9kYbz4REU0MTgumgEt3u40uaKm/I+EomHHpgGDkzC1b7QmJhMGkOMPVE8+6bjFoNmU9dliJeMUj8znGvbhrSSEmumW+N4oW/bBajEyAPMmwLq2fBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BxKTCnBH; arc=none smtp.client-ip=209.85.215.169
+	 MIME-Version:Content-Type; b=CpDulC9TpzD8Jr+yzDnM87WzG7QEbhest05HWgAgg0tGgkmKE0jhlAeR44K0mwv1M34+tUhHo+04qxkqcvt0GWA7a44EA9XlMLy3ZqeIoLELmft0XDHIt63zQr+dTUFo3bmxbX8/jT1MQ5to2naD2DC6Kyh00xrp0dSmPoeIx9I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jZXj7S28; arc=none smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BxKTCnBH"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-7c3d8f260easo1814507a12.1
-        for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 23:25:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jZXj7S28"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-70d399da0b5so2287749b3a.3
+        for <virtualization@lists.linux.dev>; Fri, 16 Aug 2024 23:25:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723875929; x=1724480729; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1723875938; x=1724480738; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=s+kupNqvjc4VbaeRrHIrzKXfEz1ha5uSEm43pSCHOkE=;
-        b=BxKTCnBH4Mvcesr7xbxSqYziGqd9F2fZ2w5dfvVkyqO2LFXthZBHGGF089NkjFWhYq
-         rkigms1jarmsSTB2Epzyx5Okj9e07A0CBurLg7+8VMAeJMu3c2cypBX+VDSo/mZN3uIw
-         EHqK0MNAsS8O1E6PJHqBZwdpbxd90ef/KRPLLWuFWfSZFzgkgmVvhIXwGg+uGiUW68QB
-         B7I4GttoRFl9MzvyABnd5e2cbf0KqpvwMGKvxBRx4+hDq47UWrJPF5UfEGvVPaStofu2
-         9015nvxhMTchEgEeJ7yDC56j8ycWeBC/MhaA11R0mKbBgYyyYc+1r5gNelzStxcRyV/T
-         LRzQ==
+        bh=2X4VWKinXEGDbq8ESQflLvHDAModiFDrwO/8XuMbq2s=;
+        b=jZXj7S28e34tywK5tL8O3So1ePyCcFrxaji2ukBq4e4AgM93GMNXSeXEYvHzz8xP1z
+         oR3ivnd5yGAY2ksHyjWVOTMRpFv46cg+qXzEya1B+GaruiL4JMc+sfsemHMr2vD10ArT
+         ejKLc4dSzI5ydmHnx5UCBrugdZA2zSMXZCry7P5dntKOrmYW9gNol8Kbcd9Y2wxt0pgp
+         LdbBWRsZXiie46KOgFB2UJ3BMeEKkT7PJjh1AqORM+jg2yDAPYbvHMM/SdcFrTbPw2DE
+         akY8jXz7utx+tlOW0ttUKOesAqY9xmeBAfHj5x58qPp72DyVOT6L3zmhxfNHRsBPZZVw
+         DjrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723875929; x=1724480729;
+        d=1e100.net; s=20230601; t=1723875938; x=1724480738;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=s+kupNqvjc4VbaeRrHIrzKXfEz1ha5uSEm43pSCHOkE=;
-        b=hwx5Hk2oeWRT1cCvfPU5avP1CHAfUuPfify3TUtF0rTZSTJzjMZE5F4t5PV2/dT2OO
-         LNLTkp5C+65HMf95E5zkhnOt+LhC3ZR8J/3djzFn6XCWywcjMJXBVHd984/GwaXCtDya
-         qoQmmFmpSaNnCdkVPhZNXGHDW0UsrJVcgifibd+hO/drilqQCIzzin0+pslqkudu7RpO
-         mfsgCr0P1knXx79nDxjVYij5edG9vd+0Xzma5fLAo6W21Y1EUDt35wji/NsK4t1D2KNU
-         51RDgY30T6aPXArCP1ffWx58FuA5RKlr9CyA++yYflczZ9rGbNYwgpSLsLUNQzsOUcog
-         ifZQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVoYFzwpfJuTDdQL7I9Jzz+jRB8r/UKji0+8wsMxHet+NTO0S3qCfVpypyA7eRZI7QH8GYlziJMFmjXfJXhZXaTj/TksoiDcKgKFVEhOlY=
-X-Gm-Message-State: AOJu0YygMRdf1UQEeL1Ull8bPnorQ3P7IlXL28Xf1Jj89lGVmLvfe1ZO
-	t5sTFsjZxHyeypUY/f4b5J3ss/Q8T7xzKfZjQV+nb9cMb6+K1crB
-X-Google-Smtp-Source: AGHT+IHe4enXKrYqepTLb9GIUtBMG+QjR/xJ8dLQmWYjir/99r3pZcvKGo1qg+vP8DI56Lbbx94MwA==
-X-Received: by 2002:a05:6a20:9c8a:b0:1c3:ff33:277e with SMTP id adf61e73a8af0-1c904fc2c46mr6039325637.32.1723875929471;
-        Fri, 16 Aug 2024 23:25:29 -0700 (PDT)
+        bh=2X4VWKinXEGDbq8ESQflLvHDAModiFDrwO/8XuMbq2s=;
+        b=cqrKQYLreWTNPzwRgJFgR6abJPIEf9j+nJZkVjwsqIftKC1f/VvYHVIjRqSu9iDSOf
+         OuJUlNp+KegcJBGvCF9uUvbPKysR2nMpQEaX0WfAEUYTvq2yb/opSevYMJW0hWlYqUJJ
+         tqEdB+ANm6MFWCRsjOZVvJfTFZzVdV+NxLcZ4TUYq88CV+r3L9vnJtgHUGI8AG+kObDC
+         8jkT+zYa9NmwtDJxhEClxrezZMvjsG8zSDf9wn6Yef9Bp0/+c60OGvfixlFS61G8MHNU
+         jPs27fHf427BgGD7xPb3CZ9AyotjdgitISECL4HzhhshcNc8jFVTbe6PhIaR/a86uZTw
+         kSsg==
+X-Forwarded-Encrypted: i=1; AJvYcCWbVPrlSa76AlSqKCQkjdx4yBXYa7J5aMxb9xNQc9EelHgNDnBKizd3NllPssddt4oyU55QKEY4TwufjSBvDuO6M5G029zzWLzBm6n4zDM=
+X-Gm-Message-State: AOJu0Yx74YTXsYldcCX7sJhH1/p1/9QBfiXF65KipyfhiJ7UXH+CpDs9
+	943ZmPIZpFFdnch3pBvXkjIWKqAMrXwfd0FnaXRJAXK/OZpLVuoM
+X-Google-Smtp-Source: AGHT+IH03FdwAIY4AWVv/BXRCCz7Wo0n+PGDGc1GL3fnHropqxkM8zstDmcU8MGBFc9GOZQKQEX2Iw==
+X-Received: by 2002:a05:6a21:2d84:b0:1c6:a680:ef3d with SMTP id adf61e73a8af0-1c904fb55c8mr7273628637.28.1723875938269;
+        Fri, 16 Aug 2024 23:25:38 -0700 (PDT)
 Received: from Barrys-MBP.hub ([2407:7000:8942:5500:fd84:292a:c6d0:8b67])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2d3ac854f3bsm6768404a91.51.2024.08.16.23.25.21
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2d3ac854f3bsm6768404a91.51.2024.08.16.23.25.29
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 16 Aug 2024 23:25:29 -0700 (PDT)
+        Fri, 16 Aug 2024 23:25:37 -0700 (PDT)
 From: Barry Song <21cnbao@gmail.com>
 To: akpm@linux-foundation.org,
 	linux-mm@kvack.org
@@ -69,7 +69,6 @@ Cc: 42.hyeyoo@gmail.com,
 	v-songbaohua@oppo.com,
 	vbabka@suse.cz,
 	virtualization@lists.linux.dev,
-	Christoph Hellwig <hch@lst.de>,
 	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
 	Kees Cook <kees@kernel.org>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
@@ -77,9 +76,9 @@ Cc: 42.hyeyoo@gmail.com,
 	Maxime Coquelin <maxime.coquelin@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH v3 3/4] mm: BUG_ON to avoid NULL deference while __GFP_NOFAIL fails
-Date: Sat, 17 Aug 2024 18:24:48 +1200
-Message-Id: <20240817062449.21164-4-21cnbao@gmail.com>
+Subject: [PATCH v3 4/4] mm: prohibit NULL deference exposed for unsupported non-blockable __GFP_NOFAIL
+Date: Sat, 17 Aug 2024 18:24:49 +1200
+Message-Id: <20240817062449.21164-5-21cnbao@gmail.com>
 X-Mailer: git-send-email 2.39.3 (Apple Git-146)
 In-Reply-To: <20240817062449.21164-1-21cnbao@gmail.com>
 References: <20240817062449.21164-1-21cnbao@gmail.com>
@@ -94,44 +93,36 @@ Content-Transfer-Encoding: 8bit
 
 From: Barry Song <v-songbaohua@oppo.com>
 
-We have cases we still fail though callers might have __GFP_NOFAIL.  Since
-they don't check the return, we are exposed to the security risks for NULL
-deference.
+When users allocate memory with the __GFP_NOFAIL flag, they might
+incorrectly use it alongside GFP_ATOMIC, GFP_NOWAIT, etc.  This kind of
+non-blockable __GFP_NOFAIL is not supported and is pointless.  If we
+attempt and still fail to allocate memory for these users, we have two
+choices:
 
-Though BUG_ON() is not encouraged by Linus, this is an unrecoverable
-situation.
+    1. We could busy-loop and hope that some other direct reclamation or
+    kswapd rescues the current process. However, this is unreliable
+    and could ultimately lead to hard or soft lockups, which might not
+    be well supported by some architectures.
 
-Christoph Hellwig:
-The whole freaking point of __GFP_NOFAIL is that callers don't handle
-allocation failures.  So in fact a straight BUG is the right thing
-here.
+    2. We could use BUG_ON to trigger a reliable system crash, avoiding
+    exposing NULL dereference.
 
-Vlastimil Babka:
-It's just not a recoverable situation (WARN_ON is for recoverable
-situations). The caller cannot handle allocation failure and at the same
-time asked for an impossible allocation. BUG_ON() is a guaranteed oops
-with stracktrace etc. We don't need to hope for the later NULL pointer
-dereference (which might if really unlucky happen from a different
-context where it's no longer obvious what lead to the allocation failing).
-
-Michal Hocko:
-Linus tends to be against adding new BUG() calls unless the failure is
-absolutely unrecoverable (e.g. corrupted data structures etc.). I am
-not sure how he would look at simply incorrect memory allocator usage to
-blow up the kernel. Now the argument could be made that those failures
-could cause subtle memory corruptions or even be exploitable which might
-be a sufficient reason to stop them early.
+Neither option is ideal, but both are improvements over the existing code.
+This patch selects the second option because, with the introduction of
+scoped API and GFP_NOFAIL—capable of enforcing direct reclamation for
+nofail users(which is in my plan), non-blockable nofail allocations will
+no longer be possible.
 
 Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Michal Hocko <mhocko@suse.com>
 Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>
 Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Cc: Christoph Lameter <cl@linux.com>
 Cc: Pekka Enberg <penberg@kernel.org>
 Cc: David Rientjes <rientjes@google.com>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
 Cc: Roman Gushchin <roman.gushchin@linux.dev>
 Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
@@ -143,55 +134,38 @@ Cc: Maxime Coquelin <maxime.coquelin@redhat.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- include/linux/slab.h | 4 +++-
- mm/page_alloc.c      | 4 +++-
- mm/util.c            | 1 +
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ mm/page_alloc.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/slab.h b/include/linux/slab.h
-index c9cb42203183..4a4d1fdc2afe 100644
---- a/include/linux/slab.h
-+++ b/include/linux/slab.h
-@@ -827,8 +827,10 @@ kvmalloc_array_node_noprof(size_t n, size_t size, gfp_t flags, int node)
- {
- 	size_t bytes;
- 
--	if (unlikely(check_mul_overflow(n, size, &bytes)))
-+	if (unlikely(check_mul_overflow(n, size, &bytes))) {
-+		BUG_ON(flags & __GFP_NOFAIL);
- 		return NULL;
-+	}
- 
- 	return kvmalloc_node_noprof(bytes, flags, node);
- }
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 60742d057b05..d2c37f8f8d09 100644
+index d2c37f8f8d09..fb5850ecd3ae 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -4668,8 +4668,10 @@ struct page *__alloc_pages_noprof(gfp_t gfp, unsigned int order,
- 	 * There are several places where we assume that the order value is sane
- 	 * so bail out early if the request is out of bound.
+@@ -4399,11 +4399,11 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
  	 */
--	if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp))
-+	if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp)) {
-+		BUG_ON(gfp & __GFP_NOFAIL);
- 		return NULL;
-+	}
+ 	if (gfp_mask & __GFP_NOFAIL) {
+ 		/*
+-		 * All existing users of the __GFP_NOFAIL are blockable, so warn
+-		 * of any new users that actually require GFP_NOWAIT
++		 * All existing users of the __GFP_NOFAIL are blockable
++		 * otherwise we introduce a busy loop with inside the page
++		 * allocator from non-sleepable contexts
+ 		 */
+-		if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+-			goto fail;
++		BUG_ON(!can_direct_reclaim);
  
- 	gfp &= gfp_allowed_mask;
- 	/*
-diff --git a/mm/util.c b/mm/util.c
-index ac01925a4179..678c647b778f 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -667,6 +667,7 @@ void *__kvmalloc_node_noprof(DECL_BUCKET_PARAMS(size, b), gfp_t flags, int node)
- 
- 	/* Don't even allow crazy sizes */
- 	if (unlikely(size > INT_MAX)) {
-+		BUG_ON(flags & __GFP_NOFAIL);
- 		WARN_ON_ONCE(!(flags & __GFP_NOWARN));
- 		return NULL;
+ 		/*
+ 		 * PF_MEMALLOC request from this context is rather bizarre
+@@ -4434,7 +4434,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+ 		cond_resched();
+ 		goto retry;
  	}
+-fail:
++
+ 	warn_alloc(gfp_mask, ac->nodemask,
+ 			"page allocation failure: order:%u", order);
+ got_pg:
 -- 
 2.39.3 (Apple Git-146)
 
