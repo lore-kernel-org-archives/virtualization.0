@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A7F8B67A
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 13:10:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74A59161900
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 13:14:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724073035; cv=none; b=I8S5qXPJGPFQjOorfH6uc6Ej5GffHh2B7CLj4LvZWF8Ks+/W/REYmGhn3psIURHFIuzLRDtcg07gHtWDQVtPqkSM4xkFj6FlVhi0PLWqrBQnk1GSq6tkaPlHbwv79ku/axBYBWsrNBO0ajkv2P28fyUnihdUz1GlsbRMq8Baq3U=
+	t=1724073261; cv=none; b=SCMXfb25VQpdZhbDu9iY4/dqav+ld/i32fhZBijvR0Vqrx5UOfg4qYm1tuMjwY8a5hTzrONLVqa1/RZah3RV6kqq89swhsOuylbRARb3y4UbdvubVvPXChQ6Vz4WMgKNRoW2GnzApKvT8rJvT8Ri4+BNz6LVbCicZFZX/WkZlzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724073035; c=relaxed/simple;
-	bh=2A0DAryQl50LrVy1JXWnWefhoIrETTjxo7Mu9dK8tgY=;
+	s=arc-20240116; t=1724073261; c=relaxed/simple;
+	bh=GKobQ52BZdCMmgUC6Y5HzpjCCMjiS4ksvbtxPbRlUmI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KellbTOOi2RndjFCM2TlLBYGL4H1Qp+368JDB3TWcE9M8g88nEHZVGhMlweqa29/6nQgSJriDIG4V8GD2jmk2/h6A2v+QkEe3ug0Azs4UtgNEW7ZyRjSEczJHA2IYzNP0a0jftH6eY12InxEfOGc3kyo2K2j8LupejCPT/aCjzU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PPVbTZnG; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=LVXS1397qZHPdsCdhKgtJuYMBUA9IV7ex04jkNPfTqk44WAgaiyHPc54NxAPKnav8sgsH+MjZ6+zbTxKoPtXolyjgmNCa+bBr5hTUw71OSSqdoUwpFTZP299Bzji+NqzFW251U3NhjZTS9W73DyVDmB5XTRBxDDkNXjKtpRbFds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UvLVuZ1X; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PPVbTZnG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UvLVuZ1X"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724073032;
+	s=mimecast20190719; t=1724073259;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=XMNCLnzyp9nyIj6Go6iunaDZy1dWwAx3XctyX4fFYfU=;
-	b=PPVbTZnGue8ph1Gujikl2SviAGaK/5MLQBs5w9D08TaSr/lF/QT+TddFFQXb0WvEYd5b/B
-	LnDUqt323OTh+qP6I+h76180lXrPy8s7yeePRr3aK623qR3JP/TsZpd/mqE/oobPQlH8MV
-	H2OIqrEc9xRZQhrR7WM5wGVrA19UGOg=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=3TQgTm7Cdh2ZcwrUcAHpuLYTQBe/mHcOScBd4L9hb5k=;
+	b=UvLVuZ1XTDEJHcIqoIstRMF6szXi6Xhfrfam4EC1300uflSL4Kusom/UGhpw7iRloaDdqA
+	5bhEOzZ0BoSwBhqH4H/sZzzA0FcCmYPWSUsNXYdRseruREWqY2b5je9WnZZ+hAABWQA8M1
+	U3UFnhlRBGJKodV2u1U6v7DdidcS1yo=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-374-Nvi6cP01N7yh8pzbhrjiXw-1; Mon, 19 Aug 2024 09:10:31 -0400
-X-MC-Unique: Nvi6cP01N7yh8pzbhrjiXw-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a7aa5885be3so307836166b.0
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 06:10:30 -0700 (PDT)
+ us-mta-508-AnppOqFzM_afkMJ3CbCYlg-1; Mon, 19 Aug 2024 09:14:17 -0400
+X-MC-Unique: AnppOqFzM_afkMJ3CbCYlg-1
+Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2ef22e62457so40143331fa.2
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 06:14:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724073030; x=1724677830;
+        d=1e100.net; s=20230601; t=1724073255; x=1724678055;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=XMNCLnzyp9nyIj6Go6iunaDZy1dWwAx3XctyX4fFYfU=;
-        b=BDsOWeHhwc+vj7ZUozWWSOTQOtHG9VAuKzuBqqT+u5sZnU8jRV0jMbRLvBC4HjGhzG
-         fifxzLQWyWA6wVoRWyFh0llyySDjvPxeG7mv9yfyc0IJlEqBFtW28/S7kQTM13Zj6Fty
-         cT2NucarNEJODlFrdP4jFd8P9uM6Tu5Toz6i0TxEe13KPCTSb/A0b/0BfFW5kd+fsy39
-         isN0crVpNCy1Ki2gN06LZf7Moq0nR5WiyMvF86/iSA3WRiceHeeX1VRLQKF+QZPL0Eaa
-         V18tA0SBLoW4aFn+hnhgJSis0ivoUB0fEhw6R1TWB8ekEdnr3VmgI0wxlrifSHswXa5l
-         dBfA==
-X-Forwarded-Encrypted: i=1; AJvYcCUzdVOI4yxmU/1s36HNy/GgZtLz5zHUkka5WkJmx+2Y303YdnL8mqaVDSLJitYpBni9ayKShn8V7qpRB/I7BHK/TQebnGDVztIW8TxV9mg=
-X-Gm-Message-State: AOJu0YwRMOmCF0y7EoYK93F5W8Td0pztkyY/i5unWwycsw3wAVUI9nWr
-	6nCotFeTJqAxEFh0kdmKr/hPVf5lO7fLWNdl49ye3aBwI48t8uID3qwOOomCN2MR0NIet05TqhV
-	Re6MvoSInbVihBYbrHUVjqp1gKDW6S2jR7OC3Fh7jiCcKMQ+v53RE9RsCaqKzNKRL
-X-Received: by 2002:a17:907:60c9:b0:a77:cdaa:88a7 with SMTP id a640c23a62f3a-a8392a051fcmr703609966b.48.1724073029867;
-        Mon, 19 Aug 2024 06:10:29 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGUuPc29kIFzUFMwGrSs24EAR4+mUUsoaAz8tIBnTfe6Qlcloo3k73rngfy9Oc60/5MFxTcMg==
-X-Received: by 2002:a17:907:60c9:b0:a77:cdaa:88a7 with SMTP id a640c23a62f3a-a8392a051fcmr703607266b.48.1724073029345;
-        Mon, 19 Aug 2024 06:10:29 -0700 (PDT)
+        bh=3TQgTm7Cdh2ZcwrUcAHpuLYTQBe/mHcOScBd4L9hb5k=;
+        b=nW5U70FosUwjfMSr1lk1M46s2tp6+8/l39/kXxg+6eas+3ctwSFvWuWoDl4H6QLutX
+         +l9dlMKfbCC6sM81uJu86+HRefaRxIUtXBCXBw74KGLWt/enfT1oHbMTQSpIZIXJBEzb
+         Tx89ZcQ6xq2H8FeFSOhqAC86t09G5eLQK6IBkz6jLt2vpdM9lfYCz3h/O1Pxj6A8uvD9
+         3XiMKvaPQIQFloP0TpxibVNBZmZtR8vTQWG3IRgQdUZn6rTJT0eZVNyKeYd4uGydeKzc
+         y07KfjR+ALrbWyLewi6zaP5C0qpgCsbNl3/CYsAr6DmrbHybyJXsKEyCQNL7mhv/nLas
+         UrcQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWxTZBgxkTLSQH9y0NhpSPlV+vyXrHJcOQmJhMWv3/TQ2lbExAKxzJuuGNAsGzZx+M8h0/Ur/XAGkhDY5t8KIGXJzKsdbNUC2wb8vMeaIg=
+X-Gm-Message-State: AOJu0YxKoMS7czHy3C3BKHchTP2Pho+p5sjeF/R/v7E0dCXH9LdBKyYU
+	1q0w43P3MaKZZRrnWcYBfrjvEBISk/+PGDNI7lreywHhQW6B1tXYKn/KfHAMaeoAwvw+z6fDFqR
+	WRjBsGQ/y3bI27y09WL4oXO4rHYBt4W9bg9ld6eCgZpMa2IKe1+JzgDq6vTsyaA/2
+X-Received: by 2002:a05:6512:33ce:b0:52c:818c:13b8 with SMTP id 2adb3069b0e04-5331c68a917mr6266070e87.4.1724073255532;
+        Mon, 19 Aug 2024 06:14:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE9JhkNv9LFGYDBnoFMkEyS8NJjP/tRrAd/CN49Uux7ijRFvc433tsLSoSB40l5AQGlF3ZTvA==
+X-Received: by 2002:a05:6512:33ce:b0:52c:818c:13b8 with SMTP id 2adb3069b0e04-5331c68a917mr6266029e87.4.1724073254990;
+        Mon, 19 Aug 2024 06:14:14 -0700 (PDT)
 Received: from [100.81.188.195] (ipb218f908.dynamic.kabel-deutschland.de. [178.24.249.8])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a8383935698sm628622366b.102.2024.08.19.06.10.27
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83839464ebsm626866766b.155.2024.08.19.06.14.13
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Aug 2024 06:10:28 -0700 (PDT)
-Message-ID: <9f4fa8cf-df02-463d-9715-087a7cd6fc88@redhat.com>
-Date: Mon, 19 Aug 2024 15:10:27 +0200
+        Mon, 19 Aug 2024 06:14:14 -0700 (PDT)
+Message-ID: <6b24cb47-c48f-4ceb-93c9-ad8732e4222e@redhat.com>
+Date: Mon, 19 Aug 2024 15:14:12 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,8 +70,8 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 3/4] mm: BUG_ON to avoid NULL deference while
  __GFP_NOFAIL fails
-To: Barry Song <21cnbao@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@linux-foundation.org,
+To: Christoph Hellwig <hch@lst.de>
+Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
  linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com,
  hch@infradead.org, iamjoonsoo.kim@lge.com, mhocko@suse.com,
  penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
@@ -91,7 +91,7 @@ References: <20240817062449.21164-1-21cnbao@gmail.com>
  <54a4619d-e826-465e-9a0f-0a8f37798e15@redhat.com>
  <20240819124924.GA7642@lst.de>
  <a31af580-f420-4b34-8945-0269914a901b@redhat.com>
- <CAGsJ_4z-5ypPGoG6JDwRZGDt5Dby9r1tvh-txFdnkhQaKq8zGA@mail.gmail.com>
+ <20240819125346.GA7992@lst.de>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -138,16 +138,15 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <CAGsJ_4z-5ypPGoG6JDwRZGDt5Dby9r1tvh-txFdnkhQaKq8zGA@mail.gmail.com>
+In-Reply-To: <20240819125346.GA7992@lst.de>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 19.08.24 15:05, Barry Song wrote:
-> On Tue, Aug 20, 2024 at 12:51 AM David Hildenbrand <david@redhat.com> wrote:
->>
+On 19.08.24 14:53, Christoph Hellwig wrote:
+> On Mon, Aug 19, 2024 at 02:51:06PM +0200, David Hildenbrand wrote:
 >> On 19.08.24 14:49, Christoph Hellwig wrote:
 >>> On Mon, Aug 19, 2024 at 02:33:06PM +0200, David Hildenbrand wrote:
 >>>> It should all be caught during testing either way. And if some OOT module
@@ -160,30 +159,24 @@ On 19.08.24 15:05, Barry Song wrote:
 >>
 >> I'd rather have a sane API that doesn't even allow this level of
 >> flexibility with NOFAIL.
-> 
-> yes, i have already sent a RFC enforcing direct_reclamation:
-> https://www.spinics.net/lists/linux-mm/msg394659.html
-> 
-> somehow, it is not ready yet. i think Christoph prefers scope
-> api rather than GFP_NOFAIL which definitely has
-> __GFP_DIRECT_RECLAIM set. I guess you know I have
-> at least  5 series running, so it will happen soon though.
-
-That really sounds like the right thing to do, at least with the "direct 
-reclaim" problem ...
-
-> 
 >>
 >> But probably I'm missing more details here why this all has to be so
 >> complicated ;)
 > 
-> enforcing direct_reclamation is right and will work for a reasonable size.
-> but for this overflow size, even if we enforce direct_reclamation
-> in GFP_NOFAIL, we are still failing.
+> Well, the only way to do that is to remove (__)GFP_NOFAIL and require
+> either explicit _nofail variants without a way to pass gfp flags, or
+> endless loops in the callers.  I suggested the first one earlier, but
+> no one liked it due to the API complexity and overhead.  And I've not
+> heard anyone arguing for the latter yet.
 
-Right, someone requested something completely impossible. It's harder to 
-do something here that doesn't return NULL. Except WARN_ON_ONCE() and 
-loop for all infinity.
+Right, and and "allocate more than even possible" case is extremely ugly.
+
+> 
+> One other way might be a compile time check that requires any GPF
+> flag that contains (__)GFP_NOFAIL to be a compile time constants.
+> This is true for many but not all callers currently.
+
+Right.
 
 -- 
 Cheers,
