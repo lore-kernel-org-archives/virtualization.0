@@ -1,190 +1,128 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C719187FF1
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 16:53:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FA8514AD02
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 17:12:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724086401; cv=none; b=FJ9AOEALUkCl5PA1VC7hlcgC5QzONuYLrxqm8eNiEmBmsZbs3cf1fyV79F9r+cIqoLkB8lcyL7jKB9olqA67d6RBcKAL7mPReaK7Vh3nLQvi1iui8yk9xjZYar+QHdsosu5I/iBymQlKBXrNDM8Y0Nzaq7k7xnaStPEq8bV6M8s=
+	t=1724087575; cv=none; b=PnuNq27o46Kre0JGB3ym0cRBg9+Lgvjwlv7fyUGMpM3JhKV1stAwWuTspt6LLOJyZmvcNxFxw7go2daJnDEirFJja8CpoeUBfE2EjDH021k2JsozWjFM2ML7XQXs6sk5KqudjVgp4bMGnvqCf46hPZKQih4hLdUhl1i/JYdNdlE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724086401; c=relaxed/simple;
-	bh=HyrnGEiWWKBKUn1JXMJcutJ0LWXBjSFgM/wwpIH/cmo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Wzo4DZLCZFCPadIjJjGnsBjDnMg/KlO6Bkd7oPfUIQCijLSwtBIKpa7OkplcrD3cDKJAv+c76jCRy86ARslnsLhMIJ6ri4HTRmD5XmVUxoN40dIxAHTvZKbdl/Yonq+eGm+u9FOhmR57YFsRLtw6bytmACxPWqHw2CqL2VD/+xk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KrqH+I+H; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724087575; c=relaxed/simple;
+	bh=opL2GzK3ufH486x/uAH8uXJejXo0LPJOf5K/TaBEkf0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ixn79v0eQBpCyX7AeQqQcEaBOHJ27cJ6n5JS4bCCdqHRfBhBujfERVyYzBcawJ2X1xyU12GEZNBEh+lbqlwaHN74f3x9dyAhQMaBLAZnJ60ZaNKdClCl5vsiuZ6SI0XbrjHXv1L8DyMQLf2b8eXhYHHSlnafOy4PXSBPLpwlF6Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=DgsSQd+r; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KrqH+I+H"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724086399;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RIGjmIxgd4ZYoEGhHZhEaO790wvl9zuuKnu8/dcY7mY=;
-	b=KrqH+I+HXDg5g58XI9cNLuI5HSJaZBIxxbaci/hUq6x4JLpUfNzeZExMqcPjLlndvdTO0z
-	80lZIQ6/Rvr/TaZ/dH7kYAdJaBWU4LaKqpVnHZbUixFQo+v6aiQRXEB+2/JjIgwOfAJiGI
-	TiKbV/FMcybeMMi1zQN0Dkeby1p9Xuw=
-Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com
- [209.85.161.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-622-TwEjwnehMYiPCsaJHbISAw-1; Mon, 19 Aug 2024 12:53:18 -0400
-X-MC-Unique: TwEjwnehMYiPCsaJHbISAw-1
-Received: by mail-oo1-f70.google.com with SMTP id 006d021491bc7-5d5cef4a643so956620eaf.3
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 09:53:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="DgsSQd+r"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-52efe4c7c16so5960165e87.0
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 10:12:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1724087571; x=1724692371; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=AN5zhCn+htt3noRzaKCJLW9ql26hNTmL7gyUWJWJMns=;
+        b=DgsSQd+rmcjxoOJYOBBdxngDWKdADrsCdrxT2HltuKTfJvQHmZ8GB0GrKxonExySZH
+         tN6XsXA6mg2SpCfchHxAbpF4mOa13vqRHDnOyEJGm2XuDpG/lL13GmTxyV01StrXmnnc
+         ulTTz6iIyzr2tduH3dJDxiMv92OHaD/7lZvlIh/VZYzyTRmA0tjGeSN1E9EGMgcqqC35
+         4H8Ckn20ag1JKvF38OtgRO3Eh3S5GTPDVcmu6qiRAvdbKodL8VGKFBRzo+NZTrNdYjMh
+         VIU/LmuK7ymwlEKOVvMIHbuq7FAmoPIetzC/yMfnuvN42xe/c7oUWS2yQwnc8GJENNx6
+         H3IQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724086397; x=1724691197;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RIGjmIxgd4ZYoEGhHZhEaO790wvl9zuuKnu8/dcY7mY=;
-        b=i2Y/5dHPqHJ9oQcNgo6iFCYs7JS8QVXIC5H7zwEax1efpzvvTR5dCs9qm7FF0c2U+v
-         9AlPyf7HOBB64NbYRfpQo8UFYgJU/FYGcQ4FbWl31bzQby1lh0qB7O9K854eHbUTONdy
-         iOjTnEtWVgAwdyKB9lruk3iWgrqcpvFZgxr91F626e+G/OsjZTQLDz3m9HqnYp5UcDdB
-         Eb1WFFbuL8FmgSs5+K1XrJ58hj/QXAQaleVeKBjE7gN0ODgAMbzI5ioeTMVMVQxxdwSP
-         pj9nN4oR1oIs/x4Ket+khNEeHYn1eARDsJc0iJ3RLSfiLbRCeDf4ihSdzEhWyaIoAzax
-         C4Tw==
-X-Forwarded-Encrypted: i=1; AJvYcCUXtC/I8DKFaPeERCHbOT+LRY2QTW+1Yg42Fsk8sufTIg3UKrCc6RY1T7Jz2CTBr4J9KRXmggDfGYF56EcSEg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzk8AWdu952p2CKRgjMC+ce+Bpi8tWNIhP/HzvSuHvudWI9G+fc
-	IhRyOqQoxHpGZ7iroUfIwfl6BJOsvLl/o2XpsyVKeDv3RnHn4B8cWNKwf9Bgp/ixOS7ATV2TZsO
-	67fCXnpBkARMariPZPmG52bftqzMQZ0Le08fIsRZWYuqE81kCfd2Q1FZKFgAS4wrt
-X-Received: by 2002:a05:6358:6f15:b0:1ac:a26c:a617 with SMTP id e5c5f4694b2df-1b3933a2ef4mr724903755d.5.1724086397482;
-        Mon, 19 Aug 2024 09:53:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGT/mWFQ9yoQUfbebPKob1DsZxH+iTK/HwcCt5JWpV0k06WRkWCd30wgdmfipghSMnyk6p9TQ==
-X-Received: by 2002:a05:6358:6f15:b0:1ac:a26c:a617 with SMTP id e5c5f4694b2df-1b3933a2ef4mr724898255d.5.1724086397091;
-        Mon, 19 Aug 2024 09:53:17 -0700 (PDT)
-Received: from eisenberg.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a4ff01e293sm446579885a.26.2024.08.19.09.53.12
+        d=1e100.net; s=20230601; t=1724087571; x=1724692371;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AN5zhCn+htt3noRzaKCJLW9ql26hNTmL7gyUWJWJMns=;
+        b=spaxeMYxLClJb9pcs4D13+dHDwyEtXVd0uXmaUUDoBhyCe5g/lmQOyoCRzllaXcpkI
+         YfY90zKwgwZE6eBlmT8/dHTko+G/E4lZ7qccOXn1T1BgxxZEX7zAPO/JrRl64WKqcxiq
+         UOz8Ew8boxMRjOw9nN8wYTJbk2vZgEjyqOgFEEV93IfmV8Du06EfvIj3oGXYjGaebQfN
+         uTzlohJveq11Ja+F1D1ECzSlq0Y4RYRyV7j1mcludgBj1y/Uw/RYzeXltD5ynAlHVA3B
+         jdCNUP+qqWkISamTFOxJcee9N2cYayhafFd+iNscLOLgwVFCHvfIFf/frB7zl5sLSLjy
+         NTvA==
+X-Forwarded-Encrypted: i=1; AJvYcCXhBow6i06fdl2Tm7eb9yXIrIM5UMPD3/vuPq/w9250inUEdjylQQg43w0dzgqoI7df7Y9T+ynOmSiKxgtYwqd/yQaUtLOFmlYuWHZQFf4=
+X-Gm-Message-State: AOJu0YwyMwHwQx2G6sV2Xk2JoaXf+OT7KSYCHBA++Vg8pvAbcxKsiRRR
+	55KCx2nCcwLx4D3AUy1HJllGwGJllqgFbfXrhNC9jFy75YuFyCWST6MKMHgnPr4=
+X-Google-Smtp-Source: AGHT+IG2U2zQoNGTqC2ysJvFQAGTwJhpWlG5Siw96cD6hn+S1RR1nspkMAdoDrgkzNNMOIQ0bz4RaQ==
+X-Received: by 2002:a05:6512:33d6:b0:52f:ca2b:1d33 with SMTP id 2adb3069b0e04-5332df41e54mr4774582e87.20.1724087571066;
+        Mon, 19 Aug 2024 10:12:51 -0700 (PDT)
+Received: from localhost (109-81-83-72.rct.o2.cz. [109.81.83.72])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a838394723asm665069066b.171.2024.08.19.10.12.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Aug 2024 09:53:16 -0700 (PDT)
-From: Philipp Stanner <pstanner@redhat.com>
-To: onathan Corbet <corbet@lwn.net>,
-	Jens Axboe <axboe@kernel.dk>,
-	Wu Hao <hao.wu@intel.com>,
-	Tom Rix <trix@redhat.com>,
-	Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Jose Abreu <joabreu@synopsys.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
+        Mon, 19 Aug 2024 10:12:50 -0700 (PDT)
+Date: Mon, 19 Aug 2024 19:12:50 +0200
+From: Michal Hocko <mhocko@suse.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
+	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com,
+	hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com,
+	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
+	torvalds@linux-foundation.org, urezki@gmail.com,
+	v-songbaohua@oppo.com, vbabka@suse.cz,
+	virtualization@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Kees Cook <kees@kernel.org>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Philipp Stanner <pstanner@redhat.com>,
-	Hannes Reinecke <hare@suse.de>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Chaitanya Kulkarni <kch@nvidia.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org,
-	linux-fpga@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH 9/9] PCI: Remove pcim_iounmap_regions()
-Date: Mon, 19 Aug 2024 18:51:49 +0200
-Message-ID: <20240819165148.58201-11-pstanner@redhat.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20240819165148.58201-2-pstanner@redhat.com>
-References: <20240819165148.58201-2-pstanner@redhat.com>
+	Maxime Coquelin <maxime.coquelin@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v3 3/4] mm: BUG_ON to avoid NULL deference while
+ __GFP_NOFAIL fails
+Message-ID: <ZsN9Eo8HWdEgqpf3@tiehlicka>
+References: <20240817062449.21164-1-21cnbao@gmail.com>
+ <20240817062449.21164-4-21cnbao@gmail.com>
+ <5654b71c-1d9d-4c48-b28b-664662da8897@redhat.com>
+ <CAGsJ_4xF0YVS4TiaJwQ=YDeTTXg7hhNJOxzTYWy1cwu1YmLd5Q@mail.gmail.com>
+ <416ac265-ced2-4f90-a347-0a256edf7fdf@redhat.com>
+ <CAGsJ_4xNmi9nuZaLVjWgBA4cVqyDYVupQ1Hzygbnq98OiP9p8g@mail.gmail.com>
+ <54a4619d-e826-465e-9a0f-0a8f37798e15@redhat.com>
+ <CAGsJ_4zWNgA1OZJ-iAa4KhDY9TuGb2vji4=FJ=Vn7ve5uF6XzQ@mail.gmail.com>
+ <5424dfa3-03db-4a82-a08e-fb31285774b3@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5424dfa3-03db-4a82-a08e-fb31285774b3@redhat.com>
 
-All users of pcim_iounmap_regions() have been removed by now.
+On Mon 19-08-24 14:49:55, David Hildenbrand wrote:
+> On 19.08.24 14:48, Barry Song wrote:
+[...]
+> > > > > > > > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > > > > > > > index 60742d057b05..d2c37f8f8d09 100644
+> > > > > > > > --- a/mm/page_alloc.c
+> > > > > > > > +++ b/mm/page_alloc.c
+> > > > > > > > @@ -4668,8 +4668,10 @@ struct page *__alloc_pages_noprof(gfp_t gfp, unsigned int order,
+> > > > > > > >           * There are several places where we assume that the order value is sane
+> > > > > > > >           * so bail out early if the request is out of bound.
+> > > > > > > >           */
+> > > > > > > > -     if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp))
+> > > > > > > > +     if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp)) {
+> > > > > > > > +             BUG_ON(gfp & __GFP_NOFAIL);
+> > > > > > > >                  return NULL;
+> > > > > > > > +     }
+[...]
+> > Returning NULL doesn't necessarily crash the caller's process, p->field,
+> > *(p + offset) deference could be used by hackers to exploit the system.
+> 
+> See my other reply to Michal: why do we even allow to specify them
+> separately and not simply let one enforce the other?
 
-Remove pcim_iounmap_regions().
+Are you replying to this patch? This is not about a combination of
+flags. This is about the above (and other similar) boundary checks which
+return NULL if the size is deemed incorrect. I think those are potential
+problems because it could be a lack of input check which could be turned
+into a potentially malicious code. Because unchecked (return value
+because NOFAIL never fails, right?) return value might even not OOPs and
+become a silent read/write into memory.
 
-Signed-off-by: Philipp Stanner <pstanner@redhat.com>
----
- .../driver-api/driver-model/devres.rst        |  1 -
- drivers/pci/devres.c                          | 21 -------------------
- include/linux/pci.h                           |  1 -
- 3 files changed, 23 deletions(-)
-
-diff --git a/Documentation/driver-api/driver-model/devres.rst b/Documentation/driver-api/driver-model/devres.rst
-index ac9ee7441887..525f08694984 100644
---- a/Documentation/driver-api/driver-model/devres.rst
-+++ b/Documentation/driver-api/driver-model/devres.rst
-@@ -397,7 +397,6 @@ PCI
-   pcim_iomap_regions_request_all() : do request_region() on all and iomap() on multiple BARs
-   pcim_iomap_table()		: array of mapped addresses indexed by BAR
-   pcim_iounmap()		: do iounmap() on a single BAR
--  pcim_iounmap_regions()	: do iounmap() and release_region() on multiple BARs
-   pcim_pin_device()		: keep PCI device enabled after release
-   pcim_set_mwi()		: enable Memory-Write-Invalidate PCI transaction
- 
-diff --git a/drivers/pci/devres.c b/drivers/pci/devres.c
-index 30c813766e8b..a1689100a535 100644
---- a/drivers/pci/devres.c
-+++ b/drivers/pci/devres.c
-@@ -1014,27 +1014,6 @@ int pcim_iomap_regions_request_all(struct pci_dev *pdev, int mask,
- }
- EXPORT_SYMBOL(pcim_iomap_regions_request_all);
- 
--/**
-- * pcim_iounmap_regions - Unmap and release PCI BARs
-- * @pdev: PCI device to map IO resources for
-- * @mask: Mask of BARs to unmap and release
-- *
-- * Unmap and release regions specified by @mask.
-- */
--void pcim_iounmap_regions(struct pci_dev *pdev, int mask)
--{
--	int i;
--
--	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
--		if (!mask_contains_bar(mask, i))
--			continue;
--
--		pcim_iounmap_region(pdev, i);
--		pcim_remove_bar_from_legacy_table(pdev, i);
--	}
--}
--EXPORT_SYMBOL(pcim_iounmap_regions);
--
- /**
-  * pcim_iomap_range - Create a ranged __iomap mapping within a PCI BAR
-  * @pdev: PCI device to map IO resources for
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 7de75900854a..4eee09624932 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -2302,7 +2302,6 @@ void pcim_iounmap_region(struct pci_dev *pdev, int bar);
- int pcim_iomap_regions(struct pci_dev *pdev, int mask, const char *name);
- int pcim_iomap_regions_request_all(struct pci_dev *pdev, int mask,
- 				   const char *name);
--void pcim_iounmap_regions(struct pci_dev *pdev, int mask);
- void __iomem *pcim_iomap_range(struct pci_dev *pdev, int bar,
- 				unsigned long offset, unsigned long len);
- 
+Whether to BUG_ON or simply loop for ever in the allocator if somebody
+requests non-sleeping NOFAIL allocation is a different story.
 -- 
-2.46.0
-
+Michal Hocko
+SUSE Labs
