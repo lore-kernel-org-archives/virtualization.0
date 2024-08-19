@@ -1,133 +1,127 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50D64189512
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 18:28:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BF34184535
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 18:29:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724092138; cv=none; b=PNuPTKUcuaKYtBmL6mvrMyTGRa6QDlo2xMYSSKBlDORnky748QkgSK7qwsX/SPStZ9K9bATYJ4O7yLdy3MkvzPcJjSz/JZE8PLXEd6kvW+eHFlq7lCrFlPTOn2PfLXkED7rZp2g3A1xtHJ2RmBPGB0f6nji4UY5RXniH+x2YV/A=
+	t=1724092200; cv=none; b=eVJsBLdkSlPqHEcFPtezvua7VdzCjMVc+C2w3Ta0MKnNdD8zvUDdr+Oo4gtduRvJKxCMT+UkWOjbDdLS2ywarYINtdY2clx3ZOk8/evrpz7MArPpxVD6m/HgGTKwzsHoGds6ZcggenWGEVrrBRNHCClgXihb0rFS4i0wuJjKeA0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724092138; c=relaxed/simple;
-	bh=3OpP+bqhJVDHcSAxWOKFA44A8FB0Ov6BwD42gecA730=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JPMAsXIPNn4XiVzByTs7Oylv/tcfhc3L9OQg/uDhaI92/NhB/2IXAEIDfXPdSdz6bZan4T8+sHejSOBMiLouxCYuvtnQIhGuC0lJ1gguvATAdaRpkSzf707cAK6PV107U4di/cXjrLW0lNAuAaiVACr7AU7+TMZmYBjo6KGJYHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=fail smtp.mailfrom=kernel.org; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.org
-X-CSE-ConnectionGUID: S3Ln+7dVRkONvYOt4kYo+g==
-X-CSE-MsgGUID: OiokzmuXR8Sx5DN6LcCekA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11169"; a="22203758"
-X-IronPort-AV: E=Sophos;i="6.10,159,1719903600"; 
-   d="scan'208";a="22203758"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2024 11:28:56 -0700
-X-CSE-ConnectionGUID: UAbUuDuoSZiYgbMBfvamlQ==
-X-CSE-MsgGUID: 2DCcbPAkTEGqJBxULC2sWw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,159,1719903600"; 
-   d="scan'208";a="61024672"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orviesa007.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2024 11:28:47 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.98)
-	(envelope-from <andy@kernel.org>)
-	id 1sg77S-0000000H2MX-2AEd;
-	Mon, 19 Aug 2024 21:28:42 +0300
-Date: Mon, 19 Aug 2024 21:28:42 +0300
-From: Andy Shevchenko <andy@kernel.org>
-To: Philipp Stanner <pstanner@redhat.com>
-Cc: onathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>,
-	Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
-	Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Jose Abreu <joabreu@synopsys.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Hannes Reinecke <hare@suse.de>, Damien Le Moal <dlemoal@kernel.org>,
-	Chaitanya Kulkarni <kch@nvidia.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org, linux-fpga@vger.kernel.org,
-	linux-gpio@vger.kernel.org, netdev@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 7/9] ethernet: stmicro: Simplify PCI devres usage
-Message-ID: <ZsOO2uuGmD97Mocj@smile.fi.intel.com>
-References: <20240819165148.58201-2-pstanner@redhat.com>
- <20240819165148.58201-9-pstanner@redhat.com>
+	s=arc-20240116; t=1724092200; c=relaxed/simple;
+	bh=r2CDGCTvlxF2ba/tf/zgcURMpYEa29c98Q6T52zLk8o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=P/0irnzPAsOXzGIQklhsZaNtOUKsUwpS5ll5h4NNQMCoJULGZcDkep3hxHEIzSuvzPVjl+pZqZ5eNrtFe0jZ2EY8h14uSt3krMW2M/sxZQ+JYR3sK3vzYjjYKuMg4/9KPg4Z2un41r03qKhPfOzWGcrG5pO85pFjgg5gdMVDHmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f2RRfx3A; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f2RRfx3A"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724092198;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4lFIiiMRye69cO2CDTKsNTtf7eVlTg5I3EBKNS16KE8=;
+	b=f2RRfx3Aj52YarkZreXojdWbCRcN8He7/bev2sJr9yNDMdDlA6d7qT0eHO0iieAayC78+w
+	TcyeIognduwCyFQ/ZlpczEVkx02Pql9rqO60uKP3SmFcbyeBrZLUdISKu/p1m9146TJkXT
+	5yB/Cbc5DTBxcq4RGtDv5elL8beQ984=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-295-XM5qZSemPsagt7yR3iOcgg-1; Mon, 19 Aug 2024 14:29:56 -0400
+X-MC-Unique: XM5qZSemPsagt7yR3iOcgg-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-428076fef5dso38944115e9.2
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 11:29:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724092195; x=1724696995;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4lFIiiMRye69cO2CDTKsNTtf7eVlTg5I3EBKNS16KE8=;
+        b=kgUXoTkWloTPSkHHTi1ECWZV4Slk/V0oU2cNyojO2fCzvRQqG9HmNUb12AmRTnjlgz
+         HamCtci6GHmo0H0Rh3l6lv4pmiEpwB3MVQ/tTvYK1XBrtuxGYkr1WkC3tsrpHiGVh4eb
+         H6FSDV4nnEaTEtZ1i8z1Z+X8TSMH0ixkdrSrUwmk5fB56fcCrPhCcP6IY92aZVGlxtfT
+         TCqltGwyBblctK1QobCO/wpr0SRbEuZsfJhAiPgG5Kan/Ld0Xwobviw6IS3TLb3X6Pvi
+         VIsprrxU4WxUepw1gtbwqGDMWyzONHObn5TaZ5/v0SQOWYoJ/zzjLuhVNsvsRYANs2Qk
+         fuzw==
+X-Forwarded-Encrypted: i=1; AJvYcCXqVuKSS+Na8Tg1B3CxveH4xIBF/g8cK23ylhXyYT7QM6/3msEfAJqGjPIvpLuw3w4UbkKu4tgPJiICgYgqy891tWGZ3qH2u6mG+7sUTog=
+X-Gm-Message-State: AOJu0YxOZNO79+bduypkmOne0mK7YgOEtsV625Yy3zqVatj7kOWnPzCs
+	7I6/C8LhK/UZyvr15KM6ueO/Idm/c/zHUaXnAriEHlwD5C212OQTP93FQ/HpxlS9w1vX7aUypvy
+	rdckrG1TVRKeEafwSjkUN/FPRDGyLW6F/Qrd3066jntUJ7R7PlEe3w0if62qPwM9v
+X-Received: by 2002:a05:600c:19c9:b0:428:151b:e8e with SMTP id 5b1f17b1804b1-429ed79c7a5mr83715055e9.10.1724092195175;
+        Mon, 19 Aug 2024 11:29:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGk0CorVXceopfXeadLKMfCM8Ki34PcTWH20nY6bDKinP9SMpodZdRD2jpn/mC1ynyKYRSJEA==
+X-Received: by 2002:a05:600c:19c9:b0:428:151b:e8e with SMTP id 5b1f17b1804b1-429ed79c7a5mr83714895e9.10.1724092194626;
+        Mon, 19 Aug 2024 11:29:54 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:c:37e0:ced3:55bd:f454:e722? ([2a01:e0a:c:37e0:ced3:55bd:f454:e722])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429ded7d5bfsm174369695e9.46.2024.08.19.11.29.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Aug 2024 11:29:54 -0700 (PDT)
+Message-ID: <b1e442df-83dd-402f-a9d6-00a7c8c51954@redhat.com>
+Date: Mon, 19 Aug 2024 20:29:52 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240819165148.58201-9-pstanner@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: Use XRGB8888 also for big endian systems
+To: Javier Martinez Canillas <javierm@redhat.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev
+References: <20240816131310.1008205-1-jfalempe@redhat.com>
+ <874j7gld19.fsf@minerva.mail-host-address-is-not-set>
+From: Jocelyn Falempe <jfalempe@redhat.com>
+In-Reply-To: <874j7gld19.fsf@minerva.mail-host-address-is-not-set>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US, fr
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Aug 19, 2024 at 06:51:47PM +0200, Philipp Stanner wrote:
-> stmicro uses PCI devres in the wrong way. Resources requested
-> through pcim_* functions don't need to be cleaned up manually in the
-> remove() callback or in the error unwind path of a probe() function.
+On 19/08/2024 17:58, Javier Martinez Canillas wrote:
+> Jocelyn Falempe <jfalempe@redhat.com> writes:
 > 
-> Moreover, there is an unnecessary loop which only requests and ioremaps
-> BAR 0, but iterates over all BARs nevertheless.
+> Helo Jocelyn,
 > 
-> Furthermore, pcim_iomap_regions() and pcim_iomap_table() have been
-> deprecated by the PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
-> pcim_iomap_table(), pcim_iomap_regions_request_all()").
+> AFAICT your patch is doing two things:
 > 
-> Replace these functions with pcim_iomap_region().
+>> Mesa doesn't support BGRX8888, that means most wayland compositors
+>> doesn't work on big endian guests.
+>>
 > 
-> Remove the unnecessary manual pcim_* cleanup calls.
+> 1) Dropping the BGR{A,X}8888 support.
 > 
-> Remove the unnecessary loop over all BARs.
+>> Also the colors are inverted when testing a s390x VM on a s390x host.
+>> So I fixed the DRM_FORMAT -> VIRTIO_GPU_FORMAT on big endian guests.
+>> It may break big-endian guest on little-endian host, but then the
+>> fix should be in qemu, because we don't know the host endianess in
+>> the guest VM.
+>>
+> 
+> 2) Fix the format translation to take into account the guest endianess.
+> 
+> Maybe is better to split the changes in two separate patches ?
 
-...
+Yes, I will send a v2 with 2 patches, that would be better.
+> 
+>> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+>> ---
+> 
+> The patch makes sense to me though from your explanations.
+> 
+> Acked-by: Javier Martinez Canillas <javierm@redhat.com>
+> 
 
-loongson_dwmac_probe()
-
-> +	memset(&res, 0, sizeof(res));
-> +	res.addr = pcim_iomap_region(pdev, 0, pci_name(pdev));
-> +	if (IS_ERR(res.addr)) {
-> +		ret = PTR_ERR(res.addr);
-> +		goto err_disable_device;
-
-It seems your series reveals issues in the error paths of .probe():s
-in many drivers...
-
-If we use pcim variant to enable device, why do we need to explicitly
-disable it?
-
->  	}
-
-...
-
-loongson_dwmac_remove()
-
->  	pci_disable_msi(pdev);
->  	pci_disable_device(pdev);
-
-Not sure why we need these either...
+Thanks for the review.
 
 -- 
-With Best Regards,
-Andy Shevchenko
 
+Jocelyn
 
