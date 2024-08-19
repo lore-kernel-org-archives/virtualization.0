@@ -1,135 +1,158 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C706C163AA7
-	for <virtualization@lists.linux-foundation.org>; Mon, 19 Aug 2024 09:30:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07ED6140E50
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 09:39:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724059802; cv=none; b=PCgWThUDAVvk0ER/EUDH+TOLgRztsuji0qoKQBno7cX1bgRtzK6GUVZJ4xUJwnifR8Cvyj2cRRVAtGIdeGD7/nRCPbFSQ5a5mPy92K1DwpXOT1CIn5ZVMp58qZYCHV8zUjBKgBuMjIkPUGRpv6PJNwy/dlYX4QiokeA6I0JngTw=
+	t=1724060382; cv=none; b=KkyCAI9+TKJVy6KzcrWP38kN/lMOgTDhhOeh4gUhWhU+1RF37sQcw+0uQ6jM+WTm+gb0cJgqVBNdc2tsy6E/hw0UsNwtDHfX//hEn1/rIurzl3S02wMGGD0xjjxSi5AtoNxTNW7gfzq+yUDegm6ox2mKMggGDSipaSkBx5hgR24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724059802; c=relaxed/simple;
-	bh=JqTw+gimEBK2T1Y5GytfqaF/hsyvkel0HokYkqbxXuI=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t4Wd5mWaVzskWAfnyYGnTmM47yJ3TwZqTZJ6MNHLRZaBalMymfvE+nMfdGILlAR2sGafrT+djeEiB2fZGwJSdKR/gc88XhrQ+ViFxLg60JU+LEZtkc3v6TVewneRJnvKP3wDmsryxMb2lDIV9/qi91Wp93ea0hrjLMz/enf2NEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e9Ua7SFE; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1724060382; c=relaxed/simple;
+	bh=8NAbCnCS5XCj1Pm4fD5fjkqqoOV52Y6nZ6JYAkJZQNo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=c3VIECh/WYKYrqTV3GtySWZsSihlBp9sMrT9nE+/8y+XUqrnh3GxdT0c462e6wLS0NaXphLdk1JS1K/q7RwRPw9jU8QUglq0s1WUXZuqF6NwP4ijGOxcdSNgrnHbURL7ElXmq2Tx8wnb4SFsLIzwb3VxVKISGNm5SMRLP0ilZMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TFiqh/9Q; arc=none smtp.client-ip=209.85.222.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e9Ua7SFE"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4DAE9605B1
-	for <virtualization@lists.linux-foundation.org>; Mon, 19 Aug 2024 09:30:01 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id NQ_boeh5BqRY for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Aug 2024 09:30:00 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 7CC80600B9
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7CC80600B9
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=e9Ua7SFE
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7CC80600B9
-	for <virtualization@lists.linux-foundation.org>; Mon, 19 Aug 2024 09:30:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724059799;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ETsgpKbPtWULjBo2gaCD6rFNqT/vhyWhAo8UmZ8FOuk=;
-	b=e9Ua7SFE7Ss/CXWisHunm7o1qj0GLZEm4Zyx948WrpWE+YJzL+E5MCZvWe/zQuS+mLbTrL
-	TQnoSGEXlbLBu2P6E8p0fdpiWMcCrVDuHWbWU4v6ZdFsxQLoaubnDiDzrupL9+N6NIcSCo
-	mch0PvzJhwviy3m+FzrDoK0L3QPq47c=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-584-WYpDt3yrM9eQ0kKKvQkc-w-1; Mon,
- 19 Aug 2024 05:29:52 -0400
-X-MC-Unique: WYpDt3yrM9eQ0kKKvQkc-w-1
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 70FC71954128;
-	Mon, 19 Aug 2024 09:29:51 +0000 (UTC)
-Received: from server.redhat.com (unknown [10.72.112.11])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 648601956054;
-	Mon, 19 Aug 2024 09:29:47 +0000 (UTC)
-From: Cindy Lu <lulu@redhat.com>
-To: lulu@redhat.com,
-	jasowang@redhat.com,
-	mst@redhat.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: [RFC 7/7] vhost: Add new UAPI to support changing Kthread mode
-Date: Mon, 19 Aug 2024 17:27:33 +0800
-Message-ID: <20240819092851.441670-8-lulu@redhat.com>
-In-Reply-To: <20240819092851.441670-1-lulu@redhat.com>
-References: <20240819092851.441670-1-lulu@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TFiqh/9Q"
+Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-842fe71877cso1201453241.3
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 02:39:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724060380; x=1724665180; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FoSIypTkdSHgxCYznKRlFZjuPRFaRgIlgz1FV3iiul0=;
+        b=TFiqh/9Q3eKiSreZEW1mGGB4Mcg1Q6Q+F+zkKY8zf/6Ro+qe3DDL+dj4vDqo4sUqAy
+         8/EZxoE+ZdSRFv8JUwplPaC0F7pPSRMuo8/IvhUfn9tjcBSUSHP3c7oSaDmiDnehGcYQ
+         U4Z2korfLU+X8bg6+RS42YUMfvANQ810xk9uuyOBHeaDe7WmWmYjSj1B9oLitIfM9LjW
+         5XuQOPIhARE35+/jH5yJRGh5KK9049AEZAoXy9ES/7/U+yEbVwLMwuvsSjabfI9UNiDD
+         LE2VwBjD/ltWzwwIVbxUL3KMHc9ktFpgc96dvrIZjaSs1SWg+atIcPIT4WGJDepdBHPB
+         PR7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724060380; x=1724665180;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FoSIypTkdSHgxCYznKRlFZjuPRFaRgIlgz1FV3iiul0=;
+        b=NwU2rPPEv3BjWZedF/qf9Cf6I0oZqOXYmLmbMdG0yzvyJhQyJaK9l7JTdb4ARlXodx
+         AtJOaOLCDRdsChwivRM/fW2BlIVfzbM9uM8f7AwntPbHvwb3xhoc1p6QmkvdvPfQSoQ/
+         KlIHVe1fCBZIwRc9miZvFPJtskPExEoiS5ljLoO69+zJS/50RUkfZ/NGvzYOyGRzG68e
+         CauXRB+P4tIHIQw3tX1k+kAZApYOUGgcXFv9/8qv5IcMeaQNEtRRegVba9vgRZvZ55ti
+         26MOFmNsXDSYIYOYcG5m7/veJLJZEcqbI764hmYVFSX0EN5FqySuIQn9+XL9IdEWZMEa
+         Zxcw==
+X-Forwarded-Encrypted: i=1; AJvYcCUbo5CpRoQgSp6C5Hi6/ZPM452qXQWuZXxpL5k0ZCjQYJcI4O29RI/fvF+uRQbt6Rc14oqGn+bAwqz21gvKaZzdXtoSGRZ0Yxib0voCQ1A=
+X-Gm-Message-State: AOJu0Yw3Ex7cPZxTW3OAT6um8j62za3cDjfLkYZn7gNojPGdunusrJyK
+	edSeOlHNfX3tOcgryThmjRE1jGyEOaazPnY0DgirjIxf9J6JKSXin23xDWfb5L5ZvJPfFoxnVHV
+	moIrMHqZS34yUC/pDyTAJqINF8hM=
+X-Google-Smtp-Source: AGHT+IHX29MnZ9UrMREVVXwbQctg0qwq8C2OW+jJ6hBslxhJVtXPzAUrhLdm+xUDMkzb+8FMgyYPGJC2mgagbGph09k=
+X-Received: by 2002:a05:6122:d99:b0:4ed:14e:9342 with SMTP id
+ 71dfb90a1353d-4fc6c5c2b6fmr12295328e0c.1.1724060379834; Mon, 19 Aug 2024
+ 02:39:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+References: <20240817062449.21164-1-21cnbao@gmail.com> <20240817062449.21164-5-21cnbao@gmail.com>
+ <CALOAHbD-npQmchiRJpGvOBVOM-Li6oRyMnKAjgiHq3DasiXMUQ@mail.gmail.com>
+ <ZsL5LSK8R3B1HsR1@tiehlicka> <CALOAHbBtB40Qth3k2yXM7riPaf3nxP0p4W-Ur=h2UK0BvPg4QA@mail.gmail.com>
+In-Reply-To: <CALOAHbBtB40Qth3k2yXM7riPaf3nxP0p4W-Ur=h2UK0BvPg4QA@mail.gmail.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Mon, 19 Aug 2024 21:39:28 +1200
+Message-ID: <CAGsJ_4yS=8kXruzVxzx+u+nyXG-5OfdjxSZeq_WzyOGfpu5btw@mail.gmail.com>
+Subject: Re: [PATCH v3 4/4] mm: prohibit NULL deference exposed for
+ unsupported non-blockable __GFP_NOFAIL
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, 
+	iamjoonsoo.kim@lge.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, torvalds@linux-foundation.org, urezki@gmail.com, 
+	v-songbaohua@oppo.com, vbabka@suse.cz, virtualization@lists.linux.dev, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Kees Cook <kees@kernel.org>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add a new UAPI to support setting the vhost device to
-use kthread mode. The user space application needs to use
-VHOST_SET_USE_KTHREAD to set the mode. This setting must
-be set before VHOST_SET_OWNER is set.
+On Mon, Aug 19, 2024 at 9:25=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com> =
+wrote:
+>
+> On Mon, Aug 19, 2024 at 3:50=E2=80=AFPM Michal Hocko <mhocko@suse.com> wr=
+ote:
+> >
+> > On Sun 18-08-24 10:55:09, Yafang Shao wrote:
+> > > On Sat, Aug 17, 2024 at 2:25=E2=80=AFPM Barry Song <21cnbao@gmail.com=
+> wrote:
+> > > >
+> > > > From: Barry Song <v-songbaohua@oppo.com>
+> > > >
+> > > > When users allocate memory with the __GFP_NOFAIL flag, they might
+> > > > incorrectly use it alongside GFP_ATOMIC, GFP_NOWAIT, etc.  This kin=
+d of
+> > > > non-blockable __GFP_NOFAIL is not supported and is pointless.  If w=
+e
+> > > > attempt and still fail to allocate memory for these users, we have =
+two
+> > > > choices:
+> > > >
+> > > >     1. We could busy-loop and hope that some other direct reclamati=
+on or
+> > > >     kswapd rescues the current process. However, this is unreliable
+> > > >     and could ultimately lead to hard or soft lockups,
+> > >
+> > > That can occur even if we set both __GFP_NOFAIL and
+> > > __GFP_DIRECT_RECLAIM, right?
+> >
+> > No, it cannot! With __GFP_DIRECT_RECLAIM the allocator might take a lon=
+g
+> > time to satisfy the allocation but it will reclaim to get the memory, i=
+t
+> > will sleep if necessary and it will will trigger OOM killer if there is
+> > no other option. __GFP_DIRECT_RECLAIM is a completely different story
+> > than without it which means _no_sleeping_ is allowed and therefore only
+> > a busy loop waiting for the allocation to proceed is allowed.
+>
+> That could be a livelock.
+> From the user's perspective, there's no noticeable difference between
+> a livelock, soft lockup, or hard lockup.
 
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- drivers/vhost/vhost.c      | 11 ++++++++++-
- include/uapi/linux/vhost.h |  2 ++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+This is certainly different. A lockup occurs when tasks can't be scheduled,
+causing the entire system to stop functioning.
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 0a7b2999100f..d6b71bddc272 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2340,14 +2340,23 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
- {
- 	struct eventfd_ctx *ctx;
- 	u64 p;
--	long r;
-+	long r = 0;
- 	int i, fd;
-+	bool kthread;
- 
- 	/* If you are not the owner, you can become one */
- 	if (ioctl == VHOST_SET_OWNER) {
- 		r = vhost_dev_set_owner(d);
- 		goto done;
- 	}
-+	if (ioctl == VHOST_SET_USE_KTHREAD) {
-+		if (copy_from_user(&kthread, argp, sizeof(kthread))) {
-+			r = -EFAULT;
-+			goto done;
-+		}
-+		use_kthread = kthread;
-+		goto done;
-+	}
- 
- 	/* You must be the owner to do anything else */
- 	r = vhost_dev_check_owner(d);
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index b95dd84eef2d..386fe735da63 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -235,4 +235,6 @@
-  */
- #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
- 					      struct vhost_vring_state)
-+
-+#define VHOST_SET_USE_KTHREAD _IOW(VHOST_VIRTIO, 0x83, bool)
- #endif
--- 
-2.45.0
+>
+> >
+> > > So, I don't believe the issue is related
+> > > to setting __GFP_DIRECT_RECLAIM; rather, it stems from the flawed
+> > > design of __GFP_NOFAIL itself.
+> >
+> > Care to elaborate?
+>
+> I've read the documentation explaining why the busy loop is embedded
+> within the page allocation process instead of letting users implement
+> it based on their needs. However, the complexity and numerous issues
+> suggest that this design might be fundamentally flawed.
 
+I don't see "numerous issues", only two issues:
+
+1. allocation size overflow with __GFP_NOFAIL
+2. unsupported case: __GFP_NOWAIT/ATOMIC | __GFP_NOFAIL.
+
+for 1, it has been a BUG to require an overflowed size to always succeed.
+
+for 2,  it is an unsupported case. we just need to hide __GFP_NOFAIL
+and only expose GFP_NOFAIL(which definitely includes blockable) so
+any unsupported case like vdpa will no longer occur.  I would greatly
+appreciate it if you or someone else could take over this task, as I am
+currently extremely busy.
+
+>
+> --
+> Regards
+> Yafang
+
+Thanks
+Barry
