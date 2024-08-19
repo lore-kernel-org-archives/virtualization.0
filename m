@@ -1,108 +1,129 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+Received: from mail-vs1-f46.google.com (mail-vs1-f46.google.com [209.85.217.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC659158A36
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 20:35:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC150176231
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 21:48:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724099744; cv=none; b=VYQwVVPodE5nUJsC5qamzJhTlg+35MZDqIdp2ftDyE0YsVQa44ODu+iXQFUQbX9xPZojrkkIVcUwBnWRJRUoVLYdjAHSlSXwfVzUbNi+HYs05Md0gqRtKQGBcogBdk81mJsfxmGupyy0eHczEu5oD4ItRCO4kczzuDrZRml0CLs=
+	t=1724104134; cv=none; b=iKGkZVEKfQvFsOVVx2eoo4XK97FlvOIKDQ/BUOgXypVNmVd/6+m/zunq2LRqSa+g7Lk0zGVVhqKXLqcUgBpfNY7mwP+noE7UukQTU/o7hW0hekZnWei7v9/ngYV1RBWkGZS5O2ow8fiwHpcW/lwXnF5GLZSLT5pg//Dmt2R2kJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724099744; c=relaxed/simple;
-	bh=6nantcWvl4cSK6c6YYuqvNtwHPoo6xFMl7jxgWyUS3s=;
+	s=arc-20240116; t=1724104134; c=relaxed/simple;
+	bh=g/+8ChFNFynnYS6sw1akki6SZBU+rx1gKKNAILzaDl0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FhgHLovYnfX0QoA1HMtaVcWac/9VzAAPzAZ2xjZl2sxqXYnMh5Go1xqhievYuQK2WIiGe7/IQb7jldLCv3q+cXH/PhtoM/6kg49UU3sYICM+lATfLkeH/eT4q9xEvV9QexQJV9iK4V2QbOLom8pnwL3a5BZArXYpcCLDBjT+Jx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=gs3vmiqh; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	 To:Cc:Content-Type; b=Ar3Keg9u3WCvBKq+IWHDJAB+yUeGQqr20aUEXwW003/tDVTaT5LjfqIeaqPTl3LkAfXxsbhGodH4bVyXbh+YxMRGGsEuD8CHOPmPRyX854dYvYDNPDoY3IxlgFSLsciagAtnHjQASdowX1y4dg089mUPEqpQm8KbJcRhVF63+Wg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PMSJaTQ7; arc=none smtp.client-ip=209.85.217.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="gs3vmiqh"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a7aa4bf4d1eso648664866b.0
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 13:35:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PMSJaTQ7"
+Received: by mail-vs1-f46.google.com with SMTP id ada2fe7eead31-4929754aee9so1202484137.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 14:48:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1724099741; x=1724704541; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=2/pVNYLOMNJ5i8IARyTldtKIoyBXjN1J3Q4VX2TRBps=;
-        b=gs3vmiqhW/rySCg5AHFlT0AaMxob7tmpU9d2RXHIAyE+SzFPGOshxx4Xsp34NLtgZs
-         M7dLQ3C4phq01BJhOHLvOxsOOdU02uWhlKvMjgmcSA1YadjVFI4byruaRceHBw5UTh+N
-         DwICCoy4oHnb+k5csk9QD4xGfGh96jd1e0sgE=
+        d=gmail.com; s=20230601; t=1724104132; x=1724708932; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=g/XWOzBh0omPAtqplmJtCs5xfxeJs6oMvcpGm2ydwOo=;
+        b=PMSJaTQ7yYit7IuC13v9UdNqbVDbfhqdEox3s1m2J4GUlC/g2HeCF/ERq4AGoKwuLC
+         5wY7tiih+pFMES1vwAm6t93rTi9maa/eJdPToMCO0khSNjyVeQEUg/t7A29IXDA9FEXi
+         JEre41EGiwyOXVrgjEz5PldJDYPa9UUjf41ObDfwnDJtwnJ1s4fvtqzzcCLSoXhmr3Bq
+         Cpu6OxAwqz8vFsKQwvQjAeh+7LaYqHuA81rQQ799jyQlBu31Mt8LWSf0vxfW6/UInOOB
+         CT4CGcnEFQoxIlONO8IYX1ayPcYUy399Qo0r+jjp4ySIBudji2AZyNOL+PH3SbYsla96
+         jqbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724099741; x=1724704541;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2/pVNYLOMNJ5i8IARyTldtKIoyBXjN1J3Q4VX2TRBps=;
-        b=OXwvdBDa1xqDZNBQOmFDaq3E0WAjtoC2caPMy/sY18nW2lNE3yp4cDgk/N2sW/f++M
-         Lc8CTSCqTmnT0vW2ZaWPbUwSRJ2MVeyZmgQ2E2vmBW3p99G4rlu0finR9Tjt4oyY4ix2
-         iloz4Sks9QiP8wMQ4tML5VxMmBGYrBC+PnRDI1sazrUALeQz7Sg0SUnGuFHypKfiEr8X
-         bRHgN6TwHfc1f8R46In3PiMWdVFPrmAJbDCoqfER/Rcz8IHujyyyCDT+RmA2+A33CWVB
-         ieqx3oppd5Noib6OGh1fPWyumo62LtBdJwYsLPTq4RCTfVUoQopZE1u30IQ1xZCsDj1s
-         YZ9w==
-X-Forwarded-Encrypted: i=1; AJvYcCWnZcJNqETT9Giu7SPdzr+znxKP51DkZW2kXWNERB3PcieIoDS7OGGVsGuji6K0BttxGFakRFtK05P1O3IPZA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyvCyhT8etTyVA9ppBW93LIkkhG6ENzt244Yij4JEOuL1VjvlJd
-	IqgBV0HjM5W3MhRNK4R76dLW4gjKbOv/KgFKcW1EcGkAtlpA+oqWqLxu3HkygwAXlV1PuRT1cQp
-	t1EYuAw==
-X-Google-Smtp-Source: AGHT+IFxVLJMblNyknIv6Pk/Yjt/+OLObJZLcJwws++EdE67qfFn4+g8LXK/KOK4oyXAmkr5cvn1lw==
-X-Received: by 2002:a17:907:e249:b0:a7a:ab8a:38a with SMTP id a640c23a62f3a-a839292ffbdmr950309166b.27.1724099740599;
-        Mon, 19 Aug 2024 13:35:40 -0700 (PDT)
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com. [209.85.221.51])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83839359f7sm672266766b.131.2024.08.19.13.35.39
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Aug 2024 13:35:39 -0700 (PDT)
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-371941bbfb0so2260642f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 13:35:39 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUAUhQUHOyeKxZdZzWchzNmsOpZfPeyNNuoVYh9S06OzHxu/1SXbLtpBful8DoqjVsS3xffM6qn0wq4Sba22w==@lists.linux.dev
-X-Received: by 2002:adf:fa4f:0:b0:368:37d0:c4ca with SMTP id
- ffacd0b85a97d-3719443c779mr7296213f8f.24.1724099738889; Mon, 19 Aug 2024
- 13:35:38 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724104132; x=1724708932;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=g/XWOzBh0omPAtqplmJtCs5xfxeJs6oMvcpGm2ydwOo=;
+        b=IAnU9Mj973cXashHTw4xlXj9KHJ7wu+xENGpw/ilEhYxOLSKRfoghgWjyRHFaOlk/A
+         WVg5jwKiherpeQaKjpHXb2D4WsFrbaGecsbft/TWFnH/K8i+XqlJWsWtmht1vVnQgWQd
+         wssHcofs1UWan9WX0vqNjcgEGIDnpyhc5WeuhZKQ29cCEM6gn75OkWPK7S/Vsu91Pg5U
+         KO+/+VhRtfFRI1rNFsOcwDcgqwGzrvJ0T/BEQgyW6LKYl0uP59qBaoRLsDggtrD/Q5UK
+         AqnwJSKcKhbBbxq7yzrLcXkdQExbG+bTLCsbQxbCHj2uSTXK1Jp8fHEjYEHe8dxqKySt
+         znow==
+X-Forwarded-Encrypted: i=1; AJvYcCVLk69gyidGgZusi7+4fPDa/Ma4mdwhL0nHsHajBek184TSFJeLfLsX4EHJMaVGA/RFkT9fSZKAfWBfoVvTvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywpr0HL1AsitsVYAcE5BlaSQQFnYk3HsoHPrz9+5vMZvT/dN6Ws
+	c7FLxu/XCSGKMGT4vV6f3/+Yk8wbvW2Ufoq7pYGQ6vOWVkTQkn9c1mZnD1DEjWozjSUbkJmneQp
+	qivsE46SMVVvTB4Sap0N19oqaD8o=
+X-Google-Smtp-Source: AGHT+IENb5DYPovjDFMjwqzq3uvD4Nv2Ze4DbhBh4gLv4aruNViDXNpg95ZVdQIT4X89mk0e7YdoQ5zVz6TsbTbh4PE=
+X-Received: by 2002:a05:6102:e13:b0:48f:df71:17e3 with SMTP id
+ ada2fe7eead31-497799fe285mr11313058137.28.1724104131684; Mon, 19 Aug 2024
+ 14:48:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240817062449.21164-1-21cnbao@gmail.com> <20240817062449.21164-4-21cnbao@gmail.com>
- <5654b71c-1d9d-4c48-b28b-664662da8897@redhat.com> <CAGsJ_4xF0YVS4TiaJwQ=YDeTTXg7hhNJOxzTYWy1cwu1YmLd5Q@mail.gmail.com>
- <416ac265-ced2-4f90-a347-0a256edf7fdf@redhat.com> <CAGsJ_4xNmi9nuZaLVjWgBA4cVqyDYVupQ1Hzygbnq98OiP9p8g@mail.gmail.com>
- <54a4619d-e826-465e-9a0f-0a8f37798e15@redhat.com> <CAGsJ_4zWNgA1OZJ-iAa4KhDY9TuGb2vji4=FJ=Vn7ve5uF6XzQ@mail.gmail.com>
- <5424dfa3-03db-4a82-a08e-fb31285774b3@redhat.com> <ZsN9Eo8HWdEgqpf3@tiehlicka>
- <a366907d-191f-471d-aa5a-fc8f3f88198b@redhat.com>
-In-Reply-To: <a366907d-191f-471d-aa5a-fc8f3f88198b@redhat.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Mon, 19 Aug 2024 13:35:21 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgGLFV4mkNGwhpTMYrR2sVJVbnJ8RrfaHihDwtR+Z5O+Q@mail.gmail.com>
-Message-ID: <CAHk-=wgGLFV4mkNGwhpTMYrR2sVJVbnJ8RrfaHihDwtR+Z5O+Q@mail.gmail.com>
-Subject: Re: [PATCH v3 3/4] mm: BUG_ON to avoid NULL deference while
- __GFP_NOFAIL fails
-To: David Hildenbrand <david@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>, Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org, 
-	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, 
-	hch@infradead.org, iamjoonsoo.kim@lge.com, penberg@kernel.org, 
+References: <20240817062449.21164-1-21cnbao@gmail.com> <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
+ <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+ <CAGsJ_4xwj+trzpOS4b-RSHtqHkD4+0g1Sadr7YCiauOBgd35dQ@mail.gmail.com> <CAHk-=who4GDu0gXZ2xWdpmTOQ_OZaWfgVmcADUGo05Eoa-jKxA@mail.gmail.com>
+In-Reply-To: <CAHk-=who4GDu0gXZ2xWdpmTOQ_OZaWfgVmcADUGo05Eoa-jKxA@mail.gmail.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Tue, 20 Aug 2024 09:48:36 +1200
+Message-ID: <CAGsJ_4wDEY0mEGAL6Q7xV7uCv2tsyeK6fGsXUkSrF29tLbOTwA@mail.gmail.com>
+Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: David Hildenbrand <david@redhat.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, 
+	iamjoonsoo.kim@lge.com, mhocko@suse.com, penberg@kernel.org, 
 	rientjes@google.com, roman.gushchin@linux.dev, urezki@gmail.com, 
-	v-songbaohua@oppo.com, vbabka@suse.cz, virtualization@lists.linux.dev, 
-	Christoph Hellwig <hch@lst.de>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Kees Cook <kees@kernel.org>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+	v-songbaohua@oppo.com, vbabka@suse.cz, virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 19 Aug 2024 at 13:24, David Hildenbrand <david@redhat.com> wrote:
+On Tue, Aug 20, 2024 at 7:33=E2=80=AFAM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> Right, "warn + loop forever" is one alternative where you could at least
-> keep the system alive to some degree.
+> On Mon, 19 Aug 2024 at 12:23, Barry Song <21cnbao@gmail.com> wrote:
+> >
+> >
+> > That could be an exploit taking advantage of those improper callers,
+>
+> So?
+>
+> FIX THE BUGGY CODE.
 
-Maybe. Or it might just lock up the machine.
+That's definitely in progress, with patch 1/4 addressing vdpa. There's also
+an RFC to enforce DIRECT_RECLAMATION for __GFP_NOFAIL, which
+will prevent passing unsupported flags to the memory management
+system:
 
-For small allocations looping forever is probably fine, because in
-practice there's always *something* that can be thrown out.
+https://lore.kernel.org/all/20240724085544.299090-6-21cnbao@gmail.com/
 
-But anything larger than order-3 (handwavy, but that was our
-historical limit, I think, and we call it PAGE_ALLOC_COSTLY_ORDER) has
-to fail at _some_ point, and the caller setting GFP_NOFAIL is just
-fantasy and "Daddy, I want a pony", and should be ignored.
+>
+> Don't make insane and incorrect changes to the MM code and spread
+> Fear, Uncertainty and Doubt.
+>
+> > thus it wouldn=E2=80=99t necessarily result in an immediate oops in cal=
+lers but
+> > result in an exploit
+>
+> No. Any bug can be an exploit. Don't try to make this something
+> special by calling it an exploit.
+>
+> NULL pointer dereferences are some of the *least* worrisome bugs,
+> because we don't allow people to mmap the NULL area anyway.
+>
+> So just stop spreading FUD. We don't improve the kernel by making
+> excuses for bugs, we improve it by fixing things.
+>
+> And any caller that asks for NOFAIL with bad parameters is buggy. The
+> MM code should NOT try to fix it up, and dammit, BUG_ON() is not
+> acceptable as a debugging help. Never was, never will be.
 
-With a WARN_ON_ONCE(), by all means, so that people can see who the
-fantasist is.
+Okay, I see your point. However, the discussion originally began with just
+a simple WARN_ON() to flag improper usage:
+https://lore.kernel.org/linux-mm/20240717230025.77361-1-21cnbao@gmail.com/
 
-            Linus
+Now, it seems we've come full circle and are opting to use
+WARN_ON_ONCE() instead?
+
+>
+> Worry-warts already do "reboot-on-warn".
+>
+>             Linus
+
+Thanks
+Barry
