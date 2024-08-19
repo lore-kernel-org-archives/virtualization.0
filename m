@@ -1,193 +1,121 @@
-Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D694317C8D
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 02:12:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3ACE12C52E
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 07:50:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724033559; cv=none; b=IesTfEXiFafY4Jz/h6iNTFJ1Ab+d40E7Z0urpXy8mDIsVKxBdDYQsw6G3w3+Ps/fhIprWQwH+nOXO226lLlnMvxHMAlHYLWOJ8OBbTRXuKyzJNa0xf2chqOVF52BTqkdCtLOTb3Dy/u+7S6DGKXScN7qBWQw5KomA7O5lHlypCM=
+	t=1724053810; cv=none; b=X+4wxfCzVr55wphfgi1qpaf28A6nPCxhJHjLwy22vup2qrFFtZ+MSN75WgSa+orzfAHa5EEMS0ZjT0IhNNxnOKn+dRqgy8UIRvzOohz5zCSAr2+MDQEkn/tX2IZvOzLv10vfXvbW5FIF/gaU7IGO8fRcacmB7IpFUGoZzEEtqEY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724033559; c=relaxed/simple;
-	bh=8V1EnnrP+rP0hoAVl91Egvi86Hqq6YQ4nuv5SU2Rl4s=;
+	s=arc-20240116; t=1724053810; c=relaxed/simple;
+	bh=5OYto3pUsrkQDQI8NkwAsb/yCvYe4wBNfZByh/JmYI4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=k05bgowS6WgdOM1oeG5rKeQUdHnqRKrWReDOOYn9yVXtonGFwps1/fwXMyX/W/zCQQHlWA1TGgv3dFOZBw+owxOQaWIcLxOSV6KAqvDntJlh0yu4jNnMxoxzqrcgaoqkwNCLs1jDql6BhXPETX2pg3CXtLAN/Evtmg2iBDWXFS8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=groves.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WKsDqqnT; arc=none smtp.client-ip=209.85.161.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=groves.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jqdpg0nLpfO4T2+GaP49RweAZyLPm3lk4aq1fZaYtFxbBi93pKCZ63opKgTrv51vdvsyoxcRkYcISBDlTolCT7z/ginzAtBFhcdDp2czqyFtVW4QCC9TVAL69gLw+N7TUUCt5aS3xheK0xaw+pXolS/R+95t3hXsCs1+ADXlWak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=PvGoBinT; arc=none smtp.client-ip=209.85.208.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WKsDqqnT"
-Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-5d5eec95a74so2474651eaf.1
-        for <virtualization@lists.linux.dev>; Sun, 18 Aug 2024 19:12:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="PvGoBinT"
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-5bf068aebe5so24577a12.0
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 00:50:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724033557; x=1724638357; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kuLzrxHtd3ErSvy/xkwzVOEiflzs3mXlwCUfMyo1XlY=;
-        b=WKsDqqnTMFtLp2YVel4TUEqSSKvL2HJSv+PyRF1Io2CpEMqEkK74Evem4CwcyCme7L
-         6UP6wqKYEzlHIshHozSzyTxO0Cz+Ma5SOpkylrQtRYB/VuEWCspf+QRE7jrZ/1fLFm+E
-         2HqSKTB1cvTgaX2EhMNIP77NtWOOv2XueRs4J0duv/JRo6nURhpYvBOFLA2xmSGOghhX
-         2p02bxiHoTzj07hkejNEqSJtHB0fqC+86LETKK2pY7bRkkTHWBersSbOdUcxrAk+0Eml
-         BnW1/2yQh/soRt6LJdLiGA29LkhT/lOM1f2yFpltl8eltVmsNmWQnvddxJV9jL+Mkp0h
-         XvLw==
+        d=suse.com; s=google; t=1724053806; x=1724658606; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=TZy1R/aGokLe46oAtBLjuw7d3h1Spy9qlLcDxS6nr+M=;
+        b=PvGoBinT3X/a+E7eW2ZiEjf1JENGKO9Ol5fgRkLhg+T4wIY//9wkSCx2OOBdbVev+u
+         N2WSHhIySDrsISMQkCoBHGCT5pMmHqUicrlVEwBmPjL0p6GN/BMVx3BFJ5WC94aVIrUh
+         g2OySswBOOs8zWLP+wp7Wie65fNgXnk4agQMYtnN6+40WdQaEhOi3kgKrCYKDVJyW9Oz
+         8tQUWTLOQS31ic2c9ndhbTE7QsjRlHXoLulTnehfV4gBX0qRMK6YF2s5KguKS5g9OVYE
+         KGU3L3rklLFZYdh/30GL8bMcE9QrmbKKpGczqpv15SAGO3J5RJBxVWxRYzSCQqbhWGZT
+         Jd3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724033557; x=1724638357;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kuLzrxHtd3ErSvy/xkwzVOEiflzs3mXlwCUfMyo1XlY=;
-        b=fEzRqZHmuT8Up5bmozXfJHiHhkIZneGNXwa0Clq6XCcLLojvPpoLdLd8Dqc+pRPNbX
-         kOvqjTikce3wIzWdeKR9PsmiSXX8sRHtoTFnmdeIwZPKBHKQ1Wv0EwuRNsQx26siLbK3
-         QfZZ+/VEEwuQ1KCiGAHiwq5bwUKK69FQWgojb+tgWKLZzImjpVn+O8iZtvhypKhah2JA
-         YNJByVVX9yihmPmlB3vZ8gvJ1KJ20ZQBkZ3dp2IRHjzlfc7D9ZHLW0tDPKq78fFE9Nv6
-         4gmmtSjVFjyFpslLcHWhxulrjnsAxshtlhS0Rtq7wtAlFCFdgBRDnR6/cvTnszW8yYpr
-         Ortw==
-X-Forwarded-Encrypted: i=1; AJvYcCXgHu//8FeYSeYo1BS0p09q98d5sIU1NqA/HdnHuiRq5f5zay/E0rblYuNN73mBL4CHwn5RC64ilsTGo69pPQ6JUMBXKYivaABedYWzYgY=
-X-Gm-Message-State: AOJu0YzYPmJ6iXz4SrKIuSMpBm3eKgxSg23pQ3OoG/BxtdAdJ1/JssyE
-	r1GZKE5yoGU3n40g0An/ceBeJUTtT+N+qsQcM0CKTj+XlA9929t/
-X-Google-Smtp-Source: AGHT+IGPFkOOeEpckRDFCUVwQIGGQr/JsPZgxRaMEz2IAoGo+sQFEwWCNUAzmF3eAuk+/dJ8qwreqw==
-X-Received: by 2002:a05:6820:1624:b0:5da:a2fd:5af9 with SMTP id 006d021491bc7-5daa2fd7235mr7883905eaf.8.1724033556730;
-        Sun, 18 Aug 2024 19:12:36 -0700 (PDT)
-Received: from Borg-110.local (syn-070-114-203-196.res.spectrum.com. [70.114.203.196])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-5da8cf83db6sm1928759eaf.33.2024.08.18.19.12.35
+        d=1e100.net; s=20230601; t=1724053806; x=1724658606;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TZy1R/aGokLe46oAtBLjuw7d3h1Spy9qlLcDxS6nr+M=;
+        b=Toz0apTwL39p1yHMQ1GEytnkU44vQmquymu2tC+Aj1WElFwpeKFTCTX+UODCiHEj5O
+         qOnNn4or+MiDaxNFwscSRKVev8UW1ixKOl822JOa/0NMc2b4T1AyGNoHRy7NUsmZJFoJ
+         Yw7b2m5HjNs4PGzQeymwztlS6XnncZTZdORh7VuQFcZKstb6LPSf0W/l6aJwEDnRqZXz
+         NHimxtgIuoS1o4SiTHYRzTe+8aFiwGMTJ1PJNJibnmJVEKK6lAmTdR6VJwTm+uxTwhVh
+         BB12VZXLjBtBACHXnLa8WyYGp50MZ4FWknlt+6L+xthF3uV+dv1JDH1ee1h2bgomaCyG
+         clqw==
+X-Forwarded-Encrypted: i=1; AJvYcCX8OZ5QN1uACFnDxBS15sl7Q67K0KLuP0d00HX0zNfCuoyGWZLO4SHmELFVbMtGKpa8ejFgHndVPgN4xeoHX+0XDHfvqIQ2wk+CARIpSao=
+X-Gm-Message-State: AOJu0YyChtVEEtYQNIfaJi1mWXlcQZSVNEgWeYMJOOZFCr3cs6Z8x7+Y
+	t7Ch2v1A6w1jWe27bF1SgouBN396h+JkpPOsjxcptQOHde80lYlPxvlZMr9iOR0=
+X-Google-Smtp-Source: AGHT+IG7tile/06Xpownlqx6q8Tlrt9mUJtZaMBoQ5z0zzagdeFkMFHBefIzXhIlqDXtAF7x4PLKjg==
+X-Received: by 2002:a17:907:94d4:b0:a77:bfca:da57 with SMTP id a640c23a62f3a-a8392a1149bmr663686766b.44.1724053805986;
+        Mon, 19 Aug 2024 00:50:05 -0700 (PDT)
+Received: from localhost (109-81-83-72.rct.o2.cz. [109.81.83.72])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83839471e1sm599610666b.152.2024.08.19.00.50.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Aug 2024 19:12:36 -0700 (PDT)
-Sender: John Groves <grovesaustin@gmail.com>
-Date: Sun, 18 Aug 2024 21:12:34 -0500
-From: John Groves <John@groves.net>
-To: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-mm@kvack.org, 
-	linux-cxl@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, 
-	Ira Weiny <ira.weiny@intel.com>, virtualization@lists.linux.dev, 
-	Oscar Salvador <osalvador@suse.de>, qemu-devel@nongnu.org, Dave Jiang <dave.jiang@intel.com>, 
-	Dan Williams <dan.j.williams@intel.com>, linuxarm@huawei.com, wangkefeng.wang@huawei.com, 
-	John Groves <jgroves@micron.com>, Fan   Ni <fan.ni@samsung.com>, 
-	Navneet   Singh <navneet.singh@intel.com>, =?utf-8?B?4oCcTWljaGFlbCBTLiBUc2lya2lu4oCd?= <mst@redhat.com>, 
-	Igor Mammedov <imammedo@redhat.com>, Philippe =?utf-8?Q?Mathieu-Daud=C3=A9?= <philmd@linaro.org>
-Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
- specific, multi host shared)
-Message-ID: <sjz2xzwkgkq6bun5lssqbsimbggczarotpjdhcsq3itoq5h7jc@x5ormqciwofo>
-References: <20240815172223.00001ca7@Huawei.com>
+        Mon, 19 Aug 2024 00:50:05 -0700 (PDT)
+Date: Mon, 19 Aug 2024 09:50:05 +0200
+From: Michal Hocko <mhocko@suse.com>
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
+	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com,
+	hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com,
+	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
+	torvalds@linux-foundation.org, urezki@gmail.com,
+	v-songbaohua@oppo.com, vbabka@suse.cz,
+	virtualization@lists.linux.dev,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Kees Cook <kees@kernel.org>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Maxime Coquelin <maxime.coquelin@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v3 4/4] mm: prohibit NULL deference exposed for
+ unsupported non-blockable __GFP_NOFAIL
+Message-ID: <ZsL5LSK8R3B1HsR1@tiehlicka>
+References: <20240817062449.21164-1-21cnbao@gmail.com>
+ <20240817062449.21164-5-21cnbao@gmail.com>
+ <CALOAHbD-npQmchiRJpGvOBVOM-Li6oRyMnKAjgiHq3DasiXMUQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240815172223.00001ca7@Huawei.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CALOAHbD-npQmchiRJpGvOBVOM-Li6oRyMnKAjgiHq3DasiXMUQ@mail.gmail.com>
 
-On 24/08/15 05:22PM, Jonathan Cameron wrote:
-> Introduction
-> ============
+On Sun 18-08-24 10:55:09, Yafang Shao wrote:
+> On Sat, Aug 17, 2024 at 2:25 PM Barry Song <21cnbao@gmail.com> wrote:
+> >
+> > From: Barry Song <v-songbaohua@oppo.com>
+> >
+> > When users allocate memory with the __GFP_NOFAIL flag, they might
+> > incorrectly use it alongside GFP_ATOMIC, GFP_NOWAIT, etc.  This kind of
+> > non-blockable __GFP_NOFAIL is not supported and is pointless.  If we
+> > attempt and still fail to allocate memory for these users, we have two
+> > choices:
+> >
+> >     1. We could busy-loop and hope that some other direct reclamation or
+> >     kswapd rescues the current process. However, this is unreliable
+> >     and could ultimately lead to hard or soft lockups,
 > 
-> If we think application specific memory (including inter-host shared memory) is
-> a thing, it will also be a thing people want to use with virtual machines,
-> potentially nested. So how do we present it at the Host to VM boundary?
-> 
-> This RFC is perhaps premature given we haven't yet merged upstream support for
-> the bare metal case. However I'd like to get the discussion going given we've
-> touched briefly on this in a number of CXL sync calls and it is clear no one is
+> That can occur even if we set both __GFP_NOFAIL and
+> __GFP_DIRECT_RECLAIM, right?
 
-Excellent write-up, thanks Jonathan.
+No, it cannot! With __GFP_DIRECT_RECLAIM the allocator might take a long
+time to satisfy the allocation but it will reclaim to get the memory, it
+will sleep if necessary and it will will trigger OOM killer if there is
+no other option. __GFP_DIRECT_RECLAIM is a completely different story
+than without it which means _no_sleeping_ is allowed and therefore only
+a busy loop waiting for the allocation to proceed is allowed.
 
-Hannes' idea of an in-person discussion at LPC is a great idea - count me in.
+> So, I don't believe the issue is related
+> to setting __GFP_DIRECT_RECLAIM; rather, it stems from the flawed
+> design of __GFP_NOFAIL itself.
 
-As the proprietor of famfs [1] I have many thoughts.
-
-First, I like the concept of application-specific memory (ASM), but I wonder
-if there might be a better term for it. ASM suggests that there is one
-application, but I'd suggest that a more concise statement of the concept
-is that the Linux kernel never accesses or mutates the memory - even though
-multiple apps might share it (e.g. via famfs). It's a subtle point, but
-an important one for RAS etc. ASM might better be called non-kernel-managed
-memory - though that name does not have as good a ring to it. Will mull this
-over further...
-
-Now a few level-setting comments on CXL and Dynamic Capacity Devices (DCDs),
-some of which will be obvious to many of you:
-
-* A DCD is just a memory device with an allocator and host-level
-  access-control built in.
-* Usable memory from a DCD is not available until the fabric manger (likely
-  on behalf of an orchestrator) performs an Initiate Dynamic Capacity Add
-  command to the DCD.
-* A DCD allocation has a tag (uuid) which is the invariant way of identifying
-  the memory from that allocation.
-* The tag becomes known to the host from the DCD extents provided via
-  a CXL event following succesful allocation.
-* The memory associated with a tagged allocation will surface as a dax device
-  on each host that has access to it. But of course dax device naming &
-  numbering won't be consistent across separate hosts - so we need to use
-  the uuid's to find specific memory.
-
-A few less foundational observations:
-
-* It does not make sense to "online" shared or sharable memory as system-ram,
-  because system-ram gets zeroed, which blows up use cases for sharable memory.
-  So the default for sharable memory must be devdax mode.
-* Tags are mandatory for sharable allocations, and allowed but optional for
-  non-sharable allocations. The implication is that non-sharable allocations
-  may get onlined automatically as system-ram, so we don't need a namespace
-  for those. (I argued for mandatory tags on all allocations - hey you don't
-  have to use them - but encountered objections and dropped it.)
-* CXL access control only goes to host root ports; CXL has no concept of
-  giving access to a VM. So some component on a host (perhaps logically
-  an orchestrator component) needs to plumb memory to VMs as appropriate.
-
-So tags are a namespace to find specific memory "allocations" (which in the
-CXL consortium, we usually refer to as "tagged capacity").
-
-In an orchestrated environment, the orchestrator would allocate resources
-(including tagged memory capacity), make that capacity visible on the right
-host(s), and then provide the tag when starting the app if needed.
-
-if (e.g.) the memory cotains a famfs file system, famfs needs the uuid of the
-root memory allocation to find the right memory device. Once mounted, it's a
-file sytem so apps can be directed to the mount path. Apps that consume the
-dax devices directly also need the uuid because /dev/dax0.0 is not invariant
-across a cluster...
-
-I have been assuming that when the CXL stack discovers a new DCD allocation,
-it will configure the devdax device and provide some way to find it by tag.
-/sys/cxl/<tag>/dev or whatever. That works as far as it goes, but I'm coming
-around to thinking that the uuid-to-dax map should not be overtly CXL-specific.
-
-General thoughts regarding VMs and qemu
-
-Physical connections to CXL memory are handled by physical servers. I don't
-think there is a scenario in which a VM should interact directly with the
-pcie function(s) of CXL devices. They will be configured as dax devices
-(findable by their tags!) by the host OS, and should be provided to VMs
-(when appropriate) as DAX devices. And software in a VM needs to be able to
-find the right DAX device the same way it would running on bare metal - by
-the tag.
-
-Qemu can already get memory from files (-object memory-backend-file,...), and
-I believe this works whether it's an actual file or a devdax device. So far,
-so good.
-
-Qemu can back a virtual pmem device by one of these, but currently (AFAIK)
-not a virtual devdax device. I think virtual devdax is needed as a first-class
-abstraction. If we can add the tag as a property of the memory-backend-file,
-we're almost there - we just need away to lookup a daxdev by tag.
-
-Summary thoughts:
-
-* A mechanism for resolving tags to "tagged capacity" devdax devices is
-  essential (and I don't think there are specific proposals about this
-  mechanism so far).
-* Said mechanism should not be explicitly CXL-specific.
-* Finding a tagged capacity devdax device in a VM should work the same as it
-  does running on bare metal.
-* The file-backed (and devdax-backed) devdax abstraction is needed in qemu.
-* Beyond that, I'm not yet sure what the lookup mechanism should be. Extra
-  points for being easy to implement in both physical and virtual systems.
-
-Thanks for teeing this up!
-John
-
-
-[1] https://github.com/cxl-micron-reskit/famfs/blob/master/README.md
-
+Care to elaborate?
+-- 
+Michal Hocko
+SUSE Labs
