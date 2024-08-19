@@ -1,55 +1,55 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 849A8166F01
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 11:56:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB531166F39
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 11:57:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724068615; cv=none; b=lKcCVwXtaa1FEScRAryreHOCTznrLZCUOWkLh4bDrSJeVrEUUbjAQb7+25ug8TSdVZKvep9mo/zbhNXXKvl5f3wc4v41Xgk8xhUTXZmuI0JoUbeu6/clAVieyvwTQrURAZg1CPywhpVNoyoZDseuLVNWGUpUqmUiTL/Cpqv1noc=
+	t=1724068653; cv=none; b=JvYHBpLuFqvuT1DFJvydC/IqIq1CsOvk1oJsyzS4Oi+2mUdfFOY9KOPHMojhopGaU4rkMzbQAIuOXm9ACU0v0gu5Zja8I2s0b0c3El6yCPuB07BoG2WB8Rx/ETQMsFRtJnHCa2i2jIddfuyLPBXbX1lHo8ubxXukXwIGJV6H0Po=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724068615; c=relaxed/simple;
-	bh=Ig/O0otqXgRdpSg2279mMYtAOUAMSGPYrbPtnA9Px8A=;
+	s=arc-20240116; t=1724068653; c=relaxed/simple;
+	bh=jmvXWWgUwiUEVQ92lccr9gSSUyO4blOb2kEr4+Bp58I=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tu6pFT1jGGzOCuLUqtTK8yYZ3FFUZ6MfBcTGJesEXRzwLFIz9Dud/V97jG/RXDUEcTE0RhbLS0Ms/GkkHFV16tM5x2sT3ZrthJNqJgJO6mWHq/LkV66WsiSUJbvporX7Wrj0CMa/uD0/g/YLNxO/nE+Eh9K2volqMOxLm5U6wCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=epFp/k+k; arc=none smtp.client-ip=209.85.128.174
+	 To:Cc:Content-Type; b=ahIQxR4save8tWZcTNqjqypjUkW8VX6VGxz4v2+sgmn0sQIlnAGngxSNPY8awM2OhIux3FrP9dObQg+UddKtpq44pHlEbxaTGrA1p3+dE3HvDtCLI2qoDvB7yRgA8WROPbjenZmugt2g1cWbqLjtCH5S0FXfVj/ycqst70wk5lc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VGBvpj1A; arc=none smtp.client-ip=209.85.219.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="epFp/k+k"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-6b47ff8a595so20099387b3.0
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 04:56:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VGBvpj1A"
+Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e0875f1e9edso4139576276.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 04:57:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724068612; x=1724673412; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1724068650; x=1724673450; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Zax0iS3R88IPyCYGGTmSynWmp0TtBpfhEgytoqyCcIU=;
-        b=epFp/k+k8VVnVQXKtIK7ReSHTuSfApj1453Tt95ZfSvz2jMZkKBPNLvMq+iCidU2Rw
-         XZhLvULA3mFQi/Z37fX3L1YCf/9l56H0qI90v3/J9mB3T680lJtR90xkDF+Dmsg3CtgJ
-         ekGw/Ou3u+iOtrCnHNf2Qp3snm7Tba5l9yB/eNfIN0PWgPAyd+WtoqlKY5aZ4t+JThvD
-         CVUGTUMo9pdjJcmQEFlOXkohkiTq50ZkgxXfJRILZkwxwINR6m+wLJG9WLF4zFKJa+GN
-         cgt7+b2tX+LeRR9uRjcvIE+7vbExuA1uiMzi3uYXnBIh1TuN5xdIXn/F5ZMhNrKOFAOT
-         8hjQ==
+        bh=GXfL86t3Z+jcKcbaIzRv07HiHvdjxdQowzTrEPH4qKA=;
+        b=VGBvpj1ALWTjMnLF1z4XActSTvaiMZx4Z4yN7K2sm1lDMPP8yEcLmrrerpuiCbnyr8
+         CpRQZDpvLNFFu8oakdMicUpWW2CkTQU7pT7eQ0ysy9503kVYzgsgbWfWdXJeRPKq5sVO
+         RdwX4t3HpTgXDR3MsHXJgzrxOrRH6yuNxpMjp6LDvkCiIsxeq4uGdp+N9h2XOCe74TXp
+         BMrAHTlG9Fh/kzRM6B3nh2eIchLlcz1ZoKj9LJ1AyyEsn+2k3pkdsjMNRwJ64N4Crjjg
+         oTmsGbEM7kqtuMDWj+pnS0lWlnicggJzDPH3uKOf8Sm9AZdDwFUaH9MrbdW8MPXY8uAh
+         JCQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724068612; x=1724673412;
+        d=1e100.net; s=20230601; t=1724068650; x=1724673450;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Zax0iS3R88IPyCYGGTmSynWmp0TtBpfhEgytoqyCcIU=;
-        b=pvg4jZ7dB0mFhz2R3Ge2neunS8AiNokQdy0rw+/zGa0gGDAwu0ALsQ10Xy57Udm4UL
-         3fSY10bGOu1QqnzbZS6ZwJd984BrXEIrK6hvUBiLV2u6sfglgFLyRto6J0iXQLytsU1T
-         zfUlBV9eDS5ll8z8c5EELjRq7ITNQT1UZdr+oRLl6/dsNCwMp/+hJj9snXMKBrpo/8gy
-         mkKBOM7CO0Pl/MfEZoUisCTng+ZNxtZZQ4j0YL8ErjKdw0Oic/ZD0YSWSoVZ3SIuwbfw
-         q+UBPmTf+UnfoZ1pEeIKl4al4eeFClRRDJKPotgw8q4M7hoc7Z5cRPSTZ6Z1AHkajvDa
-         euiA==
-X-Forwarded-Encrypted: i=1; AJvYcCUkfmCZjBkJdtvxpL0RO+Ia8fUHlxvNyjNuuq5BzZZoGyx44OYcjn+xUMCcuilQEuFdj430PRCyXbvZikbg3yX/mIKl4UWGfGoHOisLHoo=
-X-Gm-Message-State: AOJu0Yx9pyVA7a84SYEW9N0So7rJf+BqR2dciAi+7L9DchnGgsml1tpo
-	SOiCSP5dFyr2y8duWJ9pRZzsMAN97jHirYB5xVsx1LlvBZxdTnaq95Z0Gu1ajMbb0eNHQ0YWaxc
-	6AL95Js9vGaZXH+l7TXaUn7GMBV4=
-X-Google-Smtp-Source: AGHT+IGY4+ahEENd4tqGGPEWZMtu0Zp7oltkm2wZf64KEdMR+q8B0+xoZWEsOdh01kCr1nnH4wQe9Wjx4OYI52pqXqo=
-X-Received: by 2002:a05:690c:6e07:b0:699:7b60:d349 with SMTP id
- 00721157ae682-6b1b823ef82mr119570727b3.11.1724068612484; Mon, 19 Aug 2024
- 04:56:52 -0700 (PDT)
+        bh=GXfL86t3Z+jcKcbaIzRv07HiHvdjxdQowzTrEPH4qKA=;
+        b=Y738ySQhfPL2gGR3YVj0VKctk+3rlO7GdfRIy1QMQytthcllNwn2ZULVZR9ns/lcDR
+         7QBwTw4X5SpqLK6UxQfWLEOcMsPBmS7R6Hr9i4fS/BmZKk5rLKEpysNzwgYsNEmMFtsZ
+         niOxJVvps6EcPwtGStRr673A2kGEBw5kf7L9HGb3TGcMiI+0lyRdEbQOnhBqc5hhjM28
+         PvW7ymi5mmdhqhUeaY+XbV/GcW2l8eEKVlFNaOS8QHS8PWrJf8ySuUw9gOelfhb+bjvP
+         pGSzosctD81luRzaS1pyqJ73sghj68AUokJ/Pu0WMyqSJ6toTGEuzi11zHvnlmEbACAt
+         T9Hw==
+X-Forwarded-Encrypted: i=1; AJvYcCW0uEBMOdh+tncc5/YSqxRhcE7wvnI7d1uXqnrgHeB9d3aHlpTbfNXs1sYUi7Kf4n2Wa/RWIElgqf5MSZryyuPULSrBXCoh0TLiYa9Ex04=
+X-Gm-Message-State: AOJu0YwP20vzVRQMG3J0mI2pSvdsKLInU+peCsNAKUOFK+Gpb418MgSn
+	OWyHT3yXmZvrLrSndl59Z3P1vsjQ/O/gAFEz1205ZZtpmeRcw5vuuqxc4w0aLxbyZjPpDS0N77/
+	M6p6aVgF1XzM96q2OMjXhJI3nxF8=
+X-Google-Smtp-Source: AGHT+IE8YG5pmyFM3Gt3hUzOIz0+yzyv7VRZmBp1lKn/TW1F90p6br2E0LiamSC9AepikX1hz6cwIjxvmy9llhLFOho=
+X-Received: by 2002:a05:6902:1248:b0:e0e:cd17:610a with SMTP id
+ 3f1490d57ef6-e1180e6b2b6mr13912288276.6.1724068649755; Mon, 19 Aug 2024
+ 04:57:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -59,15 +59,16 @@ MIME-Version: 1.0
 References: <20240817062449.21164-1-21cnbao@gmail.com> <20240817062449.21164-5-21cnbao@gmail.com>
  <CALOAHbD-npQmchiRJpGvOBVOM-Li6oRyMnKAjgiHq3DasiXMUQ@mail.gmail.com>
  <ZsL5LSK8R3B1HsR1@tiehlicka> <CALOAHbBtB40Qth3k2yXM7riPaf3nxP0p4W-Ur=h2UK0BvPg4QA@mail.gmail.com>
- <ZsMb1uU2tp6ULHtG@tiehlicka>
-In-Reply-To: <ZsMb1uU2tp6ULHtG@tiehlicka>
+ <CAGsJ_4yS=8kXruzVxzx+u+nyXG-5OfdjxSZeq_WzyOGfpu5btw@mail.gmail.com>
+ <CALOAHbDKwmtRcowx=V9Qfk2AF5=gg6_kTZC=jfPcB7=fmd65LQ@mail.gmail.com> <CAGsJ_4yyYaPSG+aRQdFqh+Yk-gN4Ah=d7FxmUVdSU5H3Aeo7pw@mail.gmail.com>
+In-Reply-To: <CAGsJ_4yyYaPSG+aRQdFqh+Yk-gN4Ah=d7FxmUVdSU5H3Aeo7pw@mail.gmail.com>
 From: Yafang Shao <laoar.shao@gmail.com>
-Date: Mon, 19 Aug 2024 19:56:16 +0800
-Message-ID: <CALOAHbD9SPvnmKfL2L_RmGiey=LeuFxRa=AzWG4fK=ZcT3tZng@mail.gmail.com>
+Date: Mon, 19 Aug 2024 19:56:53 +0800
+Message-ID: <CALOAHbCG=_W9rrf+hgkFYF6+1LZuEeEjpyiexu9iseGOaDJ+QA@mail.gmail.com>
 Subject: Re: [PATCH v3 4/4] mm: prohibit NULL deference exposed for
  unsupported non-blockable __GFP_NOFAIL
-To: Michal Hocko <mhocko@suse.com>
-Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+To: Barry Song <21cnbao@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
 	42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, 
 	iamjoonsoo.kim@lge.com, penberg@kernel.org, rientjes@google.com, 
 	roman.gushchin@linux.dev, torvalds@linux-foundation.org, urezki@gmail.com, 
@@ -79,85 +80,88 @@ Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org, linux-mm@kvack.or
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 19, 2024 at 6:18=E2=80=AFPM Michal Hocko <mhocko@suse.com> wrot=
+On Mon, Aug 19, 2024 at 6:10=E2=80=AFPM Barry Song <21cnbao@gmail.com> wrot=
 e:
 >
-> On Mon 19-08-24 17:25:18, Yafang Shao wrote:
-> > On Mon, Aug 19, 2024 at 3:50=E2=80=AFPM Michal Hocko <mhocko@suse.com> =
+> On Mon, Aug 19, 2024 at 9:46=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com=
+> wrote:
+> >
+> > On Mon, Aug 19, 2024 at 5:39=E2=80=AFPM Barry Song <21cnbao@gmail.com> =
 wrote:
 > > >
-> > > On Sun 18-08-24 10:55:09, Yafang Shao wrote:
-> > > > On Sat, Aug 17, 2024 at 2:25=E2=80=AFPM Barry Song <21cnbao@gmail.c=
+> > > On Mon, Aug 19, 2024 at 9:25=E2=80=AFPM Yafang Shao <laoar.shao@gmail=
+.com> wrote:
+> > > >
+> > > > On Mon, Aug 19, 2024 at 3:50=E2=80=AFPM Michal Hocko <mhocko@suse.c=
 om> wrote:
 > > > > >
-> > > > > From: Barry Song <v-songbaohua@oppo.com>
+> > > > > On Sun 18-08-24 10:55:09, Yafang Shao wrote:
+> > > > > > On Sat, Aug 17, 2024 at 2:25=E2=80=AFPM Barry Song <21cnbao@gma=
+il.com> wrote:
+> > > > > > >
+> > > > > > > From: Barry Song <v-songbaohua@oppo.com>
+> > > > > > >
+> > > > > > > When users allocate memory with the __GFP_NOFAIL flag, they m=
+ight
+> > > > > > > incorrectly use it alongside GFP_ATOMIC, GFP_NOWAIT, etc.  Th=
+is kind of
+> > > > > > > non-blockable __GFP_NOFAIL is not supported and is pointless.=
+  If we
+> > > > > > > attempt and still fail to allocate memory for these users, we=
+ have two
+> > > > > > > choices:
+> > > > > > >
+> > > > > > >     1. We could busy-loop and hope that some other direct rec=
+lamation or
+> > > > > > >     kswapd rescues the current process. However, this is unre=
+liable
+> > > > > > >     and could ultimately lead to hard or soft lockups,
+> > > > > >
+> > > > > > That can occur even if we set both __GFP_NOFAIL and
+> > > > > > __GFP_DIRECT_RECLAIM, right?
 > > > > >
-> > > > > When users allocate memory with the __GFP_NOFAIL flag, they might
-> > > > > incorrectly use it alongside GFP_ATOMIC, GFP_NOWAIT, etc.  This k=
-ind of
-> > > > > non-blockable __GFP_NOFAIL is not supported and is pointless.  If=
- we
-> > > > > attempt and still fail to allocate memory for these users, we hav=
-e two
-> > > > > choices:
-> > > > >
-> > > > >     1. We could busy-loop and hope that some other direct reclama=
-tion or
-> > > > >     kswapd rescues the current process. However, this is unreliab=
-le
-> > > > >     and could ultimately lead to hard or soft lockups,
+> > > > > No, it cannot! With __GFP_DIRECT_RECLAIM the allocator might take=
+ a long
+> > > > > time to satisfy the allocation but it will reclaim to get the mem=
+ory, it
+> > > > > will sleep if necessary and it will will trigger OOM killer if th=
+ere is
+> > > > > no other option. __GFP_DIRECT_RECLAIM is a completely different s=
+tory
+> > > > > than without it which means _no_sleeping_ is allowed and therefor=
+e only
+> > > > > a busy loop waiting for the allocation to proceed is allowed.
 > > > >
-> > > > That can occur even if we set both __GFP_NOFAIL and
-> > > > __GFP_DIRECT_RECLAIM, right?
+> > > > That could be a livelock.
+> > > > From the user's perspective, there's no noticeable difference betwe=
+en
+> > > > a livelock, soft lockup, or hard lockup.
 > > >
-> > > No, it cannot! With __GFP_DIRECT_RECLAIM the allocator might take a l=
-ong
-> > > time to satisfy the allocation but it will reclaim to get the memory,=
- it
-> > > will sleep if necessary and it will will trigger OOM killer if there =
-is
-> > > no other option. __GFP_DIRECT_RECLAIM is a completely different story
-> > > than without it which means _no_sleeping_ is allowed and therefore on=
-ly
-> > > a busy loop waiting for the allocation to proceed is allowed.
+> > > This is certainly different. A lockup occurs when tasks can't be sche=
+duled,
+> > > causing the entire system to stop functioning.
 > >
-> > That could be a livelock.
-> > >From the user's perspective, there's no noticeable difference between
-> > a livelock, soft lockup, or hard lockup.
->
-> Ohh, it very much is different if somebody in a sleepable context is
-> taking too long to complete and making a CPU completely unusable for
-> anything else.
-
-__alloc_pages_slowpath
-retry:
-    if (gfp_mask & __GFP_NOFAIL) {
-        goto retry;
-    }
-
-When the loop continues indefinitely here, it indicates that the
-system is unstable. In such a scenario, does it really matter whether
-you sleep or not?
-
->
-> Please consider that asking for never failing allocation is a major
-> requirement.
->
-> > > > So, I don't believe the issue is related
-> > > > to setting __GFP_DIRECT_RECLAIM; rather, it stems from the flawed
-> > > > design of __GFP_NOFAIL itself.
-> > >
-> > > Care to elaborate?
+> > When a livelock occurs, your only options are to migrate your
+> > applications to other servers or reboot the system=E2=80=94there=E2=80=
+=99s no other
+> > resolution (except for using oomd, which is difficult for users
+> > without cgroup2 or swap).
 > >
-> > I've read the documentation explaining why the busy loop is embedded
-> > within the page allocation process instead of letting users implement
-> > it based on their needs. However, the complexity and numerous issues
-> > suggest that this design might be fundamentally flawed.
+> > So, there's effectively no difference.
 >
-> I really fail what you mean.
+> Could you express your options more clearly? I am guessing two
+> possibilities?
+> 1. entirely drop __GFP_NOFAIL and require all users who are
+> using __GFP_NOFAIL to add error handlers instead?
 
-I mean giving the user the option to handle the loop at the call site,
-rather than having it loop within __alloc_pages_slowpath().
+When the system is unstable=E2=80=94such as after reaching the maximum retr=
+ies
+without successfully allocating pages=E2=80=94simply failing the operation
+might be the better option.
+
+>
+> 2. no matter if it is an unsupported case, such as, GFP_ATOMIC|
+> __GFP_NOFAIL, we always loop till a soft or hard lockup?
 
 --
 Regards
