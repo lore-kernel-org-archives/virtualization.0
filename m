@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA21C125
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 09:43:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A00615D5CA
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 09:44:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724060640; cv=none; b=XUa3e/tKgfWYNrsODdPmpZxzCJGM6jKZeQseE4JsxdfVydro8uzBzH4mLWKGxQAJVOkzca0zzXRwbMD+8XowS9972lE2qNN96St9MaNXS5XmC0wai0ICXr3ZUYqXkWECijruaBtZkY2FMDABOdnLH4YKaeKkHS/eNVSGQteyKd4=
+	t=1724060689; cv=none; b=sAwLoJIpewNvSXzqzgLYM1bz23kqvHSVnb4dicpgyahm2jIVj+GZc2wuusDYCTCgIndgxgWq+Bho/BhDDoflaIgucKpBI3fFjGEej22eycg/9oWGoia0pecYbQR9rkRgNOe4zxPVauicJfVGEGLQqoGAk+ViMA60qPNaqTdygPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724060640; c=relaxed/simple;
-	bh=A+guGe7RrbXVcs2HePFVvhcYAmrpeFkxyr3ShZe/fb8=;
+	s=arc-20240116; t=1724060689; c=relaxed/simple;
+	bh=oFZo8VMWs1L2puSxYnHxymDvtmGw+HQlQEA7PUIHh34=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WpKH6kZIS7lgAXU/J7ymBIhBc23UQ9TzCd4cJNURClqDmTDlb8ouIgJ4CfM0QZ4E6OjSV+qk4qh4XaQ+eGMRA0UC/6S9GVSEQEGyBvW2IFbKp93vN7XEXqS/ycmM1BPU9Ajn5ecMT1A9yOhYm0fn5fjjVZgB5z/j9gQp5odbWsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f9gC0SF2; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=X99qKu3BSArYSLMdKsCj7r6aqWRiFCRyJ/heAqPY5QNTQtKu+5gDt23rNXyVr7HlpiUopMmuAyrvKol3QEAJ2pVtSJi9v23PuEJbIRGBG2TukFs93WvD/24TMy/ciJcHPme87W5x6shHfsQ1sjJkboEN7Ct+BRupY0avNiA9uW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dMvUx+s4; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f9gC0SF2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dMvUx+s4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724060637;
+	s=mimecast20190719; t=1724060687;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zZUlSqKu22pdPxNs2Zh0dj9/m0+Zox7XDPT4eW72Vws=;
-	b=f9gC0SF2kVBOyARVJEqbA9Ql+o+8eD221NoItA27fRXMVDrgXYx5cPMztjyTqnYXMaoShP
-	gvmLtj1ez16GU/8Ju645vSFWC1Q+NGErjGVBiZroXOlZDKme2fSsa/yTEXH/lvcLRztN0F
-	Ta8RNSLBibFITV7ebuhn1blQdcx9Dvk=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=X7b+bc2Fo4YhsnAnVepxHT46haDI0ngnxKTuXpjd31Y=;
+	b=dMvUx+s4FlAaXkFqZoaEMS5BBtpr3TLqVLD6Tt9Xz+UiO7UMf+wQs7l2r5F17qYexh7+Hq
+	PtnmbR+cqd1wB9feNk4pAS2zcw1PKPSLwof+JYPXpLPfSwjfhLI8IE7v0HFOLZ1oR244Mr
+	GaJWLYlzabP5BzpyZzuxAe9InhWPItQ=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-693-jPVPfTezObecbYou5-QVew-1; Mon, 19 Aug 2024 05:43:53 -0400
-X-MC-Unique: jPVPfTezObecbYou5-QVew-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-371ab0c02e0so1472561f8f.3
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 02:43:53 -0700 (PDT)
+ us-mta-212-tvkZKRi2N2Oqms5Z7o7Vww-1; Mon, 19 Aug 2024 05:44:44 -0400
+X-MC-Unique: tvkZKRi2N2Oqms5Z7o7Vww-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-52efce218feso4389428e87.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 02:44:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724060632; x=1724665432;
+        d=1e100.net; s=20230601; t=1724060682; x=1724665482;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=zZUlSqKu22pdPxNs2Zh0dj9/m0+Zox7XDPT4eW72Vws=;
-        b=NwBELYfV/dpYrxSm9v+YGkyPSqS3d9+VqxuvSyckE+zax1GYooozx+XIqKlIB3gUHM
-         Msf2Sd1xEaKvr6HeW/C+tFylCho5hI7rORhIyeeKw1NVvScfIu44vPq0320HOxMHJbav
-         ij992fNGbPMNJeflwsai/dwkGNVlA8pLUHbigUIjByLZB3ekotH6cOGDcPsAXzsGmcWT
-         UBROdDFhNjvkvf8ujB11CN8MldIDBmaU+parRcBv6UCvKhhPGp2q9FRQDj1LipGHd2eY
-         CSQskiZf5v/hNdihB4ZunGLyTr2qJRXlb0nrPiX98YjwDANyEdB4RsLn52CrqfQ4r2ky
-         1UiA==
-X-Forwarded-Encrypted: i=1; AJvYcCVX5jRpquhtnkG6ijFDhSNhgiRoBjAIA8OYbA5V/LRUxyJuK2a+PQjTO8zOr8ozVTesd3Xd6SvMVk7tsLaGnf5rF22BojZ/RLczlJ98XcA=
-X-Gm-Message-State: AOJu0Yx5dsgQxeu9TBPMeBZln/KzaLVyRVpt/+uwqZupNud6ZQfwhpiQ
-	tgF4aPwB/fIcOGkrDYaONLYn5fsYrljOtudNM71Sa1xiluoLFR1rn6aagzNpQBrDlscHG5+2kNU
-	AZRGh6xLvHmgM6scsakkzfiDOQCoha6Fx6xdpR4jbt718v/thvDNKSI63bBWBowBA
-X-Received: by 2002:adf:fa0c:0:b0:371:8283:94c1 with SMTP id ffacd0b85a97d-371942a0dbfmr9103978f8f.0.1724060632528;
-        Mon, 19 Aug 2024 02:43:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFd+jkvShCgw2C63k2Q1YBdJQPYMgV4Egg4N6s7M5zIJoGdwCLJE9E+RMc07H8J2dfbBTUF9Q==
-X-Received: by 2002:adf:fa0c:0:b0:371:8283:94c1 with SMTP id ffacd0b85a97d-371942a0dbfmr9103956f8f.0.1724060631934;
-        Mon, 19 Aug 2024 02:43:51 -0700 (PDT)
+        bh=X7b+bc2Fo4YhsnAnVepxHT46haDI0ngnxKTuXpjd31Y=;
+        b=PlIOfANgXuNdw4YCwpyGiifbI3m2Dkg71nQlzxAmpgtSjXsbU98IRb6EUP1nx7LCdb
+         ERgfdthTfmuIY4XT/5tQaJZ3eRx8ZCPBDmSalVLcTYAnIN/W2rTY89ZWaVaqH50isLkf
+         4wygREanM8I/t7wxhlPFVdfABywR45cQerdujRaSvKhhXuZTCFTU5TKGV6j9eeNwbD1N
+         +LszaazRR89We2s2z5CbDO7IxYUK73fkeZEF9X7IVr+fU+D92NBaOmV8BxNjE+ca6dGa
+         4z+jJ75pMTtDIDTg/7vhk8ZKhmVj5Y4OyeA/suOKtdA/QtDdX4Jl44RsR95e/qbzCajy
+         u2Eg==
+X-Forwarded-Encrypted: i=1; AJvYcCXM9TO8aL1FU6tZ21k2BCz6Irq+zxyBmV8zKmclp1P6X3U5JcNaIaBbLcmQOyzDOJhSzaeaWbj9apiGOf2BPmRvVBByGeo4pdT7FAAWPj0=
+X-Gm-Message-State: AOJu0YzW/k40othfC1ZV8hilTPVWpf7EEySqolsrVdmbnN9Hcz1nS1XT
+	yL4Nnf3cJzh6O4UJliYhZ9Pjshcz7O0Uf8dSxqm54Dul3PZWUqJS6Hk29g71qYhLUwf1ngfGYTR
+	gNmrEAV58VQzTDsjkUleBv7pllcTSHevRCQPpH6QT4crTMISnWEZUgg0abte45r/+
+X-Received: by 2002:a05:6512:3190:b0:52c:f2e0:db23 with SMTP id 2adb3069b0e04-5331c6e23dbmr7076110e87.40.1724060681645;
+        Mon, 19 Aug 2024 02:44:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGbYGv1dAC8BOp9d/6TNk5lzGG8ZgJtu5nNzr+cDStN+Hg3fhU03hbsM1RivhzFc0Ut8BK3Ug==
+X-Received: by 2002:a05:6512:3190:b0:52c:f2e0:db23 with SMTP id 2adb3069b0e04-5331c6e23dbmr7076080e87.40.1724060681068;
+        Mon, 19 Aug 2024 02:44:41 -0700 (PDT)
 Received: from [100.81.188.195] (ipb218f908.dynamic.kabel-deutschland.de. [178.24.249.8])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83838c66e2sm612153466b.3.2024.08.19.02.43.50
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a8383935710sm609276466b.129.2024.08.19.02.44.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Aug 2024 02:43:51 -0700 (PDT)
-Message-ID: <5654b71c-1d9d-4c48-b28b-664662da8897@redhat.com>
-Date: Mon, 19 Aug 2024 11:43:49 +0200
+        Mon, 19 Aug 2024 02:44:40 -0700 (PDT)
+Message-ID: <c27716a2-3e9c-4b16-9c4b-7b7d1bee9ce9@redhat.com>
+Date: Mon, 19 Aug 2024 11:44:39 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,8 +68,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/4] mm: BUG_ON to avoid NULL deference while
- __GFP_NOFAIL fails
+Subject: Re: [PATCH v3 4/4] mm: prohibit NULL deference exposed for
+ unsupported non-blockable __GFP_NOFAIL
 To: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
  linux-mm@kvack.org
 Cc: 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com,
@@ -77,14 +77,13 @@ Cc: 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com,
  penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
  torvalds@linux-foundation.org, urezki@gmail.com, v-songbaohua@oppo.com,
  vbabka@suse.cz, virtualization@lists.linux.dev,
- Christoph Hellwig <hch@lst.de>, Lorenzo Stoakes
- <lorenzo.stoakes@oracle.com>, Kees Cook <kees@kernel.org>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Kees Cook <kees@kernel.org>,
  =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
  Jason Wang <jasowang@redhat.com>,
  Maxime Coquelin <maxime.coquelin@redhat.com>,
  "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 References: <20240817062449.21164-1-21cnbao@gmail.com>
- <20240817062449.21164-4-21cnbao@gmail.com>
+ <20240817062449.21164-5-21cnbao@gmail.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -131,7 +130,7 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20240817062449.21164-4-21cnbao@gmail.com>
+In-Reply-To: <20240817062449.21164-5-21cnbao@gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
@@ -141,44 +140,36 @@ Content-Transfer-Encoding: 8bit
 On 17.08.24 08:24, Barry Song wrote:
 > From: Barry Song <v-songbaohua@oppo.com>
 > 
-> We have cases we still fail though callers might have __GFP_NOFAIL.  Since
-> they don't check the return, we are exposed to the security risks for NULL
-> deference.
+> When users allocate memory with the __GFP_NOFAIL flag, they might
+> incorrectly use it alongside GFP_ATOMIC, GFP_NOWAIT, etc.  This kind of
+> non-blockable __GFP_NOFAIL is not supported and is pointless.  If we
+> attempt and still fail to allocate memory for these users, we have two
+> choices:
 > 
-> Though BUG_ON() is not encouraged by Linus, this is an unrecoverable
-> situation.
+>      1. We could busy-loop and hope that some other direct reclamation or
+>      kswapd rescues the current process. However, this is unreliable
+>      and could ultimately lead to hard or soft lockups, which might not
+>      be well supported by some architectures.
 > 
-> Christoph Hellwig:
-> The whole freaking point of __GFP_NOFAIL is that callers don't handle
-> allocation failures.  So in fact a straight BUG is the right thing
-> here.
+>      2. We could use BUG_ON to trigger a reliable system crash, avoiding
+>      exposing NULL dereference.
 > 
-> Vlastimil Babka:
-> It's just not a recoverable situation (WARN_ON is for recoverable
-> situations). The caller cannot handle allocation failure and at the same
-> time asked for an impossible allocation. BUG_ON() is a guaranteed oops
-> with stracktrace etc. We don't need to hope for the later NULL pointer
-> dereference (which might if really unlucky happen from a different
-> context where it's no longer obvious what lead to the allocation failing).
-> 
-> Michal Hocko:
-> Linus tends to be against adding new BUG() calls unless the failure is
-> absolutely unrecoverable (e.g. corrupted data structures etc.). I am
-> not sure how he would look at simply incorrect memory allocator usage to
-> blow up the kernel. Now the argument could be made that those failures
-> could cause subtle memory corruptions or even be exploitable which might
-> be a sufficient reason to stop them early.
+> Neither option is ideal, but both are improvements over the existing code.
+> This patch selects the second option because, with the introduction of
+> scoped API and GFP_NOFAIL—capable of enforcing direct reclamation for
+> nofail users(which is in my plan), non-blockable nofail allocations will
+> no longer be possible.
 > 
 > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Acked-by: Vlastimil Babka <vbabka@suse.cz>
-> Acked-by: Michal Hocko <mhocko@suse.com>
+> Cc: Michal Hocko <mhocko@suse.com>
 > Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> Cc: Christoph Hellwig <hch@infradead.org>
 > Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 > Cc: Christoph Lameter <cl@linux.com>
 > Cc: Pekka Enberg <penberg@kernel.org>
 > Cc: David Rientjes <rientjes@google.com>
 > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
 > Cc: Roman Gushchin <roman.gushchin@linux.dev>
 > Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
 > Cc: Linus Torvalds <torvalds@linux-foundation.org>
@@ -190,54 +181,29 @@ On 17.08.24 08:24, Barry Song wrote:
 > Cc: "Michael S. Tsirkin" <mst@redhat.com>
 > Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > ---
->   include/linux/slab.h | 4 +++-
->   mm/page_alloc.c      | 4 +++-
->   mm/util.c            | 1 +
->   3 files changed, 7 insertions(+), 2 deletions(-)
+>   mm/page_alloc.c | 10 +++++-----
+>   1 file changed, 5 insertions(+), 5 deletions(-)
 > 
-> diff --git a/include/linux/slab.h b/include/linux/slab.h
-> index c9cb42203183..4a4d1fdc2afe 100644
-> --- a/include/linux/slab.h
-> +++ b/include/linux/slab.h
-> @@ -827,8 +827,10 @@ kvmalloc_array_node_noprof(size_t n, size_t size, gfp_t flags, int node)
->   {
->   	size_t bytes;
->   
-> -	if (unlikely(check_mul_overflow(n, size, &bytes)))
-> +	if (unlikely(check_mul_overflow(n, size, &bytes))) {
-> +		BUG_ON(flags & __GFP_NOFAIL);
->   		return NULL;
-> +	}
->   
->   	return kvmalloc_node_noprof(bytes, flags, node);
->   }
 > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 60742d057b05..d2c37f8f8d09 100644
+> index d2c37f8f8d09..fb5850ecd3ae 100644
 > --- a/mm/page_alloc.c
 > +++ b/mm/page_alloc.c
-> @@ -4668,8 +4668,10 @@ struct page *__alloc_pages_noprof(gfp_t gfp, unsigned int order,
->   	 * There are several places where we assume that the order value is sane
->   	 * so bail out early if the request is out of bound.
+> @@ -4399,11 +4399,11 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
 >   	 */
-> -	if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp))
-> +	if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp)) {
-> +		BUG_ON(gfp & __GFP_NOFAIL);
->   		return NULL;
-> +	}
->   
->   	gfp &= gfp_allowed_mask;
->   	/*
-> diff --git a/mm/util.c b/mm/util.c
-> index ac01925a4179..678c647b778f 100644
-> --- a/mm/util.c
-> +++ b/mm/util.c
-> @@ -667,6 +667,7 @@ void *__kvmalloc_node_noprof(DECL_BUCKET_PARAMS(size, b), gfp_t flags, int node)
->   
->   	/* Don't even allow crazy sizes */
->   	if (unlikely(size > INT_MAX)) {
-> +		BUG_ON(flags & __GFP_NOFAIL);
+>   	if (gfp_mask & __GFP_NOFAIL) {
+>   		/*
+> -		 * All existing users of the __GFP_NOFAIL are blockable, so warn
+> -		 * of any new users that actually require GFP_NOWAIT
+> +		 * All existing users of the __GFP_NOFAIL are blockable
+> +		 * otherwise we introduce a busy loop with inside the page
+> +		 * allocator from non-sleepable contexts
+>   		 */
+> -		if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+> -			goto fail;
+> +		BUG_ON(!can_direct_reclaim);
 
-No new BUG_ON please. WARN_ON_ONCE() + recovery code might be suitable here.
+No new BUG_ON(), WARN_ON_ONCE() is good enough for something that should 
+be found during ordinary testing.
 
 -- 
 Cheers,
