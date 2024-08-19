@@ -1,253 +1,250 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A59F24B2F
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 15:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724080803; cv=fail; b=HYMHKT83B2OWkZnZ7W2QjicCAoG5S+FaFRZsRJpAKeFZuMrPZdPk6F8ayrwyLU81q6nHoDet6ID7MW+cNXTvDpt4p5R/LNgTRVgJCXzl2YBwuz1bEkdhr16XHhs70ZrpsESMiTA1Z/UWPzMfWSwkYTy1Om757qhowZi5ORsOKMA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724080803; c=relaxed/simple;
-	bh=XUYjgLohhme3Dd8f0pBhbrn1gokh1y4tCoKTPua2tXY=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=BquDhwou9bWkmld4T3oCdEOFySmSZojY5lE27MCmt4rAkIYWLurBmeK3F8j2YiecaIw5dOFItHgQTAVBPG1AG9X6ejxd8js0tCeghVEhObK3pt1JBVbZa8f2UyG551WlltzNYqkCaAKwGf2c2sHpfN+SCabTOPtuUDuAt+xMEWg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UUK+vnvZ; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=I7RhWfgW; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UUK+vnvZ";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="I7RhWfgW"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47JD6q3t025727;
-	Mon, 19 Aug 2024 15:19:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
-	message-id:date:subject:to:cc:references:from:in-reply-to
-	:content-type:content-transfer-encoding:mime-version; s=
-	corp-2023-11-20; bh=960IBQiwmTU4b5YsJsP3hPox/4Cw/tAD4ANt05LI3LE=; b=
-	UUK+vnvZmVyHyVh6R7ILyRz1hN74kETObfWR52WRnBICT8hfrTyGM0P3VpwkLZHn
-	MsF+6L8yaSIvjadGO9wOuAjGGf/hQhGlnsh7Gq0pypHpNXChtqZ5JDh1Nnl2w+JS
-	5b4RjTAg68+1sJ9NbXBo1+P4ifRBXVHylhKLNBphIt9tuxYrty/vvqtnEwSSEApJ
-	5Lho2iF+c3+0w1TrRKuLYZXd4kwT7cX1thqvsMzcFTIsokTw9PLhqwsGVfOlPDUz
-	ZQmFoXTatDqMRzXJsiQJpDkZU5nU9QmmPPv443jm2k/nD4quU/CpBDIv/lPlwCfh
-	NNfldAj30JbynU+cTTxIpg==
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 412m45avg0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 19 Aug 2024 15:19:51 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 47JEbHQe030738;
-	Mon, 19 Aug 2024 15:19:49 GMT
-Received: from nam04-dm6-obe.outbound.protection.outlook.com (mail-dm6nam04lp2040.outbound.protection.outlook.com [104.47.73.40])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 413h9bfrve-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 19 Aug 2024 15:19:49 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=n4JLGp9kcvBVdZcxF0ielQ9BmhVp/lYrrbe6o/VuAiT5/d6wKp/GNN0XTx4fpxKlvEd4RnTGGKBRHWpzMAv4db/1d7PhgdxNPGrFjPGU51cYCcaPaULlshHIk1KYUo5dTZb7KCMUDnKV716EhZYV3asISE2q8sAd6YvFiH24JPOHMplNs+ycIKaBa57eWju8MxIF0s3i0Cmb+xuw6I7kPxI+GsUcG49j+v/aKD9wJoC+wwZYZLc4BdwlNQH7q9Bvz2Z5ou2JgrnSBpuKw29p17AdsjKnJaDyyQh/Mbq843ZIw+bEtMD9pxc9blp2g33SHwWhrua/Cwi+b+1IfHNFOg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=960IBQiwmTU4b5YsJsP3hPox/4Cw/tAD4ANt05LI3LE=;
- b=rjTzPJQAX0dXD9ZfKoaAyBKthN1k42egHeYlGTbC2B3ccWp1GCBC0jCiygir/D0ag5u4xWXRC32QiobRXl+mTtuvzjyt+2RRoAjAKxp4go4kStAmKJfhWc+Ck1C39exjv4RtHsFDk33jtt40IQ8wX7NIUdx+0xbSvsutvK5+K/goHi9ZTD3qcR1gb4f/Wq6GDzsTQ0R3we4qDF7hlLw5+Z1bU2ToIvSYPdhcez0Ifsuok1umBSpqKfK3+nPjxeXzwNuNEsJU4Ryl83gdAc0tYpFBxvuRjylNMEqBwTUy1UTUXSK+vBhYhld0pKU05SavpK1+YH2eVqw3SJYINVUOdw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=960IBQiwmTU4b5YsJsP3hPox/4Cw/tAD4ANt05LI3LE=;
- b=I7RhWfgWP0kc0/FVHQJltz73L4ZoPuF1+8zcXoJ7Timqfx0YDhP+TOxFNcB/as5GKX7aKSjhF5iWMYxnCOzJjDURGBRiXq5ZtDyyESIRRijp+GaRNX1EvMWYUyoPSK6ZkWmpiejH71+isiR4k+XGyftmdC5Sin/A3DFCJIKfSyg=
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by BLAPR10MB5172.namprd10.prod.outlook.com (2603:10b6:208:30f::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7897.13; Mon, 19 Aug
- 2024 15:19:46 +0000
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::b779:d0be:9e3a:34f0%4]) with mapi id 15.20.7897.010; Mon, 19 Aug 2024
- 15:19:46 +0000
-Message-ID: <02862261-b7cf-44c1-8437-5e128cfd1201@oracle.com>
-Date: Mon, 19 Aug 2024 10:19:44 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [kvm?] [net?] [virt?] INFO: task hung in
- __vhost_worker_flush
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-        Sean Christopherson <seanjc@google.com>
-Cc: syzbot <syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com>,
-        eperezma@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
-        oleg@redhat.com, ebiederm@xmission.com, sgarzare@redhat.com,
-        stefanha@redhat.com, brauner@kernel.org
-References: <Zr-VGSRrn0PDafoF@google.com>
- <000000000000fd6343061fd0d012@google.com> <Zr-WGJtLd3eAJTTW@google.com>
- <20240816141505-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <20240816141505-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: CH5P221CA0006.NAMP221.PROD.OUTLOOK.COM
- (2603:10b6:610:1f2::19) To CY8PR10MB7243.namprd10.prod.outlook.com
- (2603:10b6:930:7c::10)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E1883A18
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 15:40:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724082032; cv=none; b=u2W5m6gVlfDgCBq5RIB9Om/CD/dRmBjk68zgz1fiOSrn1awumBXdwWyxjm9OEmPA94nRtOOkqT8dCTACTa0IO20KPSla2AQR1ha21ueWhKSUrhwpCmZbv/CLoNg2oMxYbkuZTEAcIN8/OB3mrxc4bQs9+BaPAVtNw7/tWbYSmls=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724082032; c=relaxed/simple;
+	bh=iV/nXvZtM8hClaVu0TLI2H13UOjs0+xZt4uMBe2lmqk=;
+	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=m5BjvjWGa0SgFBaaErpL1jA+cFFn8iK9T67LY6opKLLGG1ZsT7qH0XHBaNGGilurUvpCFPCMRBgrFRYASmFGEFwVYOjRuwu5NX797IVRicmTR8PR32iBsx00f5yEsk2tc8+6AZHycIoIYVzg8H9hBhE1SXvpHPGMtM7HWYNNlGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.18.186.31])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4WncD36CTkz6K97G;
+	Mon, 19 Aug 2024 23:37:23 +0800 (CST)
+Received: from lhrpeml500005.china.huawei.com (unknown [7.191.163.240])
+	by mail.maildlp.com (Postfix) with ESMTPS id 75B651400C9;
+	Mon, 19 Aug 2024 23:40:26 +0800 (CST)
+Received: from localhost (10.203.177.66) by lhrpeml500005.china.huawei.com
+ (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Mon, 19 Aug
+ 2024 16:40:25 +0100
+Date: Mon, 19 Aug 2024 16:40:24 +0100
+From: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+To: John Groves <John@groves.net>
+CC: David Hildenbrand <david@redhat.com>, <linux-mm@kvack.org>,
+	<linux-cxl@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, Ira Weiny
+	<ira.weiny@intel.com>, <virtualization@lists.linux.dev>, Oscar Salvador
+	<osalvador@suse.de>, <qemu-devel@nongnu.org>, Dave Jiang
+	<dave.jiang@intel.com>, Dan Williams <dan.j.williams@intel.com>,
+	<linuxarm@huawei.com>, <wangkefeng.wang@huawei.com>, John Groves
+	<jgroves@micron.com>, "Fan Ni" <fan.ni@samsung.com>, "Navneet Singh"
+	<navneet.singh@intel.com>, "=?UTF-8?Q?=E2=80=9CMichael?= S. =?UTF-8?Q?Tsi?=
+ =?UTF-8?Q?rkin=E2=80=9D?=" <mst@redhat.com>, Igor Mammedov
+	<imammedo@redhat.com>, Philippe =?UTF-8?Q?Mathieu-Daud=C3=A9?=
+	<philmd@linaro.org>
+Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
+ specific, multi host shared)
+Message-ID: <20240819164024.00005a0a@Huawei.com>
+In-Reply-To: <sjz2xzwkgkq6bun5lssqbsimbggczarotpjdhcsq3itoq5h7jc@x5ormqciwofo>
+References: <20240815172223.00001ca7@Huawei.com>
+	<sjz2xzwkgkq6bun5lssqbsimbggczarotpjdhcsq3itoq5h7jc@x5ormqciwofo>
+Organization: Huawei Technologies Research and Development (UK) Ltd.
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|BLAPR10MB5172:EE_
-X-MS-Office365-Filtering-Correlation-Id: 145e9e39-657f-4683-353c-08dcc0625c12
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|7416014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?TFgrUjc0dWJod01aaVNidW8wZmRPazBQUDNLdE9yTEpWMmxzOXJENTk2a1lT?=
- =?utf-8?B?NzBnZDhZeWh6bjRXNXhORDVMVmd1blV5L2t1T1RrQ2ZVQ2IyelYxZGU0aWpL?=
- =?utf-8?B?Mkg2ZGtaMzRJNEVOTHd4Y2UrVmo5YkZWTFlHQ3B5Rk9KZ3hzVVFoQlhuQ0tO?=
- =?utf-8?B?WUVxb0F1Zjk0YUw2M2RpODlqNmthelJXbTVmWEQ0RzVSWkNWYWUxTGFPeTBO?=
- =?utf-8?B?anpFTDdXa1JLM1Q3NUY0VkJQMXIvTUNLMlE0YlQvd3gxWFRoQjRnRXlpOTln?=
- =?utf-8?B?N3NVbFlaTEY5TmNLWVlOVTBVd0xyaXhSM1R6Y2M0ajhsSDRaYlBFUXpRRXh3?=
- =?utf-8?B?ZzcyY0VNL1IxeUZ5UmJqL1VRWk16cm9HS2VYS3N4SnRTSFJyaUc4dm1PSERN?=
- =?utf-8?B?c2w2M2w2Sy8vQk9MZENQUUk5eHJxdjA5UmJJU0V6alBYZ2dudUFXa0pCSmxM?=
- =?utf-8?B?ckpUbmU1MzhXWnB1aDNyNUpFanJ6bFkvVHlKZ1RmS1oyTTN1TFgrNVpMWGJ2?=
- =?utf-8?B?TDNRRzRpRkl0RXV3empud3JjN3dSd3Q3Nlg3YVZhbjVpVGFQNUREczVwTW10?=
- =?utf-8?B?SUIrZjF5QUZ0RVFBV2luWVducjVZeE9nOXNyelZmdU9xSXM4YlJuMEYxbFdv?=
- =?utf-8?B?Qm1OaG91TEFOdWM5MmNxRXpZamZrOFJLWFdGMXZQdXVId0lPK1RKUEZmckFC?=
- =?utf-8?B?eHVtSW5QU0d2bnRSZWhyR2ticTdKV0RzRFdRNW9pWGZFRjNIWmVCMHkrVGpn?=
- =?utf-8?B?c1REUWt0QVFYWTNTOHBWV0hMaDh4S05qOTdjWFJqdUI1cHVZWGVLVk1mR2xG?=
- =?utf-8?B?UWo2VkFTbEZBMWdJZjdsR05oQUthY2Z0UU44UUVUSE9QbGhEUWwydmlqZERP?=
- =?utf-8?B?c0NqNU5FcE8yRVN2d2orWUowMWthcmg0NUkxdG1wLzFpS2JHY3NUSGdjaGg4?=
- =?utf-8?B?MjgvVzIybnJGZjhZeW9LbHpPeWJlQ212cEZ5eGNNb3EyazU5cTdUSUh5Y2VF?=
- =?utf-8?B?MFlTTlpraVYxS2FET2JZb1d0dGd5TitnNVFuTU9jVnVXc3hEK2J2MzZsOUFu?=
- =?utf-8?B?TDFqMm9Jdm02Wk9ONk4wclltaHJ1OGNWUXNFZmRTRk9qU3NSamJZcnVFT3pR?=
- =?utf-8?B?eFQrWUZEOXlHeUh6eEZGM0Z6YzlxeUxQeit4R1VvVUt3bmN1dUExaDVUcmg1?=
- =?utf-8?B?YVVxYzNqN05JdERzZ2l2UTRVSFNsd09jYXdFalh3ZGQ2aDM2S3dlQ0xQUER1?=
- =?utf-8?B?bHpPVkwzbG93WWFaK3kxMTB2YUxXTDA4MWdERTNXeHFZakxicFJ3b3Z6elBQ?=
- =?utf-8?B?dG9acGgvUFhGYk9VNnc2QzZJMDQrU2lCdUJ1aGg1ZWx3TVpoSkRsZnBHZk5G?=
- =?utf-8?B?bXR1cUc2T1U1akwvQkpHdjZHdUdSdHZpdlUxU3Q3Z3VMQmtxckV1Mkpha3or?=
- =?utf-8?B?RndyelFmT3A3aWF4d3ZWbUFlMVN1akxoRXU1MHpMc25RU1pqSVFHTmpVaWQ4?=
- =?utf-8?B?cGpDWTJLL0QyWDJwdCtZR0Vqano3Sm5VdVQ1eWVkaUhaOHd2YWl6WEFpRW9T?=
- =?utf-8?B?TUE0aHV4TFFRRTAwL2FiTWt4VHlWemEvWXZEUWhyYlF6OC93alE2NXNZYmZI?=
- =?utf-8?B?dW5XeVVQNkIxQi9XNFRBWVNtK2RpUEpmdWc5UU5JNmRnSmt5Tk1qUG80R1d2?=
- =?utf-8?B?VGhtWjVOTktmYzB1bUc3UXIrY2lDTFFoR2hwUXFIM0FtMFFuVGZ3Rmo4TUNX?=
- =?utf-8?Q?oF64SnKytK86WlgjhQ=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?NnlnazFPSnpkemF6TWpFT1QrVXdRMENTVTRMUXBzQk4rNjA4RnB0dTIrRlp1?=
- =?utf-8?B?WG9LVmJBS3lmTWt5ZXBjRDNtQWNoZ2MxdVljZDNQNUZiNFdka1FkZnZaRHBs?=
- =?utf-8?B?VTZZY2dGTkFManBmSjQ5VzA2NnRHY0RTVXJObnZ1eXRYeEJyNGgvR01XOFhU?=
- =?utf-8?B?Yk9yZ05Ea2dVdUtRTkZmYVNscHh2N0dmOWlIRjNrdmtaRlJXUk8vT2l3dXV4?=
- =?utf-8?B?UHA1K0dzdG5hVElialJaUEpDazBhb1pveStuYXBpVURtMGN3c2JLdUVObnZR?=
- =?utf-8?B?YzhiSU1BakZXMVIxSVVESnZGMG9RVWVsUnlvYmxycmV3MHpraDZMNXZuckRR?=
- =?utf-8?B?emhTYnY4YTBaT2hxQ1R4VTBuaVpBYUs1a3kxZVhMRlV0OVgrMEpSYTczaHd5?=
- =?utf-8?B?WGhMZHM2NkNOY2VUZWFXTlUyZUZ6aTZpRXYzREdCUVRCQmEyWVFubllNdmpU?=
- =?utf-8?B?MktVWEF2Z25RZnVlSVM4azF3SWxCM3doTGFETmJOTVZoRElNWWkrT1liMzcx?=
- =?utf-8?B?Y2JPVjJ0UHJZWW11TVEvS253NEVTSTY5VXAzMGxiYy9Xa3JkWkE0ZFN1NFlE?=
- =?utf-8?B?VFIxdEN2cHJ6U0k0WXdmR3FyOXN1VjJtakpIOFlyM1liWUpGYmFmYmVWbTRJ?=
- =?utf-8?B?eGowNlBRVVV1SEZVeTcyUW9KMit4STJ6dm1iSXFURW5HalYrQ0RVZ2YvZHYy?=
- =?utf-8?B?OWxUelIwLy9qUnRNZnNjU09pUlFKc2lzMmp3MmUvY1pySVYyRjNXNU5ic2Fz?=
- =?utf-8?B?WjR6TkhCT2VkZUNpVTJHUk5GbVAzNWozMEliYndSUjByRm0vTmdodXlMeVRh?=
- =?utf-8?B?bVkrWGljR21BajhsY25yOUxsQjdodUNJaHNHSXBHUVFuSmx5Szg0RXVnWnlM?=
- =?utf-8?B?TkxZTG9ESTk5OTRJZzFqa1REWkUyWHRERGpnNFMybisyOXdHdmlCMVdZVUt0?=
- =?utf-8?B?R2RFd0xSbzcrRzBGTGZIcVdoVjNlUVBvU3YvV0RqV3lTV2dYamwva1Z4aG5E?=
- =?utf-8?B?WVF0WWl5VW94MzYvYWtlMnlCcDl2YVJSbVpZNTRhQjF2ZzFMcmhmTWdRVTh4?=
- =?utf-8?B?SDFpT29kU080RGlzMFF1WWVXVzZVMGR4b1VYTmNSdzNWczBKdXpBajZLYStB?=
- =?utf-8?B?UnMzN01FRENmaTY3dDNKL04xb0ZobWN5clFhWlRsWHplbUNydmtUVitNbWVV?=
- =?utf-8?B?dnl6YnlYVWZmKzJINVkyalI2S1c0aFJDT2NSTmk1UURHM3pWMllPejhCZlRl?=
- =?utf-8?B?bzI0Z1FuWGI2N0pJZlhMUzcxYUthK2VCNHBXWTZMYWhsVCsvTjBzNDdoQWZG?=
- =?utf-8?B?clF1WGFLTzZNY0RqQUhvN3lTWmFmUEZvSnlCaDl0aGc2SkFWSDJ3Skp2YTdP?=
- =?utf-8?B?SmpVb3JWV3dwMStYS0tkTW5IN2gwa0Rpa3BNUitvY0JkTWdaNFhqQTYxQTJy?=
- =?utf-8?B?ekpUMERFRFNRV0FwRE85M0pndWtSTEtiK3NRcWplZU5kN25qTGcvOXpDRzha?=
- =?utf-8?B?WURGMy8xZUE1NFlTNjRoVVZPSzJGbFpBTVBxY3BMNnpVeEk4MVlhdXVSWDNX?=
- =?utf-8?B?eE5FMDJtdjFTcENKWElzZkJqdjdYb2xRS1VlYWl2MDJNWmR5TVF6QXVXaHBK?=
- =?utf-8?B?WlBiOTlxaVZUb1I3T3ZTeERLVDJMRUlycFE1aHpvWFZ0MUI0aEs5MGRzTUR5?=
- =?utf-8?B?R1FDWUdqenZCYmh3S2ZFUkpta0Fva0lhKzY2ZHNTRjR6VzRhM29xVzRJMURW?=
- =?utf-8?B?d3Q5eERLdWhlYWp5cHl5dW5DSVZNcTlFQ1J1Kzh1cXhkYnR6Tk1iLzhYSlk2?=
- =?utf-8?B?d0FHVkpXOHZVUmhhR1IyckgyZmhLYTE0clFpV08vcHpuanl0UnYyNUdad2U5?=
- =?utf-8?B?UWFsWmtWaHRYZVM3cGRlMkpvRk1IS0N6VWUxL0JYSGg2UW5Lb0luaXJscHNC?=
- =?utf-8?B?SXkzdGhISHhRdERwTnA4ZUtqbEhQNXpmdXFBV3BoRk5sM2w0Q3Ftanc4Q1dh?=
- =?utf-8?B?ODhZR3dOb2J6Lzk1Kyt6SEVOYjdKd3BoQy9ndE1uYkRGMUxaMjdDTlNSU2F0?=
- =?utf-8?B?ekRWTzA0Y0FZRXk4YlEyRUJNVnVFbmUxS3oxcmZoUnFVejdmVm1kR2xPZk80?=
- =?utf-8?B?QXdLWllNa3lOYUptcGl1RG9vcUw0OUtlWmphSWwzUkNaTy8vdVR6K2hFVjJD?=
- =?utf-8?B?VWc9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	aTf/f4oQPpM7P+HbJglLbcuW252IsbKhC9Ok7ImAwID6Eh1uTwkNN3N2gBeIzt53DZVUs4P/F8apNrJ7OXMU6kPbXSOQop3l/OsPAjCgVa0FbiaSgEINQzyYIyVEYzRymDRftLsu6QZi7UaggWdvA4UFckaCtv+bmBc/Y1EIrJ84Sx682F7kDh3elj6rIhJVQjHW0iXxWVC/JASaT4JZ7FVhfJlT7ofl7sn74FcsUKRI9XQ18QS1WnWAMuhU+RuZss3jcd6bnrp9FIIOYSr+5PXDpjb4pwudUmJQMbHgkAieo49kjkJrWAFrorcPXnMTCmzxZO1O7AFy626EaiF5UFk6d326lHn+ctP1aTem/qzSdRuX0acNmN7MwbW+OvDJYyvK+OOpnY9kpEg65VRUdu+xXdQxibECHrBbYKIKhaywBjvwBgXcFr6DEqEuv2pc4ohOSa5wMlG6NSaZZo1BFrQtAlLQG8ZkCo3098uhXn04j1iRs1smH6gVVPMbE11BApBSxCAzUrrUvhuO+6IOUCp/GR7zOcnbfdZGICNBIA2fETF0nfXbK/iK3U0++vtWat/qp62EcVDbQlJdFMCm1vsUHUCMELR7Nkd7LjB1U94=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 145e9e39-657f-4683-353c-08dcc0625c12
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Aug 2024 15:19:46.6187
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9E0Psbpr/i1X1TMNpwt+04i6J9MeTIs+NnCrVepS6l5uvgXjT1DZzbuZusa1yykQhtcO6//sgYEncIy19i6lxWd1kBCLKDjASX/TUxQutbg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5172
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-19_13,2024-08-19_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 spamscore=0
- suspectscore=0 mlxlogscore=999 mlxscore=0 adultscore=0 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2407110000 definitions=main-2408190102
-X-Proofpoint-ORIG-GUID: f5YEbHQu7v8aKozVxshHTDnnjeTYk0Ue
-X-Proofpoint-GUID: f5YEbHQu7v8aKozVxshHTDnnjeTYk0Ue
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: lhrpeml500006.china.huawei.com (7.191.161.198) To
+ lhrpeml500005.china.huawei.com (7.191.163.240)
 
-On 8/16/24 1:17 PM, Michael S. Tsirkin wrote:
-> On Fri, Aug 16, 2024 at 11:10:32AM -0700, Sean Christopherson wrote:
->> On Fri, Aug 16, 2024, syzbot wrote:
->>>> On Wed, May 29, 2024, syzbot wrote:
->>>>> Hello,
->>>>>
->>>>> syzbot found the following issue on:
->>>>>
->>>>> HEAD commit:    9b62e02e6336 Merge tag 'mm-hotfixes-stable-2024-05-25-09-1..
->>>>> git tree:       upstream
->>>>> console output: https://syzkaller.appspot.com/x/log.txt?x=16cb0eec980000
->>>>> kernel config:  https://syzkaller.appspot.com/x/.config?x=3e73beba72b96506
->>>>> dashboard link: https://syzkaller.appspot.com/bug?extid=7f3bbe59e8dd2328a990
->>>>> compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
->>>>>
->>>>> Unfortunately, I don't have any reproducer for this issue yet.
->>>>>
->>>>> Downloadable assets:
->>>>> disk image: https://storage.googleapis.com/syzbot-assets/61b507f6e56c/disk-9b62e02e.raw.xz
->>>>> vmlinux: https://storage.googleapis.com/syzbot-assets/6991f1313243/vmlinux-9b62e02e.xz
->>>>> kernel image: https://storage.googleapis.com/syzbot-assets/65f88b96d046/bzImage-9b62e02e.xz
->>>>>
->>>>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
->>>>> Reported-by: syzbot+7f3bbe59e8dd2328a990@syzkaller.appspotmail.com
->>>>
->>>> #syz unset kvm
->>>
->>> The following labels did not exist: kvm
->>
->> Hrm, looks like there's no unset for a single subsytem, so:
->>
->> #syz set subsystems: net,virt
+On Sun, 18 Aug 2024 21:12:34 -0500
+John Groves <John@groves.net> wrote:
+
+> On 24/08/15 05:22PM, Jonathan Cameron wrote:
+> > Introduction
+> > ============
+> > 
+> > If we think application specific memory (including inter-host shared memory) is
+> > a thing, it will also be a thing people want to use with virtual machines,
+> > potentially nested. So how do we present it at the Host to VM boundary?
+> > 
+> > This RFC is perhaps premature given we haven't yet merged upstream support for
+> > the bare metal case. However I'd like to get the discussion going given we've
+> > touched briefly on this in a number of CXL sync calls and it is clear no one is  
 > 
-> Must be this patchset:
+> Excellent write-up, thanks Jonathan.
 > 
-> https://lore.kernel.org/all/20240316004707.45557-1-michael.christie@oracle.com/
+> Hannes' idea of an in-person discussion at LPC is a great idea - count me in.
+
+Had a feeling you might say that ;)
+
 > 
-> but I don't see anything obvious there to trigger it, and it's not
-> reproducible yet...
+> As the proprietor of famfs [1] I have many thoughts.
 > 
+> First, I like the concept of application-specific memory (ASM), but I wonder
+> if there might be a better term for it. ASM suggests that there is one
+> application, but I'd suggest that a more concise statement of the concept
+> is that the Linux kernel never accesses or mutates the memory - even though
+> multiple apps might share it (e.g. via famfs). It's a subtle point, but
+> an important one for RAS etc. ASM might better be called non-kernel-managed
+> memory - though that name does not have as good a ring to it. Will mull this
+> over further...
 
-Sorry, I missed the original post from May.
+Naming is always the hard bit :)  I agree that one doesn't work for
+shared capacity. You can tell I didn't start there :)
 
-I'm trying to replicate it now, but am not seeing it.
+> 
+> Now a few level-setting comments on CXL and Dynamic Capacity Devices (DCDs),
+> some of which will be obvious to many of you:
+> 
+> * A DCD is just a memory device with an allocator and host-level
+>   access-control built in.
+> * Usable memory from a DCD is not available until the fabric manger (likely
+>   on behalf of an orchestrator) performs an Initiate Dynamic Capacity Add
+>   command to the DCD.
+> * A DCD allocation has a tag (uuid) which is the invariant way of identifying
+>   the memory from that allocation.
+> * The tag becomes known to the host from the DCD extents provided via
+>   a CXL event following succesful allocation.
+> * The memory associated with a tagged allocation will surface as a dax device
+>   on each host that has access to it. But of course dax device naming &
+>   numbering won't be consistent across separate hosts - so we need to use
+>   the uuid's to find specific memory.
+> 
+> A few less foundational observations:
+> 
+> * It does not make sense to "online" shared or sharable memory as system-ram,
+>   because system-ram gets zeroed, which blows up use cases for sharable memory.
+>   So the default for sharable memory must be devdax mode.
+(CXL specific diversion)
 
-The only time I've seen something similar is when the flush is actually waiting
-for a work item to complete, but I don't think the sysbot tests that for vsock.
-So, I think I'm hitting a race that I'm just not seeing yet. I'm just getting
-back from vacation, and will do some more testing/review this week.
+Absolutely agree this this. There is a 'corner' that irritates me in the spec though
+which is that there is no distinction between shareable and shared capacity.
+If we are in a constrained setup with limited HPA or DPA space, we may not want
+to have separate DCD regions for these.  Thus it is plausible that an orchestrator
+might tell a memory appliance to present memory for general use and yet it
+surfaces as shareable.  So there may need to be an opt in path at least for
+going ahead and using this memory as normal RAM.
+
+> * Tags are mandatory for sharable allocations, and allowed but optional for
+>   non-sharable allocations. The implication is that non-sharable allocations
+>   may get onlined automatically as system-ram, so we don't need a namespace
+>   for those. (I argued for mandatory tags on all allocations - hey you don't
+>   have to use them - but encountered objections and dropped it.)
+> * CXL access control only goes to host root ports; CXL has no concept of
+>   giving access to a VM. So some component on a host (perhaps logically
+>   an orchestrator component) needs to plumb memory to VMs as appropriate.
+
+Yes.  It's some mashup of an orchestrator and VMM / libvirt, local library
+of your choice. We can just group into into the ill defined concept of
+a distributed orchestrator.
+
+> 
+> So tags are a namespace to find specific memory "allocations" (which in the
+> CXL consortium, we usually refer to as "tagged capacity").
+> 
+> In an orchestrated environment, the orchestrator would allocate resources
+> (including tagged memory capacity), make that capacity visible on the right
+> host(s), and then provide the tag when starting the app if needed.
+> 
+> if (e.g.) the memory cotains a famfs file system, famfs needs the uuid of the
+> root memory allocation to find the right memory device. Once mounted, it's a
+> file sytem so apps can be directed to the mount path. Apps that consume the
+> dax devices directly also need the uuid because /dev/dax0.0 is not invariant
+> across a cluster...
+> 
+> I have been assuming that when the CXL stack discovers a new DCD allocation,
+> it will configure the devdax device and provide some way to find it by tag.
+> /sys/cxl/<tag>/dev or whatever. That works as far as it goes, but I'm coming
+> around to thinking that the uuid-to-dax map should not be overtly CXL-specific.
+
+Agreed. Whether that's a nice kernel side thing, or a utility pulling data
+from various kernel subsystem interfaces doesn't really matter. I'd prefer
+the kernel presents this but maybe that won't work for some reason.
+
+> 
+> General thoughts regarding VMs and qemu
+> 
+> Physical connections to CXL memory are handled by physical servers. I don't
+> think there is a scenario in which a VM should interact directly with the
+> pcie function(s) of CXL devices. They will be configured as dax devices
+> (findable by their tags!) by the host OS, and should be provided to VMs
+> (when appropriate) as DAX devices. And software in a VM needs to be able to
+> find the right DAX device the same way it would running on bare metal - by
+> the tag.
+
+Limiting to typical type 3 memory pool devices. Agreed. The other CXL device
+types are a can or worms for another day.
+
+> 
+> Qemu can already get memory from files (-object memory-backend-file,...), and
+> I believe this works whether it's an actual file or a devdax device. So far,
+> so good.
+> 
+> Qemu can back a virtual pmem device by one of these, but currently (AFAIK)
+> not a virtual devdax device. I think virtual devdax is needed as a first-class
+> abstraction. If we can add the tag as a property of the memory-backend-file,
+> we're almost there - we just need away to lookup a daxdev by tag.
+
+I'm not sure that is simple. We'd need to define a new interface capable of:
+1) Hotplug - potentially of many separate regions (think nested VMs).
+   That more or less rules out using separate devices on a discoverable hotpluggable
+   bus. We'd run out of bus numbers too quickly if putting them on PCI.
+   ACPI style hotplug is worse because we have to provision slots at the outset.
+2) Runtime provision of metadata - performance data very least (bandwidth /
+   latency etc). In theory could wire up ACPI _HMA but no one has ever bothered.
+3) Probably do want async error signaling.  We 'could' do that with
+   FW first error injection - I'm not sure it's a good idea but it's definitely
+   an option.
+
+A locked down CXL device is a bit more than that, but not very much more.
+It's easy to fake registers for things that are always in one state so
+that the software stack is happy.
+
+virtio-mem has some of the parts and could perhaps be augmented
+to support this use case with the advantage of no implicit tie to CXL.
 
 
+> 
+> Summary thoughts:
+> 
+> * A mechanism for resolving tags to "tagged capacity" devdax devices is
+>   essential (and I don't think there are specific proposals about this
+>   mechanism so far).
 
+Agreed.
 
+> * Said mechanism should not be explicitly CXL-specific.
+
+Somewhat agreed, but I don't want to invent a new spec just to avoid explicit
+ties to CXL. I'm not against using CXL to present HBM / ACPI Specific Purpose
+memory for example to a VM. It will trivially work if that is what a user
+wants to do and also illustrates that this stuff doesn't necessarily just
+apply to capacity on a memory pool - it might just be 'weird' memory on the host.
+
+> * Finding a tagged capacity devdax device in a VM should work the same as it
+>   does running on bare metal.
+
+Absolutely - that's a requirement.
+
+> * The file-backed (and devdax-backed) devdax abstraction is needed in qemu.
+
+Maybe. I'm not convinced the abstraction is needed at that particular level.
+
+> * Beyond that, I'm not yet sure what the lookup mechanism should be. Extra
+>   points for being easy to implement in both physical and virtual systems.
+
+For physical systems we aren't going to get agreement :(  For the systems
+I have visibility of there will be some diversity in hardware, but the
+presentation to userspace and up consistency should be doable.
+
+Jonathan
+
+> 
+> Thanks for teeing this up!
+> John
+> 
+> 
+> [1] https://github.com/cxl-micron-reskit/famfs/blob/master/README.md
+> 
 
