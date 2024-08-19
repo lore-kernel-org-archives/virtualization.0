@@ -1,127 +1,123 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BF34184535
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 18:29:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EE56189528
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 18:32:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724092200; cv=none; b=eVJsBLdkSlPqHEcFPtezvua7VdzCjMVc+C2w3Ta0MKnNdD8zvUDdr+Oo4gtduRvJKxCMT+UkWOjbDdLS2ywarYINtdY2clx3ZOk8/evrpz7MArPpxVD6m/HgGTKwzsHoGds6ZcggenWGEVrrBRNHCClgXihb0rFS4i0wuJjKeA0=
+	t=1724092335; cv=none; b=Gxfl/wk59ha7oSQHG335ingCr7oBiPX/2ukFPY9gqx+2ezOlZLk6+sm0eJ9XX7MN0avmqJq3ov7vOqrSj23UMvKIRZk8gmTQ0TA9yMVtHQjjSmqllbCdvNtdwa7MJZcrVTkifJtWt4ly1rjMngaMYqQkuMBcdzlV2hZ70lvXK4o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724092200; c=relaxed/simple;
-	bh=r2CDGCTvlxF2ba/tf/zgcURMpYEa29c98Q6T52zLk8o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=P/0irnzPAsOXzGIQklhsZaNtOUKsUwpS5ll5h4NNQMCoJULGZcDkep3hxHEIzSuvzPVjl+pZqZ5eNrtFe0jZ2EY8h14uSt3krMW2M/sxZQ+JYR3sK3vzYjjYKuMg4/9KPg4Z2un41r03qKhPfOzWGcrG5pO85pFjgg5gdMVDHmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f2RRfx3A; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f2RRfx3A"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724092198;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4lFIiiMRye69cO2CDTKsNTtf7eVlTg5I3EBKNS16KE8=;
-	b=f2RRfx3Aj52YarkZreXojdWbCRcN8He7/bev2sJr9yNDMdDlA6d7qT0eHO0iieAayC78+w
-	TcyeIognduwCyFQ/ZlpczEVkx02Pql9rqO60uKP3SmFcbyeBrZLUdISKu/p1m9146TJkXT
-	5yB/Cbc5DTBxcq4RGtDv5elL8beQ984=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-295-XM5qZSemPsagt7yR3iOcgg-1; Mon, 19 Aug 2024 14:29:56 -0400
-X-MC-Unique: XM5qZSemPsagt7yR3iOcgg-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-428076fef5dso38944115e9.2
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 11:29:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724092195; x=1724696995;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4lFIiiMRye69cO2CDTKsNTtf7eVlTg5I3EBKNS16KE8=;
-        b=kgUXoTkWloTPSkHHTi1ECWZV4Slk/V0oU2cNyojO2fCzvRQqG9HmNUb12AmRTnjlgz
-         HamCtci6GHmo0H0Rh3l6lv4pmiEpwB3MVQ/tTvYK1XBrtuxGYkr1WkC3tsrpHiGVh4eb
-         H6FSDV4nnEaTEtZ1i8z1Z+X8TSMH0ixkdrSrUwmk5fB56fcCrPhCcP6IY92aZVGlxtfT
-         TCqltGwyBblctK1QobCO/wpr0SRbEuZsfJhAiPgG5Kan/Ld0Xwobviw6IS3TLb3X6Pvi
-         VIsprrxU4WxUepw1gtbwqGDMWyzONHObn5TaZ5/v0SQOWYoJ/zzjLuhVNsvsRYANs2Qk
-         fuzw==
-X-Forwarded-Encrypted: i=1; AJvYcCXqVuKSS+Na8Tg1B3CxveH4xIBF/g8cK23ylhXyYT7QM6/3msEfAJqGjPIvpLuw3w4UbkKu4tgPJiICgYgqy891tWGZ3qH2u6mG+7sUTog=
-X-Gm-Message-State: AOJu0YxOZNO79+bduypkmOne0mK7YgOEtsV625Yy3zqVatj7kOWnPzCs
-	7I6/C8LhK/UZyvr15KM6ueO/Idm/c/zHUaXnAriEHlwD5C212OQTP93FQ/HpxlS9w1vX7aUypvy
-	rdckrG1TVRKeEafwSjkUN/FPRDGyLW6F/Qrd3066jntUJ7R7PlEe3w0if62qPwM9v
-X-Received: by 2002:a05:600c:19c9:b0:428:151b:e8e with SMTP id 5b1f17b1804b1-429ed79c7a5mr83715055e9.10.1724092195175;
-        Mon, 19 Aug 2024 11:29:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGk0CorVXceopfXeadLKMfCM8Ki34PcTWH20nY6bDKinP9SMpodZdRD2jpn/mC1ynyKYRSJEA==
-X-Received: by 2002:a05:600c:19c9:b0:428:151b:e8e with SMTP id 5b1f17b1804b1-429ed79c7a5mr83714895e9.10.1724092194626;
-        Mon, 19 Aug 2024 11:29:54 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:c:37e0:ced3:55bd:f454:e722? ([2a01:e0a:c:37e0:ced3:55bd:f454:e722])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429ded7d5bfsm174369695e9.46.2024.08.19.11.29.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Aug 2024 11:29:54 -0700 (PDT)
-Message-ID: <b1e442df-83dd-402f-a9d6-00a7c8c51954@redhat.com>
-Date: Mon, 19 Aug 2024 20:29:52 +0200
+	s=arc-20240116; t=1724092335; c=relaxed/simple;
+	bh=rtd2oKSROMxwpdH8HLDaSnEdSnaSDrRN61pn9MW5gNA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZaTuR+c+FtFnjLFSJnPLEsdq9cY14m6PbU5OYK2CVJC+jqoAS5O+Fpp71fzvmGNR4R3rj4hOnQdwS2JMXKHdJDZHdoMSLeIrYmrdxk66LbC2zy3Q/vaLwjx8TNsH9uW30IRuo3BZ/T8rtldbIu30Hj2OVv0eLAgUq1QEUJC/YiY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=fail smtp.mailfrom=kernel.org; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.org
+X-CSE-ConnectionGUID: QycvdkYJT4+CUJTuWy5sAQ==
+X-CSE-MsgGUID: vmh49PGjRqChAeCTZ0dUsw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11169"; a="25262287"
+X-IronPort-AV: E=Sophos;i="6.10,159,1719903600"; 
+   d="scan'208";a="25262287"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2024 11:32:13 -0700
+X-CSE-ConnectionGUID: unP6c30QShqG8DAeLj6ypQ==
+X-CSE-MsgGUID: SuOqqpoaRYS2gC4EwtVmfg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,159,1719903600"; 
+   d="scan'208";a="61238502"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by orviesa008.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2024 11:32:04 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.98)
+	(envelope-from <andy@kernel.org>)
+	id 1sg7Ae-0000000H2PV-0kWc;
+	Mon, 19 Aug 2024 21:32:00 +0300
+Date: Mon, 19 Aug 2024 21:31:59 +0300
+From: Andy Shevchenko <andy@kernel.org>
+To: Philipp Stanner <pstanner@redhat.com>
+Cc: onathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>,
+	Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
+	Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Jose Abreu <joabreu@synopsys.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	Hannes Reinecke <hare@suse.de>, Damien Le Moal <dlemoal@kernel.org>,
+	Chaitanya Kulkarni <kch@nvidia.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-fpga@vger.kernel.org,
+	linux-gpio@vger.kernel.org, netdev@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH 8/9] vdap: solidrun: Replace deprecated PCI functions
+Message-ID: <ZsOPnwQO8sppwI8u@smile.fi.intel.com>
+References: <20240819165148.58201-2-pstanner@redhat.com>
+ <20240819165148.58201-10-pstanner@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: Use XRGB8888 also for big endian systems
-To: Javier Martinez Canillas <javierm@redhat.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev
-References: <20240816131310.1008205-1-jfalempe@redhat.com>
- <874j7gld19.fsf@minerva.mail-host-address-is-not-set>
-From: Jocelyn Falempe <jfalempe@redhat.com>
-In-Reply-To: <874j7gld19.fsf@minerva.mail-host-address-is-not-set>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US, fr
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240819165148.58201-10-pstanner@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-On 19/08/2024 17:58, Javier Martinez Canillas wrote:
-> Jocelyn Falempe <jfalempe@redhat.com> writes:
+On Mon, Aug 19, 2024 at 06:51:48PM +0200, Philipp Stanner wrote:
+> solidrun utilizes pcim_iomap_regions(), which has been deprecated by the
+> PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
+> pcim_iomap_table(), pcim_iomap_regions_request_all()"), among other
+> things because it forces usage of quite a complicated bitmask mechanism.
+> The bitmask handling code can entirely be removed by replacing
+> pcim_iomap_regions() and pcim_iomap_table().
 > 
-> Helo Jocelyn,
-> 
-> AFAICT your patch is doing two things:
-> 
->> Mesa doesn't support BGRX8888, that means most wayland compositors
->> doesn't work on big endian guests.
->>
-> 
-> 1) Dropping the BGR{A,X}8888 support.
-> 
->> Also the colors are inverted when testing a s390x VM on a s390x host.
->> So I fixed the DRM_FORMAT -> VIRTIO_GPU_FORMAT on big endian guests.
->> It may break big-endian guest on little-endian host, but then the
->> fix should be in qemu, because we don't know the host endianess in
->> the guest VM.
->>
-> 
-> 2) Fix the format translation to take into account the guest endianess.
-> 
-> Maybe is better to split the changes in two separate patches ?
+> Replace pcim_iomap_regions() and pcim_iomap_table() with
+> pci_iomap_region().
 
-Yes, I will send a v2 with 2 patches, that would be better.
-> 
->> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
->> ---
-> 
-> The patch makes sense to me though from your explanations.
-> 
-> Acked-by: Javier Martinez Canillas <javierm@redhat.com>
-> 
+...
 
-Thanks for the review.
+> -	int ret, i, mask = 0;
+> +	int i;
+
+Make it signed?
+
+...
+
+>  	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+> +		if (pci_resource_len(pdev, i)) {
+> +			psnet->bars[i] = pcim_iomap_region(pdev, i, name);
+> +			if (IS_ERR(psnet->bars[i])) {
+> +				SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
+> +				return PTR_ERR(psnet->bars[i]);
+> +			}
+> +		}
+
+>  
+
+Blank line leftover.
+
+>  	}
 
 -- 
+With Best Regards,
+Andy Shevchenko
 
-Jocelyn
 
