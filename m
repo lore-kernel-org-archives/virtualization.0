@@ -1,250 +1,220 @@
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E1883A18
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 15:40:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1917712FB34
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 15:55:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724082032; cv=none; b=u2W5m6gVlfDgCBq5RIB9Om/CD/dRmBjk68zgz1fiOSrn1awumBXdwWyxjm9OEmPA94nRtOOkqT8dCTACTa0IO20KPSla2AQR1ha21ueWhKSUrhwpCmZbv/CLoNg2oMxYbkuZTEAcIN8/OB3mrxc4bQs9+BaPAVtNw7/tWbYSmls=
+	t=1724082913; cv=none; b=QdfLFb+Yrnl6E2aZ4TN25K+mSmbHlieuflMOU10MPeOLB3lDfzavIm9WA4qIEPW3JDTkEQuJIclbM0wQwYgYcff2pVh63xIufOcc0ur37kjkNWWJvoicLsoL0QpN+cYwefp5aFbcdTSma4K0m+0COC470qCYX0hflz1+TRBTHhI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724082032; c=relaxed/simple;
-	bh=iV/nXvZtM8hClaVu0TLI2H13UOjs0+xZt4uMBe2lmqk=;
-	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=m5BjvjWGa0SgFBaaErpL1jA+cFFn8iK9T67LY6opKLLGG1ZsT7qH0XHBaNGGilurUvpCFPCMRBgrFRYASmFGEFwVYOjRuwu5NX797IVRicmTR8PR32iBsx00f5yEsk2tc8+6AZHycIoIYVzg8H9hBhE1SXvpHPGMtM7HWYNNlGs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.18.186.31])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4WncD36CTkz6K97G;
-	Mon, 19 Aug 2024 23:37:23 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (unknown [7.191.163.240])
-	by mail.maildlp.com (Postfix) with ESMTPS id 75B651400C9;
-	Mon, 19 Aug 2024 23:40:26 +0800 (CST)
-Received: from localhost (10.203.177.66) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Mon, 19 Aug
- 2024 16:40:25 +0100
-Date: Mon, 19 Aug 2024 16:40:24 +0100
-From: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To: John Groves <John@groves.net>
-CC: David Hildenbrand <david@redhat.com>, <linux-mm@kvack.org>,
-	<linux-cxl@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, Ira Weiny
-	<ira.weiny@intel.com>, <virtualization@lists.linux.dev>, Oscar Salvador
-	<osalvador@suse.de>, <qemu-devel@nongnu.org>, Dave Jiang
-	<dave.jiang@intel.com>, Dan Williams <dan.j.williams@intel.com>,
-	<linuxarm@huawei.com>, <wangkefeng.wang@huawei.com>, John Groves
-	<jgroves@micron.com>, "Fan Ni" <fan.ni@samsung.com>, "Navneet Singh"
-	<navneet.singh@intel.com>, "=?UTF-8?Q?=E2=80=9CMichael?= S. =?UTF-8?Q?Tsi?=
- =?UTF-8?Q?rkin=E2=80=9D?=" <mst@redhat.com>, Igor Mammedov
-	<imammedo@redhat.com>, Philippe =?UTF-8?Q?Mathieu-Daud=C3=A9?=
-	<philmd@linaro.org>
-Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
- specific, multi host shared)
-Message-ID: <20240819164024.00005a0a@Huawei.com>
-In-Reply-To: <sjz2xzwkgkq6bun5lssqbsimbggczarotpjdhcsq3itoq5h7jc@x5ormqciwofo>
-References: <20240815172223.00001ca7@Huawei.com>
-	<sjz2xzwkgkq6bun5lssqbsimbggczarotpjdhcsq3itoq5h7jc@x5ormqciwofo>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+	s=arc-20240116; t=1724082913; c=relaxed/simple;
+	bh=nDiEC+oucoZKIe0++x2SH+xHDpiER8lsQQj93ua/syg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EHzLrCSUqSUnGPqvpFQELkBqk5Pz9Vmirf708OVEN3uVq8gOUtRgEdEKsRVhqInXpvTR/zw4OXzhakCtYXifkL5rkvpTVNJUaKBO9VEmaHW8PvNstaQsxGidnmv7TsPCQCE18ASfLnlqkhHD0/kbjVjART+xXA96NwfFom309c0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hW6lj9zs; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hW6lj9zs"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4281c164408so35253675e9.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 08:55:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724082909; x=1724687709; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sIOAt7qcIh7yk+Ak6kXM6rwImTNnnUyR1orHAIYs4r4=;
+        b=hW6lj9zsZGw5J4C9rCaS/Lw7wb8afZvXv9y+ih/vKqa4kWDdWEpnaaDaUgHcmyrVmH
+         fkeyZ7ntaZNh8YBn4EUNIbF0vhJyKgPN2n5H2M+5fMtt1dS9cNWOQVBn1vIHsLN6T5wV
+         8WL/bt5DE48wsiTfczzaqOgnCjmksyAgpx2cYmhltfR3k+fblu1Mc+K2wJUaQnFUDGQY
+         R13kD9uK5pIoVNI3S0R6ltuM/g4SeH8sCMHOLHFa4BD7y3YqAF+ry36LqWAebpVTCmEF
+         BjVWj8kkXPFbzuYnzcFonq1wogxRiTFOmIWgBa7sQxrcn3f2VIyuYNxojOI0P0zbLdLE
+         7jDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724082909; x=1724687709;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sIOAt7qcIh7yk+Ak6kXM6rwImTNnnUyR1orHAIYs4r4=;
+        b=jhzkNZaaVIaFVbomhbjvQJnmWF7ZmdsZFiZ3FWxFQqgROzs7ApTl3ssj2M/VU+t3aa
+         UJtdH32FAH+WA8Nl/TAJVX2T1RgbkPyypYuaYGnhCsR3dGRnFanucQpUxZX2FU5u8GZO
+         GuR03k0dbpfAzrVwcDpMlBSyoooyyxxf8qqz72XSZLJLSVtmONbqCYHKSDbVQ2GBGngj
+         g4qdIKW606H5kC/FmGCCERjs28CQrcb0B9m46RmduiSAMOdifpZgVun1gdG5APRGHAC7
+         Pbt91MEr0SKNC6Z4p5kwps91IThIELsLiDJNOArMlQ4U7TnF0OdGEQazFY/SZiuyTCPi
+         nxCQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXhg0xttXEWqonxksX/tJH1uWOSJna/WVhufmTTYUnMQX1m0F36B9394YJqPzQvfz99JXRnIrq/KXch7LrM8ToUVkOcM97YbDY4MfmpBuQ=
+X-Gm-Message-State: AOJu0YyWaagheF2M9NZDcY3yxlH9ystcRGyFPhnbfO1lesCzxY3lpNGN
+	HI51ljHiDORL1uc0FAYwymNkxEP/4RTwt5oOIp1VIbCEO9YvioE4u0EjYl2f98sh+C9rBkm5wna
+	+n6XP4t6co+BNt2PfBxngyFw3geE=
+X-Google-Smtp-Source: AGHT+IH+5SdMMmvczHHbCQS3d2lV+42NHIBp97s6EuIfp9v1lsrp5Tb1uRlaaTz2L+/Rjsor4cGm4qQ4+md5bQzOvmo=
+X-Received: by 2002:a05:6000:1006:b0:371:8eaf:3c49 with SMTP id
+ ffacd0b85a97d-371946a32a9mr7016301f8f.40.1724082909035; Mon, 19 Aug 2024
+ 08:55:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: lhrpeml500006.china.huawei.com (7.191.161.198) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
+References: <20240808123714.462740-1-linyunsheng@huawei.com>
+ <20240808123714.462740-5-linyunsheng@huawei.com> <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+ <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com> <CAKgT0Uct5ptfs9ZEoe-9u-fOVz4HLf+5MS-YidKV+xELCBHKNw@mail.gmail.com>
+ <3e069c81-a728-4d72-a5bb-3be00d182107@huawei.com>
+In-Reply-To: <3e069c81-a728-4d72-a5bb-3be00d182107@huawei.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Date: Mon, 19 Aug 2024 08:54:32 -0700
+Message-ID: <CAKgT0UcDDFeMqD_eRe1-2Og0GEEFyNP90E9SDxDjskdgtMe0Uw@mail.gmail.com>
+Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Subbaraya Sundeep <sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, 
+	Sagi Grimberg <sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, 
+	Praveen Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>, 
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham <sgoutham@marvell.com>, 
+	Geetha sowjanya <gakula@marvell.com>, hariprasad <hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, 
+	Sean Wang <sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, 
+	Lorenzo Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith Busch <kbusch@kernel.org>, 
+	Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, 
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, 
+	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, 
+	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+	intel-wired-lan@lists.osuosl.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	bpf@vger.kernel.org, linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 18 Aug 2024 21:12:34 -0500
-John Groves <John@groves.net> wrote:
+On Fri, Aug 16, 2024 at 4:55=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.co=
+m> wrote:
+>
+> On 2024/8/15 23:00, Alexander Duyck wrote:
+> > On Wed, Aug 14, 2024 at 8:00=E2=80=AFPM Yunsheng Lin <linyunsheng@huawe=
+i.com> wrote:
+> >>
+> >> On 2024/8/14 23:49, Alexander H Duyck wrote:
+> >>> On Thu, 2024-08-08 at 20:37 +0800, Yunsheng Lin wrote:
+> >>>> Currently the page_frag API is returning 'virtual address'
+> >>>> or 'va' when allocing and expecting 'virtual address' or
+> >>>> 'va' as input when freeing.
+> >>>>
+> >>>> As we are about to support new use cases that the caller
+> >>>> need to deal with 'struct page' or need to deal with both
+> >>>> 'va' and 'struct page'. In order to differentiate the API
+> >>>> handling between 'va' and 'struct page', add '_va' suffix
+> >>>> to the corresponding API mirroring the page_pool_alloc_va()
+> >>>> API of the page_pool. So that callers expecting to deal with
+> >>>> va, page or both va and page may call page_frag_alloc_va*,
+> >>>> page_frag_alloc_pg*, or page_frag_alloc* API accordingly.
+> >>>>
+> >>>> CC: Alexander Duyck <alexander.duyck@gmail.com>
+> >>>> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+> >>>> Reviewed-by: Subbaraya Sundeep <sbhatta@marvell.com>
+> >>>> Acked-by: Chuck Lever <chuck.lever@oracle.com>
+> >>>> Acked-by: Sagi Grimberg <sagi@grimberg.me>
+> >>>> ---
+> >>>>  drivers/net/ethernet/google/gve/gve_rx.c      |  4 ++--
+> >>>>  drivers/net/ethernet/intel/ice/ice_txrx.c     |  2 +-
+> >>>>  drivers/net/ethernet/intel/ice/ice_txrx.h     |  2 +-
+> >>>>  drivers/net/ethernet/intel/ice/ice_txrx_lib.c |  2 +-
+> >>>>  .../net/ethernet/intel/ixgbevf/ixgbevf_main.c |  4 ++--
+> >>>>  .../marvell/octeontx2/nic/otx2_common.c       |  2 +-
+> >>>>  drivers/net/ethernet/mediatek/mtk_wed_wo.c    |  4 ++--
+> >>>>  drivers/nvme/host/tcp.c                       |  8 +++----
+> >>>>  drivers/nvme/target/tcp.c                     | 22 +++++++++-------=
+---
+> >>>>  drivers/vhost/net.c                           |  6 ++---
+> >>>>  include/linux/page_frag_cache.h               | 21 +++++++++-------=
+--
+> >>>>  include/linux/skbuff.h                        |  2 +-
+> >>>>  kernel/bpf/cpumap.c                           |  2 +-
+> >>>>  mm/page_frag_cache.c                          | 12 +++++-----
+> >>>>  net/core/skbuff.c                             | 16 +++++++-------
+> >>>>  net/core/xdp.c                                |  2 +-
+> >>>>  net/rxrpc/txbuf.c                             | 15 +++++++------
+> >>>>  net/sunrpc/svcsock.c                          |  6 ++---
+> >>>>  .../selftests/mm/page_frag/page_frag_test.c   | 13 ++++++-----
+> >>>>  19 files changed, 75 insertions(+), 70 deletions(-)
+> >>>>
+> >>>
+> >>> I still say no to this patch. It is an unnecessary name change and ad=
+ds
+> >>> no value. If you insist on this patch I will reject the set every tim=
+e.
+> >>>
+> >>> The fact is it is polluting the git history and just makes things
+> >>> harder to maintain without adding any value as you aren't changing wh=
+at
+> >>> the function does and there is no need for this. In addition it just
+> >>
+> >> I guess I have to disagree with the above 'no need for this' part for
+> >> now, as mentioned in [1]:
+> >>
+> >> "There are three types of API as proposed in this patchset instead of
+> >> two types of API:
+> >> 1. page_frag_alloc_va() returns [va].
+> >> 2. page_frag_alloc_pg() returns [page, offset].
+> >> 3. page_frag_alloc() returns [va] & [page, offset].
+> >>
+> >> You seemed to miss that we need a third naming for the type 3 API.
+> >> Do you see type 3 API as a valid API? if yes, what naming are you
+> >> suggesting for it? if no, why it is not a valid API?"
+> >
+> > I didn't. I just don't see the point in pushing out the existing API
+> > to support that. In reality 2 and 3 are redundant. You probably only
+> > need 3. Like I mentioned earlier you can essentially just pass a
+>
+> If the caller just expect [page, offset], do you expect the caller also
+> type 3 API, which return both [va] and [page, offset]?
+>
+> I am not sure if I understand why you think 2 and 3 are redundant here?
+> If you think 2 and 3 are redundant here, aren't 1 and 3 also redundant
+> as the similar agrument?
 
-> On 24/08/15 05:22PM, Jonathan Cameron wrote:
-> > Introduction
-> > ============
-> > 
-> > If we think application specific memory (including inter-host shared memory) is
-> > a thing, it will also be a thing people want to use with virtual machines,
-> > potentially nested. So how do we present it at the Host to VM boundary?
-> > 
-> > This RFC is perhaps premature given we haven't yet merged upstream support for
-> > the bare metal case. However I'd like to get the discussion going given we've
-> > touched briefly on this in a number of CXL sync calls and it is clear no one is  
-> 
-> Excellent write-up, thanks Jonathan.
-> 
-> Hannes' idea of an in-person discussion at LPC is a great idea - count me in.
+The big difference is the need to return page and offset. Basically to
+support returning page and offset you need to pass at least one value
+as a pointer so you can store the return there.
 
-Had a feeling you might say that ;)
+The reason why 3 is just a redundant form of 2 is that you will
+normally just be converting from a va to a page and offset so the va
+should already be easily accessible.
 
-> 
-> As the proprietor of famfs [1] I have many thoughts.
-> 
-> First, I like the concept of application-specific memory (ASM), but I wonder
-> if there might be a better term for it. ASM suggests that there is one
-> application, but I'd suggest that a more concise statement of the concept
-> is that the Linux kernel never accesses or mutates the memory - even though
-> multiple apps might share it (e.g. via famfs). It's a subtle point, but
-> an important one for RAS etc. ASM might better be called non-kernel-managed
-> memory - though that name does not have as good a ring to it. Will mull this
-> over further...
+> > page_frag via pointer to the function. With that you could also look
+> > at just returning a virtual address as well if you insist on having
+> > something that returns all of the above. No point in having 2 and 3 be
+> > seperate functions.
+>
+> Let's be more specific about what are your suggestion here: which way
+> is the prefer way to return the virtual address. It seems there are two
+> options:
+>
+> 1. Return the virtual address by function returning as below:
+> void *page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio=
+);
+>
+> 2. Return the virtual address by double pointer as below:
+> int page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio,
+>                         void **va);
 
-Naming is always the hard bit :)  I agree that one doesn't work for
-shared capacity. You can tell I didn't start there :)
-
-> 
-> Now a few level-setting comments on CXL and Dynamic Capacity Devices (DCDs),
-> some of which will be obvious to many of you:
-> 
-> * A DCD is just a memory device with an allocator and host-level
->   access-control built in.
-> * Usable memory from a DCD is not available until the fabric manger (likely
->   on behalf of an orchestrator) performs an Initiate Dynamic Capacity Add
->   command to the DCD.
-> * A DCD allocation has a tag (uuid) which is the invariant way of identifying
->   the memory from that allocation.
-> * The tag becomes known to the host from the DCD extents provided via
->   a CXL event following succesful allocation.
-> * The memory associated with a tagged allocation will surface as a dax device
->   on each host that has access to it. But of course dax device naming &
->   numbering won't be consistent across separate hosts - so we need to use
->   the uuid's to find specific memory.
-> 
-> A few less foundational observations:
-> 
-> * It does not make sense to "online" shared or sharable memory as system-ram,
->   because system-ram gets zeroed, which blows up use cases for sharable memory.
->   So the default for sharable memory must be devdax mode.
-(CXL specific diversion)
-
-Absolutely agree this this. There is a 'corner' that irritates me in the spec though
-which is that there is no distinction between shareable and shared capacity.
-If we are in a constrained setup with limited HPA or DPA space, we may not want
-to have separate DCD regions for these.  Thus it is plausible that an orchestrator
-might tell a memory appliance to present memory for general use and yet it
-surfaces as shareable.  So there may need to be an opt in path at least for
-going ahead and using this memory as normal RAM.
-
-> * Tags are mandatory for sharable allocations, and allowed but optional for
->   non-sharable allocations. The implication is that non-sharable allocations
->   may get onlined automatically as system-ram, so we don't need a namespace
->   for those. (I argued for mandatory tags on all allocations - hey you don't
->   have to use them - but encountered objections and dropped it.)
-> * CXL access control only goes to host root ports; CXL has no concept of
->   giving access to a VM. So some component on a host (perhaps logically
->   an orchestrator component) needs to plumb memory to VMs as appropriate.
-
-Yes.  It's some mashup of an orchestrator and VMM / libvirt, local library
-of your choice. We can just group into into the ill defined concept of
-a distributed orchestrator.
-
-> 
-> So tags are a namespace to find specific memory "allocations" (which in the
-> CXL consortium, we usually refer to as "tagged capacity").
-> 
-> In an orchestrated environment, the orchestrator would allocate resources
-> (including tagged memory capacity), make that capacity visible on the right
-> host(s), and then provide the tag when starting the app if needed.
-> 
-> if (e.g.) the memory cotains a famfs file system, famfs needs the uuid of the
-> root memory allocation to find the right memory device. Once mounted, it's a
-> file sytem so apps can be directed to the mount path. Apps that consume the
-> dax devices directly also need the uuid because /dev/dax0.0 is not invariant
-> across a cluster...
-> 
-> I have been assuming that when the CXL stack discovers a new DCD allocation,
-> it will configure the devdax device and provide some way to find it by tag.
-> /sys/cxl/<tag>/dev or whatever. That works as far as it goes, but I'm coming
-> around to thinking that the uuid-to-dax map should not be overtly CXL-specific.
-
-Agreed. Whether that's a nice kernel side thing, or a utility pulling data
-from various kernel subsystem interfaces doesn't really matter. I'd prefer
-the kernel presents this but maybe that won't work for some reason.
-
-> 
-> General thoughts regarding VMs and qemu
-> 
-> Physical connections to CXL memory are handled by physical servers. I don't
-> think there is a scenario in which a VM should interact directly with the
-> pcie function(s) of CXL devices. They will be configured as dax devices
-> (findable by their tags!) by the host OS, and should be provided to VMs
-> (when appropriate) as DAX devices. And software in a VM needs to be able to
-> find the right DAX device the same way it would running on bare metal - by
-> the tag.
-
-Limiting to typical type 3 memory pool devices. Agreed. The other CXL device
-types are a can or worms for another day.
-
-> 
-> Qemu can already get memory from files (-object memory-backend-file,...), and
-> I believe this works whether it's an actual file or a devdax device. So far,
-> so good.
-> 
-> Qemu can back a virtual pmem device by one of these, but currently (AFAIK)
-> not a virtual devdax device. I think virtual devdax is needed as a first-class
-> abstraction. If we can add the tag as a property of the memory-backend-file,
-> we're almost there - we just need away to lookup a daxdev by tag.
-
-I'm not sure that is simple. We'd need to define a new interface capable of:
-1) Hotplug - potentially of many separate regions (think nested VMs).
-   That more or less rules out using separate devices on a discoverable hotpluggable
-   bus. We'd run out of bus numbers too quickly if putting them on PCI.
-   ACPI style hotplug is worse because we have to provision slots at the outset.
-2) Runtime provision of metadata - performance data very least (bandwidth /
-   latency etc). In theory could wire up ACPI _HMA but no one has ever bothered.
-3) Probably do want async error signaling.  We 'could' do that with
-   FW first error injection - I'm not sure it's a good idea but it's definitely
-   an option.
-
-A locked down CXL device is a bit more than that, but not very much more.
-It's easy to fake registers for things that are always in one state so
-that the software stack is happy.
-
-virtio-mem has some of the parts and could perhaps be augmented
-to support this use case with the advantage of no implicit tie to CXL.
-
-
-> 
-> Summary thoughts:
-> 
-> * A mechanism for resolving tags to "tagged capacity" devdax devices is
->   essential (and I don't think there are specific proposals about this
->   mechanism so far).
-
-Agreed.
-
-> * Said mechanism should not be explicitly CXL-specific.
-
-Somewhat agreed, but I don't want to invent a new spec just to avoid explicit
-ties to CXL. I'm not against using CXL to present HBM / ACPI Specific Purpose
-memory for example to a VM. It will trivially work if that is what a user
-wants to do and also illustrates that this stuff doesn't necessarily just
-apply to capacity on a memory pool - it might just be 'weird' memory on the host.
-
-> * Finding a tagged capacity devdax device in a VM should work the same as it
->   does running on bare metal.
-
-Absolutely - that's a requirement.
-
-> * The file-backed (and devdax-backed) devdax abstraction is needed in qemu.
-
-Maybe. I'm not convinced the abstraction is needed at that particular level.
-
-> * Beyond that, I'm not yet sure what the lookup mechanism should be. Extra
->   points for being easy to implement in both physical and virtual systems.
-
-For physical systems we aren't going to get agreement :(  For the systems
-I have visibility of there will be some diversity in hardware, but the
-presentation to userspace and up consistency should be doable.
-
-Jonathan
-
-> 
-> Thanks for teeing this up!
-> John
-> 
-> 
-> [1] https://github.com/cxl-micron-reskit/famfs/blob/master/README.md
-> 
-
+I was thinking more of option 1. Basically this is a superset of
+page_frag_alloc_va that is also returning the page and offset via a
+page frag. However instead of bio_vec I would be good with "struct
+page_frag *" being the value passed to the function to play the role
+of container. Basically the big difference between 1 and 2/3 if I am
+not mistaken is the fact that for 1 you pass the size, whereas with
+2/3 you are peeling off the page frag from the larger page frag cache
+after the fact via a commit type action.
