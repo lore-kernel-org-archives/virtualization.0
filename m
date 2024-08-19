@@ -1,185 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74A59161900
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 13:14:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC12E165F10
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 13:19:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724073261; cv=none; b=SCMXfb25VQpdZhbDu9iY4/dqav+ld/i32fhZBijvR0Vqrx5UOfg4qYm1tuMjwY8a5hTzrONLVqa1/RZah3RV6kqq89swhsOuylbRARb3y4UbdvubVvPXChQ6Vz4WMgKNRoW2GnzApKvT8rJvT8Ri4+BNz6LVbCicZFZX/WkZlzY=
+	t=1724073592; cv=none; b=mLaYDX+8/mjqi8xAnEyias1YKABwxIZlFcs8dX77h3FrUf61spjKCcbSsXhwat/s995fgC/C7CqJIY1y714c36RpqZ7y80twC3ALVeicbmTBveXbceeOjQJbTszSvdShNb/5bLpPtqbrYnRfIrsC/nVVDrbVMhuANFPvYtqAA8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724073261; c=relaxed/simple;
-	bh=GKobQ52BZdCMmgUC6Y5HzpjCCMjiS4ksvbtxPbRlUmI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LVXS1397qZHPdsCdhKgtJuYMBUA9IV7ex04jkNPfTqk44WAgaiyHPc54NxAPKnav8sgsH+MjZ6+zbTxKoPtXolyjgmNCa+bBr5hTUw71OSSqdoUwpFTZP299Bzji+NqzFW251U3NhjZTS9W73DyVDmB5XTRBxDDkNXjKtpRbFds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UvLVuZ1X; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724073592; c=relaxed/simple;
+	bh=jzxM9ZjrSsanMkucQIg3xfup4ZQDD+z4YkmSeVibEjk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nusmp4vTikhwkXV6o4fgZDUUL2d5hYbj6zyTRs35NOGE2AYd1BBP3Xwu/oTYdUad3RfYVZk7lh4vqjGgUFTMLO4ltC6vRvA0AApKhXzcPaJQnSKTk8/xTtfGkXZOR7OtjdGkYPepo8qofutMdM7hsq12XgAzGhgeDf+cAuIhaxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NFU+9A+f; arc=none smtp.client-ip=209.85.222.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UvLVuZ1X"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724073259;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=3TQgTm7Cdh2ZcwrUcAHpuLYTQBe/mHcOScBd4L9hb5k=;
-	b=UvLVuZ1XTDEJHcIqoIstRMF6szXi6Xhfrfam4EC1300uflSL4Kusom/UGhpw7iRloaDdqA
-	5bhEOzZ0BoSwBhqH4H/sZzzA0FcCmYPWSUsNXYdRseruREWqY2b5je9WnZZ+hAABWQA8M1
-	U3UFnhlRBGJKodV2u1U6v7DdidcS1yo=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-508-AnppOqFzM_afkMJ3CbCYlg-1; Mon, 19 Aug 2024 09:14:17 -0400
-X-MC-Unique: AnppOqFzM_afkMJ3CbCYlg-1
-Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2ef22e62457so40143331fa.2
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 06:14:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NFU+9A+f"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-7a3574acafeso275398385a.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 06:19:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724073589; x=1724678389; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+9cBvtpI693vgnPvfCeM9ZnZwQY5t+/0DMSD6dNvCO8=;
+        b=NFU+9A+fCoxFlF1LdRGfK0bj6C0ISx3oczmzKbdtlpL2c9lfopcV31X6UFrw5tam3I
+         mg08Q01Z1WCQAWjP8UbQ8iUdZc+Q/w4ionrbpFCNLsqLEF0OS6/d/NhkCfCX/lhlZFez
+         nAdMl4BeJeSXHuZoVL+JC5ZzJuXM9KIiyNifvpxo4iJTFISKE+T0O9eZ5icJKRSAMNtb
+         Bk/rKvisXlXGGCU9sIZeFT5lKgRMN7QlWqRhSw317ts1gsmuM6k6hWwi9FKuPXpT+PLy
+         g8IWkL48JGZ5hKJjjrLHpZzLi6LajEIffJ7f2Xbr3n/pimKfGVTqMCGCK4QXcva2Pw6l
+         u17g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724073255; x=1724678055;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=3TQgTm7Cdh2ZcwrUcAHpuLYTQBe/mHcOScBd4L9hb5k=;
-        b=nW5U70FosUwjfMSr1lk1M46s2tp6+8/l39/kXxg+6eas+3ctwSFvWuWoDl4H6QLutX
-         +l9dlMKfbCC6sM81uJu86+HRefaRxIUtXBCXBw74KGLWt/enfT1oHbMTQSpIZIXJBEzb
-         Tx89ZcQ6xq2H8FeFSOhqAC86t09G5eLQK6IBkz6jLt2vpdM9lfYCz3h/O1Pxj6A8uvD9
-         3XiMKvaPQIQFloP0TpxibVNBZmZtR8vTQWG3IRgQdUZn6rTJT0eZVNyKeYd4uGydeKzc
-         y07KfjR+ALrbWyLewi6zaP5C0qpgCsbNl3/CYsAr6DmrbHybyJXsKEyCQNL7mhv/nLas
-         UrcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWxTZBgxkTLSQH9y0NhpSPlV+vyXrHJcOQmJhMWv3/TQ2lbExAKxzJuuGNAsGzZx+M8h0/Ur/XAGkhDY5t8KIGXJzKsdbNUC2wb8vMeaIg=
-X-Gm-Message-State: AOJu0YxKoMS7czHy3C3BKHchTP2Pho+p5sjeF/R/v7E0dCXH9LdBKyYU
-	1q0w43P3MaKZZRrnWcYBfrjvEBISk/+PGDNI7lreywHhQW6B1tXYKn/KfHAMaeoAwvw+z6fDFqR
-	WRjBsGQ/y3bI27y09WL4oXO4rHYBt4W9bg9ld6eCgZpMa2IKe1+JzgDq6vTsyaA/2
-X-Received: by 2002:a05:6512:33ce:b0:52c:818c:13b8 with SMTP id 2adb3069b0e04-5331c68a917mr6266070e87.4.1724073255532;
-        Mon, 19 Aug 2024 06:14:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE9JhkNv9LFGYDBnoFMkEyS8NJjP/tRrAd/CN49Uux7ijRFvc433tsLSoSB40l5AQGlF3ZTvA==
-X-Received: by 2002:a05:6512:33ce:b0:52c:818c:13b8 with SMTP id 2adb3069b0e04-5331c68a917mr6266029e87.4.1724073254990;
-        Mon, 19 Aug 2024 06:14:14 -0700 (PDT)
-Received: from [100.81.188.195] (ipb218f908.dynamic.kabel-deutschland.de. [178.24.249.8])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83839464ebsm626866766b.155.2024.08.19.06.14.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Aug 2024 06:14:14 -0700 (PDT)
-Message-ID: <6b24cb47-c48f-4ceb-93c9-ad8732e4222e@redhat.com>
-Date: Mon, 19 Aug 2024 15:14:12 +0200
+        d=1e100.net; s=20230601; t=1724073589; x=1724678389;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+9cBvtpI693vgnPvfCeM9ZnZwQY5t+/0DMSD6dNvCO8=;
+        b=WaxcgX/0JhDsoiP3FRJsCP4Wj3yaL3I7cuUqmwgeKBvPN0v1xtpCvFhrXEkMbLs13D
+         yA4JQodGxpvEOm43NEzYoaR6efjBpum1ylmWsYhAk3BjYBsDO3j97dtV1ZaLTeHRjNwx
+         Aui9MpSnuji/N2iT0bPEDgygD6IMP7Mv+y5OHDWXsMmbbwXeXClvqfZ0efJZ+vYV/bcm
+         OYf8jdWfbMyfQlcWnBknyf7VViMCXJX2zPy6iS5Ar8ZrBVJRofmZieoFF9YKkNarWuQl
+         RIy2fRmQm2e5t/zl/x0Xcks/sYL3xebNZFtfWP0mcTznFDyUjSqbeJ+p4tI59yoxkC84
+         WWGA==
+X-Forwarded-Encrypted: i=1; AJvYcCXxix8rOMYUbsqU/rdZIWDf2FG/L3FjWmGrG0DAHrldqFXh5JA+P8aNzuW+4eKDm67F/Rc0HfH42YiCSqxQAcA+Eey8bMVkD+RG3YvrIcA=
+X-Gm-Message-State: AOJu0YwNl/VgHVIiy121QZmVM7GPUONXeL+A8EzQKr4LtR43ikQhQ6ZW
+	/GBi2VhoPKkoE1RTGOttEIGp7ydLtH+XGQ15dlT+mOLGMoTNvPfbAc6BuN4faCAUKqaZlTABTId
+	L9JXAfTVILioefEwjXYQwJZ2P/Ro=
+X-Google-Smtp-Source: AGHT+IEcdmyGrZtw5VDXV9FbD56QJbSUlXapDjkvC+i8qePb8Qd5ZVGu1LtH5mPqDJbnnaH2+E+sqm8/pGLD2xFiQxw=
+X-Received: by 2002:a05:6214:428b:b0:6b5:e451:81d0 with SMTP id
+ 6a1803df08f44-6bf7cd85cb0mr103739856d6.3.1724073589522; Mon, 19 Aug 2024
+ 06:19:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+References: <20240817062449.21164-1-21cnbao@gmail.com> <20240817062449.21164-4-21cnbao@gmail.com>
+ <5654b71c-1d9d-4c48-b28b-664662da8897@redhat.com> <CAGsJ_4xF0YVS4TiaJwQ=YDeTTXg7hhNJOxzTYWy1cwu1YmLd5Q@mail.gmail.com>
+ <416ac265-ced2-4f90-a347-0a256edf7fdf@redhat.com> <CAGsJ_4xNmi9nuZaLVjWgBA4cVqyDYVupQ1Hzygbnq98OiP9p8g@mail.gmail.com>
+ <54a4619d-e826-465e-9a0f-0a8f37798e15@redhat.com> <20240819124924.GA7642@lst.de>
+ <a31af580-f420-4b34-8945-0269914a901b@redhat.com> <CAGsJ_4z-5ypPGoG6JDwRZGDt5Dby9r1tvh-txFdnkhQaKq8zGA@mail.gmail.com>
+ <9f4fa8cf-df02-463d-9715-087a7cd6fc88@redhat.com>
+In-Reply-To: <9f4fa8cf-df02-463d-9715-087a7cd6fc88@redhat.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Tue, 20 Aug 2024 01:19:38 +1200
+Message-ID: <CAGsJ_4yYEP6t+e=Q-Vr68S9Rgy=bdqLp34N_Gt_3_fSdNcGCvQ@mail.gmail.com>
 Subject: Re: [PATCH v3 3/4] mm: BUG_ON to avoid NULL deference while
  __GFP_NOFAIL fails
-To: Christoph Hellwig <hch@lst.de>
-Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
- linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com,
- hch@infradead.org, iamjoonsoo.kim@lge.com, mhocko@suse.com,
- penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
- torvalds@linux-foundation.org, urezki@gmail.com, v-songbaohua@oppo.com,
- vbabka@suse.cz, virtualization@lists.linux.dev,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Kees Cook <kees@kernel.org>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- Maxime Coquelin <maxime.coquelin@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20240817062449.21164-1-21cnbao@gmail.com>
- <20240817062449.21164-4-21cnbao@gmail.com>
- <5654b71c-1d9d-4c48-b28b-664662da8897@redhat.com>
- <CAGsJ_4xF0YVS4TiaJwQ=YDeTTXg7hhNJOxzTYWy1cwu1YmLd5Q@mail.gmail.com>
- <416ac265-ced2-4f90-a347-0a256edf7fdf@redhat.com>
- <CAGsJ_4xNmi9nuZaLVjWgBA4cVqyDYVupQ1Hzygbnq98OiP9p8g@mail.gmail.com>
- <54a4619d-e826-465e-9a0f-0a8f37798e15@redhat.com>
- <20240819124924.GA7642@lst.de>
- <a31af580-f420-4b34-8945-0269914a901b@redhat.com>
- <20240819125346.GA7992@lst.de>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20240819125346.GA7992@lst.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: David Hildenbrand <david@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, 
+	iamjoonsoo.kim@lge.com, mhocko@suse.com, penberg@kernel.org, 
+	rientjes@google.com, roman.gushchin@linux.dev, torvalds@linux-foundation.org, 
+	urezki@gmail.com, v-songbaohua@oppo.com, vbabka@suse.cz, 
+	virtualization@lists.linux.dev, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	Kees Cook <kees@kernel.org>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 19.08.24 14:53, Christoph Hellwig wrote:
-> On Mon, Aug 19, 2024 at 02:51:06PM +0200, David Hildenbrand wrote:
->> On 19.08.24 14:49, Christoph Hellwig wrote:
->>> On Mon, Aug 19, 2024 at 02:33:06PM +0200, David Hildenbrand wrote:
->>>> It should all be caught during testing either way. And if some OOT module
->>>> does something nasty, that's not our responsibility.
->>>>
->>>> BUG_ON is not a way to write assertions into the code.
->>>
->>> So you'd rather create exploits than crashing on a fundamental API
->>> violation?  That's exactly what the series is trying to fix.
->>
->> I'd rather have a sane API that doesn't even allow this level of
->> flexibility with NOFAIL.
->>
->> But probably I'm missing more details here why this all has to be so
->> complicated ;)
-> 
-> Well, the only way to do that is to remove (__)GFP_NOFAIL and require
-> either explicit _nofail variants without a way to pass gfp flags, or
-> endless loops in the callers.  I suggested the first one earlier, but
-> no one liked it due to the API complexity and overhead.  And I've not
-> heard anyone arguing for the latter yet.
+On Tue, Aug 20, 2024 at 1:10=E2=80=AFAM David Hildenbrand <david@redhat.com=
+> wrote:
+>
+> On 19.08.24 15:05, Barry Song wrote:
+> > On Tue, Aug 20, 2024 at 12:51=E2=80=AFAM David Hildenbrand <david@redha=
+t.com> wrote:
+> >>
+> >> On 19.08.24 14:49, Christoph Hellwig wrote:
+> >>> On Mon, Aug 19, 2024 at 02:33:06PM +0200, David Hildenbrand wrote:
+> >>>> It should all be caught during testing either way. And if some OOT m=
+odule
+> >>>> does something nasty, that's not our responsibility.
+> >>>>
+> >>>> BUG_ON is not a way to write assertions into the code.
+> >>>
+> >>> So you'd rather create exploits than crashing on a fundamental API
+> >>> violation?  That's exactly what the series is trying to fix.
+> >>
+> >> I'd rather have a sane API that doesn't even allow this level of
+> >> flexibility with NOFAIL.
+> >
+> > yes, i have already sent a RFC enforcing direct_reclamation:
+> > https://www.spinics.net/lists/linux-mm/msg394659.html
+> >
+> > somehow, it is not ready yet. i think Christoph prefers scope
+> > api rather than GFP_NOFAIL which definitely has
+> > __GFP_DIRECT_RECLAIM set. I guess you know I have
+> > at least  5 series running, so it will happen soon though.
+>
+> That really sounds like the right thing to do, at least with the "direct
+> reclaim" problem ...
+>
+> >
+> >>
+> >> But probably I'm missing more details here why this all has to be so
+> >> complicated ;)
+> >
+> > enforcing direct_reclamation is right and will work for a reasonable si=
+ze.
+> > but for this overflow size, even if we enforce direct_reclamation
+> > in GFP_NOFAIL, we are still failing.
+>
+> Right, someone requested something completely impossible. It's harder to
+> do something here that doesn't return NULL. Except WARN_ON_ONCE() and
+> loop for all infinity.
 
-Right, and and "allocate more than even possible" case is extremely ugly.
+Returning NULL can introduce security vulnerabilities. While I=E2=80=99m no=
+t a hacker,
+it=E2=80=99s hard to predict how they might exploit this. If we want to avo=
+id using
+BUG_ON, an alternative approach could be as follows:
 
-> 
-> One other way might be a compile time check that requires any GPF
-> flag that contains (__)GFP_NOFAIL to be a compile time constants.
-> This is true for many but not all callers currently.
+while(gfp & __GFP_NOFAIL) some_cpu_relaxed_job;    ?
 
-Right.
-
--- 
-Cheers,
-
-David / dhildenb
-
+>
+> --
+> Cheers,
+>
+> David / dhildenb
+>
