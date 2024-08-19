@@ -1,210 +1,521 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308E416F0E1
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 13:22:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 923011B5AA;
+	Mon, 19 Aug 2024 13:32:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724073752; cv=none; b=CF8RmrNgbWWpfH5FN4teeYLI8n7qcOQ59+/wQLZHOrFUkxCdixWD3dhCjfuHAuDl/A293jg6j9rihGJxO9r1c08n/E+SViwZRMgOB1JgQevgb33pb0oOLCLZ4DMqJGez4ygoio1YrZPyg+J1bwCQoFGLdyYHEkuDqlC5siFNJJk=
+	t=1724074354; cv=none; b=r7nvEbxoa25uBoWQTqTybgKPsdGLzAKrV0qwiRXPvIA+UvFfziRkD3EEVZmFvAeJBJ1zFHxDDpQ4iRPXHvYampbf8186LaFbxIwvhjzSZyEUwZsXt9xvoLqY3ZnuRYL3tSzRA/rnDX2qqZrxxW6mJC6mOvQo286FYL2NoBoizsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724073752; c=relaxed/simple;
-	bh=6aMe8pws1ySH7q4Xnw9pdfpgYguYNRQW55wdB0L/sag=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AyFyKQ45zGUrtqEEZZU1xbExkYp2k7T2uF4MC6hELMObS/dbpsmX/JgZWuhYrQtSci7eKFLvR6aaNMoBJidCKPGy1YM69v4cRlBh0RXxUaHHrkkgBYcuERTDamTKMFHvk28sxAVp/Vo9OlrLs+0t2hxzJMpwX65ZOIilgvI51sI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iRtMzhJ4; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724074354; c=relaxed/simple;
+	bh=jAp9GuhcB0OWDzbF4uWvD7OCGqDPd3XiNI4acK//G4U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SouCfz+/0fGec0M891qr8V9FNGqD/ngDTTIRnF9co8tRAjRMSSOZKOfIT+yQVpVicPf6jNC1VMKi37N4WISVK7NOcPSsdphMEJVDoA/T4aCScGSh4wBhX7WOpA/xAKA6H1afGkq59QnjdNo28H0VUPmO5Sms+E6W0wJullXODmI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bJLRUoMB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iRtMzhJ4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724073747;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=/DsI6r9572h924gDXqtXB9YkpGPQCPv1JN7WXua684A=;
-	b=iRtMzhJ4HdWQXvKKXVjx3SQkD1tyujOsMiMjgsaq5YnIrD2WOSrBWD15JEuh8Z+QCNTKg6
-	wYxW8Wj/nfvnI2mBG3gMh3bKMrHRXI2LU5P8aZ3bee5RhsfOiiQNHNsG6Pia88dd9EYQqs
-	LJ83gCVyXm3X1BH5w6xlxWELc/jdo9Q=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-318-yyha-IcTOt6j4epYah3djA-1; Mon, 19 Aug 2024 09:22:25 -0400
-X-MC-Unique: yyha-IcTOt6j4epYah3djA-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a7a979cae97so350349566b.1
-        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 06:22:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724073743; x=1724678543;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=/DsI6r9572h924gDXqtXB9YkpGPQCPv1JN7WXua684A=;
-        b=FPzQTEitf+FN0kmySNTYg0Kiv8+vFe3KeM+O26iGcZhDvNO/HfDA4F+tZ9l1al1YPB
-         IlnOj90Y513J00sVRFMLsfSXGB5761uVXOBF8F//89E/B/uWD6TN09jg/2orjBnt9Zh1
-         Wm9YJUqrruMTSqk3nKCIjRQDIHkrQrlJgOjhKJiyd9ck2Gh3K/pilHir0s4vA34mKQiM
-         zJB7X5/jpuTdzug+acByopp20p3p0eRnb77sZq65GXTWJ+poqaGPWvqRLYwP+owg8cjU
-         fkaWSa+KK0+4O5JKXvLqex5oq0FDZD+TczNid84LWqmnUWTJmAZ8V82GbBRZD4iuwLaX
-         0SqQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVkh7A0thXHyA++I7YE+Vl++2MQVI2CoA45onUGeh/Qi9fZhFw4k6fxw81QfEabL6+f15A5kZSqlPTwhCah0PsF4jvyuDl5sEuRBZSAC7Y=
-X-Gm-Message-State: AOJu0YyDeMcGueFnFv44rkZdeZiNGC3O52Ql0hCS+5zG/pirVq2BKXtL
-	kvunu0ZuwpcV3u+HDHAMYL1rlYTnrLTHCAOQDJEsSFQQ6yf9AnEVx01hwt2Mm/tJzmyixejGkh6
-	NGz7UtxBpGUsKZMQoZPqk3C6jCoLmVR4YIPp/+8PhYu7DG56ghr2krqzrmp7Tu2Bz
-X-Received: by 2002:a17:907:f16a:b0:a7a:9f0f:ab2b with SMTP id a640c23a62f3a-a8392954042mr672944966b.32.1724073743155;
-        Mon, 19 Aug 2024 06:22:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGIsu4mY4XJTpA5h5OsvuWIS+ajhlGD30LrE7Nt8TbQ3RU/QWsJG1WzsA4eiyOQVo88O1c+3A==
-X-Received: by 2002:a17:907:f16a:b0:a7a:9f0f:ab2b with SMTP id a640c23a62f3a-a8392954042mr672941966b.32.1724073742619;
-        Mon, 19 Aug 2024 06:22:22 -0700 (PDT)
-Received: from [100.81.188.195] (ipb218f908.dynamic.kabel-deutschland.de. [178.24.249.8])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83838cfac5sm629789466b.80.2024.08.19.06.22.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Aug 2024 06:22:22 -0700 (PDT)
-Message-ID: <3995846d-39a1-41c9-9544-b74d9dd50a6c@redhat.com>
-Date: Mon, 19 Aug 2024 15:22:19 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bJLRUoMB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51B17C4AF13;
+	Mon, 19 Aug 2024 13:32:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1724074354;
+	bh=jAp9GuhcB0OWDzbF4uWvD7OCGqDPd3XiNI4acK//G4U=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=bJLRUoMBOe62IHqXZ8fPn3URQhm/nrzVvvPg3TCj6O3xu0deqt7lJOe1RT+Y3QXwa
+	 vY5z4BtX1KXkToOiBUdKoJRSNg8GvqF4bjaq5f80xDRBiMCJTHcsl+0Nedz3T8f2fF
+	 rge4GzVVzlKEGmceAIoWWtADXq0ND2Qg4hnFm/fJe8DIJm4IjmiKn0aSXyBjduDN7H
+	 rc8E+n1SgrU7bpKKUSqPx6dRA8weNRhpEJ0IZkWKA/52H6vI5DyYa3b9y86/Y54X+1
+	 md+ahKaazx8BcXnP0RBCLkMYoGPPb2mSorjcj7itj2CD1BrqjUPbE7T2N0awgPm1lL
+	 Pa/zqrDM6j6yA==
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-2f3cb747ed7so23036281fa.0;
+        Mon, 19 Aug 2024 06:32:34 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWaJ2/5dJm/AVq3XpCfmsttiBua4+X18ZtflnXkztSTM4oEGyU6TXlzE5jcpzDg3DO4NNWYC1fWLTowy52tXE5yRoqW6mQ5NgV72GqLr2ACHHdvvCMC/MFnF8nDVkjxL7iDG1v5DcA5oKE=
+X-Gm-Message-State: AOJu0YyunDQ83fj6L7PAsrQd9H1ee2684Kx2OFdfZGacM78ugWiZH6lz
+	YPN1MsnoMf+FBGmscVe6nJJc/2y1jURrW8+jQvx2ruHScyG0w06kGUo+xBny8/oea8UMZfQPe5O
+	ATHVTQkV1masvfyG9jFLkrSXDVwA=
+X-Google-Smtp-Source: AGHT+IF0PnU8CNjAu7vVE5zP+9h/WZdlcg5GF++MPpPAzTvjr4x7gn4JeDXnu6I8uSRZH6Oh2EQghTGnQttmD3B6SWE=
+X-Received: by 2002:a2e:4e19:0:b0:2f3:c82f:45ce with SMTP id
+ 38308e7fff4ca-2f3c82f4603mr52598301fa.29.1724074352293; Mon, 19 Aug 2024
+ 06:32:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/4] mm: BUG_ON to avoid NULL deference while
- __GFP_NOFAIL fails
-To: Barry Song <21cnbao@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@linux-foundation.org,
- linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com,
- hch@infradead.org, iamjoonsoo.kim@lge.com, mhocko@suse.com,
- penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
- torvalds@linux-foundation.org, urezki@gmail.com, v-songbaohua@oppo.com,
- vbabka@suse.cz, virtualization@lists.linux.dev,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Kees Cook <kees@kernel.org>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- Maxime Coquelin <maxime.coquelin@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20240817062449.21164-1-21cnbao@gmail.com>
- <20240817062449.21164-4-21cnbao@gmail.com>
- <5654b71c-1d9d-4c48-b28b-664662da8897@redhat.com>
- <CAGsJ_4xF0YVS4TiaJwQ=YDeTTXg7hhNJOxzTYWy1cwu1YmLd5Q@mail.gmail.com>
- <416ac265-ced2-4f90-a347-0a256edf7fdf@redhat.com>
- <CAGsJ_4xNmi9nuZaLVjWgBA4cVqyDYVupQ1Hzygbnq98OiP9p8g@mail.gmail.com>
- <54a4619d-e826-465e-9a0f-0a8f37798e15@redhat.com>
- <20240819124924.GA7642@lst.de>
- <a31af580-f420-4b34-8945-0269914a901b@redhat.com>
- <CAGsJ_4z-5ypPGoG6JDwRZGDt5Dby9r1tvh-txFdnkhQaKq8zGA@mail.gmail.com>
- <9f4fa8cf-df02-463d-9715-087a7cd6fc88@redhat.com>
- <CAGsJ_4yYEP6t+e=Q-Vr68S9Rgy=bdqLp34N_Gt_3_fSdNcGCvQ@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CAGsJ_4yYEP6t+e=Q-Vr68S9Rgy=bdqLp34N_Gt_3_fSdNcGCvQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20240812030210.500240-1-maobibo@loongson.cn> <20240812030210.500240-2-maobibo@loongson.cn>
+In-Reply-To: <20240812030210.500240-2-maobibo@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Mon, 19 Aug 2024 21:32:29 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H4aqu=ZOOb3UAcQt4DQNMcpUd7O=ted+Zka3pV1fjyoMQ@mail.gmail.com>
+Message-ID: <CAAhV-H4aqu=ZOOb3UAcQt4DQNMcpUd7O=ted+Zka3pV1fjyoMQ@mail.gmail.com>
+Subject: Re: [PATCH v6 1/3] LoongArch: KVM: Enable paravirt feature control
+ from VMM
+To: Bibo Mao <maobibo@loongson.cn>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Thomas Gleixner <tglx@linutronix.de>, 
+	WANG Xuerui <kernel@xen0n.name>, kvm@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org, 
+	Song Gao <gaosong@loongson.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 19.08.24 15:19, Barry Song wrote:
-> On Tue, Aug 20, 2024 at 1:10 AM David Hildenbrand <david@redhat.com> wrote:
->>
->> On 19.08.24 15:05, Barry Song wrote:
->>> On Tue, Aug 20, 2024 at 12:51 AM David Hildenbrand <david@redhat.com> wrote:
->>>>
->>>> On 19.08.24 14:49, Christoph Hellwig wrote:
->>>>> On Mon, Aug 19, 2024 at 02:33:06PM +0200, David Hildenbrand wrote:
->>>>>> It should all be caught during testing either way. And if some OOT module
->>>>>> does something nasty, that's not our responsibility.
->>>>>>
->>>>>> BUG_ON is not a way to write assertions into the code.
->>>>>
->>>>> So you'd rather create exploits than crashing on a fundamental API
->>>>> violation?  That's exactly what the series is trying to fix.
->>>>
->>>> I'd rather have a sane API that doesn't even allow this level of
->>>> flexibility with NOFAIL.
->>>
->>> yes, i have already sent a RFC enforcing direct_reclamation:
->>> https://www.spinics.net/lists/linux-mm/msg394659.html
->>>
->>> somehow, it is not ready yet. i think Christoph prefers scope
->>> api rather than GFP_NOFAIL which definitely has
->>> __GFP_DIRECT_RECLAIM set. I guess you know I have
->>> at least  5 series running, so it will happen soon though.
->>
->> That really sounds like the right thing to do, at least with the "direct
->> reclaim" problem ...
->>
->>>
->>>>
->>>> But probably I'm missing more details here why this all has to be so
->>>> complicated ;)
->>>
->>> enforcing direct_reclamation is right and will work for a reasonable size.
->>> but for this overflow size, even if we enforce direct_reclamation
->>> in GFP_NOFAIL, we are still failing.
->>
->> Right, someone requested something completely impossible. It's harder to
->> do something here that doesn't return NULL. Except WARN_ON_ONCE() and
->> loop for all infinity.
-> 
-> Returning NULL can introduce security vulnerabilities. While I’m not a hacker,
-> it’s hard to predict how they might exploit this. If we want to avoid using
-> BUG_ON, an alternative approach could be as follows:
-> 
-> while(gfp & __GFP_NOFAIL) some_cpu_relaxed_job;    ?
+Hi, Bibo,
 
-At least for the "allocate something impossible in size", retrying 
-forever makes *some* sense (with a warning, of course). We would retry 
-until it works for sizes that are possible.
+On Mon, Aug 12, 2024 at 11:02=E2=80=AFAM Bibo Mao <maobibo@loongson.cn> wro=
+te:
+>
+> Export kernel paravirt features to user space, so that VMM can control
+> the single paravirt feature. By default paravirt features will be the sam=
+e
+> with kvm supported features if VMM does not set it.
+>
+> Also a new feature KVM_FEATURE_VIRT_EXTIOI is added which can be set from
+> user space. This feature indicates that the virt EXTIOI can route
+> interrupts to 256 vCPUs, rather than 4 vCPUs like with real HW.
+>
+> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+> ---
+>  arch/loongarch/include/asm/kvm_host.h      |  7 ++++
+>  arch/loongarch/include/asm/kvm_para.h      |  1 +
+>  arch/loongarch/include/asm/kvm_vcpu.h      |  4 ++
+>  arch/loongarch/include/asm/loongarch.h     | 13 ------
+>  arch/loongarch/include/uapi/asm/Kbuild     |  2 -
+>  arch/loongarch/include/uapi/asm/kvm.h      |  5 +++
+>  arch/loongarch/include/uapi/asm/kvm_para.h | 24 +++++++++++
+>  arch/loongarch/kernel/paravirt.c           |  8 ++--
+>  arch/loongarch/kvm/exit.c                  | 19 ++++-----
+>  arch/loongarch/kvm/vcpu.c                  | 47 ++++++++++++++++++----
+>  arch/loongarch/kvm/vm.c                    | 43 +++++++++++++++++++-
+>  11 files changed, 137 insertions(+), 36 deletions(-)
+>  create mode 100644 arch/loongarch/include/uapi/asm/kvm_para.h
+>
+> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/inclu=
+de/asm/kvm_host.h
+> index 5f0677e03817..b73f6678e38a 100644
+> --- a/arch/loongarch/include/asm/kvm_host.h
+> +++ b/arch/loongarch/include/asm/kvm_host.h
+> @@ -107,6 +107,8 @@ struct kvm_arch {
+>         unsigned int  root_level;
+>         spinlock_t    phyid_map_lock;
+>         struct kvm_phyid_map  *phyid_map;
+> +       /* Enabled PV features */
+> +       unsigned long pv_features;
+>
+>         s64 time_offset;
+>         struct kvm_context __percpu *vmcs;
+> @@ -136,6 +138,11 @@ enum emulation_result {
+>  #define KVM_LARCH_SWCSR_LATEST (0x1 << 3)
+>  #define KVM_LARCH_HWCSR_USABLE (0x1 << 4)
+>
+> +#define LOONGARCH_PV_FEAT_UPDATED              BIT_ULL(63)
+> +#define LOONGARCH_PV_FEAT_MASK                                         \
+> +               (BIT(KVM_FEATURE_IPI) | BIT(KVM_FEATURE_STEAL_TIME) |   \
+> +                BIT(KVM_FEATURE_VIRT_EXTIOI))
+> +
+>  struct kvm_vcpu_arch {
+>         /*
+>          * Switch pointer-to-function type to unsigned long
+> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/inclu=
+de/asm/kvm_para.h
+> index 43ec61589e6c..39d7483ab8fd 100644
+> --- a/arch/loongarch/include/asm/kvm_para.h
+> +++ b/arch/loongarch/include/asm/kvm_para.h
+> @@ -2,6 +2,7 @@
+>  #ifndef _ASM_LOONGARCH_KVM_PARA_H
+>  #define _ASM_LOONGARCH_KVM_PARA_H
+>
+> +#include <uapi/asm/kvm_para.h>
+>  /*
+>   * Hypercall code field
+>   */
+> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/inclu=
+de/asm/kvm_vcpu.h
+> index c416cb7125c0..a1fc24a48fd1 100644
+> --- a/arch/loongarch/include/asm/kvm_vcpu.h
+> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
+> @@ -125,4 +125,8 @@ static inline bool kvm_pvtime_supported(void)
+>         return !!sched_info_on();
+>  }
+>
+> +static __always_inline bool guest_pv_has(struct kvm_vcpu *vcpu, unsigned=
+ int feature)
+> +{
+> +       return vcpu->kvm->arch.pv_features & BIT(feature);
+> +}
+We have similar functions
+kvm_guest_has_fpu/kvm_guest_has_lsx/kvm_guest_has_lasx, so maybe it is
+better to rename it as kvm_guest_has_pv_feature().
 
-For the other case, we should just make __GFP_NOFAIL imply whatever is 
-currently a "must". Returning NULL here is indeed strange.
+>  #endif /* __ASM_LOONGARCH_KVM_VCPU_H__ */
+> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/incl=
+ude/asm/loongarch.h
+> index 04a78010fc72..eb82230f52c3 100644
+> --- a/arch/loongarch/include/asm/loongarch.h
+> +++ b/arch/loongarch/include/asm/loongarch.h
+> @@ -158,19 +158,6 @@
+>  #define  CPUCFG48_VFPU_CG              BIT(2)
+>  #define  CPUCFG48_RAM_CG               BIT(3)
+>
+> -/*
+> - * CPUCFG index area: 0x40000000 -- 0x400000ff
+> - * SW emulation for KVM hypervirsor
+> - */
+> -#define CPUCFG_KVM_BASE                        0x40000000
+> -#define CPUCFG_KVM_SIZE                        0x100
+> -
+> -#define CPUCFG_KVM_SIG                 (CPUCFG_KVM_BASE + 0)
+> -#define  KVM_SIGNATURE                 "KVM\0"
+> -#define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
+> -#define  KVM_FEATURE_IPI               BIT(1)
+> -#define  KVM_FEATURE_STEAL_TIME                BIT(2)
+It is a little better to keep these definitions here (at least
+convenient for grep).
 
--- 
-Cheers,
 
-David / dhildenb
 
+Huacai
+
+> -
+>  #ifndef __ASSEMBLY__
+>
+>  /* CSR */
+> diff --git a/arch/loongarch/include/uapi/asm/Kbuild b/arch/loongarch/incl=
+ude/uapi/asm/Kbuild
+> index c6d141d7b7d7..517761419999 100644
+> --- a/arch/loongarch/include/uapi/asm/Kbuild
+> +++ b/arch/loongarch/include/uapi/asm/Kbuild
+> @@ -1,4 +1,2 @@
+>  # SPDX-License-Identifier: GPL-2.0
+>  syscall-y +=3D unistd_64.h
+> -
+> -generic-y +=3D kvm_para.h
+> diff --git a/arch/loongarch/include/uapi/asm/kvm.h b/arch/loongarch/inclu=
+de/uapi/asm/kvm.h
+> index ddc5cab0ffd0..719490e64e1c 100644
+> --- a/arch/loongarch/include/uapi/asm/kvm.h
+> +++ b/arch/loongarch/include/uapi/asm/kvm.h
+> @@ -82,6 +82,11 @@ struct kvm_fpu {
+>  #define KVM_IOC_CSRID(REG)             LOONGARCH_REG_64(KVM_REG_LOONGARC=
+H_CSR, REG)
+>  #define KVM_IOC_CPUCFG(REG)            LOONGARCH_REG_64(KVM_REG_LOONGARC=
+H_CPUCFG, REG)
+>
+> +/* Device Control API on vm fd */
+> +#define KVM_LOONGARCH_VM_FEAT_CTRL             0
+> +#define  KVM_LOONGARCH_VM_FEAT_PV_IPI          5
+> +#define  KVM_LOONGARCH_VM_FEAT_PV_STEALTIME    6
+> +
+>  /* Device Control API on vcpu fd */
+>  #define KVM_LOONGARCH_VCPU_CPUCFG      0
+>  #define KVM_LOONGARCH_VCPU_PVTIME_CTRL 1
+> diff --git a/arch/loongarch/include/uapi/asm/kvm_para.h b/arch/loongarch/=
+include/uapi/asm/kvm_para.h
+> new file mode 100644
+> index 000000000000..5dfe675709ab
+> --- /dev/null
+> +++ b/arch/loongarch/include/uapi/asm/kvm_para.h
+> @@ -0,0 +1,24 @@
+> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+> +#ifndef _UAPI_ASM_KVM_PARA_H
+> +#define _UAPI_ASM_KVM_PARA_H
+> +
+> +#include <linux/types.h>
+> +
+> +/*
+> + * CPUCFG index area: 0x40000000 -- 0x400000ff
+> + * SW emulation for KVM hypervirsor
+> + */
+> +#define CPUCFG_KVM_BASE                        0x40000000
+> +#define CPUCFG_KVM_SIZE                        0x100
+> +#define CPUCFG_KVM_SIG                 (CPUCFG_KVM_BASE + 0)
+> +#define  KVM_SIGNATURE                 "KVM\0"
+> +#define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
+> +#define  KVM_FEATURE_IPI               1
+> +#define  KVM_FEATURE_STEAL_TIME                2
+> +/*
+> + * BIT 24 - 31 is features configurable by user space vmm
+> + * With VIRT_EXTIOI feature, interrupt can route to 256 VCPUs
+> + */
+> +#define  KVM_FEATURE_VIRT_EXTIOI       24
+> +
+> +#endif /* _UAPI_ASM_KVM_PARA_H */
+> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/par=
+avirt.c
+> index 9c9b75b76f62..cc6bf096cb88 100644
+> --- a/arch/loongarch/kernel/paravirt.c
+> +++ b/arch/loongarch/kernel/paravirt.c
+> @@ -175,7 +175,7 @@ int __init pv_ipi_init(void)
+>                 return 0;
+>
+>         feature =3D read_cpucfg(CPUCFG_KVM_FEATURE);
+> -       if (!(feature & KVM_FEATURE_IPI))
+> +       if (!(feature & BIT(KVM_FEATURE_IPI)))
+>                 return 0;
+>
+>  #ifdef CONFIG_SMP
+> @@ -206,7 +206,7 @@ static int pv_enable_steal_time(void)
+>         }
+>
+>         addr |=3D KVM_STEAL_PHYS_VALID;
+> -       kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, KVM_FEATURE_STEAL_TIME, add=
+r);
+> +       kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, BIT(KVM_FEATURE_STEAL_TIME)=
+, addr);
+>
+>         return 0;
+>  }
+> @@ -214,7 +214,7 @@ static int pv_enable_steal_time(void)
+>  static void pv_disable_steal_time(void)
+>  {
+>         if (has_steal_clock)
+> -               kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, KVM_FEATURE_STEAL_T=
+IME, 0);
+> +               kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, BIT(KVM_FEATURE_STE=
+AL_TIME), 0);
+>  }
+>
+>  #ifdef CONFIG_SMP
+> @@ -266,7 +266,7 @@ int __init pv_time_init(void)
+>                 return 0;
+>
+>         feature =3D read_cpucfg(CPUCFG_KVM_FEATURE);
+> -       if (!(feature & KVM_FEATURE_STEAL_TIME))
+> +       if (!(feature & BIT(KVM_FEATURE_STEAL_TIME)))
+>                 return 0;
+>
+>         has_steal_clock =3D 1;
+> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
+> index ea73f9dc2cc6..54f78864a617 100644
+> --- a/arch/loongarch/kvm/exit.c
+> +++ b/arch/loongarch/kvm/exit.c
+> @@ -50,9 +50,7 @@ static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_=
+inst inst)
+>                 vcpu->arch.gprs[rd] =3D *(unsigned int *)KVM_SIGNATURE;
+>                 break;
+>         case CPUCFG_KVM_FEATURE:
+> -               ret =3D KVM_FEATURE_IPI;
+> -               if (kvm_pvtime_supported())
+> -                       ret |=3D KVM_FEATURE_STEAL_TIME;
+> +               ret =3D vcpu->kvm->arch.pv_features & LOONGARCH_PV_FEAT_M=
+ASK;
+>                 vcpu->arch.gprs[rd] =3D ret;
+>                 break;
+>         default:
+> @@ -697,8 +695,8 @@ static long kvm_save_notify(struct kvm_vcpu *vcpu)
+>         id   =3D kvm_read_reg(vcpu, LOONGARCH_GPR_A1);
+>         data =3D kvm_read_reg(vcpu, LOONGARCH_GPR_A2);
+>         switch (id) {
+> -       case KVM_FEATURE_STEAL_TIME:
+> -               if (!kvm_pvtime_supported())
+> +       case BIT(KVM_FEATURE_STEAL_TIME):
+> +               if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME))
+>                         return KVM_HCALL_INVALID_CODE;
+>
+>                 if (data & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
+> @@ -712,10 +710,10 @@ static long kvm_save_notify(struct kvm_vcpu *vcpu)
+>                 kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+>                 break;
+>         default:
+> -               break;
+> +               return KVM_HCALL_INVALID_CODE;
+>         };
+>
+> -       return 0;
+> +       return KVM_HCALL_INVALID_CODE;
+>  };
+>
+>  /*
+> @@ -786,8 +784,11 @@ static void kvm_handle_service(struct kvm_vcpu *vcpu=
+)
+>
+>         switch (func) {
+>         case KVM_HCALL_FUNC_IPI:
+> -               kvm_send_pv_ipi(vcpu);
+> -               ret =3D KVM_HCALL_SUCCESS;
+> +               if (guest_pv_has(vcpu, KVM_FEATURE_IPI)) {
+> +                       kvm_send_pv_ipi(vcpu);
+> +                       ret =3D KVM_HCALL_SUCCESS;
+> +               } else
+> +                       ret =3D KVM_HCALL_INVALID_CODE;
+>                 break;
+>         case KVM_HCALL_FUNC_NOTIFY:
+>                 ret =3D kvm_save_notify(vcpu);
+> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
+> index 16756ffb55e8..2a7d7f91facd 100644
+> --- a/arch/loongarch/kvm/vcpu.c
+> +++ b/arch/loongarch/kvm/vcpu.c
+> @@ -730,6 +730,8 @@ static int kvm_loongarch_cpucfg_has_attr(struct kvm_v=
+cpu *vcpu,
+>         switch (attr->attr) {
+>         case 2:
+>                 return 0;
+> +       case CPUCFG_KVM_FEATURE:
+> +               return 0;
+>         default:
+>                 return -ENXIO;
+>         }
+> @@ -740,7 +742,7 @@ static int kvm_loongarch_cpucfg_has_attr(struct kvm_v=
+cpu *vcpu,
+>  static int kvm_loongarch_pvtime_has_attr(struct kvm_vcpu *vcpu,
+>                                          struct kvm_device_attr *attr)
+>  {
+> -       if (!kvm_pvtime_supported() ||
+> +       if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME) ||
+>                         attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GPA)
+>                 return -ENXIO;
+>
+> @@ -773,9 +775,18 @@ static int kvm_loongarch_cpucfg_get_attr(struct kvm_=
+vcpu *vcpu,
+>         uint64_t val;
+>         uint64_t __user *uaddr =3D (uint64_t __user *)attr->addr;
+>
+> -       ret =3D _kvm_get_cpucfg_mask(attr->attr, &val);
+> -       if (ret)
+> -               return ret;
+> +       switch (attr->attr) {
+> +       case 0 ... (KVM_MAX_CPUCFG_REGS - 1):
+> +               ret =3D _kvm_get_cpucfg_mask(attr->attr, &val);
+> +               if (ret)
+> +                       return ret;
+> +               break;
+> +       case CPUCFG_KVM_FEATURE:
+> +               val =3D vcpu->kvm->arch.pv_features & LOONGARCH_PV_FEAT_M=
+ASK;
+> +               break;
+> +       default:
+> +               return -ENXIO;
+> +       }
+>
+>         put_user(val, uaddr);
+>
+> @@ -788,7 +799,7 @@ static int kvm_loongarch_pvtime_get_attr(struct kvm_v=
+cpu *vcpu,
+>         u64 gpa;
+>         u64 __user *user =3D (u64 __user *)attr->addr;
+>
+> -       if (!kvm_pvtime_supported() ||
+> +       if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME) ||
+>                         attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GPA)
+>                 return -ENXIO;
+>
+> @@ -821,7 +832,29 @@ static int kvm_loongarch_vcpu_get_attr(struct kvm_vc=
+pu *vcpu,
+>  static int kvm_loongarch_cpucfg_set_attr(struct kvm_vcpu *vcpu,
+>                                          struct kvm_device_attr *attr)
+>  {
+> -       return -ENXIO;
+> +       u64 __user *user =3D (u64 __user *)attr->addr;
+> +       u64 val, valid;
+> +       struct kvm *kvm =3D vcpu->kvm;
+> +
+> +       switch (attr->attr) {
+> +       case CPUCFG_KVM_FEATURE:
+> +               if (get_user(val, user))
+> +                       return -EFAULT;
+> +
+> +               valid =3D LOONGARCH_PV_FEAT_MASK;
+> +               if (val & ~valid)
+> +                       return -EINVAL;
+> +
+> +               /* All vCPUs need set the same pv features */
+> +               if ((kvm->arch.pv_features & LOONGARCH_PV_FEAT_UPDATED) &=
+&
+> +                               ((kvm->arch.pv_features & valid) !=3D val=
+))
+> +                       return -EINVAL;
+> +               kvm->arch.pv_features =3D val | LOONGARCH_PV_FEAT_UPDATED=
+;
+> +               return 0;
+> +
+> +       default:
+> +               return -ENXIO;
+> +       }
+>  }
+>
+>  static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
+> @@ -831,7 +864,7 @@ static int kvm_loongarch_pvtime_set_attr(struct kvm_v=
+cpu *vcpu,
+>         u64 gpa, __user *user =3D (u64 __user *)attr->addr;
+>         struct kvm *kvm =3D vcpu->kvm;
+>
+> -       if (!kvm_pvtime_supported() ||
+> +       if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME) ||
+>                         attr->attr !=3D KVM_LOONGARCH_VCPU_PVTIME_GPA)
+>                 return -ENXIO;
+>
+> diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm.c
+> index 6b2e4f66ad26..3234f3e85dc0 100644
+> --- a/arch/loongarch/kvm/vm.c
+> +++ b/arch/loongarch/kvm/vm.c
+> @@ -5,6 +5,7 @@
+>
+>  #include <linux/kvm_host.h>
+>  #include <asm/kvm_mmu.h>
+> +#include <asm/kvm_vcpu.h>
+>
+>  const struct _kvm_stats_desc kvm_vm_stats_desc[] =3D {
+>         KVM_GENERIC_VM_STATS(),
+> @@ -39,6 +40,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long ty=
+pe)
+>         spin_lock_init(&kvm->arch.phyid_map_lock);
+>
+>         kvm_init_vmcs(kvm);
+> +       /* Enable all pv features by default */
+> +       kvm->arch.pv_features =3D BIT(KVM_FEATURE_IPI);
+> +       if (kvm_pvtime_supported())
+> +               kvm->arch.pv_features |=3D BIT(KVM_FEATURE_STEAL_TIME);
+>         kvm->arch.gpa_size =3D BIT(cpu_vabits - 1);
+>         kvm->arch.root_level =3D CONFIG_PGTABLE_LEVELS - 1;
+>         kvm->arch.invalid_ptes[0] =3D 0;
+> @@ -99,7 +104,43 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, lon=
+g ext)
+>         return r;
+>  }
+>
+> +static int kvm_vm_feature_has_attr(struct kvm *kvm, struct kvm_device_at=
+tr *attr)
+> +{
+> +       switch (attr->attr) {
+> +       case KVM_LOONGARCH_VM_FEAT_PV_IPI:
+> +               return 0;
+> +       case KVM_LOONGARCH_VM_FEAT_PV_STEALTIME:
+> +               if (kvm_pvtime_supported())
+> +                       return 0;
+> +               return -ENXIO;
+> +       default:
+> +               return -ENXIO;
+> +       }
+> +}
+> +
+> +static int kvm_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr=
+)
+> +{
+> +       switch (attr->group) {
+> +       case KVM_LOONGARCH_VM_FEAT_CTRL:
+> +               return kvm_vm_feature_has_attr(kvm, attr);
+> +       default:
+> +               return -ENXIO;
+> +       }
+> +}
+> +
+>  int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned lo=
+ng arg)
+>  {
+> -       return -ENOIOCTLCMD;
+> +       struct kvm *kvm =3D filp->private_data;
+> +       void __user *argp =3D (void __user *)arg;
+> +       struct kvm_device_attr attr;
+> +
+> +       switch (ioctl) {
+> +       case KVM_HAS_DEVICE_ATTR:
+> +               if (copy_from_user(&attr, argp, sizeof(attr)))
+> +                       return -EFAULT;
+> +
+> +               return kvm_vm_has_attr(kvm, &attr);
+> +       default:
+> +               return -EINVAL;
+> +       }
+>  }
+> --
+> 2.39.3
+>
+>
