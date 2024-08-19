@@ -1,211 +1,187 @@
-Received: from smtp.smtpout.orange.fr (smtp-17.smtpout.orange.fr [80.12.242.17])
+Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 991BA1411E0
-	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 18:52:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C474714BFA2
+	for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 19:23:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724093528; cv=none; b=CmvBAFHShAXVfRjAvp5qEZbIa7bQaB4JtwVG5eT/ac1rVne11xs7U+iR/4noFSw/2/BkOv0X22e3qTiw26nxUeyRBaiDge0Y2Koshnm+13E3m8uMxps5/U9HRmDarNrg4VJxqu+O88SMFf5wrLKb8yfVTkXxjxdy5m9PAUjgClM=
+	t=1724095427; cv=none; b=trn1RKQHD5cybvN579spkTLWaXcX+uyoBSreqvzrAqKFfLm5FHCh94lytzadvcfAXWhg5Z+4GKhx/OBDLun7X12gdceSQ2uegHlg3u3rWifOAn25EH4M1QM2Q0eKKwE/BH3QDUfXgC0LH55kEW/yCa0yye8Eu6MsGdbCCkvxP2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724093528; c=relaxed/simple;
-	bh=yuIaNRdT2XsbRktrinM+nAtjGpiDnUSrUd78oiucAek=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=T+jjyBiaBKK4TXKfQPuRaWgc2LR//T3uzvAv5v/H0NsdCsBg6YNKMx+muv4ij6BtO0+DP1xb+PwrLhx2gHiP0p2KqDW78eAjRckBBtDJiWlAUUveDZHR08k3VajXD/Eq0J/FF9ARzCz0y8UdIfrAb80MsCAQrpwLM3OIJJ7f9gs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=mERexwoy; arc=none smtp.client-ip=80.12.242.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
+	s=arc-20240116; t=1724095427; c=relaxed/simple;
+	bh=jJ4OvITJQsSw34kGgVMEgMaGZG2InkxvgCMPhHp5DNU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=O9BS5J/Fiog2VhZQK4SXVvkjGqf2SHMFZ9tCuKmsqY/s9knPHWeDGG6vqaVWqOSj4n3KLkolTKeS7PgOoMg704FbEZpWkzm8PFlBMZKQCHAMBWlFewDn42/taE28ZSwCJP59fyKQezk4Y5ACWbD/h4BR4e5QLFrCZFZxDtdMI8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NmheTJ7s; arc=none smtp.client-ip=209.85.219.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="mERexwoy"
-Received: from [192.168.1.37] ([90.11.132.44])
-	by smtp.orange.fr with ESMTPA
-	id g6yfszJBlQRySg6yfszKrO; Mon, 19 Aug 2024 20:19:44 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1724091584;
-	bh=i2piStncb9aJgwDrvhVqFSwNM+FZr5qttsR8sW3kpiA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From;
-	b=mERexwoyPzlfOebBUEnIZsOtSDCyALgn06bAE0XuHJCOZf7MgURweOtCYf6D5ucvJ
-	 hMxqf1tym0+N1Yh1Kbtxnt/uiEN5D/QjnWk+qeYU1kf9fnNGIcOfFfUV8ildjug1Wj
-	 +AeJZMCJpizoL16BT/5H1yRsJWk4bK4mOJMcJ5w1C1DdkuK+LTxHCusEYR4OwF84Ku
-	 +LejUCxpLFrzVaYKQL35SlVlnRKXCLRCjGATL+8fj/YDf1K9GFn7lWZ/Qy8KDoyJRY
-	 4PIjpQAMLXkiwAulAoaPdD5hVIViRIDkDDoFS+N0BjfpoxS/HV8fdzvU2do0815ek2
-	 I0eIZaE9SrODA==
-X-ME-Helo: [192.168.1.37]
-X-ME-Auth: bWFyaW9uLmphaWxsZXRAd2FuYWRvby5mcg==
-X-ME-Date: Mon, 19 Aug 2024 20:19:44 +0200
-X-ME-IP: 90.11.132.44
-Message-ID: <74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanadoo.fr>
-Date: Mon, 19 Aug 2024 20:19:28 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NmheTJ7s"
+Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-6bf7658f4aaso23686286d6.0
+        for <virtualization@lists.linux.dev>; Mon, 19 Aug 2024 12:23:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724095425; x=1724700225; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jzFJ7K9wdRT+QQN8nk00JRyGEe7qfSEYg3oRtqc9s/Y=;
+        b=NmheTJ7sItrexgg1BKl6pljYE8wlagItsRIZsv3FuYK55LW7ZkRHME2C14P4RSjMO/
+         Wu+6nHS2xXStG77wzoaJcV6cTpXAMPOO+U6DGmNP0RxNGBJ+x54UXYMwMDna49l7S8Gx
+         ng7q9bPL1rmupdmIG8AlFD6DUuFpvQJmK+JpN+Kua95nfXY+ND93zAmGpO/qfDZzSVEX
+         yAKbzoB+3yXTuhK9e2J42ybuE7p4XwQooCH5uGA/2aETW0ULi1NZA+X05olwfWdIZM44
+         YQFEGpEbWTpRZz09uP0u/As2msEsyiHKB/RINZJDSJzPp1Mkn2nMwqgh78UmWHFHv2SQ
+         OhOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724095425; x=1724700225;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jzFJ7K9wdRT+QQN8nk00JRyGEe7qfSEYg3oRtqc9s/Y=;
+        b=IvUsFKzSFXP9VmlPrtkiTzVy0ZpfXXf2r45KrRy9AefPDYOOsdxCu0phN42Buq9NvP
+         3pInrwyk3lE2n0cKBldUiJOVW6LIRTL4PrfBbBcdu29k/xBAImGjOPKl0mZG+xCYBDyA
+         /GKSuzKCZtpdjxg5gjR2HjuYlGD98knRgtCWC1x9VUw3i9yEEBKN2LBJG2ReiFn71yAH
+         Eax2VARErbJChLPTJSCb8XJHDsZGPpwRnW2PM2gS0U6Jb9TOTQKZIcR0cW7d4ISlxzss
+         z8z8/49U3D25lNTZANHIW8WKxv0W9BO306dc+q2VhElOAYDXSML8Spp6cG3UMcIveMn9
+         prug==
+X-Forwarded-Encrypted: i=1; AJvYcCU1Rn9ffUP+eXaEGR+kEvOl1f4eUC34k9IHApwoEEMtoFDsRXLrbupKiURlDB2hMgR6O4SeJdWBFszsg0RC3ZZhQHh8a6Gw/AK8v5ptKVY=
+X-Gm-Message-State: AOJu0Yz4Wu4hy7+Y4n5GVQO90H8l5ckK5A8cIakiF+z/0+CB9nn4Mh4x
+	hd//b4/X2xi+H3FVo92RJfaxxb9wITEnHAPkc9Js2Kv2SHnkt9U9UqylRY8h3yjDCXNxXPzZn0b
+	33VtAXqk8wrGM71NGIbc4bItRqcM=
+X-Google-Smtp-Source: AGHT+IETlY5cNq9g0dHqEUB4cSHIAgnEby1WMSf7rLlyw3/o+UIOTsTYGREIlaqYZFL3bZuBjpvCJZSGSZ64HzX4VC8=
+X-Received: by 2002:a05:6214:5490:b0:6bf:8711:ab43 with SMTP id
+ 6a1803df08f44-6bf8711aee5mr82046406d6.31.1724095424517; Mon, 19 Aug 2024
+ 12:23:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 8/9] vdap: solidrun: Replace deprecated PCI functions
-To: Philipp Stanner <pstanner@redhat.com>, onathan Corbet <corbet@lwn.net>,
- Jens Axboe <axboe@kernel.dk>, Wu Hao <hao.wu@intel.com>,
- Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
- Xu Yilun <yilun.xu@intel.com>, Andy Shevchenko <andy@kernel.org>,
- Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski
- <brgl@bgdev.pl>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Jose Abreu <joabreu@synopsys.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Bjorn Helgaas <bhelgaas@google.com>,
- Alvaro Karsz <alvaro.karsz@solid-run.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Richard Cochran <richardcochran@gmail.com>,
- Mark Brown <broonie@kernel.org>
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-block@vger.kernel.org, linux-fpga@vger.kernel.org,
- linux-gpio@vger.kernel.org, netdev@vger.kernel.org,
- linux-stm32@st-md-mailman.stormreply.com,
- linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20240819165148.58201-2-pstanner@redhat.com>
- <20240819165148.58201-10-pstanner@redhat.com>
-Content-Language: en-US, fr-FR
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-In-Reply-To: <20240819165148.58201-10-pstanner@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20240817062449.21164-1-21cnbao@gmail.com> <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
+ <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+In-Reply-To: <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Tue, 20 Aug 2024 07:23:31 +1200
+Message-ID: <CAGsJ_4xwj+trzpOS4b-RSHtqHkD4+0g1Sadr7YCiauOBgd35dQ@mail.gmail.com>
+Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: David Hildenbrand <david@redhat.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, 
+	iamjoonsoo.kim@lge.com, mhocko@suse.com, penberg@kernel.org, 
+	rientjes@google.com, roman.gushchin@linux.dev, urezki@gmail.com, 
+	v-songbaohua@oppo.com, vbabka@suse.cz, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Le 19/08/2024 à 18:51, Philipp Stanner a écrit :
-> solidrun utilizes pcim_iomap_regions(), which has been deprecated by the
-> PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
-> pcim_iomap_table(), pcim_iomap_regions_request_all()"), among other
-> things because it forces usage of quite a complicated bitmask mechanism.
-> The bitmask handling code can entirely be removed by replacing
-> pcim_iomap_regions() and pcim_iomap_table().
-> 
-> Replace pcim_iomap_regions() and pcim_iomap_table() with
-> pci_iomap_region().
-> 
-> Signed-off-by: Philipp Stanner <pstanner@redhat.com>
-> ---
->   drivers/vdpa/solidrun/snet_main.c | 47 +++++++++++--------------------
->   1 file changed, 16 insertions(+), 31 deletions(-)
-> 
-> diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
-> index 99428a04068d..abf027ca35e1 100644
-> --- a/drivers/vdpa/solidrun/snet_main.c
-> +++ b/drivers/vdpa/solidrun/snet_main.c
-> @@ -556,33 +556,24 @@ static const struct vdpa_config_ops snet_config_ops = {
->   static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
->   {
->   	char name[50];
-> -	int ret, i, mask = 0;
-> +	int i;
-> +
-> +	snprintf(name, sizeof(name), "psnet[%s]-bars", pci_name(pdev));
-> +
->   	/* We don't know which BAR will be used to communicate..
->   	 * We will map every bar with len > 0.
->   	 *
->   	 * Later, we will discover the BAR and unmap all other BARs.
->   	 */
->   	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-> -		if (pci_resource_len(pdev, i))
-> -			mask |= (1 << i);
-> -	}
-> -
-> -	/* No BAR can be used.. */
-> -	if (!mask) {
-> -		SNET_ERR(pdev, "Failed to find a PCI BAR\n");
-> -		return -ENODEV;
-> -	}
-> -
-> -	snprintf(name, sizeof(name), "psnet[%s]-bars", pci_name(pdev));
-> -	ret = pcim_iomap_regions(pdev, mask, name);
-> -	if (ret) {
-> -		SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
-> -		return ret;
-> -	}
-> +		if (pci_resource_len(pdev, i)) {
-> +			psnet->bars[i] = pcim_iomap_region(pdev, i, name);
+On Tue, Aug 20, 2024 at 4:05=E2=80=AFAM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Mon, 19 Aug 2024 at 06:02, David Hildenbrand <david@redhat.com> wrote:
+> > >
+> > > If we must still fail a nofail allocation, we should trigger a BUG ra=
+ther
+> > > than exposing NULL dereferences to callers who do not check the retur=
+n
+> > > value.
+> >
+> > I am not convinced that BUG_ON is the right tool here to save the world=
+,
+> > but I see how we arrived here.
+>
+> I think the thing to do is to just add a
+>
+>      WARN_ON_ONCE((flags & __GFP_NOFAIL) && bad_nofail_alloc(oder, flags)=
+);
+>
+> or similar, where that bad_nofail_alloc() checks that the allocation
+> order is small and that the flags are sane for a NOFAIL allocation.
+>
+> Because no, BUG_ON() is *never* the answer. The answer is to make sure
+> nobody ever sets NOFAIL in situations where the allocation can fail
+> and there is no way forward.
+>
+> A BUG_ON() will quite likely just make things worse. You're better off
+> with a WARN_ON() and letting the caller just oops.
 
-Hi,
+That could be an exploit taking advantage of those improper callers,
+thus it wouldn=E2=80=99t necessarily result in an immediate oops in callers=
+ but
+result in an exploit such as
 
-Unrelated to the patch, but is is safe to have 'name' be on the stack?
+p =3D malloc(gfp_nofail);
 
-pcim_iomap_region()
---> __pcim_request_region()
---> __pcim_request_region_range()
---> request_region() or __request_mem_region()
---> __request_region()
---> __request_region_locked()
---> res->name = name;
+using p->field
+or
+using p + offset
 
-So an address on the stack ends in the 'name' field of a "struct resource".
+where p->filed or p + offset might be attacking code though p is NULL.
 
-According to a few grep, it looks really unusual.
+Could we consider infinitely blocking those bad callers:
+while (illegal_gfp_nofail)  do_sth_relax_cpu();
 
-I don't know if it is used, but it looks strange to me.
-
-
-If it is an issue, it was apparently already there before this patch.
-
-> +			if (IS_ERR(psnet->bars[i])) {
-> +				SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
-> +				return PTR_ERR(psnet->bars[i]);
-> +			}
-> +		}
->   
-> -	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-> -		if (mask & (1 << i))
-> -			psnet->bars[i] = pcim_iomap_table(pdev)[i];
->   	}
->   
->   	return 0;
-> @@ -591,18 +582,15 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
->   static int snet_open_vf_bar(struct pci_dev *pdev, struct snet *snet)
->   {
->   	char name[50];
-> -	int ret;
->   
->   	snprintf(name, sizeof(name), "snet[%s]-bar", pci_name(pdev));
->   	/* Request and map BAR */
-> -	ret = pcim_iomap_regions(pdev, BIT(snet->psnet->cfg.vf_bar), name);
-> -	if (ret) {
-> +	snet->bar = pcim_iomap_region(pdev, snet->psnet->cfg.vf_bar, name);
-
-Same
-
-Just my 2c.
-
-CJ
-
-> +	if (IS_ERR(snet->bar)) {
->   		SNET_ERR(pdev, "Failed to request and map PCI BAR for a VF\n");
-> -		return ret;
-> +		return PTR_ERR(snet->bar);
->   	}
->   
-> -	snet->bar = pcim_iomap_table(pdev)[snet->psnet->cfg.vf_bar];
-> -
->   	return 0;
->   }
->   
-> @@ -650,15 +638,12 @@ static int psnet_detect_bar(struct psnet *psnet, u32 off)
->   
->   static void psnet_unmap_unused_bars(struct pci_dev *pdev, struct psnet *psnet)
->   {
-> -	int i, mask = 0;
-> +	int i;
->   
->   	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
->   		if (psnet->bars[i] && i != psnet->barno)
-> -			mask |= (1 << i);
-> +			pcim_iounmap_region(pdev, i);
->   	}
-> -
-> -	if (mask)
-> -		pcim_iounmap_regions(pdev, mask);
->   }
->   
->   /* Read SNET config from PCI BAR */
-
+>
+> Honestly, I'm perfectly fine with just removing that stupid useless
+> flag entirely. The flag goes back to 2003 and was introduced in
+> 2.5.69, and was meant to be for very particular uses that otherwise
+> just looped waiting for memory.
+>
+> Back in 2.5.69, there was exactly one user: the jbd journal code, that
+> did a buffer head allocation with GFP_NOFAIL.  By 2.6.0 that had
+> expanded by another user in XFS, and even that one had a comment
+> saying that it needed to be narrowed down. And in fact, by the 2.6.12
+> release, that XFS use had been removed, but the jbd journal had grown
+> another jbd_kmalloc case for transaction data. So at the beginning of
+> the git archives, we had exactly *one* user (with two places).
+>
+> *THAT* is the kind of use that the flag was meant for: small
+> allocations required to make forward progress in writeout during
+> memory pressure.
+>
+> It has then expanded and is now a problem. The cases using GFP_NOFAIL
+> for things like vmalloc() - which is by definition not a small
+> allocation - should be just removed as outright bugs.
+>
+> Note that we had this comment back in 2010:
+>
+>  * __GFP_NOFAIL: The VM implementation _must_ retry infinitely: the calle=
+r
+>  * cannot handle allocation failures.  This modifier is deprecated and no=
+ new
+>  * users should be added.
+>
+> and then it was softened in 2015 to the current
+>
+>  * __GFP_NOFAIL: The VM implementation _must_ retry infinitely: the calle=
+r
+>  * cannot handle allocation failures. New users should be evaluated caref=
+ully
+>   ...
+>
+> and clearly that "evaluated carefully" actually never happened, so the
+> new comment is just garbage.
+>
+> I wonder how many modern users of GFP_NOFAIL are simply due to
+> over-eager allocation failure injection testing, and then people added
+> GFP_NOFAIL just because it shut up the mindless random allocation
+> failures.
+>
+> I mean, we have a __GFP_NOFAIL in rhashtable_init() - which can
+> actually return an error just fine, but there was this crazy worry
+> about the IPC layer initialization failing:
+>
+>    https://lore.kernel.org/all/20180523172500.anfvmjtumww65ief@linux-n805=
+/
+>
+> Things like that, where people just added mindless "theoretical
+> concerns" issues, or possibly had some error injection module that
+> inserted impossible failures.
+>
+> I do NOT want those things to become BUG_ON()'s. It's better to just
+> return NULL with a "bogus GFP_NOFAIL" warning, and have the oops
+> happen in the actual bad place that did an invalid allocation.
+>
+> Because the blame should go *there*, and it should not even remotely
+> look like "oh, the MM code failed". No. The caller was garbage.
+>
+> So no. No MM BUG_ON code.
+>
+>                     Linus
