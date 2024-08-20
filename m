@@ -1,115 +1,182 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA59443ACB
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 07:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B2D51891B7
+	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 07:22:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724138366; cv=none; b=X5NxUXXihrcbHCgpC6hiwibO2pokdG24ixBXyEfUwhikfdMo8vTYJafsslzrHkz40SUeRlOanvZSmehNeJnYqgGf6wK9WnvHNlmTKKSh6MSb6QDha1t8PGuB8imif/9/S14GVRcVWwX+fjt22FneJoX7Nw6+rqo/pxgFjemn0so=
+	t=1724138530; cv=none; b=Pi7D2H2z3CumSCk72MPTL91fNR9twwbFlN6ZUz9uVCxQ+bme0VkMqmMaADxq5NxIsZ2E37F+tnTignmiBWPVWAzUGbMUmc+JREykJuXZmx06siuMSd2RECnOwlIuvZJpieQ9iJqiNBKRD0vrp9aKHPoaZ3QaUS9gKCd9NOnpEdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724138366; c=relaxed/simple;
-	bh=+4y3tpuUKVecJJYH20PqlsMjT8xAJpgyyEhguCNXpS0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=i6JVX3g6gOxkgiZJJzW4iN7wdF1/YkKAPtXlsng83ColDjKu02eoOO7A6iiDdmV5jiiICNMAXkK81b4srxuVLBLagC6UG21dt7EpukjY9uxJh6YRBTFmDQmHqn0Srxx17+mKN3zv4a4lMRXVv+F9hlA35kQDFHse2jJ4F70+S/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RH0ZlCPu; arc=none smtp.client-ip=115.124.30.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1724138530; c=relaxed/simple;
+	bh=e0+qX0TrsxgkCOPXQaR02hk7ZTKpiv1mVn2GsQYYShY=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=okoA0toW2z2E7rrgdEvvPHojG24vC1KwvjfKaxZYUmVA07REpI6Smd+2LJBSaVD9YTMJ4eWOgq9yWkorTcjdpbZzdjFb89UEEEL4MHLyGioaB3O4lXOF3juI0O/Mi6bHa9rzDauzuvl7xQK3+2MnmY89hB0pDnVZOtcAlvSQ2oA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fV23YTPE; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RH0ZlCPu"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1724138355; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=u5yUtFgvGZJkLvmTaub6owlArqgNe3SkGG9nd6+xSAo=;
-	b=RH0ZlCPusxFCY4rbNIwbZuK+UwrxeIiQVbaTBoA8qDNAIJRBBHFGcOX2wchRNtTybDVfVobPOdC0DdkAxNzw8hz7gE1+pmksmGLWaGM6r2LyjU7LPY2+Sw1WzDC2jTa0XQuN3LPIWGBe9TMI1UyusM0/5g4L6VFa/4WOVOrSVhc=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WDHeSNR_1724138353)
-          by smtp.aliyun-inc.com;
-          Tue, 20 Aug 2024 15:19:14 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev,
-	"Si-Wei Liu" <si-wei.liu@oracle.com>,
-	Darren Kenny <darren.kenny@oracle.com>
-Subject: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
-Date: Tue, 20 Aug 2024 15:19:13 +0800
-Message-Id: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fV23YTPE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724138527;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=e0+qX0TrsxgkCOPXQaR02hk7ZTKpiv1mVn2GsQYYShY=;
+	b=fV23YTPEqveGc6zJw45YoSGX38FaNrQ0jFm02JTziSP6V/0wQqE4IBJ4F1Rnblc56sGfMG
+	g4TgniHcGBD9GhQp6BK1bSM1EB6h0Re5YadXBfAhpUS+zwNb2BBuU38bK6ppBcSepfnAX2
+	dvYOkf1AnlV3dAFjj9veRM9DGD7TFmU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-215-OhqjfVQAO5m68zZOvtUAcQ-1; Tue, 20 Aug 2024 03:22:04 -0400
+X-MC-Unique: OhqjfVQAO5m68zZOvtUAcQ-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-427feed9c71so9536185e9.0
+        for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 00:22:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724138523; x=1724743323;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ASIEWrzHXogS2+yni6jFmR1o/WYm2ANcxSxU4DhoyQc=;
+        b=Q63VGCZ3xR0wk128QGhrPt2P5mlyb82kh+a8QR7KxigwaOL8stPkTbZB7134jXy3OO
+         tn1uQM8YktUI4LqLWRUOBMgbbTQ6+kz2EElYQqmx0XG+tyJNC1I1Ka0HEiKZ3IjU4ERK
+         qSi4Bb12my1RvbY5OrkrqsAzWD6llIE4lK8nBYKBvceRSP9dwnOK9ohZdRJqDNXbHYpt
+         IWAyCc/AIqswua6qVnh3smfeEBNS84G6ksiNJudetWrPALwmriwjwQdhF8Cy9nODaV/m
+         qnFV9A/SH2ph0+4A5PbOMmspoOQ7L4J3i0DTotz11KUEN+XG01NPOsku435Vn4jyaoOe
+         /WMQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUywtHzrtiSkJoMCxR0uyduarYWDZot2H6j9qH7j0pjWYh9QG3FF3x8aklqloY9tmJD1p/FJ1DtstgbWqE48Qa/HjsznSAp+/FYD3wAD1I=
+X-Gm-Message-State: AOJu0Yw8ep4+RkFqDhUb+br+LlsTsJ30wy+vlA6OISMgiZYt+fKkVpA1
+	70Qjq88t7dXHJRyGHo4cgxhd+FQCy3MfeaeSYQbmmCtSE5+xfXELQqk0CIZFVXN+jFU2UZt61UZ
+	v2asK/WgHRDt3j7O1AXTPbczIoOcyP6S/8t+tOgMojnV6ZFD9Avym0gVCUMr614VP
+X-Received: by 2002:a05:600c:1ca9:b0:425:65b1:abb4 with SMTP id 5b1f17b1804b1-429ed62f54cmr55368075e9.0.1724138522950;
+        Tue, 20 Aug 2024 00:22:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGtu6sXluOG26PWy70qwsbDcaM81TTK+UTUTvyjs1U84scjqTgJELEGk3SrTeSIfdGLnjJpqA==
+X-Received: by 2002:a05:600c:1ca9:b0:425:65b1:abb4 with SMTP id 5b1f17b1804b1-429ed62f54cmr55367605e9.0.1724138522431;
+        Tue, 20 Aug 2024 00:22:02 -0700 (PDT)
+Received: from eisenberg.fritz.box ([2001:16b8:3dcc:1f00:bec1:681e:45eb:77e2])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429eeadfafbsm130634445e9.47.2024.08.20.00.22.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Aug 2024 00:22:02 -0700 (PDT)
+Message-ID: <267a021781f59d6efe798dbca63f29dd25359f2d.camel@redhat.com>
+Subject: Re: [PATCH 4/9] block: mtip32xx: Replace deprecated PCI functions
+From: Philipp Stanner <pstanner@redhat.com>
+To: onathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>, Wu Hao
+ <hao.wu@intel.com>, Tom Rix <trix@redhat.com>, Moritz Fischer
+ <mdf@kernel.org>,  Xu Yilun <yilun.xu@intel.com>, Andy Shevchenko
+ <andy@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz
+ Golaszewski <brgl@bgdev.pl>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,  Paolo
+ Abeni <pabeni@redhat.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Jose Abreu <joabreu@synopsys.com>, Maxime Coquelin
+ <mcoquelin.stm32@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, Alvaro
+ Karsz <alvaro.karsz@solid-run.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, Richard Cochran
+ <richardcochran@gmail.com>, Mark Brown <broonie@kernel.org>, David Lechner
+ <dlechner@baylibre.com>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
+ <u.kleine-koenig@pengutronix.de>, Jonathan Cameron
+ <Jonathan.Cameron@huawei.com>,  Hannes Reinecke <hare@suse.de>, Damien Le
+ Moal <dlemoal@kernel.org>, Chaitanya Kulkarni <kch@nvidia.com>, "Martin K.
+ Petersen" <martin.petersen@oracle.com>
+Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-block@vger.kernel.org, linux-fpga@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org,  linux-pci@vger.kernel.org,
+ virtualization@lists.linux.dev
+Date: Tue, 20 Aug 2024 09:22:00 +0200
+In-Reply-To: <20240819165148.58201-6-pstanner@redhat.com>
+References: <20240819165148.58201-2-pstanner@redhat.com>
+	 <20240819165148.58201-6-pstanner@redhat.com>
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 1e2a77031d94
-Content-Transfer-Encoding: 8bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-leads to regression on VM with the sysctl value of:
+On Mon, 2024-08-19 at 18:51 +0200, Philipp Stanner wrote:
+> pcim_iomap_regions() and pcim_iomap_table() have been deprecated by
+> the
+> PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
+> pcim_iomap_table(), pcim_iomap_regions_request_all()").
+>=20
+> In mtip32xx, these functions can easily be replaced by their
+> respective
+> successors, pcim_request_region() and pcim_iomap(). Moreover, the
+> driver's call to pcim_iounmap_regions() is not necessary, because
+> it's
+> invoked in the remove() function. Cleanup can, hence, be performed by
+> PCI devres automatically.
+>=20
+> Replace pcim_iomap_regions() and pcim_iomap_table().
+>=20
+> Remove the call to pcim_iounmap_regions().
+>=20
+> Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+> ---
+> =C2=A0drivers/block/mtip32xx/mtip32xx.c | 11 ++++++-----
+> =C2=A01 file changed, 6 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/block/mtip32xx/mtip32xx.c
+> b/drivers/block/mtip32xx/mtip32xx.c
+> index c6ef0546ffc9..c7da6090954e 100644
+> --- a/drivers/block/mtip32xx/mtip32xx.c
+> +++ b/drivers/block/mtip32xx/mtip32xx.c
+> @@ -2716,7 +2716,9 @@ static int mtip_hw_init(struct driver_data *dd)
+> =C2=A0=09int rv;
+> =C2=A0=09unsigned long timeout, timetaken;
+> =C2=A0
+> -=09dd->mmio =3D pcim_iomap_table(dd->pdev)[MTIP_ABAR];
+> +=09dd->mmio =3D pcim_iomap(dd->pdev, MTIP_ABAR, 0);
+> +=09if (!dd->mmio)
+> +=09=09return -ENOMEM;
+> =C2=A0
+> =C2=A0=09mtip_detect_product(dd);
+> =C2=A0=09if (dd->product_type =3D=3D MTIP_PRODUCT_UNKNOWN) {
+> @@ -3726,9 +3728,9 @@ static int mtip_pci_probe(struct pci_dev *pdev,
+> =C2=A0=09}
+> =C2=A0
+> =C2=A0=09/* Map BAR5 to memory. */
+> -=09rv =3D pcim_iomap_regions(pdev, 1 << MTIP_ABAR,
+> MTIP_DRV_NAME);
+> +=09rv =3D pcim_request_region(pdev, 1, MTIP_DRV_NAME);
 
-- net.core.high_order_alloc_disable=1
+That's a bug here, btw.
+Should be MTIP_ABAR instead of 1.
 
-which could see reliable crashes or scp failure (scp a file 100M in size
-to VM):
+Will fix in v2.
 
-The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-of a new frag. When the frag size is larger than PAGE_SIZE,
-everything is fine. However, if the frag is only one page and the
-total size of the buffer and virtnet_rq_dma is larger than one page, an
-overflow may occur. In this case, if an overflow is possible, I adjust
-the buffer size. If net.core.high_order_alloc_disable=1, the maximum
-buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
-the first buffer of the frag is affected.
+P.
 
-Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
-Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c6af18948092..e5286a6da863 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
- 	void *buf, *head;
- 	dma_addr_t addr;
- 
--	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
--		return NULL;
--
- 	head = page_address(alloc_frag->page);
- 
- 	dma = head;
-@@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
- 	len = SKB_DATA_ALIGN(len) +
- 	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 
-+	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-+		return -ENOMEM;
-+
- 	buf = virtnet_rq_alloc(rq, len, gfp);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
-@@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
- 	 */
- 	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
- 
-+	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
-+		return -ENOMEM;
-+
-+	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
-+		len -= sizeof(struct virtnet_rq_dma);
-+
- 	buf = virtnet_rq_alloc(rq, len + room, gfp);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
--- 
-2.32.0.3.g01195cf9f
+> =C2=A0=09if (rv < 0) {
+> -=09=09dev_err(&pdev->dev, "Unable to map regions\n");
+> +=09=09dev_err(&pdev->dev, "Unable to request regions\n");
+> =C2=A0=09=09goto iomap_err;
+> =C2=A0=09}
+> =C2=A0
+> @@ -3849,7 +3851,7 @@ static int mtip_pci_probe(struct pci_dev *pdev,
+> =C2=A0=09=09drop_cpu(dd->work[2].cpu_binding);
+> =C2=A0=09}
+> =C2=A0setmask_err:
+> -=09pcim_iounmap_regions(pdev, 1 << MTIP_ABAR);
+> +=09pcim_release_region(pdev, MTIP_ABAR);
+> =C2=A0
+> =C2=A0iomap_err:
+> =C2=A0=09kfree(dd);
+> @@ -3925,7 +3927,6 @@ static void mtip_pci_remove(struct pci_dev
+> *pdev)
+> =C2=A0
+> =C2=A0=09pci_disable_msi(pdev);
+> =C2=A0
+> -=09pcim_iounmap_regions(pdev, 1 << MTIP_ABAR);
+> =C2=A0=09pci_set_drvdata(pdev, NULL);
+> =C2=A0
+> =C2=A0=09put_disk(dd->disk);
 
