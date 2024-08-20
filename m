@@ -1,249 +1,507 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40F8BDDAD
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 01:06:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724115995; cv=fail; b=dXkwop3xnGZfq0zdSvmJ5tXxb/6+voaVOezR87VyVMRsIrzQWj2vzJIHUdAsBNzWVJbg4n2Jdcgvo6ZaYiRer3bMINKrxekW/LoqXrdfME7QNOftrxzvH4mKOc+h6Q54tCh11e1bf1dEFt7GfCUdQwwjURi2CrBu4BUik3vUthY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724115995; c=relaxed/simple;
-	bh=oRjlp3Gshybjj6uSVWk9FsrZPeJPgAtI+TF/+MiYId4=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Jkp34LqVyqQ4H9R1zsMp3n/KOUEKHg/mNPPXDcSho6Pxi0Bi4BReCAYvrKaR028tnuUfhVti88nMuR7GfHFpN8cvCy3E7kOELbSrDEIErcu7HkSvISlLdgrDZEaMJRB6R6pUnXHFrWbKwiP2EEeTgpC0VF65xRX7Ld9ctnXXbkE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=TPilCCeM; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=Jq4sOAAQ; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="TPilCCeM";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="Jq4sOAAQ"
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47JLLRR8016254;
-	Tue, 20 Aug 2024 01:06:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
-	message-id:date:subject:to:cc:references:from:in-reply-to
-	:content-type:content-transfer-encoding:mime-version; s=
-	corp-2023-11-20; bh=IlYzg1++i1wV4WOBQnjvXWiQxI1z/8NFNlTVjqcW4gs=; b=
-	TPilCCeMbgB2AJ0iAzujvoVj94xhkavH26P/GuPVygf7bXYiimQYHyYwEARWtWLo
-	nuxI1+S7+QaCPgJ3LT//EshnlnAEkNbUVsSlpmVPZe7I+DI0nXGhpbUiwKpuTdRb
-	9wJgmiFJUaZ76Nr5AJWjQAgSt/gvhSlIVBISne81rKVRjvNIH/8eP6yFiTcqFCY9
-	KyCHB4j1bIpLjZ8K8/VmgalEr6pKZTYUEIzwKPzaIz9aD/haBXcu3UgN9wlYre0L
-	Eh+bIAwD8/RTHJZZ3SCkwtTVXcagAtkBoNkj2pE7yO/glEAB/HZDKdK4IjE5iPS8
-	ZRqK+rN6f/Wjc1APAbK1tQ==
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 412m6gbw33-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 Aug 2024 01:06:17 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 47K0xHxQ009661;
-	Tue, 20 Aug 2024 01:06:17 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2171.outbound.protection.outlook.com [104.47.55.171])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 414h36g6gv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 Aug 2024 01:06:16 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uOiSFhTNwK1WCpbQRSSUQtse4mMI9dhi9b6rYEx3KZPVUPzCsGa4K6lWDolVBERps61JzKvC1B5ge3o4b8/xy3uBJ4I57jgfKeLaqRfyB1B3DzOoPGflTPdvrl1RapIcKX2JztoXmMqt3Mc/tK93s1ZQ9ecG1XweyLPqRKcB0YaaSDDJDKvXKtDjqzeDMOkXh0ltj+Nb0Z5UaD728TYnpVFIHNQI0OXuYjXqS0qRyRxSYZ0o6dPHedTwvl3I5bxKb2g7ylNiUYy22rnOIVryrRqUbf0ka6eAG6l00jaMtoXHuylpUbDS3AwebNSQc2Ut5jDnJMdmx6h4fuBVI5BoJw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IlYzg1++i1wV4WOBQnjvXWiQxI1z/8NFNlTVjqcW4gs=;
- b=TCb4CSgQt6D8Ex/xWxGZyUUWivJ1JeA8wXwUVkvRVolHHC79rm/TL9rOKSDmY8YiZbChcyoAoHmftWI2GbTdm4mZpbzeNkJSm3N7sH3ezywhS/1cw33lc8YYoYQ2iWP/aksDm43Y+faS8CkZTc1rbD8xI6dzKMYG7xk+LowyejgqXzS5q9Qtzn6PofmR/27zEHHhbLK3TbreCM/8gbfjxulE6U0/qNuJcjy0bEbsvIdZZXACTI0gs5/1DC5zbCXyZSWlghsZZYo93TdUJ3ixj3/Mlmk9nwsNZfKFZc8TtUrVcOZcB7rHnyJWQ6fgw+G14I4kPcesE5MpeHw/1S5Aaw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IlYzg1++i1wV4WOBQnjvXWiQxI1z/8NFNlTVjqcW4gs=;
- b=Jq4sOAAQyH2oL1XXZE2Nndb3KsENFSLblNu3aLfftXuJMVn2t66uBB0bjbdUf+ouC1hI1+0hlNxcJu9u34vkbsehT+7vDDXuq6AG8nOxCFkAsvxNvYBKTtWrgL+ucQscFu/duto6LKMRvToWoGKZnaGenbg8vVari27RtB0yYA0=
-Received: from MW4PR10MB6535.namprd10.prod.outlook.com (2603:10b6:303:225::12)
- by CH0PR10MB5003.namprd10.prod.outlook.com (2603:10b6:610:ca::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7897.13; Tue, 20 Aug
- 2024 01:06:14 +0000
-Received: from MW4PR10MB6535.namprd10.prod.outlook.com
- ([fe80::424f:6ee5:6be8:fe86]) by MW4PR10MB6535.namprd10.prod.outlook.com
- ([fe80::424f:6ee5:6be8:fe86%3]) with mapi id 15.20.7897.010; Tue, 20 Aug 2024
- 01:06:12 +0000
-Message-ID: <b4b3df48-d0c9-df99-5c47-7b193a5f70fd@oracle.com>
-Date: Mon, 19 Aug 2024 18:06:07 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v5 1/4] virtio_ring: enable premapped mode
- whatever use_dma_api
-Content-Language: en-US
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-        virtualization@lists.linux.dev, Darren Kenny <darren.kenny@oracle.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>, netdev@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>, Jakub Kicinski <kuba@kernel.org>
-References: <20240511031404.30903-1-xuanzhuo@linux.alibaba.com>
- <20240511031404.30903-2-xuanzhuo@linux.alibaba.com>
- <8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com>
- <1723900832.273505-1-xuanzhuo@linux.alibaba.com>
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <1723900832.273505-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MN2PR03CA0014.namprd03.prod.outlook.com
- (2603:10b6:208:23a::19) To MW4PR10MB6535.namprd10.prod.outlook.com
- (2603:10b6:303:225::12)
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F3F873B796;
+	Tue, 20 Aug 2024 03:21:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724124110; cv=none; b=T9NZdjHvtbVbZ5vWtHCL6n3uYxBbh9itbqGhEbbkKwRsd9sEieBE7WnTiIZ7EOm5uEAAEHZ1jysBRHNbzgHMAR6OOQpUE5mm2GGclfd/SYd3a4sbx3exF+MgyfsPmjij7LnfhdL7TLPd2l0u3r8cuzaKEzoP2Cr4V6k7owfxL3s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724124110; c=relaxed/simple;
+	bh=RK2E2B1bvfzSZk7oARo2aZUhuFKknoWjMv/zW2b0mvY=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=LJmVIQm0XsgmUi/tez532cseDzjY+dcc8ed/hqLW8h5/t1oWSt4WhWUJTi+Rv7yYnBBFWC22thaIBYudNLWc2ObsIY9YpECfYHBXyosMOI0YahFhwng+4NN8RhwP/doda68a1ZUHtsmV4zEdLFKEm4DNTq7WUBO/14k5TTXRVKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8Dxh+nGC8Rmt9EZAA--.55455S3;
+	Tue, 20 Aug 2024 11:21:42 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowMAxz2fDC8Rm2SgbAA--.44611S3;
+	Tue, 20 Aug 2024 11:21:41 +0800 (CST)
+Subject: Re: [PATCH v6 1/3] LoongArch: KVM: Enable paravirt feature control
+ from VMM
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>,
+ Thomas Gleixner <tglx@linutronix.de>, WANG Xuerui <kernel@xen0n.name>,
+ kvm@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ x86@kernel.org, Song Gao <gaosong@loongson.cn>
+References: <20240812030210.500240-1-maobibo@loongson.cn>
+ <20240812030210.500240-2-maobibo@loongson.cn>
+ <CAAhV-H4aqu=ZOOb3UAcQt4DQNMcpUd7O=ted+Zka3pV1fjyoMQ@mail.gmail.com>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <522c84a8-f919-612c-3502-9d05db97fe91@loongson.cn>
+Date: Tue, 20 Aug 2024 11:21:37 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR10MB6535:EE_|CH0PR10MB5003:EE_
-X-MS-Office365-Filtering-Correlation-Id: 819a7ba7-43e1-4fe6-fe19-08dcc0b4484c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?TnBPSHF0ckJGdVFzcC9WMGJka2syREFtaGxKYWwyemE0YU1WeW1NZFNOR0c5?=
- =?utf-8?B?U09kbmJvOFJoaTVNaVlsbXZZMkhlQTlvUEtlZGI4YURKT0tSYzVmV0wxa2dm?=
- =?utf-8?B?MGo0Z21nWFNCbWdsK1AySWU1VGkyeXVJd21EQksrYVlRNkc3ZW4yWVlFWTR3?=
- =?utf-8?B?S3hoUWI2KzdndXBOcnowRU90SUtLaW1FLy9IUGo5TC9PaVE4byt4Q0tEcmo0?=
- =?utf-8?B?ZVR4eHR4WUNRSVpCNGhhNkZwUkYvM0JHNXp5Mk10RU10aGFPM3JkTWFweTBP?=
- =?utf-8?B?TGdWb3doZ2Ntc1c5eG85TFRJSUJ4Z2xQblZxTTYxVXpDZmZudWF0UkJZTEc3?=
- =?utf-8?B?OXBNcXFhV3Z3ajNDUElnMkw3WXdoOS9UKytGVFBhRFJRRU53ckorT1ZvcmRl?=
- =?utf-8?B?Ry96cE5pK2RxN1lSOEVPU1pncGZxTnFrdGRrWGpKdUUveVMzeGlMTVhPdjMz?=
- =?utf-8?B?KzNHN0FySmxEaFFGUHBoMEdmSVVyOHpJRTNMcU41ODdjYXdzZVo5dC8rMy9z?=
- =?utf-8?B?OU5udTVVckVHSVkzMGN4OVVsVzNLaFNTYTFpdEcxOEhwdGYxaTh3YkRIajln?=
- =?utf-8?B?elVTWUg3WWluaXB0aTl5WlZGL1JuTXA1NVh0YWJIWmRNSXR2SU5aR0FpVVpv?=
- =?utf-8?B?czJua2Z2WkxUQVRTOU1vU1pPRjA4NmpTL01CclpCc2h4cmNLYmoreDN3ajdU?=
- =?utf-8?B?VjF4N29TYk90Nm5yeFFaWEMrblNuY2YxdEhaY2lkZS9WMFNHa1BvMDN2QUgv?=
- =?utf-8?B?NnNleVdoeGtuVW5CZkwvaVRKcW56SktBdU5kWkNzYSswVnhUWWtjRThEODN1?=
- =?utf-8?B?TXlQTytGZWRoMUMzR1UwbDl2OEowM2F4L042MkxzWFFFemV4NTdVem9kM0U2?=
- =?utf-8?B?ejFRc3EwNjhWdjdCdXlCVXh6dFBVNHY0NWJsejE5WUNKZFhWcjdXenBJMGV5?=
- =?utf-8?B?dG9wZHJEL1I2T0d2cUZiL0hEWkVCTnJwNm1hR1NxdHRoM05OK2V3UGZUL1Y2?=
- =?utf-8?B?VGowSHNqazB1ekNUUVlkOTU4a2tvRWtFQkpNaVRsbjRXdVo2THVacHdGOVlj?=
- =?utf-8?B?Tm1hcklmdzJyYTV3dUkyZjdFUlhpNTRVY0Y1UGhlUnFvTXVBMWgyTnF2eDFk?=
- =?utf-8?B?RVR0UnNZdFl1NlFELzlJakR6MTU2bVVjeWczTllPOGUvazhRcmsxeStPN2o1?=
- =?utf-8?B?KzRTNzlQOTd0WXk0RHhEMjRTY2lwVS9KN3Q5M0tzQlBwNUhDNGtwY1pQeU5x?=
- =?utf-8?B?cGxRWGFjZzhDN0w0T3Z2Y1d0TlR2SmhwTkJCQXpzc0VQUmY5NXlKRXg3TElv?=
- =?utf-8?B?cnEvbEozVjY1VnpnYS8rVjJqTmhha09ZQzFBR3pGMVlPeklyVHkzMnlDejJv?=
- =?utf-8?B?d3hEUEhOWFFoMjY4Q2gycnQ2bk5RWWRwNGE0aHdzS0lZcldmMm15Ni92WS96?=
- =?utf-8?B?Z1VTUlYwODM1b3Bzb3pkLzEvWDR3NlhuNncyK3puVUYwNG90a21teVhIS3ZJ?=
- =?utf-8?B?NG9mNmZ1MVZDYzRHMXBUT1hPREpOYng1K0QrZ09wOHBvcmRoNCtkcFlrM0lp?=
- =?utf-8?B?cGpvSkZJREJpbGVDemdpME1tbkh0UlRJcHdacVRSOWJvRHdiUUxRZHAxV1My?=
- =?utf-8?B?bTRwQnlxeHAvVFZRM21sNmlJV3M1dzlWR0pKbk9vVXNTMFYvdmF1YWtaalF1?=
- =?utf-8?B?VjlNUHdqL3hDZ2tzRzBCdUt5djNFMm1UeFM5TXV5UFEyOW45OFNNMHozWTBa?=
- =?utf-8?B?bjJkci80SzlmUEkyL1VTWXZ6MTYwN29lZXlYbGx2UWFvNVNyQmkxVUN5RFhw?=
- =?utf-8?B?WkpEY08rVlJCYzJvbndiQT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR10MB6535.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?UXFnajFxcDVHRmRpVUlQV1ZPMFFDMmpQTkdFeFdPQVo4T3lGckpDQWlFaUMx?=
- =?utf-8?B?NlkyTnNoU3hLZ3VMR1lnS1RYRFo5bldvMjFoL1BGdmZMOXhlRU91bkR5SVZB?=
- =?utf-8?B?bmpWN25LY3ZacHNtUmI1TEcvNGJ0VTRtK0Z3WGhmSXB5TFJNMlVZSmhFWTV4?=
- =?utf-8?B?YWZPMHRlTWZiUEdVeTl2blU2Z3d2eWNsTkYwWW0rcE9nWjA2V3dZdEV4WWww?=
- =?utf-8?B?VFQ0OHZ5TmtVMDhRcVpWc3djS3FhQndZNGRhVEIyVysvVjVJTnNjM1VUQU83?=
- =?utf-8?B?bTZ0TVRQRlZMOEg2QVc3VmppeDJmam1UdDRod3pCRjdrOHdWekJ2WXV0Z3Fi?=
- =?utf-8?B?SkRIaERMeVFWNEhvL2dZSjVhbk1ic0F5VEdWYnNwSTBqcGgwZHoweE9KNHNt?=
- =?utf-8?B?cUpIaGlpVHVwQW1UTnpYeFlweVE4TWR0NjZwaXFmMjFvYmJ0Nmgwc0NMTTlM?=
- =?utf-8?B?eWtBSVdiNTZ4bTUvY1dxdldSWXV2ZXRCMmdUalExUStMU3o0NlNIWDN2UTZJ?=
- =?utf-8?B?OWRnU1VLTkFHK3dTcmFJRkpjbmM2Vll0TWQzRUwzbGZESWh2b3F6cGVrUkZh?=
- =?utf-8?B?NHUyc1RRSmZac3FKcmxxQVJzT1R4bzg4ZFR1bzU3UFZuZDh6YXZpUVdJRnM4?=
- =?utf-8?B?WEZSTWt1YWgzd1JwekRkT0twMHRwazVsTm9OeVlEcnFrd2pMekppUWIrcStq?=
- =?utf-8?B?U25UQUJIRzEybjVZclI2d29ZcGwrTWdyeVBreXA5UkVMcGtDL0NWRXlvd2Vu?=
- =?utf-8?B?NzhFUFBuRUt6WjAvcjJKU0daSytSS2pNUGM0UVBvV2NZRC92RWFsaGl0d3lL?=
- =?utf-8?B?bVlVRmhJcHdSUVR5RjJldm9DSFdoaUtzeWJOT25KbDFUUVllZkFOa1dLNlFK?=
- =?utf-8?B?RmRydm52Q1NXNS9yTDNJWkR3VkxwUndKZ3hCNFBvN0IvSklpeUVvSmYxQi9C?=
- =?utf-8?B?Mnd4QnJieTQwSjFhQ0VTVFZYaWVNT2dNc1VpZ0lFNGM5UmFTcjZoMktkb0pa?=
- =?utf-8?B?ZDUxZUhiQjVqczFqZlhDVjhFMmIrZXZncFNhZjhvZURkRlBzZzNBei9SVmYr?=
- =?utf-8?B?Y1Q1VlVxbTBTczJLOXlwSnhNRlZlYzZyV24xSmpuNml2d1hyZVJXL1BwejRM?=
- =?utf-8?B?eElpdE8vTm94VUdnVjVPcnRJd2drNytFMnVVWkRrSlJuTzBlNUVoNUJQaXpu?=
- =?utf-8?B?TlFQbjZIQk1mT0pkeDU1cVV1U0FhSHNsK2lOdkJVWktOcTVHREJlNlJkM2ZK?=
- =?utf-8?B?dGdXSFFVQlowNlZCUTFMMEtpTFNpbnNHbkhRVDFFdVR6eGRJd01GTU5rSndE?=
- =?utf-8?B?MnNZYzgzN2dtOEJ4N3hRNHNQQkZBbHFPY051RitWNG5hR2N2NG05eWlibzh2?=
- =?utf-8?B?cWZ3VktRVEs5ODUreWlON1Z0Zzd2LzZMV2ZiNW5WdkF3UVBFdGQ0ZzFGTjg0?=
- =?utf-8?B?b29GN3pDWkQ3bXY4empZUDlReTQxRXJIY2ptTVJYOEtLdkhmMW5Vak9FQVJa?=
- =?utf-8?B?OFZGbjRXMC96WmVsV2VRdVgxbXg3RkhmRy9rY0hya2JKQXlYZGphQWtzNWtR?=
- =?utf-8?B?VnhaVlkyR0RpdW8yeE1rN3lkZTlyM3pTdGw1TXIyUDlhZzE2NHNYSktSTStx?=
- =?utf-8?B?VTFNRkxiUHR2N1JseXdMUWQvRjRFM0VIR0R5UjlqbDRwbmFDN0h4a1RFK1Jh?=
- =?utf-8?B?ZjRmSXBUbG5aVkJ6dmFGUVluVm4wTDhsczVORWYwQkdOOGYraWFZajRBMmpW?=
- =?utf-8?B?eXQvVGJHdGFscWRJbVFhRDBtYmNDNTAvc2FUZEc4UWFoSEd1dWhTbEdjRjNO?=
- =?utf-8?B?YUpRVHdGR3dLQ2xwUUVCV2xwVlBjS2hoV2tNZWs0MlU0dFQveGdDbFpad3pD?=
- =?utf-8?B?MHduaTJmdEFPYWdpV0NVZzNiaXRGTmV0K3VzV1Fwa0U5YzNRZ2NCeDd5TVJE?=
- =?utf-8?B?dkh6N1d5bWhkQTZJR01YdDhQdkFyRTkrSGp5TG9aa3ZoYWM5cGtBWmNPVHo4?=
- =?utf-8?B?VmlmR3Q5SkhvZUMxcFNUM29wQnlwQVp4L00wRmJnL1c2OC9PUU9EMjRXSGVn?=
- =?utf-8?B?MzNQY2JXS1RoS1NiWkQzZ1BVcEp2RGZpb1k5TW5KN1ZsTDI0Y3p3dHdqQnpy?=
- =?utf-8?Q?RnBB/980kPlDUKDIZ4e2HlZVV?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	TntnA9WoWaGqPuNatatOz6W/Kz1sd4j8si/riRIW4gKoOD+kcdZVAIbzY4sCT4bdDSH9FgRI0pkkVEfr47muRAPzw7jl1RgvtKy42eucacGSDAKB9YCPLk67hQnWOAYSeRPHWCunM6CRYwLX2eM4dD3G83OPUvvP3ibNME/hsP+/Z4Yvdllopsrh8MrQYzzq/Ihz1qYagNUf2KaQCYza6HcUGqrEGKilZ1XXfbGTaeZYieIFU7iPyjqLR6xarbHw0+ogUWIT5TykfYU6TtF56F3lq4EsperZGfBrdm6v3vVg1w3hQkiST/UkQ0EDJQs4al+HyHlGUrnKz+xPIvl7JKMwWDf/OS9Q0RlG8B1oqbKNkOZbRamp8Seq2Mszw+s/A5SXkSfqv5GK8K/igJ9DxmwtI8ElS4yoS5bzwHOJWzJsaMHIBAbgWNQN8IH7l+n0eznsYV2XzoSh1EKt176Gpv1MwNIfW3j27ODP3MwThOb9LvzeQXJfoYdP1mGo+VmjKZ15vpLn9ZYG75Du6zRmevgpUnQHUOTfxXHHRaMXe5FtDrLfwq6cjgz82KtPMXBPN3Wg9Kz3/2BUeSmfWohomiFlhLXIADwNw/1K4X48pr8=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 819a7ba7-43e1-4fe6-fe19-08dcc0b4484c
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR10MB6535.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Aug 2024 01:06:12.0975
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SYTa4omV7CMta8/dMOBqkiiqQEdHqqV00A4GoYnE92a1UV0NGGXnRb2nfSdA5YLWAWGEIL2lbxIfdstoAQf4AA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB5003
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-19_16,2024-08-19_03,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 spamscore=0 phishscore=0
- adultscore=0 suspectscore=0 mlxlogscore=999 mlxscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2407110000
- definitions=main-2408200007
-X-Proofpoint-ORIG-GUID: Sb4QYbuxVSdFkipF99tcchB4A4zcbCXY
-X-Proofpoint-GUID: Sb4QYbuxVSdFkipF99tcchB4A4zcbCXY
+In-Reply-To: <CAAhV-H4aqu=ZOOb3UAcQt4DQNMcpUd7O=ted+Zka3pV1fjyoMQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowMAxz2fDC8Rm2SgbAA--.44611S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj9fXoW3tw4xKF1xKrW8Kr4DGFWUZFc_yoW8XFy8uo
+	W3JF1Igw4fWw45CF4DK3s0vayrA340kw4UA3y3A3s3WF17tayUKr1UGw4YqF4aqr1kGrZx
+	Ca43W34UZa4xtwn8l-sFpf9Il3svdjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8wcxFpf
+	9Il3svdxBIdaVrn0xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3
+	UjIYCTnIWjp_UUUY47kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI
+	8IcIk0rVWrJVCq3wAFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xG
+	Y2AK021l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14
+	v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv
+	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
+	AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
+	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
+	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
+	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
+	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8j-
+	e5UUUUU==
 
-Hi,
+Huacai,
 
-May I know if this is really an intended fix to post officially, or just 
-a workaround/probe to make the offset in page_frag happy when 
-net_high_order_alloc_disable is true? In case it's the former, even 
-though this could fix the issue, I would assume clamping to a smaller 
-page_frag than a regular page size for every buffer may have certain 
-performance regression for the merge-able buffer case? Can you justify 
-the performance impact with some benchmark runs with larger MTU and 
-merge-able rx buffers to prove the regression is negligible? You would 
-need to compare against where you don't have the inadvertent 
-virtnet_rq_dma cost on any page i.e. getting all 4 patches of this 
-series reverted. Both tests with net_high_order_alloc_disable set to on 
-and off are needed.
+Thanks for reviewing my patch.
+I reply inline.
 
-Thanks,
--Siwei
+On 2024/8/19 下午9:32, Huacai Chen wrote:
+> Hi, Bibo,
+> 
+> On Mon, Aug 12, 2024 at 11:02 AM Bibo Mao <maobibo@loongson.cn> wrote:
+>>
+>> Export kernel paravirt features to user space, so that VMM can control
+>> the single paravirt feature. By default paravirt features will be the same
+>> with kvm supported features if VMM does not set it.
+>>
+>> Also a new feature KVM_FEATURE_VIRT_EXTIOI is added which can be set from
+>> user space. This feature indicates that the virt EXTIOI can route
+>> interrupts to 256 vCPUs, rather than 4 vCPUs like with real HW.
+>>
+>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>> ---
+>>   arch/loongarch/include/asm/kvm_host.h      |  7 ++++
+>>   arch/loongarch/include/asm/kvm_para.h      |  1 +
+>>   arch/loongarch/include/asm/kvm_vcpu.h      |  4 ++
+>>   arch/loongarch/include/asm/loongarch.h     | 13 ------
+>>   arch/loongarch/include/uapi/asm/Kbuild     |  2 -
+>>   arch/loongarch/include/uapi/asm/kvm.h      |  5 +++
+>>   arch/loongarch/include/uapi/asm/kvm_para.h | 24 +++++++++++
+>>   arch/loongarch/kernel/paravirt.c           |  8 ++--
+>>   arch/loongarch/kvm/exit.c                  | 19 ++++-----
+>>   arch/loongarch/kvm/vcpu.c                  | 47 ++++++++++++++++++----
+>>   arch/loongarch/kvm/vm.c                    | 43 +++++++++++++++++++-
+>>   11 files changed, 137 insertions(+), 36 deletions(-)
+>>   create mode 100644 arch/loongarch/include/uapi/asm/kvm_para.h
+>>
+>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
+>> index 5f0677e03817..b73f6678e38a 100644
+>> --- a/arch/loongarch/include/asm/kvm_host.h
+>> +++ b/arch/loongarch/include/asm/kvm_host.h
+>> @@ -107,6 +107,8 @@ struct kvm_arch {
+>>          unsigned int  root_level;
+>>          spinlock_t    phyid_map_lock;
+>>          struct kvm_phyid_map  *phyid_map;
+>> +       /* Enabled PV features */
+>> +       unsigned long pv_features;
+>>
+>>          s64 time_offset;
+>>          struct kvm_context __percpu *vmcs;
+>> @@ -136,6 +138,11 @@ enum emulation_result {
+>>   #define KVM_LARCH_SWCSR_LATEST (0x1 << 3)
+>>   #define KVM_LARCH_HWCSR_USABLE (0x1 << 4)
+>>
+>> +#define LOONGARCH_PV_FEAT_UPDATED              BIT_ULL(63)
+>> +#define LOONGARCH_PV_FEAT_MASK                                         \
+>> +               (BIT(KVM_FEATURE_IPI) | BIT(KVM_FEATURE_STEAL_TIME) |   \
+>> +                BIT(KVM_FEATURE_VIRT_EXTIOI))
+>> +
+>>   struct kvm_vcpu_arch {
+>>          /*
+>>           * Switch pointer-to-function type to unsigned long
+>> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
+>> index 43ec61589e6c..39d7483ab8fd 100644
+>> --- a/arch/loongarch/include/asm/kvm_para.h
+>> +++ b/arch/loongarch/include/asm/kvm_para.h
+>> @@ -2,6 +2,7 @@
+>>   #ifndef _ASM_LOONGARCH_KVM_PARA_H
+>>   #define _ASM_LOONGARCH_KVM_PARA_H
+>>
+>> +#include <uapi/asm/kvm_para.h>
+>>   /*
+>>    * Hypercall code field
+>>    */
+>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/include/asm/kvm_vcpu.h
+>> index c416cb7125c0..a1fc24a48fd1 100644
+>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
+>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
+>> @@ -125,4 +125,8 @@ static inline bool kvm_pvtime_supported(void)
+>>          return !!sched_info_on();
+>>   }
+>>
+>> +static __always_inline bool guest_pv_has(struct kvm_vcpu *vcpu, unsigned int feature)
+>> +{
+>> +       return vcpu->kvm->arch.pv_features & BIT(feature);
+>> +}
+> We have similar functions
+> kvm_guest_has_fpu/kvm_guest_has_lsx/kvm_guest_has_lasx, so maybe it is
+> better to rename it as kvm_guest_has_pv_feature().
+Sure, will do. kvm_guest_has_pv_feature() is better than guest_pv_has().
 
-On 8/17/2024 6:20 AM, Xuan Zhuo wrote:
-> Hi, guys, I have a fix patch for this.
-> Could anybody test it?
->
-> Thanks.
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index af474cc191d0..426d68c2d01d 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2492,13 +2492,15 @@ static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
->   {
->          struct virtnet_info *vi = rq->vq->vdev->priv;
->          const size_t hdr_len = vi->hdr_len;
-> -       unsigned int len;
-> +       unsigned int len, max_len;
-> +
-> +       max_len = PAGE_SIZE - ALIGN(sizeof(struct virtnet_rq_dma), L1_CACHE_BYTES);
->
->          if (room)
-> -               return PAGE_SIZE - room;
-> +               return max_len - room;
->
->          len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
-> -                               rq->min_buf_len, PAGE_SIZE - hdr_len);
-> +                               rq->min_buf_len, max_len - hdr_len);
->
->          return ALIGN(len, L1_CACHE_BYTES);
->   }
+> 
+>>   #endif /* __ASM_LOONGARCH_KVM_VCPU_H__ */
+>> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
+>> index 04a78010fc72..eb82230f52c3 100644
+>> --- a/arch/loongarch/include/asm/loongarch.h
+>> +++ b/arch/loongarch/include/asm/loongarch.h
+>> @@ -158,19 +158,6 @@
+>>   #define  CPUCFG48_VFPU_CG              BIT(2)
+>>   #define  CPUCFG48_RAM_CG               BIT(3)
+>>
+>> -/*
+>> - * CPUCFG index area: 0x40000000 -- 0x400000ff
+>> - * SW emulation for KVM hypervirsor
+>> - */
+>> -#define CPUCFG_KVM_BASE                        0x40000000
+>> -#define CPUCFG_KVM_SIZE                        0x100
+>> -
+>> -#define CPUCFG_KVM_SIG                 (CPUCFG_KVM_BASE + 0)
+>> -#define  KVM_SIGNATURE                 "KVM\0"
+>> -#define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
+>> -#define  KVM_FEATURE_IPI               BIT(1)
+>> -#define  KVM_FEATURE_STEAL_TIME                BIT(2)
+> It is a little better to keep these definitions here (at least
+> convenient for grep).
+These macro definitions are moved and exported in uapi file 
+uapi/asm/kvm_para.h, so that user mode VMM can use it and disable or 
+enable specific PV feature. So we need move it to uapi file.
+
+Regards
+Bibo Mao
+> 
+> 
+> 
+> Huacai
+> 
+>> -
+>>   #ifndef __ASSEMBLY__
+>>
+>>   /* CSR */
+>> diff --git a/arch/loongarch/include/uapi/asm/Kbuild b/arch/loongarch/include/uapi/asm/Kbuild
+>> index c6d141d7b7d7..517761419999 100644
+>> --- a/arch/loongarch/include/uapi/asm/Kbuild
+>> +++ b/arch/loongarch/include/uapi/asm/Kbuild
+>> @@ -1,4 +1,2 @@
+>>   # SPDX-License-Identifier: GPL-2.0
+>>   syscall-y += unistd_64.h
+>> -
+>> -generic-y += kvm_para.h
+>> diff --git a/arch/loongarch/include/uapi/asm/kvm.h b/arch/loongarch/include/uapi/asm/kvm.h
+>> index ddc5cab0ffd0..719490e64e1c 100644
+>> --- a/arch/loongarch/include/uapi/asm/kvm.h
+>> +++ b/arch/loongarch/include/uapi/asm/kvm.h
+>> @@ -82,6 +82,11 @@ struct kvm_fpu {
+>>   #define KVM_IOC_CSRID(REG)             LOONGARCH_REG_64(KVM_REG_LOONGARCH_CSR, REG)
+>>   #define KVM_IOC_CPUCFG(REG)            LOONGARCH_REG_64(KVM_REG_LOONGARCH_CPUCFG, REG)
+>>
+>> +/* Device Control API on vm fd */
+>> +#define KVM_LOONGARCH_VM_FEAT_CTRL             0
+>> +#define  KVM_LOONGARCH_VM_FEAT_PV_IPI          5
+>> +#define  KVM_LOONGARCH_VM_FEAT_PV_STEALTIME    6
+>> +
+>>   /* Device Control API on vcpu fd */
+>>   #define KVM_LOONGARCH_VCPU_CPUCFG      0
+>>   #define KVM_LOONGARCH_VCPU_PVTIME_CTRL 1
+>> diff --git a/arch/loongarch/include/uapi/asm/kvm_para.h b/arch/loongarch/include/uapi/asm/kvm_para.h
+>> new file mode 100644
+>> index 000000000000..5dfe675709ab
+>> --- /dev/null
+>> +++ b/arch/loongarch/include/
+>> @@ -0,0 +1,24 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+>> +#ifndef _UAPI_ASM_KVM_PARA_H
+>> +#define _UAPI_ASM_KVM_PARA_H
+>> +
+>> +#include <linux/types.h>
+>> +
+>> +/*
+>> + * CPUCFG index area: 0x40000000 -- 0x400000ff
+>> + * SW emulation for KVM hypervirsor
+>> + */
+>> +#define CPUCFG_KVM_BASE                        0x40000000
+>> +#define CPUCFG_KVM_SIZE                        0x100
+>> +#define CPUCFG_KVM_SIG                 (CPUCFG_KVM_BASE + 0)
+>> +#define  KVM_SIGNATURE                 "KVM\0"
+>> +#define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
+>> +#define  KVM_FEATURE_IPI               1
+>> +#define  KVM_FEATURE_STEAL_TIME                2
+>> +/*
+>> + * BIT 24 - 31 is features configurable by user space vmm
+>> + * With VIRT_EXTIOI feature, interrupt can route to 256 VCPUs
+>> + */
+>> +#define  KVM_FEATURE_VIRT_EXTIOI       24
+>> +
+>> +#endif /* _UAPI_ASM_KVM_PARA_H */
+>> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+>> index 9c9b75b76f62..cc6bf096cb88 100644
+>> --- a/arch/loongarch/kernel/paravirt.c
+>> +++ b/arch/loongarch/kernel/paravirt.c
+>> @@ -175,7 +175,7 @@ int __init pv_ipi_init(void)
+>>                  return 0;
+>>
+>>          feature = read_cpucfg(CPUCFG_KVM_FEATURE);
+>> -       if (!(feature & KVM_FEATURE_IPI))
+>> +       if (!(feature & BIT(KVM_FEATURE_IPI)))
+>>                  return 0;
+>>
+>>   #ifdef CONFIG_SMP
+>> @@ -206,7 +206,7 @@ static int pv_enable_steal_time(void)
+>>          }
+>>
+>>          addr |= KVM_STEAL_PHYS_VALID;
+>> -       kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, KVM_FEATURE_STEAL_TIME, addr);
+>> +       kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, BIT(KVM_FEATURE_STEAL_TIME), addr);
+>>
+>>          return 0;
+>>   }
+>> @@ -214,7 +214,7 @@ static int pv_enable_steal_time(void)
+>>   static void pv_disable_steal_time(void)
+>>   {
+>>          if (has_steal_clock)
+>> -               kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, KVM_FEATURE_STEAL_TIME, 0);
+>> +               kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, BIT(KVM_FEATURE_STEAL_TIME), 0);
+>>   }
+>>
+>>   #ifdef CONFIG_SMP
+>> @@ -266,7 +266,7 @@ int __init pv_time_init(void)
+>>                  return 0;
+>>
+>>          feature = read_cpucfg(CPUCFG_KVM_FEATURE);
+>> -       if (!(feature & KVM_FEATURE_STEAL_TIME))
+>> +       if (!(feature & BIT(KVM_FEATURE_STEAL_TIME)))
+>>                  return 0;
+>>
+>>          has_steal_clock = 1;
+>> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
+>> index ea73f9dc2cc6..54f78864a617 100644
+>> --- a/arch/loongarch/kvm/exit.c
+>> +++ b/arch/loongarch/kvm/exit.c
+>> @@ -50,9 +50,7 @@ static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
+>>                  vcpu->arch.gprs[rd] = *(unsigned int *)KVM_SIGNATURE;
+>>                  break;
+>>          case CPUCFG_KVM_FEATURE:
+>> -               ret = KVM_FEATURE_IPI;
+>> -               if (kvm_pvtime_supported())
+>> -                       ret |= KVM_FEATURE_STEAL_TIME;
+>> +               ret = vcpu->kvm->arch.pv_features & LOONGARCH_PV_FEAT_MASK;
+>>                  vcpu->arch.gprs[rd] = ret;
+>>                  break;
+>>          default:
+>> @@ -697,8 +695,8 @@ static long kvm_save_notify(struct kvm_vcpu *vcpu)
+>>          id   = kvm_read_reg(vcpu, LOONGARCH_GPR_A1);
+>>          data = kvm_read_reg(vcpu, LOONGARCH_GPR_A2);
+>>          switch (id) {
+>> -       case KVM_FEATURE_STEAL_TIME:
+>> -               if (!kvm_pvtime_supported())
+>> +       case BIT(KVM_FEATURE_STEAL_TIME):
+>> +               if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME))
+>>                          return KVM_HCALL_INVALID_CODE;
+>>
+>>                  if (data & ~(KVM_STEAL_PHYS_MASK | KVM_STEAL_PHYS_VALID))
+>> @@ -712,10 +710,10 @@ static long kvm_save_notify(struct kvm_vcpu *vcpu)
+>>                  kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+>>                  break;
+>>          default:
+>> -               break;
+>> +               return KVM_HCALL_INVALID_CODE;
+>>          };
+>>
+>> -       return 0;
+>> +       return KVM_HCALL_INVALID_CODE;
+>>   };
+>>
+>>   /*
+>> @@ -786,8 +784,11 @@ static void kvm_handle_service(struct kvm_vcpu *vcpu)
+>>
+>>          switch (func) {
+>>          case KVM_HCALL_FUNC_IPI:
+>> -               kvm_send_pv_ipi(vcpu);
+>> -               ret = KVM_HCALL_SUCCESS;
+>> +               if (guest_pv_has(vcpu, KVM_FEATURE_IPI)) {
+>> +                       kvm_send_pv_ipi(vcpu);
+>> +                       ret = KVM_HCALL_SUCCESS;
+>> +               } else
+>> +                       ret = KVM_HCALL_INVALID_CODE;
+>>                  break;
+>>          case KVM_HCALL_FUNC_NOTIFY:
+>>                  ret = kvm_save_notify(vcpu);
+>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
+>> index 16756ffb55e8..2a7d7f91facd 100644
+>> --- a/arch/loongarch/kvm/vcpu.c
+>> +++ b/arch/loongarch/kvm/vcpu.c
+>> @@ -730,6 +730,8 @@ static int kvm_loongarch_cpucfg_has_attr(struct kvm_vcpu *vcpu,
+>>          switch (attr->attr) {
+>>          case 2:
+>>                  return 0;
+>> +       case CPUCFG_KVM_FEATURE:
+>> +               return 0;
+>>          default:
+>>                  return -ENXIO;
+>>          }
+>> @@ -740,7 +742,7 @@ static int kvm_loongarch_cpucfg_has_attr(struct kvm_vcpu *vcpu,
+>>   static int kvm_loongarch_pvtime_has_attr(struct kvm_vcpu *vcpu,
+>>                                           struct kvm_device_attr *attr)
+>>   {
+>> -       if (!kvm_pvtime_supported() ||
+>> +       if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME) ||
+>>                          attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
+>>                  return -ENXIO;
+>>
+>> @@ -773,9 +775,18 @@ static int kvm_loongarch_cpucfg_get_attr(struct kvm_vcpu *vcpu,
+>>          uint64_t val;
+>>          uint64_t __user *uaddr = (uint64_t __user *)attr->addr;
+>>
+>> -       ret = _kvm_get_cpucfg_mask(attr->attr, &val);
+>> -       if (ret)
+>> -               return ret;
+>> +       switch (attr->attr) {
+>> +       case 0 ... (KVM_MAX_CPUCFG_REGS - 1):
+>> +               ret = _kvm_get_cpucfg_mask(attr->attr, &val);
+>> +               if (ret)
+>> +                       return ret;
+>> +               break;
+>> +       case CPUCFG_KVM_FEATURE:
+>> +               val = vcpu->kvm->arch.pv_features & LOONGARCH_PV_FEAT_MASK;
+>> +               break;
+>> +       default:
+>> +               return -ENXIO;
+>> +       }
+>>
+>>          put_user(val, uaddr);
+>>
+>> @@ -788,7 +799,7 @@ static int kvm_loongarch_pvtime_get_attr(struct kvm_vcpu *vcpu,
+>>          u64 gpa;
+>>          u64 __user *user = (u64 __user *)attr->addr;
+>>
+>> -       if (!kvm_pvtime_supported() ||
+>> +       if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME) ||
+>>                          attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
+>>                  return -ENXIO;
+>>
+>> @@ -821,7 +832,29 @@ static int kvm_loongarch_vcpu_get_attr(struct kvm_vcpu *vcpu,
+>>   static int kvm_loongarch_cpucfg_set_attr(struct kvm_vcpu *vcpu,
+>>                                           struct kvm_device_attr *attr)
+>>   {
+>> -       return -ENXIO;
+>> +       u64 __user *user = (u64 __user *)attr->addr;
+>> +       u64 val, valid;
+>> +       struct kvm *kvm = vcpu->kvm;
+>> +
+>> +       switch (attr->attr) {
+>> +       case CPUCFG_KVM_FEATURE:
+>> +               if (get_user(val, user))
+>> +                       return -EFAULT;
+>> +
+>> +               valid = LOONGARCH_PV_FEAT_MASK;
+>> +               if (val & ~valid)
+>> +                       return -EINVAL;
+>> +
+>> +               /* All vCPUs need set the same pv features */
+>> +               if ((kvm->arch.pv_features & LOONGARCH_PV_FEAT_UPDATED) &&
+>> +                               ((kvm->arch.pv_features & valid) != val))
+>> +                       return -EINVAL;
+>> +               kvm->arch.pv_features = val | LOONGARCH_PV_FEAT_UPDATED;
+>> +               return 0;
+>> +
+>> +       default:
+>> +               return -ENXIO;
+>> +       }
+>>   }
+>>
+>>   static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
+>> @@ -831,7 +864,7 @@ static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
+>>          u64 gpa, __user *user = (u64 __user *)attr->addr;
+>>          struct kvm *kvm = vcpu->kvm;
+>>
+>> -       if (!kvm_pvtime_supported() ||
+>> +       if (!guest_pv_has(vcpu, KVM_FEATURE_STEAL_TIME) ||
+>>                          attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
+>>                  return -ENXIO;
+>>
+>> diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm.c
+>> index 6b2e4f66ad26..3234f3e85dc0 100644
+>> --- a/arch/loongarch/kvm/vm.c
+>> +++ b/arch/loongarch/kvm/vm.c
+>> @@ -5,6 +5,7 @@
+>>
+>>   #include <linux/kvm_host.h>
+>>   #include <asm/kvm_mmu.h>
+>> +#include <asm/kvm_vcpu.h>
+>>
+>>   const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
+>>          KVM_GENERIC_VM_STATS(),
+>> @@ -39,6 +40,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>          spin_lock_init(&kvm->arch.phyid_map_lock);
+>>
+>>          kvm_init_vmcs(kvm);
+>> +       /* Enable all pv features by default */
+>> +       kvm->arch.pv_features = BIT(KVM_FEATURE_IPI);
+>> +       if (kvm_pvtime_supported())
+>> +               kvm->arch.pv_features |= BIT(KVM_FEATURE_STEAL_TIME);
+>>          kvm->arch.gpa_size = BIT(cpu_vabits - 1);
+>>          kvm->arch.root_level = CONFIG_PGTABLE_LEVELS - 1;
+>>          kvm->arch.invalid_ptes[0] = 0;
+>> @@ -99,7 +104,43 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>>          return r;
+>>   }
+>>
+>> +static int kvm_vm_feature_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+>> +{
+>> +       switch (attr->attr) {
+>> +       case KVM_LOONGARCH_VM_FEAT_PV_IPI:
+>> +               return 0;
+>> +       case KVM_LOONGARCH_VM_FEAT_PV_STEALTIME:
+>> +               if (kvm_pvtime_supported())
+>> +                       return 0;
+>> +               return -ENXIO;
+>> +       default:
+>> +               return -ENXIO;
+>> +       }
+>> +}
+>> +
+>> +static int kvm_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+>> +{
+>> +       switch (attr->group) {
+>> +       case KVM_LOONGARCH_VM_FEAT_CTRL:
+>> +               return kvm_vm_feature_has_attr(kvm, attr);
+>> +       default:
+>> +               return -ENXIO;
+>> +       }
+>> +}
+>> +
+>>   int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+>>   {
+>> -       return -ENOIOCTLCMD;
+>> +       struct kvm *kvm = filp->private_data;
+>> +       void __user *argp = (void __user *)arg;
+>> +       struct kvm_device_attr attr;
+>> +
+>> +       switch (ioctl) {
+>> +       case KVM_HAS_DEVICE_ATTR:
+>> +               if (copy_from_user(&attr, argp, sizeof(attr)))
+>> +                       return -EFAULT;
+>> +
+>> +               return kvm_vm_has_attr(kvm, &attr);
+>> +       default:
+>> +               return -EINVAL;
+>> +       }
+>>   }
+>> --
+>> 2.39.3
+>>
+>>
 
