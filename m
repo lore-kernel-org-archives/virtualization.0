@@ -1,123 +1,115 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FF3D4084E
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 07:09:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724137751; cv=pass; b=e5TTaCidt5S810mGi+YGZzxfT2oJ1MgvFilhrrSO1cfTWa82cxSHjUR/POZQCpRPfBku38nutF0EtwW6AHyWjlW4d5e5o/IyF+t4uCOriC+LsXeFQoSf+yMfvO+xEXHAq6wM7VX34sexpqzBBxdNcHZy7t+Vw7XqTIsgGhVuzKc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724137751; c=relaxed/simple;
-	bh=btA7n2hNrL0peXlLhjO6aRUvIY6OsG+0yv/3Xr6zrTY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tbqpnFwjAx4PJj1ca6ZbZO+r5lnKsvCeErPnUnSsJhKsjgIPzo4BAFr05lVt63cdfSJAJN63VZBXQ9mTswkfpfemtcc8DoQgo2AeiAgxG6t5AbbivJNdt/2IMXcHM093XNSX9/g1TLuH6tRbShxDdQ78yoHoobg3rw+0zf157dA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=vignesh.raman@collabora.com header.b=WIvgmHa3; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA59443ACB
+	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 07:19:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724138366; cv=none; b=X5NxUXXihrcbHCgpC6hiwibO2pokdG24ixBXyEfUwhikfdMo8vTYJafsslzrHkz40SUeRlOanvZSmehNeJnYqgGf6wK9WnvHNlmTKKSh6MSb6QDha1t8PGuB8imif/9/S14GVRcVWwX+fjt22FneJoX7Nw6+rqo/pxgFjemn0so=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724138366; c=relaxed/simple;
+	bh=+4y3tpuUKVecJJYH20PqlsMjT8xAJpgyyEhguCNXpS0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=i6JVX3g6gOxkgiZJJzW4iN7wdF1/YkKAPtXlsng83ColDjKu02eoOO7A6iiDdmV5jiiICNMAXkK81b4srxuVLBLagC6UG21dt7EpukjY9uxJh6YRBTFmDQmHqn0Srxx17+mKN3zv4a4lMRXVv+F9hlA35kQDFHse2jJ4F70+S/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RH0ZlCPu; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=vignesh.raman@collabora.com header.b="WIvgmHa3"
-ARC-Seal: i=1; a=rsa-sha256; t=1724137742; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Wsf//7UlKFeMXs5mrlbsA3f7Sm4SWFQ4OhMWchFGrGlXmj8gyuwFrLdduALbIjd5yxD/zZ3xWd4GtW5mnphQOV52asjwadd4hDidbod+cjlJ19uEUG9xkh5AwjmM7VJomKofTpUJPPt7uQMy4sR5pRHv5V0wI5vzUBomskToNRU=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1724137742; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=0sUDtqU8UXz2+A95knZ7ryFsZBRjCwmhZ1uQAm5xJYI=; 
-	b=ey+YqA/aEMyzbL8PrY058CoHw8u3SY9WK2lKKy6B+4+NvOcwr0DHW7DwOqQ25z2R9z6ipQbtVKN6IhGP4vAaPNgiYPiYXQPYoIQmYzCYIH35iciLlKRgcbaU6HO+J0s6srUj8P6mOb6DJRIolVgRJ8bBE1R4AHI7lxbpXFhTuYU=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=vignesh.raman@collabora.com;
-	dmarc=pass header.from=<vignesh.raman@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1724137742;
-	s=zohomail; d=collabora.com; i=vignesh.raman@collabora.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=0sUDtqU8UXz2+A95knZ7ryFsZBRjCwmhZ1uQAm5xJYI=;
-	b=WIvgmHa3eQbPb3a7PFmqg1lZ2yCyvmY6UKsmiivIyQWAx3BGMcQN2zw+HO/so6H0
-	m9pD1V6TJJCZTdFNaufvpephnLfyMBltYY2V4cQsnEurCyc6aiM9qoIDdprUYPLn5Fy
-	5My6pDr8Isr9zkWPj0ZfqFCewFT+1t8ZfTb20OzE=
-Received: by mx.zohomail.com with SMTPS id 172413774108257.39914871221299;
-	Tue, 20 Aug 2024 00:09:01 -0700 (PDT)
-From: Vignesh Raman <vignesh.raman@collabora.com>
-To: dri-devel@lists.freedesktop.org
-Cc: daniels@collabora.com,
-	helen.koike@collabora.com,
-	airlied@gmail.com,
-	daniel@ffwll.ch,
-	robdclark@gmail.com,
-	guilherme.gallo@collabora.com,
-	sergi.blanch.torne@collabora.com,
-	deborah.brouwer@collabora.com,
-	linux-mediatek@lists.infradead.org,
-	linux-amlogic@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	amd-gfx@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RH0ZlCPu"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1724138355; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=u5yUtFgvGZJkLvmTaub6owlArqgNe3SkGG9nd6+xSAo=;
+	b=RH0ZlCPusxFCY4rbNIwbZuK+UwrxeIiQVbaTBoA8qDNAIJRBBHFGcOX2wchRNtTybDVfVobPOdC0DdkAxNzw8hz7gE1+pmksmGLWaGM6r2LyjU7LPY2+Sw1WzDC2jTa0XQuN3LPIWGBe9TMI1UyusM0/5g4L6VFa/4WOVOrSVhc=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WDHeSNR_1724138353)
+          by smtp.aliyun-inc.com;
+          Tue, 20 Aug 2024 15:19:14 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
 	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1] drm/ci: increase timeout for all jobs
-Date: Tue, 20 Aug 2024 12:38:16 +0530
-Message-ID: <20240820070818.1124403-1-vignesh.raman@collabora.com>
-X-Mailer: git-send-email 2.43.0
+	"Si-Wei Liu" <si-wei.liu@oracle.com>,
+	Darren Kenny <darren.kenny@oracle.com>
+Subject: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
+Date: Tue, 20 Aug 2024 15:19:13 +0800
+Message-Id: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Git-Hash: 1e2a77031d94
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
 
-Set the timeout of all drm-ci jobs to 1h30m since
-some jobs takes more than 1 hour to complete.
+leads to regression on VM with the sysctl value of:
 
-Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+- net.core.high_order_alloc_disable=1
+
+which could see reliable crashes or scp failure (scp a file 100M in size
+to VM):
+
+The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
+of a new frag. When the frag size is larger than PAGE_SIZE,
+everything is fine. However, if the frag is only one page and the
+total size of the buffer and virtnet_rq_dma is larger than one page, an
+overflow may occur. In this case, if an overflow is possible, I adjust
+the buffer size. If net.core.high_order_alloc_disable=1, the maximum
+buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
+the first buffer of the frag is affected.
+
+Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
+Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/gpu/drm/ci/test.yml | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
-index b6f428cdaf94..09d8447840e9 100644
---- a/drivers/gpu/drm/ci/test.yml
-+++ b/drivers/gpu/drm/ci/test.yml
-@@ -10,6 +10,7 @@
- .lava-test:
-   extends:
-     - .test-rules
-+  timeout: "1h30m"
-   script:
-     # Note: Build dir (and thus install) may be dirty due to GIT_STRATEGY
-     - rm -rf install
-@@ -71,6 +72,7 @@
-     - .baremetal-test-arm64
-     - .use-debian/baremetal_arm64_test
-     - .test-rules
-+  timeout: "1h30m"
-   variables:
-     FDO_CI_CONCURRENT: 10
-     HWCI_TEST_SCRIPT: "/install/igt_runner.sh"
-@@ -215,7 +217,6 @@ panfrost:rk3399:
-   extends:
-     - .lava-igt:x86_64
-   stage: i915
--  timeout: "1h30m"
-   variables:
-     DRIVER_NAME: i915
-     DTB: ""
-@@ -414,6 +415,7 @@ panfrost:g12b:
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c6af18948092..e5286a6da863 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+ 	void *buf, *head;
+ 	dma_addr_t addr;
  
- virtio_gpu:none:
-   stage: software-driver
-+  timeout: "1h30m"
-   variables:
-     CROSVM_GALLIUM_DRIVER: llvmpipe
-     DRIVER_NAME: virtio_gpu
-@@ -436,6 +438,7 @@ virtio_gpu:none:
+-	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+-		return NULL;
+-
+ 	head = page_address(alloc_frag->page);
  
- vkms:none:
-   stage: software-driver
-+  timeout: "1h30m"
-   variables:
-     DRIVER_NAME: vkms
-     GPU_VERSION: none
+ 	dma = head;
+@@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+ 	len = SKB_DATA_ALIGN(len) +
+ 	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 
++	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
++		return -ENOMEM;
++
+ 	buf = virtnet_rq_alloc(rq, len, gfp);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
+@@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+ 	 */
+ 	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+ 
++	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
++		return -ENOMEM;
++
++	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
++		len -= sizeof(struct virtnet_rq_dma);
++
+ 	buf = virtnet_rq_alloc(rq, len + room, gfp);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
 -- 
-2.43.0
+2.32.0.3.g01195cf9f
 
