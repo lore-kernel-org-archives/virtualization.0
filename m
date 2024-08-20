@@ -1,44 +1,46 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C839018B47E
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 09:09:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71FC18A6CD
+	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 09:09:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724144967; cv=none; b=eW5r4v7n0HjTmI9DYr00bF4caUZJgacXYye7ZDn+ZI+0r+RNgDS41llQRH56YJQe3J8LDBnYHMx1W8wxFiIxMWMC2OAFIghi9xMdFic9RxrT1Q91lvhEZJWiwhjJPuZKdr77HffnBtMvy/4Hw6jN0Gu0MTBhB/ltPn9XCkXVkVg=
+	t=1724144973; cv=none; b=IANXzQIWvbM1DXEaKvVxQgs4XH8OBtJhwqCQDK094hpVmJkBWHFbROsqc6ag3tJVLrbrvWPlHBGWmd6hrt3kzgy5hB2sY5hudZvXPvHgSxKn9VyRWp0NTKOL1G+AS8Sv9fuPM4USdv4io50sTW1Pv5ZLpsFH8SSAyC/FJL4obeA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724144967; c=relaxed/simple;
-	bh=0QYjAdX8LRlVkJ2TQSEDw6C0Cm4NE1OZTLwhhyiQFHs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=FMlK118A6TnKkkCixwiBXThl6+/CHdmiASDbWb016kEIA7vCwDuY1m66xtHwc626DuJMDLcOA9xV6jk7eKYM3fsfdppDbbx4fIYtgECF7t8Be20xKoIqRRIDaolnf5XScNx+9KUAtlcNNc3XP15S7u5xNHQrmrkl1jx3EZlrbL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L13rjhoZ; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1724144973; c=relaxed/simple;
+	bh=bJkTyS8PfMg1NE2jw8oJV3eE5W74EcFlrnjY/8VSxRo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dqPVJhTQI1EiKlMRZyasAA0833k2qUClBMS8GIHDOAJBL0IjkwQ2m73XRDsT9UCLPjWeJMRT6I9rmlZWQNKxRGNw/JWYe8mdlWjBeB0VbKtydowh1+NPNGHqFG8Js2nxP8NfbEiDXL8LFIHLVjQY3rl9V3G7VJNEBXF7x0tpH4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aqolPHKi; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L13rjhoZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aqolPHKi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724144964;
+	s=mimecast20190719; t=1724144969;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=lRgqOXyBX9RvDpJkM6Di0st4mw6ssMTucyaILMSw5CA=;
-	b=L13rjhoZA58ZNhkC385lU8+JQYDyU7dDpGDQibL0ztMqmyfnqV2u12zM4k2kZIVZA+8rOw
-	OJ9S51PY6gSNKNXHMHdPMZmfe4p1NBGOZmqqLFstQ+vrxBVpoge+hCIudUjp7k3pMcn7Mi
-	9ZvgNFWSUoP69eZ17F/HScfvY9ZCMMk=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dUSPSFlfbnk2GBQn/hXYCEuTgzqE3rPm+JVguTpTv3E=;
+	b=aqolPHKicFo67YsVCBCQZh/4ilboJpCP/o4oYuLdGftiPqihYUOhJeSvKftktr72M4h1vN
+	32xZxoUaP5BpHODgriR8qSsBaJgR6Imcq3pAK08JKITqLDrYjQE5g0KtWqOjUtvbbhsrjv
+	dMLd6Q6s10VDcEVsJgBp8j50ifS9mOw=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-693-vIZOpLqvOAm3QggsuBIv9g-1; Tue,
- 20 Aug 2024 05:09:20 -0400
-X-MC-Unique: vIZOpLqvOAm3QggsuBIv9g-1
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-161-ZN5DTtbaMSSXzbIbgL6-eg-1; Tue,
+ 20 Aug 2024 05:09:25 -0400
+X-MC-Unique: ZN5DTtbaMSSXzbIbgL6-eg-1
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 20D691954B1B;
-	Tue, 20 Aug 2024 09:09:19 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1A4AD1955F4A;
+	Tue, 20 Aug 2024 09:09:23 +0000 (UTC)
 Received: from hydra.redhat.com (unknown [10.39.193.88])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 675391955F45;
-	Tue, 20 Aug 2024 09:09:14 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 737AE1955F39;
+	Tue, 20 Aug 2024 09:09:19 +0000 (UTC)
 From: Jocelyn Falempe <jfalempe@redhat.com>
 To: David Airlie <airlied@redhat.com>,
 	Gerd Hoffmann <kraxel@redhat.com>,
@@ -52,9 +54,11 @@ To: David Airlie <airlied@redhat.com>,
 	virtualization@lists.linux.dev
 Cc: Jocelyn Falempe <jfalempe@redhat.com>,
 	Javier Martinez Canillas <javierm@redhat.com>
-Subject: [PATCH v2 1/2] drm/virtio: Use XRGB8888 also for big endian systems
-Date: Tue, 20 Aug 2024 11:07:40 +0200
-Message-ID: <20240820090908.151042-1-jfalempe@redhat.com>
+Subject: [PATCH v2 2/2] drm/virtio: Fix host color format for big endian guests
+Date: Tue, 20 Aug 2024 11:07:41 +0200
+Message-ID: <20240820090908.151042-2-jfalempe@redhat.com>
+In-Reply-To: <20240820090908.151042-1-jfalempe@redhat.com>
+References: <20240820090908.151042-1-jfalempe@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,78 +71,49 @@ X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
-Mesa doesn't support BGRX8888, that means most wayland compositors
-don't work on big endian guests.
+The colors are inverted when testing a s390x VM on a s390x host.
+Changing the conversion from DRM_FORMAT -> VIRTIO_GPU_FORMAT on big
+endian guests fixes the colors. But it may break big-endian guest on
+little-endian host. In this case, the fix should be in qemu, because
+the host endianess is not known in the guest VM.
 
 Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
 Acked-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c |  4 ++--
- drivers/gpu/drm/virtio/virtgpu_gem.c     |  2 +-
- drivers/gpu/drm/virtio/virtgpu_plane.c   | 10 ++--------
- 3 files changed, 5 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 64baf2f22d9f0..3572a53ea2061 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -299,8 +299,8 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
- 	struct virtio_gpu_framebuffer *virtio_gpu_fb;
- 	int ret;
- 
--	if (mode_cmd->pixel_format != DRM_FORMAT_HOST_XRGB8888 &&
--	    mode_cmd->pixel_format != DRM_FORMAT_HOST_ARGB8888)
-+	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888 &&
-+	    mode_cmd->pixel_format != DRM_FORMAT_ARGB8888)
- 		return ERR_PTR(-ENOENT);
- 
- 	/* lookup object associated with res handle */
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 7db48d17ee3a8..601e06962530f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -75,7 +75,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	args->size = pitch * args->height;
- 	args->size = ALIGN(args->size, PAGE_SIZE);
- 
--	params.format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
-+	params.format = virtio_gpu_translate_format(DRM_FORMAT_XRGB8888);
- 	params.width = args->width;
- 	params.height = args->height;
- 	params.size = args->size;
 diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index a72a2dbda031c..860b5757ec3fc 100644
+index 860b5757ec3fc..0ec6ecc96eb13 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -30,11 +30,11 @@
- #include "virtgpu_drv.h"
- 
- static const uint32_t virtio_gpu_formats[] = {
--	DRM_FORMAT_HOST_XRGB8888,
-+	DRM_FORMAT_XRGB8888,
+@@ -37,16 +37,24 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
+ 	DRM_FORMAT_ARGB8888,
  };
  
- static const uint32_t virtio_gpu_cursor_formats[] = {
--	DRM_FORMAT_HOST_ARGB8888,
-+	DRM_FORMAT_ARGB8888,
- };
- 
++#ifdef __BIG_ENDIAN
++#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM
++#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM
++#else
++#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM
++#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM
++#endif
++
  uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
-@@ -48,12 +48,6 @@ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
- 	case DRM_FORMAT_ARGB8888:
- 		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
+ {
+ 	uint32_t format;
+ 
+ 	switch (drm_fourcc) {
+ 	case DRM_FORMAT_XRGB8888:
+-		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
++		format = VIRTIO_GPU_HOST_XRGB8888;
  		break;
--	case DRM_FORMAT_BGRX8888:
--		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
--		break;
--	case DRM_FORMAT_BGRA8888:
--		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
--		break;
+ 	case DRM_FORMAT_ARGB8888:
+-		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
++		format = VIRTIO_GPU_HOST_ARGB8888;
+ 		break;
  	default:
  		/*
- 		 * This should not happen, we handle everything listed
-
-base-commit: 8befe8fa5a4e4b30787b17e078d9d7b5cb92ea19
 -- 
 2.46.0
 
