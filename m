@@ -1,251 +1,223 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB81A18DF79
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 11:14:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B82E379F0
+	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 12:48:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724152468; cv=none; b=frdxt/0dpRIInWBnv8BgsdBN7qkYZt1jaMwZU8e1AS5XkRmWttjw+awhEUQad4+9Fzg2d7+obyRvQe5SdWny7qX51VbBEMPtSQ43RdQ5YOYergtWQaV65hdGfOkm5I+mAG3yQT/rC6sz13ymgfBEcLp+vrf6aTyVwL2OB4BAyww=
+	t=1724158137; cv=none; b=hJtRkF82jvBEghkhdX5+qOVhyrDHxzuW3rsb2b6PcIkvKQ+idtYUhXx0nNQMfgCad98C7IXq+PcBLDR4oNAMBnodcSrs79qvRZn5rktHKAN3Zz3mATNaK4/cRQ+QXgY5jBHrZciQ8GHtOxExc1NBUp3TPegwToTr/PuxPkBNnrc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724152468; c=relaxed/simple;
-	bh=BTT1Q6GxIm9St48gKvu8Ozg5Txh7Do+nIOAs2Z9Upuo=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BUhx0pjzzQWVVvxd1IHZY2QAJyl/k5b1bNX/InkWysMGmqH+eS7vCsmCR2vFkn2gKig7ZXiTPo+7XxSdP+ARjqc5Tu8Kjg2uFmunNP3VNrQ5viXNs70V5dmUy2Qpyug2u+ftS7cWApbXNOwM/NwY8GInutaFE+QWw4tZ8hvBM2k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=alU1ouL2; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724158137; c=relaxed/simple;
+	bh=ahzfS4edf9FtYyz8QFU2SgaBBqywG3oAYzRVewD+Ioc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s7FBPmold3kJrouF55GMfFONFFU4kOqTTTRcyytIwIPfbSfHfwlNxB9i9gGKvZX4ti+GqXm6cA8o/KuAWfbLR72xGfWxZ5SN7ycltjTx2vo3WUVTxUcqO4zXKqa4PJydqlVylgyTHxiZN0AV3qJwKr7S4wurzYlUeUmofofobEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Tj5g2CPq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=19xeJ39W; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Tj5g2CPq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=19xeJ39W; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="alU1ouL2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724152465;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Tj5g2CPq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="19xeJ39W";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Tj5g2CPq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="19xeJ39W"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 673041FFEE;
+	Tue, 20 Aug 2024 12:48:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1724158130; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BTT1Q6GxIm9St48gKvu8Ozg5Txh7Do+nIOAs2Z9Upuo=;
-	b=alU1ouL2HHmGo3pefUWlvcuSlN+U89VeS9UoAoPY+0hYmXk/V8aW1Q1q5zLriPPNOdeKua
-	7alqhC/zsuaqAZ3weGB+OkMdEaadEyqE43mkgXYP8y1dCbjKv1ss+pmFU4PjfVH5CKiKhg
-	ymAK35zpPs93e7U8KZJzSgqb3qf7MCs=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-216-xuFW0ppGPL2X_Wg2HeLFEA-1; Tue, 20 Aug 2024 07:14:24 -0400
-X-MC-Unique: xuFW0ppGPL2X_Wg2HeLFEA-1
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-52eff9a3109so591934e87.1
-        for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 04:14:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724152463; x=1724757263;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=y1Q7acyOuQZwg2/89j6b8m+Ec7sRWq6gAjTgotRXIu4=;
-        b=s8d6/0xlGMHToQ6FN/2YIIWsjFxe/67CGUrPMv3UVwVFZemIrgxXe89jXItqzMsJRG
-         pGkns9cnRjRpCj6JWQ1JnCoctu1783jT+tTCKo05IGDtarQaKtyeCENvSauA0YX2G1B1
-         yv440AwP9rJoGQivJk2Xw2z2GZs7s4aC/5eE7BFVDJJz9DJWdwkzI72bGcCZdJenpVAT
-         fSqyVdO099tfJTwYqlrJbsgZbGJuoD8H0aXhSDmdPb22uYS8YStfCaDM8D51frj7cDmP
-         Lq5yM0dgfSstSEHtemgZvBBbbD9AkWnmH+aXM2JuzG77nzqpUPJlP3z5EYCNVAU3zl/P
-         HmYw==
-X-Forwarded-Encrypted: i=1; AJvYcCXLrQpdsHT7gTMLDEnuo8qMCADt5qmrgumtjFo7Mlq81iF62pIB+JhC87tiPKMwGu0GJlGyx4o0WoU517DlMBCb8rGZYktAKewdVZQ9dk8=
-X-Gm-Message-State: AOJu0YwPNQQuiUu9i5ncXc4IUFqC8As6OTeY36dFH3ZZa52Rx3K7aIvM
-	0TMltIHQZvgyvZL3Y1ESgbL4Sic/Tp+BhzhbM7Q17nSKUblDLFIhapaLCXxmP0xIT2gR1g8hWV5
-	kZBma9k2ti6twCvoCnC9/In7GMuz+4W80lS/2RwsQFrpQUxdKiDnINhnVgjMxAOIq
-X-Received: by 2002:a05:6512:3c84:b0:530:baec:3975 with SMTP id 2adb3069b0e04-5331c6904bamr5596039e87.1.1724152462998;
-        Tue, 20 Aug 2024 04:14:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGYdlvki0skRqSH7C03GeJxZqEQK+y/koEXnizdbc6P1v4DyVRhp4tYp6FmBEQj38Z0lN9WKg==
-X-Received: by 2002:a05:6512:3c84:b0:530:baec:3975 with SMTP id 2adb3069b0e04-5331c6904bamr5596024e87.1.1724152462340;
-        Tue, 20 Aug 2024 04:14:22 -0700 (PDT)
-Received: from eisenberg.fritz.box ([2001:16b8:3dcc:1f00:bec1:681e:45eb:77e2])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a8383935657sm747366866b.138.2024.08.20.04.14.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Aug 2024 04:14:22 -0700 (PDT)
-Message-ID: <01b1e7d505a2b3e670f1613ce3e6a60efd3449ab.camel@redhat.com>
-Subject: Re: [PATCH 8/9] vdap: solidrun: Replace deprecated PCI functions
-From: Philipp Stanner <pstanner@redhat.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: alexandre.torgue@foss.st.com, alvaro.karsz@solid-run.com,
- andy@kernel.org,  axboe@kernel.dk, bhelgaas@google.com, brgl@bgdev.pl,
- broonie@kernel.org,  corbet@lwn.net, davem@davemloft.net,
- edumazet@google.com, eperezma@redhat.com,  hao.wu@intel.com,
- jasowang@redhat.com, joabreu@synopsys.com, kuba@kernel.org, 
- linus.walleij@linaro.org, linux-arm-kernel@lists.infradead.org, 
- linux-block@vger.kernel.org, linux-doc@vger.kernel.org, 
- linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, 
- linux-stm32@st-md-mailman.stormreply.com, mcoquelin.stm32@gmail.com, 
- mdf@kernel.org, mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com, 
- richardcochran@gmail.com, trix@redhat.com, virtualization@lists.linux.dev, 
- xuanzhuo@linux.alibaba.com, yilun.xu@intel.com
-Date: Tue, 20 Aug 2024 13:14:20 +0200
-In-Reply-To: <d35a962d-dc95-4469-867e-95b704cca474@wanadoo.fr>
-References: <20240819165148.58201-2-pstanner@redhat.com>
-	 <20240819165148.58201-10-pstanner@redhat.com>
-	 <74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanadoo.fr>
-	 <3e4288bb7300f3fd0883ff07b75ae69d0532019b.camel@redhat.com>
-	 <d35a962d-dc95-4469-867e-95b704cca474@wanadoo.fr>
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AoTl3YdK8S5BDqSVCu+puB8JyFNfolpi6PcDQCOvUKU=;
+	b=Tj5g2CPqECZqmHSCQrJchJNsF9SblOsfyvQO3GdRrKNLtfiBJrq1RTw3WYiOwCRAf2QRAS
+	IfNTAtLcYnErU6jkJUgv8+5XIk7Qn2GYo37eXcqxf5jXcPoy+JGGKCptXyIgzF+w1q0Ozu
+	jGUDed5UuKdfstpmp6bIn4A07rzZsg8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1724158130;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AoTl3YdK8S5BDqSVCu+puB8JyFNfolpi6PcDQCOvUKU=;
+	b=19xeJ39Wki38XrranzXTSSEgjjiLLXdVfgbiPXC1LRafJyTN3ine3LPDay/bt2melotKc0
+	1z88nbkbSQ6oq3AQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=Tj5g2CPq;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=19xeJ39W
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1724158130; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AoTl3YdK8S5BDqSVCu+puB8JyFNfolpi6PcDQCOvUKU=;
+	b=Tj5g2CPqECZqmHSCQrJchJNsF9SblOsfyvQO3GdRrKNLtfiBJrq1RTw3WYiOwCRAf2QRAS
+	IfNTAtLcYnErU6jkJUgv8+5XIk7Qn2GYo37eXcqxf5jXcPoy+JGGKCptXyIgzF+w1q0Ozu
+	jGUDed5UuKdfstpmp6bIn4A07rzZsg8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1724158130;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AoTl3YdK8S5BDqSVCu+puB8JyFNfolpi6PcDQCOvUKU=;
+	b=19xeJ39Wki38XrranzXTSSEgjjiLLXdVfgbiPXC1LRafJyTN3ine3LPDay/bt2melotKc0
+	1z88nbkbSQ6oq3AQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C62A713A17;
+	Tue, 20 Aug 2024 12:48:49 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id e1PvLrGQxGY2AgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 20 Aug 2024 12:48:49 +0000
+Message-ID: <efe083ed-b83b-45e8-a418-1861f535e31f@suse.de>
+Date: Tue, 20 Aug 2024 14:48:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] drm/virtio: Fix host color format for big endian
+ guests
+To: Jocelyn Falempe <jfalempe@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Daniel Vetter <daniel@ffwll.ch>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+References: <20240820090908.151042-1-jfalempe@redhat.com>
+ <20240820090908.151042-2-jfalempe@redhat.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20240820090908.151042-2-jfalempe@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 673041FFEE
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FREEMAIL_TO(0.00)[redhat.com,chromium.org,gmail.com,linux.intel.com,kernel.org,ffwll.ch,lists.freedesktop.org,lists.linux.dev];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCPT_COUNT_SEVEN(0.00)[11];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim,suse.de:mid]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -4.51
+X-Spam-Flag: NO
 
-On Tue, 2024-08-20 at 12:50 +0200, Christophe JAILLET wrote:
-> Le 20/08/2024 =C3=A0 10:09, Philipp Stanner a =C3=A9crit=C2=A0:
-> > > > @@ -556,33 +556,24 @@ static const struct vdpa_config_ops
-> > > > snet_config_ops =3D {
-> > > > =C2=A0=C2=A0 static int psnet_open_pf_bar(struct pci_dev *pdev, str=
-uct
-> > > > psnet
-> > > > *psnet)
-> > > > =C2=A0=C2=A0 {
-> > > > =C2=A0=C2=A0=C2=A0=09char name[50];
-> > > > -=09int ret, i, mask =3D 0;
-> > > > +=09int i;
-> > > > +
-> > > > +=09snprintf(name, sizeof(name), "psnet[%s]-bars",
-> > > > pci_name(pdev));
-> > > > +
-> > > > =C2=A0=C2=A0=C2=A0=09/* We don't know which BAR will be used to
-> > > > communicate..
-> > > > =C2=A0=C2=A0=C2=A0=09 * We will map every bar with len > 0.
-> > > > =C2=A0=C2=A0=C2=A0=09 *
-> > > > =C2=A0=C2=A0=C2=A0=09 * Later, we will discover the BAR and unmap a=
-ll other
-> > > > BARs.
-> > > > =C2=A0=C2=A0=C2=A0=09 */
-> > > > =C2=A0=C2=A0=C2=A0=09for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
-> > > > -=09=09if (pci_resource_len(pdev, i))
-> > > > -=09=09=09mask |=3D (1 << i);
-> > > > -=09}
-> > > > -
-> > > > -=09/* No BAR can be used.. */
-> > > > -=09if (!mask) {
-> > > > -=09=09SNET_ERR(pdev, "Failed to find a PCI BAR\n");
-> > > > -=09=09return -ENODEV;
-> > > > -=09}
-> > > > -
-> > > > -=09snprintf(name, sizeof(name), "psnet[%s]-bars",
-> > > > pci_name(pdev));
-> > > > -=09ret =3D pcim_iomap_regions(pdev, mask, name);
-> > > > -=09if (ret) {
-> > > > -=09=09SNET_ERR(pdev, "Failed to request and map PCI
-> > > > BARs\n");
-> > > > -=09=09return ret;
-> > > > -=09}
-> > > > +=09=09if (pci_resource_len(pdev, i)) {
-> > > > +=09=09=09psnet->bars[i] =3D
-> > > > pcim_iomap_region(pdev,
-> > > > i, name);
-> > >=20
-> > > Hi,
-> > >=20
-> > > Unrelated to the patch, but is is safe to have 'name' be on the
-> > > stack?
-> > >=20
-> > > pcim_iomap_region()
-> > > --> __pcim_request_region()
-> > > --> __pcim_request_region_range()
-> > > --> request_region() or __request_mem_region()
-> > > --> __request_region()
-> > > --> __request_region_locked()
-> > > --> res->name =3D name;
-> > >=20
-> > > So an address on the stack ends in the 'name' field of a "struct
-> > > resource".
-> >=20
-> > Oh oh...
-> >=20
-> > >=20
-> > > According to a few grep, it looks really unusual.
-> > >=20
-> > > I don't know if it is used, but it looks strange to me.
-> >=20
-> >=20
-> > I have seen it used in the kernel ringbuffer log when you try to
-> > request something that's already owned. I think it's here, right in
-> > __request_region_locked():
-> >=20
-> > /*
-> > =C2=A0 * mm/hmm.c reserves physical addresses which then
-> > =C2=A0 * become unavailable to other users.=C2=A0 Conflicts are
-> > =C2=A0 * not expected.=C2=A0 Warn to aid debugging if encountered.
-> > =C2=A0 */
-> > if (conflict->desc =3D=3D IORES_DESC_DEVICE_PRIVATE_MEMORY) {
-> > =09pr_warn("Unaddressable device %s %pR conflicts with %pR",
-> > =09=09conflict->name, conflict, res);
-> > }
-> >=20
-> >=20
-> > Assuming I interpret the code correctly:
-> > The conflicting resource is found when a new caller (e.g. another
-> > driver) tries to get the same region. So conflict->name on the
-> > original
-> > requester's stack is by now gone and you do get UB.
-> >=20
-> > Very unlikely UB, since only rarely drivers race for the same
-> > resource,
-> > but still UB.
-> >=20
-> > But there's also a few other places. Grep for "conflict->name".
-> >=20
-> > >=20
-> > >=20
-> > > If it is an issue, it was apparently already there before this
-> > > patch.
-> >=20
-> > I think this has to be fixed.
-> >=20
-> > Question would just be whether one wants to fix it locally in this
-> > driver, or prevent it from happening globally by making the common
-> > infrastructure copy the string.
-> >=20
-> >=20
-> > P.
-> >=20
->=20
-> Not a perfect script, but the below coccinelle script only find this=20
-> place, so I would +1 only fixing things here only.
->=20
-> Agree?
+Hi
 
-Yup, sounds good. Copying the string would cause trouble (GFP flags)
-anyways.
+Am 20.08.24 um 11:07 schrieb Jocelyn Falempe:
+> The colors are inverted when testing a s390x VM on a s390x host.
+> Changing the conversion from DRM_FORMAT -> VIRTIO_GPU_FORMAT on big
+> endian guests fixes the colors. But it may break big-endian guest on
+> little-endian host. In this case, the fix should be in qemu, because
+> the host endianess is not known in the guest VM.
+>
+> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+> Acked-by: Javier Martinez Canillas <javierm@redhat.com>
+> ---
+>   drivers/gpu/drm/virtio/virtgpu_plane.c | 12 ++++++++++--
+>   1 file changed, 10 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index 860b5757ec3fc..0ec6ecc96eb13 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -37,16 +37,24 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
+>   	DRM_FORMAT_ARGB8888,
+>   };
+>   
+> +#ifdef __BIG_ENDIAN
+> +#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM
+> +#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM
+> +#else
+> +#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM
+> +#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM
+> +#endif
 
-I'll provide a fix in v2.
+As these defines are only used here, would it be beneficial to put the 
+__BIG_ENDIAN branch directly around the switch statement?
 
-Thanks,
-P.
+Best regards
+Thomas
 
->=20
-> CJ
->=20
->=20
->=20
-> @@
-> identifier name;
-> expression x;
-> constant N;
-> @@
-> =09char name[N];
-> =09...
-> (
-> *=09pcim_iomap_region(..., name, ...);
-> >=20
-> *=09pcim_iomap_regions(..., name, ...);
-> >=20
-> *=09request_region(..., name, ...);
-> >=20
-> *=09x =3D pcim_iomap_region(..., name, ...);
-> >=20
-> *=09x =3D pcim_iomap_regions(..., name, ...);
-> >=20
-> *=09x =3D request_region(..., name, ...);
-> )
->=20
->=20
+> +
+>   uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
+>   {
+>   	uint32_t format;
+>   
+>   	switch (drm_fourcc) {
+>   	case DRM_FORMAT_XRGB8888:
+> -		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
+> +		format = VIRTIO_GPU_HOST_XRGB8888;
+>   		break;
+>   	case DRM_FORMAT_ARGB8888:
+> -		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
+> +		format = VIRTIO_GPU_HOST_ARGB8888;
+>   		break;
+>   	default:
+>   		/*
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
