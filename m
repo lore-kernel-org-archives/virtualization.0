@@ -1,65 +1,31 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B53F51CAAC
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 12:55:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21AB318E34F
+	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 13:07:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724158557; cv=none; b=CZcRrrjxKRVYisoD+ijYmZO3DNACBWTFId5OXArTLNsOGEweOKdtP+WQorkOAgrZIju3lNzg+vIKsrCYK/usXCEA8pSEL16YvAMvYLIXjcAVSO6XmGc538Stn35d4mdcz7aqS52CbIw0rI8bcQKwN61R9VAU5m8rmJ9l0WLl3yY=
+	t=1724159255; cv=none; b=uQYudh7Bguee8hUSBHnhm/7P3I9DeENFq1FCG6YapKw+pKoCdBja2OqDtZuauWRcU4hEqJ6nP9QzGHq9UzQpXTmWKA7oadxVZTN3c8gGmEpWpOjhjNsVBkl+eUle5A1QOMSjbP3lhr3kBWNae9WSoXbw1ORr2Zg7DQWn6oYZfbA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724158557; c=relaxed/simple;
-	bh=s6ObYsZ2GI3TaSZJk4UU3v0DGTY7Ls17prsqpT+kilc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Zs24NkOL96n01+8AnNV+RBP/iz8ebyuxBU34hLod/sXroNzoyxDGGkNRcG8G/56SNj54puc2klRvKnfeWF6+AjG1Rsu73opelHJh9+x+zltqEdhmY4s0UgmA4CnXIQB5nzVISMpcQbuqvYdjCijR1C8jNjTKGI1p69FJddTNcto=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QGw3hO6u; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QGw3hO6u"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724158554;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=//fa7C7uMUVCVHWhUhIMdsYVMveoAIZ7MNgXZX6SAJo=;
-	b=QGw3hO6uoMrChXeDoeNd7bnNusZz47Q94rdE5ZOWwVpMYpbuwgTpT3mYKAbS/GQiYWodn0
-	/OT22gaKB6ZdrZIyinMjCykAGSmiUejP6gk+wjjTFLzWSi+7MObkQC/0Dz7SBsHMhvt5OX
-	vvBr5HoujRoDd+dxkyO5pUDlgOdfLJk=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-445-1F4M_DVMPHul9S8rPGmW4g-1; Tue, 20 Aug 2024 08:55:51 -0400
-X-MC-Unique: 1F4M_DVMPHul9S8rPGmW4g-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-428fc34f41bso47709745e9.3
-        for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 05:55:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724158550; x=1724763350;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=//fa7C7uMUVCVHWhUhIMdsYVMveoAIZ7MNgXZX6SAJo=;
-        b=n0eePzAbzQWmys9k/zN7lLLzmGnyRxwqsASoGbVeZLnABtYa4M4QYb62E0LvyZ3efb
-         /M/bpJHEqnnXXw+qrVVuE9ithZcR/HN9ZVwfLp6Meh2eNiMhN20DqODGTl8bqJBSmhgb
-         RAvXQzioybiSwtxVTjeTw0ZjjIexTjUPdYPHpTK0CF43D+VZJ30ofMxKidFLyelOsifl
-         gakwEPPPQeJV+WM/iqy+DoCRCo4UlmAAbfpRtNh3O+U710y0TqTmGPxV1/La/SXipp1k
-         t/JGpRnEfYh1IBdpXN8WjO8vKABnLNyLtkn1qp4sK29KeXLVFQ4QIThMoZykyQ2YpMqf
-         rVhg==
-X-Forwarded-Encrypted: i=1; AJvYcCWNxt0XRPNYkL152YgAxHEoSLlCNp3JfBIKL7Lo/UALknZdjzhwdCmZ2bMBelgfJoyGCZEzglkmR3r++RtbpQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwT3ChXNfayPkb+0WgGgv3/EcigCM2tkXumo92qJkGd1zz6Llaj
-	CUfCxYmAVPMhz7IMTgUXJ7WYSKtp7oLmH3cFo5F3SNeqi69Fv/Qx9qcohEc2TkR9mWWDZZr4oko
-	UpEtHhYxKQxJuzs79gGC08XbnDG6tUK2gwdRaKkrITYwMRHgpQH6Osa/XydrRkgy1
-X-Received: by 2002:a05:600c:4614:b0:428:17b6:bcf1 with SMTP id 5b1f17b1804b1-429ed7c1e45mr104694495e9.22.1724158549669;
-        Tue, 20 Aug 2024 05:55:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEjumzqQN3renhqWclB/aglpoU88Ng3amSrt4D+SOxfHAVEPfbsjMcBnxYIKTunPJ2lcZZ4Hw==
-X-Received: by 2002:a05:600c:4614:b0:428:17b6:bcf1 with SMTP id 5b1f17b1804b1-429ed7c1e45mr104694295e9.22.1724158549180;
-        Tue, 20 Aug 2024 05:55:49 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:c:37e0:ced3:55bd:f454:e722? ([2a01:e0a:c:37e0:ced3:55bd:f454:e722])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429ded7d5a9sm194550555e9.43.2024.08.20.05.55.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Aug 2024 05:55:48 -0700 (PDT)
-Message-ID: <ddd41844-1d3e-4755-9013-9ae4e751c501@redhat.com>
-Date: Tue, 20 Aug 2024 14:55:47 +0200
+	s=arc-20240116; t=1724159255; c=relaxed/simple;
+	bh=JO6RWeMlWaObYRyseZlU/Pqn9dKedWmcF4CIwKnCdJ8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=pGOusUpPe+QO4Gc8MDgqPcxHv62SyKw0M6vq/AJn9hh6UopFtbUXLcFps6wa6l3u2oCSxFzqLwd/w0XRs256MjOi7GzAtsRvw61yPZdBvl65mTSWlB36SU0Nqrp5lTA3fj4d1iwkd5kG+3iVgVS4TyplHWZFJzN1SOdcYhCj/40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.105])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Wp8rD3W5wzyR2p;
+	Tue, 20 Aug 2024 21:07:08 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 1EF6B140138;
+	Tue, 20 Aug 2024 21:07:30 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Tue, 20 Aug 2024 21:07:29 +0800
+Message-ID: <98ceade3-8d60-45bf-a419-ff3982a96101@huawei.com>
+Date: Tue, 20 Aug 2024 21:07:29 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,102 +33,155 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] drm/virtio: Fix host color format for big endian
- guests
-To: Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
- <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Daniel Vetter <daniel@ffwll.ch>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-References: <20240820090908.151042-1-jfalempe@redhat.com>
- <20240820090908.151042-2-jfalempe@redhat.com>
- <efe083ed-b83b-45e8-a418-1861f535e31f@suse.de>
-From: Jocelyn Falempe <jfalempe@redhat.com>
-In-Reply-To: <efe083ed-b83b-45e8-a418-1861f535e31f@suse.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US, fr
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+To: Alexander Duyck <alexander.duyck@gmail.com>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya Sundeep
+	<sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, Sagi Grimberg
+	<sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, Praveen
+ Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
+	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
+	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
+	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
+ Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
+ Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
+	<hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Daniel
+ Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko
+	<andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
+ Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
+	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
+	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga
+ Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
+	<tom@talpey.com>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
+	<anna@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
+References: <20240808123714.462740-1-linyunsheng@huawei.com>
+ <20240808123714.462740-5-linyunsheng@huawei.com>
+ <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+ <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com>
+ <CAKgT0Uct5ptfs9ZEoe-9u-fOVz4HLf+5MS-YidKV+xELCBHKNw@mail.gmail.com>
+ <3e069c81-a728-4d72-a5bb-3be00d182107@huawei.com>
+ <CAKgT0UcDDFeMqD_eRe1-2Og0GEEFyNP90E9SDxDjskdgtMe0Uw@mail.gmail.com>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <CAKgT0UcDDFeMqD_eRe1-2Og0GEEFyNP90E9SDxDjskdgtMe0Uw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On 20/08/2024 14:48, Thomas Zimmermann wrote:
-> Hi
-> 
-> Am 20.08.24 um 11:07 schrieb Jocelyn Falempe:
->> The colors are inverted when testing a s390x VM on a s390x host.
->> Changing the conversion from DRM_FORMAT -> VIRTIO_GPU_FORMAT on big
->> endian guests fixes the colors. But it may break big-endian guest on
->> little-endian host. In this case, the fix should be in qemu, because
->> the host endianess is not known in the guest VM.
+On 2024/8/19 23:54, Alexander Duyck wrote:
+
+...
+
+>>>>
+>>>> "There are three types of API as proposed in this patchset instead of
+>>>> two types of API:
+>>>> 1. page_frag_alloc_va() returns [va].
+>>>> 2. page_frag_alloc_pg() returns [page, offset].
+>>>> 3. page_frag_alloc() returns [va] & [page, offset].
+>>>>
+>>>> You seemed to miss that we need a third naming for the type 3 API.
+>>>> Do you see type 3 API as a valid API? if yes, what naming are you
+>>>> suggesting for it? if no, why it is not a valid API?"
+>>>
+>>> I didn't. I just don't see the point in pushing out the existing API
+>>> to support that. In reality 2 and 3 are redundant. You probably only
+>>> need 3. Like I mentioned earlier you can essentially just pass a
 >>
->> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
->> Acked-by: Javier Martinez Canillas <javierm@redhat.com>
->> ---
->>   drivers/gpu/drm/virtio/virtgpu_plane.c | 12 ++++++++++--
->>   1 file changed, 10 insertions(+), 2 deletions(-)
+>> If the caller just expect [page, offset], do you expect the caller also
+>> type 3 API, which return both [va] and [page, offset]?
 >>
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c 
->> b/drivers/gpu/drm/virtio/virtgpu_plane.c
->> index 860b5757ec3fc..0ec6ecc96eb13 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
->> @@ -37,16 +37,24 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
->>       DRM_FORMAT_ARGB8888,
->>   };
->> +#ifdef __BIG_ENDIAN
->> +#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM
->> +#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM
->> +#else
->> +#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM
->> +#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM
->> +#endif
+>> I am not sure if I understand why you think 2 and 3 are redundant here?
+>> If you think 2 and 3 are redundant here, aren't 1 and 3 also redundant
+>> as the similar agrument?
 > 
-> As these defines are only used here, would it be beneficial to put the 
-> __BIG_ENDIAN branch directly around the switch statement?
-
-That was my first version, but I found it difficult to read, when I mix 
-#ifdef in a switch case.
-
-
-or maybe something like the following would be better ?
-
-
-  	switch (drm_fourcc) {
-#ifdef _BIG_ENDIAN
-  	case DRM_FORMAT_XRGB8888:
-		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
-  		break;
-  	case DRM_FORMAT_ARGB8888:
-		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
-  		break;
-#else
-  	case DRM_FORMAT_XRGB8888:
-		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
-  		break;
-  	case DRM_FORMAT_ARGB8888:
-		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
-  		break;
-#endif
+> The big difference is the need to return page and offset. Basically to
+> support returning page and offset you need to pass at least one value
+> as a pointer so you can store the return there.
 > 
-> Best regards
-> Thomas
+> The reason why 3 is just a redundant form of 2 is that you will
+> normally just be converting from a va to a page and offset so the va
+> should already be easily accessible.
+
+I am assuming that by 'easily accessible', you meant the 'va' can be
+calculated as below, right?
+
+va = encoded_page_address(encoded_va) +
+		(page_frag_cache_page_size(encoded_va) - remaining);
+
+I guess it is easily accessible, but it is not without some overhead
+to calculate the 'va' here.
+
 > 
->> +
->>   uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
->>   {
->>       uint32_t format;
->>       switch (drm_fourcc) {
->>       case DRM_FORMAT_XRGB8888:
->> -        format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
->> +        format = VIRTIO_GPU_HOST_XRGB8888;
->>           break;
->>       case DRM_FORMAT_ARGB8888:
->> -        format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
->> +        format = VIRTIO_GPU_HOST_ARGB8888;
->>           break;
->>       default:
->>           /*
+>>> page_frag via pointer to the function. With that you could also look
+>>> at just returning a virtual address as well if you insist on having
+>>> something that returns all of the above. No point in having 2 and 3 be
+>>> seperate functions.
+>>
+>> Let's be more specific about what are your suggestion here: which way
+>> is the prefer way to return the virtual address. It seems there are two
+>> options:
+>>
+>> 1. Return the virtual address by function returning as below:
+>> void *page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio);
+>>
+>> 2. Return the virtual address by double pointer as below:
+>> int page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio,
+>>                         void **va);
 > 
+> I was thinking more of option 1. Basically this is a superset of
+> page_frag_alloc_va that is also returning the page and offset via a
+> page frag. However instead of bio_vec I would be good with "struct
+> page_frag *" being the value passed to the function to play the role
+> of container. Basically the big difference between 1 and 2/3 if I am
+> not mistaken is the fact that for 1 you pass the size, whereas with
+> 2/3 you are peeling off the page frag from the larger page frag cache
+
+Let's be clear here: The callers just expecting [page, offset] also need
+to call type 3 API, which return both [va] and [page, offset]? and it
+is ok to ignore the overhead of calculating the 'va' for those kinds
+of callers just because we don't want to do the renaming for a existing
+API and can't come up with good naming for that?
+
+> after the fact via a commit type action.
+
+Just be clear here, there is no commit type action for some subtype of
+type 2/3 API.
+
+For example, for type 2 API in this patchset, it has below subtypes:
+
+subtype 1: it does not need a commit type action, it just return
+           [page, offset] instead of page_frag_alloc_va() returning [va],
+           and it does not return the allocated fragsz back to the caller
+           as page_frag_alloc_va() does not too:
+struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
+                                unsigned int *offset, unsigned int fragsz,
+                                gfp_t gfp)
+
+subtype 2: it does need a commit type action, and @fragsz is returned to
+           the caller and caller used that to commit how much fragsz to
+           commit.
+struct page *page_frag_alloc_pg_prepare(struct page_frag_cache *nc,
+                                        unsigned int *offset,
+                                        unsigned int *fragsz, gfp_t gfp)
+
+Do you see subtype 1 as valid API? If no, why?
+If yes, do you also expect the caller to use "struct page_frag *" as the
+container? If yes, what is the caller expected to do with the size field in
+"struct page_frag *" from API perspective? Just ignore it?
 
