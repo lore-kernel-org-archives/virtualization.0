@@ -1,249 +1,157 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F6D1195980
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 16:03:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1302E194ADB
+	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 16:50:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724169818; cv=none; b=X/f5/Gr3RWCAtVe/KdCDZfLemJyw2jtdmPqlP17+UR+sx88FABgZMs85yt93OmTACMuVeDbBqmFuzVeOAnnyH3CSgx5/MRo26MJ/ahO/9jAq3jx34+06V9sAd34PmXPSqS718cOKPJgLIXI7lJ+llJG7RUHwvjB8vKbcMT7sYmw=
+	t=1724172651; cv=none; b=pN43ioZE4OFusZhuwKNgtByJj6NWSfRS8DozQlk7PkIeyR8+Thruod27VjyIQQo/p1DHbUH/BMrVBRjpfofkt/a+HuUT85witWJAZoEznKlRjwF1gSRE8NDBJ6rlDz9uUEDoxfmSY99rtWj+lAIHe2XuVqS/9CWiiXgajF/N+wo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724169818; c=relaxed/simple;
-	bh=/yVBXopS+OUoveXJwCqPSrKAl3/0x4KkcAgmVdW7mKU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TEg66fvc/ZeuBT8ttbX3Q7H18yLnYDSdUnjGaIt6EZZp8wQaTK3bSbNWqo7CpRlKo5pC0TXF3xIlXk1hzWd/4G1s1BSbEAqkYTvJOoXHzJUuenbK+w7FLTYLoba3e1hnQLWlhwjgMW1quOFcmAojkBjGwmpEpsxPJgop33lDm6o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RJyWUY75; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724172651; c=relaxed/simple;
+	bh=iRRJm5hnANTCCbMz3TFjJ+p/itYxSWlkd70jymZn400=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=OJS1LtBJAFDdR9JJdfRBYRgj3/lGCNddaZ6Q5sIbXcOKQiXU3iYZ+BUv8OTxJMunaFtwtOIM1R+Rb6SENGffKhBl8zZAvJ2EbmBNAeSGg5d62cCQZOl2eS17RQfF18XrD41y6oDnPDAk9ob3SpQUkaiQCZMEWZAqDEIQNQxAMm0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FLqIjVaD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RJyWUY75"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-42817bee9e8so44970905e9.3
-        for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 09:03:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724169815; x=1724774615; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ACxpErlOvFQuBRokph/wthh0GeLIFddWl+sG+UC+KHk=;
-        b=RJyWUY75o5AUoZMtOyflnYvU4Q5fXM0exfciN3xg59mLrAXoh198LiYkjaqGzr2YK1
-         /XJ26kl5k/FHn7sOZt1QTQvUAAjuVXrPbCyMNelsL1JXB2YXNCli3UzTsGIbETqcmh+f
-         lDeVaqZzelylyl7hFaPrmYIehIDq3wxNii/L7VxY2n+EBb7CMHxHs17LvAy8wl3247+X
-         Zv99YhEL9gkGMq2PvpxlwT6fE0/DzEtpyrqADbiNxOm5Iarm7Kt7hqbDMGvb8ZonI5Y7
-         f88GQZkirrnfONkWK5/AiDyzhacvbZ9EwqlfunDJZKilUbvYNWUshwVl93NDZ30tsu2J
-         fIjw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FLqIjVaD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724172648;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pSrnuWgvFayGHBrJKp41lIH2eBIptiQndAvaubL6bOo=;
+	b=FLqIjVaDsXDasOc4Jo+nTgGeQwlAT3xPhT21W8X5QdyseRmB49nqSO0XihITkmW1dhjJk8
+	80TbO64gMegDbaBL8l6KegkWQo67M5atsMScvb6KrKFF6mR2eRj9S7FZkGwraH+eyiJtqb
+	zWiBtp3RKLoL1M2sY7OlI5HcKud0Z1Y=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-561-9FrHNCzxMWeaNTRfDluSow-1; Tue, 20 Aug 2024 12:50:47 -0400
+X-MC-Unique: 9FrHNCzxMWeaNTRfDluSow-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42817980766so46163235e9.3
+        for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 09:50:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724169815; x=1724774615;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ACxpErlOvFQuBRokph/wthh0GeLIFddWl+sG+UC+KHk=;
-        b=kjoVs9tQ3KJS9WZsJJfsTEhUFbZB4jivYm098BcRuKv0jtVlX0gHvmOqCaO2AyLo9C
-         BlN+yWzkptcVRf5X6j+ThTe/saKMo4Z7GWY0EOyrGtAM5RsGjbiu1wzGLOevENREe5HY
-         RABmZdnusDHjvUhySjXAnxtk2RR13QTqTBiY5CewTbDGf3Anf6T6bLfjlhoWfwZAjYIJ
-         C/1YwG0XW/G3G30tIHvuc8B1MoUm0dXqTL+HGTMC12kqrhffrau7fakFnhYgvBuL/zYu
-         lCkfbSP8Iys994MiVe7FOwzmnY8ENmhBbrsnO30oFZdqR5Py4MQsnqupJIkuLz/0kBrG
-         RFnw==
-X-Forwarded-Encrypted: i=1; AJvYcCXm7NIj+PUPiq4Rq56B/SKJuWnWXfx8vW3Z8l4zaig6DuFikrwjWUPKQ7OVcAxUqvdHd9FgWsDjG/Q6s36VOg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxzDSmVSCvKfsd7liu7qwMESnz9EYf7VC8lljdNB4I0HxngXyJg
-	frEIskgbSxnPb+wNq4v21myvwN4nRE35TDlZ+rCzSpjlN3VnKqkUi3fE6y5JjxfROxGN8GHcT8m
-	DphMLFwB/+Mfv9HeZ5be41Tti2R0=
-X-Google-Smtp-Source: AGHT+IF4DoS60WZqDqVaq8Y/5SjjI7zscaIxzpj60ezQwLm3viTYLpGZpmD+jTekneRZUAoDJMoW7JwgYwWaXYZHKdQ=
-X-Received: by 2002:adf:f285:0:b0:371:888d:7aaa with SMTP id
- ffacd0b85a97d-371946b1ae9mr9087932f8f.49.1724169814881; Tue, 20 Aug 2024
- 09:03:34 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724172646; x=1724777446;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pSrnuWgvFayGHBrJKp41lIH2eBIptiQndAvaubL6bOo=;
+        b=BRpiO6ywRSGoFwAa46JgPW+VaKRDY7BgLh2NlHe+BdgtzFu4rTrfJhaX24KiWcE6AR
+         bjhw88jIqpGgTzYiXbe1EujLBt9NntTAn8Cbnyraye9T6l+D/9gHtDFaKf0akeusyHE8
+         mQUz60fm0C8P6BAjI+K01SWCzutO0XqDx3W7MK286JwOTWfyzseAAG3Ts5sPOMcIK0ZQ
+         fEdgqNMRjaKYs7K2paf3V3++8VrJQQBU9zoTllohMh6b/PAq1lksDSU9mWmioCniv/Yi
+         LMNxSCVgFMPCeAp+L+W+HbBPSCcDg8pUD4e8q4QLMKpLlc75HassSDCN66/jQXW6Jdgs
+         uP5Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWxWvqMwaPnSEbn1u2HFLsSPkfhmvpMAoszN5+VdPcTj6gOGoqSl90CkUuQDvXk1Uy3+hgKVvwsITR2oSh4xg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwR90DHm9NjOFZwL3nkR5CFkUR1hoBdom9l8zQuBSIoOqfzq/Sq
+	ZBsKDO7nOp8KgVl3yRzX+A3idQzOyrzUrMT1p7q25sAAwdl1/fWlsTVm744WH4jb5+o+cA0RJ97
+	1c8bgm6nnfP76umFqxwc0zlalYWgNdKRFKNu0eWjfQYJGbdQhkl4GC+WNyUE3nSOd
+X-Received: by 2002:a05:600c:3b83:b0:426:6688:2421 with SMTP id 5b1f17b1804b1-429ed7ba99dmr92131595e9.11.1724172645775;
+        Tue, 20 Aug 2024 09:50:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHVSre1isLav46+Pl58gyrfdKG0OOq/aM+82s+Wgpt/eMCCTkpP6nwYmfBfXDXr6SqR1mHPDw==
+X-Received: by 2002:a05:600c:3b83:b0:426:6688:2421 with SMTP id 5b1f17b1804b1-429ed7ba99dmr92131395e9.11.1724172644905;
+        Tue, 20 Aug 2024 09:50:44 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:443:61f9:60b2:d178:7b81:4387])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429ded180e7sm201783445e9.3.2024.08.20.09.50.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Aug 2024 09:50:44 -0700 (PDT)
+Date: Tue, 20 Aug 2024 12:50:39 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev, Si-Wei Liu <si-wei.liu@oracle.com>,
+	Darren Kenny <darren.kenny@oracle.com>,
+	"Linux regression tracking (Thorsten Leemhuis)" <regressions@leemhuis.info>
+Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
+Message-ID: <20240820125006-mutt-send-email-mst@kernel.org>
+References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240808123714.462740-1-linyunsheng@huawei.com>
- <20240808123714.462740-5-linyunsheng@huawei.com> <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
- <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com> <CAKgT0Uct5ptfs9ZEoe-9u-fOVz4HLf+5MS-YidKV+xELCBHKNw@mail.gmail.com>
- <3e069c81-a728-4d72-a5bb-3be00d182107@huawei.com> <CAKgT0UcDDFeMqD_eRe1-2Og0GEEFyNP90E9SDxDjskdgtMe0Uw@mail.gmail.com>
- <98ceade3-8d60-45bf-a419-ff3982a96101@huawei.com>
-In-Reply-To: <98ceade3-8d60-45bf-a419-ff3982a96101@huawei.com>
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Date: Tue, 20 Aug 2024 09:02:57 -0700
-Message-ID: <CAKgT0Uc+e3MUb4CK1i7H7F=y-fHTxiGF8zddBFiqFRdbd6ofLg@mail.gmail.com>
-Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
- page_frag API
-To: Yunsheng Lin <linyunsheng@huawei.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Subbaraya Sundeep <sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, 
-	Sagi Grimberg <sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, 
-	Praveen Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>, 
-	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham <sgoutham@marvell.com>, 
-	Geetha sowjanya <gakula@marvell.com>, hariprasad <hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, 
-	Sean Wang <sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, 
-	Lorenzo Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith Busch <kbusch@kernel.org>, 
-	Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
-	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, 
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, 
-	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, 
-	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	intel-wired-lan@lists.osuosl.org, linux-arm-kernel@lists.infradead.org, 
-	linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org, 
-	bpf@vger.kernel.org, linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, Aug 20, 2024 at 6:07=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.co=
-m> wrote:
->
-> On 2024/8/19 23:54, Alexander Duyck wrote:
->
-> ...
->
-> >>>>
-> >>>> "There are three types of API as proposed in this patchset instead o=
-f
-> >>>> two types of API:
-> >>>> 1. page_frag_alloc_va() returns [va].
-> >>>> 2. page_frag_alloc_pg() returns [page, offset].
-> >>>> 3. page_frag_alloc() returns [va] & [page, offset].
-> >>>>
-> >>>> You seemed to miss that we need a third naming for the type 3 API.
-> >>>> Do you see type 3 API as a valid API? if yes, what naming are you
-> >>>> suggesting for it? if no, why it is not a valid API?"
-> >>>
-> >>> I didn't. I just don't see the point in pushing out the existing API
-> >>> to support that. In reality 2 and 3 are redundant. You probably only
-> >>> need 3. Like I mentioned earlier you can essentially just pass a
-> >>
-> >> If the caller just expect [page, offset], do you expect the caller als=
-o
-> >> type 3 API, which return both [va] and [page, offset]?
-> >>
-> >> I am not sure if I understand why you think 2 and 3 are redundant here=
-?
-> >> If you think 2 and 3 are redundant here, aren't 1 and 3 also redundant
-> >> as the similar agrument?
-> >
-> > The big difference is the need to return page and offset. Basically to
-> > support returning page and offset you need to pass at least one value
-> > as a pointer so you can store the return there.
-> >
-> > The reason why 3 is just a redundant form of 2 is that you will
-> > normally just be converting from a va to a page and offset so the va
-> > should already be easily accessible.
->
-> I am assuming that by 'easily accessible', you meant the 'va' can be
-> calculated as below, right?
->
-> va =3D encoded_page_address(encoded_va) +
->                 (page_frag_cache_page_size(encoded_va) - remaining);
->
-> I guess it is easily accessible, but it is not without some overhead
-> to calculate the 'va' here.
-
-It is just the encoded_page_address + offset that you have to
-calculate anyway. So the only bit you actually have to do is 2
-instructions, one to mask the encoded_va and then the addition of the
-offset that you provided to the page. As it stands those instruction
-can easily be slipped in while you are working on converting the va to
-a page.
+On Tue, Aug 20, 2024 at 03:19:13PM +0800, Xuan Zhuo wrote:
+> leads to regression on VM with the sysctl value of:
+> 
+> - net.core.high_order_alloc_disable=1
 
 
-> >
-> >>> page_frag via pointer to the function. With that you could also look
-> >>> at just returning a virtual address as well if you insist on having
-> >>> something that returns all of the above. No point in having 2 and 3 b=
-e
-> >>> seperate functions.
-> >>
-> >> Let's be more specific about what are your suggestion here: which way
-> >> is the prefer way to return the virtual address. It seems there are tw=
-o
-> >> options:
-> >>
-> >> 1. Return the virtual address by function returning as below:
-> >> void *page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *=
-bio);
-> >>
-> >> 2. Return the virtual address by double pointer as below:
-> >> int page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bi=
-o,
-> >>                         void **va);
-> >
-> > I was thinking more of option 1. Basically this is a superset of
-> > page_frag_alloc_va that is also returning the page and offset via a
-> > page frag. However instead of bio_vec I would be good with "struct
-> > page_frag *" being the value passed to the function to play the role
-> > of container. Basically the big difference between 1 and 2/3 if I am
-> > not mistaken is the fact that for 1 you pass the size, whereas with
-> > 2/3 you are peeling off the page frag from the larger page frag cache
->
-> Let's be clear here: The callers just expecting [page, offset] also need
-> to call type 3 API, which return both [va] and [page, offset]? and it
-> is ok to ignore the overhead of calculating the 'va' for those kinds
-> of callers just because we don't want to do the renaming for a existing
-> API and can't come up with good naming for that?
->
-> > after the fact via a commit type action.
->
-> Just be clear here, there is no commit type action for some subtype of
-> type 2/3 API.
->
-> For example, for type 2 API in this patchset, it has below subtypes:
->
-> subtype 1: it does not need a commit type action, it just return
->            [page, offset] instead of page_frag_alloc_va() returning [va],
->            and it does not return the allocated fragsz back to the caller
->            as page_frag_alloc_va() does not too:
-> struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
->                                 unsigned int *offset, unsigned int fragsz=
-,
->                                 gfp_t gfp)
->
-> subtype 2: it does need a commit type action, and @fragsz is returned to
->            the caller and caller used that to commit how much fragsz to
->            commit.
-> struct page *page_frag_alloc_pg_prepare(struct page_frag_cache *nc,
->                                         unsigned int *offset,
->                                         unsigned int *fragsz, gfp_t gfp)
->
-> Do you see subtype 1 as valid API? If no, why?
 
-Not really, it is just a wrapper for page_frag_alloc that is
-converting the virtual address to a page and offset. They are the same
-data and don't justify the need for two functions. It kind of explains
-one of the complaints I had about this code. Supposedly it was
-refactoring and combining several different callers into one, but what
-it is actually doing is fracturing the code path into 3 different
-variants based on little if any actual difference as it is doing
-unnecessary optimization.
 
-> If yes, do you also expect the caller to use "struct page_frag *" as the
-> container? If yes, what is the caller expected to do with the size field =
-in
-> "struct page_frag *" from API perspective? Just ignore it?
+> which could see reliable crashes or scp failure (scp a file 100M in size
+> to VM):
+> 
+> The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
+> of a new frag. When the frag size is larger than PAGE_SIZE,
+> everything is fine. However, if the frag is only one page and the
+> total size of the buffer and virtnet_rq_dma is larger than one page, an
+> overflow may occur. In this case, if an overflow is possible, I adjust
+> the buffer size. If net.core.high_order_alloc_disable=1, the maximum
+> buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
+> the first buffer of the frag is affected.
+> 
+> Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
+> Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-It should be populated. You passed a fragsz, so you should populate
-the output fragsz so you can get the truesize in the case of network
-packets. The removal of the page_frag from the other callers is making
-it much harder to review your code anyway. If we keep the page_frag
-there it should reduce the amount of change needed when you replace
-page_frag with the page_frag_cache.
 
-Honestly this is eating up too much of my time. As I said before this
-patch set is too big and it is trying to squeeze in more than it
-really should for a single patch set to be reviewable. Going forward
-please split up the patch set as I had suggested before and address my
-comments. Ideally you would have your first patch just be some
-refactor and cleanup to get the "offset" pointer moving in the
-direction you want. With that we can at least get half of this set
-digested before we start chewing into all this refactor for the
-replacement of page_frag with the page_frag_cache.
+Darren, could you pls test and confirm?
+
+> ---
+>  drivers/net/virtio_net.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c6af18948092..e5286a6da863 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+>  	void *buf, *head;
+>  	dma_addr_t addr;
+>  
+> -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+> -		return NULL;
+> -
+>  	head = page_address(alloc_frag->page);
+>  
+>  	dma = head;
+> @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+>  	len = SKB_DATA_ALIGN(len) +
+>  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+>  
+> +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
+> +		return -ENOMEM;
+> +
+>  	buf = virtnet_rq_alloc(rq, len, gfp);
+>  	if (unlikely(!buf))
+>  		return -ENOMEM;
+> @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+>  	 */
+>  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+>  
+> +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> +		return -ENOMEM;
+> +
+> +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
+> +		len -= sizeof(struct virtnet_rq_dma);
+> +
+>  	buf = virtnet_rq_alloc(rq, len + room, gfp);
+>  	if (unlikely(!buf))
+>  		return -ENOMEM;
+> -- 
+> 2.32.0.3.g01195cf9f
+
