@@ -1,281 +1,249 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA804190052
-	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 15:12:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.17
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724166765; cv=fail; b=XEeRPHA1n6fJFLeaO/wpvxZVFAczDPanyGnIew5XIY10/zvXXND3Q5KXgH44XWhDRAFYg6qPbmErgq7vmkaXN0f42RPd/TTbjUzcx3uza1zNLa0Mt2El4tCX+IP1GZq2tanDPY6GeIn+FBpb0di9P1MOUkKY+YCwpVdMW+93sNc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724166765; c=relaxed/simple;
-	bh=PyXhtFb7rgXG3oBaNddSHij3Brl5Ecv2YqzYV3eSLO0=;
-	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=SZcrJtKXhKLcNOk/NYvQkSqv6tMPBuYNpcak78d6Uw1Wn8t7aI/SJZbiXQzFvbSOhlVKUQf/eaZkrlnycWpM7mGMlMFdbqRqPAUgYvPnxy+Hhf6JuAd39iXFvwDi7YwfyhbHPxfKhDcsPdiyWdWN3uklieeUAV+bIcFOCKPsXgI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MxZVsfii; arc=fail smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F6D1195980
+	for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 16:03:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724169818; cv=none; b=X/f5/Gr3RWCAtVe/KdCDZfLemJyw2jtdmPqlP17+UR+sx88FABgZMs85yt93OmTACMuVeDbBqmFuzVeOAnnyH3CSgx5/MRo26MJ/ahO/9jAq3jx34+06V9sAd34PmXPSqS718cOKPJgLIXI7lJ+llJG7RUHwvjB8vKbcMT7sYmw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724169818; c=relaxed/simple;
+	bh=/yVBXopS+OUoveXJwCqPSrKAl3/0x4KkcAgmVdW7mKU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=TEg66fvc/ZeuBT8ttbX3Q7H18yLnYDSdUnjGaIt6EZZp8wQaTK3bSbNWqo7CpRlKo5pC0TXF3xIlXk1hzWd/4G1s1BSbEAqkYTvJOoXHzJUuenbK+w7FLTYLoba3e1hnQLWlhwjgMW1quOFcmAojkBjGwmpEpsxPJgop33lDm6o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RJyWUY75; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MxZVsfii"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1724166763; x=1755702763;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=PyXhtFb7rgXG3oBaNddSHij3Brl5Ecv2YqzYV3eSLO0=;
-  b=MxZVsfiiFZ0V6kHNCj3VI025fbmWz9Oqui/vLBkaFMg7oXIbIAzWuE+h
-   3PmcPHmOiuaa/1DM9YMJ/Bs5PLGlM7n6+IfpKdhJr7ye1xQQ+x5/hEyF5
-   b1UUwlvA5xK0jbuB6T0qbmm+sJH8pq9eGe+/Z/VYpdzQHXCmK6y/GriSd
-   3lGvro0TssP0uz5T3GI3JQUlTtNRsj6yRJ3csn/uWZm7rq9cQi5RGOoik
-   NXGCBAdUNLboQt45Dy4LD6886XoQC8ylnVo68OcXfKrRoKO4IXtQ2eZ2U
-   HkY4zCzYstXqTCoMnU3uInWCdN+eTiwaYADrXmOfJZeP+ut6SIYblrBXo
-   g==;
-X-CSE-ConnectionGUID: 35dVFO2HS26tdxhDVCmCJw==
-X-CSE-MsgGUID: jEVIzMJwQPuEIKrWt8xZNQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11170"; a="22358573"
-X-IronPort-AV: E=Sophos;i="6.10,162,1719903600"; 
-   d="scan'208";a="22358573"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Aug 2024 08:12:41 -0700
-X-CSE-ConnectionGUID: wofLB+TJRfekynZhAcxXZQ==
-X-CSE-MsgGUID: TXh+dkdeRY2MAMvcEOPSmA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,162,1719903600"; 
-   d="scan'208";a="60412883"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
-  by fmviesa006.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 20 Aug 2024 08:12:41 -0700
-Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Tue, 20 Aug 2024 08:12:40 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Tue, 20 Aug 2024 08:12:40 -0700
-Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Tue, 20 Aug 2024 08:12:40 -0700
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (104.47.57.40) by
- edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Tue, 20 Aug 2024 08:12:39 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=hAPc7v8HzdhRBjoNgMNyVJ18eQehkZoiCeS8jptAGUvmefF91TMjddAY5Po0aON3UM17DhFLIXorA0YvmjJGUEH/BnYeQCLWcvUZXMb/Yhwc0teLJeCkaClH7CwF86XONNq72tQuX2noGWX7VaWaM/pR6FYZ5YXaNpyVnlImfjDLwbxQOAepWkfVZBRhkb8wr2HneP4e7QoyYG6mTkHAwzjobXaHlwIQF9OBj6PS3XLyEUSXQOZ0QHr8p6/dxCsfrqHjVsyR6f144woXUZJ4FOw3Xd3sB+BXTepFbttyg+T0g1NL3r1uvTgbdSiUOzWSdAql4/D9DAoEEPNJnDzZcA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=H0y62f5kd2JzJnYIXG8maqB7Av0bS+dEycnB0CcAxUY=;
- b=wHmLr15liLbZrQ1RKe5yLASDsNdZbNYe32/YLbebpTl+AgExQzZ2TER/GSMIxQGVf/d2Ve+TM4wjbA7M4M/Lu5EQf1aEdNQ4mZFG6j73v/d+pcBwJ6Fw7rSR51EInNQpbpfLLJFhLsOaIFeDA/ggOb+z/TgL2YYXqyinhjXuJ8Qm+4sQpFV0TOmwYXW5Luc5DTtO4G+hvdccIQvyhmliLOTtDlUAcAicmDRahSmYA7u1SD3xpiwdcFOmw3ICoLfwGAY1CVqgea79enShvPDZ/VFQsdRapflHc9pcaIsNmsKdvK+dJwdw/+fyI1qML6SSQBEoH2OiWEiRycju7+wf3Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB8718.namprd11.prod.outlook.com (2603:10b6:8:1b9::20)
- by MW3PR11MB4569.namprd11.prod.outlook.com (2603:10b6:303:54::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.21; Tue, 20 Aug
- 2024 15:12:37 +0000
-Received: from DS0PR11MB8718.namprd11.prod.outlook.com
- ([fe80::4b3b:9dbe:f68c:d808]) by DS0PR11MB8718.namprd11.prod.outlook.com
- ([fe80::4b3b:9dbe:f68c:d808%5]) with mapi id 15.20.7875.019; Tue, 20 Aug 2024
- 15:12:37 +0000
-Message-ID: <d3745969-df9b-47fa-8854-6654867f94e4@intel.com>
-Date: Tue, 20 Aug 2024 17:12:31 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-CC: <netdev@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "Jason
- Wang" <jasowang@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
-	<eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, <virtualization@lists.linux.dev>, Si-Wei Liu
-	<si-wei.liu@oracle.com>, Darren Kenny <darren.kenny@oracle.com>
-References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
-From: Alexander Lobakin <aleksander.lobakin@intel.com>
-Content-Language: en-US
-In-Reply-To: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BE1P281CA0336.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:b10:7d::15) To DS0PR11MB8718.namprd11.prod.outlook.com
- (2603:10b6:8:1b9::20)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RJyWUY75"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-42817bee9e8so44970905e9.3
+        for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 09:03:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724169815; x=1724774615; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ACxpErlOvFQuBRokph/wthh0GeLIFddWl+sG+UC+KHk=;
+        b=RJyWUY75o5AUoZMtOyflnYvU4Q5fXM0exfciN3xg59mLrAXoh198LiYkjaqGzr2YK1
+         /XJ26kl5k/FHn7sOZt1QTQvUAAjuVXrPbCyMNelsL1JXB2YXNCli3UzTsGIbETqcmh+f
+         lDeVaqZzelylyl7hFaPrmYIehIDq3wxNii/L7VxY2n+EBb7CMHxHs17LvAy8wl3247+X
+         Zv99YhEL9gkGMq2PvpxlwT6fE0/DzEtpyrqADbiNxOm5Iarm7Kt7hqbDMGvb8ZonI5Y7
+         f88GQZkirrnfONkWK5/AiDyzhacvbZ9EwqlfunDJZKilUbvYNWUshwVl93NDZ30tsu2J
+         fIjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724169815; x=1724774615;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ACxpErlOvFQuBRokph/wthh0GeLIFddWl+sG+UC+KHk=;
+        b=kjoVs9tQ3KJS9WZsJJfsTEhUFbZB4jivYm098BcRuKv0jtVlX0gHvmOqCaO2AyLo9C
+         BlN+yWzkptcVRf5X6j+ThTe/saKMo4Z7GWY0EOyrGtAM5RsGjbiu1wzGLOevENREe5HY
+         RABmZdnusDHjvUhySjXAnxtk2RR13QTqTBiY5CewTbDGf3Anf6T6bLfjlhoWfwZAjYIJ
+         C/1YwG0XW/G3G30tIHvuc8B1MoUm0dXqTL+HGTMC12kqrhffrau7fakFnhYgvBuL/zYu
+         lCkfbSP8Iys994MiVe7FOwzmnY8ENmhBbrsnO30oFZdqR5Py4MQsnqupJIkuLz/0kBrG
+         RFnw==
+X-Forwarded-Encrypted: i=1; AJvYcCXm7NIj+PUPiq4Rq56B/SKJuWnWXfx8vW3Z8l4zaig6DuFikrwjWUPKQ7OVcAxUqvdHd9FgWsDjG/Q6s36VOg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxzDSmVSCvKfsd7liu7qwMESnz9EYf7VC8lljdNB4I0HxngXyJg
+	frEIskgbSxnPb+wNq4v21myvwN4nRE35TDlZ+rCzSpjlN3VnKqkUi3fE6y5JjxfROxGN8GHcT8m
+	DphMLFwB/+Mfv9HeZ5be41Tti2R0=
+X-Google-Smtp-Source: AGHT+IF4DoS60WZqDqVaq8Y/5SjjI7zscaIxzpj60ezQwLm3viTYLpGZpmD+jTekneRZUAoDJMoW7JwgYwWaXYZHKdQ=
+X-Received: by 2002:adf:f285:0:b0:371:888d:7aaa with SMTP id
+ ffacd0b85a97d-371946b1ae9mr9087932f8f.49.1724169814881; Tue, 20 Aug 2024
+ 09:03:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB8718:EE_|MW3PR11MB4569:EE_
-X-MS-Office365-Filtering-Correlation-Id: 08d7f098-9745-4525-d2b5-08dcc12a86ec
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024|7416014;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?b3dsVktxWlNzZllnaVhJVEZaRWw4SUxoSnBxZ1dLcjJsYThVa3RBVXRET3Z0?=
- =?utf-8?B?eVBHQ1Q3am1BNHNTTFlLWEtlWE9abmFvSEJSdVNLWHExQ2JhenlXT2pRSE9o?=
- =?utf-8?B?TTVQVjkxbmUwbjh5TGlSeFkzVkZPN04wM1N3bTZPN3Q4ZHVTMDRZaEozMWs2?=
- =?utf-8?B?STNjcWlseVJKQ21DclJUZFBYekJid0kzcWNhVUtxTE93dXNSV2hKdUIvR09W?=
- =?utf-8?B?UGxLMmRQQzJMc2Nvd2NoMFRTL0hGVmZkT2dFQ25pNVZxQTI2WFlHbjh1V3pM?=
- =?utf-8?B?eG9Qa3h5QzRYeE5NdEpjZUF2L09QQTBNck5vaXNpb0tsOVZCUTV3enBXajA3?=
- =?utf-8?B?dytqbC80SVZsait3ZVdPaUJCQlNta2RxM01QclhCTFo1ODdZMjBPQUJVZGJY?=
- =?utf-8?B?ckpwUk9qdEs5SllGRzE0b0tmZUFlVVBJWnJGRGlxQStwMkcrZDJhbENSQUNR?=
- =?utf-8?B?em9HMEtlTldHVS9HVXhRWHY5MGNzWWl5L1ZyVC9iV2t0NGg2eWQyOTB5c25i?=
- =?utf-8?B?bFExVkFoeERCTHVJMG9iWDFoYXNuaFZrenEzdFF3M0J4R3dMcG9HQjRuclpT?=
- =?utf-8?B?WDJoWU1UT1pMNFVUanJUajZJNlNEUUl6VFNiL3FPdkhmeExUWFROV3h2K0sy?=
- =?utf-8?B?RXg4M2VrYXN6UUFsVkoxMHgzeURWV2J5a2dpMEsvQWQ2WUtLUThGNjdNTTZq?=
- =?utf-8?B?cXZPcjQ5aGlqTEJrTnBRN1QzaDNuVTVOY3EvNXBpZjJyVmtETkdFbURhaUZj?=
- =?utf-8?B?QlcrVkx3N3o2a1pmSXdEV2pHZGJ1ZGZGYjAyR2xVNmIzODdqU3VCUmFObWxa?=
- =?utf-8?B?ZjVWWmJCcEFMT1I3VmhndGptcTJQOG9FeFVvbG5Ka0crbVRyVnl3eitDaHJh?=
- =?utf-8?B?YUE4UHdFY3ZSeEFPMDg5eGhMME5SU1EySHpkOGdCVmpLRkFDZEltNzk0MFdq?=
- =?utf-8?B?NmNOaGZEc2VsT1FPcnp5UUlObWdiRTVUaXd2NVRpU09RdlMrL0tTRFkzeTJo?=
- =?utf-8?B?SWVrK01BbVF0VEVpcDhyeUJhUXlFbWFtMEVVanNzYkkwdy9jMWFSZHNCTTJ1?=
- =?utf-8?B?MzV3TTN0NzU0RklOUGNrenlLRWlIMlg5WDFucVIzYjRnSG5PTnp2Ky83RC9E?=
- =?utf-8?B?OTF4ZG9NRDJYK0tETGo4aWtpV2lGaDBpY3UwMGY5aUtVbE9kYzY0TEIwdHdn?=
- =?utf-8?B?QUs4RG9ZNnVOWXBZSmV0Q2g2SEFTV3V5ZFRSMkRyWEdvT0pvUDlvYjJqS0Jx?=
- =?utf-8?B?Y0w5R0dWOFBUNWZocG5lSzZSR3ZxREcwOTNOTWIrTW9SVURpLyt5UkhEeGpn?=
- =?utf-8?B?dVIram03djhMVXFVUmcrVUNtUWNvUWtUZnhtc0hxYmhpb3VZdnpXTWZLWll1?=
- =?utf-8?B?SVJMbzRrZHIySC9NN2Q3cHN4WHk2d3RMK0NSUGp5alRNVW5TQmkzT0IwSHZn?=
- =?utf-8?B?eGlGVXJRZ3NDY1IyU0o4eU9hOU9YZ3BpcWJJY21MVy9ORmlLNlpTYllDN1Fu?=
- =?utf-8?B?N2JrWWg5U05RaWM5RG1VblJLcllKL1ZXMm92NGQ0V1hML1pYVkhvbk9UQUQw?=
- =?utf-8?B?Q09aVmdmdlRaNGhZd2xLTlFqWUYwUEYrQnRudDlPL25tenJ4M2xhK2FFN254?=
- =?utf-8?B?K1RVUERhSlpxbldVZDhlNXBXRWxBbVhzejRqQkQrZ2YrSzE0OHc4Z0J3T0NW?=
- =?utf-8?B?VlJLRVBTQU9VRVdET1NGUFpsMXR3RnZnN0l6eWpMRCtuMmxOalAwOXBIaDNQ?=
- =?utf-8?Q?Um/XkCqkMMAwZU+iOo=3D?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB8718.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UU83d2VGeDFQdEFSRE9CM042YVN3Yy9jV21HMFBZV084eStqcmdGSEtMdHJH?=
- =?utf-8?B?d1FscXY5S3QrcVh3R2Job1M3ZndsSjh2WkxOL2FIRTd1ODRZVW1VWnhMQU9R?=
- =?utf-8?B?OG1OU0VsNHQ0NEFMRFBobkNjTjA1L2FVN0hxakRsQ01JRGNMdUJ4RGtONktj?=
- =?utf-8?B?a2JyQUpxcHZabGFlTW85V3dvMnJJZi9oSEtsVGs0aHgrRE5RL2IzaUdIdkRU?=
- =?utf-8?B?VmpHNzdobm5XSm9hYWpld1FoSXQ4MVNLRHN3TE1tU2ZMbTdrdC81MnFsYjJz?=
- =?utf-8?B?T2pUTCszczB4WTRBVzZoemoreFJmaCtEaE5EdmF5ay9JQk1iZjlNaTZvZEVq?=
- =?utf-8?B?TVhWUjlpOXZLNzJvTEZncjlxR2tTREpFVmRGenJCUSsyODhIc1BXSEVnTjFP?=
- =?utf-8?B?Y1FyMk9Uck84RXlVU3J1MUh2YmNvamJRd3BiRnBnWXVxZ25QZVg2ZjVJeDV0?=
- =?utf-8?B?bnN3TkpqK1lqWEx1cHMwelptdzM0Tk1oRmE3TEtJT1ZFTHB2Z3VqWVowZERJ?=
- =?utf-8?B?UTZmZjVhUXVpdnBEdm95SFZKTmxtU0VLai9ONFhhSy9PN2EvclFaV2JPaWE0?=
- =?utf-8?B?WDFqNCtubFo2RVBvaW10dWtrSmVSbHFWWDkxalRtQnhlSW1rTGh6aE5Rd2tM?=
- =?utf-8?B?Y3U1NWcxZUs2N1ZEV2JGUENZdnBOa2ZWM1BFZXBXS3BReUg1WDU0MjBucWJq?=
- =?utf-8?B?UTFlWGVubUlHSWhPVTUrMjZ4cWZjT2ZYL0JpL0pJU2FNTy9OUEdQUVBhaEFZ?=
- =?utf-8?B?bE4raENib0pCMWFHUVh2cXJLeHBVeXYwdlpwcWxjUnNtNEtIY2kwVzdxL2FX?=
- =?utf-8?B?Y3IyZk5YYkFobXd1MjQzUW0rSTFyU2pDVk9Gd0ljQkhTcG95dVdybWVQVHZv?=
- =?utf-8?B?UlkrSHBjUkxrYm5obnlqb1lXZXlHbUFEYWxtd0hoUUE3dVlmYUg3MlFKRWdh?=
- =?utf-8?B?bXNVMWdmaDhtTzZMZkNzclpKa2lhV2d4T2Z6RWVJOVNqWTJYLyt3Ly9ZU1Zu?=
- =?utf-8?B?d3BUR1lYVnhaUTdCV3cxRi9pa29hWi9mazRMWVhFb284RGlTRmFwNzJpWDBv?=
- =?utf-8?B?WGVEVE1hbFVxVkZVVkt2b29tU2hRVWtzKzBnMG51akY0c2kza1V4VDBTVFVx?=
- =?utf-8?B?ZDk4a09TRVZRR0V0SDVFMnMwNDM3QWtyMzZnS1pjQk9LNkRaVFJ1V3E0d3c2?=
- =?utf-8?B?R0dyWmV0aHJtS1RhRWFXd0xCY3dsVGpQNXduRkwraExLdzdWM21YYnBrclpm?=
- =?utf-8?B?ZjF6RUJjSDJudVBtd200SFF6WUtCbEthM1NqMGczdTh4U3dsT2lIT3d2bk9Q?=
- =?utf-8?B?a2dEN2doaSs0Q0pkdDBxTitpTS91b1Y1S2o5Q2xFOW0rdkFxUVVCT05KaHBq?=
- =?utf-8?B?Z0d3YlpZNVFBanMySlRhMFJkYk1TOHBYRmlMMTE4MFZnMjVNTEV4eitFZTl1?=
- =?utf-8?B?T2ZsZzdqQlZRd0YxOS9IeHdXWFZ3cU1sbWhKWUZmanQxNVQyRTRNTWpzNWpa?=
- =?utf-8?B?a1NvY1BQUVp1QXA3T2IrVEgrUTcrS3ZoVDRsTU5PYW56Wk9OMlByc2xmazhu?=
- =?utf-8?B?VElQdHplL1VmdHJBYUsrM2JDaFpESVdvQXptbStLU2xCMW0zL29DN3FZU3lu?=
- =?utf-8?B?RXQ4ZHNDcld0OTZ5REZsZXFHZWtPd3JUY1J3Mk1VRk4zeDhENW5ldnBNOTdH?=
- =?utf-8?B?Q2FKaW14NTk5SGlLQVhpV1J0OVJESnFnT3AwN1BNTDl1T2hQeDdhUmxhTTAz?=
- =?utf-8?B?QUJSSEZsaTNGSjZrZnBwcm4wYWk2N3I3V010SjhzcDdBYTNQZ0IxYVkwSTFP?=
- =?utf-8?B?QW5CWm9zQ3dPNk1GQ013ZGp6VXdrZWdZaituS25iTjBZTHNJekh1QkpRcHVY?=
- =?utf-8?B?azkvNkVmbDlpY0lyZFBiV0VpNmQ4VGkzQ2tsQVVFWTJaV05iVmJtL3RHaFRT?=
- =?utf-8?B?UFNETlZQVVR4ZnFZNGdacFdhanpTVm9USG0way9DdnpVV0xRM0xGaHNBTkpY?=
- =?utf-8?B?empwTHVCV2dvZU9qcmk0Um9JdXpYdHZ2QXBERU1XSzlWSGdnNXZ1NlpxSmZ5?=
- =?utf-8?B?RSsvNE4xdDIybmhLSFBkMjd4eXFyb1pYMFRUUm9nNDk5cG1ET1I5dTRjSmhM?=
- =?utf-8?B?N1V4Z1BUZ3pReFllL3Z4d0xoQ1dIbXZEcFRaWU92ZmtVZTlWOFJiYkxmdElL?=
- =?utf-8?B?aWc9PQ==?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 08d7f098-9745-4525-d2b5-08dcc12a86ec
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB8718.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Aug 2024 15:12:37.7851
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: h8wjzy0diP3mt74tvUvrTmqCwMJz1vTgr9b06FzpzwTXqfvtRjKx05ScA9NPiaetrnDYQmLsABfXln1kwXecz19q+EB11I6WOZVJhcQgBDo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR11MB4569
-X-OriginatorOrg: intel.com
+References: <20240808123714.462740-1-linyunsheng@huawei.com>
+ <20240808123714.462740-5-linyunsheng@huawei.com> <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+ <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com> <CAKgT0Uct5ptfs9ZEoe-9u-fOVz4HLf+5MS-YidKV+xELCBHKNw@mail.gmail.com>
+ <3e069c81-a728-4d72-a5bb-3be00d182107@huawei.com> <CAKgT0UcDDFeMqD_eRe1-2Og0GEEFyNP90E9SDxDjskdgtMe0Uw@mail.gmail.com>
+ <98ceade3-8d60-45bf-a419-ff3982a96101@huawei.com>
+In-Reply-To: <98ceade3-8d60-45bf-a419-ff3982a96101@huawei.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Date: Tue, 20 Aug 2024 09:02:57 -0700
+Message-ID: <CAKgT0Uc+e3MUb4CK1i7H7F=y-fHTxiGF8zddBFiqFRdbd6ofLg@mail.gmail.com>
+Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Subbaraya Sundeep <sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, 
+	Sagi Grimberg <sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, 
+	Praveen Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>, 
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham <sgoutham@marvell.com>, 
+	Geetha sowjanya <gakula@marvell.com>, hariprasad <hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, 
+	Sean Wang <sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, 
+	Lorenzo Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith Busch <kbusch@kernel.org>, 
+	Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, 
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, 
+	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, 
+	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+	intel-wired-lan@lists.osuosl.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	bpf@vger.kernel.org, linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Date: Tue, 20 Aug 2024 15:19:13 +0800
+On Tue, Aug 20, 2024 at 6:07=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.co=
+m> wrote:
+>
+> On 2024/8/19 23:54, Alexander Duyck wrote:
+>
+> ...
+>
+> >>>>
+> >>>> "There are three types of API as proposed in this patchset instead o=
+f
+> >>>> two types of API:
+> >>>> 1. page_frag_alloc_va() returns [va].
+> >>>> 2. page_frag_alloc_pg() returns [page, offset].
+> >>>> 3. page_frag_alloc() returns [va] & [page, offset].
+> >>>>
+> >>>> You seemed to miss that we need a third naming for the type 3 API.
+> >>>> Do you see type 3 API as a valid API? if yes, what naming are you
+> >>>> suggesting for it? if no, why it is not a valid API?"
+> >>>
+> >>> I didn't. I just don't see the point in pushing out the existing API
+> >>> to support that. In reality 2 and 3 are redundant. You probably only
+> >>> need 3. Like I mentioned earlier you can essentially just pass a
+> >>
+> >> If the caller just expect [page, offset], do you expect the caller als=
+o
+> >> type 3 API, which return both [va] and [page, offset]?
+> >>
+> >> I am not sure if I understand why you think 2 and 3 are redundant here=
+?
+> >> If you think 2 and 3 are redundant here, aren't 1 and 3 also redundant
+> >> as the similar agrument?
+> >
+> > The big difference is the need to return page and offset. Basically to
+> > support returning page and offset you need to pass at least one value
+> > as a pointer so you can store the return there.
+> >
+> > The reason why 3 is just a redundant form of 2 is that you will
+> > normally just be converting from a va to a page and offset so the va
+> > should already be easily accessible.
+>
+> I am assuming that by 'easily accessible', you meant the 'va' can be
+> calculated as below, right?
+>
+> va =3D encoded_page_address(encoded_va) +
+>                 (page_frag_cache_page_size(encoded_va) - remaining);
+>
+> I guess it is easily accessible, but it is not without some overhead
+> to calculate the 'va' here.
 
-> leads to regression on VM with the sysctl value of:
+It is just the encoded_page_address + offset that you have to
+calculate anyway. So the only bit you actually have to do is 2
+instructions, one to mask the encoded_va and then the addition of the
+offset that you provided to the page. As it stands those instruction
+can easily be slipped in while you are working on converting the va to
+a page.
 
-Where's the beginning of the sentence? You mean, "This overflow leads"?
 
-> 
-> - net.core.high_order_alloc_disable=1
+> >
+> >>> page_frag via pointer to the function. With that you could also look
+> >>> at just returning a virtual address as well if you insist on having
+> >>> something that returns all of the above. No point in having 2 and 3 b=
+e
+> >>> seperate functions.
+> >>
+> >> Let's be more specific about what are your suggestion here: which way
+> >> is the prefer way to return the virtual address. It seems there are tw=
+o
+> >> options:
+> >>
+> >> 1. Return the virtual address by function returning as below:
+> >> void *page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *=
+bio);
+> >>
+> >> 2. Return the virtual address by double pointer as below:
+> >> int page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bi=
+o,
+> >>                         void **va);
+> >
+> > I was thinking more of option 1. Basically this is a superset of
+> > page_frag_alloc_va that is also returning the page and offset via a
+> > page frag. However instead of bio_vec I would be good with "struct
+> > page_frag *" being the value passed to the function to play the role
+> > of container. Basically the big difference between 1 and 2/3 if I am
+> > not mistaken is the fact that for 1 you pass the size, whereas with
+> > 2/3 you are peeling off the page frag from the larger page frag cache
+>
+> Let's be clear here: The callers just expecting [page, offset] also need
+> to call type 3 API, which return both [va] and [page, offset]? and it
+> is ok to ignore the overhead of calculating the 'va' for those kinds
+> of callers just because we don't want to do the renaming for a existing
+> API and can't come up with good naming for that?
+>
+> > after the fact via a commit type action.
+>
+> Just be clear here, there is no commit type action for some subtype of
+> type 2/3 API.
+>
+> For example, for type 2 API in this patchset, it has below subtypes:
+>
+> subtype 1: it does not need a commit type action, it just return
+>            [page, offset] instead of page_frag_alloc_va() returning [va],
+>            and it does not return the allocated fragsz back to the caller
+>            as page_frag_alloc_va() does not too:
+> struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
+>                                 unsigned int *offset, unsigned int fragsz=
+,
+>                                 gfp_t gfp)
+>
+> subtype 2: it does need a commit type action, and @fragsz is returned to
+>            the caller and caller used that to commit how much fragsz to
+>            commit.
+> struct page *page_frag_alloc_pg_prepare(struct page_frag_cache *nc,
+>                                         unsigned int *offset,
+>                                         unsigned int *fragsz, gfp_t gfp)
+>
+> Do you see subtype 1 as valid API? If no, why?
 
-This `- ` can be removed - at least some syntax highlighters color it in
-red :D
+Not really, it is just a wrapper for page_frag_alloc that is
+converting the virtual address to a page and offset. They are the same
+data and don't justify the need for two functions. It kind of explains
+one of the complaints I had about this code. Supposedly it was
+refactoring and combining several different callers into one, but what
+it is actually doing is fracturing the code path into 3 different
+variants based on little if any actual difference as it is doing
+unnecessary optimization.
 
-But I think you can just drop this reference to
-high_order_alloc_disable. Just write that if the backing page is
-order-0, then this happens.
+> If yes, do you also expect the caller to use "struct page_frag *" as the
+> container? If yes, what is the caller expected to do with the size field =
+in
+> "struct page_frag *" from API perspective? Just ignore it?
 
-> 
-> which could see reliable crashes or scp failure (scp a file 100M in size
-> to VM):
-> 
-> The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> of a new frag. When the frag size is larger than PAGE_SIZE,
-> everything is fine. However, if the frag is only one page and the
-> total size of the buffer and virtnet_rq_dma is larger than one page, an
-> overflow may occur. In this case, if an overflow is possible, I adjust
-> the buffer size. If net.core.high_order_alloc_disable=1, the maximum
-> buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
-> the first buffer of the frag is affected.
-> 
-> Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
-> Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-> Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/net/virtio_net.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index c6af18948092..e5286a6da863 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
->  	void *buf, *head;
->  	dma_addr_t addr;
->  
-> -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
-> -		return NULL;
-> -
->  	head = page_address(alloc_frag->page);
->  
->  	dma = head;
-> @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
->  	len = SKB_DATA_ALIGN(len) +
->  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
->  
-> +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-> +		return -ENOMEM;
+It should be populated. You passed a fragsz, so you should populate
+the output fragsz so you can get the truesize in the case of network
+packets. The removal of the page_frag from the other callers is making
+it much harder to review your code anyway. If we keep the page_frag
+there it should reduce the amount of change needed when you replace
+page_frag with the page_frag_cache.
 
-Why did you move this call into the call sites?
-
-> +
->  	buf = virtnet_rq_alloc(rq, len, gfp);
->  	if (unlikely(!buf))
->  		return -ENOMEM;
-> @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
->  	 */
->  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
->  
-> +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
-> +		return -ENOMEM;
-> +
-> +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
-> +		len -= sizeof(struct virtnet_rq_dma);
-> +
->  	buf = virtnet_rq_alloc(rq, len + room, gfp);
-
-`len + room` is referenced 3 times here, perhaps is worth a variable?
-
-Is it fine that you decrease @len here?
-
->  	if (unlikely(!buf))
->  		return -ENOMEM;
-
-Thanks,
-Olek
+Honestly this is eating up too much of my time. As I said before this
+patch set is too big and it is trying to squeeze in more than it
+really should for a single patch set to be reviewable. Going forward
+please split up the patch set as I had suggested before and address my
+comments. Ideally you would have your first patch just be some
+refactor and cleanup to get the "offset" pointer moving in the
+direction you want. With that we can at least get half of this set
+digested before we start chewing into all this refactor for the
+replacement of page_frag with the page_frag_cache.
