@@ -1,298 +1,183 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com [209.85.222.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE43178395
-	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 12:30:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CCF2134AC
+	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 12:41:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724243458; cv=none; b=W849FdaBd8IraSHY0E/02EH7d0jdVhVC5SbuGHal5DoulbJ9bwPN8PTsBsH68zZiFBZoenEM2ua5OYB2geaDB9/MAhQ4e5bTjiqBQX6BXmNSWFwiud2bAoyIXGN8u5SR6xb+PXQo3/Lphw2h/jSnkaUDUFIZAqdl7mOKvb68imE=
+	t=1724244096; cv=none; b=PQtrX5JPDkS85ihpNK/O3DIwgTxcqP0M6RA3vM/B26qsrzz7pQ8v8EJb8cvdG/3s9GFPPm5DR8ITU+lU2dKQRUHdehHX6RmCVT/Fh+xqQwzlxlPRqSzT/n28BCRMFHR4lgPPbNixuG3Q+6H6r4YNPtKJBof0e8Nx9Keugn+4Ob4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724243458; c=relaxed/simple;
-	bh=oz/jfZaFSmvJqx6w/vsYoeXpQ5+JrJ81yoV9tPzH1xA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=QrN7boDBHp/BhW6/RUA04MnGxoO/pI+mNuFdiCSEZ6B7RC7yHNkcbD96taNV7GsRtP9g20hXr0c6CnsqcgzPso/ahcGYGd75ZegX5/jECHXC0cTfQ8OCzBiEZcAkqio83hCYHQlKHzuGTc+AtcTIEu6CxMOQp4AaVpMYMgqZIV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Wply83bHMzpTXZ;
-	Wed, 21 Aug 2024 20:29:20 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id EF9A9140138;
-	Wed, 21 Aug 2024 20:30:51 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 21 Aug 2024 20:30:51 +0800
-Message-ID: <ec27c801-db0a-4e57-b0bd-03a695e70e56@huawei.com>
-Date: Wed, 21 Aug 2024 20:30:51 +0800
+	s=arc-20240116; t=1724244096; c=relaxed/simple;
+	bh=6AK0WLHOdWmMgQC1alPbDQFX64bcPbT335gHtJBxKBg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=c2JjWaGfVcF04AHqGIsuVI4Kjd04/ueuao0Y/J4F3gjVCFBvKc8juMAvjR+OkkihIQ61Vwf3fLLNSqqwWHthLY7nvpXexqXiOguw9LMbsoFUPzM193j3XnCbl1iWhzBAfrHGcwHDH4kOum0uqP33kB3vOuhQqTZemfDHE7OWbDo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G/XMK9vs; arc=none smtp.client-ip=209.85.222.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G/XMK9vs"
+Received: by mail-ua1-f51.google.com with SMTP id a1e0cc1a2514c-844bf4b5051so395403241.3
+        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 05:41:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724244094; x=1724848894; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cLZMJpmpzGt5GhCbFn0EpW7Uj9M6X8hFyELkG7gj5uU=;
+        b=G/XMK9vsYKWBd3YHN/BJmGzPeeblrZbIjd9vBYXscs7Cko8dQLeiI35sYY0NngRFRS
+         DTLLTVcr8CNWFRJT256ifC9vT/CESa/j/uqOafLa270tV4rJRa7F3iZc9Pt5Gbj2KHRi
+         bddD36u0s7xx4f8TgRtTiMxj6wf0zuCu1eqNbRvCHBnBQUTyCVETOuuEqEtKyeO3GZns
+         Pnbn/iAmQlZa9riohh0vLNlTNJUW/LDkx1DvdtktQYnOyG3WMtouYpsdP5TwH2TiTqsa
+         U5orYb8+QqbhcwAHibEfi/Huh9hGw1f4Ba/smHHmq83L3rdVaxfAgOpsncWm5Tu6JLJj
+         GE7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724244094; x=1724848894;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cLZMJpmpzGt5GhCbFn0EpW7Uj9M6X8hFyELkG7gj5uU=;
+        b=K/ajXfGY/4U1GO8zmOz7USXxPiE1f36/Yk9GC2C7i4bzGA7L6j4jT73t+dyQNjM71v
+         vkZMoWnQEMp+KizlBlNEgtLRAuKjGLwrEudV3hmJGa2tKLWJD0MBC7PMeOqSlEpJUagr
+         FfEsdFM40MXg16Azq/tCylfRLLzBrjKnV5duKXkfln/zDMUJKstYRSG0z0WNQUsi/Rjr
+         oCS9C3AHaUQB/O+R5BcXeT180Tclut/Tc8hFxhgWQmGA3vOHpklv1dAxGn8+D0bDWVqF
+         Kcn21YNRbvEH/p1s8+VgK1bhjWfGQA6cNXVBapiUPsO9wrtCmX/WB+u6L3O2d83m0tIu
+         lHQw==
+X-Forwarded-Encrypted: i=1; AJvYcCVOPtdEixoc6EwxR3gkRV0YhsUhfrQTIYfpkgMTVwcJA4wPa7diKOey3hwOgMygGQD92zt1OqfK40leo870JA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxV0TjgdKfsW/zs97ohXTTZ1AJ8IW2KC9ti1Vyk3dw4pjIa6CIs
+	KYNhH3xJyDJ9imF946IlikE0ZQMAQTi73wygjrA6xn1lOEIBRulnmL9GjebbnEjp7AEk3c9beXn
+	uFX5OZfaEmR2MnJrHPwfqltRA6XA=
+X-Google-Smtp-Source: AGHT+IGnM2JOP3BDTAlgVEWy9Jwa8Xn67U8sTX4goz/aFENoIfFfkW/zg10z5jA+HbAXH3KlXwA39DrlPe0lgrnjkTA=
+X-Received: by 2002:a05:6102:26c8:b0:497:6bb5:398a with SMTP id
+ ada2fe7eead31-498d2eb7a78mr2537587137.7.1724244094122; Wed, 21 Aug 2024
+ 05:41:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
- page_frag API
-To: Alexander Duyck <alexander.duyck@gmail.com>
-CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya Sundeep
-	<sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, Sagi Grimberg
-	<sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, Praveen
- Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
-	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
-	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
-	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
-	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
- Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
- Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
-	<hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko
-	<andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
- Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
-	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
-	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga
- Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
-	<tom@talpey.com>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
-	<anna@kernel.org>, Shuah Khan <shuah@kernel.org>,
-	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-References: <20240808123714.462740-1-linyunsheng@huawei.com>
- <20240808123714.462740-5-linyunsheng@huawei.com>
- <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
- <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com>
- <CAKgT0Uct5ptfs9ZEoe-9u-fOVz4HLf+5MS-YidKV+xELCBHKNw@mail.gmail.com>
- <3e069c81-a728-4d72-a5bb-3be00d182107@huawei.com>
- <CAKgT0UcDDFeMqD_eRe1-2Og0GEEFyNP90E9SDxDjskdgtMe0Uw@mail.gmail.com>
- <98ceade3-8d60-45bf-a419-ff3982a96101@huawei.com>
- <CAKgT0Uc+e3MUb4CK1i7H7F=y-fHTxiGF8zddBFiqFRdbd6ofLg@mail.gmail.com>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <CAKgT0Uc+e3MUb4CK1i7H7F=y-fHTxiGF8zddBFiqFRdbd6ofLg@mail.gmail.com>
+References: <20240817062449.21164-1-21cnbao@gmail.com> <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
+ <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+In-Reply-To: <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Wed, 21 Aug 2024 20:40:56 +0800
+Message-ID: <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
+Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: David Hildenbrand <david@redhat.com>, Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org, 
+	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, 
+	hch@infradead.org, iamjoonsoo.kim@lge.com, mhocko@suse.com, 
+	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev, 
+	urezki@gmail.com, v-songbaohua@oppo.com, vbabka@suse.cz, 
+	virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+Content-Transfer-Encoding: quoted-printable
 
-On 2024/8/21 0:02, Alexander Duyck wrote:
-> On Tue, Aug 20, 2024 at 6:07 AM Yunsheng Lin <linyunsheng@huawei.com> wrote:
->>
->> On 2024/8/19 23:54, Alexander Duyck wrote:
->>
->> ...
->>
->>>>>>
->>>>>> "There are three types of API as proposed in this patchset instead of
->>>>>> two types of API:
->>>>>> 1. page_frag_alloc_va() returns [va].
->>>>>> 2. page_frag_alloc_pg() returns [page, offset].
->>>>>> 3. page_frag_alloc() returns [va] & [page, offset].
->>>>>>
->>>>>> You seemed to miss that we need a third naming for the type 3 API.
->>>>>> Do you see type 3 API as a valid API? if yes, what naming are you
->>>>>> suggesting for it? if no, why it is not a valid API?"
->>>>>
->>>>> I didn't. I just don't see the point in pushing out the existing API
->>>>> to support that. In reality 2 and 3 are redundant. You probably only
->>>>> need 3. Like I mentioned earlier you can essentially just pass a
->>>>
->>>> If the caller just expect [page, offset], do you expect the caller also
->>>> type 3 API, which return both [va] and [page, offset]?
->>>>
->>>> I am not sure if I understand why you think 2 and 3 are redundant here?
->>>> If you think 2 and 3 are redundant here, aren't 1 and 3 also redundant
->>>> as the similar agrument?
->>>
->>> The big difference is the need to return page and offset. Basically to
->>> support returning page and offset you need to pass at least one value
->>> as a pointer so you can store the return there.
->>>
->>> The reason why 3 is just a redundant form of 2 is that you will
->>> normally just be converting from a va to a page and offset so the va
->>> should already be easily accessible.
->>
->> I am assuming that by 'easily accessible', you meant the 'va' can be
->> calculated as below, right?
->>
->> va = encoded_page_address(encoded_va) +
->>                 (page_frag_cache_page_size(encoded_va) - remaining);
->>
->> I guess it is easily accessible, but it is not without some overhead
->> to calculate the 'va' here.
-> 
-> It is just the encoded_page_address + offset that you have to
-> calculate anyway. So the only bit you actually have to do is 2
-> instructions, one to mask the encoded_va and then the addition of the
-> offset that you provided to the page. As it stands those instruction
-> can easily be slipped in while you are working on converting the va to
-> a page.
+On Tue, Aug 20, 2024 at 12:05=E2=80=AFAM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Mon, 19 Aug 2024 at 06:02, David Hildenbrand <david@redhat.com> wrote:
+> > >
+> > > If we must still fail a nofail allocation, we should trigger a BUG ra=
+ther
+> > > than exposing NULL dereferences to callers who do not check the retur=
+n
+> > > value.
+> >
+> > I am not convinced that BUG_ON is the right tool here to save the world=
+,
+> > but I see how we arrived here.
+>
+> I think the thing to do is to just add a
+>
+>      WARN_ON_ONCE((flags & __GFP_NOFAIL) && bad_nofail_alloc(oder, flags)=
+);
+>
+> or similar, where that bad_nofail_alloc() checks that the allocation
+> order is small and that the flags are sane for a NOFAIL allocation.
+>
+> Because no, BUG_ON() is *never* the answer. The answer is to make sure
+> nobody ever sets NOFAIL in situations where the allocation can fail
+> and there is no way forward.
+>
+> A BUG_ON() will quite likely just make things worse. You're better off
+> with a WARN_ON() and letting the caller just oops.
+>
+> Honestly, I'm perfectly fine with just removing that stupid useless
+> flag entirely. The flag goes back to 2003 and was introduced in
+> 2.5.69, and was meant to be for very particular uses that otherwise
+> just looped waiting for memory.
+>
+> Back in 2.5.69, there was exactly one user: the jbd journal code, that
+> did a buffer head allocation with GFP_NOFAIL.  By 2.6.0 that had
+> expanded by another user in XFS, and even that one had a comment
+> saying that it needed to be narrowed down. And in fact, by the 2.6.12
+> release, that XFS use had been removed, but the jbd journal had grown
+> another jbd_kmalloc case for transaction data. So at the beginning of
+> the git archives, we had exactly *one* user (with two places).
+>
+> *THAT* is the kind of use that the flag was meant for: small
+> allocations required to make forward progress in writeout during
+> memory pressure.
+>
+> It has then expanded and is now a problem. The cases using GFP_NOFAIL
+> for things like vmalloc() - which is by definition not a small
+> allocation - should be just removed as outright bugs.
 
-Well, with your suggestions against other optimizations like avoiding
-a checking in fast patch and avoid calling virt_to_page(), the overhead
-is kind of added up.
+One potential approach could be to rename GFP_NOFAIL to
+GFP_NOFAIL_FOR_SMALL_ALLOC, specifically for smaller allocations, and
+to clear this flag for larger allocations. However, the challenge lies
+in determining what constitutes a 'small' allocation.
 
-And I am really surprised by your above suggestion about deciding the
-API for users according to the internal implementation detail here. As
-the overhead of calculating 'va' is really depending on the layout of
-'struct page_frag_cache' here, what if we change the implementation and
-the overhead of calculating 'va' becomes bigger? Do we expect to change
-the API for the callers when we change the internal implementation of
-page_frag_cache?
+>
+> Note that we had this comment back in 2010:
+>
+>  * __GFP_NOFAIL: The VM implementation _must_ retry infinitely: the calle=
+r
+>  * cannot handle allocation failures.  This modifier is deprecated and no=
+ new
+>  * users should be added.
+>
+> and then it was softened in 2015 to the current
+>
+>  * __GFP_NOFAIL: The VM implementation _must_ retry infinitely: the calle=
+r
+>  * cannot handle allocation failures. New users should be evaluated caref=
+ully
+>   ...
+>
+> and clearly that "evaluated carefully" actually never happened, so the
+> new comment is just garbage.
+>
+> I wonder how many modern users of GFP_NOFAIL are simply due to
+> over-eager allocation failure injection testing, and then people added
+> GFP_NOFAIL just because it shut up the mindless random allocation
+> failures.
+>
+> I mean, we have a __GFP_NOFAIL in rhashtable_init() - which can
+> actually return an error just fine, but there was this crazy worry
+> about the IPC layer initialization failing:
+>
+>    https://lore.kernel.org/all/20180523172500.anfvmjtumww65ief@linux-n805=
+/
+>
+> Things like that, where people just added mindless "theoretical
+> concerns" issues, or possibly had some error injection module that
+> inserted impossible failures.
+>
+> I do NOT want those things to become BUG_ON()'s. It's better to just
+> return NULL with a "bogus GFP_NOFAIL" warning, and have the oops
+> happen in the actual bad place that did an invalid allocation.
+>
+> Because the blame should go *there*, and it should not even remotely
+> look like "oh, the MM code failed". No. The caller was garbage.
+>
+> So no. No MM BUG_ON code.
+>
+>                     Linus
+>
 
-> 
-> 
->>>
->>>>> page_frag via pointer to the function. With that you could also look
->>>>> at just returning a virtual address as well if you insist on having
->>>>> something that returns all of the above. No point in having 2 and 3 be
->>>>> seperate functions.
->>>>
->>>> Let's be more specific about what are your suggestion here: which way
->>>> is the prefer way to return the virtual address. It seems there are two
->>>> options:
->>>>
->>>> 1. Return the virtual address by function returning as below:
->>>> void *page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio);
->>>>
->>>> 2. Return the virtual address by double pointer as below:
->>>> int page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio,
->>>>                         void **va);
->>>
->>> I was thinking more of option 1. Basically this is a superset of
->>> page_frag_alloc_va that is also returning the page and offset via a
->>> page frag. However instead of bio_vec I would be good with "struct
->>> page_frag *" being the value passed to the function to play the role
->>> of container. Basically the big difference between 1 and 2/3 if I am
->>> not mistaken is the fact that for 1 you pass the size, whereas with
->>> 2/3 you are peeling off the page frag from the larger page frag cache
->>
->> Let's be clear here: The callers just expecting [page, offset] also need
->> to call type 3 API, which return both [va] and [page, offset]? and it
->> is ok to ignore the overhead of calculating the 'va' for those kinds
->> of callers just because we don't want to do the renaming for a existing
->> API and can't come up with good naming for that?
->>
->>> after the fact via a commit type action.
->>
->> Just be clear here, there is no commit type action for some subtype of
->> type 2/3 API.
->>
->> For example, for type 2 API in this patchset, it has below subtypes:
->>
->> subtype 1: it does not need a commit type action, it just return
->>            [page, offset] instead of page_frag_alloc_va() returning [va],
->>            and it does not return the allocated fragsz back to the caller
->>            as page_frag_alloc_va() does not too:
->> struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
->>                                 unsigned int *offset, unsigned int fragsz,
->>                                 gfp_t gfp)
->>
->> subtype 2: it does need a commit type action, and @fragsz is returned to
->>            the caller and caller used that to commit how much fragsz to
->>            commit.
->> struct page *page_frag_alloc_pg_prepare(struct page_frag_cache *nc,
->>                                         unsigned int *offset,
->>                                         unsigned int *fragsz, gfp_t gfp)
->>
->> Do you see subtype 1 as valid API? If no, why?
-> 
-> Not really, it is just a wrapper for page_frag_alloc that is
-> converting the virtual address to a page and offset. They are the same
-> data and don't justify the need for two functions. It kind of explains
 
-I am supposing you meant something like below:
-struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
-				unsigned int *offset, unsigned int fragsz,
-				gfp_t gfp)
-{
-	struct page *page;
-	void *va;
-
-	va = page_frag_alloc_va(nc, fragsz, gfp);
-	if (!va)
-		return NULL;
-
-	page = virt_to_head_page(va);
-	*offset = va - page_to_virt(page);
-
-	return page;
-}
-
-If yes, I really think you are caring about maintainability too much by
-trading off too much performance here by not only recalculating the offset
-here, but also sometimes calling virt_to_head_page() unnecessarily.
-
-If no, please share the pseudo code in your mind.
-
-> one of the complaints I had about this code. Supposedly it was
-> refactoring and combining several different callers into one, but what
-> it is actually doing is fracturing the code path into 3 different
-> variants based on little if any actual difference as it is doing
-> unnecessary optimization.
-
-I am supposing the 3 different variants meant the below, right?
-1. page_frag_alloc_va() returns [va].
-2. page_frag_alloc_pg() returns [page, offset].
-3. page_frag_alloc() returns [va] & [page, offset].
-
-And there is others 3 different variants for prepare API too:
-4. page_frag_alloc_va_prepare() returns [va].
-5. page_frag_alloc_pg_prepare() returns [page, offset].
-6. page_frag_alloc_prepare() returns [va] & [page, offset].
-
-Side note: I just found the '4. page_frag_alloc_va_prepare()' API is
-not used/called currently and can be removed in next revision for this
-patchset.
-
-It seems what you really want is 3 & 2 to be a wrapper for 1, and
-5 & 6 to be a wrapper for 4?
-
-If yes, too much performance is traded off here as my understanding.
-Does't the introducing of __page_frag_cache_reload() already enable the
-balance between performance and maintainability as much as possible in
-patch 8?
-
-> 
->> If yes, do you also expect the caller to use "struct page_frag *" as the
->> container? If yes, what is the caller expected to do with the size field in
->> "struct page_frag *" from API perspective? Just ignore it?
-> 
-> It should be populated. You passed a fragsz, so you should populate
-> the output fragsz so you can get the truesize in the case of network
-> packets. The removal of the page_frag from the other callers is making
-> it much harder to review your code anyway. If we keep the page_frag
-> there it should reduce the amount of change needed when you replace
-> page_frag with the page_frag_cache.
-
-I am not starting to use page_frag as the container yet, but the above
-part is something that I am probably agreed with.
-
-> 
-> Honestly this is eating up too much of my time. As I said before this
-> patch set is too big and it is trying to squeeze in more than it
-> really should for a single patch set to be reviewable. Going forward
-> please split up the patch set as I had suggested before and address my
-> comments. Ideally you would have your first patch just be some
-> refactor and cleanup to get the "offset" pointer moving in the
-> direction you want. With that we can at least get half of this set
-> digested before we start chewing into all this refactor for the
-> replacement of page_frag with the page_frag_cache.
-
-I don't really think breaking this patchset into more patchsets without
-a newcase is helping to speed up the process here, it might slow down
-the process instead, as the different idea about the refactoring and
-new API naming is not going to disappear by breaking the patchset, and
-the breaking may make the discussion harder without a bigger picture
-and context.
+--
+Regards
+Yafang
