@@ -1,126 +1,81 @@
-Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com [209.85.161.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 768C21547E5
-	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 02:48:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F06166314
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 05:06:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724208521; cv=none; b=PKE16r3YjcD/lyDzydUvORje6vVNOzOslpcYs1XJz1PSrv6GX/xw8iDNwyHyjmI4SR0dRbMSguemX+ATZoBfaZf0jLcac5E8nyiIunrgY0uapJKEIS8a2OMoSE7UH2aK/OFAVunSk84OHSpgbGgA8swSQVK+40MiN9SLfGIBDSA=
+	t=1724216819; cv=none; b=RWtJFHEoz8/Y9zvkFC5u+DGY75zQpWYFBcIOAm+xQuzXxOq4klPvVVulnfId93dbD2KJwODtOh3VxAaFUPRYC8jMoxlP0/Qz1xiL1HmLYPl+6nwbipy4Rv51HUzqIDUtMg5O6mOI+essNIiGLj0sVetzOIc/4hNq6RKNTiPfHY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724208521; c=relaxed/simple;
-	bh=3NT4ahnmFddHIRmFwjcHIuJmDlTvjANzEmVMo6qJ1Vc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VJq4oL+Zrx/JC3YDvuCP2nDTUfpVPiz7LQ06YRD9/mvLBhlVCHTPEsM8fUPRA+rGI9r/cZrgaEQBv5gPRBfKpInvzAWmyVnKXRXN/7dIoR5SEQhKHwm99V82/3nRzuH/yfEs/dvsP3J0FqZu1bX+8z09XX/gaHdepMLI83s6qog=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=cmDn/65s; arc=none smtp.client-ip=209.85.161.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1724216819; c=relaxed/simple;
+	bh=2DshrC2wPT+HqiB+wk4KnOX9Ljc4ztK2HKSMQXVrYLc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XQBg7tGZDJW3fJj4uBL4e6dBQLEtkVV171+UCDBFRaQFHdcTzxo+biVQvHk7pljWOjGPxYyl+OOi4m4/k1T9glGE4TNo3ke2JwbufVAC9dDvwfrjYB/UukWKohJHq7pfjE4WSYDqAl/Mszr/hiIyJRFDpdumXbYEc9U+Uer7ZdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=BKAGViLS; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="cmDn/65s"
-Received: by mail-oo1-f46.google.com with SMTP id 006d021491bc7-5da440d059eso4059699eaf.2
-        for <virtualization@lists.linux.dev>; Tue, 20 Aug 2024 19:48:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1724208518; x=1724813318; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=P3aEXOpJkCyNHt+4mZOgRQw75y4G0b8DBrW8S6IF4dU=;
-        b=cmDn/65ss0Ho65a3ndsLNBnk0XTN94RKEco1+qNj1SXny6xrmBm6osdqDBNzy6Irr/
-         lxujfcwy07zQLcEy1e3ZF0iEHX5+miBbPtMmymuwVLCeXT6fbBXKmmzEdEhK+QQrs6ip
-         mKUI/Zr4IEQkZMNIAwVYi9k9ds5Cub8XffmZc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724208518; x=1724813318;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=P3aEXOpJkCyNHt+4mZOgRQw75y4G0b8DBrW8S6IF4dU=;
-        b=HINYQlqy9iGaDbWAKcGC6snU9qsSas4dvB0h6NR+bzItSTG+eRpKSsHhrJQrC3/3ST
-         J0EAhLYAHxpbcqquUUlENNbGwFDVhAnsoNjmnrCamSPkOjqRJUM721eIv2v9YMT3CtzT
-         TezgwLQoHH5M7XbMG+esPY/KFuCZTxvKWG/MhW75vyPsfXKtoTFKBCRrA5J+X/e1TiZu
-         kkTIFIAJKk8+GrAVKWCzhrt7P21EM50sVrNFxrQvR1WQ9ziNwjGBDOWFE+Gfc+6Fx20s
-         DJRnMZf035/btfzUUD7tb5X05kAX8KSPv4Ufec8+1DK2wnrj+KILEo7OuSg7m9BkLfAl
-         r54g==
-X-Forwarded-Encrypted: i=1; AJvYcCVUscu8+2wh+wwjkJm3gY4NmxOsEkXLp7cuq49lJBQcPgy4Qe7SkT32iiIfB5S6wY1BNUmvgV9GqBeJSxmaIg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwsbnguVjdVeeMrensAMoXqwqsCsGXnOoM3FNu6Wn+SwPv88cBc
-	62YzC/ha4OGjTWbhd9DqL8Z79y9tf4PY3yP82p0W84KtEAY/SzvoYx6U7xoxtuFj8/oEb/BotCu
-	80+3pa8BZSa7pnDAIk+ak8QIVPMG9bxs8zs5m
-X-Google-Smtp-Source: AGHT+IGw9BqTX5VOuQLmS/qKfOQP/sjqjFhw2dnBRfUPMUh9JrsC1327k3YS4AeZHPC9FiuuPKxEewNQSfw++XcuCcs=
-X-Received: by 2002:a05:6358:57a3:b0:1ad:10eb:cd39 with SMTP id
- e5c5f4694b2df-1b59fc5cfc2mr159679855d.26.1724208517967; Tue, 20 Aug 2024
- 19:48:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="BKAGViLS"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 315E9812E8
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 05:06:57 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.398
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id lZ3-rMKrtmsJ for <virtualization@lists.linux-foundation.org>;
+ Wed, 21 Aug 2024 05:06:55 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+5a17de65a486cdde784a+7668+infradead.org+hch@bombadil.srs.infradead.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DC703812E7
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=infradead.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DC703812E7
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=BKAGViLS
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DC703812E7
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 05:06:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=2DshrC2wPT+HqiB+wk4KnOX9Ljc4ztK2HKSMQXVrYLc=; b=BKAGViLSWfMEJV0625RQ5Nq6YW
+	fi6KD8w33W2oBpV8nDnmQn4n5XZhE7NWCdJX1vR92gC/C2Rc/JN/5GH7No5gIXKb+IhkCWF6U/w1+
+	FKtxs9AzgguhFbmbvIj7Y9A3Kkc766zncuPmer7xuHjTrSI1QgHyq2i/qCT6IyZDZb3U5h8UVDt33
+	jEKf9BtzBh5XnDGEfKlzqzgVL27hQ8tf8zhK3vndQelIRwIqNXWU7fmnNCqR5zo+rJPWiiC2UT6Um
+	1EtOAkYu2IXLmDvJMhEwE7q3WdZ92UoHDS0flRqw92bUZNVn7SqMdetD3FdKyd5TowJSmXaw06umI
+	evK8eohA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgdYa-00000007XQL-47dr;
+	Wed, 21 Aug 2024 05:06:52 +0000
+Date: Tue, 20 Aug 2024 22:06:52 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Subject: Re: [RFC 7/7] vhost: Add new UAPI to support changing Kthread mode
+Message-ID: <ZsV17ACIEelIQuKx@infradead.org>
+References: <20240819092851.441670-1-lulu@redhat.com>
+ <20240819092851.441670-8-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240820172256.903251-1-philipchen@chromium.org> <46eacc01-7b23-4f83-af3c-8c5897e44c90@intel.com>
-In-Reply-To: <46eacc01-7b23-4f83-af3c-8c5897e44c90@intel.com>
-From: Philip Chen <philipchen@chromium.org>
-Date: Tue, 20 Aug 2024 19:48:27 -0700
-Message-ID: <CA+cxXhnrg8vipY37siXRudRiwLKFuyJXizH9EUczFFnB6iwQAg@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio_pmem: Check device status before requesting flush
-To: Dave Jiang <dave.jiang@intel.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Dan Williams <dan.j.williams@intel.com>, 
-	Vishal Verma <vishal.l.verma@intel.com>, Ira Weiny <ira.weiny@intel.com>, 
-	virtualization@lists.linux.dev, nvdimm@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240819092851.441670-8-lulu@redhat.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-Hi,
+On Mon, Aug 19, 2024 at 05:27:33PM +0800, Cindy Lu wrote:
+> Add a new UAPI to support setting the vhost device to
+> use kthread mode. The user space application needs to use
+> VHOST_SET_USE_KTHREAD to set the mode. This setting must
+> be set before VHOST_SET_OWNER is set.
 
-On Tue, Aug 20, 2024 at 1:01=E2=80=AFPM Dave Jiang <dave.jiang@intel.com> w=
-rote:
->
->
->
-> On 8/20/24 10:22 AM, Philip Chen wrote:
-> > If a pmem device is in a bad status, the driver side could wait for
-> > host ack forever in virtio_pmem_flush(), causing the system to hang.
-> >
-> > So add a status check in the beginning of virtio_pmem_flush() to return
-> > early if the device is not activated.
-> >
-> > Signed-off-by: Philip Chen <philipchen@chromium.org>
-> > ---
-> >
-> > v2:
-> > - Remove change id from the patch description
-> > - Add more details to the patch description
-> >
-> >  drivers/nvdimm/nd_virtio.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> >
-> > diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-> > index 35c8fbbba10e..97addba06539 100644
-> > --- a/drivers/nvdimm/nd_virtio.c
-> > +++ b/drivers/nvdimm/nd_virtio.c
-> > @@ -44,6 +44,15 @@ static int virtio_pmem_flush(struct nd_region *nd_re=
-gion)
-> >       unsigned long flags;
-> >       int err, err1;
-> >
-> > +     /*
-> > +      * Don't bother to submit the request to the device if the device=
- is
-> > +      * not acticated.
->
-> s/acticated/activated/
+Usage of an API is a complete kernel internal detail that has absolutely
+no business being exposed to applications.
 
-Thanks for the review.
-I'll fix this typo in v3.
+What is the application visible behavior that the API use is the proxy
+for?
 
-In addition to this typo, does anyone have any other concerns?
-
->
-> > +      */
-> > +     if (vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_NEEDS_RESET)=
- {
-> > +             dev_info(&vdev->dev, "virtio pmem device needs a reset\n"=
-);
-> > +             return -EIO;
-> > +     }
-> > +
-> >       might_sleep();
-> >       req_data =3D kmalloc(sizeof(*req_data), GFP_KERNEL);
-> >       if (!req_data)
