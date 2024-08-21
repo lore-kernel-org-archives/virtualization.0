@@ -1,63 +1,63 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F6B115FA92
-	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 07:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1544F1ACE09
+	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 07:19:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724224765; cv=none; b=fTFQ7vjHrYQW0C6HMsLqJ4bscN67Vq7SSTqKVTRtR79vq0HyfxHdJzDllFJbgdOthPBeyHxMvBOgxG1rMphuHLGKhvTjYT5gL7YArfjzh1ryi00zSm72paWZt7s6T8FoqkbbqWCgUQWxyFNkfAQwH8XNUGXBl90d2I1mRyK+x4E=
+	t=1724224770; cv=none; b=RCNd1RZeK5IjmJFxRsFl5HPpTcxAsBxKa1JOCRmfMa53e5S65v4PC/d+LdUz4+bqzRc7dTzmVDjGcJHfVyE14reu96/Vi3wHd3o47QV6OrlYQOeYNoctOUCBiuALc4+XF/zn3xjaw33EyR9BiBzZJ1tOoT62gE6XFvYD1DyCcuU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724224765; c=relaxed/simple;
-	bh=Fc7LqA4dsnee2e9i3xlXjC/frSEy4rrwVedoLFfxfmw=;
+	s=arc-20240116; t=1724224770; c=relaxed/simple;
+	bh=SgQa/apEnyQVxi5RGIOMYDsJA8zmcu1/aNTE/QznKio=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BPW3qq7/z9qFA4N3lkoY79hDVrtbXupwskL3kvqH16m6EyEX3A8uoPrarWsmeI7u5Z0cODMtzMmPpQEiy39pKDAFtpjIOhoK8L3wdwMANMriVVrZ6UUxFHBUz7mi4N1ThKP2kk5JbEf3m9bWavAsfC/fqdpCbmvv2uJ2XT5WoZE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TLM2K4Kr; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=J1ObQ+Mg/mTtdraYuIl73TrTt/vN7v5FQec60o+Cel7iMGJEXu+xvt3a+vjAbM8lacPKvugW1ZAMS6daD36QHXMFMUgXjr0pzy9jBRcFP4eg/QCj9LVXgmVrvg9uHe6Fn5vyE0sGQ6sE7euxN2Qo8xNPREmAIYdnB+STz5jtwjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Snw0ebG3; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TLM2K4Kr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Snw0ebG3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724224762;
+	s=mimecast20190719; t=1724224768;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/H9qQSvRoJEHuC9fzeIRZ7nyD5NIc+bT7koxtRIZd8A=;
-	b=TLM2K4KrUiKK7SwbRLsdvRj1ql/YWBeLpH56BKCW2JXozgRZJGR9vb0MM1pI+NkMeetbgP
-	uzuau0lBrtRUQqvhlGRcyQ87DyFjUTYBu8gX84msNoZehylT07M3z2zoJjyOsBPJvTXUBp
-	e3W8covl7rncL8iuo+7McG9JBkfw6Ak=
+	bh=AJtm3uYD4inmsDECmrMxkvS6gTo4VXXtBuq4LxNQ/Aw=;
+	b=Snw0ebG3N+d4H+PyWRPe74rIB6Nm7roNWIhVjY+bbk5gLeDGwiWiIT5NLHIawkqj3Smbly
+	BtFMYdCjF9bAyav2onUjj1j6vldG8mn3EKFcli6xs9fobZPF648KYLzdCrxlvaEWZUy/sp
+	Qa/GqbyfqzhifVq7arY+C5X3eYewwwQ=
 Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
  [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-414-l2iG--FRPFuaqmK35t198w-1; Wed, 21 Aug 2024 03:19:21 -0400
-X-MC-Unique: l2iG--FRPFuaqmK35t198w-1
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-7a1db42803eso751527685a.2
-        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 00:19:21 -0700 (PDT)
+ us-mta-37-gV4EkfDHNGuj07stpxfq5Q-1; Wed, 21 Aug 2024 03:19:26 -0400
+X-MC-Unique: gV4EkfDHNGuj07stpxfq5Q-1
+Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-7a1d40f49f5so711504785a.3
+        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 00:19:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724224761; x=1724829561;
+        d=1e100.net; s=20230601; t=1724224766; x=1724829566;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/H9qQSvRoJEHuC9fzeIRZ7nyD5NIc+bT7koxtRIZd8A=;
-        b=W75Axv+KN4xCMiUUQMsK+uVRRamVxldswjFlDPwQxfZ8C+/xbmKRJE5PLKW0FV+23N
-         65evzhDJqrxXCKu6dQw9Pf5Y2ILczTJK6eoJUP725m0k3XyfwzDnbwjG32HF08NPfGfV
-         a/zF5LnOEsRk0/CoclW7v5w72f1hdV+HGG/o6GCuJXqX2dYDsoPGsXBSkrPDlLUAk84E
-         FmezHpzZxS6FTfBKY25mcV0byNEaIyyg0U1zXj3EGlvRupSw0eU74Eepr1wxDQcp5Ky4
-         As0BzRQrnYJJ59zkL45UNcCDAEVlm13Diag2orZUw4/w1NTuw/03q8cIzw6yoRv44oYq
-         vOyA==
-X-Forwarded-Encrypted: i=1; AJvYcCWwm9SBIWvDtfLWNqkj/WnOsjeROLu1cDjiYMivdulGvvZGQ6dpkFKdKyr11TAz4mWrQMm11LqkoLcbmq97iQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxbDvsxj6vj2kkSspo8oXCVf/luxUAdurgaOSLpGcMqcf5DzpLp
-	qhm/XXYgq4mh332nbWibf0YBtYkyYvIlKobKPoUZwal4zoiaC/Hix9lTCTY0jEWA55WtuwjDhJF
-	KoNvfa4CdKDewFcNpBECaMNujcHFeS8X+S1MY3SMjDx6SaLEbvhS+wKt4gaVX9iKI
-X-Received: by 2002:a05:620a:1a23:b0:79c:130:452b with SMTP id af79cd13be357-7a6740bf833mr201731085a.47.1724224760984;
-        Wed, 21 Aug 2024 00:19:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHlHEduRbx+7oLWq2FWdoqLifqFviA1Dz0/eZWADNmQ+nKTULVnIfuczZLElQLlBGhubXgMag==
-X-Received: by 2002:a05:620a:1a23:b0:79c:130:452b with SMTP id af79cd13be357-7a6740bf833mr201726085a.47.1724224760509;
-        Wed, 21 Aug 2024 00:19:20 -0700 (PDT)
+        bh=AJtm3uYD4inmsDECmrMxkvS6gTo4VXXtBuq4LxNQ/Aw=;
+        b=Io/+PGNOo1QtYW20jCutw4bShOvnl5dzr16BSXu2Fan6jE3/Km2kl4A2zzNA7Gk5kY
+         qvQLZZhzb2yVFQ1hrXlclmAOKoxvynetfqKb7p7CS81hqORyknf7RlFhyMm+AHTF1DmW
+         3/9wVJEhk2x1j6BxivN6cfkqvxytoWCTenuxUzA/DnSpUyA609vGJi86RHcee0a4k4zX
+         wyHm1lEORJwsFR6poYqXnW3qQOxz+oSGXI5W2YpY1GSDmQLOjN+2DIS/fP9Q9dY3BNjw
+         ujjJWuobLLDopqFnX+BO3SI6qLMfoZY3ChKauITuk6H+6/dcIMWVXbzBU0YSdDoT8QTY
+         t8Cw==
+X-Forwarded-Encrypted: i=1; AJvYcCWyvBZiPjLTmKsXlr6CPkdwLYk1kZW6fcCyRtuqO2dJDEhjwlGAgYs5zXgOk8XyHPwiQ/Hnv7iBpFq2nO/Rcg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxKsHIZhOo839oknjgjg1JOEOXG/qgTdkPsMiveMBT9S2jglneO
+	Ef6JW64yvUkgn2NRKsWaVZumO6PhYEAiKNjVyJtU0kUQF2i8w1bELkB4PtgySxwZZgkMoPlVZlg
+	e1IKX9877Gsu/UxYXP0WVNdDZQ+4yBxdbSig0/pAuQL+06ldxA1Lo8fX+g6OD0ukB
+X-Received: by 2002:a05:620a:4447:b0:7a6:6b98:8e36 with SMTP id af79cd13be357-7a6748f3e18mr161733785a.16.1724224766189;
+        Wed, 21 Aug 2024 00:19:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEmBWfs7G37gw0gXLs+jJ1ak3VoPRzhFXnnqGnvalRJy1Z9qU/iCGfIEx/5sYtw8Qbb8DqgNA==
+X-Received: by 2002:a05:620a:4447:b0:7a6:6b98:8e36 with SMTP id af79cd13be357-7a6748f3e18mr161728685a.16.1724224765719;
+        Wed, 21 Aug 2024 00:19:25 -0700 (PDT)
 Received: from eisenberg.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a4ff013ef2sm596207885a.11.2024.08.21.00.19.15
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a4ff013ef2sm596207885a.11.2024.08.21.00.19.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Aug 2024 00:19:20 -0700 (PDT)
+        Wed, 21 Aug 2024 00:19:25 -0700 (PDT)
 From: Philipp Stanner <pstanner@redhat.com>
 To: Jonathan Corbet <corbet@lwn.net>,
 	Jens Axboe <axboe@kernel.dk>,
@@ -98,11 +98,10 @@ Cc: linux-doc@vger.kernel.org,
 	linux-stm32@st-md-mailman.stormreply.com,
 	linux-arm-kernel@lists.infradead.org,
 	linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Subject: [PATCH v2 4/9] gpio: Replace deprecated PCI functions
-Date: Wed, 21 Aug 2024 09:18:37 +0200
-Message-ID: <20240821071842.8591-6-pstanner@redhat.com>
+	virtualization@lists.linux.dev
+Subject: [PATCH v2 5/9] ethernet: cavium: Replace deprecated PCI functions
+Date: Wed, 21 Aug 2024 09:18:38 +0200
+Message-ID: <20240821071842.8591-7-pstanner@redhat.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240821071842.8591-2-pstanner@redhat.com>
 References: <20240821071842.8591-2-pstanner@redhat.com>
@@ -117,55 +116,46 @@ X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
-pcim_iomap_regions() and pcim_iomap_table() have been deprecated by the
-PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
+pcim_iomap_regions() and pcim_iomap_table() have been deprecated by
+the PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
 pcim_iomap_table(), pcim_iomap_regions_request_all()").
 
-Replace those functions with calls to pcim_iomap_region().
+Replace these functions with the function pcim_iomap_region().
 
 Signed-off-by: Philipp Stanner <pstanner@redhat.com>
-Reviewed-by: Andy Shevchenko <andy@kernel.org>
-Acked-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 ---
- drivers/gpio/gpio-merrifield.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/cavium/common/cavium_ptp.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpio/gpio-merrifield.c b/drivers/gpio/gpio-merrifield.c
-index 421d7e3a6c66..274afcba31e6 100644
---- a/drivers/gpio/gpio-merrifield.c
-+++ b/drivers/gpio/gpio-merrifield.c
-@@ -78,24 +78,24 @@ static int mrfld_gpio_probe(struct pci_dev *pdev, const struct pci_device_id *id
- 	if (retval)
- 		return retval;
+diff --git a/drivers/net/ethernet/cavium/common/cavium_ptp.c b/drivers/net/ethernet/cavium/common/cavium_ptp.c
+index 9fd717b9cf69..1849c62cde1d 100644
+--- a/drivers/net/ethernet/cavium/common/cavium_ptp.c
++++ b/drivers/net/ethernet/cavium/common/cavium_ptp.c
+@@ -239,11 +239,11 @@ static int cavium_ptp_probe(struct pci_dev *pdev,
+ 	if (err)
+ 		goto error_free;
  
--	retval = pcim_iomap_regions(pdev, BIT(1) | BIT(0), pci_name(pdev));
--	if (retval)
--		return dev_err_probe(dev, retval, "I/O memory mapping error\n");
+-	err = pcim_iomap_regions(pdev, 1 << PCI_PTP_BAR_NO, pci_name(pdev));
+-	if (err)
++	clock->reg_base = pcim_iomap_region(pdev, PCI_PTP_BAR_NO, pci_name(pdev));
++	if (IS_ERR(clock->reg_base)) {
++		err = PTR_ERR(clock->reg_base);
+ 		goto error_free;
 -
--	base = pcim_iomap_table(pdev)[1];
-+	base = pcim_iomap_region(pdev, 1, pci_name(pdev));
-+	if (IS_ERR(base))
-+		return dev_err_probe(dev, PTR_ERR(base), "I/O memory mapping error\n");
+-	clock->reg_base = pcim_iomap_table(pdev)[PCI_PTP_BAR_NO];
++	}
  
- 	irq_base = readl(base + 0 * sizeof(u32));
- 	gpio_base = readl(base + 1 * sizeof(u32));
+ 	spin_lock_init(&clock->spin_lock);
  
- 	/* Release the IO mapping, since we already get the info from BAR1 */
--	pcim_iounmap_regions(pdev, BIT(1));
-+	pcim_iounmap_region(pdev, 1);
+@@ -292,7 +292,7 @@ static int cavium_ptp_probe(struct pci_dev *pdev,
+ 	clock_cfg = readq(clock->reg_base + PTP_CLOCK_CFG);
+ 	clock_cfg &= ~PTP_CLOCK_CFG_PTP_EN;
+ 	writeq(clock_cfg, clock->reg_base + PTP_CLOCK_CFG);
+-	pcim_iounmap_regions(pdev, 1 << PCI_PTP_BAR_NO);
++	pcim_iounmap_region(pdev, PCI_PTP_BAR_NO);
  
- 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
- 	priv->dev = dev;
--	priv->reg_base = pcim_iomap_table(pdev)[0];
-+	priv->reg_base = pcim_iomap_region(pdev, 0, pci_name(pdev));
-+	if (IS_ERR(priv->reg_base))
-+		return dev_err_probe(dev, PTR_ERR(base), "I/O memory mapping error\n");
- 
- 	priv->pin_info.pin_ranges = mrfld_gpio_ranges;
- 	priv->pin_info.nranges = ARRAY_SIZE(mrfld_gpio_ranges);
+ error_free:
+ 	devm_kfree(dev, clock);
 -- 
 2.46.0
 
