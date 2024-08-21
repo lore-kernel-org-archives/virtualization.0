@@ -1,307 +1,113 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10E411ACDFF
-	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 11:42:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724240537; cv=fail; b=sMLUEtZprVgwFkAo2dikABfce9pbwc2dBmxljSul2/95Pv0OZXZsObDQhaOIh8fUz+m3cl9coksGzH4hUtJUYLF3ndsrkg6roQO7IsFDT2XwZZxHZvcoTVT8l7HgXF1RjbDIYj2m5b/dhOffKxjTpVKvbpCvQnPWcZG2VvFhOkY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724240537; c=relaxed/simple;
-	bh=5uGpCs1fWERSSPpGQIGuNCPxX/YeG+aOuuHcltw749k=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GExow7+BNtB8dsNqlqkXZc2vZwI60E7sqPRExm8xmo8MSr3KfUgyDP3zaOYflitjS78OxRIukpVWdIYVjW4OydUuP7L/2aVtV58w+YXCBzdKcxe+ZFzGD25O+TRVE+9tCfsQl97RV3JVT+zM92Nb9EvpF5WVhdip7NMznrYxb2s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=RMRECfKC; arc=fail smtp.client-ip=140.211.166.136
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="RMRECfKC"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AE8E260ADC
-	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 11:42:15 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id QryVrRG1HChL for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Aug 2024 11:42:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2417::62b; helo=nam12-dm6-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org B547E6072C
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B547E6072C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=RMRECfKC
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2062b.outbound.protection.outlook.com [IPv6:2a01:111:f403:2417::62b])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B547E6072C
-	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 11:42:14 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=m2wZ5e7c2blVbZArdKMn8nL/i5OUcQbZ4m1wWGSNxwPkOqMZgZW95oqked0nBGQpkDWEndsVjWf62AQkoAZ+qkrISNz3C/thTpn27iTUtN1eaxhfT6CV+G0xIc2kU4yrGqCy7Ucww+OSDolrlABdBqqhJa75H3Ro29R61tvToRHY1gyOZIIq/4F9WwceTifhUIdWgTjCIvVFBa+lVvy82GTgDvGtxWzpE9+B2N0QsRn8b1923lO2flhaIsQLVv44gNIfFIV3y9CWnZEu+UrXUvgfClXSfRJOmbp8ZhdTHEZA3oPghrbEyE1Ef4y9/KjtgU88kIZsyUIm7Tmf3qhuHw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MpRZbz6kEMX2/5Kzufx6uJYes/rX50gatEiwGsclbvI=;
- b=ib9SyHPRe7RMRuaAMWMFR8YPFVPG5XjSy7Z3zg9P2Qs+sU+omXpPDV8Mk5DOg02HA1h0Djz5Wm8NLiZPL31FoDKNrfgADe81h30942w/unrtyw+2uFHerTjh1ZLOTjtt3eICCT/Sh8DKbnFAqHJktKCaMXoDDub0xT1VNTUuJxnpKTixJPB2EIYz7nNbPh6wgeMyQ/RPawoSiJuIwJoirysJlHVtfh7A7oAir2xSZWfu31/ndkiDJXdn5kfEG6NK10z7Bo94gWYcHxG5pNLyHXMXye9wNqgdwBbixvMol2st504A0MuiE90KzrR72PQEQQz/Vzp28WHgBPhBUJQa4Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MpRZbz6kEMX2/5Kzufx6uJYes/rX50gatEiwGsclbvI=;
- b=RMRECfKC3hNWHA9qak76YUaxB4HM7zH9Wp80m0J2vgWsBorRP+f74YIXAjR+ZOWvaQ1zbX0Mt+rfSxQWdb9GOYfPVcoOVhKm5df206UMP0Uis+jIVfww1GPz14oVVMDJGLnOXAGiy8i2zqWlpfGMx1q6g05Pt5Ht1mDmqB+9mp53ph5etOnV2ixQalLL0dtC6waBJVqF0jueAaiBLkqYmAnYwLAPdWKlgAn354hyEz+8hnBstinaIcvTCdyl1uA1KG9cBMY7ArZqyg+c+a7yvbyqU7xAXYhR5hZP1oibahgR0Q3w0TQhWTS49dtZfseZxQBYTUhDbZVnMjmBTIhJcA==
-Received: from BN9PR03CA0274.namprd03.prod.outlook.com (2603:10b6:408:f5::9)
- by MN0PR12MB6245.namprd12.prod.outlook.com (2603:10b6:208:3c3::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.21; Wed, 21 Aug
- 2024 11:42:07 +0000
-Received: from BN3PEPF0000B36F.namprd21.prod.outlook.com
- (2603:10b6:408:f5:cafe::2b) by BN9PR03CA0274.outlook.office365.com
- (2603:10b6:408:f5::9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.25 via Frontend
- Transport; Wed, 21 Aug 2024 11:42:07 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- BN3PEPF0000B36F.mail.protection.outlook.com (10.167.243.166) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7897.4 via Frontend Transport; Wed, 21 Aug 2024 11:42:06 +0000
-Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 21 Aug
- 2024 04:41:53 -0700
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail202.nvidia.com
- (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 21 Aug
- 2024 04:41:53 -0700
-Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
- mail.nvidia.com (10.129.68.8) with Microsoft SMTP Server id 15.2.1544.4 via
- Frontend Transport; Wed, 21 Aug 2024 04:41:50 -0700
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu
-	<si-wei.liu@oracle.com>, <virtualization@lists.linux-foundation.org>, "Gal
- Pressman" <gal@nvidia.com>
-CC: Dragos Tatulea <dtatulea@nvidia.com>, <kvm@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Parav Pandit <parav@nvidia.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>, Cosmin Ratiu <cratiu@nvidia.com>
-Subject: [PATCH vhost 7/7] vdpa/mlx5: Postpone MR deletion
-Date: Wed, 21 Aug 2024 14:41:01 +0300
-Message-ID: <20240821114100.2261167-9-dtatulea@nvidia.com>
-X-Mailer: git-send-email 2.45.1
-In-Reply-To: <20240821114100.2261167-2-dtatulea@nvidia.com>
-References: <20240821114100.2261167-2-dtatulea@nvidia.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A04E21D1318
+	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 11:55:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724241353; cv=none; b=BqsNsOEBoYSiXCXhhrV0k5diI3MlcsC0PC2xkfzjzAxO500LhnhonEDhkk3KIDPKcZ58Kk69aPiHXJUuhZEdD+qm3LwfRu2HIw0emWZc/Lzv1pTiobuLUWskEhUk0K14TBRjIQUbcBj9DiJkRQuasOWqt05/G3JXJXNpBmQzb/U=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724241353; c=relaxed/simple;
+	bh=FOEYXw+MnaiZcb7e8v6V3s3UWS0YzfSHaV4+tYzJ1HA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iZOkhI41fsn4BvxyAv7WXKkQKm01A/W7VXuIumus1IjUFg2oiPbKkMOkXsLHSv/Q3UejZSL1wf0nHaX1AORxbSrRtzV0/mDVJPR/s86mshvQAP9TvIf5a/Ni+Q49h/WVWq5JCzjmPzoS5N6TrdR7I5pzdQYH8UsyC1kiLDdHW58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
+X-CSE-ConnectionGUID: KEGLwOAKR8WghUE8VmpAcA==
+X-CSE-MsgGUID: CZMQMC6wSHWNHvlFvb92+w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11170"; a="26463242"
+X-IronPort-AV: E=Sophos;i="6.10,164,1719903600"; 
+   d="scan'208";a="26463242"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Aug 2024 04:55:50 -0700
+X-CSE-ConnectionGUID: HStPPOxdS8Ck/2Tx3xAuhg==
+X-CSE-MsgGUID: Jz531zfFTbKXF2EHryWZDA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,164,1719903600"; 
+   d="scan'208";a="65758961"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmviesa004.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Aug 2024 04:55:43 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.98)
+	(envelope-from <andy.shevchenko@gmail.com>)
+	id 1sgjwA-000000003O8-2q1s;
+	Wed, 21 Aug 2024 14:55:38 +0300
+Date: Wed, 21 Aug 2024 14:55:38 +0300
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+To: Philipp Stanner <pstanner@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>,
+	Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
+	Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Jose Abreu <joabreu@synopsys.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
+	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
+	Keith Busch <kbusch@kernel.org>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
+	netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+	linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v2 6/9] ethernet: stmicro: Simplify PCI devres usage
+Message-ID: <ZsXVuq2jthHoTHPO@smile.fi.intel.com>
+References: <20240821071842.8591-2-pstanner@redhat.com>
+ <20240821071842.8591-8-pstanner@redhat.com>
+ <CAHp75VduuT=VLtXS+zha4ZNe3ZvBV-jgZpn2oP4WkzDdt6Pnog@mail.gmail.com>
+ <be1c2f6fb63542ccdcb599956145575293625c37.camel@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN3PEPF0000B36F:EE_|MN0PR12MB6245:EE_
-X-MS-Office365-Filtering-Correlation-Id: 132edc63-0aef-4e83-0de0-08dcc1d648f5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|36860700013|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?xR/D4CgvNhFXQpF+KT+2wJDWhV6Np/PfngUBtxzOlfRNCGmirAgCuhkaEfUG?=
- =?us-ascii?Q?UrMYzH5MOq1pO3YNIeSrneFSmk9PomHxvqZFsUvQr2hp3MBUR0Q+GgBk/FXf?=
- =?us-ascii?Q?U0fQSrYprFbEviwAF5QDP/HQaaRw3XLQrWI4nJWEOOqTqp4LSCd0evETeJzG?=
- =?us-ascii?Q?AHjjZI19K3l5995K0ElkGe4ZC+oZrH1fODinQYc45cBAbKaVCfeUrQRNNB/N?=
- =?us-ascii?Q?xH3wyJM0jdD7QWIAzFkI+jE2TX6dJ3daaLUduDbg7wd5mjsHHe4ISEE1mriS?=
- =?us-ascii?Q?ttD0jZOHGiv3ZcrT/a6AEPTXKiIFESe3PixZSpulceZ5kBbpWyoYshq2zwFO?=
- =?us-ascii?Q?xQziv1lG6q/mXcR5WOsxbvmKfoACXN5eHRgtjza9NhlWYUp4FrFaNFvwgo4N?=
- =?us-ascii?Q?MjNrhQ4w2fwmnNMubz2EW4lqeZVB3DYacmEfUyscuXSjRTLgKG7/kqnx1LDt?=
- =?us-ascii?Q?2rOm0ITsKWcy9hjkGTwRZhAcUD1gDlMQmhRAsSW8l8wGjpoaK0TJ6Pu3Jn4d?=
- =?us-ascii?Q?JdcVAVoguAm2bCGJU9MLPpr5HjAhsG2CCeYpviNLP63BwKmEyZ4g7dXpHRHj?=
- =?us-ascii?Q?NGXVeQLBnag8jvBwaX8o1ChA++OUNyUG71mid9QEm480kFHocgpnptcgMkAP?=
- =?us-ascii?Q?zqmGy6Z20NHoHRX3B2ct1+yHLR31BFFjGtH8qfKG3GHrCThpk0uolkdijNto?=
- =?us-ascii?Q?TavPD7VKJNLwKhoTIseTN/HF/Wp/nD0EwyW7znPFEBA2lclNTXczh1vD9Iga?=
- =?us-ascii?Q?U+0a3vyHHiQUAOHOzCiZlHHLIInOUJUCpDraHB2ktzDxyZQkRCj7cr1JosE8?=
- =?us-ascii?Q?K9egwfR3HCMbjy2xTlZftChHKCCjpGp3ao5qqi2xZzKNF3YdvyljuShRGVfY?=
- =?us-ascii?Q?4z5YcYIJ1JNG5Hoo4uyhETJpVNMmyiFaQ0sk6U/rvmh2a9zSACa6Dvt7Xczu?=
- =?us-ascii?Q?ESQnlSPQxP6DLQm7K1BagOWh+yWYEZOQaW+ECYJf4jl6KObmz8DdP3IFZhUb?=
- =?us-ascii?Q?2lz3dw5NZ/DsLlypan3JIOT7eeQjIF43nR0BO7gMBkzQmcvZs+B8/nJFrAtr?=
- =?us-ascii?Q?YNAugVbEAYWQSiD58r0Cu28DN158IC0Zyyx+cgr1Ue50ZL5KBh96dMShakt+?=
- =?us-ascii?Q?JIRVhL08WsOQRZPSx2To3oN96Dakj4QUl73z/fjPwNjQr4vBec6H87zlKhgp?=
- =?us-ascii?Q?QdqjTs1joGJcD/SFaT8odc5NW5v2yGvuVQvIGp1zgZTqCt5MAennDUCimL78?=
- =?us-ascii?Q?yQVP7mPiaVhGXM5uaAU55DgI+IEPqhnb+65bFQKAAA0PTe6CjzOSkeUiqlnQ?=
- =?us-ascii?Q?zMmqgrObx+P3MSgKv7x2VXaNKELFI2P3cGJ7ePUVnvDFaF6+R72Gutm6hVZ8?=
- =?us-ascii?Q?TtQFfpuTxTbImAHjNxB49+QkBUBKpugUksl/DVkClE0S0VY+h2CugHafnNQF?=
- =?us-ascii?Q?Qsun4b3Rq8BZxfvdZXRgQG8nl2iP/jfE?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700013)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Aug 2024 11:42:06.8918
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 132edc63-0aef-4e83-0de0-08dcc1d648f5
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BN3PEPF0000B36F.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB6245
+In-Reply-To: <be1c2f6fb63542ccdcb599956145575293625c37.camel@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-Currently, when a new MR is set up, the old MR is deleted. MR deletion
-is about 30-40% the time of MR creation. As deleting the old MR is not
-important for the process of setting up the new MR, this operation
-can be postponed.
+On Wed, Aug 21, 2024 at 11:36:36AM +0200, Philipp Stanner wrote:
+> On Wed, 2024-08-21 at 11:14 +0300, Andy Shevchenko wrote:
+> > On Wed, Aug 21, 2024 at 10:19 AM Philipp Stanner
+> > <pstanner@redhat.com> wrote:
 
-This series adds a workqueue that does MR garbage collection at a later
-point. If the MR lock is taken, the handler will back off and
-reschedule. The exception during shutdown: then the handler must
-not postpone the work.
+...
 
-Note that this is only a speculative optimization: if there is some
-mapping operation that is triggered while the garbage collector handler
-has the lock taken, this operation it will have to wait for the handler
-to finish.
+> > > -       for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+> > > -               if (pci_resource_len(pdev, i) == 0)
+> > > -                       continue;
+> > > -               pcim_iounmap_regions(pdev, BIT(i));
+> > 
+> > Here is the BARx, which contradicts the probe :-)
+> 
+> I'm not sure what should be done about it. The only interesting
+> question is whether the other code with pcim_iomap_regions(... BIT(i)
+> does also only grap BAR 0.
+> In that case the driver wouldn't even be knowing what its own hardware
+> is / does, though.
 
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
----
- drivers/vdpa/mlx5/core/mlx5_vdpa.h | 10 ++++++
- drivers/vdpa/mlx5/core/mr.c        | 51 ++++++++++++++++++++++++++++--
- drivers/vdpa/mlx5/net/mlx5_vnet.c  |  3 +-
- 3 files changed, 60 insertions(+), 4 deletions(-)
+I think your patch does the right thing already.
 
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index c3e17bc888e8..2cedf7e2dbc4 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -86,8 +86,18 @@ enum {
- struct mlx5_vdpa_mr_resources {
- 	struct mlx5_vdpa_mr *mr[MLX5_VDPA_NUM_AS];
- 	unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
-+
-+	/* Pre-deletion mr list */
- 	struct list_head mr_list_head;
-+
-+	/* Deferred mr list */
-+	struct list_head mr_gc_list_head;
-+	struct workqueue_struct *wq_gc;
-+	struct delayed_work gc_dwork_ent;
-+
- 	struct mutex lock;
-+
-+	atomic_t shutdown;
- };
- 
- struct mlx5_vdpa_dev {
-diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-index ec75f165f832..43fce6b39cf2 100644
---- a/drivers/vdpa/mlx5/core/mr.c
-+++ b/drivers/vdpa/mlx5/core/mr.c
-@@ -653,14 +653,46 @@ static void _mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_
- 	kfree(mr);
- }
- 
-+#define MLX5_VDPA_MR_GC_TRIGGER_MS 2000
-+
-+static void mlx5_vdpa_mr_gc_handler(struct work_struct *work)
-+{
-+	struct mlx5_vdpa_mr_resources *mres;
-+	struct mlx5_vdpa_mr *mr, *tmp;
-+	struct mlx5_vdpa_dev *mvdev;
-+
-+	mres = container_of(work, struct mlx5_vdpa_mr_resources, gc_dwork_ent.work);
-+
-+	if (atomic_read(&mres->shutdown)) {
-+		mutex_lock(&mres->lock);
-+	} else if (!mutex_trylock(&mres->lock)) {
-+		queue_delayed_work(mres->wq_gc, &mres->gc_dwork_ent,
-+				   msecs_to_jiffies(MLX5_VDPA_MR_GC_TRIGGER_MS));
-+		return;
-+	}
-+
-+	mvdev = container_of(mres, struct mlx5_vdpa_dev, mres);
-+
-+	list_for_each_entry_safe(mr, tmp, &mres->mr_gc_list_head, mr_list) {
-+		_mlx5_vdpa_destroy_mr(mvdev, mr);
-+	}
-+
-+	mutex_unlock(&mres->lock);
-+}
-+
- static void _mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
- 			      struct mlx5_vdpa_mr *mr)
- {
-+	struct mlx5_vdpa_mr_resources *mres = &mvdev->mres;
-+
- 	if (!mr)
- 		return;
- 
--	if (refcount_dec_and_test(&mr->refcount))
--		_mlx5_vdpa_destroy_mr(mvdev, mr);
-+	if (refcount_dec_and_test(&mr->refcount)) {
-+		list_move_tail(&mr->mr_list, &mres->mr_gc_list_head);
-+		queue_delayed_work(mres->wq_gc, &mres->gc_dwork_ent,
-+				   msecs_to_jiffies(MLX5_VDPA_MR_GC_TRIGGER_MS));
-+	}
- }
- 
- void mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
-@@ -848,9 +880,17 @@ int mlx5_vdpa_init_mr_resources(struct mlx5_vdpa_dev *mvdev)
- {
- 	struct mlx5_vdpa_mr_resources *mres = &mvdev->mres;
- 
--	INIT_LIST_HEAD(&mres->mr_list_head);
-+	mres->wq_gc = create_singlethread_workqueue("mlx5_vdpa_mr_gc");
-+	if (!mres->wq_gc)
-+		return -ENOMEM;
-+
-+	INIT_DELAYED_WORK(&mres->gc_dwork_ent, mlx5_vdpa_mr_gc_handler);
-+
- 	mutex_init(&mres->lock);
- 
-+	INIT_LIST_HEAD(&mres->mr_list_head);
-+	INIT_LIST_HEAD(&mres->mr_gc_list_head);
-+
- 	return 0;
- }
- 
-@@ -858,5 +898,10 @@ void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
- {
- 	struct mlx5_vdpa_mr_resources *mres = &mvdev->mres;
- 
-+	atomic_set(&mres->shutdown, 1);
-+
-+	flush_delayed_work(&mres->gc_dwork_ent);
-+	destroy_workqueue(mres->wq_gc);
-+	mres->wq_gc = NULL;
- 	mutex_destroy(&mres->lock);
- }
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 1cadcb05a5c7..ee9482ef51e6 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -3435,6 +3435,8 @@ static void mlx5_vdpa_free(struct vdpa_device *vdev)
- 	free_fixed_resources(ndev);
- 	mlx5_vdpa_clean_mrs(mvdev);
- 	mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
-+	mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
-+
- 	if (!is_zero_ether_addr(ndev->config.mac)) {
- 		pfmdev = pci_get_drvdata(pci_physfn(mvdev->mdev->pdev));
- 		mlx5_mpfs_del_mac(pfmdev, ndev->config.mac);
-@@ -4044,7 +4046,6 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
- 	destroy_workqueue(wq);
- 	mgtdev->ndev = NULL;
- 
--	mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
- }
- 
- static const struct vdpa_mgmtdev_ops mdev_ops = {
+> > > -               break;
+> > > -       }
+
 -- 
-2.45.1
+With Best Regards,
+Andy Shevchenko
+
 
