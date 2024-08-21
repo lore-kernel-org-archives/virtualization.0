@@ -1,123 +1,106 @@
-Received: from smtp.smtpout.orange.fr (smtp-25.smtpout.orange.fr [80.12.242.25])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5D4020ABFB
-	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 10:00:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EF0A2595
+	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 10:46:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724234445; cv=none; b=FJZ2tfJl5N6XJ1PTMP1WNBZEex8W2SpFvEYJXWQ054+QcwIxtKfsJEJya+mmPVxP/rV207g72AGwH5Q6sm+JP2oObte+ptD2T3RSsVdI4l1DwWaP4JrSH1EcnDdAIoPYaUw8/2YoSImnYmgIqvGyzP7oCkHG2VVTRqAfDX0SBNA=
+	t=1724237212; cv=none; b=pyRjp8qyzp5p7G9NrzpjKqA8KbLvmmSeQ57ASc1UYQaAnlAXPSm0QjX+HTMSmWskb8pMgfss7jlNrU+XBo11simgZwT/Wqwx2MjsOmAeYP9pi0n8vXfx5f26tIYG+XWTn5pSx+fX6CzWVyhUOEEMjXkMXpgLDeJzJRNW10NZqpw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724234445; c=relaxed/simple;
-	bh=xNUZvZ/XGFquQ7bcR8kjzWBjJpgTgvtWAUsduWt4sgQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QQA9wCScfYLOzSa/CG+l1UPWMWKn+ebNR9/yC4cR/iQSkfV2VYqSGjCM7y4XHnQXhlE7pZ3jGqx+5SGCSy+22XLxQWwj9QWLJwnbgOIIJ4UibqU3JXf3v8M5J5WWNHvga5mDoV2AHRTAohAULoX12lhdIaII/tMauafuO9Im760=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=QxT2yLCS; arc=none smtp.client-ip=80.12.242.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
+	s=arc-20240116; t=1724237212; c=relaxed/simple;
+	bh=9FeuuXI4EZQyCXxa5RvlFM0XJ3GXJI0SvHTGEx7u2KU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=guBzW1g5Em8pLptirxFrksG8QwuFTLbJJLVD0N+2wTG3iZjqJQQZU9D1pqYQw+x7ehLMgL/F3P6ZasVTL3q4Lc149fRlGQDnkDHqTx8cQTqGc9EfEbQADsYue09ln2V8nQ2xf38PJrBdzBbgxaI6K0ELg62M6glOv1gDe97LrVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fHiDdfDh; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="QxT2yLCS"
-Received: from [192.168.1.37] ([90.11.132.44])
-	by smtp.orange.fr with ESMTPA
-	id gi8bsVe5vQYYugi8bs0j4Z; Wed, 21 Aug 2024 12:00:35 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1724234435;
-	bh=w6AIYrBySrGuhkddExNCWqzXmH7gBMeTgtXfKwkDmGI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From;
-	b=QxT2yLCSf3emNohfH/QMtChqPSQqqWCz+jg4/sJ1vsmTOCfCHpgaAvyqx/WbsPUgZ
-	 j0w3Ifi/pO/A9j3NexJSl4xUQGdgAwPSojkhWMogfJYjmNkm75D5FBLvWvzBfsoLnx
-	 RtgE/n5BJ2UFiEIPD8sFOVl2YVWvD1WoFHghd/fnChM3vrdlWGJ60YZx+cSO1POKe/
-	 UrZjsxDAjN7K04ZUGLvQezWqRv7RkY5CN3xSXxVmxM1ACtkvF+GMWCeH8yp3vLp82I
-	 DfoFXgyExAGvtjtoSmSR/NevfVwszwgh3H/mUaKphifhnf+W+FZJJpCz9TpFGY61l8
-	 ZEZ3P0e9kIg0Q==
-X-ME-Helo: [192.168.1.37]
-X-ME-Auth: bWFyaW9uLmphaWxsZXRAd2FuYWRvby5mcg==
-X-ME-Date: Wed, 21 Aug 2024 12:00:35 +0200
-X-ME-IP: 90.11.132.44
-Message-ID: <40db668d-8e8b-4782-8a0b-4a0e9965f086@wanadoo.fr>
-Date: Wed, 21 Aug 2024 12:00:20 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fHiDdfDh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724237209;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NnDQPRlHUu+m1MVYxJps7H8/jGul4yAKMhgTwsJQD7E=;
+	b=fHiDdfDh5nKlxjQ0UsEAnJWsTgMIj59TnTQtuWjmelkYf84llOJRl+dZQp4WF34qo95IEC
+	uBbLWu4BvOpczsSB8r56lKulOMiYka3YUU742kyot9fA5mT4bDWzdr20KYZouKged8tJDo
+	Nueh2bBaF/RUVm57FekaF3dxvBC6qQ4=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-641-1F5n2u2jOYGanqef0Xzclw-1; Wed,
+ 21 Aug 2024 06:46:47 -0400
+X-MC-Unique: 1F5n2u2jOYGanqef0Xzclw-1
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AE9551954B31;
+	Wed, 21 Aug 2024 10:46:45 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.194.20])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CCA491955F6E;
+	Wed, 21 Aug 2024 10:46:44 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+	id 6B04918011E8; Wed, 21 Aug 2024 12:46:42 +0200 (CEST)
+Date: Wed, 21 Aug 2024 12:46:42 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Jocelyn Falempe <jfalempe@redhat.com>
+Cc: David Airlie <airlied@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, 
+	virtualization@lists.linux.dev, Javier Martinez Canillas <javierm@redhat.com>
+Subject: Re: [PATCH v2 2/2] drm/virtio: Fix host color format for big endian
+ guests
+Message-ID: <6ucdrw6nci2bbcw5fcwr34iisbweoety7w6f3ptfzrbqzr45ye@ys3knpm3o43h>
+References: <20240820090908.151042-1-jfalempe@redhat.com>
+ <20240820090908.151042-2-jfalempe@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/9] vdpa: solidrun: Fix potential UB bug with devres
-To: Philipp Stanner <pstanner@redhat.com>
-Cc: alexandre.torgue@foss.st.com, alvaro.karsz@solid-run.com,
- andy@kernel.org, axboe@kernel.dk, bhelgaas@google.com, brgl@bgdev.pl,
- broonie@kernel.org, christophe.jaillet@wanadoo.fr, corbet@lwn.net,
- davem@davemloft.net, dlechner@baylibre.com, dlemoal@kernel.org,
- edumazet@google.com, eperezma@redhat.com, hao.wu@intel.com, hare@suse.de,
- jasowang@redhat.com, joabreu@synopsys.com, kbusch@kernel.org,
- kuba@kernel.org, linus.walleij@linaro.org,
- linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-fpga@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
- mcoquelin.stm32@gmail.com, mdf@kernel.org, mst@redhat.com,
- netdev@vger.kernel.org, pabeni@redhat.com, richardcochran@gmail.com,
- stable@vger.kernel.org, trix@redhat.com, u.kleine-koenig@pengutronix.de,
- virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
- yilun.xu@intel.com
-References: <20240821071842.8591-2-pstanner@redhat.com>
- <20240821071842.8591-9-pstanner@redhat.com>
-Content-Language: en-US, fr-FR
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-In-Reply-To: <20240821071842.8591-9-pstanner@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240820090908.151042-2-jfalempe@redhat.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Le 21/08/2024 à 09:18, Philipp Stanner a écrit :
-> In psnet_open_pf_bar() a string later passed to pcim_iomap_regions() is
-> placed on the stack. Neither pcim_iomap_regions() nor the functions it
-> calls copy that string.
+On Tue, Aug 20, 2024 at 11:07:41AM GMT, Jocelyn Falempe wrote:
+> The colors are inverted when testing a s390x VM on a s390x host.
+> Changing the conversion from DRM_FORMAT -> VIRTIO_GPU_FORMAT on big
+> endian guests fixes the colors. But it may break big-endian guest on
+> little-endian host. In this case, the fix should be in qemu, because
+> the host endianess is not known in the guest VM.
 > 
-> Should the string later ever be used, this, consequently, causes
-> undefined behavior since the stack frame will by then have disappeared.
-> 
-> Fix the bug by allocating the string on the heap through
-> devm_kasprintf().
-> 
-> Cc: stable@vger.kernel.org	# v6.3
-> Fixes: 51a8f9d7f587 ("virtio: vdpa: new SolidNET DPU driver.")
-> Reported-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> Closes: https://lore.kernel.org/all/74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanadoo.fr/
-> Suggested-by: Andy Shevchenko <andy@kernel.org>
-> Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+> Acked-by: Javier Martinez Canillas <javierm@redhat.com>
 > ---
->   drivers/vdpa/solidrun/snet_main.c | 7 +++++--
->   1 file changed, 5 insertions(+), 2 deletions(-)
+>  drivers/gpu/drm/virtio/virtgpu_plane.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
-> index 99428a04068d..4d42a05d70fc 100644
-> --- a/drivers/vdpa/solidrun/snet_main.c
-> +++ b/drivers/vdpa/solidrun/snet_main.c
-> @@ -555,7 +555,7 @@ static const struct vdpa_config_ops snet_config_ops = {
->   
->   static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index 860b5757ec3fc..0ec6ecc96eb13 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -37,16 +37,24 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
+>  	DRM_FORMAT_ARGB8888,
+>  };
+>  
+> +#ifdef __BIG_ENDIAN
+> +#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM
+> +#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM
+> +#else
+> +#define VIRTIO_GPU_HOST_XRGB8888 VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM
+> +#define VIRTIO_GPU_HOST_ARGB8888 VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM
+> +#endif
 
-snet_open_vf_bar() also needs the same modification (see Andy's comment 
-on patch 8/9)
+VIRTIO_GPU_FORMAT_* is little endian (like DRM_FORMAT_*), there should
+be no need to do anything byte order specific here.  This looks like you
+are papering over a bug somewhere else.
 
-CJ
-
->   {
-> -	char name[50];
-> +	char *name;
->   	int ret, i, mask = 0;
->   	/* We don't know which BAR will be used to communicate..
->   	 * We will map every bar with len > 0.
-> @@ -573,7 +573,10 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
->   		return -ENODEV;
->   	}
->   
-> -	snprintf(name, sizeof(name), "psnet[%s]-bars", pci_name(pdev));
-> +	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-bars", pci_name(pdev));
-> +	if (!name)
-> +		return -ENOMEM;
-> +
->   	ret = pcim_iomap_regions(pdev, mask, name);
->   	if (ret) {
->   		SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
+take care,
+  Gerd
 
