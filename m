@@ -1,184 +1,298 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E99116B3B7
-	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 12:26:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE43178395
+	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 12:30:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724243169; cv=none; b=SLe4wIbb8I3VoHkZ/YbY9GYn1zZyFLB7XWry+0GcPXWFhGH3Yrb83nuWtAjsJRqi/JUcCCLjntLVYsMMV5LIEKBlGBVVzERoZR9lIpExzQ6A/xhp3/ONccxXK/7Z6tcI9De9ibuxWrRjqgQThfwdXo/762zkwe8pH0bIR46iwCE=
+	t=1724243458; cv=none; b=W849FdaBd8IraSHY0E/02EH7d0jdVhVC5SbuGHal5DoulbJ9bwPN8PTsBsH68zZiFBZoenEM2ua5OYB2geaDB9/MAhQ4e5bTjiqBQX6BXmNSWFwiud2bAoyIXGN8u5SR6xb+PXQo3/Lphw2h/jSnkaUDUFIZAqdl7mOKvb68imE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724243169; c=relaxed/simple;
-	bh=kW2VqGrolN/VEoRIr+pu9F37y2nTmIqDv+Snge4AAqg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KFsZm33hmtfWQqyFLz5kD/0vUZZyjJGqKYmy2wnuXDG6TnhhAG7u0PqpUGg2CtLsL6OSYLob+Ww3lX5ZfpZ5Iw5lPM3FebU+43/UqfIELK2mnnUuvOfBWpKkrHs61ZPenAYK8p6XXEW/Q8QvR7EdmcS+OCkz82YrIiz6oIv4mQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e/qZqaCS; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e/qZqaCS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724243165;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kW2VqGrolN/VEoRIr+pu9F37y2nTmIqDv+Snge4AAqg=;
-	b=e/qZqaCSvFNCWfptF/YkL18R0ShKsiuqGE6cOjxSlyMuIbgKEEPxci85tJccc+diT8KLV5
-	/L7WNPLR3BgH9VlzOEm4/S2hxoMe5h7GG1v26hLeFRx8O6vdw0aFDtI3yeslQoVwTE4a+e
-	SwlbnvYwb2UGk6xz3V9EiRyhXG/+F48=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-480-IVHzILHUO-GYzQE4pWo8vA-1; Wed, 21 Aug 2024 08:26:04 -0400
-X-MC-Unique: IVHzILHUO-GYzQE4pWo8vA-1
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6bf8d9867a3so42566476d6.1
-        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 05:26:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724243164; x=1724847964;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=F+8Zd9p9xEaFFxq9bSwT6CVTjqvDBBcELEezra/NBmQ=;
-        b=d58PCkwu/j7xfsMoTS6RloavLZ3t0opOkbncSb+fTfg5qA/FxR8web648+KHEPvOAg
-         sX7Ncbn5E1FoZSXB+QJ60JzK1dB4WQfZvzs3JdPW9NO56b9Jc6G2xfHqb8pCtXYsn+UX
-         vU22cGHjJ9QQrVy+FjwD6pd/H9kpQykvIjoaLfA/251RAXC9aBEtiwb0Rfc/4bPwaUOZ
-         rI74sdEA1qq23bRGt5FSH3CdtnfWXf6bjCOD8+AhCJunwD4mvT154iCgWQg4RAX6YrmT
-         xNCTeFkUBv/XWcZ6hhqntMsLhRkWYguYnBnPfOFBpHsd3lU1JMcDVRMxIlhlxFntyTG7
-         iG7g==
-X-Forwarded-Encrypted: i=1; AJvYcCV9NQNCrIHTc27sMrqjg0INsiHIK2gvHFfLt5c33EeqvsMlOhAhbAkyAxbAIJkdfC3c0fDczN8T7p32g0d3yg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwX0uXRqSf73KDOe6RErw2dSlEmrsTQbEWNctr0VTlbiguc4162
-	pWoZxplV83kfGhtPSOI4V+5/Dbj8+Bg5VeSpXXDT3ndGP8bE6OYoi/6jTA2dieiwtYdf5FF5OTt
-	9/iJMErjZN240X1ZnFMPU1sGbHPLEwdUjXRZ5jOXEQwCSYUnaVLeYvlc/MljyA/SX
-X-Received: by 2002:a05:6214:4881:b0:6bf:a721:9945 with SMTP id 6a1803df08f44-6c1567fabf5mr30554726d6.24.1724243163962;
-        Wed, 21 Aug 2024 05:26:03 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG0sBOMGGLa2XcF/yRLMaOTYNrH07fkAWiC1e2c/uh8oASqBZoK+O1goCyf57ZnaX9oaF0YiA==
-X-Received: by 2002:a05:6214:4881:b0:6bf:a721:9945 with SMTP id 6a1803df08f44-6c1567fabf5mr30554416d6.24.1724243163535;
-        Wed, 21 Aug 2024 05:26:03 -0700 (PDT)
-Received: from dhcp-64-164.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6bf6ff0dcdasm60220946d6.140.2024.08.21.05.25.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Aug 2024 05:26:03 -0700 (PDT)
-Message-ID: <cf9591d720c9b25dafd46b627ff8b6ed9f417745.camel@redhat.com>
-Subject: Re: [PATCH v2 7/9] vdpa: solidrun: Fix potential UB bug with devres
-From: Philipp Stanner <pstanner@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>, Wu Hao
- <hao.wu@intel.com>, Tom Rix <trix@redhat.com>, Moritz Fischer
- <mdf@kernel.org>,  Xu Yilun <yilun.xu@intel.com>, Andy Shevchenko
- <andy@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz
- Golaszewski <brgl@bgdev.pl>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,  Paolo
- Abeni <pabeni@redhat.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Jose Abreu <joabreu@synopsys.com>, Maxime Coquelin
- <mcoquelin.stm32@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, Alvaro
- Karsz <alvaro.karsz@solid-run.com>, Jason Wang <jasowang@redhat.com>, Xuan
- Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
- <eperezma@redhat.com>, Richard Cochran <richardcochran@gmail.com>, Mark
- Brown <broonie@kernel.org>, David Lechner <dlechner@baylibre.com>, Uwe
- =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Damien Le
- Moal <dlemoal@kernel.org>,  Hannes Reinecke <hare@suse.de>, Keith Busch
- <kbusch@kernel.org>, linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
- linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
- netdev@vger.kernel.org,  linux-stm32@st-md-mailman.stormreply.com,
- linux-arm-kernel@lists.infradead.org,  linux-pci@vger.kernel.org,
- virtualization@lists.linux.dev,  stable@vger.kernel.org, Christophe JAILLET
- <christophe.jaillet@wanadoo.fr>
-Date: Wed, 21 Aug 2024 14:25:57 +0200
-In-Reply-To: <20240821081213-mutt-send-email-mst@kernel.org>
-References: <20240821071842.8591-2-pstanner@redhat.com>
-	 <20240821071842.8591-9-pstanner@redhat.com>
-	 <20240821081213-mutt-send-email-mst@kernel.org>
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
+	s=arc-20240116; t=1724243458; c=relaxed/simple;
+	bh=oz/jfZaFSmvJqx6w/vsYoeXpQ5+JrJ81yoV9tPzH1xA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=QrN7boDBHp/BhW6/RUA04MnGxoO/pI+mNuFdiCSEZ6B7RC7yHNkcbD96taNV7GsRtP9g20hXr0c6CnsqcgzPso/ahcGYGd75ZegX5/jECHXC0cTfQ8OCzBiEZcAkqio83hCYHQlKHzuGTc+AtcTIEu6CxMOQp4AaVpMYMgqZIV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.105])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Wply83bHMzpTXZ;
+	Wed, 21 Aug 2024 20:29:20 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id EF9A9140138;
+	Wed, 21 Aug 2024 20:30:51 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Wed, 21 Aug 2024 20:30:51 +0800
+Message-ID: <ec27c801-db0a-4e57-b0bd-03a695e70e56@huawei.com>
+Date: Wed, 21 Aug 2024 20:30:51 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v13 04/14] mm: page_frag: add '_va' suffix to
+ page_frag API
+To: Alexander Duyck <alexander.duyck@gmail.com>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Subbaraya Sundeep
+	<sbhatta@marvell.com>, Chuck Lever <chuck.lever@oracle.com>, Sagi Grimberg
+	<sagi@grimberg.me>, Jeroen de Borst <jeroendb@google.com>, Praveen
+ Kaligineedi <pkaligineedi@google.com>, Shailend Chand <shailend@google.com>,
+	Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Sunil Goutham
+	<sgoutham@marvell.com>, Geetha sowjanya <gakula@marvell.com>, hariprasad
+	<hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
+	<sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
+ Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
+ Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
+	<hch@lst.de>, Chaitanya Kulkarni <kch@nvidia.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Daniel
+ Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko
+	<andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
+ Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
+	<yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav Fomichev
+	<sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga
+ Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
+	<tom@talpey.com>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
+	<anna@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	<intel-wired-lan@lists.osuosl.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-mm@kvack.org>, <bpf@vger.kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
+References: <20240808123714.462740-1-linyunsheng@huawei.com>
+ <20240808123714.462740-5-linyunsheng@huawei.com>
+ <d1a23116d054e2ebb00067227f0cffecefe33e11.camel@gmail.com>
+ <676a2a15-d390-48a7-a8d7-6e491c89e200@huawei.com>
+ <CAKgT0Uct5ptfs9ZEoe-9u-fOVz4HLf+5MS-YidKV+xELCBHKNw@mail.gmail.com>
+ <3e069c81-a728-4d72-a5bb-3be00d182107@huawei.com>
+ <CAKgT0UcDDFeMqD_eRe1-2Og0GEEFyNP90E9SDxDjskdgtMe0Uw@mail.gmail.com>
+ <98ceade3-8d60-45bf-a419-ff3982a96101@huawei.com>
+ <CAKgT0Uc+e3MUb4CK1i7H7F=y-fHTxiGF8zddBFiqFRdbd6ofLg@mail.gmail.com>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <CAKgT0Uc+e3MUb4CK1i7H7F=y-fHTxiGF8zddBFiqFRdbd6ofLg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On Wed, 2024-08-21 at 08:12 -0400, Michael S. Tsirkin wrote:
-> On Wed, Aug 21, 2024 at 09:18:40AM +0200, Philipp Stanner wrote:
-> > In psnet_open_pf_bar() a string later passed to
-> > pcim_iomap_regions() is
-> > placed on the stack. Neither pcim_iomap_regions() nor the functions
-> > it
-> > calls copy that string.
-> >=20
-> > Should the string later ever be used, this, consequently, causes
-> > undefined behavior since the stack frame will by then have
-> > disappeared.
-> >=20
-> > Fix the bug by allocating the string on the heap through
-> > devm_kasprintf().
-> >=20
-> > Cc: stable@vger.kernel.org=09# v6.3
-> > Fixes: 51a8f9d7f587 ("virtio: vdpa: new SolidNET DPU driver.")
-> > Reported-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> > Closes:
-> > https://lore.kernel.org/all/74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanado=
-o.fr/
-> > Suggested-by: Andy Shevchenko <andy@kernel.org>
-> > Signed-off-by: Philipp Stanner <pstanner@redhat.com>
->=20
-> I don't get why is this a part of a cleanup series -
-> looks like an unrelated bugfix?
+On 2024/8/21 0:02, Alexander Duyck wrote:
+> On Tue, Aug 20, 2024 at 6:07 AM Yunsheng Lin <linyunsheng@huawei.com> wrote:
+>>
+>> On 2024/8/19 23:54, Alexander Duyck wrote:
+>>
+>> ...
+>>
+>>>>>>
+>>>>>> "There are three types of API as proposed in this patchset instead of
+>>>>>> two types of API:
+>>>>>> 1. page_frag_alloc_va() returns [va].
+>>>>>> 2. page_frag_alloc_pg() returns [page, offset].
+>>>>>> 3. page_frag_alloc() returns [va] & [page, offset].
+>>>>>>
+>>>>>> You seemed to miss that we need a third naming for the type 3 API.
+>>>>>> Do you see type 3 API as a valid API? if yes, what naming are you
+>>>>>> suggesting for it? if no, why it is not a valid API?"
+>>>>>
+>>>>> I didn't. I just don't see the point in pushing out the existing API
+>>>>> to support that. In reality 2 and 3 are redundant. You probably only
+>>>>> need 3. Like I mentioned earlier you can essentially just pass a
+>>>>
+>>>> If the caller just expect [page, offset], do you expect the caller also
+>>>> type 3 API, which return both [va] and [page, offset]?
+>>>>
+>>>> I am not sure if I understand why you think 2 and 3 are redundant here?
+>>>> If you think 2 and 3 are redundant here, aren't 1 and 3 also redundant
+>>>> as the similar agrument?
+>>>
+>>> The big difference is the need to return page and offset. Basically to
+>>> support returning page and offset you need to pass at least one value
+>>> as a pointer so you can store the return there.
+>>>
+>>> The reason why 3 is just a redundant form of 2 is that you will
+>>> normally just be converting from a va to a page and offset so the va
+>>> should already be easily accessible.
+>>
+>> I am assuming that by 'easily accessible', you meant the 'va' can be
+>> calculated as below, right?
+>>
+>> va = encoded_page_address(encoded_va) +
+>>                 (page_frag_cache_page_size(encoded_va) - remaining);
+>>
+>> I guess it is easily accessible, but it is not without some overhead
+>> to calculate the 'va' here.
+> 
+> It is just the encoded_page_address + offset that you have to
+> calculate anyway. So the only bit you actually have to do is 2
+> instructions, one to mask the encoded_va and then the addition of the
+> offset that you provided to the page. As it stands those instruction
+> can easily be slipped in while you are working on converting the va to
+> a page.
 
-It was discovered in the discussion of v1 of this series.
+Well, with your suggestions against other optimizations like avoiding
+a checking in fast patch and avoid calling virt_to_page(), the overhead
+is kind of added up.
 
-It indeed is an unrelated bugfix and could be merged separately. But my
-patch #8 depends on it.
+And I am really surprised by your above suggestion about deciding the
+API for users according to the internal implementation detail here. As
+the overhead of calculating 'va' is really depending on the layout of
+'struct page_frag_cache' here, what if we change the implementation and
+the overhead of calculating 'va' becomes bigger? Do we expect to change
+the API for the callers when we change the internal implementation of
+page_frag_cache?
 
-So it would be convenient to merge it into mainline through this
-series, and have stable just pick patch #7.
+> 
+> 
+>>>
+>>>>> page_frag via pointer to the function. With that you could also look
+>>>>> at just returning a virtual address as well if you insist on having
+>>>>> something that returns all of the above. No point in having 2 and 3 be
+>>>>> seperate functions.
+>>>>
+>>>> Let's be more specific about what are your suggestion here: which way
+>>>> is the prefer way to return the virtual address. It seems there are two
+>>>> options:
+>>>>
+>>>> 1. Return the virtual address by function returning as below:
+>>>> void *page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio);
+>>>>
+>>>> 2. Return the virtual address by double pointer as below:
+>>>> int page_frag_alloc_bio(struct page_frag_cache *nc, struct bio_vec *bio,
+>>>>                         void **va);
+>>>
+>>> I was thinking more of option 1. Basically this is a superset of
+>>> page_frag_alloc_va that is also returning the page and offset via a
+>>> page frag. However instead of bio_vec I would be good with "struct
+>>> page_frag *" being the value passed to the function to play the role
+>>> of container. Basically the big difference between 1 and 2/3 if I am
+>>> not mistaken is the fact that for 1 you pass the size, whereas with
+>>> 2/3 you are peeling off the page frag from the larger page frag cache
+>>
+>> Let's be clear here: The callers just expecting [page, offset] also need
+>> to call type 3 API, which return both [va] and [page, offset]? and it
+>> is ok to ignore the overhead of calculating the 'va' for those kinds
+>> of callers just because we don't want to do the renaming for a existing
+>> API and can't come up with good naming for that?
+>>
+>>> after the fact via a commit type action.
+>>
+>> Just be clear here, there is no commit type action for some subtype of
+>> type 2/3 API.
+>>
+>> For example, for type 2 API in this patchset, it has below subtypes:
+>>
+>> subtype 1: it does not need a commit type action, it just return
+>>            [page, offset] instead of page_frag_alloc_va() returning [va],
+>>            and it does not return the allocated fragsz back to the caller
+>>            as page_frag_alloc_va() does not too:
+>> struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
+>>                                 unsigned int *offset, unsigned int fragsz,
+>>                                 gfp_t gfp)
+>>
+>> subtype 2: it does need a commit type action, and @fragsz is returned to
+>>            the caller and caller used that to commit how much fragsz to
+>>            commit.
+>> struct page *page_frag_alloc_pg_prepare(struct page_frag_cache *nc,
+>>                                         unsigned int *offset,
+>>                                         unsigned int *fragsz, gfp_t gfp)
+>>
+>> Do you see subtype 1 as valid API? If no, why?
+> 
+> Not really, it is just a wrapper for page_frag_alloc that is
+> converting the virtual address to a page and offset. They are the same
+> data and don't justify the need for two functions. It kind of explains
 
-Or should it be done differently, in your opinion?
+I am supposing you meant something like below:
+struct page *page_frag_alloc_pg(struct page_frag_cache *nc,
+				unsigned int *offset, unsigned int fragsz,
+				gfp_t gfp)
+{
+	struct page *page;
+	void *va;
 
-P.
+	va = page_frag_alloc_va(nc, fragsz, gfp);
+	if (!va)
+		return NULL;
 
->=20
->=20
-> > ---
-> > =C2=A0drivers/vdpa/solidrun/snet_main.c | 7 +++++--
-> > =C2=A01 file changed, 5 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/vdpa/solidrun/snet_main.c
-> > b/drivers/vdpa/solidrun/snet_main.c
-> > index 99428a04068d..4d42a05d70fc 100644
-> > --- a/drivers/vdpa/solidrun/snet_main.c
-> > +++ b/drivers/vdpa/solidrun/snet_main.c
-> > @@ -555,7 +555,7 @@ static const struct vdpa_config_ops
-> > snet_config_ops =3D {
-> > =C2=A0
-> > =C2=A0static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet
-> > *psnet)
-> > =C2=A0{
-> > -=09char name[50];
-> > +=09char *name;
-> > =C2=A0=09int ret, i, mask =3D 0;
-> > =C2=A0=09/* We don't know which BAR will be used to communicate..
-> > =C2=A0=09 * We will map every bar with len > 0.
-> > @@ -573,7 +573,10 @@ static int psnet_open_pf_bar(struct pci_dev
-> > *pdev, struct psnet *psnet)
-> > =C2=A0=09=09return -ENODEV;
-> > =C2=A0=09}
-> > =C2=A0
-> > -=09snprintf(name, sizeof(name), "psnet[%s]-bars",
-> > pci_name(pdev));
-> > +=09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
-> > bars", pci_name(pdev));
-> > +=09if (!name)
-> > +=09=09return -ENOMEM;
-> > +
-> > =C2=A0=09ret =3D pcim_iomap_regions(pdev, mask, name);
-> > =C2=A0=09if (ret) {
-> > =C2=A0=09=09SNET_ERR(pdev, "Failed to request and map PCI
-> > BARs\n");
-> > --=20
-> > 2.46.0
->=20
+	page = virt_to_head_page(va);
+	*offset = va - page_to_virt(page);
 
+	return page;
+}
+
+If yes, I really think you are caring about maintainability too much by
+trading off too much performance here by not only recalculating the offset
+here, but also sometimes calling virt_to_head_page() unnecessarily.
+
+If no, please share the pseudo code in your mind.
+
+> one of the complaints I had about this code. Supposedly it was
+> refactoring and combining several different callers into one, but what
+> it is actually doing is fracturing the code path into 3 different
+> variants based on little if any actual difference as it is doing
+> unnecessary optimization.
+
+I am supposing the 3 different variants meant the below, right?
+1. page_frag_alloc_va() returns [va].
+2. page_frag_alloc_pg() returns [page, offset].
+3. page_frag_alloc() returns [va] & [page, offset].
+
+And there is others 3 different variants for prepare API too:
+4. page_frag_alloc_va_prepare() returns [va].
+5. page_frag_alloc_pg_prepare() returns [page, offset].
+6. page_frag_alloc_prepare() returns [va] & [page, offset].
+
+Side note: I just found the '4. page_frag_alloc_va_prepare()' API is
+not used/called currently and can be removed in next revision for this
+patchset.
+
+It seems what you really want is 3 & 2 to be a wrapper for 1, and
+5 & 6 to be a wrapper for 4?
+
+If yes, too much performance is traded off here as my understanding.
+Does't the introducing of __page_frag_cache_reload() already enable the
+balance between performance and maintainability as much as possible in
+patch 8?
+
+> 
+>> If yes, do you also expect the caller to use "struct page_frag *" as the
+>> container? If yes, what is the caller expected to do with the size field in
+>> "struct page_frag *" from API perspective? Just ignore it?
+> 
+> It should be populated. You passed a fragsz, so you should populate
+> the output fragsz so you can get the truesize in the case of network
+> packets. The removal of the page_frag from the other callers is making
+> it much harder to review your code anyway. If we keep the page_frag
+> there it should reduce the amount of change needed when you replace
+> page_frag with the page_frag_cache.
+
+I am not starting to use page_frag as the container yet, but the above
+part is something that I am probably agreed with.
+
+> 
+> Honestly this is eating up too much of my time. As I said before this
+> patch set is too big and it is trying to squeeze in more than it
+> really should for a single patch set to be reviewable. Going forward
+> please split up the patch set as I had suggested before and address my
+> comments. Ideally you would have your first patch just be some
+> refactor and cleanup to get the "offset" pointer moving in the
+> direction you want. With that we can at least get half of this set
+> digested before we start chewing into all this refactor for the
+> replacement of page_frag with the page_frag_cache.
+
+I don't really think breaking this patchset into more patchsets without
+a newcase is helping to speed up the process here, it might slow down
+the process instead, as the different idea about the refactoring and
+new API naming is not going to disappear by breaking the patchset, and
+the breaking may make the discussion harder without a bigger picture
+and context.
