@@ -1,101 +1,203 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F7ED1CC8B0
-	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 11:13:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724238790; cv=none; b=Ml+3ogY68Ls4wNU+jtcubp30XDUpwAryxFjz130AzVtpuJ1oWDw27CEWqWvmfiirwB3HEnTsGNvrKSjLNGlFzSO1F16EUpQiHkeASzyeCaGaotfeNKf8GoHdWftbXxS3Ld3nf6jdJTXsqZkN5yxkX4HotV/crny6C0pg5q3gl8w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724238790; c=relaxed/simple;
-	bh=r6mHEJFC11cWpMa9HdEzfQxGn0eqXVqJhUHmRZjYxME=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=fcnbfDOqxyz92kf6UA/fPny2KfbUodn1GnBCOkmg1c8iLcoFBYdZHUIu0j2P/PDlrtTRVuNQieuh+NkRteYzMi5IUNvZrr1BwAtrQekJF7psgxpiH49I8qx3MAIwA/n6LLCVJ6APZuaK7NmPzmN+vRxGFplSJdjg6wDmJY/oqqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fLQsFMr/; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B86D1A7AC8
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 11:41:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724240509; cv=fail; b=J+R4bfPwbQYZI9De/RYPTxQT0zPHM76zyYhRpVMvNyK2mgIie2QqAYvjuhvL82WFx87LzmNSKrNCENa69vz8deKozuf/k44RbTfPdtZ9SCWTUTLvmOq4WQxQV3WBk6ov2PWIbdFUUliJ0HfWPj7uyohZyXdvIBysOE5QDf0X490=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724240509; c=relaxed/simple;
+	bh=2a6QHscod92D5hWXROT7+iAX//sffO+pBeJj9zU2bn8=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NKRLgzzIi8paX2kEU43v75z7Bbx8TUD7pgYAAG/cWquntl/ZNjoyd7mIIX5XoxuoyMKOeeERVKB0nHIce76fCVhNlQN/dmnNWK9Ymsrq9M+01Mt7bssjCfWkHwEr9CcLB+TcOFnUH1Jhir7gMcEydhNZrHc9JLcJ0PybAPVuroE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=cbq/RRgO; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fLQsFMr/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724238788;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/SDEBiyKRt2AqbyfyUW10WSpqwacT1LCU6PVt4AZSwU=;
-	b=fLQsFMr/dNEHWS9LucIyNkqugHs81yf/FJ2pOGPPewqCtPsyyg1vToAbNSMYFBTQ99GAQc
-	svIKDkwI0Dw7ZEtuQEULvaAgEGSUB1vOIJ37B6jF08rFqMeg2IbdP0cxltWMarsHR7AZMf
-	0OpvLIFTucylmH7+BY7roWgrt9f2AL4=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-449-t639QBg8Nm2YgEOIhDQ69g-1; Wed,
- 21 Aug 2024 07:13:02 -0400
-X-MC-Unique: t639QBg8Nm2YgEOIhDQ69g-1
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 316EF1955BFC;
-	Wed, 21 Aug 2024 11:13:01 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.194.20])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1AA17300019C;
-	Wed, 21 Aug 2024 11:13:00 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
-	id D8E3A18011E8; Wed, 21 Aug 2024 13:12:57 +0200 (CEST)
-Date: Wed, 21 Aug 2024 13:12:57 +0200
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Jocelyn Falempe <jfalempe@redhat.com>
-Cc: David Airlie <airlied@redhat.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, Javier Martinez Canillas <javierm@redhat.com>
-Subject: Re: [PATCH v2 1/2] drm/virtio: Use XRGB8888 also for big endian
- systems
-Message-ID: <2734s7h2c4tbtwzdlijbf7u3fvdcqtlcdipamsf4pf6jgx2slt@aq5bm3fuqgkz>
-References: <20240820090908.151042-1-jfalempe@redhat.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="cbq/RRgO"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0CB18401B1
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 11:41:48 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 8FSevoOe57Sk for <virtualization@lists.linux-foundation.org>;
+ Wed, 21 Aug 2024 11:41:47 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2009::62f; helo=nam10-bn7-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9F7424018A
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F7424018A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=cbq/RRgO
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2062f.outbound.protection.outlook.com [IPv6:2a01:111:f403:2009::62f])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F7424018A
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Aug 2024 11:41:46 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=rvhSUpUrduB8Qu9YRgCA2cJTwLtqb3mtHUk7ndcyNmLi+XoHe8o0l67yO/m5c/U0sXV7h+mmNRRgfgDEU/7nDYz704Xd3yKjP3g6yQkYIbGGDxB5UzwBBlhEIpoIvy7kxOGmrPV5r2Bds5TZ02Jqtx7mkvQViqxDbC8hB5a58Ml5GtcTGP7GZMhu1QpW70+Nh5RyAJIv6QbdUJMcbdyA6aCNjuBQiqhFZv+1XOIZzrJdL7Uea1EJHE3t+3ZF0+xwEQFdPf7xX4w5WwQaFKf6wihEqkqEZRPboeNn+7mmj+BWkhnK4NKIi3/JeFvJktei/H3GaUopcFEiq4YMZxPx0g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=S3Sqg0EI5z7707p6hh+yzr98PaapwkNd/2wOsUOC0+E=;
+ b=fmIzGBz58jkyL/H2fLPDXNxQ7okmU3Dz+bMJDq5JU42JwuZrKMfFE4AmO7vA1Bl6rZXGOYfq+FYzYpQev6MAwONDonV1p+Wl9ZhW6uQD356MZmDEm3C87q0Uj4ZqwPKfFo/oDswxyzfdYBZWTrsTojKF3cEZ+ZL+eMzkrTvKuiT+l+mVuLwY3f9QAl84hzAxR3js7XgFpbkPcp4i1ALne7StSa1V2zOQJiHlPegg5HX2Pz3fZpGHt1v85p+S12Dyr9R4I2fRDPQbJLeWsvnMePPN6Evkcwmw3g7y+M53Dp8AsJmLi5y0C0nHxt+3c7IyQeC8JwJLCaQIzpnze7jEgg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=S3Sqg0EI5z7707p6hh+yzr98PaapwkNd/2wOsUOC0+E=;
+ b=cbq/RRgOVgVY/tTjRrFgFwv9ZDqPIaVjf2b9mN1jGf5hKKdkRLulhZ+ajt6Zv/ubjn6WVyGRgPdZGA30hFUrBQmpcSjRh3qftUuqy6jftpbuYzdp3SvtW3LnfOOiZJv4McnaGvLBgIieB/yVqbWUXSXbUkbtyxF4kykU/KhJaaBK4X/CKC7hQ5tf0XleW+IWm+rTNr527C6gaMa2B4aaKBnZZTrn5mM0FTvQ7e93xbyHaVbWwHpfVBfYtQxNPI5A0sQCVJ4h4hWu/gbV1Onqyr6WeUWqPmt5T0iBGzrgHgW9JaBhfiox/cX4Ye1UzQYpwjKNRcHpyaoJeydErghuQg==
+Received: from BY3PR05CA0027.namprd05.prod.outlook.com (2603:10b6:a03:254::32)
+ by PH0PR12MB8097.namprd12.prod.outlook.com (2603:10b6:510:295::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.25; Wed, 21 Aug
+ 2024 11:41:41 +0000
+Received: from CO1PEPF000044EF.namprd05.prod.outlook.com
+ (2603:10b6:a03:254:cafe::78) by BY3PR05CA0027.outlook.office365.com
+ (2603:10b6:a03:254::32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7897.13 via Frontend
+ Transport; Wed, 21 Aug 2024 11:41:41 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ CO1PEPF000044EF.mail.protection.outlook.com (10.167.241.69) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7897.11 via Frontend Transport; Wed, 21 Aug 2024 11:41:41 +0000
+Received: from rnnvmail203.nvidia.com (10.129.68.9) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 21 Aug
+ 2024 04:41:28 -0700
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail203.nvidia.com
+ (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 21 Aug
+ 2024 04:41:27 -0700
+Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
+ mail.nvidia.com (10.129.68.8) with Microsoft SMTP Server id 15.2.1544.4 via
+ Frontend Transport; Wed, 21 Aug 2024 04:41:25 -0700
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu
+	<si-wei.liu@oracle.com>, <virtualization@lists.linux-foundation.org>, "Gal
+ Pressman" <gal@nvidia.com>
+CC: Dragos Tatulea <dtatulea@nvidia.com>, <kvm@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Parav Pandit <parav@nvidia.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost 0/7] vdpa/mlx5: Optimze MKEY operations
+Date: Wed, 21 Aug 2024 14:40:54 +0300
+Message-ID: <20240821114100.2261167-2-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.45.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240820090908.151042-1-jfalempe@redhat.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PEPF000044EF:EE_|PH0PR12MB8097:EE_
+X-MS-Office365-Filtering-Correlation-Id: 193123ba-e645-4df9-e607-08dcc1d63997
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|1800799024|36860700013|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?6Ci3D3aPMxKVzsrDPnFXXyDTOL82B4gYzXI3UadTwcNvu1d4QsyP3ROpfkGx?=
+ =?us-ascii?Q?KrD8pW0bgNxxnJ14+JacXMAp10+ikQIhGyKHUR24BK855TANKWUStrrIXR0O?=
+ =?us-ascii?Q?d9iKyfoXBsX7tLm3QGt584D5T5UbwRXoqES/9x27hS3gK5ZW3QMeM8ua33eX?=
+ =?us-ascii?Q?bk68mZxKtEmMhlT4cKuBHgEFTY5hi2O2NRE//nAoA7K1e5YCuL8k+9bYUJUr?=
+ =?us-ascii?Q?hEm2xjP8xYZMYANvY3ktDmt3wrHkwNiqMiDMlXwxaxWz4OBp7D8PEz6QyigI?=
+ =?us-ascii?Q?xPHtCjC3g3JDStiJAKR6zIhSx4vb45MkReQmw6fnwLMdbTdjRxuMgu7So7cJ?=
+ =?us-ascii?Q?hRyEg3uyw6hUv+AYk0jBeWutj5bitTyc+glc23NcpmjsJfqlLo53AdpcDegK?=
+ =?us-ascii?Q?duV8wf6GD1NMbKOWpLM6yy4IsXk2JxqxBchSUkn0hNdFsnB9m64dsSWe1sUM?=
+ =?us-ascii?Q?hzjeJ5xm5P9+BiG3DL1PHxUezwrpmo3BiqteaFV1iqGaRwumY0EIk+R3rIrT?=
+ =?us-ascii?Q?io23GocB90fgz/oWIfpJPARya5NqWIvIRYg1LtisbogLahkS2MHcrZxIZ1Ip?=
+ =?us-ascii?Q?UHuXYS3zY1Y/ZbJU4B/Iw3F/dSwHiNLpX2QJxUCBHOZ9yT/Zvr2pey4L8oRl?=
+ =?us-ascii?Q?Po0z9k7Vxmumuur7L60Vo+VRTUU3OaNx9NBO5f56PVmcMK7pC73IJFxq5a4K?=
+ =?us-ascii?Q?jziiDfp9C7T0UgvgvsUgB1K5iAr7CcB/j2/g3LTNmhTqAlNr2OaRYvrGSefI?=
+ =?us-ascii?Q?gqkZwccP0jV+cHWLi8VK48rBdKF0P+9lX5tPgrcFRyZY4EU6qJxLIkDTk48K?=
+ =?us-ascii?Q?v5G3ptJw7RGO6uH4iz1F07vQQuWmA7OkWLBSXfdHVTqHh8NJeWgwClOhFBpd?=
+ =?us-ascii?Q?cY6UgrodCshX2LzvModCsAf6mzdueqa4/QP3qWzFMP7XYguTzoZ6fQs31ASP?=
+ =?us-ascii?Q?MdS8JRDdKRIdb4qGzr/LZMLlm0l48R+9uQ77q++KK+M/ISDPccPRIngtg1vY?=
+ =?us-ascii?Q?knYspqLWFngh3ltA1ygf2US6n/C29bTqQEubZ6X7osL9s5RqVRaI06bbxXwL?=
+ =?us-ascii?Q?8Rq16jlMiLMuS2RFetjRRLu0mqgiB8HmEgvG29U+Lz5HA+XS4j6YjUJcYDDc?=
+ =?us-ascii?Q?PIprwnqa7xPFXbJZVtOF4mjpEX12VoBqbQEq1U4bDg7/lPGq8ppl1zb049x/?=
+ =?us-ascii?Q?EBQpid7fwXvn1a+XkCbQJNuEwm7Xf4QyelwII/DdmjLwKVmXsuPNHBAVKQ7j?=
+ =?us-ascii?Q?y12bF7wNWTGeUg/0F7pS4WhwmzMjKYxd7q89vZCe2CuowTpTN/Eo9nvAAytf?=
+ =?us-ascii?Q?aJg81OtZ0elVHY+NMO35fJ1RMTwun6PHIGFyIGDVKDmLo9VlU3ygcr8jDCSL?=
+ =?us-ascii?Q?OJ8bdM08PTfIgS/dbH0wKIbspwrmnetJIycEyQh34jmH4rdgbRBbKOz1mIxG?=
+ =?us-ascii?Q?A4RZKeM4nEs/ta27kiGzs638vuLb6v4u?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700013)(376014);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Aug 2024 11:41:41.2248
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 193123ba-e645-4df9-e607-08dcc1d63997
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CO1PEPF000044EF.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB8097
 
-On Tue, Aug 20, 2024 at 11:07:40AM GMT, Jocelyn Falempe wrote:
-> Mesa doesn't support BGRX8888, that means most wayland compositors
-> don't work on big endian guests.
+This series improves the time of .set_map() operations by parallelizing
+the MKEY creation and deletion for direct MKEYs. Looking at the top
+level MKEY creation/deletion functions, the following improvement can be
+seen:
 
-So you are doing a hard switch from native endian to little endian.
+|-------------------+-------------|
+| operation         | improvement |
+|-------------------+-------------|
+| create_user_mr()  | 3-5x        |
+| destroy_user_mr() | 8x          |
+|-------------------+-------------|
 
-While this should be fine for modern userspace API (aka ADDFB2 ioctl) it
-is not for older APIs (ADDFB ioctl, also fbdev emulation) where only
-depth=32 is specified and userspace typically expects a framebuffer in
-native byte order.
+The last part of the series introduces lazy MKEY deletion which
+postpones the MKEY deletion to a later point in a workqueue.
 
-Ideally virtio-gpu would support both big endian and little endian
-framebuffer formats (simliar to bochs drm driver).  That probably is a
-somewhat more invasive change because the DRM_IOCTL_MODE_CREATE_DUMB
-doesn't tell use the format which will be used.  Possible options I see:
+As this series and the previous ones were targeting live migration,
+we can also observe improvements on this front:
 
-  (1) Be lazy on creating host resources, i.e. call
-      virtio_gpu_cmd_create_resource() not at DRM_IOCTL_MODE_CREATE_DUMB
-      time but later when the resource will be actually be used (and
-      specifically after DRM_IOCTL_MODE_ADDFB(2) ioctl so we know the
-      format).  Needs additional state tracking (whenever the resource
-      has been created or not) in possibly lots of places.
+|-------------------+------------------+------------------|
+| Stage             | Downtime #1 (ms) | Downtime #2 (ms) |
+|-------------------+------------------+------------------|
+| Baseline          | 3140             | 3630             |
+| Parallel MKEY ops | 1200             | 2000             |
+| Deferred deletion | 1014             | 1253             |
+|-------------------+------------------+------------------|
 
-  (2) Support changing the resource format, i.e. in case
-      DRM_IOCTL_MODE_ADDFB(2) is called with a format different from the
-      current one go through a destroy-and-recreate cycle for the host
-      resource.  Might have tricky corner cases (resource being in use
-      when DRM_IOCTL_MODE_ADDFB(2) is called).
+Test configuration: 256 GB VM, 32 CPUs x 2 threads per core, 4 x mlx5
+vDPA devices x 32 VQs (16 VQPs)
 
-HTH & take care,
-  Gerd
+This series must be applied on top of the parallel VQ suspend/resume
+series [0].
+
+[0] https://lore.kernel.org/all/20240816090159.1967650-1-dtatulea@nvidia.com/
+
+Dragos Tatulea (7):
+  vdpa/mlx5: Create direct MKEYs in parallel
+  vdpa/mlx5: Delete direct MKEYs in parallel
+  vdpa/mlx5: Rename function
+  vdpa/mlx5: Extract mr members in own resource struct
+  vdpa/mlx5: Rename mr_mtx -> lock
+  vdpa/mlx5: Introduce init/destroy for MR resources
+  vdpa/mlx5: Postpone MR deletion
+
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h |  25 ++-
+ drivers/vdpa/mlx5/core/mr.c        | 284 ++++++++++++++++++++++++-----
+ drivers/vdpa/mlx5/core/resources.c |   3 -
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  |  53 +++---
+ 4 files changed, 293 insertions(+), 72 deletions(-)
+
+-- 
+2.45.1
 
