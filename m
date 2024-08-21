@@ -1,159 +1,159 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8915519ABAA
-	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 08:54:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0DF81F2FC6
+	for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 09:36:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724230457; cv=none; b=YZX3QvM9AaKW/V2hgzlLO5F0NgqmFly/hwj/UW+gqFl4FarpWFQtclX2Ww5g/furEV++10WMsuyQ2BGzepTRpFtUJDqcQI5aqd62z2yNmSG9aZo107H30QH964rhPb5s2xcHu/7CJDfvX+v68OqH2QIus9cHgHalugP1ZbVxVwY=
+	t=1724233005; cv=none; b=JPiv7m8ohUS+1eiuRyibQLbJiyQFOM2a7/tgOh1aPMpC5DMsYb/dhebTmqG5oLg9gVv0pjt+QWh4TCvXKSf7UJHAAAEYB0ZTTvjUMvzzW3+dxXpD2xDR4pfuV7/PGYzKtB3dZsiXVLVldCLWLP0wq0Nup0dVrmIHNO7gSjJDqW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724230457; c=relaxed/simple;
-	bh=hKk9/fgwcayiGikuEfw16S2ri1DV4q31K69raq8ttZo=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=dABBwX0I1bRj7+aRzFQBiC8IsgBiH18SSjp6jI43Hk56CvAVx+ND+2mvgrnLBqXuRlTG8AKJrXxljUR5PG38bst3R0VwkIxfDKqnjxvnqlzZajv2Ko2AidpTnmuyxjA+ySjrDYvlai8wX+kWhrEzt1XbKrUJhhwummByOCrq84Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=mHrUffLZ; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1724233005; c=relaxed/simple;
+	bh=Jj5eIkUkWg3KtRXn0z2L0PWnJAu5W4Pyl+E7wKNe/xw=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dS/DyQtRH+vw/uixztEdcXJ98GsfWqUBwmcz5/p9Ci5eDm0zKaJ4iwgJmOzHIiH4VvO3+rZKfrQpVgYy3oXKK0OpvUjRuyLwEx6o/8euahRVH1btcEEP4IBf0n6/kTybojDon6OtuGqmV8GgFkfbRdzS8uWAMVWiV9ztb8azUO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bHkDx0dd; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="mHrUffLZ"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-5bebd3b7c22so858002a12.0
-        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 01:54:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1724230454; x=1724835254; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=5PwpfWJBg4VL77bHtinD2D9Ddh+cX6mslBqHqUnUGpE=;
-        b=mHrUffLZAuEHqBobHhVPWCELACgYHBV1xy/mEwvpIdBJFnvPeEydCRBcmzsqSo9eKj
-         bHebrYBfBfLfwjXuQwO/rSidEti+r1Tftt7VxIYBU5KNrshYa0C+IzKemRThnh8yXTYn
-         qHrFG+e6xbCqigy66vsXBUXcORuVF+mXaPccx3JTy1dt1Hpr9fbh3wyG+jQO8vsm6psD
-         /jf3YHUfpNb9aEPb8MWW5kMnKCp1JxbfZT8TwczwD+4z8T+b7wovDSzcFqk7NuPHf6Kk
-         M+b37leWmMiUkwqjgdMJcmh+2ri+DkJXMwlX++j44e7bq3Lbx1M/aGkyR7CrSyBUJb7M
-         XOyA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bHkDx0dd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724233002;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Jj5eIkUkWg3KtRXn0z2L0PWnJAu5W4Pyl+E7wKNe/xw=;
+	b=bHkDx0ddCEFI8t/8uRHPFqkUgQvuBIZzwvG2rVs6WIlji9mQ6zSL/DxNP5+Jos3cuk8weZ
+	P3zOPib9b57sylumo40uE2Z40PI9DW7uOozFE6s6J8W1SC/smgvzFVKQ3CDEuPbYTXxK+S
+	Hg1AxXm+2OVxukak7lkeM+lam5XJYHA=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-627-c_MHBtYSNi-rV4WAK_f8kQ-1; Wed, 21 Aug 2024 05:36:40 -0400
+X-MC-Unique: c_MHBtYSNi-rV4WAK_f8kQ-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-428fc34f41bso56148075e9.3
+        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 02:36:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724230454; x=1724835254;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5PwpfWJBg4VL77bHtinD2D9Ddh+cX6mslBqHqUnUGpE=;
-        b=Mpsx/8VnaYpbCYBrkhDbDsp0f4oLA/h7XlhFSq8hxkgWLaIKT8iwZcQCrhfwEOuI5W
-         yJVlXm1pGNbL69yPfeKlN/zpOdVBYeEe5jO1GTca81h+8lv9QaQONDNB9XjgSyKA3oZl
-         wpEtmWR/KOEPQsSBE4C+wEdVLF/wR1AelNR/JjPJbz2g36QV3L3j8bM/0dYxQ4HMwgd1
-         VIxgIkTWUQ+sS1NK/RIoNI5kma6wpCJMAf0DWkIB7qeVUuv2240J2DokSPVajXZTbsQP
-         qtWI0PhzbE/uRYf8fpQRgYegvk+oHvwXAk5zV5716/tDO4mSKdrI6SzNxXtXCl8plRJz
-         hRqg==
-X-Forwarded-Encrypted: i=1; AJvYcCVQhgmMaATYTdOz4D+ellf5S4RNRti4GXU4aBVaNFkwahHhXBgqX9j3vtDKbH2LMKneQc9vMYEe+MGm4DMf/g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/x3Go999yl4yndE/OkZV474esqDtX9Bjw1xOY9MXKFSJL5W+Q
-	/yBgek3t72PyhK/Sm0NY6S89JnBYXDwtw+eCYULr8RWg/q0kwnX+tKbVuyhfWBaH5V7vTfPFfbh
-	T
-X-Google-Smtp-Source: AGHT+IHqniaD95wWus1dUs8I0Ds16yyLnF/G5gMUwehcGxhDJjRsnQPQLN+BSei0nmBBpkxAspsBIA==
-X-Received: by 2002:a05:6402:d0d:b0:5be:fadc:8710 with SMTP id 4fb4d7f45d1cf-5bf1e6d6c6cmr1425459a12.7.1724230453674;
-        Wed, 21 Aug 2024 01:54:13 -0700 (PDT)
-Received: from localhost ([196.207.164.177])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5bf0110009bsm2845518a12.37.2024.08.21.01.54.12
+        d=1e100.net; s=20230601; t=1724232999; x=1724837799;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Jj5eIkUkWg3KtRXn0z2L0PWnJAu5W4Pyl+E7wKNe/xw=;
+        b=cCBdtc0BIJklcEx6UL4uqSBLpEcxuS2h6RcXa8n6na8cWdnI2dzVGW30Y18V/Qr0S8
+         40z96o2UdJf/pCNkCmYHaSMs93ucSiurpCWjMNqjFJkgJoBXrh6njRHbSPGowF8rRc3d
+         TYktNKB6ebfhaRwEzryx0h2WvyWDgvzc7vZ7z2kkOWzKiKVukX12BosJq0y97D5ARGET
+         W7UbbkDAfLgjHZ8I5BOFckLsug2oVkYlMEZcQIsCh+u/BQYgmfUIYLTmPLiVWqsTYwAZ
+         Mq5mo5CL5G2PL7ttXAgNVZEhqkQSYsDuvsD3WTeXlamw3fnjzrZ2T0SAsRUkmJJB6uvG
+         WwRg==
+X-Forwarded-Encrypted: i=1; AJvYcCW7JEGITrXDbdZg/MKpWOe01OETVtVUGOcjUKpSfZW+n0mydB+O1At2EwbnRGCvyVjuwNRy6mG3D3WFPPyAxA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwuwoWzMSHwG/lW+QNQZW6uo8tHCVuDMrw+9MmyWMfzCjahHaPD
+	+O4OThsglXna8Q5+Lc9Ayn4ENEA7LEPxSa1q7J/YBU0eRRuZSVGxF3umZpv5FXSo22+l1ibE01d
+	jb7vs6SGZjga/Xqmq2qJJ1hBPkkjPkyAAd9FgdEr/X51IkAZLco5cjiwjIT02aaVk
+X-Received: by 2002:a05:600c:3ba2:b0:426:6ed5:fd5 with SMTP id 5b1f17b1804b1-42abd112115mr13371675e9.6.1724232999138;
+        Wed, 21 Aug 2024 02:36:39 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE5uFdtqh3Nnxq7uvkwhVWuYvEqJNhXSjOOFCdMvyLVN5q9k/xJob4MdVvdN0iwQqkOmix49g==
+X-Received: by 2002:a05:600c:3ba2:b0:426:6ed5:fd5 with SMTP id 5b1f17b1804b1-42abd112115mr13371545e9.6.1724232998634;
+        Wed, 21 Aug 2024 02:36:38 -0700 (PDT)
+Received: from dhcp-64-164.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42abee8bcecsm19203885e9.17.2024.08.21.02.36.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Aug 2024 01:54:12 -0700 (PDT)
-Date: Wed, 21 Aug 2024 11:54:08 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: oe-kbuild@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	netdev@vger.kernel.org
-Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux.dev, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next 03/13] virtio_ring: packed: harden dma unmap for
- indirect
-Message-ID: <8c34ab7c-6063-4686-8623-7dfd31b5ff0d@stanley.mountain>
+        Wed, 21 Aug 2024 02:36:38 -0700 (PDT)
+Message-ID: <be1c2f6fb63542ccdcb599956145575293625c37.camel@redhat.com>
+Subject: Re: [PATCH v2 6/9] ethernet: stmicro: Simplify PCI devres usage
+From: Philipp Stanner <pstanner@redhat.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>, Wu Hao
+ <hao.wu@intel.com>, Tom Rix <trix@redhat.com>, Moritz Fischer
+ <mdf@kernel.org>,  Xu Yilun <yilun.xu@intel.com>, Andy Shevchenko
+ <andy@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz
+ Golaszewski <brgl@bgdev.pl>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,  Paolo
+ Abeni <pabeni@redhat.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Jose Abreu <joabreu@synopsys.com>, Maxime Coquelin
+ <mcoquelin.stm32@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, Alvaro
+ Karsz <alvaro.karsz@solid-run.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, Richard Cochran
+ <richardcochran@gmail.com>, Mark Brown <broonie@kernel.org>, David Lechner
+ <dlechner@baylibre.com>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
+ <u.kleine-koenig@pengutronix.de>, Damien Le Moal <dlemoal@kernel.org>, 
+ Hannes Reinecke <hare@suse.de>, Keith Busch <kbusch@kernel.org>,
+ linux-doc@vger.kernel.org,  linux-kernel@vger.kernel.org,
+ linux-block@vger.kernel.org,  linux-fpga@vger.kernel.org,
+ linux-gpio@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org,  linux-pci@vger.kernel.org,
+ virtualization@lists.linux.dev
+Date: Wed, 21 Aug 2024 11:36:36 +0200
+In-Reply-To: <CAHp75VduuT=VLtXS+zha4ZNe3ZvBV-jgZpn2oP4WkzDdt6Pnog@mail.gmail.com>
+References: <20240821071842.8591-2-pstanner@redhat.com>
+	 <20240821071842.8591-8-pstanner@redhat.com>
+	 <CAHp75VduuT=VLtXS+zha4ZNe3ZvBV-jgZpn2oP4WkzDdt6Pnog@mail.gmail.com>
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240820073330.9161-4-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Xuan,
+On Wed, 2024-08-21 at 11:14 +0300, Andy Shevchenko wrote:
+> On Wed, Aug 21, 2024 at 10:19=E2=80=AFAM Philipp Stanner
+> <pstanner@redhat.com> wrote:
+> >=20
+> > stmicro uses PCI devres in the wrong way. Resources requested
+> > through pcim_* functions don't need to be cleaned up manually in
+> > the
+> > remove() callback or in the error unwind path of a probe()
+> > function.
+>=20
+> > Moreover, there is an unnecessary loop which only requests and
+> > ioremaps
+> > BAR 0, but iterates over all BARs nevertheless.
+>=20
+> Seems like loongson was cargo-culted a lot without a clear
+> understanding of this code in the main driver...
+>=20
+> > Furthermore, pcim_iomap_regions() and pcim_iomap_table() have been
+> > deprecated by the PCI subsystem in commit e354bb84a4c1 ("PCI:
+> > Deprecate
+> > pcim_iomap_table(), pcim_iomap_regions_request_all()").
+> >=20
+> > Replace these functions with pcim_iomap_region().
+> >=20
+> > Remove the unnecessary manual pcim_* cleanup calls.
+> >=20
+> > Remove the unnecessary loop over all BARs.
+>=20
+> ...
+>=20
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 for (i =3D 0; i < PCI_STD_NUM_BAR=
+S; i++) {
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 if (pci_resource_len(pdev, i) =3D=3D 0)
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 continue;
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 pcim_iounmap_regions(pdev, BIT(i));
+>=20
+> Here is the BARx, which contradicts the probe :-)
 
-kernel test robot noticed the following build warnings:
+I'm not sure what should be done about it. The only interesting
+question is whether the other code with pcim_iomap_regions(... BIT(i)
+does also only grap BAR 0.
+In that case the driver wouldn't even be knowing what its own hardware
+is / does, though.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio_ring-introduce-vring_need_unmap_buffer/20240820-153644
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20240820073330.9161-4-xuanzhuo%40linux.alibaba.com
-patch subject: [PATCH net-next 03/13] virtio_ring: packed: harden dma unmap for indirect
-config: x86_64-randconfig-161-20240820 (https://download.01.org/0day-ci/archive/20240821/202408210655.dx8v5uRW-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
-| Closes: https://lore.kernel.org/r/202408210655.dx8v5uRW-lkp@intel.com/
+P.
 
-New smatch warnings:
-drivers/virtio/virtio_ring.c:1634 detach_buf_packed() error: uninitialized symbol 'desc'.
-
-vim +/desc +1634 drivers/virtio/virtio_ring.c
-
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1594  static void detach_buf_packed(struct vring_virtqueue *vq,
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1595  			      unsigned int id, void **ctx)
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1596  {
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1597  	struct vring_desc_state_packed *state = NULL;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1598  	struct vring_packed_desc *desc;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1599  	unsigned int i, curr;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1600  
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1601  	state = &vq->packed.desc_state[id];
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1602  
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1603  	/* Clear data ptr. */
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1604  	state->data = NULL;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1605  
-aeef9b4733c5c2 Jason Wang 2021-06-04  1606  	vq->packed.desc_extra[state->last].next = vq->free_head;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1607  	vq->free_head = id;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1608  	vq->vq.num_free += state->num;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1609  
-d5c0ed17fea60c Xuan Zhuo  2024-02-23  1610  	if (unlikely(vq->use_dma_api)) {
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1611  		curr = id;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1612  		for (i = 0; i < state->num; i++) {
-d80dc15bb6e76a Xuan Zhuo  2022-02-24  1613  			vring_unmap_extra_packed(vq,
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1614  						 &vq->packed.desc_extra[curr]);
-aeef9b4733c5c2 Jason Wang 2021-06-04  1615  			curr = vq->packed.desc_extra[curr].next;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1616  		}
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1617  	}
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1618  
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1619  	if (vq->indirect) {
-dfcc54f92ab71c Xuan Zhuo  2024-08-20  1620  		struct vring_desc_extra *extra;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1621  		u32 len;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1622  
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1623  		/* Free the indirect table, if any, now that it's unmapped. */
-dfcc54f92ab71c Xuan Zhuo  2024-08-20  1624  		extra = state->indir;
-dfcc54f92ab71c Xuan Zhuo  2024-08-20  1625  		if (!extra)
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1626  			return;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1627  
-de6a29c4b4c442 Xuan Zhuo  2024-08-20  1628  		if (vring_need_unmap_buffer(vq)) {
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1629  			len = vq->packed.desc_extra[id].len;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1630  			for (i = 0; i < len / sizeof(struct vring_packed_desc);
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1631  					i++)
-dfcc54f92ab71c Xuan Zhuo  2024-08-20  1632  				vring_unmap_extra_packed(vq, &extra[i]);
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1633  		}
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21 @1634  		kfree(desc);
-                                                              ^^^^
-desc is never initialized/used.
-
-dfcc54f92ab71c Xuan Zhuo  2024-08-20  1635  		state->indir = NULL;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1636  	} else if (ctx) {
-dfcc54f92ab71c Xuan Zhuo  2024-08-20  1637  		*ctx = state->indir;
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1638  	}
-1ce9e6055fa0a9 Tiwei Bie  2018-11-21  1639  }
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+>=20
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 break;
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
+>=20
 
