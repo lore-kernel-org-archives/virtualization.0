@@ -1,55 +1,61 @@
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D375213C68E
-	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 06:37:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 882C713AD09
+	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 06:40:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724308644; cv=none; b=mEML+yPJMOvx8f0xfVQIwGGXU9wI6I0IQLEFDmtefbMD2g0d1fV9X8+a6SQMRetfsFhl4Qbjj6ZIVGyBiZG64kN95wwufCvxltVoHU7fEGujNbfAA9qHmHTHMG1utCV5aLwMoBNk9w3/pWTU+EEMbys73mZ1e+mFed0iCrp2kHo=
+	t=1724308826; cv=none; b=uC6IC61YRu43L1AymgwhqJJaMN5xg1k6RxBmfSjS+TB6begqYeyCihmqIx1KXJbrd6wBApKo2qvzGV8NuIaV0oUAafms0vTNBeT8RRO9YtsoFk5G6NdixmPrwAs23VTwe15pzX2kWZATD3p4N03PqFp5vIVW0MmAKGNHPgmaZk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724308644; c=relaxed/simple;
-	bh=M1Zp8PUTNvRyYIIyw5D/h1RqQe2eFDjC1H1W6MCFBr4=;
+	s=arc-20240116; t=1724308826; c=relaxed/simple;
+	bh=7uTH0tO+FEhg1y99XU1/GxNzFYFUfFBcoWEJtU38goA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qIm2fLJ9UYT+nf3xpe5LVq9YUfkMNSfPOu1pSoZ5hnQbcf6/eeLNevfcsSrjNQyCbaWATpobeft0kF2dTDbB4Myim5Aaz+GtDnxhlZsw9VXt07YNZMGwzBCloQD0FDQRQlcd2RNiLODS3mHkbAYdVoXN2UIEua4/DcQiCyHNXz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SXW35l76; arc=none smtp.client-ip=209.85.217.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=NjVpve5XSdIV2oGCZMOC+dT0llb1H8cyKPbOvGUzH0hJxsSSszSWtE+NuxGOiZQZ29BA1efzsdkoFQPLCAf2oNvuqeMQ7JKSkLXNp2zmYBPy17rSKUbizCqWRGtvF8Qpxg+M81nUz2qpX/YaKOOBLuvzb5dvp9o7BRPYXHmd7hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=AoivSOau; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SXW35l76"
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-498d318c0d1so187121137.2
-        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 23:37:22 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="AoivSOau"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-52efc60a6e6so510052e87.1
+        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 23:40:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724308642; x=1724913442; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1AuSCScEbylWk/6QSNhda4EgGXfhf6ylHfAJ9C6jPnc=;
-        b=SXW35l7636IENOZ3HF7dn5u7qQO6rTSsKE6Pjq1g4Plvgzl5UuNDVtLHlP0eHg8iFM
-         eixFJeavIdjo71bGjBTLCItJboQVWs+b7x4up8H/LnxBHPShakWU2nZ0xfKHMbMM/Mxj
-         YMY/kaFX05ccpZ8lWcUxHkEV87Jfp5DjWQAbcP5glupDid+VNsYjdSkMUkJ2yvKf2WzM
-         sZJOuJxz8tenX916O8QhibjPsjwJW2lWrWH4bmDlXYgPGufUkNaOOWpfmKDgxKRH5suU
-         gczFK0vN6/4W+2R7hetoFP6QobUPy9Z/ogjscCxiWevV9ftHJhPTWuNhZJJG/Dvsa3fS
-         By7w==
+        d=linux-foundation.org; s=google; t=1724308822; x=1724913622; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=FV+CxgS7SBQNoCHIorUngjr+oE9e9INqSoC4Nwb3mnM=;
+        b=AoivSOaur6P0J7X0HS8HBezsRq7MvAdpDqwuWMWOcPGTOODfEbs5qw+C41W8ynL+Uv
+         kLaMmGBK0Su6fyz7mwPVtkg6BRN9n2i26SoG3UwoZszhwYYWOSu2InP/E4F91QMfKIry
+         PRqpZrHuSHjuN5d+iqjPxCUd8HNOYEQSj4myQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724308642; x=1724913442;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1AuSCScEbylWk/6QSNhda4EgGXfhf6ylHfAJ9C6jPnc=;
-        b=EBaigreUT8ArEoocGCwwjeOUdlmTol463ZBbjU8ZTR88jaNRh0RmnnwT36A5BON3wo
-         cYFb4F8d/kijT/GY2kfUG4csxwPHygCXKkxzWAbYni7K0Bg8BneEHl1LWOQQEKMbhLXD
-         wpV5A+Ir1TskRgxvPxO4ht3DhOm46S2yJsTQvk0Fe1JAPAyNXkwlzrSjIzdusEQlIgeu
-         F823+ZebsSheTz+QmRFR5cd3SyjXFLuoskoMZ8LxXJORsEoirUQV+Fd5NGeWirx+K0iL
-         wfBXl0h/DKK9XOKw+kGGfQdJI0rPSkUH3ezEYSBIQ5MDDwDKpGQQDNvefj8xDUvxxHEL
-         xQJg==
-X-Forwarded-Encrypted: i=1; AJvYcCVQPGo6iCUgfedPMYiX82vTlo1Ug5/RF+33bzsC6y1W8OaOxmBXPMwsz0b0tk/5iRLQTPQmbhRZ+m+W2pp6ug==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy1Q9hN8FrX2uuOJX9dcus/xsdtwsQBytHwH/kR+4lQgTjRBkVJ
-	ICqAgI+hScru12JIJdi8SPEPHxoh/uYErdZuTQwFQcwqBJqnYRB+MHJ56sseb957ESnWGKrV1+b
-	FrlhwNS6xPXzPZu41OgHx4zwarRk=
-X-Google-Smtp-Source: AGHT+IFIQ1RumAQJ42/U2rDSoTKvx25U4gHqv/JJFxcqywi9lEKn/prxBiaXWNwAVRltwlGJVJWpFdew9Ort2xw3K8A=
-X-Received: by 2002:a05:6102:6cb:b0:497:70db:ffcf with SMTP id
- ada2fe7eead31-498e724ad59mr776170137.19.1724308641592; Wed, 21 Aug 2024
- 23:37:21 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724308822; x=1724913622;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FV+CxgS7SBQNoCHIorUngjr+oE9e9INqSoC4Nwb3mnM=;
+        b=ZfNXmRKlnye2tV1GkMCWoVdSC4skLrs1dn44Cc8yYN9MXRAROykZna9f5lVuGgvDfv
+         TfiIIQgPBuGQPElCTpLDVUqr7wu0vP1BMZW+IR0NZqudIqU+L4a+TL1LP1kIqNecn2ks
+         J5dt5wb7QxDHhRo0I7nrvW16Bz0mol8rNx2ExPoz/Gi4+q/CyTWDT7hSOCT9FGsJ+2qH
+         6JKgX5Af0hq5xO/yqjU/fWgxo2VQe8gFUt7i0e3RWKHtUcwWNJKEau5EJffBfka0G3Dv
+         lRfmH1NwSdPC0CP6Bfkz+OCVEFYw4qulI+enVcVboGAobaTbUPmY+lazMqOKmz7wAyKX
+         Tebg==
+X-Forwarded-Encrypted: i=1; AJvYcCUQmRsAdk5uV2FkDabxAGy+7WA+PWfzDvpuVDT9yZgc03U/u4GtnjOCHILKSWkI668H0+f4YYH1Vhm61mxUEg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyseGS9R47/b+CEhEF5VP4zp7Bsb+8YKGrZvsgvCRn+ZcrK23/v
+	ITkKcJ4xZB1ezEzPKqsW/4yU+QxQfDqISLAMdqY/g6/u77t9e6446jFxYUIrMXsk13+Ax7b7TtI
+	r/6ikqQ==
+X-Google-Smtp-Source: AGHT+IGGhJwy/MMuhHpiWzLW5HwKaomBiZblI1/UPm5rELs3yLrHOrzSS7VR0DAWZvETHwOxnLAQJg==
+X-Received: by 2002:a05:6512:220f:b0:533:483f:957f with SMTP id 2adb3069b0e04-5334fd04c11mr379119e87.32.1724308822156;
+        Wed, 21 Aug 2024 23:40:22 -0700 (PDT)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5334ea5da14sm129301e87.206.2024.08.21.23.40.21
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 21 Aug 2024 23:40:21 -0700 (PDT)
+Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-2f3f07ac2dcso4109021fa.2
+        for <virtualization@lists.linux.dev>; Wed, 21 Aug 2024 23:40:21 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCU98eBJtvYfRvRL2YUMkrKPWmELkpDHZm/wBbNPvbFE9mMMH1EZEfT+Xl3ScujqJ23XG415t6DzngLw6CTSug==@lists.linux.dev
+X-Received: by 2002:a2e:9b14:0:b0:2f3:e42a:afc2 with SMTP id
+ 38308e7fff4ca-2f405f2517amr3488751fa.49.1724308820768; Wed, 21 Aug 2024
+ 23:40:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -57,170 +63,58 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20240817062449.21164-1-21cnbao@gmail.com> <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
- <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com> <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
-In-Reply-To: <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
-From: Barry Song <21cnbao@gmail.com>
-Date: Thu, 22 Aug 2024 18:37:10 +1200
-Message-ID: <CAGsJ_4xbrrOy84CnZ-x1MG9FhBqp8E-bz6KfB9eku+kd_xsWFA@mail.gmail.com>
+ <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+ <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
+ <CAHk-=wi9Z4QmmfeYo6aynRFbCA-_+FG83HYxXz2wVWfxjPyXSA@mail.gmail.com> <ZsbY5pNhDqGoxJG_@tiehlicka>
+In-Reply-To: <ZsbY5pNhDqGoxJG_@tiehlicka>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 22 Aug 2024 14:40:03 +0800
+X-Gmail-Original-Message-ID: <CAHk-=wgmHOrhCGU=vOkcsZy5rE0rRZcH2U0zg6HkJxzxUEJgTA@mail.gmail.com>
+Message-ID: <CAHk-=wgmHOrhCGU=vOkcsZy5rE0rRZcH2U0zg6HkJxzxUEJgTA@mail.gmail.com>
 Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
-	akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com, 
-	cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com, 
-	mhocko@suse.com, penberg@kernel.org, rientjes@google.com, 
+To: Michal Hocko <mhocko@suse.com>
+Cc: Yafang Shao <laoar.shao@gmail.com>, David Hildenbrand <david@redhat.com>, 
+	Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, 
+	iamjoonsoo.kim@lge.com, penberg@kernel.org, rientjes@google.com, 
 	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com, 
 	vbabka@suse.cz, virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 22, 2024 at 12:41=E2=80=AFAM Yafang Shao <laoar.shao@gmail.com>=
- wrote:
+On Thu, 22 Aug 2024 at 14:21, Michal Hocko <mhocko@suse.com> wrote:
 >
-> On Tue, Aug 20, 2024 at 12:05=E2=80=AFAM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > On Mon, 19 Aug 2024 at 06:02, David Hildenbrand <david@redhat.com> wrot=
-e:
-> > > >
-> > > > If we must still fail a nofail allocation, we should trigger a BUG =
-rather
-> > > > than exposing NULL dereferences to callers who do not check the ret=
-urn
-> > > > value.
-> > >
-> > > I am not convinced that BUG_ON is the right tool here to save the wor=
-ld,
-> > > but I see how we arrived here.
-> >
-> > I think the thing to do is to just add a
-> >
-> >      WARN_ON_ONCE((flags & __GFP_NOFAIL) && bad_nofail_alloc(oder, flag=
-s));
-> >
-> > or similar, where that bad_nofail_alloc() checks that the allocation
-> > order is small and that the flags are sane for a NOFAIL allocation.
-> >
-> > Because no, BUG_ON() is *never* the answer. The answer is to make sure
-> > nobody ever sets NOFAIL in situations where the allocation can fail
-> > and there is no way forward.
-> >
-> > A BUG_ON() will quite likely just make things worse. You're better off
-> > with a WARN_ON() and letting the caller just oops.
-> >
-> > Honestly, I'm perfectly fine with just removing that stupid useless
-> > flag entirely. The flag goes back to 2003 and was introduced in
-> > 2.5.69, and was meant to be for very particular uses that otherwise
-> > just looped waiting for memory.
-> >
-> > Back in 2.5.69, there was exactly one user: the jbd journal code, that
-> > did a buffer head allocation with GFP_NOFAIL.  By 2.6.0 that had
-> > expanded by another user in XFS, and even that one had a comment
-> > saying that it needed to be narrowed down. And in fact, by the 2.6.12
-> > release, that XFS use had been removed, but the jbd journal had grown
-> > another jbd_kmalloc case for transaction data. So at the beginning of
-> > the git archives, we had exactly *one* user (with two places).
-> >
-> > *THAT* is the kind of use that the flag was meant for: small
-> > allocations required to make forward progress in writeout during
-> > memory pressure.
-> >
-> > It has then expanded and is now a problem. The cases using GFP_NOFAIL
-> > for things like vmalloc() - which is by definition not a small
-> > allocation - should be just removed as outright bugs.
->
-> One potential approach could be to rename GFP_NOFAIL to
-> GFP_NOFAIL_FOR_SMALL_ALLOC, specifically for smaller allocations, and
-> to clear this flag for larger allocations. However, the challenge lies
-> in determining what constitutes a 'small' allocation.
+> The reality disagrees because there is a real demand for real GFP_NOFAIL
+> semantic. By that I do not mean arbitrary requests and sure GFP_NOFAIL
+> for higher orders is really hard to achieve but kvmalloc GFP_NOFAIL for
+> anything larger than PAGE_SIZE is doable without a considerable burden
+> on the MM end.
 
-I'm not entirely sure if our concern is with higher order or larger size. H=
-igher
-order might pose a problem, but larger size(not too large) isn't
-always an issue.
-Allocating 100 * 4KiB pages is possibly easier than allocating a single
-128KB folio.
+Doable? Sure. Sensible? Not clear.
 
-Are we trying to limit the physical size or the physical order? If the conc=
-ern
-is order, vmalloc manages __GFP_NOFAIL by mapping order-0 pages. If the
-concern is higher order, this sounds reasonable.  but it seems the buddy
-system already has code to trigger a warning even for order > 1:
+I do not find a single case of that in the kernel.
 
-struct page *rmqueue(struct zone *preferred_zone,
-                        struct zone *zone, unsigned int order,
-                        gfp_t gfp_flags, unsigned int alloc_flags,
-                        int migratetype)
-{
-        struct page *page;
+I did find three cases of kvcalloc(NOFAIL) in the nouveau driver and
+one in erofs. It's not clear that any of them make much sense (or that
+the erofs one is actually a large allocation).
 
-        /*
-         * We most definitely don't want callers attempting to
-         * allocate greater than order-1 page units with __GFP_NOFAIL.
-         */
-        WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
+And there's some disgusting noise in hmm_test.c. Irrelevant.
 
-        if (likely(pcp_allowed_order(order))) {
-                page =3D rmqueue_pcplist(preferred_zone, zone, order,
-                                       migratetype, alloc_flags);
-                if (likely(page))
-                        goto out;
-        }
-        ....
-}
+Now, this was all from a pure mindless grep, and it didn't take any
+context into account, so if somebody is building up the gfp flags and
+not using them directly, that grep has failed.
 
->
-> >
-> > Note that we had this comment back in 2010:
-> >
-> >  * __GFP_NOFAIL: The VM implementation _must_ retry infinitely: the cal=
-ler
-> >  * cannot handle allocation failures.  This modifier is deprecated and =
-no new
-> >  * users should be added.
-> >
-> > and then it was softened in 2015 to the current
-> >
-> >  * __GFP_NOFAIL: The VM implementation _must_ retry infinitely: the cal=
-ler
-> >  * cannot handle allocation failures. New users should be evaluated car=
-efully
-> >   ...
-> >
-> > and clearly that "evaluated carefully" actually never happened, so the
-> > new comment is just garbage.
-> >
-> > I wonder how many modern users of GFP_NOFAIL are simply due to
-> > over-eager allocation failure injection testing, and then people added
-> > GFP_NOFAIL just because it shut up the mindless random allocation
-> > failures.
-> >
-> > I mean, we have a __GFP_NOFAIL in rhashtable_init() - which can
-> > actually return an error just fine, but there was this crazy worry
-> > about the IPC layer initialization failing:
-> >
-> >    https://lore.kernel.org/all/20180523172500.anfvmjtumww65ief@linux-n8=
-05/
-> >
-> > Things like that, where people just added mindless "theoretical
-> > concerns" issues, or possibly had some error injection module that
-> > inserted impossible failures.
-> >
-> > I do NOT want those things to become BUG_ON()'s. It's better to just
-> > return NULL with a "bogus GFP_NOFAIL" warning, and have the oops
-> > happen in the actual bad place that did an invalid allocation.
-> >
-> > Because the blame should go *there*, and it should not even remotely
-> > look like "oh, the MM code failed". No. The caller was garbage.
-> >
-> > So no. No MM BUG_ON code.
-> >
-> >                     Linus
-> >
->
->
-> --
-> Regards
-> Yafang
+But when you say "reality disagrees", I think you need to point at said reality.
 
-Thanks
-Barry
+Because the *real* reality is that large allocations HAVE ALWAYS
+FAILED. In fact, with flags like GFP_ATOMIC etc, it will fail very
+aggressively. Christ, that's what started this whole thread and
+discussion in the first place.
+
+So I think *that* is the reality you need to face: GFP_NOFAIL has
+never ever been a hard guarantee to begin with, and expecting it to be
+that is a sign of insanity. It's fundamentally an impossible
+operation.
+
+It really is a "Daddy, daddy, I want a pony" flag.
+
+             Linus
