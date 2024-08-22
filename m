@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A3CD1865E2
-	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 09:42:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4E9187339
+	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 09:43:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724319768; cv=none; b=g0I92PJL66lIFluLvcuZsbXWO1W1kJ8/E9JgUoy4Sg8SYhOPHy+xc5CxwRmxjWjLuWb27YGhwO9tjR8IYt6fTXpCTEDQbQSjRiOT+iKdRqDgfoapjXXfRYDhhjPZZ+bMTYbtZaEfAAK8TOqHrxOnqXHvQuzOswv4erO7xCrHHdw=
+	t=1724319829; cv=none; b=Kaf+m8Gj3IJ1wgOL5dqTSdtsoBMEIuDvcjMT7N2PalGy7VHBMjw33iFpFaGhCFfem62viuwfxmy1NI4Oyr3ESqri4LfyWv30YMRHe3SPmV4KvU+C5Y/dPTwwI+OHSAYzZYO8NidehwFAfnsVvKIBkkTi4UoLQUTJUaYj375wmrU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724319768; c=relaxed/simple;
-	bh=EfUCXI4QqItHRHCk21g1cMlJJ/7k9QpRFSgWXW6C4AY=;
+	s=arc-20240116; t=1724319829; c=relaxed/simple;
+	bh=4DTPvFMQfbCOcsA/cWAusBJlQg6KkwobS9yOQvCxECQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OZKzi02mNQDidgq17dU/nzMffiuht+iXN1sJJMyUIhIRbV5waK6+adIsu8+gfHXILZ3HfthbqqLdDrbK+8cj31eJiBKm7sY0UjMHn/tIKpW3DsPaNi9xajLhi9+bHh7rrehgJCrPw0nsmT2Hy5tS+c1fezu1LGvxQRknYVCj4bo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gu5k0sfj; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=pZmmDOQKGXgIIaUCUS43Eqsr5d7Y7djpfAWa2AYibThYgvEZJ6vw08i2jm+7SdhsUSuXq0pDJS0Qk0pqW4tZuAnOVK++d7UVMRP8d9nYQrgjRAXWYzHmGhZYYIU3gkLFTE1NCC2plgaRaukxX5v3pqratnRRKYDXZkeGGlXN548=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BInzf9xJ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gu5k0sfj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BInzf9xJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724319766;
+	s=mimecast20190719; t=1724319826;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ezYgJew7iLeyr2ng5Qwj2f8wzE1ie+8eKwPQ1ave84g=;
-	b=Gu5k0sfjJ+prFgIAR2NVpMtV6hhPN5SXH5qE7T2J6VrosZ/xgKm6y7e/pd8514CmZYsJ5y
-	zmK/vHw8m5ifSAvE6uaYegeEdjFeldLK29AxWLehxRbTETp4Xhg/G6rRHB6xsCSPF8mw3U
-	HMIRjXegubOx4vbesK/QFRnhwyNa2jk=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8qIeUkM1CiKs3TMZL6yOmsW5pxWTgVW610+XGajzQpM=;
+	b=BInzf9xJxVVPWP7ArtgP3M7Vike97Z1K/+hbFLSH1gqYh5Lbu5ZxHpZqIfaEkKbYp36e3u
+	fiouDpQheKvfrdEKpAGu+LIWqJeQhlNbYNiXJAfdA3Vin1cxz5imwAD6NB77cb3ssXD53v
+	uhg+KWvnuvhdLnI9gpW7nNXVIAEx808=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-241-XtlnkXFLM4S3uVFn1oio3A-1; Thu, 22 Aug 2024 05:42:44 -0400
-X-MC-Unique: XtlnkXFLM4S3uVFn1oio3A-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3718e6956bfso340290f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 02:42:44 -0700 (PDT)
+ us-mta-448-gVBvbf5aPdOVcc-oJrW8YA-1; Thu, 22 Aug 2024 05:43:44 -0400
+X-MC-Unique: gVBvbf5aPdOVcc-oJrW8YA-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4281310bf7aso4088725e9.1
+        for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 02:43:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724319763; x=1724924563;
+        d=1e100.net; s=20230601; t=1724319824; x=1724924624;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=ezYgJew7iLeyr2ng5Qwj2f8wzE1ie+8eKwPQ1ave84g=;
-        b=RBopQfQ+Nr0uaTIwI+ZfWd4m3kKA5dEXRVTAmhUxV9jGWUD7z6Iwuv7Wz40BeZmwV0
-         VLeTHWY79vjSs1BlOfHcGYmR3g9LthQQsGySzMoFLPPhInkewdR5Yko7StYxRidgFFdV
-         bnoqxzA040DV39u2WghTy2xIWqrtFT87oTyETnWUC01OGZPn7ofing++MYGfWDLkgqWr
-         SZArfgsLYlJ6uod3d4UGL4mZut/GikdOWY75EmhngLRS+OeZSohlmCMrw/q3LrrJU8p4
-         xjf+6g2lWYb60vxUGFte0cP5z/XEFyDda/gV8qaaFKBpr/xvI5Z95fluXj8C9z0tuILy
-         bkqg==
-X-Forwarded-Encrypted: i=1; AJvYcCW4WIdJpMOTWLYsWMoymDTFd5KxEpylr7efYG8KSrjsKBK+hRnMCoBxlS/DeWfJzuqardGhZx7gqmsjc6emcA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzdkAMK6lufFnyzV2+WDloV51txI60klVrvZWDzQUvJj07723Gs
-	CcElE5u/N5Le8bgUFbLBatY4f/Tj36jD9uHriG7m+Zvx5hALaHuTDhqNPArZKc+LOLk27h70Vvb
-	zloi6Q5rzx5N7SPsurubLMUc4ZtF+YxxtsQzR/eYYWmve3tLcOe7+wjFBoAFnex3j
-X-Received: by 2002:adf:e88a:0:b0:371:8ebc:a2 with SMTP id ffacd0b85a97d-372fd592c12mr3407538f8f.21.1724319762688;
-        Thu, 22 Aug 2024 02:42:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGU9Plolnns43ZDtWVZ6t3+6h/EBBhWvM0zID2DYtKI8eTDlOKNZOQR1e2EdkP/GIsOoL1i6A==
-X-Received: by 2002:adf:e88a:0:b0:371:8ebc:a2 with SMTP id ffacd0b85a97d-372fd592c12mr3407511f8f.21.1724319761863;
-        Thu, 22 Aug 2024 02:42:41 -0700 (PDT)
+        bh=8qIeUkM1CiKs3TMZL6yOmsW5pxWTgVW610+XGajzQpM=;
+        b=HiY7P9hpT7yd9g8ajRVNo2l8BgaWsifdWJEqVKbJi/fTFd/nsnZY8cIWccyr71/lc3
+         m73lW9seUXVVCcUxecMSK8/WKmGWm9LSQCndRjOJvADQOGMswC7fQ6kiUzBV3ZEdkYoB
+         6vGe8k/sJtGZtwq8GtWR8uZqaTcl3RiTn+6k1ZMxD/o9S1v3Y40dg0nlqDT3+uyYibMw
+         P2HWns6ocB75NRh6oColk/tI20ircSC2SqfW8EiRP3tfYfzf9ISh6WiuUITNgoEvLWp9
+         BEbL/V9tsBcCGtn2y/LrK6VXIWK6zjADPAZHjPCRC4yb1baL86h0O20yRQTkEAy8XuLO
+         t5cw==
+X-Forwarded-Encrypted: i=1; AJvYcCX+vz/xfyxjeselWq2zDuZODxtThSz3e56kivLeK02JvXK+aL/5tyLYYZQ7cGuqMMS4f24BX0n+chRSVwGyMA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YydcgqP41QHa7Fvo9s4Gh3uqihtxY1QieRRA3kEUnJPlWtVLMsm
+	Tgjtw5ApPdUqB1LbejgtNnbEX7mCfBYLiQd74rWoFjvcQEPr2SXHKzpJNBoWuhaFQLxwJz7pWcD
+	gJwpz3q9Y73oHV/84QxVWw1tTgZWHp0u6t0Dx9qUMKas8mPifihYvCy7H6QMFP4/8
+X-Received: by 2002:a05:600c:8516:b0:426:5e91:3ff1 with SMTP id 5b1f17b1804b1-42ac59ae975mr9083145e9.24.1724319823616;
+        Thu, 22 Aug 2024 02:43:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGIEKSkfI7/NFqkljdf+QGKhzB85okjPLFADalUmPJd274xThySPNye+UOIXTwfR4XGddqCtw==
+X-Received: by 2002:a05:600c:8516:b0:426:5e91:3ff1 with SMTP id 5b1f17b1804b1-42ac59ae975mr9082785e9.24.1724319822766;
+        Thu, 22 Aug 2024 02:43:42 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c70f:2b00:f928:47d8:c9be:9d87? (p200300cbc70f2b00f92847d8c9be9d87.dip0.t-ipconnect.de. [2003:cb:c70f:2b00:f928:47d8:c9be:9d87])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3730815b7eesm1229871f8f.54.2024.08.22.02.42.40
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3730813c1e3sm1226991f8f.35.2024.08.22.02.43.41
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Aug 2024 02:42:41 -0700 (PDT)
-Message-ID: <e68a5584-b967-4327-b9e4-c365dc017c33@redhat.com>
-Date: Thu, 22 Aug 2024 11:42:39 +0200
+        Thu, 22 Aug 2024 02:43:42 -0700 (PDT)
+Message-ID: <4df58ef1-b379-484a-aa5d-ef77a1200c63@redhat.com>
+Date: Thu, 22 Aug 2024 11:43:40 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -69,15 +69,16 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
-To: Michal Hocko <mhocko@suse.com>
-Cc: Barry Song <21cnbao@gmail.com>,
- Linus Torvalds <torvalds@linux-foundation.org>,
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>, Barry Song <21cnbao@gmail.com>,
  Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
  linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com,
  hch@infradead.org, iamjoonsoo.kim@lge.com, penberg@kernel.org,
  rientjes@google.com, roman.gushchin@linux.dev, urezki@gmail.com,
  v-songbaohua@oppo.com, vbabka@suse.cz, virtualization@lists.linux.dev
-References: <CAHk-=wi9Z4QmmfeYo6aynRFbCA-_+FG83HYxXz2wVWfxjPyXSA@mail.gmail.com>
+References: <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+ <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
+ <CAHk-=wi9Z4QmmfeYo6aynRFbCA-_+FG83HYxXz2wVWfxjPyXSA@mail.gmail.com>
  <ZsbY5pNhDqGoxJG_@tiehlicka>
  <CAHk-=wgmHOrhCGU=vOkcsZy5rE0rRZcH2U0zg6HkJxzxUEJgTA@mail.gmail.com>
  <CAHk-=wiNCkgsrdNii7EwEXjt_47wF7YBJYWMhdsZJS8yVFDR=Q@mail.gmail.com>
@@ -87,7 +88,7 @@ References: <CAHk-=wi9Z4QmmfeYo6aynRFbCA-_+FG83HYxXz2wVWfxjPyXSA@mail.gmail.com>
  <bc952d89-1219-41e9-9a8b-cfe2a758d585@redhat.com>
  <ZscAtVskxgONe3gT@tiehlicka>
  <59e90825-4efa-4384-8286-06c0235304dc@redhat.com>
- <ZscHw1Zkcnx3VWvG@tiehlicka>
+ <CAHk-=wiyq9vF-L7NXakadGdQ4TvFLrEwds-NzkByDSb2F2YUkQ@mail.gmail.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -134,25 +135,54 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ZscHw1Zkcnx3VWvG@tiehlicka>
+In-Reply-To: <CAHk-=wiyq9vF-L7NXakadGdQ4TvFLrEwds-NzkByDSb2F2YUkQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 22.08.24 11:41, Michal Hocko wrote:
-> On Thu 22-08-24 11:27:25, David Hildenbrand wrote:
-> [...]
->> Likely, checkpatch should be updated to warn on any new NOFAIL usage.
+On 22.08.24 11:34, Linus Torvalds wrote:
+> On Thu, 22 Aug 2024 at 17:27, David Hildenbrand <david@redhat.com> wrote:
+>>
+>> To me, that implies that if you pass in MAX_ORDER+1 the VM will "retry
+>> infinitely". if that implies just OOPSing or actually be in a busy loop,
+>> I don't care. It could effectively happen with MAX_ORDER as well, as
+>> stated. But certainly not BUG_ON.
 > 
-> What do you expect people to do? I do not see a pattern of nilly-willy
-> use of the flag (we have less than 200 in the kernel outside of mm,
-> compare that to 40k GFP_KERNEL allocations). If you warn and the only
-> answer is shrug and go on then this serves no purpose.
+> No BUG_ON(), but also no endless loop.
+> 
+> Just return NULL for bogus users. Really. Give a WARN_ON_ONCE() to
+> make it easy to find offenders, and then let them deal with it.
+> 
+> Don't take it upon yourself to say "we have to deal with any amount of
+> stupidity".
+> 
+> The MM layer is not some slave to users. The MM layer is one of the
+> most core pieces of code in the kernel, and as such the MM layer is
+> damn well in charge.
+> 
+> Nobody has the right to say "I will not deal with allocation
+> failures". The MM should not bend over backwards over something like
+> that.
+> 
+> Seriously. Get a spine already, people. Tell random drivers that claim
+> that they cannot deal with errors to just f-ck off.
+> 
+> And you don't do it by looping forever, and you don't do it by killing
+> the kernel. You do it by ignoring their bullying tactics.
+> 
+> Then you document the *LIMITED* cases where you actually will try forever.
 
-Like the BUG_ON checks I added. Some people still try to ignore them and 
-we end up in discussions like this when I spot it ;)
+So on the buddy level, that might mean that we limit it to a single 
+page, and document "NOFAIL is ineffective and ignored when allcoating 
+pages of order > 0. Any attempt will result in a WARN_ON_ONCE()". 
+(assuming we can find and eliminate users that allocate order > 0 fairly 
+easily)
+
+{kv}malloc allocators would be different, as Michal said.
+
+No idea if that is feasible, but it sounds like something you have in mind.
 
 -- 
 Cheers,
