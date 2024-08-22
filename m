@@ -1,190 +1,187 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 350C61CE6F6
-	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 13:48:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 323A11CB15D
+	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 14:23:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724334501; cv=none; b=oOe27TSQIZJaXwevDa3BQUpXXLM7NKDOsMCxvmOI+ZYTFQFS0Z+fzJmbiJ75gI+yvFf0r7NQM/08FC1n6fXdeYT4GisBjhAbGkCzrVXs/dmAb8sHIwD+MZoPKe6U/mAcZE2QJfnFPXgtbS7LCuKFHGQDGJajHJO5dey1Y+jzTlo=
+	t=1724336605; cv=none; b=mH2z9/JAHuaViXM5Xgql+Vs80EiTE2+Z6jF7Ik58j5zS05cZNUhvnuGQwdzopvYGWC9b32hQjTCWh4ThbdF3V/kLM+ZIMD3yx//njHz+5DVqbsWwzvEN0Qj8kz3F+4LwRuvMYWq3IilKmZ5uiIXbaeeVFCk04waH0cH2iSYyEtQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724334501; c=relaxed/simple;
-	bh=xzKTSbBUCxwnUpKs8six5ekb8eTkm5n7sI9qBsfTSxA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eowiMlG8g6wCyhyvb/rlUfi8CzzwX1zmuieWky/N86bKw4KTT21DOYJKqImgyo/XtIXOrk98GzIRtR+rDXKIEZSbnt6MeDPU/kU57eenzdleF8K9g1Em+kqD7wtdBb5vUsGFyqGeID9JOinYtpLnlOWx9sozAv2559prz+a/zfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z/Y7/kvQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724336605; c=relaxed/simple;
+	bh=WW3Y0xQ2YsNx5DeV8nHry8ZBJaWErWth6EqTeDUkq+M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cfHxLpRBMP7y50J1WS/uId8IcsAUFEU6cbyKT2p9IJVktTvU0rWhqYyMkZlIgQQOT8ufWvPx6eesk03U0R9PWm65cKTW3ZPJSy4jYUAf+7t/vlR1G8ujRdh9G0n0cvtWUwQoY99dEaFaG0QtqVoNjrlzlB1VoVaqDoC2G+Q4mpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Nuuym5Vl; arc=none smtp.client-ip=209.85.219.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z/Y7/kvQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724334498;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=stErXlsn4bG59ZiuP1S49NzWKfcbkIn79Ht3IKYskFI=;
-	b=Z/Y7/kvQdNa5gSVj8unnOesXpNMdpwPeQoT2SYhg/w0I7nOMTdG5FoZVYcBofNMQ19UE+o
-	5R1pHEOmeo6eg7thnbs+EAevqyGKFxqts/AtRBThmNL/+b+iSwX7CzF4DwxZ+tLESnhjhY
-	0GbN1nQZfzHoJb4tpH4VxMs5JExkfMg=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-321-HM-JYpxrOsOjwiauSgh0_A-1; Thu, 22 Aug 2024 09:48:15 -0400
-X-MC-Unique: HM-JYpxrOsOjwiauSgh0_A-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4280645e3e0so6255435e9.1
-        for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 06:48:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nuuym5Vl"
+Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-6bf89e59ff8so4050086d6.0
+        for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 07:23:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724336603; x=1724941403; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cMaAuY7A8lo8j+oYYWlt54g77ZLGhGOJF8yf2vy/BSs=;
+        b=Nuuym5VlaaroNX4dx0lqZ0zx+lNyZQoT4dmW5gS70beFlLN46Q6FdX/oyOfg8VtZc0
+         /nGnpKjNpYneA17QVglmAJBHCByL1fVdN82InMsOfPmhWhML3pRHRWjLX7ZuxqJ3k60c
+         58J1Wq/PXx6aqMkMorwZRrExJRI7PH8U/bDDMESDh5DL9hEsiSKqAfvGMzd9Mhl2RfDO
+         EynnRsTm8Tm257OtRX/g+M2xBzetv48twjhs1aXvrR3dOguK8hgRoFnncke+NcuBF2tv
+         J0u2IvuSm802ESV3aiCBYlyKgHAREDl7+Flp2YIh5Jrurnj97LVktntHRLGLAUpU9OEI
+         9Uvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724334494; x=1724939294;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1724336603; x=1724941403;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=stErXlsn4bG59ZiuP1S49NzWKfcbkIn79Ht3IKYskFI=;
-        b=r5TTr2xYi2DhkpeC8x4XfC5U7/K5BLbz5ptU7Qi7sG28sdeX7wNlxFs75B/81AF8qh
-         1YQrK9FgPeKWSrasfs5ba5pxq9dPhJi9I5sR+0R6jN2WHtVDR8PJlaMG/5V5AlU6Nof3
-         ALgUOAl+THKnJlLqGfmYD9jt2YwajYDB7/58G+46zI7EoK0lt8h9/5HeZH+kveQSSU2D
-         AAPby9bzh7kbVyagQwFguf2r+MLb0ofYCYgbh4fstBVanaSGn4CdU5KmnkKvylbHaDJZ
-         ZYilJdSRXCtwx3NC5xiHXy4ScsVubf5jAjSocMUgJberPCWZBdTcwKlLVRHJS9XBtnUn
-         GuBA==
-X-Forwarded-Encrypted: i=1; AJvYcCWEY/w/4841hykhvrvVe1nlT6gzvgHGwrgKJO6QKVXe7n9KuJUY0kGeAERS4GXUK7gbJftg+U/KT1DC79jdzw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzkPsf/sVr5G2b45hecWBqpqkFpQN+uE3v7CkdS2OY+/mxCV7+
-	3CUWtNYEOa8tQ0FjjEF5AHAkpSJsMGcjylIMWzh/kgMVGKgzSYVp+Z8UzQLCtbcUlBON3pUjeCJ
-	dNIfINyGhlTNd0GHzdMzFbniA67GbixRi0OaMYtZjhemf0k18NfRCSLJE6y+V/p+G
-X-Received: by 2002:a05:600c:470d:b0:426:5cee:4abc with SMTP id 5b1f17b1804b1-42abd23c42fmr42834525e9.20.1724334494017;
-        Thu, 22 Aug 2024 06:48:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE+ml6suAX3eG1pz2LPHUrAJqRTfncLpMSUbPA+Ci3dUa++3KF20e/68btOdPMgiZkBffw5eg==
-X-Received: by 2002:a05:600c:470d:b0:426:5cee:4abc with SMTP id 5b1f17b1804b1-42abd23c42fmr42833985e9.20.1724334493539;
-        Thu, 22 Aug 2024 06:48:13 -0700 (PDT)
-Received: from eisenberg.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42ac5162322sm25057215e9.24.2024.08.22.06.48.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Aug 2024 06:48:11 -0700 (PDT)
-From: Philipp Stanner <pstanner@redhat.com>
-To: Jonathan Corbet <corbet@lwn.net>,
-	Jens Axboe <axboe@kernel.dk>,
-	Wu Hao <hao.wu@intel.com>,
-	Tom Rix <trix@redhat.com>,
-	Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Jose Abreu <joabreu@synopsys.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-	Philipp Stanner <pstanner@redhat.com>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Hannes Reinecke <hare@suse.de>,
-	Chaitanya Kulkarni <kch@nvidia.com>
-Cc: linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org,
-	linux-fpga@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH v3 9/9] PCI: Remove pcim_iounmap_regions()
-Date: Thu, 22 Aug 2024 15:47:41 +0200
-Message-ID: <20240822134744.44919-10-pstanner@redhat.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20240822134744.44919-1-pstanner@redhat.com>
-References: <20240822134744.44919-1-pstanner@redhat.com>
+        bh=cMaAuY7A8lo8j+oYYWlt54g77ZLGhGOJF8yf2vy/BSs=;
+        b=lSkRX9CJMdcFSh6RVhHbr0FpraSo/+rpTI5vzrEBcWhO4cmKGM+PpVm+z/cYf5gBG7
+         d4qYw+HFa9CVz0eNw4Fu6sREK3ApPoB2jLcVZGyfphDMR1fA8fwSob3KKEs8lTeDs2Ao
+         1x6yrdxShEZZtmgwefBw8XPsVN1qfvfZeHnWda6VWoobpX69SKi3kTjfJFKIppKYm9el
+         HmWP8rc2+dQCB5E1toEpi5TEvru7U0PqnuVMPsYAg0F/vip2CXNa3qGel8dOa9GuLQbG
+         HQ+H3oVuyf9fMAk7+KP0yrHu+DbBYhcjBhYdd6k6TtvgmfipZ+OSoQdjDW6GogVTlRw8
+         RRXg==
+X-Forwarded-Encrypted: i=1; AJvYcCUFqRadShmmCGmyVeg2GkCdVRobC9ItFi3tIHnTMz3FIdU6+Cn1OvpBOkqvQbd1zOtQ8AyA4iiBxGy0dTaUPw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzNqYvSprO08Q3AeHLGD+J1OIsX1YFhd90UILiNy/ve3EsENAsb
+	DyNef/KTsFNG919WPofc41sVXxWS0ph+RDGjiQvXAM5FYHlQTP95g+VK6BOuh4hC7CYH9Hkvrr0
+	/HRy4axXriEEJ6CKsyu64PqV5eSk=
+X-Google-Smtp-Source: AGHT+IGgQfgMY3VjBOZ36Vc/z+czott+LzOIrgYtAtIz7ThXSLYFEGgj+qU8JX/hdSDBMQCuyQKUQqtAYqiFBPXsD4w=
+X-Received: by 2002:a05:6214:5988:b0:6bf:745e:d48e with SMTP id
+ 6a1803df08f44-6c15688f48fmr76019766d6.51.1724336602804; Thu, 22 Aug 2024
+ 07:23:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+References: <20240817062449.21164-1-21cnbao@gmail.com> <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
+ <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+ <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com> <CAGsJ_4xbrrOy84CnZ-x1MG9FhBqp8E-bz6KfB9eku+kd_xsWFA@mail.gmail.com>
+In-Reply-To: <CAGsJ_4xbrrOy84CnZ-x1MG9FhBqp8E-bz6KfB9eku+kd_xsWFA@mail.gmail.com>
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Thu, 22 Aug 2024 22:22:44 +0800
+Message-ID: <CALOAHbByCJCPzhA_RB-p7Ug7xgx+seeg9BN1wYhq=15VvVsBiQ@mail.gmail.com>
+Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
+To: Barry Song <21cnbao@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
+	akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com, 
+	cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com, 
+	mhocko@suse.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com, 
+	vbabka@suse.cz, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-All users of pcim_iounmap_regions() have been removed by now.
+On Thu, Aug 22, 2024 at 2:37=E2=80=AFPM Barry Song <21cnbao@gmail.com> wrot=
+e:
+>
+> On Thu, Aug 22, 2024 at 12:41=E2=80=AFAM Yafang Shao <laoar.shao@gmail.co=
+m> wrote:
+> >
+> > On Tue, Aug 20, 2024 at 12:05=E2=80=AFAM Linus Torvalds
+> > <torvalds@linux-foundation.org> wrote:
+> > >
+> > > On Mon, 19 Aug 2024 at 06:02, David Hildenbrand <david@redhat.com> wr=
+ote:
+> > > > >
+> > > > > If we must still fail a nofail allocation, we should trigger a BU=
+G rather
+> > > > > than exposing NULL dereferences to callers who do not check the r=
+eturn
+> > > > > value.
+> > > >
+> > > > I am not convinced that BUG_ON is the right tool here to save the w=
+orld,
+> > > > but I see how we arrived here.
+> > >
+> > > I think the thing to do is to just add a
+> > >
+> > >      WARN_ON_ONCE((flags & __GFP_NOFAIL) && bad_nofail_alloc(oder, fl=
+ags));
+> > >
+> > > or similar, where that bad_nofail_alloc() checks that the allocation
+> > > order is small and that the flags are sane for a NOFAIL allocation.
+> > >
+> > > Because no, BUG_ON() is *never* the answer. The answer is to make sur=
+e
+> > > nobody ever sets NOFAIL in situations where the allocation can fail
+> > > and there is no way forward.
+> > >
+> > > A BUG_ON() will quite likely just make things worse. You're better of=
+f
+> > > with a WARN_ON() and letting the caller just oops.
+> > >
+> > > Honestly, I'm perfectly fine with just removing that stupid useless
+> > > flag entirely. The flag goes back to 2003 and was introduced in
+> > > 2.5.69, and was meant to be for very particular uses that otherwise
+> > > just looped waiting for memory.
+> > >
+> > > Back in 2.5.69, there was exactly one user: the jbd journal code, tha=
+t
+> > > did a buffer head allocation with GFP_NOFAIL.  By 2.6.0 that had
+> > > expanded by another user in XFS, and even that one had a comment
+> > > saying that it needed to be narrowed down. And in fact, by the 2.6.12
+> > > release, that XFS use had been removed, but the jbd journal had grown
+> > > another jbd_kmalloc case for transaction data. So at the beginning of
+> > > the git archives, we had exactly *one* user (with two places).
+> > >
+> > > *THAT* is the kind of use that the flag was meant for: small
+> > > allocations required to make forward progress in writeout during
+> > > memory pressure.
+> > >
+> > > It has then expanded and is now a problem. The cases using GFP_NOFAIL
+> > > for things like vmalloc() - which is by definition not a small
+> > > allocation - should be just removed as outright bugs.
+> >
+> > One potential approach could be to rename GFP_NOFAIL to
+> > GFP_NOFAIL_FOR_SMALL_ALLOC, specifically for smaller allocations, and
+> > to clear this flag for larger allocations. However, the challenge lies
+> > in determining what constitutes a 'small' allocation.
+>
+> I'm not entirely sure if our concern is with higher order or larger size.
 
-Remove pcim_iounmap_regions().
+I believe both should be considered. Since the higher-order task might
+be easier to address, starting with that seems like the more
+straightforward approach.
 
-Signed-off-by: Philipp Stanner <pstanner@redhat.com>
-Reviewed-by: Andy Shevchenko <andy@kernel.org>
-Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
----
- .../driver-api/driver-model/devres.rst        |  1 -
- drivers/pci/devres.c                          | 21 -------------------
- include/linux/pci.h                           |  1 -
- 3 files changed, 23 deletions(-)
+> Higher
+> order might pose a problem, but larger size(not too large) isn't
+> always an issue.
+> Allocating 100 * 4KiB pages is possibly easier than allocating a single
+> 128KB folio.
+>
+> Are we trying to limit the physical size or the physical order? If the co=
+ncern
+> is order, vmalloc manages __GFP_NOFAIL by mapping order-0 pages. If the
+> concern is higher order, this sounds reasonable.  but it seems the buddy
+> system already has code to trigger a warning even for order > 1:
 
-diff --git a/Documentation/driver-api/driver-model/devres.rst b/Documentation/driver-api/driver-model/devres.rst
-index ac9ee7441887..525f08694984 100644
---- a/Documentation/driver-api/driver-model/devres.rst
-+++ b/Documentation/driver-api/driver-model/devres.rst
-@@ -397,7 +397,6 @@ PCI
-   pcim_iomap_regions_request_all() : do request_region() on all and iomap() on multiple BARs
-   pcim_iomap_table()		: array of mapped addresses indexed by BAR
-   pcim_iounmap()		: do iounmap() on a single BAR
--  pcim_iounmap_regions()	: do iounmap() and release_region() on multiple BARs
-   pcim_pin_device()		: keep PCI device enabled after release
-   pcim_set_mwi()		: enable Memory-Write-Invalidate PCI transaction
- 
-diff --git a/drivers/pci/devres.c b/drivers/pci/devres.c
-index 4dbba385e6b4..022c0bb243ad 100644
---- a/drivers/pci/devres.c
-+++ b/drivers/pci/devres.c
-@@ -1013,27 +1013,6 @@ int pcim_iomap_regions_request_all(struct pci_dev *pdev, int mask,
- }
- EXPORT_SYMBOL(pcim_iomap_regions_request_all);
- 
--/**
-- * pcim_iounmap_regions - Unmap and release PCI BARs
-- * @pdev: PCI device to map IO resources for
-- * @mask: Mask of BARs to unmap and release
-- *
-- * Unmap and release regions specified by @mask.
-- */
--void pcim_iounmap_regions(struct pci_dev *pdev, int mask)
--{
--	int i;
--
--	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
--		if (!mask_contains_bar(mask, i))
--			continue;
--
--		pcim_iounmap_region(pdev, i);
--		pcim_remove_bar_from_legacy_table(pdev, i);
--	}
--}
--EXPORT_SYMBOL(pcim_iounmap_regions);
--
- /**
-  * pcim_iomap_range - Create a ranged __iomap mapping within a PCI BAR
-  * @pdev: PCI device to map IO resources for
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 9625d8a7b655..6c60f063c672 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -2301,7 +2301,6 @@ void pcim_iounmap_region(struct pci_dev *pdev, int bar);
- int pcim_iomap_regions(struct pci_dev *pdev, int mask, const char *name);
- int pcim_iomap_regions_request_all(struct pci_dev *pdev, int mask,
- 				   const char *name);
--void pcim_iounmap_regions(struct pci_dev *pdev, int mask);
- void __iomem *pcim_iomap_range(struct pci_dev *pdev, int bar,
- 				unsigned long offset, unsigned long len);
- 
--- 
-2.46.0
+To avoid potential livelock, it may be wise to drop this flag for
+higher-order allocations as well. Following Linus's suggestion, we
+could start by removing it for "> PAGE_ALLOC_COSTLY_ORDER".
 
+>
+> struct page *rmqueue(struct zone *preferred_zone,
+>                         struct zone *zone, unsigned int order,
+>                         gfp_t gfp_flags, unsigned int alloc_flags,
+>                         int migratetype)
+> {
+>         struct page *page;
+>
+>         /*
+>          * We most definitely don't want callers attempting to
+>          * allocate greater than order-1 page units with __GFP_NOFAIL.
+>          */
+>         WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
+
+This line was added by Michal in commit 0f352e5392c8 ("mm: remove
+__GFP_NOFAIL is deprecated comment"), but it appears that Michal has
+since reconsidered his stance. ;)
+
+
+
+--
+Regards
+Yafang
