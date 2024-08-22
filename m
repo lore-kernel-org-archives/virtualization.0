@@ -1,115 +1,131 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A5411CB31D
-	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 14:45:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEB301CB329
+	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 14:46:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724337940; cv=none; b=NeUoD19lZ8tI1B50kCsuTa2so1ZrfJD4gB3sMwksUqudLaVAQeTiS54rrKhC4GX87dGrYeKAt3Ws+vug2057Eu/U9XGs/DJiKyGHCOgnfZ4AsDGYmlVWESn9BN4FM08j40ePLpq8topQVRp/g57yiwtGkrCcoerR+e0EHwHzzQQ=
+	t=1724337973; cv=none; b=QhZt0EGb5q+WCYDIWSw90TOBjtvgLCW7WfmTTr4QIO0bsKcMwqIcQ09l49zMT4/Bfxr1j+w7OMKU5PXX7vXcGQ77ZNBKPb4Jm61TTCK/h+3384a5+AoRoDWm0mzIvkeugvosl7YTA2xHuFAVl3gk5ea8ewbQzwIgNQsbXL2Lbds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724337940; c=relaxed/simple;
-	bh=UcNmewGgwyuxbDnzR4bXFjP2OTNp1avsMTCp4oLUCHs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=B1oG703lU6GRL95KqO3/yTdEUhoc64cYgs11f9+5hIAB5x2Huxm8P5hCEE1DMC8kkTMjxKXeiNbsR3HOY2WWP0gK4iFKqjH62dji+WCgHGmBH0YfO6M3CiPVYOMaBB+7EnjFu2aFNVV05zy0Alf1yH3VgotwFtpigyRE98wnVh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=fail smtp.mailfrom=kernel.org; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.org
-X-CSE-ConnectionGUID: UBbeXsfBRlu5nZHpssEczw==
-X-CSE-MsgGUID: I8QR6O+FRvOhyveyYFvcig==
-X-IronPort-AV: E=McAfee;i="6700,10204,11172"; a="22360670"
-X-IronPort-AV: E=Sophos;i="6.10,167,1719903600"; 
-   d="scan'208";a="22360670"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Aug 2024 07:45:38 -0700
-X-CSE-ConnectionGUID: 8qTJ1xUcTSCwD9dSqx9njw==
-X-CSE-MsgGUID: DQf8vM2PTiWk6u+9lqITwg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,167,1719903600"; 
-   d="scan'208";a="65665426"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmviesa003.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Aug 2024 07:45:29 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.98)
-	(envelope-from <andy@kernel.org>)
-	id 1sh93K-00000000U3f-1bWg;
-	Thu, 22 Aug 2024 17:44:42 +0300
-Date: Thu, 22 Aug 2024 17:44:42 +0300
-From: Andy Shevchenko <andy@kernel.org>
-To: Philipp Stanner <pstanner@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>,
-	Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
-	Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Jose Abreu <joabreu@synopsys.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
-	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
-	Chaitanya Kulkarni <kch@nvidia.com>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-	linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
-	netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-	linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v3 5/9] ethernet: cavium: Replace deprecated PCI functions
-Message-ID: <ZsdO2q8uD829hP-X@smile.fi.intel.com>
-References: <20240822134744.44919-1-pstanner@redhat.com>
- <20240822134744.44919-6-pstanner@redhat.com>
+	s=arc-20240116; t=1724337973; c=relaxed/simple;
+	bh=jz+4fFpyrnTKr/MkttvmGxu9rYqzL3UUL7h2NuXcZtE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Isa8BZDzBed2MLxCHG8E/ibXs/+R8QpH4ERR+q3c5m9ODZ+VwUM3YwG7DfrAL0NRQq2uGL/g4/50NSccszBrwZH1VIcbHLPl3Kj0cjgRBmH5AEJz91fE7/YjMQzrD58HVrdJnHQvCVpMilrCzpK7SfLOFS1hFuWty42BWTErBlY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Wd/oaWsN; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wd/oaWsN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724337971;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1PgDdjBoF4JblXtgGjeuWjO8887IujC2mbPadvbkarU=;
+	b=Wd/oaWsNIFSF3jwj4UtTDgH3K53zs0/qxIuZ+qInVZVEGDI6J6IUWHYunEnfKpNe0ZR09r
+	lGUnzX9C13IsKeea0ZH+Jc/Ai50EW9MiBi2AE4nZ4fNAtZ38oGrUuov+WvkH3jXtavK9yn
+	NfVG2q4fsBiOxtyIxy/RkFr12faWXq8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-626-WeQyYXEGOT-J_KqSCF4KnQ-1; Thu, 22 Aug 2024 10:46:08 -0400
+X-MC-Unique: WeQyYXEGOT-J_KqSCF4KnQ-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-427ffa0c9c7so9481395e9.1
+        for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 07:46:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724337967; x=1724942767;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=1PgDdjBoF4JblXtgGjeuWjO8887IujC2mbPadvbkarU=;
+        b=SpmSL3vnk2U0hmHB6h/2rPMJTWr43Rp1JOlhmBoJf6ltth0IQRZt2pztKtEBQPKGUg
+         6pH1aVLSStYSA0rhD7zeI6nmnuE7DABf0jL4JmOThsE5lBLmn9AfKGTWewwFESdjKB24
+         Zk9EHnEINqJkvZv10KCiJBjFdxbfbt/K5Tllx6vCUtJkxIzS9IbVRe3Hjtqd6H9KePyg
+         FRZHt/Gy1qjISrz9necyZpqWlo7AvldgoBcHcKe23h2Tw6s4BCQDB6FV5JBuTntIPU8C
+         ZP93oIfPWs7/4SckkZU1xaRgg2YNZTDn4Saq17UwoRMjI9jO+4Zszl8rrladvNHkapkf
+         JnWg==
+X-Forwarded-Encrypted: i=1; AJvYcCU9t90oTHmp6cN9gvI6lek14vAmgAcnHF1JtTuhhoKk2pKFUhJDFk46od8A5Z507/OWnKIb2mh/w4soatnmqw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YytGHVwrz2VMhWJ400KCMlZbn+IqqauVqHOqRXFKb66iKQjwWCb
+	dIj1lYDrPPcP1R258hohW5A669i5kzkZ+7jeV3gfOn8CnjxQAwqTpMvkMFw7Mxn9uIyPE4p+Yfx
+	C2rXgd7bEyx30QLr3v65MT2ui85foeV7Ffbep0PwrJrqaAFW0BT1S4zVevwzpQXIt
+X-Received: by 2002:a05:600c:3c97:b0:428:29e:8c42 with SMTP id 5b1f17b1804b1-42ac55cababmr22017825e9.9.1724337967184;
+        Thu, 22 Aug 2024 07:46:07 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFuLJzrR9+0Fk/xHqiEDPcjVZlaqCd+ihtEn7Tv4wCKVbCZaYnuqG4WIXNLVH5okrCjSI5r3g==
+X-Received: by 2002:a05:600c:3c97:b0:428:29e:8c42 with SMTP id 5b1f17b1804b1-42ac55cababmr22017335e9.9.1724337966687;
+        Thu, 22 Aug 2024 07:46:06 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:c:37e0:ced3:55bd:f454:e722? ([2a01:e0a:c:37e0:ced3:55bd:f454:e722])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42ac514e088sm27643235e9.8.2024.08.22.07.46.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Aug 2024 07:46:06 -0700 (PDT)
+Message-ID: <85f934ea-9c5a-4adb-8c6d-6c82beab41b1@redhat.com>
+Date: Thu, 22 Aug 2024 16:46:04 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240822134744.44919-6-pstanner@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] drm/virtio: Use XRGB8888 also for big endian
+ systems
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, Javier Martinez Canillas <javierm@redhat.com>
+References: <20240820090908.151042-1-jfalempe@redhat.com>
+ <2734s7h2c4tbtwzdlijbf7u3fvdcqtlcdipamsf4pf6jgx2slt@aq5bm3fuqgkz>
+From: Jocelyn Falempe <jfalempe@redhat.com>
+In-Reply-To: <2734s7h2c4tbtwzdlijbf7u3fvdcqtlcdipamsf4pf6jgx2slt@aq5bm3fuqgkz>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US, fr
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Aug 22, 2024 at 03:47:37PM +0200, Philipp Stanner wrote:
-> pcim_iomap_regions() and pcim_iomap_table() have been deprecated by
-> the PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
-> pcim_iomap_table(), pcim_iomap_regions_request_all()").
+On 21/08/2024 13:12, Gerd Hoffmann wrote:
+> On Tue, Aug 20, 2024 at 11:07:40AM GMT, Jocelyn Falempe wrote:
+>> Mesa doesn't support BGRX8888, that means most wayland compositors
+>> don't work on big endian guests.
 > 
-> Replace these functions with the function pcim_iomap_region().
+> So you are doing a hard switch from native endian to little endian.
+> 
+> While this should be fine for modern userspace API (aka ADDFB2 ioctl) it
+> is not for older APIs (ADDFB ioctl, also fbdev emulation) where only
+> depth=32 is specified and userspace typically expects a framebuffer in
+> native byte order.
+> 
+> Ideally virtio-gpu would support both big endian and little endian
+> framebuffer formats (simliar to bochs drm driver).  That probably is a
+> somewhat more invasive change because the DRM_IOCTL_MODE_CREATE_DUMB
+> doesn't tell use the format which will be used.  Possible options I see:
+> 
+>    (1) Be lazy on creating host resources, i.e. call
+>        virtio_gpu_cmd_create_resource() not at DRM_IOCTL_MODE_CREATE_DUMB
+>        time but later when the resource will be actually be used (and
+>        specifically after DRM_IOCTL_MODE_ADDFB(2) ioctl so we know the
+>        format).  Needs additional state tracking (whenever the resource
+>        has been created or not) in possibly lots of places.
+> 
+>    (2) Support changing the resource format, i.e. in case
+>        DRM_IOCTL_MODE_ADDFB(2) is called with a format different from the
+>        current one go through a destroy-and-recreate cycle for the host
+>        resource.  Might have tricky corner cases (resource being in use
+>        when DRM_IOCTL_MODE_ADDFB(2) is called).
 
-...
+I've implemented (1), I will send a new series soon.
 
-> -	err = pcim_iomap_regions(pdev, 1 << PCI_PTP_BAR_NO, pci_name(pdev));
-> -	if (err)
-> +	clock->reg_base = pcim_iomap_region(pdev, PCI_PTP_BAR_NO, pci_name(pdev));
-> +	if (IS_ERR(clock->reg_base)) {
-> +		err = PTR_ERR(clock->reg_base);
->  		goto error_free;
-> -
-> -	clock->reg_base = pcim_iomap_table(pdev)[PCI_PTP_BAR_NO];
-> +	}
-
-Perhaps
-
-	clock->reg_base = pcim_iomap_region(pdev, PCI_PTP_BAR_NO, pci_name(pdev));
-	err = PTR_ERR_OR_ZERO(clock->reg_base);
-	if (err)
-		goto error_free;
-
-This will make your patch smaller and neater.
-
-P.S. Do you use --histogram diff algo when preparing patches?
+Thanks for your advice.
 
 -- 
-With Best Regards,
-Andy Shevchenko
 
+Jocelyn
+
+> 
+> HTH & take care,
+>    Gerd
+> 
 
