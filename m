@@ -1,110 +1,122 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com [209.85.222.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5244716DEB4
-	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 07:54:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CB31153565
+	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 07:57:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724313285; cv=none; b=SCJ9Sm1C4LMXjg0H+maRrxKBNxTuGrHJNDYNaXHrWxDukQmonAtjFDXeYys5+9DdXjvmn0bxqJ2wl2TrfMrPeuz/t3Wc/akzsn3K8XBOGYQs0LbvikGCZr7uFv2NcfGPxne2vIrXkrdaa6bU7+w7FppiBCkwZPEJoNEttitUv/s=
+	t=1724313475; cv=none; b=BB3K3shxPEc/3UpUK6lgUpiFQxK3pTB2lIMn6iQSDUU3B88hxYfnXIH3pwP25LKnbhwGYRtE87Z11VR0FFVVr5q6iAjeGWmh/TocA8HBsJu9lrf0oxmnLGpZT6TTIvf+WI0qLsiMqIrlVELRDhpifxrRuLV5aG8CbZaCQfGVo4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724313285; c=relaxed/simple;
-	bh=Xd3iPO6p7lAd6e9pJyZN6uOw3X/efINGTQQZq9Rfsx4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V1PYqdYz1flHpyEPr5w05BSC8AjrOoCg1xGDu8nnHnthKPZpelSBHvV3P+XoSpdv5pdwRNdNXPCYJ5wtuxPo/KIhuq+xlzy7ql8jYdimqitVeaD7LpHkxRhT+jXKJys8ypEeUITfXLatwKGNrrQd+hJAYjZZETNzXSyJuNW1/nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=fv/7xrFM; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1724313475; c=relaxed/simple;
+	bh=8KXtPHsjFoj3uv2wva509wGKTEUBoElOsas9eq9UJPo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=d4w+98ywdXYScytw/upXzIzA7NH/WS2vz+Gp9Jx/tX4cWpgrGaeKVKEy4JPxLe9h+LbEDTNQTEpYV24EjwoHSxy2DgZom6b7Z18EFmKoDCswEK3q+B0NwqfZyzfaSmjTUdGcpRjZNsxlovaWG6qMeeGkgpvKo4v4WKaIry5TQhA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l19NylLj; arc=none smtp.client-ip=209.85.222.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="fv/7xrFM"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-58ef19aa69dso674859a12.3
-        for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 00:54:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l19NylLj"
+Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-842f00b72e4so174112241.1
+        for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 00:57:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1724313281; x=1724918081; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=h/dMpJsKzCty7PyozAjDXVmfBlGRovYP8Y1Bj5uwLJ0=;
-        b=fv/7xrFM/BFJgaWBbhGs/QAj4j5qwXa22FqIwxl3/T2NK5Xspke52HQFFpqqBxqk6c
-         UQYkpf7wTdI+rGOp495umGBuFjDdr0hn1BVLFEVc4tchW5b0cdUIDCYiogqAiZyXdN23
-         e7xssNTljfLqKVG9E1BqxVjYajD44T7AA4YaRAlO0ZQBmnR9uduZ74HbPRc31XAVYKJt
-         MU07kzEcGV2LJkVlizsJ38cfnna3cNFVFFPFd+bS5HRFuais0D2Vf2ytJn30I0ryTnUd
-         DXpbBmED2Tur8PAK1pZV4K9Ljmv8iD3KXe27okdOLk78ZRlQcFcaFN3ciQVjTA0LQ1ai
-         S+Zg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724313281; x=1724918081;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1724313472; x=1724918272; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=h/dMpJsKzCty7PyozAjDXVmfBlGRovYP8Y1Bj5uwLJ0=;
-        b=sXJVEG+TFF0ksGbyxO4tLORYOWpb5LJB3VsMW4SFpp7wbRJ4FYz1fGofr/wWKeuoxb
-         0VxtEKsbYIAtJIvRnlmY4BK6TUgG7cVZvZ6sbUfJkJRF3lnQPZ0el6Qmpo18unWBz+k+
-         Ecapx/aWiTUsNjquZqb8FM75/RuRg7KAJlZHfmLbW6GBsZ+e/SGjy+DPxT9yXa/N0Uts
-         NX7nraGHuquxEJihy7ohPBkkaDObzGopSf932z41Xu4hxi7S3B5llOWkT35K8yleVbfT
-         Dydx+SUnE9Cu55hPppJmCJb82y5LAKqYfsvQ+/i8emh+uEnwWYM77Z9oeAyg0MkjgXYH
-         ck1Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWR1oTAjS/1zlBC+GWLJsciKI6sMkXs2IYteOeyj5DKIT02LThgiLMrdkd2BSs+WMRMC2eAVTAg1gAD9CqyWg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzxZopylhFjoGLTDsPKbIeLx6Rfhck99UseB1LhQYCww+NV9jPA
-	5m9YPmfRKlF9ydiQTD8Xllgfl8KFhXLJYgWJ7dfzCr8Cw9HfeVbyCWIaGY0OzSo=
-X-Google-Smtp-Source: AGHT+IGq4R4GrxX7o9hFe7kKdnmxkeZ7NThxzG6CVbaJLbEsy1IDahxB33tMpj6vYTZfwwfSA1NLAQ==
-X-Received: by 2002:a05:6402:458e:b0:5be:db8a:7f5e with SMTP id 4fb4d7f45d1cf-5bf1f282963mr2279193a12.37.1724313281414;
-        Thu, 22 Aug 2024 00:54:41 -0700 (PDT)
-Received: from localhost (109-81-92-13.rct.o2.cz. [109.81.92.13])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c0515a9469sm555414a12.92.2024.08.22.00.54.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Aug 2024 00:54:41 -0700 (PDT)
-Date: Thu, 22 Aug 2024 09:54:40 +0200
-From: Michal Hocko <mhocko@suse.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	Yafang Shao <laoar.shao@gmail.com>,
-	David Hildenbrand <david@redhat.com>,
-	Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
-	linux-mm@kvack.org, 42.hyeyoo@gmail.com, cl@linux.com,
-	hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com,
-	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
-	urezki@gmail.com, v-songbaohua@oppo.com, vbabka@suse.cz,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
-Message-ID: <ZsbuwJPtRwr5Hi6E@tiehlicka>
-References: <20240817062449.21164-1-21cnbao@gmail.com>
- <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
- <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
- <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
- <CAHk-=wi9Z4QmmfeYo6aynRFbCA-_+FG83HYxXz2wVWfxjPyXSA@mail.gmail.com>
- <ZsbY5pNhDqGoxJG_@tiehlicka>
- <CAHk-=wgmHOrhCGU=vOkcsZy5rE0rRZcH2U0zg6HkJxzxUEJgTA@mail.gmail.com>
- <9fa8eca0-ad4e-445c-a21e-aaabb6aa4160@linux.alibaba.com>
+        bh=Vx7goW6BrSZt6yvtR2KIlQz0YFwTgKAn18ohH71KEoQ=;
+        b=l19NylLjddpqcXwrbxF19E42H/H7R4OJVoCpGsvKk82rH0zfW2Bq3MjvNNUrI0eQ0e
+         bDpDymtlpKRNVNI17iEIQixPY5nqGtahWt4wFhqF8wopl8V/YGTGdsCJ2TvlaE/DO6Dl
+         i6TVB306uMmEcIrM7U5IWi0fw40aE8jg6g1m2QM+b4lHjtU7nbx/WYckfcUP8od5u5G1
+         3odbQjbUzlNAQjMTJNVFoGk7vZgWrRzgr8+uLi9WvrPI9j7/2ZW7QW15ipTMzk1K9qkG
+         7GANAY0AUlQ2Kdl2eNOIVv5qrNinIHe5jf5wHrdr26/U3du3nSBa2UIFgg3SFM7Ia/n2
+         Hgxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724313472; x=1724918272;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Vx7goW6BrSZt6yvtR2KIlQz0YFwTgKAn18ohH71KEoQ=;
+        b=k7mebbuXy3xbN2zxzO/uo5Yb8q42nSatBByssgpUmMLBgUMYkyVlwozS27YSzxhb1B
+         G9NiRyrxGIBeUOLRq+eM88P4YeGdD0T45SQdx+riBsMQgliFb/XxPQR9a+JFQevJ8KeC
+         L7rlfU+abFFNbkiQaJoxVWr6ECnrNAyOz5KklBj2gUsN53eUauyPlYBZoihom9qojlgo
+         tIWHSs2QKSqQfJxRTXpRJkHCb0Rz8zR8m424rjftK9Kim2AoBUGaUlZ633SrlBkeWY5L
+         Y8vTVTJpCJ7hidXoLkg9PJjy/S+H9UWsyQO+YBl0TnlX9gK1nlAISAg1KGWdm0h1nI42
+         u9IQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUNjvn+OL4y0uTQiNoduKQULqNHYyvKVV99fGNRzd32VnJZdCVEOMdmrU4ITnPEabyXBUSImSrphkhUVi54+g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YztLNVr+Y0xZcfv4yHNp4eDHDyXj3IDHIBffbeAhp5eEsivPemN
+	WOqdsW8zdkmyWmfE7kjkDfq/ItC5o01hPWyAnpZzXPJrofAcU4/CrET6JVC7ThK8Uy/AjKp/oFM
+	HHmlKXo0r37CyhoMhrb6NkXuvq40=
+X-Google-Smtp-Source: AGHT+IG/r3gSQhEjKBouSZKmUHqM+wdKZI9hDk06nNlLc2wizZHza8wUPODMHmj9HOZQ71Koaobz4K6VSNPlcbCmWm4=
+X-Received: by 2002:a05:6102:3914:b0:497:5e68:887b with SMTP id
+ ada2fe7eead31-498d3e4c254mr5477927137.16.1724313472348; Thu, 22 Aug 2024
+ 00:57:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9fa8eca0-ad4e-445c-a21e-aaabb6aa4160@linux.alibaba.com>
+References: <20240817062449.21164-1-21cnbao@gmail.com> <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
+ <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+ <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
+ <CAHk-=wi9Z4QmmfeYo6aynRFbCA-_+FG83HYxXz2wVWfxjPyXSA@mail.gmail.com>
+ <ZsbY5pNhDqGoxJG_@tiehlicka> <CAHk-=wgmHOrhCGU=vOkcsZy5rE0rRZcH2U0zg6HkJxzxUEJgTA@mail.gmail.com>
+ <CAHk-=wiNCkgsrdNii7EwEXjt_47wF7YBJYWMhdsZJS8yVFDR=Q@mail.gmail.com> <ZsbtGClLMtaeakdo@tiehlicka>
+In-Reply-To: <ZsbtGClLMtaeakdo@tiehlicka>
+From: Barry Song <21cnbao@gmail.com>
+Date: Thu, 22 Aug 2024 19:57:41 +1200
+Message-ID: <CAGsJ_4zM4tACW=8FrEVF6fhwke5BLHCXOb0O3xBoVsF9Rb7+9w@mail.gmail.com>
+Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
+To: Michal Hocko <mhocko@suse.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Yafang Shao <laoar.shao@gmail.com>, 
+	David Hildenbrand <david@redhat.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	42.hyeyoo@gmail.com, cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, 
+	iamjoonsoo.kim@lge.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com, 
+	vbabka@suse.cz, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu 22-08-24 15:01:43, Gao Xiang wrote:
-> In my opinion, I'm not sure how PAGE_ALLOC_COSTLY_ORDER restriction
-> means for a single shot.  Because assume even if you don't consider
-> a virtual consecutive buffer, people could also do
-> < PAGE_ALLOC_COSTLY_ORDER allocations multiple times to get almost
-> the same heavy workload to the whole system.  And we also allow
-> direct/kswap reclaim here.
+On Thu, Aug 22, 2024 at 7:47=E2=80=AFPM Michal Hocko <mhocko@suse.com> wrot=
+e:
+>
+> On Thu 22-08-24 14:56:08, Linus Torvalds wrote:
+> > On Thu, 22 Aug 2024 at 14:40, Linus Torvalds
+> > <torvalds@linux-foundation.org> wrote:
+> > >
+> > > I did find three cases of kvcalloc(NOFAIL) in the nouveau driver and
+> > > one in erofs. It's not clear that any of them make much sense (or tha=
+t
+> > > the erofs one is actually a large allocation).
+> >
+> > Oh, and I missed one in btrfs because it needed five lines of context
+> > due to being the allocation from hell.
+> >
+> > That said, yes, the vmalloc case at least has no fragmentation issues,
+> > but I do think even that needs to be size limited for sanity.
+> >
+> > The size limit might be larger than a couple of pages, but not
+> > _hugely_ larger. You can't just say "I want a megabyte, and you can't
+> > fail me". That kind of code is garbage, and needs to be called out for
+> > being garbage.
+>
+> yes, no objection here. Our current limits are too large for any
+> practical purpose. We still need a strategy how to communicate that
+> the size is not supported though. Just returning NULL is IMHO bad thing
+> because it adds potentially silent failure. In other subthread I was
+> contemplating about OOPS_ON which would simply terminate the user
+> context and kill it right away. What do you think about something like
+> that?
 
-Quite honestly I do not think that PAGE_ALLOC_COSTLY_ORDER constrain
-make sense outside of the page allocator proper. There is no reason why
-vmalloc NOFAIL should be constrained by that. Sure it should be
-contrained to some value but considering it is just a bunch of PAGE_SIZE
-allocation then the limit could be higher. I am not sure where the
-practical limit should be but anything that requires more than couple of
-MBs seems really excessive.
+Personally, I fully support this approach that falls between BUG_ON
+and returning NULL. Regarding the concern about 'leaving locks
+behind' you have in that subthread,  I believe there's no difference
+when returning NULL, as it could still leave locks behind but offers
+a chance for the calling process to avoid an immediate crash.
 
-And for PAGE_ALLOC_COSTLY_ORDER and NOFAIL at the page allocator level I
-would argue that we do not want to provide such a strong guarantee to
-anything order > 0. Just use kvmalloc for that purpose. Sure we
-practically never fail up to costly order but guaranteeing that is a
-different story.
+> --
+> Michal Hocko
+> SUSE Labs
 
--- 
-Michal Hocko
-SUSE Labs
+Thanks
+Barry
