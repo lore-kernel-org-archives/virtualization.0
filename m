@@ -1,96 +1,108 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C53A51CC151
-	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 14:50:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2600113B29B
+	for <virtualization@lists.linux.dev>; Thu, 22 Aug 2024 15:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724338240; cv=none; b=j6SvXGAvOhDsE6I7KcjCLdNtqSsbLzFY7DMgBC2Mfc364nHD8dqMfF8cQvI+VgBvWj1yRbPJLZZiNJpxzum1BDGBflg2H7LJmUVO9jDdNvHQj9fqZkGccSWxVT2oCW5Nm0uVpUL1G2Ys8jf4WjxO1+yxWgxS0ElRjRHallad2g8=
+	t=1724338976; cv=none; b=fPX2a9jqvpyLvBjAcFPDQLDp6QcN92It61OIdKwdwfi9ACEiQtGUpbKEB/Pe56yBiKpe8bINMU4OH00rZtRMIaZD4wvSelWKFR6Ew+azSgUu4DrT/Vzov0DiSSeAc8yWH0upkPidlpZh6D0GjvsueDuzHfvv5+aF6kRGPMmgTfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724338240; c=relaxed/simple;
-	bh=dl3kb68HcduOqK5lkZHdmPl+lK4j2kU52a/fqW62vRU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qllEFRoeHCL8dgszMk4/T4bAqqicMQ0BtV6TcXLJK5evmPzh2U8j5xT6eiczlSXdK+BHSI514h0Fnxad4i1qi/9Xhifk1K3rQsnahAC+7euwNwVcZjcfZ2TRnXgA7nhXHr9JRR3QqSuOv+t/CTMz59crgNGbO07+6MBdu18C4x0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=fail smtp.mailfrom=kernel.org; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.org
-X-CSE-ConnectionGUID: ERuQ4KEDT8OuQCQTxakVaw==
-X-CSE-MsgGUID: D1KaogEKQDqyTeegiohzww==
-X-IronPort-AV: E=McAfee;i="6700,10204,11172"; a="22886629"
-X-IronPort-AV: E=Sophos;i="6.10,167,1719903600"; 
-   d="scan'208";a="22886629"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Aug 2024 07:50:36 -0700
-X-CSE-ConnectionGUID: gRGZt8Q+TzmbySdyJ/62Vw==
-X-CSE-MsgGUID: R5o12bjCSma3zXw3NSRBWg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,167,1719903600"; 
-   d="scan'208";a="92270919"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmviesa001.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Aug 2024 07:50:24 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.98)
-	(envelope-from <andy@kernel.org>)
-	id 1sh98X-00000000U9R-0pzE;
-	Thu, 22 Aug 2024 17:50:05 +0300
-Date: Thu, 22 Aug 2024 17:50:04 +0300
-From: Andy Shevchenko <andy@kernel.org>
-To: Philipp Stanner <pstanner@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>,
-	Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
-	Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Jose Abreu <joabreu@synopsys.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
-	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
-	Chaitanya Kulkarni <kch@nvidia.com>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-	linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
-	netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-	linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v3 0/9] PCI: Remove pcim_iounmap_regions()
-Message-ID: <ZsdQHMXRJOQkEN4-@smile.fi.intel.com>
-References: <20240822134744.44919-1-pstanner@redhat.com>
+	s=arc-20240116; t=1724338976; c=relaxed/simple;
+	bh=T6Y8XdqqTqyK3t61vtBURqlaVo4hw+ZglMbAsIVyMxw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YK9tOcwGdzIneLB+8uNOdO0xmy3ZEWjdP/3KXEKR+a0oX4lLm+aUVyvaw/xpDDKdwEiM3OjogpyU+6L1w8RUkCWFXFDN/JJSbBoNzHbNAJb4ZKW7GAQpGcQ2as8XNV0GkjPJO2G+z5tuN9+c3/pPvFhm9WNNXssoNMTKHcSsKdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=k3J4yYl0; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="k3J4yYl0"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1724338970; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=peTEqBgOuAT8bs3zeMz5eUMcF0EAlNt2QLgLaqnO5Gs=;
+	b=k3J4yYl0jyNbdE6ZqmLyJy9lSb2Cb8hHim11j/e0Tw+jSskjNRkqPJQeh9pmuj3QFXshTDPigK8SUuuIw0re7PVfLmo7BYCFDFjtmRMXjrq2mcXqSjpfO0KpMYFJZe+XrAmR/JOGG5070+ACC/vIvhn8CeucH5Gbbfr/67RvcyA=
+Received: from 192.168.2.4(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WDQjJbl_1724338966)
+          by smtp.aliyun-inc.com;
+          Thu, 22 Aug 2024 23:02:48 +0800
+Message-ID: <f26bffb3-13ea-464e-8197-b53837caa0d5@linux.alibaba.com>
+Date: Thu, 22 Aug 2024 23:02:46 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240822134744.44919-1-pstanner@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ David Hildenbrand <david@redhat.com>, Barry Song <21cnbao@gmail.com>,
+ akpm@linux-foundation.org, linux-mm@kvack.org, 42.hyeyoo@gmail.com,
+ cl@linux.com, hailong.liu@oppo.com, hch@infradead.org,
+ iamjoonsoo.kim@lge.com, penberg@kernel.org, rientjes@google.com,
+ roman.gushchin@linux.dev, urezki@gmail.com, v-songbaohua@oppo.com,
+ vbabka@suse.cz, virtualization@lists.linux.dev
+References: <20240817062449.21164-1-21cnbao@gmail.com>
+ <7050deab-e99c-4c83-b7b9-b5dad42f4e95@redhat.com>
+ <CAHk-=wgv2-=Bm16Gtn5XHWj9J6xiqriV56yamU+iG07YrN28SQ@mail.gmail.com>
+ <CALOAHbDP9d6GNNhjB30zKiaMh_HvToKDGZ3sO9tkxRu5+HpEZQ@mail.gmail.com>
+ <CAHk-=wi9Z4QmmfeYo6aynRFbCA-_+FG83HYxXz2wVWfxjPyXSA@mail.gmail.com>
+ <ZsbY5pNhDqGoxJG_@tiehlicka>
+ <CAHk-=wgmHOrhCGU=vOkcsZy5rE0rRZcH2U0zg6HkJxzxUEJgTA@mail.gmail.com>
+ <9fa8eca0-ad4e-445c-a21e-aaabb6aa4160@linux.alibaba.com>
+ <ZsbuwJPtRwr5Hi6E@tiehlicka>
+ <e811aeca-b8df-489a-b2ee-96abf6877d8c@linux.alibaba.com>
+ <CALOAHbDoTnzovaw2nmmywiZLxiVx+dJymG2znrWN1+=VSowsRQ@mail.gmail.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <CALOAHbDoTnzovaw2nmmywiZLxiVx+dJymG2znrWN1+=VSowsRQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 22, 2024 at 03:47:32PM +0200, Philipp Stanner wrote:
 
-> Important things first:
-> This series is based on [1] and [2] which Bjorn Helgaas has currently
-> queued for v6.12 in the PCI tree.
+
+On 2024/8/22 22:35, Yafang Shao wrote:
+> On Thu, Aug 22, 2024 at 4:04 PM Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+>>
+>> Hi Michal,
+>>
+>> On 2024/8/22 15:54, Michal Hocko wrote:
+>>> On Thu 22-08-24 15:01:43, Gao Xiang wrote:
+>>>> In my opinion, I'm not sure how PAGE_ALLOC_COSTLY_ORDER restriction
+>>>> means for a single shot.  Because assume even if you don't consider
+>>>> a virtual consecutive buffer, people could also do
+>>>> < PAGE_ALLOC_COSTLY_ORDER allocations multiple times to get almost
+>>>> the same heavy workload to the whole system.  And we also allow
+>>>> direct/kswap reclaim here.
+>>>
+>>> Quite honestly I do not think that PAGE_ALLOC_COSTLY_ORDER constrain
+>>> make sense outside of the page allocator proper. There is no reason why
+>>> vmalloc NOFAIL should be constrained by that. Sure it should be
+>>> contrained to some value but considering it is just a bunch of PAGE_SIZE
+>>> allocation then the limit could be higher. I am not sure where the
+>>> practical limit should be but anything that requires more than couple of
+>>> MBs seems really excessive.
+>>
+>> Yeah, totally agreed, that would make my own life easier, of
+>> course I will not allocate MBs insanely.
+>>
+>> I've always trying to kill unnecessary NOFAILs (mostly together
+>> with code cleanups), but if a failure path increases more than
+>> 100 LOCs just for rare failure and extreme workloads, I _do_
+>> hope kvmalloc(NOFAIL) could work instead.
 > 
-> This series shall remove pcim_iounmap_regions() in order to make way to
-> remove its brother, pcim_iomap_regions().
+> If the LOCs in the error handler are a concern, I believe we can
+> simplify it to a single line: while (!alloc()), which is essentially
+> what NOFAIL does and is also the reason we want desperate NOFAIL.
+> 
+> A better approach might involve failing after a maximum number of
+> retries at the call site, for example:
+> 
+>    while (try < max_retries && !alloc())
+> 
+> At least that is better than the endless loop in the page allocator.
 
-For the non-commented ones (by me or by others)
-Reviewed-by: Andy Shevchenko <andy@kernel.org>
+Funny.
 
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Thanks,
+Gao Xiang
