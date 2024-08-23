@@ -1,74 +1,80 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAB3618890B
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 14:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D673185B4B
+	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 15:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724424691; cv=none; b=WfZvgiNgbBk5oF7iJ3oXBPc15VNAOVii76zA7ipRW+p8vsY+oeHYVS1PFDUCfjBcOYDXkh/cq2tnPMhM7OAcXzISgc6/2It6NWACqQxqHL5RRwfwnA9KSepms30Lo8pTdr9MXDgackbMvdj2p3uQf01bT0FmgOyfcTnqbjeTWRQ=
+	t=1724425247; cv=none; b=ZEo8Mru1QthxplJKAOLbQnpH2PMag7h5lWruYyIVCviIcIjd/6M9lXmUYA0Bf3Qm54k3+mH9/7smZuc1u+xmndDwagSpDfrZYZWP091w5g8qcWHhyWVOAcKJWC073iD6yk9liI8Zgupn2vmnu0VTQnlGsS2c8bvH+I1zAVBuvQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724424691; c=relaxed/simple;
-	bh=b4C+Oy37DV2Kzj7Jrf0dTC698njLjd23JNwPJG1/FcU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=D7j+FrVMCNQn88AB9YbcS/Qc6Z2r3epVQm4CuqwrYnjp3UsLQc67GL7iRcgn7HGZ5+i2glSnQQbeOr7fcXBhFFur3aejIIhPJLfkifJClMk3GQBdEF0txtJMezxC/SnlB8Y2cjrnFwvmw0h/EseUOlS7E3niu68rPcXpxD/DcKA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=ieVhuQSC; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1724425247; c=relaxed/simple;
+	bh=JnS2aC1Coh4gceyoYGpTyCvKVbqEfxl50Z0lsBhxKwg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=a10R9CqQXkJqam8tyQ7myHULqgdDM9e1tz0CmoGkCIuK60Tm5OJrZqSAEml4fuBaXAVah3+hh3qMGjF0Nl+qwukWAdojCmTdg5P0uOxnsqBbhV8CTHXBWE6mDQgSYk6S6Vq3zYg5tBTmrdUdBLRfZI/STlGEbNj7ev4gn1tYxc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=UnevkPY6; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mfWtYfhl; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=UnevkPY6; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mfWtYfhl; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="ieVhuQSC"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8FE2B401D8
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 14:51:29 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id gEUJKUZgrkNZ for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Aug 2024 14:51:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b34; helo=mail-yb1-xb34.google.com; envelope-from=cbilbao@digitalocean.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 4250140129
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4250140129
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=digitalocean.com header.i=@digitalocean.com header.a=rsa-sha256 header.s=google header.b=ieVhuQSC
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4250140129
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 14:51:28 +0000 (UTC)
-Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-e1651f48c31so1992178276.0
-        for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 07:51:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google; t=1724424687; x=1725029487; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=b4C+Oy37DV2Kzj7Jrf0dTC698njLjd23JNwPJG1/FcU=;
-        b=ieVhuQSCUHSfZVx0XnDc4ZlRjsv598i5FD78dCyWXuF0NddYgzYs+k7nvUIgXMVt8C
-         p2Ly8wKoeo5CcM/q6gegs/RKsyh+l7pMHU3C5Oyxtzw8/dRYyi67mdWhtg1hDro0nIdl
-         NOLRqYm8ol453r/A1q5HRsWQVCUQT1h2MLvWw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724424687; x=1725029487;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=b4C+Oy37DV2Kzj7Jrf0dTC698njLjd23JNwPJG1/FcU=;
-        b=iNnBdlGkT+nZFipY6lj1kslL8fnz377GN9fXqWH1Hsx3tLS75V8MtZWNAoc8KFnUTr
-         F7d9HAjnEdPBBF+jyUhD0GG+lk4eykr/qQxm4vjr7qXM+nAl2AIm67siHYylD03iVSGa
-         hlUc/RUQaJFP/zzfTukYq+KQlExPt48m3L92TnfWKggQIY84XBCB6H4VdWrqhS5/5pTX
-         SACzxF4XOfto1kpWHMkYkeIW1lpTadw6ymr1LYoVFHRmjgZlsZ/qPg5F9KUmOiYgk10Q
-         3TqBj/YNGrLMiLz71vztD3qnHgdJJKVxz/p88UMUDpIWPDGj6Pq9rPXui0l5EoK5g0nM
-         Sk9Q==
-X-Gm-Message-State: AOJu0YyFAW4yriU7SRPbbWUjJGjswgrwRQa1JFbhPXVwmlW2Qpwsk7+E
-	wKVUNvw4SJBUQJGUgZSTmhjRrfqQE+rf6voGaSSt5ffWvaU3IcAkCqggVhgGNxZqw9FuLkDsRGe
-	7Ty4pJg==
-X-Google-Smtp-Source: AGHT+IG6JLoQwXGBZb5kz/05HTW1+oRlGRg0Y8dCBjJ8Cxj2vuoaOWbYxxL+QDFhLPXt07y77oLlWw==
-X-Received: by 2002:a05:6902:1109:b0:e16:6b7e:94b5 with SMTP id 3f1490d57ef6-e17a86a517emr3398358276.48.1724424686570;
-        Fri, 23 Aug 2024 07:51:26 -0700 (PDT)
-Received: from ?IPV6:2603:8080:7400:36da:45f:f211:3a7c:9377? ([2603:8080:7400:36da:45f:f211:3a7c:9377])
-        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e178e46361csm707782276.19.2024.08.23.07.51.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Aug 2024 07:51:26 -0700 (PDT)
-Message-ID: <e7ba91a7-2ba6-4532-a59a-03c2023309c6@digitalocean.com>
-Date: Fri, 23 Aug 2024 09:51:24 -0500
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="UnevkPY6";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mfWtYfhl";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="UnevkPY6";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mfWtYfhl"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id D3AEF20332;
+	Fri, 23 Aug 2024 15:00:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1724425243; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vTspk2gAikZmRyLQ1m0bx++aTy1mWm3Fqij3vNC4bpg=;
+	b=UnevkPY6n61EiheDJmLqV0X/ucZMDimtLcvHPHHAE0HP7BEYsFeB9i0C9MPZjCSFKhvKyw
+	6o8KoF1JI+2bKcksxz49Edw8TMNYVIAcL/po6Rra346VZp6TT58AtnjBnNoEPnJjfrfqYm
+	USbn34FM5MTZnG10mHMazz5AEWgC2U4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1724425243;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vTspk2gAikZmRyLQ1m0bx++aTy1mWm3Fqij3vNC4bpg=;
+	b=mfWtYfhlo72IOsp28ks1LNSsS1Lfs4BjzoLUOh1WvR4XStro+j5MCZ/3sv0hFsnU/nC9LC
+	6rzcAhr3JNBuWpDQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1724425243; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vTspk2gAikZmRyLQ1m0bx++aTy1mWm3Fqij3vNC4bpg=;
+	b=UnevkPY6n61EiheDJmLqV0X/ucZMDimtLcvHPHHAE0HP7BEYsFeB9i0C9MPZjCSFKhvKyw
+	6o8KoF1JI+2bKcksxz49Edw8TMNYVIAcL/po6Rra346VZp6TT58AtnjBnNoEPnJjfrfqYm
+	USbn34FM5MTZnG10mHMazz5AEWgC2U4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1724425243;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vTspk2gAikZmRyLQ1m0bx++aTy1mWm3Fqij3vNC4bpg=;
+	b=mfWtYfhlo72IOsp28ks1LNSsS1Lfs4BjzoLUOh1WvR4XStro+j5MCZ/3sv0hFsnU/nC9LC
+	6rzcAhr3JNBuWpDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 995371333E;
+	Fri, 23 Aug 2024 15:00:43 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id MxElIxukyGYZAgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 23 Aug 2024 15:00:43 +0000
+Message-ID: <42389f21-1ddb-428d-8471-92eae5a5f45a@suse.de>
+Date: Fri, 23 Aug 2024 17:00:43 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -76,91 +82,148 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC] vDPA: Trying to make sense of config data
-From: Carlos Bilbao <cbilbao@digitalocean.com>
-To: virtualization@lists.linux-foundation.org, mst@redhat.com,
- jasowang@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <4f4572c8-1d8c-4ec6-96a1-fb74848475af@digitalocean.com>
+Subject: Re: [PATCH 00/10] rm/bochs: Modernize driver
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: daniel@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev
+References: <20240823124422.286989-1-tzimmermann@suse.de>
+ <sksjddgidfrk4bvcxvb46khevp4a4nfvl2holgdw636wld7oov@vdbcvdf3ch6m>
 Content-Language: en-US
-In-Reply-To: <4f4572c8-1d8c-4ec6-96a1-fb74848475af@digitalocean.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <sksjddgidfrk4bvcxvb46khevp4a4nfvl2holgdw636wld7oov@vdbcvdf3ch6m>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[7];
+	MIME_TRACE(0.00)[0:+];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,lists.freedesktop.org,lists.linux.dev];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid]
+X-Spam-Score: -4.30
+X-Spam-Flag: NO
 
-Hello again, 
+Hi
 
-Answering my own question:
+Am 23.08.24 um 16:34 schrieb Gerd Hoffmann:
+>    Hi,
+>
+>> Patch 8 replaces GEM VRAM with GEM SHMEM. The new memory manager
+>> is more reliable and allows for larger resolutions.
+> Valid point.
+>
+>> Display updates were so slow that Gnome was unmanageable with a
+>> flickering cursor and single FPS. The new memory management makes
+>> Gnome at least useable.
+> Hmm?  I'm wondering where this huge improvement comes from?
+>
+> With enough video memory VRAM performance should be ok.
+>
+> If video memory is tight and ttm is forced to shuffle around
+> framebuffers between vram and system memory on each page flip (touching
+> much of vram along the way which causes additional overhead on the qemu
+> side), that is obviously very bad for performance.  One of the reasons
+> why cirrus uses SHMEM + shadowing since years.
+>
+> Shadow buffering comes with some overhead too, so the switch isn't an
+> obvious win (assuming enough vram).  Hiding the page flips from qemu
+> might reduce the work qemu has to do though, especially if the shadowing
+> uses dirty tracking and only touches the vram pages which have actually
+> changed content.  So there is a fair chance that this outweighs the
+> shadowing overhead and ends up being a net win.  I don't expect the
+> difference being very big though.  Also different display usage patterns
+> might yield different results (fbcon vs. gnome for example).
+>
+> So this probably makes sense, but I'd like to see a bit more background
+> information ...
 
-https://elixir.bootlin.com/linux/v6.10.2/source/include/uapi/linux/virtio_net.h#L92
+The difference is in damage handling.
 
-Thanks, Carlos
+The old code had two BOs in video memory and flipped between them. IDK 
+the details of the old rendering, but from the massive flickering of the 
+cursor, I assume that X11's internal either copies a full buffer during 
+each redraw, or doesn't really handle damage well. It could also happen 
+that X didn't use a shadow buffer for rendering. Bochs didn't request 
+one. Without, drawing to I/O memory is really slow. If that applies to 
+virtual I/O memory as well IDK.
 
-On 8/22/24 1:21 PM, Carlos Bilbao wrote:
-> Hello folks,
+The new driver code only copies areas that have been changed from 
+rendering. The flickering is gone and the overall update performance is 
+acceptable.
+
 >
-> I'm using the code below to retrieve configuration data for my vDPA file
-> via ioctl. I get as output:
+> On vram sizes:  The default qemu vram size (16M) should be fine for the
+> default display resolution (1280x800).  For FullHD vram size should be
+> doubled (-device VGA,vgamem_mb=32).
+
+Right. Bochs never really tested that. So I saw something like 5k by 3k 
+resolutions on my test setup with 16 MiB. Now that video-memory 
+requirements for each mode can be calculated easily, we can sort out the 
+invalid modes.
+
 >
-> Configuration data (24 bytes):
-> 5a c3 5f 68 48 a9 01 00 08 00 dc 05 00 00 00 00
-> 00 00 00 00 00 00 00 00
-> ASCII representation:
-> Z._hH...................
 >
-> Could a good Samaritan point me in the right direction for the docs I need
-> to understand these values and convert them to a human-readable format?
-> hank you in advance!
+> Skimmed the other patches, looks sane overall, but I don't follow drm
+> close enough any more to do an full review.  So I leave this here:
 >
-> Regards,
-> Carlos
+> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Thank you so much.
+
+Best regards
+Thomas
+
 >
-> ---
+> take care,
+>    Gerd
 >
-> void check_config(int fd) {
->
->     uint32_t size;
->     struct vhost_vdpa_config *config;
->     uint8_t *buf;
->
->     if (ioctl(fd, VHOST_VDPA_GET_CONFIG_SIZE, &size) < 0) {
->         perror("ioctl failed");
->         return;
->     }
->
->     config = malloc(sizeof(struct vhost_vdpa_config) + size);
->     if (!config) {
->         perror("malloc failed");
->         return;
->     }
->
->     memset(config, 0, sizeof(struct vhost_vdpa_config) + size);
->     config->len = size;
->     config->off = 0;
->
->     buf = config->buf;
->
->     if (ioctl(fd, VHOST_VDPA_GET_CONFIG, config) < 0) {
->         perror("ioctl failed");
->     } else {
->         printf("Configuration data (%u bytes):\n", size);
->
->         /* Print the data in a human-readable format */
->         for (unsigned int i = 0; i < size; i++) {
->             if (i % 16 == 0 && i != 0) printf("\n");
->             printf("%02x ", buf[i]);
->         }
->         printf("\n");
->
->         printf("ASCII representation:\n");
->         for (unsigned int i = 0; i < size; i++) {
->             if (buf[i] >= 32 && buf[i] <= 126) {
->                 printf("%c", buf[i]);
->             } else {
->                 printf(".");
->             }
->         }
->         printf("\n");
->     }
->
->     free(config);
-> }
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
+
