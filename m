@@ -1,155 +1,116 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 08F8980631;
-	Fri, 23 Aug 2024 06:39:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 711C710953
+	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 07:04:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724395199; cv=none; b=hQWsmTeZj99IKS/oYGSc9W8UU2r/TPGJKqpgdkACfwFX6TuTjRkHc2SLGG3DVZcBq0iJXS1P/1pcB13oQ89JKhSdbc5xcAczvJzO3sU8Ytd32Cg9HNuwLr12muTLfTcnDsyLuUlkOItP/e0Hzz95Y2ZI+Pb7a7gVaZvoWYguIg8=
+	t=1724396666; cv=none; b=qKoT16CHr2Gp/HdtMG/0BrO71GFgl0C9PN7vAN6HA/dj9cMecJ0XQnbevMHj0UuC7AIgcUjzHgM/h2a0opXtnREUTQgmS4J8pD9kwejapfQ7pisgkpPfGhWtvoEJZCoOPhFw1NvDmWv8X2asA9aNQQCAbSqXEvfTwiTqDQXNE3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724395199; c=relaxed/simple;
-	bh=MKI/sWHIyLgpfqJt/N3sHA/FKOoAGPohHnYGV6nLDQ0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=D1/uTHCMzJzuMA4hcK/TrLihwh5hH3pIFUdZS55nIde47mfxtdnVOTktkqYjnP5EleBvYouyTUKKwGjljByBU7L+24z2p4/pbjcp82UxfrR98/AC4shUdK5BliUzgmhPpnQvOQU39Nx2+1kV5ErGuVAQc68Rvkt1fU4UF3evnWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8Bxnpu0Lshm0h8dAA--.35999S3;
-	Fri, 23 Aug 2024 14:39:48 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.2.5.213])
-	by front1 (Coremail) with SMTP id qMiowMDxnWevLshmUPoeAA--.41360S4;
-	Fri, 23 Aug 2024 14:39:47 +0800 (CST)
-From: Bibo Mao <maobibo@loongson.cn>
-To: Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>
-Cc: WANG Xuerui <kernel@xen0n.name>,
-	kvm@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	x86@kernel.org,
-	Song Gao <gaosong@loongson.cn>
-Subject: [PATCH v7 2/3] LoongArch: KVM: Implement function kvm_para_has_feature
-Date: Fri, 23 Aug 2024 14:39:42 +0800
-Message-Id: <20240823063943.2618675-3-maobibo@loongson.cn>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240823063943.2618675-1-maobibo@loongson.cn>
-References: <20240823063943.2618675-1-maobibo@loongson.cn>
+	s=arc-20240116; t=1724396666; c=relaxed/simple;
+	bh=10dJkZmJLKRX1TSqlZvXZCZ5bG8XvZiEhB0six3b+TU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=UPe387fPNpnRwNnduMQCT3FyLO5x0q7Qe/Fwie6nfoD4ItbfGb2+m4SNsT8sN5IbD5JtizHHiJqly1h9OWL9vIrA1ppP7a+w/ck7rNeOh97XVmOw8E36c4mhzmtVumwUfIKS5myONzZZw9Z/pSZqvU74gFJV0sfBGYGm4BPPRUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZUbtFeuf; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZUbtFeuf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724396663;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pDT0JRgI2md7crLLm9P6/RlRyF91EoM9zgMo2dMluV0=;
+	b=ZUbtFeufjT6VGt5rbJsmyxf3ofVjMzz5kcO8zVUUYB0kKSXNtSnAgdeGZGu8ScgM3b/6gG
+	ZcodupnrcyWNr0vgpdfVWvk6SGUGz+9h4Uu4ILNrbDLKbqDXz5v7yhlL3G/m3/qJApoyal
+	SJW7Dvzg0olxPH/MPARuf+Or10HG/bg=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-583-fg5V0--HM5aejzr-tRIEmA-1; Fri,
+ 23 Aug 2024 03:04:22 -0400
+X-MC-Unique: fg5V0--HM5aejzr-tRIEmA-1
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3EC701955D4A;
+	Fri, 23 Aug 2024 07:04:20 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.194.20])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CDCCE19560A3;
+	Fri, 23 Aug 2024 07:04:18 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+	id 84F001800629; Fri, 23 Aug 2024 09:04:16 +0200 (CEST)
+Date: Fri, 23 Aug 2024 09:04:16 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Jocelyn Falempe <jfalempe@redhat.com>
+Cc: David Airlie <airlied@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel@ffwll.ch>, 
+	Javier Martinez Canillas <javierm@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH 1/2] drm/virtio: Defer the host dumb buffer creation
+Message-ID: <mlqofcqa2yki43bkcl2kq6wfwchmkisnybbadd32khln5tv4ux@u4xuf6gumcqa>
+References: <20240822172338.698922-1-jfalempe@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowMDxnWevLshmUPoeAA--.41360S4
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
-	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
-	nUUI43ZEXa7xR_UUUUUUUUU==
+In-Reply-To: <20240822172338.698922-1-jfalempe@redhat.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Function kvm_para_has_feature() is to detect supported paravirt features,
-it can be used by device driver to detect and enable paravirt features,
-such as extioi irqchip driver can detect KVM_FEATURE_VIRT_EXTIOI and do
-some optimization.
+> +static void virtio_gpu_deferred_create(struct virtio_gpu_object *bo,
+> +				       struct virtio_gpu_device *vgdev,
+> +				       const struct drm_mode_fb_cmd2 *mode_cmd)
+> +{
+> +	struct virtio_gpu_object_params params = { 0 };
+> +
+> +	params.format = virtio_gpu_translate_format(mode_cmd->pixel_format);
+> +	params.width = mode_cmd->width;
+> +	params.height = mode_cmd->height;
+> +	params.size = params.height * params.width * 4;
+> +	params.size = ALIGN(params.size, PAGE_SIZE);
+> +	params.dumb = true;
 
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
----
- arch/loongarch/include/asm/kvm_para.h | 10 +++++++++
- arch/loongarch/kernel/paravirt.c      | 31 ++++++++++++++-------------
- 2 files changed, 26 insertions(+), 15 deletions(-)
+I'd suggest to simply store the complete virtio_gpu_object_params struct
+in virtio_gpu_object instead of re-creating it here.
 
-diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
-index 39d7483ab8fd..2174fb53c2e7 100644
---- a/arch/loongarch/include/asm/kvm_para.h
-+++ b/arch/loongarch/include/asm/kvm_para.h
-@@ -155,10 +155,20 @@ static __always_inline long kvm_hypercall5(u64 fid,
- 	return ret;
- }
- 
-+#ifdef CONFIG_PARAVIRT
-+bool kvm_para_available(void);
-+unsigned int kvm_arch_para_features(void);
-+#else
-+static inline bool kvm_para_available(void)
-+{
-+	return false;
-+}
-+
- static inline unsigned int kvm_arch_para_features(void)
- {
- 	return 0;
- }
-+#endif
- 
- static inline unsigned int kvm_arch_para_hints(void)
- {
-diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
-index cc6bf096cb88..dc3cebcb550a 100644
---- a/arch/loongarch/kernel/paravirt.c
-+++ b/arch/loongarch/kernel/paravirt.c
-@@ -151,11 +151,14 @@ static void pv_init_ipi(void)
- }
- #endif
- 
--static bool kvm_para_available(void)
-+bool kvm_para_available(void)
- {
- 	int config;
- 	static int hypervisor_type;
- 
-+	if (!cpu_has_hypervisor)
-+		return false;
-+
- 	if (!hypervisor_type) {
- 		config = read_cpucfg(CPUCFG_KVM_SIG);
- 		if (!memcmp(&config, KVM_SIGNATURE, 4))
-@@ -165,17 +168,21 @@ static bool kvm_para_available(void)
- 	return hypervisor_type == HYPERVISOR_KVM;
- }
- 
--int __init pv_ipi_init(void)
-+unsigned int kvm_arch_para_features(void)
- {
--	int feature;
-+	static int feature;
- 
--	if (!cpu_has_hypervisor)
--		return 0;
- 	if (!kvm_para_available())
- 		return 0;
- 
--	feature = read_cpucfg(CPUCFG_KVM_FEATURE);
--	if (!(feature & BIT(KVM_FEATURE_IPI)))
-+	if (!feature)
-+		feature = read_cpucfg(CPUCFG_KVM_FEATURE);
-+	return feature;
-+}
-+
-+int __init pv_ipi_init(void)
-+{
-+	if (!kvm_para_has_feature(KVM_FEATURE_IPI))
- 		return 0;
- 
- #ifdef CONFIG_SMP
-@@ -258,15 +265,9 @@ static struct notifier_block pv_reboot_nb = {
- 
- int __init pv_time_init(void)
- {
--	int r, feature;
--
--	if (!cpu_has_hypervisor)
--		return 0;
--	if (!kvm_para_available())
--		return 0;
-+	int r;
- 
--	feature = read_cpucfg(CPUCFG_KVM_FEATURE);
--	if (!(feature & BIT(KVM_FEATURE_STEAL_TIME)))
-+	if (!kvm_para_has_feature(KVM_FEATURE_STEAL_TIME))
- 		return 0;
- 
- 	has_steal_clock = 1;
--- 
-2.39.3
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index 64c236169db88..8d1e8dcfa8c15 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -93,6 +93,9 @@ struct virtio_gpu_object {
+>  	bool dumb;
+>  	bool created;
+>  	bool host3d_blob, guest_blob;
+> +	bool deferred;
+> +	struct virtio_gpu_mem_entry *ents;
+> +	unsigned int nents;
+>  	uint32_t blob_mem, blob_flags;
+
+Put them into a new block separated by newline, add a comment saying
+those are needed for virtio_gpu_deferred_create?
+
+> @@ -229,9 +231,14 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+>  						  objs, fence);
+>  		virtio_gpu_object_attach(vgdev, bo, ents, nents);
+>  	} else {
+> -		virtio_gpu_cmd_create_resource(vgdev, bo, params,
+> -					       objs, fence);
+> -		virtio_gpu_object_attach(vgdev, bo, ents, nents);
+> +		/* Fence is used only with blob or virgl */
+> +		WARN_ONCE(fence != NULL, "deferred doesn't support fence\n");
+
+Additionally check for param->dumb to take the deferred code path?  That
+should make sure there is no fence.
+
+take care,
+  Gerd
 
