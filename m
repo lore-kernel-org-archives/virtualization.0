@@ -1,78 +1,78 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A17185B6B
-	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 12:44:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43F011862B4
+	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 12:44:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724417068; cv=none; b=LXPtobP9KVJrcU+oXzUU6dHyVFTb4jj9pPRwkcZUcnuqrTzbWl5tkD9DOvApwArzaXU06SYUV5ognHHB4Ihe7B71AA3yhoI4XP3WlbRPCU2+aTTBekMubbeslE82Afyz6QhpJiYNvD4YgPkOWm8pc1qyq86XkvYhqjMlzIljhgQ=
+	t=1724417068; cv=none; b=iO6cWGeDihSwzN2IJ42tTedw/1mX4m0478xQ611LmLd4dj3uOiGmgnrcMzabeC81NvQ7TGX2DBWmNn/n4vwh899VHGz9723mlc0P0yVVTIwaGukAVicRQZNI0FJZJUAx5kauF6VwtFG1uOvcSJ1Z0+izXnZmjr0ovBGXTCMhB9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1724417068; c=relaxed/simple;
-	bh=nzyJJOrhrXh6POEaajhiHgA1SWpvT5uYOO0Suv0wA4A=;
+	bh=oOcOiPP5vxrpE0PUCClLZdnAHZlfCyYylZxErkcEwU4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=omFMG0dhx0PwAY8SZeyZXIli1+4DOVIFSZYa9BcyJ3eKiUpthEEOzYdneouBUZY14Ioj7qarNWcL0IFGauLYsENHN2ZHArpARQ5brFBBGXFhMNjU/KO1cLyL+L4eC4X8mohNU4m4qB/aThJoCTqcwRj9cpStH2asRxnb3TJwObo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zUv1+YBO; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=iWMWHsqt; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zUv1+YBO; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=iWMWHsqt; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=F8uMjtdpT02C49pEAIaHVoe1cu/AkECbBX9PRcnoTbmsFRhDXij5nAxnX+U25F7+V2G5E8mRVrI5qiTiLE65+jx48sQh4/I947TiFoRz6WsGk9d4t+xzfh/L834tOj+/brHpBhFQt4y0juSsJCP16UKqsj4xj1I4kTOzqsu2jdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=guM7x4O2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=D+XpVou/; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=guM7x4O2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=D+XpVou/; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zUv1+YBO";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="iWMWHsqt";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zUv1+YBO";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="iWMWHsqt"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="guM7x4O2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="D+XpVou/";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="guM7x4O2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="D+XpVou/"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 69D7022651;
-	Fri, 23 Aug 2024 12:44:25 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id E19C020310;
+	Fri, 23 Aug 2024 12:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1724417065; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1724417064; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SrNPxiRxwEy/SjB1ARH7RIYERIn6ib8/ZFvWYtDCvyI=;
-	b=zUv1+YBO5L+moWBvFV/OPFVwB4NM9cQeAcgxYZPn3jpdUCeeEUl8xS7NXVCBqzdcrZbPnn
-	6F+HjU8a7DWBPIR7YPp5yeYr4KQtNCuFGYPI81KJuwYKXBli9Gz0TBt83Yk6gEX45abd10
-	wJeT+E4HHgHCi7dg0I3j0/JUFgEYDjY=
+	bh=WZ3q5mSdx+chs2ZnwfeSPtvttaKXvfcVhLPuOMNcsig=;
+	b=guM7x4O2q3fMUi2mzLGV3JeZ8emiqja9+TWPYdVf5qc05RpdCc7mNGuqhoMTMIaTCahDCw
+	Fwwx1Pm/C+lxLrABYiIb0DInMZYPGEKBsJpuPMj7h1cOZDwU1T5Kl6oPZanT426QVLr5fj
+	F1rgeNjAxQJlFkJlwGOcjfGCGf0tGIQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1724417065;
+	s=susede2_ed25519; t=1724417064;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SrNPxiRxwEy/SjB1ARH7RIYERIn6ib8/ZFvWYtDCvyI=;
-	b=iWMWHsqtR242IwLJD+oTndoru7Ogm7dcUpxwtQJ2x0CEsefZ4N17OecJOsh/tsXsNDAAAT
-	sLQP0i9fK1v0fCCA==
-Authentication-Results: smtp-out1.suse.de;
+	bh=WZ3q5mSdx+chs2ZnwfeSPtvttaKXvfcVhLPuOMNcsig=;
+	b=D+XpVou/CfNAe/rfs5Bh79W5/7f/XUAKmubKGZBtDz8hdDyYiO64hfsPjw1heA9IXGM8ce
+	rfB9kHu3ayFyTcCQ==
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1724417065; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1724417064; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SrNPxiRxwEy/SjB1ARH7RIYERIn6ib8/ZFvWYtDCvyI=;
-	b=zUv1+YBO5L+moWBvFV/OPFVwB4NM9cQeAcgxYZPn3jpdUCeeEUl8xS7NXVCBqzdcrZbPnn
-	6F+HjU8a7DWBPIR7YPp5yeYr4KQtNCuFGYPI81KJuwYKXBli9Gz0TBt83Yk6gEX45abd10
-	wJeT+E4HHgHCi7dg0I3j0/JUFgEYDjY=
+	bh=WZ3q5mSdx+chs2ZnwfeSPtvttaKXvfcVhLPuOMNcsig=;
+	b=guM7x4O2q3fMUi2mzLGV3JeZ8emiqja9+TWPYdVf5qc05RpdCc7mNGuqhoMTMIaTCahDCw
+	Fwwx1Pm/C+lxLrABYiIb0DInMZYPGEKBsJpuPMj7h1cOZDwU1T5Kl6oPZanT426QVLr5fj
+	F1rgeNjAxQJlFkJlwGOcjfGCGf0tGIQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1724417065;
+	s=susede2_ed25519; t=1724417064;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SrNPxiRxwEy/SjB1ARH7RIYERIn6ib8/ZFvWYtDCvyI=;
-	b=iWMWHsqtR242IwLJD+oTndoru7Ogm7dcUpxwtQJ2x0CEsefZ4N17OecJOsh/tsXsNDAAAT
-	sLQP0i9fK1v0fCCA==
+	bh=WZ3q5mSdx+chs2ZnwfeSPtvttaKXvfcVhLPuOMNcsig=;
+	b=D+XpVou/CfNAe/rfs5Bh79W5/7f/XUAKmubKGZBtDz8hdDyYiO64hfsPjw1heA9IXGM8ce
+	rfB9kHu3ayFyTcCQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 31B681333E;
-	Fri, 23 Aug 2024 12:44:25 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A99351333E;
+	Fri, 23 Aug 2024 12:44:24 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id mH/xCimEyGbKVwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 23 Aug 2024 12:44:25 +0000
+	id aLE2KCiEyGbKVwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 23 Aug 2024 12:44:24 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: kraxel@redhat.com,
 	daniel@ffwll.ch,
@@ -82,9 +82,9 @@ To: kraxel@redhat.com,
 Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 04/10] drm/bochs: Pass bochs device to various functions
-Date: Fri, 23 Aug 2024 14:28:47 +0200
-Message-ID: <20240823124422.286989-5-tzimmermann@suse.de>
+Subject: [PATCH 02/10] drm/bochs: Use helpers for struct drm_edid
+Date: Fri, 23 Aug 2024 14:28:45 +0200
+Message-ID: <20240823124422.286989-3-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240823124422.286989-1-tzimmermann@suse.de>
 References: <20240823124422.286989-1-tzimmermann@suse.de>
@@ -104,79 +104,156 @@ X-Spamd-Result: default: False [-6.80 / 50.00];
 	R_MISSING_CHARSET(0.50)[];
 	NEURAL_HAM_SHORT(-0.20)[-0.996];
 	MIME_GOOD(-0.10)[text/plain];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FROM_EQ_ENVFROM(0.00)[];
-	FREEMAIL_TO(0.00)[redhat.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com];
-	RCPT_COUNT_SEVEN(0.00)[8];
 	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	RCVD_TLS_ALL(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[8];
 	FUZZY_BLOCKED(0.00)[rspamd.com];
-	R_RATELIMIT(0.00)[to_ip_from(RLw9gjjhh8cousxs3wi4trssza)];
+	FREEMAIL_TO(0.00)[redhat.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid];
+	TO_DN_SOME(0.00)[];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com]
 X-Spam-Score: -6.80
 X-Spam-Flag: NO
 
-Avoid upcasting from struct drm_device by passing the bochs device
-directly to functions.
+Implement a read function for struct drm_edid and read the EDID data
+with drm_edit_read_custom(). Update the connector data accordingly.
+
+The EDID data comes from the emulator itself and the connector stores
+a copy in its EDID property. The drm_edid field in struct bochs_device
+is therefore not required. Remove it.
+
+If qemu provides no EDID data, install default display modes as before.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/bochs.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/tiny/bochs.c | 48 +++++++++++++++++-------------------
+ 1 file changed, 22 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 5d09b4cb28ed..acb2652577d4 100644
+index 47a45a14306c..197fc00b373f 100644
 --- a/drivers/gpu/drm/tiny/bochs.c
 +++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -204,9 +204,9 @@ static const struct drm_edid *bochs_hw_read_edid(struct drm_connector *connector
- 	return drm_edid_read_custom(connector, bochs_get_edid_block, bochs);
+@@ -85,7 +85,6 @@ struct bochs_device {
+ 	u16 yres_virtual;
+ 	u32 stride;
+ 	u32 bpp;
+-	const struct drm_edid *drm_edid;
+ 
+ 	/* drm */
+ 	struct drm_device *dev;
+@@ -172,12 +171,14 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
+ #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
+ #endif
+ 
+-static int bochs_get_edid_block(void *data, u8 *buf,
+-				unsigned int block, size_t len)
++static int bochs_get_edid_block(void *data, u8 *buf, unsigned int block, size_t len)
+ {
+ 	struct bochs_device *bochs = data;
+ 	size_t i, start = block * EDID_LENGTH;
+ 
++	if (!bochs->mmio)
++		return -1;
++
+ 	if (start + len > 0x400 /* vga register offset */)
+ 		return -1;
+ 
+@@ -187,25 +188,20 @@ static int bochs_get_edid_block(void *data, u8 *buf,
+ 	return 0;
  }
  
--static int bochs_hw_init(struct drm_device *dev)
-+static int bochs_hw_init(struct bochs_device *bochs)
+-static int bochs_hw_load_edid(struct bochs_device *bochs)
++static const struct drm_edid *bochs_hw_read_edid(struct drm_connector *connector)
  {
--	struct bochs_device *bochs = dev->dev_private;
-+	struct drm_device *dev = bochs->dev;
- 	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	unsigned long addr, size, mem, ioaddr, iosize;
- 	u16 id;
-@@ -481,9 +481,9 @@ static const struct drm_connector_funcs bochs_connector_connector_funcs = {
- 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
++	struct drm_device *dev = connector->dev;
++	struct bochs_device *bochs = dev->dev_private;
+ 	u8 header[8];
+ 
+-	if (!bochs->mmio)
+-		return -1;
+-
+ 	/* check header to detect whenever edid support is enabled in qemu */
+ 	bochs_get_edid_block(bochs, header, 0, ARRAY_SIZE(header));
+ 	if (drm_edid_header_is_valid(header) != 8)
+-		return -1;
++		return NULL;
+ 
+-	drm_edid_free(bochs->drm_edid);
+-	bochs->drm_edid = drm_edid_read_custom(&bochs->connector,
+-					       bochs_get_edid_block, bochs);
+-	if (!bochs->drm_edid)
+-		return -1;
++	drm_dbg(dev, "Found EDID data blob.\n");
+ 
+-	return 0;
++	return drm_edid_read_custom(connector, bochs_get_edid_block, bochs);
+ }
+ 
+ static int bochs_hw_init(struct drm_device *dev)
+@@ -303,7 +299,6 @@ static void bochs_hw_fini(struct drm_device *dev)
+ 	if (bochs->fb_map)
+ 		iounmap(bochs->fb_map);
+ 	pci_release_regions(to_pci_dev(dev->dev));
+-	drm_edid_free(bochs->drm_edid);
+ }
+ 
+ static void bochs_hw_blank(struct bochs_device *bochs, bool blank)
+@@ -469,21 +464,28 @@ static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
+ 	.cleanup_fb = drm_gem_vram_simple_display_pipe_cleanup_fb,
  };
  
--static void bochs_connector_init(struct drm_device *dev)
-+static void bochs_connector_init(struct bochs_device *bochs)
+-static int bochs_connector_get_modes(struct drm_connector *connector)
++static int bochs_connector_helper_get_modes(struct drm_connector *connector)
  {
--	struct bochs_device *bochs = dev->dev_private;
-+	struct drm_device *dev = bochs->dev;
- 	struct drm_connector *connector = &bochs->connector;
++	const struct drm_edid *edid;
+ 	int count;
+ 
+-	count = drm_edid_connector_add_modes(connector);
++	edid = bochs_hw_read_edid(connector);
+ 
+-	if (!count) {
++	if (edid) {
++		drm_edid_connector_update(connector, edid);
++		count = drm_edid_connector_add_modes(connector);
++		drm_edid_free(edid);
++	} else {
++		drm_edid_connector_update(connector, NULL);
+ 		count = drm_add_modes_noedid(connector, 8192, 8192);
+ 		drm_set_preferred_mode(connector, defx, defy);
+ 	}
++
+ 	return count;
+ }
+ 
+ static const struct drm_connector_helper_funcs bochs_connector_connector_helper_funcs = {
+-	.get_modes = bochs_connector_get_modes,
++	.get_modes = bochs_connector_helper_get_modes,
+ };
+ 
+ static const struct drm_connector_funcs bochs_connector_connector_funcs = {
+@@ -501,14 +503,8 @@ static void bochs_connector_init(struct drm_device *dev)
  
  	drm_connector_init(dev, connector, &bochs_connector_connector_funcs,
-@@ -516,7 +516,7 @@ static int bochs_kms_init(struct bochs_device *bochs)
+ 			   DRM_MODE_CONNECTOR_VIRTUAL);
++	drm_connector_attach_edid_property(connector);
+ 	drm_connector_helper_add(connector, &bochs_connector_connector_helper_funcs);
+-
+-	bochs_hw_load_edid(bochs);
+-	if (bochs->drm_edid) {
+-		DRM_INFO("Found EDID data blob.\n");
+-		drm_connector_attach_edid_property(connector);
+-		drm_edid_connector_update(&bochs->connector, bochs->drm_edid);
+-	}
+ }
  
- 	bochs->dev->mode_config.funcs = &bochs_mode_funcs;
- 
--	bochs_connector_init(bochs->dev);
-+	bochs_connector_init(bochs);
- 	drm_simple_display_pipe_init(bochs->dev,
- 				     &bochs->pipe,
- 				     &bochs_pipe_funcs,
-@@ -544,7 +544,7 @@ static int bochs_load(struct drm_device *dev)
- 	dev->dev_private = bochs;
- 	bochs->dev = dev;
- 
--	ret = bochs_hw_init(dev);
-+	ret = bochs_hw_init(bochs);
- 	if (ret)
- 		return ret;
- 
+ static const struct drm_mode_config_funcs bochs_mode_funcs = {
 -- 
 2.46.0
 
