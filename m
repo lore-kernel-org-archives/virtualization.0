@@ -1,77 +1,36 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C4FD185B5C
-	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 12:44:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D5701862B9
+	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 12:44:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724417070; cv=none; b=sK+VIK+v5EKLbPoETZyRMYdlL/S85JUs+Sul5GGjUjMsNl9kx4gnzGaml/UfzJoSCsrf1Mw800dy+e0g3lBbuyvx5J4cwUY8BQgyNFmTN3P7NwOhQBGlo+az6+bQs6TmNeFyWyB20PZTr6+R3kuh2draBIqzy6S9949Hx2w4sRM=
+	t=1724417071; cv=none; b=HTEojaB/TdaEVuP8n5tRtPv4Pzg8kIsd7t3jDLQAxDH+BB2FYUEztO6d0ORLlSnx0CCEQbnqQoVek0FQOmom0s507HcQ6L8a4jyIYBYwCjsdVoSNerui2up02jKA/X6ukY85TW2BdUN6tyuXrRFglyw08+8y7ubUwH8XAJvL1FQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724417070; c=relaxed/simple;
-	bh=9FWsKrhRDTfxvkQo7gbR+ZdElhw66JIuu7vXT7wpJyE=;
+	s=arc-20240116; t=1724417071; c=relaxed/simple;
+	bh=TVLSrL67b+ywKc8CvBrX1ETGdnicp0jYZNgJyYOKYiY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ATF3xWELQBL5N0vDT2iSuB3SUlqnfBqg7H3xsUKf0NHTvYVgAADawNl3MLFG4pNL1oGQwx6jFgfHcCJweIbhFfalxTaoYdTDH1fg0XVaWvlAuveoEA7dWxAjEI+GZ+/aT5Vm/D5HnDCvyurYMh56YFi7XEz+N9EYwQQMtYbN/Do=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=scNhyTJ+; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=JWM4y34I; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=scNhyTJ+; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=JWM4y34I; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=NyVsoWz3wijtLLBLDywtpkmX0ZNUihGVcd/n0/ee1myIQsne2v21UBb33ZZzIiOJjcroTlNu/czC/Y6or9whfxTaEnlok4tncrFaGKufUpGiBjRyLsVyuj7ySwzgDHvHGM57lAPDd8GeyqOwUsxx69gH2Q4Uk+OCidH9Sa0Ufhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="scNhyTJ+";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="JWM4y34I";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="scNhyTJ+";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="JWM4y34I"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 6F6CF20315;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id F0CCB22681;
 	Fri, 23 Aug 2024 12:44:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1724417066; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yrRFVfQBBPFE6mcxmMr+QNHnQlLffwru7e0PdACki+8=;
-	b=scNhyTJ+8clVyewMCE3mjMRPozEpKAArkh/I/zRvSp5Zaa7LxfN0kjxPmikd4K+sUAAOme
-	1E5vEYc1YssjRCwZ6S5TWNYRwvykdxn0bI7ht7TCmqXDriFh+aRTbd2sg1ZsZC6cSDG//f
-	STswn8+2+rkLgK9zkmhom8nqXswnayg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1724417066;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yrRFVfQBBPFE6mcxmMr+QNHnQlLffwru7e0PdACki+8=;
-	b=JWM4y34IfwIga5PnehM1TgfzjsVrN44GUPkXzIK/odTnbg5HsbwWpYHhw9if0gVtJTd2Pz
-	+v0lQEC7u/zK4IDw==
-Authentication-Results: smtp-out2.suse.de;
+Authentication-Results: smtp-out1.suse.de;
 	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1724417066; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yrRFVfQBBPFE6mcxmMr+QNHnQlLffwru7e0PdACki+8=;
-	b=scNhyTJ+8clVyewMCE3mjMRPozEpKAArkh/I/zRvSp5Zaa7LxfN0kjxPmikd4K+sUAAOme
-	1E5vEYc1YssjRCwZ6S5TWNYRwvykdxn0bI7ht7TCmqXDriFh+aRTbd2sg1ZsZC6cSDG//f
-	STswn8+2+rkLgK9zkmhom8nqXswnayg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1724417066;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yrRFVfQBBPFE6mcxmMr+QNHnQlLffwru7e0PdACki+8=;
-	b=JWM4y34IfwIga5PnehM1TgfzjsVrN44GUPkXzIK/odTnbg5HsbwWpYHhw9if0gVtJTd2Pz
-	+v0lQEC7u/zK4IDw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3849C1333E;
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B15D01333E;
 	Fri, 23 Aug 2024 12:44:26 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id mI+PDCqEyGbKVwAAD6G6ig
+	id gIkwKiqEyGbKVwAAD6G6ig
 	(envelope-from <tzimmermann@suse.de>); Fri, 23 Aug 2024 12:44:26 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: kraxel@redhat.com,
@@ -82,9 +41,9 @@ To: kraxel@redhat.com,
 Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 08/10] drm/bochs: Use GEM SHMEM helpers for memory management
-Date: Fri, 23 Aug 2024 14:28:51 +0200
-Message-ID: <20240823124422.286989-9-tzimmermann@suse.de>
+Subject: [PATCH 10/10] drm/gem-vram: Remove support for simple display pipelines
+Date: Fri, 23 Aug 2024 14:28:53 +0200
+Message-ID: <20240823124422.286989-11-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240823124422.286989-1-tzimmermann@suse.de>
 References: <20240823124422.286989-1-tzimmermann@suse.de>
@@ -95,229 +54,124 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -6.80
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.996];
-	MIME_GOOD(-0.10)[text/plain];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FROM_EQ_ENVFROM(0.00)[];
-	FREEMAIL_TO(0.00)[redhat.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	R_RATELIMIT(0.00)[to_ip_from(RLw9gjjhh8cousxs3wi4trssza)];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
 X-Spam-Flag: NO
+X-Spam-Score: -4.00
+X-Rspamd-Queue-Id: F0CCB22681
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
 X-Spam-Level: 
 
-Replace GEM VRAM with GEM SHMEM in bochs. The new memory manager
-stores buffer objects in system memory. Makes the driver's memory
-management more reliably.
-
-Most of the changes are hidden in external helpers that allocate
-buffers. Replacing DRM_GEM_VRAM_DRIVER with DRM_GEM_SHMEM_DRIVER_OPS
-swaps these. With GEM VRAM, the video memory was updated directly by
-the DRM client. The biggest change within bochs is in atomic_update,
-which now updates video memory via memcpy() from the BO in system
-memory. Shadow-plane helpers maintaining the pointers to the buffer's
-data, so bochs doesn't have to. The update is triggered by each page
-flip's call to the framebuffer's dirty helper. The driver supports
-damage clipping to minimize memcpy() overhead.
-
-The advantage of GEM SHMEM is that it makes memory management
-more reliable. Given DRM's double buffering during page flips, the
-minimum amount of video memory is three times the maximum consumption
-in some pathological cases. For example, if the maximum size of a GEM
-buffer is 1920x1080-32 (i.e., 32-bit FullHD), the buffer size is
-8 MiB. Display hardware has to provide at lease 24 MiB to reliably
-page flip such configurations. This cannot always be guaranteed and
-bochs already contains code to rule out <4 MiB configurations. With
-GEM SHMEM, only 8 MiB of video memory are required for the given
-example. Unsupported modes can be sorted out easily.
+There are no more drivers that use GEM VRAM helpers with a simple
+display pipeline. Remove the respective code.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/Kconfig |  4 +-
- drivers/gpu/drm/tiny/bochs.c | 78 +++++++++++++++++-------------------
- 2 files changed, 38 insertions(+), 44 deletions(-)
+ drivers/gpu/drm/drm_gem_vram_helper.c | 45 ---------------------------
+ include/drm/drm_gem_vram_helper.h     | 13 --------
+ 2 files changed, 58 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/Kconfig b/drivers/gpu/drm/tiny/Kconfig
-index f6889f649bc1..8f206c6387ec 100644
---- a/drivers/gpu/drm/tiny/Kconfig
-+++ b/drivers/gpu/drm/tiny/Kconfig
-@@ -13,10 +13,8 @@ config DRM_ARCPGU
- config DRM_BOCHS
- 	tristate "DRM Support for bochs dispi vga interface (qemu stdvga)"
- 	depends on DRM && PCI && MMU
-+	select DRM_GEM_SHMEM_HELPER
- 	select DRM_KMS_HELPER
--	select DRM_VRAM_HELPER
--	select DRM_TTM
--	select DRM_TTM_HELPER
- 	help
- 	  This is a KMS driver for qemu's stdvga output. Choose this option
- 	  for qemu.
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 76e29950a807..bde70a6075ec 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -6,13 +6,15 @@
- #include <drm/drm_aperture.h>
- #include <drm/drm_atomic.h>
- #include <drm/drm_atomic_helper.h>
-+#include <drm/drm_damage_helper.h>
- #include <drm/drm_drv.h>
- #include <drm/drm_edid.h>
--#include <drm/drm_fbdev_ttm.h>
-+#include <drm/drm_fbdev_shmem.h>
- #include <drm/drm_fourcc.h>
- #include <drm/drm_framebuffer.h>
-+#include <drm/drm_gem_atomic_helper.h>
- #include <drm/drm_gem_framebuffer_helper.h>
--#include <drm/drm_gem_vram_helper.h>
-+#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_module.h>
- #include <drm/drm_plane_helper.h>
-@@ -427,49 +429,49 @@ static int bochs_primary_plane_helper_atomic_check(struct drm_plane *plane,
- 	return 0;
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index 6027584406af..22b1fe9c03b8 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -16,7 +16,6 @@
+ #include <drm/drm_mode.h>
+ #include <drm/drm_plane.h>
+ #include <drm/drm_prime.h>
+-#include <drm/drm_simple_kms_helper.h>
+ 
+ #include <drm/ttm/ttm_range_manager.h>
+ #include <drm/ttm/ttm_tt.h>
+@@ -686,50 +685,6 @@ drm_gem_vram_plane_helper_cleanup_fb(struct drm_plane *plane,
  }
+ EXPORT_SYMBOL(drm_gem_vram_plane_helper_cleanup_fb);
  
--static void bochs_plane_update(struct bochs_device *bochs, struct drm_plane_state *state)
-+static void bochs_primary_plane_helper_atomic_update(struct drm_plane *plane,
-+						     struct drm_atomic_state *state)
- {
--	struct drm_gem_vram_object *gbo;
--	s64 gpu_addr;
+-/*
+- * Helpers for struct drm_simple_display_pipe_funcs
+- */
 -
--	if (!state->fb || !bochs->stride)
-+	struct drm_device *dev = plane->dev;
-+	struct bochs_device *bochs = to_bochs_device(dev);
-+	struct drm_plane_state *plane_state = plane->state;
-+	struct drm_plane_state *old_plane_state = drm_atomic_get_old_plane_state(state, plane);
-+	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(plane_state);
-+	struct drm_framebuffer *fb = plane_state->fb;
-+	struct drm_atomic_helper_damage_iter iter;
-+	struct drm_rect damage;
-+
-+	if (!fb || !bochs->stride)
- 		return;
- 
--	gbo = drm_gem_vram_of_gem(state->fb->obj[0]);
--	gpu_addr = drm_gem_vram_offset(gbo);
--	if (WARN_ON_ONCE(gpu_addr < 0))
--		return; /* Bug: we didn't pin the BO to VRAM in prepare_fb. */
-+	drm_atomic_helper_damage_iter_init(&iter, old_plane_state, plane_state);
-+	drm_atomic_for_each_plane_damage(&iter, &damage) {
-+		struct iosys_map dst = IOSYS_MAP_INIT_VADDR_IOMEM(bochs->fb_map);
- 
--	bochs_hw_setbase(bochs,
--			 state->crtc_x,
--			 state->crtc_y,
--			 state->fb->pitches[0],
--			 state->fb->offsets[0] + gpu_addr);
--	bochs_hw_setformat(bochs, state->fb->format);
--}
--
--static void bochs_primary_plane_helper_atomic_update(struct drm_plane *plane,
--						     struct drm_atomic_state *state)
+-/**
+- * drm_gem_vram_simple_display_pipe_prepare_fb() - Implements &struct
+- *				   drm_simple_display_pipe_funcs.prepare_fb
+- * @pipe:	a simple display pipe
+- * @new_state:	the plane's new state
+- *
+- * During plane updates, this function pins the GEM VRAM
+- * objects of the plane's new framebuffer to VRAM. Call
+- * drm_gem_vram_simple_display_pipe_cleanup_fb() to unpin them.
+- *
+- * Returns:
+- *	0 on success, or
+- *	a negative errno code otherwise.
+- */
+-int drm_gem_vram_simple_display_pipe_prepare_fb(
+-	struct drm_simple_display_pipe *pipe,
+-	struct drm_plane_state *new_state)
 -{
--	struct bochs_device *bochs = to_bochs_device(plane->dev);
--	struct drm_plane_state *plane_state = drm_atomic_get_new_plane_state(state, plane);
-+		iosys_map_incr(&dst, drm_fb_clip_offset(fb->pitches[0], fb->format, &damage));
-+		drm_fb_memcpy(&dst, fb->pitches, shadow_plane_state->data, fb, &damage);
-+	}
- 
--	bochs_plane_update(bochs, plane_state);
-+	/* Always scanout image at VRAM offset 0 */
-+	bochs_hw_setbase(bochs,
-+			 plane_state->crtc_x,
-+			 plane_state->crtc_y,
-+			 fb->pitches[0],
-+			 0);
-+	bochs_hw_setformat(bochs, fb->format);
- }
- 
- static const struct drm_plane_helper_funcs bochs_primary_plane_helper_funcs = {
--	DRM_GEM_VRAM_PLANE_HELPER_FUNCS,
-+	DRM_GEM_SHADOW_PLANE_HELPER_FUNCS,
- 	.atomic_check = bochs_primary_plane_helper_atomic_check,
- 	.atomic_update = bochs_primary_plane_helper_atomic_update,
- };
- 
- static const struct drm_plane_funcs bochs_primary_plane_funcs = {
--	.update_plane		= drm_atomic_helper_update_plane,
--	.disable_plane		= drm_atomic_helper_disable_plane,
--	.destroy		= drm_plane_cleanup,
--	.reset			= drm_atomic_helper_plane_reset,
--	.atomic_duplicate_state	= drm_atomic_helper_plane_duplicate_state,
--	.atomic_destroy_state	= drm_atomic_helper_plane_destroy_state,
-+	.update_plane = drm_atomic_helper_update_plane,
-+	.disable_plane = drm_atomic_helper_disable_plane,
-+	.destroy = drm_plane_cleanup,
-+	DRM_GEM_SHADOW_PLANE_FUNCS
- };
- 
- static void bochs_crtc_helper_mode_set_nofb(struct drm_crtc *crtc)
-@@ -557,8 +559,7 @@ static const struct drm_connector_funcs bochs_connector_funcs = {
- };
- 
- static const struct drm_mode_config_funcs bochs_mode_config_funcs = {
--	.fb_create = drm_gem_fb_create,
--	.mode_valid = drm_vram_helper_mode_valid,
-+	.fb_create = drm_gem_fb_create_with_dirty,
- 	.atomic_check = drm_atomic_helper_check,
- 	.atomic_commit = drm_atomic_helper_commit,
- };
-@@ -629,17 +630,12 @@ static int bochs_kms_init(struct bochs_device *bochs)
- 
- static int bochs_load(struct bochs_device *bochs)
- {
--	struct drm_device *dev = &bochs->dev;
- 	int ret;
- 
- 	ret = bochs_hw_init(bochs);
- 	if (ret)
- 		return ret;
- 
--	ret = drmm_vram_helper_init(dev, bochs->fb_base, bochs->fb_size);
--	if (ret)
--		return ret;
+-	return drm_gem_vram_plane_helper_prepare_fb(&pipe->plane, new_state);
+-}
+-EXPORT_SYMBOL(drm_gem_vram_simple_display_pipe_prepare_fb);
 -
- 	ret = bochs_kms_init(bochs);
- 	if (ret)
- 		return ret;
-@@ -657,7 +653,7 @@ static const struct drm_driver bochs_driver = {
- 	.date			= "20130925",
- 	.major			= 1,
- 	.minor			= 0,
--	DRM_GEM_VRAM_DRIVER,
-+	DRM_GEM_SHMEM_DRIVER_OPS,
- };
+-/**
+- * drm_gem_vram_simple_display_pipe_cleanup_fb() - Implements &struct
+- *						   drm_simple_display_pipe_funcs.cleanup_fb
+- * @pipe:	a simple display pipe
+- * @old_state:	the plane's old state
+- *
+- * During plane updates, this function unpins the GEM VRAM
+- * objects of the plane's old framebuffer from VRAM. Complements
+- * drm_gem_vram_simple_display_pipe_prepare_fb().
+- */
+-void drm_gem_vram_simple_display_pipe_cleanup_fb(
+-	struct drm_simple_display_pipe *pipe,
+-	struct drm_plane_state *old_state)
+-{
+-	drm_gem_vram_plane_helper_cleanup_fb(&pipe->plane, old_state);
+-}
+-EXPORT_SYMBOL(drm_gem_vram_simple_display_pipe_cleanup_fb);
+-
+ /*
+  * PRIME helpers
+  */
+diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
+index 9a73f786f4ad..00830b49a3ff 100644
+--- a/include/drm/drm_gem_vram_helper.h
++++ b/include/drm/drm_gem_vram_helper.h
+@@ -17,7 +17,6 @@
+ struct drm_mode_create_dumb;
+ struct drm_plane;
+ struct drm_plane_state;
+-struct drm_simple_display_pipe;
+ struct filp;
+ struct vm_area_struct;
  
- /* ---------------------------------------------------------------------- */
-@@ -723,7 +719,7 @@ static int bochs_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent
- 	if (ret)
- 		goto err_free_dev;
+@@ -137,18 +136,6 @@ drm_gem_vram_plane_helper_cleanup_fb(struct drm_plane *plane,
+ 	.prepare_fb = drm_gem_vram_plane_helper_prepare_fb, \
+ 	.cleanup_fb = drm_gem_vram_plane_helper_cleanup_fb
  
--	drm_fbdev_ttm_setup(dev, 32);
-+	drm_fbdev_shmem_setup(dev, 32);
- 	return ret;
- 
- err_free_dev:
+-/*
+- * Helpers for struct drm_simple_display_pipe_funcs
+- */
+-
+-int drm_gem_vram_simple_display_pipe_prepare_fb(
+-	struct drm_simple_display_pipe *pipe,
+-	struct drm_plane_state *new_state);
+-
+-void drm_gem_vram_simple_display_pipe_cleanup_fb(
+-	struct drm_simple_display_pipe *pipe,
+-	struct drm_plane_state *old_state);
+-
+ /**
+  * define DRM_GEM_VRAM_DRIVER - default callback functions for
+  *				&struct drm_driver
 -- 
 2.46.0
 
