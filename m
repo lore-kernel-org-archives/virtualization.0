@@ -1,37 +1,37 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2DA91862B9
-	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 12:44:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71FAC1865E7
+	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 12:44:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724417069; cv=none; b=ElP744RPIxXlLxWuMIJB6rAl6W/8bXcIAXUt8U/ZRLjHyfmd1zNis0SMN5+/9hhEYjczdo5Mw9x3EDPXAVFjRhfXU++zG/spj1k26jC5KgXkFpNW6l6YR0omkY4j2Cl3KTXK2RWeqwVyEYcJ/lQd5r8kFBJm5dQHJU0tRVvCVZY=
+	t=1724417070; cv=none; b=BBY2sHO3sAeS+sMTD33DRiL7HoUwz1HU2JCj35/UjJktAwcemmMISm2qGw3JErshb9pUH/VIeyPKL0k3N/wLUQxORhkKYUo6Hgr7OdSvU8DSQhe+NGTa1Q8OjUI8TwfoDBCcYi9o9cRcsk/fyxmDMabf9nm6WdltsaflD89Pu8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724417069; c=relaxed/simple;
-	bh=iqPyC652bB8SJxCyhnkQKqpLaabaiADormG+81SAkPI=;
+	s=arc-20240116; t=1724417070; c=relaxed/simple;
+	bh=YeFPXMoUOv+tWqhDfYbCewojEb0Sl9/bbZSorIBMrjs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=B093ffKeLwPaFAeOeKP5oVg1ig97maBokoAwBniRIg1r9Vwh3DgzmbjWou/te1Dwsq5kcWlEb/0FCDCQP0jgOahRR5urtDytkbp116GfztVyFXMSDYRGm/Lr9QecwLaOisrq/KC+cGXP4GVKEb68JkAWONZMbk9z1KMJL5o8XRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=p1amb9xJmuVkC3dKzk7Em9pEr5e6Dhnnde37AP1P567Za/LI8qJyhwKfMRddKG+pxqMANhwAolCZH5UScogSjXurbGPhWsKDhXgzfZMf83WtGFaGUb9nJt10RjLwI6AmlO6TxjTEUvQK89mdm208BGf1/5wcvbqPX/b1he/3V/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 35E6F2267F;
+	by smtp-out2.suse.de (Postfix) with ESMTPS id ABA9220317;
 	Fri, 23 Aug 2024 12:44:26 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
+Authentication-Results: smtp-out2.suse.de;
 	none
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id EA9F713A61;
-	Fri, 23 Aug 2024 12:44:25 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 75ADE13A61;
+	Fri, 23 Aug 2024 12:44:26 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 0NgZOCmEyGbKVwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 23 Aug 2024 12:44:25 +0000
+	id GKaPGyqEyGbKVwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 23 Aug 2024 12:44:26 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: kraxel@redhat.com,
 	daniel@ffwll.ch,
@@ -41,9 +41,9 @@ To: kraxel@redhat.com,
 Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 07/10] drm/bochs: Use regular atomic helpers
-Date: Fri, 23 Aug 2024 14:28:50 +0200
-Message-ID: <20240823124422.286989-8-tzimmermann@suse.de>
+Subject: [PATCH 09/10] drm/bochs: Validate display modes against available video memory
+Date: Fri, 23 Aug 2024 14:28:52 +0200
+Message-ID: <20240823124422.286989-10-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240823124422.286989-1-tzimmermann@suse.de>
 References: <20240823124422.286989-1-tzimmermann@suse.de>
@@ -57,303 +57,78 @@ Content-Transfer-Encoding: 8bit
 X-Rspamd-Pre-Result: action=no action;
 	module=replies;
 	Message is reply to one we originated
-X-Spam-Level: 
 X-Spamd-Result: default: False [-4.00 / 50.00];
 	REPLY(-4.00)[]
-X-Spam-Score: -4.00
 X-Spam-Flag: NO
-X-Rspamd-Queue-Id: 35E6F2267F
+X-Spam-Score: -4.00
+X-Rspamd-Queue-Id: ABA9220317
 X-Rspamd-Pre-Result: action=no action;
 	module=replies;
 	Message is reply to one we originated
 X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Level: 
 
-Remove the simple display pipeline in favor of the regular atomic
-helpers in bochs. The simple-pipe helpers are considered deprecated
-in DRM.
+For each mode, test the required memory against the available video
+memory. Filters out modes that do not fit into display memory.
 
-This effectivly inlines the simple-pipe code for plane and CRTC
-support. Instead of a single update helper, there's now a mode-set
-helper for the CRTC and an update helper for the plane. The encoder
-changes type from NONE ot VIRTUAL.
-
-Removing simple-pipe helpers from bochs will allow for related
-cleanups in GEM VRAM helpers.
+Also remove the old test against the 4 MiB limit. It is now obsolete
+and did not necessarily produce correct results.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/bochs.c | 177 ++++++++++++++++++++++++++---------
- 1 file changed, 132 insertions(+), 45 deletions(-)
+ drivers/gpu/drm/tiny/bochs.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 5679f1b090af..76e29950a807 100644
+index bde70a6075ec..b09c6c76923b 100644
 --- a/drivers/gpu/drm/tiny/bochs.c
 +++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -4,6 +4,7 @@
- #include <linux/pci.h>
- 
- #include <drm/drm_aperture.h>
-+#include <drm/drm_atomic.h>
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_drv.h>
- #include <drm/drm_edid.h>
-@@ -14,8 +15,8 @@
- #include <drm/drm_gem_vram_helper.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_module.h>
-+#include <drm/drm_plane_helper.h>
- #include <drm/drm_probe_helper.h>
--#include <drm/drm_simple_kms_helper.h>
- 
- #include <video/vga.h>
- 
-@@ -89,7 +90,9 @@ struct bochs_device {
- 	u32 bpp;
- 
- 	/* drm */
--	struct drm_simple_display_pipe pipe;
-+	struct drm_plane primary_plane;
-+	struct drm_crtc crtc;
-+	struct drm_encoder encoder;
- 	struct drm_connector connector;
- };
- 
-@@ -396,11 +399,34 @@ static void bochs_hw_setbase(struct bochs_device *bochs, int x, int y, int strid
- 
- /* ---------------------------------------------------------------------- */
- 
--static const uint32_t bochs_formats[] = {
-+static const uint32_t bochs_primary_plane_formats[] = {
- 	DRM_FORMAT_XRGB8888,
- 	DRM_FORMAT_BGRX8888,
- };
- 
-+static int bochs_primary_plane_helper_atomic_check(struct drm_plane *plane,
-+						   struct drm_atomic_state *state)
-+{
-+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state, plane);
-+	struct drm_crtc *new_crtc = new_plane_state->crtc;
-+	struct drm_crtc_state *new_crtc_state = NULL;
-+	int ret;
-+
-+	if (new_crtc)
-+		new_crtc_state = drm_atomic_get_new_crtc_state(state, new_crtc);
-+
-+	ret = drm_atomic_helper_check_plane_state(new_plane_state, new_crtc_state,
-+						  DRM_PLANE_NO_SCALING,
-+						  DRM_PLANE_NO_SCALING,
-+						  false, false);
-+	if (ret)
-+		return ret;
-+	else if (!new_plane_state->visible)
-+		return 0;
-+
-+	return 0;
-+}
-+
- static void bochs_plane_update(struct bochs_device *bochs, struct drm_plane_state *state)
- {
- 	struct drm_gem_vram_object *gbo;
-@@ -422,37 +448,80 @@ static void bochs_plane_update(struct bochs_device *bochs, struct drm_plane_stat
- 	bochs_hw_setformat(bochs, state->fb->format);
- }
- 
--static void bochs_pipe_enable(struct drm_simple_display_pipe *pipe,
--			      struct drm_crtc_state *crtc_state,
--			      struct drm_plane_state *plane_state)
-+static void bochs_primary_plane_helper_atomic_update(struct drm_plane *plane,
-+						     struct drm_atomic_state *state)
- {
--	struct bochs_device *bochs = to_bochs_device(pipe->crtc.dev);
-+	struct bochs_device *bochs = to_bochs_device(plane->dev);
-+	struct drm_plane_state *plane_state = drm_atomic_get_new_plane_state(state, plane);
- 
--	bochs_hw_setmode(bochs, &crtc_state->mode);
- 	bochs_plane_update(bochs, plane_state);
- }
- 
--static void bochs_pipe_disable(struct drm_simple_display_pipe *pipe)
-+static const struct drm_plane_helper_funcs bochs_primary_plane_helper_funcs = {
-+	DRM_GEM_VRAM_PLANE_HELPER_FUNCS,
-+	.atomic_check = bochs_primary_plane_helper_atomic_check,
-+	.atomic_update = bochs_primary_plane_helper_atomic_update,
-+};
-+
-+static const struct drm_plane_funcs bochs_primary_plane_funcs = {
-+	.update_plane		= drm_atomic_helper_update_plane,
-+	.disable_plane		= drm_atomic_helper_disable_plane,
-+	.destroy		= drm_plane_cleanup,
-+	.reset			= drm_atomic_helper_plane_reset,
-+	.atomic_duplicate_state	= drm_atomic_helper_plane_duplicate_state,
-+	.atomic_destroy_state	= drm_atomic_helper_plane_destroy_state,
-+};
-+
-+static void bochs_crtc_helper_mode_set_nofb(struct drm_crtc *crtc)
-+{
-+	struct bochs_device *bochs = to_bochs_device(crtc->dev);
-+	struct drm_crtc_state *crtc_state = crtc->state;
-+
-+	bochs_hw_setmode(bochs, &crtc_state->mode);
-+}
-+
-+static int bochs_crtc_helper_atomic_check(struct drm_crtc *crtc,
-+					  struct drm_atomic_state *state)
- {
--	struct bochs_device *bochs = to_bochs_device(pipe->crtc.dev);
-+	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state, crtc);
- 
--	bochs_hw_blank(bochs, true);
-+	if (!crtc_state->enable)
-+		return 0;
-+
-+	return drm_atomic_helper_check_crtc_primary_plane(crtc_state);
-+}
-+
-+static void bochs_crtc_helper_atomic_enable(struct drm_crtc *crtc,
-+					    struct drm_atomic_state *state)
-+{
- }
- 
--static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
--			      struct drm_plane_state *old_state)
-+static void bochs_crtc_helper_atomic_disable(struct drm_crtc *crtc,
-+					     struct drm_atomic_state *crtc_state)
- {
--	struct bochs_device *bochs = to_bochs_device(pipe->crtc.dev);
-+	struct bochs_device *bochs = to_bochs_device(crtc->dev);
- 
--	bochs_plane_update(bochs, pipe->plane.state);
-+	bochs_hw_blank(bochs, true);
- }
- 
--static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
--	.enable	    = bochs_pipe_enable,
--	.disable    = bochs_pipe_disable,
--	.update	    = bochs_pipe_update,
--	.prepare_fb = drm_gem_vram_simple_display_pipe_prepare_fb,
--	.cleanup_fb = drm_gem_vram_simple_display_pipe_cleanup_fb,
-+static const struct drm_crtc_helper_funcs bochs_crtc_helper_funcs = {
-+	.mode_set_nofb = bochs_crtc_helper_mode_set_nofb,
-+	.atomic_check = bochs_crtc_helper_atomic_check,
-+	.atomic_enable = bochs_crtc_helper_atomic_enable,
-+	.atomic_disable = bochs_crtc_helper_atomic_disable,
-+};
-+
-+static const struct drm_crtc_funcs bochs_crtc_funcs = {
-+	.reset = drm_atomic_helper_crtc_reset,
-+	.destroy = drm_crtc_cleanup,
-+	.set_config = drm_atomic_helper_set_config,
-+	.page_flip = drm_atomic_helper_page_flip,
-+	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
-+	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
-+};
-+
-+static const struct drm_encoder_funcs bochs_encoder_funcs = {
-+	.destroy = drm_encoder_cleanup,
- };
- 
- static int bochs_connector_helper_get_modes(struct drm_connector *connector)
-@@ -475,11 +544,11 @@ static int bochs_connector_helper_get_modes(struct drm_connector *connector)
- 	return count;
- }
- 
--static const struct drm_connector_helper_funcs bochs_connector_connector_helper_funcs = {
-+static const struct drm_connector_helper_funcs bochs_connector_helper_funcs = {
- 	.get_modes = bochs_connector_helper_get_modes,
- };
- 
--static const struct drm_connector_funcs bochs_connector_connector_funcs = {
-+static const struct drm_connector_funcs bochs_connector_funcs = {
- 	.fill_modes = drm_helper_probe_single_connector_modes,
- 	.destroy = drm_connector_cleanup,
- 	.reset = drm_atomic_helper_connector_reset,
-@@ -487,18 +556,7 @@ static const struct drm_connector_funcs bochs_connector_connector_funcs = {
+@@ -558,8 +558,28 @@ static const struct drm_connector_funcs bochs_connector_funcs = {
  	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
  };
  
--static void bochs_connector_init(struct bochs_device *bochs)
--{
--	struct drm_device *dev = &bochs->dev;
--	struct drm_connector *connector = &bochs->connector;
--
--	drm_connector_init(dev, connector, &bochs_connector_connector_funcs,
--			   DRM_MODE_CONNECTOR_VIRTUAL);
--	drm_connector_attach_edid_property(connector);
--	drm_connector_helper_add(connector, &bochs_connector_connector_helper_funcs);
--}
--
--static const struct drm_mode_config_funcs bochs_mode_funcs = {
-+static const struct drm_mode_config_funcs bochs_mode_config_funcs = {
- 	.fb_create = drm_gem_fb_create,
- 	.mode_valid = drm_vram_helper_mode_valid,
++static enum drm_mode_status bochs_mode_config_mode_valid(struct drm_device *dev,
++							 const struct drm_display_mode *mode)
++{
++	struct bochs_device *bochs = to_bochs_device(dev);
++	const struct drm_format_info *format = drm_format_info(DRM_FORMAT_XRGB8888);
++	uint64_t pitch;
++
++	if (drm_WARN_ON(dev, !format))
++		return MODE_ERROR;
++
++	pitch = drm_format_info_min_pitch(format, 0, mode->vdisplay);
++	if (!pitch)
++		return MODE_BAD_WIDTH;
++	if (bochs->fb_size / pitch < mode->hdisplay)
++		return MODE_MEM;
++
++	return MODE_OK;
++}
++
+ static const struct drm_mode_config_funcs bochs_mode_config_funcs = {
+ 	.fb_create = drm_gem_fb_create_with_dirty,
++	.mode_valid = bochs_mode_config_mode_valid,
  	.atomic_check = drm_atomic_helper_check,
-@@ -508,6 +566,10 @@ static const struct drm_mode_config_funcs bochs_mode_funcs = {
- static int bochs_kms_init(struct bochs_device *bochs)
+ 	.atomic_commit = drm_atomic_helper_commit,
+ };
+@@ -687,15 +707,8 @@ static int bochs_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent
  {
- 	struct drm_device *dev = &bochs->dev;
-+	struct drm_plane *primary_plane;
-+	struct drm_crtc *crtc;
-+	struct drm_connector *connector;
-+	struct drm_encoder *encoder;
+ 	struct bochs_device *bochs;
+ 	struct drm_device *dev;
+-	unsigned long fbsize;
  	int ret;
  
- 	ret = drmm_mode_config_init(dev);
-@@ -518,19 +580,44 @@ static int bochs_kms_init(struct bochs_device *bochs)
- 	dev->mode_config.max_height = 8192;
- 
- 	dev->mode_config.preferred_depth = 24;
--	dev->mode_config.prefer_shadow = 0;
- 	dev->mode_config.quirk_addfb_prefer_host_byte_order = true;
- 
--	dev->mode_config.funcs = &bochs_mode_funcs;
-+	dev->mode_config.funcs = &bochs_mode_config_funcs;
- 
--	bochs_connector_init(bochs);
--	drm_simple_display_pipe_init(dev,
--				     &bochs->pipe,
--				     &bochs_pipe_funcs,
--				     bochs_formats,
--				     ARRAY_SIZE(bochs_formats),
--				     NULL,
--				     &bochs->connector);
-+	primary_plane = &bochs->primary_plane;
-+	ret = drm_universal_plane_init(dev, primary_plane, 0,
-+				       &bochs_primary_plane_funcs,
-+				       bochs_primary_plane_formats,
-+				       ARRAY_SIZE(bochs_primary_plane_formats),
-+				       NULL,
-+				       DRM_PLANE_TYPE_PRIMARY, NULL);
-+	if (ret)
-+		return ret;
-+	drm_plane_helper_add(primary_plane, &bochs_primary_plane_helper_funcs);
-+	drm_plane_enable_fb_damage_clips(primary_plane);
-+
-+	crtc = &bochs->crtc;
-+	ret = drm_crtc_init_with_planes(dev, crtc, primary_plane, NULL,
-+					&bochs_crtc_funcs, NULL);
-+	if (ret)
-+		return ret;
-+	drm_crtc_helper_add(crtc, &bochs_crtc_helper_funcs);
-+
-+	encoder = &bochs->encoder;
-+	ret = drm_encoder_init(dev, encoder, &bochs_encoder_funcs,
-+			       DRM_MODE_ENCODER_VIRTUAL, NULL);
-+	if (ret)
-+		return ret;
-+	encoder->possible_crtcs = drm_crtc_mask(crtc);
-+
-+	connector = &bochs->connector;
-+	ret = drm_connector_init(dev, connector, &bochs_connector_funcs,
-+				 DRM_MODE_CONNECTOR_VIRTUAL);
-+	if (ret)
-+		return ret;
-+	drm_connector_helper_add(connector, &bochs_connector_helper_funcs);
-+	drm_connector_attach_edid_property(connector);
-+	drm_connector_attach_encoder(connector, encoder);
- 
- 	drm_mode_config_reset(dev);
- 
+-	fbsize = pci_resource_len(pdev, 0);
+-	if (fbsize < 4 * 1024 * 1024) {
+-		DRM_ERROR("less than 4 MB video memory, ignoring device\n");
+-		return -ENOMEM;
+-	}
+-
+ 	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &bochs_driver);
+ 	if (ret)
+ 		return ret;
 -- 
 2.46.0
 
