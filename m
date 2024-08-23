@@ -1,51 +1,54 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D5701862B9
-	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 12:44:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C1BD1E517
+	for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 14:34:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724417071; cv=none; b=HTEojaB/TdaEVuP8n5tRtPv4Pzg8kIsd7t3jDLQAxDH+BB2FYUEztO6d0ORLlSnx0CCEQbnqQoVek0FQOmom0s507HcQ6L8a4jyIYBYwCjsdVoSNerui2up02jKA/X6ukY85TW2BdUN6tyuXrRFglyw08+8y7ubUwH8XAJvL1FQ=
+	t=1724423667; cv=none; b=MAOs3Fy8veOT2+3mR3Qtt/p8SgQmuPh2GAzozNSDAU2ulrI6j+0Zw48Rl0gV5gi+7suHaSifEu9zP5/90HCyTrWExfLENjbcoJm0wlZSuDNZwZ1RAs5agp5imfgonVnzAepjb1GS5RXaScgA5XhOpMwsUrc6CjEP7PSDtOgnqTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724417071; c=relaxed/simple;
-	bh=TVLSrL67b+ywKc8CvBrX1ETGdnicp0jYZNgJyYOKYiY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NyVsoWz3wijtLLBLDywtpkmX0ZNUihGVcd/n0/ee1myIQsne2v21UBb33ZZzIiOJjcroTlNu/czC/Y6or9whfxTaEnlok4tncrFaGKufUpGiBjRyLsVyuj7ySwzgDHvHGM57lAPDd8GeyqOwUsxx69gH2Q4Uk+OCidH9Sa0Ufhw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	s=arc-20240116; t=1724423667; c=relaxed/simple;
+	bh=YG9GylUhZPLrhu1ih8FBmf3Lr1DVSOqTyfo8kRwy7q8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=X94NSNMNIxp3IcYV+98ZV6p/DR6QqcOwVtlnTpWjH+YUoktKzZQdq/1h200alp2SBJ4TLi+cz71b6OFM0xu8bKMDlE80MWaVTd0ucU9SANRLuyERNfljORXKkn+JJYDD0fwrbRYPm8qxpuwS3jTIE/HrhNInW5InK4Jdt+N1BEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JhJBq7P9; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JhJBq7P9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724423664;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+fjNZBRuZGsbkeNaHK2sXWLKAuqcqEXvd1LH3yVahOM=;
+	b=JhJBq7P9vGoQJNngnaBNW9c9ChfYgII3x9TCF47HJahqHK7d4pdnff7fAKTJgnlDlBdVfX
+	jDgkcjFysUHOWKf6EcfGs9c2rRpvClEvXEssWsMXw3dF1IragwXBWHXz7QMUrcqTm43T8u
+	/lpKXiYp9KtNn7Eatcne/eP1ZNZEIHI=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-518-RoAN9ylEMFaYXQhvxhUtyg-1; Fri,
+ 23 Aug 2024 10:34:19 -0400
+X-MC-Unique: RoAN9ylEMFaYXQhvxhUtyg-1
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id F0CCB22681;
-	Fri, 23 Aug 2024 12:44:26 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
-	none
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B15D01333E;
-	Fri, 23 Aug 2024 12:44:26 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id gIkwKiqEyGbKVwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 23 Aug 2024 12:44:26 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: kraxel@redhat.com,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 10/10] drm/gem-vram: Remove support for simple display pipelines
-Date: Fri, 23 Aug 2024 14:28:53 +0200
-Message-ID: <20240823124422.286989-11-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20240823124422.286989-1-tzimmermann@suse.de>
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BEEA81955D48;
+	Fri, 23 Aug 2024 14:34:17 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.194.20])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id F143919560A3;
+	Fri, 23 Aug 2024 14:34:16 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+	id C66A818003AA; Fri, 23 Aug 2024 16:34:14 +0200 (CEST)
+Date: Fri, 23 Aug 2024 16:34:14 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: daniel@ffwll.ch, airlied@gmail.com, mripard@kernel.org, 
+	maarten.lankhorst@linux.intel.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH 00/10] rm/bochs: Modernize driver
+Message-ID: <sksjddgidfrk4bvcxvb46khevp4a4nfvl2holgdw636wld7oov@vdbcvdf3ch6m>
 References: <20240823124422.286989-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -53,125 +56,56 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Spam-Flag: NO
-X-Spam-Score: -4.00
-X-Rspamd-Queue-Id: F0CCB22681
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Level: 
+In-Reply-To: <20240823124422.286989-1-tzimmermann@suse.de>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-There are no more drivers that use GEM VRAM helpers with a simple
-display pipeline. Remove the respective code.
+  Hi,
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_gem_vram_helper.c | 45 ---------------------------
- include/drm/drm_gem_vram_helper.h     | 13 --------
- 2 files changed, 58 deletions(-)
+> Patch 8 replaces GEM VRAM with GEM SHMEM. The new memory manager
+> is more reliable and allows for larger resolutions.
 
-diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index 6027584406af..22b1fe9c03b8 100644
---- a/drivers/gpu/drm/drm_gem_vram_helper.c
-+++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -16,7 +16,6 @@
- #include <drm/drm_mode.h>
- #include <drm/drm_plane.h>
- #include <drm/drm_prime.h>
--#include <drm/drm_simple_kms_helper.h>
- 
- #include <drm/ttm/ttm_range_manager.h>
- #include <drm/ttm/ttm_tt.h>
-@@ -686,50 +685,6 @@ drm_gem_vram_plane_helper_cleanup_fb(struct drm_plane *plane,
- }
- EXPORT_SYMBOL(drm_gem_vram_plane_helper_cleanup_fb);
- 
--/*
-- * Helpers for struct drm_simple_display_pipe_funcs
-- */
--
--/**
-- * drm_gem_vram_simple_display_pipe_prepare_fb() - Implements &struct
-- *				   drm_simple_display_pipe_funcs.prepare_fb
-- * @pipe:	a simple display pipe
-- * @new_state:	the plane's new state
-- *
-- * During plane updates, this function pins the GEM VRAM
-- * objects of the plane's new framebuffer to VRAM. Call
-- * drm_gem_vram_simple_display_pipe_cleanup_fb() to unpin them.
-- *
-- * Returns:
-- *	0 on success, or
-- *	a negative errno code otherwise.
-- */
--int drm_gem_vram_simple_display_pipe_prepare_fb(
--	struct drm_simple_display_pipe *pipe,
--	struct drm_plane_state *new_state)
--{
--	return drm_gem_vram_plane_helper_prepare_fb(&pipe->plane, new_state);
--}
--EXPORT_SYMBOL(drm_gem_vram_simple_display_pipe_prepare_fb);
--
--/**
-- * drm_gem_vram_simple_display_pipe_cleanup_fb() - Implements &struct
-- *						   drm_simple_display_pipe_funcs.cleanup_fb
-- * @pipe:	a simple display pipe
-- * @old_state:	the plane's old state
-- *
-- * During plane updates, this function unpins the GEM VRAM
-- * objects of the plane's old framebuffer from VRAM. Complements
-- * drm_gem_vram_simple_display_pipe_prepare_fb().
-- */
--void drm_gem_vram_simple_display_pipe_cleanup_fb(
--	struct drm_simple_display_pipe *pipe,
--	struct drm_plane_state *old_state)
--{
--	drm_gem_vram_plane_helper_cleanup_fb(&pipe->plane, old_state);
--}
--EXPORT_SYMBOL(drm_gem_vram_simple_display_pipe_cleanup_fb);
--
- /*
-  * PRIME helpers
-  */
-diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-index 9a73f786f4ad..00830b49a3ff 100644
---- a/include/drm/drm_gem_vram_helper.h
-+++ b/include/drm/drm_gem_vram_helper.h
-@@ -17,7 +17,6 @@
- struct drm_mode_create_dumb;
- struct drm_plane;
- struct drm_plane_state;
--struct drm_simple_display_pipe;
- struct filp;
- struct vm_area_struct;
- 
-@@ -137,18 +136,6 @@ drm_gem_vram_plane_helper_cleanup_fb(struct drm_plane *plane,
- 	.prepare_fb = drm_gem_vram_plane_helper_prepare_fb, \
- 	.cleanup_fb = drm_gem_vram_plane_helper_cleanup_fb
- 
--/*
-- * Helpers for struct drm_simple_display_pipe_funcs
-- */
--
--int drm_gem_vram_simple_display_pipe_prepare_fb(
--	struct drm_simple_display_pipe *pipe,
--	struct drm_plane_state *new_state);
--
--void drm_gem_vram_simple_display_pipe_cleanup_fb(
--	struct drm_simple_display_pipe *pipe,
--	struct drm_plane_state *old_state);
--
- /**
-  * define DRM_GEM_VRAM_DRIVER - default callback functions for
-  *				&struct drm_driver
--- 
-2.46.0
+Valid point.
+
+> Display updates were so slow that Gnome was unmanageable with a
+> flickering cursor and single FPS. The new memory management makes
+> Gnome at least useable.
+
+Hmm?  I'm wondering where this huge improvement comes from?
+
+With enough video memory VRAM performance should be ok.
+
+If video memory is tight and ttm is forced to shuffle around
+framebuffers between vram and system memory on each page flip (touching
+much of vram along the way which causes additional overhead on the qemu
+side), that is obviously very bad for performance.  One of the reasons
+why cirrus uses SHMEM + shadowing since years.
+
+Shadow buffering comes with some overhead too, so the switch isn't an
+obvious win (assuming enough vram).  Hiding the page flips from qemu
+might reduce the work qemu has to do though, especially if the shadowing
+uses dirty tracking and only touches the vram pages which have actually
+changed content.  So there is a fair chance that this outweighs the
+shadowing overhead and ends up being a net win.  I don't expect the
+difference being very big though.  Also different display usage patterns
+might yield different results (fbcon vs. gnome for example).
+
+So this probably makes sense, but I'd like to see a bit more background
+information ...
+
+On vram sizes:  The default qemu vram size (16M) should be fine for the
+default display resolution (1280x800).  For FullHD vram size should be
+doubled (-device VGA,vgamem_mb=32).
+
+
+Skimmed the other patches, looks sane overall, but I don't follow drm
+close enough any more to do an full review.  So I leave this here:
+
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+take care,
+  Gerd
 
