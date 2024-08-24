@@ -1,134 +1,79 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E5B3EEC0
-	for <virtualization@lists.linux.dev>; Sat, 24 Aug 2024 02:06:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 220B5AD5B;
+	Sat, 24 Aug 2024 03:58:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724465221; cv=none; b=ebImFX0SbFPE+kAr5bobRjliy4Hm39q0OlONMiMmTVZ4F2YdasFkrmktJKJWSxXYWJk+ZLbK3gkvAgfGeFt8qlr5xz4VIMhPPJumy6Db4jO65RMWfgtAwfVjTkR3wjRUqsc8SSLsi2S4uXw7r7E8rQEaqs0mBelUfOYaZIgUW48=
+	t=1724471904; cv=none; b=mmm9v2LrxPlUCXh8QmSTPi4gOdIkCyYEnQJjWotPlkj8268ATWGWrD2xNUU/4hVWvQ54sy2HuVVqvzMwgc0a1oprPXPYT3VTdiFpmfpz86NVO5NSmRcavolHjhWK25epQOFTbHODNDEPLh1/tJGzySVf0ceM4puIqh27C47OIgY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724465221; c=relaxed/simple;
-	bh=L1a/fLuZOGUu5Zj1RuXcZgKqEmzDqs688WLUixmKdkw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nD82W9bYt7tvGd407Wggsk35iTtbHo7xDA0bcZarm9thg5tPiLsmhLEs5+GMORwxPK39EnaUrIkyYQ1UlDCzzc30veEp19H/29QDOwXNJD9OmwBvpi3rh7PhUmijJytrMZc+evQhJCR/tFZcynCOxIYwEcpBPqlySiuVAsyjg40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=P+B4XpGH; arc=none smtp.client-ip=209.85.222.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1724471904; c=relaxed/simple;
+	bh=Clh9AkGSwfDfUvvLJoxosPbut7uF7iTtgQ3zxQUr6Og=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Rc6vJmSscuYCzYnqqgSMszH9rraTYuBSVm2DVHDOr45qdE2v8Hr/wnXALc8rncza9QwHaOJTrzhx49YuqJb1KWYvRgpQ8vhJ4tZeDPMTY75Q/CF+QlqmUv4dIT2EAscu1KcC3SkDx62axkdamU6JyIf4bT9FooIj6G08e0zjD0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ibODa9lL; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="P+B4XpGH"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-7a5074ebb9aso156304885a.1
-        for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 19:06:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1724465218; x=1725070018; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=38U3TamQgtOMpIheDUaSqju5cn7JqVNPQVT6ndofX00=;
-        b=P+B4XpGHUiwHhcReWm22LcWsM4iZsmLERM7hwBcMfknxsZ79nCnqo2iO/QdRUwLuWM
-         6TbtIl/a/3H0yFuBBL6EFTf8J9EFOPy2akO69+YdDQ1JsLjh+qMHCBuOeDHNYLB3ye3T
-         cHUTIsOF6bndfbsmBnoV2T8tn1OnjagV4gXTQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724465218; x=1725070018;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=38U3TamQgtOMpIheDUaSqju5cn7JqVNPQVT6ndofX00=;
-        b=ExU2aIkCCbt04Nc5Q18QPmEZoHDyjRZa6s6Gh6bZ7SZQzPNAwA+414aKSCzlsgAlCl
-         0EdiMSpeE/qvnpp2pfJ+XjIBYLTb9PqT8LGPhChVsSuEJe0TLmEPmA8ICMeX0ZtepGlr
-         DGMKZgQLNkJCxun60EfOkg4/Blsl3fzqUH2XealIxu1Ux1RRcBPXrNjhKE1bYqSvHkRv
-         uqMPgk8ZMV6RbUS/vUPcNQWDR3HhOjPyfhUq7nHzv5hy8M4o/8nKQRBBxnISxgD4rLG/
-         uoS2YmmPvgmHbEoKDRxz85yAazrXGtlmD16la9Qkz0N4BZ1bIqvg4vdD9RtUnZ7+gdIj
-         N9Nw==
-X-Gm-Message-State: AOJu0Yw2QWebPe5omshXz5nQiasJdsoTktg/aWNphG9mhYRgEzQhF0Le
-	HcwfYH8kX6rQY0LPHBTqrZxARdDm7kYK4LDFYx1irvxHMfxo+RjekbWWRLr7kHbNt093+qAR29r
-	E1kaq9mmGbTdIL8gnTIARHgZDLeCsDVjYykyb
-X-Google-Smtp-Source: AGHT+IFuyHAil0u7ZWb4xCIHUwmhAwZMPgDdoKeyRsz9kcT37qgzsuYEH1oVBYR6znpm0ntncsND145bSWsjf+QJzJM=
-X-Received: by 2002:a05:6214:5a04:b0:6bf:979a:34c8 with SMTP id
- 6a1803df08f44-6c16dc9635dmr48532596d6.33.1724465218039; Fri, 23 Aug 2024
- 19:06:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ibODa9lL"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=Q2nYRi9U4a8itDtDq9LNnEMZ/Twd4vEjX9CTeiWFtZk=; b=ibODa9lL5q7uggEbw2OOQZkuOl
+	gdhQY0r9D/9beDb+Bd4qmVTCvwI+QiMjo95/+tPj+4V9U7F5hRFToRdX4k4DvPYHu1OLEHcIx+etT
+	KIlSwzlSzvMKbYOerqEj9me07yLSDIeP/0/bbrlY9qqah4ekXhqi/eYjBvvldU6VljO5zLO6djC2Z
+	2yksa1axP4sCcbZUGAWwKgEmbBGoAFPkoBoCxdpgqo5+6g1QWpb94Ilm4RmYcg8FZcggX2U6K6Sfe
+	cGdem+9zPaemNy7/Cr0ZBWXuCzcsmrGl8tEN+ptWMeKG1q46THZ+VeovOI19ardMWa1DQRk/ZtOsI
+	ioZS20vQ==;
+Received: from 2a02-8389-2341-5b80-7457-864c-9b77-b751.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:7457:864c:9b77:b751] helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1shhut-00000001ON7-0bmD;
+	Sat, 24 Aug 2024 03:58:20 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: iommu@lists.linux.dev
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Bingbu Cao <bingbu.cao@intel.com>,
+	"Michael S . Tsirkin " <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org
+Subject: clearly mark DMA_OPS support as an architecture feasture
+Date: Sat, 24 Aug 2024 05:57:57 +0200
+Message-ID: <20240824035817.1163502-1-hch@lst.de>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240815004617.2325269-1-philipchen@chromium.org>
-In-Reply-To: <20240815004617.2325269-1-philipchen@chromium.org>
-From: Philip Chen <philipchen@chromium.org>
-Date: Fri, 23 Aug 2024 19:06:47 -0700
-Message-ID: <CA+cxXhneUKWr+VGOjmOtWERA53WGcubjWBuFbVBBuJhNhSoBcQ@mail.gmail.com>
-Subject: Re: [PATCH] virtio_pmem: Add freeze/restore callbacks
-To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Dan Williams <dan.j.williams@intel.com>, 
-	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
-	Ira Weiny <ira.weiny@intel.com>
-Cc: virtualization@lists.linux.dev, nvdimm@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-Hi maintainers,
+Hi all,
 
-Can anyone let me know if this patch makes sense?
-Any comment/feedback is appreciated.
-Thanks in advance!
+we've had a long standing problems where drivers try to hook into the
+DMA_OPS mechanisms to override them for something that is not DMA, or
+to introduce additional dispatching.
 
-On Wed, Aug 14, 2024 at 5:46=E2=80=AFPM Philip Chen <philipchen@chromium.or=
-g> wrote:
->
-> Add basic freeze/restore PM callbacks to support hibernation (S4):
-> - On freeze, delete vq and quiesce the device to prepare for
->   snapshotting.
-> - On restore, re-init vq and mark DRIVER_OK.
->
-> Signed-off-by: Philip Chen <philipchen@chromium.org>
-> ---
->  drivers/nvdimm/virtio_pmem.c | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
->
-> diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-> index c9b97aeabf85..2396d19ce549 100644
-> --- a/drivers/nvdimm/virtio_pmem.c
-> +++ b/drivers/nvdimm/virtio_pmem.c
-> @@ -143,6 +143,28 @@ static void virtio_pmem_remove(struct virtio_device =
-*vdev)
->         virtio_reset_device(vdev);
->  }
->
-> +static int virtio_pmem_freeze(struct virtio_device *vdev)
-> +{
-> +       vdev->config->del_vqs(vdev);
-> +       virtio_reset_device(vdev);
-> +
-> +       return 0;
-> +}
-> +
-> +static int virtio_pmem_restore(struct virtio_device *vdev)
-> +{
-> +       int ret;
-> +
-> +       ret =3D init_vq(vdev->priv);
-> +       if (ret) {
-> +               dev_err(&vdev->dev, "failed to initialize virtio pmem's v=
-q\n");
-> +               return ret;
-> +       }
-> +       virtio_device_ready(vdev);
-> +
-> +       return 0;
-> +}
-> +
->  static unsigned int features[] =3D {
->         VIRTIO_PMEM_F_SHMEM_REGION,
->  };
-> @@ -155,6 +177,8 @@ static struct virtio_driver virtio_pmem_driver =3D {
->         .validate               =3D virtio_pmem_validate,
->         .probe                  =3D virtio_pmem_probe,
->         .remove                 =3D virtio_pmem_remove,
-> +       .freeze                 =3D virtio_pmem_freeze,
-> +       .restore                =3D virtio_pmem_restore,
->  };
->
->  module_virtio_driver(virtio_pmem_driver);
-> --
-> 2.46.0.76.ge559c4bf1a-goog
->
+Now that we are not using DMA_OPS support for dma-iommu and can build
+kernels without DMA_OPS support on many common setups this becomes even
+more problematic.
+
+This series renames the option to ARCH_DMA_OPS and adds very explicit
+comment to not use it in drivers.  The ipu6 and vdpa_sim/user drivers
+that abuse the mechanism are made to depend on the option instead of
+selecting it with a big comment, but I expect this to be fixed rather
+sooner than later (I know the ipu6 maintainers are on it based on a
+previous discussion).
