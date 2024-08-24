@@ -1,120 +1,134 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87F7E18BC09
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 16:54:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E5B3EEC0
+	for <virtualization@lists.linux.dev>; Sat, 24 Aug 2024 02:06:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724432060; cv=none; b=e+XQGoPPxCxMFN0BwkqfgtHT6HaPWeRyULbvWZdj6k5qZWmrh0T6lHUIx6bfcj2E10TZ6jNrt49aBJ63IoCsdaJvw2y9R8fwnJRWjZzoRjYPOIWlXSqKfnmyNnVTeYo9B+GT9DLcDmS7q6hWxx/NoGXe0WV/hkFk01EAUOFp+QY=
+	t=1724465221; cv=none; b=ebImFX0SbFPE+kAr5bobRjliy4Hm39q0OlONMiMmTVZ4F2YdasFkrmktJKJWSxXYWJk+ZLbK3gkvAgfGeFt8qlr5xz4VIMhPPJumy6Db4jO65RMWfgtAwfVjTkR3wjRUqsc8SSLsi2S4uXw7r7E8rQEaqs0mBelUfOYaZIgUW48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724432060; c=relaxed/simple;
-	bh=yLM8J7H2DsgRDxPVtS0CcqhN2nJId985NbMPevWwKAk=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=adMrBlnxbXsDJUIklZ8QaBDhagBFHCaJuYW1i2K4bi7H4KQUeLJJ1ldqa75W1nvmNyf3EIpvNOyYrWV3jRHrHFBMqy+Obr64pDwWIPiIOAaqbyJJFu6aTBIN8HqhhdHpSny6SXHKw1oIJkfi57dMPNclR/rnEjq/Lci8fUNS2dU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=eJSWA+KA; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1724465221; c=relaxed/simple;
+	bh=L1a/fLuZOGUu5Zj1RuXcZgKqEmzDqs688WLUixmKdkw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nD82W9bYt7tvGd407Wggsk35iTtbHo7xDA0bcZarm9thg5tPiLsmhLEs5+GMORwxPK39EnaUrIkyYQ1UlDCzzc30veEp19H/29QDOwXNJD9OmwBvpi3rh7PhUmijJytrMZc+evQhJCR/tFZcynCOxIYwEcpBPqlySiuVAsyjg40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=P+B4XpGH; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="eJSWA+KA"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 262C2401C0
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 16:54:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id hBWH9_tRQduy for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Aug 2024 16:54:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b31; helo=mail-yb1-xb31.google.com; envelope-from=cbilbao@digitalocean.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 370124002C
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 370124002C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=digitalocean.com header.i=@digitalocean.com header.a=rsa-sha256 header.s=google header.b=eJSWA+KA
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 370124002C
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 16:54:17 +0000 (UTC)
-Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-e13c2ef0f6fso2249114276.3
-        for <virtualization@lists.linux-foundation.org>; Fri, 23 Aug 2024 09:54:17 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="P+B4XpGH"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-7a5074ebb9aso156304885a.1
+        for <virtualization@lists.linux.dev>; Fri, 23 Aug 2024 19:06:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google; t=1724432057; x=1725036857; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1724465218; x=1725070018; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yLM8J7H2DsgRDxPVtS0CcqhN2nJId985NbMPevWwKAk=;
-        b=eJSWA+KANV3l8AkbdH0b+B1WSTPUQaKj/BTgQ56kTsZKpCyrcvtMgKnpV+ds4F8BBV
-         1q4eTpDMgOOFkBi67GJGJohMlg6R/d1ZSXx7Mbc/bN/Q6GiQVcHiixuF/fmMMA9aMqYW
-         yr+crbYvlsO4UTWhdjOrSFiCISA5LUveTrYcQ=
+        bh=38U3TamQgtOMpIheDUaSqju5cn7JqVNPQVT6ndofX00=;
+        b=P+B4XpGHUiwHhcReWm22LcWsM4iZsmLERM7hwBcMfknxsZ79nCnqo2iO/QdRUwLuWM
+         6TbtIl/a/3H0yFuBBL6EFTf8J9EFOPy2akO69+YdDQ1JsLjh+qMHCBuOeDHNYLB3ye3T
+         cHUTIsOF6bndfbsmBnoV2T8tn1OnjagV4gXTQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724432057; x=1725036857;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=yLM8J7H2DsgRDxPVtS0CcqhN2nJId985NbMPevWwKAk=;
-        b=SkI+jBJiDiDm+4jfFvpZgpa65TJj03PZD+c3Cd/OeqR4MvcZmUcJb0hbGfiBpub9To
-         K02xN4yv3AizkFIka5pQcNlyfRItBFsNY4gqu8Axugu/TBSkyEyrS8SzDk+JF1Tn0qvW
-         rCpRrPa/y29zq/JKaIADPZHuh2sF+8/IaYwlP+cQUP+Fr6CmGhaLIOOuJ8A/5kLqrO0+
-         HnRlhRx1RYYLPsQLTn8zYf/hdIiN/X51WAtcmkQv4XTdGR+P0e9Hlc6UsiqQruR1NngP
-         mhe9cv1wvm3tsE2CH14QEmHas5tyK4m9ZUsWLpeHMN/DCxrLedlHOLiSVRNc/ahExFum
-         l6/A==
-X-Gm-Message-State: AOJu0Yx8coFzMu1XSyq3aXxwQMf7e8vD0sIfgVvVpZCVamRKhxktzprj
-	ZpGSaoGY3KE7H5aFLbIqy8+NPDbx4Sf7Ixr6ZOflRlQiR2BmestOzUdiqBChQFY=
-X-Google-Smtp-Source: AGHT+IH+lZIalG0ZppdDUStKyMfxmA2xRM0YnXPLiu2xPW0X1PX57ufunWwRCXTvVh1qWh0OpYdpBw==
-X-Received: by 2002:a05:6902:2383:b0:e0b:e4ce:9047 with SMTP id 3f1490d57ef6-e17a83de244mr3495755276.18.1724432055984;
-        Fri, 23 Aug 2024 09:54:15 -0700 (PDT)
-Received: from ?IPV6:2603:8080:7400:36da:45f:f211:3a7c:9377? ([2603:8080:7400:36da:45f:f211:3a7c:9377])
-        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e178e4406b0sm720032276.12.2024.08.23.09.54.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Aug 2024 09:54:15 -0700 (PDT)
-Message-ID: <33feec1a-2c5d-46eb-8d66-baa802130d7f@digitalocean.com>
-Date: Fri, 23 Aug 2024 11:54:13 -0500
+        d=1e100.net; s=20230601; t=1724465218; x=1725070018;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=38U3TamQgtOMpIheDUaSqju5cn7JqVNPQVT6ndofX00=;
+        b=ExU2aIkCCbt04Nc5Q18QPmEZoHDyjRZa6s6Gh6bZ7SZQzPNAwA+414aKSCzlsgAlCl
+         0EdiMSpeE/qvnpp2pfJ+XjIBYLTb9PqT8LGPhChVsSuEJe0TLmEPmA8ICMeX0ZtepGlr
+         DGMKZgQLNkJCxun60EfOkg4/Blsl3fzqUH2XealIxu1Ux1RRcBPXrNjhKE1bYqSvHkRv
+         uqMPgk8ZMV6RbUS/vUPcNQWDR3HhOjPyfhUq7nHzv5hy8M4o/8nKQRBBxnISxgD4rLG/
+         uoS2YmmPvgmHbEoKDRxz85yAazrXGtlmD16la9Qkz0N4BZ1bIqvg4vdD9RtUnZ7+gdIj
+         N9Nw==
+X-Gm-Message-State: AOJu0Yw2QWebPe5omshXz5nQiasJdsoTktg/aWNphG9mhYRgEzQhF0Le
+	HcwfYH8kX6rQY0LPHBTqrZxARdDm7kYK4LDFYx1irvxHMfxo+RjekbWWRLr7kHbNt093+qAR29r
+	E1kaq9mmGbTdIL8gnTIARHgZDLeCsDVjYykyb
+X-Google-Smtp-Source: AGHT+IFuyHAil0u7ZWb4xCIHUwmhAwZMPgDdoKeyRsz9kcT37qgzsuYEH1oVBYR6znpm0ntncsND145bSWsjf+QJzJM=
+X-Received: by 2002:a05:6214:5a04:b0:6bf:979a:34c8 with SMTP id
+ 6a1803df08f44-6c16dc9635dmr48532596d6.33.1724465218039; Fri, 23 Aug 2024
+ 19:06:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: eli@mellanox.com, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, dtatulea@nvidia.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, mst@redhat.com, kvm@vger.kernel.org,
- eperezma@redhat.com, sashal@kernel.org, yuehaibing@huawei.com,
- steven.sistare@oracle.com
-From: Carlos Bilbao <cbilbao@digitalocean.com>
-Subject: [RFC] Why is set_config not supported in mlx5_vnet?
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20240815004617.2325269-1-philipchen@chromium.org>
+In-Reply-To: <20240815004617.2325269-1-philipchen@chromium.org>
+From: Philip Chen <philipchen@chromium.org>
+Date: Fri, 23 Aug 2024 19:06:47 -0700
+Message-ID: <CA+cxXhneUKWr+VGOjmOtWERA53WGcubjWBuFbVBBuJhNhSoBcQ@mail.gmail.com>
+Subject: Re: [PATCH] virtio_pmem: Add freeze/restore callbacks
+To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Dan Williams <dan.j.williams@intel.com>, 
+	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Ira Weiny <ira.weiny@intel.com>
+Cc: virtualization@lists.linux.dev, nvdimm@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+Hi maintainers,
 
-I'm debugging my vDPA setup, and when using ioctl to retrieve the
-configuration, I noticed that it's running in half duplex mode:
+Can anyone let me know if this patch makes sense?
+Any comment/feedback is appreciated.
+Thanks in advance!
 
-Configuration data (24 bytes):
-  MAC address: (Mac address)
-  Status: 0x0001
-  Max virtqueue pairs: 8
-  MTU: 1500
-  Speed: 0 Mb
-  Duplex: Half Duplex
-  RSS max key size: 0
-  RSS max indirection table length: 0
-  Supported hash types: 0x00000000
-
-I believe this might be contributing to the underperformance of vDPA. While
-looking into how to change this option for Mellanox, I read the following
-kernel code in mlx5_vnet.c:
-
-static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned int offset, const void *buf,
-                 unsigned int len)
-{
-    /* not supported */
-}
-
-I was wondering why this is the case. Is there another way for me to change
-these configuration settings?
-
-Thank you in advance,
-Carlos
-
+On Wed, Aug 14, 2024 at 5:46=E2=80=AFPM Philip Chen <philipchen@chromium.or=
+g> wrote:
+>
+> Add basic freeze/restore PM callbacks to support hibernation (S4):
+> - On freeze, delete vq and quiesce the device to prepare for
+>   snapshotting.
+> - On restore, re-init vq and mark DRIVER_OK.
+>
+> Signed-off-by: Philip Chen <philipchen@chromium.org>
+> ---
+>  drivers/nvdimm/virtio_pmem.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+>
+> diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
+> index c9b97aeabf85..2396d19ce549 100644
+> --- a/drivers/nvdimm/virtio_pmem.c
+> +++ b/drivers/nvdimm/virtio_pmem.c
+> @@ -143,6 +143,28 @@ static void virtio_pmem_remove(struct virtio_device =
+*vdev)
+>         virtio_reset_device(vdev);
+>  }
+>
+> +static int virtio_pmem_freeze(struct virtio_device *vdev)
+> +{
+> +       vdev->config->del_vqs(vdev);
+> +       virtio_reset_device(vdev);
+> +
+> +       return 0;
+> +}
+> +
+> +static int virtio_pmem_restore(struct virtio_device *vdev)
+> +{
+> +       int ret;
+> +
+> +       ret =3D init_vq(vdev->priv);
+> +       if (ret) {
+> +               dev_err(&vdev->dev, "failed to initialize virtio pmem's v=
+q\n");
+> +               return ret;
+> +       }
+> +       virtio_device_ready(vdev);
+> +
+> +       return 0;
+> +}
+> +
+>  static unsigned int features[] =3D {
+>         VIRTIO_PMEM_F_SHMEM_REGION,
+>  };
+> @@ -155,6 +177,8 @@ static struct virtio_driver virtio_pmem_driver =3D {
+>         .validate               =3D virtio_pmem_validate,
+>         .probe                  =3D virtio_pmem_probe,
+>         .remove                 =3D virtio_pmem_remove,
+> +       .freeze                 =3D virtio_pmem_freeze,
+> +       .restore                =3D virtio_pmem_restore,
+>  };
+>
+>  module_virtio_driver(virtio_pmem_driver);
+> --
+> 2.46.0.76.ge559c4bf1a-goog
+>
