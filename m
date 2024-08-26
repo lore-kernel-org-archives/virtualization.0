@@ -1,127 +1,85 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12D8582890
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 06:22:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98A2284A36
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 06:26:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724653332; cv=none; b=kLo/pDNZupQ7IEuXHiRzfu9SwgoZ0UByNMiVDqSkYz9up7PoeoZz5pV9cOpDxVsQBEcxPdL7paI2n81XzKHYcsCho9PZjVxD1N3IWh4XYtbpwDcWT4aLJfSHthsKFD+E/C4m/PIjBerIZL2t0+LhOLDIanmEgTMICp1P4yt2wEE=
+	t=1724653604; cv=none; b=RwUwvaFjYVtHuk+nH29nYDz+oMWkLhZQ2aYmPkmlwagzZvLFx8Y/nC488FPwGyVpgpqaTelEu6GB47nHKMHRYXCbnyHbBRAVet60oQ64VK2jO21ctLXYNYOTMZCPekily03dZQKkKv0JK6zzf9eO4m7JiNdicvwsn0y5vyLYKZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724653332; c=relaxed/simple;
-	bh=W/orvY4d+MyuUZyg5aYI8nCoBLSyyGylJt1UrQHKaeI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uKsnPrBzT7ZJHM79yKtKSO/WzKfpd0XoILErd09K5OL4LRzv/xir/bR/io9wQwKocbJ/9AHAuqVeuL2/iYj0BNwbE8s6fEb58HU9Qizf2sIjWZ0qhhSesE58IKcIvq1Cy6vLS3+r1SuOHXwrLzyGF0L1kXqHPuDhEdhROg9BhOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Kaax4KJ3; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1724653604; c=relaxed/simple;
+	bh=w3vkaU/W58T67d5XGiPbxPt/8Wedb1k+JGHJTDvaXCo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lhe/NOPWeaVIpzqyZRT2khLYHREwckz7ciAqY0fsWpTNd76mGIvYFOuAKBs75RQR11ETkKoosROW9ZwFK9m518HWjeV/TIMrT6KHvogXWaPliNYFncb34mhTUGICcgJGg07mcJekIrOOJDpOwpHrw4Ce4tIHLRMbCZB3aV50T+0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=p9Z/ladn; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kaax4KJ3"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="p9Z/ladn"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9F24D4015F
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 06:22:09 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2EA9381000
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 06:26:42 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.79
+X-Spam-Score: -4.398
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id UbYbhKOcZkxd for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Aug 2024 06:22:08 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org A42364013D
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A42364013D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Kaax4KJ3
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A42364013D
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 06:22:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724653327;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W/orvY4d+MyuUZyg5aYI8nCoBLSyyGylJt1UrQHKaeI=;
-	b=Kaax4KJ3J+lp2GoD4OFIWkgUFi5aByLoYan8LHjEkMCaEqmBCAq3AqpXuorMAJLH+Pl7mv
-	ZSgio3Kn4FfkNH65VFtuZ5sSC8fo7/Ju9os8HdXdNt9/y/0PLpgGm/8m1BNJroT5PO5xsB
-	69TOnWqcKWdRsIolJYaUURbrMEB7xDA=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-102-RJdqe37ONuGBcdMUODTsCg-1; Mon, 26 Aug 2024 02:22:05 -0400
-X-MC-Unique: RJdqe37ONuGBcdMUODTsCg-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2d3c976e426so4914097a91.1
-        for <virtualization@lists.linux-foundation.org>; Sun, 25 Aug 2024 23:22:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724653324; x=1725258124;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=W/orvY4d+MyuUZyg5aYI8nCoBLSyyGylJt1UrQHKaeI=;
-        b=RuNJfPJkO4rIxXJ4tacYyhPAXDKIQ2VjH/3gwyQhyU+/he8i3cL41y9aj4TZEXwWuL
-         xyXfrsxpWm2TUiAHOSUi0WtTdfoWRlTbkhRIFi3L3CXA80ufp5zfFhEqH3QGT+2upSwR
-         pI1VjuTnvdlyja7Uodk7SRMTtxwh8QzSqyxYiW9StY1aQSIdhXSJhS1UYKv14mq5TFpb
-         EIxfodAeQj39sQhEszeL1efwv0foOXsxDl+/lvY8QKMZunnkMhGRYJDJXxwTkxKan6Qw
-         0JXA4OQIH2u1ZYE13O0JWM7G6TiNX0IAfF88SYU+cJdeovSlmI1uFWur7iaCXHdYJqZr
-         AypA==
-X-Forwarded-Encrypted: i=1; AJvYcCWSykv0bkeAJEfZb7eLmmbUvQhjKtV5ugpQU9zVfIeIDJOXhF8wvCs25L/pTppXFr0dN2sYqFNRueJkr1MUnw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxDPcoWeiFaLGSberTUeMXsryFpUty2jTItkBSTKxSUDVrgXwAD
-	Ihiwuh23/XMrvGRcVBCZyLAUrRGyhLk8B85m5vcK4rYANLR7U5bY5RjoKxFrKe1Snp0GYJAqZA3
-	q+pgAQwbFSm90jLH31DPF/8qJPX6FIRxzKRcNkFMYgDPxl+qXAY2wsdIu2IZ/DdWBeHdd/H+8Xw
-	8gTYCCix1ya3WadtvrqHbP5xtjBYfx1/j48cyPNAhMnxz/LjNIk1QAqQ==
-X-Received: by 2002:a17:90a:4d83:b0:2cf:28c1:4cc2 with SMTP id 98e67ed59e1d1-2d646bb9cd8mr11652458a91.3.1724653324441;
-        Sun, 25 Aug 2024 23:22:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGXJfj3XOMNpAgzpAtxdEftGfG0TOD+eVj11eYPkpG+vQJ2vtmQv/QzmjFQVGtWIG7U3tOa7tJOLAWR+r5s2LU=
-X-Received: by 2002:a17:90a:4d83:b0:2cf:28c1:4cc2 with SMTP id
- 98e67ed59e1d1-2d646bb9cd8mr11652440a91.3.1724653323932; Sun, 25 Aug 2024
- 23:22:03 -0700 (PDT)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id CDSLTLr0w2kk for <virtualization@lists.linux-foundation.org>;
+ Mon, 26 Aug 2024 06:26:41 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+7bd792e84b2a1d702da5+7673+infradead.org+hch@bombadil.srs.infradead.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7DF3A81003
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=infradead.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7DF3A81003
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=p9Z/ladn
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7DF3A81003
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 06:26:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=eCVG55oExUlYL1Z32e3+q8IKV8QnAIYOma6x23vOJvQ=; b=p9Z/ladnB/WXP8DuuRoIRzyqIL
+	R6lSpSZC4U4G1gMP9uTSPVmnP+verPYl3JnbR/UjLxaiadUWK3Ds9mlKbKV0lVhcM6CnBvQYV3OqV
+	vwDYHqPO/CjXsMmnmH9o6WWQPWYFa7CcpGfQ3eBfvNH9Ylgsj8rwfrzm8M0dOYpqIxHUu3b7z22j3
+	ndNzCUezI3EaDRPaFPeoD3feobwO+oCVOR9iGc2vPflfS7GJJzj2QK/UaVu2JnGaNzCAS/JbbSH9J
+	6SM12cEv/5qGNYmH7NUvRhLWP0TBG1R/b0Y1LCwATRRaVuGgaL5lE4K+shTz8/801cUnLXKgmMIX4
+	mZIOtuog==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1siTBV-000000060kI-0nfR;
+	Mon, 26 Aug 2024 06:26:37 +0000
+Date: Sun, 25 Aug 2024 23:26:37 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Cindy Lu <lulu@redhat.com>,
+	mst@redhat.com, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Subject: Re: [RFC 7/7] vhost: Add new UAPI to support changing Kthread mode
+Message-ID: <ZswgHTRUR-wstAHf@infradead.org>
+References: <20240819092851.441670-1-lulu@redhat.com>
+ <20240819092851.441670-8-lulu@redhat.com>
+ <ZsV17ACIEelIQuKx@infradead.org>
+ <CACGkMEv=cQqXeLdsM1ivOFvUcG+-eOOwHE_BVQmF_scbqYxUpg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240819092851.441670-1-lulu@redhat.com> <20240819092851.441670-8-lulu@redhat.com>
- <ZsV17ACIEelIQuKx@infradead.org>
-In-Reply-To: <ZsV17ACIEelIQuKx@infradead.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 26 Aug 2024 14:21:52 +0800
-Message-ID: <CACGkMEv=cQqXeLdsM1ivOFvUcG+-eOOwHE_BVQmF_scbqYxUpg@mail.gmail.com>
-Subject: Re: [RFC 7/7] vhost: Add new UAPI to support changing Kthread mode
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Cindy Lu <lulu@redhat.com>, mst@redhat.com, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACGkMEv=cQqXeLdsM1ivOFvUcG+-eOOwHE_BVQmF_scbqYxUpg@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On Wed, Aug 21, 2024 at 1:07=E2=80=AFPM Christoph Hellwig <hch@infradead.or=
-g> wrote:
->
-> On Mon, Aug 19, 2024 at 05:27:33PM +0800, Cindy Lu wrote:
-> > Add a new UAPI to support setting the vhost device to
-> > use kthread mode. The user space application needs to use
-> > VHOST_SET_USE_KTHREAD to set the mode.
+On Mon, Aug 26, 2024 at 02:21:52PM +0800, Jason Wang wrote:
+> > What is the application visible behavior that the API use is the proxy
+> > for?
+> 
+> Vhost used to be created by kthreadd but some recent patches change it
+> to behave like being froked by the owner. So the various attributes
+> that interhit from the parent has been changed (scheduling and
+> namespace etc).
 
-I think we need a better name. Probably something like
-VHOST_INHERIT_OWNER or others (not a native speaker)
-
-> > This setting must
-> > be set before VHOST_SET_OWNER is set.
->
-> Usage of an API is a complete kernel internal detail that has absolutely
-> no business being exposed to applications.
->
-> What is the application visible behavior that the API use is the proxy
-> for?
-
-Vhost used to be created by kthreadd but some recent patches change it
-to behave like being froked by the owner. So the various attributes
-that interhit from the parent has been changed (scheduling and
-namespace etc).
-
-Thanks
-
->
->
+Well, if that breaks userspace it needs to be changed to opt into the
+new behavior rather than requiring a flag to not break the existing
+applications.  Assuming the change is intentional to start with.
 
