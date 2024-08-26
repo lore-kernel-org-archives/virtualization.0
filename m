@@ -1,145 +1,131 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D8F188914
-	for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 14:51:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C6E9193079
+	for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 15:42:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724683874; cv=none; b=Ebva2/5TUmCA6RWkxhYz2A2kWxiO+gc0BdB7gBB7vXeo4haYCPtvjHUMqZ+HDkERDYJ/flMFR1AvgQ7KWSZTRRAH7zN5hDVlzzDkHf5cO35RA6/i61u/YIbwmzzZqKr1Ai3AzoWyYFbWwsbXNLxPLaRBczHQjt9uqpauyCRML7M=
+	t=1724686937; cv=none; b=BXSI8k+AJ8q4hcofjvfMQWK5tfqRYbknLr5TgiQgJdUmGo/xYkfNfR6aWrgJ5z399y2JLyEadoLViQUHnsacRCBobsik/emQ0aftuODV2XYHgLE5sFKfSdJ8taxc+T3m1zZFO0u1pzrxv9flzHPQKU6RwPFyz1xLsdUv+APK/ug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724683874; c=relaxed/simple;
-	bh=q9UCU/xJxgvWhtzFMTtdnl11yAmjwathNxQSdFSMirY=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oAmWymDZsMCHX2tb5xl2yMaheqK+fhESLNJjCuDr9cTYN7OcRRBjkQT9yWcpCi4MOcp12LQzHVeyBSeoqMUMYyMFh+YIuX1VjI82/mRfO8M1j5oRxxzofDE5lemieq9xxCgnWMSHHx17QwVwrGqFU1HucjpK/YmXMKxD6OHI7sc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KUtPYJDG; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724686937; c=relaxed/simple;
+	bh=xM8pXW+HgjT0erxnOsIGtoopuFkOjZ2IcKxNFrbxs24=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WCZrOFK+2hXKBDQAUS40EMbewcaWyu1MUrgWV9+P2/V97lwdYGNOXpxnHNiz3bBBVCgwueURk6fFsIesudDF8A4Dnm4eXzr4rbv9SSHowIobN34NKL8NziYwtDqQV/DZtB1olu5D6kaLZvX0L2MfePcVoYtM/oBMJHNy8l0ajI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LZGXwm8b; arc=none smtp.client-ip=209.85.167.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KUtPYJDG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724683872;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=q9UCU/xJxgvWhtzFMTtdnl11yAmjwathNxQSdFSMirY=;
-	b=KUtPYJDGFQAqM32HhndtBT+HEWq2f6iP1L3pCY9MySPMk1VXA3aAW8s2FJKxV5AknX4N+e
-	pWLkCkW9RQYwECqZnPo20iAPbfOBSMof/TGhlLnLEgCI+Qe/tajUCtxuq4enL/qDVP4r9a
-	5uGhGgNsuRijlUaLHvNTNZjHw4a6NPk=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-192-oB3T6AgbOAiqqOp2xQJq2g-1; Mon, 26 Aug 2024 10:51:11 -0400
-X-MC-Unique: oB3T6AgbOAiqqOp2xQJq2g-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-37189fa7ad6so3260556f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 07:51:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LZGXwm8b"
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-533462b9428so7614292e87.3
+        for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 08:42:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724686933; x=1725291733; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FH/rM9r8vy15gTO0SvqG09ShUwI8MYLfcApXi3x19VU=;
+        b=LZGXwm8bH2+R3WbuVOmTn14xpRNiSn96cQYgvhcuhI34bIwLeNJrL4yr2npoPmDATS
+         GukAA/hR8Q5jQy1eHLpm2NmKK4UzDh7aoXPdIC/HsXYBd/ot97KptcA/1QwfnJHVBVDI
+         CT3+GWdZQtpCU7UtmpIQVZNU20pBxC0KKKegG1AYK8m2vP4u1l/KCRUcoERSskTfOo1k
+         tbPhDphSilNFIiWIkEwFf6UHZ0YrmMXjyEt2dqBp0sviHCtXEz4n+zu9vz7AqjOxsm4/
+         a0OKaC2Ns+zco+J8AWY7pRu+t9hhe824rOnxXM3d+HCuIU0lAsL1/PRoGTIRs3bIdalv
+         B1vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724683870; x=1725288670;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ygoQZIsbD2qBAAmAvknxBdRGvmvE0QFAtlIfXcqGyiA=;
-        b=fZ0r9QwOdMUHdosn0ofrez4d8ICyIIPO1gJZ7yghuYmK3FebxST/w4S+0cwtbuUYMw
-         i4v1QOct2dRZFnFymhupx4EIrYvYIRb/sweIikq+jkeflkU5g92L9rmxW49ZLBniHX1u
-         aX3OUvwarNieVQJ2yKoEz1NlYopQVDSOTkaeHyY8fIALC/81/ekDCQ5/Ts91fe22SPcC
-         28G6C9UU8Pwc3RDYJJL0ami0UQuhsUQvwK7z3a/96zQ4SNLCu1IXzVeMKnGN9ihmsebI
-         qJTcSDCCSCdziK98/f2ufmz1d/+HsBPHKrSat5FgpnOuQoGtaOE48f23UFU8cjW0ICRw
-         gDnQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUOsMKIh9EioUqn85XV3ecixfJF2peeKROf4oRry418+kqXsetWph29x88A6QdFU75LqhtJ3PgBxuXjmMnRTQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyvnrVbFfjLOQ4xVi0Zs/TwRuMHkFySuSZC3hIW8tsU4xAxpnP5
-	6PJ9bKG0hE6oW8QoXs3lZWyKzz5fUrrX6/F2phTXV7YnkWDxZH576BQGV+lxr60WFbiLPNNQ8BD
-	VqReowzCJ295mVdTQpB4Air+nXgk1J8CCvxRLp0PMipwwQ8WGyJChVv0Y16fVVmYI
-X-Received: by 2002:a05:6000:18a4:b0:369:b842:5065 with SMTP id ffacd0b85a97d-373118c853bmr9315258f8f.41.1724683869837;
-        Mon, 26 Aug 2024 07:51:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGzcbeZGAiG9pR7gwgPFjZ9tQkwyQH6hKqQkC/ZviQjFl3Zuqsn+yKqro2WkBtRVRH4FkIJWQ==
-X-Received: by 2002:a05:6000:18a4:b0:369:b842:5065 with SMTP id ffacd0b85a97d-373118c853bmr9315196f8f.41.1724683869319;
-        Mon, 26 Aug 2024 07:51:09 -0700 (PDT)
-Received: from dhcp-64-164.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-373082096bbsm10889215f8f.89.2024.08.26.07.51.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Aug 2024 07:51:08 -0700 (PDT)
-Message-ID: <ad6af1c4194873e803df65dc4d595f8e4b26cb33.camel@redhat.com>
-Subject: Re: [PATCH v3 5/9] ethernet: cavium: Replace deprecated PCI
- functions
-From: Philipp Stanner <pstanner@redhat.com>
-To: Andy Shevchenko <andy@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>, Wu Hao
- <hao.wu@intel.com>, Tom Rix <trix@redhat.com>, Moritz Fischer
- <mdf@kernel.org>,  Xu Yilun <yilun.xu@intel.com>, Linus Walleij
- <linus.walleij@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexandre
- Torgue <alexandre.torgue@foss.st.com>, Jose Abreu <joabreu@synopsys.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, Bjorn Helgaas
- <bhelgaas@google.com>, Alvaro Karsz <alvaro.karsz@solid-run.com>, "Michael
- S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>,  Eugenio =?ISO-8859-1?Q?P=E9rez?=
- <eperezma@redhat.com>, Richard Cochran <richardcochran@gmail.com>, Mark
- Brown <broonie@kernel.org>, David Lechner <dlechner@baylibre.com>, Uwe
- =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Damien Le
- Moal <dlemoal@kernel.org>,  Hannes Reinecke <hare@suse.de>, Chaitanya
- Kulkarni <kch@nvidia.com>, linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
- linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
- netdev@vger.kernel.org,  linux-stm32@st-md-mailman.stormreply.com,
- linux-arm-kernel@lists.infradead.org,  linux-pci@vger.kernel.org,
- virtualization@lists.linux.dev
-Date: Mon, 26 Aug 2024 16:51:07 +0200
-In-Reply-To: <ZsdO2q8uD829hP-X@smile.fi.intel.com>
-References: <20240822134744.44919-1-pstanner@redhat.com>
-	 <20240822134744.44919-6-pstanner@redhat.com>
-	 <ZsdO2q8uD829hP-X@smile.fi.intel.com>
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
+        d=1e100.net; s=20230601; t=1724686933; x=1725291733;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FH/rM9r8vy15gTO0SvqG09ShUwI8MYLfcApXi3x19VU=;
+        b=c6NIFVqhbwpw/eYe5x2CfCao+vdTpwaO116MuAtjLRNL8I+kAH0pwAWim+R49LXAml
+         hiCgeov9CQE28+9jqR7xrh3Hx7y0Os+FQ+p6+0t3YtsCkbFzsmXt7DCIYGZMPbu+Ipyu
+         V9B57rgfunUp59RWjetKBpCMldfr10T0NimKi7ccpflDtK7nNXg0qBXOEMJWiKwjPDj7
+         a94fHw20Ulc+p6lyadLGaq2fv09wS8d/i9FbT2ITmFqyvludqFyT5QMX63qNwJI5QcjJ
+         wOVrJn2YU3XD/CcLvYOCyUdP5PHIHnf9plWenIpeziV/aXBr/s16s90ZND5wlsSjzip6
+         gIAA==
+X-Forwarded-Encrypted: i=1; AJvYcCXOB/s0urg8SJQxxf52IxraBxOANJ0KokhpKkOkCCktRCn/Eymb3/vzM1gyPHFOW/6TLbRTQm8WGPdXodrqgw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxd2g6v/iMPPfi7rPlMTUkuxXHuv/jXoxkP5u6c/bp5aQAvUHPm
+	091a7TFvQ4+LMay6YKRYZGepAA7eydZZv1NnPp9BLecgfQHfkFBtr6UiF662+/uXUg/IVkPSoSD
+	w/U5zLiH6wGqVSLGuYu6ZmSvDIZY=
+X-Google-Smtp-Source: AGHT+IEO+gUPPoFWhnVIZyFPIRMKkPjZZ1g7sFSpxYSDeKMazFoujBp34K9I3yoSDp0PEZ365NhxrirOyyk84oqJOVc=
+X-Received: by 2002:ac2:4e06:0:b0:52e:936e:a237 with SMTP id
+ 2adb3069b0e04-53438846debmr7930724e87.16.1724686932982; Mon, 26 Aug 2024
+ 08:42:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+References: <20240822134744.44919-1-pstanner@redhat.com> <20240822134744.44919-6-pstanner@redhat.com>
+ <ZsdO2q8uD829hP-X@smile.fi.intel.com> <ad6af1c4194873e803df65dc4d595f8e4b26cb33.camel@redhat.com>
+In-Reply-To: <ad6af1c4194873e803df65dc4d595f8e4b26cb33.camel@redhat.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Mon, 26 Aug 2024 18:41:36 +0300
+Message-ID: <CAHp75VfKS_PWer2hEH8x0qgBUEPx05p8BA=c0UirAWjg0SaLeA@mail.gmail.com>
+Subject: Re: [PATCH v3 5/9] ethernet: cavium: Replace deprecated PCI functions
+To: Philipp Stanner <pstanner@redhat.com>
+Cc: Andy Shevchenko <andy@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>, 
+	Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>, 
+	Xu Yilun <yilun.xu@intel.com>, Linus Walleij <linus.walleij@linaro.org>, 
+	Bartosz Golaszewski <brgl@bgdev.pl>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Alexandre Torgue <alexandre.torgue@foss.st.com>, Jose Abreu <joabreu@synopsys.com>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, 
+	Alvaro Karsz <alvaro.karsz@solid-run.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Richard Cochran <richardcochran@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	David Lechner <dlechner@baylibre.com>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, 
+	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>, Chaitanya Kulkarni <kch@nvidia.com>, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-block@vger.kernel.org, linux-fpga@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-stm32@st-md-mailman.stormreply.com, 
+	linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org, 
+	virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2024-08-22 at 17:44 +0300, Andy Shevchenko wrote:
-> On Thu, Aug 22, 2024 at 03:47:37PM +0200, Philipp Stanner wrote:
-> > pcim_iomap_regions() and pcim_iomap_table() have been deprecated by
-> > the PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
-> > pcim_iomap_table(), pcim_iomap_regions_request_all()").
-> >=20
-> > Replace these functions with the function pcim_iomap_region().
->=20
-> ...
->=20
-> > -=09err =3D pcim_iomap_regions(pdev, 1 << PCI_PTP_BAR_NO,
+On Mon, Aug 26, 2024 at 5:51=E2=80=AFPM Philipp Stanner <pstanner@redhat.co=
+m> wrote:
+> On Thu, 2024-08-22 at 17:44 +0300, Andy Shevchenko wrote:
+> > On Thu, Aug 22, 2024 at 03:47:37PM +0200, Philipp Stanner wrote:
+
+...
+
+> > > -   err =3D pcim_iomap_regions(pdev, 1 << PCI_PTP_BAR_NO,
+> > > pci_name(pdev));
+> > > -   if (err)
+> > > +   clock->reg_base =3D pcim_iomap_region(pdev, PCI_PTP_BAR_NO,
+> > > pci_name(pdev));
+> > > +   if (IS_ERR(clock->reg_base)) {
+> > > +           err =3D PTR_ERR(clock->reg_base);
+> > >             goto error_free;
+> > > -
+> > > -   clock->reg_base =3D pcim_iomap_table(pdev)[PCI_PTP_BAR_NO];
+> > > +   }
+> >
+> > Perhaps
+> >
+> >       clock->reg_base =3D pcim_iomap_region(pdev, PCI_PTP_BAR_NO,
 > > pci_name(pdev));
-> > -=09if (err)
-> > +=09clock->reg_base =3D pcim_iomap_region(pdev, PCI_PTP_BAR_NO,
-> > pci_name(pdev));
-> > +=09if (IS_ERR(clock->reg_base)) {
-> > +=09=09err =3D PTR_ERR(clock->reg_base);
-> > =C2=A0=09=09goto error_free;
-> > -
-> > -=09clock->reg_base =3D pcim_iomap_table(pdev)[PCI_PTP_BAR_NO];
-> > +=09}
->=20
-> Perhaps
->=20
-> =09clock->reg_base =3D pcim_iomap_region(pdev, PCI_PTP_BAR_NO,
-> pci_name(pdev));
-> =09err =3D PTR_ERR_OR_ZERO(clock->reg_base);
-> =09if (err)
-> =09=09goto error_free;
->=20
-> This will make your patch smaller and neater.
->=20
-> P.S. Do you use --histogram diff algo when preparing patches?
+> >       err =3D PTR_ERR_OR_ZERO(clock->reg_base);
+> >       if (err)
+> >               goto error_free;
+> >
+> > This will make your patch smaller and neater.
+> >
+> > P.S. Do you use --histogram diff algo when preparing patches?
+>
+> So far not.
+> Should one do that?
 
-So far not.
-Should one do that?
+Id doesn't alter your code, it's in addition to what I suggested, but
+as Linus shared that there is no reason to avoid using --histogram not
+only in Linux kernel, but in general as it produces more
+human-readable diff:s.
 
-P.
-
-
->=20
-
+--=20
+With Best Regards,
+Andy Shevchenko
