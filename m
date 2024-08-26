@@ -1,185 +1,112 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0EC282488
-	for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 06:55:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECD0812F398
+	for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 07:33:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724655332; cv=none; b=YGybjnJfGMIb4Ym+1pkbK/XXwBX1df6kpeHLmfS8WGF9Y7qFL52zI/1bRRD9Ga8p5gtLDbBnuHxUN2rDz1lZfjcmMc/6OPXC7f5rAh8p4nM/8l1KKZmzHKcQlYki/+2t4oEH70YsLEYYng6tBW3h/kBMIHPedLFJvMvtvfYjlGc=
+	t=1724657587; cv=none; b=l0obQZdqCxhoTjBUaaWGYdBMtdtbmyoV9jd7mA88dBmdjfQlLmkVrmkUapklFowlk1q7koWSw2tQrlN7GXLhyTCSL9VMfwxPnVwFVxZOEACpRmlVPFeuUfNGpBfp0yavHMniABer5jhNKxV1n/lwnsdKriZGfCGuqn6Eou8PXVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724655332; c=relaxed/simple;
-	bh=XIbIq88fuLdpsdaAmmfatKx0XcxitX6MoS0Gk3fKafY=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WHPhr+AphCqfkthGiQqsQwPx4HFLne9acI61zPpe6y/w5mxnG5Hep8DHnJ6Su54kmpG6NuXX2qXjQ5sN3i6HpYT/kgFQCe4ir0GUZ16mVd88IXm6Q1Y6e3U7yd9Sb9JHVuf1J6DC1Eo4fmkMMjoCNU12mQsq1lN3rNpd4ifcF8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Av03Nn+G; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1724657587; c=relaxed/simple;
+	bh=dNr3l1hw2sRnncJ2DvDXfyvU/pBJ1zzJ/JGCqFs+8u4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=G9Jxdf9Xt7vXr9Ae2SMmUY7Jvg/TCXPamYi7NlR1MZkQNv0WS1Pxg7WuTC8W4kid8xIuppG2Zodi/GRPj3Cek5VKdBfeRXJ2Dr2iSmKL9mIUIfgkqVmgHIPZd8HuaWtZvoDBgUK7wYsIcpTfpf6fuvg37YStcqJZ6ZLEJtUn5CY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M6n/m+1/; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Av03Nn+G"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M6n/m+1/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724655328;
+	s=mimecast20190719; t=1724657584;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XIbIq88fuLdpsdaAmmfatKx0XcxitX6MoS0Gk3fKafY=;
-	b=Av03Nn+G8Bpn+46Dd+GbmjrNnMqyUeyC5bfbbx0KhX+KuZit+RP30IuqY3Dj11C+Bk7zGJ
-	buGwAT8tl7sl0CkJZ+7cLXppGtE08nFk2U15yQDOtHJPYMyj3PfIFnMwF8IIw+Sx3VJNVv
-	st5+Lg1cBZGxW7MK6xre5k6jm81jI+g=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-80-Qqm32W0APbGDsd-C-9n7Lg-1; Mon, 26 Aug 2024 02:55:27 -0400
-X-MC-Unique: Qqm32W0APbGDsd-C-9n7Lg-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-42817980766so37737115e9.3
-        for <virtualization@lists.linux.dev>; Sun, 25 Aug 2024 23:55:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724655326; x=1725260126;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=O2z2TGSU/AHVRPl6zHGllpDM2MIUry+mfdVEnD5XzqM=;
-        b=tz5V8psPgqD3SPAcel6jYVHMiB44w/Xqj8rGDaeCTxpRjSCSlWp8VH1xgr6myux8WU
-         MkKjwUZZ+XqaYh/Gg/O4ewbSGd+VraI+9GXGaFNhXa7f2QLkG+q+hQ71ciMEkh1lNx4W
-         5DQQg1PUbT/dT1/a2FTWyC6N5+XFEnGNw+R4NTNWG0ikVCZWvg3hytb7inLTaEDcULrP
-         HyGQf/kVijebBVz+ZO0Cn8QvXTjJSkgpXhvu72NczOCf2BBHN3CvWcGOBkDoWBuc8os3
-         9hgrnqSyt7I74rAxyA22uwF7aLVus1FYF92620CR7UUO/TcdGlz2LZevVlrWjEgfMu4M
-         kgsg==
-X-Forwarded-Encrypted: i=1; AJvYcCWcyifeaWHqCccX4vtoRf/mkQN+m5mxDTjTkdcOp6paKpcIrleuOaMnan56uGkjHvWyrTlx8o83T4PA+dW3eg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXvbDHGsJokdBiSXb5FrINEu1rPJ48Z8BIp7CG3CMJlKapWICh
-	b7UVPQs9uZ49kmdFK9xXyiK03FqNTpGSjzWHgYHBXTl4OmANdIRmNC34DXyDjQluWXwrIpyvBBW
-	SWThMJt95tlU9qxtjuXspVeJv7Bhv/7ZHo6BMpxAVyDvUFeuaSLekP+RTmaQejOsD
-X-Received: by 2002:a05:600c:3b05:b0:428:1d27:f3db with SMTP id 5b1f17b1804b1-42b8925903bmr48419565e9.35.1724655326194;
-        Sun, 25 Aug 2024 23:55:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHDbFRllMEQMy18KUHdwX+H4HgEvRwxNEXxmAF22JEUYmhjpbjXAt/FXNy3VJHqD5ffhjLW9Q==
-X-Received: by 2002:a05:600c:3b05:b0:428:1d27:f3db with SMTP id 5b1f17b1804b1-42b8925903bmr48419155e9.35.1724655325664;
-        Sun, 25 Aug 2024 23:55:25 -0700 (PDT)
-Received: from dhcp-64-164.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42abef81777sm178404725e9.27.2024.08.25.23.55.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Aug 2024 23:55:25 -0700 (PDT)
-Message-ID: <23f1b79be57f1a4d6ce0806fa149d687c2c6d275.camel@redhat.com>
-Subject: Re: [PATCH v3 7/9] vdpa: solidrun: Fix UB bug with devres
-From: Philipp Stanner <pstanner@redhat.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: alexandre.torgue@foss.st.com, alvaro.karsz@solid-run.com,
- andy@kernel.org,  axboe@kernel.dk, bhelgaas@google.com, brgl@bgdev.pl,
- broonie@kernel.org,  corbet@lwn.net, davem@davemloft.net,
- dlechner@baylibre.com, dlemoal@kernel.org,  edumazet@google.com,
- eperezma@redhat.com, hao.wu@intel.com, hare@suse.de,  jasowang@redhat.com,
- joabreu@synopsys.com, kch@nvidia.com, kuba@kernel.org, 
- linus.walleij@linaro.org, linux-arm-kernel@lists.infradead.org, 
- linux-block@vger.kernel.org, linux-doc@vger.kernel.org, 
- linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, 
- linux-stm32@st-md-mailman.stormreply.com, mcoquelin.stm32@gmail.com, 
- mdf@kernel.org, mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com, 
- richardcochran@gmail.com, stable@vger.kernel.org, trix@redhat.com, 
- u.kleine-koenig@pengutronix.de, virtualization@lists.linux.dev, 
- xuanzhuo@linux.alibaba.com, yilun.xu@intel.com
-Date: Mon, 26 Aug 2024 08:55:22 +0200
-In-Reply-To: <81de3898-9af7-4ad1-80ef-68d1f60d4c28@wanadoo.fr>
-References: <20240822134744.44919-1-pstanner@redhat.com>
-	 <20240822134744.44919-8-pstanner@redhat.com>
-	 <81de3898-9af7-4ad1-80ef-68d1f60d4c28@wanadoo.fr>
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
+	bh=OGe0vbap31V8Ae80wTyu3pLN9tA4WkQLH/KHylBQkqo=;
+	b=M6n/m+1/NGkPLjjR3GrkeU00KpDdg2WSO7/Nh7VHOLNxqmKxXPIgS12k3viHRzEPOmTNsU
+	yAs4JICaZBmJBpgIZNgktaOmqZtoVoY66JoaMrTJwKf6Cz7HRW1Bcz+dlMOdTibV94+UY5
+	cG4FqC5+QBReJzrjbv0j6x8nFmAS+5Q=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-392-wqz3LUD4M6O_q2d73xZ7_g-1; Mon,
+ 26 Aug 2024 03:33:02 -0400
+X-MC-Unique: wqz3LUD4M6O_q2d73xZ7_g-1
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1D7A11954B08;
+	Mon, 26 Aug 2024 07:33:01 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.194.20])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 688AB196BBF1;
+	Mon, 26 Aug 2024 07:33:00 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+	id 1261A1800631; Mon, 26 Aug 2024 09:32:58 +0200 (CEST)
+Date: Mon, 26 Aug 2024 09:32:58 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: daniel@ffwll.ch, airlied@gmail.com, mripard@kernel.org, 
+	maarten.lankhorst@linux.intel.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH 00/10] rm/bochs: Modernize driver
+Message-ID: <zh63tmpp57ou4y3j54grngvqwqpls7hyw2eb44a6qjcpx6sb24@v5n7ri6aa6ny>
+References: <20240823124422.286989-1-tzimmermann@suse.de>
+ <sksjddgidfrk4bvcxvb46khevp4a4nfvl2holgdw636wld7oov@vdbcvdf3ch6m>
+ <42389f21-1ddb-428d-8471-92eae5a5f45a@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <42389f21-1ddb-428d-8471-92eae5a5f45a@suse.de>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 2024-08-22 at 16:34 +0200, Christophe JAILLET wrote:
-> Le 22/08/2024 =C3=A0 15:47, Philipp Stanner a =C3=A9crit=C2=A0:
-> > In psnet_open_pf_bar() and snet_open_vf_bar() a string later passed
-> > to
-> > pcim_iomap_regions() is placed on the stack. Neither
-> > pcim_iomap_regions() nor the functions it calls copy that string.
-> >=20
-> > Should the string later ever be used, this, consequently, causes
-> > undefined behavior since the stack frame will by then have
-> > disappeared.
-> >=20
-> > Fix the bug by allocating the strings on the heap through
-> > devm_kasprintf().
-> >=20
-> > Cc: stable@vger.kernel.org=09# v6.3
-> > Fixes: 51a8f9d7f587 ("virtio: vdpa: new SolidNET DPU driver.")
-> > Reported-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> > Closes:
-> > https://lore.kernel.org/all/74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanado=
-o.fr/
-> > Suggested-by: Andy Shevchenko <andy@kernel.org>
-> > Signed-off-by: Philipp Stanner <pstanner@redhat.com>
-> > ---
-> > =C2=A0 drivers/vdpa/solidrun/snet_main.c | 13 +++++++++----
-> > =C2=A0 1 file changed, 9 insertions(+), 4 deletions(-)
-> >=20
-> > diff --git a/drivers/vdpa/solidrun/snet_main.c
-> > b/drivers/vdpa/solidrun/snet_main.c
-> > index 99428a04068d..67235f6190ef 100644
-> > --- a/drivers/vdpa/solidrun/snet_main.c
-> > +++ b/drivers/vdpa/solidrun/snet_main.c
-> > @@ -555,7 +555,7 @@ static const struct vdpa_config_ops
-> > snet_config_ops =3D {
-> > =C2=A0=20
-> > =C2=A0 static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet
-> > *psnet)
-> > =C2=A0 {
-> > -=09char name[50];
-> > +=09char *name;
-> > =C2=A0=C2=A0=09int ret, i, mask =3D 0;
-> > =C2=A0=C2=A0=09/* We don't know which BAR will be used to communicate..
-> > =C2=A0=C2=A0=09 * We will map every bar with len > 0.
-> > @@ -573,7 +573,10 @@ static int psnet_open_pf_bar(struct pci_dev
-> > *pdev, struct psnet *psnet)
-> > =C2=A0=C2=A0=09=09return -ENODEV;
-> > =C2=A0=C2=A0=09}
-> > =C2=A0=20
-> > -=09snprintf(name, sizeof(name), "psnet[%s]-bars",
-> > pci_name(pdev));
-> > +=09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
-> > bars", pci_name(pdev));
-> > +=09if (!name)
-> > +=09=09return -ENOMEM;
-> > +
-> > =C2=A0=C2=A0=09ret =3D pcim_iomap_regions(pdev, mask, name);
-> > =C2=A0=C2=A0=09if (ret) {
-> > =C2=A0=C2=A0=09=09SNET_ERR(pdev, "Failed to request and map PCI
-> > BARs\n");
-> > @@ -590,10 +593,12 @@ static int psnet_open_pf_bar(struct pci_dev
-> > *pdev, struct psnet *psnet)
-> > =C2=A0=20
-> > =C2=A0 static int snet_open_vf_bar(struct pci_dev *pdev, struct snet
-> > *snet)
-> > =C2=A0 {
-> > -=09char name[50];
-> > +=09char *name;
-> > =C2=A0=C2=A0=09int ret;
-> > =C2=A0=20
-> > -=09snprintf(name, sizeof(name), "snet[%s]-bar",
-> > pci_name(pdev));
-> > +=09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
-> > bars", pci_name(pdev));
->=20
-> s/psnet/snet/
+  Hi,
 
-sharp eyes ;)
+> > So this probably makes sense, but I'd like to see a bit more background
+> > information ...
+> 
+> The difference is in damage handling.
+> 
+> The old code had two BOs in video memory and flipped between them. IDK the
+> details of the old rendering, but from the massive flickering of the cursor,
+> I assume that X11's internal either copies a full buffer during each redraw,
+> or doesn't really handle damage well. It could also happen that X didn't use
+> a shadow buffer for rendering. Bochs didn't request one. Without, drawing to
+> I/O memory is really slow. If that applies to virtual I/O memory as well
+> IDK.
+> 
+> The new driver code only copies areas that have been changed from rendering.
+> The flickering is gone and the overall update performance is acceptable.
 
-Thx,
-P.
+Thanks.
 
->=20
-> > +=09if (!name)
-> > +=09=09return -ENOMEM;
-> > =C2=A0=C2=A0=09/* Request and map BAR */
-> > =C2=A0=C2=A0=09ret =3D pcim_iomap_regions(pdev, BIT(snet->psnet-
-> > >cfg.vf_bar), name);
-> > =C2=A0=C2=A0=09if (ret) {
->=20
+Have you tried wayland and fbcon too?
+
+> > On vram sizes:  The default qemu vram size (16M) should be fine for the
+> > default display resolution (1280x800).  For FullHD vram size should be
+> > doubled (-device VGA,vgamem_mb=32).
+> 
+> Right. Bochs never really tested that.  So I saw something like 5k by
+> 3k resolutions on my test setup with 16 MiB.
+
+IIRC there used to be a check in the past, limiting resolutions to
+buffer sizes which fit into vram twice (to allow for double buffering).
+
+Crude heuristic.  I do not remember when and why it went away.  Also
+I've seen wayland use three not two buffers ...
+
+> Now that video-memory requirements for each mode can be calculated
+> easily, we can sort out the invalid modes.
+
+Yes.  Also I think trading higher main memory (shmem) usage for lower
+vram usage is good overall.  Main memory can be uses for something else
+if not needed whereas vram sits around unused.
+
+take care,
+  Gerd
 
