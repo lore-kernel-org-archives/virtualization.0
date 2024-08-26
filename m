@@ -1,157 +1,145 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7CCC191473
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 14:26:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D8F188914
+	for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 14:51:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724682393; cv=none; b=eEEov9i5SdYPWNlTr8/n23Wzu7tq/oOx2x2LdHWCoYe6Asjd7rGOa6rdFDQMaqXDN78RPvHKhleU4E73ixDJRh+NLpI3aMpjcm00xqVQN3VC4WJNp18xbftlJSVVh5waS88h9ZHpKUULVQLOYF8Esn7VQnDoCSSsfn/UuHxnnyc=
+	t=1724683874; cv=none; b=Ebva2/5TUmCA6RWkxhYz2A2kWxiO+gc0BdB7gBB7vXeo4haYCPtvjHUMqZ+HDkERDYJ/flMFR1AvgQ7KWSZTRRAH7zN5hDVlzzDkHf5cO35RA6/i61u/YIbwmzzZqKr1Ai3AzoWyYFbWwsbXNLxPLaRBczHQjt9uqpauyCRML7M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724682393; c=relaxed/simple;
-	bh=j2YzyquIcqOBkL5820gFp/L4JHF1EzvqRlwP2pitwjM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Mq5iWeJc9sN/spHmgjZbr3GPfzGeXpVfNZawyTnjzx0WhyHPPmHGgZ0HEhQrkJa8FCC2WZmuq78PbmezyVBVMGnnsT5DR3ur9tzxhzwcngefZxg3ctuR+fu1zzZgPtMSTrddMloP3+hm7das0CVZcJfq0cXSbUc9rNv0dmduDeQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=AFpoqYfM; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1724683874; c=relaxed/simple;
+	bh=q9UCU/xJxgvWhtzFMTtdnl11yAmjwathNxQSdFSMirY=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oAmWymDZsMCHX2tb5xl2yMaheqK+fhESLNJjCuDr9cTYN7OcRRBjkQT9yWcpCi4MOcp12LQzHVeyBSeoqMUMYyMFh+YIuX1VjI82/mRfO8M1j5oRxxzofDE5lemieq9xxCgnWMSHHx17QwVwrGqFU1HucjpK/YmXMKxD6OHI7sc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KUtPYJDG; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="AFpoqYfM"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6DE0780F2A
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 14:26:30 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id u0RbxeeYFFcH for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Aug 2024 14:26:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b2c; helo=mail-yb1-xb2c.google.com; envelope-from=cbilbao@digitalocean.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 9380E80F00
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9380E80F00
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=digitalocean.com header.i=@digitalocean.com header.a=rsa-sha256 header.s=google header.b=AFpoqYfM
-Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9380E80F00
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 14:26:29 +0000 (UTC)
-Received: by mail-yb1-xb2c.google.com with SMTP id 3f1490d57ef6-e16582cb9f9so3244316276.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 07:26:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google; t=1724682388; x=1725287188; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=zpWiMMhNfGvh8VuUq4vLeaPQYJOMaJrubxkW6+puf9U=;
-        b=AFpoqYfMW70FAfvpBHg6fI8XpKvighWBYDrQjm2kR00InhHfLHdPrBTnmvntU3UkD9
-         GYSiuKBSIEAjJ4egieCTIy8anyBbpW2a+uZrLCS3/nGomK0Sazj2GvpeebJq3wEa6Du/
-         av7Xi3Yh+pBa1fNQEDVkOtNzhcibrr9p7htes=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KUtPYJDG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724683872;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=q9UCU/xJxgvWhtzFMTtdnl11yAmjwathNxQSdFSMirY=;
+	b=KUtPYJDGFQAqM32HhndtBT+HEWq2f6iP1L3pCY9MySPMk1VXA3aAW8s2FJKxV5AknX4N+e
+	pWLkCkW9RQYwECqZnPo20iAPbfOBSMof/TGhlLnLEgCI+Qe/tajUCtxuq4enL/qDVP4r9a
+	5uGhGgNsuRijlUaLHvNTNZjHw4a6NPk=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-192-oB3T6AgbOAiqqOp2xQJq2g-1; Mon, 26 Aug 2024 10:51:11 -0400
+X-MC-Unique: oB3T6AgbOAiqqOp2xQJq2g-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-37189fa7ad6so3260556f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 26 Aug 2024 07:51:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724682388; x=1725287188;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zpWiMMhNfGvh8VuUq4vLeaPQYJOMaJrubxkW6+puf9U=;
-        b=OFfM5cjOMXvOEXSTjjRlxuJD1WJ4Dm+uOpEnI0s0FydN9jK42zncqxrrF2hmzn0lQ0
-         vTShxj8LE8zbFDNEKIICd0BVfAgel8BzC+Qw7ZJZambPNQ2585jINhKGRtJAtcZ4ArP0
-         pM/1mJQ6cpSYAZmFQa6o789vuxwCCHLFOsKqq+6gxSTC+VWRlkdnrbA8Is2suEjuYVF7
-         uQfWKxuEGTeBvOoaOLZXIJMV1dH5Xhd0CWcJMZOUQDboxlVciWZac7IYXilHnhVLM7ed
-         g0Ft4Fe+RANH3kcpJ//sJ2Cr0f6pNfQOVdWRg5eI90jJz+wFiwZkr97ls8lpXwdu0fph
-         sWEw==
-X-Gm-Message-State: AOJu0YwhrZKTISr3bJJEaV6coFb8sUVQ+8vPEqfIucVQ5nUD/+2z/C8V
-	5mdW+fA3YZwVzTUUt/MrS1OJcG+JrRmaxyy79G6QBCb9Rbz0WsIZ7iVjzxGvv9E=
-X-Google-Smtp-Source: AGHT+IGw6RFLC5cQuNUBq9p3JVA7HOeaQFT0Z1elg/9n8uPf+vXVvoyeGNVXBlPDsVt37nm9QXKdvw==
-X-Received: by 2002:a25:ab62:0:b0:e13:c81b:184d with SMTP id 3f1490d57ef6-e1776537d2bmr12632704276.15.1724682387917;
-        Mon, 26 Aug 2024 07:26:27 -0700 (PDT)
-Received: from ?IPV6:2603:8080:7400:36da:45f:f211:3a7c:9377? ([2603:8080:7400:36da:45f:f211:3a7c:9377])
-        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e178e4b3cafsm2002157276.28.2024.08.26.07.26.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Aug 2024 07:26:27 -0700 (PDT)
-Message-ID: <8a15a46a-2744-4474-8add-7f6fb35552b3@digitalocean.com>
-Date: Mon, 26 Aug 2024 09:26:25 -0500
+        d=1e100.net; s=20230601; t=1724683870; x=1725288670;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ygoQZIsbD2qBAAmAvknxBdRGvmvE0QFAtlIfXcqGyiA=;
+        b=fZ0r9QwOdMUHdosn0ofrez4d8ICyIIPO1gJZ7yghuYmK3FebxST/w4S+0cwtbuUYMw
+         i4v1QOct2dRZFnFymhupx4EIrYvYIRb/sweIikq+jkeflkU5g92L9rmxW49ZLBniHX1u
+         aX3OUvwarNieVQJ2yKoEz1NlYopQVDSOTkaeHyY8fIALC/81/ekDCQ5/Ts91fe22SPcC
+         28G6C9UU8Pwc3RDYJJL0ami0UQuhsUQvwK7z3a/96zQ4SNLCu1IXzVeMKnGN9ihmsebI
+         qJTcSDCCSCdziK98/f2ufmz1d/+HsBPHKrSat5FgpnOuQoGtaOE48f23UFU8cjW0ICRw
+         gDnQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUOsMKIh9EioUqn85XV3ecixfJF2peeKROf4oRry418+kqXsetWph29x88A6QdFU75LqhtJ3PgBxuXjmMnRTQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyvnrVbFfjLOQ4xVi0Zs/TwRuMHkFySuSZC3hIW8tsU4xAxpnP5
+	6PJ9bKG0hE6oW8QoXs3lZWyKzz5fUrrX6/F2phTXV7YnkWDxZH576BQGV+lxr60WFbiLPNNQ8BD
+	VqReowzCJ295mVdTQpB4Air+nXgk1J8CCvxRLp0PMipwwQ8WGyJChVv0Y16fVVmYI
+X-Received: by 2002:a05:6000:18a4:b0:369:b842:5065 with SMTP id ffacd0b85a97d-373118c853bmr9315258f8f.41.1724683869837;
+        Mon, 26 Aug 2024 07:51:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGzcbeZGAiG9pR7gwgPFjZ9tQkwyQH6hKqQkC/ZviQjFl3Zuqsn+yKqro2WkBtRVRH4FkIJWQ==
+X-Received: by 2002:a05:6000:18a4:b0:369:b842:5065 with SMTP id ffacd0b85a97d-373118c853bmr9315196f8f.41.1724683869319;
+        Mon, 26 Aug 2024 07:51:09 -0700 (PDT)
+Received: from dhcp-64-164.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-373082096bbsm10889215f8f.89.2024.08.26.07.51.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Aug 2024 07:51:08 -0700 (PDT)
+Message-ID: <ad6af1c4194873e803df65dc4d595f8e4b26cb33.camel@redhat.com>
+Subject: Re: [PATCH v3 5/9] ethernet: cavium: Replace deprecated PCI
+ functions
+From: Philipp Stanner <pstanner@redhat.com>
+To: Andy Shevchenko <andy@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>, Wu Hao
+ <hao.wu@intel.com>, Tom Rix <trix@redhat.com>, Moritz Fischer
+ <mdf@kernel.org>,  Xu Yilun <yilun.xu@intel.com>, Linus Walleij
+ <linus.walleij@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexandre
+ Torgue <alexandre.torgue@foss.st.com>, Jose Abreu <joabreu@synopsys.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>, Bjorn Helgaas
+ <bhelgaas@google.com>, Alvaro Karsz <alvaro.karsz@solid-run.com>, "Michael
+ S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>,  Eugenio =?ISO-8859-1?Q?P=E9rez?=
+ <eperezma@redhat.com>, Richard Cochran <richardcochran@gmail.com>, Mark
+ Brown <broonie@kernel.org>, David Lechner <dlechner@baylibre.com>, Uwe
+ =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Damien Le
+ Moal <dlemoal@kernel.org>,  Hannes Reinecke <hare@suse.de>, Chaitanya
+ Kulkarni <kch@nvidia.com>, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
+ linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
+ netdev@vger.kernel.org,  linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org,  linux-pci@vger.kernel.org,
+ virtualization@lists.linux.dev
+Date: Mon, 26 Aug 2024 16:51:07 +0200
+In-Reply-To: <ZsdO2q8uD829hP-X@smile.fi.intel.com>
+References: <20240822134744.44919-1-pstanner@redhat.com>
+	 <20240822134744.44919-6-pstanner@redhat.com>
+	 <ZsdO2q8uD829hP-X@smile.fi.intel.com>
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC] Why is set_config not supported in mlx5_vnet?
-To: Dragos Tatulea <dtatulea@nvidia.com>, eli@mellanox.com, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org, eperezma@redhat.com,
- sashal@kernel.org, yuehaibing@huawei.com, steven.sistare@oracle.com
-References: <33feec1a-2c5d-46eb-8d66-baa802130d7f@digitalocean.com>
- <afcbf041-7613-48e6-8088-9d52edd907ff@nvidia.com>
-Content-Language: en-US
-From: Carlos Bilbao <cbilbao@digitalocean.com>
-In-Reply-To: <afcbf041-7613-48e6-8088-9d52edd907ff@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello Dragos,
+On Thu, 2024-08-22 at 17:44 +0300, Andy Shevchenko wrote:
+> On Thu, Aug 22, 2024 at 03:47:37PM +0200, Philipp Stanner wrote:
+> > pcim_iomap_regions() and pcim_iomap_table() have been deprecated by
+> > the PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
+> > pcim_iomap_table(), pcim_iomap_regions_request_all()").
+> >=20
+> > Replace these functions with the function pcim_iomap_region().
+>=20
+> ...
+>=20
+> > -=09err =3D pcim_iomap_regions(pdev, 1 << PCI_PTP_BAR_NO,
+> > pci_name(pdev));
+> > -=09if (err)
+> > +=09clock->reg_base =3D pcim_iomap_region(pdev, PCI_PTP_BAR_NO,
+> > pci_name(pdev));
+> > +=09if (IS_ERR(clock->reg_base)) {
+> > +=09=09err =3D PTR_ERR(clock->reg_base);
+> > =C2=A0=09=09goto error_free;
+> > -
+> > -=09clock->reg_base =3D pcim_iomap_table(pdev)[PCI_PTP_BAR_NO];
+> > +=09}
+>=20
+> Perhaps
+>=20
+> =09clock->reg_base =3D pcim_iomap_region(pdev, PCI_PTP_BAR_NO,
+> pci_name(pdev));
+> =09err =3D PTR_ERR_OR_ZERO(clock->reg_base);
+> =09if (err)
+> =09=09goto error_free;
+>=20
+> This will make your patch smaller and neater.
+>=20
+> P.S. Do you use --histogram diff algo when preparing patches?
 
-On 8/26/24 4:06 AM, Dragos Tatulea wrote:
->
-> On 23.08.24 18:54, Carlos Bilbao wrote:
->> Hello,
->>
->> I'm debugging my vDPA setup, and when using ioctl to retrieve the
->> configuration, I noticed that it's running in half duplex mode:
->>
->> Configuration data (24 bytes):
->>   MAC address: (Mac address)
->>   Status: 0x0001
->>   Max virtqueue pairs: 8
->>   MTU: 1500
->>   Speed: 0 Mb
->>   Duplex: Half Duplex
->>   RSS max key size: 0
->>   RSS max indirection table length: 0
->>   Supported hash types: 0x00000000
->>
->> I believe this might be contributing to the underperformance of vDPA.
-> mlx5_vdpa vDPA devicess currently do not support the VIRTIO_NET_F_SPEED_DUPLEX
-> feature which reports speed and duplex. You can check the state on the
-> PF.
+So far not.
+Should one do that?
 
-
-According to ethtool, all my devices are running at full duplex. I assume I
-can disregard this configuration output from the module then.
-
-
->
->> While looking into how to change this option for Mellanox, I read the following
->> kernel code in mlx5_vnet.c:
->>
->> static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned int offset, const void *buf,
->>                  unsigned int len)
->> {
->>     /* not supported */
->> }
->>
->> I was wondering why this is the case.
-> TBH, I don't know why it was not added. But in general, the control VQ is the
-> better way as it's dynamic.
->
->> Is there another way for me to change
->> these configuration settings?
->>
-> The configuration is done using control VQ for most things (MTU, MAC, VQs,
-> etc). Make sure that you have the CTRL_VQ feature set (should be on by
-> default). It should appear in `vdpa mgmtdev show` and `vdpa dev config
-> show`.
+P.
 
 
-I see that CTRL_VQ is indeed enabled. Is there any documentation on how to
-use the control VQ to get/set vDPA configuration values?
-
-
->
-> Thanks,
-> Dragos
-
-
-Thank you!
-Carlos
+>=20
 
