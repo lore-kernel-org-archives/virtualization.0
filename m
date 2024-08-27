@@ -1,159 +1,105 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE1D4C152
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Aug 2024 02:37:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96D9818E1F
+	for <virtualization@lists.linux.dev>; Tue, 27 Aug 2024 03:31:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724726223; cv=none; b=l+ZSDi4OPVmpr84XYjEfap1mOOlnecAOqIFt4Nm3eoXyHfwmYmOcRdAZv+G5QhluOQwrvk+BWFBJCX089bWBzAx2ZBASy7J+sKIJwG3LH/z7N0dcL+S8LhI1YjvuQxm94uaV/wQmyycKrG5gADqQyEaGZ3xaV8xK1Tl2gyAT060=
+	t=1724729493; cv=none; b=ODPTBDOpIY2pCo1yJLCdpCvPpi1mqXWJ1xwwcK+jW3DLEOZIqaFBGkiwYVy+og2pB/mkgt9BbXPHobUBoh40GDlKfv1D44lbX66T1Q+dXB6impqCKh35Z+RUrbpHQxDlJIAuF6k5NHO+aCMYP9cAr5I9kon2cbCyz7jrAtST3pM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724726223; c=relaxed/simple;
-	bh=2fJ9UoHqXi1PF6ZiD5S5EF2R045y1Znp0QqjZS2yLTY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZWQG/6TEiKFPZzeP00BtMKfHGT6CIf6OSbIe5YxR9GORErBMskzvDZs4c4wxxo82oTz9IOWMiaYbZiiN+UOIFMEXubMoNrFb2WsjSWShhCCHyp7KNlGLQ1oIrNbdlyPFif2YfewCR4vhMURRw88VxLkbi5h0ivL1ePDoeMDXZdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dcNH+Smu; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1724729493; c=relaxed/simple;
+	bh=ZsAX6fYNBN8s4cM6prV7+Nw4KR6G6zRcui+vpWCXiiM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=q5flxpwxD2aN9tFyrsy7JDg5nnwT0bzS7ob5nkq2DSvZLvXHJKTuI1wXmTno0d4eiItAQ3KjWbbyeJNdqFlq7CAOjSGL8jdC1H8+1TmsaA0YrBWf33NXf25h+ub/yuB55YSfD3OorwBL9VsXyrebfvKt6kknpFk+VUbXYnsLkco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PSaPmSwp; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dcNH+Smu"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7A27640261
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Aug 2024 02:37:02 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id hdtp_Ep3Ft0W for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Aug 2024 02:37:01 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 55C2940151
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 55C2940151
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dcNH+Smu
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 55C2940151
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Aug 2024 02:37:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724726220;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EQ5V1VZ6ZfM6F0owIcK94idaQ1AVYwDUarCrXj1TZuE=;
-	b=dcNH+SmuY478mZUHHHpxpOR5s3oMUT3xdeyzfRPgiO849/MyqBq00aYVoukNILBzxKuQf3
-	eC2Rq8d7kHU7u5ZWBKvV8/zs/OzdXDXNfQwUQbODyFQIDvXZdxv6EWteKtf4TlWmfd27Sq
-	7M42jrgt1fa2rm4ZoZu1w9AiFwN1ktA=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-538-UnMWMtqqN-KFc_Ma7KhqSA-1; Mon, 26 Aug 2024 22:36:58 -0400
-X-MC-Unique: UnMWMtqqN-KFc_Ma7KhqSA-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2d3c4d321f4so5062535a91.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 26 Aug 2024 19:36:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724726217; x=1725331017;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EQ5V1VZ6ZfM6F0owIcK94idaQ1AVYwDUarCrXj1TZuE=;
-        b=k4uPAJmbgf4peGW7edC2b4pEMo3Pv+ZwpqWymfdhBIXd0nVyLhn2MomM9v34PwbBYS
-         ui9vfxdppwtszZ5v4zo+C5b8I7KpnlOd4aFh1a6SK23alsIi23w8Cw6dU9Y3he5KYsja
-         Xa/9D62ptVpZNxEnbPB9cosDIOEv4idb8Mw/KQy6c6QTdgTATyTOSQ3/1Bfi64DFTBn3
-         ruOY5UFbxSdWQArVK8SczHD/DYzRBiCVq2xxHRifycDk4ZoQoefHktgEUCLHZoNGMV3b
-         VoqBZdANGRjVWP3VO9B3pp6EMxPs1DrXShayqWPiRPUrAkBa4ORLIff8Yn1+8eYkeWYi
-         JG2Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVeP1qX0HlWKyBm5ZgCDaR8B7f57qKO3/r+LIk/iar//MJASNih9byViE+M1WDKXtmSZ+jaJkqwM2mO6dNKAw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyObkeSMofMtz7oD6It0iBEA2b4vxIRhXQhGwIPtont9/RzjOuf
-	JsFZBjl+Z4YEE6XnrY/y7OYcZ3NMDqfkhOBY+lcf93xAEkqg3TjbtnWFgdP3V8dnAukQptLbNS5
-	iloF+Iy0sjDyFQWpLgo7Ydc7aX/Uab6h13gqFX3dHq0Dd91TdnoJD0MjLlPD2I25Z+rXcYdxBlk
-	DVrIPsfssAT81FM6I/e6/CoYo8ZOwbN8xFvkr3oiPKm08TTFOPe5MwBw==
-X-Received: by 2002:a17:90b:4c4c:b0:2d3:cd22:e66f with SMTP id 98e67ed59e1d1-2d646b8f9b9mr10321994a91.9.1724726217126;
-        Mon, 26 Aug 2024 19:36:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFWF7r+n5FR6V+WbdMzW70pPdN1pAK9i2g0lgxVgO/2wowduQ/RqmJRGnIlgT1oaJTBJGLKg0fhI0z84OUtQzE=
-X-Received: by 2002:a17:90b:4c4c:b0:2d3:cd22:e66f with SMTP id
- 98e67ed59e1d1-2d646b8f9b9mr10321979a91.9.1724726216553; Mon, 26 Aug 2024
- 19:36:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PSaPmSwp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1724729491; x=1756265491;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ZsAX6fYNBN8s4cM6prV7+Nw4KR6G6zRcui+vpWCXiiM=;
+  b=PSaPmSwpM2WrWSQTzvBl5Ud58MQeq/GOIvwHg038+eEphwVZ1NywLfY8
+   ZjlOiTvXqCofOx6BouyX6TPokx5uT25bZMT9y4iHxooLXoH7BS0FvKZN+
+   vdcf0URZ5khdbPtUmXVBVif/VNWqca48M/Ocm/g+QMwy32c4TAPuZcILk
+   Mdsk5MxzEM75Vn5R3of45YZ1pm2e5HcSDwwE9hot22pz4UjHwChqXuMpY
+   rpAheBXjN9g8iRUq/IjGjl5vpVRVVEurCSgPHmrFHpOe3doVy4KyVRYEs
+   21doYC/7AaJFbUi5n7Mk92clmHgHYA91rSdcF/uLicM5G8na/gCeSNGyu
+   w==;
+X-CSE-ConnectionGUID: GWD1HdMpQaKs/Q1J59cKFg==
+X-CSE-MsgGUID: v/ALJmCYS1eq/kpWnkGeag==
+X-IronPort-AV: E=McAfee;i="6700,10204,11176"; a="23154129"
+X-IronPort-AV: E=Sophos;i="6.10,179,1719903600"; 
+   d="scan'208";a="23154129"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2024 20:31:30 -0700
+X-CSE-ConnectionGUID: QDU5QLH3TqucnA37kaonFw==
+X-CSE-MsgGUID: w9+02ioqSw6jKQ/o9ovjaQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,179,1719903600"; 
+   d="scan'208";a="62698679"
+Received: from yilunxu-optiplex-7050.sh.intel.com (HELO localhost) ([10.239.159.165])
+  by fmviesa008.fm.intel.com with ESMTP; 26 Aug 2024 20:31:22 -0700
+Date: Tue, 27 Aug 2024 11:28:59 +0800
+From: Xu Yilun <yilun.xu@linux.intel.com>
+To: Philipp Stanner <pstanner@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jens Axboe <axboe@kernel.dk>,
+	Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
+	Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Jose Abreu <joabreu@synopsys.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
+	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
+	Chaitanya Kulkarni <kch@nvidia.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
+	netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+	linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v3 2/9] fpga/dfl-pci.c: Replace deprecated PCI functions
+Message-ID: <Zs1H+zgzZAuLUnza@yilunxu-OptiPlex-7050>
+References: <20240822134744.44919-1-pstanner@redhat.com>
+ <20240822134744.44919-3-pstanner@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240819092851.441670-1-lulu@redhat.com> <20240819092851.441670-8-lulu@redhat.com>
-In-Reply-To: <20240819092851.441670-8-lulu@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 27 Aug 2024 10:36:43 +0800
-Message-ID: <CACGkMEt2O2r7BDLYq0Yus7KP17N_DMUP9OoRMbvqC5V0N6rs7w@mail.gmail.com>
-Subject: Re: [RFC 7/7] vhost: Add new UAPI to support changing Kthread mode
-To: Cindy Lu <lulu@redhat.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240822134744.44919-3-pstanner@redhat.com>
 
-On Mon, Aug 19, 2024 at 5:29=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
->
-> Add a new UAPI to support setting the vhost device to
-> use kthread mode. The user space application needs to use
-> VHOST_SET_USE_KTHREAD to set the mode. This setting must
-> be set before VHOST_SET_OWNER is set.
->
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
-> ---
->  drivers/vhost/vhost.c      | 11 ++++++++++-
->  include/uapi/linux/vhost.h |  2 ++
->  2 files changed, 12 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 0a7b2999100f..d6b71bddc272 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2340,14 +2340,23 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigne=
-d int ioctl, void __user *argp)
->  {
->         struct eventfd_ctx *ctx;
->         u64 p;
-> -       long r;
-> +       long r =3D 0;
->         int i, fd;
-> +       bool kthread;
->
->         /* If you are not the owner, you can become one */
->         if (ioctl =3D=3D VHOST_SET_OWNER) {
->                 r =3D vhost_dev_set_owner(d);
->                 goto done;
->         }
-> +       if (ioctl =3D=3D VHOST_SET_USE_KTHREAD) {
+On Thu, Aug 22, 2024 at 03:47:34PM +0200, Philipp Stanner wrote:
+> pcim_iomap_regions() and pcim_iomap_table() have been deprecated by the
+> PCI subsystem in commit e354bb84a4c1 ("PCI: Deprecate
+> pcim_iomap_table(), pcim_iomap_regions_request_all()").
+> 
+> Port dfl-pci.c to the successor, pcim_iomap_region().
+> 
+> Consistently, replace pcim_iounmap_regions() with pcim_iounmap_region().
+> 
+> Signed-off-by: Philipp Stanner <pstanner@redhat.com>
 
-Btw, should we enforce this to be called when there's no owner?
+Acked-by: Xu Yilun <yilun.xu@intel.com>
 
-> +               if (copy_from_user(&kthread, argp, sizeof(kthread))) {
-> +                       r =3D -EFAULT;
-> +                       goto done;
-> +               }
-> +               use_kthread =3D kthread;
-> +               goto done;
-> +       }
->
->         /* You must be the owner to do anything else */
->         r =3D vhost_dev_check_owner(d);
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index b95dd84eef2d..386fe735da63 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -235,4 +235,6 @@
->   */
->  #define VHOST_VDPA_GET_VRING_SIZE      _IOWR(VHOST_VIRTIO, 0x82,       \
->                                               struct vhost_vring_state)
-> +
-> +#define VHOST_SET_USE_KTHREAD _IOW(VHOST_VIRTIO, 0x83, bool)
->  #endif
-> --
-> 2.45.0
->
-
-Thanks
-
+Thanks.
