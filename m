@@ -1,178 +1,197 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24B744C86
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 01:52:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B3FF1B5AA
+	for <virtualization@lists.linux.dev>; Wed, 28 Aug 2024 01:53:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724809977; cv=none; b=tlwrDtOHGZsoEimFSYvpog/hx9LXyTFmnWqmrgwzmX8m356a5hHRHL8114ExdgG0TG3m1fT07YuWFVlwugos/n9xJaU0XebQ6Ny/6U8a5eEZqEdsdoWwJK9KF1yYO/Fgmg39OIXsrT92wtAroqM9TWh2OP7oq0frU2VEwyro9vE=
+	t=1724810038; cv=none; b=HiwoB9cMxBU8JnxbhAnTvx6/fftPnsefR8lQosTdzcH1ucA91WzUhsdJC8b9hK9B1SUWx5aLmEbxF/BnncDazvDpUNzpP/poqcb+M55x+y/9BUg6jQbz4BjB+lF1y0FzHQJMj3e3Gj/thLMul6JPCY1xRuLCnLOG9OBdNQHgbu8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724809977; c=relaxed/simple;
-	bh=CRar9WZIfyaGhyQ5AaPWKz0Q/05MgwL6ZvuPnpv6hGU=;
+	s=arc-20240116; t=1724810038; c=relaxed/simple;
+	bh=Ihnt1ar3JfRypvQqp4iSOHFZC2B1REpR9Hs1iceNJg4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MItqLv9L+gNbW/HPfccPCYmd9Fw7UE9RIievD0L1nhlmJ4VNRTBIefMtR0e2nZpnFsH+EqoNpJMIkO/S1jevEH7QI+mMr/fcVKiermdgmZyCyahA5q/K4H1xIZD7wPb2nBn+swv/+2KAIwV/DdjBGGT5ORhQU2SUEgvhNXzdH1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KV2gQsyH; arc=none smtp.client-ip=140.211.166.136
+	 To:Cc:Content-Type; b=n8Ib1Pg8iv8JmhecUWRHFilzRnmZfh1yAlsvh32H3zaUbwZv+szNfaWG7S1ZHfzzpl6oR0LomtG2q3TJwaC1u5PuSdlhcMXBXtcZdW5qlOlHksTdk/zN8Gm7j2EQ7YxvOuLDs8OzjZrWdodh70AMMyRGyYfST8Ic15UKe5crWjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PaQbKtUn; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KV2gQsyH"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4FF80608D5
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 01:52:56 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id qhZOhw2IM-zw for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Aug 2024 01:52:55 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 614AD608CA
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 614AD608CA
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KV2gQsyH
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 614AD608CA
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 01:52:54 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PaQbKtUn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724809973;
+	s=mimecast20190719; t=1724810035;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qWve6JE+0NypiSakiytBRnv/JlBTqmmXFs55kVgYTbU=;
-	b=KV2gQsyHztuuMIxEV1Uc5N8wNpTTr9mZzAXQ/O3aZTqhAdiqVloWEU7VRNFi1+/X+oZ1+K
-	lC51kFTnr3N/cyOHyxgYZtRm6soFHrApYI4Id5HcZYfqNyTryIbozo8//KUkTgdedAotgc
-	85sNCv2XJG1eGQOW6Cska5E/bNTs4eY=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=JOQmDHNk02iEFdI9Q/VFdgwzXnB003Qij7WxsoYEhlE=;
+	b=PaQbKtUngN9B0/7aI8dyGbm/CTBN/oJX0A9dM5+MTSjHr826FQL2gq2KDayTkXc4hTTnPP
+	F+Y7yJYd7z/5THvPPTibPGfHIUpHYU4bBq6hj/fQchTD0NTkmR2ZdBFwVjnXEN+wkZmLxz
+	eg7fYEuhFNkxZVP2f6qqizpV4ytFm3I=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-422-BI0h5LEnPgyYm-CXez00qQ-1; Tue, 27 Aug 2024 21:52:52 -0400
-X-MC-Unique: BI0h5LEnPgyYm-CXez00qQ-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2d3c0088813so6319811a91.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 27 Aug 2024 18:52:52 -0700 (PDT)
+ us-mta-237-lhNlQjyOPFOCuccchfuobQ-1; Tue, 27 Aug 2024 21:51:31 -0400
+X-MC-Unique: lhNlQjyOPFOCuccchfuobQ-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-7cda25df5a5so4689817a12.3
+        for <virtualization@lists.linux.dev>; Tue, 27 Aug 2024 18:51:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724809971; x=1725414771;
+        d=1e100.net; s=20230601; t=1724809890; x=1725414690;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qWve6JE+0NypiSakiytBRnv/JlBTqmmXFs55kVgYTbU=;
-        b=jcYkPM5lDPnSU1z3WrshedTOLpn0dP3DqFOaw9mFAtDrfCmBvAQgU3VDmpDDdnEEHW
-         meNTmFfT4Yu5TZhtBcKduHVFlhelNRs8e7/mc2x6F57LnN5TXxlynsavbfCqbucMLrrB
-         JELvw1AsO0S9dFVZbYor7G5ibQ+K+cAjJWHqZY8GH8zod3V0RN2mInpYIjHDmbMXf6+E
-         +51foVNeScKrHwVJDx6NCuWagVRjR6FXprW15cPpasnQjVFJ8ZxEdT+4LjgMquHd2rgm
-         Mb+Ik2+08hpVRsE2oafEayCEWfWGmLSQcSnDjnVunWIDUzuQL6pz8apNxNYH5AeWHkS8
-         mLsA==
-X-Forwarded-Encrypted: i=1; AJvYcCVumTwA5t/BPuAzZm9+2Pi2mSTqtQ6vu55KRIIxB1xShlDdvVgM+Kty5Wc6SWej7Vzc2FkTFY8Shq0NMtCyCw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyyNakfKAQR3WDfZcLeCnxW3rMssIUXLdvLv0ifL5Qtn1wV4ue2
-	ZeL80fNRqsMamw6zCYDosvdKjxOzK0N4FEaF5yy1FVs3aDg/a3VX6c180oimJzlGq2osCWD0MAV
-	l8UTmTNbdypTV1ilaIyvVi0t8MFjuKH5iRps41/3qfaMui30d8HrMKNMYiKPK6ZrFiSANl/g84K
-	RuUdy+WuYiUEHEVMGBMMdIVWlXGqdv12zfF7JNjrA2SUB6N0AXX7j5dQ==
-X-Received: by 2002:a17:90a:ea98:b0:2d3:cb10:ca20 with SMTP id 98e67ed59e1d1-2d8441dd433mr574479a91.42.1724809971167;
-        Tue, 27 Aug 2024 18:52:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG2WaxTQnck0F64/2Byf20IaMxKhRaCFgCZwbA5SnsjM2N5t2pQkjRTImPTJ5eVtBvKRqTzoXEmmHP+0WAM8Is=
-X-Received: by 2002:a17:90a:ea98:b0:2d3:cb10:ca20 with SMTP id
- 98e67ed59e1d1-2d8441dd433mr574455a91.42.1724809970678; Tue, 27 Aug 2024
- 18:52:50 -0700 (PDT)
+        bh=JOQmDHNk02iEFdI9Q/VFdgwzXnB003Qij7WxsoYEhlE=;
+        b=KMfXLj+a8JSlC4AHjas91V4nmGzA7m3Q4khXiG7uTCWovmfJxS+8SRlO6XhckQFp+K
+         9gp/W09knwaK61rjaRgBenwkez+UO/rE+ATTflPtYyrH3HkGBR7a0heZGzCdpQQOgCAN
+         fyXTTm8fnYnfKGiSrgqX06OncEYd5XbkZWQc/aGhpUGcwznQctNyIZclFUlniQuyqmKg
+         gnaLd++3PK4iICxaLSLZVI6VKgDeTe/V/XYNbGJ95rqyjF4Xx5GwVA+2HtvYyNCzCGPs
+         xiAx/jf3YV38tPQRbZ5bowDiEsO7gFqKy3PmnnpH2TotFXyoRbkgWpz5Z6QYiEu8gh6p
+         JZDw==
+X-Forwarded-Encrypted: i=1; AJvYcCUiNNLWM74IDWlMYg1AKD8wI6a8kSAxpRKszNKxC/VX40W6E9bv3CiI+gjc3EsR8jWLcZIREc+9+HLOzV/G3A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwNYh3FtQwWxMhlx+6voG7IZrKyFkoxHc7Y9vsbxnZAS90vSFRx
+	U8iAKUdgpBseNAgRJU1b2XU7nXvwAd4LE8byUuwZtatg4reYjB7EdBe+j9nbEH3x76kM3tn0F6R
+	be8L7QFJmRNF5PL0HO3h/ZKt3NyQ0iDGSONlCTK+NnStw2LOFNYn82Sa8aaahPiCwagn0y/odvH
+	pc//E633HUGrmLMDXe+wkg8hUibJUo9Ax1rvkOZK8=
+X-Received: by 2002:a05:6a21:330b:b0:1c6:ee92:e5f4 with SMTP id adf61e73a8af0-1cc8b653a76mr14216687637.54.1724809890422;
+        Tue, 27 Aug 2024 18:51:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHP52rbqS7MZVJt7hO2qpm29QtWCdUrTg52A32PylwCwqLsssQwwvk+YdMqQNy/RJvBvWf34lMfe2sQQ0Eg26Y=
+X-Received: by 2002:a05:6a21:330b:b0:1c6:ee92:e5f4 with SMTP id
+ adf61e73a8af0-1cc8b653a76mr14216668637.54.1724809889810; Tue, 27 Aug 2024
+ 18:51:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <33feec1a-2c5d-46eb-8d66-baa802130d7f@digitalocean.com>
- <afcbf041-7613-48e6-8088-9d52edd907ff@nvidia.com> <fd8ad1d9-81a0-4155-abf5-627ef08afa9e@lunn.ch>
- <24dbecec-d114-4150-87df-33dfbacaec54@nvidia.com> <CACGkMEsKSUs77biUTF14vENM+AfrLUOHMVe4nitd9CQ-obXuCA@mail.gmail.com>
- <f7479a55-9eee-4dec-8e09-ca01fa933112@nvidia.com>
-In-Reply-To: <f7479a55-9eee-4dec-8e09-ca01fa933112@nvidia.com>
+References: <20240827160808.2448017-2-dtatulea@nvidia.com>
+In-Reply-To: <20240827160808.2448017-2-dtatulea@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 28 Aug 2024 09:52:39 +0800
-Message-ID: <CACGkMEvUeHTKu8+=sPLz-ddr3xb7dD29bwNex=xvyRdK1gBrgw@mail.gmail.com>
-Subject: Re: [RFC] Why is set_config not supported in mlx5_vnet?
+Date: Wed, 28 Aug 2024 09:51:18 +0800
+Message-ID: <CACGkMEvo1+T=d3zFeQJK4rit1G_dQJHaGupJ3EKS9VGq2bi_Hg@mail.gmail.com>
+Subject: Re: [PATCH] vdpa/mlx5: Fix invalid mr resource destroy
 To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Carlos Bilbao <cbilbao@digitalocean.com>, mst@redhat.com, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, eperezma@redhat.com, 
-	sashal@kernel.org, yuehaibing@huawei.com, steven.sistare@oracle.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Cosmin Ratiu <cratiu@nvidia.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 28, 2024 at 12:55=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.co=
+On Wed, Aug 28, 2024 at 12:08=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.co=
 m> wrote:
 >
+> Certain error paths from mlx5_vdpa_dev_add() can end up releasing mr
+> resources which never got initialized in the first place.
 >
+> This patch adds the missing check in mlx5_vdpa_destroy_mr_resources()
+> to block releasing non-initialized mr resources.
 >
-> On 27.08.24 04:03, Jason Wang wrote:
-> > On Tue, Aug 27, 2024 at 12:11=E2=80=AFAM Dragos Tatulea <dtatulea@nvidi=
-a.com> wrote:
-> >>
-> >>
-> >> On 26.08.24 16:24, Andrew Lunn wrote:
-> >>> On Mon, Aug 26, 2024 at 11:06:09AM +0200, Dragos Tatulea wrote:
-> >>>>
-> >>>>
-> >>>> On 23.08.24 18:54, Carlos Bilbao wrote:
-> >>>>> Hello,
-> >>>>>
-> >>>>> I'm debugging my vDPA setup, and when using ioctl to retrieve the
-> >>>>> configuration, I noticed that it's running in half duplex mode:
-> >>>>>
-> >>>>> Configuration data (24 bytes):
-> >>>>>   MAC address: (Mac address)
-> >>>>>   Status: 0x0001
-> >>>>>   Max virtqueue pairs: 8
-> >>>>>   MTU: 1500
-> >>>>>   Speed: 0 Mb
-> >>>>>   Duplex: Half Duplex
-> >>>>>   RSS max key size: 0
-> >>>>>   RSS max indirection table length: 0
-> >>>>>   Supported hash types: 0x00000000
-> >>>>>
-> >>>>> I believe this might be contributing to the underperformance of vDP=
-A.
-> >>>> mlx5_vdpa vDPA devicess currently do not support the VIRTIO_NET_F_SP=
-EED_DUPLEX
-> >>>> feature which reports speed and duplex. You can check the state on t=
-he
-> >>>> PF.
-> >>>
-> >>> Then it should probably report DUPLEX_UNKNOWN.
-> >>>
-> >>> The speed of 0 also suggests SPEED_UNKNOWN is not being returned. So
-> >>> this just looks buggy in general.
-> >>>
-> >> The virtio spec doesn't mention what those values should be when
-> >> VIRTIO_NET_F_SPEED_DUPLEX is not supported.
-> >>
-> >> Jason, should vdpa_dev_net_config_fill() initialize the speed/duplex
-> >> fields to SPEED/DUPLEX_UNKNOWN instead of 0?
-> >
-> > Spec said
-> >
-> > """
-> > The following two fields, speed and duplex, only exist if
-> > VIRTIO_NET_F_SPEED_DUPLEX is set.
-> > """
-> >
-> > So my understanding is that it is undefined behaviour, and those
-> > fields seems useless before feature negotiation. For safety, it might
-> > be better to initialize them as UNKOWN.
-> >
-> After a closer look my statement doesn't make sense: the device will copy
-> the virtio_net_config bytes on top.
+> Reference trace:
 >
-> The solution is to initialize these fields to UNKNOWN in the driver. Will=
- send
-> a patch to fix this.
+>   mlx5_core 0000:08:00.2: mlx5_vdpa_dev_add:3274:(pid 2700) warning: No m=
+ac address provisioned?
+>   BUG: kernel NULL pointer dereference, address: 0000000000000000
+>   #PF: supervisor read access in kernel mode
+>   #PF: error_code(0x0000) - not-present page
+>   PGD 140216067 P4D 0
+>   Oops: 0000 [#1] PREEMPT SMP NOPTI
+>   CPU: 8 PID: 2700 Comm: vdpa Kdump: loaded Not tainted 5.14.0-496.el9.x8=
+6_64 #1
+>   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-g=
+f21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+>   RIP: 0010:vhost_iotlb_del_range+0xf/0xe0 [vhost_iotlb]
+>   Code: [...]
+>   RSP: 0018:ff1c823ac23077f0 EFLAGS: 00010246
+>   RAX: ffffffffc1a21a60 RBX: ffffffff899567a0 RCX: 0000000000000000
+>   RDX: ffffffffffffffff RSI: 0000000000000000 RDI: 0000000000000000
+>   RBP: ff1bda1f7c21e800 R08: 0000000000000000 R09: ff1c823ac2307670
+>   R10: ff1c823ac2307668 R11: ffffffff8a9e7b68 R12: 0000000000000000
+>   R13: 0000000000000000 R14: ff1bda1f43e341a0 R15: 00000000ffffffea
+>   FS:  00007f56eba7c740(0000) GS:ff1bda269f800000(0000) knlGS:00000000000=
+00000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 0000000000000000 CR3: 0000000104d90001 CR4: 0000000000771ef0
+>   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>   PKRU: 55555554
+>   Call Trace:
 >
+>    ? show_trace_log_lvl+0x1c4/0x2df
+>    ? show_trace_log_lvl+0x1c4/0x2df
+>    ? mlx5_vdpa_free+0x3d/0x150 [mlx5_vdpa]
+>    ? __die_body.cold+0x8/0xd
+>    ? page_fault_oops+0x134/0x170
+>    ? __irq_work_queue_local+0x2b/0xc0
+>    ? irq_work_queue+0x2c/0x50
+>    ? exc_page_fault+0x62/0x150
+>    ? asm_exc_page_fault+0x22/0x30
+>    ? __pfx_mlx5_vdpa_free+0x10/0x10 [mlx5_vdpa]
+>    ? vhost_iotlb_del_range+0xf/0xe0 [vhost_iotlb]
+>    mlx5_vdpa_free+0x3d/0x150 [mlx5_vdpa]
+>    vdpa_release_dev+0x1e/0x50 [vdpa]
+>    device_release+0x31/0x90
+>    kobject_cleanup+0x37/0x130
+>    mlx5_vdpa_dev_add+0x2d2/0x7a0 [mlx5_vdpa]
+>    vdpa_nl_cmd_dev_add_set_doit+0x277/0x4c0 [vdpa]
+>    genl_family_rcv_msg_doit+0xd9/0x130
+>    genl_family_rcv_msg+0x14d/0x220
+>    ? __pfx_vdpa_nl_cmd_dev_add_set_doit+0x10/0x10 [vdpa]
+>    ? _copy_to_user+0x1a/0x30
+>    ? move_addr_to_user+0x4b/0xe0
+>    genl_rcv_msg+0x47/0xa0
+>    ? __import_iovec+0x46/0x150
+>    ? __pfx_genl_rcv_msg+0x10/0x10
+>    netlink_rcv_skb+0x54/0x100
+>    genl_rcv+0x24/0x40
+>    netlink_unicast+0x245/0x370
+>    netlink_sendmsg+0x206/0x440
+>    __sys_sendto+0x1dc/0x1f0
+>    ? do_read_fault+0x10c/0x1d0
+>    ? do_pte_missing+0x10d/0x190
+>    __x64_sys_sendto+0x20/0x30
+>    do_syscall_64+0x5c/0xf0
+>    ? __count_memcg_events+0x4f/0xb0
+>    ? mm_account_fault+0x6c/0x100
+>    ? handle_mm_fault+0x116/0x270
+>    ? do_user_addr_fault+0x1d6/0x6a0
+>    ? do_syscall_64+0x6b/0xf0
+>    ? clear_bhb_loop+0x25/0x80
+>    ? clear_bhb_loop+0x25/0x80
+>    ? clear_bhb_loop+0x25/0x80
+>    ? clear_bhb_loop+0x25/0x80
+>    ? clear_bhb_loop+0x25/0x80
+>    entry_SYSCALL_64_after_hwframe+0x78/0x80
+>
+> Fixes: 512c0cdd80c1 ("vdpa/mlx5: Decouple cvq iotlb handling from hw mapp=
+ing code")
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
 
-For "driver", I guess you meant virtio-net?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
-> Thanks,
-> Dragos
+> ---
+>  drivers/vdpa/mlx5/core/mr.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index 4758914ccf86..bf56f3d69625 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -581,6 +581,9 @@ static void mlx5_vdpa_show_mr_leaks(struct mlx5_vdpa_=
+dev *mvdev)
+>
+>  void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
+>  {
+> +       if (!mvdev->res.valid)
+> +               return;
+> +
+>         for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++)
+>                 mlx5_vdpa_update_mr(mvdev, NULL, i);
+>
+> --
+> 2.45.1
 >
 
