@@ -1,172 +1,253 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02A7216B386
-	for <virtualization@lists.linux.dev>; Wed, 28 Aug 2024 11:21:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC63F176248
+	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:35:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724844098; cv=none; b=P67AVmur8DUSDygNeukhDYO7E9HRS5u5+H1SW2lNnqIcBQbXyxTmuDNbzvnfoRjqXSkeVJkhJ2LctJtZJwqmr1RgGoWFx5stIRsAaA/6UZeshq8w/P0R/Ne0t8a+BhecF2SWm90/Dr1eNj1ybBbCk2tBSVlZ6GMHDT6nwDciEHA=
+	t=1724848502; cv=none; b=nhJv99spFVQHffhCdtrZIPMWOscZbDGWOqNUHjR9ZuEah4GBt/+UjI42YeET6LW/DEJ34m+Z+WXbGjXaogNqzu1pZ1NMdbjqLt3v41MulJ5iT6RbyScEfDoRTcDsqZXOHiC2HNajg2/6tGyIjq/8Vo8kQTtoib5XdQ87Xa0olNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724844098; c=relaxed/simple;
-	bh=UNV7JH6m2a1MuuhB1+IRLJfWqg2zBYTydGu0oSFf87M=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=HaFbnR9b4Z9yDuq6HR1zjHtuDREZZLGkYpSMJQ0nPBCQK2YaIpsbulODuZetKn/Lv2dghLgfeRd2Oq6KUmUCK6pQZlpwJVwggaxKVMoAf0dDNXSWRwvIc2+vRbt7Smx3CJ0Oqf+i6vkDZUYH6FTotOda6bCAyE+HR+y72R5audw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ITyTJqp8; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1724848502; c=relaxed/simple;
+	bh=xr9rCmalwTDHQASNbbRaXPrtw5doK9XNIb6YW2DH0Qg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FNzp9mIy7F7LNf3f5BDhHJN8UzMcemEn75hDOvSReJTYyaH7PyNNdrUICw5+qDkT68BxCTSjmeZBoCk6NSOo+/EV9k9Ug+LdG1dbwyzdGZYyQC6pABv6BZvkHJZY6J9rCl5Sr24fWQ0Syg7X1TjNOssCjUdQuZLf62sApJgPxO0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OwG1NdzH; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ITyTJqp8"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1724844093; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=j3p9KG0CSZeojcigRdAXnXA72d33sr+/nYfyiqyIrnE=;
-	b=ITyTJqp8In8WT//s2s/YZwslUhrbrJFMNNhVZh1jzCI+wJUMIGN51ZfJdoAgn0ZJnFH1x9DCoMJ7PrU54or2f7LGpyxn7EsB5P4xjLjcpD7n8qu0vFksUcncmvtHUz9QG/b+hrk5whK0TQWlGzx5h08qoAThDAEp9IiZazEaWwU=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WDphlID_1724844092)
-          by smtp.aliyun-inc.com;
-          Wed, 28 Aug 2024 19:21:32 +0800
-Message-ID: <1724843499.0572476-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
-Date: Wed, 28 Aug 2024 19:11:39 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev,
- "Si-Wei Liu" <si-wei.liu@oracle.com>,
- Darren Kenny <darren.kenny@oracle.com>
-References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEsJ2sckV5S1nGF+MrTgScVTTuwv6PHuLZARusJsFpf58g@mail.gmail.com>
-In-Reply-To: <CACGkMEsJ2sckV5S1nGF+MrTgScVTTuwv6PHuLZARusJsFpf58g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OwG1NdzH"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 72955401FB
+	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:35:00 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id IB5KWxP71jSE for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Aug 2024 12:34:59 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2ACA9400D1
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2ACA9400D1
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OwG1NdzH
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2ACA9400D1
+	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:34:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724848497;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bKgQdLYmvUO4rlMn7GgO0+K/4t1iYIvHSsifkH21neI=;
+	b=OwG1NdzH3oLUnQkNtSxDnjKlXxt1MmuY8zbaR0qmER1q6HxfFoUlg0z134tVWXKKIH5OdG
+	CamiNXjVfZ4/51QS4DoTRXrOau9p4Sv7keErs9ZdxEbadEypDAaMSlsCB4GQoeF7uD25Jp
+	rrmln7LKi2zgXdXn3nJryVkjh92oyKc=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-271-Q3feW3NUPfCRAqBfU_EmUw-1; Wed, 28 Aug 2024 08:34:56 -0400
+X-MC-Unique: Q3feW3NUPfCRAqBfU_EmUw-1
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-68fd6ccd4c8so131593207b3.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 05:34:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724848496; x=1725453296;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bKgQdLYmvUO4rlMn7GgO0+K/4t1iYIvHSsifkH21neI=;
+        b=jVLH5ZMiRKQ7jszVlc9Ayk2Ba9vAv9v+iE2UmpMxJuIGksi0LVyB2lAQY6sClXiHOG
+         nNWA1smwGR1lUyNbvVV/8IEj2iLDvkf7aMqpGmH+o14zACw6V8oCBBbMRahRgkD+cFng
+         c2YD/6MSvdREUrAVnxuZs7f3JWEK9sqkHA341JVDlPRrsmGFYGo3P5npQc9ruylrEoY0
+         AwjVbW74/+sn5gKx8UW/M9i2+Q5PwuIEdLvIyOaBFBLTiISouNwVSth0DdDRT29SMwL0
+         GyabUimmlUqyWkgnKNfvQAGyR7ebpOHzZKECYiB5ZPb7tM6SD+cYMAEB0coq8XXjt31T
+         711Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUzrbAACrsD52cNLAogOWfTkv6f5gU1V8iavSmW9WTgVOOJXYyyOSICFP89Fnl6/PZF1oM7p1llRLScuS2crg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwGbDaIUxMgZJII/PbJO9RiFgSH2ggyCNgHNnYHa3oQLe3doPWq
+	quCU3BX4sX0fX+Q80q+K03UGCt63up44pERnkguKAg/9YkMgIBetJwA1XZRDvghlT+TQfSvUL2v
+	g0mCKLbPP4dxLu+941ctte1u68F1ikOQrlfct4tES14Rnn+P6/VqzeHVYKjFQ/6QTZ7NbyQ25X+
+	1tVc3gB8mdzgo3aSzk/UHfzyKnt+R/ueh89vYWinQd6YQ0j3IJpbX55Q==
+X-Received: by 2002:a05:690c:2e05:b0:6b1:a965:4ddf with SMTP id 00721157ae682-6d1706f1265mr15266597b3.27.1724848495902;
+        Wed, 28 Aug 2024 05:34:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IErDi/VtEGwo7N8x5mgE4Nl+/vuGpwZNUQLTxIhjgArE0tBJVoTCPNR1B97kg1Gan26xVVCBRWytq5JidxUZyQ=
+X-Received: by 2002:a05:690c:2e05:b0:6b1:a965:4ddf with SMTP id
+ 00721157ae682-6d1706f1265mr15266457b3.27.1724848495614; Wed, 28 Aug 2024
+ 05:34:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240816090159.1967650-1-dtatulea@nvidia.com> <20240816090159.1967650-4-dtatulea@nvidia.com>
+In-Reply-To: <20240816090159.1967650-4-dtatulea@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 28 Aug 2024 14:34:19 +0200
+Message-ID: <CAJaqyWd=Nhd5e=0VTb+HQJdCS1QW+XPih2UeACDXhAf+pyo20A@mail.gmail.com>
+Subject: Re: [PATCH vhost v2 03/10] vdpa/mlx5: Introduce async fw command wrapper
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	virtualization@lists.linux-foundation.org, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Tariq Toukan <tariqt@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 27 Aug 2024 11:38:45 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Aug 20, 2024 at 3:19=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > leads to regression on VM with the sysctl value of:
-> >
-> > - net.core.high_order_alloc_disable=3D1
-> >
-> > which could see reliable crashes or scp failure (scp a file 100M in size
-> > to VM):
-> >
-> > The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> > of a new frag. When the frag size is larger than PAGE_SIZE,
-> > everything is fine. However, if the frag is only one page and the
-> > total size of the buffer and virtnet_rq_dma is larger than one page, an
-> > overflow may occur. In this case, if an overflow is possible, I adjust
-> > the buffer size. If net.core.high_order_alloc_disable=3D1, the maximum
-> > buffer size is 4096 - 16. If net.core.high_order_alloc_disable=3D0, only
-> > the first buffer of the frag is affected.
+On Fri, Aug 16, 2024 at 11:02=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.co=
+m> wrote:
 >
-> I wonder instead of trying to make use of headroom, would it be
-> simpler if we allocate dedicated arrays of virtnet_rq_dma=EF=BC=9F
-
-Sorry for the late reply. My mailbox was full, so I missed the reply to this
-thread. Thanks to Si-Wei for reminding me.
-
-If the virtnet_rq_dma is at the headroom, we can get the virtnet_rq_dma by =
-buf.
-
-	struct page *page =3D virt_to_head_page(buf);
-
-	head =3D page_address(page);
-
-If we use a dedicated array, then we need pass the virtnet_rq_dma pointer to
-virtio core, the array has the same size with the rx ring.
-
-The virtnet_rq_dma will be:
-
-struct virtnet_rq_dma {
-	dma_addr_t addr;
-	u32 ref;
-	u16 len;
-	u16 need_sync;
-+	void *buf;
-};
-
-That will be simpler.
-
+> Introduce a new function mlx5_vdpa_exec_async_cmds() which
+> wraps the mlx5_core async firmware command API in a way
+> that will be used to parallelize certain operation in this
+> driver.
 >
-> Btw, I see it has a need_sync, I wonder if it can help for performance
-> or not? If not, any reason to keep that?
+> The wrapper deals with the case when mlx5_cmd_exec_cb() returns
+> EBUSY due to the command being throttled.
+>
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 
-I think yes, we can skip the cpu sync when we do not need it.
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Thanks.
+> ---
+>  drivers/vdpa/mlx5/core/mlx5_vdpa.h | 15 ++++++
+>  drivers/vdpa/mlx5/core/resources.c | 73 ++++++++++++++++++++++++++++++
+>  2 files changed, 88 insertions(+)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/=
+mlx5_vdpa.h
+> index 424d445ebee4..b34e9b93d56e 100644
+> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> @@ -105,6 +105,18 @@ struct mlx5_vdpa_dev {
+>         bool suspended;
+>  };
+>
+> +struct mlx5_vdpa_async_cmd {
+> +       int err;
+> +       struct mlx5_async_work cb_work;
+> +       struct completion cmd_done;
+> +
+> +       void *in;
+> +       size_t inlen;
+> +
+> +       void *out;
+> +       size_t outlen;
+> +};
+> +
+>  int mlx5_vdpa_create_tis(struct mlx5_vdpa_dev *mvdev, void *in, u32 *tis=
+n);
+>  void mlx5_vdpa_destroy_tis(struct mlx5_vdpa_dev *mvdev, u32 tisn);
+>  int mlx5_vdpa_create_rqt(struct mlx5_vdpa_dev *mvdev, void *in, int inle=
+n, u32 *rqtn);
+> @@ -134,6 +146,9 @@ int mlx5_vdpa_update_cvq_iotlb(struct mlx5_vdpa_dev *=
+mvdev,
+>                                 unsigned int asid);
+>  int mlx5_vdpa_create_dma_mr(struct mlx5_vdpa_dev *mvdev);
+>  int mlx5_vdpa_reset_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid);
+> +int mlx5_vdpa_exec_async_cmds(struct mlx5_vdpa_dev *mvdev,
+> +                             struct mlx5_vdpa_async_cmd *cmds,
+> +                             int num_cmds);
+>
+>  #define mlx5_vdpa_err(__dev, format, ...)                               =
+                           \
+>         dev_err((__dev)->mdev->device, "%s:%d:(pid %d) error: " format, _=
+_func__, __LINE__,        \
+> diff --git a/drivers/vdpa/mlx5/core/resources.c b/drivers/vdpa/mlx5/core/=
+resources.c
+> index 5c5a41b64bfc..22ea32fe007b 100644
+> --- a/drivers/vdpa/mlx5/core/resources.c
+> +++ b/drivers/vdpa/mlx5/core/resources.c
+> @@ -321,3 +321,76 @@ void mlx5_vdpa_free_resources(struct mlx5_vdpa_dev *=
+mvdev)
+>         mutex_destroy(&mvdev->mr_mtx);
+>         res->valid =3D false;
+>  }
+> +
+> +static void virtqueue_cmd_callback(int status, struct mlx5_async_work *c=
+ontext)
+> +{
+> +       struct mlx5_vdpa_async_cmd *cmd =3D
+> +               container_of(context, struct mlx5_vdpa_async_cmd, cb_work=
+);
+> +
+> +       cmd->err =3D mlx5_cmd_check(context->ctx->dev, status, cmd->in, c=
+md->out);
+> +       complete(&cmd->cmd_done);
+> +}
+> +
+> +static int issue_async_cmd(struct mlx5_vdpa_dev *mvdev,
+> +                          struct mlx5_vdpa_async_cmd *cmds,
+> +                          int issued,
+> +                          int *completed)
+> +
+> +{
+> +       struct mlx5_vdpa_async_cmd *cmd =3D &cmds[issued];
+> +       int err;
+> +
+> +retry:
+> +       err =3D mlx5_cmd_exec_cb(&mvdev->async_ctx,
+> +                              cmd->in, cmd->inlen,
+> +                              cmd->out, cmd->outlen,
+> +                              virtqueue_cmd_callback,
+> +                              &cmd->cb_work);
+> +       if (err =3D=3D -EBUSY) {
+> +               if (*completed < issued) {
+> +                       /* Throttled by own commands: wait for oldest com=
+pletion. */
+> +                       wait_for_completion(&cmds[*completed].cmd_done);
+> +                       (*completed)++;
+> +
+> +                       goto retry;
+> +               } else {
+> +                       /* Throttled by external commands: switch to sync=
+ api. */
+> +                       err =3D mlx5_cmd_exec(mvdev->mdev,
+> +                                           cmd->in, cmd->inlen,
+> +                                           cmd->out, cmd->outlen);
+> +                       if (!err)
+> +                               (*completed)++;
+> +               }
+> +       }
+> +
+> +       return err;
+> +}
+> +
+> +int mlx5_vdpa_exec_async_cmds(struct mlx5_vdpa_dev *mvdev,
+> +                             struct mlx5_vdpa_async_cmd *cmds,
+> +                             int num_cmds)
+> +{
+> +       int completed =3D 0;
+> +       int issued =3D 0;
+> +       int err =3D 0;
+> +
+> +       for (int i =3D 0; i < num_cmds; i++)
+> +               init_completion(&cmds[i].cmd_done);
+> +
+> +       while (issued < num_cmds) {
+> +
+> +               err =3D issue_async_cmd(mvdev, cmds, issued, &completed);
+> +               if (err) {
+> +                       mlx5_vdpa_err(mvdev, "error issuing command %d of=
+ %d: %d\n",
+> +                                     issued, num_cmds, err);
+> +                       break;
+> +               }
+> +
+> +               issued++;
+> +       }
+> +
+> +       while (completed < issued)
+> +               wait_for_completion(&cmds[completed++].cmd_done);
+> +
+> +       return err;
+> +}
+> --
+> 2.45.1
+>
 
-
->
-> >
-> > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_d=
-ma_api")
-> > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-> > Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a=
-@oracle.com
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c | 12 +++++++++---
-> >  1 file changed, 9 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index c6af18948092..e5286a6da863 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue =
-*rq, u32 size, gfp_t gfp)
-> >         void *buf, *head;
-> >         dma_addr_t addr;
-> >
-> > -       if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
-> > -               return NULL;
-> > -
-> >         head =3D page_address(alloc_frag->page);
-> >
-> >         dma =3D head;
-> > @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info =
-*vi, struct receive_queue *rq,
-> >         len =3D SKB_DATA_ALIGN(len) +
-> >               SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> >
-> > +       if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-> > +               return -ENOMEM;
-> > +
-> >         buf =3D virtnet_rq_alloc(rq, len, gfp);
-> >         if (unlikely(!buf))
-> >                 return -ENOMEM;
-> > @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_=
-info *vi,
-> >          */
-> >         len =3D get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
-> >
-> > +       if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)=
-))
-> > +               return -ENOMEM;
-> > +
-> > +       if (!alloc_frag->offset && len + room + sizeof(struct virtnet_r=
-q_dma) > alloc_frag->size)
-> > +               len -=3D sizeof(struct virtnet_rq_dma);
-> > +
-> >         buf =3D virtnet_rq_alloc(rq, len + room, gfp);
-> >         if (unlikely(!buf))
-> >                 return -ENOMEM;
-> > --
-> > 2.32.0.3.g01195cf9f
->
-> Thanks
->
-> >
->
->
->
