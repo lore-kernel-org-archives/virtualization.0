@@ -1,91 +1,91 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAB7D17ADF9
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:35:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 334E6179956
+	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:36:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724848531; cv=none; b=pdD2bSTR4+xcUlWs9lZfGoRmdBHEuxZd7KA3T2kse0cLT0EOeLrXVvfv/vmiv+o9MV4kd/TD2lsrvlxwOx/Ng2XCkSYmgJ0e9gXLNtAEiNVUXN0Gp6faAUkpiUCMPjT9qF6ay+xbOeCtdGTjH5Ou+9ZtrI/NXlt06jDC2o1kC4k=
+	t=1724848568; cv=none; b=rFsW8mVJPDj3c4ZrdDsV0fdlEEIuQlPJ0N5qdJt5Q90gwkmqZ3PTlmu5dVvmoZXIdHQPtbuIr1yZyc1OqG/PyxFREI78fiNy4yXNVI+y8TQ274PHmBh5gDP91kzRRb8Lvxsrn0vk4anVDI6WzshUyl4vMfgBNEKs58IgsxXEEC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724848531; c=relaxed/simple;
-	bh=pkTUWmRQFLa9m8fyfX7M5w8U5oFylxXjc19HSUHTMZE=;
+	s=arc-20240116; t=1724848568; c=relaxed/simple;
+	bh=+UomTK557DPD8AX1QY29P5N7WimZVOOzrwBNUv5uSu8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MfUtJ9yWN2wYh5wke5haGVVxQj1amlSAMaXhFcyIecuD2Z7zbdMSoe0nAFH1a81943267w0XQ3JKpkQdKIuLB1HUe3lLJ89EeCQeqcSRVDo7oeSCTVB2XhbPvjnNl9xk91ObHqDpgHSMBc5p3iQ5ItwE9tKhQJqIptaNT4evViQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ByoKAi9l; arc=none smtp.client-ip=140.211.166.133
+	 To:Cc:Content-Type; b=Os4yDvqDvyhGI8s1jxccgFwFflF5fP1TVz+lDAQhS9Xtr8Tr1WiYmomDjlxvnxs1fnFKdWpp2aEr8kFmMi+sJ6E0EzUP9Q+k6VKEQwzX7pNyvW1D/upJN3t+LFvHsrwSXoqn6njBR34GsiuBoGSG/rRidzZwzPAHHAuL1aY/eqM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gccqHvnA; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ByoKAi9l"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gccqHvnA"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 859BB4029B
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:35:29 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C19B84029B
+	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:36:06 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.79
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id R1uViadNkTFH for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Aug 2024 12:35:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org F403E400D1
+ id tnn6vpI2NLNj for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Aug 2024 12:36:05 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2D34640B8B
 Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F403E400D1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2D34640B8B
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ByoKAi9l
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id F403E400D1
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:35:27 +0000 (UTC)
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gccqHvnA
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2D34640B8B
+	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724848526;
+	s=mimecast20190719; t=1724848563;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=448jSBQY1QAGqG/ajBiJUNEEbDhOpCTA4koFc5yudJE=;
-	b=ByoKAi9lzMqEa6xCwm3mkP6H+hkNP/WHfJ/WeTB6FMMtL3tY/3zl038sIbpdc0lVpgiyng
-	v675T9LPlem+D8SSwAdG1DMpNgGAcfLtKeGablXMMuP8W3OXSqZqmp0cgFKmVSCrD/f6yo
-	b6qjclc9g9RErVxDxVDdovas82HWGZ8=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=k2CSk6AojrJs/vMi6/mcwjEASE9tCQG7G88lkG5zp+w=;
+	b=gccqHvnAbbAgiQN/wU/8QC1cfd0svYreZnY/PMt3Y7AQDDOhF9gxVZ0/QkBcdmIy4QtO/S
+	9NmodFPg4848rRH0qOCmK2JmejheeT6/SjzBqA04Rtf848/lGaGVFLHNwgbtIhcwbTV8op
+	KrINsTZ/wpOWyCtYtHzr0W+phjn+fvc=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-99-0fGl_VcsOsuwvYHAF3YK7g-1; Wed, 28 Aug 2024 08:35:23 -0400
-X-MC-Unique: 0fGl_VcsOsuwvYHAF3YK7g-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6c2599195c5so99283417b3.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 05:35:23 -0700 (PDT)
+ us-mta-246-jtxiGlbiMNuwXeY2a8L7Gg-1; Wed, 28 Aug 2024 08:36:01 -0400
+X-MC-Unique: jtxiGlbiMNuwXeY2a8L7Gg-1
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-6af4700a594so134607557b3.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 05:36:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724848523; x=1725453323;
+        d=1e100.net; s=20230601; t=1724848561; x=1725453361;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=448jSBQY1QAGqG/ajBiJUNEEbDhOpCTA4koFc5yudJE=;
-        b=AZR2YFDwlZ1F2+ffDaTQMHPuxPsGSSRmcCWQtKxGE9VnQcIHzhYggWzZgCHFR9BPUO
-         VZ9O3R5e8g/116qfzYOEE0ZnhpoJ9zIAUJZJUKe1iluBbbtewqAGlvSr+wgnQOL2wQ9E
-         V645af06RfcvoWBnOhy8J91UvDtuYxMXRJJ3WKsP/BVo6qaKo17r3e5sKe6g19/GiF+8
-         1U/3kUDWlf6HlitErCEZaxyFy01j0b59BPDNKVTvV1NBTsQM6gtXvQebIvtTq46LTwH0
-         2ujOThxqjXIhhWUmokAQiOAySIebEXTDKJGC/miMd0YrFPPG3HE2iQgDv5XsUIDFUoyg
-         s6yw==
-X-Forwarded-Encrypted: i=1; AJvYcCXqUewBiB6XVUHqLJLyZDfBWqaT/tf/MPYGKKaSH05sKiZb+z2ATWJuVkohJhj2DpX+/PymppjxUh0SJyoxVQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwjUlS8WCuxUQ3Ms+Yb3gQdzyx2Ye2YRK4asR6z5CEuYdwDjYar
-	MV6ygLposv/lubeVnEwqkRip5nRGuQKZjLtFq3TrCA0A7PdRxjs3F4F9F49SBjBFnvqTSdtO2xo
-	6i0YC+DqHovZVRJAStPuQiS5Z0ndl5ctYiCK1GjKPF0SfcGSUShvMvSOi0ZNzdimiI44cECnioU
-	ULMJznG3+IUbn0+5J+zISRdAPjS6K2G/5s2kP4l/VDAtowoAPthNH/OvnV24njyR0oOWc=
-X-Received: by 2002:a05:690c:39b:b0:6c7:7585:8ff5 with SMTP id 00721157ae682-6c775859402mr193979937b3.25.1724848522789;
-        Wed, 28 Aug 2024 05:35:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFm1ORVz+U6MI7poaMV2InuFgCPre541FhUIbC0ptWZTNlU6fujUvtySh/Lz22CIHrRkYeHEQFQPDDrKYWe5qQ=
-X-Received: by 2002:a05:690c:39b:b0:6c7:7585:8ff5 with SMTP id
- 00721157ae682-6c775859402mr193979647b3.25.1724848522373; Wed, 28 Aug 2024
- 05:35:22 -0700 (PDT)
+        bh=k2CSk6AojrJs/vMi6/mcwjEASE9tCQG7G88lkG5zp+w=;
+        b=TmNrLzwNWemGd5QpI2ZjhveXzTxUCB4Z1NWLoluoP8UEw3XWfHRs1JPVRMb471Z65T
+         HI6XAqZGXsEo8babrzMrUE1tcvecGiGyb87K4hU8dFFPueQaB59vH2XdouNYg4t+QlEK
+         npYV2PkRKbJCmu8oIUbpF7dkTF7p6oTuU/8fjFkglS6zXOzh5/Ilws0rvDIzEdYjcTEK
+         eYyLIv2AuKcRAQezff+cshWoiWTfXAb1UwxTD1wXUQF54OfEAYgLHmotgkIVeUumsOFn
+         Rdx7pGWwu4jO8oC9hCFNCjUyu+T+3x+yfxUtncITRQSyDeRkSABQBdnh8YVtsfW4TBv+
+         Cz5Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUkKOTFGZZLyPVWmofs+sV9fvg6/R9u/9Wvi6O04ytXmhonJGuqck6/HRhlrTo6eoqPV9D8Tw2oa9e3oUGScQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyjnN4VKTtXNlf+OlqRflnC8Ka2ZXqgWLb+IB+LlykXZ7Wcsxjd
+	f7EcFRKrOmqFmkSsuOcqN06fPtuRLFi1SYrf4+Q+L1Ye8ub6nkD23DoWhP4v7XtkjVOU5s0EsG9
+	7JRHf/OTpr8hFAnAZiA0LK6Ong2ThV68XyvBbggLg4fKo7y599AVWPtJEdhNzQflihz545ONCDT
+	ZVfDZODke7uL2dgoy29UsWH5TGx7nhte7miIJiUKlkOOwQHGjwlxha1w==
+X-Received: by 2002:a05:690c:6603:b0:6b2:6cd4:7fa5 with SMTP id 00721157ae682-6d1713a364bmr16614517b3.32.1724848561001;
+        Wed, 28 Aug 2024 05:36:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFX5cwZI6JxMxtVlTYixZ+nncqaWWDtCnWBtN5o4ulqMiBsr5fjSDUpmCWzDo540sJyv/gRJ9O1gveuHFkBcmE=
+X-Received: by 2002:a05:690c:6603:b0:6b2:6cd4:7fa5 with SMTP id
+ 00721157ae682-6d1713a364bmr16614337b3.32.1724848560678; Wed, 28 Aug 2024
+ 05:36:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240816090159.1967650-1-dtatulea@nvidia.com> <20240816090159.1967650-5-dtatulea@nvidia.com>
-In-Reply-To: <20240816090159.1967650-5-dtatulea@nvidia.com>
+References: <20240816090159.1967650-1-dtatulea@nvidia.com> <20240816090159.1967650-6-dtatulea@nvidia.com>
+In-Reply-To: <20240816090159.1967650-6-dtatulea@nvidia.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 28 Aug 2024 14:34:46 +0200
-Message-ID: <CAJaqyWfc9iq7UvDGr5BgpUSGHGL4geQxuka1CstvSxQXiaoeEA@mail.gmail.com>
-Subject: Re: [PATCH vhost v2 04/10] vdpa/mlx5: Use async API for vq query command
+Date: Wed, 28 Aug 2024 14:35:24 +0200
+Message-ID: <CAJaqyWer71qofGfovd7f8BAoX0FjRdRx8UyKVMqANi4CnwCfyg@mail.gmail.com>
+Subject: Re: [PATCH vhost v2 05/10] vdpa/mlx5: Use async API for vq modify commands
 To: Dragos Tatulea <dtatulea@nvidia.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
 	virtualization@lists.linux-foundation.org, Si-Wei Liu <si-wei.liu@oracle.com>, 
@@ -101,14 +101,12 @@ Content-Transfer-Encoding: quoted-printable
 On Fri, Aug 16, 2024 at 11:02=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.co=
 m> wrote:
 >
-> Switch firmware vq query command to be issued via the async API to
-> allow future parallelization.
+> Switch firmware vq modify command to be issued via the async API to
+> allow future parallelization. The new refactored function applies the
+> modify on a range of vqs and waits for their execution to complete.
 >
-> For now the command is still serial but the infrastructure is there
-> to issue commands in parallel, including ratelimiting the number
-> of issued async commands to firmware.
->
-> A later patch will switch to issuing more commands at a time.
+> For now the command is still used in a serial fashion. A later patch
+> will switch to modifying multiple vqs in parallel.
 >
 > Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
 > Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
@@ -116,109 +114,174 @@ m> wrote:
 Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
 > ---
->  drivers/vdpa/mlx5/core/mlx5_vdpa.h |   2 +
->  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 101 ++++++++++++++++++++++-------
->  2 files changed, 78 insertions(+), 25 deletions(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 154 ++++++++++++++++++++----------
+>  1 file changed, 106 insertions(+), 48 deletions(-)
 >
-> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/=
-mlx5_vdpa.h
-> index b34e9b93d56e..24fa00afb24f 100644
-> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> @@ -103,6 +103,8 @@ struct mlx5_vdpa_dev {
->         struct workqueue_struct *wq;
->         unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
->         bool suspended;
-> +
-> +       struct mlx5_async_ctx async_ctx;
->  };
->
->  struct mlx5_vdpa_async_cmd {
 > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
 x5_vnet.c
-> index 12133e5d1285..413b24398ef2 100644
+> index 413b24398ef2..9be7a88d71a7 100644
 > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -1184,40 +1184,87 @@ struct mlx5_virtq_attr {
->         u16 used_index;
+> @@ -1189,6 +1189,11 @@ struct mlx5_virtqueue_query_mem {
+>         u8 out[MLX5_ST_SZ_BYTES(query_virtio_net_q_out)];
 >  };
 >
-> -static int query_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_=
-virtqueue *mvq,
-> -                          struct mlx5_virtq_attr *attr)
-> -{
-> -       int outlen =3D MLX5_ST_SZ_BYTES(query_virtio_net_q_out);
-> -       u32 in[MLX5_ST_SZ_DW(query_virtio_net_q_in)] =3D {};
-> -       void *out;
-> -       void *obj_context;
-> -       void *cmd_hdr;
+> +struct mlx5_virtqueue_modify_mem {
+> +       u8 in[MLX5_ST_SZ_BYTES(modify_virtio_net_q_in)];
+> +       u8 out[MLX5_ST_SZ_BYTES(modify_virtio_net_q_out)];
+> +};
+> +
+>  static void fill_query_virtqueue_cmd(struct mlx5_vdpa_net *ndev,
+>                                      struct mlx5_vdpa_virtqueue *mvq,
+>                                      struct mlx5_virtqueue_query_mem *cmd=
+)
+> @@ -1298,51 +1303,30 @@ static bool modifiable_virtqueue_fields(struct ml=
+x5_vdpa_virtqueue *mvq)
+>         return true;
+>  }
+>
+> -static int modify_virtqueue(struct mlx5_vdpa_net *ndev,
+> -                           struct mlx5_vdpa_virtqueue *mvq,
+> -                           int state)
+> +static void fill_modify_virtqueue_cmd(struct mlx5_vdpa_net *ndev,
+> +                                     struct mlx5_vdpa_virtqueue *mvq,
+> +                                     int state,
+> +                                     struct mlx5_virtqueue_modify_mem *c=
+md)
+>  {
+> -       int inlen =3D MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
+> -       u32 out[MLX5_ST_SZ_DW(modify_virtio_net_q_out)] =3D {};
+>         struct mlx5_vdpa_dev *mvdev =3D &ndev->mvdev;
+>         struct mlx5_vdpa_mr *desc_mr =3D NULL;
+>         struct mlx5_vdpa_mr *vq_mr =3D NULL;
+> -       bool state_change =3D false;
+>         void *obj_context;
+>         void *cmd_hdr;
+>         void *vq_ctx;
+> -       void *in;
 > -       int err;
 > -
-> -       out =3D kzalloc(outlen, GFP_KERNEL);
-> -       if (!out)
+> -       if (mvq->fw_state =3D=3D MLX5_VIRTIO_NET_Q_OBJECT_NONE)
+> -               return 0;
+> -
+> -       if (!modifiable_virtqueue_fields(mvq))
+> -               return -EINVAL;
+>
+> -       in =3D kzalloc(inlen, GFP_KERNEL);
+> -       if (!in)
 > -               return -ENOMEM;
-> +struct mlx5_virtqueue_query_mem {
-> +       u8 in[MLX5_ST_SZ_BYTES(query_virtio_net_q_in)];
-> +       u8 out[MLX5_ST_SZ_BYTES(query_virtio_net_q_out)];
-> +};
+> -
+> -       cmd_hdr =3D MLX5_ADDR_OF(modify_virtio_net_q_in, in, general_obj_=
+in_cmd_hdr);
+> +       cmd_hdr =3D MLX5_ADDR_OF(modify_virtio_net_q_in, cmd->in, general=
+_obj_in_cmd_hdr);
 >
-> -       cmd_hdr =3D MLX5_ADDR_OF(query_virtio_net_q_in, in, general_obj_i=
-n_cmd_hdr);
-> +static void fill_query_virtqueue_cmd(struct mlx5_vdpa_net *ndev,
-> +                                    struct mlx5_vdpa_virtqueue *mvq,
-> +                                    struct mlx5_virtqueue_query_mem *cmd=
-)
-> +{
-> +       void *cmd_hdr =3D MLX5_ADDR_OF(query_virtio_net_q_in, cmd->in, ge=
-neral_obj_in_cmd_hdr);
->
->         MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, opcode, MLX5_CMD_OP_QUE=
-RY_GENERAL_OBJECT);
+>         MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, opcode, MLX5_CMD_OP_MOD=
+IFY_GENERAL_OBJECT);
 >         MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, obj_type, MLX5_OBJ_TYPE=
 _VIRTIO_NET_Q);
 >         MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, obj_id, mvq->virtq_id);
 >         MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, uid, ndev->mvdev.res.ui=
 d);
-> -       err =3D mlx5_cmd_exec(ndev->mvdev.mdev, in, sizeof(in), out, outl=
-en);
+>
+> -       obj_context =3D MLX5_ADDR_OF(modify_virtio_net_q_in, in, obj_cont=
+ext);
+> +       obj_context =3D MLX5_ADDR_OF(modify_virtio_net_q_in, cmd->in, obj=
+_context);
+>         vq_ctx =3D MLX5_ADDR_OF(virtio_net_q_object, obj_context, virtio_=
+q_context);
+>
+> -       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_STATE) {
+> -               if (!is_valid_state_change(mvq->fw_state, state, is_resum=
+able(ndev))) {
+> -                       err =3D -EINVAL;
+> -                       goto done;
+> -               }
+> -
+> +       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_STATE)
+>                 MLX5_SET(virtio_net_q_object, obj_context, state, state);
+> -               state_change =3D true;
+> -       }
+>
+>         if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_ADDRS)=
+ {
+>                 MLX5_SET64(virtio_q, vq_ctx, desc_addr, mvq->desc_addr);
+> @@ -1388,38 +1372,36 @@ static int modify_virtqueue(struct mlx5_vdpa_net =
+*ndev,
+>         }
+>
+>         MLX5_SET64(virtio_net_q_object, obj_context, modify_field_select,=
+ mvq->modified_fields);
+> -       err =3D mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(ou=
+t));
 > -       if (err)
-> -               goto err_cmd;
-> +}
-> +
-> +static void query_virtqueue_end(struct mlx5_vdpa_net *ndev,
-> +                               struct mlx5_virtqueue_query_mem *cmd,
-> +                               struct mlx5_virtq_attr *attr)
-> +{
-> +       void *obj_context =3D MLX5_ADDR_OF(query_virtio_net_q_out, cmd->o=
-ut, obj_context);
->
-> -       obj_context =3D MLX5_ADDR_OF(query_virtio_net_q_out, out, obj_con=
-text);
->         memset(attr, 0, sizeof(*attr));
->         attr->state =3D MLX5_GET(virtio_net_q_object, obj_context, state)=
-;
->         attr->available_index =3D MLX5_GET(virtio_net_q_object, obj_conte=
-xt, hw_available_index);
->         attr->used_index =3D MLX5_GET(virtio_net_q_object, obj_context, h=
-w_used_index);
-> -       kfree(out);
-> -       return 0;
+> -               goto done;
 > +}
 >
-> -err_cmd:
-> -       kfree(out);
-> +static int query_virtqueues(struct mlx5_vdpa_net *ndev,
-> +                           int start_vq,
-> +                           int num_vqs,
-> +                           struct mlx5_virtq_attr *attrs)
+> -       if (state_change)
+> -               mvq->fw_state =3D state;
+> +static void modify_virtqueue_end(struct mlx5_vdpa_net *ndev,
+> +                                struct mlx5_vdpa_virtqueue *mvq,
+> +                                int state)
 > +{
 > +       struct mlx5_vdpa_dev *mvdev =3D &ndev->mvdev;
-> +       struct mlx5_virtqueue_query_mem *cmd_mem;
+>
+>         if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY) =
+{
+> +               unsigned int asid =3D mvdev->group2asid[MLX5_VDPA_DATAVQ_=
+GROUP];
+> +               struct mlx5_vdpa_mr *vq_mr =3D mvdev->mr[asid];
+> +
+>                 mlx5_vdpa_put_mr(mvdev, mvq->vq_mr);
+>                 mlx5_vdpa_get_mr(mvdev, vq_mr);
+>                 mvq->vq_mr =3D vq_mr;
+>         }
+>
+>         if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY=
+) {
+> +               unsigned int asid =3D mvdev->group2asid[MLX5_VDPA_DATAVQ_=
+DESC_GROUP];
+> +               struct mlx5_vdpa_mr *desc_mr =3D mvdev->mr[asid];
+> +
+>                 mlx5_vdpa_put_mr(mvdev, mvq->desc_mr);
+>                 mlx5_vdpa_get_mr(mvdev, desc_mr);
+>                 mvq->desc_mr =3D desc_mr;
+>         }
+>
+> -       mvq->modified_fields =3D 0;
+> -
+> -done:
+> -       kfree(in);
+> -       return err;
+> -}
+> +       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_STATE)
+> +               mvq->fw_state =3D state;
+>
+> -static int modify_virtqueue_state(struct mlx5_vdpa_net *ndev,
+> -                                 struct mlx5_vdpa_virtqueue *mvq,
+> -                                 unsigned int state)
+> -{
+> -       mvq->modified_fields |=3D MLX5_VIRTQ_MODIFY_MASK_STATE;
+> -       return modify_virtqueue(ndev, mvq, state);
+> +       mvq->modified_fields =3D 0;
+>  }
+>
+>  static int counter_set_alloc(struct mlx5_vdpa_net *ndev, struct mlx5_vdp=
+a_virtqueue *mvq)
+> @@ -1572,6 +1554,82 @@ static int setup_vq(struct mlx5_vdpa_net *ndev,
+>         return err;
+>  }
+>
+> +static int modify_virtqueues(struct mlx5_vdpa_net *ndev, int start_vq, i=
+nt num_vqs, int state)
+> +{
+> +       struct mlx5_vdpa_dev *mvdev =3D &ndev->mvdev;
+> +       struct mlx5_virtqueue_modify_mem *cmd_mem;
 > +       struct mlx5_vdpa_async_cmd *cmds;
 > +       int err =3D 0;
 > +
-> +       WARN(start_vq + num_vqs > mvdev->max_vqs, "query vq range invalid=
- [%d, %d), max_vqs: %u\n",
+> +       WARN(start_vq + num_vqs > mvdev->max_vqs, "modify vq range invali=
+d [%d, %d), max_vqs: %u\n",
 > +            start_vq, start_vq + num_vqs, mvdev->max_vqs);
 > +
 > +       cmds =3D kvcalloc(num_vqs, sizeof(*cmds), GFP_KERNEL);
@@ -229,94 +292,112 @@ w_used_index);
 > +       }
 > +
 > +       for (int i =3D 0; i < num_vqs; i++) {
-> +               cmds[i].in =3D &cmd_mem[i].in;
-> +               cmds[i].inlen =3D sizeof(cmd_mem[i].in);
-> +               cmds[i].out =3D &cmd_mem[i].out;
-> +               cmds[i].outlen =3D sizeof(cmd_mem[i].out);
-> +               fill_query_virtqueue_cmd(ndev, &ndev->vqs[start_vq + i], =
-&cmd_mem[i]);
+> +               struct mlx5_vdpa_async_cmd *cmd =3D &cmds[i];
+> +               struct mlx5_vdpa_virtqueue *mvq;
+> +               int vq_idx =3D start_vq + i;
+> +
+> +               mvq =3D &ndev->vqs[vq_idx];
+> +
+> +               if (!modifiable_virtqueue_fields(mvq)) {
+> +                       err =3D -EINVAL;
+> +                       goto done;
+> +               }
+> +
+> +               if (mvq->fw_state !=3D state) {
+> +                       if (!is_valid_state_change(mvq->fw_state, state, =
+is_resumable(ndev))) {
+> +                               err =3D -EINVAL;
+> +                               goto done;
+> +                       }
+> +
+> +                       mvq->modified_fields |=3D MLX5_VIRTQ_MODIFY_MASK_=
+STATE;
+> +               }
+> +
+> +               cmd->in =3D &cmd_mem[i].in;
+> +               cmd->inlen =3D sizeof(cmd_mem[i].in);
+> +               cmd->out =3D &cmd_mem[i].out;
+> +               cmd->outlen =3D sizeof(cmd_mem[i].out);
+> +               fill_modify_virtqueue_cmd(ndev, mvq, state, &cmd_mem[i]);
 > +       }
 > +
 > +       err =3D mlx5_vdpa_exec_async_cmds(&ndev->mvdev, cmds, num_vqs);
 > +       if (err) {
-> +               mlx5_vdpa_err(mvdev, "error issuing query cmd for vq rang=
-e [%d, %d): %d\n",
-> +                             start_vq, start_vq + num_vqs, err);
+> +               mlx5_vdpa_err(mvdev, "error issuing modify cmd for vq ran=
+ge [%d, %d)\n",
+> +                             start_vq, start_vq + num_vqs);
 > +               goto done;
 > +       }
 > +
 > +       for (int i =3D 0; i < num_vqs; i++) {
 > +               struct mlx5_vdpa_async_cmd *cmd =3D &cmds[i];
+> +               struct mlx5_vdpa_virtqueue *mvq;
 > +               int vq_idx =3D start_vq + i;
 > +
+> +               mvq =3D &ndev->vqs[vq_idx];
+> +
 > +               if (cmd->err) {
-> +                       mlx5_vdpa_err(mvdev, "query vq %d failed, err: %d=
-\n", vq_idx, err);
+> +                       mlx5_vdpa_err(mvdev, "modify vq %d failed, state:=
+ %d -> %d, err: %d\n",
+> +                                     vq_idx, mvq->fw_state, state, err);
 > +                       if (!err)
 > +                               err =3D cmd->err;
 > +                       continue;
 > +               }
 > +
-> +               query_virtqueue_end(ndev, &cmd_mem[i], &attrs[i]);
+> +               modify_virtqueue_end(ndev, mvq, state);
 > +       }
 > +
 > +done:
 > +       kvfree(cmd_mem);
 > +       kvfree(cmds);
->         return err;
->  }
->
-> @@ -1542,7 +1589,7 @@ static int suspend_vq(struct mlx5_vdpa_net *ndev, s=
+> +       return err;
+> +}
+> +
+>  static int suspend_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtq=
+ueue *mvq)
+>  {
+>         struct mlx5_virtq_attr attr;
+> @@ -1583,7 +1641,7 @@ static int suspend_vq(struct mlx5_vdpa_net *ndev, s=
 truct mlx5_vdpa_virtqueue *mv
->                 return err;
->         }
->
-> -       err =3D query_virtqueue(ndev, mvq, &attr);
-> +       err =3D query_virtqueues(ndev, mvq->index, 1, &attr);
->         if (err) {
->                 mlx5_vdpa_err(&ndev->mvdev, "failed to query virtqueue, e=
-rr: %d\n", err);
->                 return err;
-> @@ -2528,7 +2575,7 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_devic=
-e *vdev, u16 idx, struct vdpa
+>         if (mvq->fw_state !=3D MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY)
 >                 return 0;
->         }
 >
-> -       err =3D query_virtqueue(ndev, mvq, &attr);
-> +       err =3D query_virtqueues(ndev, mvq->index, 1, &attr);
+> -       err =3D modify_virtqueue_state(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJEC=
+T_STATE_SUSPEND);
+> +       err =3D modify_virtqueues(ndev, mvq->index, 1, MLX5_VIRTIO_NET_Q_=
+OBJECT_STATE_SUSPEND);
 >         if (err) {
->                 mlx5_vdpa_err(mvdev, "failed to query virtqueue\n");
+>                 mlx5_vdpa_err(&ndev->mvdev, "modify to suspend failed, er=
+r: %d\n", err);
 >                 return err;
-> @@ -2879,7 +2926,7 @@ static int save_channel_info(struct mlx5_vdpa_net *=
-ndev, struct mlx5_vdpa_virtqu
->         int err;
->
->         if (mvq->initialized) {
-> -               err =3D query_virtqueue(ndev, mvq, &attr);
-> +               err =3D query_virtqueues(ndev, mvq->index, 1, &attr);
->                 if (err)
->                         return err;
+> @@ -1630,7 +1688,7 @@ static int resume_vq(struct mlx5_vdpa_net *ndev, st=
+ruct mlx5_vdpa_virtqueue *mvq
+>                 /* Due to a FW quirk we need to modify the VQ fields firs=
+t then change state.
+>                  * This should be fixed soon. After that, a single comman=
+d can be used.
+>                  */
+> -               err =3D modify_virtqueue(ndev, mvq, 0);
+> +               err =3D modify_virtqueues(ndev, mvq->index, 1, mvq->fw_st=
+ate);
+>                 if (err) {
+>                         mlx5_vdpa_err(&ndev->mvdev,
+>                                 "modify vq properties failed for vq %u, e=
+rr: %d\n",
+> @@ -1652,7 +1710,7 @@ static int resume_vq(struct mlx5_vdpa_net *ndev, st=
+ruct mlx5_vdpa_virtqueue *mvq
+>                 return -EINVAL;
 >         }
-> @@ -3854,6 +3901,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *=
-v_mdev, const char *name,
->                 ndev->rqt_size =3D 1;
->         }
 >
-> +       mlx5_cmd_init_async_ctx(mdev, &mvdev->async_ctx);
-> +
->         ndev->mvdev.mlx_features =3D device_features;
->         mvdev->vdev.dma_dev =3D &mdev->pdev->dev;
->         err =3D mlx5_vdpa_alloc_resources(&ndev->mvdev);
-> @@ -3935,6 +3984,8 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev =
-*v_mdev, struct vdpa_device *
->         mvdev->wq =3D NULL;
->         destroy_workqueue(wq);
->         mgtdev->ndev =3D NULL;
-> +
-> +       mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
->  }
->
->  static const struct vdpa_mgmtdev_ops mdev_ops =3D {
+> -       err =3D modify_virtqueue_state(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJEC=
+T_STATE_RDY);
+> +       err =3D modify_virtqueues(ndev, mvq->index, 1, MLX5_VIRTIO_NET_Q_=
+OBJECT_STATE_RDY);
+>         if (err)
+>                 mlx5_vdpa_err(&ndev->mvdev, "modify to resume failed for =
+vq %u, err: %d\n",
+>                               mvq->index, err);
 > --
 > 2.45.1
 >
