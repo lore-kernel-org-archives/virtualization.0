@@ -1,173 +1,545 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB5517C9BA
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:59:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 238DC19EEBB;
+	Wed, 28 Aug 2024 14:27:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724849992; cv=none; b=Z5R+zu2UFH/R8sMRCa01kKMiFk/bpxPTfy3NqDT6e5GCVgwhu6w9lPrQ2Plg9b+o77W+OsqtScoVddaQBBI0qe6xptsFZ2maPyv59NPQk9lRxxJSL+M/t2Kk0iSoVVRzZuy4nVMOMAfse1LvJpxKNFfbxXuOlBlpjXcC27483/o=
+	t=1724855262; cv=none; b=NUIVq4S5o6xdFIhdkb+W5xY9bENLdcmXTPbORy4pIs/SvdQkOajYPKMjf61yWp/NKpCbwFX9XtMAPa+RezY03svstkW9HWiOfLTuv2n4IL6xpu48YZbGZDBEVA5/GYnKbJol3dde5KV/q/1XfLGTWt7AK1jK1CFwliC4M7xa+Gg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724849992; c=relaxed/simple;
-	bh=ymupMNvwNJBaMEUU8F78IdNvFql9A3Vo9I6iMpInMlw=;
+	s=arc-20240116; t=1724855262; c=relaxed/simple;
+	bh=W86cFGXloGDircM5sjQ+H2FeC6x3oY/12NtRtsl2S8A=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JeOBn4MAjHSn64xf3NLPo9JmIE04NP2FMEEmSmr+C296Imanu4nxOrpJpClFRNDdz/eE/92mdrNHXMGSpkhrT2uq58CK8AGGwEHRHrGy6fTmjH/gUGOxoZuTIPblwmQmbSsTxz2LAwwwmaEVuWbVQB/0dA8TX394kFjlqNZqSpE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OWuDo7Jh; arc=none smtp.client-ip=140.211.166.137
+	 To:Cc:Content-Type; b=Nn6M86PSRhQNKGcTvsPzet7wcoHk/i6nIZlDxHj/yJOex2Ulu0ERh8QcPAWptuXvEf3+al/6fKizglOa/PlsxvTd7Goq27+Pkv9jELQlk9qD31NZJ88/4MQupd3p5WZ/8nBuGMW3m8HmMA16XeAPSJk4VDLYUk2IbckONsvRIZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Iw0eSo56; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OWuDo7Jh"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6F74E406E1
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:59:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 2V4cEpQue3Ac for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Aug 2024 12:59:50 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 60239406C4
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 60239406C4
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OWuDo7Jh
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 60239406C4
-	for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 12:59:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724849988;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=S3TUrO5dpGA8rfdSv1PfPK5BcATBwgN+tBNwuxtVK/c=;
-	b=OWuDo7JhX2wL5qLAOc5ZxCKurL8wH2INEyYB7pRr7GHbFtS6TrcWXcM4OAk04RVUric9IZ
-	MOGBNcKi4zeMGoPZTR/ZxbNY240aWbBmSLGalVUvGUaAY6JISyJ1bSpliazV/ozoQ39Aof
-	oGlmyeyoabfqQgtRkSQ4j4P67CSJLa8=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-260-xjJsE5d5OESPNy9Ota_fbQ-1; Wed, 28 Aug 2024 08:59:43 -0400
-X-MC-Unique: xjJsE5d5OESPNy9Ota_fbQ-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6b3fec974e5so126756427b3.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 28 Aug 2024 05:59:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724849983; x=1725454783;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=S3TUrO5dpGA8rfdSv1PfPK5BcATBwgN+tBNwuxtVK/c=;
-        b=DF+HHAZcLSAkeTMV1kwSAG5AvBIwOethw5StpMxI6JxueMzsM6g/Kj/S9fs4pMlfWl
-         XtVl+2S/TDknebJbEEqZNRtmLulz6t+4Ph6Cp/r+gZ1RUxV64zi0v8jUVc54EdMgtS4T
-         yJDPHWHnBDvQZZzpTEl7dMhLbewn47xJHoFdN8JG2ywdI3xNmhp5UvMKHb744UIkW5ut
-         UF/sjhJ7xp3RkxhdTPb+bBSq7Scw+Fg6WgqYCY0lLjuatS6GuZC8lDgHILXnO5tUC85l
-         VBiFHkytOcQgHwEm3L2gUwbOZpCa5767ah7yAqeqnyipF3imfN05NGprJyLtIK/LIPlc
-         wapw==
-X-Forwarded-Encrypted: i=1; AJvYcCVqd/5jKOtMmHOZNch+MYtVLeh174ZZZCD3zsYGnGYVwNLfnv1sZV50aWa3fXJv1xG2QivpGiIegIkSS0fLKQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz84bMW1NKUxH46JhU57aXYeGb/srhM5IlSReYpbA2v1U/yJmti
-	Q7v1Ct9JbDEFm9TY9hxpk0bNmkn6V+BdeByiCpVf6MQ/4sZbp6Soa06rgd1cT8o77UrG3YnyNdM
-	LereY1fjf3hPfWlqepogA0M7mWXctbRVwGAia/QQ4UWd0YywwsKlaKeT8TgiwwY0orB1xBQhbnY
-	G0CzpYe9EwLGH7YfCoAwzR4z3K+y679gG/ropOGs9aqbdo8lv4NXYpLg==
-X-Received: by 2002:a05:690c:f81:b0:6cf:8d6f:2c17 with SMTP id 00721157ae682-6cf8d6f330bmr82005047b3.8.1724849982820;
-        Wed, 28 Aug 2024 05:59:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEgcU387IxWPo4yekqWXqtNg5KIt51AsXE5T6bzQ+TasCLXcyqT2oXqmZTLQUlKNBz+CaTjn6pYNY9IaOgUuYc=
-X-Received: by 2002:a05:690c:f81:b0:6cf:8d6f:2c17 with SMTP id
- 00721157ae682-6cf8d6f330bmr82004837b3.8.1724849982531; Wed, 28 Aug 2024
- 05:59:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Iw0eSo56"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90763C4CAC8;
+	Wed, 28 Aug 2024 14:27:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1724855261;
+	bh=W86cFGXloGDircM5sjQ+H2FeC6x3oY/12NtRtsl2S8A=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=Iw0eSo56jtwdMbq6ddVkdJSA925bTeLlFDBSGG67NMW41oZZ/omeKSX8mxaSd+4ks
+	 ab2y1fzlku1cGZQg/pvjD960OGE0tAB7a2A8i7fc8pUy7hE/MCPt1FLtiIpBE5U27R
+	 Fu14O244d4btqqOwLqmZyeimMCBNHLCSudFqeVS5nzZ1SiK0R5xX+Zjtd+C9Gv14Gh
+	 RZNnX0Sl/OtdDDmBAhr2abjmWNlNdDibBtYLrkgjsFMVVARJqTWPWi1BYOyxQK+OCN
+	 P34036l9K28i1EdUSFkLpoQrDH42l34Fi+v/7Ft1ohzFNXQa6dWCULALwiZ7wNsKo3
+	 KN9RbacmSC3og==
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-5c09fd20eddso3954378a12.3;
+        Wed, 28 Aug 2024 07:27:41 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUG/shCSxzUShDytAQzY9YhUbaMEhb79r0HCswR6am+aR13WlLJPMbzo40DGLlzYkyRezMZPAWAZEc=@lists.linux.dev, AJvYcCVhQThSvIv655bgt7c6p8AXJ1xHzmFLTZZTFovxC3+mk8MGhE+2E1m8p4hQo5RvcsDwIKb1RPFZJGLDr7Ybv98=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyRt5KTDI9BWyfOLNF8Tzzke+h6y/iWM57WROF1vecGh05mCcee
+	dFctHol7FxlIw+NMJR8DewBenm74xMJD+O/W8oDEzbN0sVzHIhgvIgiieM416ovN2JTNr/2c69E
+	pDOsV5u5cIDqEixD/JbUjm6XgH1E=
+X-Google-Smtp-Source: AGHT+IFK7ior7Bd9byn++Dm/7uIzZMVQSFMtV/l/kcleimrLqfixVwWfYtfsKow8/uh9Uy6cPtIuSSgf9nG/U1/PNqo=
+X-Received: by 2002:a05:6402:1e94:b0:5be:ffe1:6539 with SMTP id
+ 4fb4d7f45d1cf-5c214c5540emr1760903a12.24.1724855260027; Wed, 28 Aug 2024
+ 07:27:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240816090159.1967650-1-dtatulea@nvidia.com> <20240816090159.1967650-11-dtatulea@nvidia.com>
-In-Reply-To: <20240816090159.1967650-11-dtatulea@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 28 Aug 2024 14:59:05 +0200
-Message-ID: <CAJaqyWd0Gwap1253WegSHSADw2ymZ81vvwuTgVMCTSH5-gddbg@mail.gmail.com>
-Subject: Re: [PATCH vhost v2 10/10] vdpa/mlx5: Parallelize VQ suspend/resume
- for CVQ MQ command
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	virtualization@lists.linux-foundation.org, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Tariq Toukan <tariqt@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+References: <20240823063943.2618675-1-maobibo@loongson.cn> <20240823063943.2618675-4-maobibo@loongson.cn>
+In-Reply-To: <20240823063943.2618675-4-maobibo@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Wed, 28 Aug 2024 22:27:27 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H7t0Bn=iK7UygG6ym=hsCJqZAFVJHqDupm7mL9rVAm0GA@mail.gmail.com>
+Message-ID: <CAAhV-H7t0Bn=iK7UygG6ym=hsCJqZAFVJHqDupm7mL9rVAm0GA@mail.gmail.com>
+Subject: Re: [PATCH v7 3/3] irqchip/loongson-eiointc: Add extioi virt
+ extension support
+To: Bibo Mao <maobibo@loongson.cn>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Thomas Gleixner <tglx@linutronix.de>, 
+	WANG Xuerui <kernel@xen0n.name>, kvm@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org, 
+	Song Gao <gaosong@loongson.cn>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 16, 2024 at 11:03=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.co=
-m> wrote:
->
-> change_num_qps() is still suspending/resuming VQs one by one.
-> This change switches to parallel suspend/resume.
->
-> When increasing the number of queues the flow has changed a bit for
-> simplicity: the setup_vq() function will always be called before
-> resume_vqs(). If the VQ is initialized, setup_vq() will exit early. If
-> the VQ is not initialized, setup_vq() will create it and resume_vqs()
-> will resume it.
->
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Hi, Bibo,
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-
+On Fri, Aug 23, 2024 at 2:39=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> wrot=
+e:
+>
+> Interrupts can be routed to maximal four virtual CPUs with one HW
+> EIOINTC interrupt controller model, since interrupt routing is encoded wi=
+th
+> CPU bitmap and EIOINTC node combined method. Here add the EIOINTC virt
+> extension support so that interrupts can be routed to 256 vCPUs on
+> hypervisor mode. CPU bitmap is replaced with normal encoding and EIOINTC
+> node type is removed, so there are 8 bits for cpu selection, at most 256
+> vCPUs are supported for interrupt routing.
+>
+> Co-developed-by: Song Gao <gaosong@loongson.cn>
+> Signed-off-by: Song Gao <gaosong@loongson.cn>
+> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 22 ++++++++++++----------
->  1 file changed, 12 insertions(+), 10 deletions(-)
+>  .../arch/loongarch/irq-chip-model.rst         |  64 +++++++++++
+>  .../zh_CN/arch/loongarch/irq-chip-model.rst   |  55 +++++++++
+>  arch/loongarch/include/asm/irq.h              |   1 +
+>  drivers/irqchip/irq-loongson-eiointc.c        | 106 ++++++++++++++----
+>  4 files changed, 205 insertions(+), 21 deletions(-)
 >
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
-x5_vnet.c
-> index d1a01c229110..822092eccb32 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -2229,25 +2229,27 @@ static int change_num_qps(struct mlx5_vdpa_dev *m=
-vdev, int newqps)
->                 if (err)
->                         return err;
+> diff --git a/Documentation/arch/loongarch/irq-chip-model.rst b/Documentat=
+ion/arch/loongarch/irq-chip-model.rst
+> index 7988f4192363..d2350780ad1d 100644
+> --- a/Documentation/arch/loongarch/irq-chip-model.rst
+> +++ b/Documentation/arch/loongarch/irq-chip-model.rst
+> @@ -85,6 +85,70 @@ to CPUINTC directly::
+>      | Devices |
+>      +---------+
 >
-> -               for (i =3D cur_vqs - 1; i >=3D new_vqs; i--) {
-> -                       struct mlx5_vdpa_virtqueue *mvq =3D &ndev->vqs[i]=
-;
-> -
-> -                       if (is_resumable(ndev))
-> -                               suspend_vq(ndev, mvq);
-> -                       else
-> -                               teardown_vq(ndev, mvq);
-> +               if (is_resumable(ndev)) {
-> +                       suspend_vqs(ndev, new_vqs, cur_vqs - new_vqs);
-> +               } else {
-> +                       for (i =3D new_vqs; i < cur_vqs; i++)
-> +                               teardown_vq(ndev, &ndev->vqs[i]);
->                 }
->
->                 ndev->cur_num_vqs =3D new_vqs;
->         } else {
->                 ndev->cur_num_vqs =3D new_vqs;
-> -               for (i =3D cur_vqs; i < new_vqs; i++) {
-> -                       struct mlx5_vdpa_virtqueue *mvq =3D &ndev->vqs[i]=
-;
->
-> -                       err =3D mvq->initialized ? resume_vq(ndev, mvq) :=
- setup_vq(ndev, mvq, true);
-> +               for (i =3D cur_vqs; i < new_vqs; i++) {
-> +                       err =3D setup_vq(ndev, &ndev->vqs[i], false);
->                         if (err)
->                                 goto clean_added;
->                 }
+> +Virtual extended IRQ model
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D
 > +
-> +               err =3D resume_vqs(ndev, cur_vqs, new_vqs - cur_vqs);
-> +               if (err)
-> +                       goto clean_added;
+> +In this model, IPI (Inter-Processor Interrupt) and CPU Local Timer inter=
+rupt
+> +go to CPUINTC directly, CPU UARTS interrupts go to PCH-PIC, while all ot=
+her
+> +devices interrupts go to PCH-PIC/PCH-MSI and gathered by V-EIOINTC (Virt=
+ual
+> +Extended I/O Interrupt Controller), and then go to CPUINTC directly::
 > +
->                 err =3D modify_rqt(ndev, new_vqs);
->                 if (err)
->                         goto clean_added;
-> --
-> 2.45.1
+> +       +-----+    +-------------------+     +-------+
+> +       | IPI |--> | CPUINTC(0-255vcpu)| <-- | Timer |
+> +       +-----+    +-------------------+     +-------+
+> +                            ^
+> +                            |
+> +                      +-----------+
+> +                      | V-EIOINTC |
+> +                      +-----------+
+> +                       ^         ^
+> +                       |         |
+> +                +---------+ +---------+
+> +                | PCH-PIC | | PCH-MSI |
+> +                +---------+ +---------+
+> +                  ^      ^          ^
+> +                  |      |          |
+> +           +--------+ +---------+ +---------+
+> +           | UARTs  | | Devices | | Devices |
+> +           +--------+ +---------+ +---------+
+> +
+> +
+> +Description
+> +-----------
+> +V-EIOINTC (Virtual Extended I/O Interrupt Controller) is an extension of
+> +EIOINTC, it only works in VM mode which runs in KVM hypervisor. Interrup=
+ts can
+> +be routed to up to four vCPUs via standard EIOINTC, however with V-EIOIN=
+TC
+> +interrupts can be routed to up to 256 virtual cpus.
+> +
+> +With standard EIOINTC, interrupt routing setting includes two parts: eig=
+ht
+> +bits for CPU selection and four bits for CPU IP (Interrupt Pin) selectio=
+n.
+> +For CPU selection there is four bits for EIOINTC node selection, four bi=
+ts
+> +for EIOINTC CPU selection. Bitmap method is used for CPU selection and
+> +CPU IP selection, so interrupt can only route to CPU0 - CPU3 and IP0-IP3=
+ in
+> +one EIOINTC node.
+> +
+> +With V-EIOINTC it supports to route more CPUs and CPU IP (Interrupt Pin)=
+,
+> +there are two newly added registers with V-EIOINTC.
+> +
+> +EXTIOI_VIRT_FEATURES
+> +--------------------
+> +This register is read-only register, which indicates supported features =
+with
+> +V-EIOINTC. Feature EXTIOI_HAS_INT_ENCODE and EXTIOI_HAS_CPU_ENCODE is ad=
+ded.
+> +
+> +Feature EXTIOI_HAS_INT_ENCODE is part of standard EIOINTC. If it is 1, i=
+t
+> +indicates that CPU Interrupt Pin selection can be normal method rather t=
+han
+> +bitmap method, so interrupt can be routed to IP0 - IP15.
+> +
+> +Feature EXTIOI_HAS_CPU_ENCODE is entension of V-EIOINTC. If it is 1, it
+> +indicates that CPU selection can be normal method rather than bitmap met=
+hod,
+> +so interrupt can be routed to CPU0 - CPU255.
+> +
+> +EXTIOI_VIRT_CONFIG
+> +------------------
+> +This register is read-write register, for compatibility intterupt routed=
+ uses
+> +the default method which is the same with standard EIOINTC. If the bit i=
+s set
+> +with 1, it indicated HW to use normal method rather than bitmap method.
+> +
+>  ACPI-related definitions
+>  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 >
+> diff --git a/Documentation/translations/zh_CN/arch/loongarch/irq-chip-mod=
+el.rst b/Documentation/translations/zh_CN/arch/loongarch/irq-chip-model.rst
+> index f1e9ab18206c..d696bd394c02 100644
+> --- a/Documentation/translations/zh_CN/arch/loongarch/irq-chip-model.rst
+> +++ b/Documentation/translations/zh_CN/arch/loongarch/irq-chip-model.rst
+> @@ -87,6 +87,61 @@ PCH-LPC/PCH-MSI=EF=BC=8C=E7=84=B6=E5=90=8E=E8=A2=ABEIO=
+INTC=E7=BB=9F=E4=B8=80=E6=94=B6=E9=9B=86=EF=BC=8C=E5=86=8D=E7=9B=B4=E6=8E=
+=A5=E5=88=B0=E8=BE=BECPUINTC::
+>      | Devices |
+>      +---------+
+>
+> +=E8=99=9A=E6=8B=9F=E6=89=A9=E5=B1=95IRQ=E6=A8=A1=E5=9E=8B
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +=E5=9C=A8=E8=BF=99=E7=A7=8D=E6=A8=A1=E5=9E=8B=E9=87=8C=E9=9D=A2, IPI(Int=
+er-Processor Interrupt) =E5=92=8CCPU=E6=9C=AC=E5=9C=B0=E6=97=B6=E9=92=9F=E4=
+=B8=AD=E6=96=AD=E7=9B=B4=E6=8E=A5=E5=8F=91=E9=80=81=E5=88=B0CPUINTC,
+> +CPU=E4=B8=B2=E5=8F=A3 (UARTs) =E4=B8=AD=E6=96=AD=E5=8F=91=E9=80=81=E5=88=
+=B0PCH-PIC, =E8=80=8C=E5=85=B6=E4=BB=96=E6=89=80=E6=9C=89=E8=AE=BE=E5=A4=87=
+=E7=9A=84=E4=B8=AD=E6=96=AD=E5=88=99=E5=88=86=E5=88=AB=E5=8F=91=E9=80=81=E5=
+=88=B0=E6=89=80=E8=BF=9E=E6=8E=A5=E7=9A=84PCH_PIC/
+> +PCH-MSI, =E7=84=B6=E5=90=8EV-EIOINTC=E7=BB=9F=E4=B8=80=E6=94=B6=E9=9B=86=
+=EF=BC=8C=E5=86=8D=E7=9B=B4=E6=8E=A5=E5=88=B0=E8=BE=BECPUINTC::
+> +
+> +        +-----+    +-------------------+     +-------+
+> +        | IPI |--> | CPUINTC(0-255vcpu)| <-- | Timer |
+> +        +-----+    +-------------------+     +-------+
+> +                             ^
+> +                             |
+> +                       +-----------+
+> +                       | V-EIOINTC |
+> +                       +-----------+
+> +                        ^         ^
+> +                        |         |
+> +                 +---------+ +---------+
+> +                 | PCH-PIC | | PCH-MSI |
+> +                 +---------+ +---------+
+> +                   ^      ^          ^
+> +                   |      |          |
+> +            +--------+ +---------+ +---------+
+> +            | UARTs  | | Devices | | Devices |
+> +            +--------+ +---------+ +---------+
+> +
+> +V-EIOINTC =E6=98=AFEIOINTC=E7=9A=84=E6=89=A9=E5=B1=95, =E4=BB=85=E5=B7=
+=A5=E4=BD=9C=E5=9C=A8hyperisor=E6=A8=A1=E5=BC=8F=E4=B8=8B, =E4=B8=AD=E6=96=
+=AD=E7=BB=8FEIOINTC=E6=9C=80=E5=A4=9A=E5=8F=AF=E4=B8=AA=E8=B7=AF=E7=94=B1=
+=E5=88=B0=EF=BC=94=E4=B8=AA
+> +=E8=99=9A=E6=8B=9Fcpu. =E4=BD=86=E4=B8=AD=E6=96=AD=E7=BB=8FV-EIOINTC=E6=
+=9C=80=E5=A4=9A=E5=8F=AF=E4=B8=AA=E8=B7=AF=E7=94=B1=E5=88=B0256=E4=B8=AA=E8=
+=99=9A=E6=8B=9Fcpu.
+> +
+> +=E4=BC=A0=E7=BB=9F=E7=9A=84EIOINTC=E4=B8=AD=E6=96=AD=E6=8E=A7=E5=88=B6=
+=E5=99=A8=EF=BC=8C=E4=B8=AD=E6=96=AD=E8=B7=AF=E7=94=B1=E5=88=86=E4=B8=BA=E4=
+=B8=A4=E4=B8=AA=E9=83=A8=E5=88=86=EF=BC=9A8=E6=AF=94=E7=89=B9=E7=94=A8=E4=
+=BA=8E=E6=8E=A7=E5=88=B6=E8=B7=AF=E7=94=B1=E5=88=B0=E5=93=AA=E4=B8=AACPU=EF=
+=BC=8C
+> +4=E6=AF=94=E7=89=B9=E7=94=A8=E4=BA=8E=E6=8E=A7=E5=88=B6=E8=B7=AF=E7=94=
+=B1=E5=88=B0=E7=89=B9=E5=AE=9ACPU=E7=9A=84=E5=93=AA=E4=B8=AA=E4=B8=AD=E6=96=
+=AD=E7=AE=A1=E8=84=9A.=E6=8E=A7=E5=88=B6CPU=E8=B7=AF=E7=94=B1=E7=9A=848=E6=
+=AF=94=E7=89=B9=E5=89=8D4=E6=AF=94=E7=89=B9=E7=94=A8=E4=BA=8E=E6=8E=A7=E5=
+=88=B6
+> +=E8=B7=AF=E7=94=B1=E5=88=B0=E5=93=AA=E4=B8=AAEIOINTC=E8=8A=82=E7=82=B9=
+=EF=BC=8C=E5=90=8E4=E6=AF=94=E7=89=B9=E7=94=A8=E4=BA=8E=E6=8E=A7=E5=88=B6=
+=E6=AD=A4=E8=8A=82=E7=82=B9=E5=93=AA=E4=B8=AACPU=E3=80=82=E4=B8=AD=E6=96=AD=
+=E8=B7=AF=E7=94=B1=E5=9C=A8=E9=80=89=E6=8B=A9CPU=E8=B7=AF=E7=94=B1
+> +=E5=92=8CCPU=E4=B8=AD=E6=96=AD=E7=AE=A1=E8=84=9A=E8=B7=AF=E7=94=B1=E6=97=
+=B6=EF=BC=8C=E4=BD=BF=E7=94=A8bitmap=E7=BC=96=E7=A0=81=E6=96=B9=E5=BC=8F=E8=
+=80=8C=E4=B8=8D=E6=98=AF=E6=AD=A3=E5=B8=B8=E7=BC=96=E7=A0=81=E6=96=B9=E5=BC=
+=8F=EF=BC=8C=E6=89=80=E4=BB=A5=E5=AF=B9=E4=BA=8E=E4=B8=80=E4=B8=AA
+> +EIOINTC=E4=B8=AD=E6=96=AD=E6=8E=A7=E5=88=B6=E5=99=A8=E8=8A=82=E7=82=B9=
+=EF=BC=8C=E4=B8=AD=E6=96=AD=E5=8F=AA=E8=83=BD=E8=B7=AF=E7=94=B1=E5=88=B0CPU=
+0 - CPU3=EF=BC=8C=E4=B8=AD=E6=96=AD=E7=AE=A1=E6=95=99IP0-IP3=E3=80=82
+> +
+> +V-EIOINTC=E6=96=B0=E5=A2=9E=E4=BA=86=E4=B8=A4=E4=B8=AA=E5=AF=84=E5=AD=98=
+=E5=99=A8=EF=BC=8C=E6=94=AF=E6=8C=81=E4=B8=AD=E6=96=AD=E8=B7=AF=E7=94=B1=E5=
+=88=B0=E6=9B=B4=E5=A4=9ACPU=E4=B8=AA=E5=92=8C=E4=B8=AD=E6=96=AD=E7=AE=A1=E8=
+=84=9A=E3=80=82
+> +
+> +V-EIOINTC=E5=8A=9F=E8=83=BD=E5=AF=84=E5=AD=98=E5=99=A8
+> +-------------------
+> +=E5=8A=9F=E8=83=BD=E5=AF=84=E5=AD=98=E5=99=A8=E6=98=AF=E5=8F=AA=E8=AF=BB=
+=E5=AF=84=E5=AD=98=E5=99=A8=EF=BC=8C=E7=94=A8=E4=BA=8E=E6=98=BE=E7=A4=BAV-E=
+IOINTC=E6=94=AF=E6=8C=81=E7=9A=84=E7=89=B9=E6=80=A7=EF=BC=8C=E7=9B=AE=E5=89=
+=8D=E4=B8=A4=E4=B8=AA=E6=94=AF=E6=8C=81=E4=B8=A4=E4=B8=AA=E7=89=B9=E6=80=A7
+> +EXTIOI_HAS_INT_ENCODE =E5=92=8C EXTIOI_HAS_CPU_ENCODE=E3=80=82
+> +
+> +=E7=89=B9=E6=80=A7EXTIOI_HAS_INT_ENCODE=E6=98=AF=E4=BC=A0=E7=BB=9FEIOINT=
+C=E4=B8=AD=E6=96=AD=E6=8E=A7=E5=88=B6=E5=99=A8=E7=9A=84=E4=B8=80=E4=B8=AA=
+=E7=89=B9=E6=80=A7=EF=BC=8C=E5=A6=82=E6=9E=9C=E6=AD=A4=E6=AF=94=E7=89=B9=E4=
+=B8=BA1=EF=BC=8C
+> +=E6=98=BE=E7=A4=BACPU=E4=B8=AD=E6=96=AD=E7=AE=A1=E8=84=9A=E8=B7=AF=E7=94=
+=B1=E6=96=B9=E5=BC=8F=E6=94=AF=E6=8C=81=E6=AD=A3=E5=B8=B8=E7=BC=96=E7=A0=81=
+=EF=BC=8C=E8=80=8C=E4=B8=8D=E6=98=AFbitmap=E7=BC=96=E7=A0=81=EF=BC=8C=E6=89=
+=80=E4=BB=A5=E4=B8=AD=E6=96=AD=E5=8F=AF=E4=BB=A5=E8=B7=AF=E7=94=B1=E5=88=B0
+> +=E7=AE=A1=E8=84=9AIP0 - IP15=E3=80=82
+> +
+> +=E7=89=B9=E6=80=A7EXTIOI_HAS_CPU_ENCODE=E6=98=AFV-EIOINTC=E6=96=B0=E5=A2=
+=9E=E7=89=B9=E6=80=A7=EF=BC=8C=E5=A6=82=E6=9E=9C=E6=AD=A4=E6=AF=94=E7=89=B9=
+=E4=B8=BA1=EF=BC=8C=E8=A1=A8=E7=A4=BACPU=E8=B7=AF=E7=94=B1
+> +=E6=96=B9=E5=BC=8F=E6=94=AF=E6=8C=81=E6=AD=A3=E5=B8=B8=E7=BC=96=E7=A0=81=
+=EF=BC=8C=E8=80=8C=E4=B8=8D=E6=98=AFbitmap=E7=BC=96=E7=A0=81=EF=BC=8C=E6=89=
+=80=E4=BB=A5=E4=B8=AD=E6=96=AD=E5=8F=AF=E4=BB=A5=E8=B7=AF=E7=94=B1=E5=88=B0=
+CPU0 - CPU255=E3=80=82
+> +
+> +V-EIOINTC=E9=85=8D=E7=BD=AE=E5=AF=84=E5=AD=98=E5=99=A8
+> +-------------------
+> +=E9=85=8D=E7=BD=AE=E5=AF=84=E5=AD=98=E5=99=A8=E6=98=AF=E5=8F=AF=E8=AF=BB=
+=E5=86=99=E5=AF=84=E5=AD=98=E5=99=A8=EF=BC=8C=E4=B8=BA=E4=BA=86=E5=85=BC=E5=
+=AE=B9=E6=80=A7=E8=80=83=E8=99=91=EF=BC=8C=E5=A6=82=E6=9E=9C=E4=B8=8D=E5=86=
+=99=E6=AD=A4=E5=AF=84=E5=AD=98=E5=99=A8=EF=BC=8C=E4=B8=AD=E6=96=AD=E8=B7=AF=
+=E7=94=B1=E9=87=87=E7=94=A8
+> +=E5=92=8C=E4=BC=A0=E7=BB=9FEIOINTC=E7=9B=B8=E5=90=8C=E7=9A=84=E8=B7=AF=
+=E7=94=B1=E8=AE=BE=E7=BD=AE=E3=80=82=E5=A6=82=E6=9E=9C=E5=AF=B9=E5=BA=94=E6=
+=AF=94=E7=89=B9=E8=AE=BE=E7=BD=AE=E4=B8=BA1=EF=BC=8C=E8=A1=A8=E7=A4=BA=E9=
+=87=87=E7=94=A8=E6=AD=A3=E5=B8=B8=E8=B7=AF=E7=94=B1=E6=96=B9=E5=BC=8F=E8=80=
+=8C
+> +=E4=B8=8D=E6=98=AFbitmap=E7=BC=96=E7=A0=81=E7=9A=84=E8=B7=AF=E7=94=B1=E6=
+=96=B9=E5=BC=8F=E3=80=82
+> +
+>  ACPI=E7=9B=B8=E5=85=B3=E7=9A=84=E5=AE=9A=E4=B9=89
+>  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> diff --git a/arch/loongarch/include/asm/irq.h b/arch/loongarch/include/as=
+m/irq.h
+> index 480418bc5071..ce85d4c7d225 100644
+> --- a/arch/loongarch/include/asm/irq.h
+> +++ b/arch/loongarch/include/asm/irq.h
+> @@ -54,6 +54,7 @@ extern struct acpi_vector_group pch_group[MAX_IO_PICS];
+>  extern struct acpi_vector_group msi_group[MAX_IO_PICS];
+>
+>  #define CORES_PER_EIO_NODE     4
+> +#define CORES_PER_VEIO_NODE    256
+>
+>  #define LOONGSON_CPU_UART0_VEC         10 /* CPU UART0 */
+>  #define LOONGSON_CPU_THSENS_VEC                14 /* CPU Thsens */
+> diff --git a/drivers/irqchip/irq-loongson-eiointc.c b/drivers/irqchip/irq=
+-loongson-eiointc.c
+> index b1f2080be2be..bc54f81ec129 100644
+> --- a/drivers/irqchip/irq-loongson-eiointc.c
+> +++ b/drivers/irqchip/irq-loongson-eiointc.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/irqdomain.h>
+>  #include <linux/irqchip/chained_irq.h>
+>  #include <linux/kernel.h>
+> +#include <linux/kvm_para.h>
+>  #include <linux/syscore_ops.h>
+>  #include <asm/numa.h>
+>
+> @@ -24,15 +25,37 @@
+>  #define EIOINTC_REG_ISR                0x1800
+>  #define EIOINTC_REG_ROUTE      0x1c00
+>
+> +#define EXTIOI_VIRT_FEATURES           0x40000000
+> +#define  EXTIOI_HAS_VIRT_EXTENSION     BIT(0)
+> +#define  EXTIOI_HAS_ENABLE_OPTION      BIT(1)
+> +#define  EXTIOI_HAS_INT_ENCODE         BIT(2)
+> +#define  EXTIOI_HAS_CPU_ENCODE         BIT(3)
+> +#define EXTIOI_VIRT_CONFIG             0x40000004
+> +#define  EXTIOI_ENABLE                 BIT(1)
+> +#define  EXTIOI_ENABLE_INT_ENCODE      BIT(2)
+> +#define  EXTIOI_ENABLE_CPU_ENCODE      BIT(3)
+I think qemu hasn't release with v-eiointc? So we still have a chance
+to modify qemu and this driver to simplify registers:
 
++#define EXTIOI_VIRT_FEATS             0x40000000
++#define  EXTIOI_HAS_INT_ENCODE         BIT(0)
++#define  EXTIOI_HAS_CPU_ENCODE         BIT(1)
++#define EXTIOI_VIRT_CONFIG             0x40000004
++#define  EXTIOI_ENABLE_INT_ENCODE      BIT(0)
++#define  EXTIOI_ENABLE_CPU_ENCODE      BIT(1)
+
+> +
+>  #define VEC_REG_COUNT          4
+>  #define VEC_COUNT_PER_REG      64
+>  #define VEC_COUNT              (VEC_REG_COUNT * VEC_COUNT_PER_REG)
+>  #define VEC_REG_IDX(irq_id)    ((irq_id) / VEC_COUNT_PER_REG)
+>  #define VEC_REG_BIT(irq_id)     ((irq_id) % VEC_COUNT_PER_REG)
+>  #define EIOINTC_ALL_ENABLE     0xffffffff
+> +#define EIOINTC_ALL_ENABLE_VEC_MASK(vector)    (EIOINTC_ALL_ENABLE & ~BI=
+T(vector & 0x1F))
+> +#define EIOINTC_REG_ENABLE_VEC(vector)         (EIOINTC_REG_ENABLE + ((v=
+ector >> 5) << 2))
+> +#define EIOINTC_USE_CPU_ENCODE                 BIT(0)
+>
+>  #define MAX_EIO_NODES          (NR_CPUS / CORES_PER_EIO_NODE)
+>
+> +/*
+> + * Routing registers are 32bit, and there is 8-bit route setting for eve=
+ry
+> + * interrupt vector. So one Route register contains four vectors routing
+> + * information.
+> + */
+> +#define EIOINTC_REG_ROUTE_VEC(vector)          (EIOINTC_REG_ROUTE + (vec=
+tor & ~0x03))
+> +#define EIOINTC_REG_ROUTE_VEC_SHIFT(vector)    ((vector & 0x03) << 3)
+> +#define EIOINTC_REG_ROUTE_VEC_MASK(vector)     (0xff << EIOINTC_REG_ROUT=
+E_VEC_SHIFT(vector))
+> +
+>  static int nr_pics;
+>
+>  struct eiointc_priv {
+> @@ -42,6 +65,7 @@ struct eiointc_priv {
+>         cpumask_t               cpuspan_map;
+>         struct fwnode_handle    *domain_handle;
+>         struct irq_domain       *eiointc_domain;
+> +       int                     flags;
+>  };
+>
+>  static struct eiointc_priv *eiointc_priv[MAX_IO_PICS];
+> @@ -57,7 +81,13 @@ static void eiointc_enable(void)
+>
+>  static int cpu_to_eio_node(int cpu)
+>  {
+> -       return cpu_logical_map(cpu) / CORES_PER_EIO_NODE;
+> +       int cores;
+> +
+> +       if (kvm_para_has_feature(KVM_FEATURE_VIRT_EXTIOI))
+> +               cores =3D CORES_PER_VEIO_NODE;
+> +       else
+> +               cores =3D CORES_PER_EIO_NODE;
+> +       return cpu_logical_map(cpu) / cores;
+>  }
+>
+>  #ifdef CONFIG_SMP
+> @@ -89,6 +119,16 @@ static void eiointc_set_irq_route(int pos, unsigned i=
+nt cpu, unsigned int mnode,
+>
+>  static DEFINE_RAW_SPINLOCK(affinity_lock);
+>
+> +static void virt_extioi_set_irq_route(unsigned int vector, unsigned int =
+cpu)
+Use veiointc_set_irq_route() can keep consistency with real machines.
+
+> +{
+> +       unsigned long reg =3D EIOINTC_REG_ROUTE_VEC(vector);
+> +       u32 data =3D iocsr_read32(reg);
+> +
+> +       data &=3D ~EIOINTC_REG_ROUTE_VEC_MASK(vector);
+> +       data |=3D cpu_logical_map(cpu) << EIOINTC_REG_ROUTE_VEC_SHIFT(vec=
+tor);
+> +       iocsr_write32(data, reg);
+> +}
+> +
+>  static int eiointc_set_irq_affinity(struct irq_data *d, const struct cpu=
+mask *affinity, bool force)
+>  {
+>         unsigned int cpu;
+> @@ -105,18 +145,24 @@ static int eiointc_set_irq_affinity(struct irq_data=
+ *d, const struct cpumask *af
+>         }
+>
+>         vector =3D d->hwirq;
+> -       regaddr =3D EIOINTC_REG_ENABLE + ((vector >> 5) << 2);
+> -
+> -       /* Mask target vector */
+> -       csr_any_send(regaddr, EIOINTC_ALL_ENABLE & (~BIT(vector & 0x1F)),
+> -                       0x0, priv->node * CORES_PER_EIO_NODE);
+> -
+> -       /* Set route for target vector */
+> -       eiointc_set_irq_route(vector, cpu, priv->node, &priv->node_map);
+> -
+> -       /* Unmask target vector */
+> -       csr_any_send(regaddr, EIOINTC_ALL_ENABLE,
+> -                       0x0, priv->node * CORES_PER_EIO_NODE);
+> +       regaddr =3D EIOINTC_REG_ENABLE_VEC(vector);
+> +
+> +       if (priv->flags & EIOINTC_USE_CPU_ENCODE) {
+> +               iocsr_write32(EIOINTC_ALL_ENABLE_VEC_MASK(vector), regadd=
+r);
+> +               virt_extioi_set_irq_route(vector, cpu);
+> +               iocsr_write32(EIOINTC_ALL_ENABLE, regaddr);
+We can add the same comments as real machines here.
+
+Huacai
+
+> +       } else {
+> +               /* Mask target vector */
+> +               csr_any_send(regaddr, EIOINTC_ALL_ENABLE_VEC_MASK(vector)=
+,
+> +                            0x0, priv->node * CORES_PER_EIO_NODE);
+> +
+> +               /* Set route for target vector */
+> +               eiointc_set_irq_route(vector, cpu, priv->node, &priv->nod=
+e_map);
+> +
+> +               /* Unmask target vector */
+> +               csr_any_send(regaddr, EIOINTC_ALL_ENABLE,
+> +                            0x0, priv->node * CORES_PER_EIO_NODE);
+> +       }
+>
+>         irq_data_update_effective_affinity(d, cpumask_of(cpu));
+>
+> @@ -140,17 +186,23 @@ static int eiointc_index(int node)
+>
+>  static int eiointc_router_init(unsigned int cpu)
+>  {
+> -       int i, bit;
+> -       uint32_t data;
+> -       uint32_t node =3D cpu_to_eio_node(cpu);
+> -       int index =3D eiointc_index(node);
+> +       int i, bit, cores, index, node;
+> +       unsigned int data;
+> +
+> +       node =3D cpu_to_eio_node(cpu);
+> +       index =3D eiointc_index(node);
+>
+>         if (index < 0) {
+>                 pr_err("Error: invalid nodemap!\n");
+> -               return -1;
+> +               return -EINVAL;
+>         }
+>
+> -       if ((cpu_logical_map(cpu) % CORES_PER_EIO_NODE) =3D=3D 0) {
+> +       if (eiointc_priv[index]->flags & EIOINTC_USE_CPU_ENCODE)
+> +               cores =3D CORES_PER_VEIO_NODE;
+> +       else
+> +               cores =3D CORES_PER_EIO_NODE;
+> +
+> +       if ((cpu_logical_map(cpu) % cores) =3D=3D 0) {
+>                 eiointc_enable();
+>
+>                 for (i =3D 0; i < eiointc_priv[0]->vec_count / 32; i++) {
+> @@ -166,7 +218,9 @@ static int eiointc_router_init(unsigned int cpu)
+>
+>                 for (i =3D 0; i < eiointc_priv[0]->vec_count / 4; i++) {
+>                         /* Route to Node-0 Core-0 */
+> -                       if (index =3D=3D 0)
+> +                       if (eiointc_priv[index]->flags & EIOINTC_USE_CPU_=
+ENCODE)
+> +                               bit =3D cpu_logical_map(0);
+> +                       else if (index =3D=3D 0)
+>                                 bit =3D BIT(cpu_logical_map(0));
+>                         else
+>                                 bit =3D (eiointc_priv[index]->node << 4) =
+| 1;
+> @@ -370,7 +424,7 @@ static int __init acpi_cascade_irqdomain_init(void)
+>  static int __init eiointc_init(struct eiointc_priv *priv, int parent_irq=
+,
+>                                u64 node_map)
+>  {
+> -       int i;
+> +       int i, val;
+>
+>         node_map =3D node_map ? node_map : -1ULL;
+>         for_each_possible_cpu(i) {
+> @@ -390,6 +444,16 @@ static int __init eiointc_init(struct eiointc_priv *=
+priv, int parent_irq,
+>                 return -ENOMEM;
+>         }
+>
+> +       if (kvm_para_has_feature(KVM_FEATURE_VIRT_EXTIOI)) {
+> +               val =3D iocsr_read32(EXTIOI_VIRT_FEATURES);
+> +               if (val & EXTIOI_HAS_CPU_ENCODE) {
+> +                       val =3D iocsr_read32(EXTIOI_VIRT_CONFIG);
+> +                       val |=3D EXTIOI_ENABLE_CPU_ENCODE;
+> +                       iocsr_write32(val, EXTIOI_VIRT_CONFIG);
+> +                       priv->flags =3D EIOINTC_USE_CPU_ENCODE;
+> +               }
+> +       }
+> +
+>         eiointc_priv[nr_pics++] =3D priv;
+>         eiointc_router_init(0);
+>         irq_set_chained_handler_and_data(parent_irq, eiointc_irq_dispatch=
+, priv);
+> --
+> 2.39.3
+>
