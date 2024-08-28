@@ -1,457 +1,310 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5843A157E78;
-	Wed, 28 Aug 2024 06:11:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724825480; cv=none; b=QnsJ8CJQIHggcnipegFerCwk07Vmw9eYzpuwxwpadamvt7uFANLBKTnpQ/kE67tzMHd+HzJ9G04uJkv1V698hceIGGKQ7jRBWmL6Ups+UFnRi7+ZB0stKQne+gm7P/y1u8mVB+y14KX9q17R4A8f45y96Wp+IDUQxFdCqyboIhM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724825480; c=relaxed/simple;
-	bh=LRhn3Z7y0PmTAo4cYCeOHNTZAUtakyZYc6ZGYPz19oY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=j+MiM9Mv8QYVzh3XeniIW5Y8FKW0OBlNtiiUkxNNME2pTwWUBfTHhSDmTfA7kAp5U0abDiN42cb9nso7LBLL0MeOH8xp2LwD/QRGIzxWHRBstWfgnlbCsmEUNASql0gacBIwvGpjdzts24UkRRlb4t0gfxrHR7N311cdLgUmbM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HY5EOWDv; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 145E376034
+	for <virtualization@lists.linux.dev>; Wed, 28 Aug 2024 06:22:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724826181; cv=fail; b=oYldztablsRSGSrAfsp1E/Ys2FCE7+FNEOyZhtdmhqyCscGSqXXycYMoBbZBiQEirYY/lhZ3qDbC5ApQc7bNHuTdCOnwk4N2834F4+iLTLsLTUFRyP52T3keZPGY0fg9vec9+/U70gsOtosSTDP/7/P3+S2+9OpOX+tdXEFwQBM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724826181; c=relaxed/simple;
+	bh=Pj+t90kwzqXZxl/cEpRyhBHuR4IuT8UjZkYou8A+RtY=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=F8WfhsRw2tHDnhN8JeVY4gYS6oSMLdlyWhAkg0idejub290SuCooV5OjOqcQCeZQwWC9Ia6PhBo0ry4KHtQmkyvMaZDfSW1Q+U94NzHU394ei7TDeK0Gy+dQEyvdwh3a3Uz1L329FdBwcDcI4CUUzxUTFG42rje+PdWNgbI7nMA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=CcsdCCWT; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=qAbQ9Aua; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HY5EOWDv"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=wLOj1wm4quKRI7T//ojIfZpi6nYGjLfhudVG0GuNPR8=; b=HY5EOWDvAYPTwFU0+TFGql1uZh
-	nbAq3VD6pJlrDT4lZOpvrnVWaCe6yIPpYkZEqcNiFBFslVnYFw1IPHBycNxDJd2CLktQ8p0Gjke9s
-	QGOUNKDIkk3fUNqd5bJWJwhnnWM70JlLjAClfHJ6l4+cuddHMWb++DnrUXzhHrmWOS0VtyaWO5r4J
-	l7GinfR91cpYZfXA47z615snfZm5LiUwDnFEqme/+VTQEKM1xBhrFo39+JTN6cRO7UGE4Jh6Wmicm
-	ZgcZqS10Ad5UV+WhMS+vfAnmdwgWmnRWNKbuati0Xn19d2rIeatDB1efe1V9P3fEfL6pTqtsSnyW+
-	/h07oy/g==;
-Received: from [2001:4bb8:2dc:a2cd:2ccf:8fbe:8ab4:c9db] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sjBtk-0000000E1vN-3ebv;
-	Wed, 28 Aug 2024 06:11:17 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: iommu@lists.linux.dev
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bingbu Cao <bingbu.cao@intel.com>,
-	"Michael S . Tsirkin " <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org,
-	Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 2/2] dma-mapping: clearly mark DMA ops as an architecture feature
-Date: Wed, 28 Aug 2024 09:10:29 +0300
-Message-ID: <20240828061104.1925127-3-hch@lst.de>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240828061104.1925127-1-hch@lst.de>
-References: <20240828061104.1925127-1-hch@lst.de>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="CcsdCCWT";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="qAbQ9Aua"
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47RLfV1q016920;
+	Wed, 28 Aug 2024 06:22:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
+	message-id:date:subject:to:cc:references:from:in-reply-to
+	:content-type:content-transfer-encoding:mime-version; s=
+	corp-2023-11-20; bh=kkBWp0zZ3c0WthEbqYlMt9xLZoVfy8uwJQ8kE44bjhI=; b=
+	CcsdCCWToWi9gYTt6f1bpNkBvQ7o5hqJTaiqw9cnXyu685lvBdPAmkRte/DX+DxY
+	7RodmSMq3v7OezlZFQbM5BAChcJldXHpYaqag1EsoU7pEetKNNsUu08Oio8wcVHv
+	Tfhu1gVXiVbjq2/g9+0miz5nemuru+OFQL9Nz5jJrLF9FEWR6nYzJ61nlFBbarQp
+	YF5sVEyZCRCz31USdSmOxbAXTBjuJnQ8szJKhpR9XRs0pvJH61OF95fTh3K4UEcB
+	Y4n4FAGEox4hW+/Zfu6IT99ZgZ1Dlxa8zgYAoYbwVPsabsNo+UmASwnXDBkM6IuB
+	RNobMJeMe04f9hHhejIR6w==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 419pukrjdh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 28 Aug 2024 06:22:48 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 47S3jaoa020132;
+	Wed, 28 Aug 2024 06:22:47 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2173.outbound.protection.outlook.com [104.47.58.173])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 418j8nmu7y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 28 Aug 2024 06:22:47 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=W5gKQvFoRgkIJRlJiWtj3bVrYs2iNDUQi17UiPDgAKOqMMzxGArUAhsBjzt551oGLJlTxb2oEfZr4Zg0X1IF8Gp83ZOZ6YSztmLPIGGNa2hw8DKXyoRjs9yyyC1cMMvgsEZxSRwj/XCs3fqqSbjg5iPwCw7MKFg3WRaeQWngFOLtuP/OfNm/4ZSB9gpR11qNGG6iWi3t8+dVkZKNqnSTa9WKrh2YRIvHsxpZbFtT3s4MQlikrWAsh0GGnDQNFt677O4Ob9vIaw7wgyiW1MoTrwbzXffk/0B069cXAEbdGFgljCjInrvGKbI020vCa3FWRdJibZaGTh5ZF6VmrvQsZQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=kkBWp0zZ3c0WthEbqYlMt9xLZoVfy8uwJQ8kE44bjhI=;
+ b=N8+Kd/yagQpB74PoeTVwvVRiefWy1bcyaOtnBi9zxMlFzvDIR1VpJx7aFXsqGirrdLHtmibURMBLJbYYszxGn61S0bAP29rdGPYoPBm0Ej8wOCXihZWJ57M51RUzBxFwlelOVaPCEk3ubgr9XbZrgCBmGUbFMi5YdPXFCxZcs5nnswY/nPqNUlup2iIsbyt8SYnUC3/x4qWUIUnh1Sd4TbJriyg/Skzg3GnIKUHjcnNmBXWNLs2oJRHjckAq5F2xoWT+ROLsUqq/U0wmg4TI0jYAY6TXSwiPhsaiS6fon7W3CaYhJbY07DZBaWl64lZfr9YmPBpAcygzZN7byCf3vQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kkBWp0zZ3c0WthEbqYlMt9xLZoVfy8uwJQ8kE44bjhI=;
+ b=qAbQ9AuaxL6C1HWqWWZ5CmnWMQSCEJyZvTil/AltGYl4P27B0o6Ad3v1CSRPlgD7xWM+s5MoywPaolvy/NYuDoZr/uPWx2YRVXFx7UpqhBJXMv9QpVEUP4kdtEjbfx58i4TcRKuOUz86DytfOct0nq0PPFef468s8T5N90uLNd0=
+Received: from MW4PR10MB6535.namprd10.prod.outlook.com (2603:10b6:303:225::12)
+ by SA1PR10MB6542.namprd10.prod.outlook.com (2603:10b6:806:2bf::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7897.11; Wed, 28 Aug
+ 2024 06:22:45 +0000
+Received: from MW4PR10MB6535.namprd10.prod.outlook.com
+ ([fe80::424f:6ee5:6be8:fe86]) by MW4PR10MB6535.namprd10.prod.outlook.com
+ ([fe80::424f:6ee5:6be8:fe86%3]) with mapi id 15.20.7897.014; Wed, 28 Aug 2024
+ 06:22:45 +0000
+Message-ID: <3706c1ce-0a65-6f62-e735-9ee187a8966c@oracle.com>
+Date: Tue, 27 Aug 2024 23:22:37 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH] vdpa/mlx5: Fix invalid mr resource destroy
+Content-Language: en-US
+To: Dragos Tatulea <dtatulea@nvidia.com>,
+        "Michael S. Tsirkin"
+ <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=c3=a9rez?=
+ <eperezma@redhat.com>
+Cc: Cosmin Ratiu <cratiu@nvidia.com>, virtualization@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+References: <20240827160808.2448017-2-dtatulea@nvidia.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <20240827160808.2448017-2-dtatulea@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: LO2P265CA0505.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:13b::12) To MW4PR10MB6535.namprd10.prod.outlook.com
+ (2603:10b6:303:225::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW4PR10MB6535:EE_|SA1PR10MB6542:EE_
+X-MS-Office365-Filtering-Correlation-Id: cb296714-66e6-4bc7-5662-08dcc729d482
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?WThVVlJBWTJIbDkycGdRZDdOb1Vta2doQndCSjNickdqeVQ4K3JiWmU1dmYw?=
+ =?utf-8?B?cUZRQVVFeVpBc0tQaHRZL1B5NkE4ckpFR2R4Vk5rT2hRdVR3SHNRYlJyM0dX?=
+ =?utf-8?B?Mm9xQ1ZSQTNJRWJlYzJEK0FYOXBlVkhzdGNJT2c3UmNsTjlLWTF3NURDK1F5?=
+ =?utf-8?B?OHlMSTd5K0tXRVlqbm1qcVJtYUhzWkFnS2N1TTVvSTEyOTJIMGNXZ3prN0VH?=
+ =?utf-8?B?Y0RIemlTSkNOZEpQUGxuUk5paUh6ZXFDVTJteW5icE4zcXR2T0xMVThualVY?=
+ =?utf-8?B?QnBybkIwd0E5ZnltYmxoN0NRZ2V3Qk9Gcm5nR2N1TjM5RExVdldkODJDdGRX?=
+ =?utf-8?B?a21sajFJVEU1TjJKcVc2aGs1Z2ljcGYzTmE3eDgxcHM1cWp6dFlXK1V4bEFx?=
+ =?utf-8?B?a0s0N201REpZR2JEbUxlNFEyVnk2NENaaVBQM3RFNU5OMno1ODV4ZS9QRERU?=
+ =?utf-8?B?K3hFQ0VkSENjVGVEZkxXWGlnQnVpNGhZVEFhMFdwTTBqY1pKR3NxdWkvMkFI?=
+ =?utf-8?B?SGFiN2VqNlZTcVNNSnhaZ3gwZzVlZ1JjeDZOaWU0UG5YTDA3bmd5a1dEZGh4?=
+ =?utf-8?B?TGh2MFhrQmY2UExob0IrdEJ5NnBNNFZCUFR4cktsT0V3aVdNdkx1TXB0M1Zu?=
+ =?utf-8?B?WDhXNSsxaUhRRS9ya29BU0FvZTVYS1N2WmU2Mk9WbjFyM2ZLZTdlSzEvNjhH?=
+ =?utf-8?B?R3lqeFFNOWliM2VVZ3JFNUk3VTdZTEJQRFAzNGwyc21ia24wa3hid1pEMnBs?=
+ =?utf-8?B?TW1GdFNBVlBlUW5vYnhFeHYxRjBhNWgxL2hPQTZ0akh3WFpaN040TGhEYXc4?=
+ =?utf-8?B?ZCtXN0JOSElFMXBiSThGbHdrY1dmN0pkQzNUSHVaYWFvUTJaM3ZUT0JFdzlr?=
+ =?utf-8?B?a1VxZmliSkN1bG5HUmZ0NFVzTTMxSW9zRG9KNzB1WC85eDk3SkNJR01RaE1k?=
+ =?utf-8?B?a0tYVWV1M24xYklOZ3d3OHJaa3FyZGIyNVdNV3g0M3l4allVVVU3WFZRYUFO?=
+ =?utf-8?B?OFBvQ05hSy9XNnhIcWJKU2c0YzV2QkN4QUNEaldCUFlIZUJkTzhpVC8yRFNy?=
+ =?utf-8?B?K0NwWk1tR24xYUMveFB4K1pIamRna3NHY242aVc5enpuWTlHdVRUVElmMlVk?=
+ =?utf-8?B?aUI4QmUyODcyMXIwbW4zVERWc1lyUDFmN3RLbUI2bG9VdEFZdzlqNDg2enZT?=
+ =?utf-8?B?aTFFRGpva1ZZbU04WWkzbjFRQTF5cmt0M3QrWW5NSjRWM2lyTyszRVF1aXJy?=
+ =?utf-8?B?T3JaWC9SNjNjOVJ3MmU2c3IzQWdjVklyZ01BZjBrK2svdFV0RzlCdzNVL25S?=
+ =?utf-8?B?MFRBR2RwTC9LcHpEcHU4VWtaZVlwdjFpVTFjS2NCWEVXY1FoM2FHYzZXMU92?=
+ =?utf-8?B?WUFIYU1nUGxCSStmUzlMQU83d3crT2dWRWxhWGtCTklNc0ZOK2VCZGd3dHJH?=
+ =?utf-8?B?c0ZFSWR5NTdvcDVScXIxTmVQSUN4WUJicVAzSG15YklkYkFGMGlpZTU0eVlG?=
+ =?utf-8?B?Z3ltalUwREtvMDB6T0t2R281SDZPZldyMDJEakw5eHhpU1RnblI0ZTdocjNQ?=
+ =?utf-8?B?TVB6YzF3aGRXaHltMjl1clNoY2JLRVE0ZjdQN3pZYllSY1Rudy9vMHBGOEps?=
+ =?utf-8?B?ZlMxK1RuTEdLaVY2UFBxR1lBWVNUdVVnZjdtVWxtQkkzSEs1a095UkJodFZ3?=
+ =?utf-8?B?SDJsL2FuQTlIVHN2V0pEN2RSckdYZSt5ZDBBMGl0eDl1YU9ueElOeVVNS3E0?=
+ =?utf-8?B?K2daTUVXalhUbnNNVjhiVW1JM0ozakg5L05vb05rU3NEZ290aERBWHE2QVNW?=
+ =?utf-8?B?dGJBRS9UTTYzdmdXSzdHZz09?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR10MB6535.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?VjlLenRseDBNaExXbXNhT0ZyQ1VwRVNaaDZvUnJpS29zMFA1TWNFSTVua3h3?=
+ =?utf-8?B?bnliRVk2ZS9WcDFZWUROZUpwL0N4bllYa3dJU0k2Y1RtejdiNURvTVM2RTlr?=
+ =?utf-8?B?M3J5My9rakpQSy95dFplRWIyWmlqRE9IOTB6T09yYzF1dXVNUlNHbmMydUNq?=
+ =?utf-8?B?RmZ2a2xWeUpWaGY0ZTdpN2kzcUFYZXRjYXE4MHJHOXZIZ2NXTmVZbVd5dUVK?=
+ =?utf-8?B?d2ozNlFKT21ZRHVnekdFN2FhUHhFVjJ0dkVTR0VhdmxBVUZVTWpBR291VkND?=
+ =?utf-8?B?WXBwcjRYTzBKOG9tNWVlZHNrTWFKUG1abDVVbDJnRGU5L3BUN2Q3WXVDRmth?=
+ =?utf-8?B?U0ozMlE4N1ZoUTZiOXFONThqdGFnc1FYSEdKNldEWDcyOWhNZVRMLzJTVTVv?=
+ =?utf-8?B?VkZCekdQWnhad29SbUFBRVM2ZGFWTHhJaTYyZG9wNkZBZFJqWGplWGkwZVFu?=
+ =?utf-8?B?ckxHVUtzcVlGTzJkMTV2eXNveHB2WUpHVVJKeHN5dHhWcXhYRG9FblRCV0ZE?=
+ =?utf-8?B?c3RCT3VDVmFwY291QjVHZXU4YUYweDg2dkVZZFY5bExrMk05bE00ckxURStF?=
+ =?utf-8?B?aGZYTkxCMmlWUmJ1SWFhdjR0MFdsODMrRm5BWkgvWXVhM2RJY0FoSE11bis5?=
+ =?utf-8?B?bTh6Z1hBcjJteTFXbGpuNmU4dGVGakt3WHE4S3RnanlqSkc3aXlpN3dKZFpp?=
+ =?utf-8?B?aXl5MnlpUmYranFvQ29iLy8xZ0Rsa2ZxY240bjFFUjNpL3VHS2ZpUHJYdTJF?=
+ =?utf-8?B?ellITFlDbS9jRUZ2alo0ZTk4Tk5iNERaZ0QrSmtQM1RmZDdmZlA1dlBMdW5V?=
+ =?utf-8?B?Mk81K3NaUDVUM0ZmVDVodkpmdGRvaktSWmswa3ZFNFdTMThhdzAzM1Job29u?=
+ =?utf-8?B?TFhjUWJOR3VWMWt4V3JaaUtMYXY4WE9XOFJIV01MaVlBMUV3ZXR2bTdqc0My?=
+ =?utf-8?B?RUFMWXNhbnlUVStKZWtHbzNmTSsxSHc0cUtDSXFuQjF5YjA4ckhZeXdDRHNx?=
+ =?utf-8?B?ZXVkUDVyRzhWTGJEeWNpTnNmODhKWlBKSWYwVHdZWnl3c2x4RmdTd1krS3Vo?=
+ =?utf-8?B?OVJDNnl1TzYxZW5SU3hkSFhVazdpTS8vRURwSXBpNitBQlZFMG5tcXZ1TXBl?=
+ =?utf-8?B?OGxSSExPeS84R0tHRnlUakk2UzdVZXZqMGRsTXlsdjZBUkp3TG5odUkzR3hY?=
+ =?utf-8?B?K0UrQXdTWE52MVMrcmtpdm9EblBNQkRGSklRellPTjRSc3k0VGg4b1czcldY?=
+ =?utf-8?B?a3g4TWpWR25vR0xZRFN2dUlOZmh4eTBieUtoNU9PTWV0VENmeFpkM1gyYW9m?=
+ =?utf-8?B?cnJPRllMYmgvZmY5Q1hmQmorODdaUW1EL3VwVEJiY1NHeEtKdUh2T29KeDRI?=
+ =?utf-8?B?TGZTSnhnWnBhSUhKZHQrdVBFSHVrTUdsenVPaU5Ya0pwREZsOXlrS2dWcVZC?=
+ =?utf-8?B?eDMzN2tXUERKaCtobEh2dnk5UTZ1Q2FpUy9kYTFJOHpxaitDd01TQWc0dDJs?=
+ =?utf-8?B?YkFENjNjQlBnZmE0Z2twWXVNT0ZzUko5VFduc3lWZDNjRFFhN1M4T2F4VEZn?=
+ =?utf-8?B?bTFLcldZY1RGUURSY0lLamRvYVRwdDloUW1uSmJqUjVqa3BDSmQ3RW5XWTFl?=
+ =?utf-8?B?VDBpTVJ2YTA1NnNCOHFjYXFoM2VmWThLNFE3Qm9lSkdsNjZWMHAvdlV3dGhM?=
+ =?utf-8?B?Uk9NNWZCSnFGTW9TZ09FUXh3ZUlCWjRDRUxKRUVNOHJNblRoUGl0SW1Rdml2?=
+ =?utf-8?B?NEd4VmpWam55RVZITDVHdlI1SUxXNEl0OTRvYkVSSjZ0NkJRelJUQytNejBZ?=
+ =?utf-8?B?UDZ6UVFiVXYzaDFENVpXdzMzSktEcWg4bjZaY0U4MkpsK3BEaTVVU1c4Yi9z?=
+ =?utf-8?B?VFQvV0pmaDNHVzYzSW1OUjI5YkFlOUZvdnF4Q09jejVwaEpxM3B2UDZ2UWVE?=
+ =?utf-8?B?N1J0dS9hbys4R1hMNFllbzBFTThvazRCb0JuZFJha2tXR00zUmtYUDBISExP?=
+ =?utf-8?B?aXNONTNlZW9pT05BdUF0Mnptd0EzcDFraGNGdTgyZVNXWEp3dmJKbDRxMmpk?=
+ =?utf-8?B?dDBvWjgzRkQwazdvL1FGdXEvdU0zdHhrZ011OWlOZmIzVDc4YUtuT0dJcGdZ?=
+ =?utf-8?Q?2NKfFQ4qa4G15oPehKlbZlEVh?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	R+xJCSr/raa+WaCgW+mCDwyU8yhmQtjc2jDW+xF8M5/eeCEIQ2ctbuQoQimgSFzlPboKJHGVdLdAGvXqLyL/xs1fMODtWzkVe+DO9b1at7BPeCcuq/9HId02zMHVLVnJdFHr5JVp45IFxJJZzC0gBdwPKYwGpb/k42hHr+sTchvYgtO9pEPbvKgWklAfCPeAjfJ04YL+vpaNdwEw0O2UEVUbH567x2C0m6BPXC29OEGdQMmmEOMDyyPsc6CRlbvHb/dJgrn6ryZjodDM1Omj+dP9MLCzFDRbdLOdImPh9SuQg1m2PzexZkBCsILxENYfR95lijmOe395QVFbmJxw0QMbu4m3KlBK6/C8k10vFLSHr8ILjNUZfaFK8SLonKPP+wfTGloaqWaRELfgZS/pbfvmCMVRIKnkfad6ZgAGRhzwnmMbRTsQJKDZi5qzp3iNmraiWQ3Rj32Qd5S2opSSR6ZHr00pKXafcKO1iBkzmz8Yot8k24yqynrzu8BCYL24C+Ilzdm82NluPkVBh3D0KXANUZZZdikSsUeteqogKsUdnqsMWpouk46WFVKrY1G7sMu0fNuMkqqqvNxyXXRxz2QkAYkFX62WgmCvt5Onec4=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cb296714-66e6-4bc7-5662-08dcc729d482
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR10MB6535.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Aug 2024 06:22:45.5192
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: g/TQLgv7ewxlc/e4WCalJ0uDsZCLddYbl5Jg7Sw2B29ItzBDJDHeFmW0dmADdWBnwajhF3uU1S4/RniLalGO5w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB6542
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-28_03,2024-08-27_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxlogscore=999
+ adultscore=0 mlxscore=0 spamscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2407110000 definitions=main-2408280043
+X-Proofpoint-ORIG-GUID: zdw3aQvgC8F78nju8mMulEA3DsOZ03Ta
+X-Proofpoint-GUID: zdw3aQvgC8F78nju8mMulEA3DsOZ03Ta
 
-DMA ops are a helper for architectures and not for drivers to override
-the DMA implementation.
 
-Unfortunately driver authors keep ignoring this.  Make the fact more
-clear by renaming the symbol to ARCH_HAS_DMA_OPS and having the two drivers
-overriding their dma_ops depend on that.  These drivers should probably be
-marked broken, but we can give them a bit of a grace period for that.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com> # for IPU6
-Acked-by: Robin Murphy <robin.murphy@arm.com>
----
- arch/Kconfig                         | 9 +++++++++
- arch/alpha/Kconfig                   | 2 +-
- arch/arm/Kconfig                     | 2 +-
- arch/arm64/Kconfig                   | 1 +
- arch/mips/Kconfig                    | 2 +-
- arch/parisc/Kconfig                  | 2 +-
- arch/powerpc/Kconfig                 | 2 +-
- arch/s390/Kconfig                    | 2 +-
- arch/sparc/Kconfig                   | 2 +-
- arch/x86/Kconfig                     | 2 +-
- drivers/macintosh/macio_asic.c       | 4 ++--
- drivers/media/pci/intel/ipu6/Kconfig | 7 ++++++-
- drivers/vdpa/Kconfig                 | 7 ++++++-
- drivers/xen/Kconfig                  | 4 ++--
- include/linux/device.h               | 2 +-
- include/linux/dma-map-ops.h          | 6 +++---
- kernel/dma/Kconfig                   | 9 ++-------
- kernel/dma/Makefile                  | 2 +-
- 18 files changed, 41 insertions(+), 26 deletions(-)
+On 8/27/2024 9:08 AM, Dragos Tatulea wrote:
+> Certain error paths from mlx5_vdpa_dev_add() can end up releasing mr
+> resources which never got initialized in the first place.
+>
+> This patch adds the missing check in mlx5_vdpa_destroy_mr_resources()
+> to block releasing non-initialized mr resources.
+>
+> Reference trace:
+>
+>    mlx5_core 0000:08:00.2: mlx5_vdpa_dev_add:3274:(pid 2700) warning: No mac address provisioned?
+>    BUG: kernel NULL pointer dereference, address: 0000000000000000
+>    #PF: supervisor read access in kernel mode
+>    #PF: error_code(0x0000) - not-present page
+>    PGD 140216067 P4D 0
+>    Oops: 0000 [#1] PREEMPT SMP NOPTI
+>    CPU: 8 PID: 2700 Comm: vdpa Kdump: loaded Not tainted 5.14.0-496.el9.x86_64 #1
+>    Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+>    RIP: 0010:vhost_iotlb_del_range+0xf/0xe0 [vhost_iotlb]
+>    Code: [...]
+>    RSP: 0018:ff1c823ac23077f0 EFLAGS: 00010246
+>    RAX: ffffffffc1a21a60 RBX: ffffffff899567a0 RCX: 0000000000000000
+>    RDX: ffffffffffffffff RSI: 0000000000000000 RDI: 0000000000000000
+>    RBP: ff1bda1f7c21e800 R08: 0000000000000000 R09: ff1c823ac2307670
+>    R10: ff1c823ac2307668 R11: ffffffff8a9e7b68 R12: 0000000000000000
+>    R13: 0000000000000000 R14: ff1bda1f43e341a0 R15: 00000000ffffffea
+>    FS:  00007f56eba7c740(0000) GS:ff1bda269f800000(0000) knlGS:0000000000000000
+>    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>    CR2: 0000000000000000 CR3: 0000000104d90001 CR4: 0000000000771ef0
+>    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>    PKRU: 55555554
+>    Call Trace:
+>
+>     ? show_trace_log_lvl+0x1c4/0x2df
+>     ? show_trace_log_lvl+0x1c4/0x2df
+>     ? mlx5_vdpa_free+0x3d/0x150 [mlx5_vdpa]
+>     ? __die_body.cold+0x8/0xd
+>     ? page_fault_oops+0x134/0x170
+>     ? __irq_work_queue_local+0x2b/0xc0
+>     ? irq_work_queue+0x2c/0x50
+>     ? exc_page_fault+0x62/0x150
+>     ? asm_exc_page_fault+0x22/0x30
+>     ? __pfx_mlx5_vdpa_free+0x10/0x10 [mlx5_vdpa]
+>     ? vhost_iotlb_del_range+0xf/0xe0 [vhost_iotlb]
+>     mlx5_vdpa_free+0x3d/0x150 [mlx5_vdpa]
+>     vdpa_release_dev+0x1e/0x50 [vdpa]
+>     device_release+0x31/0x90
+>     kobject_cleanup+0x37/0x130
+>     mlx5_vdpa_dev_add+0x2d2/0x7a0 [mlx5_vdpa]
+>     vdpa_nl_cmd_dev_add_set_doit+0x277/0x4c0 [vdpa]
+>     genl_family_rcv_msg_doit+0xd9/0x130
+>     genl_family_rcv_msg+0x14d/0x220
+>     ? __pfx_vdpa_nl_cmd_dev_add_set_doit+0x10/0x10 [vdpa]
+>     ? _copy_to_user+0x1a/0x30
+>     ? move_addr_to_user+0x4b/0xe0
+>     genl_rcv_msg+0x47/0xa0
+>     ? __import_iovec+0x46/0x150
+>     ? __pfx_genl_rcv_msg+0x10/0x10
+>     netlink_rcv_skb+0x54/0x100
+>     genl_rcv+0x24/0x40
+>     netlink_unicast+0x245/0x370
+>     netlink_sendmsg+0x206/0x440
+>     __sys_sendto+0x1dc/0x1f0
+>     ? do_read_fault+0x10c/0x1d0
+>     ? do_pte_missing+0x10d/0x190
+>     __x64_sys_sendto+0x20/0x30
+>     do_syscall_64+0x5c/0xf0
+>     ? __count_memcg_events+0x4f/0xb0
+>     ? mm_account_fault+0x6c/0x100
+>     ? handle_mm_fault+0x116/0x270
+>     ? do_user_addr_fault+0x1d6/0x6a0
+>     ? do_syscall_64+0x6b/0xf0
+>     ? clear_bhb_loop+0x25/0x80
+>     ? clear_bhb_loop+0x25/0x80
+>     ? clear_bhb_loop+0x25/0x80
+>     ? clear_bhb_loop+0x25/0x80
+>     ? clear_bhb_loop+0x25/0x80
+>     entry_SYSCALL_64_after_hwframe+0x78/0x80
+>
+> Fixes: 512c0cdd80c1 ("vdpa/mlx5: Decouple cvq iotlb handling from hw mapping code")
+The fix looks fine to me, but how come this is the commit that 
+introduced the problem? Can you help clarify?
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 975dd22a2dbd22..61c4ec04878754 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -17,6 +17,15 @@ config CPU_MITIGATIONS
- 	def_bool y
- endif
- 
-+#
-+# Selected by architectures that need custom DMA operations for e.g. legacy
-+# IOMMUs not handled by dma-iommu.  Drivers must never select this symbol.
-+#
-+config ARCH_HAS_DMA_OPS
-+	depends on HAS_DMA
-+	select DMA_OPS_HELPERS
-+	bool
-+
- menu "General architecture-dependent options"
- 
- config ARCH_HAS_SUBPAGE_FAULTS
-diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
-index 50ff06d5b799c9..109a4cddcd1389 100644
---- a/arch/alpha/Kconfig
-+++ b/arch/alpha/Kconfig
-@@ -4,12 +4,12 @@ config ALPHA
- 	default y
- 	select ARCH_32BIT_USTAT_F_TINODE
- 	select ARCH_HAS_CURRENT_STACK_POINTER
-+	select ARCH_HAS_DMA_OPS if PCI
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
- 	select ARCH_NO_PREEMPT
- 	select ARCH_NO_SG_CHAIN
- 	select ARCH_USE_CMPXCHG_LOCKREF
--	select DMA_OPS if PCI
- 	select FORCE_PCI
- 	select PCI_DOMAINS if PCI
- 	select PCI_SYSCALL if PCI
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 54b2bb817a7fc0..f5f7995a2f8f59 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -10,6 +10,7 @@ config ARM
- 	select ARCH_HAS_CURRENT_STACK_POINTER
- 	select ARCH_HAS_DEBUG_VIRTUAL if MMU
- 	select ARCH_HAS_DMA_ALLOC if MMU
-+	select ARCH_HAS_DMA_OPS
- 	select ARCH_HAS_DMA_WRITE_COMBINE if !ARM_DMA_MEM_BUFFERABLE
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_FORTIFY_SOURCE
-@@ -54,7 +55,6 @@ config ARM
- 	select DCACHE_WORD_ACCESS if HAVE_EFFICIENT_UNALIGNED_ACCESS
- 	select DMA_DECLARE_COHERENT
- 	select DMA_GLOBAL_POOL if !MMU
--	select DMA_OPS
- 	select DMA_NONCOHERENT_MMAP if MMU
- 	select EDAC_SUPPORT
- 	select EDAC_ATOMIC_SCRUB
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index a2f8ff354ca670..40940cbde435a3 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -24,6 +24,7 @@ config ARM64
- 	select ARCH_HAS_CURRENT_STACK_POINTER
- 	select ARCH_HAS_DEBUG_VIRTUAL
- 	select ARCH_HAS_DEBUG_VM_PGTABLE
-+	select ARCH_HAS_DMA_OPS if XEN
- 	select ARCH_HAS_DMA_PREP_COHERENT
- 	select ARCH_HAS_ACPI_TABLE_UPGRADE if ACPI
- 	select ARCH_HAS_FAST_MULTIPLIER
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 60077e57693563..023ad33a7e945d 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -8,6 +8,7 @@ config MIPS
- 	select ARCH_HAS_CPU_FINALIZE_INIT
- 	select ARCH_HAS_CURRENT_STACK_POINTER if !CC_IS_CLANG || CLANG_VERSION >= 140000
- 	select ARCH_HAS_DEBUG_VIRTUAL if !64BIT
-+	select ARCH_HAS_DMA_OPS if MACH_JAZZ
- 	select ARCH_HAS_FORTIFY_SOURCE
- 	select ARCH_HAS_KCOV
- 	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE if !EVA
-@@ -393,7 +394,6 @@ config MACH_JAZZ
- 	select ARC_PROMLIB
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
--	select DMA_OPS
- 	select FW_ARC
- 	select FW_ARC32
- 	select ARCH_MAY_HAVE_PC_FDC
-diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
-index b0a2ac3ba91610..859835a0692c24 100644
---- a/arch/parisc/Kconfig
-+++ b/arch/parisc/Kconfig
-@@ -10,6 +10,7 @@ config PARISC
- 	select ARCH_WANT_FRAME_POINTERS
- 	select ARCH_HAS_CPU_CACHE_ALIASING
- 	select ARCH_HAS_DMA_ALLOC if PA11
-+	select ARCH_HAS_DMA_OPS
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_HAS_STRICT_MODULE_RWX
-@@ -23,7 +24,6 @@ config PARISC
- 	select ARCH_HAS_CACHE_LINE_SIZE
- 	select ARCH_HAS_DEBUG_VM_PGTABLE
- 	select HAVE_RELIABLE_STACKTRACE
--	select DMA_OPS
- 	select RTC_CLASS
- 	select RTC_DRV_GENERIC
- 	select INIT_ALL_POSSIBLE
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index d7b09b064a8ac5..f87fc0375a92b3 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -133,6 +133,7 @@ config PPC
- 	select ARCH_HAS_DEBUG_WX		if STRICT_KERNEL_RWX
- 	select ARCH_HAS_DEVMEM_IS_ALLOWED
- 	select ARCH_HAS_DMA_MAP_DIRECT 		if PPC_PSERIES
-+	select ARCH_HAS_DMA_OPS			if PPC64
- 	select ARCH_HAS_FORTIFY_SOURCE
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_HAS_KCOV
-@@ -185,7 +186,6 @@ config PPC
- 	select CPUMASK_OFFSTACK			if NR_CPUS >= 8192
- 	select DCACHE_WORD_ACCESS		if PPC64 && CPU_LITTLE_ENDIAN
- 	select DMA_OPS_BYPASS			if PPC64
--	select DMA_OPS				if PPC64
- 	select DYNAMIC_FTRACE			if FUNCTION_TRACER
- 	select EDAC_ATOMIC_SCRUB
- 	select EDAC_SUPPORT
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index a822f952f64a9c..f31f6b85c25ccc 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -70,6 +70,7 @@ config S390
- 	select ARCH_HAS_DEBUG_VM_PGTABLE
- 	select ARCH_HAS_DEBUG_WX
- 	select ARCH_HAS_DEVMEM_IS_ALLOWED
-+	select ARCH_HAS_DMA_OPS if PCI
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
- 	select ARCH_HAS_FORTIFY_SOURCE
-@@ -137,7 +138,6 @@ config S390
- 	select BUILDTIME_TABLE_SORT
- 	select CLONE_BACKWARDS2
- 	select DCACHE_WORD_ACCESS if !KMSAN
--	select DMA_OPS if PCI
- 	select DYNAMIC_FTRACE if FUNCTION_TRACER
- 	select FUNCTION_ALIGNMENT_8B if CC_IS_GCC
- 	select FUNCTION_ALIGNMENT_16B if !CC_IS_GCC
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 11bf9d312318c6..dcfdb7f1dae976 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -14,9 +14,9 @@ config SPARC
- 	bool
- 	default y
- 	select ARCH_HAS_CPU_CACHE_ALIASING
-+	select ARCH_HAS_DMA_OPS
- 	select ARCH_MIGHT_HAVE_PC_PARPORT if SPARC64 && PCI
- 	select ARCH_MIGHT_HAVE_PC_SERIO
--	select DMA_OPS
- 	select OF
- 	select OF_PROMTREE
- 	select HAVE_ASM_MODVERSIONS
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 007bab9f2a0e39..9e2e7d361019fe 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -79,6 +79,7 @@ config X86
- 	select ARCH_HAS_DEBUG_VIRTUAL
- 	select ARCH_HAS_DEBUG_VM_PGTABLE	if !X86_PAE
- 	select ARCH_HAS_DEVMEM_IS_ALLOWED
-+	select ARCH_HAS_DMA_OPS			if GART_IOMMU || XEN
- 	select ARCH_HAS_EARLY_DEBUG		if KGDB
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_FAST_MULTIPLIER
-@@ -943,7 +944,6 @@ config DMI
- 
- config GART_IOMMU
- 	bool "Old AMD GART IOMMU support"
--	select DMA_OPS
- 	select IOMMU_HELPER
- 	select SWIOTLB
- 	depends on X86_64 && PCI && AMD_NB
-diff --git a/drivers/macintosh/macio_asic.c b/drivers/macintosh/macio_asic.c
-index 13626205530d36..bede200e32e8ff 100644
---- a/drivers/macintosh/macio_asic.c
-+++ b/drivers/macintosh/macio_asic.c
-@@ -387,7 +387,7 @@ static struct macio_dev * macio_add_one_device(struct macio_chip *chip,
- 	dma_set_max_seg_size(&dev->ofdev.dev, 65536);
- 	dma_set_seg_boundary(&dev->ofdev.dev, 0xffffffff);
- 
--#if defined(CONFIG_PCI) && defined(CONFIG_DMA_OPS)
-+#if defined(CONFIG_PCI) && defined(CONFIG_ARCH_HAS_DMA_OPS)
- 	/* Set the DMA ops to the ones from the PCI device, this could be
- 	 * fishy if we didn't know that on PowerMac it's always direct ops
- 	 * or iommu ops that will work fine
-@@ -396,7 +396,7 @@ static struct macio_dev * macio_add_one_device(struct macio_chip *chip,
- 	 */
- 	dev->ofdev.dev.archdata = chip->lbus.pdev->dev.archdata;
- 	dev->ofdev.dev.dma_ops = chip->lbus.pdev->dev.dma_ops;
--#endif /* CONFIG_PCI && CONFIG_DMA_OPS */
-+#endif /* CONFIG_PCI && CONFIG_ARCH_HAS_DMA_OPS */
- 
- #ifdef DEBUG
- 	printk("preparing mdev @%p, ofdev @%p, dev @%p, kobj @%p\n",
-diff --git a/drivers/media/pci/intel/ipu6/Kconfig b/drivers/media/pci/intel/ipu6/Kconfig
-index 40e20f0aa5ae5d..49e4fb696573f6 100644
---- a/drivers/media/pci/intel/ipu6/Kconfig
-+++ b/drivers/media/pci/intel/ipu6/Kconfig
-@@ -4,8 +4,13 @@ config VIDEO_INTEL_IPU6
- 	depends on VIDEO_DEV
- 	depends on X86 && X86_64 && HAS_DMA
- 	depends on IPU_BRIDGE || !IPU_BRIDGE
-+	#
-+	# This driver incorrectly tries to override the dma_ops.  It should
-+	# never have done that, but for now keep it working on architectures
-+	# that use dma ops
-+	#
-+	depends on ARCH_HAS_DMA_OPS
- 	select AUXILIARY_BUS
--	select DMA_OPS
- 	select IOMMU_IOVA
- 	select VIDEO_V4L2_SUBDEV_API
- 	select MEDIA_CONTROLLER
-diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-index b08de3b7706109..559fb9d3271fcc 100644
---- a/drivers/vdpa/Kconfig
-+++ b/drivers/vdpa/Kconfig
-@@ -35,7 +35,12 @@ config VDPA_SIM_BLOCK
- config VDPA_USER
- 	tristate "VDUSE (vDPA Device in Userspace) support"
- 	depends on EVENTFD && MMU && HAS_DMA
--	select DMA_OPS
-+	#
-+	# This driver incorrectly tries to override the dma_ops.  It should
-+	# never have done that, but for now keep it working on architectures
-+	# that use dma ops
-+	#
-+	depends on ARCH_HAS_DMA_OPS
- 	select VHOST_IOTLB
- 	select IOMMU_IOVA
- 	help
-diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
-index d5989871dd5de3..27f288b5f30c37 100644
---- a/drivers/xen/Kconfig
-+++ b/drivers/xen/Kconfig
-@@ -177,8 +177,8 @@ config XEN_GRANT_DMA_ALLOC
- 
- config SWIOTLB_XEN
- 	def_bool y
-+	depends on ARCH_DMA_OPS
- 	depends on XEN_PV || ARM || ARM64
--	select DMA_OPS
- 	select SWIOTLB
- 
- config XEN_PCI_STUB
-@@ -348,10 +348,10 @@ config XEN_GRANT_DMA_IOMMU
- 
- config XEN_GRANT_DMA_OPS
- 	bool
--	select DMA_OPS
- 
- config XEN_VIRTIO
- 	bool "Xen virtio support"
-+	depends on ARCH_DMA_OPS
- 	depends on VIRTIO
- 	select XEN_GRANT_DMA_OPS
- 	select XEN_GRANT_DMA_IOMMU if OF
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 1c5280d28bc389..b4bde8d226979b 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -750,7 +750,7 @@ struct device {
- 	struct dev_pin_info	*pins;
- #endif
- 	struct dev_msi_info	msi;
--#ifdef CONFIG_DMA_OPS
-+#ifdef CONFIG_ARCH_HAS_DMA_OPS
- 	const struct dma_map_ops *dma_ops;
- #endif
- 	u64		*dma_mask;	/* dma mask (if dma'able device) */
-diff --git a/include/linux/dma-map-ops.h b/include/linux/dma-map-ops.h
-index 077b15c93bb8ff..9668ddf3696e71 100644
---- a/include/linux/dma-map-ops.h
-+++ b/include/linux/dma-map-ops.h
-@@ -75,7 +75,7 @@ struct dma_map_ops {
- 	unsigned long (*get_merge_boundary)(struct device *dev);
- };
- 
--#ifdef CONFIG_DMA_OPS
-+#ifdef CONFIG_ARCH_HAS_DMA_OPS
- #include <asm/dma-mapping.h>
- 
- static inline const struct dma_map_ops *get_dma_ops(struct device *dev)
-@@ -90,7 +90,7 @@ static inline void set_dma_ops(struct device *dev,
- {
- 	dev->dma_ops = dma_ops;
- }
--#else /* CONFIG_DMA_OPS */
-+#else /* CONFIG_ARCH_HAS_DMA_OPS */
- static inline const struct dma_map_ops *get_dma_ops(struct device *dev)
- {
- 	return NULL;
-@@ -99,7 +99,7 @@ static inline void set_dma_ops(struct device *dev,
- 			       const struct dma_map_ops *dma_ops)
- {
- }
--#endif /* CONFIG_DMA_OPS */
-+#endif /* CONFIG_ARCH_HAS_DMA_OPS */
- 
- #ifdef CONFIG_DMA_CMA
- extern struct cma *dma_contiguous_default_area;
-diff --git a/kernel/dma/Kconfig b/kernel/dma/Kconfig
-index 21bae17008368a..4c0dcd90912167 100644
---- a/kernel/dma/Kconfig
-+++ b/kernel/dma/Kconfig
-@@ -11,11 +11,6 @@ config HAS_DMA
- config DMA_OPS_HELPERS
- 	bool
- 
--config DMA_OPS
--	depends on HAS_DMA
--	select DMA_OPS_HELPERS
--	bool
--
- #
- # IOMMU drivers that can bypass the IOMMU code and optionally use the direct
- # mapping fast path should select this option and set the dma_ops_bypass
-@@ -113,8 +108,8 @@ config DMA_BOUNCE_UNALIGNED_KMALLOC
- 
- config DMA_NEED_SYNC
- 	def_bool ARCH_HAS_SYNC_DMA_FOR_DEVICE || ARCH_HAS_SYNC_DMA_FOR_CPU || \
--		 ARCH_HAS_SYNC_DMA_FOR_CPU_ALL || DMA_API_DEBUG || DMA_OPS || \
--		 SWIOTLB
-+		 ARCH_HAS_SYNC_DMA_FOR_CPU_ALL || DMA_API_DEBUG || \
-+		 ARCH_HAS_DMA_OPS || SWIOTLB
- 
- config DMA_RESTRICTED_POOL
- 	bool "DMA Restricted Pool"
-diff --git a/kernel/dma/Makefile b/kernel/dma/Makefile
-index 2e6e933cf7f3fb..6977033444a375 100644
---- a/kernel/dma/Makefile
-+++ b/kernel/dma/Makefile
-@@ -2,7 +2,7 @@
- 
- obj-$(CONFIG_HAS_DMA)			+= mapping.o direct.o
- obj-$(CONFIG_DMA_OPS_HELPERS)		+= ops_helpers.o
--obj-$(CONFIG_DMA_OPS)			+= dummy.o
-+obj-$(CONFIG_ARCH_HAS_DMA_OPS)		+= dummy.o
- obj-$(CONFIG_DMA_CMA)			+= contiguous.o
- obj-$(CONFIG_DMA_DECLARE_COHERENT)	+= coherent.o
- obj-$(CONFIG_DMA_API_DEBUG)		+= debug.o
--- 
-2.43.0
+Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
+
+Thanks,
+-Siwei
+
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
+> ---
+>   drivers/vdpa/mlx5/core/mr.c | 3 +++
+>   1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index 4758914ccf86..bf56f3d69625 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -581,6 +581,9 @@ static void mlx5_vdpa_show_mr_leaks(struct mlx5_vdpa_dev *mvdev)
+>   
+>   void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
+>   {
+> +	if (!mvdev->res.valid)
+> +		return;
+> +
+>   	for (int i = 0; i < MLX5_VDPA_NUM_AS; i++)
+>   		mlx5_vdpa_update_mr(mvdev, NULL, i);
+>   
 
