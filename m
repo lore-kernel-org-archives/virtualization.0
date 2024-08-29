@@ -1,207 +1,246 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44C031898E5
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 22:31:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90AA418A931
+	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 22:38:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724970687; cv=none; b=biCPrBHWCLIUYVnyJ6F+YqKIdcky1uu853KuUyt8LpeBooAsRUrl0xYMY/JViyS33e0KUbr9ZSfVjHCiu+lcv3P3U8wxIlSeaIg4WVgZKZUllqspiJE7x0mSW2oaC3PpHqvZcoKj1xjvANFo9kzTPH7hPPLYXIoCMcLxlTWh9HU=
+	t=1724971116; cv=none; b=j443/VOYUW2GnGXI1u4XRLuDDlTadmIlOPXB3WH7VU07rnqICYKSeQv2BMtz77nzRizKXQPdIt+HoIN0dJdVwCfv0j/wVvcCX+RGhBLi1VClBGaIPr1iuBT/A13AGlXLsYsl/44ueKGkeD0mx2IsBIl4bFIIcb/EDqH7fxDXR9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724970687; c=relaxed/simple;
-	bh=hCsnmX1TO1Jl5SZuHp8i7ncm4eIJYVN/kFtrlWGwotM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ngax/XWnFGRbHX+qnXBWVqBm+G69b/RvvUcT2tKl13ThStrVVbYwCQ1Sk5spCtKCRl13ciW3ntj5H86hMliLq3mrl42nYsvDrgBcrZb7jy3CvAyVoBMFsj+cBgQiMuz7fekHijq8X3bnplwYcdnVFvV0MAItr+E1kEcd176Et9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AD5mgGQS; arc=none smtp.client-ip=209.85.210.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724971116; c=relaxed/simple;
+	bh=ULs1eNO5Gtq22RBbYQ8qaF/dLffxu0QFA0DwjhJE7g8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qaYJ7OT+vSR16bgRJsQJfouFxmzny82+5GAxPnje45/Ps5x0HhL/V6jUIIHUvGilG/8+0svO9ATeDLxYK45LlsusL5DepOSbYnIceturn5UbOsH5exk/BSnxOuJ+aSxwbdysWlUcFQ+fsoaY8L52/pbg57QI16T6hlU/XHMLEGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com; spf=pass smtp.mailfrom=digitalocean.com; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=LmPRYFOd; arc=none smtp.client-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digitalocean.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AD5mgGQS"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-7142448aaf9so869960b3a.1
-        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 15:31:26 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="LmPRYFOd"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-716609a0e2bso189328b3a.0
+        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 15:38:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724970686; x=1725575486; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vw046BlQwqp0kheY735NpnzKZV77Hf8iJa45ZBjddEo=;
-        b=AD5mgGQS7butTGoGszqI4GMSjZu/paIq3UyjbusSmGcpr4aGVmpo8xt4kGhL0aelnR
-         hphYMv1ljBP0otcusVRLPlKmNP9IWijEKW3vV2+MaM3lztu9L3BN61EzGuvLwtMBkC2s
-         1FXjg3vDUD8K4R+2jaAuPBTKHLo76jMfVYAc+M/hb4ODy4blf7jacpw07m/1iMhAZJys
-         /EEhLyO4pY887nyimOjUfARjs7WuV+QsCKJ/wSBkc61Cl2P8u+nZFNzULAWJb33xkI5o
-         1yOhWcD3KxzaKQQVKuuNyK0su/2yP0x5mSyZBYxvdXsiXOyMdxAaFJrIfrFCt8WrjWwi
-         Z8PQ==
+        d=digitalocean.com; s=google; t=1724971113; x=1725575913; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=I6JxLN6jgWh31KN7TEo/vEC+PoZGe47rz1RImVm+TU4=;
+        b=LmPRYFOdCB57AXsrZSgzeyt4SdT/n31YHMffRkZbXThBTRkcEoDYlSA0yIGpV1q8LA
+         S/ju7ft35Hef9y4Y+gwNgYCgoYqBu74wU2RiHxSxIl1OzPcngUb1+7o1WDkRFESQ6/Lh
+         hQgToJi+JKkkYZ/yeO9hRRO7AmzYjpkYtt4e0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724970686; x=1725575486;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vw046BlQwqp0kheY735NpnzKZV77Hf8iJa45ZBjddEo=;
-        b=gxc0/XgOwscQuFEeTNyj7tl2ShrpaGvDaXf/0DAuRurQM1Pd10g9qAeJjGmroncj6z
-         ayVAwDSqXl60BQpkG7vGkV6lgtovBv1FO9CzMVc1/MYGdOo23YeOC7KNVD0WF2Exy0Oq
-         tdW7JOzeKiGpLgjmREXknvESjqIDfsUxIwOtxLYibKi71LurmuR9Hy8ZvEjYCXEPs1xh
-         d3+YUiApGCHThJLwkvGv4gFwsJNLTYhBEbdFzcKn/q3CZ15ZUkVwhowlcoiFN8bx5kEJ
-         TOHKkrzro41oCX4MbDt9jliPbpZapisYIQ8gxU8nobcegrUqYfwhA976UaA5IUzOVxzJ
-         K7Ig==
-X-Forwarded-Encrypted: i=1; AJvYcCUIGS41EJFTr9JXwZNBBFWTOfgBZpYtl81Y6AYvpbz87/73xlRVV5qmRFB+VIr1gNqqnSUephyjdsc++v9LyQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy2RJe1EYkSv4ZVLQd59ohn6rPrAc07+S3bgiTJkqIxHXy9G7XP
-	oRgKPM0YcfDP7FwPWCO1yqXd36RWdu4z5qy2LhPYIjHnYZ5Zy+7V
-X-Google-Smtp-Source: AGHT+IFhau0GMb2+jI99unqrHoqo79ZPnsK5Fim1Ct1lLVzqOoXbfgd/rqPMQHsW9L0qYnI9rWHF1w==
-X-Received: by 2002:aa7:8650:0:b0:70e:cf99:adc7 with SMTP id d2e1a72fcca58-715e0f74250mr5263419b3a.3.1724970685474;
-        Thu, 29 Aug 2024 15:31:25 -0700 (PDT)
-Received: from Barrys-MBP.hub ([2407:7000:8942:5500:b087:5dce:99f9:294b])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-715e569f1edsm1614198b3a.128.2024.08.29.15.31.18
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 29 Aug 2024 15:31:25 -0700 (PDT)
-From: Barry Song <21cnbao@gmail.com>
-To: 21cnbao@gmail.com,
-	mhocko@suse.com,
-	vbabka@suse.cz
-Cc: 42.hyeyoo@gmail.com,
-	akpm@linux-foundation.org,
-	cl@linux.com,
-	david@redhat.com,
-	hailong.liu@oppo.com,
-	hch@infradead.org,
-	iamjoonsoo.kim@lge.com,
-	laoar.shao@gmail.com,
-	linux-hardening@vger.kernel.org,
-	linux-mm@kvack.org,
-	penberg@kernel.org,
-	rientjes@google.com,
-	roman.gushchin@linux.dev,
-	torvalds@linux-foundation.org,
-	urezki@gmail.com,
-	v-songbaohua@oppo.com,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v3 0/4] mm: clarify nofail memory allocation
-Date: Fri, 30 Aug 2024 10:31:14 +1200
-Message-Id: <20240829223114.1102-1-21cnbao@gmail.com>
-X-Mailer: git-send-email 2.39.3 (Apple Git-146)
-In-Reply-To: <CAGsJ_4wZiE08XDjNAPENwH=KQEzdm2FB_bMDi0b7PJx+e7ydrA@mail.gmail.com>
-References: <CAGsJ_4wZiE08XDjNAPENwH=KQEzdm2FB_bMDi0b7PJx+e7ydrA@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1724971113; x=1725575913;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=I6JxLN6jgWh31KN7TEo/vEC+PoZGe47rz1RImVm+TU4=;
+        b=DNKYnmcN3/NjllKc7DRepTQDzGFOI98M8jaUqTUTY5Azt8D7UEUqBwmpntkQhIvPe4
+         2Zxed0khtf3KfhFODRrui5IYKJgBy/Tw+kdlFjMriWx07seLhq9zudTOowoquWICjfPi
+         Km/ju8TJhltowtxd2XsmEylhooDcezxM3hWtCHpIwPmZ5QOgiHCROrZS8EVPesXmmh0F
+         M7h9Z7Cvrjvp1P8vQ0ztrliDhNx7rUZBufbIb64SrK2st8FnA6TFdK2dOAFGqGt3e2tQ
+         SVWhMFifHtcT7CC0pXpoeqE2vJxDvYfdIXbse0bEtfc1D3emykgVOexbvfN0+6/JN6A3
+         +EMw==
+X-Forwarded-Encrypted: i=1; AJvYcCUqdzdAjgIwJlmbIdrPh5z+R0enyITjjSdkYrHVDXa3hF5HLmvjg7BfKksj4rXyQCbMqUXV1arU+kbbrxMSfw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwNiwzPEq/JuSFxHuuB76R1LWLY3sZnMLSyfHNZZlgVUmmSUFQL
+	w864thCOW91KbjuDuYBd+h67lKI8LKVO2HmT9B21xbiAZ3X5TAdrh7AfeFCq52M=
+X-Google-Smtp-Source: AGHT+IGXLH/kJOGdNBNyfNCznDW7lIkDKiLgby/nl6dKJoyW0rD/UQl6UGhWKYr21yk4uySVrnP9qQ==
+X-Received: by 2002:a05:6a21:3981:b0:1c4:7a11:9ef1 with SMTP id adf61e73a8af0-1cce100ebccmr4454504637.15.1724971112580;
+        Thu, 29 Aug 2024 15:38:32 -0700 (PDT)
+Received: from ?IPV6:2603:8080:7400:36da:b4f6:16b8:9118:2c1a? ([2603:8080:7400:36da:b4f6:16b8:9118:2c1a])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-715e55a692fsm1620721b3a.60.2024.08.29.15.38.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 29 Aug 2024 15:38:32 -0700 (PDT)
+Message-ID: <5415a7ac-68a4-46fd-9ac4-35400385818f@digitalocean.com>
+Date: Thu, 29 Aug 2024 17:38:29 -0500
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] vdpa: Add support to update speed/duplex in
+ vDPA/mlx5_vnet
+To: Dragos Tatulea <dtatulea@nvidia.com>,
+ Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, mst@redhat.com,
+ jasowang@redhat.com
+Cc: bilbao@vt.edu, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ cratiu@nvidia.com, lingshan.zhu@intel.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20240829161620.38679-1-carlos.bilbao.osdev@gmail.com>
+ <20240829161620.38679-3-carlos.bilbao.osdev@gmail.com>
+ <c15d3682-05ee-437c-b51c-d6a824252d76@nvidia.com>
+Content-Language: en-US
+From: Carlos Bilbao <cbilbao@digitalocean.com>
+In-Reply-To: <c15d3682-05ee-437c-b51c-d6a824252d76@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-> > > Patch 4/4: We will move the order > 1 check from the current fast path
-> > > to the slow path and extend
-> > >                  the check of gfp_direct_reclaim flag also in the slow path.
-> >
-> > OK, let's have that go in now as well.
+Hello,
 
-Hi Michal and Vlastimil,
-Could you please review the changes below before I send v4 for patch 4/4?
+On 8/29/24 4:07 PM, Dragos Tatulea wrote:
+> (resending as I accidentally replied only to Carlos)
+>
+> On 29.08.24 18:16, Carlos Bilbao wrote:
+>> From: Carlos Bilbao <cbilbao@digitalocean.com>
+>>
+>> Include support to update the vDPA configuration fields of speed and
+>> duplex (as needed by VHOST_VDPA_SET_CONFIG). This includes function
+>> mlx5_vdpa_set_config() as well as changes in vdpa.c to fill the initial
+>> values to UNKNOWN. Also add a warning message for when
+>> mlx5_vdpa_get_config() receives offset and length out of bounds.
+>>
+>> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
+>> ---
+>>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 34 ++++++++++++++++++++++++++++++-
+>>  drivers/vdpa/vdpa.c               | 27 ++++++++++++++++++++++++
+>>  include/uapi/linux/vdpa.h         |  2 ++
+>>  3 files changed, 62 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>> index c47009a8b472..a44bb2072eec 100644
+>> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>> @@ -3221,12 +3221,44 @@ static void mlx5_vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
+>>  
+>>  	if (offset + len <= sizeof(struct virtio_net_config))
+>>  		memcpy(buf, (u8 *)&ndev->config + offset, len);
+>> +	else
+>> +		mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\n");
+>>  }
+>>  
+>>  static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned int offset, const void *buf,
+>>  				 unsigned int len)
+>>  {
+>> -	/* not supported */
+>> +	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+>> +	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+>> +
+>> +	if (offset + len > sizeof(struct virtio_net_config)) {
+>> +		mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\n");
+>> +		return;
+>> +	}
+>> +
+>> +	/*
+>> +	 * Note that this will update the speed/duplex configuration fields
+>> +	 * but the hardware support to actually perform this change does
+>> +	 * not exist yet.
+>> +	 */
+>> +	switch (offset) {
+>> +	case offsetof(struct virtio_net_config, speed):
+>> +		if (len == sizeof(((struct virtio_net_config *) 0)->speed))
+>> +			memcpy(&ndev->config.speed, buf, len);
+>> +		else
+>> +			mlx5_vdpa_warn(mvdev, "Invalid length for speed.\n");
+>> +		break;
+>> +
+>> +	case offsetof(struct virtio_net_config, duplex):
+>> +		if (len == sizeof(((struct virtio_net_config *)0)->duplex))
+>> +			memcpy(&ndev->config.duplex, buf, len);
+>> +		else
+>> +			mlx5_vdpa_warn(mvdev, "Invalid length for duplex.\n");
+>> +		break;
+>> +
+>> +	default:
+>> +		mlx5_vdpa_warn(mvdev, "Configuration field not supported.\n");
+> This will trigger noise in dmesg because there is a MAC configuration here.
+>> +	}
+> I would prefer that the .set_config remains a stub TBH. Setting the fields here is
+> misleading: the user might deduce that the configuration worked when they read the
+> values and see that they were updated.
 
-1. We should consolidate all warnings in one place. Currently, the order > 1 warning is
-in the hotpath, while others are in less likely scenarios. Moving all warnings to the
-slowpath will reduce the overhead for order > 1 and increase the visibility of other
-warnings.
 
-2. We currently have two warnings for order: one for order > 1 in the hotpath and another
-for order > costly_order in the laziest path. I suggest standardizing on order > 1 since
-it’s been in use for a long time.
+Well, people might already assume that the values are updated because there
+is an ioctl available to user space (VHOST_VDPA_SET_CONFIG) that doesn't
+warn or return an error - or at least I did.
 
-3.I don't think we need to check for __GFP_NOWARN in this case. __GFP_NOWARN is
-meant to suppress allocation failure reports, but here we're dealing with bug detection, not
-allocation failures.
-So I'd rather use WARN_ON_ONCE than WARN_ON_ONCE_GFP.
+But, I understand your concern. I propose that we at least return an error
+in the ioctl if the requested config updated is not supported. We could
+also structure this patch so that it can be used when or if hardware
+support becomes available in the future.
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index c81ee5662cc7..0d3dd679d0ab 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -3033,12 +3033,6 @@ struct page *rmqueue(struct zone *preferred_zone,
- {
- 	struct page *page;
- 
--	/*
--	 * We most definitely don't want callers attempting to
--	 * allocate greater than order-1 page units with __GFP_NOFAIL.
--	 */
--	WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
--
- 	if (likely(pcp_allowed_order(order))) {
- 		page = rmqueue_pcplist(preferred_zone, zone, order,
- 				       migratetype, alloc_flags);
-@@ -4174,6 +4168,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
- 						struct alloc_context *ac)
- {
- 	bool can_direct_reclaim = gfp_mask & __GFP_DIRECT_RECLAIM;
-+	bool nofail = gfp_mask & __GFP_DIRECT_RECLAIM;
- 	bool can_compact = gfp_compaction_allowed(gfp_mask);
- 	const bool costly_order = order > PAGE_ALLOC_COSTLY_ORDER;
- 	struct page *page = NULL;
-@@ -4187,6 +4182,25 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
- 	unsigned int zonelist_iter_cookie;
- 	int reserve_flags;
- 
-+	if (nofail) {
-+		/*
-+		 * We most definitely don't want callers attempting to
-+		 * allocate greater than order-1 page units with __GFP_NOFAIL.
-+		 */
-+		WARN_ON_ONCE(order > 1);
-+		/*
-+		 * Also we don't support __GFP_NOFAIL without __GFP_DIRECT_RECLAIM,
-+		 * otherwise, we may result in lockup.
-+		 */
-+		WARN_ON_ONCE(!can_direct_reclaim);
-+		/*
-+		 * PF_MEMALLOC request from this context is rather bizarre
-+		 * because we cannot reclaim anything and only can loop waiting
-+		 * for somebody to do a work for us.
-+		 */
-+		WARN_ON_ONCE(current->flags & PF_MEMALLOC);
-+	}
-+
- restart:
- 	compaction_retries = 0;
- 	no_progress_loops = 0;
-@@ -4404,29 +4418,15 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
- 	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
- 	 * we always retry
- 	 */
--	if (gfp_mask & __GFP_NOFAIL) {
-+	if (nofail) {
- 		/*
--		 * All existing users of the __GFP_NOFAIL are blockable, so warn
--		 * of any new users that actually require GFP_NOWAIT
-+		 * Lacking direct_reclaim we can't do anything to reclaim memory,
-+		 * we disregard these unreasonable nofail requests and still
-+		 * return NULL
- 		 */
--		if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
-+		if (!can_direct_reclaim)
- 			goto fail;
- 
--		/*
--		 * PF_MEMALLOC request from this context is rather bizarre
--		 * because we cannot reclaim anything and only can loop waiting
--		 * for somebody to do a work for us
--		 */
--		WARN_ON_ONCE_GFP(current->flags & PF_MEMALLOC, gfp_mask);
--
--		/*
--		 * non failing costly orders are a hard requirement which we
--		 * are not prepared for much so let's warn about these users
--		 * so that we can identify them and convert them to something
--		 * else.
--		 */
--		WARN_ON_ONCE_GFP(costly_order, gfp_mask);
--
- 		/*
- 		 * Help non-failing allocations by giving some access to memory
- 		 * reserves normally used for high priority non-blocking
+Is there a way to query the hardware capabilities of the card, e.g., MSRs
+or other methods? Do you recommend any technical manual?
 
-> >
-> > --
-> > Michal Hocko
-> > SUSE Labs
+Or, if the ioctl uses, for example, /dev/vhost-vdpa-2, does its speed and
+duplex settings correspond to those of the tap device it links to? This
+information can be checked and changed using the definitions in
+include/uapi/linux/ethtool.h.
 
-Thanks
-Barry
+Thank you for taking the time to read and answer me.
+
+
+>
+> Thanks,
+> dragos
+>>  }
+>>  
+>>  static u32 mlx5_vdpa_get_generation(struct vdpa_device *vdev)
+>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+>> index 4dbd2e55a288..b920e4405f6d 100644
+>> --- a/drivers/vdpa/vdpa.c
+>> +++ b/drivers/vdpa/vdpa.c
+>> @@ -15,6 +15,7 @@
+>>  #include <net/genetlink.h>
+>>  #include <linux/mod_devicetable.h>
+>>  #include <linux/virtio_ids.h>
+>> +#include <uapi/linux/ethtool.h>
+>>  
+>>  static LIST_HEAD(mdev_head);
+>>  /* A global mutex that protects vdpa management device and device level operations. */
+>> @@ -919,6 +920,22 @@ static int vdpa_dev_net_status_config_fill(struct sk_buff *msg, u64 features,
+>>  	return nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16);
+>>  }
+>>  
+>> +static int vdpa_dev_net_speed_config_fill(struct sk_buff *msg, u64 features,
+>> +					struct virtio_net_config *config)
+>> +{
+>> +	__le32 speed = cpu_to_le32(SPEED_UNKNOWN);
+>> +
+>> +	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_SPEED, sizeof(speed), &speed);
+>> +}
+>> +
+>> +static int vdpa_dev_net_duplex_config_fill(struct sk_buff *msg, u64 features,
+>> +					struct virtio_net_config *config)
+>> +{
+>> +	u8 duplex = DUPLEX_UNKNOWN;
+>> +
+>> +	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_DUPLEX, sizeof(duplex), &duplex);
+>> +}
+>> +
+>>  static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *msg)
+>>  {
+>>  	struct virtio_net_config config = {};
+>> @@ -940,6 +957,16 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+>>  
+>>  	if (vdpa_dev_net_status_config_fill(msg, features_device, &config))
+>>  		return -EMSGSIZE;
+>> +	/*
+>> +	 * mlx5_vdpa vDPA devicess currently do not support the
+>> +	 * VIRTIO_NET_F_SPEED_DUPLEX feature, which reports speed and
+>> +	 * duplex; hence these are set to UNKNOWN for now.
+>> +	 */
+>> +	if (vdpa_dev_net_speed_config_fill(msg, features_device, &config))
+>> +		return -EMSGSIZE;
+>> +
+>> +	if (vdpa_dev_net_duplex_config_fill(msg, features_device, &config))
+>> +		return -EMSGSIZE;
+>>  
+>>  	return vdpa_dev_net_mq_config_fill(msg, features_device, &config);
+>>  }
+>> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+>> index 842bf1201ac4..1c64ee0dd7b1 100644
+>> --- a/include/uapi/linux/vdpa.h
+>> +++ b/include/uapi/linux/vdpa.h
+>> @@ -43,6 +43,8 @@ enum vdpa_attr {
+>>  	VDPA_ATTR_DEV_NET_STATUS,		/* u8 */
+>>  	VDPA_ATTR_DEV_NET_CFG_MAX_VQP,		/* u16 */
+>>  	VDPA_ATTR_DEV_NET_CFG_MTU,		/* u16 */
+>> +	VDPA_ATTR_DEV_NET_CFG_SPEED,		/* u32 */
+>> +	VDPA_ATTR_DEV_NET_CFG_DUPLEX,		/* u8 */
+>>  
+>>  	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
+>>  	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
+
+
+Thanks, Carlos
+
