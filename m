@@ -1,200 +1,228 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE3567581F
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 04:49:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5354446DC
+	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 04:51:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724906983; cv=none; b=dinlxTnADPScZUkbyaU+Bh14cfitaasqnMaOvJJxMNk8Nd6ZUEQmkkJEBQwsiJ//zKaD2ur4SY3cr9Mo86zkBsTO+RaU573zkQ5Kte+cBWfwMnWMFPEinNPexffyR3F0Q4rTZWwCesJT6HxNBSE4VGe/H2ibF2E2icihARiyo7Y=
+	t=1724907110; cv=none; b=q5/oz/Ss8W6QAH63ETOmbtoYbjQ6p7x9V12yrXcom5TozitkGC8Mwvpgyl1MCZ3wve5lkX4pT28JFpgHoEpqGXjhGSvrtusbeCS4Fe51EHC8qpzpURqX7OhjTY5rb7ydL2EmexB+qy6dwKHoDKU7uFi+VNKYpTlVuiS0lE+VJHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724906983; c=relaxed/simple;
-	bh=DULz1wwF4kdm3KYLQG5LDL/4PQ4uZSYOtMOIgeVVc58=;
+	s=arc-20240116; t=1724907110; c=relaxed/simple;
+	bh=YhxMI0LsBfN49HvJaFYhxQofXvaG2yb/5hqsoUCqmVY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dS+Kgcz5GiXZRlI8coLfg8lQi/BkojvIEEWLrIyPFsYU8CGNJnStSFg01rUo3xPwhc8I7mKmdM88sBDrpXyskizpceqRw/bzFp7LsrceNszIyi9Y7u1Bq5eor8XfyXG4xKV/Iy5feqt2AapflLwm48PNHxS0Ssek6FNmUfn+f5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AfzeS4dp; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=pc/6AuOt1b7+tns7Rjnf1dwFsCEfe1MuGo+6PHSMHGhc3ZJ2XNL1a9bWZCZMyZGQlkIA+utOZV5Kgxt7ubPrbYAGmgjRiuCIerNRjsQyG10XOWqxlE1PDds2FHcQtez22c6gtiP3ZH8oBQs4dXbug2b0FRe3DYOOjMFltf2VG30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gm7jSRgM; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AfzeS4dp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gm7jSRgM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724906979;
+	s=mimecast20190719; t=1724907107;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=03Qf/XIbw5qKyffaKvRyGbHN12QPCb2FcgD6gnCFY+0=;
-	b=AfzeS4dpbTnzqSrUCoZ5j6kQchdzKNJWHW5fVdJW8stcP3pZ+k2l5y52cGKhGhFk30cFa1
-	O8OHoN9Clk+Fpdxv+6/e0qe66ZZDhyWhdPm+9fs6+cO4f+fKyPqdQcl8ve0qtSypGSpd30
-	gNPDWAq279dxKP1kO7+TA5GRwdcsC6c=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=AhJ0Qjxb5tXC1uW65ocyRUhVdCNqtk3iaFeONESG9MU=;
+	b=gm7jSRgM1mPG2fboXjfYqorXMbZ2vmvr39v8psHKGFQDckove72oeR+q0UUuyGSKc6TQXS
+	tuJa8VhHJGGvWbaGRD4QLAZAXbOm/AsdZj2QNvskTz89YaiCpiUrsF/HJURSW6CS7LmDzd
+	pHHsFuW5l5RfGg4tCzj6VVT2E5fPXjE=
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
+ [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-219-9nO8gTq2NZaQSUVWghY-Jg-1; Thu, 29 Aug 2024 00:49:37 -0400
-X-MC-Unique: 9nO8gTq2NZaQSUVWghY-Jg-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2d40752d653so262203a91.0
-        for <virtualization@lists.linux.dev>; Wed, 28 Aug 2024 21:49:37 -0700 (PDT)
+ us-mta-591-jIxjxMZmNLSCoenZGjBMOw-1; Thu, 29 Aug 2024 00:51:46 -0400
+X-MC-Unique: jIxjxMZmNLSCoenZGjBMOw-1
+Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-71447057259so299910b3a.0
+        for <virtualization@lists.linux.dev>; Wed, 28 Aug 2024 21:51:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724906976; x=1725511776;
+        d=1e100.net; s=20230601; t=1724907105; x=1725511905;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=03Qf/XIbw5qKyffaKvRyGbHN12QPCb2FcgD6gnCFY+0=;
-        b=TVa4myry56zdFNvi5s1gHcs885KGQtMa/pRSS4diOUAK/Awbzag+33vLnoo/zie1o8
-         Em18fwgffh2+fETf7VHf/0R3u/kaHhOQOznZ+oeEmAA1RvW9TnWtBxA8Q/JSzUQZDgVI
-         vZXXz9fjEc15X3Deg0KnnttkQvHmFPD3UfehOSfinxPPeBU+TQv4u7U9hWXJqMywGCU8
-         l9URGzZ289TlQC8ZDJBX/gsi1DUUiuAH12zOKKrx+4r+uLMC7UT4P1wEyS0teg1z1Syp
-         b6LCsSabIUh/x7HQyO1Px/CwgdN6WvizMVBncSkG8iIuqJbNlYECExzMBAeTt4mgkHxg
-         BWzg==
-X-Forwarded-Encrypted: i=1; AJvYcCXjVN44SsyYQMsGYs3P9VdYVEik6+N7JHljdmoUamgZdWhHRqGBkV+Wrx9exbd6g0opoIuMAvNJRB6m64DoDA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwkIOtXq9z0KyRWsCDtewzvtOI2r2KXV5lCVAMoCTnjFDWp4rga
-	RbAoQDUoRLbnMRJ5GMssiJwB9PdLDYu6Tr2T7YBPZN9iUXeGERbg/8sVx7ZMqlUFTPXHl9pT3Uu
-	v+nnS8PtYy4g7w123D53TJkRCkxmok8HDaC/SaO5dLNstiMihY8Ie5/7yL3RHJ6xxc9aimCD5+c
-	JPt3QU+6d6HbCOUHn/x380a96PXfCluoDJGjJWTow=
-X-Received: by 2002:a17:90b:3e84:b0:2c1:9892:8fb with SMTP id 98e67ed59e1d1-2d85618881dmr1458620a91.5.1724906976446;
-        Wed, 28 Aug 2024 21:49:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGUGAFR6tSH8vk5Ale6DnmiWQGUFCR8vJCc+FkyW8/X5qJjXCZMcxqDXb4gGd/1Grp2C5tsk8mzua6j1X27QYY=
-X-Received: by 2002:a17:90b:3e84:b0:2c1:9892:8fb with SMTP id
- 98e67ed59e1d1-2d85618881dmr1458599a91.5.1724906975803; Wed, 28 Aug 2024
- 21:49:35 -0700 (PDT)
+        bh=AhJ0Qjxb5tXC1uW65ocyRUhVdCNqtk3iaFeONESG9MU=;
+        b=ZYVW+114GsDG/mijPGQN7OGs7XqAwR32XQMAFa9RlhCLMRNGj/Sgbcit+KPCEFu6z3
+         ifagdvacQSa7JcIDrv2Ljveely/CHERBYQ8ahdVK+BmAuuVGIzCBFZHBKQUjRrjCA602
+         3izLbLaFyrwBleznPk1HYm6aSkvD2CJXHJOvmqzB9s50hbJsdtYES64VD0cgYDjSb9up
+         9+k4l7FNekDmY6Oi0M2pnPm9YLLLdPEYFwlyCg6Hysm7+9JFF8wwIFq+jmsFTVHFHUn7
+         zcEQC9a0ynXuadxtDg1MwRODsaGQWRWADumUxctrI65VWMqo9879jaL3rOkaZGtUJmnM
+         tC2g==
+X-Forwarded-Encrypted: i=1; AJvYcCU6fauorm3PDC8VRwjpQXtfpTxj4asfbdph22KtJ7W6aIIAFSbT/XRzE6nuLCG9UVQRzkv/WkjXaavm7E4IcQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzk45ESKYCQLopXr7EYLMXB0hkAmbmFH5FhOC7AEcFKXd/YFoMf
+	awcSDwhOVST7EC6sfWc6QcAKeBn0wjYAi5PspI4Sn3JUonzXr0NkO1hhXgl4Jt8qiZ+Ysyc7J9A
+	My999KKYDWCZ/xk81awGsh9RjlLSYyxqH7ieS+sq/e7CjG3M67GnEkwH2Qfstm/7GVDfJgD3edk
+	ncRaSeBi767L8oXXygk+FcVUbHBXvltKFF6ZkCDio=
+X-Received: by 2002:a05:6a21:6711:b0:1cc:d73a:93f1 with SMTP id adf61e73a8af0-1cce10c4e32mr1346537637.42.1724907105253;
+        Wed, 28 Aug 2024 21:51:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFetl4p/YRIvZmyYOe98zWjnjcjZE1mv3eFU10B5RS9pekPiEJe+4GFJBpmrCWROhYz8S7iCF9lMcyRsarBoUk=
+X-Received: by 2002:a05:6a21:6711:b0:1cc:d73a:93f1 with SMTP id
+ adf61e73a8af0-1cce10c4e32mr1346517637.42.1724907104650; Wed, 28 Aug 2024
+ 21:51:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240828181625.7831-1-carlos.bilbao.osdev@gmail.com>
-In-Reply-To: <20240828181625.7831-1-carlos.bilbao.osdev@gmail.com>
+References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEsJ2sckV5S1nGF+MrTgScVTTuwv6PHuLZARusJsFpf58g@mail.gmail.com> <1724843499.0572476-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1724843499.0572476-1-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 29 Aug 2024 12:49:24 +0800
-Message-ID: <CACGkMEs2wDLBq3_5KDOHou3g8Cxhm9Dx8eXy7JnX0R8ZYqinZA@mail.gmail.com>
-Subject: Re: [PATCH] vdpa: Set speed and duplex of mlx5_vnet to UNKNOWN
-To: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
-Cc: dtatulea@nvidia.com, mst@redhat.com, bilbao@vt.edu, 
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, cratiu@nvidia.com, 
-	lingshan.zhu@intel.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Carlos Bilbao <cbilbao@digitalocean.com>
+Date: Thu, 29 Aug 2024 12:51:31 +0800
+Message-ID: <CACGkMEsNk7iYti3hSJ0EiXfusF8Kw9YEJjXFH-DApQaEY6o-cQ@mail.gmail.com>
+Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Darren Kenny <darren.kenny@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 29, 2024 at 2:16=E2=80=AFAM Carlos Bilbao
-<carlos.bilbao.osdev@gmail.com> wrote:
+On Wed, Aug 28, 2024 at 7:21=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> From: Carlos Bilbao <cbilbao@digitalocean.com>
+> On Tue, 27 Aug 2024 11:38:45 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Tue, Aug 20, 2024 at 3:19=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > leads to regression on VM with the sysctl value of:
+> > >
+> > > - net.core.high_order_alloc_disable=3D1
+> > >
+> > > which could see reliable crashes or scp failure (scp a file 100M in s=
+ize
+> > > to VM):
+> > >
+> > > The issue is that the virtnet_rq_dma takes up 16 bytes at the beginni=
+ng
+> > > of a new frag. When the frag size is larger than PAGE_SIZE,
+> > > everything is fine. However, if the frag is only one page and the
+> > > total size of the buffer and virtnet_rq_dma is larger than one page, =
+an
+> > > overflow may occur. In this case, if an overflow is possible, I adjus=
+t
+> > > the buffer size. If net.core.high_order_alloc_disable=3D1, the maximu=
+m
+> > > buffer size is 4096 - 16. If net.core.high_order_alloc_disable=3D0, o=
+nly
+> > > the first buffer of the frag is affected.
+> >
+> > I wonder instead of trying to make use of headroom, would it be
+> > simpler if we allocate dedicated arrays of virtnet_rq_dma=EF=BC=9F
 >
-> mlx5_vdpa vDPA devices currently don't support reporting or setting the
-> speed and duplex and hence should be UNKNOWN instead of zero.
+> Sorry for the late reply. My mailbox was full, so I missed the reply to t=
+his
+> thread. Thanks to Si-Wei for reminding me.
 >
-> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c |  7 +++++++
->  drivers/vdpa/vdpa.c               | 23 +++++++++++++++++++++++
->  include/uapi/linux/vdpa.h         |  2 ++
->  3 files changed, 32 insertions(+)
+> If the virtnet_rq_dma is at the headroom, we can get the virtnet_rq_dma b=
+y buf.
 >
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
-x5_vnet.c
-> index fa78e8288ebb..319f5c6121de 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -3795,6 +3795,13 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev =
-*v_mdev, const char *name,
->         init_rwsem(&ndev->reslock);
->         config =3D &ndev->config;
+>         struct page *page =3D virt_to_head_page(buf);
 >
-> +       /*
-> +        * mlx5_vdpa vDPA devices currently don't support reporting or
-> +        * setting the speed or duplex.
-> +        */
-> +       config->speed  =3D SPEED_UNKNOWN;
-> +       config->duplex =3D DUPLEX_UNKNOWN;
-> +
->         if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
->                 err =3D config_func_mtu(mdev, add_config->net.mtu);
->                 if (err)
-> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 4dbd2e55a288..abde23e0041d 100644
-> --- a/drivers/vdpa/vdpa.c
-> +++ b/drivers/vdpa/vdpa.c
-> @@ -15,6 +15,7 @@
->  #include <net/genetlink.h>
->  #include <linux/mod_devicetable.h>
->  #include <linux/virtio_ids.h>
-> +#include <uapi/linux/ethtool.h>
+>         head =3D page_address(page);
 >
->  static LIST_HEAD(mdev_head);
->  /* A global mutex that protects vdpa management device and device level =
-operations. */
-> @@ -919,6 +920,22 @@ static int vdpa_dev_net_status_config_fill(struct sk=
-_buff *msg, u64 features,
->         return nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16);
->  }
+> If we use a dedicated array, then we need pass the virtnet_rq_dma pointer=
+ to
+> virtio core, the array has the same size with the rx ring.
 >
-> +static int vdpa_dev_net_speed_config_fill(struct sk_buff *msg, u64 featu=
-res,
-> +                                       struct virtio_net_config *config)
-> +{
-> +       __le32 speed =3D cpu_to_le32(SPEED_UNKNOWN);
-> +
-> +       return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_SPEED, sizeof(speed), &=
-speed);
-> +}
-> +
-> +static int vdpa_dev_net_duplex_config_fill(struct sk_buff *msg, u64 feat=
-ures,
-> +                                       struct virtio_net_config *config)
-> +{
-> +       u8 duplex =3D DUPLEX_UNKNOWN;
-> +
-> +       return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_DUPLEX, sizeof(duplex),=
- &duplex);
-> +}
-> +
->  static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_=
-buff *msg)
->  {
->         struct virtio_net_config config =3D {};
-> @@ -941,6 +958,12 @@ static int vdpa_dev_net_config_fill(struct vdpa_devi=
-ce *vdev, struct sk_buff *ms
->         if (vdpa_dev_net_status_config_fill(msg, features_device, &config=
-))
->                 return -EMSGSIZE;
+> The virtnet_rq_dma will be:
 >
-> +       if (vdpa_dev_net_speed_config_fill(msg, features_device, &config)=
-)
-> +               return -EMSGSIZE;
-> +
-> +       if (vdpa_dev_net_duplex_config_fill(msg, features_device, &config=
-))
-> +               return -EMSGSIZE;
-> +
->         return vdpa_dev_net_mq_config_fill(msg, features_device, &config)=
-;
->  }
+> struct virtnet_rq_dma {
+>         dma_addr_t addr;
+>         u32 ref;
+>         u16 len;
+>         u16 need_sync;
+> +       void *buf;
+> };
 >
-> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-> index 842bf1201ac4..1c64ee0dd7b1 100644
-> --- a/include/uapi/linux/vdpa.h
-> +++ b/include/uapi/linux/vdpa.h
-> @@ -43,6 +43,8 @@ enum vdpa_attr {
->         VDPA_ATTR_DEV_NET_STATUS,               /* u8 */
->         VDPA_ATTR_DEV_NET_CFG_MAX_VQP,          /* u16 */
->         VDPA_ATTR_DEV_NET_CFG_MTU,              /* u16 */
-> +       VDPA_ATTR_DEV_NET_CFG_SPEED,            /* u32 */
-> +       VDPA_ATTR_DEV_NET_CFG_DUPLEX,           /* u8 */
+> That will be simpler.
 
-This should be an independent patch as it allows vdpa tool to
-provision speed and duplex.
+I'm not sure I understand here, did you mean using a dedicated array is sim=
+pler?
 
-But a fundamental question is if we need such provisioning?
+>
+> >
+> > Btw, I see it has a need_sync, I wonder if it can help for performance
+> > or not? If not, any reason to keep that?
+>
+> I think yes, we can skip the cpu sync when we do not need it.
+
+I meant it looks to me the needs_sync is not necessary in the
+structure as we can call need_sync() any time if we had dma addr.
 
 Thanks
 
 >
->         VDPA_ATTR_DEV_NEGOTIATED_FEATURES,      /* u64 */
->         VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,          /* u32 */
-> --
-> 2.34.1
+> Thanks.
+>
+>
+> >
+> > >
+> > > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use=
+_dma_api")
+> > > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> > > Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c=
+0a@oracle.com
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/net/virtio_net.c | 12 +++++++++---
+> > >  1 file changed, 9 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index c6af18948092..e5286a6da863 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queu=
+e *rq, u32 size, gfp_t gfp)
+> > >         void *buf, *head;
+> > >         dma_addr_t addr;
+> > >
+> > > -       if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+> > > -               return NULL;
+> > > -
+> > >         head =3D page_address(alloc_frag->page);
+> > >
+> > >         dma =3D head;
+> > > @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_inf=
+o *vi, struct receive_queue *rq,
+> > >         len =3D SKB_DATA_ALIGN(len) +
+> > >               SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+> > >
+> > > +       if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)=
+))
+> > > +               return -ENOMEM;
+> > > +
+> > >         buf =3D virtnet_rq_alloc(rq, len, gfp);
+> > >         if (unlikely(!buf))
+> > >                 return -ENOMEM;
+> > > @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtne=
+t_info *vi,
+> > >          */
+> > >         len =3D get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room)=
+;
+> > >
+> > > +       if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gf=
+p)))
+> > > +               return -ENOMEM;
+> > > +
+> > > +       if (!alloc_frag->offset && len + room + sizeof(struct virtnet=
+_rq_dma) > alloc_frag->size)
+> > > +               len -=3D sizeof(struct virtnet_rq_dma);
+> > > +
+> > >         buf =3D virtnet_rq_alloc(rq, len + room, gfp);
+> > >         if (unlikely(!buf))
+> > >                 return -ENOMEM;
+> > > --
+> > > 2.32.0.3.g01195cf9f
+> >
+> > Thanks
+> >
+> > >
+> >
+> >
+> >
 >
 
