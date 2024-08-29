@@ -1,169 +1,102 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BBD31B14EF
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 15:10:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 824A6168DA
+	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 15:15:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724944245; cv=none; b=pwAuVqpRd+0chRq+Sb7rZpaVR904CCmMUeSVQDhuXTRw4Jo3XFG87LFU9v29DBE4D83nVqAkcHa6XBm1eW8Q3fgIM5z05EzLOMJxL/gCOFAEC3Uv8sMqor9amO2RHoIY8MRY6uJMdWtXG3MWp6Z3ILLjMvOaEkXUvj/lWUlDEDA=
+	t=1724944550; cv=none; b=tndH3QEoGDHtWhupOtp3bistlYdhM9qTdYg4OybFa+umfl5qXUb0An2aRCspC3uVStsJDp8b9VAuGGGcQe2ko/Uo6HvWJlt2KUaIKiJYUc2sX3ahBItHYnr4jP2YaaW793EJPNv7ekmfxLkUFHqlvt43T/iSeFfx4VxdAUdNYgo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724944245; c=relaxed/simple;
-	bh=3wueJtwqZPDY8uUIPY+rtKEAp2/GgrA6iAsAi6G04ns=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=S7ua9PQ1Rup8di1PRcRK40DQAnDsREtTMnSWFjaCbUm2XlSPtjTWjxO/yy28orqp9HG+sTOziH7Rv3ZScG3DROStpNlS3rMyVCdy1TX76dqFCNH91jrFpzIm37p6BlBrjb8ECDiZdxySsDo9tCfpAgawnhnvKgWlJyhAHqgfW14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ISozSKQP; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724944550; c=relaxed/simple;
+	bh=5TmukUoN3OqViIZSgckxwOaFaXhvahwdFF1GZRjk2XQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=H7Yv+Ri+11TXrUSCHEQLKOcBSvI0RzlMjz2uln/1b0qDSzzrKVfDsvKYA4H76Q9zn3glVgTtP0wZ5RhkQel5lDreJi3/m2lpeafNUsUlrykCorpXC0/Q0WQHipT2WrCQ/mp5lOnFmnSiyLrw5cTmGKFFdn/JY/vc2Ic9tsnHdR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Cly3TL1X; arc=none smtp.client-ip=209.85.160.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ISozSKQP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724944242;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=412DWhH/oriLI6hvWD5rHCU4OUHfqjU0rcZX3wNeFQE=;
-	b=ISozSKQPuk8TTIxGv1LEdw77vqTFCxaLY+MeaW+4Aw208cEijhZD62GxgEFcEOg/7kESH6
-	OXK/w1G2VuAdPRtqwlkaVuS4mooDDHTQz2qiOfpDZIoaIrQ7FzL4amtJbxyw7KHnYuWGEW
-	t8APU+ZzTs19Gbbu/ePrwuJaJvjS1jk=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-296-_8jNbzt6MkCNJe-M5VoI8Q-1; Thu, 29 Aug 2024 11:10:32 -0400
-X-MC-Unique: _8jNbzt6MkCNJe-M5VoI8Q-1
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5bec23ba156so629860a12.1
-        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 08:10:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Cly3TL1X"
+Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-2705dd4ba64so412434fac.3
+        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 08:15:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724944547; x=1725549347; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=FRirlb6wvvKBJEvpGg/PBmMNU4ZDQpov8zWQVHUhVVE=;
+        b=Cly3TL1XneuYzwYaF1Dtevjy7SvyyXQZuV2l2DQHJ6tZfKJYHcEVDRx5PSSilis/je
+         KSBKZaQJSmU/I5Kn6wkmACiRWh6b4arrtvuTUGC38vJPw99Rq825BeW7+48JIutB5yRS
+         kFB5Tc7TnGoFqeoZNbaeMZulBbXYX6JEfY3XKF84vM2JT5P+oMQn5UC2emtex3dTkNoS
+         cOEDAP+rOqYeKV4nELR61BVME7kbqwXhvRUw9AauMPqy0TdlIhWowHo//H+19M9vtdwt
+         5J5CFKFwbFlYBX4kcZ8rITEdPUEi5NbfsrYwJDAUyxzPd8JDA1cVoM79+Me8jjp0Ll04
+         6jXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724944231; x=1725549031;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=412DWhH/oriLI6hvWD5rHCU4OUHfqjU0rcZX3wNeFQE=;
-        b=ZG3rp82bw6C4ICxSbPuQRas4FUoDMNWuPYXhp3honipnrqEt7KaCbmI7mJXRKiCv7c
-         ajxz6D9D74SVHXy998lMXRKuKJq9ZCWvNYc0jltxSKEkHesqN/AsdkjBKLKp5g/jgQBc
-         frhE7DZg6tDKbKZFo/DJXB8DJzdE6cDWWXSZls1+5aPkNuDlaGzSi3l0gcDqlRA3mX4d
-         AVoPW+LLmIX32qmVLw5zT91M5jW95QzmZX9lLOxkbWnMb8qm/Km13umksf0aNM1a0igp
-         AaqmnqpFj9n+nCRBRJM6uizjiYuWO22NgtwKm9++F6WPDO6nZKhOk0D5bw+VVnzPPBBU
-         8GtA==
-X-Forwarded-Encrypted: i=1; AJvYcCUDjEk4E8cKLrUBW5aAWCd07nDQf+ilh9LfkcZQhqnaETkIVW//0Ls0bb6t/W7rqVMt80uiYTuCZgqEaxU8yg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YynFfl8mNZMebNImohcRvIOhcM9ausysJRAelzg8AK2cWd482Mp
-	2e9n7rQ62xNFi94ycwL0K7dILFMhnJlGdM7BdClzsRIxJ9xVuO+sVK37TqvWMaMmZ8uajdy2KU1
-	OzstaEV8ZGyTWqZk6qrNsbKS6K8g0iRwMNzcy8VfK6LtrGbaaWsiX4FNUlyjGcx6B
-X-Received: by 2002:a05:6402:3506:b0:5c2:17f7:a3cc with SMTP id 4fb4d7f45d1cf-5c21ed311dfmr3269567a12.7.1724944231554;
-        Thu, 29 Aug 2024 08:10:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEsjAXjjJGNgtKMvoMzJYd+NwWHB3eXVAslR4/vzHPWb7ReUjNyaxjfmmOTF5ScXOWLN7Kriw==
-X-Received: by 2002:a05:6402:3506:b0:5c2:17f7:a3cc with SMTP id 4fb4d7f45d1cf-5c21ed311dfmr3269546a12.7.1724944230707;
-        Thu, 29 Aug 2024 08:10:30 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:17c:f3dd:4b1c:bb80:a038:2df3])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a89891d80fcsm89031566b.181.2024.08.29.08.10.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Aug 2024 08:10:30 -0700 (PDT)
-Date: Thu, 29 Aug 2024 11:10:24 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Philipp Stanner <pstanner@redhat.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
-	Jens Axboe <axboe@kernel.dk>, Wu Hao <hao.wu@intel.com>,
-	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>, Andy Shevchenko <andy@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Damien Le Moal <dlemoal@kernel.org>, Hannes Reinecke <hare@suse.de>,
-	John Garry <john.g.garry@oracle.com>, linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-fpga@vger.kernel.org,
-	linux-gpio@vger.kernel.org, netdev@vger.kernel.org,
-	linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
-	stable@vger.kernel.org,
-	Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: Re: [PATCH v5 6/7] vdpa: solidrun: Fix UB bug with devres
-Message-ID: <20240829110902-mutt-send-email-mst@kernel.org>
-References: <20240829141844.39064-1-pstanner@redhat.com>
- <20240829141844.39064-7-pstanner@redhat.com>
- <20240829102320-mutt-send-email-mst@kernel.org>
- <CAHp75Ve7O6eAiNx0+v_SNR2vuYgnkeWrPD1Umb1afS3pf7m8MQ@mail.gmail.com>
- <20240829104124-mutt-send-email-mst@kernel.org>
- <2cc5984b65beb6805f8d60ffd9627897b65b7700.camel@redhat.com>
+        d=1e100.net; s=20230601; t=1724944547; x=1725549347;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FRirlb6wvvKBJEvpGg/PBmMNU4ZDQpov8zWQVHUhVVE=;
+        b=EotRWbncbFxmhSuycN1w4s9QTnqyNXi1Nl/u8zvojTDdOXeA6LjKBeDtfXLsZzY0oP
+         AKqgz5afIl2mvsV6VdfjhfODIEcwpvOmsGVrMtFcpjVasnBr7YX/UDym4+Cf8N+6jLUW
+         IscNamhvUItfifv056DrHTH7R0mycC7xDVRwaVYLjDQrCBHx0Of5SpVdi6FSXjiXD57t
+         IN8xszT2H5Qnj203Rv4UiXkclP2cB++MH74nRFLSEfHAHuTCozOEF9pWV4ksSYzQQvnG
+         AnFPhw7w/ns1CUPy2Md8xL30VzwvF0+vXJq+Rb+5M7QiUAzjx70LOjupj2q1e/C24pfp
+         exRA==
+X-Gm-Message-State: AOJu0YwIZIeg9uufCtMKVOONDNCVkb8CwU0yTqEAhF/BIzwBYrquOls7
+	Ic5AakrRABvAsw78pDZbM4xNeJzmDR1g/yAyrt3sCM84YoFK1Az87NYlIrlRxXL2fQprVGJ7GFW
+	/mvsUFsxRju59bZXF9dR8xS01EKY=
+X-Google-Smtp-Source: AGHT+IEmDAAEp6aILEts2ZQokWen4qdf4maZMNl5CZILfDzYorhaJtj0RtTgC+Siv3QhBB5D/pUU+iRfGQYH8lu3gJ4=
+X-Received: by 2002:a05:6870:82a6:b0:259:ae64:9234 with SMTP id
+ 586e51a60fabf-277900be218mr3667675fac.13.1724944547243; Thu, 29 Aug 2024
+ 08:15:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2cc5984b65beb6805f8d60ffd9627897b65b7700.camel@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+References: <20240829143757.85844-1-sgarzare@redhat.com>
+In-Reply-To: <20240829143757.85844-1-sgarzare@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Date: Thu, 29 Aug 2024 11:15:34 -0400
+Message-ID: <CAJSP0QW3WN2Z-x5Y8TnyA_Rq-ok9VgG1YSUzYPDCrav7Phx6Hw@mail.gmail.com>
+Subject: Re: [PATCH] MAINTAINERS: add virtio-vsock driver in the VIRTIO CORE section
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Aug 29, 2024 at 04:49:50PM +0200, Philipp Stanner wrote:
-> On Thu, 2024-08-29 at 10:41 -0400, Michael S. Tsirkin wrote:
-> > On Thu, Aug 29, 2024 at 05:26:39PM +0300, Andy Shevchenko wrote:
-> > > On Thu, Aug 29, 2024 at 5:23 PM Michael S. Tsirkin <mst@redhat.com>
-> > > wrote:
-> > > > 
-> > > > On Thu, Aug 29, 2024 at 04:16:25PM +0200, Philipp Stanner wrote:
-> > > > > In psnet_open_pf_bar() and snet_open_vf_bar() a string later
-> > > > > passed to
-> > > > > pcim_iomap_regions() is placed on the stack. Neither
-> > > > > pcim_iomap_regions() nor the functions it calls copy that
-> > > > > string.
-> > > > > 
-> > > > > Should the string later ever be used, this, consequently,
-> > > > > causes
-> > > > > undefined behavior since the stack frame will by then have
-> > > > > disappeared.
-> > > > > 
-> > > > > Fix the bug by allocating the strings on the heap through
-> > > > > devm_kasprintf().
-> > > > > 
-> > > > > Cc: stable@vger.kernel.org    # v6.3
-> > > > > Fixes: 51a8f9d7f587 ("virtio: vdpa: new SolidNET DPU driver.")
-> > > > > Reported-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> > > > > Closes:
-> > > > > https://lore.kernel.org/all/74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanadoo.fr/
-> > > > > Suggested-by: Andy Shevchenko <andy@kernel.org>
-> > > > > Signed-off-by: Philipp Stanner <pstanner@redhat.com>
-> > > > 
-> > > > Post this separately, so I can apply?
-> > > 
-> > > Don't you use `b4`? With it it as simple as
-> > > 
-> > >   b4 am -P 6 $MSG_ID_OF_THIS_SERIES
-> > > 
-> > > -- 
-> > > With Best Regards,
-> > > Andy Shevchenko
-> > 
-> > I can do all kind of things, but if it's posted as part of a
-> > patchset,
-> > it is not clear to me this has been tested outside of the patchset.
-> > 
-> 
-> Separating it from the series would lead to merge conflicts, because
-> patch 7 depends on it.
-> 
-> If you're responsible for vdpa in general I could send patches 6 and 7
-> separately to you.
-> 
-> But number 7 depends on number 1, because pcim_iounmap_region() needs
-> to be public. So if patches 1-5 enter through a different tree than
-> yours, that could be a problem.
-> 
-> 
-> P.
+On Thu, 29 Aug 2024 at 11:01, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>
+> The virtio-vsock driver is already under VM SOCKETS (AF_VSOCK),
+> managed pricipally with the net tree, and VIRTIO AND VHOST
+> VSOCK DRIVER. However, changes that only affect the virtio part
+> usually go with Michael's tree, so let's also put the driver in
+> the VIRTIO CORE section to have its maintainers in CC for changes
+> to the virtio-vsock driver.
+>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  MAINTAINERS | 1 +
+>  1 file changed, 1 insertion(+)
 
-Defer 1/7 until after the merge window, this is what is normally done.
-Adding new warnings is not nice, anyway.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
--- 
-MST
-
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 878dcd23b331..6dcea63f396e 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -24218,6 +24218,7 @@ F:      include/linux/vdpa.h
+>  F:     include/linux/virtio*.h
+>  F:     include/linux/vringh.h
+>  F:     include/uapi/linux/virtio_*.h
+> +F:     net/vmw_vsock/virtio*
+>  F:     tools/virtio/
+>  F:     tools/testing/selftests/drivers/net/virtio_net/
+>
+> --
+> 2.46.0
+>
+>
