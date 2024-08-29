@@ -1,101 +1,181 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1E29189F31
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 08:07:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B95DB18CC00
+	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 09:06:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724918845; cv=none; b=dhYTEngzHSGe4RbyKeX/Qx8L05h0jufazg0up+Qs6WexrjXgUbsvbDoTOPwPaR/WeYGK2Q3TixXt+cOCBNsmJoWoKHXgxC4E9qE2pQhOktrpOxBumav7gVeNIHDpUhDJ9SJ4wRibZaUtSoDPpzQS8PIu+licmgpjMnWRWZ0C11Y=
+	t=1724922386; cv=none; b=Kp/o37yljEABQyYfyQ8S2Ra8sLaXNMQq0jgwpUlZVOFvprpAuCB/huCpgy22EDDE2KnOEGpz4pg3cg8VjwrNG/0ylIDHqCntk/mGu4PBBCT1z98zx6V7CFUba2QGVb902Lz3aEBaaCKRJX8OTETDAQL7xNWpK4Ob2FnXokhNc5Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724918845; c=relaxed/simple;
-	bh=auFqkUNyv2Fd/0ioi9ZUc3h7ws94RlEFh6JNyRARyKY=;
+	s=arc-20240116; t=1724922386; c=relaxed/simple;
+	bh=dNmgvB0PNie3Ta9wWOJOICrzojenRtlbYkH0WIcuTts=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TE1eesM8s42ifGMQoFh9rCws0kJuyxIx3STJ6AWz5t394F/AlnwDONKawRddk455islHDhNSeSZFyua/1bOXrLGmyQtD4NrUBHSJctM1jqv4t/i+sozqh8NgOK0+Z5TGmCcsydJZYKmN1sQ+BRPHQZthTSVvltwvciklgpjM99M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=VYXi5g5I; arc=none smtp.client-ip=209.85.167.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+	 To:Cc:Content-Type; b=IGzxFIRRRZfOptXSkk2skrkpcqCt07ZWw0cA50IiTp65dNCRx9lp5zpAK88dE+6x13LKJhF2T9wmvm0Pq2v8tyThuP+ki5uOUo8sFFeD1fVrp6tMBUvIwG6qHtAvYr33dUA2rHTI8Z5mEBh61ib8z2rL65iWPCgSuRykn9olT3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VqvY8zXD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="VYXi5g5I"
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-53345dcd377so473439e87.2
-        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 01:07:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1724918842; x=1725523642; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=rWHF4NxXib0BaVbETNyvLLP+DsSB41nEJXFZk7mMGog=;
-        b=VYXi5g5In9yvEFKRboecS8npCYa9gfYuYK8yMQ16kUOPHz6V5tYQbh8iR1nwGzG5Uw
-         RGTT2G4DL7IyK83DJnivWWEilJmefKt1Spf/uEYZsLyBdLA2TfHNqpol+bcSAXE0WLqj
-         qBUeCpjk77biXKvaQSDM6M6Ddo0EUERlk1tDY=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VqvY8zXD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724922383;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/uYBPSE4scu+k+l3zhOUlQLPU644iSREuuqaqkYhf/E=;
+	b=VqvY8zXDJ+obpgci2QQ6XbhbN4hP09u4+mpElgD4aSF2aLs3zjnjgMQ5MDrhg5NA7oO0OI
+	ktgYNWXR08mw1Lh3MEgAfBXN+2hFqK1fFcTbGdSZWGmiwV99Ey7275Dfr4l+v6YxtjgE4O
+	Akj9ZdVC8rOP4dpgazphVzk65ND2v84=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-361-QN41FFKZPHacP80meeNTHA-1; Thu, 29 Aug 2024 05:06:17 -0400
+X-MC-Unique: QN41FFKZPHacP80meeNTHA-1
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5bed91ffb7bso250859a12.3
+        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 02:06:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724918842; x=1725523642;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rWHF4NxXib0BaVbETNyvLLP+DsSB41nEJXFZk7mMGog=;
-        b=f6JCI+TIti5WY+VL6NBD3+0f2WkYLhWxBfeIsKB3wheXlAWkU2z1VCCdPzFmEbbGro
-         /aGCbYCuCEiKpbgALcvNrM9YZphQ7ZMHC/Q3cyNwTXVrLxMDwViJDxxH8tdvh1xlSbfJ
-         GdTJwtjAIa36JuWNYadCwrBfCxCWyJoTyvPY1jOE8zvoFlxG0lnRI2TcTTaO+t9J7vAH
-         EENTYDqmY5Rzgx9rEwlELJiUl7CGsz2jPhz6xmOeSx9InF4TJsiw/5M6G3h7w7ygGKu7
-         PmYuNCJmGafsSss4Ap5QQxpghwaAieufNKwvO2eAVJN08SR0WDN+R1zGO8DPKyNR+RwJ
-         O8Zw==
-X-Forwarded-Encrypted: i=1; AJvYcCVcHiysXB+cckVNf8Ic+rNpR3W0FX9cHg7oXlbN8YmEreyzkmFaOj/bs5oglAe0clX78DskBrqOlkA0QdiXWw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxd9uE4IIhE2V0BgbUViEgT1964LZJK+Nai7MQ/fPu+attThPyH
-	qAn4YbC4oyNTAc1RE6n2qTzVWTVO6/5XIgmaPz3qnSDKowYmwUWNR45WWLjjNmsY8GVPHcTI6EF
-	UhwBnTxNMZ5LhX0IcmwCZwYaTtB97+vuGP7TGZQ==
-X-Google-Smtp-Source: AGHT+IGNbDJ14S2lYWoqQ5dAM0S0xuzu3UKx1UZtVenRD205hOgag/lAWnB20MTVkCtylH29xVj9OadK/FnKaKfGoUk=
-X-Received: by 2002:a05:6512:6c7:b0:533:4676:c21c with SMTP id
- 2adb3069b0e04-5353e5ae666mr1221299e87.44.1724918841596; Thu, 29 Aug 2024
- 01:07:21 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724922376; x=1725527176;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/uYBPSE4scu+k+l3zhOUlQLPU644iSREuuqaqkYhf/E=;
+        b=o4aSb11+JXm68u75Aza5FWntTc9nUdVKhEQPm4xV7XzftPUCgJXqTHtc9NqxCaP8bM
+         fEfdLScb/o1mbCsx1V5xy2HiNn5gbOLFLSgVCKy+7jxHYfUkM4UZEGEjB+yyMUI9kH4f
+         9Kaf2n6w/yJNFrLf0+Gof10BRW14Q8i9Eeiwr8SfahbQZAZTd45iVvo/OmJmoXLX25Tl
+         xG30VyYX4+RF4Cb9QxTug86LRvz4yWJrq37uka/iF1u9BA06wkxjwPc77iMc1yArScDE
+         SOLmL9/mtl5b82TRb7d5mJdxtQD4qD+OOXBxblD1hM63EjbWMSXyByVSzxdSBWF+4Wv/
+         eLYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWIcxJ660dTKh0zYemqJCWtvUMcP6KaE2U9R/E067jkLgvwz4chbjk5Xz1l220HMS9OTwyBWqpNC+7wPCh0Qg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxQ1Vy4mNmoKcmSco4Q7fMrTaRsTLR510RRrTQ4F586z7YgOlX9
+	BGC9DSh21ybZyKuLI6i5W1s1arHDPh5xyB/5XH2pPpLx/Jw4udw9KGMU6EsfNQt7i5001PVG9DW
+	/b6c7ZJx6MIwJObutPtVNfwUi+HB1xb1ZULWJg+fiMOoPd3EAtgCYmyRphkDQwCzLSntLmrMQ4w
+	62P/27uUcgWsKsmUfMdrLDretgbs5DAryk4nMvrHs=
+X-Received: by 2002:a05:6402:90b:b0:5be:fbe7:11ac with SMTP id 4fb4d7f45d1cf-5c21ed54d3cmr1826753a12.20.1724922375794;
+        Thu, 29 Aug 2024 02:06:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHGLm8Hz5ioA0VaJ4JLlmepguUyiuDxm4rTg99EfDG1HDgky7aJfIl1rtVoY3YUHlEK2SJJtzOojwa/4ib/k+8=
+X-Received: by 2002:a05:6402:90b:b0:5be:fbe7:11ac with SMTP id
+ 4fb4d7f45d1cf-5c21ed54d3cmr1826728a12.20.1724922375297; Thu, 29 Aug 2024
+ 02:06:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240709111918.31233-1-hreitz@redhat.com>
-In-Reply-To: <20240709111918.31233-1-hreitz@redhat.com>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 29 Aug 2024 10:07:10 +0200
-Message-ID: <CAJfpegv6T_5fFCEMcHWgLQy5xT8Dp-O5KVOXiKsh2Gd-AJHwcg@mail.gmail.com>
-Subject: Re: [PATCH 0/2] virtio-fs: Add 'file' mount option
-To: Hanna Czenczek <hreitz@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-doc@vger.kernel.org, virtualization@lists.linux.dev, 
-	Miklos Szeredi <mszeredi@redhat.com>, German Maglione <gmaglione@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Vivek Goyal <vgoyal@redhat.com>
+References: <20240827160256.2446626-2-dtatulea@nvidia.com> <CACGkMEuRvqu8W9-OqPBRhn1DG-+DO6TCzFdHqc7zB74GkNDkAQ@mail.gmail.com>
+ <CACLfguXjiyp+Ya4mUKXu6Dmb3Wx5wW0bbNGRSFWE-Z0E5gALTA@mail.gmail.com> <8daf221f-8d87-4da1-944c-3bcd0edea604@nvidia.com>
+In-Reply-To: <8daf221f-8d87-4da1-944c-3bcd0edea604@nvidia.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Thu, 29 Aug 2024 17:05:38 +0800
+Message-ID: <CACLfguVr1bd6=bkGn6hX3W7xBr45qydaCpQ1mNpsATeWFqe2ZA@mail.gmail.com>
+Subject: Re: [PATCH] vdpa/mlx5: Use random MAC address when no nic vport MAC set
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	si-wei.liu@oracle.com, Jiri Pirko <jiri@nvidia.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 9 Jul 2024 at 13:19, Hanna Czenczek <hreitz@redhat.com> wrote:
+On Wed, 28 Aug 2024 at 17:37, Dragos Tatulea <dtatulea@nvidia.com> wrote:
 >
-> Hi,
 >
-> We want to be able to mount filesystems that just consist of one regular
-> file via virtio-fs, i.e. no root directory, just a file as the root
-> node.
 >
-> While that is possible via FUSE itself (through the 'rootmode' mount
-> option, which is automatically set by the fusermount help program to
-> match the mount point's inode mode), there is no virtio-fs option yet
-> that would allow changing the rootmode from S_IFDIR to S_IFREG.
+> On 28.08.24 11:00, Cindy Lu wrote:
+> > On Wed, 28 Aug 2024 at 09:51, Jason Wang <jasowang@redhat.com> wrote:
+> >>
+> >> On Wed, Aug 28, 2024 at 12:03=E2=80=AFAM Dragos Tatulea <dtatulea@nvid=
+ia.com> wrote:
+> >>>
+> >>> When the vdpa device is configured without a specific MAC
+> >>> address, the vport MAC address is used. However, this
+> >>> address can be 0 which prevents the driver from properly
+> >>> configuring the MPFS and breaks steering.
+> >>>
+> >>> The solution is to simply generate a random MAC address
+> >>> when no MAC is set on the nic vport.
+> >>>
+> >>> Now it's possible to create a vdpa device without a
+> >>> MAC address and run qemu with this device without needing
+> >>> to configure an explicit MAC address.
+> >>>
+> >>> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> >>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> >>
+> >> Acked-by: Jason Wang <jasowang@redhat.com>
+> >>
+> >> (Adding Cindy for double checking if it has any side effect on Qemu si=
+de)
+> >>
+> >> Thanks
+> >>
+> > But Now there is a bug in QEMU: if the hardware MAC address does not
+> > match the one in the QEMU command line, it will cause traffic loss.
+> >
+> Why is this a new issue in qemu? qemu in it's current state won't work
+> with a different mac address that the one that is set in HW anyway.
 >
-> To do that, this series introduces a new 'file' mount option that does
-> precisely that.  Alternatively, we could provide the same 'rootmode'
-> option that FUSE has, but as laid out in patch 1's commit description,
-> that option is a bit cumbersome for virtio-fs (in a way that it is not
-> for FUSE), and its usefulness as a more general option is limited.
+this is not a new bug. We are trying to fix it because it will cause
+traffic lose without any warning.
+in my fix , this setting (different mac in device and Qemu) will fail
+to load the VM.
 
-I wonder if this is needed at all for virtiofs, which could easily do
-the FUSE_INIT request synchronously with mount(2) and the server could
-just tell the client the root mode explicitly in the FUSE_INIT reply,
-or could just fetch it with a separate FUSE_GETATTR.
+> > So, Just an FYI here: if your patch merged, it may cause traffic loss.
+> > and now I'm working in the fix it in qemu, the link is
+> > https://patchew.org/QEMU/20240716011349.821777-1-lulu@redhat.com/
+> > The idea of this fix is
+> > There are will only two acceptable situations for qemu:
+> > 1. The hardware MAC address is the same as the MAC address specified
+> > in the QEMU command line, and both MAC addresses are not 0.
+> > 2. The hardware MAC address is not 0, and the MAC address in the QEMU
+> > command line is 0. In this situation, the hardware MAC address will
+> > overwrite the QEMU command line address.
+> >
+> Why would this not work with this patch? This patch simply sets a MAC
+> if the vport doesn't have one set. Which allows for more scenarios to
+> work.
+>
+I do not mean your patch will not work, I just want to make some
+clarify here.Your patch + my fix may cause the VM to fail to load in
+some situations, and this is as expected.
+Your patch is good to merge.
+Thanks
+cindy
 
-Why regular fuse doesn't do this?  That's because a single threaded
-server can only be supported if the mount(2) syscall returns before
-any request need processing.  Virtiofs doesn't suffer from this at
-all, AFAICS.
+> Thanks,
+> Dragos
+>
+> > Thanks
+> > Cindy
+> >
+> >
+> >>> ---
+> >>>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
+> >>>  1 file changed, 3 insertions(+)
+> >>>
+> >>> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/ne=
+t/mlx5_vnet.c
+> >>> index fa78e8288ebb..1c26139d02fe 100644
+> >>> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> >>> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> >>> @@ -3824,6 +3824,9 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_d=
+ev *v_mdev, const char *name,
+> >>>                 err =3D mlx5_query_nic_vport_mac_address(mdev, 0, 0, =
+config->mac);
+> >>>                 if (err)
+> >>>                         goto err_alloc;
+> >>> +
+> >>> +               if (is_zero_ether_addr(config->mac))
+> >>> +                       eth_random_addr(config->mac);
+> >>>         }
+> >>>
+> >>>         if (!is_zero_ether_addr(config->mac)) {
+> >>> --
+> >>> 2.45.1
+> >>>
+> >>
+> >
+>
 
-Does this make sense?
-
-Thanks,
-Miklos
