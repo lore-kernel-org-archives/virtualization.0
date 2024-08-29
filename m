@@ -1,194 +1,236 @@
-Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 846071ABEC0
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 13:36:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C66E1AD3E6
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 13:43:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724938594; cv=none; b=XorK78PslvHIeT15JKbtJP9cv7+emjqlN+vFY+3lKUgBsOzJwm8awt+0no3mhoMyUroaOsuLrXK+54rH43afHIigkVmYTG7uCNiMZzh5hOK4xUw5SFmT6/OB8JXTUC0jOfIWm/T1YCIGTYAEQQMz0EOFAUOnsIA3wqQnWR1bniA=
+	t=1724939016; cv=none; b=V6HmDhHRGC0dZxD5eZxFBkBciUmdV8uqsS4kXJy/SC8TKcusZGEA0bAsh+aTLMawuv9hax3EqeeVoinw8CkHGnShQoqTh9EBPS+Q6/7Zaiv3kI+4gwjMT4Jhkr2OrepHMk47TfIVb5ONqcSeMDVOl0aJK00OdtDiK4U8hkHMvso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724938594; c=relaxed/simple;
-	bh=0b4JYB0fdnkgZswINeMZZ5lXdMTAicEdnaM+Pb7nxj8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WI+z4pKWXs7v1dNrYhxluRcj73HP2JpExaztHgTE+Un8M6dPkLsN/4P4RZuMo5eS/cxPhx/E9s9bIR/5AZKLQL3PDd5AYnl1E47XidtlCz+tVuooOKX74xv7t0tCnPqUsVWDVIyVMLF3KATKzcTImLXPMq+LygaY6fjEapfuQug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com; spf=pass smtp.mailfrom=digitalocean.com; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=c/XanCtH; arc=none smtp.client-ip=209.85.161.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digitalocean.com
+	s=arc-20240116; t=1724939016; c=relaxed/simple;
+	bh=giGBQU+sQEwpl2UxJ2qyqRaobzqGFI9NezCBLi0vtgo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MCukzoL6j13R3SVn5Uae+qMX34QP8rnjp1+loXVsdyRNZJWl+CGNDJY6KbouD9FKNCGGasPUHvRgmI6sb4ztebmdNi5ma0Q0xWjT9PW37WGbX99hruRQjbPhJpTGNXxZngAsf4TCRb2rljbQ5xUUDJV3mVwKRlkPTJWox9BAZyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dOwdxnFg; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="c/XanCtH"
-Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-5df96759e37so446640eaf.2
-        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 06:36:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google; t=1724938591; x=1725543391; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=dcflD0rJdognRnckvpOw1m0o37d9JitlAxoHKprnaJU=;
-        b=c/XanCtHyEbZPGDzbgI2ueOGfJrlbHYBlyqCXN9OLGoLA611H2zMEY5Exe3KwEN5Fn
-         fEiD6DhvN6kPoCp/A5CLpcFSJfgX618YJiaSVt1l3SMJAFE4Ya3THWD1IkBu1HCEk9rm
-         fU3M2KAAT+J5zj7EZZMDaUPrNAoqf19Q8i6lo=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dOwdxnFg"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5AF2240B5F
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 13:43:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 5ILmrR-Pdz1m for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Aug 2024 13:43:33 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2027640118
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2027640118
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dOwdxnFg
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2027640118
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 13:43:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724939010;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=O0Z2TTAubebcI3yRFy8BOcjudxXHokyVQvE7gs+dc9U=;
+	b=dOwdxnFgpxcV0siWqYFcTfF4yrQxpWE25njpiLQuEqPobMXmCmu04ILypjTM8+q4Xj4Zsk
+	6nSlf1wmVP2ZWojMIySHoYPXpBKrBMYsLPgbgGKOLtY4zGHNuvS8+9dncnz7ppLa6fS76v
+	wd4LVLup5YAZ4TBG8/alsOlSdvEB+ws=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-115-KZF1yZVFOkCvaavlf3tDQg-1; Thu, 29 Aug 2024 09:43:21 -0400
+X-MC-Unique: KZF1yZVFOkCvaavlf3tDQg-1
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-6b3825748c2so15357787b3.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 06:43:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724938591; x=1725543391;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=dcflD0rJdognRnckvpOw1m0o37d9JitlAxoHKprnaJU=;
-        b=lQgFrgehuodM0u8Oh6buuMOFUySP0bJbzaCFZjl1CL+GleoS291mXbDSfrZvaEPJZE
-         cE9v2Jcz0x+ebgW5m5Qpjj7HeeVZkb8ZbVgEbBCK7gP7thCjtV6vc26m81zJfNhK8vPA
-         nGx9AKVX01zsTShxmNxZY8RgVhHAs6+zA35J0iI//lz3nkwqs689hm/T6KU0bAfAnDuB
-         bRx7eW1iqy0uqYTWRQ7f1SAD3D82GC0Dkbefr1Y18kI0PmZOOpkgHOHNWieSHfv6gwsd
-         M3EjRzLcnw1WkqHbsWoUeWNJD6zmAc2k8BEQn/gJeDqw8Ml3kT/6X40x9vLQ6Slz6V0D
-         k+3w==
-X-Forwarded-Encrypted: i=1; AJvYcCVyuWRAGH73ZPb5c7ns1Bg5CPQyuaRy/NfSGUWF14cNngMwPj388v1p+ueY7zC8/+pYe5/Ty5zaM/0JEfyy8w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyFhW7soGWhDajHNw9epTc5C1WEeYdg3Ncdmyql3pG142IOw7lO
-	CYD0OswNxpUG5rZt2nsDfPMNRKBm+4MMXliEJzzIakZ/TVH6ztX4l3YfsLAmeawZqvPDP5gn6Mz
-	UpzXs2g==
-X-Google-Smtp-Source: AGHT+IGXNyeCI9Os4sl/asG/hqkfvpNaoFn+aw2MfHYyZTFEoIHQm1ybAQK/fnqTcXCVbAfE+0qFpw==
-X-Received: by 2002:a05:6820:1b86:b0:5dc:9f44:7a3b with SMTP id 006d021491bc7-5df980cdde2mr3442407eaf.4.1724938580278;
-        Thu, 29 Aug 2024 06:36:20 -0700 (PDT)
-Received: from ?IPV6:2603:8080:7400:36da:b4f6:16b8:9118:2c1a? ([2603:8080:7400:36da:b4f6:16b8:9118:2c1a])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-5dfa049b7e0sm210186eaf.12.2024.08.29.06.36.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Aug 2024 06:36:19 -0700 (PDT)
-Message-ID: <4ee9e014-bc88-4d2d-9173-fe0781c3dcce@digitalocean.com>
-Date: Thu, 29 Aug 2024 08:36:18 -0500
+        d=1e100.net; s=20230601; t=1724939001; x=1725543801;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=O0Z2TTAubebcI3yRFy8BOcjudxXHokyVQvE7gs+dc9U=;
+        b=I7Ts3208LLv6z2rPD+Ck9hCDvSdOeS+vOe/NIXTAsfkGk9xbXlCDNyp6W72DO2lBs7
+         ucSkTNmwlNqw2tRBGOw5LK2PO/U9bLEfWpf7gN5+yiRBFzQyr0S+snCURJeBV6VDSrgI
+         v4/Sa4IblbT100M9fYXny8Aw2GLJmtVy0DKUjHUy85TWRQQn6YhFaXDYJuxMVeHK4DUl
+         XIU9RwmBMYzWoTdGCFAXU8FPi6XrDWkxS+7o+ytG9bEij3K3rummgaLLbWaEANSVN4G/
+         zfNvsC/UaJRZ6uSY3Rh9WwOnT2SgASJwRXLq53tULtFDHUkRzb+VxvSFqj2j8jmoQZbK
+         Ca6w==
+X-Forwarded-Encrypted: i=1; AJvYcCXiCAv/DNLEpuBSzHZzyJppwBgPiwk8oGQ+jDEpknqiRzFBLk0+oiBYiP9j5Ho0Ok4eiEwSwnCUyIGQdYt9ZQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxpVBqVZPtii/DE1PMZnSsIidNAQCJw0l76lmLQ2m0EWpxTLOrV
+	S3vLXNWX9YUM0cqK8g+z76Qcb0wJvInovFlj1y+Y045hFKYQDi0l1KCLyx8l15zOImz95Trb7QU
+	CORopUsQfBb7DjPhNu0cmmp1qWR5Uc4wlzaa5CxlmF1fB2CMhl2WJo3TPHMmeRd8S/pGh0ULpgH
+	ZIkqpC/p3J7YtxG2WPetuA0uNU7gLOudj3wE4aEMGiKrwqYMiw5lmE4w==
+X-Received: by 2002:a05:690c:f03:b0:61b:1f0e:10 with SMTP id 00721157ae682-6d275964aecmr37487067b3.4.1724939001195;
+        Thu, 29 Aug 2024 06:43:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFKHkEXcfTNGzxGT7v9KMH1vSi8w5QzeRtQyq6gaTRJfFSbAnlIh//kHPNxfyUlcn8CoE1HLbBmIbGorcq3lvo=
+X-Received: by 2002:a05:690c:f03:b0:61b:1f0e:10 with SMTP id
+ 00721157ae682-6d275964aecmr37486857b3.4.1724939000930; Thu, 29 Aug 2024
+ 06:43:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vdpa: Set speed and duplex of mlx5_vnet to UNKNOWN
-To: Dragos Tatulea <dtatulea@nvidia.com>,
- Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, mst@redhat.com,
- jasowang@redhat.com
-Cc: bilbao@vt.edu, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- cratiu@nvidia.com, lingshan.zhu@intel.com, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20240828181625.7831-1-carlos.bilbao.osdev@gmail.com>
- <8a8d3c23-5e91-4456-99c2-6e91548abe42@nvidia.com>
-Content-Language: en-US
-From: Carlos Bilbao <cbilbao@digitalocean.com>
-In-Reply-To: <8a8d3c23-5e91-4456-99c2-6e91548abe42@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20240821114100.2261167-2-dtatulea@nvidia.com> <20240821114100.2261167-4-dtatulea@nvidia.com>
+In-Reply-To: <20240821114100.2261167-4-dtatulea@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 29 Aug 2024 15:42:44 +0200
+Message-ID: <CAJaqyWch9oNEYONUe=X0u02788Dey_8+_bF0sfiPZ7Yv53MVGA@mail.gmail.com>
+Subject: Re: [PATCH vhost 2/7] vdpa/mlx5: Delete direct MKEYs in parallel
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, virtualization@lists.linux-foundation.org, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cosmin Ratiu <cratiu@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
-
-On 8/29/24 5:20 AM, Dragos Tatulea wrote:
+On Wed, Aug 21, 2024 at 1:42=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
 >
-> On 28.08.24 20:16, Carlos Bilbao wrote:
->> From: Carlos Bilbao <cbilbao@digitalocean.com>
->>
->> mlx5_vdpa vDPA devices currently don't support reporting or setting the
->> speed and duplex and hence should be UNKNOWN instead of zero.
->>
->> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
->> ---
->>  drivers/vdpa/mlx5/net/mlx5_vnet.c |  7 +++++++
->>  drivers/vdpa/vdpa.c               | 23 +++++++++++++++++++++++
->>  include/uapi/linux/vdpa.h         |  2 ++
->>  3 files changed, 32 insertions(+)
->>
->> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> index fa78e8288ebb..319f5c6121de 100644
->> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> @@ -3795,6 +3795,13 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->>  	init_rwsem(&ndev->reslock);
->>  	config = &ndev->config;
->>  
->> +	/*
->> +	 * mlx5_vdpa vDPA devices currently don't support reporting or
->> +	 * setting the speed or duplex.
->> +	 */
->> +	config->speed  = SPEED_UNKNOWN;
->> +	config->duplex = DUPLEX_UNKNOWN;
->> +
-> The values in virtio_net_config are little endian so you'll need to explicitly
-> convert them. As speed is a u32, you'll need to add a cpu_to_mlx5vdpa32() helper.
+> Use the async interface to issue MTT MKEY deletion.
 >
-> Thanks,
-> Dragos
+> This makes destroy_user_mr() on average 8x times faster.
+> This number is also dependent on the size of the MR being
+> deleted.
 >
->>  	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
->>  		err = config_func_mtu(mdev, add_config->net.mtu);
->>  		if (err)
->> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
->> index 4dbd2e55a288..abde23e0041d 100644
->> --- a/drivers/vdpa/vdpa.c
->> +++ b/drivers/vdpa/vdpa.c
->> @@ -15,6 +15,7 @@
->>  #include <net/genetlink.h>
->>  #include <linux/mod_devicetable.h>
->>  #include <linux/virtio_ids.h>
->> +#include <uapi/linux/ethtool.h>
->>  
->>  static LIST_HEAD(mdev_head);
->>  /* A global mutex that protects vdpa management device and device level operations. */
->> @@ -919,6 +920,22 @@ static int vdpa_dev_net_status_config_fill(struct sk_buff *msg, u64 features,
->>  	return nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16);
->>  }
->>  
->> +static int vdpa_dev_net_speed_config_fill(struct sk_buff *msg, u64 features,
->> +					struct virtio_net_config *config)
->> +{
->> +	__le32 speed = cpu_to_le32(SPEED_UNKNOWN);
->> +
->> +	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_SPEED, sizeof(speed), &speed);
->> +}
->> +
->> +static int vdpa_dev_net_duplex_config_fill(struct sk_buff *msg, u64 features,
->> +					struct virtio_net_config *config)
->> +{
->> +	u8 duplex = DUPLEX_UNKNOWN;
->> +
->> +	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_DUPLEX, sizeof(duplex), &duplex);
->> +}
->> +
->>  static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *msg)
->>  {
->>  	struct virtio_net_config config = {};
->> @@ -941,6 +958,12 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
->>  	if (vdpa_dev_net_status_config_fill(msg, features_device, &config))
->>  		return -EMSGSIZE;
->>  
->> +	if (vdpa_dev_net_speed_config_fill(msg, features_device, &config))
->> +		return -EMSGSIZE;
->> +
->> +	if (vdpa_dev_net_duplex_config_fill(msg, features_device, &config))
->> +		return -EMSGSIZE;
->> +
->>  	return vdpa_dev_net_mq_config_fill(msg, features_device, &config);
->>  }
->>  
->> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
->> index 842bf1201ac4..1c64ee0dd7b1 100644
->> --- a/include/uapi/linux/vdpa.h
->> +++ b/include/uapi/linux/vdpa.h
->> @@ -43,6 +43,8 @@ enum vdpa_attr {
->>  	VDPA_ATTR_DEV_NET_STATUS,		/* u8 */
->>  	VDPA_ATTR_DEV_NET_CFG_MAX_VQP,		/* u16 */
->>  	VDPA_ATTR_DEV_NET_CFG_MTU,		/* u16 */
->> +	VDPA_ATTR_DEV_NET_CFG_SPEED,		/* u32 */
->> +	VDPA_ATTR_DEV_NET_CFG_DUPLEX,		/* u8 */
->>  
->>  	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
->>  	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
+> ---
+>  drivers/vdpa/mlx5/core/mr.c | 66 +++++++++++++++++++++++++++++++++++++
+>  1 file changed, 66 insertions(+)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index 66e6a15f823f..8cedf2969991 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -55,6 +55,11 @@ struct mlx5_create_mkey_mem {
+>         DECLARE_FLEX_ARRAY(__be64, mtt);
+>  };
+>
+> +struct mlx5_destroy_mkey_mem {
+> +       u8 out[MLX5_ST_SZ_BYTES(destroy_mkey_out)];
+> +       u8 in[MLX5_ST_SZ_BYTES(destroy_mkey_in)];
+> +};
+> +
+>  static void fill_create_direct_mr(struct mlx5_vdpa_dev *mvdev,
+>                                   struct mlx5_vdpa_direct_mr *mr,
+>                                   struct mlx5_create_mkey_mem *mem)
+> @@ -91,6 +96,17 @@ static void create_direct_mr_end(struct mlx5_vdpa_dev =
+*mvdev,
+>         mr->mr =3D mlx5_idx_to_mkey(mkey_index);
+>  }
+>
+> +static void fill_destroy_direct_mr(struct mlx5_vdpa_dev *mvdev,
+> +                                  struct mlx5_vdpa_direct_mr *mr,
+> +                                  struct mlx5_destroy_mkey_mem *mem)
+> +{
+> +       void *in =3D &mem->in;
+> +
 
+Nit, isn't this declaration redundant? Looking at the definition of
+MLX5_SET, the second argument is casted to (__be32 *) anyway.
 
-Thank you all for the feedback, everyone. I will prepare a patch set with
-two commits:
+> +       MLX5_SET(destroy_mkey_in, in, uid, mvdev->res.uid);
+> +       MLX5_SET(destroy_mkey_in, in, opcode, MLX5_CMD_OP_DESTROY_MKEY);
+> +       MLX5_SET(destroy_mkey_in, in, mkey_index, mlx5_mkey_to_idx(mr->mr=
+));
+> +}
+> +
+>  static void destroy_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_v=
+dpa_direct_mr *mr)
+>  {
+>         if (!mr->mr)
+> @@ -255,6 +271,55 @@ static int create_direct_keys(struct mlx5_vdpa_dev *=
+mvdev, struct mlx5_vdpa_mr *
+>         return err;
+>  }
+>
+> +static int destroy_direct_keys(struct mlx5_vdpa_dev *mvdev, struct mlx5_=
+vdpa_mr *mr)
+> +{
+> +       struct mlx5_destroy_mkey_mem *cmd_mem;
+> +       struct mlx5_vdpa_async_cmd *cmds;
+> +       struct mlx5_vdpa_direct_mr *dmr;
+> +       int err =3D 0;
+> +       int i =3D 0;
+> +
+> +       cmds =3D kvcalloc(mr->num_directs, sizeof(*cmds), GFP_KERNEL);
+> +       cmd_mem =3D kvcalloc(mr->num_directs, sizeof(*cmd_mem), GFP_KERNE=
+L);
+> +       if (!cmds || !cmd_mem) {
+> +               err =3D -ENOMEM;
+> +               goto done;
+> +       }
+> +
+> +       list_for_each_entry(dmr, &mr->head, list) {
+> +               cmds[i].out =3D cmd_mem[i].out;
+> +               cmds[i].outlen =3D sizeof(cmd_mem[i].out);
+> +               cmds[i].in =3D cmd_mem[i].in;
+> +               cmds[i].inlen =3D sizeof(cmd_mem[i].in);
+> +               fill_destroy_direct_mr(mvdev, dmr, &cmd_mem[i]);
+> +               i++;
+> +       }
+> +
+> +       err =3D mlx5_vdpa_exec_async_cmds(mvdev, cmds, mr->num_directs);
+> +       if (err) {
+> +
+> +               mlx5_vdpa_err(mvdev, "error issuing MTT mkey deletion for=
+ direct mrs: %d\n", err);
+> +               goto done;
+> +       }
+> +
+> +       i =3D 0;
+> +       list_for_each_entry(dmr, &mr->head, list) {
+> +               struct mlx5_vdpa_async_cmd *cmd =3D &cmds[i++];
+> +
+> +               dmr->mr =3D 0;
+> +               if (cmd->err) {
+> +                       err =3D err ? err : cmd->err;
+> +                       mlx5_vdpa_err(mvdev, "error deleting MTT mkey [0x=
+%llx, 0x%llx]: %d\n",
+> +                               dmr->start, dmr->end, cmd->err);
+> +               }
+> +       }
+> +
+> +done:
+> +       kvfree(cmd_mem);
+> +       kvfree(cmds);
 
- - One to set speed and duplex to UNKNOWN (in little-endian format, thank
-   you, Dragos).
+Same nitpick here as in the previous patch about the Scope-based
+Cleanup Helpers. Either way,
 
- - Another to update the vDPA tool to allow setting the values for speed
-   and duplex, including support in set_config(). I'll add a comment
-   clarifying that this support isn't fully implemented at the hardware
-   level yet.
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Regards,
-Carlos
+> +       return err;
+> +}
+> +
+>  static int create_indirect_key(struct mlx5_vdpa_dev *mvdev, struct mlx5_=
+vdpa_mr *mr)
+>  {
+>         int inlen;
+> @@ -563,6 +628,7 @@ static void destroy_user_mr(struct mlx5_vdpa_dev *mvd=
+ev, struct mlx5_vdpa_mr *mr
+>         struct mlx5_vdpa_direct_mr *n;
+>
+>         destroy_indirect_key(mvdev, mr);
+> +       destroy_direct_keys(mvdev, mr);
+>         list_for_each_entry_safe_reverse(dmr, n, &mr->head, list) {
+>                 list_del_init(&dmr->list);
+>                 unmap_direct_mr(mvdev, dmr);
+> --
+> 2.45.1
+>
 
