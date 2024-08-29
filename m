@@ -1,213 +1,312 @@
-Received: from mail-oi1-f173.google.com (mail-oi1-f173.google.com [209.85.167.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFC4D1B4C30
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 16:16:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 200C21B6535
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 17:13:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724948187; cv=none; b=hD1BKQIw5xoLG3sEbhGD/KEB1Ed36bRkcxrAYbgf2kFhoNsMOsonnvNFgM5zKEnsTcpb4ZkBKrghTxzNmZeliSJUI2YE38n1QBd/NzR1GsOUiUFcwHFVcAvL3yA/9SGhfIAC6C0DswDXqG14Lfz0XkJl4VnUmFCrTdq5VQ48Wek=
+	t=1724951611; cv=none; b=Cu/Y+rzW17Y38wGSo/ohvrRVLUVFkgeH6eoz4rg5QGyIDAyuMImSIat32fKmJUtpnt3rmZhqWCRQeftF26c8zFkticnGQL+zMGQBwHDf/1CiUUnE9AbBb8Npj2Hl5c4ke/Ccpf8YMZ4s9PlXFr8uJaUVTUHd6A8kJe6YmbMIU3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724948187; c=relaxed/simple;
-	bh=+VNi+DOByYkEzAZn8vjWq5CutgdeqR+GOWPR+F8tm0E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R9FQdEnOGcfb/xr+QeiUb7YkyeX+/9BVmGNnS8/O+D882v9kqGv+fUHy64PiZvHLu4oQLScMVM1LZtigNHz14vKWhbL3/Gb/jsGnfRa4s1mwXpU2X8Iwjp5+3PCRBl/7h6UBrjtd8k/y6guhUTinTicp7qdjHH1KqYOmeLMdJiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d18mHrUu; arc=none smtp.client-ip=209.85.167.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724951611; c=relaxed/simple;
+	bh=ULZgVzZQEVeW14csxACTHaIhrGVoWfY1nAJLC6fS0wk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NN9digyTbPff+pTH7CkNS7wU0oO9l1vcHGvStBCnm18Xic8jpwPMFIcN2wQr5l+LJQ8d8pBPP+rQilhjspPgNSFK77tu3H8dXmLnRSx8EMqu2IPWkbFdAd1pPjMHO6NNrwvorQwBTt7PbEUGrBNJ2QByBfJsnsjiB/f77DsFxnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K5+WY67x; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d18mHrUu"
-Received: by mail-oi1-f173.google.com with SMTP id 5614622812f47-3df0f0b8111so169895b6e.3
-        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 09:16:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724948185; x=1725552985; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aGsLcbodfB9B81VcVn79WhE4AFTPyPKZVgpM8fFHsVU=;
-        b=d18mHrUu+/hXtK1y4WnOhxUV4WgG6EKPTH6sPBR8BCqn+g8gogKLkdMFF+TkSxXt92
-         ViPyhiWeL24HKE7a+agdkAp5y+swgqii0u6UoZ3cW8J8oiig4QuDbTULZq2kJT2gpyYH
-         kT0c+5weW4EnEKx0/qLu1mZO5LPWAx84uO5IGFxg4q5EGLBMNdrsJnPql94SpSkwlWYN
-         H7CZaJ85OFqY0as3Sm/Zekk89AlVhkIoF/qUj2I0wL5FutDU1P+AdXM1MI7ukAw0qLsk
-         u4NMPWN+iOs/x0TzyCFFvf36crlW5dQyNZ83REJ/LPKG71YmND6/nTDW++H7sZotHgBR
-         D/Ow==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K5+WY67x"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8EE874100E
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 17:13:29 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id kVX_ukO-vk6v for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Aug 2024 17:13:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2FA9140339
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2FA9140339
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5+WY67x
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2FA9140339
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 17:13:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724951606;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7RulHBFlrK+Dikd6+7/LyodQMXb8hyWyQicOlpD/FiQ=;
+	b=K5+WY67xmBanfoi073ITt/F9+4z3dKeq1cUx/GYdDLfA0Qz6ma/Zd3C6puulXVGSc+k7MS
+	TLqFbOGJTtkdOTuDHgEOuoozGNTOCmSTHiugh1Nn60r7eSw+o1ayJTc6vZ14/DC7c0/wEo
+	qGBTYmGDshjCDRoRi9xAiPyN/YeqyDc=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-306-ddrLoEaiNpazqZ9Y6VIkXQ-1; Thu, 29 Aug 2024 13:13:23 -0400
+X-MC-Unique: ddrLoEaiNpazqZ9Y6VIkXQ-1
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6b41e02c293so18166867b3.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 10:13:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724948185; x=1725552985;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1724951603; x=1725556403;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=aGsLcbodfB9B81VcVn79WhE4AFTPyPKZVgpM8fFHsVU=;
-        b=NIKsOX7hgb/XA5/P9Atzl1gP5hmbXmhJCKHYMwSLAt/w8xpQtr9iokyjQ/njrSkXK9
-         huVbIVJ8iGbtSQZSztGMd7lhuqkNJ/rKU30x8/db9EA3i41st3oNoyFflkB7fxovkouk
-         ugLyiaYWe2XRHcg5e56MwwebIQrQJrN4UNrzEp1W0XFmiIYvfeAA3tJXRuW5SCSTmh7P
-         MqxT/3QfwtHzl3m1SOTodTfpSnIZhDQ0K0DMX5ifqXO/Q4Q/bNNUEvyZSXwflwtF3t8b
-         hJaPTMVwjw1xSxCW1zCw4/Zh0wTj/yeFwyWuJWN6Tl23ffKbWjtklr0sZzmw+I5B0ZWp
-         k/gg==
-X-Forwarded-Encrypted: i=1; AJvYcCUVaDwwk4ECs9KfBXhwSgEON5+gByTEjqVdJ9Z5fsBrXcLVTE4+jvowr2UOYntY+aPm0gjUfRA0mG7PXf/3cg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwL3XxQVRUGY+1aM7sLhgXN/t0N4CLCKtzW5YYKCZ2AU1K78yX9
-	FsTpRpoCcekksKwmmlfMMOHh8fQaXRbNTXcEw9GV21PKI57JqWI7
-X-Google-Smtp-Source: AGHT+IHCvrh7tJ0LpEIrwxDWCSECjNtnuE5J5PZiis5vVPB69t3J9AmpgQYKFZ19ROXZ3O+OU6s8RA==
-X-Received: by 2002:a05:6808:309e:b0:3db:16a3:748a with SMTP id 5614622812f47-3df05ec405bmr3343881b6e.32.1724948185075;
-        Thu, 29 Aug 2024 09:16:25 -0700 (PDT)
-Received: from pipaware.tx.rr.com ([2603:8080:7400:36da:dff5:4180:2562:4c1e])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-3df08943854sm372296b6e.45.2024.08.29.09.16.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Aug 2024 09:16:24 -0700 (PDT)
-From: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
-To: dtatulea@nvidia.com,
-	mst@redhat.com,
-	jasowang@redhat.com
-Cc: bilbao@vt.edu,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	cratiu@nvidia.com,
-	lingshan.zhu@intel.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Carlos Bilbao <cbilbao@digitalocean.com>
-Subject: [PATCH 2/2] vdpa: Add support to update speed/duplex in vDPA/mlx5_vnet
-Date: Thu, 29 Aug 2024 11:16:20 -0500
-Message-ID: <20240829161620.38679-3-carlos.bilbao.osdev@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240829161620.38679-1-carlos.bilbao.osdev@gmail.com>
-References: <20240829161620.38679-1-carlos.bilbao.osdev@gmail.com>
+        bh=7RulHBFlrK+Dikd6+7/LyodQMXb8hyWyQicOlpD/FiQ=;
+        b=vfygW/0YtEAeebY7ZuQpzsCwNokCjdpomNSo14SaOPZib5yMibyKVsaM4jk4feo4qj
+         NyQFbI+xtSljAOwjoJoZxc8cpR0ukZnM2xv9tKuIJ5i7FeRAnaMVNBo5fl60B20rGAF3
+         p2JeLznx8DxUn2X5UQcHkHdrPvG238KkOtGiac8a2KtzHUa6KdhMFnvtTd27+WeN0pIC
+         tUVVFBWJIkbcxE3uz2PVggARqCfe4/NiqlH+meDOdHdYanPt1yMTpXOia7gPQTKqLW7R
+         rN7dMlZGpAjvuuMKbJz/gvZv+O6oywmLVGjEFYKdYnwRrVk7Zq+pfU8jv205MkHHQfO7
+         9ykg==
+X-Forwarded-Encrypted: i=1; AJvYcCXUbR6ML6ZYPuZdIhJdfvf1ylOZhoVrdURI/afaiEVp2fRZC4LbIlz+whGYcvHZmgkpDSGSQfyyzHv9/WX5qA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxYDpxUhgEFOH12NCnubCxxnwLDfeCtXX0pv1AbtJdXb5qdHM/0
+	raDBpU0/mLt/jCDV5hf6BEEzTeJNUBeR0y6IqTWclFd+AnSZscrlGu1BiRQaQjFkd1Jl8ib17dd
+	aNLTNC7RkAqIMb1eHkdy8CbV8f1ogk6vkSXeNtSlE6L7iQmlGr5wiKsmI54Xd/nBtElkw4Bheq+
+	OL5ar5Bs4S4kwBjPtUuDLnjZyXMxFt5bRxxQlcEvNJkg+/gT6M7+vcBQ==
+X-Received: by 2002:a05:690c:4d43:b0:650:859b:ec8d with SMTP id 00721157ae682-6d276404c5dmr41338817b3.10.1724951603150;
+        Thu, 29 Aug 2024 10:13:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGWLGUl+iNDTcbJR2coSAb9n1xDdZKJRQUk15SulJLUN8J5uqhs1YN2kMYvluqhQIeacQ3whnDxGvsIxupEJrs=
+X-Received: by 2002:a05:690c:4d43:b0:650:859b:ec8d with SMTP id
+ 00721157ae682-6d276404c5dmr41338607b3.10.1724951602855; Thu, 29 Aug 2024
+ 10:13:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240821114100.2261167-2-dtatulea@nvidia.com> <20240821114100.2261167-9-dtatulea@nvidia.com>
+ <CAJaqyWfANjzrKk9J=hJrdv6c8xd5Xx81XyigPBvc--AxQQK_gg@mail.gmail.com> <bccae5ab-45d3-447e-aed9-d1955da0b109@nvidia.com>
+In-Reply-To: <bccae5ab-45d3-447e-aed9-d1955da0b109@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 29 Aug 2024 19:12:46 +0200
+Message-ID: <CAJaqyWcxuyo3uN6Y9-LXjPtd+rJmeXi-BrDadAnuLhT3EyUieA@mail.gmail.com>
+Subject: Re: [PATCH vhost 7/7] vdpa/mlx5: Postpone MR deletion
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, virtualization@lists.linux-foundation.org, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cosmin Ratiu <cratiu@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Carlos Bilbao <cbilbao@digitalocean.com>
+On Thu, Aug 29, 2024 at 5:23=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+>
+>
+> On 29.08.24 17:07, Eugenio Perez Martin wrote:
+> > On Wed, Aug 21, 2024 at 1:42=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia=
+.com> wrote:
+> >>
+> >> Currently, when a new MR is set up, the old MR is deleted. MR deletion
+> >> is about 30-40% the time of MR creation. As deleting the old MR is not
+> >> important for the process of setting up the new MR, this operation
+> >> can be postponed.
+> >>
+> >> This series adds a workqueue that does MR garbage collection at a late=
+r
+> >> point. If the MR lock is taken, the handler will back off and
+> >> reschedule. The exception during shutdown: then the handler must
+> >> not postpone the work.
+> >>
+> >> Note that this is only a speculative optimization: if there is some
+> >> mapping operation that is triggered while the garbage collector handle=
+r
+> >> has the lock taken, this operation it will have to wait for the handle=
+r
+> >> to finish.
+> >>
+> >> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> >> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
+> >> ---
+> >>  drivers/vdpa/mlx5/core/mlx5_vdpa.h | 10 ++++++
+> >>  drivers/vdpa/mlx5/core/mr.c        | 51 ++++++++++++++++++++++++++++-=
+-
+> >>  drivers/vdpa/mlx5/net/mlx5_vnet.c  |  3 +-
+> >>  3 files changed, 60 insertions(+), 4 deletions(-)
+> >>
+> >> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/co=
+re/mlx5_vdpa.h
+> >> index c3e17bc888e8..2cedf7e2dbc4 100644
+> >> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> >> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> >> @@ -86,8 +86,18 @@ enum {
+> >>  struct mlx5_vdpa_mr_resources {
+> >>         struct mlx5_vdpa_mr *mr[MLX5_VDPA_NUM_AS];
+> >>         unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
+> >> +
+> >> +       /* Pre-deletion mr list */
+> >>         struct list_head mr_list_head;
+> >> +
+> >> +       /* Deferred mr list */
+> >> +       struct list_head mr_gc_list_head;
+> >> +       struct workqueue_struct *wq_gc;
+> >> +       struct delayed_work gc_dwork_ent;
+> >> +
+> >>         struct mutex lock;
+> >> +
+> >> +       atomic_t shutdown;
+> >>  };
+> >>
+> >>  struct mlx5_vdpa_dev {
+> >> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> >> index ec75f165f832..43fce6b39cf2 100644
+> >> --- a/drivers/vdpa/mlx5/core/mr.c
+> >> +++ b/drivers/vdpa/mlx5/core/mr.c
+> >> @@ -653,14 +653,46 @@ static void _mlx5_vdpa_destroy_mr(struct mlx5_vd=
+pa_dev *mvdev, struct mlx5_vdpa_
+> >>         kfree(mr);
+> >>  }
+> >>
+> >> +#define MLX5_VDPA_MR_GC_TRIGGER_MS 2000
+> >> +
+> >> +static void mlx5_vdpa_mr_gc_handler(struct work_struct *work)
+> >> +{
+> >> +       struct mlx5_vdpa_mr_resources *mres;
+> >> +       struct mlx5_vdpa_mr *mr, *tmp;
+> >> +       struct mlx5_vdpa_dev *mvdev;
+> >> +
+> >> +       mres =3D container_of(work, struct mlx5_vdpa_mr_resources, gc_=
+dwork_ent.work);
+> >> +
+> >> +       if (atomic_read(&mres->shutdown)) {
+> >> +               mutex_lock(&mres->lock);
+> >> +       } else if (!mutex_trylock(&mres->lock)) {
+> >
+> > Is the trylock worth it? My understanding is that mutex_lock will add
+> > the kthread to the waitqueue anyway if it is not able to acquire the
+> > lock.
+> >
+> I want to believe it is :). I noticed during testing that this can
+> interfere with the case where there are several .set_map() operations
+> in quick succession. That's why the work is delayed by such a long
+> time.
+>
+> It's not a perfect heuristic but I found that it's better than not
+> having it.
+>
 
-Include support to update the vDPA configuration fields of speed and
-duplex (as needed by VHOST_VDPA_SET_CONFIG). This includes function
-mlx5_vdpa_set_config() as well as changes in vdpa.c to fill the initial
-values to UNKNOWN. Also add a warning message for when
-mlx5_vdpa_get_config() receives offset and length out of bounds.
+Understood, thanks for explaining! Can you add the explanation to the macro=
+?
 
-Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 34 ++++++++++++++++++++++++++++++-
- drivers/vdpa/vdpa.c               | 27 ++++++++++++++++++++++++
- include/uapi/linux/vdpa.h         |  2 ++
- 3 files changed, 62 insertions(+), 1 deletion(-)
+It would be great to find a mechanism so the work is added in low
+priority fashion, but I don't know any.
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index c47009a8b472..a44bb2072eec 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -3221,12 +3221,44 @@ static void mlx5_vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
- 
- 	if (offset + len <= sizeof(struct virtio_net_config))
- 		memcpy(buf, (u8 *)&ndev->config + offset, len);
-+	else
-+		mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\n");
- }
- 
- static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned int offset, const void *buf,
- 				 unsigned int len)
- {
--	/* not supported */
-+	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-+
-+	if (offset + len > sizeof(struct virtio_net_config)) {
-+		mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\n");
-+		return;
-+	}
-+
-+	/*
-+	 * Note that this will update the speed/duplex configuration fields
-+	 * but the hardware support to actually perform this change does
-+	 * not exist yet.
-+	 */
-+	switch (offset) {
-+	case offsetof(struct virtio_net_config, speed):
-+		if (len == sizeof(((struct virtio_net_config *) 0)->speed))
-+			memcpy(&ndev->config.speed, buf, len);
-+		else
-+			mlx5_vdpa_warn(mvdev, "Invalid length for speed.\n");
-+		break;
-+
-+	case offsetof(struct virtio_net_config, duplex):
-+		if (len == sizeof(((struct virtio_net_config *)0)->duplex))
-+			memcpy(&ndev->config.duplex, buf, len);
-+		else
-+			mlx5_vdpa_warn(mvdev, "Invalid length for duplex.\n");
-+		break;
-+
-+	default:
-+		mlx5_vdpa_warn(mvdev, "Configuration field not supported.\n");
-+	}
- }
- 
- static u32 mlx5_vdpa_get_generation(struct vdpa_device *vdev)
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 4dbd2e55a288..b920e4405f6d 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -15,6 +15,7 @@
- #include <net/genetlink.h>
- #include <linux/mod_devicetable.h>
- #include <linux/virtio_ids.h>
-+#include <uapi/linux/ethtool.h>
- 
- static LIST_HEAD(mdev_head);
- /* A global mutex that protects vdpa management device and device level operations. */
-@@ -919,6 +920,22 @@ static int vdpa_dev_net_status_config_fill(struct sk_buff *msg, u64 features,
- 	return nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16);
- }
- 
-+static int vdpa_dev_net_speed_config_fill(struct sk_buff *msg, u64 features,
-+					struct virtio_net_config *config)
-+{
-+	__le32 speed = cpu_to_le32(SPEED_UNKNOWN);
-+
-+	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_SPEED, sizeof(speed), &speed);
-+}
-+
-+static int vdpa_dev_net_duplex_config_fill(struct sk_buff *msg, u64 features,
-+					struct virtio_net_config *config)
-+{
-+	u8 duplex = DUPLEX_UNKNOWN;
-+
-+	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_DUPLEX, sizeof(duplex), &duplex);
-+}
-+
- static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *msg)
- {
- 	struct virtio_net_config config = {};
-@@ -940,6 +957,16 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
- 
- 	if (vdpa_dev_net_status_config_fill(msg, features_device, &config))
- 		return -EMSGSIZE;
-+	/*
-+	 * mlx5_vdpa vDPA devicess currently do not support the
-+	 * VIRTIO_NET_F_SPEED_DUPLEX feature, which reports speed and
-+	 * duplex; hence these are set to UNKNOWN for now.
-+	 */
-+	if (vdpa_dev_net_speed_config_fill(msg, features_device, &config))
-+		return -EMSGSIZE;
-+
-+	if (vdpa_dev_net_duplex_config_fill(msg, features_device, &config))
-+		return -EMSGSIZE;
- 
- 	return vdpa_dev_net_mq_config_fill(msg, features_device, &config);
- }
-diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-index 842bf1201ac4..1c64ee0dd7b1 100644
---- a/include/uapi/linux/vdpa.h
-+++ b/include/uapi/linux/vdpa.h
-@@ -43,6 +43,8 @@ enum vdpa_attr {
- 	VDPA_ATTR_DEV_NET_STATUS,		/* u8 */
- 	VDPA_ATTR_DEV_NET_CFG_MAX_VQP,		/* u16 */
- 	VDPA_ATTR_DEV_NET_CFG_MTU,		/* u16 */
-+	VDPA_ATTR_DEV_NET_CFG_SPEED,		/* u32 */
-+	VDPA_ATTR_DEV_NET_CFG_DUPLEX,		/* u8 */
- 
- 	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
- 	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
--- 
-2.34.1
+> >> +               queue_delayed_work(mres->wq_gc, &mres->gc_dwork_ent,
+> >> +                                  msecs_to_jiffies(MLX5_VDPA_MR_GC_TR=
+IGGER_MS));
+> >> +               return;
+> >> +       }
+> >> +
+> >> +       mvdev =3D container_of(mres, struct mlx5_vdpa_dev, mres);
+> >> +
+> >> +       list_for_each_entry_safe(mr, tmp, &mres->mr_gc_list_head, mr_l=
+ist) {
+> >> +               _mlx5_vdpa_destroy_mr(mvdev, mr);
+> >> +       }
+> >> +
+> >> +       mutex_unlock(&mres->lock);
+> >> +}
+> >> +
+> >>  static void _mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
+> >>                               struct mlx5_vdpa_mr *mr)
+> >>  {
+> >> +       struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
+> >> +
+> >>         if (!mr)
+> >>                 return;
+> >>
+> >> -       if (refcount_dec_and_test(&mr->refcount))
+> >> -               _mlx5_vdpa_destroy_mr(mvdev, mr);
+> >> +       if (refcount_dec_and_test(&mr->refcount)) {
+> >> +               list_move_tail(&mr->mr_list, &mres->mr_gc_list_head);
+> >> +               queue_delayed_work(mres->wq_gc, &mres->gc_dwork_ent,
+> >> +                                  msecs_to_jiffies(MLX5_VDPA_MR_GC_TR=
+IGGER_MS));
+> >
+> > Why the delay?
+> >
+> See above.
+>
+> >> +       }
+> >>  }
+> >>
+> >>  void mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
+> >> @@ -848,9 +880,17 @@ int mlx5_vdpa_init_mr_resources(struct mlx5_vdpa_=
+dev *mvdev)
+> >>  {
+> >>         struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
+> >>
+> >> -       INIT_LIST_HEAD(&mres->mr_list_head);
+> >> +       mres->wq_gc =3D create_singlethread_workqueue("mlx5_vdpa_mr_gc=
+");
+> >> +       if (!mres->wq_gc)
+> >> +               return -ENOMEM;
+> >> +
+> >> +       INIT_DELAYED_WORK(&mres->gc_dwork_ent, mlx5_vdpa_mr_gc_handler=
+);
+> >> +
+> >>         mutex_init(&mres->lock);
+> >>
+> >> +       INIT_LIST_HEAD(&mres->mr_list_head);
+> >> +       INIT_LIST_HEAD(&mres->mr_gc_list_head);
+> >> +
+> >>         return 0;
+> >>  }
+> >>
+> >> @@ -858,5 +898,10 @@ void mlx5_vdpa_destroy_mr_resources(struct mlx5_v=
+dpa_dev *mvdev)
+> >>  {
+> >>         struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
+> >>
+> >> +       atomic_set(&mres->shutdown, 1);
+> >> +
+> >> +       flush_delayed_work(&mres->gc_dwork_ent);
+> >> +       destroy_workqueue(mres->wq_gc);
+> >> +       mres->wq_gc =3D NULL;
+> >>         mutex_destroy(&mres->lock);
+> >>  }
+> >> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net=
+/mlx5_vnet.c
+> >> index 1cadcb05a5c7..ee9482ef51e6 100644
+> >> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> >> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> >> @@ -3435,6 +3435,8 @@ static void mlx5_vdpa_free(struct vdpa_device *v=
+dev)
+> >>         free_fixed_resources(ndev);
+> >>         mlx5_vdpa_clean_mrs(mvdev);
+> >>         mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
+> >> +       mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
+> >> +
+> >>         if (!is_zero_ether_addr(ndev->config.mac)) {
+> >>                 pfmdev =3D pci_get_drvdata(pci_physfn(mvdev->mdev->pde=
+v));
+> >>                 mlx5_mpfs_del_mac(pfmdev, ndev->config.mac);
+> >> @@ -4044,7 +4046,6 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_d=
+ev *v_mdev, struct vdpa_device *
+> >>         destroy_workqueue(wq);
+> >>         mgtdev->ndev =3D NULL;
+> >>
+> >
+> > Extra newline here.
+> Ack.
+> >
+> >> -       mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
+> >>  }
+> >>
+> >>  static const struct vdpa_mgmtdev_ops mdev_ops =3D {
+> >> --
+> >> 2.45.1
+> >>
+> >
+>
 
