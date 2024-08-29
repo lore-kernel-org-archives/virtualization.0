@@ -1,312 +1,210 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2058.outbound.protection.outlook.com [40.107.244.58])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 200C21B6535
-	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 17:13:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724951611; cv=none; b=Cu/Y+rzW17Y38wGSo/ohvrRVLUVFkgeH6eoz4rg5QGyIDAyuMImSIat32fKmJUtpnt3rmZhqWCRQeftF26c8zFkticnGQL+zMGQBwHDf/1CiUUnE9AbBb8Npj2Hl5c4ke/Ccpf8YMZ4s9PlXFr8uJaUVTUHd6A8kJe6YmbMIU3c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724951611; c=relaxed/simple;
-	bh=ULZgVzZQEVeW14csxACTHaIhrGVoWfY1nAJLC6fS0wk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NN9digyTbPff+pTH7CkNS7wU0oO9l1vcHGvStBCnm18Xic8jpwPMFIcN2wQr5l+LJQ8d8pBPP+rQilhjspPgNSFK77tu3H8dXmLnRSx8EMqu2IPWkbFdAd1pPjMHO6NNrwvorQwBTt7PbEUGrBNJ2QByBfJsnsjiB/f77DsFxnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K5+WY67x; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C779D1BE877
+	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 18:44:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.58
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724957086; cv=fail; b=RQHtRTCJgxHZgRFO8HNnWAsDiGb2aUCsFhXvHxmGnbEilZxFB5qSz3SzIH3mLhiLyzMW3JwVQ25mf2+8NsNDfqLuE94UPWfyP5+pORToU68zy0iSd1bg6vsiD+qSSb4eQcA77ZgiucQ6cYvRZLiL4JH8lCrRxgCjb8h1LUTZs8s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724957086; c=relaxed/simple;
+	bh=EGyFyZ2HKbb2Lv/DZQ3czEcsBFSbtcsEAn1SCbpE+Ss=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=EirTWmQWknLqWv1g17Sk8RvaYEfJYYMIhrZLPOB86QY47nwzTJvfZtO36xZvnwJOBkebISbmW7YFTnyG/qfani2FZ1bovgAnVF6Btg37o0Ctb4WqEbBaGhVgZJXKAeAOA/lVZyezBLBCMKAGiVjBTjBKssAP5HREugWLwvmfq4o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CCLbSHRx; arc=fail smtp.client-ip=40.107.244.58
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K5+WY67x"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8EE874100E
-	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 17:13:29 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id kVX_ukO-vk6v for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Aug 2024 17:13:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2FA9140339
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2FA9140339
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5+WY67x
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2FA9140339
-	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 17:13:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724951606;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7RulHBFlrK+Dikd6+7/LyodQMXb8hyWyQicOlpD/FiQ=;
-	b=K5+WY67xmBanfoi073ITt/F9+4z3dKeq1cUx/GYdDLfA0Qz6ma/Zd3C6puulXVGSc+k7MS
-	TLqFbOGJTtkdOTuDHgEOuoozGNTOCmSTHiugh1Nn60r7eSw+o1ayJTc6vZ14/DC7c0/wEo
-	qGBTYmGDshjCDRoRi9xAiPyN/YeqyDc=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-306-ddrLoEaiNpazqZ9Y6VIkXQ-1; Thu, 29 Aug 2024 13:13:23 -0400
-X-MC-Unique: ddrLoEaiNpazqZ9Y6VIkXQ-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6b41e02c293so18166867b3.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 10:13:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724951603; x=1725556403;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7RulHBFlrK+Dikd6+7/LyodQMXb8hyWyQicOlpD/FiQ=;
-        b=vfygW/0YtEAeebY7ZuQpzsCwNokCjdpomNSo14SaOPZib5yMibyKVsaM4jk4feo4qj
-         NyQFbI+xtSljAOwjoJoZxc8cpR0ukZnM2xv9tKuIJ5i7FeRAnaMVNBo5fl60B20rGAF3
-         p2JeLznx8DxUn2X5UQcHkHdrPvG238KkOtGiac8a2KtzHUa6KdhMFnvtTd27+WeN0pIC
-         tUVVFBWJIkbcxE3uz2PVggARqCfe4/NiqlH+meDOdHdYanPt1yMTpXOia7gPQTKqLW7R
-         rN7dMlZGpAjvuuMKbJz/gvZv+O6oywmLVGjEFYKdYnwRrVk7Zq+pfU8jv205MkHHQfO7
-         9ykg==
-X-Forwarded-Encrypted: i=1; AJvYcCXUbR6ML6ZYPuZdIhJdfvf1ylOZhoVrdURI/afaiEVp2fRZC4LbIlz+whGYcvHZmgkpDSGSQfyyzHv9/WX5qA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxYDpxUhgEFOH12NCnubCxxnwLDfeCtXX0pv1AbtJdXb5qdHM/0
-	raDBpU0/mLt/jCDV5hf6BEEzTeJNUBeR0y6IqTWclFd+AnSZscrlGu1BiRQaQjFkd1Jl8ib17dd
-	aNLTNC7RkAqIMb1eHkdy8CbV8f1ogk6vkSXeNtSlE6L7iQmlGr5wiKsmI54Xd/nBtElkw4Bheq+
-	OL5ar5Bs4S4kwBjPtUuDLnjZyXMxFt5bRxxQlcEvNJkg+/gT6M7+vcBQ==
-X-Received: by 2002:a05:690c:4d43:b0:650:859b:ec8d with SMTP id 00721157ae682-6d276404c5dmr41338817b3.10.1724951603150;
-        Thu, 29 Aug 2024 10:13:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGWLGUl+iNDTcbJR2coSAb9n1xDdZKJRQUk15SulJLUN8J5uqhs1YN2kMYvluqhQIeacQ3whnDxGvsIxupEJrs=
-X-Received: by 2002:a05:690c:4d43:b0:650:859b:ec8d with SMTP id
- 00721157ae682-6d276404c5dmr41338607b3.10.1724951602855; Thu, 29 Aug 2024
- 10:13:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CCLbSHRx"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QwnBbG4+656HbRRz0sRo08QgObhiSKXDB6i/2vqoIPkSewpPQxn01apnjWPJJTdEH/lPgc3WltXNg3y7CetKZGtmiU5fuBgkZ0xqTq+acYtiGlv2bUCAbOMYaq+Bp0cYrGb7RFgPJ0Hh+AePoxvvz08SSz2NHLMYrt/eSM7usUFGMMyebbxfkYhasjgS5iBSMPgnBSmO1sSfiz2XjotqW5heLQ6tX8Gbb63xE4XrQ4C9h0a+BfHsdIqZnVC2EGrXxDssxH6Kl6Wpf0gJPlzdLI45LjsAl91urmgOZD+E8CmUBqt/yulcwphIw2VnScIaU0KLILlYox56yq8D22zFFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TjZcaZB8dO/QXjnlnQoXRQTxmUisEXWMoHSO1MM2eds=;
+ b=byrv8gVmXd6iLv8nCTpeZZ7X8hgsxKbBCKXaZ+1DWUJxbKwH41YL2mjDzp/7tTm1tpv9vLaci1ySy3siyL9sCeeKOEDgApEweu/ksYTXKVqcoa6KKxMSDxVevbWl1u2tunx99CR5gdwYBsxprNYjqShXYpKzeFEsd///aywedBdaxFs8gkfThlK9OYVoG0hRFZe7KGP59c6LHcwgYfWKuBUwgBaAAJuVn/A6MWJ654YdcZltSHQJSJ22IhccYq2n+MV4EsigRADptEo6fPrhu5FW+suIi4egfOSTFj27fgkJK6Oj+R5CvUYG5GvWmxSHZcVWNzhLBOGAFUzERlA8PA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TjZcaZB8dO/QXjnlnQoXRQTxmUisEXWMoHSO1MM2eds=;
+ b=CCLbSHRxiLdXfB5VT8NxApnHgBQ2wNk4wgAeUpZ4FYqYk0SCXy2yLCD7asvVwCvCTKPTdEOneDI5vl7Dh76oebAoET9oBmlMPc7TOqBrglJCi/4erSWJRwKpcEnjQ9sunAYlpIl+DwLn/zTnfK7I2RBAzXT+AHNxTfh64XcxSuCKDtByxftuIdN8yve+hKw3JEbNGGRViDBjlZHLujsvN/NpwH2SqEybUqpL178cujfzQkVTlLiwJq2/H2lbcaA+lyfk6Un3+l8aKsqeDSF35PpZ3Wxp/mIhbsG3c3ZcGn73HIPSfCx4o819e0LupuabV+n4yU59bPjxubzy1n1gzQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
+ by DS7PR12MB5742.namprd12.prod.outlook.com (2603:10b6:8:71::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.20; Thu, 29 Aug
+ 2024 18:44:41 +0000
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4%5]) with mapi id 15.20.7897.027; Thu, 29 Aug 2024
+ 18:44:40 +0000
+Message-ID: <06bda32c-6670-4d47-bd68-f8d0771aa838@nvidia.com>
+Date: Thu, 29 Aug 2024 20:44:36 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] mlx5_vnet: Set speed and duplex of vDPA devices to
+ UNKNOWN
+To: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, mst@redhat.com,
+ jasowang@redhat.com
+Cc: bilbao@vt.edu, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ cratiu@nvidia.com, lingshan.zhu@intel.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Carlos Bilbao <cbilbao@digitalocean.com>
+References: <20240829161620.38679-1-carlos.bilbao.osdev@gmail.com>
+ <20240829161620.38679-2-carlos.bilbao.osdev@gmail.com>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <20240829161620.38679-2-carlos.bilbao.osdev@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: FR3P281CA0047.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:4a::10) To CY8PR12MB8297.namprd12.prod.outlook.com
+ (2603:10b6:930:79::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240821114100.2261167-2-dtatulea@nvidia.com> <20240821114100.2261167-9-dtatulea@nvidia.com>
- <CAJaqyWfANjzrKk9J=hJrdv6c8xd5Xx81XyigPBvc--AxQQK_gg@mail.gmail.com> <bccae5ab-45d3-447e-aed9-d1955da0b109@nvidia.com>
-In-Reply-To: <bccae5ab-45d3-447e-aed9-d1955da0b109@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 29 Aug 2024 19:12:46 +0200
-Message-ID: <CAJaqyWcxuyo3uN6Y9-LXjPtd+rJmeXi-BrDadAnuLhT3EyUieA@mail.gmail.com>
-Subject: Re: [PATCH vhost 7/7] vdpa/mlx5: Postpone MR deletion
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, virtualization@lists.linux-foundation.org, 
-	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Cosmin Ratiu <cratiu@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|DS7PR12MB5742:EE_
+X-MS-Office365-Filtering-Correlation-Id: e3988c4a-bc74-44c3-9eaf-08dcc85aa42b
+X-LD-Processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|7416014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+ =?utf-8?B?eEdZdkdzUmdoQW5XNlV5a3lUYXdQcUwraGVUc1kwYm9FWmQxclpnbGRucDZ1?=
+ =?utf-8?B?RjdwQUdXK3p0cXUxZXR0TmpOVHVmVElIbkxuUWM1d1NVSGJ1VDlLZTRoTU9T?=
+ =?utf-8?B?Y2VqeVU2M0NQZm02aWZYaDRIL1ZJNE5lV0kzeWlUTGxyODlGWmJ4ZzhUSHpK?=
+ =?utf-8?B?eVRPMVZuSmFsaEkzUUhyTHRRQ0dmSzhhS0I4K2UzOWxFT1dWS05MSU5GejFj?=
+ =?utf-8?B?bzAreTBlZ1g2NnJ2RUVNdHpKbmdJNnl4RVppREhLOEMzY2Y1akVlRzlTWWR3?=
+ =?utf-8?B?RU45c09nb0Yrc2VKckNXTkN4T0s3SUJLUDNmYytpT1VDZnR2WEFUZ3ZUMGkw?=
+ =?utf-8?B?NFUzWHNvbGpGN3NNOWFXcFdWU3kyVHBhRElybk1CdEdkY3BqVlhiSUVFemxJ?=
+ =?utf-8?B?cFcvS1JZVUhSL0Z1ZDNObWpyS1BHaHlqTXc5VUh0clJXOVdCRTlHeFRXSldU?=
+ =?utf-8?B?THpjazYvZ2xvQ3lBSFVCUjNEb21xWGJxK2ZNMmRxaVV6WUNGeXdFOUw5RTlR?=
+ =?utf-8?B?dC9ZK3JLZjRNdXNvVmNNSXNkZFFMeDhUelgwMUNvT1dyOCsrYXpmR1p4aVBj?=
+ =?utf-8?B?UEFESUwvY29Jc1ZoZnQxM1c4T2tLczdweEhkbWkrL0tRckU3T1dTTTZDcHJk?=
+ =?utf-8?B?bVo5WHQ2MEk0aHdOOG9YekhmR1VHQXh2a2tNRW9IM3FQaEhXL1VtSm56QkNN?=
+ =?utf-8?B?NUZXTHdtVFRWNVdnVGNZM3JNUEp2MlhFS0tBejRBK1E3MC9xbi9HeUNNNjF4?=
+ =?utf-8?B?RXpyNEU1bTZxMWFsNHY5MVByK1FJRzJQNEJ1Zk1XZ0pOVzFaTmVzSW9TbGxS?=
+ =?utf-8?B?S0ovMVY1ZWtlZTRYdzdSY3BsZERuZGdxZ2c5Z3FnaFk4SnI1M0cwY3dkaUsy?=
+ =?utf-8?B?R3pMbCtHQzBxcjlMYkZsNVNOLzVnQTdKb0o5bzB4b3V3Y2hlOFNlQmswK2Y1?=
+ =?utf-8?B?M3VHT0dZR0RiRlB6SDN3Vmo4Rk4zWW9GK2tQMXkzendub2tMNkREZ1BwS0hU?=
+ =?utf-8?B?MnNPWTJyT1NaUnpHeENzTThsSmRpSGZNOXE4VzlUOERXRldNa2xVKzlmYTFK?=
+ =?utf-8?B?T3RKL0QrUVFCQThNcjVOajNORUN6RzVlUGJXRmZxdm5PeFVEUTFKdGZ5RFVp?=
+ =?utf-8?B?N2FRRndWb09OSnRLSE1xam5HVGFXRlh4bUdsUytsMFRIUEMzc2JZZnZWUExv?=
+ =?utf-8?B?R2pyQVZQRG5pbVB3c1pKckRheDdwb21ZV2JsZWhtVHFKaWVRSkx0UE5wVjgy?=
+ =?utf-8?B?SUpUSS9TQi9iMk1FVWFFV3dZbThwN1RwMmFqeFBIQUJpNnVqVjBHUFBtOG9T?=
+ =?utf-8?B?NEFMOU5aSU9aTW1HOUZRaXhQMVhCNU1PTHlRNXhsRGR5ZFJEVEVEdHRNRUpw?=
+ =?utf-8?B?a0pBdXBRZXBPZTc5QzlMc1VPYnI0RXoydDFhVlUramoxSkMxRmpFYUVCdFg5?=
+ =?utf-8?B?eE5Sd2M5SzB1L3UyUVJvck9MT01mVGowV2pzb2cvSDJNMEE5bmNIejZ0RHF5?=
+ =?utf-8?B?K1VLUVNyREUvb0lOZzFCaFFzaWFWVmczQ2cxZ1ovcVhiNGM4TUpBSUg3Z1hi?=
+ =?utf-8?B?OTdDL3UvbzRnVWpMdXA4UHF6SHNLRlhWK2NDV3kya1poamxYb0NhV1BKMmpp?=
+ =?utf-8?B?WFJtVHRnaHVaUkZHN0x2OE9vaDJxSkZna3RSUkZMaFovMEVCenJLWk92NEZM?=
+ =?utf-8?B?U2dQcm1RV250b3U2VFVObUpCN25qaWcrVHBROU9WaEJoWE9PRktVTktUcHhW?=
+ =?utf-8?B?VU93VHFOUUVyUmcvWE1rMUVZYUtiNmdsVURibEZTMHNNOEdmM3J1WFpzNWJB?=
+ =?utf-8?B?U0laUEtyY1dzNnVJdWZlUT09?=
+X-Forefront-Antispam-Report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+ =?utf-8?B?SDVTaGhHSnVHcGYxbktrdG0zR0c0SkNRbHBvbFdvdzhlVHh3dVE1cWtnaU5q?=
+ =?utf-8?B?d3JOd25iL2oxcGFNUXdoNlBxOGhXbG5LOGtDZ0VqdjF2YkZMbi9vd2FlQVpY?=
+ =?utf-8?B?aU1RSnZXZmJpN1p4Q0k4K2FkaXdOUG5CajNybTdlcm43WEFpV0FZMDhuZFNl?=
+ =?utf-8?B?NEhNb0NQa1E4M2lKMmM1TVBJT2kvMHMzaHlIYzF6Yk9mcFJaZGxiK1M4d25r?=
+ =?utf-8?B?SmlheG9xU29ZdWlPY2FBWmt3S2xaLzV0NEVEMEtacXhkOU1uY1pOdEVqSUlM?=
+ =?utf-8?B?U1c3WVdqL0NxM2E0enBLeS95Mlo0cjF3UEh6Q1FaQThDc0c5a0RJeGVjME1a?=
+ =?utf-8?B?WFlTMmJQbGZTNlR2NnA0UzFJR0crdDNBMlpUNWp1UUFLWWQ5d2ZkSTA2NEZy?=
+ =?utf-8?B?Tklrd2s0aEExZTNLSE5pQ0d5RHZ4UkErZStOWTF3SUFYMnJTUGlESit0VWZK?=
+ =?utf-8?B?Rk9ZTDRqNmxUcC9nSm5lbDg3RGNicC9Xc3QrOFNNU0VBR09heVowbnl6K09u?=
+ =?utf-8?B?d0VvQ1ZFVm5NNjZEblNVdXcveDJBZ3RQanN6MWZXWXRWNExVZW5UbElsejZk?=
+ =?utf-8?B?NVU0QitzeEJRR2Fza0t6bDdSYjk0RS91ZDN2NmxLUjllWk9PdHQ1Q0N0NTU0?=
+ =?utf-8?B?SGp0MGttQTJ3S2RPMGxpMUprN2RvN24vYml3UytiWWtPOHNpaGNlS0J4NzZT?=
+ =?utf-8?B?ZFU2dXpudllFR2srWnpHMkpVMWx5cTQ1WFl0U2NPT3lUQmJEZUZ0bGdpZVB4?=
+ =?utf-8?B?UVM0WGFNQlB1Sjl5YU1SOTBDaE0wZUJheWxnMktsVjltSStrR2lmRUVpVTJw?=
+ =?utf-8?B?aDhudE1TRldzMGh6ZU5hcHlVTEl3Q29SdGtJK1gza2FEL1ZkR2J1MnJPaDlQ?=
+ =?utf-8?B?c0RFOEk5YU5PWWNISEZ4SzFGK0kzTjFyRUM2UXVBZjJIbjBnYWVTRFppb0N6?=
+ =?utf-8?B?eDRNb0RDcWZLbWd1NEFJcjkxaXh5T1JsR1JPK25rQzE4RHlOVUV1cWVJMjdR?=
+ =?utf-8?B?NVFxbHZydVM2Mlk5TWwzSjlTY2dvQUgrNjIzcWdTNkdxYXIzOG5lMlozc1Fn?=
+ =?utf-8?B?NGhJOVFkUjNHbHBEMWpWZElJeWZTV1k0bnlUbW4xSXA3K01QQ0ZwVmU4N1R0?=
+ =?utf-8?B?VHhjOFF0QVVKMXVZaWpVWElzSWNTcFVMRmxKYmJSdmx3eW8yYXowaXFMNmln?=
+ =?utf-8?B?NXBrRHpmVzdzSjVrcGtQeTI3RVBtREgzNmkzVnZ5ekY4TDAyekQxa25kRGVm?=
+ =?utf-8?B?Q1hMYUNNUUY1NW1mdmNUelVTTTAzczVBWU1SSHZHVW9UWktEYkc0djI5NFFv?=
+ =?utf-8?B?WUZRdmE3bjhoNmFvYUJ1c2oyK1hhUUFKT1EwWmVVUmlRSFJIRUszZ1A4S3Nk?=
+ =?utf-8?B?eXRvQlEwWThIUHN3Ymd0WHpLdW5ycEpERVVaT1NqWVl5TkU3UCtpeEVzYWxy?=
+ =?utf-8?B?QkJQQkZjWEQ5R2hnY2dKQTQ4Z2xkZndqSzdOb3dNeVgrL1pBLzFwdUp0Yjdq?=
+ =?utf-8?B?VjFodXc2dzlNZkloVEZWTS9UMHdzNk9JOEJCa2gxQ25tbkJrVFUwR0hzZTRG?=
+ =?utf-8?B?YVV3ZjZJOTNJUDUrWmg3Ri90dHhrMi93dHMzVUgxUGd3emtHZ0ZmQjg5dklW?=
+ =?utf-8?B?a3V1K25hdE1qQkRnVHA2bWZvN3lSWWF4UFk4cy9vR1FpbzZ6dXJxTFZHaC8z?=
+ =?utf-8?B?U0VDazRXUW1Xalp2K3BzQWpocXFjK1k1ZGdmeVdTUmNPVmJKT3VVNXB2VEZz?=
+ =?utf-8?B?NGRvZ1pQY2ZqSHIyaFRFUTVuLytoRzZMbnEzZmxZZHpicDRVemJsN21LZng0?=
+ =?utf-8?B?SGNEL1pPMERiVCtPLzZ3dzRlL2NhK2Z0N0Y4OG9GZ0FhVFBEUUV4d2hQeVhV?=
+ =?utf-8?B?ZjFhc21kWUh1S0JWTGNQbGtITllCQWNMNHErb283MTZ1YUlNNEJycmRVck1R?=
+ =?utf-8?B?SjJrRmc0dUtYd0ZrS3N3MFVTNXV0dHE5Q1BkOC9qMGlyc1RESlE0VEVqQ0ht?=
+ =?utf-8?B?RlVXU3VmbU9tRGVtRnExbjdYSXYwRmxVU0M3WUtOcVgrd0drVHZ6MTdYTW94?=
+ =?utf-8?B?d21aY09hNjFNbmcxMStGdHAwajZyRDY4TnY1ZStqWnZYbk9MUXJzTFhuWHB1?=
+ =?utf-8?Q?N4wxGSbN/pfMwUjp7H5Qf8ss0?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e3988c4a-bc74-44c3-9eaf-08dcc85aa42b
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Aug 2024 18:44:40.9055
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: fRuCIyPrTl55HqR0SBbsWwZYaAfs8VsPgenrboxPrI0mlp3hCPE04jXRW6zGuukA6+qd1Y6ISEvPFVm8g0Na8Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB5742
 
-On Thu, Aug 29, 2024 at 5:23=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
->
->
->
-> On 29.08.24 17:07, Eugenio Perez Martin wrote:
-> > On Wed, Aug 21, 2024 at 1:42=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia=
-.com> wrote:
-> >>
-> >> Currently, when a new MR is set up, the old MR is deleted. MR deletion
-> >> is about 30-40% the time of MR creation. As deleting the old MR is not
-> >> important for the process of setting up the new MR, this operation
-> >> can be postponed.
-> >>
-> >> This series adds a workqueue that does MR garbage collection at a late=
-r
-> >> point. If the MR lock is taken, the handler will back off and
-> >> reschedule. The exception during shutdown: then the handler must
-> >> not postpone the work.
-> >>
-> >> Note that this is only a speculative optimization: if there is some
-> >> mapping operation that is triggered while the garbage collector handle=
-r
-> >> has the lock taken, this operation it will have to wait for the handle=
-r
-> >> to finish.
-> >>
-> >> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> >> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
-> >> ---
-> >>  drivers/vdpa/mlx5/core/mlx5_vdpa.h | 10 ++++++
-> >>  drivers/vdpa/mlx5/core/mr.c        | 51 ++++++++++++++++++++++++++++-=
--
-> >>  drivers/vdpa/mlx5/net/mlx5_vnet.c  |  3 +-
-> >>  3 files changed, 60 insertions(+), 4 deletions(-)
-> >>
-> >> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/co=
-re/mlx5_vdpa.h
-> >> index c3e17bc888e8..2cedf7e2dbc4 100644
-> >> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> >> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> >> @@ -86,8 +86,18 @@ enum {
-> >>  struct mlx5_vdpa_mr_resources {
-> >>         struct mlx5_vdpa_mr *mr[MLX5_VDPA_NUM_AS];
-> >>         unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
-> >> +
-> >> +       /* Pre-deletion mr list */
-> >>         struct list_head mr_list_head;
-> >> +
-> >> +       /* Deferred mr list */
-> >> +       struct list_head mr_gc_list_head;
-> >> +       struct workqueue_struct *wq_gc;
-> >> +       struct delayed_work gc_dwork_ent;
-> >> +
-> >>         struct mutex lock;
-> >> +
-> >> +       atomic_t shutdown;
-> >>  };
-> >>
-> >>  struct mlx5_vdpa_dev {
-> >> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-> >> index ec75f165f832..43fce6b39cf2 100644
-> >> --- a/drivers/vdpa/mlx5/core/mr.c
-> >> +++ b/drivers/vdpa/mlx5/core/mr.c
-> >> @@ -653,14 +653,46 @@ static void _mlx5_vdpa_destroy_mr(struct mlx5_vd=
-pa_dev *mvdev, struct mlx5_vdpa_
-> >>         kfree(mr);
-> >>  }
-> >>
-> >> +#define MLX5_VDPA_MR_GC_TRIGGER_MS 2000
-> >> +
-> >> +static void mlx5_vdpa_mr_gc_handler(struct work_struct *work)
-> >> +{
-> >> +       struct mlx5_vdpa_mr_resources *mres;
-> >> +       struct mlx5_vdpa_mr *mr, *tmp;
-> >> +       struct mlx5_vdpa_dev *mvdev;
-> >> +
-> >> +       mres =3D container_of(work, struct mlx5_vdpa_mr_resources, gc_=
-dwork_ent.work);
-> >> +
-> >> +       if (atomic_read(&mres->shutdown)) {
-> >> +               mutex_lock(&mres->lock);
-> >> +       } else if (!mutex_trylock(&mres->lock)) {
-> >
-> > Is the trylock worth it? My understanding is that mutex_lock will add
-> > the kthread to the waitqueue anyway if it is not able to acquire the
-> > lock.
-> >
-> I want to believe it is :). I noticed during testing that this can
-> interfere with the case where there are several .set_map() operations
-> in quick succession. That's why the work is delayed by such a long
-> time.
->
-> It's not a perfect heuristic but I found that it's better than not
-> having it.
->
 
-Understood, thanks for explaining! Can you add the explanation to the macro=
-?
 
-It would be great to find a mechanism so the work is added in low
-priority fashion, but I don't know any.
+On 29.08.24 18:16, Carlos Bilbao wrote:
+> From: Carlos Bilbao <cbilbao@digitalocean.com>
+> 
+> Initialize the speed and duplex fields in virtio_net_config to UNKNOWN.
+> This is needed because mlx5_vdpa vDPA devicess currently do not support the
+> VIRTIO_NET_F_SPEED_DUPLEX feature which reports speed and duplex. Add
+> needed helper cpu_to_mlx5vdpa32() to convert endianness of speed.
+> 
+> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
+Nit: prefix is vdpa/mlx5. Once that is fixed, for this patch:
+Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
 
-> >> +               queue_delayed_work(mres->wq_gc, &mres->gc_dwork_ent,
-> >> +                                  msecs_to_jiffies(MLX5_VDPA_MR_GC_TR=
-IGGER_MS));
-> >> +               return;
-> >> +       }
-> >> +
-> >> +       mvdev =3D container_of(mres, struct mlx5_vdpa_dev, mres);
-> >> +
-> >> +       list_for_each_entry_safe(mr, tmp, &mres->mr_gc_list_head, mr_l=
-ist) {
-> >> +               _mlx5_vdpa_destroy_mr(mvdev, mr);
-> >> +       }
-> >> +
-> >> +       mutex_unlock(&mres->lock);
-> >> +}
-> >> +
-> >>  static void _mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
-> >>                               struct mlx5_vdpa_mr *mr)
-> >>  {
-> >> +       struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
-> >> +
-> >>         if (!mr)
-> >>                 return;
-> >>
-> >> -       if (refcount_dec_and_test(&mr->refcount))
-> >> -               _mlx5_vdpa_destroy_mr(mvdev, mr);
-> >> +       if (refcount_dec_and_test(&mr->refcount)) {
-> >> +               list_move_tail(&mr->mr_list, &mres->mr_gc_list_head);
-> >> +               queue_delayed_work(mres->wq_gc, &mres->gc_dwork_ent,
-> >> +                                  msecs_to_jiffies(MLX5_VDPA_MR_GC_TR=
-IGGER_MS));
-> >
-> > Why the delay?
-> >
-> See above.
->
-> >> +       }
-> >>  }
-> >>
-> >>  void mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
-> >> @@ -848,9 +880,17 @@ int mlx5_vdpa_init_mr_resources(struct mlx5_vdpa_=
-dev *mvdev)
-> >>  {
-> >>         struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
-> >>
-> >> -       INIT_LIST_HEAD(&mres->mr_list_head);
-> >> +       mres->wq_gc =3D create_singlethread_workqueue("mlx5_vdpa_mr_gc=
-");
-> >> +       if (!mres->wq_gc)
-> >> +               return -ENOMEM;
-> >> +
-> >> +       INIT_DELAYED_WORK(&mres->gc_dwork_ent, mlx5_vdpa_mr_gc_handler=
-);
-> >> +
-> >>         mutex_init(&mres->lock);
-> >>
-> >> +       INIT_LIST_HEAD(&mres->mr_list_head);
-> >> +       INIT_LIST_HEAD(&mres->mr_gc_list_head);
-> >> +
-> >>         return 0;
-> >>  }
-> >>
-> >> @@ -858,5 +898,10 @@ void mlx5_vdpa_destroy_mr_resources(struct mlx5_v=
-dpa_dev *mvdev)
-> >>  {
-> >>         struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
-> >>
-> >> +       atomic_set(&mres->shutdown, 1);
-> >> +
-> >> +       flush_delayed_work(&mres->gc_dwork_ent);
-> >> +       destroy_workqueue(mres->wq_gc);
-> >> +       mres->wq_gc =3D NULL;
-> >>         mutex_destroy(&mres->lock);
-> >>  }
-> >> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net=
-/mlx5_vnet.c
-> >> index 1cadcb05a5c7..ee9482ef51e6 100644
-> >> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> >> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> >> @@ -3435,6 +3435,8 @@ static void mlx5_vdpa_free(struct vdpa_device *v=
-dev)
-> >>         free_fixed_resources(ndev);
-> >>         mlx5_vdpa_clean_mrs(mvdev);
-> >>         mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
-> >> +       mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
-> >> +
-> >>         if (!is_zero_ether_addr(ndev->config.mac)) {
-> >>                 pfmdev =3D pci_get_drvdata(pci_physfn(mvdev->mdev->pde=
-v));
-> >>                 mlx5_mpfs_del_mac(pfmdev, ndev->config.mac);
-> >> @@ -4044,7 +4046,6 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_d=
-ev *v_mdev, struct vdpa_device *
-> >>         destroy_workqueue(wq);
-> >>         mgtdev->ndev =3D NULL;
-> >>
-> >
-> > Extra newline here.
-> Ack.
-> >
-> >> -       mlx5_cmd_cleanup_async_ctx(&mvdev->async_ctx);
-> >>  }
-> >>
-> >>  static const struct vdpa_mgmtdev_ops mdev_ops =3D {
-> >> --
-> >> 2.45.1
-> >>
-> >
->
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index fa78e8288ebb..c47009a8b472 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -193,6 +193,11 @@ static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
+>  	return __cpu_to_virtio16(mlx5_vdpa_is_little_endian(mvdev), val);
+>  }
+>  
+> +static __virtio32 cpu_to_mlx5vdpa32(struct mlx5_vdpa_dev *mvdev, u32 val)
+> +{
+> +	return __cpu_to_virtio32(mlx5_vdpa_is_little_endian(mvdev), val);
+> +}
+> +
+>  static u16 ctrl_vq_idx(struct mlx5_vdpa_dev *mvdev)
+>  {
+>  	if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
+> @@ -3795,6 +3800,13 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>  	init_rwsem(&ndev->reslock);
+>  	config = &ndev->config;
+>  
+> +	/*
+> +	 * mlx5_vdpa vDPA devices currently don't support reporting or
+> +	 * setting the speed or duplex.
+> +	 */
+> +	config->speed  = cpu_to_mlx5vdpa32(mvdev, SPEED_UNKNOWN);
+> +	config->duplex = DUPLEX_UNKNOWN;
+> +
+>  	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
+>  		err = config_func_mtu(mdev, add_config->net.mtu);
+>  		if (err)
 
