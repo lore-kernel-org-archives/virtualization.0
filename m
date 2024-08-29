@@ -1,108 +1,252 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E0D41AB500
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 14:38:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52C7C1B1403
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 14:38:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724942286; cv=none; b=juo/+oWJFIEQ6A0HY1BvjWnbMavD/SLMqCCU+crfn/PPJp1gC180RnbUrJjyDi5EBuOKwUhedV7kb6z8bJYiEEpyhFCLz7VidEptIP4QLSt5cI9CNvKoIcgAxPltYH81BWIIsLfSd66PzVXXgH5/iBvJbwBhc4BP1sieCYzgrmE=
+	t=1724942303; cv=none; b=RUhZnsn6R7sRvEBbJQqzU0IGSBig7Z6TbZ0W+G8diPZHIJF17iVz52qtEVfrLy9jmbbW7Yz+RIgwW7FZ93YgYDUzCb04bJYK2jKrNBJuJ3XCl1PDm7+IOKGjtTgTYmvG3necXoup8oW18wBRYs6jOOqALNDXMVSQ96C2ZV8Jv8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724942286; c=relaxed/simple;
-	bh=kO6eLj8b5GtxEvWv1FM9fpVAw32heo0eC6Eie2vwPK8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=tvVot8zbmPfprmTkoUheJL0wBDT2Om0i2eP30n0BYDa5Gy2iebja+uCplvTWefTU/ntxzKpUmT953JeAJbqk8yFkVSuNSL3tgMPJhTU3wEuPOBZUCgABrF5oxwFnorn4AzcbzO2pr8Lmz+okpotLV9wwqWaxgekfXaibnC/CXPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Si2uskA+; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724942303; c=relaxed/simple;
+	bh=dQT+LA/IzZSB8C3sdyssDAKv/Xg3VRBV4cRfN3pDZrk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sz/rFiFeS/VK/jT52UBqoDhwwHuijF/f0Q18EZAZ81Sit/MqlxXSv/bpu6GpSWMlxpPKk8tCH+qyh4z+qPQPn1Oh0I8wbPWnpZr5ravhhDeHllzHBqULSAkG2p/uiB3OcLP1tQ8es7iFd5BYfxuD85KTaxwo1bqxtDV9kOsYhwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bXRGNSUt; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Si2uskA+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bXRGNSUt"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id DD9BC40B67
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 14:38:21 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Mru17hjDhyIm for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Aug 2024 14:38:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A248B403EF
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A248B403EF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bXRGNSUt
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A248B403EF
+	for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 14:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724942284;
+	s=mimecast20190719; t=1724942299;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=QA7bpSUbSKgzhSzKQGbcEto2ZPij1K94G2+gp5Ocka0=;
-	b=Si2uskA+C7pZ9SqE3s8PnD2StOTNO/AqveYGv5bGgAEev4i/kPlXBJSRk/6zRjNJtsbziV
-	NEFeOQ0RmxR171Qk1JMkO0UulYPQgWqAuRnU1kQRfB5UX6olcAdnRW7/l2aS0cxsii1HSE
-	66XxHrC/X9ukL5jmbxkVmEnme/oOroA=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=a5UccTC0S6V3eGjBBJPNDrYhEx7B8yw4mGjSWxQn/Mg=;
+	b=bXRGNSUtZ5e2b3s2iPXoAijddUlZpV97xtIhS8O7s7emqa27CzI9yfoqzQhmkd8l/uVm/p
+	OD0wuegZGiKPfrWeYNtMEbvmjbjkjt4K1drvb5kVgY+0JYUDofdwOeUGWZYdruMSEkTdNU
+	Ypjy/83xQUj3zKj46w0flAJ4jsm5XW8=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-13-LMaS3w8_PSWtxTTP3iwFuw-1; Thu, 29 Aug 2024 10:38:02 -0400
-X-MC-Unique: LMaS3w8_PSWtxTTP3iwFuw-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a8677df5ba1so70352966b.0
-        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 07:38:02 -0700 (PDT)
+ us-mta-47-AOsIk8UUP3SS1Wq2GDqMjg-1; Thu, 29 Aug 2024 10:38:16 -0400
+X-MC-Unique: AOsIk8UUP3SS1Wq2GDqMjg-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a868c4d16a6so62601066b.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 29 Aug 2024 07:38:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724942281; x=1725547081;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=QA7bpSUbSKgzhSzKQGbcEto2ZPij1K94G2+gp5Ocka0=;
-        b=RxPbnFMVuPNkZa2JT7htd9c/oZ9dpCMpAiFp78DpTnAMpDbKwkNlGLF3fdJh3oOVdk
-         jflqrE2TbIvdNrLnf7BMTcw/7OR3/t6rrAHuKezHa83kJ7fC5+jOdtOj/SNvBFdi7fnR
-         VbwgKT+lBy5pXIo/AP4t7yfiovjFe53QBedicbUSFpgkZHPRMvVtACn4ihrH0zJ98Qwa
-         Z/wGPvZNKymFfJCVcUyL9wm5UV3VRhBIM/5Qw2E9DJMF5w/ykppvksjY76jIWcIfbIbF
-         0CnGx9Xd/7nZRoi/5t7MzR+jZqcB6YwR3mXaYq2mLRGlb14L1g113fjeGZlI/MqxksY5
-         ULEQ==
-X-Gm-Message-State: AOJu0Yx5TGGhpsYyqv7O81tv4EOjAw0CLThRtgaIbTXD+W1eJmXw1isN
-	o+guOYld0eq6M7gVWl9p3xDx0UHlkDTbPhtmDKkofdmGBVsIjwI/9RtB2VnEDme0xfBmb8VdnJ5
-	IbXWsQ3aiT4tgpJuU2RStfy+DeRESS34qKnRJDLJiesC+LdMFYfLs/baZ13ST7TD2ez7ctf1TMV
-	VSzveYiiNTAvgn4cS0DubevsJKQ3lLae/hU0NvH4+Izwd85bY2
-X-Received: by 2002:a17:907:9726:b0:a86:8cfe:ec0e with SMTP id a640c23a62f3a-a897f930bfbmr235825366b.36.1724942281343;
-        Thu, 29 Aug 2024 07:38:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEOsYeMoocTHM57DyV7DV7gjAjfbPxGEazD11vV1FPO79V3FNyyGgNXMYOj2hU1lGbIQbSmFw==
-X-Received: by 2002:a17:907:9726:b0:a86:8cfe:ec0e with SMTP id a640c23a62f3a-a897f930bfbmr235824066b.36.1724942280376;
-        Thu, 29 Aug 2024 07:38:00 -0700 (PDT)
-Received: from step1.. ([193.207.133.187])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a8988fef4c3sm86159766b.32.2024.08.29.07.37.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Aug 2024 07:37:59 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux.dev
-Cc: linux-kernel@vger.kernel.org,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Subject: [PATCH] MAINTAINERS: add virtio-vsock driver in the VIRTIO CORE section
-Date: Thu, 29 Aug 2024 16:37:57 +0200
-Message-ID: <20240829143757.85844-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.46.0
+        d=1e100.net; s=20230601; t=1724942295; x=1725547095;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=a5UccTC0S6V3eGjBBJPNDrYhEx7B8yw4mGjSWxQn/Mg=;
+        b=FjkvDtiiuey1gMEh9NKXkdCVVH4HaOKfgTchb/8mQ8G7th+DtQNDLHnnSLlzsAm6o2
+         PxW1ysJfCbqQRSSlOf3HDVSkj7YWCQ/EjmSVUGwoJZHKwIojwBVlooQJ7etN+wIFhCiv
+         oHkACIuVcUIGn/rDa9y+Y5j0I5MYqrBjTneGpVbWnKHA27lgMJoaCiyoKidzu2OeFb2b
+         fCrW1575/SubWra/99P6aizMyJMdItDlEBujM5JYK9SAMvLrFvXJrRpQRyI+tQ6ZHiSO
+         gPqxnl0xzKCymhjPpP8JWv0hl0xXcz8QDnaBd89fzyXN7eYvQuPQYNEsxJBJm9EWm107
+         SXFg==
+X-Forwarded-Encrypted: i=1; AJvYcCWHETtKdiSqlDECbGMRFEL6Axw3tuMxYXfE3eDRJWcywg0fPupcboc/HBir+Z8khXbTYoptyMt/PN/MrGcQPQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yycjj30pRm13aCC8/uXejhyt21h4J6hhdLhh/1UeB8joiLlILm6
+	NgYcbKwxBzZ3F1U/+AkhdILjEkFteC4xQ5M1mtvKalK6QYTCMc3sxYTjFjIY6NHA3iObCZhESDU
+	sPJgrecIvAvmzp5s1jFrfCwBNHEAG6jVrpnyxsrymrjozizVeAu8zJMN3RDOkvLXxFXE+Bs2DYE
+	46HTOeihaIJUalD4E/2A3i7+To9uDOSn7zy8Iix2n0/V3O9jx+hwxQdw==
+X-Received: by 2002:a17:907:6d03:b0:a86:84b8:1797 with SMTP id a640c23a62f3a-a897fad6213mr257355866b.67.1724942295425;
+        Thu, 29 Aug 2024 07:38:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGsvC4E6UsmVy/Ze5IGvygaFHFdEutsQpGstF70/D4htNreS9do5qHupMeEjRpKTrCSdG9K4ofLbVE6EHTsEbU=
+X-Received: by 2002:a17:907:6d03:b0:a86:84b8:1797 with SMTP id
+ a640c23a62f3a-a897fad6213mr257349266b.67.1724942294844; Thu, 29 Aug 2024
+ 07:38:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <20240821114100.2261167-2-dtatulea@nvidia.com> <20240821114100.2261167-8-dtatulea@nvidia.com>
+In-Reply-To: <20240821114100.2261167-8-dtatulea@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 29 Aug 2024 16:37:37 +0200
+Message-ID: <CAJaqyWe29MmDZgUkrOKibWN4MGjt+sWvsNfk6SeRHhEHPJYC5g@mail.gmail.com>
+Subject: Re: [PATCH vhost 6/7] vdpa/mlx5: Introduce init/destroy for MR resources
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, virtualization@lists.linux-foundation.org, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cosmin Ratiu <cratiu@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The virtio-vsock driver is already under VM SOCKETS (AF_VSOCK),
-managed pricipally with the net tree, and VIRTIO AND VHOST
-VSOCK DRIVER. However, changes that only affect the virtio part
-usually go with Michael's tree, so let's also put the driver in
-the VIRTIO CORE section to have its maintainers in CC for changes
-to the virtio-vsock driver.
+On Wed, Aug 21, 2024 at 1:42=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+> There's currently not a lot of action happening during
+> the init/destroy of MR resources. But more will be added
+> in the upcoming patches.
 
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+If the series doesn't receive new patches, it is just the next patch :).
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 878dcd23b331..6dcea63f396e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -24218,6 +24218,7 @@ F:	include/linux/vdpa.h
- F:	include/linux/virtio*.h
- F:	include/linux/vringh.h
- F:	include/uapi/linux/virtio_*.h
-+F:	net/vmw_vsock/virtio*
- F:	tools/virtio/
- F:	tools/testing/selftests/drivers/net/virtio_net/
- 
--- 
-2.46.0
+>
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Cosmin Ratiu <cratiu@nvidia.com>
+> ---
+>  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  2 ++
+>  drivers/vdpa/mlx5/core/mr.c        | 17 +++++++++++++++++
+>  drivers/vdpa/mlx5/core/resources.c |  3 ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 10 ++++++++--
+>  4 files changed, 27 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/=
+mlx5_vdpa.h
+> index 89b564cecddf..c3e17bc888e8 100644
+> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> @@ -138,6 +138,8 @@ int mlx5_vdpa_create_mkey(struct mlx5_vdpa_dev *mvdev=
+, u32 *mkey, u32 *in,
+>  int mlx5_vdpa_destroy_mkey(struct mlx5_vdpa_dev *mvdev, u32 mkey);
+>  struct mlx5_vdpa_mr *mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev,
+>                                          struct vhost_iotlb *iotlb);
+> +int mlx5_vdpa_init_mr_resources(struct mlx5_vdpa_dev *mvdev);
+> +void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev);
+>  void mlx5_vdpa_clean_mrs(struct mlx5_vdpa_dev *mvdev);
+>  void mlx5_vdpa_get_mr(struct mlx5_vdpa_dev *mvdev,
+>                       struct mlx5_vdpa_mr *mr);
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index f20f2a8a701d..ec75f165f832 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -843,3 +843,20 @@ int mlx5_vdpa_reset_mr(struct mlx5_vdpa_dev *mvdev, =
+unsigned int asid)
+>
+>         return 0;
+>  }
+> +
+> +int mlx5_vdpa_init_mr_resources(struct mlx5_vdpa_dev *mvdev)
+> +{
+> +       struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
+> +
+> +       INIT_LIST_HEAD(&mres->mr_list_head);
+> +       mutex_init(&mres->lock);
+> +
+> +       return 0;
+
+I'd leave this function return void here and remove the caller error
+control path.
+
+> +}
+> +
+> +void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
+> +{
+> +       struct mlx5_vdpa_mr_resources *mres =3D &mvdev->mres;
+> +
+> +       mutex_destroy(&mres->lock);
+> +}
+> diff --git a/drivers/vdpa/mlx5/core/resources.c b/drivers/vdpa/mlx5/core/=
+resources.c
+> index fe2ca3458f6c..aeae31d0cefa 100644
+> --- a/drivers/vdpa/mlx5/core/resources.c
+> +++ b/drivers/vdpa/mlx5/core/resources.c
+> @@ -256,7 +256,6 @@ int mlx5_vdpa_alloc_resources(struct mlx5_vdpa_dev *m=
+vdev)
+>                 mlx5_vdpa_warn(mvdev, "resources already allocated\n");
+>                 return -EINVAL;
+>         }
+> -       mutex_init(&mvdev->mres.lock);
+>         res->uar =3D mlx5_get_uars_page(mdev);
+>         if (IS_ERR(res->uar)) {
+>                 err =3D PTR_ERR(res->uar);
+> @@ -301,7 +300,6 @@ int mlx5_vdpa_alloc_resources(struct mlx5_vdpa_dev *m=
+vdev)
+>  err_uctx:
+>         mlx5_put_uars_page(mdev, res->uar);
+>  err_uars:
+> -       mutex_destroy(&mvdev->mres.lock);
+
+Maybe it is just me, but this patch is also moving the lock lifetime
+from mlx5_vdpa_alloc_resources / mlx5_vdpa_free_resources to
+mlx5_vdpa_dev_add / mlx5_vdpa_free. I guess it has a justification we
+can either clarify in the patch message or split in its own patch.
+
+>         return err;
+>  }
+>
+> @@ -318,7 +316,6 @@ void mlx5_vdpa_free_resources(struct mlx5_vdpa_dev *m=
+vdev)
+>         dealloc_pd(mvdev, res->pdn, res->uid);
+>         destroy_uctx(mvdev, res->uid);
+>         mlx5_put_uars_page(mvdev->mdev, res->uar);
+> -       mutex_destroy(&mvdev->mres.lock);
+>         res->valid =3D false;
+>  }
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index 8a51c492a62a..1cadcb05a5c7 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -3434,6 +3434,7 @@ static void mlx5_vdpa_free(struct vdpa_device *vdev=
+)
+>
+>         free_fixed_resources(ndev);
+>         mlx5_vdpa_clean_mrs(mvdev);
+> +       mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
+>         if (!is_zero_ether_addr(ndev->config.mac)) {
+>                 pfmdev =3D pci_get_drvdata(pci_physfn(mvdev->mdev->pdev))=
+;
+>                 mlx5_mpfs_del_mac(pfmdev, ndev->config.mac);
+> @@ -3962,12 +3963,15 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev=
+ *v_mdev, const char *name,
+>         if (err)
+>                 goto err_mpfs;
+>
+> -       INIT_LIST_HEAD(&mvdev->mres.mr_list_head);
+> +       err =3D mlx5_vdpa_init_mr_resources(mvdev);
+> +       if (err)
+> +               goto err_res;
+> +
+
+Extra newline here.
+
+>
+>         if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
+>                 err =3D mlx5_vdpa_create_dma_mr(mvdev);
+>                 if (err)
+> -                       goto err_res;
+> +                       goto err_mr_res;
+>         }
+>
+>         err =3D alloc_fixed_resources(ndev);
+> @@ -4009,6 +4013,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *=
+v_mdev, const char *name,
+>         free_fixed_resources(ndev);
+>  err_mr:
+>         mlx5_vdpa_clean_mrs(mvdev);
+> +err_mr_res:
+> +       mlx5_vdpa_destroy_mr_resources(mvdev);
+>  err_res:
+>         mlx5_vdpa_free_resources(&ndev->mvdev);
+>  err_mpfs:
+> --
+> 2.45.1
+>
 
