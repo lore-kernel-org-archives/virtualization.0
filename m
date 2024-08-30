@@ -1,246 +1,211 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90AA418A931
-	for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 22:38:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C0A2D2FA
+	for <virtualization@lists.linux.dev>; Fri, 30 Aug 2024 00:59:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724971116; cv=none; b=j443/VOYUW2GnGXI1u4XRLuDDlTadmIlOPXB3WH7VU07rnqICYKSeQv2BMtz77nzRizKXQPdIt+HoIN0dJdVwCfv0j/wVvcCX+RGhBLi1VClBGaIPr1iuBT/A13AGlXLsYsl/44ueKGkeD0mx2IsBIl4bFIIcb/EDqH7fxDXR9g=
+	t=1724979554; cv=none; b=lkxfpMuHw2B9RmwHZCc9QGY59JpHFS3Rrf+Fs33skOE+hN5vZNPljlMu4Qfi3dvkL6Y51ZIGiOw7HieK6g3qf4Xmjyc+8/8uLbgkbg9iAr45SeHdzCLQYlHsgZsqgBv+gvEsmR6ORTEEEJrbB9w4vRNEvqmVcy0EmYJd80vDauw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724971116; c=relaxed/simple;
-	bh=ULs1eNO5Gtq22RBbYQ8qaF/dLffxu0QFA0DwjhJE7g8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qaYJ7OT+vSR16bgRJsQJfouFxmzny82+5GAxPnje45/Ps5x0HhL/V6jUIIHUvGilG/8+0svO9ATeDLxYK45LlsusL5DepOSbYnIceturn5UbOsH5exk/BSnxOuJ+aSxwbdysWlUcFQ+fsoaY8L52/pbg57QI16T6hlU/XHMLEGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com; spf=pass smtp.mailfrom=digitalocean.com; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=LmPRYFOd; arc=none smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digitalocean.com
+	s=arc-20240116; t=1724979554; c=relaxed/simple;
+	bh=CbgtBfu01v9GpbfNg8UmO/CvtaKvuVF6XgIONCBZFKY=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=UxifRBMhztPw8GthqNU2lSP8CmmhT2yRGuEaWy5TwRvhOd34O/ndB/1vgUK4EOIdabsl6X6oOH2OkOWVkkHpeRTPh2JQHQfOdt5zPBY8VKeRuUAKytP+sHcbSo3hasHb3ikogu7/XpbQQGgLmKQFPoAVXZsnpWPAwljfhy/mNLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HYITPizu; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="LmPRYFOd"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-716609a0e2bso189328b3a.0
-        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 15:38:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google; t=1724971113; x=1725575913; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=I6JxLN6jgWh31KN7TEo/vEC+PoZGe47rz1RImVm+TU4=;
-        b=LmPRYFOdCB57AXsrZSgzeyt4SdT/n31YHMffRkZbXThBTRkcEoDYlSA0yIGpV1q8LA
-         S/ju7ft35Hef9y4Y+gwNgYCgoYqBu74wU2RiHxSxIl1OzPcngUb1+7o1WDkRFESQ6/Lh
-         hQgToJi+JKkkYZ/yeO9hRRO7AmzYjpkYtt4e0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724971113; x=1725575913;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=I6JxLN6jgWh31KN7TEo/vEC+PoZGe47rz1RImVm+TU4=;
-        b=DNKYnmcN3/NjllKc7DRepTQDzGFOI98M8jaUqTUTY5Azt8D7UEUqBwmpntkQhIvPe4
-         2Zxed0khtf3KfhFODRrui5IYKJgBy/Tw+kdlFjMriWx07seLhq9zudTOowoquWICjfPi
-         Km/ju8TJhltowtxd2XsmEylhooDcezxM3hWtCHpIwPmZ5QOgiHCROrZS8EVPesXmmh0F
-         M7h9Z7Cvrjvp1P8vQ0ztrliDhNx7rUZBufbIb64SrK2st8FnA6TFdK2dOAFGqGt3e2tQ
-         SVWhMFifHtcT7CC0pXpoeqE2vJxDvYfdIXbse0bEtfc1D3emykgVOexbvfN0+6/JN6A3
-         +EMw==
-X-Forwarded-Encrypted: i=1; AJvYcCUqdzdAjgIwJlmbIdrPh5z+R0enyITjjSdkYrHVDXa3hF5HLmvjg7BfKksj4rXyQCbMqUXV1arU+kbbrxMSfw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwNiwzPEq/JuSFxHuuB76R1LWLY3sZnMLSyfHNZZlgVUmmSUFQL
-	w864thCOW91KbjuDuYBd+h67lKI8LKVO2HmT9B21xbiAZ3X5TAdrh7AfeFCq52M=
-X-Google-Smtp-Source: AGHT+IGXLH/kJOGdNBNyfNCznDW7lIkDKiLgby/nl6dKJoyW0rD/UQl6UGhWKYr21yk4uySVrnP9qQ==
-X-Received: by 2002:a05:6a21:3981:b0:1c4:7a11:9ef1 with SMTP id adf61e73a8af0-1cce100ebccmr4454504637.15.1724971112580;
-        Thu, 29 Aug 2024 15:38:32 -0700 (PDT)
-Received: from ?IPV6:2603:8080:7400:36da:b4f6:16b8:9118:2c1a? ([2603:8080:7400:36da:b4f6:16b8:9118:2c1a])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-715e55a692fsm1620721b3a.60.2024.08.29.15.38.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Aug 2024 15:38:32 -0700 (PDT)
-Message-ID: <5415a7ac-68a4-46fd-9ac4-35400385818f@digitalocean.com>
-Date: Thu, 29 Aug 2024 17:38:29 -0500
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HYITPizu"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1724979547; h=Message-ID:Subject:Date:From:To;
+	bh=vQbCsisdvyDUbwvZ/09puMiNIXvxirZvrp3YIXpb5PA=;
+	b=HYITPizuJ9VYdN8X3VQgkhzbNU9VCjptTPUIsalkZcOlt1ve50kBaw2Q3aQnT8vuGsyaPhC+PKN+RnGMzLYvBbopXQkGyd7LoBKB0Vh3iooR3DtJsYvdt+6o5tWThYP/C5qjpUw49S4Z5n2K2fI+wPvHddPjiLNnqYtv6zr2pgA=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WDuRsnW_1724979546)
+          by smtp.aliyun-inc.com;
+          Fri, 30 Aug 2024 08:59:07 +0800
+Message-ID: <1724979266.1598616-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
+Date: Fri, 30 Aug 2024 08:54:26 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Darren Kenny <darren.kenny@oracle.com>
+Cc: netdev@vger.kernel.org,
+ Jason Wang <jasowang@redhat.com>,
+ =?utf-8?q?EugenioP=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev,
+ "Si-Wei Liu" <si-wei.liu@oracle.com>,
+ "Linux regression tracking (Thorsten Leemhuis)" <regressions@leemhuis.info>,
+ "Michael S. Tsirkin" <mst@redhat.com>
+References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
+ <20240820125006-mutt-send-email-mst@kernel.org>
+ <m2o75l2585.fsf@oracle.com>
+In-Reply-To: <m2o75l2585.fsf@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] vdpa: Add support to update speed/duplex in
- vDPA/mlx5_vnet
-To: Dragos Tatulea <dtatulea@nvidia.com>,
- Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, mst@redhat.com,
- jasowang@redhat.com
-Cc: bilbao@vt.edu, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- cratiu@nvidia.com, lingshan.zhu@intel.com, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20240829161620.38679-1-carlos.bilbao.osdev@gmail.com>
- <20240829161620.38679-3-carlos.bilbao.osdev@gmail.com>
- <c15d3682-05ee-437c-b51c-d6a824252d76@nvidia.com>
-Content-Language: en-US
-From: Carlos Bilbao <cbilbao@digitalocean.com>
-In-Reply-To: <c15d3682-05ee-437c-b51c-d6a824252d76@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-Hello,
-
-On 8/29/24 4:07 PM, Dragos Tatulea wrote:
-> (resending as I accidentally replied only to Carlos)
+On Wed, 21 Aug 2024 17:47:06 +0100, Darren Kenny <darren.kenny@oracle.com> wrote:
 >
-> On 29.08.24 18:16, Carlos Bilbao wrote:
->> From: Carlos Bilbao <cbilbao@digitalocean.com>
->>
->> Include support to update the vDPA configuration fields of speed and
->> duplex (as needed by VHOST_VDPA_SET_CONFIG). This includes function
->> mlx5_vdpa_set_config() as well as changes in vdpa.c to fill the initial
->> values to UNKNOWN. Also add a warning message for when
->> mlx5_vdpa_get_config() receives offset and length out of bounds.
->>
->> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
->> ---
->>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 34 ++++++++++++++++++++++++++++++-
->>  drivers/vdpa/vdpa.c               | 27 ++++++++++++++++++++++++
->>  include/uapi/linux/vdpa.h         |  2 ++
->>  3 files changed, 62 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> index c47009a8b472..a44bb2072eec 100644
->> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> @@ -3221,12 +3221,44 @@ static void mlx5_vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
->>  
->>  	if (offset + len <= sizeof(struct virtio_net_config))
->>  		memcpy(buf, (u8 *)&ndev->config + offset, len);
->> +	else
->> +		mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\n");
->>  }
->>  
->>  static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned int offset, const void *buf,
->>  				 unsigned int len)
->>  {
->> -	/* not supported */
->> +	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
->> +	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
->> +
->> +	if (offset + len > sizeof(struct virtio_net_config)) {
->> +		mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\n");
->> +		return;
->> +	}
->> +
->> +	/*
->> +	 * Note that this will update the speed/duplex configuration fields
->> +	 * but the hardware support to actually perform this change does
->> +	 * not exist yet.
->> +	 */
->> +	switch (offset) {
->> +	case offsetof(struct virtio_net_config, speed):
->> +		if (len == sizeof(((struct virtio_net_config *) 0)->speed))
->> +			memcpy(&ndev->config.speed, buf, len);
->> +		else
->> +			mlx5_vdpa_warn(mvdev, "Invalid length for speed.\n");
->> +		break;
->> +
->> +	case offsetof(struct virtio_net_config, duplex):
->> +		if (len == sizeof(((struct virtio_net_config *)0)->duplex))
->> +			memcpy(&ndev->config.duplex, buf, len);
->> +		else
->> +			mlx5_vdpa_warn(mvdev, "Invalid length for duplex.\n");
->> +		break;
->> +
->> +	default:
->> +		mlx5_vdpa_warn(mvdev, "Configuration field not supported.\n");
-> This will trigger noise in dmesg because there is a MAC configuration here.
->> +	}
-> I would prefer that the .set_config remains a stub TBH. Setting the fields here is
-> misleading: the user might deduce that the configuration worked when they read the
-> values and see that they were updated.
+> Hi Michael,
+>
+> On Tuesday, 2024-08-20 at 12:50:39 -04, Michael S. Tsirkin wrote:
+> > On Tue, Aug 20, 2024 at 03:19:13PM +0800, Xuan Zhuo wrote:
+> >> leads to regression on VM with the sysctl value of:
+> >>
+> >> - net.core.high_order_alloc_disable=1
+> >
+> >
+> >
+> >
+> >> which could see reliable crashes or scp failure (scp a file 100M in size
+> >> to VM):
+> >>
+> >> The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
+> >> of a new frag. When the frag size is larger than PAGE_SIZE,
+> >> everything is fine. However, if the frag is only one page and the
+> >> total size of the buffer and virtnet_rq_dma is larger than one page, an
+> >> overflow may occur. In this case, if an overflow is possible, I adjust
+> >> the buffer size. If net.core.high_order_alloc_disable=1, the maximum
+> >> buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
+> >> the first buffer of the frag is affected.
+> >>
+> >> Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
+> >> Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> >> Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
+> >> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> >
+> >
+> > Darren, could you pls test and confirm?
+>
+> Unfortunately with this change I seem to still get a panic as soon as I start a
+> download using wget:
+
+It's strange that I can't reproduce your panic.
+
+My test method is to test with net.core.high_order_alloc_disable=1 on the net
+branch code. An exception soon occurred (connection disconnected), and then
+the kernel panicked.
+
+	while true; do scp vmlinux root@192.168.122.100:; done
+
+Use this patch to recompile virtio_net.ko, restart, configure
+net.core.high_order_alloc_disable=1 again, and test for a long time without
+problems.
+
+So, could you re-test?
+
+Thanks.
 
 
-Well, people might already assume that the values are updated because there
-is an ioctl available to user space (VHOST_VDPA_SET_CONFIG) that doesn't
-warn or return an error - or at least I did.
-
-But, I understand your concern. I propose that we at least return an error
-in the ioctl if the requested config updated is not supported. We could
-also structure this patch so that it can be used when or if hardware
-support becomes available in the future.
-
-Is there a way to query the hardware capabilities of the card, e.g., MSRs
-or other methods? Do you recommend any technical manual?
-
-Or, if the ioctl uses, for example, /dev/vhost-vdpa-2, does its speed and
-duplex settings correspond to those of the tap device it links to? This
-information can be checked and changed using the definitions in
-include/uapi/linux/ethtool.h.
-
-Thank you for taking the time to read and answer me.
 
 
+>
+> [  144.055630] Kernel panic - not syncing: corrupted stack end detected inside scheduler
+> [  144.056249] CPU: 8 PID: 37894 Comm: sleep Kdump: loaded Not tainted 6.10.0-1.el8uek.x86_64 #2
+> [  144.056850] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-4.module+el8.9.0+90173+a3f3e83a 04/01/2014
+> [  144.057585] Call Trace:
+> [  144.057791]  <TASK>
+> [  144.057973]  panic+0x347/0x370
+> [  144.058223]  schedule_debug.isra.0+0xfb/0x100
+> [  144.058565]  __schedule+0x58/0x6a0
+> [  144.058838]  ? refill_stock+0x26/0x50
+> [  144.059120]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.059473]  do_task_dead+0x42/0x50
+> [  144.059752]  do_exit+0x31e/0x4b0
+> [  144.060011]  ? __audit_syscall_entry+0xee/0x150
+> [  144.060352]  do_group_exit+0x30/0x80
+> [  144.060633]  __x64_sys_exit_group+0x18/0x20
+> [  144.060946]  do_syscall_64+0x8c/0x1c0
+> [  144.061228]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.061570]  ? __audit_filter_op+0xbe/0x140
+> [  144.061873]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.062204]  ? audit_reset_context+0x232/0x310
+> [  144.062514]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.062851]  ? syscall_exit_work+0x103/0x130
+> [  144.063148]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.063473]  ? syscall_exit_to_user_mode+0x77/0x220
+> [  144.063813]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.064142]  ? do_syscall_64+0xb9/0x1c0
+> [  144.064411]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.064747]  ? do_syscall_64+0xb9/0x1c0
+> [  144.065018]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.065345]  ? do_read_fault+0x109/0x1b0
+> [  144.065628]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.065961]  ? do_fault+0x1aa/0x2f0
+> [  144.066212]  ? handle_pte_fault+0x102/0x1a0
+> [  144.066503]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.066836]  ? __handle_mm_fault+0x5ed/0x710
+> [  144.067137]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.067464]  ? __count_memcg_events+0x72/0x110
+> [  144.067779]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.068106]  ? count_memcg_events.constprop.0+0x26/0x50
+> [  144.068457]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.068788]  ? handle_mm_fault+0xae/0x320
+> [  144.069068]  ? srso_alias_return_thunk+0x5/0xfbef5
+> [  144.069395]  ? do_user_addr_fault+0x34a/0x6b0
+> [  144.069708]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+> [  144.070049] RIP: 0033:0x7fc5524f9c66
+> [  144.070307] Code: Unable to access opcode bytes at 0x7fc5524f9c3c.
+> [  144.070720] RSP: 002b:00007ffee052beb8 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+> [  144.071214] RAX: ffffffffffffffda RBX: 00007fc5527bb860 RCX: 00007fc5524f9c66
+> [  144.071684] RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
+> [  144.072146] RBP: 0000000000000000 R08: 00000000000000e7 R09: ffffffffffffff78
+> [  144.072608] R10: 00007ffee052bdef R11: 0000000000000246 R12: 00007fc5527bb860
+> [  144.073076] R13: 0000000000000002 R14: 00007fc5527c4528 R15: 0000000000000000
+> [  144.073543]  </TASK>
+> [  144.074780] Kernel Offset: 0x37c00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
 >
 > Thanks,
-> dragos
->>  }
->>  
->>  static u32 mlx5_vdpa_get_generation(struct vdpa_device *vdev)
->> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
->> index 4dbd2e55a288..b920e4405f6d 100644
->> --- a/drivers/vdpa/vdpa.c
->> +++ b/drivers/vdpa/vdpa.c
->> @@ -15,6 +15,7 @@
->>  #include <net/genetlink.h>
->>  #include <linux/mod_devicetable.h>
->>  #include <linux/virtio_ids.h>
->> +#include <uapi/linux/ethtool.h>
->>  
->>  static LIST_HEAD(mdev_head);
->>  /* A global mutex that protects vdpa management device and device level operations. */
->> @@ -919,6 +920,22 @@ static int vdpa_dev_net_status_config_fill(struct sk_buff *msg, u64 features,
->>  	return nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16);
->>  }
->>  
->> +static int vdpa_dev_net_speed_config_fill(struct sk_buff *msg, u64 features,
->> +					struct virtio_net_config *config)
->> +{
->> +	__le32 speed = cpu_to_le32(SPEED_UNKNOWN);
->> +
->> +	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_SPEED, sizeof(speed), &speed);
->> +}
->> +
->> +static int vdpa_dev_net_duplex_config_fill(struct sk_buff *msg, u64 features,
->> +					struct virtio_net_config *config)
->> +{
->> +	u8 duplex = DUPLEX_UNKNOWN;
->> +
->> +	return nla_put(msg, VDPA_ATTR_DEV_NET_CFG_DUPLEX, sizeof(duplex), &duplex);
->> +}
->> +
->>  static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *msg)
->>  {
->>  	struct virtio_net_config config = {};
->> @@ -940,6 +957,16 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
->>  
->>  	if (vdpa_dev_net_status_config_fill(msg, features_device, &config))
->>  		return -EMSGSIZE;
->> +	/*
->> +	 * mlx5_vdpa vDPA devicess currently do not support the
->> +	 * VIRTIO_NET_F_SPEED_DUPLEX feature, which reports speed and
->> +	 * duplex; hence these are set to UNKNOWN for now.
->> +	 */
->> +	if (vdpa_dev_net_speed_config_fill(msg, features_device, &config))
->> +		return -EMSGSIZE;
->> +
->> +	if (vdpa_dev_net_duplex_config_fill(msg, features_device, &config))
->> +		return -EMSGSIZE;
->>  
->>  	return vdpa_dev_net_mq_config_fill(msg, features_device, &config);
->>  }
->> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
->> index 842bf1201ac4..1c64ee0dd7b1 100644
->> --- a/include/uapi/linux/vdpa.h
->> +++ b/include/uapi/linux/vdpa.h
->> @@ -43,6 +43,8 @@ enum vdpa_attr {
->>  	VDPA_ATTR_DEV_NET_STATUS,		/* u8 */
->>  	VDPA_ATTR_DEV_NET_CFG_MAX_VQP,		/* u16 */
->>  	VDPA_ATTR_DEV_NET_CFG_MTU,		/* u16 */
->> +	VDPA_ATTR_DEV_NET_CFG_SPEED,		/* u32 */
->> +	VDPA_ATTR_DEV_NET_CFG_DUPLEX,		/* u8 */
->>  
->>  	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
->>  	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
-
-
-Thanks, Carlos
-
+>
+> Darren.
+>
+> >> ---
+> >>  drivers/net/virtio_net.c | 12 +++++++++---
+> >>  1 file changed, 9 insertions(+), 3 deletions(-)
+> >>
+> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> >> index c6af18948092..e5286a6da863 100644
+> >> --- a/drivers/net/virtio_net.c
+> >> +++ b/drivers/net/virtio_net.c
+> >> @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+> >>  	void *buf, *head;
+> >>  	dma_addr_t addr;
+> >>
+> >> -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+> >> -		return NULL;
+> >> -
+> >>  	head = page_address(alloc_frag->page);
+> >>
+> >>  	dma = head;
+> >> @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+> >>  	len = SKB_DATA_ALIGN(len) +
+> >>  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+> >>
+> >> +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
+> >> +		return -ENOMEM;
+> >> +
+> >>  	buf = virtnet_rq_alloc(rq, len, gfp);
+> >>  	if (unlikely(!buf))
+> >>  		return -ENOMEM;
+> >> @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+> >>  	 */
+> >>  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+> >>
+> >> +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> >> +		return -ENOMEM;
+> >> +
+> >> +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
+> >> +		len -= sizeof(struct virtnet_rq_dma);
+> >> +
+> >>  	buf = virtnet_rq_alloc(rq, len + room, gfp);
+> >>  	if (unlikely(!buf))
+> >>  		return -ENOMEM;
+> >> --
+> >> 2.32.0.3.g01195cf9f
+>
+>
