@@ -1,211 +1,104 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C0A2D2FA
-	for <virtualization@lists.linux.dev>; Fri, 30 Aug 2024 00:59:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59BA124B28
+	for <virtualization@lists.linux.dev>; Fri, 30 Aug 2024 02:27:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724979554; cv=none; b=lkxfpMuHw2B9RmwHZCc9QGY59JpHFS3Rrf+Fs33skOE+hN5vZNPljlMu4Qfi3dvkL6Y51ZIGiOw7HieK6g3qf4Xmjyc+8/8uLbgkbg9iAr45SeHdzCLQYlHsgZsqgBv+gvEsmR6ORTEEEJrbB9w4vRNEvqmVcy0EmYJd80vDauw=
+	t=1724984863; cv=none; b=GOJK2tdCqJK/D+jZozie5zOrd2/W2ueh9nN8iHt14FLT6JF3jsKKrRypbLgRqanPmBgfVk8+Bq62NMZQmmpEdN3onuajW2t4fB6lEywMi+SSBUWMIZ6qFlDt83QCk1R7vooJbI2dfoVRG8XlAHBUbdq+fpxHyKc7evahrf7zH9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724979554; c=relaxed/simple;
-	bh=CbgtBfu01v9GpbfNg8UmO/CvtaKvuVF6XgIONCBZFKY=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=UxifRBMhztPw8GthqNU2lSP8CmmhT2yRGuEaWy5TwRvhOd34O/ndB/1vgUK4EOIdabsl6X6oOH2OkOWVkkHpeRTPh2JQHQfOdt5zPBY8VKeRuUAKytP+sHcbSo3hasHb3ikogu7/XpbQQGgLmKQFPoAVXZsnpWPAwljfhy/mNLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HYITPizu; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1724984863; c=relaxed/simple;
+	bh=7aOFzquSXsxWdg9sGe6soNpradm3zUkzZgIEXOgg6N4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Rz4by7sPXFm2y0XIM00Xu371o8y9+5eX1Ng67zFR1pFmxkrc5VCG+W5zoTKce/+X3e4SG2q03w6EL0ilVK+J3PulG7IpvUxC8PNYIF+kPJMf63Q1m7Fzu/BQnBEcFH7/t+f7Z6/RQfjitSnKBR5gC2aPzVh2wcgRKL8UnDP0c0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GAr7klop; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HYITPizu"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1724979547; h=Message-ID:Subject:Date:From:To;
-	bh=vQbCsisdvyDUbwvZ/09puMiNIXvxirZvrp3YIXpb5PA=;
-	b=HYITPizuJ9VYdN8X3VQgkhzbNU9VCjptTPUIsalkZcOlt1ve50kBaw2Q3aQnT8vuGsyaPhC+PKN+RnGMzLYvBbopXQkGyd7LoBKB0Vh3iooR3DtJsYvdt+6o5tWThYP/C5qjpUw49S4Z5n2K2fI+wPvHddPjiLNnqYtv6zr2pgA=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WDuRsnW_1724979546)
-          by smtp.aliyun-inc.com;
-          Fri, 30 Aug 2024 08:59:07 +0800
-Message-ID: <1724979266.1598616-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
-Date: Fri, 30 Aug 2024 08:54:26 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Darren Kenny <darren.kenny@oracle.com>
-Cc: netdev@vger.kernel.org,
- Jason Wang <jasowang@redhat.com>,
- =?utf-8?q?EugenioP=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev,
- "Si-Wei Liu" <si-wei.liu@oracle.com>,
- "Linux regression tracking (Thorsten Leemhuis)" <regressions@leemhuis.info>,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
- <20240820125006-mutt-send-email-mst@kernel.org>
- <m2o75l2585.fsf@oracle.com>
-In-Reply-To: <m2o75l2585.fsf@oracle.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GAr7klop"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724984860;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Fqa6fnY1m7BN2MuwAFexWwsKLrqxXcsUqarIMqCmGqY=;
+	b=GAr7klopEJFtFsTKgez1COygRolSKZPEh/vxKzgO02yLRW/IqsHvI8VtitrSxifL0YatTk
+	/8j7gkBhK+U289oiww07tTQur8vqbGUx5VI+7gepCYs4Kax+GjNa7/ThFXE7D8U6ABJExZ
+	UpztAnKExFvInHXU0FzLAVJb6HeLZPQ=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-375-YaMNfMzgOlidGRBydMw9Pg-1; Thu, 29 Aug 2024 22:27:38 -0400
+X-MC-Unique: YaMNfMzgOlidGRBydMw9Pg-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2d86e9da90cso191925a91.2
+        for <virtualization@lists.linux.dev>; Thu, 29 Aug 2024 19:27:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724984857; x=1725589657;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Fqa6fnY1m7BN2MuwAFexWwsKLrqxXcsUqarIMqCmGqY=;
+        b=F3UJwQxq3f35+NvJpurboU8zruLwju2Z/DAmiUxUNCBrZe7tx6KpwTTwjPOV+D09gq
+         U5nVTwDpawwFXJsyJgTGn+Lv4FMOFlAPpFwU64Hqjj8G1xFQusQeTxKf2pFR/+CmrWFB
+         ib12Ul7gxJsloSrVpjR1ORL8ewo9UoXgDYis0pBwBl25lgJaHtCQ2uP/YbLU7+hPopDO
+         dUf+JsXdVFJqi+tzGSOH9XtOByyPTCybV0217JtXiQAEplS1ywVSumOd06MzB0NrCn6K
+         1djCcrz2ru34EXVpf+dZMAgKcLYUA4iSn8XaccCE9OZAAjPd7UVCgEYbU+fWAjURH9z/
+         aZPg==
+X-Forwarded-Encrypted: i=1; AJvYcCU7GX4JxriFfeOghF6SocJzROXoN3xehsHeDsfnkXxTLDIrmr6nZgurnEfO2i/1bfF8M7SI51/xzXXmUMR5lA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy9SqGGUG68wxmvbIeBUR0hPkJgQA+U1/wi3XufTVg6p5NnLh2j
+	RPAyJBjR8Jir1LOiHOcTsJXZrfavPLmtaAZFpr5gMljw0lC9M/xaSAeByf3QcegQWlmAzDp8Vol
+	p07DO128Nmj2ea9ThUMMPpN1H+O6hCUHuMqDc/JYOzrBhFzgW6Ztx5OxRAOGWw0GciuAWIotIuD
+	b0krWOQZyM6W/zoBmgWX3c677YMe0clBzh2k+jMNQ=
+X-Received: by 2002:a17:90b:1c8d:b0:2d1:bf4b:4a6d with SMTP id 98e67ed59e1d1-2d856171083mr5715598a91.1.1724984857615;
+        Thu, 29 Aug 2024 19:27:37 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHuPvs4K6ErQNk0JQcambzJJSK9Hb/yPLY7k6nxtFvEimYY7nj16dOoSPmKxLqdHCvR6Gg7k0fB8H2rbMXASD0=
+X-Received: by 2002:a17:90b:1c8d:b0:2d1:bf4b:4a6d with SMTP id
+ 98e67ed59e1d1-2d856171083mr5715575a91.1.1724984857029; Thu, 29 Aug 2024
+ 19:27:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240829143757.85844-1-sgarzare@redhat.com> <CAJSP0QW3WN2Z-x5Y8TnyA_Rq-ok9VgG1YSUzYPDCrav7Phx6Hw@mail.gmail.com>
+In-Reply-To: <CAJSP0QW3WN2Z-x5Y8TnyA_Rq-ok9VgG1YSUzYPDCrav7Phx6Hw@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 30 Aug 2024 10:27:24 +0800
+Message-ID: <CACGkMEvS-kVERRhYHQh5=o_6O=-1qyrzraNq+3KsJLyVZ6LPZw@mail.gmail.com>
+Subject: Re: [PATCH] MAINTAINERS: add virtio-vsock driver in the VIRTIO CORE section
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 21 Aug 2024 17:47:06 +0100, Darren Kenny <darren.kenny@oracle.com> wrote:
+On Thu, Aug 29, 2024 at 11:15=E2=80=AFPM Stefan Hajnoczi <stefanha@gmail.co=
+m> wrote:
 >
-> Hi Michael,
->
-> On Tuesday, 2024-08-20 at 12:50:39 -04, Michael S. Tsirkin wrote:
-> > On Tue, Aug 20, 2024 at 03:19:13PM +0800, Xuan Zhuo wrote:
-> >> leads to regression on VM with the sysctl value of:
-> >>
-> >> - net.core.high_order_alloc_disable=1
+> On Thu, 29 Aug 2024 at 11:01, Stefano Garzarella <sgarzare@redhat.com> wr=
+ote:
 > >
+> > The virtio-vsock driver is already under VM SOCKETS (AF_VSOCK),
+> > managed pricipally with the net tree, and VIRTIO AND VHOST
+> > VSOCK DRIVER. However, changes that only affect the virtio part
+> > usually go with Michael's tree, so let's also put the driver in
+> > the VIRTIO CORE section to have its maintainers in CC for changes
+> > to the virtio-vsock driver.
 > >
-> >
-> >
-> >> which could see reliable crashes or scp failure (scp a file 100M in size
-> >> to VM):
-> >>
-> >> The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> >> of a new frag. When the frag size is larger than PAGE_SIZE,
-> >> everything is fine. However, if the frag is only one page and the
-> >> total size of the buffer and virtnet_rq_dma is larger than one page, an
-> >> overflow may occur. In this case, if an overflow is possible, I adjust
-> >> the buffer size. If net.core.high_order_alloc_disable=1, the maximum
-> >> buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
-> >> the first buffer of the frag is affected.
-> >>
-> >> Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
-> >> Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-> >> Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
-> >> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> >
-> >
-> > Darren, could you pls test and confirm?
+> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> > Cc: Jason Wang <jasowang@redhat.com>
+> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > ---
+> >  MAINTAINERS | 1 +
+> >  1 file changed, 1 insertion(+)
 >
-> Unfortunately with this change I seem to still get a panic as soon as I start a
-> download using wget:
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-It's strange that I can't reproduce your panic.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-My test method is to test with net.core.high_order_alloc_disable=1 on the net
-branch code. An exception soon occurred (connection disconnected), and then
-the kernel panicked.
+Thanks
 
-	while true; do scp vmlinux root@192.168.122.100:; done
-
-Use this patch to recompile virtio_net.ko, restart, configure
-net.core.high_order_alloc_disable=1 again, and test for a long time without
-problems.
-
-So, could you re-test?
-
-Thanks.
-
-
-
-
->
-> [  144.055630] Kernel panic - not syncing: corrupted stack end detected inside scheduler
-> [  144.056249] CPU: 8 PID: 37894 Comm: sleep Kdump: loaded Not tainted 6.10.0-1.el8uek.x86_64 #2
-> [  144.056850] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-4.module+el8.9.0+90173+a3f3e83a 04/01/2014
-> [  144.057585] Call Trace:
-> [  144.057791]  <TASK>
-> [  144.057973]  panic+0x347/0x370
-> [  144.058223]  schedule_debug.isra.0+0xfb/0x100
-> [  144.058565]  __schedule+0x58/0x6a0
-> [  144.058838]  ? refill_stock+0x26/0x50
-> [  144.059120]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.059473]  do_task_dead+0x42/0x50
-> [  144.059752]  do_exit+0x31e/0x4b0
-> [  144.060011]  ? __audit_syscall_entry+0xee/0x150
-> [  144.060352]  do_group_exit+0x30/0x80
-> [  144.060633]  __x64_sys_exit_group+0x18/0x20
-> [  144.060946]  do_syscall_64+0x8c/0x1c0
-> [  144.061228]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.061570]  ? __audit_filter_op+0xbe/0x140
-> [  144.061873]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.062204]  ? audit_reset_context+0x232/0x310
-> [  144.062514]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.062851]  ? syscall_exit_work+0x103/0x130
-> [  144.063148]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.063473]  ? syscall_exit_to_user_mode+0x77/0x220
-> [  144.063813]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.064142]  ? do_syscall_64+0xb9/0x1c0
-> [  144.064411]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.064747]  ? do_syscall_64+0xb9/0x1c0
-> [  144.065018]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.065345]  ? do_read_fault+0x109/0x1b0
-> [  144.065628]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.065961]  ? do_fault+0x1aa/0x2f0
-> [  144.066212]  ? handle_pte_fault+0x102/0x1a0
-> [  144.066503]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.066836]  ? __handle_mm_fault+0x5ed/0x710
-> [  144.067137]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.067464]  ? __count_memcg_events+0x72/0x110
-> [  144.067779]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.068106]  ? count_memcg_events.constprop.0+0x26/0x50
-> [  144.068457]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.068788]  ? handle_mm_fault+0xae/0x320
-> [  144.069068]  ? srso_alias_return_thunk+0x5/0xfbef5
-> [  144.069395]  ? do_user_addr_fault+0x34a/0x6b0
-> [  144.069708]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-> [  144.070049] RIP: 0033:0x7fc5524f9c66
-> [  144.070307] Code: Unable to access opcode bytes at 0x7fc5524f9c3c.
-> [  144.070720] RSP: 002b:00007ffee052beb8 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-> [  144.071214] RAX: ffffffffffffffda RBX: 00007fc5527bb860 RCX: 00007fc5524f9c66
-> [  144.071684] RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
-> [  144.072146] RBP: 0000000000000000 R08: 00000000000000e7 R09: ffffffffffffff78
-> [  144.072608] R10: 00007ffee052bdef R11: 0000000000000246 R12: 00007fc5527bb860
-> [  144.073076] R13: 0000000000000002 R14: 00007fc5527c4528 R15: 0000000000000000
-> [  144.073543]  </TASK>
-> [  144.074780] Kernel Offset: 0x37c00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
->
-> Thanks,
->
-> Darren.
->
-> >> ---
-> >>  drivers/net/virtio_net.c | 12 +++++++++---
-> >>  1 file changed, 9 insertions(+), 3 deletions(-)
-> >>
-> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >> index c6af18948092..e5286a6da863 100644
-> >> --- a/drivers/net/virtio_net.c
-> >> +++ b/drivers/net/virtio_net.c
-> >> @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
-> >>  	void *buf, *head;
-> >>  	dma_addr_t addr;
-> >>
-> >> -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
-> >> -		return NULL;
-> >> -
-> >>  	head = page_address(alloc_frag->page);
-> >>
-> >>  	dma = head;
-> >> @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
-> >>  	len = SKB_DATA_ALIGN(len) +
-> >>  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> >>
-> >> +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-> >> +		return -ENOMEM;
-> >> +
-> >>  	buf = virtnet_rq_alloc(rq, len, gfp);
-> >>  	if (unlikely(!buf))
-> >>  		return -ENOMEM;
-> >> @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
-> >>  	 */
-> >>  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
-> >>
-> >> +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
-> >> +		return -ENOMEM;
-> >> +
-> >> +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
-> >> +		len -= sizeof(struct virtnet_rq_dma);
-> >> +
-> >>  	buf = virtnet_rq_alloc(rq, len + room, gfp);
-> >>  	if (unlikely(!buf))
-> >>  		return -ENOMEM;
-> >> --
-> >> 2.32.0.3.g01195cf9f
->
->
