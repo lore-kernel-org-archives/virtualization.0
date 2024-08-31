@@ -1,203 +1,352 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A5421B5304
-	for <virtualization@lists.linux.dev>; Fri, 30 Aug 2024 20:29:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7BCD16EB7C
+	for <virtualization@lists.linux.dev>; Sat, 31 Aug 2024 09:37:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725049777; cv=none; b=V75VxsmvfPlBdZGsP9mk9dgg5/Gg3Rl8OsfnkF3CJEe+gOveC6AZs8cmNiSLmEdr/p/TkPX9MX1/weZ5zRw4m2CTipy9yq3Klx/eR99ctIL/oCRrRC2zmUI0OT+c+3wv1aZ18KNR9SoT8gt+Znn/+j+bYM6uKP+kFEuT3y8J6tA=
+	t=1725097078; cv=none; b=LhEpCkiOqu1vSZb7BBA5HpchprImaPy/hpO7zO5st2sRXisYB0UEY8YERJ78PjZwAZdCzQ7SHeQ3ERpw2yIHFPAQxBbxQfiBKHVAHpyvNPdhs4cN2B+CeL4PAC5Zq9QSyn/HTH+XOfyNcowNwphUdqGgc0SGXwc1mgERx9D4wC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725049777; c=relaxed/simple;
-	bh=KEf4h+v3LEtN7b9V67fqymnhvMKtLQpXQtXdYB5wGlM=;
+	s=arc-20240116; t=1725097078; c=relaxed/simple;
+	bh=9h1fXSXnjuNL7q6kkM0w7OT0IYhBTu9tKK4j9NAvXzk=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lp6AWA05zHwQ+Lf5YQj7cI80LBA79gyK//RK3LlLU3o+IRs0mggzbXa6SxS7of17u0w6jSbxhUIQYOJ/36ksVNrVKUENdzdo3ln3rwi3GSlvh3O2eMOv8fBXeF6CZ/PqSbkZ/MFSwzU0pCfZl58NJghUpQHjvJkhflKpqRPhIiM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JzIDqqSR; arc=none smtp.client-ip=209.85.210.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JzIDqqSR"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-7140ff4b1e9so1954406b3a.3
-        for <virtualization@lists.linux.dev>; Fri, 30 Aug 2024 13:29:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725049775; x=1725654575; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kCn45A0xkxYmnXC9jhkef4/QM2hxjGm0wlBoU+2BCnU=;
-        b=JzIDqqSRNTd5afPCQCKN0KiC7FD0yDsa4899VH9joEz0uyRlcLT4scmP/M5t0I7Dx5
-         MQqT//B1rt7nhVvDYhp8nuEDTsvIOPZvuyiBIWwz5DF1zuSBTbO/NHo0PnLyoaplp4Yp
-         j/qphkpH10FZTSywYrN10bfgqzPlLTZsevX3wXjCfY9I4iYI8XLr0W+9v3qSKeC41MZr
-         t3OGK/ZA8gJIudzPor3QEd87iffV22pPGmnJ9oTWygN8h3cCtwvjNxKJj+CPKQhjIbAR
-         +sEhYe9YvV+vuBIyExVj8LCEDDYRDDofzOLj5wV2WfrHVuJ7w8qfrzleMEBVlaFu+B5R
-         f/1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725049775; x=1725654575;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kCn45A0xkxYmnXC9jhkef4/QM2hxjGm0wlBoU+2BCnU=;
-        b=Ixx+IBfnJ4EVNz+o43ho+iO2YNd0TMgGFnuVCSEnoow6B9xq8pnQnpiyQN/iw2qs1a
-         6rXwIsqEZyOmSiAbXWD6QpIXlSpIDbFnyqPDYGw3g1c3zsuETIm0MTporpXdAoWyY6eR
-         lMsqlbix8a5HOKWufRebaPn6jTfhMIBtWR1v5dy5tzuLku0zjZFML4bGz1CJV9LBvaJB
-         46HjKERqNdeEQdkldGEelAoMFy5fRfJjYEercDDgCilcUFN07W0VpkTSN2tqNxuDh7YU
-         Fkd/TtVoetaOA5ZuESEdIyMX6W/vAJiPLp+n2OvI3gWa2VeHWhKyudM7I7EoJMTwdq6s
-         w0Ag==
-X-Forwarded-Encrypted: i=1; AJvYcCWNZTp5rRG/bFdqyEVqVVYFoAloTtCTX+Kzmu2Ynxn7yKlHQ2kM8prsF+6+c1C5vI6v2cnipfOVq43RxGjutQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwsYPfV54jJZHsAyjnYmhJi70L3nvP0tIGvSErkMT2LULU1GqXm
-	5g0p8rmtCR4OJOiPZnrww6wOzynN3x4BX5qTRE6VEENS0zqW6Kbk
-X-Google-Smtp-Source: AGHT+IG8y6GX/E7RigCSHufkr+GwgOj7KdtzlyA39qYM7vxl8g1/NMkb5KBYNwmdjJECo9kKMTCYSA==
-X-Received: by 2002:a05:6a00:124a:b0:705:9992:e7f2 with SMTP id d2e1a72fcca58-7173c1f7300mr1000751b3a.12.1725049775341;
-        Fri, 30 Aug 2024 13:29:35 -0700 (PDT)
-Received: from localhost.localdomain ([2407:7000:8942:5500:aaa1:59ff:fe57:eb97])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-715e56d74eesm3257035b3a.147.2024.08.30.13.29.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Aug 2024 13:29:34 -0700 (PDT)
-From: Barry Song <21cnbao@gmail.com>
-To: akpm@linux-foundation.org,
-	linux-mm@kvack.org,
-	virtualization@lists.linux.dev
-Cc: david@redhat.com,
-	42.hyeyoo@gmail.com,
-	cl@linux.com,
-	hailong.liu@oppo.com,
-	hch@infradead.org,
-	iamjoonsoo.kim@lge.com,
-	mhocko@suse.com,
-	penberg@kernel.org,
-	rientjes@google.com,
-	roman.gushchin@linux.dev,
-	torvalds@linux-foundation.org,
-	urezki@gmail.com,
-	v-songbaohua@oppo.com,
-	vbabka@suse.cz,
-	laoar.shao@gmail.com
-Subject: [PATCH v4 3/3] mm: warn about illegal __GFP_NOFAIL usage in a more appropriate location and manner
-Date: Sat, 31 Aug 2024 08:28:23 +1200
-Message-Id: <20240830202823.21478-4-21cnbao@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240830202823.21478-1-21cnbao@gmail.com>
-References: <20240830202823.21478-1-21cnbao@gmail.com>
+	 MIME-Version; b=URmgaQDoBw0TVxSraYIFkV0k7dkGiQNVzIGo7dyafDvzvE95+8JWiHuSPxuXHHxONQRFUDkgfcHbOqn2g2hPQHnAci06kawpCVAQrH3EgN53haTUelToDgnfUb4Lt9oIgGBzjMVciHR1SksWK4CHuYBkLa++rAdsqsAaofeA+bo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4WwqgQ0TsVz4f3jXS
+	for <virtualization@lists.linux.dev>; Sat, 31 Aug 2024 17:37:38 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.128])
+	by mail.maildlp.com (Postfix) with ESMTP id CFFB71A1477
+	for <virtualization@lists.linux.dev>; Sat, 31 Aug 2024 17:37:52 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.124.27])
+	by APP4 (Coremail) with SMTP id gCh0CgBXzIJj5NJm0I_lDA--.58191S5;
+	Sat, 31 Aug 2024 17:37:52 +0800 (CST)
+From: Hou Tao <houtao@huaweicloud.com>
+To: linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Bernd Schubert <bernd.schubert@fastmail.fm>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Benjamin Coddington <bcodding@redhat.com>,
+	Jingbo Xu <jefflexu@linux.alibaba.com>,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: [PATCH v4 1/2] virtiofs: use pages instead of pointer for kernel direct IO
+Date: Sat, 31 Aug 2024 17:37:49 +0800
+Message-Id: <20240831093750.1593871-2-houtao@huaweicloud.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20240831093750.1593871-1-houtao@huaweicloud.com>
+References: <20240831093750.1593871-1-houtao@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:gCh0CgBXzIJj5NJm0I_lDA--.58191S5
+X-Coremail-Antispam: 1UD129KBjvJXoW3Cr4ftr45ZFyktrW3Ar4rAFb_yoWDAr1UpF
+	W3ta1YyFWxXFW7Crs3JF4UuF1S9wn5CF4xKrZ5Wa4Svr1UtryakF90ya4UuFy7ArykJr47
+	Xrs0vrnFqr4DXw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUGw
+	A2048vs2IY020Ec7CjxVAFwI0_Gr0_Xr1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
+	Ij6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
+	Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI
+	0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
+	67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MI
+	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
+	14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
+	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU2Izu
+	DUUUU
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-From: Barry Song <v-songbaohua@oppo.com>
+From: Hou Tao <houtao1@huawei.com>
 
-Three points for this change:
+When trying to insert a 10MB kernel module kept in a virtio-fs with cache
+disabled, the following warning was reported:
 
-1. We should consolidate all warnings in one place. Currently, the
-   order > 1 warning is in the hotpath, while others are in less
-   likely scenarios. Moving all warnings to the slowpath will reduce
-   the overhead for order > 1 and increase the visibility of other
-   warnings.
+  ------------[ cut here ]------------
+  WARNING: CPU: 1 PID: 404 at mm/page_alloc.c:4551 ......
+  Modules linked in:
+  CPU: 1 PID: 404 Comm: insmod Not tainted 6.9.0-rc5+ #123
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996) ......
+  RIP: 0010:__alloc_pages+0x2bf/0x380
+  ......
+  Call Trace:
+   <TASK>
+   ? __warn+0x8e/0x150
+   ? __alloc_pages+0x2bf/0x380
+   __kmalloc_large_node+0x86/0x160
+   __kmalloc+0x33c/0x480
+   virtio_fs_enqueue_req+0x240/0x6d0
+   virtio_fs_wake_pending_and_unlock+0x7f/0x190
+   queue_request_and_unlock+0x55/0x60
+   fuse_simple_request+0x152/0x2b0
+   fuse_direct_io+0x5d2/0x8c0
+   fuse_file_read_iter+0x121/0x160
+   __kernel_read+0x151/0x2d0
+   kernel_read+0x45/0x50
+   kernel_read_file+0x1a9/0x2a0
+   init_module_from_file+0x6a/0xe0
+   idempotent_init_module+0x175/0x230
+   __x64_sys_finit_module+0x5d/0xb0
+   x64_sys_call+0x1c3/0x9e0
+   do_syscall_64+0x3d/0xc0
+   entry_SYSCALL_64_after_hwframe+0x4b/0x53
+   ......
+   </TASK>
+  ---[ end trace 0000000000000000 ]---
 
-2. We currently have two warnings for order: one for order > 1 in
-   the hotpath and another for order > costly_order in the laziest
-   path. I suggest standardizing on order > 1 since it’s been in
-   use for a long time.
+The warning is triggered as follows:
 
-3. We don't need to check for __GFP_NOWARN in this case. __GFP_NOWARN
-   is meant to suppress allocation failure reports, but here we're
-   dealing with bug detection, not allocation failures. So replace
-   WARN_ON_ONCE_GFP by WARN_ON_ONCE.
+1) syscall finit_module() handles the module insertion and it invokes
+kernel_read_file() to read the content of the module first.
 
-Suggested-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+2) kernel_read_file() allocates a 10MB buffer by using vmalloc() and
+passes it to kernel_read(). kernel_read() constructs a kvec iter by
+using iov_iter_kvec() and passes it to fuse_file_read_iter().
+
+3) virtio-fs disables the cache, so fuse_file_read_iter() invokes
+fuse_direct_io(). As for now, the maximal read size for kvec iter is
+only limited by fc->max_read. For virtio-fs, max_read is UINT_MAX, so
+fuse_direct_io() doesn't split the 10MB buffer. It saves the address and
+the size of the 10MB-sized buffer in out_args[0] of a fuse request and
+passes the fuse request to virtio_fs_wake_pending_and_unlock().
+
+4) virtio_fs_wake_pending_and_unlock() uses virtio_fs_enqueue_req() to
+queue the request. Because virtiofs need DMA-able address, so
+virtio_fs_enqueue_req() uses kmalloc() to allocate a bounce buffer for
+all fuse args, copies these args into the bounce buffer and passed the
+physical address of the bounce buffer to virtiofsd. The total length of
+these fuse args for the passed fuse request is about 10MB, so
+copy_args_to_argbuf() invokes kmalloc() with a 10MB size parameter and
+it triggers the warning in __alloc_pages():
+
+	if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp))
+		return NULL;
+
+5) virtio_fs_enqueue_req() will retry the memory allocation in a
+kworker, but it won't help, because kmalloc() will always return NULL
+due to the abnormal size and finit_module() will hang forever.
+
+A feasible solution is to limit the value of max_read for virtio-fs, so
+the length passed to kmalloc() will be limited. However it will affect
+the maximal read size for normal read. And for virtio-fs write initiated
+from kernel, it has the similar problem but now there is no way to limit
+fc->max_write in kernel.
+
+So instead of limiting both the values of max_read and max_write in
+kernel, introducing use_pages_for_kvec_io in fuse_conn and setting it as
+true in virtiofs. When use_pages_for_kvec_io is enabled, fuse will use
+pages instead of pointer to pass the KVEC_IO data.
+
+After switching to pages for KVEC_IO data, these pages will be used for
+DMA through virtio-fs. If these pages are backed by vmalloc(),
+{flush|invalidate}_kernel_vmap_range() are necessary to flush or
+invalidate the cache before the DMA operation. So add two new fields in
+fuse_args_pages to record the base address of vmalloc area and the
+condition indicating whether invalidation is needed. Perform the flush
+in fuse_get_user_pages() for write operations and the invalidation in
+fuse_release_user_pages() for read operations.
+
+It may seem necessary to introduce another field in fuse_conn to
+indicate that these KVEC_IO pages are used for DMA, However, considering
+that virtio-fs is currently the only user of use_pages_for_kvec_io, just
+reuse use_pages_for_kvec_io to indicate that these pages will be used
+for DMA.
+
+Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
 ---
- mm/page_alloc.c | 50 ++++++++++++++++++++++++-------------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ fs/fuse/file.c      | 62 +++++++++++++++++++++++++++++++--------------
+ fs/fuse/fuse_i.h    |  6 +++++
+ fs/fuse/virtio_fs.c |  1 +
+ 3 files changed, 50 insertions(+), 19 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index c81ee5662cc7..e790b4227322 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -3033,12 +3033,6 @@ struct page *rmqueue(struct zone *preferred_zone,
- {
- 	struct page *page;
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index f39456c65ed7..331208d3e4d1 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -645,7 +645,7 @@ void fuse_read_args_fill(struct fuse_io_args *ia, struct file *file, loff_t pos,
+ 	args->out_args[0].size = count;
+ }
  
--	/*
--	 * We most definitely don't want callers attempting to
--	 * allocate greater than order-1 page units with __GFP_NOFAIL.
--	 */
--	WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
--
- 	if (likely(pcp_allowed_order(order))) {
- 		page = rmqueue_pcplist(preferred_zone, zone, order,
- 				       migratetype, alloc_flags);
-@@ -4175,6 +4169,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+-static void fuse_release_user_pages(struct fuse_args_pages *ap,
++static void fuse_release_user_pages(struct fuse_args_pages *ap, ssize_t nres,
+ 				    bool should_dirty)
  {
- 	bool can_direct_reclaim = gfp_mask & __GFP_DIRECT_RECLAIM;
- 	bool can_compact = gfp_compaction_allowed(gfp_mask);
-+	bool nofail = gfp_mask & __GFP_NOFAIL;
- 	const bool costly_order = order > PAGE_ALLOC_COSTLY_ORDER;
- 	struct page *page = NULL;
- 	unsigned int alloc_flags;
-@@ -4187,6 +4182,25 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
- 	unsigned int zonelist_iter_cookie;
- 	int reserve_flags;
- 
-+	if (unlikely(nofail)) {
-+		/*
-+		 * We most definitely don't want callers attempting to
-+		 * allocate greater than order-1 page units with __GFP_NOFAIL.
-+		 */
-+		WARN_ON_ONCE(order > 1);
-+		/*
-+		 * Also we don't support __GFP_NOFAIL without __GFP_DIRECT_RECLAIM,
-+		 * otherwise, we may result in lockup.
-+		 */
-+		WARN_ON_ONCE(!can_direct_reclaim);
-+		/*
-+		 * PF_MEMALLOC request from this context is rather bizarre
-+		 * because we cannot reclaim anything and only can loop waiting
-+		 * for somebody to do a work for us.
-+		 */
-+		WARN_ON_ONCE(current->flags & PF_MEMALLOC);
-+	}
+ 	unsigned int i;
+@@ -656,6 +656,9 @@ static void fuse_release_user_pages(struct fuse_args_pages *ap,
+ 		if (ap->args.is_pinned)
+ 			unpin_user_page(ap->pages[i]);
+ 	}
 +
- restart:
- 	compaction_retries = 0;
- 	no_progress_loops = 0;
-@@ -4404,29 +4418,15 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
- 	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
- 	 * we always retry
- 	 */
--	if (gfp_mask & __GFP_NOFAIL) {
-+	if (unlikely(nofail)) {
- 		/*
--		 * All existing users of the __GFP_NOFAIL are blockable, so warn
--		 * of any new users that actually require GFP_NOWAIT
-+		 * Lacking direct_reclaim we can't do anything to reclaim memory,
-+		 * we disregard these unreasonable nofail requests and still
-+		 * return NULL
- 		 */
--		if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
-+		if (!can_direct_reclaim)
- 			goto fail;
++	if (nres > 0 && ap->args.invalidate_vmap)
++		invalidate_kernel_vmap_range(ap->args.vmap_base, nres);
+ }
  
--		/*
--		 * PF_MEMALLOC request from this context is rather bizarre
--		 * because we cannot reclaim anything and only can loop waiting
--		 * for somebody to do a work for us
--		 */
--		WARN_ON_ONCE_GFP(current->flags & PF_MEMALLOC, gfp_mask);
+ static void fuse_io_release(struct kref *kref)
+@@ -754,25 +757,29 @@ static void fuse_aio_complete_req(struct fuse_mount *fm, struct fuse_args *args,
+ 	struct fuse_io_args *ia = container_of(args, typeof(*ia), ap.args);
+ 	struct fuse_io_priv *io = ia->io;
+ 	ssize_t pos = -1;
 -
--		/*
--		 * non failing costly orders are a hard requirement which we
--		 * are not prepared for much so let's warn about these users
--		 * so that we can identify them and convert them to something
--		 * else.
--		 */
--		WARN_ON_ONCE_GFP(costly_order, gfp_mask);
--
- 		/*
- 		 * Help non-failing allocations by giving some access to memory
- 		 * reserves normally used for high priority non-blocking
+-	fuse_release_user_pages(&ia->ap, io->should_dirty);
++	size_t nres;
+ 
+ 	if (err) {
+ 		/* Nothing */
+ 	} else if (io->write) {
+ 		if (ia->write.out.size > ia->write.in.size) {
+ 			err = -EIO;
+-		} else if (ia->write.in.size != ia->write.out.size) {
+-			pos = ia->write.in.offset - io->offset +
+-				ia->write.out.size;
++		} else {
++			nres = ia->write.out.size;
++			if (ia->write.in.size != ia->write.out.size)
++				pos = ia->write.in.offset - io->offset +
++				      ia->write.out.size;
+ 		}
+ 	} else {
+ 		u32 outsize = args->out_args[0].size;
+ 
++		nres = outsize;
+ 		if (ia->read.in.size != outsize)
+ 			pos = ia->read.in.offset - io->offset + outsize;
+ 	}
+ 
++	fuse_release_user_pages(&ia->ap, err ?: nres, io->should_dirty);
++
+ 	fuse_aio_complete(io, err, pos);
+ 	fuse_io_free(ia);
+ }
+@@ -1467,24 +1474,37 @@ static inline size_t fuse_get_frag_size(const struct iov_iter *ii,
+ 
+ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+ 			       size_t *nbytesp, int write,
+-			       unsigned int max_pages)
++			       unsigned int max_pages,
++			       bool use_pages_for_kvec_io)
+ {
++	bool flush_or_invalidate = false;
+ 	size_t nbytes = 0;  /* # bytes already packed in req */
+ 	ssize_t ret = 0;
+ 
+-	/* Special case for kernel I/O: can copy directly into the buffer */
++	/* Special case for kernel I/O: can copy directly into the buffer.
++	 * However if the implementation of fuse_conn requires pages instead of
++	 * pointer (e.g., virtio-fs), use iov_iter_extract_pages() instead.
++	 */
+ 	if (iov_iter_is_kvec(ii)) {
+-		unsigned long user_addr = fuse_get_user_addr(ii);
+-		size_t frag_size = fuse_get_frag_size(ii, *nbytesp);
++		void *user_addr = (void *)fuse_get_user_addr(ii);
+ 
+-		if (write)
+-			ap->args.in_args[1].value = (void *) user_addr;
+-		else
+-			ap->args.out_args[0].value = (void *) user_addr;
++		if (!use_pages_for_kvec_io) {
++			size_t frag_size = fuse_get_frag_size(ii, *nbytesp);
+ 
+-		iov_iter_advance(ii, frag_size);
+-		*nbytesp = frag_size;
+-		return 0;
++			if (write)
++				ap->args.in_args[1].value = user_addr;
++			else
++				ap->args.out_args[0].value = user_addr;
++
++			iov_iter_advance(ii, frag_size);
++			*nbytesp = frag_size;
++			return 0;
++		}
++
++		if (is_vmalloc_addr(user_addr)) {
++			ap->args.vmap_base = user_addr;
++			flush_or_invalidate = true;
++		}
+ 	}
+ 
+ 	while (nbytes < *nbytesp && ap->num_pages < max_pages) {
+@@ -1513,6 +1533,10 @@ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+ 			(PAGE_SIZE - ret) & (PAGE_SIZE - 1);
+ 	}
+ 
++	if (write && flush_or_invalidate)
++		flush_kernel_vmap_range(ap->args.vmap_base, nbytes);
++
++	ap->args.invalidate_vmap = !write && flush_or_invalidate;
+ 	ap->args.is_pinned = iov_iter_extract_will_pin(ii);
+ 	ap->args.user_pages = true;
+ 	if (write)
+@@ -1581,7 +1605,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+ 		size_t nbytes = min(count, nmax);
+ 
+ 		err = fuse_get_user_pages(&ia->ap, iter, &nbytes, write,
+-					  max_pages);
++					  max_pages, fc->use_pages_for_kvec_io);
+ 		if (err && !nbytes)
+ 			break;
+ 
+@@ -1595,7 +1619,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+ 		}
+ 
+ 		if (!io->async || nres < 0) {
+-			fuse_release_user_pages(&ia->ap, io->should_dirty);
++			fuse_release_user_pages(&ia->ap, nres, io->should_dirty);
+ 			fuse_io_free(ia);
+ 		}
+ 		ia = NULL;
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index f23919610313..79add14c363f 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -309,9 +309,12 @@ struct fuse_args {
+ 	bool may_block:1;
+ 	bool is_ext:1;
+ 	bool is_pinned:1;
++	bool invalidate_vmap:1;
+ 	struct fuse_in_arg in_args[3];
+ 	struct fuse_arg out_args[2];
+ 	void (*end)(struct fuse_mount *fm, struct fuse_args *args, int error);
++	/* Used for kvec iter backed by vmalloc address */
++	void *vmap_base;
+ };
+ 
+ struct fuse_args_pages {
+@@ -860,6 +863,9 @@ struct fuse_conn {
+ 	/** Passthrough support for read/write IO */
+ 	unsigned int passthrough:1;
+ 
++	/* Use pages instead of pointer for kernel I/O */
++	unsigned int use_pages_for_kvec_io:1;
++
+ 	/** Maximum stack depth for passthrough backing files */
+ 	int max_stack_depth;
+ 
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index dd5260141615..43d66ab5e891 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1568,6 +1568,7 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+ 	fc->delete_stale = true;
+ 	fc->auto_submounts = true;
+ 	fc->sync_fs = true;
++	fc->use_pages_for_kvec_io = true;
+ 
+ 	/* Tell FUSE to split requests that exceed the virtqueue's size */
+ 	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
 -- 
-2.34.1
+2.29.2
 
