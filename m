@@ -1,186 +1,198 @@
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 992B5174EE4
-	for <virtualization@lists.linux.dev>; Sat, 31 Aug 2024 09:37:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A7726AE8
+	for <virtualization@lists.linux.dev>; Sun,  1 Sep 2024 18:49:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725097079; cv=none; b=LfEQgACXZCmFJqD0YV98F8UJtd+oLO5AR9MNr8qjhc7jwdpDDU1DndZ4f4JtW+k49ZK+y0VPxZ4iHaxQWy87Kmv2NKs5MQyOyYr02dG0cEM1cnXCiQhqHZmQlutllCrs0XNSuoqZNwytd5kCyprOkEuLJuHTePf0iTjRQUDRjTg=
+	t=1725216580; cv=none; b=MjWsKMJ2Vb7WegunNYG8c1m0pQkz+crlcIFfE8JmYsq9QjIrizcNfr9Wsjfy3tw868NfPrstI2EOw+fPdFwnuFUW/mcU484WtdCUEDCmywcgn+OlpzW7KXzDQOmng9kAX6bTIMVTCktMXMSFe+Yf9T9JpGC5oyPNWoG1XEVUpD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725097079; c=relaxed/simple;
-	bh=Is8gMZiYzT6REmkxrkgk5qT74fiRXbxvg1E/pyuAfeQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=HuECY54LaSnDkPwZyWfVl/fF0MepWlL0eBpfjERrIyFTSM5VoRe1TJCAHwKasHf4sEBQLde4+XbZofBoFxJDZe5oBwGffzXobreTqFNjtOtY2Yed4cOb9hm5uBixjXkR9tT/1aE95fHoUs59KbuEp8fOHOeFNsvtRiqOWjedkuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4WwqgQ44mKz4f3jdf
-	for <virtualization@lists.linux.dev>; Sat, 31 Aug 2024 17:37:38 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id 56D191A0359
-	for <virtualization@lists.linux.dev>; Sat, 31 Aug 2024 17:37:53 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.124.27])
-	by APP4 (Coremail) with SMTP id gCh0CgBXzIJj5NJm0I_lDA--.58191S6;
-	Sat, 31 Aug 2024 17:37:53 +0800 (CST)
-From: Hou Tao <houtao@huaweicloud.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Bernd Schubert <bernd.schubert@fastmail.fm>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Benjamin Coddington <bcodding@redhat.com>,
-	Jingbo Xu <jefflexu@linux.alibaba.com>,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	houtao1@huawei.com
-Subject: [PATCH v4 2/2] virtiofs: use GFP_NOFS when enqueuing request through kworker
-Date: Sat, 31 Aug 2024 17:37:50 +0800
-Message-Id: <20240831093750.1593871-3-houtao@huaweicloud.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20240831093750.1593871-1-houtao@huaweicloud.com>
-References: <20240831093750.1593871-1-houtao@huaweicloud.com>
+	s=arc-20240116; t=1725216580; c=relaxed/simple;
+	bh=HwSyN4h6ziyZ76wyV8L6R3L5D7GGAeZEjELFYHLwwEY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=cNtADFHR+Y42FCdeHW9lEIjOlZl7khHXOaWRn+hrspBD+QgBBIg9ktK2amQgmx/zE1KT8pUxUSAq7ThM2JQymBDjGS0+1l64QVK7oq3W3UpcS+fjsnm4uCCEERWQW2aNpimbcmPXzqqkPmgiILDRhv9kyPiP+2VRYC07d8UOXFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b2rjWdrO; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b2rjWdrO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1725216576;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=itWaFhuqL6tNMv1kyiXnZw2XEueWMKuw6g/pzcmyLBo=;
+	b=b2rjWdrOOhNfpEbNkbZZi9rYHP1CiW73WJnxSK/4KaRQr+o19FBINM5umOtnBPuo0F9a/P
+	4mhOTic+5yNwYOgdYZEpSpXn+pqtWrO8I4delVaR5ih/twzyJotimWif1cPPd7kwal8ucm
+	8QMw7M85LQgVnYyaqnTtIdDAbzVdS6I=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-652-Cw7oe9x9PhWlViwCylpSeg-1; Sun, 01 Sep 2024 14:49:34 -0400
+X-MC-Unique: Cw7oe9x9PhWlViwCylpSeg-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-374c3402d93so654116f8f.0
+        for <virtualization@lists.linux.dev>; Sun, 01 Sep 2024 11:49:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725216573; x=1725821373;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=itWaFhuqL6tNMv1kyiXnZw2XEueWMKuw6g/pzcmyLBo=;
+        b=J38oeP1Iqf/S9csTnPtZDwm8CCiPWVOs+DvwkYAtT/NhcNIyP6plJPBah+zBOzHo50
+         MRjBSGr+b4D+a+QK3wSK4Rgzzlkp0Le2dddM75m6kX3v9LR3InNgDuBkBss09mpi+Eha
+         OSmEhmyWxg+xJHH9vaHCkQpPgR2auXat2hpUe5YLS2vuy4CD+Yp1FkxITFUCVR+s2OKu
+         Rb14eeOnmdl7v4pvZDK5L7YJlMucU9di7MhbqcOAxrec6stYNCpuN2O5JGCJUrLV05LQ
+         f8oV/tP5Qj7HxnQf8WdfkJN5KVKab4JJ6oFATQljurQRBQVeyfJ4XLJcUYrAARGRA6E/
+         Lw4w==
+X-Forwarded-Encrypted: i=1; AJvYcCUW33j4/Gn7r6AB3F324/LHou7C/O0fdBqwJv/vwcubzEBu12CW0ZFTcGj4Z1tH0y5GAw38cfC4syRbUVNwFw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyRGvxc7O0iVtEbtG6Izp6x4nj+8+C847bgL55KjJABQPnwzp9H
+	4z6eHrpanUkUdmNZ2ainlz/FIECY0RdnGBBxXTotkFSGCN5jBET7NjTfD8df8ZZuO6OXJHcQoBF
+	EV7anbqgPgHaFlOqSyZU1ppMlu/n1eM6EAKBSNHY74gprlETY72vlrxxE8N60pWax
+X-Received: by 2002:adf:ce87:0:b0:374:c651:4abf with SMTP id ffacd0b85a97d-374c6514c30mr1516809f8f.52.1725216573451;
+        Sun, 01 Sep 2024 11:49:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEpxRe2152v75wQRnEpmcsZH/Hws5JITnZW22gEg/EAXSi5nn2RQPmZDPmv7GJN6y57ASKI9Q==
+X-Received: by 2002:adf:ce87:0:b0:374:c651:4abf with SMTP id ffacd0b85a97d-374c6514c30mr1516792f8f.52.1725216572406;
+        Sun, 01 Sep 2024 11:49:32 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f1:69ff:9d10:5dde:d984:6a82])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-374c15705easm4120504f8f.33.2024.09.01.11.49.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 01 Sep 2024 11:49:31 -0700 (PDT)
+Date: Sun, 1 Sep 2024 14:49:25 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	si-wei.liu@oracle.com, Jiri Pirko <jiri@nvidia.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vdpa/mlx5: Use random MAC address when no nic vport MAC
+ set
+Message-ID: <20240901144739-mutt-send-email-mst@kernel.org>
+References: <20240827160256.2446626-2-dtatulea@nvidia.com>
+ <CACGkMEuRvqu8W9-OqPBRhn1DG-+DO6TCzFdHqc7zB74GkNDkAQ@mail.gmail.com>
+ <CACLfguXjiyp+Ya4mUKXu6Dmb3Wx5wW0bbNGRSFWE-Z0E5gALTA@mail.gmail.com>
+ <8daf221f-8d87-4da1-944c-3bcd0edea604@nvidia.com>
+ <CACLfguVr1bd6=bkGn6hX3W7xBr45qydaCpQ1mNpsATeWFqe2ZA@mail.gmail.com>
+ <55b7ae23-6000-4699-9bac-5e72fbdcd803@nvidia.com>
+ <0648a9d9-a056-4cdb-bfb8-a792bce1e771@nvidia.com>
+ <CACLfguXM97JAdWcYO17+H6pu7MWLu2QqBgu_PypGxU_Ab+OUOQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <CACLfguXM97JAdWcYO17+H6pu7MWLu2QqBgu_PypGxU_Ab+OUOQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgBXzIJj5NJm0I_lDA--.58191S6
-X-Coremail-Antispam: 1UD129KBjvJXoWxGF4kXrWrXFy5Xry3GF15urg_yoWrAFykpr
-	WDAa15CFWrJ3y2gFWkJF4UGr1akws3CFW7Ja4fXa4Skr4Yqr17CF18ZFy0qrZavrWkAF1x
-	Wr4FqF4DuF47Zw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPFb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUXw
-	A2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
-	Ij6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
-	Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI
-	0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
-	67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MI
-	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
-	14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
-	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUrJPE
-	DUUUU
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-From: Hou Tao <houtao1@huawei.com>
+On Fri, Aug 30, 2024 at 05:29:14PM +0800, Cindy Lu wrote:
+> On Fri, 30 Aug 2024 at 03:03, Dragos Tatulea <dtatulea@nvidia.com> wrote:
+> >
+> >
+> >
+> > On 29.08.24 12:00, Dragos Tatulea wrote:
+> > >
+> > >
+> > > On 29.08.24 11:05, Cindy Lu wrote:
+> > >> On Wed, 28 Aug 2024 at 17:37, Dragos Tatulea <dtatulea@nvidia.com> wrote:
+> > >>>
+> > >>>
+> > >>>
+> > >>> On 28.08.24 11:00, Cindy Lu wrote:
+> > >>>> On Wed, 28 Aug 2024 at 09:51, Jason Wang <jasowang@redhat.com> wrote:
+> > >>>>>
+> > >>>>> On Wed, Aug 28, 2024 at 12:03 AM Dragos Tatulea <dtatulea@nvidia.com> wrote:
+> > >>>>>>
+> > >>>>>> When the vdpa device is configured without a specific MAC
+> > >>>>>> address, the vport MAC address is used. However, this
+> > >>>>>> address can be 0 which prevents the driver from properly
+> > >>>>>> configuring the MPFS and breaks steering.
+> > >>>>>>
+> > >>>>>> The solution is to simply generate a random MAC address
+> > >>>>>> when no MAC is set on the nic vport.
+> > >>>>>>
+> > >>>>>> Now it's possible to create a vdpa device without a
+> > >>>>>> MAC address and run qemu with this device without needing
+> > >>>>>> to configure an explicit MAC address.
+> > >>>>>>
+> > >>>>>> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> > >>>>>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> > >>>>>
+> > >>>>> Acked-by: Jason Wang <jasowang@redhat.com>
+> > >>>>>
+> > >>>>> (Adding Cindy for double checking if it has any side effect on Qemu side)
+> > >>>>>
+> > >>>>> Thanks
+> > >>>>>
+> > >>>> But Now there is a bug in QEMU: if the hardware MAC address does not
+> > >>>> match the one in the QEMU command line, it will cause traffic loss.
+> > >>>>
+> > >>> Why is this a new issue in qemu? qemu in it's current state won't work
+> > >>> with a different mac address that the one that is set in HW anyway.
+> > >>>
+> > >> this is not a new bug. We are trying to fix it because it will cause
+> > >> traffic lose without any warning.
+> > >> in my fix , this setting (different mac in device and Qemu) will fail
+> > >> to load the VM.
+> > > Which is a good thing, right? Some feedback to the user that there is
+> > > a misconfig. I got bitten by this so many times... Thank you for adding it.
+> > >
+> > >>
+> > >>>> So, Just an FYI here: if your patch merged, it may cause traffic loss.
+> > >>>> and now I'm working in the fix it in qemu, the link is
+> > >>>> https://patchew.org/QEMU/20240716011349.821777-1-lulu@redhat.com/
+> > >>>> The idea of this fix is
+> > >>>> There are will only two acceptable situations for qemu:
+> > >>>> 1. The hardware MAC address is the same as the MAC address specified
+> > >>>> in the QEMU command line, and both MAC addresses are not 0.
+> > >>>> 2. The hardware MAC address is not 0, and the MAC address in the QEMU
+> > >>>> command line is 0. In this situation, the hardware MAC address will
+> > >>>> overwrite the QEMU command line address.
+> > >>>>
+> > >>> Why would this not work with this patch? This patch simply sets a MAC
+> > >>> if the vport doesn't have one set. Which allows for more scenarios to
+> > >>> work.
+> > >>>
+> > >> I do not mean your patch will not work, I just want to make some
+> > >> clarify here.Your patch + my fix may cause the VM to fail to load in
+> > >> some situations, and this is as expected.
+> > >> Your patch is good to merge.
+> > > Ack. Thank you for the clarification.
+> > (Side note)
+> > While looking at another issue I discovered that it's possible to
+> > configure a random MAC on the mlx5_vdpa device at VM boot time if
+> > device MAC configuration is implemented during during .set_config(). So
+> > I was able to boot up a VM with a random MAC address coming from qemu
+> > and the traffic worked with this new MAC.
+> >
+> > So now I'm not sure if this is just by luck or if the .set_config()
+> > op should be implemented for the MAC part in our device.
+> >
+> > Thanks,
+> > Dragos
+> >
+> Hi Dragos，
+> For qemu part, I think this is not set from set_config()?  it should
+> be from the CVQ?
 
-When invoking virtio_fs_enqueue_req() through kworker, both the
-allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
-Considering the size of the sg array may be greater than PAGE_SIZE, use
-GFP_NOFS instead of GFP_ATOMIC to lower the possibility of memory
-allocation failure and to avoid unnecessarily depleting the atomic
-reserves. GFP_NOFS is not passed to virtio_fs_enqueue_req() directly,
-GFP_KERNEL and memalloc_nofs_{save|restore} helpers are used instead.
 
-It may seem OK to pass GFP_NOFS to virtio_fs_enqueue_req() as well when
-queuing the request for the first time, but this is not the case. The
-reason is that fuse_request_queue_background() may call
-->queue_request_and_unlock() while holding fc->bg_lock, which is a
-spin-lock. Therefore, still use GFP_ATOMIC for it.
+You are confusing two things.
+Provisioning is not through CVQ.
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
----
- fs/fuse/virtio_fs.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 43d66ab5e891..9bc48b3ca384 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -95,7 +95,8 @@ struct virtio_fs_req_work {
- };
- 
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight);
-+				 struct fuse_req *req, bool in_flight,
-+				 gfp_t gfp);
- 
- static const struct constant_table dax_param_enums[] = {
- 	{"always",	FUSE_DAX_ALWAYS },
-@@ -439,6 +440,8 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 
- 	/* Dispatch pending requests */
- 	while (1) {
-+		unsigned int flags;
-+
- 		spin_lock(&fsvq->lock);
- 		req = list_first_entry_or_null(&fsvq->queued_reqs,
- 					       struct fuse_req, list);
-@@ -449,7 +452,9 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 		list_del_init(&req->list);
- 		spin_unlock(&fsvq->lock);
- 
--		ret = virtio_fs_enqueue_req(fsvq, req, true);
-+		flags = memalloc_nofs_save();
-+		ret = virtio_fs_enqueue_req(fsvq, req, true, GFP_KERNEL);
-+		memalloc_nofs_restore(flags);
- 		if (ret < 0) {
- 			if (ret == -ENOSPC) {
- 				spin_lock(&fsvq->lock);
-@@ -550,7 +555,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
- }
- 
- /* Allocate and copy args into req->argbuf */
--static int copy_args_to_argbuf(struct fuse_req *req)
-+static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
- {
- 	struct fuse_args *args = req->args;
- 	unsigned int offset = 0;
-@@ -564,7 +569,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
- 	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
- 	      fuse_len_args(num_out, args->out_args);
- 
--	req->argbuf = kmalloc(len, GFP_ATOMIC);
-+	req->argbuf = kmalloc(len, gfp);
- 	if (!req->argbuf)
- 		return -ENOMEM;
- 
-@@ -1239,7 +1244,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
- 
- /* Add a request to a virtqueue and kick the device */
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight)
-+				 struct fuse_req *req, bool in_flight,
-+				 gfp_t gfp)
- {
- 	/* requests need at least 4 elements */
- 	struct scatterlist *stack_sgs[6];
-@@ -1260,8 +1266,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	/* Does the sglist fit on the stack? */
- 	total_sgs = sg_count_fuse_req(req);
- 	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
--		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
--		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
-+		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
-+		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
- 		if (!sgs || !sg) {
- 			ret = -ENOMEM;
- 			goto out;
-@@ -1269,7 +1275,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	}
- 
- 	/* Use a bounce buffer since stack args cannot be mapped */
--	ret = copy_args_to_argbuf(req);
-+	ret = copy_args_to_argbuf(req, gfp);
- 	if (ret < 0)
- 		goto out;
- 
-@@ -1367,7 +1373,7 @@ __releases(fiq->lock)
- 		 queue_id);
- 
- 	fsvq = &fs->vqs[queue_id];
--	ret = virtio_fs_enqueue_req(fsvq, req, false);
-+	ret = virtio_fs_enqueue_req(fsvq, req, false, GFP_ATOMIC);
- 	if (ret < 0) {
- 		if (ret == -ENOSPC) {
- 			/*
--- 
-2.29.2
+> Usually, we don't recommend using the set_config() function because
+> the configuration space should be read-only for modern devices.
+> 
+> Now there is a bug in this part of qemu, and we plan to remove the
+> code to set_config() in virtio_net_device_realize(), here is the patch
+> https://lore.kernel.org/all/CACGkMEvCSKfahpBQLAMmSzdFN-QPhg5Zx+UQVrFX0HsWybZZNA@mail.gmail.com/T/
+> and this is still under review
+> 
+> thanks
+> cindy
 
