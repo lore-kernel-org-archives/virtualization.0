@@ -1,198 +1,295 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A7726AE8
-	for <virtualization@lists.linux.dev>; Sun,  1 Sep 2024 18:49:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 977641F957
+	for <virtualization@lists.linux.dev>; Sun,  1 Sep 2024 20:18:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725216580; cv=none; b=MjWsKMJ2Vb7WegunNYG8c1m0pQkz+crlcIFfE8JmYsq9QjIrizcNfr9Wsjfy3tw868NfPrstI2EOw+fPdFwnuFUW/mcU484WtdCUEDCmywcgn+OlpzW7KXzDQOmng9kAX6bTIMVTCktMXMSFe+Yf9T9JpGC5oyPNWoG1XEVUpD8=
+	t=1725221897; cv=none; b=mWgQyglmkwJ/wusxnBepJmYk/IuoEyjDk758xfaZeLrCy0PMvkMaK09DKeC7c0W69aO3n/7jQ7hiGh6VEzfJgvA8QhZIXZt1p33Jklbi2s64WMxPP19ngfGoknclkaHekgQ3AU2QtKggRCmqhU+EF1Y0LDyyoujs2m6nypvSIfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725216580; c=relaxed/simple;
-	bh=HwSyN4h6ziyZ76wyV8L6R3L5D7GGAeZEjELFYHLwwEY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=cNtADFHR+Y42FCdeHW9lEIjOlZl7khHXOaWRn+hrspBD+QgBBIg9ktK2amQgmx/zE1KT8pUxUSAq7ThM2JQymBDjGS0+1l64QVK7oq3W3UpcS+fjsnm4uCCEERWQW2aNpimbcmPXzqqkPmgiILDRhv9kyPiP+2VRYC07d8UOXFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b2rjWdrO; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1725221897; c=relaxed/simple;
+	bh=apDTaPYDzE6TgHM8JJVE74jO6jPYUg3XPDvrwmL8cj4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=M4eMhSVYjnY3kcDFuiGb1iW0NIIglrH9DpAE/P7Tf0WQzUGDzVcdoqdgutGGVJ9vqcDd8hZIjhQjChdZb6kH31wfceHVSS6zUapkxnnSenGfFxcxe4jZxKrKxJZBf8xtZpIk9Qi+At84digeAUyZ/U7ju4fSqB3g68+oZhkk8bA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=jDH3/FAz; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=NouPhi7u; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=jDH3/FAz; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=NouPhi7u; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b2rjWdrO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725216576;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="jDH3/FAz";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="NouPhi7u";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="jDH3/FAz";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="NouPhi7u"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 73DF521AF7;
+	Sun,  1 Sep 2024 20:18:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1725221893; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=itWaFhuqL6tNMv1kyiXnZw2XEueWMKuw6g/pzcmyLBo=;
-	b=b2rjWdrOOhNfpEbNkbZZi9rYHP1CiW73WJnxSK/4KaRQr+o19FBINM5umOtnBPuo0F9a/P
-	4mhOTic+5yNwYOgdYZEpSpXn+pqtWrO8I4delVaR5ih/twzyJotimWif1cPPd7kwal8ucm
-	8QMw7M85LQgVnYyaqnTtIdDAbzVdS6I=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-652-Cw7oe9x9PhWlViwCylpSeg-1; Sun, 01 Sep 2024 14:49:34 -0400
-X-MC-Unique: Cw7oe9x9PhWlViwCylpSeg-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-374c3402d93so654116f8f.0
-        for <virtualization@lists.linux.dev>; Sun, 01 Sep 2024 11:49:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725216573; x=1725821373;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=itWaFhuqL6tNMv1kyiXnZw2XEueWMKuw6g/pzcmyLBo=;
-        b=J38oeP1Iqf/S9csTnPtZDwm8CCiPWVOs+DvwkYAtT/NhcNIyP6plJPBah+zBOzHo50
-         MRjBSGr+b4D+a+QK3wSK4Rgzzlkp0Le2dddM75m6kX3v9LR3InNgDuBkBss09mpi+Eha
-         OSmEhmyWxg+xJHH9vaHCkQpPgR2auXat2hpUe5YLS2vuy4CD+Yp1FkxITFUCVR+s2OKu
-         Rb14eeOnmdl7v4pvZDK5L7YJlMucU9di7MhbqcOAxrec6stYNCpuN2O5JGCJUrLV05LQ
-         f8oV/tP5Qj7HxnQf8WdfkJN5KVKab4JJ6oFATQljurQRBQVeyfJ4XLJcUYrAARGRA6E/
-         Lw4w==
-X-Forwarded-Encrypted: i=1; AJvYcCUW33j4/Gn7r6AB3F324/LHou7C/O0fdBqwJv/vwcubzEBu12CW0ZFTcGj4Z1tH0y5GAw38cfC4syRbUVNwFw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyRGvxc7O0iVtEbtG6Izp6x4nj+8+C847bgL55KjJABQPnwzp9H
-	4z6eHrpanUkUdmNZ2ainlz/FIECY0RdnGBBxXTotkFSGCN5jBET7NjTfD8df8ZZuO6OXJHcQoBF
-	EV7anbqgPgHaFlOqSyZU1ppMlu/n1eM6EAKBSNHY74gprlETY72vlrxxE8N60pWax
-X-Received: by 2002:adf:ce87:0:b0:374:c651:4abf with SMTP id ffacd0b85a97d-374c6514c30mr1516809f8f.52.1725216573451;
-        Sun, 01 Sep 2024 11:49:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEpxRe2152v75wQRnEpmcsZH/Hws5JITnZW22gEg/EAXSi5nn2RQPmZDPmv7GJN6y57ASKI9Q==
-X-Received: by 2002:adf:ce87:0:b0:374:c651:4abf with SMTP id ffacd0b85a97d-374c6514c30mr1516792f8f.52.1725216572406;
-        Sun, 01 Sep 2024 11:49:32 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f1:69ff:9d10:5dde:d984:6a82])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-374c15705easm4120504f8f.33.2024.09.01.11.49.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Sep 2024 11:49:31 -0700 (PDT)
-Date: Sun, 1 Sep 2024 14:49:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	si-wei.liu@oracle.com, Jiri Pirko <jiri@nvidia.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vdpa/mlx5: Use random MAC address when no nic vport MAC
- set
-Message-ID: <20240901144739-mutt-send-email-mst@kernel.org>
-References: <20240827160256.2446626-2-dtatulea@nvidia.com>
- <CACGkMEuRvqu8W9-OqPBRhn1DG-+DO6TCzFdHqc7zB74GkNDkAQ@mail.gmail.com>
- <CACLfguXjiyp+Ya4mUKXu6Dmb3Wx5wW0bbNGRSFWE-Z0E5gALTA@mail.gmail.com>
- <8daf221f-8d87-4da1-944c-3bcd0edea604@nvidia.com>
- <CACLfguVr1bd6=bkGn6hX3W7xBr45qydaCpQ1mNpsATeWFqe2ZA@mail.gmail.com>
- <55b7ae23-6000-4699-9bac-5e72fbdcd803@nvidia.com>
- <0648a9d9-a056-4cdb-bfb8-a792bce1e771@nvidia.com>
- <CACLfguXM97JAdWcYO17+H6pu7MWLu2QqBgu_PypGxU_Ab+OUOQ@mail.gmail.com>
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=+cPiKG7IQVlxRJDUlHObBoTsrA3Ekt+44z/Xk3w/ujg=;
+	b=jDH3/FAz9pdb4Bh80nC0axY2B/pd/uHrpGkACL9keYoZixxEeu1oTJW1AyrQy6oWvwHZZC
+	iE/PY5EuSYHPcw1I3m9SBjsRaLvrKWNaXL9uqi7Og1HaqpFqTwrf8j1qmZp04JVgyzNqyO
+	Ug7nX2BCRsU10sYhqVbhN6G+OYtO8DQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1725221893;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=+cPiKG7IQVlxRJDUlHObBoTsrA3Ekt+44z/Xk3w/ujg=;
+	b=NouPhi7ujIk4ogy0326YFJaHcKj7sM7ei2TShTWmPu4H8zLuHKQI5jMvgEU63u1lyOnD6y
+	QmWfeTDLiFl0XbDA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b="jDH3/FAz";
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=NouPhi7u
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1725221893; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=+cPiKG7IQVlxRJDUlHObBoTsrA3Ekt+44z/Xk3w/ujg=;
+	b=jDH3/FAz9pdb4Bh80nC0axY2B/pd/uHrpGkACL9keYoZixxEeu1oTJW1AyrQy6oWvwHZZC
+	iE/PY5EuSYHPcw1I3m9SBjsRaLvrKWNaXL9uqi7Og1HaqpFqTwrf8j1qmZp04JVgyzNqyO
+	Ug7nX2BCRsU10sYhqVbhN6G+OYtO8DQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1725221893;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=+cPiKG7IQVlxRJDUlHObBoTsrA3Ekt+44z/Xk3w/ujg=;
+	b=NouPhi7ujIk4ogy0326YFJaHcKj7sM7ei2TShTWmPu4H8zLuHKQI5jMvgEU63u1lyOnD6y
+	QmWfeTDLiFl0XbDA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4A63B1397F;
+	Sun,  1 Sep 2024 20:18:13 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 60eQEQXM1GbxfgAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Sun, 01 Sep 2024 20:18:13 +0000
+Message-ID: <210c45bd-f7f4-4ecc-92fc-4059c32d8f56@suse.cz>
+Date: Sun, 1 Sep 2024 22:18:13 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACLfguXM97JAdWcYO17+H6pu7MWLu2QqBgu_PypGxU_Ab+OUOQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 3/3] mm: warn about illegal __GFP_NOFAIL usage in a
+ more appropriate location and manner
+Content-Language: en-US
+To: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
+ linux-mm@kvack.org, virtualization@lists.linux.dev
+Cc: david@redhat.com, 42.hyeyoo@gmail.com, cl@linux.com,
+ hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com,
+ mhocko@suse.com, penberg@kernel.org, rientjes@google.com,
+ roman.gushchin@linux.dev, torvalds@linux-foundation.org, urezki@gmail.com,
+ v-songbaohua@oppo.com, laoar.shao@gmail.com
+References: <20240830202823.21478-1-21cnbao@gmail.com>
+ <20240830202823.21478-4-21cnbao@gmail.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ EP+ylKVEKb0Q2A==
+In-Reply-To: <20240830202823.21478-4-21cnbao@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 73DF521AF7
+X-Spam-Level: 
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FREEMAIL_TO(0.00)[gmail.com,linux-foundation.org,kvack.org,lists.linux.dev];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[18];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[redhat.com,gmail.com,linux.com,oppo.com,infradead.org,lge.com,suse.com,kernel.org,google.com,linux.dev,linux-foundation.org];
+	RCVD_COUNT_TWO(0.00)[2];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -3.01
+X-Spam-Flag: NO
 
-On Fri, Aug 30, 2024 at 05:29:14PM +0800, Cindy Lu wrote:
-> On Fri, 30 Aug 2024 at 03:03, Dragos Tatulea <dtatulea@nvidia.com> wrote:
-> >
-> >
-> >
-> > On 29.08.24 12:00, Dragos Tatulea wrote:
-> > >
-> > >
-> > > On 29.08.24 11:05, Cindy Lu wrote:
-> > >> On Wed, 28 Aug 2024 at 17:37, Dragos Tatulea <dtatulea@nvidia.com> wrote:
-> > >>>
-> > >>>
-> > >>>
-> > >>> On 28.08.24 11:00, Cindy Lu wrote:
-> > >>>> On Wed, 28 Aug 2024 at 09:51, Jason Wang <jasowang@redhat.com> wrote:
-> > >>>>>
-> > >>>>> On Wed, Aug 28, 2024 at 12:03 AM Dragos Tatulea <dtatulea@nvidia.com> wrote:
-> > >>>>>>
-> > >>>>>> When the vdpa device is configured without a specific MAC
-> > >>>>>> address, the vport MAC address is used. However, this
-> > >>>>>> address can be 0 which prevents the driver from properly
-> > >>>>>> configuring the MPFS and breaks steering.
-> > >>>>>>
-> > >>>>>> The solution is to simply generate a random MAC address
-> > >>>>>> when no MAC is set on the nic vport.
-> > >>>>>>
-> > >>>>>> Now it's possible to create a vdpa device without a
-> > >>>>>> MAC address and run qemu with this device without needing
-> > >>>>>> to configure an explicit MAC address.
-> > >>>>>>
-> > >>>>>> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> > >>>>>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> > >>>>>
-> > >>>>> Acked-by: Jason Wang <jasowang@redhat.com>
-> > >>>>>
-> > >>>>> (Adding Cindy for double checking if it has any side effect on Qemu side)
-> > >>>>>
-> > >>>>> Thanks
-> > >>>>>
-> > >>>> But Now there is a bug in QEMU: if the hardware MAC address does not
-> > >>>> match the one in the QEMU command line, it will cause traffic loss.
-> > >>>>
-> > >>> Why is this a new issue in qemu? qemu in it's current state won't work
-> > >>> with a different mac address that the one that is set in HW anyway.
-> > >>>
-> > >> this is not a new bug. We are trying to fix it because it will cause
-> > >> traffic lose without any warning.
-> > >> in my fix , this setting (different mac in device and Qemu) will fail
-> > >> to load the VM.
-> > > Which is a good thing, right? Some feedback to the user that there is
-> > > a misconfig. I got bitten by this so many times... Thank you for adding it.
-> > >
-> > >>
-> > >>>> So, Just an FYI here: if your patch merged, it may cause traffic loss.
-> > >>>> and now I'm working in the fix it in qemu, the link is
-> > >>>> https://patchew.org/QEMU/20240716011349.821777-1-lulu@redhat.com/
-> > >>>> The idea of this fix is
-> > >>>> There are will only two acceptable situations for qemu:
-> > >>>> 1. The hardware MAC address is the same as the MAC address specified
-> > >>>> in the QEMU command line, and both MAC addresses are not 0.
-> > >>>> 2. The hardware MAC address is not 0, and the MAC address in the QEMU
-> > >>>> command line is 0. In this situation, the hardware MAC address will
-> > >>>> overwrite the QEMU command line address.
-> > >>>>
-> > >>> Why would this not work with this patch? This patch simply sets a MAC
-> > >>> if the vport doesn't have one set. Which allows for more scenarios to
-> > >>> work.
-> > >>>
-> > >> I do not mean your patch will not work, I just want to make some
-> > >> clarify here.Your patch + my fix may cause the VM to fail to load in
-> > >> some situations, and this is as expected.
-> > >> Your patch is good to merge.
-> > > Ack. Thank you for the clarification.
-> > (Side note)
-> > While looking at another issue I discovered that it's possible to
-> > configure a random MAC on the mlx5_vdpa device at VM boot time if
-> > device MAC configuration is implemented during during .set_config(). So
-> > I was able to boot up a VM with a random MAC address coming from qemu
-> > and the traffic worked with this new MAC.
-> >
-> > So now I'm not sure if this is just by luck or if the .set_config()
-> > op should be implemented for the MAC part in our device.
-> >
-> > Thanks,
-> > Dragos
-> >
-> Hi Dragos，
-> For qemu part, I think this is not set from set_config()?  it should
-> be from the CVQ?
-
-
-You are confusing two things.
-Provisioning is not through CVQ.
-
-
-> Usually, we don't recommend using the set_config() function because
-> the configuration space should be read-only for modern devices.
+On 8/30/24 22:28, Barry Song wrote:
+> From: Barry Song <v-songbaohua@oppo.com>
 > 
-> Now there is a bug in this part of qemu, and we plan to remove the
-> code to set_config() in virtio_net_device_realize(), here is the patch
-> https://lore.kernel.org/all/CACGkMEvCSKfahpBQLAMmSzdFN-QPhg5Zx+UQVrFX0HsWybZZNA@mail.gmail.com/T/
-> and this is still under review
+> Three points for this change:
 > 
-> thanks
-> cindy
+> 1. We should consolidate all warnings in one place. Currently, the
+>    order > 1 warning is in the hotpath, while others are in less
+>    likely scenarios. Moving all warnings to the slowpath will reduce
+>    the overhead for order > 1 and increase the visibility of other
+>    warnings.
+> 
+> 2. We currently have two warnings for order: one for order > 1 in
+>    the hotpath and another for order > costly_order in the laziest
+>    path. I suggest standardizing on order > 1 since it’s been in
+>    use for a long time.
+> 
+> 3. We don't need to check for __GFP_NOWARN in this case. __GFP_NOWARN
+>    is meant to suppress allocation failure reports, but here we're
+>    dealing with bug detection, not allocation failures. So replace
+>    WARN_ON_ONCE_GFP by WARN_ON_ONCE.
+> 
+> Suggested-by: Vlastimil Babka <vbabka@suse.cz>
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Thanks!
+
+> ---
+>  mm/page_alloc.c | 50 ++++++++++++++++++++++++-------------------------
+>  1 file changed, 25 insertions(+), 25 deletions(-)
+> 
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index c81ee5662cc7..e790b4227322 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -3033,12 +3033,6 @@ struct page *rmqueue(struct zone *preferred_zone,
+>  {
+>  	struct page *page;
+>  
+> -	/*
+> -	 * We most definitely don't want callers attempting to
+> -	 * allocate greater than order-1 page units with __GFP_NOFAIL.
+> -	 */
+> -	WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
+> -
+>  	if (likely(pcp_allowed_order(order))) {
+>  		page = rmqueue_pcplist(preferred_zone, zone, order,
+>  				       migratetype, alloc_flags);
+> @@ -4175,6 +4169,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>  {
+>  	bool can_direct_reclaim = gfp_mask & __GFP_DIRECT_RECLAIM;
+>  	bool can_compact = gfp_compaction_allowed(gfp_mask);
+> +	bool nofail = gfp_mask & __GFP_NOFAIL;
+>  	const bool costly_order = order > PAGE_ALLOC_COSTLY_ORDER;
+>  	struct page *page = NULL;
+>  	unsigned int alloc_flags;
+> @@ -4187,6 +4182,25 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>  	unsigned int zonelist_iter_cookie;
+>  	int reserve_flags;
+>  
+> +	if (unlikely(nofail)) {
+> +		/*
+> +		 * We most definitely don't want callers attempting to
+> +		 * allocate greater than order-1 page units with __GFP_NOFAIL.
+> +		 */
+> +		WARN_ON_ONCE(order > 1);
+> +		/*
+> +		 * Also we don't support __GFP_NOFAIL without __GFP_DIRECT_RECLAIM,
+> +		 * otherwise, we may result in lockup.
+> +		 */
+> +		WARN_ON_ONCE(!can_direct_reclaim);
+> +		/*
+> +		 * PF_MEMALLOC request from this context is rather bizarre
+> +		 * because we cannot reclaim anything and only can loop waiting
+> +		 * for somebody to do a work for us.
+> +		 */
+> +		WARN_ON_ONCE(current->flags & PF_MEMALLOC);
+> +	}
+> +
+>  restart:
+>  	compaction_retries = 0;
+>  	no_progress_loops = 0;
+> @@ -4404,29 +4418,15 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+>  	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
+>  	 * we always retry
+>  	 */
+> -	if (gfp_mask & __GFP_NOFAIL) {
+> +	if (unlikely(nofail)) {
+>  		/*
+> -		 * All existing users of the __GFP_NOFAIL are blockable, so warn
+> -		 * of any new users that actually require GFP_NOWAIT
+> +		 * Lacking direct_reclaim we can't do anything to reclaim memory,
+> +		 * we disregard these unreasonable nofail requests and still
+> +		 * return NULL
+>  		 */
+> -		if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+> +		if (!can_direct_reclaim)
+>  			goto fail;
+>  
+> -		/*
+> -		 * PF_MEMALLOC request from this context is rather bizarre
+> -		 * because we cannot reclaim anything and only can loop waiting
+> -		 * for somebody to do a work for us
+> -		 */
+> -		WARN_ON_ONCE_GFP(current->flags & PF_MEMALLOC, gfp_mask);
+> -
+> -		/*
+> -		 * non failing costly orders are a hard requirement which we
+> -		 * are not prepared for much so let's warn about these users
+> -		 * so that we can identify them and convert them to something
+> -		 * else.
+> -		 */
+> -		WARN_ON_ONCE_GFP(costly_order, gfp_mask);
+> -
+>  		/*
+>  		 * Help non-failing allocations by giving some access to memory
+>  		 * reserves normally used for high priority non-blocking
 
