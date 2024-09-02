@@ -1,220 +1,208 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 536591D1F44
-	for <virtualization@lists.linux.dev>; Mon,  2 Sep 2024 09:56:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27F6313CFB7
+	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 10:04:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725270972; cv=none; b=nZ+OXqkfSPVO0VrzmDDvGRg8GAI7b3tTvWeZtOtCVIj0ErpNmyHkuvocV1Jd+vSHqLEBkjWAhyYgsC9/aZcJkHdG/V2SV5GpLBhqcrVZ4WSaX00sZoNZk5ezaleRgxw5cESX54bB6PEQTfVoTN6MnHkaO5GJ812VsEOInQvBEgc=
+	t=1725271466; cv=none; b=NVtXtvCZ0AcMm0O3QEg2JjqMMj/l+/B+skYD/aBkOhpnBEkFFKvYorWZ1+MrjDA+/u6OSw7r2T675tMoQs6sCjkF3AKqHHhUQg00spTwsQu1yoUQLt4dV6hATNxxek2tAcPj9arn11KyX7YT5du/lmJ+OShI7i4oGzZhV8o8zNY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725270972; c=relaxed/simple;
-	bh=kV8GFG++RaaBCEP6/7hW49kSFBGCuPBSKeMG+g/2Ypc=;
+	s=arc-20240116; t=1725271466; c=relaxed/simple;
+	bh=1Gy5ROiwQJJO9oMaCCxrG7aibSYEu/UpXyiNyunXbfw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EFQlaQgahhJjIDD2F1u+j3HOf1S+kbAOHXePlSKcjhinS2gvQs8bLSN0wMktDrpYM1XZyGSvT9F6tLIqctpp/D3RSPQ4Ez6Zwh1QCEtc1YZnecUG+u0a8xnBlMrKwBq6leqAUgrMhNU8VQGEz2p8gQkCeNjQC7nWMGgQ3q4rRK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WJrKfMex; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=J34ZxTvpXlUorjH4jCrC/VneFOEFQBaX+2FQ+0K92KTBUf8/r44z+N+v/6DPVJNdoxCP1gHih03L/IHrLkRSovJb5LtKkidLu/fM8IvO/QDb/NacHimSJqjTuQ69HlvT80GQn7B1Sdsd88uyiHLiF4RrDqfM/IyX49J0PG6nnR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Stfh4Uqi; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WJrKfMex"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Stfh4Uqi"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id A6B9A405DF
+	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 10:04:24 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id tXxOfSO2YS6F for <virtualization@lists.linux-foundation.org>;
+ Mon,  2 Sep 2024 10:04:23 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 18EFC40133
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 18EFC40133
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Stfh4Uqi
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 18EFC40133
+	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 10:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725270969;
+	s=mimecast20190719; t=1725271461;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=1Hxuy7nxxFJKkwMiUTcDUdREPM6hh6QhSwYBkqKlx2c=;
-	b=WJrKfMexUaDj2tUCwdEzCPZazOcPxnYjrw0ASjiW7Mfq4/NGQOYg0TRSC/pEaaMt/pDK1L
-	NIluyvV7UgETOSEhWJe0t65w/50hML6KH+jBbPykY0wL3vdwaAlppx2woUDHvxE7Iz7J8Z
-	1v97gxCkZUoFokaHJxbByGQ/e2PJCWw=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ie8OFN0GPfRB9t4uKG5JuFRs18zAhr60LEccBUs+PdU=;
+	b=Stfh4UqiJ/U37WYVY18as5I2SUcdQp4gV+Mb4iwQwylmkEbiyvMBrRiNBVSlWw1Xl0mE2C
+	RVZop/hhnKcq7G11neo1XZSo1l1ojqpoKp6n+oAQUeToD+DtxZfl+8NzJ1Gztv+myDPaKf
+	cykjjB3FQbBvAk9Hl9L2U+Oyi2UQqGc=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-449-17UpcYXmPD2gpup3v5sWow-1; Mon, 02 Sep 2024 05:56:07 -0400
-X-MC-Unique: 17UpcYXmPD2gpup3v5sWow-1
-Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2f3eda3d1cfso38857811fa.1
-        for <virtualization@lists.linux.dev>; Mon, 02 Sep 2024 02:56:07 -0700 (PDT)
+ us-mta-466-0dbV1_f9M8e45ETI04L7Nw-1; Mon, 02 Sep 2024 06:04:19 -0400
+X-MC-Unique: 0dbV1_f9M8e45ETI04L7Nw-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a86860c87a8so332034166b.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 02 Sep 2024 03:04:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725270966; x=1725875766;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1Hxuy7nxxFJKkwMiUTcDUdREPM6hh6QhSwYBkqKlx2c=;
-        b=vl6B4Xl2fvyCaEOkZYcQlRNg5VyRoab6gPS12dlpZgppBx3q++OU+I3+bI8zPgW7XY
-         OaAluUQDX6e5bjYi1SjalpoRqwQ7PIjkAb1nNkRNxYgufb3bHsRibRoQEx8Qx6/JsQl8
-         jQbYvtyI8U4Kqnx0RfFRREg8RyCBiGCTtvY+L6H+PdZ7bMNZ2CJB8aL8xhvw8LF3F4v2
-         dLsia0tNjd+TP0QVtHd2Y/99VJtkj1BQdbR1rpibbdPYd+cNWiSSnAerxQZBnEETsqCd
-         bzp0gcRh6wrDw+INXkYBF6mbh4pRoTC8lMbDBi6r05HhNXYyBEMlOynMhiiH60UFRmmP
-         nz/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCU9O4eMB3NsY0P6O9sqY8iIRYy+XwJ7lj/RkBh63g/okgpmZhUKTfJxtrScvlqu1TwaEzQLHxGLwFA3ieG8VQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzqvge0pAOIQ9+LOnoUXMRIf1hTfmykGx8IGuDWfdMUT5wBkRsw
-	uGLkivMsrBvB2/3GCIVZPbbf52k63DGZ07U4W7ly7TgLOmEKGRD9cTeUSJ2OUb3Ev8IvKc3VqzQ
-	Evh8nLtSRGj+sakUy1GsUZTvKQoIMVmaYECTjaT31m2JEb5rvgKycY1hS+cFUoTzEV0qdQnlbWG
-	JmYz2dtrg/NEASk9I1EiCj1FXBBWLicn/S79IpmRg=
-X-Received: by 2002:a05:651c:b24:b0:2ef:2dc7:a8f6 with SMTP id 38308e7fff4ca-2f62903f97dmr50977031fa.13.1725270966062;
-        Mon, 02 Sep 2024 02:56:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHzeOLvsXNoMvOifaQjOvbimoOBIPmu3unrgxdch7eTc5cP16ueig+KVeJk8Reb0ILjM8ucdhhIMPOBQwXYBYQ=
-X-Received: by 2002:a05:651c:b24:b0:2ef:2dc7:a8f6 with SMTP id
- 38308e7fff4ca-2f62903f97dmr50976771fa.13.1725270965459; Mon, 02 Sep 2024
- 02:56:05 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1725271458; x=1725876258;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ie8OFN0GPfRB9t4uKG5JuFRs18zAhr60LEccBUs+PdU=;
+        b=C3uZs2D7A+ZMM2ANBzja87kArTh5oaq37KqCFMrj59nzdQHxNevycqaHaBJAL87MGE
+         eRFsd28zvb1bE1NdSvTsgvvv31obugsW/gFAzmCjvkhHcsx3Nspp1zIjFlV74mHx4Zig
+         sJ5XhAHrlqOeYICe02CBB/P/kfcdD6YXTb4T1vWqIndkbw8OF6rXS2H7U3Y19FXW2q+I
+         y3pQ+7HgJttwG0AYni2Bghe08B3/bq2WZLOIpj2M++QeIESNUKqqQ7JhTfgYiNoKGpQH
+         WrIrMULaQ/APWprb4k0mybJ9Um6X8NTKeg4Wo7bFUZ6/mP13sVRtRFpXNcjTiQVISHFu
+         ntJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUjpp1ebH5cSjdHfTyHnE/OZw7u34krmGPkW4BQPdudjVAvR1ppw5ccmulpes7qUOQb1qZdfR3Uh0t97Kdn5A==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YylH6R+VRKGKFbbgemtdDIYVnDhyw4AaTlikXwfjLC9hA9OVT4S
+	2nqxkFTzDTtZ2TRU+dWEDsUsRdmHUOwTpgsHNeGh/EHiOTnJUGS0Z516lxOgzDfFaKFKwthtxEO
+	hnmEwXWgJyni3AaK7oZjXlyTL6i1t7POLdvhQeBcrCR2b9ynRhrrcwMkAJyGPXaaaKf4IBCPgZv
+	2GZR8dak93kpc17xia02Povsj/ohLNnk2rDV5JrWAH9wSeI8ldD5jK/g==
+X-Received: by 2002:a17:907:72d3:b0:a88:a48d:2b9a with SMTP id a640c23a62f3a-a897fa74459mr988545766b.52.1725271458507;
+        Mon, 02 Sep 2024 03:04:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH1kxKnbkvEfLFVflp4jaSLPmVyXctTqLe0cqw7LvdiW4hckvb1eweF4ThQJBsaRbv4+DVAoodYhVeTUKoFzuc=
+X-Received: by 2002:a17:907:72d3:b0:a88:a48d:2b9a with SMTP id
+ a640c23a62f3a-a897fa74459mr988542066b.52.1725271457591; Mon, 02 Sep 2024
+ 03:04:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240827160256.2446626-2-dtatulea@nvidia.com> <CACGkMEuRvqu8W9-OqPBRhn1DG-+DO6TCzFdHqc7zB74GkNDkAQ@mail.gmail.com>
- <CACLfguXjiyp+Ya4mUKXu6Dmb3Wx5wW0bbNGRSFWE-Z0E5gALTA@mail.gmail.com>
- <8daf221f-8d87-4da1-944c-3bcd0edea604@nvidia.com> <CACLfguVr1bd6=bkGn6hX3W7xBr45qydaCpQ1mNpsATeWFqe2ZA@mail.gmail.com>
- <55b7ae23-6000-4699-9bac-5e72fbdcd803@nvidia.com> <0648a9d9-a056-4cdb-bfb8-a792bce1e771@nvidia.com>
- <CACLfguXM97JAdWcYO17+H6pu7MWLu2QqBgu_PypGxU_Ab+OUOQ@mail.gmail.com> <20240901144739-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240901144739-mutt-send-email-mst@kernel.org>
-From: Cindy Lu <lulu@redhat.com>
-Date: Mon, 2 Sep 2024 17:55:28 +0800
-Message-ID: <CACLfguWC-gGoY3JmMA-jU1W7OgkAEQ9iJ8TpZbRtE2iJ5++GxQ@mail.gmail.com>
-Subject: Re: [PATCH] vdpa/mlx5: Use random MAC address when no nic vport MAC set
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	si-wei.liu@oracle.com, Jiri Pirko <jiri@nvidia.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
+References: <20240816090159.1967650-1-dtatulea@nvidia.com> <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
+In-Reply-To: <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 2 Sep 2024 18:03:41 +0800
+Message-ID: <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
+Subject: Re: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device suspend/resume
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: Eugenio Perez Martin <eperezma@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Michael Tsirkin <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leon@kernel.org>, kvm@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Saeed Mahameed <saeedm@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2 Sept 2024 at 02:49, Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Fri, Aug 30, 2024 at 05:29:14PM +0800, Cindy Lu wrote:
-> > On Fri, 30 Aug 2024 at 03:03, Dragos Tatulea <dtatulea@nvidia.com> wrot=
-e:
-> > >
-> > >
-> > >
-> > > On 29.08.24 12:00, Dragos Tatulea wrote:
-> > > >
-> > > >
-> > > > On 29.08.24 11:05, Cindy Lu wrote:
-> > > >> On Wed, 28 Aug 2024 at 17:37, Dragos Tatulea <dtatulea@nvidia.com>=
- wrote:
-> > > >>>
-> > > >>>
-> > > >>>
-> > > >>> On 28.08.24 11:00, Cindy Lu wrote:
-> > > >>>> On Wed, 28 Aug 2024 at 09:51, Jason Wang <jasowang@redhat.com> w=
-rote:
-> > > >>>>>
-> > > >>>>> On Wed, Aug 28, 2024 at 12:03=E2=80=AFAM Dragos Tatulea <dtatul=
-ea@nvidia.com> wrote:
-> > > >>>>>>
-> > > >>>>>> When the vdpa device is configured without a specific MAC
-> > > >>>>>> address, the vport MAC address is used. However, this
-> > > >>>>>> address can be 0 which prevents the driver from properly
-> > > >>>>>> configuring the MPFS and breaks steering.
-> > > >>>>>>
-> > > >>>>>> The solution is to simply generate a random MAC address
-> > > >>>>>> when no MAC is set on the nic vport.
-> > > >>>>>>
-> > > >>>>>> Now it's possible to create a vdpa device without a
-> > > >>>>>> MAC address and run qemu with this device without needing
-> > > >>>>>> to configure an explicit MAC address.
-> > > >>>>>>
-> > > >>>>>> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> > > >>>>>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> > > >>>>>
-> > > >>>>> Acked-by: Jason Wang <jasowang@redhat.com>
-> > > >>>>>
-> > > >>>>> (Adding Cindy for double checking if it has any side effect on =
-Qemu side)
-> > > >>>>>
-> > > >>>>> Thanks
-> > > >>>>>
-> > > >>>> But Now there is a bug in QEMU: if the hardware MAC address does=
- not
-> > > >>>> match the one in the QEMU command line, it will cause traffic lo=
-ss.
-> > > >>>>
-> > > >>> Why is this a new issue in qemu? qemu in it's current state won't=
- work
-> > > >>> with a different mac address that the one that is set in HW anywa=
-y.
-> > > >>>
-> > > >> this is not a new bug. We are trying to fix it because it will cau=
-se
-> > > >> traffic lose without any warning.
-> > > >> in my fix , this setting (different mac in device and Qemu) will f=
-ail
-> > > >> to load the VM.
-> > > > Which is a good thing, right? Some feedback to the user that there =
-is
-> > > > a misconfig. I got bitten by this so many times... Thank you for ad=
-ding it.
-> > > >
-> > > >>
-> > > >>>> So, Just an FYI here: if your patch merged, it may cause traffic=
- loss.
-> > > >>>> and now I'm working in the fix it in qemu, the link is
-> > > >>>> https://patchew.org/QEMU/20240716011349.821777-1-lulu@redhat.com=
-/
-> > > >>>> The idea of this fix is
-> > > >>>> There are will only two acceptable situations for qemu:
-> > > >>>> 1. The hardware MAC address is the same as the MAC address speci=
-fied
-> > > >>>> in the QEMU command line, and both MAC addresses are not 0.
-> > > >>>> 2. The hardware MAC address is not 0, and the MAC address in the=
- QEMU
-> > > >>>> command line is 0. In this situation, the hardware MAC address w=
-ill
-> > > >>>> overwrite the QEMU command line address.
-> > > >>>>
-> > > >>> Why would this not work with this patch? This patch simply sets a=
- MAC
-> > > >>> if the vport doesn't have one set. Which allows for more scenario=
-s to
-> > > >>> work.
-> > > >>>
-> > > >> I do not mean your patch will not work, I just want to make some
-> > > >> clarify here.Your patch + my fix may cause the VM to fail to load =
-in
-> > > >> some situations, and this is as expected.
-> > > >> Your patch is good to merge.
-> > > > Ack. Thank you for the clarification.
-> > > (Side note)
-> > > While looking at another issue I discovered that it's possible to
-> > > configure a random MAC on the mlx5_vdpa device at VM boot time if
-> > > device MAC configuration is implemented during during .set_config(). =
-So
-> > > I was able to boot up a VM with a random MAC address coming from qemu
-> > > and the traffic worked with this new MAC.
-> > >
-> > > So now I'm not sure if this is just by luck or if the .set_config()
-> > > op should be implemented for the MAC part in our device.
-> > >
-> > > Thanks,
-> > > Dragos
-> > >
-> > Hi Dragos=EF=BC=8C
-> > For qemu part, I think this is not set from set_config()?  it should
-> > be from the CVQ?
->
->
-> You are confusing two things.
-> Provisioning is not through CVQ.
->
-Thanks, Michael. I'm sorry for the confusion. I just meant that maybe
-the MAC address is set through CVQ. I will make it clearer next time.
+Hi Dragos
+
+QE tested this series with mellanox nic, it failed with [1] when
+booting guest, and host dmesg also will print messages [2]. This bug
+can be reproduced boot guest with vhost-vdpa device.
+
+[1] qemu) qemu-kvm: vhost VQ 1 ring restore failed: -1: Operation not
+permitted (1)
+qemu-kvm: vhost VQ 0 ring restore failed: -1: Operation not permitted (1)
+qemu-kvm: unable to start vhost net: 5: falling back on userspace virtio
+qemu-kvm: vhost_set_features failed: Device or resource busy (16)
+qemu-kvm: unable to start vhost net: 16: falling back on userspace virtio
+
+[2] Host dmesg:
+[ 1406.187977] mlx5_core 0000:0d:00.2:
+mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
+[ 1406.189221] mlx5_core 0000:0d:00.2:
+mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
+[ 1406.190354] mlx5_core 0000:0d:00.2:
+mlx5_vdpa_show_mr_leaks:573:(pid 8506) warning: mkey still alive after
+resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
+[ 1471.538487] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
+428): cmd[13]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
+a leak of a command resource
+[ 1471.539486] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
+428): cmd[12]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
+a leak of a command resource
+[ 1471.540351] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
+8511) error: modify vq 0 failed, state: 0 -> 0, err: 0
+[ 1471.541433] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
+8511) error: modify vq 1 failed, state: 0 -> 0, err: -110
+[ 1471.542388] mlx5_core 0000:0d:00.2: mlx5_vdpa_set_status:3203:(pid
+8511) warning: failed to resume VQs
+[ 1471.549778] mlx5_core 0000:0d:00.2:
+mlx5_vdpa_show_mr_leaks:573:(pid 8511) warning: mkey still alive after
+resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
+[ 1512.929854] mlx5_core 0000:0d:00.2:
+mlx5_vdpa_compat_reset:3267:(pid 8565): performing device reset
+[ 1513.100290] mlx5_core 0000:0d:00.2:
+mlx5_vdpa_show_mr_leaks:573:(pid 8565) warning: mkey still alive after
+resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
+
 Thanks
-Cindy
+Lei
+
+
+
+
+> This series parallelizes the mlx5_vdpa device suspend and resume
+> operations through the firmware async API. The purpose is to reduce live
+> migration downtime.
 >
-> > Usually, we don't recommend using the set_config() function because
-> > the configuration space should be read-only for modern devices.
-> >
-> > Now there is a bug in this part of qemu, and we plan to remove the
-> > code to set_config() in virtio_net_device_realize(), here is the patch
-> > https://lore.kernel.org/all/CACGkMEvCSKfahpBQLAMmSzdFN-QPhg5Zx+UQVrFX0H=
-sWybZZNA@mail.gmail.com/T/
-> > and this is still under review
-> >
-> > thanks
-> > cindy
+> The series starts with changing the VQ suspend and resume commands
+> to the async API. After that, the switch is made to issue multiple
+> commands of the same type in parallel.
+>
+> Then, the an additional improvement is added: keep the notifiers enabled
+> during suspend but make it a NOP. Upon resume make sure that the link
+> state is forwarded. This shaves around 30ms per device constant time.
+>
+> Finally, use parallel VQ suspend and resume during the CVQ MQ command.
+>
+> For 1 vDPA device x 32 VQs (16 VQPs), on a large VM (256 GB RAM, 32 CPUs
+> x 2 threads per core), the improvements are:
+>
+> +-------------------+--------+--------+-----------+
+> | operation         | Before | After  | Reduction |
+> |-------------------+--------+--------+-----------|
+> | mlx5_vdpa_suspend | 37 ms  | 2.5 ms |     14x   |
+> | mlx5_vdpa_resume  | 16 ms  | 5 ms   |      3x   |
+> +-------------------+--------+--------+-----------+
+>
+> ---
+> v2:
+> - Changed to parallel VQ suspend/resume during CVQ MQ command.
+>   Support added in the last 2 patches.
+> - Made the fw async command more generic and moved it to resources.c.
+>   Did that because the following series (parallel mkey ops) needs this
+>   code as well.
+>   Dropped Acked-by from Eugenio on modified patches.
+> - Fixed kfree -> kvfree.
+> - Removed extra newline caught during review.
+> - As discussed in the v1, the series can be pulled in completely in
+>   the vhost tree [0]. The mlx5_core patch was reviewed by Tariq who is
+>   also a maintainer for mlx5_core.
+>
+> [0] - https://lore.kernel.org/virtualization/6582792d-8db2-4bc0-bf3a-248fe5c8fc56@nvidia.com/T/#maefabb2fde5adfb322d16ca16ae64d540f75b7d2
+>
+> Dragos Tatulea (10):
+>   net/mlx5: Support throttled commands from async API
+>   vdpa/mlx5: Introduce error logging function
+>   vdpa/mlx5: Introduce async fw command wrapper
+>   vdpa/mlx5: Use async API for vq query command
+>   vdpa/mlx5: Use async API for vq modify commands
+>   vdpa/mlx5: Parallelize device suspend
+>   vdpa/mlx5: Parallelize device resume
+>   vdpa/mlx5: Keep notifiers during suspend but ignore
+>   vdpa/mlx5: Small improvement for change_num_qps()
+>   vdpa/mlx5: Parallelize VQ suspend/resume for CVQ MQ command
+>
+>  drivers/net/ethernet/mellanox/mlx5/core/cmd.c |  21 +-
+>  drivers/vdpa/mlx5/core/mlx5_vdpa.h            |  22 +
+>  drivers/vdpa/mlx5/core/resources.c            |  73 ++++
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c             | 396 +++++++++++-------
+>  4 files changed, 361 insertions(+), 151 deletions(-)
+>
+> --
+> 2.45.1
 >
 
