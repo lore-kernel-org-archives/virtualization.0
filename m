@@ -1,192 +1,189 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 307E83B182
-	for <virtualization@lists.linux.dev>; Mon,  2 Sep 2024 04:28:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED4CC33F6
+	for <virtualization@lists.linux.dev>; Mon,  2 Sep 2024 05:47:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725251287; cv=none; b=jTIvix7iID06UyOi/IvUGDTBqppoJqjstF1itfbXlyQ6l+c1Zv1MeZbnMV1Ot2oBwfXITrdrEuhri1rSXTqeLHHrs905z+QdEQsf0Ps4KANwIoyKXBRqJuom7UElPyESQ7Y6GtlHWFrcCsXwd0etdiAiB2Bc5nJY2JJAMtRNaoQ=
+	t=1725256072; cv=none; b=Scb6gPrxjpPDJ6xPjBqulYD3DJN4Z4NoFjK3f6SMcfazX3vu0wLEMim/Thpd3Ma+kLh0AeEpc/LJpVArkQg+aYyKYUuhYdp0+gBlhUjrWvaQjPYXb9ROEJa9CUBqPqtBqxf2hHNCuwL+RT05wTOlaplqNGabjzb9y8vpOfuFU44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725251287; c=relaxed/simple;
-	bh=imrdOP267f9TBBXh8m6wg6kbuBgsSfpHQtnHTBSQ4r4=;
+	s=arc-20240116; t=1725256072; c=relaxed/simple;
+	bh=XRgx6l6Ouz4dFOn2rowmUJdENg17O0UPOTtj0T0iIUg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Rc81Ry5bXFmoTphS64F5Q88Yu25AkRxmeV/qFSQHVe4Gb4aVODF8pIAMHYRnhS9LWkM4HtzSInEK0f4+L8aypEvzbLZqmGHKdM77JHJgthF4pMDoKTaByTb4QPkZEHmJMNnogRfGAGYhbXYNEA5llWNHwwQfamLWyZS75ylOA34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XcgqsWm6; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=KGdAERxrcW+H6pVYKSEAGvunwbnYK78UT2y8sxhFzQjHlRVAGrEAXBkV447BQxxPV/LTYufRX5xoBbxLuay509Izt4kVq5TN6/IUqOSi6ZovdFNpYR90+davdnEKNmHL+/nRRYvPw6aADlh6ChBjlkAPkH1N3mopH/6NWhvGTQM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=icOyV1Lv; arc=none smtp.client-ip=209.85.219.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XcgqsWm6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725251284;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=e/Gj4eDafKoQrJYXOLZ6AuCMbE6RyJc4zifVlDVrlgU=;
-	b=XcgqsWm6qWeumgCqsUrLhkyzWE8ePGadig5sggh99aau4LmCHNE/Q4YQyR3lIrq0bhdYs3
-	8yYOrQSW+0ISLydpUYIEcy50lA7r/wVkQwLjR6zomkXSkX9yHS5MSSt0zo6UEeflpgBGvF
-	BVtFcs4MJtg+0tSa9m6Ijuj8QTwn35A=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-619-YRfuNGI9NFer4S7mnBxB6g-1; Mon, 02 Sep 2024 00:28:03 -0400
-X-MC-Unique: YRfuNGI9NFer4S7mnBxB6g-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2d889fde2aaso2451847a91.0
-        for <virtualization@lists.linux.dev>; Sun, 01 Sep 2024 21:28:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="icOyV1Lv"
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-6c331543ef0so21551956d6.1
+        for <virtualization@lists.linux.dev>; Sun, 01 Sep 2024 22:47:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1725256070; x=1725860870; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=L/WIGvVQ42vNYGJNdFf3Oc9aHSeA4jiKtJQlg8xSf3w=;
+        b=icOyV1Lv8s3I1ytA/+29o3FC0OwP/cSyicgeXSZSt07yuX1an99tt60+EOyp94P8Jo
+         mEE1Ga4VvR9nbRP7tehn1kOI25xXdqWyn3FEaL8Nzxpl0ElugEQkVSwp+cRU52kU+PY7
+         8gHRlCGC8M2/p5hMYYxO/zLfvMwn33+jFUzHsIXSubJfg+9PMVIaFpY66z9q7u4k13Pr
+         cmeRp5o4ueNVfOqXbS6+/v7s5/vthyPmrneXTC7BxqWUyBJO8dBB7Zal1RBFUu+OCrxH
+         YFNKYQafVdl81wttEBrSSpIr8jhBz649nDVmUJIP3B5o9Y8+XZuEDv4HKb10jnVnsJY/
+         sFuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725251282; x=1725856082;
+        d=1e100.net; s=20230601; t=1725256070; x=1725860870;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=e/Gj4eDafKoQrJYXOLZ6AuCMbE6RyJc4zifVlDVrlgU=;
-        b=ed1GT8jyIrglUl1B9oBh922aI8bRhHDbmieymqOvcwRsTAGEo3OJSyOAahGHwnxPZ4
-         +lvXcYQ1BJJBR05uOszOdpTwCcof0LZN0XFYEDvVYN5UiyyIvEKBz7SHjWw/52wW2AQm
-         WnHIc6PxQqv/6rDFeHz4Bh4wRd4jGhvITJzomVWEqAgJPIubfpZ+hywVybksHNJqFJWd
-         g/u6ODd2w3QCJ/sCXx2QlfVbHMVKFlZY8Vo7kfliDi4HoWUIfC0yu38M1JXMiSrmXTK6
-         5ECge7f44n7q0M4jBDK46IWpfyr4ekbXJu55w0xEd3phdLvn+5wL/JkqxKw9IkRgp4RL
-         Cjxg==
-X-Forwarded-Encrypted: i=1; AJvYcCWOp6aNe4f7H2k6zq3BrZVmvFSeILF8BpVIlKlYWaX7DKt+ZXd1ny1xu07C7PWc1jVWXT3QnB2t1TZDE9Zxig==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwaIpnQQKCPt4jb95GmAx2gSohuLuooxGKPtsqLDjLw4Y/GgnWd
-	9TAiTcouXp9S58yQWLHwnpE//uNC7UASlfx6ecymNhclx66XkFaQp0ZrAhx29tcknUUHAqlt7Ov
-	Tw/YrroSzR5ibEg9QRdfHhKaq8Ya42GBY9HPAT3+rYedsnSAFeV6VYNBI7GWTPAOiokAR5MfrTL
-	Mfesj9ZAONtr/SgFSA/e/30oUX/Ic2bYCbfpiOcIk=
-X-Received: by 2002:a17:90b:2bc6:b0:2d8:99c4:3cd9 with SMTP id 98e67ed59e1d1-2d899c43e12mr6950233a91.3.1725251281966;
-        Sun, 01 Sep 2024 21:28:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFJ70KQouOrad1n8w655Ru1U5qCbR6u/l5jxaDuXmg5lnMyHLK/m9F3iqPdkC3VCTOyETBUITjc0W1iTC600q4=
-X-Received: by 2002:a17:90b:2bc6:b0:2d8:99c4:3cd9 with SMTP id
- 98e67ed59e1d1-2d899c43e12mr6950211a91.3.1725251281369; Sun, 01 Sep 2024
- 21:28:01 -0700 (PDT)
+        bh=L/WIGvVQ42vNYGJNdFf3Oc9aHSeA4jiKtJQlg8xSf3w=;
+        b=JE4nmAE+81YbnOqaVepoWhbQU3w9VRumYdZZhrzUw2W4AYHOCpRN6PY6kS0S/O6jL1
+         2HWLVHdQx7zAj4JsAofFbGAUss+89XMvOtabud1jewxb2TtFI6VKCAR/Udm3j5zL2zOk
+         mJeHy/rEjPeOEEh3UDoJPAOUNGE1B+YkJJ3sFozJ3Zv5ohOK+G5kbEnY59suYMd6VdVP
+         tTn38+WN9nsmr1ttqN7R/gIi5YOhi4djoXZCv80fLajFm4Z4uUMFi7ykd9B6pF/i8Erf
+         CEXQXC8zm1iGQhbnxmBn9igHxzW7kdLPwQR1Ix/QLX2iAOD6kWcqHE6Yjb13AhhLDMsB
+         i8wQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVJlohtOHMXb4y9aTQAV2AdUw+E2Xc0AIRVsjCy+Ys8hfzIV95p9qx+/qF+TDc6p71pAevNPCM4+fwN8B33iw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyeb3zKSqWelv38X1woHbsRx6A4OKGFUCO6ZD5b4DhJYgrvQKw4
+	RJhZ3y9CB4EHH6aPZzY4qt2jBql1dzCQPv+BEDP4GE2XTy60FLpmr4AkS+huwaLA24dghadYUOe
+	KLRkK5hRSlZJJjIkpuaS83niOnAc=
+X-Google-Smtp-Source: AGHT+IH8h/peDYpdP4NKFa5wZZUVkjANuvU8ugP9rHzKGMtxZfDV+MPy1Hc1uEWSoB2fp58ia8x6fGds1P0k6PCU5Ik=
+X-Received: by 2002:a05:6214:2dc1:b0:6c3:657a:cbb9 with SMTP id
+ 6a1803df08f44-6c3657acd86mr38481226d6.34.1725256069695; Sun, 01 Sep 2024
+ 22:47:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240829161620.38679-1-carlos.bilbao.osdev@gmail.com>
- <20240829161620.38679-3-carlos.bilbao.osdev@gmail.com> <c15d3682-05ee-437c-b51c-d6a824252d76@nvidia.com>
- <CACGkMEtDSDTS_SVvsf7nwMdabGCN85P-r5WpjgZdVDV5PMdc0g@mail.gmail.com> <f5e3768d-bb16-48eb-96df-ce5f9593b843@digitalocean.com>
-In-Reply-To: <f5e3768d-bb16-48eb-96df-ce5f9593b843@digitalocean.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 2 Sep 2024 12:27:50 +0800
-Message-ID: <CACGkMEtsNeL+o6Rgb=ehj8OJpfkoojasPK1ZMp4S5bMKBjwcng@mail.gmail.com>
-Subject: Re: [PATCH 2/2] vdpa: Add support to update speed/duplex in vDPA/mlx5_vnet
-To: Carlos Bilbao <cbilbao@digitalocean.com>
-Cc: Dragos Tatulea <dtatulea@nvidia.com>, Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, mst@redhat.com, 
-	bilbao@vt.edu, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	cratiu@nvidia.com, lingshan.zhu@intel.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+References: <20240830202823.21478-1-21cnbao@gmail.com> <20240830202823.21478-4-21cnbao@gmail.com>
+ <CALOAHbBpw20ma7=ccc3qotnqZ=v5KDkuisMKzwr0QSv_DvkWEw@mail.gmail.com> <CAGsJ_4wrDi6CVPF7DBF3WJXKfv-tKqz1hmw0D+SOt7SdUqw7tA@mail.gmail.com>
+In-Reply-To: <CAGsJ_4wrDi6CVPF7DBF3WJXKfv-tKqz1hmw0D+SOt7SdUqw7tA@mail.gmail.com>
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Mon, 2 Sep 2024 13:47:13 +0800
+Message-ID: <CALOAHbCEVmvy=PVWP-oLjRxYiAWaj7H-qDw+P9VNMAf=Qzzhpg@mail.gmail.com>
+Subject: Re: [PATCH v4 3/3] mm: warn about illegal __GFP_NOFAIL usage in a
+ more appropriate location and manner
+To: Barry Song <21cnbao@gmail.com>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 
+	virtualization@lists.linux.dev, david@redhat.com, 42.hyeyoo@gmail.com, 
+	cl@linux.com, hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com, 
+	mhocko@suse.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, torvalds@linux-foundation.org, urezki@gmail.com, 
+	v-songbaohua@oppo.com, vbabka@suse.cz
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 30, 2024 at 9:15=E2=80=AFPM Carlos Bilbao <cbilbao@digitalocean=
-.com> wrote:
+On Mon, Sep 2, 2024 at 12:00=E2=80=AFPM Barry Song <21cnbao@gmail.com> wrot=
+e:
 >
-> Hello,
->
-> On 8/29/24 9:31 PM, Jason Wang wrote:
-> > On Fri, Aug 30, 2024 at 5:08=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia=
-.com> wrote:
-> >> (resending as I accidentally replied only to Carlos)
-> >>
-> >> On 29.08.24 18:16, Carlos Bilbao wrote:
-> >>> From: Carlos Bilbao <cbilbao@digitalocean.com>
-> >>>
-> >>> Include support to update the vDPA configuration fields of speed and
-> >>> duplex (as needed by VHOST_VDPA_SET_CONFIG). This includes function
-> >>> mlx5_vdpa_set_config() as well as changes in vdpa.c to fill the initi=
-al
-> >>> values to UNKNOWN. Also add a warning message for when
-> >>> mlx5_vdpa_get_config() receives offset and length out of bounds.
-> >>>
-> >>> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
-> >>> ---
-> >>>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 34 +++++++++++++++++++++++++++++=
-+-
-> >>>  drivers/vdpa/vdpa.c               | 27 ++++++++++++++++++++++++
-> >>>  include/uapi/linux/vdpa.h         |  2 ++
-> >>>  3 files changed, 62 insertions(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/ne=
-t/mlx5_vnet.c
-> >>> index c47009a8b472..a44bb2072eec 100644
-> >>> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> >>> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> >>> @@ -3221,12 +3221,44 @@ static void mlx5_vdpa_get_config(struct vdpa_=
-device *vdev, unsigned int offset,
-> >>>
-> >>>       if (offset + len <=3D sizeof(struct virtio_net_config))
-> >>>               memcpy(buf, (u8 *)&ndev->config + offset, len);
-> >>> +     else
-> >>> +             mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\=
-n");
-> >>>  }
-> >>>
-> >>>  static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned =
-int offset, const void *buf,
-> >>>                                unsigned int len)
-> >>>  {
-> >>> -     /* not supported */
-> >>> +     struct mlx5_vdpa_dev *mvdev =3D to_mvdev(vdev);
-> >>> +     struct mlx5_vdpa_net *ndev =3D to_mlx5_vdpa_ndev(mvdev);
-> >>> +
-> >>> +     if (offset + len > sizeof(struct virtio_net_config)) {
-> >>> +             mlx5_vdpa_warn(mvdev, "Offset and length out of bounds\=
-n");
-> >>> +             return;
-> >>> +     }
-> >>> +
-> >>> +     /*
-> >>> +      * Note that this will update the speed/duplex configuration fi=
-elds
-> >>> +      * but the hardware support to actually perform this change doe=
-s
-> >>> +      * not exist yet.
-> >>> +      */
-> >>> +     switch (offset) {
-> >>> +     case offsetof(struct virtio_net_config, speed):
-> >>> +             if (len =3D=3D sizeof(((struct virtio_net_config *) 0)-=
->speed))
-> >>> +                     memcpy(&ndev->config.speed, buf, len);
-> >>> +             else
-> >>> +                     mlx5_vdpa_warn(mvdev, "Invalid length for speed=
-.\n");
-> >>> +             break;
-> >>> +
-> >>> +     case offsetof(struct virtio_net_config, duplex):
-> >>> +             if (len =3D=3D sizeof(((struct virtio_net_config *)0)->=
-duplex))
-> >>> +                     memcpy(&ndev->config.duplex, buf, len);
-> >>> +             else
-> >>> +                     mlx5_vdpa_warn(mvdev, "Invalid length for duple=
-x.\n");
-> >>> +             break;
-> >>> +
-> >>> +     default:
-> >>> +             mlx5_vdpa_warn(mvdev, "Configuration field not supporte=
-d.\n");
-> >> This will trigger noise in dmesg because there is a MAC configuration =
-here.
-> >>> +     }
-> >> I would prefer that the .set_config remains a stub TBH. Setting the fi=
-elds here is
-> >> misleading: the user might deduce that the configuration worked when t=
-hey read the
-> >> values and see that they were updated.
-> > Yes, and actually, those fields are read-only according to the spec:
+> On Mon, Sep 2, 2024 at 3:23=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com>=
+ wrote:
 > >
-> > """
-> > The network device has the following device configuration layout. All
-> > of the device configuration fields are read-only for the driver.
-> > """
+> > On Sat, Aug 31, 2024 at 4:29=E2=80=AFAM Barry Song <21cnbao@gmail.com> =
+wrote:
+> > >
+> > > From: Barry Song <v-songbaohua@oppo.com>
+> > >
+> > > Three points for this change:
+> > >
+> > > 1. We should consolidate all warnings in one place. Currently, the
+> > >    order > 1 warning is in the hotpath, while others are in less
+> > >    likely scenarios. Moving all warnings to the slowpath will reduce
+> > >    the overhead for order > 1 and increase the visibility of other
+> > >    warnings.
+> > >
+> > > 2. We currently have two warnings for order: one for order > 1 in
+> > >    the hotpath and another for order > costly_order in the laziest
+> > >    path. I suggest standardizing on order > 1 since it=E2=80=99s been=
+ in
+> > >    use for a long time.
+> > >
+> > > 3. We don't need to check for __GFP_NOWARN in this case. __GFP_NOWARN
+> > >    is meant to suppress allocation failure reports, but here we're
+> > >    dealing with bug detection, not allocation failures. So replace
+> > >    WARN_ON_ONCE_GFP by WARN_ON_ONCE.
+> > >
+> > > Suggested-by: Vlastimil Babka <vbabka@suse.cz>
+> > > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+> > > ---
+> > >  mm/page_alloc.c | 50 ++++++++++++++++++++++++-----------------------=
+--
+> > >  1 file changed, 25 insertions(+), 25 deletions(-)
+> > >
+> > > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > > index c81ee5662cc7..e790b4227322 100644
+> > > --- a/mm/page_alloc.c
+> > > +++ b/mm/page_alloc.c
+> > > @@ -3033,12 +3033,6 @@ struct page *rmqueue(struct zone *preferred_zo=
+ne,
+> > >  {
+> > >         struct page *page;
+> > >
+> > > -       /*
+> > > -        * We most definitely don't want callers attempting to
+> > > -        * allocate greater than order-1 page units with __GFP_NOFAIL=
+.
+> > > -        */
+> > > -       WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
+> > > -
+> > >         if (likely(pcp_allowed_order(order))) {
+> > >                 page =3D rmqueue_pcplist(preferred_zone, zone, order,
+> > >                                        migratetype, alloc_flags);
+> > > @@ -4175,6 +4169,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned=
+ int order,
+> > >  {
+> > >         bool can_direct_reclaim =3D gfp_mask & __GFP_DIRECT_RECLAIM;
+> > >         bool can_compact =3D gfp_compaction_allowed(gfp_mask);
+> > > +       bool nofail =3D gfp_mask & __GFP_NOFAIL;
+> > >         const bool costly_order =3D order > PAGE_ALLOC_COSTLY_ORDER;
+> > >         struct page *page =3D NULL;
+> > >         unsigned int alloc_flags;
+> > > @@ -4187,6 +4182,25 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigne=
+d int order,
+> > >         unsigned int zonelist_iter_cookie;
+> > >         int reserve_flags;
+> > >
+> > > +       if (unlikely(nofail)) {
+> > > +               /*
+> > > +                * We most definitely don't want callers attempting t=
+o
+> > > +                * allocate greater than order-1 page units with __GF=
+P_NOFAIL.
+> > > +                */
+> > > +               WARN_ON_ONCE(order > 1);
+> > > +               /*
+> > > +                * Also we don't support __GFP_NOFAIL without __GFP_D=
+IRECT_RECLAIM,
+> > > +                * otherwise, we may result in lockup.
+> > > +                */
+> > > +               WARN_ON_ONCE(!can_direct_reclaim);
+> > > +               /*
+> > > +                * PF_MEMALLOC request from this context is rather bi=
+zarre
+> > > +                * because we cannot reclaim anything and only can lo=
+op waiting
+> > > +                * for somebody to do a work for us.
+> > > +                */
+> > > +               WARN_ON_ONCE(current->flags & PF_MEMALLOC);
 > >
-> > Thanks
+> > I believe we should add below warning as well:
+> >
+> >   WARN_ON_ONCE(gfp_mask & __GFP_NOMEMALLOC);
+> >   WARN_ON_ONCE(gfp_mask & __GFP_NORETRY);
+> >   WARN_ON_ONCE(gfp_mask & __GFP_RETRY_MAYFAIL);
+> >   ...
+> >
+> > I'm not sure if that is enough.
+> > __GFP_NOFAIL is a really horrible thing.
 >
->
-> Should I go ahead and remove the ioctl then?
+> Thanks! I'd prefer to keep this patchset focused on the existing
+> warnings and bugs. Any new warnings about size limits or checks
+> for new flags can be addressed separately.
 
-If you meant mlx5_vdpa_set_config, I think yes.
+OK
+Thanks for your work.
 
-Thanks
-
+--=20
+Regards
+Yafang
