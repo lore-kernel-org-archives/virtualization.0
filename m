@@ -1,236 +1,209 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3349B1E51D
-	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 11:05:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725275151; cv=fail; b=AQEETnV75c3qa/sCP4o4WWtXuUv61Aro3JqOw7+JNIvdLVl9Au/EkXXRbxpKL43Mp9h+Su3706apr6GCbsvl3e4QTeLSHkIqFjbHvrZLAxEwthNVNIvOES4OkZizFfh6f05EHvfLc/PZiE0sAsLnP05WgOGBNvHHhLJ8G8NWllo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725275151; c=relaxed/simple;
-	bh=ejwtHaYePj9zV9ehmFp7pCCN2Z1UvoXsnMpZe0Hy7/w=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=lM+gfVn7eqgLmDh5u5zE77EGVYZGzBwoFq8z8LHq+QPJQCaCwEirdfNGk4oCPIyFGDHITWAZrPEzr9GJRcjsQNCfqlZ62bE6OsLRheu1/vgXqexqWjlFnFCuIfg1wXdzX1QdZIdPq/NxLxMU30oKjSBGJWzYiyMNaW0rPak54+8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IiNybRkV; arc=fail smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IiNybRkV"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BDD0080ED7
-	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 11:05:49 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 0_fPYerOcXzA for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Sep 2024 11:05:49 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f400:7e88::611; helo=nam10-dm6-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org AB93380DCF
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AB93380DCF
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=IiNybRkV
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20611.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::611])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AB93380DCF
-	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 11:05:48 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ixvW/SHcEn97qqNtzNyqnCQ2JOGPwPBrWo4Nj0c2cvqvl3mNTOV6qXqhaAP/lNTj8jz7ILre/6/9iKp6MRbcj2iHIDCmZ8PZPcq5ay3SoGNN1i5LVIWWeES2g7IkX8OtfqeJ8zr29YLbMsLFxRWSpZyOc7UofItNSshQ89RFO2UMPk1f7BLWlnpJq64UlBoWxK9u+9DF3hO8gt+1Eh2DAfNaASkHCcEHwlhG0sqVBj8QQFzn9inPFjX31pxijYYJZYE/jHFNOl8wpjn6/nHetrNegKsq8d1B6X0n6lirKR1DW4UtLiTmteAgW2GE0Acvsw7bOm9piJLkKAXGLfV3VQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0+VeEZ3goeiO6rm3vx3SxjF2O0rxNVhmsenXX680hjw=;
- b=sukqZvapLX2J3DrlZzJrVb9+tbzEZQuq4N3aHRgmcfjA021IVtBRCkk2IRq4dPF6Xu+H/0/7CYVXf37RjDH+qZQUJiio84NZDZ06zuvrpdaVVNyWYJ1M7B6OFsvatvajUA2anTJyU7smXB/h5AsCasLkSr+u536G1040dNHAtRug04ETSafsAqxFQ+wA2Pn6ULtdHm2h5hah7AVwjOM/Xh04+ap8I8ZurwUnYJxrUXLcDxRetyfDGvZNwmOsmt5qnADCyViG2jVoIAXb6Rn+r/llNHmIlzV78aSmxVGlX8gbaOGnak321tx6gIU10+n+av/GSZ/Hg9nt3WXzeEexLw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0+VeEZ3goeiO6rm3vx3SxjF2O0rxNVhmsenXX680hjw=;
- b=IiNybRkVk/cC/NoKcc3BX+v95XoOTXUpf54gp2/7lBzHNuvD9uAVTRfuQR8AhmxxLjEhgLqX4G9r6we/YxzThXP6lugPgTXyT0P8axZgX0jRxauDJD5mtyJHBRpSkqgr/RE+OWY9UsuMdWec8LXpNazdY+NF0HlQoQC+K2AS5kgVFmiHP6hPh7nhM7uEuCBI2OGZ3DtLRqd89NHTlL3s7SkB9VqpV1p3KVGgz8qT2EOmhzyRXIDZTXWtxzJD4M8zXjcFlnqLVFi9LMphuoPZwpDnuBeKz2BlDTSh4ScJehQCRF9A8o9EBZX0DpIQgFAnJ/5GLv7RsXPdc+f6iNrBSw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
- by IA1PR12MB6409.namprd12.prod.outlook.com (2603:10b6:208:38b::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.25; Mon, 2 Sep
- 2024 11:05:44 +0000
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4%5]) with mapi id 15.20.7918.024; Mon, 2 Sep 2024
- 11:05:44 +0000
-Message-ID: <ea127c85-7080-4679-bff1-3a3a253f9046@nvidia.com>
-Date: Mon, 2 Sep 2024 13:05:39 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device
- suspend/resume
-To: Lei Yang <leiyang@redhat.com>
-Cc: Eugenio Perez Martin <eperezma@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Michael Tsirkin <mst@redhat.com>,
- Si-Wei Liu <si-wei.liu@oracle.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- kvm@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Saeed Mahameed <saeedm@nvidia.com>
-References: <20240816090159.1967650-1-dtatulea@nvidia.com>
- <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
- <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR4P281CA0333.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:ea::8) To CY8PR12MB8297.namprd12.prod.outlook.com
- (2603:10b6:930:79::18)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6774B205E26
+	for <virtualization@lists.linux.dev>; Mon,  2 Sep 2024 12:09:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725278959; cv=none; b=FTUCy1FLqBl03Z2aylotDjAx9e/YEWmPdWMjaSwHPFsYuPTgE2WCDWD/KozpMZXypfVsQGwUaG/gsNl3znBUvNedzlIrMsKLWVfbGBEL1vuFeJ2rA1gMT+i9rKU40vbnEQYv1mhQDWXQ6YrLy4Egpk07dCjtrkOUJAtvTqGJ0mc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725278959; c=relaxed/simple;
+	bh=T6XLUoAFcXSxruwAYQmBy6F0E6rBy/538u2+YcV2SNc=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NhXx6FebB0SmwNxShJ8x9wiw2Azub4RG9FH4wfd4uvOFR71EwCTmiozbtMLCih0MBAFzPYKG1n8jlukmmDfUgmWfk+Tuno62FzsM0yMP2ZTKZVBuosnB9ry3BEXLSPgj0ZMOzNDL7nKLShPtpJwLGyWloFuDeOmEzV/O2lqMgYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.163])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Wy6sS4bs0z1HJ3y;
+	Mon,  2 Sep 2024 20:05:48 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id F1AA518001B;
+	Mon,  2 Sep 2024 20:09:13 +0800 (CST)
+Received: from localhost.localdomain (10.90.30.45) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 2 Sep 2024 20:09:13 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
+	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
+	Alexander Duyck <alexanderduyck@fb.com>, Chuck Lever
+	<chuck.lever@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Eric
+ Dumazet <edumazet@google.com>, David Howells <dhowells@redhat.com>, Marc
+ Dionne <marc.dionne@auristor.com>, Trond Myklebust <trondmy@kernel.org>, Anna
+ Schumaker <anna@kernel.org>, Jeff Layton <jlayton@kernel.org>, Neil Brown
+	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Shuah Khan
+	<shuah@kernel.org>, <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-mm@kvack.org>, <linux-afs@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
+Subject: [PATCH net-next v17 04/14] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
+Date: Mon, 2 Sep 2024 20:03:03 +0800
+Message-ID: <20240902120314.508180-5-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20240902120314.508180-1-linyunsheng@huawei.com>
+References: <20240902120314.508180-1-linyunsheng@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|IA1PR12MB6409:EE_
-X-MS-Office365-Filtering-Correlation-Id: f498d90d-928f-4814-daa9-08dccb3f30d4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?RTZwbW1DRkJQMUFmQUdhZURKSlUzTWpPNXZoTkc5UGtCTndvNXc4eHVxMWFY?=
- =?utf-8?B?ZVI4cXpldkxvUjRkZ3NGUFdDS1JTN1V5SWVINnl2djRoaTJkNjgvenFEbzVv?=
- =?utf-8?B?VzJrUE0zem9NeEhiaHFsOVI3aEQwL2dvejJmb2JWUXk2MU12Nnl1aWVaRXZD?=
- =?utf-8?B?b1JTOVNaRmNER1h5anQ5NUZ2NjZqTDNycTIvRkF2T3pTTFJiWVl5VTNVVzF0?=
- =?utf-8?B?QmhZbHlzNkZTS21EVlhpQVUwS3J3bTh4djc2WXZma1hQWHoxNjhaSnFtV2hP?=
- =?utf-8?B?a3VKS2RDdVA3SG9PNU42eVBGcUFQTHBmNU9LZVdNWFMyUitzaXhHRmwzSCtt?=
- =?utf-8?B?b0N3dUFjdHNPYmdsKzBVTk1nTmFHY3Q2cGJ4ZUZOSXR0SVdDZkdVRmRFb3lL?=
- =?utf-8?B?MzNUNkxLcFYweVhnZitpcXB0bmtFRnErNHFuYjEyUFFsQ0pUbDNnVHN4WFhX?=
- =?utf-8?B?Q1RNem9hZlViallXYVpJcU03YlZHR3hoYTh6aGJkaGZySlcvRmV5T1lVbW94?=
- =?utf-8?B?MVFOQjh5cHVJMjd2SlBmUzBLb3d6TGRubGxvSkU5Wmh5VWdJRW0rWW5oNWFF?=
- =?utf-8?B?WGlhRVNsOE1kQmdPbnhjRkhaS2RMK1NQRE5HcGJKcHFKL0x1T0pIRUJ2ZWMr?=
- =?utf-8?B?N1IwV1IyMVE4d2NOaG9wNG5GTjV0RGZidURvdlFSSmpKdUszd0dsajR6aTg4?=
- =?utf-8?B?alBISkp4MmJRQ1hpYmNrWUtCN1Y3YXY0ZmZIQnJDYzlVZ0h6RndnUFJzK0Ux?=
- =?utf-8?B?YVBUbGtZeG0yMkhjSm5VSm1VVmpnZTViUXh1MXViTHU2ektxYWZxZFIrTUt1?=
- =?utf-8?B?VEQ5ZWxrVWdYRU8yRjhpUTc2Uk1GdE1BSFNwZnZvV3haRjEwT0QzYW42TGgw?=
- =?utf-8?B?M1NZaHZJUS9uT2ZIZEdqckp0NzM4MSs5allMZlNkTDJxL2VDY2RMaG8wWU5v?=
- =?utf-8?B?NUNBNXZJcENEbkphV01FL1AxQ3pIOHgrTVg2cEFYQXhCQzE0Yk8xTU5PdzBZ?=
- =?utf-8?B?MFFLcW1jSXE1ZWsrWThYeHEyMXUvZkh4WWMwV3FYcFVDN0VkVzk3aVlWMHJP?=
- =?utf-8?B?eHk0S2hlbUlCSEY0dVREbEo1TDRjOEV3Y1hEbkxYcmY5NTZTQmZERG5jeTRz?=
- =?utf-8?B?UFFrUjMyRlB5eGVHdVQxWDNzNFhYRGNaZkR5OGcrUEE0a2VqR1pqa0FrYmJy?=
- =?utf-8?B?OUhMSzdsdExuWDVjbjhGS21NYnVvSDh0TW5iWGxlQW8yTnNPNi9MU24ydHhN?=
- =?utf-8?B?ZU1Fd29zWHY3TlV2bUI4R2FMUXlqdUpmK0FSS1BDM1pIdmN4c2JIekpPM1JQ?=
- =?utf-8?B?UXo4RmVqRHZDb1NKU0o5YWRFdzJBUmVDK3dmcENDVFg2OFYvZHllSEx5dkxI?=
- =?utf-8?B?TUZtTFdkLzJoRjJiTlN1cUlVVnAra2xZckM3SUx1c3QxZElCbGgxRDdJcGxQ?=
- =?utf-8?B?eXJPaUc4MGlkcXgxdWxFRUZ5SnY3NlMrTTFXdytjQ2FvQzlrV2xXcUhEL2Jh?=
- =?utf-8?B?Wm5Qd2xrRFF4UzJkamhXbGNKd0UrREdCNkNOVW0ySW1zSkdLUTVuOGlWNDBM?=
- =?utf-8?B?NHF6dVpxWXlsMVRHdDdQS0Z1Nm0zRTF1RmNlVGZUOFoxRzdVai9uK0JHMkxI?=
- =?utf-8?B?eENZQnZMcm10OERramdYMVhKUUV4dTQwdU0ySXlnRUlPZUJ1dmZxSkl1L0ZF?=
- =?utf-8?B?ejloQXhINkFNQ0UvWkRQNm9IdkpCbnA0MTMzUWdIWmR0VEU2RHcwYW5KbmZs?=
- =?utf-8?B?UXpUMWNUTmVzU1ZOT1d4NC9VVEVOSUt4ajR1eXUybk9nSW44Wlc0TWoxaGFE?=
- =?utf-8?B?ZnRKdExncWRLdjlpQW8vUT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?TW42T1FBQmlJZU1QK3dqQ21CL3kvWlhSS2w1NHlNQ2szbHFBQ2NKYVFpNjRt?=
- =?utf-8?B?aHUxN2VSOG1zT1BOaDFmWUZsWHpPVkpjRS9QaDN3TG53SnNKMmhxcGlHb3k4?=
- =?utf-8?B?OUpKQzZQUy8vS1M1cWNGQm5YY2l3MFZzQmRmTDRKQWhxaUR4MnBJUHhUMERt?=
- =?utf-8?B?T0NOcFA0a250M29mSEFzTWxuZnJ0TkNPTWhSTTJxVjFGWk1EamMwTEN4U1p2?=
- =?utf-8?B?L3RjNzJSb2I2VDg1eHAraHk5bWEwdEl6eHVyVFBzYTRJdU1lSEx2bFBMbmI4?=
- =?utf-8?B?TUUzWHRFaWVrSGMrSlIyQThLTzZTcWp1ajdkRHpOZXVyRWs3Ty9obExBd3hn?=
- =?utf-8?B?bDkwWUMxaXZLMnJTdHU2MFdPYzZPTHgvOWRPUXRBNEdaUnlERWROUkVHWWVR?=
- =?utf-8?B?TTR3S0RqRERkTk95emIybHgzSi9UbjAzZDc0bDBrc2lRdWZwN2NPb2hrVkV6?=
- =?utf-8?B?UG1VbnRBRzEzVDAyV3EvZjEzSlFSSTArQldLZHh1ZnhCb2J2NVpvUis4Qko3?=
- =?utf-8?B?d1JtTHErMnlQUExJZDZuQnpLeEhESzI0UmhCTmRIeVZDdEZ6NnRNY0FHNEdq?=
- =?utf-8?B?cHlXNGRjaC9iMUE2a1B6cGpleXlub0JRdzVLbWZxbEw2OEdoMDcycWFwTUZU?=
- =?utf-8?B?amFybEhzZ0NrSmhid2lkckdWbEFDRGQrUUY1c0xsdUE4ODJ2SXNpa0ora3ZY?=
- =?utf-8?B?ckZTWWRLNkRHN2RUcnFpWVRHWkdpOE9RQWZXY3pnNWFldEUyUGlmZzd1S2R4?=
- =?utf-8?B?VjNLNG5lS25YNUFPMC9USldlS3IrWlZPQ0UvRG5KOUZiT1dZbXlrSjdFNjJ2?=
- =?utf-8?B?c0tkMHNGdnhsRzkrWVpLNmpCY3NCbTN5UXNSVmIzK1FNZkVndHdRWml2bEdM?=
- =?utf-8?B?UGw4TVBvOWNGbzcxR1VVYS9DUWZQdi8rSVRlZUZFY0FjODZCcHByVVd5VWJh?=
- =?utf-8?B?N2Y5Zmkzd0pCTFlMWklqY3pIUm0yOUNTSzF5WkxDSXhkRndadEZqZDk4cXBL?=
- =?utf-8?B?SDBGci95OXppRzcwRzUydGNDcERCZFlKeWUvNlYxcG9YSlBOVXNPRlp0UElz?=
- =?utf-8?B?aC8wV1RlRklCT3o5RUFpVDM2a1lnYVZySXRkT3p1alRZZ2pOM2xBdExXNmVU?=
- =?utf-8?B?UUx5bkdkS3BzZ2lTb012S3A3d2o4NkNFSy9NNWk2SjlGVkd0VkxJK0w0dEVH?=
- =?utf-8?B?R3pNZXd0Z2NlR2puTE5NMTRlYi9YSmRMUkRoUlF5V0ZQZGtKV1U5SStiMHla?=
- =?utf-8?B?L05EK1k2SXRLUXhjUm8yZWFnWlBmcTArSHJ4eklXRGVqWm80S2s5NGN0MWw2?=
- =?utf-8?B?NVowdXppUlkrVURHNW1mMUlJN2RudnB3ZGFrdG1MbHdlNEtheXVSTjVGUHhz?=
- =?utf-8?B?RzdVKzhjVEhoUkxtdWYrZUplTlNJQ0RlWnlNVkYvbVRjSkhBUmpnMDJ2WFll?=
- =?utf-8?B?Q2FJYUN2WHlHLzlWb3dNZ2lLNzFBY0tSTWVldllSa3ZZdnVUZWlwV3VkaWda?=
- =?utf-8?B?NUZjNXY1bWppelQwOFFkSUhaeXdtaUs2d2pYZm15WnpEWTZPVkt4RXhBYVI5?=
- =?utf-8?B?NkF5aUZFRUQwbTE2WnYwaU5IUnZQSVBac3JGSHR1K21OeEpVM0psZG5qVmlm?=
- =?utf-8?B?Q3o4M2ZxdUdEb2ZYZndRMXZSZ3ZmQkR0WS84Q3BrUmM2SFpNWW83M3ZXa2N0?=
- =?utf-8?B?TjBhd1lxdk1rZ2NzNGtuYUxQMWJWOVdZS0wzRjZLdExvYSt1NjRjVkRJbUda?=
- =?utf-8?B?UWFoSTVtY2FsdE1mamZkRXdKVFdkamRJYWZhbUFkeXpGVUVJZkZsMitIQmxP?=
- =?utf-8?B?S0Z1ZDl1U2RNcHJmeUNFa2NDMGZiWmo1dUE3aEMrUGdVeEdXL1p4Z1NIaG1D?=
- =?utf-8?B?M293a01rTmgva0lSOTVRR3gxbU50K3pCaDF4TWNHTnVHMVFsK3p3OTN6bUJV?=
- =?utf-8?B?Vzd5eVQ4QXZJaFdzMWRhMk10Y3d4T1VuWE9Sd1dSRUlZUGFTZXN0OE9naVho?=
- =?utf-8?B?cCtLbFlEZVZQVXBQUEZpQmdQNlB1Y2t0TW5oYlVmdUVid1J3UXlnY3Yyelp0?=
- =?utf-8?B?eUpwS2dSVXNTa1F3SWg4M2YyWm9mWU9yRHJtUGF0SjY3ODQxRElyODlpUkQ5?=
- =?utf-8?Q?dXC0z1+O0PS7VJDERAAZVMiRV?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f498d90d-928f-4814-daa9-08dccb3f30d4
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Sep 2024 11:05:44.5397
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: KPvNMzLUC8liJ3F0GnwpWUC9UzEz59zhmLQgLWPkoSF4v09ii/ad/UW9cofysPuNeJetAuBvgpGQ2X1Xrn98nQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6409
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-Hi Lei,
+Use appropriate frag_page API instead of caller accessing
+'page_frag_cache' directly.
 
-On 02.09.24 12:03, Lei Yang wrote:
-> Hi Dragos
-> 
-> QE tested this series with mellanox nic, it failed with [1] when
-> booting guest, and host dmesg also will print messages [2]. This bug
-> can be reproduced boot guest with vhost-vdpa device.
-> 
-> [1] qemu) qemu-kvm: vhost VQ 1 ring restore failed: -1: Operation not
-> permitted (1)
-> qemu-kvm: vhost VQ 0 ring restore failed: -1: Operation not permitted (1)
-> qemu-kvm: unable to start vhost net: 5: falling back on userspace virtio
-> qemu-kvm: vhost_set_features failed: Device or resource busy (16)
-> qemu-kvm: unable to start vhost net: 16: falling back on userspace virtio
-> 
-> [2] Host dmesg:
-> [ 1406.187977] mlx5_core 0000:0d:00.2:
-> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
-> [ 1406.189221] mlx5_core 0000:0d:00.2:
-> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
-> [ 1406.190354] mlx5_core 0000:0d:00.2:
-> mlx5_vdpa_show_mr_leaks:573:(pid 8506) warning: mkey still alive after
-> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-> [ 1471.538487] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
-> 428): cmd[13]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
-> a leak of a command resource
-> [ 1471.539486] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
-> 428): cmd[12]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
-> a leak of a command resource
-> [ 1471.540351] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
-> 8511) error: modify vq 0 failed, state: 0 -> 0, err: 0
-> [ 1471.541433] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
-> 8511) error: modify vq 1 failed, state: 0 -> 0, err: -110
-> [ 1471.542388] mlx5_core 0000:0d:00.2: mlx5_vdpa_set_status:3203:(pid
-> 8511) warning: failed to resume VQs
-> [ 1471.549778] mlx5_core 0000:0d:00.2:
-> mlx5_vdpa_show_mr_leaks:573:(pid 8511) warning: mkey still alive after
-> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-> [ 1512.929854] mlx5_core 0000:0d:00.2:
-> mlx5_vdpa_compat_reset:3267:(pid 8565): performing device reset
-> [ 1513.100290] mlx5_core 0000:0d:00.2:
-> mlx5_vdpa_show_mr_leaks:573:(pid 8565) warning: mkey still alive after
-> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-> 
-Can you provide more details about the qemu version and the vdpa device
-options used?
+CC: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Acked-by: Chuck Lever <chuck.lever@oracle.com>
+---
+ drivers/vhost/net.c                                   |  2 +-
+ include/linux/page_frag_cache.h                       | 10 ++++++++++
+ net/core/skbuff.c                                     |  6 +++---
+ net/rxrpc/conn_object.c                               |  4 +---
+ net/rxrpc/local_object.c                              |  4 +---
+ net/sunrpc/svcsock.c                                  |  6 ++----
+ tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
+ 7 files changed, 19 insertions(+), 15 deletions(-)
 
-Also, which FW version are you using? There is a relevant bug in FW
-22.41.1000 which was fixed in the latest FW (22.42.1000). Did you
-encounter any FW syndromes in the host dmesg log?
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f16279351db5..9ad37c012189 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 			vqs[VHOST_NET_VQ_RX]);
+ 
+ 	f->private_data = n;
+-	n->pf_cache.va = NULL;
++	page_frag_cache_init(&n->pf_cache);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
+index 67ac8626ed9b..0a52f7a179c8 100644
+--- a/include/linux/page_frag_cache.h
++++ b/include/linux/page_frag_cache.h
+@@ -7,6 +7,16 @@
+ #include <linux/mm_types_task.h>
+ #include <linux/types.h>
+ 
++static inline void page_frag_cache_init(struct page_frag_cache *nc)
++{
++	nc->va = NULL;
++}
++
++static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
++{
++	return !!nc->pfmemalloc;
++}
++
+ void page_frag_cache_drain(struct page_frag_cache *nc);
+ void __page_frag_cache_drain(struct page *page, unsigned int count);
+ void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index a52638363ea5..a5f8e4e0c649 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -752,14 +752,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
+ 	if (in_hardirq() || irqs_disabled()) {
+ 		nc = this_cpu_ptr(&netdev_alloc_cache);
+ 		data = page_frag_alloc(nc, len, gfp_mask);
+-		pfmemalloc = nc->pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
+ 	} else {
+ 		local_bh_disable();
+ 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
+ 
+ 		nc = this_cpu_ptr(&napi_alloc_cache.page);
+ 		data = page_frag_alloc(nc, len, gfp_mask);
+-		pfmemalloc = nc->pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
+ 
+ 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
+ 		local_bh_enable();
+@@ -849,7 +849,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
+ 		len = SKB_HEAD_ALIGN(len);
+ 
+ 		data = page_frag_alloc(&nc->page, len, gfp_mask);
+-		pfmemalloc = nc->page.pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
+ 	}
+ 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
+ 
+diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
+index 1539d315afe7..694c4df7a1a3 100644
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
+ 	 */
+ 	rxrpc_purge_queue(&conn->rx_queue);
+ 
+-	if (conn->tx_data_alloc.va)
+-		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
+-					conn->tx_data_alloc.pagecnt_bias);
++	page_frag_cache_drain(&conn->tx_data_alloc);
+ 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
+ }
+ 
+diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
+index 504453c688d7..a8cffe47cf01 100644
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
+ #endif
+ 	rxrpc_purge_queue(&local->rx_queue);
+ 	rxrpc_purge_client_connections(local);
+-	if (local->tx_alloc.va)
+-		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
+-					local->tx_alloc.pagecnt_bias);
++	page_frag_cache_drain(&local->tx_alloc);
+ }
+ 
+ /*
+diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
+index 6b3f01beb294..dcfd84cf0694 100644
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -1609,7 +1609,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
+ static void svc_sock_free(struct svc_xprt *xprt)
+ {
+ 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
+-	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
+ 	struct socket *sock = svsk->sk_sock;
+ 
+ 	trace_svcsock_free(svsk, sock);
+@@ -1619,8 +1618,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
+ 		sockfd_put(sock);
+ 	else
+ 		sock_release(sock);
+-	if (pfc->va)
+-		__page_frag_cache_drain(virt_to_head_page(pfc->va),
+-					pfc->pagecnt_bias);
++
++	page_frag_cache_drain(&svsk->sk_frag_cache);
+ 	kfree(svsk);
+ }
+diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
+index 5395a36e4030..a4bd543d6950 100644
+--- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
++++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
+@@ -117,7 +117,7 @@ static int __init page_frag_test_init(void)
+ 	u64 duration;
+ 	int ret;
+ 
+-	test_nc.va = NULL;
++	page_frag_cache_init(&test_nc);
+ 	atomic_set(&nthreads, 2);
+ 	init_completion(&wait);
+ 
+-- 
+2.33.0
 
-Thanks,
-Dragos
