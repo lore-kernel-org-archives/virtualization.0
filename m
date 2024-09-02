@@ -1,77 +1,36 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A62515FD13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B206814A4E0
 	for <virtualization@lists.linux.dev>; Mon,  2 Sep 2024 10:55:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725274552; cv=none; b=kRLAKTvicHmHapUzD2VLpn6faNoKGBO1uVsXsg0ORIxh3dc4o7v1/ZClEL6yZNToLLNoe+o/AN3+zl34CM7fQ3KyIs4yPbGHIsXivX/h9R25kZq71bzfQlbni+hc65qhnLVqvmbufndydLEAGtwmSMxaNURiaO/CKomLy8+Uawg=
+	t=1725274553; cv=none; b=UsVfPiCS5JZRFXmKf4l79DaI4h4hcxmlH59DRiC9/JSTAb6uzdSJRvxlLNzIZGCMVLJII97TCTPxmzb8Haciwxfg+VmwsFfOD7QI7bMMsqgIvLqflCDC5a6kZg7Kw36npbZ9+C9Um/Gte1oBeTEg0R9JO9iHahM0j75efA2SMqo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725274552; c=relaxed/simple;
-	bh=2DzyUoVECwM/foc70M+Z3JdBcWgQiMO1ugnXVKnpN8c=;
+	s=arc-20240116; t=1725274553; c=relaxed/simple;
+	bh=AWHXdKb9wykc2F31oLcmdOnb2AbYVPcg0QO8t9XyfmQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mkM5fxThcZVPIbhwLGpzCuwoNwINUI4YAy+gMZmrd4NAG+MZJUzFySoZYRxQb6wROerDFC/i+ELZ24uejyTIzvcpyfsFBW9nI0PGrUiCWaeN5Hws6zjuisO7HKTU+TwbY90S+U5kImexeMTWDYsiMa7fcN7qkDV1CSvOLgPuRu4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=RjXch5vP; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kGjpT9ZV; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=RjXch5vP; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kGjpT9ZV; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=ap6eMghHqJVc9YiD8YixV5SXzlSEnmKytNy+wQeIsQ/MceZGKWY8oTIRddbspu6Eu4LUW0qGX6b6akJUoAq6fP7Omz497PYoJsJXkaODommFdwrQV9F2XmzueWVprtgPXinhdY3NW8nzKvnVDzXYEDZtvV+B1C1b9N1XpeqKM88=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="RjXch5vP";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kGjpT9ZV";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="RjXch5vP";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kGjpT9ZV"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 7F3B521B4F;
-	Mon,  2 Sep 2024 10:55:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1725274549; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5ecO55uOOt5hvSZvIounfeFVMRXnRc9b8MgxNdbdEjI=;
-	b=RjXch5vP1Mv53slmx3+jBOPthn1tKGlsTVxuxRPlKz2N2McRG82B4yuAwpiPGyNE7TilSp
-	cIY6UiglOCL3AbhpzJrXdMXOKtkT7VKGTNxQa9psStDzFN2wQrKTRK6EdxQVaVXWam+OGh
-	bkKtVSocfbcfjFWB9hkbAz0uYVWLNLI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1725274549;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5ecO55uOOt5hvSZvIounfeFVMRXnRc9b8MgxNdbdEjI=;
-	b=kGjpT9ZVMJmQ9LBsvAWnAJXTpL5DsNrsRK+OtL5txEGQlYwJVnAbYaMcQ7GAydOi/iTMEa
-	ODiBFW00TDNv7dDw==
-Authentication-Results: smtp-out1.suse.de;
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 063441FBA8;
+	Mon,  2 Sep 2024 10:55:50 +0000 (UTC)
+Authentication-Results: smtp-out2.suse.de;
 	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1725274549; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5ecO55uOOt5hvSZvIounfeFVMRXnRc9b8MgxNdbdEjI=;
-	b=RjXch5vP1Mv53slmx3+jBOPthn1tKGlsTVxuxRPlKz2N2McRG82B4yuAwpiPGyNE7TilSp
-	cIY6UiglOCL3AbhpzJrXdMXOKtkT7VKGTNxQa9psStDzFN2wQrKTRK6EdxQVaVXWam+OGh
-	bkKtVSocfbcfjFWB9hkbAz0uYVWLNLI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1725274549;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5ecO55uOOt5hvSZvIounfeFVMRXnRc9b8MgxNdbdEjI=;
-	b=kGjpT9ZVMJmQ9LBsvAWnAJXTpL5DsNrsRK+OtL5txEGQlYwJVnAbYaMcQ7GAydOi/iTMEa
-	ODiBFW00TDNv7dDw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 47A6A13AE5;
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C297213AE5;
 	Mon,  2 Sep 2024 10:55:49 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id KF09ELWZ1WZQcAAAD6G6ig
+	id WPJULrWZ1WZQcAAAD6G6ig
 	(envelope-from <tzimmermann@suse.de>); Mon, 02 Sep 2024 10:55:49 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: kraxel@redhat.com,
@@ -82,9 +41,9 @@ To: kraxel@redhat.com,
 Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 03/10] drm/bochs: Do managed resource cleanup
-Date: Mon,  2 Sep 2024 12:53:41 +0200
-Message-ID: <20240902105546.792625-4-tzimmermann@suse.de>
+Subject: [PATCH v2 05/10] drm/bochs: Upcast with to_bochs_device()
+Date: Mon,  2 Sep 2024 12:53:43 +0200
+Message-ID: <20240902105546.792625-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240902105546.792625-1-tzimmermann@suse.de>
 References: <20240902105546.792625-1-tzimmermann@suse.de>
@@ -95,153 +54,83 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -6.80
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FROM_EQ_ENVFROM(0.00)[];
-	FREEMAIL_TO(0.00)[redhat.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	R_RATELIMIT(0.00)[to_ip_from(RLw9gjjhh8cousxs3wi4trssza)];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Spam-Flag: NO
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
 X-Spam-Level: 
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
+X-Spam-Score: -4.00
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: 063441FBA8
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 
-Do managed cleanup of all PCI resources. Remove the now-unused cleanup
-helper bochs_hw_fini().
+The dev_private field in struct drm_device is deprecated. Limit its
+use by moving it into a helper function. A later change will remove
+it entirely.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/tiny/bochs.c | 42 +++++++++---------------------------
- 1 file changed, 10 insertions(+), 32 deletions(-)
+ drivers/gpu/drm/tiny/bochs.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 197fc00b373f..5d09b4cb28ed 100644
+index acb2652577d4..61b2b7aa03cb 100644
 --- a/drivers/gpu/drm/tiny/bochs.c
 +++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -212,14 +212,14 @@ static int bochs_hw_init(struct drm_device *dev)
- 	u16 id;
+@@ -92,6 +92,11 @@ struct bochs_device {
+ 	struct drm_connector connector;
+ };
  
- 	if (pdev->resource[2].flags & IORESOURCE_MEM) {
-+		ioaddr = pci_resource_start(pdev, 2);
-+		iosize = pci_resource_len(pdev, 2);
- 		/* mmio bar with vga and bochs registers present */
--		if (pci_request_region(pdev, 2, "bochs-drm") != 0) {
-+		if (!devm_request_mem_region(&pdev->dev, ioaddr, iosize, "bochs-drm")) {
- 			DRM_ERROR("Cannot request mmio region\n");
- 			return -EBUSY;
- 		}
--		ioaddr = pci_resource_start(pdev, 2);
--		iosize = pci_resource_len(pdev, 2);
--		bochs->mmio = ioremap(ioaddr, iosize);
-+		bochs->mmio = devm_ioremap(&pdev->dev, ioaddr, iosize);
- 		if (bochs->mmio == NULL) {
- 			DRM_ERROR("Cannot map mmio region\n");
- 			return -ENOMEM;
-@@ -227,7 +227,7 @@ static int bochs_hw_init(struct drm_device *dev)
- 	} else {
- 		ioaddr = VBE_DISPI_IOPORT_INDEX;
- 		iosize = 2;
--		if (!request_region(ioaddr, iosize, "bochs-drm")) {
-+		if (!devm_request_region(&pdev->dev, ioaddr, iosize, "bochs-drm")) {
- 			DRM_ERROR("Cannot request ioports\n");
- 			return -EBUSY;
- 		}
-@@ -254,10 +254,10 @@ static int bochs_hw_init(struct drm_device *dev)
- 		size = min(size, mem);
- 	}
++static struct bochs_device *to_bochs_device(const struct drm_device *dev)
++{
++	return (struct bochs_device *)dev->dev_private;
++}
++
+ /* ---------------------------------------------------------------------- */
  
--	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
-+	if (!devm_request_mem_region(&pdev->dev, addr, size, "bochs-drm"))
- 		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
- 
--	bochs->fb_map = ioremap(addr, size);
-+	bochs->fb_map = devm_ioremap(&pdev->dev, addr, size);
- 	if (bochs->fb_map == NULL) {
- 		DRM_ERROR("Cannot map framebuffer\n");
- 		return -ENOMEM;
-@@ -286,21 +286,6 @@ static int bochs_hw_init(struct drm_device *dev)
- 	return 0;
- }
- 
--static void bochs_hw_fini(struct drm_device *dev)
--{
--	struct bochs_device *bochs = dev->dev_private;
--
--	/* TODO: shot down existing vram mappings */
--
--	if (bochs->mmio)
--		iounmap(bochs->mmio);
--	if (bochs->ioports)
--		release_region(VBE_DISPI_IOPORT_INDEX, 2);
--	if (bochs->fb_map)
--		iounmap(bochs->fb_map);
--	pci_release_regions(to_pci_dev(dev->dev));
--}
--
- static void bochs_hw_blank(struct bochs_device *bochs, bool blank)
+ static void bochs_vga_writeb(struct bochs_device *bochs, u16 ioport, u8 val)
+@@ -191,7 +196,7 @@ static int bochs_get_edid_block(void *data, u8 *buf, unsigned int block, size_t
+ static const struct drm_edid *bochs_hw_read_edid(struct drm_connector *connector)
  {
- 	DRM_DEBUG_DRIVER("hw_blank %d\n", blank);
-@@ -565,17 +550,13 @@ static int bochs_load(struct drm_device *dev)
+ 	struct drm_device *dev = connector->dev;
+-	struct bochs_device *bochs = dev->dev_private;
++	struct bochs_device *bochs = to_bochs_device(dev);
+ 	u8 header[8];
  
- 	ret = drmm_vram_helper_init(dev, bochs->fb_base, bochs->fb_size);
- 	if (ret)
--		goto err_hw_fini;
-+		return ret;
+ 	/* check header to detect whenever edid support is enabled in qemu */
+@@ -420,7 +425,7 @@ static void bochs_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 			      struct drm_crtc_state *crtc_state,
+ 			      struct drm_plane_state *plane_state)
+ {
+-	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
++	struct bochs_device *bochs = to_bochs_device(pipe->crtc.dev);
  
- 	ret = bochs_kms_init(bochs);
- 	if (ret)
--		goto err_hw_fini;
-+		return ret;
+ 	bochs_hw_setmode(bochs, &crtc_state->mode);
+ 	bochs_plane_update(bochs, plane_state);
+@@ -428,7 +433,7 @@ static void bochs_pipe_enable(struct drm_simple_display_pipe *pipe,
  
- 	return 0;
--
--err_hw_fini:
--	bochs_hw_fini(dev);
--	return ret;
+ static void bochs_pipe_disable(struct drm_simple_display_pipe *pipe)
+ {
+-	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
++	struct bochs_device *bochs = to_bochs_device(pipe->crtc.dev);
+ 
+ 	bochs_hw_blank(bochs, true);
  }
+@@ -436,7 +441,7 @@ static void bochs_pipe_disable(struct drm_simple_display_pipe *pipe)
+ static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
+ 			      struct drm_plane_state *old_state)
+ {
+-	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
++	struct bochs_device *bochs = to_bochs_device(pipe->crtc.dev);
  
- DEFINE_DRM_GEM_FOPS(bochs_fops);
-@@ -650,13 +631,11 @@ static int bochs_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent
- 
- 	ret = drm_dev_register(dev, 0);
- 	if (ret)
--		goto err_hw_fini;
-+		goto err_free_dev;
- 
- 	drm_fbdev_ttm_setup(dev, 32);
- 	return ret;
- 
--err_hw_fini:
--	bochs_hw_fini(dev);
- err_free_dev:
- 	drm_dev_put(dev);
- 	return ret;
-@@ -668,7 +647,6 @@ static void bochs_pci_remove(struct pci_dev *pdev)
- 
- 	drm_dev_unplug(dev);
- 	drm_atomic_helper_shutdown(dev);
--	bochs_hw_fini(dev);
- 	drm_dev_put(dev);
+ 	bochs_plane_update(bochs, pipe->plane.state);
  }
- 
 -- 
 2.46.0
 
