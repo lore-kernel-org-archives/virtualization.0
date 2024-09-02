@@ -1,208 +1,171 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27F6313CFB7
-	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 10:04:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9007114A092
+	for <virtualization@lists.linux.dev>; Mon,  2 Sep 2024 10:55:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725271466; cv=none; b=NVtXtvCZ0AcMm0O3QEg2JjqMMj/l+/B+skYD/aBkOhpnBEkFFKvYorWZ1+MrjDA+/u6OSw7r2T675tMoQs6sCjkF3AKqHHhUQg00spTwsQu1yoUQLt4dV6hATNxxek2tAcPj9arn11KyX7YT5du/lmJ+OShI7i4oGzZhV8o8zNY=
+	t=1725274552; cv=none; b=V5zrqN8uX/TP/2rkMM9giafpdlopjA6SckciOPxOyu4JffD5Rf8SBPktPphTV4OGiKAbg6MxBG/LaaNnx8DsMd/OpMlZJmMTEsCKJQXfmZliTwkpVpoZSTQjbwwQO2lrf7SytGbE+bd9FUYMYoxDN6vTFXv8B0zKaFYcv8XFPiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725271466; c=relaxed/simple;
-	bh=1Gy5ROiwQJJO9oMaCCxrG7aibSYEu/UpXyiNyunXbfw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=J34ZxTvpXlUorjH4jCrC/VneFOEFQBaX+2FQ+0K92KTBUf8/r44z+N+v/6DPVJNdoxCP1gHih03L/IHrLkRSovJb5LtKkidLu/fM8IvO/QDb/NacHimSJqjTuQ69HlvT80GQn7B1Sdsd88uyiHLiF4RrDqfM/IyX49J0PG6nnR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Stfh4Uqi; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1725274552; c=relaxed/simple;
+	bh=Tmo99mcSyXYA3eHEd/YwBDtxcolVS/9Gt+qg07lNRYE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MTxZOO3+HyvHcW+xwQTodrPMMHHlsXQkdXhMSo+kHlXj0KDyFmtNHws9p9FsEsfL2kfeA6VBa8dyfZgDqZYfL3J+cDt1Fm8R/yHMVzYadac7RViRaC/bzUGbs+kIDZdd+ulX+ZddvW3m4DsAtCEShs7/EQIafmf+7Xf/SqO6G/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bRX58K+j; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=npi7sitP; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bRX58K+j; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=npi7sitP; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Stfh4Uqi"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A6B9A405DF
-	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 10:04:24 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id tXxOfSO2YS6F for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Sep 2024 10:04:23 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 18EFC40133
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 18EFC40133
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Stfh4Uqi
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 18EFC40133
-	for <virtualization@lists.linux-foundation.org>; Mon,  2 Sep 2024 10:04:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725271461;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ie8OFN0GPfRB9t4uKG5JuFRs18zAhr60LEccBUs+PdU=;
-	b=Stfh4UqiJ/U37WYVY18as5I2SUcdQp4gV+Mb4iwQwylmkEbiyvMBrRiNBVSlWw1Xl0mE2C
-	RVZop/hhnKcq7G11neo1XZSo1l1ojqpoKp6n+oAQUeToD+DtxZfl+8NzJ1Gztv+myDPaKf
-	cykjjB3FQbBvAk9Hl9L2U+Oyi2UQqGc=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-466-0dbV1_f9M8e45ETI04L7Nw-1; Mon, 02 Sep 2024 06:04:19 -0400
-X-MC-Unique: 0dbV1_f9M8e45ETI04L7Nw-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a86860c87a8so332034166b.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 02 Sep 2024 03:04:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725271458; x=1725876258;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ie8OFN0GPfRB9t4uKG5JuFRs18zAhr60LEccBUs+PdU=;
-        b=C3uZs2D7A+ZMM2ANBzja87kArTh5oaq37KqCFMrj59nzdQHxNevycqaHaBJAL87MGE
-         eRFsd28zvb1bE1NdSvTsgvvv31obugsW/gFAzmCjvkhHcsx3Nspp1zIjFlV74mHx4Zig
-         sJ5XhAHrlqOeYICe02CBB/P/kfcdD6YXTb4T1vWqIndkbw8OF6rXS2H7U3Y19FXW2q+I
-         y3pQ+7HgJttwG0AYni2Bghe08B3/bq2WZLOIpj2M++QeIESNUKqqQ7JhTfgYiNoKGpQH
-         WrIrMULaQ/APWprb4k0mybJ9Um6X8NTKeg4Wo7bFUZ6/mP13sVRtRFpXNcjTiQVISHFu
-         ntJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUjpp1ebH5cSjdHfTyHnE/OZw7u34krmGPkW4BQPdudjVAvR1ppw5ccmulpes7qUOQb1qZdfR3Uh0t97Kdn5A==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YylH6R+VRKGKFbbgemtdDIYVnDhyw4AaTlikXwfjLC9hA9OVT4S
-	2nqxkFTzDTtZ2TRU+dWEDsUsRdmHUOwTpgsHNeGh/EHiOTnJUGS0Z516lxOgzDfFaKFKwthtxEO
-	hnmEwXWgJyni3AaK7oZjXlyTL6i1t7POLdvhQeBcrCR2b9ynRhrrcwMkAJyGPXaaaKf4IBCPgZv
-	2GZR8dak93kpc17xia02Povsj/ohLNnk2rDV5JrWAH9wSeI8ldD5jK/g==
-X-Received: by 2002:a17:907:72d3:b0:a88:a48d:2b9a with SMTP id a640c23a62f3a-a897fa74459mr988545766b.52.1725271458507;
-        Mon, 02 Sep 2024 03:04:18 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH1kxKnbkvEfLFVflp4jaSLPmVyXctTqLe0cqw7LvdiW4hckvb1eweF4ThQJBsaRbv4+DVAoodYhVeTUKoFzuc=
-X-Received: by 2002:a17:907:72d3:b0:a88:a48d:2b9a with SMTP id
- a640c23a62f3a-a897fa74459mr988542066b.52.1725271457591; Mon, 02 Sep 2024
- 03:04:17 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bRX58K+j";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="npi7sitP";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bRX58K+j";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="npi7sitP"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id BC23A2199D;
+	Mon,  2 Sep 2024 10:55:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1725274548; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=4MOFxbZhGFUy4vLCRVcbw4bZd5QphjMnnW9z4hjm4f0=;
+	b=bRX58K+j14AqpnA0+jfs0N9zD8jHf91wCQvp7z4S1HwtMBmb9SWhqj9LFsm4sRIF5vF9gT
+	6bR8iSzHMWJK6UYR0Xup0hh+ZiN8zI/ITwcVvKryB34eaF0G95oJU1CqViSCEZt7/LcCQS
+	Z7d34QRa8pAZD1sUHXiZLrITwSQ22d0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1725274548;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=4MOFxbZhGFUy4vLCRVcbw4bZd5QphjMnnW9z4hjm4f0=;
+	b=npi7sitPSJcc/P05BHbrzOMlQMlCsA1v7Gwcpk8me7JgB6uHFcn9rQti2IMU0E6uFsR9uH
+	3NO8/Ja52cKnLbDQ==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1725274548; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=4MOFxbZhGFUy4vLCRVcbw4bZd5QphjMnnW9z4hjm4f0=;
+	b=bRX58K+j14AqpnA0+jfs0N9zD8jHf91wCQvp7z4S1HwtMBmb9SWhqj9LFsm4sRIF5vF9gT
+	6bR8iSzHMWJK6UYR0Xup0hh+ZiN8zI/ITwcVvKryB34eaF0G95oJU1CqViSCEZt7/LcCQS
+	Z7d34QRa8pAZD1sUHXiZLrITwSQ22d0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1725274548;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=4MOFxbZhGFUy4vLCRVcbw4bZd5QphjMnnW9z4hjm4f0=;
+	b=npi7sitPSJcc/P05BHbrzOMlQMlCsA1v7Gwcpk8me7JgB6uHFcn9rQti2IMU0E6uFsR9uH
+	3NO8/Ja52cKnLbDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8455713A7C;
+	Mon,  2 Sep 2024 10:55:48 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id N7HvHrSZ1WZQcAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 02 Sep 2024 10:55:48 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: kraxel@redhat.com,
+	daniel@ffwll.ch,
+	airlied@gmail.com,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com
+Cc: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 00/10] drm/bochs: Modernize driver
+Date: Mon,  2 Sep 2024 12:53:38 +0200
+Message-ID: <20240902105546.792625-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240816090159.1967650-1-dtatulea@nvidia.com> <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
-In-Reply-To: <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Mon, 2 Sep 2024 18:03:41 +0800
-Message-ID: <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
-Subject: Re: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device suspend/resume
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: Eugenio Perez Martin <eperezma@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Michael Tsirkin <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leon@kernel.org>, kvm@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Saeed Mahameed <saeedm@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo];
+	FREEMAIL_TO(0.00)[redhat.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	TO_DN_SOME(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Score: -2.80
+X-Spam-Flag: NO
 
-Hi Dragos
+(was: rm/bochs: Modernize driver)
 
-QE tested this series with mellanox nic, it failed with [1] when
-booting guest, and host dmesg also will print messages [2]. This bug
-can be reproduced boot guest with vhost-vdpa device.
+Bochs is lagging behind the overall state of DRM. This series gives
+the driver an update.
 
-[1] qemu) qemu-kvm: vhost VQ 1 ring restore failed: -1: Operation not
-permitted (1)
-qemu-kvm: vhost VQ 0 ring restore failed: -1: Operation not permitted (1)
-qemu-kvm: unable to start vhost net: 5: falling back on userspace virtio
-qemu-kvm: vhost_set_features failed: Device or resource busy (16)
-qemu-kvm: unable to start vhost net: 16: falling back on userspace virtio
+Patch 1 removes duplicated functionality that is already handled
+by the DRM core.
 
-[2] Host dmesg:
-[ 1406.187977] mlx5_core 0000:0d:00.2:
-mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
-[ 1406.189221] mlx5_core 0000:0d:00.2:
-mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
-[ 1406.190354] mlx5_core 0000:0d:00.2:
-mlx5_vdpa_show_mr_leaks:573:(pid 8506) warning: mkey still alive after
-resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-[ 1471.538487] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
-428): cmd[13]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
-a leak of a command resource
-[ 1471.539486] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
-428): cmd[12]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
-a leak of a command resource
-[ 1471.540351] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
-8511) error: modify vq 0 failed, state: 0 -> 0, err: 0
-[ 1471.541433] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
-8511) error: modify vq 1 failed, state: 0 -> 0, err: -110
-[ 1471.542388] mlx5_core 0000:0d:00.2: mlx5_vdpa_set_status:3203:(pid
-8511) warning: failed to resume VQs
-[ 1471.549778] mlx5_core 0000:0d:00.2:
-mlx5_vdpa_show_mr_leaks:573:(pid 8511) warning: mkey still alive after
-resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-[ 1512.929854] mlx5_core 0000:0d:00.2:
-mlx5_vdpa_compat_reset:3267:(pid 8565): performing device reset
-[ 1513.100290] mlx5_core 0000:0d:00.2:
-mlx5_vdpa_show_mr_leaks:573:(pid 8565) warning: mkey still alive after
-resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
+Patches 2 and 3 streamlines driver cleanup. Patch 2 reworks EDID
+handling to follow current best practices. All buffers with EDID
+data will now be cleaned up automatically. Patch 3 adds managed
+cleanups for I/O resources. No fini function is needed.
 
-Thanks
-Lei
+Patches 4 to 6 embed struct drm_device in struct bochs_device and
+remove all uses of dev_private.
 
+Patch 7 replaces simple display helpers with regular atomic helpers.
+The former are a mid-layer that is more often 'in the way' than helping.
+Regular atomic helpers are composable with each other. Simple-pipe
+is not.
 
+Patch 8 replaces GEM VRAM with GEM SHMEM. The new memory manager
+is more reliable and allows for larger resolutions. Display updates
+were so slow that Gnome was unmanageable with a flickering cursor and
+single FPS. The new memory management makes Gnome at least useable.
 
+Patch 9 implements display-mode validation against the available video
+memory. Modes should now be useable iff they passed mode_valid.
 
-> This series parallelizes the mlx5_vdpa device suspend and resume
-> operations through the firmware async API. The purpose is to reduce live
-> migration downtime.
->
-> The series starts with changing the VQ suspend and resume commands
-> to the async API. After that, the switch is made to issue multiple
-> commands of the same type in parallel.
->
-> Then, the an additional improvement is added: keep the notifiers enabled
-> during suspend but make it a NOP. Upon resume make sure that the link
-> state is forwarded. This shaves around 30ms per device constant time.
->
-> Finally, use parallel VQ suspend and resume during the CVQ MQ command.
->
-> For 1 vDPA device x 32 VQs (16 VQPs), on a large VM (256 GB RAM, 32 CPUs
-> x 2 threads per core), the improvements are:
->
-> +-------------------+--------+--------+-----------+
-> | operation         | Before | After  | Reduction |
-> |-------------------+--------+--------+-----------|
-> | mlx5_vdpa_suspend | 37 ms  | 2.5 ms |     14x   |
-> | mlx5_vdpa_resume  | 16 ms  | 5 ms   |      3x   |
-> +-------------------+--------+--------+-----------+
->
-> ---
-> v2:
-> - Changed to parallel VQ suspend/resume during CVQ MQ command.
->   Support added in the last 2 patches.
-> - Made the fw async command more generic and moved it to resources.c.
->   Did that because the following series (parallel mkey ops) needs this
->   code as well.
->   Dropped Acked-by from Eugenio on modified patches.
-> - Fixed kfree -> kvfree.
-> - Removed extra newline caught during review.
-> - As discussed in the v1, the series can be pulled in completely in
->   the vhost tree [0]. The mlx5_core patch was reviewed by Tariq who is
->   also a maintainer for mlx5_core.
->
-> [0] - https://lore.kernel.org/virtualization/6582792d-8db2-4bc0-bf3a-248fe5c8fc56@nvidia.com/T/#maefabb2fde5adfb322d16ca16ae64d540f75b7d2
->
-> Dragos Tatulea (10):
->   net/mlx5: Support throttled commands from async API
->   vdpa/mlx5: Introduce error logging function
->   vdpa/mlx5: Introduce async fw command wrapper
->   vdpa/mlx5: Use async API for vq query command
->   vdpa/mlx5: Use async API for vq modify commands
->   vdpa/mlx5: Parallelize device suspend
->   vdpa/mlx5: Parallelize device resume
->   vdpa/mlx5: Keep notifiers during suspend but ignore
->   vdpa/mlx5: Small improvement for change_num_qps()
->   vdpa/mlx5: Parallelize VQ suspend/resume for CVQ MQ command
->
->  drivers/net/ethernet/mellanox/mlx5/core/cmd.c |  21 +-
->  drivers/vdpa/mlx5/core/mlx5_vdpa.h            |  22 +
->  drivers/vdpa/mlx5/core/resources.c            |  73 ++++
->  drivers/vdpa/mlx5/net/mlx5_vnet.c             | 396 +++++++++++-------
->  4 files changed, 361 insertions(+), 151 deletions(-)
->
-> --
-> 2.45.1
->
+Patch 10 removes code from GEM VRAM helpers that is now no longer in
+use.
+
+Tested with qemu emulation.
+
+v2:
+- fix linker error (kernel test robot)
+- fix mode validation
+
+Thomas Zimmermann (10):
+  drm/bochs: Remove manual format test from fb_create
+  drm/bochs: Use helpers for struct drm_edid
+  drm/bochs: Do managed resource cleanup
+  drm/bochs: Pass bochs device to various functions
+  drm/bochs: Upcast with to_bochs_device()
+  drm/bochs: Allocate DRM device in struct bochs_device
+  drm/bochs: Use regular atomic helpers
+  drm/bochs: Use GEM SHMEM helpers for memory management
+  drm/bochs: Validate display modes against available video memory
+  drm/gem-vram: Remove support for simple display pipelines
+
+ drivers/gpu/drm/drm_gem_vram_helper.c |  45 ---
+ drivers/gpu/drm/tiny/Kconfig          |   4 +-
+ drivers/gpu/drm/tiny/bochs.c          | 384 +++++++++++++++-----------
+ include/drm/drm_gem_vram_helper.h     |  13 -
+ 4 files changed, 224 insertions(+), 222 deletions(-)
+
+-- 
+2.46.0
 
