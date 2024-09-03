@@ -1,161 +1,117 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f49.google.com (mail-oo1-f49.google.com [209.85.161.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E617D18A951
-	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 16:29:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8319B18E03D
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 17:15:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725380956; cv=none; b=n4gGAVzgQcV7FtzMKrf4BFWcn0NbkhBmZlyNPTDeOtIKgTy16Xe6hhfngKHNswUa6IpCTcz1p2KEDKWZ1gHMy34NgUP8nkz1vKeoMkoPsEwhuhnUbd+FUe1N0v1QQGjRQb0bLrx4SI5cAwgD+vcbLcPw5haydAV3USDyHHQ0ovQ=
+	t=1725383720; cv=none; b=enf6rf44jdhu5fQshjxnC2+6Df9ED7CqyKcMWTmVqLixoqrRsgtc0Gu02Je750WiF5lC+CPznioLtQuQQE7XIeChp0mjLQy1PGZnrpJleSj0bSjExjrkTzRJqfBVZ+MonheihFSspkj81JxCh2FtGZxjqqZn0h4JuzGUfDjEi+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725380956; c=relaxed/simple;
-	bh=zYtlk+5sfQncdxRHQdTsxikt0082PiHmmUZg7TTvIvg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Disposition; b=Bd20CDfCpNlx08v2/N1MKvUizFvuFq6fG8PhmzvL6LWX7DC7gMdV+sCWhORQBWrWbesNYKsZcrjHx5GYdEJm3ixWEMP4sQrOsheONxrFszxAUQQ/fCP/LD2aDbSHrPZjIk/26LbzHuskFEkLNdtTrLu5fn5WC+dmra7cZLHvY5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UV3Bw0Mb; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1725383720; c=relaxed/simple;
+	bh=kLNPtRx11hsfJ+9TPaWWJn6lMwA7D38MMP9cWpDIIlc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NTwPLSf3JAmVOCfD2mPfFGpYm2VbhLQ89t9QpOodZiUq41xbcqfKpsuM1r4aGg6Up9spRHNz9u6trpv3CIYSwqHpnlI8vdPqr4a6EkqOwg56kOPxMOHKBSEp7ZT3pACJt4y3GNhoNzXurHRnrW0NZme9hCoxBxCxHGWU9MEa9dE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XvT4c8q/; arc=none smtp.client-ip=209.85.161.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UV3Bw0Mb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725380953;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Zrnaqsww4jvYqG6LWOK9qSkVY3XeoG7b3xEfRlLXIuA=;
-	b=UV3Bw0MbmAC9LPCas0im6mZxBL6l2NbnV28xHp2RyU8X5JPBWz02CslFNzI0IWiTQ7ueCA
-	teY80fmOwKi2h4wsViF6eXU+XSZpzqnwiQA3eoCSV5P1fdx9gpWOeQ0NqvasoJZS090VX8
-	27LkVCxL7cH6t5upg0pkjL03QxTfFHY=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-381-F-jjvYtMOXCVPGguDuviCw-1; Tue, 03 Sep 2024 12:29:12 -0400
-X-MC-Unique: F-jjvYtMOXCVPGguDuviCw-1
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-1ff24acb60dso51347545ad.0
-        for <virtualization@lists.linux.dev>; Tue, 03 Sep 2024 09:29:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XvT4c8q/"
+Received: by mail-oo1-f49.google.com with SMTP id 006d021491bc7-5df96759e37so3686546eaf.2
+        for <virtualization@lists.linux.dev>; Tue, 03 Sep 2024 10:15:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1725383717; x=1725988517; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TLZ2qy4nIG4Jhx7z3LE1rlOsOATUkEObwLNmcXIs87M=;
+        b=XvT4c8q/J6no8ScXrpy6rOS8spy1y0x5P0GudriYqyS9njcZsbJSa9SXgLGNBp8D8l
+         OS4t6+TC/tXVDaJYq1EfNGPWbMkCt7YXLyOwHaJRcTwz4O+OxODMoKF5NBkaJ9bV2urT
+         vWyuOVx1yHVDm7iackWbbYDYe2aZvkijv3/aX6nJXN34Cg3PKq4p0bWHIBORBePSqORB
+         TfA/wYqkQGaVFIUe6hv7uM+bYIpenH0nZJXYLW5abR2PmSb4kL4+uk7w+AJLvMOM0ac4
+         xvU90FqkegeQJdW05fQsmTH9m2OykZ4hx8o2Vh/YAlQNUc4fUpNmgpItnJeEXJgPh5Aa
+         vLNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725380952; x=1725985752;
-        h=content-transfer-encoding:content-disposition:mime-version
-         :references:in-reply-to:message-id:date:subject:cc:to:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Zrnaqsww4jvYqG6LWOK9qSkVY3XeoG7b3xEfRlLXIuA=;
-        b=Q4e3ETGxGnY7LCXksrn/RcXFsQeBx2O65H1qpQwQgSdKqiBdua6ROPJz0xueo2QtJR
-         ll/0CNMnbCQF0UIBR3pHaNs5IEpMkzfbusocZtp13gefzeXdHAZhaz1J+AKrcwE3qVXT
-         yLTR6b7pyMH2Rts7r6LrRqxGfRZGchUaEmDaTg/2I6SWyXux1HTzZzMMVBSRClUAyKQ6
-         +NRsAqbvsNMCij/5CxZo+6M92aTk99baa0T1k/p3i8gAPyOJlUSJL3UfY6TX76YtVvrQ
-         2q9vE47mbZsLX/0BxfJ9UkDW/esO4vNOXeDBOILyKHTH8BtjwX9S7/xka8vTQWeq8GOx
-         lkIQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXhX9oBGBfAwjloFPBREOpTMMrKg59aE8dITQY037P259pKMfggRRBej/X83HO0CIGfGUo93JaBb6lZP8twGQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YymuSHjc6IIkmjg2LMgao0u0GgKKxV5isjD5fWDFTVLdP7hj9nG
-	lcHd6I07zf3t8OJtEMh8qex8NsbMy+PoX9AsHpNo8W3ObR3+HUEvfG39yuVQPWe0pNzJQmi2fgC
-	uTJWWukSGkvNdIZ8WLAFSlVMnwRij1hGgLKPpJCbKE87cldgE6n0HONLh/3aH8RYz
-X-Received: by 2002:a17:902:cecc:b0:205:7b03:ec3f with SMTP id d9443c01a7336-2057b03ee0amr99540615ad.19.1725380951878;
-        Tue, 03 Sep 2024 09:29:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEFB7YsrYOLHMUBhndqah1OUkE6FYlc2YhqiVhS0lNKY7Sh/DddLuJw4Mh3nlZdjBuyYPz4vg==
-X-Received: by 2002:a17:902:cecc:b0:205:7b03:ec3f with SMTP id d9443c01a7336-2057b03ee0amr99540215ad.19.1725380951200;
-        Tue, 03 Sep 2024 09:29:11 -0700 (PDT)
-Received: from localhost.localdomain ([2804:1b3:a800:179b:467b:fbc5:3354:8591])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-206ae9525d6sm550515ad.111.2024.09.03.09.29.07
+        d=1e100.net; s=20230601; t=1725383717; x=1725988517;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=TLZ2qy4nIG4Jhx7z3LE1rlOsOATUkEObwLNmcXIs87M=;
+        b=dAmWCBUZBQykB9szXven1K7PvpgmuvnPs0HulzUmYbFavBafcOFsv7fic//gjEgva7
+         GX4qtKOn/HzatjvziQn6nNH4bGreVPrBlAGD32jFjM/Lm7HNA9aLvqNsSb0MLWCKFeu1
+         L4FWdIGRHQdOSvNAkmRgMKI56ngj7Haaul9Q3slpXd7AmBB5JqGOqaRWn/tTUDIvboz1
+         xDr3Oo1xH59jvczBGQCE/mScwT+Mlhe63zVuHGgGSMXTbbUiLjQrgTfM24MGnwduTmZG
+         OYNIpiRtt0zf7X6RCv3a6jplhbvCNutkBE/5aa0mZPV25572jUD63Gz24NUgqifk2X2v
+         H6Nw==
+X-Forwarded-Encrypted: i=1; AJvYcCWtC02JE8NVwAU9lxv5ZAVVs0YpLSbhfe/LMmVw3G1LCQP5n2S0HeLji7HDWrDbScEwPUq1+CuPq/cOaU5/ow==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwgCT6A79iZZr9/07J+qWN0oJTltrH9vBt+c5ZFRZQbRncBBLkZ
+	JX+8PnSC0oFPIBsovQaI0caJ+zpb+A3mCNHrWSDb3j0m58zT2a0Q
+X-Google-Smtp-Source: AGHT+IE6BIq7Z9DSjqx25ixqdMPN/+sENLE9DRYHmtWnc/QOGbu69+yK7YfN4avZLU6r2N3y7G2Cmg==
+X-Received: by 2002:a05:6808:3999:b0:3d9:9e78:420c with SMTP id 5614622812f47-3df1c260619mr16918658b6e.38.1725383717562;
+        Tue, 03 Sep 2024 10:15:17 -0700 (PDT)
+Received: from pipaware.tx.rr.com ([2603:8080:7400:36da:dff5:4180:2562:4c1e])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-3df117a5f91sm2398059b6e.2.2024.09.03.10.15.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Sep 2024 09:29:10 -0700 (PDT)
-From: Leonardo Bras <leobras@redhat.com>
-To: Breno Leitao <leitao@debian.org>
-Cc: Leonardo Bras <leobras@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	rbc@meta.com,
-	horms@kernel.org,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next] virtio_net: Fix napi_skb_cache_put warning
-Date: Tue,  3 Sep 2024 13:28:50 -0300
-Message-ID: <Ztc5QllkqaKZsaoN@LeoBras>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <ZpUHEszCj16rNoGy@gmail.com>
-References: <20240712115325.54175-1-leitao@debian.org> <20240714033803-mutt-send-email-mst@kernel.org> <ZpUHEszCj16rNoGy@gmail.com>
+        Tue, 03 Sep 2024 10:15:17 -0700 (PDT)
+From: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
+To: dtatulea@nvidia.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	shannon.nelson@amd.com,
+	sashal@kernel.org,
+	alvaro.karsz@solid-run.com,
+	christophe.jaillet@wanadoo.fr,
+	steven.sistare@oracle.com
+Cc: bilbao@vt.edu,
+	xuanzhuo@linux.alibaba.com,
+	johnah.palmer@oracle.com,
+	eperezma@redhat.com,
+	cratiu@nvidia.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Carlos Bilbao <cbilbao@digitalocean.com>
+Subject: [PATCH v2 0/2] Properly initialize speed/duplex and remove vDPA config updates
+Date: Tue,  3 Sep 2024 12:15:12 -0500
+Message-ID: <20240903171514.201569-1-carlos.bilbao.osdev@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 15, 2024 at 04:25:06AM -0700, Breno Leitao wrote:
-> Hello Michael,
-> 
-> On Sun, Jul 14, 2024 at 03:38:42AM -0400, Michael S. Tsirkin wrote:
-> > On Fri, Jul 12, 2024 at 04:53:25AM -0700, Breno Leitao wrote:
-> > > After the commit bdacf3e34945 ("net: Use nested-BH locking for
-> > > napi_alloc_cache.") was merged, the following warning began to appear:
-> > > 
-> > > 	 WARNING: CPU: 5 PID: 1 at net/core/skbuff.c:1451 napi_skb_cache_put+0x82/0x4b0
-> > > 
-> > > 	  __warn+0x12f/0x340
-> > > 	  napi_skb_cache_put+0x82/0x4b0
-> > > 	  napi_skb_cache_put+0x82/0x4b0
-> > > 	  report_bug+0x165/0x370
-> > > 	  handle_bug+0x3d/0x80
-> > > 	  exc_invalid_op+0x1a/0x50
-> > > 	  asm_exc_invalid_op+0x1a/0x20
-> > > 	  __free_old_xmit+0x1c8/0x510
-> > > 	  napi_skb_cache_put+0x82/0x4b0
-> > > 	  __free_old_xmit+0x1c8/0x510
-> > > 	  __free_old_xmit+0x1c8/0x510
-> > > 	  __pfx___free_old_xmit+0x10/0x10
-> > > 
-> > > The issue arises because virtio is assuming it's running in NAPI context
-> > > even when it's not, such as in the netpoll case.
-> > > 
-> > > To resolve this, modify virtnet_poll_tx() to only set NAPI when budget
-> > > is available. Same for virtnet_poll_cleantx(), which always assumed that
-> > > it was in a NAPI context.
-> > > 
-> > > Fixes: df133f3f9625 ("virtio_net: bulk free tx skbs")
-> > > Suggested-by: Jakub Kicinski <kuba@kernel.org>
-> > > Signed-off-by: Breno Leitao <leitao@debian.org>
-> > 
-> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > 
-> > though I'm not sure I understand the connection with bdacf3e34945.
-> 
-> The warning above appeared after bdacf3e34945 landed.
+From: Carlos Bilbao <cbilbao@digitalocean.com>
 
-Hi Breno,
-Thanks for fixing this!
+Initialize speed and duplex for virtio_net_config to UNKNOWN (mlx5_vdpa
+vDPA devices currently do not support VIRTIO_NET_F_SPEED_DUPLEX). Remove
+ioctl VHOST_VDPA_SET_CONFIG and its related logic as it is not supported;
+see: https://docs.oasis-open.org/virtio/virtio/v1.3/virtio-v1.3.html
 
-I think the confusion is around the fact that the commit on Fixes 
-(df133f3f9625) tag is different from the commit in the commit message
-(bdacf3e34945).
+Carlos:
+  vdpa/mlx5: Set speed and duplex of vDPA devices to UNKNOWN
+  vdpa: Remove ioctl VHOST_VDPA_SET_CONFIG per spec compliance
 
-Please help me check if the following is correct:
-###
-Any tree which includes df133f3f9625 ("virtio_net: bulk free tx skbs") 
-should also include your patch, since it fixes stuff in there.
+---
 
-The fact that the warning was only made visible in 
-bdacf3e34945 ("net: Use nested-BH locking for napi_alloc_cache.")
-does not change the fact that it was already present before.
+Changes since v1:
+ Link: https://lkml.org/lkml/2024/8/29/1368
+ - Fix prefix of the first commit and add Reviewed-By tag.
+ - Redo second commit completely: instead of attempting to add support to
+   set configuration fields, remove ioctl and support entirely from vDPA
+   implementations -- because it's not allowed by spec.
 
-Also, having bdacf3e34945 is not necessary for the backport, since
-it only made the bug visible.
-###
-
-Are above statements right?
-
-It's important to make it clear since this helps the backporting process.
-
-Thanks!
-Leo
-
+---
+ drivers/vdpa/alibaba/eni_vdpa.c    | 17 -----------------
+ drivers/vdpa/ifcvf/ifcvf_main.c    | 10 ----------
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  | 19 ++++++++++++-------
+ drivers/vdpa/pds/vdpa_dev.c        | 16 ----------------
+ drivers/vdpa/solidrun/snet_main.c  | 18 ------------------
+ drivers/vdpa/vdpa.c                | 16 ----------------
+ drivers/vdpa/vdpa_sim/vdpa_sim.c   | 16 ----------------
+ drivers/vdpa/vdpa_sim/vdpa_sim.h   |  1 -
+ drivers/vdpa/vdpa_user/vduse_dev.c |  7 -------
+ drivers/vdpa/virtio_pci/vp_vdpa.c  | 14 --------------
+ drivers/vhost/vdpa.c               | 26 --------------------------
+ drivers/virtio/virtio_vdpa.c       |  9 ---------
+ include/linux/vdpa.h               |  9 ---------
+ include/uapi/linux/vhost.h         |  8 ++++----
+ 14 files changed, 16 insertions(+), 170 deletions(-)
