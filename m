@@ -1,209 +1,236 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6774B205E26
-	for <virtualization@lists.linux.dev>; Mon,  2 Sep 2024 12:09:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2360C4A0A
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 00:36:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725278959; cv=none; b=FTUCy1FLqBl03Z2aylotDjAx9e/YEWmPdWMjaSwHPFsYuPTgE2WCDWD/KozpMZXypfVsQGwUaG/gsNl3znBUvNedzlIrMsKLWVfbGBEL1vuFeJ2rA1gMT+i9rKU40vbnEQYv1mhQDWXQ6YrLy4Egpk07dCjtrkOUJAtvTqGJ0mc=
+	t=1725323775; cv=none; b=PGTN7XMa9LBY+vgTcWfZMQXYqJ7P+c4Mx+kehLy38pjGV83OTc3Hbd8f3fLe+Wzso3pplj+dPqdKqS5S0e9i9fmd/2FMEPYRKe3LLFQCbPhtZFpM7VRVrHCs4kwEoCVdECpdCLJz1WX7E4m/ac9DWmaDdHzAAoB1YsVZQy5/Xps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725278959; c=relaxed/simple;
-	bh=T6XLUoAFcXSxruwAYQmBy6F0E6rBy/538u2+YcV2SNc=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NhXx6FebB0SmwNxShJ8x9wiw2Azub4RG9FH4wfd4uvOFR71EwCTmiozbtMLCih0MBAFzPYKG1n8jlukmmDfUgmWfk+Tuno62FzsM0yMP2ZTKZVBuosnB9ry3BEXLSPgj0ZMOzNDL7nKLShPtpJwLGyWloFuDeOmEzV/O2lqMgYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.163])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Wy6sS4bs0z1HJ3y;
-	Mon,  2 Sep 2024 20:05:48 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id F1AA518001B;
-	Mon,  2 Sep 2024 20:09:13 +0800 (CST)
-Received: from localhost.localdomain (10.90.30.45) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Mon, 2 Sep 2024 20:09:13 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
-	Alexander Duyck <alexanderduyck@fb.com>, Chuck Lever
-	<chuck.lever@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Eric
- Dumazet <edumazet@google.com>, David Howells <dhowells@redhat.com>, Marc
- Dionne <marc.dionne@auristor.com>, Trond Myklebust <trondmy@kernel.org>, Anna
- Schumaker <anna@kernel.org>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Shuah Khan
-	<shuah@kernel.org>, <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-Subject: [PATCH net-next v17 04/14] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Mon, 2 Sep 2024 20:03:03 +0800
-Message-ID: <20240902120314.508180-5-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20240902120314.508180-1-linyunsheng@huawei.com>
-References: <20240902120314.508180-1-linyunsheng@huawei.com>
+	s=arc-20240116; t=1725323775; c=relaxed/simple;
+	bh=kq54eIqNQqsvrnECZjz/XyIFyuULPkZleg9oXRryQl8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SQogf7Wdb5aeKgWFomkLV6W9XBsvzwheCU+HRbQjXp09ay60WTrkLytnVLabqXKCU4irDuYpYWVXUzLaJqo7L9u1izMFABAyfm228JgwCC5m7VEG44elHbKpjzq+Up5Ar9+UYrH07r6Dg2Q27KLIYK3ktBtz0Slx/NzVUb5bU5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aQo33qHZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aQo33qHZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1725323773;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=hNYgwgbX+AdqyBu8oPb0eLYitaIrgeI5+U9GRPp9PIA=;
+	b=aQo33qHZzmpBDZ8dSWDR7NGBsVcpUKnRuI4WgVJbgimSapMDwDvdJc3p8fyIWPedjz9TZ3
+	A4Hto9TULLergzpiGMTB73oq+S2u/dY57MJBnjQj5SFomjmJRb7sKTh2I0ZPu8yjLp1zFT
+	INfxaZgWloGZ+Pf58QeV1pAIklkas9Y=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-461-M-G4d1E8PnimrhUChd7SUw-1; Mon, 02 Sep 2024 20:36:11 -0400
+X-MC-Unique: M-G4d1E8PnimrhUChd7SUw-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5e4df21f22dso3811867a12.0
+        for <virtualization@lists.linux.dev>; Mon, 02 Sep 2024 17:36:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725323771; x=1725928571;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hNYgwgbX+AdqyBu8oPb0eLYitaIrgeI5+U9GRPp9PIA=;
+        b=Jn2YnDBLJORncXf/xLoSeW28L58TaM++4mkpcI+ApkRhmAcnguQ1Fjyfc8MSPq91Vm
+         FMftn9NvHKipMIDD64TbzlYPrTI9+ioA2crMzKRs2oEc0VLex8FQXrUbArBZ1xz62IEu
+         QZ07pUdVIWYKuJqbDyHv2I/vVmmgjDjDEp7QBJmi+rF75ZGs8YfEAQ2He5f4aK5G608Y
+         fbtXkhCZxv8epn2KC3psIWBSbGkXcAUY+A4i45FxXxYGaxkco4hDp1QqcgpG8QvFLBnD
+         wcWzATWDqMnArGLku4pZsN5nNCt40va4SwnxGEqokNMFk/Gio5lo8tC/KD+K5gjkKVDs
+         Fb8A==
+X-Forwarded-Encrypted: i=1; AJvYcCVRp/Uf3/spTtnENjvK9k6BDxnJIZLuT/0l7idia0ScN3/sCwJmON+nmJQ3nIkdmkGX8YEziQEmK1Nl7P47RA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyMBQCHRh3NcCO5mkD1YTPwTuwArZKn6vx/9jSsj4qjKl5vxFF+
+	rnAxH23UiiMf8iM4O7RLvwWhYzZv7NMS015sTiyZiMN/eatN5D9KiwkWwE7HP9lpfHYhoL3mbNz
+	1LxZOYKUqaPxqbi3CnjzVmVEGRLZK47cRnxK9Fr6m2NNIiiYQ3olzGwhl3iFK1+yRA0bGo9t7yz
+	XHhw1Lf3MLf0tcB1VRfS8cbqYkHI9VncjNgW8IM3w=
+X-Received: by 2002:a17:902:da84:b0:205:5bc9:37df with SMTP id d9443c01a7336-2055bc93a76mr91587935ad.30.1725323770842;
+        Mon, 02 Sep 2024 17:36:10 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHr172wcAJdS9YPgUVg44xHiQjMvqrmTor8v5kr0wfkmFU8k8NWQKur45nn4LsoWrLg3gJT1O7fkvFB8FRHtvQ=
+X-Received: by 2002:a17:902:da84:b0:205:5bc9:37df with SMTP id
+ d9443c01a7336-2055bc93a76mr91587415ad.30.1725323770020; Mon, 02 Sep 2024
+ 17:36:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+References: <20240830202823.21478-1-21cnbao@gmail.com> <20240830202823.21478-2-21cnbao@gmail.com>
+ <0804627b-49da-4ee0-a09a-19b87a7fdc3d@redhat.com> <CACGkMEtwmtSKFY2GzoNvEQzFq5wYUasf94GKqjGQKyShoqxo+A@mail.gmail.com>
+ <b2174d62-b226-4ee3-9363-ab3c9a0b51ca@redhat.com>
+In-Reply-To: <b2174d62-b226-4ee3-9363-ab3c9a0b51ca@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 3 Sep 2024 08:35:58 +0800
+Message-ID: <CACGkMEvzCJpTsjA4niTWCn5ygu2FeJPGEBnu6ae69G-_PiROpQ@mail.gmail.com>
+Subject: Re: [PATCH v4 1/3] vduse: avoid using __GFP_NOFAIL
+To: David Hildenbrand <david@redhat.com>
+Cc: Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	virtualization@lists.linux.dev, 42.hyeyoo@gmail.com, cl@linux.com, 
+	hailong.liu@oppo.com, hch@infradead.org, iamjoonsoo.kim@lge.com, 
+	mhocko@suse.com, penberg@kernel.org, rientjes@google.com, 
+	roman.gushchin@linux.dev, torvalds@linux-foundation.org, urezki@gmail.com, 
+	v-songbaohua@oppo.com, vbabka@suse.cz, laoar.shao@gmail.com, 
+	Xie Yongji <xieyongji@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+On Mon, Sep 2, 2024 at 4:30=E2=80=AFPM David Hildenbrand <david@redhat.com>=
+ wrote:
+>
+> On 02.09.24 09:58, Jason Wang wrote:
+> > On Mon, Sep 2, 2024 at 3:33=E2=80=AFPM David Hildenbrand <david@redhat.=
+com> wrote:
+> >>
+> >> On 30.08.24 22:28, Barry Song wrote:
+> >>> From: Jason Wang <jasowang@redhat.com>
+> >>>
+> >>> mm doesn't support non-blockable __GFP_NOFAIL allocation. Because
+> >>> persisting in providing __GFP_NOFAIL services for non-block users
+> >>> who cannot perform direct memory reclaim may only result in an
+> >>> endless busy loop.
+> >>>
+> >>> Therefore, in such cases, the current mm-core may directly return
+> >>> a NULL pointer:
+> >>>
+> >>> static inline struct page *
+> >>> __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+> >>>                                                   struct alloc_contex=
+t *ac)
+> >>> {
+> >>>           ...
+> >>>           if (gfp_mask & __GFP_NOFAIL) {
+> >>>                   /*
+> >>>                    * All existing users of the __GFP_NOFAIL are block=
+able, so warn
+> >>>                    * of any new users that actually require GFP_NOWAI=
+T
+> >>>                    */
+> >>>                   if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask)=
+)
+> >>>                           goto fail;
+> >>>                   ...
+> >>>           }
+> >>>           ...
+> >>> fail:
+> >>>           warn_alloc(gfp_mask, ac->nodemask,
+> >>>                           "page allocation failure: order:%u", order)=
+;
+> >>> got_pg:
+> >>>           return page;
+> >>> }
+> >>>
+> >>> Unfortuantely, vpda does that nofail allocation under non-sleepable
+> >>> lock. A possible way to fix that is to move the pages allocation out
+> >>> of the lock into the caller, but having to allocate a huge number of
+> >>> pages and auxiliary page array seems to be problematic as well per
+> >>> Tetsuon: " You should implement proper error handling instead of
+> >>> using __GFP_NOFAIL if count can become large."
+> >>>
+> >>> So I choose another way, which does not release kernel bounce pages
+> >>> when user tries to register userspace bounce pages. Then we can
+> >>> avoid allocating in paths where failure is not expected.(e.g in
+> >>> the release). We pay this for more memory usage as we don't release
+> >>> kernel bounce pages but further optimizations could be done on top.
+> >>>
+> >>> Fixes: 6c77ed22880d ("vduse: Support using userspace pages as bounce =
+buffer")
+> >>> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+> >>> Tested-by: Xie Yongji <xieyongji@bytedance.com>
+> >>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >>> [v-songbaohua@oppo.com: Refine the changelog]
+> >>> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+> >>> ---
+> >>>    drivers/vdpa/vdpa_user/iova_domain.c | 19 +++++++++++--------
+> >>>    drivers/vdpa/vdpa_user/iova_domain.h |  1 +
+> >>>    2 files changed, 12 insertions(+), 8 deletions(-)
+> >>>
+> >>> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa=
+_user/iova_domain.c
+> >>> index 791d38d6284c..58116f89d8da 100644
+> >>> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> >>> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> >>> @@ -162,6 +162,7 @@ static void vduse_domain_bounce(struct vduse_iova=
+_domain *domain,
+> >>>                                enum dma_data_direction dir)
+> >>>    {
+> >>>        struct vduse_bounce_map *map;
+> >>> +     struct page *page;
+> >>>        unsigned int offset;
+> >>>        void *addr;
+> >>>        size_t sz;
+> >>> @@ -178,7 +179,10 @@ static void vduse_domain_bounce(struct vduse_iov=
+a_domain *domain,
+> >>>                            map->orig_phys =3D=3D INVALID_PHYS_ADDR))
+> >>>                        return;
+> >>>
+> >>> -             addr =3D kmap_local_page(map->bounce_page);
+> >>> +             page =3D domain->user_bounce_pages ?
+> >>> +                    map->user_bounce_page : map->bounce_page;
+> >>> +
+> >>> +             addr =3D kmap_local_page(page);
+> >>>                do_bounce(map->orig_phys + offset, addr + offset, sz, =
+dir);
+> >>>                kunmap_local(addr);
+> >>>                size -=3D sz;
+> >>> @@ -270,9 +274,8 @@ int vduse_domain_add_user_bounce_pages(struct vdu=
+se_iova_domain *domain,
+> >>>                                memcpy_to_page(pages[i], 0,
+> >>>                                               page_address(map->bounc=
+e_page),
+> >>>                                               PAGE_SIZE);
+> >>> -                     __free_page(map->bounce_page);
+> >>>                }
+> >>> -             map->bounce_page =3D pages[i];
+> >>> +             map->user_bounce_page =3D pages[i];
+> >>>                get_page(pages[i]);
+> >>>        }
+> >>>        domain->user_bounce_pages =3D true;
+> >>> @@ -297,17 +300,17 @@ void vduse_domain_remove_user_bounce_pages(stru=
+ct vduse_iova_domain *domain)
+> >>>                struct page *page =3D NULL;
+> >>>
+> >>>                map =3D &domain->bounce_maps[i];
+> >>> -             if (WARN_ON(!map->bounce_page))
+> >>> +             if (WARN_ON(!map->user_bounce_page))
+> >>>                        continue;
+> >>>
+> >>>                /* Copy user page to kernel page if it's in use */
+> >>>                if (map->orig_phys !=3D INVALID_PHYS_ADDR) {
+> >>> -                     page =3D alloc_page(GFP_ATOMIC | __GFP_NOFAIL);
+> >>> +                     page =3D map->bounce_page;
+> >>
+> >> Why don't we need a kmap_local_page(map->bounce_page) here, but we mig=
+ht
+> >> perform one / have performed one in vduse_domain_bounce?
+> >
+> > I think it's another bug that needs to be fixed.
+> >
+> > Yongji, do you want to fix this?
+>
+> Or maybe it works because "map->bounce_page" is now always a kernel
+> page,
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
----
- drivers/vhost/net.c                                   |  2 +-
- include/linux/page_frag_cache.h                       | 10 ++++++++++
- net/core/skbuff.c                                     |  6 +++---
- net/rxrpc/conn_object.c                               |  4 +---
- net/rxrpc/local_object.c                              |  4 +---
- net/sunrpc/svcsock.c                                  |  6 ++----
- tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
- 7 files changed, 19 insertions(+), 15 deletions(-)
+Yes, the userspace bounce page is not user_bounce_page.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f16279351db5..9ad37c012189 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index 67ac8626ed9b..0a52f7a179c8 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -7,6 +7,16 @@
- #include <linux/mm_types_task.h>
- #include <linux/types.h>
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index a52638363ea5..a5f8e4e0c649 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -752,14 +752,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
- 
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 
- 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 		local_bh_enable();
-@@ -849,7 +849,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index 504453c688d7..a8cffe47cf01 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 6b3f01beb294..dcfd84cf0694 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1609,7 +1609,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1619,8 +1618,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
-diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-index 5395a36e4030..a4bd543d6950 100644
---- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
-+++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-@@ -117,7 +117,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_nc.va = NULL;
-+	page_frag_cache_init(&test_nc);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
--- 
-2.33.0
+> and never one from user space that might reside in highmem.
+
+Right. So we are actually fine :)
+
+Thanks
+
+>
+> --
+> Cheers,
+>
+> David / dhildenb
+>
 
