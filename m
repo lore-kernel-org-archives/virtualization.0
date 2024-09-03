@@ -1,528 +1,214 @@
-Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2076.outbound.protection.outlook.com [40.107.100.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBB6C1922C9
-	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 17:15:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.54
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725383727; cv=none; b=QJpJ/pVAfgpL+yY2LzyvIcTWT/NkeDU8BGTizdoDCdDnTYC6NB8WR9DcFFgET8jR2U89a+7vm/z4TGOLTp/p3CGmz4wBGkmU/M4KWk8y2VEQnvmY/b/fU3xWJBOruPurPIiosaSNxYJnv8w+pXgQZfaujoJUpWA/W17ALiNK+A8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725383727; c=relaxed/simple;
-	bh=aERogzXtJQn2Or0/3DmemlSZGKmoyU6sPMwDbN3yxas=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=o+3LDON6PvB8EHEjK6XE0KkQUsjUS1wZogDRvVLIs1xC9alqrlgvffwkVYLqtLvwfqEK4fnc+2CZXFVHxbvAVchAf3CIhXz5yC3ggP9tPpZ8JAwLAF+gov47vep5iPQbKGBngdJHQa8Rzqj8oUbZmYMDt9mWNDOFWUHYL1aTQGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y27PqMmH; arc=none smtp.client-ip=209.85.161.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9020C18E35D
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 17:37:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.76
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725385055; cv=fail; b=nkeh8eDirx7qEjYEP4lDLOIUhXqCSjJwWmGKfoiezaq58HuquWdnoayvhVXeOk+wjiMWmwSX8k/NtBk3ADMSqgzrlPGffTh50YqfPtMl3h3NFWQMzvbstNV5WxL0ZLd8r2Pm0MRqA6OQVspT5FDbvt/KvA2stBKrcJBvepoVDvU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725385055; c=relaxed/simple;
+	bh=HRUCH6frL6uBu4qr7HFTQBdc5Fj5al1dB8/rD24Qe2Q=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=uzAenuhEMJ1Y/W1TXGUnoAtJCxIxU4iJkaN0TvOGJavGTbRE/k48LG/tBzBGZweFwTXJ6i8Pv+Yvhx3oPjmE+bJUO7KZ0Zq8EUVVwTN29HFxsRM2Wp2nKiDhn6TNVrH8Stn60yS8y7+WEfPMXExpr7EiaHjU9eF1MtBREWLEM1Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=lVuxvnVr; arc=fail smtp.client-ip=40.107.100.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y27PqMmH"
-Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-5dca9cc71b2so3398126eaf.2
-        for <virtualization@lists.linux.dev>; Tue, 03 Sep 2024 10:15:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725383721; x=1725988521; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GuvsYRptGrqy3J1GxjNuAynZOsyxO34wvYOEmPK25yo=;
-        b=Y27PqMmH6jeL/NbaFz7+sOBJGIDdrSk+rnrqBtWEv0v7YtFiC9GZ/KrctfPG6QffEm
-         PkS2PE3QNksFDXdx+xHTgYPd5+ilQlYB/iAyVP6LpDXiC7qPDnK/8X8Eg61ybEI4bpXQ
-         vahkSUgi+QylF+drbe3s9/S6vZeUnE7+5RKbaZkMIQ5S6kHLplHGGKmAfkR2BX1LMU+r
-         PLsIz+cp9mvjIMzekJ8cRG2So4hf7A3SiGDXFazffmoQyev6JPtHGXPxH3TU4+XVb7lM
-         jkjpo986p5tMY/02k/+bwpFD3x1JrFB6bUAKvyd079MuE5rl99FtA5U9VfU9pgU7whGQ
-         muRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725383721; x=1725988521;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GuvsYRptGrqy3J1GxjNuAynZOsyxO34wvYOEmPK25yo=;
-        b=IuFNoXFxesc7rXyw2UQM8wxOOw2ORwyphuQ1C23kkIVnO20nGGmP1UXr++tzUDPBjT
-         T0VAjO3KoQ0u6XAS3NaKGSVfUFhr9+QerwIwAvBssE3osP8xNWsx6poRN4nhHbsAmMQQ
-         jYMSOoXU5uerMzlPjh7MZa0MwXAAcHprVpHCmE/s2ByEiZTDD7sUOu8soRi3JC+LxgnL
-         DpHy7EbLyDlGKxs9H4VJWSdKep8BlQoDBT8mjVrID06TpNrtKaFMj+1BNc6ME10L0phQ
-         hbv9o9JUuN1pBdu/dKtKgM52DOb6XljW4nOOfW48SasdIo9C4AttiMCfuqBINSaeyqGv
-         nHCw==
-X-Forwarded-Encrypted: i=1; AJvYcCWc4isHZ2X9InuWPluHNM15pITiooXbZmIfoE5tdP2e6BiMkB0s0veYlsjgl9qEVrV8uRcscft502VSG2Hz5w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx05HdhQ3Q67ON4QI+RRrsz85GkI0oR/e/Wk3QTJwV1pSWbPP+W
-	pQZ7/uVp6mDj7990tUIWC7bN07sxxguaorS7xacKeyWdbAZGNsZ9
-X-Google-Smtp-Source: AGHT+IEwNCR1vD+92U640kHqcZuZcA/MDBgrEh5snvTf6Q+p/aBPqfQmAwK5nA9dOhTZpmEBxngtcg==
-X-Received: by 2002:a05:6808:10cd:b0:3d9:27f5:5251 with SMTP id 5614622812f47-3df05c3187cmr19737830b6e.5.1725383721545;
-        Tue, 03 Sep 2024 10:15:21 -0700 (PDT)
-Received: from pipaware.tx.rr.com ([2603:8080:7400:36da:dff5:4180:2562:4c1e])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-3df117a5f91sm2398059b6e.2.2024.09.03.10.15.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Sep 2024 10:15:21 -0700 (PDT)
-From: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
-To: dtatulea@nvidia.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	shannon.nelson@amd.com,
-	sashal@kernel.org,
-	alvaro.karsz@solid-run.com,
-	christophe.jaillet@wanadoo.fr,
-	steven.sistare@oracle.com
-Cc: bilbao@vt.edu,
-	xuanzhuo@linux.alibaba.com,
-	johnah.palmer@oracle.com,
-	eperezma@redhat.com,
-	cratiu@nvidia.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Carlos Bilbao <cbilbao@digitalocean.com>
-Subject: [PATCH v2 2/2] vdpa: Remove ioctl VHOST_VDPA_SET_CONFIG per spec compliance
-Date: Tue,  3 Sep 2024 12:15:14 -0500
-Message-ID: <20240903171514.201569-3-carlos.bilbao.osdev@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240903171514.201569-1-carlos.bilbao.osdev@gmail.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="lVuxvnVr"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ejtz0BRSL5K7e2JQ7mPTd6tm5dvXVP8SOJvRJ7VQFA5O8qP6oEsgHhweVmFSUdo+g3PUtTuVKUjKYqzw42Hi7NUzMyNxvaPFICtnB1fRc6vTD1itV+xXaEpAiGAW2Vt5HhXv1U8cVCo0PBDxx3bz8ZFcMoxbQ1BJRdmVDi+cV7fKFVUmALFwVv1oUL89Rj6qrygdCp3mLktZdVSLKbIbmRnFcaysm/4I62app5UOPAzmLITrFcL984oGZ4QFFKq/qEicGQA0AtHP+fJmGrKXAwMYHR7GbX5eklHfb8eShi0mbT6C2CekmAg4YA2FRF5LePLL9vxpmLUEia06SvXDPQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wfI6QjYL7dOLa4RhFtlAWiMZXKiw2QYbQYVMa/5OIuE=;
+ b=VMbvdC0S5w1x4pa1kHLbgIr//5IDaEbLWlsyOkpQjhS1zYAjNPUjkaOL8bp/Ol9Zi6SFxrdA7q5fFcTZymvI0fmuzAKIkK2MjB3Ot5+Fj9G9ldHy/08krl/9q6R3SWJ3/zVMF3aVe2/igJNdpszucYjHM0d+VBV7PMjvmWabRLb4TPV1DCZXFOB4XOrtqNBt827gpSKny8qSuB6KxwdDBCgKLBwednNVxStlEp2Vm5AKOijGTlzEpwuJpzuK/2hjRTq3KZaBsqEUnd6Z1DpU9RcncCF0rWtE4S71RDPYGxOrnoOmJtEhPm9+2l6tJWdpL1qKHywtgpO3Ms5P1xr+4w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wfI6QjYL7dOLa4RhFtlAWiMZXKiw2QYbQYVMa/5OIuE=;
+ b=lVuxvnVrZsCp/UriR1wdmkPdA9jfLhDE/7ibrdaDJD6v6nHlrAgahznT1VNkHuduEg3zwIp/1JGw+OA9tq38t6eeA/yMqxIX7gQ+91j03xWn1NsORu/exrn/kMlsgWZZTUcqYFDCMv3cdvKr3OX082LqiYHCHQhztxcD0d4ou8c=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from DS0PR12MB6583.namprd12.prod.outlook.com (2603:10b6:8:d1::12) by
+ PH7PR12MB5829.namprd12.prod.outlook.com (2603:10b6:510:1d4::6) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7918.25; Tue, 3 Sep 2024 17:37:28 +0000
+Received: from DS0PR12MB6583.namprd12.prod.outlook.com
+ ([fe80::c8a9:4b0d:e1c7:aecb]) by DS0PR12MB6583.namprd12.prod.outlook.com
+ ([fe80::c8a9:4b0d:e1c7:aecb%6]) with mapi id 15.20.7918.024; Tue, 3 Sep 2024
+ 17:37:28 +0000
+Message-ID: <3e9a6d05-a76c-4bbf-9f4e-2e126259b70e@amd.com>
+Date: Tue, 3 Sep 2024 10:37:25 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] vdpa/mlx5: Set speed and duplex of vDPA devices to
+ UNKNOWN
+To: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, dtatulea@nvidia.com,
+ mst@redhat.com, jasowang@redhat.com, sashal@kernel.org,
+ alvaro.karsz@solid-run.com, christophe.jaillet@wanadoo.fr,
+ steven.sistare@oracle.com
+Cc: bilbao@vt.edu, xuanzhuo@linux.alibaba.com, johnah.palmer@oracle.com,
+ eperezma@redhat.com, cratiu@nvidia.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Carlos Bilbao <cbilbao@digitalocean.com>
 References: <20240903171514.201569-1-carlos.bilbao.osdev@gmail.com>
+ <20240903171514.201569-2-carlos.bilbao.osdev@gmail.com>
+Content-Language: en-US
+From: "Nelson, Shannon" <shannon.nelson@amd.com>
+In-Reply-To: <20240903171514.201569-2-carlos.bilbao.osdev@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SJ0PR03CA0362.namprd03.prod.outlook.com
+ (2603:10b6:a03:3a1::7) To DS0PR12MB6583.namprd12.prod.outlook.com
+ (2603:10b6:8:d1::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR12MB6583:EE_|PH7PR12MB5829:EE_
+X-MS-Office365-Filtering-Correlation-Id: 23542ca6-a011-49b1-6441-08dccc3f1487
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?bjVFUC9lRmRCN081Qk1pU3R5SnVwQkZVWDY3Ui9iUzJnSU9pazFhRWZJV2pq?=
+ =?utf-8?B?RFVGQnBHZWZnNHJheXFoWlUzODNuZU5GYmJ5ZVZpOUJrWWtVRUNtK05MZWJx?=
+ =?utf-8?B?UFhGeEsybEFVb0ExNElXREgxaEkzQkwrOHd1c0t5eXFIazBvUkYvL3N4VmxK?=
+ =?utf-8?B?Z3d6SW5lM1c3cmRqZDFnM0pRMzdENGRrajB2aUxNSHlWdmxDdFpRWXAxRHA3?=
+ =?utf-8?B?OG1NbWFSdXNjRUN3aVh1Mm1lMXlHcnJod1hHeENpTS94NElSVlA0Ylp2czhY?=
+ =?utf-8?B?UTE3NFUzSE5LU0JYK3ZYNTJBRWlDVURpUVdyQ3kzMlRFUUo3S2J4STZSRWZy?=
+ =?utf-8?B?eGNXZU9ObDU3M1RpNW9ibVFmdlRYZ0pweWVtQkpkZ0VVamdYTmgxSlZpc1o0?=
+ =?utf-8?B?Yk1JeGpOMU5uNVdJTlROajhTS1A0TmlsVW5xUGY2S3d1cE1pU1JvVmp0NlFy?=
+ =?utf-8?B?QUNZblpyUnNBcmQwcndDV0RYT0ZtN0F0bUREbTRKVHVucTRlK2o3R3l4eFph?=
+ =?utf-8?B?MGNkZzVxdWFqSU1KTlNrRWpNZWJJV2Y0OVFUMTR1NFNoTTA5eGRWUDBMcUhX?=
+ =?utf-8?B?ZG5RRHNhNldPdTB5Nk1xS2JjdS9kd1E1a3pkaWpqODBlUzJyK3J5SWNKVFEv?=
+ =?utf-8?B?clhURmdWL0xobGNvZ1I0VlpTWElXanhRZkJ1a2xuVEROZnRCSHFLSmZBN1lF?=
+ =?utf-8?B?T08vbHR4OEtwTGJuQW5IbVBYYUQxWlBBU2k3MVdadHZzbkZydmRacGJQaSto?=
+ =?utf-8?B?ZHBaNXZGekNvYkxBMmFLNXJVaS82K2FUekIvcEFBRGMzQ3drcCtVb1NGenNG?=
+ =?utf-8?B?Zk1WNTZTN2hKTTlXQXBzM0Q5SWgxZVhRTTFIWTdoVTQyU2R5STZvR2M4M3RT?=
+ =?utf-8?B?QmNkaWRrT0JVUy9pT1JoUVdzOXpMQ2dXbkN0Qk1JMS82T3M2VmVzek1zSHpQ?=
+ =?utf-8?B?WVdpRTkyclNZVFU2MUt0RnByVlRoa0d3RG8vS08yNkdRUVhnbW9yUzdTK0tH?=
+ =?utf-8?B?alZQa2RzQVUxWGI2Mkc5bkQ0TnE5OWtvclpyR2s3c3JXbE54K00rdUZGZGU2?=
+ =?utf-8?B?a085RHhvOGhBQTczNGhYSUZOd2thb3d3VlhzN2VzejJlQ09QNGlrYmRoZEc5?=
+ =?utf-8?B?akV3R3FWa0k2eTY3S0FpSW1SM2dVZ3dTYVZmZkprZnBvZlVvanlIUHRPOUN2?=
+ =?utf-8?B?dnczV3JrRFBGRjdjMnd2VGRJczRiZVVFRDA0dWM3M1BZTXVmQjhhMjVOeHFV?=
+ =?utf-8?B?U2JCejJxQnNjWklONkcySjlJcHdaVS80WTg4bmREMTVyb1lBTkdaUWExZk0z?=
+ =?utf-8?B?UkNCbVg1ZUt6OC9icFRURlRLdWhkQVlCOXEvRTg5VERPY3RIa3hicVRHTWpw?=
+ =?utf-8?B?V2l2SjBocWpxMVBXSEVLTkJlVGw2Y3VOa3h3QVhCYk4rUmU0b2tFUGJXUVFY?=
+ =?utf-8?B?WlFraVBpSWZXL29aQU5XZ3E3RVlSYlJoTHFtQmF1UFlRblVCeDV1MC9BaFhG?=
+ =?utf-8?B?MFU5VmpIL3lRNTFYMWZJT3E1WXVCczdoS0l0SE9PMnBKenp0dEpHbmtZRDBD?=
+ =?utf-8?B?RUVYSzBxd2k0S1lVQTI2Wk1lOU5QRVRPNzBDMUQyWnNUekdQbVRNVHFRSWwx?=
+ =?utf-8?B?KzdWVS90ZzdiYXo5cmJ1cG13YXhxQ0NSa0VmY1BLait2U1dkTkkzdW5mUWRF?=
+ =?utf-8?B?bnAvTDZVM1ZGVTBtMG8rZFIyMjB4NkpOclBFZnp6czFiVTVrbkhURldCbVpk?=
+ =?utf-8?B?YVErSnZUaGZIV2JxSEJUZVVCOFVWU3pKd2RBUjd2YWNtcnNMUnIvRlFhM0Ir?=
+ =?utf-8?B?TXFkdjlVdFZsamUrS2VPUT09?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB6583.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?V3luTUdiU3FwRDVhSlZMNGowUnNldFVVaTBIQktiQlk3WVhJK1VLQmh1amJr?=
+ =?utf-8?B?V0xad3NhblhscG5qNXJ4eUJaWThMNnNKUDk0NUU3ZWlTRjJ4U28vNXZabXBK?=
+ =?utf-8?B?RFREK1BYZ2RQZ3RCOHYwRFlNbkQ1S1lER20yL28zK1l3WGtUNWtrZFpvKy9w?=
+ =?utf-8?B?emxvMnQ5VWI4aSsrbDI5V1JpdDFIWURsS2lsaXlXOWo0czVxV2MrdTNCZzR5?=
+ =?utf-8?B?aXZDREdnV2pNZzZ0VWNkeTYydFp2Rkc4dzZNem14RFN2YjBwVjNhOXppbVdE?=
+ =?utf-8?B?VG9CNlZHNi84NU96aHVaMnBOL1NMZ3IwTndaRHZFY1BzdjEycEpRenEvb2sw?=
+ =?utf-8?B?cmQ0Z05nUEpmcXY0VEdKRlV2L2JaTjRkTHc5UW03WlNqaW1XM3N3ZEdiUk00?=
+ =?utf-8?B?eDdNakN6N0FhTTk4b3pVeDFWbExNVjhSQS9UelRXd09WMnh3TjRQaVM0U2pL?=
+ =?utf-8?B?ZmVtN3l1TmFFdUlTWU1EQVZWZm9iWUZZeGZ4MnVnMFU3QUNJdWl0RHdGSWRo?=
+ =?utf-8?B?QmhlaXFmQURGU1A3SW5TY3BETllpbUVkMnhtNStkVFBjVU9xU25rMmlxb2xn?=
+ =?utf-8?B?b1VEdVhmNWFHUmNIbTZXbVRCekd1Z1BXZWhnU0NxcFczb29ROEVGRGtmYWlq?=
+ =?utf-8?B?d29mVDl4SHJ3ZHpHaW15cmpwSUMxRFpmalRwWGFmTi80TjJIQ05zdzlnU0Rn?=
+ =?utf-8?B?TVdJeTNNMVcydVRqSjB2MzgyMlpYVW5yTkJERWxUcThZMDZZNnJhVmFwRWZz?=
+ =?utf-8?B?d0lLKzZJNXA3cStVOUh1N1VWd21HWTk1czFBNDlneTE4L3VPL1d6RDFKMHJY?=
+ =?utf-8?B?eG01OUd5aVAvbXJOMVY3WFBWdjVJOWlLSUZZNERnV3NpTDRMYmhmRU0vRXZr?=
+ =?utf-8?B?SjlHdE1laTNXdURINUw4VERWNXNJUGpnVTMwWmdxSjJtQjlnS1pyNlhjdUhT?=
+ =?utf-8?B?RzlUUWU3OUhLclhVQXlKSU5nWjJ2MUlXOStBVFJFS1RuZnNXRVliL1hndUJn?=
+ =?utf-8?B?VTcybWVIcnAzVVNPcmpaNUJSZHhnQWQvQlZFbzF5L1BweXlwdkhsaVVWSXd4?=
+ =?utf-8?B?MTcvZm9Jdzl1UE1xMkppdW9oMFlmUllBWHl0ZUxpaGpqMmc3bWswY2w4K3lR?=
+ =?utf-8?B?Z0c4dW1VcEtQSk9oWldaM2hZVllTbldQQmhVUDdRVmVTN25WRWxRdGJlNm1G?=
+ =?utf-8?B?RDl2QmFZc3JRWDhaWjllcXRFOHFyaVozTzBQU3h6ODNUdEFrd0pMdTI5RHpt?=
+ =?utf-8?B?YUxNc0tFQXVVMVJPL2Q3QmdsSUY2T2lVSXJCM3NHWExPU2ZRQzlaSGUxN2d5?=
+ =?utf-8?B?UUl2ODUrLzAwQUdHeDl2ZUZVZmZNRDEwazMyaEZ5czdMYkkxTi9QNDFuYitv?=
+ =?utf-8?B?R1U3T29WQnk2L1FZSi85NWVKcU85ZDlURXkvcHI2QU1lTitSa1gzSThhOEtM?=
+ =?utf-8?B?MG1PY0haRGIzMEZlNFM5WVRWY2FGVlVUQVI1WWI1UU1KZTBIdzVla3dWL0d5?=
+ =?utf-8?B?clJELzhPa0l3dVNJZjltWmNuMjVrb3lHWnR5LzloT1o3bHkzeUU5alhrRXA1?=
+ =?utf-8?B?NkFTZk9kUlA0S05IOGJud0VOandjRWd5bEV5RlFBOXZnaVhCY2JSRld1WjEx?=
+ =?utf-8?B?V21Kd0IvbFR3SzdrbkV4Mlp3UlN1Yi9iUzNkYkszZmN1QlBTMlJUeDJFNjB6?=
+ =?utf-8?B?dHpxYzBSMXRodjFHMjZ6clJETW1Xdm81bVNTWnJCTUgxVXZ2TEs4SnlWTE1w?=
+ =?utf-8?B?Q25jZ0I5WTMzSTlEMTI3ZVlxR0ZkSHVDRWJ6Rnk0MHcyN0t1TE01bWNaNnNo?=
+ =?utf-8?B?OVh1YjZMSEp6MjNnOUw2RkZyb1hWdU9jWUYzQmppZ2tkY0h1R3ptMDY1R3JY?=
+ =?utf-8?B?eGR0Ykw0SjJTY0FGU1N4NGcrV1Fjd20vSGpGRk9YSkVFdWdWRlhZUWx1Uk1Y?=
+ =?utf-8?B?NWhpd1JZLytGVUFBTzFLRXNRSmJSSWg3SXdQaWpabHlOQlFhZmFxN2JCRU1G?=
+ =?utf-8?B?K1BPd1NiQkFSQ1AwcnFHOWZPaHppUmd6MVQvY2x5ZVAvRVNFUEdYWHFYM0Qz?=
+ =?utf-8?B?MzBFQkpETWl0WHNQNGdlTWptaVZtN2pkaE9iT0tXSjF5T3NqUWpWOGJrdyt0?=
+ =?utf-8?Q?egcNBQ1rC7kIUUjC5OS/8vqW2?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 23542ca6-a011-49b1-6441-08dccc3f1487
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB6583.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2024 17:37:28.0646
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: EBgWe8sDtrYpJbHGvsVA72uDZj33/GbyNc/kRNw68pduIRSWaIdasIfkQ/rudWyVm5HQ50lt9ZRZP5MjwX3xjQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5829
 
-From: Carlos Bilbao <cbilbao@digitalocean.com>
+On 9/3/2024 10:15 AM, Carlos Bilbao wrote:
+> From: Carlos Bilbao <cbilbao@digitalocean.com>
+> 
+> Initialize the speed and duplex fields in virtio_net_config to UNKNOWN.
+> This is needed because mlx5_vdpa vDPA devicess currently do not support the
+> VIRTIO_NET_F_SPEED_DUPLEX feature which reports speed and duplex. Add
+> needed helper cpu_to_mlx5vdpa32() to convert endianness of speed.
+> 
+> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
+> Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+> ---
+>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 12 ++++++++++++
+>   1 file changed, 12 insertions(+)
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index b56aae3f7be3..5fce6d62af4f 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -173,6 +173,11 @@ static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
+>          return __cpu_to_virtio16(mlx5_vdpa_is_little_endian(mvdev), val);
+>   }
+> 
+> +static __virtio32 cpu_to_mlx5vdpa32(struct mlx5_vdpa_dev *mvdev, u32 val)
+> +{
+> +    return __cpu_to_virtio32(mlx5_vdpa_is_little_endian(mvdev), val);
 
-Remove invalid ioctl VHOST_VDPA_SET_CONFIG and all its implementations
-with vdpa_config_ops->set_config(). This is needed per virtio spec
-requirements; virtio-spec v3.1 Sec 5.1.4 states that "All of the device
-configuration fields are read-only for the driver."
+I hate picking at little things like this, but this should be a tab 
+rather than 4 spaces.
 
-Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
----
- drivers/vdpa/alibaba/eni_vdpa.c    | 17 -----------------
- drivers/vdpa/ifcvf/ifcvf_main.c    | 10 ----------
- drivers/vdpa/mlx5/net/mlx5_vnet.c  |  7 -------
- drivers/vdpa/pds/vdpa_dev.c        | 16 ----------------
- drivers/vdpa/solidrun/snet_main.c  | 18 ------------------
- drivers/vdpa/vdpa.c                | 16 ----------------
- drivers/vdpa/vdpa_sim/vdpa_sim.c   | 16 ----------------
- drivers/vdpa/vdpa_sim/vdpa_sim.h   |  1 -
- drivers/vdpa/vdpa_user/vduse_dev.c |  7 -------
- drivers/vdpa/virtio_pci/vp_vdpa.c  | 14 --------------
- drivers/vhost/vdpa.c               | 26 --------------------------
- drivers/virtio/virtio_vdpa.c       |  9 ---------
- include/linux/vdpa.h               |  9 ---------
- include/uapi/linux/vhost.h         |  8 ++++----
- 14 files changed, 4 insertions(+), 170 deletions(-)
+sln
 
-diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
-index cce3d1837104..d8f70b385661 100644
---- a/drivers/vdpa/alibaba/eni_vdpa.c
-+++ b/drivers/vdpa/alibaba/eni_vdpa.c
-@@ -383,22 +383,6 @@ static void eni_vdpa_get_config(struct vdpa_device *vdpa,
- 		*p++ = ioread8(ioaddr + i);
- }
- 
--static void eni_vdpa_set_config(struct vdpa_device *vdpa,
--				unsigned int offset, const void *buf,
--				unsigned int len)
--{
--	struct eni_vdpa *eni_vdpa = vdpa_to_eni(vdpa);
--	struct virtio_pci_legacy_device *ldev = &eni_vdpa->ldev;
--	void __iomem *ioaddr = ldev->ioaddr +
--		VIRTIO_PCI_CONFIG_OFF(eni_vdpa->vectors) +
--		offset;
--	const u8 *p = buf;
--	int i;
--
--	for (i = 0; i < len; i++)
--		iowrite8(*p++, ioaddr + i);
--}
--
- static void eni_vdpa_set_config_cb(struct vdpa_device *vdpa,
- 				   struct vdpa_callback *cb)
- {
-@@ -429,7 +413,6 @@ static const struct vdpa_config_ops eni_vdpa_ops = {
- 	.get_vq_align	= eni_vdpa_get_vq_align,
- 	.get_config_size = eni_vdpa_get_config_size,
- 	.get_config	= eni_vdpa_get_config,
--	.set_config	= eni_vdpa_set_config,
- 	.set_config_cb  = eni_vdpa_set_config_cb,
- 	.get_vq_irq	= eni_vdpa_get_vq_irq,
- };
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index e98fa8100f3c..7cbac787ad5f 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -568,15 +568,6 @@ static void ifcvf_vdpa_get_config(struct vdpa_device *vdpa_dev,
- 	ifcvf_read_dev_config(vf, offset, buf, len);
- }
- 
--static void ifcvf_vdpa_set_config(struct vdpa_device *vdpa_dev,
--				  unsigned int offset, const void *buf,
--				  unsigned int len)
--{
--	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
--
--	ifcvf_write_dev_config(vf, offset, buf, len);
--}
--
- static void ifcvf_vdpa_set_config_cb(struct vdpa_device *vdpa_dev,
- 				     struct vdpa_callback *cb)
- {
-@@ -640,7 +631,6 @@ static const struct vdpa_config_ops ifc_vdpa_ops = {
- 	.get_vq_group	= ifcvf_vdpa_get_vq_group,
- 	.get_config_size	= ifcvf_vdpa_get_config_size,
- 	.get_config	= ifcvf_vdpa_get_config,
--	.set_config	= ifcvf_vdpa_set_config,
- 	.set_config_cb  = ifcvf_vdpa_set_config_cb,
- 	.get_vq_notification = ifcvf_get_vq_notification,
- };
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 5fce6d62af4f..fd0db86ba2cf 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2918,12 +2918,6 @@ static void mlx5_vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
- 		memcpy(buf, (u8 *)&ndev->config + offset, len);
- }
- 
--static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned int offset, const void *buf,
--				 unsigned int len)
--{
--	/* not supported */
--}
--
- static u32 mlx5_vdpa_get_generation(struct vdpa_device *vdev)
- {
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-@@ -3218,7 +3212,6 @@ static const struct vdpa_config_ops mlx5_vdpa_ops = {
- 	.reset = mlx5_vdpa_reset,
- 	.get_config_size = mlx5_vdpa_get_config_size,
- 	.get_config = mlx5_vdpa_get_config,
--	.set_config = mlx5_vdpa_set_config,
- 	.get_generation = mlx5_vdpa_get_generation,
- 	.set_map = mlx5_vdpa_set_map,
- 	.set_group_asid = mlx5_set_group_asid,
-diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
-index 25c0fe5ec3d5..553dcd2aa065 100644
---- a/drivers/vdpa/pds/vdpa_dev.c
-+++ b/drivers/vdpa/pds/vdpa_dev.c
-@@ -553,21 +553,6 @@ static void pds_vdpa_get_config(struct vdpa_device *vdpa_dev,
- 	memcpy_fromio(buf, device + offset, len);
- }
- 
--static void pds_vdpa_set_config(struct vdpa_device *vdpa_dev,
--				unsigned int offset, const void *buf,
--				unsigned int len)
--{
--	struct pds_vdpa_device *pdsv = vdpa_to_pdsv(vdpa_dev);
--	void __iomem *device;
--
--	if (offset + len > sizeof(struct virtio_net_config)) {
--		WARN(true, "%s: bad read, offset %d len %d\n", __func__, offset, len);
--		return;
--	}
--
--	device = pdsv->vdpa_aux->vd_mdev.device;
--	memcpy_toio(device + offset, buf, len);
--}
- 
- static const struct vdpa_config_ops pds_vdpa_ops = {
- 	.set_vq_address		= pds_vdpa_set_vq_address,
-@@ -595,7 +580,6 @@ static const struct vdpa_config_ops pds_vdpa_ops = {
- 	.reset			= pds_vdpa_reset,
- 	.get_config_size	= pds_vdpa_get_config_size,
- 	.get_config		= pds_vdpa_get_config,
--	.set_config		= pds_vdpa_set_config,
- };
- static struct virtio_device_id pds_vdpa_id_table[] = {
- 	{VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID},
-diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
-index 99428a04068d..141740269b6c 100644
---- a/drivers/vdpa/solidrun/snet_main.c
-+++ b/drivers/vdpa/solidrun/snet_main.c
-@@ -478,23 +478,6 @@ static void snet_get_config(struct vdpa_device *vdev, unsigned int offset,
- 		*buf_ptr++ = ioread8(cfg_ptr + i);
- }
- 
--static void snet_set_config(struct vdpa_device *vdev, unsigned int offset,
--			    const void *buf, unsigned int len)
--{
--	struct snet *snet = vdpa_to_snet(vdev);
--	void __iomem *cfg_ptr = snet->cfg->virtio_cfg + offset;
--	const u8 *buf_ptr = buf;
--	u32 i;
--
--	/* check for offset error */
--	if (offset + len > snet->cfg->cfg_size)
--		return;
--
--	/* Write into PCI BAR */
--	for (i = 0; i < len; i++)
--		iowrite8(*buf_ptr++, cfg_ptr + i);
--}
--
- static int snet_suspend(struct vdpa_device *vdev)
- {
- 	struct snet *snet = vdpa_to_snet(vdev);
-@@ -548,7 +531,6 @@ static const struct vdpa_config_ops snet_config_ops = {
- 	.get_status             = snet_get_status,
- 	.set_status             = snet_set_status,
- 	.get_config             = snet_get_config,
--	.set_config             = snet_set_config,
- 	.suspend		= snet_suspend,
- 	.resume			= snet_resume,
- };
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index a7612e0783b3..a9eac31f3757 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -401,22 +401,6 @@ void vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
- }
- EXPORT_SYMBOL_GPL(vdpa_get_config);
- 
--/**
-- * vdpa_set_config - Set one or more device configuration fields.
-- * @vdev: vdpa device to operate on
-- * @offset: starting byte offset of the field
-- * @buf: buffer pointer to read from
-- * @length: length of the configuration fields in bytes
-- */
--void vdpa_set_config(struct vdpa_device *vdev, unsigned int offset,
--		     const void *buf, unsigned int length)
--{
--	down_write(&vdev->cf_lock);
--	vdev->config->set_config(vdev, offset, buf, length);
--	up_write(&vdev->cf_lock);
--}
--EXPORT_SYMBOL_GPL(vdpa_set_config);
--
- static bool mgmtdev_handle_match(const struct vdpa_mgmt_dev *mdev,
- 				 const char *busname, const char *devname)
- {
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 421ab01ef06b..c2e14bcc01f6 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -546,20 +546,6 @@ static void vdpasim_get_config(struct vdpa_device *vdpa, unsigned int offset,
- 	memcpy(buf, vdpasim->config + offset, len);
- }
- 
--static void vdpasim_set_config(struct vdpa_device *vdpa, unsigned int offset,
--			     const void *buf, unsigned int len)
--{
--	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
--
--	if (offset + len > vdpasim->dev_attr.config_size)
--		return;
--
--	memcpy(vdpasim->config + offset, buf, len);
--
--	if (vdpasim->dev_attr.set_config)
--		vdpasim->dev_attr.set_config(vdpasim, vdpasim->config);
--}
--
- static u32 vdpasim_get_generation(struct vdpa_device *vdpa)
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-@@ -754,7 +740,6 @@ static const struct vdpa_config_ops vdpasim_config_ops = {
- 	.resume			= vdpasim_resume,
- 	.get_config_size        = vdpasim_get_config_size,
- 	.get_config             = vdpasim_get_config,
--	.set_config             = vdpasim_set_config,
- 	.get_generation         = vdpasim_get_generation,
- 	.get_iova_range         = vdpasim_get_iova_range,
- 	.set_group_asid         = vdpasim_set_group_asid,
-@@ -792,7 +777,6 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops = {
- 	.resume			= vdpasim_resume,
- 	.get_config_size        = vdpasim_get_config_size,
- 	.get_config             = vdpasim_get_config,
--	.set_config             = vdpasim_set_config,
- 	.get_generation         = vdpasim_get_generation,
- 	.get_iova_range         = vdpasim_get_iova_range,
- 	.set_group_asid         = vdpasim_set_group_asid,
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-index bb137e479763..b48bf954a3bb 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-@@ -46,7 +46,6 @@ struct vdpasim_dev_attr {
- 
- 	void (*work_fn)(struct vdpasim *vdpasim);
- 	void (*get_config)(struct vdpasim *vdpasim, void *config);
--	void (*set_config)(struct vdpasim *vdpasim, const void *config);
- 	int (*get_stats)(struct vdpasim *vdpasim, u16 idx,
- 			 struct sk_buff *msg,
- 			 struct netlink_ext_ack *extack);
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index df7869537ef1..4fe69cb5b156 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -698,12 +698,6 @@ static void vduse_vdpa_get_config(struct vdpa_device *vdpa, unsigned int offset,
- 	memcpy(buf, dev->config + offset, len);
- }
- 
--static void vduse_vdpa_set_config(struct vdpa_device *vdpa, unsigned int offset,
--			const void *buf, unsigned int len)
--{
--	/* Now we only support read-only configuration space */
--}
--
- static int vduse_vdpa_reset(struct vdpa_device *vdpa)
- {
- 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
-@@ -790,7 +784,6 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
- 	.set_status		= vduse_vdpa_set_status,
- 	.get_config_size	= vduse_vdpa_get_config_size,
- 	.get_config		= vduse_vdpa_get_config,
--	.set_config		= vduse_vdpa_set_config,
- 	.get_generation		= vduse_vdpa_get_generation,
- 	.set_vq_affinity	= vduse_vdpa_set_vq_affinity,
- 	.get_vq_affinity	= vduse_vdpa_get_vq_affinity,
-diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-index 281287fae89f..5e8ff91475e3 100644
---- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-+++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-@@ -400,19 +400,6 @@ static void vp_vdpa_get_config(struct vdpa_device *vdpa,
- 	} while (old != new);
- }
- 
--static void vp_vdpa_set_config(struct vdpa_device *vdpa,
--			       unsigned int offset, const void *buf,
--			       unsigned int len)
--{
--	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
--	struct virtio_pci_modern_device *mdev = vp_vdpa_to_mdev(vp_vdpa);
--	const u8 *p = buf;
--	int i;
--
--	for (i = 0; i < len; i++)
--		vp_iowrite8(*p++, mdev->device + offset + i);
--}
--
- static void vp_vdpa_set_config_cb(struct vdpa_device *vdpa,
- 				  struct vdpa_callback *cb)
- {
-@@ -457,7 +444,6 @@ static const struct vdpa_config_ops vp_vdpa_ops = {
- 	.get_vq_align	= vp_vdpa_get_vq_align,
- 	.get_config_size = vp_vdpa_get_config_size,
- 	.get_config	= vp_vdpa_get_config,
--	.set_config	= vp_vdpa_set_config,
- 	.set_config_cb  = vp_vdpa_set_config_cb,
- 	.get_vq_irq	= vp_vdpa_get_vq_irq,
- };
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index fb590e346e43..c6fcd54f59be 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -350,29 +350,6 @@ static long vhost_vdpa_get_config(struct vhost_vdpa *v,
- 	return 0;
- }
- 
--static long vhost_vdpa_set_config(struct vhost_vdpa *v,
--				  struct vhost_vdpa_config __user *c)
--{
--	struct vdpa_device *vdpa = v->vdpa;
--	struct vhost_vdpa_config config;
--	unsigned long size = offsetof(struct vhost_vdpa_config, buf);
--	u8 *buf;
--
--	if (copy_from_user(&config, c, size))
--		return -EFAULT;
--	if (vhost_vdpa_config_validate(v, &config))
--		return -EINVAL;
--
--	buf = vmemdup_user(c->buf, config.len);
--	if (IS_ERR(buf))
--		return PTR_ERR(buf);
--
--	vdpa_set_config(vdpa, config.off, buf, config.len);
--
--	kvfree(buf);
--	return 0;
--}
--
- static bool vhost_vdpa_can_suspend(const struct vhost_vdpa *v)
- {
- 	struct vdpa_device *vdpa = v->vdpa;
-@@ -719,9 +696,6 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 	case VHOST_VDPA_GET_CONFIG:
- 		r = vhost_vdpa_get_config(v, argp);
- 		break;
--	case VHOST_VDPA_SET_CONFIG:
--		r = vhost_vdpa_set_config(v, argp);
--		break;
- 	case VHOST_GET_FEATURES:
- 		r = vhost_vdpa_get_features(v, argp);
- 		break;
-diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 06ce6d8c2e00..481ded50c916 100644
---- a/drivers/virtio/virtio_vdpa.c
-+++ b/drivers/virtio/virtio_vdpa.c
-@@ -62,14 +62,6 @@ static void virtio_vdpa_get(struct virtio_device *vdev, unsigned int offset,
- 	vdpa_get_config(vdpa, offset, buf, len);
- }
- 
--static void virtio_vdpa_set(struct virtio_device *vdev, unsigned int offset,
--			    const void *buf, unsigned int len)
--{
--	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
--
--	vdpa_set_config(vdpa, offset, buf, len);
--}
--
- static u32 virtio_vdpa_generation(struct virtio_device *vdev)
- {
- 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-@@ -462,7 +454,6 @@ virtio_vdpa_get_vq_affinity(struct virtio_device *vdev, int index)
- 
- static const struct virtio_config_ops virtio_vdpa_config_ops = {
- 	.get		= virtio_vdpa_get,
--	.set		= virtio_vdpa_set,
- 	.generation	= virtio_vdpa_generation,
- 	.get_status	= virtio_vdpa_get_status,
- 	.set_status	= virtio_vdpa_set_status,
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 0e652026b776..13e7ce0cea80 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -259,13 +259,6 @@ struct vdpa_map_file {
-  *				@buf: buffer used to read to
-  *				@len: the length to read from
-  *				configuration space
-- * @set_config:			Write to device specific configuration space
-- *				@vdev: vdpa device
-- *				@offset: offset from the beginning of
-- *				configuration space
-- *				@buf: buffer used to write from
-- *				@len: the length to write to
-- *				configuration space
-  * @get_generation:		Get device config generation (optional)
-  *				@vdev: vdpa device
-  *				Returns u32: device generation
-@@ -378,8 +371,6 @@ struct vdpa_config_ops {
- 	size_t (*get_config_size)(struct vdpa_device *vdev);
- 	void (*get_config)(struct vdpa_device *vdev, unsigned int offset,
- 			   void *buf, unsigned int len);
--	void (*set_config)(struct vdpa_device *vdev, unsigned int offset,
--			   const void *buf, unsigned int len);
- 	u32 (*get_generation)(struct vdpa_device *vdev);
- 	struct vdpa_iova_range (*get_iova_range)(struct vdpa_device *vdev);
- 	int (*set_vq_affinity)(struct vdpa_device *vdev, u16 idx,
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index f5c48b61ab62..b7977f9ae596 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -157,13 +157,13 @@
-  */
- #define VHOST_VDPA_GET_STATUS		_IOR(VHOST_VIRTIO, 0x71, __u8)
- #define VHOST_VDPA_SET_STATUS		_IOW(VHOST_VIRTIO, 0x72, __u8)
--/* Get and set the device config. The device config follows the same
-- * definition of the device config defined in virtio-spec.
-+/* Get the device config. The device config follows the same
-+ * definition of the device config defined in virtio-spec. According to
-+ * virtio-spec v3.1, all device configuration fields are read-only for the
-+ * driver, and thus we do not have VHOST_VDPA_SET_CONFIG.
-  */
- #define VHOST_VDPA_GET_CONFIG		_IOR(VHOST_VIRTIO, 0x73, \
- 					     struct vhost_vdpa_config)
--#define VHOST_VDPA_SET_CONFIG		_IOW(VHOST_VIRTIO, 0x74, \
--					     struct vhost_vdpa_config)
- /* Enable/disable the ring. */
- #define VHOST_VDPA_SET_VRING_ENABLE	_IOW(VHOST_VIRTIO, 0x75, \
- 					     struct vhost_vring_state)
--- 
-2.34.1
 
+> +}
+> +
+>   static u16 ctrl_vq_idx(struct mlx5_vdpa_dev *mvdev)
+>   {
+>          if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
+> @@ -3433,6 +3438,13 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>          init_rwsem(&ndev->reslock);
+>          config = &ndev->config;
+> 
+> +       /*
+> +        * mlx5_vdpa vDPA devices currently don't support reporting or
+> +        * setting the speed or duplex.
+> +        */
+> +       config->speed  = cpu_to_mlx5vdpa32(mvdev, SPEED_UNKNOWN);
+> +       config->duplex = DUPLEX_UNKNOWN;
+> +
+>          if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
+>                  err = config_func_mtu(mdev, add_config->net.mtu);
+>                  if (err)
+> --
+> 2.34.1
+> 
