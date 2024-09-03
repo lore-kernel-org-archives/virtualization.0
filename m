@@ -1,602 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CD72A1D3
-	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 13:56:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2F9F18C330
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 15:17:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725371776; cv=none; b=hWFueDfGUSECOF+vHdkCTZdc3N/c1r6M6aqiryK6zxUwgNfKyShnaglEphZ2RC51iWkmF/qqRrFoqPHKtWATs8o7Vqctv32/01QBAlk0hBwSjRRhLIxVdWgz6j2nb01LjVBGspUL0mM7ONfuhRF59HjAEVePliNlWDLCjzzKc0U=
+	t=1725376648; cv=none; b=obwwzG0Z3etvOxP1q1uG6fpDiuoTZ+OKmuZHOffcaC3D09zIqgVWxSuxVZRQiqxFYGA+FhIyTwXzx+vgGlIaTFqpl543V3xit15MSW8ZTEczYWA3sBqWRih+pclvRV9oCXDuThcbLETp6KkCnl4yu3CUmY941NyBjLledUTS/4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725371776; c=relaxed/simple;
-	bh=t4Y7hIeIAarXA5+34v/upgeEA4IT1TimD5n6FrEchII=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pLG55cIS86NbT17Y+dS3PRMtiIoQw79T2+N8HRahZUwv8Sj/EaKtn2elFrMjKkTaXH9pxF5zBAK7WoYZ2F55eTFH5i/mdAAOyLy4GGEtoNAh1uDwV5XTG49ULO6zdn4KhM2R0dyuGWKvVd9M5Mn/aKh7CdjTkDM2mJjNXiblq3Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cZC1PQ+I; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1725376648; c=relaxed/simple;
+	bh=I5Ej9tXxsELnQaLpNn7Un8jHm6ABGkNJE4SsL33oa8Y=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=oBA8jySjhKdcp+X0apqciCw0dPKbztBQeH2p0/16q/BAABnFWyi2S2atniA9pTk80bPpd2pvJKP1WDowzDV9V5Pk/eXAx4J6NcIBZc0wU3Yz8lHk3PPyvtzc/+5pixe2DLWAgifN1Z1T2AjZV8J84lbpg2yOF+TMv51+TrAI9dE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=HG7/5GNb; arc=none smtp.client-ip=185.125.188.122
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cZC1PQ+I"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725371773;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=mZUahBRGc+zhy9j2+IrRTtUJ4R6G0EU0I10UIHmemvg=;
-	b=cZC1PQ+IVsm/Jix58L6Vhd+GMnvW+fqPXL5Hus4x86d/lZQlkRqUBirmsxgiAsyLw3S0XB
-	ESzlC9WKHUj4rcvVtLcRr0/D0b638uDeHCyLtQS0xlGfDW6MmYMR2GHkGJc6fObMfHyz7X
-	Nb+X19/E/PIeG9BFjF6EwNYznbTY40U=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-307-BAyVC_DTN8y4aT8raxZoqg-1; Tue, 03 Sep 2024 09:56:12 -0400
-X-MC-Unique: BAyVC_DTN8y4aT8raxZoqg-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-374b9a8512dso2216546f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 03 Sep 2024 06:56:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="HG7/5GNb"
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com [209.85.167.69])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 642613FE20
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 15:17:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1725376645;
+	bh=8g+CuHEOVaIi/oyMU4FT/dyfPKPOx4hjrvyEeKrnVIU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version;
+	b=HG7/5GNbDUmiyyRzW2SN6AoT/es/4rYyz5X5EnTFZbEKGbXE6o7QbjoFhx125lB8r
+	 bJsVya2OF0F4hwMChufY16gRclm3zOaXYpRmg6Em/X7ATKCHIqbVYQxC/e1dOIRc87
+	 zt3YFd6ehlrwNeLWa6kHprL3rMFkTDUKaQR48lKT80pwYWhBGikdTkElEjMK7NHjKY
+	 uwuNKdDbFkuM3JAgG0d3JpMovM0bB+AwzOu3WmslxdEVapAILanKsdbRdoEnBBFejj
+	 PPA2NuWszzgnbIyegRVTxdysUUoxeOQQLlP7eh0/NqvwNYPDM+fvBDUCBkNRDNeiw5
+	 q0EltV9i7ORTA==
+Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-5334824e68dso1126395e87.3
+        for <virtualization@lists.linux.dev>; Tue, 03 Sep 2024 08:17:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725371771; x=1725976571;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mZUahBRGc+zhy9j2+IrRTtUJ4R6G0EU0I10UIHmemvg=;
-        b=nXSzfns8clqLgurGJhsskM3qhX5kuVqtMW6EU4JrlrL4pImNMjQqYWfGAKiRpAGan0
-         aTBGZ1yspZouSa0ReSqoY0A2FdOgORfIyw7fzFdRnE04zGzrZ1jGdj4nDfVccLZ0QDV5
-         mIBNb4/ZQ/pPCgiw9no6mVT5hGrqbCGrtZ5Tm1amqYuzpZONw4uSisJEpJ+sGJxCJMfC
-         vT0kGGAiKWxctWe2/b14xEUJNgBlnojgA15HK7vG+E33vCXTzkz22VeeYaqyFGmiDXED
-         GUIGotMEYxDbyTroUts294u73d+1INfZasj35sJeaBzq8sCFnbA3s6QGtXDoto4mUZDy
-         j7NA==
-X-Forwarded-Encrypted: i=1; AJvYcCWC8LWnNPSmWYkMnmS5Pk8wxyJrUZxOjSHyPpabbWHslDUgWtqoOlV+41LKZo5kAmsH2W2+MJUJuaB99pDWEw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx+k87NLlQBupFiZcakFJMHY7eNVREU8YtPVmTCXVR57sRspysS
-	kjtlCtty/Z/TKLxa25aqal7QcRPDIhP+gNX21ZqqVzW2v/eVnh6VLgQd/hP7YAHMr4cXeibcwWN
-	o6Vq7fnh1oe60FXCjBYpnRzApqITuKmufrfTXEtzHoTWrFOvcn4AdV9U8dGjJgV2L
-X-Received: by 2002:a5d:67cd:0:b0:374:b5fc:d31a with SMTP id ffacd0b85a97d-374bceb37a3mr7053514f8f.25.1725371770868;
-        Tue, 03 Sep 2024 06:56:10 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHKMEOZbckYPKzqhZb37HeOJ7zsJWuV4GdJpSA6eNrl8UONYbHS5JM6qgDTBvQXT+ieXorLCQ==
-X-Received: by 2002:a5d:67cd:0:b0:374:b5fc:d31a with SMTP id ffacd0b85a97d-374bceb37a3mr7053489f8f.25.1725371770178;
-        Tue, 03 Sep 2024 06:56:10 -0700 (PDT)
-Received: from [192.168.88.27] (146-241-55-250.dyn.eolo.it. [146.241.55.250])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-374c8547c0csm6893161f8f.17.2024.09.03.06.56.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Sep 2024 06:56:09 -0700 (PDT)
-Message-ID: <5c0303f4-c609-4a4e-a012-c27f08cfa6f9@redhat.com>
-Date: Tue, 3 Sep 2024 15:56:07 +0200
+        d=1e100.net; s=20230601; t=1725376644; x=1725981444;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8g+CuHEOVaIi/oyMU4FT/dyfPKPOx4hjrvyEeKrnVIU=;
+        b=XR+b4pMsZ+59AYA5YGzX8nxz1dMII4UAKbFljIIur7qaQeXj1cwMGh/Jz5VcEYNPPV
+         x7fbhJ3io1mzUCOeY79n5CVqzypX2CH/NtcggxWwJ/pZTPBSHlP/PfsW4ap36oVu2kcU
+         dTa3homehywRgoAqcjzmtCMs/MhymE7bjYQ3/K5O3xFBKXgKAHGbDa9YE4XMS+2oYA2C
+         fYA6+JF/SjZhOBmQbXKuXLRFgwAhh2BkW1GCkf6SempUVZxGr/iK3WTcbQAk6PYe04ZQ
+         CcnhsrWTDmOzwyoe5/pe5XqGSQiziiaS6pZHffQOxmQaauzoAF80KW4HcM7eS19h9VEC
+         rXcA==
+X-Forwarded-Encrypted: i=1; AJvYcCVKPaRAwvQ1lNu7nrbnguiAhQTzuv3t9R5Ex801Zf9FFCyK0u8IT/URwpoq4dl+IlHVOfXd666fOBFamVo+OQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz0va0zR8/SAC+CZc/tiBZd9jj/WmCmtyaOv8WQRrUFOMqzF6nH
+	PfWIkdRqBzK/0WZEdPFcmz/e8wLqg2FqQvZJczaXtp8Sy3dAXBnHmiBKZnCeoGu88KR4UEieQIP
+	88GkO7x+mrgbTxGNJVTn2hdKgUGlFXO2875oONiVA42pZZ1l/b4K81tRkCb4iIWGSY4AWxR6D4W
+	54ksKg
+X-Received: by 2002:a05:6512:3ca3:b0:52c:def3:44b with SMTP id 2adb3069b0e04-53546b2b5e7mr8720714e87.31.1725376643662;
+        Tue, 03 Sep 2024 08:17:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF+bq1GZV9X9d7kfysJWIp+YqAiYHgnriynd3aEYFL4ojAqTYw0oKyoeFn1hFPXtYAGSanyXw==
+X-Received: by 2002:a05:6512:3ca3:b0:52c:def3:44b with SMTP id 2adb3069b0e04-53546b2b5e7mr8720683e87.31.1725376643137;
+        Tue, 03 Sep 2024 08:17:23 -0700 (PDT)
+Received: from amikhalitsyn.. ([188.192.113.77])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a8a19afb108sm156377166b.223.2024.09.03.08.17.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Sep 2024 08:17:22 -0700 (PDT)
+From: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
+To: mszeredi@redhat.com
+Cc: brauner@kernel.org,
+	stgraber@stgraber.org,
+	linux-fsdevel@vger.kernel.org,
+	Seth Forshee <sforshee@kernel.org>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	German Maglione <gmaglione@redhat.com>,
+	Amir Goldstein <amir73il@gmail.com>,
+	Bernd Schubert <bschubert@ddn.com>,
+	Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH v4 15/15] fs/fuse/virtio_fs: allow idmapped mounts
+Date: Tue,  3 Sep 2024 17:16:26 +0200
+Message-Id: <20240903151626.264609-16-aleksandr.mikhalitsyn@canonical.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240903151626.264609-1-aleksandr.mikhalitsyn@canonical.com>
+References: <20240903151626.264609-1-aleksandr.mikhalitsyn@canonical.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] ptp: Add support for the AMZNC10C 'vmclock' device
-To: David Woodhouse <dwmw2@infradead.org>,
- Richard Cochran <richardcochran@gmail.com>,
- Peter Hilber <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
- virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
- "Chashper, David" <chashper@amazon.com>,
- "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
-Cc: "Christopher S . Hall" <christopher.s.hall@intel.com>,
- Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Stephen Boyd <sboyd@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marc Zyngier <maz@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
-References: <dac0cd7e3c140dc309534a4c6e8976360bf6f3b9.camel@infradead.org>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <dac0cd7e3c140dc309534a4c6e8976360bf6f3b9.camel@infradead.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 8/23/24 12:09, David Woodhouse wrote:
-> diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
-> index 604541dcb320..e98c9767e0ef 100644
-> --- a/drivers/ptp/Kconfig
-> +++ b/drivers/ptp/Kconfig
-> @@ -131,6 +131,19 @@ config PTP_1588_CLOCK_KVM
->   	  To compile this driver as a module, choose M here: the module
->   	  will be called ptp_kvm.
->   
-> +config PTP_1588_CLOCK_VMCLOCK
-> +	tristate "Virtual machine PTP clock"
-> +	depends on X86_TSC || ARM_ARCH_TIMER
-> +	depends on PTP_1588_CLOCK && ACPI && ARCH_SUPPORTS_INT128
-> +	default y
-> +	help
-> +	  This driver adds support for using a virtual precision clock
-> +	  advertised by the hypervisor. This clock is only useful in virtual
-> +	  machines where such a device is present.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called ptp_vmclock.
-> +
->   config PTP_1588_CLOCK_IDT82P33
->   	tristate "IDT 82P33xxx PTP clock"
->   	depends on PTP_1588_CLOCK && I2C
-> diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
-> index 68bf02078053..01b5cd91eb61 100644
-> --- a/drivers/ptp/Makefile
-> +++ b/drivers/ptp/Makefile
-> @@ -11,6 +11,7 @@ obj-$(CONFIG_PTP_1588_CLOCK_DTE)	+= ptp_dte.o
->   obj-$(CONFIG_PTP_1588_CLOCK_INES)	+= ptp_ines.o
->   obj-$(CONFIG_PTP_1588_CLOCK_PCH)	+= ptp_pch.o
->   obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+= ptp_kvm.o
-> +obj-$(CONFIG_PTP_1588_CLOCK_VMCLOCK)	+= ptp_vmclock.o
->   obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+= ptp-qoriq.o
->   ptp-qoriq-y				+= ptp_qoriq.o
->   ptp-qoriq-$(CONFIG_DEBUG_FS)		+= ptp_qoriq_debugfs.o
-> diff --git a/drivers/ptp/ptp_vmclock.c b/drivers/ptp/ptp_vmclock.c
-> new file mode 100644
-> index 000000000000..f772bcb23599
-> --- /dev/null
-> +++ b/drivers/ptp/ptp_vmclock.c
-> @@ -0,0 +1,607 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Virtual PTP 1588 clock for use with LM-safe VMclock device.
-> + *
-> + * Copyright © 2024 Amazon.com, Inc. or its affiliates.
-> + */
-> +
-> +#include <linux/acpi.h>
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/file.h>
-> +#include <linux/fs.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/mm.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +
-> +#include <uapi/linux/vmclock-abi.h>
-> +
-> +#include <linux/ptp_clock_kernel.h>
-> +
-> +#ifdef CONFIG_X86
-> +#include <asm/pvclock.h>
-> +#include <asm/kvmclock.h>
-> +#endif
-> +
-> +#ifdef CONFIG_KVM_GUEST
-> +#define SUPPORT_KVMCLOCK
-> +#endif
-> +
-> +static DEFINE_IDA(vmclock_ida);
-> +
-> +ACPI_MODULE_NAME("vmclock");
-> +
-> +struct vmclock_state {
-> +	struct resource res;
-> +	struct vmclock_abi *clk;
-> +	struct miscdevice miscdev;
-> +	struct ptp_clock_info ptp_clock_info;
-> +	struct ptp_clock *ptp_clock;
-> +	enum clocksource_ids cs_id, sys_cs_id;
-> +	int index;
-> +	char *name;
-> +};
-> +
-> +#define VMCLOCK_MAX_WAIT ms_to_ktime(100)
-> +
-> +/* Require at least the flags field to be present. All else can be optional. */
-> +#define VMCLOCK_MIN_SIZE offsetof(struct vmclock_abi, pad)
-> +
-> +#define VMCLOCK_FIELD_PRESENT(_c, _f)			  \
-> +	le32_to_cpu((_c)->size) >= (offsetof(struct vmclock_abi, _f) +	\
-> +				    sizeof((_c)->_f))
-> +
-> +/*
-> + * Multiply a 64-bit count by a 64-bit tick 'period' in units of seconds >> 64
-> + * and add the fractional second part of the reference time.
-> + *
-> + * The result is a 128-bit value, the top 64 bits of which are seconds, and
-> + * the low 64 bits are (seconds >> 64).
-> + */
-> +static uint64_t mul_u64_u64_shr_add_u64(uint64_t *res_hi, uint64_t delta,
-> +					uint64_t period, uint8_t shift,
-> +					uint64_t frac_sec)
+Allow idmapped mounts for virtiofs.
+It's absolutely safe as for virtiofs we have the same
+feature negotiation mechanism as for classical fuse
+filesystems. This does not affect any existing
+setups anyhow.
 
-I'm sorry for the late feedback.
+virtiofsd support:
+https://gitlab.com/virtio-fs/virtiofsd/-/merge_requests/245
 
-uint64_t should be u64 (in a lot of places), mutatis mutandis uint32_t, 
-etc...
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Seth Forshee <sforshee@kernel.org>
+Cc: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: German Maglione <gmaglione@redhat.com>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: Bernd Schubert <bschubert@ddn.com>
+Cc: <linux-fsdevel@vger.kernel.org>
+Signed-off-by: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
+Reviewed-by: Christian Brauner <brauner@kernel.org>
+---
+v3:
+	- this commit added
+---
+ fs/fuse/virtio_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> +{
-> +	unsigned __int128 res = (unsigned __int128)delta * period;
-> +
-> +	res >>= shift;
-> +	res += frac_sec;
-> +	*res_hi = res >> 64;
-> +	return (uint64_t)res;
-> +}
-> +
-> +static bool tai_adjust(struct vmclock_abi *clk, uint64_t *sec)
-> +{
-> +	if (likely(clk->time_type == VMCLOCK_TIME_UTC))
-> +		return true;
-> +
-> +	if (clk->time_type == VMCLOCK_TIME_TAI &&
-> +	    (le64_to_cpu(clk->flags) & VMCLOCK_FLAG_TAI_OFFSET_VALID)) {
-> +		if (sec)
-> +			*sec += (int16_t)le16_to_cpu(clk->tai_offset_sec);
-> +		return true;
-> +	}
-> +	return false;
-> +}
-> +
-> +static int vmclock_get_crosststamp(struct vmclock_state *st,
-> +				   struct ptp_system_timestamp *sts,
-> +				   struct system_counterval_t *system_counter,
-> +				   struct timespec64 *tspec)
-> +{
-> +	ktime_t deadline = ktime_add(ktime_get(), VMCLOCK_MAX_WAIT);
-> +	struct system_time_snapshot systime_snapshot;
-> +	uint64_t cycle, delta, seq, frac_sec;
-> +
-> +#ifdef CONFIG_X86
-> +	/*
-> +	 * We'd expect the hypervisor to know this and to report the clock
-> +	 * status as VMCLOCK_STATUS_UNRELIABLE. But be paranoid.
-> +	 */
-> +	if (check_tsc_unstable())
-> +		return -EINVAL;
-> +#endif
-> +
-> +	while (1) {
-> +		seq = le32_to_cpu(st->clk->seq_count) & ~1ULL;
-> +
-> +		/*
-> +		 * This pairs with a write barrier in the hypervisor
-> +		 * which populates this structure.
-> +		 */
-> +		virt_rmb();
-> +
-> +		if (st->clk->clock_status == VMCLOCK_STATUS_UNRELIABLE)
-> +			return -EINVAL;
-> +
-> +		/*
-> +		 * When invoked for gettimex64(), fill in the pre/post system
-> +		 * times. The simple case is when system time is based on the
-> +		 * same counter as st->cs_id, in which case all three times
-> +		 * will be derived from the *same* counter value.
-> +		 *
-> +		 * If the system isn't using the same counter, then the value
-> +		 * from ktime_get_snapshot() will still be used as pre_ts, and
-> +		 * ptp_read_system_postts() is called to populate postts after
-> +		 * calling get_cycles().
-> +		 *
-> +		 * The conversion to timespec64 happens further down, outside
-> +		 * the seq_count loop.
-> +		 */
-> +		if (sts) {
-> +			ktime_get_snapshot(&systime_snapshot);
-> +			if (systime_snapshot.cs_id == st->cs_id) {
-> +				cycle = systime_snapshot.cycles;
-> +			} else {
-> +				cycle = get_cycles();
-> +				ptp_read_system_postts(sts);
-> +			}
-> +		} else {
-> +			cycle = get_cycles();
-> +		}
-> +
-> +		delta = cycle - le64_to_cpu(st->clk->counter_value);
-> +
-> +		frac_sec = mul_u64_u64_shr_add_u64(&tspec->tv_sec, delta,
-> +						   le64_to_cpu(st->clk->counter_period_frac_sec),
-> +						   st->clk->counter_period_shift,
-> +						   le64_to_cpu(st->clk->time_frac_sec));
-> +		tspec->tv_nsec = mul_u64_u64_shr(frac_sec, NSEC_PER_SEC, 64);
-> +		tspec->tv_sec += le64_to_cpu(st->clk->time_sec);
-> +
-> +		if (!tai_adjust(st->clk, &tspec->tv_sec))
-> +			return -EINVAL;
-> +
-> +		virt_rmb();
-
-Even this one deserves a comment.
-
-> +		if (seq == le32_to_cpu(st->clk->seq_count))
-> +			break;
-> +
-> +		if (ktime_after(ktime_get(), deadline))
-> +			return -ETIMEDOUT;
-> +	}
-> +
-> +	if (system_counter) {
-> +		system_counter->cycles = cycle;
-> +		system_counter->cs_id = st->cs_id;
-> +	}
-> +
-> +	if (sts) {
-> +		sts->pre_ts = ktime_to_timespec64(systime_snapshot.real);
-> +		if (systime_snapshot.cs_id == st->cs_id)
-> +			sts->post_ts = sts->pre_ts;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef SUPPORT_KVMCLOCK
-> +/*
-> + * In the case where the system is using the KVM clock for timekeeping, convert
-> + * the TSC value into a KVM clock time in order to return a paired reading that
-> + * get_device_system_crosststamp() can cope with.
-> + */
-> +static int vmclock_get_crosststamp_kvmclock(struct vmclock_state *st,
-> +					    struct ptp_system_timestamp *sts,
-> +					    struct system_counterval_t *system_counter,
-> +					    struct timespec64 *tspec)
-> +{
-> +	struct pvclock_vcpu_time_info *pvti = this_cpu_pvti();
-> +	unsigned pvti_ver;
-
-unsigned int
-
-> +	int ret;
-> +
-> +	preempt_disable_notrace();
-> +
-> +	do {
-> +		pvti_ver = pvclock_read_begin(pvti);
-> +
-> +		ret = vmclock_get_crosststamp(st, sts, system_counter, tspec);
-> +		if (ret)
-> +			break;
-> +
-> +		system_counter->cycles = __pvclock_read_cycles(pvti,
-> +							       system_counter->cycles);
-> +		system_counter->cs_id = CSID_X86_KVM_CLK;
-> +
-> +		/*
-> +		 * This retry should never really happen; if the TSC is
-> +		 * stable and reliable enough across vCPUS that it is sane
-> +		 * for the hypervisor to expose a VMCLOCK device which uses
-> +		 * it as the reference counter, then the KVM clock sohuld be
-> +		 * in 'master clock mode' and basically never changed. But
-> +		 * the KVM clock is a fickle and often broken thing, so do
-> +		 * it "properly" just in case.
-> +		 */
-> +	} while (pvclock_read_retry(pvti, pvti_ver));
-> +
-> +	preempt_enable_notrace();
-> +
-> +	return ret;
-> +}
-> +#endif
-> +
-> +static int ptp_vmclock_get_time_fn(ktime_t *device_time,
-> +				   struct system_counterval_t *system_counter,
-> +				   void *ctx)
-> +{
-> +	struct vmclock_state *st = ctx;
-> +	struct timespec64 tspec;
-> +	int ret;
-> +
-> +#ifdef SUPPORT_KVMCLOCK
-> +	if (READ_ONCE(st->sys_cs_id) == CSID_X86_KVM_CLK)
-> +		ret = vmclock_get_crosststamp_kvmclock(st, NULL, system_counter,
-> +						       &tspec);
-> +	else
-> +#endif
-> +		ret = vmclock_get_crosststamp(st, NULL, system_counter, &tspec);
-> +
-> +	if (!ret)
-> +		*device_time = timespec64_to_ktime(tspec);
-> +
-> +	return ret;
-> +}
-> +
-> +static int ptp_vmclock_getcrosststamp(struct ptp_clock_info *ptp,
-> +				      struct system_device_crosststamp *xtstamp)
-> +{
-> +	struct vmclock_state *st = container_of(ptp, struct vmclock_state,
-> +						ptp_clock_info);
-> +	int ret = get_device_system_crosststamp(ptp_vmclock_get_time_fn, st,
-> +						NULL, xtstamp);
-> +#ifdef SUPPORT_KVMCLOCK
-> +	/*
-> +	 * On x86, the KVM clock may be used for the system time. We can
-> +	 * actually convert a TSC reading to that, and return a paired
-> +	 * timestamp that get_device_system_crosststamp() *can* handle.
-> +	 */
-> +	if (ret == -ENODEV) {
-> +		struct system_time_snapshot systime_snapshot;
-
-Please insert an empty line after the variable declarations.
-
-> +		ktime_get_snapshot(&systime_snapshot);
-> +
-> +		if (systime_snapshot.cs_id == CSID_X86_TSC ||
-> +		    systime_snapshot.cs_id == CSID_X86_KVM_CLK) {
-> +			WRITE_ONCE(st->sys_cs_id, systime_snapshot.cs_id);
-> +			ret = get_device_system_crosststamp(ptp_vmclock_get_time_fn,
-> +							    st, NULL, xtstamp);
-> +		}
-> +	}
-> +#endif
-> +	return ret;
-> +}
-> +
-> +/*
-> + * PTP clock operations
-> + */
-> +
-> +static int ptp_vmclock_adjfine(struct ptp_clock_info *ptp, long delta)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int ptp_vmclock_adjtime(struct ptp_clock_info *ptp, s64 delta)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int ptp_vmclock_settime(struct ptp_clock_info *ptp,
-> +			   const struct timespec64 *ts)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int ptp_vmclock_gettimex(struct ptp_clock_info *ptp, struct timespec64 *ts,
-> +				struct ptp_system_timestamp *sts)
-> +{
-> +	struct vmclock_state *st = container_of(ptp, struct vmclock_state,
-> +						ptp_clock_info);
-> +
-> +	return vmclock_get_crosststamp(st, sts, NULL, ts);
-> +}
-> +
-> +static int ptp_vmclock_enable(struct ptp_clock_info *ptp,
-> +			  struct ptp_clock_request *rq, int on)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static const struct ptp_clock_info ptp_vmclock_info = {
-> +	.owner		= THIS_MODULE,
-> +	.max_adj	= 0,
-> +	.n_ext_ts	= 0,
-> +	.n_pins		= 0,
-> +	.pps		= 0,
-> +	.adjfine	= ptp_vmclock_adjfine,
-> +	.adjtime	= ptp_vmclock_adjtime,
-> +	.gettimex64	= ptp_vmclock_gettimex,
-> +	.settime64	= ptp_vmclock_settime,
-> +	.enable		= ptp_vmclock_enable,
-> +	.getcrosststamp = ptp_vmclock_getcrosststamp,
-> +};
-> +
-> +static struct ptp_clock *vmclock_ptp_register(struct device *dev,
-> +					      struct vmclock_state *st)
-> +{
-> +	enum clocksource_ids cs_id;
-> +
-> +	if (IS_ENABLED(CONFIG_ARM64) &&
-> +	    st->clk->counter_id == VMCLOCK_COUNTER_ARM_VCNT) {
-> +		/* Can we check it's the virtual counter? */
-> +		cs_id = CSID_ARM_ARCH_COUNTER;
-> +	} else if (IS_ENABLED(CONFIG_X86) &&
-> +		   st->clk->counter_id == VMCLOCK_COUNTER_X86_TSC) {
-> +		cs_id = CSID_X86_TSC;
-> +	} else {
-> +		return NULL;
-> +	}
-> +
-> +	/* Only UTC, or TAI with offset */
-> +	if (!tai_adjust(st->clk, NULL)) {
-> +		dev_info(dev, "vmclock does not provide unambiguous UTC\n");
-> +		return NULL;
-> +	}
-> +
-> +	st->sys_cs_id = st->cs_id = cs_id;
-
-Please avoid multiple assignments in the same statement.
-
-> +	st->ptp_clock_info = ptp_vmclock_info;
-> +	strscpy(st->ptp_clock_info.name, st->name);
-> +
-> +	return ptp_clock_register(&st->ptp_clock_info, dev);
-> +}
-> +
-> +static int vmclock_miscdev_mmap(struct file *fp, struct vm_area_struct *vma)
-> +{
-> +	struct vmclock_state *st = container_of(fp->private_data,
-> +						struct vmclock_state, miscdev);
-> +
-> +	if ((vma->vm_flags & (VM_READ|VM_WRITE)) != VM_READ)
-> +		return -EROFS;
-> +
-> +	if (vma->vm_end - vma->vm_start != PAGE_SIZE || vma->vm_pgoff)
-> +		return -EINVAL;
-> +
-> +        if (io_remap_pfn_range(vma, vma->vm_start,
-> +			       st->res.start >> PAGE_SHIFT, PAGE_SIZE,
-> +                               vma->vm_page_prot))
-> +                return -EAGAIN;
-> +
-> +        return 0;
-
-This chunk looks whitespace-damaged, use tab for indentation.
-
-> +}
-> +
-> +static ssize_t vmclock_miscdev_read(struct file *fp, char __user *buf,
-> +				    size_t count, loff_t *ppos)
-> +{
-> +	struct vmclock_state *st = container_of(fp->private_data,
-> +						struct vmclock_state, miscdev);
-> +	ktime_t deadline = ktime_add(ktime_get(), VMCLOCK_MAX_WAIT);
-> +	size_t max_count;
-> +	uint32_t seq;
-> +
-> +	if (*ppos >= PAGE_SIZE)
-> +		return 0;
-> +
-> +	max_count = PAGE_SIZE - *ppos;
-> +	if (count > max_count)
-> +		count = max_count;
-> +
-> +	while (1) {
-> +		seq = le32_to_cpu(st->clk->seq_count) & ~1U;
-> +		virt_rmb();
-> +
-> +		if (copy_to_user(buf, ((char *)st->clk) + *ppos, count))
-> +			return -EFAULT;
-> +
-> +		virt_rmb();
-> +		if (seq == le32_to_cpu(st->clk->seq_count))
-> +			break;
-> +
-> +		if (ktime_after(ktime_get(), deadline))
-> +			return -ETIMEDOUT;
-> +	}
-> +
-> +	*ppos += count;
-> +	return count;
-> +}
-> +
-> +static const struct file_operations vmclock_miscdev_fops = {
-> +        .mmap = vmclock_miscdev_mmap,
-> +        .read = vmclock_miscdev_read,
-> +};
-> +
-> +/* module operations */
-> +
-> +static void vmclock_remove(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct vmclock_state *st = dev_get_drvdata(dev);
-> +
-> +	if (st->ptp_clock)
-> +		ptp_clock_unregister(st->ptp_clock);
-> +
-> +	if (st->miscdev.minor != MISC_DYNAMIC_MINOR)
-> +		misc_deregister(&st->miscdev);
-> +}
-> +
-> +static acpi_status vmclock_acpi_resources(struct acpi_resource *ares, void *data)
-> +{
-> +	struct vmclock_state *st = data;
-> +	struct resource_win win;
-> +	struct resource *res = &(win.res);
-
-Unnecessary parentheses
-
-There are several checkpatch offenders, please double check your next 
-version before the submission.
-
-Thanks!
-
-Paolo
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index dd5260141615..7e5bbaef6f76 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1628,6 +1628,7 @@ static struct file_system_type virtio_fs_type = {
+ 	.name		= "virtiofs",
+ 	.init_fs_context = virtio_fs_init_fs_context,
+ 	.kill_sb	= virtio_kill_sb,
++	.fs_flags	= FS_ALLOW_IDMAP,
+ };
+ 
+ static int virtio_fs_uevent(const struct kobject *kobj, struct kobj_uevent_env *env)
+-- 
+2.34.1
 
