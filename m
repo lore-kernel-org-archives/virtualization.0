@@ -1,183 +1,118 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D4111A0BC9
-	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 09:34:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B6921A0BD5
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 09:39:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725356055; cv=none; b=NWZ+FzpoLVkQhvO02mz2uyI8GFUmaypMhrcIXe6Y6LdUZPNPaaOTkhPPCuI340CwqquDQ9DTke4aCb16HDxINVYbYrZAEM8HYWDSQ+0sUeLKsuHEgcVB1ZoNykltyqlg/RIoDNSZ/o2WBUzPoZrQRPSLSNU8aZ6gyRL+cWCh5lc=
+	t=1725356355; cv=none; b=QrdgCxXafPQLMYEW1Tqe1sD8giccf02SimFKqCc2mgObZ7a6vG4Wo/WTe3opB0fEjI6vgHPpCj1WfWn8/xNT3NlUXq6ZbRedKQ/+6zCoGAfqO4/S3auwDa40Lun0q5Js8zaJa9NQSBFZ6t/rSSUT1zX9NluVaWg+4adS4QAjNvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725356055; c=relaxed/simple;
-	bh=7jJBly8Y6bE9sPKCf9EEsc7epwehNU1txM4jSXiORyI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PI4dPKP9OgTv0dWOk8aaiDjehRBp7HSsu01vlZlSjCzq0aXJJtYlW6G8Nsza8lzkwfOhsy+N5lbSFQTuM6dAxPflwVGyt0kqfhRy56mSk2Z5WWb1m35psVqZZXMnM9YLKJnOUdKZu3guvg1N2HrdNn0giabNiTDmON3ahdHgI98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=o5t/zlcD; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1725356355; c=relaxed/simple;
+	bh=Roj+Ea7LEvenEhyYiuiVmXINZE+I65g3EEz0Bl+4ooc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=asbghkAB8e8helMVZsPIUK1QEPStJACgcsUG0CXvuVApo4J6a5AOBfOYXiiarjBvEzs41M2NOOM6aZ6VGYLo/iIaMugXf9oJebB/M/r3Cm00IAkIYl1BYyBWNl9DMOKw/gx7lpIclZAnwWkYEhS55O/0ThpiWqCSDbYE+wgVyFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Dzg0MTH8; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="o5t/zlcD"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1725356045; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Eb+P3ApRDSOdltbSEo0YbmmjQpT9J2C1awOD4TBbcTc=;
-	b=o5t/zlcDDQiluvCQpsgwrWnl05SGXVPXxITmWO3hiCL5O1GWmn2mzHyOmGbV0pPujhjqGtPl0YUum01UnoV+VT6EjBM4xiZDr3PzlvoW+ngalvMz8SsKKmzKi4CSsnttPBFSYBWUEYw6mtqoyLPj7ZFdi7lq+vXqa9J673jxQHM=
-Received: from 30.221.113.157(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0WECwpGA_1725356043)
-          by smtp.aliyun-inc.com;
-          Tue, 03 Sep 2024 17:34:04 +0800
-Message-ID: <5769af42-e4dd-4535-9432-f149b8c17af5@linux.alibaba.com>
-Date: Tue, 3 Sep 2024 17:34:01 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dzg0MTH8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1725356352;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ROekkmcoe+OX/H/SJ0CegmonvJxcYbn0m80zXzGYZLw=;
+	b=Dzg0MTH81X5MuDrt2OLTZjTsfh9S3IMwT3enhoGoSO6WkamznRckYPFV/zOLIYifHtDPca
+	1BhbhhsTEHZPay5jkVb1UzEAC5MMmXvBQ+sjnV4TH/VcTe8ZWyQmeNvCC9sazU0q3Vk4Zx
+	a1E8p1kuNnRNg9omv2MGxYn1oIYzP+I=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-563-5DanyAhOPj6cM2KmaI7wrQ-1; Tue, 03 Sep 2024 05:39:11 -0400
+X-MC-Unique: 5DanyAhOPj6cM2KmaI7wrQ-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42c7936e4ebso28156485e9.3
+        for <virtualization@lists.linux.dev>; Tue, 03 Sep 2024 02:39:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725356350; x=1725961150;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ROekkmcoe+OX/H/SJ0CegmonvJxcYbn0m80zXzGYZLw=;
+        b=uWZf9/dZHTSPAyAVXGB2OTmREuxDYfZKMQMdRkwmi6XvpkTCcRHH5uuM1zMSbvYerA
+         xQwFcVUmmqI5wBAjAczSWgNK8zB3kkHlBfrkDo2TMbyH/Q7KQioUg26a7SV091i6aL2S
+         UgiyskeM3C4U9pQRPhguUx+p/x3luQg8GompN0gCthw8rEuU8o/jMDXpiEnFzZGJkoao
+         LlsSbpTVUIoiHtKBAt/f2PEEKkHEA97uaeb9wlfqZfYLRgIBb0UrSbxxzcYiL4uiMbrW
+         j3lbeaLNuh7zCFLZ464PHl3un32W+9Z5EwyhOFlIWSZ1gwxF6GsfuP6GoACdLl2BlIoO
+         dHng==
+X-Forwarded-Encrypted: i=1; AJvYcCXHw7lGXhWJMbGQoNdoJH52+/Yl6NvDTGIk0uHZpiKKeRsHsEqJuIgPjq+6s5OLKjluJkUBncF1D0Aj9VSbxw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyhGQm7wfDVeyZhT6xqwLrKEFXFQ7/ZIpHAANqoeZCgBfpIX606
+	oBKpi/uC5vEL+XEZ03Wc7NoQZpGjyO9QSL4gehBQ6D0kL/Xx8M9nfzdYyz/fweBtbs21/i23ZZX
+	P/NX1NOs0Sr7/IQHwOsQ9WT9x6ne8l0lrOGkjM47CA5WZM1++wgGJIeP0BZiX1vP5
+X-Received: by 2002:a05:600c:3d0d:b0:426:4f47:6037 with SMTP id 5b1f17b1804b1-42bdc6375abmr66533075e9.19.1725356350123;
+        Tue, 03 Sep 2024 02:39:10 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGmeosf/mJIf4OuBVOC1FXDQtaN47WobnVUFS/lrBzspPK+LAJFhvAiwYTR4QIKkjIzV+Hhfw==
+X-Received: by 2002:a05:600c:3d0d:b0:426:4f47:6037 with SMTP id 5b1f17b1804b1-42bdc6375abmr66532735e9.19.1725356349385;
+        Tue, 03 Sep 2024 02:39:09 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc7:441:95c6:9977:c577:f3d1:99e1])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42bba57bb20sm142356975e9.4.2024.09.03.02.39.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Sep 2024 02:39:08 -0700 (PDT)
+Date: Tue, 3 Sep 2024 05:39:04 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: iommu@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Bingbu Cao <bingbu.cao@intel.com>, Jason Wang <jasowang@redhat.com>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-media@vger.kernel.org, virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org
+Subject: Re: [PATCH 1/2] vdpa_sim: don't select DMA_OPS
+Message-ID: <20240903053857-mutt-send-email-mst@kernel.org>
+References: <20240828061104.1925127-1-hch@lst.de>
+ <20240828061104.1925127-2-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/2] virtiofs: use GFP_NOFS when enqueuing request
- through kworker
-To: Hou Tao <houtao@huaweicloud.com>, linux-fsdevel@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Bernd Schubert <bernd.schubert@fastmail.fm>,
- "Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox
- <willy@infradead.org>, Benjamin Coddington <bcodding@redhat.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- houtao1@huawei.com
-References: <20240831093750.1593871-1-houtao@huaweicloud.com>
- <20240831093750.1593871-3-houtao@huaweicloud.com>
-Content-Language: en-US
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-In-Reply-To: <20240831093750.1593871-3-houtao@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20240828061104.1925127-2-hch@lst.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-
-
-On 8/31/24 5:37 PM, Hou Tao wrote:
-> From: Hou Tao <houtao1@huawei.com>
+On Wed, Aug 28, 2024 at 09:10:28AM +0300, Christoph Hellwig wrote:
+> vdpa_sim has been fixed to not override the dma_map_ops in commit
+> 6c3d329e6486 ("vdpa_sim: get rid of DMA ops"), so don't select the
+> symbol and don't depend on HAS_DMA.
 > 
-> When invoking virtio_fs_enqueue_req() through kworker, both the
-> allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
-> Considering the size of the sg array may be greater than PAGE_SIZE, use
-> GFP_NOFS instead of GFP_ATOMIC to lower the possibility of memory
-> allocation failure and to avoid unnecessarily depleting the atomic
-> reserves. GFP_NOFS is not passed to virtio_fs_enqueue_req() directly,
-> GFP_KERNEL and memalloc_nofs_{save|restore} helpers are used instead.
-> 
-> It may seem OK to pass GFP_NOFS to virtio_fs_enqueue_req() as well when
-> queuing the request for the first time, but this is not the case. The
-> reason is that fuse_request_queue_background() may call
-> ->queue_request_and_unlock() while holding fc->bg_lock, which is a
-> spin-lock. Therefore, still use GFP_ATOMIC for it.
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Actually, .wake_pending_and_unlock() is called under fiq->lock and
-GFP_ATOMIC is requisite.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-
-> 
-> Signed-off-by: Hou Tao <houtao1@huawei.com>
 > ---
->  fs/fuse/virtio_fs.c | 24 +++++++++++++++---------
->  1 file changed, 15 insertions(+), 9 deletions(-)
+>  drivers/vdpa/Kconfig | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 43d66ab5e891..9bc48b3ca384 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -95,7 +95,8 @@ struct virtio_fs_req_work {
->  };
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 5265d09fc1c409..b08de3b7706109 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -11,8 +11,7 @@ if VDPA
 >  
->  static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
-> -				 struct fuse_req *req, bool in_flight);
-> +				 struct fuse_req *req, bool in_flight,
-> +				 gfp_t gfp);
->  
->  static const struct constant_table dax_param_enums[] = {
->  	{"always",	FUSE_DAX_ALWAYS },
-> @@ -439,6 +440,8 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->  
->  	/* Dispatch pending requests */
->  	while (1) {
-> +		unsigned int flags;
-> +
->  		spin_lock(&fsvq->lock);
->  		req = list_first_entry_or_null(&fsvq->queued_reqs,
->  					       struct fuse_req, list);
-> @@ -449,7 +452,9 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->  		list_del_init(&req->list);
->  		spin_unlock(&fsvq->lock);
->  
-> -		ret = virtio_fs_enqueue_req(fsvq, req, true);
-> +		flags = memalloc_nofs_save();
-> +		ret = virtio_fs_enqueue_req(fsvq, req, true, GFP_KERNEL);
-> +		memalloc_nofs_restore(flags);
->  		if (ret < 0) {
->  			if (ret == -ENOSPC) {
->  				spin_lock(&fsvq->lock);
-> @@ -550,7 +555,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
->  }
->  
->  /* Allocate and copy args into req->argbuf */
-> -static int copy_args_to_argbuf(struct fuse_req *req)
-> +static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
->  {
->  	struct fuse_args *args = req->args;
->  	unsigned int offset = 0;
-> @@ -564,7 +569,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
->  	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
->  	      fuse_len_args(num_out, args->out_args);
->  
-> -	req->argbuf = kmalloc(len, GFP_ATOMIC);
-> +	req->argbuf = kmalloc(len, gfp);
->  	if (!req->argbuf)
->  		return -ENOMEM;
->  
-> @@ -1239,7 +1244,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
->  
->  /* Add a request to a virtqueue and kick the device */
->  static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
-> -				 struct fuse_req *req, bool in_flight)
-> +				 struct fuse_req *req, bool in_flight,
-> +				 gfp_t gfp)
->  {
->  	/* requests need at least 4 elements */
->  	struct scatterlist *stack_sgs[6];
-> @@ -1260,8 +1266,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
->  	/* Does the sglist fit on the stack? */
->  	total_sgs = sg_count_fuse_req(req);
->  	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
-> -		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
-> -		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
-> +		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
-> +		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
->  		if (!sgs || !sg) {
->  			ret = -ENOMEM;
->  			goto out;
-> @@ -1269,7 +1275,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
->  	}
->  
->  	/* Use a bounce buffer since stack args cannot be mapped */
-> -	ret = copy_args_to_argbuf(req);
-> +	ret = copy_args_to_argbuf(req, gfp);
->  	if (ret < 0)
->  		goto out;
->  
-> @@ -1367,7 +1373,7 @@ __releases(fiq->lock)
->  		 queue_id);
->  
->  	fsvq = &fs->vqs[queue_id];
-> -	ret = virtio_fs_enqueue_req(fsvq, req, false);
-> +	ret = virtio_fs_enqueue_req(fsvq, req, false, GFP_ATOMIC);
->  	if (ret < 0) {
->  		if (ret == -ENOSPC) {
->  			/*
+>  config VDPA_SIM
+>  	tristate "vDPA device simulator core"
+> -	depends on RUNTIME_TESTING_MENU && HAS_DMA
+> -	select DMA_OPS
+> +	depends on RUNTIME_TESTING_MENU
+>  	select VHOST_RING
+>  	select IOMMU_IOVA
+>  	help
+> -- 
+> 2.43.0
 
-LGTM.
-
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-
-
-
--- 
-Thanks,
-Jingbo
