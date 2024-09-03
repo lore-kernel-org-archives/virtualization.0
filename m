@@ -1,214 +1,262 @@
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2076.outbound.protection.outlook.com [40.107.100.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9020C18E35D
-	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 17:37:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.76
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725385055; cv=fail; b=nkeh8eDirx7qEjYEP4lDLOIUhXqCSjJwWmGKfoiezaq58HuquWdnoayvhVXeOk+wjiMWmwSX8k/NtBk3ADMSqgzrlPGffTh50YqfPtMl3h3NFWQMzvbstNV5WxL0ZLd8r2Pm0MRqA6OQVspT5FDbvt/KvA2stBKrcJBvepoVDvU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725385055; c=relaxed/simple;
-	bh=HRUCH6frL6uBu4qr7HFTQBdc5Fj5al1dB8/rD24Qe2Q=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=uzAenuhEMJ1Y/W1TXGUnoAtJCxIxU4iJkaN0TvOGJavGTbRE/k48LG/tBzBGZweFwTXJ6i8Pv+Yvhx3oPjmE+bJUO7KZ0Zq8EUVVwTN29HFxsRM2Wp2nKiDhn6TNVrH8Stn60yS8y7+WEfPMXExpr7EiaHjU9eF1MtBREWLEM1Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=lVuxvnVr; arc=fail smtp.client-ip=40.107.100.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FD2D168D0
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 22:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725403189; cv=none; b=lcE/AJXtoXhJODBjjRnZ0NEP3Tf3vhEC6CRzqjBSxKZVamPpvTXGOq2tEjDzktKYMNdU78TnaSgukuZAJL/ilhHOkSlaPcDSESZjvrTJer+fTC1zYiPkOk/FF3qcYQmPNskiIt4D471AW7Ey+Bqn1ihEpFIrAI8gAd/HP3x/QRw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725403189; c=relaxed/simple;
+	bh=KeS+/H/ggeQdORa2PHv0xcObmCvkTFDDKzaYSlN5KcM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cGmMFDepl7qCKmv7ItC69wLH7Vjn5mJM75WnxzuuujS23wY6nS5aytktmjqltdgQFN9Ots0aKTLbBAwA0XnSdMNpcn356SY9uce91AoN9/jkPnwEAF0tZGj9S2Vc93iL0R2FnNmvPgPPduqQV1aT4SR3Pwa6/6cT9SF3BJN4ixI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hyYlSsdf; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="lVuxvnVr"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ejtz0BRSL5K7e2JQ7mPTd6tm5dvXVP8SOJvRJ7VQFA5O8qP6oEsgHhweVmFSUdo+g3PUtTuVKUjKYqzw42Hi7NUzMyNxvaPFICtnB1fRc6vTD1itV+xXaEpAiGAW2Vt5HhXv1U8cVCo0PBDxx3bz8ZFcMoxbQ1BJRdmVDi+cV7fKFVUmALFwVv1oUL89Rj6qrygdCp3mLktZdVSLKbIbmRnFcaysm/4I62app5UOPAzmLITrFcL984oGZ4QFFKq/qEicGQA0AtHP+fJmGrKXAwMYHR7GbX5eklHfb8eShi0mbT6C2CekmAg4YA2FRF5LePLL9vxpmLUEia06SvXDPQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wfI6QjYL7dOLa4RhFtlAWiMZXKiw2QYbQYVMa/5OIuE=;
- b=VMbvdC0S5w1x4pa1kHLbgIr//5IDaEbLWlsyOkpQjhS1zYAjNPUjkaOL8bp/Ol9Zi6SFxrdA7q5fFcTZymvI0fmuzAKIkK2MjB3Ot5+Fj9G9ldHy/08krl/9q6R3SWJ3/zVMF3aVe2/igJNdpszucYjHM0d+VBV7PMjvmWabRLb4TPV1DCZXFOB4XOrtqNBt827gpSKny8qSuB6KxwdDBCgKLBwednNVxStlEp2Vm5AKOijGTlzEpwuJpzuK/2hjRTq3KZaBsqEUnd6Z1DpU9RcncCF0rWtE4S71RDPYGxOrnoOmJtEhPm9+2l6tJWdpL1qKHywtgpO3Ms5P1xr+4w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wfI6QjYL7dOLa4RhFtlAWiMZXKiw2QYbQYVMa/5OIuE=;
- b=lVuxvnVrZsCp/UriR1wdmkPdA9jfLhDE/7ibrdaDJD6v6nHlrAgahznT1VNkHuduEg3zwIp/1JGw+OA9tq38t6eeA/yMqxIX7gQ+91j03xWn1NsORu/exrn/kMlsgWZZTUcqYFDCMv3cdvKr3OX082LqiYHCHQhztxcD0d4ou8c=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DS0PR12MB6583.namprd12.prod.outlook.com (2603:10b6:8:d1::12) by
- PH7PR12MB5829.namprd12.prod.outlook.com (2603:10b6:510:1d4::6) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7918.25; Tue, 3 Sep 2024 17:37:28 +0000
-Received: from DS0PR12MB6583.namprd12.prod.outlook.com
- ([fe80::c8a9:4b0d:e1c7:aecb]) by DS0PR12MB6583.namprd12.prod.outlook.com
- ([fe80::c8a9:4b0d:e1c7:aecb%6]) with mapi id 15.20.7918.024; Tue, 3 Sep 2024
- 17:37:28 +0000
-Message-ID: <3e9a6d05-a76c-4bbf-9f4e-2e126259b70e@amd.com>
-Date: Tue, 3 Sep 2024 10:37:25 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/2] vdpa/mlx5: Set speed and duplex of vDPA devices to
- UNKNOWN
-To: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, dtatulea@nvidia.com,
- mst@redhat.com, jasowang@redhat.com, sashal@kernel.org,
- alvaro.karsz@solid-run.com, christophe.jaillet@wanadoo.fr,
- steven.sistare@oracle.com
-Cc: bilbao@vt.edu, xuanzhuo@linux.alibaba.com, johnah.palmer@oracle.com,
- eperezma@redhat.com, cratiu@nvidia.com, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Carlos Bilbao <cbilbao@digitalocean.com>
-References: <20240903171514.201569-1-carlos.bilbao.osdev@gmail.com>
- <20240903171514.201569-2-carlos.bilbao.osdev@gmail.com>
-Content-Language: en-US
-From: "Nelson, Shannon" <shannon.nelson@amd.com>
-In-Reply-To: <20240903171514.201569-2-carlos.bilbao.osdev@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR03CA0362.namprd03.prod.outlook.com
- (2603:10b6:a03:3a1::7) To DS0PR12MB6583.namprd12.prod.outlook.com
- (2603:10b6:8:d1::12)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hyYlSsdf"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2055f630934so21202015ad.1
+        for <virtualization@lists.linux.dev>; Tue, 03 Sep 2024 15:39:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1725403187; x=1726007987; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lJzEDZ6Y41Cwm+nItw4ApEDZvLrm6Zf0G+Ovt54oSKM=;
+        b=hyYlSsdfMf8+AM01WJ0rI4N3dKPO40CBkznMu0whmneTP6HQyUygD2UBG/rKG1ASbF
+         kcs2NqOOVRc/tnE8auXpkQLdmhzpKs+zVDlb//HW1iULEm5o3LI0MPYWjsTs8Gbx5Ige
+         s0+kECtcoNQlNJ7/ZSpHVEU9zSo8jiupXm/XBz39P2PpBvOCgFsYaaRoDGXLZJKzWFH0
+         9AqxQJOC7YQxUMUPc53i0wzRCTle4tyo8uGOtV6RgHoOEhHcM+SPII2Ggu98vwiWyZyo
+         4CZ7vGBb1MIAENjXyOmK8VQlfAPsdlLcdDthkoA4ikgCO9GzwhOApZgmOrb9LLdzh8ow
+         GmNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725403187; x=1726007987;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lJzEDZ6Y41Cwm+nItw4ApEDZvLrm6Zf0G+Ovt54oSKM=;
+        b=mj2KA7NZQZ8JyU1D3F/Q7cIdgm9YLiphypM7DfRL69COEX81FwaO2lSEjqIQJj1RDV
+         4aaqZqJ2JyDbzYeIxstiBeXD3Mo3dmz0wYkkTortkWZTxHrpxMTHT2x3pOvkA+S6e40M
+         lj1n4/bajg1VylqowTxiQ4UdJwGJ/9LbaR46D5AAh6Y1ICEaoHCrFe/XIwV6iQ+7RLHU
+         WFEZFOZd+QKBEylgv4oDFOkZ17EATFg8E/uRr4J27YYtLX7Bp0CVXjYlPYPGqxmyNHR5
+         AQzPb13Cfi4Q0/e7ldYxMzT6Whd+rtLKdVYsJOH5M8WHd9gc7PAMmzh0F/FwUkZqfXpE
+         e4Pg==
+X-Forwarded-Encrypted: i=1; AJvYcCUg+edgKgPQDDAJoAPW33eKz8p2bZ9cXGeK0c6RW3CHDMHmIqjAk/qjqy8GDutouEgMigr/UdahjXqxUZxf8A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxa2feF8o4PYSgncu9HKivUL17c9dIK+RNG1SVykhE1N8aXldz6
+	rdfcR8hMK35rtUdYFCxhSiIQ2A8hbrkPSk+5D4VqUK3tx+EDo0+v
+X-Google-Smtp-Source: AGHT+IF4JZ9uttpCEjhGk+KRVirtmc6UBRZKXBbOBrpMJWbwoF0ZbezJXFzPRsbM0ocaAmPCoeH3ig==
+X-Received: by 2002:a17:903:2b04:b0:205:51ee:b81e with SMTP id d9443c01a7336-20551eebb28mr131826195ad.15.1725403187460;
+        Tue, 03 Sep 2024 15:39:47 -0700 (PDT)
+Received: from Barrys-MBP.hub ([2407:7000:8942:5500:3dfb:fdbe:2749:2520])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-206aea55789sm3007825ad.217.2024.09.03.15.39.40
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 03 Sep 2024 15:39:47 -0700 (PDT)
+From: Barry Song <21cnbao@gmail.com>
+To: mhocko@suse.com
+Cc: 21cnbao@gmail.com,
+	42.hyeyoo@gmail.com,
+	akpm@linux-foundation.org,
+	cl@linux.com,
+	david@redhat.com,
+	hailong.liu@oppo.com,
+	hch@infradead.org,
+	iamjoonsoo.kim@lge.com,
+	laoar.shao@gmail.com,
+	linux-mm@kvack.org,
+	penberg@kernel.org,
+	rientjes@google.com,
+	roman.gushchin@linux.dev,
+	torvalds@linux-foundation.org,
+	urezki@gmail.com,
+	v-songbaohua@oppo.com,
+	vbabka@suse.cz,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 3/3] mm: warn about illegal __GFP_NOFAIL usage in a more appropriate location and manner
+Date: Wed,  4 Sep 2024 10:39:35 +1200
+Message-Id: <20240903223935.1697-1-21cnbao@gmail.com>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
+In-Reply-To: <ZtVwQL52EmIIyDsK@tiehlicka>
+References: <ZtVwQL52EmIIyDsK@tiehlicka>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB6583:EE_|PH7PR12MB5829:EE_
-X-MS-Office365-Filtering-Correlation-Id: 23542ca6-a011-49b1-6441-08dccc3f1487
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?bjVFUC9lRmRCN081Qk1pU3R5SnVwQkZVWDY3Ui9iUzJnSU9pazFhRWZJV2pq?=
- =?utf-8?B?RFVGQnBHZWZnNHJheXFoWlUzODNuZU5GYmJ5ZVZpOUJrWWtVRUNtK05MZWJx?=
- =?utf-8?B?UFhGeEsybEFVb0ExNElXREgxaEkzQkwrOHd1c0t5eXFIazBvUkYvL3N4VmxK?=
- =?utf-8?B?Z3d6SW5lM1c3cmRqZDFnM0pRMzdENGRrajB2aUxNSHlWdmxDdFpRWXAxRHA3?=
- =?utf-8?B?OG1NbWFSdXNjRUN3aVh1Mm1lMXlHcnJod1hHeENpTS94NElSVlA0Ylp2czhY?=
- =?utf-8?B?UTE3NFUzSE5LU0JYK3ZYNTJBRWlDVURpUVdyQ3kzMlRFUUo3S2J4STZSRWZy?=
- =?utf-8?B?eGNXZU9ObDU3M1RpNW9ibVFmdlRYZ0pweWVtQkpkZ0VVamdYTmgxSlZpc1o0?=
- =?utf-8?B?Yk1JeGpOMU5uNVdJTlROajhTS1A0TmlsVW5xUGY2S3d1cE1pU1JvVmp0NlFy?=
- =?utf-8?B?QUNZblpyUnNBcmQwcndDV0RYT0ZtN0F0bUREbTRKVHVucTRlK2o3R3l4eFph?=
- =?utf-8?B?MGNkZzVxdWFqSU1KTlNrRWpNZWJJV2Y0OVFUMTR1NFNoTTA5eGRWUDBMcUhX?=
- =?utf-8?B?ZG5RRHNhNldPdTB5Nk1xS2JjdS9kd1E1a3pkaWpqODBlUzJyK3J5SWNKVFEv?=
- =?utf-8?B?clhURmdWL0xobGNvZ1I0VlpTWElXanhRZkJ1a2xuVEROZnRCSHFLSmZBN1lF?=
- =?utf-8?B?T08vbHR4OEtwTGJuQW5IbVBYYUQxWlBBU2k3MVdadHZzbkZydmRacGJQaSto?=
- =?utf-8?B?ZHBaNXZGekNvYkxBMmFLNXJVaS82K2FUekIvcEFBRGMzQ3drcCtVb1NGenNG?=
- =?utf-8?B?Zk1WNTZTN2hKTTlXQXBzM0Q5SWgxZVhRTTFIWTdoVTQyU2R5STZvR2M4M3RT?=
- =?utf-8?B?QmNkaWRrT0JVUy9pT1JoUVdzOXpMQ2dXbkN0Qk1JMS82T3M2VmVzek1zSHpQ?=
- =?utf-8?B?WVdpRTkyclNZVFU2MUt0RnByVlRoa0d3RG8vS08yNkdRUVhnbW9yUzdTK0tH?=
- =?utf-8?B?alZQa2RzQVUxWGI2Mkc5bkQ0TnE5OWtvclpyR2s3c3JXbE54K00rdUZGZGU2?=
- =?utf-8?B?a085RHhvOGhBQTczNGhYSUZOd2thb3d3VlhzN2VzejJlQ09QNGlrYmRoZEc5?=
- =?utf-8?B?akV3R3FWa0k2eTY3S0FpSW1SM2dVZ3dTYVZmZkprZnBvZlVvanlIUHRPOUN2?=
- =?utf-8?B?dnczV3JrRFBGRjdjMnd2VGRJczRiZVVFRDA0dWM3M1BZTXVmQjhhMjVOeHFV?=
- =?utf-8?B?U2JCejJxQnNjWklONkcySjlJcHdaVS80WTg4bmREMTVyb1lBTkdaUWExZk0z?=
- =?utf-8?B?UkNCbVg1ZUt6OC9icFRURlRLdWhkQVlCOXEvRTg5VERPY3RIa3hicVRHTWpw?=
- =?utf-8?B?V2l2SjBocWpxMVBXSEVLTkJlVGw2Y3VOa3h3QVhCYk4rUmU0b2tFUGJXUVFY?=
- =?utf-8?B?WlFraVBpSWZXL29aQU5XZ3E3RVlSYlJoTHFtQmF1UFlRblVCeDV1MC9BaFhG?=
- =?utf-8?B?MFU5VmpIL3lRNTFYMWZJT3E1WXVCczdoS0l0SE9PMnBKenp0dEpHbmtZRDBD?=
- =?utf-8?B?RUVYSzBxd2k0S1lVQTI2Wk1lOU5QRVRPNzBDMUQyWnNUekdQbVRNVHFRSWwx?=
- =?utf-8?B?KzdWVS90ZzdiYXo5cmJ1cG13YXhxQ0NSa0VmY1BLait2U1dkTkkzdW5mUWRF?=
- =?utf-8?B?bnAvTDZVM1ZGVTBtMG8rZFIyMjB4NkpOclBFZnp6czFiVTVrbkhURldCbVpk?=
- =?utf-8?B?YVErSnZUaGZIV2JxSEJUZVVCOFVWU3pKd2RBUjd2YWNtcnNMUnIvRlFhM0Ir?=
- =?utf-8?B?TXFkdjlVdFZsamUrS2VPUT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB6583.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?V3luTUdiU3FwRDVhSlZMNGowUnNldFVVaTBIQktiQlk3WVhJK1VLQmh1amJr?=
- =?utf-8?B?V0xad3NhblhscG5qNXJ4eUJaWThMNnNKUDk0NUU3ZWlTRjJ4U28vNXZabXBK?=
- =?utf-8?B?RFREK1BYZ2RQZ3RCOHYwRFlNbkQ1S1lER20yL28zK1l3WGtUNWtrZFpvKy9w?=
- =?utf-8?B?emxvMnQ5VWI4aSsrbDI5V1JpdDFIWURsS2lsaXlXOWo0czVxV2MrdTNCZzR5?=
- =?utf-8?B?aXZDREdnV2pNZzZ0VWNkeTYydFp2Rkc4dzZNem14RFN2YjBwVjNhOXppbVdE?=
- =?utf-8?B?VG9CNlZHNi84NU96aHVaMnBOL1NMZ3IwTndaRHZFY1BzdjEycEpRenEvb2sw?=
- =?utf-8?B?cmQ0Z05nUEpmcXY0VEdKRlV2L2JaTjRkTHc5UW03WlNqaW1XM3N3ZEdiUk00?=
- =?utf-8?B?eDdNakN6N0FhTTk4b3pVeDFWbExNVjhSQS9UelRXd09WMnh3TjRQaVM0U2pL?=
- =?utf-8?B?ZmVtN3l1TmFFdUlTWU1EQVZWZm9iWUZZeGZ4MnVnMFU3QUNJdWl0RHdGSWRo?=
- =?utf-8?B?QmhlaXFmQURGU1A3SW5TY3BETllpbUVkMnhtNStkVFBjVU9xU25rMmlxb2xn?=
- =?utf-8?B?b1VEdVhmNWFHUmNIbTZXbVRCekd1Z1BXZWhnU0NxcFczb29ROEVGRGtmYWlq?=
- =?utf-8?B?d29mVDl4SHJ3ZHpHaW15cmpwSUMxRFpmalRwWGFmTi80TjJIQ05zdzlnU0Rn?=
- =?utf-8?B?TVdJeTNNMVcydVRqSjB2MzgyMlpYVW5yTkJERWxUcThZMDZZNnJhVmFwRWZz?=
- =?utf-8?B?d0lLKzZJNXA3cStVOUh1N1VWd21HWTk1czFBNDlneTE4L3VPL1d6RDFKMHJY?=
- =?utf-8?B?eG01OUd5aVAvbXJOMVY3WFBWdjVJOWlLSUZZNERnV3NpTDRMYmhmRU0vRXZr?=
- =?utf-8?B?SjlHdE1laTNXdURINUw4VERWNXNJUGpnVTMwWmdxSjJtQjlnS1pyNlhjdUhT?=
- =?utf-8?B?RzlUUWU3OUhLclhVQXlKSU5nWjJ2MUlXOStBVFJFS1RuZnNXRVliL1hndUJn?=
- =?utf-8?B?VTcybWVIcnAzVVNPcmpaNUJSZHhnQWQvQlZFbzF5L1BweXlwdkhsaVVWSXd4?=
- =?utf-8?B?MTcvZm9Jdzl1UE1xMkppdW9oMFlmUllBWHl0ZUxpaGpqMmc3bWswY2w4K3lR?=
- =?utf-8?B?Z0c4dW1VcEtQSk9oWldaM2hZVllTbldQQmhVUDdRVmVTN25WRWxRdGJlNm1G?=
- =?utf-8?B?RDl2QmFZc3JRWDhaWjllcXRFOHFyaVozTzBQU3h6ODNUdEFrd0pMdTI5RHpt?=
- =?utf-8?B?YUxNc0tFQXVVMVJPL2Q3QmdsSUY2T2lVSXJCM3NHWExPU2ZRQzlaSGUxN2d5?=
- =?utf-8?B?UUl2ODUrLzAwQUdHeDl2ZUZVZmZNRDEwazMyaEZ5czdMYkkxTi9QNDFuYitv?=
- =?utf-8?B?R1U3T29WQnk2L1FZSi85NWVKcU85ZDlURXkvcHI2QU1lTitSa1gzSThhOEtM?=
- =?utf-8?B?MG1PY0haRGIzMEZlNFM5WVRWY2FGVlVUQVI1WWI1UU1KZTBIdzVla3dWL0d5?=
- =?utf-8?B?clJELzhPa0l3dVNJZjltWmNuMjVrb3lHWnR5LzloT1o3bHkzeUU5alhrRXA1?=
- =?utf-8?B?NkFTZk9kUlA0S05IOGJud0VOandjRWd5bEV5RlFBOXZnaVhCY2JSRld1WjEx?=
- =?utf-8?B?V21Kd0IvbFR3SzdrbkV4Mlp3UlN1Yi9iUzNkYkszZmN1QlBTMlJUeDJFNjB6?=
- =?utf-8?B?dHpxYzBSMXRodjFHMjZ6clJETW1Xdm81bVNTWnJCTUgxVXZ2TEs4SnlWTE1w?=
- =?utf-8?B?Q25jZ0I5WTMzSTlEMTI3ZVlxR0ZkSHVDRWJ6Rnk0MHcyN0t1TE01bWNaNnNo?=
- =?utf-8?B?OVh1YjZMSEp6MjNnOUw2RkZyb1hWdU9jWUYzQmppZ2tkY0h1R3ptMDY1R3JY?=
- =?utf-8?B?eGR0Ykw0SjJTY0FGU1N4NGcrV1Fjd20vSGpGRk9YSkVFdWdWRlhZUWx1Uk1Y?=
- =?utf-8?B?NWhpd1JZLytGVUFBTzFLRXNRSmJSSWg3SXdQaWpabHlOQlFhZmFxN2JCRU1G?=
- =?utf-8?B?K1BPd1NiQkFSQ1AwcnFHOWZPaHppUmd6MVQvY2x5ZVAvRVNFUEdYWHFYM0Qz?=
- =?utf-8?B?MzBFQkpETWl0WHNQNGdlTWptaVZtN2pkaE9iT0tXSjF5T3NqUWpWOGJrdyt0?=
- =?utf-8?Q?egcNBQ1rC7kIUUjC5OS/8vqW2?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 23542ca6-a011-49b1-6441-08dccc3f1487
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB6583.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2024 17:37:28.0646
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EBgWe8sDtrYpJbHGvsVA72uDZj33/GbyNc/kRNw68pduIRSWaIdasIfkQ/rudWyVm5HQ50lt9ZRZP5MjwX3xjQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5829
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 9/3/2024 10:15 AM, Carlos Bilbao wrote:
-> From: Carlos Bilbao <cbilbao@digitalocean.com>
-> 
-> Initialize the speed and duplex fields in virtio_net_config to UNKNOWN.
-> This is needed because mlx5_vdpa vDPA devicess currently do not support the
-> VIRTIO_NET_F_SPEED_DUPLEX feature which reports speed and duplex. Add
-> needed helper cpu_to_mlx5vdpa32() to convert endianness of speed.
-> 
-> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
-> Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
-> ---
->   drivers/vdpa/mlx5/net/mlx5_vnet.c | 12 ++++++++++++
->   1 file changed, 12 insertions(+)
-> 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index b56aae3f7be3..5fce6d62af4f 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -173,6 +173,11 @@ static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
->          return __cpu_to_virtio16(mlx5_vdpa_is_little_endian(mvdev), val);
->   }
-> 
-> +static __virtio32 cpu_to_mlx5vdpa32(struct mlx5_vdpa_dev *mvdev, u32 val)
-> +{
-> +    return __cpu_to_virtio32(mlx5_vdpa_is_little_endian(mvdev), val);
+On Mon, Sep 2, 2024 at 7:58 PM Michal Hocko <mhocko@suse.com> wrote:
+>
+> On Sat 31-08-24 08:28:23, Barry Song wrote:
+> > From: Barry Song <v-songbaohua@oppo.com>
+> >
+> > Three points for this change:
+> >
+> > 1. We should consolidate all warnings in one place. Currently, the
+> >    order > 1 warning is in the hotpath, while others are in less
+> >    likely scenarios. Moving all warnings to the slowpath will reduce
+> >    the overhead for order > 1 and increase the visibility of other
+> >    warnings.
+> >
+> > 2. We currently have two warnings for order: one for order > 1 in
+> >    the hotpath and another for order > costly_order in the laziest
+> >    path. I suggest standardizing on order > 1 since it’s been in
+> >    use for a long time.
+> >
+> > 3. We don't need to check for __GFP_NOWARN in this case. __GFP_NOWARN
+> >    is meant to suppress allocation failure reports, but here we're
+> >    dealing with bug detection, not allocation failures. So replace
+> >    WARN_ON_ONCE_GFP by WARN_ON_ONCE.
+> >
+> > Suggested-by: Vlastimil Babka <vbabka@suse.cz>
+> > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+>
+> Acked-by: Michal Hocko <mhocko@suse.com>
+>
+> Updating the doc about order > 1 sounds like it would still fall into
+> the scope of this patch. I don not think we absolutely have to document
+> each unsupported gfp flags combination for GFP_NOFAIL but the order is a
+> good addition with a note that kvmalloc should be used instead in such a
+> case.
 
-I hate picking at little things like this, but this should be a tab 
-rather than 4 spaces.
+Hi Andrew,
+If there are no objections from Michal and David, could you please
+squash the following:
 
-sln
+From fc7a2a49e8d0811d706d13d2080393274f316806 Mon Sep 17 00:00:00 2001
+From: Barry Song <v-songbaohua@oppo.com>
+Date: Wed, 4 Sep 2024 10:26:19 +1200
+Subject: [PATCH] mm: also update the doc for __GFP_NOFAIL with order > 1
+
+Obviously we only support order <= 1 __GFP_NOFAIL allocation and if
+someone wants larger memory, they should consider using kvmalloc()
+instead.
+
+Suggested-by: David Hildenbrand <david@redhat.com>
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+---
+ include/linux/gfp_types.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/gfp_types.h b/include/linux/gfp_types.h
+index 4a1fa7706b0c..65db9349f905 100644
+--- a/include/linux/gfp_types.h
++++ b/include/linux/gfp_types.h
+@@ -253,7 +253,8 @@ enum {
+  * used only when there is no reasonable failure policy) but it is
+  * definitely preferable to use the flag rather than opencode endless
+  * loop around allocator.
+- * Using this flag for costly allocations is _highly_ discouraged.
++ * Allocating pages from the buddy with __GFP_NOFAIL and order > 1 is
++ * not supported. Please consider using kvmalloc() instead.
+  */
+ #define __GFP_IO	((__force gfp_t)___GFP_IO)
+ #define __GFP_FS	((__force gfp_t)___GFP_FS)
+-- 
+2.34.1
 
 
-> +}
-> +
->   static u16 ctrl_vq_idx(struct mlx5_vdpa_dev *mvdev)
->   {
->          if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
-> @@ -3433,6 +3438,13 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->          init_rwsem(&ndev->reslock);
->          config = &ndev->config;
-> 
-> +       /*
-> +        * mlx5_vdpa vDPA devices currently don't support reporting or
-> +        * setting the speed or duplex.
-> +        */
-> +       config->speed  = cpu_to_mlx5vdpa32(mvdev, SPEED_UNKNOWN);
-> +       config->duplex = DUPLEX_UNKNOWN;
-> +
->          if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
->                  err = config_func_mtu(mdev, add_config->net.mtu);
->                  if (err)
+>
+> > ---
+> >  mm/page_alloc.c | 50 ++++++++++++++++++++++++-------------------------
+> >  1 file changed, 25 insertions(+), 25 deletions(-)
+> >
+> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > index c81ee5662cc7..e790b4227322 100644
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -3033,12 +3033,6 @@ struct page *rmqueue(struct zone *preferred_zone,
+> >  {
+> >       struct page *page;
+> > 
+> > -     /*
+> > -      * We most definitely don't want callers attempting to
+> > -      * allocate greater than order-1 page units with __GFP_NOFAIL.
+> > -      */
+> > -     WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
+> > -
+> >       if (likely(pcp_allowed_order(order))) {
+> >               page = rmqueue_pcplist(preferred_zone, zone, order,
+> >                                      migratetype, alloc_flags);
+> > @@ -4175,6 +4169,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+> >  {
+> >       bool can_direct_reclaim = gfp_mask & __GFP_DIRECT_RECLAIM;
+> >       bool can_compact = gfp_compaction_allowed(gfp_mask);
+> > +     bool nofail = gfp_mask & __GFP_NOFAIL;
+> >       const bool costly_order = order > PAGE_ALLOC_COSTLY_ORDER;
+> >       struct page *page = NULL;
+> >       unsigned int alloc_flags;
+> > @@ -4187,6 +4182,25 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+> >       unsigned int zonelist_iter_cookie;
+> >       int reserve_flags;
+> > 
+> > +     if (unlikely(nofail)) {
+> > +             /*
+> > +              * We most definitely don't want callers attempting to
+> > +              * allocate greater than order-1 page units with __GFP_NOFAIL.
+> > +              */
+> > +             WARN_ON_ONCE(order > 1);
+> > +             /*
+> > +              * Also we don't support __GFP_NOFAIL without __GFP_DIRECT_RECLAIM,
+> > +              * otherwise, we may result in lockup.
+> > +              */
+> > +             WARN_ON_ONCE(!can_direct_reclaim);
+> > +             /*
+> > +              * PF_MEMALLOC request from this context is rather bizarre
+> > +              * because we cannot reclaim anything and only can loop waiting
+> > +              * for somebody to do a work for us.
+> > +              */
+> > +             WARN_ON_ONCE(current->flags & PF_MEMALLOC);
+> > +     }
+> > +
+> >  restart:
+> >       compaction_retries = 0;
+> >       no_progress_loops = 0;
+> > @@ -4404,29 +4418,15 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+> >        * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
+> >        * we always retry
+> >        */
+> > -     if (gfp_mask & __GFP_NOFAIL) {
+> > +     if (unlikely(nofail)) {
+> >               /*
+> > -              * All existing users of the __GFP_NOFAIL are blockable, so warn
+> > -              * of any new users that actually require GFP_NOWAIT
+> > +              * Lacking direct_reclaim we can't do anything to reclaim memory,
+> > +              * we disregard these unreasonable nofail requests and still
+> > +              * return NULL
+> >                */
+> > -             if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
+> > +             if (!can_direct_reclaim)
+> >                       goto fail;
+> > 
+> > -             /*
+> > -              * PF_MEMALLOC request from this context is rather bizarre
+> > -              * because we cannot reclaim anything and only can loop waiting
+> > -              * for somebody to do a work for us
+> > -              */
+> > -             WARN_ON_ONCE_GFP(current->flags & PF_MEMALLOC, gfp_mask);
+> > -
+> > -             /*
+> > -              * non failing costly orders are a hard requirement which we
+> > -              * are not prepared for much so let's warn about these users
+> > -              * so that we can identify them and convert them to something
+> > -              * else.
+> > -              */
+> > -             WARN_ON_ONCE_GFP(costly_order, gfp_mask);
+> > -
+> >               /*
+> >                * Help non-failing allocations by giving some access to memory
+> >                * reserves normally used for high priority non-blocking
+> > --
+> > 2.34.1
+>
 > --
-> 2.34.1
-> 
+> Michal Hocko
+> SUSE Labs
+
+Thanks
+Barry
+
