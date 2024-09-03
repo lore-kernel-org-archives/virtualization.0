@@ -1,253 +1,214 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ED941DAC7E
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 07:48:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725349690; cv=fail; b=S7uGiOfC7CPBQc4KmBEXCxPbMZ9eOP+xuHFQQNqGK+mUsNKJ+snEQKLyfCO97HZtKeTTUGiunnSSFSQ9yBPSOl/2twrPuhxdtxwCWXtxLpfWc6bTfzdb0YgMKHkJAEybOAUaxAqJfFh6V+kf2Zl3CAEMJbiBl0RJ6lfuPZGVT/I=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725349690; c=relaxed/simple;
-	bh=sMjBQEc6DeSYfD9zLhTKnF0j+j/XIV0PfbrYxe+aksc=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=lG207+j++hfS1521eWL9vyzitlK5iJjY7i/wqClCe4a/4k1wtNEB0sx2o/VVKj5Lc3pvBJifXs45F/4BhqzIDR9jeAc9mFHTCrNsy5Hf1/TMmjFhJ8SbQOJLIJQyCqHpRMt2C/Greu/MvN2H9intzGnb8Fhr/MgRFiyPvIlZ538=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=QkZ5rlsJ; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F35D41CCEF9
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 07:54:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725350086; cv=none; b=MpkFGvB+jftZ1ddj52Hm4OvL55EFhxOk4tFu9UZ+16w/C3BjQoAQWzYhuq9EZ8e5E3FJDg7tVf84VRccfz9bUwrPJOn9C2l1S/R3kuhP1Gg3clwRJYSuNJiL8IHZ6ocTTNCWmON/LmJqx+6B7YDzrqZZdHFd4EfQijL6idMfc2Y=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725350086; c=relaxed/simple;
+	bh=dz5eAyMvFahUC1f0rgv1gfuAAFG5C5UUnTw6z4wTvag=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VPGL+Uzq/yytV763GTv9ce1vWAFDxas3ivIgVvRNSSc+1He1OabAxq9y4Gg5ewNlLDo/0gEEMPgjJ7b5oe8K4kOqzbBl/WiL0lkyV6y6ghsHtVQ4zzcZX9yU1Ppg4nzjgJlguDT2zZu0MEJpILo5TQZOhkfFySVr8N8JwMQf66Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=imZQgkQP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="QkZ5rlsJ"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9FF576066E
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 07:48:08 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id h4EaQtj-IYFy for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Sep 2024 07:48:07 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2416::627; helo=nam11-co1-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 44BA360658
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 44BA360658
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=QkZ5rlsJ
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on20627.outbound.protection.outlook.com [IPv6:2a01:111:f403:2416::627])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 44BA360658
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 07:48:06 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CxQogdeNHeeElX706sgxM1f7GfP1Ke6gbyAMYD0t7sTsKgJn3pPJCJVnkNGDui0rIw9A7O2+gxRCsT713xf9TQzD2d033Xbdo39Bl4laVIEaKZhgX6fMaIrunhm2k/S1A9rXBGtv2UlxQTcvp4DHvXNAr5nHbZCkceB+wsYiUkENv+BaB9MehBLqpXvGdZNFZWDpuoZG1Pz9KFPBkM2O2vZ1RyAPowVtIuk6HvHw/owNVC4V3KC2PR1O72OXvJ3WruAYnC0xw2l0hI9BCTJojaA579mnzf0fqaCeJdCcg2Tv6VL3kRMoheNLwkUwB2rAsih1TXhFw5KNffxRykmvyA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=d5W54XZ1VOEfnHzpDbqEGkQQmlAEUGhfInypOztnGNg=;
- b=FJu/sEHAVDjzPKsz7LP0yuk927bWOPqhcXQ1kRPulG//IFxh3eccRfaXAhmyNbyywHT3cZNDAoyaUd5IC+Tgp8e0An7tLrZ+5zjdEjtT9Sf/RS8Jedu78FhuOtidtDO8KM3WKFXMtPle1QPPjWK/F2X/KjeIpqwuZFYGpzDI9geF8zyn+D1vj9HqnA6tphr396ZbBvrHhHvOH4w4Y23Eg0cJxl5OTEv+zP96cwt778AhFSH++vQp+fJkGy8hi7qXpus3ocVH8ctN/nLu2vP/5qLeVYEGOMSdJeazHyqWO9gG0q5ZusUtnzcKBijnZnfx7JvwQBSjRj2BQ4o31jHYmA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d5W54XZ1VOEfnHzpDbqEGkQQmlAEUGhfInypOztnGNg=;
- b=QkZ5rlsJepAxmz4poPzfm8hoYOg8r77X4h1wnXYJGGo0dcxw4lYHwkfyPBealCFocGy6PM/dJ/uTLNu171o6Kib9jrQLDwdVYZm0hhZiSsloAu9j3GtQfL9fPT5mwrm7H+/N0+BHiUKBSsr9aPJeaCQTNmmlJkNrB0yFUhP5g48tGU0phffbIEpTJ2s9ye1OJ8esVorfL4dlXOcMUe6sQrhFDmKADyBsX0/oJZxkEVGnXgaRNAlmn5ZCsGobu+IAJ2W+LSe+RDwDWW/PGzyIwHuRHlbWYKXeizlTsAKRsTc9qNsLUOAHE4SkPZ+f2ayuzXxwinjWWZxwciDTuoU17Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS0PR12MB8295.namprd12.prod.outlook.com (2603:10b6:8:f6::21) by
- PH0PR12MB8008.namprd12.prod.outlook.com (2603:10b6:510:26f::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.23; Tue, 3 Sep
- 2024 07:48:03 +0000
-Received: from DS0PR12MB8295.namprd12.prod.outlook.com
- ([fe80::c1ec:bd68:b1e9:8549]) by DS0PR12MB8295.namprd12.prod.outlook.com
- ([fe80::c1ec:bd68:b1e9:8549%5]) with mapi id 15.20.7918.024; Tue, 3 Sep 2024
- 07:48:03 +0000
-Message-ID: <e08c5cc6-27e7-43b7-8337-095a42ed9698@nvidia.com>
-Date: Tue, 3 Sep 2024 09:47:58 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device
- suspend/resume
-To: Lei Yang <leiyang@redhat.com>
-Cc: Eugenio Perez Martin <eperezma@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Michael Tsirkin <mst@redhat.com>,
- Si-Wei Liu <si-wei.liu@oracle.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- kvm@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Saeed Mahameed <saeedm@nvidia.com>
-References: <20240816090159.1967650-1-dtatulea@nvidia.com>
- <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
- <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
- <ea127c85-7080-4679-bff1-3a3a253f9046@nvidia.com>
- <CAPpAL=wDKacuWu-wgbwSN3MORSMapU8=RAdzp3ePgPo=6EMFbg@mail.gmail.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <CAPpAL=wDKacuWu-wgbwSN3MORSMapU8=RAdzp3ePgPo=6EMFbg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR0P281CA0192.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:ab::11) To DS0PR12MB8295.namprd12.prod.outlook.com
- (2603:10b6:8:f6::21)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="imZQgkQP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1725350083;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=erfScia7MUbIuJASLSHmvw5Ni1TK9TW/zUhjcZHMUOs=;
+	b=imZQgkQP8pVkDx5uOHHQOJDP709HrY2wrTxT5RD+ttdwkVODXna3D2OJVGq+PhQL7aj1Q9
+	a7N4iVmQk8FEkj3nW1eJxdJywt+bSwkfxxPl0wD3PHwHLeUBXN4ihkGm4LwvHNP9mmh72D
+	pkVX26t/DiMlbEpE755udjF7idI+7Yk=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-621-aAkEcj0vMSS28F8TFPR1WQ-1; Tue,
+ 03 Sep 2024 03:54:39 -0400
+X-MC-Unique: aAkEcj0vMSS28F8TFPR1WQ-1
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2DEE11955BF8;
+	Tue,  3 Sep 2024 07:54:38 +0000 (UTC)
+Received: from hydra.redhat.com (unknown [10.39.193.228])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4853C3001FE8;
+	Tue,  3 Sep 2024 07:54:34 +0000 (UTC)
+From: Jocelyn Falempe <jfalempe@redhat.com>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Subject: [PATCH v2 1/2] drm/virtio: Defer the host dumb buffer creation
+Date: Tue,  3 Sep 2024 09:48:26 +0200
+Message-ID: <20240903075414.297622-1-jfalempe@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB8295:EE_|PH0PR12MB8008:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5fb57294-b255-4615-686a-08dccbecbd76
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?UWJqSlJjK2xVRUNRRnVscXd3MTFmaVA2d0NnbWphQXVORE5jZk93VnpocHNG?=
- =?utf-8?B?RGJ0YUc0dVpyNGF2bDJGdWRaZzhqU3lNNFZBNThDYVd6NUsrUFgvWDZVR3VQ?=
- =?utf-8?B?OUdMSmhuUlBxOUFBU1lsNHIzYzFnSy83alJaTzJ3SnAzMXJMY0NwT2g4WUIx?=
- =?utf-8?B?UmQ1d3h2TFo0N0RaeDdhUTd2VGZ6YzZKKzFOVzFTVllIMWh1WWRPUzJWZUE3?=
- =?utf-8?B?YkZRZkZTbTNDWE9LUlh4ZnNPZEJCbFo4Wml5ajc3T3k4dmRBS01TM2t0VTQ3?=
- =?utf-8?B?RnhTVmlSaUVxNm1MZ1NENEFDMGtLWFl4aWpISzlmZi8xYk5GT1pTU2psd3Ay?=
- =?utf-8?B?bmx0U1IyYkxvV2hXYzh6ZXBsalArSGxSUjFOZkplN2RxRnFZQklVVXNzb1pa?=
- =?utf-8?B?KzdnV3luOG5ybktURWJoTzRmVWRXdjlkRVN2TDBqRHo4ekhSR3kzbVJ4QXhN?=
- =?utf-8?B?YnNkSUVUTi9jbFlHTDFrK0o2alh3MldrbTVxSVZXNjJVYU9hYjMxcWdTQmMy?=
- =?utf-8?B?ZG1jK3l6OTdhN2FWTEk5ZWM2ZzZxSjVRamRhaHpqNHVJRUN2MW9aSzZRU3hN?=
- =?utf-8?B?R2F2bkdPdFJ4QjN0SXRWSzVhNjF2YTlSQjNaQ1AwWVhNNUxMZFJ0djNJR0Qz?=
- =?utf-8?B?MHB0dS81OHRudERaZmgwS1BVNE13d3RWM2M4SU9tdnFXZUEyOFY5ME9JNGta?=
- =?utf-8?B?eVQySnYrUEtqUG82M0VzczRSS3RYUzNUQTZxVWM2UHFsNkU2MGI4RXVHajU5?=
- =?utf-8?B?U0YySTFDNjhiMDBleEdCTmhmbEpqNmg1R3JKY1NFbklSWDFhTEh6MEFlQ1pX?=
- =?utf-8?B?aE1ZWTFtem5mdDFTNTU2N3BPKzJwRFdKNGpyU1dvZHIzU3dIK3pma1NrM1Bm?=
- =?utf-8?B?eWhhbmdSWGlyTDZVNFA0WWNEaXNlcGFPMDd4KzdvU0ZYamsxTWFPb1Y1WWNn?=
- =?utf-8?B?NlZ3c0tCakhNVERRSnZTeER1dW1xVmMwQldBalk4TkJ4VjV2VkFSL3NXS3dN?=
- =?utf-8?B?OUo1dXc0WXRLdGRNVzhnY1RjcmdUdDc3ZnhXM29aOW9oc2l3dTRJaE5VdnR0?=
- =?utf-8?B?UGc0RFQvT1NoaVBsRE9YSmIrZzhMR0NCSjhQQ2laZlR3b2xOLzEwTUxiOFBM?=
- =?utf-8?B?WTBzNEhLVTFVRUw3N2tkeXkzdVNFZWJ5NTlKNkJ0K2kvbFgzVmhyMVk5SFV1?=
- =?utf-8?B?a2VtWDh5eCs1SzFMbDRrMy9RNk1Pd000Ui94QWVtTklBVEZIZTkva1NrRmt4?=
- =?utf-8?B?N1A2cWxJZGdlV21sWEVYUnQyNk1ZK2p6amI0d3NQcVdsd2JYanNjNkhtcmJW?=
- =?utf-8?B?dC9PeldsbEJnOE5CV2tqNmJZbG9SdGtueW9TbHVIcWlVV3JXSEMzaGpSdkpG?=
- =?utf-8?B?VUh5QUxocWhIckhEOTlNRnhCVWV6Nyt6eWxiUSt4cmZTWWlWTHRPTVJleERj?=
- =?utf-8?B?MW4yb2wzYTVYazcycENoRFNTMUpKMUptUTlEMmFCdklqdDUzN3grWE1NaG94?=
- =?utf-8?B?cEhpc0p6eERFWERLYlQzWWtDQ2pHQUM1NnYvMk5mbVhnVUVOZlhPejlXdlo5?=
- =?utf-8?B?MmRsT0NBSFZSSDR0QjhnY3ZFTVhRSzFLNjRpRUxvV2Nudm96SEZ1KzljNFJ3?=
- =?utf-8?B?a2dCS0l3TndtRmpsbjFQZlpGZ1k4UTJiYTFFRUVkOWpUZFlBSDdUZVdES0s1?=
- =?utf-8?B?YS8xSGtqYXMvbldKbWZHMDBBOHlkVjRhR2JQaEk1TE1oaDJVNldOYTdnVWtW?=
- =?utf-8?B?dnRoekVKYlA1NUNQcHh4aUxJY2U5elF4alA2WExZQWFGanZveStqTERLdmp2?=
- =?utf-8?B?T1p3SnlQWHdNek9aMkxtdz09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB8295.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?eTZDTkgxcStmK3cxM2JvTTNIUHV4UEs3cC84WGNaaUFLVlQyb0FRMS9pYTkv?=
- =?utf-8?B?RWJpYVFSK2tjeWJiL3o1anlHWEhhQ3hUaG9RY3ZqKzg2T09jZm01SmdCQTJj?=
- =?utf-8?B?cGhTOW9YMXFBa1ozUTMzVnFMajJad1RXOFpBOFpGSWl6dW1DcERhNURaNGcr?=
- =?utf-8?B?OGh2RmMxeFVvQ1ZzVnZVZVlaS095RW9OSDRiM1lUY0Y5UkdCSzBUY09DN2cz?=
- =?utf-8?B?OFM1NTZkWkdYTjVtMFByYis2c3Y4QzMyS1FJbmhyRnpKcVN5VVFtNDZwZGdF?=
- =?utf-8?B?Q25GRUJWOHpiT1hGTGdobDM0RE53a0FXMUpuU0FMZ1pFK2s0ajZ1YmxYQXFD?=
- =?utf-8?B?Y2duc0FKb3dPeENHVkN1WXpXajhxbDJjMjJSOUwwOHU0cm5haU9NZlRUN2VX?=
- =?utf-8?B?TkcxU2hrTGdEWGlORlBNYy9wYlQrZGZpR1VPdmYxYTg3dWVNUWZZY25lMFla?=
- =?utf-8?B?dzU5MXVwWUgzTDM2Uzd2VmVQUEZWOUtRV2ZNYkVFbytVU3lVOVN4N0p1N2N3?=
- =?utf-8?B?M1BsbFlyM1RVc1d4bjN6b3BvWkRzaXkvRWhhanRpaTBFQTFKZXZzUEJBMU1M?=
- =?utf-8?B?cmRMVDRaZ2VQNnFFNEplM2VySVFMeklISWhwTFAxZEZUVCtBVjN3NFRyQ09P?=
- =?utf-8?B?YXBsN1VEMjlrR0tiV3E2bkNmV0RLN0V0R0Y1Q1pmK2hYZGdlWkpDZkZyZVlo?=
- =?utf-8?B?aG91TUdhM2ZkdkhLNW12MUorQnJ0ckREMUI2ODQrbWdLM3pySlQwOHhwS2cy?=
- =?utf-8?B?d1NJS21Ra3l2ZWI5dzJsY3htNmFYVXptRTVZSEdYcmp2R1d5ZXFpZ2tpa0JQ?=
- =?utf-8?B?eUpqOHVKSnE3WnZJK0dMQVp4NUR0UkRUckRlOEs1RWVJZko4WnREcVhOSzlC?=
- =?utf-8?B?cy84eXBJYVJ3UGdCaFYrWXhyVXN1UW05d09MVGpPTDRuelVIeU5PZWNxcUR3?=
- =?utf-8?B?Qmw5dFVjOURyS0Z3UVVkejQ0eW9GNkhjUVJmcU5KN3FyY2lLeFN2eExxTHd0?=
- =?utf-8?B?ZFBiUms0dFlxRkdJTG5KYVRsTlBZbHprMWpTZm95Y1c0bkhQRHR6bDc2dllT?=
- =?utf-8?B?Yit4WGhQUCt2K2VweUR6VVdmZ2RvdjNkbDArOHJ0cjZrN3FxalJrYjNBUWlL?=
- =?utf-8?B?Ni8xVnowcUlHd25JYlVib3FkR3ZJamk5Tmt4bU03VlJNRVpidk1FdUlpeFBm?=
- =?utf-8?B?eWNBWU5maElNSHYwVk9GSy9RRXRYTkcvbUYrMzdUOG9vcGtrN1BRdXpnL2V1?=
- =?utf-8?B?ZTNiVFhYRDNYbWVRbkQxSzZmTmVITEN3OFRsb3ZlNVBra2VxT0h6MzZscVhv?=
- =?utf-8?B?Z3I5ZEI1N0QxSE1mdlhnZmpLTWQ0SXJWL3o5RnZwd1IxQjJJQzBHZmYvWnJz?=
- =?utf-8?B?WGNkRmR0VHBrSDd0R25Rd1pmRDQrM2tXb1BMQ0FMWnNYenhjZjZ0cG5tS05I?=
- =?utf-8?B?SHVmR3I5RitFbjRqenBUVXJXNGlQdGNBb2hHeEFLZ0ZMcGdzd1prc3h6azhx?=
- =?utf-8?B?ZFptQWJDV2xzd3BOZTlvWXdONkl1V1N5ZmdwUklaRDFZdVBYVHdCalJJNEt4?=
- =?utf-8?B?eWlZeVdNMm04bUFrWC8rQytsN0ZtdDZlcyswbGJDVUNpNnJlYXZiRzNTQUtS?=
- =?utf-8?B?Ti9zNUFHZm54dGZoTWhrMjVYYTk2ZDhKMUJiQU41a2YrZEtzUG9UNVJBZ1Ux?=
- =?utf-8?B?MCsvVXJ4ZWp0NnR0TDJjU281cmdxMkdGcjliQXJQQVJZZVBMY1VBRDZPYk5v?=
- =?utf-8?B?Y0ZUbStyNE04ZXg1MnpMRzVXYWRJUWJIV2oycDlNR0dwV2ZJVVBlZ0FwQjM1?=
- =?utf-8?B?WEd4V1RNQnZXZHRwb0VpOGFSWE1PbHFYTXhMTlNPOFMyeHRWQzBJbi9JL0hp?=
- =?utf-8?B?b29YUDBUdFk0NUpaUjVURFlvR2tRbzJhMXVNaUY0RElpNGlnd1U0Y2VvbHNz?=
- =?utf-8?B?R1k0R0F1aEpUYTFleWZpcjBJTmhMdk1EQ3Z5Q2dpVHF4OUsrZDdFa0d2YUZj?=
- =?utf-8?B?eEFoSGtnUzZWZFlXMER6OHViUEtwd3FVbXgyN08zdDY5ajlPeitCK1N1UVlJ?=
- =?utf-8?B?Q0RxL3BXTzIvUXhheEo5d1FodFhjZzdhN2F5eG5sbzIzK1hnYzFXVm1UU3Vo?=
- =?utf-8?Q?899z8tVU/XRIQ6fEtR3H4YwzV?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5fb57294-b255-4615-686a-08dccbecbd76
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB8295.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2024 07:48:03.3708
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: fr1SDpf3PlUy4+PJwn9bVJ7hu2lM8t019QIt36B3QvSiSe0bX/7swEw9aYrhMJ8bTh1wMXW3k86J3VkTdPAaTw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB8008
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
+The host dumb buffer command needs a format, but the
+DRM_IOCTL_MODE_CREATE_DUMB only provides a buffer size.
+So wait for the DRM_IOCTL_MODE_ADDFB(2), to get the format, and create
+the host resources at this time.
 
+This will allow virtio-gpu to support multiple pixel formats.
 
-On 03.09.24 09:40, Lei Yang wrote:
-> On Mon, Sep 2, 2024 at 7:05 PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>
->> Hi Lei,
->>
->> On 02.09.24 12:03, Lei Yang wrote:
->>> Hi Dragos
->>>
->>> QE tested this series with mellanox nic, it failed with [1] when
->>> booting guest, and host dmesg also will print messages [2]. This bug
->>> can be reproduced boot guest with vhost-vdpa device.
->>>
->>> [1] qemu) qemu-kvm: vhost VQ 1 ring restore failed: -1: Operation not
->>> permitted (1)
->>> qemu-kvm: vhost VQ 0 ring restore failed: -1: Operation not permitted (1)
->>> qemu-kvm: unable to start vhost net: 5: falling back on userspace virtio
->>> qemu-kvm: vhost_set_features failed: Device or resource busy (16)
->>> qemu-kvm: unable to start vhost net: 16: falling back on userspace virtio
->>>
->>> [2] Host dmesg:
->>> [ 1406.187977] mlx5_core 0000:0d:00.2:
->>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
->>> [ 1406.189221] mlx5_core 0000:0d:00.2:
->>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
->>> [ 1406.190354] mlx5_core 0000:0d:00.2:
->>> mlx5_vdpa_show_mr_leaks:573:(pid 8506) warning: mkey still alive after
->>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
->>> [ 1471.538487] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
->>> 428): cmd[13]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
->>> a leak of a command resource
->>> [ 1471.539486] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
->>> 428): cmd[12]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
->>> a leak of a command resource
->>> [ 1471.540351] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
->>> 8511) error: modify vq 0 failed, state: 0 -> 0, err: 0
->>> [ 1471.541433] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
->>> 8511) error: modify vq 1 failed, state: 0 -> 0, err: -110
->>> [ 1471.542388] mlx5_core 0000:0d:00.2: mlx5_vdpa_set_status:3203:(pid
->>> 8511) warning: failed to resume VQs
->>> [ 1471.549778] mlx5_core 0000:0d:00.2:
->>> mlx5_vdpa_show_mr_leaks:573:(pid 8511) warning: mkey still alive after
->>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
->>> [ 1512.929854] mlx5_core 0000:0d:00.2:
->>> mlx5_vdpa_compat_reset:3267:(pid 8565): performing device reset
->>> [ 1513.100290] mlx5_core 0000:0d:00.2:
->>> mlx5_vdpa_show_mr_leaks:573:(pid 8565) warning: mkey still alive after
->>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
->>>
-> 
-> Hi Dragos
-> 
->> Can you provide more details about the qemu version and the vdpa device
->> options used?
->>
->> Also, which FW version are you using? There is a relevant bug in FW
->> 22.41.1000 which was fixed in the latest FW (22.42.1000). Did you
->> encounter any FW syndromes in the host dmesg log?
-> 
-> This problem has gone when I updated the firmware version to
-> 22.42.1000, and I tested it with regression tests using mellanox nic,
-> everything works well.
-> 
-> Tested-by: Lei Yang <leiyang@redhat.com>
-Good to hear. Thanks for the quick reaction.
+This problem was noticed in commit 42fd9e6c29b39 ("drm/virtio: fix
+DRM_FORMAT_* handling")
 
-Thanks,
-Dragos
+Suggested-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+---
+
+v2:
+ * Move virtio_gpu_object deferred field to its own block (Geerd Hoffmann)
+ * Check that the size of the dumb buffer can hold the framebuffer (Geerd Hoffmann)
+
+ drivers/gpu/drm/virtio/virtgpu_display.c | 33 ++++++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_drv.h     |  5 ++++
+ drivers/gpu/drm/virtio/virtgpu_gem.c     |  1 -
+ drivers/gpu/drm/virtio/virtgpu_object.c  | 13 +++++++---
+ 4 files changed, 47 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 64baf2f22d9f0..5e8ca742c6d00 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -290,6 +290,30 @@ static int vgdev_output_init(struct virtio_gpu_device *vgdev, int index)
+ 	return 0;
+ }
+ 
++static int virtio_gpu_deferred_create(struct virtio_gpu_object *bo,
++				      struct virtio_gpu_device *vgdev,
++				      const struct drm_mode_fb_cmd2 *mode_cmd)
++{
++	struct virtio_gpu_object_params params = { 0 };
++
++	params.format = virtio_gpu_translate_format(mode_cmd->pixel_format);
++	params.dumb = true;
++	params.width = mode_cmd->width;
++	params.height = mode_cmd->height;
++	params.size = params.height * params.width * 4;
++	params.size = ALIGN(params.size, PAGE_SIZE);
++
++	if (params.size > bo->base.base.size)
++		return -EINVAL;
++
++	virtio_gpu_cmd_create_resource(vgdev, bo, &params, NULL, NULL);
++	virtio_gpu_object_attach(vgdev, bo, bo->ents, bo->nents);
++
++	bo->deferred = false;
++	bo->ents = NULL;
++	return 0;
++}
++
+ static struct drm_framebuffer *
+ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ 				   struct drm_file *file_priv,
+@@ -297,6 +321,8 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ {
+ 	struct drm_gem_object *obj = NULL;
+ 	struct virtio_gpu_framebuffer *virtio_gpu_fb;
++	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_object *bo;
+ 	int ret;
+ 
+ 	if (mode_cmd->pixel_format != DRM_FORMAT_HOST_XRGB8888 &&
+@@ -308,6 +334,13 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ 	if (!obj)
+ 		return ERR_PTR(-EINVAL);
+ 
++	bo = gem_to_virtio_gpu_obj(obj);
++	if (bo->deferred) {
++		ret = virtio_gpu_deferred_create(bo, vgdev, mode_cmd);
++		if (ret)
++			return ERR_PTR(ret);
++	}
++
+ 	virtio_gpu_fb = kzalloc(sizeof(*virtio_gpu_fb), GFP_KERNEL);
+ 	if (virtio_gpu_fb == NULL) {
+ 		drm_gem_object_put(obj);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 64c236169db88..4302933e5067c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -95,6 +95,11 @@ struct virtio_gpu_object {
+ 	bool host3d_blob, guest_blob;
+ 	uint32_t blob_mem, blob_flags;
+ 
++	/* For deferred dumb buffer creation */
++	bool deferred;
++	struct virtio_gpu_mem_entry *ents;
++	unsigned int nents;
++
+ 	int uuid_state;
+ 	uuid_t uuid;
+ };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 7db48d17ee3a8..33ad15fed30f6 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -75,7 +75,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 	args->size = pitch * args->height;
+ 	args->size = ALIGN(args->size, PAGE_SIZE);
+ 
+-	params.format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
+ 	params.width = args->width;
+ 	params.height = args->height;
+ 	params.size = args->size;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index c7e74cf130221..b5a537a761294 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -67,6 +67,8 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+ 
+ 	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
+ 	if (virtio_gpu_is_shmem(bo)) {
++		if (bo->deferred)
++			kvfree(bo->ents);
+ 		drm_gem_shmem_free(&bo->base);
+ 	} else if (virtio_gpu_is_vram(bo)) {
+ 		struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
+@@ -228,10 +230,13 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 		virtio_gpu_cmd_resource_create_3d(vgdev, bo, params,
+ 						  objs, fence);
+ 		virtio_gpu_object_attach(vgdev, bo, ents, nents);
+-	} else {
+-		virtio_gpu_cmd_create_resource(vgdev, bo, params,
+-					       objs, fence);
+-		virtio_gpu_object_attach(vgdev, bo, ents, nents);
++	} else if (params->dumb) {
++		/* Create the host resource in virtio_gpu_user_framebuffer_create()
++		 * because the pixel format is not specified yet
++		 */
++		bo->ents = ents;
++		bo->nents = nents;
++		bo->deferred = true;
+ 	}
+ 
+ 	*bo_ptr = bo;
+
+base-commit: 9345e3aab7fef06b8908308634974ea32a29e276
+-- 
+2.46.0
+
