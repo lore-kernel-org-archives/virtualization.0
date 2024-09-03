@@ -1,187 +1,267 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 776EA200135
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:10:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725351057; cv=none; b=s384ZgX1vmlkpNjAjlrdYhnL4IILtFqtJiDWhMYVP0trwhmErO641T4sy4YdgLzUF8ph39YA46fkVVjqh2qvllh8JUqkhkGj5684R73cH7crkc0aqRD/P9tgTP84H4gXV9qjJ/OSgqDKRzcIE5IokWS+ws+ZFom2URZiNNVsnwg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725351057; c=relaxed/simple;
-	bh=6mmc7di+pQIdeFxJ+VyEzy/XD6Ldgilncnnc07MXG7c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RwvvQv5HEtjGEtMajpI1KMJKVb7iZYtamc2F4ZGrE4sUXPmiOwvwB9yroas/+Y8ZX2i3lCFI1DZrvB2OknqW97qM0Rff7T6JTSAS2csLIixx6OHUzaLnd3CcjUCtKRkv4pHw3whQe60+UT8VeGhBIfNsBpf1coUJXgyDdt/3+6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UM8gowD5; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8182C205E28
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:17:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725351434; cv=fail; b=JPKtVFAt6OcDyVwHiGaIeM30lKJ2weFsvm3S993csRhRuv4EIif8x8XPFXe5+VIzmw7fkjz1ysrJmVXScxfGYPurz+nzYs37UuwB6AK6CX2ovGcFIs5jp9OgKNpf/WoaE3tx6dSqO9gniV/TfVRHDHA+iBSOcGWVVOkq5GmND6A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725351434; c=relaxed/simple;
+	bh=fKXAtZPT/g9IfbkRm/Ncf9JndlxD/3b+1O+4320cVLE=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=FL6bAxL0F9qekxEMHb98MXSk2OrTRozk3UVFe2pOmEUk+SGjzmT+R8WHgaso3NasFpToT21JE20fES+eQ/09hN8/NtMBSqq5aBCkjWdNMan9O8fx15gepUCJSn+C9tcuIGa7VYuJUiaXN1TwWQS1IR6zDgzRTZxm3UyfQu5lN38=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=pkX6XLDx; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UM8gowD5"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="pkX6XLDx"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0885280C8A
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:10:56 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 181D780D5B
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:17:13 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.79
+X-Spam-Score: -2.103
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id sgm80ZLSEx-8 for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Sep 2024 08:10:55 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 27B0D80462
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 27B0D80462
+ id uddfq0ROmxSE for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Sep 2024 08:17:12 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2412::618; helo=nam10-mw2-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 115F780D52
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 115F780D52
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UM8gowD5
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 27B0D80462
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:10:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725351052;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6mmc7di+pQIdeFxJ+VyEzy/XD6Ldgilncnnc07MXG7c=;
-	b=UM8gowD5lxh34Frh0bmZbHyzb812gSUAK/UDPfkrhXxlUAwBpdti5cfVUPsDQCMAepTvZC
-	OKgnpSuMctMml7PHrC6/nsSlNcnbspEzmlAdOKuCq26vQVIgH+ik4sEbyMCblU6WClZrVO
-	4Qs1rmQo8MIw0TuzP6wWMTJUGITqkc8=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-396-6rKlB09LOLazCtEp01njUw-1; Tue, 03 Sep 2024 04:10:48 -0400
-X-MC-Unique: 6rKlB09LOLazCtEp01njUw-1
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-6d3e062dbeeso55096977b3.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 03 Sep 2024 01:10:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725351048; x=1725955848;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6mmc7di+pQIdeFxJ+VyEzy/XD6Ldgilncnnc07MXG7c=;
-        b=U4xTy6Bz42tF6r0Vi8j+/LkHQuUrw6RBs1FcIuE/oHAdOgAMFeZCaTanfAf+EaRbcr
-         qoAJgFcA5fkKAaVCPSnTySuTOFlchdGPRiQ41H62OwKwIgRwnbeTVxGOpXA400f7m62k
-         FvnH8AttmN+LwNWtDiOl9fszk7RcESxrhNx1aJY/hFy/MaY6t68SgBxEIcRHqTvVdlBK
-         5xZffMAMhstIzy60iv9oPyzqWnU19hZ1uHG5K5/7Mf8KDLnP042TvrfiMICD8kg0FyMa
-         fyfpen/va86HEbBINrAVsNMHMnQt14RCfV0efIOnpn8lXltVRub42l6b0NSMKFnR7our
-         V84A==
-X-Forwarded-Encrypted: i=1; AJvYcCXdJQwvNICvOaJEckUxb3IZSJJezkMYvmCOHjunpVfvOiJBiP3H6DCjn5DaY581aE4zGrd05f9fmBciyvv6rw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzvnFL5QD8sm5gHCZRYk/wboSlcA+MtzGsadFmeu3RRQ4GVRzV9
-	rBh/H2hz5OuaJ7jCvmSD0QB3udtwM4x3jzvDafF4o7h19owei3nNhoT5aW+qqV1WIrf9aJBHj8u
-	rwP/vBcde4vVdPHzYjL7vxjsWboNjFdqzOz8FKXtxJ/aRAD1X7wAMWTIwLxdL5S/S9K6H1gRMk2
-	0DDoRaaHpJI44rKZJ+xi3LbTUiEICWAYlvbpsmLvMhxH01tM2nfXFeAQ==
-X-Received: by 2002:a05:690c:6089:b0:65f:cdb7:46a7 with SMTP id 00721157ae682-6d3fb00cd8dmr106367627b3.22.1725351047954;
-        Tue, 03 Sep 2024 01:10:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE8YUCke3AcOv2qy5ss1glBiO/5O8+6bG94dYgmaYGhOtdUneJ8MXedoPtfwNtK/AfOFzg2JTuMsyHPl+8F7HI=
-X-Received: by 2002:a05:690c:6089:b0:65f:cdb7:46a7 with SMTP id
- 00721157ae682-6d3fb00cd8dmr106367467b3.22.1725351047631; Tue, 03 Sep 2024
- 01:10:47 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=pkX6XLDx
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20618.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::618])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 115F780D52
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:17:11 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=PXFpkhuXp6mWSncK6a4yUEHCLhoqzcLU7300dohWdrJVrs5XdfeOw2jPFJ28OeQVatTwJAhSYWcVSWE75V6gRkIJDsMTBw1xGQ3wlEBhfr95eBih23aWQg45SUrA8zgZuOM51mtbAe1Hj/rVjBcqqnai/zeyTh1ipCw5almVQbamVItPNEiNfkziF+BkcBCLu96pN21l1lS6TzuJ2tHanaCOdmJVUNT93dHliu1GiWuQo38B0pWFWw/KhnsYqAV8LaElbfdNnC0Xd8U7MhWVPTIsoTih+yAfClm44YhAaFnzni4XKN6Qbe+W4Rw0oNxM+dPb3tfO81RktpYQXRHeCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qsSCNv2k74HRIzumT6iBf8blPI+lta0e90GEZDOq/+I=;
+ b=H3MSRgelqQ1yNXnFqnr/Dfpu4+/mCh1R+JdPNpgJyDjoYSBVCKjGuGiEq2RMwvF16LemMe5I4LYq5o06pcQ2AlI1j/bqQ37MsIHW3OrLPovqSczx/3yM8DmkEh0u182SQobtcUb2P4NQm4EXMRdY1lG6LT1VRuu5LnvKGydY82mlDaPIM3kaNDcpe1pZbr4Ko0OgjYgSBasH+F4p28Z5AAW5rV5rGi1uEcswbvAoBGe7mgeP2akXx0G6h2NydhitzHKfhGC3ZFfvFf3XhGVbYe93aqo/8KhtKhUwRId0XAvnHARyLlTEnmB5raQwwPt7GtZcasVwRmsb8N5fT7ptyA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qsSCNv2k74HRIzumT6iBf8blPI+lta0e90GEZDOq/+I=;
+ b=pkX6XLDxEsOIxsnCVXyect1oTuKgbPOWSX334AQSCsbeuia4atbDRNYbl6chsNC4ZpRoj2zqcOfQIOrxE89gst2oD167843WdOH+9BGK4I9eImOdY7nth1W4eGR4d7n+ZWCtS4aCC1RaI8e+XWqgpJ4mlH5dxFDuRjPWewzfjZhxMFPstLbPzZcMbqO2p92bN4d07cJtu0r2Zg6VGuqmHxK918NbPpDx12d3uYEDDKhySFmQAXNmNbuNrhEpof4cQnTkR4aI6NGLEJouaqQRKdk9IoEsRXJ7fC3od7fAcLrrOc5TP4K2EdB3lolU5XgEYGG/5J+isJw6IuEaD2RPNQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS0PR12MB8295.namprd12.prod.outlook.com (2603:10b6:8:f6::21) by
+ SN7PR12MB7250.namprd12.prod.outlook.com (2603:10b6:806:2aa::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.27; Tue, 3 Sep
+ 2024 08:17:07 +0000
+Received: from DS0PR12MB8295.namprd12.prod.outlook.com
+ ([fe80::c1ec:bd68:b1e9:8549]) by DS0PR12MB8295.namprd12.prod.outlook.com
+ ([fe80::c1ec:bd68:b1e9:8549%5]) with mapi id 15.20.7918.024; Tue, 3 Sep 2024
+ 08:17:07 +0000
+Message-ID: <f0c7e66d-358e-4d03-b43e-4cd0796e495d@nvidia.com>
+Date: Tue, 3 Sep 2024 10:16:59 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device
+ suspend/resume
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Lei Yang <leiyang@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Michael Tsirkin <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+ kvm@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Saeed Mahameed <saeedm@nvidia.com>
+References: <20240816090159.1967650-1-dtatulea@nvidia.com>
+ <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
+ <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
+ <ea127c85-7080-4679-bff1-3a3a253f9046@nvidia.com>
+ <CAPpAL=wDKacuWu-wgbwSN3MORSMapU8=RAdzp3ePgPo=6EMFbg@mail.gmail.com>
+ <e08c5cc6-27e7-43b7-8337-095a42ed9698@nvidia.com>
+ <CAJaqyWd-gc+BDx+DWvBLOEYP+q_Rb+L5n4txf1fcvrcbcE=_Nw@mail.gmail.com>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <CAJaqyWd-gc+BDx+DWvBLOEYP+q_Rb+L5n4txf1fcvrcbcE=_Nw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: FR3P281CA0075.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:1f::23) To CY8PR12MB8297.namprd12.prod.outlook.com
+ (2603:10b6:930:79::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240816090159.1967650-1-dtatulea@nvidia.com> <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
- <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
- <ea127c85-7080-4679-bff1-3a3a253f9046@nvidia.com> <CAPpAL=wDKacuWu-wgbwSN3MORSMapU8=RAdzp3ePgPo=6EMFbg@mail.gmail.com>
- <e08c5cc6-27e7-43b7-8337-095a42ed9698@nvidia.com>
-In-Reply-To: <e08c5cc6-27e7-43b7-8337-095a42ed9698@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 3 Sep 2024 10:10:11 +0200
-Message-ID: <CAJaqyWd-gc+BDx+DWvBLOEYP+q_Rb+L5n4txf1fcvrcbcE=_Nw@mail.gmail.com>
-Subject: Re: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device suspend/resume
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: Lei Yang <leiyang@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Michael Tsirkin <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leon@kernel.org>, kvm@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Saeed Mahameed <saeedm@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR12MB8295:EE_|SN7PR12MB7250:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3015fdfb-06d9-4da8-e8d8-08dccbf0cbf0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?Vkh0b2ZZNGhOY1pETlhKRktmTFovcEI5NFV4QjVZcmZwVDJrZzRIWTFnaFBF?=
+ =?utf-8?B?MkNmdlFSRlYzU0pFZ2xVV2V0MnFtVmxyR1J0OGoycG1lUWt5YUd4NmlrNlMz?=
+ =?utf-8?B?TStsWXZhaDNUYkI1SVRXeW5aM0FqOGd1TGdGQ05lRWF6dEJQMnFiQVdKaWxI?=
+ =?utf-8?B?UldaT3NvQy9TT1lmYVJxYlpNdXBMM0xKYlBPZDFhbEpNaklDQ013OEZURlJY?=
+ =?utf-8?B?MjExV1ZpNmkxRGM5QVlNa3F1MDZoNGQ0c2syTUJCSWxjYmtsNlF1aDlVd0Uv?=
+ =?utf-8?B?WXNEVEk3YlR6UndvN0MxbjBtMHhCUjREME50aVVpeXZzT3IwUllxMjFBcVFq?=
+ =?utf-8?B?SU91VE9idHV2MFBERmhDSVhOb1B2eHhQeE9WWHg4UkE3RTlPWHN3bzZneEc5?=
+ =?utf-8?B?VmVGczRuUGN5ZE02Mm84a3daVHV3WTA5TGlVQklJRGxMaXNEVkZXTjlwa21o?=
+ =?utf-8?B?bUI5NXFrMnZRSXU5b0RORGFGRnB6QUd1amlGdTZvZUtmbEd0Skt1cnJTQzda?=
+ =?utf-8?B?VFZKMGlGaDhFT2cyVjR3SmVHUC9GTVAvZU9EYlR6MndRejFKUzNvVUg2UU5j?=
+ =?utf-8?B?KzdRdStXSzFnYVVBVWF0czBuelhCUHVzYjhPMHN3SXNiRlNSbzJmOE00QnZL?=
+ =?utf-8?B?cW52SUJtSXl0V3pqbnBOeFRZdkFnMUlBcVZoQ01QbzQzcEdZYXQ4bDVKYm5L?=
+ =?utf-8?B?WUdIWUt1N2hQbCthVnZkeGxBMzJDWFVaQWs4SDI5MFNuYVlybXV3ckxpa1Vk?=
+ =?utf-8?B?aEFxT3FZVUtYTlVzc0IvQ3RaT2VuMTQ3UkR5WjQwa2w2dW95SzRJUmplR0ps?=
+ =?utf-8?B?VTJPT2M5cnZZU0QzVjVacFd4aElDcUNSYUtoRW5xRXJ1aU9YNVhvek41Nmh3?=
+ =?utf-8?B?UnhlRkZRNGxWTmRibGhHU01lMjBtSkpReWljanFvRTBkU0xsZTlVem84Vk9N?=
+ =?utf-8?B?UFdzSnVwK3gvd2NKUzNLblpzdXNXZFhweG53S0R4VkY3aHgvdTM3VzJERTF2?=
+ =?utf-8?B?ZXVKOUNXZVloeTlYWUdMQTJRWHRBNGV0NUI1VlFkZ1A3bVorYTlrWi9rZjRs?=
+ =?utf-8?B?Tk8rWDhYVmV2Z2I0ZDlOcEpxZTFDYTBYdkFHKytuZGRxVWpPVGZQdlhLV0dG?=
+ =?utf-8?B?VnNmWnJkVGkrS1drRmZ1cFhneUk4bnV3NzRiOXhHZWVLWDNOVTRtVmZZVDlo?=
+ =?utf-8?B?bHVLaW96LzJPb21STzg0U24vR0VZOEc2UjR3S2Zham53WVYrZjFJaDE2T05C?=
+ =?utf-8?B?QUtJYktxaVdIVGtqcWZnYXA1OUNUdUhjUW9TdE5uMzkwK2ZWa2tneTZSbGth?=
+ =?utf-8?B?MEo4VDE1VWp0TFJqMXhKWE8xbVM5NDdWeGdFMWdtZ3IzZXg0N0xQVnJUV0hv?=
+ =?utf-8?B?RHRUWklTdVZJN1ZRbDBwVGhlT1p5WmZMblJtWERJUHlvajBvUzJ3NUg3SDA4?=
+ =?utf-8?B?UnNKQnl1RmdIT1BUYVppd0N6L2MrQk1BYkVrUGx5aUhjUmROSUs4QTNiMFYz?=
+ =?utf-8?B?Z3FxUHhJaHo4cUhZdTZpNFFtd0l1RFJidzNTOHlTYUFWeFJYQlU3Sitka2ly?=
+ =?utf-8?B?STJ5NHFZWVRmQkowR2tucURUNzFjYUZWWi9BdUhyZW9NbGFMczRXSzJteXN0?=
+ =?utf-8?B?ek9VcUdzK3ZRa1RnUklUZlo3N2VoYnkyKzBYVTJVVDM1SDZIUFk1dS80TnJZ?=
+ =?utf-8?B?UDB2emhHVnFWNFE5ZVM0Y0ZXVlJMMVVjcXRZTmgrL1ZnY2lac0JZcU9MYldM?=
+ =?utf-8?B?eG0rNHVScmlkRDdVVWJTQ05pMS91dFlyTDJ5R3V3M21ncWNTdUFMK00vQ2N2?=
+ =?utf-8?B?UlZlTDh1UGdnNTdVWTI3dz09?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB8295.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?cy9NM3Z6WTAwZW5DTWM4cHZ1U2d1OERHblNwSGtmU1QzVURpYWtXRCs4WU5i?=
+ =?utf-8?B?S1JsQ2haNlVBZERPRnEyQWlHUFpLRmtZL1BIMkxYV21IT1FCRVBqbWVpNmdy?=
+ =?utf-8?B?Y0t4bWlWSGE5bjcxeUdGOTVTK0hvMTc4ZFRydXp3eWFDSCsyVGl6RmlxZ1ZN?=
+ =?utf-8?B?ZTRveXRJN1IzdTFIQlRJeSt2Qys1WjY4VUJhN0x3STRpTk9NSFRFTlBoUkdN?=
+ =?utf-8?B?ajg1MjJOaEVQZTRNS1NSRUYzbS9MeFkvLzVBcjl0R29reWlzQ2N6b2lrd08y?=
+ =?utf-8?B?VmRCeVRHcWVlRmsvQThFLzdBZzY5Z1FNb2Zuai9heC9QaXRYeXBIQm5tak1T?=
+ =?utf-8?B?TGxuWHdKdUdrcElUeXd6MmZRNEdOM0ozMi9rQVdHSFJienZ1b1VrVlgvVmZr?=
+ =?utf-8?B?VlBSM1ZIcVNPS0lOL1Eyd2syZmpjV2YwRm4zWlZkWVpBcHZINnlJZk1uemRR?=
+ =?utf-8?B?SWoyVjNrOVYwSHl6NUtDTjZDajV5TVo5WnZmWFEzN0pyRkEwSUpUMks4bHNo?=
+ =?utf-8?B?UStvS0Z2eGlFMDVBTU1zb2g1SFJxSlk0SjFuT1hsSWI3UVVYQkU4VnFrY3Rn?=
+ =?utf-8?B?KzhkUEM3WkxBNktHQ0VWR3JjellDcG53aFVwT1R4WGxlMFNEZitvM0ZXYjlQ?=
+ =?utf-8?B?bGlhdGt0L2F4dm9ZbHRUSUI4NmpWNGRqcVp6Um03dWxxa3hWcXNHS2w5M0RH?=
+ =?utf-8?B?SUFmVkVQTDljdVIwSS83YkRodWNZRUNHTXhLckpiYlMrTktvR0JyR1RnVmJa?=
+ =?utf-8?B?T0srKzZuUWZxUmx3MGJxc3p6QWh0WlBOWHJXM2YrVmV3SXd0TXpIZkRYTzhx?=
+ =?utf-8?B?MnEwT1E0Um1EdFRTdm5nQ2RrRjYrUEllQ1A3UGk5L0kwb0QrN0YranFJL0ZZ?=
+ =?utf-8?B?MUw0YlMxQlFyNDdHY3paeWJTVVdCbkluQ3J4WGFsdjFpODlaS2dGY0crTXFR?=
+ =?utf-8?B?bEk5OU1oK2RpM1hla2UvaVV6ZkpTelBqdGoxRFRWQ0hrbHZIcVhxRXBYc25V?=
+ =?utf-8?B?dmpjajlBS2UzSEpsK1ViMUJjd2tlaVVGYnMrWUxnc29JREMraHp5dFdobmky?=
+ =?utf-8?B?dEtNSmUvV2VaVURYTFU0bkMyaVRKeDk2akNUWlNKVlp3QkRCekordTdDVWI3?=
+ =?utf-8?B?aTc3MGRFZjdYRDZ6VzhzVFhlWFRFWTVudjVCRGdJeDFSTVduYU5Tc0hSV0Qr?=
+ =?utf-8?B?ZFJtTjhtQzZDVUhVRnFCUWFqdS9jV0ZZWkl5MnYrakprQXY4NnF1K3lic0Ey?=
+ =?utf-8?B?OXRpdFc0UzA5SGFTUDBneDR1RXlTVkNHWFAxMS9pWTFJOEJPdkt2WXYvNWJR?=
+ =?utf-8?B?Ymg3UXpvbzBrTHpabE93empOUHZpR09SVXZ6eWR1WFJHRzZSM1lQNFhhbG90?=
+ =?utf-8?B?Sk5jY3dFWHZUMzBNWkxocHViQ1B3eE9ENmdoQXp2VW8weDFkcUt3VkZXNXVM?=
+ =?utf-8?B?RCsrU25kdmw0VnErWkozSFgvQ2NaQmM0OURNSzR3ZUxqMHpZbDFaZHZCWVZU?=
+ =?utf-8?B?dGxLMkN6bmFMYWhpMi93OFhjdHZQaTJwY0d3TmlPcG1HZ2JBYk5FaVVWdks3?=
+ =?utf-8?B?N1lBYUc0ZFdqZFczTnhpaXYxR1lmOVdmWDlXaDR3MC9BRTNxNm1hSlBOanhv?=
+ =?utf-8?B?R0RtMHc0alhudDZoeU9PY2twY1Z3VUZiOWRDMTRramk4NGhiaFczaVdpRXBL?=
+ =?utf-8?B?R0dHcGtNZUVFeEdsU1RjVE41NXltTlRCd3VwTzJpVmtYTDV3a1FUVm5SbUJH?=
+ =?utf-8?B?UmdGVnNCeElnaVZ6RkZIbW9JRXBxdS96NnpSd2dhN3lHZGdYSmtIQnlFVUc5?=
+ =?utf-8?B?T0djT3JoMUdOd1lBdFRCbzlneTIrVjk3RWhHalRTU0lTclZ2UldhMER4a2p0?=
+ =?utf-8?B?SFdhdnlNNm0vZDJSVGJPVTVjbGN4OEVYTVpnTThJeUs1SEorQnJjc1hCQ3Jt?=
+ =?utf-8?B?VkwxaE5nMHFvYnhzZ01Nbzl6a280eE5mclhXOUkzT0c2Wlprd1pLZ080Z1Ux?=
+ =?utf-8?B?Ujl3YUxrZVQzR045c280SVVFQytrRWNiSjUzRFZEelBjWTV6R0tFcEw3dFlp?=
+ =?utf-8?B?enRnTnBXUDN0eEk5T0c1bDd4UkhLSFNZM2JXWkh5bXdLSk95ZVhady9oL2xJ?=
+ =?utf-8?Q?8itlUgqbyr3uAg8CFMAbISd1S?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3015fdfb-06d9-4da8-e8d8-08dccbf0cbf0
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2024 08:17:07.7815
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 5TwWzsPeMyiIo6XCSheIfCzJI4h9xSWf+Waftil+2Zq12lHC+pq+KibYNN369AUrUCPsJ3iUXIAsheU33CKWxA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7250
 
-On Tue, Sep 3, 2024 at 9:48=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com>=
- wrote:
->
->
->
-> On 03.09.24 09:40, Lei Yang wrote:
-> > On Mon, Sep 2, 2024 at 7:05=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.=
-com> wrote:
-> >>
-> >> Hi Lei,
-> >>
-> >> On 02.09.24 12:03, Lei Yang wrote:
-> >>> Hi Dragos
-> >>>
-> >>> QE tested this series with mellanox nic, it failed with [1] when
-> >>> booting guest, and host dmesg also will print messages [2]. This bug
-> >>> can be reproduced boot guest with vhost-vdpa device.
-> >>>
-> >>> [1] qemu) qemu-kvm: vhost VQ 1 ring restore failed: -1: Operation not
-> >>> permitted (1)
-> >>> qemu-kvm: vhost VQ 0 ring restore failed: -1: Operation not permitted=
- (1)
-> >>> qemu-kvm: unable to start vhost net: 5: falling back on userspace vir=
-tio
-> >>> qemu-kvm: vhost_set_features failed: Device or resource busy (16)
-> >>> qemu-kvm: unable to start vhost net: 16: falling back on userspace vi=
-rtio
-> >>>
-> >>> [2] Host dmesg:
-> >>> [ 1406.187977] mlx5_core 0000:0d:00.2:
-> >>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
-> >>> [ 1406.189221] mlx5_core 0000:0d:00.2:
-> >>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
-> >>> [ 1406.190354] mlx5_core 0000:0d:00.2:
-> >>> mlx5_vdpa_show_mr_leaks:573:(pid 8506) warning: mkey still alive afte=
-r
-> >>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-> >>> [ 1471.538487] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
-> >>> 428): cmd[13]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will caus=
-e
-> >>> a leak of a command resource
-> >>> [ 1471.539486] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
-> >>> 428): cmd[12]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will caus=
-e
-> >>> a leak of a command resource
-> >>> [ 1471.540351] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
-> >>> 8511) error: modify vq 0 failed, state: 0 -> 0, err: 0
-> >>> [ 1471.541433] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
-> >>> 8511) error: modify vq 1 failed, state: 0 -> 0, err: -110
-> >>> [ 1471.542388] mlx5_core 0000:0d:00.2: mlx5_vdpa_set_status:3203:(pid
-> >>> 8511) warning: failed to resume VQs
-> >>> [ 1471.549778] mlx5_core 0000:0d:00.2:
-> >>> mlx5_vdpa_show_mr_leaks:573:(pid 8511) warning: mkey still alive afte=
-r
-> >>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-> >>> [ 1512.929854] mlx5_core 0000:0d:00.2:
-> >>> mlx5_vdpa_compat_reset:3267:(pid 8565): performing device reset
-> >>> [ 1513.100290] mlx5_core 0000:0d:00.2:
-> >>> mlx5_vdpa_show_mr_leaks:573:(pid 8565) warning: mkey still alive afte=
-r
-> >>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
-> >>>
-> >
-> > Hi Dragos
-> >
-> >> Can you provide more details about the qemu version and the vdpa devic=
-e
-> >> options used?
-> >>
-> >> Also, which FW version are you using? There is a relevant bug in FW
-> >> 22.41.1000 which was fixed in the latest FW (22.42.1000). Did you
-> >> encounter any FW syndromes in the host dmesg log?
-> >
-> > This problem has gone when I updated the firmware version to
-> > 22.42.1000, and I tested it with regression tests using mellanox nic,
-> > everything works well.
-> >
-> > Tested-by: Lei Yang <leiyang@redhat.com>
-> Good to hear. Thanks for the quick reaction.
->
 
-Is it possible to add a check so it doesn't use the async fashion in old FW=
-?
 
+On 03.09.24 10:10, Eugenio Perez Martin wrote:
+> On Tue, Sep 3, 2024 at 9:48 AM Dragos Tatulea <dtatulea@nvidia.com> wrote:
+>>
+>>
+>>
+>> On 03.09.24 09:40, Lei Yang wrote:
+>>> On Mon, Sep 2, 2024 at 7:05 PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
+>>>>
+>>>> Hi Lei,
+>>>>
+>>>> On 02.09.24 12:03, Lei Yang wrote:
+>>>>> Hi Dragos
+>>>>>
+>>>>> QE tested this series with mellanox nic, it failed with [1] when
+>>>>> booting guest, and host dmesg also will print messages [2]. This bug
+>>>>> can be reproduced boot guest with vhost-vdpa device.
+>>>>>
+>>>>> [1] qemu) qemu-kvm: vhost VQ 1 ring restore failed: -1: Operation not
+>>>>> permitted (1)
+>>>>> qemu-kvm: vhost VQ 0 ring restore failed: -1: Operation not permitted (1)
+>>>>> qemu-kvm: unable to start vhost net: 5: falling back on userspace virtio
+>>>>> qemu-kvm: vhost_set_features failed: Device or resource busy (16)
+>>>>> qemu-kvm: unable to start vhost net: 16: falling back on userspace virtio
+>>>>>
+>>>>> [2] Host dmesg:
+>>>>> [ 1406.187977] mlx5_core 0000:0d:00.2:
+>>>>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
+>>>>> [ 1406.189221] mlx5_core 0000:0d:00.2:
+>>>>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
+>>>>> [ 1406.190354] mlx5_core 0000:0d:00.2:
+>>>>> mlx5_vdpa_show_mr_leaks:573:(pid 8506) warning: mkey still alive after
+>>>>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
+>>>>> [ 1471.538487] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
+>>>>> 428): cmd[13]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
+>>>>> a leak of a command resource
+>>>>> [ 1471.539486] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
+>>>>> 428): cmd[12]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
+>>>>> a leak of a command resource
+>>>>> [ 1471.540351] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
+>>>>> 8511) error: modify vq 0 failed, state: 0 -> 0, err: 0
+>>>>> [ 1471.541433] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
+>>>>> 8511) error: modify vq 1 failed, state: 0 -> 0, err: -110
+>>>>> [ 1471.542388] mlx5_core 0000:0d:00.2: mlx5_vdpa_set_status:3203:(pid
+>>>>> 8511) warning: failed to resume VQs
+>>>>> [ 1471.549778] mlx5_core 0000:0d:00.2:
+>>>>> mlx5_vdpa_show_mr_leaks:573:(pid 8511) warning: mkey still alive after
+>>>>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
+>>>>> [ 1512.929854] mlx5_core 0000:0d:00.2:
+>>>>> mlx5_vdpa_compat_reset:3267:(pid 8565): performing device reset
+>>>>> [ 1513.100290] mlx5_core 0000:0d:00.2:
+>>>>> mlx5_vdpa_show_mr_leaks:573:(pid 8565) warning: mkey still alive after
+>>>>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
+>>>>>
+>>>
+>>> Hi Dragos
+>>>
+>>>> Can you provide more details about the qemu version and the vdpa device
+>>>> options used?
+>>>>
+>>>> Also, which FW version are you using? There is a relevant bug in FW
+>>>> 22.41.1000 which was fixed in the latest FW (22.42.1000). Did you
+>>>> encounter any FW syndromes in the host dmesg log?
+>>>
+>>> This problem has gone when I updated the firmware version to
+>>> 22.42.1000, and I tested it with regression tests using mellanox nic,
+>>> everything works well.
+>>>
+>>> Tested-by: Lei Yang <leiyang@redhat.com>
+>> Good to hear. Thanks for the quick reaction.
+>>
+> 
+> Is it possible to add a check so it doesn't use the async fashion in old FW?
+> 
+Unfortunately not, it would have been there otherwise.
+
+Note that this affects only FW version 22.41.1000. Older versions are not
+affected because VQ resume is not supported.
+
+Thanks,
+Dragos
