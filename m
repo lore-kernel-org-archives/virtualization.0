@@ -1,267 +1,353 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8182C205E28
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:17:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725351434; cv=fail; b=JPKtVFAt6OcDyVwHiGaIeM30lKJ2weFsvm3S993csRhRuv4EIif8x8XPFXe5+VIzmw7fkjz1ysrJmVXScxfGYPurz+nzYs37UuwB6AK6CX2ovGcFIs5jp9OgKNpf/WoaE3tx6dSqO9gniV/TfVRHDHA+iBSOcGWVVOkq5GmND6A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725351434; c=relaxed/simple;
-	bh=fKXAtZPT/g9IfbkRm/Ncf9JndlxD/3b+1O+4320cVLE=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=FL6bAxL0F9qekxEMHb98MXSk2OrTRozk3UVFe2pOmEUk+SGjzmT+R8WHgaso3NasFpToT21JE20fES+eQ/09hN8/NtMBSqq5aBCkjWdNMan9O8fx15gepUCJSn+C9tcuIGa7VYuJUiaXN1TwWQS1IR6zDgzRTZxm3UyfQu5lN38=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=pkX6XLDx; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 049D51DAC4D
+	for <virtualization@lists.linux.dev>; Tue,  3 Sep 2024 08:44:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725353084; cv=none; b=ryJKDoMc4ZzXfD0ZVQfNkzKWIdwz6WmkvPMgO9MjT6hs4PEXNFfYkIbSO0qfiMfts8jk+sounFgDit6sfKOSp/6NfAODCe43P7+kEgOshzzI2Ql+LqDHvGea7dqyraYIB9GbgSHpeFtUfxXWH5cSWeeYDwSP4bqTD940VisbTtE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725353084; c=relaxed/simple;
+	bh=Zj7h+Df61/pENQfgug3gu4dOhNubOSRMV4QeUjHXPoY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mTsrlEEOELoPCPly0dR1Qi6xSRddDESv6+J4LTEQD+vt/jo4JhDFfbB3ZAFpIRdiUb4irAlA5wrkun5u3oEbiZi5bHfrVJ/3hhYL+cJ9+NWphe53p8nXHI4esd1eQw8IncRwSSIyRpubmJomuV09YUEXxVRjLF9+Whx55RRhhas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZLrbJXri; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="pkX6XLDx"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 181D780D5B
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:17:13 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id uddfq0ROmxSE for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Sep 2024 08:17:12 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2412::618; helo=nam10-mw2-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 115F780D52
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 115F780D52
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=pkX6XLDx
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20618.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::618])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 115F780D52
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Sep 2024 08:17:11 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=PXFpkhuXp6mWSncK6a4yUEHCLhoqzcLU7300dohWdrJVrs5XdfeOw2jPFJ28OeQVatTwJAhSYWcVSWE75V6gRkIJDsMTBw1xGQ3wlEBhfr95eBih23aWQg45SUrA8zgZuOM51mtbAe1Hj/rVjBcqqnai/zeyTh1ipCw5almVQbamVItPNEiNfkziF+BkcBCLu96pN21l1lS6TzuJ2tHanaCOdmJVUNT93dHliu1GiWuQo38B0pWFWw/KhnsYqAV8LaElbfdNnC0Xd8U7MhWVPTIsoTih+yAfClm44YhAaFnzni4XKN6Qbe+W4Rw0oNxM+dPb3tfO81RktpYQXRHeCA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qsSCNv2k74HRIzumT6iBf8blPI+lta0e90GEZDOq/+I=;
- b=H3MSRgelqQ1yNXnFqnr/Dfpu4+/mCh1R+JdPNpgJyDjoYSBVCKjGuGiEq2RMwvF16LemMe5I4LYq5o06pcQ2AlI1j/bqQ37MsIHW3OrLPovqSczx/3yM8DmkEh0u182SQobtcUb2P4NQm4EXMRdY1lG6LT1VRuu5LnvKGydY82mlDaPIM3kaNDcpe1pZbr4Ko0OgjYgSBasH+F4p28Z5AAW5rV5rGi1uEcswbvAoBGe7mgeP2akXx0G6h2NydhitzHKfhGC3ZFfvFf3XhGVbYe93aqo/8KhtKhUwRId0XAvnHARyLlTEnmB5raQwwPt7GtZcasVwRmsb8N5fT7ptyA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qsSCNv2k74HRIzumT6iBf8blPI+lta0e90GEZDOq/+I=;
- b=pkX6XLDxEsOIxsnCVXyect1oTuKgbPOWSX334AQSCsbeuia4atbDRNYbl6chsNC4ZpRoj2zqcOfQIOrxE89gst2oD167843WdOH+9BGK4I9eImOdY7nth1W4eGR4d7n+ZWCtS4aCC1RaI8e+XWqgpJ4mlH5dxFDuRjPWewzfjZhxMFPstLbPzZcMbqO2p92bN4d07cJtu0r2Zg6VGuqmHxK918NbPpDx12d3uYEDDKhySFmQAXNmNbuNrhEpof4cQnTkR4aI6NGLEJouaqQRKdk9IoEsRXJ7fC3od7fAcLrrOc5TP4K2EdB3lolU5XgEYGG/5J+isJw6IuEaD2RPNQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS0PR12MB8295.namprd12.prod.outlook.com (2603:10b6:8:f6::21) by
- SN7PR12MB7250.namprd12.prod.outlook.com (2603:10b6:806:2aa::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.27; Tue, 3 Sep
- 2024 08:17:07 +0000
-Received: from DS0PR12MB8295.namprd12.prod.outlook.com
- ([fe80::c1ec:bd68:b1e9:8549]) by DS0PR12MB8295.namprd12.prod.outlook.com
- ([fe80::c1ec:bd68:b1e9:8549%5]) with mapi id 15.20.7918.024; Tue, 3 Sep 2024
- 08:17:07 +0000
-Message-ID: <f0c7e66d-358e-4d03-b43e-4cd0796e495d@nvidia.com>
-Date: Tue, 3 Sep 2024 10:16:59 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v2 00/10] vdpa/mlx5: Parallelize device
- suspend/resume
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Lei Yang <leiyang@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Michael Tsirkin <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- kvm@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Saeed Mahameed <saeedm@nvidia.com>
-References: <20240816090159.1967650-1-dtatulea@nvidia.com>
- <CAJaqyWfwkNUYcMWwG4LthhYEquUYDJPRvHeyh9C_R-ioeFYuXw@mail.gmail.com>
- <CAPpAL=xGQvpKwe8WcfHX8e59EdpZbOiohRS1qgeR4axFBDQ_+w@mail.gmail.com>
- <ea127c85-7080-4679-bff1-3a3a253f9046@nvidia.com>
- <CAPpAL=wDKacuWu-wgbwSN3MORSMapU8=RAdzp3ePgPo=6EMFbg@mail.gmail.com>
- <e08c5cc6-27e7-43b7-8337-095a42ed9698@nvidia.com>
- <CAJaqyWd-gc+BDx+DWvBLOEYP+q_Rb+L5n4txf1fcvrcbcE=_Nw@mail.gmail.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <CAJaqyWd-gc+BDx+DWvBLOEYP+q_Rb+L5n4txf1fcvrcbcE=_Nw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR3P281CA0075.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:1f::23) To CY8PR12MB8297.namprd12.prod.outlook.com
- (2603:10b6:930:79::18)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZLrbJXri"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1725353078; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=07f+ZRUYFuuGrxUxDNJ+07f6JVD8p2TyIQijT4Sm9TY=;
+	b=ZLrbJXritpISpWqQWstHcLYosB1qixcWbWJRT2Jn/74o2BZRATG07jgS6Ym54bcMB/gyUkxhZzCJihYYCIPTAcF4gDoZBYdZRseV4VAibKi3F5p4aQdziTzE5VySAHZob/XUuvry1VqxizmeumkDAmA/RWwOe7KOZv/4zOzH0PI=
+Received: from 30.221.146.33(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0WECkfE6_1725353076)
+          by smtp.aliyun-inc.com;
+          Tue, 03 Sep 2024 16:44:37 +0800
+Message-ID: <6074d653-3dd3-45a3-9241-a9e2e12252c6@linux.alibaba.com>
+Date: Tue, 3 Sep 2024 16:44:35 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB8295:EE_|SN7PR12MB7250:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3015fdfb-06d9-4da8-e8d8-08dccbf0cbf0
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?Vkh0b2ZZNGhOY1pETlhKRktmTFovcEI5NFV4QjVZcmZwVDJrZzRIWTFnaFBF?=
- =?utf-8?B?MkNmdlFSRlYzU0pFZ2xVV2V0MnFtVmxyR1J0OGoycG1lUWt5YUd4NmlrNlMz?=
- =?utf-8?B?TStsWXZhaDNUYkI1SVRXeW5aM0FqOGd1TGdGQ05lRWF6dEJQMnFiQVdKaWxI?=
- =?utf-8?B?UldaT3NvQy9TT1lmYVJxYlpNdXBMM0xKYlBPZDFhbEpNaklDQ013OEZURlJY?=
- =?utf-8?B?MjExV1ZpNmkxRGM5QVlNa3F1MDZoNGQ0c2syTUJCSWxjYmtsNlF1aDlVd0Uv?=
- =?utf-8?B?WXNEVEk3YlR6UndvN0MxbjBtMHhCUjREME50aVVpeXZzT3IwUllxMjFBcVFq?=
- =?utf-8?B?SU91VE9idHV2MFBERmhDSVhOb1B2eHhQeE9WWHg4UkE3RTlPWHN3bzZneEc5?=
- =?utf-8?B?VmVGczRuUGN5ZE02Mm84a3daVHV3WTA5TGlVQklJRGxMaXNEVkZXTjlwa21o?=
- =?utf-8?B?bUI5NXFrMnZRSXU5b0RORGFGRnB6QUd1amlGdTZvZUtmbEd0Skt1cnJTQzda?=
- =?utf-8?B?VFZKMGlGaDhFT2cyVjR3SmVHUC9GTVAvZU9EYlR6MndRejFKUzNvVUg2UU5j?=
- =?utf-8?B?KzdRdStXSzFnYVVBVWF0czBuelhCUHVzYjhPMHN3SXNiRlNSbzJmOE00QnZL?=
- =?utf-8?B?cW52SUJtSXl0V3pqbnBOeFRZdkFnMUlBcVZoQ01QbzQzcEdZYXQ4bDVKYm5L?=
- =?utf-8?B?WUdIWUt1N2hQbCthVnZkeGxBMzJDWFVaQWs4SDI5MFNuYVlybXV3ckxpa1Vk?=
- =?utf-8?B?aEFxT3FZVUtYTlVzc0IvQ3RaT2VuMTQ3UkR5WjQwa2w2dW95SzRJUmplR0ps?=
- =?utf-8?B?VTJPT2M5cnZZU0QzVjVacFd4aElDcUNSYUtoRW5xRXJ1aU9YNVhvek41Nmh3?=
- =?utf-8?B?UnhlRkZRNGxWTmRibGhHU01lMjBtSkpReWljanFvRTBkU0xsZTlVem84Vk9N?=
- =?utf-8?B?UFdzSnVwK3gvd2NKUzNLblpzdXNXZFhweG53S0R4VkY3aHgvdTM3VzJERTF2?=
- =?utf-8?B?ZXVKOUNXZVloeTlYWUdMQTJRWHRBNGV0NUI1VlFkZ1A3bVorYTlrWi9rZjRs?=
- =?utf-8?B?Tk8rWDhYVmV2Z2I0ZDlOcEpxZTFDYTBYdkFHKytuZGRxVWpPVGZQdlhLV0dG?=
- =?utf-8?B?VnNmWnJkVGkrS1drRmZ1cFhneUk4bnV3NzRiOXhHZWVLWDNOVTRtVmZZVDlo?=
- =?utf-8?B?bHVLaW96LzJPb21STzg0U24vR0VZOEc2UjR3S2Zham53WVYrZjFJaDE2T05C?=
- =?utf-8?B?QUtJYktxaVdIVGtqcWZnYXA1OUNUdUhjUW9TdE5uMzkwK2ZWa2tneTZSbGth?=
- =?utf-8?B?MEo4VDE1VWp0TFJqMXhKWE8xbVM5NDdWeGdFMWdtZ3IzZXg0N0xQVnJUV0hv?=
- =?utf-8?B?RHRUWklTdVZJN1ZRbDBwVGhlT1p5WmZMblJtWERJUHlvajBvUzJ3NUg3SDA4?=
- =?utf-8?B?UnNKQnl1RmdIT1BUYVppd0N6L2MrQk1BYkVrUGx5aUhjUmROSUs4QTNiMFYz?=
- =?utf-8?B?Z3FxUHhJaHo4cUhZdTZpNFFtd0l1RFJidzNTOHlTYUFWeFJYQlU3Sitka2ly?=
- =?utf-8?B?STJ5NHFZWVRmQkowR2tucURUNzFjYUZWWi9BdUhyZW9NbGFMczRXSzJteXN0?=
- =?utf-8?B?ek9VcUdzK3ZRa1RnUklUZlo3N2VoYnkyKzBYVTJVVDM1SDZIUFk1dS80TnJZ?=
- =?utf-8?B?UDB2emhHVnFWNFE5ZVM0Y0ZXVlJMMVVjcXRZTmgrL1ZnY2lac0JZcU9MYldM?=
- =?utf-8?B?eG0rNHVScmlkRDdVVWJTQ05pMS91dFlyTDJ5R3V3M21ncWNTdUFMK00vQ2N2?=
- =?utf-8?B?UlZlTDh1UGdnNTdVWTI3dz09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB8295.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?cy9NM3Z6WTAwZW5DTWM4cHZ1U2d1OERHblNwSGtmU1QzVURpYWtXRCs4WU5i?=
- =?utf-8?B?S1JsQ2haNlVBZERPRnEyQWlHUFpLRmtZL1BIMkxYV21IT1FCRVBqbWVpNmdy?=
- =?utf-8?B?Y0t4bWlWSGE5bjcxeUdGOTVTK0hvMTc4ZFRydXp3eWFDSCsyVGl6RmlxZ1ZN?=
- =?utf-8?B?ZTRveXRJN1IzdTFIQlRJeSt2Qys1WjY4VUJhN0x3STRpTk9NSFRFTlBoUkdN?=
- =?utf-8?B?ajg1MjJOaEVQZTRNS1NSRUYzbS9MeFkvLzVBcjl0R29reWlzQ2N6b2lrd08y?=
- =?utf-8?B?VmRCeVRHcWVlRmsvQThFLzdBZzY5Z1FNb2Zuai9heC9QaXRYeXBIQm5tak1T?=
- =?utf-8?B?TGxuWHdKdUdrcElUeXd6MmZRNEdOM0ozMi9rQVdHSFJienZ1b1VrVlgvVmZr?=
- =?utf-8?B?VlBSM1ZIcVNPS0lOL1Eyd2syZmpjV2YwRm4zWlZkWVpBcHZINnlJZk1uemRR?=
- =?utf-8?B?SWoyVjNrOVYwSHl6NUtDTjZDajV5TVo5WnZmWFEzN0pyRkEwSUpUMks4bHNo?=
- =?utf-8?B?UStvS0Z2eGlFMDVBTU1zb2g1SFJxSlk0SjFuT1hsSWI3UVVYQkU4VnFrY3Rn?=
- =?utf-8?B?KzhkUEM3WkxBNktHQ0VWR3JjellDcG53aFVwT1R4WGxlMFNEZitvM0ZXYjlQ?=
- =?utf-8?B?bGlhdGt0L2F4dm9ZbHRUSUI4NmpWNGRqcVp6Um03dWxxa3hWcXNHS2w5M0RH?=
- =?utf-8?B?SUFmVkVQTDljdVIwSS83YkRodWNZRUNHTXhLckpiYlMrTktvR0JyR1RnVmJa?=
- =?utf-8?B?T0srKzZuUWZxUmx3MGJxc3p6QWh0WlBOWHJXM2YrVmV3SXd0TXpIZkRYTzhx?=
- =?utf-8?B?MnEwT1E0Um1EdFRTdm5nQ2RrRjYrUEllQ1A3UGk5L0kwb0QrN0YranFJL0ZZ?=
- =?utf-8?B?MUw0YlMxQlFyNDdHY3paeWJTVVdCbkluQ3J4WGFsdjFpODlaS2dGY0crTXFR?=
- =?utf-8?B?bEk5OU1oK2RpM1hla2UvaVV6ZkpTelBqdGoxRFRWQ0hrbHZIcVhxRXBYc25V?=
- =?utf-8?B?dmpjajlBS2UzSEpsK1ViMUJjd2tlaVVGYnMrWUxnc29JREMraHp5dFdobmky?=
- =?utf-8?B?dEtNSmUvV2VaVURYTFU0bkMyaVRKeDk2akNUWlNKVlp3QkRCekordTdDVWI3?=
- =?utf-8?B?aTc3MGRFZjdYRDZ6VzhzVFhlWFRFWTVudjVCRGdJeDFSTVduYU5Tc0hSV0Qr?=
- =?utf-8?B?ZFJtTjhtQzZDVUhVRnFCUWFqdS9jV0ZZWkl5MnYrakprQXY4NnF1K3lic0Ey?=
- =?utf-8?B?OXRpdFc0UzA5SGFTUDBneDR1RXlTVkNHWFAxMS9pWTFJOEJPdkt2WXYvNWJR?=
- =?utf-8?B?Ymg3UXpvbzBrTHpabE93empOUHZpR09SVXZ6eWR1WFJHRzZSM1lQNFhhbG90?=
- =?utf-8?B?Sk5jY3dFWHZUMzBNWkxocHViQ1B3eE9ENmdoQXp2VW8weDFkcUt3VkZXNXVM?=
- =?utf-8?B?RCsrU25kdmw0VnErWkozSFgvQ2NaQmM0OURNSzR3ZUxqMHpZbDFaZHZCWVZU?=
- =?utf-8?B?dGxLMkN6bmFMYWhpMi93OFhjdHZQaTJwY0d3TmlPcG1HZ2JBYk5FaVVWdks3?=
- =?utf-8?B?N1lBYUc0ZFdqZFczTnhpaXYxR1lmOVdmWDlXaDR3MC9BRTNxNm1hSlBOanhv?=
- =?utf-8?B?R0RtMHc0alhudDZoeU9PY2twY1Z3VUZiOWRDMTRramk4NGhiaFczaVdpRXBL?=
- =?utf-8?B?R0dHcGtNZUVFeEdsU1RjVE41NXltTlRCd3VwTzJpVmtYTDV3a1FUVm5SbUJH?=
- =?utf-8?B?UmdGVnNCeElnaVZ6RkZIbW9JRXBxdS96NnpSd2dhN3lHZGdYSmtIQnlFVUc5?=
- =?utf-8?B?T0djT3JoMUdOd1lBdFRCbzlneTIrVjk3RWhHalRTU0lTclZ2UldhMER4a2p0?=
- =?utf-8?B?SFdhdnlNNm0vZDJSVGJPVTVjbGN4OEVYTVpnTThJeUs1SEorQnJjc1hCQ3Jt?=
- =?utf-8?B?VkwxaE5nMHFvYnhzZ01Nbzl6a280eE5mclhXOUkzT0c2Wlprd1pLZ080Z1Ux?=
- =?utf-8?B?Ujl3YUxrZVQzR045c280SVVFQytrRWNiSjUzRFZEelBjWTV6R0tFcEw3dFlp?=
- =?utf-8?B?enRnTnBXUDN0eEk5T0c1bDd4UkhLSFNZM2JXWkh5bXdLSk95ZVhady9oL2xJ?=
- =?utf-8?Q?8itlUgqbyr3uAg8CFMAbISd1S?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3015fdfb-06d9-4da8-e8d8-08dccbf0cbf0
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2024 08:17:07.7815
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5TwWzsPeMyiIo6XCSheIfCzJI4h9xSWf+Waftil+2Zq12lHC+pq+KibYNN369AUrUCPsJ3iUXIAsheU33CKWxA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7250
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/2] virtiofs: use pages instead of pointer for kernel
+ direct IO
+To: Hou Tao <houtao@huaweicloud.com>, linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Bernd Schubert <bernd.schubert@fastmail.fm>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox
+ <willy@infradead.org>, Benjamin Coddington <bcodding@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ houtao1@huawei.com
+References: <20240831093750.1593871-1-houtao@huaweicloud.com>
+ <20240831093750.1593871-2-houtao@huaweicloud.com>
+Content-Language: en-US
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+In-Reply-To: <20240831093750.1593871-2-houtao@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 
 
-On 03.09.24 10:10, Eugenio Perez Martin wrote:
-> On Tue, Sep 3, 2024 at 9:48 AM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>
->>
->>
->> On 03.09.24 09:40, Lei Yang wrote:
->>> On Mon, Sep 2, 2024 at 7:05 PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>>>
->>>> Hi Lei,
->>>>
->>>> On 02.09.24 12:03, Lei Yang wrote:
->>>>> Hi Dragos
->>>>>
->>>>> QE tested this series with mellanox nic, it failed with [1] when
->>>>> booting guest, and host dmesg also will print messages [2]. This bug
->>>>> can be reproduced boot guest with vhost-vdpa device.
->>>>>
->>>>> [1] qemu) qemu-kvm: vhost VQ 1 ring restore failed: -1: Operation not
->>>>> permitted (1)
->>>>> qemu-kvm: vhost VQ 0 ring restore failed: -1: Operation not permitted (1)
->>>>> qemu-kvm: unable to start vhost net: 5: falling back on userspace virtio
->>>>> qemu-kvm: vhost_set_features failed: Device or resource busy (16)
->>>>> qemu-kvm: unable to start vhost net: 16: falling back on userspace virtio
->>>>>
->>>>> [2] Host dmesg:
->>>>> [ 1406.187977] mlx5_core 0000:0d:00.2:
->>>>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
->>>>> [ 1406.189221] mlx5_core 0000:0d:00.2:
->>>>> mlx5_vdpa_compat_reset:3267:(pid 8506): performing device reset
->>>>> [ 1406.190354] mlx5_core 0000:0d:00.2:
->>>>> mlx5_vdpa_show_mr_leaks:573:(pid 8506) warning: mkey still alive after
->>>>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
->>>>> [ 1471.538487] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
->>>>> 428): cmd[13]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
->>>>> a leak of a command resource
->>>>> [ 1471.539486] mlx5_core 0000:0d:00.2: cb_timeout_handler:938:(pid
->>>>> 428): cmd[12]: MODIFY_GENERAL_OBJECT(0xa01) Async, timeout. Will cause
->>>>> a leak of a command resource
->>>>> [ 1471.540351] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
->>>>> 8511) error: modify vq 0 failed, state: 0 -> 0, err: 0
->>>>> [ 1471.541433] mlx5_core 0000:0d:00.2: modify_virtqueues:1617:(pid
->>>>> 8511) error: modify vq 1 failed, state: 0 -> 0, err: -110
->>>>> [ 1471.542388] mlx5_core 0000:0d:00.2: mlx5_vdpa_set_status:3203:(pid
->>>>> 8511) warning: failed to resume VQs
->>>>> [ 1471.549778] mlx5_core 0000:0d:00.2:
->>>>> mlx5_vdpa_show_mr_leaks:573:(pid 8511) warning: mkey still alive after
->>>>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
->>>>> [ 1512.929854] mlx5_core 0000:0d:00.2:
->>>>> mlx5_vdpa_compat_reset:3267:(pid 8565): performing device reset
->>>>> [ 1513.100290] mlx5_core 0000:0d:00.2:
->>>>> mlx5_vdpa_show_mr_leaks:573:(pid 8565) warning: mkey still alive after
->>>>> resource delete: mr: 000000000c5ccca2, mkey: 0x40000000, refcount: 2
->>>>>
->>>
->>> Hi Dragos
->>>
->>>> Can you provide more details about the qemu version and the vdpa device
->>>> options used?
->>>>
->>>> Also, which FW version are you using? There is a relevant bug in FW
->>>> 22.41.1000 which was fixed in the latest FW (22.42.1000). Did you
->>>> encounter any FW syndromes in the host dmesg log?
->>>
->>> This problem has gone when I updated the firmware version to
->>> 22.42.1000, and I tested it with regression tests using mellanox nic,
->>> everything works well.
->>>
->>> Tested-by: Lei Yang <leiyang@redhat.com>
->> Good to hear. Thanks for the quick reaction.
->>
+On 8/31/24 5:37 PM, Hou Tao wrote:
+> From: Hou Tao <houtao1@huawei.com>
 > 
-> Is it possible to add a check so it doesn't use the async fashion in old FW?
+> When trying to insert a 10MB kernel module kept in a virtio-fs with cache
+> disabled, the following warning was reported:
 > 
-Unfortunately not, it would have been there otherwise.
+>   ------------[ cut here ]------------
+>   WARNING: CPU: 1 PID: 404 at mm/page_alloc.c:4551 ......
+>   Modules linked in:
+>   CPU: 1 PID: 404 Comm: insmod Not tainted 6.9.0-rc5+ #123
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996) ......
+>   RIP: 0010:__alloc_pages+0x2bf/0x380
+>   ......
+>   Call Trace:
+>    <TASK>
+>    ? __warn+0x8e/0x150
+>    ? __alloc_pages+0x2bf/0x380
+>    __kmalloc_large_node+0x86/0x160
+>    __kmalloc+0x33c/0x480
+>    virtio_fs_enqueue_req+0x240/0x6d0
+>    virtio_fs_wake_pending_and_unlock+0x7f/0x190
+>    queue_request_and_unlock+0x55/0x60
+>    fuse_simple_request+0x152/0x2b0
+>    fuse_direct_io+0x5d2/0x8c0
+>    fuse_file_read_iter+0x121/0x160
+>    __kernel_read+0x151/0x2d0
+>    kernel_read+0x45/0x50
+>    kernel_read_file+0x1a9/0x2a0
+>    init_module_from_file+0x6a/0xe0
+>    idempotent_init_module+0x175/0x230
+>    __x64_sys_finit_module+0x5d/0xb0
+>    x64_sys_call+0x1c3/0x9e0
+>    do_syscall_64+0x3d/0xc0
+>    entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>    ......
+>    </TASK>
+>   ---[ end trace 0000000000000000 ]---
+> 
+> The warning is triggered as follows:
+> 
+> 1) syscall finit_module() handles the module insertion and it invokes
+> kernel_read_file() to read the content of the module first.
+> 
+> 2) kernel_read_file() allocates a 10MB buffer by using vmalloc() and
+> passes it to kernel_read(). kernel_read() constructs a kvec iter by
+> using iov_iter_kvec() and passes it to fuse_file_read_iter().
+> 
+> 3) virtio-fs disables the cache, so fuse_file_read_iter() invokes
+> fuse_direct_io(). As for now, the maximal read size for kvec iter is
+> only limited by fc->max_read. For virtio-fs, max_read is UINT_MAX, so
+> fuse_direct_io() doesn't split the 10MB buffer. It saves the address and
+> the size of the 10MB-sized buffer in out_args[0] of a fuse request and
+> passes the fuse request to virtio_fs_wake_pending_and_unlock().
+> 
+> 4) virtio_fs_wake_pending_and_unlock() uses virtio_fs_enqueue_req() to
+> queue the request. Because virtiofs need DMA-able address, so
+> virtio_fs_enqueue_req() uses kmalloc() to allocate a bounce buffer for
+> all fuse args, copies these args into the bounce buffer and passed the
+> physical address of the bounce buffer to virtiofsd. The total length of
+> these fuse args for the passed fuse request is about 10MB, so
+> copy_args_to_argbuf() invokes kmalloc() with a 10MB size parameter and
+> it triggers the warning in __alloc_pages():
+> 
+> 	if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp))
+> 		return NULL;
+> 
+> 5) virtio_fs_enqueue_req() will retry the memory allocation in a
+> kworker, but it won't help, because kmalloc() will always return NULL
+> due to the abnormal size and finit_module() will hang forever.
+> 
+> A feasible solution is to limit the value of max_read for virtio-fs, so
+> the length passed to kmalloc() will be limited. However it will affect
+> the maximal read size for normal read. And for virtio-fs write initiated
+> from kernel, it has the similar problem but now there is no way to limit
+> fc->max_write in kernel.
+> 
+> So instead of limiting both the values of max_read and max_write in
+> kernel, introducing use_pages_for_kvec_io in fuse_conn and setting it as
+> true in virtiofs. When use_pages_for_kvec_io is enabled, fuse will use
+> pages instead of pointer to pass the KVEC_IO data.
+> 
+> After switching to pages for KVEC_IO data, these pages will be used for
+> DMA through virtio-fs. If these pages are backed by vmalloc(),
+> {flush|invalidate}_kernel_vmap_range() are necessary to flush or
+> invalidate the cache before the DMA operation. So add two new fields in
+> fuse_args_pages to record the base address of vmalloc area and the
+> condition indicating whether invalidation is needed. Perform the flush
+> in fuse_get_user_pages() for write operations and the invalidation in
+> fuse_release_user_pages() for read operations.
+> 
+> It may seem necessary to introduce another field in fuse_conn to
+> indicate that these KVEC_IO pages are used for DMA, However, considering
+> that virtio-fs is currently the only user of use_pages_for_kvec_io, just
+> reuse use_pages_for_kvec_io to indicate that these pages will be used
+> for DMA.
+> 
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Signed-off-by: Hou Tao <houtao1@huawei.com>
 
-Note that this affects only FW version 22.41.1000. Older versions are not
-affected because VQ resume is not supported.
+Tested-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 
+
+> ---
+>  fs/fuse/file.c      | 62 +++++++++++++++++++++++++++++++--------------
+>  fs/fuse/fuse_i.h    |  6 +++++
+>  fs/fuse/virtio_fs.c |  1 +
+>  3 files changed, 50 insertions(+), 19 deletions(-)
+> 
+> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+> index f39456c65ed7..331208d3e4d1 100644
+> --- a/fs/fuse/file.c
+> +++ b/fs/fuse/file.c
+> @@ -645,7 +645,7 @@ void fuse_read_args_fill(struct fuse_io_args *ia, struct file *file, loff_t pos,
+>  	args->out_args[0].size = count;
+>  }
+>  
+> -static void fuse_release_user_pages(struct fuse_args_pages *ap,
+> +static void fuse_release_user_pages(struct fuse_args_pages *ap, ssize_t nres,
+>  				    bool should_dirty)
+>  {
+>  	unsigned int i;
+> @@ -656,6 +656,9 @@ static void fuse_release_user_pages(struct fuse_args_pages *ap,
+>  		if (ap->args.is_pinned)
+>  			unpin_user_page(ap->pages[i]);
+>  	}
+> +
+> +	if (nres > 0 && ap->args.invalidate_vmap)
+> +		invalidate_kernel_vmap_range(ap->args.vmap_base, nres);
+>  }
+>  
+>  static void fuse_io_release(struct kref *kref)
+> @@ -754,25 +757,29 @@ static void fuse_aio_complete_req(struct fuse_mount *fm, struct fuse_args *args,
+>  	struct fuse_io_args *ia = container_of(args, typeof(*ia), ap.args);
+>  	struct fuse_io_priv *io = ia->io;
+>  	ssize_t pos = -1;
+> -
+> -	fuse_release_user_pages(&ia->ap, io->should_dirty);
+> +	size_t nres;
+>  
+>  	if (err) {
+>  		/* Nothing */
+>  	} else if (io->write) {
+>  		if (ia->write.out.size > ia->write.in.size) {
+>  			err = -EIO;
+> -		} else if (ia->write.in.size != ia->write.out.size) {
+> -			pos = ia->write.in.offset - io->offset +
+> -				ia->write.out.size;
+> +		} else {
+> +			nres = ia->write.out.size;
+> +			if (ia->write.in.size != ia->write.out.size)
+> +				pos = ia->write.in.offset - io->offset +
+> +				      ia->write.out.size;
+>  		}
+>  	} else {
+>  		u32 outsize = args->out_args[0].size;
+>  
+> +		nres = outsize;
+>  		if (ia->read.in.size != outsize)
+>  			pos = ia->read.in.offset - io->offset + outsize;
+>  	}
+>  
+> +	fuse_release_user_pages(&ia->ap, err ?: nres, io->should_dirty);
+> +
+>  	fuse_aio_complete(io, err, pos);
+>  	fuse_io_free(ia);
+>  }
+> @@ -1467,24 +1474,37 @@ static inline size_t fuse_get_frag_size(const struct iov_iter *ii,
+>  
+>  static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+>  			       size_t *nbytesp, int write,
+> -			       unsigned int max_pages)
+> +			       unsigned int max_pages,
+> +			       bool use_pages_for_kvec_io)
+>  {
+> +	bool flush_or_invalidate = false;
+>  	size_t nbytes = 0;  /* # bytes already packed in req */
+>  	ssize_t ret = 0;
+>  
+> -	/* Special case for kernel I/O: can copy directly into the buffer */
+> +	/* Special case for kernel I/O: can copy directly into the buffer.
+> +	 * However if the implementation of fuse_conn requires pages instead of
+> +	 * pointer (e.g., virtio-fs), use iov_iter_extract_pages() instead.
+> +	 */
+>  	if (iov_iter_is_kvec(ii)) {
+> -		unsigned long user_addr = fuse_get_user_addr(ii);
+> -		size_t frag_size = fuse_get_frag_size(ii, *nbytesp);
+> +		void *user_addr = (void *)fuse_get_user_addr(ii);
+>  
+> -		if (write)
+> -			ap->args.in_args[1].value = (void *) user_addr;
+> -		else
+> -			ap->args.out_args[0].value = (void *) user_addr;
+> +		if (!use_pages_for_kvec_io) {
+> +			size_t frag_size = fuse_get_frag_size(ii, *nbytesp);
+>  
+> -		iov_iter_advance(ii, frag_size);
+> -		*nbytesp = frag_size;
+> -		return 0;
+> +			if (write)
+> +				ap->args.in_args[1].value = user_addr;
+> +			else
+> +				ap->args.out_args[0].value = user_addr;
+> +
+> +			iov_iter_advance(ii, frag_size);
+> +			*nbytesp = frag_size;
+> +			return 0;
+> +		}
+> +
+> +		if (is_vmalloc_addr(user_addr)) {
+> +			ap->args.vmap_base = user_addr;
+> +			flush_or_invalidate = true;
+
+Could we move flush_kernel_vmap_range() upon here, so that
+flush_or_invalidate is not needed anymore and the code looks cleaner?
+
+> +		}
+>  	}
+>  
+>  	while (nbytes < *nbytesp && ap->num_pages < max_pages) {
+> @@ -1513,6 +1533,10 @@ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+>  			(PAGE_SIZE - ret) & (PAGE_SIZE - 1);
+>  	}
+>  
+> +	if (write && flush_or_invalidate)
+> +		flush_kernel_vmap_range(ap->args.vmap_base, nbytes);
+> +
+> +	ap->args.invalidate_vmap = !write && flush_or_invalidate;
+
+How about initializing vmap_base only when the data buffer is vmalloced
+and it's a read request?  In this case invalidate_vmap is no longer needed.
+
+>  	ap->args.is_pinned = iov_iter_extract_will_pin(ii);
+>  	ap->args.user_pages = true;
+>  	if (write)
+> @@ -1581,7 +1605,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+>  		size_t nbytes = min(count, nmax);
+>  
+>  		err = fuse_get_user_pages(&ia->ap, iter, &nbytes, write,
+> -					  max_pages);
+> +					  max_pages, fc->use_pages_for_kvec_io);
+>  		if (err && !nbytes)
+>  			break;
+>  
+> @@ -1595,7 +1619,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+>  		}
+>  
+>  		if (!io->async || nres < 0) {
+> -			fuse_release_user_pages(&ia->ap, io->should_dirty);
+> +			fuse_release_user_pages(&ia->ap, nres, io->should_dirty);
+>  			fuse_io_free(ia);
+>  		}
+>  		ia = NULL;
+> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+> index f23919610313..79add14c363f 100644
+> --- a/fs/fuse/fuse_i.h
+> +++ b/fs/fuse/fuse_i.h
+> @@ -309,9 +309,12 @@ struct fuse_args {
+>  	bool may_block:1;
+>  	bool is_ext:1;
+>  	bool is_pinned:1;
+> +	bool invalidate_vmap:1;
+>  	struct fuse_in_arg in_args[3];
+>  	struct fuse_arg out_args[2];
+>  	void (*end)(struct fuse_mount *fm, struct fuse_args *args, int error);
+> +	/* Used for kvec iter backed by vmalloc address */
+> +	void *vmap_base;
+>  };
+>  
+>  struct fuse_args_pages {
+> @@ -860,6 +863,9 @@ struct fuse_conn {
+>  	/** Passthrough support for read/write IO */
+>  	unsigned int passthrough:1;
+>  
+> +	/* Use pages instead of pointer for kernel I/O */
+> +	unsigned int use_pages_for_kvec_io:1;
+
+Maybe we need a better (actually shorter) name for this flag. kvec_pages?
+
+> +
+>  	/** Maximum stack depth for passthrough backing files */
+>  	int max_stack_depth;
+>  
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index dd5260141615..43d66ab5e891 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -1568,6 +1568,7 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+>  	fc->delete_stale = true;
+>  	fc->auto_submounts = true;
+>  	fc->sync_fs = true;
+> +	fc->use_pages_for_kvec_io = true;
+>  
+>  	/* Tell FUSE to split requests that exceed the virtqueue's size */
+>  	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
+
+-- 
 Thanks,
-Dragos
+Jingbo
