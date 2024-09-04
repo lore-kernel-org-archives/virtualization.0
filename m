@@ -1,260 +1,193 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DA0D130ADA
-	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 07:22:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 103D61482E1
+	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 07:37:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725434549; cv=none; b=ggzWc+RP/rd660nN5Rd3nm0cm4m65Q+xmrxj/PSADxCuc6rGb10Tst5IrnC3csaX2PycLBxLcypps9OLyrQlJVEmD0uJlzOcypc6trbAftWjhj0SB6mNTwPbH5/Y89QsyVKfyuU89ZOBuLlpOOLfIQrkBmCiLIbgxmGXmdT0lHQ=
+	t=1725435456; cv=none; b=VUWHq6cluz2OvXvhAikDbRMrslMObDOtMi2RF9m7jBXyx73uRaBFz9cihu3iaSZ1KqGrdeVfMdkECk9KPoFj6nfqI2miPRxl0OJq10v5Xix1aswf8IY21EeOrJP89KjFxTXqc9pWr/KtaTaFdOkLjCBVbGym7i/Y59Dk9TYdwns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725434549; c=relaxed/simple;
-	bh=bbOsculdpTItYrfgREp6F0Q6OrQeZ+N8WXdyQ9WaxZY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lZqhDwV/BWrY6P94n+x6W3tGId1pPqEy/yAEujk6K8nLX6TKqaUfVisZ4KHi7PMT2Ju+bHbDn48qu6y4v8tPy8rtGThh+IAf9pbTmZujGuU3O8LtMi+JN1PX9bjo9+UbiUWl7F2wNEtg/ojA7x70ztWeBHPi97GzVgplsE4PLSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=YZ2v9DyY; arc=none smtp.client-ip=209.85.167.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1725435456; c=relaxed/simple;
+	bh=SXoL0Y2uBCH4szH5JIB1/cEQ+UnjAZakw05pl633cJ0=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=L5FrfQgyrYZDjoXb0DQquq/onFTOWMqfSx+YFJVJtrNYFRkie7xyD3bvCoSZbVwOzkXu7UXGQFYAh/k3EyYFyofG1oqhjVezn6lnPA5+LAVTisZ34tmijgqfWnb56502QEuZR0yeo5+CpOnuTlJR9G4k1RmCgZmg913+U8GTsQE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=j8V7RAgw; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="YZ2v9DyY"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5334c4d6829so7833712e87.2
-        for <virtualization@lists.linux.dev>; Wed, 04 Sep 2024 00:22:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1725434545; x=1726039345; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Wh+WjO/eVoggYon1VI8AmiDiYT97jA+3Yp6qqo8Bz0o=;
-        b=YZ2v9DyY5lkYM63My1ThLj2dO1zzd2+Kn7zTNt7kxn1JcPvcC9LfWHxlnVQ9papOXh
-         vjPSLE/pz992IDwRy1sBVF90/KqfxolyT+tE8mmbjLWWy6ujTJP5gRQHfv1eQXSEDGaa
-         xDDkXz3BtIBpPIh6SoCWeGNknGjMKOr+8ARyyDdYP3kNVuEi91D16xU2kPHUwoInSJBn
-         cSb2ems37/zC4E4sZlQbVdGJANRa/6tI4ilqAfO9mIWZjxQNLLnG4WINxTzBxZe3wDV7
-         lo6sqt1hvogEYGnsZBVabxFqQMh8IsSVEbKZBqx95S5TShM0GwSxfv8WrLfePt5QOyJs
-         JyjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725434545; x=1726039345;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Wh+WjO/eVoggYon1VI8AmiDiYT97jA+3Yp6qqo8Bz0o=;
-        b=vltnm26xbNhmrJlN/r6QAuxR7gYZRJle8eP9cb4qOiHe8eFXgjU91olEiLJlIw8SY/
-         kln0HddDpHj7DMasG3d4+9fi3536ij49TJ1tkXpNIaAdl0qjqFCPlhaOYsLEOkFBT2m8
-         ikAxZmkiD3S9RoYejLl2yJ1q9xxeve7jAjUYFz1STNr0smIs28D5QDfCLa832MR4tUHM
-         2T87lUjpBDih33YHwSO+0jBur/Ero0BnDgJBI8xIrM4ZQ2yqbjG/DQZUTHjnO7OUPx/d
-         TYma4cKgSa386p7r9YvPTRez29JC0FyqF36hIQoQK7SgQ4Nz/gKi2Av9lAYX2XsIX90D
-         Bx0A==
-X-Forwarded-Encrypted: i=1; AJvYcCXsHz70F72CkTse5xmyOmbS5Q7cZe4vP3m5wa0XbiM8YWoBgyh5tnrcJY3pe0IdDSklj08doYjIOE6dKLIbnA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyw6MnDkVxsNpcgrMTQvx3zM1NcZSr8O6d8LiVSxaUxtGBklojw
-	bLB6WHpsNfZcDUBL5kNa4O+avLGhsA07JV7bsp9W5XhRWe52g2dk/vrInovvQcA=
-X-Google-Smtp-Source: AGHT+IG8z0kaSoq4W+20UCPAYQ/4EbWJkmc6rjz/n9sR4m5vvJuQveaRcmhYFgcpH0WFXJDIfkD49A==
-X-Received: by 2002:a05:6512:3350:b0:534:543e:1895 with SMTP id 2adb3069b0e04-53546bab3damr7960271e87.39.1725434544882;
-        Wed, 04 Sep 2024 00:22:24 -0700 (PDT)
-Received: from localhost (109-81-82-19.rct.o2.cz. [109.81.82.19])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a898919686bsm764838666b.134.2024.09.04.00.22.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Sep 2024 00:22:24 -0700 (PDT)
-Date: Wed, 4 Sep 2024 09:22:23 +0200
-From: Michal Hocko <mhocko@suse.com>
-To: Barry Song <21cnbao@gmail.com>
-Cc: 42.hyeyoo@gmail.com, akpm@linux-foundation.org, cl@linux.com,
-	david@redhat.com, hailong.liu@oppo.com, hch@infradead.org,
-	iamjoonsoo.kim@lge.com, laoar.shao@gmail.com, linux-mm@kvack.org,
-	penberg@kernel.org, rientjes@google.com, roman.gushchin@linux.dev,
-	torvalds@linux-foundation.org, urezki@gmail.com,
-	v-songbaohua@oppo.com, vbabka@suse.cz,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v4 3/3] mm: warn about illegal __GFP_NOFAIL usage in a
- more appropriate location and manner
-Message-ID: <ZtgKr5aFjMXNNIjX@tiehlicka>
-References: <ZtVwQL52EmIIyDsK@tiehlicka>
- <20240903223935.1697-1-21cnbao@gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="j8V7RAgw"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1725435445; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=ciPN8fkQH+unZgllpAVfdRbO08g5aZIPzLBXvT9Tb5A=;
+	b=j8V7RAgwpSE4c8k6ZxXJIsGaoD1+bCwusI0u3LEjQksOKElDAg1FkEUKnr3Uh+umCEeoU5x/Xk22h/k5u0RwM+i+tQqKtQXQbV6xXI0GfzJ5HRyfyJklVRRMhnM2I5yJAtVAHMuHI1s6YE33CJvJvHSWxcCEiftp1Sey7fqdHuI=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEGYzGb_1725435444)
+          by smtp.aliyun-inc.com;
+          Wed, 04 Sep 2024 15:37:24 +0800
+Message-ID: <1725435002.9733856-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [External] Re: [PATCH v2] virtio_net: Fix mismatched buf address when unmapping for small packets
+Date: Wed, 4 Sep 2024 15:30:02 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: =?utf-8?b?5paH5Y2a5p2O?= <liwenbo.martin@bytedance.com>
+Cc: virtualization@lists.linux.dev,
+ netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ Jiahui Cen <cenjiahui@bytedance.com>,
+ Ying Fang <fangying.tommy@bytedance.com>,
+ mst@redhat.com,
+ jasowang@redhat.com,
+ eperezma@redhat.com,
+ davem@davemloft.net,
+ edumazet@google.com,
+ kuba@kernel.org,
+ pabeni@redhat.com
+References: <20240904061009.90785-1-liwenbo.martin@bytedance.com>
+ <1725432304.274084-1-xuanzhuo@linux.alibaba.com>
+ <CABwj4+hMwUQ+=m+XyG=66e+PUbOzOvHEsQzboB17DE+3aBHA3g@mail.gmail.com>
+In-Reply-To: <CABwj4+hMwUQ+=m+XyG=66e+PUbOzOvHEsQzboB17DE+3aBHA3g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240903223935.1697-1-21cnbao@gmail.com>
 
-On Wed 04-09-24 10:39:35, Barry Song wrote:
-> On Mon, Sep 2, 2024 at 7:58 PM Michal Hocko <mhocko@suse.com> wrote:
-> >
-> > On Sat 31-08-24 08:28:23, Barry Song wrote:
-> > > From: Barry Song <v-songbaohua@oppo.com>
-> > >
-> > > Three points for this change:
-> > >
-> > > 1. We should consolidate all warnings in one place. Currently, the
-> > >    order > 1 warning is in the hotpath, while others are in less
-> > >    likely scenarios. Moving all warnings to the slowpath will reduce
-> > >    the overhead for order > 1 and increase the visibility of other
-> > >    warnings.
-> > >
-> > > 2. We currently have two warnings for order: one for order > 1 in
-> > >    the hotpath and another for order > costly_order in the laziest
-> > >    path. I suggest standardizing on order > 1 since it’s been in
-> > >    use for a long time.
-> > >
-> > > 3. We don't need to check for __GFP_NOWARN in this case. __GFP_NOWARN
-> > >    is meant to suppress allocation failure reports, but here we're
-> > >    dealing with bug detection, not allocation failures. So replace
-> > >    WARN_ON_ONCE_GFP by WARN_ON_ONCE.
-> > >
-> > > Suggested-by: Vlastimil Babka <vbabka@suse.cz>
-> > > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> >
-> > Acked-by: Michal Hocko <mhocko@suse.com>
-> >
-> > Updating the doc about order > 1 sounds like it would still fall into
-> > the scope of this patch. I don not think we absolutely have to document
-> > each unsupported gfp flags combination for GFP_NOFAIL but the order is a
-> > good addition with a note that kvmalloc should be used instead in such a
-> > case.
-> 
-> Hi Andrew,
-> If there are no objections from Michal and David, could you please
-> squash the following:
-> 
-> >From fc7a2a49e8d0811d706d13d2080393274f316806 Mon Sep 17 00:00:00 2001
-> From: Barry Song <v-songbaohua@oppo.com>
-> Date: Wed, 4 Sep 2024 10:26:19 +1200
-> Subject: [PATCH] mm: also update the doc for __GFP_NOFAIL with order > 1
-> 
-> Obviously we only support order <= 1 __GFP_NOFAIL allocation and if
-> someone wants larger memory, they should consider using kvmalloc()
-> instead.
-> 
-> Suggested-by: David Hildenbrand <david@redhat.com>
-> Suggested-by: Michal Hocko <mhocko@suse.com>
-> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+On Wed, 4 Sep 2024 15:21:28 +0800, =3D?utf-8?b?5paH5Y2a5p2O?=3D <liwenbo.ma=
+rtin@bytedance.com> wrote:
+> When SWIOTLB is enabled, a DMA map will allocate a bounce buffer for real
+> DMA operations,
+> and when unmapping, SWIOTLB copies the content in the bounce buffer to the
+> driver-allocated
+> buffer (the `buf` variable). Such copy only synchronizes data in the buff=
+er
+> range, not the whole page.
+> So we should give the correct offset for DMA unmapping.
 
-LGTM. Thanks!
+I see.
 
-> ---
->  include/linux/gfp_types.h | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/gfp_types.h b/include/linux/gfp_types.h
-> index 4a1fa7706b0c..65db9349f905 100644
-> --- a/include/linux/gfp_types.h
-> +++ b/include/linux/gfp_types.h
-> @@ -253,7 +253,8 @@ enum {
->   * used only when there is no reasonable failure policy) but it is
->   * definitely preferable to use the flag rather than opencode endless
->   * loop around allocator.
-> - * Using this flag for costly allocations is _highly_ discouraged.
-> + * Allocating pages from the buddy with __GFP_NOFAIL and order > 1 is
-> + * not supported. Please consider using kvmalloc() instead.
->   */
->  #define __GFP_IO	((__force gfp_t)___GFP_IO)
->  #define __GFP_FS	((__force gfp_t)___GFP_FS)
-> -- 
-> 2.34.1
-> 
-> 
+But I think we should pass the "correct" buf to virtio core as the "data" by
+virtqueue_add_inbuf_ctx().
+
+In the merge mode, we pass the pointer that points to the virtnet header.
+In the small mode, we pass the pointer that points to the virtnet header - =
+offset.
+
+But this is not the only problem, we try to get the virtnet header by the b=
+uf
+inside receive_buf(before receive_small).
+
+	flags =3D ((struct virtio_net_common_hdr *)buf)->hdr.flags;
+
+So I think it is time to unify the buf that passed to the virtio core into a
+pointer pointed to the virtnet header.
+
+Thanks.
+
+
+>
+> Thanks.
+>
+> On Wed, Sep 4, 2024 at 2:46=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
 > >
+> > On Wed,  4 Sep 2024 14:10:09 +0800, Wenbo Li <liwenbo.martin@bytedance.=
+com>
+> wrote:
+> > > Currently, the virtio-net driver will perform a pre-dma-mapping for
+> > > small or mergeable RX buffer. But for small packets, a mismatched
+> address
+> > > without VIRTNET_RX_PAD and xdp_headroom is used for unmapping.
+> >
+> > Will used virt_to_head_page(), so could you say more about it?
+> >
+> >         struct page *page =3D virt_to_head_page(buf);
+> >
+> > Thanks.
+> >
+> > >
+> > > That will result in unsynchronized buffers when SWIOTLB is enabled, f=
+or
+> > > example, when running as a TDX guest.
+> > >
+> > > This patch handles small and mergeable packets separately and fixes
+> > > the mismatched buffer address.
+> > >
+> > > Changes from v1: Use ctx to get xdp_headroom.
+> > >
+> > > Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling
+> mergeable buffers")
+> > > Signed-off-by: Wenbo Li <liwenbo.martin@bytedance.com>
+> > > Signed-off-by: Jiahui Cen <cenjiahui@bytedance.com>
+> > > Signed-off-by: Ying Fang <fangying.tommy@bytedance.com>
 > > > ---
-> > >  mm/page_alloc.c | 50 ++++++++++++++++++++++++-------------------------
-> > >  1 file changed, 25 insertions(+), 25 deletions(-)
+> > >  drivers/net/virtio_net.c | 29 ++++++++++++++++++++++++++++-
+> > >  1 file changed, 28 insertions(+), 1 deletion(-)
 > > >
-> > > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > > index c81ee5662cc7..e790b4227322 100644
-> > > --- a/mm/page_alloc.c
-> > > +++ b/mm/page_alloc.c
-> > > @@ -3033,12 +3033,6 @@ struct page *rmqueue(struct zone *preferred_zone,
-> > >  {
-> > >       struct page *page;
-> > > 
-> > > -     /*
-> > > -      * We most definitely don't want callers attempting to
-> > > -      * allocate greater than order-1 page units with __GFP_NOFAIL.
-> > > -      */
-> > > -     WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
-> > > -
-> > >       if (likely(pcp_allowed_order(order))) {
-> > >               page = rmqueue_pcplist(preferred_zone, zone, order,
-> > >                                      migratetype, alloc_flags);
-> > > @@ -4175,6 +4169,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
-> > >  {
-> > >       bool can_direct_reclaim = gfp_mask & __GFP_DIRECT_RECLAIM;
-> > >       bool can_compact = gfp_compaction_allowed(gfp_mask);
-> > > +     bool nofail = gfp_mask & __GFP_NOFAIL;
-> > >       const bool costly_order = order > PAGE_ALLOC_COSTLY_ORDER;
-> > >       struct page *page = NULL;
-> > >       unsigned int alloc_flags;
-> > > @@ -4187,6 +4182,25 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
-> > >       unsigned int zonelist_iter_cookie;
-> > >       int reserve_flags;
-> > > 
-> > > +     if (unlikely(nofail)) {
-> > > +             /*
-> > > +              * We most definitely don't want callers attempting to
-> > > +              * allocate greater than order-1 page units with __GFP_NOFAIL.
-> > > +              */
-> > > +             WARN_ON_ONCE(order > 1);
-> > > +             /*
-> > > +              * Also we don't support __GFP_NOFAIL without __GFP_DIRECT_RECLAIM,
-> > > +              * otherwise, we may result in lockup.
-> > > +              */
-> > > +             WARN_ON_ONCE(!can_direct_reclaim);
-> > > +             /*
-> > > +              * PF_MEMALLOC request from this context is rather bizarre
-> > > +              * because we cannot reclaim anything and only can loop waiting
-> > > +              * for somebody to do a work for us.
-> > > +              */
-> > > +             WARN_ON_ONCE(current->flags & PF_MEMALLOC);
-> > > +     }
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index c6af18948..cbc3c0ae4 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -891,6 +891,23 @@ static void *virtnet_rq_get_buf(struct
+> receive_queue *rq, u32 *len, void **ctx)
+> > >       return buf;
+> > >  }
+> > >
+> > > +static void *virtnet_rq_get_buf_small(struct receive_queue *rq,
+> > > +                                   u32 *len,
+> > > +                                   void **ctx,
+> > > +                                   unsigned int header_offset)
+> > > +{
+> > > +     void *buf;
+> > > +     unsigned int xdp_headroom;
 > > > +
-> > >  restart:
-> > >       compaction_retries = 0;
-> > >       no_progress_loops = 0;
-> > > @@ -4404,29 +4418,15 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
-> > >        * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
-> > >        * we always retry
-> > >        */
-> > > -     if (gfp_mask & __GFP_NOFAIL) {
-> > > +     if (unlikely(nofail)) {
-> > >               /*
-> > > -              * All existing users of the __GFP_NOFAIL are blockable, so warn
-> > > -              * of any new users that actually require GFP_NOWAIT
-> > > +              * Lacking direct_reclaim we can't do anything to reclaim memory,
-> > > +              * we disregard these unreasonable nofail requests and still
-> > > +              * return NULL
-> > >                */
-> > > -             if (WARN_ON_ONCE_GFP(!can_direct_reclaim, gfp_mask))
-> > > +             if (!can_direct_reclaim)
-> > >                       goto fail;
-> > > 
-> > > -             /*
-> > > -              * PF_MEMALLOC request from this context is rather bizarre
-> > > -              * because we cannot reclaim anything and only can loop waiting
-> > > -              * for somebody to do a work for us
-> > > -              */
-> > > -             WARN_ON_ONCE_GFP(current->flags & PF_MEMALLOC, gfp_mask);
-> > > -
-> > > -             /*
-> > > -              * non failing costly orders are a hard requirement which we
-> > > -              * are not prepared for much so let's warn about these users
-> > > -              * so that we can identify them and convert them to something
-> > > -              * else.
-> > > -              */
-> > > -             WARN_ON_ONCE_GFP(costly_order, gfp_mask);
-> > > -
-> > >               /*
-> > >                * Help non-failing allocations by giving some access to memory
-> > >                * reserves normally used for high priority non-blocking
+> > > +     buf =3D virtqueue_get_buf_ctx(rq->vq, len, ctx);
+> > > +     if (buf) {
+> > > +             xdp_headroom =3D (unsigned long)*ctx;
+> > > +             virtnet_rq_unmap(rq, buf + VIRTNET_RX_PAD + xdp_headroo=
+m,
+> *len);
+> > > +     }
+> > > +
+> > > +     return buf;
+> > > +}
+> > > +
+> > >  static void virtnet_rq_init_one_sg(struct receive_queue *rq, void
+> *buf, u32 len)
+> > >  {
+> > >       struct virtnet_rq_dma *dma;
+> > > @@ -2692,13 +2709,23 @@ static int virtnet_receive_packets(struct
+> virtnet_info *vi,
+> > >       int packets =3D 0;
+> > >       void *buf;
+> > >
+> > > -     if (!vi->big_packets || vi->mergeable_rx_bufs) {
+> > > +     if (vi->mergeable_rx_bufs) {
+> > >               void *ctx;
+> > >               while (packets < budget &&
+> > >                      (buf =3D virtnet_rq_get_buf(rq, &len, &ctx))) {
+> > >                       receive_buf(vi, rq, buf, len, ctx, xdp_xmit,
+> stats);
+> > >                       packets++;
+> > >               }
+> > > +     } else if (!vi->big_packets) {
+> > > +             void *ctx;
+> > > +             unsigned int xdp_headroom =3D virtnet_get_headroom(vi);
+> > > +             unsigned int header_offset =3D VIRTNET_RX_PAD +
+> xdp_headroom;
+> > > +
+> > > +             while (packets < budget &&
+> > > +                    (buf =3D virtnet_rq_get_buf_small(rq, &len, &ctx,
+> header_offset))) {
+> > > +                     receive_buf(vi, rq, buf, len, ctx, xdp_xmit,
+> stats);
+> > > +                     packets++;
+> > > +             }
+> > >       } else {
+> > >               while (packets < budget &&
+> > >                      (buf =3D virtqueue_get_buf(rq->vq, &len)) !=3D N=
+ULL) {
 > > > --
-> > > 2.34.1
-> >
-> > --
-> > Michal Hocko
-> > SUSE Labs
-> 
-> Thanks
-> Barry
-
--- 
-Michal Hocko
-SUSE Labs
+> > > 2.20.1
+> > >
+>
