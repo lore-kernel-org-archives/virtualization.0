@@ -1,56 +1,56 @@
-Received: from mail-ot1-f52.google.com (mail-ot1-f52.google.com [209.85.210.52])
+Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF2CF1DA63C
-	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 14:14:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC1BA1DB957
+	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 14:17:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725459293; cv=none; b=QZPCL2Y1XX9VS9nCfyjpvbxgn1RYMK7s5vsKZZIyZ0ntuKtZTiFu/o/F4QI833rRLdOccvX1xFU7WgKB3eL1tviPcfJ2YHfu9eJvxAcnsx9ACYJmFHrhinYz7SHMnk+05wqTYt43HniuTaRVx1MPu6bXY8vjhRhVCzt2BX3saDQ=
+	t=1725459457; cv=none; b=JpdJTJMWHK+PVDFEqfeZAwWGXo/4hscTJyQ3W/cTEChoDlQ/7x1dybOSsbZv3vkPXcNw4ZrQ/LAe4KMrFtOdvQq6Zp1CVqDg1ZI3tW8wakQDRWC/MrrgAt0BO8x65GfdQLs7hGoeyxHKXwzin0atQUxj5oTV0RVTjEc2huUp5Ks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725459293; c=relaxed/simple;
-	bh=EAbM2UnFa72wVdWWBqqRyRQgWejPG1DbzUNZnzQJkEY=;
+	s=arc-20240116; t=1725459457; c=relaxed/simple;
+	bh=YpWYjehxqSoX1O2diBW3rQ+5LlYEhl8sX1+bGP7Buqg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tUJviAYLmh1D+biwSkk7SSWiYZw+ja2zA6Od1Nnch8ikP/XdH2DgXC3Yc7JmPuSy4SBLj94W0Ljo/ipVoTpNlzHs0zW3ml3iw0ZDlpx2okQ8YMDxQluec+cAlinzbOUd5dmq+tn07danknHpUEb718e+IoKdKVyvSCyWI4V0TaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com; spf=pass smtp.mailfrom=digitalocean.com; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=fB77MxsV; arc=none smtp.client-ip=209.85.210.52
+	 In-Reply-To:Content-Type; b=VjevwuWdQNNeyE74vaNkw78CL4ToAfG9KbQRgtsJe8IaEK6Ljd54Rpql1aH7fqFTg9QdTWaz/5sSATgcq6qpA8yHfku0CPCZFo1bNvRPnYB9E66gnlWpPieuthdVaKSiqPZwwDZzrKdQ+V4n64zt2PIOC4ybjlOu6Xk5oEAqopI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com; spf=pass smtp.mailfrom=digitalocean.com; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=KSYgT3cQ; arc=none smtp.client-ip=209.85.210.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digitalocean.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="fB77MxsV"
-Received: by mail-ot1-f52.google.com with SMTP id 46e09a7af769-7093c94435bso404322a34.0
-        for <virtualization@lists.linux.dev>; Wed, 04 Sep 2024 07:14:51 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="KSYgT3cQ"
+Received: by mail-ot1-f46.google.com with SMTP id 46e09a7af769-7092dd03223so2221847a34.1
+        for <virtualization@lists.linux.dev>; Wed, 04 Sep 2024 07:17:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google; t=1725459291; x=1726064091; darn=lists.linux.dev;
+        d=digitalocean.com; s=google; t=1725459455; x=1726064255; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=H2zFJNjmlh7TSNpNu+D4XoMWDhZuFDjWykzgo/SVb00=;
-        b=fB77MxsVHTvTHRO7OgML6y/mm3AQBtXdnvpZ3KidErPSk6x+LKEK1QfNqeZQq68ag7
-         tgLDUbSeEBiANxOCwdzmt8r6oQJspuXu2/I46nx0J3ScfQOVrAR+LLYp7vmHW6RB3LDv
-         HKdxNqSQ3FFi+Erd+tr8CXoLJI0anT76AE7eY=
+        bh=YpWYjehxqSoX1O2diBW3rQ+5LlYEhl8sX1+bGP7Buqg=;
+        b=KSYgT3cQSFk4BrCCAHh5dRX1vCjhY0J902XpXaKjTW4+HKUkejJCavUuTBBcLXcBb4
+         CE1QyHB/huZKVp9RAXktfb2YVbtIgCYr6FmV1hrfX+Thsd8pPgGugUfDD+oc29jQOGc8
+         HhFv1YKuGTVlDePSwPmzHEUAKIil9RSXT2ckM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725459291; x=1726064091;
+        d=1e100.net; s=20230601; t=1725459455; x=1726064255;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=H2zFJNjmlh7TSNpNu+D4XoMWDhZuFDjWykzgo/SVb00=;
-        b=BLyuERezhO7HanoB0OS6lNyh7dxA0FvMeE+t1E88kUn5mXov0qQhStoBQjNW9ilMYQ
-         7tEbwRxmu5mhyG3bwEQIussoaSsu68Qr/4Jlb5U749XFe4THwA9wmZMmkj07QvIMyZwb
-         GXoEISl6ml4Ufep0JK8J+PTpZbHCPqUgEQzlBMOSjd+tuQAb6T1Jl2RnugcV8Q/jPnEg
-         7os4gAgwwvz6Tskbv7TCkgKBKdL4TMGNCpzfKNnWQKUcy3+S91oZNUKmsvfgcC+EXJhi
-         2P7RQr3qY0G8FxR4J8p81znOTyOWKdd/yF0ROhuc/8LTySRjNm1bevZ3+sqeVPcCPsy/
-         kUWg==
-X-Forwarded-Encrypted: i=1; AJvYcCWWddj1Vq6PT4jP9OCIq60mnLtwB1pJNktEcaSbBnl9+/cLVGR6LtprEdEAAOH6KZIHedPgcQnovW+SkZ2h4Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwaZ2G3nnGSxcMUDz1+922z2IzWLcahar+vYuhM3rWlnsw+Y/vB
-	voYkIcpMkdEmGXxyk3cweYOUf0S5Hymz/U8U5S4w3TNHu/k2cPXEVSqh65CT4L0=
-X-Google-Smtp-Source: AGHT+IF8x1KRFTbVI/tCqTEz2UCODtWaFHD2bIWQmszStc6yMXrPcpHBsLbt9nMWf8YEb5TSrZ9Kpw==
-X-Received: by 2002:a05:6830:4123:b0:709:4829:47bd with SMTP id 46e09a7af769-70f5c3d97b2mr19826590a34.22.1725459290711;
-        Wed, 04 Sep 2024 07:14:50 -0700 (PDT)
+        bh=YpWYjehxqSoX1O2diBW3rQ+5LlYEhl8sX1+bGP7Buqg=;
+        b=lfbvChTWxbshrTeprAJZ33XABi5nVx0jpwMqRzdfBjvlUcY1La+tH0ku8NRpzPjyd4
+         TNzmcoIZQwPPa5qeW8xbMrsVXGODAl9Xx5Ido9trO9Bk/+KX3XprWSvQkHNMQnmC3Ey0
+         VDUJRNk0OZjvOoqxCSWq1RmdFtsnJs8kDeMlri9q3juc++LlOgZ3gWe5gPrxcDXGcKMu
+         cIrPJH/ie4IqI4ygo45Qq79QGuGDsfdc744XHAJ8FQ6Qash1PqXH9pl49vaogseWqb2+
+         fpM3Fftkkr+1aS0ba6qthUsDoTpsXXH0kmtcD/J/CR4PSc4rFjglT7dwfmgeTGWRytED
+         CRfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWXKHkUOwgvMdzNn0Fju1LsqyWMWJEzggj/0s74NJUN4vQLEE5hdAhnnC0eBZ9U5b7IbGEl3q9QTDe62XPLpg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzYc/sXXjfqX7TA2LB1WVpaJstezPNNuWQ22jY+k58TrOnH6J0z
+	V6Qua6kDP+Tl19Cndsm8BBbvvYfZoSP3iwkEwhUlbEnTKt5bBzHWs9g35ICfTHE=
+X-Google-Smtp-Source: AGHT+IFwP+H+wYQzxGErCD9EQq5D9dyUypa2eD8A/emS3WXcZs6w9iPVclsGE4DXjzqy2S34HJ0W7g==
+X-Received: by 2002:a05:6830:438b:b0:709:415b:8ab8 with SMTP id 46e09a7af769-70f706e25a3mr16758972a34.2.1725459454651;
+        Wed, 04 Sep 2024 07:17:34 -0700 (PDT)
 Received: from ?IPV6:2603:8080:7400:36da:9198:79cc:8e64:e479? ([2603:8080:7400:36da:9198:79cc:8e64:e479])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-70f671c2a8csm2854961a34.73.2024.09.04.07.14.49
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-70f7781ca5dsm2028225a34.18.2024.09.04.07.17.33
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Sep 2024 07:14:50 -0700 (PDT)
-Message-ID: <72e24344-2be4-48e5-b29f-7564fae3b15c@digitalocean.com>
-Date: Wed, 4 Sep 2024 09:14:48 -0500
+        Wed, 04 Sep 2024 07:17:34 -0700 (PDT)
+Message-ID: <c2d0df0d-85ae-4605-ac37-71794105f3cd@digitalocean.com>
+Date: Wed, 4 Sep 2024 09:17:33 -0500
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -58,85 +58,63 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/2] vdpa/mlx5: Set speed and duplex of vDPA devices to
- UNKNOWN
-To: "Nelson, Shannon" <shannon.nelson@amd.com>,
- Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, dtatulea@nvidia.com,
- mst@redhat.com, jasowang@redhat.com, sashal@kernel.org,
+Subject: Re: [PATCH v2 2/2] vdpa: Remove ioctl VHOST_VDPA_SET_CONFIG per spec
+ compliance
+To: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowang@redhat.com>,
+ Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
+Cc: mst@redhat.com, shannon.nelson@amd.com, sashal@kernel.org,
  alvaro.karsz@solid-run.com, christophe.jaillet@wanadoo.fr,
- steven.sistare@oracle.com
-Cc: bilbao@vt.edu, xuanzhuo@linux.alibaba.com, johnah.palmer@oracle.com,
- eperezma@redhat.com, cratiu@nvidia.com, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
+ steven.sistare@oracle.com, bilbao@vt.edu, xuanzhuo@linux.alibaba.com,
+ johnah.palmer@oracle.com, eperezma@redhat.com, cratiu@nvidia.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 References: <20240903171514.201569-1-carlos.bilbao.osdev@gmail.com>
- <20240903171514.201569-2-carlos.bilbao.osdev@gmail.com>
- <3e9a6d05-a76c-4bbf-9f4e-2e126259b70e@amd.com>
+ <20240903171514.201569-3-carlos.bilbao.osdev@gmail.com>
+ <CACGkMEvHU0VnOEZbVnEr1SvmOF5PhMtKk=M2o7Wwq-DUO9p7Uw@mail.gmail.com>
+ <faafc28a-23a9-4dff-8223-1c72acb42443@nvidia.com>
 Content-Language: en-US
 From: Carlos Bilbao <cbilbao@digitalocean.com>
-In-Reply-To: <3e9a6d05-a76c-4bbf-9f4e-2e126259b70e@amd.com>
+In-Reply-To: <faafc28a-23a9-4dff-8223-1c72acb42443@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Hello Nelson,
+Hello,
 
-On 9/3/24 12:37 PM, Nelson, Shannon wrote:
-> On 9/3/2024 10:15 AM, Carlos Bilbao wrote:
->> From: Carlos Bilbao <cbilbao@digitalocean.com>
->>
->> Initialize the speed and duplex fields in virtio_net_config to UNKNOWN.
->> This is needed because mlx5_vdpa vDPA devicess currently do not support the
->> VIRTIO_NET_F_SPEED_DUPLEX feature which reports speed and duplex. Add
->> needed helper cpu_to_mlx5vdpa32() to convert endianness of speed.
->>
->> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
->> Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
->> ---
->>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 12 ++++++++++++
->>   1 file changed, 12 insertions(+)
->>
->> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> index b56aae3f7be3..5fce6d62af4f 100644
->> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> @@ -173,6 +173,11 @@ static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
->>          return __cpu_to_virtio16(mlx5_vdpa_is_little_endian(mvdev), val);
->>   }
->>
->> +static __virtio32 cpu_to_mlx5vdpa32(struct mlx5_vdpa_dev *mvdev, u32 val)
->> +{
->> +    return __cpu_to_virtio32(mlx5_vdpa_is_little_endian(mvdev), val);
+On 9/4/24 12:58 AM, Dragos Tatulea wrote:
 >
-> I hate picking at little things like this, but this should be a tab rather than 4 spaces.
+> On 04.09.24 05:38, Jason Wang wrote:
+>> On Wed, Sep 4, 2024 at 1:15 AM Carlos Bilbao
+>> <carlos.bilbao.osdev@gmail.com> wrote:
+>>> From: Carlos Bilbao <cbilbao@digitalocean.com>
+>>>
+>>> Remove invalid ioctl VHOST_VDPA_SET_CONFIG and all its implementations
+>>> with vdpa_config_ops->set_config(). This is needed per virtio spec
+>>> requirements; virtio-spec v3.1 Sec 5.1.4 states that "All of the device
+>>> configuration fields are read-only for the driver."
+>>>
+>>> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
+>> Note that only the config space of the modern device is read only. So
+>> it should be fine to remove vp_vdpa which only works for modern
+>> devices.
+> Just out of curiosity: how will this work for devices that are not
+> v1.3 compliant but are v1.2 compliant? Or is this true of all devices
+> except eni?
 >
-
-Correct, thanks, will fix in v3.
+> Thanks,
+> Dragos
+>> And for eni, it is a legacy only device, so we should not move the
+>> set_config there.
 
 
-> sln
->
->
->> +}
->> +
->>   static u16 ctrl_vq_idx(struct mlx5_vdpa_dev *mvdev)
->>   {
->>          if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
->> @@ -3433,6 +3438,13 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->>          init_rwsem(&ndev->reslock);
->>          config = &ndev->config;
+Understood. I'll keep the ENI as is for v3 and will reach out to the maintainers.
+
+
 >>
->> +       /*
->> +        * mlx5_vdpa vDPA devices currently don't support reporting or
->> +        * setting the speed or duplex.
->> +        */
->> +       config->speed  = cpu_to_mlx5vdpa32(mvdev, SPEED_UNKNOWN);
->> +       config->duplex = DUPLEX_UNKNOWN;
->> +
->>          if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
->>                  err = config_func_mtu(mdev, add_config->net.mtu);
->>                  if (err)
->> -- 
->> 2.34.1
->>
+>> For the rest, we need the acks for those maintainers.
+
 
 Thanks, Carlos
 
+
+>>
+>> Thanks
+>>
