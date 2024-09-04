@@ -1,203 +1,198 @@
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2071.outbound.protection.outlook.com [40.107.244.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25862548F7
-	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 03:53:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725421990; cv=none; b=rqSBc7Ne0XZO8rPDjWvTuUwe9DqT4PpVQuExpRWPfk9SMXU7qVpn9ZpRAMN5F+MCbgFqy+j0+ciGda4btw5fyWIHluTNnr3FGK6eyvH/m5ckI7jCOFFXfsGBRdeCz+oLaAnCbMuAThlZFnQ+ySvqYcIa04JMn+AZ6B1XEWzMBZs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725421990; c=relaxed/simple;
-	bh=qfTGY7LLPnbbGfe7hXasTXkhmXaQmCUKdfpKjG9YC3s=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=Hob/9d0yskuaVrN6QO+2S/uR8EpPAdECds4psYB+Z6BIZ4XVnoNKrChQU0Itis2AxBCrQh/H1DuiIr9KR2lNuwVOe14z2PizCGkn9lWHSPl2HtA3mNcYtfxFuWCO1ckziqWd7KZXcj/qmkJ3iO2F20m9aMH+lYk4P9AoQ/jWajI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Wz7qh1VK4z4f3jHx
-	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 11:52:48 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id 0F7891A0ABD
-	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 11:53:04 +0800 (CST)
-Received: from [10.174.176.117] (unknown [10.174.176.117])
-	by APP4 (Coremail) with SMTP id gCh0CgB3rMid2ddmkCNbAQ--.7192S2;
-	Wed, 04 Sep 2024 11:53:03 +0800 (CST)
-Subject: Re: [PATCH v4 2/2] virtiofs: use GFP_NOFS when enqueuing request
- through kworker
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, linux-fsdevel@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Bernd Schubert <bernd.schubert@fastmail.fm>,
- "Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox
- <willy@infradead.org>, Benjamin Coddington <bcodding@redhat.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- houtao1@huawei.com
-References: <20240831093750.1593871-1-houtao@huaweicloud.com>
- <20240831093750.1593871-3-houtao@huaweicloud.com>
- <5769af42-e4dd-4535-9432-f149b8c17af5@linux.alibaba.com>
-From: Hou Tao <houtao@huaweicloud.com>
-Message-ID: <815f6c3d-bb8a-1a23-72dd-cd7b1f5f06d0@huaweicloud.com>
-Date: Wed, 4 Sep 2024 11:53:01 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AED1984A3F
+	for <virtualization@lists.linux.dev>; Wed,  4 Sep 2024 05:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.71
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725429549; cv=fail; b=pmkayNXGUoWFIWBJr0hGHnojhkXsrDfoUStO+pIHs/GI2NBgNXDYQsIGQq2ejgHbqsvvD/fhOA4LmsUMMg4/29ujlxUMg34qCzmu0u7Nd/AZ/yons0XUAyzfAVMHVjzT2ZT2JsudngWf2MVr7RTzyy2yt/ijBC3hU+/ePcao6m0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725429549; c=relaxed/simple;
+	bh=mMDLdw747mvTnCHhoedbuUBx7Oterb/on6/dWf8mV8U=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=t/pDZ6jBBgp6JBqK/09lc90xPGn8fOlSul2QIBS1NvAtLH6IRYdlzgaEulh7hZftyJTJh81pzpltVea7dn0pP67hCSy39UaB9ddskRCXQmbdhFjpgLVvg2RCgUDwhPK7Nnq8OcsBOkWNU4bhz5Yp/HAK7ltyOQqHrzP7ULYwbbg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Dt4ESk9K; arc=fail smtp.client-ip=40.107.244.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Dt4ESk9K"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Oz2SwX6BjmJhNz3C6j7hT1xzv53n+14IgIG2+y/82PCNsZCkSNMUxe3NGNpF9XxOem8BqF32xNZ/IJF+v2VFGTCKD5PjWXF4Fb2cNkxqilx5VaZ+7HgcZSWZ8EI3W7DLFwNjzkPlM/Q/RwgS+ZN9xB1LaxWH/nThpyB8ZILTprHW8Nflvl9pRFjbdVAUgeUSPbnYw/BhSVvpQ6BJnHeHAXbKsaNrLZK8y2S9AV83ADoI2dLiNVslEeh8EFs2iB24rwzSl5bw+8NQXa345vUuQZWk+vb81tJWUXctJeC5yBCg0OE5zzBR+ebQLqLtHRiwuGEQ4aZldqhDzwOxSzr88Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tVo+62Zdk6mQUUY6Y3DyqFegGTflie7kCOZEeqnMzJU=;
+ b=DDzo8sn8a1SZ5g0YcVNb3AxmQIf4iNoe6x4fFdKePsKeA9c9s0EGuL/Oss444pVjdRzo3Jl62ax8kHqhy+4WTWVyT8x3zxJEjGXrYByc/GDpq4P6LnhURvkjssYrL1YWW8UgWmp1LBc7inj0PEj2T0UhCBzUjxdjlG2zN8koUyxFHbwHG9CgvrOsDdlTMIVTcX2+SauedlBFbtJ1dDjXssfvMq28qZ0/HY29YM23r8BisGYDRzUTWGFH8QALwjZfsXgW4WBHGwDKqEeJwzBQf0r2wnB8c77Q5lkBKm/bZ2P/ev9Q1/bPP9IDg420mcXqPBdK89ucJaPDmWdMOebRCw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tVo+62Zdk6mQUUY6Y3DyqFegGTflie7kCOZEeqnMzJU=;
+ b=Dt4ESk9KfBAhUuAyb+eKwb8qPV4xBvqj0FRL3t7WfD9/3AfNkVfiWRVJle13JonaEYcWBjycqN4XIR+0qqNjIE3AC23sPb4/KDGeQwGcYce3T7EnZa7bAV5iqsiGKuiUiS74zjtaKxU0VFpxKRwUs/53iVIqywju03NuOMkhuuFV1fhj+CXFQYRYOdism4s5E96ylWGYgS5/n5ckRIMpBMIbiDL/3I3BpWHi3OeRf3okP7kaxpAfxCrNj1VLqeVdR8LWVG7fFZxvTzobjPwnxj2LiyNX41qtozNiLLnelvWiHKBKIfywVNip8fxPtz67u0AsVoG14C+4gqe5XDVUbg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
+ by SA3PR12MB9180.namprd12.prod.outlook.com (2603:10b6:806:39b::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.24; Wed, 4 Sep
+ 2024 05:59:02 +0000
+Received: from CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
+ ([fe80::b313:73f4:6e6b:74a4%5]) with mapi id 15.20.7918.024; Wed, 4 Sep 2024
+ 05:59:02 +0000
+Message-ID: <faafc28a-23a9-4dff-8223-1c72acb42443@nvidia.com>
+Date: Wed, 4 Sep 2024 07:58:56 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] vdpa: Remove ioctl VHOST_VDPA_SET_CONFIG per spec
+ compliance
+To: Jason Wang <jasowang@redhat.com>,
+ Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
+Cc: mst@redhat.com, shannon.nelson@amd.com, sashal@kernel.org,
+ alvaro.karsz@solid-run.com, christophe.jaillet@wanadoo.fr,
+ steven.sistare@oracle.com, bilbao@vt.edu, xuanzhuo@linux.alibaba.com,
+ johnah.palmer@oracle.com, eperezma@redhat.com, cratiu@nvidia.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ Carlos Bilbao <cbilbao@digitalocean.com>
+References: <20240903171514.201569-1-carlos.bilbao.osdev@gmail.com>
+ <20240903171514.201569-3-carlos.bilbao.osdev@gmail.com>
+ <CACGkMEvHU0VnOEZbVnEr1SvmOF5PhMtKk=M2o7Wwq-DUO9p7Uw@mail.gmail.com>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <CACGkMEvHU0VnOEZbVnEr1SvmOF5PhMtKk=M2o7Wwq-DUO9p7Uw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: FR0P281CA0120.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:a8::10) To CY8PR12MB8297.namprd12.prod.outlook.com
+ (2603:10b6:930:79::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5769af42-e4dd-4535-9432-f149b8c17af5@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-CM-TRANSID:gCh0CgB3rMid2ddmkCNbAQ--.7192S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxGrW8Aw1xKrWkCryxZw4Utwb_yoWrKw1Dpr
-	WDJa15CFWrJrW2gFW0qF4DWr129wsYkry7GrWfXa4akryYqrn7GFy8uFy0v39YvrykCF1x
-	Zr4FqrsrursFv3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUU9Ib4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
-	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-	6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-	Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7Mxk0xIA0c2IE
-	e2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4I
-	kC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWU
-	WwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr
-	0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWU
-	JVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJb
-	IYCTnIWIevJa73UjIFyTuYvjxUOBMKDUUUU
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|SA3PR12MB9180:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8d44c122-87fc-40ea-a9d2-08dccca6ad0e
+X-LD-Processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+ =?utf-8?B?bWY2bEtNMWJiKzhlUnVDbGttZnFBUC9hMzYxcm9rSzAzNS9BdEJSSmI0UURN?=
+ =?utf-8?B?SVRqdUxhOUVFUVNubTJkOGljT0pveGlJSk1KZkRYYTNyV3NZYW5kamRENGk2?=
+ =?utf-8?B?UHZQWTB2dGFnRnJnaVhiK1NRd2hQZFV0elZSOUtWL1dzckg5RVhGWE1CUmlH?=
+ =?utf-8?B?dFFOSWFsYTVKQ25xQ3R4VTdSVkRwcUdkazdaZkFkQ1ZEdU5DeUx6THRXV2lH?=
+ =?utf-8?B?YkRkUGUreXpkN0sxUXpid25INHhYSmJmb2xvN3lsRnNJTTFzN2oyR05PdHJJ?=
+ =?utf-8?B?aTkxTy8rTnVUUThwbGtSVUxKa09sWTZoVTRMVUFYRS8xRE1sVmp0Nld6Ync0?=
+ =?utf-8?B?eUpTc2FNN3BIaEFBWGxDcEZSTkJiK0REN0dzWC9TcVUxeHdEUjFpL1BObVJj?=
+ =?utf-8?B?RVV4UFRtaTNERVBDMU91Q2twVFNSaW9WZUUvOEh5ZmNVOE1XTHZmaThKT3NF?=
+ =?utf-8?B?STBrWnpYMnFNcEJWaHZ1QW40aVNRR0hBTUNpTFRNZHlJanZueVYrbTRibDFw?=
+ =?utf-8?B?RlhvWmQwYVZjaG9JcDVueU9MLzJHNmR6bzE1UnBJUnhDNmwzTWxqT0pITzdj?=
+ =?utf-8?B?cko0U0t2M0hwU0hnTDI1MGczTTBTdnB0U0FYTGF3d3huMENPTFloem1tQnZi?=
+ =?utf-8?B?c0tzOG5la1Q0TEJpN3RVVThIU1MvTzBTdmRTMDhFeXFFZTRFZ0psM2ZqODV4?=
+ =?utf-8?B?ZTRLZVlZdldXUnhWYnR4ZVpkMTIyemZZUGVaZ1JyeWJERkhsdjJ3eDNnemNN?=
+ =?utf-8?B?dHFxekpZZklxd0l1NFY1R0pkZUU3MFcxa2Npek9lZ052SnZzQXcxV2FwWFNj?=
+ =?utf-8?B?RHh2VFdtdVhqeVlyR2pxYTZ0KzJzVXpnRjlaZlQ2b2MrL2RsVjhBMG1DSmU2?=
+ =?utf-8?B?dFhYdnB0WGpkbHN6MnU2VmlZOTAwUTlyMS9nVVBvSCs1dS9jUkNMajQyMTl3?=
+ =?utf-8?B?UWxSZnpVKy9QUDhXdzJwZ0FvemZ2Wm9Udk1HQndJRDB3Z09pVDU2ZENDTXdw?=
+ =?utf-8?B?U0U4bXBudVdhVDhpZ21QNXdoVmdSb1llNVp0NXZySW5tUjRFWHBCSGpVUEZ3?=
+ =?utf-8?B?eWVwUmo5T0lRYVE3cWo3WHU4Z0hzWU0yZ2owRGw4VjBIYnNOazlJYjl4UEpw?=
+ =?utf-8?B?QVRJZGgvUzRGR2JvTU9KdXhid3ZrVGdYVE9sL3FHaGFoY05CUUF3VFppRHZS?=
+ =?utf-8?B?OURyQjdVcERJdndBU3VJT1prbVZmNUk2L2xNemR1UnJqY0c0U3JERWtValJJ?=
+ =?utf-8?B?OGFFOTh0WXNSVVVWSlVndWx6QllGV0xuVDhmLzBPNnYyZjN2ME9KTGU4UkFo?=
+ =?utf-8?B?TERGT00wa1FlT282MUtjcXlNZmM2WkIwRnRXa2FNRW9xT1VHaTBUaVBlVGxC?=
+ =?utf-8?B?QWVHZmFWeU1rRitYdkRxSDBSQ0IweDZQNnUvanVYWDN3emx3T3J1UnFVbUY1?=
+ =?utf-8?B?MG1hQWxVK3lqVURINE9WL1dmZWxzUmR4bU1Ga1pQV3NwMTA0NS92aEdWY3pt?=
+ =?utf-8?B?cFplOVVXdFYzMGUzTWl4dnI5VmYxeW4wZFRSczI0MUJRMHBTOERjdGl2WGJD?=
+ =?utf-8?B?VWY1RVpLaGJ3L2YzaEhiczJPSTFBamgwTVQ3ejVkUGFJWFJ4bVFKR3FLN1Vs?=
+ =?utf-8?B?eURlVlIwRitzanNmb1FhZlNDQTZMOEorT2lEcDFDZzlwN3JVOE1wb25iY2lo?=
+ =?utf-8?B?b010Q2FIM3RoOGdNbVZMUHhmOWMxc1lrZDR1SFFzTUxSK1huYmJjdllRTUlQ?=
+ =?utf-8?B?MUdvcFhOZlpRbWk3TjBwalJXazQ3bi9ZNm81V0NZQ2o5bzdDOUo1elpRaERl?=
+ =?utf-8?B?VlRBVXk5Z0Q4eHh5Znp2Zz09?=
+X-Forefront-Antispam-Report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+ =?utf-8?B?dCtRZFA4QWlvMDFOS3RvMEwyRmZrMnhCL1M2a3EzaXVDZVNxKzRTeHQ0SVNr?=
+ =?utf-8?B?UjVhQnJrQWpsNysrYTlqQ1Fnb2k4K21meVY0ZnphMEJRWnYzYVJYOWExRnI1?=
+ =?utf-8?B?ODJuZlYyT25RQ0FueFRZT1BPaWRLU0gyaHBYSEc0bUNNaUZtbTcrNituNDlS?=
+ =?utf-8?B?Nm5rZlBmZWV1dnRJdE1yS0FNU0dPQWlsdXdkZ0RqS0JsejNFZkJ3L05kenN4?=
+ =?utf-8?B?SHVTN1BEeUNUN0o2SWNWTWRrYThkL2d5NFF1U3pjbWs3eDQ0WEUzckxVT2hU?=
+ =?utf-8?B?ejFSVzcxcWs0YnN0dW1vKzkzcC81TjFKdHc3ajY2emhtSnhsR2VrTVJDTWNw?=
+ =?utf-8?B?WG1ySHp6ZUQxbFJSSCs4dDQxc2dwK3psaGIxeE9tcHl2VmVLN2dpS2x2cXNY?=
+ =?utf-8?B?UWJMSkJhcW5UdE5FQTczUFhmNDBoMjltaCtnbVRZeTgrd2VtV0RKYk5oY3JJ?=
+ =?utf-8?B?aGc0TmxxOW5XaWRueHd3TmVwUDhHQkl3QUwxR3JXRm80VEd0ZFY5N0xNQngy?=
+ =?utf-8?B?bnJJZEk3UzdIdFV5eUpxbWZnQ0V3NEJ5NHpLRERqQTFnaVhzUjhmVmpxaUdV?=
+ =?utf-8?B?RTllVlNtRUdjQWp2K2FLRXFyUzlJZGlxS2JzbzEzQ2dBRGFma0lTTEcybm1Y?=
+ =?utf-8?B?ZS8yZlhKQjZpZGNFTVV5RXptSjVSSHlhcm5OVisvTTRETFc0VnFlVFZiT3lT?=
+ =?utf-8?B?alp0N0JIazFLQUx5ZWdRZVN6RDJuWDNkRnVVaExaM0ZQTEJGUklISzZXekgw?=
+ =?utf-8?B?N3ZkSVJnUkxnQXUybURxUkhoQ3lMOUZzQzZ2MFF3QW5IbWJsTVNFSFdFSktw?=
+ =?utf-8?B?dmU3TTBKbjJmWGRtbldJL0cxWmd5YkdXUXJpVitHaklhM2k1UFZvQnU2YzRB?=
+ =?utf-8?B?N0FrdFpzQjgzZ0h6emJkNGpibS9tclV2YTJWYm9VbVE5aThCSlJWZWRGTnd5?=
+ =?utf-8?B?T1UyMnNPRWp1YnVwTTRUdHN0dU9wNzVDOC9CYytJME5VYXlZQjdhTXBiUCs4?=
+ =?utf-8?B?bTYvaFhqQVBqb0UrclVlaU9COHp3VWJKQk42OXZQYlpUWVI4NkpURDNmM2FY?=
+ =?utf-8?B?QjNhOWZxNXhtWkUrNktHbzhDVlpyYVVMMXloMERDZkUrSW1xdTVFenF6MndR?=
+ =?utf-8?B?QThwZFlPWXVBeXRob3FaMUhva0NnZ1doSVJLL1ZTZmd1WXFtc1c0aldFdmRh?=
+ =?utf-8?B?U0ppNTRQcFdVb0MxN3pLYjZ3dnRPT2V0Z0VpMk55KzBiT0hQQXpuTm9DdmFG?=
+ =?utf-8?B?WXhrTHF5alZlOGExVnpBYUZZcmpZeTA2RDBIYlJhQlZaWDR0ME1rc3NOL056?=
+ =?utf-8?B?RWFhTXRnNmQvL25xVjYxSVBiYm5sR2hjaE5tejEybzhOS1puQUhoblhyTUZP?=
+ =?utf-8?B?ZXgyRzBiakdUT1ZjRS9LSnhBM2xxVVlNaWhRSk93djc5VGNmWEJ4dEthRDRw?=
+ =?utf-8?B?NVVNZHZYNHV5c1J0N0h3Tng4ck9CL25NSmVsQkZLVG9KMGEzN1VrNWpSbDFS?=
+ =?utf-8?B?ek91WHJPcjMzUWZydXF1a2xFNjFwOE05V3A2TXhvZDhHVmxZb2J4M1ZWbVo4?=
+ =?utf-8?B?RXhvSGNWcEhtNzJodDBDY044TnJiYjFTbEdabmN1YnM0bGhKSko1a1VEb05y?=
+ =?utf-8?B?dENZcEpLR01LbjRRcUFOeVRUMmFVZFRLeGxuS3BmRWY0UVUyaFVvU3IxenVB?=
+ =?utf-8?B?enZqazZKZUd1QmhZOEhUaHhIdVVQUGF2SjgrYm1qd2F0UVUzdHdqRmtObTZE?=
+ =?utf-8?B?ekR4dUw1b29jY2FiVUpWelV2eEN5VlNsWmRDSVJWS01HRVUvUzc5S3pac3hw?=
+ =?utf-8?B?MlhVT1Z6RFhOZURvUnJlcklxWDc2YldZNDJvM3dlKyttcU1WTVZiRHBCTUlS?=
+ =?utf-8?B?YVFoNXRUbW5nK2dRSDNKTUJyanpPWjlGSFR0aXpJYm5JSk5yNXM4bDlOeEY0?=
+ =?utf-8?B?cEpCdlNsWFNkU2dURHlyUUVIZklraXJFWDAveDcvZ0xlZnJCNzJHc0xTRURw?=
+ =?utf-8?B?WlM3djF5eEhOTGxTRC9UQ0RmNjIrS2hzNForUnd1UUs5S1h1TERRTWxXeXU5?=
+ =?utf-8?B?R1pmdElqMy9oZklXcVBKVzY4dEhnK0NOcmZodmgvRFFCYmdwSXJwdDZnZGZw?=
+ =?utf-8?Q?VLymvzuoyAvyyGSfmmLPEEUfZ?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d44c122-87fc-40ea-a9d2-08dccca6ad0e
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Sep 2024 05:59:02.1983
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LBbuvoMryaBsLx3eKxla3RwVsoSjJvNzy4VK4l9iuO3xxRgdyTBfS/yCbYFToWKEssgIE/Y390EG+iC2PR3ONw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB9180
 
 
 
-On 9/3/2024 5:34 PM, Jingbo Xu wrote:
->
-> On 8/31/24 5:37 PM, Hou Tao wrote:
->> From: Hou Tao <houtao1@huawei.com>
+On 04.09.24 05:38, Jason Wang wrote:
+> On Wed, Sep 4, 2024 at 1:15 AM Carlos Bilbao
+> <carlos.bilbao.osdev@gmail.com> wrote:
 >>
->> When invoking virtio_fs_enqueue_req() through kworker, both the
->> allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
->> Considering the size of the sg array may be greater than PAGE_SIZE, use
->> GFP_NOFS instead of GFP_ATOMIC to lower the possibility of memory
->> allocation failure and to avoid unnecessarily depleting the atomic
->> reserves. GFP_NOFS is not passed to virtio_fs_enqueue_req() directly,
->> GFP_KERNEL and memalloc_nofs_{save|restore} helpers are used instead.
+>> From: Carlos Bilbao <cbilbao@digitalocean.com>
 >>
->> It may seem OK to pass GFP_NOFS to virtio_fs_enqueue_req() as well when
->> queuing the request for the first time, but this is not the case. The
->> reason is that fuse_request_queue_background() may call
->> ->queue_request_and_unlock() while holding fc->bg_lock, which is a
->> spin-lock. Therefore, still use GFP_ATOMIC for it.
-> Actually, .wake_pending_and_unlock() is called under fiq->lock and
-> GFP_ATOMIC is requisite.
-
-Er, but virtio_fs_wake_pending_and_unlock() unlocks fiq->lock before
-queuing the request.
->
->
->> Signed-off-by: Hou Tao <houtao1@huawei.com>
->> ---
->>  fs/fuse/virtio_fs.c | 24 +++++++++++++++---------
->>  1 file changed, 15 insertions(+), 9 deletions(-)
+>> Remove invalid ioctl VHOST_VDPA_SET_CONFIG and all its implementations
+>> with vdpa_config_ops->set_config(). This is needed per virtio spec
+>> requirements; virtio-spec v3.1 Sec 5.1.4 states that "All of the device
+>> configuration fields are read-only for the driver."
 >>
->> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
->> index 43d66ab5e891..9bc48b3ca384 100644
->> --- a/fs/fuse/virtio_fs.c
->> +++ b/fs/fuse/virtio_fs.c
->> @@ -95,7 +95,8 @@ struct virtio_fs_req_work {
->>  };
->>  
->>  static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
->> -				 struct fuse_req *req, bool in_flight);
->> +				 struct fuse_req *req, bool in_flight,
->> +				 gfp_t gfp);
->>  
->>  static const struct constant_table dax_param_enums[] = {
->>  	{"always",	FUSE_DAX_ALWAYS },
->> @@ -439,6 +440,8 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->>  
->>  	/* Dispatch pending requests */
->>  	while (1) {
->> +		unsigned int flags;
->> +
->>  		spin_lock(&fsvq->lock);
->>  		req = list_first_entry_or_null(&fsvq->queued_reqs,
->>  					       struct fuse_req, list);
->> @@ -449,7 +452,9 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->>  		list_del_init(&req->list);
->>  		spin_unlock(&fsvq->lock);
->>  
->> -		ret = virtio_fs_enqueue_req(fsvq, req, true);
->> +		flags = memalloc_nofs_save();
->> +		ret = virtio_fs_enqueue_req(fsvq, req, true, GFP_KERNEL);
->> +		memalloc_nofs_restore(flags);
->>  		if (ret < 0) {
->>  			if (ret == -ENOSPC) {
->>  				spin_lock(&fsvq->lock);
->> @@ -550,7 +555,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
->>  }
->>  
->>  /* Allocate and copy args into req->argbuf */
->> -static int copy_args_to_argbuf(struct fuse_req *req)
->> +static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
->>  {
->>  	struct fuse_args *args = req->args;
->>  	unsigned int offset = 0;
->> @@ -564,7 +569,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
->>  	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
->>  	      fuse_len_args(num_out, args->out_args);
->>  
->> -	req->argbuf = kmalloc(len, GFP_ATOMIC);
->> +	req->argbuf = kmalloc(len, gfp);
->>  	if (!req->argbuf)
->>  		return -ENOMEM;
->>  
->> @@ -1239,7 +1244,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
->>  
->>  /* Add a request to a virtqueue and kick the device */
->>  static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
->> -				 struct fuse_req *req, bool in_flight)
->> +				 struct fuse_req *req, bool in_flight,
->> +				 gfp_t gfp)
->>  {
->>  	/* requests need at least 4 elements */
->>  	struct scatterlist *stack_sgs[6];
->> @@ -1260,8 +1266,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
->>  	/* Does the sglist fit on the stack? */
->>  	total_sgs = sg_count_fuse_req(req);
->>  	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
->> -		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
->> -		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
->> +		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
->> +		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
->>  		if (!sgs || !sg) {
->>  			ret = -ENOMEM;
->>  			goto out;
->> @@ -1269,7 +1275,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
->>  	}
->>  
->>  	/* Use a bounce buffer since stack args cannot be mapped */
->> -	ret = copy_args_to_argbuf(req);
->> +	ret = copy_args_to_argbuf(req, gfp);
->>  	if (ret < 0)
->>  		goto out;
->>  
->> @@ -1367,7 +1373,7 @@ __releases(fiq->lock)
->>  		 queue_id);
->>  
->>  	fsvq = &fs->vqs[queue_id];
->> -	ret = virtio_fs_enqueue_req(fsvq, req, false);
->> +	ret = virtio_fs_enqueue_req(fsvq, req, false, GFP_ATOMIC);
->>  	if (ret < 0) {
->>  		if (ret == -ENOSPC) {
->>  			/*
-> LGTM.
->
-> Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+>> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
+> 
+> Note that only the config space of the modern device is read only. So
+> it should be fine to remove vp_vdpa which only works for modern
+> devices.
+Just out of curiosity: how will this work for devices that are not
+v1.3 compliant but are v1.2 compliant? Or is this true of all devices
+except eni?
 
-Thanks for the review.
->
->
+Thanks,
+Dragos
+> 
+> And for eni, it is a legacy only device, so we should not move the
+> set_config there.
+> 
+> For the rest, we need the acks for those maintainers.
+> 
+> Thanks
+> 
 
