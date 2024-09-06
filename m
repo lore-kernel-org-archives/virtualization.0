@@ -1,210 +1,234 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 890E713CFB6
-	for <virtualization@lists.linux.dev>; Fri,  6 Sep 2024 09:54:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D656C1C870C
+	for <virtualization@lists.linux.dev>; Fri,  6 Sep 2024 10:06:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725616455; cv=none; b=NXM49284Oxh8OztEI/K6GHcyzmEChjApkeD1lWqrBqtN6IN2fe+Aasd/L1EW6vSTpuElqqWAW4u1xK6osU8pn/cyzpBm9hMXWHvuXNoDXjw2S1xc0Hgn9yjwd0Feys4VCUrsDj2vXKmBnJHekWaxD3RCwmGHSktmqEKWY0OXHoI=
+	t=1725617222; cv=none; b=pr49KceHniV4f18n0RdKi/2jIh1B454tokNsC4pvH3Gmnr/4vlwWPi2qA6oE8DmvtqKhbQXFnxUnf7/tRzUGP12bWuniy6BP5F9bV/UulyFSVnkU4+zWcY7uP/6d6oE9gLJoEcFmb6SuKRRLLzW9GE8j5ADE1+YmFT9Ee4AxN98=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725616455; c=relaxed/simple;
-	bh=vzaOlZpLLkD75hlMSMPR8SY9c1CzSMqnZNX6RunHd40=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pkn/kf50RIw46di6Ya5UOLNtsvHcR2sXEiRlCDfwHC/gpLC6bspYQ/TRxGGbP7sGTBrS1cuUaI+S35/ArgmZISr9fhhIIp9zeTQw6ahUVWJLrA6uHgRBFE4SkZyybx7BZ5nIoV0ZVK2FK+moiXPaxJ8QMikcZWCSGB0kWPUc23Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S7eniZIF; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1725617222; c=relaxed/simple;
+	bh=Vvfx+DN5LVJ7Yt+aMpFXoAP8ef73GTzrgDyn8WgBGaM=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Kfmhw1PTiBKBPD9wQNZzxFOR+4YaAnBCkWcRRQyWvSvk8by3/2BhC2pJnfVacqTbqkW0V4t8Vp7Ku1d7VIAenSQ1Sz98NZSPrgL50+IbAQY68qafPiqK3wE5Rj7hdQObSmea21GDbSiOW6W0yQA9nM6csj+OG8Bix2Q1+UCWwlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dqIdlrn7; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S7eniZIF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725616452;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7aksakBHDE0/j8ahTBvKG/EiOnaQlZoL63vLFTpifaU=;
-	b=S7eniZIFzvj6BZOTq47SoPbPVWR0Cdy6fs8VAtRIsleQ8UtzeBEWoEKqSgQYhpRl8phC+y
-	L71p83t66tix841Bj8KuVSsI5cB2b6t4ZB6DouAAFAS7bQlwGRYGJoQNYLWpfyKaKiS9Gq
-	Rg2aukYKwmL/RJn9EeaQVCsqnoHw5uw=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-267-wRmp4nDQPwGdU_P45f1Trg-1; Fri, 06 Sep 2024 05:54:11 -0400
-X-MC-Unique: wRmp4nDQPwGdU_P45f1Trg-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-377a26a5684so973755f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 06 Sep 2024 02:54:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725616450; x=1726221250;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7aksakBHDE0/j8ahTBvKG/EiOnaQlZoL63vLFTpifaU=;
-        b=Idb9/qb/rjDMFwXtrxbD8PeuhTDlHoi3P9NFYF9Kwfmmb1XieuWjc44BsylGcL5jB8
-         0MwneJiovnpvCCSvdK7eOJc+8E5urS5ocgGMcSi/m4NuS26LYHd7c/zaDGRXF69W9EdF
-         mIG1TX4wweRnSjBX+Aov9q29dF2wV5RmQ0NbdNG12hAwDcaP+lka9MUU2GUfZDkyqMsF
-         TP+OFeIZ1OYoiCGt2WkcjweXE6cifFZlNB/kRp+Ehr17V6Ifa3Qgrie05EnhACxJzYCA
-         vP+nCHsDEblHGZSF1F9BYlblC0JvXN7bb/dl0iypEYXMWl3h63QLZ96Lb50/axpduNn1
-         QuTg==
-X-Forwarded-Encrypted: i=1; AJvYcCW9FLMDnI9AnTDPbt7dl5srx3djdmeHXXf0XOTfqj3pntirVTUSWYekRFynLhLrlKl9+5IyRhG0HovLtPJSBQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyahG7FSGcVRSahnOCx6RCZyz0s/DmJpWVMTZYQPeN4ms4ofYOG
-	xZ+OjQL58p0csXUdJ122gN186PDCZr63s2zkDypSZsuwQOKK0An6VaSvcCuj6LD6YQEQQC4f063
-	ui49l3pw0/KPPW/LS94ItQO14+dVpc/f5Ej3kARfCzQ+fCOtqf8nmeK40DHWM6Yq5UM2cnux9g5
-	Y=
-X-Received: by 2002:a05:6000:e07:b0:368:7fbc:4062 with SMTP id ffacd0b85a97d-378895e2f23mr1306366f8f.33.1725616449880;
-        Fri, 06 Sep 2024 02:54:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHBgDM7sxM/7ia1YEw96VEtGVk4zDjpQQBhV0XhFyisOAMnm+DvCVKo9/BPS+TEKK+xP5YFqA==
-X-Received: by 2002:a05:6000:e07:b0:368:7fbc:4062 with SMTP id ffacd0b85a97d-378895e2f23mr1306334f8f.33.1725616449296;
-        Fri, 06 Sep 2024 02:54:09 -0700 (PDT)
-Received: from redhat.com ([155.133.17.165])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-374c6db03afsm13987450f8f.16.2024.09.06.02.54.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Sep 2024 02:54:08 -0700 (PDT)
-Date: Fri, 6 Sep 2024 05:53:59 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, Si-Wei Liu <si-wei.liu@oracle.com>,
-	Darren Kenny <darren.kenny@oracle.com>
-Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
-Message-ID: <20240906055236-mutt-send-email-mst@kernel.org>
-References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
- <20240906044143-mutt-send-email-mst@kernel.org>
- <1725612818.815039-1-xuanzhuo@linux.alibaba.com>
- <20240906045904-mutt-send-email-mst@kernel.org>
- <1725614736.9464588-1-xuanzhuo@linux.alibaba.com>
- <20240906053922-mutt-send-email-mst@kernel.org>
- <1725615962.9178205-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dqIdlrn7"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1725617216; h=Message-ID:Subject:Date:From:To;
+	bh=CUwG9aKobr3Qs9tubSmlRPOgMBUlhS4JCNVLHhUPh/8=;
+	b=dqIdlrn7OOh14YZvIUL35G7itUjKchy524zy2Y4Zx3bmMMoFih5XzR3p+yjEIppyJE7CB5RzQD7JVhRtJVlbpx12S8hdId3ZvpO7L0qZqoxzv8aEexDEggTnAaWP9rDYz+e8faZhrEUrxJiXotegutoZP0MRriIPr4pI9cBM2L8=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEP7DNV_1725617214)
+          by smtp.aliyun-inc.com;
+          Fri, 06 Sep 2024 18:06:55 +0800
+Message-ID: <1725616970.1687496-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [RFC PATCH v2 5/7] Revert "virtio_net: rx remove premapped failover code"
+Date: Fri, 6 Sep 2024 18:02:50 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev,
+ "Si-Wei Liu" <si-wei.liu@oracle.com>,
+ Darren Kenny <darren.kenny@oracle.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <cover.1725616135.git.mst@redhat.com>
+ <69d3032b6560323844d6d9fb0ac4f832ed87f13d.1725616135.git.mst@redhat.com>
+In-Reply-To: <69d3032b6560323844d6d9fb0ac4f832ed87f13d.1725616135.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <1725615962.9178205-1-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Fri, Sep 06, 2024 at 05:46:02PM +0800, Xuan Zhuo wrote:
-> On Fri, 6 Sep 2024 05:44:27 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Fri, Sep 06, 2024 at 05:25:36PM +0800, Xuan Zhuo wrote:
-> > > On Fri, 6 Sep 2024 05:08:56 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Fri, Sep 06, 2024 at 04:53:38PM +0800, Xuan Zhuo wrote:
-> > > > > On Fri, 6 Sep 2024 04:43:29 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > > On Tue, Aug 20, 2024 at 03:19:13PM +0800, Xuan Zhuo wrote:
-> > > > > > > leads to regression on VM with the sysctl value of:
-> > > > > > >
-> > > > > > > - net.core.high_order_alloc_disable=1
-> > > > > > >
-> > > > > > > which could see reliable crashes or scp failure (scp a file 100M in size
-> > > > > > > to VM):
-> > > > > > >
-> > > > > > > The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> > > > > > > of a new frag. When the frag size is larger than PAGE_SIZE,
-> > > > > > > everything is fine. However, if the frag is only one page and the
-> > > > > > > total size of the buffer and virtnet_rq_dma is larger than one page, an
-> > > > > > > overflow may occur. In this case, if an overflow is possible, I adjust
-> > > > > > > the buffer size. If net.core.high_order_alloc_disable=1, the maximum
-> > > > > > > buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
-> > > > > > > the first buffer of the frag is affected.
-> > > > > > >
-> > > > > > > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
-> > > > > > > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-> > > > > > > Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
-> > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > >
-> > > > > >
-> > > > > > Guys where are we going with this? We have a crasher right now,
-> > > > > > if this is not fixed ASAP I'd have to revert a ton of
-> > > > > > work Xuan Zhuo just did.
-> > > > >
-> > > > > I think this patch can fix it and I tested it.
-> > > > > But Darren said this patch did not work.
-> > > > > I need more info about the crash that Darren encountered.
-> > > > >
-> > > > > Thanks.
-> > > >
-> > > > So what are we doing? Revert the whole pile for now?
-> > > > Seems to be a bit of a pity, but maybe that's the best we can do
-> > > > for this release.
-> > >
-> > > @Jason Could you review this?
-> > >
-> > > I think this problem is clear, though I do not know why it did not work
-> > > for Darren.
-> > >
-> > > Thanks.
-> > >
-> >
-> > No regressions is a hard rule. If we can't figure out the regression
-> > now, we should revert and you can try again for the next release.
-> 
-> I see. I think I fixed it.
-> 
-> Hope Darren can reply before you post the revert patches.
-> 
-> Thanks.
-> 
+On Fri, 6 Sep 2024 05:52:36 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> This reverts commit defd28aa5acb0fd7c15adc6bc40a8ac277d04dea.
+>
+> leads to crashes with no ACCESS_PLATFORM when
+> sysctl net.core.high_order_alloc_disable=1
+>
+> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Reported-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 89 +++++++++++++++++++++++-----------------
+>  1 file changed, 52 insertions(+), 37 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0944430dfb1f..0a2ec9570521 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -348,6 +348,9 @@ struct receive_queue {
+>
+>  	/* Record the last dma info to free after new pages is allocated. */
+>  	struct virtnet_rq_dma *last_dma;
+> +
+> +	/* Do dma by self */
+> +	bool do_dma;
+>  };
+>
+>  /* This structure can contain rss message with maximum settings for indirection table and keysize
+> @@ -867,7 +870,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+>  	void *buf;
+>
+>  	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+> -	if (buf)
+> +	if (buf && rq->do_dma)
+>  		virtnet_rq_unmap(rq, buf, *len);
+>
+>  	return buf;
+> @@ -880,6 +883,11 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+>  	u32 offset;
+>  	void *head;
+>
+> +	if (!rq->do_dma) {
+> +		sg_init_one(rq->sg, buf, len);
+> +		return;
+> +	}
+> +
+>  	head = page_address(rq->alloc_frag.page);
+>
+>  	offset = buf - head;
+> @@ -905,42 +913,44 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+>
+>  	head = page_address(alloc_frag->page);
+>
+> -	dma = head;
+> +	if (rq->do_dma) {
+> +		dma = head;
+>
+> -	/* new pages */
+> -	if (!alloc_frag->offset) {
+> -		if (rq->last_dma) {
+> -			/* Now, the new page is allocated, the last dma
+> -			 * will not be used. So the dma can be unmapped
+> -			 * if the ref is 0.
+> +		/* new pages */
+> +		if (!alloc_frag->offset) {
+> +			if (rq->last_dma) {
+> +				/* Now, the new page is allocated, the last dma
+> +				 * will not be used. So the dma can be unmapped
+> +				 * if the ref is 0.
+> +				 */
+> +				virtnet_rq_unmap(rq, rq->last_dma, 0);
+> +				rq->last_dma = NULL;
+> +			}
+> +
+> +			dma->len = alloc_frag->size - sizeof(*dma);
+> +
+> +			addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
+> +							      dma->len, DMA_FROM_DEVICE, 0);
+> +			if (virtqueue_dma_mapping_error(rq->vq, addr))
+> +				return NULL;
+> +
+> +			dma->addr = addr;
+> +			dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
+> +
+> +			/* Add a reference to dma to prevent the entire dma from
+> +			 * being released during error handling. This reference
+> +			 * will be freed after the pages are no longer used.
+>  			 */
+> -			virtnet_rq_unmap(rq, rq->last_dma, 0);
+> -			rq->last_dma = NULL;
+> +			get_page(alloc_frag->page);
+> +			dma->ref = 1;
+> +			alloc_frag->offset = sizeof(*dma);
+> +
+> +			rq->last_dma = dma;
+>  		}
+>
+> -		dma->len = alloc_frag->size - sizeof(*dma);
+> -
+> -		addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
+> -						      dma->len, DMA_FROM_DEVICE, 0);
+> -		if (virtqueue_dma_mapping_error(rq->vq, addr))
+> -			return NULL;
+> -
+> -		dma->addr = addr;
+> -		dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
+> -
+> -		/* Add a reference to dma to prevent the entire dma from
+> -		 * being released during error handling. This reference
+> -		 * will be freed after the pages are no longer used.
+> -		 */
+> -		get_page(alloc_frag->page);
+> -		dma->ref = 1;
+> -		alloc_frag->offset = sizeof(*dma);
+> -
+> -		rq->last_dma = dma;
+> +		++dma->ref;
+>  	}
+>
+> -	++dma->ref;
+> -
+>  	buf = head + alloc_frag->offset;
+>
+>  	get_page(alloc_frag->page);
+> @@ -957,9 +967,12 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+>  	if (!vi->mergeable_rx_bufs && vi->big_packets)
+>  		return;
+>
+> -	for (i = 0; i < vi->max_queue_pairs; i++)
+> -		/* error should never happen */
+> -		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
+> +			continue;
+> +
+> +		vi->rq[i].do_dma = true;
+> +	}
 
-It's very rushed anyway. I posted the reverts, but as RFC for now.
-You should post a debugging patch for Darren to help you figure
-out what is going on.
+This is too much code to revert. We can just revert this and next one.
+And add a patch to turn off the default premapped setting (return from this
+function directly). Otherwise, we will have to do all the work again in the
+future.
+
+There is no need to revert xsk related code, xsk function cannot be enabled, in
+the case that premapped mode is not turned on. There is no direct impact itself.
+
+Thanks.
 
 
-> >
-> >
-> > > >
-> > > >
-> > > > > >
-> > > > > >
-> > > > > > > ---
-> > > > > > >  drivers/net/virtio_net.c | 12 +++++++++---
-> > > > > > >  1 file changed, 9 insertions(+), 3 deletions(-)
-> > > > > > >
-> > > > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > > > index c6af18948092..e5286a6da863 100644
-> > > > > > > --- a/drivers/net/virtio_net.c
-> > > > > > > +++ b/drivers/net/virtio_net.c
-> > > > > > > @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
-> > > > > > >  	void *buf, *head;
-> > > > > > >  	dma_addr_t addr;
-> > > > > > >
-> > > > > > > -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
-> > > > > > > -		return NULL;
-> > > > > > > -
-> > > > > > >  	head = page_address(alloc_frag->page);
-> > > > > > >
-> > > > > > >  	dma = head;
-> > > > > > > @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
-> > > > > > >  	len = SKB_DATA_ALIGN(len) +
-> > > > > > >  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> > > > > > >
-> > > > > > > +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-> > > > > > > +		return -ENOMEM;
-> > > > > > > +
-> > > > > > >  	buf = virtnet_rq_alloc(rq, len, gfp);
-> > > > > > >  	if (unlikely(!buf))
-> > > > > > >  		return -ENOMEM;
-> > > > > > > @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
-> > > > > > >  	 */
-> > > > > > >  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
-> > > > > > >
-> > > > > > > +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
-> > > > > > > +		return -ENOMEM;
-> > > > > > > +
-> > > > > > > +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
-> > > > > > > +		len -= sizeof(struct virtnet_rq_dma);
-> > > > > > > +
-> > > > > > >  	buf = virtnet_rq_alloc(rq, len + room, gfp);
-> > > > > > >  	if (unlikely(!buf))
-> > > > > > >  		return -ENOMEM;
-> > > > > > > --
-> > > > > > > 2.32.0.3.g01195cf9f
-> > > > > >
-> > > >
-> >
-
+>  }
+>
+>  static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+> @@ -2107,7 +2120,8 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+>
+>  	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+>  	if (err < 0) {
+> -		virtnet_rq_unmap(rq, buf, 0);
+> +		if (rq->do_dma)
+> +			virtnet_rq_unmap(rq, buf, 0);
+>  		put_page(virt_to_head_page(buf));
+>  	}
+>
+> @@ -2221,7 +2235,8 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+>  	ctx = mergeable_len_to_ctx(len + room, headroom);
+>  	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+>  	if (err < 0) {
+> -		virtnet_rq_unmap(rq, buf, 0);
+> +		if (rq->do_dma)
+> +			virtnet_rq_unmap(rq, buf, 0);
+>  		put_page(virt_to_head_page(buf));
+>  	}
+>
+> @@ -5392,7 +5407,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+>  	int i;
+>  	for (i = 0; i < vi->max_queue_pairs; i++)
+>  		if (vi->rq[i].alloc_frag.page) {
+> -			if (vi->rq[i].last_dma)
+> +			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
+>  				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
+>  			put_page(vi->rq[i].alloc_frag.page);
+>  		}
+> --
+> MST
+>
