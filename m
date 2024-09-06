@@ -1,64 +1,63 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72FA31CB30C
-	for <virtualization@lists.linux.dev>; Fri,  6 Sep 2024 09:52:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B311E1CB336
+	for <virtualization@lists.linux.dev>; Fri,  6 Sep 2024 09:52:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725616369; cv=none; b=jwLliHeHCo6a1L/YLGpJNoMtGYTzYLEmJNQoelA4WCM7RRkFoJfNDhV2cGHkg+S32CwlBrNMbNgwf+cQcdglBS5ZUpSV3QZyFhSnzgCi7ZqHfZQPlCMZHc+0lBmuwhDnfy41uNGLRYmByMGkpZO3jHLiIyX6dXFJD+lIXwxn9m4=
+	t=1725616376; cv=none; b=r4w4OZqRYrW9Z3cWVm+pjdUz91SbbL63o44QBULw7RF1i6vSxl6U7Z7U61PtMBlUopM7W1ZS9JFQa5EEpgnKO3qZd2TzkQ957yeA8mT7rQlIhUAUw7uGsV1ZMtItUY52cGvNoWuWfO93bZDRM3x0romJ9WXZem3SEmKh+K0s7ZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725616369; c=relaxed/simple;
-	bh=y/2q/oU3B2T/Sj3xYbJ3TRbapgrDhvFRSSna1J7JF/0=;
+	s=arc-20240116; t=1725616376; c=relaxed/simple;
+	bh=G0vuRwIZULx1awulz3TZccpUD9HBmx1Km+yJqugvR6M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mBpewwZxt6LVxhJtbWXCZTTkfGJAnJwCNRmo7IzWF/kaDj8Gtu3AuTeC+A5IravPRfpW7w/84w0RvFhTO6iyOTiDmZSNOV+RBKwrMs8cBBJBQt4SkzOlvCoJn1KZyQLBhNm6iQ4aUUjoACas06FypwS/9pIxqiPw2+2jklpccz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CjOE/3GJ; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=PvLQAkzS1gQ+gpgOhWGAb5mfgCeoyhwuxwrSRHJI9oXCv/YKQ3X4DKpMO5yXMlnkPvvKzjUb5ddxUV8lpk+t/9aHfXZOp0rNEJt/U+olW9bNXnIsSZlNIT/nGg1ZijGYqezt5sAr0ruOcwBieyzW+iWd29M3IGUiLkcQSVA3lGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZHdz4xly; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CjOE/3GJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZHdz4xly"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725616367;
+	s=mimecast20190719; t=1725616373;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Pft5+JeYXYrsom9XC/wwmdmDEnhGm2vJUjZuwg+BsyM=;
-	b=CjOE/3GJ4IyJBnXsBf/ykYzDPdCAsYwIpxktf0H7ALGACJzD7fxEuKLww18iVhY7To9dyr
-	12kmyIrQ1Ac8qGBeLi0OUqINRpFNrZgqMHnmkFTyRBxr5S2AG7prW7Hp9M/1hEk0V14Ioy
-	sNO/0gxeDm1sZSnrnqAu+JDmYyZfylI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=0BVAAiLX2YDT2AdtI4QtNJTs70zsl324iWlMmUL5ZGE=;
+	b=ZHdz4xlyE1lnTWlbo9k91UKfUo6ugi3/uGDh1jfsUl1OWTuRrRkMzRREqYwVv67eHQcbkr
+	ubpuX2cb7hIEiWoXuBHMVc4iQ8vxntvzg2nAZ1n+5UGARi9IbDNKRHW2Iu5WKeIPUDXlxw
+	ONMHUSq9jL/lEcHSCQr1EMQAQDfhMU8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-119-Y2_Vs3aIOcWtYoVewShCrQ-1; Fri, 06 Sep 2024 05:52:46 -0400
-X-MC-Unique: Y2_Vs3aIOcWtYoVewShCrQ-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-42ca8037d9aso283745e9.3
-        for <virtualization@lists.linux.dev>; Fri, 06 Sep 2024 02:52:46 -0700 (PDT)
+ us-mta-124-qjSvCoPdPVKmaNR9zue2zQ-1; Fri, 06 Sep 2024 05:52:50 -0400
+X-MC-Unique: qjSvCoPdPVKmaNR9zue2zQ-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42c80412dc1so14621085e9.2
+        for <virtualization@lists.linux.dev>; Fri, 06 Sep 2024 02:52:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725616365; x=1726221165;
+        d=1e100.net; s=20230601; t=1725616369; x=1726221169;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Pft5+JeYXYrsom9XC/wwmdmDEnhGm2vJUjZuwg+BsyM=;
-        b=Jzl43sGrWSvpbFvZUPWWzzIQecNxW/a5utc/8S+ZwAL00L9MClpKCDc2PYDCpF5652
-         N3oj2Q0ZO/yepKIRyz+s4ecpgftO977ebYu2jJps5/bA2Lev6rqPz4XLk4+1CUyC02sF
-         4WD9u9EOPFNZf/2OYkRZ1md/aVRZMXfAQrEg/GfpSqKpZ7Qs3w+zbBzzmzLw5JToSdaP
-         Rag28FboLVVomwj4vwgeRZlAOd5MYZ1jPuhcA6DIuB63rQq/YihvOaM/OECtPziOATZL
-         /xVEqeENodRu9QbZppvW2ARDCUfVu0WEAGkWBLMKyhkHbMPaOfJSiPNja3TqfvsErmrL
-         UF3Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXenOKxZ5Sd+CpM2s/J3r+pU4h1MMItZq7xqHHEgvgkiB5U9HrKraGl2NhQJOk/XittyHx1/YS6ryTTfzdwMw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyOhui6ZxyChXe/5lqvR5fQRdIz3ONEE1HDQMQvC5JpakFrKbr7
-	j/+PdlgRChCmtTn3e9CZIIaAqvow/Ml8ciCrmE8+EErSPGoTGL3cYkaezv03Cwudx7C6zPQ9eVQ
-	p5r0rDhugMabf2kXAO8j/tS1gfYLm/4P9w9Zf11z5fMZgbsS7HuIvdsbR8uQy8PK+mY8wy8Fqcf
-	A=
-X-Received: by 2002:a05:600c:1913:b0:426:5d0d:a2c9 with SMTP id 5b1f17b1804b1-42c9f97dbfamr13581665e9.10.1725616365015;
-        Fri, 06 Sep 2024 02:52:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF21JiRX7kMArBtpqaDQnryw6ZUluOTmbApXNoVkHLpPhwvwYOfjmZQYcgbTEuY9mkhpcPeag==
-X-Received: by 2002:a05:600c:1913:b0:426:5d0d:a2c9 with SMTP id 5b1f17b1804b1-42c9f97dbfamr13581415e9.10.1725616364521;
-        Fri, 06 Sep 2024 02:52:44 -0700 (PDT)
+        bh=0BVAAiLX2YDT2AdtI4QtNJTs70zsl324iWlMmUL5ZGE=;
+        b=VFV2zdng4BHUjVeqmi3XWHtzaGgnIsietI42rc/DbT1MVt+oNc7QQR2hr7NwKh1/+V
+         b1ZP4I+aCxRNOToRL/6+oNKB0ubeYQBhgYioRMao3OlRY8odE8zUFzYW0a8JWdWhGkYF
+         CbwQIFzuzR9N8fMR3NOydnNM4PaewZbq0//c5gsIehhlAZm1MBlea3mCPNhvupVdx/1o
+         7C9NtYfneA3m/e++VaBbqjCIrJhFEafMYRt030E4X7TREhitNwVrZg5vJa/4tfv/xVy0
+         3USopDzHwU1yCSbk+zHdVHpta7E1pV1rHByo4fu8cwJT66+uy5jzTuAr2Wqs7+OGLG6Y
+         DgKQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUnMIA2ogujvtexHeTa/e++qZe9lCAJIXsJJjlAWTROBu8GslE6Wk/xEFs/4DDZzi4sZWqGGrPAqhAItKh4VA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxEq8zIZMp965tLllaLXLxkbix/sM7BSlFS2JjLs+6zGwk9ug3u
+	+TtpXyANDv2ZURjuOVcQk/BJfpTdy44BEB/Emt8k0Zz2C62NOghwnq1nRswKKgYV08I5IJkyeq1
+	z5Uje7ue3l4KKYS0Fn6OPSDlSAJ9AUpRiClHxIGGlUaxhKNGqu9dPyH+/9ekf6XAO
+X-Received: by 2002:a5d:5225:0:b0:36b:3384:40e5 with SMTP id ffacd0b85a97d-378895de480mr1326179f8f.24.1725616369306;
+        Fri, 06 Sep 2024 02:52:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEpPl6uh0wHWO+9rukppTUDX20dNZLFoJnMDp58PodNRcJ5IH3PPSXhUNF+FyNXmBHbr/zcog==
+X-Received: by 2002:a5d:5225:0:b0:36b:3384:40e5 with SMTP id ffacd0b85a97d-378895de480mr1326157f8f.24.1725616368848;
+        Fri, 06 Sep 2024 02:52:48 -0700 (PDT)
 Received: from redhat.com ([155.133.17.165])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42ca05d3171sm14716285e9.28.2024.09.06.02.52.41
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-374c5ba7027sm14447997f8f.19.2024.09.06.02.52.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Sep 2024 02:52:43 -0700 (PDT)
-Date: Fri, 6 Sep 2024 05:52:40 -0400
+        Fri, 06 Sep 2024 02:52:48 -0700 (PDT)
+Date: Fri, 6 Sep 2024 05:52:44 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -70,8 +69,9 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Darren Kenny <darren.kenny@oracle.com>,
 	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
 	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
-Subject: [RFC PATCH v2 6/7] Revert "virtio_net: big mode skip the unmap check"
-Message-ID: <3db7fcc631c2f1dd6a62e5d90fecf3e5c32ca4e2.1725616135.git.mst@redhat.com>
+Subject: [RFC PATCH v2 7/7] Revert "virtio_ring: enable premapped mode
+ whatever use_dma_api"
+Message-ID: <e8a8f8c3a2d67b25dd261184da6684fda1813c6d.1725616135.git.mst@redhat.com>
 References: <cover.1725616135.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -87,7 +87,7 @@ X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-This reverts commit a377ae542d8d0a20a3173da3bbba72e045bea7a9.
+This reverts commit f9dac92ba9081062a6477ee015bd3b8c5914efc4.
 
 leads to crashes with no ACCESS_PLATFORM when
 sysctl net.core.high_order_alloc_disable=1
@@ -96,31 +96,34 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Reported-by: Si-Wei Liu <si-wei.liu@oracle.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_ring.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0a2ec9570521..6f3c39dc6f76 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -983,7 +983,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index be7309b1e860..06b5bdf0920e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2782,7 +2782,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+  *
+  * Returns zero or a negative error.
+  * 0: success.
+- * -EINVAL: too late to enable premapped mode, the vq already contains buffers.
++ * -EINVAL: vring does not use the dma api, so we can not enable premapped mode.
+  */
+ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+ {
+@@ -2798,6 +2798,11 @@ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+ 		return -EINVAL;
+ 	}
  
- 	rq = &vi->rq[i];
++	if (!vq->use_dma_api) {
++		END_USE(vq);
++		return -EINVAL;
++	}
++
+ 	vq->premapped = true;
+ 	vq->do_unmap = false;
  
--	if (!vi->big_packets || vi->mergeable_rx_bufs)
-+	if (rq->do_dma)
- 		virtnet_rq_unmap(rq, buf, 0);
- 
- 	virtnet_rq_free_buf(vi, rq, buf);
-@@ -2367,7 +2367,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 		}
- 	} else {
- 		while (packets < budget &&
--		       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
-+		       (buf = virtnet_rq_get_buf(rq, &len, NULL)) != NULL) {
- 			receive_buf(vi, rq, buf, len, NULL, xdp_xmit, &stats);
- 			packets++;
- 		}
 -- 
 MST
 
