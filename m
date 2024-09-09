@@ -1,141 +1,137 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9776B210E4
-	for <virtualization@lists.linux-foundation.org>; Mon,  9 Sep 2024 02:02:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3205A3D76
+	for <virtualization@lists.linux.dev>; Mon,  9 Sep 2024 03:16:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725847380; cv=none; b=Yxt8XeL1yxDYr0IGyiRG+06V2KXpgjc2yXXGbvdid6giuekK/ozLHnX4FzI92FT9DIwMtIQOJ4QoskVohCN8gKTn7oLpYJpTH3bLliorySIAEkenBQlIuBE+nHV8MD0Ipc34KF8iGlu/n2Nb5YPDU7t5Fpb7nu7JgPWD3sttENQ=
+	t=1725851781; cv=none; b=m8z044TEaoglC+f7fgvOtPFPBR+pnbsJiBYCQvgZZSRPONT7k84niNxkpekuLauVDbA0MM+4pU1ahbuvfTSalQ61NbKL6wDoN00tQG85axKo7xfDkWX4VeJirv1mCH5wXqWTbYhkxLbXqM2+qidlWH9miXYGG+EqqkFoGZLPTes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725847380; c=relaxed/simple;
-	bh=7/6gyxcweF78Fjvy/O/QlpRmVVa60Z+0o2DI85aQcUo=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rUIfHlqmIip02Resbs4gQqngRNFPc34A98rMK2EffLDyHJvfjzzp15nN10oNmC2NJnAsTjdFCt+DYYnRYwG7yfTmNlrO9qTX+EqfZZt0iEtXBClTOaeQaMlb6xpnjLODzWAADpH+2FNCRijJi7dex0oa9eMOgtlPTTkpiYTBGLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KSKiypKL; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1725851781; c=relaxed/simple;
+	bh=mHEfWUcqpqEDcwGW9qMcOoPMFUvkd9gn6ybAjDCEpIk=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=V2v+10ksKGtsZfnHjpzeqlmi08nGOPNoMt88KcXcScOtQ9nX7gyUxPvseHjucZTivwGorhWBhX7Stz7XeFau6gf5Cm/jf2CoEz4dBBc8wqrGx24/iAy3XSLXoigvWRQMqpBdw90EKwibhGndv2P0oj4Shnjrieqrs+joAK8Mh1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=XX5vFK6z; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KSKiypKL"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2E966401D8
-	for <virtualization@lists.linux-foundation.org>; Mon,  9 Sep 2024 02:02:59 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id JZe0pJtVB1ON for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Sep 2024 02:02:58 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 48314401C2
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 48314401C2
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KSKiypKL
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 48314401C2
-	for <virtualization@lists.linux-foundation.org>; Mon,  9 Sep 2024 02:02:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725847375;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HUQqKbxzWXipVdkbA2+5Zzkiohl4zLF2jPmYXNJwL9s=;
-	b=KSKiypKLrxU3j2bQXaWpwMW35+5Kns2rBcmZpNAteMIkyyQLnbAIDdt+NQqhH0vmtUbtcD
-	YK5n+H8c5y2plU/FFz+I24gSugNwd9oNWXkyVFDIcym+f5lYsL5ZtDZxHKKyFEO9pP+MC+
-	tqhGR1vk4elQGwnBjIOBnJdQQla1NTs=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-358-dbXyhr2mNs2jntQsUSC6Xw-1; Sun,
- 08 Sep 2024 22:02:52 -0400
-X-MC-Unique: dbXyhr2mNs2jntQsUSC6Xw-1
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 53BBB19560BC;
-	Mon,  9 Sep 2024 02:02:50 +0000 (UTC)
-Received: from server.redhat.com (unknown [10.72.112.25])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 321CE1956086;
-	Mon,  9 Sep 2024 02:02:45 +0000 (UTC)
-From: Cindy Lu <lulu@redhat.com>
-To: lulu@redhat.com,
-	jasowang@redhat.com,
-	mst@redhat.com,
-	michael.christie@oracle.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: [RESEND PATCH v1 7/7] vhost: Add new UAPI to support change to task mode
-Date: Mon,  9 Sep 2024 10:00:45 +0800
-Message-ID: <20240909020138.1245873-8-lulu@redhat.com>
-In-Reply-To: <20240909020138.1245873-1-lulu@redhat.com>
-References: <20240909020138.1245873-1-lulu@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="XX5vFK6z"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1725851776; h=Message-ID:Subject:Date:From:To;
+	bh=ZeSNuigf8WiZfgXybb5AzOBZyCSo9n96BaNzBxxe08E=;
+	b=XX5vFK6zrhm68NortTcZr70ZfcFrmb4uOf1pO3NeDvXRcJULYQWCNv0W1SxEsnI+nyu121b6V0noloRE0qsKnRtc2qJQvveQNg+cDQsQJvN7sLjhtGn/lA5FpZ01nF1S1MQiYi18rOC4R8R9hYgLQ/e0AFd/rHwjAy7Cx03snow=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEWEqx3_1725851775)
+          by smtp.aliyun-inc.com;
+          Mon, 09 Sep 2024 11:16:15 +0800
+Message-ID: <1725851336.7999291-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
+Date: Mon, 9 Sep 2024 11:08:56 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org,
+ Jason Wang <jasowang@redhat.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev,
+ "Si-Wei Liu" <si-wei.liu@oracle.com>,
+ Darren Kenny <darren.kenny@oracle.com>
+References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
+ <20240908153930-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240908153930-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-Add a new UAPI to support setting the vhost device to
-use task mode. The user space application needs to use
-VHOST_SET_ENFORCE_TASK to set the mode. This setting must
-be set before VHOST_SET_OWNER is set.
+On Sun, 8 Sep 2024 15:40:32 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Tue, Aug 20, 2024 at 03:19:13PM +0800, Xuan Zhuo wrote:
+> > leads to regression on VM with the sysctl value of:
+> >
+> > - net.core.high_order_alloc_disable=1
+> >
+> > which could see reliable crashes or scp failure (scp a file 100M in size
+> > to VM):
+> >
+> > The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
+> > of a new frag. When the frag size is larger than PAGE_SIZE,
+> > everything is fine. However, if the frag is only one page and the
+> > total size of the buffer and virtnet_rq_dma is larger than one page, an
+> > overflow may occur. In this case, if an overflow is possible, I adjust
+> > the buffer size. If net.core.high_order_alloc_disable=1, the maximum
+> > buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
+> > the first buffer of the frag is affected.
+> >
+> > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
+> > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> > Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>
+>
+> BTW why isn't it needed if we revert f9dac92ba908?
 
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- drivers/vhost/vhost.c      | 16 +++++++++++++++-
- include/uapi/linux/vhost.h |  2 ++
- 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 838bce29a98b..8fd19a1489e0 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2340,14 +2340,28 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
- {
- 	struct eventfd_ctx *ctx;
- 	u64 p;
--	long r;
-+	long r = 0;
- 	int i, fd;
-+	bool enforce_task;
- 
- 	/* If you are not the owner, you can become one */
- 	if (ioctl == VHOST_SET_OWNER) {
- 		r = vhost_dev_set_owner(d);
- 		goto done;
- 	}
-+	if (ioctl == VHOST_SET_ENFORCE_TASK) {
-+		/* Is there an owner already? */
-+		if (vhost_dev_has_owner(d)) {
-+			r = -EBUSY;
-+			goto done;
-+		}
-+		if (copy_from_user(&enforce_task, argp, sizeof(enforce_task))) {
-+			r = -EFAULT;
-+			goto done;
-+		}
-+		enforce_kthread = !enforce_task;
-+		goto done;
-+	}
- 
- 	/* You must be the owner to do anything else */
- 	r = vhost_dev_check_owner(d);
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index b95dd84eef2d..9853d62d2d34 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -235,4 +235,6 @@
-  */
- #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
- 					      struct vhost_vring_state)
-+
-+#define VHOST_SET_ENFORCE_TASK _IOW(VHOST_VIRTIO, 0x83, bool)
- #endif
--- 
-2.45.0
+This patch fixes the bug in premapped mode.
 
+The revert operation just disables premapped mode.
+
+So I think this patch is enough to fix the bug, and we can enable
+premapped by default.
+
+If you worry about the premapped mode, I advice you merge this patch and do
+the revert[1]. Then the bug is fixed, and the premapped mode is
+disabled by default, we can just enable it for af-xdp.
+
+[1]: http://lore.kernel.org/all/20240906123137.108741-1-xuanzhuo@linux.alibaba.com
+
+Thanks.
+
+
+>
+> > ---
+> >  drivers/net/virtio_net.c | 12 +++++++++---
+> >  1 file changed, 9 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index c6af18948092..e5286a6da863 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+> >  	void *buf, *head;
+> >  	dma_addr_t addr;
+> >
+> > -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+> > -		return NULL;
+> > -
+> >  	head = page_address(alloc_frag->page);
+> >
+> >  	dma = head;
+> > @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+> >  	len = SKB_DATA_ALIGN(len) +
+> >  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+> >
+> > +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
+> > +		return -ENOMEM;
+> > +
+> >  	buf = virtnet_rq_alloc(rq, len, gfp);
+> >  	if (unlikely(!buf))
+> >  		return -ENOMEM;
+> > @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+> >  	 */
+> >  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+> >
+> > +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> > +		return -ENOMEM;
+> > +
+> > +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
+> > +		len -= sizeof(struct virtnet_rq_dma);
+> > +
+> >  	buf = virtnet_rq_alloc(rq, len + room, gfp);
+> >  	if (unlikely(!buf))
+> >  		return -ENOMEM;
+> > --
+> > 2.32.0.3.g01195cf9f
+>
