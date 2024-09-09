@@ -1,251 +1,146 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884EA1B654C
-	for <virtualization@lists.linux-foundation.org>; Mon,  9 Sep 2024 09:33:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725874391; cv=fail; b=GqRdH5n3A5dHCU3Q46zcb14RF9nskcjs8OTTziAzUl/MDNAckekyeDn2wO0owhZf8JZ8B1XmFR1znrZhOvk63OaZ3QtSmW6tBWXwJyWysMzNWIkdI0g37Kv4ZplwxbMpLoJW58vGjQIrrZ5hWQiflu1dhJDWltwZTRiz3sD1iCc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725874391; c=relaxed/simple;
-	bh=vKjrSnI+AWTIqOug4pjZuHzm1B/fhycm9nPBH9nPo0k=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ZbIOS9cR/GFAoYdgPr4/YZS6tMdWQIlHSBGPQuNMkQ4Kll1cPRylvqhyhewSN79iYfzvFxQnmDVfOBUMas9FsQfT35xY8K1MgFaq0LFCLJj9BbBE6qqmcXF/Kaqxx8hFmKJzbo7TnC3Evw6gzxjtDc8JplkP/9GOAHh1m75In6Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ZwEY+RFb; arc=fail smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28B671779BD
+	for <virtualization@lists.linux.dev>; Mon,  9 Sep 2024 13:18:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725887924; cv=none; b=gGatsHpyyMMtjbZtprzCIhN3AKh9f7jdntSbC5aRiHaaHmA+QdCj99W17ho51P7WRWbsSMrSguwrst5VxJR4tcKDMrovw9nXJ8GiqPNWjTk7yCzsqBd29y2v5v5BeA/EufJTJx+IihjPdbq5FvCmx+t6rDPJ+/n/LMN2l+sCDCA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725887924; c=relaxed/simple;
+	bh=LaS630GWSJUP5/OlzQClgenx4KF+6YVTc43cjcpFnEE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ozO4k5lW6yhtQ/RRyi3KcCLO3y5AGGgpCMrRBsDqyUQ2Bfi9ujCvFe/nNmIieMwcy2ZFdz8P7clNnM+B9bcVoVhbAFXbLCWRXp/nVfECd9AJVNSp7rvn4aAv6HBnIqPdA2n++M4oUhQbdrhyPoDMoCv9XT6gOZYwOVXo7aHBNcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nvydEuWP; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ZwEY+RFb"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 12836401FE
-	for <virtualization@lists.linux-foundation.org>; Mon,  9 Sep 2024 09:33:10 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id MKZqB9V-tMhY for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Sep 2024 09:33:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2415::618; helo=nam11-dm6-obe.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org CB3C9400FF
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CB3C9400FF
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=ZwEY+RFb
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on20618.outbound.protection.outlook.com [IPv6:2a01:111:f403:2415::618])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CB3C9400FF
-	for <virtualization@lists.linux-foundation.org>; Mon,  9 Sep 2024 09:33:08 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=r937HFXvvtUACR1Kf7Apzu6L2fd1bb5GXfx5qSIfltaHQO9a9hUOHlxqU2Rly9wL5ZYlHDvYZa4UsuKJuIUJGOyEA5MAq0bwhRswOoc1bpw8/1idR3SnMRAfTHKF202+c/ZGduNazIrqsU+5nakrSZigCp8iLnsarCwSQqxksRgmNOZTQ4zlV7xQtUJZUGr8SIuXrkzoNiVyIGo1zjZRZqyHInKGIqhi8wgRuKXc1uXJrdoBW/nRJQrmrs4NVdHyMMBkS6hI7NY/qo/xABhIkStR9N65um2Rjwo3nVmP7thML/D9KOmigBhvbJeOubvAstFlmnswiGp06MawUjy/Lw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fmCMmTQdtRITrzQgK6/1e5EI04qzV/kOb9yGpNAA5lE=;
- b=EHBmUVVMApgkmoA4I31csZRb23CiKGrngaHeh0+Dmx9diTXDIpaOlU1bLg0a6P2b+hgTivzmpXQua5VzT7Jo8qn0f68QvzGcBDGd9vyw69aXsnyxkV/oeepePaxiP0qsKNminHLaRjPSbBpTXkRhMXX7VxngL3m7gtEj7cWU4rvds3t+3+UvlJL+GrEU2mgoEqYFnRwDCXaIhTmtMFu+zlUBPz2HbRUp4OYLvGv1MZPN/92x2oGWvvubkixdIq0nBRrlXxzGXd6JXKmrL73OdCo7oOUS6vEy7KIWJCA97hT7nfIt4ZSY8d0t8u2aBTsk8iHKAWWI3zwGa+lr4duQQg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fmCMmTQdtRITrzQgK6/1e5EI04qzV/kOb9yGpNAA5lE=;
- b=ZwEY+RFbMS6o9z4c2wRKcaojdNZlys5ZIG3FTPC5neQjMdGVrndLchoaWtYvprMLbWVJXPxtYD2imAwXe9v7wJZZOFBCr0bjMQNHZds6LH+sC1tWaeLddq0IiTSyJbkkLvk1fAbCaIQe6eUCiyHrhfqMPogH/ZLGwm3gC7MwSqDrV5cPJtrSQmeIL1NTozQ9y/rTVNHFoIgfLp47WRTDnpdOFE/JO5X83cQ6pCaAOnieWi9oQduTBHlcYG6IQp3xuG1hSUYLAUtRbgWjuObagY1mzLjKqG5ChZSyqCIfKpi7ZkieFiRHQe0u8FIf9f3n1ydAkhaFvSmDADmNpr6STA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com (2603:10b6:930:79::18)
- by PH7PR12MB7428.namprd12.prod.outlook.com (2603:10b6:510:203::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.28; Mon, 9 Sep
- 2024 09:33:05 +0000
-Received: from CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4]) by CY8PR12MB8297.namprd12.prod.outlook.com
- ([fe80::b313:73f4:6e6b:74a4%5]) with mapi id 15.20.7918.024; Mon, 9 Sep 2024
- 09:33:05 +0000
-Message-ID: <c59afb55-78b1-48b3-bafa-646b8499bf1c@nvidia.com>
-Date: Mon, 9 Sep 2024 11:32:58 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH mlx5-vhost v2 01/10] net/mlx5: Support throttled commands
- from async API
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Eugenio Perez Martin <eperezma@redhat.com>,
- virtualization@lists.linux-foundation.org
-Cc: Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Leon Romanovsky <leon@kernel.org>, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
- Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Leon Romanovsky <leonro@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>
-References: <20240816090159.1967650-1-dtatulea@nvidia.com>
- <20240816090159.1967650-2-dtatulea@nvidia.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <20240816090159.1967650-2-dtatulea@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ZR0P278CA0017.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:16::27) To CY8PR12MB8297.namprd12.prod.outlook.com
- (2603:10b6:930:79::18)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nvydEuWP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1725887922; x=1757423922;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=LaS630GWSJUP5/OlzQClgenx4KF+6YVTc43cjcpFnEE=;
+  b=nvydEuWPzPtP7vERkOJV/Fzjzpm429tssi/gsHmRD54obWQgs6wS5/VA
+   XNnY1lTrCHUTsR3+Dm3kJllD8AWIMMSe8tlI5U+/zJpw7K65qmj+uQMB3
+   By3vAfkimRPr3v/Rzl20tjWImQ70HWg1+IroGOrOxm1v4XjBpJeHaB/sr
+   tIC34E0zibfypV6reclcjkV6jjjeGoCAt3TNM70uEKvSZ0EwtAov3M9nw
+   n7IHllIEuoIw3ZDEry1Hk1dKHrjMalu4+Ay9dEPVjHXcxEe9G9rV7dXss
+   2DeORF1G4BYxRRLgc+YdfNZBL1Irlhlf1r93C60F6xErm8Uy3OxIV9EHy
+   A==;
+X-CSE-ConnectionGUID: /VhKz8bAQzOh1J8syvPPeA==
+X-CSE-MsgGUID: Y46LGXFJTNG9mwOKZunxxw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11190"; a="28363554"
+X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
+   d="scan'208";a="28363554"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2024 06:18:41 -0700
+X-CSE-ConnectionGUID: y9IAZPafTayJLBL4nz5pOw==
+X-CSE-MsgGUID: 0VC8m7WDSiqzEP0MrMRAvQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
+   d="scan'208";a="104127985"
+Received: from yzhao56-desk.sh.intel.com ([10.239.159.62])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2024 06:18:37 -0700
+From: Yan Zhao <yan.y.zhao@intel.com>
+To: kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org
+Cc: pbonzini@redhat.com,
+	seanjc@google.com,
+	kvm@vger.kernel.org,
+	Yan Zhao <yan.y.zhao@intel.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Kevin Tian <kevin.tian@intel.com>
+Subject: [PATCH v2] drm/bochs: use devm_ioremap_wc() to map framebuffer
+Date: Mon,  9 Sep 2024 21:16:43 +0800
+Message-ID: <20240909131643.28915-1-yan.y.zhao@intel.com>
+X-Mailer: git-send-email 2.43.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB8297:EE_|PH7PR12MB7428:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9f16af8f-7084-4700-8a75-08dcd0b26815
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?SHk2MHArMkFTSTRsdmxxNUVack1jVFh5aG4zb00yL0t1a1lCc2w0QWdRamtv?=
- =?utf-8?B?WkxnZVA1T0IzWEF1L0Z2NGNSZFdhZndmTitqc1orSXZHK3ZtbEhUMUZ0eUhH?=
- =?utf-8?B?R1VMRmdNMFZoNWFPbTZCQlUwZ0NYTU16VXc4ZkNOZDNiWHdKVTNzZUN3SXRi?=
- =?utf-8?B?ekROMVZPNEdXUFFUbmVGaHpjUzN5ZmJtSVpJcmhoVU9SWUlJM1NCZWlTM3Nk?=
- =?utf-8?B?VkdBYjIyWkFZTm9KYmdqMjNENHhLTTZVOENubFE1dE9EVUVmOERXZmpzYkxW?=
- =?utf-8?B?VU9wSE5FNnZzaUxWSGQzMk9HYnZBR1ZPSGV5UjVQYm1HZmtJaXZoVFBadUhB?=
- =?utf-8?B?UFdaL0ZHRmdCUWMrbm1jclZqakVVWVVsNTFhMXlOOVV0ZnAwWXVOUkNjT1Zp?=
- =?utf-8?B?WlNYRDlYMUVoeHAvZFNxKzRHdmY1VFFNbFRMekY4KzF2NldTQnp0SWVTSmNR?=
- =?utf-8?B?ZVBGOUZVY2VKMk9hSW8ybTRsZ1JwNC83TXpobEFiVmNlVDF2MmF0N29va3Nq?=
- =?utf-8?B?RUxEc2ZEVlRCRlZtVDFkWjBCVE5kdWh2c3FYTmRGVi9xM1FyQ0txM0J3SWtj?=
- =?utf-8?B?ekRmRGpmUUxGazRhUkxsRDUrTDdVQkRIdld0cGlmUk04TU9OL2Z3VitRWHpR?=
- =?utf-8?B?TnQxdUcyVVMvbEZvZ1QwdFpaa2R2OHZJWG9IS2xVbUV3MHlYTzkzZjVUV01C?=
- =?utf-8?B?Y1U3WXJubU82VHRKQk0rNUNZa0duL1o3YnpJbzRIR2IvWGdVYlZSbXZGSGhB?=
- =?utf-8?B?azdzYW5mcDd6WmFaRisyODVtYmRJVHRubDFTT2JUL2FhZWpURi82Q1ZXQVlB?=
- =?utf-8?B?SW5FQi9vOEZNdmw2ZUlUY3kyKzVmYXJFbW82VTJoQUdRZjQ0M0hsOWkybnJI?=
- =?utf-8?B?RjZhUldWL2ZOck1nVFhSK3pKNnV3OVo0S3FHLzNvN3FTeGRvc1kzaFB6Tm5t?=
- =?utf-8?B?UGw5V0ZocTQ2MGNXdDdaMXdhYzBrOUhVVnRReWduaG9nUiszVjFKc0V0Z3ZZ?=
- =?utf-8?B?YzRxcnJZZ0h6alJmVWNFVmwwN3BYTVZjeGdsTmxWTTJINTltWVlTOUJ1TWVS?=
- =?utf-8?B?TnNFdTlvWjgzRVhNY3BSWTRVd2xFVVRLVkFMaFpiR0tHay9UU29IbnRRcG45?=
- =?utf-8?B?OUxPRUhUM1NjU09UZDk0NGpldDJmLzRLN04zWjZUVGNjYjJNa1JmSmNmMkk0?=
- =?utf-8?B?QU9nVVNXS1p4MThRVWFXUWhoY0NlL2E4RUdYWW02RTExZWRPQ2hjYXN6OHpa?=
- =?utf-8?B?VkhNK0Y1UUlNaEE4ODRPemVRejE1KzdIK2dRUXZoeWtyemVycWplU0JKT1pz?=
- =?utf-8?B?a0lxZGFxczFjME5uYWRiQjJRYURKZzVDQUh6eXB1V0NNemtRMTVOOUx0Q21H?=
- =?utf-8?B?QUhmS2RSMUJzdGhGVysveFIySktTaDFwWlJmUFRoMXZlNWsrMlZvc3hPV1lM?=
- =?utf-8?B?eEVsV0lCUXZXcGJkdElWYUJ1UjJGZ2tuUmtDTE5SQ05zaXJzYVRxeEx1RXdW?=
- =?utf-8?B?dVN6N3ZhZ1BOZnF2R2dCNFNtczZCNUgvWnpCakJlcUZCU0x4b0p3UklOaE9s?=
- =?utf-8?B?d0o1RzBZK2gwL3Z5RHp2RzB4TWdBUWJoUTZGejdibFlJOXR5c1RydlY4VGM0?=
- =?utf-8?B?OFQrb25HOCt2YVdodk42T0tQamgwZmlONjRRL0pXTFZPK0J4Z0NLZEF4TUxL?=
- =?utf-8?B?bUtzNjM0ZTNZVklVWDltTW1QQUt3MGUzTmd6RUxJRGJTeFlNNGYxcklRNStp?=
- =?utf-8?B?c2VJUGxjWTFsUXpZUUZsUGZUcERXZGZVK0d5d0hsNzBpRTAwS0VtY1h2blQ1?=
- =?utf-8?B?ZDBnNUpNQ2NOWENDaG1rQT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8297.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?bW5OdU9KUzlKdDFFUGhhSDh1eTFsbE4ybWhPRUFvREVxcVo2b1lJUFBZeFY4?=
- =?utf-8?B?WEdiQnNIN05IVkNoUVkyaEg0Szg3VndYSExTL1dKS1VtWEE3RXlPNlovQXZZ?=
- =?utf-8?B?UVpUbmRaRkZ0bm93eENvSFE2TG1HNGU1eUxXWk0wNTBkcU0vTGdUOHUrNEh4?=
- =?utf-8?B?Z1BYei9aRGlScXZrSndSU1BtS3JpME1KdWlrOUZESSs1YVR5RlJHQk5XTzA1?=
- =?utf-8?B?Qk5tNUpWcmdYNmdPcTNyWmdXT0FXMlBnaURtdUtXSU50ZWxYTVBLeENyMEUz?=
- =?utf-8?B?bDNSMk5mVkRxeWJja0ttVEViYUxCRDIzZ3d0V2hJcmQ2S3Q3ZUJ5VVhDZU5t?=
- =?utf-8?B?RW9wbGxQOEs4ZGxES1gvWDQ5WlhPVVZoQ3FUeWUwS1dQdC9pemZhaTJhVUsx?=
- =?utf-8?B?VlZyUEtYQ2RBM0FwN3ovNVlsaURCcGJuVG1IVTRrUWMxaEk1RXRhcWxoMmpv?=
- =?utf-8?B?RmxGM3JkQ0szN1g4Y1doNEt0ajRoZHIycXp1UGRYYXh0YnBEOVBMdU9ZRWpq?=
- =?utf-8?B?R0JrREo3UzgwSzhYUUxGdksvQ3hZbHF5Z2JxdVNXbGRBci9CT0lQelh3WWR6?=
- =?utf-8?B?eTg4VTBkeGRaczNVa2FvUFVxTENKOURFckh0YUk1N0J6d2FJMVVGNlkySDFE?=
- =?utf-8?B?OGljVkVmSHdJbTcraGNycUdUcEhnY3Fudy9lbU50OTBDeitOdG01aG8wN3VT?=
- =?utf-8?B?RW5ncHlHOTVBdW9WMjMzdXZGL0Zob1ZjZHlFRHJ4QjNGN3I4Ni9Kc1NGemFY?=
- =?utf-8?B?cVVQSWNHQkxyMnpVMkRuNmxlSVFEMUNmaCttblcwd2RZUk5QN1hNcDNRM2h1?=
- =?utf-8?B?TUJFVkJnRnBkR2NkSjFhMStrd040Wk0xaWpFTlBULzdrbjBic2FqRUpjQy9U?=
- =?utf-8?B?anZqWDdkbXFEanhRVFllU00rUE13dnpuMms0d3lVVTN4eml1N2M2V0d2OE5s?=
- =?utf-8?B?VTgyakE1TWVyM00wYlgrUjkxRGRZZEtUbW9SRFNCUlNOM3pDbjE4S3F0MTRD?=
- =?utf-8?B?UXFoVWtsOVF5N2tJbHRObXUwKzA3cWozTEhTMU9xWUtGTUw0REh4dlNKTWZ4?=
- =?utf-8?B?c2lyY2hSYkI0OEIxMWdqa2dUTkUyaDBsaTNjVVVkZlAzbWcrQzZjZ0FIejd2?=
- =?utf-8?B?UUJKQjVsUy9vZktjS0M1bzFaVGVkSVgwSEw0bStoQ05BMVM0MDArNGhqek0z?=
- =?utf-8?B?c3oxL0tvb01YemFzY09ON25xdGRhbHJZQnRRQmJtb20zUFNFcU0walJ3QmJm?=
- =?utf-8?B?TlZlZHJUSGlialphbXhmQWk2b21uRUlJenR5ejgzMEZYVWJxOGREZGVLWE9R?=
- =?utf-8?B?aGR5T1pOUFdmejhWM3RrUllqRzd6OXNUU1ljUkxwNVl6cG1QV0craDlUaUxh?=
- =?utf-8?B?bHdhM2ZmMFloSmJUYTNNQzBwclcyK0Zub3ZEWERTU0xPMFRVb3lzRVpVN3dP?=
- =?utf-8?B?eHF5R2tzV2ZaeGhFSHQrc0ROaG00K09mdTkwQkpUYjdWZWttNStmM09KS1RB?=
- =?utf-8?B?VVJJL3RrRHRWUGRXd21sSjBNOUJ5VU8zNEtubmF5ZE1DZkhndFh6Vzh3d2pZ?=
- =?utf-8?B?S3JPdkRncHo3bk92a0ZaYi9zUy8yVVRnL3U1ZGxMWm84VWJNbENUNld4Q3lz?=
- =?utf-8?B?SjJ5blVOQzNSSWs4OFplMlhYNVg1M2lLSExUWEVxdGZFZE9acVpBNE50VmVO?=
- =?utf-8?B?Y1hkTHBIaTdVZFRkd3NtYjJmWiszaVBDNHFZVHNaek5vY2pDcWU2N2ZDODlJ?=
- =?utf-8?B?Yk5yL0pibVB6QkhlWllrQmpLY0l0SCtTVDhCenphMFU0dWlPWW9OeDVLeWg4?=
- =?utf-8?B?eUVxekpLY0cvL2lVUmxITW9iNmN1UWJ4YnZzaVFmekVnZnJibnpNZHF5aXox?=
- =?utf-8?B?UDlzU3c5dXlhZzdLaVZ5ODloNUo4eSsvMTNwR0hraFBWUUYxaDNIZTMvb2Zv?=
- =?utf-8?B?L0lGSE1ZVDNBU2RuWFM3WnFSa3ZicDNyMEtrS21pVVdzZzBodjdkY1BacEVE?=
- =?utf-8?B?VEh0bHFrVGw0amsrR3Y2SzF3S08zM290YjRUbjhFdWdwN3NETHJnaFVXUmFO?=
- =?utf-8?B?aVNId1REcjNqdU1iaTI5SUw1NWpRd0hiWGZuaTNQcklNY0pSWVVaZWlEanhy?=
- =?utf-8?Q?0+OD0lSsW8i4knFVK2bf4J1jk?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9f16af8f-7084-4700-8a75-08dcd0b26815
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8297.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Sep 2024 09:33:05.1130
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HnVDAvL2Hfp0lTPUjtUmavW7/NO74OqCaA+bLx2L1wZn58RNNSF+TVh8R8skMUMeWEQCPE7Yjm7/0fH9QGAa5Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7428
+Content-Transfer-Encoding: 8bit
 
+Opt for devm_ioremap_wc() over devm_ioremap() when mapping the framebuffer.
 
+Using devm_ioremap() results in the VA being mapped with PAT=UC-, which
+considerably slows down drm_fb_memcpy(). In contrast, devm_ioremap_wc()
+maps the VA with PAT set to WC, leading to better performance on platforms
+where access to UC memory is much slower than WC memory.
 
-On 16.08.24 11:01, Dragos Tatulea wrote:
-> Currently, commands that qualify as throttled can't be used via the
-> async API. That's due to the fact that the throttle semaphore can sleep
-> but the async API can't.
-> 
-> This patch allows throttling in the async API by using the tentative
-> variant of the semaphore and upon failure (semaphore at 0) returns EBUSY
-> to signal to the caller that they need to wait for the completion of
-> previously issued commands.
-> 
-> Furthermore, make sure that the semaphore is released in the callback.
-> 
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> Cc: Leon Romanovsky <leonro@nvidia.com>
-> Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Same reminder as in v1: Tariq is the maintainer for mlx5 so his review
-also counts as Acked-by.
+Here's the performance data measured in a guest on the physical machine
+"Sapphire Rapids XCC".
+With host KVM honors guest PAT memory types, the effective memory type
+for this framebuffer range is
+- WC when devm_ioremap_wc() is used
+- UC- when devm_ioremap() is used.
 
-Thanks,
-Dragos
+The data presented is an average from 10 execution runs.
 
-> ---
->  drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 21 ++++++++++++++-----
->  1 file changed, 16 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-> index 20768ef2e9d2..f69c977c1569 100644
-> --- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-> +++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-> @@ -1882,10 +1882,12 @@ static int cmd_exec(struct mlx5_core_dev *dev, void *in, int in_size, void *out,
->  
->  	throttle_op = mlx5_cmd_is_throttle_opcode(opcode);
->  	if (throttle_op) {
-> -		/* atomic context may not sleep */
-> -		if (callback)
-> -			return -EINVAL;
-> -		down(&dev->cmd.vars.throttle_sem);
-> +		if (callback) {
-> +			if (down_trylock(&dev->cmd.vars.throttle_sem))
-> +				return -EBUSY;
-> +		} else {
-> +			down(&dev->cmd.vars.throttle_sem);
-> +		}
->  	}
->  
->  	pages_queue = is_manage_pages(in);
-> @@ -2091,10 +2093,19 @@ static void mlx5_cmd_exec_cb_handler(int status, void *_work)
->  {
->  	struct mlx5_async_work *work = _work;
->  	struct mlx5_async_ctx *ctx;
-> +	struct mlx5_core_dev *dev;
-> +	u16 opcode;
->  
->  	ctx = work->ctx;
-> -	status = cmd_status_err(ctx->dev, status, work->opcode, work->op_mod, work->out);
-> +	dev = ctx->dev;
-> +	opcode = work->opcode;
-> +	status = cmd_status_err(dev, status, work->opcode, work->op_mod, work->out);
->  	work->user_callback(status, work);
-> +	/* Can't access "work" from this point on. It could have been freed in
-> +	 * the callback.
-> +	 */
-> +	if (mlx5_cmd_is_throttle_opcode(opcode))
-> +		up(&dev->cmd.vars.throttle_sem);
->  	if (atomic_dec_and_test(&ctx->num_inflight))
->  		complete(&ctx->inflight_done);
->  }
+Cycles: Avg cycles of executed bochs_primary_plane_helper_atomic_update()
+        from VM boot to GDM show up
+Cnt:    Avg cnt of executed bochs_primary_plane_helper_atomic_update()
+        from VM boot to GDM show up
+T:      Avg time of each bochs_primary_plane_helper_atomic_update().
+
+ -------------------------------------------------
+|            | devm_ioremap() | devm_ioremap_wc() |
+|------------|----------------|-------------------|
+|  Cycles    |    211.545M    |   0.157M          |
+|------------|----------------|-------------------|
+|  Cnt       |     142        |   1917            |
+|------------|----------------|-------------------|
+|  T         |    0.1748s     |   0.0004s         |
+ -------------------------------------------------
+
+Note:
+Following the rebase to [3], the previously reported GDM failure on the
+VGA device [1] can no longer be reproduced, thanks to the memory management
+improvements made in [2]. Despite this, I have proceeded to submit this
+patch because of the noticeable performance improvements it provides.
+
+Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Closes: https://lore.kernel.org/all/87jzfutmfc.fsf@redhat.com/#t
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
+Link: https://lore.kernel.org/all/87jzfutmfc.fsf@redhat.com/#t [1]
+Link: https://patchwork.freedesktop.org/series/138086 [2]
+Link: https://gitlab.freedesktop.org/drm/misc/kernel/-/tree/drm-misc-next [3]
+---
+v2:
+- Rebased to the latest drm-misc-next branch. [2]
+- Updated patch log to match the base code.
+
+v1: https://lore.kernel.org/all/20240909051529.26776-1-yan.y.zhao@intel.com
+---
+ drivers/gpu/drm/tiny/bochs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index 69c5f65e9853..9055b1dd66df 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -268,7 +268,7 @@ static int bochs_hw_init(struct bochs_device *bochs)
+ 	if (!devm_request_mem_region(&pdev->dev, addr, size, "bochs-drm"))
+ 		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+ 
+-	bochs->fb_map = devm_ioremap(&pdev->dev, addr, size);
++	bochs->fb_map = devm_ioremap_wc(&pdev->dev, addr, size);
+ 	if (bochs->fb_map == NULL) {
+ 		DRM_ERROR("Cannot map framebuffer\n");
+ 		return -ENOMEM;
+-- 
+2.43.2
 
