@@ -1,137 +1,132 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3205A3D76
-	for <virtualization@lists.linux.dev>; Mon,  9 Sep 2024 03:16:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52161B658
+	for <virtualization@lists.linux.dev>; Mon,  9 Sep 2024 05:17:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725851781; cv=none; b=m8z044TEaoglC+f7fgvOtPFPBR+pnbsJiBYCQvgZZSRPONT7k84niNxkpekuLauVDbA0MM+4pU1ahbuvfTSalQ61NbKL6wDoN00tQG85axKo7xfDkWX4VeJirv1mCH5wXqWTbYhkxLbXqM2+qidlWH9miXYGG+EqqkFoGZLPTes=
+	t=1725859055; cv=none; b=RjFmXcs6OdPwjzVA1XCSaKRNezR+wkqECmfAsBxo8E7dDu/qt0HUMosmzYE79QE5JHt1XQ3UI+Ye3j2HAK/rycYh2h8DlU6bRti4f1vqqZy/5CHVOSYQydFDFiswJn/uYeiLN0lxEYYm3MZjMhudH8m8mFRG//h/ZS88+nUrEUg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725851781; c=relaxed/simple;
-	bh=mHEfWUcqpqEDcwGW9qMcOoPMFUvkd9gn6ybAjDCEpIk=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=V2v+10ksKGtsZfnHjpzeqlmi08nGOPNoMt88KcXcScOtQ9nX7gyUxPvseHjucZTivwGorhWBhX7Stz7XeFau6gf5Cm/jf2CoEz4dBBc8wqrGx24/iAy3XSLXoigvWRQMqpBdw90EKwibhGndv2P0oj4Shnjrieqrs+joAK8Mh1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=XX5vFK6z; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1725859055; c=relaxed/simple;
+	bh=AsITGqxUQXjtOn3KpKG/emlPoDKBEPY4qyUPEUyEKUQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AnCAzAO/8UhdYatecHtS4RQwUP0Ut8nWCF5kGnQOcpSAZZ5NVhLgJsSYIkxkhQfeI2wrqKruu/gLSAso7S5TNornZmcxsG1KuCprmpxzF9r96nQTQ3Co8wjWl0aVxg79D4bOw/A25XLCZymwOYpwoICI5xggwVl2qKKeuBBzBUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SgfaDt55; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="XX5vFK6z"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1725851776; h=Message-ID:Subject:Date:From:To;
-	bh=ZeSNuigf8WiZfgXybb5AzOBZyCSo9n96BaNzBxxe08E=;
-	b=XX5vFK6zrhm68NortTcZr70ZfcFrmb4uOf1pO3NeDvXRcJULYQWCNv0W1SxEsnI+nyu121b6V0noloRE0qsKnRtc2qJQvveQNg+cDQsQJvN7sLjhtGn/lA5FpZ01nF1S1MQiYi18rOC4R8R9hYgLQ/e0AFd/rHwjAy7Cx03snow=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEWEqx3_1725851775)
-          by smtp.aliyun-inc.com;
-          Mon, 09 Sep 2024 11:16:15 +0800
-Message-ID: <1725851336.7999291-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
-Date: Mon, 9 Sep 2024 11:08:56 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org,
- Jason Wang <jasowang@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev,
- "Si-Wei Liu" <si-wei.liu@oracle.com>,
- Darren Kenny <darren.kenny@oracle.com>
-References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
- <20240908153930-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240908153930-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SgfaDt55"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1725859054; x=1757395054;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=AsITGqxUQXjtOn3KpKG/emlPoDKBEPY4qyUPEUyEKUQ=;
+  b=SgfaDt554JMHUHc2TrsZ2tsBmbP2gDilg2ICD8vLiTtQaal30RI2/tom
+   FgTCtGms8KQx0HXV+mG6IwlxlEevy+Z2KNFsi84JO9pJQqqruyU8eCRlO
+   KFWi2PNw/oG5vRBUUXf45AvOEFwZ6gEPkPyBDMnNwx5ExLIEdiArQQbAe
+   1ovBkZfRvYvD2w6y4hGmkuG8ZBRFlsfsH3vaxMTmU7L9sgtL56YY2Lr7Q
+   O/n3oHzMztXM/uWqSXOifjGczAWuZJhb4EFsc30Ycy9sBkBhU+oXPsv3R
+   NmfSj+tJgUCIvvE9XFa58sbeZnCdquBv5joRAolPP8on6ZAzD1F+GS5L/
+   A==;
+X-CSE-ConnectionGUID: Uq+QLKU8REGIGmyccmNyQg==
+X-CSE-MsgGUID: wyKHOnXSRHyQ2GDfNauAGw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11189"; a="24406635"
+X-IronPort-AV: E=Sophos;i="6.10,213,1719903600"; 
+   d="scan'208";a="24406635"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2024 22:17:33 -0700
+X-CSE-ConnectionGUID: neJiYUOBQ/mmhdmgCmLFOA==
+X-CSE-MsgGUID: mPR6cIWkSu+x+gdKx/x5ig==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,213,1719903600"; 
+   d="scan'208";a="66772048"
+Received: from yzhao56-desk.sh.intel.com ([10.239.159.62])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2024 22:17:30 -0700
+From: Yan Zhao <yan.y.zhao@intel.com>
+To: kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org
+Cc: pbonzini@redhat.com,
+	seanjc@google.com,
+	kvm@vger.kernel.org,
+	Yan Zhao <yan.y.zhao@intel.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Kevin Tian <kevin.tian@intel.com>
+Subject: [PATCH] drm/bochs: use ioremap_wc() to map framebuffer during driver probing
+Date: Mon,  9 Sep 2024 13:15:29 +0800
+Message-ID: <20240909051529.26776-1-yan.y.zhao@intel.com>
+X-Mailer: git-send-email 2.43.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Sun, 8 Sep 2024 15:40:32 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Aug 20, 2024 at 03:19:13PM +0800, Xuan Zhuo wrote:
-> > leads to regression on VM with the sysctl value of:
-> >
-> > - net.core.high_order_alloc_disable=1
-> >
-> > which could see reliable crashes or scp failure (scp a file 100M in size
-> > to VM):
-> >
-> > The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> > of a new frag. When the frag size is larger than PAGE_SIZE,
-> > everything is fine. However, if the frag is only one page and the
-> > total size of the buffer and virtnet_rq_dma is larger than one page, an
-> > overflow may occur. In this case, if an overflow is possible, I adjust
-> > the buffer size. If net.core.high_order_alloc_disable=1, the maximum
-> > buffer size is 4096 - 16. If net.core.high_order_alloc_disable=0, only
-> > the first buffer of the frag is affected.
-> >
-> > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
-> > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-> > Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->
->
-> BTW why isn't it needed if we revert f9dac92ba908?
+Use ioremap_wc() instead of ioremap() to map framebuffer during driver
+probing phase.
 
+Using ioremap() results in a VA being mapped with PAT=UC-. Additionally,
+on x86 architectures, ioremap() invokes memtype_reserve() to reserve the
+memory type as UC- for the physical range. This reservation can cause
+subsequent calls to ioremap_wc() to fail to map the VA with PAT=WC to the
+same physical range for framebuffre in ttm_kmap_iter_linear_io_init().
+Consequently, the operation drm_gem_vram_bo_driver_move() ->
+ttm_bo_move_memcpy() -> ttm_move_memcpy() becomes significantly slow on
+platforms where UC memory access is slow.
 
-This patch fixes the bug in premapped mode.
+Here's the performance data measured in a guest on the physical machine
+"Sapphire Rapids XCC".
+With host KVM honors guest PAT memory types, the effective memory type
+for this framebuffer range is
+- WC when ioremap_wc() is used in driver probing phase
+- UC- when ioremap() is used.
 
-The revert operation just disables premapped mode.
+The data presented is an average from 10 execution runs.
+The memcpy range for the data is
+mem->bus.offset=0xfd000000, mem->size=0x3e8000.
 
-So I think this patch is enough to fix the bug, and we can enable
-premapped by default.
+--------------------------------------------------------------
+                              |      in bochs_hw_init()       |
+                              |    ioremap()   | ioremap_wc() |
+------------------------------|----------------|--------------|
+    cycles of                 |    2227.4M     |   17.8M      |
+drm_gem_vram_bo_driver_move() |                |              |
+------------------------------|----------------|--------------|
+    time of                   |    1.24s       |   0.01s      |
+drm_gem_vram_bo_driver_move() |                |              |
+--------------------------------------------------------------
 
-If you worry about the premapped mode, I advice you merge this patch and do
-the revert[1]. Then the bug is fixed, and the premapped mode is
-disabled by default, we can just enable it for af-xdp.
+Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Closes: https://lore.kernel.org/all/87jzfutmfc.fsf@redhat.com/#t
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
+---
+ drivers/gpu/drm/tiny/bochs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[1]: http://lore.kernel.org/all/20240906123137.108741-1-xuanzhuo@linux.alibaba.com
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index 31fc5d839e10..6414f0a72f6a 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -261,7 +261,7 @@ static int bochs_hw_init(struct drm_device *dev)
+ 	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
+ 		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+ 
+-	bochs->fb_map = ioremap(addr, size);
++	bochs->fb_map = ioremap_wc(addr, size);
+ 	if (bochs->fb_map == NULL) {
+ 		DRM_ERROR("Cannot map framebuffer\n");
+ 		return -ENOMEM;
+-- 
+2.43.2
 
-Thanks.
-
-
->
-> > ---
-> >  drivers/net/virtio_net.c | 12 +++++++++---
-> >  1 file changed, 9 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index c6af18948092..e5286a6da863 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
-> >  	void *buf, *head;
-> >  	dma_addr_t addr;
-> >
-> > -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
-> > -		return NULL;
-> > -
-> >  	head = page_address(alloc_frag->page);
-> >
-> >  	dma = head;
-> > @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
-> >  	len = SKB_DATA_ALIGN(len) +
-> >  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> >
-> > +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-> > +		return -ENOMEM;
-> > +
-> >  	buf = virtnet_rq_alloc(rq, len, gfp);
-> >  	if (unlikely(!buf))
-> >  		return -ENOMEM;
-> > @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
-> >  	 */
-> >  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
-> >
-> > +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
-> > +		return -ENOMEM;
-> > +
-> > +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
-> > +		len -= sizeof(struct virtnet_rq_dma);
-> > +
-> >  	buf = virtnet_rq_alloc(rq, len + room, gfp);
-> >  	if (unlikely(!buf))
-> >  		return -ENOMEM;
-> > --
-> > 2.32.0.3.g01195cf9f
->
