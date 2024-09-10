@@ -1,173 +1,216 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A41D183CA2
-	for <virtualization@lists.linux.dev>; Tue, 10 Sep 2024 20:19:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725999574; cv=none; b=eot/51tML1OfH3NXWec5IwwhGd5Qj4R3TRyBYxscSqe3qB1xE8v7OVQed2bKgD3NVulu+QRNEdCYLCKfenNYgv0NizPSEsgpeGId+oYCsD2mdd4I0ZHZFY9JgFam0bqcn59pwZ1wJL8JNlnQ2d3tx8If4UYvdmIp+SaCLBhF1FA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725999574; c=relaxed/simple;
-	bh=8CCuLYWdWTSFpLwKxbqHrDLHqq2DH1fE8m6jNkhdCNY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=KKVVoaJ7CILBUBMvDzx1ElmMJ2PbtNhX/rd8+TyrIjwgxjYQlALAfxpgTX/I46Bxh+jtVoFc4KX0PyMK3e2eLTF9WSkimnvsGvn8nu6s0v6DXE4+A91WeCM4E70gAmebN4Gyb3FmKxIIdUL50IOVCkXxEOmNko4ZCUTIQdk0pio=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MLzM4pe8; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F7931A38EE
+	for <virtualization@lists.linux.dev>; Tue, 10 Sep 2024 22:09:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1726006200; cv=pass; b=o8B8eoiBFTr54TXo2wRQ630TXgnx8j2W0hyiik56lm/WwOTMuUfhFTzA1uBfhs0h6fyGjRWhf+UT15AwlsVuyde+fM3m19tM0Q0SglfnxrtjLzImCR8SFSa1Wdt6C+qUhNAHg1HYLuLVxC3NsVUqhOlga3knKzB/MEiIPIZWtm0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1726006200; c=relaxed/simple;
+	bh=XBHjHgTsKvy/tpSrHqFIYKe8uMvqIUEyLJ74S0H/OAw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=T7fwKF70HRt9QRLqyXyUewGDswwh3VVYxnZO0c2HXSqbsEdyoWfOUq/U2Sa4zyUaV4DczWbI6KzI6TlPR39YPQ3mOOrCqXJs/AQ9ylQMqhIgZ4JgjR0DDec3c0CeKnMcFpOr+B33DrEEkFsWQq00ba2izpqjsI10Uq98gh54GxA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=C/din1z5; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MLzM4pe8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725999571;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W/Ek58qaXc13SAy2fWa0xfKNbuHUlKabbBtKkvuJifU=;
-	b=MLzM4pe8Cd6CWC1GRHcTtOTqHdfustqG23h0ZZOa4bbQKmM1E5AiMyzpi3E8U0TOnjHbZH
-	9OZUy01OSq1di7KiAIfgbHLdSwtpi0Uu7pm8v3CoOlUWIF0B+rAQ4S9cb1CN8loxsCzx83
-	aIklLZuzkKjmpYrMJN8105bdUhz55B8=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-425-Ti3muFqlOUyOlsfFQGqH2w-1; Tue, 10 Sep 2024 16:19:30 -0400
-X-MC-Unique: Ti3muFqlOUyOlsfFQGqH2w-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a8d2ecdf414so198714866b.2
-        for <virtualization@lists.linux.dev>; Tue, 10 Sep 2024 13:19:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725999568; x=1726604368;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=W/Ek58qaXc13SAy2fWa0xfKNbuHUlKabbBtKkvuJifU=;
-        b=o14C351W9oBZoXFwdmHEvEc/iLIUrIvaoD5xa3zFV5JakzNhQryub9Z4RYb8Tg4gdj
-         ue69VRDV/cTfD716EbldFC277Adw4VMFc/fZmDyDjbt6O1KxKRklUav6QwEUejFlGm8y
-         GBJ5EA+PBUtM3kKPjQSJTAFMuon8dhp84b0sspkT9TCHbDh+DrIeCs6eo6XxAEdpiB0U
-         o/L+0RM/1H4hNtjmmRliUnsiGWWQuDVSlGiNl0Ot1jbwu/nydR+zxC8oqN6W3SWhIdOe
-         jDi/cWAMmyxnJjkTYFU8FpY/M3mjSktSa7qQcZN76Jts5vA/S0c6vgMnMc0UI3ArtTp5
-         SByw==
-X-Forwarded-Encrypted: i=1; AJvYcCWE18eHiwzIO/FVXDK5aQmZgMNV/boPVi6/I9Gk9mCRWTLflJ2sdrzFvAftZPtONxLLTTGv6TaCtXCf7IAANQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyh+pjuZfQK2D0oZ2cTQD62eVa/RRH5Tbr+/rwMHsCbx7GD1vH8
-	sstRTAJWBMUOwfzAUbN6R3kTVxvCAhaGHQFbl59yBbBEGUf/DVn3lhXxBuXiIYMz2YJUf7k8Z0V
-	JP8Jv692qXprFDNMauNEw6uRvNSVObzrV/0oU/bD0qbM44xAeYdbJvD7MMrAOyHFK
-X-Received: by 2002:a17:907:9812:b0:a88:b90b:bd5e with SMTP id a640c23a62f3a-a8ffaaacfa1mr185691766b.3.1725999568239;
-        Tue, 10 Sep 2024 13:19:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHIpn+zlExuTE3yAX+xjiMRNjjie27yYDse9XLe2ciVUQSSxwhcmURZ5WywfpEvPrJPhC6Cgg==
-X-Received: by 2002:a17:907:9812:b0:a88:b90b:bd5e with SMTP id a640c23a62f3a-a8ffaaacfa1mr185687666b.3.1725999567396;
-        Tue, 10 Sep 2024 13:19:27 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:176:f5ce:2d9:5bfa:9916:aa0a])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a8d25c62485sm519926966b.104.2024.09.10.13.19.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Sep 2024 13:19:26 -0700 (PDT)
-Date: Tue, 10 Sep 2024 16:19:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v1 0/5] virtio-mem: s390x support
-Message-ID: <20240910161847-mutt-send-email-mst@kernel.org>
-References: <20240910191541.2179655-1-david@redhat.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="C/din1z5"
+ARC-Seal: i=1; a=rsa-sha256; t=1726006191; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=V2vIcpcIauuUp5+xPbBnNJLpD4oJamgM3B3c/BfWWjH3f1WrPnHdy9dFEVdzEBONBb5/9fQPtGkNmZXLYa07fcxzeNVuLciCx8UZvsOBk4bSrKm5CSHvRlJcdtkRTjEYxMLhCZTtKrLDSINek1pFuC5gQfzfONT1JyucVwsqJNo=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1726006191; h=Content-Type:Content-Transfer-Encoding:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To:Cc; 
+	bh=xZrAGWr1vgflX2NJ6oEKbznz0eNRLLJeiY/3xI8KYt0=; 
+	b=IR9GPDs7+Ft5mTARLTAxAy70I6IWAeLLIAO3Xf0duuZmwCuoSD9tzAWJSPD2EyRsN6RqnEVmZOp/NK8S5VCM7mj+4vjUPTuh4OH9iLNFkx/ubsi94/afhQ0KZASBJJ4rtrX6MzcjgpZ10sP0ibzY+XYf4eBwR8tTEVuG2fHiREM=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1726006191;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To:Cc;
+	bh=xZrAGWr1vgflX2NJ6oEKbznz0eNRLLJeiY/3xI8KYt0=;
+	b=C/din1z5WK8a0WJ56TVzsud50b3zdn0lazw8gBbx2Zgb3uMmFADHZ0apvGeFtYjG
+	aGLsGJQtnmjfq9iHqEdyN+brZ4EqZCkEKNPbr7QJeTMzxAos/OTvwjDuKBGLcePcfbW
+	9ZTtb0OM5UAe6CCx2PenIbSEWNV2cnF1kZqlaaVs=
+Received: by mx.zohomail.com with SMTPS id 1726006189098665.9031583467041;
+	Tue, 10 Sep 2024 15:09:49 -0700 (PDT)
+Message-ID: <dc88e7b9-ff0d-4405-88d1-bd94df550ae7@collabora.com>
+Date: Wed, 11 Sep 2024 01:09:44 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240910191541.2179655-1-david@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] drm/virtio: Defer the host dumb buffer creation
+To: Jocelyn Falempe <jfalempe@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev
+References: <20240903075414.297622-1-jfalempe@redhat.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20240903075414.297622-1-jfalempe@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On Tue, Sep 10, 2024 at 09:15:34PM +0200, David Hildenbrand wrote:
-> Let's finally add s390x support for virtio-mem; my last RFC was sent
-> 4 years ago, and a lot changed in the meantime.
+On 9/3/24 10:48, Jocelyn Falempe wrote:
+> The host dumb buffer command needs a format, but the
+> DRM_IOCTL_MODE_CREATE_DUMB only provides a buffer size.
+> So wait for the DRM_IOCTL_MODE_ADDFB(2), to get the format, and create
+> the host resources at this time.
 > 
-> This is based on mm/stable.
+> This will allow virtio-gpu to support multiple pixel formats.
 > 
-> I sent out the QEMU part earlier today [1], that contains some more details
-> and a usage example on s390x (last patch).
+> This problem was noticed in commit 42fd9e6c29b39 ("drm/virtio: fix
+> DRM_FORMAT_* handling")
 > 
-> There is not too much in here: The biggest part is querying a new diag(500)
-> STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end". Once this
-> and the QEMU part will go upstream, it will get documented in [2]
+> Suggested-by: Gerd Hoffmann <kraxel@redhat.com>
+> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+> ---
 > 
-> The last two patches are not strictly required but certainly nice-to-have.
+> v2:
+>  * Move virtio_gpu_object deferred field to its own block (Geerd Hoffmann)
+>  * Check that the size of the dumb buffer can hold the framebuffer (Geerd Hoffmann)
 > 
-> Note that -- in contrast to standby memory -- virtio-mem memory must be
-> configured to be automatically onlined as soon as hotplugged. The easiest
-> approach is using the "memhp_default_state=" kernel parameter or by using
-> proper udev rules. More details can be found at [3].
+>  drivers/gpu/drm/virtio/virtgpu_display.c | 33 ++++++++++++++++++++++++
+>  drivers/gpu/drm/virtio/virtgpu_drv.h     |  5 ++++
+>  drivers/gpu/drm/virtio/virtgpu_gem.c     |  1 -
+>  drivers/gpu/drm/virtio/virtgpu_object.c  | 13 +++++++---
+>  4 files changed, 47 insertions(+), 5 deletions(-)
 > 
-> I have reviving+upstreaming a systemd service to handle configuring
-> that on my todo list, but for some reason I keep getting distracted ...
-> 
-> I tested various things, including:
->  * Various memory hotplug/hotunplug combinations
->  * Device hotplug/hotunplug
->  * /proc/iomem output
->  * reboot
->  * kexec
->  * kdump: make sure we don't hotplug memory
-> 
-> One remaining work item is kdump support for virtio-mem memory. I
-> am working on a prototype that will be fairly straight forward,
-> because the virtio-mem driver already supports a special kdump mode and
-> dracut will already include it in the initrd as default. With
-> holiday and conferences coming up I rather sent this out now.
-> 
-> [1] https://lkml.kernel.org/r/20240910175809.2135596-1-david@redhat.com
-> [2] https://gitlab.com/davidhildenbrand/s390x-os-virt-spec
-> [3] https://virtio-mem.gitlab.io/user-guide/user-guide-linux.html
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Thomas Huth <thuth@redhat.com>
-> Cc: Cornelia Huck <cohuck@redhat.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Cc: "Eugenio Pérez" <eperezma@redhat.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+> index 64baf2f22d9f0..5e8ca742c6d00 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+> @@ -290,6 +290,30 @@ static int vgdev_output_init(struct virtio_gpu_device *vgdev, int index)
+>  	return 0;
+>  }
+>  
+> +static int virtio_gpu_deferred_create(struct virtio_gpu_object *bo,
+> +				      struct virtio_gpu_device *vgdev,
+> +				      const struct drm_mode_fb_cmd2 *mode_cmd)
+> +{
+> +	struct virtio_gpu_object_params params = { 0 };
+> +
+> +	params.format = virtio_gpu_translate_format(mode_cmd->pixel_format);
+> +	params.dumb = true;
+> +	params.width = mode_cmd->width;
+> +	params.height = mode_cmd->height;
+> +	params.size = params.height * params.width * 4;
+> +	params.size = ALIGN(params.size, PAGE_SIZE);
+> +
+> +	if (params.size > bo->base.base.size)
+> +		return -EINVAL;
+> +
+> +	virtio_gpu_cmd_create_resource(vgdev, bo, &params, NULL, NULL);
+> +	virtio_gpu_object_attach(vgdev, bo, bo->ents, bo->nents);
+> +
+> +	bo->deferred = false;
+> +	bo->ents = NULL;
+> +	return 0;
+> +}
+> +
+>  static struct drm_framebuffer *
+>  virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+>  				   struct drm_file *file_priv,
+> @@ -297,6 +321,8 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+>  {
+>  	struct drm_gem_object *obj = NULL;
+>  	struct virtio_gpu_framebuffer *virtio_gpu_fb;
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
+> +	struct virtio_gpu_object *bo;
+>  	int ret;
+>  
+>  	if (mode_cmd->pixel_format != DRM_FORMAT_HOST_XRGB8888 &&
+> @@ -308,6 +334,13 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+>  	if (!obj)
+>  		return ERR_PTR(-EINVAL);
+>  
+> +	bo = gem_to_virtio_gpu_obj(obj);
+> +	if (bo->deferred) {
+> +		ret = virtio_gpu_deferred_create(bo, vgdev, mode_cmd);
+> +		if (ret)
+> +			return ERR_PTR(ret);
+> +	}
+> +
+>  	virtio_gpu_fb = kzalloc(sizeof(*virtio_gpu_fb), GFP_KERNEL);
+>  	if (virtio_gpu_fb == NULL) {
+>  		drm_gem_object_put(obj);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index 64c236169db88..4302933e5067c 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -95,6 +95,11 @@ struct virtio_gpu_object {
+>  	bool host3d_blob, guest_blob;
+>  	uint32_t blob_mem, blob_flags;
+>  
+> +	/* For deferred dumb buffer creation */
+> +	bool deferred;
+> +	struct virtio_gpu_mem_entry *ents;
+> +	unsigned int nents;
+> +
+>  	int uuid_state;
+>  	uuid_t uuid;
+>  };
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> index 7db48d17ee3a8..33ad15fed30f6 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> @@ -75,7 +75,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+>  	args->size = pitch * args->height;
+>  	args->size = ALIGN(args->size, PAGE_SIZE);
+>  
+> -	params.format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
 
+This will break the guest blob code path in virtio_gpu_object_create(),
+AFAICT.
 
-It's mostly s390 changes, so should be merged through that tree.
-I acked the only virtio specific patch.
+>  	params.width = args->width;
+>  	params.height = args->height;
+>  	params.size = args->size;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+> index c7e74cf130221..b5a537a761294 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> @@ -67,6 +67,8 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+>  
+>  	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
+>  	if (virtio_gpu_is_shmem(bo)) {
+> +		if (bo->deferred)
+> +			kvfree(bo->ents);
+>  		drm_gem_shmem_free(&bo->base);
+>  	} else if (virtio_gpu_is_vram(bo)) {
+>  		struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
+> @@ -228,10 +230,13 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+>  		virtio_gpu_cmd_resource_create_3d(vgdev, bo, params,
+>  						  objs, fence);
+>  		virtio_gpu_object_attach(vgdev, bo, ents, nents);
+> -	} else {
+> -		virtio_gpu_cmd_create_resource(vgdev, bo, params,
+> -					       objs, fence);
+> -		virtio_gpu_object_attach(vgdev, bo, ents, nents);
+> +	} else if (params->dumb) {
+> +		/* Create the host resource in virtio_gpu_user_framebuffer_create()
+> +		 * because the pixel format is not specified yet
+> +		 */
+> +		bo->ents = ents;
+> +		bo->nents = nents;
+> +		bo->deferred = true;
+>  	}
 
-> David Hildenbrand (5):
->   s390/kdump: implement is_kdump_kernel()
->   s390/physmem_info: query diag500(STORAGE_LIMIT) to support QEMU/KVM
->     memory devices
->   virtio-mem: s390x support
->   lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390x
->   s390/sparsemem: reduce section size to 128 MiB
-> 
->  arch/s390/boot/physmem_info.c        | 46 ++++++++++++++++++++++++++--
->  arch/s390/include/asm/kexec.h        |  4 +++
->  arch/s390/include/asm/physmem_info.h |  3 ++
->  arch/s390/include/asm/sparsemem.h    |  2 +-
->  arch/s390/kernel/crash_dump.c        |  6 ++++
->  drivers/virtio/Kconfig               | 12 ++++----
->  lib/Kconfig.debug                    |  2 +-
->  7 files changed, 64 insertions(+), 11 deletions(-)
-> 
-> -- 
-> 2.46.0
+AFAICS, the "params.dumb = true" should be set in
+virtio_gpu_mode_dumb_create() and not in virtio_gpu_deferred_create().
+Was this patch tested?
+
+Overall, this deferred resource creation doesn't look robust. Could be
+better to either add SET_SCANOUT2 with the format info or add cmd that
+overrides the res fmt.
 
