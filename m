@@ -1,188 +1,137 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54E6E18E754
-	for <virtualization@lists.linux.dev>; Mon,  9 Sep 2024 23:53:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63BAB158DB2
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Sep 2024 05:13:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725925989; cv=none; b=ChxmVvu8V5/uUonb64EbijonqgyyMrxdwLTdK+wwUfGK9jiBnAhZ4/M2/cOv1npaHH5KwRWlo04YKBKY762Jb6tEaWO6OG6JjYJgnlWihfEQnxAQ+2q1HszOqj6dtrc3Iyd/N0LyiBJQvytjXOO1F91KXJUwW0+uxN4VqxhhqVk=
+	t=1725945215; cv=none; b=eW6q6/KpMT2LXSZnmb7duTU5NN+SjDMZGZab2JGVA/eV4cTgYbQrjBtwcXX28k78XtnNqYINUQGjwYSGLdAs/hDAkODcnKGKBgYqbZYfyQTBqmww6zwo4yM/c3yzJyYLpbZaGHBHAY6DOIedsk3E8uW9OKvh3Ydugur/GZAaYNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725925989; c=relaxed/simple;
-	bh=93DJqojuKjkTdhcHgvdkzwZLsPNskOSznfMdg8BeRjI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tGRA8AHpNZ2cN5ZI2g57y+grsid4aZ5E3/sfDAFdFks1btg8WFX9H29ZtGqOUPH8ZbvFSTrqsWvxo3UVI6ORCvsQ1jm1j6rd5T0YOjQkMRUsh7zzDKdd9a3dLJLErmKNHaFejF68xgy33bBTx179aVwitbfuI1q1IuQf8qDpNAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=bWxclG8/; arc=none smtp.client-ip=209.85.222.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1725945215; c=relaxed/simple;
+	bh=SuuZllRm35ADvfaTLAuyMG97Is+OLQc+Q2WWo5c4Rp0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o+ugdQSJbjYrrb1+inYLl6WN6h7+1pe0siEBWAO9tG6GPUmImlc6AOnJ12RYPASHzf87OvJUX1HKK/R91oWKuXUJBqXPamuTF/J0GRlx3OKXaTFqinO5rCUfVzK0rZJXInwqqmvh8FoJnm1sBEGOsnDjcJZjhEVqDNmu9EvE/ac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hK/FBEfP; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="bWxclG8/"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-7a9aec89347so121078785a.0
-        for <virtualization@lists.linux.dev>; Mon, 09 Sep 2024 16:53:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1725925986; x=1726530786; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5txSkUam2KVmJ0zi846w3pJlJlmv+1vLotb8f8z6fXo=;
-        b=bWxclG8/gWAolrEf4Y61knmtyQK2Dj9xq8PFY+ZpOg4fjH8dRtRLdy723xjmIGE49R
-         kcdU1iK+OEEqn8wtwCsAOqaK3Ln/7PpFHD4SLMZE3DNuhesDwJi59nt9rI+te78KsPuC
-         5F0AoIGetql8ThkYOh1JSYw6DVyottsqwQTJY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725925986; x=1726530786;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5txSkUam2KVmJ0zi846w3pJlJlmv+1vLotb8f8z6fXo=;
-        b=jnUyqpEH2bmMpT87rCAYEaYsMkLHfKv6eyiRpWIYe8F9Q3Ri3VD8TQnvr4Wg9SvF5j
-         IgpyMnbLAWhBTO2kQ3f+OTRNIDVQrtpDx7askNSXMHpo98jU2UkxisLoNfhpDXJi8tDJ
-         9WV+aA1q4nryTspADrQDycz7kxFZ+5er5TO5HYcGDh+GqXLuQ1Nj/wQKUsO1myzzKM6M
-         PZP2oyO/8z/milmufCGepWqdReiPtN27vIWT2793O6xVahRc142Xg0D9aTlRT1oM2dyB
-         Tvkc3IhsP3uX+LbESJ68icJ3jYmjOuEobKhO/lHn+7Dpq4tSk/hpKHH2hzOt7zyudPdz
-         htnA==
-X-Forwarded-Encrypted: i=1; AJvYcCW41QJi2VQ98xjMHMvsHX6npxz9/NXD/I/3ZQqHYvNRiQGS+Nc0+tUb3iOyLJ6x9eVsT9N2fptQEEFaw0aiWw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw4qoxX86zSOh2yi98NCtiaoASS79SS8mPHsM6KcOgImK+n/024
-	sAJJs+UrX+UMNdbepzk0lY0d6EelTNMpe5z5MWz2lfI4UARz9tp0rQ2YLx8/ouF97Y3D4DY7hVb
-	dgOZi5m3pztC3cbXlMQCUtUYZvOppo2dcmOqu
-X-Google-Smtp-Source: AGHT+IHcZmhN6BQ2Z0+LRnxFANlmFVMKp4G/+B7owpMej9pK2QQtphdtxnpR5MG6qG2uIg8xuzf6ob271P04Zgf+Eqw=
-X-Received: by 2002:a05:620a:258c:b0:7a1:c40c:fc66 with SMTP id
- af79cd13be357-7a99738e2d9mr1772866685a.56.1725925985991; Mon, 09 Sep 2024
- 16:53:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hK/FBEfP"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 077AA40305
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Sep 2024 05:13:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id alrors5eplQ9 for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 Sep 2024 05:13:33 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 96793402FD
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 96793402FD
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=hK/FBEfP
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 96793402FD
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Sep 2024 05:13:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1725945213; x=1757481213;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=SuuZllRm35ADvfaTLAuyMG97Is+OLQc+Q2WWo5c4Rp0=;
+  b=hK/FBEfP0Ue+9cdE7h2cKJQg0Tx8d9J2dBfpmrVpeeaFTuuCltRoj4ij
+   VwKysjPJfDl8imjcyaaaWuanbKtqvqYfsdDkPtM5se6Ei+Dzu4KD2lieA
+   NITe9UJrrbmEB558Xsb4dqAZUti2/HtzrmAxqaRgyYtoCSxhyITRX8ynn
+   r9hKyQhpzfNYVlENunwn0s8ATdHu028VRdqhkgTpqCzwydMRt0qC1l7WC
+   SxZ4uV3mmsExbbaIe2Nvret1dx/7xKfoszaYGykb39GXqL2sSMpegSUTs
+   LAIB8xhTJJWjKbKWSnzZMU5F2V309MpRDLXFPBJ9PNYwYIZaQgQtON1Sk
+   Q==;
+X-CSE-ConnectionGUID: JzMNTf2XRHWrESivlWPqRw==
+X-CSE-MsgGUID: 8aAHSTNWS7K41nJdntjBpA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11190"; a="24814211"
+X-IronPort-AV: E=Sophos;i="6.10,216,1719903600"; 
+   d="scan'208";a="24814211"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2024 22:13:32 -0700
+X-CSE-ConnectionGUID: tHw762XeQ7qFiwBUe0zozA==
+X-CSE-MsgGUID: R0NOdDYlSSy3Go/mTses5w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,216,1719903600"; 
+   d="scan'208";a="66924553"
+Received: from lkp-server01.sh.intel.com (HELO 53e96f405c61) ([10.239.97.150])
+  by fmviesa009.fm.intel.com with ESMTP; 09 Sep 2024 22:13:29 -0700
+Received: from kbuild by 53e96f405c61 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sntBu-00006B-2k;
+	Tue, 10 Sep 2024 05:13:26 +0000
+Date: Tue, 10 Sep 2024 13:12:27 +0800
+From: kernel test robot <lkp@intel.com>
+To: Cindy Lu <lulu@redhat.com>, jasowang@redhat.com, mst@redhat.com,
+	michael.christie@oracle.com, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Cc: oe-kbuild-all@lists.linux.dev
+Subject: Re: [RESEND PATCH v1 1/7] vhost: Add a new module_param for enable
+ kthread
+Message-ID: <202409101256.eWKWH1mw-lkp@intel.com>
+References: <20240909020138.1245873-2-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240815004617.2325269-1-philipchen@chromium.org>
- <CA+cxXhneUKWr+VGOjmOtWERA53WGcubjWBuFbVBBuJhNhSoBcQ@mail.gmail.com> <66d89eaeb0a4b_1e9158294e1@iweiny-mobl.notmuch>
-In-Reply-To: <66d89eaeb0a4b_1e9158294e1@iweiny-mobl.notmuch>
-From: Philip Chen <philipchen@chromium.org>
-Date: Mon, 9 Sep 2024 16:52:55 -0700
-Message-ID: <CA+cxXhmexXuXJg2qgbDJO7MXqpJzuDH1_Hru=7Ei9jus=FGwew@mail.gmail.com>
-Subject: Re: [PATCH] virtio_pmem: Add freeze/restore callbacks
-To: Ira Weiny <ira.weiny@intel.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Dan Williams <dan.j.williams@intel.com>, 
-	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
-	virtualization@lists.linux.dev, nvdimm@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240909020138.1245873-2-lulu@redhat.com>
 
-Hi
+Hi Cindy,
 
-On Wed, Sep 4, 2024 at 10:54=E2=80=AFAM Ira Weiny <ira.weiny@intel.com> wro=
-te:
->
-> Philip Chen wrote:
-> > Hi maintainers,
-> >
-> > Can anyone let me know if this patch makes sense?
-> > Any comment/feedback is appreciated.
-> > Thanks in advance!
->
-> I'm not an expert on virtio but the code looks ok on the surface.  I've
-> discussed this with Dan a bit and virtio-pmem is not heavily tested.
+kernel test robot noticed the following build warnings:
 
-Thanks for your comments.
-I think this specific patch is not heavily involved with virtio spec detail=
-s.
-This patch simply provides the basic freeze/restore PM callbacks for
-virtio_pmem, like people already did for the other virtio drivers.
+[auto build test WARNING on mst-vhost/linux-next]
+[also build test WARNING on linus/master v6.11-rc7 next-20240909]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
->
-> Based on our discussion [1] I wonder if there is a way we can recreate th=
-is
-> with QEMU to incorporate into our testing?
+url:    https://github.com/intel-lab-lkp/linux/commits/Cindy-Lu/vhost-Add-kthread-support-in-function-vhost_worker_queue/20240909-110046
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20240909020138.1245873-2-lulu%40redhat.com
+patch subject: [RESEND PATCH v1 1/7] vhost: Add a new module_param for enable kthread
+config: x86_64-randconfig-123-20240910 (https://download.01.org/0day-ci/archive/20240910/202409101256.eWKWH1mw-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240910/202409101256.eWKWH1mw-lkp@intel.com/reproduce)
 
-Yes, these are how I test on crosvm, but I believe the same steps can
-be applied to QEMU:
-(1) Set pm_test_level to TEST_PLATFORM (build time change)
-(2) Write something to pmem
-(3) Make the device go through a freeze/restore cycle by writing
-`disk` to `/sys/power/state`
-(4) Validate the data written to pmem in (2) is still preserved
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202409101256.eWKWH1mw-lkp@intel.com/
 
-Note:
-(a) The freeze/restore PM routines are sometimes called as the backup
-for suspend/resume PM routines in a suspend/resume cycle.
-In this case, we can also test freeze/restore PM routines with
-suspend/resume: i.e. skip (1) and write `mem` to `sys/power/state` in
-(3).
-(b) I also tried to set up QEMU for testing. But QEMU crashes when I
-try to freeze the device even without applying this patch.
-Since the issue seems to be irrelevant to pmem and most likely a QEMU
-setup problem on my end, I didn't spend more time enabling QEMU.
+sparse warnings: (new ones prefixed by >>)
+>> drivers/vhost/vhost.c:44:6: sparse: sparse: symbol 'enforce_kthread' was not declared. Should it be static?
+   drivers/vhost/vhost.c:1898:54: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:1899:54: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:1900:55: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:2155:46: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:2235:48: sparse: sparse: self-comparison always evaluates to false
 
+vim +/enforce_kthread +44 drivers/vhost/vhost.c
 
+    35	
+    36	static ushort max_mem_regions = 64;
+    37	module_param(max_mem_regions, ushort, 0444);
+    38	MODULE_PARM_DESC(max_mem_regions,
+    39		"Maximum number of memory regions in memory map. (default: 64)");
+    40	static int max_iotlb_entries = 2048;
+    41	module_param(max_iotlb_entries, int, 0444);
+    42	MODULE_PARM_DESC(max_iotlb_entries,
+    43		"Maximum number of iotlb entries. (default: 2048)");
+  > 44	bool enforce_kthread = true;
+    45	module_param(enforce_kthread, bool, 0444);
+    46	MODULE_PARM_DESC(enforce_kthread, "enable vhost to use kthread (default: Y)");
+    47	
 
->
-> Ira
->
-> [1] https://lore.kernel.org/lkml/CA+cxXhnb2i5O7_BiOfKLth5Zwp5T62d6F6c39vn=
-uT53cUkU_uw@mail.gmail.com/
->
-> >
-> > On Wed, Aug 14, 2024 at 5:46=E2=80=AFPM Philip Chen <philipchen@chromiu=
-m.org> wrote:
-> > >
-> > > Add basic freeze/restore PM callbacks to support hibernation (S4):
-> > > - On freeze, delete vq and quiesce the device to prepare for
-> > >   snapshotting.
-> > > - On restore, re-init vq and mark DRIVER_OK.
-> > >
-> > > Signed-off-by: Philip Chen <philipchen@chromium.org>
-> > > ---
-> > >  drivers/nvdimm/virtio_pmem.c | 24 ++++++++++++++++++++++++
-> > >  1 file changed, 24 insertions(+)
-> > >
-> > > diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pme=
-m.c
-> > > index c9b97aeabf85..2396d19ce549 100644
-> > > --- a/drivers/nvdimm/virtio_pmem.c
-> > > +++ b/drivers/nvdimm/virtio_pmem.c
-> > > @@ -143,6 +143,28 @@ static void virtio_pmem_remove(struct virtio_dev=
-ice *vdev)
-> > >         virtio_reset_device(vdev);
-> > >  }
-> > >
-> > > +static int virtio_pmem_freeze(struct virtio_device *vdev)
-> > > +{
-> > > +       vdev->config->del_vqs(vdev);
-> > > +       virtio_reset_device(vdev);
-> > > +
-> > > +       return 0;
-> > > +}
-> > > +
-> > > +static int virtio_pmem_restore(struct virtio_device *vdev)
-> > > +{
-> > > +       int ret;
-> > > +
-> > > +       ret =3D init_vq(vdev->priv);
-> > > +       if (ret) {
-> > > +               dev_err(&vdev->dev, "failed to initialize virtio pmem=
-'s vq\n");
-> > > +               return ret;
-> > > +       }
-> > > +       virtio_device_ready(vdev);
-> > > +
-> > > +       return 0;
-> > > +}
-> > > +
-> > >  static unsigned int features[] =3D {
-> > >         VIRTIO_PMEM_F_SHMEM_REGION,
-> > >  };
-> > > @@ -155,6 +177,8 @@ static struct virtio_driver virtio_pmem_driver =
-=3D {
-> > >         .validate               =3D virtio_pmem_validate,
-> > >         .probe                  =3D virtio_pmem_probe,
-> > >         .remove                 =3D virtio_pmem_remove,
-> > > +       .freeze                 =3D virtio_pmem_freeze,
-> > > +       .restore                =3D virtio_pmem_restore,
-> > >  };
-> > >
-> > >  module_virtio_driver(virtio_pmem_driver);
-> > > --
-> > > 2.46.0.76.ge559c4bf1a-goog
-> > >
->
->
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
