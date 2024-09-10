@@ -1,159 +1,178 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51A4917E00F
-	for <virtualization@lists.linux-foundation.org>; Tue, 10 Sep 2024 07:42:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725954126; cv=none; b=KtbDGVez2QAMA25CIFZzlgKLmgWUwmPjbbwpZxcwhQJ/dqrfLmAAVOCvq5U5be3K27/Z3dk9Jqq2JXD1kkbDIbrHJfmsi4So8SswFVLL5nG4stC9hybmh4DV7ZUpZ5kAv76qyCySmzRoUaPTQF+dHk7dKE5sYdNocdRkBSAd0f0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725954126; c=relaxed/simple;
-	bh=868wQv69+C1rc2cl0jagbErfwedCUJFcxF801bTgrYo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Rl5mee8rbgjgvdalgKyoyRZWsK8qeaHddpuz4x4GSTnPgRpd7K7l3ayFv8APq8fEEqf4mj+XGiJ8vqZWlMbF7adRufqHnWVqis5y80CFyjIW9iaK2Q4HiRGeGoQsSErKy5HeOhXv3nH/4IqYCZuiHf515wtbAaYRcL38voaZ4dg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YumLigCr; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3ECD17E004
+	for <virtualization@lists.linux.dev>; Tue, 10 Sep 2024 08:07:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725955625; cv=fail; b=JPsAsf0PlvUk5tW9QkEiwBvzsBKhux558MPnjmTaEZb0FxuWkunPxqi+j6bEFbH6An+sGPeuhCaOw9BfwHgFLWGJQLkGupifIvvK5hUztSFIy4bMZnULtSJ5fuWkhsiOxlQ6ehtRzPIdmr6WAPQ7BcUEpLkIcBRUs2Yf/UnjQbc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725955625; c=relaxed/simple;
+	bh=ltHTIRYHi47aDcrZnfF5PLWScWeTz9fX8+EKviT1YbE=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=qb21AloNZooCRVjqlHDEBm2AaVq0hp8tfTkKYlo58hULWWvGAWpMRdvEFDn8UqWf2T/Ik0k1mTRrmTM0BuLlKkc9DXSA0Y1ddLYWxPCEKy2Q0ejFGu5ssdMgDIVYzeraPRPi0S/3tWuXfXqcs/EhissfiIFUWE25nLRPRkopJgg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PIgmMoJd; arc=fail smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YumLigCr"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DFA0D40172
-	for <virtualization@lists.linux-foundation.org>; Tue, 10 Sep 2024 07:42:04 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id XEPDFyyn68n6 for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Sep 2024 07:42:04 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E270040179
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E270040179
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YumLigCr
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E270040179
-	for <virtualization@lists.linux-foundation.org>; Tue, 10 Sep 2024 07:42:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725954122;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YjmwAz5ahZsSyMH7sv/F6TU19phROj9JmvsK6FuhNcU=;
-	b=YumLigCrdY9AJG5k5gasI6sHXmY9OFZ3C8ktGBYxV6WSw3aqWOaBlhzGOQR/fou5Zer6Nf
-	EWNINJW1mtqQP+AAlZregwXllnhyHhQw/SLuNB3+Gw1LJQMRRCJBoNy8rlsso0UMNmpx6Q
-	ob8qTY5pitnw7AZrcRjPVUo6eoYsdMc=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-127-M-Pd8TgWM7CKK80G-BNOzw-1; Tue, 10 Sep 2024 03:41:58 -0400
-X-MC-Unique: M-Pd8TgWM7CKK80G-BNOzw-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-374b9617ab0so2218785f8f.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 10 Sep 2024 00:41:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725954117; x=1726558917;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YjmwAz5ahZsSyMH7sv/F6TU19phROj9JmvsK6FuhNcU=;
-        b=b7Lc7DDniCSr3syYzDo/lFvYNk3u7GrgnE3krkKJ40bntMomUG/FPOwgzk+kWqdKYi
-         GaDfeakdgy4lutRvKPERFrOtOj6nKSMioZ7rXF9CvVuMimpbS3Hfmq6G0aa6t+GguMUX
-         BOw+u1PsT0ybQLF6p4jKkloAJoqNWjiwPY7TqPcn4HxJ7qOjvBGOpwuiEyQ8ttF/3fQN
-         TEMPp4fpuYZq2Og2Dl7Zg1v2FMrDTej4eZ9rgaHA17CxKsDEC8YL4lMrlLyymjEULjCj
-         P2e34GH0RSJ7zlG3w/ggwClhAO6YBD8/mlf7Mab65MKOVjaN8VhqnfT9h8txBqWiW8nM
-         hkIg==
-X-Forwarded-Encrypted: i=1; AJvYcCXph2O8fCpua90+avrXRSokGcrjm5C3VGeBMp7Pu4TVf/AUWAdMTGI9zrzm11hUdTwdyHH/TVfDneNRY0pZqg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzeWSob7Ij63STPz/NHzHbBVTRlbD44Cq0+3T9fkErYJpIY0KIo
-	orXoZEbI8Js6fTDdCd3OktGg9WeY+dFi711yzGjvWiqQOtnE+vIungaiWwLWEjqSAlZKL0V+Zu4
-	oEKAsQFWgIFWpOEbXgZsoFuCAzjQY1w0VGZw88lvcYnB61Q0+2/eViLHM3jY09VaiKezMd5e7zl
-	ipBk0=
-X-Received: by 2002:adf:f687:0:b0:374:cb17:c62f with SMTP id ffacd0b85a97d-37892685e58mr6075126f8f.11.1725954117109;
-        Tue, 10 Sep 2024 00:41:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGjs08g7NP4XaP5B2YK7CxhhOiPcTLvIVgpASYWgufgd1/GjiAqX7+X6E9+SleKBdH7ZBVQNQ==
-X-Received: by 2002:adf:f687:0:b0:374:cb17:c62f with SMTP id ffacd0b85a97d-37892685e58mr6075095f8f.11.1725954116265;
-        Tue, 10 Sep 2024 00:41:56 -0700 (PDT)
-Received: from redhat.com ([31.187.78.173])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-378956de02esm8080786f8f.109.2024.09.10.00.41.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Sep 2024 00:41:55 -0700 (PDT)
-Date: Tue, 10 Sep 2024 03:41:52 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, michael.christie@oracle.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: Re: [RESEND PATCH v1 0/7]vhost: Add support of kthread API
-Message-ID: <20240910032825-mutt-send-email-mst@kernel.org>
-References: <20240909020138.1245873-1-lulu@redhat.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PIgmMoJd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1725955623; x=1757491623;
+  h=date:from:to:cc:subject:message-id:reply-to:references:
+   in-reply-to:mime-version;
+  bh=ltHTIRYHi47aDcrZnfF5PLWScWeTz9fX8+EKviT1YbE=;
+  b=PIgmMoJdRqCTeZ8x27ngSg8Lg4UmUWKSqIlCu/HOeSf9CshvdQ3Swt+Z
+   /kIUyobV01T9xNjU9pPhpseqi7OkmYH7Q7y8OKqvYZlHwnZcbRBmHjBXN
+   iQXmpgGKRWOHKmAw8Enqa+IipC8FjPxqZs6kTVmQ0YHBom01ASmC8WbLC
+   /1kk0ibXTEnjpEYx57TxxZNfY4iL+QRCPz6B5Zc+GSjSkotDkZtakaeP2
+   hHsMRp8kiwum5LT4NbjRFKb1SnzVj1QsSFVEHhHkHWtoA0WUK0mC6iapN
+   QT6G0Lu2pDcLjWvoGNDLKDyT4oA8j+vE3inP4IUzjIhkdwdn5O7wfKqGG
+   g==;
+X-CSE-ConnectionGUID: omE96kFfTd2tkIXHP1pp5A==
+X-CSE-MsgGUID: uitNwbg6RrmAi+GWvj4/RA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11190"; a="35259700"
+X-IronPort-AV: E=Sophos;i="6.10,216,1719903600"; 
+   d="scan'208";a="35259700"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Sep 2024 01:07:02 -0700
+X-CSE-ConnectionGUID: cMGEdunMTeOT33s65Sm2Cg==
+X-CSE-MsgGUID: toa44bM0Qbqcw2kwN2PVHw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,216,1719903600"; 
+   d="scan'208";a="67238436"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by orviesa006.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 10 Sep 2024 01:07:01 -0700
+Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Tue, 10 Sep 2024 01:07:00 -0700
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Tue, 10 Sep 2024 01:07:00 -0700
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.49) by
+ edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Tue, 10 Sep 2024 01:06:59 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=AFE5HWeBvctInLys4ZtCLXCmY3pEcgjsmNUwpPR+lMEGrjts3NQZ5KOb4iTrpGCHPQxHp9EllDWy9KAmvOjAFGOVMafWbQ5c6ZXBP9woMQlvIistRP9Vc0AK2ND8CqVKyVMOIgaNJvPMawMhxd5xN6ZVI3qn1UQMOO+hW2YRbQ7eDPGOaA/qLLRrHShpcbhyutzS6a/DEPJHR4pp+abQ8q4p5mkB/pCtRE4WMQEbtvU3uDKn1NJmzntbN4xbA6v/OYcDcCFTJmujnOofy6y+y1lyoPmzLp+zVGmcfSrtK3iuE7itatiOav4hs2atwwDpuYBWDjOEo1MHC9eiSkDwIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ltHTIRYHi47aDcrZnfF5PLWScWeTz9fX8+EKviT1YbE=;
+ b=NP4sZqrvgqjj6JnUNBh2LCHU4bj2DMy4UPF/6MieWu/hWJBPdoTsOOZMmnJuIUJNgPGgXKFQ0cteGfPUetdAhZBord7ZfFjDKoHlUZc+Gwr8Ssz0VWHMXqHYf8l3LsvAif2cHLIOd1Z3Ck3rxEF4qfCrZ1LeS+BICoa6s20FLxFpiYbkDjbbQG+80+z5g4b8hcgbgxd9GY20/VmFG30DANvfZlbE9s2xfL1EzUFuXiyuY91nj3m43fN7vsPc/D3yFfll+LJx6q7Ve80EUGLd6e1OLXWq/3yCAJXhlj7Ri1EG5U/975fOkfyBDTT3OcLMSScUC0/eKM/X1naZtGGuaQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DS7PR11MB5966.namprd11.prod.outlook.com (2603:10b6:8:71::6) by
+ CY8PR11MB7034.namprd11.prod.outlook.com (2603:10b6:930:52::7) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7939.24; Tue, 10 Sep 2024 08:06:58 +0000
+Received: from DS7PR11MB5966.namprd11.prod.outlook.com
+ ([fe80::e971:d8f4:66c4:12ca]) by DS7PR11MB5966.namprd11.prod.outlook.com
+ ([fe80::e971:d8f4:66c4:12ca%5]) with mapi id 15.20.7939.017; Tue, 10 Sep 2024
+ 08:06:58 +0000
+Date: Tue, 10 Sep 2024 16:05:00 +0800
+From: Yan Zhao <yan.y.zhao@intel.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+CC: <kraxel@redhat.com>, <maarten.lankhorst@linux.intel.com>,
+	<mripard@kernel.org>, <airlied@gmail.com>, <daniel@ffwll.ch>,
+	<virtualization@lists.linux.dev>, <dri-devel@lists.freedesktop.org>,
+	<linux-kernel@vger.kernel.org>, <pbonzini@redhat.com>, <seanjc@google.com>,
+	<kvm@vger.kernel.org>, Vitaly Kuznetsov <vkuznets@redhat.com>, Kevin Tian
+	<kevin.tian@intel.com>
+Subject: Re: [PATCH v2] drm/bochs: use devm_ioremap_wc() to map framebuffer
+Message-ID: <Zt/9rKpi5IT5jwl5@yzhao56-desk.sh.intel.com>
+Reply-To: Yan Zhao <yan.y.zhao@intel.com>
+References: <20240909131643.28915-1-yan.y.zhao@intel.com>
+ <75c8c1f0-d774-4bc1-ba71-bce15db921c7@suse.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <75c8c1f0-d774-4bc1-ba71-bce15db921c7@suse.de>
+X-ClientProxiedBy: SI2PR02CA0024.apcprd02.prod.outlook.com
+ (2603:1096:4:195::18) To DS7PR11MB5966.namprd11.prod.outlook.com
+ (2603:10b6:8:71::6)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240909020138.1245873-1-lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR11MB5966:EE_|CY8PR11MB7034:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4062b5e1-f3fc-4c14-0978-08dcd16f8ac6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|7416014|1800799024;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?YYrSD/NdY2MMTk+T46pXugdCxZFFNBZ9hKuFhLfyc8QCo5kw+6ZgR73ePqw6?=
+ =?us-ascii?Q?qXDDHl28G7VP5KVKoLjjXKNT476H21rWLTtgbws8M3REbCpBNSnqDRMRSilC?=
+ =?us-ascii?Q?YM4SEKUEqjCUfK5ooeGof3b4bzcyFfqar1+wYFiBJU2McqKVhJL6fuJQexbT?=
+ =?us-ascii?Q?2L2Qk9gjhk1yekCzZSPB3dEx9mDX4h+GS+m8e9TjDaEgpRqdHrV2uuDoaAD1?=
+ =?us-ascii?Q?qRkdiiX8/08mL7ggmHKVVPtoDY3Q24J0QnYmOY98zi6+Sm1xDNheq9ZYlDR3?=
+ =?us-ascii?Q?tpYQgxzyN1XWlolm089HY8WbVwOxTlk5hC6H/AOH3gSVSOiJ7bKytzwS9OzT?=
+ =?us-ascii?Q?q19i1ZvBtbs8tqueW4rlun9a/ST9+8tGwI6T+vl3Iu9HJJO+Dzq6MiBsrk9r?=
+ =?us-ascii?Q?Ra/nGt6OA9wmnJWbR5ObNsubXLS7dMIOISwv4UI3oVS3PtzTrMPnPo9sePTO?=
+ =?us-ascii?Q?lLFx3QzVfoZHEsYKzrfpbPSgYK2A4wp93ySHoQQNTj1OX5VZZgk326CaBnR0?=
+ =?us-ascii?Q?FN/E31DRuCPN0xgEWnhaCGIE/b7sjlUA0I1qMPtMp4UWdpi5v6rKwbJ8pcf/?=
+ =?us-ascii?Q?oAM7LeytL5oqqBoA8ce7wY7YlBlBbPMyYl3jaUx5CxycTszgmpjvMFBPGAq0?=
+ =?us-ascii?Q?qYO/SN4Lt7f/RqRMESpRXm5q1gXUvN+JqZEDC4lBOHjFDXrb+/6h96DTtnQZ?=
+ =?us-ascii?Q?neTxEK7t3GzLhFZcxeT5GQgcjRoeAGYrOnYX4mPJSzmQBu1CjRUU1RC00d14?=
+ =?us-ascii?Q?WLyg/pYNnf/5cBPuV7sakYhsclWwZCEH33gzWAz/fcvgh+aao5yTIkwqVsYX?=
+ =?us-ascii?Q?CMmewz5/2e07cFy3U2lf13HLg+L4apMkHzcyspP6pMrtIo+1Ym4DsVo4UD+r?=
+ =?us-ascii?Q?e2Up+iJXa5F3G/p/JwKTXUejAWe889o95xqalIehrTsHRT9zFoLAfRLld9dU?=
+ =?us-ascii?Q?B1NIjryR3ehBkdX5RjqLlBUU0VfWmmLVsumkd+2dE5UhQIEA0Mv75kqu0cL3?=
+ =?us-ascii?Q?aKGd4BXvUwMhGdTu3ZVeTtcfFNMfhh/DNde+0RB2VMEDwV9VXLdBXdd3jI0J?=
+ =?us-ascii?Q?nKhB2+RU5MAn8+vWc6i4IP2poy55PJZhNOpslyxXdL1/EKzcl07JQQ0KMpIM?=
+ =?us-ascii?Q?axq57ps44eSEtTEJHKmssxTqVSqKj3TaQnNWxDP7ZcEWCpFPe4uPyJsW1QiU?=
+ =?us-ascii?Q?hJaRsLWQb6URFjanrzKPkMPow75SPhriwEev0s6LHByucwU4ezfPpO9pveS/?=
+ =?us-ascii?Q?I1v64qR7R+yNFN4doEgeuX5tvd3eiiIW+91KKKmrLgFczz6I44PIAnV0miSo?=
+ =?us-ascii?Q?w0bJaL+wcGBYcrDhpUu2fn91dQVodA4i0qz7i4MIzX7eDg=3D=3D?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR11MB5966.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?mZ7a2kMBb37Fd+UJZDHCeLBHjFzfMl0W6ahOsPKhVEM+pFwoPVk7LW23m+br?=
+ =?us-ascii?Q?I6xq3Itdm5opsOdYlsOktd3D5PFZmwTwuJa3xwG4eqA5mbi5Ym3aG2IcfbFo?=
+ =?us-ascii?Q?cYVFnUxYJkOZgkjb+CBq5zkgS5G1qrTvHzktBXrRufAnR49Vk4aturewPogU?=
+ =?us-ascii?Q?OGQ2SxIYBPsILimZ86UeLrrebH7aMsmY+sM1O1+w4BiqKtvIs/OFfHjGj0jE?=
+ =?us-ascii?Q?4Myfv9FKoAF0i87IDOhwZ6Cq6QmFa/vpnherrhPqwRJdtcFc8bqOudfoONUl?=
+ =?us-ascii?Q?kGianvFm9dYtu8wF4CftGeichlXqjH7iU3SFJhEvC5av8bre3WNPiJSRHzSp?=
+ =?us-ascii?Q?wmDMwVsxShGkX8FTXCB9gD8FUPf0+3Oe8B9DTgBxvjT+t/bD2DVqIegvVl5N?=
+ =?us-ascii?Q?xMJNSWyBEEmfmm1v7bD7LWiCFSgZOCzC3BVCB0dQbC0ywp82bnXoDEQ3LBq8?=
+ =?us-ascii?Q?YHlksV2wOtyPbt0cvSr7q3xUi6EuNFo+xn8oENKypT0OvkUgY+r76fCsyChe?=
+ =?us-ascii?Q?kHT2nBWG8A9+/H3PzEmmukbTizy9idRvi9bbDUwnMmQnvKvpt7QJwQmgrlvv?=
+ =?us-ascii?Q?RZ7toKvxTzWVmaQZPoSmezwFL07SZ05+4fZQrWZWsjZTU0UhXzVyqRTYjED9?=
+ =?us-ascii?Q?uJpZAvkpl9sG+c2PCosR5BKaZPlGd3w1iegeRIS9lgjkUh7xLnneNLmGXRQG?=
+ =?us-ascii?Q?TEbj/68Q25sL5EK9VqRQTPJSSFncQd4HBe/bBYJPhSFhLh3BhtHHu/ZMotak?=
+ =?us-ascii?Q?/5sUgef7Dv/ygd+ur68pOmXcD5EWCXQMbpYR0Z6e8BVqHZ4GHV/uM24WLeTJ?=
+ =?us-ascii?Q?+myZyHBZymF9SCiHb0KDF48nB8gSm1krIV8P9UP7s5VARX18zcBS6MdaO0P6?=
+ =?us-ascii?Q?9HZvh7EBoMLPsc211I22jH1yX5zCC1UMcw2QMH4Btf5lffYO1FY6kIuFpjBl?=
+ =?us-ascii?Q?qwaPNaT3BL+d3V7F/sVLbQakN20W6gNQa5kIhoyboJYsM9WF8m2QaDHmGLbt?=
+ =?us-ascii?Q?sBx/ZPIpYpBfUziubWg4p0kqsPLcE1riQyxaf/FATjRyBOC4IgqGhmkj7QSZ?=
+ =?us-ascii?Q?FsDaNpwQ5Cq+Tpz2AOjB3r0hj+bKNqUT1Fh+Uwj9S/FeMhw8BiffF+cUHnI1?=
+ =?us-ascii?Q?BV17ZEl13lWSH2cqNamXMZw11NY/GMENbzuWGCeYEe7MrXKDFmAhTEb6k96W?=
+ =?us-ascii?Q?6CDYLJQ9E2IWMkq/6caL3X8P5dtSYdw9wqucNP7kGBsYYfjCv0zaEN0D5nex?=
+ =?us-ascii?Q?EQYMmNlINC2tVQLf65R91YL9c2hxaiTmE8Yu417wAc/2yPrVsAeHAFF4jJX0?=
+ =?us-ascii?Q?r8/kT8zdKMzHeA/Wo5nUUoR8087aMLzMq2gLjU/rrnqr5s09kiUh2gjHJukr?=
+ =?us-ascii?Q?DXZObd+YXuDuVJwwWOgUu9ALs/x4jSS/Lzkn4k28FgfFM5dMH9XYAFS43Vmo?=
+ =?us-ascii?Q?db8ikwtX6BcZL4cKQb4jbP3RXbMYO5vpIJtw2g7BMj9cdH/71CSHcej9/bCg?=
+ =?us-ascii?Q?pF/UqL34dtb5kSHYxgBTsssfmr155e/eA1tW3V7oqNNlnYk6R31u7y5t+XGV?=
+ =?us-ascii?Q?D/BM7w87/3/rhkkPPbJrpnLUcxfTBw9TlYKCdb0h?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4062b5e1-f3fc-4c14-0978-08dcd16f8ac6
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR11MB5966.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2024 08:06:58.0518
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: n8jyqKFSNz26NETLAEZM7PSaoEPXRy57Z86oFAMkLtl+Dd2jOlgAeIGKwARb/Y0Yg4w/S0Yg4SFWXgQqp6q2ww==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR11MB7034
+X-OriginatorOrg: intel.com
 
-On Mon, Sep 09, 2024 at 10:00:38AM +0800, Cindy Lu wrote:
-> In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),
-> vhost removed the support for the kthread API. However, there are
-> still situations where there is a request to use kthread.
-> In this PATCH, the support of kthread is added back. Additionally,
-> a module_param is added to enforce which mode we are using, and
-> a new UAPI is introduced to allow the userspace app to set the
-> mode they want to use.
-> 
-> Tested the user application with QEMU.
-
-Cindy, the APIs do not make sense, security does not make sense,
-and you are not describing the issue and the fix.
-
-
-The name should reflect what this does from userspace POV, not from
-kernel API POV.  kthread and task mode is not something that any users
-have any business even to consider.
-
-
-To help you out, some ideas:
-
-I think the issue is something like "vhost is now a child of the
-owner thread. While this makes sense from containerization
-POV, some old userspace is confused, as previously vhost not
-and so was allowed to steal cpu resources from outside the container."
-
-Now, what can be done? Given we already released a secure kernel,
-I am not inclined to revert it back to be insecure by default.
-But I'm fine with a modparam to allow userspace to get insecure
-behaviour.
-
-
-Now, a modparam is annoying in that it affects all userspace,
-and people might be running a mix of old and new userspace.
-So if we do that, we also want a flag that will get
-safe behaviour even if unsafe one is allowed.
-
-
-Is this clear enough, or do I need to elaborate more?
-
-Thanks!
-
-> Cindy Lu (7):
->   vhost: Add a new module_param for enable kthread
->   vhost: Add kthread support in function vhost_worker_queue()
->   vhost: Add kthread support in function vhost_workers_free()
->   vhost: Add the vhost_worker to support kthread
->   vhost: Add the cgroup related function
->   vhost: Add kthread support in function vhost_worker_create
->   vhost: Add new UAPI to support change to task mode
-> 
->  drivers/vhost/vhost.c      | 246 +++++++++++++++++++++++++++++++++++--
->  drivers/vhost/vhost.h      |   1 +
->  include/uapi/linux/vhost.h |   2 +
->  3 files changed, 240 insertions(+), 9 deletions(-)
-> 
-> -- 
-> 2.45.0
-
+On Tue, Sep 10, 2024 at 09:24:22AM +0200, Thomas Zimmermann wrote:
+> Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Texted-by: Thomas Zimmermann <tzimmermann@suse.de>
+Thank you!
+I suppose this is "Tested-by", right?
