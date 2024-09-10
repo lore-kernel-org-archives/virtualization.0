@@ -1,249 +1,263 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A424C174EDB
-	for <virtualization@lists.linux.dev>; Tue, 10 Sep 2024 07:24:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57D5217C228
+	for <virtualization@lists.linux.dev>; Tue, 10 Sep 2024 07:24:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725953067; cv=none; b=gdDd+z0tlSuhwlLVVN+eN6dt+zz2NnOvJkRWEwZLAWy9A8vhmzuHp8Isb+Kaj97ZNsNr8TxCI44xMAfFf99YmHvMlBgttyshBzGellqYQ+HJg3bKIoVJIUeWBxHl6ah5y6Ifn7C4tNS5Qjn891U49J/nf5I/T2on2vP+iy1ngIs=
+	t=1725953078; cv=none; b=c1mggC7Y2IQMZ3YDJP7lBHCRAuteTwZdyQyDEEGg0Cy8bO28elL1fE9dL1xEOTc3RsWCLukNevuIltJL3J2os6bYo4JUFU4ULcIxWF2Mq23DJGuJWO80w3RPGfoZ7Q1qv24fZ2cbeOyjwo5pDkZDlKFkkvzkniAIzYlXKtKZ+Sg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725953067; c=relaxed/simple;
-	bh=qO+ZxvCBk1IwwsGwEwBC/rUo+yTquTnujH6P70v3GJ4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=esnAq2UKEd1XtX0we1ZqoU6AVFt81QqQHIMC6nfT/GCyVszJnHWZ2Qrli3AwNhY8VjbxhcPAOk0K0CGxrOGhxD24ZujJhibZYWegPrwpCd4AjPBvU7vnrQKo87Jgh4DRJKT9uvngJOyuTll5RQrxVHoMVAa2JA22xECdoWviiXs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=wTtnwDxO; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qb9r4ZkU; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Qo5B/Dfv; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7tt0SXRd; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1725953078; c=relaxed/simple;
+	bh=7IwH6haEzm4Rqu9LhJPD6LyGBW+mJ8G7P53oZ1NG8Ho=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=mx0kuO4w8/4tNeGDDKiIeV8/ttHj87fsRgm3iBdYkA/o7UT2I6syVWQTpBDZFmm5ZASVX/sLS5cNajfPG9t6Z+oxsgetAf+T9Ui66/eCKyL/rgRZ89HFKDlcYNURKauuUGyL61lx+HpOg2Ig6VDTfRABZ3eEbMw4/cBvIKOdTL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=a/bLWMuL; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="wTtnwDxO";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qb9r4ZkU";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Qo5B/Dfv";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7tt0SXRd"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id CBD701F804;
-	Tue, 10 Sep 2024 07:24:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1725953063; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zNgLU6oyaubrQ/4d6rM6K1MKOLGhk6AKfbSQ7+uFIdk=;
-	b=wTtnwDxOQhLio/IuUrWZxqFH+3K6hcXYJA6IlB6ytP4/gRQi5n4i8tpUlE8igiQ/SZy1mr
-	D0AJsyVVsyFgSITDOkzihHG9pGI2ULPGKL/jKYP033+UL6thvgBMTmRHYHH43xJZodAK8z
-	kziMuD26vrocvFOE7IPxmUjIP/GJtBg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1725953063;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zNgLU6oyaubrQ/4d6rM6K1MKOLGhk6AKfbSQ7+uFIdk=;
-	b=qb9r4ZkUAscAbNexhcQlZvBFMYvXGk3PAMuRkabCyby6sTQxZw77GFMHqE0JPkuvZmAzQZ
-	sejiGpGSyBORAxBA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="Qo5B/Dfv";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=7tt0SXRd
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1725953062; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zNgLU6oyaubrQ/4d6rM6K1MKOLGhk6AKfbSQ7+uFIdk=;
-	b=Qo5B/DfvGyaB5+DXXCuNV6eGt/OGakNT76K6XjOra7td4qBfLXkpW11jeB9BE4mnk8se0m
-	xjnU4KRdM9mNxzIUryWWjrmA1Lodfa6IGNaYayIrTObtcUbuqUhGYin0MsTDmVrF4RDG1V
-	EEauavZMt/Ou+UhwZMLV9O9n4pKygis=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1725953062;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zNgLU6oyaubrQ/4d6rM6K1MKOLGhk6AKfbSQ7+uFIdk=;
-	b=7tt0SXRdLPSV1ZDBd2xY3cK2LcH/bNWxh10C/JNKzN1pSFJ3Al5ow/BfSnp40jhREuj80f
-	wMyxsRiRoBxGlnCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7264F13A3A;
-	Tue, 10 Sep 2024 07:24:22 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id Vt6TGib032ZKJQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 10 Sep 2024 07:24:22 +0000
-Message-ID: <75c8c1f0-d774-4bc1-ba71-bce15db921c7@suse.de>
-Date: Tue, 10 Sep 2024 09:24:22 +0200
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="a/bLWMuL"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1725953067; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=a9GoHLXpUy/hLCKhmaTHAFlem+4f1TgxKJ2Pj4ZexRk=;
+	b=a/bLWMuLoqmSnu2eraz86lh5ZBqgk2vo/XHlY5Uk+opLRFQW6OvmUau7RGq91QYiOvZaof68EegWndPoeEIvbxmezypSTp2CmnvKU3Kax9GpAyaS80SmzMWIVGS3ysSZ5vHzG/GVRCJnCbGszXzLxUq+rhBAsshisawUPp5k5JA=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEjOwzz_1725953065)
+          by smtp.aliyun-inc.com;
+          Tue, 10 Sep 2024 15:24:26 +0800
+Message-ID: <1725952844.7580578-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio-net: fix overflow inside virtnet_rq_alloc
+Date: Tue, 10 Sep 2024 15:20:44 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev,
+ "Si-Wei Liu" <si-wei.liu@oracle.com>,
+ Darren Kenny <darren.kenny@oracle.com>
+References: <20240820071913.68004-1-xuanzhuo@linux.alibaba.com>
+ <20240906044143-mutt-send-email-mst@kernel.org>
+ <1725612818.815039-1-xuanzhuo@linux.alibaba.com>
+ <20240906045904-mutt-send-email-mst@kernel.org>
+ <1725614736.9464588-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEt4XmMnZWEK56npxiA_QB0x48AU9fWfA63y5PHuHpLdBQ@mail.gmail.com>
+ <1725871401.4568927-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvfC=Jf169V-J7oU5Z3QY7ET7L5NH_WJvC2gsDYV2wfHg@mail.gmail.com>
+In-Reply-To: <CACGkMEvfC=Jf169V-J7oU5Z3QY7ET7L5NH_WJvC2gsDYV2wfHg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/bochs: use devm_ioremap_wc() to map framebuffer
-To: Yan Zhao <yan.y.zhao@intel.com>, kraxel@redhat.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- daniel@ffwll.ch, virtualization@lists.linux.dev,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Cc: pbonzini@redhat.com, seanjc@google.com, kvm@vger.kernel.org,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Kevin Tian <kevin.tian@intel.com>
-References: <20240909131643.28915-1-yan.y.zhao@intel.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20240909131643.28915-1-yan.y.zhao@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: CBD701F804
-X-Spam-Score: -4.51
-X-Rspamd-Action: no action
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_TO(0.00)[intel.com,redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,lists.linux.dev,lists.freedesktop.org,vger.kernel.org];
-	ARC_NA(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	RCPT_COUNT_TWELVE(0.00)[14];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[intel.com:email,suse.de:dkim,suse.de:mid,suse.de:email]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Flag: NO
-X-Spam-Level: 
 
-Hi
-
-Am 09.09.24 um 15:16 schrieb Yan Zhao:
-> Opt for devm_ioremap_wc() over devm_ioremap() when mapping the framebuffer.
+On Tue, 10 Sep 2024 14:18:37 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Mon, Sep 9, 2024 at 4:50=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
+> >
+> > On Mon, 9 Sep 2024 16:38:16 +0800, Jason Wang <jasowang@redhat.com> wro=
+te:
+> > > On Fri, Sep 6, 2024 at 5:32=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alib=
+aba.com> wrote:
+> > > >
+> > > > On Fri, 6 Sep 2024 05:08:56 -0400, "Michael S. Tsirkin" <mst@redhat=
+.com> wrote:
+> > > > > On Fri, Sep 06, 2024 at 04:53:38PM +0800, Xuan Zhuo wrote:
+> > > > > > On Fri, 6 Sep 2024 04:43:29 -0400, "Michael S. Tsirkin" <mst@re=
+dhat.com> wrote:
+> > > > > > > On Tue, Aug 20, 2024 at 03:19:13PM +0800, Xuan Zhuo wrote:
+> > > > > > > > leads to regression on VM with the sysctl value of:
+> > > > > > > >
+> > > > > > > > - net.core.high_order_alloc_disable=3D1
+> > > > > > > >
+> > > > > > > > which could see reliable crashes or scp failure (scp a file=
+ 100M in size
+> > > > > > > > to VM):
+> > > > > > > >
+> > > > > > > > The issue is that the virtnet_rq_dma takes up 16 bytes at t=
+he beginning
+> > > > > > > > of a new frag. When the frag size is larger than PAGE_SIZE,
+> > > > > > > > everything is fine. However, if the frag is only one page a=
+nd the
+> > > > > > > > total size of the buffer and virtnet_rq_dma is larger than =
+one page, an
+> > > > > > > > overflow may occur. In this case, if an overflow is possibl=
+e, I adjust
+> > > > > > > > the buffer size. If net.core.high_order_alloc_disable=3D1, =
+the maximum
+> > > > > > > > buffer size is 4096 - 16. If net.core.high_order_alloc_disa=
+ble=3D0, only
+> > > > > > > > the first buffer of the frag is affected.
+> > > > > > > >
+> > > > > > > > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode wh=
+atever use_dma_api")
+> > > > > > > > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> > > > > > > > Closes: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-=
+ba164a540c0a@oracle.com
+> > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > >
+> > > > > > >
+> > > > > > > Guys where are we going with this? We have a crasher right no=
+w,
+> > > > > > > if this is not fixed ASAP I'd have to revert a ton of
+> > > > > > > work Xuan Zhuo just did.
+> > > > > >
+> > > > > > I think this patch can fix it and I tested it.
+> > > > > > But Darren said this patch did not work.
+> > > > > > I need more info about the crash that Darren encountered.
+> > > > > >
+> > > > > > Thanks.
+> > > > >
+> > > > > So what are we doing? Revert the whole pile for now?
+> > > > > Seems to be a bit of a pity, but maybe that's the best we can do
+> > > > > for this release.
+> > > >
+> > > > @Jason Could you review this?
+> > >
+> > > I think we probably need some tweaks for this patch.
+> > >
+> > > For example, the changelog is not easy to be understood especially
+> > > consider it starts something like:
+> > >
+> > > "
+> > >     leads to regression on VM with the sysctl value of:
+> > >
+> > >     - net.core.high_order_alloc_disable=3D1
+> > >
+> > >     which could see reliable crashes or scp failure (scp a file 100M =
+in size
+> > >     to VM):
+> > > "
+> > >
+> > > Need some context and actually sysctl is not a must to reproduce the
+> > > issue, it can also happen when memory is fragmented.
+> >
+> > OK.
+> >
+> >
+> > >
+> > > Another issue is that, if we move the skb_page_frag_refill() out of
+> > > the virtnet_rq_alloc(). The function semantics turns out to be weird:
+> > >
+> > > skb_page_frag_refill(len, &rq->alloc_frag, gfp);
+> > > ...
+> > > virtnet_rq_alloc(rq, len, gfp);
+> >
+> > YES.
+> >
+> > >
+> > > I wonder instead of subtracting the dma->len, how about simply count
+> > > the dma->len in len if we call virtnet_rq_aloc() in
+> > > add_recvbuf_small()?
+> >
+> > 1. For the small mode, it is safe. That just happens in the merge mode.
+> > 2. In the merge mode, if we count the dma->len in len, we should know
+> >    if the frag->offset is zero or not. We can not do that before
+> >    skb_page_frag_refill(), because skb_page_frag_refill() may allocate
+> >    new page, the frag->offset is zero. So the judgment must is after
+> >    skb_page_frag_refill().
 >
-> Using devm_ioremap() results in the VA being mapped with PAT=UC-, which
-> considerably slows down drm_fb_memcpy(). In contrast, devm_ioremap_wc()
-> maps the VA with PAT set to WC, leading to better performance on platforms
-> where access to UC memory is much slower than WC memory.
+> I may miss something. I mean always reserve dma->len for each frag.
+
+This problem is a little complex.
+
+We need to consider one point, if the frag reserves sizeof(dma), then
+the len must minus that, otherwise we can not allocate from the
+frag when frag is only one page and 'len' is PAGE_SIZE.
+
+Thanks.
+
+
 >
-> Here's the performance data measured in a guest on the physical machine
-> "Sapphire Rapids XCC".
-> With host KVM honors guest PAT memory types, the effective memory type
-> for this framebuffer range is
-> - WC when devm_ioremap_wc() is used
-> - UC- when devm_ioremap() is used.
+> But anyway, we need to tweak the function API, either explicitly pass
+> the frag or use the rq->frag implicitly.
 >
-> The data presented is an average from 10 execution runs.
+> Thanks
 >
-> Cycles: Avg cycles of executed bochs_primary_plane_helper_atomic_update()
->          from VM boot to GDM show up
-> Cnt:    Avg cnt of executed bochs_primary_plane_helper_atomic_update()
->          from VM boot to GDM show up
-> T:      Avg time of each bochs_primary_plane_helper_atomic_update().
+> >
+> > Thanks.
+> >
+> >
+> > >
+> > > >
+> > > > I think this problem is clear, though I do not know why it did not =
+work
+> > > > for Darren.
+> > >
+> > > I had a try. This issue could be reproduced easily and this patch
+> > > seems to fix the issue with a KASAN enabled kernel.
+> > >
+> > > Thanks
+> > >
+> > > >
+> > > > Thanks.
+> > > >
+> > > >
+> > > > >
+> > > > >
+> > > > > > >
+> > > > > > >
+> > > > > > > > ---
+> > > > > > > >  drivers/net/virtio_net.c | 12 +++++++++---
+> > > > > > > >  1 file changed, 9 insertions(+), 3 deletions(-)
+> > > > > > > >
+> > > > > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_=
+net.c
+> > > > > > > > index c6af18948092..e5286a6da863 100644
+> > > > > > > > --- a/drivers/net/virtio_net.c
+> > > > > > > > +++ b/drivers/net/virtio_net.c
+> > > > > > > > @@ -918,9 +918,6 @@ static void *virtnet_rq_alloc(struct re=
+ceive_queue *rq, u32 size, gfp_t gfp)
+> > > > > > > >         void *buf, *head;
+> > > > > > > >         dma_addr_t addr;
+> > > > > > > >
+> > > > > > > > -       if (unlikely(!skb_page_frag_refill(size, alloc_frag=
+, gfp)))
+> > > > > > > > -               return NULL;
+> > > > > > > > -
+> > > > > > > >         head =3D page_address(alloc_frag->page);
+> > > > > > > >
+> > > > > > > >         dma =3D head;
+> > > > > > > > @@ -2421,6 +2418,9 @@ static int add_recvbuf_small(struct v=
+irtnet_info *vi, struct receive_queue *rq,
+> > > > > > > >         len =3D SKB_DATA_ALIGN(len) +
+> > > > > > > >               SKB_DATA_ALIGN(sizeof(struct skb_shared_info)=
+);
+> > > > > > > >
+> > > > > > > > +       if (unlikely(!skb_page_frag_refill(len, &rq->alloc_=
+frag, gfp)))
+> > > > > > > > +               return -ENOMEM;
+> > > > > > > > +
+> > > > > > > >         buf =3D virtnet_rq_alloc(rq, len, gfp);
+> > > > > > > >         if (unlikely(!buf))
+> > > > > > > >                 return -ENOMEM;
+> > > > > > > > @@ -2521,6 +2521,12 @@ static int add_recvbuf_mergeable(str=
+uct virtnet_info *vi,
+> > > > > > > >          */
+> > > > > > > >         len =3D get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_=
+len, room);
+> > > > > > > >
+> > > > > > > > +       if (unlikely(!skb_page_frag_refill(len + room, allo=
+c_frag, gfp)))
+> > > > > > > > +               return -ENOMEM;
+> > > > > > > > +
+> > > > > > > > +       if (!alloc_frag->offset && len + room + sizeof(stru=
+ct virtnet_rq_dma) > alloc_frag->size)
+> > > > > > > > +               len -=3D sizeof(struct virtnet_rq_dma);
+> > > > > > > > +
+> > > > > > > >         buf =3D virtnet_rq_alloc(rq, len + room, gfp);
+> > > > > > > >         if (unlikely(!buf))
+> > > > > > > >                 return -ENOMEM;
+> > > > > > > > --
+> > > > > > > > 2.32.0.3.g01195cf9f
+> > > > > > >
+> > > > >
+> > > >
+> > >
+> >
 >
->   -------------------------------------------------
-> |            | devm_ioremap() | devm_ioremap_wc() |
-> |------------|----------------|-------------------|
-> |  Cycles    |    211.545M    |   0.157M          |
-> |------------|----------------|-------------------|
-> |  Cnt       |     142        |   1917            |
-> |------------|----------------|-------------------|
-> |  T         |    0.1748s     |   0.0004s         |
->   -------------------------------------------------
-
-Very nice. Thank you so much.
-
-> Note:
-> Following the rebase to [3], the previously reported GDM failure on the
-> VGA device [1] can no longer be reproduced, thanks to the memory management
-> improvements made in [2]. Despite this, I have proceeded to submit this
-> patch because of the noticeable performance improvements it provides.
->
-> Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> Closes: https://lore.kernel.org/all/87jzfutmfc.fsf@redhat.com/#t
-> Cc: Sean Christopherson <seanjc@google.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Kevin Tian <kevin.tian@intel.com>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
-> Link: https://lore.kernel.org/all/87jzfutmfc.fsf@redhat.com/#t [1]
-> Link: https://patchwork.freedesktop.org/series/138086 [2]
-> Link: https://gitlab.freedesktop.org/drm/misc/kernel/-/tree/drm-misc-next [3]
-
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Texted-by: Thomas Zimmermann <tzimmermann@suse.de>
-
-If no other reviews come in, I'll merge the patch by the end of the week.
-
-Best regards
-Thomas
-
-> ---
-> v2:
-> - Rebased to the latest drm-misc-next branch. [2]
-> - Updated patch log to match the base code.
->
-> v1: https://lore.kernel.org/all/20240909051529.26776-1-yan.y.zhao@intel.com
-> ---
->   drivers/gpu/drm/tiny/bochs.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-> index 69c5f65e9853..9055b1dd66df 100644
-> --- a/drivers/gpu/drm/tiny/bochs.c
-> +++ b/drivers/gpu/drm/tiny/bochs.c
-> @@ -268,7 +268,7 @@ static int bochs_hw_init(struct bochs_device *bochs)
->   	if (!devm_request_mem_region(&pdev->dev, addr, size, "bochs-drm"))
->   		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
->   
-> -	bochs->fb_map = devm_ioremap(&pdev->dev, addr, size);
-> +	bochs->fb_map = devm_ioremap_wc(&pdev->dev, addr, size);
->   	if (bochs->fb_map == NULL) {
->   		DRM_ERROR("Cannot map framebuffer\n");
->   		return -ENOMEM;
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
-
