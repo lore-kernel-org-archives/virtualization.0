@@ -1,225 +1,56 @@
-Received: from mailout2.hostsharing.net (mailout2.hostsharing.net [83.223.78.233])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D081922FB
-	for <virtualization@lists.linux.dev>; Tue, 10 Sep 2024 15:17:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.223.78.233
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC3F81917D7;
+	Tue, 10 Sep 2024 16:03:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725981451; cv=none; b=jjkGXO8U5C0veSoqXdTYjnQhEgsbnrXVywQ5e1yVwiqPkuLdiaRftg1wNu1Hzz3l2xHSJbH32t77mgS++ddOefm1+d8uknF5PuCnP1Z6ELkHpLqusFNGcVVa7Q8zmCBBTftIZRToe4xNPb9udhwSs0+cQWPalMA2D+qr5yM7FKc=
+	t=1725984211; cv=none; b=D6R7tEJOcPntoCSY3dwEbfkxPnukafO5U5VnO9P+kvwd/b8w7+W4Zy55S/3v+DL1yUPEIbSPbAyLJnng9QerW/D0McLV3Qm22wPlO2gqQlr5kunZImaWLvZDxc1lJ0h7FFOIVbM0/EZh43gA03SuFdRv1dlWHy2fHxyUt75osWA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725981451; c=relaxed/simple;
-	bh=Gi+Q/AV1v5Y/ztmHc2sJbwehokd/kp0j1jeKqkqp4Jk=;
-	h=Message-ID:In-Reply-To:References:From:Date:Subject:To:Cc; b=Y8AgfP8Axa5ERePoqMCQPWOkoe9Fuz6DLL+0Kkbp69m3Doc1Lp3WAtpqpDRJXa9cxSHs4IXE/z2GbkxIbz4iRDN5VNHZZGPZl37PBXNcJ9cC176vNEyywdJfq/MCbTUL+UaVl64cYegcFb9Ftw/4fC0D55PqaXC0/ehAGjd6y28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=pass smtp.mailfrom=wunner.de; arc=none smtp.client-ip=83.223.78.233
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wunner.de
-Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
-	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
-	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
-	by mailout2.hostsharing.net (Postfix) with ESMTPS id 37B5A103228DC;
-	Tue, 10 Sep 2024 17:17:26 +0200 (CEST)
-Received: from localhost (unknown [89.246.108.87])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by h08.hostsharing.net (Postfix) with ESMTPSA id 0A4B760A8B01;
-	Tue, 10 Sep 2024 17:17:26 +0200 (CEST)
-X-Mailbox-Line: From 6335b292d716bad2ebfe5947f95723c3cfb1e040 Mon Sep 17 00:00:00 2001
-Message-ID: <6335b292d716bad2ebfe5947f95723c3cfb1e040.1725972335.git.lukas@wunner.de>
-In-Reply-To: <cover.1725972333.git.lukas@wunner.de>
-References: <cover.1725972333.git.lukas@wunner.de>
-From: Lukas Wunner <lukas@wunner.de>
-Date: Tue, 10 Sep 2024 16:30:19 +0200
-Subject: [PATCH v2 09/19] crypto: virtio - Drop sign/verify operations
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Eric Biggers <ebiggers@google.com>, Stefan Berger <stefanb@linux.ibm.com>, Vitaly Chikunov <vt@altlinux.org>, Tadeusz Struk <tstruk@gigaio.com>
-Cc: David Howells <dhowells@redhat.com>, Andrew Zaborowski <andrew.zaborowski@intel.com>, Saulo Alessandre <saulo.alessandre@tse.jus.br>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Ignat Korchagin <ignat@cloudflare.com>, Marek Behun <kabel@kernel.org>, Varad Gautam <varadgautam@google.com>, Stephan Mueller <smueller@chronox.de>, Denis Kenzior <denkenz@gmail.com>, linux-crypto@vger.kernel.org, keyrings@vger.kernel.org, Gonglei <arei.gonglei@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio Perez <eperezma@redhat.com>, virtualization@lists.linux.dev, zhenwei pi <pizhenwei@bytedance.com>
+	s=arc-20240116; t=1725984211; c=relaxed/simple;
+	bh=ilabHJFlIv3jx9OGdmytGZRjRg+7iTyA+0pqWCT0tN0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=LNqURufRQciK3TEeksG0N41ph/AVGHGk9EqxiuFS+wd1ZHilqtitPEXiBFEbcZDTeMI4OvUWrSJ/BZ3wYDW8CCZxt21hI5U1Wj7wXy4cRI5m0/AHMVmuRO1gfdNHPkw4UyARw2339BeZyUFXbp7B2oSJZW+XJYMf2ps+TubTNJw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H0O0gnlr; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H0O0gnlr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC059C4CEC3;
+	Tue, 10 Sep 2024 16:03:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1725984211;
+	bh=ilabHJFlIv3jx9OGdmytGZRjRg+7iTyA+0pqWCT0tN0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=H0O0gnlrE5+rmvwTOE/GS4fSqEBcOhjWh6IqCQ6v2+QsISPkCmeN4GBKt3YWd3KrL
+	 hNKv7YkOZBh2kNeTW//EBhApSb1Vi6k1+PbM09Cc0SEdbVcSWvwbRylOcJ8MYAs+vp
+	 gy8iHwZsgOqPeY4dl500iBvtCZGB3pYyLivzmPgXfiqxZDfManJfZn3PCh9jIujhnR
+	 s+uf56mNy+MEgUT53JgxbaHI7piVuidmZNBYKezhzsxVxqn69fo/BRVjnY7HF32Z7g
+	 0n7ExtxxxkMpRxl/MkxuUsNyKnfTB+pL+5kjtWNManYDZb/6ljaWpwZq7LyXM/4IyV
+	 t4IOzmSiXTAqg==
+Date: Tue, 10 Sep 2024 09:03:29 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev,
+ Jason Wang <jasowang@redhat.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org, Darren Kenny <darren.kenny@oracle.com>, Si-Wei Liu
+ <si-wei.liu@oracle.com>
+Subject: Re: [PATCH 0/3] Revert "virtio_net: rx enable premapped mode by
+ default"
+Message-ID: <20240910090329.721e538b@kernel.org>
+In-Reply-To: <20240910081147-mutt-send-email-mst@kernel.org>
+References: <20240906123137.108741-1-xuanzhuo@linux.alibaba.com>
+	<20240910081147-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The virtio crypto driver exposes akcipher sign/verify operations in a
-user space ABI.  This blocks removal of sign/verify from akcipher_alg.
+On Tue, 10 Sep 2024 08:12:06 -0400 Michael S. Tsirkin wrote:
+> Just making sure netdev maintainers see this, this patch is for net.
 
-Herbert opines:
-
-   "I would say that this is something that we can break.  Breaking it
-    is no different to running virtio on a host that does not support
-    these algorithms.  After all, a software implementation must always
-    be present.
-
-    I deliberately left akcipher out of crypto_user because the API
-    is still in flux.  We should not let virtio constrain ourselves."
-    https://lore.kernel.org/all/ZtqoNAgcnXnrYhZZ@gondor.apana.org.au/
-
-   "I would remove virtio akcipher support in its entirety.  This API
-    was never meant to be exposed outside of the kernel."
-    https://lore.kernel.org/all/Ztqql_gqgZiMW8zz@gondor.apana.org.au/
-
-Drop sign/verify support from virtio crypto.  There's no strong reason
-to also remove encrypt/decrypt support, so keep it.
-
-A key selling point of virtio crypto is to allow guest access to crypto
-accelerators on the host.  So far the only akcipher algorithm supported
-by virtio crypto is RSA.  Dropping sign/verify merely means that the
-PKCS#1 padding is now always generated or verified inside the guest,
-but the actual signature generation/verification (which is an RSA
-decrypt/encrypt operation) may still use an accelerator on the host.
-
-Generating or verifying the PKCS#1 padding is cheap, so a hardware
-accelerator won't be of much help there.  Which begs the question
-whether virtio crypto support for sign/verify makes sense at all.
-
-It would make sense for the sign operation if the host has a security
-chip to store asymmetric private keys.  But the kernel doesn't even
-have an asymmetric_key_subtype yet for hardware-based private keys.
-There's at least one rudimentary driver for such chips (atmel-ecc.c for
-ATECC508A), but it doesn't implement the sign operation.  The kernel
-would first have to grow support for a hardware asymmetric_key_subtype
-and at least one driver implementing the sign operation before exposure
-to guests via virtio makes sense.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
----
- .../virtio/virtio_crypto_akcipher_algs.c      | 65 ++++++-------------
- include/uapi/linux/virtio_crypto.h            |  1 +
- 2 files changed, 22 insertions(+), 44 deletions(-)
-
-diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-index cb92b7fa99c6..48fee07b7e51 100644
---- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-@@ -83,23 +83,16 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
- 	case VIRTIO_CRYPTO_BADMSG:
- 		error = -EBADMSG;
- 		break;
--
--	case VIRTIO_CRYPTO_KEY_REJECTED:
--		error = -EKEYREJECTED;
--		break;
--
- 	default:
- 		error = -EIO;
- 		break;
- 	}
- 
- 	akcipher_req = vc_akcipher_req->akcipher_req;
--	if (vc_akcipher_req->opcode != VIRTIO_CRYPTO_AKCIPHER_VERIFY) {
--		/* actuall length maybe less than dst buffer */
--		akcipher_req->dst_len = len - sizeof(vc_req->status);
--		sg_copy_from_buffer(akcipher_req->dst, sg_nents(akcipher_req->dst),
--				    vc_akcipher_req->dst_buf, akcipher_req->dst_len);
--	}
-+	/* actual length maybe less than dst buffer */
-+	akcipher_req->dst_len = len - sizeof(vc_req->status);
-+	sg_copy_from_buffer(akcipher_req->dst, sg_nents(akcipher_req->dst),
-+			    vc_akcipher_req->dst_buf, akcipher_req->dst_len);
- 	virtio_crypto_akcipher_finalize_req(vc_akcipher_req, akcipher_req, error);
- }
- 
-@@ -230,36 +223,27 @@ static int __virtio_crypto_akcipher_do_req(struct virtio_crypto_akcipher_request
- 	int node = dev_to_node(&vcrypto->vdev->dev);
- 	unsigned long flags;
- 	int ret;
--	bool verify = vc_akcipher_req->opcode == VIRTIO_CRYPTO_AKCIPHER_VERIFY;
--	unsigned int src_len = verify ? req->src_len + req->dst_len : req->src_len;
- 
- 	/* out header */
- 	sg_init_one(&outhdr_sg, req_data, sizeof(*req_data));
- 	sgs[num_out++] = &outhdr_sg;
- 
- 	/* src data */
--	src_buf = kcalloc_node(src_len, 1, GFP_KERNEL, node);
-+	src_buf = kcalloc_node(req->src_len, 1, GFP_KERNEL, node);
- 	if (!src_buf)
- 		return -ENOMEM;
- 
--	if (verify) {
--		/* for verify operation, both src and dst data work as OUT direction */
--		sg_copy_to_buffer(req->src, sg_nents(req->src), src_buf, src_len);
--		sg_init_one(&srcdata_sg, src_buf, src_len);
--		sgs[num_out++] = &srcdata_sg;
--	} else {
--		sg_copy_to_buffer(req->src, sg_nents(req->src), src_buf, src_len);
--		sg_init_one(&srcdata_sg, src_buf, src_len);
--		sgs[num_out++] = &srcdata_sg;
-+	sg_copy_to_buffer(req->src, sg_nents(req->src), src_buf, req->src_len);
-+	sg_init_one(&srcdata_sg, src_buf, req->src_len);
-+	sgs[num_out++] = &srcdata_sg;
- 
--		/* dst data */
--		dst_buf = kcalloc_node(req->dst_len, 1, GFP_KERNEL, node);
--		if (!dst_buf)
--			goto free_src;
-+	/* dst data */
-+	dst_buf = kcalloc_node(req->dst_len, 1, GFP_KERNEL, node);
-+	if (!dst_buf)
-+		goto free_src;
- 
--		sg_init_one(&dstdata_sg, dst_buf, req->dst_len);
--		sgs[num_out + num_in++] = &dstdata_sg;
--	}
-+	sg_init_one(&dstdata_sg, dst_buf, req->dst_len);
-+	sgs[num_out + num_in++] = &dstdata_sg;
- 
- 	vc_akcipher_req->src_buf = src_buf;
- 	vc_akcipher_req->dst_buf = dst_buf;
-@@ -352,16 +336,6 @@ static int virtio_crypto_rsa_decrypt(struct akcipher_request *req)
- 	return virtio_crypto_rsa_req(req, VIRTIO_CRYPTO_AKCIPHER_DECRYPT);
- }
- 
--static int virtio_crypto_rsa_sign(struct akcipher_request *req)
--{
--	return virtio_crypto_rsa_req(req, VIRTIO_CRYPTO_AKCIPHER_SIGN);
--}
--
--static int virtio_crypto_rsa_verify(struct akcipher_request *req)
--{
--	return virtio_crypto_rsa_req(req, VIRTIO_CRYPTO_AKCIPHER_VERIFY);
--}
--
- static int virtio_crypto_rsa_set_key(struct crypto_akcipher *tfm,
- 				     const void *key,
- 				     unsigned int keylen,
-@@ -524,16 +498,19 @@ static struct virtio_crypto_akcipher_algo virtio_crypto_akcipher_algs[] = {
- 		.algo.base = {
- 			.encrypt = virtio_crypto_rsa_encrypt,
- 			.decrypt = virtio_crypto_rsa_decrypt,
--			.sign = virtio_crypto_rsa_sign,
--			.verify = virtio_crypto_rsa_verify,
-+			/*
-+			 * Must specify an arbitrary hash algorithm upon
-+			 * set_{pub,priv}_key (even though it's not used
-+			 * by encrypt/decrypt) because qemu checks for it.
-+			 */
- 			.set_pub_key = virtio_crypto_p1pad_rsa_sha1_set_pub_key,
- 			.set_priv_key = virtio_crypto_p1pad_rsa_sha1_set_priv_key,
- 			.max_size = virtio_crypto_rsa_max_size,
- 			.init = virtio_crypto_rsa_init_tfm,
- 			.exit = virtio_crypto_rsa_exit_tfm,
- 			.base = {
--				.cra_name = "pkcs1pad(rsa,sha1)",
--				.cra_driver_name = "virtio-pkcs1-rsa-with-sha1",
-+				.cra_name = "pkcs1pad(rsa)",
-+				.cra_driver_name = "virtio-pkcs1-rsa",
- 				.cra_priority = 150,
- 				.cra_module = THIS_MODULE,
- 				.cra_ctxsize = sizeof(struct virtio_crypto_akcipher_ctx),
-diff --git a/include/uapi/linux/virtio_crypto.h b/include/uapi/linux/virtio_crypto.h
-index 71a54a6849ca..2fccb64c9d6b 100644
---- a/include/uapi/linux/virtio_crypto.h
-+++ b/include/uapi/linux/virtio_crypto.h
-@@ -329,6 +329,7 @@ struct virtio_crypto_op_header {
- 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x00)
- #define VIRTIO_CRYPTO_AKCIPHER_DECRYPT \
- 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x01)
-+	/* akcipher sign/verify opcodes are deprecated */
- #define VIRTIO_CRYPTO_AKCIPHER_SIGN \
- 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x02)
- #define VIRTIO_CRYPTO_AKCIPHER_VERIFY \
--- 
-2.43.0
-
+Got it, thanks! I'll be applying it shortly.
