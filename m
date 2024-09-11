@@ -1,181 +1,135 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99D6876048
-	for <virtualization@lists.linux.dev>; Wed, 11 Sep 2024 06:29:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 908EE13C9D9
+	for <virtualization@lists.linux-foundation.org>; Wed, 11 Sep 2024 08:01:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726036198; cv=none; b=liZnnCRFXqP2vECXkYpNs3cK0IudErINILlCYo0ItY9OzTjid0IPVfqplxalzdCFCpJ5Cp/BdhZKQxne2sd+BL20CRrPJNrvXiSLD/TXuurqZrDPI5f+BlzB/jVCbI6OMa4PZbdq+8Vnm4MZGLbNDKmlEgXxIAHbdkVRWRRqlXI=
+	t=1726041686; cv=none; b=g/N2k7JC6u9yqez+o1L8R/rN7efw0lLQEwmKsSI5ngKpAGS+qRJuvX1zB6XgtB8AMEx2tzuCLb6hkkP3Sw9SdicdOOaEmKtUd8noEzDQlw86WJAuilcXRhM38vGz1zF2PF1TKELjoQ3ZJFkxkiF9pnMR205CClqPzpxRRn2JaTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726036198; c=relaxed/simple;
-	bh=3bIxxlBadEWdCSSBaTq1Q8pkzXjFeW3xEm5ePpcUIZA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NBO9PQkROoh9595Qi+kWbevLQafFHhV6PqUSe0DYYgEIpOCE+mUMqBEQfw3C4hSfOoCtDI+5eReemDzN48BIwPm8uc2b8X7hDWZ300NAqEeqq66+2Y/wy7ihcBypudYtxOVab2oIDP1Dpmw4XfcNSsv6aY6GGm4WwR5PX+vgRPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=XBdUkAK0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=0zhHUiuw; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=XBdUkAK0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=0zhHUiuw; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1726041686; c=relaxed/simple;
+	bh=S7YFPOr47KnzpX+EfvhDAL9kUueFzGcx6/bEZmJEe1U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MGpRywF8pcdfV8hwFmKv2WJv2+lNIpVMNIPw024YAaWTe5ZNZOgW6WEJS+NG6rlJvS9oBM+SeccVQRQ8X0AJ7B70NO6AomYbGWkke7Xqu3NRnc12zKWzUkyBSUoqfMTcIzCfA4mBs6QF+wa0jOJAco/T/Z//pJgM7jHVaz5qLqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iKYe1LaH; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="XBdUkAK0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="0zhHUiuw";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="XBdUkAK0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="0zhHUiuw"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id B91061F871;
-	Wed, 11 Sep 2024 06:29:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1726036194; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iKYe1LaH"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2D7B180AC8
+	for <virtualization@lists.linux-foundation.org>; Wed, 11 Sep 2024 08:01:25 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id r0Ooh7xJEfpi for <virtualization@lists.linux-foundation.org>;
+ Wed, 11 Sep 2024 08:01:24 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 2294780A52
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2294780A52
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iKYe1LaH
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2294780A52
+	for <virtualization@lists.linux-foundation.org>; Wed, 11 Sep 2024 08:01:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1726041682;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=a7TIMBbkSUCLIgO1yyz3EcaNUNeoX6W/8txRAx1Wu2g=;
-	b=XBdUkAK0LWgmY0hluRvo/Ug30i1o5Sg59ZZwlAITacmNgN+by4TqCpFUUrTm5I54u5AyKx
-	nA2tElJcUELaEVZ4wMCyyksX1yZSbFy9x/0Q1/t1qk0oogEdxjW+w4U7RTEoonaqAWaHJr
-	CViW1gKt9/f6Pn4RSLzK2Vkk4ctM8w0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1726036194;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=a7TIMBbkSUCLIgO1yyz3EcaNUNeoX6W/8txRAx1Wu2g=;
-	b=0zhHUiuwCPOf0bwoeoafFc3KsoAml+hdWe7Mmpl2GZyI1fdHyEf2Zniy7oUqfEhY1JflkA
-	V1FJ0bVZabQjFcDg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=XBdUkAK0;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=0zhHUiuw
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1726036194; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=a7TIMBbkSUCLIgO1yyz3EcaNUNeoX6W/8txRAx1Wu2g=;
-	b=XBdUkAK0LWgmY0hluRvo/Ug30i1o5Sg59ZZwlAITacmNgN+by4TqCpFUUrTm5I54u5AyKx
-	nA2tElJcUELaEVZ4wMCyyksX1yZSbFy9x/0Q1/t1qk0oogEdxjW+w4U7RTEoonaqAWaHJr
-	CViW1gKt9/f6Pn4RSLzK2Vkk4ctM8w0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1726036194;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=a7TIMBbkSUCLIgO1yyz3EcaNUNeoX6W/8txRAx1Wu2g=;
-	b=0zhHUiuwCPOf0bwoeoafFc3KsoAml+hdWe7Mmpl2GZyI1fdHyEf2Zniy7oUqfEhY1JflkA
-	V1FJ0bVZabQjFcDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 51CF3132CB;
-	Wed, 11 Sep 2024 06:29:54 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id i7hnEuI44WbIOAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 11 Sep 2024 06:29:54 +0000
-Message-ID: <01fb5db0-4a38-4478-b16e-6f40821a39c1@suse.de>
-Date: Wed, 11 Sep 2024 08:29:53 +0200
+	 in-reply-to:in-reply-to:references:references;
+	bh=S7YFPOr47KnzpX+EfvhDAL9kUueFzGcx6/bEZmJEe1U=;
+	b=iKYe1LaH+ntw8w/lhU+wlFD3FxNXNOnQU9f+HDBAdxtIMnqmjC2RE4WGEGSDh4znzw3uRR
+	vG7PYeKmKGEjuxEzGKHtE/O0n/S5YiwgnBoVdLHJag8QcJwSKuLvZj8ifF4wXH6Clo6QjU
+	ExW8EcVPouleCK5pe2/p4I62cCkvhOU=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-341-OIycmWLCMuiAlgLPHY91aw-1; Wed, 11 Sep 2024 04:01:20 -0400
+X-MC-Unique: OIycmWLCMuiAlgLPHY91aw-1
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6d7124939beso193118517b3.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 11 Sep 2024 01:01:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1726041680; x=1726646480;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=S7YFPOr47KnzpX+EfvhDAL9kUueFzGcx6/bEZmJEe1U=;
+        b=eXB5aWXJ1o/cP72MRBsczGkRMi1o6kYSJBUZQbrPfEVZwVmWUDlHdcx5TNWqWy7+07
+         SLGNk+QQ2jmY/qAyMtmp4q3F1IHnYqVVDU7TCywgYBan8zgdSkuRujwUpm49GxvFmO4o
+         2O82gvmMHuoiRqzAP+LZS3xqMrvKhbWYR3e4p+EksWstCppBOqggbPzu5YFPFwxDAtZz
+         GkWUKhOYH1ea9gJGu/CAyhoWr3L4B92MlqiD9cJ6OWBTp6Ea1sGox6026uDeo9VkLcPB
+         cfCI7HfZ23nqqFxz04fu4opUsu6Bn4H0ZUJzVAtwcP0XTnJXY0WCfRrFOT+2HirwbH1B
+         ByCQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW5zihY0HwR8muoNMdkBaYt1+xzHneKuSaKfUzCFHauG2cpnmqllo2i27r2waEntyOae/i1MYKyDx5RcFo/OA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxGTCAzXR85M+gCMrx60hPDv9S6HfVFIeCm6Qegfx57+24yUxx7
+	mWuL/ei9AXIF5T82aNI6zgFJ7j2BOZN7y5T/vD2+FKy9lJcOpkIfglUze5+P5OOSwD6W9/dKqPf
+	jFl/Ta6O9Zt3xGHxPGMyrP9c48uc7tnty7VDSUgULKqh6w8pJNOTfcX7zFaCz/IDiOt7Cyti1gt
+	7HM8PyVKIxhUFvUX+vPfYvi4lC4ZMOsZnzcN2qOLQb8vuuIF8Y2P57cw==
+X-Received: by 2002:a05:690c:6512:b0:64a:3e36:7fd1 with SMTP id 00721157ae682-6db44d9e360mr200120247b3.10.1726041680281;
+        Wed, 11 Sep 2024 01:01:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFGycL15wVUOnoLYy7HKMCqM5sIYCNMn+FEaCTz3f8kQpDk/ygjQU73LezZOKgf3VnEGDHaAdRqQdFmHRUiFMw=
+X-Received: by 2002:a05:690c:6512:b0:64a:3e36:7fd1 with SMTP id
+ 00721157ae682-6db44d9e360mr200119947b3.10.1726041679985; Wed, 11 Sep 2024
+ 01:01:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/bochs: use devm_ioremap_wc() to map framebuffer
-To: Yan Zhao <yan.y.zhao@intel.com>
-Cc: kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
- airlied@gmail.com, daniel@ffwll.ch, virtualization@lists.linux.dev,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- pbonzini@redhat.com, seanjc@google.com, kvm@vger.kernel.org,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Kevin Tian <kevin.tian@intel.com>
-References: <20240909131643.28915-1-yan.y.zhao@intel.com>
- <75c8c1f0-d774-4bc1-ba71-bce15db921c7@suse.de>
- <Zt/9rKpi5IT5jwl5@yzhao56-desk.sh.intel.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <Zt/9rKpi5IT5jwl5@yzhao56-desk.sh.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: B91061F871
-X-Spam-Score: -4.51
-X-Rspamd-Action: no action
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_TWELVE(0.00)[14];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_CC(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,lists.linux.dev,lists.freedesktop.org,vger.kernel.org,google.com,intel.com];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Flag: NO
-X-Spam-Level: 
+References: <20240816090159.1967650-1-dtatulea@nvidia.com> <20240816090159.1967650-2-dtatulea@nvidia.com>
+ <c59afb55-78b1-48b3-bafa-646b8499bf1c@nvidia.com>
+In-Reply-To: <c59afb55-78b1-48b3-bafa-646b8499bf1c@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 11 Sep 2024 10:00:44 +0200
+Message-ID: <CAJaqyWcEt7=3j2uoToZH=no-gPvRsXwW7RLtFcbD7_-nQ0Dqyw@mail.gmail.com>
+Subject: Re: [PATCH mlx5-vhost v2 01/10] net/mlx5: Support throttled commands
+ from async API
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	virtualization@lists.linux-foundation.org, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Leon Romanovsky <leonro@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Sep 9, 2024 at 11:33=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+>
+>
+> On 16.08.24 11:01, Dragos Tatulea wrote:
+> > Currently, commands that qualify as throttled can't be used via the
+> > async API. That's due to the fact that the throttle semaphore can sleep
+> > but the async API can't.
+> >
+> > This patch allows throttling in the async API by using the tentative
+> > variant of the semaphore and upon failure (semaphore at 0) returns EBUS=
+Y
+> > to signal to the caller that they need to wait for the completion of
+> > previously issued commands.
+> >
+> > Furthermore, make sure that the semaphore is released in the callback.
+> >
+> > Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> > Cc: Leon Romanovsky <leonro@nvidia.com>
+> > Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+> Same reminder as in v1: Tariq is the maintainer for mlx5 so his review
+> also counts as Acked-by.
+>
 
+Not sure if it was the case when you send the mail, but this series is
+already in the maintainer's branch:
+* https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/
+* https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=
+=3Dvhost&id=3D691fd851e1bc8ec043798e1ab337305e6291cd6b
 
-Am 10.09.24 um 10:05 schrieb Yan Zhao:
-> On Tue, Sep 10, 2024 at 09:24:22AM +0200, Thomas Zimmermann wrote:
->> Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
->> Texted-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Thank you!
-> I suppose this is "Tested-by", right?
-
-Yes
-
-Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+Thanks!
 
