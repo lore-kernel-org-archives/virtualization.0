@@ -1,111 +1,151 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7627914293
-	for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 14:50:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE2841AD27D
+	for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 15:00:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726152640; cv=none; b=EJI5PcVXvAfgxBoycj50v6IMSx8cpRSENgTJlfURM5alc+opM3WBVve/Dk5muklmBfpKytO/kG2VAj14632PyYJyVXzcToMZwZqTWxDWPAhWmCEC2m3P1a2Qt2cGKFW0gIeN3I6TQxEONKzvtEH10t7MtUZTY/VO0eynPtwim6w=
+	t=1726153223; cv=none; b=Va1DNYQeoWOfPnksu8fRyrH/yP4pwQpy03QDOnW9rdxL3nsKg/dFL1fidBXXPrkha8WFVfek1obhNTygMh1zty9DMAt6hHfnOLJlFLegeTPYYQ865NIQlEXhQkuEQnhQUEGI0hjJXg3mr7W8bp1tnrbXM0u2ynani9FXQ5Wobqo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726152640; c=relaxed/simple;
-	bh=TBxosJnxKNSR0MGeo9H9cM/4TfnfF1GV0MUVsO/FJXg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qe/oR6vU9mdhbnsuVfCT+EI1Ye3cs2861UPnNy/zrGIRHddHhBWGe2vvPeCjQQyZaE+fT32H/4dIuef+gKshyN5sewYI3MywX02Hq0hqMyZANoBEa2VW0DoenRGlmMYG/GOGy+ld6eJiVe7yR1xug1xJ11tIUMXUwZLHvuGsMR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IvYS1NB+; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1726153223; c=relaxed/simple;
+	bh=d/ybhfMCTjKkGzaWZGoxnvqsofzvGS/CDRPky/HKZhw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=KpYk+TgienwbvCUB5Men7nnZprFgytnRvOdKD0A1LXDd2MxiuRlVCu/qq4lXavNUATutsh71nPmJh1qp45jAGMHAyWZBhLL41JUu4jufLIaQd3d9tam5sdubewE2q21S49Fu0qfN2KRutXm9UIydCbB1IpDk5/mSkcih3Ts44ug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X5s1dntL; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IvYS1NB+"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2059204f448so9896925ad.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 07:50:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1726152639; x=1726757439; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=8riDeJfpKTiIIgIK66ZvC0JkQHqkw/ZkvYMdWGm4eVU=;
-        b=IvYS1NB+92TfC7ybnaWvs1IliniautXG1ibudslfCoVYA5zuhSDO/vPN7TizIElc5j
-         VdrVkj4ZXcEbyW12kfnucvtmqMgM3Nwx2PF/Quv9Wy9UBAm4HMYXA29s2gUdUcCyImdn
-         3YNk6CQyx4XpOrLBVS243s0kZ1ualk8NImgIS05OPAQ+5KlPR1g5C3ezT4djx2Y2HI5E
-         lEDYKFaPwSqHjQbKaK8sfj9dt7qKtBJkBOW2xS3g9o6mpB4Gnr6qi3fge91nC/HE0WEJ
-         oVM1IYPTRMM3NC/DweN1H7zFgx7Fd24WyJTh/DpWSrSxydfYzPJiXgukFJBybSSf6HOZ
-         olgg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X5s1dntL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1726153220;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ra9RxWd2COyh/WhxNBLiqQRi/qW7TAIIfLxS3bjnOlA=;
+	b=X5s1dntLx1pfboprtLgn9vMVu/Te7ATyzggaj7O48epC0ba8m4422DtutyOAuJyut6ShYk
+	KKLTGYGsUZuQ3zmFbQH86/o1MvKuiC2iQA+n85ee82F9897cvOrjqbcAjgk9ghZf53wygy
+	aXeFNW6Ant7w8K5LjLxypcy8YRQ5SNU=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-689-ZRjULfKaPbKFT00Big2xwg-1; Thu, 12 Sep 2024 11:00:19 -0400
+X-MC-Unique: ZRjULfKaPbKFT00Big2xwg-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-374c294d841so848277f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 08:00:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726152639; x=1726757439;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8riDeJfpKTiIIgIK66ZvC0JkQHqkw/ZkvYMdWGm4eVU=;
-        b=FvaQCDVU1uI0nLUODCpz6zypRy42v33I4TT/JI3AueE0RG+C69HcELai94m6B0TGFv
-         ZTl+RGa5X6Gb9BEJb/K0fvXBLJSIm8GN50INGQqd80q2bkje/uF5j4IlT0xGzANRFUow
-         emH2lf+8ShQKz6nA9xBIMRQ9+wpffEmNTWFoMQ/DTAADEkfm1bUQshrhiczKgZTUAixU
-         Ymhyyhe29hWDAyhHF6aJRAS3tsx9Bd5jdBTKikarGtCzTxdvF4clm5ybiqgSVRgXc7Me
-         f29hjbmNM4bDnpDY1PgeU9ANUpKeh0FRprL62Zpv7+nsLpUM+/g7Uw9SUsJJ2VkPiS0M
-         ZA4w==
-X-Forwarded-Encrypted: i=1; AJvYcCU+Ei7629zDIIG16RyXx+aRKnRAeShpT6PkejidAIjsipcflsOdndzPR3DlCfuTkqyXhyOJw9U22jkA2fB/fw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzcNa6WLwn7facyhO3U3In2DHeOso4wDWCZGR2c6NSKIy4Yz2d1
-	GLP3nWraFz+AB1Nz9JNwKpLuN4GqXlF7QIJX8OBd7OJ8RFBoyTpTDFQ4Gm5R0CeVfTduZmpJNlH
-	UL92mfDWO9bKwwYRepzFhqyCUiQhQrQJrD7h5
-X-Google-Smtp-Source: AGHT+IH+oOivsgfrBeKHuHozhtz6eiw/QOezGUkUUw4eyVeYY7NMSvWWqexcWfthAnr/CXOkRdF8YxLmOcYdvlqrug4=
-X-Received: by 2002:a17:903:32c2:b0:207:894:6e58 with SMTP id
- d9443c01a7336-2076e45e311mr42095165ad.56.1726152638371; Thu, 12 Sep 2024
- 07:50:38 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1726153218; x=1726758018;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ra9RxWd2COyh/WhxNBLiqQRi/qW7TAIIfLxS3bjnOlA=;
+        b=XSfQzT9SFCB3cfJX1rGgfxPq2PKcWi6a95POP1g/dq515fVPce2ccXIlhR9bDTKnY5
+         /L3gKoV8d/g7cFcKUlu4xD80A/cXQrirYbICRDWAB4fdK8rwNYoaED/h90zxTrlABTSg
+         CIxoUHYMlaQxf/nbMmnBDraVFEFd/sHLgCAKJs78cXG/zkCFHlxwIJlKakf+5LRt+qer
+         iAIz3WJ3ixMUiNtns9EOWA6z/CDwBCAi8ZXyMguJTthBaPLMTswqritHGqSgQhMByiOX
+         jlSMVwXFVObyAJ8Qpa3/lvpMcvn+PlsPm9w3hL0UrBlYZXxmSmZ208VUGJ2EzpWSoytz
+         Y7aw==
+X-Forwarded-Encrypted: i=1; AJvYcCW6oVM/D11eZp6oJenywKSYcFJQTh/2df5+7qdmIlOGZUXKjVZBBH6w57WnsZFNSpJx681BRSOH0ocIVNkXnQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzMXaAg8BMhHJJZ13a1jH4mdyyNxiw3H931JoajzyZRP2IeQEIs
+	+jq/fiSU8gekmNQUh0qT+lDsp3ynYXAbTevHOvy+MI96onOIphdiOCZXMxkzBpI8Ejalo21YqhC
+	Syk8ltJyeNoDPD2mjq44KZ54dKD6HX/dGCpATEuNq6piPRnIfbsGmdyq1NORYcH/4
+X-Received: by 2002:adf:ab14:0:b0:374:c90e:990c with SMTP id ffacd0b85a97d-378c2d037bcmr2522941f8f.33.1726153218546;
+        Thu, 12 Sep 2024 08:00:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGvxC8R60skHAL/96hW1EQTBaRWn8ysR/Kh/DHj4LgpPdkftzu4AWByhVXHEE71gqTbmjOTGA==
+X-Received: by 2002:adf:ab14:0:b0:374:c90e:990c with SMTP id ffacd0b85a97d-378c2d037bcmr2522900f8f.33.1726153217904;
+        Thu, 12 Sep 2024 08:00:17 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:177:45a6:a4e6:75a4:a286:2745])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37895649b88sm14689128f8f.6.2024.09.12.08.00.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Sep 2024 08:00:17 -0700 (PDT)
+Date: Thu, 12 Sep 2024 11:00:12 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Marco Elver <elver@google.com>
+Cc: syzbot <syzbot+8a02104389c2e0ef5049@syzkaller.appspotmail.com>,
+	eperezma@redhat.com, jasowang@redhat.com,
+	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Subject: Re: [syzbot] [virt?] KCSAN: data-race in virtqueue_disable_cb /
+ vring_interrupt (4)
+Message-ID: <20240912105002-mutt-send-email-mst@kernel.org>
+References: <000000000000e2058e0621e7a637@google.com>
+ <20240912070121-mutt-send-email-mst@kernel.org>
+ <CANpmjNN+3TwdxkvnFzzeQNOVXq-smqpi+xtkw0j+Pd-BGkrgFw@mail.gmail.com>
+ <20240912103017-mutt-send-email-mst@kernel.org>
+ <CANpmjNOGpVXXdi61vFJDPB4CHsd3ksotjdQHO6WiVXV2m-aABg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <39fbceb9a794b7c412b17c4ac6c2dd285d1bd3e5.1726152335.git.mst@redhat.com>
-In-Reply-To: <39fbceb9a794b7c412b17c4ac6c2dd285d1bd3e5.1726152335.git.mst@redhat.com>
-From: Marco Elver <elver@google.com>
-Date: Thu, 12 Sep 2024 16:50:02 +0200
-Message-ID: <CANpmjNMNgvg+NKtzxy06AB4QFQKzFsmp-chB1G_+XueiKNA-bA@mail.gmail.com>
-Subject: Re: [PATCH] virtio_ring: tag event_triggered as racy for KCSAN
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, 
-	syzbot+8a02104389c2e0ef5049@syzkaller.appspotmail.com, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CANpmjNOGpVXXdi61vFJDPB4CHsd3ksotjdQHO6WiVXV2m-aABg@mail.gmail.com>
+X-Mimecast-Spam-Score: 1
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 12 Sept 2024 at 16:45, Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> event_triggered is fundamentally racy. There are races of 2 types:
-> 1. vq processing can read false value while interrupt
->    triggered and set it to true.
->    result will be a bit of extra work when disabling cbs, no big deal.
->
-> 1. vq processing can set false value then interrupt
->    immediately sets true value
->    since interrupt then triggers a callback which will
->    process buffers, this is also not an issue.
->
-> However, looks like KCSAN isn't smart enough to figure this out.
-> Tag the field __data_racy for now.
-> We should probably look at ways to make this more straight-forwardly
-> correct.
->
-> Cc: Marco Elver <elver@google.com>
-> Reported-by: syzbot+8a02104389c2e0ef5049@syzkaller.appspotmail.com
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index be7309b1e860..724aa9c27c6b 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -194,7 +194,7 @@ struct vring_virtqueue {
->         u16 last_used_idx;
->
->         /* Hint for event idx: already triggered no need to disable. */
-> -       bool event_triggered;
-> +       bool __data_racy event_triggered;
+On Thu, Sep 12, 2024 at 04:46:28PM +0200, Marco Elver wrote:
+> On Thu, 12 Sept 2024 at 16:34, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Thu, Sep 12, 2024 at 03:48:32PM +0200, Marco Elver wrote:
+> > > On Thu, 12 Sept 2024 at 13:03, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Thu, Sep 12, 2024 at 01:11:21AM -0700, syzbot wrote:
+> > > > > Hello,
+> > > > >
+> > > > > syzbot found the following issue on:
+> > > > >
+> > > > > HEAD commit:    7c6a3a65ace7 minmax: reduce min/max macro expansion in ato..
+> > > > > git tree:       upstream
+> > > > > console output: https://syzkaller.appspot.com/x/log.txt?x=1608e49f980000
+> > > > > kernel config:  https://syzkaller.appspot.com/x/.config?x=1e7d02549be622b2
+> > > > > dashboard link: https://syzkaller.appspot.com/bug?extid=8a02104389c2e0ef5049
+> > > > > compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+> > > > >
+> > > > > Unfortunately, I don't have any reproducer for this issue yet.
+> > > > >
+> > > > > Downloadable assets:
+> > > > > disk image: https://storage.googleapis.com/syzbot-assets/a1f7496fa21f/disk-7c6a3a65.raw.xz
+> > > > > vmlinux: https://storage.googleapis.com/syzbot-assets/f423739e51a9/vmlinux-7c6a3a65.xz
+> > > > > kernel image: https://storage.googleapis.com/syzbot-assets/b65a0f38cbd7/bzImage-7c6a3a65.xz
+> > > > >
+> > > > > IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> > > > > Reported-by: syzbot+8a02104389c2e0ef5049@syzkaller.appspotmail.com
+> > > > >
+> > > > > ==================================================================
+> > > > > BUG: KCSAN: data-race in virtqueue_disable_cb / vring_interrupt
+> > > > >
+> > > > > write to 0xffff88810285ef52 of 1 bytes by interrupt on cpu 0:
+> > > > >  vring_interrupt+0x12b/0x180 drivers/virtio/virtio_ring.c:2591
+> > > >
+> > > >
+> > > > Yes, it's racy!
+> > > >
+> > > > 2589:        /* Just a hint for performance: so it's ok that this can be racy! */
+> > > > 2590:        if (vq->event)
+> > > > 2591:            vq->event_triggered = true;
+> > > >
+> > > >
+> > > > Question: is there a way to annotate code to tell syzbot it's ok?
+> > >
+> > > In this case, "if (data_race(vq->event))" might be the right choice.
+> >
+> > No, vq->event is not racy.
+> 
+> Oops - yes.
+> 
+> > The race is between a write and a read of event_triggered.
+> > I think data_race tags a read, it can not tag a write, correct?
+> 
+> data_race() takes an expression, so either read or write can be
+> enclosed - e.g. "data_race(vq->event_triggered = true);" works as
+> well.
 
-I guess if you don't care about any data races on this variable, this
-is reasonable. Although note that data race is more subtle than just a
-"race": https://lwn.net/Articles/816850/
+Ah, good to know. Yes, I see it is basically __kcsan_disable_current +
+__kcsan_enable_current.  Will do.
 
-Acked-by: Marco Elver <elver@google.com>
+
+
+-- 
+MST
+
