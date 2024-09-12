@@ -1,32 +1,32 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAC3C36124
-	for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 07:54:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD5C1552E1
+	for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 07:55:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726127680; cv=none; b=bmlsMZ0dUeqo/NpQ3lOuPBIAOlKUISXgQjK/VZ8ZtdKjL4HbI/bBualAyFThVbqebZlVXfS557b5nd6IGurgDKD9eTfXe//AjHO4IyT29yx6DOzRPLROAcK2NdC/bYng/fM2lvYc8LTxYDbW2C7ljYBvBReMpcEDe2WNUlpXLfg=
+	t=1726127703; cv=none; b=VAme1EFcP4kMtv+KAE0a+lMeZx6kwTjA7nFZfINsJGIQ12pd10WEUAEkm3GfCGyUJdxqsKjEe+tjCzxL+mqQeD1KSyBA0pPyqDE603g/Rz1eAzYzDIZ+vkN/n9z22TrCVfzyY+s76Y5LY8zN+ecQsblNCwPdah47mHLoBfQywz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726127680; c=relaxed/simple;
-	bh=NPkqtlIp+xHGvm3GLxHAjqcdlu7FEkPbfUXqj+L3Km4=;
+	s=arc-20240116; t=1726127703; c=relaxed/simple;
+	bh=sElidT79qVQ7KtOCqREnVwSj8TXMDi0zyUeG+ytS4QI=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=DnlwUlH7tQHqok0lqAoRaij8ALTB7CUfUM2ppJSsCM7U+1VavGX6Ui9aDTQ8P2qKeFbE74pp5u0++JFUG64bQbLklI/CJ5YSAlxuAVTBb1H4tuWXii5HOtmUB9rgNzyjNiWIYujr6Zc1SslkKhpCbOsMI21eJ1aniofRDbtk4EY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=wSjcfkTd; arc=none smtp.client-ip=115.124.30.100
+	 Content-Type; b=pIDzMomc1CHvIfLMgAfrV1jTe/aBcA6bbw2/xrRtMZlk9ewqhp0Xdvcq+ohhElPJ4sUmLYI1DBWkfy/rGOX6vx9qit0yM/1/ZOLLL9ozVHKuZCtEoT999003VkJ+ulo6sgPY+fqzZjBR8fjZTGG1jET8OwYqph1zkQ0kHZWnMSs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cGEYbPOx; arc=none smtp.client-ip=115.124.30.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="wSjcfkTd"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cGEYbPOx"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1726127675; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=dYU0VAB3CUut9S7OAZml/Q5y5JLsH2ot7LKXNCPmZSo=;
-	b=wSjcfkTdrq9O49UkreUmSQ2SE9ZC66oHDEvwrFwUKNRsE4J0G74/NRsuKza+ReEOjC1lhAAoZzobjInyV7UK1TbwYHqTYDSHWagwZNHK+SD7P/bcj8f9nd7msyIGzCk3GUK+RbBd+CpcKWmrXZG2FD+YgvLcHtCriw4G2x/6w/k=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEqjsd-_1726127674)
+	t=1726127693; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=Tu9bJSc7T/p8sXY32nlC4PN7veHBrgOxRQTrewk/iUU=;
+	b=cGEYbPOxTR4KOb8Qeww39p3vtuNIau+JPk+Aryox+ZQCr1qoKcFLKASYO56Qgh+zlzgx520rRqKp7ufK0nwb3tk1oEf+Qohh+KPDfVZrKW6sfOBOvEpG8UpOjZ4tWCxTFW/tAnOWEL3c9/Em2ldTxU6r8L0/H4dU2tUFLNomNJk=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEqjsid_1726127691)
           by smtp.aliyun-inc.com;
-          Thu, 12 Sep 2024 15:54:34 +0800
-Message-ID: <1726127409.3427224-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 07/13] virtio_net: refactor the xmit type
-Date: Thu, 12 Sep 2024 15:50:09 +0800
+          Thu, 12 Sep 2024 15:54:52 +0800
+Message-ID: <1726127678.0431764-5-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 08/13] virtio_net: xsk: bind/unbind xsk for tx
+Date: Thu, 12 Sep 2024 15:54:38 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org,
@@ -43,9 +43,9 @@ Cc: netdev@vger.kernel.org,
  virtualization@lists.linux.dev,
  bpf@vger.kernel.org
 References: <20240820073330.9161-1-xuanzhuo@linux.alibaba.com>
- <20240820073330.9161-8-xuanzhuo@linux.alibaba.com>
- <CACGkMEuDg800zy+-W7VRY5Ns4COsmvMP_kpHdzJ-ws8PuMoGhA@mail.gmail.com>
-In-Reply-To: <CACGkMEuDg800zy+-W7VRY5Ns4COsmvMP_kpHdzJ-ws8PuMoGhA@mail.gmail.com>
+ <20240820073330.9161-9-xuanzhuo@linux.alibaba.com>
+ <CACGkMEuD9kp5Mgpqu+zszcYsiAyX_H-A-LfPM+YJPijeUtWJcw@mail.gmail.com>
+In-Reply-To: <CACGkMEuD9kp5Mgpqu+zszcYsiAyX_H-A-LfPM+YJPijeUtWJcw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -54,240 +54,167 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Wed, 11 Sep 2024 12:04:16 +0800, Jason Wang <jasowang@redhat.com> wrote:
+On Wed, 11 Sep 2024 12:08:06 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > On Tue, Aug 20, 2024 at 3:33=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
 .com> wrote:
 > >
-> > Because the af-xdp will introduce a new xmit type, so I refactor the
-> > xmit type mechanism first.
-> >
-> > We use the last two bits of the pointer to distinguish the xmit type,
-> > so we can distinguish four xmit types. Now we have three types: skb,
-> > orphan and xdp.
->
-> And if I was not wrong, we do not anymore use bitmasks. If yes, let's
-> explain the reason here.
-
-In general, pointers are aligned to 4 or 8 bytes. If it is aligned to 4 byt=
-es,
-then only two bits are free for a pointer. So we can only use two bits.
-
-But there are 4 types here, so we can't use bits to distinguish them.
-
-b00 for skb
-b01 for SKB_ORPHAN
-b10 for XDP
-b11 for af-xdp tx
-
-
->
+> > This patch implement the logic of bind/unbind xsk pool to sq and rq.
 > >
 > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > > ---
-> >  drivers/net/virtio_net.c | 90 +++++++++++++++++++++++-----------------
-> >  1 file changed, 51 insertions(+), 39 deletions(-)
+> >  drivers/net/virtio_net.c | 54 ++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 54 insertions(+)
 > >
 > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 41aaea3b90fd..96abee36738b 100644
+> > index 96abee36738b..6a36a204e967 100644
 > > --- a/drivers/net/virtio_net.c
 > > +++ b/drivers/net/virtio_net.c
-> > @@ -45,9 +45,6 @@ module_param(napi_tx, bool, 0644);
-> >  #define VIRTIO_XDP_TX          BIT(0)
-> >  #define VIRTIO_XDP_REDIR       BIT(1)
+> > @@ -295,6 +295,10 @@ struct send_queue {
 > >
-> > -#define VIRTIO_XDP_FLAG                BIT(0)
-> > -#define VIRTIO_ORPHAN_FLAG     BIT(1)
-> > -
-> >  /* RX packet size EWMA. The average packet size is used to determine t=
-he packet
-> >   * buffer size when refilling RX rings. As the entire RX ring may be r=
-efilled
-> >   * at once, the weight is chosen so that the EWMA will be insensitive =
-to short-
-> > @@ -509,34 +506,35 @@ static struct sk_buff *virtnet_skb_append_frag(st=
-ruct sk_buff *head_skb,
-> >                                                struct page *page, void =
-*buf,
-> >                                                int len, int truesize);
+> >         /* Record whether sq is in reset state. */
+> >         bool reset;
+> > +
+> > +       struct xsk_buff_pool *xsk_pool;
+> > +
+> > +       dma_addr_t xsk_hdr_dma_addr;
+> >  };
 > >
-> > -static bool is_xdp_frame(void *ptr)
-> > -{
-> > -       return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-> > -}
-> > +enum virtnet_xmit_type {
-> > +       VIRTNET_XMIT_TYPE_SKB,
-> > +       VIRTNET_XMIT_TYPE_ORPHAN,
->
-> Let's rename this to SKB_ORPHAN?
->
-> > +       VIRTNET_XMIT_TYPE_XDP,
-> > +};
+> >  /* Internal representation of a receive virtqueue */
+> > @@ -494,6 +498,8 @@ struct virtio_net_common_hdr {
+> >         };
+> >  };
 > >
-> > -static void *xdp_to_ptr(struct xdp_frame *ptr)
-> > -{
-> > -       return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
-> > -}
-> > +#define VIRTNET_XMIT_TYPE_MASK (VIRTNET_XMIT_TYPE_SKB | VIRTNET_XMIT_T=
-YPE_ORPHAN \
-> > +                               | VIRTNET_XMIT_TYPE_XDP)
+> > +static struct virtio_net_common_hdr xsk_hdr;
+> > +
+> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf=
+);
+> >  static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_b=
+uff *xdp,
+> >                                struct net_device *dev,
+> > @@ -5476,6 +5482,29 @@ static int virtnet_rq_bind_xsk_pool(struct virtn=
+et_info *vi, struct receive_queu
+> >         return err;
+> >  }
+> >
+> > +static int virtnet_sq_bind_xsk_pool(struct virtnet_info *vi,
+> > +                                   struct send_queue *sq,
+> > +                                   struct xsk_buff_pool *pool)
+> > +{
+> > +       int err, qindex;
+> > +
+> > +       qindex =3D sq - vi->sq;
+> > +
+> > +       virtnet_tx_pause(vi, sq);
+> > +
+> > +       err =3D virtqueue_reset(sq->vq, virtnet_sq_free_unused_buf);
+> > +       if (err) {
+> > +               netdev_err(vi->dev, "reset tx fail: tx queue index: %d =
+err: %d\n", qindex, err);
+> > +               pool =3D NULL;
+> > +       }
+> > +
+> > +       sq->xsk_pool =3D pool;
+> > +
+> > +       virtnet_tx_resume(vi, sq);
+> > +
+> > +       return err;
+> > +}
+> > +
+> >  static int virtnet_xsk_pool_enable(struct net_device *dev,
+> >                                    struct xsk_buff_pool *pool,
+> >                                    u16 qid)
+> > @@ -5484,6 +5513,7 @@ static int virtnet_xsk_pool_enable(struct net_dev=
+ice *dev,
+> >         struct receive_queue *rq;
+> >         struct device *dma_dev;
+> >         struct send_queue *sq;
+> > +       dma_addr_t hdr_dma;
+> >         int err, size;
+> >
+> >         if (vi->hdr_len > xsk_pool_get_headroom(pool))
+> > @@ -5521,6 +5551,10 @@ static int virtnet_xsk_pool_enable(struct net_de=
+vice *dev,
+> >         if (!rq->xsk_buffs)
+> >                 return -ENOMEM;
+> >
+> > +       hdr_dma =3D dma_map_single(dma_dev, &xsk_hdr, vi->hdr_len, DMA_=
+TO_DEVICE);
 >
+> Let's use the virtqueue_dma_xxx() wrappers here.
 
-Maybe I should define VIRTNET_XMIT_TYPE_MASK to 0x3 directly with some comm=
-ents.
+Will fix.
 
 Thanks.
 
 
-> I may miss something but it seems not a correct bitmask definition as
-> each member is not a bit actually?
 >
-> >
-> > -static struct xdp_frame *ptr_to_xdp(void *ptr)
-> > +static enum virtnet_xmit_type virtnet_xmit_ptr_strip(void **ptr)
-> >  {
-> > -       return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FL=
-AG);
-> > -}
-> > +       unsigned long p =3D (unsigned long)*ptr;
-> >
-> > -static bool is_orphan_skb(void *ptr)
-> > -{
-> > -       return (unsigned long)ptr & VIRTIO_ORPHAN_FLAG;
-> > +       *ptr =3D (void *)(p & ~VIRTNET_XMIT_TYPE_MASK);
+> > +       if (dma_mapping_error(dma_dev, hdr_dma))
+> > +               return -ENOMEM;
 > > +
-> > +       return p & VIRTNET_XMIT_TYPE_MASK;
+> >         err =3D xsk_pool_dma_map(pool, dma_dev, 0);
+> >         if (err)
+> >                 goto err_xsk_map;
+> > @@ -5529,11 +5563,23 @@ static int virtnet_xsk_pool_enable(struct net_d=
+evice *dev,
+> >         if (err)
+> >                 goto err_rq;
+> >
+> > +       err =3D virtnet_sq_bind_xsk_pool(vi, sq, pool);
+> > +       if (err)
+> > +               goto err_sq;
+> > +
+> > +       /* Now, we do not support tx offset, so all the tx virtnet hdr =
+is zero.
+> > +        * So all the tx packets can share a single hdr.
+> > +        */
+> > +       sq->xsk_hdr_dma_addr =3D hdr_dma;
+> > +
+> >         return 0;
+> >
+> > +err_sq:
+> > +       virtnet_rq_bind_xsk_pool(vi, rq, NULL);
+> >  err_rq:
+> >         xsk_pool_dma_unmap(pool, 0);
+> >  err_xsk_map:
+> > +       dma_unmap_single(dma_dev, hdr_dma, vi->hdr_len, DMA_TO_DEVICE);
+> >         return err;
 > >  }
 > >
-> > -static void *skb_to_ptr(struct sk_buff *skb, bool orphan)
-> > +static void *virtnet_xmit_ptr_mix(void *ptr, enum virtnet_xmit_type ty=
-pe)
-> >  {
-> > -       return (void *)((unsigned long)skb | (orphan ? VIRTIO_ORPHAN_FL=
-AG : 0));
-> > +       return (void *)((unsigned long)ptr | type);
-> >  }
+> > @@ -5542,19 +5588,27 @@ static int virtnet_xsk_pool_disable(struct net_=
+device *dev, u16 qid)
+> >         struct virtnet_info *vi =3D netdev_priv(dev);
+> >         struct xsk_buff_pool *pool;
+> >         struct receive_queue *rq;
+> > +       struct device *dma_dev;
+> > +       struct send_queue *sq;
+> >         int err;
 > >
-> > -static struct sk_buff *ptr_to_skb(void *ptr)
-> > +static int virtnet_add_outbuf(struct send_queue *sq, int num, void *da=
-ta,
-> > +                             enum virtnet_xmit_type type)
-> >  {
-> > -       return (struct sk_buff *)((unsigned long)ptr & ~VIRTIO_ORPHAN_F=
-LAG);
-> > +       return virtqueue_add_outbuf(sq->vq, sq->sg, num,
-> > +                                   virtnet_xmit_ptr_mix(data, type),
-> > +                                   GFP_ATOMIC);
-> >  }
+> >         if (qid >=3D vi->curr_queue_pairs)
+> >                 return -EINVAL;
 > >
-> >  static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 l=
-en)
-> > @@ -549,29 +547,37 @@ static void sg_fill_dma(struct scatterlist *sg, d=
-ma_addr_t addr, u32 len)
-> >  static void __free_old_xmit(struct send_queue *sq, struct netdev_queue=
- *txq,
-> >                             bool in_napi, struct virtnet_sq_free_stats =
-*stats)
-> >  {
-> > +       struct xdp_frame *frame;
-> > +       struct sk_buff *skb;
-> >         unsigned int len;
-> >         void *ptr;
+> > +       sq =3D &vi->sq[qid];
+> >         rq =3D &vi->rq[qid];
 > >
-> >         while ((ptr =3D virtqueue_get_buf(sq->vq, &len)) !=3D NULL) {
-> > -               if (!is_xdp_frame(ptr)) {
-> > -                       struct sk_buff *skb =3D ptr_to_skb(ptr);
-> > +               switch (virtnet_xmit_ptr_strip(&ptr)) {
-> > +               case VIRTNET_XMIT_TYPE_SKB:
-> > +                       skb =3D ptr;
+> >         pool =3D rq->xsk_pool;
 > >
-> >                         pr_debug("Sent skb %p\n", skb);
-> > +                       stats->napi_packets++;
-> > +                       stats->napi_bytes +=3D skb->len;
-> > +                       napi_consume_skb(skb, in_napi);
-> > +                       break;
+> >         err =3D virtnet_rq_bind_xsk_pool(vi, rq, NULL);
+> > +       err |=3D virtnet_sq_bind_xsk_pool(vi, sq, NULL);
 > >
-> > -                       if (is_orphan_skb(ptr)) {
-> > -                               stats->packets++;
-> > -                               stats->bytes +=3D skb->len;
-> > -                       } else {
-> > -                               stats->napi_packets++;
-> > -                               stats->napi_bytes +=3D skb->len;
-> > -                       }
-> > +               case VIRTNET_XMIT_TYPE_ORPHAN:
-> > +                       skb =3D ptr;
+> >         xsk_pool_dma_unmap(pool, 0);
+> >
+> > +       dma_dev =3D virtqueue_dma_dev(sq->vq);
 > > +
-> > +                       stats->packets++;
-> > +                       stats->bytes +=3D skb->len;
-> >                         napi_consume_skb(skb, in_napi);
-> > -               } else {
-> > -                       struct xdp_frame *frame =3D ptr_to_xdp(ptr);
-> > +                       break;
-> > +
-> > +               case VIRTNET_XMIT_TYPE_XDP:
-> > +                       frame =3D ptr;
-> >
-> >                         stats->packets++;
-> >                         stats->bytes +=3D xdp_get_frame_len(frame);
-> >                         xdp_return_frame(frame);
-> > +                       break;
-> >                 }
-> >         }
-> >         netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi=
-_bytes);
-> > @@ -1421,8 +1427,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_=
-info *vi,
-> >                             skb_frag_size(frag), skb_frag_off(frag));
-> >         }
-> >
-> > -       err =3D virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
-> > -                                  xdp_to_ptr(xdpf), GFP_ATOMIC);
-> > +       err =3D virtnet_add_outbuf(sq, nr_frags + 1, xdpf, VIRTNET_XMIT=
-_TYPE_XDP);
-> >         if (unlikely(err))
-> >                 return -ENOSPC; /* Caller handle free/refcnt */
-> >
-> > @@ -3028,8 +3033,9 @@ static int xmit_skb(struct send_queue *sq, struct=
- sk_buff *skb, bool orphan)
-> >                         return num_sg;
-> >                 num_sg++;
-> >         }
-> > -       return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg,
-> > -                                   skb_to_ptr(skb, orphan), GFP_ATOMIC=
-);
-> > +
-> > +       return virtnet_add_outbuf(sq, num_sg, skb,
-> > +                                 orphan ? VIRTNET_XMIT_TYPE_ORPHAN : V=
-IRTNET_XMIT_TYPE_SKB);
-> >  }
-> >
-> >  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *=
-dev)
-> > @@ -5906,10 +5912,16 @@ static void free_receive_page_frags(struct virt=
-net_info *vi)
-> >
-> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
-> >  {
-> > -       if (!is_xdp_frame(buf))
-> > +       switch (virtnet_xmit_ptr_strip(&buf)) {
-> > +       case VIRTNET_XMIT_TYPE_SKB:
-> > +       case VIRTNET_XMIT_TYPE_ORPHAN:
-> >                 dev_kfree_skb(buf);
-> > -       else
-> > -               xdp_return_frame(ptr_to_xdp(buf));
-> > +               break;
-> > +
-> > +       case VIRTNET_XMIT_TYPE_XDP:
-> > +               xdp_return_frame(buf);
-> > +               break;
-> > +       }
-> >  }
+> > +       dma_unmap_single(dma_dev, sq->xsk_hdr_dma_addr, vi->hdr_len, DM=
+A_TO_DEVICE);
 >
-> Others look fine.
+> And here.
 >
 > Thanks
 >
+> > +
+> >         kvfree(rq->xsk_buffs);
 > >
-> >  static void free_unused_bufs(struct virtnet_info *vi)
+> >         return err;
 > > --
 > > 2.32.0.3.g01195cf9f
 > >
