@@ -1,188 +1,326 @@
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4930A18F2FB
-	for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 08:11:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF9A518BC32
+	for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 08:50:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726128683; cv=none; b=H6jzZXcLTVINpRk3ikCfsf3yTaSU8UG23J17vigVPx/vmyvR/n5RuITmgEd9qv5RqDim2lWNzOT0nuezbR+EiJ6wpcuoiO528H1N+GOME0Oz35DDOkOzGvtjEqkMWUC16FkMPsPqHZm7HlaA9dxByALqtcByJ+MtVyteAlY52uc=
+	t=1726131025; cv=none; b=GjFWg0V4m/Lb0e24tFA9TqA52w0a/CnbrvC1ax0ZYYTw4RET1RMzXEX+DveopfEulXqGw1shFkyBkMlxq6jyFib2i/jW0p6jgw0aM8+rxlLr1mQoi5cFVGHehj5UG1n7Y1Gs99uFcZu1qFV3eICiKonr0VjYWxDA7T/ytFaYxKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726128683; c=relaxed/simple;
-	bh=46sDEFtjw9rDmzGTjxtbVXFeGbK0ohD6ptPEvJdi/oQ=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=IPV/LhW1M7Yh+m8cBSjl8xf+B17gQo3QhKjK1CTd3e5fsx493rkC7gGxNIHQZ/2EwbJhhZaRt4iw9bM+Iv0npN4FrqK9wPGHkBOwqLnzdAVxRQA779LhquOd4iri+vZmS4n6TIgZIvlcHycMnQp8PBDZjrE0JPJWP4v4+WzqXz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-3a04eef8ed2so11798055ab.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 01:11:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726128681; x=1726733481;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IU1L0a8Eh52z552lgQRfW8oNgA34UsiZf+K+o63Sxic=;
-        b=Sd/lXAY27Dy0SD3Qi1L2MHbRdbZZIAtKdlaaT94OxxODNiy/32CZ6ntEcTyDzs+bcq
-         I8xNoMptiJhgGBYanjjRCYJsEcnt4cx85+1k2wehD+kNcH6AKUItkonHHZ0s4WfKtJGm
-         zna9/X3DC1/BZ7cgMXhdB84iaUjcdEMMD6zGGKhDAne/N4sn65/2b+G8o2OwYtsTQFhT
-         hdG10W2cS7j/xQB7AcnHxaiNXyrrMTuHxMJPnKDAwR1iJ8sBMFX2sx3N3VfR9OtdmIhD
-         7P1610nocx7ly8mFnrvKzty77prRWzfK1JAGl8NWBpy1htKKKWqugj7kj0I7HwbNrdQi
-         ua3Q==
-X-Forwarded-Encrypted: i=1; AJvYcCX1Chpy72+Epx2dlt5HLi6Zi8/S6g2GdiUIX57XkB2zbsTcsR+MVdltk3a+hQkHGmtfX39aTuNGOBUSsoPnDA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YylfgdXQYY0CidoODcsHv/am3afbwbonfCXgV+Z2/a48OE74nLE
-	LUNNMhXh2U4expUbfWTsLNFdi2IB3ZvArt8HleXCvl8UNZa3acd1t6ugVPbIEhLwQLgmSwdrNZG
-	nK9S32yBsXCmRWalfSY828rVbYtJfLGUygc9uvvRIxrjXhzIjHEV/UT8=
-X-Google-Smtp-Source: AGHT+IGkq9UVtDYhjtSVER9h4ux/q++b9QvF78WL4PNKcS/8MzRPHacy3Qpym8XA2D8kWJn9l6LX2pCEtIAfWG65s5pDw2s7Awu1
+	s=arc-20240116; t=1726131025; c=relaxed/simple;
+	bh=DO4jQefOJT7rdnEMjmJp7Kv0CHLQb1Fm0QtRpGeRuro=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=Sys1uTw5RE6FWgVkxZlNHricUqQzPIrIWI0OhCIVubsHCWcB39OfC9Ruoi1Rvaj13PV8yYEtxO5E2qoXVVYWgBa9wrhXY4qWOk9/hp0W5SuwnLEynkYPKO9L++dn9FroPA6/VUAcDnGTJ8vXDvaM2vWt+Yq/eM5pwI2SziHo+LA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=S33JhWaL; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="S33JhWaL"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1726131020; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=xegexEWbi22M1dDA13zly0DPNZGTYkIW17s7tJeyqz4=;
+	b=S33JhWaLx5bTxtnex5EvZz65FhjI+GaUWfWmoZkhf6av4D6yme3ge9MTZ76O4V2WR1rlZIFELfYKLsSAyf3Oenik1fRJ2eIBFgQcWMUGbBwebeFNdtKu/5njVUMSIzdoWm/P5yG6Ao20A6COv/3ku2+N4nt+OQid11yQe0Or5a4=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WEqsm9C_1726131019)
+          by smtp.aliyun-inc.com;
+          Thu, 12 Sep 2024 16:50:19 +0800
+Message-ID: <1726130924.279801-7-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 10/13] virtio_net: xsk: tx: support xmit xsk buffer
+Date: Thu, 12 Sep 2024 16:48:44 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux.dev,
+ bpf@vger.kernel.org
+References: <20240820073330.9161-1-xuanzhuo@linux.alibaba.com>
+ <20240820073330.9161-11-xuanzhuo@linux.alibaba.com>
+ <CACGkMEv5DZgm1B5CXeHnP4ZPmZzQv7zWHT5=D1oH-h_bin2p7w@mail.gmail.com>
+In-Reply-To: <CACGkMEv5DZgm1B5CXeHnP4ZPmZzQv7zWHT5=D1oH-h_bin2p7w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:19c9:b0:39d:3043:1f2f with SMTP id
- e9e14a558f8ab-3a0849098b0mr21621755ab.14.1726128681250; Thu, 12 Sep 2024
- 01:11:21 -0700 (PDT)
-Date: Thu, 12 Sep 2024 01:11:21 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000e2058e0621e7a637@google.com>
-Subject: [syzbot] [virt?] KCSAN: data-race in virtqueue_disable_cb /
- vring_interrupt (4)
-From: syzbot <syzbot+8a02104389c2e0ef5049@syzkaller.appspotmail.com>
-To: eperezma@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org, 
-	mst@redhat.com, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
 
-Hello,
+On Wed, 11 Sep 2024 12:31:32 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Tue, Aug 20, 2024 at 3:33=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
+> >
+> > The driver's tx napi is very important for XSK. It is responsible for
+> > obtaining data from the XSK queue and sending it out.
+> >
+> > At the beginning, we need to trigger tx napi.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  drivers/net/virtio_net.c | 127 ++++++++++++++++++++++++++++++++++++++-
+> >  1 file changed, 125 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 221681926d23..3743694d3c3b 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -516,10 +516,13 @@ enum virtnet_xmit_type {
+> >         VIRTNET_XMIT_TYPE_SKB,
+> >         VIRTNET_XMIT_TYPE_ORPHAN,
+> >         VIRTNET_XMIT_TYPE_XDP,
+> > +       VIRTNET_XMIT_TYPE_XSK,
+> >  };
+> >
+> >  #define VIRTNET_XMIT_TYPE_MASK (VIRTNET_XMIT_TYPE_SKB | VIRTNET_XMIT_T=
+YPE_ORPHAN \
+> > -                               | VIRTNET_XMIT_TYPE_XDP)
+> > +                               | VIRTNET_XMIT_TYPE_XDP | VIRTNET_XMIT_=
+TYPE_XSK)
+> > +
+> > +#define VIRTIO_XSK_FLAG_OFFSET 4
+> >
+> >  static enum virtnet_xmit_type virtnet_xmit_ptr_strip(void **ptr)
+> >  {
+> > @@ -543,6 +546,11 @@ static int virtnet_add_outbuf(struct send_queue *s=
+q, int num, void *data,
+> >                                     GFP_ATOMIC);
+> >  }
+> >
+> > +static u32 virtnet_ptr_to_xsk(void *ptr)
+> > +{
+> > +       return ((unsigned long)ptr) >> VIRTIO_XSK_FLAG_OFFSET;
+> > +}
+> > +
+>
+> This needs a better name, otherwise readers might be confused.
+>
+> E.g something like virtnet_ptr_to_xsk_buff_len()?
+>
+> >  static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 l=
+en)
+> >  {
+> >         sg_assign_page(sg, NULL);
+> > @@ -584,6 +592,10 @@ static void __free_old_xmit(struct send_queue *sq,=
+ struct netdev_queue *txq,
+> >                         stats->bytes +=3D xdp_get_frame_len(frame);
+> >                         xdp_return_frame(frame);
+> >                         break;
+> > +
+> > +               case VIRTNET_XMIT_TYPE_XSK:
+> > +                       stats->bytes +=3D virtnet_ptr_to_xsk(ptr);
+> > +                       break;
+>
+> Do we miss xsk_tx_completed() here?
+>
+> >                 }
+> >         }
+> >         netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi=
+_bytes);
+> > @@ -1393,6 +1405,97 @@ static int virtnet_xsk_wakeup(struct net_device =
+*dev, u32 qid, u32 flag)
+> >         return 0;
+> >  }
+> >
+> > +static void *virtnet_xsk_to_ptr(u32 len)
+> > +{
+> > +       unsigned long p;
+> > +
+> > +       p =3D len << VIRTIO_XSK_FLAG_OFFSET;
+> > +
+> > +       return virtnet_xmit_ptr_mix((void *)p, VIRTNET_XMIT_TYPE_XSK);
+> > +}
+> > +
+> > +static int virtnet_xsk_xmit_one(struct send_queue *sq,
+> > +                               struct xsk_buff_pool *pool,
+> > +                               struct xdp_desc *desc)
+> > +{
+> > +       struct virtnet_info *vi;
+> > +       dma_addr_t addr;
+> > +
+> > +       vi =3D sq->vq->vdev->priv;
+> > +
+> > +       addr =3D xsk_buff_raw_get_dma(pool, desc->addr);
+> > +       xsk_buff_raw_dma_sync_for_device(pool, addr, desc->len);
+> > +
+> > +       sg_init_table(sq->sg, 2);
+> > +
+> > +       sg_fill_dma(sq->sg, sq->xsk_hdr_dma_addr, vi->hdr_len);
+> > +       sg_fill_dma(sq->sg + 1, addr, desc->len);
+> > +
+> > +       return virtqueue_add_outbuf(sq->vq, sq->sg, 2,
+> > +                                   virtnet_xsk_to_ptr(desc->len), GFP_=
+ATOMIC);
+> > +}
+> > +
+> > +static int virtnet_xsk_xmit_batch(struct send_queue *sq,
+> > +                                 struct xsk_buff_pool *pool,
+> > +                                 unsigned int budget,
+> > +                                 u64 *kicks)
+> > +{
+> > +       struct xdp_desc *descs =3D pool->tx_descs;
+> > +       bool kick =3D false;
+> > +       u32 nb_pkts, i;
+> > +       int err;
+> > +
+> > +       budget =3D min_t(u32, budget, sq->vq->num_free);
+> > +
+> > +       nb_pkts =3D xsk_tx_peek_release_desc_batch(pool, budget);
+> > +       if (!nb_pkts)
+> > +               return 0;
+> > +
+> > +       for (i =3D 0; i < nb_pkts; i++) {
+> > +               err =3D virtnet_xsk_xmit_one(sq, pool, &descs[i]);
+> > +               if (unlikely(err)) {
+> > +                       xsk_tx_completed(sq->xsk_pool, nb_pkts - i);
+>
+> Should we kick in this condition?
+>
+> > +                       break;
+> > +               }
+> > +
+> > +               kick =3D true;
+> > +       }
+> > +
+> > +       if (kick && virtqueue_kick_prepare(sq->vq) && virtqueue_notify(=
+sq->vq))
+>
+> Can we simply use virtqueue_kick() here?
+>
+> > +               (*kicks)++;
+> > +
+> > +       return i;
+> > +}
+> > +
+> > +static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_po=
+ol *pool,
+> > +                            int budget)
+> > +{
+> > +       struct virtnet_info *vi =3D sq->vq->vdev->priv;
+> > +       struct virtnet_sq_free_stats stats =3D {};
+> > +       struct net_device *dev =3D vi->dev;
+> > +       u64 kicks =3D 0;
+> > +       int sent;
+> > +
+> > +       __free_old_xmit(sq, netdev_get_tx_queue(dev, sq - vi->sq), true=
+, &stats);
+>
+> I haven't checked in depth, but I wonder if we have some side effects
+> when using non NAPI tx mode:
+>
+>         if (napi->weight)
+>                 virtqueue_napi_schedule(napi, vq);
+>         else
+>                 /* We were probably waiting for more output buffers. */
+>                 netif_wake_subqueue(vi->dev, vq2txq(vq));
+>
+> Does this mean xsk will suffer the same issue like when there's no xsk
+> xmit request, we could end up with no way to reclaim xmitted xsk
+> buffers? (Or should we disallow AF_XDP to be used for non TX-NAPI
+> mode?)
 
-syzbot found the following issue on:
+Disallow AF_XDP to be used for non TX-NAPI mode.
 
-HEAD commit:    7c6a3a65ace7 minmax: reduce min/max macro expansion in ato..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=1608e49f980000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=1e7d02549be622b2
-dashboard link: https://syzkaller.appspot.com/bug?extid=8a02104389c2e0ef5049
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+The last patch #9 does this.
 
-Unfortunately, I don't have any reproducer for this issue yet.
+#9 [PATCH net-next 09/13] virtio_net: xsk: prevent disable tx napi
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/a1f7496fa21f/disk-7c6a3a65.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/f423739e51a9/vmlinux-7c6a3a65.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/b65a0f38cbd7/bzImage-7c6a3a65.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+8a02104389c2e0ef5049@syzkaller.appspotmail.com
-
-==================================================================
-BUG: KCSAN: data-race in virtqueue_disable_cb / vring_interrupt
-
-write to 0xffff88810285ef52 of 1 bytes by interrupt on cpu 0:
- vring_interrupt+0x12b/0x180 drivers/virtio/virtio_ring.c:2591
- __handle_irq_event_percpu+0x95/0x490 kernel/irq/handle.c:158
- handle_irq_event_percpu kernel/irq/handle.c:193 [inline]
- handle_irq_event+0x64/0xf0 kernel/irq/handle.c:210
- handle_edge_irq+0x16d/0x5b0 kernel/irq/chip.c:831
- generic_handle_irq_desc include/linux/irqdesc.h:173 [inline]
- handle_irq arch/x86/kernel/irq.c:247 [inline]
- call_irq_handler arch/x86/kernel/irq.c:259 [inline]
- __common_interrupt+0x58/0xe0 arch/x86/kernel/irq.c:285
- common_interrupt+0x7c/0x90 arch/x86/kernel/irq.c:278
- asm_common_interrupt+0x26/0x40 arch/x86/include/asm/idtentry.h:693
- __preempt_count_dec_and_test arch/x86/include/asm/preempt.h:94 [inline]
- __raw_spin_unlock_irq include/linux/spinlock_api_smp.h:160 [inline]
- _raw_spin_unlock_irq+0x2f/0x50 kernel/locking/spinlock.c:202
- process_one_work kernel/workqueue.c:3200 [inline]
- process_scheduled_works+0x43b/0x9a0 kernel/workqueue.c:3312
- worker_thread+0x526/0x6e0 kernel/workqueue.c:3389
- kthread+0x1d1/0x210 kernel/kthread.c:389
- ret_from_fork+0x4b/0x60 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
-
-read to 0xffff88810285ef52 of 1 bytes by interrupt on cpu 1:
- virtqueue_disable_cb_split drivers/virtio/virtio_ring.c:892 [inline]
- virtqueue_disable_cb+0x92/0x180 drivers/virtio/virtio_ring.c:2446
- start_xmit+0x14b/0x1260 drivers/net/virtio_net.c:3034
- __netdev_start_xmit include/linux/netdevice.h:4913 [inline]
- netdev_start_xmit include/linux/netdevice.h:4922 [inline]
- xmit_one net/core/dev.c:3580 [inline]
- dev_hard_start_xmit+0x119/0x3f0 net/core/dev.c:3596
- sch_direct_xmit+0x1b0/0x580 net/sched/sch_generic.c:343
- __dev_xmit_skb net/core/dev.c:3809 [inline]
- __dev_queue_xmit+0xf3d/0x1fe0 net/core/dev.c:4389
- dev_queue_xmit include/linux/netdevice.h:3105 [inline]
- neigh_hh_output include/net/neighbour.h:526 [inline]
- neigh_output include/net/neighbour.h:540 [inline]
- ip_finish_output2+0x73d/0x8b0 net/ipv4/ip_output.c:235
- ip_finish_output+0x11a/0x2a0 net/ipv4/ip_output.c:323
- NF_HOOK_COND include/linux/netfilter.h:303 [inline]
- ip_output+0xab/0x170 net/ipv4/ip_output.c:433
- dst_output include/net/dst.h:450 [inline]
- ip_local_out net/ipv4/ip_output.c:129 [inline]
- __ip_queue_xmit+0xbcc/0xbf0 net/ipv4/ip_output.c:535
- ip_queue_xmit+0x38/0x50 net/ipv4/ip_output.c:549
- __tcp_transmit_skb+0x15b0/0x1970 net/ipv4/tcp_output.c:1466
- tcp_transmit_skb net/ipv4/tcp_output.c:1484 [inline]
- tcp_write_xmit+0x1273/0x31c0 net/ipv4/tcp_output.c:2829
- __tcp_push_pending_frames+0x6a/0x1a0 net/ipv4/tcp_output.c:3014
- tcp_push_pending_frames include/net/tcp.h:2106 [inline]
- tcp_data_snd_check net/ipv4/tcp_input.c:5707 [inline]
- tcp_rcv_established+0xa12/0xef0 net/ipv4/tcp_input.c:6141
- tcp_v4_do_rcv+0x662/0x740 net/ipv4/tcp_ipv4.c:1911
- tcp_v4_rcv+0x1b25/0x1ee0 net/ipv4/tcp_ipv4.c:2346
- ip_protocol_deliver_rcu+0x370/0x720 net/ipv4/ip_input.c:205
- ip_local_deliver_finish+0x17d/0x210 net/ipv4/ip_input.c:233
- NF_HOOK include/linux/netfilter.h:314 [inline]
- ip_local_deliver+0xec/0x1d0 net/ipv4/ip_input.c:254
- dst_input include/net/dst.h:460 [inline]
- ip_sublist_rcv_finish net/ipv4/ip_input.c:580 [inline]
- ip_list_rcv_finish net/ipv4/ip_input.c:631 [inline]
- ip_sublist_rcv+0x55a/0x640 net/ipv4/ip_input.c:639
- ip_list_rcv+0x25e/0x290 net/ipv4/ip_input.c:674
- __netif_receive_skb_list_ptype net/core/dev.c:5704 [inline]
- __netif_receive_skb_list_core+0x4f0/0x520 net/core/dev.c:5752
- __netif_receive_skb_list net/core/dev.c:5804 [inline]
- netif_receive_skb_list_internal+0x4e4/0x660 net/core/dev.c:5896
- gro_normal_list include/net/gro.h:515 [inline]
- napi_complete_done+0x1cb/0x450 net/core/dev.c:6247
- virtqueue_napi_complete drivers/net/virtio_net.c:694 [inline]
- virtnet_poll+0x1b73/0x1fd0 drivers/net/virtio_net.c:2826
- __napi_poll+0x63/0x3c0 net/core/dev.c:6772
- napi_poll net/core/dev.c:6841 [inline]
- net_rx_action+0x3a1/0x7f0 net/core/dev.c:6963
- handle_softirqs+0xc3/0x280 kernel/softirq.c:554
- __do_softirq kernel/softirq.c:588 [inline]
- invoke_softirq kernel/softirq.c:428 [inline]
- __irq_exit_rcu kernel/softirq.c:637 [inline]
- irq_exit_rcu+0x3e/0x90 kernel/softirq.c:649
- instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1043 [inline]
- sysvec_apic_timer_interrupt+0x37/0x80 arch/x86/kernel/apic/apic.c:1043
- asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:702
-
-value changed: 0x00 -> 0x01
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 UID: 0 PID: 31238 Comm: syz.2.3839 Not tainted 6.11.0-rc7-syzkaller-00021-g7c6a3a65ace7 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/06/2024
-==================================================================
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+Thanks.
+>
+> > +
+> > +       sent =3D virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
+> > +
+> > +       if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
+> > +               check_sq_full_and_disable(vi, vi->dev, sq);
+> > +
+> > +       u64_stats_update_begin(&sq->stats.syncp);
+> > +       u64_stats_add(&sq->stats.packets, stats.packets);
+> > +       u64_stats_add(&sq->stats.bytes,   stats.bytes);
+> > +       u64_stats_add(&sq->stats.kicks,   kicks);
+> > +       u64_stats_add(&sq->stats.xdp_tx,  sent);
+> > +       u64_stats_update_end(&sq->stats.syncp);
+> > +
+> > +       if (xsk_uses_need_wakeup(pool))
+> > +               xsk_set_tx_need_wakeup(pool);
+> > +
+> > +       return sent =3D=3D budget;
+> > +}
+> > +
+> >  static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+> >                                    struct send_queue *sq,
+> >                                    struct xdp_frame *xdpf)
+> > @@ -2949,6 +3052,7 @@ static int virtnet_poll_tx(struct napi_struct *na=
+pi, int budget)
+> >         struct virtnet_info *vi =3D sq->vq->vdev->priv;
+> >         unsigned int index =3D vq2txq(sq->vq);
+> >         struct netdev_queue *txq;
+> > +       bool xsk_busy =3D false;
+> >         int opaque;
+> >         bool done;
+> >
+> > @@ -2961,7 +3065,11 @@ static int virtnet_poll_tx(struct napi_struct *n=
+api, int budget)
+> >         txq =3D netdev_get_tx_queue(vi->dev, index);
+> >         __netif_tx_lock(txq, raw_smp_processor_id());
+> >         virtqueue_disable_cb(sq->vq);
+> > -       free_old_xmit(sq, txq, !!budget);
+> > +
+> > +       if (sq->xsk_pool)
+> > +               xsk_busy =3D virtnet_xsk_xmit(sq, sq->xsk_pool, budget);
+> > +       else
+> > +               free_old_xmit(sq, txq, !!budget);
+> >
+> >         if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS) {
+> >                 if (netif_tx_queue_stopped(txq)) {
+> > @@ -2972,6 +3080,11 @@ static int virtnet_poll_tx(struct napi_struct *n=
+api, int budget)
+> >                 netif_tx_wake_queue(txq);
+> >         }
+> >
+> > +       if (xsk_busy) {
+> > +               __netif_tx_unlock(txq);
+> > +               return budget;
+> > +       }
+> > +
+> >         opaque =3D virtqueue_enable_cb_prepare(sq->vq);
+> >
+> >         done =3D napi_complete_done(napi, 0);
+> > @@ -5974,6 +6087,12 @@ static void free_receive_page_frags(struct virtn=
+et_info *vi)
+> >
+> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
+> >  {
+> > +       struct virtnet_info *vi =3D vq->vdev->priv;
+> > +       struct send_queue *sq;
+> > +       int i =3D vq2rxq(vq);
+> > +
+> > +       sq =3D &vi->sq[i];
+> > +
+> >         switch (virtnet_xmit_ptr_strip(&buf)) {
+> >         case VIRTNET_XMIT_TYPE_SKB:
+> >         case VIRTNET_XMIT_TYPE_ORPHAN:
+> > @@ -5983,6 +6102,10 @@ static void virtnet_sq_free_unused_buf(struct vi=
+rtqueue *vq, void *buf)
+> >         case VIRTNET_XMIT_TYPE_XDP:
+> >                 xdp_return_frame(buf);
+> >                 break;
+> > +
+> > +       case VIRTNET_XMIT_TYPE_XSK:
+> > +               xsk_tx_completed(sq->xsk_pool, 1);
+> > +               break;
+> >         }
+> >  }
+> >
+> > --
+> > 2.32.0.3.g01195cf9f
+> >
+>
+> Thanks
+>
