@@ -1,148 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail.nearlyone.de (mail.nearlyone.de [49.12.199.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AD938827
-	for <virtualization@lists.linux.dev>; Fri, 13 Sep 2024 03:36:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E465D4A3E
+	for <virtualization@lists.linux.dev>; Fri, 13 Sep 2024 07:42:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.12.199.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726198609; cv=none; b=ZAOVVJeQWDnjBS1R286w8JRumtkHKHmnaIN/xmp8mBRqsjlP/Wljie9NeG2GwVprs5YYyjAR/QByJChrb1N4P0NbE/OFsE9YMQborf5Kbrs+ET6WJifDybMKXZTT8UhLSs0I8qJmILv9pJVYANOjW260xrVYnF6gJgADQwbCR1s=
+	t=1726213351; cv=none; b=k9Qf9EZLJO3nLvaGYJSkJSx64od/AR20brhoAEbdVrvNdmoHY7j45l+XCelryICPqg0LgerX2OUGohr+Eb2koTkwYRCjsrIJ2a2DZpCkPMVRJkIdDqBJ3X9N2H15gDO95U5g02WVsX30hH8bYCmknd8f8AMwxi+Q4FCwCiFYcO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726198609; c=relaxed/simple;
-	bh=TLwWA35kUPnPcDc4B0Q6ubvsZVr7nfIY2AFWT8BmMPQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iexN61SUUfqgE0cq79NVwMrN5yrD0p4PREVIVwPDeDgW1rKzhjBVMvlZQ8BpknNn08o2aiPBo7l6pcHFcypIU9v/sD+rliruIu9AK4OUP4WUuNFD5JDKFuTmdMRd8c7GlOAnItGTmOP755pEp2mZVizxXgoVz6fqmpeI5+Jg2yM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=USMu/Q0V; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1726213351; c=relaxed/simple;
+	bh=xcN/2MClZQoHLqg74s28dw4Q089iErLpjPvgLY8hzm8=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=u4NOw8ZyEZgxDXvCzQnrV+8PFmX2/FjnZ+uXStxY02kHQgTLePufl6v1lgnhXy/E2mynsEZZq14Slq4SgcBnifdzqLkHohlnZPVKyNUkVQxf4FVBshIK/F+U7rItc1SqEI1oRC+CO85vfh2ak8MM66+Fwdvb+P3iPaEzp2GZl6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=monom.org; dkim=pass (2048-bit key) header.d=monom.org header.i=@monom.org header.b=ImwkuKFB; arc=none smtp.client-ip=49.12.199.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=monom.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="USMu/Q0V"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1726198606;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TLwWA35kUPnPcDc4B0Q6ubvsZVr7nfIY2AFWT8BmMPQ=;
-	b=USMu/Q0VQ5P2O7DEfr7eFakOzXbMNKESI2l+VZYk0mu63f46FHcYCk0zQDiCJXe8CSx0QR
-	Q0ep3cqFcZTfbUL144WERY4AhvqOoIx3aJwJ+SAblBEcmEQCR7xnFXnCkeHw1mimmzn+U1
-	JKaYOmvDSeBRSRmoUtEmPra2HLfrh5g=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-308-OPHtSuWuPky_9JXTTkWMIw-1; Thu, 12 Sep 2024 23:36:45 -0400
-X-MC-Unique: OPHtSuWuPky_9JXTTkWMIw-1
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-204e310e050so22535965ad.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Sep 2024 20:36:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726198604; x=1726803404;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TLwWA35kUPnPcDc4B0Q6ubvsZVr7nfIY2AFWT8BmMPQ=;
-        b=XmmkrYgvW/mJ9jXKX47qqBHjHEXUUFN8LkY8jQ0usYtODOa2BdEccU59bF5dKF9GYN
-         3FRRcU9kEdNk0mlJmBy/PDRhZBT0K31tjI2hZj1vC94rzLGgqnqNrjAF1ZCmiCP0enBH
-         aaimHJup5utOBPAxRYlfPOhJpTPvkzCMiQwjBZq3EislkiFSw4Jg9RTNQGX/MMkBTz40
-         1Gwxw/x4yDnA7rD8QbHo1cczBYhcmYACwsTX0xoFh80WSwuo/9q2LTyF0RQXKNuFiH/h
-         aoNykFcVT/U3X26OuUe3tcwTXTkvqvBgss5C4zdt7Ip3k5uuIhDQWG7/hXBo1T7hGtbX
-         INIw==
-X-Forwarded-Encrypted: i=1; AJvYcCXaeaBtRLvZRvIxas1Lzy8qryRpuH/rezA0qCY43pBK3v9T1hbjSjEXiaPa04BZyb2Ll1CIws0j4N20JMVQbg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YysohC6VFFRuPxkkjv5K++GYwaaFKCYszKsX2cjO29kjoSF4kzV
-	xUNRp7m9oz8HWGGDF2ZqXfxGXUFxpBhoA9eN/Dx2/SkF3VFMV13xjeQhxM/q64ZuIblf7KYHcMN
-	9euMZiEYHGGrvTnZ8E1dpK3aQjdo0qnIUvn0OS73sfRd4dg8LWtGmbSf2aZyIvBQdXz0bzbN2ll
-	/Y6P6CZQtb85VrAlG8Ph6Eq/5wGTTlgdDReG2uEXA=
-X-Received: by 2002:a17:902:e810:b0:202:60e:7700 with SMTP id d9443c01a7336-2076e30a90fmr81943565ad.7.1726198604066;
-        Thu, 12 Sep 2024 20:36:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH5KxL/+Jl5OHno+vBwCRfslH4I1TwXRrVogJku/JCJxU7qag9maJSGO3PPJAtx4nNtx91dAo70ROzV+X5P4Rs=
-X-Received: by 2002:a17:902:e810:b0:202:60e:7700 with SMTP id
- d9443c01a7336-2076e30a90fmr81943185ad.7.1726198603466; Thu, 12 Sep 2024
- 20:36:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=monom.org header.i=@monom.org header.b="ImwkuKFB"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0DE5FDACDF;
+	Fri, 13 Sep 2024 09:42:20 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=monom.org; s=dkim;
+	t=1726213344; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=8al1aKshZXM/ap5AqW/w9WJ//+RM7rrRIU1vsdyXi/o=;
+	b=ImwkuKFBRWdjpVxXJShrOW/l2J+O4avGesFuvBBoRUmUggXEHjYcO94uFk8LUQZfvk7ZEK
+	fZtXT/1VFOzQcd0gn28Xh1r6EmGDvZIr60i6eclc/s8vLA9WIgMKdgKDqQBXdxmQM85SS8
+	LjdrbDnYM+TszCtOKzqKXrmZLxPOGAJkgapJRMu8kgf5oF964xIcHEyB9TZLpiEdBZ/g2X
+	wTGChrlIAiwJ5VEmx3h0JEbe79HfHtpNjVoB5e97sVcm7c9Iw3nnXxJ1tBeAmS7YKINfP6
+	KrirOua2Yfs042xmKCm48F3OBTf2eElm2nMOu3Y2vp0EW/uvp2sqGmWddfffUg==
+From: Daniel Wagner <wagi@kernel.org>
+Subject: [PATCH 0/6] EDITME: blk: refactor queue affinity helpers
+Date: Fri, 13 Sep 2024 09:41:58 +0200
+Message-Id: <20240913-refactor-blk-affinity-helpers-v1-0-8e058f77af12@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240820073330.9161-1-xuanzhuo@linux.alibaba.com>
- <20240820073330.9161-5-xuanzhuo@linux.alibaba.com> <CACGkMEt19u07b_2GkT_tEBhpKJj97VoF-jcSqoaTyEULoWvdFw@mail.gmail.com>
- <1726126586.5406406-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1726126586.5406406-2-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 13 Sep 2024 11:36:32 +0800
-Message-ID: <CACGkMEvO+xg+237mq2Y+wDMxMum0CaiP3tMN81uqCGCfe_=Rbw@mail.gmail.com>
-Subject: Re: [PATCH net-next 04/13] virtio_ring: perform premapped operations
- based on per-buffer
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev, 
-	bpf@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMbs42YC/z2NQW7DIBBFr2Kx7lRAbROy6j2qLAYYJ6PGQIC4r
+ aLcvTSRunxfX+/dRKXCVMV+uIlCG1dOsYN6GYQ/YTwScOgstNSjtEpDoQV9SwXc+RNwWThy+4E
+ TnTOVCkburLOTG52Sojtyv/P3w/9xeHKhy7Vn2nMUK9WKj8x++I+EBDE1SBuVr9KvkD3DijlzP
+ MKmQMFuMnp0syc/2vd6rfQa6C/osBL4tK7cum8mZY0zi+1eHNG/SRWCxDBp6aWfrfGa0ARxuN9
+ /AV2d8PgKAQAA
+To: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, 
+ Sagi Grimberg <sagi@grimberg.me>
+Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-pci@vger.kernel.org, virtualization@lists.linux.dev, 
+ linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
+ mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, 
+ storagedev@microchip.com, linux-nvme@lists.infradead.org, 
+ Daniel Wagner <dwagner@suse.de>, 
+ 20240912-do-not-overwrite-pci-mapping-v1-1-85724b6cec49@suse.de, 
+ Ming Lei <ming.lei@redhat.com>
+X-Mailer: b4 0.14.0
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Thu, Sep 12, 2024 at 3:43=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> On Wed, 11 Sep 2024 11:54:25 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > On Tue, Aug 20, 2024 at 3:33=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > >
-> > > The current configuration sets the virtqueue (vq) to premapped mode,
-> > > implying that all buffers submitted to this queue must be mapped ahea=
-d
-> > > of time. This presents a challenge for the virtnet send queue (sq): t=
-he
-> > > virtnet driver would be required to keep track of dma information for=
- vq
-> > > size * 17, which can be substantial. However, if the premapped mode w=
-ere
-> > > applied on a per-buffer basis, the complexity would be greatly reduce=
-d.
-> > > With AF_XDP enabled, AF_XDP buffers would become premapped, while ker=
-nel
-> > > skb buffers could remain unmapped.
-> >
-> > Is this only applied to TX or both TX and RX.
->
->
-> For rx, if you mean per-buffer dma buffer, I think it is yes,
-> rx can reuse this. If you mean should we do premapped for the
-> normal rx buffers, I think we should, that can reduce the
-> dma map operations.
->
->
-> >
-> > >
-> > > We can distinguish them by sg_page(sg), When sg_page(sg) is NULL, thi=
-s
-> > > indicates that the driver has performed DMA mapping in advance, allow=
-ing
-> > > the Virtio core to directly utilize sg_dma_address(sg) without
-> > > conducting any internal DMA mapping.
-> >
-> > This seems conflict with the code below?
-> >
-> > #define sg_is_premapped(sg) (!sg_page(sg))
->
-> Sorry, I do not get for you.
->
-> The key point is that the sg->page is setted by driver.
+These patches were part of 'honor isolcpus configuration' [1] series. To
+simplify the review process I decided to send this as separate series
+because I think it's a nice cleanup independent of the isolcpus feature.
 
-Ok, I forget that but let's document this assumption in the changelog.
+One thing which I am a bit unsure are the CONFIG bits. I've reused the
+BLK_MQ_PCI and BLK_MQ_VIRTIO as guard for the new helpers but it looks a
+bit off.
 
->
-> So I mean if the driver sets sg->page =3D NULL, then for this sg,
-> the virtio core can skip dma mapping. If the driver sets
-> sg->page to the page of the buffer, then the virtio core should
-> do dma mapping for this sg.
->
+changes:
+  - renamed blk_mq_dev_map_queues to blk_mq_hctx_map_queues
+  - squased 'virito: add APIs for retrieving vq affinity' into
+    'blk-mq: introduce blk_mq_hctx_map_queues'
+  - moved hisi_sas changed into a new patch
+  - hisi_sas use define instead of hard coded value
+  - moved helpers into their matching subsystem, removed
+    blk-mq-pci and blk-mq-virtio files
+  - fix spelling/typos
+  - fixed long lines in docu (yep new lines in brief descriptions are
+    supported, tested ti)
 
-Ok, let's describe this in the changelog.
+[1] https://lore.kernel.org/all/20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de
 
-Thanks
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+---
+Daniel Wagner (5):
+      scsi: replace blk_mq_pci_map_queues with blk_mq_hctx_map_queues
+      scsi: hisi_sas: replace blk_mq_pci_map_queues with blk_mq_hctx_map_queues
+      nvme: replace blk_mq_pci_map_queues with blk_mq_hctx_map_queues
+      virtio: blk/scsi: replace blk_mq_virtio_map_queues with blk_mq_hctx_map_queues
+      blk-mq: remove unused queue mapping helpers
+
+Ming Lei (1):
+      blk-mq: introduce blk_mq_hctx_map_queues
+
+ block/Makefile                            |  2 --
+ block/blk-mq-cpumap.c                     | 35 +++++++++++++++++++++++
+ block/blk-mq-pci.c                        | 46 -------------------------------
+ block/blk-mq-virtio.c                     | 46 -------------------------------
+ drivers/block/virtio_blk.c                |  4 +--
+ drivers/nvme/host/fc.c                    |  1 -
+ drivers/nvme/host/pci.c                   |  4 +--
+ drivers/pci/pci.c                         | 20 ++++++++++++++
+ drivers/scsi/fnic/fnic_main.c             |  4 +--
+ drivers/scsi/hisi_sas/hisi_sas.h          |  1 -
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c    | 20 +++++++-------
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c    |  5 ++--
+ drivers/scsi/megaraid/megaraid_sas_base.c |  4 +--
+ drivers/scsi/mpi3mr/mpi3mr.h              |  1 -
+ drivers/scsi/mpi3mr/mpi3mr_os.c           |  3 +-
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c      |  4 +--
+ drivers/scsi/pm8001/pm8001_init.c         |  3 +-
+ drivers/scsi/pm8001/pm8001_sas.h          |  1 -
+ drivers/scsi/qla2xxx/qla_nvme.c           |  4 +--
+ drivers/scsi/qla2xxx/qla_os.c             |  4 +--
+ drivers/scsi/smartpqi/smartpqi_init.c     |  8 +++---
+ drivers/scsi/virtio_scsi.c                |  4 +--
+ drivers/virtio/virtio.c                   | 31 +++++++++++++++++++++
+ include/linux/blk-mq-pci.h                | 11 --------
+ include/linux/blk-mq-virtio.h             | 11 --------
+ include/linux/blk-mq.h                    |  5 ++++
+ include/linux/pci.h                       | 11 ++++++++
+ include/linux/virtio.h                    | 13 +++++++++
+ 28 files changed, 152 insertions(+), 154 deletions(-)
+---
+base-commit: 26e197b7f9240a4ac301dd0ad520c0c697c2ea7d
+change-id: 20240912-refactor-blk-affinity-helpers-7089b95b4b10
+prerequisite-message-id: 20240912-do-not-overwrite-pci-mapping-v1-1-85724b6cec49@suse.de
+prerequisite-patch-id: 0d995b19a62289433fe888843af1baa6fd19aec7
+
+Best regards,
+-- 
+Daniel Wagner <dwagner@suse.de>
 
