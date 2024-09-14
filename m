@@ -1,103 +1,81 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 655D114A85;
-	Fri, 13 Sep 2024 16:26:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A75AA1D0492
+	for <virtualization@lists.linux.dev>; Sat, 14 Sep 2024 16:12:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726244817; cv=none; b=efPmtKVwStzx5yYJ01HifOnxksYX2SUowMLBDGAQiHrYdMX3cPN2TxRcNliXbmqd2ap7laG+wDFiDQbU5pB3+Fu8wHOWRzqvTYj4a+UfeNyDFPy6m8Spe+cnS8jfkI7OeW0ARNQ8SKGVIkSH+7lp8Qx3+tcUBCuZjZQQFjJHS+c=
+	t=1726330324; cv=none; b=cP3o0++9wCQeG0A0aDihIgaR1OEl3yDRlxuJ7lPIXXsXrvirFOdrQ/K1tWW7gYljQuSY2mDF3EJ+/030mbtxVsKvVN+s3K6igoLE0awf+EvaSV8oMXzRVcHvnx7Kqhw0hmKdZV6wxYezHopbLi7S08De08ss2gzwSUdlA92+y5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726244817; c=relaxed/simple;
-	bh=N/dGWdelfzW1jn7M+zLDe+HuQdFpqVd7x9gArCb5Jvk=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=hbGsWCQKSiFsIUwZxrjdhPIghitQNQExh8kMlXbVMnetr9zqQx/se1n32JjAtKwqSfkZ8M1WZOCoTYQ3+0JliMSVWxgz0qDGFGFSUAXYWWKqyUoVKUNtaNfi12ACuoXT8U305o1DFWGI3UqqqKqtcCNfwFp8tiH6LAzQFodqMIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p16OlQEp; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p16OlQEp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AB45C4CEC0;
-	Fri, 13 Sep 2024 16:26:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1726244816;
-	bh=N/dGWdelfzW1jn7M+zLDe+HuQdFpqVd7x9gArCb5Jvk=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=p16OlQEpr5SAw2jRw6O1xDg5YWbgxPDunmMZ0Sn3z1WK70qMRUtRnSYItwlFquMz3
-	 yy4fHiskNpy9vZ9R1OjKG5XM0WxfZrYDWZKb0/As8aq94zr9scbWbt4bcAzJIjgR88
-	 Rpbj1q+5++m00rAm0WVpOv4NyToZ4Zs9gpW7nXXy1aFahtHGMLJMOb9K4DhJodJ44o
-	 Ymz5cLXQGYn455KbAHQXACFdINjTucrcbGxpjP5qo4i31T6pcHJLE7KUsZhVJvVybl
-	 9F9bT9d/Q9e61kw/fi3+lyZzn7S7xg7lmIfws5NMXaF0gXVof2qb/XTgtciVCdizFe
-	 7v8BBeLtvAgVA==
-Date: Fri, 13 Sep 2024 11:26:54 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Daniel Wagner <wagi@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
-	Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
-	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
-	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
-	linux-nvme@lists.infradead.org, Daniel Wagner <dwagner@suse.de>,
-	20240912-do-not-overwrite-pci-mapping-v1-1-85724b6cec49@suse.de,
-	Ming Lei <ming.lei@redhat.com>
-Subject: Re: [PATCH 1/6] blk-mq: introduce blk_mq_hctx_map_queues
-Message-ID: <20240913162654.GA713813@bhelgaas>
+	s=arc-20240116; t=1726330324; c=relaxed/simple;
+	bh=3/RaIZT7WdvooM9BNOa0osJLBSkrxtxxgxDPh4ZRNTU=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=DVx0eDqxUJ9HxsTGwuzPr9upAstGdx99df0RHspz65FTr8H/NnpvBW/RL4XKLDQF/uYAyVgSHbqxdB02eB+CSsM/ZnpYa0UXctnf4iwKozR5L96SYZlKA0c1YuvlGUM8tWJisB/n8OKzel7g9vi0nRHRoz8SzaZr9XyhrQT6tsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3a0539a446dso52804855ab.1
+        for <virtualization@lists.linux.dev>; Sat, 14 Sep 2024 09:12:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1726330322; x=1726935122;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=elLGdhu/N7XTEKaqxHm49lH0bwEsUUVJ3oDAKjdaD5Q=;
+        b=tj/Nw4/4eNsRPmpyJUycZCr2vOGMlpLrjB9zjh+A6NTdJwfyJQ6MHCr8TlSlv31FEw
+         Tv1PzSnK5hZ684PiakgpxgPPvnkKEpfbtLUSFEyIfA/OxY/5E7wywKDDZ9HYC6Ov3CgU
+         cPR9LiDhnSyJ3gB4gYU6mYG6s1UoQg8WVD648VwvpmmUdVybpgyYXcW0iHuG+dLD+id1
+         NIT3suIxmlYxxDXFHoxzhTuivVu9FiDfGLn1PNJrZzWOlPIt7LE39C7m1UvcqnyhARr2
+         /381NjZ1PW2l4VrI3r6X5EY/axhJHYdrNUPx4dY3SMEJqOWvvj/CG15m746vsqcdv7HH
+         KIAg==
+X-Forwarded-Encrypted: i=1; AJvYcCXPXBwwYluTEnQEBNNehu83e2UTIjA+9D4C5oCj5qgO4s9CmIH3nC9QAZWomzRpVsG6FgWKTbW1Ol0XR/hzPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwMip65dA2Mb9iErBeEGCryNY26gdsffJO2iSN/emZceDuzQSL3
+	SYt5c6xYehBmJ8EAX0gn1gCzx06ljVi7Eae9FK/eQ5SB8X36Xg2KOl8ak8ergSXNbzmFe7h3y7Q
+	mtdldjJfYnKq0PFqHS+qP6BYEYrynK3ilMaFDLjnT1+x70YjSL0X3UDg=
+X-Google-Smtp-Source: AGHT+IEc++CMyi6bkWbEuObVzejUUGoJZN+8Kp9MFs8scQOh5Rafy+cL57mjP3DXHmucVMmExu3iETWNncLa6nd6JZ8MiIDzZQDF
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240913-refactor-blk-affinity-helpers-v1-1-8e058f77af12@suse.de>
+X-Received: by 2002:a05:6e02:1a2e:b0:3a0:9d2c:b079 with SMTP id
+ e9e14a558f8ab-3a09d2cb143mr92265ab.19.1726330321813; Sat, 14 Sep 2024
+ 09:12:01 -0700 (PDT)
+Date: Sat, 14 Sep 2024 09:12:01 -0700
+In-Reply-To: <0000000000005c8e95060babfa0e@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <66e5b5d1.050a0220.115905.0008.GAE@google.com>
+Subject: Re: [syzbot] [virt?] [netfilter?] INFO: rcu detected stall in
+ ip_list_rcv (6)
+From: syzbot <syzbot+45b67ef6e09a39a2cbcd@syzkaller.appspotmail.com>
+To: davem@davemloft.net, dsahern@kernel.org, edumazet@google.com, 
+	jhs@mojatatu.com, jiri@resnulli.us, kadlec@netfilter.org, kuba@kernel.org, 
+	lenb@kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pabeni@redhat.com, 
+	pablo@netfilter.org, rjw@rjwysocki.net, syzkaller-bugs@googlegroups.com, 
+	vinicius.gomes@intel.com, virtualization@lists.linux.dev, 
+	vladimir.oltean@nxp.com, xiyou.wangcong@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Sep 13, 2024 at 09:41:59AM +0200, Daniel Wagner wrote:
-> From: Ming Lei <ming.lei@redhat.com>
-> 
-> blk_mq_pci_map_queues and blk_mq_virtio_map_queues will create a CPU to
-> hardware queue mapping based on affinity information. These two
-> function share code which only differs on how the affinity information
-> is retrieved. Also there is the hisi_sas which open codes the same loop.
-> 
-> Thus introduce a new helper function for creating these mappings which
-> takes an callback function for fetching the affinity mask. Also
-> introduce common helper function for PCI and virtio devices to retrieve
-> affinity masks.
+syzbot suspects this issue was fixed by commit:
 
-> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> index e3a49f66982d..84f9c16b813b 100644
-> --- a/drivers/pci/pci.c
-> +++ b/drivers/pci/pci.c
-> @@ -6370,6 +6370,26 @@ int pci_set_vga_state(struct pci_dev *dev, bool decode,
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_BLK_MQ_PCI
-> +/**
-> + * pci_get_blk_mq_affinity - get affinity mask queue mapping for PCI device
-> + * @dev_data:	Pointer to struct pci_dev.
-> + * @offset:	Offset to use for the pci irq vector
-> + * @queue:	Queue index
-> + *
-> + * This function returns for a queue the affinity mask for a PCI device.
-> + * It is usually used as callback for blk_mq_hctx_map_queues().
-> + */
-> +const struct cpumask *pci_get_blk_mq_affinity(void *dev_data, int offset,
-> +					      int queue)
-> +{
-> +	struct pci_dev *pdev = dev_data;
-> +
-> +	return pci_irq_get_affinity(pdev, offset + queue);
-> +}
-> +EXPORT_SYMBOL_GPL(pci_get_blk_mq_affinity);
-> +#endif
+commit e634134180885574d1fe7aa162777ba41e7fcd5b
+Author: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date:   Mon May 27 15:39:54 2024 +0000
 
-IMO this doesn't really fit well in drivers/pci since it doesn't add
-any PCI-specific knowledge or require any PCI core internals, and the
-parameters are blk-specific.  I don't object to the code, but it seems
-like it could go somewhere in block/?
+    net/sched: taprio: make q->picos_per_byte available to fill_sched_entry()
 
-Bjorn
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=17264407980000
+start commit:   753c8608f3e5 Merge tag 'for-netdev' of https://git.kernel...
+git tree:       net-next
+kernel config:  https://syzkaller.appspot.com/x/.config?x=f8715b6ede5c4b90
+dashboard link: https://syzkaller.appspot.com/bug?extid=45b67ef6e09a39a2cbcd
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15abc0e2e80000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10b0c7c2e80000
+
+If the result looks correct, please mark the issue as fixed by replying with:
+
+#syz fix: net/sched: taprio: make q->picos_per_byte available to fill_sched_entry()
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
