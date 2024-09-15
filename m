@@ -1,76 +1,78 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08BF6CA6B
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 01:18:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03E2E1B85C2
+	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 01:18:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726363093; cv=none; b=OD/E+bWuW/ysr/PTsAf3jVNVwPBKo/2kjhNKav7E7h2cFMiN/jAZRbnEGXB6dnhUt8l2JgvBHPb0yuYUTH6mmrksFchseSDCZOUwOtQs8l+lyw281q3SelgN74PUT9ieabGAE+uGF2Q32yVRPSf8iNXquQ3WJ5wXK7jnp7KRoc4=
+	t=1726363103; cv=none; b=W3PISkZN2TlKlH4QOASd1j2U8zTdFp2LUWZlKX0zDNx/ZSN0ibmTRKLm+mzEN9zQtI78VNgVFofDy7RQfv390HEHqkgT+N4ZzHI4RgHQOLDjzAthdspyVqrWPrZaYS/TZfyKBAjGimvBT2hloHcC4aJvT65uKXxNq/CinzQkFlA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726363093; c=relaxed/simple;
-	bh=DjLACX6Izp1tDR7jnoxIGZpV6PDSLXserAQrHsvK6tI=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To; b=PkF5hmY20mtznrajPDr4oZIQJaa4UfDH3v6/QUhLqLJuoPIeD9xR8NHsUVSWW0jdirTbSFJzcHZ4Rj2jBhovlOVZkYjml3MyjfigkcHPOiq9RdxbI10bIWbmUPKCitgm2MqUCf3Q6NtK9MyylEHh9lk8ODzOR6o282lMNzAj9j4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=ZlHJbNlB; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1726363103; c=relaxed/simple;
+	bh=lLUNpbHX/GXFiFtHpw12GxrI7YDiHIJJxc3/RYWJl4c=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To; b=m+OtJrm2Anyz7DQPvqgl19aWnL8kJApF+dhmgWAYcK7F6FFpYQqKcFtiAaoTmBt0uHeuu0DRxtVMVMb/fFgB1oYzen+0bvbiE+58mYonOInFyqaKeHQV1j7S4IBvit8KEejpTWJAVowdAEOQbGvmTKuU0Rj+pRhk/c4SFaEKrCQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=1C9yq5J6; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="ZlHJbNlB"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="1C9yq5J6"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 912C840204
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 01:18:11 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8906881B0A
+	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 01:18:21 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Epg-tU-O8eqa for <virtualization@lists.linux-foundation.org>;
- Sun, 15 Sep 2024 01:18:10 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::631; helo=mail-pl1-x631.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org B2B10400F9
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B2B10400F9
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=ZlHJbNlB
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B2B10400F9
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 01:18:09 +0000 (UTC)
-Received: by mail-pl1-x631.google.com with SMTP id d9443c01a7336-2059204f448so30431705ad.0
-        for <virtualization@lists.linux-foundation.org>; Sat, 14 Sep 2024 18:18:09 -0700 (PDT)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id i8EVUzyALZEw for <virtualization@lists.linux-foundation.org>;
+ Sun, 15 Sep 2024 01:18:21 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::1032; helo=mail-pj1-x1032.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DB8DF817B5
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DB8DF817B5
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=1C9yq5J6
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DB8DF817B5
+	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 01:18:20 +0000 (UTC)
+Received: by mail-pj1-x1032.google.com with SMTP id 98e67ed59e1d1-2d8f06c2459so1529436a91.0
+        for <virtualization@lists.linux-foundation.org>; Sat, 14 Sep 2024 18:18:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1726363088; x=1726967888; darn=lists.linux-foundation.org;
-        h=to:content-transfer-encoding:mime-version:message-id:date:subject
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=4RlYLWTGEUWVMmH5uAZ3KmcTjt8vGdeFUKq4t4XgGZI=;
-        b=ZlHJbNlBsqGfSdM6tI8lrgSAaYJH1wRXpQkRFGABl4KOwhgQih2tzTwONSkbByM47N
-         tyhT1H0Rpe7fKHcsP8dHnTzCb26MRd5Tlg2t63IFsdhq9IsaMxluIjheB2rYRrxogUzr
-         GunjHTnqgSPxlosKYB5wTChTMYwE6khtLujAxwhCDrBc8OQyASyeYn47Jh9tq9fQrarC
-         012pa8ckz2quw6KQf4h/7YfSeVNLgx6qB/yMIB9GAPMSpzTX1W4BEhZD6mD2ZTweibws
-         HZ5g6w+v2tehdIxRo+BrQ++RWaixXvOBmE2o1H4BiswCMb1Y4eBJ42xKohqJGy6No37x
-         EEZQ==
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1726363100; x=1726967900; darn=lists.linux-foundation.org;
+        h=to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2yA9Gcv+7jpsWFyFoetAxKnXy2lsD/ZqoQ1BDUECczE=;
+        b=1C9yq5J6/bV1x9+7px2M22m5Q2WIWFaWKKsa2UdyOI2ZeG7INKSsZAmkOShEM/9Gkc
+         GFje1fcaFRwdy7xFiaFy9bffux5PK7BHhNZcDXDy5ORExLshfSz1ynZ4NPI1tzW5DktU
+         q/46gmAELyf8kpr9aONf7eb7vKCDS9hl4/uprzKGwPoibAG450Ze8MsapNZMmzqG/wBv
+         HXzKgstXB7emSuBFGlZeUunbiHrZfvdBAgN2DEK+y1SKNCoH5T4mKB5MageQqiae1XVE
+         FqFYzIz/XR5VVEft7w86wyb4d2pjK3vJJ1Klv/rqykdKop25tz81AeOwa3rD6z9EVjty
+         +V1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726363088; x=1726967888;
-        h=to:content-transfer-encoding:mime-version:message-id:date:subject
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4RlYLWTGEUWVMmH5uAZ3KmcTjt8vGdeFUKq4t4XgGZI=;
-        b=PmuwXcjegGAGYsqM5Tnjm+NxZByXp6vdTTWhV5N4raxDCNIOPLSRGCN69XgPTPdooM
-         PtVovkfycT9b9qRJe4vhKjvUq2KGq9UTLCESDFlzpZE2wGhFkhq0n6cvyfldTGpOYyJK
-         B1ip+i4ylo6AAn7hygXHZy2ep98kPMMcVn0JnPRX7J4xMqbOCgrVWXthXy6IwMQTgbYd
-         gFaqi7TU4zJ2ylId+lBg/j3J89On4MvYGGHnmc/MR/cKoHIcEfsAqIFStTySxh9Cus/e
-         LchP1CGiGYRa7wtuOKWGplGE0wkWjM6n+RA7GONleV2FPxpXO/ea0Xo0fb4yWQRpCK/V
-         lEOA==
-X-Forwarded-Encrypted: i=1; AJvYcCWDcUAzYTbbq0EPz8VEBVseISjbOG0mSVKxbXJxkHHbRj9QNgkmGDuKpyIjja4+T76yj1X81rHLpNnnHRgJvw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwX8Zs/6WIk3yRqKgSFAebvX3qBjgdkjmxkl03ZLdVvzQ/VZ2WQ
-	7NUsA0CXGA8nllJr4/tCIYoqRCjN+Nj5vxmZOXRtuu6TbY4JO+0mJRbaWn9Vxlw=
-X-Google-Smtp-Source: AGHT+IEiuSb5mz6nz0x+3ls5vJS2I1fqTIfJlWtcvvYAYRCP14NP9cyLAAgnz5CXLZHRFQsX1yZDwg==
-X-Received: by 2002:a17:902:e842:b0:205:5f35:80a0 with SMTP id d9443c01a7336-2076e460c8bmr183980385ad.57.1726363088286;
-        Sat, 14 Sep 2024 18:18:08 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1726363100; x=1726967900;
+        h=to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2yA9Gcv+7jpsWFyFoetAxKnXy2lsD/ZqoQ1BDUECczE=;
+        b=HVi81Onffc+NaA7U/kYVT1uWU9REyxQwM2UeKbsA4IuckmRbMa4JakQBgxmK6MICE1
+         WEsKGw2uYx6KIukbFBuNAzNHwtc1j1X6aXWZbB2YvPSZm1mbipz9aoxmYqIf/KbLEXcI
+         pAjeuuI1NN5IdnmL3kU7nNI5/chkIPNBf/Ncs1zBeQtOSxWy6sFu6RTahIbOoZDD4s6T
+         xXC4V+UfAcDqTguEx4gKG1ep0NiAeV/3ESf8YVDIi7Iq6fbtcmoMnukduwuvFGbyXHKY
+         Gi2EhE1K918Mm5xg/HrfgtkgkWjMARkFr/ZcSV5hn+rqUQ9YYfdrkHl1uzZMINL0fAhy
+         LsvA==
+X-Forwarded-Encrypted: i=1; AJvYcCWDT5IgJ9xfx0c7+FinDW3Tv8DxSpb3qrm2Gb0S7zZZdH1aXna688c0fWkAFfA9zpo9ALxzjuHT3NXQtGTwnA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwplDE0Y4BaAy+DWJnWeuuDQDV33z4GHDb/zOPn+nKY9y8QH3CH
+	QrCvPn5qj3erQ/MAAzqtZXwu/SJwcJ1kDbTQuFNKkMY+G4KAjDYffPNf5XLA6oE=
+X-Google-Smtp-Source: AGHT+IFSAj7upe4/2sUQdHW7jz5sgYJGysCflqOFoadt1kpwGAuHykIm5X1P7+daPBsyN4rHWM4Ujg==
+X-Received: by 2002:a17:90b:33c4:b0:2d8:94f1:b572 with SMTP id 98e67ed59e1d1-2dbb9e1ce4fmr10261622a91.18.1726363099986;
+        Sat, 14 Sep 2024 18:18:19 -0700 (PDT)
 Received: from localhost ([210.160.217.68])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-207946d181fsm14749405ad.133.2024.09.14.18.18.00
+        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-2dbb9c4cdb0sm4356067a91.10.2024.09.14.18.18.12
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 14 Sep 2024 18:18:07 -0700 (PDT)
+        Sat, 14 Sep 2024 18:18:19 -0700 (PDT)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Subject: [PATCH RFC v3 0/9] tun: Introduce virtio-net hashing feature
-Date: Sun, 15 Sep 2024 10:17:39 +0900
-Message-Id: <20240915-rss-v3-0-c630015db082@daynix.com>
+Date: Sun, 15 Sep 2024 10:17:40 +0900
+Subject: [PATCH RFC v3 1/9] skbuff: Introduce SKB_EXT_TUN_VNET_HASH
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,10 +81,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIALM15mYC/32MuwrCMBSGX6VkNiEnOU2qkyD4AK7iEJrUHoqNJ
- FJaSt/d0MnJ7b9+K8shUcjsVK0shYkyxbEYfahY27vxGTj54pmSCiVKzVPOPFhtfXMMnbOWleU
- 7hY7mnXJnt+uFPUrYU/7EtOzkCfaqQDRI2chagQQBiKgUB+4G6mmIIvqizt4tI82ija+dM6mfL
- 9SAYBCFMtKg+fvdtu0LzTrgp98AAAA=
+Message-Id: <20240915-rss-v3-1-c630015db082@daynix.com>
+References: <20240915-rss-v3-0-c630015db082@daynix.com>
+In-Reply-To: <20240915-rss-v3-0-c630015db082@daynix.com>
 To: Jonathan Corbet <corbet@lwn.net>, 
  Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
  Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
@@ -97,85 +98,58 @@ To: Jonathan Corbet <corbet@lwn.net>,
  Akihiko Odaki <akihiko.odaki@daynix.com>
 X-Mailer: b4 0.14-dev-fd6e3
 
-virtio-net have two usage of hashes: one is RSS and another is hash
-reporting. Conventionally the hash calculation was done by the VMM.
-However, computing the hash after the queue was chosen defeats the
-purpose of RSS.
-
-Another approach is to use eBPF steering program. This approach has
-another downside: it cannot report the calculated hash due to the
-restrictive nature of eBPF.
-
-Introduce the code to compute hashes to the kernel in order to overcome
-thse challenges.
-
-An alternative solution is to extend the eBPF steering program so that it
-will be able to report to the userspace, but it is based on context
-rewrites, which is in feature freeze. We can adopt kfuncs, but they will
-not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
-and vhost_net).
-
-QEMU patched to use this new feature is available at:
-https://github.com/daynix/qemu/tree/akihikodaki/rss2
-
-The QEMU patches will soon be submitted to the upstream as RFC too.
-
-This work will be presented at LPC 2024:
-https://lpc.events/event/18/contributions/1963/
-
-V1 -> V2:
-  Changed to introduce a new BPF program type.
+This new extension will be used by tun to carry the hash values and
+types to report with virtio-net headers.
 
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
-Changes in v3:
-- Reverted back to add ioctl.
-- Split patch "tun: Introduce virtio-net hashing feature" into
-  "tun: Introduce virtio-net hash reporting feature" and
-  "tun: Introduce virtio-net RSS".
-- Changed to reuse hash values computed for automq instead of performing
-  RSS hashing when hash reporting is requested but RSS is not.
-- Extracted relevant data from struct tun_struct to keep it minimal.
-- Added kernel-doc.
-- Changed to allow calling TUNGETVNETHASHCAP before TUNSETIFF.
-- Initialized num_buffers with 1.
-- Added a test case for unclassified packets.
-- Fixed error handling in tests.
-- Changed tests to verify that the queue index will not overflow.
-- Rebased.
-- Link to v2: https://lore.kernel.org/r/20231015141644.260646-1-akihiko.odaki@daynix.com
+ include/linux/skbuff.h | 10 ++++++++++
+ net/core/skbuff.c      |  3 +++
+ 2 files changed, 13 insertions(+)
 
----
-Akihiko Odaki (9):
-      skbuff: Introduce SKB_EXT_TUN_VNET_HASH
-      virtio_net: Add functions for hashing
-      net: flow_dissector: Export flow_keys_dissector_symmetric
-      tap: Pad virtio header with zero
-      tun: Pad virtio header with zero
-      tun: Introduce virtio-net hash reporting feature
-      tun: Introduce virtio-net RSS
-      selftest: tun: Add tests for virtio-net hashing
-      vhost/net: Support VIRTIO_NET_F_HASH_REPORT
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 29c3ea5b6e93..17cee21c9999 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -334,6 +334,13 @@ struct tc_skb_ext {
+ };
+ #endif
+ 
++#if IS_ENABLED(CONFIG_TUN)
++struct tun_vnet_hash_ext {
++	u32 value;
++	u16 report;
++};
++#endif
++
+ struct sk_buff_head {
+ 	/* These two members must be first to match sk_buff. */
+ 	struct_group_tagged(sk_buff_list, list,
+@@ -4718,6 +4725,9 @@ enum skb_ext_id {
+ #endif
+ #if IS_ENABLED(CONFIG_MCTP_FLOWS)
+ 	SKB_EXT_MCTP,
++#endif
++#if IS_ENABLED(CONFIG_TUN)
++	SKB_EXT_TUN_VNET_HASH,
+ #endif
+ 	SKB_EXT_NUM, /* must be last */
+ };
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 83f8cd8aa2d1..ce34523fd8de 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -4979,6 +4979,9 @@ static const u8 skb_ext_type_len[] = {
+ #if IS_ENABLED(CONFIG_MCTP_FLOWS)
+ 	[SKB_EXT_MCTP] = SKB_EXT_CHUNKSIZEOF(struct mctp_flow),
+ #endif
++#if IS_ENABLED(CONFIG_TUN)
++	[SKB_EXT_TUN_VNET_HASH] = SKB_EXT_CHUNKSIZEOF(struct tun_vnet_hash_ext),
++#endif
+ };
+ 
+ static __always_inline unsigned int skb_ext_total_length(void)
 
- Documentation/networking/tuntap.rst  |   7 +
- drivers/net/Kconfig                  |   1 +
- drivers/net/tap.c                    |   2 +-
- drivers/net/tun.c                    | 255 ++++++++++++--
- drivers/vhost/net.c                  |  16 +-
- include/linux/skbuff.h               |  10 +
- include/linux/virtio_net.h           | 198 +++++++++++
- include/net/flow_dissector.h         |   1 +
- include/uapi/linux/if_tun.h          |  71 ++++
- net/core/flow_dissector.c            |   3 +-
- net/core/skbuff.c                    |   3 +
- tools/testing/selftests/net/Makefile |   2 +-
- tools/testing/selftests/net/tun.c    | 666 ++++++++++++++++++++++++++++++++++-
- 13 files changed, 1195 insertions(+), 40 deletions(-)
----
-base-commit: 46a0057a5853cbdb58211c19e89ba7777dc6fd50
-change-id: 20240403-rss-e737d89efa77
-
-Best regards,
 -- 
-Akihiko Odaki <akihiko.odaki@daynix.com>
+2.46.0
 
