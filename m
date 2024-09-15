@@ -1,122 +1,140 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C601CA699
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 19:48:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E2483D96A
+	for <virtualization@lists.linux.dev>; Sun, 15 Sep 2024 20:32:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726429721; cv=none; b=XCWl7d7ofdlNtcvn3DgRnecAhTwnTrHT1wrJUIR9VBjfKu7ZPdTXD8BgMY2Rd8lZaav+BxJwtgOAWKI1xolV2olJKnvPjyyNhnNwfSYGu1QIUWaHDUQLjUZP+oH600ONFuvXPkuSv/OsywZ3C7sDpNXD3fHYzkTE6xBA/nlDFRo=
+	t=1726432357; cv=none; b=SJ4DipBj/skfHOgL9lIqaaHb1RRdbckrM2SDukEjmo6kP1YrfX0ZfbR00qRvx7d+ow0E52sgnoZKJVqBKCFn97/3VZXg8uA+xIpX2HPGEGJyFAvmFXjLHDGlvU8DrOZYQZhDlEAdcYavbJ0lemn7/nrB7luk7D5zNwnlvg9vRsU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726429721; c=relaxed/simple;
-	bh=MRhzl9kpuCHu74clIdzWjSROzs8qD6POOF2vur5Iqeg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UaVA1wojyh4kuWIoH8PBUyyKullbFE/mKcmIT2EwNoG6PmBbUHXPXYn4fawGBzpQEnHlevEZvT8oU87LuJZKSF0UeRvO9Xqzp6IGZ2Zr+MGRk9wWHAkH7fACvAc6xZo7agqMtNELQ8Z7d8viGABKqzXyZipRZNrVdY2qSdiJj/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b=R8d0jMRC; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1726432357; c=relaxed/simple;
+	bh=a8qUJ8Sm5t1yd934wra0SGfS/kNYzYpHbuN05xQcH9M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pDm7h/imJ9AO1ERoX8W645fBxLfRVkI+09WCxp/7bF4mcW4qiwRmg1Hofk6krWssj2OiyIkVokpIPmbhQeNefzuzhVeOwI4BD3yqeow9vj/NsUMCwHUTV8RddwXJKMlMh3sT9DWBKNgpOc5L2YVS2BzLYUzjA1iE8j1OpFXqeso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=ATsKRYH2; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b="R8d0jMRC"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C25028114B
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 19:48:39 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id fKawuU2VJL0g for <virtualization@lists.linux-foundation.org>;
- Sun, 15 Sep 2024 19:48:38 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::635; helo=mail-pl1-x635.google.com; envelope-from=stephen@networkplumber.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 93BA981133
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 93BA981133
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=R8d0jMRC
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 93BA981133
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 19:48:38 +0000 (UTC)
-Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-2053525bd90so21619105ad.0
-        for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 12:48:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="ATsKRYH2"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-205722ba00cso31506415ad.0
+        for <virtualization@lists.linux.dev>; Sun, 15 Sep 2024 13:32:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1726429717; x=1727034517; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SNp5/hnkOy9FrJ592XEPwxvQOfrqTwTwJ+m8OyrqXK0=;
-        b=R8d0jMRCyDBoON+ICZlt34ssO2Fm9kGqIblGs+xRVawao8BAI17aVbSb76cJCONaTW
-         OogwPkSZP16xWnxYShboo3R4akc1LUxZBPkSuxQFv1y+sVYp9yzN+3YwQi77+eVx9L6g
-         8d8RjCCkznX3sUrGJqOOPqlOoWA0XqvVUKib1XyvlSNP6q8KfEeOJHS5fGkE4UpFHUH9
-         HedfJ1/tCvtEkVFqbAyGK7mT4EQbBj71vGmuZZJ+K48pwZkwP2Ffxs5WNAaUmJ26L4V5
-         CVBtwPh07VkYWwiPRt+izw64e/ybhBNFyUzvcu99SmfMzZz4X9uAvY0qlGHyQIaNJyah
-         /J4w==
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1726432354; x=1727037154; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=8bFpdsxfx1Ace/q4aasi99xOr7vx0867TrczqjNMxQY=;
+        b=ATsKRYH2k7WkEvT+GlJJDdxI0IxGCgoGlPDmOydVwEOk8KwtYIW86PyY5WlpTknsBx
+         sIUTDKnIR7/21GylvTNqcYOM+RlunS6yX7Zk3ZVW6rHcTxkAYxOG5O3HXLZCIPvWE4w6
+         zQLJx5IUFdc7MfQe7tWaqAtZRc9fNVJBl7mnVli6fPt/PHLVas2IECbtAo4MJLRaATLY
+         QClvUFJ87/IVDSB4zPppuVhxLlaPQAR6U0rhLwip1kbmtWvY1rix7tCxr4MEzwzVhmGO
+         /zEtzLBYavqgk90D05BQHZ6WDjY576fFV1sSCv9/lhhhY5PlSTXcmZGTQTBfhl1+IUA1
+         jPSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726429718; x=1727034518;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SNp5/hnkOy9FrJ592XEPwxvQOfrqTwTwJ+m8OyrqXK0=;
-        b=h8EJX8MoWf4/8XGakEtzd5KWbQENVXGNN2FHNSnecnTMBVLZ7+bBf8FB6b2ZGaY+jG
-         r6l5o17kyrVoEctbeRfUQ4Wb7O560N2nnltGWht4QDZ7rFeMgLw99xP/eR47Pq3dRjf7
-         iV+DwI+XEe0oxIgHzez2/45/Z0u7P/E27NiCesEXiThMLj4iMqYNSxBLNdn3RExoRdpm
-         ZX6V2TzjvvBZIKFeoCSnJVQIue8kkuSI0jSNJqwPutVLmDu10Dmke8GjuSp+/0EGaU+P
-         tUGTbZ2V1/f3e3ktTt+7Jler4gt6DOMlC9JWuytZCENvXRJcdDrxS7sA1UIFoCNk7giP
-         G77A==
-X-Forwarded-Encrypted: i=1; AJvYcCVGfIAujUmJkcCggBtEA/ghfB7bkcQwMPFPAx+pKZVrS9LN6x8hBkJSj7QQHuNxM7zDlISkA/igNDT4hdTW+Q==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YysKNuNAg+Ayhy3L+8f5Q5tOtNlqwZKZXUcx6DC5lJ/5p7lxt1/
-	1X5vfJ1ID9TaPPQFK/bUGWB+mK1KRBvD6nGBHzv+sbgCOhotReLoIrHXEeW40Yc=
-X-Google-Smtp-Source: AGHT+IEIwQjnGlDPb3oEceDakpD1b1PWW6LbBCx4i0kZt1Rli+HqyHRriIrHVS++Yfgo5DfOZzymmg==
-X-Received: by 2002:a17:903:32c9:b0:206:ae39:9f4 with SMTP id d9443c01a7336-20781d5f6fcmr138044405ad.20.1726429717591;
-        Sun, 15 Sep 2024 12:48:37 -0700 (PDT)
-Received: from hermes.local (204-195-96-226.wavecable.com. [204.195.96.226])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20794735719sm24738385ad.275.2024.09.15.12.48.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Sep 2024 12:48:37 -0700 (PDT)
-Date: Sun, 15 Sep 2024 12:48:35 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn
- <willemdebruijn.kernel@gmail.com>, Jason Wang <jasowang@redhat.com>, "David
- S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah
- Khan <shuah@kernel.org>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko
- <andrew@daynix.com>
-Subject: Re: [PATCH RFC v3 0/9] tun: Introduce virtio-net hashing feature
-Message-ID: <20240915124835.456676f0@hermes.local>
-In-Reply-To: <20240915-rss-v3-0-c630015db082@daynix.com>
-References: <20240915-rss-v3-0-c630015db082@daynix.com>
+        d=1e100.net; s=20230601; t=1726432354; x=1727037154;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8bFpdsxfx1Ace/q4aasi99xOr7vx0867TrczqjNMxQY=;
+        b=w1PXwj5h8hi//XnWWdRiFzFgfbKfkhTv0N4sowpaH9irmDMZzj8rAdeBlclX4+rnDq
+         w5DYoEF9OcqjV8hTPMr/MX5K7FQ8BnLHU+1QCZ7mSfpIOW7CEIAhGjlbjVqhzP1PBlap
+         wzqA/u7b+1756CavR+Pn1dlJpTnLQQjLuwBC4HDWbhCO01bZ7f/VcWCsC6lWAqQuX74b
+         leiX3WrgIVMS1RPf4jnXM63J1auqj2pCC78z9vzLvOgpmEBIzH23FHzmWaqppZ6UkYvb
+         R6jHJjxJuVgAbikesVPfkx6GrpmLfNk3hoyoST+is+IZaYFLGFv4VHxgu8rbcOdl8pGb
+         Ca4Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUpYvD25ESaFiiwPOJcOnDjMDW3Q66+cIpDvI+n937EeY3tD+j/dt/KL071/BZH+A36a66I9qNwcgk8Xb4tdw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyq13zq9zzzjS/XICOHsOUvPVq8gqUWgHNQC1hXIS2fM1cnYRwa
+	fmauLtJ2bzQlh5vzc5a3iOaFSIOT57dkMv/WEVxz7dMKVL1atHc979hWAu04fK0=
+X-Google-Smtp-Source: AGHT+IFqzpuwo8+eE5vUuJR+DujfLNGM59YFl+GDSbrA+peia+5jh6zgtexzrlgiRgj766UReKE8nQ==
+X-Received: by 2002:a17:902:d2d2:b0:205:8a1a:53eb with SMTP id d9443c01a7336-2076e39c2e4mr194842025ad.18.1726432353601;
+        Sun, 15 Sep 2024 13:32:33 -0700 (PDT)
+Received: from [172.16.7.106] ([63.78.52.170])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2dbb9c3f57esm5730249a91.8.2024.09.15.13.32.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 15 Sep 2024 13:32:32 -0700 (PDT)
+Message-ID: <0bd0be63-5595-4aae-829f-6b278a5b5e60@kernel.dk>
+Date: Sun, 15 Sep 2024 14:32:30 -0600
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/6] blk-mq: introduce blk_mq_hctx_map_queues
+To: Bjorn Helgaas <helgaas@kernel.org>, Daniel Wagner <wagi@kernel.org>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
+ megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
+ MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
+ linux-nvme@lists.infradead.org, Daniel Wagner <dwagner@suse.de>,
+ 20240912-do-not-overwrite-pci-mapping-v1-1-85724b6cec49@suse.de,
+ Ming Lei <ming.lei@redhat.com>
+References: <20240913162654.GA713813@bhelgaas>
+Content-Language: en-US
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20240913162654.GA713813@bhelgaas>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Sun, 15 Sep 2024 10:17:39 +0900
-Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+On 9/13/24 10:26 AM, Bjorn Helgaas wrote:
+> On Fri, Sep 13, 2024 at 09:41:59AM +0200, Daniel Wagner wrote:
+>> From: Ming Lei <ming.lei@redhat.com>
+>>
+>> blk_mq_pci_map_queues and blk_mq_virtio_map_queues will create a CPU to
+>> hardware queue mapping based on affinity information. These two
+>> function share code which only differs on how the affinity information
+>> is retrieved. Also there is the hisi_sas which open codes the same loop.
+>>
+>> Thus introduce a new helper function for creating these mappings which
+>> takes an callback function for fetching the affinity mask. Also
+>> introduce common helper function for PCI and virtio devices to retrieve
+>> affinity masks.
+> 
+>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+>> index e3a49f66982d..84f9c16b813b 100644
+>> --- a/drivers/pci/pci.c
+>> +++ b/drivers/pci/pci.c
+>> @@ -6370,6 +6370,26 @@ int pci_set_vga_state(struct pci_dev *dev, bool decode,
+>>  	return 0;
+>>  }
+>>  
+>> +#ifdef CONFIG_BLK_MQ_PCI
+>> +/**
+>> + * pci_get_blk_mq_affinity - get affinity mask queue mapping for PCI device
+>> + * @dev_data:	Pointer to struct pci_dev.
+>> + * @offset:	Offset to use for the pci irq vector
+>> + * @queue:	Queue index
+>> + *
+>> + * This function returns for a queue the affinity mask for a PCI device.
+>> + * It is usually used as callback for blk_mq_hctx_map_queues().
+>> + */
+>> +const struct cpumask *pci_get_blk_mq_affinity(void *dev_data, int offset,
+>> +					      int queue)
+>> +{
+>> +	struct pci_dev *pdev = dev_data;
+>> +
+>> +	return pci_irq_get_affinity(pdev, offset + queue);
+>> +}
+>> +EXPORT_SYMBOL_GPL(pci_get_blk_mq_affinity);
+>> +#endif
+> 
+> IMO this doesn't really fit well in drivers/pci since it doesn't add
+> any PCI-specific knowledge or require any PCI core internals, and the
+> parameters are blk-specific.  I don't object to the code, but it seems
+> like it could go somewhere in block/?
 
-> virtio-net have two usage of hashes: one is RSS and another is hash
-> reporting. Conventionally the hash calculation was done by the VMM.
-> However, computing the hash after the queue was chosen defeats the
-> purpose of RSS.
-> 
-> Another approach is to use eBPF steering program. This approach has
-> another downside: it cannot report the calculated hash due to the
-> restrictive nature of eBPF.
-> 
-> Introduce the code to compute hashes to the kernel in order to overcome
-> thse challenges.
-> 
-> An alternative solution is to extend the eBPF steering program so that it
-> will be able to report to the userspace, but it is based on context
-> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
-> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
-> and vhost_net).
+Probably not a bad idea.
 
-This will be useful for DPDK. But there still are cases where custom
-flow rules are needed. I.e the RSS happens after other TC rules.
-It would be a good if skbedit supported RSS as an option.
+Unrelated to that topic, but Daniel, all your email gets marked as spam.
+I didn't see your series before this reply. This has been common
+recently for people that haven't kept up with kernel.org changes, please
+check for smtp changes there.
+
+-- 
+Jens Axboe
