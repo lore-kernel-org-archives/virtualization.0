@@ -1,213 +1,122 @@
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B9021B85E4
-	for <virtualization@lists.linux.dev>; Sun, 15 Sep 2024 05:50:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.72
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C601CA699
+	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 19:48:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726379427; cv=none; b=Q1iXkSwlDGhUjRLm+W1Pw2yPQcrMRfko9GZpdFzc9WgnDm5AEk2F49srYjUXp6J7iSfYoqnZZPf0p1+tf9onUkcD9bFSFRGHCO3cwvOBvjHwm4ahwGDJO1+edrUpo6s0T5k3//t7/7wTMQPZZxWBWsSE7SSnSG5iE45U8EQ7MYo=
+	t=1726429721; cv=none; b=XCWl7d7ofdlNtcvn3DgRnecAhTwnTrHT1wrJUIR9VBjfKu7ZPdTXD8BgMY2Rd8lZaav+BxJwtgOAWKI1xolV2olJKnvPjyyNhnNwfSYGu1QIUWaHDUQLjUZP+oH600ONFuvXPkuSv/OsywZ3C7sDpNXD3fHYzkTE6xBA/nlDFRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726379427; c=relaxed/simple;
-	bh=lQl7jmUDb4c8lw4IrcQIgoRgqvkG1Sp4n0CWEBaisp8=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=kewa5Y+3cY7gbVc0ZKeLESnuZHy7+YK8rIelDsUcgXXj+cgUzmfzZa0+kdQIqoXeGZAw4WdxLrFna+RM4OetdcAtGUf3iN/5B0imzu6ps3WZLBMrX8dUteQfGpqfeqjGZDRbL5kg6ZisouQw7eZme9IAKsS5VuVswt85F7l8DUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-82cdb749559so933549739f.2
-        for <virtualization@lists.linux.dev>; Sat, 14 Sep 2024 22:50:25 -0700 (PDT)
+	s=arc-20240116; t=1726429721; c=relaxed/simple;
+	bh=MRhzl9kpuCHu74clIdzWjSROzs8qD6POOF2vur5Iqeg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UaVA1wojyh4kuWIoH8PBUyyKullbFE/mKcmIT2EwNoG6PmBbUHXPXYn4fawGBzpQEnHlevEZvT8oU87LuJZKSF0UeRvO9Xqzp6IGZ2Zr+MGRk9wWHAkH7fACvAc6xZo7agqMtNELQ8Z7d8viGABKqzXyZipRZNrVdY2qSdiJj/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b=R8d0jMRC; arc=none smtp.client-ip=140.211.166.138
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b="R8d0jMRC"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id C25028114B
+	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 19:48:39 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id fKawuU2VJL0g for <virtualization@lists.linux-foundation.org>;
+ Sun, 15 Sep 2024 19:48:38 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::635; helo=mail-pl1-x635.google.com; envelope-from=stephen@networkplumber.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 93BA981133
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 93BA981133
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=R8d0jMRC
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 93BA981133
+	for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 19:48:38 +0000 (UTC)
+Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-2053525bd90so21619105ad.0
+        for <virtualization@lists.linux-foundation.org>; Sun, 15 Sep 2024 12:48:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1726429717; x=1727034517; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SNp5/hnkOy9FrJ592XEPwxvQOfrqTwTwJ+m8OyrqXK0=;
+        b=R8d0jMRCyDBoON+ICZlt34ssO2Fm9kGqIblGs+xRVawao8BAI17aVbSb76cJCONaTW
+         OogwPkSZP16xWnxYShboo3R4akc1LUxZBPkSuxQFv1y+sVYp9yzN+3YwQi77+eVx9L6g
+         8d8RjCCkznX3sUrGJqOOPqlOoWA0XqvVUKib1XyvlSNP6q8KfEeOJHS5fGkE4UpFHUH9
+         HedfJ1/tCvtEkVFqbAyGK7mT4EQbBj71vGmuZZJ+K48pwZkwP2Ffxs5WNAaUmJ26L4V5
+         CVBtwPh07VkYWwiPRt+izw64e/ybhBNFyUzvcu99SmfMzZz4X9uAvY0qlGHyQIaNJyah
+         /J4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726379424; x=1726984224;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=61NMgJkn8LfmHo4kTFJjxaAjtgXjESTtZN5vJyuiZTA=;
-        b=A95OQnQgsKB6FlW7AV4NuuiOWJptf9CFRFzdHJWsUp6xQis/i1D78mEdbtuuAKjjHe
-         SNegEn5qVfj2hDGXZwZm+CoT94dNjNkF2SuhZTNjvw5fRs5EFtxljtqop9yPZqwjhEjv
-         F4ppyOKIP9h0qZFSQHamDilw7zpa6W90/LJwKodkChyOzrDHQ/hTQQmOVECE1zh9FzWE
-         cQWZqa8LI/oUZdvz35rPlSNqw/cjYuyyHipnGnOTOCqz/JJdY5hFzvyAAmWsgUVgjgV9
-         BkWNbW2GwaKTpwqydqW3S48QrspeAxXFPdWNVI8qOemctjy7P82AZiGWLd5Jnuivl/eq
-         mhlw==
-X-Forwarded-Encrypted: i=1; AJvYcCVyoxc3BoJLroTjFF8d+FZfNV6PoSsZj8VmUqddp413xxZTiS3H9lYBT+sg9Yk+9CUCcnUCZRn5PDDM+XVMZw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyAS2elb6Hy3ZQ1HUEExKe6f7pdUEyKqLM1qvyx6BTeq+UCLws9
-	PJkBTo/6uDiL1IEWtYAe7Gpk8769QPnJiMEDDo1kvb2eQ+ofhS3WBPIl1TdB1+DbwR4cnUwu0Bf
-	jF05xE2nCxOYtR4fxwK9Y1bzUS347c3A0hS3bG5CjtYPUcohRODHc1E8=
-X-Google-Smtp-Source: AGHT+IHUkv6fjyQHJ4enVdWcIvOhkCrYCYzCVHcMraoSBAExiJTAnlGnVeHBvbHiZ/JT+ROSvEzXhDgf6rIQuwlr0ub1XPOioDt4
+        d=1e100.net; s=20230601; t=1726429718; x=1727034518;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=SNp5/hnkOy9FrJ592XEPwxvQOfrqTwTwJ+m8OyrqXK0=;
+        b=h8EJX8MoWf4/8XGakEtzd5KWbQENVXGNN2FHNSnecnTMBVLZ7+bBf8FB6b2ZGaY+jG
+         r6l5o17kyrVoEctbeRfUQ4Wb7O560N2nnltGWht4QDZ7rFeMgLw99xP/eR47Pq3dRjf7
+         iV+DwI+XEe0oxIgHzez2/45/Z0u7P/E27NiCesEXiThMLj4iMqYNSxBLNdn3RExoRdpm
+         ZX6V2TzjvvBZIKFeoCSnJVQIue8kkuSI0jSNJqwPutVLmDu10Dmke8GjuSp+/0EGaU+P
+         tUGTbZ2V1/f3e3ktTt+7Jler4gt6DOMlC9JWuytZCENvXRJcdDrxS7sA1UIFoCNk7giP
+         G77A==
+X-Forwarded-Encrypted: i=1; AJvYcCVGfIAujUmJkcCggBtEA/ghfB7bkcQwMPFPAx+pKZVrS9LN6x8hBkJSj7QQHuNxM7zDlISkA/igNDT4hdTW+Q==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YysKNuNAg+Ayhy3L+8f5Q5tOtNlqwZKZXUcx6DC5lJ/5p7lxt1/
+	1X5vfJ1ID9TaPPQFK/bUGWB+mK1KRBvD6nGBHzv+sbgCOhotReLoIrHXEeW40Yc=
+X-Google-Smtp-Source: AGHT+IEIwQjnGlDPb3oEceDakpD1b1PWW6LbBCx4i0kZt1Rli+HqyHRriIrHVS++Yfgo5DfOZzymmg==
+X-Received: by 2002:a17:903:32c9:b0:206:ae39:9f4 with SMTP id d9443c01a7336-20781d5f6fcmr138044405ad.20.1726429717591;
+        Sun, 15 Sep 2024 12:48:37 -0700 (PDT)
+Received: from hermes.local (204-195-96-226.wavecable.com. [204.195.96.226])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20794735719sm24738385ad.275.2024.09.15.12.48.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Sep 2024 12:48:37 -0700 (PDT)
+Date: Sun, 15 Sep 2024 12:48:35 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn
+ <willemdebruijn.kernel@gmail.com>, Jason Wang <jasowang@redhat.com>, "David
+ S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "Michael S.
+ Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah
+ Khan <shuah@kernel.org>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko
+ <andrew@daynix.com>
+Subject: Re: [PATCH RFC v3 0/9] tun: Introduce virtio-net hashing feature
+Message-ID: <20240915124835.456676f0@hermes.local>
+In-Reply-To: <20240915-rss-v3-0-c630015db082@daynix.com>
+References: <20240915-rss-v3-0-c630015db082@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1c0d:b0:39d:300f:e8ff with SMTP id
- e9e14a558f8ab-3a0848c8e16mr116221755ab.6.1726379424700; Sat, 14 Sep 2024
- 22:50:24 -0700 (PDT)
-Date: Sat, 14 Sep 2024 22:50:24 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000005b6b0e0622220846@google.com>
-Subject: [syzbot] [block?] [virt?] kernel panic: corrupted stack end in
- kernel_init (2)
-From: syzbot <syzbot+ec17b78de14721dd3bdc@syzkaller.appspotmail.com>
-To: akpm@linux-foundation.org, linux-block@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello,
+On Sun, 15 Sep 2024 10:17:39 +0900
+Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
 
-syzbot found the following issue on:
+> virtio-net have two usage of hashes: one is RSS and another is hash
+> reporting. Conventionally the hash calculation was done by the VMM.
+> However, computing the hash after the queue was chosen defeats the
+> purpose of RSS.
+> 
+> Another approach is to use eBPF steering program. This approach has
+> another downside: it cannot report the calculated hash due to the
+> restrictive nature of eBPF.
+> 
+> Introduce the code to compute hashes to the kernel in order to overcome
+> thse challenges.
+> 
+> An alternative solution is to extend the eBPF steering program so that it
+> will be able to report to the userspace, but it is based on context
+> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
+> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
+> and vhost_net).
 
-HEAD commit:    1ff95eb2bebd riscv: Fix RISCV_ALTERNATIVE_EARLY
-git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux.git fixes
-console output: https://syzkaller.appspot.com/x/log.txt?x=172cb0a9980000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=c79e90d7b2f5b364
-dashboard link: https://syzkaller.appspot.com/bug?extid=ec17b78de14721dd3bdc
-compiler:       riscv64-linux-gnu-gcc (Debian 12.2.0-13) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-userspace arch: riscv64
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/a741b348759c/non_bootable_disk-1ff95eb2.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/1491182abe4e/vmlinux-1ff95eb2.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/926302c5c645/Image-1ff95eb2.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+ec17b78de14721dd3bdc@syzkaller.appspotmail.com
-
-Registered RDS/tcp transport
-NET: Registered PF_SMC protocol family
-9pnet: Installing 9P2000 support
-Key type dns_resolver registered
-Key type ceph registered
-libceph: loaded (mon/osd proto 15/24)
-NET: Registered PF_VSOCK protocol family
-registered taskstats version 1
-Loading compiled-in X.509 certificates
-Loaded X.509 cert 'Build time autogenerated kernel key: f2a59455c4296818b28c73c1d87b1152c8ec3b9d'
-zswap: loaded using pool 842/z3fold
-Demotion targets for Node 0: null
-debug_vm_pgtable: [debug_vm_pgtable         ]: Validating architecture page table helpers
-Key type .fscrypt registered
-Key type fscrypt-provisioning registered
-Key type big_key registered
-Key type encrypted registered
-AppArmor: AppArmor sha256 policy hashing enabled
-ima: No TPM chip found, activating TPM-bypass!
-Loading compiled-in module X.509 certificates
-Loaded X.509 cert 'Build time autogenerated kernel key: f2a59455c4296818b28c73c1d87b1152c8ec3b9d'
-ima: Allocated hash algorithm: sha256
-ima: No architecture policies found
-evm: Initialising EVM extended attributes:
-evm: security.selinux (disabled)
-evm: security.SMACK64 (disabled)
-evm: security.SMACK64EXEC (disabled)
-evm: security.SMACK64TRANSMUTE (disabled)
-evm: security.SMACK64MMAP (disabled)
-evm: security.apparmor
-evm: security.ima
-evm: security.capability
-evm: HMAC attrs: 0x1
-printk: legacy console [netcon0] enabled
-netconsole: network logging started
-gtp: GTP module loaded (pdp ctx size 128 bytes)
-rdma_rxe: loaded
-clk: Disabling unused clocks
-PM: genpd: Disabling unused power domains
-ALSA device list:
-  #0: Dummy 1
-  #1: Loopback 1
-  #2: Virtual MIDI Card 1
-md: Skipping autodetection of RAID arrays. (raid=autodetect will force)
-EXT4-fs (vda): mounted filesystem 34b94c48-234b-4869-b990-1f782e29954a ro with ordered data mode. Quota mode: none.
-VFS: Mounted root (ext4 filesystem) readonly on device 253:0.
-devtmpfs: mounted
-Freeing unused kernel image (initmem) memory: 2532K
-Failed to set sysctl parameter 'max_rcu_stall_to_panic=1': parameter not found
-Run /sbin/init as init process
-Kernel panic - not syncing: corrupted stack end detected inside scheduler
-CPU: 0 UID: 0 PID: 1 Comm: init Not tainted 6.11.0-rc2-syzkaller-g1ff95eb2bebd #0
-Hardware name: riscv-virtio,qemu (DT)
-Call Trace:
-[<ffffffff80010216>] dump_backtrace+0x2e/0x3c arch/riscv/kernel/stacktrace.c:130
-[<ffffffff85edbc4e>] show_stack+0x34/0x40 arch/riscv/kernel/stacktrace.c:136
-[<ffffffff85f3714c>] __dump_stack lib/dump_stack.c:93 [inline]
-[<ffffffff85f3714c>] dump_stack_lvl+0x108/0x196 lib/dump_stack.c:119
-[<ffffffff85f371f6>] dump_stack+0x1c/0x24 lib/dump_stack.c:128
-[<ffffffff85edc812>] panic+0x388/0x806 kernel/panic.c:348
-[<ffffffff85f4533a>] schedule_debug kernel/sched/core.c:5745 [inline]
-[<ffffffff85f4533a>] __schedule+0x3230/0x3288 kernel/sched/core.c:6411
-[<ffffffff85f45a4c>] preempt_schedule_notrace+0xe0/0x2be kernel/sched/core.c:6801
-[<ffffffff85f39cc0>] lockdep_enabled kernel/locking/lockdep.c:118 [inline]
-[<ffffffff85f39cc0>] lock_is_held_type+0x7a/0x1f2 kernel/locking/lockdep.c:5824
-[<ffffffff816b51d8>] lock_is_held include/linux/lockdep.h:249 [inline]
-[<ffffffff816b51d8>] depot_fetch_stack+0x86/0xc8 lib/stackdepot.c:448
-[<ffffffff816b5e7e>] __stack_depot_get_stack_record+0xe/0x1e lib/stackdepot.c:688
-[<ffffffff809774ee>] inc_stack_record_count mm/page_owner.c:197 [inline]
-[<ffffffff809774ee>] __set_page_owner+0x2fe/0x70c mm/page_owner.c:329
-[<ffffffff8087cbf6>] set_page_owner include/linux/page_owner.h:32 [inline]
-[<ffffffff8087cbf6>] post_alloc_hook+0xea/0x1e2 mm/page_alloc.c:1493
-[<ffffffff80883c0a>] prep_new_page mm/page_alloc.c:1501 [inline]
-[<ffffffff80883c0a>] get_page_from_freelist+0x123c/0x27e8 mm/page_alloc.c:3442
-[<ffffffff80885ec6>] __alloc_pages_noprof+0x1f0/0x2142 mm/page_alloc.c:4700
-[<ffffffff809079f2>] alloc_pages_mpol_noprof+0xf8/0x48a mm/mempolicy.c:2263
-[<ffffffff80907ef8>] alloc_pages_noprof+0x174/0x2f0 mm/mempolicy.c:2343
-[<ffffffff80908098>] folio_alloc_noprof+0x24/0x6c mm/mempolicy.c:2350
-[<ffffffff806bd12c>] filemap_alloc_folio_noprof+0x348/0x44e mm/filemap.c:1008
-[<ffffffff806fa3ae>] page_cache_ra_unbounded+0x17c/0x4e6 mm/readahead.c:248
-[<ffffffff806fa808>] do_page_cache_ra+0xf0/0x134 mm/readahead.c:303
-[<ffffffff806fb2fe>] page_cache_ra_order+0xe8/0x17a mm/readahead.c:488
-[<ffffffff806fc28c>] page_cache_async_ra+0x51c/0x7c2 mm/readahead.c:638
-[<ffffffff806cb988>] filemap_readahead mm/filemap.c:2504 [inline]
-[<ffffffff806cb988>] filemap_get_pages+0x310/0x1628 mm/filemap.c:2545
-[<ffffffff806ccfee>] filemap_read+0x34e/0xc30 mm/filemap.c:2625
-[<ffffffff806cdb66>] generic_file_read_iter+0x296/0x38a mm/filemap.c:2806
-[<ffffffff80d323a6>] ext4_file_read_iter fs/ext4/file.c:147 [inline]
-[<ffffffff80d323a6>] ext4_file_read_iter+0x15e/0x400 fs/ext4/file.c:130
-[<ffffffff809df5c8>] __kernel_read+0x302/0x886 fs/read_write.c:434
-[<ffffffff810b71ce>] integrity_kernel_read+0x92/0xc4 security/integrity/iint.c:28
-[<ffffffff810c1224>] ima_calc_file_hash_tfm+0x2da/0x3ec security/integrity/ima/ima_crypto.c:480
-[<ffffffff810c2b90>] ima_calc_file_shash security/integrity/ima/ima_crypto.c:511 [inline]
-[<ffffffff810c2b90>] ima_calc_file_hash+0x19e/0x456 security/integrity/ima/ima_crypto.c:568
-[<ffffffff810c4c98>] ima_collect_measurement+0x7b4/0x918 security/integrity/ima/ima_api.c:293
-[<ffffffff810bd664>] process_measurement+0x10e4/0x2026 security/integrity/ima/ima_main.c:372
-[<ffffffff810beb44>] ima_file_mmap+0x1be/0x1de security/integrity/ima/ima_main.c:462
-[<ffffffff80feef5a>] security_mmap_file+0x102/0x184 security/security.c:2860
-[<ffffffff8076b28c>] vm_mmap_pgoff+0xd2/0x310 mm/util.c:584
-[<ffffffff8076b54e>] vm_mmap+0x84/0xac mm/util.c:607
-[<ffffffff80b83f8a>] elf_map fs/binfmt_elf.c:381 [inline]
-[<ffffffff80b83f8a>] elf_load+0x186/0x716 fs/binfmt_elf.c:408
-[<ffffffff80b878dc>] load_elf_interp fs/binfmt_elf.c:675 [inline]
-[<ffffffff80b878dc>] load_elf_binary+0x33c2/0x4c1e fs/binfmt_elf.c:1235
-[<ffffffff809fa6b0>] search_binary_handler fs/exec.c:1821 [inline]
-[<ffffffff809fa6b0>] exec_binprm fs/exec.c:1863 [inline]
-[<ffffffff809fa6b0>] bprm_execve fs/exec.c:1914 [inline]
-[<ffffffff809fa6b0>] bprm_execve+0x744/0x18a4 fs/exec.c:1890
-[<ffffffff809fe1e2>] kernel_execve+0x2c8/0x378 fs/exec.c:2081
-[<ffffffff85edace4>] run_init_process+0x194/0x1a8 init/main.c:1388
-[<ffffffff85edad16>] try_to_run_init_process+0x1e/0x66 init/main.c:1395
-[<ffffffff85f3cf60>] kernel_init+0x180/0x224 init/main.c:1523
-[<ffffffff85f5b972>] ret_from_fork+0xe/0x1c arch/riscv/kernel/entry.S:239
-SMP: stopping secondary CPUs
-Rebooting in 86400 seconds..
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+This will be useful for DPDK. But there still are cases where custom
+flow rules are needed. I.e the RSS happens after other TC rules.
+It would be a good if skbedit supported RSS as an option.
