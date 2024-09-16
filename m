@@ -1,80 +1,155 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4730C4E1CA
-	for <virtualization@lists.linux.dev>; Mon, 16 Sep 2024 06:48:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C064B49624
+	for <virtualization@lists.linux-foundation.org>; Mon, 16 Sep 2024 07:13:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726469333; cv=none; b=Lm9CNrWxhqnCXDCVYeu+kPKH7VsBwbGGGqATq0Dtw1TUSNsdWb3aIdGrgSOZQPI4qug534GibluFr14nQawA8sePxvwVfrE52JkAlShfV3Qu9hqeHgLyBHXWnfPSIVxPCrSc5OWsRq2EgFypbiPvnqOXmlBKUaoLBQ+UZPSlZns=
+	t=1726470801; cv=none; b=ArGBg+FllAIVVkPDZHyDN5o3+85Rk679gEmEVXZ7JPX7wjc0EN4Jt0R3EnPpmh9ISunwfRFakrJQkU3Nr4VaX6mtv3uejnC+VDsNoNKKX8ylp1b8Bvd9gkLyaEJm0l/TcIPM9clEJVA3rnLJ9IqZ1akhJvxgbEPG7n89N/0f97g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726469333; c=relaxed/simple;
-	bh=y8BURP73rNIkllDOPgxsGnvJZjK9VISFdAoxhnkEplA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JMjWcpYink/mT4c95O4ZuFAnavVeFhsJaIJxXHFqcB2s73j/wfY2Bmjga6ky2oJKkVHd8v5H2YtsuWrRngS6Sr/ognTY5YY/94ruP4vwjSoCsfefZH0u2wbbe/I01jioTxGX6UJlgau5qeKNe7X/6qxfT9lPgWTVQ/MhFqRN2n8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 92036227AAA; Mon, 16 Sep 2024 08:48:46 +0200 (CEST)
-Date: Mon, 16 Sep 2024 08:48:46 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
-	Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
-	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
-	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
-	linux-nvme@lists.infradead.org, Daniel Wagner <dwagner@suse.de>,
-	20240912-do-not-overwrite-pci-mapping-v1-1-85724b6cec49@suse.de,
-	Ming Lei <ming.lei@redhat.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 1/6] blk-mq: introduce blk_mq_hctx_map_queues
-Message-ID: <20240916064846.GA15950@lst.de>
-References: <20240913-refactor-blk-affinity-helpers-v1-1-8e058f77af12@suse.de> <20240913162654.GA713813@bhelgaas>
+	s=arc-20240116; t=1726470801; c=relaxed/simple;
+	bh=ZaE3JPjtRaAYCYIkE3022YmPKGJtBMPOLnJUVzEdaQc=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VPurwtk2C+PFgvlPk8mbmIi08Vc17Okido9442IJ6B7KZwycnoUHiS1+2ZHep3mhgNTJJQKoBMFfVSxg9VHBDvAbafyy8VWKIV3Z5vNyOpTLvkq6rDJRIyPKg3u4imUwTii8xt9w9HtmT8fdzbo03GjW+YpJgmornMou7yWx1l8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0DD51403D1
+	for <virtualization@lists.linux-foundation.org>; Mon, 16 Sep 2024 07:13:18 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.393
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id MwINeRp9Iegz for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Sep 2024 07:13:17 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=185.176.79.56; helo=frasgout.his.huawei.com; envelope-from=gur.stavi@huawei.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9F2C8403CF
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F2C8403CF
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F2C8403CF
+	for <virtualization@lists.linux-foundation.org>; Mon, 16 Sep 2024 07:13:15 +0000 (UTC)
+Received: from mail.maildlp.com (unknown [172.18.186.31])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4X6bd32w2Wz6L78S;
+	Mon, 16 Sep 2024 15:09:27 +0800 (CST)
+Received: from frapeml500005.china.huawei.com (unknown [7.182.85.13])
+	by mail.maildlp.com (Postfix) with ESMTPS id C16E0140516;
+	Mon, 16 Sep 2024 15:13:11 +0800 (CST)
+Received: from china (10.221.233.88) by frapeml500005.china.huawei.com
+ (7.182.85.13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Mon, 16 Sep
+ 2024 09:13:03 +0200
+From: <gur.stavi@huawei.com>
+To: <akihiko.odaki@daynix.com>
+CC: <andrew@daynix.com>, <corbet@lwn.net>, <davem@davemloft.net>,
+	<edumazet@google.com>, <jasowang@redhat.com>, <kuba@kernel.org>,
+	<kvm@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+	<mst@redhat.com>, <netdev@vger.kernel.org>, <pabeni@redhat.com>,
+	<shuah@kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<willemdebruijn.kernel@gmail.com>, <xuanzhuo@linux.alibaba.com>,
+	<yuri.benditovich@daynix.com>
+Subject: [PATCH RFC v3 2/9] virtio_net: Add functions for hashing
+Date: Mon, 16 Sep 2024 10:12:53 +0300
+Message-ID: <20240916071253.462-1-gur.stavi@huawei.com>
+X-Mailer: git-send-email 2.45.1
+In-Reply-To: <20240915-rss-v3-2-c630015db082@daynix.com>
+References: <20240915-rss-v3-2-c630015db082@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240913162654.GA713813@bhelgaas>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ frapeml500005.china.huawei.com (7.182.85.13)
 
-On Fri, Sep 13, 2024 at 11:26:54AM -0500, Bjorn Helgaas wrote:
-> > +const struct cpumask *pci_get_blk_mq_affinity(void *dev_data, int offset,
-> > +					      int queue)
-> > +{
-> > +	struct pci_dev *pdev = dev_data;
-> > +
-> > +	return pci_irq_get_affinity(pdev, offset + queue);
-> > +}
-> > +EXPORT_SYMBOL_GPL(pci_get_blk_mq_affinity);
-> > +#endif
-> 
-> IMO this doesn't really fit well in drivers/pci since it doesn't add
-> any PCI-specific knowledge or require any PCI core internals, and the
-> parameters are blk-specific.  I don't object to the code, but it seems
-> like it could go somewhere in block/?
++
++static inline void virtio_net_toeplitz(struct virtio_net_toeplitz_state *state,
++				       const __be32 *input, size_t len)
 
-That's where it, or rather the current equivalent, lives, which is a bit
-silly.  That being said, I suspect the nicest thing would be to offer a
-real irq_get_affinity interface at the bus level.
+The function calculates a hash value but its name does not make it
+clear. Consider adding a 'calc'.
 
-e.g. add something like:
++{
++	u32 key;
++
++	while (len) {
++		state->key++;
++		key = be32_to_cpu(*state->key);
+
+You perform be32_to_cpu to support both CPU endianities.
+If you will follow with an unconditional swab32, you could run the
+following loop on a more natural 0 to 31 always referring to bit 0
+and avoiding !!(key & bit):
+
+key = swab32(be32_to_cpu(*state->key));
+for (i = 0; i < 32; i++, key >>= 1) {
+	if (be32_to_cpu(*input) & 1)
+		state->hash ^= state->key_buffer;
+	state->key_buffer = (state->key_buffer << 1) | (key & 1);
+}
 
 
-	const struct cpumask *(*irq_get_affinity(struct device *dev,
-			unsigned int irq_vec);
++
++		for (u32 bit = BIT(31); bit; bit >>= 1) {
++			if (be32_to_cpu(*input) & bit)
++				state->hash ^= state->key_buffer;
++
++			state->key_buffer =
++				(state->key_buffer << 1) | !!(key & bit);
++		}
++
++		input++;
++		len--;
++	}
++}
++
++static inline u32 virtio_net_hash_report(u32 types,
++					 struct flow_dissector_key_basic key)
++{
++	switch (key.n_proto) {
++	case htons(ETH_P_IP):
 
-to struct bus_type so that any layer can just query the irq affinity
-for buses that support it without extra glue code.
+Other parts of the code use be_to_cpu and cpu_to_be, Why use legacy
+htons here?
+
++		if (key.ip_proto == IPPROTO_TCP &&
++		    (types & VIRTIO_NET_RSS_HASH_TYPE_TCPv4))
++			return VIRTIO_NET_HASH_REPORT_TCPv4;
++
++		if (key.ip_proto == IPPROTO_UDP &&
++		    (types & VIRTIO_NET_RSS_HASH_TYPE_UDPv4))
++			return VIRTIO_NET_HASH_REPORT_UDPv4;
++
++		if (types & VIRTIO_NET_RSS_HASH_TYPE_IPv4)
++			return VIRTIO_NET_HASH_REPORT_IPv4;
++
++		return VIRTIO_NET_HASH_REPORT_NONE;
++
++	case htons(ETH_P_IPV6):
++		if (key.ip_proto == IPPROTO_TCP &&
++		    (types & VIRTIO_NET_RSS_HASH_TYPE_TCPv6))
++			return VIRTIO_NET_HASH_REPORT_TCPv6;
++
++		if (key.ip_proto == IPPROTO_UDP &&
++		    (types & VIRTIO_NET_RSS_HASH_TYPE_UDPv6))
++			return VIRTIO_NET_HASH_REPORT_UDPv6;
++
++		if (types & VIRTIO_NET_RSS_HASH_TYPE_IPv6)
++			return VIRTIO_NET_HASH_REPORT_IPv6;
++
++		return VIRTIO_NET_HASH_REPORT_NONE;
++
++	default:
++		return VIRTIO_NET_HASH_REPORT_NONE;
++	}
++}
+ #endif /* _LINUX_VIRTIO_NET_H */
+
+-- 
+2.46.0
+
