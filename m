@@ -1,349 +1,276 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9711020323
-	for <virtualization@lists.linux.dev>; Tue, 17 Sep 2024 14:09:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4ECDF9E4
+	for <virtualization@lists.linux.dev>; Tue, 17 Sep 2024 19:57:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726582175; cv=none; b=nVgNv5h0Sage9iOqiTa+D7x6M24UnBg1lNk4CpXAVRiTvLLp+1w35yDUa9+sjw+dXJoIi+uPBUpat9yfI5vzwYPh6x1c4qUx9cnRCmwKNRYbgogmTwdfe7bx3yK85YPB074WDajvJI9POrv9/laI/8FKuYZUOYsviEJXYdvBjy8=
+	t=1726603025; cv=none; b=Pv3kW3e5vPxXThF2llMQMNKwjNMhbUXgwn0iSJrPQWnWWK1u7HJ4Gxim7xQ1AsLX2t1d+Not5Sa66Od5tcvR4iU3IxXhpax+utbvNx9nfTipmGPk7F4GT5MLtzX3sXqPgw4G7sMMNvph2gRy17uDoBNsetPQYMs+TUtQWkrne0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726582175; c=relaxed/simple;
-	bh=C5sNu/tIzMKqgI7iIqHP/fw5VObg8bg/2Hy9Hbgm2r8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=NQu5ZrAecn+SJumn+2S7HfovkwiHQAFE2jsKskvzT+EnSYNxngM1VrSg81lsVh+NVGF2rJsukbdLCNY6TC0hm7Oz8VO/MvlO0KAvj/ZS3PqXUsMfLMMf9HrbzbAwJcHVuHrFSPFYCa4WsTsY2dNrPxULL6evrzIDCWIsO7AMHdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=bG+c27IT; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="bG+c27IT"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240917140924euoutp02102971b0c7a21ed3cb1b0cc8b629735b~2DVSbYF_x2161221612euoutp02H
-	for <virtualization@lists.linux.dev>; Tue, 17 Sep 2024 14:09:24 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240917140924euoutp02102971b0c7a21ed3cb1b0cc8b629735b~2DVSbYF_x2161221612euoutp02H
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1726582164;
-	bh=FTIlmpeK+gBJgWWEUm8TuxmGeJbEdLRQW3w4HeVHoXg=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=bG+c27ITlCkTt0V1filw+4a1LMWEhRAfOA1iRLQyMFKScmaAJBQRbYQctxH5TM01x
-	 r8Dd7i318psd5LEvSj5mJEqSZbdJyIgRwLlWcSBDLwa59Duw6DTi9J8/zcbvwTeABE
-	 ogpTBI9P6UjHXl6e35HqEqN/5V7GS7r9lMhoeflk=
-Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-	20240917140923eucas1p1c65e333bfc8d613440d0f0b0e4601fa1~2DVSQGnPl2001520015eucas1p1r;
-	Tue, 17 Sep 2024 14:09:23 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-	eusmges3new.samsung.com (EUCPMTA) with SMTP id F6.65.09620.39D89E66; Tue, 17
-	Sep 2024 15:09:23 +0100 (BST)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20240917140923eucas1p1c76055978d586d06cb567c722a8c98f5~2DVRvnjz50876708767eucas1p1B;
-	Tue, 17 Sep 2024 14:09:23 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-	eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-	20240917140923eusmtrp2426373454546511046418e41b3dca3df~2DVRuw79Q2089320893eusmtrp2G;
-	Tue, 17 Sep 2024 14:09:23 +0000 (GMT)
-X-AuditID: cbfec7f5-d31ff70000002594-4c-66e98d9390d2
-Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-	eusmgms1.samsung.com (EUCPMTA) with SMTP id 31.6A.14621.39D89E66; Tue, 17
-	Sep 2024 15:09:23 +0100 (BST)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20240917140922eusmtip1defa6801fe0fe60bba142fca23bd80ab~2DVRGlimf1227312273eusmtip1S;
-	Tue, 17 Sep 2024 14:09:22 +0000 (GMT)
-Message-ID: <5e051c18-bd96-4543-abeb-4ed245f16f9e@samsung.com>
-Date: Tue, 17 Sep 2024 16:09:21 +0200
+	s=arc-20240116; t=1726603025; c=relaxed/simple;
+	bh=QY3QaVhBVani26cVOAncga4ESWZ+qdtubK2s/QeBCNc=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type; b=S3Lc3ha9fKdqe2uElJ5rcB1bg4CcsDzToQyw+2ZUI0BgLxOuJgzdlAAEU0KooS/kyvsO1/KQxIkxJTzzHl/u7zJjrsIN4pUf5MFSOHGaUg4FkDTWVN78MfNTEekQcHgAu9pHKNCOEBHrLbZ3a2+KAfH9MS/6IYwrLqRJCSktkaI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.18.186.231])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4X7Xc16NYbz6K5Z2;
+	Wed, 18 Sep 2024 03:56:49 +0800 (CST)
+Received: from frapeml500008.china.huawei.com (unknown [7.182.85.71])
+	by mail.maildlp.com (Postfix) with ESMTPS id 1DAAA140B55;
+	Wed, 18 Sep 2024 03:56:58 +0800 (CST)
+Received: from localhost (10.48.144.97) by frapeml500008.china.huawei.com
+ (7.182.85.71) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Tue, 17 Sep
+ 2024 21:56:55 +0200
+Date: Tue, 17 Sep 2024 20:56:53 +0100
+From: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+To: John Groves <John@groves.net>, <linuxarm@huawei.com>
+CC: David Hildenbrand <david@redhat.com>, linux-mm <linux-mm@kvack.org>,
+	linux-cxl <linux-cxl@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>,
+	Ira Weiny <ira.weiny@intel.com>, virtualization
+	<virtualization@lists.linux.dev>, Oscar Salvador <osalvador@suse.de>,
+	qemu-devel <qemu-devel@nongnu.org>, Dave Jiang <dave.jiang@intel.com>, "Dan
+ Williams" <dan.j.williams@intel.com>, "Wangkefeng (OS Kernel Lab)"
+	<wangkefeng.wang@huawei.com>, John Groves <jgroves@micron.com>, Fan Ni
+	<fan.ni@samsung.com>, Navneet Singh <navneet.singh@intel.com>, "
+ =?Windows-1252?Q?=93Michael?= S. =?Windows-1252?Q?Tsirkin=94?="
+	<mst@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Philippe
+ =?Windows-1252?Q?Mathieu-Daud=E9?= <philmd@linaro.org>
+Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
+ specific, multi host shared)
+Message-ID: <20240917205048.00001e34@huawei.com>
+References: <20240815172223.00001ca7@Huawei.com>
+	<sjz2xzwkgkq6bun5lssqbsimbggczarotpjdhcsq3itoq5h7jc@x5ormqciwofo>
+	<20240819164024.00005a0a@Huawei.com>
+Organization: Huawei Technologies Research and Development (UK) Ltd.
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtio_blk: implement init_hctx MQ operation
-To: Max Gurtovoy <mgurtovoy@nvidia.com>, stefanha@redhat.com,
-	virtualization@lists.linux.dev, mst@redhat.com, axboe@kernel.dk
-Cc: kvm@vger.kernel.org, linux-block@vger.kernel.org, oren@nvidia.com
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <b2408b1b-67e7-4935-83b4-1a2850e07374@nvidia.com>
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprPKsWRmVeSWpSXmKPExsWy7djP87qTe1+mGZycY2Cx+m4/m8WcqYUW
-	e29pW2yd/5nJ4v+vV6wWDy5NYrd4Pek/q8XR7StZHTg8Lp8t9XixeSajR2/zOzaP9/uusnl8
-	3iQXwBrFZZOSmpNZllqkb5fAlfHpyw32gvt+FTPfL2VrYNzr1MXIwSEhYCKxYmNKFyMXh5DA
-	CkaJpg+tzBDOF0aJD20NjBDOZ0aJx48PADmcYB1f191lhUgsZ5RY8qqZHcL5yCjx5cFtVpC5
-	vAJ2EvemRoM0sAioSnTubmUDsXkFBCVOznzCAmKLCshL3L81gx3EFhZwkZiyvgksLiJQL9G9
-	9wiYzSzgKvGht5MNwhaXuPVkPhOIzSZgKNH1tgsszgm0aumyaVD18hLNW2eDvSAh8IBD4uy0
-	jUwQV7tIzL13mRnCFpZ4dXwLO4QtI/F/J8hQkIZ2RokFv+9DORMYJRqe34L62VrizrlfbCCf
-	MQtoSqzfpQ8RdpRoaVnADglIPokbbwUhjuCTmLRtOjNEmFeio00IolpNYtbxdXBrD164xDyB
-	UWkWUrDMQvLmLCTvzELYu4CRZRWjeGppcW56arFxXmq5XnFibnFpXrpecn7uJkZgGjr97/jX
-	HYwrXn3UO8TIxMF4iFGCg1lJhNf299M0Id6UxMqq1KL8+KLSnNTiQ4zSHCxK4ryqKfKpQgLp
-	iSWp2ampBalFMFkmDk6pBqaSN5/ipbcs7QtN8l7/Xmyn8jWjnXwO+VdEo4pLwt7OnXfY9qlj
-	G4eCQjLPrfQvvhPTtu9wei9k86Ymxjf+ZcjSH5O7Tz+655Hw5522osmaI0vUj92xurLfU5lr
-	to7FyVbdOzdPfz42JVtWS/DjD6He7ZPb/x7uPt/lp/vhs83PiCmTNpfHZbKszLsg+Z5XnPfT
-	TxGVE+/a6t/5BCQnnK6c1TLvw4HXJvPWH0p6UtZdxzNd1rJVNFlgdvxmS55jvLVyMl5fY2un
-	3tWNCK/exmV5NGVX24TULVMVsto9qn6ofhVJ+SAw/enjf5/enrWpU3FVnCH8+aqeTIZjYE5W
-	tK2V1y2dFCvZfMtPlgeDviqxFGckGmoxFxUnAgA4LwZ7sgMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrEIsWRmVeSWpSXmKPExsVy+t/xu7qTe1+mGTQvF7VYfbefzWLO1EKL
-	vbe0LbbO/8xk8f/XK1aLB5cmsVu8nvSf1eLo9pWsDhwel8+WerzYPJPRo7f5HZvH+31X2Tw+
-	b5ILYI3SsynKLy1JVcjILy6xVYo2tDDSM7S00DMysdQzNDaPtTIyVdK3s0lJzcksSy3St0vQ
-	y/j05QZ7wX2/ipnvl7I1MO516mLk5JAQMJH4uu4uaxcjF4eQwFJGiUP/FjFDJGQkTk5rYIWw
-	hSX+XOtigyh6zyjx8tQF9i5GDg5eATuJe1OjQWpYBFQlOne3soHYvAKCEidnPmEBsUUF5CXu
-	35rBDmILC7hITFnfBBYXEaiXaN7RARZnFnCV+NDbCTX/G6NE04tmqIS4xK0n85lAbDYBQ4mu
-	t11gCziB9i5dNo0FosZMomtrFyOELS/RvHU28wRGoVlI7piFZNQsJC2zkLQsYGRZxSiSWlqc
-	m55bbKhXnJhbXJqXrpecn7uJERh524793LyDcd6rj3qHGJk4GA8xSnAwK4nw2v5+mibEm5JY
-	WZValB9fVJqTWnyI0RQYGBOZpUST84Gxn1cSb2hmYGpoYmZpYGppZqwkzut2+XyakEB6Yklq
-	dmpqQWoRTB8TB6dUAxPv4vU7knttzvv+3ayopMVVKJS313XOmzu3nrtUestu8La+uVhlksMf
-	I2WJK+s2V/9mm/qUSbikSD3jP7/WgWYFHuFrrqaOvkk9PYk8wd/y9ydmhj7/v9VVeJpmpb2r
-	rI3iouX+HxSsX4sEPKv+s/TLrifNNgemTHDccLX+DrfGA1lbc90tF/9Offi6ZKZs/ooH1+5e
-	1G7vW+Tad+rRtoPOGw4e3lhvF7lco8IoVaJIakV+Qs2xXyZ7TmRe70opC5t7zl194cWNl6Zl
-	ZmvfSFrDntlp/2xd7d9f9hYJt0xrq/9FxQfc472z8bBOU/aL3LD9S3oEry0Jio9YmDjRV3xu
-	4s7fASmpXMdeHTSceVWJpTgj0VCLuag4EQDXaQl2RQMAAA==
-X-CMS-MailID: 20240917140923eucas1p1c76055978d586d06cb567c722a8c98f5
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a
-References: <20240807224129.34237-1-mgurtovoy@nvidia.com>
-	<CGME20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a@eucas1p1.samsung.com>
-	<fb28ea61-4e94-498e-9caa-c8b7786d437a@samsung.com>
-	<b2408b1b-67e7-4935-83b4-1a2850e07374@nvidia.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: lhrpeml100003.china.huawei.com (7.191.160.210) To
+ frapeml500008.china.huawei.com (7.182.85.71)
 
-Hi Max,
+On Tue, 17 Sep 2024 19:37:21 +0000
+Jonathan Cameron <jonathan.cameron@huawei.com> wrote:
 
-On 17.09.2024 00:06, Max Gurtovoy wrote:
+> Plan is currently to meet at lpc registration desk 2pm tomorrow Wednesday and we will find a room.
 >
-> On 12/09/2024 9:46, Marek Szyprowski wrote:
->> Dear All,
->>
->> On 08.08.2024 00:41, Max Gurtovoy wrote:
->>> Set the driver data of the hardware context (hctx) to point directly to
->>> the virtio block queue. This cleanup improves code readability and
->>> reduces the number of dereferences in the fast path.
->>>
->>> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
->>> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
->>> ---
->>>    drivers/block/virtio_blk.c | 42 
->>> ++++++++++++++++++++------------------
->>>    1 file changed, 22 insertions(+), 20 deletions(-)
->> This patch landed in recent linux-next as commit 8d04556131c1
->> ("virtio_blk: implement init_hctx MQ operation"). In my tests I found
->> that it introduces a regression in system suspend/resume operation. From
->> time to time system crashes during suspend/resume cycle. Reverting this
->> patch on top of next-20240911 fixes this problem.
->
-> Could you please provide a detailed explanation of the system 
-> suspend/resume operation and the specific testing methodology employed?
 
-In my tests I just call the 'rtcwake -s10 -mmem' command many times in a 
-loop. I use standard Debian image under QEMU/ARM64. Nothing really special.
+And now the internet maybe knows my phone number (serves me right for using
+my company mobile app that auto added a signature)
+I might have been lucky and it didn't hit the archives because
+the formatting was too broken..
 
->
-> The occurrence of a kernel panic from this commit is unexpected, given 
-> that it primarily involves pointer reassignment without altering the 
-> lifecycle of vblk/vqs.
->
-> In the virtqueue_add_split function, which pointer is becoming null 
-> and causing the issue? A detailed analysis would be helpful.
->
-> The report indicates that the crash occurs sporadically rather than 
-> consistently.
->
-> is it possible that this is a race condition introduced by a different 
-> commit? How can we rule out this possibility?
-This is the commit pointed by bisecting between v6.11-rc1 and 
-next-20240911. The problem is reproducible, it just need a few calls to 
-the rtcwake command.
->
-> Prior to applying this commit, what were the test results? 
-> Specifically, out of 100 test runs, how many passed successfully?
+Anyhow, see some of you tomorrow.  I didn't manage to borrow a jabra mic
+so remote will be tricky but feel free to reach out and we might be
+able to sort something.
 
-All 100 were successful, see https://pastebin.com/3yETvXK9 (kernel is 
-compiled from 6d17035a7402, which is a parent of $subject in linux-next).
+Intent is this will be in informal BoF so we'll figure out the scope
+at the start of the meeting.
 
->
-> After applying this commit, what are the updated test results? Again, 
-> out of 100 test runs, how many passed successfully?
+Sorry for the noise!
 
-Usually it freezes or panics after the second try, see 
-https://pastebin.com/u5n9K1Dz (kernel compiled from 8d04556131c1, which 
-is $subject in linux-next).
-
->
->>
->> I've even managed to catch a kernel panic log of this problem on QEMU's
->> ARM64 'virt' machine:
->>
->> root@target:~# time rtcwake -s10 -mmem
->> rtcwake: wakeup from "mem" using /dev/rtc0 at Thu Sep 12 07:11:52 2024
->> Unable to handle kernel NULL pointer dereference at virtual address
->> 0000000000000090
->> Mem abort info:
->>     ESR = 0x0000000096000046
->>     EC = 0x25: DABT (current EL), IL = 32 bits
->>     SET = 0, FnV = 0
->>     EA = 0, S1PTW = 0
->>     FSC = 0x06: level 2 translation fault
->> Data abort info:
->>     ISV = 0, ISS = 0x00000046, ISS2 = 0x00000000
->>     CM = 0, WnR = 1, TnD = 0, TagAccess = 0
->>     GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
->> user pgtable: 4k pages, 48-bit VAs, pgdp=0000000046bbb000
->> ...
->> Internal error: Oops: 0000000096000046 [#1] PREEMPT SMP
->> Modules linked in: bluetooth ecdh_generic ecc rfkill ipv6
->> CPU: 0 UID: 0 PID: 9 Comm: kworker/0:0H Not tainted 6.11.0-rc6+ #9024
->> Hardware name: linux,dummy-virt (DT)
->> Workqueue: kblockd blk_mq_requeue_work
->> pstate: 800000c5 (Nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
->> pc : virtqueue_add_split+0x458/0x63c
->> lr : virtqueue_add_split+0x1d0/0x63c
->> ...
->> Call trace:
->>    virtqueue_add_split+0x458/0x63c
->>    virtqueue_add_sgs+0xc4/0xec
->>    virtblk_add_req+0x8c/0xf4
->>    virtio_queue_rq+0x6c/0x1bc
->>    blk_mq_dispatch_rq_list+0x21c/0x714
->>    __blk_mq_sched_dispatch_requests+0xb4/0x58c
->>    blk_mq_sched_dispatch_requests+0x30/0x6c
->>    blk_mq_run_hw_queue+0x14c/0x40c
->>    blk_mq_run_hw_queues+0x64/0x124
->>    blk_mq_requeue_work+0x188/0x1bc
->>    process_one_work+0x20c/0x608
->>    worker_thread+0x238/0x370
->>    kthread+0x124/0x128
->>    ret_from_fork+0x10/0x20
->> Code: f9404282 79401c21 b9004a81 f94047e1 (f8206841)
->> ---[ end trace 0000000000000000 ]---
->> note: kworker/0:0H[9] exited with irqs disabled
->> note: kworker/0:0H[9] exited with preempt_count 1
->>
->>
->>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->>> index 2351f411fa46..35a7a586f6f5 100644
->>> --- a/drivers/block/virtio_blk.c
->>> +++ b/drivers/block/virtio_blk.c
->>> @@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8 
->>> status)
->>>        }
->>>    }
->>>    -static inline struct virtio_blk_vq *get_virtio_blk_vq(struct 
->>> blk_mq_hw_ctx *hctx)
->>> -{
->>> -    struct virtio_blk *vblk = hctx->queue->queuedata;
->>> -    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
->>> -
->>> -    return vq;
->>> -}
->>> -
->>>    static int virtblk_add_req(struct virtqueue *vq, struct 
->>> virtblk_req *vbr)
->>>    {
->>>        struct scatterlist out_hdr, in_hdr, *sgs[3];
->>> @@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
->>>       static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
->>>    {
->>> -    struct virtio_blk *vblk = hctx->queue->queuedata;
->>> -    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
->>> +    struct virtio_blk_vq *vq = hctx->driver_data;
->>>        bool kick;
->>>           spin_lock_irq(&vq->lock);
->>> @@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct 
->>> blk_mq_hw_ctx *hctx,
->>>                   const struct blk_mq_queue_data *bd)
->>>    {
->>>        struct virtio_blk *vblk = hctx->queue->queuedata;
->>> +    struct virtio_blk_vq *vq = hctx->driver_data;
->>>        struct request *req = bd->rq;
->>>        struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
->>>        unsigned long flags;
->>> -    int qid = hctx->queue_num;
->>>        bool notify = false;
->>>        blk_status_t status;
->>>        int err;
->>> @@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct 
->>> blk_mq_hw_ctx *hctx,
->>>        if (unlikely(status))
->>>            return status;
->>>    -    spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
->>> -    err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
->>> +    spin_lock_irqsave(&vq->lock, flags);
->>> +    err = virtblk_add_req(vq->vq, vbr);
->>>        if (err) {
->>> -        virtqueue_kick(vblk->vqs[qid].vq);
->>> +        virtqueue_kick(vq->vq);
->>>            /* Don't stop the queue if -ENOMEM: we may have failed to
->>>             * bounce the buffer due to global resource outage.
->>>             */
->>>            if (err == -ENOSPC)
->>>                blk_mq_stop_hw_queue(hctx);
->>> -        spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->>> +        spin_unlock_irqrestore(&vq->lock, flags);
->>>            virtblk_unmap_data(req, vbr);
->>>            return virtblk_fail_to_queue(req, err);
->>>        }
->>>    -    if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
->>> +    if (bd->last && virtqueue_kick_prepare(vq->vq))
->>>            notify = true;
->>> -    spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->>> +    spin_unlock_irqrestore(&vq->lock, flags);
->>>           if (notify)
->>> -        virtqueue_notify(vblk->vqs[qid].vq);
->>> +        virtqueue_notify(vq->vq);
->>>        return BLK_STS_OK;
->>>    }
->>>    @@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request 
->>> **rqlist)
->>>        struct request *requeue_list = NULL;
->>>           rq_list_for_each_safe(rqlist, req, next) {
->>> -        struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
->>> +        struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
->>>            bool kick;
->>>               if (!virtblk_prep_rq_batch(req)) {
->>> @@ -1164,6 +1155,16 @@ static const struct attribute_group 
->>> *virtblk_attr_groups[] = {
->>>        NULL,
->>>    };
->>>    +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void 
->>> *data,
->>> +        unsigned int hctx_idx)
->>> +{
->>> +    struct virtio_blk *vblk = data;
->>> +    struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
->>> +
->>> +    hctx->driver_data = vq;
->>> +    return 0;
->>> +}
->>> +
->>>    static void virtblk_map_queues(struct blk_mq_tag_set *set)
->>>    {
->>>        struct virtio_blk *vblk = set->driver_data;
->>> @@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct 
->>> io_comp_batch *iob)
->>>    static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct 
->>> io_comp_batch *iob)
->>>    {
->>>        struct virtio_blk *vblk = hctx->queue->queuedata;
->>> -    struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
->>> +    struct virtio_blk_vq *vq = hctx->driver_data;
->>>        struct virtblk_req *vbr;
->>>        unsigned long flags;
->>>        unsigned int len;
->>> @@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
->>>        .queue_rqs    = virtio_queue_rqs,
->>>        .commit_rqs    = virtio_commit_rqs,
->>>        .complete    = virtblk_request_done,
->>> +    .init_hctx    = virtblk_init_hctx,
->>>        .map_queues    = virtblk_map_queues,
->>>        .poll        = virtblk_poll,
->>>    };
->> Best regards
->
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Jonathan
+ 
+> J
+> On Sun, 18 Aug 2024 21:12:34 -0500
+> John Groves <John@groves.net> wrote:
+> 
+> > On 24/08/15 05:22PM, Jonathan Cameron wrote:  
+> > > Introduction
+> > > ============
+> > >
+> > > If we think application specific memory (including inter-host shared memory) is
+> > > a thing, it will also be a thing people want to use with virtual machines,
+> > > potentially nested. So how do we present it at the Host to VM boundary?
+> > >
+> > > This RFC is perhaps premature given we haven't yet merged upstream support for
+> > > the bare metal case. However I'd like to get the discussion going given we've
+> > > touched briefly on this in a number of CXL sync calls and it is clear no one is  
+> >
+> > Excellent write-up, thanks Jonathan.
+> >
+> > Hannes' idea of an in-person discussion at LPC is a great idea - count me in.  
+> 
+> Had a feeling you might say that ;)
+> 
+> >
+> > As the proprietor of famfs [1] I have many thoughts.
+> >
+> > First, I like the concept of application-specific memory (ASM), but I wonder
+> > if there might be a better term for it. ASM suggests that there is one
+> > application, but I'd suggest that a more concise statement of the concept
+> > is that the Linux kernel never accesses or mutates the memory - even though
+> > multiple apps might share it (e.g. via famfs). It's a subtle point, but
+> > an important one for RAS etc. ASM might better be called non-kernel-managed
+> > memory - though that name does not have as good a ring to it. Will mull this
+> > over further...  
+> 
+> Naming is always the hard bit :)  I agree that one doesn't work for
+> shared capacity. You can tell I didn't start there :)
+> 
+> >
+> > Now a few level-setting comments on CXL and Dynamic Capacity Devices (DCDs),
+> > some of which will be obvious to many of you:
+> >
+> > * A DCD is just a memory device with an allocator and host-level
+> >   access-control built in.
+> > * Usable memory from a DCD is not available until the fabric manger (likely
+> >   on behalf of an orchestrator) performs an Initiate Dynamic Capacity Add
+> >   command to the DCD.
+> > * A DCD allocation has a tag (uuid) which is the invariant way of identifying
+> >   the memory from that allocation.
+> > * The tag becomes known to the host from the DCD extents provided via
+> >   a CXL event following succesful allocation.
+> > * The memory associated with a tagged allocation will surface as a dax device
+> >   on each host that has access to it. But of course dax device naming &
+> >   numbering won't be consistent across separate hosts - so we need to use
+> >   the uuid's to find specific memory.
+> >
+> > A few less foundational observations:
+> >
+> > * It does not make sense to "online" shared or sharable memory as system-ram,
+> >   because system-ram gets zeroed, which blows up use cases for sharable memory.
+> >   So the default for sharable memory must be devdax mode.  
+> (CXL specific diversion)
+> 
+> Absolutely agree this this. There is a 'corner' that irritates me in the spec though
+> which is that there is no distinction between shareable and shared capacity.
+> If we are in a constrained setup with limited HPA or DPA space, we may not want
+> to have separate DCD regions for these.  Thus it is plausible that an orchestrator
+> might tell a memory appliance to present memory for general use and yet it
+> surfaces as shareable.  So there may need to be an opt in path at least for
+> going ahead and using this memory as normal RAM.
+> 
+> > * Tags are mandatory for sharable allocations, and allowed but optional for
+> >   non-sharable allocations. The implication is that non-sharable allocations
+> >   may get onlined automatically as system-ram, so we don't need a namespace
+> >   for those. (I argued for mandatory tags on all allocations - hey you don't
+> >   have to use them - but encountered objections and dropped it.)
+> > * CXL access control only goes to host root ports; CXL has no concept of
+> >   giving access to a VM. So some component on a host (perhaps logically
+> >   an orchestrator component) needs to plumb memory to VMs as appropriate.  
+> 
+> Yes.  It's some mashup of an orchestrator and VMM / libvirt, local library
+> of your choice. We can just group into into the ill defined concept of
+> a distributed orchestrator.
+> 
+> >
+> > So tags are a namespace to find specific memory "allocations" (which in the
+> > CXL consortium, we usually refer to as "tagged capacity").
+> >
+> > In an orchestrated environment, the orchestrator would allocate resources
+> > (including tagged memory capacity), make that capacity visible on the right
+> > host(s), and then provide the tag when starting the app if needed.
+> >
+> > if (e.g.) the memory cotains a famfs file system, famfs needs the uuid of the
+> > root memory allocation to find the right memory device. Once mounted, it's a
+> > file sytem so apps can be directed to the mount path. Apps that consume the
+> > dax devices directly also need the uuid because /dev/dax0.0 is not invariant
+> > across a cluster...
+> >
+> > I have been assuming that when the CXL stack discovers a new DCD allocation,
+> > it will configure the devdax device and provide some way to find it by tag.
+> > /sys/cxl/<tag>/dev or whatever. That works as far as it goes, but I'm coming
+> > around to thinking that the uuid-to-dax map should not be overtly CXL-specific.  
+> 
+> Agreed. Whether that's a nice kernel side thing, or a utility pulling data
+> from various kernel subsystem interfaces doesn't really matter. I'd prefer
+> the kernel presents this but maybe that won't work for some reason.
+> 
+> >
+> > General thoughts regarding VMs and qemu
+> >
+> > Physical connections to CXL memory are handled by physical servers. I don't
+> > think there is a scenario in which a VM should interact directly with the
+> > pcie function(s) of CXL devices. They will be configured as dax devices
+> > (findable by their tags!) by the host OS, and should be provided to VMs
+> > (when appropriate) as DAX devices. And software in a VM needs to be able to
+> > find the right DAX device the same way it would running on bare metal - by
+> > the tag.  
+> 
+> Limiting to typical type 3 memory pool devices. Agreed. The other CXL device
+> types are a can or worms for another day.
+> 
+> >
+> > Qemu can already get memory from files (-object memory-backend-file,...), and
+> > I believe this works whether it's an actual file or a devdax device. So far,
+> > so good.
+> >
+> > Qemu can back a virtual pmem device by one of these, but currently (AFAIK)
+> > not a virtual devdax device. I think virtual devdax is needed as a first-class
+> > abstraction. If we can add the tag as a property of the memory-backend-file,
+> > we're almost there - we just need away to lookup a daxdev by tag.  
+> 
+> I'm not sure that is simple. We'd need to define a new interface capable of:
+> 1) Hotplug - potentially of many separate regions (think nested VMs).
+>    That more or less rules out using separate devices on a discoverable hotpluggable
+>    bus. We'd run out of bus numbers too quickly if putting them on PCI.
+>    ACPI style hotplug is worse because we have to provision slots at the outset.
+> 2) Runtime provision of metadata - performance data very least (bandwidth /
+>    latency etc). In theory could wire up ACPI _HMA but no one has ever bothered.
+> 3) Probably do want async error signaling.  We 'could' do that with
+>    FW first error injection - I'm not sure it's a good idea but it's definitely
+>    an option.
+> 
+> A locked down CXL device is a bit more than that, but not very much more.
+> It's easy to fake registers for things that are always in one state so
+> that the software stack is happy.
+> 
+> virtio-mem has some of the parts and could perhaps be augmented
+> to support this use case with the advantage of no implicit tie to CXL.
+> 
+> 
+> >
+> > Summary thoughts:
+> >
+> > * A mechanism for resolving tags to "tagged capacity" devdax devices is
+> >   essential (and I don't think there are specific proposals about this
+> >   mechanism so far).  
+> 
+> Agreed.
+> 
+> > * Said mechanism should not be explicitly CXL-specific.  
+> 
+> Somewhat agreed, but I don't want to invent a new spec just to avoid explicit
+> ties to CXL. I'm not against using CXL to present HBM / ACPI Specific Purpose
+> memory for example to a VM. It will trivially work if that is what a user
+> wants to do and also illustrates that this stuff doesn't necessarily just
+> apply to capacity on a memory pool - it might just be 'weird' memory on the host.
+> 
+> > * Finding a tagged capacity devdax device in a VM should work the same as it
+> >   does running on bare metal.  
+> 
+> Absolutely - that's a requirement.
+> 
+> > * The file-backed (and devdax-backed) devdax abstraction is needed in qemu.  
+> 
+> Maybe. I'm not convinced the abstraction is needed at that particular level.
+> 
+> > * Beyond that, I'm not yet sure what the lookup mechanism should be. Extra
+> >   points for being easy to implement in both physical and virtual systems.  
+> 
+> For physical systems we aren't going to get agreement :(  For the systems
+> I have visibility of there will be some diversity in hardware, but the
+> presentation to userspace and up consistency should be doable.
+> 
+> Jonathan
+> 
+> >
+> > Thanks for teeing this up!
+> > John
+> >
+> >
+> > [1] https://github.com/cxl-micron-reskit/famfs/blob/master/README.md
+> >  
+> 
+> 
+> 
 
