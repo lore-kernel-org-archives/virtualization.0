@@ -1,371 +1,292 @@
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2084.outbound.protection.outlook.com [40.107.93.84])
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8166C145FEB
-	for <virtualization@lists.linux.dev>; Mon, 16 Sep 2024 22:06:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBF9673176
+	for <virtualization@lists.linux.dev>; Tue, 17 Sep 2024 05:59:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.148.174
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726524386; cv=fail; b=Bi701aGaEl33YKmJTvfpVPaxaA+FV1NQ6pZHwYLy6wJ1j1p3AWFMjWskH2cpIV/XOAyTj0PiFibm2jZT/cc9AD5bDACXw0XRwOXDw/v7PXK1ar+6QyfxBNbNlgtD0xPZ5Q/G4rGvAITSqzLEPhxlWEjxMVoC+ldqjTzOEpozgxc=
+	t=1726552775; cv=fail; b=ZU6f+eupW1YUYG9xH8CcyMBXce1h8qUlE7hk0jBBwKlthpf/G1C38h88yr8JNKBlwIh25ACUw13sMNRG1u76ikY7Sd/Yn7oSSQAVx7vSjlcqbBt9HvOESWB6PdJ2+i+fq0Sr6198gKNUuA8SfdlX6qhaRgpLIGI4LIxIVQBrsWo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726524386; c=relaxed/simple;
-	bh=r8FPMz5Q+wQ/mm6qX7n3X1e64B/s4GzcK+7q9B0lcvQ=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ALMtU9va/nGNEO4eSixl1oeAM5NejLyoWKqoejkfU5IXgBtEhXC4mWVB+PmQFKt1Amc4TRGYEDQRI/1fLqGyBw25zbQLkwCeERhG5Kri9luw7fcqsty23KP0IcDAFjP9L3uQ5lvohhDfydOrNsKlrGsNDaKY/vMsLC9KSb65TFo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=BBodgfDG; arc=fail smtp.client-ip=40.107.93.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	s=arc-20240116; t=1726552775; c=relaxed/simple;
+	bh=OTkKomWP0cjv7dr4EvAS9T3m0zXxrV/RZxtxU7AaeDY=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 MIME-Version:Content-Type; b=Q15zhQXa0sTB0CU1Tmw/pKC8Anku0AFoRFmC1Xyh8HQllKGBQQQR6dDLoAdT4Lfc9G2DrMD5rl/+hz/B2iJsIFkxOA6oTQPovuATFZuCdTJbJk+OjqaX1cdayTyUpfTYdDyILuu8vexz/jhhSBak6cynfJTnPsD4kKx5VZ7y6Ec=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=fail (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=aF4c5LOk reason="signature verification failed"; arc=fail smtp.client-ip=67.231.148.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="BBodgfDG"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="aF4c5LOk"
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48GNm0FQ023495;
+	Mon, 16 Sep 2024 22:59:25 -0700
+Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam02lp2040.outbound.protection.outlook.com [104.47.51.40])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 41n7ujscfr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Sep 2024 22:59:25 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=aftdpSVzNzJEJHTYMkl0rIxpuFJhUYlUJGYPFgTjv+fBQOkByXwLMpvxzFZ36KCP/ki9g4l1A062wZs9AB0VU5wSEeXKMHMTwEya6No3wD0NDFaI8TYMq0afNRUgpsyMAy663DiE2dGQE0f+qbDUlRK1CkkB3RZ26TEZt+v5M66iF/i5DaBafqbOlOqNF3/qTPra399fw6RzavMXzkMaZTIB7dX/E75+8b8d6eu/eJO8/cNnPqo3/4YBHz6uEksDrVy/CU/a1mHn75THEA9TnRRnakY6p6SxV5o+ungFYIqtZqwliNwyKeqQbZtOL+o67Np4wCctAZTkjS72tKszlg==
+ b=mCG4N0N1WkFKLePG1Ddya7ctu4ruAy6h23DXNOt3ARVnfJ/lvn1nqC5jHQ5pWx/QwKBQPTd1WEzhu69sjzdU3tHlIcBLtINl4ZMUsL5aYLgpxQs7HVOcOSU0Cw2Vcae5XP2pr6kfkVE5hakAWmKXzLISUa1hOV6hAoQNttqT84k5IY8QsdTTRlwOlDbCnqe40f2LwFtJ8SIbg51T9Mx4NDgr8HZQkN4OKd8Ymy3rvAY550SrZVT1tWD3UgxWUGndnrBaGBFZEe1S87sEDBMo8c8jw9dj5Xcv6RsjmlAH7bOFpYDpPipBZgRHb+6ZOm4fVZF8O4rMf5hQzgv5JWhwlg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=L8vdM5egNrtkI6d2s9PZKSWp+OMUvhKii2FaSSeb5mY=;
- b=RYMkY4irmAp3mptTd1O0lODDf7/z7yNHnNnUA+NqbsKw6W2YkeeW9W2u1x6EdXdygIEETooFNSu9xvxfuVl4VBBPmEwnC5X8XTXo80CutvmRLZGxsRG/VJTqe08Ewrnq+CDHxc4PJPkFFQ0oto+ox6z94rS87zyZr/OTJv1r10iZ25P+fjkqKn5Q5i78InkcoJhw8uWA0XOcOg5XhkyaPNJKsRu/pSvqKk+C5C25Ns8rrZ7Y02DYJAp9hhGkirBwgMKOmsm9/uIfI78vBW0WvG47I04toPW30ybzHZjX4s3/+D0OhfcWc+Vy4FzZCPjVPr98ZXTH2yb/EWD4Ey4vvw==
+ bh=udtUv0bm609k+YCoHoYrYgqJIW0aIdsKmA1orjaMmeA=;
+ b=p6tkArnnS3q1Xop4TMGh/4/XdqiBOnCw37ZYXjQlqqyMxeALch405VBOtOkuFalve5zyjR7in2foiTrr6EKW/vh3aAKXRUq6y9rsn7yQdJZRKr/In8AH6DL+AA27eFIf+eI/k4mIAR4xc2zIXRcykPX/mkKYkGQmqWWsa//O+fIUr+Qh996wF/p67mV1ba8P5oyTLezx+USYS7tKLMdeNrfhIxWiqDvoplyDmrGXyWurM0dv7sDtv2YK1nSjCVp6qKvM3kn0CMMDiSNyHLrgy3fqIfJkpYjWczIlx3TluuWqpyo+Nmtv3WhfB4Ye41VeEtorHpGInVCE8kdNSp8RAQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
+ smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
+ dkim=pass header.d=marvell.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=L8vdM5egNrtkI6d2s9PZKSWp+OMUvhKii2FaSSeb5mY=;
- b=BBodgfDGhPFHj3IMmVmwKy3okD8iN1HywwP7THtH1xuYlVNHWsz7Qq3EiakfsS2yYI1fDx6eEhXLsfUeYxgH4KdN3lZXaAQFiqhd0iu7zsX+8ITktLTDqw6L0XdqAh28Sa9poKrdnhEUpU7SKm3ms8bCDkuMR7Lc9kmslXKheDCCS8CnzW+trtUj00bgNSbp6IWSoC8Xa59eH13yrijl9aFHmkDjcncPbSlYSNLuSQXw9HFSrx5ddtvcyY1DD/obZ/QEz94ov82fBjcQ8HefrNNZ6CJh2gnGcNWd+dvfTQf1LtdZSjRwCtBzxdr6YMQPq7DPrpuqkyBK2cS0ARaiNQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com (2603:10b6:930:21::10)
- by MN2PR12MB4063.namprd12.prod.outlook.com (2603:10b6:208:1dc::8) with
+ bh=udtUv0bm609k+YCoHoYrYgqJIW0aIdsKmA1orjaMmeA=;
+ b=aF4c5LOkyle2TQP/bq+oIsBy7mNSVL4UBVcO948ban9jsj4ZO8ShoV2+zubJuT+Q9gmsRh/dHF3mvqstpjUlv+UtlX0qXRClCTrDwp5/A/czXL1hAQVnPqTIUvUNVmi6u0t3v1x8E29SIrYpLNgD9RSJrvU6ZuuxwHXp9pUzHU0=
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
+ by DM8PR18MB4504.namprd18.prod.outlook.com (2603:10b6:8:33::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7962.23; Mon, 16 Sep
- 2024 22:06:20 +0000
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6]) by CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6%4]) with mapi id 15.20.7962.022; Mon, 16 Sep 2024
- 22:06:20 +0000
-Message-ID: <b2408b1b-67e7-4935-83b4-1a2850e07374@nvidia.com>
-Date: Tue, 17 Sep 2024 01:06:07 +0300
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtio_blk: implement init_hctx MQ operation
-To: Marek Szyprowski <m.szyprowski@samsung.com>, stefanha@redhat.com,
- virtualization@lists.linux.dev, mst@redhat.com, axboe@kernel.dk
-Cc: kvm@vger.kernel.org, linux-block@vger.kernel.org, oren@nvidia.com
-References: <20240807224129.34237-1-mgurtovoy@nvidia.com>
- <CGME20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a@eucas1p1.samsung.com>
- <fb28ea61-4e94-498e-9caa-c8b7786d437a@samsung.com>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7962.24; Tue, 17 Sep
+ 2024 05:59:20 +0000
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::ad53:bef2:cc17:13ac]) by DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::ad53:bef2:cc17:13ac%4]) with mapi id 15.20.7962.022; Tue, 17 Sep 2024
+ 05:59:20 +0000
+From: Srujana Challa <schalla@marvell.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "dan.carpenter@linaro.org"
+	<dan.carpenter@linaro.org>,
+        "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>,
+        "eperezma@redhat.com" <eperezma@redhat.com>,
+        Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
+        Vamsi Krishna Attunuru
+	<vattunuru@marvell.com>,
+        kernel test robot <lkp@intel.com>
+Subject: RE: [EXTERNAL] Re: [PATCH] vdpa/octeon_ep: Fix format specifier for
+ pointers in debug messages
+Thread-Topic: [EXTERNAL] Re: [PATCH] vdpa/octeon_ep: Fix format specifier for
+ pointers in debug messages
+Thread-Index: AQHbCFS0KAG75dfAdEi6PPVo2f4H3bJarx2AgADLwkA=
+Date: Tue, 17 Sep 2024 05:59:20 +0000
+Message-ID:
+ <DS0PR18MB5368A29EFA2094A2253CD6B2A0612@DS0PR18MB5368.namprd18.prod.outlook.com>
+References: <20240916162255.677774-1-schalla@marvell.com>
+ <20240916134226-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240916134226-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
 Content-Language: en-US
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
-In-Reply-To: <fb28ea61-4e94-498e-9caa-c8b7786d437a@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: LO2P123CA0104.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:139::19) To CY5PR12MB6369.namprd12.prod.outlook.com
- (2603:10b6:930:21::10)
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|DM8PR18MB4504:EE_
+x-ms-office365-filtering-correlation-id: b758ce54-38d1-402d-cc23-08dcd6dddf56
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|366016|1800799024|38070700018;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?aGVXZUF2bWNOSTNveWtkTmplcFFRR0ppVUxGOHpaTEJYRVNJQmRPaHF2MGNx?=
+ =?utf-8?B?aUFzSlhici9hak01UE14MWdwQWU5Z3E3VGVGeXliTWVCU1VyZlphL0lwSUFG?=
+ =?utf-8?B?QkZCTlhreHRUOFFvMFIwUU9iVDcwQU9SZ2lremFLOW14UTNzWEJ4U1RQTjAw?=
+ =?utf-8?B?bDJxYlRITVgrZnNZTS81ZE16Nk9LZ05FZkd1bCt6SW9YN2pSd3NmTDlxUjR5?=
+ =?utf-8?B?bTcxaStBR3Y5NjJpSU52Ym9JdG9RQmJBMnJFd1lBRjFtQXNZYmdveCtLUE1h?=
+ =?utf-8?B?N0RYNnN2Snl3cHp3S0p6ZUVnNHFCclZ2NTVCTDB6bUdJakVSMVhndzl6QWQ2?=
+ =?utf-8?B?SUZQOVZyeWVTYkV0L01hYlYvejFybDBrdTl4bmRPOW5hVFU4SnF1M1kyeUJ2?=
+ =?utf-8?B?em4wWnZ0dllVR1c3K3lJMDAzNy9SMG8rTnFJMHh5eTM3RFJFclNCdHFFK1Qy?=
+ =?utf-8?B?ZzgyQnk5Q25acmQ2UDlJcjBTNzNHL2FuSkp0R0c5V3cwNDJBcWVvTjJ2OEta?=
+ =?utf-8?B?ZnQ5MlZGQzA5a0RNZHR5WDdLc0NQalIwRVl0UzdOcm5mVWN3RVltWndueVAr?=
+ =?utf-8?B?V1JwOUtHTFlsRUF6VnAzeDJjaFFlL0xrY3VVWlpwbDQyUXhPSzdHcTExc1Z5?=
+ =?utf-8?B?amlUQUJzOHFuQ0hhZ2l3VFZoVzBXYkpud0JuV0tVYVV6QlhlR3lWMW5nNjUz?=
+ =?utf-8?B?UVFWU08wUTZXYXpSQ0c1OU1NVXRWK0JXaDc0ckdDbUlrSkpIeGVFbTV2UHBB?=
+ =?utf-8?B?YnFBOXNEZTRJYVRCM3Z0bThiOTVneTJxTmYrYllOVHE5YkJ0cVZlcklmN0Fx?=
+ =?utf-8?B?TXpCT2puL2lNYmZGV0tlWktTK0UyakdSSUdpMTZ0NC9jMmVzcWUwTktXLzc5?=
+ =?utf-8?B?R2VRZldGZXpGWkZUd3FJWVBUbXRhbUo4ZkVVNDQ1T2ZvRkVmZklpSWRRMmkw?=
+ =?utf-8?B?Y20rUGkrL09XMnRhUTdmbkNieUxYNEdraEZFb0o3YUVwbXNhRlIzWDN5bFpj?=
+ =?utf-8?B?WnBLZ3MwRCsrN0lKb00wUElsa1lFL3p5VDZjWkE5blVYMGxORlphK2J6SDdX?=
+ =?utf-8?B?aVlSK1hVR2RCaXIyNnBJQW5IczhnM2ZYWUVZWVFhdnJiTllwdWtaczgwV0xv?=
+ =?utf-8?B?VWZXTUNzZEwrZjREM3pONDZEcDk3NlNJeGI2R0dOSnVyanprWTArdFdOUlJT?=
+ =?utf-8?B?OVI4MFRTTTBWcDZ3K0VFaEpyTlBkRHJTRVlpYU5DcWVNa3J0VEc0TW85SDVS?=
+ =?utf-8?B?bXFVSnRqVkZBU2hzaFZQTUV0aDhoMmpDaEZ3d2Z3UlVsdUdKSkdTL2pkT2xW?=
+ =?utf-8?B?MjNETGFjeW82dDBiQ3J0dnJhamozL0hvV3IrMVNjVGhHa1BjQnViOUREZkcz?=
+ =?utf-8?B?cnJmVHA0clVKVVQ4SFpubU8vNEY2MXdHaHpLcU5yRDYvTkJTVkFJbGFFT3NR?=
+ =?utf-8?B?SFlhcVJTZlFzQnhaZFdHSG9qcEN6NVlUdlV1WFk5K2pXeXpZLzhMVmhQc2pj?=
+ =?utf-8?B?dUVkN3hTL05aVksra0czSkh5RUVoY1hjVVkwVkJHWEwvVHBrUFRFZ200ektU?=
+ =?utf-8?B?T1B1cFlFZ2dvS0kzRjNwbThib2hrS3p3cE04eTVDaVUvK25BMWxobmxnUXk5?=
+ =?utf-8?B?SXN1NWRJSmxSRFZQdjZJUURQdmRwVktRckhOZnRHQ1hIV250aHg5OGNydVZw?=
+ =?utf-8?B?ODVGRXpFRTl0Mkd6Y1pWdHpobXJ6a0g2VlJoZUgwVUJKclZ6ZzNnTW51WTA2?=
+ =?utf-8?B?RkxCK3QrZmF5dnhKM05tTTh2M1JJcDd2Rm9DM2tqdXVURXJvbnhjNTFJbmYr?=
+ =?utf-8?Q?khbjIZZAltDGqTE5mWv+azAzX2BpmwO7wiNbM=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(38070700018);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?RWppajhuckozcy9wUHZSZjFaSzNkaVBsWmg4OW4vOC83S2IxN3dPQytGeVMr?=
+ =?utf-8?B?TEZJdHNDWDB3UUNIRjdVMitVRUJMVDYweTVBemFQTTdtTXRobG9kSk53YjR0?=
+ =?utf-8?B?NlBQYnV2MGd3cDVnSnIvUTBiSnRCcitzV0I5OGt2RDlqbXRaTVIrbkxGTE1x?=
+ =?utf-8?B?MkpvTFBRbjBYYWM2ZFdNS2txS0tVMG1rVEp3ZHdIUWNLcmFYZTEvMys2bFZY?=
+ =?utf-8?B?VjNhNWFWKyttbERLcW03dHRYV09RZFBVNDIyMy80RnYzQWN2MDZYcXpRL2Vn?=
+ =?utf-8?B?N1lPUFdLOFJaZGJMc3dobjJ0TGQ2Uks3TXFJbXM0ejYrdWdmYi84cmhQdWlh?=
+ =?utf-8?B?RFVzcjlXMlMxWUNxQnp5RGxCTUJDdWx2a1JhNW03Wndzck9UeWJIRGdDVkVp?=
+ =?utf-8?B?ejUxc20zekgwYVJpTGpzcVNsMHNKcDR0R3VqVWNOc1c3czdiOVlLRy9uL0Vy?=
+ =?utf-8?B?ZituSTZGNytIL2NFd1AzNXppS3pLdU1rNWhnT1g0dW9Wc215aUN0VlBlYkdm?=
+ =?utf-8?B?Z3NzNDhIaENVSXdYOSt6L2grM01jaFVFSnNyR21iZElraGpjalBNZ2xPZU5K?=
+ =?utf-8?B?bmtuUW1HSFlhSGZaeUZRa2NFeXFWdlBGK0FRc3pkaXJrVFZXcE1RWTRZc1Jz?=
+ =?utf-8?B?cFFjZ1lJZGoySW1xUWhSSE9OU3BsSnRCNWJpSksrSXBtMEJ5OG1WejZWMWJx?=
+ =?utf-8?B?WDlqRFU0YzVsenBXZGMwWU0vN1pUMXd6K25RSlAzdnZURWpwQ0czb1o4NlpE?=
+ =?utf-8?B?aGtNN0lDY0NUV05jczRJODdaazg2Rk5DUm1Idi9XWFc0ZnVRMC9ZRDJKWjJu?=
+ =?utf-8?B?REVyU2xpRDFJTEppbkpVZ0laS0hCVmUvbEFkckdRdmExcG11ZGJGbWpLVjR5?=
+ =?utf-8?B?Ny9zUlFJRGk0bzBpZWY0RnNka2JRdStCSmxILzR1NlJNSTVpVFlGK1haN3o2?=
+ =?utf-8?B?b1hiNHVadUQzaWl5YXhjaUZjbWRsUzY2cWFoKzRySE1mby9obDJRTzBleUsv?=
+ =?utf-8?B?Z3VxbGk5aC9hYVl1ZlZVdFNhNmZaVXBqOGpITDBpcFpndm1qS1hlMVNYN1Vw?=
+ =?utf-8?B?ekYyYys3Z3NKYmhxb0ttNVN2TUsrUkxmRmpGSUpaT3FXcS9NMXlIN3lMcmxH?=
+ =?utf-8?B?Rit0U1N6NVFwcVhLM001UWM3N25PT3JVL1EzOXFOQmpyUXVVU1pYYlgvZUsw?=
+ =?utf-8?B?QnZQaGs5Q0JNaG8rMFBGditsYmIyRnhaMGlxY3dSZ0Y5ODNXOFZWeURNSzN1?=
+ =?utf-8?B?Vjh6N3NCNU4rQ0psZjJneDk3U0FHV1RycXBWQkM0ZCtMUElIYnl0N1huOXZD?=
+ =?utf-8?B?bVVkZVB5clZESDhUejdRMit5Q2hjYzAvK2tESnFLSCs3ZitJRUo5Y2w5NFJh?=
+ =?utf-8?B?akdEVjZjbkZ0TlkzYkZnaHpZTVV2cVA5MlB2blVMYkU3QjRkbngrU0pjUFE2?=
+ =?utf-8?B?UWtGdDZla0hPYUlsSjBSUmRMVGYzUlZYanhXZkVnQVpVcStnVUlPWnFQdUpJ?=
+ =?utf-8?B?UXNZeTdFZ3p6b2pVV1p4cGpqdUFweXAzRnZiZjJEOFRrMWdPWmMrZFdFb0Iz?=
+ =?utf-8?B?YU1JM2ZmTXpCOGxwM3hSQkRRclJ2WkJZYStkVWJHOCt0alM5QzBsMWNTQmQ2?=
+ =?utf-8?B?TXlSZ2R3Z3hIeCtzZ0ZIL2haNUdXYURiNnhOMjk5VXVGbitUUkRWdTBydHVD?=
+ =?utf-8?B?cDBSNHdUWUpvUjFWV05sSWQ4OTZZZkg3T3hGK1A4djdJVWp5U0hpZ3NjZUtN?=
+ =?utf-8?B?ekRNRmZGdjUyV2Mxb3ZiamlkQjkvVWh6K0pFSFlMVmlXcjVwYUdpMXRTcVps?=
+ =?utf-8?B?dDliRk5HMHV0aGkxZVBhMTZpcFdqVEo4emVrWVBRUEE5aW5Cd3ZNMjllY1pV?=
+ =?utf-8?B?NGdlSkdxcnNVdEQwU1RzN2hoMGlrN0U1cnluQ2ZsMkJ3QlV4UU1TenJUTC95?=
+ =?utf-8?B?aVpYYmw3ZTh4MWdrQkQrTWd4ZUxIRnNyNEM4a1pwRDNTK0NsNGdSK1B1QWZw?=
+ =?utf-8?B?bG02cGpzV0c0N2RvSVlTVFVpNEtRQ1M2aWQ2dHFPRWJISGl6aUZJUHQ0bm1k?=
+ =?utf-8?B?S3J0NXBTRzFTZys5VEdRbUpaMHp0MThMdU9OYldoNGMrM3d6NkR2ZVRoT3g4?=
+ =?utf-8?Q?4zew=3D?=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6369:EE_|MN2PR12MB4063:EE_
-X-MS-Office365-Filtering-Correlation-Id: ea78bbc1-63a0-4336-585b-08dcd69bcb66
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?R2lYN0NpclErc2NpV0JCTzFCcmFyb0JZRk5TM0wzMmxaNnRoaXlhWEZMUFV2?=
- =?utf-8?B?TjVqY1ZJOTNhNTd2eU9GR2VnZlRNeFVQaUJmWlppa0U1dGhKTWF2QkFWcHI3?=
- =?utf-8?B?cGQ4WTh3eUJCb2NyaHJHc2htUnIrbkZmWklaUzJmS3dTaHlnV3MvSENqMk8w?=
- =?utf-8?B?eElnMFZteFZWcWQ0ODZVQzZjUzBBM3RzRWpDeGhBU1U1dUtYSlloWjdtZCtE?=
- =?utf-8?B?NThZQndnc1hwQ1NvanFrQ2VkaUpIV1lLc3Rkbnk4NDJYc1Nhd2hlcVQrR2U3?=
- =?utf-8?B?VWRycFZJVmlVVWcvcEhUZUZNcjZSYkNiZDNUWGFibmxRRzRIb0x5eW94eHFX?=
- =?utf-8?B?ZG5Sb0Fra0FtU1VXeEl3cFZKODExRjNneHpVQUNWeWxwMG9id3RoSW5tMzV0?=
- =?utf-8?B?OXRGQXpSVlZvdTFZampuQUg5eFcyT1VVMU9LWFJGOWpRRE1WelJNMUhtaEtk?=
- =?utf-8?B?NmQxNXVGMU1FQ05VM3FRZTdLazdiMTZaRzd6SnV3WStCL3hIMGtMQXZDUFpy?=
- =?utf-8?B?OVN2NEpjcnJGVVhvTG45bGRpc1I2QVBXbkp2d3hkUzlic2haUkdCa0dzd1dt?=
- =?utf-8?B?alpOQnl4a3NJN000bVg5UlpwR0h5R3FmYityOWx0ek1CMklRNm8xTXFFOXFk?=
- =?utf-8?B?V2MzajVITlVNMHYzQ003TUZzbU9CZ1lhVDFkNVl5NzJZenBNRGh0ZVNyV0kx?=
- =?utf-8?B?V0I0OVIyeFpCQWgvSXJrcmdTWDhkVVBHQkRkaEVnQmppclVXdVpKK3YwSXVE?=
- =?utf-8?B?cjRHUHdaTUUxQ05neDZhM1BsdzUwNU9lRXZoVGl5a0c2ekp4TmhQSi95WTdw?=
- =?utf-8?B?UDVpeDlMbTdTQi92VmlmakRlcWJ1NGp4SmowZXpoQzJZbkJSUUpnUTB0QWFB?=
- =?utf-8?B?akhEaTZMS0ZsOEE4VEpJbW1ZK0pzU2UrakZoTmNJVVVJQ2U0NFhOVTB3SEtF?=
- =?utf-8?B?NmpGWmRGcjhxNEVKZ0J3R3ZJaFArNHBreGZBT0ZOa0VxY1MyeEpXV0QvaTEv?=
- =?utf-8?B?L2VON0JsRlI2RW05N2QyNld6NUZPMGpvMkliUmZIZ01KSCtIMWg5bVpqRjMv?=
- =?utf-8?B?czJHZ2FWdFFkajNUTmRRTGlPRHBnUG1hZU9QTzcxblE0WUJFMG5XaUJZeXow?=
- =?utf-8?B?QTY0R0lEenlyTkNUTER0NlBrNXBVY1VhSEJITURWRCtORnVGd3Baa2paaStJ?=
- =?utf-8?B?QSs4YVUwWmorRWJjK2lkTVF5QXByazAxSTlFUlY3QytDRDl5TWd1L1Bqd3ZT?=
- =?utf-8?B?UnNMT2ltWXE2Y0c5SCsvMG1qODY1eUNSY3Q1VXBQVUtYMldxVzlVRFd0dVpU?=
- =?utf-8?B?d0IzaHNVR3Bza1QrZTk0bU1QQUQrN3d2TVlIZzBIYXBWL1Q5a0dUbngxNGNI?=
- =?utf-8?B?L3E4NEJ4Ym5UZ1o4eTRZcE93OUxORzNZT29ZVE9SM2tHVVhkVGJ4OVFBOU8x?=
- =?utf-8?B?R3dGbVpCUWp1OGR3RnVuajlYWVFOaVYzV0hrNWZPQXdIOU9LZGNTVVhmTUho?=
- =?utf-8?B?WC9aM1hBVGhvY2NrZVJ5ZjhIR0xMb05XUlFqd1M2UVVwbGRMZFF3L0RtK2Ir?=
- =?utf-8?B?ZTYwMDVWZVM1MnB6Y0dqWUVoa0xoZmRSZWNvOXdubGZ3K0VsaEEzT3Bjelpa?=
- =?utf-8?B?Zk9oY2FtTll1V3I5czlPUjIyNXFDWnlOVFFqZ0ZMZEFsUXJ4RjRWWU9Jc01O?=
- =?utf-8?B?T2pVVHlQaDl4cnJZTEtMU0RnMG8vZnRXN0lmcGthZFFTMDRiUzR6UHNEbUlM?=
- =?utf-8?B?WU9DWkNNemUxWld1aFA3NUJlK1ExUGJxRWJ6S2R5RjhJOEx5ZGEvTDVFNmRu?=
- =?utf-8?B?U0JBc0x3U3A5RCtwWkVuZz09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR12MB6369.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Q2VXUWdJWUwvNHB1QkxjbnF4eUMvYVhnTXB6Q1VGeTBpQjhnbjBtd3VSdlZl?=
- =?utf-8?B?UlNBTW9JTjFOeHRydnBlSXRpcS9MalFxNWE5YXJVcUU0QldVcnRITUdJRUdW?=
- =?utf-8?B?bks3TitGOFF5bWNNdkUvTi9KUENGL0c5cFR3L2RJQzZGVEUyTW5QeDZtTUgz?=
- =?utf-8?B?RSt6R21HYm5zcll2WUZxczFtckh6MDVDWVlDSEFCNFIxWS90bkkyKzhMU2ZJ?=
- =?utf-8?B?U0R3VjRGY2ttRE4wVWFkSlRQeTZaK1RKbFFTaGZZU1l1SU0xUjdsUmpmNXp5?=
- =?utf-8?B?blBTWE9mTFlRSzVGa0JBTWNkQ0FqQ2dPdEtndXJUSVZ2VlZRYTJPWHRUelJw?=
- =?utf-8?B?aXZvalBNT1poOXBpakhCU2lOeEphTFB6U1BiVDNtQUpOcDhXbjVjdDA3UnRi?=
- =?utf-8?B?YlY2UWgwWXRtelpKc3VaWWt4alFLRnRDcXVNVlNTNXByMng2cmhucFRJdHRj?=
- =?utf-8?B?RHFkRmdDeURIL2E0ZFRWZzFSaHhNSjZucm5Jc1E0aE9XZGFveU1QT09VSkNw?=
- =?utf-8?B?NGkydDNVdFRZSVFRRlFkKzlYM1U2VENOcVJtUmhpSS9NUUNhWFpVZ0pjZzBr?=
- =?utf-8?B?MTZUTEhIQ0pQaUZodlE1WGFWc0dwNURoTGQvaHJpUlFqVUtjZUVpZDJ3K1d6?=
- =?utf-8?B?bG1YUFdhK2U2cTdTQ2NsOFE0NkF3V0dxSTk0TnYvUFJ2T2NNeDZIWFByUmE5?=
- =?utf-8?B?RUFNb0ZlaUVFVU80dlNPTTlKSk02VnA1K3dyVEhkU0MvUC9VUzBDQ2I1MHYr?=
- =?utf-8?B?WGxaRlo5dmxUTUpBMi9seVpqNkdpbDZYNjNWMHA3MVFqV3FSREZsSnlRUjhR?=
- =?utf-8?B?RlF6eDVGRkZjOGdibUV1Q1c3VHFBWHd4ZzlnNG43R1FVOHNTWGM3WjBaTzJD?=
- =?utf-8?B?djVlTldKRXh4U3ZSaTl4a3lHUlBMZ0E0TmN1QVpoV3c5aWxzcXg4cnh2aFRl?=
- =?utf-8?B?ZVVGOEpIN2lMM2VmM3VpOUNFK3JuOE9QdjJ6V2xsbHkrU0hIZHc2c2hMM2li?=
- =?utf-8?B?Nk5GL2QrSHNZc3lPaWd0Z0U5c2ZMcExtK2xEUUtMb043WTZRSlFHTkhzZ0Nj?=
- =?utf-8?B?V2dGWE0zblhCOWI4eDRhQTY5VEQzVlZ0c0x1SEswSzNEOWtVMUNVMnNNT21z?=
- =?utf-8?B?aFoxa1BQa2IyaFdTa0dYV3dFRi9yQXlLZWpwWkVwQWswK3NrQ2Z0QVJpeHpZ?=
- =?utf-8?B?QWNKL1RxK2hWNThTVVJNb1BLNTFCTEtObzFwUDVOckxoejdNWVBYd2RwRGNh?=
- =?utf-8?B?ZGlITE5ienhybjJqTzZCNm5RTUtRRTIvWm81OW5TbW5XTzV1VTFUVDVFNzlT?=
- =?utf-8?B?ZVNvcksyU3V6elQrS1h0TG1MTFkvRTV4NkNxUWlNUXVhNkxsVk9jUHZkNEUz?=
- =?utf-8?B?cXI3S0tmYTBFcXZpYUQ3S1RiWjRBK2Fyc01rV3ZpNnBZUitTV0I1N2VSYmll?=
- =?utf-8?B?eEZyd01ZblVScFdDNCtPS2FUdUtFdERJdVdqaFJIbmYyYU5pMTluSTBqaHk0?=
- =?utf-8?B?UEIwdXlYV0l4UVk1aUc1T3FUZzlXcE1HRHgvazFWZ2VZY0xYdzFDalMwdENs?=
- =?utf-8?B?TXVVZ295Z1ZPQkR5MEx0UkIrTm41eUQwQ2F5anBCMWxBM1AzWkNFK0pwYWlz?=
- =?utf-8?B?YUp4L2pvL0FxcTVCL05aL09PT3VBbzQvek45SkNwV0xPRWg3eGRvVjBFMDhG?=
- =?utf-8?B?ZE55VGxjeGZUa3JYOEt6SWRLVjNQNE1uT1ZCU0R3cEEzeXpMMEVac3E1TFFL?=
- =?utf-8?B?THdvdUU0WUc1blhoUVJDaWZsNWxPcmRuQ0xNWVhuVkZQeTN2Ujl2bCtTRVhv?=
- =?utf-8?B?NDMxUitFQXFrTzhtK1BFaFBSOUFsRzVhV1R5bTUva3B3WFR4Y216TUFHWVFx?=
- =?utf-8?B?TG5UZUpRdDR3QzNGUUJEWjl0YU1ickxKWVQzSHZGOVQ1cFVIYzlEMWxvdG9H?=
- =?utf-8?B?RXlscDd2aWxZd2t0a0g1YWtGUG1CQk8wN2drN2pjcGxOZi9keUxKNmxyOTZk?=
- =?utf-8?B?WGp5bDhiV3hMSWRtZEZEeUxZZEVoVWxsZnd4LzdEYW5qZ0cwRnVTNmxXeVRH?=
- =?utf-8?B?bjBucllIMExVYk9IZ1hoVUw0MXIwalpXd1V2L0xrUEVmaUFqYVVGcTdwaE5y?=
- =?utf-8?Q?u4vVZFsjbS3y/f8hbM5FhxCdD?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ea78bbc1-63a0-4336-585b-08dcd69bcb66
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6369.namprd12.prod.outlook.com
+X-OriginatorOrg: marvell.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2024 22:06:20.3154
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b758ce54-38d1-402d-cc23-08dcd6dddf56
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Sep 2024 05:59:20.2802
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: nqIauU5q5RO3gFT9Tz2SCwx5Orsx6c79P+U6emrvNmDMzrnDAROeDQNLLUNwxoao103dy8xIr1Oka6FCrmKG6Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4063
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Mng+7KuufTJ+BGOVs0wvd/u/iPYOePvCRSOmCnzz4pPEyIZ/nLXVf76UnqHo/UBHlQ5ZRzixp2XXR7UvcL5AVg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM8PR18MB4504
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-GUID: RLz4Y9DOq24Z_dIDXFPl7MBDb-Svknqu
+X-Proofpoint-ORIG-GUID: RLz4Y9DOq24Z_dIDXFPl7MBDb-Svknqu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
 
-Hi Marek,
+> Subject: [EXTERNAL] Re: [PATCH] vdpa/octeon_ep: Fix format specifier for
+> pointers in debug messages
+>=20
+> On Mon, Sep 16, 2024 at 09:=E2=80=8A52:=E2=80=8A55PM +0530, Srujana Chall=
+a wrote: >
+> Updates the debug messages in octep_vdpa_hw.=E2=80=8Ac to use the %p form=
+at >
+> specifier for pointers instead of casting them to u64. > > Fixes smatch w=
+arning:
+> > octep_hw_caps_read()=20
+> On Mon, Sep 16, 2024 at 09:52:55PM +0530, Srujana Challa wrote:
+> > Updates the debug messages in octep_vdpa_hw.c to use the %p format
+> > specifier for pointers instead of casting them to u64.
+> >
+> > Fixes smatch warning:
+> > octep_hw_caps_read() warn: argument 3 to %016llx specifier is cast
+> > from pointer
+> >
+> > Fixes: 8b6c724cdab8 ("virtio: vdpa: vDPA driver for Marvell OCTEON DPU
+> > devices")
+> >
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+> > Closes:https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__lore.kerne
+> > l.org_r_202409160431.bRhZWhiU-2Dlkp-
+> 40intel.com_&d=3DDwIBAg&c=3DnKjWec2b6R
+> >
+> 0mOyPaz7xtfQ&r=3DFj4OoD5hcKFpANhTWdwQzjT1Jpf7veC5263T47JVpnc&m
+> =3DqyhlWh2lF
+> > E3SPFpB_eJ0K1RFMa5f-
+> kcNChFHkCARDCXIkzMk__3sqspP_K7KGxaj&s=3DfMvS62XMmi5H
+> > ESJuL9v7FX3c8RSzKCq7JM6Khcof4vM&e=3D
+> > <https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__lore.kernel.org_
+> > r_202409160431.bRhZWhiU-2Dlkp-
+> 40intel.com_&d=3DDwIBAg&c=3DnKjWec2b6R0mOyPa
+> >
+> z7xtfQ&r=3DFj4OoD5hcKFpANhTWdwQzjT1Jpf7veC5263T47JVpnc&m=3DqyhlWh
+> 2lFE3SPFp
+> > B_eJ0K1RFMa5f-
+> kcNChFHkCARDCXIkzMk__3sqspP_K7KGxaj&s=3DfMvS62XMmi5HESJuL9
+> > v7FX3c8RSzKCq7JM6Khcof4vM&e=3D  >> Signed-off-by: Srujana Challa
+> > <schalla@marvell.com>
+>=20
+>=20
+>=20
+> This does not fix it completely.
+> ret is still 0 here:
+>=20
+> 8b6c724cdab85d Srujana Challa 2024-06-14  140  	val =3D
+> octep_read_sig(mbox);
+> 8b6c724cdab85d Srujana Challa 2024-06-14  141  	if ((val & 0xFFFF) !=3D
+> MBOX_RSP_SIG) {
+> 8b6c724cdab85d Srujana Challa 2024-06-14  142
+> 	dev_warn(&pdev->dev, "Invalid Signature from mbox : %d
+> response\n", id);
+> 8b6c724cdab85d Srujana Challa 2024-06-14 @143  		return ret;
+> 8b6c724cdab85d Srujana Challa 2024-06-14  144  	}
+>=20
+>=20
+> which is wrong.
+The fix for the error code is already included in the linux-next and mainli=
+ne Linux repositories.
+Therefore, I did not include that change in this patch.
+Thanks.
+>=20
+>=20
+> > ---
+> >  drivers/vdpa/octeon_ep/octep_vdpa_hw.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+> > b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+> > index 11bd76ae18cf..1d4767b33315 100644
+> > --- a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+> > +++ b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+> > @@ -475,11 +475,11 @@ int octep_hw_caps_read(struct octep_hw
+> *oct_hw, struct pci_dev *pdev)
+> >  		dev_err(dev, "Incomplete PCI capabilities");
+> >  		return -EIO;
+> >  	}
+> > -	dev_info(dev, "common cfg mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)oct_hw->common_cfg);
+> > -	dev_info(dev, "device cfg mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)oct_hw->dev_cfg);
+> > -	dev_info(dev, "isr cfg mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)oct_hw->isr);
+> > -	dev_info(dev, "notify base: 0x%016llx, notify off multiplier: %u\n",
+> > -		 (u64)(uintptr_t)oct_hw->notify_base, oct_hw-
+> >notify_off_multiplier);
+> > +	dev_info(dev, "common cfg mapped at: %p\n", oct_hw-
+> >common_cfg);
+> > +	dev_info(dev, "device cfg mapped at: %p\n", oct_hw->dev_cfg);
+> > +	dev_info(dev, "isr cfg mapped at: %p\n", oct_hw->isr);
+> > +	dev_info(dev, "notify base: %p, notify off multiplier: %u\n",
+> > +		 oct_hw->notify_base, oct_hw->notify_off_multiplier);
+> >
+> >  	oct_hw->config_size =3D octep_get_config_size(oct_hw);
+> >  	oct_hw->features =3D octep_hw_get_dev_features(oct_hw);
+> > @@ -511,7 +511,7 @@ int octep_hw_caps_read(struct octep_hw *oct_hw,
+> struct pci_dev *pdev)
+> >  	}
+> >  	mbox =3D octep_get_mbox(oct_hw);
+> >  	octep_mbox_init(mbox);
+> > -	dev_info(dev, "mbox mapped at: 0x%016llx\n",
+> (u64)(uintptr_t)mbox);
+> > +	dev_info(dev, "mbox mapped at: %p\n", mbox);
+> >
+> >  	return 0;
+> >  }
+> > --
+> > 2.25.1
 
-On 12/09/2024 9:46, Marek Szyprowski wrote:
-> Dear All,
->
-> On 08.08.2024 00:41, Max Gurtovoy wrote:
->> Set the driver data of the hardware context (hctx) to point directly to
->> the virtio block queue. This cleanup improves code readability and
->> reduces the number of dereferences in the fast path.
->>
->> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
->> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
->> ---
->>    drivers/block/virtio_blk.c | 42 ++++++++++++++++++++------------------
->>    1 file changed, 22 insertions(+), 20 deletions(-)
-> This patch landed in recent linux-next as commit 8d04556131c1
-> ("virtio_blk: implement init_hctx MQ operation"). In my tests I found
-> that it introduces a regression in system suspend/resume operation. From
-> time to time system crashes during suspend/resume cycle. Reverting this
-> patch on top of next-20240911 fixes this problem.
-
-Could you please provide a detailed explanation of the system 
-suspend/resume operation and the specific testing methodology employed?
-
-The occurrence of a kernel panic from this commit is unexpected, given 
-that it primarily involves pointer reassignment without altering the 
-lifecycle of vblk/vqs.
-
-In the virtqueue_add_split function, which pointer is becoming null and 
-causing the issue? A detailed analysis would be helpful.
-
-The report indicates that the crash occurs sporadically rather than 
-consistently.
-
-is it possible that this is a race condition introduced by a different 
-commit? How can we rule out this possibility?
-
-Prior to applying this commit, what were the test results? Specifically, 
-out of 100 test runs, how many passed successfully?
-
-After applying this commit, what are the updated test results? Again, 
-out of 100 test runs, how many passed successfully?
-
-
->
-> I've even managed to catch a kernel panic log of this problem on QEMU's
-> ARM64 'virt' machine:
->
-> root@target:~# time rtcwake -s10 -mmem
-> rtcwake: wakeup from "mem" using /dev/rtc0 at Thu Sep 12 07:11:52 2024
-> Unable to handle kernel NULL pointer dereference at virtual address
-> 0000000000000090
-> Mem abort info:
->     ESR = 0x0000000096000046
->     EC = 0x25: DABT (current EL), IL = 32 bits
->     SET = 0, FnV = 0
->     EA = 0, S1PTW = 0
->     FSC = 0x06: level 2 translation fault
-> Data abort info:
->     ISV = 0, ISS = 0x00000046, ISS2 = 0x00000000
->     CM = 0, WnR = 1, TnD = 0, TagAccess = 0
->     GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
-> user pgtable: 4k pages, 48-bit VAs, pgdp=0000000046bbb000
-> ...
-> Internal error: Oops: 0000000096000046 [#1] PREEMPT SMP
-> Modules linked in: bluetooth ecdh_generic ecc rfkill ipv6
-> CPU: 0 UID: 0 PID: 9 Comm: kworker/0:0H Not tainted 6.11.0-rc6+ #9024
-> Hardware name: linux,dummy-virt (DT)
-> Workqueue: kblockd blk_mq_requeue_work
-> pstate: 800000c5 (Nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> pc : virtqueue_add_split+0x458/0x63c
-> lr : virtqueue_add_split+0x1d0/0x63c
-> ...
-> Call trace:
->    virtqueue_add_split+0x458/0x63c
->    virtqueue_add_sgs+0xc4/0xec
->    virtblk_add_req+0x8c/0xf4
->    virtio_queue_rq+0x6c/0x1bc
->    blk_mq_dispatch_rq_list+0x21c/0x714
->    __blk_mq_sched_dispatch_requests+0xb4/0x58c
->    blk_mq_sched_dispatch_requests+0x30/0x6c
->    blk_mq_run_hw_queue+0x14c/0x40c
->    blk_mq_run_hw_queues+0x64/0x124
->    blk_mq_requeue_work+0x188/0x1bc
->    process_one_work+0x20c/0x608
->    worker_thread+0x238/0x370
->    kthread+0x124/0x128
->    ret_from_fork+0x10/0x20
-> Code: f9404282 79401c21 b9004a81 f94047e1 (f8206841)
-> ---[ end trace 0000000000000000 ]---
-> note: kworker/0:0H[9] exited with irqs disabled
-> note: kworker/0:0H[9] exited with preempt_count 1
->
->
->> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->> index 2351f411fa46..35a7a586f6f5 100644
->> --- a/drivers/block/virtio_blk.c
->> +++ b/drivers/block/virtio_blk.c
->> @@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8 status)
->>    	}
->>    }
->>    
->> -static inline struct virtio_blk_vq *get_virtio_blk_vq(struct blk_mq_hw_ctx *hctx)
->> -{
->> -	struct virtio_blk *vblk = hctx->queue->queuedata;
->> -	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
->> -
->> -	return vq;
->> -}
->> -
->>    static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr)
->>    {
->>    	struct scatterlist out_hdr, in_hdr, *sgs[3];
->> @@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
->>    
->>    static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
->>    {
->> -	struct virtio_blk *vblk = hctx->queue->queuedata;
->> -	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
->> +	struct virtio_blk_vq *vq = hctx->driver_data;
->>    	bool kick;
->>    
->>    	spin_lock_irq(&vq->lock);
->> @@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->>    			   const struct blk_mq_queue_data *bd)
->>    {
->>    	struct virtio_blk *vblk = hctx->queue->queuedata;
->> +	struct virtio_blk_vq *vq = hctx->driver_data;
->>    	struct request *req = bd->rq;
->>    	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
->>    	unsigned long flags;
->> -	int qid = hctx->queue_num;
->>    	bool notify = false;
->>    	blk_status_t status;
->>    	int err;
->> @@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->>    	if (unlikely(status))
->>    		return status;
->>    
->> -	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
->> -	err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
->> +	spin_lock_irqsave(&vq->lock, flags);
->> +	err = virtblk_add_req(vq->vq, vbr);
->>    	if (err) {
->> -		virtqueue_kick(vblk->vqs[qid].vq);
->> +		virtqueue_kick(vq->vq);
->>    		/* Don't stop the queue if -ENOMEM: we may have failed to
->>    		 * bounce the buffer due to global resource outage.
->>    		 */
->>    		if (err == -ENOSPC)
->>    			blk_mq_stop_hw_queue(hctx);
->> -		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->> +		spin_unlock_irqrestore(&vq->lock, flags);
->>    		virtblk_unmap_data(req, vbr);
->>    		return virtblk_fail_to_queue(req, err);
->>    	}
->>    
->> -	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
->> +	if (bd->last && virtqueue_kick_prepare(vq->vq))
->>    		notify = true;
->> -	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->> +	spin_unlock_irqrestore(&vq->lock, flags);
->>    
->>    	if (notify)
->> -		virtqueue_notify(vblk->vqs[qid].vq);
->> +		virtqueue_notify(vq->vq);
->>    	return BLK_STS_OK;
->>    }
->>    
->> @@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request **rqlist)
->>    	struct request *requeue_list = NULL;
->>    
->>    	rq_list_for_each_safe(rqlist, req, next) {
->> -		struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
->> +		struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
->>    		bool kick;
->>    
->>    		if (!virtblk_prep_rq_batch(req)) {
->> @@ -1164,6 +1155,16 @@ static const struct attribute_group *virtblk_attr_groups[] = {
->>    	NULL,
->>    };
->>    
->> +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
->> +		unsigned int hctx_idx)
->> +{
->> +	struct virtio_blk *vblk = data;
->> +	struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
->> +
->> +	hctx->driver_data = vq;
->> +	return 0;
->> +}
->> +
->>    static void virtblk_map_queues(struct blk_mq_tag_set *set)
->>    {
->>    	struct virtio_blk *vblk = set->driver_data;
->> @@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct io_comp_batch *iob)
->>    static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
->>    {
->>    	struct virtio_blk *vblk = hctx->queue->queuedata;
->> -	struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
->> +	struct virtio_blk_vq *vq = hctx->driver_data;
->>    	struct virtblk_req *vbr;
->>    	unsigned long flags;
->>    	unsigned int len;
->> @@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
->>    	.queue_rqs	= virtio_queue_rqs,
->>    	.commit_rqs	= virtio_commit_rqs,
->>    	.complete	= virtblk_request_done,
->> +	.init_hctx	= virtblk_init_hctx,
->>    	.map_queues	= virtblk_map_queues,
->>    	.poll		= virtblk_poll,
->>    };
-> Best regards
