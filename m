@@ -1,255 +1,349 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3EFC2BAEB
-	for <virtualization@lists.linux.dev>; Tue, 17 Sep 2024 12:32:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.156.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726576360; cv=fail; b=YH/XVr5qg6Inl4s7nyUDHNL1dmBiSljr3QgMDWTtmIgKYYprO1Vbkv5O8X97IvZJtzIZQUwc652esOHezQ2wvdpUKFuKAlbYMAEkajq0OdJHe3+B9rL1B3fv8uUfL1Kpiyq7qlaGjuwkhNoOFGS9glM2slDZ0TOFSeLYzy53Knc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726576360; c=relaxed/simple;
-	bh=qL8M6FVyahuV6SF0dp5p0Kxs65z1K8diqvltULMJe6U=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=f5VevzcU94ZMrl0tul6UwL6wlpDV5FZS6LPSJMOXBhcY6OcUCADdcese1JjhmBFprMlI1vR8KvMfZSe6PY/vHEtT9LWdGUvV6CuP0U/A0mSv4lkG6oH349dAej1FYngCvvAP0KZPzLg1jsQEsEzX869howSD5B34QvaYRzd5xvI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=JMs0tAzl; arc=fail smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9711020323
+	for <virtualization@lists.linux.dev>; Tue, 17 Sep 2024 14:09:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1726582175; cv=none; b=nVgNv5h0Sage9iOqiTa+D7x6M24UnBg1lNk4CpXAVRiTvLLp+1w35yDUa9+sjw+dXJoIi+uPBUpat9yfI5vzwYPh6x1c4qUx9cnRCmwKNRYbgogmTwdfe7bx3yK85YPB074WDajvJI9POrv9/laI/8FKuYZUOYsviEJXYdvBjy8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1726582175; c=relaxed/simple;
+	bh=C5sNu/tIzMKqgI7iIqHP/fw5VObg8bg/2Hy9Hbgm2r8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=NQu5ZrAecn+SJumn+2S7HfovkwiHQAFE2jsKskvzT+EnSYNxngM1VrSg81lsVh+NVGF2rJsukbdLCNY6TC0hm7Oz8VO/MvlO0KAvj/ZS3PqXUsMfLMMf9HrbzbAwJcHVuHrFSPFYCa4WsTsY2dNrPxULL6evrzIDCWIsO7AMHdc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=bG+c27IT; arc=none smtp.client-ip=210.118.77.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="JMs0tAzl"
-Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48H1jBiS009676;
-	Tue, 17 Sep 2024 05:32:06 -0700
-Received: from nam04-mw2-obe.outbound.protection.outlook.com (mail-mw2nam04lp2168.outbound.protection.outlook.com [104.47.73.168])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 41na0g28b5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 05:32:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=UMbjUYMGE9udK42KELX9gZrCHsBSNrQXWbaeqVFBkA+9WHB1OkhZO0BA2t0EFXZ67SruibBx0Hy/9aGANnTpYb3B5k0GlGUJnF7LcLH13X35viaqiR0TsRR8UuSu13hF6kRXp8tg/ChLGQRPAThL/u7nd9p54SEOk2OojgVZTUb15GwYr9UzSztIzFk5WjFLacAz6TnGKigBZ7S5uK+1wLgR8TSaG8rbVRPtqXwpaSoVtydLvEN2gsfjXMb89vGd88+qNPGcJ1YjIiO41W06WUF+Ds0TT/Fzv7WHyzwL5fiagwtmLakqtab6ZZhMcXX/V9KBqr2yZVD3U89Bb3tXfQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qL8M6FVyahuV6SF0dp5p0Kxs65z1K8diqvltULMJe6U=;
- b=WFmC3/cV+VDHqJswtvMx+pDUCxnQdfC/oqKprB0Yfn0ooSPQh5Q/sWtY57yERc9bi9/wn3ZFOEbcT/EdsQH5dF8Skd8ORbpjhVdA8C3RX/6ugbwxls9LvvE/HLHCnDDOkGjipNQcqs7Qk/NcjjxPAPisMT98HiMfZ/YB7myc+/VIcc3ncVB8rwDJlsh3iWH6YzXIjSMbrGmRVSjhf6a8HgsVsTBRqVR7jYdK7UKru1fJ0eXAT1PTcz0Z5MyQtchpB75DPGYsfncVQgg/1S9ubrPuLXvWflbHjNL/Sn06Ln1YDs3ryLQBcqXxH4shI2ECQNACJVk7tiE6Eeez3k4Tpw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
- dkim=pass header.d=marvell.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qL8M6FVyahuV6SF0dp5p0Kxs65z1K8diqvltULMJe6U=;
- b=JMs0tAzl6yGzUSSJL0fo9EfA86iFHhbH7/GVcprcirG6cUgAnMpWHhNa2akynv11YY9jgVjx330VdZ3LC/xOxEgvmGDkdGSDN6tzs3YjA/HNF3gfW84/a3ZspvZz31vNfN2qlKQ57QhpUlb5ijyqg+Vru0HMPcyq3aS6o3DEEBE=
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
- by PH0PR18MB4733.namprd18.prod.outlook.com (2603:10b6:510:cc::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7962.24; Tue, 17 Sep
- 2024 12:32:01 +0000
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac]) by DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac%4]) with mapi id 15.20.7962.022; Tue, 17 Sep 2024
- 12:32:01 +0000
-From: Srujana Challa <schalla@marvell.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "dan.carpenter@linaro.org"
-	<dan.carpenter@linaro.org>,
-        "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>,
-        "eperezma@redhat.com" <eperezma@redhat.com>,
-        Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
-        Vamsi Krishna Attunuru
-	<vattunuru@marvell.com>,
-        kernel test robot <lkp@intel.com>
-Subject: RE: [EXTERNAL] Re: [PATCH] vdpa/octeon_ep: Fix format specifier for
- pointers in debug messages
-Thread-Topic: [EXTERNAL] Re: [PATCH] vdpa/octeon_ep: Fix format specifier for
- pointers in debug messages
-Thread-Index: AQHbCFS0KAG75dfAdEi6PPVo2f4H3bJarx2AgADLwkCAAG6XQA==
-Date: Tue, 17 Sep 2024 12:32:01 +0000
-Message-ID:
- <DS0PR18MB536803CD67DECB122BF1B97DA0612@DS0PR18MB5368.namprd18.prod.outlook.com>
-References: <20240916162255.677774-1-schalla@marvell.com>
- <20240916134226-mutt-send-email-mst@kernel.org>
- <DS0PR18MB5368A29EFA2094A2253CD6B2A0612@DS0PR18MB5368.namprd18.prod.outlook.com>
-In-Reply-To:
- <DS0PR18MB5368A29EFA2094A2253CD6B2A0612@DS0PR18MB5368.namprd18.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|PH0PR18MB4733:EE_
-x-ms-office365-filtering-correlation-id: 491feb76-0732-4c3a-1d6f-08dcd714bac0
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|366016|376014|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?U2FsYUlNSjVWb0cwd0I5UGNpTFdENlR5VEZ2Q2dpd2d5eW1UTWFqNlVPWWhV?=
- =?utf-8?B?cm1wbXNlOFNjQ3NYQnhhUTRIMGtjRTBWeER6a3FxL3JHQmJWbzZESkkyTk54?=
- =?utf-8?B?b0JnY0tQcDk0TVR1WXZjRmVLS3MrNXd3OUFXWFZndjBtcU9USDZXV0t4VFEz?=
- =?utf-8?B?YlAvK1R5Mlc0MFE1ZVRPcFVDOE1LY1dlRnhDWmFVUmpHdHhKSHAyZUp1eDVO?=
- =?utf-8?B?MXJxcWV2YjcydUZNRFBLcnJUQWZkclVCUVp2SStkeFpKOC9xK1lVazAvV2hI?=
- =?utf-8?B?V2ZWMjdFYy9VazZXRTNnUzVxTFBZY1dMcXVTWWxnb1JQdVdybmoxSGJqcUlH?=
- =?utf-8?B?QThiZVB2aGRVeVczQTErNHBSZ0pJQkVGMWVqTkFaeXFCYXlxOFB6MG1sUmFR?=
- =?utf-8?B?U0Fzai8wSlhyUk9YelhIR3Y4V3FvdjFUVUc0bkJPMHFKVTFmTmRzQ2NTelJH?=
- =?utf-8?B?cFBkeE00VVVsL25nSnBub2EvUFlVRnZVTUNkUjZHdnkrczhMb0dPSi9yOWFh?=
- =?utf-8?B?b2d1Y01uemdKQmVBQ1RxcHJQM2tDUVdOT3VSdnRPZWFEQzhuY2dINVBYVG1W?=
- =?utf-8?B?ZDFyaXJpU0hDVERwOHkwV29oeURDalBOVkF3VTlkb29OeDg4YjNFSDNFSDRV?=
- =?utf-8?B?M2xhTlQ5RkRzWW9aRkljM05FWUpRWjlzSC9pcWVJUUgyNEU0N3QxS2F5aVJC?=
- =?utf-8?B?ZWVEMHFFVlFzNEtReVM5WURiR05TZHppRVFIMXk3c1hyZEhOcHNUa2N2a2o4?=
- =?utf-8?B?d1BIVlRBZlgwbDVjVmJzWHlKMnNZeEtNZ0hBVFNHSUQ5NmluQnhHb0R5SlBo?=
- =?utf-8?B?dUFJUlltTzR3T2UzWFRMNDdyNUp5LzZJZkowZDc4R2tramo2c09rOFNHb2hG?=
- =?utf-8?B?S1hQZUt4RFVrYmNSY3ZWaDdudklDR0JaMEQxVkxia2xodTJlQXFwakdzdDha?=
- =?utf-8?B?TTFrd0p4Sm1GZnFJYmE4UDhqMXRXamdKTGVTWTVrd1I1TVlmWjlqV0xreFpz?=
- =?utf-8?B?THE2MjI5cVpubDRkcmJ2Nm1RYXVieW1qNFIwQ2t6ME42VG1JUFRUWWRwaEpN?=
- =?utf-8?B?S3hadjFnbmJSUFFEVXd4T1ROWXdPdjgwNDdsRko1S0VISC9lU0NHQ3M0cmpD?=
- =?utf-8?B?anRjOGU5SzBIcDIrd1Bqam1XMXpUKzRuOGc5c3NzU1Z1RFI2NzhiYjlzbktm?=
- =?utf-8?B?N1hhVUxJSlArNjlFRkkyaWcwcFpVazB1d0grbVVjM284c1dWRU1SSjl1V3ky?=
- =?utf-8?B?MnlxNDhXVUI1aXhuQlFnQ2hURWh1MU5tb0NBc284a2E0ZWgxbUFuclhtTkc0?=
- =?utf-8?B?Z050cWNYREFxb2w4SmFBSjdyWmNObDlNbUpGMlFtZDFuZE5MTnE1WVI1UDF5?=
- =?utf-8?B?eXdVam1nN3lPTk9qeTV0Um9kUVNIZ2xndXdNTTB4VjNxMjJVSmJmN2lYcGFu?=
- =?utf-8?B?N0Qwc3ZvMHpXUVhoOXFHZUQ4ZElJTm13cjVEV0hNVVRGRFNYOTBlY24vUndK?=
- =?utf-8?B?MWFHeTYrL3YwcXVkT0JXcTA1ZFZQV2lWTk1SdzR5ZC9pSXF1a1hTY3QxNlQx?=
- =?utf-8?B?MEU4MkQwb2EyS1hMQTAwblEzb2lvSFlXc0hhS3pDV0lmUGVSb1ExWDRpZzAz?=
- =?utf-8?B?QUZWM0xOVGMzMmVOZkE2OCtpVit4ZFdFeXoxbTA0ZFV3YTFXME9uYno1V2dt?=
- =?utf-8?B?NzlhKzRtbStIVGR2WnFWd01UOHhKbXlIdTc4b2ZIT1c5K1M1Mk1QU2hEUjIv?=
- =?utf-8?B?TWdWbjdrdFBxanN6UDErcTJQbmdPUElxWWtvTVZDVVVrTHhTbGtRc0ZRbWln?=
- =?utf-8?B?WllKUXE0TXNRZnlNWVlNUT09?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(38070700018);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?eGJzKzBod2dDQ3pLeFBiV2RXd0x3THBpSHNTUHpMTXcwUGluQ2VvREpnaHFh?=
- =?utf-8?B?eVpBd25PQm1YZjNtZXFENEtxMWJCeEZwbmxNMDRYQ0x3OHNxL2lPOHJUREJB?=
- =?utf-8?B?SFY3cnZZemxSNVcyVXBJTnRqM05wUzRQMUxOQ0pXT2phbmRpb0VUSVRpMlJj?=
- =?utf-8?B?YnRXVFFrM3RZVmpLSXRacFJSSDlOWGdGY09YdEg4NU1mUVRVV25scHJMT1J3?=
- =?utf-8?B?enBIMFpEMEV3VWpzSWVFeHJGM2U4MEZJMEUwNTAxNzJPdnUxcTlGdHFZS2Q5?=
- =?utf-8?B?dXIwNUoxVXQ2eU81Z2hQeHFMcFcrSDhPZThGVTRIZWpIT1BJWkNHOTROREVi?=
- =?utf-8?B?ZGp0U1dlc1NacEt5ZkcxdWVzbnlRYkxWNHBJbnF6NkJacTdUVVdwVCtGL1Bi?=
- =?utf-8?B?Q3BST0Y5eFRYVjF6UXZxaFBJaFg3eHdQOUdMeGhHd1ZrZjY0dVdYNkpYK2RQ?=
- =?utf-8?B?aHlXV1VPdDQ1WDUyM05yNGh0ZWRza3A3YklSZFk2MEh2aGRFSUdlQjg2YzVU?=
- =?utf-8?B?d3VHZ01BS3g2NlBxanpSa3lDbUZUMUE1NE9MU0FhMUp1UUw1S2RCRjB0QWhu?=
- =?utf-8?B?QzJ1M0VFRy8wQVlUSmQyZzFuTzNwdWlYaitEVW96SVVycHh0OFVVbWFMTVpK?=
- =?utf-8?B?alpnOTFCc2t4RUIrQm1HaWw1U0JDMVBHeUwvcVJKOHZNTTh0VE1LQjhHbVNE?=
- =?utf-8?B?enRlcWlGSGRBTkwvNFF3LzBMcEhadExEOVQ3QTVwam8rVng4b0RkWTVYUjJE?=
- =?utf-8?B?cFNMUWc1Q3J0ZzBQaHlJVWY2U0xueUhDSFhyU0dmRDEzYkRsMDdMWHlVOEJt?=
- =?utf-8?B?OHdNdEN6elA0UyszRHRZTmZTeDFDVFh0dUpBRkt5VDNaUFYzamdoZGdNdGNu?=
- =?utf-8?B?TG5LRnJJaDJWTE1iM1B1R1Y0ZmhHRStYM2VScktPUWRjbmFwWElRTjNTQUds?=
- =?utf-8?B?TTYwdG9Ob1FVbXJ1OUhmSzlKNHAyUHB1dklKRW5jQ1VwOVdvNzhzWmlUbW1B?=
- =?utf-8?B?Z3RiY1lwU2hYaGR1dDBLa2pXWHZtM2REVVFOdmc1K0x5aCtjc2lMZWRLeFlS?=
- =?utf-8?B?SEtLZlV2bjNmNGlaN1FRTWJEWnlPNVRzUUllRUxpd1oxUHBKbGdYa1BJUzZ3?=
- =?utf-8?B?YS9GeVE3ZG9GMmdLdXNtQUdGemdJbndscmhjbGxNNUhyU0NLQkl3eGx5cUVw?=
- =?utf-8?B?TzQ2WlZzaW1GZmZJcWVOemExc0s1VTRoMll2MDhJWC9DTHBaNDRxdFlzSkJE?=
- =?utf-8?B?Skd3VnlzdzhsL2xNZTIxbktZaTJlRm5BcGVIb1Voci9KSWY0ZjJXVDl1d3Ex?=
- =?utf-8?B?alN2OXdaQ1h4S1NzQ1p5ejhCbmRybTlrbk5NY2xjZEoydUc0OFlHU24yWmRn?=
- =?utf-8?B?bmhCQ0tWRUtMNEQ1eVZiT1BtbTM4Q01VcVU4WmVnR2pmdXRNaXI4SzlnWllW?=
- =?utf-8?B?akpJVGlNT2ErVnVmT3o5b3kvWGE4SmFaUmluSno2WUcxRXZGMWU1aVFPZnYx?=
- =?utf-8?B?SGZmWVJRR0NOTWo3WXJLb2VnR2ZsRlFvZGp0bXV5WmphbXBibnFTMDFYK0R6?=
- =?utf-8?B?NHFQYkZZdVI0YlVkUWxkZmhobWdSRmJQUklsVEFzcWlrcnRMMUhLeElCN2R5?=
- =?utf-8?B?SWdOWHUxVHhrbXpNdjFES2lqUmFkMXBPa0NqeElVU3pXQ1RRQTZmNldvQWw3?=
- =?utf-8?B?MDRLamM1T1ZRV1VvTUs3TkhlaXZaZjZGeUtlMDNSTWtkdjNwLzRITnNKQkVZ?=
- =?utf-8?B?eE1qdVdia0RlUUpNK1RGL2xPLzBXeHJkOHNQdk9XTE81alRYWkpaM2FVaEcy?=
- =?utf-8?B?QzVqbU9wVWhPbWg4ZVUzWWFyWTVtSG9jN29sSEhXdk1CcHo0WW11NWJESkY3?=
- =?utf-8?B?SlpuQmVSbnFKZkFpUys4MmxoT0JlVVFaZHdJc3VkTm5DZHc4OCtDL2pIZG9n?=
- =?utf-8?B?SzUweGZPZXBKNEdsUDdJUVpIZXhjMEdreVFNbWtJTys5eVFzNEFGTzV5UUdz?=
- =?utf-8?B?K1dycGZRSjVvK1BQVFpDRHhTNFVLZVZORTlSZUdtY0lIdnVrUmd2bHhVSGpi?=
- =?utf-8?B?d2doWGM2VFBubXZyMWMwczUxanRnSEFYdkZlckUvL3JrdURFVUVwTFFCcXlH?=
- =?utf-8?Q?sVrpEFfMOTqtT+mOGNmladR3b?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="bG+c27IT"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240917140924euoutp02102971b0c7a21ed3cb1b0cc8b629735b~2DVSbYF_x2161221612euoutp02H
+	for <virtualization@lists.linux.dev>; Tue, 17 Sep 2024 14:09:24 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240917140924euoutp02102971b0c7a21ed3cb1b0cc8b629735b~2DVSbYF_x2161221612euoutp02H
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1726582164;
+	bh=FTIlmpeK+gBJgWWEUm8TuxmGeJbEdLRQW3w4HeVHoXg=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=bG+c27ITlCkTt0V1filw+4a1LMWEhRAfOA1iRLQyMFKScmaAJBQRbYQctxH5TM01x
+	 r8Dd7i318psd5LEvSj5mJEqSZbdJyIgRwLlWcSBDLwa59Duw6DTi9J8/zcbvwTeABE
+	 ogpTBI9P6UjHXl6e35HqEqN/5V7GS7r9lMhoeflk=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+	20240917140923eucas1p1c65e333bfc8d613440d0f0b0e4601fa1~2DVSQGnPl2001520015eucas1p1r;
+	Tue, 17 Sep 2024 14:09:23 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges3new.samsung.com (EUCPMTA) with SMTP id F6.65.09620.39D89E66; Tue, 17
+	Sep 2024 15:09:23 +0100 (BST)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20240917140923eucas1p1c76055978d586d06cb567c722a8c98f5~2DVRvnjz50876708767eucas1p1B;
+	Tue, 17 Sep 2024 14:09:23 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+	eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+	20240917140923eusmtrp2426373454546511046418e41b3dca3df~2DVRuw79Q2089320893eusmtrp2G;
+	Tue, 17 Sep 2024 14:09:23 +0000 (GMT)
+X-AuditID: cbfec7f5-d31ff70000002594-4c-66e98d9390d2
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+	eusmgms1.samsung.com (EUCPMTA) with SMTP id 31.6A.14621.39D89E66; Tue, 17
+	Sep 2024 15:09:23 +0100 (BST)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20240917140922eusmtip1defa6801fe0fe60bba142fca23bd80ab~2DVRGlimf1227312273eusmtip1S;
+	Tue, 17 Sep 2024 14:09:22 +0000 (GMT)
+Message-ID: <5e051c18-bd96-4543-abeb-4ed245f16f9e@samsung.com>
+Date: Tue, 17 Sep 2024 16:09:21 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: marvell.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 491feb76-0732-4c3a-1d6f-08dcd714bac0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Sep 2024 12:32:01.1716
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jNOKkfBK9J+6HarnwB9gM8Fibc9rCs/Jcu6CzNPH24yhjkcNfha/rgnrAl1f0r5Mu6gqGYmjiNhtmX0G2a6FlA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR18MB4733
-X-Proofpoint-ORIG-GUID: ALeAuSmpD1reJ0hv-M7BEbMZiAkELHui
-X-Proofpoint-GUID: ALeAuSmpD1reJ0hv-M7BEbMZiAkELHui
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] virtio_blk: implement init_hctx MQ operation
+To: Max Gurtovoy <mgurtovoy@nvidia.com>, stefanha@redhat.com,
+	virtualization@lists.linux.dev, mst@redhat.com, axboe@kernel.dk
+Cc: kvm@vger.kernel.org, linux-block@vger.kernel.org, oren@nvidia.com
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <b2408b1b-67e7-4935-83b4-1a2850e07374@nvidia.com>
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprPKsWRmVeSWpSXmKPExsWy7djP87qTe1+mGZycY2Cx+m4/m8WcqYUW
+	e29pW2yd/5nJ4v+vV6wWDy5NYrd4Pek/q8XR7StZHTg8Lp8t9XixeSajR2/zOzaP9/uusnl8
+	3iQXwBrFZZOSmpNZllqkb5fAlfHpyw32gvt+FTPfL2VrYNzr1MXIwSEhYCKxYmNKFyMXh5DA
+	CkaJpg+tzBDOF0aJD20NjBDOZ0aJx48PADmcYB1f191lhUgsZ5RY8qqZHcL5yCjx5cFtVpC5
+	vAJ2EvemRoM0sAioSnTubmUDsXkFBCVOznzCAmKLCshL3L81gx3EFhZwkZiyvgksLiJQL9G9
+	9wiYzSzgKvGht5MNwhaXuPVkPhOIzSZgKNH1tgsszgm0aumyaVD18hLNW2eDvSAh8IBD4uy0
+	jUwQV7tIzL13mRnCFpZ4dXwLO4QtI/F/J8hQkIZ2RokFv+9DORMYJRqe34L62VrizrlfbCCf
+	MQtoSqzfpQ8RdpRoaVnADglIPokbbwUhjuCTmLRtOjNEmFeio00IolpNYtbxdXBrD164xDyB
+	UWkWUrDMQvLmLCTvzELYu4CRZRWjeGppcW56arFxXmq5XnFibnFpXrpecn7uJkZgGjr97/jX
+	HYwrXn3UO8TIxMF4iFGCg1lJhNf299M0Id6UxMqq1KL8+KLSnNTiQ4zSHCxK4ryqKfKpQgLp
+	iSWp2ampBalFMFkmDk6pBqaSN5/ipbcs7QtN8l7/Xmyn8jWjnXwO+VdEo4pLwt7OnXfY9qlj
+	G4eCQjLPrfQvvhPTtu9wei9k86Ymxjf+ZcjSH5O7Tz+655Hw5522osmaI0vUj92xurLfU5lr
+	to7FyVbdOzdPfz42JVtWS/DjD6He7ZPb/x7uPt/lp/vhs83PiCmTNpfHZbKszLsg+Z5XnPfT
+	TxGVE+/a6t/5BCQnnK6c1TLvw4HXJvPWH0p6UtZdxzNd1rJVNFlgdvxmS55jvLVyMl5fY2un
+	3tWNCK/exmV5NGVX24TULVMVsto9qn6ofhVJ+SAw/enjf5/enrWpU3FVnCH8+aqeTIZjYE5W
+	tK2V1y2dFCvZfMtPlgeDviqxFGckGmoxFxUnAgA4LwZ7sgMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrEIsWRmVeSWpSXmKPExsVy+t/xu7qTe1+mGTQvF7VYfbefzWLO1EKL
+	vbe0LbbO/8xk8f/XK1aLB5cmsVu8nvSf1eLo9pWsDhwel8+WerzYPJPRo7f5HZvH+31X2Tw+
+	b5ILYI3SsynKLy1JVcjILy6xVYo2tDDSM7S00DMysdQzNDaPtTIyVdK3s0lJzcksSy3St0vQ
+	y/j05QZ7wX2/ipnvl7I1MO516mLk5JAQMJH4uu4uaxcjF4eQwFJGiUP/FjFDJGQkTk5rYIWw
+	hSX+XOtigyh6zyjx8tQF9i5GDg5eATuJe1OjQWpYBFQlOne3soHYvAKCEidnPmEBsUUF5CXu
+	35rBDmILC7hITFnfBBYXEaiXaN7RARZnFnCV+NDbCTX/G6NE04tmqIS4xK0n85lAbDYBQ4mu
+	t11gCziB9i5dNo0FosZMomtrFyOELS/RvHU28wRGoVlI7piFZNQsJC2zkLQsYGRZxSiSWlqc
+	m55bbKhXnJhbXJqXrpecn7uJERh524793LyDcd6rj3qHGJk4GA8xSnAwK4nw2v5+mibEm5JY
+	WZValB9fVJqTWnyI0RQYGBOZpUST84Gxn1cSb2hmYGpoYmZpYGppZqwkzut2+XyakEB6Yklq
+	dmpqQWoRTB8TB6dUAxPv4vU7knttzvv+3ayopMVVKJS313XOmzu3nrtUestu8La+uVhlksMf
+	I2WJK+s2V/9mm/qUSbikSD3jP7/WgWYFHuFrrqaOvkk9PYk8wd/y9ydmhj7/v9VVeJpmpb2r
+	rI3iouX+HxSsX4sEPKv+s/TLrifNNgemTHDccLX+DrfGA1lbc90tF/9Offi6ZKZs/ooH1+5e
+	1G7vW+Tad+rRtoPOGw4e3lhvF7lco8IoVaJIakV+Qs2xXyZ7TmRe70opC5t7zl194cWNl6Zl
+	ZmvfSFrDntlp/2xd7d9f9hYJt0xrq/9FxQfc472z8bBOU/aL3LD9S3oEry0Jio9YmDjRV3xu
+	4s7fASmpXMdeHTSceVWJpTgj0VCLuag4EQDXaQl2RQMAAA==
+X-CMS-MailID: 20240917140923eucas1p1c76055978d586d06cb567c722a8c98f5
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a
+References: <20240807224129.34237-1-mgurtovoy@nvidia.com>
+	<CGME20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a@eucas1p1.samsung.com>
+	<fb28ea61-4e94-498e-9caa-c8b7786d437a@samsung.com>
+	<b2408b1b-67e7-4935-83b4-1a2850e07374@nvidia.com>
 
-PiA+IE9uIE1vbiwgU2VwIDE2LCAyMDI0IGF0IDA5OjUyOjU1UE0gKzA1MzAsIFNydWphbmEgQ2hh
-bGxhIHdyb3RlOg0KPiA+ID4gVXBkYXRlcyB0aGUgZGVidWcgbWVzc2FnZXMgaW4gb2N0ZXBfdmRw
-YV9ody5jIHRvIHVzZSB0aGUgJXAgZm9ybWF0DQo+ID4gPiBzcGVjaWZpZXIgZm9yIHBvaW50ZXJz
-IGluc3RlYWQgb2YgY2FzdGluZyB0aGVtIHRvIHU2NC4NCj4gPiA+DQo+ID4gPiBGaXhlcyBzbWF0
-Y2ggd2FybmluZzoNCj4gPiA+IG9jdGVwX2h3X2NhcHNfcmVhZCgpIHdhcm46IGFyZ3VtZW50IDMg
-dG8gJTAxNmxseCBzcGVjaWZpZXIgaXMgY2FzdA0KPiA+ID4gZnJvbSBwb2ludGVyDQo+ID4gPg0K
-PiA+ID4gRml4ZXM6IDhiNmM3MjRjZGFiOCAoInZpcnRpbzogdmRwYTogdkRQQSBkcml2ZXIgZm9y
-IE1hcnZlbGwgT0NURU9ODQo+ID4gPiBEUFUNCj4gPiA+IGRldmljZXMiKQ0KPiA+ID4NCj4gPiA+
-IFJlcG9ydGVkLWJ5OiBrZXJuZWwgdGVzdCByb2JvdCA8bGtwQGludGVsLmNvbT4NCj4gPiA+IFJl
-cG9ydGVkLWJ5OiBEYW4gQ2FycGVudGVyIDxkYW4uY2FycGVudGVyQGxpbmFyby5vcmc+DQo+ID4g
-PiBDbG9zZXM6aHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3YyL3VybD91PWh0dHBz
-LTNBX19sb3JlLmtlcg0KPiA+ID4gbmUNCj4gPiA+IGwub3JnX3JfMjAyNDA5MTYwNDMxLmJSaFpX
-aGlVLTJEbGtwLQ0KPiA+IDQwaW50ZWwuY29tXyZkPUR3SUJBZyZjPW5LaldlYzJiNlINCj4gPiA+
-DQo+ID4NCj4gMG1PeVBhejd4dGZRJnI9Rmo0T29ENWhjS0ZwQU5oVFdkd1F6alQxSnBmN3ZlQzUy
-NjNUNDdKVnBuYyZtDQo+ID4gPXF5aGxXaDJsRg0KPiA+ID4gRTNTUEZwQl9lSjBLMVJGTWE1Zi0N
-Cj4gPiBrY05DaEZIa0NBUkRDWElrek1rX18zc3FzcFBfSzdLR3hhaiZzPWZNdlM2MlhNbWk1SA0K
-PiA+ID4gRVNKdUw5djdGWDNjOFJTektDcTdKTTZLaGNvZjR2TSZlPQ0KPiA+ID4gPGh0dHBzOi8v
-dXJsZGVmZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwcy0zQV9fbG9yZS5rZXJuZWwu
-b3INCj4gPiA+IGdfDQo+ID4gPiByXzIwMjQwOTE2MDQzMS5iUmhaV2hpVS0yRGxrcC0NCj4gPiA0
-MGludGVsLmNvbV8mZD1Ed0lCQWcmYz1uS2pXZWMyYjZSMG1PeVBhDQo+ID4gPg0KPiA+DQo+IHo3
-eHRmUSZyPUZqNE9vRDVoY0tGcEFOaFRXZHdRempUMUpwZjd2ZUM1MjYzVDQ3SlZwbmMmbT1xeWhs
-V2gNCj4gPiAybEZFM1NQRnANCj4gPiA+IEJfZUowSzFSRk1hNWYtDQo+ID4ga2NOQ2hGSGtDQVJE
-Q1hJa3pNa19fM3Nxc3BQX0s3S0d4YWomcz1mTXZTNjJYTW1pNUhFU0p1TDkNCj4gPiA+IHY3Rlgz
-YzhSU3pLQ3E3Sk02S2hjb2Y0dk0mZT0gID4+IFNpZ25lZC1vZmYtYnk6IFNydWphbmEgQ2hhbGxh
-DQo+ID4gPiA8c2NoYWxsYUBtYXJ2ZWxsLmNvbT4NCj4gPg0KPiA+DQo+ID4NCj4gPiBUaGlzIGRv
-ZXMgbm90IGZpeCBpdCBjb21wbGV0ZWx5Lg0KPiA+IHJldCBpcyBzdGlsbCAwIGhlcmU6DQo+ID4N
-Cj4gPiA4YjZjNzI0Y2RhYjg1ZCBTcnVqYW5hIENoYWxsYSAyMDI0LTA2LTE0ICAxNDAgIAl2YWwg
-PQ0KPiA+IG9jdGVwX3JlYWRfc2lnKG1ib3gpOw0KPiA+IDhiNmM3MjRjZGFiODVkIFNydWphbmEg
-Q2hhbGxhIDIwMjQtMDYtMTQgIDE0MSAgCWlmICgodmFsICYgMHhGRkZGKSAhPQ0KPiA+IE1CT1hf
-UlNQX1NJRykgew0KPiA+IDhiNmM3MjRjZGFiODVkIFNydWphbmEgQ2hhbGxhIDIwMjQtMDYtMTQg
-IDE0Mg0KPiA+IAlkZXZfd2FybigmcGRldi0+ZGV2LCAiSW52YWxpZCBTaWduYXR1cmUgZnJvbSBt
-Ym94IDogJWQNCj4gcmVzcG9uc2VcbiIsDQo+ID4gaWQpOw0KPiA+IDhiNmM3MjRjZGFiODVkIFNy
-dWphbmEgQ2hhbGxhIDIwMjQtMDYtMTQgQDE0MyAgCQlyZXR1cm4gcmV0Ow0KPiA+IDhiNmM3MjRj
-ZGFiODVkIFNydWphbmEgQ2hhbGxhIDIwMjQtMDYtMTQgIDE0NCAgCX0NCj4gPg0KPiA+DQo+ID4g
-d2hpY2ggaXMgd3JvbmcuDQo+IFRoZSBmaXggZm9yIHRoZSBlcnJvciBjb2RlIGlzIGFscmVhZHkg
-aW5jbHVkZWQgaW4gdGhlIGxpbnV4LW5leHQgYW5kIG1haW5saW5lDQo+IExpbnV4IHJlcG9zaXRv
-cmllcy4NCj4gVGhlcmVmb3JlLCBJIGRpZCBub3QgaW5jbHVkZSB0aGF0IGNoYW5nZSBpbiB0aGlz
-IHBhdGNoLg0KPiBUaGFua3MuDQpNaWNoYWVsLCBjb3VsZCB5b3UgY29uZmlybSBpZiB0aGUgZml4
-IGZvciB0aGUgZXJyb3IgY29kZSBzaG91bGQgYmUgaW5jbHVkZWQgaW4gdGhpcyBwYXRjaD8NCg0K
-PiA+DQo+ID4NCj4gPiA+IC0tLQ0KPiA+ID4gIGRyaXZlcnMvdmRwYS9vY3Rlb25fZXAvb2N0ZXBf
-dmRwYV9ody5jIHwgMTIgKysrKysrLS0tLS0tDQo+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5z
-ZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkNCj4gPiA+DQo+ID4gPiBkaWZmIC0tZ2l0IGEvZHJp
-dmVycy92ZHBhL29jdGVvbl9lcC9vY3RlcF92ZHBhX2h3LmMNCj4gPiA+IGIvZHJpdmVycy92ZHBh
-L29jdGVvbl9lcC9vY3RlcF92ZHBhX2h3LmMNCj4gPiA+IGluZGV4IDExYmQ3NmFlMThjZi4uMWQ0
-NzY3YjMzMzE1IDEwMDY0NA0KPiA+ID4gLS0tIGEvZHJpdmVycy92ZHBhL29jdGVvbl9lcC9vY3Rl
-cF92ZHBhX2h3LmMNCj4gPiA+ICsrKyBiL2RyaXZlcnMvdmRwYS9vY3Rlb25fZXAvb2N0ZXBfdmRw
-YV9ody5jDQo+ID4gPiBAQCAtNDc1LDExICs0NzUsMTEgQEAgaW50IG9jdGVwX2h3X2NhcHNfcmVh
-ZChzdHJ1Y3Qgb2N0ZXBfaHcNCj4gPiAqb2N0X2h3LCBzdHJ1Y3QgcGNpX2RldiAqcGRldikNCj4g
-PiA+ICAJCWRldl9lcnIoZGV2LCAiSW5jb21wbGV0ZSBQQ0kgY2FwYWJpbGl0aWVzIik7DQo+ID4g
-PiAgCQlyZXR1cm4gLUVJTzsNCj4gPiA+ICAJfQ0KPiA+ID4gLQlkZXZfaW5mbyhkZXYsICJjb21t
-b24gY2ZnIG1hcHBlZCBhdDogMHglMDE2bGx4XG4iLA0KPiA+ICh1NjQpKHVpbnRwdHJfdClvY3Rf
-aHctPmNvbW1vbl9jZmcpOw0KPiA+ID4gLQlkZXZfaW5mbyhkZXYsICJkZXZpY2UgY2ZnIG1hcHBl
-ZCBhdDogMHglMDE2bGx4XG4iLA0KPiA+ICh1NjQpKHVpbnRwdHJfdClvY3RfaHctPmRldl9jZmcp
-Ow0KPiA+ID4gLQlkZXZfaW5mbyhkZXYsICJpc3IgY2ZnIG1hcHBlZCBhdDogMHglMDE2bGx4XG4i
-LA0KPiA+ICh1NjQpKHVpbnRwdHJfdClvY3RfaHctPmlzcik7DQo+ID4gPiAtCWRldl9pbmZvKGRl
-diwgIm5vdGlmeSBiYXNlOiAweCUwMTZsbHgsIG5vdGlmeSBvZmYgbXVsdGlwbGllcjogJXVcbiIs
-DQo+ID4gPiAtCQkgKHU2NCkodWludHB0cl90KW9jdF9ody0+bm90aWZ5X2Jhc2UsIG9jdF9ody0N
-Cj4gPiA+bm90aWZ5X29mZl9tdWx0aXBsaWVyKTsNCj4gPiA+ICsJZGV2X2luZm8oZGV2LCAiY29t
-bW9uIGNmZyBtYXBwZWQgYXQ6ICVwXG4iLCBvY3RfaHctDQo+ID4gPmNvbW1vbl9jZmcpOw0KPiA+
-ID4gKwlkZXZfaW5mbyhkZXYsICJkZXZpY2UgY2ZnIG1hcHBlZCBhdDogJXBcbiIsIG9jdF9ody0+
-ZGV2X2NmZyk7DQo+ID4gPiArCWRldl9pbmZvKGRldiwgImlzciBjZmcgbWFwcGVkIGF0OiAlcFxu
-Iiwgb2N0X2h3LT5pc3IpOw0KPiA+ID4gKwlkZXZfaW5mbyhkZXYsICJub3RpZnkgYmFzZTogJXAs
-IG5vdGlmeSBvZmYgbXVsdGlwbGllcjogJXVcbiIsDQo+ID4gPiArCQkgb2N0X2h3LT5ub3RpZnlf
-YmFzZSwgb2N0X2h3LT5ub3RpZnlfb2ZmX211bHRpcGxpZXIpOw0KPiA+ID4NCj4gPiA+ICAJb2N0
-X2h3LT5jb25maWdfc2l6ZSA9IG9jdGVwX2dldF9jb25maWdfc2l6ZShvY3RfaHcpOw0KPiA+ID4g
-IAlvY3RfaHctPmZlYXR1cmVzID0gb2N0ZXBfaHdfZ2V0X2Rldl9mZWF0dXJlcyhvY3RfaHcpOw0K
-PiA+ID4gQEAgLTUxMSw3ICs1MTEsNyBAQCBpbnQgb2N0ZXBfaHdfY2Fwc19yZWFkKHN0cnVjdCBv
-Y3RlcF9odw0KPiAqb2N0X2h3LA0KPiA+IHN0cnVjdCBwY2lfZGV2ICpwZGV2KQ0KPiA+ID4gIAl9
-DQo+ID4gPiAgCW1ib3ggPSBvY3RlcF9nZXRfbWJveChvY3RfaHcpOw0KPiA+ID4gIAlvY3RlcF9t
-Ym94X2luaXQobWJveCk7DQo+ID4gPiAtCWRldl9pbmZvKGRldiwgIm1ib3ggbWFwcGVkIGF0OiAw
-eCUwMTZsbHhcbiIsDQo+ID4gKHU2NCkodWludHB0cl90KW1ib3gpOw0KPiA+ID4gKwlkZXZfaW5m
-byhkZXYsICJtYm94IG1hcHBlZCBhdDogJXBcbiIsIG1ib3gpOw0KPiA+ID4NCj4gPiA+ICAJcmV0
-dXJuIDA7DQo+ID4gPiAgfQ0KPiA+ID4gLS0NCj4gPiA+IDIuMjUuMQ0KDQo=
+Hi Max,
+
+On 17.09.2024 00:06, Max Gurtovoy wrote:
+>
+> On 12/09/2024 9:46, Marek Szyprowski wrote:
+>> Dear All,
+>>
+>> On 08.08.2024 00:41, Max Gurtovoy wrote:
+>>> Set the driver data of the hardware context (hctx) to point directly to
+>>> the virtio block queue. This cleanup improves code readability and
+>>> reduces the number of dereferences in the fast path.
+>>>
+>>> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+>>> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+>>> ---
+>>>    drivers/block/virtio_blk.c | 42 
+>>> ++++++++++++++++++++------------------
+>>>    1 file changed, 22 insertions(+), 20 deletions(-)
+>> This patch landed in recent linux-next as commit 8d04556131c1
+>> ("virtio_blk: implement init_hctx MQ operation"). In my tests I found
+>> that it introduces a regression in system suspend/resume operation. From
+>> time to time system crashes during suspend/resume cycle. Reverting this
+>> patch on top of next-20240911 fixes this problem.
+>
+> Could you please provide a detailed explanation of the system 
+> suspend/resume operation and the specific testing methodology employed?
+
+In my tests I just call the 'rtcwake -s10 -mmem' command many times in a 
+loop. I use standard Debian image under QEMU/ARM64. Nothing really special.
+
+>
+> The occurrence of a kernel panic from this commit is unexpected, given 
+> that it primarily involves pointer reassignment without altering the 
+> lifecycle of vblk/vqs.
+>
+> In the virtqueue_add_split function, which pointer is becoming null 
+> and causing the issue? A detailed analysis would be helpful.
+>
+> The report indicates that the crash occurs sporadically rather than 
+> consistently.
+>
+> is it possible that this is a race condition introduced by a different 
+> commit? How can we rule out this possibility?
+This is the commit pointed by bisecting between v6.11-rc1 and 
+next-20240911. The problem is reproducible, it just need a few calls to 
+the rtcwake command.
+>
+> Prior to applying this commit, what were the test results? 
+> Specifically, out of 100 test runs, how many passed successfully?
+
+All 100 were successful, see https://pastebin.com/3yETvXK9 (kernel is 
+compiled from 6d17035a7402, which is a parent of $subject in linux-next).
+
+>
+> After applying this commit, what are the updated test results? Again, 
+> out of 100 test runs, how many passed successfully?
+
+Usually it freezes or panics after the second try, see 
+https://pastebin.com/u5n9K1Dz (kernel compiled from 8d04556131c1, which 
+is $subject in linux-next).
+
+>
+>>
+>> I've even managed to catch a kernel panic log of this problem on QEMU's
+>> ARM64 'virt' machine:
+>>
+>> root@target:~# time rtcwake -s10 -mmem
+>> rtcwake: wakeup from "mem" using /dev/rtc0 at Thu Sep 12 07:11:52 2024
+>> Unable to handle kernel NULL pointer dereference at virtual address
+>> 0000000000000090
+>> Mem abort info:
+>>     ESR = 0x0000000096000046
+>>     EC = 0x25: DABT (current EL), IL = 32 bits
+>>     SET = 0, FnV = 0
+>>     EA = 0, S1PTW = 0
+>>     FSC = 0x06: level 2 translation fault
+>> Data abort info:
+>>     ISV = 0, ISS = 0x00000046, ISS2 = 0x00000000
+>>     CM = 0, WnR = 1, TnD = 0, TagAccess = 0
+>>     GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+>> user pgtable: 4k pages, 48-bit VAs, pgdp=0000000046bbb000
+>> ...
+>> Internal error: Oops: 0000000096000046 [#1] PREEMPT SMP
+>> Modules linked in: bluetooth ecdh_generic ecc rfkill ipv6
+>> CPU: 0 UID: 0 PID: 9 Comm: kworker/0:0H Not tainted 6.11.0-rc6+ #9024
+>> Hardware name: linux,dummy-virt (DT)
+>> Workqueue: kblockd blk_mq_requeue_work
+>> pstate: 800000c5 (Nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+>> pc : virtqueue_add_split+0x458/0x63c
+>> lr : virtqueue_add_split+0x1d0/0x63c
+>> ...
+>> Call trace:
+>>    virtqueue_add_split+0x458/0x63c
+>>    virtqueue_add_sgs+0xc4/0xec
+>>    virtblk_add_req+0x8c/0xf4
+>>    virtio_queue_rq+0x6c/0x1bc
+>>    blk_mq_dispatch_rq_list+0x21c/0x714
+>>    __blk_mq_sched_dispatch_requests+0xb4/0x58c
+>>    blk_mq_sched_dispatch_requests+0x30/0x6c
+>>    blk_mq_run_hw_queue+0x14c/0x40c
+>>    blk_mq_run_hw_queues+0x64/0x124
+>>    blk_mq_requeue_work+0x188/0x1bc
+>>    process_one_work+0x20c/0x608
+>>    worker_thread+0x238/0x370
+>>    kthread+0x124/0x128
+>>    ret_from_fork+0x10/0x20
+>> Code: f9404282 79401c21 b9004a81 f94047e1 (f8206841)
+>> ---[ end trace 0000000000000000 ]---
+>> note: kworker/0:0H[9] exited with irqs disabled
+>> note: kworker/0:0H[9] exited with preempt_count 1
+>>
+>>
+>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>>> index 2351f411fa46..35a7a586f6f5 100644
+>>> --- a/drivers/block/virtio_blk.c
+>>> +++ b/drivers/block/virtio_blk.c
+>>> @@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8 
+>>> status)
+>>>        }
+>>>    }
+>>>    -static inline struct virtio_blk_vq *get_virtio_blk_vq(struct 
+>>> blk_mq_hw_ctx *hctx)
+>>> -{
+>>> -    struct virtio_blk *vblk = hctx->queue->queuedata;
+>>> -    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>>> -
+>>> -    return vq;
+>>> -}
+>>> -
+>>>    static int virtblk_add_req(struct virtqueue *vq, struct 
+>>> virtblk_req *vbr)
+>>>    {
+>>>        struct scatterlist out_hdr, in_hdr, *sgs[3];
+>>> @@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
+>>>       static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+>>>    {
+>>> -    struct virtio_blk *vblk = hctx->queue->queuedata;
+>>> -    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>>> +    struct virtio_blk_vq *vq = hctx->driver_data;
+>>>        bool kick;
+>>>           spin_lock_irq(&vq->lock);
+>>> @@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct 
+>>> blk_mq_hw_ctx *hctx,
+>>>                   const struct blk_mq_queue_data *bd)
+>>>    {
+>>>        struct virtio_blk *vblk = hctx->queue->queuedata;
+>>> +    struct virtio_blk_vq *vq = hctx->driver_data;
+>>>        struct request *req = bd->rq;
+>>>        struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+>>>        unsigned long flags;
+>>> -    int qid = hctx->queue_num;
+>>>        bool notify = false;
+>>>        blk_status_t status;
+>>>        int err;
+>>> @@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct 
+>>> blk_mq_hw_ctx *hctx,
+>>>        if (unlikely(status))
+>>>            return status;
+>>>    -    spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+>>> -    err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
+>>> +    spin_lock_irqsave(&vq->lock, flags);
+>>> +    err = virtblk_add_req(vq->vq, vbr);
+>>>        if (err) {
+>>> -        virtqueue_kick(vblk->vqs[qid].vq);
+>>> +        virtqueue_kick(vq->vq);
+>>>            /* Don't stop the queue if -ENOMEM: we may have failed to
+>>>             * bounce the buffer due to global resource outage.
+>>>             */
+>>>            if (err == -ENOSPC)
+>>>                blk_mq_stop_hw_queue(hctx);
+>>> -        spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+>>> +        spin_unlock_irqrestore(&vq->lock, flags);
+>>>            virtblk_unmap_data(req, vbr);
+>>>            return virtblk_fail_to_queue(req, err);
+>>>        }
+>>>    -    if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
+>>> +    if (bd->last && virtqueue_kick_prepare(vq->vq))
+>>>            notify = true;
+>>> -    spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+>>> +    spin_unlock_irqrestore(&vq->lock, flags);
+>>>           if (notify)
+>>> -        virtqueue_notify(vblk->vqs[qid].vq);
+>>> +        virtqueue_notify(vq->vq);
+>>>        return BLK_STS_OK;
+>>>    }
+>>>    @@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request 
+>>> **rqlist)
+>>>        struct request *requeue_list = NULL;
+>>>           rq_list_for_each_safe(rqlist, req, next) {
+>>> -        struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
+>>> +        struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
+>>>            bool kick;
+>>>               if (!virtblk_prep_rq_batch(req)) {
+>>> @@ -1164,6 +1155,16 @@ static const struct attribute_group 
+>>> *virtblk_attr_groups[] = {
+>>>        NULL,
+>>>    };
+>>>    +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void 
+>>> *data,
+>>> +        unsigned int hctx_idx)
+>>> +{
+>>> +    struct virtio_blk *vblk = data;
+>>> +    struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
+>>> +
+>>> +    hctx->driver_data = vq;
+>>> +    return 0;
+>>> +}
+>>> +
+>>>    static void virtblk_map_queues(struct blk_mq_tag_set *set)
+>>>    {
+>>>        struct virtio_blk *vblk = set->driver_data;
+>>> @@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct 
+>>> io_comp_batch *iob)
+>>>    static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct 
+>>> io_comp_batch *iob)
+>>>    {
+>>>        struct virtio_blk *vblk = hctx->queue->queuedata;
+>>> -    struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
+>>> +    struct virtio_blk_vq *vq = hctx->driver_data;
+>>>        struct virtblk_req *vbr;
+>>>        unsigned long flags;
+>>>        unsigned int len;
+>>> @@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
+>>>        .queue_rqs    = virtio_queue_rqs,
+>>>        .commit_rqs    = virtio_commit_rqs,
+>>>        .complete    = virtblk_request_done,
+>>> +    .init_hctx    = virtblk_init_hctx,
+>>>        .map_queues    = virtblk_map_queues,
+>>>        .poll        = virtblk_poll,
+>>>    };
+>> Best regards
+>
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
+
