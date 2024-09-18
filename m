@@ -1,76 +1,76 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52ABF18A6A8
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 12:47:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 030B1189F33
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 12:50:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726663622; cv=none; b=ekZaHGehdQN3PyWpZNfQUIsYuaUdruK8Tg5Gd5nvD0W0Bkq/3kuTpLpfKqi2swDPlrgmjv/LU/3Zt+FJysZbPxfubQB3oIhtCSrvA2F6AdLOm6O6NdSD8XeKgowQPRBSL3mzTUE6JEBTuUyzqELm4WAN1nk/MFvdr2mCyzBODFk=
+	t=1726663853; cv=none; b=mmpisJTrOOAnp8wiLU3zhvqyKYim1cVq23zYScHuzUR0zFA9mgQijDK9+1n49TzKpK6UeB7+mBj6MaVrE9kLI9iF2khskDos/C27yCC4h2BZoeNPxC4HHBKca2AMcEKP2V/Gw2zdz4Q/N9Dn/mZkPfAD6QPHcKZIW3sF1NOKm+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726663622; c=relaxed/simple;
-	bh=FfCTcp0ZVpfsylfuxeYRb0/Fe0NXrZIXNkhO2rk/C3c=;
+	s=arc-20240116; t=1726663853; c=relaxed/simple;
+	bh=uDlnTnvVvMyw7JX1Uoi6GaMOvz/MV/USqCOkq8mWwYk=;
 	h=Date:From:To:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=snUWj/M2LPDhQXYRvohSZTA/fyLIykEOWNYoKHEobK75hrtwkINNSwzgnMCtd18pOJacQtTuI/cqExGqnq9fsHtvLACj3jimxM5QqfJa5girvPUjaxcRysUDXrjitPYQzTOuoU132NYB+cV8KSov+c1DhNO88lVv2lE/Vxuke0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tcqdh2sl; arc=none smtp.client-ip=140.211.166.133
+	 Mime-Version:Content-Type; b=BdWdkVa0akgYDzCM4cM3Y2aFV0SgIqQVRD9BnL4nF42oIKidQ538RkbR1Y0HjGlTeZK0t/BIzYc+vMdNswlcHKJoNP39SulKiJR4oy52nu+ldDhCRmnDFiap7zpT93kQAygBg/90EdOB4oueQQ0sl9MKnZroqd2woIO2/udIHgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ediQXaUu; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tcqdh2sl"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ediQXaUu"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E62F140207
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 12:47:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8F3AB606B1
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 12:50:51 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id NHfUVBQSfX4i for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Sep 2024 12:47:00 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::e33; helo=mail-vs1-xe33.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org BEFBA40193
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BEFBA40193
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Tcqdh2sl
-Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BEFBA40193
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 12:46:59 +0000 (UTC)
-Received: by mail-vs1-xe33.google.com with SMTP id ada2fe7eead31-49bcaee2754so2017662137.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 05:46:59 -0700 (PDT)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 5-HJ9PyzbPgW for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Sep 2024 12:50:50 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::732; helo=mail-qk1-x732.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 8D69860636
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8D69860636
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=ediQXaUu
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8D69860636
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 12:50:50 +0000 (UTC)
+Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-7a99fd5beb6so64217685a.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 18 Sep 2024 05:50:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1726663618; x=1727268418; darn=lists.linux-foundation.org;
+        d=gmail.com; s=20230601; t=1726663849; x=1727268649; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IEiE54XLGCyNeFLyuQe7PaxspDTPjoL4Q+YGo4YshIM=;
-        b=Tcqdh2sln99Noze1CHZoI9r8BVzz7J8jjXuj4boF0xjDEiIWgbrJYlr+NpP2vRpPrK
-         ZggbEWuByAil1fQJ3LAEZ9ROPsqzgBA0hzogvNtrqU4rhx/DoT+Q2jhP/lfTQ8rIoOeU
-         01Uj8GZWRc5ynV1XbndavNdjSkWCEtewHzBf0k4mza2knP3H2hMthZ36lJrSCwjj9kKo
-         SJcs1ySndbfIPquVXp0PeycxMxQbey5YyWGa4iV36BBSU89/sZYUpzeNPc6jwHE+vXX3
-         6QuZaWJGMSlCTa7kLeZEgCUcTS6d3Iw7onKYTLsDtp3OW4rV/OZeP/GOOwwCll4iYm6X
-         0bsA==
+        bh=35KF7hQs1kikuqDR+kQtANo84u9Pb+3OwPnZM9JJfy0=;
+        b=ediQXaUu3aOvBXetgi69h4ZUMDrsbpdBSxsvLqsjYaOBpNV4HyY7weA0vh+MmRbTWB
+         +69tjfdGxRd5Gth7QdBEcyX4Eodg2U2yOVi+bXFnzLyuFEzDqz2Wlfl3ZxUQsrfNNcgL
+         rBxTX5EXEPq1e4Ur5TgY05WiZqCTTJ9OsXip9PrK+V4EoYpHORDGrFXy3wPxCc0Lq8UN
+         b5ITy/cxRwlRr4pLT30tf6nY+VFUhNDtYKQ/zruOAkUcVL6YWCsJ6o/rtpx18gyG/8Fu
+         UYj//9ml58v41U/fe48MqxLncvULUK8TxVQxF93UXYpud62bSH95FIg+7Ofljy9mfToX
+         HwMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726663618; x=1727268418;
+        d=1e100.net; s=20230601; t=1726663849; x=1727268649;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IEiE54XLGCyNeFLyuQe7PaxspDTPjoL4Q+YGo4YshIM=;
-        b=sTWfJXvlg5gAe//5Y9S0Keubs/GipKpQnBFjZdYRahfjJe+c9iy12X/es1SSg05iM+
-         bV2r8pDRShUqH6O+AnCdHcHWn8cBRceCi+FUwY61+/u5ydA7aFSzV0VqYBU6FKuH2Sx6
-         88KhDwRd7OowlycGfnHaI+jpNTwFxi4H6l15o3MJ2oYxBv7nQy0oj/O7wZhyK90mmDzy
-         FrPrshECqafU3xPo4U2j+Q1l/Gmulj6+ligJonSzzOjn+tN1jKxXoVPUCYR8x92XFg/l
-         e0+2v+IjGuIAbWLhm19Mu66iA+Or0L4v8jHM861G3a3yInJy9U4yDLAjQVCMLomrlYek
-         5Pjw==
-X-Forwarded-Encrypted: i=1; AJvYcCXi6xBuo18rQdbhQFE6hWolSz9efxkRX6tlZg91gJpd8Y9KPolGcjB/9suYius4jZiTOvkGSVZ3iLb8JSy+bw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxR74xKhfM9DAwQ+ULoKJgtUxpvtAlepMZ1PufgjTQOCWjQA8vI
-	kvp19jIg6NN9C5e2GwFBYy0UAxeSYqZ1pRjtyOVKjhibkETD6vJ5
-X-Google-Smtp-Source: AGHT+IFrKCQScpPxemEjNo4inlsJUJ4zUHIc/PvEWxO3LcIB17Qy4vN/uLMJEYjH72+/k8IlZqRh8A==
-X-Received: by 2002:a05:6102:e07:b0:48f:dfb8:77aa with SMTP id ada2fe7eead31-49d414bab43mr15069675137.17.1726663617491;
-        Wed, 18 Sep 2024 05:46:57 -0700 (PDT)
+        bh=35KF7hQs1kikuqDR+kQtANo84u9Pb+3OwPnZM9JJfy0=;
+        b=qksaYoxntIaNulB91eESP0Z014vfV3acsc74cvOljqQ4omojTwHAczaG3/63Fv6M5g
+         Zwu0O6YNjwOEQSRIIJN4ePdFK+dg5CmOf+B4HLU2GTQoIoeq+RDVfi0jYGCNTwdhjR8b
+         CvzPGpNUvy7vX/WM7IqXw8AahYKETajAhWkA4hUacaIVskghfrlzUAqITuSYl7SZYejM
+         il6r65H+0LX3/BGfnRBwQcN6JI2Fo6Dd11VoeniKCDof9HZUOT24YUi4Uohav2rCoB8J
+         oKsqcNUmxDJOQJ4Ga9E2HYZ+VpnAHpQIFskCugXSnj5xhadCD3hsbOBjcKnOp1QRjZQF
+         4+Pw==
+X-Forwarded-Encrypted: i=1; AJvYcCUjJ7bsPb3bY1ZI6kAzRrweStBDdux2Wr26jmxfGOT8ykDZLeEMHPg2J7G3M0E42Ay2MvS40Y+x1Qm68PLPZA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwCyklVXCOfBWnbreM6sQulq1G+/9AUJjPQzhqmkygEFYthdPUk
+	Er/cH+0MuivTD/4x8Oh18ECEkUapETEA9q+WIWvHS9P7SIc0nqNI
+X-Google-Smtp-Source: AGHT+IFwuVhfNggEQ68X+zufvrQX/RDuAO82PihBbAXUSaRarLVHnusDTlqA2rOM/Q0xaUEj6O4NpQ==
+X-Received: by 2002:a05:620a:370f:b0:7a9:baa5:f772 with SMTP id af79cd13be357-7a9bf97b89emr5041961085a.19.1726663848806;
+        Wed, 18 Sep 2024 05:50:48 -0700 (PDT)
 Received: from localhost (23.67.48.34.bc.googleusercontent.com. [34.48.67.23])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c58c645ce3sm43438606d6.67.2024.09.18.05.46.56
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-459aac68742sm48366831cf.10.2024.09.18.05.50.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Sep 2024 05:46:56 -0700 (PDT)
-Date: Wed, 18 Sep 2024 08:46:56 -0400
+        Wed, 18 Sep 2024 05:50:48 -0700 (PDT)
+Date: Wed, 18 Sep 2024 08:50:47 -0400
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
  Jonathan Corbet <corbet@lwn.net>, 
@@ -92,11 +92,11 @@ To: Akihiko Odaki <akihiko.odaki@daynix.com>,
  Yuri Benditovich <yuri.benditovich@daynix.com>, 
  Andrew Melnychenko <andrew@daynix.com>, 
  Akihiko Odaki <akihiko.odaki@daynix.com>
-Message-ID: <66eacbc0b16e7_29b986294cd@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20240915-rss-v3-1-c630015db082@daynix.com>
+Message-ID: <66eacca7de803_29b986294ac@willemb.c.googlers.com.notmuch>
+In-Reply-To: <20240915-rss-v3-2-c630015db082@daynix.com>
 References: <20240915-rss-v3-0-c630015db082@daynix.com>
- <20240915-rss-v3-1-c630015db082@daynix.com>
-Subject: Re: [PATCH RFC v3 1/9] skbuff: Introduce SKB_EXT_TUN_VNET_HASH
+ <20240915-rss-v3-2-c630015db082@daynix.com>
+Subject: Re: [PATCH RFC v3 2/9] virtio_net: Add functions for hashing
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -108,63 +108,238 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Akihiko Odaki wrote:
-> This new extension will be used by tun to carry the hash values and
-> types to report with virtio-net headers.
+> They are useful to implement VIRTIO_NET_F_RSS and
+> VIRTIO_NET_F_HASH_REPORT.
 > 
 > Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 > ---
->  include/linux/skbuff.h | 10 ++++++++++
->  net/core/skbuff.c      |  3 +++
->  2 files changed, 13 insertions(+)
+>  include/linux/virtio_net.h | 198 +++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 198 insertions(+)
 > 
-> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-> index 29c3ea5b6e93..17cee21c9999 100644
-> --- a/include/linux/skbuff.h
-> +++ b/include/linux/skbuff.h
-> @@ -334,6 +334,13 @@ struct tc_skb_ext {
->  };
->  #endif
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 6c395a2600e8..7ee2e2f2625a 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -9,6 +9,183 @@
+>  #include <uapi/linux/tcp.h>
+>  #include <uapi/linux/virtio_net.h>
 >  
-> +#if IS_ENABLED(CONFIG_TUN)
-> +struct tun_vnet_hash_ext {
+> +struct virtio_net_hash {
 > +	u32 value;
 > +	u16 report;
 > +};
-> +#endif
-
-This is unlikely to belong in skbuff.h
-
 > +
->  struct sk_buff_head {
->  	/* These two members must be first to match sk_buff. */
->  	struct_group_tagged(sk_buff_list, list,
-> @@ -4718,6 +4725,9 @@ enum skb_ext_id {
->  #endif
->  #if IS_ENABLED(CONFIG_MCTP_FLOWS)
->  	SKB_EXT_MCTP,
-> +#endif
-> +#if IS_ENABLED(CONFIG_TUN)
-> +	SKB_EXT_TUN_VNET_HASH,
->  #endif
->  	SKB_EXT_NUM, /* must be last */
->  };
-> diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-> index 83f8cd8aa2d1..ce34523fd8de 100644
-> --- a/net/core/skbuff.c
-> +++ b/net/core/skbuff.c
-> @@ -4979,6 +4979,9 @@ static const u8 skb_ext_type_len[] = {
->  #if IS_ENABLED(CONFIG_MCTP_FLOWS)
->  	[SKB_EXT_MCTP] = SKB_EXT_CHUNKSIZEOF(struct mctp_flow),
->  #endif
-> +#if IS_ENABLED(CONFIG_TUN)
-> +	[SKB_EXT_TUN_VNET_HASH] = SKB_EXT_CHUNKSIZEOF(struct tun_vnet_hash_ext),
-> +#endif
->  };
->  
->  static __always_inline unsigned int skb_ext_total_length(void)
-> 
-> -- 
-> 2.46.0
-> 
+> +struct virtio_net_toeplitz_state {
+> +	u32 hash;
+> +	u32 key_buffer;
+> +	const __be32 *key;
+> +};
+> +
+> +#define VIRTIO_NET_SUPPORTED_HASH_TYPES (VIRTIO_NET_RSS_HASH_TYPE_IPv4 | \
+> +					 VIRTIO_NET_RSS_HASH_TYPE_TCPv4 | \
+> +					 VIRTIO_NET_RSS_HASH_TYPE_UDPv4 | \
+> +					 VIRTIO_NET_RSS_HASH_TYPE_IPv6 | \
+> +					 VIRTIO_NET_RSS_HASH_TYPE_TCPv6 | \
+> +					 VIRTIO_NET_RSS_HASH_TYPE_UDPv6)
+> +
+> +#define VIRTIO_NET_RSS_MAX_KEY_SIZE 40
+> +
+> +static inline void virtio_net_toeplitz(struct virtio_net_toeplitz_state *state,
+> +				       const __be32 *input, size_t len)
+> +{
+> +	u32 key;
+> +
+> +	while (len) {
+> +		state->key++;
+> +		key = be32_to_cpu(*state->key);
+> +
+> +		for (u32 bit = BIT(31); bit; bit >>= 1) {
+> +			if (be32_to_cpu(*input) & bit)
+> +				state->hash ^= state->key_buffer;
+> +
+> +			state->key_buffer =
+> +				(state->key_buffer << 1) | !!(key & bit);
+> +		}
+> +
+> +		input++;
+> +		len--;
+> +	}
+> +}
+> +
+> +static inline u8 virtio_net_hash_key_length(u32 types)
+> +{
+> +	size_t len = 0;
+> +
+> +	if (types & VIRTIO_NET_HASH_REPORT_IPv4)
+> +		len = max(len,
+> +			  sizeof(struct flow_dissector_key_ipv4_addrs));
+> +
+> +	if (types &
+> +	    (VIRTIO_NET_HASH_REPORT_TCPv4 | VIRTIO_NET_HASH_REPORT_UDPv4))
+> +		len = max(len,
+> +			  sizeof(struct flow_dissector_key_ipv4_addrs) +
+> +			  sizeof(struct flow_dissector_key_ports));
+> +
+> +	if (types & VIRTIO_NET_HASH_REPORT_IPv6)
+> +		len = max(len,
+> +			  sizeof(struct flow_dissector_key_ipv6_addrs));
+> +
+> +	if (types &
+> +	    (VIRTIO_NET_HASH_REPORT_TCPv6 | VIRTIO_NET_HASH_REPORT_UDPv6))
+> +		len = max(len,
+> +			  sizeof(struct flow_dissector_key_ipv6_addrs) +
+> +			  sizeof(struct flow_dissector_key_ports));
+> +
+> +	return 4 + len;
 
+Avoid raw constants like this 4. What field does it capture?
+
+Instead of working from shortest to longest and using max, how about
+the inverse and return as soon as a match is found.
+
+> +}
+> +
+> +static inline u32 virtio_net_hash_report(u32 types,
+> +					 struct flow_dissector_key_basic key)
+> +{
+> +	switch (key.n_proto) {
+> +	case htons(ETH_P_IP):
+> +		if (key.ip_proto == IPPROTO_TCP &&
+> +		    (types & VIRTIO_NET_RSS_HASH_TYPE_TCPv4))
+> +			return VIRTIO_NET_HASH_REPORT_TCPv4;
+> +
+> +		if (key.ip_proto == IPPROTO_UDP &&
+> +		    (types & VIRTIO_NET_RSS_HASH_TYPE_UDPv4))
+> +			return VIRTIO_NET_HASH_REPORT_UDPv4;
+> +
+> +		if (types & VIRTIO_NET_RSS_HASH_TYPE_IPv4)
+> +			return VIRTIO_NET_HASH_REPORT_IPv4;
+> +
+> +		return VIRTIO_NET_HASH_REPORT_NONE;
+> +
+> +	case htons(ETH_P_IPV6):
+> +		if (key.ip_proto == IPPROTO_TCP &&
+> +		    (types & VIRTIO_NET_RSS_HASH_TYPE_TCPv6))
+> +			return VIRTIO_NET_HASH_REPORT_TCPv6;
+> +
+> +		if (key.ip_proto == IPPROTO_UDP &&
+> +		    (types & VIRTIO_NET_RSS_HASH_TYPE_UDPv6))
+> +			return VIRTIO_NET_HASH_REPORT_UDPv6;
+> +
+> +		if (types & VIRTIO_NET_RSS_HASH_TYPE_IPv6)
+> +			return VIRTIO_NET_HASH_REPORT_IPv6;
+> +
+> +		return VIRTIO_NET_HASH_REPORT_NONE;
+> +
+> +	default:
+> +		return VIRTIO_NET_HASH_REPORT_NONE;
+> +	}
+> +}
+> +
+> +static inline bool virtio_net_hash_rss(const struct sk_buff *skb,
+> +				       u32 types, const __be32 *key,
+> +				       struct virtio_net_hash *hash)
+> +{
+> +	u16 report;
+
+nit: move below the struct declarations.
+
+> +	struct virtio_net_toeplitz_state toeplitz_state = {
+> +		.key_buffer = be32_to_cpu(*key),
+> +		.key = key
+> +	};
+> +	struct flow_keys flow;
+> +
+> +	if (!skb_flow_dissect_flow_keys(skb, &flow, 0))
+> +		return false;
+> +
+> +	report = virtio_net_hash_report(types, flow.basic);
+> +
+> +	switch (report) {
+> +	case VIRTIO_NET_HASH_REPORT_IPv4:
+> +		virtio_net_toeplitz(&toeplitz_state,
+> +				    (__be32 *)&flow.addrs.v4addrs,
+> +				    sizeof(flow.addrs.v4addrs) / 4);
+> +		break;
+> +
+> +	case VIRTIO_NET_HASH_REPORT_TCPv4:
+> +		virtio_net_toeplitz(&toeplitz_state,
+> +				    (__be32 *)&flow.addrs.v4addrs,
+> +				    sizeof(flow.addrs.v4addrs) / 4);
+> +		virtio_net_toeplitz(&toeplitz_state, &flow.ports.ports,
+> +				    1);
+> +		break;
+> +
+> +	case VIRTIO_NET_HASH_REPORT_UDPv4:
+> +		virtio_net_toeplitz(&toeplitz_state,
+> +				    (__be32 *)&flow.addrs.v4addrs,
+> +				    sizeof(flow.addrs.v4addrs) / 4);
+> +		virtio_net_toeplitz(&toeplitz_state, &flow.ports.ports,
+> +				    1);
+> +		break;
+> +
+> +	case VIRTIO_NET_HASH_REPORT_IPv6:
+> +		virtio_net_toeplitz(&toeplitz_state,
+> +				    (__be32 *)&flow.addrs.v6addrs,
+> +				    sizeof(flow.addrs.v6addrs) / 4);
+> +		break;
+> +
+> +	case VIRTIO_NET_HASH_REPORT_TCPv6:
+> +		virtio_net_toeplitz(&toeplitz_state,
+> +				    (__be32 *)&flow.addrs.v6addrs,
+> +				    sizeof(flow.addrs.v6addrs) / 4);
+> +		virtio_net_toeplitz(&toeplitz_state, &flow.ports.ports,
+> +				    1);
+> +		break;
+> +
+> +	case VIRTIO_NET_HASH_REPORT_UDPv6:
+> +		virtio_net_toeplitz(&toeplitz_state,
+> +				    (__be32 *)&flow.addrs.v6addrs,
+> +				    sizeof(flow.addrs.v6addrs) / 4);
+> +		virtio_net_toeplitz(&toeplitz_state, &flow.ports.ports,
+> +				    1);
+> +		break;
+> +
+> +	default:
+> +		return false;
+> +	}
+> +
+> +	hash->value = toeplitz_state.hash;
+> +	hash->report = report;
+> +
+> +	return true;
+> +}
+> +
+>  static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
+>  {
+>  	switch (gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+> @@ -239,4 +416,25 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>  	return 0;
+>  }
+>  
+> +static inline int virtio_net_hdr_v1_hash_from_skb(const struct sk_buff *skb,
+> +						  struct virtio_net_hdr_v1_hash *hdr,
+> +						  bool has_data_valid,
+> +						  int vlan_hlen,
+> +						  const struct virtio_net_hash *hash)
+> +{
+> +	int ret;
+> +
+> +	memset(hdr, 0, sizeof(*hdr));
+> +
+> +	ret = virtio_net_hdr_from_skb(skb, (struct virtio_net_hdr *)hdr,
+> +				      true, has_data_valid, vlan_hlen);
+> +	if (!ret) {
+> +		hdr->hdr.num_buffers = cpu_to_le16(1);
+> +		hdr->hash_value = cpu_to_le32(hash->value);
+> +		hdr->hash_report = cpu_to_le16(hash->report);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+
+I don't think that this helper is very helpful, as all the information
+it sets are first passed in. Just set the hdr fields directy in the
+caller. It is easier to follow the control flow.
 
