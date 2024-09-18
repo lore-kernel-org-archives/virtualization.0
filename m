@@ -1,286 +1,115 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41F493C3C;
-	Wed, 18 Sep 2024 12:12:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFC431CD23
+	for <virtualization@lists.linux.dev>; Wed, 18 Sep 2024 12:27:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726661561; cv=none; b=YpTM3ZwBfDBS0p6jCJVh9QaeibYZDdPifa+S1RJRS/e54k7mBnONoA6xQ6K2ChRC+Y+hM2QDqtrwM876aSj2beWDhsXk526hk6M2wv0T+d3RKocAQfgwzJupbHIwB0dCAxUsvkykA3Z1Tnmct8ypLDVCHqqFYOEQLoWfm+hs9D8=
+	t=1726662475; cv=none; b=OAECrIzWqOVlc8GAFy/6P62D9sdZjcdM4F8k2oPGXK2XhT41rqsZhHMdrb97lNQwuEJdUrw0wd7FYgtKegM8pU2nyuXmpkrSbTyNcFOx57PPhsFwLrHRU1ExMo1C/qiORVtClpqBJv2U/oGPa5SajoqsaHoBWFpRrhxSdNoJRoE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726661561; c=relaxed/simple;
-	bh=JhhkhILXtZKx/eR4sDSXtFMm6W/kF+QdN4He/iQd1f0=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=q7e6iz57lnZ3jXenYLfV622Ev7Bgmf5WyZmxv8qAIQTXsCk1LwX2NGikweAmfruPAAJ4E/q45BvAaIl21VN2d2BXI046klNFYULYsP74dWX/UMl2pAmlFm2pqo5tK8MfkzPr25RX/TY5FufH/rYI4TDwukmsfNAaUIz5kGWp54k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dGhzJulw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1726662475; c=relaxed/simple;
+	bh=wpwm09Y75NWUu2XBMTuj7m83rpGex0TIuLUGK00DIh0=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UwlTm/rG/bAn1hdTUI8lP1vlz/+xqhZyTgVIfcosVr8b4V526Dn1Hc3FURyUXv6nvB6KKYfEfbURX853gAF+5irc3lfjQ9fM7WOZcvtCBbPiZBMyOhMzJXqyDwaAUVOrn6puFXDFxvzMlqAW9yQiZralVH0RhT58iRYBBYr0+hY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=aygieNtZ; arc=none smtp.client-ip=67.231.148.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dGhzJulw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBC95C4CEC3;
-	Wed, 18 Sep 2024 12:12:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1726661560;
-	bh=JhhkhILXtZKx/eR4sDSXtFMm6W/kF+QdN4He/iQd1f0=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=dGhzJulw1a5X0/TNcFR50ne2LNTyx8BnT6b88El3p8QD8p48GikDrlMGb95vAjId3
-	 ra/kKmI2c1OxrghmVkXO7sHwF0gqf3rWkKwVVh9eDz+EtitSak9gTziJbOU2TIXjEx
-	 1l6UKSCN+sjOMOBD4+43wKfDVSebFR3GoEAk1vY2/YJ9du6Say2GnkhTuOz+rYal9m
-	 Kg1TI/suMIsAiWPe6dRCuZV5hT2mQLDF7dKzOFAW1ZPMef89kM/pOTSw9AEGymtLP/
-	 0dJ+cawez/ehQHOyPjTTKgrvpvOCSyHcbYXSMMJC5BqEswFcdrGmeC1iDMcNdmOoZQ
-	 jHrKKpe/bC7bA==
-Date: Wed, 18 Sep 2024 13:12:32 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-Cc: John Groves <John@groves.net>, <linuxarm@huawei.com>, David Hildenbrand
- <david@redhat.com>, linux-mm <linux-mm@kvack.org>, linux-cxl
- <linux-cxl@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, Ira Weiny
- <ira.weiny@intel.com>, virtualization <virtualization@lists.linux.dev>,
- Oscar Salvador <osalvador@suse.de>, qemu-devel <qemu-devel@nongnu.org>,
- Dave Jiang <dave.jiang@intel.com>, "Dan Williams"
- <dan.j.williams@intel.com>, "Wangkefeng (OS Kernel Lab)"
- <wangkefeng.wang@huawei.com>, John Groves <jgroves@micron.com>, Fan Ni
- <fan.ni@samsung.com>, Navneet Singh <navneet.singh@intel.com>, "
- =?UTF-8?B?4oCcTWljaGFlbA==?= S. =?UTF-8?B?VHNpcmtpbuKAnQ==?="
- <mst@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Philippe
- =?UTF-8?B?TWF0aGlldS1EYXVkw6k=?= <philmd@linaro.org>
-Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
- specific, multi host shared)
-Message-ID: <20240918131232.6fa02096@jic23-huawei>
-In-Reply-To: <20240917205048.00001e34@huawei.com>
-References: <20240815172223.00001ca7@Huawei.com>
-	<sjz2xzwkgkq6bun5lssqbsimbggczarotpjdhcsq3itoq5h7jc@x5ormqciwofo>
-	<20240819164024.00005a0a@Huawei.com>
-	<20240917205048.00001e34@huawei.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="aygieNtZ"
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48I5VEOT017863;
+	Wed, 18 Sep 2024 05:27:36 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pfpt0220; bh=tA5DM9GxmXku6bVJXR4b9py
+	rAEx82SWk6tSAss9+Q7g=; b=aygieNtZnfq/9LWLf5L/gXw3NmJwN9svKegkocw
+	4lLFcIHfEXilwtV+1SPk7W4ED9Ks0fYYfX0hrBKlyBHKgp0WL+gIWksJjALq4GCH
+	6Idt9PYo6V5N42Fr3cC/CQj09P0hsQz1jjC06Pui+UgqPAEzw0aeZgopS6FWxrji
+	N0DYHGWJ4asLTdhB5CzLhZ0Vque2OcqVQRotvPdZ0Dp3ez92QlsOnmf3hihcdR+D
+	KaYPP5UewRXd+5Y7+SFDrPDMZhiD1uD/6ZOtDXgodJ+RwUNuI4j2LpXgCnroYos9
+	0jJcl6g5cu3g/+ml9bSdYGQxD1LL8B/9h7RlTGoLew016iw==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 41qdwgbwvv-3
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Sep 2024 05:27:35 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.4; Wed, 18 Sep 2024 05:27:35 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Wed, 18 Sep 2024 05:27:35 -0700
+Received: from localhost.localdomain (unknown [10.28.36.175])
+	by maili.marvell.com (Postfix) with ESMTP id E21233F704D;
+	Wed, 18 Sep 2024 05:27:31 -0700 (PDT)
+From: Srujana Challa <schalla@marvell.com>
+To: <virtualization@lists.linux.dev>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <dan.carpenter@linaro.org>,
+        <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+        <ndabilpuram@marvell.com>, <vattunuru@marvell.com>,
+        <schalla@marvell.com>, kernel test robot <lkp@intel.com>
+Subject: [PATCH v2] vdpa/octeon_ep: Fix format specifier for pointers in debug messages
+Date: Wed, 18 Sep 2024 17:57:30 +0530
+Message-ID: <20240918122730.703319-1-schalla@marvell.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: BE160Qpihcgpv1jo5WnZXKV43nOQtlt7
+X-Proofpoint-ORIG-GUID: BE160Qpihcgpv1jo5WnZXKV43nOQtlt7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
 
-On Tue, 17 Sep 2024 20:56:53 +0100
-Jonathan Cameron <Jonathan.Cameron@Huawei.com> wrote:
+Updates the debug messages in octep_vdpa_hw.c to use the %p format
+specifier for pointers instead of casting them to u64.
+Fixes smatch warning:
+octep_hw_caps_read() warn: argument 3 to %016llx specifier is cast
+from pointer
 
-> On Tue, 17 Sep 2024 19:37:21 +0000
-> Jonathan Cameron <jonathan.cameron@huawei.com> wrote:
-> 
-> > Plan is currently to meet at lpc registration desk 2pm tomorrow Wednesday and we will find a room.
-> >  
-> 
-> And now the internet maybe knows my phone number (serves me right for using
-> my company mobile app that auto added a signature)
-> I might have been lucky and it didn't hit the archives because
-> the formatting was too broken..
-> 
-> Anyhow, see some of you tomorrow.  I didn't manage to borrow a jabra mic
-> so remote will be tricky but feel free to reach out and we might be
-> able to sort something.
-> 
-> Intent is this will be in informal BoF so we'll figure out the scope
-> at the start of the meeting.
-> 
-> Sorry for the noise!
+Fixes: 8b6c724cdab8 ("virtio: vdpa: vDPA driver for Marvell OCTEON DPU devices")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+Closes:https://lore.kernel.org/r/202409160431.bRhZWhiU-lkp@intel.com/
+Signed-off-by: Srujana Challa <schalla@marvell.com>
+---
+ drivers/vdpa/octeon_ep/octep_vdpa_hw.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Hack room 1.14 now if anyone is looking for us.
-
-
-> 
-> Jonathan
->  
-> > J
-> > On Sun, 18 Aug 2024 21:12:34 -0500
-> > John Groves <John@groves.net> wrote:
-> >   
-> > > On 24/08/15 05:22PM, Jonathan Cameron wrote:    
-> > > > Introduction
-> > > > ============
-> > > >
-> > > > If we think application specific memory (including inter-host shared memory) is
-> > > > a thing, it will also be a thing people want to use with virtual machines,
-> > > > potentially nested. So how do we present it at the Host to VM boundary?
-> > > >
-> > > > This RFC is perhaps premature given we haven't yet merged upstream support for
-> > > > the bare metal case. However I'd like to get the discussion going given we've
-> > > > touched briefly on this in a number of CXL sync calls and it is clear no one is    
-> > >
-> > > Excellent write-up, thanks Jonathan.
-> > >
-> > > Hannes' idea of an in-person discussion at LPC is a great idea - count me in.    
-> > 
-> > Had a feeling you might say that ;)
-> >   
-> > >
-> > > As the proprietor of famfs [1] I have many thoughts.
-> > >
-> > > First, I like the concept of application-specific memory (ASM), but I wonder
-> > > if there might be a better term for it. ASM suggests that there is one
-> > > application, but I'd suggest that a more concise statement of the concept
-> > > is that the Linux kernel never accesses or mutates the memory - even though
-> > > multiple apps might share it (e.g. via famfs). It's a subtle point, but
-> > > an important one for RAS etc. ASM might better be called non-kernel-managed
-> > > memory - though that name does not have as good a ring to it. Will mull this
-> > > over further...    
-> > 
-> > Naming is always the hard bit :)  I agree that one doesn't work for
-> > shared capacity. You can tell I didn't start there :)
-> >   
-> > >
-> > > Now a few level-setting comments on CXL and Dynamic Capacity Devices (DCDs),
-> > > some of which will be obvious to many of you:
-> > >
-> > > * A DCD is just a memory device with an allocator and host-level
-> > >   access-control built in.
-> > > * Usable memory from a DCD is not available until the fabric manger (likely
-> > >   on behalf of an orchestrator) performs an Initiate Dynamic Capacity Add
-> > >   command to the DCD.
-> > > * A DCD allocation has a tag (uuid) which is the invariant way of identifying
-> > >   the memory from that allocation.
-> > > * The tag becomes known to the host from the DCD extents provided via
-> > >   a CXL event following succesful allocation.
-> > > * The memory associated with a tagged allocation will surface as a dax device
-> > >   on each host that has access to it. But of course dax device naming &
-> > >   numbering won't be consistent across separate hosts - so we need to use
-> > >   the uuid's to find specific memory.
-> > >
-> > > A few less foundational observations:
-> > >
-> > > * It does not make sense to "online" shared or sharable memory as system-ram,
-> > >   because system-ram gets zeroed, which blows up use cases for sharable memory.
-> > >   So the default for sharable memory must be devdax mode.    
-> > (CXL specific diversion)
-> > 
-> > Absolutely agree this this. There is a 'corner' that irritates me in the spec though
-> > which is that there is no distinction between shareable and shared capacity.
-> > If we are in a constrained setup with limited HPA or DPA space, we may not want
-> > to have separate DCD regions for these.  Thus it is plausible that an orchestrator
-> > might tell a memory appliance to present memory for general use and yet it
-> > surfaces as shareable.  So there may need to be an opt in path at least for
-> > going ahead and using this memory as normal RAM.
-> >   
-> > > * Tags are mandatory for sharable allocations, and allowed but optional for
-> > >   non-sharable allocations. The implication is that non-sharable allocations
-> > >   may get onlined automatically as system-ram, so we don't need a namespace
-> > >   for those. (I argued for mandatory tags on all allocations - hey you don't
-> > >   have to use them - but encountered objections and dropped it.)
-> > > * CXL access control only goes to host root ports; CXL has no concept of
-> > >   giving access to a VM. So some component on a host (perhaps logically
-> > >   an orchestrator component) needs to plumb memory to VMs as appropriate.    
-> > 
-> > Yes.  It's some mashup of an orchestrator and VMM / libvirt, local library
-> > of your choice. We can just group into into the ill defined concept of
-> > a distributed orchestrator.
-> >   
-> > >
-> > > So tags are a namespace to find specific memory "allocations" (which in the
-> > > CXL consortium, we usually refer to as "tagged capacity").
-> > >
-> > > In an orchestrated environment, the orchestrator would allocate resources
-> > > (including tagged memory capacity), make that capacity visible on the right
-> > > host(s), and then provide the tag when starting the app if needed.
-> > >
-> > > if (e.g.) the memory cotains a famfs file system, famfs needs the uuid of the
-> > > root memory allocation to find the right memory device. Once mounted, it's a
-> > > file sytem so apps can be directed to the mount path. Apps that consume the
-> > > dax devices directly also need the uuid because /dev/dax0.0 is not invariant
-> > > across a cluster...
-> > >
-> > > I have been assuming that when the CXL stack discovers a new DCD allocation,
-> > > it will configure the devdax device and provide some way to find it by tag.
-> > > /sys/cxl/<tag>/dev or whatever. That works as far as it goes, but I'm coming
-> > > around to thinking that the uuid-to-dax map should not be overtly CXL-specific.    
-> > 
-> > Agreed. Whether that's a nice kernel side thing, or a utility pulling data
-> > from various kernel subsystem interfaces doesn't really matter. I'd prefer
-> > the kernel presents this but maybe that won't work for some reason.
-> >   
-> > >
-> > > General thoughts regarding VMs and qemu
-> > >
-> > > Physical connections to CXL memory are handled by physical servers. I don't
-> > > think there is a scenario in which a VM should interact directly with the
-> > > pcie function(s) of CXL devices. They will be configured as dax devices
-> > > (findable by their tags!) by the host OS, and should be provided to VMs
-> > > (when appropriate) as DAX devices. And software in a VM needs to be able to
-> > > find the right DAX device the same way it would running on bare metal - by
-> > > the tag.    
-> > 
-> > Limiting to typical type 3 memory pool devices. Agreed. The other CXL device
-> > types are a can or worms for another day.
-> >   
-> > >
-> > > Qemu can already get memory from files (-object memory-backend-file,...), and
-> > > I believe this works whether it's an actual file or a devdax device. So far,
-> > > so good.
-> > >
-> > > Qemu can back a virtual pmem device by one of these, but currently (AFAIK)
-> > > not a virtual devdax device. I think virtual devdax is needed as a first-class
-> > > abstraction. If we can add the tag as a property of the memory-backend-file,
-> > > we're almost there - we just need away to lookup a daxdev by tag.    
-> > 
-> > I'm not sure that is simple. We'd need to define a new interface capable of:
-> > 1) Hotplug - potentially of many separate regions (think nested VMs).
-> >    That more or less rules out using separate devices on a discoverable hotpluggable
-> >    bus. We'd run out of bus numbers too quickly if putting them on PCI.
-> >    ACPI style hotplug is worse because we have to provision slots at the outset.
-> > 2) Runtime provision of metadata - performance data very least (bandwidth /
-> >    latency etc). In theory could wire up ACPI _HMA but no one has ever bothered.
-> > 3) Probably do want async error signaling.  We 'could' do that with
-> >    FW first error injection - I'm not sure it's a good idea but it's definitely
-> >    an option.
-> > 
-> > A locked down CXL device is a bit more than that, but not very much more.
-> > It's easy to fake registers for things that are always in one state so
-> > that the software stack is happy.
-> > 
-> > virtio-mem has some of the parts and could perhaps be augmented
-> > to support this use case with the advantage of no implicit tie to CXL.
-> > 
-> >   
-> > >
-> > > Summary thoughts:
-> > >
-> > > * A mechanism for resolving tags to "tagged capacity" devdax devices is
-> > >   essential (and I don't think there are specific proposals about this
-> > >   mechanism so far).    
-> > 
-> > Agreed.
-> >   
-> > > * Said mechanism should not be explicitly CXL-specific.    
-> > 
-> > Somewhat agreed, but I don't want to invent a new spec just to avoid explicit
-> > ties to CXL. I'm not against using CXL to present HBM / ACPI Specific Purpose
-> > memory for example to a VM. It will trivially work if that is what a user
-> > wants to do and also illustrates that this stuff doesn't necessarily just
-> > apply to capacity on a memory pool - it might just be 'weird' memory on the host.
-> >   
-> > > * Finding a tagged capacity devdax device in a VM should work the same as it
-> > >   does running on bare metal.    
-> > 
-> > Absolutely - that's a requirement.
-> >   
-> > > * The file-backed (and devdax-backed) devdax abstraction is needed in qemu.    
-> > 
-> > Maybe. I'm not convinced the abstraction is needed at that particular level.
-> >   
-> > > * Beyond that, I'm not yet sure what the lookup mechanism should be. Extra
-> > >   points for being easy to implement in both physical and virtual systems.    
-> > 
-> > For physical systems we aren't going to get agreement :(  For the systems
-> > I have visibility of there will be some diversity in hardware, but the
-> > presentation to userspace and up consistency should be doable.
-> > 
-> > Jonathan
-> >   
-> > >
-> > > Thanks for teeing this up!
-> > > John
-> > >
-> > >
-> > > [1] https://github.com/cxl-micron-reskit/famfs/blob/master/README.md
-> > >    
-> > 
-> > 
-> >   
-> 
+diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+index 11bd76ae18cf..1d4767b33315 100644
+--- a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
++++ b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+@@ -475,11 +475,11 @@ int octep_hw_caps_read(struct octep_hw *oct_hw, struct pci_dev *pdev)
+ 		dev_err(dev, "Incomplete PCI capabilities");
+ 		return -EIO;
+ 	}
+-	dev_info(dev, "common cfg mapped at: 0x%016llx\n", (u64)(uintptr_t)oct_hw->common_cfg);
+-	dev_info(dev, "device cfg mapped at: 0x%016llx\n", (u64)(uintptr_t)oct_hw->dev_cfg);
+-	dev_info(dev, "isr cfg mapped at: 0x%016llx\n", (u64)(uintptr_t)oct_hw->isr);
+-	dev_info(dev, "notify base: 0x%016llx, notify off multiplier: %u\n",
+-		 (u64)(uintptr_t)oct_hw->notify_base, oct_hw->notify_off_multiplier);
++	dev_info(dev, "common cfg mapped at: %p\n", oct_hw->common_cfg);
++	dev_info(dev, "device cfg mapped at: %p\n", oct_hw->dev_cfg);
++	dev_info(dev, "isr cfg mapped at: %p\n", oct_hw->isr);
++	dev_info(dev, "notify base: %p, notify off multiplier: %u\n",
++		 oct_hw->notify_base, oct_hw->notify_off_multiplier);
+ 
+ 	oct_hw->config_size = octep_get_config_size(oct_hw);
+ 	oct_hw->features = octep_hw_get_dev_features(oct_hw);
+@@ -511,7 +511,7 @@ int octep_hw_caps_read(struct octep_hw *oct_hw, struct pci_dev *pdev)
+ 	}
+ 	mbox = octep_get_mbox(oct_hw);
+ 	octep_mbox_init(mbox);
+-	dev_info(dev, "mbox mapped at: 0x%016llx\n", (u64)(uintptr_t)mbox);
++	dev_info(dev, "mbox mapped at: %p\n", mbox);
+ 
+ 	return 0;
+ }
+-- 
+2.25.1
 
