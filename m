@@ -1,201 +1,148 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83A221BBBD6
-	for <virtualization@lists.linux.dev>; Wed, 18 Sep 2024 14:43:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C07FD1C579B
+	for <virtualization@lists.linux.dev>; Wed, 18 Sep 2024 14:58:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726670638; cv=none; b=ajYRx+HpJEWeUZ8I+7GM+C2NzHdJ6KLcULWx2PHk5/DikPKgvdknImkcBmwxFQYeQvzJu7Kx/TCiTVhoySh2sxcyVjAif9enp4Haj2JatGfgxtC0AXbZpgv8zcoYZcZp2rs6M1i+3ii0z8dmlyeRXMb+kgGX5I2RT9M/nCQ1GVM=
+	t=1726671514; cv=none; b=azUjMbU+5tvN7KUTJ1HtQAbpSwQhfAn6qF4Lghf1v10ivoJAB7pVfUgx0fZwdCEvscy62KFY263Njb4Nj1v4n8BPOTUmjsgBHhcRrLXZNuZJAxXlZDq/bLHBb0z5mdgcsIJ393gWfQP4pTP1Z+c6egaoUF9nPfx9uuPNtWLLbCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726670638; c=relaxed/simple;
-	bh=dLQd5Kj0B7OtIKmYCO/gzJmlDPJbo4TW4dOOzqrJOUQ=;
+	s=arc-20240116; t=1726671514; c=relaxed/simple;
+	bh=QM+WRIrqOf/VG+tDwYImunOT5LIH7QRSSR3sO1/hKqQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=A7jUGYVIqeNx+F5frJcwKRiJzCTKGGO8yCQMBDH1A9mg9NHH2YQCWfO7mB/CPf1LYqV1I8EfnfPNC7IoXIfUoqiDrKGlAYfazr35b+ACFfVx2SlRY9W035wbB8quKeBLJjZrKCZCXyBrlC0G5kzUUzv9xkJyKrTB0AMjYN925lY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aGNbfpEA; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=eiax3AYMIUi0oxx14qLitN/e84V9UQGet0QUgHDVMX1fJII5uR4y+QxI2u+dTppx7c98MRdKhZw9aSBuB1yeYLXqHFHzxlCjbzxp1omx9l9/KVZmCuF5hMOpsHOJ5ZjxT2arp5ZzkL6YlCqGZ+RF8J9vyLT1e+8R3ExxprwHiOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G2ULJver; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aGNbfpEA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G2ULJver"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1726670635;
+	s=mimecast20190719; t=1726671511;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Aq0uEu2KxtWIO7tuEdV3Gqc4yebp7AZYS/mu/Vzp99M=;
-	b=aGNbfpEAFQmoHH5YXmwxzB501Haez7TYrNkshU2Iyg7ugvQaqLSUNcZBpvMB7hvJT5Rlo4
-	/BOEinjXxZpe5BmbKUcJTg853sK0MKxY6Fnt7t/Wt51tVdFUkeYSOuGm2+1cu0pdFPeV13
-	L03Un5D4+DN9bwsxUDzVRK1vEnTKZgY=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=MAwqY9vnRPc9YnB7fd6OqxXe5O2u5mpoyMN36Na6yP8=;
+	b=G2ULJver9frtc59JaKphGZAQq8y+BVsYSKbE38K3AeYiMPZRzkAGr6Vtx/RaMKxh1+NLJi
+	Ti4juDOqBztkDeNoVC1d7JXiMtGUFWttOf6XvHSYlE/l85QeoUyD/ZhYR43T1XI8tKxRww
+	isl6MVO9WxYzJhRp7GcjEtoZEDwqQM0=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-249-tGjJ07QpPuCxYx9q9PBLDg-1; Wed, 18 Sep 2024 10:43:54 -0400
-X-MC-Unique: tGjJ07QpPuCxYx9q9PBLDg-1
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2f760cbd9deso47537671fa.0
-        for <virtualization@lists.linux.dev>; Wed, 18 Sep 2024 07:43:53 -0700 (PDT)
+ us-mta-446-QN4dbYYCPAmQHhO8FReV7g-1; Wed, 18 Sep 2024 10:58:30 -0400
+X-MC-Unique: QN4dbYYCPAmQHhO8FReV7g-1
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5c2483adeeaso1045426a12.1
+        for <virtualization@lists.linux.dev>; Wed, 18 Sep 2024 07:58:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726670632; x=1727275432;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Aq0uEu2KxtWIO7tuEdV3Gqc4yebp7AZYS/mu/Vzp99M=;
-        b=P4MWGxkiDsXjwOJ72EeEaJgeqbnWme8CnVJb+MmhfW+UD33YB0tyzJxhsZQWoJyIAD
-         k53aLC/KRGWzIAdQ2J3+FLBFvTafM6ogP/bynCWo4TNfXvvxIXj5uuoPANzCJhGdhN64
-         DdTGBXlZA/czeXz50WN1E5Sr9yG4ZK+N1nwwIQsJLGcpJEC1TrZEUOJAcFLKPYdFh/1f
-         aOMSuMZaMyjchOCNrESQythTEaBpogr0pa+9emdpP2fc6G8OFrherPJJWRFf96WAuAnN
-         TyTVhtdL/OcWKU6JWMjhftzuduqEgYEqc5v9WFQpnA5tFGnT1rrWBMU+M1w24Ywhn0dG
-         1IrA==
-X-Gm-Message-State: AOJu0YzREHpyXAb/5hMln+h50iaHOZihBhMl1RDICv/43IRgJmaE5eWX
-	RRpMgY0WrCd6LH3ZfgNMHQpBeHJdixCIyyAzoLlknY6nxz6+vCBzVr5OthKZwRgAuF4sUCBdEq9
-	/tDo6CgTyqX2h5yRSZnTK/guk2wGworPIqzZH/S9TLBeQ/ix8WPELaOYzmnu88HiO
-X-Received: by 2002:a05:651c:541:b0:2ef:22ed:3824 with SMTP id 38308e7fff4ca-2f787da4e65mr124037251fa.5.1726670632471;
-        Wed, 18 Sep 2024 07:43:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFPzdgGFyEoAipp4NzA82tNt1x6auA0XkThzgjkHvJp+Bxs0QvcYLLgllM00lZGc2GbkgdYLg==
-X-Received: by 2002:a05:651c:541:b0:2ef:22ed:3824 with SMTP id 38308e7fff4ca-2f787da4e65mr124036921fa.5.1726670631724;
-        Wed, 18 Sep 2024 07:43:51 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1726671509; x=1727276309;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MAwqY9vnRPc9YnB7fd6OqxXe5O2u5mpoyMN36Na6yP8=;
+        b=PdUO2RAdwC9/+cXF3Tx+YKzFSj6+Z1nEO1DJ57c8sGKDkhYyQrvMQH+HuvC4pC6RkY
+         NBOO5VacsJ6A49thzBYKRlSNO20AaDbVhZWtn5j3tbaRJlvSoTlNJ58HAje15Jff17NX
+         m6PGA4bZfaNVwmIH90EjDMSD320M16m7j0U55mRNPdfQWzXuXvSLnzuwYjnYPjdwzIQz
+         zOIUzsNO970GrKld7AYLO5mxgG3VbdXXrNJxMlrQ4+AtABuBYqlH7euojS4waRgR9j0d
+         /0t1Pbfn+Q2GzrLEXjm3obgh9uleVDn1xL2wlJMsA1oPz5+uV20FIV9gMyleX6DjQB6r
+         YTvA==
+X-Forwarded-Encrypted: i=1; AJvYcCX3GqSe2Y94xoLRMvraOpJqauUZhRTRMCNh775SwMfLIxkmVq1P/+emzmdSF2PP7+YcalrKWR2XE9OLXOcvPw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz6CLlh/7OEfeI9Hb8BdcuwiI3c532hTjRNxwHIoT9INQLd2R+A
+	LBks2w+fQVU/0+teoxM4fgBNVl8q1XAv5pda23R51TlmfWJsF0npYMLow6u9Nh9G/81slJDjQsP
+	3qTki4grQJI+1jmnsQ7dKLzd9xV9jrXRm+Ss3nO6JUlWtDHWtTxbbVyaJgzftJirk
+X-Received: by 2002:a05:6402:5c8:b0:5c2:5254:cdc4 with SMTP id 4fb4d7f45d1cf-5c4143874bdmr25722277a12.17.1726671509313;
+        Wed, 18 Sep 2024 07:58:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEzH5nuqNle+ILuHyENqVhBvmZFotgEz0rqz8hkG1mCshcHdFnBkW5waH+k3AXJut3JW5zwew==
+X-Received: by 2002:a05:6402:5c8:b0:5c2:5254:cdc4 with SMTP id 4fb4d7f45d1cf-5c4143874bdmr25722237a12.17.1726671508527;
+        Wed, 18 Sep 2024 07:58:28 -0700 (PDT)
 Received: from redhat.com ([83.68.141.146])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c42bb539dasm5052194a12.34.2024.09.18.07.43.49
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c42bb5e83asm5178794a12.40.2024.09.18.07.58.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Sep 2024 07:43:50 -0700 (PDT)
-Date: Wed, 18 Sep 2024 10:43:47 -0400
+        Wed, 18 Sep 2024 07:58:26 -0700 (PDT)
+Date: Wed, 18 Sep 2024 10:58:23 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Srujana Challa <schalla@marvell.com>
-Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"dan.carpenter@linaro.org" <dan.carpenter@linaro.org>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"eperezma@redhat.com" <eperezma@redhat.com>,
-	Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
-	Vamsi Krishna Attunuru <vattunuru@marvell.com>,
-	kernel test robot <lkp@intel.com>
-Subject: Re: [EXTERNAL] Re: [PATCH] vdpa/octeon_ep: Fix format specifier for
- pointers in debug messages
-Message-ID: <20240918104325-mutt-send-email-mst@kernel.org>
-References: <20240916162255.677774-1-schalla@marvell.com>
- <20240916134226-mutt-send-email-mst@kernel.org>
- <DS0PR18MB5368A29EFA2094A2253CD6B2A0612@DS0PR18MB5368.namprd18.prod.outlook.com>
+To: Wenbo Li <liwenbo.martin@bytedance.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jiahui Cen <cenjiahui@bytedance.com>,
+	Ying Fang <fangying.tommy@bytedance.com>
+Subject: Re: [PATCH v3] virtio_net: Fix mismatched buf address when unmapping
+ for small packets
+Message-ID: <20240918105803-mutt-send-email-mst@kernel.org>
+References: <20240918132005.31174-1-liwenbo.martin@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <DS0PR18MB5368A29EFA2094A2253CD6B2A0612@DS0PR18MB5368.namprd18.prod.outlook.com>
+In-Reply-To: <20240918132005.31174-1-liwenbo.martin@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Tue, Sep 17, 2024 at 05:59:20AM +0000, Srujana Challa wrote:
-> > Subject: [EXTERNAL] Re: [PATCH] vdpa/octeon_ep: Fix format specifier for
-> > pointers in debug messages
-> > 
-> > On Mon, Sep 16, 2024 at 09: 52: 55PM +0530, Srujana Challa wrote: >
-> > Updates the debug messages in octep_vdpa_hw. c to use the %p format >
-> > specifier for pointers instead of casting them to u64. > > Fixes smatch warning:
-> > > octep_hw_caps_read() 
-> > On Mon, Sep 16, 2024 at 09:52:55PM +0530, Srujana Challa wrote:
-> > > Updates the debug messages in octep_vdpa_hw.c to use the %p format
-> > > specifier for pointers instead of casting them to u64.
-> > >
-> > > Fixes smatch warning:
-> > > octep_hw_caps_read() warn: argument 3 to %016llx specifier is cast
-> > > from pointer
-> > >
-> > > Fixes: 8b6c724cdab8 ("virtio: vdpa: vDPA driver for Marvell OCTEON DPU
-> > > devices")
-> > >
-> > > Reported-by: kernel test robot <lkp@intel.com>
-> > > Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
-> > > Closes:https://urldefense.proofpoint.com/v2/url?u=https-3A__lore.kerne
-> > > l.org_r_202409160431.bRhZWhiU-2Dlkp-
-> > 40intel.com_&d=DwIBAg&c=nKjWec2b6R
-> > >
-> > 0mOyPaz7xtfQ&r=Fj4OoD5hcKFpANhTWdwQzjT1Jpf7veC5263T47JVpnc&m
-> > =qyhlWh2lF
-> > > E3SPFpB_eJ0K1RFMa5f-
-> > kcNChFHkCARDCXIkzMk__3sqspP_K7KGxaj&s=fMvS62XMmi5H
-> > > ESJuL9v7FX3c8RSzKCq7JM6Khcof4vM&e=
-> > > <https://urldefense.proofpoint.com/v2/url?u=https-3A__lore.kernel.org_
-> > > r_202409160431.bRhZWhiU-2Dlkp-
-> > 40intel.com_&d=DwIBAg&c=nKjWec2b6R0mOyPa
-> > >
-> > z7xtfQ&r=Fj4OoD5hcKFpANhTWdwQzjT1Jpf7veC5263T47JVpnc&m=qyhlWh
-> > 2lFE3SPFp
-> > > B_eJ0K1RFMa5f-
-> > kcNChFHkCARDCXIkzMk__3sqspP_K7KGxaj&s=fMvS62XMmi5HESJuL9
-> > > v7FX3c8RSzKCq7JM6Khcof4vM&e=  >> Signed-off-by: Srujana Challa
-> > > <schalla@marvell.com>
-> > 
-> > 
-> > 
-> > This does not fix it completely.
-> > ret is still 0 here:
-> > 
-> > 8b6c724cdab85d Srujana Challa 2024-06-14  140  	val =
-> > octep_read_sig(mbox);
-> > 8b6c724cdab85d Srujana Challa 2024-06-14  141  	if ((val & 0xFFFF) !=
-> > MBOX_RSP_SIG) {
-> > 8b6c724cdab85d Srujana Challa 2024-06-14  142
-> > 	dev_warn(&pdev->dev, "Invalid Signature from mbox : %d
-> > response\n", id);
-> > 8b6c724cdab85d Srujana Challa 2024-06-14 @143  		return ret;
-> > 8b6c724cdab85d Srujana Challa 2024-06-14  144  	}
-> > 
-> > 
-> > which is wrong.
-> The fix for the error code is already included in the linux-next and mainline Linux repositories.
+On Wed, Sep 18, 2024 at 09:20:05PM +0800, Wenbo Li wrote:
+> Currently, the virtio-net driver will perform a pre-dma-mapping for
+> small or mergeable RX buffer. But for small packets, a mismatched address
+> without VIRTNET_RX_PAD and xdp_headroom is used for unmapping.
+> 
+> That will result in unsynchronized buffers when SWIOTLB is enabled, for
+> example, when running as a TDX guest.
+> 
+> This patch unifies the address passed to the virtio core into the address of
+> the virtnet header and fixes the mismatched buffer address.
+> 
+> Changes from v2: unify the buf that passed to the virtio core in small
+> and merge mode.
+> Changes from v1: Use ctx to get xdp_headroom.
+> 
+> Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling mergeable buffers")
+> Signed-off-by: Wenbo Li <liwenbo.martin@bytedance.com>
+> Signed-off-by: Jiahui Cen <cenjiahui@bytedance.com>
+> Signed-off-by: Ying Fang <fangying.tommy@bytedance.com>
 
-I guess it missed it ... where is it exactly? which tree/hash?
+OK but can you please adhere to the kernel coding style?
 
-> Therefore, I did not include that change in this patch.
-> Thanks.
-> > 
-> > 
-> > > ---
-> > >  drivers/vdpa/octeon_ep/octep_vdpa_hw.c | 12 ++++++------
-> > >  1 file changed, 6 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
-> > > b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
-> > > index 11bd76ae18cf..1d4767b33315 100644
-> > > --- a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
-> > > +++ b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
-> > > @@ -475,11 +475,11 @@ int octep_hw_caps_read(struct octep_hw
-> > *oct_hw, struct pci_dev *pdev)
-> > >  		dev_err(dev, "Incomplete PCI capabilities");
-> > >  		return -EIO;
-> > >  	}
-> > > -	dev_info(dev, "common cfg mapped at: 0x%016llx\n",
-> > (u64)(uintptr_t)oct_hw->common_cfg);
-> > > -	dev_info(dev, "device cfg mapped at: 0x%016llx\n",
-> > (u64)(uintptr_t)oct_hw->dev_cfg);
-> > > -	dev_info(dev, "isr cfg mapped at: 0x%016llx\n",
-> > (u64)(uintptr_t)oct_hw->isr);
-> > > -	dev_info(dev, "notify base: 0x%016llx, notify off multiplier: %u\n",
-> > > -		 (u64)(uintptr_t)oct_hw->notify_base, oct_hw-
-> > >notify_off_multiplier);
-> > > +	dev_info(dev, "common cfg mapped at: %p\n", oct_hw-
-> > >common_cfg);
-> > > +	dev_info(dev, "device cfg mapped at: %p\n", oct_hw->dev_cfg);
-> > > +	dev_info(dev, "isr cfg mapped at: %p\n", oct_hw->isr);
-> > > +	dev_info(dev, "notify base: %p, notify off multiplier: %u\n",
-> > > +		 oct_hw->notify_base, oct_hw->notify_off_multiplier);
-> > >
-> > >  	oct_hw->config_size = octep_get_config_size(oct_hw);
-> > >  	oct_hw->features = octep_hw_get_dev_features(oct_hw);
-> > > @@ -511,7 +511,7 @@ int octep_hw_caps_read(struct octep_hw *oct_hw,
-> > struct pci_dev *pdev)
-> > >  	}
-> > >  	mbox = octep_get_mbox(oct_hw);
-> > >  	octep_mbox_init(mbox);
-> > > -	dev_info(dev, "mbox mapped at: 0x%016llx\n",
-> > (u64)(uintptr_t)mbox);
-> > > +	dev_info(dev, "mbox mapped at: %p\n", mbox);
-> > >
-> > >  	return 0;
-> > >  }
-> > > --
-> > > 2.25.1
+
+
+> ---
+>  drivers/net/virtio_net.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 6f4781ec2b36..9446666c84aa 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1804,9 +1804,15 @@ static struct sk_buff *receive_small(struct net_device *dev,
+>  				     struct virtnet_rq_stats *stats)
+>  {
+>  	unsigned int xdp_headroom = (unsigned long)ctx;
+> -	struct page *page = virt_to_head_page(buf);
+> +	struct page *page;
+>  	struct sk_buff *skb;
+>  
+> +	// We passed the address of virtnet header to virtio-core,
+> +	// so truncate the padding.
+> +	buf -= VIRTNET_RX_PAD + xdp_headroom;
+> +
+> +	page = virt_to_head_page(buf);
+> +
+>  	len -= vi->hdr_len;
+>  	u64_stats_add(&stats->bytes, len);
+>  
+> @@ -2422,8 +2428,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+>  	if (unlikely(!buf))
+>  		return -ENOMEM;
+>  
+> -	virtnet_rq_init_one_sg(rq, buf + VIRTNET_RX_PAD + xdp_headroom,
+> -			       vi->hdr_len + GOOD_PACKET_LEN);
+> +	buf += VIRTNET_RX_PAD + xdp_headroom;
+> +
+> +	virtnet_rq_init_one_sg(rq, buf, vi->hdr_len + GOOD_PACKET_LEN);
+>  
+>  	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+>  	if (err < 0) {
+> -- 
+> 2.20.1
 
