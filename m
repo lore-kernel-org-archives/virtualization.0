@@ -1,58 +1,65 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7616C17B50B
-	for <virtualization@lists.linux.dev>; Fri, 20 Sep 2024 14:05:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7BEEAD0
+	for <virtualization@lists.linux.dev>; Fri, 20 Sep 2024 20:21:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726841148; cv=none; b=S/Oe+9REIVQOOjuWAWRxezZYt5KHU4jkq7q1xDoCslIRiBbDs7/1/bFavBnwzGz0vMOVUHRE/2/1u32wK4T3FSePEuCSk/ntL2IXMNcsagspVWAP+IM3Xopu5Hx70Ra28JLfMa23gMNghhQUsogLqkiwJfzJ4Cw52Yzayk+EDTc=
+	t=1726863708; cv=none; b=JrHg6UQ7ODRwLZw08q4DH/KKk96Z6wBGWoxBM0KwIdYoxSlMQZvSUHHzDYCwkwcYj69Ni+hJr/HzgyPVRu7Xf12ztHSHfijU+JP5LCEjPQHXfKxYZjV0dv5AHzR2NT+v68c1PnSrZU7z6iwqErXgg1Uk/udwIfj8fTRcXdyDVI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726841148; c=relaxed/simple;
-	bh=4+E1VuFkoiCsIXTY88NHqDldr0fCtc65PJx2FIx1i6M=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=o6/Cri+6JOqoFvsUHfNJBtlhak1pL8IenCqCM2SiAqvgapEaRPVW6Y1Al1VtcQ4fACEfrwvpv8i6HLE9jlvwNKZ3Cd/sMKMghjfK1M4hG7avATpf7iXLfS/KHTeBh4BYTWaRAUxtDHm0IZy43JqGcc5cF0zCDwK5nyMXeTaNKuw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=NlWKRn8x; arc=none smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1726863708; c=relaxed/simple;
+	bh=bMEPSv2kVF7+Bmfj9t123gvcgI+oCzcjkKtnoMHWnl0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=dqjmc7o+YHGhfJQkZXnmBJnxEat5lWMisjeuzng4ZlLuNkn3/rBNLAkuKogUbb8iIgMs2jfaBwu4peN1P4OoB04Ian7tVUCsHXEZik49t8OgD8LZ88otZIE4u6cO+foa30WbEX27lXIS9thT89c3jR6qZASGYiNMr9d0bkButdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fzhbg779; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="NlWKRn8x"
-Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48KANW2F015713;
-	Fri, 20 Sep 2024 07:05:40 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=B
-	C4fCybLAxsF/XLh6Is56nPzu854yyyiZLqtyuTD28E=; b=NlWKRn8xs4ZftHPSe
-	vDoJNh73IqwGv9gCuSAMLt50PJ4XRdKWq4Kh6+CYyFslu/7V251hiFgVFA2LD1Si
-	qrS6TVu6PM1215iqm8+g/uZNhmtCCtgQbehuWyvZTE8QUHbv+TCvU3UiF12VQQv5
-	Sqkkt9sw/fDn8Cw1r6Rgx9+JUNOrbO8aVa/DnvVMhxe9VcdIGWVbBV5eU4cLd8mj
-	jJ8yJpewSUPqw5AdGLDjcGxSdCD+oY1YMXZfxGEhe9TO//0pko10OQjFVUgjiH/g
-	SlTfRBFEkMDBNGNG3edGmZi+yvlbNJgja/2yGgqpg37wlGCcL8lxc33X0/8U3DBT
-	yf1gw==
-Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 41s78rgtgx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 20 Sep 2024 07:05:40 -0700 (PDT)
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Fri, 20 Sep 2024 07:05:39 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
- (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Fri, 20 Sep 2024 07:05:39 -0700
-Received: from localhost.localdomain (unknown [10.28.36.175])
-	by maili.marvell.com (Postfix) with ESMTP id 579A65B6923;
-	Fri, 20 Sep 2024 07:05:37 -0700 (PDT)
-From: Srujana Challa <schalla@marvell.com>
-To: <virtualization@lists.linux.dev>, <kvm@vger.kernel.org>
-CC: <mst@redhat.com>, <jasowang@redhat.com>, <eperezma@redhat.com>,
-        <ndabilpuram@marvell.com>, <jerinj@marvell.com>
-Subject: [PATCH v2 2/2] vhost-vdpa: introduce NO-IOMMU backend feature bit
-Date: Fri, 20 Sep 2024 19:35:30 +0530
-Message-ID: <20240920140530.775307-3-schalla@marvell.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20240920140530.775307-1-schalla@marvell.com>
-References: <20240920140530.775307-1-schalla@marvell.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fzhbg779"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-7191f58054aso1990294b3a.0
+        for <virtualization@lists.linux.dev>; Fri, 20 Sep 2024 13:21:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1726863706; x=1727468506; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=FTMqPqwuPFmCmq0ZrkAlktDHceHAk8HhbetHzAPo6pQ=;
+        b=fzhbg7797nQwRaHCqJvQudmTPqDVBApbszyN0T21k5dQawZODoGjR1vymnJNi5r7/G
+         5S4BL9PBRbsPE9ISvryGEbAydnGWUSbIKp4hauWxOEGBcTzCLwCFsKqjLET0lo+SV8HN
+         8AJWiPk4oOlWZmTjUuTLUm96v69hwKZhSFF8LL9Jk8gfjdiAKOQtmAvxaD8o/TCRcfmU
+         3Wu56k0a7i7UmXr3r9p/oJSu49e4n5DCbJfQz/JrZDASSE+T7m3QnN3n4Lxp6ZT/Nd2z
+         5U4ZmoBg7YgS5GTyotLCPQcXjRzU84iS/EA/yVdF1pdxgq6tLuEF0Qs8X1ySzaaciWvt
+         gHaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1726863706; x=1727468506;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FTMqPqwuPFmCmq0ZrkAlktDHceHAk8HhbetHzAPo6pQ=;
+        b=IT1BbHFHxEqwT5MODe8zx75OPcQ4HnvmnLELWyEQMcl0sxN0mZiEnaK3fKg8weSCMy
+         FCTh9qglLXd9VpmvCx3RAartBkLy6qowmc60gZMaYI/hPqjTkepkJHjfyVUwVgKAFH/N
+         FR2UJS8Bv5THrxJZKOCDWZ9Ntsm8uwcN2aykqq+Fr8KpKm2xAF0PdutucZa2wdwsD6/Q
+         +mmBGDyMFnYXDPIEDZ7/VeCcztkWF0KLxC1icxvcv82ZewkwDj88RP0HYMKobpMdjZ+N
+         bXSNBKaCSyPuvk5f9V8bplQ+VyukmZ56nl/h3AhtqA9tfO8QnQidIoCDOrE3hGA1EJ/r
+         j59g==
+X-Gm-Message-State: AOJu0Yxx2jSkB7V0BMyRvzd/4dLft0mExDfNBucaflKSWEgy6Qd9BD5n
+	hXf79WZnSxtycmDTGGX2GV5LdV50C1dkgAK9ox36Mi04LY2VOZ9Ko2ZVrD4LAZtFaK3G
+X-Google-Smtp-Source: AGHT+IHo5zUSsx2wi0HM7klfzPYPSI8TQWNLHP/Niytv1S4QuOX4QBc+2TurH/N9hquzETnnwxXz8g==
+X-Received: by 2002:a05:6a00:1405:b0:714:3de8:a616 with SMTP id d2e1a72fcca58-7199ca03a00mr6023594b3a.19.1726863705794;
+        Fri, 20 Sep 2024 13:21:45 -0700 (PDT)
+Received: from localhost.localdomain ([183.11.36.73])
+        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-71944bc4752sm10219520b3a.203.2024.09.20.13.21.43
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 20 Sep 2024 13:21:45 -0700 (PDT)
+From: Wenyu Huang <huangwenyu1998@gmail.com>
+X-Google-Original-From: Wenyu Huang <huangwenyuu@outlook.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] virtio: Make vring_new_virtqueue support for packed vring
+Date: Sat, 21 Sep 2024 04:21:41 +0800
+Message-Id: <20240920202141.89446-1-huangwenyuu@outlook.com>
+X-Mailer: git-send-email 2.30.1 (Apple Git-130)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,85 +67,244 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: 6n2MzqUhxoHiS0hiy9Uo1tgVasAW9M7C
-X-Proofpoint-GUID: 6n2MzqUhxoHiS0hiy9Uo1tgVasAW9M7C
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
 
-This patch introduces the VHOST_BACKEND_F_NOIOMMU feature flag.
-This flag allows userspace to identify if the driver can operate
-without an IOMMU, providing more flexibility in environments where
-IOMMU is not available or desired.
+From: Wenyu Huang <huangwenyu1998@gmail.com>
 
-Key changes include:
-    - Addition of the VHOST_BACKEND_F_NOIOMMU feature flag.
-    - Updates to vhost_vdpa_unlocked_ioctl to handle the NO-IOMMU
-      feature.
-The NO-IOMMU mode is enabled if:
-    - The vdpa device lacks an IOMMU domain.
-    - The system has the required RAWIO permissions.
-    - The vdpa device explicitly supports NO-IOMMU mode.
+It's also available for packed ring now.
 
-This feature flag indicates to userspace that the driver can safely
-operate in NO-IOMMU mode. If the flag is absent, userspace should
-assume NO-IOMMU mode is unsupported and take appropriate actions.
-
-Signed-off-by: Srujana Challa <schalla@marvell.com>
+Signed-off-by: Wenyu Huang <huangwenyu1998@gmail.com>
 ---
- drivers/vhost/vdpa.c             | 11 ++++++++++-
- include/uapi/linux/vhost_types.h |  2 ++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_ring.c | 153 +++++++++++++++++++++--------------
+ 1 file changed, 92 insertions(+), 61 deletions(-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index b3085189ea4a..de47349eceff 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -797,7 +797,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 				 BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST) |
- 				 BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
- 				 BIT_ULL(VHOST_BACKEND_F_RESUME) |
--				 BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK)))
-+				 BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK) |
-+				 BIT_ULL(VHOST_BACKEND_F_NOIOMMU)))
- 			return -EOPNOTSUPP;
- 		if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
- 		     !vhost_vdpa_can_suspend(v))
-@@ -814,6 +815,12 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 		if ((features & BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST)) &&
- 		     !vhost_vdpa_has_persistent_map(v))
- 			return -EOPNOTSUPP;
-+		if ((features & BIT_ULL(VHOST_BACKEND_F_NOIOMMU)) &&
-+		    !v->noiommu_en)
-+			return -EOPNOTSUPP;
-+		if (!(features & BIT_ULL(VHOST_BACKEND_F_NOIOMMU)) &&
-+		    v->noiommu_en)
-+			return -EOPNOTSUPP;
- 		vhost_set_backend_features(&v->vdev, features);
- 		return 0;
- 	}
-@@ -871,6 +878,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 			features |= BIT_ULL(VHOST_BACKEND_F_DESC_ASID);
- 		if (vhost_vdpa_has_persistent_map(v))
- 			features |= BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST);
-+		if (v->noiommu_en)
-+			features |= BIT_ULL(VHOST_BACKEND_F_NOIOMMU);
- 		features |= vhost_vdpa_get_backend_features(v);
- 		if (copy_to_user(featurep, &features, sizeof(features)))
- 			r = -EFAULT;
-diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
-index d7656908f730..dda673c3456a 100644
---- a/include/uapi/linux/vhost_types.h
-+++ b/include/uapi/linux/vhost_types.h
-@@ -192,5 +192,7 @@ struct vhost_vdpa_iova_range {
- #define VHOST_BACKEND_F_DESC_ASID    0x7
- /* IOTLB don't flush memory mapping across device reset */
- #define VHOST_BACKEND_F_IOTLB_PERSIST  0x8
-+/* Enables the device to operate in NO-IOMMU mode as well */
-+#define VHOST_BACKEND_F_NOIOMMU  0x9
- 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index be7309b1e860..664a0c40ee05 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -223,7 +223,7 @@ struct vring_virtqueue {
  #endif
+ };
+ 
+-static struct virtqueue *__vring_new_virtqueue(unsigned int index,
++static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
+ 					       struct vring_virtqueue_split *vring_split,
+ 					       struct virtio_device *vdev,
+ 					       bool weak_barriers,
+@@ -232,6 +232,15 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 					       void (*callback)(struct virtqueue *),
+ 					       const char *name,
+ 					       struct device *dma_dev);
++static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
++					       struct vring_virtqueue_packed *vring_packed,
++					       struct virtio_device *vdev,
++					       bool weak_barriers,
++					       bool context,
++					       bool (*notify)(struct virtqueue *),
++					       void (*callback)(struct virtqueue *),
++					       const char *name,
++					       struct device *dma_dev);
+ static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+ static void vring_free(struct virtqueue *_vq);
+ 
+@@ -1160,7 +1169,7 @@ static struct virtqueue *vring_create_virtqueue_split(
+ 	if (err)
+ 		return NULL;
+ 
+-	vq = __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
++	vq = __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
+ 				   context, notify, callback, name, dma_dev);
+ 	if (!vq) {
+ 		vring_free_split(&vring_split, vdev, dma_dev);
+@@ -2064,62 +2073,21 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	struct device *dma_dev)
+ {
+ 	struct vring_virtqueue_packed vring_packed = {};
+-	struct vring_virtqueue *vq;
+-	int err;
++	struct virtqueue *vq;
+ 
+ 	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
+-		goto err_ring;
+-
+-	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
+-	if (!vq)
+-		goto err_vq;
+-
+-	vq->vq.callback = callback;
+-	vq->vq.vdev = vdev;
+-	vq->vq.name = name;
+-	vq->vq.index = index;
+-	vq->vq.reset = false;
+-	vq->we_own_ring = true;
+-	vq->notify = notify;
+-	vq->weak_barriers = weak_barriers;
+-#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+-	vq->broken = true;
+-#else
+-	vq->broken = false;
+-#endif
+-	vq->packed_ring = true;
+-	vq->dma_dev = dma_dev;
+-	vq->use_dma_api = vring_use_dma_api(vdev);
+-	vq->premapped = false;
+-	vq->do_unmap = vq->use_dma_api;
+-
+-	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+-		!context;
+-	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+-
+-	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+-		vq->weak_barriers = false;
+-
+-	err = vring_alloc_state_extra_packed(&vring_packed);
+-	if (err)
+-		goto err_state_extra;
+-
+-	virtqueue_vring_init_packed(&vring_packed, !!callback);
++		return NULL;
+ 
+-	virtqueue_init(vq, num);
+-	virtqueue_vring_attach_packed(vq, &vring_packed);
++	vq = __vring_new_virtqueue_packed(index, &vring_packed, vdev, weak_barriers,
++					context, notify, callback, name, dma_dev);
++	if (!vq) {
++		vring_free_packed(&vring_packed, vdev, dma_dev);
++		return NULL;
++	}
+ 
+-	spin_lock(&vdev->vqs_list_lock);
+-	list_add_tail(&vq->vq.list, &vdev->vqs);
+-	spin_unlock(&vdev->vqs_list_lock);
+-	return &vq->vq;
++	to_vvq(vq)->we_own_ring = true;
+ 
+-err_state_extra:
+-	kfree(vq);
+-err_vq:
+-	vring_free_packed(&vring_packed, vdev, dma_dev);
+-err_ring:
+-	return NULL;
++	return vq;
+ }
+ 
+ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
+@@ -2599,7 +2567,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+ EXPORT_SYMBOL_GPL(vring_interrupt);
+ 
+ /* Only available for split ring */
+-static struct virtqueue *__vring_new_virtqueue(unsigned int index,
++static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
+ 					       struct vring_virtqueue_split *vring_split,
+ 					       struct virtio_device *vdev,
+ 					       bool weak_barriers,
+@@ -2612,9 +2580,6 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	struct vring_virtqueue *vq;
+ 	int err;
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+-		return NULL;
+-
+ 	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
+ 	if (!vq)
+ 		return NULL;
+@@ -2662,6 +2627,66 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	return &vq->vq;
+ }
+ 
++static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
++					       struct vring_virtqueue_packed *vring_packed,
++					       struct virtio_device *vdev,
++					       bool weak_barriers,
++					       bool context,
++					       bool (*notify)(struct virtqueue *),
++					       void (*callback)(struct virtqueue *),
++					       const char *name,
++					       struct device *dma_dev)
++{
++	struct vring_virtqueue *vq;
++	int err;
++
++	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
++	if (!vq)
++		return NULL;
++
++	vq->vq.callback = callback;
++	vq->vq.vdev = vdev;
++	vq->vq.name = name;
++	vq->vq.index = index;
++	vq->vq.reset = false;
++	vq->we_own_ring = false;
++	vq->notify = notify;
++	vq->weak_barriers = weak_barriers;
++#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
++	vq->broken = true;
++#else
++	vq->broken = false;
++#endif
++	vq->packed_ring = true;
++	vq->dma_dev = dma_dev;
++	vq->use_dma_api = vring_use_dma_api(vdev);
++	vq->premapped = false;
++	vq->do_unmap = vq->use_dma_api;
++
++	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
++		!context;
++	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
++
++	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
++		vq->weak_barriers = false;
++
++	err = vring_alloc_state_extra_packed(vring_packed);
++	if (err) {
++		kfree(vq);
++		return NULL;
++	}
++
++	virtqueue_vring_init_packed(vring_packed, !!callback);
++
++	virtqueue_init(vq, vring_packed->vring.num);
++	virtqueue_vring_attach_packed(vq, vring_packed);
++
++	spin_lock(&vdev->vqs_list_lock);
++	list_add_tail(&vq->vq.list, &vdev->vqs);
++	spin_unlock(&vdev->vqs_list_lock);
++	return &vq->vq;
++}
++
+ struct virtqueue *vring_create_virtqueue(
+ 	unsigned int index,
+ 	unsigned int num,
+@@ -2840,7 +2865,6 @@ int virtqueue_reset(struct virtqueue *_vq,
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_reset);
+ 
+-/* Only available for split ring */
+ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 				      unsigned int num,
+ 				      unsigned int vring_align,
+@@ -2853,12 +2877,19 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 				      const char *name)
+ {
+ 	struct vring_virtqueue_split vring_split = {};
++	struct vring_virtqueue_packed vring_packed = {};
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+-		return NULL;
++	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)) {
++		vring_packed.vring.num = num;
++		vring_packed.vring.desc = pages;
++		return __vring_new_virtqueue_packed(index, &vring_packed,
++						    vdev, weak_barriers,
++						    context, notify, callback,
++						    name, vdev->dev.parent);
++	}
+ 
+ 	vring_init(&vring_split.vring, num, pages, vring_align);
+-	return __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
++	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
+ 				     context, notify, callback, name,
+ 				     vdev->dev.parent);
+ }
 -- 
-2.25.1
+2.43.0
 
