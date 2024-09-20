@@ -1,148 +1,147 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8398B19E831
-	for <virtualization@lists.linux-foundation.org>; Thu, 19 Sep 2024 12:51:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5491E537FF
+	for <virtualization@lists.linux.dev>; Fri, 20 Sep 2024 09:06:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726750310; cv=none; b=l1teMGprGnRscLUHvGku8Vrejv/Q3oE3pv12ojoHzjDePwIwk1nt4L8vGK9Bg5cqsQ+BqLZ79hOnYGz/KF88tEeNm+fEePofLVOXLpAHEWSZHBaPtYK7u00Gm0jWDNn+SxIIcVzVPhUrOJvvAIC5kflW+7Nu1GKY9kqg3I9L/vo=
+	t=1726823186; cv=none; b=eRKacEd+BbMPOVCyuKBuQaYUGUaYxkLVQUj0IrBE6utAPJdrd5fVCcHau0lEEoq36OOYkoWp+GbzsgtDr4HfJE0QgMVv2s7PyQgaNPOao5v4d9B7fI+zV62zXCCgZb5yUe3DlFfIPxeznH7mOxp5c24/5gL06oqRqZVY8PJcd6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726750310; c=relaxed/simple;
-	bh=SlJmwhGl3SrJKXIOv4Gm2FmJKvlW3Kv5wJXm0Ihsfbs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kygJuv4/+QzutzAukZHwiMYPvdiPuj/Ei3XcOAY0N/HoootFkvUY4Lf5ysIsdY1nFfB3DzXKci4vQDiIsElXNet1GNIkcLnisULYEKC+d/XgAegKl7Wn5yq9Z0zCgdY5vJuwKFyAF4jiPHNUMJPEdJEa3lb/JKfOvK7BD3wSRpg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=GV/qlp5n; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1726823186; c=relaxed/simple;
+	bh=KCEzMowm1+eVx5+kajieuV283XCegDBPGRjbQMjuUmM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a0MdWROD3XNcOM2XasHdPxkmuVpeXJ2f3xcE41YBDVgvEqCEVMigAXjNnNHoF/5spqwsEy2qECsZLv0CPqViZpgUoES7tv4U5bYkgZzuloOxLQwB5r8YiYq3+b1T7kDgBzc93cWg07Qpq8nIr0Yog+hmlHSwuFv7iirLNa+lM+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=Ed2OvdIB; arc=none smtp.client-ip=209.85.218.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="GV/qlp5n"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 24D0480579
-	for <virtualization@lists.linux-foundation.org>; Thu, 19 Sep 2024 12:51:49 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id bdtgLqKuB8nv for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Sep 2024 12:51:48 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::62e; helo=mail-ej1-x62e.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8E66380578
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E66380578
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=GV/qlp5n
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8E66380578
-	for <virtualization@lists.linux-foundation.org>; Thu, 19 Sep 2024 12:51:47 +0000 (UTC)
-Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-a8d3cde1103so104210866b.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 19 Sep 2024 05:51:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="Ed2OvdIB"
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-a8d43657255so259131066b.0
+        for <virtualization@lists.linux.dev>; Fri, 20 Sep 2024 02:06:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1726750305; x=1727355105; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=G2ods2eZT8RMxJfTBuByt96hZQnySzfhNv8GJfRYckM=;
-        b=GV/qlp5ntN110sKhWEzzFZMWmH3x2y7tK5M1J0H13eRYCMMZHNaFQB8FVSzB5M72CP
-         MAQFqwkJRsnb/hb7rKKreHzlMmfTROLKZ3r+2TtQRKge5GMFVWQV+uf52gCP6Hi8SvBg
-         jCyV3TQaWdUlne/WbrNp6tWlKinqG638hW0KnasqNddThaO/ugFt5zovyQurTxXoeiRP
-         yOV8MOUkBR2koq+Hgw81IHD/jyfSGkdau8wZXc8bmKw3lgITT7KqnP5l0yd5brVF7kCJ
-         biwtONsuu4/5FtZok+1IbP4K9AHzIyvZx1R/I2jwHL9YlzWRg2pIkQWbPoMQDuTFqzfz
-         tb2A==
+        d=gourry.net; s=google; t=1726823182; x=1727427982; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5ea6kApel9704WtmafZwie6CE4udCD/ZWEKovHegrZg=;
+        b=Ed2OvdIBf3vOligexbHpw9sO1fEfl0DaCRlkd4FoWKgKrj62A3ARfUk4n7mxNsK8zu
+         IiLOOHYIlazl0mvPNXe+sVTD9/hNWC0vteqjMnl8of069VYYR53RwfaE+AqnTCLoLtfh
+         0DDJOcts3+WN05wfT+5F9RbxbaFYFQdmjaU/qbcmH/yFOnqmzv0Cf5riefAOGx5ck26/
+         lNyoUijkV/GeBG7Ge+q9sL3C94kVD3Z54j5dgho7ThB+00eVrjkzI8eUIoI3nI7m2I1w
+         zqrss3xsryiSKqBBd7qEJ6wyrn/yj/G/WIvgQdUcrhXnzai5+0v6zh6lJPs1kEHmuIXC
+         mUCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726750305; x=1727355105;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=G2ods2eZT8RMxJfTBuByt96hZQnySzfhNv8GJfRYckM=;
-        b=Gq9NbPiholTaJynmB9mrRBQFQAJmVPNcMxKm0bJuEaDCcq4dPElwxfESkUScX2vCii
-         8Qm+vCYXHd7lOOesPx+Y1w0VRXeloH3R9o+ygu7ujgLachwzeFsD+ItKLzIzxbflV2ej
-         gFz4bWg6nV2GVE9AElB/er9/hiqiuzzhAD55GvK2fFWP5SdpW6HOxRhu44MtHu8YflgH
-         tToF0KKPT40hFSbXJFj7AVkl7ZzQTLqnVVKpcR98Xn1vlDjWISlfJwhY+I8BFZvquGq6
-         cEPGut10HsFxMdmirbo4GB8HDqZ3zfVCnNJT8F/XYzOuCtm90Jcq/NwPf9Fz4rNYPN5D
-         C0IA==
-X-Forwarded-Encrypted: i=1; AJvYcCXvi/gjtAI3TBsaW89DTT4x+v0Fux3OuzaZroaDvSQyZAF1CFALecigQCCuYA4Ztn+kc7jbBoIlsT5e8hcJLQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxTwlOoeSdJquZtZ7mY/BOpaq4n6dFNSOXDSUxiqb/aRTvxC7Nq
-	62p9VoiUCeHLCWpCXdgVvPR8cIkwM1Z9uLtXOEXTKIH8q6Uz/wiRiCP27jdeFHQ=
-X-Google-Smtp-Source: AGHT+IGZqgve+KamWKCTyn5ghHOmYZoUojN3YplaJpvEJ6WqeTRtpjQs7A0Ut18Ni9wirgc/SkN/uw==
-X-Received: by 2002:a17:907:36cd:b0:a90:b73f:61d7 with SMTP id a640c23a62f3a-a90b73f63bamr599108766b.42.1726750305479;
-        Thu, 19 Sep 2024 05:51:45 -0700 (PDT)
-Received: from [10.130.6.89] ([83.68.141.146])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a90610968b9sm718971366b.5.2024.09.19.05.51.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 19 Sep 2024 05:51:44 -0700 (PDT)
-Message-ID: <18d61c52-be6f-4ef3-b020-d597ba7cdaeb@daynix.com>
-Date: Thu, 19 Sep 2024 14:51:43 +0200
+        d=1e100.net; s=20230601; t=1726823182; x=1727427982;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5ea6kApel9704WtmafZwie6CE4udCD/ZWEKovHegrZg=;
+        b=ko5lFqGuihoIYmKg/QQsMxkPv1qTpfFncGa8z910wg2ny+Cdcn23lJARmW9flhXUBR
+         sEdXlyUI+T9CCEdrOgpJVoSo5Nn/nWMP5SMWNYfRNpj3iYt/MalpozhrYya7/z9LtB5e
+         SXC8kf9Shq+q82TH0G3p180XD39Eoddy6OxfzxwOPADu6YrhSPgv5itbqiF2VXTmAwT8
+         4YA5Mudu1IwlmPSctndUBb+noapWC4Vod8G7xarhRclm0y5Oys8HT8dBDlk6Eyo55Nut
+         OHRntAR+zlJmc/l4KSb1kIHj3CsWm6lHyEFZQzhhzgrrBNNm9SsGaWTWikMsx2GReGGX
+         +GYA==
+X-Forwarded-Encrypted: i=1; AJvYcCW+ELZB/PrTGqSZouuzqNUGViaD/tzEzbZ0tKVMWU9T4Cm0O/QW30Vm8UzqCdfCv6ZzP8Ha1Klvag2Xq1taNA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwcrQVcCNB7blbNh4bnOEv/xTHWmi2vuypbSgNfpvbgKvWD406Y
+	4XNbzI3BlFLC+L9T0ERpRj25j+0A6BA1E0NlgILHT42Po0DUqAizgmXVOIUvb6c=
+X-Google-Smtp-Source: AGHT+IHS5Ou0XIJ4uflfTtxR3ETCTI4FJBbvqfkbaPfxDAC5XJ69GFR67U4wnEW673qhczAiNcFAYw==
+X-Received: by 2002:a17:906:cad6:b0:a8d:25d3:65e4 with SMTP id a640c23a62f3a-a90d4ffcb11mr164635366b.36.1726823182340;
+        Fri, 20 Sep 2024 02:06:22 -0700 (PDT)
+Received: from PC2K9PVX.TheFacebook.com ([83.68.141.146])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a90610f4971sm821742366b.90.2024.09.20.02.06.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Sep 2024 02:06:21 -0700 (PDT)
+Date: Fri, 20 Sep 2024 11:06:09 +0200
+From: Gregory Price <gourry@gourry.net>
+To: David Hildenbrand <david@redhat.com>
+Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-mm@kvack.org,
+	linux-cxl@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>,
+	Ira Weiny <ira.weiny@intel.com>, John Groves <John@groves.net>,
+	virtualization@lists.linux.dev, Oscar Salvador <osalvador@suse.de>,
+	qemu-devel@nongnu.org, Dave Jiang <dave.jiang@intel.com>,
+	Dan Williams <dan.j.williams@intel.com>, linuxarm@huawei.com,
+	wangkefeng.wang@huawei.com, John Groves <jgroves@micron.com>,
+	Fan Ni <fan.ni@samsung.com>,
+	Navneet Singh <navneet.singh@intel.com>,
+	=?utf-8?B?4oCcTWljaGFlbCBTLiBUc2lya2lu4oCd?= <mst@redhat.com>,
+	Igor Mammedov <imammedo@redhat.com>,
+	Philippe =?iso-8859-1?Q?Mathieu-Daud=E9?= <philmd@linaro.org>
+Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
+ specific, multi host shared)
+Message-ID: <Zu07AU3aUrHBMXaw@PC2K9PVX.TheFacebook.com>
+References: <20240815172223.00001ca7@Huawei.com>
+ <fc05d089-ce04-42d2-a0d7-ea32fd73fe90@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v3 2/9] virtio_net: Add functions for hashing
-To: gur.stavi@huawei.com
-Cc: andrew@daynix.com, corbet@lwn.net, davem@davemloft.net,
- edumazet@google.com, jasowang@redhat.com, kuba@kernel.org,
- kvm@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
- mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com, shuah@kernel.org,
- virtualization@lists.linux-foundation.org, willemdebruijn.kernel@gmail.com,
- xuanzhuo@linux.alibaba.com, yuri.benditovich@daynix.com
-References: <20240916071253.462-1-gur.stavi@huawei.com>
- <20240916080137.508-1-gur.stavi@huawei.com>
-Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <20240916080137.508-1-gur.stavi@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fc05d089-ce04-42d2-a0d7-ea32fd73fe90@redhat.com>
 
-On 2024/09/16 10:01, gur.stavi@huawei.com wrote:
->> +
->> +static inline void virtio_net_toeplitz(struct virtio_net_toeplitz_state *state,
->> +				       const __be32 *input, size_t len)
->>
->> The function calculates a hash value but its name does not make it
->> clear. Consider adding a 'calc'.
->>
->> +{
->> +	u32 key;
->> +
->> +	while (len) {
->> +		state->key++;
->> +		key = be32_to_cpu(*state->key);
->>
->> You perform be32_to_cpu to support both CPU endianities.
->> If you will follow with an unconditional swab32, you could run the
->> following loop on a more natural 0 to 31 always referring to bit 0
->> and avoiding !!(key & bit):
->>
->> key = swab32(be32_to_cpu(*state->key));
->> for (i = 0; i < 32; i++, key >>= 1) {
->> 	if (be32_to_cpu(*input) & 1)
->> 		state->hash ^= state->key_buffer;
->> 	state->key_buffer = (state->key_buffer << 1) | (key & 1);
->> }
->>
+> > 2. Coarse grained memory increases for 'normal' memory.
+> >     Can use memory hot-plug. Recovery of capacity likely to only be possible on
+> >     VM shutdown.
 > 
-> Fixing myself, in previous version 'input' was tested against same bit.
-> Advantage is less clear now, replacing !! with extra shift.
-> However, since little endian CPUs are more common, the combination of
-> swab32(be32_to_cpu(x) will actually become a nop.
-> Similar tactic may be applied to 'input' by assigning it to local
-> variable. This may produce more efficient version but not necessary
-> easier to understand.
-> 
-> key = bswap32(be32_to_cpu(*state->key));
-> for (u32 bit = BIT(31); bit; bit >>= 1, key >>= 1) {
-> 	if (be32_to_cpu(*input) & bit)
-> 		state->hash ^= state->key_buffer;
-> 	state->key_buffer =
-> 		(state->key_buffer << 1) | (key & 1);
-> }
+> Is there are reason "movable" (ZONE_MOVABLE) is not an option, at least in
+> some setups? If not, why?
+>
 
-This unfortunately does not work. swab32() works at *byte*-level but we 
-need to reverse the order of *bits*. bitrev32() is what we need, but it 
-cannot eliminate be32_to_cpu().
 
-Regards,
-Akihiko Odaki
+This seems like a bit of a muddied conversation.
+
+"'normal' memory" has no defined meaning - so lets clear this up a bit
+
+There is:
+* System-RAM (memory managed by kernel allocators)
+* Special Purpose Memory (generally presented as DAX)
+
+System-RAM is managed as zones - the relevant ones are
+* ZONE_NORMAL allows both movable and non-movable allocations
+* ZONE_MOVABLE only allows non-movable allocations
+  (Caveat: this generally only applies to allocation, you can
+   violate this with stuff like pinning)
+
+Hotplug can be thought of as two discrete mechanisms
+* Exposing capacity to the kernel (CXL DCD Transactions)
+* Exposing capacity to allocators (mm/memory-hotplug.c)
+
+1) if the intent is to primarily utilize dynamic capacity for VMs, then
+   the host does not need (read: should not need) to map the memory as
+   System-RAM in the host. The VMM should be made to consume it directly
+   via DAX or otherwise.
+
+   That capacity is almost by definition "Capital G Guaranteed" to be
+   reclaimable regardless of what the guest does. A VMM can force a guest
+   to let go of resources - that's its job.
+
+2) if the intent is to provide dynamic capacity to a host as System-RAM, then
+   recoverability is dictated by system usage of that capacity. If onlined
+   into ZONE_MOVABLE, then if the system has avoided doing things like pinning
+   those pages it should *generally* be recoverable (but not guaranteed).
+
+
+For the virtualization discussion:
+
+Hotplug and recoverability is a non-issue.  The capacity should never be
+exposed to system allocators and the VMM should be made to consume special
+purpose memory directly. That's on the VMM/orchestration software to get right.
+
+
+For the host System-RAM discussion:
+
+Auto-onlined hotplug capacity presently defaults to ZONE_NORMAL, but we
+discussed (yesterday, at Plumbers) changing this default to ZONE_MOVABLE.
+
+The only concern is when insufficient ZONE_NORMAL exists to support
+ZONE_MOVABLE capacity - but this is unlikely to be the general scenario AND
+can be mitigated w/ existing mechanisms.
+
+Manually onlined capacity defaults to ZONE_MOVABLE.
+
+It would be nice to make this behavior consistent, since the general opinion
+appears to be that this capacity should default to ZONE_MOVABLE.
+
+~Gregory
