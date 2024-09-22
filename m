@@ -1,567 +1,393 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2066.outbound.protection.outlook.com [40.107.237.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC428C8C0
-	for <virtualization@lists.linux.dev>; Sun, 22 Sep 2024 15:20:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727018451; cv=none; b=T8x8MUpYZzBbUIaCloEm4vxNZSvURTptfLCne2O2SV4uO/mEB+QOHbmrP5fkI1XQGFlI+0OALUUV9rKjCS6EOuYV+Lw4/2is3iGMVjy4Nq4zBfArvLuPJwTXsYOe9Tw5d5crXSx455Jgwnh5lWS+dJJwne9j+1FROucb/WvfW6Y=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727018451; c=relaxed/simple;
-	bh=HBxptRpgypp6QmKhSL+rsqwIncgTjL0VVUT9T6x8R24=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=RxRwwL8OkQlV8rmsYji16SNwN7y7Wan7TiF4lJ1gC7tGfv9HvRBqL5PXsOjpv98UksLOWzYt14eolmKpXPL4wfgd16dGC2pjyh7KzA8JU+sxPqozDnx+X6XTurA5d9QtAWsK7vh1VfUNti05Hnn3G6BBwhRZ7Wlb8voNrWGOsQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ACGytmKU; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAE7A2576F
+	for <virtualization@lists.linux.dev>; Sun, 22 Sep 2024 22:48:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.66
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1727045293; cv=fail; b=M7r4QvW+2kpoNKZ+/zlesx0N3jMhvJPPFAIb3pFnoXU0/Pupz9PCPHWCaQ9/MIEoI2eNMT/jEJ5toZCUyPOR6XJ/BvSwRm1CS8xfJkMpWPSCcgCr0vVBwS2o1zSi4gtWb5L3tU7XMPiYQuBspJl6w9FEXO7WwhvbF2/IyhrT69E=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1727045293; c=relaxed/simple;
+	bh=WBDgAkbReuz2yeMrAiZKYhM/5+bZDekINAfidNt5o6w=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=fQZOJJ4FOqXWnxBeYnd3Juvr7U9h2dJANKtmy2ssg0qqAguk2LZpG0L0RGFgfWyxy2AIyooBceVH9JNFuQ5Tu6jaxziQaf30pH7R99wwP9N5GBNYf8Uu+rlxJam7ky71gITQ8gz9mR9v2uvKg0dnXMp2pY6PS1kbkkUf2F5N0n4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=J1YHGq/o; arc=fail smtp.client-ip=40.107.237.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ACGytmKU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727018445;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=Fet74df+BRXSvLWXFlWi/N/6AQ9SXxD4a2sqHk8YwPQ=;
-	b=ACGytmKUXYIlrz5fjvPpNBFjXwmhLXFjRAtT61y9sI9kmM6u+7RhTLsVLTP4opJXOz4n4C
-	hGceFeNzPVCK07yCDOq+zY4JsuG+4KKCgAsKRnVXMfnou3rQ3eo8xN5HZQBhBAZJJX4kLP
-	bxGo1mqf5m+LgPh1jlhxA3viYRl8BAc=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-154-dIShf4sIOKyo4NI08Irnkg-1; Sun, 22 Sep 2024 11:20:42 -0400
-X-MC-Unique: dIShf4sIOKyo4NI08Irnkg-1
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-207302f244aso27564385ad.0
-        for <virtualization@lists.linux.dev>; Sun, 22 Sep 2024 08:20:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727018439; x=1727623239;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Fet74df+BRXSvLWXFlWi/N/6AQ9SXxD4a2sqHk8YwPQ=;
-        b=gE3wCXgWVwEQ1bkrHJK/SJ5YASTKtA6lyXgucmHQ25UGpZclcWy4sCJpmfzGUZn8gh
-         uNA11DVccTvDknm0fHxVz1GuvrvtnSBLgPYybFrI9kDmRpMwRP2M1OHM1fF1+iQIRrcn
-         Kn1oWJWYdUbC9foCzXy85F9EsUjOQTTUgYLskMUuzzFb3Cfrwp4R/v4HRo1CbO8EIpEJ
-         WUICQGyQ991R9CDaxZHPAt/QBfubNAZvUi6mNq8vPAV+yg6fWdoczODI9KcTQfzGkGTQ
-         csQNuNp6sPLZhNtjI0SHS97abmss/ZPyxpQ2Rg9YulLwArmcsmbL3RQ6PLWOOZMoMLmD
-         wbZg==
-X-Forwarded-Encrypted: i=1; AJvYcCU/sEji1gWBMr0qXXus8zkqzK0VFcSWxStCBOEYS+nhulwkcXebZj35piq44eC5Em0XZX6ka39zoeqbzfhj7w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz1SP/wdAw7/SuNywQ0svhkVzl4sFw9MTuGzIJ4IqWsNvFgCCHp
-	lhWSjj5uhZstsYAyiYBK/7mMQDQo+to88jvJpkKLgzrVsZXaQS7xCvK5ksPp1hR5L97wRcZiDtH
-	FCzh7q2UE9yvsp/GjefRKcVMNlRCdGuN9Gq2M3gm0gOVVRwYoTFF8Yy12AgDEzL2l
-X-Received: by 2002:a17:902:d2d1:b0:205:40a6:115a with SMTP id d9443c01a7336-208d9872fc8mr128169105ad.48.1727018439163;
-        Sun, 22 Sep 2024 08:20:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGX5A04ctj2I4L39keFtF+PID3PZyqpYOL+UXRLhr/+GHCMvZV0lMYRHA+g8JTiSEg6Ei5n/Q==
-X-Received: by 2002:a17:902:d2d1:b0:205:40a6:115a with SMTP id d9443c01a7336-208d9872fc8mr128168835ad.48.1727018438692;
-        Sun, 22 Sep 2024 08:20:38 -0700 (PDT)
-Received: from zeus.elecom ([240b:10:83a2:bd00:6e35:f2f5:2e21:ae3a])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20794748053sm120389865ad.289.2024.09.22.08.20.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Sep 2024 08:20:37 -0700 (PDT)
-From: Ryosuke Yasuoka <ryasuoka@redhat.com>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	daniel@ffwll.ch,
-	jfalempe@redhat.com,
-	christophe.jaillet@wanadoo.fr
-Cc: Ryosuke Yasuoka <ryasuoka@redhat.com>,
-	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	dri-devel@lists.freedesktop.org
-Subject: [PATCH v4] drm/qxl: Add drm_panic support
-Date: Mon, 23 Sep 2024 00:20:13 +0900
-Message-ID: <20240922152014.963546-1-ryasuoka@redhat.com>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="J1YHGq/o"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=tHEkyzJlDx3CStenyRXhro8jOw4VCnIChiCabX7udLqHEu7uPxK/RjmFSn3w+kdP+jH9XET9Bbsj+NGaOegtNS1ruVmVxMQ67jqlbhZXDJZi15JpygcOuENICC1B0T+f/7A0cVUAQI0bs7/8+Nt6Zwmmie59SAnSPm5RHp6A4Y9Jl4F++pf+3E+nLv7414ODg9VMvSwgg/hgeXshDgtRGOFeNCk+w5puYa3VTMYj2BPPidXdsbNl9sUTvey3fogQ7WOeK+xcW/TePjJ+zIu1kGccCdINgykUjQLo8NVhdMnqhpO9GVk3Fc6+R5Jfs0CTB8mhr7FuWt3cIKyQG99PYw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=hzXPF2+FYAALfuI7sbUqoxhi08GKj/Llc9m3RScMkiA=;
+ b=rOZN/GlE7C7xlFaAOcd8X2TqB5KaMXqlBv9UIBHKzu/aN9sSoMJP9LqTsA2YkUNodNtWJ6YslnE4gaRovO7xYYbCw3YJZI94LRH0vWKG2Kkgg+KccABPnhcPR2lIH0aRElUVZ79pqquxag5nnrgj5WoN/QEr/qZVfqzQ9K2qZRjLBRF24cYaszTltkQKAWEP10r75Ln6tZIbMQEu5gcwFUNcCyjmKqGznznhows2YdQxWa+DXGYIJlAiC7wzW28cwq25IkCvvkaKxBtxDxqESvYz/kzW/2T9qiwUwEcUvyR1dRtQdSDQTxHqdZvAzBK94IEfZUfrhEB5YVj3a0QdHA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hzXPF2+FYAALfuI7sbUqoxhi08GKj/Llc9m3RScMkiA=;
+ b=J1YHGq/ocMCbLossff/Gwp04WZzKJFYzlwrNX8TL5GLaoNpqna5+eJot2EhKX+suC/L1wZPw5GWeM9enbPbhz5DXlImNr7OnP+xXm4KW6JsAobPb2Ynh4mFisA3YDa/h/kLLMdmTDUN+3kxW8egUfgp6/5FqKZbxSedOJpHFjefdBSnsnUMzo5hyzORFlZohoNQwrQm6QqcMbKfNWTgc4dTEUp7QicE2nvhqeZDGE6gCRWUC06nUNiXZ/AMT0470F4zk1tiTxmG4M0JNuLQ4ep9dohC+aZ/7KbMZP4mBrFcIlth8wOCKEXxXUF0nau83a20WDck5Xf5lg2jQmcXTIA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY5PR12MB6369.namprd12.prod.outlook.com (2603:10b6:930:21::10)
+ by PH7PR12MB6489.namprd12.prod.outlook.com (2603:10b6:510:1f7::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7982.25; Sun, 22 Sep
+ 2024 22:48:07 +0000
+Received: from CY5PR12MB6369.namprd12.prod.outlook.com
+ ([fe80::d4c1:1fcc:3bff:eea6]) by CY5PR12MB6369.namprd12.prod.outlook.com
+ ([fe80::d4c1:1fcc:3bff:eea6%4]) with mapi id 15.20.7982.022; Sun, 22 Sep 2024
+ 22:48:07 +0000
+Message-ID: <17b866cb-c892-4ebd-bfb9-c97b3b95d67f@nvidia.com>
+Date: Mon, 23 Sep 2024 01:47:59 +0300
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] virtio_blk: implement init_hctx MQ operation
+To: Marek Szyprowski <m.szyprowski@samsung.com>, stefanha@redhat.com,
+ virtualization@lists.linux.dev, mst@redhat.com, axboe@kernel.dk
+Cc: kvm@vger.kernel.org, linux-block@vger.kernel.org, oren@nvidia.com
+References: <20240807224129.34237-1-mgurtovoy@nvidia.com>
+ <CGME20240912064617eucas1p1c3191629f76e04111d4b39b15fea350a@eucas1p1.samsung.com>
+ <fb28ea61-4e94-498e-9caa-c8b7786d437a@samsung.com>
+ <b2408b1b-67e7-4935-83b4-1a2850e07374@nvidia.com>
+ <5e051c18-bd96-4543-abeb-4ed245f16f9e@samsung.com>
+Content-Language: en-US
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
+In-Reply-To: <5e051c18-bd96-4543-abeb-4ed245f16f9e@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: LO6P265CA0010.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:339::7) To CY5PR12MB6369.namprd12.prod.outlook.com
+ (2603:10b6:930:21::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR12MB6369:EE_|PH7PR12MB6489:EE_
+X-MS-Office365-Filtering-Correlation-Id: 35771372-7762-4cf1-fa8f-08dcdb58a044
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?YU9NM3dPU0NtWTJLcW9oVGxFam1PeFZiL0pYRnVmQ29wcnp1cjhDMUZRZ0F2?=
+ =?utf-8?B?YnM2QjVXUS9tbVFLSWJFYjh6TDFiaU15OU0xcEZHUTFxYnY1dUFzQ2txdW9p?=
+ =?utf-8?B?Q0ZWbjRkVG9scTV3MHJRWk13b216VmkrR1k4R2tXZkRTSnkwWmVISmlXUDBk?=
+ =?utf-8?B?MFFKYTFLT1MvWW91VVRXY0lRNjdpN1BvYURkOFVsRG5vc0gxazR0OXFLbUxw?=
+ =?utf-8?B?cktjcWE5ZFl0enNJRTYvczlzbUN1TFBWdXJiaThCNjJMeFY0ZWcwTGdhVUZm?=
+ =?utf-8?B?MHJCdTAyS09HZ05zZ0Y0dk82dnJ0cjY0R1pFaFF6NHNvYU1RYTROTzZ0ZUxw?=
+ =?utf-8?B?NjBTbmM3bUhHd2hRUkY1Tm5sMjdLUS85d2MxMm50bkxaSGFmQW5JNUkvOGlN?=
+ =?utf-8?B?blJDNDZQaTEyeER2U1NCcFM2K1pqRy9kN0Uycm9PNXo1MjFFazV0cjlOVDRn?=
+ =?utf-8?B?dU5GV25lSkM5bHIvV3c2RjIxcHlVUTlBT1gvTFJCZWtkWTNPT08vOGxTN1RJ?=
+ =?utf-8?B?K1gwcDEyY2Y3ZS81THRyUnVYWWtscU5TLzNOcm9jb3cyclhESlkweEVEUjUv?=
+ =?utf-8?B?clJnWG1TK2thQVV2T3lwNVptQ2JjSmdvU2FFTEFDZ2xvc1lCVjFtMjZsMUQ3?=
+ =?utf-8?B?UnpwSlNsZjMxZnV3S2N5K2toT3VreFBWbjNIYlRvcExmQTZVU3VURTJjTG0v?=
+ =?utf-8?B?VTF0a3F4L0xRRU1lQndES2NhSFB1R1lQWnhrbUdBbWJnVnc1MkRjMEEzSzlH?=
+ =?utf-8?B?QnBEbWhJeERuaTAvWk5kZkNIL0hXVkYzNzFDaDh1dzNLRG5VTjBUdjc1T2U4?=
+ =?utf-8?B?VHI5R3gzMVNnM1Vmc0VnRHAvSG90SmFrZEpKcVdyVUE5WGNsVHNmOURmMzAx?=
+ =?utf-8?B?eFpFVjBWd1g2MkJKUm5WR3VUOHlpSnBSODIwcXhaWXBEWDczb2FPTSt4OUE3?=
+ =?utf-8?B?UmFEZnlvUWx5dWhTQUJKSWtlSVJ2VGRmRVE5RnBER0lsM0FtRlRYYVo0L3JJ?=
+ =?utf-8?B?T2Y2WTNCWnZXWUFJVjVNUVdnYTRqeFZuSHo3VmpRazRjU0d3VFd4dWNWZENk?=
+ =?utf-8?B?N1d3S0dDdEtPak4rRFZPb3hWS3VaME13bjBoZ1Eybk9XNTJUbmV2ZjB5MGZG?=
+ =?utf-8?B?ZnU5Z3BVVklka3NZS2hNVEVCN3dlcXdSZWRWOVdQeVFoRVk5ck9iY3gxb041?=
+ =?utf-8?B?VTZMQTRlV09EdUgyM2dQTzBEOVhzMTd0d0x6QS9vWVVRU25hVUJuYkI3V3By?=
+ =?utf-8?B?QUlOaXhQV3hYLzhFZXZYcmRwR05iZWwxMDZsVVZWQWJsSWVZRWRlK0pWdjMr?=
+ =?utf-8?B?OXVHSDdNM1N4QTk3aDJxSTAyaTU2STc2UTM5eUtTUENlOTh6ODlOMjhVaERj?=
+ =?utf-8?B?dEdqQlZsdk5OM3ZOellZbjZ6eW5zNWp6VDkvS3JZbkdOTW13TXRYcTBSTVk0?=
+ =?utf-8?B?ajdOajNMbkFOR0g5SUFXTm5lOGlHQWxlSnAxOG1CZHZQc3lBNWM0MEZ4dUls?=
+ =?utf-8?B?MnVXdXlxZER1NFNPZ3ZrQ3YvQlFVcnpVVktQd0o0dFZxdXBzazlNUG92M0Q3?=
+ =?utf-8?B?VDd4WWdWa05WZjl3V1RVa21vTlJvUlc4OXlXcDd1bWlTUVV4bnZ3WE56VVZo?=
+ =?utf-8?B?THN0Z3U1cHN5bDhLNVFoVVM5dStnYUZTb1F0b3FUYmNyTWtlZUt4UWhuTkNr?=
+ =?utf-8?B?Y0xxSHZZb0RnSkdrNzBqZSt3SUR6Q1NFelh2UHFCMmt1N1BwQXJIN29TVDZD?=
+ =?utf-8?B?WWcxWDNVREZSL2xVWU5RdHIxWVpBZThRNjd2WmpPMU8vQk9UUUhJTmIrckdn?=
+ =?utf-8?B?amtZMkVCbUY3SGF0M2Radz09?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR12MB6369.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?RCttOTdHSG9pdTE1Rjk1ZjNmSXduYkpJM3c0eVd6ZTVoS3UwTFVwWk8vdUhV?=
+ =?utf-8?B?MUhYNVFHOGhaaWdpUXYvNTBlZDV3bXNYV3hUb3ZsclppTEhVYXlBcXBlaDZ4?=
+ =?utf-8?B?VFRUNUlzZ3FzYlNxbXpqcDFDbTk4QlAyMWJ2aTcxRGRUZzhJRGRPOEdsSGpM?=
+ =?utf-8?B?bWk4WFpUL3lpdHUwSHhYR3VIMHZGTGJlQjUwdmFkM3ZLNXdoWnB0MEhSbS9x?=
+ =?utf-8?B?YW9VZklMQ2c4RmIrNkFWd1UrV0hlVGx1bkZvbkd2ZVI2UnF5WFRZejArdVh6?=
+ =?utf-8?B?Mi9zV2lROFlJME52RnZWeS8yNi9TdTdqek16S2p6TWNDVXAzUmxKd2NqZm1Q?=
+ =?utf-8?B?eG5NMjRPRGdVQ2JHQ2lMU1A0OW0xR01KV2xON3lKd2ZscE4vUGVoNXNzdHNl?=
+ =?utf-8?B?WmJ2dHI3M2xyWWk3K2ZhelVwdm4yQUQzWGhjUWxiTnFXTmRXYUVqdlYyNXE3?=
+ =?utf-8?B?SW15d0tNQkl4Sld2S3djUlZwSlZPN0huV1N6T005OGtjY1h5NE1xK1lwUElx?=
+ =?utf-8?B?ODdBRng2MEpKblRILzJ2cUF4TEt5UVdVYzgwaHZqRURXSXpqS0huM0hITDZu?=
+ =?utf-8?B?dFo5bEpXVGVaZmZLYW9GRWwxTjRpSzRFV0gxYXI3TCsyOTZsSy9iTWdIQXFV?=
+ =?utf-8?B?aWNPcTQ2MTdXUTgwQXlQVXhWdFBROWg1OHhPTE04OGZ1d0ZhblVXQkd6bzNN?=
+ =?utf-8?B?SlB0aEVzTVRMWjk2dXhrL1E5YUNZWTRsN2lJa0RmUnlSNlE1Q1lWanVQY3Zj?=
+ =?utf-8?B?WXFhOHh6TGV2WHg5SDZpNmpNMVlOdVdCdHlYdTR1bmVZTGtGbXVKVmhMbW9N?=
+ =?utf-8?B?VzlpT01DUS9RSFh3a1JVek0zeWROcGN3bjIwa20zRHNueFl6UjZ5dVgwTFU5?=
+ =?utf-8?B?UkZZZFBUKy9SYTBIWnoweVBqR1QrUnhlY3NwWU95OEJodDkxUXFyY2dtekx0?=
+ =?utf-8?B?YktXK1F1VEtkUUp6VllxTTRWZ0JCYnNSdWxGaW5ybnhBemNpeW9qS282cGo5?=
+ =?utf-8?B?UGZDQzl5dHRtK0k4aEwrRlNBcmptYXFLU3BFWThPeDJBZjNXSGhaMjYxSVE4?=
+ =?utf-8?B?UFlIRDVFYTdPc3BhNUY0UGF6ODIvM2RyNFhLcGl1dWFmQk8xZkxEVG00OStn?=
+ =?utf-8?B?cGNUR0VwYW1CcWF3bk1QS05jeHV6a094eG90ZGtudUV1elVDcmNXSFlBOWhJ?=
+ =?utf-8?B?dUdOR1l6cmdtZU1jRVBkWDlpdHVEdHJmcUl5VHZuOUNkWjAvTTZWM21acitp?=
+ =?utf-8?B?dlUwNGErMFFKYzA1aDFxeURsc0UwWlVnTDV4MFdFejZKVzd4NTVtUHBwU1hZ?=
+ =?utf-8?B?aUVEMHRCK0tMOUFaUi9ESUhxTXVwTUo1OVR1RVBBK1ZjSjZ5bWFJTzBWc2Jj?=
+ =?utf-8?B?ZzVIZkg1VnVYbzV5d2ZTUUZLZnZrV1dYSTg1TE5zZ1N0dkQrTGlweWR3UmhP?=
+ =?utf-8?B?MHlJRlRoZFZlT0ltT1pBTEp1R0xVQjhjY0I0S0xTaFdCYm1RRWhOcHVwZUZ2?=
+ =?utf-8?B?clh5ODJxRTJ1NGdRYW9PU1R5dUxtVHJqMHBVYkd5bm4xMlJzRFZzeldzVmhU?=
+ =?utf-8?B?cDJvQUxHdFpONEx6MGVuZUlUOE1rQVAxd0g4cU9FOEtzOHVpWisvTE9qMWlq?=
+ =?utf-8?B?WkVVVjJ2L0owRHRXRjllWTBlVUZVT0V4NWVMemNSOGVuMVhKa1RUd0xtWlE3?=
+ =?utf-8?B?bENGUmhaYzVlck5abG9IMVFjZDVnWkRzQnFEMjRKWXNZSnc5ZnNHcUxDdGNo?=
+ =?utf-8?B?RktBemUya2RpNGV3dmFyYjZuekJvTDdWTERMZEtDZVdCM3dyWXQ4V0F6aEl5?=
+ =?utf-8?B?TnZjbVZzdVdNQ0Z0bTdpWnhUVWFMbThPYnVVaThxSllLRzMzUlN5K3doNzdl?=
+ =?utf-8?B?M0VIMU52cUNsd2c0LzBoV0g1c2lsczdNUFBRc2FzcmpVYWtOQzZ1K2k4SERS?=
+ =?utf-8?B?R2VrNTlrazNoc1Vna2UrMzFtR2dVNW1EK0l6RWJEVnhVdXNiNUhEcE9JME8v?=
+ =?utf-8?B?eU5XZ2pBUGY5Rk5Sak5lN2FLWlk3eDdLSUhwQmhrVkZvci92dUE0b1VjTXN6?=
+ =?utf-8?B?NWpmKzJ0NkFQaGpGVmRCR3RCK1VzT0tBRXEvTk93L1VEL2hVemx5TWFnTDJH?=
+ =?utf-8?Q?Hodr2A1LmH9NFy2DQsC1t8Ya0?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 35771372-7762-4cf1-fa8f-08dcdb58a044
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6369.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Sep 2024 22:48:07.4494
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: i+cy8nV5qCFW5Pj4f5yMLxz1nLhZahXdYrTDjC9016icAud47BiGMb/px1Tzr6iAcIN7lvXVE/aZtgvhtwlEGg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6489
 
-QXL supports the drm_panic module, which displays a message to the
-screen when a kernel panic occurs.
 
-Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
----
-v4
-1. Remove unnecessary () and empty lines
-2. Remove unlikely() from qxl_panic_bo_create(). This function is
-only called in panic handler and it does not need to get benefit
-by unlikely().
-3. Remove dev_err() debug message from qxl_panic_bo_create(). This
-function is only called in panic handler, so it is not needed.
-4. Check returned value of qxl_panic_bo_create().
+On 17/09/2024 17:09, Marek Szyprowski wrote:
+> Hi Max,
+>
+> On 17.09.2024 00:06, Max Gurtovoy wrote:
+>> On 12/09/2024 9:46, Marek Szyprowski wrote:
+>>> Dear All,
+>>>
+>>> On 08.08.2024 00:41, Max Gurtovoy wrote:
+>>>> Set the driver data of the hardware context (hctx) to point directly to
+>>>> the virtio block queue. This cleanup improves code readability and
+>>>> reduces the number of dereferences in the fast path.
+>>>>
+>>>> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+>>>> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+>>>> ---
+>>>>     drivers/block/virtio_blk.c | 42
+>>>> ++++++++++++++++++++------------------
+>>>>     1 file changed, 22 insertions(+), 20 deletions(-)
+>>> This patch landed in recent linux-next as commit 8d04556131c1
+>>> ("virtio_blk: implement init_hctx MQ operation"). In my tests I found
+>>> that it introduces a regression in system suspend/resume operation. From
+>>> time to time system crashes during suspend/resume cycle. Reverting this
+>>> patch on top of next-20240911 fixes this problem.
+>> Could you please provide a detailed explanation of the system
+>> suspend/resume operation and the specific testing methodology employed?
+> In my tests I just call the 'rtcwake -s10 -mmem' command many times in a
+> loop. I use standard Debian image under QEMU/ARM64. Nothing really special.
 
-v3
-Adjust function's arguments indentation. Discussion v2 patch is in [2]
+I run this test on my bare metal x86 server in a loop with fio in the 
+background.
 
-[2] https://lore.kernel.org/lkml/20240919071230.840994-1-ryasuoka@redhat.com/T/
+The test passed.
 
-v2
-In [1], Jocelyn gives me feedbacks and fix them.
-1. Removing qxl_surface_evict(): It takes a mutex and it possibly
-causes deadlock in panic handler. As the panic handler works
-correctly without it and to make it simple, I remove it.
-2. Update qxl_panic_ttm_bo_destory(): It deleted bo->list with taking
-mutex but it does not need to call because this list is not updated in
-panic handler.
-3. Remove unnecessary args from panic functions: Some panic functions
-always take same values as args (e.g. kernel, pinned, domain etc in
-qxl_panic_bo_create()). So I remove them from panic functions and
-define them in each function.
+Can you please re-test with the linux/master branch with applying this 
+patch on top ?
 
-[1] https://lore.kernel.org/dri-devel/89b55f6f-f462-4e84-b2e2-7f2edc0f1cc4@redhat.com/T/#t
-
- drivers/gpu/drm/qxl/qxl_cmd.c     | 29 ++++++++++
- drivers/gpu/drm/qxl/qxl_display.c | 96 +++++++++++++++++++++++++++++++
- drivers/gpu/drm/qxl/qxl_draw.c    | 61 +++++++++++++++++++-
- drivers/gpu/drm/qxl/qxl_drv.h     | 23 ++++++++
- drivers/gpu/drm/qxl/qxl_gem.c     |  9 +++
- drivers/gpu/drm/qxl/qxl_image.c   | 29 ++++++++++
- drivers/gpu/drm/qxl/qxl_object.c  | 41 +++++++++++++
- drivers/gpu/drm/qxl/qxl_object.h  |  1 +
- 8 files changed, 286 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index d6ea01f3797b..ca7690ca2c4a 100644
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -174,6 +174,35 @@ static bool qxl_ring_pop(struct qxl_ring *ring,
- 	return true;
- }
- 
-+/* For drm panic */
-+int
-+qxl_push_command_ring_without_release(struct qxl_device *qdev,
-+				      struct qxl_bo *bo, uint32_t offset)
-+{
-+	struct qxl_command cmd;
-+	struct qxl_ring *ring = qdev->command_ring;
-+	struct qxl_ring_header *header = &ring->ring->header;
-+	uint8_t *elt;
-+	int idx;
-+
-+	cmd.type = QXL_CMD_DRAW;
-+	cmd.data = qxl_bo_physical_address(qdev, bo, offset);
-+
-+	idx = header->prod & (ring->n_elements - 1);
-+	elt = ring->ring->elements + idx * ring->element_size;
-+
-+	memcpy((void *)elt, &cmd, ring->element_size);
-+
-+	header->prod++;
-+
-+	mb();
-+
-+	if (header->prod == header->notify_on_prod)
-+		outb(0, ring->prod_notify);
-+
-+	return 0;
-+}
-+
- int
- qxl_push_command_ring_release(struct qxl_device *qdev, struct qxl_release *release,
- 			      uint32_t type, bool interruptible)
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index bc24af08dfcd..e6d4663976b0 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -37,6 +37,7 @@
- #include <drm/drm_probe_helper.h>
- #include <drm/drm_simple_kms_helper.h>
- #include <drm/drm_gem_atomic_helper.h>
-+#include <drm/drm_panic.h>
- 
- #include "qxl_drv.h"
- #include "qxl_object.h"
-@@ -889,6 +890,99 @@ static void qxl_plane_cleanup_fb(struct drm_plane *plane,
- 	}
- }
- 
-+static int qxl_primary_plane_helper_get_scanout_buffer(struct drm_plane *plane,
-+						       struct drm_scanout_buffer *sb)
-+{
-+	struct qxl_bo *bo;
-+
-+	if (!plane->state || !plane->state->fb)
-+		return -ENODEV;
-+
-+	bo = gem_to_qxl_bo(plane->state->fb->obj[0]);
-+
-+	if (!bo->map.vaddr) {
-+		int ret;
-+
-+		ret = qxl_bo_pin_and_vmap(bo, &sb->map[0]);
-+		if (ret)
-+			return ret;
-+	} else {
-+		iosys_map_set_vaddr(&sb->map[0], bo->map.vaddr);
-+	}
-+
-+	sb->format = plane->state->fb->format;
-+	sb->height = plane->state->fb->height;
-+	sb->width = plane->state->fb->width;
-+	sb->pitch[0] = plane->state->fb->pitches[0];
-+	return 0;
-+}
-+
-+static void qxl_panic_flush(struct drm_plane *plane)
-+{
-+	struct qxl_device *qdev = to_qxl(plane->dev);
-+	struct qxl_bo *_bo = gem_to_qxl_bo(plane->state->fb->obj[0]);
-+	uint8_t *surface_base = _bo->map.vaddr;
-+	struct drm_clip_rect rect = {
-+		.x1 = 0,
-+		.y1 = 0,
-+		.x2 = plane->state->fb->width,
-+		.y2 = plane->state->fb->height
-+	};
-+	unsigned int num_clips = 1;
-+	struct qxl_bo clips_bo = {};
-+	struct qxl_bo image_bo = {};
-+	struct qxl_bo chunk_bo = {};
-+	struct qxl_drm_image dimage;
-+	struct qxl_drm_chunk chunk;
-+	int width = rect.x2;
-+	int height = rect.y2;
-+	int stride = plane->state->fb->pitches[0];
-+	int depth = plane->state->fb->format->cpp[0] * 8;
-+	struct qxl_rect *rects;
-+	struct qxl_rect drawable_rect = {
-+		.left = 0,
-+		.right = width,
-+		.top = 0,
-+		.bottom = height,
-+	};
-+	int cur_idx = 0;
-+	int size = 256;
-+	struct qxl_bo *bo = qxl_bo_ref(qdev->current_release_bo[cur_idx]);
-+	uint32_t offset = qdev->current_release_bo_offset[cur_idx] * size;
-+	int ret;
-+
-+	ret = qxl_panic_bo_create(qdev, sizeof(struct qxl_clip_rects) + sizeof(struct qxl_rect),
-+				  &clips_bo);
-+	if (ret)
-+		return;
-+
-+	ret = qxl_image_alloc_objects_without_release(qdev, &dimage, &chunk, &image_bo, &chunk_bo,
-+						      surface_base, width, height, depth, stride);
-+	if (ret)
-+		return;
-+
-+	ret = make_drawable_without_release(qdev, &drawable_rect, bo, &clips_bo,
-+					    &dimage, offset, height, width);
-+	if (ret)
-+		return;
-+
-+	rects = drawable_set_clipping(qdev, num_clips, &clips_bo);
-+	if (!rects)
-+		return;
-+	rects[0].left = 0;
-+	rects[0].right = width;
-+	rects[0].top = 0;
-+	rects[0].bottom = height;
-+
-+	qxl_push_command_ring_without_release(qdev, bo, offset);
-+
-+	qxl_panic_gem_object_free(&chunk_bo.tbo.base);
-+	qxl_panic_gem_object_free(&image_bo.tbo.base);
-+
-+	qxl_bo_vunmap_locked(&clips_bo);
-+	qxl_panic_gem_object_free(&clips_bo.tbo.base);
-+}
-+
- static const uint32_t qxl_cursor_plane_formats[] = {
- 	DRM_FORMAT_ARGB8888,
- };
-@@ -920,6 +1014,8 @@ static const struct drm_plane_helper_funcs primary_helper_funcs = {
- 	.atomic_disable = qxl_primary_atomic_disable,
- 	.prepare_fb = qxl_plane_prepare_fb,
- 	.cleanup_fb = qxl_plane_cleanup_fb,
-+	.get_scanout_buffer = qxl_primary_plane_helper_get_scanout_buffer,
-+	.panic_flush = qxl_panic_flush,
- };
- 
- static const struct drm_plane_funcs qxl_primary_plane_funcs = {
-diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_draw.c
-index 3a3e127ce297..cf64db196101 100644
---- a/drivers/gpu/drm/qxl/qxl_draw.c
-+++ b/drivers/gpu/drm/qxl/qxl_draw.c
-@@ -41,9 +41,10 @@ static int alloc_clips(struct qxl_device *qdev,
- /* returns a pointer to the already allocated qxl_rect array inside
-  * the qxl_clip_rects. This is *not* the same as the memory allocated
-  * on the device, it is offset to qxl_clip_rects.chunk.data */
--static struct qxl_rect *drawable_set_clipping(struct qxl_device *qdev,
--					      unsigned int num_clips,
--					      struct qxl_bo *clips_bo)
-+
-+struct qxl_rect *drawable_set_clipping(struct qxl_device *qdev,
-+				       unsigned int num_clips,
-+				       struct qxl_bo *clips_bo)
- {
- 	struct iosys_map map;
- 	struct qxl_clip_rects *dev_clips;
-@@ -74,6 +75,60 @@ free_drawable(struct qxl_device *qdev, struct qxl_release *release)
- 	qxl_release_free(qdev, release);
- }
- 
-+/* For drm panic */
-+int
-+make_drawable_without_release(struct qxl_device *qdev,
-+			      struct qxl_rect *drawable_rect,
-+			      struct qxl_bo *bo,
-+			      struct qxl_bo *clips_bo,
-+			      struct qxl_drm_image *dimage,
-+			      uint32_t offset, int height, int width)
-+{
-+	struct qxl_drawable *drawable;
-+	union qxl_release_info *info;
-+	void *ptr;
-+	int i;
-+
-+	ptr = qxl_bo_kmap_atomic_page(qdev, bo, offset & PAGE_MASK);
-+	if (!ptr)
-+		return -ENOMEM;
-+	drawable = ptr + (offset & ~PAGE_MASK);
-+
-+	drawable->type = QXL_DRAW_COPY;
-+	drawable->surface_id = 0;
-+	drawable->effect = QXL_EFFECT_OPAQUE;
-+	drawable->self_bitmap = 0;
-+	drawable->self_bitmap_area.top = 0;
-+	drawable->self_bitmap_area.left = 0;
-+	drawable->self_bitmap_area.bottom = 0;
-+	drawable->self_bitmap_area.right = 0;
-+
-+	for (i = 0; i < 3; ++i)
-+		drawable->surfaces_dest[i] = -1;
-+
-+	drawable->bbox = *drawable_rect;
-+	drawable->mm_time = qdev->rom->mm_clock;
-+	drawable->clip.type = SPICE_CLIP_TYPE_RECTS;
-+	drawable->clip.data = qxl_bo_physical_address(qdev, clips_bo, 0);
-+	drawable->u.copy.src_area.top = 0;
-+	drawable->u.copy.src_area.bottom = height;
-+	drawable->u.copy.src_area.left = 0;
-+	drawable->u.copy.src_area.right = width;
-+	drawable->u.copy.rop_descriptor = SPICE_ROPD_OP_PUT;
-+	drawable->u.copy.scale_mode = 0;
-+	drawable->u.copy.mask.flags = 0;
-+	drawable->u.copy.mask.pos.x = 0;
-+	drawable->u.copy.mask.pos.y = 0;
-+	drawable->u.copy.mask.bitmap = 0;
-+	drawable->u.copy.src_bitmap = qxl_bo_physical_address(qdev, dimage->bo, 0);
-+
-+	info = &drawable->release_info;
-+	ptr = ((void *)info) - (offset & ~PAGE_MASK);
-+	qxl_bo_kunmap_atomic_page(qdev, bo, ptr);
-+
-+	return 0;
-+}
-+
- /* release needs to be reserved at this point */
- static int
- make_drawable(struct qxl_device *qdev, int surface, uint8_t type,
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 32069acd93f8..c49ceedfd1c0 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -309,6 +309,7 @@ int qxl_gem_object_create_with_handle(struct qxl_device *qdev,
- 				      struct qxl_surface *surf,
- 				      struct drm_gem_object **gobj,
- 				      uint32_t *handle);
-+void qxl_panic_gem_object_free(struct drm_gem_object *gobj);
- void qxl_gem_object_free(struct drm_gem_object *gobj);
- int qxl_gem_object_open(struct drm_gem_object *obj, struct drm_file *file_priv);
- void qxl_gem_object_close(struct drm_gem_object *obj,
-@@ -334,6 +335,14 @@ int qxl_image_init(struct qxl_device *qdev,
- 		   const uint8_t *data,
- 		   int x, int y, int width, int height,
- 		   int depth, int stride);
-+
-+int qxl_image_alloc_objects_without_release(struct qxl_device *qdev,
-+					    struct qxl_drm_image *image,
-+					    struct qxl_drm_chunk *chunk,
-+					    struct qxl_bo *image_bo, struct qxl_bo *chunk_bo,
-+					    uint8_t *surface_base, int width,
-+					    int height, int depth, int stride);
-+
- int
- qxl_image_alloc_objects(struct qxl_device *qdev,
- 			struct qxl_release *release,
-@@ -376,6 +385,9 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
- 			       int type, struct qxl_release **release,
- 			       struct qxl_bo **rbo);
- 
-+int qxl_push_command_ring_without_release(struct qxl_device *qdev,
-+					  struct qxl_bo *bo, uint32_t offset);
-+
- int
- qxl_push_command_ring_release(struct qxl_device *qdev, struct qxl_release *release,
- 			      uint32_t type, bool interruptible);
-@@ -387,6 +399,9 @@ int qxl_alloc_bo_reserved(struct qxl_device *qdev,
- 			  unsigned long size,
- 			  struct qxl_bo **_bo);
- /* qxl drawing commands */
-+struct qxl_rect *drawable_set_clipping(struct qxl_device *qdev,
-+				       unsigned int num_clips,
-+				       struct qxl_bo *clips_bo);
- 
- void qxl_draw_dirty_fb(struct qxl_device *qdev,
- 		       struct drm_framebuffer *fb,
-@@ -399,6 +414,14 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
- void qxl_release_free(struct qxl_device *qdev,
- 		      struct qxl_release *release);
- 
-+int
-+make_drawable_without_release(struct qxl_device *qdev,
-+			      struct qxl_rect *drawable_rect,
-+			      struct qxl_bo *bo,
-+			      struct qxl_bo *clips_bo,
-+			      struct qxl_drm_image *dimage,
-+			      uint32_t offset, int height, int width);
-+
- /* used by qxl_debugfs_release */
- struct qxl_release *qxl_release_from_id_locked(struct qxl_device *qdev,
- 						   uint64_t id);
-diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
-index fc5e3763c359..f140439c640a 100644
---- a/drivers/gpu/drm/qxl/qxl_gem.c
-+++ b/drivers/gpu/drm/qxl/qxl_gem.c
-@@ -28,6 +28,15 @@
- #include "qxl_drv.h"
- #include "qxl_object.h"
- 
-+void qxl_panic_gem_object_free(struct drm_gem_object *gobj)
-+{
-+	struct qxl_bo *qobj = gem_to_qxl_bo(gobj);
-+	struct ttm_buffer_object *tbo;
-+
-+	tbo = &qobj->tbo;
-+	ttm_bo_put(tbo);
-+}
-+
- void qxl_gem_object_free(struct drm_gem_object *gobj)
- {
- 	struct qxl_bo *qobj = gem_to_qxl_bo(gobj);
-diff --git a/drivers/gpu/drm/qxl/qxl_image.c b/drivers/gpu/drm/qxl/qxl_image.c
-index ffff54e5fb31..cef93df1624e 100644
---- a/drivers/gpu/drm/qxl/qxl_image.c
-+++ b/drivers/gpu/drm/qxl/qxl_image.c
-@@ -52,6 +52,35 @@ qxl_allocate_chunk(struct qxl_device *qdev,
- 	return 0;
- }
- 
-+/* For drm panic */
-+int
-+qxl_image_alloc_objects_without_release(struct qxl_device *qdev,
-+					struct qxl_drm_image *image,
-+					struct qxl_drm_chunk *chunk,
-+					struct qxl_bo *image_bo, struct qxl_bo *chunk_bo,
-+					uint8_t *surface_base, int width, int height,
-+					int depth, int stride)
-+{
-+	int ret;
-+	unsigned int chunk_size = sizeof(struct qxl_data_chunk) + stride * height;
-+
-+	INIT_LIST_HEAD(&image->chunk_list);
-+	ret = qxl_panic_bo_create(qdev, sizeof(struct qxl_image), image_bo);
-+	if (ret)
-+		return ret;
-+	image->bo = image_bo;
-+
-+	ret = qxl_panic_bo_create(qdev, chunk_size, chunk_bo);
-+	if (ret)
-+		return ret;
-+	chunk->bo = chunk_bo;
-+	list_add_tail(&chunk->head, &image->chunk_list);
-+
-+	ret = qxl_image_init(qdev, NULL, image, surface_base,
-+			     0, 0, width, height, depth, stride);
-+	return ret;
-+}
-+
- int
- qxl_image_alloc_objects(struct qxl_device *qdev,
- 			struct qxl_release *release,
-diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-index 66635c55cf85..d6d1be79651f 100644
---- a/drivers/gpu/drm/qxl/qxl_object.c
-+++ b/drivers/gpu/drm/qxl/qxl_object.c
-@@ -29,6 +29,16 @@
- #include "qxl_drv.h"
- #include "qxl_object.h"
- 
-+/* For drm panic */
-+static void qxl_panic_ttm_bo_destroy(struct ttm_buffer_object *tbo)
-+{
-+	struct qxl_bo *bo;
-+
-+	bo = to_qxl_bo(tbo);
-+	WARN_ON_ONCE(bo->map_count > 0);
-+	drm_gem_object_release(&bo->tbo.base);
-+}
-+
- static void qxl_ttm_bo_destroy(struct ttm_buffer_object *tbo)
- {
- 	struct qxl_bo *bo;
-@@ -101,6 +111,37 @@ static const struct drm_gem_object_funcs qxl_object_funcs = {
- 	.print_info = drm_gem_ttm_print_info,
- };
- 
-+/* For drm panic */
-+int qxl_panic_bo_create(struct qxl_device *qdev, unsigned long size, struct qxl_bo *bo)
-+{
-+	u32 domain = QXL_GEM_DOMAIN_VRAM;
-+	struct ttm_operation_ctx ctx = { true, false };
-+	enum ttm_bo_type type;
-+	int r;
-+
-+	type = ttm_bo_type_device;
-+
-+	size = roundup(size, PAGE_SIZE);
-+	r = drm_gem_object_init(&qdev->ddev, &bo->tbo.base, size);
-+	if (r)
-+		return r;
-+	bo->tbo.base.funcs = &qxl_object_funcs;
-+	bo->type = domain;
-+	bo->surface_id = 0;
-+	INIT_LIST_HEAD(&bo->list);
-+
-+	qxl_ttm_placement_from_domain(bo, domain);
-+
-+	bo->tbo.priority = 0;
-+	r = ttm_bo_init_reserved(&qdev->mman.bdev, &bo->tbo, type,
-+				 &bo->placement, 0, &ctx, NULL, NULL,
-+				 &qxl_panic_ttm_bo_destroy);
-+	if (r)
-+		return r;
-+	ttm_bo_unreserve(&bo->tbo);
-+	return 0;
-+}
-+
- int qxl_bo_create(struct qxl_device *qdev, unsigned long size,
- 		  bool kernel, bool pinned, u32 domain, u32 priority,
- 		  struct qxl_surface *surf,
-diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
-index 875f63221074..d1dbf7a3dd5b 100644
---- a/drivers/gpu/drm/qxl/qxl_object.h
-+++ b/drivers/gpu/drm/qxl/qxl_object.h
-@@ -53,6 +53,7 @@ static inline unsigned long qxl_bo_size(struct qxl_bo *bo)
- 	return bo->tbo.base.size;
- }
- 
-+extern int qxl_panic_bo_create(struct qxl_device *qdev, unsigned long size, struct qxl_bo *bo);
- extern int qxl_bo_create(struct qxl_device *qdev,
- 			 unsigned long size,
- 			 bool kernel, bool pinned, u32 domain,
--- 
-2.46.0
-
+>
+>> The occurrence of a kernel panic from this commit is unexpected, given
+>> that it primarily involves pointer reassignment without altering the
+>> lifecycle of vblk/vqs.
+>>
+>> In the virtqueue_add_split function, which pointer is becoming null
+>> and causing the issue? A detailed analysis would be helpful.
+>>
+>> The report indicates that the crash occurs sporadically rather than
+>> consistently.
+>>
+>> is it possible that this is a race condition introduced by a different
+>> commit? How can we rule out this possibility?
+> This is the commit pointed by bisecting between v6.11-rc1 and
+> next-20240911. The problem is reproducible, it just need a few calls to
+> the rtcwake command.
+>> Prior to applying this commit, what were the test results?
+>> Specifically, out of 100 test runs, how many passed successfully?
+> All 100 were successful, see https://pastebin.com/3yETvXK9 (kernel is
+> compiled from 6d17035a7402, which is a parent of $subject in linux-next).
+>
+>> After applying this commit, what are the updated test results? Again,
+>> out of 100 test runs, how many passed successfully?
+> Usually it freezes or panics after the second try, see
+> https://pastebin.com/u5n9K1Dz (kernel compiled from 8d04556131c1, which
+> is $subject in linux-next).
+>
+>>> I've even managed to catch a kernel panic log of this problem on QEMU's
+>>> ARM64 'virt' machine:
+>>>
+>>> root@target:~# time rtcwake -s10 -mmem
+>>> rtcwake: wakeup from "mem" using /dev/rtc0 at Thu Sep 12 07:11:52 2024
+>>> Unable to handle kernel NULL pointer dereference at virtual address
+>>> 0000000000000090
+>>> Mem abort info:
+>>>      ESR = 0x0000000096000046
+>>>      EC = 0x25: DABT (current EL), IL = 32 bits
+>>>      SET = 0, FnV = 0
+>>>      EA = 0, S1PTW = 0
+>>>      FSC = 0x06: level 2 translation fault
+>>> Data abort info:
+>>>      ISV = 0, ISS = 0x00000046, ISS2 = 0x00000000
+>>>      CM = 0, WnR = 1, TnD = 0, TagAccess = 0
+>>>      GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+>>> user pgtable: 4k pages, 48-bit VAs, pgdp=0000000046bbb000
+>>> ...
+>>> Internal error: Oops: 0000000096000046 [#1] PREEMPT SMP
+>>> Modules linked in: bluetooth ecdh_generic ecc rfkill ipv6
+>>> CPU: 0 UID: 0 PID: 9 Comm: kworker/0:0H Not tainted 6.11.0-rc6+ #9024
+>>> Hardware name: linux,dummy-virt (DT)
+>>> Workqueue: kblockd blk_mq_requeue_work
+>>> pstate: 800000c5 (Nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+>>> pc : virtqueue_add_split+0x458/0x63c
+>>> lr : virtqueue_add_split+0x1d0/0x63c
+>>> ...
+>>> Call trace:
+>>>     virtqueue_add_split+0x458/0x63c
+>>>     virtqueue_add_sgs+0xc4/0xec
+>>>     virtblk_add_req+0x8c/0xf4
+>>>     virtio_queue_rq+0x6c/0x1bc
+>>>     blk_mq_dispatch_rq_list+0x21c/0x714
+>>>     __blk_mq_sched_dispatch_requests+0xb4/0x58c
+>>>     blk_mq_sched_dispatch_requests+0x30/0x6c
+>>>     blk_mq_run_hw_queue+0x14c/0x40c
+>>>     blk_mq_run_hw_queues+0x64/0x124
+>>>     blk_mq_requeue_work+0x188/0x1bc
+>>>     process_one_work+0x20c/0x608
+>>>     worker_thread+0x238/0x370
+>>>     kthread+0x124/0x128
+>>>     ret_from_fork+0x10/0x20
+>>> Code: f9404282 79401c21 b9004a81 f94047e1 (f8206841)
+>>> ---[ end trace 0000000000000000 ]---
+>>> note: kworker/0:0H[9] exited with irqs disabled
+>>> note: kworker/0:0H[9] exited with preempt_count 1
+>>>
+>>>
+>>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>>>> index 2351f411fa46..35a7a586f6f5 100644
+>>>> --- a/drivers/block/virtio_blk.c
+>>>> +++ b/drivers/block/virtio_blk.c
+>>>> @@ -129,14 +129,6 @@ static inline blk_status_t virtblk_result(u8
+>>>> status)
+>>>>         }
+>>>>     }
+>>>>     -static inline struct virtio_blk_vq *get_virtio_blk_vq(struct
+>>>> blk_mq_hw_ctx *hctx)
+>>>> -{
+>>>> -    struct virtio_blk *vblk = hctx->queue->queuedata;
+>>>> -    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>>>> -
+>>>> -    return vq;
+>>>> -}
+>>>> -
+>>>>     static int virtblk_add_req(struct virtqueue *vq, struct
+>>>> virtblk_req *vbr)
+>>>>     {
+>>>>         struct scatterlist out_hdr, in_hdr, *sgs[3];
+>>>> @@ -377,8 +369,7 @@ static void virtblk_done(struct virtqueue *vq)
+>>>>        static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+>>>>     {
+>>>> -    struct virtio_blk *vblk = hctx->queue->queuedata;
+>>>> -    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>>>> +    struct virtio_blk_vq *vq = hctx->driver_data;
+>>>>         bool kick;
+>>>>            spin_lock_irq(&vq->lock);
+>>>> @@ -428,10 +419,10 @@ static blk_status_t virtio_queue_rq(struct
+>>>> blk_mq_hw_ctx *hctx,
+>>>>                    const struct blk_mq_queue_data *bd)
+>>>>     {
+>>>>         struct virtio_blk *vblk = hctx->queue->queuedata;
+>>>> +    struct virtio_blk_vq *vq = hctx->driver_data;
+>>>>         struct request *req = bd->rq;
+>>>>         struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+>>>>         unsigned long flags;
+>>>> -    int qid = hctx->queue_num;
+>>>>         bool notify = false;
+>>>>         blk_status_t status;
+>>>>         int err;
+>>>> @@ -440,26 +431,26 @@ static blk_status_t virtio_queue_rq(struct
+>>>> blk_mq_hw_ctx *hctx,
+>>>>         if (unlikely(status))
+>>>>             return status;
+>>>>     -    spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+>>>> -    err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
+>>>> +    spin_lock_irqsave(&vq->lock, flags);
+>>>> +    err = virtblk_add_req(vq->vq, vbr);
+>>>>         if (err) {
+>>>> -        virtqueue_kick(vblk->vqs[qid].vq);
+>>>> +        virtqueue_kick(vq->vq);
+>>>>             /* Don't stop the queue if -ENOMEM: we may have failed to
+>>>>              * bounce the buffer due to global resource outage.
+>>>>              */
+>>>>             if (err == -ENOSPC)
+>>>>                 blk_mq_stop_hw_queue(hctx);
+>>>> -        spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+>>>> +        spin_unlock_irqrestore(&vq->lock, flags);
+>>>>             virtblk_unmap_data(req, vbr);
+>>>>             return virtblk_fail_to_queue(req, err);
+>>>>         }
+>>>>     -    if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
+>>>> +    if (bd->last && virtqueue_kick_prepare(vq->vq))
+>>>>             notify = true;
+>>>> -    spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+>>>> +    spin_unlock_irqrestore(&vq->lock, flags);
+>>>>            if (notify)
+>>>> -        virtqueue_notify(vblk->vqs[qid].vq);
+>>>> +        virtqueue_notify(vq->vq);
+>>>>         return BLK_STS_OK;
+>>>>     }
+>>>>     @@ -504,7 +495,7 @@ static void virtio_queue_rqs(struct request
+>>>> **rqlist)
+>>>>         struct request *requeue_list = NULL;
+>>>>            rq_list_for_each_safe(rqlist, req, next) {
+>>>> -        struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
+>>>> +        struct virtio_blk_vq *vq = req->mq_hctx->driver_data;
+>>>>             bool kick;
+>>>>                if (!virtblk_prep_rq_batch(req)) {
+>>>> @@ -1164,6 +1155,16 @@ static const struct attribute_group
+>>>> *virtblk_attr_groups[] = {
+>>>>         NULL,
+>>>>     };
+>>>>     +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void
+>>>> *data,
+>>>> +        unsigned int hctx_idx)
+>>>> +{
+>>>> +    struct virtio_blk *vblk = data;
+>>>> +    struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
+>>>> +
+>>>> +    hctx->driver_data = vq;
+>>>> +    return 0;
+>>>> +}
+>>>> +
+>>>>     static void virtblk_map_queues(struct blk_mq_tag_set *set)
+>>>>     {
+>>>>         struct virtio_blk *vblk = set->driver_data;
+>>>> @@ -1205,7 +1206,7 @@ static void virtblk_complete_batch(struct
+>>>> io_comp_batch *iob)
+>>>>     static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct
+>>>> io_comp_batch *iob)
+>>>>     {
+>>>>         struct virtio_blk *vblk = hctx->queue->queuedata;
+>>>> -    struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
+>>>> +    struct virtio_blk_vq *vq = hctx->driver_data;
+>>>>         struct virtblk_req *vbr;
+>>>>         unsigned long flags;
+>>>>         unsigned int len;
+>>>> @@ -1236,6 +1237,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
+>>>>         .queue_rqs    = virtio_queue_rqs,
+>>>>         .commit_rqs    = virtio_commit_rqs,
+>>>>         .complete    = virtblk_request_done,
+>>>> +    .init_hctx    = virtblk_init_hctx,
+>>>>         .map_queues    = virtblk_map_queues,
+>>>>         .poll        = virtblk_poll,
+>>>>     };
+>>> Best regards
+> Best regards
