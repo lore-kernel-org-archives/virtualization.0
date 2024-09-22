@@ -1,107 +1,103 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FA9A176FDB;
-	Sat, 21 Sep 2024 17:29:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDE69632
+	for <virtualization@lists.linux.dev>; Sun, 22 Sep 2024 12:34:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726939743; cv=none; b=WPDDYvWJ3TNNOw8YHn9G7/8HIs+3Ni0dkjkh/4W70RV3UtWeR2lMFq257ctHtDkS9IX6ezToCQPRqpDFIONub14Tp5cG7twtk6geNHEAxZ7axYF+OZiJNrFkgINWRVK4h1zCPz8x1ENE+0QSEwei3ImvHXbqMPW3FwTI2hScPt0=
+	t=1727008500; cv=none; b=rKbJcF5BQEROwvZokhWeZrEmAIMutRzSAPLdxwzTW1ZaANFqPdyhaWXdY4E3H2llQ3dpFl4xuN/lrkSZ5HnBfciptVHOEs8yvjtZ3ZNV9vY8vuWwyw9da+b017vkuNGCwYMAKmla0Vs/55k2r4FGTgy1OFrMoENVZCxvWp5m4q8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726939743; c=relaxed/simple;
-	bh=XkZ8EqP3YUt9TcIO8/N9L/IuUrNSlk9YL/IUUQn9iOI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UiGKpp4WBRiVqeC0ZNkTptwTCFfzoP8WJBFXAEOTk5qXVb1MMdnsfxG5/V66wh70MlLgeyRL0u8G6IDWAFm/C5iCH3w2eGMF6b5pNB1gXDRCidlJLByCilPYRcQ5xBhvg1N1aC3rGZIzedLRnh/9rcjXM7k0jf0nKLi4RdoK6aI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OFyejPFo; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1727008500; c=relaxed/simple;
+	bh=XVc9bHInXL3zTC8FMuHPHNeZEVEe7u3kHz0JBqYOm10=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UuJ6ES66J053HfpgJl7Z3vRFAlHiPERURqLd0t0we96r/Ql4UJV65u8ivsVhmbhpl34G1ubmXfCMwlYhM0keBkiGS9iz664sj6cAi88kPaoPa0YiLDMH3NBDt9uKFWjtyjE72F/KKRd7qHOrNzSEmCpp30Tbly3HUSRVGC3uoVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=Decbyq5u; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OFyejPFo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1726939741; x=1758475741;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=XkZ8EqP3YUt9TcIO8/N9L/IuUrNSlk9YL/IUUQn9iOI=;
-  b=OFyejPFoj0sUXHiL4kS0PkpuVdXfNIGVlhyMvz4XYDZ95lP6wtwupKdQ
-   CZxEY5ZhMFZk/cLGdKEUElvsq+Z7RVLU13SWVdZLKN/0EqTOcEyFijoVJ
-   Fo4asxs4PQ1rPg2qsGkHtw7BMw6ViMKCaXA5Oc/ePiPeFPnhtIG2L7Qca
-   +lWSMe1krwl+J8Sav8OsQApwRBZJEex1zf7arW1SuVvml0dhU4iOI2aL5
-   Z8tBvpGWT/LLQFrm9jBMWp0ckVbMivHYMeOdHhprYgTVptItoF8ybFcsU
-   qJfUmBlfHnXpsRys0u9OYHvZ+hwu6RdudYBcCvT8iPCe1Zkac6s8CUB7c
-   A==;
-X-CSE-ConnectionGUID: gwOOU64STPWZ2HptZHep8w==
-X-CSE-MsgGUID: 7xqWmOZVSqG+Z7ZPugeMzQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11202"; a="29719652"
-X-IronPort-AV: E=Sophos;i="6.10,247,1719903600"; 
-   d="scan'208";a="29719652"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2024 10:29:01 -0700
-X-CSE-ConnectionGUID: yQNEjcEbQOaj15Zd8ov60A==
-X-CSE-MsgGUID: mJr0SVTNRAC6LaO1gJyAFA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,247,1719903600"; 
-   d="scan'208";a="70914300"
-Received: from lkp-server01.sh.intel.com (HELO 53e96f405c61) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 21 Sep 2024 10:28:58 -0700
-Received: from kbuild by 53e96f405c61 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1ss3ui-000Fdp-0H;
-	Sat, 21 Sep 2024 17:28:56 +0000
-Date: Sun, 22 Sep 2024 01:28:00 +0800
-From: kernel test robot <lkp@intel.com>
-To: Srujana Challa <schalla@marvell.com>, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
-	eperezma@redhat.com, ndabilpuram@marvell.com, jerinj@marvell.com
-Subject: Re: [PATCH v2 1/2] vhost-vdpa: introduce module parameter for
- no-IOMMU mode
-Message-ID: <202409220134.x63FmsHx-lkp@intel.com>
-References: <20240920140530.775307-2-schalla@marvell.com>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="Decbyq5u"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48MC74wT024758;
+	Sun, 22 Sep 2024 12:34:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-type:date:from:message-id:mime-version:subject:to; s=
+	qcppdkim1; bh=QvW6L3rE2goqnPv2oj2uARFM01ICtzo/vXYdOwNpeG4=; b=De
+	cbyq5ukPMtrcFa1j6dBxf94TmlelJhugfZMNt4g48dA/ENwWiimUei7/AZmteUH1
+	Kmayb6UsMTox3D70+5/wKWB8MAyPCl8C77tF2j1FgBMXUKGVIj+Tf/K6TUYLjlTI
+	Kc78I8dVJ/lFzhp0dw5bhdEr5JK9RW4+OKQtFbpK8SFOua6w4RQXU9wDmTRGvuds
+	lWkmkC8eT2S6tugMp6vSUsW144Q8DRgFexQD5K2cVa8OCljbzrf8zyP06Cu5T3Sj
+	qk7JHbE7Oqw/a0Yk3FPTmtWogn4kcMM1V5gGOkqOAKigee7SvixYLuQ4Sh2dEKwv
+	TZTr+ZPiRYnIUwFM6ATA==
+Received: from nasanppmta02.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41skuejd8v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 22 Sep 2024 12:34:49 +0000 (GMT)
+Received: from nasanex01b.na.qualcomm.com (nasanex01b.na.qualcomm.com [10.46.141.250])
+	by NASANPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 48MCYm1V022516
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 22 Sep 2024 12:34:48 GMT
+Received: from jianguos-gv.qualcomm.com (10.80.80.8) by
+ nasanex01b.na.qualcomm.com (10.46.141.250) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.9; Sun, 22 Sep 2024 05:34:46 -0700
+From: Jianguo Sun <quic_jianguos@quicinc.com>
+To: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+        <eperezma@redhat.com>, <virtualization@lists.linux.dev>
+CC: Jianguo Sun <quic_jianguos@quicinc.com>,
+        Anant Goel
+	<quic_anantg@quicinc.com>
+Subject: [PATCH 1/2] Virtio: Add CONFIG_VIRTIO_MMIO_POLL_RESET
+Date: Sun, 22 Sep 2024 20:34:34 +0800
+Message-ID: <20240922123435.17946-1-quic_jianguos@quicinc.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240920140530.775307-2-schalla@marvell.com>
+Content-Type: text/plain
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nasanex01b.na.qualcomm.com (10.46.141.250)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: j333JciWCffh92NkQc_2uUJJiQzhy7Y5
+X-Proofpoint-ORIG-GUID: j333JciWCffh92NkQc_2uUJJiQzhy7Y5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ adultscore=0 clxscore=1011 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 mlxscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409220096
 
-Hi Srujana,
+Add CONFIG_VIRTIO_MMIO_POLL_RESET to as an option to enable
+synchronous reset for the MMIO based transport for virtio.
 
-kernel test robot noticed the following build warnings:
+Change-Id: Ifa7e29b4c0cfa26922535f921c6ab69eacdc4cfc
+Signed-off-by: Jianguo Sun <quic_jianguos@quicinc.com>
+Signed-off-by: Anant Goel <quic_anantg@quicinc.com>
+---
+ drivers/virtio/Kconfig | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-[auto build test WARNING on mst-vhost/linux-next]
-[also build test WARNING on linus/master v6.11 next-20240920]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Srujana-Challa/vhost-vdpa-introduce-module-parameter-for-no-IOMMU-mode/20240920-220751
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20240920140530.775307-2-schalla%40marvell.com
-patch subject: [PATCH v2 1/2] vhost-vdpa: introduce module parameter for no-IOMMU mode
-config: x86_64-randconfig-122-20240921 (https://download.01.org/0day-ci/archive/20240922/202409220134.x63FmsHx-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240922/202409220134.x63FmsHx-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202409220134.x63FmsHx-lkp@intel.com/
-
-sparse warnings: (new ones prefixed by >>)
->> drivers/vhost/vdpa.c:39:6: sparse: sparse: symbol 'vhost_vdpa_noiommu' was not declared. Should it be static?
-
-vim +/vhost_vdpa_noiommu +39 drivers/vhost/vdpa.c
-
-    38	
-  > 39	bool vhost_vdpa_noiommu;
-    40	module_param_named(enable_vhost_vdpa_unsafe_noiommu_mode,
-    41			   vhost_vdpa_noiommu, bool, 0644);
-    42	MODULE_PARM_DESC(enable_vhost_vdpa_unsafe_noiommu_mode, "Enable UNSAFE, no-IOMMU mode.  This mode provides no device isolation, no DMA translation, no host kernel protection, cannot be used for device assignment to virtual machines, requires RAWIO permissions, and will taint the kernel.  If you do not know what this is for, step away. (default: false)");
-    43	
-
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 42a48ac763ee..fb17b1078d53 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -188,4 +188,12 @@ config VIRTIO_DEBUG
+ 
+ 	  If unsure, say N.
+ 
++config VIRTIO_MMIO_POLL_RESET
++	bool "Virti-mmio device synchronous reset support"
++	depends on VIRTIO_MMIO
++	help
++	  Say y here to enable synchronous reset for the MMIO transport based
++	  virtio device. After writing 0 to device_status, the driver must
++	  wait for a read of device_status to return 0 before reinitializing
++	  the device.
+ endif # VIRTIO_MENU
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.17.1
+
