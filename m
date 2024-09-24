@@ -1,131 +1,217 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C6151A7ADE
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 13:05:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2044013BC35
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 20:50:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727183160; cv=none; b=K194RdKVs1l/TBcq/V4p39Bd+yNXPWJO0/oaGm5l5hCZ+wu8NOOs+4Hfnw2r6V9c5CDfpBHV3XrV7bgworMeR93ydN9SuouCKbCJX/3C4dCzEjn2g/Ci3z9QXo9d4v0dQOHr0Rz9Ai6E0uJuXtx/QyQGm/aMFJU/Y+m9aNq3bkE=
+	t=1727211059; cv=none; b=q4ILZzoeD/dwpWa8hjFLxktrvQPMqgcoBRsg5aox5yza3YYQ5nEkQJjzdBh+ldM4JD8lf5NxiCa0ffjM4TUJswhxv6aEcBB3Tw8ziFnlhD2ZxXX9PhRaOUkt4LFL1fuKNM8kG+pjUgeywUpX6Hz8Nt+HlYEptn7tFSfjQpJtn1E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727183160; c=relaxed/simple;
-	bh=Qjfkvp5NGxGZwA6T1g5vVDbjGsM0vKbe4sPFNhJ0gMg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Vnk0BCwBNOGo2DIiRLVsDGdOgAIMmreB4ny8pINQ6m41S+1MqwH+wj3zwJ/D+AQdbLUPTi+o4i1D3YfJkZpeskJCDcpoOiHFshVVUivU2uy6eDgcn9XJTBiUvh5+3ZCTd1DFC2EoV/X0gVO0YZm+4shgibQCMb9mw4sFB4DiGVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VCwvZzHT; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1727211059; c=relaxed/simple;
+	bh=q1Fzh6XcLCvsZX97wtdGvG+wbgRVQb9FWzltMHxrYhU=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=A/M9MOkQYBmyBro7JY7yM9W27xULFgKyeFi5wNVPGDxbVRb3CkFMhmIJGpgkACwPALkAdROteFP0Ie/oFv1uUbkB9gJ9JdjR5fP0l3SUHR0xJu0wwIvsDjYJdZLuyjz+p5ng7gLc1a7DPkVGDdJhio77dIuDEW091durACcEpkY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XuVsvKdt; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VCwvZzHT"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XuVsvKdt"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C3D7E41A64
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 13:05:58 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C6B3240E90
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 20:50:57 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -10.792
+X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Y66CxNKS_Xe2 for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Sep 2024 13:05:58 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=horms@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DB2F141A4A
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB2F141A4A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=VCwvZzHT
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DB2F141A4A
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 13:05:57 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id AC3135C5BBB;
-	Tue, 24 Sep 2024 13:05:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 783F8C4CEC4;
-	Tue, 24 Sep 2024 13:05:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1727183156;
-	bh=Qjfkvp5NGxGZwA6T1g5vVDbjGsM0vKbe4sPFNhJ0gMg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=VCwvZzHTT9yxyAvB2n8zK8p7WY1pmoFea6z+aE9IL/IfzVWoVPfR8uXfaU1uK+Sg4
-	 zytQ0T1k6W1qH0L5t/uHf2w+AEW0SGL7DvqCAjU74Odo7Wm8BteRNN7kq7KY+XFQkm
-	 i4ctdi7zFur41pQbVczHrkGGZ/3C0kAn0E3FV44J9fauG//51XXrDXq5ZzDqfyt5Ll
-	 PvTuujfe5rWsvl4Osrr/I4gIbY55YZZcATwE26ximLa+qdY0W7GCmLr3dP5PxsxSzx
-	 6oy5XMuOsaf3CMtuZXH8HYDZLvglkF40PDca9mcjQnY26jq87AL467dB92HqgOAiwZ
-	 xpJVQjjHct5fw==
-Date: Tue, 24 Sep 2024 14:05:50 +0100
-From: Simon Horman <horms@kernel.org>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	linux-kselftest@vger.kernel.org,
-	Yuri Benditovich <yuri.benditovich@daynix.com>,
-	Andrew Melnychenko <andrew@daynix.com>,
-	Stephen Hemminger <stephen@networkplumber.org>,
-	gur.stavi@huawei.com
-Subject: Re: [PATCH RFC v4 7/9] tun: Introduce virtio-net RSS
-Message-ID: <20240924130550.GJ4029621@kernel.org>
-References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
- <20240924-rss-v4-7-84e932ec0e6c@daynix.com>
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 50NQt99rrFLh for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Sep 2024 20:50:56 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 405DA40E89
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 405DA40E89
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XuVsvKdt
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 405DA40E89
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 20:50:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1727211054;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=Ha73YKMkXYy714HDQl55jm40mWYNmGrnegcmLNCX6UI=;
+	b=XuVsvKdtbddFmvyhBgg5KQsLKtsRxYVy0lJ7n+m1DIwADGtrWygpIojbUzoWlZxkj0VhMs
+	LUmY5nZ5uwrRWj+s9FYG4aelFLENAvxd8pghWhpqxoYJ4g8mhiwFRLzQvTb3hrKqb8jZjU
+	8q8aBfPypiEUEIdGfJ9btJOiZwIWTls=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-615-XTbxMAvuNKOwToEz59qJ0g-1; Tue, 24 Sep 2024 16:50:52 -0400
+X-MC-Unique: XTbxMAvuNKOwToEz59qJ0g-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-42cb89fbb8bso38165955e9.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 13:50:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727211051; x=1727815851;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ha73YKMkXYy714HDQl55jm40mWYNmGrnegcmLNCX6UI=;
+        b=pihwArH2ct0/FU/SuKvW7MnFRAzFC2wCp4NVWBwtp6DE43JTyS5tIzP3Izu4Vo7g6a
+         WN0l/oe1Drm76xcddKa1EPGBvjQv+ysWQicVqAwfGKeUkq7LigHDXgqnbKiid+xs42xv
+         /T7+G9X+aZLuOpe+Xb8J7H3suSG6ZWHramstr/FuaqWZJzQ1qI6Fi/qvrPGn734HhZCG
+         82EBfSl1c/c9WSxrqfgOiXLRecRpaXjvFpZ89iofMb9L7mNrZK1YLco2F+tQpHHll2yD
+         wGM01lghMlGw+2FreyBG/izTGAuINllxsTNx6QFQUXe1PaYTzdwm8HSUQoOgMiXxog8P
+         2wtA==
+X-Forwarded-Encrypted: i=1; AJvYcCVugxo5hbFw5jlyn8a4D/xHXW5KCMjE1HkNSPM0zBXTO25PPnqkZnktZlfGg/ccNe1KufWhjFJjozYnjy29fg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yy6pHV5/jSvcwghmCVQFcScGhpMHH+HNQUlz0fe3tqW+8uRk/gB
+	fNz3xjyKKvCL639TDx+qM20F3hwK1H0ZWnnk1C+fplT10k1L6hEvqqGGRfwTeSltyqeLRbWW5xB
+	ivD+1GPHmJNDC2zXBK7xdXS3AVr+JzJhNAaHi7x7nYnHJmb3VRXnLu34TwnyLg1C4Klst8wkVzC
+	0EIfA=
+X-Received: by 2002:a05:600c:1e0b:b0:426:5dc8:6a63 with SMTP id 5b1f17b1804b1-42e96242214mr1865645e9.30.1727211051379;
+        Tue, 24 Sep 2024 13:50:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFiXHIUYfLg/ApdHxFIkfiGLw4xDQ4Vi/t8oKMffgZIEevAFQUBrtSqrnnQvLLtODlevmJANQ==
+X-Received: by 2002:a05:600c:1e0b:b0:426:5dc8:6a63 with SMTP id 5b1f17b1804b1-42e96242214mr1865395e9.30.1727211050977;
+        Tue, 24 Sep 2024 13:50:50 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:7405:9900:56a3:401a:f419:5de9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42e754a7aedsm170062615e9.31.2024.09.24.13.50.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Sep 2024 13:50:50 -0700 (PDT)
+Date: Tue, 24 Sep 2024 16:50:46 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	david@redhat.com, dtatulea@nvidia.com, eperezma@redhat.com,
+	jasowang@redhat.com, leiyang@redhat.com, leonro@nvidia.com,
+	lihongbo22@huawei.com, luigi.leonardi@outlook.com, lulu@redhat.com,
+	marco.pinn95@gmail.com, mgurtovoy@nvidia.com, mst@redhat.com,
+	pankaj.gupta.linux@gmail.com, philipchen@chromium.org,
+	pizhenwei@bytedance.com, sgarzare@redhat.com, yuehaibing@huawei.com,
+	zhujun2@cmss.chinamobile.com
+Subject: [GIT PULL] virtio: features, fixes, cleanups
+Message-ID: <20240924165046-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240924-rss-v4-7-84e932ec0e6c@daynix.com>
 
-On Tue, Sep 24, 2024 at 11:01:12AM +0200, Akihiko Odaki wrote:
-> RSS is a receive steering algorithm that can be negotiated to use with
-> virtio_net. Conventionally the hash calculation was done by the VMM.
-> However, computing the hash after the queue was chosen defeats the
-> purpose of RSS.
-> 
-> Another approach is to use eBPF steering program. This approach has
-> another downside: it cannot report the calculated hash due to the
-> restrictive nature of eBPF steering program.
-> 
-> Introduce the code to perform RSS to the kernel in order to overcome
-> thse challenges. An alternative solution is to extend the eBPF steering
-> program so that it will be able to report to the userspace, but I didn't
-> opt for it because extending the current mechanism of eBPF steering
-> program as is because it relies on legacy context rewriting, and
-> introducing kfunc-based eBPF will result in non-UAPI dependency while
-> the other relevant virtualization APIs such as KVM and vhost_net are
-> UAPIs.
-> 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+The following changes since commit 431c1646e1f86b949fa3685efc50b660a364c2b6:
 
-...
+  Linux 6.11-rc6 (2024-09-01 19:46:02 +1200)
 
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+are available in the Git repository at:
 
-...
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-> @@ -333,8 +336,10 @@ static long tun_set_vnet_be(struct tun_struct *tun, int __user *argp)
->  		return -EFAULT;
->  
->  	if (be) {
-> +		struct tun_vnet_hash_container *vnet_hash = rtnl_dereference(tun->vnet_hash);
-> +
->  		if (!(tun->flags & TUN_VNET_LE) &&
-> -		    (tun->vnet_hash.flags & TUN_VNET_HASH_REPORT))
-> +		    vnet_hash && (vnet_hash->flags & TUN_VNET_HASH_REPORT))
+for you to fetch changes up to 1bc6f4910ae955971097f3f2ae0e7e63fa4250ae:
 
-Hi Odaki-san,
+  vsock/virtio: avoid queuing packets when intermediate queue is empty (2024-09-12 02:54:10 -0400)
 
-I am wondering if the above should this be vnet_hash->common.flags?
-I am seeing this:
+----------------------------------------------------------------
+virtio: features, fixes, cleanups
 
-../drivers/net/tun.c:342:44: error: ‘struct tun_vnet_hash_container’ has no member named ‘flags’
-  342 |                     vnet_hash && (vnet_hash->flags & TUN_VNET_HASH_REPORT))
+Several new features here:
 
-...
+	virtio-balloon supports new stats
+
+	vdpa supports setting mac address
+
+	vdpa/mlx5 suspend/resume as well as MKEY ops are now faster
+
+	virtio_fs supports new sysfs entries for queue info
+
+	virtio/vsock performance has been improved
+
+Fixes, cleanups all over the place.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Cindy Lu (3):
+      vdpa: support set mac address from vdpa tool
+      vdpa_sim_net: Add the support of set mac address
+      vdpa/mlx5: Add the support of set mac address
+
+Dragos Tatulea (18):
+      vdpa/mlx5: Fix invalid mr resource destroy
+      net/mlx5: Support throttled commands from async API
+      vdpa/mlx5: Introduce error logging function
+      vdpa/mlx5: Introduce async fw command wrapper
+      vdpa/mlx5: Use async API for vq query command
+      vdpa/mlx5: Use async API for vq modify commands
+      vdpa/mlx5: Parallelize device suspend
+      vdpa/mlx5: Parallelize device resume
+      vdpa/mlx5: Keep notifiers during suspend but ignore
+      vdpa/mlx5: Small improvement for change_num_qps()
+      vdpa/mlx5: Parallelize VQ suspend/resume for CVQ MQ command
+      vdpa/mlx5: Create direct MKEYs in parallel
+      vdpa/mlx5: Delete direct MKEYs in parallel
+      vdpa/mlx5: Rename function
+      vdpa/mlx5: Extract mr members in own resource struct
+      vdpa/mlx5: Rename mr_mtx -> lock
+      vdpa/mlx5: Introduce init/destroy for MR resources
+      vdpa/mlx5: Postpone MR deletion
+
+Hongbo Li (1):
+      fw_cfg: Constify struct kobj_type
+
+Jason Wang (1):
+      vhost_vdpa: assign irq bypass producer token correctly
+
+Lei Yang leiyang@redhat.com (1):
+      ack! vdpa/mlx5: Parallelize device suspend/resume
+
+Luigi Leonardi (1):
+      vsock/virtio: avoid queuing packets when intermediate queue is empty
+
+Marco Pinna (1):
+      vsock/virtio: refactor virtio_transport_send_pkt_work
+
+Max Gurtovoy (2):
+      virtio_fs: introduce virtio_fs_put_locked helper
+      virtio_fs: add sysfs entries for queue information
+
+Philip Chen (1):
+      virtio_pmem: Check device status before requesting flush
+
+Stefano Garzarella (1):
+      MAINTAINERS: add virtio-vsock driver in the VIRTIO CORE section
+
+Yue Haibing (1):
+      vdpa: Remove unused declarations
+
+Zhu Jun (1):
+      tools/virtio:Fix the wrong format specifier
+
+zhenwei pi (3):
+      virtio_balloon: introduce oom-kill invocations
+      virtio_balloon: introduce memory allocation stall counter
+      virtio_balloon: introduce memory scan/reclaim info
+
+ MAINTAINERS                                   |   1 +
+ drivers/firmware/qemu_fw_cfg.c                |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |  21 +-
+ drivers/nvdimm/nd_virtio.c                    |   9 +
+ drivers/vdpa/ifcvf/ifcvf_base.h               |   3 -
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h            |  47 ++-
+ drivers/vdpa/mlx5/core/mr.c                   | 291 +++++++++++++---
+ drivers/vdpa/mlx5/core/resources.c            |  76 +++-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c             | 477 +++++++++++++++++---------
+ drivers/vdpa/pds/cmds.h                       |   1 -
+ drivers/vdpa/vdpa.c                           |  79 +++++
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c          |  21 +-
+ drivers/vhost/vdpa.c                          |  16 +-
+ drivers/virtio/virtio_balloon.c               |  18 +
+ fs/fuse/virtio_fs.c                           | 164 ++++++++-
+ include/linux/vdpa.h                          |   9 +
+ include/uapi/linux/vdpa.h                     |   1 +
+ include/uapi/linux/virtio_balloon.h           |  16 +-
+ net/vmw_vsock/virtio_transport.c              | 144 +++++---
+ tools/virtio/ringtest/main.c                  |   2 +-
+ 20 files changed, 1098 insertions(+), 300 deletions(-)
+
