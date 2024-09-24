@@ -1,177 +1,124 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F28E155C96
-	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 09:22:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B79515575C
+	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 09:53:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727169761; cv=none; b=DLe/u+H8zeuHUhpQMBw7fKZlNlr77fQ8YBBMExPko3VL8lB0iS1tbzQPhngY8Ztdykxiy3G5bkHAzP2TnQRU8tek2G/WCaf9BqrJdxr4nEooPUH8KpjzaY4DArcNEkzSjX8FGjzBqGmlUsYGFv/EsrCX9LLJGTqjdrkdVWik4HQ=
+	t=1727171633; cv=none; b=F2SeE7zBtrSrLG8iOKtyl4tPtSNV/V5Wu6dkaqAOjLDvGDcdQgpyIDaJwNWl93WGmf1n2/rSfdMHQlbWDQLu6vjLw7UJbvYeoTtX7tyVVe/Qwb8biRpvd1xlAcZT301gi+oEUGaXhPGzsI8VRgch4mz+D+5bgfPudHlZfdGHbKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727169761; c=relaxed/simple;
-	bh=6Vj11S6HdMJuiRm1aLSSlE7/927+AYxpKwgCgumPXbE=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=Vi8e8N2F5AFDVvabmox5fidVVDNXNW47CQWtlND3RZ9qEXdoSwErKgyTQmitUUAlGEDyJtUgFWO9iLJ9DffWkJcdZEypV7zRbmX24Bd9XooZHkWT2ehCYM08CwEdPdcy2woxblP8zc7BlFSumbRf81bCUu0Jw9KLATrSgN51W9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=kQdea2/T; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1727171633; c=relaxed/simple;
+	bh=xUlVvlA3J6T3XUmGP6wOK0M7qflsdynl7PV3ve4Xp2w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=A4Wy82pTPMrbwTeJthyFIlaMbwbXe9h/qeB2K2uVeWekMqcpCGHTmv+D+A+kNu4/t5e+iyxjxRDr7LLTDc4FrqlindcVSyrMBzt1IDW4lA04Irlq11raaUtcMuB4J11IuUYsZoV/lIPh2Vpcdo0KXjFq9AgCKwgZszily+q0CWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TPrfZvUN; arc=none smtp.client-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="kQdea2/T"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1727169755; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=lTTh98SEm+9t4NZHOlfMXI3Szo21fHMqd5Hby1i8RH8=;
-	b=kQdea2/TA3ojM9XLEHuw90/N6m2/MMflmgjAUQTW2LHF5fRnAbwytTNLUX8iORpIKPG6zahC9/bRbIiLE+Yu3N06F+TsDrspBn2VhVTeOlAL/ZkQb4F38M1H3edQyIZ5gLLFrDoB5IO3ZV1nNOuhGtRcrKT/Vf1bfYX8z2y/fc0=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WFflEn5_1727169752)
-          by smtp.aliyun-inc.com;
-          Tue, 24 Sep 2024 17:22:33 +0800
-Message-ID: <1727169724.035726-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [RFC net-next v1 08/12] virtio_net: xsk: bind/unbind xsk for tx
-Date: Tue, 24 Sep 2024 17:22:04 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-References: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com>
- <20240924013204.13763-9-xuanzhuo@linux.alibaba.com>
- <CACGkMEsTpJV=dQUHMWTnzuSmGTqdEKz4jYygHtbXGtA0q3HnoA@mail.gmail.com>
-In-Reply-To: <CACGkMEsTpJV=dQUHMWTnzuSmGTqdEKz4jYygHtbXGtA0q3HnoA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TPrfZvUN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1727171631; x=1758707631;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=xUlVvlA3J6T3XUmGP6wOK0M7qflsdynl7PV3ve4Xp2w=;
+  b=TPrfZvUN1jhKJEJE7+2V9m2pZE9UDgY79q5s9/lH080Tdjo1sIOpaL7M
+   CHmECT6FudmhKZ8GvUs7S8YckUOmoa7X6CHPbHDuu0tSdO+UM12UAzsN+
+   6fJLhO50xD5be+w5wdNCzx3EkC4wjHor6PcIMIx0KKk+U8PethrRNMj3l
+   N/75EeSDJZmZoFYMvIakR92uc/QKPr/lgsJfmYIfVkM4YuYP1+4pse2yR
+   hLSvXOMm9IdUFPq1aKQzW6cObVt70myBjAsWBYMpE7Dy/W7Hiv5LEhNsR
+   g9ywFBlEADQKs8UDEdQ7Kgb0eKiWDJ8/UAi65yf8e55pptWj2Je8/vZ1y
+   w==;
+X-CSE-ConnectionGUID: o3i5qqE1ThyCCQ7m8FH38A==
+X-CSE-MsgGUID: gnHymoo5QhGRX1gBBXrXPw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11204"; a="43674226"
+X-IronPort-AV: E=Sophos;i="6.10,254,1719903600"; 
+   d="scan'208";a="43674226"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2024 02:53:50 -0700
+X-CSE-ConnectionGUID: KwYZeJ4GQDSYfjYoREQzeg==
+X-CSE-MsgGUID: htUOPwTXTRywBsMSNeygMQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,254,1719903600"; 
+   d="scan'208";a="108819373"
+Received: from ly-workstation.sh.intel.com (HELO ly-workstation) ([10.239.161.23])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2024 02:53:48 -0700
+Date: Tue, 24 Sep 2024 17:52:41 +0800
+From: "Lai, Yi" <yi1.lai@linux.intel.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Joanne Koong <joannelkoong@gmail.com>,
+	Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org,
+	Peter-Jan Gootzen <pgootzen@nvidia.com>,
+	Jingbo Xu <jefflexu@linux.alibaba.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Yoray Zack <yorayz@nvidia.com>, Vivek Goyal <vgoyal@redhat.com>,
+	virtualization@lists.linux.dev, yi1.lai@intel.com
+Subject: Re: [PATCH] fuse: cleanup request queuing towards virtiofs
+Message-ID: <ZvKL6aTxu5rrcXLN@ly-workstation>
+References: <20240529155210.2543295-1-mszeredi@redhat.com>
+ <ZvFEAM6JfrBKsOU0@ly-workstation>
+ <CAJnrk1YW10Ex3pxNR1Ew=pm+e1f83qbU4mCAL_TLW-CaEXutZw@mail.gmail.com>
+ <CAJnrk1YA71v6zTE6iNk297VFK6PVP26SUX+zbb29yF+LG4JM7w@mail.gmail.com>
+ <CAJfpegtfFtnTrjeuajay4+U+ob4RMgzeygwhXLeYiKqFsHczcw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJfpegtfFtnTrjeuajay4+U+ob4RMgzeygwhXLeYiKqFsHczcw@mail.gmail.com>
 
-On Tue, 24 Sep 2024 15:35:05 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Sep 24, 2024 at 9:32=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > This patch implement the logic of bind/unbind xsk pool to sq and rq.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c | 53 ++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 53 insertions(+)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 41a5ea9b788d..7c379614fd22 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -295,6 +295,10 @@ struct send_queue {
-> >
-> >         /* Record whether sq is in reset state. */
-> >         bool reset;
-> > +
-> > +       struct xsk_buff_pool *xsk_pool;
-> > +
-> > +       dma_addr_t xsk_hdr_dma_addr;
-> >  };
-> >
-> >  /* Internal representation of a receive virtqueue */
-> > @@ -497,6 +501,8 @@ struct virtio_net_common_hdr {
-> >         };
-> >  };
-> >
-> > +static struct virtio_net_common_hdr xsk_hdr;
-> > +
-> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf=
-);
-> >  static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_b=
-uff *xdp,
-> >                                struct net_device *dev,
-> > @@ -5488,6 +5494,29 @@ static int virtnet_rq_bind_xsk_pool(struct virtn=
-et_info *vi, struct receive_queu
-> >         return err;
-> >  }
-> >
-> > +static int virtnet_sq_bind_xsk_pool(struct virtnet_info *vi,
-> > +                                   struct send_queue *sq,
-> > +                                   struct xsk_buff_pool *pool)
-> > +{
-> > +       int err, qindex;
-> > +
-> > +       qindex =3D sq - vi->sq;
-> > +
-> > +       virtnet_tx_pause(vi, sq);
-> > +
-> > +       err =3D virtqueue_reset(sq->vq, virtnet_sq_free_unused_buf);
-> > +       if (err) {
-> > +               netdev_err(vi->dev, "reset tx fail: tx queue index: %d =
-err: %d\n", qindex, err);
-> > +               pool =3D NULL;
-> > +       }
-> > +
-> > +       sq->xsk_pool =3D pool;
-> > +
-> > +       virtnet_tx_resume(vi, sq);
-> > +
-> > +       return err;
-> > +}
-> > +
-> >  static int virtnet_xsk_pool_enable(struct net_device *dev,
-> >                                    struct xsk_buff_pool *pool,
-> >                                    u16 qid)
-> > @@ -5496,6 +5525,7 @@ static int virtnet_xsk_pool_enable(struct net_dev=
-ice *dev,
-> >         struct receive_queue *rq;
-> >         struct device *dma_dev;
-> >         struct send_queue *sq;
-> > +       dma_addr_t hdr_dma;
-> >         int err, size;
-> >
-> >         if (vi->hdr_len > xsk_pool_get_headroom(pool))
-> > @@ -5533,6 +5563,11 @@ static int virtnet_xsk_pool_enable(struct net_de=
-vice *dev,
-> >         if (!rq->xsk_buffs)
-> >                 return -ENOMEM;
-> >
-> > +       hdr_dma =3D virtqueue_dma_map_single_attrs(sq->vq, &xsk_hdr, vi=
-->hdr_len,
-> > +                                                DMA_TO_DEVICE, 0);
-> > +       if (virtqueue_dma_mapping_error(sq->vq, hdr_dma))
-> > +               return -ENOMEM;
-> > +
-> >         err =3D xsk_pool_dma_map(pool, dma_dev, 0);
-> >         if (err)
-> >                 goto err_xsk_map;
-> > @@ -5541,11 +5576,24 @@ static int virtnet_xsk_pool_enable(struct net_d=
-evice *dev,
-> >         if (err)
-> >                 goto err_rq;
-> >
-> > +       err =3D virtnet_sq_bind_xsk_pool(vi, sq, pool);
-> > +       if (err)
-> > +               goto err_sq;
-> > +
-> > +       /* Now, we do not support tx offset, so all the tx virtnet hdr =
-is zero.
->
-> What did you mean by "tx offset" here? (Or I don't see the connection
-> with vnet hdr).
+Hi Miklos,
 
-Sorry, should be tx offload(such as tx csum).
+After applying your attached patch on top of linux-next next-20240924
+tag, issue cannot be reproduced running the same repro binary.
 
-Will fix.
+Regards,
+Yi Lai
 
-Thanks.
+On Tue, Sep 24, 2024 at 10:58:31AM +0200, Miklos Szeredi wrote:
+> On Tue, 24 Sept 2024 at 01:48, Joanne Koong <joannelkoong@gmail.com> wrote:
+> > So maybe just clear_bit(FR_PENDING, &req->flags) before we call
+> > fuse_request_end() is the best.
+> 
+> Agreed.   Attached patch should fix it.
+> 
+> Yi, can you please verify?
+> 
+> Thanks,
+> Miklos
 
+> From fcd2d9e1fdcd7cada612f2e8737fb13a2bce7d0e Mon Sep 17 00:00:00 2001
+> From: Miklos Szeredi <mszeredi@redhat.com>
+> Date: Tue, 24 Sep 2024 10:47:23 +0200
+> Subject: fuse: clear FR_PENDING if abort is detected when sending request
+> 
+> The (!fiq->connected) check was moved into the queuing method resulting in
+> the following:
+> 
+> Fixes: 5de8acb41c86 ("fuse: cleanup request queuing towards virtiofs")
+> Reported-by: Lai, Yi <yi1.lai@linux.intel.com>
+> Closes: https://lore.kernel.org/all/ZvFEAM6JfrBKsOU0@ly-workstation/
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> ---
+>  fs/fuse/dev.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+> index cdf925e0b317..53c4569d85a4 100644
+> --- a/fs/fuse/dev.c
+> +++ b/fs/fuse/dev.c
+> @@ -295,6 +295,7 @@ static void fuse_dev_queue_req(struct fuse_iqueue *fiq, struct fuse_req *req)
+>  	} else {
+>  		spin_unlock(&fiq->lock);
+>  		req->out.h.error = -ENOTCONN;
+> +		clear_bit(FR_PENDING, &req->flags);
+>  		fuse_request_end(req);
+>  	}
+>  }
+> -- 
+> 2.46.0
+> 
 
->
-> Anyhow the patch looks good.
->
-> Acked-by: Jason Wang <jasowang@redhat.com>
->
-> Thanks
->
