@@ -1,131 +1,178 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E94C214D6F7
-	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 07:40:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39D20148308
+	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 07:43:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727163618; cv=none; b=IAsrERXn7JP0BGUlBgLh7T8Y/nKxmhS8MKMeC/F86/iR2ioArPfe0XMXFsAa6OxteUjxpyZj6ZLa9tMyE2ih1+F1mNw8/qiQ+3DefOA1XfPiee8qrPfgbSAT1QwNr3aXZN+RmeOm7NmmsuxNAaW3+pvmnGTCN4TvhspcBM3bfNY=
+	t=1727163829; cv=none; b=dnk3JEYtiYLV+5dOr8myvklOUVmRWaEHNUtTl72nae9WwldJqyrvzAFjBTEMqdKWjUVdbc+U1NtUud8APg+XHNLOhgjBzvGZk4i4J2rERXmnRuKVKz+XCc3JwCZO1FjaBcuFp0dPp31Oi7n1Bx441psplGIOKDQeKf5tlqy2Fe4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727163618; c=relaxed/simple;
-	bh=2njAe6QvoaHxFO69PDYK9tdZp0nbpRgWkWBOBrBjOog=;
+	s=arc-20240116; t=1727163829; c=relaxed/simple;
+	bh=UU7qX41uAkDBCUy0XnOT3NeX1cw7axD/xz6j6BHgRsk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TmUmjPbKnoPua3SfeAjTrL4/TW5Ndj+SSZk0q9uKPDE8he92ImeXXzkdtMVZnJA3KD2YfbkEtMb8VsiwIwPvI6DxBqlw/eLe5opR3EJ8WoDZRirpipsMtn73cvC1y27PsSjn8I+V5/NFWYoGC9ZMoewFLzQB/531x8I8hDVyMg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N+WQqMRh; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=BxgOk8lZhMspgMi6XwpwrBbvhoF4ZSaBwXVYt6xxI0r+yGDzdNNmbrRl7CRyn+jfIQyM8y+8KnDI6t2Si0FeH53MspFex8bCYpg0PNXXVxLw16e+jWJeRJ1DUXF2haJpRGK65rRwBmjTUAbb+7Z3y3hWVEIcKVMhYgzOkJwXaug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a9EzWIuc; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N+WQqMRh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a9EzWIuc"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727163615;
+	s=mimecast20190719; t=1727163827;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=n8lQHIfaWPFUe3zSF47wFo/UFEzkkp7M1o89AhJkkBE=;
-	b=N+WQqMRhT7HaYubud46mjjTszd5JwzWplae5nG9wUrtbGEu3KTyR/fDfTNYouzr7gtseFY
-	3A8L1ARGwAmA3snkxHPgRoi5gte3A49TWsrJUvw8ncqEDwDWWWGaxI9HVGKFg+HJ37+tor
-	SmncPPAPTF/wqZW7M1x9bbd+FjWK72c=
+	bh=sd/bnnzJzJdkv8ZbLlpvLffK8I346cwr0/QVzzvREsY=;
+	b=a9EzWIuc4DZaRjwy1DVe5iNBfrufeO6ng/fabfg2hITpNmDvAEL/wRJKPubRoWdRTzl/f8
+	AzlMEnUKInK8BzPPLmOhfVUUFShZt0Mi1zcTYkr2sEHadkH3ITc6Dgj/Pr1ah33+isqlpK
+	as2PpkIJGTlNKaIa6gCj1luOUKQ9rG0=
 Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
  [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-424-IF0EIP4-MZCrzwV7V_6vnA-1; Tue, 24 Sep 2024 03:40:14 -0400
-X-MC-Unique: IF0EIP4-MZCrzwV7V_6vnA-1
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2d877d2ad3fso6654116a91.2
-        for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 00:40:14 -0700 (PDT)
+ us-mta-2-FkNECGkGOguXwqZOyLmSwQ-1; Tue, 24 Sep 2024 03:43:46 -0400
+X-MC-Unique: FkNECGkGOguXwqZOyLmSwQ-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2d877d7f9b4so5755240a91.3
+        for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 00:43:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727163613; x=1727768413;
+        d=1e100.net; s=20230601; t=1727163825; x=1727768625;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=n8lQHIfaWPFUe3zSF47wFo/UFEzkkp7M1o89AhJkkBE=;
-        b=niM2ZSZqRBOuxh2sXrfSbPwNONXSgCTx1NCW1+KTkPtYaMwVG9YWPO5VknkibG/E5p
-         aV/tdEf89wMcBKlFo5fEBSOq9f8DQh9EUcYgjIRAZntEcZH9Q38zHx7lGJSPQJmcN39T
-         8vNKK4v797SY9rS59GbPMy2BXj/g3x4eYJ00F4EDglDgFh5bUuJ6lzBTT8ZrcWo847w/
-         k88qWlzCg5o2yitEXbWihe7sHHedA49mArGtteP2CKhk2VROLYmbk/SnNMVV89i6NEEB
-         1NToYdQxjt/nf02ndfpeIWzdyTmlsg/yNDzNZUX9pbKALFtwVdQPgnh4CG/enG4HVbO9
-         rl5g==
-X-Forwarded-Encrypted: i=1; AJvYcCU6DA+VWGHnlzfb7XX1SjFKXDPWd12AaOCWdeKdURP+je/i0VI2dDkCvyM7sTT5LZIOThD32m1r5KiHG+JvLg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyV4PbrIPdG7HidQDdxfqTdPGdh1faHgQ1HyYP9Pq1+ShZekmXA
-	qD/JwnsLen+l2lDtqpMxo5QsHhfe1GLDn4g4IlBcpjPk66zu/rz5cxX/sQzWLRq/MTk9r+QpshR
-	mlFTdjoS7ttzbRLjIyf34ED+NNxxnJ4y57WGzKgVYSRul8McyT/ZytQ3qe+/ttuAS9I8rfSlww0
-	WIf/7rFzS8H/9ZHE3SxMuSIrMInG5XcwPpJLbQ0eI=
-X-Received: by 2002:a17:90a:b310:b0:2dd:6969:208e with SMTP id 98e67ed59e1d1-2dd80c05478mr17580809a91.3.1727163612949;
-        Tue, 24 Sep 2024 00:40:12 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFZ2Im43UOhl6GhIdMfutmf4/33jVfrqegnRqlvIn7wldAWk22gHtGBGE/bKOO/QD+zm+wbXUvBpjVJ4bkzcy8=
-X-Received: by 2002:a17:90a:b310:b0:2dd:6969:208e with SMTP id
- 98e67ed59e1d1-2dd80c05478mr17580785a91.3.1727163612540; Tue, 24 Sep 2024
- 00:40:12 -0700 (PDT)
+        bh=sd/bnnzJzJdkv8ZbLlpvLffK8I346cwr0/QVzzvREsY=;
+        b=qxRTmbPVlwlaf8g7K33Drx0TMcRJjofJLfDVbKXIu0Qq3/j3BVu5eoFsAlkpJjej35
+         STFxg/p4Lv9QCvEsua3v/0GIDq6PdwD/wnfb/SbctW3C9Xmf+4KWhdaOL1Cq4lV29VQn
+         KzwUKTA4Ezi47MX9pbZIfR6CX0TcTVw2B/ASmtK90A8VXi21c+EuC79VYfT62PCdmeVH
+         BOfz/vlbWkXUst41rHved14kIQ/MtyZpvZDxJiFFmo7Azk8LSItGrPm1MEJxZLJAdECC
+         Tfdhe+eIAiqv/+PlTw++EyWqujl3M/5n3sLofSFQYIojT0wbVRx3K1eMMG/4pT3L6qbC
+         pZYw==
+X-Gm-Message-State: AOJu0YxnozC4e4uXWJ0XGDj0/5JDOS1HIgRdc0v4IgQA/NlOUnb4spk7
+	5DoXvx48QPBP8Jg1ojQTXWppxpOHt6kzIEsAJlqPnzUU62By263rRKpYCa/qx8/Lp4Y80UNTF7S
+	B3hBPrKxONfdYqcUl5AHRTBwISemUm6NRN2jYllLvT0T+oFiDP7V9fpzNdMb/XjxJb9utiaMr5l
+	/z0Cw1OsJLhFCtRkbJVG95xg12wOyRTHo/I5ganvs=
+X-Received: by 2002:a17:90a:da87:b0:2d8:f99d:48d2 with SMTP id 98e67ed59e1d1-2dd7f70f6famr15958897a91.29.1727163825043;
+        Tue, 24 Sep 2024 00:43:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF0+gIzMz2GXzofDVPp+N0+RslIpcesvc1C39NkG39H0QZ2cMLZOB/b9ilj4g/GDXxjLMrNJcgAcNohePyiDT4=
+X-Received: by 2002:a17:90a:da87:b0:2d8:f99d:48d2 with SMTP id
+ 98e67ed59e1d1-2dd7f70f6famr15958879a91.29.1727163824594; Tue, 24 Sep 2024
+ 00:43:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240922123435.17946-1-quic_jianguos@quicinc.com> <20240922123435.17946-2-quic_jianguos@quicinc.com>
-In-Reply-To: <20240922123435.17946-2-quic_jianguos@quicinc.com>
+References: <20240920140530.775307-1-schalla@marvell.com> <20240920140530.775307-3-schalla@marvell.com>
+In-Reply-To: <20240920140530.775307-3-schalla@marvell.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 24 Sep 2024 15:40:01 +0800
-Message-ID: <CACGkMEvK9F60FM2v5EW6OOtHP__-nAH087oUX_UM09df2LXvXQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] virtio: Add polling virtio-mmio device reset completion
-To: Jianguo Sun <quic_jianguos@quicinc.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, Sreenad Menon <quic_sreemeno@quicinc.com>, 
-	Anant Goel <quic_anantg@quicinc.com>
+Date: Tue, 24 Sep 2024 15:43:33 +0800
+Message-ID: <CACGkMEuB8BikU7or6wso9ortoQfX+cCw-Q=x3o_rtdmVTqLZiQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] vhost-vdpa: introduce NO-IOMMU backend feature bit
+To: Srujana Challa <schalla@marvell.com>
+Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, mst@redhat.com, 
+	eperezma@redhat.com, ndabilpuram@marvell.com, jerinj@marvell.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Sep 22, 2024 at 8:35=E2=80=AFPM Jianguo Sun <quic_jianguos@quicinc.=
-com> wrote:
+On Fri, Sep 20, 2024 at 10:05=E2=80=AFPM Srujana Challa <schalla@marvell.co=
+m> wrote:
 >
-> We write 0 to device_status to initiate reset of a virtio-mmio device.
-> The reset operation itself may or may not be completed by the time
-> write instruction completes. Add polling device_status to return
-> 0 to ensure reset completion before reinitializing the device.
+> This patch introduces the VHOST_BACKEND_F_NOIOMMU feature flag.
+> This flag allows userspace to identify if the driver can operate
+> without an IOMMU, providing more flexibility in environments where
+> IOMMU is not available or desired.
 >
-> Change-Id: If15d11d090dfd0d4972ad35f49af03e076872413
-> Signed-off-by: Jianguo Sun <quic_jianguos@quicinc.com>
-> Signed-off-by: Sreenad Menon <quic_sreemeno@quicinc.com>
-> Signed-off-by: Anant Goel <quic_anantg@quicinc.com>
-> ---
->  drivers/virtio/virtio_mmio.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
+> Key changes include:
+>     - Addition of the VHOST_BACKEND_F_NOIOMMU feature flag.
+>     - Updates to vhost_vdpa_unlocked_ioctl to handle the NO-IOMMU
+>       feature.
+> The NO-IOMMU mode is enabled if:
+>     - The vdpa device lacks an IOMMU domain.
+>     - The system has the required RAWIO permissions.
+>     - The vdpa device explicitly supports NO-IOMMU mode.
 >
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 90e784e7b721..c34ad1782145 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -70,6 +70,7 @@
->  #include <linux/virtio_config.h>
->  #include <uapi/linux/virtio_mmio.h>
->  #include <linux/virtio_ring.h>
-> +#include <linux/delay.h>
->
->
->
-> @@ -269,6 +270,13 @@ static void vm_reset(struct virtio_device *vdev)
->
->         /* 0 status means a reset. */
->         writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-> +#ifdef CONFIG_VIRTIO_MMIO_POLL_RESET
-> +       /* After writing 0 to device_status, the driver MUST wait for a r=
-ead of
-> +        * device_status to return 0 before reinitializing the device.
-> +        */
-> +       while (readl(vm_dev->base + VIRTIO_MMIO_STATUS))
-> +               usleep_range(1000, 1100);
+> This feature flag indicates to userspace that the driver can safely
+> operate in NO-IOMMU mode. If the flag is absent, userspace should
+> assume NO-IOMMU mode is unsupported and take appropriate actions.
 
-I think we can just use what PCI did, which is msleep(1) here.
+This seems contradictory to what you said in patch 1
+
+"""
+When enabled, this mode provides no
+device isolation, no DMA translation, no host kernel protection, and
+cannot be used for device assignment to virtual machines.
+"""
+
+And I wonder what "appropriate actions" could the userspace take?
+Generally, the IOMMU concept should be hidden from the userspace.
 
 Thanks
 
-> +#endif
->  }
 >
+> Signed-off-by: Srujana Challa <schalla@marvell.com>
+> ---
+>  drivers/vhost/vdpa.c             | 11 ++++++++++-
+>  include/uapi/linux/vhost_types.h |  2 ++
+>  2 files changed, 12 insertions(+), 1 deletion(-)
 >
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index b3085189ea4a..de47349eceff 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -797,7 +797,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *fi=
+lep,
+>                                  BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST) |
+>                                  BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
+>                                  BIT_ULL(VHOST_BACKEND_F_RESUME) |
+> -                                BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRI=
+VER_OK)))
+> +                                BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRI=
+VER_OK) |
+> +                                BIT_ULL(VHOST_BACKEND_F_NOIOMMU)))
+>                         return -EOPNOTSUPP;
+>                 if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
+>                      !vhost_vdpa_can_suspend(v))
+> @@ -814,6 +815,12 @@ static long vhost_vdpa_unlocked_ioctl(struct file *f=
+ilep,
+>                 if ((features & BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST)) &=
+&
+>                      !vhost_vdpa_has_persistent_map(v))
+>                         return -EOPNOTSUPP;
+> +               if ((features & BIT_ULL(VHOST_BACKEND_F_NOIOMMU)) &&
+> +                   !v->noiommu_en)
+> +                       return -EOPNOTSUPP;
+> +               if (!(features & BIT_ULL(VHOST_BACKEND_F_NOIOMMU)) &&
+> +                   v->noiommu_en)
+> +                       return -EOPNOTSUPP;
+>                 vhost_set_backend_features(&v->vdev, features);
+>                 return 0;
+>         }
+> @@ -871,6 +878,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *fi=
+lep,
+>                         features |=3D BIT_ULL(VHOST_BACKEND_F_DESC_ASID);
+>                 if (vhost_vdpa_has_persistent_map(v))
+>                         features |=3D BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSI=
+ST);
+> +               if (v->noiommu_en)
+> +                       features |=3D BIT_ULL(VHOST_BACKEND_F_NOIOMMU);
+>                 features |=3D vhost_vdpa_get_backend_features(v);
+>                 if (copy_to_user(featurep, &features, sizeof(features)))
+>                         r =3D -EFAULT;
+> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_=
+types.h
+> index d7656908f730..dda673c3456a 100644
+> --- a/include/uapi/linux/vhost_types.h
+> +++ b/include/uapi/linux/vhost_types.h
+> @@ -192,5 +192,7 @@ struct vhost_vdpa_iova_range {
+>  #define VHOST_BACKEND_F_DESC_ASID    0x7
+>  /* IOTLB don't flush memory mapping across device reset */
+>  #define VHOST_BACKEND_F_IOTLB_PERSIST  0x8
+> +/* Enables the device to operate in NO-IOMMU mode as well */
+> +#define VHOST_BACKEND_F_NOIOMMU  0x9
+>
+>  #endif
 > --
-> 2.17.1
+> 2.25.1
 >
 
