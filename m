@@ -1,74 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A12114830D
-	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 07:35:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27B38148FF7
+	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 07:35:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727163318; cv=none; b=q8nBpcdd+FkJWOPKgZZOqZ1aspsWreMxsdXE7NFLl5qp9dLeFxwfUB4SxEBbu64tXOQbNAOpWVmHIJ58R6ZnBmyhgNaV2jjwsDyTchbXI+/zNlw9u6KftEUzt5E3qmaV+XWFzWK+h+UQiQdHGcKJ6xxeKgMyapkI5LXQ5La14rk=
+	t=1727163320; cv=none; b=uRA/yyiBj0Jb/jDfKhoJcx9vSm2GHNJhJ4oCJexjZKK7LAzs1hw6+SumupORpyzzKvmY4Gk5bwm+kgzpNFjgq+Zc6kaOWsPKnueLdjDCPct/olZZn1Q1VXsn0iB1H2Ef7ZraPWjKWxZlw2qG/ZPNgPMeGV1dxN38MSGqj2MhEmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727163318; c=relaxed/simple;
-	bh=Pi9d7gNiO4DS3SDzWa/4QtX1cX+prhZOX1ZtG7jctZI=;
+	s=arc-20240116; t=1727163320; c=relaxed/simple;
+	bh=gd9TLfoZx2F+kEdm7NZ/WMO9UVX62rFrq7W3T+xr/gE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LTTXI3Ns9yP7hW3Yot9DoInfbreaL1XuaPalAi2ByzEleDf56WhiOzOxHN3FLDWcMVRw11CfyCvevoyj/NMSckYuvjMssNv+SZQhLEo7n13NfgjIq/EZIHs0e9fKe9VcDkoZKe6SwgYP11ag2XUjltyfXcSKKUuOB3JUhIHojvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fFqWk+o1; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=J/4gMVgyF8JZJy5Wrd05ONlDCLZ7GHfkI+nydaPbVAgjFV1whhA/QbC7DZ8lEgaiRK+vMbKHC67oo1crQPrZhNEjuNV8BOKVQglr0GtCeNJRlCpoac+Bk7a6QNC4ergJhqtu+YricJIvZyXX8WrMS0Zw7CJprHsUXEd0zR1wYi0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ve7cfpUS; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fFqWk+o1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ve7cfpUS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727163316;
+	s=mimecast20190719; t=1727163318;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=fJ8OJ8bmZ0N9rNX3pgknWe8I/aqMX0yClUl7I+76Q+k=;
-	b=fFqWk+o1Zi7jY3y3IJsYm9gRCyczD29IFpLpuaQwPZoIasuFH0RiAEOQ6Q29Z8qi3J8kSZ
-	uUSCPG2kc3x/WFGT/oOK5Zz0dPddQzEe7fpkXy3f8GCXeixsRRsxTkgQoX5mfSs1PmN+Q7
-	QVN2eigI5w99RLa/7/iswRKUVQoKKus=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=cPeVxGad0rWL+6l63ORIof7v2WZ21lQlNY9saN2Whdc=;
+	b=Ve7cfpUSS1lElrR88iMTIQB7LfNVuoCwvxoeImabIf57sRCP8jPvZiBNHqIBGgiVKTWnws
+	OrAQC3FxCA5Nifjr0zYEdcGv2iu7dHyZrlSRVcNIB01uxAZGCr84vg/9AWARKvs1L98jTg
+	BY2gKwt4SCRgg3yjnCeZ4H6o6oXdWZ8=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-104-M6NOLFJzOKGmEh1fnFVjfQ-1; Tue, 24 Sep 2024 03:35:15 -0400
-X-MC-Unique: M6NOLFJzOKGmEh1fnFVjfQ-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-71a122bf521so1683439b3a.2
-        for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 00:35:15 -0700 (PDT)
+ us-mta-213-I--XwRD5PCWxdakBLQYFQg-1; Tue, 24 Sep 2024 03:35:17 -0400
+X-MC-Unique: I--XwRD5PCWxdakBLQYFQg-1
+Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-718f329aefdso5297583b3a.1
+        for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 00:35:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727163314; x=1727768114;
+        d=1e100.net; s=20230601; t=1727163316; x=1727768116;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fJ8OJ8bmZ0N9rNX3pgknWe8I/aqMX0yClUl7I+76Q+k=;
-        b=Vm93uAAknvXVcPkevboA451FdUhIngUYgu2bBNmMXu827iVahnnCZIwhHnQAMX8oLW
-         MdJkHx0dcjpeNkkrsZZRgve5ZuenQE6loOkDEnKvOjiRyPASpyS5Ajpro0mOAS4Nravg
-         vFciw/JmVZjVDtnADRDWPVW84hB0DID/ZgbjXF0Gt9USrG9K7YNsf/GdzCeYHGiFH/1b
-         V+HDzL/alEt+69mnBHsuHKVuF0LhouNSS7F6JXJFPeSE3Njzhhjweek9g4BIrTfL756F
-         uBSOKpn+T/cce5WGsyHE9N2Gb0zuwiF60ciPTanfDNIpbqxG7Eo9ADRMy7+mVXs27c0/
-         IOKg==
-X-Forwarded-Encrypted: i=1; AJvYcCX7tWZktIPl+tae58d4QE0IrTvbqDzd/Yy1NuWve5n06Lr0p/kpLPUS9qEE4xj65+RuCc0VQi3bijvmy9BkMg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzSExxm+oCa7mnHbAIKeMRjZ9CkNjDCbPc6nxLNdD4IFAL5EdqK
-	9g/6BAOtCd150uvJk1UTQgNRyat2le//VTDDF+BVR18DUdlV3yYvU5L7Xt68oiUR0MzxewUF5xz
-	nkQ47s7XQpbN6t1j0qY6F1r0/1GQpt3T3lXNsrHoIfLD/p4gFXzTPeHKTWqQIXyEbQozPxwKfHS
-	hsXFOnJMgkTgCSAj/OGt0B5eRdyj4/qP0vZGGXr8M=
-X-Received: by 2002:a05:6a20:2d2c:b0:1c6:fb0b:51d8 with SMTP id adf61e73a8af0-1d30a947df3mr14803009637.9.1727163314096;
-        Tue, 24 Sep 2024 00:35:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH93wsd9olWTU1uYReqgn70Hj++nACEzMR+hjA412Zlezslgj7mshDHYfl/+df7GQDC/eLVRkVTwOK95+rYsu0=
-X-Received: by 2002:a05:6a20:2d2c:b0:1c6:fb0b:51d8 with SMTP id
- adf61e73a8af0-1d30a947df3mr14802990637.9.1727163313667; Tue, 24 Sep 2024
- 00:35:13 -0700 (PDT)
+        bh=cPeVxGad0rWL+6l63ORIof7v2WZ21lQlNY9saN2Whdc=;
+        b=e1xPYte+q16sIruRzpmvA8vBXwT6V/H7I+gXBp/XLoXxlqr8nfGMpGXqQAMpmj+dhw
+         IQ2Ej2w2aPRjZ46X9oaIPpRk18jO8zX4kfh8hh+WXFg/1hNIsLTB5pqmxHDT6VxDboKk
+         UDfX2XU9fhPMOucnibeUFHglvJf82Sb+S8F8BEkPkufHYjcZMoinh/lMwkDQNsFYjzM6
+         RF/eYe2pXt8rLt/vpLnd/luJAKOF7KVvrzc08qqv+ZPmxZZeY3RTj4Tgfdy6WklJ3GzT
+         N82WaB+DERafQjo0iq1hJdieuIDlebabqdslj9bGZA5e8YeOT5eZFp1HXg+IQWgMaoa8
+         XQsQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX4TzSAxLOP9V2V2qg2zniwNZIR2FJiXEUmkycFuSYOqwn6U89ZzLznkDjwUW8MwscwZ18cWkoW7BFKxIUa6g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFjG5ji33/Iml6UFAkKjH4JGoTBi2GcPd9lYP/LUGlDqvMy2n2
+	2SYpfyuPhdJBElnDGXAUv80KlWcRtOHtLZ2Kjyz1Lm7EX1SwTsBvmAr51gnhxbUGgwsZ0v6ePIS
+	dxhY1As954VsLbj9VcZ0wTeM/2OivbOlKOZLgzJVXM2ILR3kvBdvt+Avlpm9RGkYzspPtb5Tagt
+	KALUObQwfMYZy69BjaN9PcfJicCyPrCudF4flnv97/zp7NIa2rOw==
+X-Received: by 2002:a05:6a20:d525:b0:1d0:56b1:1c59 with SMTP id adf61e73a8af0-1d30a9fb7b3mr19470582637.32.1727163315957;
+        Tue, 24 Sep 2024 00:35:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEx/soIIabkJ0QhCDlDO4PjZWR1FTyoTbioUpQfhFh0yWY1kmlQ/qO18q1LS4ki5NKSTFvtS8mDzJ3BNF/H4wk=
+X-Received: by 2002:a05:6a20:d525:b0:1d0:56b1:1c59 with SMTP id
+ adf61e73a8af0-1d30a9fb7b3mr19470570637.32.1727163315542; Tue, 24 Sep 2024
+ 00:35:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com> <20240924013204.13763-5-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240924013204.13763-5-xuanzhuo@linux.alibaba.com>
+References: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com> <20240924013204.13763-8-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240924013204.13763-8-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 24 Sep 2024 15:35:01 +0800
-Message-ID: <CACGkMEtuF8xx-R08oKmoZo3dMSnCBkjG9tKTZJ=mL1z=SgO2tQ@mail.gmail.com>
-Subject: Re: [RFC net-next v1 04/12] virtio_ring: perform premapped operations
- based on per-buffer
+Date: Tue, 24 Sep 2024 15:35:03 +0800
+Message-ID: <CACGkMEtbNrwbxhRbjHGiEQeQbWUb2iL0ZtyosXs4_+GoZY-Gsw@mail.gmail.com>
+Subject: Re: [RFC net-next v1 07/12] virtio_net: refactor the xmit type
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
 	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
@@ -85,46 +84,84 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Sep 24, 2024 at 9:32=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
 >
-> The current configuration sets the virtqueue (vq) to premapped mode,
-> implying that all buffers submitted to this queue must be mapped ahead
-> of time. This presents a challenge for the virtnet send queue (sq): the
-> virtnet driver would be required to keep track of dma information for vq
-> size * 17, which can be substantial. However, if the premapped mode were
-> applied on a per-buffer basis, the complexity would be greatly reduced.
-> With AF_XDP enabled, AF_XDP buffers would become premapped, while kernel
-> skb buffers could remain unmapped.
+> Because the af-xdp will introduce a new xmit type, so I refactor the
+> xmit type mechanism first.
 >
-> We can distinguish them by sg_page(sg), When sg_page(sg) is NULL, this
-> indicates that the driver has performed DMA mapping in advance, allowing
-> the Virtio core to directly utilize sg_dma_address(sg) without
-> conducting any internal DMA mapping. Additionally, DMA unmap operations
-> for this buffer will be bypassed.
+> In general, pointers are aligned to 4 or 8 bytes.
 
-So I think we still need some explanation here. I think this works for
-virtio-net as the sgs are initialized by the virtio-net device itself.
+I think this needs some clarification, the alignment seems to depend
+on the lowest common multiple between the alignments of all struct
+members. So we know both xdp_frame and sk_buff are at least 4 bytes
+aligned.
 
-But it seems not the case for all the others where the sgs were passed
-from the uppyer subsystem. For example in __virtscsi_add_cmd(), we
-had:
+If we want to reuse the lowest bit of pointers in AF_XDP, the
+alignment of the data structure should be at least 4 bytes.
 
-        if (sc && sc->sc_data_direction !=3D DMA_NONE) {
-        if (sc->sc_data_direction !=3D DMA_FROM_DEVICE)
-                out =3D &sc->sdb.table;
-        if (sc->sc_data_direction !=3D DMA_TO_DEVICE)
-                in =3D &sc->sdb.table;
-        }
+> If it is aligned to 4
+> bytes, then only two bits are free for a pointer. But there are 4 types
+> here, so we can't use bits to distinguish them. And 2 bits is enough for
+> 4 types:
+>
+>     00 for skb
+>     01 for SKB_ORPHAN
+>     10 for XDP
+>     11 for af-xdp tx
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/net/virtio_net.c | 90 +++++++++++++++++++++++-----------------
+>  1 file changed, 51 insertions(+), 39 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 630e5b21ad69..41a5ea9b788d 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -45,9 +45,6 @@ module_param(napi_tx, bool, 0644);
+>  #define VIRTIO_XDP_TX          BIT(0)
+>  #define VIRTIO_XDP_REDIR       BIT(1)
+>
+> -#define VIRTIO_XDP_FLAG                BIT(0)
+> -#define VIRTIO_ORPHAN_FLAG     BIT(1)
+> -
+>  /* RX packet size EWMA. The average packet size is used to determine the=
+ packet
+>   * buffer size when refilling RX rings. As the entire RX ring may be ref=
+illed
+>   * at once, the weight is chosen so that the EWMA will be insensitive to=
+ short-
+> @@ -512,34 +509,35 @@ static struct sk_buff *virtnet_skb_append_frag(stru=
+ct sk_buff *head_skb,
+>                                                struct page *page, void *b=
+uf,
+>                                                int len, int truesize);
+>
+> -static bool is_xdp_frame(void *ptr)
+> -{
+> -       return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> -}
+> +enum virtnet_xmit_type {
+> +       VIRTNET_XMIT_TYPE_SKB,
+> +       VIRTNET_XMIT_TYPE_SKB_ORPHAN,
+> +       VIRTNET_XMIT_TYPE_XDP,
+> +};
+>
+> -static void *xdp_to_ptr(struct xdp_frame *ptr)
+> -{
+> -       return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
+> -}
+> +/* We use the last two bits of the pointer to distinguish the xmit type.=
+ */
+> +#define VIRTNET_XMIT_TYPE_MASK (BIT(0) | BIT(1))
+>
+> -static struct xdp_frame *ptr_to_xdp(void *ptr)
+> +static enum virtnet_xmit_type virtnet_xmit_ptr_strip(void **ptr)
 
-        /* Request header.  */
-        sg_init_one(&req, &cmd->req, req_size);
-        sgs[out_num++] =3D &req;
+Nit: not a native speaker but I think something like pack/unpack might
+be better.
 
-        /* Data-out buffer.  */
-        if (out) {
-                /* Place WRITE protection SGLs before Data OUT payload */
-                if (scsi_prot_sg_count(sc))
-                        sgs[out_num++] =3D scsi_prot_sglist(sc);
-                sgs[out_num++] =3D out->sgl;
-        }
+With those changes.
+
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
