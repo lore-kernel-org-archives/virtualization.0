@@ -1,28 +1,29 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 334D78C1F
-	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 01:32:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CC561B85F0
+	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 01:32:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727141538; cv=none; b=QW8pDH8OWCXx+af5rBXuV/QGOCPhAVS71CGjZEdmI+7DT8a8UgoOLslfXUrTyddBODwhhG9HhIianOACoK0juxp5BsN8j/HWG881fCiDWH5QbCFBb353oe9tvAkg7MlTnmFCjcD8NL7OM+6Sw87FHln486Q5isC4S1jAjMEAuVg=
+	t=1727141538; cv=none; b=WZUXqV8X5vNT8L5/EuGaHNrsyYHC6+jvWpO8qQNdgCULMOwozRTB/+c0TInnABQdL/6uoUGoUpMGSOWJvmXXSRXjHztUQIECvnCjOMxZiLXElzdRq69ryet2FuJAoBKxd47FsZ2IGkE/r6mmJrEGIHwrDDRWv7aFaNo+vibCk0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1727141538; c=relaxed/simple;
-	bh=NLWuQMQdGOaEdkp9nqA/DcOMKSqjWfAXlJTmjRYs8To=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Ceg6/7mzJVQjsUud81hnuYC1wOF+3fuQbwV/U2r9SIONTxwI5CPO+jwVBY6JlmlrDISYNH1b6jUHrWfbn0o60i4E9CBMaR8geDEpBTmaIeel8CeUARP7LjWo4QTCRZHMZq3go/G2pHhh4mtHaktZyHh5ueaq+iN2dpiWw9M4M90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=t+Ql+owf; arc=none smtp.client-ip=115.124.30.99
+	bh=0xBuClzLtPEZUdcC3D/BctrxFt19ykyV2iK4rFqKSag=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Gl3znlsuiqgOGxfZ1/CfZ3U6Yf3fLMJXOfMiZxCA0g3RuhUHnJdl6ni4EFdq1gj3DPDHplKf2DSHiGaHjdzF3xiTIhw0bs23fhQ7/j7Ln9znZeimzBC6NKrCCKtGAtBESXbt7rKiJ9ISWdoQOP8NFYJY+Mu026hWGK5rQblRv+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jPC1NM8o; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="t+Ql+owf"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jPC1NM8o"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1727141526; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=iCn/TDt437t416f0h3Ki8KtoPYKj1vMAXHoXXMzzIvg=;
-	b=t+Ql+owfYhZiQDGv2gSOMBOdVcWy8dSgtTElD3ZF759WBLzmHyHqGDxJyTM+eeb6mxJJCajqPZereoObsgAke9Hx9EuQCQSviU3IZZVYqK7iRguJKnhNm8HFRloSTxw4zWKDMqcHMF/SmGP5GgwT7RpPdkezkQGN9tbd0Yalqpc=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WFdsUjb_1727141524)
+	t=1727141534; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=UobHEiaweT0402S1orrUBD6B73dHrbBYqy5w2v3FypE=;
+	b=jPC1NM8oXl6ztbaZRzach4OgK5vDOE+2b+PZwXn1uNt3E9yY4IqyheOhGUAv0uIPxg42tCNs77TflBs+NdUVhn2/iIM43dmRTX4ValfQnB/EIm7bq/Lev5LBH0rjxtphbJ9jxkh0BYmmupBsf9hCiMuLEgdnUUoyHPfNCp9ODH0=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WFdtE4K_1727141532)
           by smtp.aliyun-inc.com;
-          Tue, 24 Sep 2024 09:32:05 +0800
+          Tue, 24 Sep 2024 09:32:13 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -39,10 +40,12 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [RFC net-next v1 00/12] virtio-net: support AF_XDP zero copy (tx)
-Date: Tue, 24 Sep 2024 09:31:52 +0800
-Message-Id: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com>
+Subject: [RFC net-next v1 09/12] virtio_net: xsk: prevent disable tx napi
+Date: Tue, 24 Sep 2024 09:32:01 +0800
+Message-Id: <20240924013204.13763-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com>
+References: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -52,119 +55,43 @@ MIME-Version: 1.0
 X-Git-Hash: 83bb687d4b73
 Content-Transfer-Encoding: 8bit
 
-Because the merge window is closed, so this is RFC.
+Since xsk's TX queue is consumed by TX NAPI, if sq is bound to xsk, then
+we must stop tx napi from being disabled.
 
-v1:
-    1. some small fixes for http://lore.kernel.org/all/20240820073330.9161-1-xuanzhuo@linux.alibaba.com
-        1. fix the title of the commit #2, #3
-        2. fix the gcc error for commit #3
-        3. use virtqueue_dma_xxxx for tx hdr
-        4. rename virtnet_ptr_to_xsk to virtnet_ptr_to_xsk_buff_len
-        5. squash #11 in last patch set to #10
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-================================================================================
-
-## AF_XDP
-
-XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
-copy feature of xsk (XDP socket) needs to be supported by the driver. The
-performance of zero copy is very good. mlx5 and intel ixgbe already support
-this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
-feature.
-
-At present, we have completed some preparation:
-
-1. vq-reset (virtio spec and kernel code)
-2. virtio-core premapped dma
-3. virtio-net xdp refactor
-
-So it is time for Virtio-Net to complete the support for the XDP Socket
-Zerocopy.
-
-Virtio-net can not increase the queue num at will, so xsk shares the queue with
-kernel.
-
-This patch set includes some refactor to the virtio-net to let that to support
-AF_XDP.
-
-## About virtio premapped mode
-
-The current configuration sets the virtqueue (vq) to premapped mode,
-implying that all buffers submitted to this queue must be mapped ahead
-of time. This presents a challenge for the virtnet send queue (sq): the
-virtnet driver would be required to keep track of dma information for vq
-size * 17, which can be substantial. However, if the premapped mode were
-applied on a per-buffer basis, the complexity would be greatly reduced.
-With AF_XDP enabled, AF_XDP buffers would become premapped, while kernel
-skb buffers could remain unmapped.
-
-We can distinguish them by sg_page(sg), When sg_page(sg) is NULL, this
-indicates that the driver has performed DMA mapping in advance, allowing
-the Virtio core to directly utilize sg_dma_address(sg) without
-conducting any internal DMA mapping. Additionally, DMA unmap operations
-for this buffer will be bypassed.
-
-## performance
-
-ENV: Qemu with vhost-user(polling mode).
-Host CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
-
-### virtio PMD in guest with testpmd
-
-testpmd> show port stats all
-
- ######################## NIC statistics for port 0 ########################
- RX-packets: 19531092064 RX-missed: 0     RX-bytes: 1093741155584
- RX-errors: 0
- RX-nombuf: 0
- TX-packets: 5959955552 TX-errors: 0     TX-bytes: 371030645664
-
-
- Throughput (since last show)
- Rx-pps:   8861574     Rx-bps:  3969985208
- Tx-pps:   8861493     Tx-bps:  3969962736
- ############################################################################
-
-### AF_XDP PMD in guest with testpmd
-
-testpmd> show port stats all
-
-  ######################## NIC statistics for port 0  ########################
-  RX-packets: 68152727   RX-missed: 0          RX-bytes:  3816552712
-  RX-errors: 0
-  RX-nombuf:  0
-  TX-packets: 68114967   TX-errors: 33216      TX-bytes:  3814438152
-
-  Throughput (since last show)
-  Rx-pps:      6333196          Rx-bps:   2837272088
-  Tx-pps:      6333227          Tx-bps:   2837285936
-  ############################################################################
-
-But AF_XDP consumes more CPU for tx and rx napi(100% and 86%).
-
-Please review.
-
-Thanks.
-
-Xuan Zhuo (12):
-  virtio_ring: introduce vring_need_unmap_buffer
-  virtio_ring: split: record extras for indirect buffers
-  virtio_ring: packed: record extras for indirect buffers
-  virtio_ring: perform premapped operations based on per-buffer
-  virtio-net: rq submits premapped per-buffer
-  virtio_ring: remove API virtqueue_set_dma_premapped
-  virtio_net: refactor the xmit type
-  virtio_net: xsk: bind/unbind xsk for tx
-  virtio_net: xsk: prevent disable tx napi
-  virtio_net: xsk: tx: support xmit xsk buffer
-  virtio_net: update tx timeout record
-  virtio_net: xdp_features add NETDEV_XDP_ACT_XSK_ZEROCOPY
-
- drivers/net/virtio_net.c     | 347 +++++++++++++++++++++++++++++------
- drivers/virtio/virtio_ring.c | 313 ++++++++++++++-----------------
- include/linux/virtio.h       |   2 -
- 3 files changed, 431 insertions(+), 231 deletions(-)
-
---
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7c379614fd22..3ad4c6e3ef18 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -5017,7 +5017,7 @@ static int virtnet_set_coalesce(struct net_device *dev,
+ 				struct netlink_ext_ack *extack)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+-	int ret, queue_number, napi_weight;
++	int ret, queue_number, napi_weight, i;
+ 	bool update_napi = false;
+ 
+ 	/* Can't change NAPI weight if the link is up */
+@@ -5046,6 +5046,14 @@ static int virtnet_set_coalesce(struct net_device *dev,
+ 		return ret;
+ 
+ 	if (update_napi) {
++		/* xsk xmit depends on the tx napi. So if xsk is active,
++		 * prevent modifications to tx napi.
++		 */
++		for (i = queue_number; i < vi->max_queue_pairs; i++) {
++			if (vi->sq[i].xsk_pool)
++				return -EBUSY;
++		}
++
+ 		for (; queue_number < vi->max_queue_pairs; queue_number++)
+ 			vi->sq[queue_number].napi.weight = napi_weight;
+ 	}
+-- 
 2.32.0.3.g01195cf9f
 
