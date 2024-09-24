@@ -1,29 +1,29 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFC181B85FA
-	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 01:32:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 713588F49
+	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 01:32:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727141539; cv=none; b=B2EPJrM//bS6meg+IIeqK4Cy+ncTQlLKLmj83KG4wxYSur6Y1bGoVjbFqGpcdjc7okfJBQCmEkhmKsu8S0aaz62N1DAoMT1lbDHXSgLhY7p6Tshc6hXt2z8DhUXh00ike2gDSEx1kLUpRSC5lQtw1tU7z/sc7HGJvQy9nSZzuCY=
+	t=1727141540; cv=none; b=SymfpnyMabZkCtPxds/ktZBBBOEG7xllVRzLMJwRKjmVzgmJp0+LLnRQue3nFLf33VIMtEurb5Xt/2/9Pz7U+09feZImFK/ocs/qlfBmHgCQ3GVaMT0xCqW2yuTG4BVxaFcXPVfUJgTXlDELd9DKlcgl3Vc9Sv0xHmi926mOdnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727141539; c=relaxed/simple;
-	bh=6uUsypmmZeow9fesI41yhOA32pV9RZ2aLczNva0hKao=;
+	s=arc-20240116; t=1727141540; c=relaxed/simple;
+	bh=4PzE8lbbODeyaw38W4gYHeqOOSSQbowpvFBovmjchbQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ZEssfPtavTqJImr6QheYLcX0do3N+x/R689Gy9leco3wrRpFpRcOH1ggm6ubaGToaYPsMyu+6pMZfIgaAHWle47HyIE4NRWjiGAfXXd1Vg9M1QBlmBXr+/xPo9d6DAhhdT2vTCv1GinGQBDbP/u2OhkrRh/ketmLKJHhdWXudMQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Nm4SKfj8; arc=none smtp.client-ip=115.124.30.119
+	 MIME-Version; b=ZUPZ50kueuV0mnqao0pCtWHlNvnlIeBA2eVeNxj2Lc1Cg2+NQsB1G6s/UENGLYtzVA0tTr+S/RF9FtAjq+C1GkNLzt3A++XJmBLMUOz9l4Jx5e7b5i2URlP3NnASghgJjifx5XwVCTtR/VdUyqks0d6uJg1X97HrOXNk9nl07jE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ndsCUWRe; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Nm4SKfj8"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ndsCUWRe"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1727141528; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=lRNeoN9ASozdK/uesOq83PNEpvO+7btT+iZPLJrwyyo=;
-	b=Nm4SKfj8h6oekZoU2CJQ1SR4Qz7IcERyh7dIrmT9FrzUziq/JrlpHz74zRAOuwTuJM8FRJ2I252X5g41bncZeNMwaNsDNUroPyywmo05dm5QcVVYZ+f3HH2xVE2A1l786l2REP0mmFtVtvpVVjr65w8z1pvg9dzobbGulDnAfeQ=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WFdsUke_1727141527)
+	t=1727141536; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=b6ZRBF+DYuysjrAxQNYZueIJJvIDTJk/DwCLRshP4RA=;
+	b=ndsCUWReZ2fwyZlSHiMkd5PJl+kEN0DtOhzfdYyuqwJISKYzcKcAMdVIwmzy/bjyYAR9a54UlAem1IT3TB24RDzx9mUMDRBQGgf2UWfITLiCEvshBKVJg/XY6Ev9PHzx0HAZU06+u3zEbyV+cnF6BJiIf5l79PIgV4dbIRgcU9Q=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WFdsUny_1727141534)
           by smtp.aliyun-inc.com;
-          Tue, 24 Sep 2024 09:32:08 +0800
+          Tue, 24 Sep 2024 09:32:14 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -40,9 +40,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [RFC net-next v1 03/12] virtio_ring: packed: record extras for indirect buffers
-Date: Tue, 24 Sep 2024 09:31:55 +0800
-Message-Id: <20240924013204.13763-4-xuanzhuo@linux.alibaba.com>
+Subject: [RFC net-next v1 11/12] virtio_net: update tx timeout record
+Date: Tue, 24 Sep 2024 09:32:03 +0800
+Message-Id: <20240924013204.13763-12-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com>
 References: <20240924013204.13763-1-xuanzhuo@linux.alibaba.com>
@@ -55,178 +55,33 @@ MIME-Version: 1.0
 X-Git-Hash: 83bb687d4b73
 Content-Transfer-Encoding: 8bit
 
-The subsequent commit needs to know whether every indirect buffer is
-premapped or not. So we need to introduce an extra struct for every
-indirect buffer to record this info.
+If send queue sent some packets, we update the tx timeout
+record to prevent the tx timeout.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 67 ++++++++++++++++++++----------------
- 1 file changed, 37 insertions(+), 30 deletions(-)
+ drivers/net/virtio_net.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 62901bee97c0..7d5fed4ff4f8 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -85,7 +85,11 @@ struct vring_desc_state_split {
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 1a870f1df910..a1ef0277c550 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1488,6 +1488,13 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+ 	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
+ 		check_sq_full_and_disable(vi, vi->dev, sq);
  
- struct vring_desc_state_packed {
- 	void *data;			/* Data for callback. */
--	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
++	if (sent) {
++		struct netdev_queue *txq;
 +
-+	/* Indirect extra table and desc table, if any. These two will be
-+	 * allocated together. So we won't stress more to the memory allocator.
-+	 */
-+	struct vring_desc_extra *indir;
- 	u16 num;			/* Descriptor list length. */
- 	u16 last;			/* The last desc state in a list. */
- };
-@@ -1242,27 +1246,13 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
- 	}
- }
- 
--static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
--				    const struct vring_packed_desc *desc)
--{
--	u16 flags;
--
--	if (!vring_need_unmap_buffer(vq))
--		return;
--
--	flags = le16_to_cpu(desc->flags);
--
--	dma_unmap_page(vring_dma_dev(vq),
--		       le64_to_cpu(desc->addr),
--		       le32_to_cpu(desc->len),
--		       (flags & VRING_DESC_F_WRITE) ?
--		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
--}
--
- static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
-+						       struct vring_desc_extra **pextra,
- 						       gfp_t gfp)
- {
-+	struct vring_desc_extra *extra;
- 	struct vring_packed_desc *desc;
-+	int i;
- 
- 	/*
- 	 * We require lowmem mappings for the descriptors because
-@@ -1271,7 +1261,16 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
- 	 */
- 	gfp &= ~__GFP_HIGHMEM;
- 
--	desc = kmalloc_array(total_sg, sizeof(struct vring_packed_desc), gfp);
-+	extra = kmalloc_array(total_sg, sizeof(*desc) + sizeof(*extra), gfp);
-+	if (!extra)
-+		return NULL;
++		txq = netdev_get_tx_queue(vi->dev, sq - vi->sq);
++		txq_trans_cond_update(txq);
++	}
 +
-+	desc = (struct vring_packed_desc *)&extra[total_sg];
-+
-+	for (i = 0; i < total_sg; i++)
-+		extra[i].next = i + 1;
-+
-+	*pextra = extra;
- 
- 	return desc;
- }
-@@ -1284,6 +1283,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 					 void *data,
- 					 gfp_t gfp)
- {
-+	struct vring_desc_extra *extra;
- 	struct vring_packed_desc *desc;
- 	struct scatterlist *sg;
- 	unsigned int i, n, err_idx;
-@@ -1291,7 +1291,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	dma_addr_t addr;
- 
- 	head = vq->packed.next_avail_idx;
--	desc = alloc_indirect_packed(total_sg, gfp);
-+	desc = alloc_indirect_packed(total_sg, &extra, gfp);
- 	if (!desc)
- 		return -ENOMEM;
- 
-@@ -1316,6 +1316,13 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 						0 : VRING_DESC_F_WRITE);
- 			desc[i].addr = cpu_to_le64(addr);
- 			desc[i].len = cpu_to_le32(sg->length);
-+
-+			if (unlikely(vq->use_dma_api)) {
-+				extra[i].addr = addr;
-+				extra[i].len = sg->length;
-+				extra[i].flags = n < out_sgs ?  0 : VRING_DESC_F_WRITE;
-+			}
-+
- 			i++;
- 		}
- 	}
-@@ -1371,7 +1378,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	/* Store token and indirect buffer state. */
- 	vq->packed.desc_state[id].num = 1;
- 	vq->packed.desc_state[id].data = data;
--	vq->packed.desc_state[id].indir_desc = desc;
-+	vq->packed.desc_state[id].indir = extra;
- 	vq->packed.desc_state[id].last = id;
- 
- 	vq->num_added += 1;
-@@ -1385,7 +1392,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	err_idx = i;
- 
- 	for (i = 0; i < err_idx; i++)
--		vring_unmap_desc_packed(vq, &desc[i]);
-+		vring_unmap_extra_packed(vq, &extra[i]);
- 
- free_desc:
- 	kfree(desc);
-@@ -1508,7 +1515,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 	/* Store token. */
- 	vq->packed.desc_state[id].num = descs_used;
- 	vq->packed.desc_state[id].data = data;
--	vq->packed.desc_state[id].indir_desc = ctx;
-+	vq->packed.desc_state[id].indir = ctx;
- 	vq->packed.desc_state[id].last = prev;
- 
- 	/*
-@@ -1599,7 +1606,6 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 			      unsigned int id, void **ctx)
- {
- 	struct vring_desc_state_packed *state = NULL;
--	struct vring_packed_desc *desc;
- 	unsigned int i, curr;
- 
- 	state = &vq->packed.desc_state[id];
-@@ -1621,23 +1627,24 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 	}
- 
- 	if (vq->indirect) {
-+		struct vring_desc_extra *extra;
- 		u32 len;
- 
- 		/* Free the indirect table, if any, now that it's unmapped. */
--		desc = state->indir_desc;
--		if (!desc)
-+		extra = state->indir;
-+		if (!extra)
- 			return;
- 
- 		if (vring_need_unmap_buffer(vq)) {
- 			len = vq->packed.desc_extra[id].len;
- 			for (i = 0; i < len / sizeof(struct vring_packed_desc);
- 					i++)
--				vring_unmap_desc_packed(vq, &desc[i]);
-+				vring_unmap_extra_packed(vq, &extra[i]);
- 		}
--		kfree(desc);
--		state->indir_desc = NULL;
-+		kfree(extra);
-+		state->indir = NULL;
- 	} else if (ctx) {
--		*ctx = state->indir_desc;
-+		*ctx = state->indir;
- 	}
- }
- 
+ 	u64_stats_update_begin(&sq->stats.syncp);
+ 	u64_stats_add(&sq->stats.packets, stats.packets);
+ 	u64_stats_add(&sq->stats.bytes,   stats.bytes);
 -- 
 2.32.0.3.g01195cf9f
 
