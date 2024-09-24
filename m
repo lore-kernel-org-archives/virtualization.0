@@ -1,78 +1,79 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B632615539F
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEE8A16F826
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727168484; cv=none; b=k2JNGmg7MHpx/O9wieKnGwDCvDl6G5idkcA+YHe5AkzOKNtNEjTBTWg8RRpzlp+R6D++UeHjST/hghCSYuoEuyRkB6BmR1KhoSqBdPJG1nuc5hrNezqLRNjbvYBrY4GkPX5YR/6XX2S44oCbL9It0SxWXmvCj1fsmUMISO4EDu4=
+	t=1727168485; cv=none; b=rtM2ga7NPF2hlNwgu5Zvy1amNilCEeuO8CklQmepLf59n/YzixPfnBVJPQYFd4fuB8Yy8n6l/GuS++QkNvqtI/JbjMmP2lSyhwwEC3l7L/hqD9djB2wbT6zzGkIUqS3YD19OqGHKkDKk+GaSugQlCl/sAy1wMvO4Uz94kfTU7P4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727168484; c=relaxed/simple;
-	bh=sOAXGGuPxVhRSBMMLtZjJhQOr2JtLUlri/1Ey3yMBnI=;
+	s=arc-20240116; t=1727168485; c=relaxed/simple;
+	bh=jkhM+x9bNKZH2KnPiJz0Wz2oSY9j9Yf3OXEdL7BBvmc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To; b=mMmFjHeLezzJJw+WPHNrnfqIcK395KUauvuR+A+YDzIReZ0Of/KnCXgi+/hoTYYlYa7GKYBpIQYWh/Dze5i12vEnQmAtmmMqZwZ+A0nQqle9hTVb7aVatsLb22FlklyPPabLshCJHUok7o7ixcGdI1dOzDavLEOgagk5K/Colj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=gJ4RF3uD; arc=none smtp.client-ip=140.211.166.136
+	 In-Reply-To:To; b=rd0pz2gcQvWVKnPn41pfl0a5K3dg7fmtZYC2YV+2HtDBCuqjGVzvrvw+v4T6i1bQKpr/nxAy9neeIrLZ9Xuva/iQwzEaT8OchuHiv8u9DgEDf+VDlcnbY2di57s8oz5QuewPNtjczvWhKU/30oQEjqx3yAni1XPCDR+micsZs2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=RDIVSc1B; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="gJ4RF3uD"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="RDIVSc1B"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8AD5C60A62
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:21 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5E6DA8030B
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:23 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id pOn0C2IXWiBY for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Sep 2024 09:01:20 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::630; helo=mail-ej1-x630.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 888B460A40
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 888B460A40
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=gJ4RF3uD
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 888B460A40
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:20 +0000 (UTC)
-Received: by mail-ej1-x630.google.com with SMTP id a640c23a62f3a-a8d2b4a5bf1so752806066b.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 02:01:20 -0700 (PDT)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id PR76sMYFYMnz for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Sep 2024 09:01:22 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::52f; helo=mail-ed1-x52f.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 69992811BB
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 69992811BB
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=RDIVSc1B
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 69992811BB
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:22 +0000 (UTC)
+Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-5c4146c7b28so6694522a12.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 02:01:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1727168478; x=1727773278; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1727168480; x=1727773280; darn=lists.linux-foundation.org;
         h=to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Ov2zUxVwXGroWMKfnwaYR/rA1EzTscWc/86yRpml0UI=;
-        b=gJ4RF3uDIl8od5MgbDI4dGb9+t+/zxf+RwvT3fA1d6/ZEZgGC/+yzRjRno1tj+uH+1
-         aKOSXQfWkZNl0mmZh7xZaqThqZ35/ALxO5N91j2LOD8pSLF7rvwzB/sFprme+5+5YjR5
-         0n0mhntsDRxLGRusib5l2zj+NG4ji87YWvxMslWMjXJ4gfeUWYEwwiMcFRx0Gzv9+yyG
-         ikiSPXgh3qEur4vAZ3JDG/dRGqy2G5m0KNtGzmZBwfRaog82HDsEUfu2gPUCjoKPP01r
-         OaPRb7aqO4I7sj5L36Z5RZHM7w8g5Itg9yhv7tAmqp3ZNJe8lA+jcdr5JIndRSpmtTuO
-         F1AA==
+        bh=GLQiR3TXPfmR5MbSmS8z1giBJhJI6LMQJhK91hzIYDE=;
+        b=RDIVSc1BjAYp0MCgc3BAtZ7nRtjOkm4brDVfDVM0kSB2G1bLhu9aF1+1QH6ZuoNNLH
+         sRJYwFcJEcd43gFARfs/uAAkHSWuPen88ndnoKpupRCE/VAK+LBr3l586dH9iIBf5faR
+         f5USrl77bstQUfEQ+k/oaXmgkSLkRgKGR3AFhvRaTNf0LUk9tl493YKSjX23mDSn4Jw8
+         Nby2xtlQzgHd1ZlNNOaskiZmkp/3YmmZk7uBtUU0x1qbIvarCRjWcFS2TI6HmFk0Ox3r
+         Ut/iU/OYZv253cVSaaeg+J/jZG4wbvfh/k/hSY97am9J3+kHJBDQo9Mhv5uap7Zl42Qx
+         jpMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727168478; x=1727773278;
+        d=1e100.net; s=20230601; t=1727168480; x=1727773280;
         h=to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ov2zUxVwXGroWMKfnwaYR/rA1EzTscWc/86yRpml0UI=;
-        b=QlsNVvA3Vaqoc08lHu8glqZj1JaXdWlj1GwN3mZMg4QL425nc7eHL2i9q4Dqd/3qwx
-         pbjECG3CvFAmaDLSLoYmPtgzT8X8dTHf+d8CLf20wp4IhbHlIUyrHElRUMC1UGqa0ez1
-         Jbotes+rzZGyC46KRO7Z9jjCCKtlozNAW0IAIVSTnJGtvmMevdoGmeS55/EL8H9+JrWb
-         wgBzotnjvq8w11EK1DAH9qvMQRhpr3jrhoCQgzkxyVUdElu1siqViaPvEp/SAfwAH7LV
-         0QYoRgfocMxdWcGyeQdzijwHpJtcXUgLMqvG9sg5K31b+g1R1rZKPohDOyCYlb6PdqWf
-         WKXw==
-X-Forwarded-Encrypted: i=1; AJvYcCWzKLcgpBG2tiCkOlknmyWZIJTYmRYT9XMvvZRJAgREueIapKbHpmtJZpNonk6FcqF/zv1kfXPwGeTQf87/og==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz/7llZ5Yay//2CDtU6oodigol0SRww27NId0JrZRn+vQfPVm5v
-	VkLr9uxAViTOWFMdAvijghUsOR+6K2+qQOoIOBl1xqAE88dGRXpKUDfjeWKaG64=
-X-Google-Smtp-Source: AGHT+IFWAkqffQdJf6+ooG5u5r4ZbQRITl2L+f/622eMMHM38TeEo3AkjhjZ7Qd4F4SO1RqijO7WQw==
-X-Received: by 2002:a17:907:9348:b0:a8d:3998:2d2 with SMTP id a640c23a62f3a-a90d518718fmr1921620866b.58.1727168478186;
-        Tue, 24 Sep 2024 02:01:18 -0700 (PDT)
+        bh=GLQiR3TXPfmR5MbSmS8z1giBJhJI6LMQJhK91hzIYDE=;
+        b=qCvhug1ftGyH0ITLQ/U9hVWG/NdfwAwBbSIOdbF14bRMaAFs5jbor/evcfTe6/faZw
+         V3yzwWr8IFP5vdV8I3KBQI5NMWltuWxVnR43p21RCdP/X2TJxWHW1IhpdSZgYSU0DHx9
+         /v/tduDXnKcSphDznSK8F8e06kx+W4gGd1+zdMhvYEQilfSzoKJkf/pF5idgbsauX+dD
+         Y5UqKXHhb+QXLkcZo3yNQOizCA5vvXjONi9Gkxowe21Vvv0/hF6CCcNHgCy78uXG/T4G
+         GBZwVqk+tChbYFfRj6fqzdeR9IDvJ6xOYWHl4CI87GXzwwDmV81y/gRAxECHgPklTvMD
+         5fTg==
+X-Forwarded-Encrypted: i=1; AJvYcCUsP7gOLNFU7+PwghFm69bScUdifzj59D/wKK5eDI/aFY0atPC0TwpNw2tj51W6oESQQG91UIvDmtG5gmK08w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwAF8JkhKB6xW7f7lmwrT+6ptNgN8oSl1ibbrfGawcyKDV2lFbG
+	WoP4nntLOiLJJ+NPEtJZJLpdG9nD1fWQSJqB5IQ/xMyz2bvyqXlWX2C9CcLcKbA=
+X-Google-Smtp-Source: AGHT+IFpGV2s1+MT/Wmetrjt1jnUx/JVoB/QDy6LvgWwnmt/y8aBUWSPmWV8V/zA8CCvTi/SZQaLnw==
+X-Received: by 2002:a17:906:6a22:b0:a8a:7b8e:fe52 with SMTP id a640c23a62f3a-a90d58c1039mr1494327966b.59.1727168480198;
+        Tue, 24 Sep 2024 02:01:20 -0700 (PDT)
 Received: from localhost ([193.32.29.227])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-a9393134bd2sm58552866b.214.2024.09.24.02.01.17
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-a93930f470asm58712666b.151.2024.09.24.02.01.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 Sep 2024 02:01:17 -0700 (PDT)
+        Tue, 24 Sep 2024 02:01:19 -0700 (PDT)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Tue, 24 Sep 2024 11:01:07 +0200
-Subject: [PATCH RFC v4 2/9] virtio_net: Add functions for hashing
+Date: Tue, 24 Sep 2024 11:01:08 +0200
+Subject: [PATCH RFC v4 3/9] net: flow_dissector: Export
+ flow_keys_dissector_symmetric
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -81,7 +82,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240924-rss-v4-2-84e932ec0e6c@daynix.com>
+Message-Id: <20240924-rss-v4-3-84e932ec0e6c@daynix.com>
 References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
 In-Reply-To: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
 To: Jonathan Corbet <corbet@lwn.net>, 
@@ -99,199 +100,41 @@ To: Jonathan Corbet <corbet@lwn.net>,
  Akihiko Odaki <akihiko.odaki@daynix.com>
 X-Mailer: b4 0.14-dev-fd6e3
 
-They are useful to implement VIRTIO_NET_F_RSS and
-VIRTIO_NET_F_HASH_REPORT.
+flow_keys_dissector_symmetric is useful to derive a symmetric hash
+and to know its source such as IPv4, IPv6, TCP, and UDP.
 
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
- include/linux/virtio_net.h | 174 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 174 insertions(+)
+ include/net/flow_dissector.h | 1 +
+ net/core/flow_dissector.c    | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 276ca543ef44..f7a4149efb3e 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -9,6 +9,180 @@
- #include <uapi/linux/tcp.h>
- #include <uapi/linux/virtio_net.h>
+diff --git a/include/net/flow_dissector.h b/include/net/flow_dissector.h
+index ced79dc8e856..d01c1ec77b7d 100644
+--- a/include/net/flow_dissector.h
++++ b/include/net/flow_dissector.h
+@@ -423,6 +423,7 @@ __be32 flow_get_u32_src(const struct flow_keys *flow);
+ __be32 flow_get_u32_dst(const struct flow_keys *flow);
  
-+struct virtio_net_hash {
-+	u32 value;
-+	u16 report;
-+};
-+
-+struct virtio_net_toeplitz_state {
-+	u32 hash;
-+	u32 key_buffer;
-+	const __be32 *key;
-+};
-+
-+#define VIRTIO_NET_SUPPORTED_HASH_TYPES (VIRTIO_NET_RSS_HASH_TYPE_IPv4 | \
-+					 VIRTIO_NET_RSS_HASH_TYPE_TCPv4 | \
-+					 VIRTIO_NET_RSS_HASH_TYPE_UDPv4 | \
-+					 VIRTIO_NET_RSS_HASH_TYPE_IPv6 | \
-+					 VIRTIO_NET_RSS_HASH_TYPE_TCPv6 | \
-+					 VIRTIO_NET_RSS_HASH_TYPE_UDPv6)
-+
-+#define VIRTIO_NET_RSS_MAX_KEY_SIZE 40
-+
-+static inline void virtio_net_toeplitz_calc(struct virtio_net_toeplitz_state *state,
-+					    const __be32 *input, size_t len)
-+{
-+	u32 key;
-+
-+	while (len) {
-+		state->key++;
-+		key = be32_to_cpu(*state->key);
-+
-+		for (u32 bit = BIT(31); bit; bit >>= 1) {
-+			if (be32_to_cpu(*input) & bit)
-+				state->hash ^= state->key_buffer;
-+
-+			state->key_buffer =
-+				(state->key_buffer << 1) | !!(key & bit);
-+		}
-+
-+		input++;
-+		len--;
-+	}
-+}
-+
-+static inline u8 virtio_net_hash_key_length(u32 types)
-+{
-+	size_t len = 0;
-+
-+	if (types & VIRTIO_NET_HASH_REPORT_IPv4)
-+		len = max(len,
-+			  sizeof(struct flow_dissector_key_ipv4_addrs));
-+
-+	if (types &
-+	    (VIRTIO_NET_HASH_REPORT_TCPv4 | VIRTIO_NET_HASH_REPORT_UDPv4))
-+		len = max(len,
-+			  sizeof(struct flow_dissector_key_ipv4_addrs) +
-+			  sizeof(struct flow_dissector_key_ports));
-+
-+	if (types & VIRTIO_NET_HASH_REPORT_IPv6)
-+		len = max(len,
-+			  sizeof(struct flow_dissector_key_ipv6_addrs));
-+
-+	if (types &
-+	    (VIRTIO_NET_HASH_REPORT_TCPv6 | VIRTIO_NET_HASH_REPORT_UDPv6))
-+		len = max(len,
-+			  sizeof(struct flow_dissector_key_ipv6_addrs) +
-+			  sizeof(struct flow_dissector_key_ports));
-+
-+	return sizeof_field(struct virtio_net_toeplitz_state, key_buffer) + len;
-+}
-+
-+static inline u32 virtio_net_hash_report(u32 types,
-+					 struct flow_dissector_key_basic key)
-+{
-+	switch (key.n_proto) {
-+	case cpu_to_be16(ETH_P_IP):
-+		if (key.ip_proto == IPPROTO_TCP &&
-+		    (types & VIRTIO_NET_RSS_HASH_TYPE_TCPv4))
-+			return VIRTIO_NET_HASH_REPORT_TCPv4;
-+
-+		if (key.ip_proto == IPPROTO_UDP &&
-+		    (types & VIRTIO_NET_RSS_HASH_TYPE_UDPv4))
-+			return VIRTIO_NET_HASH_REPORT_UDPv4;
-+
-+		if (types & VIRTIO_NET_RSS_HASH_TYPE_IPv4)
-+			return VIRTIO_NET_HASH_REPORT_IPv4;
-+
-+		return VIRTIO_NET_HASH_REPORT_NONE;
-+
-+	case cpu_to_be16(ETH_P_IPV6):
-+		if (key.ip_proto == IPPROTO_TCP &&
-+		    (types & VIRTIO_NET_RSS_HASH_TYPE_TCPv6))
-+			return VIRTIO_NET_HASH_REPORT_TCPv6;
-+
-+		if (key.ip_proto == IPPROTO_UDP &&
-+		    (types & VIRTIO_NET_RSS_HASH_TYPE_UDPv6))
-+			return VIRTIO_NET_HASH_REPORT_UDPv6;
-+
-+		if (types & VIRTIO_NET_RSS_HASH_TYPE_IPv6)
-+			return VIRTIO_NET_HASH_REPORT_IPv6;
-+
-+		return VIRTIO_NET_HASH_REPORT_NONE;
-+
-+	default:
-+		return VIRTIO_NET_HASH_REPORT_NONE;
-+	}
-+}
-+
-+static inline void virtio_net_hash_rss(const struct sk_buff *skb,
-+				       u32 types, const __be32 *key,
-+				       struct virtio_net_hash *hash)
-+{
-+	struct virtio_net_toeplitz_state toeplitz_state = {
-+		.key_buffer = be32_to_cpu(*key),
-+		.key = key
-+	};
-+	struct flow_keys flow;
-+	u16 report;
-+
-+	if (!skb_flow_dissect_flow_keys(skb, &flow, 0)) {
-+		hash->report = VIRTIO_NET_HASH_REPORT_NONE;
-+		return;
-+	}
-+
-+	report = virtio_net_hash_report(types, flow.basic);
-+
-+	switch (report) {
-+	case VIRTIO_NET_HASH_REPORT_IPv4:
-+		virtio_net_toeplitz_calc(&toeplitz_state,
-+					 (__be32 *)&flow.addrs.v4addrs,
-+					 sizeof(flow.addrs.v4addrs) / 4);
-+		break;
-+
-+	case VIRTIO_NET_HASH_REPORT_TCPv4:
-+		virtio_net_toeplitz_calc(&toeplitz_state,
-+					 (__be32 *)&flow.addrs.v4addrs,
-+					 sizeof(flow.addrs.v4addrs) / 4);
-+		virtio_net_toeplitz_calc(&toeplitz_state, &flow.ports.ports, 1);
-+		break;
-+
-+	case VIRTIO_NET_HASH_REPORT_UDPv4:
-+		virtio_net_toeplitz_calc(&toeplitz_state,
-+					 (__be32 *)&flow.addrs.v4addrs,
-+					 sizeof(flow.addrs.v4addrs) / 4);
-+		virtio_net_toeplitz_calc(&toeplitz_state, &flow.ports.ports, 1);
-+		break;
-+
-+	case VIRTIO_NET_HASH_REPORT_IPv6:
-+		virtio_net_toeplitz_calc(&toeplitz_state,
-+					 (__be32 *)&flow.addrs.v6addrs,
-+					 sizeof(flow.addrs.v6addrs) / 4);
-+		break;
-+
-+	case VIRTIO_NET_HASH_REPORT_TCPv6:
-+		virtio_net_toeplitz_calc(&toeplitz_state,
-+					 (__be32 *)&flow.addrs.v6addrs,
-+					 sizeof(flow.addrs.v6addrs) / 4);
-+		virtio_net_toeplitz_calc(&toeplitz_state, &flow.ports.ports, 1);
-+		break;
-+
-+	case VIRTIO_NET_HASH_REPORT_UDPv6:
-+		virtio_net_toeplitz_calc(&toeplitz_state,
-+					 (__be32 *)&flow.addrs.v6addrs,
-+					 sizeof(flow.addrs.v6addrs) / 4);
-+		virtio_net_toeplitz_calc(&toeplitz_state, &flow.ports.ports, 1);
-+		break;
-+
-+	default:
-+		hash->report = VIRTIO_NET_HASH_REPORT_NONE;
-+		return;
-+	}
-+
-+	hash->value = toeplitz_state.hash;
-+	hash->report = report;
-+}
-+
- static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
+ extern struct flow_dissector flow_keys_dissector;
++extern struct flow_dissector flow_keys_dissector_symmetric;
+ extern struct flow_dissector flow_keys_basic_dissector;
+ 
+ /* struct flow_keys_digest:
+diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
+index 0e638a37aa09..9822988f2d49 100644
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -1852,7 +1852,8 @@ void make_flow_keys_digest(struct flow_keys_digest *digest,
+ }
+ EXPORT_SYMBOL(make_flow_keys_digest);
+ 
+-static struct flow_dissector flow_keys_dissector_symmetric __read_mostly;
++struct flow_dissector flow_keys_dissector_symmetric __read_mostly;
++EXPORT_SYMBOL(flow_keys_dissector_symmetric);
+ 
+ u32 __skb_get_hash_symmetric_net(const struct net *net, const struct sk_buff *skb)
  {
- 	switch (gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
 
 -- 
 2.46.0
