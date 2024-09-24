@@ -1,79 +1,78 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEE8A16F826
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2388177992
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727168485; cv=none; b=rtM2ga7NPF2hlNwgu5Zvy1amNilCEeuO8CklQmepLf59n/YzixPfnBVJPQYFd4fuB8Yy8n6l/GuS++QkNvqtI/JbjMmP2lSyhwwEC3l7L/hqD9djB2wbT6zzGkIUqS3YD19OqGHKkDKk+GaSugQlCl/sAy1wMvO4Uz94kfTU7P4=
+	t=1727168488; cv=none; b=hIKfIt4Dhmjpq1o2rpqwRYJiQ+Qqh0Zn0+bU/Ix8OlOEwzziLQss0n9llfQ3bUx6t6UMtLU8Q25N1IeobDYKfLhO/fRX70Qpyr0wS5dUBcm7SNCB+37Fm01jj1BKYgkVmr34AqcuWAwV+V3rX+hXbx40fsSnkSeImooOYE6GSBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727168485; c=relaxed/simple;
-	bh=jkhM+x9bNKZH2KnPiJz0Wz2oSY9j9Yf3OXEdL7BBvmc=;
+	s=arc-20240116; t=1727168488; c=relaxed/simple;
+	bh=ewPtrkqvk7tD3P+mpp0by+kAXiz3ZKe4MhDOXA8p8qI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To; b=rd0pz2gcQvWVKnPn41pfl0a5K3dg7fmtZYC2YV+2HtDBCuqjGVzvrvw+v4T6i1bQKpr/nxAy9neeIrLZ9Xuva/iQwzEaT8OchuHiv8u9DgEDf+VDlcnbY2di57s8oz5QuewPNtjczvWhKU/30oQEjqx3yAni1XPCDR+micsZs2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=RDIVSc1B; arc=none smtp.client-ip=140.211.166.138
+	 In-Reply-To:To; b=UVn4YFLXyn5nkP8firMlPkE6huRaLmz7als7FJ+8EiSDqhuNPBBX15WTqraDg6Ue3Od22noF2w2TurobzoP1P5tv++a6joPxlUFqbFCdf/CQkn6G0xOyRSo7CzQUEGAFgf/maf3LMdP8f9TtI8bOUf90bDmHL92Dk2XJEvq/3Ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=n5nbcUqE; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="RDIVSc1B"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="n5nbcUqE"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5E6DA8030B
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:23 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7CEF160A41
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:26 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id PR76sMYFYMnz for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Sep 2024 09:01:22 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::52f; helo=mail-ed1-x52f.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 69992811BB
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 69992811BB
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=RDIVSc1B
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 69992811BB
-	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:22 +0000 (UTC)
-Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-5c4146c7b28so6694522a12.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 02:01:22 -0700 (PDT)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id jZP7KEPT7kr5 for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Sep 2024 09:01:25 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::531; helo=mail-ed1-x531.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 7E11060A40
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E11060A40
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=n5nbcUqE
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7E11060A40
+	for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 09:01:25 +0000 (UTC)
+Received: by mail-ed1-x531.google.com with SMTP id 4fb4d7f45d1cf-5c40942358eso8719729a12.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 02:01:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1727168480; x=1727773280; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1727168483; x=1727773283; darn=lists.linux-foundation.org;
         h=to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GLQiR3TXPfmR5MbSmS8z1giBJhJI6LMQJhK91hzIYDE=;
-        b=RDIVSc1BjAYp0MCgc3BAtZ7nRtjOkm4brDVfDVM0kSB2G1bLhu9aF1+1QH6ZuoNNLH
-         sRJYwFcJEcd43gFARfs/uAAkHSWuPen88ndnoKpupRCE/VAK+LBr3l586dH9iIBf5faR
-         f5USrl77bstQUfEQ+k/oaXmgkSLkRgKGR3AFhvRaTNf0LUk9tl493YKSjX23mDSn4Jw8
-         Nby2xtlQzgHd1ZlNNOaskiZmkp/3YmmZk7uBtUU0x1qbIvarCRjWcFS2TI6HmFk0Ox3r
-         Ut/iU/OYZv253cVSaaeg+J/jZG4wbvfh/k/hSY97am9J3+kHJBDQo9Mhv5uap7Zl42Qx
-         jpMA==
+        bh=cqdM7AXxfnozdS0h/go68YV5to8QygcNOYorhOUDEHE=;
+        b=n5nbcUqE+1gGLyQaPJJ76dZZm38eWIfa5YfLietzJ32q/5BHNuGjHEeX4vu5hHARfh
+         T1Le+6Rrtr7eSz2NopenZPKnlcR2+k9HhdowSqEKinHeZah2ms1uI590bdmrPCKI7MwG
+         jxV/cOjM+uQqthrDT4m92JazpfJiqC9bcObzLG6MjM5MukjtkW5nxVKBlUI0vsoQ9+8l
+         jWnsbMHNLLW+woNL/paZTa8sbK1S5jVJF7hgJMVVH0vojHDvuRZIIHj1SOZygIgqFuNH
+         v3bhaPfqAv3G9ePGJO3K1GuKSFyjjNzaKNkrnRErk+c8RaT4DmOl39DRTKY5z89oGfI8
+         V2dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727168480; x=1727773280;
+        d=1e100.net; s=20230601; t=1727168483; x=1727773283;
         h=to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GLQiR3TXPfmR5MbSmS8z1giBJhJI6LMQJhK91hzIYDE=;
-        b=qCvhug1ftGyH0ITLQ/U9hVWG/NdfwAwBbSIOdbF14bRMaAFs5jbor/evcfTe6/faZw
-         V3yzwWr8IFP5vdV8I3KBQI5NMWltuWxVnR43p21RCdP/X2TJxWHW1IhpdSZgYSU0DHx9
-         /v/tduDXnKcSphDznSK8F8e06kx+W4gGd1+zdMhvYEQilfSzoKJkf/pF5idgbsauX+dD
-         Y5UqKXHhb+QXLkcZo3yNQOizCA5vvXjONi9Gkxowe21Vvv0/hF6CCcNHgCy78uXG/T4G
-         GBZwVqk+tChbYFfRj6fqzdeR9IDvJ6xOYWHl4CI87GXzwwDmV81y/gRAxECHgPklTvMD
-         5fTg==
-X-Forwarded-Encrypted: i=1; AJvYcCUsP7gOLNFU7+PwghFm69bScUdifzj59D/wKK5eDI/aFY0atPC0TwpNw2tj51W6oESQQG91UIvDmtG5gmK08w==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwAF8JkhKB6xW7f7lmwrT+6ptNgN8oSl1ibbrfGawcyKDV2lFbG
-	WoP4nntLOiLJJ+NPEtJZJLpdG9nD1fWQSJqB5IQ/xMyz2bvyqXlWX2C9CcLcKbA=
-X-Google-Smtp-Source: AGHT+IFpGV2s1+MT/Wmetrjt1jnUx/JVoB/QDy6LvgWwnmt/y8aBUWSPmWV8V/zA8CCvTi/SZQaLnw==
-X-Received: by 2002:a17:906:6a22:b0:a8a:7b8e:fe52 with SMTP id a640c23a62f3a-a90d58c1039mr1494327966b.59.1727168480198;
-        Tue, 24 Sep 2024 02:01:20 -0700 (PDT)
+        bh=cqdM7AXxfnozdS0h/go68YV5to8QygcNOYorhOUDEHE=;
+        b=l73rvzDEJImu1vPDpKRQZYZm73hgNpHZPLhHTWydQ93hf5sO2dxct37lNxQZ6nTFxz
+         5QWVRnNUJGNVcbaaBNjMWCsAXd0KR81kuvbV9FoBEymrb2dpYq5JZ4U+4+8BBOITVBXY
+         BP/sNEF2+gkOIvnGTR3E6IJIMHGPMmoQTnwT/orfRuQMh8TMS0HOaj+vAneygvHhfqyP
+         QdcjaYU+oq6VMrr8/JLhvH6lqNbAahsXu7PHoeuYo/4EmFTeeSspf9PRnF1a8RfFPMDm
+         0Fi5nsLX+6v++2d/THnohzhJ2nyEYfe5QgB+ppl4yb+wUb2HBTLNv12xk6pBwKGh1OWl
+         WhHA==
+X-Forwarded-Encrypted: i=1; AJvYcCVTzeZjbbdVf52oLbQ3pfhpFLu0FhnMGGQ7DFJ4wiDoePpPLweleIqnD+SpzyBdprCLdbj8U1M1Qv6ZPwDoNw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxqhLrWpz+MMRXQsfmfxTecnOHOKNg8Lod3z62BFgKPbVis5Mrh
+	1O+zhsEZj2E8oJ80zxm5Namvh25zkiewxa9eP2SYHcnabyxTRpqqunPOEGhc17k=
+X-Google-Smtp-Source: AGHT+IFYf5KaP4Pzb9vgh1qbbep/BjQkKcAMhxJhINPSfPa8KAAu/uVDRcfMAnuh0Cd6Ah0QYwKNXQ==
+X-Received: by 2002:a05:6402:34c9:b0:5c5:cda5:9328 with SMTP id 4fb4d7f45d1cf-5c5cdfa04e3mr2809831a12.4.1727168483131;
+        Tue, 24 Sep 2024 02:01:23 -0700 (PDT)
 Received: from localhost ([193.32.29.227])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-a93930f470asm58712666b.151.2024.09.24.02.01.18
+        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-5c5cf4c52aesm526635a12.59.2024.09.24.02.01.20
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 Sep 2024 02:01:19 -0700 (PDT)
+        Tue, 24 Sep 2024 02:01:22 -0700 (PDT)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Tue, 24 Sep 2024 11:01:08 +0200
-Subject: [PATCH RFC v4 3/9] net: flow_dissector: Export
- flow_keys_dissector_symmetric
+Date: Tue, 24 Sep 2024 11:01:09 +0200
+Subject: [PATCH RFC v4 4/9] tap: Pad virtio header with zero
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,7 +81,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240924-rss-v4-3-84e932ec0e6c@daynix.com>
+Message-Id: <20240924-rss-v4-4-84e932ec0e6c@daynix.com>
 References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
 In-Reply-To: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
 To: Jonathan Corbet <corbet@lwn.net>, 
@@ -100,41 +99,37 @@ To: Jonathan Corbet <corbet@lwn.net>,
  Akihiko Odaki <akihiko.odaki@daynix.com>
 X-Mailer: b4 0.14-dev-fd6e3
 
-flow_keys_dissector_symmetric is useful to derive a symmetric hash
-and to know its source such as IPv4, IPv6, TCP, and UDP.
+tap used to simply advance iov_iter when it needs to pad virtio header,
+which leaves the garbage in the buffer as is. This is especially
+problematic when tap starts to allow enabling the hash reporting
+feature; even if the feature is enabled, the packet may lack a hash
+value and may contain a hole in the virtio header because the packet
+arrived before the feature gets enabled or does not contain the
+header fields to be hashed. If the hole is not filled with zero, it is
+impossible to tell if the packet lacks a hash value.
+
+In theory, a user of tap can fill the buffer with zero before calling
+read() to avoid such a problem, but leaving the garbage in the buffer is
+awkward anyway so fill the buffer in tap.
 
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
- include/net/flow_dissector.h | 1 +
- net/core/flow_dissector.c    | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/tap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/flow_dissector.h b/include/net/flow_dissector.h
-index ced79dc8e856..d01c1ec77b7d 100644
---- a/include/net/flow_dissector.h
-+++ b/include/net/flow_dissector.h
-@@ -423,6 +423,7 @@ __be32 flow_get_u32_src(const struct flow_keys *flow);
- __be32 flow_get_u32_dst(const struct flow_keys *flow);
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 77574f7a3bd4..ba044302ccc6 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -813,7 +813,7 @@ static ssize_t tap_put_user(struct tap_queue *q,
+ 		    sizeof(vnet_hdr))
+ 			return -EFAULT;
  
- extern struct flow_dissector flow_keys_dissector;
-+extern struct flow_dissector flow_keys_dissector_symmetric;
- extern struct flow_dissector flow_keys_basic_dissector;
- 
- /* struct flow_keys_digest:
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index 0e638a37aa09..9822988f2d49 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -1852,7 +1852,8 @@ void make_flow_keys_digest(struct flow_keys_digest *digest,
- }
- EXPORT_SYMBOL(make_flow_keys_digest);
- 
--static struct flow_dissector flow_keys_dissector_symmetric __read_mostly;
-+struct flow_dissector flow_keys_dissector_symmetric __read_mostly;
-+EXPORT_SYMBOL(flow_keys_dissector_symmetric);
- 
- u32 __skb_get_hash_symmetric_net(const struct net *net, const struct sk_buff *skb)
- {
+-		iov_iter_advance(iter, vnet_hdr_len - sizeof(vnet_hdr));
++		iov_iter_zero(vnet_hdr_len - sizeof(vnet_hdr), iter);
+ 	}
+ 	total = vnet_hdr_len;
+ 	total += skb->len;
 
 -- 
 2.46.0
