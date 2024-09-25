@@ -1,233 +1,142 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE05B14C592
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 20:58:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5FE022EE4
+	for <virtualization@lists.linux.dev>; Wed, 25 Sep 2024 21:11:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727297894; cv=none; b=hfFoUcfOKZedZ6tjnUfmMyC5a7PoC/Hfkq52MOxFd5Lab0uY5ubiZckBs56i+szOzasOwaxTcSgXCitGYyyT4SmlIAClOwVPlhpqfXSnnBBcKfsgn8dAn6IO5TUCoZH/hxR0Ngeml5jmReSMFEcSI5wW85oR0b+FhhhvVJre2FU=
+	t=1727298662; cv=none; b=CMTbL+kFxPXGgLHk4TQm7BJqOmFFxPTK+ZiZfF6j6s++aHSPKtK2smfMYuOyCMQ3Nf0xk4m5QrRDemYIoHrORqppNQ2AB4XdMjgGnSX0qRT5TYanVljI/CQyVxd2f3/lxJXMIgJ64Rc8S8OaHA+qGLA+J9l06RtG3nzW9myxQQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727297894; c=relaxed/simple;
-	bh=MI91IPsgx12hAjD1Fnd9cbpgQPG9us6szsi1UBoZ8TA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hOSrJvasTvZVoifeUddHj5/ATCZbjonzZlvrWnAoFBKxgMRvtSFopmKraVXc92ZEA2qZJU2rCCiYhAhKri2va7jsCfwlVxigS7mJTzorDlBxJt+JGLSktbuddval8ECzNFhTk3uZGFhEJ2PIy9kXN3XgW7a3934Cb8qhSLcwHWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=jVCtvQ0C; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1727298662; c=relaxed/simple;
+	bh=sgNbBYoFeoNUnZ+I0McV2SBT2RS4I2xG+zbS0ryPr3g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KA5mp/Wq/sQ/f5SRqRQfpJBQFsXco8zrsRwEn9AhWEh3wEMyOFR+AyDzG/8uia+mo5cypnSZEPhPhNilM9mR0Qub9aTljzk0kdN9vMhxdp3kSyPenDgTFEZWbjnaZtN8IzCs3WiQmSqZ0cqfdxiKU3+N4brO0ZKDpVgUR0AZoIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=V1ZvuaoM; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="jVCtvQ0C"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5919D403BF
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 20:58:12 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id R8ZPtklA2-JM for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Sep 2024 20:58:11 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::62f; helo=mail-ej1-x62f.google.com; envelope-from=dverkamp@chromium.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org BF650402F4
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF650402F4
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=jVCtvQ0C
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BF650402F4
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 20:58:10 +0000 (UTC)
-Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-a8a7dddd2c3so3568266b.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 13:58:10 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="V1ZvuaoM"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-71798661a52so272611b3a.0
+        for <virtualization@lists.linux.dev>; Wed, 25 Sep 2024 14:11:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1727297888; x=1727902688; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=loEaOAwR2WyhsG3iZ5TBHhLLRL6rmxVjK+xE7rgUtM0=;
-        b=jVCtvQ0CJd5tmEVVcUst0uHSOGdSUMLr/Ni/FDneUbzpsG46THBo9d/TZdH0aJQ570
-         v7WNVc+3ga/ZFfCqjqe8mymyeV+1hFoc9yU7Q7CHCNQIglCbT66YtL7rw6POyfpBu49C
-         ITTq1buemPP/c1Lx0ORZm5bd7BTnyzZbA/jd8=
+        d=broadcom.com; s=google; t=1727298660; x=1727903460; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=EYFjh4y+oez80dLgCofxCbu3s1biOXUEJoxXs6c1E4g=;
+        b=V1ZvuaoM2TVi6k68oo+U+DVYakFTTTUhhmNb44wMROD8+KvZmuWo9CXfJCQJGFDe7h
+         E7CqqJSjiww7KUlnuAz2bCM3CC6Xi0oJn2dBQmcOoBYvVxyKaQ7Xkbjud2/NHR6UWA5S
+         Br7v5k0WvS1etkJXrIKYlm5IDvO3AffYh38Wk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727297888; x=1727902688;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=loEaOAwR2WyhsG3iZ5TBHhLLRL6rmxVjK+xE7rgUtM0=;
-        b=SvS9A4/dUcCs8qpLxSNhXlHLr0WSxR9/wdZdVBftqiYf3NRxUexuZcnIg796lED9tT
-         SAA5Haktrjr1sKtI/cFt7IlBIGjcwCurmapv3zVaKPROPOkqBoMyP5PR1hBeCO1LfsPn
-         VRQrxy1uWMJLtuBh9CKB/YU6GHIo75XkVx1Equynvz5GFMLlZT+BZJb9dhyBBpYKkZOZ
-         nYJKpDvCINqDU0N6HpJwvLDKx5PMjh2f0frjnrjse08zRj4v20k3yJkf1AIGU+Zi5VEl
-         3YWU7tVz5lQOraiias+WgeYpZGm0UYK0xLT1cg2M6yf3N4C3UqRKpqdRjcHUGRNtkCul
-         GnGg==
-X-Forwarded-Encrypted: i=1; AJvYcCVSatBjq7OC/NRqOyH5Iq/bj65Q+P6xjpQvTmjP1SvRC4ypFjRlef/GRIS3LYJpOsogWkt5jj3Y1GBnifZa+g==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwilkPlD0CQeOZ91MaGiMF0Mo5isnBzuqev8QuUxIbWCFwqAj6B
-	rHfhNAef/5LVbQNntJfgUA6WhlcBFwusCLS1lzZ5cMzgD3pOHUdom5/Cfw8gjJS6hcU+Gh0/7Ac
-	=
-X-Google-Smtp-Source: AGHT+IGsUKTfrqA6DtjC8A3FGlZEc6QAea7zZ0OaGTC8pk7v69PS2UYmuCxMblxr6iSW20s8JJ1aEA==
-X-Received: by 2002:a17:906:ef0e:b0:a8d:2624:1a81 with SMTP id a640c23a62f3a-a93a06cc3f3mr158854366b.12.1727297888308;
-        Wed, 25 Sep 2024 13:58:08 -0700 (PDT)
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com. [209.85.208.51])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9392f54691sm259202766b.85.2024.09.25.13.58.07
-        for <virtualization@lists.linux-foundation.org>
+        d=1e100.net; s=20230601; t=1727298660; x=1727903460;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EYFjh4y+oez80dLgCofxCbu3s1biOXUEJoxXs6c1E4g=;
+        b=DZs+kRLgOur7RdCd+fKnM992o9GtSQLeSCZaQoaomjan+6kEKxrqwOhCWF40BMD7Am
+         1rn+jTwgbqwh1F11IEiUoB7WhYre/j+zQeabt1gRAuVMxs0NRlpJgvstf08EcOo1idsc
+         IScnPCkFGodt8rj4AML1MmiWuQlvK4osWC5nXvSxfgmoQAaVTkMBgmT7j+vVJDZM6F+n
+         orlNCmFIyD/UF2XscQ3XwJe6Srh1kuWtjgunuTkgsJHt5mMsDI9eObA0tB0n+B8COFIH
+         3/IcLFubPyNsrvPefPehA0LNizPLRBFihzVBrfhkFWPvsLKMEEEWe7GifLCFZjwss9bl
+         ddVQ==
+X-Gm-Message-State: AOJu0YyfnyO55dOPI4800yy166Cewfeip/poLTRQycI5EzeK9AjqWxBF
+	G1XOzN7vj4CA03Wj2YU/UGvr+2QGqx15aFfSOLeVqRMFfXjIvyXw2IFuurxUEg==
+X-Google-Smtp-Source: AGHT+IEWqhItnCg8mQ6uvM0Kx5G6pNAJ+zqehcTfw03/GT2jmcegYcY0RQVIRkW9n3U6uzWj5sP+WA==
+X-Received: by 2002:aa7:8c50:0:b0:718:eeab:97ca with SMTP id d2e1a72fcca58-71b1926574fmr1175422b3a.2.1727298659754;
+        Wed, 25 Sep 2024 14:10:59 -0700 (PDT)
+Received: from [10.66.192.250] ([192.19.144.250])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71afc9c7a51sm3116634b3a.217.2024.09.25.14.10.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 Sep 2024 13:58:07 -0700 (PDT)
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-5c4146c7d5dso210126a12.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 13:58:07 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCXeXc395CA/3c2ZDAlzBscGkEV4gy75QWzINPavjz5mx2/6iL0va4bSaH4y1zYwcqHdgYLDF3ESKTjRZ9KXxw==@lists.linux-foundation.org
-X-Received: by 2002:a17:906:caea:b0:a8d:4e24:5314 with SMTP id
- a640c23a62f3a-a93a0360465mr369987266b.24.1727297886869; Wed, 25 Sep 2024
- 13:58:06 -0700 (PDT)
+        Wed, 25 Sep 2024 14:10:59 -0700 (PDT)
+Message-ID: <7ffe60a3-2dc1-40fa-814d-b0ec0aca7ed4@broadcom.com>
+Date: Wed, 25 Sep 2024 14:10:56 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240925145228.27953-1-mgurtovoy@nvidia.com>
-In-Reply-To: <20240925145228.27953-1-mgurtovoy@nvidia.com>
-From: Daniel Verkamp <dverkamp@chromium.org>
-Date: Wed, 25 Sep 2024 13:57:38 -0700
-X-Gmail-Original-Message-ID: <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
-Message-ID: <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
-Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, 
-	stefanha@redhat.com, virtio-dev@lists.linux.dev, oren@nvidia.com, 
-	parav@nvidia.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: Bouncing maintainer: Alexey Makhalov
+To: Konstantin Ryabitsev <konstantin@linuxfoundation.org>,
+ Ajay Kaher <ajay.kaher@broadcom.com>
+Cc: virtualization@lists.linux.dev, helpdesk@kernel.org
+References: <20240925-sturdy-red-seagull-2c17a6@lemur>
+Content-Language: en-US
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
+ 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 EuY0
+In-Reply-To: <20240925-sturdy-red-seagull-2c17a6@lemur>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 25, 2024 at 8:05=E2=80=AFAM Max Gurtovoy <mgurtovoy@nvidia.com>=
- wrote:
->
-> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is
-> set.
->
-> The blk_size field represents the smallest addressable unit of data that
-> can be read from or written to the device. It is always a power of two
-> and typically ranges from 512 bytes to larger values such as 4 KB.
 
-I agree that this is what the blk_size field probably *should* have
-meant (matching other storage protocols like ATA, SCSI, NVMe, ...),
-but I believe rewriting the spec like this changes the meaning of the
-blk_size field in an incompatible way.
 
-Previously, blk_size was described as the "optimal" sector size, so it
-seems clear that the driver is still allowed to send requests that are
-not aligned to blk_size ("awareness of the correct value can affect
-performance" but no mention of correctness). A device may need to do
-extra work to support this, of course, such as turning an unaligned
-write into a read-modify-write sequence if the underlying storage
-device doesn't support such an access directly, but such requests are
-still valid. It's also perfectly fine for a driver to ignore
-device-offered features like VIRTIO_BLK_F_BLK_SIZE and still operate
-correctly.
+On 9/25/24 7:39 AM, Konstantin Ryabitsev wrote:
+> Hello:
+> 
+> I'm reaching out to the list associated with this subsystem:
+> 
+>    - VMWARE HYPERVISOR INTERFACE
+> 
+> The email address for the only maintainer listed for that subsystem is
+> bouncing:
+> 
+>    M: Alexey Makhalov <alexey.amakhalov@broadcom.com>
+> 
+> This appears to be a typo in the email address, because I do see email coming
+> in from <alexey.makhalov@broadcom.com> on the mailing lists. Please send in a
+> patch to correct all MAINTAINERS entries to the valid address.
+Hi Konstantin,
 
-> Linux/Windows systems typically use 512-byte/4-KB block sizes.
+The email address is correct.
+And I'm still within VMware/Broadcom maintaining VMware guest code with 
+latest contributions from 3 months ago:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/log/arch/x86/kernel/cpu/vmware.c
 
-While probably true, this doesn't really have anything to do with the
-change (and the logical block size is a property of the storage medium
-and controller, not anything to do with the operating system).
-
-> This description provides clarity on the constraints of the blk_size
-> field.
->
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> ---
->  device-types/blk/description.tex | 20 ++++++++++++++++++--
->  1 file changed, 18 insertions(+), 2 deletions(-)
->
-> diff --git a/device-types/blk/description.tex b/device-types/blk/descript=
-ion.tex
-> index 2712ada..88a7591 100644
-> --- a/device-types/blk/description.tex
-> +++ b/device-types/blk/description.tex
-> @@ -3,7 +3,10 @@ \section{Block Device}\label{sec:Device Types / Block De=
-vice}
->  The virtio block device is a simple virtual block device (ie.
->  disk). Read and write requests (and other exotic requests) are
->  placed in one of its queues, and serviced (probably out of order) by the
-> -device except where noted.
-> +device except where noted. Each block device consists of a sequence of l=
-ogical
-> +blocks. A logical block represents the smallest addressable unit of data=
- that
-> +can be read from or written to the device. The logical block size is alw=
-ays a
-> +power of two. Logical block sizes may be 512 bytes, 1KB, 2KB, 4KB, 8KB, =
-etc.
-
-Does this imply that a device may return an error for a request where
-the sector or num_sectors fields are not aligned to the blk_size? If
-so, it should be called out as a more explicit normative requirement,
-but that would definitely be an incompatible change.
-
-The "smallest addressable unit" wording is also more confusing than
-clarifying here, since in virtio-blk, the "smallest addressable unit"
-is always 512 bytes, regardless of blk_size (even if a change like
-this would enforce limits on the sector values that would actually be
-allowed, it would still be possible to create a request that refers to
-a smaller unit than blk_size, unlike other storage protocols where
-logical block size changes the multiplier of the address, making it
-impossible to address smaller units).
-
->  \subsection{Device ID}\label{sec:Device Types / Block Device / Device ID=
-}
->    2
-> @@ -135,6 +138,9 @@ \subsection{Device configuration layout}\label{sec:De=
-vice Types / Block Device /
->  present. The availability of the others all depend on various feature
->  bits as indicated above.
->
-> +The field \field{blk_size} exists only if VIRTIO_BLK_F_BLK_SIZE is set. =
-This field
-> +reports the logical block size of the device, expressed in bytes.
-
-Not a new problem with this change (see another example right below),
-but "set" is unclear - does that mean it is present if the device
-offered the feature, or only if the driver also accepted it?
-
->  The field \field{num_queues} only exists if VIRTIO_BLK_F_MQ is set. This=
- field specifies
->  the number of queues.
->
-> @@ -228,7 +234,7 @@ \subsection{Device Initialization}\label{sec:Device T=
-ypes / Block Device / Devic
->  \item The device size can be read from \field{capacity}.
->
->  \item If the VIRTIO_BLK_F_BLK_SIZE feature is negotiated,
-> -  \field{blk_size} can be read to determine the optimal sector size
-> +  \field{blk_size} can be read to determine the logical block size
->    for the driver to use. This does not affect the units used in
->    the protocol (always 512 bytes), but awareness of the correct
->    value can affect performance.
-> @@ -282,6 +288,12 @@ \subsection{Device Initialization}\label{sec:Device =
-Types / Block Device / Devic
->
->  \drivernormative{\subsubsection}{Device Initialization}{Device Types / B=
-lock Device / Device Initialization}
->
-> +Drivers MUST negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offered b=
-y the
-> +device.
-
-Why is this a MUST? This is also an incompatible change since there
-was no such requirement before, and drivers are free to ignore
-features they don't care about.
-
-> +If the VIRTIO_BLK_F_BLK_SIZE feature is not offered by the device, then =
-drivers
-> +MAY assume that the logical block size is 512 bytes.
-> +
->  Drivers SHOULD NOT negotiate VIRTIO_BLK_F_FLUSH if they are incapable of
->  sending VIRTIO_BLK_T_FLUSH commands.
->
-[...]
-
-In my opinion, this change should probably be something more like a
-non-normative comment, along the lines of "blk_size is often the
-logical block size of the storage medium", without changing the
-existing meaning from previous spec versions. If there is a desire to
-introduce a hard requirement for logical-block-aligned I/O requests,
-that seems like it would have to be a new field and/or feature bit.
+Did I miss something?
 
 Thanks,
--- Daniel
+--Alexey
