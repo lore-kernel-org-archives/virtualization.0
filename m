@@ -1,91 +1,91 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5931C14AD29
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:30:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F0C5148FEB
+	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:31:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727235028; cv=none; b=SfTdx232DznyP1ieKD6ngpeZtawOZjOg15FMnltfClfRCewwCNQaZELQnbD9vOy4KXj48wJAoYwOcgYfv8oHs1PrPai7zlhviQyFru1pMInLGwDnWRWFZqisw03wTf50rz8EdCoGZDTsiGltl8diqDSv7c/AvruKhjkROVlHifA=
+	t=1727235074; cv=none; b=Bim6gO5BP4WNeiajnvNKZ8ngEibSPIkjLjGV3EhTYc+0nXMoxa8VFjuiYD9X3j2NqBvca+oNXcH8GV4NMnBKG+EKXDEjISTLzDPz6eupAtzrTYcj3Nsl3x8j1hVlyPEYpDDyFjpeunaXZ125EpJdQGCWwlyiIllTG63aVc6y2DM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727235028; c=relaxed/simple;
-	bh=/pj+RCuXouKWKKmVNJjkG4mjtgCiJqE6IxJ4EvXxnE4=;
+	s=arc-20240116; t=1727235074; c=relaxed/simple;
+	bh=M0Ynl+OetR8GBYZEwi4ht5kW6Ch+UvBVR3yT5ZWcE34=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fEfycQpkhNgnd09HOcsezMHVUofWAYSCzLoOFekt/3GmCFOGQaLs+Xg/Q7iR0GdG8/EF4piXSUKVzSISJgwMrCIoyRYOIftYLlsWVf05fqbD4zyYJrAhUrRE5ZMjNEvAtR1Ir69/uHDSfc60bVccRtvH6LvP1RuV/2+zJHJ6X7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cc50jO1v; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=cao7BgNVDc3epP1f+wNspUytvRLbH3STbTqT05vgXdZjHl3/SKdugyziwukv84GJ3Y2TJZbTHO0cwo/qeI3EVe9ntyPkJUP5GIC1BNe/cuzSR7QWSDbGCeokG7wlECBEt6xYKeO1zpxv2+t/0oHt2NqwmIHCbHGONfK0NeXTjlA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gSfNEiQr; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cc50jO1v"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gSfNEiQr"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E17D481926
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:30:26 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D7E2140498
+	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:31:12 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id EYxaAsrIPHNW for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Sep 2024 03:30:26 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id a8nHtEQehw6z for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Sep 2024 03:31:12 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1EDBD81902
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1EDBD81902
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Cc50jO1v
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org D88C640193
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D88C640193
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gSfNEiQr
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1EDBD81902
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:30:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D88C640193
+	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727235024;
+	s=mimecast20190719; t=1727235070;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/pj+RCuXouKWKKmVNJjkG4mjtgCiJqE6IxJ4EvXxnE4=;
-	b=Cc50jO1vwKFaEKU2XlDyrbNt/ghI8Q4f7OyGi9IdYTcKsiVT1tASj2oYd0URyrZRUE7e1k
-	5Xg3T3sKJYlPAyDMdt9z7r6570YQXa97L6GW7EBMhp5bQ1Y3llL19jXoLqYbkqozaQpyDb
-	IvLuAhyly3Iw+ra5b+DjdRpRwy+KIH4=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=M0Ynl+OetR8GBYZEwi4ht5kW6Ch+UvBVR3yT5ZWcE34=;
+	b=gSfNEiQryX5Qntgto1tG6oWI8Yteq3asQBw9mV0khYlN/cDkXo1gOithLrHHonTnbrrbCy
+	aQL16PWKNa9TQLZJCbQV+YztanCBtx+JWlIorV7USyWzhvFMH5+I1g8ZIE69cRxTKis+wP
+	w8Wf+q7zw4l49h9OTQtL6/8dzH890ks=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-144-R9TAEeL3OwK-S3MY7OCzZQ-1; Tue, 24 Sep 2024 23:30:22 -0400
-X-MC-Unique: R9TAEeL3OwK-S3MY7OCzZQ-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2db446a3d28so8951695a91.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 20:30:22 -0700 (PDT)
+ us-mta-190-23cZk8eaOjSEqiH0Kn4pZw-1; Tue, 24 Sep 2024 23:31:09 -0400
+X-MC-Unique: 23cZk8eaOjSEqiH0Kn4pZw-1
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-7cd7614d826so600467a12.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 20:31:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727235022; x=1727839822;
+        d=1e100.net; s=20230601; t=1727235068; x=1727839868;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/pj+RCuXouKWKKmVNJjkG4mjtgCiJqE6IxJ4EvXxnE4=;
-        b=Eo+GRgBhvyc3KqgGIA3k9xJOuYyPjhLpC0UNUFEFaGBhu66pGgoGghV3XItwDMhxlT
-         n2qRMwBOfYLy/Qi/q33ZD/pgwQrrnGjj/zhCLtMTCmSDMltshQ//sPZpvaZM+MLlCgz+
-         8IVgle8ZYQIaCumfJbsYJW7cUPwWlNlQWd7BI1o5V2i6UgXACqvQCkLIIITG/ZFsnnLV
-         KpvkgEO0MLCTVa/oorDE4WQLTYTZ1Nk/s5tKggG47Uu8OsDjCCB2ZJAj17ZxAKO3H14N
-         2xfzsFaNxeNfud20hTkKTP1+bV7HnsKu5OgtS3/JWGWbUhsZM0ESNSZnfH55de0uA+EQ
-         oAMA==
-X-Forwarded-Encrypted: i=1; AJvYcCWjjCPOUOIFX6WFgxUW478r8Imj6ZRMV0oC3nzhTvT6ylyNwZ68LE0C8nYlII3Kwr9zOu/Iq0A51d4bJouQPA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyaU29drDa3m/aX+nK00oLeWJGb3wxR92O3H5POsmrx5t+9Ragi
-	OJ5FnCpk2gIiDzHaWwa1AmToLGKB3y6BI9vXciwMD/GYeqG1XfjyxWkmzfXn00vN54zYXLSDUqU
-	uduHcHIwMnfaApSyWVt+/0RR+/xQNZIhYqGQLslpu0mW5T/klm/54Jr56yhp994EBGrLVmSHHU2
-	6cgwtwvLS9hJKYjrYz61sKYpzKFkr3Nv4PgnDsBCZKF4PPdsnemTE4og==
-X-Received: by 2002:a17:90a:f2d5:b0:2da:905a:d88a with SMTP id 98e67ed59e1d1-2e06ae791a7mr1467817a91.21.1727235021754;
-        Tue, 24 Sep 2024 20:30:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFt284MvmYUlT8+AL6adgtTv8NmOQ1ld/MsvwYgsNGC040Pi/BgPI1vkZfb6OO4Jtnfla96r8UcK+AJSx61zg8=
-X-Received: by 2002:a17:90a:f2d5:b0:2da:905a:d88a with SMTP id
- 98e67ed59e1d1-2e06ae791a7mr1467782a91.21.1727235021240; Tue, 24 Sep 2024
- 20:30:21 -0700 (PDT)
+        bh=M0Ynl+OetR8GBYZEwi4ht5kW6Ch+UvBVR3yT5ZWcE34=;
+        b=UI4oMPidpIzaDTY7aKnjKDw9TZdchW6Mx4fwoUTQxvj3LsxJPpYHB22PCefK/BqRMx
+         +cfs7GdgK4Z8UewmeSm4dwijokx1GmSWGCh+1a+OA9afWnk/6/qUV2MYLVeqILO8oVPB
+         FRtsn3kH0jbIh/Ze1S3627KvnAn0W0GzT4w1aXDstonOSy48utOIwEg5ludHmn5Q3tRs
+         087Hs3aY4mvQkWCpOIldY3akessAwEv7EuEyeTqjt6V30LxGwGtLa5KJfNCXBN0/rUu9
+         k69dbqOnocqE1r9U9v/mOs9BBYqF4Uu+lrPQ/MRy+9OzCHl2iAGHh2Qkqn8/Im4lUfAw
+         euLA==
+X-Forwarded-Encrypted: i=1; AJvYcCVl6Q04jQda40ctxjKbGyrNbVz3GQapK3asDPoY8VLAsHKYgJ4Z2HVImcWfKAq/qTrxfXLcUSGdE+X5wijDrQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxchInrB7TQUzHqGoKo0PgcRyret9Q0edTmR+h9GzvkWNbBdBWW
+	NZ9PmYVigXuC89/lDojuop+yyaJNkdHSbjKrTOZcrLyVzgWzHf2QOgYPOwrA0OVu7t5wTHV2x07
+	zXqIcI+vrF3mRdJ13jdC7gI+8DHeJq2uvJ7k19Qnz2AY7FC3hQOlHyfAHbm33awDvHQBx1jJ99s
+	vqHHmBb6hmYRyBCJPcBrHI3/mur03/atIZ4LH19cIdHfynfQLMfGZpCw==
+X-Received: by 2002:a17:90a:d18b:b0:2c9:7343:71f1 with SMTP id 98e67ed59e1d1-2e06ac390c5mr2020790a91.14.1727235068211;
+        Tue, 24 Sep 2024 20:31:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGHSXnVXH4KJFogFRlAqrxz0oHdsU+wQjcpSOWPpZkunKpdZpa8uVOFkj6NCDsQxAw+PRNHCHqUsGcOkqjm3ok=
+X-Received: by 2002:a17:90a:d18b:b0:2c9:7343:71f1 with SMTP id
+ 98e67ed59e1d1-2e06ac390c5mr2020746a91.14.1727235067738; Tue, 24 Sep 2024
+ 20:31:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
-In-Reply-To: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
+References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com> <20240924-rss-v4-7-84e932ec0e6c@daynix.com>
+In-Reply-To: <20240924-rss-v4-7-84e932ec0e6c@daynix.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 25 Sep 2024 11:30:08 +0800
-Message-ID: <CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
-Subject: Re: [PATCH RFC v4 0/9] tun: Introduce virtio-net hashing feature
+Date: Wed, 25 Sep 2024 11:30:56 +0800
+Message-ID: <CACGkMEvKPXCPi6=1938J-k8JNA+hHqzRSt1gPQtqBvSfcgGZeQ@mail.gmail.com>
+Subject: Re: [PATCH RFC v4 7/9] tun: Introduce virtio-net RSS
 To: Akihiko Odaki <akihiko.odaki@daynix.com>
 Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
 	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
@@ -104,28 +104,28 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Sep 24, 2024 at 5:01=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix=
 .com> wrote:
 >
-> virtio-net have two usage of hashes: one is RSS and another is hash
-> reporting. Conventionally the hash calculation was done by the VMM.
+> RSS is a receive steering algorithm that can be negotiated to use with
+> virtio_net. Conventionally the hash calculation was done by the VMM.
 > However, computing the hash after the queue was chosen defeats the
 > purpose of RSS.
 >
 > Another approach is to use eBPF steering program. This approach has
 > another downside: it cannot report the calculated hash due to the
-> restrictive nature of eBPF.
+> restrictive nature of eBPF steering program.
 >
-> Introduce the code to compute hashes to the kernel in order to overcome
-> thse challenges.
+> Introduce the code to perform RSS to the kernel in order to overcome
+> thse challenges. An alternative solution is to extend the eBPF steering
+> program so that it will be able to report to the userspace, but I didn't
+> opt for it because extending the current mechanism of eBPF steering
+> program as is because it relies on legacy context rewriting, and
+> introducing kfunc-based eBPF will result in non-UAPI dependency while
+> the other relevant virtualization APIs such as KVM and vhost_net are
+> UAPIs.
 >
-> An alternative solution is to extend the eBPF steering program so that it
-> will be able to report to the userspace, but it is based on context
-> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
-> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
-> and vhost_net).
->
+> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-I wonder if we could clone the skb and reuse some to store the hash,
-then the steering eBPF program can access these fields without
-introducing full RSS in the kernel?
+If we decide to go this way, we need to make it reusable for macvtap as wel=
+l.
 
 Thanks
 
