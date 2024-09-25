@@ -1,325 +1,131 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 051B41448DF
-	for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 22:02:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5931C14AD29
+	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:30:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727215363; cv=none; b=EipUPlLuXqWfCvaX4v2KlfZnELXxQXfbx5FFbjvawuaWLPQVEsZ4mb0jGhjryyMr5mtrPWj1UWqwFmNWJUAwoUjN40AuYH7pp9RgoeRVHeEKioYWeQUdfvIpk0yvJ0K2Md9MKMjIsLS0sw6WcExHeVY3EQUqkYkkZc0RHNvBtuQ=
+	t=1727235028; cv=none; b=SfTdx232DznyP1ieKD6ngpeZtawOZjOg15FMnltfClfRCewwCNQaZELQnbD9vOy4KXj48wJAoYwOcgYfv8oHs1PrPai7zlhviQyFru1pMInLGwDnWRWFZqisw03wTf50rz8EdCoGZDTsiGltl8diqDSv7c/AvruKhjkROVlHifA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727215363; c=relaxed/simple;
-	bh=pu5G5qXLTl3zSGB+7dQNsdrINE8JNYhjhl+yhhCbdIQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VKt8i28rOQvUorWchXx/r1R0ptC9iim9HDQWBOabqKmmuyZtQ9wJeg+uI3XAKwIKaaRWyvCx3pz8Nvlh4kEkoo/VRXEis3mTIUoSIFGCnDaHRBbhTW9prbt7BXdUdZoVLwzKlkN3ArSl4vC27Ec5WbWr4SJc//kiVB1ILLjFxGo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ThW1fV/6; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1727235028; c=relaxed/simple;
+	bh=/pj+RCuXouKWKKmVNJjkG4mjtgCiJqE6IxJ4EvXxnE4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fEfycQpkhNgnd09HOcsezMHVUofWAYSCzLoOFekt/3GmCFOGQaLs+Xg/Q7iR0GdG8/EF4piXSUKVzSISJgwMrCIoyRYOIftYLlsWVf05fqbD4zyYJrAhUrRE5ZMjNEvAtR1Ir69/uHDSfc60bVccRtvH6LvP1RuV/2+zJHJ6X7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cc50jO1v; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ThW1fV/6"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cc50jO1v"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id E17D481926
+	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:30:26 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id EYxaAsrIPHNW for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Sep 2024 03:30:26 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1EDBD81902
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1EDBD81902
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Cc50jO1v
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1EDBD81902
+	for <virtualization@lists.linux-foundation.org>; Wed, 25 Sep 2024 03:30:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727215359;
+	s=mimecast20190719; t=1727235024;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=p08RO7jNAHbqAPJ0LfZ/6PkDLGb4/JJG3jEYdwRpx2U=;
-	b=ThW1fV/6vSmrP0OpD8NDzkYFegFb4EyUMx21jb2h2QjoyLeAtZmU0iaqBeGH/qbYt8zsk1
-	vb5NVkpFmK0TYZ3SCZcDRsTz0zS6x0GonLGgmYVwv329LBt6ujee1hYh+Ejo3okepl4sKH
-	zgfr+TaY6IGCUQX5pYd3JcmatDaRQv8=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/pj+RCuXouKWKKmVNJjkG4mjtgCiJqE6IxJ4EvXxnE4=;
+	b=Cc50jO1vwKFaEKU2XlDyrbNt/ghI8Q4f7OyGi9IdYTcKsiVT1tASj2oYd0URyrZRUE7e1k
+	5Xg3T3sKJYlPAyDMdt9z7r6570YQXa97L6GW7EBMhp5bQ1Y3llL19jXoLqYbkqozaQpyDb
+	IvLuAhyly3Iw+ra5b+DjdRpRwy+KIH4=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-235-JCcx9fhCMG6cCkVwuxqQlA-1; Tue, 24 Sep 2024 18:02:37 -0400
-X-MC-Unique: JCcx9fhCMG6cCkVwuxqQlA-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-374b385b146so2921009f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 24 Sep 2024 15:02:36 -0700 (PDT)
+ us-mta-144-R9TAEeL3OwK-S3MY7OCzZQ-1; Tue, 24 Sep 2024 23:30:22 -0400
+X-MC-Unique: R9TAEeL3OwK-S3MY7OCzZQ-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2db446a3d28so8951695a91.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 24 Sep 2024 20:30:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727215354; x=1727820154;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=p08RO7jNAHbqAPJ0LfZ/6PkDLGb4/JJG3jEYdwRpx2U=;
-        b=oaCphWvKDTfY31Ao9iGnbLlEp8vZcJ8ll1psYtSBEsKpOlwDvzdODv6EM6GcRRBf1b
-         E3RrZttnbBQal+MUOH0NGAoz9Kn1/5gzKah0rj1ScggN4asKFK+FQzvGO9Y8m1R5+7+2
-         yO/un/6QR0dP7Vc7wKBft8X3ksFnH3+bLfkuyiR6Rq605GrHD2Xp+trDXvOxR+c7uGKE
-         Hq2g0RTD+LITm2EcCK8RIDuiolxGfhQFR3CTpTdxcIEsdKHAqWQCbLSaTf6gHiIgEOaX
-         qzWE1O88+Pe1yL2MoGJZZ+jmI56j9M6VQnzRUSBKiPljp6R6ctJad6ekbdZWw/MmFGbB
-         xgwQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVf7J7CVE/jfETIDrbnmkjQ6/5olaIbwbPJ6l4viBKnCHG3DqKtr/4hC9TW4SLUVcwtc1i0SdGosY4rgUkp/A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwSPVb4hDIDjzGA+anxuKTa9W/foQsjCBq576tM17L11ppukvT6
-	9aCwIwmP+O2umisr02KJOqW3ZqEafP0bs8S0cuqxGzee6MKvIBk1Bid42LYqlhkh7A8SsAlw94/
-	DHc/IfXVAr+BoFbzC+ukVYNY40CH9/jZbapN/OpwOVrAZZmEr8usYx+aSYy0biIuNQ7ETJwPu
-X-Received: by 2002:adf:c006:0:b0:374:c142:80e7 with SMTP id ffacd0b85a97d-37cc245c0d7mr469101f8f.1.1727215354154;
-        Tue, 24 Sep 2024 15:02:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE798q0O7Fe/wwcjVDfqt4MNQ2Rk3GAssMMKcDml1GPXBnju2SlRN5umha2Yafd8UUyK6orbQ==
-X-Received: by 2002:adf:c006:0:b0:374:c142:80e7 with SMTP id ffacd0b85a97d-37cc245c0d7mr469086f8f.1.1727215353661;
-        Tue, 24 Sep 2024 15:02:33 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:7405:9900:56a3:401a:f419:5de9])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37cbc2f96f6sm2496359f8f.87.2024.09.24.15.02.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Sep 2024 15:02:29 -0700 (PDT)
-Date: Tue, 24 Sep 2024 18:02:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Wenyu Huang <huangwenyu1998@gmail.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio: Make vring_new_virtqueue support for packed vring
-Message-ID: <20240924175414-mutt-send-email-mst@kernel.org>
-References: <20240920202141.89446-1-huangwenyuu@outlook.com>
+        d=1e100.net; s=20230601; t=1727235022; x=1727839822;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/pj+RCuXouKWKKmVNJjkG4mjtgCiJqE6IxJ4EvXxnE4=;
+        b=Eo+GRgBhvyc3KqgGIA3k9xJOuYyPjhLpC0UNUFEFaGBhu66pGgoGghV3XItwDMhxlT
+         n2qRMwBOfYLy/Qi/q33ZD/pgwQrrnGjj/zhCLtMTCmSDMltshQ//sPZpvaZM+MLlCgz+
+         8IVgle8ZYQIaCumfJbsYJW7cUPwWlNlQWd7BI1o5V2i6UgXACqvQCkLIIITG/ZFsnnLV
+         KpvkgEO0MLCTVa/oorDE4WQLTYTZ1Nk/s5tKggG47Uu8OsDjCCB2ZJAj17ZxAKO3H14N
+         2xfzsFaNxeNfud20hTkKTP1+bV7HnsKu5OgtS3/JWGWbUhsZM0ESNSZnfH55de0uA+EQ
+         oAMA==
+X-Forwarded-Encrypted: i=1; AJvYcCWjjCPOUOIFX6WFgxUW478r8Imj6ZRMV0oC3nzhTvT6ylyNwZ68LE0C8nYlII3Kwr9zOu/Iq0A51d4bJouQPA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyaU29drDa3m/aX+nK00oLeWJGb3wxR92O3H5POsmrx5t+9Ragi
+	OJ5FnCpk2gIiDzHaWwa1AmToLGKB3y6BI9vXciwMD/GYeqG1XfjyxWkmzfXn00vN54zYXLSDUqU
+	uduHcHIwMnfaApSyWVt+/0RR+/xQNZIhYqGQLslpu0mW5T/klm/54Jr56yhp994EBGrLVmSHHU2
+	6cgwtwvLS9hJKYjrYz61sKYpzKFkr3Nv4PgnDsBCZKF4PPdsnemTE4og==
+X-Received: by 2002:a17:90a:f2d5:b0:2da:905a:d88a with SMTP id 98e67ed59e1d1-2e06ae791a7mr1467817a91.21.1727235021754;
+        Tue, 24 Sep 2024 20:30:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFt284MvmYUlT8+AL6adgtTv8NmOQ1ld/MsvwYgsNGC040Pi/BgPI1vkZfb6OO4Jtnfla96r8UcK+AJSx61zg8=
+X-Received: by 2002:a17:90a:f2d5:b0:2da:905a:d88a with SMTP id
+ 98e67ed59e1d1-2e06ae791a7mr1467782a91.21.1727235021240; Tue, 24 Sep 2024
+ 20:30:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240920202141.89446-1-huangwenyuu@outlook.com>
+References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
+In-Reply-To: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 25 Sep 2024 11:30:08 +0800
+Message-ID: <CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
+Subject: Re: [PATCH RFC v4 0/9] tun: Introduce virtio-net hashing feature
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
+	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Sep 21, 2024 at 04:21:41AM +0800, Wenyu Huang wrote:
-> From: Wenyu Huang <huangwenyu1998@gmail.com>
-> 
-> It's also available for packed ring now.
-> 
-> Signed-off-by: Wenyu Huang <huangwenyu1998@gmail.com>
+On Tue, Sep 24, 2024 at 5:01=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix=
+.com> wrote:
+>
+> virtio-net have two usage of hashes: one is RSS and another is hash
+> reporting. Conventionally the hash calculation was done by the VMM.
+> However, computing the hash after the queue was chosen defeats the
+> purpose of RSS.
+>
+> Another approach is to use eBPF steering program. This approach has
+> another downside: it cannot report the calculated hash due to the
+> restrictive nature of eBPF.
+>
+> Introduce the code to compute hashes to the kernel in order to overcome
+> thse challenges.
+>
+> An alternative solution is to extend the eBPF steering program so that it
+> will be able to report to the userspace, but it is based on context
+> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
+> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
+> and vhost_net).
+>
 
+I wonder if we could clone the skb and reuse some to store the hash,
+then the steering eBPF program can access these fields without
+introducing full RSS in the kernel?
 
-More specifically, what are you trying to address here?
-Which configuration did not work but does now?
-
-> ---
->  drivers/virtio/virtio_ring.c | 153 +++++++++++++++++++++--------------
->  1 file changed, 92 insertions(+), 61 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index be7309b1e860..664a0c40ee05 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -223,7 +223,7 @@ struct vring_virtqueue {
->  #endif
->  };
->  
-> -static struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> +static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
->  					       struct vring_virtqueue_split *vring_split,
->  					       struct virtio_device *vdev,
->  					       bool weak_barriers,
-> @@ -232,6 +232,15 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  					       void (*callback)(struct virtqueue *),
->  					       const char *name,
->  					       struct device *dma_dev);
-> +static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
-> +					       struct vring_virtqueue_packed *vring_packed,
-> +					       struct virtio_device *vdev,
-> +					       bool weak_barriers,
-> +					       bool context,
-> +					       bool (*notify)(struct virtqueue *),
-> +					       void (*callback)(struct virtqueue *),
-> +					       const char *name,
-> +					       struct device *dma_dev);
->  static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
->  static void vring_free(struct virtqueue *_vq);
->  
-> @@ -1160,7 +1169,7 @@ static struct virtqueue *vring_create_virtqueue_split(
->  	if (err)
->  		return NULL;
->  
-> -	vq = __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
-> +	vq = __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
->  				   context, notify, callback, name, dma_dev);
->  	if (!vq) {
->  		vring_free_split(&vring_split, vdev, dma_dev);
-> @@ -2064,62 +2073,21 @@ static struct virtqueue *vring_create_virtqueue_packed(
->  	struct device *dma_dev)
->  {
->  	struct vring_virtqueue_packed vring_packed = {};
-> -	struct vring_virtqueue *vq;
-> -	int err;
-> +	struct virtqueue *vq;
->  
->  	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
-> -		goto err_ring;
-> -
-> -	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-> -	if (!vq)
-> -		goto err_vq;
-> -
-> -	vq->vq.callback = callback;
-> -	vq->vq.vdev = vdev;
-> -	vq->vq.name = name;
-> -	vq->vq.index = index;
-> -	vq->vq.reset = false;
-> -	vq->we_own_ring = true;
-> -	vq->notify = notify;
-> -	vq->weak_barriers = weak_barriers;
-> -#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> -	vq->broken = true;
-> -#else
-> -	vq->broken = false;
-> -#endif
-> -	vq->packed_ring = true;
-> -	vq->dma_dev = dma_dev;
-> -	vq->use_dma_api = vring_use_dma_api(vdev);
-> -	vq->premapped = false;
-> -	vq->do_unmap = vq->use_dma_api;
-> -
-> -	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-> -		!context;
-> -	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-> -
-> -	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> -		vq->weak_barriers = false;
-> -
-> -	err = vring_alloc_state_extra_packed(&vring_packed);
-> -	if (err)
-> -		goto err_state_extra;
-> -
-> -	virtqueue_vring_init_packed(&vring_packed, !!callback);
-> +		return NULL;
->  
-> -	virtqueue_init(vq, num);
-> -	virtqueue_vring_attach_packed(vq, &vring_packed);
-> +	vq = __vring_new_virtqueue_packed(index, &vring_packed, vdev, weak_barriers,
-> +					context, notify, callback, name, dma_dev);
-> +	if (!vq) {
-> +		vring_free_packed(&vring_packed, vdev, dma_dev);
-> +		return NULL;
-> +	}
->  
-> -	spin_lock(&vdev->vqs_list_lock);
-> -	list_add_tail(&vq->vq.list, &vdev->vqs);
-> -	spin_unlock(&vdev->vqs_list_lock);
-> -	return &vq->vq;
-> +	to_vvq(vq)->we_own_ring = true;
->  
-> -err_state_extra:
-> -	kfree(vq);
-> -err_vq:
-> -	vring_free_packed(&vring_packed, vdev, dma_dev);
-> -err_ring:
-> -	return NULL;
-> +	return vq;
->  }
->  
->  static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
-> @@ -2599,7 +2567,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
->  EXPORT_SYMBOL_GPL(vring_interrupt);
->  
->  /* Only available for split ring */
-> -static struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> +static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
->  					       struct vring_virtqueue_split *vring_split,
->  					       struct virtio_device *vdev,
->  					       bool weak_barriers,
-> @@ -2612,9 +2580,6 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  	struct vring_virtqueue *vq;
->  	int err;
->  
-> -	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
-> -		return NULL;
-> -
->  	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
->  	if (!vq)
->  		return NULL;
-> @@ -2662,6 +2627,66 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  	return &vq->vq;
->  }
->  
-> +static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
-> +					       struct vring_virtqueue_packed *vring_packed,
-> +					       struct virtio_device *vdev,
-> +					       bool weak_barriers,
-> +					       bool context,
-> +					       bool (*notify)(struct virtqueue *),
-> +					       void (*callback)(struct virtqueue *),
-> +					       const char *name,
-> +					       struct device *dma_dev)
-> +{
-> +	struct vring_virtqueue *vq;
-> +	int err;
-> +
-> +	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-> +	if (!vq)
-> +		return NULL;
-> +
-> +	vq->vq.callback = callback;
-> +	vq->vq.vdev = vdev;
-> +	vq->vq.name = name;
-> +	vq->vq.index = index;
-> +	vq->vq.reset = false;
-> +	vq->we_own_ring = false;
-> +	vq->notify = notify;
-> +	vq->weak_barriers = weak_barriers;
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> +	vq->broken = true;
-> +#else
-> +	vq->broken = false;
-> +#endif
-> +	vq->packed_ring = true;
-> +	vq->dma_dev = dma_dev;
-> +	vq->use_dma_api = vring_use_dma_api(vdev);
-> +	vq->premapped = false;
-> +	vq->do_unmap = vq->use_dma_api;
-> +
-> +	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-> +		!context;
-> +	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-> +
-> +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> +		vq->weak_barriers = false;
-> +
-> +	err = vring_alloc_state_extra_packed(vring_packed);
-> +	if (err) {
-> +		kfree(vq);
-> +		return NULL;
-> +	}
-> +
-> +	virtqueue_vring_init_packed(vring_packed, !!callback);
-> +
-> +	virtqueue_init(vq, vring_packed->vring.num);
-> +	virtqueue_vring_attach_packed(vq, vring_packed);
-> +
-> +	spin_lock(&vdev->vqs_list_lock);
-> +	list_add_tail(&vq->vq.list, &vdev->vqs);
-> +	spin_unlock(&vdev->vqs_list_lock);
-> +	return &vq->vq;
-> +}
-> +
->  struct virtqueue *vring_create_virtqueue(
->  	unsigned int index,
->  	unsigned int num,
-> @@ -2840,7 +2865,6 @@ int virtqueue_reset(struct virtqueue *_vq,
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_reset);
->  
-> -/* Only available for split ring */
->  struct virtqueue *vring_new_virtqueue(unsigned int index,
->  				      unsigned int num,
->  				      unsigned int vring_align,
-> @@ -2853,12 +2877,19 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
->  				      const char *name)
->  {
->  	struct vring_virtqueue_split vring_split = {};
-> +	struct vring_virtqueue_packed vring_packed = {};
->  
-> -	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
-> -		return NULL;
-> +	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)) {
-> +		vring_packed.vring.num = num;
-> +		vring_packed.vring.desc = pages;
-> +		return __vring_new_virtqueue_packed(index, &vring_packed,
-> +						    vdev, weak_barriers,
-> +						    context, notify, callback,
-> +						    name, vdev->dev.parent);
-> +	}
->  
->  	vring_init(&vring_split.vring, num, pages, vring_align);
-> -	return __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
-> +	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
->  				     context, notify, callback, name,
->  				     vdev->dev.parent);
->  }
-> -- 
-> 2.43.0
+Thanks
 
