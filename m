@@ -1,79 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6FF01D5ACF;
-	Thu, 26 Sep 2024 08:40:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25D6F14884C
+	for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 08:47:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727340026; cv=none; b=DrI7WOq3vYBbP9cv6jdbF/8SWqg9oe1Nanms7NwuZ6p4iD0/pSM5iERg6VvEisTDgy72yIwShKaaR407oTjh2njEm3ICPQR7RJwgSBzm1XogDb2lTB3PdsogrtjwDN94ZNF2T/Cf9n9Sj/M3q2qlYulxFowVkX8SSiO8nvvjQbo=
+	t=1727340461; cv=none; b=NIdNX8ImFgEKm7Qf8UUXevnE0t3d3aTCYy1qiFDn/Q43DhAb8OVDFbQUQMTkR1t5PS/s9rBdfdly0SRJOLECHDC9NaGbnZ37Nt7ntY6oiQrck3iH8KfVrh043spUVBsaz2Mx3SCgvdZTB0WZehYNnTJeJJuc1Iv+pP8onvw1Gos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727340026; c=relaxed/simple;
-	bh=8fKuojIqG7VsB8xtQHySZBizhSj5QA4EWJvut5NY8fA=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=VkKa3fXlCuG5FWVll/GI2wSwlGzvhXMAPaYM5spZyTHpWjhB2zoXngtdfJeS33DcjHO5e59Esgrc6Xd8HgsBCICEBEWYpX1dnlLleSSihUknfB1ZCleBC5bkMS2i8fr1e7q3vJXOhLuYR+SsCUdctAHCdegf2HYjx+1PjiDq22k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JILST6sV; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1727340461; c=relaxed/simple;
+	bh=Vvzgd1LgiFFFjFTb0+aUplSVjTmllj9XrlLOmFGWpvw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CgCiXHQFVa1+16IrGqmsspUYZKmMA6DPUbEJ896HP8rGkhASngCMaVROyr6LkBmyaIwfMrCZaImVxLm4xUTC61m+9QOdZK+i65P2oa8rfs8P6zQCxh6wLCAJjiXGXnYsnTkpdx1FZ+M99Opqugen3cHFcqquugll9pPTh++A9os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=W7qGOs/W; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JILST6sV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC47C4CEC5;
-	Thu, 26 Sep 2024 08:40:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1727340026;
-	bh=8fKuojIqG7VsB8xtQHySZBizhSj5QA4EWJvut5NY8fA=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=JILST6sVkdOuIRAEHc/WZHD5Df9Vsyg1nqVO9WXehZ1AtvTLhapHbfqPweJbG7k6G
-	 wcMQvvzoBgvIc4phCfEa7QbdE7Diyy3xTzfSjkTdzjWetL89RKkYGS0XU4Dhyk0SLY
-	 0HOUZ8m1TQ66UZky9As9yApaCGfhHnNBbgAMsSy1oZ9cAIha35E7Qjlym+vFLKFcw9
-	 AOPDoc/PcyJC7uc7O6AW+60vyovlC62Bg4C1rmI1nnu+Xuk9v/DHn4hqaZwtx4bDHd
-	 YZmUrueTVqkHVtw4/gUBEMIv2MfIJQCIrvuigh3vag5PWKklfb/WReIZGJgX06FDSc
-	 nNKFv+e5Xe4Uw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAF9E380DBF5;
-	Thu, 26 Sep 2024 08:40:29 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="W7qGOs/W"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1727340457;
+	bh=Vvzgd1LgiFFFjFTb0+aUplSVjTmllj9XrlLOmFGWpvw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=W7qGOs/WXTcXx3RVTvEB2eSz0bFlxfIYGcY9VZKLpS7wzZyyKhJEQKdhfCBCZWKv9
+	 9M5yQ2aIMD9mnlwpL3oETbnJqGqSCa7DWtGW9smRY1pQ9sA2H6SXCxDrGePgnGnV6B
+	 G7LV/i6hn/yhLeyBfU5SgJw4bZrVOAfBb/FVNK2qn08z9tV1PotXjmwBrJxNjvEv+O
+	 C0DoHfqKT8zEw7l+OIobUsRFyHZTP5RgvXDTRAmsqOnK8I+f4QN33YFAnmdJL8ykb+
+	 X8sROyY544rjCZ5yvcOvQdlCNze3jQuNlxypIAGUuOIi+k4iULFsbHZFUgYhmh4Qn/
+	 sPYjix2VxY4Vg==
+Received: from [192.168.50.250] (unknown [171.76.80.165])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 50E1317E1048;
+	Thu, 26 Sep 2024 10:47:34 +0200 (CEST)
+Message-ID: <9470f582-7873-42c6-b5a5-35f841e4f693@collabora.com>
+Date: Thu, 26 Sep 2024 14:17:04 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [RESEND PATCH v3] virtio_net: Fix mismatched buf address when
- unmapping for small packets
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <172734002882.1169779.6595635289409412002.git-patchwork-notify@kernel.org>
-Date: Thu, 26 Sep 2024 08:40:28 +0000
-References: <20240919081351.51772-1-liwenbo.martin@bytedance.com>
-In-Reply-To: <20240919081351.51772-1-liwenbo.martin@bytedance.com>
-To: Wenbo Li <liwenbo.martin@bytedance.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- cenjiahui@bytedance.com, fangying.tommy@bytedance.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] docs/gpu: ci: update flake tests requirements
+To: Maxime Ripard <mripard@kernel.org>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
+ helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
+ robdclark@gmail.com, guilherme.gallo@collabora.com,
+ sergi.blanch.torne@collabora.com, deborah.brouwer@collabora.com,
+ dmitry.baryshkov@linaro.org, rodrigo.vivi@intel.com,
+ linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20240926070653.1773597-1-vignesh.raman@collabora.com>
+ <20240926-athletic-gregarious-markhor-cc78ac@houat>
+Content-Language: en-US
+From: Vignesh Raman <vignesh.raman@collabora.com>
+In-Reply-To: <20240926-athletic-gregarious-markhor-cc78ac@houat>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello:
+Hi Maxime,
 
-This patch was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Thu, 19 Sep 2024 16:13:51 +0800 you wrote:
-> Currently, the virtio-net driver will perform a pre-dma-mapping for
-> small or mergeable RX buffer. But for small packets, a mismatched address
-> without VIRTNET_RX_PAD and xdp_headroom is used for unmapping.
+On 26/09/24 12:56, Maxime Ripard wrote:
+> On Thu, Sep 26, 2024 at 12:36:49PM GMT, Vignesh Raman wrote:
+>> Update the documentation to require linking to a relevant GitLab
+>> issue for each new flake entry instead of an email report. Added
+>> specific GitLab issue URLs for i915, xe and other drivers.
+>>
+>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+>> ---
+>>
+>> v2:
+>> - Add gitlab issue link for msm driver.
+>>
+>> ---
+>>   Documentation/gpu/automated_testing.rst | 16 +++++++++++-----
+>>   1 file changed, 11 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/Documentation/gpu/automated_testing.rst b/Documentation/gpu/automated_testing.rst
+>> index 2d5a28866afe..f918fe56f2b0 100644
+>> --- a/Documentation/gpu/automated_testing.rst
+>> +++ b/Documentation/gpu/automated_testing.rst
+>> @@ -67,20 +67,26 @@ Lists the tests that for a given driver on a specific hardware revision are
+>>   known to behave unreliably. These tests won't cause a job to fail regardless of
+>>   the result. They will still be run.
+>>   
+>> -Each new flake entry must be associated with a link to the email reporting the
+>> -bug to the author of the affected driver, the board name or Device Tree name of
+>> -the board, the first kernel version affected, the IGT version used for tests,
+>> -and an approximation of the failure rate.
+>> +Each new flake entry must include a link to the relevant GitLab issue, the board
+>> +name or Device Tree name, the first kernel version affected, the IGT version used
+>> +for tests and an approximation of the failure rate.
+>>   
+>>   They should be provided under the following format::
+>>   
+>> -  # Bug Report: $LORE_OR_PATCHWORK_URL
+>> +  # Bug Report: $GITLAB_ISSUE
+>>     # Board Name: broken-board.dtb
+>>     # Linux Version: 6.6-rc1
+>>     # IGT Version: 1.28-gd2af13d9f
+>>     # Failure Rate: 100
+>>     flaky-test
+>>   
+>> +The GitLab issue must include the logs and the pipeline link. Use the appropriate
+>> +link below to create an issue.
+>> +https://gitlab.freedesktop.org/drm/i915/kernel/-/issues for i915 driver
+>> +https://gitlab.freedesktop.org/drm/xe/kernel/-/issues for xe driver
+>> +https://gitlab.freedesktop.org/drm/msm/-/issues for msm driver
+>> +https://gitlab.freedesktop.org/drm/misc/kernel/-/issues for other drivers
+>> +
 > 
-> That will result in unsynchronized buffers when SWIOTLB is enabled, for
-> example, when running as a TDX guest.
-> 
-> [...]
+> I can't comment for the others, but drm-misc at least still requires
+> reporting issues by mail, so, no, sorry, we can't switch to gitlab only
+> for now.
 
-Here is the summary with links:
-  - [RESEND,v3] virtio_net: Fix mismatched buf address when unmapping for small packets
-    https://git.kernel.org/netdev/net/c/c11a49d58ad2
+In https://gitlab.freedesktop.org/drm/ we have xe, i915, msm, nouveau, 
+and amd (only for issues). In drm-ci we test i915, msm and amd.
+So I will add GitLab links for these and for other drivers use email 
+reporting. I will reword this section. Thanks.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Regards,
+Vignesh
