@@ -1,130 +1,120 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FDBA18D642
-	for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 06:47:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E39FF176227
+	for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 07:07:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727333222; cv=none; b=XbXvRQIeRyEHbevYMQABexZnmUaa/+AOiqFz+kKT3J4ztZVeF+dDthIQCbDht7ufkG9KsO4onk8d85GN0vT5IWEramCozaUT+loxHsYe7wiHrUmEBEa2mSzJSQInmjwL0n9lIHjAt4wJnlJlfRpXPFuuvvFVjPU5JgGqDMajUNk=
+	t=1727334452; cv=none; b=eNYb3uUd+hHv/tkabB/EWRI//HC8fWVXktJA9S1S9+zLfby9819P5m2fBib67+s+7hFtSY8PvTYyFbekv0klzpaV5dx832lDI5nLjJls11pPFy9q/DMKjBiGsRFn/OVQt+KzwXYjlyB8mQD589R1uPRkyBf4ou+garvcmsizw4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727333222; c=relaxed/simple;
-	bh=W9Q9qF/i9Qv1+MP6E3R9THJb3D4Ym4jOcIVoMFxev6c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=uCXCnUuu+2DoQiLWkZmUUtriaEUgRzf+p0fK+H+oCx5Z19Emr2U6AD7ufuR1V5g+gdxE70/Vxq2VhAFeyo4L+aB9YFYanc1mM5BeGlJbcVP2WqMEG/4YUE4pEY4sHxGsKbQniLWv5N6lYvfnZYEeKVnxhHXAT1Y5MS4yZ7sbteo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D8frFlJK; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1727334452; c=relaxed/simple;
+	bh=KnAJPqBaS5mXano/IWPtVY1GwRK9RukKLmDCVvuE62k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EDPvL0ovSFoUSBwudJNCVbM9IP5d8QiUz0ypyHDSLgBW5XLv0sRBCLA/gr0C9cQycOpvowDL82YE88B8GG9gc2DFOZryd2secwZboprnbDbe6AdTcEFw3Rv/ypJOcix+ESEtr4yOdP04fR103NJ7XdGwpaWuiqwO41V8NLIEs54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=a6qG1sYP; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D8frFlJK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727333220;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P7ph+jmjLlXI5r1/pUA2XEeC1lLjfRKxVSeZXnUielM=;
-	b=D8frFlJKSyLYpEBz2qlLwjv2muLSEGBRZEIhmFiucvuVTivL+fR+hfF6l0hJSQdtC6Y+Kn
-	3kQAbWBrChauY79j1jn/bL1l++e/A88B0FkuB1+gY39x2eE86Y7MNZTl2d0M45NxfPRxne
-	xNkAFhDyX2XiZmLHLlac8Ii4RYnV6bY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-44-1mvHz5H0NumtkzpPTHpl1A-1; Thu, 26 Sep 2024 02:46:58 -0400
-X-MC-Unique: 1mvHz5H0NumtkzpPTHpl1A-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-42f310f0ed2so5546275e9.1
-        for <virtualization@lists.linux.dev>; Wed, 25 Sep 2024 23:46:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727333217; x=1727938017;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=P7ph+jmjLlXI5r1/pUA2XEeC1lLjfRKxVSeZXnUielM=;
-        b=IpyeWreVal6MXAp/tQge97kLUYb+TU4/QI7kI989WlM0OvgOLjR6qcQg4L01ycXlHP
-         kJnj/GNPuB90M04FH8tCjsRPX4Dwrm+xtGeIZW9+p+QPqIYqpiNFCdr/2s9oAhFW3zP9
-         Vex76pqkaunwaQAXG0VS2ArkKyLz49XZeQIz5rF6+t7s5RBJjJ2Z1kWBhVVraWDOvqql
-         Lwqmy2F531iW80TLZ82NIRLiN53F+CDi01dh7m3eMGq47Lsg0rkoUF+dwfM7vUFyOkrm
-         tRNUKNoENB5HEy87zUSWUIVopHKDJg0YXm2LVRA1sd+SYohlN7DQoc3AKLERY+2EWFxD
-         sKTw==
-X-Forwarded-Encrypted: i=1; AJvYcCVnuYYUnCQ3FkuojJYyv3kVja2v2HKzVF54dxR71i0t+X99FcQnbELmzquRlZKJqmoZUlptnKU0Yj9Qb7oOyw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwP5mgXv9+CXOcjqf5OziU2SHv3Nl8tQ2o16V23FcbaWezC/Oqu
-	maHOrxJqFBmqhZDm4kl4zI0n0fS/F4J9h7i3iBVQ1paa+cPbELduomfdJDBgwoU9pzFp7ll1fDW
-	yxXWMLx6yQYW3MKCgsfaZo7GWc2AJQs2IWlAyqexnCpXK9CS2ZCPeALI2duRQHwGx
-X-Received: by 2002:a05:600c:190a:b0:42c:b995:20db with SMTP id 5b1f17b1804b1-42e96102f2cmr43291015e9.5.1727333217585;
-        Wed, 25 Sep 2024 23:46:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGmIOfKJVJuXgn3itaibcpHWKCGIT4bawJixwn7atYQvYKY1g4lI3zJ+mzuHqKsourLP0Y42g==
-X-Received: by 2002:a05:600c:190a:b0:42c:b995:20db with SMTP id 5b1f17b1804b1-42e96102f2cmr43290795e9.5.1727333217140;
-        Wed, 25 Sep 2024 23:46:57 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:179:1ead:3828:4c0c:a50:df14])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37cbc2cf12dsm5638716f8f.59.2024.09.25.23.46.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Sep 2024 23:46:56 -0700 (PDT)
-Date: Thu, 26 Sep 2024 02:46:53 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jianguo Sun <quic_jianguos@quicinc.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="a6qG1sYP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1727334447;
+	bh=KnAJPqBaS5mXano/IWPtVY1GwRK9RukKLmDCVvuE62k=;
+	h=From:To:Cc:Subject:Date:From;
+	b=a6qG1sYPRZwPWN61Ga0JUd2JAOsqgmxztWRWL7bQyRnlvitHYMF1KaYiokMoe90QL
+	 y0Z3W5WTVkarVdSfrD0gilBztAbMN9+Nl2XmUon16zfnlqbH3MMB6MEo6gwyN1chMZ
+	 Ws24NLwZgR0HaoUXMSRR9ZlxGDiUgHCb7Trje6ira3SDxES3YSw1Xp46P3aIhJ4atB
+	 bvQwTNUASavoZB4mXLO1zjyG8zshAZLVTm0Y2vAFT0NQFWuMOwyu394ObkzfiDPWs2
+	 HnpyVWilPmTXyapS5PY6PZNtVpy2So9ybSPpNinWx92FjggJnEEd6mokyHEC1mm2Tn
+	 pMtK3XWjBoW/A==
+Received: from localhost.localdomain (unknown [171.76.80.165])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 69E9F17E0FDC;
+	Thu, 26 Sep 2024 09:07:24 +0200 (CEST)
+From: Vignesh Raman <vignesh.raman@collabora.com>
+To: dri-devel@lists.freedesktop.org
+Cc: daniels@collabora.com,
+	helen.koike@collabora.com,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	robdclark@gmail.com,
+	guilherme.gallo@collabora.com,
+	sergi.blanch.torne@collabora.com,
+	deborah.brouwer@collabora.com,
+	dmitry.baryshkov@linaro.org,
+	mripard@kernel.org,
+	rodrigo.vivi@intel.com,
+	linux-mediatek@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
-	Sreenad Menon <quic_sreemeno@quicinc.com>,
-	Anant Goel <quic_anantg@quicinc.com>
-Subject: Re: [PATCH 2/2] virtio: Add polling virtio-mmio device reset
- completion
-Message-ID: <20240926024619-mutt-send-email-mst@kernel.org>
-References: <20240922123435.17946-1-quic_jianguos@quicinc.com>
- <20240922123435.17946-2-quic_jianguos@quicinc.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] docs/gpu: ci: update flake tests requirements
+Date: Thu, 26 Sep 2024 12:36:49 +0530
+Message-ID: <20240926070653.1773597-1-vignesh.raman@collabora.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240922123435.17946-2-quic_jianguos@quicinc.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Sun, Sep 22, 2024 at 08:34:35PM +0800, Jianguo Sun wrote:
-> We write 0 to device_status to initiate reset of a virtio-mmio device.
-> The reset operation itself may or may not be completed by the time
-> write instruction completes. Add polling device_status to return
-> 0 to ensure reset completion before reinitializing the device.
-> 
-> Change-Id: If15d11d090dfd0d4972ad35f49af03e076872413
-> Signed-off-by: Jianguo Sun <quic_jianguos@quicinc.com>
-> Signed-off-by: Sreenad Menon <quic_sreemeno@quicinc.com>
-> Signed-off-by: Anant Goel <quic_anantg@quicinc.com>
-> ---
->  drivers/virtio/virtio_mmio.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 90e784e7b721..c34ad1782145 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -70,6 +70,7 @@
->  #include <linux/virtio_config.h>
->  #include <uapi/linux/virtio_mmio.h>
->  #include <linux/virtio_ring.h>
-> +#include <linux/delay.h>
->  
->  
->  
-> @@ -269,6 +270,13 @@ static void vm_reset(struct virtio_device *vdev)
->  
->  	/* 0 status means a reset. */
->  	writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-> +#ifdef CONFIG_VIRTIO_MMIO_POLL_RESET
-> +	/* After writing 0 to device_status, the driver MUST wait for a read of
-> +	 * device_status to return 0 before reinitializing the device.
-> +	 */
+Update the documentation to require linking to a relevant GitLab
+issue for each new flake entry instead of an email report. Added
+specific GitLab issue URLs for i915, xe and other drivers.
 
-This is not in the spec, is it? First you need a spec patch. Then implement it.
+Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+---
 
+v2:
+- Add gitlab issue link for msm driver.
 
-> +	while (readl(vm_dev->base + VIRTIO_MMIO_STATUS))
-> +		usleep_range(1000, 1100);
-> +#endif
->  }
->  
->  
-> -- 
-> 2.17.1
+---
+ Documentation/gpu/automated_testing.rst | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/gpu/automated_testing.rst b/Documentation/gpu/automated_testing.rst
+index 2d5a28866afe..f918fe56f2b0 100644
+--- a/Documentation/gpu/automated_testing.rst
++++ b/Documentation/gpu/automated_testing.rst
+@@ -67,20 +67,26 @@ Lists the tests that for a given driver on a specific hardware revision are
+ known to behave unreliably. These tests won't cause a job to fail regardless of
+ the result. They will still be run.
+ 
+-Each new flake entry must be associated with a link to the email reporting the
+-bug to the author of the affected driver, the board name or Device Tree name of
+-the board, the first kernel version affected, the IGT version used for tests,
+-and an approximation of the failure rate.
++Each new flake entry must include a link to the relevant GitLab issue, the board
++name or Device Tree name, the first kernel version affected, the IGT version used
++for tests and an approximation of the failure rate.
+ 
+ They should be provided under the following format::
+ 
+-  # Bug Report: $LORE_OR_PATCHWORK_URL
++  # Bug Report: $GITLAB_ISSUE
+   # Board Name: broken-board.dtb
+   # Linux Version: 6.6-rc1
+   # IGT Version: 1.28-gd2af13d9f
+   # Failure Rate: 100
+   flaky-test
+ 
++The GitLab issue must include the logs and the pipeline link. Use the appropriate
++link below to create an issue.
++https://gitlab.freedesktop.org/drm/i915/kernel/-/issues for i915 driver
++https://gitlab.freedesktop.org/drm/xe/kernel/-/issues for xe driver
++https://gitlab.freedesktop.org/drm/msm/-/issues for msm driver
++https://gitlab.freedesktop.org/drm/misc/kernel/-/issues for other drivers
++
+ drivers/gpu/drm/ci/${DRIVER_NAME}-${HW_REVISION}-skips.txt
+ -----------------------------------------------------------
+ 
+-- 
+2.43.0
 
