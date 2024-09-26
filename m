@@ -1,143 +1,336 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDDB14A24
-	for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 17:46:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9C36183CA8
+	for <virtualization@lists.linux-foundation.org>; Thu, 26 Sep 2024 21:45:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727372806; cv=none; b=hucDl+hAl1s2lmlzE3ozMDpdd5gJ9ZFWXVv16tP4t7UT7GJCq3mP/nN6dvotmrAKXekTreM5nYQ/U4Sm08GwzKjMMNq7oa4UQeh9UW4cVd3DYHkUXGlSdQx0LmKkiOU332CGjvxex0hPK3zGazSzER+YYE9b1BeBC+L5dJkE8G0=
+	t=1727387131; cv=none; b=QoFH1GOYM9HbH6LCXqSYUZS9GkGE7VYIwQQfyhi86aTnQUoJtH2lRFMJ0xw36XaA5i91+vy5piihiIoUyCfRrwMQwOOav3ZPzY0B9BanHbPw1aWjL1hw3FXg9noRjocLs2zsq+om4HOvOetiaA4KVzLqv0jQhQOKYwTaovShZOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727372806; c=relaxed/simple;
-	bh=Lmz7liPcNuuaaTWTU1XHUaviD7rc4zE+DOvgVm+RGaw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R/AfdxeF45EhmwUm3+2xwmoriE46fw7xJ+tAyoSph/7+sZhtrJ66CXuUIXMKlx30KOQ8N7tVodSPoXrNnhdZN2pxgobGcpEN9/IDBmkdbWoBdjj8XOfG91on6+X3l+EVy/hJTkTpGZt03zFmA41hXdSKbriTniCuDMhjJNILbP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Cfzmawtk; arc=none smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1727387131; c=relaxed/simple;
+	bh=l/HaFVaR7BoDVbAm5WIhT9BDgn54NZwR1ZupQgBLZi4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ESvRWLUacMKpce47aiv6NkMB0jBBrOCTQze9DCyHFgqGKax7gn9rac8cwxZR+RebNvsuoFR59NM132jUtRPcD1XXK1qnD2BHlQWjbh2imSLAq5xMBy5syYzIvzI/ZTWC/eLUQx/fclOXuKMGtpFLfAFre2JQAfddrB4z2WeO0lo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=NFEoj0Ap; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Cfzmawtk"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-458311b338eso8431271cf.2
-        for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 10:46:44 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="NFEoj0Ap"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7D76784636
+	for <virtualization@lists.linux-foundation.org>; Thu, 26 Sep 2024 21:45:29 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id brxHlDvVyNoN for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Sep 2024 21:45:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::62c; helo=mail-ej1-x62c.google.com; envelope-from=dverkamp@chromium.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 024D6845E7
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 024D6845E7
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=NFEoj0Ap
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 024D6845E7
+	for <virtualization@lists.linux-foundation.org>; Thu, 26 Sep 2024 21:45:27 +0000 (UTC)
+Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-a8a913874b8so21779566b.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 26 Sep 2024 14:45:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1727372804; x=1727977604; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=sBHhXyPYas4J+tWOA4Kg0n0RXQMflyg/QVeqGL12BR0=;
-        b=CfzmawtkkDSGzVNgH2BoXLV/g1QV+vXL4MVpmuI/BJzLZSUhQSYBmT9cMNqhbW326N
-         J2oTVECLKSfIpLxgTJHBwbtemvUftiUOprImJhnnNfd9kS8V//YBAloLKMF5UoBMJ5PU
-         nJXb2iDUPYCPorh+KwY1hZ9wqs1EjSQmg74xg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727372804; x=1727977604;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1727387125; x=1727991925; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sBHhXyPYas4J+tWOA4Kg0n0RXQMflyg/QVeqGL12BR0=;
-        b=UjhrAXj1zka+1hryA7n3iTjGfz894zyQYzWY5tD23ShSjeS+Lk10XkaIidy7vvxQnc
-         IpFAN8e4WHHOoR7WsWm9QWaP3WvXvu9vnFaUapdi/zkSOnu9MAiUr908pVv4XpMC+iOr
-         zSxaWKfpZ2ienkmm0cbWmo3XheweyOoxcfjYY2Wy8XPZdEBeQoZjQj+QJmkojJvKuyiM
-         DuMIf8xOrMwEOGB4Kegfoy5otIrNHC4jsm/MNjUCQWrFRh6hlDWSr+RI2/VyunO+aWXy
-         x4OZsdWekSDNQ3sZVeazeDT06X1siVmPM9Modp9xV5LSewFoRrHHIr1fmdk6Ke+qXddj
-         K4lw==
-X-Forwarded-Encrypted: i=1; AJvYcCW53VF6zpzfBW1irzWuJkEC0IGW7YJlg922ybHb85/BWS8htKbiCUxGxcEx/lrGkBjXAHPZWZSv9FGhMTkzNQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxp1ppnw20OKAjoMphH3058lHVBFh4e+Yq66cbvdv8Ru4E/rYnR
-	8gZN2vE4qjsulfJZ6DPgn+vSVykiR2V8vf+9gOdEAUSRskr1wvc4L1Lvbao8tg==
-X-Google-Smtp-Source: AGHT+IH2WYeQSFICFAZ1o8kVPzTKme8C/rnNs0aVGTTfhG70Oldn9u7cpzO7QrLkQGRWHlM5hfpMHw==
-X-Received: by 2002:a05:622a:1a1b:b0:453:74f7:556a with SMTP id d75a77b69052e-45c9f1c76b6mr5577411cf.7.1727372803800;
-        Thu, 26 Sep 2024 10:46:43 -0700 (PDT)
-Received: from [192.168.0.212] ([50.46.252.4])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-45c9f28eaabsm1001831cf.12.2024.09.26.10.46.42
+        bh=+wFqYL8EpKHPQ4Z9/fkdSdMxzIWfj+vpRDsv1wr/BYg=;
+        b=NFEoj0ApbzQ1ZCTXsVuriTvEiDFF/oSE01zrfOtkiT860A5NYPvApyN82qYLky7hqb
+         tzyjCpG+waaN6WSJW2gO3w1UhqAE9epMELBwWIeYsVB/nj4OnBzyJIPIo+ytJmJkaili
+         TAU+u2aJkVgdYZ9U7k5p8lOzlMnk1nAyVCeIk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727387125; x=1727991925;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+wFqYL8EpKHPQ4Z9/fkdSdMxzIWfj+vpRDsv1wr/BYg=;
+        b=mt5Kqr9FAIG8eIm5qiMDq75cgLhQpIq6W3QCWDVjoWPJ+08cHnOsG0BjyMFpV/EwgM
+         4peDF61tcN3ibdTLtaZa3NB+B6z3/fHCHnosGpnaE1+41cqwNiB++nu8wQsnfGMs68+f
+         jLPARq0bQfGBQehIak0yBVyqnpkQ+Dg0hTvorejO7SCnc4yFuAymBwYs3W8e25tas0ge
+         rAzLlwcETpxlqynMXCnUPZFeoh1Ts7X7wTYdC7gChRG/GEDQoaGsyYHf1flxSbjAPuoJ
+         lqvOAlCG9kXuxv1aY5R5Z9dJXQVW8zEocPwaZYYk1EHEsUDWA3N/aNP7UZuKiKkeMggh
+         hJMQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW74uQM5YT1DKFIuwcYtZT4xIxoHhRkt79UqxTX5TFMGFzvoDxBzWTU3d7YEJoFoi2P7bcIHEZJn0UpolVRPQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyX42t6v8E/uWwOTv0QcHnCmcuNxVjNQmCxWALXQYmcrA74hHQR
+	8kXfNhIlRfE7ga/aNNyrhpO9TTvM5hUdnr4XIuj5l44l40XvmG6+arMsV9Ksm60l8MY0xoCZ7x4
+	=
+X-Google-Smtp-Source: AGHT+IE+MyjvKW3i9jADJilUGGWsaG9zV2L+kjuuc+MzUM4PlYa1CSF7VAvK49iMkhRmfP7xRI28MA==
+X-Received: by 2002:a17:907:6d0d:b0:a80:ed7e:8468 with SMTP id a640c23a62f3a-a93c47d88f3mr29784966b.0.1727387125147;
+        Thu, 26 Sep 2024 14:45:25 -0700 (PDT)
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com. [209.85.221.54])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c27770b4sm42027866b.42.2024.09.26.14.45.23
+        for <virtualization@lists.linux-foundation.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Sep 2024 10:46:43 -0700 (PDT)
-Message-ID: <b3442002-d1ec-4962-90b9-b409f12d7f5e@broadcom.com>
-Date: Thu, 26 Sep 2024 10:46:40 -0700
+        Thu, 26 Sep 2024 14:45:24 -0700 (PDT)
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-37cd0b5515fso691822f8f.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 26 Sep 2024 14:45:23 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWv/oKbLHmOLbFA5FCtb6J4BwVITUf77CspfHQUWcFoO59R3g0uEFItv/FUJP5/GBS4magYULNVmNqRH4qrDA==@lists.linux-foundation.org
+X-Received: by 2002:adf:cd8b:0:b0:37c:d179:2f6f with SMTP id
+ ffacd0b85a97d-37cd5b2d543mr517922f8f.58.1727387123192; Thu, 26 Sep 2024
+ 14:45:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Bouncing maintainer: Alexey Makhalov
-To: Konstantin Ryabitsev <konstantin@linuxfoundation.org>
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>, virtualization@lists.linux.dev,
- helpdesk@kernel.org
-References: <20240925-sturdy-red-seagull-2c17a6@lemur>
- <7ffe60a3-2dc1-40fa-814d-b0ec0aca7ed4@broadcom.com>
- <20240925-rational-succinct-vulture-cca9fb@lemur>
-Content-Language: en-US
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
- 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 EuY0
-In-Reply-To: <20240925-rational-succinct-vulture-cca9fb@lemur>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20240925145228.27953-1-mgurtovoy@nvidia.com> <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
+ <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com>
+In-Reply-To: <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Date: Thu, 26 Sep 2024 14:44:55 -0700
+X-Gmail-Original-Message-ID: <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
+Message-ID: <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
+Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, 
+	stefanha@redhat.com, virtio-dev@lists.linux.dev, oren@nvidia.com, 
+	parav@nvidia.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-
-On 9/25/24 6:14 PM, Konstantin Ryabitsev wrote:
-> On Wed, Sep 25, 2024 at 02:10:56PM GMT, Alexey Makhalov wrote:
->>> The email address for the only maintainer listed for that subsystem is
->>> bouncing:
->>>
->>>     M: Alexey Makhalov <alexey.amakhalov@broadcom.com>
->>>
->>> This appears to be a typo in the email address, because I do see email coming
->>> in from <alexey.makhalov@broadcom.com> on the mailing lists. Please send in a
->>> patch to correct all MAINTAINERS entries to the valid address.
->> Hi Konstantin,
+On Wed, Sep 25, 2024 at 4:42=E2=80=AFPM Max Gurtovoy <mgurtovoy@nvidia.com>=
+ wrote:
+>
+> Hi Daniel,
+>
+> On 25/09/2024 23:57, Daniel Verkamp wrote:
 >>
->> The email address is correct.
-> 
-> So, both "alexey.makhalov" and "alexey.amakhalov" are valid?
+>> On Wed, Sep 25, 2024 at 8:05=E2=80=AFAM Max Gurtovoy <mgurtovoy@nvidia.c=
+om> wrote:
+>>
+>> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is
+>> set.
+>>
+>> The blk_size field represents the smallest addressable unit of data that
+>> can be read from or written to the device. It is always a power of two
+>> and typically ranges from 512 bytes to larger values such as 4 KB.
+>>
+>> I agree that this is what the blk_size field probably *should* have
+>> meant (matching other storage protocols like ATA, SCSI, NVMe, ...),
+>> but I believe rewriting the spec like this changes the meaning of the
+>> blk_size field in an incompatible way.
+>
+> I believe that this is more of a clarification than a re-write.
+>
+>> Previously, blk_size was described as the "optimal" sector size, so it
+>> seems clear that the driver is still allowed to send requests that are
+>> not aligned to blk_size ("awareness of the correct value can affect
+>> performance" but no mention of correctness). A device may need to do
+>> extra work to support this, of course, such as turning an unaligned
+>> write into a read-modify-write sequence if the underlying storage
+>> device doesn't support such an access directly, but such requests are
+>> still valid. It's also perfectly fine for a driver to ignore
+>> device-offered features like VIRTIO_BLK_F_BLK_SIZE and still operate
+>> correctly.
+>
+> A device should report its block size (logical) using the VIRTIO_BLK_F_BL=
+K_SIZE feature. For legacy devices that don't report this feature, Linux as=
+sumes a 512-byte block size.
 
-Thanks for pointing out, I missed that from your first email.
-The patch to correct that was just sent.
+Sure, I agree with both points here.
 
-Thanks again,
---Alexey
+> Drivers should not ignore this feature when it's offered by the device. I=
+t's crucial for correct operation IMO.
 
-> 
-> -K
+This is a "should", not a "must", though - adding a new MUST is a
+breaking change.
+
+> The statement "driver is still allowed to send requests that are not alig=
+ned to blk_size" needs explicit clarification in the spec.
+
+It definitely would be better to have it written out explicitly, one
+way or the other, no disagreement there.
+
+> From my understanding of the spec, the driver is not allowed to do so (ot=
+herwise error will be returned or the behavior is undefined).
+
+This doesn't seem to follow from my reading of the spec. Otherwise,
+phrases like "optimal sector size" and "can affect performance" would
+not make sense (such a request would instead be described as
+illegal/returning an error).
+
+> In Linux, the reported blk_size is used to set logical_block_size, while =
+physical_block_exp is used to calculate the physical_block_size.
+
+Sure, but this is describing the behavior of one driver
+implementation, not really relevant to the meaning of the spec.
+
+> Regarding the specification statement: "This does not affect the units us=
+ed in the protocol (always 512 bytes)":
+>
+> This likely refers to how certain fields in the virtio-blk protocol are e=
+xpressed, not the actual logical block size used for I/O operations. For ex=
+ample: capacity reporting, max_discard_sectors and Other fields that are ex=
+pressed in 512 byte units.
+
+The way the fields are expressed in the virtio-blk protocol is what is
+relevant in the virtio spec. Even if a virtio-blk device is sending
+requests to a physical SCSI/ATA/... device behind the scenes, it's the
+job of that virtio-blk device implementation to handle the translation
+and whatever mismatches there may be between the protocols.
+
+Particularly, the "sector" value in a virtio_blk_req used for
+VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT is always in 512-byte units,
+regardless of what blk_size the device reports, and regardless of what
+underlying physical media may be used.
+
+From the virtio spec: "The sector number indicates the offset
+(multiplied by 512) where the read or write is to occur."
+
+(This could probably use clarification that the "offset" is in bytes,
+but it still seems pretty clear that it does not depend on blk_size.)
+
+So a request with sector =3D 1 always means an offset of 512 bytes from
+the beginning of the block device, even if the advertised blk_size is
+4096.
+
+This is different from (e.g.) a SCSI READ where the logical block
+address is in units of the block length returned by READ CAPACITY, so
+it is impossible to send a request that is not block size aligned.
+
+[...]
+>>> diff --git a/device-types/blk/description.tex b/device-types/blk/descri=
+ption.tex
+>>> index 2712ada..88a7591 100644
+>>> --- a/device-types/blk/description.tex
+>>> +++ b/device-types/blk/description.tex
+>>> @@ -3,7 +3,10 @@ \section{Block Device}\label{sec:Device Types / Block =
+Device}
+>>>  The virtio block device is a simple virtual block device (ie.
+>>>  disk). Read and write requests (and other exotic requests) are
+>>>  placed in one of its queues, and serviced (probably out of order) by t=
+he
+>>> -device except where noted.
+>>> +device except where noted. Each block device consists of a sequence of=
+ logical
+>>> +blocks. A logical block represents the smallest addressable unit of da=
+ta that
+>>> +can be read from or written to the device. The logical block size is a=
+lways a
+>>> +power of two. Logical block sizes may be 512 bytes, 1KB, 2KB, 4KB, 8KB=
+, etc.
+>>
+>> Does this imply that a device may return an error for a request where
+>> the sector or num_sectors fields are not aligned to the blk_size? If
+>> so, it should be called out as a more explicit normative requirement,
+>> but that would definitely be an incompatible change.
+>
+> As mentioned, the logical block size, such as 512 bytes, defines the smal=
+lest addressable unit for I/O operations on the storage device.
+> This has important implications for I/O requests:
+> 1. Minimum I/O size: You cannot send I/O requests smaller than the logica=
+l block size. For example, with a 512-byte logical block size, requests of =
+128 bytes are not valid.
+
+128-byte requests are not valid, certainly, but that is already
+covered by the wording in the spec ("in multiples of 512 bytes" in the
+VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT description, and "The length of data
+MUST be a multiple of 512 bytes for VIRTIO_BLK_T_IN and
+VIRTIO_BLK_T_OUT requests" in the driver requirements).
+
+> 2. I/O alignment: All I/O requests must be aligned to the logical block s=
+ize. This means the target start address (on the media device) of the I/O m=
+ust be a multiple of the logical block size (the expressed units in the spe=
+c are not relevant).
+
+Unless there is a change to the spec (like this proposed patch), I
+don't think this is required. I suppose a device that can't manage to
+perform a misaligned I/O could choose to deny such requests and return
+VIRTIO_BLK_S_IOERR, but this is not explicitly allowed or denied by
+the current spec.
+
+> 3. I/O size granularity: The size of I/O requests must be a multiple of t=
+he logical block size. For a 512-byte logical block size, valid I/O sizes w=
+ould be 512 bytes, 1024 bytes, 1536 bytes, and so on.
+
+Same as point 1 above, the only requirement (that I can see, anyway)
+is that the I/O request has to be a multiple of 512 bytes.
+
+>> The "smallest addressable unit" wording is also more confusing than
+>> clarifying here, since in virtio-blk, the "smallest addressable unit"
+>> is always 512 bytes, regardless of blk_size (even if a change like
+>> this would enforce limits on the sector values that would actually be
+>> allowed, it would still be possible to create a request that refers to
+>> a smaller unit than blk_size, unlike other storage protocols where
+>> logical block size changes the multiplier of the address, making it
+>> impossible to address smaller units).
+>
+> Can you please point me to the place in spec that explicitly say that "in=
+ virtio-blk, the smallest addressable unit is always 512 bytes, regardless =
+of blk_size" ?
+
+The description of struct virtio_blk_req's sector field:
+"The sector number indicates the offset (multiplied by 512) where the
+read or write is to occur."
+
+Unless we have different definitions of "smallest addressable unit",
+that seems pretty clear. It is always possible to address a part of
+the disk in 512-byte multiples (e.g. sectors 1 through 3) even when
+the blk_size is larger than 512. Maybe those requests won't succeed,
+but it is always possible to describe a region of the block device
+with an address that is not a multiple of blk_size.
+
+> I didn't find it in the spec and I don't agree with this call if it is im=
+plicit.
+
+I agree it should be clarified. The current wording requires too much
+reading between the lines.
+
+> The implementation of the Linux kernel driver isn't implemented in this m=
+anner as well.
+
+When filling the sector field, the Linux virtio-blk driver uses the
+value of blk_rq_pos(), which is also always in units of 512 bytes, as
+far as I can tell (it returns sector_t, which is in units of 512 bytes
+per the definition in include/linux/blk_types.h).
+
+[...]
+>>> @@ -228,7 +234,7 @@ \subsection{Device Initialization}\label{sec:Device=
+ Types / Block Device / Devic
+>>>  \item The device size can be read from \field{capacity}.
+>>>
+>>>  \item If the VIRTIO_BLK_F_BLK_SIZE feature is negotiated,
+>>> -  \field{blk_size} can be read to determine the optimal sector size
+>>> +  \field{blk_size} can be read to determine the logical block size
+>>>    for the driver to use. This does not affect the units used in
+>>>    the protocol (always 512 bytes), but awareness of the correct
+>>>    value can affect performance.
+>>> @@ -282,6 +288,12 @@ \subsection{Device Initialization}\label{sec:Devic=
+e Types / Block Device / Devic
+>>>
+>>>  \drivernormative{\subsubsection}{Device Initialization}{Device Types /=
+ Block Device / Device Initialization}
+>>>
+>>> +Drivers MUST negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offered=
+ by the
+>>> +device.
+>>
+>> Why is this a MUST? This is also an incompatible change since there
+>> was no such requirement before, and drivers are free to ignore
+>> features they don't care about.
+>
+> I can say SHOULD, but then the driver that is ignoring this feature may g=
+uess/assume the logical block size and it can be wrong.
+>
+> This may lead to an undefined behavior.
+
+Unless the spec is changed, if a device can't correctly handle
+non-blk_size-aligned requests, this seems like it would be a device
+bug ("undefined behavior") or at least non-spec-derived limitation
+(returning an error would not be undefined, but also probably wouldn't
+result in a working system).
+
+Certainly it would be preferable for the driver to send aligned
+requests, but the existing wording seems to cover that pretty well
+already.
+
+Thanks,
+-- Daniel
