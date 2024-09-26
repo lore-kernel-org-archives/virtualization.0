@@ -1,92 +1,146 @@
-Received: from mout.web.de (mout.web.de [212.227.17.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCADD178CD9;
-	Thu, 26 Sep 2024 06:04:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96E051171C
+	for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 06:09:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727330672; cv=none; b=IwxOU1+vTycpRQaPWOk3bKrdjppnWB/SfMLgAUsgg8b0vYnHQYePfPHOI4Zy5WKdvjwdEecIl9LwC+e/pnV4/hDo8FSeRCflsK7L8BSTaEKUEBgcvSvYK+jlaK6aep96o7Y0ni+W6tiDEpVq8gxR8IZVLh6G/ubNwTQD/BsaWFE=
+	t=1727330967; cv=none; b=rApNOoyuJyCMKO83zJuRk7ns9A8obDw5qs0baidRFcbhsn1obOXSi7e//AQi7+H3RcClLh6mI7oYlNJmuYRIvOI+aEvYLk0zOYIiTe0HzXtRXHs1S72x6ZSO6oaIVh4CqueRtMCgJKWs97nfa8UBm/TM+qwHEN43+ta6TKqqdog=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727330672; c=relaxed/simple;
-	bh=ZeQD+1PUyDnjoFlVO8O8D6pVFxmJOJGsc7xOxz4eNag=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iX0tM56XLRjB7C7TU9pZCXG7NNkOqhxJnN+e5QPKJ3Gl7C/oy0BSfnWjimerA8Uff9JAB7sokhWdv7NkyUzt1RXadHXQfsXwXwikNA5ijIb43fZ88Bo+JToXygL642jopypIKdILbk86Ww2/z/1ET2LDp60bEW2lX6udGi9WLMY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=geGWS3MN; arc=none smtp.client-ip=212.227.17.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1727330967; c=relaxed/simple;
+	bh=C6m2FS5TtlnSHNWeVHluF6MQlZ/ld5ffn93qT/GpKlA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=OUnuxhZOrC993R4FoZ661uRXZvp4h+XgC6iQNSW2jsLO1QEp6yiLhJNOvuwXXrU3+atZ2l94ojBx51u+ddKcY+bttvN1sukZUowxUi7wEDdyGdKymgLWKvdeH6pKtQzHmxeTJn1zylijdYgipAOrECBFb3kjfSTA6ga/l5xpANs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g3yt/qql; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="geGWS3MN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1727330658; x=1727935458; i=markus.elfring@web.de;
-	bh=ZeQD+1PUyDnjoFlVO8O8D6pVFxmJOJGsc7xOxz4eNag=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=geGWS3MNungZvnuSeB/oIbiFxq5h613Eo7Pmd5iPT8OnEu74B6H5Cv6IDacsh1p3
-	 PAplQeyDw/8pZ/vsybQYlvPoIEgk87jIa7I+EXqv8cupdPWgW0ycVUhX3JihKkUWD
-	 9M6rzX8L1iFabgaKwl3iLr4x2DaObYAY81EulSWpMuJu/jbdZP7deLuFjxFAv8DTo
-	 13lG/TcT0jfoey2FgJFzG0+BAeKsUMsXH3lni4QinSy2UM6hr4jxs7NLPU+gl7Cfx
-	 MobJJY+1JQqd9htCqwg0ebAuqmwJCdhomePq1IlFEelwb+BVOETsiAG3156uGcNDS
-	 1U6v8H8zh87WwTAcQA==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.84.95]) by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1MFayq-1si6E02S7i-00EemW; Thu, 26
- Sep 2024 08:04:18 +0200
-Message-ID: <c32f24e8-9e4e-4ee5-9b5d-276dc99ace9f@web.de>
-Date: Thu, 26 Sep 2024 08:04:06 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g3yt/qql"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1727330964;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gMQwGza9ZFK8ZdSoFU1ztpqg6TJC/q/KXVB1OJf6aSo=;
+	b=g3yt/qqloGjbOHUUjxcI0BOAPdBW3Sd1x+U7zZinfsBHkaoJPhiKcLnKc+t2v1MyGsjEGo
+	+IJns8iwjqZFd86hA7TDYJ5NahbMRdPK7dr6fSZJWwFDtRBCAXMUVLb0oTy2eeIZE/ZdpV
+	FCTdO7neih3SwuSLBc6/kQbmtgVN3zc=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-460-8f86ewcuMS-o7qh0BHnMJg-1; Thu, 26 Sep 2024 02:09:23 -0400
+X-MC-Unique: 8f86ewcuMS-o7qh0BHnMJg-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-374c3402d93so283814f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 25 Sep 2024 23:09:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727330962; x=1727935762;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=gMQwGza9ZFK8ZdSoFU1ztpqg6TJC/q/KXVB1OJf6aSo=;
+        b=HlLC36aMu3rC0kSd2FtyJlfy/zJzslwbqYbz6JBVmtCwGKx/3LDR8d7dhIJDI/claS
+         gy/26c4lgTYkCtPVadYag2QTvtIz9Qp7RVaLCzFvdUMiOHH8t6TXsKYVfybt+nEpOYdw
+         caVYmagleoKLDzIvB5PYkzEkrhicwhp1BGjd+p1vlmA9Huqxg18OI791isu77P68ekVI
+         tKA85XfhaLXTbDPKu/BrWE9QVFKj7S9/zjZAgudlC1ApVNfIwnRejApwTPfwCmFGavHl
+         /FNl7kpD/mTlzCkeyINzUeuJVQSmFA7AvHK/lxjrDLZt74yISGW+qWnomynpeZbXejnH
+         6Blg==
+X-Forwarded-Encrypted: i=1; AJvYcCVqNjJ25988XFPoLz5M26RbM+rVymiNzsHiSJUAJbbnoWqIQ3GnnHRy3g6SbYefi58sPaNpsXMBxaCn4ewOsg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxhJSNTLEcIuT5rjxDVib55BtC1AG/AkKDEMEuQ6w9592nMhPPY
+	dLidBfTt3TJX3/+duJQKLBLp0OWZnptfpD2kqJxVDWxZ2+7uVaFusekFeta4dwU8jQmBjDno6RC
+	XSmS4Xe3zIdqd4ygrqsx9+304D/+VImyhhM3DDMfXQ/IiJ0sYCJBW/AntyB0YhvP+
+X-Received: by 2002:a5d:4341:0:b0:371:8319:4dbd with SMTP id ffacd0b85a97d-37cc2467664mr3595465f8f.17.1727330962153;
+        Wed, 25 Sep 2024 23:09:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEAU9mY/oJ2N7aq1FbKqNvOrr+w0NOcakpXu2sWX7cSSyPcZK2h+EzFqi6y1H0b4AOcapEMng==
+X-Received: by 2002:a5d:4341:0:b0:371:8319:4dbd with SMTP id ffacd0b85a97d-37cc2467664mr3595448f8f.17.1727330961704;
+        Wed, 25 Sep 2024 23:09:21 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:179:1ead:3828:4c0c:a50:df14])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42e96a55336sm36758585e9.47.2024.09.25.23.09.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Sep 2024 23:09:19 -0700 (PDT)
+Date: Thu, 26 Sep 2024 02:09:14 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jianguo Sun <quic_jianguos@quicinc.com>, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, virtualization@lists.linux.dev,
+	Sreenad Menon <quic_sreemeno@quicinc.com>,
+	Anant Goel <quic_anantg@quicinc.com>
+Subject: Re: [PATCH v2] virtio: Add polling virtio-mmio device reset
+ completion
+Message-ID: <20240926020709-mutt-send-email-mst@kernel.org>
+References: <20240926022557.8771-1-quic_jianguos@quicinc.com>
+ <CACGkMEu-r2K1Xb-797YnK80-YeKEsErSe=BBP=xMbBvHcDv6qA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: vhost-vdpa: Refactor copy_to_user() usage in
- vhost_vdpa_get_config()
-To: Al Viro <viro@zeniv.linux.org.uk>, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, netdev@vger.kernel.org,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-References: <79b2f48a-f6a1-4bfc-9a8d-cb09777f2a07@web.de>
- <20240925205005.GL3550746@ZenIV>
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20240925205005.GL3550746@ZenIV>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:pMsomcAkr28z9Z3EwUnEnq8peCVCV4ch6FTAdwlR6QcGeSH397q
- mwXSzn1m+/eTNu8QxabM8wniDml2HEouJF+v+zmlpqqfiRdjJHM+f7stabRGQiiJCofbSU6
- SeBaV3Wbogs6nwukNAXgqZBAWBx0p9+Qi32QvgOQ+7/W+1RzdWwou9iJRVUh/ofJFj4vKST
- unWUrr4RZdlMDGVIWVYYw==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:DF04tBPKcp8=;FCU+bf/qUQwvP8X7G4VCbyxZEjL
- F/FjNs231Xf2O15kcVJfSF8C7ImdV8e0ZuyXpQ623+BFZpjQP93RoYJmdC4hgPIwHdTkLNMan
- Vf/VPB94EE5J/N66oZWsfQ6vK1YSUFrmiF6/X+Nbbo4rHsA2hlRNpVoxt/uaWd2qzpOObrjtf
- BZyNW2BfqHoVradMDH2Lcqh//wddskWbZpHcnXAlyVXtTkxhsWt646CA8ecFnresbyjPNaoK6
- lRLU6xoSWbHkmYf8MmW/8Kbw5HG29xCQsR3UPy34SqJh+9HDUtp0ipftW5iNsI27JN8vYyDSU
- dtoKSGUG48TFDYLWU9nnMjhbgU4gyChgdd/9e1cL3MbRi2MhnmedugiwxFP4Ahw6zT4tSTOgY
- nw9cdnJzeao5xD53TsF+mOo2697CoMaskTfnH2jXK+QuSKK4Mk23hIbPnKmQ1QI6bIwVArE3H
- BDmbZKIAfaXJ7Qqaplorqh+lsATrSlX0TuoBMgFSJ44v6DAYt2zI35/OHQIHVNnS2RqAaVQ+l
- sqxfa7NudJquU0iZfZ9qT1i10fFO6DmKDUoh+l+CPJWXGo/Dl9j1LPM8xvJyDzZA+ZrgBUVez
- bVTnoz3BWlH+rcfRLYS/6GwC3gW0paUj9nynEw3Nma+t+ZN0aCxiCBVWadsKxLGUDkEoQvFqo
- e7M9ttVBU29Mbxz//cL9cjsP6V+3Iu4eT8SPfDBjkCYVdFO8v11KH7M3KajMONiVPygyrzuiU
- QaV0sLGb/rtVkikdmV8AWfAMaUNFGwUkax7XrkSDr1/rbEhW8XEMZ0p1e5hgO64gekvOmchwZ
- 10mULOtL5104495OANasWuAA==
+In-Reply-To: <CACGkMEu-r2K1Xb-797YnK80-YeKEsErSe=BBP=xMbBvHcDv6qA@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
->> Assign the return value from a copy_to_user() call to an additional
->> local variable so that a kvfree() call and return statement can be
->> omitted accordingly.
->
-> Ugly and unidiomatic.
->
->> This issue was detected by using the Coccinelle software.
->
-> What issue?
+On Thu, Sep 26, 2024 at 11:21:25AM +0800, Jason Wang wrote:
+> On Thu, Sep 26, 2024 at 10:27 AM Jianguo Sun <quic_jianguos@quicinc.com> wrote:
+> >
+> > We write 0 to device_status to initiate reset of a virtio-mmio device.
+> > The reset operation itself may or may not be completed by the time
+> > write instruction completes. Add polling device_status to return
+> > 0 to ensure reset completion before reinitializing the device.
+> >
+> > Change-Id: If15d11d090dfd0d4972ad35f49af03e076872413
+> > Signed-off-by: Jianguo Sun <quic_jianguos@quicinc.com>
+> > Signed-off-by: Sreenad Menon <quic_sreemeno@quicinc.com>
+> > Signed-off-by: Anant Goel <quic_anantg@quicinc.com>
+> > ---
+> >  drivers/virtio/virtio_mmio.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> > index 90e784e7b721..cf1a4a3dd35d 100644
+> > --- a/drivers/virtio/virtio_mmio.c
+> > +++ b/drivers/virtio/virtio_mmio.c
+> > @@ -70,6 +70,7 @@
+> >  #include <linux/virtio_config.h>
+> >  #include <uapi/linux/virtio_mmio.h>
+> >  #include <linux/virtio_ring.h>
+> > +#include <linux/delay.h>
+> >
+> >
+> >
+> > @@ -269,6 +270,11 @@ static void vm_reset(struct virtio_device *vdev)
+> >
+> >         /* 0 status means a reset. */
+> >         writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
+> > +       /* After writing 0 to device_status, the driver MUST wait for a read of
+> > +        * device_status to return 0 before reinitializing the device.
+> > +        */
+> 
+> Is this copied from the spec? I can only see a similar description in
+> the PCI but not MMIO part.
 
-Opportunities for the reduction of duplicate source code.
+Not in spec. We can add something like this in spec, but it
+can not be a MUST, has to be a SHOULD.
 
-Regards,
-Markus
+> > +       while (readl(vm_dev->base + VIRTIO_MMIO_STATUS))
+> > +               msleep(1);
+> 
+> Again, we probably need a feature bit to unbreak existing MMIO devices?
+> 
+> THanks
+
+We can do this unconditionally since legacy devices return 0
+immediately, feature negotiation happens after reset, won't be useful
+here.
+
+
+> >  }
+> >
+> >
+> > --
+> > 2.17.1
+> >
+
