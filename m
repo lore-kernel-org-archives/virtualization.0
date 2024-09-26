@@ -1,127 +1,119 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5696284E1C;
-	Thu, 26 Sep 2024 15:15:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9170F34CC4
+	for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 16:18:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727363720; cv=none; b=uaWo6WTQtnwAgxQBhIhdN6dABQNEU9GdRorKRuS8tnQbWs86A7f+KjLGGUo6BmJXtyHpqBo3qdLlyIPPwDYJoBM+JjS+djPu2FOSwu46f9xobhbpb8ir0MSuvoPpMdkDp0NviHAPctlwemmsCrIlYiazFjtybKe5PcM8TBfwX2E=
+	t=1727367493; cv=none; b=jXHC3JNbnQE6Sx0gWVJkhz1KtOAdgcqzEglJyMPryul/D7vdS6K49LV8As84WMUEZqxOdvi6K4K+I9mHqDmAqYXzRPWYLIYSVeHl+Ri9H8WRANpWok7k+22laSNNmSaq1Hqj+L85c6WXAARx9IYgMdfWeZLy+/w1sbxeuMqeHv4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727363720; c=relaxed/simple;
-	bh=YPzxdxvGESKuT97Yzzwzz/CT+lFMvs+6MCOdn6nyo/Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=E3zS6aW0oB3h3P/B2K9XArkFdyTvkD26gi5uFpPITMtOcCjbmkyAyT7NqNqxI426RAaINQgd6sLeeq2rIQjSW197cAcgyAv7uz+PLB+fqgAJnkTuXao7ipq8l6R1a2fRWDQ+/jc/5HKSvrOXc1KnypRGebutFjSeQuI7f+azTN4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=T3alerrp; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1727367493; c=relaxed/simple;
+	bh=7gDjgu4wElEbQxuDgDh35dLOIRlB1xp7/51JxMwantQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=IoTVEzppymJI/BkksVs1kFVsTV2wMI7WCt03fexmVlXIdj+WgiW0YlLwMyay2OqWgrnZPox5d7MB9998k+SJU5+DWP6Vp7+5aZq/BQUCrFMMGsIOwbpRHcyfXc3+fcyWbWHYwqCFOiPpQj3bISPJ1f+hsO+nMm+sHdbqZfbmE8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=d5oMn7Zk; arc=none smtp.client-ip=185.125.188.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="T3alerrp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1727363718; x=1758899718;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=YPzxdxvGESKuT97Yzzwzz/CT+lFMvs+6MCOdn6nyo/Q=;
-  b=T3alerrpbVOifndGEYmQkLnF6tZPQifumU4ftppBsStN7Dp7EAtlUhvo
-   wcGiTv3XAargUCx1btb3xCy/w5eygPuiN18RJm78pCQFa/fuy/TVEsi99
-   PNP+RIrRIbQCMo/KMNqOwgX9WvO/A1wSmYMnNFMOoMNl32Z2ad2rV2Kr9
-   RcsByuprKHcU4m1S7nc0AxtrnDE+Yc5OZrKKf4g+bSZrgeSB5jLw6Fjz0
-   IfXzbMPUa8C/MDUYI4PVAH3pRMT9sKRjOK4vuxCm0hfW/eVPZeAfPqMID
-   Ox31xZbi0wAZy5ICNpd1I5EUouM32Ud78P7fHF6j3PfP30BYsseVSZ0h8
-   Q==;
-X-CSE-ConnectionGUID: 1Zv4y5oySMi1QOeefZv+OA==
-X-CSE-MsgGUID: 5ql8/81cRv+2/y++Jj1PMw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11207"; a="26564375"
-X-IronPort-AV: E=Sophos;i="6.11,155,1725346800"; 
-   d="scan'208";a="26564375"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Sep 2024 08:15:17 -0700
-X-CSE-ConnectionGUID: QVu2zMJ1RGaWVukMqY8elA==
-X-CSE-MsgGUID: cZ/L4QykRWCZlO3gJeTlvg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,155,1725346800"; 
-   d="scan'208";a="77023727"
-Received: from agladkov-desk.ger.corp.intel.com (HELO [10.125.111.194]) ([10.125.111.194])
-  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Sep 2024 08:15:18 -0700
-Message-ID: <fe8bc21c-b684-4a51-a1c4-2b58412a38d1@intel.com>
-Date: Thu, 26 Sep 2024 08:15:16 -0700
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="d5oMn7Zk"
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com [209.85.128.70])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 6056B3FB61
+	for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 16:17:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1727367447;
+	bh=b1Yy5Y+O/8SNdOfIY1NdJ3kg1DxrF1aZEa29oc+RxsM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+	b=d5oMn7ZkGmQOYoEG7Rw9NeOcHvif0Cxx50gJ5SB9zT1RDW+XIRgNVZCoVNVR8kNMX
+	 W261SAomYKfrStCo7QwKUsNWwFVAvK9yFYmg1/d/A1Zgg6yYJv0nmdpN8jZ5GM5MKW
+	 ASB4ivIH73Ni/DsIUAHHOTm+ncuy0sTGHsUvgXQYyayHXjzdlhd02xAdD+saTnldcu
+	 bex5Bli3q4NcfyvI7OhRk7Rxr24XImTI2ZHRlmFug3+9ere9mDVFhKT5ZQDpfuS+M2
+	 rq9/X6D8Te52o9YJT5xAYzI9Q5snMcqOxLdgBis4VhLIOhAn225MVif2JAvG1IU0Kn
+	 iJUjHWY9Wu3Sg==
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-42cb6ed7f9dso10988895e9.3
+        for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 09:17:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727367438; x=1727972238;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=b1Yy5Y+O/8SNdOfIY1NdJ3kg1DxrF1aZEa29oc+RxsM=;
+        b=ntxKhYt0ds7UsVyc138JcJeDlzEUdpvd7yR4nluvP7G++cteNl/a370Rg/gdgd/IfE
+         DQsiwauo/1KdHgvSuefnk5i3ddYNy51e0qYiTOrPQSktd6VG58+kqGr0CwfQKxOrfmIM
+         zEgUqfJjv1p7Yx+A7rGUEaj7n6Urp1lRQzoXTMh0ObzE9X04+FgAL0LgOgraphB6GbOG
+         H8jevVSRHxyDfsumcHUWSRu5QJPpIj6ijo2H5HmNskYtTAKYNQp7wPhk+JALqNZTjmP9
+         YaVqIKEpso/DmVaucfZsaSk+r42jFysRGEJaambN35Zo8gjXyMFK4zBvLQPkNWOcn0VV
+         inDg==
+X-Forwarded-Encrypted: i=1; AJvYcCWjTr5GIFvhp/QCDX+sNI9dyIkDhvbsLBQgVKKYl8L7arxiubHlv33fXFMHRITSr+B8QFF9IbEAddcSCUVrow==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz4IBX+SCIVDRwAFfDWtRONCMNV5twc60Yd2ZK+04ZcpMsMUo4K
+	LOaKZuWRUrYsll+5tywngBiZCuyB5/ULFy9ieTh8zFCAkSJ2QWnYr3bRuSMwVylh09QRciOrN0D
+	YkASFrUOuz9LtYEM68XZOROiToq+CvlhrUcf5ELfLIbmfn+QlBCns+NEpgUCPhz3OMD70Kv2nbM
+	G+WDWw
+X-Received: by 2002:a05:600c:1d88:b0:426:5e1c:1ac2 with SMTP id 5b1f17b1804b1-42f58433478mr169555e9.8.1727367437785;
+        Thu, 26 Sep 2024 09:17:17 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHzaX27OdIk12RXul9FuGgRDD+iCxKpGs0uDOQekLQVHE70zEjsFFHKV6Qz72FM1jylL5Re6g==
+X-Received: by 2002:a05:600c:1d88:b0:426:5e1c:1ac2 with SMTP id 5b1f17b1804b1-42f58433478mr169345e9.8.1727367437454;
+        Thu, 26 Sep 2024 09:17:17 -0700 (PDT)
+Received: from amikhalitsyn.lan ([188.192.113.77])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c2948231sm14104266b.99.2024.09.26.09.17.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Sep 2024 09:17:17 -0700 (PDT)
+From: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
+To: stefanha@redhat.com
+Cc: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vhost/vsock: specify module version
+Date: Thu, 26 Sep 2024 18:16:40 +0200
+Message-Id: <20240926161641.189193-1-aleksandr.mikhalitsyn@canonical.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] nvdimm: Correct some typos in comments
-To: Shen Lichuan <shenlichuan@vivo.com>, dan.j.williams@intel.com,
- vishal.l.verma@intel.com, ira.weiny@intel.com, pankaj.gupta.linux@gmail.com
-Cc: nvdimm@lists.linux.dev, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, opensource.kernel@vivo.com
-References: <20240926075700.10122-1-shenlichuan@vivo.com>
-Content-Language: en-US
-From: Dave Jiang <dave.jiang@intel.com>
-In-Reply-To: <20240926075700.10122-1-shenlichuan@vivo.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+Add an explicit MODULE_VERSION("0.0.1") specification
+for a vhost_vsock module. It is useful because it allows
+userspace to check if vhost_vsock is there when it is
+configured as a built-in.
 
+Without this change, there is no /sys/module/vhost_vsock directory.
 
-On 9/26/24 12:57 AM, Shen Lichuan wrote:
-> Fixed some confusing typos that were currently identified with codespell,
-> the details are as follows:
-> 
-> -in the code comments:
-> drivers/nvdimm/nd_virtio.c:100: repsonse ==> response
-> drivers/nvdimm/pfn_devs.c:542: namepace ==> namespace
-> drivers/nvdimm/pmem.c:319: reenable ==> re-enable
-> 
-> Signed-off-by: Shen Lichuan <shenlichuan@vivo.com>
+With this change:
+$ ls -la /sys/module/vhost_vsock/
+total 0
+drwxr-xr-x   2 root root    0 Sep 26 15:59 .
+drwxr-xr-x 100 root root    0 Sep 26 15:59 ..
+--w-------   1 root root 4096 Sep 26 15:59 uevent
+-r--r--r--   1 root root 4096 Sep 26 15:59 version
 
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Signed-off-by: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
+---
+ drivers/vhost/vsock.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> ---
->  drivers/nvdimm/nd_virtio.c | 2 +-
->  drivers/nvdimm/pfn_devs.c  | 2 +-
->  drivers/nvdimm/pmem.c      | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-> index f55d60922b87..c3f07be4aa22 100644
-> --- a/drivers/nvdimm/nd_virtio.c
-> +++ b/drivers/nvdimm/nd_virtio.c
-> @@ -97,7 +97,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
->  		dev_info(&vdev->dev, "failed to send command to virtio pmem device\n");
->  		err = -EIO;
->  	} else {
-> -		/* A host repsonse results in "host_ack" getting called */
-> +		/* A host response results in "host_ack" getting called */
->  		wait_event(req_data->host_acked, req_data->done);
->  		err = le32_to_cpu(req_data->resp.ret);
->  	}
-> diff --git a/drivers/nvdimm/pfn_devs.c b/drivers/nvdimm/pfn_devs.c
-> index 586348125b61..cfdfe0eaa512 100644
-> --- a/drivers/nvdimm/pfn_devs.c
-> +++ b/drivers/nvdimm/pfn_devs.c
-> @@ -539,7 +539,7 @@ int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
->  
->  	if (!nd_pfn->uuid) {
->  		/*
-> -		 * When probing a namepace via nd_pfn_probe() the uuid
-> +		 * When probing a namespace via nd_pfn_probe() the uuid
->  		 * is NULL (see: nd_pfn_devinit()) we init settings from
->  		 * pfn_sb
->  		 */
-> diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-> index 210fb77f51ba..d81faa9d89c9 100644
-> --- a/drivers/nvdimm/pmem.c
-> +++ b/drivers/nvdimm/pmem.c
-> @@ -316,7 +316,7 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
->   * range, filesystem turns the normal pwrite to a dax_recovery_write.
->   *
->   * The recovery write consists of clearing media poison, clearing page
-> - * HWPoison bit, reenable page-wide read-write permission, flush the
-> + * HWPoison bit, re-enable page-wide read-write permission, flush the
->   * caches and finally write.  A competing pread thread will be held
->   * off during the recovery process since data read back might not be
->   * valid, and this is achieved by clearing the badblock records after
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 802153e23073..287ea8e480b5 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -956,6 +956,7 @@ static void __exit vhost_vsock_exit(void)
+ 
+ module_init(vhost_vsock_init);
+ module_exit(vhost_vsock_exit);
++MODULE_VERSION("0.0.1");
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR("Asias He");
+ MODULE_DESCRIPTION("vhost transport for vsock ");
+-- 
+2.34.1
 
