@@ -1,48 +1,77 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37ED2282FA;
-	Thu, 26 Sep 2024 23:01:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B1116BE2D
+	for <virtualization@lists.linux-foundation.org>; Fri, 27 Sep 2024 02:11:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727391713; cv=none; b=euNpHHkwPvoO7MB2QH1UA0mmC/AMqVZpl5ugwzUMB7ksQmkghk5z0LJTTSsFUVtzQU1LCCqBKLjOlyy7JiJt8a9IzgtCLilbAPGBhkdIC3XQHr+pcmp6O8PrU5CwoWqbejTQqsYLCvX6Dzl7jHjWmqPb6SmyLnvDKIbSXYCcuUQ=
+	t=1727403084; cv=none; b=M9IwvI+rcDY65zUBOhL8yjNQHZSfGNJGc/RLRr0ldF8/KE1hq2VCirbzTxGXEa8oHkZrfXEFHqkTHg1Fwve4Nq7Sk/DVjviJNKy1T0ZvfZg/ckVPmC9GxFwFiABPGg/Ehw2rpmOnnPe4DX05zPVOmbGK3PM2MChYeMQE7SLRdy4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727391713; c=relaxed/simple;
-	bh=ctGRqkZQnL3iwsaJbEOPs/nL6DqatorLsyNrJPJi188=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=TYhjU3XWxqkAKqkzSNYi1VSIXjvkFBgSscmJvRJvxsm8OFdq8JxdLtf9j8we7tvtKFUoLhj0YjhlxIFDkV+X/aalNOwvYpZvkYoGX0DEzxiqSOwLCiFpy5iIurlpK+SNsXnZDeGJsd3X1pbked+LCFLQq99vo9sTfSZHnSXmlag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=L1VGlq0y; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1727403084; c=relaxed/simple;
+	bh=z2u3XIUIO6fq3zsKBJpUIQZilOD/xOQQm7u9WYiUdWA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=C3cku8LE+3jtwzdPNTFo4TWTz60w7/S5cilv0804P2sigewkPB4Dq8lLKHgSNdAkp7H1Jyte9IiBQ7ccmmvRjhbYaAf8eRmadV1PaAqMhpuEanseSNwBv5rVgkoTJDxMQe5sh/zFcqlxpYYrKdtLwQXb0Zfm/i4nh5faoQRby94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=WJz3fHMS; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="L1VGlq0y"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48QG9mG7026541;
-	Thu, 26 Sep 2024 23:01:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	bDhnhxaLSsQjl7xe4xa9yaUsNXJSZfAHaDNanf+MtVA=; b=L1VGlq0yeiNIwbWD
-	rauKzq2Npx92dXPG2lryye+al+tOxfhhN9iKJfacVJR0/J9ZOC2Ca7DN7ICbUYt1
-	fd4qRogLR3EGLww/vfyLSqOejT9EajrE2A4iisWpTarlDlidDX0maKIrT5eDLFVz
-	EHFs9NRc8SDF9/aJpM/CMuI2RRDpbY+x/l8hBLB0nNXc2BZR04bDnvfaknKCBwIL
-	RTt//+k6m9HJrAjlWIWNfwSTRTNP5kig2z1sIvdnOBZ5IYeHPKhgBbRgtouVydox
-	jyH5jDY0utWXZKkcxK+lhUtyxGRpLtfKMn8Mqb16HuZ5klrQkfH5H3FPgK/g6reY
-	2ac6hg==
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41sn5c151y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Sep 2024 23:01:30 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 48QN1TuF007471
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Sep 2024 23:01:29 GMT
-Received: from [10.134.71.247] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Thu, 26 Sep
- 2024 16:01:27 -0700
-Message-ID: <e9f38fe1-10fb-49ad-b209-0e2786ec6f94@quicinc.com>
-Date: Thu, 26 Sep 2024 16:01:27 -0700
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="WJz3fHMS"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 94A4160645
+	for <virtualization@lists.linux-foundation.org>; Fri, 27 Sep 2024 02:11:22 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id wP8G5Re_Urci for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 Sep 2024 02:11:21 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::533; helo=mail-pg1-x533.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4F78160641
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4F78160641
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=WJz3fHMS
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4F78160641
+	for <virtualization@lists.linux-foundation.org>; Fri, 27 Sep 2024 02:11:21 +0000 (UTC)
+Received: by mail-pg1-x533.google.com with SMTP id 41be03b00d2f7-7d50e7a3652so1060888a12.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 26 Sep 2024 19:11:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1727403080; x=1728007880; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=uf2tPCUdEA01GCYGd4noA0WD0ijkHEkhZlFEu8nmNFY=;
+        b=WJz3fHMSTj1l/snOuNASKv2rgS8ILfySHLf3mgOWdHZKKS8zYXxbMyMHcp/2KKGzyq
+         K+zaB1mIusBQmopRyFGLFDc+4M/yrBNG/RNMk4GZn/PsB0uqLi1XniAzSNxKm8LY8l6F
+         Lu+e8qs90DtdFfxq5H0+sCUX7uDPdN06WqhAyo2cIhbmbEbcuswq2Ccf4Bq4gQ70eQfi
+         70atp33/wID9AoFkGuK/+jRTPHy2UxJVEsbgVP8h5c0Yh2qhN3qihBlkleD4X6OudTfJ
+         o8RxiceAllKOHhc37nmJjgAkCZ5fGbG+ZmzZCsUe6N5SskOqgbQpxn84knaanuLEIC/J
+         DW0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727403080; x=1728007880;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uf2tPCUdEA01GCYGd4noA0WD0ijkHEkhZlFEu8nmNFY=;
+        b=mmA8KTMshMcv+nZcrqX04OXWY5kQif5nzSQO0KcnHXU5pg51w/oRDyEleXJYG0tSde
+         sogQdP5kv9QRKDBk8TZAY8fp7g4Y1XZhP8DhwylzLAPFBTbC2gKxiAu2e2Ki8OdXPSoI
+         hkT2+BI9x3YVTTdE1cQh9Ar48Nl7GmkdDxgrmQzYcBC4ccbs6CMEP29wSKpXpSR1lPjq
+         qqMNDi/Wyaq6IrqGRnq3lsIJYLKEhcVGnv+rAffWpirAr5hkx9kLc3ahsbzssh0Z1lI0
+         ObtGDFRUALs8EXwOClxAtYT808dRIS6gQ/+ikNfcI+nUk6+aeRjckXioCCLklKUcBBbI
+         eBZg==
+X-Forwarded-Encrypted: i=1; AJvYcCWJ4DnSrEuB4aSJDPPpTqLQ1D6vJsgse6JejTW2uNBzg+kPhdzhQ9h79XEuNgsM+J4XF/XEZPCPD0jwsvQa2w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzSVZGAG98bz8NQCrFdHFx0poFaLTwOxGGuNm1CNyh6+W/RxOUP
+	9rPzVYUIvLdqaz7iEUq0WNHRrBtjVdEeBYagy6A3GnXhFs7JQ3mk3XTWemoMOVo=
+X-Google-Smtp-Source: AGHT+IE7cjRrb25dzMXmo+VfgnfSpwEWOl/UW7HQEnq4EHsE9dGMvjEK+lxgfFogzB4DCdWpnrgmFQ==
+X-Received: by 2002:a05:6a20:4ca6:b0:1d4:fcfe:e1ee with SMTP id adf61e73a8af0-1d4fcfeee5fmr1089565637.9.1727403080438;
+        Thu, 26 Sep 2024 19:11:20 -0700 (PDT)
+Received: from [157.82.207.107] ([157.82.207.107])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71b264bc1a3sm559085b3a.75.2024.09.26.19.11.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 26 Sep 2024 19:11:19 -0700 (PDT)
+Message-ID: <c3bc8d58-1f0e-4633-bb01-d646fcd03f54@daynix.com>
+Date: Fri, 27 Sep 2024 11:11:15 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -50,96 +79,61 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] docs/gpu: ci: update flake tests requirements
-To: Vignesh Raman <vignesh.raman@collabora.com>,
-        <dri-devel@lists.freedesktop.org>
-CC: <daniels@collabora.com>, <helen.koike@collabora.com>, <airlied@gmail.com>,
-        <daniel@ffwll.ch>, <robdclark@gmail.com>,
-        <guilherme.gallo@collabora.com>, <sergi.blanch.torne@collabora.com>,
-        <deborah.brouwer@collabora.com>, <dmitry.baryshkov@linaro.org>,
-        <mripard@kernel.org>, <rodrigo.vivi@intel.com>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-amlogic@lists.infradead.org>,
-        <linux-rockchip@lists.infradead.org>, <amd-gfx@lists.freedesktop.org>,
-        <linux-arm-msm@vger.kernel.org>, <intel-gfx@lists.freedesktop.org>,
-        <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
-References: <20240926070653.1773597-1-vignesh.raman@collabora.com>
+Subject: Re: [PATCH RFC v4 0/9] tun: Introduce virtio-net hashing feature
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>,
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com
+References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
+ <CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
 Content-Language: en-US
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
-In-Reply-To: <20240926070653.1773597-1-vignesh.raman@collabora.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: pSkChFDu4ef4NamDTDMy0qtaNpRfUdmK
-X-Proofpoint-GUID: pSkChFDu4ef4NamDTDMy0qtaNpRfUdmK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 adultscore=0 impostorscore=0 malwarescore=0 mlxlogscore=999
- spamscore=0 mlxscore=0 priorityscore=1501 bulkscore=0 phishscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2409260160
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-
-
-On 9/26/2024 12:06 AM, Vignesh Raman wrote:
-> Update the documentation to require linking to a relevant GitLab
-> issue for each new flake entry instead of an email report. Added
-> specific GitLab issue URLs for i915, xe and other drivers.
+On 2024/09/25 12:30, Jason Wang wrote:
+> On Tue, Sep 24, 2024 at 5:01 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>
+>> virtio-net have two usage of hashes: one is RSS and another is hash
+>> reporting. Conventionally the hash calculation was done by the VMM.
+>> However, computing the hash after the queue was chosen defeats the
+>> purpose of RSS.
+>>
+>> Another approach is to use eBPF steering program. This approach has
+>> another downside: it cannot report the calculated hash due to the
+>> restrictive nature of eBPF.
+>>
+>> Introduce the code to compute hashes to the kernel in order to overcome
+>> thse challenges.
+>>
+>> An alternative solution is to extend the eBPF steering program so that it
+>> will be able to report to the userspace, but it is based on context
+>> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
+>> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
+>> and vhost_net).
+>>
 > 
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
-> ---
-> 
-> v2:
-> - Add gitlab issue link for msm driver.
-> 
-> ---
->   Documentation/gpu/automated_testing.rst | 16 +++++++++++-----
->   1 file changed, 11 insertions(+), 5 deletions(-)
-> 
-> diff --git a/Documentation/gpu/automated_testing.rst b/Documentation/gpu/automated_testing.rst
-> index 2d5a28866afe..f918fe56f2b0 100644
-> --- a/Documentation/gpu/automated_testing.rst
-> +++ b/Documentation/gpu/automated_testing.rst
-> @@ -67,20 +67,26 @@ Lists the tests that for a given driver on a specific hardware revision are
->   known to behave unreliably. These tests won't cause a job to fail regardless of
->   the result. They will still be run.
->   
-> -Each new flake entry must be associated with a link to the email reporting the
-> -bug to the author of the affected driver, the board name or Device Tree name of
-> -the board, the first kernel version affected, the IGT version used for tests,
-> -and an approximation of the failure rate.
-> +Each new flake entry must include a link to the relevant GitLab issue, the board
-> +name or Device Tree name, the first kernel version affected, the IGT version used
-> +for tests and an approximation of the failure rate.
->   
->   They should be provided under the following format::
->   
-> -  # Bug Report: $LORE_OR_PATCHWORK_URL
-> +  # Bug Report: $GITLAB_ISSUE
->     # Board Name: broken-board.dtb
->     # Linux Version: 6.6-rc1
->     # IGT Version: 1.28-gd2af13d9f
->     # Failure Rate: 100
->     flaky-test
->   
-> +The GitLab issue must include the logs and the pipeline link. Use the appropriate
-> +link below to create an issue.
-> +https://gitlab.freedesktop.org/drm/i915/kernel/-/issues for i915 driver
-> +https://gitlab.freedesktop.org/drm/xe/kernel/-/issues for xe driver
-> +https://gitlab.freedesktop.org/drm/msm/-/issues for msm driver
-> +https://gitlab.freedesktop.org/drm/misc/kernel/-/issues for other drivers
-> +
+> I wonder if we could clone the skb and reuse some to store the hash,
+> then the steering eBPF program can access these fields without
+> introducing full RSS in the kernel?
 
-Acked for MSM.
+I don't get how cloning the skb can solve the issue.
 
-Thanks
+We can certainly implement Toeplitz function in the kernel or even with 
+tc-bpf to store a hash value that can be used for eBPF steering program 
+and virtio hash reporting. However we don't have a means of storing a 
+hash type, which is specific to virtio hash reporting and lacks a 
+corresponding skb field.
 
-Abhinav
->   drivers/gpu/drm/ci/${DRIVER_NAME}-${HW_REVISION}-skips.txt
->   -----------------------------------------------------------
->   
+Regards,
+Akihiko Odaki
