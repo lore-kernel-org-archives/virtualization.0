@@ -1,161 +1,155 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC931684A8
-	for <virtualization@lists.linux.dev>; Fri, 27 Sep 2024 04:08:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B60D242A83
+	for <virtualization@lists.linux-foundation.org>; Fri, 27 Sep 2024 04:31:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727410140; cv=none; b=lkBvmpp3b575paNyDLmrJdUQfXd66eDLJf16Z5XGwJHM6tRx1CHwZNfj4X4shqHXR+3Y7ufHXzMAgG1zLKSlZhl0pTMK8IZSkR8y2ODTn6w1YfsMqFELBv/s9k82VuhahbaODxR1jFiXRIOXZakGLBy+hY5SSmnQVep+fWhnfmE=
+	t=1727411502; cv=none; b=D35nD9I4Jlb32Av9qwJ+pfFpn+7/cbATU1elJbSoQMVNPpF1zOqqyj09jR6hsG1ylaTI7Y+sF313MHmjHkXCDusjxsKTvdDl66SO3ozFd4i8sq2zuzNFDLhJtzGwbLXzRsZiq1Gv7vw61jFt+tLolZCAMI5xyFuD7dNqY3+pXVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727410140; c=relaxed/simple;
-	bh=Zg6LNszRJx5XwnL9b7gSKyZziRWcnHM9lvGCU85QC8I=;
+	s=arc-20240116; t=1727411502; c=relaxed/simple;
+	bh=uBFmWoNeX1W+Cqs2iNWdisHneux0lZanwha6u5m3aww=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KebiszSW2C7jqv3rmz/SR1z5jWNoOA+elPp94GLuOXmSdqsSHTDdbHWItPZzkceraGZhoLOq3pvkbsTOqKY61uADt1mjGGx8FXysJEoGjFetVIPzvQ90hJOUW7wq5X5t1wp5qZ2T6Au0ERmyyZ/XMaP/6l+veG4Abe0MEfyRcHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f388gdhz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=Q2exMJOx+c8FZiIAVfn9s0FeHc1pM6xB9u+W7N/abWAnEmW9GbxBsCcaNZIXaICLdhjmytzxT+0f+6ys7dbLVSOEXMzzjj7lcx6KWKIn3w2dtAIiXGJyb7LJWASwYEy0xJ690RMRux3P45zkkG6M0M6rGDM+ahKkVXETD3SGngo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eceOl/hf; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f388gdhz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eceOl/hf"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 56CB780A9C
+	for <virtualization@lists.linux-foundation.org>; Fri, 27 Sep 2024 04:31:41 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id MKiD_TzL8h9n for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 Sep 2024 04:31:40 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 9695780A8F
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9695780A8F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eceOl/hf
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9695780A8F
+	for <virtualization@lists.linux-foundation.org>; Fri, 27 Sep 2024 04:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727410137;
+	s=mimecast20190719; t=1727411498;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=uikubQm93pgeuA38Pb0WtPPWyXruZHs/Z/+sPbjQZxE=;
-	b=f388gdhzl3alffY+K4D3ocQFPhnWnrx18MFV/WApU5IM2rSZC3iAaXt7pD8+rC30XM+z9v
-	6voBfXOMyp2aLuN2NFNpXrwvqQmAghuDzebnW8t40Ys1QjFcQiVaDvSUflFWBgX1ZgEUEU
-	3Pbjhytl2zm4AaqIzJZX+BVwgNl8zvw=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=uBFmWoNeX1W+Cqs2iNWdisHneux0lZanwha6u5m3aww=;
+	b=eceOl/hfxFC6N2gsnjPjFnA+kySEiWcXXuwUtWECgY6uTtyDMCuq1uwxjOky+Q+vAUEJZ4
+	mzrcy7yB3wI2i/INsKMAHkpRvbCECDrVUU+ED0/9Ankc9FDub0Yoa4uGmtOiWCi4l5OiFd
+	LZjFw0ciCaHkd/Xf3km30dmIpRGjhrQ=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-518-hI82R1ryPTGhgPSJULYp-g-1; Fri, 27 Sep 2024 00:08:52 -0400
-X-MC-Unique: hI82R1ryPTGhgPSJULYp-g-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2e07a5f4d44so1919124a91.2
-        for <virtualization@lists.linux.dev>; Thu, 26 Sep 2024 21:08:52 -0700 (PDT)
+ us-mta-441-WUwx03DIPMS1L_Yh5GqRxg-1; Fri, 27 Sep 2024 00:31:36 -0400
+X-MC-Unique: WUwx03DIPMS1L_Yh5GqRxg-1
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-7d5a54dcaefso1455634a12.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 26 Sep 2024 21:31:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727410132; x=1728014932;
+        d=1e100.net; s=20230601; t=1727411495; x=1728016295;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=uikubQm93pgeuA38Pb0WtPPWyXruZHs/Z/+sPbjQZxE=;
-        b=dV+1QHS7uOBKXghicT5zxXW06OA8s9NtMJ9zhl8j/VMlRND5iEGmDn51BtvrE/38qk
-         HBP105jRT4ihpSutQsqEdwqldlkCiP9Snazhuox/ax6qIxpZpiRDR/KDaaQqN564iKOU
-         KRDOZBzrQcbKnvOS62w0Tk58vxxmN8EjKpgghxPaEPKLPNF3P/S3VtyghoQK/guRe1Vt
-         vwwlrvS4nSTre4q42cx0dY9Y1ne5hG9nL7Rxg7icqiM0ZS/qD3aMqFMWvJB+SXxi81Bu
-         85zRia4DSOh3GdkSeTVYq6nzOZG5oiY+ChaZd3L6TZ+c2TEnZhO04Y/lnV0kJzst0k80
-         uFFw==
-X-Forwarded-Encrypted: i=1; AJvYcCWRZAhf51+shllwpywdTBpXupPOJ+ezAfcOiB6kGRfxkk7NbByjNoKnf/4h/fPGUsDe9rwOFk7C/MYKE42/fw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw8sHrJ2TfR9HtY7OQbvjMbwUNjKTR5vBabLvs+wxnqmap0GQzb
-	NCZevldQMRt83MH9DWJN0Ejrtp+eDEpdkSwVqAyNODonDo0r4gspNqW9XdbzQUVYwjve9D1TYWH
-	Qqo41muhB8Vc4T+RfkU2qLAdEjoy+Vpg1YezP4kbxymy8rzgZdsbdzwZ6fZ8AW9Q4ITNSOFXUTn
-	hXvMVkhJJEqTGRYcDLvqbRtVOuLhyWYKtacziywm8=
-X-Received: by 2002:a17:90b:1282:b0:2d8:b205:2345 with SMTP id 98e67ed59e1d1-2e0b8c5664bmr2204678a91.23.1727410131763;
-        Thu, 26 Sep 2024 21:08:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH+8JQn190D7srk2QyvuVMaX71FzOF+V2fyLYR5DJhlgEFRRsQ9G8eppOyTOyspFlZ71QpWC6SOUbggYiTetgg=
-X-Received: by 2002:a17:90b:1282:b0:2d8:b205:2345 with SMTP id
- 98e67ed59e1d1-2e0b8c5664bmr2204660a91.23.1727410131365; Thu, 26 Sep 2024
- 21:08:51 -0700 (PDT)
+        bh=uBFmWoNeX1W+Cqs2iNWdisHneux0lZanwha6u5m3aww=;
+        b=EsWV9G2Zd3Zx79ODA7WvqTIbY1VgsGuOfhkjBLL3FXmXZIGinJgCOxIE6DqTeBg4TI
+         5jBUIjsuGLeMU+j/RBsxZfHvtzxo1CFSiaAUdFJ0OV5bf1Xiwnwx4VLLS0Qvdmk9uq/j
+         B2XGuZj7mWnqLhVDh/MbQFuMbkC3L9yTDiIkWbDRQ0MoKWCQGQgiSwUobKwMhL2vLfNM
+         LMpP8iaI8vgABYKfsJEWTSSXSGgTrtbRKT+lD1lO41+vnavEYAS5/03epoNQfjzfRJ0v
+         HiWK9cfG+Iqp9XH9ssZ0sJxz5YhcneF3O1TMz19biqBwxVia7wfKO1xoJsfnO/c33inR
+         0iwg==
+X-Forwarded-Encrypted: i=1; AJvYcCXPxxVgU7VWmBwB+cde2+dCjx+AIZXhEZ4d00hcQDeM8K3h7zLpE0lobDLaY8IAogmEqNAzq1I8rhy11MJ49w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxsdhByjp5gDyu6T9FsZdW/qJxpaLfBlVGua2ZaZx3LaelK3yKg
+	DHiGdHp/JFoVmbA8Y7IJafBdzmKRquu+rFXpfEBiQiFz1sZHJfVRabF22seaetCkKTkSD2gsw7t
+	IWg0RfeZPvv3c4EejLFFSrIdW8UmmCXd3lyYnZ/gbRoMyeGiqG/ArFdjOVOB6Juf5hi14V9FZCG
+	41FaA4cqTEZLYyHxhRQKk2AtCQiFQyHlPynryzvsOc7h7Fia3DLilyuw==
+X-Received: by 2002:a17:90b:234a:b0:2c2:df58:bb8c with SMTP id 98e67ed59e1d1-2e0b8b149dcmr2167107a91.18.1727411495486;
+        Thu, 26 Sep 2024 21:31:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGIh5lwZF9CJKh17SEpxaaZJy38bFfod3VEXz7y4ASCqLDiCeaKdZmiGJ67AwnOYjAbQZ+yUYlkT0W4m1tjn8U=
+X-Received: by 2002:a17:90b:234a:b0:2c2:df58:bb8c with SMTP id
+ 98e67ed59e1d1-2e0b8b149dcmr2167084a91.18.1727411494914; Thu, 26 Sep 2024
+ 21:31:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240926022557.8771-1-quic_jianguos@quicinc.com>
- <CACGkMEu-r2K1Xb-797YnK80-YeKEsErSe=BBP=xMbBvHcDv6qA@mail.gmail.com> <20240926020709-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240926020709-mutt-send-email-mst@kernel.org>
+References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com> <CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
+ <c3bc8d58-1f0e-4633-bb01-d646fcd03f54@daynix.com>
+In-Reply-To: <c3bc8d58-1f0e-4633-bb01-d646fcd03f54@daynix.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 27 Sep 2024 12:08:34 +0800
-Message-ID: <CACGkMEshXHRDtxeCJ2VOMh46NMJyYsEo_eFwa4_4TDTa0mA9XQ@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio: Add polling virtio-mmio device reset completion
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jianguo Sun <quic_jianguos@quicinc.com>, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, virtualization@lists.linux.dev, 
-	Sreenad Menon <quic_sreemeno@quicinc.com>, Anant Goel <quic_anantg@quicinc.com>
+Date: Fri, 27 Sep 2024 12:31:23 +0800
+Message-ID: <CACGkMEu3u=_=PWW-=XavJRduiHJuZwv11OrMZbnBNVn1fptRUw@mail.gmail.com>
+Subject: Re: [PATCH RFC v4 0/9] tun: Introduce virtio-net hashing feature
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
+	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 26, 2024 at 2:09=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On Fri, Sep 27, 2024 at 10:11=E2=80=AFAM Akihiko Odaki <akihiko.odaki@dayni=
+x.com> wrote:
 >
-> On Thu, Sep 26, 2024 at 11:21:25AM +0800, Jason Wang wrote:
-> > On Thu, Sep 26, 2024 at 10:27=E2=80=AFAM Jianguo Sun <quic_jianguos@qui=
-cinc.com> wrote:
-> > >
-> > > We write 0 to device_status to initiate reset of a virtio-mmio device=
-.
-> > > The reset operation itself may or may not be completed by the time
-> > > write instruction completes. Add polling device_status to return
-> > > 0 to ensure reset completion before reinitializing the device.
-> > >
-> > > Change-Id: If15d11d090dfd0d4972ad35f49af03e076872413
-> > > Signed-off-by: Jianguo Sun <quic_jianguos@quicinc.com>
-> > > Signed-off-by: Sreenad Menon <quic_sreemeno@quicinc.com>
-> > > Signed-off-by: Anant Goel <quic_anantg@quicinc.com>
-> > > ---
-> > >  drivers/virtio/virtio_mmio.c | 6 ++++++
-> > >  1 file changed, 6 insertions(+)
-> > >
-> > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmi=
-o.c
-> > > index 90e784e7b721..cf1a4a3dd35d 100644
-> > > --- a/drivers/virtio/virtio_mmio.c
-> > > +++ b/drivers/virtio/virtio_mmio.c
-> > > @@ -70,6 +70,7 @@
-> > >  #include <linux/virtio_config.h>
-> > >  #include <uapi/linux/virtio_mmio.h>
-> > >  #include <linux/virtio_ring.h>
-> > > +#include <linux/delay.h>
-> > >
-> > >
-> > >
-> > > @@ -269,6 +270,11 @@ static void vm_reset(struct virtio_device *vdev)
-> > >
-> > >         /* 0 status means a reset. */
-> > >         writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-> > > +       /* After writing 0 to device_status, the driver MUST wait for=
- a read of
-> > > +        * device_status to return 0 before reinitializing the device=
-.
-> > > +        */
+> On 2024/09/25 12:30, Jason Wang wrote:
+> > On Tue, Sep 24, 2024 at 5:01=E2=80=AFPM Akihiko Odaki <akihiko.odaki@da=
+ynix.com> wrote:
+> >>
+> >> virtio-net have two usage of hashes: one is RSS and another is hash
+> >> reporting. Conventionally the hash calculation was done by the VMM.
+> >> However, computing the hash after the queue was chosen defeats the
+> >> purpose of RSS.
+> >>
+> >> Another approach is to use eBPF steering program. This approach has
+> >> another downside: it cannot report the calculated hash due to the
+> >> restrictive nature of eBPF.
+> >>
+> >> Introduce the code to compute hashes to the kernel in order to overcom=
+e
+> >> thse challenges.
+> >>
+> >> An alternative solution is to extend the eBPF steering program so that=
+ it
+> >> will be able to report to the userspace, but it is based on context
+> >> rewrites, which is in feature freeze. We can adopt kfuncs, but they wi=
+ll
+> >> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
+> >> and vhost_net).
+> >>
 > >
-> > Is this copied from the spec? I can only see a similar description in
-> > the PCI but not MMIO part.
+> > I wonder if we could clone the skb and reuse some to store the hash,
+> > then the steering eBPF program can access these fields without
+> > introducing full RSS in the kernel?
 >
-> Not in spec. We can add something like this in spec, but it
-> can not be a MUST, has to be a SHOULD.
+> I don't get how cloning the skb can solve the issue.
 >
-> > > +       while (readl(vm_dev->base + VIRTIO_MMIO_STATUS))
-> > > +               msleep(1);
-> >
-> > Again, we probably need a feature bit to unbreak existing MMIO devices?
-> >
-> > THanks
->
-> We can do this unconditionally since legacy devices return 0
-> immediately,
+> We can certainly implement Toeplitz function in the kernel or even with
+> tc-bpf to store a hash value that can be used for eBPF steering program
+> and virtio hash reporting. However we don't have a means of storing a
+> hash type, which is specific to virtio hash reporting and lacks a
+> corresponding skb field.
 
-The problem is that we can't audit all legacy device implementations.
-Current driver still works if a device doesn't reset status to 0.
-
-> feature negotiation happens after reset, won't be useful
-> here.
-
-Right, as said in another thread, it could be mmio specific flag or version=
-.
+I may miss something but looking at sk_filter_is_valid_access(). It
+looks to me we can make use of skb->cb[0..4]?
 
 Thanks
 
 >
->
-> > >  }
-> > >
-> > >
-> > > --
-> > > 2.17.1
-> > >
+> Regards,
+> Akihiko Odaki
 >
 
