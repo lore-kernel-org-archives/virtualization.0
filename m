@@ -1,485 +1,260 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 027CFB67E
-	for <virtualization@lists.linux-foundation.org>; Sat, 28 Sep 2024 00:22:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727482936; cv=fail; b=HuNiBQTtyDDk/ThJ8CMOnrB8TSAZiM/kNueYAygXs3L3POBpMkpA2Ap0Dk534b2+R1WJKbKIh10sra5KOMQoR7S6yrQQetjnoaM1MohAnde5sXglexy9Ygak923pULDFPq0y2eB/nqVhaDhyqO9ddsrbINzr4M9w9bqCTxfTcCc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727482936; c=relaxed/simple;
-	bh=jobuLubC3FxxyeVqMGKac1dj0p/hdXTKgY1ZwtTsvio=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=W3nfSiZZEAQ7QdgatSUTdOjx2KX81ooTk/b3noGje5+RTlDfMZe5KknKlunL3x3iVoWtopgXtTOP69Xv19k/Zkpk8q7NGCG2K2LxMelur8iRp5WWCcK9owmpivWUwWntPqfJYZth/c9jvZAAoZ9pXeDlSRGrj9JNNzpXE/w79zg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=AnVwogrh; arc=fail smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="AnVwogrh"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8CEE081F84
-	for <virtualization@lists.linux-foundation.org>; Sat, 28 Sep 2024 00:22:14 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 1fqkIB5ogFek for <virtualization@lists.linux-foundation.org>;
- Sat, 28 Sep 2024 00:22:13 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2408::61c; helo=nam04-bn8-obe.outbound.protection.outlook.com; envelope-from=mgurtovoy@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 85D5D81F81
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85D5D81F81
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=AnVwogrh
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2061c.outbound.protection.outlook.com [IPv6:2a01:111:f403:2408::61c])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 85D5D81F81
-	for <virtualization@lists.linux-foundation.org>; Sat, 28 Sep 2024 00:22:12 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=cfQptWmFLIQ5Z/EWRxs/eylJTh7pyEdumazmlxtNpZTMf+OgZ64Hs+/HnEJ5R0PzKaF0u3UDE9RbVfsxQYKIWv6i04xcaw7yCTUY/Tq0XY06NtT8KnyKi3S2u9C/9EQMoxl15wrsOuWrdwoqImf5UZoCXWxLN0ysrOQjjRA6UxS3SSoYh5KF8U1uNarqoOzXrntiUI7APisjwD737cYK9E+r3FgN36jXEyS1bdJSgoi3f06SX1E1cxlB5bPIjgJox+mL9mx4zOD9zcgI71g6jGfHFNHRA5hTy6iTq7DDuL8f8XRUpXRR0/S8FlIOeioLTO7cwKG33q7slnFeT8NbNg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5LkQ8xMcS2v1lFwEu2nrPavW9Jk5bZJ7FO3g9fSvyoQ=;
- b=wXCGqsZthXI+7MpksUgcBuFzaqAomwcpFs/7ktlzOUk75EtNeyCtZ998rxolv+kcVZF+7fnWBbvSBmZygxJJt3a2M9zkhWNZFph6cPTEWA785nGQf1M9CiI271a0O27FR2gKlWi3hubcLbeKpQSb0zqEXRv+JgBuCAHT+UffmlF728PPzBf0yyc6jrJ1J7oTYVB9pX9PQI98WJoOQ8mkhrLJbGX5V8ms0PAtZxaZCfPoxzeXOR6RsLbKbNkofNEIEHKwR+zPEWFAUGmfmOcZmsrDZJgbEOVt8rVgMkgIhm+KbhXcnuaIzSGApzJhRZiWv8GI3fx4Uvyx3h3/uOCaZg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5LkQ8xMcS2v1lFwEu2nrPavW9Jk5bZJ7FO3g9fSvyoQ=;
- b=AnVwogrhJ6b8lBbOXNcYz+r/8lpkmOjmdCZNxQOmZw9I94fmePgABoEEpLsjlZSP9JRKqj0bxSqAFtOrT/PSVvZrDbg3jUO4wKbUk9FD8KRwfbVYqSrQUL6wm0qUsGyuUmm8G0Tg8zIkeItWljo2koEw+VfBrS5P/CBpC4FhnA5fBsZbfltMYVoXgwlUY775vIlypIR/mfqv4elVnPmrJ1++j/z8tmtNwoLuEhQlMcuTGaWw1r8DQYbDNdq5x4ZawBy6sPPCOrE9dEMbzZvn3tjFB52JCTqV5HSu2HskrcgRQUhP/TuIosJq/b7kAaquZtWDNRExPMEQWTs3QSi9Qw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com (2603:10b6:930:21::10)
- by DS0PR12MB7511.namprd12.prod.outlook.com (2603:10b6:8:139::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8005.22; Sat, 28 Sep
- 2024 00:22:07 +0000
-Received: from CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6]) by CY5PR12MB6369.namprd12.prod.outlook.com
- ([fe80::d4c1:1fcc:3bff:eea6%4]) with mapi id 15.20.7982.022; Sat, 28 Sep 2024
- 00:22:07 +0000
-Message-ID: <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com>
-Date: Sat, 28 Sep 2024 03:22:01 +0300
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
-To: Daniel Verkamp <dverkamp@chromium.org>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org,
- stefanha@redhat.com, virtio-dev@lists.linux.dev, oren@nvidia.com,
- parav@nvidia.com
-References: <20240925145228.27953-1-mgurtovoy@nvidia.com>
- <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
- <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com>
- <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
-Content-Language: en-US
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
-In-Reply-To: <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR0P281CA0266.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:b5::11) To CY5PR12MB6369.namprd12.prod.outlook.com
- (2603:10b6:930:21::10)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C4218873E
+	for <virtualization@lists.linux.dev>; Sat, 28 Sep 2024 14:29:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.71
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1727533764; cv=none; b=EZImUXRvWyj4ZmRtQyK9fqTbIOThbecG+xjF4XphN/yShyQHljTAMUhx3vtg7kh8wADJTR0W9T5mobKNdmgNx1bnRZF0NBIUu5B8CdHtlEcRa2Xsavjwk4bjbyQ100chrOBREOBHIRkUQuLrcVet5MoBKPpFOhdSvp39S7UVFvw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1727533764; c=relaxed/simple;
+	bh=5oNni+mSe09JH+bhmTUK3fHR/drg7MAOmsvZqHYuigo=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=srNr7yjz4rBSEd5gKal0eF5beH6TCRrbMooOY34SOMEBhB1ohY9L6NBvPv+q2wiu6xEmPSVimYqHKNtnepjM/S5FP1ZcMRVJRKePe1KYfFrQEnzXWbhllJw+WNz4FdChaIhURQgxPx7OLL4jxyJnnFHvR03+Yrq55Onw+Syxv+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-832160abde4so353900239f.1
+        for <virtualization@lists.linux.dev>; Sat, 28 Sep 2024 07:29:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727533762; x=1728138562;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=BFZDIR1zH6xFqrLzHnV+4Ciyx/3Hq6RWaFFedJF75GI=;
+        b=dxWwo5agALmvzDXeGJidv/N1qavTTUmm4Kye7PyDkKNvqDLU6z6yrP/t/j3VZahVJs
+         Jtzq+sK2zaAXK+eyavE4bV6LcOnM4M9udir+VoLcgtwC5O8JKhMp7o9hmaHQkbjkWVUT
+         wIjDQ7C1froN6L6cwExXFZt2FXeQAJwcuGhCYzrfL4tBkUKRu26vvX890fr68DUg33SS
+         Gcql+y902hjtBLGP6T7tunoeLohTb1e13f2qO3eT5lVqFNpWhU52BQhyv9nNut/pIedh
+         KaHDqwOSX0/C8unlPexPTBklp5LrtqOASGWXH0xcrO7TOUnJ0foP5yRbeL+Vrq7QxyNv
+         Ayfg==
+X-Forwarded-Encrypted: i=1; AJvYcCWssicIZLVFOjQi+S1DuwYOLIJK1njhxV2BSoIDd8891MA+0suYZZ25yjLHl2wRt4HCFJQXofVsvrXuG+kSRA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzY29ncovnvLLv2gvN5ssajBSwbWG+TAROEDrEG3yiPTU5rOMTp
+	ZsJ5aalyETS3gSwBx7gN+i07gfnOcXQ3nSjIRLnWLtViE0CZhTFRfUKIUz3OlO9Xw+YiTbBXt2P
+	5QkRQQrNWrtR9Pw+2+tHQpxFSQ9DCmffs3LfXLC4nTO4Uk4NRS7rx+zE=
+X-Google-Smtp-Source: AGHT+IHeFhhor4Gsk/fLVtp3IsnfVdVABoPmkMFfd9AL0mZgmpptM3JokBsur/3x+x9KJErwZ7Lq5sZ2qBIcpK6USeQVw3oJSfwR
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6369:EE_|DS0PR12MB7511:EE_
-X-MS-Office365-Filtering-Correlation-Id: 34f66a69-5b27-4567-74c2-08dcdf5395f2
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?eHU5WTNhdXRpMDNDUmVHV1VSbUthRVBkRUdTUzBDNHZYMUthMEt3em5WUW95?=
- =?utf-8?B?RmJUbVkycHgyWjBPVWI1eVR3UVQ0VURqVjkwN2o5bzBORWVVckpFQ1lPcTJM?=
- =?utf-8?B?cVJUWTZxMVp6SEFBZ253OGNwajBXVXhMNjVQa1p4cVFzMDZldlNvVzdyZ2tQ?=
- =?utf-8?B?d3RGQkl6b2JRVVI0SzFpWWFtdVhDV0VvYkpYbXRoMm51SFF5Nlp2RXJLL0Q1?=
- =?utf-8?B?UWpUTWVRWnplSG42NWErWVNDdXpjWi9JcEd0a1B6bVlxVkZGSG1nTXZ4aWlm?=
- =?utf-8?B?T2FJbThUSDZ2MkF3NWs5c083TkFEei8xY3ZqcXl2eE9jV1J2M2xtYUdud1Qv?=
- =?utf-8?B?MUVhcWh2QmZkRHhzZ3NTNG1jMmRyV0tzTmt6dXBGSTM3dDZCZlF1THBWeDdh?=
- =?utf-8?B?dEFZaytlWldZMldQR081eE04ZFlFemZjdTV3WDErRWdMUXZwdUU4QjVpVG0r?=
- =?utf-8?B?Z3BkRStJOG5ad09Oa2ZHRW1BdDc4WjdQWVdqaXQvRENueTQyMHB0NmxMekM2?=
- =?utf-8?B?WTdpajQ0azB2dGV6dktRZUo4eG9lWnhDdDlTa29JRllxSXN0V2cybXJiT3Ro?=
- =?utf-8?B?MjF4MWRMZnI3QVJVdXRxR2ZsNGk5eHZyTlNiaHBGeW9DVUJiNVpPa2VxeWpk?=
- =?utf-8?B?WEhaUStzbnljYXAzcit5RWcwNENMcjJqdjBPN2VGWG55ZVVmSzRmbWRVZ3dx?=
- =?utf-8?B?MmRqQlNDYmo3WVloRzQrSFB5Zk9tWVZQRUgvd3lOZVJ0RkErRUFNQnVoS3l4?=
- =?utf-8?B?clB4ZVlKUTdhNFZoZUtGM0dsMDVDdnVYVWFTWEFsMllRcFpBaHNBSjNtMzNS?=
- =?utf-8?B?bExRWFovTWxVTUpxdWxHRVlERFdBa1FHd1dYNVArL1Bqdlp6OUIvdTN6amxo?=
- =?utf-8?B?VjZGM0F1QjQxRFovcWZMTy9QVTUzTVNsa2s3MjBrNmUxcjM0Ny8yU21peFJy?=
- =?utf-8?B?L2YvOFJ2bmFDOHdQYUlKcnlkZDNoeW5JLzUwdDI2aGJMaVpyY3FtU1dPenJs?=
- =?utf-8?B?UDVuWU5mVnRQWVpBVW9wdmVmeXdNL2NUa3FqS3E1N0ZzL0E0MlBSUEthZllz?=
- =?utf-8?B?Z090TGRiSzh0eW9wTzR4Z0ZQV3R1Q3FYcTF3NGVEZ1lmVmNvUHYxT0J4NXVz?=
- =?utf-8?B?NS9yRWE3WklRVnkzc0wydTJJMEgvL0JjZmVLTmJYcWNoSnFrYzh5N011WUw2?=
- =?utf-8?B?YUswQVA0ZTNVMnB4cUVKZlIyZHQvb0ZjZGhXZ0pBVXR6WlpWZ0lUYWh4ZTBv?=
- =?utf-8?B?d0NrZDFKTjRRWm4wRVR3UzMrZThYeXNzZDRGNTk3UkpYUmNRODZKbEJlak9J?=
- =?utf-8?B?bnpuUnlZZ3VDd25BekZqS2RhLytYckt6cnNzdGJaRGlmKzVVR2d4R2pnWmpU?=
- =?utf-8?B?MUdETTM3clY2MGFmc3YzdHBteVlxbTFqNjBWOTZmL1dKZnEvODZVNW9qV1pu?=
- =?utf-8?B?WW1YM0lDZjFRRmlxWXNRVzhiU2Y1SDNvUWgxZSt4LzZWVVU3TGc5a0xlZHpL?=
- =?utf-8?B?b3FuTzlET0c3Y0dtK29sc1Z1SkxuN2NIU0VZVHVwa0IzNjRUOXA2T0FWMDNh?=
- =?utf-8?B?Z0VNbjYrTlk3bGo5bm9SaTIwVzQvczNMbzVQZDJqWGthYkxrYk5UdnFhRzZs?=
- =?utf-8?B?ZE5USS9UTHM3aWUzallmL25UYm1XY2VnTnVpZ2FIK3RhWFF1OUVheDVZVWNn?=
- =?utf-8?B?aWM0aS8xdFZpOXc4Z1VIZG9EL0toNjVYdVNyV0dXRjFCNmxDWFloUERGUEdv?=
- =?utf-8?B?OFFkNTdWRnpuc3VyVzVGWWZWa1B2dCtFd21hdnRyRFVsdDA1RTF2VEFud1JW?=
- =?utf-8?B?UmEwY3QvZHJSVm9PK0ZwUT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR12MB6369.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?THhuT0w1N1pJeWErenlRM2NyUG1jbnJYMEQ0am9Ba0hQd0RGd21vNXNEM3lj?=
- =?utf-8?B?THNSUmhXSGJkUFdXRXU5VHA4REZ1M1NyYmRiREdpbmJ2WXJXaDZGNnpqUXBt?=
- =?utf-8?B?U1VTZ24zUXNhUDVsN2w3YXVzQWVpeGVqd2FvWUxBb1lFQW1DSC9SRkhjWjNo?=
- =?utf-8?B?by9WNWtEa0M2bW1rZy9MdzAxelFnS1FuMXFyWE5QaDBzSHFQNDBROFg1WW96?=
- =?utf-8?B?NzNiZFJDVGZSeWZHTmZ3S0pQSlFHbXp2Vk4vNmlTbGN3bnVvS0lweE40Kysy?=
- =?utf-8?B?RnhTOWVDVVBSci94Z29UZnprTVFaWGluRVUzamZQVGcvWmtYQkFwRVRiME1N?=
- =?utf-8?B?ak0yUjhKUlBEdG1mcXE3NktodUd5bGlRS0k5S2k5ZXNySFF3Snl5Q2tManBV?=
- =?utf-8?B?ZkZIQzJHZ3d3ZFNuOWVKOTdqRnpxcnUzYjc5Z3E0dHBwd0lZeG0wU1pMTXpw?=
- =?utf-8?B?ZFFTaHdoc1JpMmdWZ2lPRmN5N25qc2pzZnJ5QUYxeUZRNlpSK3FjMTlvaFlN?=
- =?utf-8?B?dng5NlFqR3RXZDRMdWZKN094cGRjS0lTWGxoZ1RqOHBlcTl5TU9iK0o1ZEda?=
- =?utf-8?B?SUloejZjeGJxNXh2c1RWWVlrKzRpb250M2JTVnZJeEVDMUVIV2NoMlZ3V3V3?=
- =?utf-8?B?WmFhMVdlR2JJYkN2RzB5R3NzRUFCdFArOSt1TXh3R3drSWFqcVAwR1IwVnN3?=
- =?utf-8?B?Ny9BK1d4K254RXNOcWo1TWcwM0pUODJGdGRobTFEbTNLT2RvOHJldzRVRldY?=
- =?utf-8?B?RUNoSlltWjgxa1E2LzJxaS9FQytFTTJmSXhpVTFHWi82U1A2OGlQbGJTczBY?=
- =?utf-8?B?bGljSkl5SVh1M3UrMmdydGx6Rkl3cGZKYVZaNG1DMlVYN3RkcU5JVjZPKzdB?=
- =?utf-8?B?L2YvNGw3ZTBVVU1BZWt3WWJ3ck41L1Z3WlB4VDEwdFd2bGxQV1NyWmNVOVVx?=
- =?utf-8?B?K052QW93c3BUMXMrUFAzVFU0T001em05Y2JHQ25WMi9WSTNTT3dPVlZNYmdh?=
- =?utf-8?B?OUNBUVBmeWRkWkdTN21BRkYwZmtYMlZ0ZExmZUZrU2ptQjd5OXJZa24wNXBt?=
- =?utf-8?B?TXhXRVFvclZpWElOVU9GZnluLytWYjZVWGd4MVdGU3dsODl3OUsxMVI1a09r?=
- =?utf-8?B?TjdpNEl5NmpqdDVJMzV2OTV5NkluVmprK3RYKzd5c3l6ZEY5WktJem95OFhp?=
- =?utf-8?B?eXlCaEYvYWRpbE1rNXVWQ1crTThOazVCbUJ0NmJzQ0lCQVRaU05JL3RoUlBt?=
- =?utf-8?B?aTNZMGtMUlNkajh6ZDFDZktySjM3V1NiUEFUdGpCb3Z2cTlsQmFaSVZvd0pE?=
- =?utf-8?B?YUNjZnN5S1lRRVZhV1N3SXptNkFqdHFVSk5XWE1Femwra2p6WUhDeXVHcGJm?=
- =?utf-8?B?bXp0QmhCdWhEZ2Vud3pZaXlGUkNmL3UxZHE3b3NZWENiT3dHK0N0V0NFRU1k?=
- =?utf-8?B?cVl4WFIwVHdTK2M0YTdaVEJ3dW85ZW9SQzZ1NkQwTzRKT2ptSGw5dThTck9i?=
- =?utf-8?B?dWJXanRmVWt2Y1RNM05tSFRldUVIQXVGTHA2UnZlRndCRVZhNEtpZkttdmwy?=
- =?utf-8?B?ODY4UjkveGxPVURkTmcxY0tCWUFyV01ZWWQ3dWd4SVNHRytXTzhOTlE4aC9o?=
- =?utf-8?B?TS9jOWRoVXZMUjRqQU41VGtxNlBOcjFQeFVIT2NYajF0VXkxTnZLSmdlUlNK?=
- =?utf-8?B?TU1XZWVwYkFwMjV5SGFIbnlFN2ZRL3l3MzJQSDVRZjhmdUNoVkhWQmhYTVYx?=
- =?utf-8?B?eHZMdjRQTUlpM3RydysxZ1NXT3N1WW94d0NNaENDWlYwNU5Mam5KZjNwWlZS?=
- =?utf-8?B?eExiQ3V0c2JGVlNzNHF5Z29vNjVEZTZDT3o4a1JlSzZlU2toV1R3YzNac05m?=
- =?utf-8?B?RHoxZnNkTkdhMms4N2R3M3cxYkhzazJIdzluMnZFOEo1L3NSalVyMEZncXFv?=
- =?utf-8?B?QWFmVm8veGhXSmlLRGJCanptZmlPWEJsK2ljMnF2ZCtCN2lZV0h4MGFvMjd2?=
- =?utf-8?B?YlphamVjRjBpMTR3bnU4UWwxMFRRSUFRZXJXc0xQWlFUYk9ULy9xMHp5UWNY?=
- =?utf-8?B?cko2UCtYZG9JZWwybU1lSWlETm1XNnZ6bHU3cDNkRlN4blNsVEJFVnIyY0Nz?=
- =?utf-8?Q?SgIjGgowA8tgn/7Zb67fqti8O?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 34f66a69-5b27-4567-74c2-08dcdf5395f2
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6369.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Sep 2024 00:22:07.3614
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 13AveE8wrk2JVuYKjHI3r347Xs+rLkUAKqHP9SSd+PoQXqOJQUBYQylYolqruIyXlgCD0uomnog8tm2wZJ4o/A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7511
+X-Received: by 2002:a05:6e02:1945:b0:39f:507a:6170 with SMTP id
+ e9e14a558f8ab-3a344638a4amr51949385ab.8.1727533761888; Sat, 28 Sep 2024
+ 07:29:21 -0700 (PDT)
+Date: Sat, 28 Sep 2024 07:29:21 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <66f812c1.050a0220.4a974.0009.GAE@google.com>
+Subject: [syzbot] [net?] [virt?] BUG: unable to handle kernel paging request
+ in clear_page_erms (6)
+From: syzbot <syzbot+0a31340d42a1d572f904@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	jasowang@redhat.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+syzbot found the following issue on:
+
+HEAD commit:    abf2050f51fd Merge tag 'media/v6.12-1' of git://git.kernel..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=15a03107980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=2a8c36c5e2b56016
+dashboard link: https://syzkaller.appspot.com/bug?extid=0a31340d42a1d572f904
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/9800778169d6/disk-abf2050f.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/32a789de3883/vmlinux-abf2050f.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/24e5e7200094/bzImage-abf2050f.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+0a31340d42a1d572f904@syzkaller.appspotmail.com
+
+BUG: unable to handle page fault for address: ffff8880603bc000
+#PF: supervisor write access in kernel mode
+#PF: error_code(0x0002) - not-present page
+PGD 1a801067 P4D 1a801067 PUD 6c591063 PMD 30259063 PTE 800fffff9fc43060
+Oops: Oops: 0002 [#1] PREEMPT SMP KASAN PTI
+CPU: 0 UID: 0 PID: 14210 Comm: syz.2.2649 Not tainted 6.11.0-syzkaller-09959-gabf2050f51fd #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/06/2024
+RIP: 0010:clear_page_erms+0xb/0x20 arch/x86/lib/clear_page_64.S:50
+Code: 48 8d 7f 40 75 d9 90 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa b9 00 10 00 00 31 c0 <f3> aa c3 cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 90
+RSP: 0018:ffffc90000007310 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000001000
+RDX: ffff8880603bc000 RSI: 0000000000000001 RDI: ffff8880603bc000
+RBP: dffffc0000000000 R08: ffffea000180ef37 R09: 0000000000000000
+R10: ffffed100c077800 R11: fffff94000301de7 R12: 0000000000000001
+R13: 0000000000000001 R14: ffffea000180ef00 R15: 0000000000000000
+FS:  00007fa3b27206c0(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffff8880603bc000 CR3: 000000003ec82000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ clear_page arch/x86/include/asm/page_64.h:54 [inline]
+ clear_highpage_kasan_tagged include/linux/highmem.h:248 [inline]
+ kernel_init_pages mm/page_alloc.c:1036 [inline]
+ post_alloc_hook+0xf8/0x230 mm/page_alloc.c:1535
+ prep_new_page mm/page_alloc.c:1545 [inline]
+ get_page_from_freelist+0x3039/0x3180 mm/page_alloc.c:3457
+ __alloc_pages_noprof+0x256/0x6c0 mm/page_alloc.c:4733
+ page_frag_alloc_1k net/core/skbuff.c:249 [inline]
+ napi_alloc_skb+0x641/0xa00 net/core/skbuff.c:847
+ page_to_skb+0x276/0x9b0 drivers/net/virtio_net.c:800
+ receive_mergeable drivers/net/virtio_net.c:2253 [inline]
+ receive_buf+0x3bc/0x17b0 drivers/net/virtio_net.c:2391
+ virtnet_receive_packets drivers/net/virtio_net.c:2698 [inline]
+ virtnet_receive drivers/net/virtio_net.c:2722 [inline]
+ virtnet_poll+0x26b2/0x3980 drivers/net/virtio_net.c:2817
+ __napi_poll+0xcb/0x490 net/core/dev.c:6771
+ napi_poll net/core/dev.c:6840 [inline]
+ net_rx_action+0x89b/0x1240 net/core/dev.c:6962
+ handle_softirqs+0x2c5/0x980 kernel/softirq.c:554
+ __do_softirq kernel/softirq.c:588 [inline]
+ invoke_softirq kernel/softirq.c:428 [inline]
+ __irq_exit_rcu+0xf4/0x1c0 kernel/softirq.c:637
+ irq_exit_rcu+0x9/0x30 kernel/softirq.c:649
+ common_interrupt+0xb9/0xd0 arch/x86/kernel/irq.c:278
+ </IRQ>
+ <TASK>
+ asm_common_interrupt+0x26/0x40 arch/x86/include/asm/idtentry.h:693
+RIP: 0010:finish_task_switch+0x1ea/0x870 kernel/sched/core.c:5189
+Code: c9 50 e8 79 fa 0b 00 48 83 c4 08 4c 89 f7 e8 4d 39 00 00 e9 de 04 00 00 4c 89 f7 e8 e0 70 60 0a e8 db 58 38 00 fb 48 8b 5d c0 <48> 8d bb f8 15 00 00 48 89 f8 48 c1 e8 03 49 be 00 00 00 00 00 fc
+RSP: 0018:ffffc9000caa7228 EFLAGS: 00000282
+RAX: 0b99d481b6833300 RBX: ffff888050f50000 RCX: ffffffff817088da
+RDX: dffffc0000000000 RSI: ffffffff8c0aca40 RDI: ffffffff8c601bc0
+RBP: ffffc9000caa7270 R08: ffffffff9422a907 R09: 1ffffffff2845520
+R10: dffffc0000000000 R11: fffffbfff2845521 R12: 1ffff110170c7f0c
+R13: dffffc0000000000 R14: ffff8880b863ea40 R15: ffff8880b863f860
+ context_switch kernel/sched/core.c:5318 [inline]
+ __schedule+0x184b/0x4ae0 kernel/sched/core.c:6674
+ preempt_schedule_common+0x84/0xd0 kernel/sched/core.c:6853
+ preempt_schedule+0xe1/0xf0 kernel/sched/core.c:6877
+ preempt_schedule_thunk+0x1a/0x30 arch/x86/entry/thunk.S:12
+ free_unref_page+0x6b5/0xf00 mm/page_alloc.c:2662
+ __folio_put+0x2c7/0x440 mm/swap.c:126
+ secretmem_fault+0x1f9/0x430 mm/secretmem.c:87
+ __do_fault+0x135/0x460 mm/memory.c:4876
+ do_shared_fault mm/memory.c:5346 [inline]
+ do_fault mm/memory.c:5420 [inline]
+ do_pte_missing mm/memory.c:3965 [inline]
+ handle_pte_fault+0x1105/0x6800 mm/memory.c:5751
+ __handle_mm_fault mm/memory.c:5894 [inline]
+ handle_mm_fault+0x1053/0x1ad0 mm/memory.c:6062
+ do_user_addr_fault arch/x86/mm/fault.c:1389 [inline]
+ handle_page_fault arch/x86/mm/fault.c:1481 [inline]
+ exc_page_fault+0x2b9/0x8c0 arch/x86/mm/fault.c:1539
+ asm_exc_page_fault+0x26/0x30 arch/x86/include/asm/idtentry.h:623
+RIP: 0010:rep_movs_alternative+0x33/0x70 arch/x86/lib/copy_user_64.S:58
+Code: 40 83 f9 08 73 21 85 c9 74 0f 8a 06 88 07 48 ff c7 48 ff c6 48 ff c9 75 f1 c3 cc cc cc cc 66 0f 1f 84 00 00 00 00 00 48 8b 06 <48> 89 07 48 83 c6 08 48 83 c7 08 83 e9 08 74 df 83 f9 08 73 e8 eb
+RSP: 0018:ffffc9000caa7df0 EFLAGS: 00050246
+RAX: 0000000600000005 RBX: 0000000020000088 RCX: 0000000000000008
+RDX: 0000000000000000 RSI: ffffc9000caa7e80 RDI: 0000000020000080
+RBP: ffffc9000caa7ef0 R08: ffffc9000caa7e87 R09: 1ffff92001954fd0
+R10: dffffc0000000000 R11: fffff52001954fd1 R12: 0000000000000008
+R13: ffffc9000caa7e80 R14: 0000000020000080 R15: ffffc9000caa7e80
+ copy_user_generic arch/x86/include/asm/uaccess_64.h:121 [inline]
+ raw_copy_to_user arch/x86/include/asm/uaccess_64.h:142 [inline]
+ _inline_copy_to_user include/linux/uaccess.h:188 [inline]
+ _copy_to_user+0x86/0xb0 lib/usercopy.c:26
+ copy_to_user include/linux/uaccess.h:216 [inline]
+ do_pipe2+0x109/0x310 fs/pipe.c:1026
+ __do_sys_pipe fs/pipe.c:1047 [inline]
+ __se_sys_pipe fs/pipe.c:1045 [inline]
+ __x64_sys_pipe+0x3a/0x50 fs/pipe.c:1045
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fa3b197def9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fa3b2720038 EFLAGS: 00000246 ORIG_RAX: 0000000000000016
+RAX: ffffffffffffffda RBX: 00007fa3b1b36058 RCX: 00007fa3b197def9
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000080
+RBP: 00007fa3b19f0b76 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000000000 R14: 00007fa3b1b36058 R15: 00007ffd07c8ed88
+ </TASK>
+Modules linked in:
+CR2: ffff8880603bc000
+---[ end trace 0000000000000000 ]---
+RIP: 0010:clear_page_erms+0xb/0x20 arch/x86/lib/clear_page_64.S:50
+Code: 48 8d 7f 40 75 d9 90 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa b9 00 10 00 00 31 c0 <f3> aa c3 cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 90
+RSP: 0018:ffffc90000007310 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000001000
+RDX: ffff8880603bc000 RSI: 0000000000000001 RDI: ffff8880603bc000
+RBP: dffffc0000000000 R08: ffffea000180ef37 R09: 0000000000000000
+R10: ffffed100c077800 R11: fffff94000301de7 R12: 0000000000000001
+R13: 0000000000000001 R14: ffffea000180ef00 R15: 0000000000000000
+FS:  00007fa3b27206c0(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffff8880603bc000 CR3: 000000003ec82000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+----------------
+Code disassembly (best guess):
+   0:	48 8d 7f 40          	lea    0x40(%rdi),%rdi
+   4:	75 d9                	jne    0xffffffdf
+   6:	90                   	nop
+   7:	c3                   	ret
+   8:	cc                   	int3
+   9:	cc                   	int3
+   a:	cc                   	int3
+   b:	cc                   	int3
+   c:	0f 1f 00             	nopl   (%rax)
+   f:	90                   	nop
+  10:	90                   	nop
+  11:	90                   	nop
+  12:	90                   	nop
+  13:	90                   	nop
+  14:	90                   	nop
+  15:	90                   	nop
+  16:	90                   	nop
+  17:	90                   	nop
+  18:	90                   	nop
+  19:	90                   	nop
+  1a:	90                   	nop
+  1b:	90                   	nop
+  1c:	90                   	nop
+  1d:	90                   	nop
+  1e:	90                   	nop
+  1f:	f3 0f 1e fa          	endbr64
+  23:	b9 00 10 00 00       	mov    $0x1000,%ecx
+  28:	31 c0                	xor    %eax,%eax
+* 2a:	f3 aa                	rep stos %al,%es:(%rdi) <-- trapping instruction
+  2c:	c3                   	ret
+  2d:	cc                   	int3
+  2e:	cc                   	int3
+  2f:	cc                   	int3
+  30:	cc                   	int3
+  31:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  38:	00 00 00
+  3b:	0f 1f 40 00          	nopl   0x0(%rax)
+  3f:	90                   	nop
 
 
-On 27/09/2024 0:44, Daniel Verkamp wrote:
-> On Wed, Sep 25, 2024 at 4:42 PM Max Gurtovoy <mgurtovoy@nvidia.com> wrote:
->> Hi Daniel,
->>
->> On 25/09/2024 23:57, Daniel Verkamp wrote:
->>> On Wed, Sep 25, 2024 at 8:05 AM Max Gurtovoy <mgurtovoy@nvidia.com> wrote:
->>>
->>> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is
->>> set.
->>>
->>> The blk_size field represents the smallest addressable unit of data that
->>> can be read from or written to the device. It is always a power of two
->>> and typically ranges from 512 bytes to larger values such as 4 KB.
->>>
->>> I agree that this is what the blk_size field probably *should* have
->>> meant (matching other storage protocols like ATA, SCSI, NVMe, ...),
->>> but I believe rewriting the spec like this changes the meaning of the
->>> blk_size field in an incompatible way.
->> I believe that this is more of a clarification than a re-write.
->>
->>> Previously, blk_size was described as the "optimal" sector size, so it
->>> seems clear that the driver is still allowed to send requests that are
->>> not aligned to blk_size ("awareness of the correct value can affect
->>> performance" but no mention of correctness). A device may need to do
->>> extra work to support this, of course, such as turning an unaligned
->>> write into a read-modify-write sequence if the underlying storage
->>> device doesn't support such an access directly, but such requests are
->>> still valid. It's also perfectly fine for a driver to ignore
->>> device-offered features like VIRTIO_BLK_F_BLK_SIZE and still operate
->>> correctly.
->> A device should report its block size (logical) using the VIRTIO_BLK_F_BLK_SIZE feature. For legacy devices that don't report this feature, Linux assumes a 512-byte block size.
-> Sure, I agree with both points here.
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-Great.
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-So I guess we agree that blk_size == logical_block_size.
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
->
->> Drivers should not ignore this feature when it's offered by the device. It's crucial for correct operation IMO.
-> This is a "should", not a "must", though - adding a new MUST is a
-> breaking change.
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
 
-I can change it to 'SHOULD', but this modification has implications:
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
 
-1. drivers that ignore the VIRTIO_BLK_F_BLK_SIZE feature will make 
-assumptions about the logical block size.
-
-2. Incorrect assumptions could lead to undefined behavior.
-
-I'm ok with 'SHOULD',  since it's a strong recommendation for drivers to 
-negotiate and respect this feature when available.
-
-I'm not really familiar with drivers that ignore this feature so I won't 
-argue here.
-
->> The statement "driver is still allowed to send requests that are not aligned to blk_size" needs explicit clarification in the spec.
-> It definitely would be better to have it written out explicitly, one
-> way or the other, no disagreement there.
->
->>  From my understanding of the spec, the driver is not allowed to do so (otherwise error will be returned or the behavior is undefined).
-> This doesn't seem to follow from my reading of the spec. Otherwise,
-> phrases like "optimal sector size" and "can affect performance" would
-> not make sense (such a request would instead be described as
-> illegal/returning an error).
-
-Is it possible that certain parts of the spec could be improved ?
-
-Is it possible that certain implicit parts of the spec could be 
-understood differently by various implementers or users?
-
-In reality "optimal block size that can effect performance" probably 
-refers to logical vs. physical block size.
-
-This patch tries to make the spec clearer.
-
->
->> In Linux, the reported blk_size is used to set logical_block_size, while physical_block_exp is used to calculate the physical_block_size.
-> Sure, but this is describing the behavior of one driver
-> implementation, not really relevant to the meaning of the spec.
-
-It is relevant IMO.
-
-It's worth considering the historical context of the specification. To 
-my understanding, the spec was initially derived from the Linux 
-implementation, rather than the other way around.
-
-This translation from implementation to specification could have 
-introduced some inconsistencies or ambiguities.
-
-Also worth considering virtio-block devices that were implemented before 
-this feature bit. The WG probably tried to maintain backward 
-compatibility with these devices.
-
-
->
->> Regarding the specification statement: "This does not affect the units used in the protocol (always 512 bytes)":
->>
->> This likely refers to how certain fields in the virtio-blk protocol are expressed, not the actual logical block size used for I/O operations. For example: capacity reporting, max_discard_sectors and Other fields that are expressed in 512 byte units.
-> The way the fields are expressed in the virtio-blk protocol is what is
-> relevant in the virtio spec. Even if a virtio-blk device is sending
-> requests to a physical SCSI/ATA/... device behind the scenes, it's the
-> job of that virtio-blk device implementation to handle the translation
-> and whatever mismatches there may be between the protocols.
-
-This is true.
-
->
-> Particularly, the "sector" value in a virtio_blk_req used for
-> VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT is always in 512-byte units,
-> regardless of what blk_size the device reports, and regardless of what
-> underlying physical media may be used.
->
->  From the virtio spec: "The sector number indicates the offset
-> (multiplied by 512) where the read or write is to occur."
->
-> (This could probably use clarification that the "offset" is in bytes,
-> but it still seems pretty clear that it does not depend on blk_size.)
->
-> So a request with sector = 1 always means an offset of 512 bytes from
-> the beginning of the block device, even if the advertised blk_size is
-> 4096.
-
-I appreciate your perspective, but I disagree with it.
-
-When a block device has a logical_block_size of 4K, it's not possible to 
-perform read/write operations at arbitrary offsets like 512 bytes. The 
-smallest addressable unit is the full 4K logical block in that case.
-
-This is a fundamental principle of block device operations, not just an 
-optimization.
-
-Also IO granularity.
-
-I believe it's important to ensure that the specification accurately 
-reflects these fundamental block device principles.
-
-I believe that the reason that the "sector" is multiplication of 512 is 
-to maintain backward compatibility, and not to allow breaking these 
-fundamental principles.
-
->
-> This is different from (e.g.) a SCSI READ where the logical block
-> address is in units of the block length returned by READ CAPACITY, so
-> it is impossible to send a request that is not block size aligned.
-
-IMO, it is impossible for virtio block device and any other block device 
-as well.
-
->
-> [...]
->>>> diff --git a/device-types/blk/description.tex b/device-types/blk/description.tex
->>>> index 2712ada..88a7591 100644
->>>> --- a/device-types/blk/description.tex
->>>> +++ b/device-types/blk/description.tex
->>>> @@ -3,7 +3,10 @@ \section{Block Device}\label{sec:Device Types / Block Device}
->>>>   The virtio block device is a simple virtual block device (ie.
->>>>   disk). Read and write requests (and other exotic requests) are
->>>>   placed in one of its queues, and serviced (probably out of order) by the
->>>> -device except where noted.
->>>> +device except where noted. Each block device consists of a sequence of logical
->>>> +blocks. A logical block represents the smallest addressable unit of data that
->>>> +can be read from or written to the device. The logical block size is always a
->>>> +power of two. Logical block sizes may be 512 bytes, 1KB, 2KB, 4KB, 8KB, etc.
->>> Does this imply that a device may return an error for a request where
->>> the sector or num_sectors fields are not aligned to the blk_size? If
->>> so, it should be called out as a more explicit normative requirement,
->>> but that would definitely be an incompatible change.
->> As mentioned, the logical block size, such as 512 bytes, defines the smallest addressable unit for I/O operations on the storage device.
->> This has important implications for I/O requests:
->> 1. Minimum I/O size: You cannot send I/O requests smaller than the logical block size. For example, with a 512-byte logical block size, requests of 128 bytes are not valid.
-> 128-byte requests are not valid, certainly, but that is already
-> covered by the wording in the spec ("in multiples of 512 bytes" in the
-> VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT description, and "The length of data
-> MUST be a multiple of 512 bytes for VIRTIO_BLK_T_IN and
-> VIRTIO_BLK_T_OUT requests" in the driver requirements).
-
-I guess I should have given 4KB logical block size as a better example.
-
-In case logical block size is 4KB, the minimum IO size is 4KB and not 512.
-
-Agreed ?
-
->
->> 2. I/O alignment: All I/O requests must be aligned to the logical block size. This means the target start address (on the media device) of the I/O must be a multiple of the logical block size (the expressed units in the spec are not relevant).
-> Unless there is a change to the spec (like this proposed patch), I
-> don't think this is required. I suppose a device that can't manage to
-> perform a misaligned I/O could choose to deny such requests and return
-> VIRTIO_BLK_S_IOERR, but this is not explicitly allowed or denied by
-> the current spec.
-
-This is a clarification of the existing specification, not a change.
-
-I believe I've identified the main point of disagreement regarding this 
-patch:
-
-I believe that I/O operations to storage block devices MUST be aligned 
-to the logical block size. In the other hand, you believe it is just a 
-recommendation for virtio block device.
-
-Maybe let's see what others think as well ?
-
-Stefan ?
-
-
->> 3. I/O size granularity: The size of I/O requests must be a multiple of the logical block size. For a 512-byte logical block size, valid I/O sizes would be 512 bytes, 1024 bytes, 1536 bytes, and so on.
-> Same as point 1 above, the only requirement (that I can see, anyway)
-> is that the I/O request has to be a multiple of 512 bytes.
-
-Do you think that for logical block size of 4k one can send IO of 1K to 
-such device and succeed ?
-
-
->
->>> The "smallest addressable unit" wording is also more confusing than
->>> clarifying here, since in virtio-blk, the "smallest addressable unit"
->>> is always 512 bytes, regardless of blk_size (even if a change like
->>> this would enforce limits on the sector values that would actually be
->>> allowed, it would still be possible to create a request that refers to
->>> a smaller unit than blk_size, unlike other storage protocols where
->>> logical block size changes the multiplier of the address, making it
->>> impossible to address smaller units).
->> Can you please point me to the place in spec that explicitly say that "in virtio-blk, the smallest addressable unit is always 512 bytes, regardless of blk_size" ?
-> The description of struct virtio_blk_req's sector field:
-> "The sector number indicates the offset (multiplied by 512) where the
-> read or write is to occur."
->
-> Unless we have different definitions of "smallest addressable unit",
-> that seems pretty clear. It is always possible to address a part of
-> the disk in 512-byte multiples (e.g. sectors 1 through 3) even when
-> the blk_size is larger than 512. Maybe those requests won't succeed,
-> but it is always possible to describe a region of the block device
-> with an address that is not a multiple of blk_size.
-
-It doesn't say anything explicit about IO alignment and granularity.
-
-
->
->> I didn't find it in the spec and I don't agree with this call if it is implicit.
-> I agree it should be clarified. The current wording requires too much
-> reading between the lines.
->
->> The implementation of the Linux kernel driver isn't implemented in this manner as well.
-> When filling the sector field, the Linux virtio-blk driver uses the
-> value of blk_rq_pos(), which is also always in units of 512 bytes, as
-> far as I can tell (it returns sector_t, which is in units of 512 bytes
-> per the definition in include/linux/blk_types.h).
-
-Ignoring the units for the discussion, can it ever be unaligned to the 
-logical block size?
-
->
-> [...]
->>>> @@ -228,7 +234,7 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
->>>>   \item The device size can be read from \field{capacity}.
->>>>
->>>>   \item If the VIRTIO_BLK_F_BLK_SIZE feature is negotiated,
->>>> -  \field{blk_size} can be read to determine the optimal sector size
->>>> +  \field{blk_size} can be read to determine the logical block size
->>>>     for the driver to use. This does not affect the units used in
->>>>     the protocol (always 512 bytes), but awareness of the correct
->>>>     value can affect performance.
->>>> @@ -282,6 +288,12 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
->>>>
->>>>   \drivernormative{\subsubsection}{Device Initialization}{Device Types / Block Device / Device Initialization}
->>>>
->>>> +Drivers MUST negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offered by the
->>>> +device.
->>> Why is this a MUST? This is also an incompatible change since there
->>> was no such requirement before, and drivers are free to ignore
->>> features they don't care about.
->> I can say SHOULD, but then the driver that is ignoring this feature may guess/assume the logical block size and it can be wrong.
->>
->> This may lead to an undefined behavior.
-> Unless the spec is changed, if a device can't correctly handle
-> non-blk_size-aligned requests, this seems like it would be a device
-> bug ("undefined behavior") or at least non-spec-derived limitation
-> (returning an error would not be undefined, but also probably wouldn't
-> result in a working system).
-
-Again, this is a clarification of the existing specification, not a change.
-
-IMO, storage block device implementations should be able to assume that 
-I/O requests from drivers are aligned to the logical block size. If a 
-device receives misaligned I/O requests, it might be appropriate for the 
-device to fail these requests. It is not a device "bug" IMO.
-
-I'm curious if you've encountered any actual implementations where 
-drivers send non-block-size-aligned requests to block devices. I never 
-saw such implementation.
-
-Sounds like a theoretical objection.
-
-IMO, the specification could benefit from explicitly stating this 
-alignment principal, which would guide both device and driver 
-implementations.
-
-I believe that this patch is clarifying important points and would lead 
-to more robust definition.
-
->
-> Certainly it would be preferable for the driver to send aligned
-> requests, but the existing wording seems to cover that pretty well
-> already.
->
-> Thanks,
-> -- Daniel
+If you want to undo deduplication, reply with:
+#syz undup
