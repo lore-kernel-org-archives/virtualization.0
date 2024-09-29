@@ -1,260 +1,186 @@
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C4218873E
-	for <virtualization@lists.linux.dev>; Sat, 28 Sep 2024 14:29:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 853CD18C3E
+	for <virtualization@lists.linux-foundation.org>; Sun, 29 Sep 2024 02:07:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727533764; cv=none; b=EZImUXRvWyj4ZmRtQyK9fqTbIOThbecG+xjF4XphN/yShyQHljTAMUhx3vtg7kh8wADJTR0W9T5mobKNdmgNx1bnRZF0NBIUu5B8CdHtlEcRa2Xsavjwk4bjbyQ100chrOBREOBHIRkUQuLrcVet5MoBKPpFOhdSvp39S7UVFvw=
+	t=1727575649; cv=none; b=iSwW7GhgtitJFgn0pNpBlEC3Hi0E9jOI43cxZdzEp3twA3EQb82ihS/G55G7KCCVMCUb6k3byMqhyrMMQp85cHq+QJBleanrSZG3vAaOAAlv9nKDMH1xWU24zm5TwWbdSZfT2oLreXoIdwFK7u2D/xdm9hvMMwul9qyms2nI9tg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727533764; c=relaxed/simple;
-	bh=5oNni+mSe09JH+bhmTUK3fHR/drg7MAOmsvZqHYuigo=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=srNr7yjz4rBSEd5gKal0eF5beH6TCRrbMooOY34SOMEBhB1ohY9L6NBvPv+q2wiu6xEmPSVimYqHKNtnepjM/S5FP1ZcMRVJRKePe1KYfFrQEnzXWbhllJw+WNz4FdChaIhURQgxPx7OLL4jxyJnnFHvR03+Yrq55Onw+Syxv+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-832160abde4so353900239f.1
-        for <virtualization@lists.linux.dev>; Sat, 28 Sep 2024 07:29:22 -0700 (PDT)
+	s=arc-20240116; t=1727575649; c=relaxed/simple;
+	bh=TO6F9WUFFXlq7WPqrSDsnpUMpKF1xFzm56hCVzpmjMk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Kxskpipjw/ebe8IEiFtIX6LH16Y0Un9XN6IsPOZDw7QMqtmaqvgKDS+mb9j+kruWJnFOGtqdyM9sK76AJU3o4v6RB8LyQvN5oRs/mW/OFyeLd/nNrlqIG240DEDHdNF5k+QfBDvms2IIqAjPcB3pVkIOAGlRR7Ny3mcIcXFIfQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PFOwkDGf; arc=none smtp.client-ip=140.211.166.138
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PFOwkDGf"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1129E80F6F
+	for <virtualization@lists.linux-foundation.org>; Sun, 29 Sep 2024 02:07:28 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id SGdleWz2-hVf for <virtualization@lists.linux-foundation.org>;
+ Sun, 29 Sep 2024 02:07:27 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 339EF80F65
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 339EF80F65
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PFOwkDGf
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 339EF80F65
+	for <virtualization@lists.linux-foundation.org>; Sun, 29 Sep 2024 02:07:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1727575645;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TO6F9WUFFXlq7WPqrSDsnpUMpKF1xFzm56hCVzpmjMk=;
+	b=PFOwkDGfqZRTdRa+vO2LbLy8UjqJg5awchQ37wMOJg5uTGD3IfXg3eIgD8DLcmn604+jcy
+	nu7qpdTEj/tFiaOUHbCN06ICgvLZTOWoyqQbomCT0+HWBHDQGhmmOoBs1T+MA60iR0nsRq
+	OYTOTkN77HTlLAFDLO3foo6zKFyztlE=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-589-AbtdwzL1Ml2MSXk_kWYY9Q-1; Sat, 28 Sep 2024 22:07:23 -0400
+X-MC-Unique: AbtdwzL1Ml2MSXk_kWYY9Q-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2e08517d5afso3099625a91.1
+        for <virtualization@lists.linux-foundation.org>; Sat, 28 Sep 2024 19:07:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727533762; x=1728138562;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=BFZDIR1zH6xFqrLzHnV+4Ciyx/3Hq6RWaFFedJF75GI=;
-        b=dxWwo5agALmvzDXeGJidv/N1qavTTUmm4Kye7PyDkKNvqDLU6z6yrP/t/j3VZahVJs
-         Jtzq+sK2zaAXK+eyavE4bV6LcOnM4M9udir+VoLcgtwC5O8JKhMp7o9hmaHQkbjkWVUT
-         wIjDQ7C1froN6L6cwExXFZt2FXeQAJwcuGhCYzrfL4tBkUKRu26vvX890fr68DUg33SS
-         Gcql+y902hjtBLGP6T7tunoeLohTb1e13f2qO3eT5lVqFNpWhU52BQhyv9nNut/pIedh
-         KaHDqwOSX0/C8unlPexPTBklp5LrtqOASGWXH0xcrO7TOUnJ0foP5yRbeL+Vrq7QxyNv
-         Ayfg==
-X-Forwarded-Encrypted: i=1; AJvYcCWssicIZLVFOjQi+S1DuwYOLIJK1njhxV2BSoIDd8891MA+0suYZZ25yjLHl2wRt4HCFJQXofVsvrXuG+kSRA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzY29ncovnvLLv2gvN5ssajBSwbWG+TAROEDrEG3yiPTU5rOMTp
-	ZsJ5aalyETS3gSwBx7gN+i07gfnOcXQ3nSjIRLnWLtViE0CZhTFRfUKIUz3OlO9Xw+YiTbBXt2P
-	5QkRQQrNWrtR9Pw+2+tHQpxFSQ9DCmffs3LfXLC4nTO4Uk4NRS7rx+zE=
-X-Google-Smtp-Source: AGHT+IHeFhhor4Gsk/fLVtp3IsnfVdVABoPmkMFfd9AL0mZgmpptM3JokBsur/3x+x9KJErwZ7Lq5sZ2qBIcpK6USeQVw3oJSfwR
+        d=1e100.net; s=20230601; t=1727575643; x=1728180443;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TO6F9WUFFXlq7WPqrSDsnpUMpKF1xFzm56hCVzpmjMk=;
+        b=tCH8bqzdbq+wuD+0MTafPjak61aIRbOr2Nduo3TQy+aG2b2W8S+TMr6yYAbTIeeING
+         0kq2TQsLL96w08xZeYsstgzLG6bQHs9xQJv5/P+FLzmZ8Z5DTaERJVj7/6fmO1WvtFQ4
+         kAqgj1DbgtQqF7XJjo3qD7KkT/o2OoYeZk/zI+U2rgFVLWMgNmTNr+4187UwugsmbBcc
+         xF6+GmUCD5noMGHE0Q8Lj7wkvjcbOWmXGwS7XMfiZ5VmbhBBaJ72E+7DzzS1Qdjw3nq1
+         A6DE0n5YLuvfyeh0yZEsiqBxfUNPlLzu+u3FV/1IkjfAPsINXqz7pA0Yxdyz/NMvVN8R
+         iovQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVjCrvVtDta6W8tPsQwrdwcU3+91yMG3kbEJ/z036n2ghvp01bKgRIY75ER2LdikRmukgPCm+wkvfxGrlzuTw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yw2i0j+W53yKvFKpT4Bm8CaTcET1/ix2TaVUMIvdnku9k+stiA6
+	l8PQNQVf5LH62ox8XRO6iog7mvkXVp+eIPgQAZfiCjhubP9AT8V+NtZ5zeXrmji5WcDoYJHq/tl
+	olcW6yVJdQ0wX8UaRvL4MlT9+zBssRLQAdegAZAucx7LAZDBLfatIJxUKpF0yZ6VuJ3lfE7CwZb
+	+DKZUpBjdMQZks2ODtTF2FqhaQn/fekEf9+pAXgHk4fi+y8hAM6+9HWA==
+X-Received: by 2002:a17:90a:d994:b0:2d8:e6d8:14c8 with SMTP id 98e67ed59e1d1-2e0b72ebe66mr12848830a91.15.1727575642713;
+        Sat, 28 Sep 2024 19:07:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEj0CCQ8up3FJXqhdPxg4H3lCO7LjesFN419E2sMSG36WbFWRO8y7aomLGECK7sl9/s5dIhUxnui4OmPKl9ZQY=
+X-Received: by 2002:a17:90a:d994:b0:2d8:e6d8:14c8 with SMTP id
+ 98e67ed59e1d1-2e0b72ebe66mr12848791a91.15.1727575642243; Sat, 28 Sep 2024
+ 19:07:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1945:b0:39f:507a:6170 with SMTP id
- e9e14a558f8ab-3a344638a4amr51949385ab.8.1727533761888; Sat, 28 Sep 2024
- 07:29:21 -0700 (PDT)
-Date: Sat, 28 Sep 2024 07:29:21 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <66f812c1.050a0220.4a974.0009.GAE@google.com>
-Subject: [syzbot] [net?] [virt?] BUG: unable to handle kernel paging request
- in clear_page_erms (6)
-From: syzbot <syzbot+0a31340d42a1d572f904@syzkaller.appspotmail.com>
-To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
-	jasowang@redhat.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
-	mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
+References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com> <CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
+ <c3bc8d58-1f0e-4633-bb01-d646fcd03f54@daynix.com> <CACGkMEu3u=_=PWW-=XavJRduiHJuZwv11OrMZbnBNVn1fptRUw@mail.gmail.com>
+ <6c101c08-4364-4211-a883-cb206d57303d@daynix.com>
+In-Reply-To: <6c101c08-4364-4211-a883-cb206d57303d@daynix.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Sun, 29 Sep 2024 10:07:11 +0800
+Message-ID: <CACGkMEtscr17UOufUtyPp1OvALL8LcycpbRp6CyVMF=jYzAjAA@mail.gmail.com>
+Subject: Re: [PATCH RFC v4 0/9] tun: Introduce virtio-net hashing feature
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
+	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Fri, Sep 27, 2024 at 3:51=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix=
+.com> wrote:
+>
+> On 2024/09/27 13:31, Jason Wang wrote:
+> > On Fri, Sep 27, 2024 at 10:11=E2=80=AFAM Akihiko Odaki <akihiko.odaki@d=
+aynix.com> wrote:
+> >>
+> >> On 2024/09/25 12:30, Jason Wang wrote:
+> >>> On Tue, Sep 24, 2024 at 5:01=E2=80=AFPM Akihiko Odaki <akihiko.odaki@=
+daynix.com> wrote:
+> >>>>
+> >>>> virtio-net have two usage of hashes: one is RSS and another is hash
+> >>>> reporting. Conventionally the hash calculation was done by the VMM.
+> >>>> However, computing the hash after the queue was chosen defeats the
+> >>>> purpose of RSS.
+> >>>>
+> >>>> Another approach is to use eBPF steering program. This approach has
+> >>>> another downside: it cannot report the calculated hash due to the
+> >>>> restrictive nature of eBPF.
+> >>>>
+> >>>> Introduce the code to compute hashes to the kernel in order to overc=
+ome
+> >>>> thse challenges.
+> >>>>
+> >>>> An alternative solution is to extend the eBPF steering program so th=
+at it
+> >>>> will be able to report to the userspace, but it is based on context
+> >>>> rewrites, which is in feature freeze. We can adopt kfuncs, but they =
+will
+> >>>> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KV=
+M
+> >>>> and vhost_net).
+> >>>>
+> >>>
+> >>> I wonder if we could clone the skb and reuse some to store the hash,
+> >>> then the steering eBPF program can access these fields without
+> >>> introducing full RSS in the kernel?
+> >>
+> >> I don't get how cloning the skb can solve the issue.
+> >>
+> >> We can certainly implement Toeplitz function in the kernel or even wit=
+h
+> >> tc-bpf to store a hash value that can be used for eBPF steering progra=
+m
+> >> and virtio hash reporting. However we don't have a means of storing a
+> >> hash type, which is specific to virtio hash reporting and lacks a
+> >> corresponding skb field.
+> >
+> > I may miss something but looking at sk_filter_is_valid_access(). It
+> > looks to me we can make use of skb->cb[0..4]?
+>
+> I didn't opt to using cb. Below is the rationale:
+>
+> cb is for tail call so it means we reuse the field for a different
+> purpose. The context rewrite allows adding a field without increasing
+> the size of the underlying storage (the real sk_buff) so we should add a
+> new field instead of reusing an existing field to avoid confusion.
+>
+> We are however no longer allowed to add a new field. In my
+> understanding, this is because it is an UAPI, and eBPF maintainers found
+> it is difficult to maintain its stability.
+>
+> Reusing cb for hash reporting is a workaround to avoid having a new
+> field, but it does not solve the underlying problem (i.e., keeping eBPF
+> as stable as UAPI is unreasonably hard). In my opinion, adding an ioctl
+> is a reasonable option to keep the API as stable as other virtualization
+> UAPIs while respecting the underlying intention of the context rewrite
+> feature freeze.
 
-syzbot found the following issue on:
+Fair enough.
 
-HEAD commit:    abf2050f51fd Merge tag 'media/v6.12-1' of git://git.kernel..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=15a03107980000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=2a8c36c5e2b56016
-dashboard link: https://syzkaller.appspot.com/bug?extid=0a31340d42a1d572f904
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+Btw, I remember DPDK implements tuntap RSS via eBPF as well (probably
+via cls or other). It might worth to see if anything we miss here.
 
-Unfortunately, I don't have any reproducer for this issue yet.
+Thanks
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/9800778169d6/disk-abf2050f.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/32a789de3883/vmlinux-abf2050f.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/24e5e7200094/bzImage-abf2050f.xz
+>
+> Regards,
+> Akihiko Odaki
+>
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+0a31340d42a1d572f904@syzkaller.appspotmail.com
-
-BUG: unable to handle page fault for address: ffff8880603bc000
-#PF: supervisor write access in kernel mode
-#PF: error_code(0x0002) - not-present page
-PGD 1a801067 P4D 1a801067 PUD 6c591063 PMD 30259063 PTE 800fffff9fc43060
-Oops: Oops: 0002 [#1] PREEMPT SMP KASAN PTI
-CPU: 0 UID: 0 PID: 14210 Comm: syz.2.2649 Not tainted 6.11.0-syzkaller-09959-gabf2050f51fd #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/06/2024
-RIP: 0010:clear_page_erms+0xb/0x20 arch/x86/lib/clear_page_64.S:50
-Code: 48 8d 7f 40 75 d9 90 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa b9 00 10 00 00 31 c0 <f3> aa c3 cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 90
-RSP: 0018:ffffc90000007310 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000001000
-RDX: ffff8880603bc000 RSI: 0000000000000001 RDI: ffff8880603bc000
-RBP: dffffc0000000000 R08: ffffea000180ef37 R09: 0000000000000000
-R10: ffffed100c077800 R11: fffff94000301de7 R12: 0000000000000001
-R13: 0000000000000001 R14: ffffea000180ef00 R15: 0000000000000000
-FS:  00007fa3b27206c0(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff8880603bc000 CR3: 000000003ec82000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <IRQ>
- clear_page arch/x86/include/asm/page_64.h:54 [inline]
- clear_highpage_kasan_tagged include/linux/highmem.h:248 [inline]
- kernel_init_pages mm/page_alloc.c:1036 [inline]
- post_alloc_hook+0xf8/0x230 mm/page_alloc.c:1535
- prep_new_page mm/page_alloc.c:1545 [inline]
- get_page_from_freelist+0x3039/0x3180 mm/page_alloc.c:3457
- __alloc_pages_noprof+0x256/0x6c0 mm/page_alloc.c:4733
- page_frag_alloc_1k net/core/skbuff.c:249 [inline]
- napi_alloc_skb+0x641/0xa00 net/core/skbuff.c:847
- page_to_skb+0x276/0x9b0 drivers/net/virtio_net.c:800
- receive_mergeable drivers/net/virtio_net.c:2253 [inline]
- receive_buf+0x3bc/0x17b0 drivers/net/virtio_net.c:2391
- virtnet_receive_packets drivers/net/virtio_net.c:2698 [inline]
- virtnet_receive drivers/net/virtio_net.c:2722 [inline]
- virtnet_poll+0x26b2/0x3980 drivers/net/virtio_net.c:2817
- __napi_poll+0xcb/0x490 net/core/dev.c:6771
- napi_poll net/core/dev.c:6840 [inline]
- net_rx_action+0x89b/0x1240 net/core/dev.c:6962
- handle_softirqs+0x2c5/0x980 kernel/softirq.c:554
- __do_softirq kernel/softirq.c:588 [inline]
- invoke_softirq kernel/softirq.c:428 [inline]
- __irq_exit_rcu+0xf4/0x1c0 kernel/softirq.c:637
- irq_exit_rcu+0x9/0x30 kernel/softirq.c:649
- common_interrupt+0xb9/0xd0 arch/x86/kernel/irq.c:278
- </IRQ>
- <TASK>
- asm_common_interrupt+0x26/0x40 arch/x86/include/asm/idtentry.h:693
-RIP: 0010:finish_task_switch+0x1ea/0x870 kernel/sched/core.c:5189
-Code: c9 50 e8 79 fa 0b 00 48 83 c4 08 4c 89 f7 e8 4d 39 00 00 e9 de 04 00 00 4c 89 f7 e8 e0 70 60 0a e8 db 58 38 00 fb 48 8b 5d c0 <48> 8d bb f8 15 00 00 48 89 f8 48 c1 e8 03 49 be 00 00 00 00 00 fc
-RSP: 0018:ffffc9000caa7228 EFLAGS: 00000282
-RAX: 0b99d481b6833300 RBX: ffff888050f50000 RCX: ffffffff817088da
-RDX: dffffc0000000000 RSI: ffffffff8c0aca40 RDI: ffffffff8c601bc0
-RBP: ffffc9000caa7270 R08: ffffffff9422a907 R09: 1ffffffff2845520
-R10: dffffc0000000000 R11: fffffbfff2845521 R12: 1ffff110170c7f0c
-R13: dffffc0000000000 R14: ffff8880b863ea40 R15: ffff8880b863f860
- context_switch kernel/sched/core.c:5318 [inline]
- __schedule+0x184b/0x4ae0 kernel/sched/core.c:6674
- preempt_schedule_common+0x84/0xd0 kernel/sched/core.c:6853
- preempt_schedule+0xe1/0xf0 kernel/sched/core.c:6877
- preempt_schedule_thunk+0x1a/0x30 arch/x86/entry/thunk.S:12
- free_unref_page+0x6b5/0xf00 mm/page_alloc.c:2662
- __folio_put+0x2c7/0x440 mm/swap.c:126
- secretmem_fault+0x1f9/0x430 mm/secretmem.c:87
- __do_fault+0x135/0x460 mm/memory.c:4876
- do_shared_fault mm/memory.c:5346 [inline]
- do_fault mm/memory.c:5420 [inline]
- do_pte_missing mm/memory.c:3965 [inline]
- handle_pte_fault+0x1105/0x6800 mm/memory.c:5751
- __handle_mm_fault mm/memory.c:5894 [inline]
- handle_mm_fault+0x1053/0x1ad0 mm/memory.c:6062
- do_user_addr_fault arch/x86/mm/fault.c:1389 [inline]
- handle_page_fault arch/x86/mm/fault.c:1481 [inline]
- exc_page_fault+0x2b9/0x8c0 arch/x86/mm/fault.c:1539
- asm_exc_page_fault+0x26/0x30 arch/x86/include/asm/idtentry.h:623
-RIP: 0010:rep_movs_alternative+0x33/0x70 arch/x86/lib/copy_user_64.S:58
-Code: 40 83 f9 08 73 21 85 c9 74 0f 8a 06 88 07 48 ff c7 48 ff c6 48 ff c9 75 f1 c3 cc cc cc cc 66 0f 1f 84 00 00 00 00 00 48 8b 06 <48> 89 07 48 83 c6 08 48 83 c7 08 83 e9 08 74 df 83 f9 08 73 e8 eb
-RSP: 0018:ffffc9000caa7df0 EFLAGS: 00050246
-RAX: 0000000600000005 RBX: 0000000020000088 RCX: 0000000000000008
-RDX: 0000000000000000 RSI: ffffc9000caa7e80 RDI: 0000000020000080
-RBP: ffffc9000caa7ef0 R08: ffffc9000caa7e87 R09: 1ffff92001954fd0
-R10: dffffc0000000000 R11: fffff52001954fd1 R12: 0000000000000008
-R13: ffffc9000caa7e80 R14: 0000000020000080 R15: ffffc9000caa7e80
- copy_user_generic arch/x86/include/asm/uaccess_64.h:121 [inline]
- raw_copy_to_user arch/x86/include/asm/uaccess_64.h:142 [inline]
- _inline_copy_to_user include/linux/uaccess.h:188 [inline]
- _copy_to_user+0x86/0xb0 lib/usercopy.c:26
- copy_to_user include/linux/uaccess.h:216 [inline]
- do_pipe2+0x109/0x310 fs/pipe.c:1026
- __do_sys_pipe fs/pipe.c:1047 [inline]
- __se_sys_pipe fs/pipe.c:1045 [inline]
- __x64_sys_pipe+0x3a/0x50 fs/pipe.c:1045
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fa3b197def9
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fa3b2720038 EFLAGS: 00000246 ORIG_RAX: 0000000000000016
-RAX: ffffffffffffffda RBX: 00007fa3b1b36058 RCX: 00007fa3b197def9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000080
-RBP: 00007fa3b19f0b76 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000000000 R14: 00007fa3b1b36058 R15: 00007ffd07c8ed88
- </TASK>
-Modules linked in:
-CR2: ffff8880603bc000
----[ end trace 0000000000000000 ]---
-RIP: 0010:clear_page_erms+0xb/0x20 arch/x86/lib/clear_page_64.S:50
-Code: 48 8d 7f 40 75 d9 90 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa b9 00 10 00 00 31 c0 <f3> aa c3 cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 90
-RSP: 0018:ffffc90000007310 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000001000
-RDX: ffff8880603bc000 RSI: 0000000000000001 RDI: ffff8880603bc000
-RBP: dffffc0000000000 R08: ffffea000180ef37 R09: 0000000000000000
-R10: ffffed100c077800 R11: fffff94000301de7 R12: 0000000000000001
-R13: 0000000000000001 R14: ffffea000180ef00 R15: 0000000000000000
-FS:  00007fa3b27206c0(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff8880603bc000 CR3: 000000003ec82000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-----------------
-Code disassembly (best guess):
-   0:	48 8d 7f 40          	lea    0x40(%rdi),%rdi
-   4:	75 d9                	jne    0xffffffdf
-   6:	90                   	nop
-   7:	c3                   	ret
-   8:	cc                   	int3
-   9:	cc                   	int3
-   a:	cc                   	int3
-   b:	cc                   	int3
-   c:	0f 1f 00             	nopl   (%rax)
-   f:	90                   	nop
-  10:	90                   	nop
-  11:	90                   	nop
-  12:	90                   	nop
-  13:	90                   	nop
-  14:	90                   	nop
-  15:	90                   	nop
-  16:	90                   	nop
-  17:	90                   	nop
-  18:	90                   	nop
-  19:	90                   	nop
-  1a:	90                   	nop
-  1b:	90                   	nop
-  1c:	90                   	nop
-  1d:	90                   	nop
-  1e:	90                   	nop
-  1f:	f3 0f 1e fa          	endbr64
-  23:	b9 00 10 00 00       	mov    $0x1000,%ecx
-  28:	31 c0                	xor    %eax,%eax
-* 2a:	f3 aa                	rep stos %al,%es:(%rdi) <-- trapping instruction
-  2c:	c3                   	ret
-  2d:	cc                   	int3
-  2e:	cc                   	int3
-  2f:	cc                   	int3
-  30:	cc                   	int3
-  31:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
-  38:	00 00 00
-  3b:	0f 1f 40 00          	nopl   0x0(%rax)
-  3f:	90                   	nop
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
