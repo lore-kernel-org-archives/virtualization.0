@@ -1,169 +1,166 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D144206D
-	for <virtualization@lists.linux.dev>; Sun, 29 Sep 2024 17:48:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8D6717C8B
+	for <virtualization@lists.linux.dev>; Sun, 29 Sep 2024 17:51:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727632128; cv=none; b=lp5NPRRwcC6jDt6EeA3n6iCUxEoYzsk0j1Is5ZVMBZssxFWHy+kQrzyUtqkNynqQUET+BEvRCh6ZXGZBRHY/oYJAVpbpNxjaeWeJ3/D2e2NHJ4kYegFupTGCiPAY5jTlw6ePW0kxbvVuWnQ23FpA3HjOg5s265J1Lg/hQYOSzpA=
+	t=1727632296; cv=none; b=KrYBG3w1fPJbfuPjsvXyqGVcZRPoHawHSenW3GznXvT4FOKdDjQUy3k4JUmZeISBoHW7njRUNIa2Yh9bxJAHakuSQQ+whaIzfhz3JNcp7tzHvW8wxhZdbhxDAN3h8kkAYDkQEvO+5N4/cx92xparHHHzPaLrOH8obxvhJYd7RRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727632128; c=relaxed/simple;
-	bh=do27kc5Fwyi6Kx7WwmJUxF9V16BLmQ7JLqwuhDUy4Yc=;
+	s=arc-20240116; t=1727632296; c=relaxed/simple;
+	bh=NdXt8T5bGuAMI6gSN9cwiPJWgF0RKgU6uOaQTMHkGn0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=loXwvDgc2YChTweHSyZSMfettuiIK3HyoHZlaMJRVX6RARxgU8Dkumm1qOoYwwlxDUytU5uaS1O0hNopV605WU6AHhk3maKfs9LjtizwD/6Q1agdgq0BO/6dMJOFnq5d/ILrRELCAmU0P5NHa7VK2+hoEfF71GS0nwsnpvH2+sY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TdWDHJd9; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=UFWBdbTYCTGVbwlE+mwP7gMjnRggAodxBieu8b3OtjNBLDITOwa9k11klx0XIfGzCuYCzNdWJeTX7L8HgegQMYSVePgq6znbPp61o/emoag1rjqXR0FgQ/jcPBpz+Rf/DMmorhqCqtsdX5kvglaR0aHM4+tosMEmyWbEsGW1ZdI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cCVyqWoj; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TdWDHJd9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cCVyqWoj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727632126;
+	s=mimecast20190719; t=1727632293;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wPatogrvfeQytgMf1DGOYNKKTCyiWPsjq+uNPqesLks=;
-	b=TdWDHJd9BPPH2HTP4lnkPvCAjdjmWM6jZqnCaKxeXcMhsS/uvCF8XFUw65X3k9Poog3Ofm
-	5xZfkf1wKjKMp5SKgY13J5HSbVqzbFT02aoD7siQeQvhKS5TsYTyfSNWaLj++4MLAPqCrz
-	paxrOeD9H24r+NnplX06YSc6+/BM8pQ=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=iBo6Js+KrmXcDaOCykB3DnpCL6RVyY4y0Ygmd00mTE0=;
+	b=cCVyqWojFTGwp7UabGStSycZpZloXQU6VJgJELeJ4WS946Oeezwc9gbUcw5t6JTrea5Te8
+	Lcx3rYdSzcU4A6N4GHemeMPNJPwN2n6qGzZX/tazkegHD6n/n3li9Xh9zDltRskHsntjWO
+	7+nl4M0/oY/oStCOGuiaS9aPQQW4VNY=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-634-wCDl_XYEOmeRN2iL-OJ5pA-1; Sun, 29 Sep 2024 13:48:44 -0400
-X-MC-Unique: wCDl_XYEOmeRN2iL-OJ5pA-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a8a8308cceaso474961966b.0
-        for <virtualization@lists.linux.dev>; Sun, 29 Sep 2024 10:48:44 -0700 (PDT)
+ us-mta-433-wOLDTwHwN5u729Ey8Yzebg-1; Sun, 29 Sep 2024 13:51:32 -0400
+X-MC-Unique: wOLDTwHwN5u729Ey8Yzebg-1
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5c879b8cfaaso2860221a12.2
+        for <virtualization@lists.linux.dev>; Sun, 29 Sep 2024 10:51:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727632124; x=1728236924;
+        d=1e100.net; s=20230601; t=1727632291; x=1728237091;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wPatogrvfeQytgMf1DGOYNKKTCyiWPsjq+uNPqesLks=;
-        b=MRRCy25fACdFDHyd6A7vwkrJKPwueh+aie0sPjkVZ87OoLf2hpadnrGdUE6iFBB/Fe
-         YGlV2Uw+S193m/0XoC5V/g/qTvcJmcvFpjESAyWQZjZT8kBs3p06Vr/s4umKEuyFOkIz
-         SCGLCP4rOyYI4Z8ymA1DFltExgix2/OTz51BqDS3zX1ehEHOwIcTms9p10y0ciOeGfX2
-         P+0dwQhEnpUUwv6qWwN6DHTfts6ixas03cT8JbG8dDmhiYi4YxZp5buaxGzlwS5j8HqZ
-         Ggv8AY4EuRJ25E4e3lEYELW41//Fe71rc9IHw3ABsk8RWumDjtAeBzOQ8v5fpBA2/ETS
-         xNvQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU2qO+/aenrNwHcTHb3eCSc8Vuh/4Ywvm4BX6HWDtXKAkYa8uUBg4MlX24pv8DgQLCV7YXk0duQwwosAaqvnA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyoB/gyjjBvYNf+ROCRjwFpgkOIdapK+L1yd7RARAQrvSZZmUZt
-	4PvsRR5drZzK2l2KGC5eD5BmOLKN3Cv9hsWZd8ty8+ea+Q/+EuiKVOaUOv0pyuT8a2JwbSuUAY0
-	39ULg0uDk2kcoCD4til5zMd7ha3FRiY93wFTBripblbclKg8HbV6k49Dl6Ihtnhaa
-X-Received: by 2002:a17:907:8687:b0:a8d:4954:c209 with SMTP id a640c23a62f3a-a93b165dacamr1584444966b.22.1727632123589;
-        Sun, 29 Sep 2024 10:48:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG8yhcltAXNNOPlgdZbg2eX/lkfZ7eFhPOsGjV+HlVBPUltwDUsyTd38J3Fyn/QINeqZ/Q5XA==
-X-Received: by 2002:a17:907:8687:b0:a8d:4954:c209 with SMTP id a640c23a62f3a-a93b165dacamr1584442566b.22.1727632122934;
-        Sun, 29 Sep 2024 10:48:42 -0700 (PDT)
+        bh=iBo6Js+KrmXcDaOCykB3DnpCL6RVyY4y0Ygmd00mTE0=;
+        b=rAOK0XkCjm6qt+62hxztOIKaWW+sxFlFwbiKhbObI409MxgSwfvg/IQGDcSXZKBZt0
+         cA4l7a5EfQkkWotvzBUnIgFnG0Wgx4myUXwK5jz4iLRjz91ndTXsUPRxX8rXmboNycPd
+         bKUMsOajROymg4Z6FJ6lag7zBbigworm0uRnoJYoXkheBd5ONtCOTQK/htOLZNbzy0VL
+         ObSr3E7mOxcfTYlUuluvIPNWQg/KWc+yPQOq1bMZZEnQMKbmwXy5Y0ou5GzinZrgIImH
+         8qevCfhnvBO0DhMHxqCOEpHEwWZaf0bA44RCK/XU14fftXgCeisvNbOmOj5LMlr+BXKq
+         fr7A==
+X-Forwarded-Encrypted: i=1; AJvYcCVT6P7icBO+1dert7ZKPF2U1RK0/BEzF+GQ+i2g/YyxCvAGCOcgFv04D3yjtrat0/Cmuoud58/81trOy8S94g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx8wonO+5cre1gunBGq1gw6l6em1nuimmdHTeeMv+o/QNVjLHTE
+	orTdexNmzw+sHOly76McNToNZNS8KkT8HucEytFhIQMHir+asXB2mJ0JmQdeet5c9cOyE/15vi1
+	tmvZsw53FIhZbArBv4Pp00ou97dSJ4h/E+dWhY/AwOeyJJMwpbeoXeBQxMfVtqqWe
+X-Received: by 2002:a05:6402:50d4:b0:5c5:c4b9:e68f with SMTP id 4fb4d7f45d1cf-5c8824ccc1dmr9028051a12.5.1727632291057;
+        Sun, 29 Sep 2024 10:51:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEGzR/0OEFOcQb9FWIscGFAyeuagjIVEK9ss9ZaEtpJFtI7YKhtQArRYH/c9F8IVcR1d4ye1A==
+X-Received: by 2002:a05:6402:50d4:b0:5c5:c4b9:e68f with SMTP id 4fb4d7f45d1cf-5c8824ccc1dmr9028037a12.5.1727632290585;
+        Sun, 29 Sep 2024 10:51:30 -0700 (PDT)
 Received: from redhat.com ([2a02:14f:17b:822e:847c:4023:a734:1389])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c2948fc7sm404346366b.137.2024.09.29.10.48.39
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c8824949bdsm3410651a12.84.2024.09.29.10.51.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Sep 2024 10:48:42 -0700 (PDT)
-Date: Sun, 29 Sep 2024 13:48:36 -0400
+        Sun, 29 Sep 2024 10:51:28 -0700 (PDT)
+Date: Sun, 29 Sep 2024 13:51:23 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Aleksandr Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
-Cc: stefanha@redhat.com, Stefano Garzarella <sgarzare@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost/vsock: specify module version
-Message-ID: <20240929134815-mutt-send-email-mst@kernel.org>
-References: <20240926161641.189193-1-aleksandr.mikhalitsyn@canonical.com>
- <20240929125245-mutt-send-email-mst@kernel.org>
- <CAEivzxdiEu3Tzg7rK=TqDg4Ats-H+=JiPjvZRAnmqO7-jZv2Zw@mail.gmail.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jianguo Sun <quic_jianguos@quicinc.com>, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, virtualization@lists.linux.dev,
+	Sreenad Menon <quic_sreemeno@quicinc.com>,
+	Anant Goel <quic_anantg@quicinc.com>
+Subject: Re: [PATCH v2] virtio: Add polling virtio-mmio device reset
+ completion
+Message-ID: <20240929125700-mutt-send-email-mst@kernel.org>
+References: <20240926022557.8771-1-quic_jianguos@quicinc.com>
+ <CACGkMEu-r2K1Xb-797YnK80-YeKEsErSe=BBP=xMbBvHcDv6qA@mail.gmail.com>
+ <20240926020709-mutt-send-email-mst@kernel.org>
+ <CACGkMEshXHRDtxeCJ2VOMh46NMJyYsEo_eFwa4_4TDTa0mA9XQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAEivzxdiEu3Tzg7rK=TqDg4Ats-H+=JiPjvZRAnmqO7-jZv2Zw@mail.gmail.com>
+In-Reply-To: <CACGkMEshXHRDtxeCJ2VOMh46NMJyYsEo_eFwa4_4TDTa0mA9XQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Sun, Sep 29, 2024 at 07:35:35PM +0200, Aleksandr Mikhalitsyn wrote:
-> On Sun, Sep 29, 2024 at 6:56 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Fri, Sep 27, 2024 at 12:08:34PM +0800, Jason Wang wrote:
+> On Thu, Sep 26, 2024 at 2:09 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > On Thu, Sep 26, 2024 at 06:16:40PM +0200, Alexander Mikhalitsyn wrote:
-> > > Add an explicit MODULE_VERSION("0.0.1") specification
-> > > for a vhost_vsock module. It is useful because it allows
-> > > userspace to check if vhost_vsock is there when it is
-> > > configured as a built-in.
+> > On Thu, Sep 26, 2024 at 11:21:25AM +0800, Jason Wang wrote:
+> > > On Thu, Sep 26, 2024 at 10:27 AM Jianguo Sun <quic_jianguos@quicinc.com> wrote:
+> > > >
+> > > > We write 0 to device_status to initiate reset of a virtio-mmio device.
+> > > > The reset operation itself may or may not be completed by the time
+> > > > write instruction completes. Add polling device_status to return
+> > > > 0 to ensure reset completion before reinitializing the device.
+> > > >
+> > > > Change-Id: If15d11d090dfd0d4972ad35f49af03e076872413
+> > > > Signed-off-by: Jianguo Sun <quic_jianguos@quicinc.com>
+> > > > Signed-off-by: Sreenad Menon <quic_sreemeno@quicinc.com>
+> > > > Signed-off-by: Anant Goel <quic_anantg@quicinc.com>
+> > > > ---
+> > > >  drivers/virtio/virtio_mmio.c | 6 ++++++
+> > > >  1 file changed, 6 insertions(+)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> > > > index 90e784e7b721..cf1a4a3dd35d 100644
+> > > > --- a/drivers/virtio/virtio_mmio.c
+> > > > +++ b/drivers/virtio/virtio_mmio.c
+> > > > @@ -70,6 +70,7 @@
+> > > >  #include <linux/virtio_config.h>
+> > > >  #include <uapi/linux/virtio_mmio.h>
+> > > >  #include <linux/virtio_ring.h>
+> > > > +#include <linux/delay.h>
+> > > >
+> > > >
+> > > >
+> > > > @@ -269,6 +270,11 @@ static void vm_reset(struct virtio_device *vdev)
+> > > >
+> > > >         /* 0 status means a reset. */
+> > > >         writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
+> > > > +       /* After writing 0 to device_status, the driver MUST wait for a read of
+> > > > +        * device_status to return 0 before reinitializing the device.
+> > > > +        */
 > > >
-> > > Without this change, there is no /sys/module/vhost_vsock directory.
-> > >
-> > > With this change:
-> > > $ ls -la /sys/module/vhost_vsock/
-> > > total 0
-> > > drwxr-xr-x   2 root root    0 Sep 26 15:59 .
-> > > drwxr-xr-x 100 root root    0 Sep 26 15:59 ..
-> > > --w-------   1 root root 4096 Sep 26 15:59 uevent
-> > > -r--r--r--   1 root root 4096 Sep 26 15:59 version
-> > >
-> > > Signed-off-by: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
+> > > Is this copied from the spec? I can only see a similar description in
+> > > the PCI but not MMIO part.
 > >
+> > Not in spec. We can add something like this in spec, but it
+> > can not be a MUST, has to be a SHOULD.
 > >
+> > > > +       while (readl(vm_dev->base + VIRTIO_MMIO_STATUS))
+> > > > +               msleep(1);
+> > >
+> > > Again, we probably need a feature bit to unbreak existing MMIO devices?
+> > >
+> > > THanks
+> >
+> > We can do this unconditionally since legacy devices return 0
+> > immediately,
 > 
-> Dear Michael,
-> 
-> > Why not check that the misc device is registered?
-> 
-> It is possible to read /proc/misc and check if "241 vhost-vsock" is
-> there, but it means that userspace
-> needs to have a specific logic for vsock. At the same time, it's quite
-> convenient to do something like:
->     if [ ! -d /sys/modules/vhost_vsock ]; then
->         modprobe vhost_vsock
->     fi
-> 
-> > I'd rather not add a new UAPI until actually necessary.
-> 
-> I don't insist. I decided to send this patch because, while I was
-> debugging a non-related kernel issue
-> on my local dev environment I accidentally discovered that LXD
-> (containers and VM manager)
-> fails to run VMs because it fails to load the vhost_vsock module (but
-> it was built-in in my debug kernel
-> and the module file didn't exist). Then I discovered that before
-> trying to load a module we
-> check if /sys/module/<module name> exists. And found that, for some
-> reason /sys/module/vhost_vsock
-> does not exist when vhost_vsock is configured as a built-in, and
-> /sys/module/vhost_vsock *does* exist when
-> vhost_vsock is loaded as a module. It looks like an inconsistency and
-> I also checked that other modules in
-> drivers/vhost have MODULE_VERSION specified and version is 0.0.1. I
-> thought that this change looks legitimate
-> and convenient for userspace consumers.
-> 
-> Kind regards,
-> Alex
+> The problem is that we can't audit all legacy device implementations.
+> Current driver still works if a device doesn't reset status to 0.
+
+These would be out of spec though, would they not?
+The reset value for the register is 0, and it is R/W.
 
 
-I'll ask you to put this explanation in the commit log,
-and I'll pick this up.
-
+> > feature negotiation happens after reset, won't be useful
+> > here.
+> 
+> Right, as said in another thread, it could be mmio specific flag or version.
+> 
+> Thanks
+> 
 > >
-> > > ---
-> > >  drivers/vhost/vsock.c | 1 +
-> > >  1 file changed, 1 insertion(+)
-> > >
-> > > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> > > index 802153e23073..287ea8e480b5 100644
-> > > --- a/drivers/vhost/vsock.c
-> > > +++ b/drivers/vhost/vsock.c
-> > > @@ -956,6 +956,7 @@ static void __exit vhost_vsock_exit(void)
-> > >
-> > >  module_init(vhost_vsock_init);
-> > >  module_exit(vhost_vsock_exit);
-> > > +MODULE_VERSION("0.0.1");
-> > >  MODULE_LICENSE("GPL v2");
-> > >  MODULE_AUTHOR("Asias He");
-> > >  MODULE_DESCRIPTION("vhost transport for vsock ");
-> > > --
-> > > 2.34.1
+> >
+> > > >  }
+> > > >
+> > > >
+> > > > --
+> > > > 2.17.1
+> > > >
 > >
 
