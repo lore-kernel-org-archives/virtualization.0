@@ -1,107 +1,114 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E8AE192D63;
-	Mon, 30 Sep 2024 19:48:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46FCE199E88
+	for <virtualization@lists.linux.dev>; Mon, 30 Sep 2024 20:37:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727725684; cv=none; b=BRQkFQLWxpNSnnCkQYiP5aXIzHy/KYIoyZ6JdTJMOyo1YZOusrjPygfwUb5Hc3ChTbARArgCBeELyqlvQ4Xdo1q4sw+mGc1C1cqjsF9eqSA3CwuiV8fZA+Nm/EDL49FERFkFWh7hX1kVpsPdvzYmApI7QQHSVZIAGkDkBRq+e2s=
+	t=1727728628; cv=none; b=p4FQxncrO9hH9uUgtfbiNbiiW/a5DxHrhS6GYIEoWNRFyg/t2m9Plt/I2O42CddBSOmCa87lPm9tQeefyiADUcvPYbWswfbflP7qVAHXW8uGYOUYtpCc+7KvmuI3gliCzlbBa9+EvNcxgpyBXpiXGyKcipgVg6SRSVkjvy/k/QE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727725684; c=relaxed/simple;
-	bh=zX7Xv4j1Jpsk1DHjtJhzuQXPGJa1B1XRYJxc7YlDcfQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=B90EBLgLzmkwuo4jAQ78rBg3OKoCxUGN2zFw5WUItTWE4NEx48R7jme69NjZch0H5yrvuT/R1e/qLaOc3B0PGnkoBPL3+CJKBFqx8dOyG/82upqBEz8wGyAvdQxW3gCEo1r35wy+zIXT+r/PTQEaTeU4lv/GJJ4v8GridSYFz08=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=da9EiT4s; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	s=arc-20240116; t=1727728628; c=relaxed/simple;
+	bh=jnmLdmDuHRs3fPMVKD2Uxf08LN46e+8gtgtN4yECEs8=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=r8TjbqL3BZknMGXjBicOm/3aDYeIH6Qslu8w6pOQOW5MqQLYkSnrc1tmvwZ6XYlNPg2ganagRcb39OpWYmGNJ4nOuv6pgxpYoXwxFH1ell3ae3KMQJaMwZMIyEYpJK1x1/YXNvFC0kWYSSfz5gvAdQdiipUZOTGKtPu9WVwADno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com; spf=pass smtp.mailfrom=digitalocean.com; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=beYp2Kkm; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digitalocean.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="da9EiT4s"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=5pKQqLfBTINSnLOUO4PPSoPYAul9k4y7qrDes6Ya/zA=; b=da9EiT4smaqz9J4nKnLz9YIVEw
-	wTkXmBPpdWjucPrSppu+46W3tMA/tggdniQKO9ztb3f+JC1cXdVp5ozLGE+x0VO02BB2fHW1hEtCs
-	14BRvtpRB3FjgGjcEcPY9Iqqz1eA8854uSb/2gLFihLjtclXOSCQ08s+FlsKszzOUIJU=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1svMNC-008eqQ-Lj; Mon, 30 Sep 2024 21:47:58 +0200
-Date: Mon, 30 Sep 2024 21:47:58 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-To: Aleksandr Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, kuba@kernel.org,
-	stefanha@redhat.com, "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	mcgrof@kernel.org
-Subject: Re: [PATCH v2] vhost/vsock: specify module version
-Message-ID: <a4e8d2ac-a303-4c5b-9a1d-3ba6c09d92dc@lunn.ch>
-References: <20240929182103.21882-1-aleksandr.mikhalitsyn@canonical.com>
- <w3fc6fwdwaakygtoktjzavm4vsqq2ks3lnznyfcouesuu7cqog@uiq3y4gjj5m3>
- <CAEivzxe6MJWMPCYy1TEkp9fsvVMuoUu-k5XOt+hWg4rKR57qTw@mail.gmail.com>
- <ib52jo3gqsdmr23lpmsipytbxhecwvmjbjlgiw5ygwlbwletlu@rvuyibtxezwl>
- <CAEivzxdP+7q9vDk-0V8tPuCo1mFw92jVx0u3B8jkyYKv8sLcdA@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="beYp2Kkm"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-20b8be13cb1so14609865ad.1
+        for <virtualization@lists.linux.dev>; Mon, 30 Sep 2024 13:37:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=digitalocean.com; s=google; t=1727728626; x=1728333426; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=NJJ76z/sCDf8rU24TLfaZ1NtMX+cpeJOgDj7wQ8yj6Q=;
+        b=beYp2KkmlSOBG1VkCnls7RGgGemZHLZmUmV68AcS6XWev1rE30oYiWDPVNuIoLGrx/
+         WGjYA1hbbpyE31arppgGIJLRkXzrjXvRU/6mtGKYKzq+VDH3tsEd+bP4QbDsO/i9nIQQ
+         +f27+hItaf3kUBaKMhEus/3YXtHtQa2BBpBNI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727728626; x=1728333426;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NJJ76z/sCDf8rU24TLfaZ1NtMX+cpeJOgDj7wQ8yj6Q=;
+        b=fDtps1kBQWaXLGTf2SoYG6PlX3IPQFmB98TlpZQhG+oZghFjY5A+gbbhZGL4HAAT/y
+         jXN9H+JGfs2jXve9BF5qyLQQSBD9vCNaIdz/MefO4hXAvH10pTPIIwfwW9vkggg9Y8g9
+         hCHhj4Mcu6xQLNCTs8KJX7GQlCEGVRCk2UxdraQ+zGEeYurp4uIqwtF2Xin5pLCyrJWU
+         GTfa2bglJ4MlOoo9Hn2SVR4d8Yhi+Xh9RjcSKtY58e9SQpSdcwrEgU2R2a+Wgjhu4s02
+         K91If0iVgFy2m4a+FrzWpRa7gofeMQMNjWsYEwfEW2OhUDjOuMZ8/eGK3L4OdOdv50OC
+         LHiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXPggiAXl9ev2g/6vNMwEhthgq4rwTObrPbe95oDTq81AmewBC8y4mPSg7ucaNye4eIxkUl3jbkNZV5bBnF1Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw/3kwcuFug+ugxhlJ2gIDaFTBMTsshldq3ABXANuKq0qOBEd/1
+	qPQCNyLh3YJxdw81gorpmOZZhtct4F8Bhv+l6JkhP4elLUg5hiWKstySEfptaUY=
+X-Google-Smtp-Source: AGHT+IHzSn+v65fVebJaE2zPw6HTo2VHqvN2H9hjFKG7EV9XHLnmip9ciN14A4qtC8Vt5uVKPUnhvA==
+X-Received: by 2002:a17:902:f706:b0:20b:4651:13a2 with SMTP id d9443c01a7336-20b46512a41mr207109675ad.45.1727728626533;
+        Mon, 30 Sep 2024 13:37:06 -0700 (PDT)
+Received: from ?IPV6:2603:8080:7400:36da:2dca:6772:d6a2:80ac? ([2603:8080:7400:36da:2dca:6772:d6a2:80ac])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20b37e61e14sm58213785ad.279.2024.09.30.13.37.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Sep 2024 13:37:06 -0700 (PDT)
+Message-ID: <81c9b7d9-5dd0-49d6-bf34-205e1b6cb852@digitalocean.com>
+Date: Mon, 30 Sep 2024 15:37:03 -0500
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAEivzxdP+7q9vDk-0V8tPuCo1mFw92jVx0u3B8jkyYKv8sLcdA@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 0/2] Properly initialize speed/duplex and remove vDPA
+ config updates
+From: Carlos Bilbao <cbilbao@digitalocean.com>
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, dtatulea@nvidia.com,
+ shannon.nelson@amd.com, sashal@kernel.org, alvaro.karsz@solid-run.com,
+ christophe.jaillet@wanadoo.fr, steven.sistare@oracle.com, bilbao@vt.edu,
+ xuanzhuo@linux.alibaba.com, johnah.palmer@oracle.com, eperezma@redhat.com,
+ cratiu@nvidia.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20240904151115.205622-1-carlos.bilbao.osdev@gmail.com>
+ <20240910022843-mutt-send-email-mst@kernel.org>
+ <CACGkMEscQWywn67yN7fAaRdWkOZV80RryCvyf_02RDWjrKZMwA@mail.gmail.com>
+ <4f6db868-d1e8-42b5-92ad-ae22331f5bd1@digitalocean.com>
+Content-Language: en-US
+In-Reply-To: <4f6db868-d1e8-42b5-92ad-ae22331f5bd1@digitalocean.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-> > >Hi Stefano,
-> > >
-> > >>
-> > >> I was looking at other commits to see how versioning is handled in order
-> > >> to make sense (e.g. using the same version of the kernel), and I saw
-> > >> many commits that are removing MODULE_VERSION because they say it
-> > >> doesn't make sense in in-tree modules.
-> > >
-> > >Yeah, I agree absolutely. I guess that's why all vhost modules have
-> > >had version 0.0.1 for years now
-> > >and there is no reason to increment version numbers at all.
-> >
-> > Yeah, I see.
-> >
-> > >
-> > >My proposal is not about version itself, having MODULE_VERSION
-> > >specified is a hack which
-> > >makes a built-in module appear in /sys/modules/ directory.
-> >
-> > Hmm, should we base a kind of UAPI on a hack?
-> 
-> Good question ;-)
-> 
-> >
-> > I don't want to block this change, but I just wonder why many modules
-> > are removing MODULE_VERSION and we are adding it instead.
-> 
-> Yep, that's a good point. I didn't know that other modules started to
-> remove MODULE_VERSION.
+On 9/11/24 11:55 AM, Carlos Bilbao wrote:
 
-As you said, all over vhost modules say version 0.0.1 for years. But
-the kernel around these modules has had many changes. So 0.0.1 tells
-you nothing useful. When a user reports a problem using vhost_vsock
-version 0.0.1 your first question is going to be, what kernel version
-from which distribution?
+> Hello,
+>
+> On 9/10/24 10:42 PM, Jason Wang wrote:
+>> On Tue, Sep 10, 2024 at 2:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>>> On Wed, Sep 04, 2024 at 10:11:13AM -0500, Carlos Bilbao wrote:
+>>>> From: Carlos Bilbao <cbilbao@digitalocean.com>
+>>>>
+>>>> Initialize speed and duplex for virtio_net_config to UNKNOWN (mlx5_vdpa
+>>>> vDPA devices currently do not support VIRTIO_NET_F_SPEED_DUPLEX). Remove
+>>>> ioctl VHOST_VDPA_SET_CONFIG and its related logic as it is not supported;
+>>>> see: https://docs.oasis-open.org/virtio/virtio/v1.3/virtio-v1.3.html
+>>>>
+>>>> Carlos:
+>>>>   vdpa/mlx5: Set speed and duplex of vDPA devices to UNKNOWN
+>>>>   vdpa: Remove ioctl VHOST_VDPA_SET_CONFIG per spec compliance
+>>> This will need a rebase. Will apply once you post one.
+>>> Thanks!
 
-If the information is useless, let just remove it.
 
-I would not base a kAPI around this. Isn't there a system call you can
-perform and get an EOPNOTSUPP, ENODEV, EMORECOFFEE?
+I successfully patched linux-next without any issues. Could you please
+specify the repo/branch you need me to rebase onto? Thanks in advance
 
-Also, at least in networking and probably in other subsystems,
-performing an operation is often needed to trigger the module to
-load. So it not being listed in /sys/modules does not mean the module
-is missing, it could be its just not been needed until now.
 
-Take a step back, what is your real use case here? Describe it and
-maybe we can think of a better kAPI.
-
-	Andrew
-
+>> Note that I think patch 2 is probably not right as we indeed allow
+>> config write for some device.
+>
+> I'll rebase patch 1 and drop patch 2.
+>
+>
+>> Thanks
+>>
+> Thanks, Carlos
+>
