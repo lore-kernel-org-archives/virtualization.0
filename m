@@ -1,144 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6245937708
-	for <virtualization@lists.linux.dev>; Sun, 29 Sep 2024 19:03:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B9F813D8A4
+	for <virtualization@lists.linux.dev>; Mon, 30 Sep 2024 07:32:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727636598; cv=none; b=gZHV+dPPV/PZVTvp/g7ZrLRhVD+BvSsIM3AN5k9eK4nhf6OxaFrTvPVak/ioeugeouJ0FzygTXP8Wt6T8/1yc2P+x2pxdd4oX7LQX0jaNTvypnQWWKC794gBwi+jXzsWN4ynC7bw1j1rk8ZjT6s48KGtyx4VmQG0ZENDaUbri/A=
+	t=1727681535; cv=none; b=nQN8jDuhCmS5ERCWJWBDAga9r6ihjzGRnE4So97sKpidhABxweQgDo8R11p4tSKLqG2wMe0iVJv92/62ANKN5K4gexHL0CzGS+W6ArXcx+GkrWVzvcF2tpYWDRq0iaFmVHc/ei2nHT9f2CXxVGhFAssOUYLZAlZFIJ3KHcjdoWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727636598; c=relaxed/simple;
-	bh=mJ6aNO0lKWxfxwO0/xyx1DBweeTD58gqYEGwbYFCjtE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=H1RCaqL/uAQldcFefeAOhLo1KBOUaBEGIozc0PXF6EEnq231Avm4XQV6JvX1eDkZgx0yncMHOFxo3FigrqmbRYLTx3/LSc1dAlr4SNAAxFBqBUyYZdsTTk10T/2aAWr9slAKdNLkuti6JFHRJegmjoWztpgXPTrcijakvg5Lwuw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W6QBdhMh; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1727681535; c=relaxed/simple;
+	bh=M3ZGR3m5dE/OcpAuJgNW07sMzVd9xcG6hbRIN3GQi5s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ntV7kpBja6qvX7WsGQvHKel6y9q5IcCOyHmPg8GC8I74v6FoC5RCmEjPUGCMviN+aSNotr0FQfJ46ufvK+JrbfxJ08zUTKW+PA+FfvN3Gdi2vLZDiIJhL9rUYhBRnvHRL/53vnkeP/EWf2hox9atjrs0gK8gddk6KT9BezTi+p4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=Oz0MJoD/; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W6QBdhMh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727636594;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=x6bUJlkki1ztWLf5NuN8u9UlosagMsCbrNTD0ZptiK8=;
-	b=W6QBdhMhXDhsP2v7ea8DSJNBBF57/Fx+sjdfSd+QfqSJ1TzTFu53G9M3+D4Y0J9Q6b3PX3
-	89l1JpFstgZJ2kgaKKmtWcUaSd83le4C7u8js1nZRDqTABwQtJGT7Qk6NxfSZsmQ7ePS/v
-	M9cmimDM2oLnW7zxmgQ+cmyaBD2KOks=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-562-z-Ly3rrOM6W4MDOUnl275Q-1; Sun, 29 Sep 2024 15:03:13 -0400
-X-MC-Unique: z-Ly3rrOM6W4MDOUnl275Q-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a8d3085ab6fso262080666b.0
-        for <virtualization@lists.linux.dev>; Sun, 29 Sep 2024 12:03:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727636592; x=1728241392;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=x6bUJlkki1ztWLf5NuN8u9UlosagMsCbrNTD0ZptiK8=;
-        b=Tbss10FrkdaoE1Kf2gudpgjQdiMtyuFZqZfxhcyJXO+yDRSx98f0xDxURX0rdj4BgJ
-         TwBufPMF9fLfDAjwyHxUiL2AXnbeP4ouUOB8PdEK4GTsxt82zzh5lrkyf29zYLtrKxvX
-         TdEpHHCoF5mogmuNBkrBdcxyhp0fpHCfGEdwuYByV8JkWk5OuHe7FVjpiLaFwd46eTDF
-         OdzxPCfjosogTRYV8ZPqSnXpaCpPY/3DznMFmXMx8fPTUIbzMwi5VMJgE6e4GMYtTzpJ
-         EtP/xf99A9AXySqAAAWzTFSVPyNE7XGmfTjL/03cI6hVSEXHpep2s5/4YcUx/7z8tehs
-         gZfw==
-X-Forwarded-Encrypted: i=1; AJvYcCWaxggQ5BfQmw2O8mT5BT9I097othiMbU5OEXXki1vqNHEgGgxI3zLVvs3RD0IVzFNHNeYIVXZeW0KvgpIYdg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwHt5Kxm0ziT7dFqlh1LL3c7RlKXXMGDE4HRv6Fe3lLO+y6rOpR
-	Y2DwPvobXZ4Nw0HM9wPXrYctjlPsZmKRdf4O4jmjwHJa1a5szn0U1EJ1bW24ofcAXoZAxH2fbPF
-	7YWakJFzSt7FiY90DelgF0Rc4DD6bl5/ORC42C9iyAz07vxI5dJ+XY+fCEsIjoe7s
-X-Received: by 2002:a17:907:3203:b0:a86:851e:3a2b with SMTP id a640c23a62f3a-a93c49299e7mr1036679966b.29.1727636591858;
-        Sun, 29 Sep 2024 12:03:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFQDd9sJy+FimmEzDQjyiUcueim9sVTOWfbarbSrm0RdNbR85RpVYfEUSJyhVZkPo8TSYJtwg==
-X-Received: by 2002:a17:907:3203:b0:a86:851e:3a2b with SMTP id a640c23a62f3a-a93c49299e7mr1036678366b.29.1727636591515;
-        Sun, 29 Sep 2024 12:03:11 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:17b:822e:847c:4023:a734:1389])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c2947e49sm412253866b.135.2024.09.29.12.03.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Sep 2024 12:03:10 -0700 (PDT)
-Date: Sun, 29 Sep 2024 15:03:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
-Cc: stefanha@redhat.com, Stefano Garzarella <sgarzare@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] vhost/vsock: specify module version
-Message-ID: <20240929150147-mutt-send-email-mst@kernel.org>
-References: <20240929182103.21882-1-aleksandr.mikhalitsyn@canonical.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="Oz0MJoD/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1727681531;
+	bh=M3ZGR3m5dE/OcpAuJgNW07sMzVd9xcG6hbRIN3GQi5s=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Oz0MJoD/WjoceXAqgBvUNpAstd9dV0jBR191CXDs3DaHEQv8fB6tEEkb3khrgiisE
+	 nh7tdsJ05/IcW/muYpcMYD2UbZ59bvLNKjDb7A7RsthSIIYy9ISk7EtNcjZZJJ/j4b
+	 46HY0ZSLujeCZ2Euue+8cxgFYaU/00AGdTSqrFGu+tvTdK4XrGCbrxAmA25H//DWD1
+	 gnBnOgQkZjyB3Rxtdykg0mDYBmcB8VRkDHDSZOdUCxlY8BYcGNoed0Ur7HnpY3zSJe
+	 +ONzA6kcS7zMAeoKr1mZ7/oMykf0KM1jTOBErKvVlvh8ykoNrOxERefW/OQ7/gJea/
+	 VGMkeeuORJQXg==
+Received: from [192.168.50.250] (unknown [171.76.80.165])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 9E73717E1047;
+	Mon, 30 Sep 2024 09:32:07 +0200 (CEST)
+Message-ID: <5fd48673-571a-4750-9704-e172f7ea372f@collabora.com>
+Date: Mon, 30 Sep 2024 13:01:55 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240929182103.21882-1-aleksandr.mikhalitsyn@canonical.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] docs/gpu: ci: update flake tests requirements
+To: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
+ helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
+ robdclark@gmail.com, guilherme.gallo@collabora.com,
+ sergi.blanch.torne@collabora.com, deborah.brouwer@collabora.com,
+ dmitry.baryshkov@linaro.org, mripard@kernel.org, quic_abhinavk@quicinc.com,
+ linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20240927052416.1833889-1-vignesh.raman@collabora.com>
+ <ZvbCzqvyeTI_j2cD@intel.com>
+Content-Language: en-US
+From: Vignesh Raman <vignesh.raman@collabora.com>
+In-Reply-To: <ZvbCzqvyeTI_j2cD@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, Sep 29, 2024 at 08:21:03PM +0200, Alexander Mikhalitsyn wrote:
-> Add an explicit MODULE_VERSION("0.0.1") specification for the vhost_vsock module.
+Hi Rodrigo,
+
+On 27/09/24 20:05, Rodrigo Vivi wrote:
+> On Fri, Sep 27, 2024 at 10:54:14AM +0530, Vignesh Raman wrote:
+>> Update the documentation to specify linking to a relevant GitLab
+>> issue or email report for each new flake entry. Added specific
+>> GitLab issue urls for i915, msm and amdgpu driver.
+>>
+>> Acked-by: Abhinav Kumar <quic_abhinavk@quicinc.com> # msm
+>> Acked-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> # msm
+>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+>> ---
+>>
+>> v2:
+>> - Add gitlab issue link for msm driver.
+>>
+>> v3:
+>> - Update docs to specify we use email reporting or GitLab issues for flake entries.
+>>
+>> ---
+>>   Documentation/gpu/automated_testing.rst | 13 +++++++++----
+>>   1 file changed, 9 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/Documentation/gpu/automated_testing.rst b/Documentation/gpu/automated_testing.rst
+>> index 2d5a28866afe..03769b4a17cf 100644
+>> --- a/Documentation/gpu/automated_testing.rst
+>> +++ b/Documentation/gpu/automated_testing.rst
+>> @@ -68,19 +68,24 @@ known to behave unreliably. These tests won't cause a job to fail regardless of
+>>   the result. They will still be run.
+>>   
+>>   Each new flake entry must be associated with a link to the email reporting the
+>> -bug to the author of the affected driver, the board name or Device Tree name of
+>> -the board, the first kernel version affected, the IGT version used for tests,
+>> -and an approximation of the failure rate.
+>> +bug to the author of the affected driver or the relevant GitLab issue. The entry
+>> +must also include the board name or Device Tree name, the first kernel version
+>> +affected, the IGT version used for tests, and an approximation of the failure rate.
+>>   
+>>   They should be provided under the following format::
+>>   
+>> -  # Bug Report: $LORE_OR_PATCHWORK_URL
+>> +  # Bug Report: $LORE_URL_OR_GITLAB_ISSUE
+>>     # Board Name: broken-board.dtb
+>>     # Linux Version: 6.6-rc1
+>>     # IGT Version: 1.28-gd2af13d9f
+>>     # Failure Rate: 100
+>>     flaky-test
+>>   
+>> +Use the appropriate link below to create a GitLab issue:
+>> +amdgpu driver: https://gitlab.freedesktop.org/drm/amd/-/issues
+>> +i915 driver: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues
 > 
-> It is useful because it allows userspace to check if vhost_vsock is there when it is
-> configured as a built-in.
+> Probably good to add:
 > 
-> This is what we have *without* this change and when vhost_vsock is configured
-> as a module and loaded:
+> xe driver: https://gitlab.freedesktop.org/drm/xe/kernel/-/issues
+
+Sure, will add it.
+
 > 
-> $ ls -la /sys/module/vhost_vsock
-> total 0
-> drwxr-xr-x   5 root root    0 Sep 29 19:00 .
-> drwxr-xr-x 337 root root    0 Sep 29 18:59 ..
-> -r--r--r--   1 root root 4096 Sep 29 20:05 coresize
-> drwxr-xr-x   2 root root    0 Sep 29 20:05 holders
-> -r--r--r--   1 root root 4096 Sep 29 20:05 initsize
-> -r--r--r--   1 root root 4096 Sep 29 20:05 initstate
-> drwxr-xr-x   2 root root    0 Sep 29 20:05 notes
-> -r--r--r--   1 root root 4096 Sep 29 20:05 refcnt
-> drwxr-xr-x   2 root root    0 Sep 29 20:05 sections
-> -r--r--r--   1 root root 4096 Sep 29 20:05 srcversion
-> -r--r--r--   1 root root 4096 Sep 29 20:05 taint
-> --w-------   1 root root 4096 Sep 29 19:00 uevent
+> Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+
+Thanks.
+
 > 
-> When vhost_vsock is configured as a built-in there is *no* /sys/module/vhost_vsock directory at all.
-> And this looks like an inconsistency.
+>> +msm driver: https://gitlab.freedesktop.org/drm/msm/-/issues
+>> +
+>>   drivers/gpu/drm/ci/${DRIVER_NAME}-${HW_REVISION}-skips.txt
+>>   -----------------------------------------------------------
+>>   
+>> -- 
+>> 2.43.0
+>>
 
-And that's expected.
-
-> With this change, when vhost_vsock is configured as a built-in we get:
-> $ ls -la /sys/module/vhost_vsock/
-> total 0
-> drwxr-xr-x   2 root root    0 Sep 26 15:59 .
-> drwxr-xr-x 100 root root    0 Sep 26 15:59 ..
-> --w-------   1 root root 4096 Sep 26 15:59 uevent
-> -r--r--r--   1 root root 4096 Sep 26 15:59 version
-
-Sorry, what I'd like to see is an explanation which userspace
-is broken without this change, and whether this patch fixes is.
-
-
-
-> Signed-off-by: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
-> ---
->  drivers/vhost/vsock.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 802153e23073..287ea8e480b5 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -956,6 +956,7 @@ static void __exit vhost_vsock_exit(void)
->  
->  module_init(vhost_vsock_init);
->  module_exit(vhost_vsock_exit);
-> +MODULE_VERSION("0.0.1");
->  MODULE_LICENSE("GPL v2");
->  MODULE_AUTHOR("Asias He");
->  MODULE_DESCRIPTION("vhost transport for vsock ");
-> -- 
-> 2.34.1
-
+Regards,
+Vignesh
