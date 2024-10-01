@@ -1,567 +1,224 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 546FC6FBF
-	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 01:45:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 233F11BBBF8
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 05:54:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727747161; cv=none; b=KnC5OF3K5X+/PX8UmEXNleAxrK3lPHhsdi8wqTjla4tGooJtGW/sMR+37Tnct2I3/asdQL5X71r7h0bx58OboWsOgV9f2Dg74gDLuvM9cIWXSwGF2bUREswM/ZwaJelVAdbPV4NTmXxTeuqUOPQeSvWYu0jKs1joAGPfNoicsb4=
+	t=1727762079; cv=none; b=qYijqfCAlXW9/mlw54AvmMjC4DgrYFFmYjVZNbUb1LjAtfHx0waSYPpO3kc58delwOWZxifKGEHTAiC4dI+uKR7ogH/+PRwS8doyzAnZU0zVH+0su1qEDsDs7PqtvtXSZIARsCdTzWY12qTFzS2iDAqZqb3IXPxjXrEg+KbV77U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727747161; c=relaxed/simple;
-	bh=MoiYmS+B6veEm5YqGvpYPbFstCPl8lhOw0M0GKJyfHE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aAIuI7R5mUv7XQZ2TI259eX9o1WYAqlS+r0CoLQEMgiUI7vzDVkyJe1DQH630+QdnWWQAq37J1leRS90mYaRjBT8E6Zg+g+pArWKeCGi0R681Os8pRqsQkjSB6/9hKtEESPPabj7xmv2HMSnmck+7wNixDCfPz3AbazSEVX6rdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ELTFYsSF; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1727762079; c=relaxed/simple;
+	bh=jwGSkO56afJU1ZykB3f/IrdDpZ6b9CUjy6ikv5vxw2U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mE1RJdTndmbXYRYA6JUtC4vFb5BydxTl0gjSynZPn9VdDo+3ocSLg/4ZWsOP6gtKEwz9LmA4CAfJFqtBHL8HfqyKtBt3cvB0eewRoNiaMIYFlbg1CEl7vcEh87xh7lbb5WXL2+0e/bnznyotYlKLeglvTfSMwE4u68krAW5hM2k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=SBdOhDUc; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ELTFYsSF"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="SBdOhDUc"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D66D560769
-	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 01:45:58 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D6E3040306
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 05:54:37 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id DhQr81Hrww5M for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Oct 2024 01:45:56 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::635; helo=mail-ej1-x635.google.com; envelope-from=dverkamp@chromium.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 863C46072C
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 863C46072C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ELTFYsSF
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 863C46072C
-	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 01:45:55 +0000 (UTC)
-Received: by mail-ej1-x635.google.com with SMTP id a640c23a62f3a-a90f263c60fso14461566b.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 30 Sep 2024 18:45:55 -0700 (PDT)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 17JU3Wq51Sub for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Oct 2024 05:54:36 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62a; helo=mail-pl1-x62a.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A361440304
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A361440304
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=SBdOhDUc
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A361440304
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 05:54:35 +0000 (UTC)
+Received: by mail-pl1-x62a.google.com with SMTP id d9443c01a7336-20b90ab6c19so16200915ad.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 30 Sep 2024 22:54:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1727747153; x=1728351953; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=i/4Xqypuldl3uicp73KgGs/KFNhgtrfX7cdOdaweP/w=;
-        b=ELTFYsSFsQ3GL+I6I7bGLmpk2fr5larxeBsR5T9YUyQ0tJNBgHFQuU16tDPNINY2dK
-         GXs9jd0+veVbUegHxmZeOXbILW7Z1Re0rCOAG4DzDUf3Xi9wNECxT5bJ2iX7iFwCs4aI
-         ZTBfSbr5joKYwH7msu5FB6WiNFEpkF09fEFzc=
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1727762075; x=1728366875; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=GW6JKIMSJkoy7ESOeaiL6uJ49rRhUcpJss1NlSyIBZo=;
+        b=SBdOhDUcrThz7TpFNEb7Wz9iqMAuI2p3vEjNR82qVtt6cQw1qfjgmM53HsM0yu2QN5
+         pkoWb7SyGC1/84IF4f+2SXrEybF2XqbzZDc3uuuZIPMI+N8iyWLHPosEi6mrsMU+x1MK
+         B9ZJgxYHqvoWl/Cbk0KhqKJZWjIbs/eNLSofGhEhFdLOyPt3B1iQ1t6Z8hCcImERslel
+         ND7jiZpyIDraMBi0sKZaHh6fjV1kvFm8boCHFQ7nT2ipyvZ2byBY1k1DYG5XmPvxyrxe
+         CIsCyNQ4pJPFrc1GqNqpap3enHVifx2ZGpxo2DuFIQqJGa6i8T+zl3Y0BA5sozGWmfKX
+         p+nQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727747153; x=1728351953;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=i/4Xqypuldl3uicp73KgGs/KFNhgtrfX7cdOdaweP/w=;
-        b=fAq4ZfXtkN/IE1tu+zOwPP6b7UAX0+9wVRO+mg35BUA7oFaWQ/1swXnos2+742tAAv
-         V1zd50V7GL5V0lbEIFXOEIHkH31Gud0vQZQM56ZDIQicajghDxHnTL7lYIz/dz3mjyp0
-         y03wKILxfd9cMwkEpvPhkr4PHpYhe0X+dJcCvn+whIE3Sl0GGyIomzgMLyxv1iWn15Lp
-         5FsoeOftFLwaDyWgI5rMeGA70Shf8o/n1UFCqpFYVy8lZKn1AmvP6hLH4Z7nMkyKgGAo
-         oWCOZMFmMle1aqbPe9UAIltcQAueht12G7oagbvMgu9CwrARjgoEaxO8amBAUmDKEHm+
-         JMpw==
-X-Forwarded-Encrypted: i=1; AJvYcCVyRoA1EFdQu3Sfd+VPBRPZDcqXc8i/Am9dcKuhDWdwLDkDhHlb/Vby106dxKJ39BA0PGWnzZQSgoqrVpmqmQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwINLoj5XIkHc2BPTNyA4lpGn68pi228eXa+Lt/vp1zJogQpf9N
-	rPQOmEIUk0DTzN6BWB3tZtTavLlDWyYW9ukHwENFSteHNfO/bErYykTsYI2YkKZOqxb3QTBUMhU
-	=
-X-Google-Smtp-Source: AGHT+IExHIZq9bUJJp9IrSHfuoSE3Xl3mZPvMdgeACD1VeDmzzCDb/GVYH+t7WQ4BEoXb2zWMlUVNQ==
-X-Received: by 2002:a17:907:1c8d:b0:a83:a86a:549a with SMTP id a640c23a62f3a-a93d8a59655mr450025466b.1.1727747152748;
-        Mon, 30 Sep 2024 18:45:52 -0700 (PDT)
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com. [209.85.221.44])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c299ac82sm613838566b.217.2024.09.30.18.45.52
-        for <virtualization@lists.linux-foundation.org>
+        d=1e100.net; s=20230601; t=1727762075; x=1728366875;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GW6JKIMSJkoy7ESOeaiL6uJ49rRhUcpJss1NlSyIBZo=;
+        b=mYuaqcbV0hC2Oh9JnXgDOdtfSSnWpTd6SQlvs2y0tGnf64mFOCy3Ttq+J+XQGEDg2J
+         PJXisAdlq/IV0iLCqQib2TCPIQ9XKY/MxUpMeiQw+9ggehGXFLTwqs5bUd+/7qkaghnH
+         ZIp73h3YoF8B8uW8Kdh9Ys8ZFeHu0oPZ/czqSpEEnoTvdl/c3FBtLlV1XmaDy6aPZM7x
+         dSLMBtZcqdbMIBj/dvB5aPwpaRmfKMgdadq0ZoPORnub8KNnHeXZU9MbPZ4Pu0CezF6U
+         AIGcyiXsN5c0Ieuw8bjccjy2bL+IOChJ9TP5xPqAsFGYx16z8eE8tpKrHBtL4nT9daV0
+         32Cg==
+X-Forwarded-Encrypted: i=1; AJvYcCXmbhbkmPNWFSbaJXilvZNbNRduXuq4B1djcrRU9pdKJNjVNDnAB32GjvIrqoiKja15tLMwvtqD/97Lp2An2w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxonwHpEvpj0JxkSlAqa7bJaizh1C7ks8KHo3QA+9RcACfOIGQr
+	d1qsFXwKYlyDAc1pml5Lgr+o5IwjRQb6WU2iD6eLEPiRyeXt0Pht3/MqsrW0pNc=
+X-Google-Smtp-Source: AGHT+IFhIsPLEQ/TcepiVOkMJKIDjkaQae3ulnJtI9h3ifP3aAnGkfCXTch2f3Cv0L6+buDt1VANcQ==
+X-Received: by 2002:a17:902:c40b:b0:205:968b:31ab with SMTP id d9443c01a7336-20b37bcacf4mr225656085ad.58.1727762074890;
+        Mon, 30 Sep 2024 22:54:34 -0700 (PDT)
+Received: from [157.82.207.107] ([157.82.207.107])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20b37e4efdasm63400305ad.252.2024.09.30.22.54.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 Sep 2024 18:45:52 -0700 (PDT)
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-37cd6ece97cso1987235f8f.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 30 Sep 2024 18:45:52 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVJkehBP63DycqKV21k+AMkU2iWLwpcG0pih1XV0dOrXD29FZyXUcGi2Nw4qkYUdHWnF5mSoKfKz/XzruMLzQ==@lists.linux-foundation.org
-X-Received: by 2002:a05:6000:186b:b0:37c:d512:d427 with SMTP id
- ffacd0b85a97d-37cd5aba1efmr11432491f8f.35.1727747151318; Mon, 30 Sep 2024
- 18:45:51 -0700 (PDT)
+        Mon, 30 Sep 2024 22:54:34 -0700 (PDT)
+Message-ID: <f437d2d6-e4a2-4539-bd30-f312bbf0eac8@daynix.com>
+Date: Tue, 1 Oct 2024 14:54:29 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240925145228.27953-1-mgurtovoy@nvidia.com> <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
- <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com> <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
- <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com>
-In-Reply-To: <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com>
-From: Daniel Verkamp <dverkamp@chromium.org>
-Date: Mon, 30 Sep 2024 18:45:23 -0700
-X-Gmail-Original-Message-ID: <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
-Message-ID: <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, 
-	stefanha@redhat.com, virtio-dev@lists.linux.dev, oren@nvidia.com, 
-	parav@nvidia.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC v4 0/9] tun: Introduce virtio-net hashing feature
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Jason Wang <jasowang@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>, gur.stavi@huawei.com
+References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
+ <CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
+ <c3bc8d58-1f0e-4633-bb01-d646fcd03f54@daynix.com>
+ <CACGkMEu3u=_=PWW-=XavJRduiHJuZwv11OrMZbnBNVn1fptRUw@mail.gmail.com>
+ <6c101c08-4364-4211-a883-cb206d57303d@daynix.com>
+ <CACGkMEtscr17UOufUtyPp1OvALL8LcycpbRp6CyVMF=jYzAjAA@mail.gmail.com>
+ <447dca19-58c5-4c01-b60e-cfe5e601961a@daynix.com>
+ <20240929083314.02d47d69@hermes.local>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <20240929083314.02d47d69@hermes.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-[side note: I thought I subscribed to the virtio-dev list previously,
-but the confirmation got lost in the spam filter initially, should be
-fixed now]
-On Fri, Sep 27, 2024 at 5:22=E2=80=AFPM Max Gurtovoy <mgurtovoy@nvidia.com>=
- wrote:
->
->
-> On 27/09/2024 0:44, Daniel Verkamp wrote:
-> > On Wed, Sep 25, 2024 at 4:42=E2=80=AFPM Max Gurtovoy <mgurtovoy@nvidia.=
-com> wrote:
-> >> Hi Daniel,
-> >>
-> >> On 25/09/2024 23:57, Daniel Verkamp wrote:
-> >>> On Wed, Sep 25, 2024 at 8:05=E2=80=AFAM Max Gurtovoy <mgurtovoy@nvidi=
-a.com> wrote:
-> >>>
-> >>> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit i=
-s
-> >>> set.
-> >>>
-> >>> The blk_size field represents the smallest addressable unit of data t=
-hat
-> >>> can be read from or written to the device. It is always a power of tw=
-o
-> >>> and typically ranges from 512 bytes to larger values such as 4 KB.
-> >>>
-> >>> I agree that this is what the blk_size field probably *should* have
-> >>> meant (matching other storage protocols like ATA, SCSI, NVMe, ...),
-> >>> but I believe rewriting the spec like this changes the meaning of the
-> >>> blk_size field in an incompatible way.
-> >> I believe that this is more of a clarification than a re-write.
-> >>
-> >>> Previously, blk_size was described as the "optimal" sector size, so i=
-t
-> >>> seems clear that the driver is still allowed to send requests that ar=
-e
-> >>> not aligned to blk_size ("awareness of the correct value can affect
-> >>> performance" but no mention of correctness). A device may need to do
-> >>> extra work to support this, of course, such as turning an unaligned
-> >>> write into a read-modify-write sequence if the underlying storage
-> >>> device doesn't support such an access directly, but such requests are
-> >>> still valid. It's also perfectly fine for a driver to ignore
-> >>> device-offered features like VIRTIO_BLK_F_BLK_SIZE and still operate
-> >>> correctly.
-> >> A device should report its block size (logical) using the VIRTIO_BLK_F=
-_BLK_SIZE feature. For legacy devices that don't report this feature, Linux=
- assumes a 512-byte block size.
-> > Sure, I agree with both points here.
->
-> Great.
->
-> So I guess we agree that blk_size =3D=3D logical_block_size.
+On 2024/09/30 0:33, Stephen Hemminger wrote:
+> On Sun, 29 Sep 2024 16:10:47 +0900
+> Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+> 
+>> On 2024/09/29 11:07, Jason Wang wrote:
+>>> On Fri, Sep 27, 2024 at 3:51 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>>
+>>>> On 2024/09/27 13:31, Jason Wang wrote:
+>>>>> On Fri, Sep 27, 2024 at 10:11 AM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>>>>
+>>>>>> On 2024/09/25 12:30, Jason Wang wrote:
+>>>>>>> On Tue, Sep 24, 2024 at 5:01 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>>>>>>
+>>>>>>>> virtio-net have two usage of hashes: one is RSS and another is hash
+>>>>>>>> reporting. Conventionally the hash calculation was done by the VMM.
+>>>>>>>> However, computing the hash after the queue was chosen defeats the
+>>>>>>>> purpose of RSS.
+>>>>>>>>
+>>>>>>>> Another approach is to use eBPF steering program. This approach has
+>>>>>>>> another downside: it cannot report the calculated hash due to the
+>>>>>>>> restrictive nature of eBPF.
+>>>>>>>>
+>>>>>>>> Introduce the code to compute hashes to the kernel in order to overcome
+>>>>>>>> thse challenges.
+>>>>>>>>
+>>>>>>>> An alternative solution is to extend the eBPF steering program so that it
+>>>>>>>> will be able to report to the userspace, but it is based on context
+>>>>>>>> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
+>>>>>>>> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
+>>>>>>>> and vhost_net).
+>>>>>>>>   
+>>>>>>>
+>>>>>>> I wonder if we could clone the skb and reuse some to store the hash,
+>>>>>>> then the steering eBPF program can access these fields without
+>>>>>>> introducing full RSS in the kernel?
+>>>>>>
+>>>>>> I don't get how cloning the skb can solve the issue.
+>>>>>>
+>>>>>> We can certainly implement Toeplitz function in the kernel or even with
+>>>>>> tc-bpf to store a hash value that can be used for eBPF steering program
+>>>>>> and virtio hash reporting. However we don't have a means of storing a
+>>>>>> hash type, which is specific to virtio hash reporting and lacks a
+>>>>>> corresponding skb field.
+>>>>>
+>>>>> I may miss something but looking at sk_filter_is_valid_access(). It
+>>>>> looks to me we can make use of skb->cb[0..4]?
+>>>>
+>>>> I didn't opt to using cb. Below is the rationale:
+>>>>
+>>>> cb is for tail call so it means we reuse the field for a different
+>>>> purpose. The context rewrite allows adding a field without increasing
+>>>> the size of the underlying storage (the real sk_buff) so we should add a
+>>>> new field instead of reusing an existing field to avoid confusion.
+>>>>
+>>>> We are however no longer allowed to add a new field. In my
+>>>> understanding, this is because it is an UAPI, and eBPF maintainers found
+>>>> it is difficult to maintain its stability.
+>>>>
+>>>> Reusing cb for hash reporting is a workaround to avoid having a new
+>>>> field, but it does not solve the underlying problem (i.e., keeping eBPF
+>>>> as stable as UAPI is unreasonably hard). In my opinion, adding an ioctl
+>>>> is a reasonable option to keep the API as stable as other virtualization
+>>>> UAPIs while respecting the underlying intention of the context rewrite
+>>>> feature freeze.
+>>>
+>>> Fair enough.
+>>>
+>>> Btw, I remember DPDK implements tuntap RSS via eBPF as well (probably
+>>> via cls or other). It might worth to see if anything we miss here.
+>>
+>> Thanks for the information. I wonder why they used cls instead of
+>> steering program. Perhaps it may be due to compatibility with macvtap
+>> and ipvtap, which don't steering program.
+>>
+>> Their RSS implementation looks cleaner so I will improve my RSS
+>> implementation accordingly.
+>>
+> 
+> DPDK needs to support flow rules. The specific case is where packets
+> are classified by a flow, then RSS is done across a subset of the queues.
+> The support for flow in TUN driver is more academic than useful,
+> I fixed it for current BPF, but doubt anyone is using it really.
+> 
+> A full steering program would be good, but would require much more
+> complexity to take a general set of flow rules then communicate that
+> to the steering program.
+> 
 
-Not necessarily (hence "should report" rather than "must report"). The
-device is free to return any arbitrary size that it feels will improve
-performance in blk_size (say, a RAID stripe size), even if it's not
-the same as the logical block size of any backing storage.
+It reminded me of RSS context and flow filter. Some physical NICs 
+support to use a dedicated RSS context for packets matched with flow 
+filter, and virtio is also gaining corresponding features.
 
-> >> Drivers should not ignore this feature when it's offered by the device=
-. It's crucial for correct operation IMO.
-> > This is a "should", not a "must", though - adding a new MUST is a
-> > breaking change.
->
-> I can change it to 'SHOULD', but this modification has implications:
->
-> 1. drivers that ignore the VIRTIO_BLK_F_BLK_SIZE feature will make
-> assumptions about the logical block size.
->
-> 2. Incorrect assumptions could lead to undefined behavior.
+RSS context: https://github.com/oasis-tcs/virtio-spec/issues/178
+Flow filter: https://github.com/oasis-tcs/virtio-spec/issues/179
 
-Where does the undefined behavior come from?
+I considered about the possibility of supporting these features with tc 
+instead of adding ioctls to tuntap, but it seems not appropriate for 
+virtualization use case.
 
-> I'm ok with 'SHOULD',  since it's a strong recommendation for drivers to
-> negotiate and respect this feature when available.
->
-> I'm not really familiar with drivers that ignore this feature so I won't
-> argue here.
->
-> >> The statement "driver is still allowed to send requests that are not a=
-ligned to blk_size" needs explicit clarification in the spec.
-> > It definitely would be better to have it written out explicitly, one
-> > way or the other, no disagreement there.
-> >
-> >>  From my understanding of the spec, the driver is not allowed to do so=
- (otherwise error will be returned or the behavior is undefined).
-> > This doesn't seem to follow from my reading of the spec. Otherwise,
-> > phrases like "optimal sector size" and "can affect performance" would
-> > not make sense (such a request would instead be described as
-> > illegal/returning an error).
->
-> Is it possible that certain parts of the spec could be improved ?
->
-> Is it possible that certain implicit parts of the spec could be
-> understood differently by various implementers or users?
->
-> In reality "optimal block size that can effect performance" probably
-> refers to logical vs. physical block size.
+In a virtualization use case, tuntap is configured according to requests 
+of guests, and the code processing these requests need to have minimal 
+permissions for security. This goal is achieved by passing a file 
+descriptor that represents a tuntap from a privileged process (e.g., 
+libvirt) to the process handling guest requests (e.g., QEMU).
 
-If this is the case, then it would be describing the
-physical_block_exp and related fields from the VIRTIO_BLK_F_TOPOLOGY
-feature, but it's referring to blk_size/VIRTIO_BLK_F_BLK_SIZE. Maybe
-that's a mistake, but that's what the spec currently says (and has
-said since at least the virtio-0.9.5 draft, which is the oldest one I
-could dig up).
+However, tc is configured with rtnetlink, which does not seem to have an 
+interface to delegate a permission for one particular device to another 
+process.
 
-> This patch tries to make the spec clearer.
->
-> >
-> >> In Linux, the reported blk_size is used to set logical_block_size, whi=
-le physical_block_exp is used to calculate the physical_block_size.
-> > Sure, but this is describing the behavior of one driver
-> > implementation, not really relevant to the meaning of the spec.
->
-> It is relevant IMO.
->
-> It's worth considering the historical context of the specification. To
-> my understanding, the spec was initially derived from the Linux
-> implementation, rather than the other way around.
+For now I'll continue working on the current approach that is based on 
+ioctl and lacks RSS context and flow filter features. Eventually they 
+are also likely to require new ioctls if they are to be supported with 
+vhost_net.
 
-The Linux implementation that inspired the spec originally is useful
-when trying to understand the context, but if a current-day
-implementor has to go read Linux code to understand how to interpret
-the spec, then the spec is not clear enough and needs to be improved
-(I would guess we agree on this). If the spec never matched reality,
-then the spec is not useful, but I don't think that's the case here.
-
-> This translation from implementation to specification could have
-> introduced some inconsistencies or ambiguities.
->
-> Also worth considering virtio-block devices that were implemented before
-> this feature bit. The WG probably tried to maintain backward
-> compatibility with these devices.
-
-This feature bit and its description in the spec has existed for a
-long time (since before virtio 1.0), so it's likely that many more
-virtio-blk implementations have been written since this part of the
-spec was added than before it.
-
-> >> Regarding the specification statement: "This does not affect the units=
- used in the protocol (always 512 bytes)":
-> >>
-> >> This likely refers to how certain fields in the virtio-blk protocol ar=
-e expressed, not the actual logical block size used for I/O operations. For=
- example: capacity reporting, max_discard_sectors and Other fields that are=
- expressed in 512 byte units.
-> > The way the fields are expressed in the virtio-blk protocol is what is
-> > relevant in the virtio spec. Even if a virtio-blk device is sending
-> > requests to a physical SCSI/ATA/... device behind the scenes, it's the
-> > job of that virtio-blk device implementation to handle the translation
-> > and whatever mismatches there may be between the protocols.
->
-> This is true.
->
-> >
-> > Particularly, the "sector" value in a virtio_blk_req used for
-> > VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT is always in 512-byte units,
-> > regardless of what blk_size the device reports, and regardless of what
-> > underlying physical media may be used.
-> >
-> >  From the virtio spec: "The sector number indicates the offset
-> > (multiplied by 512) where the read or write is to occur."
-> >
-> > (This could probably use clarification that the "offset" is in bytes,
-> > but it still seems pretty clear that it does not depend on blk_size.)
-> >
-> > So a request with sector =3D 1 always means an offset of 512 bytes from
-> > the beginning of the block device, even if the advertised blk_size is
-> > 4096.
->
-> I appreciate your perspective, but I disagree with it.
->
-> When a block device has a logical_block_size of 4K, it's not possible to
-> perform read/write operations at arbitrary offsets like 512 bytes. The
-> smallest addressable unit is the full 4K logical block in that case.
-
-Maybe we disagree on the meaning of "addressable", then. What I assume
-when I read "addressable" is "I can write the address" of such a
-location (regardless of whether it's valid to submit a request using
-this address). I can always write the address of the area of a
-virtio-blk device that starts at an offset of 512 bytes, and that
-address is always sector=3D1, even if the device advertises
-blk_size=3D4096 and rejects unaligned I/O, so 512 is always the smallest
-addressable unit. This is just like a CPU that has byte-addressable
-memory but only allows aligned loads/stores - it's possible to write
-an address like 0x123 and try to load a word from there, so that
-location is addressable, even though it's not valid when trying to
-load something larger than a byte from it.
-
-I would not object to clarifying the wording, but it can't change the
-meaning (if the smallest addressable unit was 4096 when blk_size=3D4096,
-then sector=3D1 would mean 4096, but that's not how it works).
-
-Rather than using wording like "smallest addressable unit", something
-like "I/O request `sector` and data length must be a multiple of
-`blk_size`" would accurately describe what you are trying to say (I
-think), but this is still a breaking change in my opinion.
-
-In theory, such a change could be introduced as a requirement tied to
-a new feature bit (if the device advertises it and the driver acks it,
-then I/O requests must be aligned, or something like that), but since
-it would be a new, optional feature, I don't know how useful it would
-be.
-
-> This is a fundamental principle of block device operations, not just an
-> optimization.
-
-For normal block devices that speak ATA or SCSI or NVMe command sets,
-yes, I agree - but this is not how virtio-blk was defined. And again,
-I agree that it was probably a mistake to define virtio-blk in a way
-that is different from all other normal block device command sets, but
-that's the way it has been described in the spec since at least 2012.
-
-> Also IO granularity.
->
-> I believe it's important to ensure that the specification accurately
-> reflects these fundamental block device principles.
->
-> I believe that the reason that the "sector" is multiplication of 512 is
-> to maintain backward compatibility, and not to allow breaking these
-> fundamental principles.
-
-Yes, it is exactly this backward compatibility that I'm concerned with
-- old drivers (or drivers that ignore blk_size, which they are clearly
-allowed to do per my reading of the spec) must still work correctly
-with devices written against new versions of the spec.
-
-> > This is different from (e.g.) a SCSI READ where the logical block
-> > address is in units of the block length returned by READ CAPACITY, so
-> > it is impossible to send a request that is not block size aligned.
->
-> IMO, it is impossible for virtio block device and any other block device
-> as well.
-
-I don't understand how it would be impossible; inconvenient, sure, but
-definitely possible.
-
-If a device receives a VIRTIO_BLK_T_IN request that is not aligned to
-its preferred blk_size, it can read the minimum blk_size-aligned
-region around the request into an intermediate buffer and copy only
-the requested parts into the virtio buffer.
-
-If a device receives a VIRTIO_BLK_T_OUT request that is not aligned to
-its preferred blk_size, it can read the aligned region into a
-temporary buffer (as before), copy the data from the virtio buffer on
-top, and perform the aligned write.
-
-If a device implementation can't afford to buffer data (such as a
-hardware device with minimal on-board memory), then maybe it would be
-reasonable for that device implementation to choose to return an error
-for unaligned I/O, but it must not fail in a way that would cause
-undefined behavior like corrupting parts of the disk.
-
-> > [...]
-> >>>> diff --git a/device-types/blk/description.tex b/device-types/blk/des=
-cription.tex
-> >>>> index 2712ada..88a7591 100644
-> >>>> --- a/device-types/blk/description.tex
-> >>>> +++ b/device-types/blk/description.tex
-> >>>> @@ -3,7 +3,10 @@ \section{Block Device}\label{sec:Device Types / Blo=
-ck Device}
-> >>>>   The virtio block device is a simple virtual block device (ie.
-> >>>>   disk). Read and write requests (and other exotic requests) are
-> >>>>   placed in one of its queues, and serviced (probably out of order) =
-by the
-> >>>> -device except where noted.
-> >>>> +device except where noted. Each block device consists of a sequence=
- of logical
-> >>>> +blocks. A logical block represents the smallest addressable unit of=
- data that
-> >>>> +can be read from or written to the device. The logical block size i=
-s always a
-> >>>> +power of two. Logical block sizes may be 512 bytes, 1KB, 2KB, 4KB, =
-8KB, etc.
-> >>> Does this imply that a device may return an error for a request where
-> >>> the sector or num_sectors fields are not aligned to the blk_size? If
-> >>> so, it should be called out as a more explicit normative requirement,
-> >>> but that would definitely be an incompatible change.
-> >> As mentioned, the logical block size, such as 512 bytes, defines the s=
-mallest addressable unit for I/O operations on the storage device.
-> >> This has important implications for I/O requests:
-> >> 1. Minimum I/O size: You cannot send I/O requests smaller than the log=
-ical block size. For example, with a 512-byte logical block size, requests =
-of 128 bytes are not valid.
-> > 128-byte requests are not valid, certainly, but that is already
-> > covered by the wording in the spec ("in multiples of 512 bytes" in the
-> > VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT description, and "The length of data
-> > MUST be a multiple of 512 bytes for VIRTIO_BLK_T_IN and
-> > VIRTIO_BLK_T_OUT requests" in the driver requirements).
->
-> I guess I should have given 4KB logical block size as a better example.
->
-> In case logical block size is 4KB, the minimum IO size is 4KB and not 512=
-.
->
-> Agreed ?
-
-In the case of SCSI or whatever, absolutely.
-
-virtio-blk doesn't have a concept of logical block size today, only
-the existing blk_size field, which I argue is not necessarily
-equivalent.
-
-(I have noticed that the virtio_blk_topology fields are defined in
-terms of "logical blocks", which I feel is a mistake - either these
-should be described in terms of blk_size, or the blk_size field needs
-to be redefined to explicitly mean "logical block size" as in your
-patch.)
-
-> >> 2. I/O alignment: All I/O requests must be aligned to the logical bloc=
-k size. This means the target start address (on the media device) of the I/=
-O must be a multiple of the logical block size (the expressed units in the =
-spec are not relevant).
-> > Unless there is a change to the spec (like this proposed patch), I
-> > don't think this is required. I suppose a device that can't manage to
-> > perform a misaligned I/O could choose to deny such requests and return
-> > VIRTIO_BLK_S_IOERR, but this is not explicitly allowed or denied by
-> > the current spec.
->
-> This is a clarification of the existing specification, not a change.
->
-> I believe I've identified the main point of disagreement regarding this
-> patch:
->
-> I believe that I/O operations to storage block devices MUST be aligned
-> to the logical block size. In the other hand, you believe it is just a
-> recommendation for virtio block device.
->
-> Maybe let's see what others think as well ?
->
-> Stefan ?
-
-I agree that it would be useful to have more input from other
-interested parties.
-
-> >> 3. I/O size granularity: The size of I/O requests must be a multiple o=
-f the logical block size. For a 512-byte logical block size, valid I/O size=
-s would be 512 bytes, 1024 bytes, 1536 bytes, and so on.
-> > Same as point 1 above, the only requirement (that I can see, anyway)
-> > is that the I/O request has to be a multiple of 512 bytes.
->
-> Do you think that for logical block size of 4k one can send IO of 1K to
-> such device and succeed ?
-
-For a virtio-blk device, yes (assuming "such a device" is a virtio-blk
-device implementation and we substitute blk_size for "logical block
-size").
-
-> >>> The "smallest addressable unit" wording is also more confusing than
-> >>> clarifying here, since in virtio-blk, the "smallest addressable unit"
-> >>> is always 512 bytes, regardless of blk_size (even if a change like
-> >>> this would enforce limits on the sector values that would actually be
-> >>> allowed, it would still be possible to create a request that refers t=
-o
-> >>> a smaller unit than blk_size, unlike other storage protocols where
-> >>> logical block size changes the multiplier of the address, making it
-> >>> impossible to address smaller units).
-> >> Can you please point me to the place in spec that explicitly say that =
-"in virtio-blk, the smallest addressable unit is always 512 bytes, regardle=
-ss of blk_size" ?
-> > The description of struct virtio_blk_req's sector field:
-> > "The sector number indicates the offset (multiplied by 512) where the
-> > read or write is to occur."
-> >
-> > Unless we have different definitions of "smallest addressable unit",
-> > that seems pretty clear. It is always possible to address a part of
-> > the disk in 512-byte multiples (e.g. sectors 1 through 3) even when
-> > the blk_size is larger than 512. Maybe those requests won't succeed,
-> > but it is always possible to describe a region of the block device
-> > with an address that is not a multiple of blk_size.
->
-> It doesn't say anything explicit about IO alignment and granularity.
->
->
-> >
-> >> I didn't find it in the spec and I don't agree with this call if it is=
- implicit.
-> > I agree it should be clarified. The current wording requires too much
-> > reading between the lines.
-> >
-> >> The implementation of the Linux kernel driver isn't implemented in thi=
-s manner as well.
-> > When filling the sector field, the Linux virtio-blk driver uses the
-> > value of blk_rq_pos(), which is also always in units of 512 bytes, as
-> > far as I can tell (it returns sector_t, which is in units of 512 bytes
-> > per the definition in include/linux/blk_types.h).
->
-> Ignoring the units for the discussion, can it ever be unaligned to the
-> logical block size?
-
-The Linux driver will always request I/O that is aligned to the
-blk_size (if the device reports one), yes - but that's one driver's
-choice. Other drivers (which were written against the spec, not
-"whatever the Linux driver does") may operate differently.
-
-> > [...]
-> >>>> @@ -228,7 +234,7 @@ \subsection{Device Initialization}\label{sec:Dev=
-ice Types / Block Device / Devic
-> >>>>   \item The device size can be read from \field{capacity}.
-> >>>>
-> >>>>   \item If the VIRTIO_BLK_F_BLK_SIZE feature is negotiated,
-> >>>> -  \field{blk_size} can be read to determine the optimal sector size
-> >>>> +  \field{blk_size} can be read to determine the logical block size
-> >>>>     for the driver to use. This does not affect the units used in
-> >>>>     the protocol (always 512 bytes), but awareness of the correct
-> >>>>     value can affect performance.
-> >>>> @@ -282,6 +288,12 @@ \subsection{Device Initialization}\label{sec:De=
-vice Types / Block Device / Devic
-> >>>>
-> >>>>   \drivernormative{\subsubsection}{Device Initialization}{Device Typ=
-es / Block Device / Device Initialization}
-> >>>>
-> >>>> +Drivers MUST negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offe=
-red by the
-> >>>> +device.
-> >>> Why is this a MUST? This is also an incompatible change since there
-> >>> was no such requirement before, and drivers are free to ignore
-> >>> features they don't care about.
-> >> I can say SHOULD, but then the driver that is ignoring this feature ma=
-y guess/assume the logical block size and it can be wrong.
-> >>
-> >> This may lead to an undefined behavior.
-> > Unless the spec is changed, if a device can't correctly handle
-> > non-blk_size-aligned requests, this seems like it would be a device
-> > bug ("undefined behavior") or at least non-spec-derived limitation
-> > (returning an error would not be undefined, but also probably wouldn't
-> > result in a working system).
->
-> Again, this is a clarification of the existing specification, not a chang=
-e.
->
-> IMO, storage block device implementations should be able to assume that
-> I/O requests from drivers are aligned to the logical block size. If a
-> device receives misaligned I/O requests, it might be appropriate for the
-> device to fail these requests. It is not a device "bug" IMO.
->
-> I'm curious if you've encountered any actual implementations where
-> drivers send non-block-size-aligned requests to block devices. I never
-> saw such implementation.
-
-I don't know of any real-world implementations like this, but the
-point of the spec is to allow interoperability without having to know
-about every implementation.
-
-> Sounds like a theoretical objection.
->
-> IMO, the specification could benefit from explicitly stating this
-> alignment principal, which would guide both device and driver
-> implementations.
->
-> I believe that this patch is clarifying important points and would lead
-> to more robust definition.
-
-From my point of view, it would be fine to clarify a few things:
-- blk_size should (not must) be the logical block size of the
-underlying storage device
-- data should (not must) be a multiple of blk_size for best performance
-
-And maybe:
-- devices may choose to return IOERR if a driver submits an I/O
-request that does not conform to the above recommendations (but this
-conflicts with the "performance"-related wording that exists now)
-
-> > Certainly it would be preferable for the driver to send aligned
-> > requests, but the existing wording seems to cover that pretty well
-> > already.
-> >
-> > Thanks,
-> > -- Daniel
+Regards,
+Akihiko Odaki
