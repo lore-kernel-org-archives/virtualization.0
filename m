@@ -1,130 +1,251 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9625224CF
-	for <virtualization@lists.linux.dev>; Tue,  1 Oct 2024 13:50:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C425A1CB53F
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 16:31:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727790648; cv=none; b=KRoKh5yqFr7pjg4idcEeZVpPA6ZBwS60Wi065DL1IpTcfzl3g4YWxa2MjnMOcwdJlV7YBzwMDE+Dj9pNzEw5RNkOgUSLqbHl0fj7K96dvoCx+bL9pSflrIbjFun7aTEnw0IqUJDz2LfM15mAF0JYiI6fMQ6EO9thkJfDezdMHn4=
+	t=1727800274; cv=none; b=A0i2RN//8G7xyJk5yGKiGeHVF8TVlwxc5NSso6NcBseocJIcen/ZKf3Td4iDpaUEGOzm12jR/hX+JsnrlAlqcXtpi+vdz4A8FvPc5C1MJJC0Ved1rY4sgZyR9dtLpmcejrEw/1P3XMiJFZeGzxFKcb6CYZ9HDwxV4QapxP+OABI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727790648; c=relaxed/simple;
-	bh=Wrdy0e1dz6T5uwCE6i2Zj6+AsBKQNypB0lnUzsj5xCI=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=kqx1NdG+uH0EoF47PW+F2nVlJVrGLyXphZfl1NDxlP58eVsVOeCm7VrXPoilrlUAA3cFfxv4uh6LiuvZetGWFXtnNjrI9429CRIUhrnXhAB+taOCrDc7VsrpKl1cV0PuSBAT8cgzt2yXOrJCCGgFl5tWXDRe95y0fhyuky9BNbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=YKqD4Ys/; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1727800274; c=relaxed/simple;
+	bh=tmCg5BWsCw59JIzvnnyzLDO7fHE1f4U4nQ8gTD+boTU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AR9ESwTNPimk6bERjQd3R8vlBIpqosW5Yd3LBb3rqKVrHK6PXabYPTPKImGBI9XwwkA7P3WeoxjeWWtVua31g22ErDIIVUBk6Aned2u9qIda33Mfb9EZpJlrUWik71Ddur59PKac1rNJPH7/L6hqb51lex1Fs9ENMXWu1SAZoAs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b=EejfaDP0; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="YKqD4Ys/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1727790644;
-	bh=Wrdy0e1dz6T5uwCE6i2Zj6+AsBKQNypB0lnUzsj5xCI=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=YKqD4Ys/oGurqoWIOyx7Wn0hRTWDfyPPhsxJBv4liLaL79RWNITs6yYigoa9t0bYR
-	 apYOKXRQwcu6+xBYSMhtRzZYX8riNbY3jwGgx54B/mqtnC6ECCMjvF74G/KjKZbgVO
-	 RJzRdFANc0GPw4iUWTjgPb0VclImiN7kwj4rnOBg0+pqJjlWEITVsXj59SE2r7LUoj
-	 5BPDH1RBCLKq/QZ/2cqqNz0kemyYFg31AZl1ypfI77sHEXKV+OTQMPdPXhzsDquLmV
-	 MCPct2nkHj5eYZYOGgoLbN+JW1S3vLWHHoQv7M/X9CrsLunLU6HnxNWpHM5ZiXsYda
-	 Riy6fn3Jf9ZCg==
-Received: from [192.168.50.250] (unknown [171.76.80.165])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 6F28B17E0FC0;
-	Tue,  1 Oct 2024 15:50:39 +0200 (CEST)
-Message-ID: <87fea8ea-fe9d-4114-b03c-7ec50a4be874@collabora.com>
-Date: Tue, 1 Oct 2024 19:20:35 +0530
+	dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b="EejfaDP0"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6088940B00
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 16:31:12 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ewYk-zy3j5Ku for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Oct 2024 16:31:10 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::431; helo=mail-pf1-x431.google.com; envelope-from=stephen@networkplumber.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E867740AE7
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E867740AE7
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=EejfaDP0
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E867740AE7
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 16:31:09 +0000 (UTC)
+Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-718d91eef2eso4042958b3a.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 01 Oct 2024 09:31:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1727800269; x=1728405069; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NaOCtJBpmUXeW5fDjOcuOw2JadaIwq6wWesigL7oUQQ=;
+        b=EejfaDP0Hw/lr+8k8FEGSVvZIfdQcshcxIfY9+JpQIDHwrQSNKvDiUQpVu4WK5fPhc
+         uTwElMQ0H/zJ36zB+CyPt0VMpvLN9IVPl+lG7uH1efwn5WKSgDY+XJf9XXTNpDnQYzk+
+         s7BEqChYqo1/6LAirgj7TT2f3u6hUyaGOBHayAlJk7vmt0etobyaSVYmIcnzALpt7/uq
+         vUKWumsIufLvdDHkwJ37fnrWteJC0OO81K3lyx7gNZTH0tFary+cdzuwanuO0kPWe82S
+         lHpNCTMm3Rg3JqtLdbFXyVMmS1YOjFBxz8yB8QB2ZYd7LxtUTC6WgWKb3tXHFmaHMgDw
+         k+tA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727800269; x=1728405069;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NaOCtJBpmUXeW5fDjOcuOw2JadaIwq6wWesigL7oUQQ=;
+        b=sp+shsEZaTfzn+YZnZShJB1sJC5ij6l48S0L8p0ZFKLrmDS/tmfc5s6SgeCVfhJBez
+         SAvFAaaJjF9q/TvCU3hHZdTwlY4JY/l7GVCWzvpaqrBcg94ULIn7S8QMFYMKvnvVJWLg
+         RYUIirjEPpVCu66yoKleJXlIbu3LKmIYCjGEp1YBq3cT4/GBIalzbXwgd5wBoudQ+UIl
+         IqufNYUjPCKS01am3wtcpofvDJAh4iNnqnTepg+Un4Mklk8TZ4ASn32Dyny9Pxg9z/Uv
+         iBUzI4KbpI18sUAzYGi5ee665SQHrmffgwrcYZbxbvTTysnxHyj0mIw+YTItSd/egBkZ
+         H1Kg==
+X-Forwarded-Encrypted: i=1; AJvYcCUQ5kOwNnYRUXdI1QA7l64JkbisbwhLKvB7MPXxHNYunRFvxTb+BpxoQUJI6hQPBZLs1yxu4mZpDLDXgtJKjw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwqeGojeaITWESmUYLiWFNIQDdjpXT/vh++sFQmfVrwm9a1rc+h
+	MtbGHXZGvDQSJvFTje5suwlnlXzHS63DL1+VWz4CFFEHP8yt0ewp+ZNCV/QnSA8=
+X-Google-Smtp-Source: AGHT+IEJ1YSBFgA6XCPu/UKUAJZ+sUtJEj01EpSGftWy6BCcu9DYD9VOPkZdjd+3NzkAra9PlbsRcg==
+X-Received: by 2002:a05:6a00:22ca:b0:717:9896:fb03 with SMTP id d2e1a72fcca58-71dc6010da0mr239138b3a.6.1727800268875;
+        Tue, 01 Oct 2024 09:31:08 -0700 (PDT)
+Received: from hermes.local (204-195-96-226.wavecable.com. [204.195.96.226])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71b264bb2b8sm8246283b3a.61.2024.10.01.09.31.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Oct 2024 09:31:08 -0700 (PDT)
+Date: Tue, 1 Oct 2024 09:31:05 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Jason Wang <jasowang@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+ <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan
+ <shuah@kernel.org>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko
+ <andrew@daynix.com>, gur.stavi@huawei.com
+Subject: Re: [PATCH RFC v4 0/9] tun: Introduce virtio-net hashing feature
+Message-ID: <20241001093105.126dacd6@hermes.local>
+In-Reply-To: <f437d2d6-e4a2-4539-bd30-f312bbf0eac8@daynix.com>
+References: <20240924-rss-v4-0-84e932ec0e6c@daynix.com>
+	<CACGkMEvMuBe5=wQxZMns4R-oJtVOWGhKM3sXy8U6wSQX7c=iWQ@mail.gmail.com>
+	<c3bc8d58-1f0e-4633-bb01-d646fcd03f54@daynix.com>
+	<CACGkMEu3u=_=PWW-=XavJRduiHJuZwv11OrMZbnBNVn1fptRUw@mail.gmail.com>
+	<6c101c08-4364-4211-a883-cb206d57303d@daynix.com>
+	<CACGkMEtscr17UOufUtyPp1OvALL8LcycpbRp6CyVMF=jYzAjAA@mail.gmail.com>
+	<447dca19-58c5-4c01-b60e-cfe5e601961a@daynix.com>
+	<20240929083314.02d47d69@hermes.local>
+	<f437d2d6-e4a2-4539-bd30-f312bbf0eac8@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] docs/gpu: ci: update flake tests requirements
-From: Vignesh Raman <vignesh.raman@collabora.com>
-To: alexander.deucher@amd.com, christian.koenig@amd.com, Xinhui.Pan@amd.com,
- amd-gfx@lists.freedesktop.org
-Cc: daniels@collabora.com, helen.koike@collabora.com, airlied@gmail.com,
- daniel@ffwll.ch, robdclark@gmail.com, guilherme.gallo@collabora.com,
- sergi.blanch.torne@collabora.com, deborah.brouwer@collabora.com,
- dmitry.baryshkov@linaro.org, mripard@kernel.org, rodrigo.vivi@intel.com,
- quic_abhinavk@quicinc.com, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org
-References: <20240930095255.2071586-1-vignesh.raman@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20240930095255.2071586-1-vignesh.raman@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi amdgpu Maintainers,
+On Tue, 1 Oct 2024 14:54:29 +0900
+Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
 
-On 30/09/24 15:22, Vignesh Raman wrote:
-> Update the documentation to specify linking to a relevant GitLab
-> issue or email report for each new flake entry. Added specific
-> GitLab issue urls for amdgpu, i915, msm and xe driver.
-> 
-> Acked-by: Maxime Ripard <mripard@kernel.org>
-> Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com> #intel and xe
-> Acked-by: Abhinav Kumar <quic_abhinavk@quicinc.com> # msm
-> Acked-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> # msm
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
-> ---
-> 
-> v2:
-> - Add gitlab issue link for msm driver.
-> 
-> v3:
-> - Update docs to specify we use email reporting or GitLab issues for flake entries.
-> 
-> v4:
-> - Add gitlab issue link for xe driver.
-> 
-> ---
->   Documentation/gpu/automated_testing.rst | 14 ++++++++++----
->   1 file changed, 10 insertions(+), 4 deletions(-)
-> 
-> diff --git a/Documentation/gpu/automated_testing.rst b/Documentation/gpu/automated_testing.rst
-> index 2d5a28866afe..6d7c6086034d 100644
-> --- a/Documentation/gpu/automated_testing.rst
-> +++ b/Documentation/gpu/automated_testing.rst
-> @@ -68,19 +68,25 @@ known to behave unreliably. These tests won't cause a job to fail regardless of
->   the result. They will still be run.
->   
->   Each new flake entry must be associated with a link to the email reporting the
-> -bug to the author of the affected driver, the board name or Device Tree name of
-> -the board, the first kernel version affected, the IGT version used for tests,
-> -and an approximation of the failure rate.
-> +bug to the author of the affected driver or the relevant GitLab issue. The entry
-> +must also include the board name or Device Tree name, the first kernel version
-> +affected, the IGT version used for tests, and an approximation of the failure rate.
->   
->   They should be provided under the following format::
->   
-> -  # Bug Report: $LORE_OR_PATCHWORK_URL
-> +  # Bug Report: $LORE_URL_OR_GITLAB_ISSUE
->     # Board Name: broken-board.dtb
->     # Linux Version: 6.6-rc1
->     # IGT Version: 1.28-gd2af13d9f
->     # Failure Rate: 100
->     flaky-test
->   
-> +Use the appropriate link below to create a GitLab issue:
-> +amdgpu driver: https://gitlab.freedesktop.org/drm/amd/-/issues
+> On 2024/09/30 0:33, Stephen Hemminger wrote:
+> > On Sun, 29 Sep 2024 16:10:47 +0900
+> > Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+> >  =20
+> >> On 2024/09/29 11:07, Jason Wang wrote: =20
+> >>> On Fri, Sep 27, 2024 at 3:51=E2=80=AFPM Akihiko Odaki <akihiko.odaki@=
+daynix.com> wrote: =20
+> >>>>
+> >>>> On 2024/09/27 13:31, Jason Wang wrote: =20
+> >>>>> On Fri, Sep 27, 2024 at 10:11=E2=80=AFAM Akihiko Odaki <akihiko.oda=
+ki@daynix.com> wrote: =20
+> >>>>>>
+> >>>>>> On 2024/09/25 12:30, Jason Wang wrote: =20
+> >>>>>>> On Tue, Sep 24, 2024 at 5:01=E2=80=AFPM Akihiko Odaki <akihiko.od=
+aki@daynix.com> wrote: =20
+> >>>>>>>>
+> >>>>>>>> virtio-net have two usage of hashes: one is RSS and another is h=
+ash
+> >>>>>>>> reporting. Conventionally the hash calculation was done by the V=
+MM.
+> >>>>>>>> However, computing the hash after the queue was chosen defeats t=
+he
+> >>>>>>>> purpose of RSS.
+> >>>>>>>>
+> >>>>>>>> Another approach is to use eBPF steering program. This approach =
+has
+> >>>>>>>> another downside: it cannot report the calculated hash due to the
+> >>>>>>>> restrictive nature of eBPF.
+> >>>>>>>>
+> >>>>>>>> Introduce the code to compute hashes to the kernel in order to o=
+vercome
+> >>>>>>>> thse challenges.
+> >>>>>>>>
+> >>>>>>>> An alternative solution is to extend the eBPF steering program s=
+o that it
+> >>>>>>>> will be able to report to the userspace, but it is based on cont=
+ext
+> >>>>>>>> rewrites, which is in feature freeze. We can adopt kfuncs, but t=
+hey will
+> >>>>>>>> not be UAPIs. We opt to ioctl to align with other relevant UAPIs=
+ (KVM
+> >>>>>>>> and vhost_net).
+> >>>>>>>>    =20
+> >>>>>>>
+> >>>>>>> I wonder if we could clone the skb and reuse some to store the ha=
+sh,
+> >>>>>>> then the steering eBPF program can access these fields without
+> >>>>>>> introducing full RSS in the kernel? =20
+> >>>>>>
+> >>>>>> I don't get how cloning the skb can solve the issue.
+> >>>>>>
+> >>>>>> We can certainly implement Toeplitz function in the kernel or even=
+ with
+> >>>>>> tc-bpf to store a hash value that can be used for eBPF steering pr=
+ogram
+> >>>>>> and virtio hash reporting. However we don't have a means of storin=
+g a
+> >>>>>> hash type, which is specific to virtio hash reporting and lacks a
+> >>>>>> corresponding skb field. =20
+> >>>>>
+> >>>>> I may miss something but looking at sk_filter_is_valid_access(). It
+> >>>>> looks to me we can make use of skb->cb[0..4]? =20
+> >>>>
+> >>>> I didn't opt to using cb. Below is the rationale:
+> >>>>
+> >>>> cb is for tail call so it means we reuse the field for a different
+> >>>> purpose. The context rewrite allows adding a field without increasing
+> >>>> the size of the underlying storage (the real sk_buff) so we should a=
+dd a
+> >>>> new field instead of reusing an existing field to avoid confusion.
+> >>>>
+> >>>> We are however no longer allowed to add a new field. In my
+> >>>> understanding, this is because it is an UAPI, and eBPF maintainers f=
+ound
+> >>>> it is difficult to maintain its stability.
+> >>>>
+> >>>> Reusing cb for hash reporting is a workaround to avoid having a new
+> >>>> field, but it does not solve the underlying problem (i.e., keeping e=
+BPF
+> >>>> as stable as UAPI is unreasonably hard). In my opinion, adding an io=
+ctl
+> >>>> is a reasonable option to keep the API as stable as other virtualiza=
+tion
+> >>>> UAPIs while respecting the underlying intention of the context rewri=
+te
+> >>>> feature freeze. =20
+> >>>
+> >>> Fair enough.
+> >>>
+> >>> Btw, I remember DPDK implements tuntap RSS via eBPF as well (probably
+> >>> via cls or other). It might worth to see if anything we miss here. =20
+> >>
+> >> Thanks for the information. I wonder why they used cls instead of
+> >> steering program. Perhaps it may be due to compatibility with macvtap
+> >> and ipvtap, which don't steering program.
+> >>
+> >> Their RSS implementation looks cleaner so I will improve my RSS
+> >> implementation accordingly.
+> >> =20
+> >=20
+> > DPDK needs to support flow rules. The specific case is where packets
+> > are classified by a flow, then RSS is done across a subset of the queue=
+s.
+> > The support for flow in TUN driver is more academic than useful,
+> > I fixed it for current BPF, but doubt anyone is using it really.
+> >=20
+> > A full steering program would be good, but would require much more
+> > complexity to take a general set of flow rules then communicate that
+> > to the steering program.
+> >  =20
+>=20
+> It reminded me of RSS context and flow filter. Some physical NICs=20
+> support to use a dedicated RSS context for packets matched with flow=20
+> filter, and virtio is also gaining corresponding features.
+>=20
+> RSS context: https://github.com/oasis-tcs/virtio-spec/issues/178
+> Flow filter: https://github.com/oasis-tcs/virtio-spec/issues/179
+>=20
+> I considered about the possibility of supporting these features with tc=20
+> instead of adding ioctls to tuntap, but it seems not appropriate for=20
+> virtualization use case.
+>=20
+> In a virtualization use case, tuntap is configured according to requests=
+=20
+> of guests, and the code processing these requests need to have minimal=20
+> permissions for security. This goal is achieved by passing a file=20
+> descriptor that represents a tuntap from a privileged process (e.g.,=20
+> libvirt) to the process handling guest requests (e.g., QEMU).
+>=20
+> However, tc is configured with rtnetlink, which does not seem to have an=
+=20
+> interface to delegate a permission for one particular device to another=20
+> process.
+>=20
+> For now I'll continue working on the current approach that is based on=20
+> ioctl and lacks RSS context and flow filter features. Eventually they=20
+> are also likely to require new ioctls if they are to be supported with=20
+> vhost_net.
 
-Please could you ack this patch. Thanks.
-
-> +i915 driver: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues
-> +msm driver: https://gitlab.freedesktop.org/drm/msm/-/issues
-> +xe driver: https://gitlab.freedesktop.org/drm/xe/kernel/-/issues
-> +
->   drivers/gpu/drm/ci/${DRIVER_NAME}-${HW_REVISION}-skips.txt
->   -----------------------------------------------------------
->   
-
-Regards,
-Vignesh
+The DPDK flow handling (rte_flow) was started by Mellanox and many of
+the features are to support what that NIC can do. Would be good to have
+a tc way to configure that (or devlink).
