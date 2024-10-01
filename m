@@ -1,250 +1,66 @@
-Received: from mail-pl1-f195.google.com (mail-pl1-f195.google.com [209.85.214.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C99F01BE23A
-	for <virtualization@lists.linux.dev>; Tue,  1 Oct 2024 07:59:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DEB619F466;
+	Tue,  1 Oct 2024 08:47:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727769576; cv=none; b=HJod1nihvQA1NpTnVaYMc2uFy1qcMmuyufYmUTVO911UUNdQSBX9Ljtz856rkMygi6GRdJVr23XBN+HL7Xu7iivSZ0OTS1fwrrKdY64Ag0m/XakOY4ocIJTTaZuipPdLqyyLDNGeoNW3v8xPRwqma9iYznWcDrGJD2H4QxaxSkw=
+	t=1727772448; cv=none; b=gaJYcnRJdgnPpmPJA9dRpS7bZBAlHpC0pzcyR6ZAzNsBQqWzCcMN2e8/pLajmLyjArtX6XYs78UauNkXQKDKQJNz8COgb/dytFxWCqB7KEwMyHJww7yDG2zlnBvE+H1qKRgAXTwLQs9SroKBbwt4ncs0o/YQtbmIAFZah6jrNwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727769576; c=relaxed/simple;
-	bh=7u9cByNn+AJUO28aQhpxRgxL9HZmWejhnVAxuPd9L1k=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=S5pqnF1UlHFCTERQCivMJjOsfawCVBR2DMAIfiull5MnlrlrN1fm15RFxG+ejkfXv3Iw5SW2lYBoaMjmjXZ/VfxfKA6i4ZTy1SbNspM0lIo4odOUHyQZx7OQo9ASXvEnrhgCD/m9wkMIWDFPMmD6jgb6M14Xj/9lLgGozBE8dgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cK+n7Cl+; arc=none smtp.client-ip=209.85.214.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1727772448; c=relaxed/simple;
+	bh=+gaPzNsCZQOr4VCJ8VidECoUZMzdtDuIZk/Lnk/iwW4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=guDufRE4LnwZPvsrCegdrmScXYtdNUSdaGI/zRAfhbOoltMvBqSX5IUXlqjYoTeyA0Of/P3NOAvkUfO0ssLYvruCnjQDFv2v6E0ghxyW9p7OtEvV4lOamaoOrwVfSm1BquKlArQrR8fVPu1NCu58Vvpui72bmG2SwiGUliAUZFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=rWN2w4Jr; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cK+n7Cl+"
-Received: by mail-pl1-f195.google.com with SMTP id d9443c01a7336-20b0b5cdb57so41367155ad.1
-        for <virtualization@lists.linux.dev>; Tue, 01 Oct 2024 00:59:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727769574; x=1728374374; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vktSfFznxxqxdyooYxAJtLpLR+uBOH4pDsLUZk+TldI=;
-        b=cK+n7Cl++t5HPsHwl1qq1NQ3tH8UyFPb1+6dv4EV99yBM0RIcqgi6iyjiqAJ4iEdlC
-         WpZ7diiMxiDmTPxDEXk0H0OoKaSBX/CvNE/g9pE6xKsX+ngQbgpBQFACZvWxJnsF9ZTZ
-         HDzYencZDbeT+6rgdGOPi5zxlPL9B3TCAbn3P3+4rEKxwHNpk3GSmnN3DeHACT0pUW3I
-         NIOPUXjMkUv+sgKsBRG1CabMJHjtgTCVm0GQ832YSMI3yEV7C71vjgIHEfGkpbshHtyA
-         Sl55vScEbCC5vvJb+kPhHLwAE3KB4ls/IbEiJW+V0EmtkbFjh0UPfpnGEStu2z+i9xqH
-         iEvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727769574; x=1728374374;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vktSfFznxxqxdyooYxAJtLpLR+uBOH4pDsLUZk+TldI=;
-        b=af6FCl7BZURXLRtawwELip71bZU17h+yrPu4f4eBtp5L+AXMKBaRQ82M3G9S8y9wYz
-         WEff/+XgiO1Rsupt27SuREAATBHinKSGYL7jw2mXzP2tIHkYXOk2Hq/vaeO7ED8YpjTf
-         1N/5xykVaUl3fctzAaO1PjwX65FHP3EB208XvQNydvAmYcKUKO5jBkalDDmhzyIMLgsu
-         utM1eLZXnXbgqO0ksyvFoi5NyPSd7Pxa9aCkJ3lejLHyHz6OP+CnEM7cC+9MoXbWecDt
-         PBijYQehg7VomMSTYMvlZcZc1Ga36jYHkCWF8X8dO/Iz/aCCBGZSb8fgJCnS2VHAZYRp
-         /7aQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWs13WFPMRJE+iA12hb0AU0FcdMVXdag3+MU1jxRURjN2ScjBhx3Ywr1Z9YcaH6I6zFQIydFp7VVNgXuHSNDQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyY1GmoKJRESCpVFdc0hg/kuSw3awbkQ8B5EJ5QvM+cXbO7/HQ9
-	dQ/IJEdc43KwEjx3mgVkAF3f/ItmsWJoTt0ss8WAPurG9823BVps
-X-Google-Smtp-Source: AGHT+IH1qx+VpqO/M0ZFFo8jx2Ltv6BvYYP7WVtyTnNPIJSUx7pF6s/8RS08Pp9OK0t2pqi6/zCT9A==
-X-Received: by 2002:a17:90a:2f65:b0:2d8:999a:bc37 with SMTP id 98e67ed59e1d1-2e15a34cfe8mr3372002a91.19.1727769574029;
-        Tue, 01 Oct 2024 00:59:34 -0700 (PDT)
-Received: from yunshenglin-MS-7549.. ([2409:8a55:301b:e120:88bd:a0fb:c6d6:c4a2])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e06e16d6d2sm13168168a91.2.2024.10.01.00.59.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Oct 2024 00:59:33 -0700 (PDT)
-From: Yunsheng Lin <yunshenglin0825@gmail.com>
-X-Google-Original-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: davem@davemloft.net,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Yunsheng Lin <linyunsheng@huawei.com>,
-	Alexander Duyck <alexander.duyck@gmail.com>,
-	Alexander Duyck <alexanderduyck@fb.com>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Eric Dumazet <edumazet@google.com>,
-	David Howells <dhowells@redhat.com>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Anna Schumaker <anna@kernel.org>,
-	Jeff Layton <jlayton@kernel.org>,
-	Neil Brown <neilb@suse.de>,
-	Olga Kornievskaia <okorniev@redhat.com>,
-	Dai Ngo <Dai.Ngo@oracle.com>,
-	Tom Talpey <tom@talpey.com>,
-	Shuah Khan <shuah@kernel.org>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-mm@kvack.org,
-	linux-afs@lists.infradead.org,
-	linux-nfs@vger.kernel.org,
-	linux-kselftest@vger.kernel.org
-Subject: [PATCH net-next v19 04/14] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Tue,  1 Oct 2024 15:58:47 +0800
-Message-Id: <20241001075858.48936-5-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20241001075858.48936-1-linyunsheng@huawei.com>
-References: <20241001075858.48936-1-linyunsheng@huawei.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rWN2w4Jr"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=q1nkpS6A5NXCi237YqhQxNqBbwH4xTO/TAMf/Y2ZkoE=; b=rWN2w4Jr5zbVYy8b6B9XdGXa/U
+	f+mcqFz/ct2x5PguuXGbA/XQmGiOcUKODU9abUZ4DXDqEx5bf8BEcIIVtEzljI9dlGiirIyEtkN6Z
+	6eUgflJtnSPq2jXrCxmMciNitfQprnL4y+Fz+RyqbEqzxxWk6Tn3MsYSDLEswL9WW6ld05wJ81gMY
+	nEdDT6omPrBHKn8JU2wAyX9bJaQVJlbZjuUJes3DkhJ8tkPrKUrHt8X+cdKTe3F0/A3dak6cLr3rs
+	g/XRKEWnCPjYrJEWh3KOKDKi+D2Z1slM55blII4GM9AOpgz1rzv5+kRhciwsi3jpt22tp/29ScivR
+	XOwTlcPQ==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
+	id 1svYXW-000000027nP-3dbR;
+	Tue, 01 Oct 2024 08:47:26 +0000
+Date: Tue, 1 Oct 2024 01:47:26 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Srujana Challa <schalla@marvell.com>
+Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, mst@redhat.com,
+	jasowang@redhat.com, eperezma@redhat.com, ndabilpuram@marvell.com,
+	jerinj@marvell.com
+Subject: Re: [PATCH v2 0/2] vhost-vdpa: Add support for NO-IOMMU mode
+Message-ID: <Zvu3HktM4imgHpUw@infradead.org>
+References: <20240920140530.775307-1-schalla@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240920140530.775307-1-schalla@marvell.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+On Fri, Sep 20, 2024 at 07:35:28PM +0530, Srujana Challa wrote:
+> This patchset introduces support for an UNSAFE, no-IOMMU mode in the
+> vhost-vdpa driver. When enabled, this mode provides no device isolation,
+> no DMA translation, no host kernel protection, and cannot be used for
+> device assignment to virtual machines. It requires RAWIO permissions
+> and will taint the kernel.
+> 
+> This mode requires enabling the "enable_vhost_vdpa_unsafe_noiommu_mode"
+> option on the vhost-vdpa driver and also negotiate the feature flag
+> VHOST_BACKEND_F_NOIOMMU. This mode would be useful to get
+> better performance on specifice low end machines and can be leveraged
+> by embedded platforms where applications run in controlled environment.
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
----
- drivers/vhost/net.c                                   |  2 +-
- include/linux/page_frag_cache.h                       | 10 ++++++++++
- net/core/skbuff.c                                     |  6 +++---
- net/rxrpc/conn_object.c                               |  4 +---
- net/rxrpc/local_object.c                              |  4 +---
- net/sunrpc/svcsock.c                                  |  6 ++----
- tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
- 7 files changed, 19 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f16279351db5..9ad37c012189 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index 67ac8626ed9b..0a52f7a179c8 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -7,6 +7,16 @@
- #include <linux/mm_types_task.h>
- #include <linux/types.h>
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 74149dc4ee31..ca01880c7ad0 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -753,14 +753,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
- 
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 
- 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 		local_bh_enable();
-@@ -850,7 +850,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index 504453c688d7..a8cffe47cf01 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 825ec5357691..b785425c3315 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1608,7 +1608,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1618,8 +1617,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
-diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-index fdf204550c9a..36543a129e40 100644
---- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
-+++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-@@ -117,7 +117,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_nc.va = NULL;
-+	page_frag_cache_init(&test_nc);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
--- 
-2.34.1
+... and is completely broken and dangerous.
 
