@@ -1,107 +1,79 @@
-Received: from bmailout1.hostsharing.net (bmailout1.hostsharing.net [83.223.95.100])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AE3A1C693
-	for <virtualization@lists.linux.dev>; Tue,  1 Oct 2024 09:17:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.223.95.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A04A519ABA4
+	for <virtualization@lists.linux.dev>; Tue,  1 Oct 2024 09:30:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727774245; cv=none; b=LAn8YHZtjkP5IPY4imbnMrh7Bp5kC5i2MyAlCIhT6rtJZZSfUDjjbWsVaPDgsJoi99HrEEBrFLKuEyM9bsEFDaw9tyJD7NAI98IvYEBkWi5LeMVZY9oHEXOs/RgzRYtGWSuZIMZBDPpcyRECfv4m+PILyR9deS8D+tIOGFc1Vyg=
+	t=1727775057; cv=none; b=ZPEWzzqykU5S2Awc/bcBdCvwazVzkt0uv0Xcuxh85ifP9VS6tMoiZrv3kOJP5XZh+Wd83CiBZcEeRAUJEGgZ01Wmlnr+/cnjC4WGBsIl6ZULsjHxgOCc+sGk4O8d0uYByVn4yobnfb3eExOoSreTVNikprxKw51VESRQbDgAtRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727774245; c=relaxed/simple;
-	bh=Svfo0+CJ5fp0FFu0PWEawg5jgBrmgSL3AB7+TqvSeUM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Fp23m8iwZSn7yow2tiVr4NxZqGSCkIy+wC8UY8wYWWTRSg3/PYkJ0Xd5ja2nnshQq2xpsxSkqYJl7jrJ6k529BRsKzM4tfOhz7XthQGgRXkLJLDM6nDfzNrI4u/pmrwQ8udB7RNwipl6ko+ukYdBQlTIuF/Rfbz0XvEJqVQ2dA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=none smtp.mailfrom=h08.hostsharing.net; arc=none smtp.client-ip=83.223.95.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=h08.hostsharing.net
-Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
-	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
-	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
-	by bmailout1.hostsharing.net (Postfix) with ESMTPS id A75BC30008F12;
-	Tue,  1 Oct 2024 11:17:13 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-	id 89069230E25; Tue,  1 Oct 2024 11:17:13 +0200 (CEST)
-Date: Tue, 1 Oct 2024 11:17:13 +0200
-From: Lukas Wunner <lukas@wunner.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Biggers <ebiggers@google.com>,
-	Stefan Berger <stefanb@linux.ibm.com>,
-	Vitaly Chikunov <vt@altlinux.org>,
-	Tadeusz Struk <tstruk@gigaio.com>,
-	Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: David Howells <dhowells@redhat.com>,
-	Andrew Zaborowski <andrew.zaborowski@intel.com>,
-	Saulo Alessandre <saulo.alessandre@tse.jus.br>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Ignat Korchagin <ignat@cloudflare.com>,
-	Marek Behun <kabel@kernel.org>,
-	Varad Gautam <varadgautam@google.com>,
-	Stephan Mueller <smueller@chronox.de>,
-	Denis Kenzior <denkenz@gmail.com>, linux-crypto@vger.kernel.org,
-	keyrings@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-	Eric Snowberg <eric.snowberg@oracle.com>,
-	linux-security-module@vger.kernel.org,
-	Gonglei <arei.gonglei@huawei.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio Perez <eperezma@redhat.com>, virtualization@lists.linux.dev,
-	zhenwei pi <pizhenwei@bytedance.com>,
-	lei he <helei.sig11@bytedance.com>,
-	Neal Liu <neal_liu@aspeedtech.com>, Joel Stanley <joel@jms.id.au>,
-	Andrew Jeff ery <andrew@codeconstruct.com.au>,
-	linux-aspeed@lists.ozlabs.org, Zhiqi Song <songzhiqi1@huawei.com>,
-	Longfang Liu <liulongfang@huawei.com>,
-	Jia Jie Ho <jiajie.ho@starfivetech.com>,
-	William Qiu <william.qiu@starfivetech.com>
-Subject: Re: [PATCH v2 00/19] Migrate to sig_alg and templatize ecdsa
-Message-ID: <Zvu-GV-vtDJHKf51@wunner.de>
-References: <cover.1725972333.git.lukas@wunner.de>
+	s=arc-20240116; t=1727775057; c=relaxed/simple;
+	bh=ZskDUsZeVMJFIK/Yigi2D03XvMO2kozwT/rt/TJPv5E=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=rCRItJft+IGxf0EXSztUtC8cGVcTBt6LF41uvVbydmmxTXoR4Ix4KKe7D8YfE7WzGNyou6UixvJkuu/VPG5vItmJfKWNHj1fp6vEZ7otDiOjJDS7snWyvrKTK1Ai2o21hZA/laHrUy5csm923/hKSpS7AkvEzYfnUhzn9Otbz5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=beHoFl5y; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="beHoFl5y"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-20bb610be6aso3527005ad.1
+        for <virtualization@lists.linux.dev>; Tue, 01 Oct 2024 02:30:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1727775056; x=1728379856; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=W+4UolrUQ6Xy2r4o1oQrUubFhTKVXa1bQO0YF2hCMqw=;
+        b=beHoFl5yRAoeNkFLEUKpN89kiYBlcRv/fOfu5DVPcYslPJxtBsGaZXAYtzcCd9oMO4
+         qgyy57mhuzTG1gitHoJssSA6OjafB6L6QCfAX4linu7YeaD2IGVaTi3DyQsyZiNBiWRN
+         /ID4m4aaSCfYT0welcx1w3wcM6DiGpg2/2SPoxshujBz0cfrcFPFNoc9wTgZV1VWySOo
+         vzvg0L3vRinRdeZxAwa787MnXxMfJxoxBLRobNFJM9jl4IF0HOMwTELNxab3PpLc509D
+         PG28A+rgg87Pl0Q8L6Tzm9pCRe8f/LUclIXrd+u2GRNIsb8bvqNNqaMNfQdeL+42gH27
+         v3Qw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727775056; x=1728379856;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=W+4UolrUQ6Xy2r4o1oQrUubFhTKVXa1bQO0YF2hCMqw=;
+        b=mYmu952VOYtB+Z66+nys45xAZGlQ0v0+4KdU18HCYig0SJfPdkxLyq338cisoPVNwK
+         Aurshg/o28UUqVYCZCBOHGPoyFF5VysHUCz6wC5EhoI5nUK8gevDDoW/WWDs/A4ZzMar
+         E5c5OuxOfQ56tJvgWUHK99/+lqPnQWRaZJ2BMjhRfn5n9uwzvBO9s5ESWL9Jd9A+poXA
+         TxFqaZkkcrEn4BvnfYD5dgZHkTo6vVPC2TZmZwnytumpGI3Dnbfe3V7jBx56bKxlGFnq
+         vw07DYPjMocDzrBQThNTi4CLjzJ/nR10Mzz3dXoIBkhUqk9tKb58kKjj4ieHAUXmWW8i
+         9JpQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWdM/USi5/FrQ8iP8Lq8PoOIARzdq/ZqBJ0gmrTMsQBDh0dIc7R1BY4Zae+Lvx5WKax1MaoOPZe/XMAXub4qg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxab7i3cSN6hLHhEOy5PB18WE54mrF5/vmnyP3feQ87K0isW3d9
+	VaFLmzKNgYZHBTqyOQUMHQy+gDuO2o7VSv0gr/12kpcpEWkNJ73n
+X-Google-Smtp-Source: AGHT+IG3MRTXsdCNxSvHbHz8XHYStnncZOvWI6fDhmAE9CqqHGPX5KMyzKCUyJKUNaPIYsVfDRSRSA==
+X-Received: by 2002:a17:903:2344:b0:207:1675:6709 with SMTP id d9443c01a7336-20b36709fabmr201291175ad.0.1727775055866;
+        Tue, 01 Oct 2024 02:30:55 -0700 (PDT)
+Received: from localhost.localdomain ([175.45.38.98])
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-2e0b6c74071sm9782805a91.18.2024.10.01.02.30.53
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 01 Oct 2024 02:30:55 -0700 (PDT)
+From: Wenyu Huang <huangwenyu1998@gmail.com>
+X-Google-Original-From: Wenyu Huang <huangwenyuu@outlook.com>
+To: jasowang@redhat.com
+Cc: huangwenyu1998@gmail.com,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: Re: [PATCH] virtio: Make vring_new_virtqueue support for packed vring
+Date: Tue,  1 Oct 2024 17:30:51 +0800
+Message-Id: <20241001093051.42703-1-huangwenyuu@outlook.com>
+X-Mailer: git-send-email 2.30.1 (Apple Git-130)
+In-Reply-To: <CACGkMEvieuDTp-DfhQ58EGbeFCvNmn4fUNmUdPHzex6pOetbdw@mail.gmail.com>
+References: <CACGkMEvieuDTp-DfhQ58EGbeFCvNmn4fUNmUdPHzex6pOetbdw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1725972333.git.lukas@wunner.de>
+Content-Transfer-Encoding: 8bit
 
-Hi Herbert,
-
-On Tue, Sep 10, 2024 at 04:30:10PM +0200, Lukas Wunner wrote:
-> The original impetus of this series is to introduce P1363 signature
-> decoding for ecdsa (patch [18/19]), which is needed by the upcoming
-> SPDM library (Security Protocol and Data Model) for PCI device
-> authentication.
-> 
-> To facilitate that, move X9.62 signature decoding out of ecdsa.c and
-> into a template (patch [15/19]).
-> 
-> New in v2:  Move the maximum signature size calculations for ecdsa
-> out of software_key_query() and into the X9.62 template so that
-> corresponding calculations can be added for P1363 without further
-> cluttering up software_key_query() (patch [16/19] - [17/19]).
-> 
-> New in v2:  Avoid inefficient copying from kernel buffers to sglists
-> in the new templates by introducing a sig_alg backend and migrating
-> all algorithms to it, per Herbert's advice (patch [02/19] - [12/19]).
-> 
-> Clean up various smaller issues that caught my eye in ecdsa
-> (patch [01/19] and [14/19]), ecrdsa (patch [19/19]) and
-> ASN.1 headers (patch [13/19]).
-
-This series was submitted at the tail end of the v6.11 cycle.
-It still applies cleanly to v6.12-rc1 though, so I'm not sure
-whether to resubmit.
-
-Is there anything you want me to change?
-
-Thanks!
-
-Lukas
+It used for testing in tools/virtio/vringh_test.c. 
+If vring_new_virtqueue supports packed vring, we can add support for 
+packed vring to vringh and test it.
