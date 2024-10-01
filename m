@@ -1,841 +1,567 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 971733211
-	for <virtualization@lists.linux.dev>; Tue,  1 Oct 2024 01:15:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 546FC6FBF
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 01:45:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727745314; cv=none; b=n/fwoheY6G32QFKT37Gw0vYamNHd+wr406SzYY/lv2rqfI/uYU3RNcagFMrJA9Hu8yqCD2OhMefA9xGTDoXzjVFRForabZT4lZac9K+FBSv34sz2dKi4mk0r+YxUxNm5JfGe0/io1lzcbA1o4Sacqx3pVwSRAbKq3Epf9exPMeA=
+	t=1727747161; cv=none; b=KnC5OF3K5X+/PX8UmEXNleAxrK3lPHhsdi8wqTjla4tGooJtGW/sMR+37Tnct2I3/asdQL5X71r7h0bx58OboWsOgV9f2Dg74gDLuvM9cIWXSwGF2bUREswM/ZwaJelVAdbPV4NTmXxTeuqUOPQeSvWYu0jKs1joAGPfNoicsb4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727745314; c=relaxed/simple;
-	bh=tBUkKmnOtSU96RcT8RyZGU3db45urQJCG29K7k9nbq4=;
+	s=arc-20240116; t=1727747161; c=relaxed/simple;
+	bh=MoiYmS+B6veEm5YqGvpYPbFstCPl8lhOw0M0GKJyfHE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CMhAp3IPBS354AkxYmYc8SCGFCF41IROJ/vUak6qj9JK9JugVBmGDUDqy8bhtBGGEwooijpdA6Nu/r8yvB01tcpjC8H8+gAFwY6tPBVQ8SFwxf1zn4adlvPHQy1CWja3LpV2mHiCK66FrxK02a+m1npIbKA1/Pv1c12hkUIYvyM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=lmJbCeP/; arc=none smtp.client-ip=209.85.160.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=aAIuI7R5mUv7XQZ2TI259eX9o1WYAqlS+r0CoLQEMgiUI7vzDVkyJe1DQH630+QdnWWQAq37J1leRS90mYaRjBT8E6Zg+g+pArWKeCGi0R681Os8pRqsQkjSB6/9hKtEESPPabj7xmv2HMSnmck+7wNixDCfPz3AbazSEVX6rdg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ELTFYsSF; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="lmJbCeP/"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-45b4e638a9aso79491cf.1
-        for <virtualization@lists.linux.dev>; Mon, 30 Sep 2024 18:15:11 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ELTFYsSF"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id D66D560769
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 01:45:58 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id DhQr81Hrww5M for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Oct 2024 01:45:56 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::635; helo=mail-ej1-x635.google.com; envelope-from=dverkamp@chromium.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 863C46072C
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 863C46072C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ELTFYsSF
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 863C46072C
+	for <virtualization@lists.linux-foundation.org>; Tue,  1 Oct 2024 01:45:55 +0000 (UTC)
+Received: by mail-ej1-x635.google.com with SMTP id a640c23a62f3a-a90f263c60fso14461566b.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 30 Sep 2024 18:45:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1727745310; x=1728350110; darn=lists.linux.dev;
+        d=chromium.org; s=google; t=1727747153; x=1728351953; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vIFtTQqar6FbW9qZVZbCP53AUTdidH15cjXGHo2u7xs=;
-        b=lmJbCeP/T4nDax1K7AcPA2xGTMTL3v0nICZSCvhAeZtHGEgCTv0v3oIDyOgXionxb0
-         w9l+KclcnHaAr5CwfH9wa7Kn+GZEw0YKhRKXSH5jLKtwu2nS7ly9dNt7FTMAWCyB1Vhq
-         3KOGbT4WSVX38Z7c9ls/DnD6d6HC6QXy6WmmyTUqZ8B0TW4og9cueO8CU8F0h7rBCj9F
-         7H0nSQx80oIQEumm0SDqGyWSs57ae3ErccnDtr+f/V/gZOwx9VHZCBO1nks+MXvMPV+u
-         bniuoaXB/HiUlXScNh3vY7cXsk+mk3uvreXd1lKZNqCdFsz9DOYCKe/h0Cq6k0PjbXVB
-         im/Q==
+        bh=i/4Xqypuldl3uicp73KgGs/KFNhgtrfX7cdOdaweP/w=;
+        b=ELTFYsSFsQ3GL+I6I7bGLmpk2fr5larxeBsR5T9YUyQ0tJNBgHFQuU16tDPNINY2dK
+         GXs9jd0+veVbUegHxmZeOXbILW7Z1Re0rCOAG4DzDUf3Xi9wNECxT5bJ2iX7iFwCs4aI
+         ZTBfSbr5joKYwH7msu5FB6WiNFEpkF09fEFzc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727745310; x=1728350110;
+        d=1e100.net; s=20230601; t=1727747153; x=1728351953;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vIFtTQqar6FbW9qZVZbCP53AUTdidH15cjXGHo2u7xs=;
-        b=Cmd/xIjolnEtRY+oBtaL4kmNmXGXDZSEx0NbHip7JDzJ1gL9WfKx5+5uT4wQsxXWRl
-         szXaJdg2jt8tIjOxuBY7+t3JNmFrCyqMgpO1j7qdV7krB+f2rLDTNxlCUIrznbIntROS
-         mzQH8WQJQW5Oc10rJwSCeKPSt+VZtdPjqBiDB61h370QVPESXzyEU3OFp0rbiLwrtZBj
-         zJ7np0x3fcCGwWczfbJYT6qU+02Gy303j2Y66GocOKOVjKZr+s/3p4Ek6GUOk8Jo6Djd
-         aFttOMVvw+z3jwDGSxInsOEZ3ugoXCFkSyhrcW4j1Etm8tpZwNbJFvn342KUXYCsOJO3
-         jPVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUVngWapXhqLSxfZuPuUtDJixRrDVYpzTyg+QTWMzDC9XzyvLRyymtl7DZHak/8p3ejXM8vrLljfBbi/7kbdQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxMexpsraUFouJUMIS9vwJVMdyCmF5MGWGESvit9p6d/za6JQuZ
-	Av8HWFz/okH9Y1VgliL2LOqMie3BTrvahxTkA6U6Iy7ZZoPsTnK7Fo6yspPtwNdFuk4ENc1FQjt
-	iqe+D8rEExIXmmDJUTpGkje6nSJHjZ8RIJ58b
-X-Google-Smtp-Source: AGHT+IGdE+OkBZFVIPBtDD/n54dU2pmGuGCvS3OcQlkMdR/VvYQ7fsyAleKgYQY252VSnKUfpTLgk45jBa9f5eMqD1U=
-X-Received: by 2002:a05:622a:568d:b0:45c:9bb0:64ab with SMTP id
- d75a77b69052e-45d766354e2mr796381cf.29.1727745309931; Mon, 30 Sep 2024
- 18:15:09 -0700 (PDT)
+        bh=i/4Xqypuldl3uicp73KgGs/KFNhgtrfX7cdOdaweP/w=;
+        b=fAq4ZfXtkN/IE1tu+zOwPP6b7UAX0+9wVRO+mg35BUA7oFaWQ/1swXnos2+742tAAv
+         V1zd50V7GL5V0lbEIFXOEIHkH31Gud0vQZQM56ZDIQicajghDxHnTL7lYIz/dz3mjyp0
+         y03wKILxfd9cMwkEpvPhkr4PHpYhe0X+dJcCvn+whIE3Sl0GGyIomzgMLyxv1iWn15Lp
+         5FsoeOftFLwaDyWgI5rMeGA70Shf8o/n1UFCqpFYVy8lZKn1AmvP6hLH4Z7nMkyKgGAo
+         oWCOZMFmMle1aqbPe9UAIltcQAueht12G7oagbvMgu9CwrARjgoEaxO8amBAUmDKEHm+
+         JMpw==
+X-Forwarded-Encrypted: i=1; AJvYcCVyRoA1EFdQu3Sfd+VPBRPZDcqXc8i/Am9dcKuhDWdwLDkDhHlb/Vby106dxKJ39BA0PGWnzZQSgoqrVpmqmQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwINLoj5XIkHc2BPTNyA4lpGn68pi228eXa+Lt/vp1zJogQpf9N
+	rPQOmEIUk0DTzN6BWB3tZtTavLlDWyYW9ukHwENFSteHNfO/bErYykTsYI2YkKZOqxb3QTBUMhU
+	=
+X-Google-Smtp-Source: AGHT+IExHIZq9bUJJp9IrSHfuoSE3Xl3mZPvMdgeACD1VeDmzzCDb/GVYH+t7WQ4BEoXb2zWMlUVNQ==
+X-Received: by 2002:a17:907:1c8d:b0:a83:a86a:549a with SMTP id a640c23a62f3a-a93d8a59655mr450025466b.1.1727747152748;
+        Mon, 30 Sep 2024 18:45:52 -0700 (PDT)
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com. [209.85.221.44])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c299ac82sm613838566b.217.2024.09.30.18.45.52
+        for <virtualization@lists.linux-foundation.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Sep 2024 18:45:52 -0700 (PDT)
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-37cd6ece97cso1987235f8f.1
+        for <virtualization@lists.linux-foundation.org>; Mon, 30 Sep 2024 18:45:52 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVJkehBP63DycqKV21k+AMkU2iWLwpcG0pih1XV0dOrXD29FZyXUcGi2Nw4qkYUdHWnF5mSoKfKz/XzruMLzQ==@lists.linux-foundation.org
+X-Received: by 2002:a05:6000:186b:b0:37c:d512:d427 with SMTP id
+ ffacd0b85a97d-37cd5aba1efmr11432491f8f.35.1727747151318; Mon, 30 Sep 2024
+ 18:45:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241001011328.2806686-1-yuanchu@google.com>
-In-Reply-To: <20241001011328.2806686-1-yuanchu@google.com>
-From: Yuanchu Xie <yuanchu@google.com>
-Date: Mon, 30 Sep 2024 18:14:55 -0700
-Message-ID: <CAJj2-QHKLHTPn-Qoih_=5RbOf3eyenKMmFn0jz6ALQ9KDAbisw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] virt: pvmemcontrol: control guest physical memory properties
-To: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, 
-	Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, virtualization@lists.linux.dev, 
-	dev@lists.cloudhypervisor.org
+References: <20240925145228.27953-1-mgurtovoy@nvidia.com> <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
+ <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com> <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
+ <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com>
+In-Reply-To: <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Date: Mon, 30 Sep 2024 18:45:23 -0700
+X-Gmail-Original-Message-ID: <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
+Message-ID: <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, 
+	stefanha@redhat.com, virtio-dev@lists.linux.dev, oren@nvidia.com, 
+	parav@nvidia.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-I made a mistake. This is supposed to be v3.
-
-On Mon, Sep 30, 2024 at 6:13=E2=80=AFPM Yuanchu Xie <yuanchu@google.com> wr=
-ote:
+[side note: I thought I subscribed to the virtio-dev list previously,
+but the confirmation got lost in the spam filter initially, should be
+fixed now]
+On Fri, Sep 27, 2024 at 5:22=E2=80=AFPM Max Gurtovoy <mgurtovoy@nvidia.com>=
+ wrote:
 >
-> Pvmemcontrol provides a way for the guest to control its physical memory
-> properties, and enables optimizations and security features. For
-> example, the guest can provide information to the host where parts of a
-> hugepage may be unbacked, or sensitive data may not be swapped out, etc.
 >
-> Pvmemcontrol allows guests to manipulate its gPTE entries in the SLAT,
-> and also some other properties of the memory map the back's host memory.
-> This is achieved by using the KVM_CAP_SYNC_MMU capability. When this
-> capability is available, the changes in the backing of the memory region
-> on the host are automatically reflected into the guest. For example, an
-> mmap() or madvise() that affects the region will be made visible
-> immediately.
->
-> There are two components of the implementation: the guest Linux driver
-> and Virtual Machine Monitor (VMM) device. A guest-allocated shared
-> buffer is negotiated per-cpu through a few PCI MMIO registers, the VMM
-> device assigns a unique command for each per-cpu buffer. The guest
-> writes its pvmemcontrol request in the per-cpu buffer, then writes the
-> corresponding command into the command register, calling into the VMM
-> device to perform the pvmemcontrol request.
->
-> The synchronous per-cpu shared buffer approach avoids the kick and busy
-> waiting that the guest would have to do with virtio virtqueue transport.
->
-> User API
-> From the userland, the pvmemcontrol guest driver is controlled via
-> ioctl(2) call. It requires CAP_SYS_ADMIN.
->
-> ioctl(fd, PVMEMCONTROL_IOCTL, struct pvmemcontrol_buf *buf);
->
-> Guest userland applications can tag VMAs and guest hugepages, or advise
-> the host on how to handle sensitive guest pages.
->
-> Supported function codes and their use cases:
-> PVMEMCONTROL_FREE/REMOVE/DONTNEED/PAGEOUT. For the guest. One can reduce
-> the struct page and page table lookup overhead by using hugepages backed
-> by smaller pages on the host. These pvmemcontrol commands can allow for
-> partial freeing of private guest hugepages to save memory. They also
-> allow kernel memory, such as kernel stacks and task_structs to be
-> paravirtualized if we expose kernel APIs.
->
-> PVMEMCONTROL_MERGEABLE can inform the host KSM to deduplicate VM pages.
->
-> PVMEMCONTROL_UNMERGEABLE is useful for security, when the VM does not
-> want to share its backing pages.
-> The same with PVMEMCONTROL_DONTDUMP, so sensitive pages are not included
-> in a dump.
-> MLOCK/UNLOCK can advise the host that sensitive information is not
-> swapped out on the host.
->
-> PVMEMCONTROL_MPROTECT_NONE/R/W/RW. For guest stacks backed by hugepages,
-> stack guard pages can be handled in the host and memory can be saved in
-> the hugepage.
->
-> PVMEMCONTROL_SET_VMA_ANON_NAME is useful for observability and debugging
-> how guest memory is being mapped on the host.
->
-> Sample program making use of PVMEMCONTROL_DONTNEED:
-> https://github.com/Dummyc0m/pvmemcontrol-user
->
-> The VMM implementation is part of Cloud Hypervisor, the feature
-> pvmemcontrol can be enabled and the VMM can then provide the device to a
-> supporting guest.
-> https://github.com/cloud-hypervisor/cloud-hypervisor
->
-> -
-> Changelog
-> PATCH v2 -> v3
-> - added PVMEMCONTROL_MERGEABLE for memory dedupe.
-> - updated link to the upstream Cloud Hypervisor repo, and specify the
->   feature required to enable the device.
-> PATCH v1 -> v2
-> - fixed byte order sparse warning. ioread/write already does
->   little-endian.
-> - add include for linux/percpu.h
-> RFC v1 -> PATCH v1
-> - renamed memctl to pvmemcontrol
-> - defined device endianness as little endian
->
-> v1:
-> https://lore.kernel.org/linux-mm/20240518072422.771698-1-yuanchu@google.c=
-om/
-> v2:
-> https://lore.kernel.org/linux-mm/20240612021207.3314369-1-yuanchu@google.=
-com/
->
-> Change-Id: Ib9e4026df815a8ffd8d8b29ce13dd12ce3714e21
->
-> Add MADV_MERGEABLE to pvmemcontrol
->
-> Align pvmemcontrol comments
->
-> This change aligns the pvmemcontrol operation IDs and comments in the pvm=
-emcontrol header file
->
-> Signed-off-by: Yuanchu Xie <yuanchu@google.com>
-> ---
->  .../userspace-api/ioctl/ioctl-number.rst      |   2 +
->  drivers/virt/Kconfig                          |   2 +
->  drivers/virt/Makefile                         |   1 +
->  drivers/virt/pvmemcontrol/Kconfig             |  10 +
->  drivers/virt/pvmemcontrol/Makefile            |   2 +
->  drivers/virt/pvmemcontrol/pvmemcontrol.c      | 459 ++++++++++++++++++
->  include/uapi/linux/pvmemcontrol.h             |  76 +++
->  7 files changed, 552 insertions(+)
->  create mode 100644 drivers/virt/pvmemcontrol/Kconfig
->  create mode 100644 drivers/virt/pvmemcontrol/Makefile
->  create mode 100644 drivers/virt/pvmemcontrol/pvmemcontrol.c
->  create mode 100644 include/uapi/linux/pvmemcontrol.h
->
-> diff --git a/Documentation/userspace-api/ioctl/ioctl-number.rst b/Documen=
-tation/userspace-api/ioctl/ioctl-number.rst
-> index a141e8e65c5d..34a9954cafc7 100644
-> --- a/Documentation/userspace-api/ioctl/ioctl-number.rst
-> +++ b/Documentation/userspace-api/ioctl/ioctl-number.rst
-> @@ -372,6 +372,8 @@ Code  Seq#    Include File                           =
-                Comments
->  0xCD  01     linux/reiserfs_fs.h
->  0xCE  01-02  uapi/linux/cxl_mem.h                                    Com=
-pute Express Link Memory Devices
->  0xCF  02     fs/smb/client/cifs_ioctl.h
-> +0xDA  00     uapi/linux/pvmemcontrol.h                               Pvm=
-emcontrol Device
-> +                                                                     <ma=
-ilto:yuanchu@google.com>
->  0xDB  00-0F  drivers/char/mwave/mwavepub.h
->  0xDD  00-3F                                                          ZFC=
-P device driver see drivers/s390/scsi/
->                                                                       <ma=
-ilto:aherrman@de.ibm.com>
-> diff --git a/drivers/virt/Kconfig b/drivers/virt/Kconfig
-> index d8c848cf09a6..454e347a90cf 100644
-> --- a/drivers/virt/Kconfig
-> +++ b/drivers/virt/Kconfig
-> @@ -49,4 +49,6 @@ source "drivers/virt/acrn/Kconfig"
->
->  source "drivers/virt/coco/Kconfig"
->
-> +source "drivers/virt/pvmemcontrol/Kconfig"
-> +
->  endif
-> diff --git a/drivers/virt/Makefile b/drivers/virt/Makefile
-> index f29901bd7820..3a1fd6e076ad 100644
-> --- a/drivers/virt/Makefile
-> +++ b/drivers/virt/Makefile
-> @@ -10,3 +10,4 @@ obj-y                         +=3D vboxguest/
->  obj-$(CONFIG_NITRO_ENCLAVES)   +=3D nitro_enclaves/
->  obj-$(CONFIG_ACRN_HSM)         +=3D acrn/
->  obj-y                          +=3D coco/
-> +obj-$(CONFIG_PVMEMCONTROL)     +=3D pvmemcontrol/
-> diff --git a/drivers/virt/pvmemcontrol/Kconfig b/drivers/virt/pvmemcontro=
-l/Kconfig
-> new file mode 100644
-> index 000000000000..9fe16da23bd8
-> --- /dev/null
-> +++ b/drivers/virt/pvmemcontrol/Kconfig
-> @@ -0,0 +1,10 @@
-> +# SPDX-License-Identifier: GPL-2.0
-> +config PVMEMCONTROL
-> +       tristate "pvmemcontrol Guest Service Module"
-> +       depends on KVM_GUEST
-> +       help
-> +         pvmemcontrol is a guest kernel module that allows to communicat=
+> On 27/09/2024 0:44, Daniel Verkamp wrote:
+> > On Wed, Sep 25, 2024 at 4:42=E2=80=AFPM Max Gurtovoy <mgurtovoy@nvidia.=
+com> wrote:
+> >> Hi Daniel,
+> >>
+> >> On 25/09/2024 23:57, Daniel Verkamp wrote:
+> >>> On Wed, Sep 25, 2024 at 8:05=E2=80=AFAM Max Gurtovoy <mgurtovoy@nvidi=
+a.com> wrote:
+> >>>
+> >>> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit i=
+s
+> >>> set.
+> >>>
+> >>> The blk_size field represents the smallest addressable unit of data t=
+hat
+> >>> can be read from or written to the device. It is always a power of tw=
+o
+> >>> and typically ranges from 512 bytes to larger values such as 4 KB.
+> >>>
+> >>> I agree that this is what the blk_size field probably *should* have
+> >>> meant (matching other storage protocols like ATA, SCSI, NVMe, ...),
+> >>> but I believe rewriting the spec like this changes the meaning of the
+> >>> blk_size field in an incompatible way.
+> >> I believe that this is more of a clarification than a re-write.
+> >>
+> >>> Previously, blk_size was described as the "optimal" sector size, so i=
+t
+> >>> seems clear that the driver is still allowed to send requests that ar=
 e
-> +         with hypervisor / VMM and control the guest memory backing.
-> +
-> +         To compile as a module, choose M, the module will be called
-> +         pvmemcontrol. If unsure, say N.
-> diff --git a/drivers/virt/pvmemcontrol/Makefile b/drivers/virt/pvmemcontr=
-ol/Makefile
-> new file mode 100644
-> index 000000000000..2fc087ef3ef5
-> --- /dev/null
-> +++ b/drivers/virt/pvmemcontrol/Makefile
-> @@ -0,0 +1,2 @@
-> +# SPDX-License-Identifier: GPL-2.0
-> +obj-$(CONFIG_PVMEMCONTROL)     :=3D pvmemcontrol.o
-> diff --git a/drivers/virt/pvmemcontrol/pvmemcontrol.c b/drivers/virt/pvme=
-mcontrol/pvmemcontrol.c
-> new file mode 100644
-> index 000000000000..f8a07114fad8
-> --- /dev/null
-> +++ b/drivers/virt/pvmemcontrol/pvmemcontrol.c
-> @@ -0,0 +1,459 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Control guest physical memory properties by sending
-> + * madvise-esque requests to the host VMM.
-> + *
-> + * Author: Yuanchu Xie <yuanchu@google.com>
-> + * Author: Pasha Tatashin <pasha.tatashin@soleen.com>
-> + */
-> +#include <linux/spinlock.h>
-> +#include <linux/cpumask.h>
-> +#include <linux/percpu-defs.h>
-> +#include <linux/percpu.h>
-> +#include <linux/types.h>
-> +#include <linux/gfp.h>
-> +#include <linux/compiler.h>
-> +#include <linux/fs.h>
-> +#include <linux/sched/clock.h>
-> +#include <linux/wait.h>
-> +#include <linux/printk.h>
-> +#include <linux/slab.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/module.h>
-> +#include <linux/proc_fs.h>
-> +#include <linux/resource_ext.h>
-> +#include <linux/mutex.h>
-> +#include <linux/pci.h>
-> +#include <linux/percpu.h>
-> +#include <linux/byteorder/generic.h>
-> +#include <linux/io-64-nonatomic-lo-hi.h>
-> +#include <uapi/linux/pvmemcontrol.h>
-> +
-> +#define PCI_VENDOR_ID_GOOGLE 0x1ae0
-> +#define PCI_DEVICE_ID_GOOGLE_PVMEMCONTROL 0x0087
-> +
-> +#define PVMEMCONTROL_COMMAND_OFFSET 0x08
-> +#define PVMEMCONTROL_REQUEST_OFFSET 0x00
-> +#define PVMEMCONTROL_RESPONSE_OFFSET 0x00
-> +
-> +/*
-> + * Magic values that perform the action specified when written to
-> + * the command register.
-> + */
-> +enum pvmemcontrol_transport_command {
-> +       PVMEMCONTROL_TRANSPORT_RESET =3D 0x060FE6D2,
-> +       PVMEMCONTROL_TRANSPORT_REGISTER =3D 0x0E359539,
-> +       PVMEMCONTROL_TRANSPORT_READY =3D 0x0CA8D227,
-> +       PVMEMCONTROL_TRANSPORT_DISCONNECT =3D 0x030F5DA0,
-> +       PVMEMCONTROL_TRANSPORT_ACK =3D 0x03CF5196,
-> +       PVMEMCONTROL_TRANSPORT_ERROR =3D 0x01FBA249,
-> +};
-> +
-> +/* Contains the function code and arguments for specific function */
-> +struct pvmemcontrol_vmm_call_le {
-> +       __le64 func_code; /* pvmemcontrol set function code */
-> +       __le64 addr; /* hyper. page size aligned guest phys. addr */
-> +       __le64 length; /* hyper. page size aligned length */
-> +       __le64 arg; /* function code specific argument */
-> +};
-> +
-> +/* Is filled on return to guest from VMM from most function calls */
-> +struct pvmemcontrol_vmm_ret_le {
-> +       __le32 ret_errno; /* on error, value of errno */
-> +       __le32 ret_code; /* pvmemcontrol internal error code, on success =
-0 */
-> +       __le64 ret_value; /* return value from the function call */
-> +       __le64 arg0; /* currently unused */
-> +       __le64 arg1; /* currently unused */
-> +};
-> +
-> +struct pvmemcontrol_buf_le {
-> +       union {
-> +               struct pvmemcontrol_vmm_call_le call;
-> +               struct pvmemcontrol_vmm_ret_le ret;
-> +       };
-> +};
-> +
-> +struct pvmemcontrol_percpu_channel {
-> +       struct pvmemcontrol_buf_le buf;
-> +       u64 buf_phys_addr;
-> +       u32 command;
-> +};
-> +
-> +struct pvmemcontrol {
-> +       void __iomem *base_addr;
-> +       struct device *device;
-> +       /* cache the info call */
-> +       struct pvmemcontrol_vmm_ret pvmemcontrol_vmm_info;
-> +       struct pvmemcontrol_percpu_channel __percpu *pcpu_channels;
-> +};
-> +
-> +static DEFINE_RWLOCK(pvmemcontrol_lock);
-> +static struct pvmemcontrol *pvmemcontrol __read_mostly;
-> +
-> +static void pvmemcontrol_write_command(void __iomem *base_addr, u32 comm=
-and)
-> +{
-> +       iowrite32(command, base_addr + PVMEMCONTROL_COMMAND_OFFSET);
-> +}
-> +
-> +static u32 pvmemcontrol_read_command(void __iomem *base_addr)
-> +{
-> +       return ioread32(base_addr + PVMEMCONTROL_COMMAND_OFFSET);
-> +}
-> +
-> +static void pvmemcontrol_write_reg(void __iomem *base_addr, u64 buf_phys=
-_addr)
-> +{
-> +       iowrite64_lo_hi(buf_phys_addr, base_addr + PVMEMCONTROL_REQUEST_O=
-FFSET);
-> +}
-> +
-> +static u32 pvmemcontrol_read_resp(void __iomem *base_addr)
-> +{
-> +       return ioread32(base_addr + PVMEMCONTROL_RESPONSE_OFFSET);
-> +}
-> +
-> +static void pvmemcontrol_buf_call_to_le(struct pvmemcontrol_buf_le *le,
-> +                                       const struct pvmemcontrol_buf *bu=
-f)
-> +{
-> +       le->call.func_code =3D cpu_to_le64(buf->call.func_code);
-> +       le->call.addr =3D cpu_to_le64(buf->call.addr);
-> +       le->call.length =3D cpu_to_le64(buf->call.length);
-> +       le->call.arg =3D cpu_to_le64(buf->call.arg);
-> +}
-> +
-> +static void pvmemcontrol_buf_ret_from_le(struct pvmemcontrol_buf *buf,
-> +                                        const struct pvmemcontrol_buf_le=
- *le)
-> +{
-> +       buf->ret.ret_errno =3D le32_to_cpu(le->ret.ret_errno);
-> +       buf->ret.ret_code =3D le32_to_cpu(le->ret.ret_code);
-> +       buf->ret.ret_value =3D le64_to_cpu(le->ret.ret_value);
-> +       buf->ret.arg0 =3D le64_to_cpu(le->ret.arg0);
-> +       buf->ret.arg1 =3D le64_to_cpu(le->ret.arg1);
-> +}
-> +
-> +static void pvmemcontrol_send_request(struct pvmemcontrol *pvmemcontrol,
-> +                                     struct pvmemcontrol_buf *buf)
-> +{
-> +       struct pvmemcontrol_percpu_channel *channel;
-> +
-> +       preempt_disable();
-> +       channel =3D this_cpu_ptr(pvmemcontrol->pcpu_channels);
-> +
-> +       pvmemcontrol_buf_call_to_le(&channel->buf, buf);
-> +       pvmemcontrol_write_command(pvmemcontrol->base_addr, channel->comm=
-and);
-> +       pvmemcontrol_buf_ret_from_le(buf, &channel->buf);
-> +
-> +       preempt_enable();
-> +}
-> +
-> +static int __pvmemcontrol_vmm_call(struct pvmemcontrol_buf *buf)
-> +{
-> +       int err =3D 0;
-> +
-> +       if (!pvmemcontrol)
-> +               return -EINVAL;
-> +
-> +       read_lock(&pvmemcontrol_lock);
-> +       if (!pvmemcontrol) {
-> +               err =3D -EINVAL;
-> +               goto unlock;
-> +       }
-> +       if (buf->call.func_code =3D=3D PVMEMCONTROL_INFO) {
-> +               memcpy(&buf->ret, &pvmemcontrol->pvmemcontrol_vmm_info,
-> +                      sizeof(buf->ret));
-> +               goto unlock;
-> +       }
-> +
-> +       pvmemcontrol_send_request(pvmemcontrol, buf);
-> +
-> +unlock:
-> +       read_unlock(&pvmemcontrol_lock);
-> +       return err;
-> +}
-> +
-> +static int pvmemcontrol_init_info(struct pvmemcontrol *dev,
-> +                                 struct pvmemcontrol_buf *buf)
-> +{
-> +       buf->call.func_code =3D PVMEMCONTROL_INFO;
-> +
-> +       pvmemcontrol_send_request(dev, buf);
-> +       if (buf->ret.ret_code)
-> +               return buf->ret.ret_code;
-> +
-> +       /* Initialize global pvmemcontrol_vmm_info */
-> +       memcpy(&dev->pvmemcontrol_vmm_info, &buf->ret,
-> +              sizeof(dev->pvmemcontrol_vmm_info));
-> +       dev_info(dev->device,
-> +                "pvmemcontrol_vmm_info.ret_errno =3D %u\n"
-> +                "pvmemcontrol_vmm_info.ret_code =3D %u\n"
-> +                "pvmemcontrol_vmm_info.major_version =3D %llu\n"
-> +                "pvmemcontrol_vmm_info.minor_version =3D %llu\n"
-> +                "pvmemcontrol_vmm_info.page_size =3D %llu\n",
-> +                dev->pvmemcontrol_vmm_info.ret_errno,
-> +                dev->pvmemcontrol_vmm_info.ret_code,
-> +                dev->pvmemcontrol_vmm_info.arg0,
-> +                dev->pvmemcontrol_vmm_info.arg1,
-> +                dev->pvmemcontrol_vmm_info.ret_value);
-> +
-> +       return 0;
-> +}
-> +
-> +static int pvmemcontrol_open(struct inode *inode, struct file *filp)
-> +{
-> +       struct pvmemcontrol_buf *buf =3D NULL;
-> +
-> +       if (!capable(CAP_SYS_ADMIN))
-> +               return -EACCES;
-> +
-> +       /* Do not allow exclusive open */
-> +       if (filp->f_flags & O_EXCL)
-> +               return -EINVAL;
-> +
-> +       buf =3D kzalloc(sizeof(struct pvmemcontrol_buf), GFP_KERNEL);
-> +       if (!buf)
-> +               return -ENOMEM;
-> +
-> +       /* Overwrite the misc device set by misc_register */
-> +       filp->private_data =3D buf;
-> +       return 0;
-> +}
-> +
-> +static int pvmemcontrol_release(struct inode *inode, struct file *filp)
-> +{
-> +       kfree(filp->private_data);
-> +       filp->private_data =3D NULL;
-> +       return 0;
-> +}
-> +
-> +static long pvmemcontrol_ioctl(struct file *filp, unsigned int cmd,
-> +                              unsigned long ioctl_param)
-> +{
-> +       struct pvmemcontrol_buf *buf =3D filp->private_data;
-> +       int err;
-> +
-> +       if (cmd !=3D PVMEMCONTROL_IOCTL_VMM)
-> +               return -EINVAL;
-> +
-> +       if (copy_from_user(&buf->call, (void __user *)ioctl_param,
-> +                          sizeof(struct pvmemcontrol_buf)))
-> +               return -EFAULT;
-> +
-> +       err =3D __pvmemcontrol_vmm_call(buf);
-> +       if (err)
-> +               return err;
-> +
-> +       if (copy_to_user((void __user *)ioctl_param, &buf->ret,
-> +                        sizeof(struct pvmemcontrol_buf)))
-> +               return -EFAULT;
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct file_operations pvmemcontrol_fops =3D {
-> +       .owner =3D THIS_MODULE,
-> +       .open =3D pvmemcontrol_open,
-> +       .release =3D pvmemcontrol_release,
-> +       .unlocked_ioctl =3D pvmemcontrol_ioctl,
-> +       .compat_ioctl =3D compat_ptr_ioctl,
-> +};
-> +
-> +static struct miscdevice pvmemcontrol_dev =3D {
-> +       .minor =3D MISC_DYNAMIC_MINOR,
-> +       .name =3D KBUILD_MODNAME,
-> +       .fops =3D &pvmemcontrol_fops,
-> +};
-> +
-> +static int pvmemcontrol_connect(struct pvmemcontrol *pvmemcontrol)
-> +{
-> +       int cpu;
-> +       u32 cmd;
-> +
-> +       pvmemcontrol_write_command(pvmemcontrol->base_addr,
-> +                                  PVMEMCONTROL_TRANSPORT_RESET);
-> +       cmd =3D pvmemcontrol_read_command(pvmemcontrol->base_addr);
-> +       if (cmd !=3D PVMEMCONTROL_TRANSPORT_ACK) {
-> +               dev_err(pvmemcontrol->device,
-> +                       "failed to reset device, cmd 0x%x\n", cmd);
-> +               return -EINVAL;
-> +       }
-> +
-> +       for_each_possible_cpu(cpu) {
-> +               struct pvmemcontrol_percpu_channel *channel =3D
-> +                       per_cpu_ptr(pvmemcontrol->pcpu_channels, cpu);
-> +
-> +               pvmemcontrol_write_reg(pvmemcontrol->base_addr,
-> +                                      channel->buf_phys_addr);
-> +               pvmemcontrol_write_command(pvmemcontrol->base_addr,
-> +                                          PVMEMCONTROL_TRANSPORT_REGISTE=
-R);
-> +
-> +               cmd =3D pvmemcontrol_read_command(pvmemcontrol->base_addr=
-);
-> +               if (cmd !=3D PVMEMCONTROL_TRANSPORT_ACK) {
-> +                       dev_err(pvmemcontrol->device,
-> +                               "failed to register pcpu buf, cmd 0x%x\n"=
-, cmd);
-> +                       return -EINVAL;
-> +               }
-> +               channel->command =3D
-> +                       pvmemcontrol_read_resp(pvmemcontrol->base_addr);
-> +       }
-> +
-> +       pvmemcontrol_write_command(pvmemcontrol->base_addr,
-> +                                  PVMEMCONTROL_TRANSPORT_READY);
-> +       cmd =3D pvmemcontrol_read_command(pvmemcontrol->base_addr);
-> +       if (cmd !=3D PVMEMCONTROL_TRANSPORT_ACK) {
-> +               dev_err(pvmemcontrol->device,
-> +                       "failed to ready device, cmd 0x%x\n", cmd);
-> +               return -EINVAL;
-> +       }
-> +       return 0;
-> +}
-> +
-> +static int pvmemcontrol_disconnect(struct pvmemcontrol *pvmemcontrol)
-> +{
-> +       u32 cmd;
-> +
-> +       pvmemcontrol_write_command(pvmemcontrol->base_addr,
-> +                                  PVMEMCONTROL_TRANSPORT_DISCONNECT);
-> +
-> +       cmd =3D pvmemcontrol_read_command(pvmemcontrol->base_addr);
-> +       if (cmd !=3D PVMEMCONTROL_TRANSPORT_ERROR) {
-> +               dev_err(pvmemcontrol->device,
-> +                       "failed to disconnect device, cmd 0x%x\n", cmd);
-> +               return -EINVAL;
-> +       }
-> +       return 0;
-> +}
-> +
-> +static int pvmemcontrol_alloc_percpu_channels(struct pvmemcontrol *pvmem=
-control)
-> +{
-> +       int cpu;
-> +
-> +       pvmemcontrol->pcpu_channels =3D alloc_percpu_gfp(
-> +               struct pvmemcontrol_percpu_channel, GFP_ATOMIC | __GFP_ZE=
-RO);
-> +       if (!pvmemcontrol->pcpu_channels)
-> +               return -ENOMEM;
-> +
-> +       for_each_possible_cpu(cpu) {
-> +               struct pvmemcontrol_percpu_channel *channel =3D
-> +                       per_cpu_ptr(pvmemcontrol->pcpu_channels, cpu);
-> +               phys_addr_t buf_phys =3D per_cpu_ptr_to_phys(&channel->bu=
-f);
-> +
-> +               channel->buf_phys_addr =3D buf_phys;
-> +       }
-> +       return 0;
-> +}
-> +
-> +static int pvmemcontrol_init(struct device *device, void __iomem *base_a=
-ddr)
-> +{
-> +       struct pvmemcontrol_buf *buf =3D NULL;
-> +       struct pvmemcontrol *dev =3D NULL;
-> +       int err =3D 0;
-> +
-> +       err =3D misc_register(&pvmemcontrol_dev);
-> +       if (err)
-> +               return err;
-> +
-> +       /* We take a spinlock for a long time, but this is only during in=
-it. */
-> +       write_lock(&pvmemcontrol_lock);
-> +       if (READ_ONCE(pvmemcontrol)) {
-> +               dev_warn(device, "multiple pvmemcontrol devices present\n=
-");
-> +               err =3D -EEXIST;
-> +               goto fail_free;
-> +       }
-> +
-> +       dev =3D kzalloc(sizeof(struct pvmemcontrol), GFP_ATOMIC);
-> +       buf =3D kzalloc(sizeof(struct pvmemcontrol_buf), GFP_ATOMIC);
-> +       if (!dev || !buf) {
-> +               err =3D -ENOMEM;
-> +               goto fail_free;
-> +       }
-> +
-> +       dev->base_addr =3D base_addr;
-> +       dev->device =3D device;
-> +
-> +       err =3D pvmemcontrol_alloc_percpu_channels(dev);
-> +       if (err)
-> +               goto fail_free;
-> +
-> +       err =3D pvmemcontrol_connect(dev);
-> +       if (err)
-> +               goto fail_free;
-> +
-> +       err =3D pvmemcontrol_init_info(dev, buf);
-> +       if (err)
-> +               goto fail_free;
-> +
-> +       WRITE_ONCE(pvmemcontrol, dev);
-> +       write_unlock(&pvmemcontrol_lock);
-> +       return 0;
-> +
-> +fail_free:
-> +       write_unlock(&pvmemcontrol_lock);
-> +       kfree(dev);
-> +       kfree(buf);
-> +       misc_deregister(&pvmemcontrol_dev);
-> +       return err;
-> +}
-> +
-> +static int pvmemcontrol_pci_probe(struct pci_dev *dev,
-> +                                 const struct pci_device_id *id)
-> +{
-> +       void __iomem *base_addr;
-> +       int err;
-> +
-> +       err =3D pcim_enable_device(dev);
-> +       if (err < 0)
-> +               return err;
-> +
-> +       base_addr =3D pcim_iomap(dev, 0, 0);
-> +       if (!base_addr)
-> +               return -ENOMEM;
-> +
-> +       err =3D pvmemcontrol_init(&dev->dev, base_addr);
-> +       if (err)
-> +               pci_disable_device(dev);
-> +
-> +       return err;
-> +}
-> +
-> +static void pvmemcontrol_pci_remove(struct pci_dev *pci_dev)
-> +{
-> +       int err;
-> +       struct pvmemcontrol *dev;
-> +
-> +       write_lock(&pvmemcontrol_lock);
-> +       dev =3D READ_ONCE(pvmemcontrol);
-> +       if (!dev) {
-> +               err =3D -EINVAL;
-> +               dev_err(&pci_dev->dev, "cleanup called when uninitialized=
-\n");
-> +               write_unlock(&pvmemcontrol_lock);
-> +               return;
-> +       }
-> +
-> +       /* disconnect */
-> +       err =3D pvmemcontrol_disconnect(dev);
-> +       if (err)
-> +               dev_err(&pci_dev->dev, "device did not ack disconnect\n")=
-;
-> +       /* free percpu channels */
-> +       free_percpu(dev->pcpu_channels);
-> +
-> +       kfree(dev);
-> +       WRITE_ONCE(pvmemcontrol, NULL);
-> +       write_unlock(&pvmemcontrol_lock);
-> +       misc_deregister(&pvmemcontrol_dev);
-> +}
-> +
-> +static const struct pci_device_id pvmemcontrol_pci_id_tbl[] =3D {
-> +       { PCI_DEVICE(PCI_VENDOR_ID_GOOGLE, PCI_DEVICE_ID_GOOGLE_PVMEMCONT=
-ROL) },
-> +       { 0 }
-> +};
-> +MODULE_DEVICE_TABLE(pci, pvmemcontrol_pci_id_tbl);
-> +
-> +static struct pci_driver pvmemcontrol_pci_driver =3D {
-> +       .name =3D "pvmemcontrol",
-> +       .id_table =3D pvmemcontrol_pci_id_tbl,
-> +       .probe =3D pvmemcontrol_pci_probe,
-> +       .remove =3D pvmemcontrol_pci_remove,
-> +};
-> +module_pci_driver(pvmemcontrol_pci_driver);
-> +
-> +MODULE_AUTHOR("Yuanchu Xie <yuanchu@google.com>");
-> +MODULE_DESCRIPTION("pvmemcontrol Guest Service Module");
-> +MODULE_LICENSE("GPL");
-> diff --git a/include/uapi/linux/pvmemcontrol.h b/include/uapi/linux/pvmem=
-control.h
-> new file mode 100644
-> index 000000000000..31b366dee796
-> --- /dev/null
-> +++ b/include/uapi/linux/pvmemcontrol.h
-> @@ -0,0 +1,76 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +/*
-> + * Userspace interface for /dev/pvmemcontrol
-> + * pvmemcontrol Guest Memory Service Module
-> + *
-> + * Copyright (c) 2024, Google LLC.
-> + * Yuanchu Xie <yuanchu@google.com>
-> + * Pasha Tatashin <pasha.tatashin@soleen.com>
-> + */
-> +
-> +#ifndef _UAPI_PVMEMCONTROL_H
-> +#define _UAPI_PVMEMCONTROL_H
-> +
-> +#include <linux/wait.h>
-> +#include <linux/types.h>
-> +#include <asm/param.h>
-> +
-> +/* Contains the function code and arguments for specific function */
-> +struct pvmemcontrol_vmm_call {
-> +       __u64 func_code;        /* pvmemcontrol set function code */
-> +       __u64 addr;             /* hyper. page size aligned guest phys. a=
-ddr */
-> +       __u64 length;           /* hyper. page size aligned length */
-> +       __u64 arg;              /* function code specific argument */
-> +};
-> +
-> +/* Is filled on return to guest from VMM from most function calls */
-> +struct pvmemcontrol_vmm_ret {
-> +       __u32 ret_errno;        /* on error, value of errno */
-> +       __u32 ret_code;         /* pvmemcontrol internal error code, on s=
-uccess 0 */
-> +       __u64 ret_value;        /* return value from the function call */
-> +       __u64 arg0;             /* major version for func_code INFO */
-> +       __u64 arg1;             /* minor version for func_code INFO */
-> +};
-> +
-> +struct pvmemcontrol_buf {
-> +       union {
-> +               struct pvmemcontrol_vmm_call call;
-> +               struct pvmemcontrol_vmm_ret ret;
-> +       };
-> +};
-> +
-> +/* The ioctl type, documented in ioctl-number.rst */
-> +#define PVMEMCONTROL_IOCTL_TYPE                0xDA
-> +
-> +#define PVMEMCONTROL_IOCTL_VMM _IOWR(PVMEMCONTROL_IOCTL_TYPE, 0x00, stru=
-ct pvmemcontrol_buf)
-> +
-> +/*
-> + * Returns the host page size in ret_value.
-> + * major version in arg0.
-> + * minor version in arg1.
-> + */
-> +#define PVMEMCONTROL_INFO              0
-> +
-> +/* Pvmemcontrol calls, pvmemcontrol_vmm_return is returned */
-> +#define PVMEMCONTROL_DONTNEED          1 /* madvise(addr, len, MADV_DONT=
-NEED); */
-> +#define PVMEMCONTROL_REMOVE            2 /* madvise(addr, len, MADV_MADV=
-_REMOVE); */
-> +#define PVMEMCONTROL_FREE              3 /* madvise(addr, len, MADV_FREE=
-); */
-> +#define PVMEMCONTROL_PAGEOUT           4 /* madvise(addr, len, MADV_PAGE=
-OUT); */
-> +#define PVMEMCONTROL_DONTDUMP          5 /* madvise(addr, len, MADV_DONT=
-DUMP); */
-> +
-> +/* prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, addr, len, arg) */
-> +#define PVMEMCONTROL_SET_VMA_ANON_NAME  6
-> +
-> +#define PVMEMCONTROL_MLOCK             7 /* mlock2(addr, len, 0) */
-> +#define PVMEMCONTROL_MUNLOCK           8 /* munlock(addr, len) */
-> +
-> +#define PVMEMCONTROL_MPROTECT_NONE     9 /* mprotect(addr, len, PROT_NON=
-E) */
-> +#define PVMEMCONTROL_MPROTECT_R               10 /* mprotect(addr, len, =
-PROT_READ) */
-> +#define PVMEMCONTROL_MPROTECT_W               11 /* mprotect(addr, len, =
-PROT_WRITE) */
-> +/* mprotect(addr, len, PROT_READ | PROT_WRITE) */
-> +#define PVMEMCONTROL_MPROTECT_RW       12
-> +
-> +#define PVMEMCONTROL_MERGEABLE         13 /* madvise(addr, len, MADV_MER=
-GEABLE); */
-> +#define PVMEMCONTROL_UNMERGEABLE       14 /* madvise(addr, len, MADV_UNM=
-ERGEABLE); */
-> +
-> +#endif /* _UAPI_PVMEMCONTROL_H */
-> --
-> 2.46.1.824.gd892dcdcdd-goog
+> >>> not aligned to blk_size ("awareness of the correct value can affect
+> >>> performance" but no mention of correctness). A device may need to do
+> >>> extra work to support this, of course, such as turning an unaligned
+> >>> write into a read-modify-write sequence if the underlying storage
+> >>> device doesn't support such an access directly, but such requests are
+> >>> still valid. It's also perfectly fine for a driver to ignore
+> >>> device-offered features like VIRTIO_BLK_F_BLK_SIZE and still operate
+> >>> correctly.
+> >> A device should report its block size (logical) using the VIRTIO_BLK_F=
+_BLK_SIZE feature. For legacy devices that don't report this feature, Linux=
+ assumes a 512-byte block size.
+> > Sure, I agree with both points here.
 >
+> Great.
+>
+> So I guess we agree that blk_size =3D=3D logical_block_size.
+
+Not necessarily (hence "should report" rather than "must report"). The
+device is free to return any arbitrary size that it feels will improve
+performance in blk_size (say, a RAID stripe size), even if it's not
+the same as the logical block size of any backing storage.
+
+> >> Drivers should not ignore this feature when it's offered by the device=
+. It's crucial for correct operation IMO.
+> > This is a "should", not a "must", though - adding a new MUST is a
+> > breaking change.
+>
+> I can change it to 'SHOULD', but this modification has implications:
+>
+> 1. drivers that ignore the VIRTIO_BLK_F_BLK_SIZE feature will make
+> assumptions about the logical block size.
+>
+> 2. Incorrect assumptions could lead to undefined behavior.
+
+Where does the undefined behavior come from?
+
+> I'm ok with 'SHOULD',  since it's a strong recommendation for drivers to
+> negotiate and respect this feature when available.
+>
+> I'm not really familiar with drivers that ignore this feature so I won't
+> argue here.
+>
+> >> The statement "driver is still allowed to send requests that are not a=
+ligned to blk_size" needs explicit clarification in the spec.
+> > It definitely would be better to have it written out explicitly, one
+> > way or the other, no disagreement there.
+> >
+> >>  From my understanding of the spec, the driver is not allowed to do so=
+ (otherwise error will be returned or the behavior is undefined).
+> > This doesn't seem to follow from my reading of the spec. Otherwise,
+> > phrases like "optimal sector size" and "can affect performance" would
+> > not make sense (such a request would instead be described as
+> > illegal/returning an error).
+>
+> Is it possible that certain parts of the spec could be improved ?
+>
+> Is it possible that certain implicit parts of the spec could be
+> understood differently by various implementers or users?
+>
+> In reality "optimal block size that can effect performance" probably
+> refers to logical vs. physical block size.
+
+If this is the case, then it would be describing the
+physical_block_exp and related fields from the VIRTIO_BLK_F_TOPOLOGY
+feature, but it's referring to blk_size/VIRTIO_BLK_F_BLK_SIZE. Maybe
+that's a mistake, but that's what the spec currently says (and has
+said since at least the virtio-0.9.5 draft, which is the oldest one I
+could dig up).
+
+> This patch tries to make the spec clearer.
+>
+> >
+> >> In Linux, the reported blk_size is used to set logical_block_size, whi=
+le physical_block_exp is used to calculate the physical_block_size.
+> > Sure, but this is describing the behavior of one driver
+> > implementation, not really relevant to the meaning of the spec.
+>
+> It is relevant IMO.
+>
+> It's worth considering the historical context of the specification. To
+> my understanding, the spec was initially derived from the Linux
+> implementation, rather than the other way around.
+
+The Linux implementation that inspired the spec originally is useful
+when trying to understand the context, but if a current-day
+implementor has to go read Linux code to understand how to interpret
+the spec, then the spec is not clear enough and needs to be improved
+(I would guess we agree on this). If the spec never matched reality,
+then the spec is not useful, but I don't think that's the case here.
+
+> This translation from implementation to specification could have
+> introduced some inconsistencies or ambiguities.
+>
+> Also worth considering virtio-block devices that were implemented before
+> this feature bit. The WG probably tried to maintain backward
+> compatibility with these devices.
+
+This feature bit and its description in the spec has existed for a
+long time (since before virtio 1.0), so it's likely that many more
+virtio-blk implementations have been written since this part of the
+spec was added than before it.
+
+> >> Regarding the specification statement: "This does not affect the units=
+ used in the protocol (always 512 bytes)":
+> >>
+> >> This likely refers to how certain fields in the virtio-blk protocol ar=
+e expressed, not the actual logical block size used for I/O operations. For=
+ example: capacity reporting, max_discard_sectors and Other fields that are=
+ expressed in 512 byte units.
+> > The way the fields are expressed in the virtio-blk protocol is what is
+> > relevant in the virtio spec. Even if a virtio-blk device is sending
+> > requests to a physical SCSI/ATA/... device behind the scenes, it's the
+> > job of that virtio-blk device implementation to handle the translation
+> > and whatever mismatches there may be between the protocols.
+>
+> This is true.
+>
+> >
+> > Particularly, the "sector" value in a virtio_blk_req used for
+> > VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT is always in 512-byte units,
+> > regardless of what blk_size the device reports, and regardless of what
+> > underlying physical media may be used.
+> >
+> >  From the virtio spec: "The sector number indicates the offset
+> > (multiplied by 512) where the read or write is to occur."
+> >
+> > (This could probably use clarification that the "offset" is in bytes,
+> > but it still seems pretty clear that it does not depend on blk_size.)
+> >
+> > So a request with sector =3D 1 always means an offset of 512 bytes from
+> > the beginning of the block device, even if the advertised blk_size is
+> > 4096.
+>
+> I appreciate your perspective, but I disagree with it.
+>
+> When a block device has a logical_block_size of 4K, it's not possible to
+> perform read/write operations at arbitrary offsets like 512 bytes. The
+> smallest addressable unit is the full 4K logical block in that case.
+
+Maybe we disagree on the meaning of "addressable", then. What I assume
+when I read "addressable" is "I can write the address" of such a
+location (regardless of whether it's valid to submit a request using
+this address). I can always write the address of the area of a
+virtio-blk device that starts at an offset of 512 bytes, and that
+address is always sector=3D1, even if the device advertises
+blk_size=3D4096 and rejects unaligned I/O, so 512 is always the smallest
+addressable unit. This is just like a CPU that has byte-addressable
+memory but only allows aligned loads/stores - it's possible to write
+an address like 0x123 and try to load a word from there, so that
+location is addressable, even though it's not valid when trying to
+load something larger than a byte from it.
+
+I would not object to clarifying the wording, but it can't change the
+meaning (if the smallest addressable unit was 4096 when blk_size=3D4096,
+then sector=3D1 would mean 4096, but that's not how it works).
+
+Rather than using wording like "smallest addressable unit", something
+like "I/O request `sector` and data length must be a multiple of
+`blk_size`" would accurately describe what you are trying to say (I
+think), but this is still a breaking change in my opinion.
+
+In theory, such a change could be introduced as a requirement tied to
+a new feature bit (if the device advertises it and the driver acks it,
+then I/O requests must be aligned, or something like that), but since
+it would be a new, optional feature, I don't know how useful it would
+be.
+
+> This is a fundamental principle of block device operations, not just an
+> optimization.
+
+For normal block devices that speak ATA or SCSI or NVMe command sets,
+yes, I agree - but this is not how virtio-blk was defined. And again,
+I agree that it was probably a mistake to define virtio-blk in a way
+that is different from all other normal block device command sets, but
+that's the way it has been described in the spec since at least 2012.
+
+> Also IO granularity.
+>
+> I believe it's important to ensure that the specification accurately
+> reflects these fundamental block device principles.
+>
+> I believe that the reason that the "sector" is multiplication of 512 is
+> to maintain backward compatibility, and not to allow breaking these
+> fundamental principles.
+
+Yes, it is exactly this backward compatibility that I'm concerned with
+- old drivers (or drivers that ignore blk_size, which they are clearly
+allowed to do per my reading of the spec) must still work correctly
+with devices written against new versions of the spec.
+
+> > This is different from (e.g.) a SCSI READ where the logical block
+> > address is in units of the block length returned by READ CAPACITY, so
+> > it is impossible to send a request that is not block size aligned.
+>
+> IMO, it is impossible for virtio block device and any other block device
+> as well.
+
+I don't understand how it would be impossible; inconvenient, sure, but
+definitely possible.
+
+If a device receives a VIRTIO_BLK_T_IN request that is not aligned to
+its preferred blk_size, it can read the minimum blk_size-aligned
+region around the request into an intermediate buffer and copy only
+the requested parts into the virtio buffer.
+
+If a device receives a VIRTIO_BLK_T_OUT request that is not aligned to
+its preferred blk_size, it can read the aligned region into a
+temporary buffer (as before), copy the data from the virtio buffer on
+top, and perform the aligned write.
+
+If a device implementation can't afford to buffer data (such as a
+hardware device with minimal on-board memory), then maybe it would be
+reasonable for that device implementation to choose to return an error
+for unaligned I/O, but it must not fail in a way that would cause
+undefined behavior like corrupting parts of the disk.
+
+> > [...]
+> >>>> diff --git a/device-types/blk/description.tex b/device-types/blk/des=
+cription.tex
+> >>>> index 2712ada..88a7591 100644
+> >>>> --- a/device-types/blk/description.tex
+> >>>> +++ b/device-types/blk/description.tex
+> >>>> @@ -3,7 +3,10 @@ \section{Block Device}\label{sec:Device Types / Blo=
+ck Device}
+> >>>>   The virtio block device is a simple virtual block device (ie.
+> >>>>   disk). Read and write requests (and other exotic requests) are
+> >>>>   placed in one of its queues, and serviced (probably out of order) =
+by the
+> >>>> -device except where noted.
+> >>>> +device except where noted. Each block device consists of a sequence=
+ of logical
+> >>>> +blocks. A logical block represents the smallest addressable unit of=
+ data that
+> >>>> +can be read from or written to the device. The logical block size i=
+s always a
+> >>>> +power of two. Logical block sizes may be 512 bytes, 1KB, 2KB, 4KB, =
+8KB, etc.
+> >>> Does this imply that a device may return an error for a request where
+> >>> the sector or num_sectors fields are not aligned to the blk_size? If
+> >>> so, it should be called out as a more explicit normative requirement,
+> >>> but that would definitely be an incompatible change.
+> >> As mentioned, the logical block size, such as 512 bytes, defines the s=
+mallest addressable unit for I/O operations on the storage device.
+> >> This has important implications for I/O requests:
+> >> 1. Minimum I/O size: You cannot send I/O requests smaller than the log=
+ical block size. For example, with a 512-byte logical block size, requests =
+of 128 bytes are not valid.
+> > 128-byte requests are not valid, certainly, but that is already
+> > covered by the wording in the spec ("in multiples of 512 bytes" in the
+> > VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT description, and "The length of data
+> > MUST be a multiple of 512 bytes for VIRTIO_BLK_T_IN and
+> > VIRTIO_BLK_T_OUT requests" in the driver requirements).
+>
+> I guess I should have given 4KB logical block size as a better example.
+>
+> In case logical block size is 4KB, the minimum IO size is 4KB and not 512=
+.
+>
+> Agreed ?
+
+In the case of SCSI or whatever, absolutely.
+
+virtio-blk doesn't have a concept of logical block size today, only
+the existing blk_size field, which I argue is not necessarily
+equivalent.
+
+(I have noticed that the virtio_blk_topology fields are defined in
+terms of "logical blocks", which I feel is a mistake - either these
+should be described in terms of blk_size, or the blk_size field needs
+to be redefined to explicitly mean "logical block size" as in your
+patch.)
+
+> >> 2. I/O alignment: All I/O requests must be aligned to the logical bloc=
+k size. This means the target start address (on the media device) of the I/=
+O must be a multiple of the logical block size (the expressed units in the =
+spec are not relevant).
+> > Unless there is a change to the spec (like this proposed patch), I
+> > don't think this is required. I suppose a device that can't manage to
+> > perform a misaligned I/O could choose to deny such requests and return
+> > VIRTIO_BLK_S_IOERR, but this is not explicitly allowed or denied by
+> > the current spec.
+>
+> This is a clarification of the existing specification, not a change.
+>
+> I believe I've identified the main point of disagreement regarding this
+> patch:
+>
+> I believe that I/O operations to storage block devices MUST be aligned
+> to the logical block size. In the other hand, you believe it is just a
+> recommendation for virtio block device.
+>
+> Maybe let's see what others think as well ?
+>
+> Stefan ?
+
+I agree that it would be useful to have more input from other
+interested parties.
+
+> >> 3. I/O size granularity: The size of I/O requests must be a multiple o=
+f the logical block size. For a 512-byte logical block size, valid I/O size=
+s would be 512 bytes, 1024 bytes, 1536 bytes, and so on.
+> > Same as point 1 above, the only requirement (that I can see, anyway)
+> > is that the I/O request has to be a multiple of 512 bytes.
+>
+> Do you think that for logical block size of 4k one can send IO of 1K to
+> such device and succeed ?
+
+For a virtio-blk device, yes (assuming "such a device" is a virtio-blk
+device implementation and we substitute blk_size for "logical block
+size").
+
+> >>> The "smallest addressable unit" wording is also more confusing than
+> >>> clarifying here, since in virtio-blk, the "smallest addressable unit"
+> >>> is always 512 bytes, regardless of blk_size (even if a change like
+> >>> this would enforce limits on the sector values that would actually be
+> >>> allowed, it would still be possible to create a request that refers t=
+o
+> >>> a smaller unit than blk_size, unlike other storage protocols where
+> >>> logical block size changes the multiplier of the address, making it
+> >>> impossible to address smaller units).
+> >> Can you please point me to the place in spec that explicitly say that =
+"in virtio-blk, the smallest addressable unit is always 512 bytes, regardle=
+ss of blk_size" ?
+> > The description of struct virtio_blk_req's sector field:
+> > "The sector number indicates the offset (multiplied by 512) where the
+> > read or write is to occur."
+> >
+> > Unless we have different definitions of "smallest addressable unit",
+> > that seems pretty clear. It is always possible to address a part of
+> > the disk in 512-byte multiples (e.g. sectors 1 through 3) even when
+> > the blk_size is larger than 512. Maybe those requests won't succeed,
+> > but it is always possible to describe a region of the block device
+> > with an address that is not a multiple of blk_size.
+>
+> It doesn't say anything explicit about IO alignment and granularity.
+>
+>
+> >
+> >> I didn't find it in the spec and I don't agree with this call if it is=
+ implicit.
+> > I agree it should be clarified. The current wording requires too much
+> > reading between the lines.
+> >
+> >> The implementation of the Linux kernel driver isn't implemented in thi=
+s manner as well.
+> > When filling the sector field, the Linux virtio-blk driver uses the
+> > value of blk_rq_pos(), which is also always in units of 512 bytes, as
+> > far as I can tell (it returns sector_t, which is in units of 512 bytes
+> > per the definition in include/linux/blk_types.h).
+>
+> Ignoring the units for the discussion, can it ever be unaligned to the
+> logical block size?
+
+The Linux driver will always request I/O that is aligned to the
+blk_size (if the device reports one), yes - but that's one driver's
+choice. Other drivers (which were written against the spec, not
+"whatever the Linux driver does") may operate differently.
+
+> > [...]
+> >>>> @@ -228,7 +234,7 @@ \subsection{Device Initialization}\label{sec:Dev=
+ice Types / Block Device / Devic
+> >>>>   \item The device size can be read from \field{capacity}.
+> >>>>
+> >>>>   \item If the VIRTIO_BLK_F_BLK_SIZE feature is negotiated,
+> >>>> -  \field{blk_size} can be read to determine the optimal sector size
+> >>>> +  \field{blk_size} can be read to determine the logical block size
+> >>>>     for the driver to use. This does not affect the units used in
+> >>>>     the protocol (always 512 bytes), but awareness of the correct
+> >>>>     value can affect performance.
+> >>>> @@ -282,6 +288,12 @@ \subsection{Device Initialization}\label{sec:De=
+vice Types / Block Device / Devic
+> >>>>
+> >>>>   \drivernormative{\subsubsection}{Device Initialization}{Device Typ=
+es / Block Device / Device Initialization}
+> >>>>
+> >>>> +Drivers MUST negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offe=
+red by the
+> >>>> +device.
+> >>> Why is this a MUST? This is also an incompatible change since there
+> >>> was no such requirement before, and drivers are free to ignore
+> >>> features they don't care about.
+> >> I can say SHOULD, but then the driver that is ignoring this feature ma=
+y guess/assume the logical block size and it can be wrong.
+> >>
+> >> This may lead to an undefined behavior.
+> > Unless the spec is changed, if a device can't correctly handle
+> > non-blk_size-aligned requests, this seems like it would be a device
+> > bug ("undefined behavior") or at least non-spec-derived limitation
+> > (returning an error would not be undefined, but also probably wouldn't
+> > result in a working system).
+>
+> Again, this is a clarification of the existing specification, not a chang=
+e.
+>
+> IMO, storage block device implementations should be able to assume that
+> I/O requests from drivers are aligned to the logical block size. If a
+> device receives misaligned I/O requests, it might be appropriate for the
+> device to fail these requests. It is not a device "bug" IMO.
+>
+> I'm curious if you've encountered any actual implementations where
+> drivers send non-block-size-aligned requests to block devices. I never
+> saw such implementation.
+
+I don't know of any real-world implementations like this, but the
+point of the spec is to allow interoperability without having to know
+about every implementation.
+
+> Sounds like a theoretical objection.
+>
+> IMO, the specification could benefit from explicitly stating this
+> alignment principal, which would guide both device and driver
+> implementations.
+>
+> I believe that this patch is clarifying important points and would lead
+> to more robust definition.
+
+From my point of view, it would be fine to clarify a few things:
+- blk_size should (not must) be the logical block size of the
+underlying storage device
+- data should (not must) be a multiple of blk_size for best performance
+
+And maybe:
+- devices may choose to return IOERR if a driver submits an I/O
+request that does not conform to the above recommendations (but this
+conflicts with the "performance"-related wording that exists now)
+
+> > Certainly it would be preferable for the driver to send aligned
+> > requests, but the existing wording seems to cover that pretty well
+> > already.
+> >
+> > Thanks,
+> > -- Daniel
