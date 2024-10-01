@@ -1,129 +1,250 @@
-Received: from mail-oa1-f48.google.com (mail-oa1-f48.google.com [209.85.160.48])
+Received: from mail-pl1-f195.google.com (mail-pl1-f195.google.com [209.85.214.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CF0C1BCA1E;
-	Tue,  1 Oct 2024 07:41:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C99F01BE23A
+	for <virtualization@lists.linux.dev>; Tue,  1 Oct 2024 07:59:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727768499; cv=none; b=Q3r9txU6MLvvnvOYcXn+kv6RwLbnj344GdHObIg4Y44z4nqtX0YR/s4b49bGCYKmQ3dZH+h0f1JJjq206wNOrv3aPtaF94JOqLI0XnViwSb9DyMrTVyFeMGgUY/w/YUKHvjdOUYX2ZXIN/3tLQbe75fMPYYcuMYzj2OGKNBexOs=
+	t=1727769576; cv=none; b=HJod1nihvQA1NpTnVaYMc2uFy1qcMmuyufYmUTVO911UUNdQSBX9Ljtz856rkMygi6GRdJVr23XBN+HL7Xu7iivSZ0OTS1fwrrKdY64Ag0m/XakOY4ocIJTTaZuipPdLqyyLDNGeoNW3v8xPRwqma9iYznWcDrGJD2H4QxaxSkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727768499; c=relaxed/simple;
-	bh=b0YzsZhvYXssxBMzqiFoT5LHPrufg6+4tnZIEdL5YLI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WEgzhYv/BVZdwTOZMQKP6CfZwaKVnJMtmRTmUuOwtkaKzYkxNNU4EFJUGG3Na2PVN/dqXyylmg2Hc3DUm/Xxp1SEXlf6hFjzCE/YUSz548AkmpOeTN5qN7RDTieny//Tr507Ka3ChfXWl66xov5Mupb1DMRU9yvXopeWgVrGbiU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mpv8SfC8; arc=none smtp.client-ip=209.85.160.48
+	s=arc-20240116; t=1727769576; c=relaxed/simple;
+	bh=7u9cByNn+AJUO28aQhpxRgxL9HZmWejhnVAxuPd9L1k=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=S5pqnF1UlHFCTERQCivMJjOsfawCVBR2DMAIfiull5MnlrlrN1fm15RFxG+ejkfXv3Iw5SW2lYBoaMjmjXZ/VfxfKA6i4ZTy1SbNspM0lIo4odOUHyQZx7OQo9ASXvEnrhgCD/m9wkMIWDFPMmD6jgb6M14Xj/9lLgGozBE8dgs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cK+n7Cl+; arc=none smtp.client-ip=209.85.214.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mpv8SfC8"
-Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-2870bd5e1f7so1947061fac.3;
-        Tue, 01 Oct 2024 00:41:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cK+n7Cl+"
+Received: by mail-pl1-f195.google.com with SMTP id d9443c01a7336-20b0b5cdb57so41367155ad.1
+        for <virtualization@lists.linux.dev>; Tue, 01 Oct 2024 00:59:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727768497; x=1728373297; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=oHlEJnCwtC4GK/FLR1DihFu50Li6dMLU4mXd60RMGqA=;
-        b=mpv8SfC8BpMh6JmLhl6KBWWzte38Eh98CSlKItlEUO5fzIRSXZEOCOTMyJAzwuECEh
-         +NlHqzlirKD6IJVnSc412UGzBL6tc8BACty7zw8DtV8eA81loIP4s9IKoPM3ojy/Ub9C
-         LFNCAgKdAIFPRaPoNXzFr1SMlmuEqOry2X5wGkj5SrPA9oyghpxgLfSz7n17a0bISEIz
-         /GVLVV7nO/e3k/d+ZJcIsANnkQp25vqwWBz15Xp9lgiba9KgPwQBhvQIsb/NwJICyvvV
-         ZfSOWD7hXW9whiAycAmU16lBDROAQtkfX9AzYYjpcBuB+6rtbhkTQ6y4YpA/qmxMoBDc
-         CDzg==
+        d=gmail.com; s=20230601; t=1727769574; x=1728374374; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vktSfFznxxqxdyooYxAJtLpLR+uBOH4pDsLUZk+TldI=;
+        b=cK+n7Cl++t5HPsHwl1qq1NQ3tH8UyFPb1+6dv4EV99yBM0RIcqgi6iyjiqAJ4iEdlC
+         WpZ7diiMxiDmTPxDEXk0H0OoKaSBX/CvNE/g9pE6xKsX+ngQbgpBQFACZvWxJnsF9ZTZ
+         HDzYencZDbeT+6rgdGOPi5zxlPL9B3TCAbn3P3+4rEKxwHNpk3GSmnN3DeHACT0pUW3I
+         NIOPUXjMkUv+sgKsBRG1CabMJHjtgTCVm0GQ832YSMI3yEV7C71vjgIHEfGkpbshHtyA
+         Sl55vScEbCC5vvJb+kPhHLwAE3KB4ls/IbEiJW+V0EmtkbFjh0UPfpnGEStu2z+i9xqH
+         iEvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727768497; x=1728373297;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=oHlEJnCwtC4GK/FLR1DihFu50Li6dMLU4mXd60RMGqA=;
-        b=jmYNOboGaMN96KGpG73ApJZDHBs+JFTbSFmfTflvqaopdukKi0v8wqrU3ZiUkIMqbl
-         9yvgLv11wRMpGWDrhZ49+yvZDzgCZOSkka9rYPTDW+3k4WeP/ombysePImoJBhsqd538
-         yDKqL9vzJw/FmaukjYVAc+eTYwTPndVFgbDjgHfLzebiGZvKkbVMMtrI+ookcmEZje/Q
-         yLyZmwu1yUUHB2mkNbeKpbxsuI/D8BQ9smNV1ZV54Vu2YCN7//dTuhP4nHxVUCgsrkS9
-         zK+JClAcgJYJR0Ryeb00yE4qaK1qm38QFdIDC9qZv/YsdJ0RWHepLG3zeKDwV69RKZVu
-         vJeg==
-X-Forwarded-Encrypted: i=1; AJvYcCW4amciyY5RCW/pWT5LAfkfgr022b4kOUJocqsiz8pLntarqWhKd3uJ11z3uFRDuiArxkLHYRk=@lists.linux.dev, AJvYcCWXHrSRVbo0ZXXyMQNGxJiaFgZUrcV2xcdC2diNkx1lgLYxfX24kJNQ2BFQxr84O5KSWhAai7Nnb7F1iWrg1XE=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyA1e9ysa8C9GuiNnVxWZcXUtt86OHhblQ0zSHJqVJxY/9L2wya
-	4eV9TpoihWnPPoVEKwj570y0m+FNlWSa7caO/SG/4rCpFRL5TfsqybFqTJ/HPI7dsMSefssOQVw
-	MYQX0DdTMaa9IW+gQNJXEEkSqtVA=
-X-Google-Smtp-Source: AGHT+IHtULieLwI/4SPEpV2EAh51zgTtQVq2eiZn2mnR0oWpvNiQi5cQqFGqhvDuXz6yt1UnDDzC0f1A/6EcRjj9PQQ=
-X-Received: by 2002:a05:6870:3044:b0:27b:55e1:71e2 with SMTP id
- 586e51a60fabf-28710ab1b40mr8144762fac.23.1727768496894; Tue, 01 Oct 2024
- 00:41:36 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1727769574; x=1728374374;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vktSfFznxxqxdyooYxAJtLpLR+uBOH4pDsLUZk+TldI=;
+        b=af6FCl7BZURXLRtawwELip71bZU17h+yrPu4f4eBtp5L+AXMKBaRQ82M3G9S8y9wYz
+         WEff/+XgiO1Rsupt27SuREAATBHinKSGYL7jw2mXzP2tIHkYXOk2Hq/vaeO7ED8YpjTf
+         1N/5xykVaUl3fctzAaO1PjwX65FHP3EB208XvQNydvAmYcKUKO5jBkalDDmhzyIMLgsu
+         utM1eLZXnXbgqO0ksyvFoi5NyPSd7Pxa9aCkJ3lejLHyHz6OP+CnEM7cC+9MoXbWecDt
+         PBijYQehg7VomMSTYMvlZcZc1Ga36jYHkCWF8X8dO/Iz/aCCBGZSb8fgJCnS2VHAZYRp
+         /7aQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWs13WFPMRJE+iA12hb0AU0FcdMVXdag3+MU1jxRURjN2ScjBhx3Ywr1Z9YcaH6I6zFQIydFp7VVNgXuHSNDQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyY1GmoKJRESCpVFdc0hg/kuSw3awbkQ8B5EJ5QvM+cXbO7/HQ9
+	dQ/IJEdc43KwEjx3mgVkAF3f/ItmsWJoTt0ss8WAPurG9823BVps
+X-Google-Smtp-Source: AGHT+IH1qx+VpqO/M0ZFFo8jx2Ltv6BvYYP7WVtyTnNPIJSUx7pF6s/8RS08Pp9OK0t2pqi6/zCT9A==
+X-Received: by 2002:a17:90a:2f65:b0:2d8:999a:bc37 with SMTP id 98e67ed59e1d1-2e15a34cfe8mr3372002a91.19.1727769574029;
+        Tue, 01 Oct 2024 00:59:34 -0700 (PDT)
+Received: from yunshenglin-MS-7549.. ([2409:8a55:301b:e120:88bd:a0fb:c6d6:c4a2])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e06e16d6d2sm13168168a91.2.2024.10.01.00.59.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Oct 2024 00:59:33 -0700 (PDT)
+From: Yunsheng Lin <yunshenglin0825@gmail.com>
+X-Google-Original-From: Yunsheng Lin <linyunsheng@huawei.com>
+To: davem@davemloft.net,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yunsheng Lin <linyunsheng@huawei.com>,
+	Alexander Duyck <alexander.duyck@gmail.com>,
+	Alexander Duyck <alexanderduyck@fb.com>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Eric Dumazet <edumazet@google.com>,
+	David Howells <dhowells@redhat.com>,
+	Marc Dionne <marc.dionne@auristor.com>,
+	Trond Myklebust <trondmy@kernel.org>,
+	Anna Schumaker <anna@kernel.org>,
+	Jeff Layton <jlayton@kernel.org>,
+	Neil Brown <neilb@suse.de>,
+	Olga Kornievskaia <okorniev@redhat.com>,
+	Dai Ngo <Dai.Ngo@oracle.com>,
+	Tom Talpey <tom@talpey.com>,
+	Shuah Khan <shuah@kernel.org>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-mm@kvack.org,
+	linux-afs@lists.infradead.org,
+	linux-nfs@vger.kernel.org,
+	linux-kselftest@vger.kernel.org
+Subject: [PATCH net-next v19 04/14] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
+Date: Tue,  1 Oct 2024 15:58:47 +0800
+Message-Id: <20241001075858.48936-5-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20241001075858.48936-1-linyunsheng@huawei.com>
+References: <20241001075858.48936-1-linyunsheng@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240926075700.10122-1-shenlichuan@vivo.com>
-In-Reply-To: <20240926075700.10122-1-shenlichuan@vivo.com>
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Date: Tue, 1 Oct 2024 09:41:25 +0200
-Message-ID: <CAM9Jb+hCVEN_c1gLd8M0FUH+9i3vdmgCC4B-T7Lsy+XFejMsTw@mail.gmail.com>
-Subject: Re: [PATCH v1] nvdimm: Correct some typos in comments
-To: Shen Lichuan <shenlichuan@vivo.com>
-Cc: dan.j.williams@intel.com, vishal.l.verma@intel.com, dave.jiang@intel.com, 
-	ira.weiny@intel.com, nvdimm@lists.linux.dev, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, opensource.kernel@vivo.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-> Fixed some confusing typos that were currently identified with codespell,
-> the details are as follows:
->
-> -in the code comments:
-> drivers/nvdimm/nd_virtio.c:100: repsonse ==> response
-> drivers/nvdimm/pfn_devs.c:542: namepace ==> namespace
-> drivers/nvdimm/pmem.c:319: reenable ==> re-enable
->
-> Signed-off-by: Shen Lichuan <shenlichuan@vivo.com>
+Use appropriate frag_page API instead of caller accessing
+'page_frag_cache' directly.
 
-Reviewed-by: Pankaj Gupta <pankaj.gupta@amd.com>
+CC: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Acked-by: Chuck Lever <chuck.lever@oracle.com>
+---
+ drivers/vhost/net.c                                   |  2 +-
+ include/linux/page_frag_cache.h                       | 10 ++++++++++
+ net/core/skbuff.c                                     |  6 +++---
+ net/rxrpc/conn_object.c                               |  4 +---
+ net/rxrpc/local_object.c                              |  4 +---
+ net/sunrpc/svcsock.c                                  |  6 ++----
+ tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
+ 7 files changed, 19 insertions(+), 15 deletions(-)
 
-> ---
->  drivers/nvdimm/nd_virtio.c | 2 +-
->  drivers/nvdimm/pfn_devs.c  | 2 +-
->  drivers/nvdimm/pmem.c      | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-> index f55d60922b87..c3f07be4aa22 100644
-> --- a/drivers/nvdimm/nd_virtio.c
-> +++ b/drivers/nvdimm/nd_virtio.c
-> @@ -97,7 +97,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
->                 dev_info(&vdev->dev, "failed to send command to virtio pmem device\n");
->                 err = -EIO;
->         } else {
-> -               /* A host repsonse results in "host_ack" getting called */
-> +               /* A host response results in "host_ack" getting called */
->                 wait_event(req_data->host_acked, req_data->done);
->                 err = le32_to_cpu(req_data->resp.ret);
->         }
-> diff --git a/drivers/nvdimm/pfn_devs.c b/drivers/nvdimm/pfn_devs.c
-> index 586348125b61..cfdfe0eaa512 100644
-> --- a/drivers/nvdimm/pfn_devs.c
-> +++ b/drivers/nvdimm/pfn_devs.c
-> @@ -539,7 +539,7 @@ int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
->
->         if (!nd_pfn->uuid) {
->                 /*
-> -                * When probing a namepace via nd_pfn_probe() the uuid
-> +                * When probing a namespace via nd_pfn_probe() the uuid
->                  * is NULL (see: nd_pfn_devinit()) we init settings from
->                  * pfn_sb
->                  */
-> diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-> index 210fb77f51ba..d81faa9d89c9 100644
-> --- a/drivers/nvdimm/pmem.c
-> +++ b/drivers/nvdimm/pmem.c
-> @@ -316,7 +316,7 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
->   * range, filesystem turns the normal pwrite to a dax_recovery_write.
->   *
->   * The recovery write consists of clearing media poison, clearing page
-> - * HWPoison bit, reenable page-wide read-write permission, flush the
-> + * HWPoison bit, re-enable page-wide read-write permission, flush the
->   * caches and finally write.  A competing pread thread will be held
->   * off during the recovery process since data read back might not be
->   * valid, and this is achieved by clearing the badblock records after
-> --
-> 2.17.1
->
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f16279351db5..9ad37c012189 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 			vqs[VHOST_NET_VQ_RX]);
+ 
+ 	f->private_data = n;
+-	n->pf_cache.va = NULL;
++	page_frag_cache_init(&n->pf_cache);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
+index 67ac8626ed9b..0a52f7a179c8 100644
+--- a/include/linux/page_frag_cache.h
++++ b/include/linux/page_frag_cache.h
+@@ -7,6 +7,16 @@
+ #include <linux/mm_types_task.h>
+ #include <linux/types.h>
+ 
++static inline void page_frag_cache_init(struct page_frag_cache *nc)
++{
++	nc->va = NULL;
++}
++
++static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
++{
++	return !!nc->pfmemalloc;
++}
++
+ void page_frag_cache_drain(struct page_frag_cache *nc);
+ void __page_frag_cache_drain(struct page *page, unsigned int count);
+ void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 74149dc4ee31..ca01880c7ad0 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -753,14 +753,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
+ 	if (in_hardirq() || irqs_disabled()) {
+ 		nc = this_cpu_ptr(&netdev_alloc_cache);
+ 		data = page_frag_alloc(nc, len, gfp_mask);
+-		pfmemalloc = nc->pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
+ 	} else {
+ 		local_bh_disable();
+ 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
+ 
+ 		nc = this_cpu_ptr(&napi_alloc_cache.page);
+ 		data = page_frag_alloc(nc, len, gfp_mask);
+-		pfmemalloc = nc->pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
+ 
+ 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
+ 		local_bh_enable();
+@@ -850,7 +850,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
+ 		len = SKB_HEAD_ALIGN(len);
+ 
+ 		data = page_frag_alloc(&nc->page, len, gfp_mask);
+-		pfmemalloc = nc->page.pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
+ 	}
+ 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
+ 
+diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
+index 1539d315afe7..694c4df7a1a3 100644
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
+ 	 */
+ 	rxrpc_purge_queue(&conn->rx_queue);
+ 
+-	if (conn->tx_data_alloc.va)
+-		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
+-					conn->tx_data_alloc.pagecnt_bias);
++	page_frag_cache_drain(&conn->tx_data_alloc);
+ 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
+ }
+ 
+diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
+index 504453c688d7..a8cffe47cf01 100644
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
+ #endif
+ 	rxrpc_purge_queue(&local->rx_queue);
+ 	rxrpc_purge_client_connections(local);
+-	if (local->tx_alloc.va)
+-		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
+-					local->tx_alloc.pagecnt_bias);
++	page_frag_cache_drain(&local->tx_alloc);
+ }
+ 
+ /*
+diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
+index 825ec5357691..b785425c3315 100644
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -1608,7 +1608,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
+ static void svc_sock_free(struct svc_xprt *xprt)
+ {
+ 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
+-	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
+ 	struct socket *sock = svsk->sk_sock;
+ 
+ 	trace_svcsock_free(svsk, sock);
+@@ -1618,8 +1617,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
+ 		sockfd_put(sock);
+ 	else
+ 		sock_release(sock);
+-	if (pfc->va)
+-		__page_frag_cache_drain(virt_to_head_page(pfc->va),
+-					pfc->pagecnt_bias);
++
++	page_frag_cache_drain(&svsk->sk_frag_cache);
+ 	kfree(svsk);
+ }
+diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
+index fdf204550c9a..36543a129e40 100644
+--- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
++++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
+@@ -117,7 +117,7 @@ static int __init page_frag_test_init(void)
+ 	u64 duration;
+ 	int ret;
+ 
+-	test_nc.va = NULL;
++	page_frag_cache_init(&test_nc);
+ 	atomic_set(&nthreads, 2);
+ 	init_completion(&wait);
+ 
+-- 
+2.34.1
+
