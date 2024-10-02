@@ -1,175 +1,265 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C03D1D0DF7
-	for <virtualization@lists.linux.dev>; Wed,  2 Oct 2024 16:43:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43F521D0BA2
+	for <virtualization@lists.linux.dev>; Wed,  2 Oct 2024 18:22:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727887388; cv=none; b=ua0fAPxtaTqJeIusNuMYXMSn1UTPXRtO1MHo3fnY9dS7VYJvnntAI38FitiUMDJgGm+8uqLOq63LREbLxYNbdDhBuXkT18vX3S3I0FGqgWMViCRgRfM2XjePegLeYDMjH0PM90kleN+hOFO10cTp7SHgC5rdCqUC/5s5Nla6zu4=
+	t=1727893334; cv=none; b=E2n1DipSHEqfhxweeM88dyK+PoghsG+UpwS8uLKjBKtjglASRdLFWb0Q7njymFaVKPo2mPh35o6TEX1bQUHIh/tViVFppLsqPPhNFZ8iP9/k/aMzMWK9TYAi7FhGGgMupYb3p5s5qA2afWdUqmVjewaongO+UwQLjo6Ij42EKVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727887388; c=relaxed/simple;
-	bh=RnZ5G5/umQ/ayd1tzXzxgN1t4G6NyUkZHDT0/1Et3qc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=D5PH8NuiyRl3EpKkrEaSrtQ3yD297fXJIxoHbOP9v9eYMa8pUgdVulxHc5Th3HH5grG8fVFCtqZRRA2zKxegP9tVaoLUpZcH5KFfQ8uZPHQB7BCzM9XN7MKlr8AqGYv9/fOjaRxTAPmLIoKFXGD0zrpGPPdy1eijh9MW1v6m1h8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CyinNNWW; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1727893334; c=relaxed/simple;
+	bh=t01JDmHT3zLNfz8gKoJAfjyhjpNElz/ODXlRagJHKXg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QoxfiYNG7LiZ6iE4CFrOXz0u7XN6/qaE2es5HqGgrNegeV4+y91Bsd9qXH98Sak45QPQj5zF+cBFn5Diw/BS6YDpR8Njxmkq51/Z3JmPTKf04vVeC/gyKJwj2LhrFaT06wz4s/A4h4Q1q9S+V7pdXN00ynObgaRLC0rMqrA8tsU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KwJe9VHP; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CyinNNWW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727887384;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JYRsHIOR2+c4zlZHyS1UaHYCd7Y4/yu6uoJitE/pKB8=;
-	b=CyinNNWWfogYYGcDlWaymTC5Gi3r1G0AaLDvRln0OxdT4A4awZ9kUGKai1OSR2382F42/v
-	+XI233HPWYjiidPMcIcYcnj54JbDhK0b2toOsaB6u0+RJfSteb5z0+bzerzmt1R6t46QU0
-	rt7TDKsSAjHysHNYip2fliBBVK3D0o8=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-34-28AUWPeQNvipHBW_6EYkeg-1; Wed, 02 Oct 2024 12:43:03 -0400
-X-MC-Unique: 28AUWPeQNvipHBW_6EYkeg-1
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2fad58ddea1so24880221fa.2
-        for <virtualization@lists.linux.dev>; Wed, 02 Oct 2024 09:43:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727887382; x=1728492182;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JYRsHIOR2+c4zlZHyS1UaHYCd7Y4/yu6uoJitE/pKB8=;
-        b=fK63XgOKYg/5lGuek+skA8XenT8227STpzHi4A4fucX4aoJbwcD4Z+ZD00MvJl1JtL
-         H0giTPPjjBoA5GPh3jqN6mduLT+DKqHWkgTaeY58c29F8RpFHd+rEZvlFscpgNqRJM3W
-         1Uy6A+iCMjOZS90O7Fl5V605ofD6G8Yr03X3hd/9NO7Fdruwqp14At9+JV6Vou0RtciX
-         oqPiaqNZyyKN/azrx6zSYZz9V+miEf0KBhR5JgEYIoZSYPQq92whTyl9hhvClV49RjG/
-         h2tcnoaIrB1yUWFduPJZs4Ud6iRr+7yQw1pSIY92wAx71p0lVEg88ayKgptDD9cOYcD0
-         5zUQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWdGGoqHuxlzPqqJBnAjUXuq6EVHBeSLuTMzFl3HVFG6bqY1wmp6znUS4SZGY3VpIhnrQhasP9MTU8N4ujx0Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwmFtzCs8qKBRIiM1PZxsjL5Dh8tZIr2pdRHv0q1/HW1S8abbuv
-	B82DKft2eehNNAbQppLPUTVpKmp3qXn5S6T3HZ1bSdX8kuynbm5q94HQseY+CPN4JIFmzgJVevd
-	J+lCAUxjDi5bmetk06xtZt9ok0EbYD0TyZX7IzAEh9WXgtTm8WuS8Q5KGZEuKV9oy
-X-Received: by 2002:a05:651c:1990:b0:2fa:d4ef:f234 with SMTP id 38308e7fff4ca-2fae10228c8mr36941911fa.1.1727887381546;
-        Wed, 02 Oct 2024 09:43:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFT5mKidzu2rgKWaTQAOjO8wX/Bxb4NGZ38Te/mpGdwgMkg96XMmyTzKATP3+Zb3ClEjcS5uA==
-X-Received: by 2002:a05:651c:1990:b0:2fa:d4ef:f234 with SMTP id 38308e7fff4ca-2fae10228c8mr36941601fa.1.1727887380801;
-        Wed, 02 Oct 2024 09:43:00 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c27c70fesm882025966b.57.2024.10.02.09.42.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Oct 2024 09:43:00 -0700 (PDT)
-Date: Wed, 2 Oct 2024 18:42:56 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Christian Brauner <brauner@kernel.org>, 
-	Luigi Leonardi <luigi.leonardi@outlook.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Marco Pinna <marco.pinn95@gmail.com>, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] vsock/virtio: use GFP_ATOMIC under RCU read lock
-Message-ID: <rnehgb4kcntzebpzgpofhavo2la5eqjek3ej4gjm6tl5fb55wp@l4vroereu5ws>
-References: <3fbfb6e871f625f89eb578c7228e127437b1975a.1727876449.git.mst@redhat.com>
- <jfajjomq7wla2gf2cf2zwzyslxmnnrkxn6kvewwkexqwig52b4@fwh5mtjcdile>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KwJe9VHP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1727893332; x=1759429332;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=t01JDmHT3zLNfz8gKoJAfjyhjpNElz/ODXlRagJHKXg=;
+  b=KwJe9VHPz4jC27IznEYQ8exH6m/oRNMKN3alvG3xHU9dKSo2VkYOYJFI
+   BvCS+vXNajcMRwwSQj19BsdLDR5kUWpk/1PH1y/CjEtbakiPBqYQsWaec
+   VCQxhZkTYXUUREFgL+4AFPyu0YygNvcQ1J2oKS8yTPUnDSdmMf3SNzkM9
+   e+Q3+5hljEPTOYqA9ArTAn6vBSvXaonJiLD4L87snL/j+ofaMHELg++cO
+   oKbjhDR47zmnrgyl2wjuytS7hmlNukAZmKZKWtj9Pp3ZfnV63ZkkU2VeD
+   XMaaJGcvYsK9rE9ktEiTB2tLUVmPe6TYFha0Nmt6x2NrssV6MlxCjv/3+
+   Q==;
+X-CSE-ConnectionGUID: nysdyXiIRhuH67iGK3TgHQ==
+X-CSE-MsgGUID: qH6JBbI9QE+244YV3jd9qA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11213"; a="26957551"
+X-IronPort-AV: E=Sophos;i="6.11,172,1725346800"; 
+   d="scan'208";a="26957551"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Oct 2024 11:22:11 -0700
+X-CSE-ConnectionGUID: RuSvj+gXSm+hT8AukyUnKw==
+X-CSE-MsgGUID: k8M7o8nlSyG/VQl44AXurg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,172,1725346800"; 
+   d="scan'208";a="74202322"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.74])
+  by fmviesa008.fm.intel.com with SMTP; 02 Oct 2024 11:22:01 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Wed, 02 Oct 2024 21:22:00 +0300
+From: Ville Syrjala <ville.syrjala@linux.intel.com>
+To: dri-devel@lists.freedesktop.org
+Cc: intel-gfx@lists.freedesktop.org,
+	Abhinav Kumar <quic_abhinavk@quicinc.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Alexey Brodkin <abrodkin@synopsys.com>,
+	amd-gfx@lists.freedesktop.org,
+	Andy Yan <andy.yan@rock-chips.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Danilo Krummrich <dakr@redhat.com>,
+	Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+	freedreno@lists.freedesktop.org,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
+	Inki Dae <inki.dae@samsung.com>,
+	Jyri Sarha <jyri.sarha@iki.fi>,
+	Karol Herbst <kherbst@redhat.com>,
+	linux-amlogic@lists.infradead.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-arm-msm@vger.kernel.orga,
+	linux-mediatek@lists.infradead.org,
+	linux-renesas-soc@vger.kernel.org,
+	Liviu Dudau <liviu.dudau@arm.com>,
+	Lyude Paul <lyude@redhat.com>,
+	=?UTF-8?q?Ma=C3=ADra=20Canal?= <mairacanal@riseup.net>,
+	Marijn Suijten <marijn.suijten@somainline.org>,
+	nouveau@lists.freedesktop.org,
+	nouveau@lists.freedesktop.orga,
+	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+	Rob Clark <robdclark@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Sandy Huang <hjc@rock-chips.com>,
+	Sean Paul <sean@poorly.run>,
+	spice-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org,
+	Xinhui Pan <Xinhui.Pan@amd.com>,
+	Zack Rusin <zack.rusin@broadcom.com>
+Subject: [PATCH 0/2] drm: Treewide plane/crtc legacy state sweeping
+Date: Wed,  2 Oct 2024 21:21:58 +0300
+Message-ID: <20241002182200.15363-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <jfajjomq7wla2gf2cf2zwzyslxmnnrkxn6kvewwkexqwig52b4@fwh5mtjcdile>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Oct 02, 2024 at 04:02:06PM GMT, Stefano Garzarella wrote:
->On Wed, Oct 02, 2024 at 09:41:42AM GMT, Michael S. Tsirkin wrote:
->>virtio_transport_send_pkt in now called on transport fast path,
->>under RCU read lock. In that case, we have a bug: virtio_add_sgs
->>is called with GFP_KERNEL, and might sleep.
->>
->>Pass the gfp flags as an argument, and use GFP_ATOMIC on
->>the fast path.
->>
->>Link: https://lore.kernel.org/all/hfcr2aget2zojmqpr4uhlzvnep4vgskblx5b6xf2ddosbsrke7@nt34bxgp7j2x
->>Fixes: efcd71af38be ("vsock/virtio: avoid queuing packets when intermediate queue is empty")
->>Reported-by: Christian Brauner <brauner@kernel.org>
->>Cc: Stefano Garzarella <sgarzare@redhat.com>
->>Cc: Luigi Leonardi <luigi.leonardi@outlook.com>
->>Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->>---
->>
->>Lightly tested. Christian, could you pls confirm this fixes the problem
->>for you? Stefano, it's a holiday here - could you pls help test!
->
->Sure, thanks for the quick fix! I was thinking something similar ;-)
->
->>Thanks!
->>
->>
->>net/vmw_vsock/virtio_transport.c | 8 ++++----
->>1 file changed, 4 insertions(+), 4 deletions(-)
->>
->>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->>index f992f9a216f0..0cd965f24609 100644
->>--- a/net/vmw_vsock/virtio_transport.c
->>+++ b/net/vmw_vsock/virtio_transport.c
->>@@ -96,7 +96,7 @@ static u32 virtio_transport_get_local_cid(void)
->>
->>/* Caller need to hold vsock->tx_lock on vq */
->>static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
->>-				     struct virtio_vsock *vsock)
->>+				     struct virtio_vsock *vsock, gfp_t gfp)
->>{
->>	int ret, in_sg = 0, out_sg = 0;
->>	struct scatterlist **sgs;
->>@@ -140,7 +140,7 @@ static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
->>		}
->>	}
->>
->>-	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
->>+	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, gfp);
->>	/* Usually this means that there is no more space available in
->>	 * the vq
->>	 */
->>@@ -178,7 +178,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
->>
->>		reply = virtio_vsock_skb_reply(skb);
->>
->>-		ret = virtio_transport_send_skb(skb, vq, vsock);
->>+		ret = virtio_transport_send_skb(skb, vq, vsock, GFP_KERNEL);
->>		if (ret < 0) {
->>			virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, 
->>			skb);
->>			break;
->>@@ -221,7 +221,7 @@ static int virtio_transport_send_skb_fast_path(struct virtio_vsock *vsock, struc
->>	if (unlikely(ret == 0))
->>		return -EBUSY;
->>
->>-	ret = virtio_transport_send_skb(skb, vq, vsock);
->
->nit: maybe we can add a comment here:
->        /* GFP_ATOMIC because we are in RCU section, so we can't sleep */
->>+	ret = virtio_transport_send_skb(skb, vq, vsock, GFP_ATOMIC);
->>	if (ret == 0)
->>		virtqueue_kick(vq);
->>
->>-- 
->>MST
->>
->
->I'll run some tests and come back with R-b when it's done.
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-I replicated the issue enabling CONFIG_DEBUG_ATOMIC_SLEEP.
+An attempt to hide the drm_plane/crtc legacy state better.
 
-With that enabled, as soon as I run iperf-vsock, dmesg is flooded with 
-those messages. With this patch applied instead everything is fine.
+This also highlights the fact that a lot of supposedly
+atomic drivers are poking around in the legacy crtc state,
+which is rather questionable. For planes we did force the
+legacy state to NULL already to force drivers to behave.
+But even then it seems capable of confusing people with
+its high profile location directly under drm_plane.
 
-I also ran the usual tests with various debugging options enabled and 
-everything seems okay.
+This might end up as some kind of conflict
+galore, but the alternative would involve trying
+to wean the atomic drivers off one by one,
+which would probably take forever. At least with
+this the issue becomes visible and shouldn't be
+forgotten as easily.
 
-With or without adding the comment I suggested in the previous email:
+The cc list was getting way out of hand, so I had
+to trim it a bit. Hopefully I didn't chop off too
+many names...
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Cc: Alain Volmat <alain.volmat@foss.st.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Alexey Brodkin <abrodkin@synopsys.com>
+Cc: amd-gfx@lists.freedesktop.org
+Cc: Andy Yan <andy.yan@rock-chips.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: Danilo Krummrich <dakr@redhat.com>
+Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: freedreno@lists.freedesktop.org
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: "Heiko Stübner" <heiko@sntech.de>
+Cc: Inki Dae <inki.dae@samsung.com>
+Cc: Jyri Sarha <jyri.sarha@iki.fi>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: linux-amlogic@lists.infradead.org
+Cc: linux-arm-msm@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.orga
+Cc: linux-mediatek@lists.infradead.org
+Cc: linux-renesas-soc@vger.kernel.org
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: "Maíra Canal" <mairacanal@riseup.net>
+Cc: Marijn Suijten <marijn.suijten@somainline.org>
+Cc: nouveau@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.orga
+Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Cc: Rob Clark <robdclark@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Sandy Huang <hjc@rock-chips.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: spice-devel@lists.freedesktop.org
+Cc: virtualization@lists.linux.dev
+Cc: xen-devel@lists.xenproject.org
+Cc: Xinhui Pan <Xinhui.Pan@amd.com>
+Cc: Zack Rusin <zack.rusin@broadcom.com>
+
+Ville Syrjälä (2):
+  drm: Move plane->{fb,old_fb,crtc} to legacy sub-structure
+  drm: Move crtc->{x,y,mode,enabled} to legacy sub-structure
+
+ .../gpu/drm/amd/amdgpu/amdgpu_connectors.c    |  7 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c   | 20 ++---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pll.c       |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c      |  2 +-
+ drivers/gpu/drm/amd/amdgpu/dce_v10_0.c        | 35 ++++----
+ drivers/gpu/drm/amd/amdgpu/dce_v11_0.c        | 35 ++++----
+ drivers/gpu/drm/amd/amdgpu/dce_v6_0.c         | 37 ++++-----
+ drivers/gpu/drm/amd/amdgpu/dce_v8_0.c         | 35 ++++----
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 ++--
+ .../amd/display/amdgpu_dm/amdgpu_dm_crtc.c    |  2 +-
+ drivers/gpu/drm/amd/pm/amdgpu_dpm_internal.c  |  4 +-
+ drivers/gpu/drm/arm/hdlcd_drv.c               |  2 +-
+ drivers/gpu/drm/arm/malidp_hw.c               |  2 +-
+ drivers/gpu/drm/armada/armada_crtc.c          | 12 ++-
+ drivers/gpu/drm/ast/ast_dp.c                  |  8 +-
+ drivers/gpu/drm/drm_atomic.c                  |  6 +-
+ drivers/gpu/drm/drm_atomic_helper.c           |  8 +-
+ drivers/gpu/drm/drm_client_modeset.c          | 10 +--
+ drivers/gpu/drm/drm_crtc.c                    | 31 +++----
+ drivers/gpu/drm/drm_crtc_helper.c             | 80 ++++++++++---------
+ drivers/gpu/drm/drm_fb_helper.c               | 12 +--
+ drivers/gpu/drm/drm_framebuffer.c             |  4 +-
+ drivers/gpu/drm/drm_plane.c                   | 69 ++++++++--------
+ drivers/gpu/drm/drm_plane_helper.c            |  6 +-
+ drivers/gpu/drm/drm_vblank.c                  |  2 +-
+ drivers/gpu/drm/exynos/exynos5433_drm_decon.c |  4 +-
+ drivers/gpu/drm/gma500/cdv_intel_display.c    |  2 +-
+ drivers/gpu/drm/gma500/cdv_intel_dp.c         |  6 +-
+ drivers/gpu/drm/gma500/cdv_intel_hdmi.c       |  3 +-
+ drivers/gpu/drm/gma500/cdv_intel_lvds.c       |  6 +-
+ drivers/gpu/drm/gma500/gma_display.c          | 22 ++---
+ drivers/gpu/drm/gma500/oaktrail_crtc.c        |  2 +-
+ drivers/gpu/drm/gma500/psb_intel_display.c    |  2 +-
+ drivers/gpu/drm/gma500/psb_intel_lvds.c       |  6 +-
+ drivers/gpu/drm/gma500/psb_intel_sdvo.c       |  8 +-
+ drivers/gpu/drm/i2c/ch7006_drv.c              |  7 +-
+ drivers/gpu/drm/i2c/sil164_drv.c              |  2 +-
+ .../drm/i915/display/intel_modeset_setup.c    |  4 +-
+ drivers/gpu/drm/imx/lcdc/imx-lcdc.c           | 31 ++++---
+ drivers/gpu/drm/mediatek/mtk_crtc.c           |  6 +-
+ drivers/gpu/drm/meson/meson_overlay.c         |  2 +-
+ drivers/gpu/drm/meson/meson_plane.c           |  8 +-
+ drivers/gpu/drm/msm/disp/dpu1/dpu_core_perf.c | 18 +++--
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c       |  6 +-
+ drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c     | 16 ++--
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c     |  4 +-
+ drivers/gpu/drm/nouveau/dispnv04/crtc.c       | 25 +++---
+ drivers/gpu/drm/nouveau/dispnv04/cursor.c     |  2 +-
+ drivers/gpu/drm/nouveau/dispnv04/dfp.c        |  2 +-
+ drivers/gpu/drm/nouveau/dispnv04/disp.c       |  4 +-
+ .../gpu/drm/nouveau/dispnv04/tvmodesnv17.c    |  4 +-
+ drivers/gpu/drm/nouveau/dispnv04/tvnv17.c     |  7 +-
+ drivers/gpu/drm/nouveau/nouveau_connector.c   |  6 +-
+ drivers/gpu/drm/qxl/qxl_display.c             |  6 +-
+ drivers/gpu/drm/radeon/atombios_crtc.c        | 28 +++----
+ drivers/gpu/drm/radeon/cik.c                  | 12 +--
+ drivers/gpu/drm/radeon/evergreen.c            | 16 ++--
+ drivers/gpu/drm/radeon/r100.c                 | 16 ++--
+ drivers/gpu/drm/radeon/r600_cs.c              |  2 +-
+ drivers/gpu/drm/radeon/r600_dpm.c             |  4 +-
+ drivers/gpu/drm/radeon/radeon_connectors.c    |  7 +-
+ drivers/gpu/drm/radeon/radeon_cursor.c        | 29 +++----
+ drivers/gpu/drm/radeon/radeon_device.c        |  2 +-
+ drivers/gpu/drm/radeon/radeon_display.c       | 26 +++---
+ drivers/gpu/drm/radeon/radeon_drv.c           |  2 +-
+ drivers/gpu/drm/radeon/radeon_legacy_crtc.c   | 16 ++--
+ .../gpu/drm/radeon/radeon_legacy_encoders.c   |  2 +-
+ drivers/gpu/drm/radeon/radeon_pm.c            |  2 +-
+ drivers/gpu/drm/radeon/rs600.c                | 10 +--
+ drivers/gpu/drm/radeon/rs690.c                | 22 ++---
+ drivers/gpu/drm/radeon/rs780_dpm.c            |  6 +-
+ drivers/gpu/drm/radeon/rv515.c                | 30 +++----
+ drivers/gpu/drm/radeon/rv770.c                |  2 +-
+ drivers/gpu/drm/radeon/si.c                   | 14 ++--
+ .../gpu/drm/renesas/rcar-du/rcar_du_crtc.c    |  2 +-
+ .../gpu/drm/renesas/shmobile/shmob_drm_crtc.c |  2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c   |  6 +-
+ drivers/gpu/drm/sti/sti_crtc.c                |  4 +-
+ drivers/gpu/drm/sti/sti_cursor.c              |  2 +-
+ drivers/gpu/drm/sti/sti_gdp.c                 |  2 +-
+ drivers/gpu/drm/sti/sti_hqvdp.c               |  2 +-
+ drivers/gpu/drm/sti/sti_tvout.c               |  6 +-
+ drivers/gpu/drm/sti/sti_vid.c                 |  2 +-
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c          | 10 +--
+ drivers/gpu/drm/tiny/arcpgu.c                 |  2 +-
+ drivers/gpu/drm/vboxvideo/vbox_mode.c         |  2 +-
+ drivers/gpu/drm/vc4/vc4_dpi.c                 |  2 +-
+ drivers/gpu/drm/vc4/vc4_plane.c               |  4 +-
+ drivers/gpu/drm/virtio/virtgpu_display.c      |  4 +-
+ drivers/gpu/drm/vkms/vkms_composer.c          |  4 +-
+ drivers/gpu/drm/vkms/vkms_crtc.c              |  2 +-
+ drivers/gpu/drm/vkms/vkms_writeback.c         |  4 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c           |  8 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c           | 18 +++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c          |  9 ++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c          |  4 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_vkms.c          |  2 +-
+ drivers/gpu/drm/xen/xen_drm_front_kms.c       |  2 +-
+ include/drm/drm_crtc.h                        | 75 ++++++++---------
+ include/drm/drm_plane.h                       | 52 ++++++------
+ 100 files changed, 599 insertions(+), 547 deletions(-)
+
+-- 
+2.45.2
 
