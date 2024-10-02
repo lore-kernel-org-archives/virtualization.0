@@ -1,75 +1,175 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C72051D0E3A;
-	Wed,  2 Oct 2024 14:16:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C03D1D0DF7
+	for <virtualization@lists.linux.dev>; Wed,  2 Oct 2024 16:43:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727878563; cv=none; b=YCV1qdVDarpBo7BVeON/r9oJHoSWj68HQ1gaVNFrw3kaaa9nnjvsLMbpl8FkAlvAwCI3kZOC01Y4HnupnA+qMxq2XgXLTk0Xl9avNg3X58GFm1z3Zeun/MzLvOTZChMLeWIQD69ixFwLzmAaet7+EAkABwk0wk5d1D5FH8Nw/Dc=
+	t=1727887388; cv=none; b=ua0fAPxtaTqJeIusNuMYXMSn1UTPXRtO1MHo3fnY9dS7VYJvnntAI38FitiUMDJgGm+8uqLOq63LREbLxYNbdDhBuXkT18vX3S3I0FGqgWMViCRgRfM2XjePegLeYDMjH0PM90kleN+hOFO10cTp7SHgC5rdCqUC/5s5Nla6zu4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727878563; c=relaxed/simple;
-	bh=yT+r31n70xCHi9EJMEKqCQB+IFdPVXH1wU6lHdxyhaY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ogxHdMhTT84wJPaGovU94l/nH2soRBbyVKJdFG1+jGT2QZQEdGhLNWV57ABx6ohkzABdiyL6V1OGYcfWoRU6eXfji2AzI3ErrVH3IiH+HUz3zr83dqPocPq7vOCi0vd1Tw2g90xGvV2MXbxRbUYNp9mSkMfVWLH/kJy798RGbCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EwWY+ofT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1727887388; c=relaxed/simple;
+	bh=RnZ5G5/umQ/ayd1tzXzxgN1t4G6NyUkZHDT0/1Et3qc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=D5PH8NuiyRl3EpKkrEaSrtQ3yD297fXJIxoHbOP9v9eYMa8pUgdVulxHc5Th3HH5grG8fVFCtqZRRA2zKxegP9tVaoLUpZcH5KFfQ8uZPHQB7BCzM9XN7MKlr8AqGYv9/fOjaRxTAPmLIoKFXGD0zrpGPPdy1eijh9MW1v6m1h8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CyinNNWW; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EwWY+ofT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBFEAC4CEC5;
-	Wed,  2 Oct 2024 14:16:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1727878563;
-	bh=yT+r31n70xCHi9EJMEKqCQB+IFdPVXH1wU6lHdxyhaY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=EwWY+ofTD1RSYoGGOL6Vcvz9EuF+qNPMnvZDH48oUuKzgPank5dJBlTdcWuZQjeQx
-	 RPK7QrHcfjLn4OhDBF1x6E8qByaJqxsXwu5RVXAV238lE2ev/IrSEp7z/kgTWzuwsJ
-	 iBUBL9pao1WJXmUH5P8USJ/xE0zO/Y3pvfFBUItQGXhNEoKN9SwCrSyZHvZKJyVtZ3
-	 aE3JUqnZi4SvXAjlPc/BvFJeMzQA8q9uwImceqlGnxE8Nm8uOg38gvA6aeMwn6h+R+
-	 nKv5rZQ2CPdKemFAu7st/jNezRO0kbukwY0dwNNQFaaFMzxuow6TsqtmQ7f9vN4sgG
-	 B0xvu5FSWOuGw==
-Date: Wed, 2 Oct 2024 07:16:02 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Aleksandr Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, stefanha@redhat.com, "Michael
- S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, mcgrof@kernel.org
-Subject: Re: [PATCH v2] vhost/vsock: specify module version
-Message-ID: <20241002071602.793d3e2d@kernel.org>
-In-Reply-To: <CAEivzxdP+7q9vDk-0V8tPuCo1mFw92jVx0u3B8jkyYKv8sLcdA@mail.gmail.com>
-References: <20240929182103.21882-1-aleksandr.mikhalitsyn@canonical.com>
-	<w3fc6fwdwaakygtoktjzavm4vsqq2ks3lnznyfcouesuu7cqog@uiq3y4gjj5m3>
-	<CAEivzxe6MJWMPCYy1TEkp9fsvVMuoUu-k5XOt+hWg4rKR57qTw@mail.gmail.com>
-	<ib52jo3gqsdmr23lpmsipytbxhecwvmjbjlgiw5ygwlbwletlu@rvuyibtxezwl>
-	<CAEivzxdP+7q9vDk-0V8tPuCo1mFw92jVx0u3B8jkyYKv8sLcdA@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CyinNNWW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1727887384;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JYRsHIOR2+c4zlZHyS1UaHYCd7Y4/yu6uoJitE/pKB8=;
+	b=CyinNNWWfogYYGcDlWaymTC5Gi3r1G0AaLDvRln0OxdT4A4awZ9kUGKai1OSR2382F42/v
+	+XI233HPWYjiidPMcIcYcnj54JbDhK0b2toOsaB6u0+RJfSteb5z0+bzerzmt1R6t46QU0
+	rt7TDKsSAjHysHNYip2fliBBVK3D0o8=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-34-28AUWPeQNvipHBW_6EYkeg-1; Wed, 02 Oct 2024 12:43:03 -0400
+X-MC-Unique: 28AUWPeQNvipHBW_6EYkeg-1
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2fad58ddea1so24880221fa.2
+        for <virtualization@lists.linux.dev>; Wed, 02 Oct 2024 09:43:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727887382; x=1728492182;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JYRsHIOR2+c4zlZHyS1UaHYCd7Y4/yu6uoJitE/pKB8=;
+        b=fK63XgOKYg/5lGuek+skA8XenT8227STpzHi4A4fucX4aoJbwcD4Z+ZD00MvJl1JtL
+         H0giTPPjjBoA5GPh3jqN6mduLT+DKqHWkgTaeY58c29F8RpFHd+rEZvlFscpgNqRJM3W
+         1Uy6A+iCMjOZS90O7Fl5V605ofD6G8Yr03X3hd/9NO7Fdruwqp14At9+JV6Vou0RtciX
+         oqPiaqNZyyKN/azrx6zSYZz9V+miEf0KBhR5JgEYIoZSYPQq92whTyl9hhvClV49RjG/
+         h2tcnoaIrB1yUWFduPJZs4Ud6iRr+7yQw1pSIY92wAx71p0lVEg88ayKgptDD9cOYcD0
+         5zUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWdGGoqHuxlzPqqJBnAjUXuq6EVHBeSLuTMzFl3HVFG6bqY1wmp6znUS4SZGY3VpIhnrQhasP9MTU8N4ujx0Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwmFtzCs8qKBRIiM1PZxsjL5Dh8tZIr2pdRHv0q1/HW1S8abbuv
+	B82DKft2eehNNAbQppLPUTVpKmp3qXn5S6T3HZ1bSdX8kuynbm5q94HQseY+CPN4JIFmzgJVevd
+	J+lCAUxjDi5bmetk06xtZt9ok0EbYD0TyZX7IzAEh9WXgtTm8WuS8Q5KGZEuKV9oy
+X-Received: by 2002:a05:651c:1990:b0:2fa:d4ef:f234 with SMTP id 38308e7fff4ca-2fae10228c8mr36941911fa.1.1727887381546;
+        Wed, 02 Oct 2024 09:43:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFT5mKidzu2rgKWaTQAOjO8wX/Bxb4NGZ38Te/mpGdwgMkg96XMmyTzKATP3+Zb3ClEjcS5uA==
+X-Received: by 2002:a05:651c:1990:b0:2fa:d4ef:f234 with SMTP id 38308e7fff4ca-2fae10228c8mr36941601fa.1.1727887380801;
+        Wed, 02 Oct 2024 09:43:00 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c27c70fesm882025966b.57.2024.10.02.09.42.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Oct 2024 09:43:00 -0700 (PDT)
+Date: Wed, 2 Oct 2024 18:42:56 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Christian Brauner <brauner@kernel.org>, 
+	Luigi Leonardi <luigi.leonardi@outlook.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Marco Pinna <marco.pinn95@gmail.com>, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] vsock/virtio: use GFP_ATOMIC under RCU read lock
+Message-ID: <rnehgb4kcntzebpzgpofhavo2la5eqjek3ej4gjm6tl5fb55wp@l4vroereu5ws>
+References: <3fbfb6e871f625f89eb578c7228e127437b1975a.1727876449.git.mst@redhat.com>
+ <jfajjomq7wla2gf2cf2zwzyslxmnnrkxn6kvewwkexqwig52b4@fwh5mtjcdile>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <jfajjomq7wla2gf2cf2zwzyslxmnnrkxn6kvewwkexqwig52b4@fwh5mtjcdile>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Mon, 30 Sep 2024 19:03:52 +0200 Aleksandr Mikhalitsyn wrote:
-> > At this point my question is, should we solve the problem higher and
-> > show all the modules in /sys/modules, either way?  
-> 
-> Probably, yes. We can ask Luis Chamberlain's opinion on this one.
-> 
-> +cc Luis Chamberlain <mcgrof@kernel.org>
-> 
-> >
-> > Your use case makes sense to me, so that we could try something like
-> > that, but obviously it requires more work I think.  
-> 
-> I personally am pretty happy to do more work on the generic side if
-> it's really valuable
-> for other use cases and folks support the idea.
+On Wed, Oct 02, 2024 at 04:02:06PM GMT, Stefano Garzarella wrote:
+>On Wed, Oct 02, 2024 at 09:41:42AM GMT, Michael S. Tsirkin wrote:
+>>virtio_transport_send_pkt in now called on transport fast path,
+>>under RCU read lock. In that case, we have a bug: virtio_add_sgs
+>>is called with GFP_KERNEL, and might sleep.
+>>
+>>Pass the gfp flags as an argument, and use GFP_ATOMIC on
+>>the fast path.
+>>
+>>Link: https://lore.kernel.org/all/hfcr2aget2zojmqpr4uhlzvnep4vgskblx5b6xf2ddosbsrke7@nt34bxgp7j2x
+>>Fixes: efcd71af38be ("vsock/virtio: avoid queuing packets when intermediate queue is empty")
+>>Reported-by: Christian Brauner <brauner@kernel.org>
+>>Cc: Stefano Garzarella <sgarzare@redhat.com>
+>>Cc: Luigi Leonardi <luigi.leonardi@outlook.com>
+>>Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>---
+>>
+>>Lightly tested. Christian, could you pls confirm this fixes the problem
+>>for you? Stefano, it's a holiday here - could you pls help test!
+>
+>Sure, thanks for the quick fix! I was thinking something similar ;-)
+>
+>>Thanks!
+>>
+>>
+>>net/vmw_vsock/virtio_transport.c | 8 ++++----
+>>1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>>index f992f9a216f0..0cd965f24609 100644
+>>--- a/net/vmw_vsock/virtio_transport.c
+>>+++ b/net/vmw_vsock/virtio_transport.c
+>>@@ -96,7 +96,7 @@ static u32 virtio_transport_get_local_cid(void)
+>>
+>>/* Caller need to hold vsock->tx_lock on vq */
+>>static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+>>-				     struct virtio_vsock *vsock)
+>>+				     struct virtio_vsock *vsock, gfp_t gfp)
+>>{
+>>	int ret, in_sg = 0, out_sg = 0;
+>>	struct scatterlist **sgs;
+>>@@ -140,7 +140,7 @@ static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+>>		}
+>>	}
+>>
+>>-	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
+>>+	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, gfp);
+>>	/* Usually this means that there is no more space available in
+>>	 * the vq
+>>	 */
+>>@@ -178,7 +178,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+>>
+>>		reply = virtio_vsock_skb_reply(skb);
+>>
+>>-		ret = virtio_transport_send_skb(skb, vq, vsock);
+>>+		ret = virtio_transport_send_skb(skb, vq, vsock, GFP_KERNEL);
+>>		if (ret < 0) {
+>>			virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, 
+>>			skb);
+>>			break;
+>>@@ -221,7 +221,7 @@ static int virtio_transport_send_skb_fast_path(struct virtio_vsock *vsock, struc
+>>	if (unlikely(ret == 0))
+>>		return -EBUSY;
+>>
+>>-	ret = virtio_transport_send_skb(skb, vq, vsock);
+>
+>nit: maybe we can add a comment here:
+>        /* GFP_ATOMIC because we are in RCU section, so we can't sleep */
+>>+	ret = virtio_transport_send_skb(skb, vq, vsock, GFP_ATOMIC);
+>>	if (ret == 0)
+>>		virtqueue_kick(vq);
+>>
+>>-- 
+>>MST
+>>
+>
+>I'll run some tests and come back with R-b when it's done.
 
-IMHO a generic solution would be much better. I can't help but feel
-like exposing an arbitrary version to get the module to show up in 
-sysfs is a hack.
+I replicated the issue enabling CONFIG_DEBUG_ATOMIC_SLEEP.
 
-IIUC the list of built in modules is available in
-/lib/modules/*/modules.builtin, the user space can't read that?
+With that enabled, as soon as I run iperf-vsock, dmesg is flooded with 
+those messages. With this patch applied instead everything is fine.
+
+I also ran the usual tests with various debugging options enabled and 
+everything seems okay.
+
+With or without adding the comment I suggested in the previous email:
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
