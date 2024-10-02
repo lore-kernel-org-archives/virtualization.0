@@ -1,136 +1,163 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 668711D0436
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Oct 2024 13:42:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 740D11D0956
+	for <virtualization@lists.linux.dev>; Wed,  2 Oct 2024 14:02:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727876550; cv=none; b=T/Se5FqgpAkMmJ+JGhvi/fDrxDHjNr7MJ0oTwabw/iaJGQYgMVRorQ7ogEdgMe6h7dBDq80LwfyHDPDJVe2ucQLUPzIpzmtLPldM1XA60Iq5SW72KBMbwkgf+T1BSuEkygrEfwxhngsJuYaWiT088qHOyfNQ4ZLKAoHbCsNTgIM=
+	t=1727877739; cv=none; b=LypO0zWXBD+z7nGLtKFGtYHhU4XpHP5dF/qcTKQvdkEhIrpObiP1CRs/jEXDSOlpQMkj5Wo2095rHZjAO7oibu1JkiE2Y3eQLcklPyYmqSXOEsxwcR2CVhPdea4WP/q7cc+CdfcVCno5fdoUNTrUmXD+xfcNGiZ5GKt9WiZXN9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727876550; c=relaxed/simple;
-	bh=vdAKlYOM3etBiXRue4uJvjZIi/kLJzu/QfNFqhk9ZBQ=;
+	s=arc-20240116; t=1727877739; c=relaxed/simple;
+	bh=Frk2jjcDRjJQq7k8VaiE06LgSr0fC3zHmucqxnAwl2s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uGBgfGuFoai0XG+VZWpLgsNQ//ecvC1u/P6nTzW7TI4sIAjRkM6JYGehG9TsGoyc1jkgvbNlgdRzh3lsxmSi4+YeUVsrrXMgnu5RpTrf4x3whvq0M9tB6nDVyQHWgMpdojtJ8SyevzcdRJD85JH2JxHMyidWUWxMOd5D9R4XfM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d47MNorH; arc=none smtp.client-ip=140.211.166.138
+	 In-Reply-To:Content-Type:Content-Disposition; b=mvdFkaGEwt/5wk4Bbj0Y1X8bN8mEZLm7AbKi1+q0aOxErXTrt16QjjvxjcP5TEAIH4cheqZQypBlfJm3RrATi4LbCEyhl79WpDrQypKl7IlFgGQ3v4yvmzwnfrts70ejYlfOsO+MAM4m3BVND6F5jWbx6D8uCdVtYvG/s6wWT9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aw+6It6q; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d47MNorH"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 087ED81397
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Oct 2024 13:42:29 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 6ZnMw9ASkcs4 for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Oct 2024 13:42:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=stefanha@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1508380E77
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1508380E77
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d47MNorH
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1508380E77
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Oct 2024 13:42:27 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aw+6It6q"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727876545;
+	s=mimecast20190719; t=1727877736;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vdAKlYOM3etBiXRue4uJvjZIi/kLJzu/QfNFqhk9ZBQ=;
-	b=d47MNorHD2ybiu+k37Z7e5xXbahpr34VfBj8Z/HmRFiEZC73egnCe+suQAKa1e6rrCkNAK
-	NuJ9dd+vt5I9r3wM1Jvcs7W6Ysghnzhnsa12Q5VnPzgzobCIcJ0TxjW9CXrMdjLQm4CreY
-	9WyfAixVplSYpdS8J2IK5j9EnC6S7Ow=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-338-2d7h7rZBMfSDFeQxRVUrYQ-1; Wed,
- 02 Oct 2024 09:42:22 -0400
-X-MC-Unique: 2d7h7rZBMfSDFeQxRVUrYQ-1
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 545621955F3C;
-	Wed,  2 Oct 2024 13:42:20 +0000 (UTC)
-Received: from localhost (unknown [10.2.16.122])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 417931956088;
-	Wed,  2 Oct 2024 13:42:19 +0000 (UTC)
-Date: Wed, 2 Oct 2024 09:42:17 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Daniel Verkamp <dverkamp@chromium.org>
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, mst@redhat.com,
-	virtualization@lists.linux-foundation.org,
-	virtio-dev@lists.linux.dev, oren@nvidia.com, parav@nvidia.com
-Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
-Message-ID: <20241002134217.GA1362405@fedora.redhat.com>
-References: <20240925145228.27953-1-mgurtovoy@nvidia.com>
- <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
- <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com>
- <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
- <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com>
- <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
+	bh=bkyE5n67+2FhEmvlc1Gz1kCYfCQ3DT7+FsW83fvB9to=;
+	b=aw+6It6qldUij9aDb26yTDIBCo3YbW9zHZORyRDFTch9hGhKGF4z/SPvug6LHfTdW4Ha3a
+	JCAbcORal/aYQ+ziWO/1tOkQ1cuKjfBRFa6+/yZoTDGOx2gNiMIf5wC4qfLnW8wcJga0j0
+	DJ0GqHx7tp7vbsPYLUqVjx6dLKEl5wM=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-277-_92sLhxHOpuTVDhQr_IXLw-1; Wed, 02 Oct 2024 10:02:15 -0400
+X-MC-Unique: _92sLhxHOpuTVDhQr_IXLw-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a93d0b27d37so33161766b.0
+        for <virtualization@lists.linux.dev>; Wed, 02 Oct 2024 07:02:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727877733; x=1728482533;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bkyE5n67+2FhEmvlc1Gz1kCYfCQ3DT7+FsW83fvB9to=;
+        b=QNPLiHPe6fDzyF0HJiq5iMRRyx4CxD9U44EXxTdTyA4NON5r1XMo3d9KlAHmTCzQKe
+         yaKJ/PKTG4itMZsY4n8uT6t61YbL8jT9l0f2gO5Q4xmCWEzrTBFP5bqPTrq4ewJgEXDu
+         8ERaZBltL75QsvxvCzmMHiarSopt7uIQvaYvfO0sJ/tT+TCJ+3LQL4z02d1x9/6Sr/O/
+         D0UceImMwo927KZgctAArAfLG4ZgMJsVbp2QeWWDz+HjI1pMVVYe36/iy2AXmq7uA/zf
+         b0so49WF8+M759+iShyStMvP+UMR2rBDoPrmtOmdXSYLZrb27x0VGkxgEg6hTxpkeTrl
+         m90Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVFrq/AGLRM4PpOdb3R7mLkxIBsM2G3dt0oeHGE/1easEX4eaxdywcQwHRrg/w1tEe0BgCNpLGsMoi9rkEjlQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxxZZ/vsUWXT2w6gj745Q9NZ91WSE6wM0Ku2J8MA5wZft5/nJ6a
+	bebXoykmCmzXQWUaZXjwhYqJu2zOrvvM6W0SB7ok0s7iIJ1Frr05X+WMe2dwSFbmGsBLYPt72g+
+	ud9UejdpMwD8Gkt3997/SC/udFws2qJK+GeQggsPOT7F8oe7SeL57japk/CWM0Oux
+X-Received: by 2002:a17:907:7ba1:b0:a7d:e956:ad51 with SMTP id a640c23a62f3a-a98f82450b8mr290197066b.21.1727877732693;
+        Wed, 02 Oct 2024 07:02:12 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGelE8fxwK/xwgNE2Rv74byuFA2F7hxuFV/ZEUjU6Gi3oxGwmQvv3Bi4arRb61wV4RR9t3zOw==
+X-Received: by 2002:a17:907:7ba1:b0:a7d:e956:ad51 with SMTP id a640c23a62f3a-a98f82450b8mr290190266b.21.1727877731869;
+        Wed, 02 Oct 2024 07:02:11 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c299aca5sm873146366b.224.2024.10.02.07.02.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Oct 2024 07:02:11 -0700 (PDT)
+Date: Wed, 2 Oct 2024 16:02:06 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Christian Brauner <brauner@kernel.org>, 
+	Luigi Leonardi <luigi.leonardi@outlook.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Marco Pinna <marco.pinn95@gmail.com>, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] vsock/virtio: use GFP_ATOMIC under RCU read lock
+Message-ID: <jfajjomq7wla2gf2cf2zwzyslxmnnrkxn6kvewwkexqwig52b4@fwh5mtjcdile>
+References: <3fbfb6e871f625f89eb578c7228e127437b1975a.1727876449.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="/GfPDIWRVRf+fPhY"
+In-Reply-To: <3fbfb6e871f625f89eb578c7228e127437b1975a.1727876449.git.mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
+On Wed, Oct 02, 2024 at 09:41:42AM GMT, Michael S. Tsirkin wrote:
+>virtio_transport_send_pkt in now called on transport fast path,
+>under RCU read lock. In that case, we have a bug: virtio_add_sgs
+>is called with GFP_KERNEL, and might sleep.
+>
+>Pass the gfp flags as an argument, and use GFP_ATOMIC on
+>the fast path.
+>
+>Link: https://lore.kernel.org/all/hfcr2aget2zojmqpr4uhlzvnep4vgskblx5b6xf2ddosbsrke7@nt34bxgp7j2x
+>Fixes: efcd71af38be ("vsock/virtio: avoid queuing packets when intermediate queue is empty")
+>Reported-by: Christian Brauner <brauner@kernel.org>
+>Cc: Stefano Garzarella <sgarzare@redhat.com>
+>Cc: Luigi Leonardi <luigi.leonardi@outlook.com>
+>Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>---
+>
+>Lightly tested. Christian, could you pls confirm this fixes the problem
+>for you? Stefano, it's a holiday here - could you pls help test!
 
---/GfPDIWRVRf+fPhY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure, thanks for the quick fix! I was thinking something similar ;-)
 
-On Mon, Sep 30, 2024 at 06:45:23PM -0700, Daniel Verkamp wrote:
-> From my point of view, it would be fine to clarify a few things:
-> - blk_size should (not must) be the logical block size of the
-> underlying storage device
-> - data should (not must) be a multiple of blk_size for best performance
->=20
-> And maybe:
-> - devices may choose to return IOERR if a driver submits an I/O
-> request that does not conform to the above recommendations (but this
-> conflicts with the "performance"-related wording that exists now)
+>Thanks!
+>
+>
+> net/vmw_vsock/virtio_transport.c | 8 ++++----
+> 1 file changed, 4 insertions(+), 4 deletions(-)
+>
+>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>index f992f9a216f0..0cd965f24609 100644
+>--- a/net/vmw_vsock/virtio_transport.c
+>+++ b/net/vmw_vsock/virtio_transport.c
+>@@ -96,7 +96,7 @@ static u32 virtio_transport_get_local_cid(void)
+>
+> /* Caller need to hold vsock->tx_lock on vq */
+> static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+>-				     struct virtio_vsock *vsock)
+>+				     struct virtio_vsock *vsock, gfp_t gfp)
+> {
+> 	int ret, in_sg = 0, out_sg = 0;
+> 	struct scatterlist **sgs;
+>@@ -140,7 +140,7 @@ static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+> 		}
+> 	}
+>
+>-	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
+>+	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, gfp);
+> 	/* Usually this means that there is no more space available in
+> 	 * the vq
+> 	 */
+>@@ -178,7 +178,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+>
+> 		reply = virtio_vsock_skb_reply(skb);
+>
+>-		ret = virtio_transport_send_skb(skb, vq, vsock);
+>+		ret = virtio_transport_send_skb(skb, vq, vsock, GFP_KERNEL);
+> 		if (ret < 0) {
+> 			virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, skb);
+> 			break;
+>@@ -221,7 +221,7 @@ static int virtio_transport_send_skb_fast_path(struct virtio_vsock *vsock, struc
+> 	if (unlikely(ret == 0))
+> 		return -EBUSY;
+>
+>-	ret = virtio_transport_send_skb(skb, vq, vsock);
 
-QEMU's virtio-blk implementation returns IOERR when the driver submits
-VIRTIO_BLK_T_IN/VIRTIO_BLK_T_OUT requests that are not aligned to the
-logical block size:
-https://gitlab.com/qemu-project/qemu/-/blob/master/hw/block/virtio-blk.c#L3=
-67
+nit: maybe we can add a comment here:
+         /* GFP_ATOMIC because we are in RCU section, so we can't sleep */
+>+	ret = virtio_transport_send_skb(skb, vq, vsock, GFP_ATOMIC);
+> 	if (ret == 0)
+> 		virtqueue_kick(vq);
+>
+>-- 
+>MST
+>
 
-Although I interpret the virtio-blk spec in the same way as you
-(blk_size is just a hint for optimal performance), I guess in practice
-drivers align requests to blk_size.
+I'll run some tests and come back with R-b when it's done.
 
-Adding a note that devices may return IOERR is worthwhile. It will tell
-driver authors not to expect device implementations to accept misaligned
-requests.
-
-Stefan
-
---/GfPDIWRVRf+fPhY
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmb9TbkACgkQnKSrs4Gr
-c8hVXwf/XRz+4IQYbND7w3zKaqA2UAKcd0tOkCNArVI/HjDh9w2iwGRJbpJYyfU7
-5uU4pebhzlOU4jXQ1lpeYUgC5cCOa6bqb7SgGkJi1eDlgCNP1nTfSdo+6t9GfNe9
-yo7Ue+E/2GsyyPDRJOheDuZ9J4CuZke3nSegR9+HwoVYYrPcbN4OaW53KwAtA45v
-epkUJwfkKgqvPtwH98Y3bz9ZH/6t/AnC86OMrmUcMYnIFQAGO3kkY56uUWpdy7AL
-bDFt3TjGf4D9EqtNPPZ2upoU0OBg0sxrmV6Fx0LUhUbZVgSA31U2DnQ+Ns32FT6h
-x/kJlNxseGdYlOs4RuG5cKqACAQ5UA==
-=wAnB
------END PGP SIGNATURE-----
-
---/GfPDIWRVRf+fPhY--
+Thanks,
+Stefano
 
