@@ -1,127 +1,154 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2A2919F403
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Oct 2024 23:56:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C216211CA0
+	for <virtualization@lists.linux.dev>; Thu,  3 Oct 2024 01:34:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727913406; cv=none; b=tOmanUrkMXTGvsjnDVywD94zaFXCoZFcFOrjT2sPbILZZDifxCjBeUddCuKgg9qyG4TNaDcIhA1n8TWkPe/CXy88XYlkUU1DczZrIcIOvam4VJw3Tonikp3BdanQ/YtsHCwL8/ZtVXnnJFcYwskRMyJqWRsTA2g6gKV6ycy3+ec=
+	t=1727919267; cv=none; b=SOjOZ0lL2DEWzNgu2K9v7tBPaU6fefvam4uOsVTwxjiZTjtBOupeLg1HlQgCQjyU/q4t2MIBZlCl2MF80A35B+yB2pXXNo4Sdf01O/JhLzDWzRQLCxs06sIXEDj8kghF1a/V6WkFgkdlhur3ohB/J8uk9QuiRN+lgDK+Z+AXZCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727913406; c=relaxed/simple;
-	bh=TkWmaNjobsczGTdIkYhn5D1IoEQfdT3pZ7qtwt0+v94=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PVtIoEObdPl7aSD0w25VnIlkkMZpeU/d96LpnHA+FxpGEJqy/kgPS1WV44dka18yrRke3AHKbmocvuNQLrVDTlevvVb0YLPHoAe0ehWcPo4JCf6gGonKu+/VpIvhU6P+scR7/5YnVrocTaouOlK1hHe9Ydyt8/dPJCujxp7oSpE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=CKv2HoHI; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1727919267; c=relaxed/simple;
+	bh=mmaUrN4Dm30mlJAYCNKceu7BnMA5aMALOTE+YcITCc8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fgimYRNvm3FZvjR31zpLsHXMpPIE/6pGtKUYN3UOy2FzapdL74FYtpLSAt7+BNHpm8bWBtKdMkkYodb1q1UP5oUjC+rweV02AS8t8LIvg9mSxH/vsDV/19Zb/Hr2cOc/e+ex3+aYnN38SJzeDGEr4cMVU75nGTet4tQgGjI/0VY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PN7q2093; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="CKv2HoHI"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5C974406EC
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Oct 2024 23:56:44 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 4seTy5bdt5Hw for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Oct 2024 23:56:43 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::635; helo=mail-ej1-x635.google.com; envelope-from=dverkamp@chromium.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org D493E4011A
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D493E4011A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=CKv2HoHI
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D493E4011A
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Oct 2024 23:56:42 +0000 (UTC)
-Received: by mail-ej1-x635.google.com with SMTP id a640c23a62f3a-a90deec0f8bso4944166b.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 02 Oct 2024 16:56:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PN7q2093"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a8d51a7d6f5so46327966b.2
+        for <virtualization@lists.linux.dev>; Wed, 02 Oct 2024 18:34:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1727913400; x=1728518200; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1727919263; x=1728524063; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TkWmaNjobsczGTdIkYhn5D1IoEQfdT3pZ7qtwt0+v94=;
-        b=CKv2HoHI3p9u/kkuIy5S93CpZRpAxO/cS+kubSFFhhES9hHaPFiRziXnaaEQhmRrF0
-         6AE7P+EC+AmCw8b+UnVGfx3iw34wAelcar2ht0P+AITPDaVvhnlF0TIpDXGpPbSP+S6Z
-         qiZy+fh2sS2notrt+h7peJ0Fz3UCQecwOCsgQ=
+        bh=DV7X6w6WEiEDmMlQq+ioS4yyvRQLrPkx+bFuOa+5sxo=;
+        b=PN7q2093Ik3R+RJS4BDzxGr/rZDod7/9x3a8mIWhm/EVBt3bsLRqOdQSkp+KJMPcGN
+         BEEJGviKrPR1b7K7BSuc3sD3eLnnpGYc9UP8c9u3v5vxJPoMW+wbbzRrUnVKQn/UK9XP
+         xKn5SRq/KJBSOQi5ZOjif6rWVbQi59Sq+4DGMEOvBnaSj6QqDdhEQmKQPxLi8/2fDaZA
+         KY/cbUD7f+v4s+aOno5/o0D3okugw9Q29P95JMahwFT3QbjYhl4Qy16zfgkidGyQ5f6N
+         GgjSirOBNmpjMM+IJSFKUcVcMvDoL1kFjVLz/zyR51rMt97jNiZP2YO8yfvWdPy66N3u
+         feWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727913400; x=1728518200;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1727919263; x=1728524063;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=TkWmaNjobsczGTdIkYhn5D1IoEQfdT3pZ7qtwt0+v94=;
-        b=dCwOmI6s+ssiB1nUQx5f2B2evqu7k0Q5mat5WdsLdan//EDobgwCS1BQw7YIUPRjOS
-         FBBI5ir0lmqznm5Vaqf7gIklQYg3Cwls4YJClaSomGRYEWfHaLCqT2NsZwhEY37aNlF4
-         muv7hvo8xS1lkFfoPQkWpTpGkl8wHTmax4X3pKFeKGUuKH67z+8IKhFnw4O+z/U7pmNb
-         NO29Kt/b5e8/NRTGR/Z9WpNoxAKVJM3Fa+/PddpH4XUIc3okSLoMQ9dXNJs32N2Lj9bd
-         44K2D9vskuRZKsR7i59Z6m7RcBawoQnt2zdQTiHLSGM0016/jv/jmNnR8Hw3FmzZkwJX
-         0CKA==
-X-Forwarded-Encrypted: i=1; AJvYcCWsSNc2P2Mv4rW/ITEeNMbX0MC5YPfHqrztOE1d0UNXWkwrRmWdplybqzLA3B95+jg9ZdhsVB28dzIvOezauQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzNiG2dwMM0G4ya0gpwsBmS1oY4ZZ1qC2xnxd4itXqyZG/6yiyF
-	10wJk67jTD4WHg5xeTAFssx7Af55JYlEssnTMKDbDQyC6zCxULUlL6UcW+pBWn+7Bo9ulwWjElk
-	=
-X-Google-Smtp-Source: AGHT+IEbSYxqUSJNHFAvxbFIRZK3dA8v7RCQC17QzG4FExcl/bXbTwBGESNIHRc2fkdGt7DSuhkE7A==
-X-Received: by 2002:a05:6402:35c6:b0:5c2:6850:7b2 with SMTP id 4fb4d7f45d1cf-5c8b1b7a6cdmr1506429a12.6.1727913400461;
-        Wed, 02 Oct 2024 16:56:40 -0700 (PDT)
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com. [209.85.218.49])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c8ca4f7075sm16042a12.95.2024.10.02.16.56.38
-        for <virtualization@lists.linux-foundation.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Oct 2024 16:56:39 -0700 (PDT)
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-a8d3cde1103so31719466b.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 02 Oct 2024 16:56:38 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUqmzlv1mU4bqqw9uKcJZ1l1PiPOlddQg3Vnabr/jd1SfNQg4fpKaFKALRqlceEMqUgEZgQoohPnRWs5AHP9Q==@lists.linux-foundation.org
-X-Received: by 2002:a17:907:7fa7:b0:a8a:8cdb:838c with SMTP id
- a640c23a62f3a-a98f838aa6emr496483866b.53.1727913397985; Wed, 02 Oct 2024
- 16:56:37 -0700 (PDT)
+        bh=DV7X6w6WEiEDmMlQq+ioS4yyvRQLrPkx+bFuOa+5sxo=;
+        b=JI38ugh966Zz2na4Hn2agZbJclLOk7S9+xo1X0A/QCTNuwzQ+bcf0rYO8ARDXq4NkT
+         qcVr2fKSt0hMQY1CUbG0lpj9EsOwikWKGMks1V2qqNtDAg3kAE3Uw2tdfnOfCaCPvePn
+         TgntsLyhy0R6i+X1jhewK73WpSzjohDQ32LVZD+gbqNbEbSZqyiR3o5GTPOvMu5tF5ic
+         dawtSYCJUUUHwWrsSGK2h++zyOTg0CaMunQgQdYLabuaBCQH/2/E3MvyD0Z9pPGnog15
+         ce0/Ygck7X9t/Cj2Re1Vl3dFn1DhL27MW4BR31+ruyjUWYbqv6qjSE79T/zqqvf8Lyue
+         WUVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWS5uhcNCYUVHAByzFQMCB6Q9afbaAxI77mYcspWSQ46L8FUlmMk2gjuyHHb5UgNLMeaig9oBGMb8G4ga5XfQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz088BUqLCXwuI2EPtRHeqSEYHDRsIArtuKnjbP2BbNYOMEKtc0
+	1BrLh2r6XIgznbrnovud4+Fq9Ep1d4ZNxzqNpo4bM4DBBEzRVwC3v5L9nCha
+X-Google-Smtp-Source: AGHT+IEKU7TVq9K/bpf9fJy/0UOluYJcI2o5/6s1Yf9hUvaOWNNvq2hKSdZJYqbq5oGEnlxqZMVegQ==
+X-Received: by 2002:a17:906:4fd4:b0:a8d:3338:a497 with SMTP id a640c23a62f3a-a98f8216ce5mr439831066b.4.1727919262819;
+        Wed, 02 Oct 2024 18:34:22 -0700 (PDT)
+Received: from fedora.. ([151.29.146.144])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a99104d2863sm5688566b.220.2024.10.02.18.34.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Oct 2024 18:34:21 -0700 (PDT)
+From: Luigi Leonardi <luigix25@gmail.com>
+X-Google-Original-From: Luigi Leonardi <luigi.leonardi@outlook.com>
+To: mst@redhat.com
+Cc: brauner@kernel.org,
+	davem@davemloft.net,
+	edumazet@google.com,
+	eperezma@redhat.com,
+	jasowang@redhat.com,
+	kuba@kernel.org,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	luigi.leonardi@outlook.com,
+	marco.pinn95@gmail.com,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	sgarzare@redhat.com,
+	stefanha@redhat.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH] vsock/virtio: use GFP_ATOMIC under RCU read lock
+Date: Thu,  3 Oct 2024 03:33:53 +0200
+Message-ID: <20241003013353.116203-1-luigi.leonardi@outlook.com>
+X-Mailer: git-send-email 2.46.1
+In-Reply-To: <3fbfb6e871f625f89eb578c7228e127437b1975a.1727876449.git.mst@redhat.com>
+References: <3fbfb6e871f625f89eb578c7228e127437b1975a.1727876449.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240925145228.27953-1-mgurtovoy@nvidia.com> <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
- <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com> <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
- <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com> <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
-In-Reply-To: <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
-From: Daniel Verkamp <dverkamp@chromium.org>
-Date: Wed, 2 Oct 2024 16:56:10 -0700
-X-Gmail-Original-Message-ID: <CABVzXAmxuVngKjNvc9AsnkuNcOK+7JeEuBE9CDaMxAA=b3f=fw@mail.gmail.com>
-Message-ID: <CABVzXAmxuVngKjNvc9AsnkuNcOK+7JeEuBE9CDaMxAA=b3f=fw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, 
-	stefanha@redhat.com, virtio-dev@lists.linux.dev, oren@nvidia.com, 
-	parav@nvidia.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Sep 30, 2024 at 6:45=E2=80=AFPM Daniel Verkamp <dverkamp@chromium.o=
-rg> wrote:
-> On Wed, Sep 25, 2024 at 4:42=E2=80=AFPM Max Gurtovoy <mgurtovoy@nvidia.co=
-m> wrote:
-[...]
-> > I'm curious if you've encountered any actual implementations where
-> > drivers send non-block-size-aligned requests to block devices. I never
-> > saw such implementation.
+> Link: https://lore.kernel.org/all/hfcr2aget2zojmqpr4uhlzvnep4vgskblx5b6xf2ddosbsrke7@nt34bxgp7j2x
+> Fixes: efcd71af38be ("vsock/virtio: avoid queuing packets when intermediate queue is empty")
+> Reported-by: Christian Brauner <brauner@kernel.org>
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+> Cc: Luigi Leonardi <luigi.leonardi@outlook.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
 >
-> I don't know of any real-world implementations like this, but the
-> point of the spec is to allow interoperability without having to know
-> about every implementation.
+> Lightly tested. Christian, could you pls confirm this fixes the problem
+> for you? Stefano, it's a holiday here - could you pls help test!
+> Thanks!
+>
+>
+>  net/vmw_vsock/virtio_transport.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index f992f9a216f0..0cd965f24609 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -96,7 +96,7 @@ static u32 virtio_transport_get_local_cid(void)
+>
+>  /* Caller need to hold vsock->tx_lock on vq */
+>  static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+> -				     struct virtio_vsock *vsock)
+> +				     struct virtio_vsock *vsock, gfp_t gfp)
+>  {
+>  	int ret, in_sg = 0, out_sg = 0;
+>  	struct scatterlist **sgs;
+> @@ -140,7 +140,7 @@ static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+>  		}
+>  	}
+>
+> -	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
+> +	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, gfp);
+>  	/* Usually this means that there is no more space available in
+>  	 * the vq
+>  	 */
+> @@ -178,7 +178,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+>
+>  		reply = virtio_vsock_skb_reply(skb);
+>
+> -		ret = virtio_transport_send_skb(skb, vq, vsock);
+> +		ret = virtio_transport_send_skb(skb, vq, vsock, GFP_KERNEL);
+>  		if (ret < 0) {
+>  			virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, skb);
+>  			break;
+> @@ -221,7 +221,7 @@ static int virtio_transport_send_skb_fast_path(struct virtio_vsock *vsock, struc
+>  	if (unlikely(ret == 0))
+>  		return -EBUSY;
+>
+> -	ret = virtio_transport_send_skb(skb, vq, vsock);
+> +	ret = virtio_transport_send_skb(skb, vq, vsock, GFP_ATOMIC);
+>  	if (ret == 0)
+>  		virtqueue_kick(vq);
+>
+> --
+> MST
+>
+>
 
-I did find at least one existing real-world driver implementation that
-ignores blk_size and VIRTIO_BLK_F_BLK_SIZE - the u-boot virtio-blk
-driver: https://github.com/u-boot/u-boot/blob/master/drivers/virtio/virtio_=
-blk.c
+Thanks for fixing this!
 
-So this is not just spec language lawyering; this driver depends on
-the ability to read/write at arbitrary 512-byte sector addresses and
-data sizes, and it seems like it should be allowed to do that based on
-my reading of the spec.
+I enabled CONFIG_DEBUG_ATOMIC_SLEEP as Stefano suggested and tested with and
+without the fix, I can confirm that this fixes the problem.
 
-(Perhaps u-boot's driver does not work with the QEMU's virtio-blk
-device with certain storage configurations, per Stefan's note, but
-that is again just one device implementation.)
-
--- Daniel
+Reviewed-by: Luigi Leonardi <luigi.leonardi@outlook.com>
