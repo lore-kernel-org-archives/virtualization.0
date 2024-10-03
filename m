@@ -1,146 +1,85 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C50D1A2569
-	for <virtualization@lists.linux.dev>; Thu,  3 Oct 2024 15:29:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB09D1A38D9;
+	Thu,  3 Oct 2024 15:32:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727969361; cv=none; b=eO3xwvD7fc809Fm7yy4hFpkRu2A+HAmXM/TUkOQm3q99v+nKhzx4ScuMjmQpOLu+ufC1vh/KJd+9g64nGeuWxEp9ZKBbeYm6M/nu5iA/OLlD1+pXXQyRoYK0lQx9MTmKjPyEbr4B7zyZhhQwJeRyhD1I1uslbZeGY5CVjsMezKA=
+	t=1727969561; cv=none; b=NNsl3C5LoNE7iEoxFsId22LG8ey44Y7cwvgopUjy/DXJtHaSa95g5tzbxvvpgI6T0UR472iLXQydSYy9CvzPMSgssIQu+jky3wK9v7E1WDuCjZTB0lOmYJguiGL6pBgb0LKp3krwXsJZl2jFcoMZrZ93oNjXSHJ9UuhcKGnBrK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727969361; c=relaxed/simple;
-	bh=YvquIwwg5/j4zuorAq7NmB4oxpw4k5D2MxcNq7+7jVA=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WMhBaca5X2YRjUX8L/c0wSHsTJvc+vODEbEXuj4v7Gh6af+boL2/UuTnYz+kDW7HuJkxn0QzFyENBqwezkpYySerOuWlFq6VMahLnvNPcixmPO3NKd3lYKtMu0Hwosk31lVka2eM7FSefiYAMkSTJKUl93QU/cMwZzxKWINRoYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kuMVv3oV; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1727969561; c=relaxed/simple;
+	bh=9krKfD2PPE4Bo0Oxq5l3JAozLfSecSk+reEbBJesV8Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZnKkCaHcdCVbruNT7e+HA/fCi99GhAAzRMcBeLwY6DBynsTfoshLR4CZgKDfBsgqWbmkN+ALZrLxO+bFC+FdngJnwoXkZHbzCv9mQCPiZD3P3DG5yZaZYuu71QySqw3g22XuhxNzHmbZ01l90AqaW769i5COEEmVgI+OtsB06Qc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ccJ1/wKN; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kuMVv3oV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1727969359; x=1759505359;
-  h=date:from:to:subject:message-id:references:mime-version:
-   content-transfer-encoding:in-reply-to;
-  bh=YvquIwwg5/j4zuorAq7NmB4oxpw4k5D2MxcNq7+7jVA=;
-  b=kuMVv3oV8G7edPznipQyHxg75FCx3GOh4uL/DIomV8EC1LroedBsnAxe
-   RP3fUHZIo8HskIcqa3ta1Xpg0Atly9UGs1Sr8igfWCyrxRNqXCTJkZQ7n
-   peglNbDgp/edKzSttcbyJ4mT6sBFNyiionHVLQDVbrQqMpXieLSohwNAj
-   64G4lqR0tArBBad10HGKHKs8UQjnwDdGNdGabycRlq/4ofE+pLi1KOeLu
-   3kp8pwupgpcWuLE0jxhL6qn3El7GozCWyUadc1H+YbU6FSlghT0wsPmnO
-   3YlQLnp6ydfMybYst1E96AvZgHYAgNElRk0nEvRsBS4568Dh0TleNeAmz
-   A==;
-X-CSE-ConnectionGUID: EBWlwTbjTQ2G8WLTjODSEw==
-X-CSE-MsgGUID: IFGZa4rAT4un2tsc0ddxFQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11214"; a="26680405"
-X-IronPort-AV: E=Sophos;i="6.11,174,1725346800"; 
-   d="scan'208";a="26680405"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Oct 2024 08:29:18 -0700
-X-CSE-ConnectionGUID: R4ZdAm2cSWCWdcBvo+HW5w==
-X-CSE-MsgGUID: Rg93cpzSR3e/8YcpWOq3jg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,174,1725346800"; 
-   d="scan'208";a="74496623"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.74])
-  by fmviesa008.fm.intel.com with SMTP; 03 Oct 2024 08:29:11 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 03 Oct 2024 18:29:10 +0300
-Date: Thu, 3 Oct 2024 18:29:10 +0300
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To: dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-	Liviu Dudau <liviu.dudau@arm.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Inki Dae <inki.dae@samsung.com>,
-	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Sandy Huang <hjc@rock-chips.com>, Jyri Sarha <jyri.sarha@iki.fi>,
-	Alexey Brodkin <abrodkin@synopsys.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?iso-8859-1?Q?Ma=EDra?= Canal <mairacanal@riseup.net>,
-	Zack Rusin <zack.rusin@broadcom.com>, amd-gfx@lists.freedesktop.org,
-	linux-mediatek@lists.infradead.org,
-	linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org,
-	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
-	linux-renesas-soc@vger.kernel.org, xen-devel@lists.xenproject.org
-Subject: Re: [PATCH 2/2] drm: Move crtc->{x, y, mode, enabled} to legacy
- sub-structure
-Message-ID: <Zv64RktMPv2rpCZf@intel.com>
-References: <20241002182200.15363-1-ville.syrjala@linux.intel.com>
- <20241002182200.15363-3-ville.syrjala@linux.intel.com>
- <Zv6QF2EmIcogtlLA@louis-chauvet-laptop>
- <Zv6gSGMXZZARf3oV@intel.com>
- <Zv6zN7Go_XG44P2-@louis-chauvet-laptop>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ccJ1/wKN"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=gwLKYGbX8kM5rFaC+/BTnEzd1qTUuvtYb4wOOvMU0n4=; b=ccJ1/wKNEyJiwkrzQVvGKBTQPK
+	QLWmqMcu8NOVBTbshrR6uF4MOd76489SBKFz2VcAT7BAj2RJtUaArZ/c+CGyg2CpMeA77BlTcadkC
+	XDtOy8IqwKq6lEzHXtWFzApu4tEXvSO/IAJX0O9jQZJ/YMKuGtSIbX+kFs8JAQqgTCgYRunDiKYZ7
+	dagD07u/itdHwSXq5gQWYYUS4VIKHrYMI2b+Op0K89m+coTECYuPeqsVChvvgxBTAeljRxXu3FWn9
+	8mk7xsXxhMxMqs4Qae9x+UsKDYE2Hz/AobF465Ouowmv2fnig/8pZBRpEAlxbaO5xHDzExWwXqObw
+	5KSLEZyw==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1swNoe-00000003iIp-0LWh;
+	Thu, 03 Oct 2024 15:32:32 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 1AC4130083E; Thu,  3 Oct 2024 17:32:31 +0200 (CEST)
+Date: Thu, 3 Oct 2024 17:32:31 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Breno Leitao <leitao@debian.org>
+Cc: gregkh@linuxfoundation.org, pmladek@suse.com, mst@redhat.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, kuba@kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, vschneid@redhat.com, axboe@kernel.dk
+Subject: Re: 6.12-rc1: Lockdep regression bissected
+ (virtio-net/console/scheduler)
+Message-ID: <20241003153231.GV5594@noisy.programming.kicks-ass.net>
+References: <20241003-savvy-efficient-locust-ae7bbc@leitao>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Zv6zN7Go_XG44P2-@louis-chauvet-laptop>
-X-Patchwork-Hint: comment
+In-Reply-To: <20241003-savvy-efficient-locust-ae7bbc@leitao>
 
-On Thu, Oct 03, 2024 at 05:07:35PM +0200, Louis Chauvet wrote:
+On Thu, Oct 03, 2024 at 07:51:20AM -0700, Breno Leitao wrote:
+> Upstream kernel (6.12-rc1) has a new lockdep splat, that I am sharing to
+> get more visibility:
 > 
-> > > > diff --git a/drivers/gpu/drm/vkms/vkms_crtc.c b/drivers/gpu/drm/vkms/vkms_crtc.c
-> > > > index a40295c18b48..780681ea77e4 100644
-> > > > --- a/drivers/gpu/drm/vkms/vkms_crtc.c
-> > > > +++ b/drivers/gpu/drm/vkms/vkms_crtc.c
-> > > > @@ -64,7 +64,7 @@ static int vkms_enable_vblank(struct drm_crtc *crtc)
-> > > >  	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
-> > > >  	struct vkms_output *out = drm_crtc_to_vkms_output(crtc);
-> > > >  
-> > > > -	drm_calc_timestamping_constants(crtc, &crtc->mode);
-> > > > +	drm_calc_timestamping_constants(crtc, &crtc->legacy.mode);
-> > > 
-> > > 	drm_calc_timestamping_constants(crtc, &crtc->state->mode);
-> > 
-> > This one doesn't look safe. You want to call that during your atomic
-> > commit already.
-> > 
+> 	WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
 > 
-> This was already not safe with the previous implementation? Or it is only 
-> unsafe because now I use state->mode instead of legacy.mode?
-
-Yeah, if you want to look at obj->state then you need the corresponding
-lock.
-
-obj->state is also not necessarily the correct state you want because
-a parallel commit could have already swapped in a new state but the
-hardware is still on the old state.
-
-Basically 99.9% of code should never even look at obj->state, and
-instead should always use the for_each_new_<obj>_in_state()
-and drm_atomic_get_new_<obj>_state() stuff. Currently that is a
-pipe dream though because a lot of drivers haven't been fixed to
-do things properly. If we ever manage to fix everything then we
-could remove the stall hacks from drm_atomic_helper_swap_state()
-and allow a commit pipeline of arbitrary length.
-
+> This is happening because the HARDIRQ-irq-unsafe "_xmit_ETHER#2" lock is
+> acquired in virtnet_poll_tx() while holding the HARDIRQ-irq-safe, and
+> lockdep doesn't like it much.
 > 
-> After inspecting the code, I think I don't need to call it as:
+> I've bisected the problem, and weirdly enough, this problem started to
+> show up after a unrelated(?) change in the scheduler:
 > 
-> In `vkms_atomic_commit_tail` (used in 
-> `@vkms_mode_config_helpers.atomic_commit_tail`), we call 
-> `drm_atomic_helper_commit_modeset_disables`, which call 
-> `drm_atomic_helper_calc_timestamping_constants` which call 
-> `drm_calc_timestamping_constants` for every CRTC.
-
-Slightly odd place for it, but I think that's just because it was
-originally part of drm_atomic_helper_update_legacy_modeset_state()
-and I didn't bother looking for a better home for it when I split
-it out. But seems like it should work fine as is.
-
+> 	52e11f6df293e816a ("sched/fair: Implement delayed dequeue")
 > 
-> I tested kms_vblank, all of them are SUCCESS/SKIP, do you know other tests 
-> that can trigger bugs?
+> At this time, I have the impression that the commit above exposed the
+> problem that was there already.
+> 
+> Here is the full log, based on commit 7ec462100ef91 ("Merge tag
+> 'pull-work.unaligned' of git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs")
 
-You would explicitly have to race commits against vblank_enable.
-Could of course sprinkle sleep()s around to widen the race window
-if you're really keen to hit it.
+This looks like the normal lockdep splat you get when the scheduler does
+printk. I suspect you tripped a WARN, but since you only provided the
+lockdep output and not the whole log, I cannot tell.
 
--- 
-Ville Syrjälä
-Intel
+There is a fix in:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git sched/urgent
+
+that might, or might not help. I can't tell.
