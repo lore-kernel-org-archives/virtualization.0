@@ -1,151 +1,104 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B5E8288C
-	for <virtualization@lists.linux.dev>; Fri,  4 Oct 2024 07:54:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B40613C9A6
+	for <virtualization@lists.linux.dev>; Fri,  4 Oct 2024 08:13:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728028452; cv=none; b=GwTtDBcG7GtVCM1yILkAbNWX6I2vT+vKyoDHMiEfKDh+6G6GaQXv2UTdo51h0w5BCA8/BOFqU7IDq/mJQt88qrq565fRdSFFOGzZApkpoju/7MgUAucFAEQ8de1//QMIdR9VySfCiuoSahSFJJOaCPLCgst/cyAxXJCJUC37vkc=
+	t=1728029615; cv=none; b=ok9iZwO7OGmcxwYgqSxr0ypt5kMfm+mGIFN8+rPQMhZLgk3Xk+jlvq3I8mdnttBI8hYdtb1dyK3/H82x4QbBuJmsbrigwJP0rLGQIIdp0stUNcgj/YJUAGB6HqQHppKPgeb0YzXr9N6jxi01675O4vYL9SNBKKXzjyMDh7MXq2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728028452; c=relaxed/simple;
-	bh=mbcJ3CE89C2ypXaSLxmn3Vh8L6Upmdt4Ljp6eOIob5A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rZa6aV/coqyew1aPKJjSNYD6EFLy/3EhGLdCbC7CBwincgf0pvmr02jT9cmAQ5hiJhXl5d8bCUT3E4vXhEPfhNskIO4npeaGishtTDH73qd/kRqdQizW5vrQQ09JK2umdg7PVj34K+Ezo9OyijzyElQ5zs2ZXXRk02fYJj9jeHQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VuWOYsPf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mIf5NIsa; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VuWOYsPf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mIf5NIsa; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1728029615; c=relaxed/simple;
+	bh=E/PEMchp08iifpW6j1+EEBnfAdnnGwBHV2UTDOpXHCM=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=smxRmK6Cot/EkPj0sgvtjjEtaHpWQkPmSCjYMaHCr0M4DQMVyG4fGJcyatX4mpuq++16Lqplg/RAlr9f/tVpceR/FIwGgjNQcdhDV8oTVwmUFNvC4Zf9ba8F3+AW5iZtpRaqvnA7Mtuo+nAqSRVxKdsG7pa4uE92WjP0Suv/qOA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Zmzu3w50; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VuWOYsPf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mIf5NIsa";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VuWOYsPf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mIf5NIsa"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id A66B321DC1;
-	Fri,  4 Oct 2024 07:54:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1728028448; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=V/ENkmqp3N06BEqVmLrPytv7DPYivEUsdgqGm9z40OE=;
-	b=VuWOYsPfQZP8mkA1xr1a9VWUErmh+xwoNKaxq9K5o7VytKTcP5JfzrkzXpbRNuWj5P5emF
-	qftteW2BNsAZ0kk5Impsr0bLwakS4oED8rGb17VBHIDzBzwjxC2Ye+Kbkrg0XSRQWBlVW/
-	hrxboiKqqH3odiuOPXpZzT6AgdWMAm4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1728028448;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=V/ENkmqp3N06BEqVmLrPytv7DPYivEUsdgqGm9z40OE=;
-	b=mIf5NIsayv6i/cxF5UMyhqYv+I1vg8oIhQ2v2cE60XJ8WZAUQD3bRVi0TY6/pglg4LFti6
-	ry8T62QvIkpxMMCQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=VuWOYsPf;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=mIf5NIsa
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1728028448; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=V/ENkmqp3N06BEqVmLrPytv7DPYivEUsdgqGm9z40OE=;
-	b=VuWOYsPfQZP8mkA1xr1a9VWUErmh+xwoNKaxq9K5o7VytKTcP5JfzrkzXpbRNuWj5P5emF
-	qftteW2BNsAZ0kk5Impsr0bLwakS4oED8rGb17VBHIDzBzwjxC2Ye+Kbkrg0XSRQWBlVW/
-	hrxboiKqqH3odiuOPXpZzT6AgdWMAm4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1728028448;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=V/ENkmqp3N06BEqVmLrPytv7DPYivEUsdgqGm9z40OE=;
-	b=mIf5NIsayv6i/cxF5UMyhqYv+I1vg8oIhQ2v2cE60XJ8WZAUQD3bRVi0TY6/pglg4LFti6
-	ry8T62QvIkpxMMCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6A5AE13A6E;
-	Fri,  4 Oct 2024 07:54:08 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 9IyjGCCf/2bBawAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 04 Oct 2024 07:54:08 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	airlied@gmail.com,
-	simona@ffwll.ch
-Cc: virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Kees Bakker <kees@ijzerbout.nl>
-Subject: [PATCH] drm/bochs: Return error from correct pointer
-Date: Fri,  4 Oct 2024 09:52:47 +0200
-Message-ID: <20241004075404.41743-1-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zmzu3w50"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728029612;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NpYh7CaaC2KedHFZZYXaVZ0k0qPF+A1BsqzYj4Bl5RY=;
+	b=Zmzu3w50zqWhshRlzvNJcVC7U3UuIYieMgTp9jFTVGzve8cAn4RRG/PPeHtuiCn+6EFcOD
+	eBzHxTKEs0Gu4/kpAygItjHwCVzceEj0rbowCy9VClgUwVsXijxyUBoPWiRflWa6QW1Lop
+	ZQQ9eJtQsc/ccxzK1mnJlbGyCm4R1v8=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-392-tzILE8ZeNTmipYb8oiUrkg-1; Fri, 04 Oct 2024 04:13:31 -0400
+X-MC-Unique: tzILE8ZeNTmipYb8oiUrkg-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-6e2317d1cb7so30052127b3.3
+        for <virtualization@lists.linux.dev>; Fri, 04 Oct 2024 01:13:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728029611; x=1728634411;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NpYh7CaaC2KedHFZZYXaVZ0k0qPF+A1BsqzYj4Bl5RY=;
+        b=D1GIo2U7UcvrN1Q0xQjKC7wpsh8w4/bEut+k1of22rfzXOrh7QU5w1OXcWm315RUPs
+         gAIJxFIEVFEBWEpDbLnO7Y6haU+7bdANrNCn2/laTLTRlPueUxpdbjdl05PMexmRH0aq
+         3aeMX0sUe45iSmPsgeEge+F1OLmthU4Gfs5I2VCtIj5dJaKdKyOLQyXjAt8kL3x+VSln
+         zmmAZA2cgdYV/WpNnvsKM/Q+iA75YYqNkizujsb7iEaCbyj7XsDbHXFv9RrEcNvoIWIa
+         rU2oVz8WAO7m3uCwDmLp6qdXZVjMrFJyCwWVfyiizi12u2cppX0QVRZiDmFb5Ek9sFK4
+         Untg==
+X-Gm-Message-State: AOJu0YyjdAhxUU/T+OI/iPXbHm9SNXmechUVTtuW1/eqrv+8v2Y98oLq
+	x8XCihS0oAaz9ekCAhLGOCszDoxsSoyfpDFt94dgdMK/v5swoazT8eteMtBsZlfgOeeXkmCIcFV
+	V6TdRmO8TePIlWmjQtpXeNwt5533V8ViocQnqagRR8Sz71Vj2IXUBt57CqbfHFXL/
+X-Received: by 2002:a05:6902:2507:b0:e26:1190:8fe0 with SMTP id 3f1490d57ef6-e28936d5653mr1267259276.17.1728029611217;
+        Fri, 04 Oct 2024 01:13:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEK5NlqbQGEp0Ckx0DC5l7AAujsY01ZLTLP3SLW77axNkOTOrjPPpu8ShJ+Oi/XIM1S/ke/HA==
+X-Received: by 2002:a05:6902:2507:b0:e26:1190:8fe0 with SMTP id 3f1490d57ef6-e28936d5653mr1267251276.17.1728029610859;
+        Fri, 04 Oct 2024 01:13:30 -0700 (PDT)
+Received: from localhost ([195.166.127.210])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7ae6b3dae76sm116919385a.113.2024.10.04.01.13.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Oct 2024 01:13:30 -0700 (PDT)
+From: Javier Martinez Canillas <javierm@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, kraxel@redhat.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
+ simona@ffwll.ch
+Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, Thomas
+ Zimmermann <tzimmermann@suse.de>, Kees Bakker <kees@ijzerbout.nl>
+Subject: Re: [PATCH] drm/bochs: Return error from correct pointer
+In-Reply-To: <20241004075404.41743-1-tzimmermann@suse.de>
+References: <20241004075404.41743-1-tzimmermann@suse.de>
+Date: Fri, 04 Oct 2024 10:13:27 +0200
+Message-ID: <8734lcnv4o.fsf@minerva.mail-host-address-is-not-set>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: A66B321DC1
-X-Spam-Level: 
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,suse.de:mid];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_TO(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCPT_COUNT_SEVEN(0.00)[9];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -3.01
-X-Spam-Flag: NO
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 
-In probe, return the error code from the variable bochs, not dev. The
-variable dev has not been initialized at this point. In the case of an
-allocation error, the returned value would have been undefined.
+Thomas Zimmermann <tzimmermann@suse.de> writes:
 
-Reported-by: Kees Bakker <kees@ijzerbout.nl>
-Closes: https://lore.kernel.org/dri-devel/8c5bfc12-cbcc-4102-9826-494060df4179@ijzerbout.nl/
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: 04826f588682 ("drm/bochs: Allocate DRM device in struct bochs_device")
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux.dev
----
- drivers/gpu/drm/tiny/bochs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hello Thomas,
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 5d2d34976d4b..3ba7f09f3e7b 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -717,7 +717,7 @@ static int bochs_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent
- 
- 	bochs = devm_drm_dev_alloc(&pdev->dev, &bochs_driver, struct bochs_device, dev);
- 	if (IS_ERR(bochs))
--		return PTR_ERR(dev);
-+		return PTR_ERR(bochs);
- 	dev = &bochs->dev;
- 
- 	ret = pcim_enable_device(pdev);
+> In probe, return the error code from the variable bochs, not dev. The
+> variable dev has not been initialized at this point. In the case of an
+> allocation error, the returned value would have been undefined.
+>
+> Reported-by: Kees Bakker <kees@ijzerbout.nl>
+> Closes: https://lore.kernel.org/dri-devel/8c5bfc12-cbcc-4102-9826-494060df4179@ijzerbout.nl/
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Fixes: 04826f588682 ("drm/bochs: Allocate DRM device in struct bochs_device")
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux.dev
+> ---
+
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+
 -- 
-2.46.0
+Best regards,
+
+Javier Martinez Canillas
+Core Platforms
+Red Hat
 
