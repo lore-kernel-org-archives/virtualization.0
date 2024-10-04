@@ -1,322 +1,162 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EE661C7612;
-	Fri,  4 Oct 2024 21:55:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2D75E154C18;
+	Fri,  4 Oct 2024 23:36:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728078952; cv=none; b=b775Fwr7mdIsegZX1OSQZSN3GbmbvRW0ne8LdLlkU8g2nCKcfW1WQdPHPb8GxJNgFc4TqLxy7G1K2k7RZljJAZxHzK9ZEmuWFY8rWNaUwxcOgE1zoRxvzRlnd1Kp/gA8FYXBogQ+wD6Ot1udQ6+Ax1/t19Iu+DlfXwRhjZlJNM4=
+	t=1728084978; cv=none; b=bbe9fc6RdmkWL9P1rFA0Xj+JvcrVN8E/v0edkkkEAFJR3LxoVNplMcMHlcRidesCx58tBLdiF8AWCl6yDuZmksueOijB3a+e0ht0SZnap4Fths8xuVI7Cf52xk21dZQDrZM5p8FeRi57uPWom6fCnQkvo+jVROejpsgZWiCmrm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728078952; c=relaxed/simple;
-	bh=uSuzR4ZIRRHk3NuI6DTHrLhOvLcovi83ONMhw+IfWHk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PnQ6mEUuvycTcPzvLNKaCtP++3n19X6aeeBA7qWUhQY9Eo67Iv5TtWLxL67WhOjcdx6Jq9AP76RBrjJVnkc/KbPcgfuVwX2KbbqIUkdNBJsr8OgXqntkgsJjxELN8vUyOTPjdACecm4vUdaKtOft8pyoQZgxAbWPVQXkHrxe1iM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HmC/2lOF; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1728084978; c=relaxed/simple;
+	bh=iQeWTsGfFnfHDK7LMNoqjyhkjqdxiz1+pWQDmHMP8bU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=AoOYocW7kxO1W/FXX+FLNd7DDYXB3JIAalFmKQJyR4JjDUdE+uhI1gQA33oC2i19t6CFx0C/WinKTajO0v9GwgRkJyRni4SNV5XxqP2j9zzVQVDTlVG9qeflgS+BWOa5NVurk7AtpFR/wuenQbnLJNa6NSIeP+Owu6mi9jW8ikU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=VFMWUCaI; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HmC/2lOF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1728078951; x=1759614951;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=uSuzR4ZIRRHk3NuI6DTHrLhOvLcovi83ONMhw+IfWHk=;
-  b=HmC/2lOF6obBCf4b4ltc8XtDMC5s47ewpDSYhGxRUd/xs3945Ywd7Ry9
-   hiQHi3sz3wJrucXJxds3to1iKUkI8I25BZdsXaV41vMJKJrGNZBKcrjpU
-   BLiwAqvTzyrlzYqQ6deo3oQqH+DmUzp7pC7EK9QFvXNEDWEK/tT24NRA3
-   6Ru32M9UhVIRY+l/Gybz4FfBUkLBQDiGjMRuhATYhF6kKdgf42P44dLux
-   qAQH0OSm+I7443q1ZaPspEwXtMoiaKjUqLcNX1SUC4ErwDguGxGtDvW70
-   8Fh0u6LkHNacx9pJdTdKySDA6MS+V3FIZs2T6shXq8F+6jx/34WnRbZkd
-   g==;
-X-CSE-ConnectionGUID: Og6GCi2sTk6wSshGyRSX6A==
-X-CSE-MsgGUID: S9eR3OcVSAGz4VCv9S2UCQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11215"; a="27199064"
-X-IronPort-AV: E=Sophos;i="6.11,178,1725346800"; 
-   d="scan'208";a="27199064"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2024 14:55:50 -0700
-X-CSE-ConnectionGUID: o7dHfJ4SSpCm7Zsz4y/uEw==
-X-CSE-MsgGUID: nBAnNaC+RVucgGwkxbb4fw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,178,1725346800"; 
-   d="scan'208";a="98145790"
-Received: from lkp-server01.sh.intel.com (HELO a48cf1aa22e8) ([10.239.97.150])
-  by fmviesa002.fm.intel.com with ESMTP; 04 Oct 2024 14:55:43 -0700
-Received: from kbuild by a48cf1aa22e8 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1swqGz-0002G6-05;
-	Fri, 04 Oct 2024 21:55:41 +0000
-Date: Sat, 5 Oct 2024 05:55:22 +0800
-From: kernel test robot <lkp@intel.com>
-To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
-	linux-hyperv@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	iommu@lists.linux.dev, netdev@vger.kernel.org,
-	linux-pci@vger.kernel.org, linux-arch@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: oe-kbuild-all@lists.linux.dev, kys@microsoft.com,
-	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
-	catalin.marinas@arm.com, will@kernel.org, luto@kernel.org,
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-	seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org,
-	daniel.lezcano@linaro.org, joro@8bytes.org, robin.murphy@arm.com,
-	davem@davemloft.net, edumazet@google.com
-Subject: Re: [PATCH 5/5] hyperv: Use hvhdk.h instead of hyperv-tlfs.h in
- Hyper-V code
-Message-ID: <202410050518.LFXqJEpd-lkp@intel.com>
-References: <1727985064-18362-6-git-send-email-nunodasneves@linux.microsoft.com>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="VFMWUCaI"
+Received: from [10.0.0.114] (c-67-182-156-199.hsd1.wa.comcast.net [67.182.156.199])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 2A53520DB378;
+	Fri,  4 Oct 2024 16:36:10 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 2A53520DB378
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1728084971;
+	bh=12axO/5wR11TqDYAjMUHSrOD2AfHvidYKZrZQKRTf6A=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=VFMWUCaIBQ8EPngTdqNePaLPH2kkoNqFcBK/p9OaD+RiCdUGSPby/3CpF48CZYHaY
+	 eY/NnzTien9H0BMtpRrMbaLJvgp4vqtsKvnLlAgaJ8zjpzojV8LzZ/bwvHv8uwKT4B
+	 kWIeP6x8lWVWbV3kya4o+mW+YLB+SThKWXYXNOSo=
+Message-ID: <17d5a6fd-9f4e-4987-a9fd-dff45cae10a2@linux.microsoft.com>
+Date: Fri, 4 Oct 2024 16:36:06 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1727985064-18362-6-git-send-email-nunodasneves@linux.microsoft.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/5] hyperv: Use hvhdk.h instead of hyperv-tlfs.h in
+ Hyper-V code
+To: Simon Horman <horms@kernel.org>
+Cc: linux-hyperv@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, iommu@lists.linux.dev,
+ netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-arch@vger.kernel.org, virtualization@lists.linux.dev,
+ kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+ decui@microsoft.com, catalin.marinas@arm.com, will@kernel.org,
+ luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+ seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org,
+ daniel.lezcano@linaro.org, joro@8bytes.org, robin.murphy@arm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, lpieralisi@kernel.org, kw@linux.com, robh@kernel.org,
+ bhelgaas@google.com, arnd@arndb.de, sgarzare@redhat.com,
+ jinankjain@linux.microsoft.com, muminulrussell@gmail.com,
+ skinsburskii@linux.microsoft.com, mukeshrathor@microsoft.com
+References: <1727985064-18362-1-git-send-email-nunodasneves@linux.microsoft.com>
+ <1727985064-18362-6-git-send-email-nunodasneves@linux.microsoft.com>
+ <20241004191104.GI1310185@kernel.org>
+Content-Language: en-US
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+In-Reply-To: <20241004191104.GI1310185@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Nuno,
+On 10/4/2024 12:11 PM, Simon Horman wrote:
+> Hi,
+> 
+> With this change in place I see allmodconfig x86_64 builds reporting that
+> HV_REGISTER_FEATURES is undeclared.
+> 
+> arch/arm64/hyperv/mshyperv.c: In function 'hyperv_init':
+> arch/arm64/hyperv/mshyperv.c:53:26: error: 'HV_REGISTER_FEATURES' undeclared (first use in this function); did you mean 'HV_REGISTER_FEATURES_INFO'?
+>    53 |         hv_get_vpreg_128(HV_REGISTER_FEATURES, &result);
+>       |                          ^~~~~~~~~~~~~~~~~~~~
+>       |                          HV_REGISTER_FEATURES_INFO
+> arch/arm64/hyperv/mshyperv.c:53:26: note: each undeclared identifier is reported only once for each function it appears in
+> arch/arm64/hyperv/mshyperv.c:58:26: error: 'HV_REGISTER_ENLIGHTENMENTS' undeclared (first use in this function); did you mean 'HV_ACCESS_REENLIGHTENMENT'?
+>    58 |         hv_get_vpreg_128(HV_REGISTER_ENLIGHTENMENTS, &result);
+>       |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+>       |                          HV_ACCESS_REENLIGHTENMENT
+> 
 
-kernel test robot noticed the following build errors:
+Ah, I did forgot to check arm64. Thanks for the catch, I'll be sure to
+fix it for v2.
 
-[auto build test ERROR on tip/x86/core]
-[also build test ERROR on arm64/for-next/core kvm/queue linus/master v6.12-rc1 next-20241004]
-[cannot apply to kvm/linux-next]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> 
+> And here too, with x86_64 allmodconfig.
+> 
+> In file included from ./include/linux/string.h:390,
+>                  from ./include/linux/efi.h:16,
+>                  from arch/x86/hyperv/hv_init.c:12:
+> arch/x86/hyperv/hv_init.c: In function 'get_vtl':
+> ./include/linux/overflow.h:372:23: error: invalid application of 'sizeof' to incomplete type 'struct hv_get_vp_registers_input'
+>   372 |                 sizeof(*(p)) + flex_array_size(p, member, count),       \
+>       |                       ^
+> ./include/linux/fortify-string.h:502:42: note: in definition of macro '__fortify_memset_chk'
+>   502 |         size_t __fortify_size = (size_t)(size);                         \
+>       |                                          ^~~~
+> arch/x86/hyperv/hv_init.c:427:9: note: in expansion of macro 'memset'
+>   427 |         memset(input, 0, struct_size(input, element, 1));
+>       |         ^~~~~~
+> arch/x86/hyperv/hv_init.c:427:26: note: in expansion of macro 'struct_size'
+>   427 |         memset(input, 0, struct_size(input, element, 1));
+>       |                          ^~~~~~~~~~~
+> 
+> [errors trimmed for the sake of brevity]
+> 
+> ...
+> 
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Nuno-Das-Neves/hyperv-Move-hv_connection_id-to-hyperv-tlfs-h/20241004-035418
-base:   tip/x86/core
-patch link:    https://lore.kernel.org/r/1727985064-18362-6-git-send-email-nunodasneves%40linux.microsoft.com
-patch subject: [PATCH 5/5] hyperv: Use hvhdk.h instead of hyperv-tlfs.h in Hyper-V code
-config: x86_64-allmodconfig (https://download.01.org/0day-ci/archive/20241005/202410050518.LFXqJEpd-lkp@intel.com/config)
-compiler: clang version 18.1.8 (https://github.com/llvm/llvm-project 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241005/202410050518.LFXqJEpd-lkp@intel.com/reproduce)
+Thanks
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202410050518.LFXqJEpd-lkp@intel.com/
+> 
+> And, likewise, with this patch applied I see a number of errors when
+> compiling this file. This is with allmodconfig on x86_64 with:
+> 
+> Modified: CONFIG_HYPERV=y (instead of m)
+> Added: CONFIG_HYPERV_VTL_MODE=y
+> 
 
-All errors (new ones prefixed by >>):
+Thanks again,
+Ah, I wish there was a way to check these different combinations of y/m
+more easily.
 
->> arch/x86/hyperv/hv_init.c:428:19: error: invalid application of 'sizeof' to an incomplete type 'struct hv_get_vp_registers_input'
-     428 |         memset(input, 0, struct_size(input, element, 1));
-         |         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/overflow.h:372:9: note: expanded from macro 'struct_size'
-     372 |                 sizeof(*(p)) + flex_array_size(p, member, count),       \
-         |                       ^
-   include/linux/fortify-string.h:512:52: note: expanded from macro 'memset'
-     512 | #define memset(p, c, s) __fortify_memset_chk(p, c, s,                   \
-         |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
-     513 |                 __struct_size(p), __member_size(p))
-         |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/fortify-string.h:502:35: note: expanded from macro '__fortify_memset_chk'
-     502 |         size_t __fortify_size = (size_t)(size);                         \
-         |                                          ^~~~
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
->> arch/x86/hyperv/hv_init.c:428:19: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     428 |         memset(input, 0, struct_size(input, element, 1));
-         |         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/overflow.h:372:18: note: expanded from macro 'struct_size'
-     372 |                 sizeof(*(p)) + flex_array_size(p, member, count),       \
-         |                                ^
-   include/linux/overflow.h:356:24: note: expanded from macro 'flex_array_size'
-     356 |                 (count) * sizeof(*(p)->member) + __must_be_array((p)->member),  \
-         |                                      ^
-   include/linux/fortify-string.h:512:52: note: expanded from macro 'memset'
-     512 | #define memset(p, c, s) __fortify_memset_chk(p, c, s,                   \
-         |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
-     513 |                 __struct_size(p), __member_size(p))
-         |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/fortify-string.h:502:35: note: expanded from macro '__fortify_memset_chk'
-     502 |         size_t __fortify_size = (size_t)(size);                         \
-         |                                          ^~~~
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
->> arch/x86/hyperv/hv_init.c:428:19: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     428 |         memset(input, 0, struct_size(input, element, 1));
-         |         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/overflow.h:372:18: note: expanded from macro 'struct_size'
-     372 |                 sizeof(*(p)) + flex_array_size(p, member, count),       \
-         |                                ^
-   include/linux/overflow.h:356:55: note: expanded from macro 'flex_array_size'
-     356 |                 (count) * sizeof(*(p)->member) + __must_be_array((p)->member),  \
-         |                                                                     ^
-   include/linux/compiler.h:243:59: note: expanded from macro '__must_be_array'
-     243 | #define __must_be_array(a)      BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
-         |                                                                ^
-   note: (skipping 1 expansions in backtrace; use -fmacro-backtrace-limit=0 to see all)
-   include/linux/build_bug.h:16:62: note: expanded from macro 'BUILD_BUG_ON_ZERO'
-      16 | #define BUILD_BUG_ON_ZERO(e) ((int)(sizeof(struct { int:(-!!(e)); })))
-         |                                                              ^
-   include/linux/fortify-string.h:512:52: note: expanded from macro 'memset'
-     512 | #define memset(p, c, s) __fortify_memset_chk(p, c, s,                   \
-         |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
-     513 |                 __struct_size(p), __member_size(p))
-         |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/fortify-string.h:502:35: note: expanded from macro '__fortify_memset_chk'
-     502 |         size_t __fortify_size = (size_t)(size);                         \
-         |                                          ^~~~
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
->> arch/x86/hyperv/hv_init.c:428:19: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     428 |         memset(input, 0, struct_size(input, element, 1));
-         |         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/overflow.h:372:18: note: expanded from macro 'struct_size'
-     372 |                 sizeof(*(p)) + flex_array_size(p, member, count),       \
-         |                                ^
-   include/linux/overflow.h:357:30: note: expanded from macro 'flex_array_size'
-     357 |                 size_mul(count, sizeof(*(p)->member) + __must_be_array((p)->member)))
-         |                                            ^
-   include/linux/fortify-string.h:512:52: note: expanded from macro 'memset'
-     512 | #define memset(p, c, s) __fortify_memset_chk(p, c, s,                   \
-         |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
-     513 |                 __struct_size(p), __member_size(p))
-         |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/fortify-string.h:502:35: note: expanded from macro '__fortify_memset_chk'
-     502 |         size_t __fortify_size = (size_t)(size);                         \
-         |                                          ^~~~
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
->> arch/x86/hyperv/hv_init.c:428:19: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     428 |         memset(input, 0, struct_size(input, element, 1));
-         |         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/overflow.h:372:18: note: expanded from macro 'struct_size'
-     372 |                 sizeof(*(p)) + flex_array_size(p, member, count),       \
-         |                                ^
-   include/linux/overflow.h:357:61: note: expanded from macro 'flex_array_size'
-     357 |                 size_mul(count, sizeof(*(p)->member) + __must_be_array((p)->member)))
-         |                                                                           ^
-   include/linux/compiler.h:243:59: note: expanded from macro '__must_be_array'
-     243 | #define __must_be_array(a)      BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
-         |                                                                ^
-   note: (skipping 1 expansions in backtrace; use -fmacro-backtrace-limit=0 to see all)
-   include/linux/build_bug.h:16:62: note: expanded from macro 'BUILD_BUG_ON_ZERO'
-      16 | #define BUILD_BUG_ON_ZERO(e) ((int)(sizeof(struct { int:(-!!(e)); })))
-         |                                                              ^
-   include/linux/fortify-string.h:512:52: note: expanded from macro 'memset'
-     512 | #define memset(p, c, s) __fortify_memset_chk(p, c, s,                   \
-         |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
-     513 |                 __struct_size(p), __member_size(p))
-         |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/fortify-string.h:502:35: note: expanded from macro '__fortify_memset_chk'
-     502 |         size_t __fortify_size = (size_t)(size);                         \
-         |                                          ^~~~
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
-   arch/x86/hyperv/hv_init.c:429:7: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     429 |         input->header.partitionid = HV_PARTITION_ID_SELF;
-         |         ~~~~~^
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
-   arch/x86/hyperv/hv_init.c:430:7: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     430 |         input->header.vpindex = HV_VP_INDEX_SELF;
-         |         ~~~~~^
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
-   arch/x86/hyperv/hv_init.c:431:7: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     431 |         input->header.inputvtl = 0;
-         |         ~~~~~^
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
-   arch/x86/hyperv/hv_init.c:432:7: error: incomplete definition of type 'struct hv_get_vp_registers_input'
-     432 |         input->element[0].name0 = HV_X64_REGISTER_VSM_VP_STATUS;
-         |         ~~~~~^
-   arch/x86/hyperv/hv_init.c:419:9: note: forward declaration of 'struct hv_get_vp_registers_input'
-     419 |         struct hv_get_vp_registers_input *input;
-         |                ^
->> arch/x86/hyperv/hv_init.c:436:15: error: incomplete definition of type 'struct hv_get_vp_registers_output'
-     436 |                 ret = output->as64.low & HV_X64_VTL_MASK;
-         |                       ~~~~~~^
-   arch/x86/hyperv/hv_init.c:420:9: note: forward declaration of 'struct hv_get_vp_registers_output'
-     420 |         struct hv_get_vp_registers_output *output;
-         |                ^
-   10 errors generated.
---
->> arch/x86/hyperv/hv_vtl.c:154:27: error: use of undeclared identifier 'HVCALL_ENABLE_VP_VTL'
-     154 |         status = hv_do_hypercall(HVCALL_ENABLE_VP_VTL, input, NULL);
-         |                                  ^
->> arch/x86/hyperv/hv_vtl.c:189:25: error: invalid application of 'sizeof' to an incomplete type 'struct hv_get_vp_from_apic_id_in'
-     189 |         memset(input, 0, sizeof(*input));
-         |                                ^~~~~~~~
-   include/linux/fortify-string.h:512:52: note: expanded from macro 'memset'
-     512 | #define memset(p, c, s) __fortify_memset_chk(p, c, s,                   \
-         |                                                    ^
-   include/linux/fortify-string.h:502:35: note: expanded from macro '__fortify_memset_chk'
-     502 |         size_t __fortify_size = (size_t)(size);                         \
-         |                                          ^~~~
-   arch/x86/hyperv/hv_vtl.c:183:9: note: forward declaration of 'struct hv_get_vp_from_apic_id_in'
-     183 |         struct hv_get_vp_from_apic_id_in *input;
-         |                ^
->> arch/x86/hyperv/hv_vtl.c:190:7: error: incomplete definition of type 'struct hv_get_vp_from_apic_id_in'
-     190 |         input->partition_id = HV_PARTITION_ID_SELF;
-         |         ~~~~~^
-   arch/x86/hyperv/hv_vtl.c:183:9: note: forward declaration of 'struct hv_get_vp_from_apic_id_in'
-     183 |         struct hv_get_vp_from_apic_id_in *input;
-         |                ^
-   arch/x86/hyperv/hv_vtl.c:191:7: error: incomplete definition of type 'struct hv_get_vp_from_apic_id_in'
-     191 |         input->apic_ids[0] = apic_id;
-         |         ~~~~~^
-   arch/x86/hyperv/hv_vtl.c:183:9: note: forward declaration of 'struct hv_get_vp_from_apic_id_in'
-     183 |         struct hv_get_vp_from_apic_id_in *input;
-         |                ^
->> arch/x86/hyperv/hv_vtl.c:195:38: error: use of undeclared identifier 'HVCALL_GET_VP_ID_FROM_APIC_ID'
-     195 |         control = HV_HYPERCALL_REP_COMP_1 | HVCALL_GET_VP_ID_FROM_APIC_ID;
-         |                                             ^
-   5 errors generated.
+> arch/x86/hyperv/hv_vtl.c: In function 'hv_vtl_bringup_vcpu':
+> arch/x86/hyperv/hv_vtl.c:154:34: error: 'HVCALL_ENABLE_VP_VTL' undeclared (first use in this function)
+>   154 |         status = hv_do_hypercall(HVCALL_ENABLE_VP_VTL, input, NULL);
+>       |                                  ^~~~~~~~~~~~~~~~~~~~
+> arch/x86/hyperv/hv_vtl.c:154:34: note: each undeclared identifier is reported only once for each function it appears in
+> In file included from ./include/linux/string.h:390,
+>                  from ./include/linux/bitmap.h:13,
+>                  from ./include/linux/cpumask.h:12,
+>                  from ./arch/x86/include/asm/apic.h:5,
+>                  from arch/x86/hyperv/hv_vtl.c:9:
+> arch/x86/hyperv/hv_vtl.c: In function 'hv_vtl_apicid_to_vp_id':
+> arch/x86/hyperv/hv_vtl.c:189:32: error: invalid application of 'sizeof' to incomplete type 'struct hv_get_vp_from_apic_id_in'
+>   189 |         memset(input, 0, sizeof(*input));
+>       |                                ^
+> ./include/linux/fortify-string.h:502:42: note: in definition of macro '__fortify_memset_chk'
+>   502 |         size_t __fortify_size = (size_t)(size);                         \
+>       |                                          ^~~~
+> arch/x86/hyperv/hv_vtl.c:189:9: note: in expansion of macro 'memset'
+>   189 |         memset(input, 0, sizeof(*input));
+>       |         ^~~~~~
+> arch/x86/hyperv/hv_vtl.c:190:14: error: invalid use of undefined type 'struct hv_get_vp_from_apic_id_in'
+>   190 |         input->partition_id = HV_PARTITION_ID_SELF;
+>       |              ^~
+> arch/x86/hyperv/hv_vtl.c:191:14: error: invalid use of undefined type 'struct hv_get_vp_from_apic_id_in'
+>   191 |         input->apic_ids[0] = apic_id;
+>       |              ^~
+> arch/x86/hyperv/hv_vtl.c:195:45: error: 'HVCALL_GET_VP_ID_FROM_APIC_ID' undeclared (first use in this function)
+>   195 |         control = HV_HYPERCALL_REP_COMP_1 | HVCALL_GET_VP_ID_FROM_APIC_ID;
+>       |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> ...
 
+Looks like I'm missing a one or two definitions in the new headers, and the
+names have changed slightly in couple of cases. I'll do some more thorough
+checking and have it all fixed for v2.
 
-vim +428 arch/x86/hyperv/hv_init.c
+I didn't know about this allmodconfig target, that will make it a bit easier!
 
-99a0f46af6a771 Wei Liu        2021-02-03  414  
-f2a55d08d7e1a5 Saurabh Sengar 2023-09-19  415  #if IS_ENABLED(CONFIG_HYPERV_VTL_MODE)
-8387ce06d70bbb Tianyu Lan     2023-08-18  416  static u8 __init get_vtl(void)
-8387ce06d70bbb Tianyu Lan     2023-08-18  417  {
-8387ce06d70bbb Tianyu Lan     2023-08-18  418  	u64 control = HV_HYPERCALL_REP_COMP_1 | HVCALL_GET_VP_REGISTERS;
-8387ce06d70bbb Tianyu Lan     2023-08-18 @419  	struct hv_get_vp_registers_input *input;
-8387ce06d70bbb Tianyu Lan     2023-08-18  420  	struct hv_get_vp_registers_output *output;
-8387ce06d70bbb Tianyu Lan     2023-08-18  421  	unsigned long flags;
-8387ce06d70bbb Tianyu Lan     2023-08-18  422  	u64 ret;
-8387ce06d70bbb Tianyu Lan     2023-08-18  423  
-8387ce06d70bbb Tianyu Lan     2023-08-18  424  	local_irq_save(flags);
-8387ce06d70bbb Tianyu Lan     2023-08-18  425  	input = *this_cpu_ptr(hyperv_pcpu_input_arg);
-8387ce06d70bbb Tianyu Lan     2023-08-18  426  	output = (struct hv_get_vp_registers_output *)input;
-8387ce06d70bbb Tianyu Lan     2023-08-18  427  
-8387ce06d70bbb Tianyu Lan     2023-08-18 @428  	memset(input, 0, struct_size(input, element, 1));
-8387ce06d70bbb Tianyu Lan     2023-08-18  429  	input->header.partitionid = HV_PARTITION_ID_SELF;
-8387ce06d70bbb Tianyu Lan     2023-08-18  430  	input->header.vpindex = HV_VP_INDEX_SELF;
-8387ce06d70bbb Tianyu Lan     2023-08-18  431  	input->header.inputvtl = 0;
-8387ce06d70bbb Tianyu Lan     2023-08-18  432  	input->element[0].name0 = HV_X64_REGISTER_VSM_VP_STATUS;
-8387ce06d70bbb Tianyu Lan     2023-08-18  433  
-8387ce06d70bbb Tianyu Lan     2023-08-18  434  	ret = hv_do_hypercall(control, input, output);
-8387ce06d70bbb Tianyu Lan     2023-08-18  435  	if (hv_result_success(ret)) {
-8387ce06d70bbb Tianyu Lan     2023-08-18 @436  		ret = output->as64.low & HV_X64_VTL_MASK;
-8387ce06d70bbb Tianyu Lan     2023-08-18  437  	} else {
-f2a55d08d7e1a5 Saurabh Sengar 2023-09-19  438  		pr_err("Failed to get VTL(error: %lld) exiting...\n", ret);
-f2a55d08d7e1a5 Saurabh Sengar 2023-09-19  439  		BUG();
-8387ce06d70bbb Tianyu Lan     2023-08-18  440  	}
-8387ce06d70bbb Tianyu Lan     2023-08-18  441  
-8387ce06d70bbb Tianyu Lan     2023-08-18  442  	local_irq_restore(flags);
-8387ce06d70bbb Tianyu Lan     2023-08-18  443  	return ret;
-8387ce06d70bbb Tianyu Lan     2023-08-18  444  }
-f2a55d08d7e1a5 Saurabh Sengar 2023-09-19  445  #else
-f2a55d08d7e1a5 Saurabh Sengar 2023-09-19  446  static inline u8 get_vtl(void) { return 0; }
-f2a55d08d7e1a5 Saurabh Sengar 2023-09-19  447  #endif
-8387ce06d70bbb Tianyu Lan     2023-08-18  448  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Nuno
