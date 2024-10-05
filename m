@@ -1,313 +1,140 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA2484A2F
-	for <virtualization@lists.linux.dev>; Sat,  5 Oct 2024 07:42:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F4C5156257
+	for <virtualization@lists.linux-foundation.org>; Sat,  5 Oct 2024 15:43:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728114129; cv=none; b=MrJxRLWHOq7vXUQg9yQOcELXSUummkJvQAV/dWO8ijJDzPbQ48TK/x6nuJP5QtHV93VOqmKvxCn+GfWpEYiGq9xARJazMI3E558xcPD5NGunCExinFQqMf8MQ+LUL0QvKBL1reLW47ZwV7PXHoPNBg/mZW7dk5kN+bIlqUt5qzA=
+	t=1728143001; cv=none; b=GNGCjIZlbQbIAC1Iz8EXlMCJUPPsoQNOqd+0nNU4wxdkfEKGmY+PDrOikkBSt6rsPS7vJwltciqKhN2gK8u0Ez0snJxXMcc8Ng5XNRRGmVl0H/Vedn21+/diPk94duW42tDoAgOYn9FZ4YF8OH8DfAmlJe9tcKQ+/bXVEnoJVeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728114129; c=relaxed/simple;
-	bh=4o2ZBouF/RIEL8PVlxLCIYfr3i1YsvyNkXY0A9TrhDo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=FdlU4lR12rVnEgW7fetaCwYll8HGFFWiK7EpPZ3DgURMa63gmfPgeAPjixGoHdalxF+SjZMZrMezWVs9UvBZSHBSVY16J7iqVU043BkaL7tZ0qe79WndKTBaSkfR5QqweKQOQoF8wJInEOLVGUbb8AqV6uPmgvfAQ8xY2h+gkCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jwTPkW5c; arc=none smtp.client-ip=209.85.215.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1728143001; c=relaxed/simple;
+	bh=cMgSteDQVvEffjeaurvwoRqF6z/b5P9Y5FuOLh6xbeE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Oixe2ALk1EeyUdcBDi4L11tizRyYu08d5TxtdMUCLIUTLrau/K8vf36ai1K9y4Xy16PZWSslZEZAeYyhFeBJkU8vxQFdwy/nFhFEt8fZLyKz/HYeJdJeUcr3h4KmeioHkLEbezmb6UGxWTV+QH+CWVHz6QIlWjAMPTArIwZYiBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XwaqOKut; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jwTPkW5c"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-7d4f85766f0so2319164a12.2
-        for <virtualization@lists.linux.dev>; Sat, 05 Oct 2024 00:42:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1728114127; x=1728718927; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=lOFEUyKULg3jg189V7VdXZrfZtPhx0+n63wz8tInHPg=;
-        b=jwTPkW5cA9c97f1xhq5FMWWlm2d+KifdM8Zm9CC09LLb+adutypxXWXct3RW2OCVsw
-         IRbnVJryAv/eFXuf9GC8hGHSHm8d1ypoPQPwYJlErS6crkYpKJKC1iLQ11KjUyfrXzzY
-         NK3xCuVXdzLbnG1CRlHztSUG1SCo3/6apnvSMRyvCcRvhJk7E7bGN+j7bYX6tOGhV8wv
-         8AMUqsOh/3LQa3tY5twzBeZ7z984gTPRQ0SiGa1qJDmU89+m/UFFYXedrhGQuA6lOaJT
-         9gzZoIKAPBajXjNOOkyFbPFv1kdfXH3UtdjTF7oUhjGvP1REefvWyj8GLneEkbE5jjip
-         3Dlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728114127; x=1728718927;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lOFEUyKULg3jg189V7VdXZrfZtPhx0+n63wz8tInHPg=;
-        b=usd+Bt6xLNyR3WdIePh/8871io12hLU05Z5+/+CnEi3Fw1i8Cwg8WdBI0hJrM0ORkn
-         /upsAWcfpXdkqlzN/AwtUGfqI6oTjV6wmQq4lb6Ce0LULtz0LDBQuLEvvYDkMaVTD/SH
-         ZUUqGYPiFOmgLeLJSP0kMgL4CtUI2AjlEu3b1jXba5kZtC2O5oPbM6yGzNJMeGNMb2Ka
-         /4YcPSycXzyI+avxQry7hzyVRX/iwuYbsE2uoQrGj5QYiieokXDCya8wuybqYsOBLHUN
-         wgPpI88PjLuvGMPR0sfAdolCP2GtVzTesLSTvy4PuAd5bm31TNtBLy9r4ap8G5apLrmi
-         iLcA==
-X-Gm-Message-State: AOJu0YzwdFK2auiB/rcZ1NsdlxLu5cWh0aFjBK2Xb09HluNSdSbIgI2U
-	Igz5wZmQQRUdqzx7RIMOYgCCD8u6PnYMTCtjFoJ8Z46p2kxXCLs2
-X-Google-Smtp-Source: AGHT+IGEHwuzQqCSQvYTkfhD03hBps5slTUoC0Afed/i2Wdmjp/eCFJaabgxuJJkMzy54qqGQqUjNg==
-X-Received: by 2002:a05:6a21:3983:b0:1d6:d0d3:c520 with SMTP id adf61e73a8af0-1d6dfa24bb7mr8661281637.9.1728114126841;
-        Sat, 05 Oct 2024 00:42:06 -0700 (PDT)
-Received: from localhost.localdomain ([222.78.61.133])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-71df0cd14f8sm983179b3a.65.2024.10.05.00.42.04
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 05 Oct 2024 00:42:06 -0700 (PDT)
-From: huangwenyu1998@gmail.com
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	huangwenyu1998@gmail.com
-Subject: [PATCH v2] virtio: Make vring_new_virtqueue support for packed vring
-Date: Sat,  5 Oct 2024 15:42:01 +0800
-Message-Id: <20241005074201.52727-1-huangwenyu1998@gmail.com>
-X-Mailer: git-send-email 2.30.1 (Apple Git-130)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XwaqOKut"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id C4D224026A
+	for <virtualization@lists.linux-foundation.org>; Sat,  5 Oct 2024 15:43:18 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 7EQul8np9JBo for <virtualization@lists.linux-foundation.org>;
+ Sat,  5 Oct 2024 15:43:17 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.15; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 493B4401F6
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 493B4401F6
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=XwaqOKut
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 493B4401F6
+	for <virtualization@lists.linux-foundation.org>; Sat,  5 Oct 2024 15:43:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1728142998; x=1759678998;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=cMgSteDQVvEffjeaurvwoRqF6z/b5P9Y5FuOLh6xbeE=;
+  b=XwaqOKutHLiM6iyLbwwljNOEnjBMES4aVNBTPs5btiFppi5QDjcNtwsl
+   pJmb1CEysnvOL9XU2ZlGmUKzekbkUqcBkcQyjp5iYrjqqcG0Ut7gkFrnq
+   k9aZDh9/PSDGhBRMuCzVxmJXkAffdRbgkufoeGCndfd0YRq1ziJyPnJYn
+   P5Noq3MYAMw0nPcZfFxfbCeNOsBTGxoiSY66YkePElhzdfZmb9Q1Fg+9b
+   RMuyDI6oWA6gPEKbEafRBwT5xew4RbzJGUhWc22epPumyN+CinpTxbysY
+   /AMbjHFyoj85kcaJai9I50OqQxyBZZCn+HKxGz+pr8TB3k0ax5bpAgCyF
+   Q==;
+X-CSE-ConnectionGUID: xxf4hhz9RPKtQY+4ib6Cjg==
+X-CSE-MsgGUID: 6w4jPw+VTQ2czl54qkcPcw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11216"; a="31050210"
+X-IronPort-AV: E=Sophos;i="6.11,180,1725346800"; 
+   d="scan'208";a="31050210"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2024 08:43:16 -0700
+X-CSE-ConnectionGUID: SUfGKZvTR/iBOJJ8oCjqvw==
+X-CSE-MsgGUID: BZYjzWG/ThmY1XARy3AiHA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,180,1725346800"; 
+   d="scan'208";a="79772860"
+Received: from lkp-server01.sh.intel.com (HELO a48cf1aa22e8) ([10.239.97.150])
+  by orviesa005.jf.intel.com with ESMTP; 05 Oct 2024 08:43:14 -0700
+Received: from kbuild by a48cf1aa22e8 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sx6w3-00034k-1q;
+	Sat, 05 Oct 2024 15:43:11 +0000
+Date: Sat, 5 Oct 2024 23:42:49 +0800
+From: kernel test robot <lkp@intel.com>
+To: Cindy Lu <lulu@redhat.com>, jasowang@redhat.com, mst@redhat.com,
+	michael.christie@oracle.com, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Cc: oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH v2 1/7] vhost: Add a new modparam to allow userspace
+ select vhost_task
+Message-ID: <202410052351.1dCg9uLx-lkp@intel.com>
+References: <20241004015937.2286459-2-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241004015937.2286459-2-lulu@redhat.com>
 
-From: Wenyu Huang <huangwenyu1998@gmail.com>
+Hi Cindy,
 
-It used for testing in tools/virtio/vringh_test.c.
-If vring_new_virtqueue supports packed vring, we can add support for
-packed vring to vringh and test it.
+kernel test robot noticed the following build warnings:
 
-Signed-off-by: Wenyu Huang <huangwenyu1998@gmail.com>
----
-Changes in v2: Make the commit title and description more clearer.
- drivers/virtio/virtio_ring.c | 153 +++++++++++++++++++++--------------
- 1 file changed, 92 insertions(+), 61 deletions(-)
+[auto build test WARNING on mst-vhost/linux-next]
+[also build test WARNING on linus/master v6.12-rc1 next-20241004]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index be7309b1e860..664a0c40ee05 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -223,7 +223,7 @@ struct vring_virtqueue {
- #endif
- };
- 
--static struct virtqueue *__vring_new_virtqueue(unsigned int index,
-+static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
- 					       struct vring_virtqueue_split *vring_split,
- 					       struct virtio_device *vdev,
- 					       bool weak_barriers,
-@@ -232,6 +232,15 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 					       void (*callback)(struct virtqueue *),
- 					       const char *name,
- 					       struct device *dma_dev);
-+static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
-+					       struct vring_virtqueue_packed *vring_packed,
-+					       struct virtio_device *vdev,
-+					       bool weak_barriers,
-+					       bool context,
-+					       bool (*notify)(struct virtqueue *),
-+					       void (*callback)(struct virtqueue *),
-+					       const char *name,
-+					       struct device *dma_dev);
- static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
- static void vring_free(struct virtqueue *_vq);
- 
-@@ -1160,7 +1169,7 @@ static struct virtqueue *vring_create_virtqueue_split(
- 	if (err)
- 		return NULL;
- 
--	vq = __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
-+	vq = __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
- 				   context, notify, callback, name, dma_dev);
- 	if (!vq) {
- 		vring_free_split(&vring_split, vdev, dma_dev);
-@@ -2064,62 +2073,21 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	struct device *dma_dev)
- {
- 	struct vring_virtqueue_packed vring_packed = {};
--	struct vring_virtqueue *vq;
--	int err;
-+	struct virtqueue *vq;
- 
- 	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
--		goto err_ring;
--
--	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
--	if (!vq)
--		goto err_vq;
--
--	vq->vq.callback = callback;
--	vq->vq.vdev = vdev;
--	vq->vq.name = name;
--	vq->vq.index = index;
--	vq->vq.reset = false;
--	vq->we_own_ring = true;
--	vq->notify = notify;
--	vq->weak_barriers = weak_barriers;
--#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
--	vq->broken = true;
--#else
--	vq->broken = false;
--#endif
--	vq->packed_ring = true;
--	vq->dma_dev = dma_dev;
--	vq->use_dma_api = vring_use_dma_api(vdev);
--	vq->premapped = false;
--	vq->do_unmap = vq->use_dma_api;
--
--	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
--		!context;
--	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
--
--	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
--		vq->weak_barriers = false;
--
--	err = vring_alloc_state_extra_packed(&vring_packed);
--	if (err)
--		goto err_state_extra;
--
--	virtqueue_vring_init_packed(&vring_packed, !!callback);
-+		return NULL;
- 
--	virtqueue_init(vq, num);
--	virtqueue_vring_attach_packed(vq, &vring_packed);
-+	vq = __vring_new_virtqueue_packed(index, &vring_packed, vdev, weak_barriers,
-+					context, notify, callback, name, dma_dev);
-+	if (!vq) {
-+		vring_free_packed(&vring_packed, vdev, dma_dev);
-+		return NULL;
-+	}
- 
--	spin_lock(&vdev->vqs_list_lock);
--	list_add_tail(&vq->vq.list, &vdev->vqs);
--	spin_unlock(&vdev->vqs_list_lock);
--	return &vq->vq;
-+	to_vvq(vq)->we_own_ring = true;
- 
--err_state_extra:
--	kfree(vq);
--err_vq:
--	vring_free_packed(&vring_packed, vdev, dma_dev);
--err_ring:
--	return NULL;
-+	return vq;
- }
- 
- static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
-@@ -2599,7 +2567,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
- EXPORT_SYMBOL_GPL(vring_interrupt);
- 
- /* Only available for split ring */
--static struct virtqueue *__vring_new_virtqueue(unsigned int index,
-+static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
- 					       struct vring_virtqueue_split *vring_split,
- 					       struct virtio_device *vdev,
- 					       bool weak_barriers,
-@@ -2612,9 +2580,6 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	struct vring_virtqueue *vq;
- 	int err;
- 
--	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
--		return NULL;
--
- 	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
- 	if (!vq)
- 		return NULL;
-@@ -2662,6 +2627,66 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	return &vq->vq;
- }
- 
-+static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
-+					       struct vring_virtqueue_packed *vring_packed,
-+					       struct virtio_device *vdev,
-+					       bool weak_barriers,
-+					       bool context,
-+					       bool (*notify)(struct virtqueue *),
-+					       void (*callback)(struct virtqueue *),
-+					       const char *name,
-+					       struct device *dma_dev)
-+{
-+	struct vring_virtqueue *vq;
-+	int err;
-+
-+	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-+	if (!vq)
-+		return NULL;
-+
-+	vq->vq.callback = callback;
-+	vq->vq.vdev = vdev;
-+	vq->vq.name = name;
-+	vq->vq.index = index;
-+	vq->vq.reset = false;
-+	vq->we_own_ring = false;
-+	vq->notify = notify;
-+	vq->weak_barriers = weak_barriers;
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-+	vq->broken = true;
-+#else
-+	vq->broken = false;
-+#endif
-+	vq->packed_ring = true;
-+	vq->dma_dev = dma_dev;
-+	vq->use_dma_api = vring_use_dma_api(vdev);
-+	vq->premapped = false;
-+	vq->do_unmap = vq->use_dma_api;
-+
-+	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-+		!context;
-+	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-+
-+	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-+		vq->weak_barriers = false;
-+
-+	err = vring_alloc_state_extra_packed(vring_packed);
-+	if (err) {
-+		kfree(vq);
-+		return NULL;
-+	}
-+
-+	virtqueue_vring_init_packed(vring_packed, !!callback);
-+
-+	virtqueue_init(vq, vring_packed->vring.num);
-+	virtqueue_vring_attach_packed(vq, vring_packed);
-+
-+	spin_lock(&vdev->vqs_list_lock);
-+	list_add_tail(&vq->vq.list, &vdev->vqs);
-+	spin_unlock(&vdev->vqs_list_lock);
-+	return &vq->vq;
-+}
-+
- struct virtqueue *vring_create_virtqueue(
- 	unsigned int index,
- 	unsigned int num,
-@@ -2840,7 +2865,6 @@ int virtqueue_reset(struct virtqueue *_vq,
- }
- EXPORT_SYMBOL_GPL(virtqueue_reset);
- 
--/* Only available for split ring */
- struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      unsigned int num,
- 				      unsigned int vring_align,
-@@ -2853,12 +2877,19 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      const char *name)
- {
- 	struct vring_virtqueue_split vring_split = {};
-+	struct vring_virtqueue_packed vring_packed = {};
- 
--	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
--		return NULL;
-+	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)) {
-+		vring_packed.vring.num = num;
-+		vring_packed.vring.desc = pages;
-+		return __vring_new_virtqueue_packed(index, &vring_packed,
-+						    vdev, weak_barriers,
-+						    context, notify, callback,
-+						    name, vdev->dev.parent);
-+	}
- 
- 	vring_init(&vring_split.vring, num, pages, vring_align);
--	return __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
-+	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
- 				     context, notify, callback, name,
- 				     vdev->dev.parent);
- }
+url:    https://github.com/intel-lab-lkp/linux/commits/Cindy-Lu/vhost-Add-a-new-modparam-to-allow-userspace-select-vhost_task/20241004-100307
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20241004015937.2286459-2-lulu%40redhat.com
+patch subject: [PATCH v2 1/7] vhost: Add a new modparam to allow userspace select vhost_task
+config: x86_64-randconfig-122-20241005 (https://download.01.org/0day-ci/archive/20241005/202410052351.1dCg9uLx-lkp@intel.com/config)
+compiler: clang version 18.1.8 (https://github.com/llvm/llvm-project 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241005/202410052351.1dCg9uLx-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202410052351.1dCg9uLx-lkp@intel.com/
+
+sparse warnings: (new ones prefixed by >>)
+>> drivers/vhost/vhost.c:44:6: sparse: sparse: symbol 'enforce_inherit_owner' was not declared. Should it be static?
+   drivers/vhost/vhost.c:1899:54: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:1900:54: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:1901:55: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:2156:46: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c:2236:48: sparse: sparse: self-comparison always evaluates to false
+   drivers/vhost/vhost.c: note: in included file (through include/linux/wait.h, include/linux/eventfd.h):
+   include/linux/list.h:83:21: sparse: sparse: self-comparison always evaluates to true
+
+vim +/enforce_inherit_owner +44 drivers/vhost/vhost.c
+
+    35	
+    36	static ushort max_mem_regions = 64;
+    37	module_param(max_mem_regions, ushort, 0444);
+    38	MODULE_PARM_DESC(max_mem_regions,
+    39		"Maximum number of memory regions in memory map. (default: 64)");
+    40	static int max_iotlb_entries = 2048;
+    41	module_param(max_iotlb_entries, int, 0444);
+    42	MODULE_PARM_DESC(max_iotlb_entries,
+    43		"Maximum number of iotlb entries. (default: 2048)");
+  > 44	bool enforce_inherit_owner = true;
+    45	module_param(enforce_inherit_owner, bool, 0444);
+    46	MODULE_PARM_DESC(enforce_inherit_owner,
+    47			 "enforce vhost use vhost_task(default: Y)");
+    48	
+
 -- 
-2.43.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
