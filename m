@@ -1,93 +1,75 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2059.outbound.protection.outlook.com [40.107.212.59])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B5E2189510
-	for <virtualization@lists.linux-foundation.org>; Sun,  6 Oct 2024 16:56:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C566C13AD1C
+	for <virtualization@lists.linux.dev>; Sun,  6 Oct 2024 18:43:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.212.59
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728233789; cv=fail; b=kg69njGcqjQ+x/xwll3vHMU5s9N3BGJYT1vm6UQpla9q7nPsnPPX1cp6qqfst1gDvN8ugfqS5RGn2vvkgAjEkSxejwJSmwavqAq9tE6rXFdSR/OawZq4IjASJFzQVXRyKxaYgf7y7awxUCZueQo63rK289xB0eaSiNELgJw3N/8=
+	t=1728240219; cv=fail; b=S0mGaU7aQEmOEdo6Gt8/cI4crrhZ7ol2ixidXaNHCk6JSKzTFvdIVvtbAuWKdcmDJGxiQMba+/88LwBkmxC/gxlFHb5uyiqB+gTYJkYeJBoH5SDYzKgmMjKvOQwUsw4icu+eo07C8oDeJfiil6Xinw8qabfqQ9feYYIuMWs2T4I=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728233789; c=relaxed/simple;
-	bh=iLM1OpoIH8GoBimnK+IzKOCOxIepvwL5IOniYUVhuAA=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VS47QjVcunOu4hknJ67uVkRRUdZwOggo1T5CybpHkvWMt6zQeMpgD14LitNLzUTpUHXNIf/x+DqXXx6fGwN4sSWukwrF+qEJGQF50gJWfPC521Otgdkk97krJaM8clIm/4k9AUVDyviFdmJRl4hIAwoyW95mxi6DnaK3IrER7pI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=UEbZRGXf; arc=fail smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1728240219; c=relaxed/simple;
+	bh=5Tm9yDk2u3Tc/59BCiv819NpDm+4+ip/BNwTPZWrq3M=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mx1htrwx3DmVTj5wHkzF+6ESLAv4iB4sLJUbcZ2gGop17g9YoeintZjVUSeW0I62OxfqB4zYkN1Tv1woxjpaNwj9Mcg0/mh3rvBnaEASxGYzRPX1aFWluHBWTpsEwbNC8aQClicEp/2qYiLQBlmfFjz27IaJFOjN2wFwNdB9TwM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=RBQBQdwP; arc=fail smtp.client-ip=40.107.212.59
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="UEbZRGXf"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4FA2B4034C
-	for <virtualization@lists.linux-foundation.org>; Sun,  6 Oct 2024 16:56:28 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id c7Aub4S0Zuty for <virtualization@lists.linux-foundation.org>;
- Sun,  6 Oct 2024 16:56:27 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2412::62e; helo=nam10-mw2-obe.outbound.protection.outlook.com; envelope-from=mgurtovoy@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 259CE4034A
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 259CE4034A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=UEbZRGXf
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2062e.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::62e])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 259CE4034A
-	for <virtualization@lists.linux-foundation.org>; Sun,  6 Oct 2024 16:56:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="RBQBQdwP"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Au3FH3K+mYBd7W/oAEaI0Cnn/b/BxlOP4W0S0L7RM4zzYTC5Cq7Y9xFDGo6I9ir0lllKG57f4AcM91k8QsAxsCmqgQB0q2lU9khecsDm0dq1XqWQFyw8sP8BZKtL0Tt7/QxhfTQIhRF+gnUCMwBG6Z8JId4BQU/Nc14WrqmIY75ahr9jwu4AsCl0aZVT3Tvdn2BtjK5/210MY3eGM/8fzN3rXI0WfH6f+JGPOX0hx/KUDVlAG7CQ6LGV1PjTG2ioEaf05q+iNz835bBEMdS9SxVkNxRXkRTXwVAugWhckX039/PXnVwS2NEgdJQc3rU5EXL8mnB1Sq3QpZkHnqppjw==
+ b=C816oqcYuElYoRRR9NVVrUxVWzhZyGWSRaQ06DY/a5PhwkmKM+RETaWb8F7nf4t+2oanagWIaiQOm/45rbC14tvZ1BxRBb55ceg3DF3+QvC4nlqO6PEY371Gf6MX7sDb441oYbVQTh7TNOPG8klz06CzG31OsIv5T3dtmQtZnu7/pLzPi/r5lR7UK3ZLgUB/BEh0VP6Zbon/uM70bZJfcQbwYUMR7bKdUXKWG2c4UMWbOAAmX+TrmRe2aSILa+vJY44nes1RP5x9QkMNHNfvQ+tbt5rUzv6oEpOwHOK5PgqJJI7PLZxnMTfgJU9CFaM5fVdDRDQUTN+lbw9i55/dfw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2ZfD8vxXzSLvj30glOuvy5FqBaKqJz25cgjKGyjZE1c=;
- b=wljV+hpm43dbsHRABhkQAogGwGBOXnyV+8RO7iK4NTlr6DaQ5AArmfKpiJ+VBDNeXwOvTQmmfK4URCVBWmfsIw4K2k+6611lACm8Aa1wf7HqvAV+6iAyLh7qp/Gr/5VQM/kibhR92wlH0ezZLlAi+k+24gU/J1QHarjjrX3kLcE3zk08RsQLwCb+YeNVjUNKLPYq5V6NtixEGlhOwRxxRAfXZ829KsKCyapHrMtX9m98PhzJwklTA0wD8QrTMpununPIfHmsLRIO9MFSAABnMAhd7WzZgFInUSLTV++PQa9cQHYuxKYhv8eL1WFYYLW+rBrf9VtB5Wd8m5Dg47KAog==
+ bh=QJMlM69dnuq5XM1hRa++btzeXy7hX01Way5WLX8M6S8=;
+ b=dgkeSg/pFzgtTM8JWLeIpZifiDd1I4DW1+sqXIe+Krgk82wFPpSXoodgeIqORf+vCAVAg2+lKxYYUy7FvI2oB9rqlz/cM/XAsOlAOPkymQrrvhcW+ABiLe1FKQdfDl+pjWnBCClqdDRuzQW7Rv/Iw8gK5w1tK7REIafKesd7OZ6Q0f/HdXYWonUohuHhogCqKs/ZhGEM7pMwIrCtVz1en1tHNpYpr0587PNxXwK8QkPvPNxwQqLtR9UwlS7A8etDYsmWh2wwrlE3YywMorTL4jbbTIViM4BUyJht3WgMKTd4xt4LHjNeoKNh0Rz45/VfslSbqJTmLVqCAafUca56lQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=chromium.org smtp.mailfrom=nvidia.com;
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2ZfD8vxXzSLvj30glOuvy5FqBaKqJz25cgjKGyjZE1c=;
- b=UEbZRGXfkUPiFQkYwW+cK4G5gvJJGpx9ot4X/zSz0gfFhdF33B7oRYq7jj3w4AtDGZoYyG0iUB/r2Joukc5gfE0KFCdKK3tY5yefNIZmQK04U1YYvQjIPXRLu3p9Pauda4NMA20X4t1bhlDlcEBtX/j6ftPzyto7CrGm3v3JMwZTcymTF2zaSUs5P0gqFbOSwBsh3/Ao66a5e61bufYSKw2JuuIGm4JTwvGRBjQTc7EGGiNIJJKnKsgZ5+ru1yn9b2/dRDKB5N+MB3YF7ZcouYPSx0a77ZnyZpm5BgxAFhjfH+NE0AAT1obUeT4h47DtmsB3Qypk+6gT3LAIFUfXNw==
-Received: from CH0PR03CA0301.namprd03.prod.outlook.com (2603:10b6:610:118::11)
- by CH2PR12MB4213.namprd12.prod.outlook.com (2603:10b6:610:a4::24) with
+ bh=QJMlM69dnuq5XM1hRa++btzeXy7hX01Way5WLX8M6S8=;
+ b=RBQBQdwPZFsQcFHBnWT5uc80gUWoK/PoB1sGgUT4pcYHhYu9iR271OSY88Q++ffaWop/u0XiV3RCWLWJNxiTLkMz+fOvgTd0j1UAdTRuGq1QyPbP9GegqcaXYhvQAjSFvE7jNh2Z5WtL8rZMWjR0fGWvTNLSRPxuZewE1ohVIXDJIe4/Y2nu0M6fNyPECyvbzF8yOw4ozeLsBobPfJwyyMhGvj7DpqyGG3c5H6TO29Vm2vHYr/cx5+6IcWlHMcC4LOPK8MoT1X0LLLIJhjxuX7DPF0OhrGgbZ0l0S09+227Prlti978BbXodOkmrpASvcjwe0xVM8Vjmy7G/wGzbMA==
+Received: from MN0PR04CA0020.namprd04.prod.outlook.com (2603:10b6:208:52d::19)
+ by DS0PR12MB8366.namprd12.prod.outlook.com (2603:10b6:8:f9::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8026.22; Sun, 6 Oct
- 2024 16:56:18 +0000
-Received: from CH1PEPF0000A347.namprd04.prod.outlook.com
- (2603:10b6:610:118:cafe::9c) by CH0PR03CA0301.outlook.office365.com
- (2603:10b6:610:118::11) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8026.20; Sun, 6 Oct
+ 2024 18:43:32 +0000
+Received: from BN3PEPF0000B069.namprd21.prod.outlook.com
+ (2603:10b6:208:52d:cafe::60) by MN0PR04CA0020.outlook.office365.com
+ (2603:10b6:208:52d::19) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8026.20 via Frontend
- Transport; Sun, 6 Oct 2024 16:56:18 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ Transport; Sun, 6 Oct 2024 18:43:32 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
 Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- CH1PEPF0000A347.mail.protection.outlook.com (10.167.244.7) with Microsoft
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BN3PEPF0000B069.mail.protection.outlook.com (10.167.243.68) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8048.13 via Frontend Transport; Sun, 6 Oct 2024 16:56:18 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ 15.20.8069.0 via Frontend Transport; Sun, 6 Oct 2024 18:43:31 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Sun, 6 Oct 2024
- 09:56:13 -0700
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Sun, 6 Oct 2024 09:56:13 -0700
+ 11:43:27 -0700
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail202.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Sun, 6 Oct 2024
+ 11:43:27 -0700
 Received: from r-arch-stor03.mtr.labs.mlnx (10.127.8.14) by mail.nvidia.com
- (10.126.190.182) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Sun, 6 Oct 2024 09:56:11 -0700
+ (10.129.68.6) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Sun, 6 Oct 2024 11:43:24 -0700
 From: Max Gurtovoy <mgurtovoy@nvidia.com>
-To: <dverkamp@chromium.org>, <mst@redhat.com>,
-	<virtualization@lists.linux-foundation.org>, <stefanha@redhat.com>,
-	<virtio-dev@lists.linux.dev>
-CC: <oren@nvidia.com>, <parav@nvidia.com>, Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: [PATCH v2 1/1] virtio-blk: Add description for blk_size field
-Date: Sun, 6 Oct 2024 19:56:09 +0300
-Message-ID: <20241006165609.34953-1-mgurtovoy@nvidia.com>
+To: <stefanha@redhat.com>, <virtualization@lists.linux.dev>, <mst@redhat.com>,
+	Miklos Szeredi <mszeredi@redhat.com>
+CC: <kvm@vger.kernel.org>, <pgootzen@nvidia.com>, <larora@nvidia.com>,
+	<oren@nvidia.com>, Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: [PATCH 1/1] virtio_fs: add informative log for new tag discovery
+Date: Sun, 6 Oct 2024 21:43:24 +0300
+Message-ID: <20241006184324.8497-1-mgurtovoy@nvidia.com>
 X-Mailer: git-send-email 2.18.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -99,146 +81,72 @@ Content-Type: text/plain
 X-NV-OnPremToCloud: ExternallySecured
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH1PEPF0000A347:EE_|CH2PR12MB4213:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2f58d66e-c03f-4358-2d49-08dce627cc4d
+X-MS-TrafficTypeDiagnostic: BN3PEPF0000B069:EE_|DS0PR12MB8366:EE_
+X-MS-Office365-Filtering-Correlation-Id: 651f1058-63ef-41d1-3701-08dce636c6f4
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|36860700013|376014;
+	BCL:0;ARA:13230040|376014|1800799024|36860700013|82310400026;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?TyCf697RhlpVKK8XlqH71ZWCRs1DaWssX0lMG18O4GmwPHOkrdfw+ljEqi5d?=
- =?us-ascii?Q?JY9v5WDlrXn3KWfKe3TJrg2bda+om2jksxfzTWt01D/1XwHNRz2Q2MJGXbfS?=
- =?us-ascii?Q?MmbP2VKgeEm5FlLLlT3Cau9O9QLpmDRMa9livQ5QXsQWx365BNWv9d6qWPmZ?=
- =?us-ascii?Q?pF1GLRFSVThjBkO3Pazv9kI7o1MMEc6uQzBvpab8PNU59itsF4Y6vUMjhOlh?=
- =?us-ascii?Q?JGSMnxZ82hgdAIgOmpkYUGkP+ffyI9wOqvA6iFutc7Ij3Z7CnpP1iUoWzrQu?=
- =?us-ascii?Q?pfbU3rcRBw3cy15tx3aunCf4DW4XenZE9LXs2BBUvUXZZ9VABbhyjwRII8Uq?=
- =?us-ascii?Q?w0m2qUcl4k//yc3CTrWQ2OU24NVIQfl8XLtkjwJF5oZSInGbu6K7ULTY70V4?=
- =?us-ascii?Q?eqtlxSFCJSC8r4wyc1w6ubJpVqnqJQkwSg2ZMnPvoC5pa3iG1ja5vyjRikff?=
- =?us-ascii?Q?I4kp1LAj9w+EdTtTDUMEBmOmVtHu/hPjmGIEjYoDSNVzPQT3J+aUV5k82gMy?=
- =?us-ascii?Q?n55tgT94lF1t2liTbNiRXoFb3x1y1CGKCG5SoP1utyoUInK81d7LX3F0kkzw?=
- =?us-ascii?Q?/RPcKl/19JzatYhwPU4fHEmc75c+RKxq0ffPT/lnIQ3Yno1QPnZjj8RJxMuc?=
- =?us-ascii?Q?QbpP1WDJwFs0gHTxF9U+cs9kLnXy4AR1JMrGlX1PE8y8p07yrx3KrLvLRKfG?=
- =?us-ascii?Q?8wdkMDIGaOSkbe9iqMaRxW6JA/J9LaOPK9tZsTE2FF3xBxw5X8wUzCPxaayo?=
- =?us-ascii?Q?jameAxazM5SQCmRmFeu49Utmjhvlkb5VYV4Fa8OSeO7YUBSbQjblNZfHKnjh?=
- =?us-ascii?Q?oFSwAu7cmmkB7IbzPOH6mmfOu9MYZ9PDYX2A0CwuIg/CKDfWiVbSMSTFi5cW?=
- =?us-ascii?Q?stzb9wOh/YyUUqpFN8ZGTKnrEjNWxpqmbF8HCpPcotCKlYVCiltps35B8X7z?=
- =?us-ascii?Q?n83pm96ZAwyQJ/X52V58scVSOME+sfu8rME/61IPhVtYAFcx5tSHdZjtXudO?=
- =?us-ascii?Q?LJqQjanbZAgSVNCVWEjtbpWYpJtZVeHvhGPW7zu7c8L1UmnI3cMJrSgzmlfI?=
- =?us-ascii?Q?sfwa7iIClbu5KttTF9RDYyTZwDDhremBqmcGkmIY0sfcTKNK+8M2CZ/8CT/Q?=
- =?us-ascii?Q?ozx7Bge8J6YBNbHwFBh1uBAHscSd9CWxQQy0l0VEXzB1gfh9sMlZdzhmO5eK?=
- =?us-ascii?Q?9sb8xG0EaIoFpAeQ5YUecF80Ap508ebBZ47B3chfbpmXyZNtzG6nEo7k2wbk?=
- =?us-ascii?Q?BEwripkHyJsW3q25WlFXrUmAkrmJBQf/aCA+BvIvgUguBXkzuB6b9IvIjg9E?=
- =?us-ascii?Q?kqna9HlzQdiYlhwjhDz9bebpOnVv1nuG6GjJEvTPU1o+8omdSivjWPbSUBKc?=
- =?us-ascii?Q?JOOW/VZnV3wC9KS8OwzKpZNi04Hp?=
+	=?us-ascii?Q?N1WVU6L8o57PztIjrdHtdWl7ytA9QVtxd26vNEPLgHJWL+GeUXxID8XK0b4M?=
+ =?us-ascii?Q?kBj/EmTjxnDip18IsGZxEwROKur+HZIg4x+/Y8UUc6MPbT0q2kkvmiJBBieG?=
+ =?us-ascii?Q?JRcrWzqZuFGjOoMsl+rYRehqNpuFEG2aQX5jSRVyfhKm57uz3vc4eh+Dzlf4?=
+ =?us-ascii?Q?JJpzDaUBKyDu2svvoVMlJIng22rqEcwP5xyTdwW0F4GlrfsZHUYoOD909iF2?=
+ =?us-ascii?Q?kizUTIT1byYPBs+t759BHXQ4iHlS0bGYBymh03GH+cO8vlDFrBtFHszh9GKJ?=
+ =?us-ascii?Q?07yhaCz364Hsbp0qolIhOovFNNzP3osRL5SxYxzfpqoKmV/dUJeYYKDynUe7?=
+ =?us-ascii?Q?fht/DY2UDjmTfJYudD3mlWE4rGc/Y6EzftICwbIYewIgbH1K5vLxKbdgg16e?=
+ =?us-ascii?Q?b5muoPcvILpqi/Vr3J2yem+2+SBhAB34jgjlFmwAEWs+3mERZtcTPrwbuQZY?=
+ =?us-ascii?Q?FjQ73WtApBgeokUNUeerN+YyYlsK5VhenpHJHw/YGSvcMYsRGS8DdmGwlGhV?=
+ =?us-ascii?Q?QXQGfxnvel1cxg6aEXbov4Iewe+L5KaKnrTk/vye2Zcn0Sh8kJEmwk+EsKI7?=
+ =?us-ascii?Q?/8LPhM16N3T9DCV1P3AXXPoWkNNtkzBR4wPwTKUfCo5J6KGIQMRp5kEaf66J?=
+ =?us-ascii?Q?0kaKKy0bYN99wDhOAi2Na0ZAu5Cj/Tt7NfwHxCY+5SKS1xBXqg7cyIDbtscJ?=
+ =?us-ascii?Q?I5aDLQLGOe3lYXm3R7m+poHNpDKcX2L+anp330sBlnA+NomGAFjl6yDgFSln?=
+ =?us-ascii?Q?NgtPm4KisrWcOakrfQyxoi6YIFvvNKQAzYQXYgLft3kHyO2SwPM5xPbakD2T?=
+ =?us-ascii?Q?6uONb9uxNbffm5SVXzM0c0jACtPtJGFi2Zqn1YHWjn+sCPILhwCXDaOySAKn?=
+ =?us-ascii?Q?zjCkkDZPku0L+km+76rCINoPz7UQt2t/lFyUqnpKbXLmE7jaWldk81lNdoY6?=
+ =?us-ascii?Q?ENSxFpKgK9RX0VrqUtS1Dio9g0ptPn7XWgAH3zL/4qAE+U9Cv2ShGFxQK15o?=
+ =?us-ascii?Q?mMNmkcbQ9KiM38EnlcgSOC1Z7WZG2TFs+nGV4M2SEymq0FeNZtPWLmErSrKz?=
+ =?us-ascii?Q?L+LU1GaWGDeeUOsBgpAJb7pB9CcqDMzJSzw/o0c2EMb1ECRl/vcQUbmjcgnQ?=
+ =?us-ascii?Q?eAH1t8YTddLL/3q0u7/2CETC0qRkJsbTDRYOGjvTY3sRfbxpOF6+NzbNQ8Fe?=
+ =?us-ascii?Q?+fYb0lG9NFwZPq/u6a9E0tXDXw9IgFI5Yw/ey1B91QKn/5bLKDurjPrA0iGq?=
+ =?us-ascii?Q?CVozJnCOIO2AYOpvYk27A1JjZsBh8wPlRnyvEWFkLvO6I7p+9NBD8plL1i5A?=
+ =?us-ascii?Q?xFkQ/iWIjOTvFvFzpQTdf0baE//begX+jI7MderhGOySxQo74icyLUdWCJUR?=
+ =?us-ascii?Q?GeXuQ+Z8peZm6Dkw2+xwDjPb+1/r?=
 X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700013)(376014);DIR:OUT;SFP:1101;
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(1800799024)(36860700013)(82310400026);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Oct 2024 16:56:18.4397
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Oct 2024 18:43:31.8252
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2f58d66e-c03f-4358-2d49-08dce627cc4d
+X-MS-Exchange-CrossTenant-Network-Message-Id: 651f1058-63ef-41d1-3701-08dce636c6f4
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	CH1PEPF0000A347.namprd04.prod.outlook.com
+	BN3PEPF0000B069.namprd21.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4213
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8366
 
-This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is
-offered by the device.
-
-The blk_size field actually represents the logical block size of the
-device. It is always a power of two and typically ranges from 512 bytes
-to larger values such as 4 KB.
-
-Add description for this field to provide clarity on its constraints.
+Enhance the device probing process by adding a log message when a new
+virtio-fs tag is successfully discovered. This improvement provides
+better visibility into the initialization of virtio-fs devices.
 
 Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 ---
+ fs/fuse/virtio_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-changes from V1:
- - Addressed Stefan's and Daniel's comments:
-       1. use SHOULD instead of MUST
-       2. Add a note that devices may return IOERR upon misaligned IO
- - Add a note that devices may return IOERR if IO size is not following
-   the block size granularity.
----
- device-types/blk/description.tex | 34 ++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
-
-diff --git a/device-types/blk/description.tex b/device-types/blk/description.tex
-index 2712ada..77eed80 100644
---- a/device-types/blk/description.tex
-+++ b/device-types/blk/description.tex
-@@ -135,6 +135,9 @@ \subsection{Device configuration layout}\label{sec:Device Types / Block Device /
- present. The availability of the others all depend on various feature
- bits as indicated above.
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 44f2580db4c2..e2f48a1c57ee 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -521,6 +521,7 @@ static int virtio_fs_read_tag(struct virtio_device *vdev, struct virtio_fs *fs)
+ 		return -EINVAL;
+ 	}
  
-+The field \field{blk_size} exists only if VIRTIO_BLK_F_BLK_SIZE is offered by the device.
-+This field reports the block size of the device, expressed in bytes.
-+
- The field \field{num_queues} only exists if VIRTIO_BLK_F_MQ is set. This field specifies
- the number of queues.
++	dev_info(&vdev->dev, "discovered new tag: %s\n", fs->tag);
+ 	return 0;
+ }
  
-@@ -282,6 +285,13 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
- 
- \drivernormative{\subsubsection}{Device Initialization}{Device Types / Block Device / Device Initialization}
- 
-+Drivers SHOULD negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offered by the
-+device. When negotiated, drivers SHOULD interpret the \field{blk_size} as the
-+logical block size.
-+
-+If the VIRTIO_BLK_F_BLK_SIZE feature is not offered by the device, then drivers
-+MAY assume that the logical block size is 512 bytes.
-+
- Drivers SHOULD NOT negotiate VIRTIO_BLK_F_FLUSH if they are incapable of
- sending VIRTIO_BLK_T_FLUSH commands.
- 
-@@ -319,6 +329,10 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
- 
- \devicenormative{\subsubsection}{Device Initialization}{Device Types / Block Device / Device Initialization}
- 
-+Devices SHOULD always offer VIRTIO_BLK_F_BLK_SIZE feature. When this feature is
-+offered, devices MUST initialize \field{blk_size} to a power of two greater
-+than or equal to 512.
-+
- Devices SHOULD always offer VIRTIO_BLK_F_FLUSH, and MUST offer it
- if they offer VIRTIO_BLK_F_CONFIG_WCE.
- 
-@@ -879,6 +893,14 @@ \subsection{Device Operation}\label{sec:Device Types / Block Device / Device Ope
- The length of \field{data} MUST be a multiple of 512 bytes for VIRTIO_BLK_T_IN
- and VIRTIO_BLK_T_OUT requests.
- 
-+The length of \field{data} SHOULD be a multiple of \field{blk_size} for VIRTIO_BLK_T_IN
-+and VIRTIO_BLK_T_OUT requests, when the VIRTIO_BLK_F_BLK_SIZE feature has been
-+offered by the device.
-+
-+The value of \field{sector} (multiplied by 512) SHOULD be aligned with
-+\field{blk_size} for VIRTIO_BLK_T_IN and VIRTIO_BLK_T_OUT requests, when the
-+VIRTIO_BLK_F_BLK_SIZE feature has been offered by the device.
-+
- The length of \field{data} MUST be a multiple of the size of struct
- virtio_blk_discard_write_zeroes for VIRTIO_BLK_T_DISCARD,
- VIRTIO_BLK_T_SECURE_ERASE and VIRTIO_BLK_T_WRITE_ZEROES requests.
-@@ -966,6 +988,18 @@ \subsection{Device Operation}\label{sec:Device Types / Block Device / Device Ope
- for a write request if the VIRTIO_BLK_F_RO feature if offered, and MUST NOT
- write any data.
- 
-+A device MAY set the \field{status} to VIRTIO_BLK_S_IOERR for
-+VIRTIO_BLK_T_IN or VIRTIO_BLK_T_OUT requests if the requested
-+\field{sector} (multiplied by 512) is not aligned with the device's
-+\field{blk_size}, when the VIRTIO_BLK_F_BLK_SIZE feature has been offered by
-+the device.
-+
-+A device MAY set the \field{status} to VIRTIO_BLK_S_IOERR for
-+VIRTIO_BLK_T_IN or VIRTIO_BLK_T_OUT requests if the length of the
-+requested \field{data} is not an integer multiple of the device's
-+\field{blk_size}, when the VIRTIO_BLK_F_BLK_SIZE feature has been offered by
-+the device.
-+
- The device MUST set the \field{status} byte to VIRTIO_BLK_S_UNSUPP for
- discard, secure erase and write zeroes commands if any unknown flag is set.
- Furthermore, the device MUST set the \field{status} byte to
 -- 
 2.18.1
 
