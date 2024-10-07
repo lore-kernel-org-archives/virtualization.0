@@ -1,164 +1,106 @@
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3D5AB189BBD
-	for <virtualization@lists.linux.dev>; Mon,  7 Oct 2024 21:09:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
+Received: from 009.lax.mailroute.net (009.lax.mailroute.net [199.89.1.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9A1C18CC15
+	for <virtualization@lists.linux.dev>; Mon,  7 Oct 2024 22:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728335365; cv=none; b=t7YyuMfdRYiJXQcp9AC2z+1v5s4LzwxhglPknI4Mv/mbEo2ClHS53PhRs2i/qzgz0q9YX3TVTw0EGdFVe7SqPvj3Dpo1xB9IeS0BzSFlby82UQ9nchXddySIDq3qzmrqP1CcdoSrgSwDnCd1JN1eKZeEc6bOG1EH7o0iuLiU4wc=
+	t=1728340790; cv=none; b=qlKIrT49/xZjtwkvFmti5Feik/9mbbN+NX2FK2Mb9UiDQIjgcZOA17XHnRcL8yAdpIp3eneh//6KjO6PFR9Pjf8tL6lMTY1XRAgY97cNvn6R+yLUNG8mdXFfrIsfy4h4ZVpQJZtcnsdlE7IzhKRpGWyZFUammmNO27W4vxvakIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728335365; c=relaxed/simple;
-	bh=eLspYNW3wOsgz3KGMO3599QZ8Ze+l27EzYkbHmBSdGE=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=PjzliIgVVBApFPF33RQJUrx4siGFBGYLfb0e1Sl3UIdnzWXpB9iOozRKNkpVq9qW0i5MZkeo3tX3UGX/HfJWWFAIF5dPD484QjdNp9rlSJPtARgaVTyAil4J9KHKOLYqUQF9b1rcxToXBiv7VmfISw1TOv4XMoZsb2jiK6HhoDY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-	id B37EC92009C; Mon,  7 Oct 2024 23:09:15 +0200 (CEST)
+	s=arc-20240116; t=1728340790; c=relaxed/simple;
+	bh=Li951WfmrsKh0dMfn2/+bfQvclCqdJgkqNKMviFk068=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SqsPz8v1HhTJ1Ucr1nHSrz26dPdxqsdYOzXvlSCdNW8wDaTbs0xvVkKJXO5tu+GKjBp+9oWpA9VA0OI8NnMqf/SOR1FUxZj3t3sxTdACdVna/1KczjlHd3C8lnEztOSYt80d7SW3Ixc+qd0siOefKlu+ur8/Cr3PcR/yxT34gUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=cndvcR3U; arc=none smtp.client-ip=199.89.1.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="cndvcR3U"
 Received: from localhost (localhost [127.0.0.1])
-	by angie.orcam.me.uk (Postfix) with ESMTP id A591592009B;
-	Mon,  7 Oct 2024 22:09:15 +0100 (BST)
-Date: Mon, 7 Oct 2024 22:09:15 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@orcam.me.uk>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-cc: Brian Cain <bcain@quicinc.com>, Marcel Holtmann <marcel@holtmann.org>, 
-    Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
-    Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, 
-    Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-    Maxime Ripard <mripard@kernel.org>, 
-    Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
-    Simona Vetter <simona@ffwll.ch>, Dave Airlie <airlied@redhat.com>, 
-    Gerd Hoffmann <kraxel@redhat.com>, 
-    Lucas De Marchi <lucas.demarchi@intel.com>, 
-    =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
-    Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-    Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-    Jiri Slaby <jirislaby@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-    Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-    linux-hexagon@vger.kernel.org, linux-bluetooth@vger.kernel.org, 
-    dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
-    spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-    linux-serial@vger.kernel.org, linux-arch@vger.kernel.org, 
-    Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH v6 4/5] tty: serial: handle HAS_IOPORT dependencies
-In-Reply-To: <20241007-b4-has_ioport-v6-4-03f7240da6e5@linux.ibm.com>
-Message-ID: <alpine.DEB.2.21.2410072109130.30973@angie.orcam.me.uk>
-References: <20241007-b4-has_ioport-v6-0-03f7240da6e5@linux.ibm.com> <20241007-b4-has_ioport-v6-4-03f7240da6e5@linux.ibm.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+	by 009.lax.mailroute.net (Postfix) with ESMTP id 4XMvGr1CHqzlgTWP;
+	Mon,  7 Oct 2024 22:39:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
+	content-transfer-encoding:content-type:content-type:in-reply-to
+	:from:from:content-language:references:subject:subject
+	:user-agent:mime-version:date:date:message-id:received:received;
+	 s=mr01; t=1728340786; x=1730932787; bh=Ru8asnOYDU3WujVBK1w6S/i9
+	k0wtwOQpI9vGdS19tOs=; b=cndvcR3U7OQrh/du6POpyfABhBgf5xZ7cD0gtMQj
+	/BRUfeesRooORFPF37FOeoSpvC9FfLBUXoIZ9JQwNJsPywUD2Zn0rf5EIGq+9b9u
+	fBPeuYS8qR1L+T3J2VUgh9kA9zeGz51vx06LSjGnXpPWJmvvwZpKJlmGjn6dXdSG
+	SzImQ5blcONVUCdtitEr7KD/vhHKV2MODxD7umzaj7etloE73V30wl1u2fsGVy/N
+	zdVEM/q+75qn8eLifFzgZZ4+5NCIHPzz/LSzCRBJAacsROt61RQ7D3d2LURapi7l
+	jAutcG5UohwAyIhYxYvbmaX4OrkcgWA3vPwjBF0Wzx7rBQ==
+X-Virus-Scanned: by MailRoute
+Received: from 009.lax.mailroute.net ([127.0.0.1])
+ by localhost (009.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
+ id k0OZxxM_TW1i; Mon,  7 Oct 2024 22:39:46 +0000 (UTC)
+Received: from [100.66.154.22] (unknown [104.135.204.82])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bvanassche@acm.org)
+	by 009.lax.mailroute.net (Postfix) with ESMTPSA id 4XMvGn0QP5zlgTWM;
+	Mon,  7 Oct 2024 22:39:44 +0000 (UTC)
+Message-ID: <1e0ad5fd-2d90-4a0a-bb5c-0b270dd8ddd8@acm.org>
+Date: Mon, 7 Oct 2024 15:39:42 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [Report] requests are submitted to hardware in reverse order from
+ nvme/virtio-blk queue_rqs()
+To: Christoph Hellwig <hch@infradead.org>, Ming Lei <ming.lei@redhat.com>
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-nvme@lists.infradead.org
+References: <ZbD7ups50ryrlJ/G@fedora> <ZbO9T_R4lN_7WkwQ@infradead.org>
+Content-Language: en-US
+From: Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <ZbO9T_R4lN_7WkwQ@infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 7 Oct 2024, Niklas Schnelle wrote:
+On 1/26/24 6:10 AM, Christoph Hellwig wrote:
+> On Wed, Jan 24, 2024 at 07:59:54PM +0800, Ming Lei wrote:
+>> Hello,
+>>
+>> Requests are added to plug list in reverse order, and both virtio-blk
+>> and nvme retrieves request from plug list in order, so finally requests
+>> are submitted to hardware in reverse order via nvme_queue_rqs() or
+>> virtio_queue_rqs, see:
+> 
+>> May this reorder be one problem for virtio-blk and nvme-pci?
+> 
+> It it isn't really a problem for the drivers, but de-serializing
+> I/O patterns tends to be not good.  I know at least a couple cases
+> where this would hurt:
+> 
+>   - SSDs with sequential write detection
+>   - zoned SSDs with zoned append, as this now turns a sequential
+>     user write pattern into one that is fairly random
+>   - HDDs much prefer real sequential I/O, although until nvme HDDs
+>     go beyong the prototype stage that's probably not hitting this
+>     case yet
+> 
+> So yes, we should fix this.
 
-> diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-> index 6709b6a5f3011db38acc58dc7223158fe4fcf72e..6a638feb44e443a1998980dd037748f227ec1bc8 100644
-> --- a/drivers/tty/serial/8250/8250_pci.c
-> +++ b/drivers/tty/serial/8250/8250_pci.c
-[...]
->  	iobase = pci_resource_start(dev, 0);
->  	outb(0x0, iobase + CH384_XINT_ENABLE_REG);
->  }
->  
-> -
->  static int
->  pci_sunix_setup(struct serial_private *priv,
->  		const struct pciserial_board *board,
+(replying to an email from January)
 
- Gratuitous change here.
+For my patch series that supports pipelining for zoned writes, I need
+the submission order to be preserved. Jens mentioned two possible
+solutions:
+- Either keep the approach that requests on plug->mq_list are in reverse
+   order and reverse the request order just before submitting requests.
+- Or change plug->mq_list into a doubly linked list.
 
-> diff --git a/drivers/tty/serial/8250/8250_pcilib.c b/drivers/tty/serial/8250/8250_pcilib.c
-> index ea906d721b2c3eac15c9e8d62cc6fa56c3ef6150..fc1882d7515b5814ff1240ffdbe1009ab908ad6b 100644
-> --- a/drivers/tty/serial/8250/8250_pcilib.c
-> +++ b/drivers/tty/serial/8250/8250_pcilib.c
-> @@ -28,6 +28,10 @@ int serial8250_pci_setup_port(struct pci_dev *dev, struct uart_8250_port *port,
->  		port->port.membase = pcim_iomap_table(dev)[bar] + offset;
->  		port->port.regshift = regshift;
->  	} else {
-> +		if (!IS_ENABLED(CONFIG_HAS_IOPORT)) {
-> +			pr_err("Serial port %lx requires I/O port support\n", port->port.iobase);
-> +			return -EINVAL;
-> +		}
->  		port->port.iotype = UPIO_PORT;
->  		port->port.iobase = pci_resource_start(dev, bar) + offset;
->  		port->port.mapbase = 0;
+The second approach seems the most interesting to me. I'm concerned that
+with the first approach it will be difficult to preserve the request
+order if a subset of the requests on plug->mq_list are submitted, e.g.
+because a queue full condition is encountered by 
+blk_mq_dispatch_plug_list().
 
- Can we please flatten this conditional and get rid of the negation, and 
-also use `pci_err' for clear identification (`port->port.iobase' may not 
-even have been set to anything meaningful if this triggers)?  I.e.:
+Thanks,
 
-		/* ... */
-	} else if (IS_ENABLED(CONFIG_HAS_IOPORT)) {
-		/* ... */
-	} else {
-		pci_err(dev, "serial port requires I/O port support\n");
-		return -EINVAL;
-	}
-
-I'd also say "port I/O" (by analogy to "memory-mapped I/O") rather than 
-"I/O port", but I can imagine it might be debatable.
-
-> +static __always_inline bool is_upf_fourport(struct uart_port *port)
-> +{
-> +	if (!IS_ENABLED(CONFIG_HAS_IOPORT))
-> +		return false;
-> +
-> +	return port->flags & UPF_FOURPORT;
-> +}
-
- Can we perhaps avoid adding this helper and then tweaking code throughout 
-by having:
-
-#ifdef CONFIG_SERIAL_8250_FOURPORT
-#define UPF_FOURPORT		((__force upf_t) ASYNC_FOURPORT       /* 1  */ )
-#else
-#define UPF_FOURPORT		0
-#endif
-
-in include/linux/serial_core.h instead?  I can see the flag is reused by 
-drivers/tty/serial/sunsu.c, but from a glance over it seems rubbish to me 
-and such a change won't hurt the driver anyway.
-
-> @@ -1174,7 +1201,7 @@ static void autoconfig(struct uart_8250_port *up)
->  		 */
->  		scratch = serial_in(up, UART_IER);
->  		serial_out(up, UART_IER, 0);
-> -#ifdef __i386__
-> +#if defined(__i386__) && defined(CONFIG_HAS_IOPORT)
->  		outb(0xff, 0x080);
->  #endif
->  		/*
-> @@ -1183,7 +1210,7 @@ static void autoconfig(struct uart_8250_port *up)
->  		 */
->  		scratch2 = serial_in(up, UART_IER) & UART_IER_ALL_INTR;
->  		serial_out(up, UART_IER, UART_IER_ALL_INTR);
-> -#ifdef __i386__
-> +#if defined(__i386__) && defined(CONFIG_HAS_IOPORT)
->  		outb(0, 0x080);
->  #endif
->  		scratch3 = serial_in(up, UART_IER) & UART_IER_ALL_INTR;
-
- Nah, i386 does have machine OUTB instructions, it has the port I/O 
-address space in the ISA, so these two changes make no sense to me.  
-
- Though this #ifdef should likely be converted to CONFIG_X86_32 via a 
-separate change.
-
-> @@ -1306,12 +1333,12 @@ static void autoconfig_irq(struct uart_8250_port *up)
->  {
->  	struct uart_port *port = &up->port;
->  	unsigned char save_mcr, save_ier;
-> +	unsigned long irqs;
->  	unsigned char save_ICP = 0;
->  	unsigned int ICP = 0;
-> -	unsigned long irqs;
->  	int irq;
-
- Gratuitous change here (also breaking the reverse Christmas tree order).
-
- Thanks for making the clean-ups we discussed.
-
-  Maciej
+Bart.
