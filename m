@@ -1,186 +1,217 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CF8A189BAA
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Oct 2024 13:37:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728308273; cv=none; b=K0NA6dbuP27B+YVHGWSQxaNCyT4KTOykBKM3II8BPzqFJzb8KBDKlRS0N+wkgsD/FYOj0jA8b95X+qfUHEbLPtaaC9/N4LzJeatEZx8FSVbGQqZaF1TBlXTZuEwj0qTxL756noYPbOnvQzvROkPU/KX2z+aMfqs/XDZkymL46I4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728308273; c=relaxed/simple;
-	bh=hB2s2lfcHmnZyQnBQtcYGPUu92PIitX04lRdk6K+6i0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pbDItAQwPvqE5RggW/hUOm6q+na66OEOSnbL/5035tQqHKv04YJKxE4LBr6rabsORImY5NXyNfiiUWgJi8OZ9I019hX0QFfiWtVFOymUzi56H6qtfqi9Ip9dlz4Ptr86XWgHw0TFiPrKAtuc6VC8n3zQvjPdJvY2WOppCRSh3t4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YvYcFzx9; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 480901D54DC
+	for <virtualization@lists.linux.dev>; Mon,  7 Oct 2024 14:39:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1728311986; cv=fail; b=CJ5cBMgv6OZU5m1hcJYW7kGHtmJiP36KWocbp+L1e9ZLRn/tH5V1FX1jOB/iTSLQXfi0yHyHhWrbZQu8iwZvYOC4Zzh0aggjtFb8vTQGRY00MIJn31UhJhjo3KuL4/HqbRFWCvdOtf7AKxMjkqKB2A/ndcuqab0xWqKe5vE38Gg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1728311986; c=relaxed/simple;
+	bh=+zNZ1vRmfPMx4A+oKGARuZCfqO8JfhN52l9OpitK4kA=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=lXvWj9gvgNYiXXfrCruU33nOsnVBS/PhsZgfqcYWKd9a9L2P0ToffGb2qDVd6j2R4uf9v0tJ9zTx+d11mCdDAsSUJlu/GSUEWTVwK3vQZNKgyVQlHZGF4yVvPy7FoPpg5ZhrFGqBqnYE+yi67xBONSfxyQKNbCuQ3qJtCYd9EKY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HUKMsfRv; arc=fail smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YvYcFzx9"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E547A60616
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Oct 2024 13:37:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id kYm0qQmsgRmp for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Oct 2024 13:37:51 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 193CD60609
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 193CD60609
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YvYcFzx9
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 193CD60609
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Oct 2024 13:37:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728308269;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=u55VIzbnsDYZ6+urjTeBn/sPe+UeOPYjNBp44UJwta4=;
-	b=YvYcFzx9rNXsonIE5/Mf3mPHhQZ/iEAaFtruB0XVcCKuLNEVsbN4li14cL4f3minWhaOAL
-	i+5FlqPIffQQDEiEsmpYaDmb3VoH/R4Qx72uzNNH4V0w1Q3dmi1DHjCwYZy8dpZTvEOh3G
-	F92XsWVBvelwVvKkcYZ7Xew0bGXsb44=
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
- [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-ls7qrORaORmPuSLld9yOMg-1; Mon, 07 Oct 2024 09:37:48 -0400
-X-MC-Unique: ls7qrORaORmPuSLld9yOMg-1
-Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-3a1a969fabfso56033635ab.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 07 Oct 2024 06:37:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728308268; x=1728913068;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=u55VIzbnsDYZ6+urjTeBn/sPe+UeOPYjNBp44UJwta4=;
-        b=VF5Fiy2Buo5dJmL5/iplaMOB/xOWq+pzHMkvrO5amPMVwpOHvZNpUvyF8BPRjei+rK
-         SvVqWrVrmoAqlVIJli0HqD3qchk47kYq/FBMCxA1GEQJdYiexudAdMNc5VURAZ43o6BQ
-         kgxuwPEd7alh255JJRnCl6pe3rHrEFqLCzOV3v3nf9SMx3sCVK6giy7RdknYio9vv9yp
-         9S94Zivi1zu2KwcWVAXnkbF+zztAj8xkRYwMyYXwNGTYLD3ET2xTuXONbHTnGjHWybeV
-         TkdbtQ0S/24AKCnkXEVfRKujnIzES8FA2aJkejQ088BkkTIttKjoY1e3bcq7ivDsVQwq
-         5c8A==
-X-Forwarded-Encrypted: i=1; AJvYcCWwvP251d38fiqH6wUl5iY0pmVkIwot65t0+W8dAKCjaMRpJ/JPa++c59vxPIeOm3S2ZucVYYF+nlpQfps4Bw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyWRxzTnElTHxXtqtMomafqygZRZcRIGGkPuYeeyKFgJkRRAF92
-	ftfBq2cdrWTUYE3xmLuVBhRXD7uAeKumxVoOHI2nRAe4ovBeiJ8oXmo+tXY6ztkg8O8lQ8AX0N1
-	Ua+0QUe6DtLiF0JHWIapAHQraD1rmLmDGMjamZ7573ggtxRxUCLMcKuDpturkGdtz8mJUUTaV0x
-	FcG0U=
-X-Received: by 2002:a92:cd82:0:b0:3a0:9952:5fcb with SMTP id e9e14a558f8ab-3a375bb6652mr104129105ab.17.1728308267901;
-        Mon, 07 Oct 2024 06:37:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHY4DVSl0pKaQLg5oB3Cu7qBASwkdVyLfgME8TrpLYdIQrARbPLldNRPAtt7pwFAXQQCbp5QA==
-X-Received: by 2002:a92:cd82:0:b0:3a0:9952:5fcb with SMTP id e9e14a558f8ab-3a375bb6652mr104128765ab.17.1728308267474;
-        Mon, 07 Oct 2024 06:37:47 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4db8479ff8fsm566559173.2.2024.10.07.06.37.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Oct 2024 06:37:47 -0700 (PDT)
-Date: Mon, 7 Oct 2024 15:37:40 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 7/7] vhost: Add new UAPI to support change to task mode
-Message-ID: <trrpnhe3qahveeizjlwfp33thudcw5jcmh3uunllucgur4txub@gm2k3p4sx6in>
-References: <20241004015937.2286459-1-lulu@redhat.com>
- <20241004015937.2286459-8-lulu@redhat.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HUKMsfRv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1728311986; x=1759847986;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=+zNZ1vRmfPMx4A+oKGARuZCfqO8JfhN52l9OpitK4kA=;
+  b=HUKMsfRvhcgIqk3CRPJ4NEzdw/FfmQ4sq2/cQp4H/+UbytYSa6AOaHdX
+   j/8URH/BM4r19LMNIhLZXLrO6cotXBLKyx7dFhLFpGliaU4rZNNm6YDol
+   SnKHg65UtCxe10GWPgdAAxdx8+RRxai9y2Ba+T49taQwjp2QGqfTLu7/o
+   c12WPCXP1pXleo2lzUawmqRSPjf5TgWJZSLzZOZt+ZEkeb0pTyeWcmLjd
+   5MOXvXqKtXctGPAwo3401YUPdBiPCc94Vw/0xRkP8ruv2gtPFme2YniWd
+   rt2/6G+GuCaewAmEOyleJKd1tMnfhgiP9EHGRmWt3MJ+Dux0X8nmlGyfx
+   w==;
+X-CSE-ConnectionGUID: WRSbArRqRG2K6pbRcvrEuQ==
+X-CSE-MsgGUID: 636Xe72JQHSrHkoE+g0lPw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11218"; a="38033197"
+X-IronPort-AV: E=Sophos;i="6.11,184,1725346800"; 
+   d="scan'208";a="38033197"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2024 07:39:45 -0700
+X-CSE-ConnectionGUID: mN+4RQOGTCGUZqA+7ATufg==
+X-CSE-MsgGUID: Yahr5nIyTemwTM/Ebh4d6w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,184,1725346800"; 
+   d="scan'208";a="79482825"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by fmviesa003.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 07 Oct 2024 07:39:44 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Mon, 7 Oct 2024 07:39:42 -0700
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Mon, 7 Oct 2024 07:39:42 -0700
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (104.47.51.48) by
+ edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Mon, 7 Oct 2024 07:39:41 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=i2BWsde6pivF/yAD8c9ZpZRkplaHzjBXr9vTG8vm07jB8l+cPPGOvUQ2woVOdBLpf8dRMtKNs8RhJL8DMxYDomRUQ5UOcvCUQBjxxgG6LZjIqRMsG1flbrk7T1NhDxBpUhnbFVb2JncL31xFilzmtlj5OFZcyMagkfMbPG6Z+Tbf8FNrr3cvXzYG3JBua8Y7rONW2mcONOgjFA3ifIZhrznzDljF3k9aQ7YFYoasznQvJJDQg9PYwDReHUQwX0rOQ03paprfT5YGBXgGPSeBOZ/IKxG2qc/Fe8MjhYGQWegN4SB6zVaoPQ0n5xw/N+LB5UL3qRGvFjr6906TF2tXHw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=EWRhs15wDrALEzIcuJfLbMjW8I83+jHN6Uqw/skKOpQ=;
+ b=gtkzqyVDspdlOlwLYTlsLS3Yzn3BIfCXCRBSvjg2IifnopMM/NVP2s+XWsF3q5U1QZCsQBQXTe7wL4CFsf/CU86f7Ey+iVa94B34kRZfeYOLjaxHR7N0XKCx1DHBnu/BCbddQyAJhduxWSn66in0QI1+zHF/jqeFStztTD2iJmjlnYSGXfgbZT0pwmFQItr1psN1BhJjMG7l37be8o7xLIfxCCcBUSD93jfod382kPdzIdavBq/HFT8wiRZpUUhKwmDf5MXi+mvEZZHI3LVtiYNLm/Nh8qrOUTLXzdiJQqi1he1/hEKjiaAvdWwBZupzgCmRtR5rLDXRxhl4RBIKvw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from CY5PR11MB6139.namprd11.prod.outlook.com (2603:10b6:930:29::17)
+ by DM4PR11MB5971.namprd11.prod.outlook.com (2603:10b6:8:5e::7) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8026.22; Mon, 7 Oct 2024 14:39:38 +0000
+Received: from CY5PR11MB6139.namprd11.prod.outlook.com
+ ([fe80::7141:316f:77a0:9c44]) by CY5PR11MB6139.namprd11.prod.outlook.com
+ ([fe80::7141:316f:77a0:9c44%6]) with mapi id 15.20.8026.020; Mon, 7 Oct 2024
+ 14:39:38 +0000
+Date: Mon, 7 Oct 2024 09:39:33 -0500
+From: Lucas De Marchi <lucas.demarchi@intel.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+CC: Brian Cain <bcain@quicinc.com>, Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>, Patrik Jakobsson
+	<patrik.r.jakobsson@gmail.com>, Maarten Lankhorst
+	<maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>, Dave Airlie <airlied@redhat.com>, "Gerd
+ Hoffmann" <kraxel@redhat.com>, Thomas =?utf-8?Q?Hellstr=C3=B6m?=
+	<thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby
+	<jirislaby@kernel.org>, Arnd Bergmann <arnd@arndb.de>, "Maciej W. Rozycki"
+	<macro@orcam.me.uk>, Heiko Carstens <hca@linux.ibm.com>,
+	<linux-kernel@vger.kernel.org>, <linux-hexagon@vger.kernel.org>,
+	<linux-bluetooth@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+	<virtualization@lists.linux.dev>, <spice-devel@lists.freedesktop.org>,
+	<intel-xe@lists.freedesktop.org>, <linux-serial@vger.kernel.org>,
+	<linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@kernel.org>
+Subject: Re: [PATCH v6 3/5] drm: handle HAS_IOPORT dependencies
+Message-ID: <3wh4nsirm5kjapft47oe3gaqgzdjwlhzku5lrctb4hhfjxicv3@n2sow3o36chc>
+References: <20241007-b4-has_ioport-v6-0-03f7240da6e5@linux.ibm.com>
+ <20241007-b4-has_ioport-v6-3-03f7240da6e5@linux.ibm.com>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20241007-b4-has_ioport-v6-3-03f7240da6e5@linux.ibm.com>
+X-ClientProxiedBy: MW4PR03CA0271.namprd03.prod.outlook.com
+ (2603:10b6:303:b5::6) To CY5PR11MB6139.namprd11.prod.outlook.com
+ (2603:10b6:930:29::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241004015937.2286459-8-lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR11MB6139:EE_|DM4PR11MB5971:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4400597e-0f5f-49d1-db51-08dce6dddf23
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?vqmlIbzdz7facFgV38gA8q4rzV/Y4pBRXY8J5faRyAvjzzAUuh+nSWWuIQQI?=
+ =?us-ascii?Q?Hcj+IhdQIo2pMaZ7/SCd37o2F+CPdohBEpnHvWtzx9G1S3/1sCUHYdE3SRAh?=
+ =?us-ascii?Q?qXnoPOuLUnzNje/kPnvaErHK8sW34FbFAELAFCdkbZb7lcQP3UytNFuikXAK?=
+ =?us-ascii?Q?ba515WyoLkkKiHzaS6buJO/NN220jJUZ0YCCTR8LRdLw/TAZmunGp5YAK8jU?=
+ =?us-ascii?Q?pkyygfrT3L/HS9HrXz+BQl8sUsT5gloFgCuvczlvD0HY+M/gleI+pQRqaXHA?=
+ =?us-ascii?Q?KbQhvaVXOD+TSsPZ45ejt8k+Dj8JvY2zB4FBDcLI/6tSlxhW9Ob9zREcbhtp?=
+ =?us-ascii?Q?rb9atUVHNnrRMnyQe0lHEMJMtzsl+DQdtQi3scoT3+JuVxaehXVnDDAZv8os?=
+ =?us-ascii?Q?tBhIVeH0NhgzVykd0hVjqA8oAIN+aksAdnEyoDileIQwkAbPVc/Gexhdp96Z?=
+ =?us-ascii?Q?3qIFHxD3Tg7XFaImWbL06IWiOsMZpyfOpEGi6yhVLtDTuyWPp/uaCH5oMZnS?=
+ =?us-ascii?Q?XrasKMiV7J/Nus8mwmDKiUTVYNCvL1l0+fcOW2xki0g48CsXZA2eKXpZAz3d?=
+ =?us-ascii?Q?vfUE+9bUxn3zNO+za+Hcvip/pjV+P/Q0YUJ4aysgyszK1RzFFClT+5U1thiO?=
+ =?us-ascii?Q?SxyixYeUyhof22nrrC+I39n4wck0GX/t4IJ2EDhldJCQfiVbFzUsxKpPoNFm?=
+ =?us-ascii?Q?tFgIhk6PkaFceCk2d7r/U7iwMDCDXvr12mSCRPCcQENSW8KvoGm8y6VHNVa8?=
+ =?us-ascii?Q?ab9GNyhXoVCAN37WBSPdkbbAAQ0VJympvQR6oRIjtE+oJUk/P7Q4zDol9LbH?=
+ =?us-ascii?Q?Lwg04l1IdadFn7L0pGY9uUpAEWN8b39WQxEtbr/xrUECZLjIe2mhp6yZW0z1?=
+ =?us-ascii?Q?CNjEwBCNJRr3xlF/wFAQVYt0qP5F/UesTzj24bcwNFK+469d42j/aGBur/Fc?=
+ =?us-ascii?Q?SLq9d3Tdvo5pRuGey/c+nBjhJEa6+XZrsIIUr2JEXx0l6F8wosKhGlPoIyP6?=
+ =?us-ascii?Q?rEt8qSWto3GPelOZoFOQQtFH6kp5aB1DT0zxyDFr/GY3QmyY/e5eObvoFrn4?=
+ =?us-ascii?Q?kvMOhNYLejlhyxrXzpNhav3CHW1rfm7Y0VGSNswYfK9bHSqJ41gm3mw1zKLP?=
+ =?us-ascii?Q?bg7wu4gyRwajQB/E5r/EaKSLrDS3EYpP6DjGumfaPl74VlcFiIZ+RYSI276D?=
+ =?us-ascii?Q?IVl++CFlfj54tUdJiovd6e6Qp9aG1BYO5n4mJnXAyQy5NExxRzRNzTBQ+TrU?=
+ =?us-ascii?Q?Hj3aAh3lJzOT2TdaUJvCp2IwsZ850Qejmlj549JoQg=3D=3D?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR11MB6139.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?uCkj1oeoD9ZkvN3ABaAd8PoPrmdNx+MaO0LouagCSMi1Hv+YFF9p8sJhTHty?=
+ =?us-ascii?Q?HMUMjqPaBgAxVKBWvSCF2UJNt0KMPGiRB/nYlc17bwQdNTm6byHZ9JGeT29D?=
+ =?us-ascii?Q?yK5NYHu6sMHovh3RZYykeej51sCo4An0p171tZOeVOFPDSeg8lMDHdBHATr5?=
+ =?us-ascii?Q?YMslf1LHaUjYDIz/7aA1N/sHlbk+GTQA3Sewsd12fqYaS4t3wZyYGXqsegOh?=
+ =?us-ascii?Q?P9RJLeT4tfe+de7i1p/G9WQQwseJ3c9PCKqJHPrq53xjALGY+eQdE07KaE7R?=
+ =?us-ascii?Q?eIXQb6XUZqI5k/b8SE14mCtVBCsQkxF6ygfIOo19bHH2UHLcussvrZpEd6pb?=
+ =?us-ascii?Q?8pVs7sZRS1/kHZaqCE+EkFjasLMyYHcmRTJ95wDAIrVX9obFgvrW9zpfDkrq?=
+ =?us-ascii?Q?fQN4CdikdvnFFxjFDOQ+rywFB0790SGY6NzgpHIpMd33Pva1s8L0COk87WcX?=
+ =?us-ascii?Q?eqiHlpWZCuG4Ubf/A/7Kdh02OPueYUVPr0cnTvFoxfXjGeAuCalrZ1e5/JlM?=
+ =?us-ascii?Q?qomGLTKeJoqYYBc+yrHlXocNsQe5CuAhCD5VF1EchpPvbOn05bhQcePaEEEV?=
+ =?us-ascii?Q?HDyL2+RqjxqRLqUBTQb5016IzPJXFiRy27LCaKly/oU+llb9Mi9RxLcbJr0l?=
+ =?us-ascii?Q?OJ1Ta4MNTITN8weQ4WoZWIzjdesu3e4BMfgR5dxtNKKwVydciw2Jetq3vTDy?=
+ =?us-ascii?Q?NudSEKCNNUmaoNun2/N7acqUyZRLQfB/srlnc7xSqvLKpoUAQlKwx9Lew9za?=
+ =?us-ascii?Q?7I9dG6K5rddr7OFJyVJ9rfzAby4HNSb5bM7x4Oh8Q86J2UTE0dv/l7qafc4c?=
+ =?us-ascii?Q?phHm9ovy+iSwrt8BYD2qXCLAx8gY6SACwWJcfQE5SFtrs8Bdy+liJpvawdgQ?=
+ =?us-ascii?Q?nVdtn6j8hVpEAQm1IG9Us/rDeXFcZ/Rs8vUV1SUJfMQmmKE4SdVnxWNCGpHv?=
+ =?us-ascii?Q?pnsTscvaKcKB0f6CUU2ccxG37J6CrFDRx0rdJvJQUcz0ID0Lvp+XEHZICrYK?=
+ =?us-ascii?Q?qRFykVsqx7reEw4dD0fkyhJESusa1TNwZeSl2NUhm+e9Fk2MsxuYL3wdHRKh?=
+ =?us-ascii?Q?iyliDWJZbDNtcJzhIKiFCCBQd7OEuicrCuzYk8/J+nGdsDT/W9GfDVYZVgKI?=
+ =?us-ascii?Q?k2I/eh9tHAuWFNidc7lwKcATjPjbZOZCfrCgMV9O0UB3GOINEjhUUsf3aTZr?=
+ =?us-ascii?Q?xb7jMXJm0a3F1fHRJ7Yee2of3uChqsRXxHkjQzmmaPS/S+eJqNvirO2jUmkT?=
+ =?us-ascii?Q?q43zbX8nYuxYAI8OmSZRSfApyfdDqRzqk3GcvMYlCo6ko9v4RUQnzByT+g7y?=
+ =?us-ascii?Q?uTAJbqCQXyiXBYqAElOJBV0AWWbC4fn2Z3MjlFANl5a23feAh4eId5LKqRco?=
+ =?us-ascii?Q?XK6limSwBRd5Fwzb7vzlndOfVWKwipjL1zQigXIPXXgzUzcqWF6J/HxwhZMI?=
+ =?us-ascii?Q?0X4+UICS2eZcdORFMQDc1/j0plmao1v3nJpnfbHr+0dW3Sj+bUxs3acIKT3v?=
+ =?us-ascii?Q?IFgxpMR5M7GC3vLmxvQfV1EmOU0bVdixNx/Qm6eK8GS4yeQJVrytocoisYJO?=
+ =?us-ascii?Q?rZrfB+RWSHwr+PY2mimOXwJOVTqTSdSa/VqzlDtd1n+N3Mm1j9jjA0HYsCPy?=
+ =?us-ascii?Q?mg=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4400597e-0f5f-49d1-db51-08dce6dddf23
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR11MB6139.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Oct 2024 14:39:38.7501
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: dK+CvOz2FgGujZEa28vyIH0XcX8pr7NtZdDMc9gTGdTwpdKGpfXloNbO6iTy+8VOq3lEzUB61Jlum+IttYpciUXvOkDO7qslYSp6fhBeuhA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB5971
+X-OriginatorOrg: intel.com
 
-On Fri, Oct 04, 2024 at 09:58:21AM GMT, Cindy Lu wrote:
->Add a new UAPI to support setting the vhost device to
->use task mode. The user space application needs to use
->VHOST_SET_INHERIT_FROM_OWNER to set the mode.
->This setting must be set before VHOST_SET_OWNER is set.
-
-Why?
-
+On Mon, Oct 07, 2024 at 01:40:21PM +0200, Niklas Schnelle wrote:
+>In a future patch HAS_IOPORT=n will disable inb()/outb() and friends at
+>compile time. We thus need to add HAS_IOPORT as dependency for those
+>drivers using them. In the bochs driver there is optional MMIO support
+>detected at runtime, warn if this isn't taken when HAS_IOPORT is not
+>defined.
 >
->Signed-off-by: Cindy Lu <lulu@redhat.com>
+>There is also a direct and hard coded use in cirrus.c which according to
+>the comment is only necessary during resume.  Let's just skip this as
+>for example s390 which doesn't have I/O port support also doesen't
+>support suspend/resume.
+>
+>Co-developed-by: Arnd Bergmann <arnd@kernel.org>
+>Signed-off-by: Arnd Bergmann <arnd@kernel.org>
+>Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 >---
-> drivers/vhost/vhost.c      | 18 +++++++++++++++++-
-> include/uapi/linux/vhost.h |  2 ++
-> 2 files changed, 19 insertions(+), 1 deletion(-)
->
->diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->index 08c9e77916ca..0e5c81026acd 100644
->--- a/drivers/vhost/vhost.c
->+++ b/drivers/vhost/vhost.c
->@@ -2341,8 +2341,24 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
-> {
-> 	struct eventfd_ctx *ctx;
-> 	u64 p;
->-	long r;
->+	long r = 0;
-> 	int i, fd;
->+	bool inherit_owner;
-              ^
-              This can be moved ...
->+
->+	if (ioctl == VHOST_SET_INHERIT_FROM_OWNER) {
+> drivers/gpu/drm/gma500/Kconfig |  2 +-
+> drivers/gpu/drm/qxl/Kconfig    |  1 +
+> drivers/gpu/drm/tiny/bochs.c   | 17 +++++++++++++++++
+> drivers/gpu/drm/tiny/cirrus.c  |  2 ++
+> drivers/gpu/drm/xe/Kconfig     |  2 +-
 
-                 ^
-                 ... here.
+as an example:
+$ git grep -lw outb -- drivers/gpu/drm/
+drivers/gpu/drm/gma500/cdv_device.c
+drivers/gpu/drm/i915/display/intel_vga.c
+drivers/gpu/drm/qxl/qxl_cmd.c
+drivers/gpu/drm/qxl/qxl_irq.c
+drivers/gpu/drm/tiny/bochs.c
+drivers/gpu/drm/tiny/cirrus.c
 
->+		/* Is there an owner already? */
+you are adding the dependency on xe, but why are you keeping i915 out?
+What approach did you use to determine the dependency?
 
-This comment is superfluous, I would instead explain why there has to be 
-an owner, what problem would we have if not?
-
->+		if (vhost_dev_has_owner(d)) {
->+			r = -EBUSY;
->+			goto done;
->+		}
->+		if (copy_from_user(&inherit_owner, argp,
->+				   sizeof(inherit_owner))) {
->+			r = -EFAULT;
->+			goto done;
->+		}
->+		enforce_inherit_owner = inherit_owner;
-
-mmmm, I'm confused.
-
-IIUC with this change, an user, for example, can call 
-VHOST_SET_INHERIT_FROM_OWNER on /dev/vhost-vsock and change the 
-behaviour of /dev/vhost-net.
-
-Is that really what we want?
-
-Maybe it's better if the module parameter controls the default of any 
-device, but the ioctl changes the behavior only for that device.
-
->+		goto done;
->+	}
->
-> 	/* If you are not the owner, you can become one */
-> 	if (ioctl == VHOST_SET_OWNER) {
->diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
->index b95dd84eef2d..1e192038633d 100644
->--- a/include/uapi/linux/vhost.h
->+++ b/include/uapi/linux/vhost.h
->@@ -235,4 +235,6 @@
->  */
-> #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
-> 					      struct vhost_vring_state)
->+
-
-Please, add documentation here.
-
->+#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, bool)
-                                        ^
-                                        Please, add a tab like we did
-                                        for all previous definitions.
-
-Thanks,
-Stefano
-
+Lucas De Marchi
