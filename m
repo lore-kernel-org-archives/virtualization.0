@@ -1,325 +1,71 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFFB73A1CD
-	for <virtualization@lists.linux.dev>; Tue,  8 Oct 2024 11:33:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61B3E1DE88F;
+	Tue,  8 Oct 2024 11:33:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728387206; cv=none; b=WvGN0gJC7lx30KqprQmi170IICAX2vyGsgOqcuVnXYVd/iQFdshEqo203T9xoMrv8oDTJ/wyt/JEcS3rC3L7uAnt6CJ7xbAXmXjqylTgT1Z5Q70O92gAM8U7PxrvhbsH4ucwHCgoD0MSBV/B7hKiTw1IjkzEszBT2M+t5EqnaR8=
+	t=1728387209; cv=none; b=MFmxSyxG4bDX6llir7EGGEdDeHfm29k1LdjUu5AAYv7VGWgzLs+wgzS6aKE2HY0ZWuG83XldYRBabIRTe7ONqHCEWD7CA7G+lJtY+Hks0Xn7Lij6LmJfUUWVbXND2A4mlb/Sd58K9m668zJzrPudWpm6xgzxjgh/7kG86qjOkXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728387206; c=relaxed/simple;
-	bh=j7KaGUsyaLEUfGtXkukiFzIvWKJHDMnnZRqJknyuK2M=;
-	h=From:Date:Subject:Content-Type:Message-Id:References:In-Reply-To:
-	 To:Cc:MIME-Version; b=JBYraaptx8K5xN+3aRfALH9ULbv6tP0WIJ8svrwQpnCw6ncuIHW/WuHueLUasEwsSWZDwFFb+jg91N7yGoUD29GAmgRj+SFud3k8Ga4/kwTtiWdc2YMG2PQ7pw3vFGG0ERYZ98Qwx3ERJBtfPl5hO3k1sxmdiQr8I3/fm81be0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Z+cpsbRm; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728387209; c=relaxed/simple;
+	bh=umiJnaSgx5KeYV/NYoPOtX3HZdZvYwsTzuFtuBsn6Tk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JyF26t7Mh2+gpqlf+lwnjm8ZTLaEgCoo7wtMviBv60benqzMpJwQWsPRsePnxIbJaIVR+/+Zrb7tcjQzG2BzSICeongQdJtS5u7+0KJkK0WbjIdsUFQcJ0q28dU7OtJeuFivu83wi4ise2AWyiD546p83868wSQqLUxRXXDYqhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=aaxLXWkz; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Z+cpsbRm"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 498ARMbw023040;
-	Tue, 8 Oct 2024 11:33:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:date:subject:content-type:message-id:references:in-reply-to:to
-	:cc:content-transfer-encoding:mime-version; s=pp1; bh=gJGd5/wr8D
-	cxtqBm0AFwiAsWUR/rh1W6zfn73uIs31M=; b=Z+cpsbRmH9MdZ61lvkxpv7bgXT
-	v0RWVmtXrvis5IvNBlZypfw7jqxeq3VRc2lAp8L4OrfaLN1RcW/i6XMx9jNFHyow
-	uInJ81ZXy+UALnKor7qHImqILyFHLCWAt1nRzJdwusOjJ65cnjWajZa2FSR3Uerk
-	lumEjEOBctTF1kd8MNbJsHeZ219/V5Rki24D/3dEOjwQ4Fg7+X0kIn8uHV/QPM0H
-	/ildfZgQkzIzbsb1tlmWErOBIXakSO9XDFa3y7idn7mpTYMDgLUflR4jaOIKF+GQ
-	SsQmemVb3LWEMX9uxROVL9ftM3tng+Xf3oWiAIA4k1jcUL8wpM9ul1ah12lg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 425309ga5b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 11:33:14 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 498BUEto029972;
-	Tue, 8 Oct 2024 11:33:13 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 425309ga55-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 11:33:13 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4989MUEq030168;
-	Tue, 8 Oct 2024 11:33:12 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 423gsmkxq4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 11:33:12 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 498BXBkt24314614
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 8 Oct 2024 11:33:11 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E879C58059;
-	Tue,  8 Oct 2024 11:33:10 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B137458053;
-	Tue,  8 Oct 2024 11:33:05 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  8 Oct 2024 11:33:05 +0000 (GMT)
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Date: Tue, 08 Oct 2024 13:32:05 +0200
-Subject: [PATCH v7 5/5] asm-generic/io.h: Remove I/O port accessors for
- HAS_IOPORT=n
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20241008-b4-has_ioport-v7-5-8624c09a4d77@linux.ibm.com>
-References: <20241008-b4-has_ioport-v7-0-8624c09a4d77@linux.ibm.com>
-In-Reply-To: <20241008-b4-has_ioport-v7-0-8624c09a4d77@linux.ibm.com>
-To: Brian Cain <bcain@quicinc.com>, Marcel Holtmann <marcel@holtmann.org>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-bluetooth@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
-        intel-xe@lists.freedesktop.org, linux-serial@vger.kernel.org,
-        linux-arch@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Arnd Bergmann <arnd@kernel.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5763;
- i=schnelle@linux.ibm.com; h=from:subject:message-id;
- bh=j7KaGUsyaLEUfGtXkukiFzIvWKJHDMnnZRqJknyuK2M=;
- b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNJZJQKcd74uvPkwU5TH009quVS60Nnlje/2azPJnK5ye
- LBr+ov+jlIWBjEuBlkxRZZFXc5+6wqmmO4J6u+AmcPKBDKEgYtTACayTJbhD29UTM3GYzsYvx16
- dmnL9yM/zhaf8Ofw4WO78WDqnI9M16oYGWYnTWg9z7Znzh+frfMmODMLXvZdUhn3yKf42qvD3lf
- jGvkB
-X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
- fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: j963C7hg_va3UzGaH-IIbWizxGCOj-bw
-X-Proofpoint-ORIG-GUID: 7CEvGhYvuz6_kpeSosvf8xTJAGAqQeuz
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="aaxLXWkz"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=OdwlxzeGhkCEHL52PNGpSB9t0Q+ESkxcv7YoMNWWIhk=; b=aaxLXWkzgvLW1U+zejH2Ilo4tT
+	fl9W+BpYq0KXe2nc6sOih7YrDMz+2++T4X4Xy3plp2lzctiwVWpKj4Sr3svTgcSiDEyhHmRPno0rH
+	QjVXyjXu5XectNZ4BQZbdSn+ZBUFLHaSjpEKyOWVmVp0OwSB+2qP4A+smdASH876GZY98tt+tDv+F
+	VBABE72PRfZ7eUVhgRrAOOH2fBa02nTpsU3MJjih3YvWjxGg2rG3mcZa79zATQwmI78Fut9gDUdbK
+	3DYzVTYw4nK0qhlR2yCfM6gCmKw3kqCTpvC8KrsMtS8H661norBq+3z3tOI9Ml5C1qzjnTwkwiQ1A
+	nl9rvt4g==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
+	id 1sy8T1-00000005djB-1kIp;
+	Tue, 08 Oct 2024 11:33:27 +0000
+Date: Tue, 8 Oct 2024 04:33:27 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Bart Van Assche <bvanassche@acm.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Ming Lei <ming.lei@redhat.com>,
+	linux-block@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-nvme@lists.infradead.org
+Subject: Re: [Report] requests are submitted to hardware in reverse order
+ from nvme/virtio-blk queue_rqs()
+Message-ID: <ZwUYh9uJgETHAXl2@infradead.org>
+References: <ZbD7ups50ryrlJ/G@fedora>
+ <ZbO9T_R4lN_7WkwQ@infradead.org>
+ <1e0ad5fd-2d90-4a0a-bb5c-0b270dd8ddd8@acm.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-08_10,2024-10-08_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- spamscore=0 suspectscore=0 mlxlogscore=999 impostorscore=0
- lowpriorityscore=0 malwarescore=0 adultscore=0 clxscore=1015
- priorityscore=1501 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2410080072
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1e0ad5fd-2d90-4a0a-bb5c-0b270dd8ddd8@acm.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-With all subsystems and drivers either declaring their dependence on
-HAS_IOPORT or fencing I/O port specific code sections we can finally
-make inb()/outb() and friends compile-time dependent on HAS_IOPORT as
-suggested by Linus in the linked mail. The main benefit of this is that
-on platforms such as s390 which have no meaningful way of implementing
-inb()/outb() their use without the proper HAS_IOPORT dependency will
-result in easy to catch and fix compile-time errors instead of compiling
-code that can never work.
+On Mon, Oct 07, 2024 at 03:39:42PM -0700, Bart Van Assche wrote:
+> For my patch series that supports pipelining for zoned writes, I need
+> the submission order to be preserved. Jens mentioned two possible
+> solutions:
+> - Either keep the approach that requests on plug->mq_list are in reverse
+>   order and reverse the request order just before submitting requests.
+> - Or change plug->mq_list into a doubly linked list.
+> 
+> The second approach seems the most interesting to me. I'm concerned that
+> with the first approach it will be difficult to preserve the request
+> order if a subset of the requests on plug->mq_list are submitted, e.g.
+> because a queue full condition is encountered by
+> blk_mq_dispatch_plug_list().
 
-Link: https://lore.kernel.org/lkml/CAHk-=wg80je=K7madF4e7WrRNp37e3qh6y10Svhdc7O8SZ_-8g@mail.gmail.com/
-Co-developed-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- include/asm-generic/io.h | 60 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
-
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index 80de699bf6af4b7b77f582c0469c43e978f67a43..1027be6a62bcbcd5f6797e0fa42035208d0ca79f 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -540,6 +540,7 @@ static inline void writesq(volatile void __iomem *addr, const void *buffer,
- 
- #if !defined(inb) && !defined(_inb)
- #define _inb _inb
-+#ifdef CONFIG_HAS_IOPORT
- static inline u8 _inb(unsigned long addr)
- {
- 	u8 val;
-@@ -549,10 +550,15 @@ static inline u8 _inb(unsigned long addr)
- 	__io_par(val);
- 	return val;
- }
-+#else
-+u8 _inb(unsigned long addr)
-+	__compiletime_error("inb()) requires CONFIG_HAS_IOPORT");
-+#endif
- #endif
- 
- #if !defined(inw) && !defined(_inw)
- #define _inw _inw
-+#ifdef CONFIG_HAS_IOPORT
- static inline u16 _inw(unsigned long addr)
- {
- 	u16 val;
-@@ -562,10 +568,15 @@ static inline u16 _inw(unsigned long addr)
- 	__io_par(val);
- 	return val;
- }
-+#else
-+u16 _inw(unsigned long addr)
-+	__compiletime_error("inw() requires CONFIG_HAS_IOPORT");
-+#endif
- #endif
- 
- #if !defined(inl) && !defined(_inl)
- #define _inl _inl
-+#ifdef CONFIG_HAS_IOPORT
- static inline u32 _inl(unsigned long addr)
- {
- 	u32 val;
-@@ -575,36 +586,55 @@ static inline u32 _inl(unsigned long addr)
- 	__io_par(val);
- 	return val;
- }
-+#else
-+u32 _inl(unsigned long addr)
-+	__compiletime_error("inl() requires CONFIG_HAS_IOPORT");
-+#endif
- #endif
- 
- #if !defined(outb) && !defined(_outb)
- #define _outb _outb
-+#ifdef CONFIG_HAS_IOPORT
- static inline void _outb(u8 value, unsigned long addr)
- {
- 	__io_pbw();
- 	__raw_writeb(value, PCI_IOBASE + addr);
- 	__io_paw();
- }
-+#else
-+void _outb(u8 value, unsigned long addr)
-+	__compiletime_error("outb() requires CONFIG_HAS_IOPORT");
-+#endif
- #endif
- 
- #if !defined(outw) && !defined(_outw)
- #define _outw _outw
-+#ifdef CONFIG_HAS_IOPORT
- static inline void _outw(u16 value, unsigned long addr)
- {
- 	__io_pbw();
- 	__raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
- 	__io_paw();
- }
-+#else
-+void _outw(u16 value, unsigned long addr)
-+	__compiletime_error("outw() requires CONFIG_HAS_IOPORT");
-+#endif
- #endif
- 
- #if !defined(outl) && !defined(_outl)
- #define _outl _outl
-+#ifdef CONFIG_HAS_IOPORT
- static inline void _outl(u32 value, unsigned long addr)
- {
- 	__io_pbw();
- 	__raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
- 	__io_paw();
- }
-+#else
-+void _outl(u32 value, unsigned long addr)
-+	__compiletime_error("outl() requires CONFIG_HAS_IOPORT");
-+#endif
- #endif
- 
- #include <linux/logic_pio.h>
-@@ -688,53 +718,83 @@ static inline void outl_p(u32 value, unsigned long addr)
- 
- #ifndef insb
- #define insb insb
-+#ifdef CONFIG_HAS_IOPORT
- static inline void insb(unsigned long addr, void *buffer, unsigned int count)
- {
- 	readsb(PCI_IOBASE + addr, buffer, count);
- }
-+#else
-+void insb(unsigned long addr, void *buffer, unsigned int count)
-+	__compiletime_error("insb() requires HAS_IOPORT");
-+#endif
- #endif
- 
- #ifndef insw
- #define insw insw
-+#ifdef CONFIG_HAS_IOPORT
- static inline void insw(unsigned long addr, void *buffer, unsigned int count)
- {
- 	readsw(PCI_IOBASE + addr, buffer, count);
- }
-+#else
-+void insw(unsigned long addr, void *buffer, unsigned int count)
-+	__compiletime_error("insw() requires HAS_IOPORT");
-+#endif
- #endif
- 
- #ifndef insl
- #define insl insl
-+#ifdef CONFIG_HAS_IOPORT
- static inline void insl(unsigned long addr, void *buffer, unsigned int count)
- {
- 	readsl(PCI_IOBASE + addr, buffer, count);
- }
-+#else
-+void insl(unsigned long addr, void *buffer, unsigned int count)
-+	__compiletime_error("insl() requires HAS_IOPORT");
-+#endif
- #endif
- 
- #ifndef outsb
- #define outsb outsb
-+#ifdef CONFIG_HAS_IOPORT
- static inline void outsb(unsigned long addr, const void *buffer,
- 			 unsigned int count)
- {
- 	writesb(PCI_IOBASE + addr, buffer, count);
- }
-+#else
-+void outsb(unsigned long addr, const void *buffer, unsigned int count)
-+	__compiletime_error("outsb() requires HAS_IOPORT");
-+#endif
- #endif
- 
- #ifndef outsw
- #define outsw outsw
-+#ifdef CONFIG_HAS_IOPORT
- static inline void outsw(unsigned long addr, const void *buffer,
- 			 unsigned int count)
- {
- 	writesw(PCI_IOBASE + addr, buffer, count);
- }
-+#else
-+void outsw(unsigned long addr, const void *buffer, unsigned int count)
-+	__compiletime_error("outsw() requires HAS_IOPORT");
-+#endif
- #endif
- 
- #ifndef outsl
- #define outsl outsl
-+#ifdef CONFIG_HAS_IOPORT
- static inline void outsl(unsigned long addr, const void *buffer,
- 			 unsigned int count)
- {
- 	writesl(PCI_IOBASE + addr, buffer, count);
- }
-+#else
-+void outsl(unsigned long addr, const void *buffer, unsigned int count)
-+	__compiletime_error("outsl() requires HAS_IOPORT");
-+#endif
- #endif
- 
- #ifndef insb_p
-
--- 
-2.43.0
+Note that you don't really need a full doubly linked, you just need a
+tail pointer in the plug, i.g. the same scheme as struct bio_list.
 
