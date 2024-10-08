@@ -1,121 +1,121 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A4AF1DF275
-	for <virtualization@lists.linux.dev>; Tue,  8 Oct 2024 15:18:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D13621500E
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Oct 2024 20:09:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728400688; cv=none; b=ayho6zTo34iE8AvYH/5WLkvFViB+7cLkaxmUdnao2DEv5sWhT7NaJhaoC31CbA66mR+9TloehLBFfoOHZWT7wSidQNZXdtx+BhBRLj3XyYzVT/iLRSZoR5NCIue9mBcM4G6lslmxsy9qnO/qB284+08i5RaiUI9pMeXzYStYFRc=
+	t=1728418191; cv=none; b=WNbMDlM8r/3j1rL/8cOJuDkMUhWkq6yxlD27r7ssuD/qq7tCQXNz/xSvZaRDNUbItEmzYMol8pu/oim3lC18qz4Xj+CoTBuJDEkYsLGhBViABwbYb+KAIwkHFjRAbJpcqdhc8FWRK4lHMnvZ26117EDQySKFkl3Hu/e5V1R1qwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728400688; c=relaxed/simple;
-	bh=nGjB7oXWchp3d4x4wVM7HDVN77xzBHezzIhqJR/PWU0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=c2p3ZWoS4TRjrl++IXRCaW+46R1v+Ogo+ptKkcRRY0OJeDOocpl80MXnX5spmmqT1kD3JKg6AieHzHOBVwNoFa0k8VO5hxNfKG3Weppyi6NY44bzO1G1I75vRXGrA7r9op+POc9dQXhdpE5/vTUOndJ+KW88uyPNJeWOmPD8ga4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=uQ0ppgVu; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=gDK3cqiu; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1728418191; c=relaxed/simple;
+	bh=/Eo5GR3F2EuVxfpd26kcMlFXxmpNRe5glMFWaKdfHgU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=b6h00rtCujIs/Q2jGaQDpzdaFrI6MkZrO+GtJdC7oaBgftPlamfs9kQMtqREVv5lyXVWEQZvjsefNpDjAMLUviREc6vTeAd3Kzh0p+2/8nvxVwgLvANLtHNvXVDS5xIB4Ti/NKMOAc3pOQYhtrpRNMPa/xGEEm9qsiKSAZENmnE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aJSASDvH; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="uQ0ppgVu";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="gDK3cqiu"
-From: John Ogness <john.ogness@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1728400685;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aJSASDvH"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0EB9D40499
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Oct 2024 20:09:50 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id i1dxCtup_zIg for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Oct 2024 20:09:49 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=stefanha@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 0448C4034B
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0448C4034B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aJSASDvH
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0448C4034B
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Oct 2024 20:09:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728418186;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NgHNgZ7Lv8TsBA3deZP3mh7SKeKs0mAoGrC4a2a8YU4=;
-	b=uQ0ppgVu3/sV/Gm78x/SJKO2+d7WyFtrUIjCc0JLpmXGBwZwB1aUdM5cBJUYWxd6jkwZex
-	beGght0vQXLMVIooB/vkcg6Mz0dr7Co9ITqEr0T5t+jtxLXeNT6y47SpWa1elbVHEiJgOy
-	szbpZb6TIzT+t7VVcGgUIMwnbrhZzEAlEPi617Ojmmq4nngu67sRzC5v8Zc0VM4nWhqYht
-	3rCGF6APVCKpuQmUkG11hUFWoDA0eWVXtawmzQ6XJD2N6727JjLEppfACKbnvoqE+4pJlF
-	j2ojL0Op5wld/pL27QYGN+2qpzswamFawZkxYc0Je2eb/M26heOXnoiS16qjew==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1728400685;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NgHNgZ7Lv8TsBA3deZP3mh7SKeKs0mAoGrC4a2a8YU4=;
-	b=gDK3cqiuKWv063xejb/51LZ5wkI4v1qmG5N39LB+VtgUqTXMvCm325NgmORo9cYDEuGrcf
-	yztojqA3zwvY3RDw==
-To: Petr Mladek <pmladek@suse.com>, Breno Leitao <leitao@debian.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, gregkh@linuxfoundation.org,
- mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- kuba@kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, vschneid@redhat.com, axboe@kernel.dk, Breno
- Leitao <leitao@debian.org>, Heng Qi <hengqi@linux.alibaba.com>
-Subject: Re: 6.12-rc1: Lockdep regression bissected
- (virtio-net/console/scheduler)
-In-Reply-To: <Zv_IR9LAecB2FKNz@pathway.suse.cz>
-References: <20241003-savvy-efficient-locust-ae7bbc@leitao>
- <20241003153231.GV5594@noisy.programming.kicks-ass.net>
- <20241003-mahogany-quail-of-reading-eeee7e@leitao>
- <20241004-blazing-rousing-lynx-8c4dc9@leitao>
- <Zv_IR9LAecB2FKNz@pathway.suse.cz>
-Date: Tue, 08 Oct 2024 17:24:04 +0206
-Message-ID: <8434l6sjwz.fsf@jogness.linutronix.de>
+	bh=/Eo5GR3F2EuVxfpd26kcMlFXxmpNRe5glMFWaKdfHgU=;
+	b=aJSASDvHbbk9EioX8Wdpc9AZRrvw7kc2h7ZNg7klmC2pTYeKNtNYzC1hU/rErkf56kkPaW
+	ijsthbsoyWcOboY4KhOf6GbmE3xIOHc5fEG54f9wsBYGVQDelna0vtZBhIKItJd9DWTyj2
+	pJfZUjraCMMPxxq6TInyWZxE/FSocBA=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-219-QKPEucZ-MVazibRosLH3Fg-1; Tue,
+ 08 Oct 2024 16:09:43 -0400
+X-MC-Unique: QKPEucZ-MVazibRosLH3Fg-1
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 15EC61956088;
+	Tue,  8 Oct 2024 20:09:42 +0000 (UTC)
+Received: from localhost (unknown [10.2.17.11])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 1C7341956088;
+	Tue,  8 Oct 2024 20:09:40 +0000 (UTC)
+Date: Tue, 8 Oct 2024 16:09:34 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Daniel Verkamp <dverkamp@chromium.org>
+Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, mst@redhat.com,
+	virtualization@lists.linux-foundation.org,
+	virtio-dev@lists.linux.dev, oren@nvidia.com, parav@nvidia.com
+Subject: Re: [PATCH 1/1] virtio-blk: Add description for blk_size field
+Message-ID: <20241008200934.GA22682@fedora.redhat.com>
+References: <20240925145228.27953-1-mgurtovoy@nvidia.com>
+ <CABVzXAntBt+5L4a1ntud_7j_EHiB4yG6FuskNaPBirOfLJ7i6w@mail.gmail.com>
+ <ca954af2-4c61-41f5-8cf0-69a1233704ba@nvidia.com>
+ <CABVzXAma4T+=meTSRNKhq70w4imc=A5imy2zofX2ndJz-XVByg@mail.gmail.com>
+ <adf195c4-6d7e-47ff-ac62-dc4c0f463f21@nvidia.com>
+ <CABVzXA=wov8OgADXbDiVVnhncc=zgET4MAGd3H1pr26XS38JBw@mail.gmail.com>
+ <CABVzXAmxuVngKjNvc9AsnkuNcOK+7JeEuBE9CDaMxAA=b3f=fw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="M2LY8j4i0WTGHdhM"
+Content-Disposition: inline
+In-Reply-To: <CABVzXAmxuVngKjNvc9AsnkuNcOK+7JeEuBE9CDaMxAA=b3f=fw@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On 2024-10-04, Petr Mladek <pmladek@suse.com> wrote:
-> On Fri 2024-10-04 02:08:52, Breno Leitao wrote:
->> 	 =====================================================
->> 	 WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
->> 	 6.12.0-rc1-kbuilder-virtme-00033-gd4ac164bde7a #50 Not tainted
->> 	 -----------------------------------------------------
->> 	 swapper/0/1 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
->> 	 ff1100010a260518 (_xmit_ETHER#2){+.-.}-{2:2}, at: virtnet_poll_tx (./include/linux/netdevice.h:4361 drivers/net/virtio_net.c:2969) 
->> 
->> 	and this task is already holding:
->> 	 ffffffff86f2b5b8 (target_list_lock){....}-{2:2}, at: write_ext_msg (drivers/net/netconsole.c:?) 
->> 	 which would create a new lock dependency:
->> 	  (target_list_lock){....}-{2:2} -> (_xmit_ETHER#2){+.-.}-{2:2}
->> 
->> 	but this new dependency connects a HARDIRQ-irq-safe lock:
->> 	  (console_owner){-...}-{0:0}
 
-...
+--M2LY8j4i0WTGHdhM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->> 	to a HARDIRQ-irq-unsafe lock:
->> 	  (_xmit_ETHER#2){+.-.}-{2:2}
+On Wed, Oct 02, 2024 at 04:56:10PM -0700, Daniel Verkamp wrote:
+> (Perhaps u-boot's driver does not work with the QEMU's virtio-blk
+> device with certain storage configurations, per Stefan's note, but
+> that is again just one device implementation.)
 
-...
+Yes, IOERR only happens under certain conditions: when --device
+virtio-blk-pci,logical_block_size=<size> is configured. When that's not
+the case, QEMU buffers as necessary to adjust for guest block size vs
+host block size differences without errors.
 
->> 	other info that might help us debug this:
->> 
->> 	 Chain exists of:
->> 	console_owner --> target_list_lock --> _xmit_ETHER#2
->> 
->> 	  Possible interrupt unsafe locking scenario:
->> 
->> 		CPU0                    CPU1
->> 		----                    ----
->> 	   lock(_xmit_ETHER#2);
->> 					local_irq_disable();
->> 					lock(console_owner);
->> 					lock(target_list_lock);
->> 	   <Interrupt>
->> 	     lock(console_owner);
+Stefan
 
-I can trigger this lockdep splat on v6.11 as well.
+--M2LY8j4i0WTGHdhM
+Content-Type: application/pgp-signature; name="signature.asc"
 
-It only requires a printk() call within any interrupt handler, sometime
-after the netconsole is initialized and has had at least one run from
-softirq context.
+-----BEGIN PGP SIGNATURE-----
 
-> My understanding is that the fix is to always take "_xmit_ETHER#2"
-> lock with interrupts disabled.
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmcFkX4ACgkQnKSrs4Gr
+c8g8Nwf+NxswDd6552kXJThCUN341HElsAmWxGplhSgPyYC52apw3sMVP2t/ML5L
+QKSi+eJt91MGD/yJjDgD6uA/YFgN4sLEoEP2FqAKD+PFQzkPr23UWQl4hkhUwPxD
+azluLJqTxLcbLBxR+/wibfFPkRo+c5TzKtsbDAk5fpbmc4/FMB0c/nWUXVuge7Oz
+lumhBipb+ia4p76sOZEQuU5GBYgsLEbwaTUjMd3Rvzh3CrY6Bk7S6GOVpgmsKQ3N
+znKsBK0ico0Nf7aMp/olbJtZ4aIoqjA4pFemaYeqriMnnp5Qpe2Q0St/hoRSi2J0
+WrK8gIJ5WwiyTWDZMAC/v4jjvSG4Zw==
+=WbGt
+-----END PGP SIGNATURE-----
 
-That seems to be one possible solution. But maybe there is reasoning why
-that should not be done. (??) Right now it is clearly a spinlock that is
-being taken from both interrupt and softirq contexts and does not
-disable interrupts.
+--M2LY8j4i0WTGHdhM--
 
-I will check if there is some previous kernel release where this problem
-does not exist.
-
-John Ogness
