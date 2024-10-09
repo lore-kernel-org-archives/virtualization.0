@@ -1,161 +1,167 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EBD619995E
-	for <virtualization@lists.linux-foundation.org>; Wed,  9 Oct 2024 13:57:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5FAC1E32DC
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Oct 2024 15:10:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728482251; cv=none; b=Cd0l+hKS7A70cGamfQQVC4BaB4E/xvurKqU0kA/iL+UJsMKEtUix51M9+z/T1OnI9bBEfHh/g8TbcTzA3xCvtg/gwDPwaPwMXJSW1B95se+5187Mi00mqxIOFetlyTSgNUDUhpRMi0h2WSfyRzwPfz92Ayn6HLnWkQWFcD5Pve4=
+	t=1728486641; cv=none; b=Gox5A+233Kg/FSlrNOeuGDKTaq7uq1LgDPDQJRumhU+r7fKfU7yk2zxTmivuQz3uvG3m5KuLEOcdGuzKhSK0Jz1KS3AJO89cT037vD/TqZyDRCdfBPjAUpJjGFegj4JUKTuGLqg2bLnQ8r9irrvaqUCESc5AMYH74FNj65zc15o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728482251; c=relaxed/simple;
-	bh=X0LDCmpcnc1adz2fnYJm3D5QrEBMDrL3aPUwWCtc1TQ=;
-	h=Date:From:To:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=bsLY2e0UR/9kkwSHBhpRYYJYyVlUitkoqLRihZvT0ZZXvAibNy9icqRS7fD1PgwgtKtzrDZw9R9EDAtiHVfeBDDpyAajmkMHzNhA+/12iPfGmDB+xBVHBUP22nSpft/SElcfDO0sEntCab8cR2Wr1tsxrFVs6DJ6VOONLGXJTxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iWh/REQh; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1728486641; c=relaxed/simple;
+	bh=wWb76VitBSStfqv1z9LLk+iqqyYHXd2+1MYeZq9n/Fw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FSRplvyt1xlRSpbE/XTlwANwvnU/s9LHcCXFdmJ6RzV9+iFefiTms72QSIQedHPctbHftGDHdUZQu0V7RqOwIfcZZVFGuhL9KTT8wl/8fGL3CqI5iwh22CpbS1cBiTkh4CDfC64rwNF67N55Uqe5eGY+84PqVmnMJGkpdn5L3/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lk9MFlw9; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iWh/REQh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lk9MFlw9"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8A1FA81306
-	for <virtualization@lists.linux-foundation.org>; Wed,  9 Oct 2024 13:57:29 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5277740720
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Oct 2024 15:10:39 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id HJz5vpwROx68 for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Oct 2024 13:57:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::f2b; helo=mail-qv1-xf2b.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B709981280
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B709981280
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=iWh/REQh
-Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B709981280
-	for <virtualization@lists.linux-foundation.org>; Wed,  9 Oct 2024 13:57:28 +0000 (UTC)
-Received: by mail-qv1-xf2b.google.com with SMTP id 6a1803df08f44-6cb82317809so52004936d6.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 09 Oct 2024 06:57:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1728482247; x=1729087047; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0n1Wq+38z4bNzMcF/qhs9zhsIpvH1Zsp4bf0q5tWWSY=;
-        b=iWh/REQhzKIBuqONutOiSxr1ISX/vsFvVJRmu56ybHpyPHNdaG9raV+q9Jrqlx7ntx
-         Ck+Of57qXg5cRiXDUYBCIgchtszKTfmDCH/Y+P71ROrfyJvvLNNQKNg9NjOoMoWB8Zmc
-         Zu5dkIOsxmPXEQCcFkHNcAG4Bb8qLsf9fb7n1bT70F+kD1wBkjeapdijeY7OEmRi1JLO
-         1OPQCh6DbSDwwjo4XwMtfTOj2QUrdRIU9dS1c5TJl2TqkzArRZ89/HjcC6JyY05AMubn
-         chFv0rSIO0i0nHltNcgVmC567CmpAlN+C4pUlhCs0Ydivss7il///JBh2HZvQ5rqY0Y3
-         aq3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728482247; x=1729087047;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0n1Wq+38z4bNzMcF/qhs9zhsIpvH1Zsp4bf0q5tWWSY=;
-        b=gD0D2CHHELaSZVIVIU4aPnLuAD7eB/hYOiDTqZB1XNJDyD9nV5cO5YhInIqFbT6lER
-         8ybyxB+xW68uo8U1t5gGXgmRrGEAdicU/v76UYlEPCbFWPlkhkzLQPqwle0DPt43RHhU
-         7ehvDJFzGJNf/MkO4OWKK4MnEDa5afKC9HYAPK1T+l61BBLya6yW430k94nPkTbOc+Ww
-         Ey6KAf/3p8SYFapCDrznX9Q7sAXCRhvwYlbNYyPgjrtKJcE/FndeGwSMxFQfgNxWbVR5
-         /iOmqVgf+VAuU3Ek9MXvx+HfpL+JdagXPP5raQgc1du0ROpHTbFJPumPJvVkJdIMqANx
-         5wYA==
-X-Forwarded-Encrypted: i=1; AJvYcCWzQHA6wxgmi4U3Zx0LtDGiH6WFCdz+jmmHoxeOwyhIiUFTusQdUFhD505QpMw/iHTSMBJO8Q3hBe50QdTq3w==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yx18C2+DKVwpFkmWYa4N2nzKZCbBYRZ08tFOvVZlqqd1JaVCCVo
-	CUf7MaDyBSEdDLAvyW8pvQPFjboa5nTR2YyesR5x4BqkolO9MR6e
-X-Google-Smtp-Source: AGHT+IFUArp5gUmYDVIuWKhH6zF8j9clE1t5vMCXq60kkQC+UxDtHZpBVpw09F8q0h35bvO2uTTdrQ==
-X-Received: by 2002:a05:6214:46a0:b0:6cb:bdf8:e736 with SMTP id 6a1803df08f44-6cbc95bafc2mr50228846d6.37.1728482247004;
-        Wed, 09 Oct 2024 06:57:27 -0700 (PDT)
-Received: from localhost (86.235.150.34.bc.googleusercontent.com. [34.150.235.86])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cba476159bsm46166076d6.123.2024.10.09.06.57.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Oct 2024 06:57:26 -0700 (PDT)
-Date: Wed, 09 Oct 2024 09:57:25 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
- Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, 
- kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, 
- linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, 
- gur.stavi@huawei.com, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-Message-ID: <67068bc5283a3_1cca3129482@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20241008-rss-v5-6-f3cf68df005d@daynix.com>
-References: <20241008-rss-v5-0-f3cf68df005d@daynix.com>
- <20241008-rss-v5-6-f3cf68df005d@daynix.com>
-Subject: Re: [PATCH RFC v5 06/10] tun: Introduce virtio-net hash reporting
- feature
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Drc6FIdzJTDr for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Oct 2024 15:10:38 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=stefanha@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 17743406D0
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 17743406D0
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Lk9MFlw9
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 17743406D0
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Oct 2024 15:10:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728486636;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9m/alfM29a3UUcEhOir6FOHIK40dS3QONXOJymAw7CU=;
+	b=Lk9MFlw9UkJZMDq2XqMT8bGulBsz3ffzq9zIBSrB3DNJhw9k12vOxqvSe88Ulq49jOnmU9
+	2/nZAA3VbqHRTrdjRPB4KmvTyCo4Jy/tnYoTOupS+yD5unxwwiMiMQqWssImXWwc0LnW/B
+	n7GsvwqFC7B8eg+SBU3yJCSrROwfOh0=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-622-w3kpA6exOhmd_Phw6w4sbQ-1; Wed,
+ 09 Oct 2024 11:10:34 -0400
+X-MC-Unique: w3kpA6exOhmd_Phw6w4sbQ-1
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4044319560BF;
+	Wed,  9 Oct 2024 15:10:32 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.253])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 64D7819560A2;
+	Wed,  9 Oct 2024 15:10:31 +0000 (UTC)
+Date: Wed, 9 Oct 2024 11:10:24 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Cc: dverkamp@chromium.org, mst@redhat.com,
+	virtualization@lists.linux-foundation.org,
+	virtio-dev@lists.linux.dev, oren@nvidia.com, parav@nvidia.com
+Subject: Re: [PATCH v2 1/1] virtio-blk: Add description for blk_size field
+Message-ID: <20241009151024.GB45445@fedora.redhat.com>
+References: <20241006165609.34953-1-mgurtovoy@nvidia.com>
+ <20241008201502.GB22682@fedora.redhat.com>
+ <1389ad0b-89b0-4e50-b07d-02bd6141fc7d@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="vDnmv+mMksfPPYWs"
+Content-Disposition: inline
+In-Reply-To: <1389ad0b-89b0-4e50-b07d-02bd6141fc7d@nvidia.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-Akihiko Odaki wrote:
-> Allow the guest to reuse the hash value to make receive steering
-> consistent between the host and guest, and to save hash computation.
-> 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> ---
->  Documentation/networking/tuntap.rst |   7 +++
->  drivers/net/Kconfig                 |   1 +
->  drivers/net/tap.c                   |  45 ++++++++++++++--
->  drivers/net/tun.c                   |  46 ++++++++++++----
->  drivers/net/tun_vnet.h              | 102 +++++++++++++++++++++++++++++++-----
->  include/linux/if_tap.h              |   2 +
->  include/uapi/linux/if_tun.h         |  48 +++++++++++++++++
->  7 files changed, 223 insertions(+), 28 deletions(-)
-> 
-> diff --git a/Documentation/networking/tuntap.rst b/Documentation/networking/tuntap.rst
-> index 4d7087f727be..86b4ae8caa8a 100644
-> --- a/Documentation/networking/tuntap.rst
-> +++ b/Documentation/networking/tuntap.rst
-> @@ -206,6 +206,13 @@ enable is true we enable it, otherwise we disable it::
->        return ioctl(fd, TUNSETQUEUE, (void *)&ifr);
->    }
->  
-> +3.4 Reference
-> +-------------
-> +
-> +``linux/if_tun.h`` defines the interface described below:
-> +
-> +.. kernel-doc:: include/uapi/linux/if_tun.h
-> +
->  Universal TUN/TAP device driver Frequently Asked Question
->  =========================================================
->  
-> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> index 9920b3a68ed1..e2a7bd703550 100644
-> --- a/drivers/net/Kconfig
-> +++ b/drivers/net/Kconfig
-> @@ -395,6 +395,7 @@ config TUN
->  	tristate "Universal TUN/TAP device driver support"
->  	depends on INET
->  	select CRC32
-> +	select SKB_EXTENSIONS
->  	help
->  	  TUN/TAP provides packet reception and transmission for user space
->  	  programs.  It can be viewed as a simple Point-to-Point or Ethernet
-> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> index 9a34ceed0c2c..5e2fbe63ca47 100644
 
-Merge the earlier tiny patch 2 into this one.
+--vDnmv+mMksfPPYWs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Oct 09, 2024 at 01:46:17AM +0300, Max Gurtovoy wrote:
+>=20
+> On 08/10/2024 23:15, Stefan Hajnoczi wrote:
+> > On Sun, Oct 06, 2024 at 07:56:09PM +0300, Max Gurtovoy wrote:
+> > > This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is
+> > > offered by the device.
+> > >=20
+> > > The blk_size field actually represents the logical block size of the
+> > > device. It is always a power of two and typically ranges from 512 byt=
+es
+> > > to larger values such as 4 KB.
+> > >=20
+> > > Add description for this field to provide clarity on its constraints.
+> > >=20
+> > > Signed-off-by: Max Gurtovoy<mgurtovoy@nvidia.com>
+> > > ---
+> > >=20
+> > > changes from V1:
+> > >   - Addressed Stefan's and Daniel's comments:
+> > >         1. use SHOULD instead of MUST
+> > >         2. Add a note that devices may return IOERR upon misaligned IO
+> > >   - Add a note that devices may return IOERR if IO size is not follow=
+ing
+> > >     the block size granularity.
+> > > ---
+> > >   device-types/blk/description.tex | 34 +++++++++++++++++++++++++++++=
++++
+> > >   1 file changed, 34 insertions(+)
+> > Reviewed-by: Stefan Hajnoczi<stefanha@redhat.com>
+>=20
+> I'll add both yours and Daniel's Reviewed-by signatures and fix a small
+> comment from Daniel.
+>=20
+> Can you please remind me the next step I should do ?
+>=20
+> Should I open an issue at the oasis github and mention it as "Fixes: " in
+> the commit message ?
+
+The GitHub repo is here:
+https://github.com/oasis-tcs/virtio-spec
+
+The instructions for requesting a vote on a spec patch are:
+
+  To request a TC vote on resolving a specific comment:
+
+  1. Create a github issue, or edit an existing issue, with a short summary=
+ of the comment. The issue MUST specify the link to the latest proposal in =
+the TC mailing list archives. Note: the link MUST be in the issue descripti=
+on itself - not in the comments.
+  2. Reply by email to the comment email, requesting that the TC vote on re=
+solving the issue. The mail requesting the vote should include the followin=
+g, on a line by itself:
+
+    Fixes: https://github.com/oasis-tcs/virtio-spec/issues/NNN
+    (NNN is the issue number)
+  3. Please make sure to allow time for review between posting a comment an=
+d asking for a vote.
+
+Thanks,
+Stefan
+
+--vDnmv+mMksfPPYWs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmcGnOAACgkQnKSrs4Gr
+c8gU8AgAjFIH6XzL/B9NQvcoUTRC73DB4sC89GA4oNVmv8t/G2nNNChX6Q6zfIpV
+tqUmVOOedXmgnRm6Ni4lotxZH8Rz7pzAGfMuc0/YxQHbRzvm/yrAOMp7EJJSnbJB
+BqkNR221dJbggHprzlbiVYIprMjtYChMXRNv8+1S70zUJ2Q8eO54K+Ohqhz2cI76
+s79EBZOTdpa9vYGnyRBmlmlVRC1MoSTWMLS4/Ztz6rTcc8zGT5LbfKwtB/36Ps+H
+AlOCChxjRuQBtmvDWdKnt3ut5GQJPBFALnEPPA/5UqW/z2vvLCHL2+qx9hfB2eVW
+PzocjzeQmkajgq+N22E77woNBgqHAw==
+=F0Qh
+-----END PGP SIGNATURE-----
+
+--vDnmv+mMksfPPYWs--
+
