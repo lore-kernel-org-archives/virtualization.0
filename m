@@ -1,105 +1,68 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C68140849;
-	Wed,  9 Oct 2024 19:41:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C80972A1D2;
+	Thu, 10 Oct 2024 00:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728502868; cv=none; b=UlZo2cYjZW3QtkeqefOHXISq5gHHHWLtlGkWcFsitV6I63aHQW+5Ue/Q7ROGZ9MAiL4Bgl0gris0J6oz5aNOHTmd43kkRf9PG/tSDQ5Ion1nnvRL6DbJ9Y7Lp8YHBabvZYvR3eW067FrCOcHPL8DJ0OUjyDBctNbh3yA4JCZqRE=
+	t=1728520375; cv=none; b=DCV+zrALAmDI5lIEkBTjP76AMsJJJRqhosKVFYTUCCnW8Xr4EKrgfyhT8rIBJc5CxJrm/XTgawMnzn6sN7itJo5Ca9LQyzswyjR+TZ0tD2HSgTwpTxZBeYyzGlIjo3NxeoHnBj+4V2CYY+GtTqTtrdQ+Mv45NhUiOrYLd8eRzqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728502868; c=relaxed/simple;
-	bh=BKDd+217cn1LMfbyrUUyCzZ1xRCnzswlgzHtfnP9jGg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=Iai8mHf6QLNPqhQbcD3ryrVQ7wd5pNTe6xsNqbZf/CpI7vu790eLfH5UMbnLdWI2KNZTCbFpzmu619jFdmx2oSy47MXZf8MvCVzpKn7u02bTjJdNrX7Y4eSVmL+pKkeCuSDCRg0EAe4DRJ5v0Lj3ee26aexyR4ur9JNPKwrVk6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=PLDK3vW1; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1728520375; c=relaxed/simple;
+	bh=QarAG9OsS0S7oXws7XJsQIFCQAcnaMCbtsh+DM35Fcw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=YBwI5hacrjs5G900x33xyknx5XzAPvVsrSu3vTIv1XFAjyn2+bUBNFA9H5Z/ytdM93DnUxeNPUSBKzjF74QhtRXaJIh6RFEJK1tMCkvnaFJNzDOZ/HNy/ouCnf+8rygNH/MlgfmhjOOhFpFORNqc6VlSg9mp5t0mwSjq99MSeG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FGn0J00H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="PLDK3vW1"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 499I6ENY025610;
-	Wed, 9 Oct 2024 19:41:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	lpiziDVRQrqq+xMtPzzwcKxJ2d4K9hj1JPy9sBR3yTo=; b=PLDK3vW1JUGm3XFW
-	fphoq7n8Rbn5UFzGdKzYsSMx10wzDxVUrUcpOuwmjCz9QtbXRfcD9fT88v4uvIjI
-	1sleele330mat5gbMp8XIWLHJ4PmkRMsfzMsSudq6fw3DuIEz3n77bqT9+3tHfOH
-	m8vSGd1n2fRk3pi8NF0UlyLUAgB/SgTvC2MO6Qw+YmwEwcBE35veGXbzUX3ajUL1
-	2ROSSe6DLvKTRfWmD5won0xUhtkZMSN+uslP2JPUlJB39P2FqcsKxJtSl8jyQ8UZ
-	d1NgWL4tjpQKOBnjOYvX7raggT9g1i4RKvOfcAjpHVEJAd0c68TzcXbG9Zj4KmGp
-	kpeU5g==
-Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 425xthr7tx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Oct 2024 19:41:00 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 499Jexs1018867
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 9 Oct 2024 19:40:59 GMT
-Received: from [10.134.71.247] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 9 Oct 2024
- 12:40:58 -0700
-Message-ID: <6a7ebf4b-9126-4c72-87cb-a881495f5c95@quicinc.com>
-Date: Wed, 9 Oct 2024 12:40:49 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FGn0J00H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6633CC4CEC3;
+	Thu, 10 Oct 2024 00:32:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1728520375;
+	bh=QarAG9OsS0S7oXws7XJsQIFCQAcnaMCbtsh+DM35Fcw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=FGn0J00HfbQ3QOMVUqk1P7sFWmH62grr/Lc9+Ar39iMKi+ib9tL6BLhCpOB1ZxllE
+	 0MRu42N7V/iGB9cBbdJfiOwSrsdTdPn9NwUypq52PfjxzpFXlkEinsT7EEDfvrNRzb
+	 nXmCqlafauZ46G5rrpSPV+rUEZE82Ux0wGJWns13gCl7f/La5N026MaRT4hHcTFvfe
+	 tKxX77Y0gwrEKnMPMJYe6QSgQ1FOHg8/8C1cCfAuBbez7m+eCCrHicLjxZzIrFkuNb
+	 PVKAHtJnkdlmyu1fKMNRcxPyIZ5CmvG2vp3tw9AP0i1TQBMI9i3oJM27PgPVmhYMrT
+	 Km5smAzOMfAcQ==
+Date: Wed, 9 Oct 2024 17:32:53 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Richard Cochran <richardcochran@gmail.com>, Peter Hilber
+ <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
+ virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>, "Chashper,
+ David" <chashper@amazon.com>, "Mohamed Abuelfotoh, Hazem"
+ <abuehaze@amazon.com>, Paolo Abeni <pabeni@redhat.com>, "Christopher S .
+ Hall" <christopher.s.hall@intel.com>, Jason Wang <jasowang@redhat.com>,
+ John Stultz <jstultz@google.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>, Thomas Gleixner
+ <tglx@linutronix.de>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marc Zyngier
+ <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Daniel Lezcano
+ <daniel.lezcano@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, qemu-devel
+ <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH net-next v7] ptp: Add support for the AMZNC10C 'vmclock'
+ device
+Message-ID: <20241009173253.5eb545db@kernel.org>
+In-Reply-To: <78969a39b51ec00e85551b752767be65f6794b46.camel@infradead.org>
+References: <78969a39b51ec00e85551b752767be65f6794b46.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 3/3] drm/ci: add sm8350-hdk
-To: Vignesh Raman <vignesh.raman@collabora.com>,
-        <dri-devel@lists.freedesktop.org>
-CC: <daniels@collabora.com>, <helen.koike@collabora.com>, <airlied@gmail.com>,
-        <daniel@ffwll.ch>, <robdclark@gmail.com>,
-        <guilherme.gallo@collabora.com>, <sergi.blanch.torne@collabora.com>,
-        <deborah.brouwer@collabora.com>, <dmitry.baryshkov@linaro.org>,
-        <linux-arm-msm@vger.kernel.org>, <intel-gfx@lists.freedesktop.org>,
-        <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
-References: <20241004133126.2436930-1-vignesh.raman@collabora.com>
- <20241004133126.2436930-4-vignesh.raman@collabora.com>
-Content-Language: en-US
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
-In-Reply-To: <20241004133126.2436930-4-vignesh.raman@collabora.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: X7KYQapGwg778aSFyokjXVdfiJKpb7XH
-X-Proofpoint-GUID: X7KYQapGwg778aSFyokjXVdfiJKpb7XH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 spamscore=0 priorityscore=1501 bulkscore=0
- phishscore=0 clxscore=1011 mlxlogscore=925 impostorscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2410090122
 
+On Sun, 06 Oct 2024 08:17:58 +0100 David Woodhouse wrote:
+> +config PTP_1588_CLOCK_VMCLOCK
+> +	tristate "Virtual machine PTP clock"
+> +	depends on X86_TSC || ARM_ARCH_TIMER
+> +	depends on PTP_1588_CLOCK && ACPI && ARCH_SUPPORTS_INT128
+> +	default y
 
-
-On 10/4/2024 6:31 AM, Vignesh Raman wrote:
-> Add job that executes the IGT test suite for sm8350-hdk.
-> 
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
-> ---
->   drivers/gpu/drm/ci/arm64.config               |   7 +-
->   drivers/gpu/drm/ci/build.sh                   |   1 +
->   drivers/gpu/drm/ci/test.yml                   |  16 ++
->   .../drm/ci/xfails/msm-sm8350-hdk-fails.txt    |  15 ++
->   .../drm/ci/xfails/msm-sm8350-hdk-flakes.txt   |   6 +
->   .../drm/ci/xfails/msm-sm8350-hdk-skips.txt    | 211 ++++++++++++++++++
->   6 files changed, 255 insertions(+), 1 deletion(-)
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-flakes.txt
->   create mode 100644 drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-skips.txt
-> 
-
-Very happy to see this added
-
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Why default to enabled? Linus will not be happy..
