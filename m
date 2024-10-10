@@ -1,212 +1,266 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazolkn19011024.outbound.protection.outlook.com [52.103.13.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D323C1C2DA1
-	for <virtualization@lists.linux-foundation.org>; Thu, 10 Oct 2024 16:17:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728577045; cv=none; b=K2Uxc+l4T22z7jI4frvJOMUDhycZ5+V8hC6Ql4fePx5gfawB8VtZnaOMRKnHxkW2pRq/9oGIEfx7OAAtKPuj2KJG8zdY60oOGdzIrnh6QlC3xj3BYMYAhVcjWJgoH6m19inmerB3aY8i/vgYH6g/sqZQcYp1/rYfypFradV83Vs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728577045; c=relaxed/simple;
-	bh=sDPEpumwOwMXVZF1NJRop458vAqJf5bX1yKinckuCQc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=adGX2wXmQpAk3KM+BM/f1LdZ8dKN0c5tUNhsGmO2fpIPyirq4jRr1fHyxgvVo1gp4kOEt7t07vtGH3VgB9obD0ZbaI3Gv8/KPGEcpG8NUFPTncGuN/YLvgoMhRXxB+Jc/C/IHeXLCYJJiE0pzegUBAX79nKWG5Ioe8m0acKc2F0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TTG8YlAL; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69E311C9B93;
+	Thu, 10 Oct 2024 18:21:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.13.24
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1728584495; cv=fail; b=YaPkZ+m0ydn6WFMD3MYUTq5XiBONH49KuurTeoJVr/IQ1nYLWQoT3tnhaP2YlT7+SV9T1qUXh5sdVGPJ0SOqhcHafzm5V3E8bHtTBbsw/a+jH3cIwiGO0cYSSiYL+SS8bGVZrmE+Zv7v0TiYJKASknGZ/Dg9nd7ywc+OeLNb8zY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1728584495; c=relaxed/simple;
+	bh=noX6FyuVjxq7V+/g8eZdzuLegOyxugCQBWsOf6lnq58=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=lNJIOJNgzStoOmUH5R9GFIIa1q5kJMBfDMgAtrrcznCfAtZwhiWI4INrxeZXjLjZ3XZG6Fzm0AZvzYvNhhYY6UVzwt1mGcorIzieoSRqsJI3EdjRwB2ySn3ssyIntVsQ/VwEipsykEEUbigFzimMBsyo2Awdz9cK3XgB2rhduSs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=GheaFGd1; arc=fail smtp.client-ip=52.103.13.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TTG8YlAL"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 674F240484
-	for <virtualization@lists.linux-foundation.org>; Thu, 10 Oct 2024 16:17:23 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id AqnfG1GmCcuT for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Oct 2024 16:17:22 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org D82F040445
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D82F040445
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TTG8YlAL
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D82F040445
-	for <virtualization@lists.linux-foundation.org>; Thu, 10 Oct 2024 16:17:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728577040;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=F8D07boHcgY+s1K9ISE/p5PpbEV3g5iXZthl0RwXjm8=;
-	b=TTG8YlALUG4zwrRBeT0zqsiJhdKGTulki/qDwheIzLiM9wv8BSxxLZjWd/6PkJM5WwP1Vt
-	exN0xm/A9zBPpZydn5QAmPexC5W9EmaBdCzzBKU7wBOXvh9FxyObDhhCjWOqjChIxhc+T3
-	+Q4VQPCxb+u8C6PIlXDJziLUbDQFXho=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-434-_HR-jzMzMyuKw4zdtmj1zg-1; Thu, 10 Oct 2024 12:17:19 -0400
-X-MC-Unique: _HR-jzMzMyuKw4zdtmj1zg-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4311412e042so6837385e9.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 10 Oct 2024 09:17:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728577038; x=1729181838;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F8D07boHcgY+s1K9ISE/p5PpbEV3g5iXZthl0RwXjm8=;
-        b=jHYiYjmj0PR3emZMHa4URXG1WTYiiYhtj4FhyryKLKx/6MR0SVDIGpbBSmXdrsp9qG
-         qkPWVFFIlLZzKTtXJWhdX+m1FRhqaoG/X/mutbhdnEgEHM9ApDr/Xe6xQxOQcY/BebAt
-         vCM7WR2gV8GdOYXmyYSnBRt/7Eej6AhDg8KKOPeD27AvQeuw6MRmOHR1+bMc7RU+X1jG
-         EctfODEMHNfxz11+9h6J5jjq6Lmo2CI+UwGiMX72FznS1/BFEuutrjtweMWEGXnamkvv
-         wiSJCAG6uq6ze47B25REJ6QV6i3tnMjg/UmBKlDnztPfcws9gINZA7yB0AEzWRzX4c7Q
-         siSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVW0I94vW+oXAvHzk/LQ0ba7kXU+P52/61sYfkW+2u3j7aVDO+p+2urH91nBDo+XBbXwYRZy5lXB19GBti0gg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YykeQtkIYpoqcnDyFWwpUNdhNKVWGp1X7xFE+K4fzWRbq2zvp5H
-	7qT+fJyvy3IaajaimrSXQ3pbNJUdW2DDOrW8jCtGMPOF3rCyEzEwgtGIstWbteA5IdGync71HRM
-	HpASoHFk/cNrBeRvEny0/59DS8ypAxZ/wqknHlsYh51riNrLNBmcvJ/nRTOuuPV9TOK311kK1oD
-	BnywI=
-X-Received: by 2002:a05:600c:70a:b0:431:1c68:1db5 with SMTP id 5b1f17b1804b1-4311c681f02mr3514115e9.14.1728577037638;
-        Thu, 10 Oct 2024 09:17:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHnmlNv8/qz4Exm3aw9q+r+Px6+nvOrDA7PzICnxgepk68yQ0PNm4OIk0tANHMdzoON7eYBQg==
-X-Received: by 2002:a05:600c:70a:b0:431:1c68:1db5 with SMTP id 5b1f17b1804b1-4311c681f02mr3513855e9.14.1728577037124;
-        Thu, 10 Oct 2024 09:17:17 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:17d:fb13:fd72:22f:64e2:b824])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4311835d8f6sm20261105e9.44.2024.10.10.09.17.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Oct 2024 09:17:15 -0700 (PDT)
-Date: Thu, 10 Oct 2024 12:17:11 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: dverkamp@chromium.org, virtualization@lists.linux-foundation.org,
-	mvaralar@redhat.com, stefanha@redhat.com,
-	virtio-dev@lists.linux.dev, oren@nvidia.com, parav@nvidia.com,
-	nitzanc@nvidia.com, benwalker@nvidia.com
-Subject: Re: [PATCH v4 1/1] virtio-blk: Add description for blk_size field
-Message-ID: <20241010121303-mutt-send-email-mst@kernel.org>
-References: <20241010160725.3087-1-mgurtovoy@nvidia.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="GheaFGd1"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ewwpaDX5izSyNhb3Xjnk3Gpa+qEuBYpGBj19VCHU8yMMA5IOrROx+smVvF3aGIt6wel4gktn2MIEktyZRPB1Kx/b2J1qcvDlcP5Njq1UZYU3VIEXXLZXROmH7bNmQQGC0o/8aTQMxoaXAQIJdkfbVwmkYoNshXrUc2VTTFUq2WVDUA8g+Dqwsn8Xhj04TMUBIVVNpBgyCq70Pe/SMiCkTPrzcTP/IT1E1j0ffhmAue6/VEu8j0MY6PvwXtAW7DpRyp0tl/4EFnTnNOltWnuiQg/+LxPiwOivBssxFVjuLPMNWvba2VbzOibi0Bm/LcDHhvmxbrXt1MLG+rZHS3r55Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=sr+nc7AY++tXOGAc+Ufu5zfZRflk7UdYks6SnelkzjI=;
+ b=uIwh0ZnSoxJ38zhUYnkEaD8LDfYPH0coRybktWW7IpHums6zjk7OoFozAmE5nItIU5nF3D3ho/mmWVEmAMoh0flgEQH9pc14hBrIZ2eoqgQMb6UkrTEt+0rpA4O8Gf+N212ncg+LmFH/WoACe5DuAfAR21Y+/NNDfyVr5tzuDAF+faVxnWX9J++6d+W643aYMPHChlPei7zCMvHkoOSwWOhup2wfdsliIksNdmiPr8uAsVlGV2RFFq0b+AkI9Fs3bKiHQa/Sl2ciHRfUrfxtS49GUBe3IbBJAktU3ITI4uZDcMogssAR/pirXHf3YYOFg41KaEsSsvqS37SKl7nRPA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=sr+nc7AY++tXOGAc+Ufu5zfZRflk7UdYks6SnelkzjI=;
+ b=GheaFGd1FMEEEaxmS8SrZSr5H0DXlWrNmHNTxvo5FVfCJtRAfzofo+iqWrWjYXofXQpGJgnchcl+FIC4D6jkhRSxkoGOOYWuxP0Q2t2hCbYtUAvIWVFWqm4I4dHIeBgCQOec0+2KZe7gIpyi2zWujSeDOOnaPrih6m2sv/7xR4t8XeTlKb6wG7fuoxdIcHFu25rVhE5kD0mKQED/6xkk25+vKniwS8Peiy2owFQ/z5yT7UQuUoHvlQp/nnZqgV1v9BqwV1jlcLyXN2IbFHByxqTi+WBcfw7DMPY9EqwsKbKHCdBkwSNl3WVz6zFhNitd14p3ykOK3momczHE92L63g==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by LV3PR02MB10761.namprd02.prod.outlook.com (2603:10b6:408:281::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8048.18; Thu, 10 Oct
+ 2024 18:21:28 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::cedd:1e64:8f61:b9df]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::cedd:1e64:8f61:b9df%3]) with mapi id 15.20.8026.020; Thu, 10 Oct 2024
+ 18:21:28 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"iommu@lists.linux.dev" <iommu@lists.linux.dev>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "linux-pci@vger.kernel.org"
+	<linux-pci@vger.kernel.org>, "linux-arch@vger.kernel.org"
+	<linux-arch@vger.kernel.org>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>
+CC: "kys@microsoft.com" <kys@microsoft.com>, "haiyangz@microsoft.com"
+	<haiyangz@microsoft.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
+	"decui@microsoft.com" <decui@microsoft.com>, "catalin.marinas@arm.com"
+	<catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>,
+	"luto@kernel.org" <luto@kernel.org>, "tglx@linutronix.de"
+	<tglx@linutronix.de>, "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de"
+	<bp@alien8.de>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+	"x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
+	"seanjc@google.com" <seanjc@google.com>, "pbonzini@redhat.com"
+	<pbonzini@redhat.com>, "peterz@infradead.org" <peterz@infradead.org>,
+	"daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, "joro@8bytes.org"
+	<joro@8bytes.org>, "robin.murphy@arm.com" <robin.murphy@arm.com>,
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
+	<edumazet@google.com>, "kuba@kernel.org" <kuba@kernel.org>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "lpieralisi@kernel.org"
+	<lpieralisi@kernel.org>, "kw@linux.com" <kw@linux.com>, "robh@kernel.org"
+	<robh@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>,
+	"arnd@arndb.de" <arnd@arndb.de>, "sgarzare@redhat.com" <sgarzare@redhat.com>,
+	"jinankjain@linux.microsoft.com" <jinankjain@linux.microsoft.com>,
+	"muminulrussell@gmail.com" <muminulrussell@gmail.com>,
+	"skinsburskii@linux.microsoft.com" <skinsburskii@linux.microsoft.com>,
+	"mukeshrathor@microsoft.com" <mukeshrathor@microsoft.com>
+Subject: RE: [PATCH 0/5] Add new headers for Hyper-V Dom0
+Thread-Topic: [PATCH 0/5] Add new headers for Hyper-V Dom0
+Thread-Index: AQHbFc3gheIHrTrmm0yVUene//yVY7J/bLBw
+Date: Thu, 10 Oct 2024 18:21:28 +0000
+Message-ID:
+ <SN6PR02MB4157F6EA7B2454D2F6CBF2ECD4782@SN6PR02MB4157.namprd02.prod.outlook.com>
+References:
+ <1727985064-18362-1-git-send-email-nunodasneves@linux.microsoft.com>
+In-Reply-To:
+ <1727985064-18362-1-git-send-email-nunodasneves@linux.microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|LV3PR02MB10761:EE_
+x-ms-office365-filtering-correlation-id: 59106c8f-f636-437a-ec4f-08dce9585bbb
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|8060799006|15080799006|7042599007|461199028|19110799003|8062599003|440099028|3412199025|4302099013|56899033|1602099012|10035399004|102099032;
+x-microsoft-antispam-message-info:
+ aRFcZDHgQd8oYVvQEKvi4jLqOhsq91Ji6wIag2/nomFmbey9Gmjgw6TdR2BN5evGWZRxp+2dJ/pOriTPd15qZymkUyIJwWwutAyLAFWOG0tTVv+t7IvIGxBot/O44a/66ioHUuHkgGTunPqj/mhUe1lFkeu1W1TxZ/V1y6MMEjPgqmGrkomdsinf4U3jZgjUSmEPFKzEVGzGbDqmzEtQK5NHfFd4WzVvrWKxqBXDZXGLOhj4nPX8BKaplA2k8OIMqb80P/LHU9/gZuQhiQ80KqdbeGRHgDbGXIhWmMM1J26bQLakTbRdu9Uu8XFN4zwJeABFgFSaX7OC4+AOJj4+ruGvmFBLMnMrfUuAhtWz7OzMNH9iRLcqvNxwGhNUh4yfK9i6tzu+BoklxtQiYCi8mJwIePGNUHV7cZRTKrZLeTIx/FwKqgSu304J0LFuD9wQOFfOzsTTZ5ZH24v6Kgk6pAHVYckAWGok6AraY1hannB6FVJeNUmgB3tmjjsd2xEie03Z2NImRTnnwNsd5E4BKqIcvnX+3XP+tCiRsOPU4ycLzXraEBFNXAJys+jaHpYrEHg72urM9PonQG4czD3HQvA2sx6rM9eRHxSjoZsfAAhijyBtRSq5XmQYPURKX0S9ytI6mFIEykokYYH+dC5N459Iiak5QWe6TU7mwk6ew573fBE317WyeAZlZQFu766UCghVPK9I0iZFhqcb2dcEQP28yAqtVluPIdsdQz+y4zAUoNsu4LSb/40tjQrwufQyV5jOOLsaZEwxjZxyKvG4FDMRWjDr+B7d51RdsHEHduoSsD+NQXdZQnPbYeMygxaO2/i3Sm0iDF28iIzlzJtU+dRkP+ZGH4Ni7XWH2DVpoD7hbm3s/euL8xMLQ85OukH5MX24lnDmnt3pCyDkSUWU/CuykxBdI/w8Ijgb7MZxnCk=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?y+dEHloI1Y/ghQhxbscCatnBnrWYrUe/ZZ8QAw7F7j3upE7Brmsrogs83ONk?=
+ =?us-ascii?Q?NvXxUQmQNH15TzS6lM3/h80mkUjnFcoUyllUnxbAx8E4oZ/ry00xpLJhgaJD?=
+ =?us-ascii?Q?4K1Nkng8BrPGxaAX3F2mc4MyBHXDIPjEGb9k7VSXec6s84SHFiPmmCF25PqZ?=
+ =?us-ascii?Q?2ZMfM++zUAHLgDhJiY7R3UA3LzzJP2nwrVLZdBNF0QjTwLhQxafgeyMwFYPa?=
+ =?us-ascii?Q?ns9SbPmOVGZE2YeM2pgfZ6KiUn7KFPYMmYlRtGGkTx8cAjFhQRZC7rYBnSrI?=
+ =?us-ascii?Q?0spYgDkY6A7R1Grl08rNsgGp5AurDeo+2cz7Hhsj06jH92X5RRa5dtDTLhF3?=
+ =?us-ascii?Q?gfxR2XucQ2yuA51EajvVshHc277nLRwfItVj7y9oPlOaS09arcveKMlNWqoi?=
+ =?us-ascii?Q?8VpWJLo8iXUWv61uc6IB8yQ5Pz0tYwehmLoHmpjp/JeGhSsJQwvcxFfoNmKQ?=
+ =?us-ascii?Q?vs4w7w4uRFnYmK5UephbiJeuZo+sdKYZH/2DnpXZFI/H0Ym9yKfLtff1FJlD?=
+ =?us-ascii?Q?PrtLMytwbDsi0YXH7m7x0zjdZMsa6PUkXEOGMLHkYq4000BRLS2W18bSYxGh?=
+ =?us-ascii?Q?zh2BdWiPA2lLvjBsdAuoqQHDDuzNNZVid1L/oM0zVZtN6lk8IPgcoQ2mfhLr?=
+ =?us-ascii?Q?qxIfjYN8HtuF70lSvV0Lh2pXQyjRwygvqepZG4x2wP7epLVdrQYWzLkICJPk?=
+ =?us-ascii?Q?ShImQIiVCpN9jkWBjtRyVnmNeG1ZWt0KnKjLYkKQSJpWpw5qg9+PQXb8whvV?=
+ =?us-ascii?Q?bC1DaxbCd6zSgTWm4fEpRs0OYYYXU8O/tTuqpq7rvwqchw+nJNou1LOMlUGn?=
+ =?us-ascii?Q?3m3ZhMudCvWw1T3oigwe6mY4i6aDv/UdWUihylM1Ag4wDS9FkUYEeACmE9gt?=
+ =?us-ascii?Q?Tb+D4Wyk1vUlj6qQXb9qOkLNbUSw5g7tDXnQlxM6Z4vcM5/FJ9eVmC5cVtu5?=
+ =?us-ascii?Q?RLH8/3nq3pudVLGa8D6kI3J7rJ0AtxdKugcodwCQD77FdzrRNNj5ospoE9OI?=
+ =?us-ascii?Q?XWk6cgG8XVYMwsL4MgV8KfZbedsmpRzTsodha+MLXcNxjosup4KkJnnl+3iK?=
+ =?us-ascii?Q?eqEztzt6cYphUKg5/zS2UJG5ihPDiMeDmeYlk09k+J2i3zx0tbj8nix8qOuD?=
+ =?us-ascii?Q?ekzy4decC7O6uQZIoOyUuIQ45Hz/InYo23IXLpar6jq0CXjk2cUiO51EuJ99?=
+ =?us-ascii?Q?9frmI7so7/LNWSKjuvlWdUANBINHvcS6kKtDYukJJcNYqJXknNO0KnKk05M?=
+ =?us-ascii?Q?=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241010160725.3087-1-mgurtovoy@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 59106c8f-f636-437a-ec4f-08dce9585bbb
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Oct 2024 18:21:28.4712
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR02MB10761
 
-On Thu, Oct 10, 2024 at 07:07:25PM +0300, Max Gurtovoy wrote:
-> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is
-> offered by the device.
-> 
-> The blk_size field actually represents the logical block size of the
-> device. It is always a power of two and typically ranges from 512 bytes
-> to larger values such as 4 KB.
-> 
-> Add description for this field to provide clarity on its constraints.
-> 
-> Fixes: https://github.com/oasis-tcs/virtio-spec/issues/208
-> Reviewed-by: Daniel Verkamp <dverkamp@chromium.org>
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com> Sent: Thursday, Oct=
+ober 3, 2024 12:51 PM
+>=20
+> To support Hyper-V Dom0 (aka Linux as root partition), many new
+> definitions are required.
+>=20
+> The plan going forward is to directly import headers from
+> Hyper-V. This is a more maintainable way to import definitions
+> rather than via the TLFS doc. This patch series introduces
+> new headers (hvhdk.h, hvgdk.h, etc, see patch #3) directly
+> derived from Hyper-V code.
+>=20
+> This patch series replaces hyperv-tlfs.h with hvhdk.h, but only
+> in Microsoft-maintained Hyper-V code where they are needed. This
+> leaves the existing hyperv-tlfs.h in use elsewhere - notably for
+> Hyper-V enlightenments on KVM guests.
 
+Could you elaborate on why the bifurcation is necessary? Is it an
+interim step until the KVM code can use the new scheme as well?
+Also, does "Hyper-V enlightenments on KVM guests" refer to
+nested KVM running at L1 on an L0 Hyper-V, and supporting L2 guests?
+Or is it the more general KVM support for mimicking Hyper-V for
+the purposes of running Windows guests? From these patches, it
+looks like your intention is for all KVM support for Hyper-V
+functionality to continue to use the existing hyperv-tlfs.h file.
 
-I have a general question here. Do we need this field before
-feature negotiation? If not, I would actually say here that
-it exists only if feature has been negotiated.
-This opens the door for devices to detect legacy drivers
-that do not read block size and work around, somehow.
+>=20
+> An intermediary header "hv_defs.h" is introduced to conditionally
+> include either hyperv-tlfs.h or hvhdk.h. This is required because
+> several headers which today include hyperv-tlfs.h, are shared
+> between Hyper-V and KVM code (e.g. mshyperv.h).
 
+Have you considered user space code that uses
+include/linux/hyperv.h? Which of the two schemes will it use? That code
+needs to compile correctly on x86 and ARM64 after your changes.
+User space code includes the separate DPDK project, and some of the
+tools in the kernel tree under tools/hv. Anything that uses the
+uio_hv_generic.c driver falls into this category.
 
-> ---
->  device-types/blk/description.tex | 32 ++++++++++++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
-> 
-> diff --git a/device-types/blk/description.tex b/device-types/blk/description.tex
-> index 2712ada..0ddc223 100644
-> --- a/device-types/blk/description.tex
-> +++ b/device-types/blk/description.tex
-> @@ -135,6 +135,9 @@ \subsection{Device configuration layout}\label{sec:Device Types / Block Device /
->  present. The availability of the others all depend on various feature
->  bits as indicated above.
->  
-> +The field \field{blk_size} exists only if VIRTIO_BLK_F_BLK_SIZE is offered by the device.
-> +This field reports the block size of the device, expressed in bytes.
+I think there's also user space code that is built for vDSO that might pull
+in the .h files you are modifying. There are in-progress patches dealing
+with vDSO include files, such as [1]. My general comment on vDSO
+is to be careful in making #include file changes that it uses, but I'm
+not knowledgeable enough on how vDSO is built to give specific
+guidance. :-(
 
+Michael
 
-I would reorder here, too.
-The field \field{blk_size} reports the block size of the device,
-expressed in bytes. This field exists only if VIRTIO_BLK_F_BLK_SIZE is
-offered by the device.
+[1] https://lore.kernel.org/lkml/20241010135146.181175-1-vincenzo.frascino@=
+arm.com/
 
-> +
->  The field \field{num_queues} only exists if VIRTIO_BLK_F_MQ is set. This field specifies
->  the number of queues.
->  
-> @@ -282,6 +285,13 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
->  
->  \drivernormative{\subsubsection}{Device Initialization}{Device Types / Block Device / Device Initialization}
->  
-> +Drivers SHOULD negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offered by the
-> +device. When negotiated, drivers SHOULD interpret the \field{blk_size} as the
-> +logical block size.
-> +
-> +If the VIRTIO_BLK_F_BLK_SIZE feature is not offered by the device, then drivers
-> +MAY assume that the logical block size is 512 bytes.
-> +
->  Drivers SHOULD NOT negotiate VIRTIO_BLK_F_FLUSH if they are incapable of
->  sending VIRTIO_BLK_T_FLUSH commands.
->  
-> @@ -319,6 +329,10 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
->  
->  \devicenormative{\subsubsection}{Device Initialization}{Device Types / Block Device / Device Initialization}
->  
-> +Devices SHOULD always offer
-
-I don't get what does always mean here. also the feature?
-
-> VIRTIO_BLK_F_BLK_SIZE feature. When this feature is
-> +offered, devices MUST initialize \field{blk_size} to a power of two greater
-> +than or equal to 512.
-> +
->  Devices SHOULD always offer VIRTIO_BLK_F_FLUSH, and MUST offer it
->  if they offer VIRTIO_BLK_F_CONFIG_WCE.
->  
-> @@ -879,6 +893,14 @@ \subsection{Device Operation}\label{sec:Device Types / Block Device / Device Ope
->  The length of \field{data} MUST be a multiple of 512 bytes for VIRTIO_BLK_T_IN
->  and VIRTIO_BLK_T_OUT requests.
->  
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the length of
-> +\field{data} SHOULD be a multiple of \field{blk_size} for VIRTIO_BLK_T_IN and
-> +VIRTIO_BLK_T_OUT requests.
-> +
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the value of
-> +\field{sector} (multiplied by 512) SHOULD be a multiple of \field{blk_size} for
-> +VIRTIO_BLK_T_IN and VIRTIO_BLK_T_OUT requests.
-> +
->  The length of \field{data} MUST be a multiple of the size of struct
->  virtio_blk_discard_write_zeroes for VIRTIO_BLK_T_DISCARD,
->  VIRTIO_BLK_T_SECURE_ERASE and VIRTIO_BLK_T_WRITE_ZEROES requests.
-> @@ -966,6 +988,16 @@ \subsection{Device Operation}\label{sec:Device Types / Block Device / Device Ope
->  for a write request if the VIRTIO_BLK_F_RO feature if offered, and MUST NOT
->  write any data.
->  
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the device MAY
-> +set the \field{status} to VIRTIO_BLK_S_IOERR for VIRTIO_BLK_T_IN or
-> +VIRTIO_BLK_T_OUT requests if the requested \field{sector} (multiplied by 512)
-> +is not an integer multiple of the device's \field{blk_size}.
-> +
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the device MAY
-> +set the \field{status} to VIRTIO_BLK_S_IOERR for VIRTIO_BLK_T_IN or
-> +VIRTIO_BLK_T_OUT requests if the length of the requested \field{data} is not an
-> +integer multiple of the device's \field{blk_size}.
-> +
->  The device MUST set the \field{status} byte to VIRTIO_BLK_S_UNSUPP for
->  discard, secure erase and write zeroes commands if any unknown flag is set.
->  Furthermore, the device MUST set the \field{status} byte to
-> -- 
-> 2.18.1
+>=20
+> Summary:
+> Patch 1-2: Cleanup patches
+> Patch 3: Add the new headers (hvhdk.h, etc..) in include/hyperv/
+> Patch 4: Add hv_defs.h and use it in mshyperv.h, svm.h,
+>          hyperv_timer.h
+> Patch 5: Switch to the new headers, only in Hyper-V code
+>=20
+> Nuno Das Neves (5):
+>   hyperv: Move hv_connection_id to hyperv-tlfs.h
+>   hyperv: Remove unnecessary #includes
+>   hyperv: Add new Hyper-V headers
+>   hyperv: Add hv_defs.h to conditionally include hyperv-tlfs.h or
+>     hvhdk.h
+>   hyperv: Use hvhdk.h instead of hyperv-tlfs.h in Hyper-V code
+>=20
+>  arch/arm64/hyperv/hv_core.c              |    3 +-
+>  arch/arm64/hyperv/mshyperv.c             |    1 +
+>  arch/arm64/include/asm/mshyperv.h        |    2 +-
+>  arch/x86/entry/vdso/vma.c                |    1 +
+>  arch/x86/hyperv/hv_apic.c                |    2 +-
+>  arch/x86/hyperv/hv_init.c                |    3 +-
+>  arch/x86/hyperv/hv_proc.c                |    4 +-
+>  arch/x86/hyperv/hv_spinlock.c            |    1 +
+>  arch/x86/hyperv/hv_vtl.c                 |    1 +
+>  arch/x86/hyperv/irqdomain.c              |    1 +
+>  arch/x86/hyperv/ivm.c                    |    2 +-
+>  arch/x86/hyperv/mmu.c                    |    2 +-
+>  arch/x86/hyperv/nested.c                 |    2 +-
+>  arch/x86/include/asm/kvm_host.h          |    1 -
+>  arch/x86/include/asm/mshyperv.h          |    3 +-
+>  arch/x86/include/asm/svm.h               |    2 +-
+>  arch/x86/include/asm/vdso/gettimeofday.h |    1 +
+>  arch/x86/kernel/cpu/mshyperv.c           |    2 +-
+>  arch/x86/kernel/cpu/mtrr/generic.c       |    1 +
+>  arch/x86/kvm/vmx/vmx_onhyperv.h          |    1 -
+>  arch/x86/mm/pat/set_memory.c             |    2 -
+>  drivers/clocksource/hyperv_timer.c       |    2 +-
+>  drivers/hv/channel.c                     |    1 +
+>  drivers/hv/channel_mgmt.c                |    1 +
+>  drivers/hv/connection.c                  |    1 +
+>  drivers/hv/hv.c                          |    1 +
+>  drivers/hv/hv_balloon.c                  |    5 +-
+>  drivers/hv/hv_common.c                   |    2 +-
+>  drivers/hv/hv_kvp.c                      |    1 -
+>  drivers/hv/hv_snapshot.c                 |    1 -
+>  drivers/hv/hv_util.c                     |    1 +
+>  drivers/hv/hyperv_vmbus.h                |    1 -
+>  drivers/hv/ring_buffer.c                 |    1 +
+>  drivers/hv/vmbus_drv.c                   |    1 +
+>  drivers/iommu/hyperv-iommu.c             |    1 +
+>  drivers/net/hyperv/netvsc.c              |    1 +
+>  drivers/pci/controller/pci-hyperv.c      |    1 +
+>  include/asm-generic/hyperv-tlfs.h        |    9 +
+>  include/asm-generic/mshyperv.h           |    2 +-
+>  include/clocksource/hyperv_timer.h       |    2 +-
+>  include/hyperv/hv_defs.h                 |   29 +
+>  include/hyperv/hvgdk.h                   |   66 ++
+>  include/hyperv/hvgdk_ext.h               |   46 +
+>  include/hyperv/hvgdk_mini.h              | 1212 ++++++++++++++++++++++
+>  include/hyperv/hvhdk.h                   |  733 +++++++++++++
+>  include/hyperv/hvhdk_mini.h              |  310 ++++++
+>  include/linux/hyperv.h                   |   12 +-
+>  net/vmw_vsock/hyperv_transport.c         |    1 -
+>  48 files changed, 2442 insertions(+), 40 deletions(-)
+>  create mode 100644 include/hyperv/hv_defs.h
+>  create mode 100644 include/hyperv/hvgdk.h
+>  create mode 100644 include/hyperv/hvgdk_ext.h
+>  create mode 100644 include/hyperv/hvgdk_mini.h
+>  create mode 100644 include/hyperv/hvhdk.h
+>  create mode 100644 include/hyperv/hvhdk_mini.h
+>=20
+> --
+> 2.34.1
+>=20
 
