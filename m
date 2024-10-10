@@ -1,435 +1,177 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F334CBE6F
-	for <virtualization@lists.linux.dev>; Thu, 10 Oct 2024 08:27:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE8C1C32FD
+	for <virtualization@lists.linux.dev>; Thu, 10 Oct 2024 08:42:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728548843; cv=none; b=bcRqRkMi3OugdivTO19K9yAAan/CHdyMzJS5UhwcVX0Ujs/VPQyCTUwVim8Vg8dUyam1xm6ZxcFMfqxf40Ri5N1fCcNLSn/LFmVv0upsBAJB/pOmfCrNG/KncTfZn7pfRHjj5pOko2Uiga0td3+fw4mA9MEAIgn3Pe4hPFFO02I=
+	t=1728549729; cv=none; b=oJMot5pCVC7vrSAbm84VvzvNNFf1bCmkKjUIj4Sv5iJJCWjIpUZnmgzlwY+EeIMA7ROVBINlYO2sZfzrhqbVFmE3/H01GnipOZmTskwZvcoxh3JkhLOBcNMKLriOHZX9BdgTXTXjv6atwOLNES6RNt+zB828tDt2xnks3iy05BI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728548843; c=relaxed/simple;
-	bh=nDVa7RVh92aEfQ/hZHOHzlUnbGa4NOkJY4JkRjXz/p4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=LphwxF79KDGr1Avk9cqIJJOuCNF32PoSci2GC4x8lKridfD/qTankaPWDDVhccGEekERqgz6mDJmIasj33+CqqgUdsr5lDx4Yr2Ec10i6szRtWgdUtkoAQeMWC5x0W2Iu7qB95s3ub3j26zm02sor2WIdQckMFydMV8BzExMjE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hv6IgA1P; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1728549729; c=relaxed/simple;
+	bh=XNFQsmvTwwgb+RxZBmoCe9zI1hjTKu1Y25+FWDQt5D4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rzrfKW+FUA8crBH+cB5DdEUbq5od/wtlDaTSX7Q2spF9RRZaLP/9TsQaWY/aEZnxwk4+pOSkQ2BbIP1Nz7Z48XUWsvaLW4PkDmvSIKLTckh8t4pBRl/41JhicFTrX3/+l5MqkUb1dvqW/w2fDMB6vAXTaKFdRMtlA8D828Nm3Ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iC2kkMP2; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hv6IgA1P"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iC2kkMP2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728548840;
+	s=mimecast20190719; t=1728549726;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=1/PgTzn0LaEAcE+t+4UnDSYLRSLO4dLOSvdtip/laKw=;
-	b=Hv6IgA1P1jVBTSW1Lbl8RYzhyF6PeH9HJmkcGCnG/D4LndZu18Fjiwepeiv6ylOeLIVtvw
-	CPgCxkrNhuQorG0hRtKfK0UulXImxmzLweGYD7294//lbcwZCz391yENFvxMFWC8tIUKXS
-	r+dGSpFmKdhvSn+sslH/umgQY1Jm5NQ=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=GM7DtQIpf+fPOvpsz2AGui1W1Ru1wkTcj4wDWnyHCaI=;
+	b=iC2kkMP2WHVT5PpAAO7BWf0B3bSJypowElwy2cqnADgcVRPDeZAgQ6sJhzszmmEiF0fJIs
+	hYJDwIQa6ODTJi7OmwfV/oQMIK6SSe4I++AtGLEpc3niFHcaQ8nAo8TUsJKVpTztzsm1rj
+	OeqW2sLUF0o7YAifxEtABWzHZ1Ik6OE=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-335-Z48BkXhkP62rcmDy7m-xcg-1; Thu, 10 Oct 2024 04:27:18 -0400
-X-MC-Unique: Z48BkXhkP62rcmDy7m-xcg-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a99482f029aso43585966b.3
-        for <virtualization@lists.linux.dev>; Thu, 10 Oct 2024 01:27:18 -0700 (PDT)
+ us-mta-267-ghvn-jwSMVuo0ulzbgeiiw-1; Thu, 10 Oct 2024 04:42:04 -0400
+X-MC-Unique: ghvn-jwSMVuo0ulzbgeiiw-1
+Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-2fac931e7c6so4865771fa.3
+        for <virtualization@lists.linux.dev>; Thu, 10 Oct 2024 01:42:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728548837; x=1729153637;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1/PgTzn0LaEAcE+t+4UnDSYLRSLO4dLOSvdtip/laKw=;
-        b=hBC9Di3cW54ySva/98L8Ok9zo0Um3ZGQN0lHTRIRstg3UrtNvUeoSVGHq8PMH5+kqN
-         InWQx7hR1fi0L3DK+2+nw8/mkC43MOURtQuOsnqJXFUn+isZdQemYraXbyOT20MzmnDx
-         99dgw6nIQcFoyHnoS2e7YtMTi7+0LZXWPD2xsCKguHRLDGwd5UJnF7+/1QvSBASl4YgP
-         6/m9IgfoQ/GcwfFZgg7UXjfSIj1pOQtd0axqOVaumovVj3KPVxXR5pOsiVwqldj1zqlE
-         EKAoJNJ0Z9cRhxPZjKCdR7qQ7sFKkgmCb9M16hpxZOXEiCplQiDjtvApZirnifib4Z0p
-         Prww==
-X-Forwarded-Encrypted: i=1; AJvYcCW3C5Pp9sV5iqnj6zgDwtKuN66O/FV426G7cnCKNhmbqnlEPvF85xiajTQqpKUvhOoG3SrzprRFvjzNLkswbg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw9YPJAu+uYCRzpMdRGVXo+WQ7FZU9F1ZrgOdFG3NR2U3hVpVtA
-	N3HYpXci+PouMxbyNxfpViqPbpeoj6QoGnuuEq635y2eYCUP4lhCNvvItpBmkiBlxoMgEO8esTn
-	bUtfxtwMMZm7KGNalO8PcScZcRx20hf8m8B2DxoYV7ZAhT+api4pkdE5OCL7dXo94
-X-Received: by 2002:a17:907:c7e1:b0:a99:4261:e9f7 with SMTP id a640c23a62f3a-a998d25a375mr477018766b.39.1728548837475;
-        Thu, 10 Oct 2024 01:27:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFUAKw07MJzvThy4yjEVaeeNoz8gaZmYN9Xo/rYhqiuJGDAgJMZyjNwf1vEiSU9VxndGS0pYg==
-X-Received: by 2002:a17:907:c7e1:b0:a99:4261:e9f7 with SMTP id a640c23a62f3a-a998d25a375mr477014566b.39.1728548836626;
-        Thu, 10 Oct 2024 01:27:16 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a99a80efea4sm54026266b.199.2024.10.10.01.27.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Oct 2024 01:27:15 -0700 (PDT)
-Date: Thu, 10 Oct 2024 10:27:11 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: huangwenyu1998@gmail.com
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] virtio: Make vring_new_virtqueue support for packed
- vring
-Message-ID: <jx3pztqixn3fv7ujoxczjgbldtndrwqxzh5eqvpxrbwmw3ljsy@2jtxip4ycewa>
-References: <20241009153430.90318-1-huangwenyu1998@gmail.com>
+        d=1e100.net; s=20230601; t=1728549723; x=1729154523;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GM7DtQIpf+fPOvpsz2AGui1W1Ru1wkTcj4wDWnyHCaI=;
+        b=VhE59SDrNkx14KwH5ORa70tOokgl3uc2rhHY3mUuK8od5l5W4sVVFyws5qG9UFm5QP
+         2n23NBzkoD7pUHmK1GPZyq3TeYycbUS5JmYDkqjeW8jjKfJbmi92x8Bqn/FyFAMibAfn
+         nZXchYRhN8iBIP+E0HytZgriwAn6qiYIpMoco8KmdjyUOQbVDcL94e+HFRnuDgCRgZYB
+         VDT5BsyzC1A0DgyrWiP1Dr2yagNaoHG/9tPL+ctxKuhk/3rn/qoGB0CAf5/etAdHE0b1
+         pvhg3bu0/FKH2xEllsVUKNdB08WniJF6MmpdqnjIeEvFxYi49QrgoZbKMkg46s7BW/t/
+         R6Qg==
+X-Forwarded-Encrypted: i=1; AJvYcCUe6tSzxb+0dWoUtOJYfOjHz0VJYZENdvBJAcmiZh0WKtfNmfhUjXwlBhAfLo0UPpgZT0o+YiNazposxOS2dA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzhX8zmepcR9a8pBNslGL4+qVZBWBVv0CfB0s7105D8YVVlV/G/
+	eG7Iyg4LkJ4UA7f7Oat6nBGWVI7HXmh+v0QA5B2xZZDUl9jLaXtMOvqo6kuhRbTiD12Zk9ZmVyv
+	h7JPRXNueSTZOojd0URjx3T66BLzYgZKZKQxkepuBmTi/3yMn/+x00wNdb/O3ouN5kYg6U9/s7u
+	yQ7r2vmWm9Pb1VO5arHQAu/aEAB2KpEQqwrdtwUtY=
+X-Received: by 2002:a2e:be2c:0:b0:2f7:a759:72a7 with SMTP id 38308e7fff4ca-2fb1873820emr39055771fa.22.1728549722668;
+        Thu, 10 Oct 2024 01:42:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEtDPN01aoKhTb0Kx+hTbPzL0rIoqv3Q28dszjZ82sAqbT3YhpguNTUPjIwiNx0SHdAeK1nHIy6O5dnWKuZ35A=
+X-Received: by 2002:a2e:be2c:0:b0:2f7:a759:72a7 with SMTP id
+ 38308e7fff4ca-2fb1873820emr39055571fa.22.1728549722212; Thu, 10 Oct 2024
+ 01:42:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241009153430.90318-1-huangwenyu1998@gmail.com>
+References: <20240910191541.2179655-1-david@redhat.com>
+In-Reply-To: <20240910191541.2179655-1-david@redhat.com>
+From: Mario Casquero <mcasquer@redhat.com>
+Date: Thu, 10 Oct 2024 10:41:51 +0200
+Message-ID: <CAMXpfWvRy_fpNUXeVO_-0O9WXDYY8f+cBEQQvsqZD2g2043LaA@mail.gmail.com>
+Subject: Re: [PATCH v1 0/5] virtio-mem: s390x support
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>, 
+	Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Morton <akpm@linux-foundation.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 09, 2024 at 11:34:30PM GMT, huangwenyu1998@gmail.com wrote:
->From: Wenyu Huang <huangwenyu1998@gmail.com>
->
->It used for testing in tools/virtio/vringh_test.c.
->If vring_new_virtqueue supports packed vring, we can add support for
->packed vring to vringh and test it.
+This series has been successfully tested along with the QEMU's series.
+Virtio-mem devices could be resized, plugged and unplugged seamlessly.
+The memory information displayed is correct and reboot doesn't cause
+any issue.
 
-Are you also working on that changes?
+Tested-by: Mario Casquero <mcasquer@redhat.com>
 
+On Tue, Sep 10, 2024 at 9:16=E2=80=AFPM David Hildenbrand <david@redhat.com=
+> wrote:
 >
->Signed-off-by: Wenyu Huang <huangwenyu1998@gmail.com>
->---
->Changes in v2: Make the commit title and description more clearer.
->Changes in v3: Remove the declaration of __vring_new_virtqueue_split and
->			   __vring_new_virtqueue_packed and move the definition of
->			   these two functions.
-> drivers/virtio/virtio_ring.c | 228 +++++++++++++++++++----------------
-> 1 file changed, 121 insertions(+), 107 deletions(-)
-
-Some checkpatch warnings/errors to fix:
-
-$ ./scripts/checkpatch.pl -g master..HEAD --codespell
-ERROR: trailing whitespace
-#307: FILE: drivers/virtio/virtio_ring.c:2862:
-+^Istruct vring_virtqueue_split vring_split = {};^I$
-
-WARNING: Missing a blank line after declarations
-#313: FILE: drivers/virtio/virtio_ring.c:2866:
-+		struct vring_virtqueue_packed vring_packed = {};
-+		vring_packed.vring.num = num;
-
-total: 1 errors, 1 warnings, 300 lines checked
-
-Apart from these issues, the rest LGTM.
-
-Thanks,
-Stefano
-
+> Let's finally add s390x support for virtio-mem; my last RFC was sent
+> 4 years ago, and a lot changed in the meantime.
 >
->diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->index be7309b1e860..91fbfdef2be8 100644
->--- a/drivers/virtio/virtio_ring.c
->+++ b/drivers/virtio/virtio_ring.c
->@@ -223,15 +223,6 @@ struct vring_virtqueue {
-> #endif
-> };
+> This is based on mm/stable.
 >
->-static struct virtqueue *__vring_new_virtqueue(unsigned int index,
->-					       struct vring_virtqueue_split *vring_split,
->-					       struct virtio_device *vdev,
->-					       bool weak_barriers,
->-					       bool context,
->-					       bool (*notify)(struct virtqueue *),
->-					       void (*callback)(struct virtqueue *),
->-					       const char *name,
->-					       struct device *dma_dev);
-> static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
-> static void vring_free(struct virtqueue *_vq);
+> I sent out the QEMU part earlier today [1], that contains some more detai=
+ls
+> and a usage example on s390x (last patch).
 >
->@@ -1138,6 +1129,66 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
-> 	return 0;
-> }
+> There is not too much in here: The biggest part is querying a new diag(50=
+0)
+> STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end". Once this
+> and the QEMU part will go upstream, it will get documented in [2]
 >
->+static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
->+					       struct vring_virtqueue_split *vring_split,
->+					       struct virtio_device *vdev,
->+					       bool weak_barriers,
->+					       bool context,
->+					       bool (*notify)(struct virtqueue *),
->+					       void (*callback)(struct virtqueue *),
->+					       const char *name,
->+					       struct device *dma_dev)
->+{
->+	struct vring_virtqueue *vq;
->+	int err;
->+
->+	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
->+	if (!vq)
->+		return NULL;
->+
->+	vq->packed_ring = false;
->+	vq->vq.callback = callback;
->+	vq->vq.vdev = vdev;
->+	vq->vq.name = name;
->+	vq->vq.index = index;
->+	vq->vq.reset = false;
->+	vq->we_own_ring = false;
->+	vq->notify = notify;
->+	vq->weak_barriers = weak_barriers;
->+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->+	vq->broken = true;
->+#else
->+	vq->broken = false;
->+#endif
->+	vq->dma_dev = dma_dev;
->+	vq->use_dma_api = vring_use_dma_api(vdev);
->+	vq->premapped = false;
->+	vq->do_unmap = vq->use_dma_api;
->+
->+	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
->+		!context;
->+	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
->+
->+	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
->+		vq->weak_barriers = false;
->+
->+	err = vring_alloc_state_extra_split(vring_split);
->+	if (err) {
->+		kfree(vq);
->+		return NULL;
->+	}
->+
->+	virtqueue_vring_init_split(vring_split, vq);
->+
->+	virtqueue_init(vq, vring_split->vring.num);
->+	virtqueue_vring_attach_split(vq, vring_split);
->+
->+	spin_lock(&vdev->vqs_list_lock);
->+	list_add_tail(&vq->vq.list, &vdev->vqs);
->+	spin_unlock(&vdev->vqs_list_lock);
->+	return &vq->vq;
->+}
->+
-> static struct virtqueue *vring_create_virtqueue_split(
-> 	unsigned int index,
-> 	unsigned int num,
->@@ -1160,7 +1211,7 @@ static struct virtqueue *vring_create_virtqueue_split(
-> 	if (err)
-> 		return NULL;
+> The last two patches are not strictly required but certainly nice-to-have=
+.
 >
->-	vq = __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
->+	vq = __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
-> 				   context, notify, callback, name, dma_dev);
-> 	if (!vq) {
-> 		vring_free_split(&vring_split, vdev, dma_dev);
->@@ -2050,36 +2101,29 @@ static void virtqueue_reinit_packed(struct vring_virtqueue *vq)
-> 	virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
-> }
+> Note that -- in contrast to standby memory -- virtio-mem memory must be
+> configured to be automatically onlined as soon as hotplugged. The easiest
+> approach is using the "memhp_default_state=3D" kernel parameter or by usi=
+ng
+> proper udev rules. More details can be found at [3].
 >
->-static struct virtqueue *vring_create_virtqueue_packed(
->-	unsigned int index,
->-	unsigned int num,
->-	unsigned int vring_align,
->-	struct virtio_device *vdev,
->-	bool weak_barriers,
->-	bool may_reduce_num,
->-	bool context,
->-	bool (*notify)(struct virtqueue *),
->-	void (*callback)(struct virtqueue *),
->-	const char *name,
->-	struct device *dma_dev)
->+static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
->+					       struct vring_virtqueue_packed *vring_packed,
->+					       struct virtio_device *vdev,
->+					       bool weak_barriers,
->+					       bool context,
->+					       bool (*notify)(struct virtqueue *),
->+					       void (*callback)(struct virtqueue *),
->+					       const char *name,
->+					       struct device *dma_dev)
-> {
->-	struct vring_virtqueue_packed vring_packed = {};
-> 	struct vring_virtqueue *vq;
-> 	int err;
+> I have reviving+upstreaming a systemd service to handle configuring
+> that on my todo list, but for some reason I keep getting distracted ...
 >
->-	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
->-		goto err_ring;
->-
-> 	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-> 	if (!vq)
->-		goto err_vq;
->+		return NULL;
+> I tested various things, including:
+>  * Various memory hotplug/hotunplug combinations
+>  * Device hotplug/hotunplug
+>  * /proc/iomem output
+>  * reboot
+>  * kexec
+>  * kdump: make sure we don't hotplug memory
 >
-> 	vq->vq.callback = callback;
-> 	vq->vq.vdev = vdev;
-> 	vq->vq.name = name;
-> 	vq->vq.index = index;
-> 	vq->vq.reset = false;
->-	vq->we_own_ring = true;
->+	vq->we_own_ring = false;
-> 	vq->notify = notify;
-> 	vq->weak_barriers = weak_barriers;
-> #ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->@@ -2100,26 +2144,52 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> 		vq->weak_barriers = false;
+> One remaining work item is kdump support for virtio-mem memory. I
+> am working on a prototype that will be fairly straight forward,
+> because the virtio-mem driver already supports a special kdump mode and
+> dracut will already include it in the initrd as default. With
+> holiday and conferences coming up I rather sent this out now.
 >
->-	err = vring_alloc_state_extra_packed(&vring_packed);
->-	if (err)
->-		goto err_state_extra;
->+	err = vring_alloc_state_extra_packed(vring_packed);
->+	if (err) {
->+		kfree(vq);
->+		return NULL;
->+	}
+> [1] https://lkml.kernel.org/r/20240910175809.2135596-1-david@redhat.com
+> [2] https://gitlab.com/davidhildenbrand/s390x-os-virt-spec
+> [3] https://virtio-mem.gitlab.io/user-guide/user-guide-linux.html
 >
->-	virtqueue_vring_init_packed(&vring_packed, !!callback);
->+	virtqueue_vring_init_packed(vring_packed, !!callback);
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: Thomas Huth <thuth@redhat.com>
+> Cc: Cornelia Huck <cohuck@redhat.com>
+> Cc: Janosch Frank <frankja@linux.ibm.com>
+> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Cc: "Eugenio P=C3=A9rez" <eperezma@redhat.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
 >
->-	virtqueue_init(vq, num);
->-	virtqueue_vring_attach_packed(vq, &vring_packed);
->+	virtqueue_init(vq, vring_packed->vring.num);
->+	virtqueue_vring_attach_packed(vq, vring_packed);
+> David Hildenbrand (5):
+>   s390/kdump: implement is_kdump_kernel()
+>   s390/physmem_info: query diag500(STORAGE_LIMIT) to support QEMU/KVM
+>     memory devices
+>   virtio-mem: s390x support
+>   lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390x
+>   s390/sparsemem: reduce section size to 128 MiB
 >
-> 	spin_lock(&vdev->vqs_list_lock);
-> 	list_add_tail(&vq->vq.list, &vdev->vqs);
-> 	spin_unlock(&vdev->vqs_list_lock);
-> 	return &vq->vq;
->+}
+>  arch/s390/boot/physmem_info.c        | 46 ++++++++++++++++++++++++++--
+>  arch/s390/include/asm/kexec.h        |  4 +++
+>  arch/s390/include/asm/physmem_info.h |  3 ++
+>  arch/s390/include/asm/sparsemem.h    |  2 +-
+>  arch/s390/kernel/crash_dump.c        |  6 ++++
+>  drivers/virtio/Kconfig               | 12 ++++----
+>  lib/Kconfig.debug                    |  2 +-
+>  7 files changed, 64 insertions(+), 11 deletions(-)
 >
->-err_state_extra:
->-	kfree(vq);
->-err_vq:
->-	vring_free_packed(&vring_packed, vdev, dma_dev);
->-err_ring:
->-	return NULL;
->+static struct virtqueue *vring_create_virtqueue_packed(
->+	unsigned int index,
->+	unsigned int num,
->+	unsigned int vring_align,
->+	struct virtio_device *vdev,
->+	bool weak_barriers,
->+	bool may_reduce_num,
->+	bool context,
->+	bool (*notify)(struct virtqueue *),
->+	void (*callback)(struct virtqueue *),
->+	const char *name,
->+	struct device *dma_dev)
->+{
->+	struct vring_virtqueue_packed vring_packed = {};
->+	struct virtqueue *vq;
->+
->+	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
->+		return NULL;
->+
->+	vq = __vring_new_virtqueue_packed(index, &vring_packed, vdev, weak_barriers,
->+					context, notify, callback, name, dma_dev);
->+	if (!vq) {
->+		vring_free_packed(&vring_packed, vdev, dma_dev);
->+		return NULL;
->+	}
->+
->+	to_vvq(vq)->we_own_ring = true;
->+
->+	return vq;
-> }
+> --
+> 2.46.0
 >
-> static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
->@@ -2598,69 +2668,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> }
-> EXPORT_SYMBOL_GPL(vring_interrupt);
->
->-/* Only available for split ring */
->-static struct virtqueue *__vring_new_virtqueue(unsigned int index,
->-					       struct vring_virtqueue_split *vring_split,
->-					       struct virtio_device *vdev,
->-					       bool weak_barriers,
->-					       bool context,
->-					       bool (*notify)(struct virtqueue *),
->-					       void (*callback)(struct virtqueue *),
->-					       const char *name,
->-					       struct device *dma_dev)
->-{
->-	struct vring_virtqueue *vq;
->-	int err;
->-
->-	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
->-		return NULL;
->-
->-	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
->-	if (!vq)
->-		return NULL;
->-
->-	vq->packed_ring = false;
->-	vq->vq.callback = callback;
->-	vq->vq.vdev = vdev;
->-	vq->vq.name = name;
->-	vq->vq.index = index;
->-	vq->vq.reset = false;
->-	vq->we_own_ring = false;
->-	vq->notify = notify;
->-	vq->weak_barriers = weak_barriers;
->-#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->-	vq->broken = true;
->-#else
->-	vq->broken = false;
->-#endif
->-	vq->dma_dev = dma_dev;
->-	vq->use_dma_api = vring_use_dma_api(vdev);
->-	vq->premapped = false;
->-	vq->do_unmap = vq->use_dma_api;
->
->-	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
->-		!context;
->-	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
->-
->-	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
->-		vq->weak_barriers = false;
->-
->-	err = vring_alloc_state_extra_split(vring_split);
->-	if (err) {
->-		kfree(vq);
->-		return NULL;
->-	}
->-
->-	virtqueue_vring_init_split(vring_split, vq);
->-
->-	virtqueue_init(vq, vring_split->vring.num);
->-	virtqueue_vring_attach_split(vq, vring_split);
->-
->-	spin_lock(&vdev->vqs_list_lock);
->-	list_add_tail(&vq->vq.list, &vdev->vqs);
->-	spin_unlock(&vdev->vqs_list_lock);
->-	return &vq->vq;
->-}
->
-> struct virtqueue *vring_create_virtqueue(
-> 	unsigned int index,
->@@ -2840,7 +2848,6 @@ int virtqueue_reset(struct virtqueue *_vq,
-> }
-> EXPORT_SYMBOL_GPL(virtqueue_reset);
->
->-/* Only available for split ring */
-> struct virtqueue *vring_new_virtqueue(unsigned int index,
-> 				      unsigned int num,
-> 				      unsigned int vring_align,
->@@ -2852,13 +2859,20 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
-> 				      void (*callback)(struct virtqueue *vq),
-> 				      const char *name)
-> {
->-	struct vring_virtqueue_split vring_split = {};
->+	struct vring_virtqueue_split vring_split = {};	
->
->-	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
->-		return NULL;
->+	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)) {
->+		struct vring_virtqueue_packed vring_packed = {};
->+		vring_packed.vring.num = num;
->+		vring_packed.vring.desc = pages;
->+		return __vring_new_virtqueue_packed(index, &vring_packed,
->+						    vdev, weak_barriers,
->+						    context, notify, callback,
->+						    name, vdev->dev.parent);
->+	}
->
-> 	vring_init(&vring_split.vring, num, pages, vring_align);
->-	return __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
->+	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
-> 				     context, notify, callback, name,
-> 				     vdev->dev.parent);
-> }
->-- 
->2.43.0
 >
 
