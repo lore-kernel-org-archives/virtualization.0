@@ -1,400 +1,136 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6EE41C71
-	for <virtualization@lists.linux.dev>; Sun, 13 Oct 2024 03:32:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2F8211DFFC
+	for <virtualization@lists.linux.dev>; Sun, 13 Oct 2024 14:53:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728790360; cv=none; b=Ivay4KsJ9kSwlNuFZs+2+g5wy3OKJ19gmsFzUm8NhO0ZylxTbAoIVIZbVeZg8cE6uwYmouxduCM3FnhfEEPnmHrQahklR94I62wrvwIGTCyoc/Pyzl5YYp7AAoFQngQMqY4znIcocL8i2Zv8ezFQ2qNSClf8b0SoiP54G403Q68=
+	t=1728831210; cv=none; b=edXgMz+zlpjHGnYGmA7FsXatgh8u+2Yiq088acjrSxWzMSxm6odGtHi/mIAohdMvi+I1xwOcAsGynVbF91pR6a8msoyjlm+vSaP8kw0LnlxGxmVFT+8hArcPPH3CGYesqD2WYVUAmKnsTQkVZV4oRVE9NfNWeShngRPyObTui78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728790360; c=relaxed/simple;
-	bh=b/r7nnGAEajhcM57aoLq3WGAdPoQf1aL5t2Qt/0m8R8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=q8HVbFSkBbCh+E4xhYAy3DJG3Fba05pBk+VmIGBYzanW7fm9R4vmEgCKJEpFr9ot6W07n7KHlfyEY+j5cL5+YLPi5vTtYZq/w848710Uvl2K7eSevmnH8VwRk8eXHMMouS+Y808pT+FOq9EfnL3cTF7nWM5fgzuWXYLbJty2iNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cDd/RP0+; arc=none smtp.client-ip=209.85.215.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cDd/RP0+"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-7163489149eso2695668a12.1
-        for <virtualization@lists.linux.dev>; Sat, 12 Oct 2024 20:32:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1728790358; x=1729395158; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xzBVAz8kAMSFkf4uczHREZRRQClnQ/S7CR3RyTQw2jY=;
-        b=cDd/RP0+72XKLyKpcweh5ZwcFXXy5ECzI3+X3ZL83vtMbLylhwkMLa/mnOWOnFOPWZ
-         M5jtgvpnDmzLnu7Am/3CjzU5Whjtzo9WHQofYuQDUXHPkhflKTotLR/2JTaS+/+1/tLN
-         qFZBIlhF1Rh7TFPIIgv9Lqn6jC0c9FaSbr35M0L3fGcidmDk5ZQSRn0avZn/iGn/2Q1a
-         PjthodKP5c4Agdan1z3X4izFuGz3CkFUSNB8qVoTTj9t/fJUPB7ATWAoFVA7o7sCx9Ev
-         qnlr7YBIgdZDcfLNObAZ1mUInJ/CNNgcKZBanyOVoPWSaTG786jpVjySj6QcX+FNZLx1
-         UdSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728790358; x=1729395158;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xzBVAz8kAMSFkf4uczHREZRRQClnQ/S7CR3RyTQw2jY=;
-        b=HjOBU2P7DlYM8kIn/0nPKA58MJ4qDona1RtMjr/Y6mqXc8s+2eF9LN5+0sVz9AuFmb
-         sFqEzayw6xbnhdSOS/+AVBSAewN53qDViKT0NQbTuTleqK1m1jOXHL2Djhiun24Fdcbq
-         jRXYLf0tZTi9kCaJaprrrzFwCDBbfEdrDBwiAUcOQNV6uDUxh3uZdfTmdrh7fnXmaKEg
-         QrsNYFPOQl5osQNepTPiR5HaFpjhfO3jjjiltAKjZsWHtof9qOJdzgv5TR40NqxK555M
-         GABPz/6oSGNLnfjn2Mcivq2xIAnHljAoLUivPDyM9kKCx71EJiEON4wmDIH83LU1IVWZ
-         nNRQ==
-X-Gm-Message-State: AOJu0YwRVw577MulpnZWlDEbbxG3g1k0KnlJwyJNHb69jIpTB9S06o4a
-	9vX5mx9mWwUszuw6xgAGP59uJ5ZONaDnZHW350KdcpzizqYYi4EF
-X-Google-Smtp-Source: AGHT+IFeXdE82hfhaEpZlCJILrJa+7H7lKr5+YsoxzEPv7cgyQch5VXYvwEoNQsP0IZ1rirP5ILr/w==
-X-Received: by 2002:a05:6a20:e188:b0:1c0:e997:7081 with SMTP id adf61e73a8af0-1d8c95ddd6emr5759215637.29.1728790357463;
-        Sat, 12 Oct 2024 20:32:37 -0700 (PDT)
-Received: from localhost.localdomain ([175.45.38.98])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-71e6164e825sm40098b3a.61.2024.10.12.20.32.35
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 12 Oct 2024 20:32:37 -0700 (PDT)
-From: huangwenyu1998@gmail.com
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	sgarzare@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	huangwenyu1998@gmail.com
-Subject: [PATCH v4] virtio: Make vring_new_virtqueue support for packed vring
-Date: Sun, 13 Oct 2024 11:32:33 +0800
-Message-Id: <20241013033233.65026-1-huangwenyu1998@gmail.com>
-X-Mailer: git-send-email 2.30.1 (Apple Git-130)
+	s=arc-20240116; t=1728831210; c=relaxed/simple;
+	bh=rBhr3YEB0lNOJfF03W35HV8jztKMVPnLGNDZbrm4Ci0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=Qbod435XPc1ORBLS+Zza9c8y4sD6ZbJmIK6PLycOkeZlOCldB1JaZt86qvFLPlchl1AxRXCxdGI4mXpnRT/GMLwqOsp7fqJ+hFujiAje9Ze5UeVMfaCtQ5wOH6ZNMixUtxqTXmH46Ek/KtG5M9vwgOFrnn46IVOTXksujEQmE+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+	id 4DC4292009C; Sun, 13 Oct 2024 16:53:21 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by angie.orcam.me.uk (Postfix) with ESMTP id 45D3F92009B;
+	Sun, 13 Oct 2024 15:53:21 +0100 (BST)
+Date: Sun, 13 Oct 2024 15:53:21 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+cc: Brian Cain <bcain@quicinc.com>, Marcel Holtmann <marcel@holtmann.org>, 
+    Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
+    Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, 
+    Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+    Maxime Ripard <mripard@kernel.org>, 
+    Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
+    Simona Vetter <simona@ffwll.ch>, Dave Airlie <airlied@redhat.com>, 
+    Gerd Hoffmann <kraxel@redhat.com>, 
+    Lucas De Marchi <lucas.demarchi@intel.com>, 
+    =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
+    Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+    Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+    Jiri Slaby <jirislaby@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+    Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+    linux-hexagon@vger.kernel.org, linux-bluetooth@vger.kernel.org, 
+    dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
+    spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+    linux-serial@vger.kernel.org, linux-arch@vger.kernel.org, 
+    Arnd Bergmann <arnd@kernel.org>
+Subject: Re: [PATCH v6 4/5] tty: serial: handle HAS_IOPORT dependencies
+In-Reply-To: <46d81b40dda20ada3b5847353a866172b419c811.camel@linux.ibm.com>
+Message-ID: <alpine.DEB.2.21.2410081606420.30973@angie.orcam.me.uk>
+References: <20241007-b4-has_ioport-v6-0-03f7240da6e5@linux.ibm.com>  <20241007-b4-has_ioport-v6-4-03f7240da6e5@linux.ibm.com>  <alpine.DEB.2.21.2410072109130.30973@angie.orcam.me.uk> <46d81b40dda20ada3b5847353a866172b419c811.camel@linux.ibm.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 
-From: Wenyu Huang <huangwenyu1998@gmail.com>
+On Tue, 8 Oct 2024, Niklas Schnelle wrote:
 
-It used for testing in tools/virtio/vringh_test.c.
-If vring_new_virtqueue supports packed vring, we can add support for
-packed vring to vringh and test it.
+> > > +static __always_inline bool is_upf_fourport(struct uart_port *port)
+> > > +{
+> > > +	if (!IS_ENABLED(CONFIG_HAS_IOPORT))
+> > > +		return false;
+> > > +
+> > > +	return port->flags & UPF_FOURPORT;
+> > > +}
+> > 
+> >  Can we perhaps avoid adding this helper and then tweaking code throughout 
+> > by having:
+> > 
+> > #ifdef CONFIG_SERIAL_8250_FOURPORT
+> > #define UPF_FOURPORT		((__force upf_t) ASYNC_FOURPORT       /* 1  */ )
+> > #else
+> > #define UPF_FOURPORT		0
+> > #endif
+> > 
+> > in include/linux/serial_core.h instead?  I can see the flag is reused by 
+> > drivers/tty/serial/sunsu.c, but from a glance over it seems rubbish to me 
+> > and such a change won't hurt the driver anyway.
+> 
+> I'll look at this, do you think this is okay regarding matching the
+> user-space definitions in include/uapi/linux/tty_flags.h?
 
-Signed-off-by: Wenyu Huang <huangwenyu1998@gmail.com>
----
-Changes in v2: Make the commit title and description more clearer.
-Changes in v3: Remove the declaration of __vring_new_virtqueue_split and
-                           __vring_new_virtqueue_packed and move the definition of
-                           these two functions.
-Changes in v4: Fix checkpatch warnings/errors.
- drivers/virtio/virtio_ring.c | 227 +++++++++++++++++++----------------
- 1 file changed, 121 insertions(+), 106 deletions(-)
+ With this change UAPI stays the same and setting ASYNC_FOURPORT (with 
+`setserial', etc.) will just do nothing with non-port-I/O platforms, as 
+expected.  Arguably being able to set it for any serial port and cause the 
+driver to poke at random I/O locations is already asking for trouble, but 
+that the price of legacy.
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index be7309b1e860..5fce2cce2358 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -223,15 +223,6 @@ struct vring_virtqueue {
- #endif
- };
- 
--static struct virtqueue *__vring_new_virtqueue(unsigned int index,
--					       struct vring_virtqueue_split *vring_split,
--					       struct virtio_device *vdev,
--					       bool weak_barriers,
--					       bool context,
--					       bool (*notify)(struct virtqueue *),
--					       void (*callback)(struct virtqueue *),
--					       const char *name,
--					       struct device *dma_dev);
- static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
- static void vring_free(struct virtqueue *_vq);
- 
-@@ -1138,6 +1129,66 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
- 	return 0;
- }
- 
-+static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
-+					       struct vring_virtqueue_split *vring_split,
-+					       struct virtio_device *vdev,
-+					       bool weak_barriers,
-+					       bool context,
-+					       bool (*notify)(struct virtqueue *),
-+					       void (*callback)(struct virtqueue *),
-+					       const char *name,
-+					       struct device *dma_dev)
-+{
-+	struct vring_virtqueue *vq;
-+	int err;
-+
-+	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-+	if (!vq)
-+		return NULL;
-+
-+	vq->packed_ring = false;
-+	vq->vq.callback = callback;
-+	vq->vq.vdev = vdev;
-+	vq->vq.name = name;
-+	vq->vq.index = index;
-+	vq->vq.reset = false;
-+	vq->we_own_ring = false;
-+	vq->notify = notify;
-+	vq->weak_barriers = weak_barriers;
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-+	vq->broken = true;
-+#else
-+	vq->broken = false;
-+#endif
-+	vq->dma_dev = dma_dev;
-+	vq->use_dma_api = vring_use_dma_api(vdev);
-+	vq->premapped = false;
-+	vq->do_unmap = vq->use_dma_api;
-+
-+	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-+		!context;
-+	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-+
-+	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-+		vq->weak_barriers = false;
-+
-+	err = vring_alloc_state_extra_split(vring_split);
-+	if (err) {
-+		kfree(vq);
-+		return NULL;
-+	}
-+
-+	virtqueue_vring_init_split(vring_split, vq);
-+
-+	virtqueue_init(vq, vring_split->vring.num);
-+	virtqueue_vring_attach_split(vq, vring_split);
-+
-+	spin_lock(&vdev->vqs_list_lock);
-+	list_add_tail(&vq->vq.list, &vdev->vqs);
-+	spin_unlock(&vdev->vqs_list_lock);
-+	return &vq->vq;
-+}
-+
- static struct virtqueue *vring_create_virtqueue_split(
- 	unsigned int index,
- 	unsigned int num,
-@@ -1160,7 +1211,7 @@ static struct virtqueue *vring_create_virtqueue_split(
- 	if (err)
- 		return NULL;
- 
--	vq = __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
-+	vq = __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
- 				   context, notify, callback, name, dma_dev);
- 	if (!vq) {
- 		vring_free_split(&vring_split, vdev, dma_dev);
-@@ -2050,36 +2101,29 @@ static void virtqueue_reinit_packed(struct vring_virtqueue *vq)
- 	virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
- }
- 
--static struct virtqueue *vring_create_virtqueue_packed(
--	unsigned int index,
--	unsigned int num,
--	unsigned int vring_align,
--	struct virtio_device *vdev,
--	bool weak_barriers,
--	bool may_reduce_num,
--	bool context,
--	bool (*notify)(struct virtqueue *),
--	void (*callback)(struct virtqueue *),
--	const char *name,
--	struct device *dma_dev)
-+static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
-+					       struct vring_virtqueue_packed *vring_packed,
-+					       struct virtio_device *vdev,
-+					       bool weak_barriers,
-+					       bool context,
-+					       bool (*notify)(struct virtqueue *),
-+					       void (*callback)(struct virtqueue *),
-+					       const char *name,
-+					       struct device *dma_dev)
- {
--	struct vring_virtqueue_packed vring_packed = {};
- 	struct vring_virtqueue *vq;
- 	int err;
- 
--	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
--		goto err_ring;
--
- 	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
- 	if (!vq)
--		goto err_vq;
-+		return NULL;
- 
- 	vq->vq.callback = callback;
- 	vq->vq.vdev = vdev;
- 	vq->vq.name = name;
- 	vq->vq.index = index;
- 	vq->vq.reset = false;
--	vq->we_own_ring = true;
-+	vq->we_own_ring = false;
- 	vq->notify = notify;
- 	vq->weak_barriers = weak_barriers;
- #ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-@@ -2100,26 +2144,52 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
- 		vq->weak_barriers = false;
- 
--	err = vring_alloc_state_extra_packed(&vring_packed);
--	if (err)
--		goto err_state_extra;
-+	err = vring_alloc_state_extra_packed(vring_packed);
-+	if (err) {
-+		kfree(vq);
-+		return NULL;
-+	}
- 
--	virtqueue_vring_init_packed(&vring_packed, !!callback);
-+	virtqueue_vring_init_packed(vring_packed, !!callback);
- 
--	virtqueue_init(vq, num);
--	virtqueue_vring_attach_packed(vq, &vring_packed);
-+	virtqueue_init(vq, vring_packed->vring.num);
-+	virtqueue_vring_attach_packed(vq, vring_packed);
- 
- 	spin_lock(&vdev->vqs_list_lock);
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- 	spin_unlock(&vdev->vqs_list_lock);
- 	return &vq->vq;
-+}
- 
--err_state_extra:
--	kfree(vq);
--err_vq:
--	vring_free_packed(&vring_packed, vdev, dma_dev);
--err_ring:
--	return NULL;
-+static struct virtqueue *vring_create_virtqueue_packed(
-+	unsigned int index,
-+	unsigned int num,
-+	unsigned int vring_align,
-+	struct virtio_device *vdev,
-+	bool weak_barriers,
-+	bool may_reduce_num,
-+	bool context,
-+	bool (*notify)(struct virtqueue *),
-+	void (*callback)(struct virtqueue *),
-+	const char *name,
-+	struct device *dma_dev)
-+{
-+	struct vring_virtqueue_packed vring_packed = {};
-+	struct virtqueue *vq;
-+
-+	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
-+		return NULL;
-+
-+	vq = __vring_new_virtqueue_packed(index, &vring_packed, vdev, weak_barriers,
-+					context, notify, callback, name, dma_dev);
-+	if (!vq) {
-+		vring_free_packed(&vring_packed, vdev, dma_dev);
-+		return NULL;
-+	}
-+
-+	to_vvq(vq)->we_own_ring = true;
-+
-+	return vq;
- }
- 
- static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
-@@ -2598,69 +2668,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
- }
- EXPORT_SYMBOL_GPL(vring_interrupt);
- 
--/* Only available for split ring */
--static struct virtqueue *__vring_new_virtqueue(unsigned int index,
--					       struct vring_virtqueue_split *vring_split,
--					       struct virtio_device *vdev,
--					       bool weak_barriers,
--					       bool context,
--					       bool (*notify)(struct virtqueue *),
--					       void (*callback)(struct virtqueue *),
--					       const char *name,
--					       struct device *dma_dev)
--{
--	struct vring_virtqueue *vq;
--	int err;
--
--	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
--		return NULL;
--
--	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
--	if (!vq)
--		return NULL;
--
--	vq->packed_ring = false;
--	vq->vq.callback = callback;
--	vq->vq.vdev = vdev;
--	vq->vq.name = name;
--	vq->vq.index = index;
--	vq->vq.reset = false;
--	vq->we_own_ring = false;
--	vq->notify = notify;
--	vq->weak_barriers = weak_barriers;
--#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
--	vq->broken = true;
--#else
--	vq->broken = false;
--#endif
--	vq->dma_dev = dma_dev;
--	vq->use_dma_api = vring_use_dma_api(vdev);
--	vq->premapped = false;
--	vq->do_unmap = vq->use_dma_api;
- 
--	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
--		!context;
--	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
--
--	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
--		vq->weak_barriers = false;
--
--	err = vring_alloc_state_extra_split(vring_split);
--	if (err) {
--		kfree(vq);
--		return NULL;
--	}
--
--	virtqueue_vring_init_split(vring_split, vq);
--
--	virtqueue_init(vq, vring_split->vring.num);
--	virtqueue_vring_attach_split(vq, vring_split);
--
--	spin_lock(&vdev->vqs_list_lock);
--	list_add_tail(&vq->vq.list, &vdev->vqs);
--	spin_unlock(&vdev->vqs_list_lock);
--	return &vq->vq;
--}
- 
- struct virtqueue *vring_create_virtqueue(
- 	unsigned int index,
-@@ -2840,7 +2848,6 @@ int virtqueue_reset(struct virtqueue *_vq,
- }
- EXPORT_SYMBOL_GPL(virtqueue_reset);
- 
--/* Only available for split ring */
- struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      unsigned int num,
- 				      unsigned int vring_align,
-@@ -2854,11 +2861,19 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- {
- 	struct vring_virtqueue_split vring_split = {};
- 
--	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
--		return NULL;
-+	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)) {
-+		struct vring_virtqueue_packed vring_packed = {};
-+
-+		vring_packed.vring.num = num;
-+		vring_packed.vring.desc = pages;
-+		return __vring_new_virtqueue_packed(index, &vring_packed,
-+						    vdev, weak_barriers,
-+						    context, notify, callback,
-+						    name, vdev->dev.parent);
-+	}
- 
- 	vring_init(&vring_split.vring, num, pages, vring_align);
--	return __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
-+	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
- 				     context, notify, callback, name,
- 				     vdev->dev.parent);
- }
--- 
-2.43.0
+> > > @@ -1174,7 +1201,7 @@ static void autoconfig(struct uart_8250_port *up)
+> > >  		 */
+> > >  		scratch = serial_in(up, UART_IER);
+> > >  		serial_out(up, UART_IER, 0);
+> > > -#ifdef __i386__
+> > > +#if defined(__i386__) && defined(CONFIG_HAS_IOPORT)
+> > >  		outb(0xff, 0x080);
+> > >  #endif
+> > >  		/*
+> > > @@ -1183,7 +1210,7 @@ static void autoconfig(struct uart_8250_port *up)
+> > >  		 */
+> > >  		scratch2 = serial_in(up, UART_IER) & UART_IER_ALL_INTR;
+> > >  		serial_out(up, UART_IER, UART_IER_ALL_INTR);
+> > > -#ifdef __i386__
+> > > +#if defined(__i386__) && defined(CONFIG_HAS_IOPORT)
+> > >  		outb(0, 0x080);
+> > >  #endif
+> > >  		scratch3 = serial_in(up, UART_IER) & UART_IER_ALL_INTR;
+> > 
+> >  Nah, i386 does have machine OUTB instructions, it has the port I/O 
+> > address space in the ISA, so these two changes make no sense to me.  
+> > 
+> >  Though this #ifdef should likely be converted to CONFIG_X86_32 via a 
+> > separate change.
+> 
+> This is needed for Usermode Linux (UM) which sets __i386__ but also
+> doesn't have CONFIG_HAS_IOPORT. This was spotted by the kernel test bot
+> here: https://lore.kernel.org/all/202410031712.BwfGjrQY-lkp@intel.com/
 
+ Odd, but I'm not into UML so I need to accept your justification.  My 
+reservation about relying on compiler's __i386__ predefine rather than our 
+CONFIG_X86_32 setting still stands, but that's beyond the scope of your 
+change (as is switching from `#if ...' to `if (...)').  Thanks for your 
+attention to such details.
+
+ NB these `outb' calls look to me remarkably like remains of `outb_p' and 
+I wonder if they could be abstracted somehow.  For those who don't know: 
+the port I/O location 0x80 in the IBM PC address space was reserved for 
+use as a diagnostic port.  Despite being in the mainboard's address space 
+its chip select line was left floating and one could obtain an ISA option 
+card that decoded this location and showed data values written to it on a 
+hex display.  As it was a location known to cause no side effect (beyond 
+that optional hex display) it was commonly used to incur a small delay in 
+execution.  It was also used by BIOS POST to indicate progress.
+
+ I've skimmed over v8 and it seems good to go as far as I'm concerned.  
+Any fallout can be dealt with on a case-by-case basis.  Thank you for 
+working on these improvements.
+
+  Maciej
