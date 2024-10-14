@@ -1,197 +1,199 @@
-Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFBE64A3E;
-	Mon, 14 Oct 2024 13:23:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.148.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728912198; cv=fail; b=EdUWOlMkorr/Wku+Asd/aV5DqwL1W2G91hL9HPVT/vh3+o65h1DeWUxY3aXigCsgVRQYDIfJYyTfv8K0VO9tnsbRbFopDkKG/FQJuLEa6NYivEQ/EQvgJXQVHGVEI7Co0m05gtnP3kBW5L4j4XTS6zvPleOKcTa8lBye6bFEBeY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728912198; c=relaxed/simple;
-	bh=c7YyB9LLVdo3ZeP/sKASxQ9fXZKtWvmNPknQzKkmdzw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=XFJXK83ZH9aePh/gKD2K+bQJX8YOQ09Vwq3YOX5T4GcU/l7psMmSnIv+/+O6qWfb2kwCzMtfPGDKI5bIx+IrX8xtD4OkHEK10Ik26CHKObHPjukWFBTQQQ6opWaI+O3gxu1WNJBJdbE8AoI/VvuYiEPokmNN7j4QxX4QGEy7xmo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=dS9hH9kh; arc=fail smtp.client-ip=67.231.148.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78918F9DA
+	for <virtualization@lists.linux-foundation.org>; Mon, 14 Oct 2024 14:31:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1728916273; cv=none; b=m+3Zrdqnu00MzG/B/N6eTb1TkCno6Eajv2SZZppmExKD8eSdE2uEqxsiuJWi0IjtHB7Ze9F0OqnpeDXB2frRygXUg01mLiLbrIVdNq7S7wbkPmqs3abySiQBhwoJBj4trokOXLRRYt39m8ZP125jgNVOhdNF1BT1RPWvI6LbqZc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1728916273; c=relaxed/simple;
+	bh=ZtlGlGggHtnbN9op/Y3ICIexBhUAY09LNseAJgwj4/Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=gITa7elP4SfqsMr0Bl2rCyMDkBscGtcQxO5BQIft8XBCSYmERNqz4DKVSXfzKuuVk01iIJG+UhjdOV+DVTxoWggoERQAsvuuVXeBYm1VRTpmnE654jmtrjO2TAl9C38n/8QJOBJU2oRn/57Ce/qipFOZwkw3NQlYSNb3jQyLGPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h2z75S44; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="dS9hH9kh"
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49ECQE90005151;
-	Mon, 14 Oct 2024 06:18:06 -0700
-Received: from nam04-dm6-obe.outbound.protection.outlook.com (mail-dm6nam04lp2047.outbound.protection.outlook.com [104.47.73.47])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4292fd066n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Oct 2024 06:18:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=DjwtWLyOiKyWJJpdnHor2NVLkYVrzXXspRlaI3Aw06GuM2av6WE4bXKGFvQHtFiLdcJO6wdvmYS18j5QhrazWXkofFmXTOGho+hfd3pCbWf8WMphu64bpFx8nHm/RVXcZQ/WupwID7NzgGMtFPjmkP49EefnYv3NM5hLF3isUiYh7aCaPx4BNA1Dz9axZcpnWbx1b6YyY5mLMT5unnf8Aw91QqNzZcp9RUvWeQMyhtqQYCzuvJAX1AnrN6h2lWj0TFD0acUbCUPIr0vFf1TYwvp57iqV1YYIUfCgqLNZId+GMgu9YwxhZ1tpGopSNDg3l2kHtZHdnwjZlOyDiDtcdA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=c7YyB9LLVdo3ZeP/sKASxQ9fXZKtWvmNPknQzKkmdzw=;
- b=mhiKQz3spLkRrgTtRPHn97sUVx4NBr4LBhlwNfhX452mbLHwecUZ5SHxNUEztGTafCaQHLbw0ibM2sPea2/iaf+L7eT85bVygIJuul90FOM1s8pY0ixuPgc+Ldn/lAKCBo9hNvQwQmkyXbGZ6M21xpyiNnstGGXCnXfncTT374/IVTfzQgxTCwwyPBIjV8cR5GfD68iBWGH9X8rXqVTR0P6h/lfYUnFDJOnvEp+ykwASRR74RmT4TEO/P6KhVgOpBu1QIfXBSZnW57NuicpiPBjOdwJOP65ElaiXBOFoj6ds4CxLpUsZDkhfmiuDiM8R1zE1tJwkgKZfD5zogNg3Rg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
- dkim=pass header.d=marvell.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=c7YyB9LLVdo3ZeP/sKASxQ9fXZKtWvmNPknQzKkmdzw=;
- b=dS9hH9khQso6tbH6LWkXuOm1ngTgvodi3nHTUzyhxpmXCHzgCqFluw+FKavkUB1m7FzpJDWCQomUyKhDhWEvunnmDG1rfBAHCtol7osXToX3z0xcKB9883O8a42GoEhSaCPuH8WmzOjv9Z6/8d/IUZWzlD1/Y77eQv6LQbGnAus=
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
- by BY1PR18MB5838.namprd18.prod.outlook.com (2603:10b6:a03:4a9::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8048.25; Mon, 14 Oct
- 2024 13:18:01 +0000
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac]) by DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac%4]) with mapi id 15.20.8048.020; Mon, 14 Oct 2024
- 13:18:01 +0000
-From: Srujana Challa <schalla@marvell.com>
-To: Christoph Hellwig <hch@infradead.org>
-CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mst@redhat.com"
-	<mst@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "eperezma@redhat.com" <eperezma@redhat.com>,
-        Nithin Kumar Dabilpuram
-	<ndabilpuram@marvell.com>,
-        Jerin Jacob <jerinj@marvell.com>
-Subject: RE: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Thread-Topic: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Thread-Index: AQHbE96PlQaeJdnt006ohvbKHfff0rKGTA1A
-Date: Mon, 14 Oct 2024 13:18:01 +0000
-Message-ID:
- <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
-References: <20240920140530.775307-1-schalla@marvell.com>
- <Zvu3HktM4imgHpUw@infradead.org>
-In-Reply-To: <Zvu3HktM4imgHpUw@infradead.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|BY1PR18MB5838:EE_
-x-ms-office365-filtering-correlation-id: 54fd1876-8c21-4b76-4b7e-08dcec52a10a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?ZW91aWpUVGkyM0lxUnZ3UTlteDdseWYzYlRSVEJpdnM4K05WejdESzNTbkhX?=
- =?utf-8?B?WStkV2lLbERBOHQrNUYwTVkwN3NGLzdkSVBHQW8ycDBkTDh1bDFjUUhIc3hW?=
- =?utf-8?B?V0xyUW0rTGVrYXE2U3hHSHl6OU1GSzRlVUVZNm9BbGlzZGJWNXBoOVgvbXlB?=
- =?utf-8?B?c0dpMFVIREUzZkl0cVVkMURudjRLMjB1VjZqU2pkYkJnMS9QMDNQemFVSXVB?=
- =?utf-8?B?bG5MbkR3a0ZlZTFITnVyank5cWtSZG9Udk5udUVmdnFwWmp5K1E5SFBLb0JB?=
- =?utf-8?B?cWNGVncwZ0FoZmpUR3dSTUM3cXpTdEJncCs3SVdoeklWbkRLSDB1VGtMWkJW?=
- =?utf-8?B?YmVWMjJJSzNzengwdWpmRXJ1M0NxNlloWGN1cEFSY3hMVUV1NE5lQ3NJRDZD?=
- =?utf-8?B?cVRMNjhQRWJzRWZDRUsrUTMveGFiblhVamJ1UWFXbk1MdFFKYTJuaFZhUDJJ?=
- =?utf-8?B?Rzdpa2RPcTRiQWxRcElqVVgxL2JsKzVKZzVNQXhkUGtNSytYOEUrUDhLa2Yy?=
- =?utf-8?B?OUc1dHVLY09LcXRiUFFQVEpubHJwd0V0emhybkJjYXRZeklrNDF2VzhNdUdz?=
- =?utf-8?B?S1I5SFZMQ3VOSDFjdlFQMlNzeUpDZlNWclhXZ2JqbStHa21EMVJRaHFDZTM1?=
- =?utf-8?B?VVpWcHFNVjR5blBuL0lSVjVvUkFHQndxdWZZMERrTU9va3ZiOFhtSjYyRFFj?=
- =?utf-8?B?SGQ5YkxLaklmMzkwRjE4aXRiQkVzcVZwV1JQbmxMMWlNcVBXd3pPSFFHamZ2?=
- =?utf-8?B?Y3hIb05oamZVTnEwTk5aVUsxQU1rYURnR0t0QmJ5VGlIZUl5MXdhY0cxVVpK?=
- =?utf-8?B?MlJBUi9iYlR4dkRnRjkvblZDVkZNQSt4V0lVNm9mN0hpZzFxQjNVUWovckFq?=
- =?utf-8?B?azliSElCSDdzcmxpbmhVTmRMOGFSK1RHdVVNcU5LeFlOV0hvamk0bEFjRWJY?=
- =?utf-8?B?V293Z29VczU4aU1pSHdiQ1BsNFdvaXJEenBKZVlQdkwvVm80ZndRampLTWNL?=
- =?utf-8?B?WXl1bzI5bmpLWERwdnJucUgrVytBYmJvUGQ3cURCaFRiNWdQeFU3Tlc5VXpU?=
- =?utf-8?B?bUJYeUw2cFB2TkE3STM5dFlNR2luTXduZnBRc2hQdCtLeVdCRlhtTE16d2lz?=
- =?utf-8?B?dk1iZjBQeWdENGh6UmppSVlUVFF2Q25aQ2VTdmV4enZQeTZOZHE5NjM3WE1Y?=
- =?utf-8?B?c3JndkVQRTBvdDMrK0JJMTN3RGlZNmpObmtNMi9VUm4waTR2WU1LeWFoQWFX?=
- =?utf-8?B?UnErSmc3UCtKbjl4U0lTQk5uOXdQVGFiSVFzeDZnZWNBdjZzeW9TR2hIWXRh?=
- =?utf-8?B?UWNsZ1U3dTR1bHJPT1NlSGRBYWxvcE1iajE0Q0ZpcTJaYk9TdUhIU2VWNkpU?=
- =?utf-8?B?Z1BNcm05dXhQQ1BJdFE5SExmcTFlNXNISk5seTIxNnB6WUd4TzBmRHRTQXVz?=
- =?utf-8?B?UXVESWJpekZMSFBHa2J5OEdLa0Y2bHVJMTZ0eVhZUElTWitnOW5xQjJXQ0ZG?=
- =?utf-8?B?b1U2RnRIT1hLRGJUMDVPMmVrVzNsT2NQdmJSMTBaNVFsb0w4SVVqUmNHMWli?=
- =?utf-8?B?b3pYYm51QThHZVlmdmdwQ0R1VUpRL2MzSmJVUFVPdTJabFJEemowSDNXekdw?=
- =?utf-8?B?NVhxVGIxZEFMdXlQRStaNC9mSjMxNjRtZW56NFBodGhYcDFtRkhucTlza293?=
- =?utf-8?B?UTgvbWw1NXg4eWdEc3lhR0hVZStvZFFOL1M3TDZDdXpKQ1VvdUFJVkxBZTBa?=
- =?utf-8?B?ZVAzbWhyOGorRjM5V3dSSjJyQTZ1MitvcHZjZkV1T2lEWGlvbThyZFpndzh5?=
- =?utf-8?B?TGpqUHRzbEtNVTh3YmNGUT09?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?RzNNNVNSOTdOcnFOU1p2cjZ5Mmx2Y2VKSzYxYnY4UE1xS1d2bG5aLzNxWlhL?=
- =?utf-8?B?U001YTlIY2FXbnc1YkhCV2xwUitCbmRQQi8xdlUwMzFJUGlOK0dNbEY0Z05L?=
- =?utf-8?B?OWNKNGp4dSszUW10TVA3UHIvdCtCOG5icEZsUVBYRkJtMmNFNzY3MUI3OVNl?=
- =?utf-8?B?YWphMDVVaE44QzNqUVR5M1RCS0RrakxLVkxWQWxCQnR4WG8zNWVJVldkNC9s?=
- =?utf-8?B?alJOODk3MERTT1Z5V2MzV0dlcUZxZk5NcjBiMEU1MjBneFhLdkZybTJBY1hi?=
- =?utf-8?B?Nzk3d0VjZU1xMUpoT3hmLzJELytmSlpuQ1gzS3RIQ2wvVXllY0hyR21oSkRF?=
- =?utf-8?B?a09MQ3dKalRZT1Y4Tll3dlU0SVNwZ2lkaEFnbXZXcTBHY2h1MkZFeWI0cWlO?=
- =?utf-8?B?dzdjQjB5K1R4SWYrZGZhcDFYbnFob0NaSWhSOXBxekgyQjhsaHJUOGorMnBq?=
- =?utf-8?B?S04yNkI4OUx3dCtzbWhvTEF0V2F1TThDYmJOOUlMWlFiczVrcWtpNXVXQnBU?=
- =?utf-8?B?WWdmNGVQY1RQQmdiaUI0SVlSb3Nyd0dYcSt0WS9xdVhnSExkTlEzWUsyUGtX?=
- =?utf-8?B?N3lyeHBXZkU0emgvSWttU2E1MzNZaFY4RjFGdlZQaTJGWEVTLzJTdjVmSWR5?=
- =?utf-8?B?aGNvbjZZRmVISk1PNTFxUjhDMG1rVk5FbmlUM0pqWitXZUlMZysxcnl6Z3Zr?=
- =?utf-8?B?aXBPcWp6MnQzdnVpNkZ0S3VqM0lDNmlCNWM3aFhRRGlNVXc2Syt5WFNtTGp3?=
- =?utf-8?B?WE5ZMDV5QS8vbjFHQlZ5NXBCNjZPeXN4MzVmY2dPZGZGQUN0KzJrOFUyVnpT?=
- =?utf-8?B?RUxaQkdzaUpNWjVKVjdjU2dVTFdkUmg5N3MwcTNoTENSUk9GWHFYYUs5aGI0?=
- =?utf-8?B?YVB2eVAvRlhwRlg5WVNoMVpwWnVIVDJNRzZad0dhellPdjNVUmJETG1FUCtk?=
- =?utf-8?B?QjBpMmdGNUFaTjJobE9TL2RVSnNsaWVUOCt1Ym12TGpkR20zOXpSTmpCUXBV?=
- =?utf-8?B?eFoyRHhlbG05endQcHJJVDN0UndxT0JrRHl6eHpYMjlLcWhSQ2tmcnBIYnhL?=
- =?utf-8?B?Q3ZBM0xXSkp4emNDRUxYZDVDMTliVjRCdE9JUG1qR08xd3N3aDAvcUpKYVVp?=
- =?utf-8?B?YXVrVEFrSWtVbnduVGRDcGt0Qy9RM2NlNUYyTE8zYW5oeWVHdmh5M29mWCtK?=
- =?utf-8?B?V25sY0ViM3NPV29ySUlLRW5Ob3JyYzBjVHN6Z3p3dlZuL2lFWUZKeGhXV3BM?=
- =?utf-8?B?bUgvU1VBbEo1K2h3WG1ndlRENHlLTFFEeXkwcHE2WWFKTExqdUhCS3Z1YWov?=
- =?utf-8?B?WFBYcjA4UGxYbUR6SHR2MXZ2VlFUUkMzNnVGTXBsVU9sbVFUY0swNWxTQ1Z6?=
- =?utf-8?B?MVduTVBFNGtsdlZmQUlxNE0yOXhlWFBYeXNzN04rRHBsbHhjeHprTmhXdkRU?=
- =?utf-8?B?diticDMwOEgvaDdtb2V0OHIybEthUlhvczBWRkJUaTVhUXZteDJoS0hhbDFF?=
- =?utf-8?B?RUlBbncySzlYdlVpVWQxNXRpVG04RTgzZXpwNlR5dWRBeDUrM2lCWFVFWWJn?=
- =?utf-8?B?elZPaGtoa2cyLzNJTmIyMUpzakE5QU5xN2l5SmpxV1MwNnJiOVpKd3c0ZE54?=
- =?utf-8?B?L1NiY1E3a01WMVhUTmRpYVJDQXNtb3NheDZaT0RlS05HclNpSVNrQlROVVRs?=
- =?utf-8?B?TmVuS09LWHJZNFFDMEJiS2NqeUVjZW13SHEvTFJBeGxMb0FKMkNNMWEvbWhP?=
- =?utf-8?B?elZuT0hsZXJEWThJWDNSNU9wT0FBcUxjeXlFRHl5bTRqVFM2WDNSejBSaWNu?=
- =?utf-8?B?dEZGbFBxWTJZd0Zhc3hEODN0bnFFWFIyRng2ajZUb2dvUHBYMEVRSCsrOU4r?=
- =?utf-8?B?WEZOOWZVTmpjK0JVRUxrVEJ4c3dUVDV6bkVhL1NROFdqd0ZjL3djeTlMamZ3?=
- =?utf-8?B?Qkl2R1duMTYrQkpTZ1EvVDRiUWpHYTJKT25SMlpZcURyWldmV21xNXh2eFFv?=
- =?utf-8?B?THRlckQzbDZTdVlRb2pYQjcxcUNQSEprVC9sVzU4TVlLd2dkSFVPNjRaRU90?=
- =?utf-8?B?UmFXSGluRVIxaXpzQ1RtSzRERnZzSU5Gc214NFBTU21XMGRTYWloMHFxTURL?=
- =?utf-8?Q?jQNM=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h2z75S44"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2C3D1810B3
+	for <virtualization@lists.linux-foundation.org>; Mon, 14 Oct 2024 14:31:12 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.789
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id nye1YoHH9xdG for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Oct 2024 14:31:06 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mvaralar@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8C719810A4
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C719810A4
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h2z75S44
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8C719810A4
+	for <virtualization@lists.linux-foundation.org>; Mon, 14 Oct 2024 14:31:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728916264;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uHhN+YniCsyF2iyrPm8KbMOZhKraGT5+k8i5zy+Jqus=;
+	b=h2z75S44mugEd5qRSJWyVWTZjoNb+rB74VXd2N0qljMM3LYNKf1W1EVbWrVsxD1PVWsMg8
+	GuulFF0XtKh2maQvWRTAWCJJt0flAPpHxCw7YNzJCqUzgjlXgpVwORJj39zsdBnBe6w3bs
+	kNRkUJq8khZINWXU7pP2lX4Ku68SpuA=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-1-tX0ZQInQPpmlaGZH_8aPuQ-1; Mon, 14 Oct 2024 10:31:03 -0400
+X-MC-Unique: tX0ZQInQPpmlaGZH_8aPuQ-1
+Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-6c513582b05so95884906d6.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 14 Oct 2024 07:31:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728916263; x=1729521063;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uHhN+YniCsyF2iyrPm8KbMOZhKraGT5+k8i5zy+Jqus=;
+        b=TyvduLDz0/Mg+LYWJCUz+dl0rQbdhzEWQqNulPI5v5/8vCz4EuT4phmVmMyLoqUq/6
+         DMzZBZXQ+YVjbYNs4DPIK6ScB43qFax6xAXqJsG314CFdjAZkb8m79qWiftEuuPAQj9J
+         UnVOLRHyfUulLdDd4KnQfcHHYYuW8DoRDmCVUGzj1SG5sTfFS9oDdoA3DVwoKGtB4p01
+         9uXCJvRLI7vOxYhTZ+obDYyes6hpRqhQXWQ2Z3UHBDH3tG9TFTjZTxCU8lLDstiGbsV2
+         3plOUWvjhi9Hc9lVQDBe62oBuZ+hmtg1PxLHp3VHni9ldlWayhVf0Klu8z42tG/aQYb0
+         Nk/w==
+X-Forwarded-Encrypted: i=1; AJvYcCX9YRJlwou+oar8pqXMgFTNBiTArFpigmLE2SS2/h7mq/pxF4KPW4URnJw49vUO3B1fSJpVAJuTS8DwgaBH9Q==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yy+Qqt45FpMp61B/EayGh7cc18XBBy80Ck89GB1RBO3jztSDCuC
+	aYZpiP1un6qNxOhckx/JEX8Y6GwkLzA3m1UKDLGbvLkVkDg56gyb3eZyU/1xmZxQBSJb/Gt8ywm
+	ttqmKRa7ZxQCTaPKCHgjM4IxPvkjCUVZ8DaWYh5/TbeVcx3NYBEKRs4gz97o6zno4tunW8eiXcz
+	iWBJQ=
+X-Received: by 2002:a05:6214:450a:b0:6cb:ee89:9982 with SMTP id 6a1803df08f44-6cbf9e76f3bmr141878846d6.38.1728916262595;
+        Mon, 14 Oct 2024 07:31:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE/qGFxpNPpeTrI8b08Ch6j1wS4HOMv28oCt0r5tdZCa134rLOm+pt6CYldbdPlHmaAjjxxwg==
+X-Received: by 2002:a05:6214:450a:b0:6cb:ee89:9982 with SMTP id 6a1803df08f44-6cbf9e76f3bmr141878456d6.38.1728916262247;
+        Mon, 14 Oct 2024 07:31:02 -0700 (PDT)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cbe85b79f6sm46017616d6.51.2024.10.14.07.31.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Oct 2024 07:31:02 -0700 (PDT)
+Date: Mon, 14 Oct 2024 16:30:57 +0200
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Cc: dverkamp@chromium.org, mst@redhat.com,
+	virtualization@lists.linux-foundation.org, stefanha@redhat.com,
+	virtio-dev@lists.linux.dev, oren@nvidia.com, parav@nvidia.com,
+	nitzanc@nvidia.com, benwalker@nvidia.com
+Subject: Re: [PATCH v4 1/1] virtio-blk: Add description for blk_size field
+Message-ID: <Zw0rIWvmER623sUL@fedora>
+References: <20241010160725.3087-1-mgurtovoy@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: marvell.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 54fd1876-8c21-4b76-4b7e-08dcec52a10a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Oct 2024 13:18:01.2899
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: u4t/RvTHpkJn7raaukdahLwzaRqNaT/fwUJu3TWsTwPIoL/7TGKMrqPyhsc1yOOUsHcKiXTsJBbpeRtakluxDg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY1PR18MB5838
-X-Proofpoint-GUID: mLu8l9B-53qh3u8HwgzMRtFYynclvp3I
-X-Proofpoint-ORIG-GUID: mLu8l9B-53qh3u8HwgzMRtFYynclvp3I
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+In-Reply-To: <20241010160725.3087-1-mgurtovoy@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-PiBPbiBGcmksIFNlcCAyMCwgMjAyNCBhdCAwNzozNToyOFBNICswNTMwLCBTcnVqYW5hIENoYWxs
-YSB3cm90ZToNCj4gPiBUaGlzIHBhdGNoc2V0IGludHJvZHVjZXMgc3VwcG9ydCBmb3IgYW4gVU5T
-QUZFLCBuby1JT01NVSBtb2RlIGluIHRoZQ0KPiA+IHZob3N0LXZkcGEgZHJpdmVyLiBXaGVuIGVu
-YWJsZWQsIHRoaXMgbW9kZSBwcm92aWRlcyBubyBkZXZpY2UNCj4gPiBpc29sYXRpb24sIG5vIERN
-QSB0cmFuc2xhdGlvbiwgbm8gaG9zdCBrZXJuZWwgcHJvdGVjdGlvbiwgYW5kIGNhbm5vdA0KPiA+
-IGJlIHVzZWQgZm9yIGRldmljZSBhc3NpZ25tZW50IHRvIHZpcnR1YWwgbWFjaGluZXMuIEl0IHJl
-cXVpcmVzIFJBV0lPDQo+ID4gcGVybWlzc2lvbnMgYW5kIHdpbGwgdGFpbnQgdGhlIGtlcm5lbC4N
-Cj4gPg0KPiA+IFRoaXMgbW9kZSByZXF1aXJlcyBlbmFibGluZyB0aGUNCj4gImVuYWJsZV92aG9z
-dF92ZHBhX3Vuc2FmZV9ub2lvbW11X21vZGUiDQo+ID4gb3B0aW9uIG9uIHRoZSB2aG9zdC12ZHBh
-IGRyaXZlciBhbmQgYWxzbyBuZWdvdGlhdGUgdGhlIGZlYXR1cmUgZmxhZw0KPiA+IFZIT1NUX0JB
-Q0tFTkRfRl9OT0lPTU1VLiBUaGlzIG1vZGUgd291bGQgYmUgdXNlZnVsIHRvIGdldCBiZXR0ZXIN
-Cj4gPiBwZXJmb3JtYW5jZSBvbiBzcGVjaWZpY2UgbG93IGVuZCBtYWNoaW5lcyBhbmQgY2FuIGJl
-IGxldmVyYWdlZCBieQ0KPiA+IGVtYmVkZGVkIHBsYXRmb3JtcyB3aGVyZSBhcHBsaWNhdGlvbnMg
-cnVuIGluIGNvbnRyb2xsZWQgZW52aXJvbm1lbnQuDQo+IA0KPiAuLi4gYW5kIGlzIGNvbXBsZXRl
-bHkgYnJva2VuIGFuZCBkYW5nZXJvdXMuDQpCYXNlZCBvbiB0aGUgZGlzY3Vzc2lvbnMgaW4gdGhp
-cyB0aHJlYWQgaHR0cHM6Ly93d3cuc3Bpbmljcy5uZXQvbGlzdHMva3ZtL21zZzM1NzU2OS5odG1s
-LA0Kd2UgaGF2ZSBkZWNpZGVkIHRvIHByb2NlZWQgd2l0aCB0aGlzIGltcGxlbWVudGF0aW9uLiBD
-b3VsZCB5b3UgcGxlYXNlIHNoYXJlIGFueQ0KYWx0ZXJuYXRpdmUgaWRlYXMgb3Igc3VnZ2VzdGlv
-bnMgeW91IG1pZ2h0IGhhdmU/DQpUaGFua3MuICANCg==
+On Thu, Oct 10, 2024 at 07:07:25PM +0300, Max Gurtovoy wrote:
+> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is
+> offered by the device.
+> 
+> The blk_size field actually represents the logical block size of the
+> device. It is always a power of two and typically ranges from 512 bytes
+> to larger values such as 4 KB.
+> 
+> Add description for this field to provide clarity on its constraints.
+> 
+> Fixes: https://github.com/oasis-tcs/virtio-spec/issues/208
+> Reviewed-by: Daniel Verkamp <dverkamp@chromium.org>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> ---
+>  device-types/blk/description.tex | 32 ++++++++++++++++++++++++++++++++
+>  1 file changed, 32 insertions(+)
+> 
+> diff --git a/device-types/blk/description.tex b/device-types/blk/description.tex
+> index 2712ada..0ddc223 100644
+> --- a/device-types/blk/description.tex
+> +++ b/device-types/blk/description.tex
+> @@ -135,6 +135,9 @@ \subsection{Device configuration layout}\label{sec:Device Types / Block Device /
+>  present. The availability of the others all depend on various feature
+>  bits as indicated above.
+>  
+> +The field \field{blk_size} exists only if VIRTIO_BLK_F_BLK_SIZE is offered by the device.
+> +This field reports the block size of the device, expressed in bytes.
+> +
+>  The field \field{num_queues} only exists if VIRTIO_BLK_F_MQ is set. This field specifies
+>  the number of queues.
+>  
+> @@ -282,6 +285,13 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
+>  
+>  \drivernormative{\subsubsection}{Device Initialization}{Device Types / Block Device / Device Initialization}
+>  
+> +Drivers SHOULD negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is offered by the
+> +device. When negotiated, drivers SHOULD interpret the \field{blk_size} as the
+> +logical block size.
+> +
+> +If the VIRTIO_BLK_F_BLK_SIZE feature is not offered by the device, then drivers
+> +MAY assume that the logical block size is 512 bytes.
+> +
+>  Drivers SHOULD NOT negotiate VIRTIO_BLK_F_FLUSH if they are incapable of
+>  sending VIRTIO_BLK_T_FLUSH commands.
+>  
+> @@ -319,6 +329,10 @@ \subsection{Device Initialization}\label{sec:Device Types / Block Device / Devic
+>  
+>  \devicenormative{\subsubsection}{Device Initialization}{Device Types / Block Device / Device Initialization}
+>  
+> +Devices SHOULD always offer VIRTIO_BLK_F_BLK_SIZE feature. When this feature is
+> +offered, devices MUST initialize \field{blk_size} to a power of two greater
+> +than or equal to 512.
+> +
+>  Devices SHOULD always offer VIRTIO_BLK_F_FLUSH, and MUST offer it
+>  if they offer VIRTIO_BLK_F_CONFIG_WCE.
+>  
+> @@ -879,6 +893,14 @@ \subsection{Device Operation}\label{sec:Device Types / Block Device / Device Ope
+>  The length of \field{data} MUST be a multiple of 512 bytes for VIRTIO_BLK_T_IN
+>  and VIRTIO_BLK_T_OUT requests.
+>  
+> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the length of
+> +\field{data} SHOULD be a multiple of \field{blk_size} for VIRTIO_BLK_T_IN and
+> +VIRTIO_BLK_T_OUT requests.
+> +
+> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the value of
+> +\field{sector} (multiplied by 512) SHOULD be a multiple of \field{blk_size} for
+> +VIRTIO_BLK_T_IN and VIRTIO_BLK_T_OUT requests.
+> +
+>  The length of \field{data} MUST be a multiple of the size of struct
+>  virtio_blk_discard_write_zeroes for VIRTIO_BLK_T_DISCARD,
+>  VIRTIO_BLK_T_SECURE_ERASE and VIRTIO_BLK_T_WRITE_ZEROES requests.
+> @@ -966,6 +988,16 @@ \subsection{Device Operation}\label{sec:Device Types / Block Device / Device Ope
+>  for a write request if the VIRTIO_BLK_F_RO feature if offered, and MUST NOT
+>  write any data.
+>  
+> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the device MAY
+> +set the \field{status} to VIRTIO_BLK_S_IOERR for VIRTIO_BLK_T_IN or
+> +VIRTIO_BLK_T_OUT requests if the requested \field{sector} (multiplied by 512)
+> +is not an integer multiple of the device's \field{blk_size}.
+> +
+
+I think the whole paragraph could be rewritten as:
+
+`When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device and the
+requested \field{sector} (multiplied by 512) is not an integer multiple
+of the device's \field{blk_size}, the device MAY set the \field{status}
+to VIRTIO_BLK_S_IOERR for both VIRTIO_BLK_T_IN and VIRTIO_BLK_T_OUT requests.`
+
+> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the device MAY
+> +set the \field{status} to VIRTIO_BLK_S_IOERR for VIRTIO_BLK_T_IN or
+> +VIRTIO_BLK_T_OUT requests if the length of the requested \field{data} is not an
+> +integer multiple of the device's \field{blk_size}.
+> +
+
+I think this paragraph also could be rewritten as I proposed above.
+
+Matias
+
