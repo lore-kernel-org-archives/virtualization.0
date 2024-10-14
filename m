@@ -1,140 +1,180 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0D1B4683
-	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 18:57:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A013F1CACF9
+	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 19:16:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728932233; cv=none; b=tJ+BJfAB67nD3AJsbxPHn5UlDeeIDtjESJ+ohi2tFe3NkQULdIJW60TJC5xeOaW5jcPjx0pFSa/JSHRxzCQZqUaUXi99dKLrtYZlZ9fgE8+DwO4mT2ht4zGv/uL8R/vyFxI5mMhE4xt/ruxg2h14uPsrY4hf29hCt1MzpEs62To=
+	t=1728933415; cv=none; b=KQgFAsduk/PMHGKxPScdgLdzJSK+XrIrnSOfgGmohuKUrqlRS3jnglNml0lghdXMM1sI9+KCuFyOFWEoPKg10XVUQh/rdzAoeC68irtfsiUxQy2mitO5OC4oQwUcD8uTMqFHOohiAKMeRlxFOt+/ivrvE77/lVLyPul9ti9hOI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728932233; c=relaxed/simple;
-	bh=fgr0i0rvV98CmIMqJYxJOVbmMJNJIhlNgjRfyq6A+4c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XF3YVVy3fisCBm9L5VrFCpq8L1Yv9MdDWQQtBkTf1F7ldPrwjboiN8HDNM5Up6KOEVi5HNr1vFnBdSX0aY9hI8GTO6wQJVgTZoyt2gBkYm82OykZ0Z5jBKKV3SnP5XWUCAkktyGz9Q7OMfdvDudttm7wf9tjAig3So9iTrZYLJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b4XmhwEJ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728933415; c=relaxed/simple;
+	bh=4dLSC1AqyzV3uC10Q3HwD5XOgaZY1SpinKQv+dE8wno=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dCmyeKQL1C2Xrq6p+MLxQ+tBySACfSRRi0QLrwI5Rs8E4KvRGqHCucW3KkE6qrfXGhtZMqamby4V/MvrX74Fy+Hx8YJDRqQBYDMsMn1J52lmVGhow3f4j0bM7jzUWci3L+SMUfvGJu/T4ONarh+1Jjs9jSzMTXp3o1647gGWew8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VzRi8roq; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b4XmhwEJ"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49EHpttt016170;
-	Mon, 14 Oct 2024 18:57:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=lqsWR+jAr90MdTD6bipNip5TTrR
-	kZNsTNWK1ovh714w=; b=b4XmhwEJ8kZjtypCGp0cOsK6GQkjPMXqa4EzpZIs84d
-	YOGBTXbn1W2WXMTpPReTFgrC7BeP9UmmiKBVpcY1P6f9Cykz30sStQ1Dc/F9BY9e
-	YVM7X2n4afWsy4MYJZSRIA2LaSeJiz3GDOkllZCJQtQc6vx0sM/aHRdbAlt/Mktn
-	Z0SuaGi7Kxq3pgF5SZuEWuDKpSkDS1XSD1p5U3PP3P9o0wosyUdhbS6l5vPIOeyi
-	fWiImR2tF2RfFPzlooBztYRKnRvsUWiO+OdipYH9NvoqD2CBSROcH0kj893n4uyE
-	XKAUPuz6f1Bxen++oKll3e9wILw36P4h5GE+JV5YZQg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42982qr7ex-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Oct 2024 18:57:07 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49EIv6GJ020091;
-	Mon, 14 Oct 2024 18:57:06 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42982qr7er-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Oct 2024 18:57:06 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49EHdVwP027480;
-	Mon, 14 Oct 2024 18:57:05 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4283txg63q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Oct 2024 18:57:05 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49EIv2bP55050696
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Oct 2024 18:57:02 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F30CA2004E;
-	Mon, 14 Oct 2024 18:57:01 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 03BE92004B;
-	Mon, 14 Oct 2024 18:57:01 +0000 (GMT)
-Received: from osiris (unknown [9.171.66.174])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 14 Oct 2024 18:57:00 +0000 (GMT)
-Date: Mon, 14 Oct 2024 20:56:59 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH v2 0/7] virtio-mem: s390 support
-Message-ID: <20241014185659.10447-H-hca@linux.ibm.com>
-References: <20241014144622.876731-1-david@redhat.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VzRi8roq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728933412;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sQIx8Zvd1bi6csR0yDCe7VkAynOD+MUuQmAi1iHX0fA=;
+	b=VzRi8roqI12/c91oalN7zS8y5uC5odVqelnsOqwQNGVKaPvsMOr1MxH6RFiew0OxwqG/WN
+	6pY1VuhJs1H46gqLUZ6YsBJPDbpZhIknk2qDi99syXU9qQRArug3t5KN2ZLG3K0drYkFVm
+	SVdV+Xyw7EiwoJTp6QPYB3b0Gaj5wro=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-210-yQJ7h380MNKztXNB4xRN_w-1; Mon, 14 Oct 2024 15:16:49 -0400
+X-MC-Unique: yQJ7h380MNKztXNB4xRN_w-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4311c5e8c02so21881165e9.2
+        for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 12:16:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728933408; x=1729538208;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=sQIx8Zvd1bi6csR0yDCe7VkAynOD+MUuQmAi1iHX0fA=;
+        b=olusLC7mnwqMdqlOKNmUOj2isqll12PXr3HzGzkp3uNtgbfwgwHzlzU1vFtqUcWIUY
+         gwkn++kFnX/pPxB9lCQnzqI7yx+7wuEd4jCbrQbn+we7/w9QQeJNWL40h8YfK5ipn7Sh
+         Y2YcXwalg0hGRntudmcs3864j46ZA18+W+jC0PwSo2jjKeiLoOzEAN7eByUPf3t+v+JF
+         IsL1sdDYctHNO1XlTgidzL7xlIU7bq227clCLjSEcM2W7T5IqZdNQNEFDAcAq+9z2Uuw
+         z/tyaXH35s7CQQ2bRTKEuuiHjWWHLuE+PVPk5TIC37A5axr5p4R6eno0DafE0BTghNW4
+         yagw==
+X-Forwarded-Encrypted: i=1; AJvYcCUpcPtVK32HsOrl5dtff9orYpftZhQyuF7ogZEm7IsI0TLxZGFfmhxoGV7qeAQRdQtcogLabaY9cVLILsz2MA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwlXySf2eSh+dmxdlvMOY5y/fhCoscAKiCAOK3TgdGmjwIwWY0+
+	pq+w4j0wAuUNWerKfFvvGmmUOk58tWR3zxOi5/N0ihnPcaAwmJp6n1h+6rRg6ZbNySRkIWl50F1
+	3RJRMSEz0sdRxO+DSppMb8V4l+wxcXK+nbvQxs2v6K/XAw0kwLmEqFf9RAgBUt9Nk
+X-Received: by 2002:a5d:4348:0:b0:371:8319:4dbd with SMTP id ffacd0b85a97d-37d551e3d0cmr8006256f8f.17.1728933408035;
+        Mon, 14 Oct 2024 12:16:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE6sBThr6RdJ9UzUqBJZ/Z2oXOcyxnQX4PJcKNdIkMaURe8S9HvwixtiT1L8Zrvsmei+/RVow==
+X-Received: by 2002:a5d:4348:0:b0:371:8319:4dbd with SMTP id ffacd0b85a97d-37d551e3d0cmr8006241f8f.17.1728933407562;
+        Mon, 14 Oct 2024 12:16:47 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c71e:600:9fbb:f0bf:d958:5c70? (p200300cbc71e06009fbbf0bfd9585c70.dip0.t-ipconnect.de. [2003:cb:c71e:600:9fbb:f0bf:d958:5c70])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d4b6cffa5sm12197664f8f.53.2024.10.14.12.16.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Oct 2024 12:16:47 -0700 (PDT)
+Message-ID: <ebce486f-71a0-4196-b52a-a61d0403e384@redhat.com>
+Date: Mon, 14 Oct 2024 21:16:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241014144622.876731-1-david@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6uFDGy-zlz1QTPEIrQYEpX_XW_Pumpmi
-X-Proofpoint-ORIG-GUID: Or6XZdCkJUWtzOmMfibubfT24pmJTuiG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-14_12,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- suspectscore=0 adultscore=0 priorityscore=1501 impostorscore=0
- mlxlogscore=999 phishscore=0 clxscore=1015 malwarescore=0 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410140135
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 5/7] virtio-mem: s390 support
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-6-david@redhat.com>
+ <20241014184824.10447-F-hca@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
+ 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
+ rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
+ wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
+ 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
+ pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
+ KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
+ BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
+ 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
+ 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
+ M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
+ Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
+ T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
+ 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
+ CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
+ NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
+ 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
+ 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
+ lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
+ AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
+ N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
+ AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
+ boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
+ 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
+ XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
+ a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
+ Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
+ 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
+ kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
+ th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
+ jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20241014184824.10447-F-hca@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Oct 14, 2024 at 04:46:12PM +0200, David Hildenbrand wrote:
-> Let's finally add s390 support for virtio-mem; my last RFC was sent
-> 4 years ago, and a lot changed in the meantime.
+On 14.10.24 20:48, Heiko Carstens wrote:
+> On Mon, Oct 14, 2024 at 04:46:17PM +0200, David Hildenbrand wrote:
+>> The special s390 kdump mode, whereby the 2nd kernel creates the ELF
+>> core header, won't currently dump virtio-mem memory. The virtio-mem
+>> driver has a special kdump mode, from where we can detect memory ranges
+>> to dump. Based on this, support for dumping virtio-mem memory can be
+>> added in the future fairly easily.
 > 
-> The latest QEMU series is available at [1], which contains some more
-> details and a usage example on s390 (last patch).
-> 
-> There is not too much in here: The biggest part is querying a new diag(500)
-> STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
-> 
-> The last two patches are not strictly required but certainly nice-to-have.
-> 
-> Note that -- in contrast to standby memory -- virtio-mem memory must be
-> configured to be automatically onlined as soon as hotplugged. The easiest
-> approach is using the "memhp_default_state=" kernel parameter or by using
-> proper udev rules. More details can be found at [2].
-> 
-> I have reviving+upstreaming a systemd service to handle configuring
-> that on my todo list, but for some reason I keep getting distracted ...
-> 
-> I tested various things, including:
->  * Various memory hotplug/hotunplug combinations
->  * Device hotplug/hotunplug
->  * /proc/iomem output
->  * reboot
->  * kexec
->  * kdump: make sure we don't hotplug memory
-> 
-> One remaining work item is kdump support for virtio-mem memory. This will
-> be sent out separately once initial support landed.
 
-Besides the open kdump question, which I think is quite important, how
-is this supposed to go upstream?
+Thanks for the review.
 
-This could go via s390, however in any case this needs reviews and/or
-Acks from kvm folks.
+> Hm.. who will add this support? This looks like a showstopper to me.
+
+The cover letter is clearer on that: "One remaining work item is kdump 
+support for virtio-mem memory. This will be sent out separately once 
+initial support landed."
+
+I had a prototype, but need to spend some time to clean it up -- or find 
+someone to hand it over to clean it up.
+
+I have to chose wisely what I work on nowadays, and cannot spend that 
+time if the basic support won't get ACKed.
+
+> Who is supposed to debug crash dumps where memory parts are missing?
+
+For many production use cases it certainly needs to exist.
+
+But note that virtio-mem can be used with ZONE_MOVABLE, in which case 
+mostly only user data (e.g., pagecache,anon) ends up on hotplugged 
+memory, that would get excluded from makedumpfile in the default configs 
+either way.
+
+It's not uncommon to let kdump support be added later (e.g., AMD SNP 
+variants).
+
+-- 
+Cheers,
+
+David / dhildenb
+
