@@ -1,45 +1,75 @@
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3DE68615A
-	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 03:12:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701A360DCF
+	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 04:57:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728875569; cv=none; b=Wx9zE8lzixEwKHoUODH9rLyPHiYNFMbbfDUYQL6av2/SwEBg1ejhH+z62ullwQI6/GMGbCeHW0+kdKDHvRrD8dUUpB0V96jvQmJ3MbhFMqswTtRkCWwtxo+zuk+V5XH73WB34SRMEekZgnIHBNl+vVSe8D5NKw3Ro5NlT/HWQAs=
+	t=1728881876; cv=none; b=bGrfEwVljeOx2oGI3nohxrPbqNwC65YKa1MZ2iXnAQYtSNBz0Kxx3EoCYPYmJNTOOyPsXxdy1vrb4ZgCKigF6f3PEu+I47BqFL1q/3FUkzEg7V49im5XhvB/WEcwvbHvFwRcki9LIrorCP86olG+BnDUocHG5/ym4fqD4E2+cXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728875569; c=relaxed/simple;
-	bh=oIhm1daivK/11ogqXkp0GvPygiIMR2q6YNLg9ZQ4x8w=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=HXQdRl4vv+pOK3neapHfZOHbYRZLjqzmhFAQEMZrdAqqF2b3I4nY08WTHRNjW1Bqf48y/RzkykZYhcUQsa6Rht/cDKiSJGRJQ3qpy8640tEUKPZUZCXI8T3XtZv+MWi/BsVEKuRtCCL8q0ov+4UTOJ+TdiRtoHqO25o+Y20jJgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=pN8t188d; arc=none smtp.client-ip=115.124.30.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1728881876; c=relaxed/simple;
+	bh=XTX+OYWTvegQz4+v0ZFkHfZzljt0DOpIst10jFFEJps=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=CnOXdZTmrntZa7pJFxPiNNNWo9nQx6aerQaTfQC3JUIeOmvDee9hiagNJeMQ00tx3ePSGd3WTASyWmQtFz4Qs3twnTPD3xG7gE+TixNXDM10ft3eOWY2Qs0x2Mzh8o80wMw+aJMdm0ZWaUJvdDLA93aVw+KfsEIkrGQNrMxL5/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Mwy4ZBzd; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="pN8t188d"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1728875560; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=ME97rGVXnM1xi7LnckE//Kdi+K7d+GvCGFmbbyMwvVk=;
-	b=pN8t188doxzlU4FZRE30vQQ4wH9VTDJPz+4aVV/9rb6EtcS6TcBZWFw7I/kZoB60plpDe5MdIeEZkZ/XG8Js1A1M69ldy7Fr0NExQFp/U/f+27bzgkT//1TorwgyUD0C0yMHRCJZei1H0r9Oy75M02vDapPuYrSwijVGENNpJlo=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WH.LEWK_1728875558 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 14 Oct 2024 11:12:39 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Mwy4ZBzd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728881873;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NNfw05JeqCiaE0aPXcBAetAKovvsf7rX91wGjBumb7E=;
+	b=Mwy4ZBzdnDAxVYaeEECsaKSbJ07cppr7uMlbCelA8FpZt9nLcXWEB44owtVjAaMJtqVhhc
+	1jPj0Md+idUvoiB4IS0KbElDTEVqljutDz/9vw7nTh1hzMVcSLq8CSHHbqytetFh7F39J0
+	1QrNXSpnEKrb3RqCtZ17P7xMxy+Dinc=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-627-jRmwHmBvP0G0avaoC-MvBg-1; Mon, 14 Oct 2024 00:57:49 -0400
+X-MC-Unique: jRmwHmBvP0G0avaoC-MvBg-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a9a194d672bso7522766b.2
+        for <virtualization@lists.linux.dev>; Sun, 13 Oct 2024 21:57:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728881868; x=1729486668;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NNfw05JeqCiaE0aPXcBAetAKovvsf7rX91wGjBumb7E=;
+        b=IbEp3nEKo1ClOqHhkLs2H1l0DOzn/mAKvo0a4JmhHta1Rnuc7lt9rbVVcDTFk5v+tQ
+         Y/GXOzjVUfUOFuV1Flz54g0GibEooCazOn58vbspq/66GxOZ/Oj27j9EeDx1N9I/ibzN
+         czgX4r4kBCiMINUQVLb41/sDWbo1ec6xa/pmJP5x1GAwCA+XYDjaLl+oPUM/ghFPPfo9
+         42LSr4T6xUFwi0oeWUDV/i/CzslOm+IH9SGYaqFAOXo0m7A0NBgwDaQuUTrx2kQDh7mZ
+         pHm4WPnZd0U2K2ssQqvBBWjNQRd3S1NSTA4J0g61e33xb/ybXO94v6UWuJYjOfHUHs5g
+         2T+g==
+X-Forwarded-Encrypted: i=1; AJvYcCWNdzg7vn6mkawR/yqF42I7c45u2kodQnWW3wHSmC7S78BcU67dnSfedx1wQyB0L07Lez/pLx2SMmCinvM7+w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YycZ5r6icFskTPdfaKZFLuz1aKKswyD88g7Tp5nhJY482/c1DbB
+	PGZ8OyH2LU6egXHP+y9NybY2bJVx86KS0XEa3rdV18aQ4Xn05lfDKekN1uiMRLygQ6kYjc0R1AD
+	sHVeQg0wDAU16xITZ0KkZHIGKmqVaz8DYOCnuSMf/i3IZIeFtG9llbisT855MZaXa
+X-Received: by 2002:a50:cb88:0:b0:5c9:5a96:2863 with SMTP id 4fb4d7f45d1cf-5c95ac1582emr4347117a12.13.1728881868672;
+        Sun, 13 Oct 2024 21:57:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEg1zgGKPYY2qUjDast+zBLcsCYUTRpyjjjgmslaW62xyjr0N9eWzmfPPhE/J3MFikwUsQyCQ==
+X-Received: by 2002:a50:cb88:0:b0:5c9:5a96:2863 with SMTP id 4fb4d7f45d1cf-5c95ac1582emr4347104a12.13.1728881868323;
+        Sun, 13 Oct 2024 21:57:48 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1ec:d16c:2d5b:a55d:7fda:5330])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c937267272sm4425344a12.75.2024.10.13.21.57.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Oct 2024 21:57:46 -0700 (PDT)
+Date: Mon, 14 Oct 2024 00:57:41 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH 5/5] virtio_net: rx remove premapped failover code
-Date: Mon, 14 Oct 2024 11:12:34 +0800
-Message-Id: <20241014031234.7659-6-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev,
+	Darren Kenny <darren.kenny@oracle.com>,
+	Si-Wei Liu <si-wei.liu@oracle.com>
+Subject: Re: [PATCH 0/5] virtio_net: enable premapped mode by default
+Message-ID: <20241014005529-mutt-send-email-mst@kernel.org>
 References: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -47,168 +77,41 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: bba499faae26
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Now, the premapped mode can be enabled unconditionally.
+On Mon, Oct 14, 2024 at 11:12:29AM +0800, Xuan Zhuo wrote:
+> In the last linux version, we disabled this feature to fix the
+> regress[1].
+> 
+> The patch set is try to fix the problem and re-enable it.
+> 
+> More info: http://lore.kernel.org/all/20240820071913.68004-1-xuanzhuo@linux.alibaba.com
+> 
+> Thanks.
+> 
+> [1]: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
 
-So we can remove the failover code for merge and small mode.
+Darren, you previously reported crashes with a patch very similar to 1/5.
+Can you please test this patchset and report whether they
+are still observed?
+If yes, any data on how to reproduce would be very benefitial for Xuan
+Zhuo.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 80 +++++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 8cf24b7b58bd..4d3e35b02478 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -356,9 +356,6 @@ struct receive_queue {
- 	struct xdp_rxq_info xsk_rxq_info;
- 
- 	struct xdp_buff **xsk_buffs;
--
--	/* Do dma by self */
--	bool do_dma;
- };
- 
- /* This structure can contain rss message with maximum settings for indirection table and keysize
-@@ -899,7 +896,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
- 	void *buf;
- 
- 	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
--	if (buf && rq->do_dma)
-+	if (buf)
- 		virtnet_rq_unmap(rq, buf, *len);
- 
- 	return buf;
-@@ -912,11 +909,6 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
- 	u32 offset;
- 	void *head;
- 
--	if (!rq->do_dma) {
--		sg_init_one(rq->sg, buf, len);
--		return;
--	}
--
- 	head = page_address(rq->alloc_frag.page);
- 
- 	offset = buf - head;
-@@ -939,44 +931,42 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
- 
- 	head = page_address(alloc_frag->page);
- 
--	if (rq->do_dma) {
--		dma = head;
--
--		/* new pages */
--		if (!alloc_frag->offset) {
--			if (rq->last_dma) {
--				/* Now, the new page is allocated, the last dma
--				 * will not be used. So the dma can be unmapped
--				 * if the ref is 0.
--				 */
--				virtnet_rq_unmap(rq, rq->last_dma, 0);
--				rq->last_dma = NULL;
--			}
-+	dma = head;
- 
--			dma->len = alloc_frag->size - sizeof(*dma);
-+	/* new pages */
-+	if (!alloc_frag->offset) {
-+		if (rq->last_dma) {
-+			/* Now, the new page is allocated, the last dma
-+			 * will not be used. So the dma can be unmapped
-+			 * if the ref is 0.
-+			 */
-+			virtnet_rq_unmap(rq, rq->last_dma, 0);
-+			rq->last_dma = NULL;
-+		}
- 
--			addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
--							      dma->len, DMA_FROM_DEVICE, 0);
--			if (virtqueue_dma_mapping_error(rq->vq, addr))
--				return NULL;
-+		dma->len = alloc_frag->size - sizeof(*dma);
- 
--			dma->addr = addr;
--			dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
-+		addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
-+						      dma->len, DMA_FROM_DEVICE, 0);
-+		if (virtqueue_dma_mapping_error(rq->vq, addr))
-+			return NULL;
- 
--			/* Add a reference to dma to prevent the entire dma from
--			 * being released during error handling. This reference
--			 * will be freed after the pages are no longer used.
--			 */
--			get_page(alloc_frag->page);
--			dma->ref = 1;
--			alloc_frag->offset = sizeof(*dma);
-+		dma->addr = addr;
-+		dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
- 
--			rq->last_dma = dma;
--		}
-+		/* Add a reference to dma to prevent the entire dma from
-+		 * being released during error handling. This reference
-+		 * will be freed after the pages are no longer used.
-+		 */
-+		get_page(alloc_frag->page);
-+		dma->ref = 1;
-+		alloc_frag->offset = sizeof(*dma);
- 
--		++dma->ref;
-+		rq->last_dma = dma;
- 	}
- 
-+	++dma->ref;
-+
- 	buf = head + alloc_frag->offset;
- 
- 	get_page(alloc_frag->page);
-@@ -2452,8 +2442,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
- 
- 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0) {
--		if (rq->do_dma)
--			virtnet_rq_unmap(rq, buf, 0);
-+		virtnet_rq_unmap(rq, buf, 0);
- 		put_page(virt_to_head_page(buf));
- 	}
- 
-@@ -2573,8 +2562,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
- 	ctx = mergeable_len_to_ctx(len + room, headroom);
- 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0) {
--		if (rq->do_dma)
--			virtnet_rq_unmap(rq, buf, 0);
-+		virtnet_rq_unmap(rq, buf, 0);
- 		put_page(virt_to_head_page(buf));
- 	}
- 
-@@ -5948,7 +5936,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
- 	int i;
- 	for (i = 0; i < vi->max_queue_pairs; i++)
- 		if (vi->rq[i].alloc_frag.page) {
--			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
-+			if (vi->rq[i].last_dma)
- 				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
- 			put_page(vi->rq[i].alloc_frag.page);
- 		}
-@@ -6141,11 +6129,9 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
- 	if (vi->mode == VIRTNET_MODE_BIG)
- 		return;
- 
--	for (i = 0; i < vi->max_queue_pairs; i++) {
-+	for (i = 0; i < vi->max_queue_pairs; i++)
- 		/* error should never happen */
- 		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
--		vi->rq[i].do_dma = true;
--	}
- }
- 
- static int init_vqs(struct virtnet_info *vi)
--- 
-2.32.0.3.g01195cf9f
+> Xuan Zhuo (5):
+>   virtio-net: fix overflow inside virtnet_rq_alloc
+>   virtio_net: introduce vi->mode
+>   virtio_net: big mode skip the unmap check
+>   virtio_net: enable premapped mode for merge and small by default
+>   virtio_net: rx remove premapped failover code
+> 
+>  drivers/net/virtio_net.c | 168 ++++++++++++++++++++++++---------------
+>  1 file changed, 105 insertions(+), 63 deletions(-)
+> 
+> --
+> 2.32.0.3.g01195cf9f
 
