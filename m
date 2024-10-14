@@ -1,123 +1,150 @@
-Received: from erminea.space (erminea.space [51.250.125.203])
-	by smtp.subspace.kernel.org (Postfix) with SMTP id 176FB1BFE10
-	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 17:14:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.250.125.203
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD47231C8A
+	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 17:53:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728926101; cv=none; b=rjFKahTTKVUNdcXDDw+KVAWc8fjSK0iX990KZqLREUzk/t+CcOstNFlgjOeOYGj0+cmn2IKU2BSy9Arfd5Pw44j4Sn44Q3eMPuK2cIHctIRoE7c3Nxie4D8qcMOjpH2t7j0jwpIfAwV2jxYHcrjL4gRMiZWezprgOcIIIHLOPJQ=
+	t=1728928431; cv=none; b=P6RBh3d8roY6ILCu2ubguUg3GUjl47wd2fprS3d/TQwpCkeaDR1UMHsXbpOckMNflXQmSJNb8rHnGJn5D3fQWOIYvEHD8PkphAcWZ+zKYQrDDSuu9y3di5UvBPW0wQyPeyiv6WcIdQ3e1pV5X1tuep0R6baBMlJPYHPiKZkmg6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728926101; c=relaxed/simple;
-	bh=O8OGoWMGZ2OnMDIalxJe5SyY6FwRPz7uMByJnZiyGJg=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=W07dmloBss+38jzGKFpOhG9g7q9ypzN8QvHwJYf1RgwJJca8lIuBw8XVoaUtcGTmSbfZ80YiiFErd0KX7Njee6eonrfkZNoXtr69FR8/L2U8t+DFcRXhXe4NwwNPkOpr06uByMf0JImRQImac4nmKBqvAuPT5qEG3zr9ZNdb5PY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space; spf=pass smtp.mailfrom=erminea.space; arc=none smtp.client-ip=51.250.125.203
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=erminea.space
-Received: (qmail 16812 invoked from network); 14 Oct 2024 17:08:16 -0000
-Received: from localhost. (HELO erminea.space) (127.0.0.1)
-  by 0.0.0.0 with SMTP; 14 Oct 2024 17:08:16 -0000
-Received: from localhost.localdomain ([37.204.49.201])
-	by erminea.space with ESMTPSA
-	id YP79JwBQDWeoQQAAH+dm7w
-	(envelope-from <mustela@erminea.space>); Mon, 14 Oct 2024 20:08:16 +0300
-From: Peter Shkenev <mustela@erminea.space>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/virtio: use generic dumb_map_offset implementation
-Date: Mon, 14 Oct 2024 20:07:58 +0300
-Message-ID: <20241014170801.71231-1-mustela@erminea.space>
-X-Mailer: git-send-email 2.46.2
+	s=arc-20240116; t=1728928431; c=relaxed/simple;
+	bh=v+mnqLFStPaJF5Mc8YcJfD7J7cx62hdqhcZqrfk1hHk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DBO3tEhzM5/yUZzOUpsqcx8OA3AD5cA05cadeVntZUHht9XdFg4EdF+cMNV+fCeBEcEBUEOjmjHCLg0AUeb0AmqEHkpVJMVDOGpspt3qD9MH2khnyHEZqyHQney8+E0sDTG3wK8HF/3JNXa6k3aoOwcItoYGzmN5olk70FX22Xk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MAWNDWJi; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MAWNDWJi"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49EHpnhJ032095;
+	Mon, 14 Oct 2024 17:53:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=brLW2EcSwr3dgFdZYov7EsAvpYw
+	fb5CRO99N/OPunA4=; b=MAWNDWJiZRG4uc1TJl8OSC3XFdTTvCXrznd/Ha0VShH
+	wxgDeEO1JHhiA4fNVeZRYmcXUpcYsWa8YNevpkEhEw4wLakdzpXw5fPfM5gqZ5AL
+	lxtfNxAqRXGmX2nZ19xX43YlPHn/53QizNI4UlHrodNROKBuKqwaA/cZAtL8m5sM
+	CQhIukttr9i2wao0GFPvKDuKk7M138WvhHBYi0/QKdhXh2BdLsRh7yNOls0DmfNo
+	zwnXrqoEc2cY7rwOph6xiJrZTSc5u4x717kR/h8v8A00l8HzoA/+ssiXd47JFAF6
+	vuiKZBIEJSXf5qaxo0XmvKJQG3hxTNnNwFgRJuTJAhQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42982kg05s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 14 Oct 2024 17:53:44 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49EHrhJk003502;
+	Mon, 14 Oct 2024 17:53:43 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42982kg05j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 14 Oct 2024 17:53:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49EHgPUo027432;
+	Mon, 14 Oct 2024 17:53:42 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4283txfxmh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 14 Oct 2024 17:53:41 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49EHrcwV46203318
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 14 Oct 2024 17:53:38 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3480020049;
+	Mon, 14 Oct 2024 17:53:38 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 397BC20040;
+	Mon, 14 Oct 2024 17:53:37 +0000 (GMT)
+Received: from osiris (unknown [9.171.66.174])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 14 Oct 2024 17:53:37 +0000 (GMT)
+Date: Mon, 14 Oct 2024 19:53:35 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+Subject: Re: [PATCH v2 7/7] s390/sparsemem: reduce section size to 128 MiB
+Message-ID: <20241014175335.10447-B-hca@linux.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-8-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241014144622.876731-8-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 5D_xC6nknQqUzkF7BmFqB2_0PkJpbEq7
+X-Proofpoint-GUID: UKk9TP1S1FoYIjDngHQjul4Nmfsk5MhM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-14_12,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=4 mlxlogscore=143
+ malwarescore=0 adultscore=0 suspectscore=0 clxscore=1011 impostorscore=0
+ priorityscore=1501 mlxscore=4 bulkscore=0 spamscore=4 lowpriorityscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410140128
 
-Currently, virtio uses its own dumb_map_offset implementation,
-virtio_gpu_mode_dumb_mmap. It works similarly to generic implementation,
-drm_gem_dumb_map_offset, and using the generic implementation is
-preferable (and making drivers to do so is a task stated on the DRM
-subsystem's TODO list).
+On Mon, Oct 14, 2024 at 04:46:19PM +0200, David Hildenbrand wrote:
+> Ever since commit 421c175c4d609 ("[S390] Add support for memory hot-add.")
+> we've been using a section size of 256 MiB on s390 and 32 MiB on s390.
+> Before that, we were using a section size of 32 MiB on both
+> architectures.
+> 
+> Likely the reason was that we'd expect a storage increment size of
+> 256 MiB under z/VM back then. As we didn't support memory blocks spanning
+> multiple memory sections, we would have had to handle having multiple
+> memory blocks for a single storage increment, which complicates things.
+> Although that issue reappeared with even bigger storage increment sizes
+> later, nowadays we have memory blocks that can span multiple memory
+> sections and we avoid any such issue completely.
 
-Thus, make driver use the generic implementation. This includes
-VIRTGPU_MAP ioctl so it cannot be used to circumvent rules imposed by
-drm_gem_dumb_map_offset (imported objects cannot be mapped).
+I doubt that z/VM had support for memory hotplug back then already; and the
+sclp memory hotplug code was always written in a way that it could handle
+increment sizes smaller, larger or equal to section sizes.
 
-Signed-off-by: Peter Shkenev <mustela@erminea.space>
----
- drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 -
- drivers/gpu/drm/virtio/virtgpu_gem.c   | 15 ---------------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  3 ++-
- 3 files changed, 2 insertions(+), 17 deletions(-)
+If I remember correctly the section size was also be used to represent each
+piece of memory in sysfs (aka memory block). So the different sizes were
+chosen to avoid an excessive number of sysfs entries on 64 bit.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index ffca6e2e1c9a..909808398d66 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -184,7 +184,6 @@ static const struct drm_driver driver = {
- 	.postclose = virtio_gpu_driver_postclose,
- 
- 	.dumb_create = virtio_gpu_mode_dumb_create,
--	.dumb_map_offset = virtio_gpu_mode_dumb_mmap,
- 
- 	DRM_FBDEV_SHMEM_DRIVER_OPS,
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 7db48d17ee3a..aefbb49481f1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -99,21 +99,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	return ret;
- }
- 
--int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
--			      struct drm_device *dev,
--			      uint32_t handle, uint64_t *offset_p)
--{
--	struct drm_gem_object *gobj;
--
--	BUG_ON(!offset_p);
--	gobj = drm_gem_object_lookup(file_priv, handle);
--	if (gobj == NULL)
--		return -ENOENT;
--	*offset_p = drm_vma_node_offset_addr(&gobj->vma_node);
--	drm_gem_object_put(gobj);
--	return 0;
--}
--
- int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
- 			       struct drm_file *file)
- {
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index e4f76f315550..13f3ed60a0e5 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -30,6 +30,7 @@
- #include <linux/uaccess.h>
- 
- #include <drm/drm_file.h>
-+#include <drm/drm_gem.h>
- #include <drm/virtgpu_drm.h>
- 
- #include "virtgpu_drv.h"
-@@ -80,7 +81,7 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct drm_virtgpu_map *virtio_gpu_map = data;
- 
--	return virtio_gpu_mode_dumb_mmap(file, vgdev->ddev,
-+	return drm_gem_dumb_map_offset(file, vgdev->ddev,
- 					 virtio_gpu_map->handle,
- 					 &virtio_gpu_map->offset);
- }
--- 
-2.46.2
+This problem went away later with the introduction of memory_block_size.
 
+Even further back in time I think there were static arrays which had
+2^(MAX_PHYSMEM_BITS - SECTION_SIZE_BITS) elements.
+
+I just gave it a try and, as nowadays expected, bloat-o-meter doesn't
+indicate anything like that anymore.
+
+> 128 MiB has been used by x86-64 since the very beginning. arm64 with 4k
+> base pages switched to 128 MiB as well: it's just big enough on these
+> architectures to allows for using a huge page (2 MiB) in the vmemmap in
+> sane setups with sizeof(struct page) == 64 bytes and a huge page mapping
+> in the direct mapping, while still allowing for small hot(un)plug
+> granularity.
+> 
+> For s390, we could even switch to a 64 MiB section size, as our huge page
+> size is 1 MiB: but the smaller the section size, the more sections we'll
+> have to manage especially on bigger machines. Making it consistent with
+> x86-64 and arm64 feels like te right thing for now.
+
+That's fine with me.
+
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
