@@ -1,29 +1,29 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDA2454670
-	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 03:12:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13B8C82D91
+	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 03:12:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728875568; cv=none; b=BDddTwaD5wAc1fWhLAtjehoxrkbxQ3oB0j7cMU4nM9xcbDuP5lSxTNfnWrq1z2TtyHTziIr4MSKfAI9vRn/r2sl16Il7zXLUM5pYUHxtAcwloEpGdZeF577y0ISZc+e0iTcG4hsd36LgTi2G+O8gyf21cz0ru/OegZMBW23ttbA=
+	t=1728875568; cv=none; b=DqRdbZqdqwPoFYNvT78+P4qyHHOMqgeWbIoK3lBu1rHeLy7S/BlDKAvajw4LBovv9zRXZQB4KHz2Pwge9nyBRcurjH+golxV/0+HBuJ3i1+PqBRibf6XedbelbCsGb5tBLjT20c67u5SoEfYXb5sPVH9mbW+5sUyaYPX3MtcBQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1728875568; c=relaxed/simple;
-	bh=ZimzXTnS+ySDijkHswYbDsKSxEaN9eAvVdl+yrEtNus=;
+	bh=CWFFvB/woliuCJsHHhnfJ92el+XRFSCnpT7eu7ZtNC8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=pJqUOMuoENk//Pamekg0q006ikR2ZwNCmopxj8V5nYrsDFJuHJsddFy8AL2m2ionZTbxmQMNEuH3l8lbJIk2m2pbfRg/Zf2dI1Aow9DfAYeHCUTQRxVCoBI6FRGPNo+KQf/Tw20p3eIU/NMEPSwwbMjb7x++LB6DBaxxNX2SXjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Z9iuJRot; arc=none smtp.client-ip=115.124.30.110
+	 MIME-Version; b=s++cvsWQMsZpNoq4drJmrveYcU4g8iYciapajwXr6ddO9ISbQJprDARASiFAEWlEwiW+pO6C/nwPtPyf7AzC63qFNHat0hxXupdOJElljE8l7mv07PU1uIQrESQJ3+T2jaoZsWff77PxezIHgkwM4zciq/5QVjfRXxFN2blbPPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UpRKPN2f; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Z9iuJRot"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UpRKPN2f"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1728875557; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=xKnPBWt2rPXTDtTMScZ4Nu217/7LuF0PrrSmloFxuN0=;
-	b=Z9iuJRottrdRq5Pj2bRkR0Fai26/LCZHkAj8kayJ1pGr8KjwcRK8Prjzz3Py9qA6ep+J2gOz0d4lTcdFpzwHXzB3hZANUKCeEikqQmiqrDi34m3VjEJ2N0ucB9ra+j2bH6N39Hzkw7dR3LRarHbMnO1krcCMrpdWlj1WyqifWJw=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WH.H6A1_1728875556 cluster:ay36)
+	t=1728875559; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=2P7txvf1UTqbJ8Av/SHvqm6/S8okRtKCBqJpJo1/+wg=;
+	b=UpRKPN2f37bLd2CJbXw69XOwq30byflgOHaE9Vrl9ffy2akIq6JYFNdni1dpXJNufvhxSy0sBTG4sHF3XSwoGKzeF/TuEBtI6LJLBezz90pC/B/24gtl6QH6CuDgc25z7bXyAOb85H9X0odN0GQv+GHeO9TZRk/mHLH6+px3NtU=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WH.FFnD_1728875558 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 14 Oct 2024 11:12:36 +0800
+          Mon, 14 Oct 2024 11:12:38 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -35,9 +35,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	virtualization@lists.linux.dev
-Subject: [PATCH 2/5] virtio_net: introduce vi->mode
-Date: Mon, 14 Oct 2024 11:12:31 +0800
-Message-Id: <20241014031234.7659-3-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH 4/5] virtio_net: enable premapped mode for merge and small by default
+Date: Mon, 14 Oct 2024 11:12:33 +0800
+Message-Id: <20241014031234.7659-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
 References: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
@@ -50,174 +50,64 @@ MIME-Version: 1.0
 X-Git-Hash: bba499faae26
 Content-Transfer-Encoding: 8bit
 
-Now, if we want to judge the rx work mode, we have to use such codes:
+Currently, the virtio core will perform a dma operation for each
+buffer. Although, the same page may be operated multiple times.
 
-1. merge mode: vi->mergeable_rx_bufs
-2. big mode:   vi->big_packets && !vi->mergeable_rx_bufs
-3. small:     !vi->big_packets && !vi->mergeable_rx_bufs
+In premapped mod, we can perform only one dma operation for the pages of
+the alloc frag. This is beneficial for the iommu device.
 
-This is inconvenient and abstract, and we also have this use case:
+kernel command line: intel_iommu=on iommu.passthrough=0
 
-if (vi->mergeable_rx_bufs)
-    ....
-else if (vi->big_packets)
-    ....
-else
+       |  strict=0  | strict=1
+Before |  775496pps | 428614pps
+After  | 1109316pps | 742853pps
 
-For this case, I think switch-case is the better choice.
+In the 6.11, we disabled this feature because a regress [1].
 
-So here I introduce vi->mode to record the virtio-net work mode.
-That is helpful to judge the work mode and choose the branches.
+Now, we fix the problem and re-enable it.
+
+[1]: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@oracle.com
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio_net.c | 61 +++++++++++++++++++++++++++++++---------
- 1 file changed, 47 insertions(+), 14 deletions(-)
+ drivers/net/virtio_net.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 59a99bbaf852..14809b614d62 100644
+index cd90e77881df..8cf24b7b58bd 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -385,6 +385,12 @@ struct control_buf {
- 	virtio_net_ctrl_ack status;
- };
- 
-+enum virtnet_mode {
-+	VIRTNET_MODE_SMALL,
-+	VIRTNET_MODE_MERGE,
-+	VIRTNET_MODE_BIG
-+};
-+
- struct virtnet_info {
- 	struct virtio_device *vdev;
- 	struct virtqueue *cvq;
-@@ -414,6 +420,8 @@ struct virtnet_info {
- 	/* Host will merge rx buffers for big packets (shake it! shake it!) */
- 	bool mergeable_rx_bufs;
- 
-+	enum virtnet_mode mode;
-+
- 	/* Host supports rss and/or hash report */
- 	bool has_rss;
- 	bool has_rss_hash_report;
-@@ -643,12 +651,15 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
- static void virtnet_rq_free_buf(struct virtnet_info *vi,
- 				struct receive_queue *rq, void *buf)
- {
--	if (vi->mergeable_rx_bufs)
-+	switch (vi->mode) {
-+	case VIRTNET_MODE_SMALL:
-+	case VIRTNET_MODE_MERGE:
- 		put_page(virt_to_head_page(buf));
--	else if (vi->big_packets)
-+		break;
-+	case VIRTNET_MODE_BIG:
- 		give_pages(rq, buf);
--	else
--		put_page(virt_to_head_page(buf));
-+		break;
-+	}
+@@ -6133,6 +6133,21 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
+ 	return -ENOMEM;
  }
  
- static void enable_delayed_refill(struct virtnet_info *vi)
-@@ -1315,7 +1326,8 @@ static void virtnet_receive_xsk_buf(struct virtnet_info *vi, struct receive_queu
- 
- 	flags = ((struct virtio_net_common_hdr *)(xdp->data - vi->hdr_len))->hdr.flags;
- 
--	if (!vi->mergeable_rx_bufs)
-+	/* We only support small and merge mode. */
-+	if (vi->mode == VIRTNET_MODE_SMALL)
- 		skb = virtnet_receive_xsk_small(dev, vi, rq, xdp, xdp_xmit, stats);
- 	else
- 		skb = virtnet_receive_xsk_merge(dev, vi, rq, xdp, xdp_xmit, stats);
-@@ -2389,13 +2401,20 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 	 */
- 	flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
- 
--	if (vi->mergeable_rx_bufs)
-+	switch (vi->mode) {
-+	case VIRTNET_MODE_MERGE:
- 		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
- 					stats);
--	else if (vi->big_packets)
-+		break;
++static void virtnet_rq_set_premapped(struct virtnet_info *vi)
++{
++	int i;
 +
-+	case VIRTNET_MODE_BIG:
- 		skb = receive_big(dev, vi, rq, buf, len, stats);
--	else
-+		break;
-+
-+	case VIRTNET_MODE_SMALL:
- 		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
-+		break;
-+	}
- 
- 	if (unlikely(!skb))
- 		return;
-@@ -2580,12 +2599,19 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
- 	}
- 
- 	do {
--		if (vi->mergeable_rx_bufs)
-+		switch (vi->mode) {
-+		case VIRTNET_MODE_MERGE:
- 			err = add_recvbuf_mergeable(vi, rq, gfp);
--		else if (vi->big_packets)
-+			break;
-+
-+		case VIRTNET_MODE_BIG:
- 			err = add_recvbuf_big(vi, rq, gfp);
--		else
-+			break;
-+
-+		case VIRTNET_MODE_SMALL:
- 			err = add_recvbuf_small(vi, rq, gfp);
-+			break;
-+		}
- 
- 		if (err)
- 			break;
-@@ -2703,7 +2729,7 @@ static int virtnet_receive_packets(struct virtnet_info *vi,
- 	int packets = 0;
- 	void *buf;
- 
--	if (!vi->big_packets || vi->mergeable_rx_bufs) {
-+	if (vi->mode != VIRTNET_MODE_BIG) {
- 		void *ctx;
- 		while (packets < budget &&
- 		       (buf = virtnet_rq_get_buf(rq, &len, &ctx))) {
-@@ -5510,7 +5536,7 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
- 	/* In big_packets mode, xdp cannot work, so there is no need to
- 	 * initialize xsk of rq.
- 	 */
--	if (vi->big_packets && !vi->mergeable_rx_bufs)
++	/* disable for big mode */
 +	if (vi->mode == VIRTNET_MODE_BIG)
- 		return -ENOENT;
- 
- 	if (qid >= vi->curr_queue_pairs)
-@@ -6007,7 +6033,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 	vqs_info = kcalloc(total_vqs, sizeof(*vqs_info), GFP_KERNEL);
- 	if (!vqs_info)
- 		goto err_vqs_info;
--	if (!vi->big_packets || vi->mergeable_rx_bufs) {
-+	if (vi->mode != VIRTNET_MODE_BIG) {
- 		ctx = kcalloc(total_vqs, sizeof(*ctx), GFP_KERNEL);
- 		if (!ctx)
- 			goto err_ctx;
-@@ -6480,6 +6506,13 @@ static int virtnet_probe(struct virtio_device *vdev)
- 
- 	virtnet_set_big_packets(vi, mtu);
- 
-+	if (vi->mergeable_rx_bufs)
-+		vi->mode = VIRTNET_MODE_MERGE;
-+	else if (vi->big_packets)
-+		vi->mode = VIRTNET_MODE_BIG;
-+	else
-+		vi->mode = VIRTNET_MODE_SMALL;
++		return;
 +
- 	if (vi->any_header_sg)
- 		dev->needed_headroom = vi->hdr_len;
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		/* error should never happen */
++		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
++		vi->rq[i].do_dma = true;
++	}
++}
++
+ static int init_vqs(struct virtnet_info *vi)
+ {
+ 	int ret;
+@@ -6146,6 +6161,8 @@ static int init_vqs(struct virtnet_info *vi)
+ 	if (ret)
+ 		goto err_free;
  
++	virtnet_rq_set_premapped(vi);
++
+ 	cpus_read_lock();
+ 	virtnet_set_affinity(vi);
+ 	cpus_read_unlock();
 -- 
 2.32.0.3.g01195cf9f
 
