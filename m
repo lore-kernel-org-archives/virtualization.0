@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDF0D1CC163
-	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 19:42:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98BF51CDFDE
+	for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 19:47:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728934961; cv=none; b=kb+ZZskOZZPLZl7fCObuCuupAJGtSPN1nsUm7uC+KeBzGNU/6pL9RIzOwfIEqS5nMUbqd9IXQECvgFC7xjy5DfaOps/kqmWhvFE+nVPuCxP1mHl16fW5k0YlW8D+kPSIdKjjit5HYswHGVsM/Vdq1OlqozX12n0fb88SK+6XO6I=
+	t=1728935246; cv=none; b=fhIq74I9f+J9hhIvKoI4vJAFNjoVUPK+vN2lpUhAsNQsnIFXFhhcqS7HLap1wslW3wf8U43ARG77uka4F1T/AUF/kXJJX0k+wueUtErANeDz5TzhG6ikSYSLQGrrq1vWs3as1TbXiol8778DKKEidj3oaOU80PWG2xSeHWC87Gs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728934961; c=relaxed/simple;
-	bh=nSN91k0MDx/3jclGR0DMRDh9nWAKkddvoKTi4MHkZc8=;
+	s=arc-20240116; t=1728935246; c=relaxed/simple;
+	bh=hNsPGQlN+tgxXlyGzBEoHTvHqz1DcphwD6h1Bbjfk0w=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=d5SoccPJPnGQAlnNW+TyxOYPh2PncU30A5bIWZlFHgjwbnOPBY4vt54DNRE9PtE7tAdm9FoS0m0dUOa9fka61O2vIm+0I+fOTCAL8w2mtXVZCH9uwpi3KJmK3u9zsbSi9U3Sgldgc1OnW7RyGJVELDMHOnq5N0IOJxGfNxOXLV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WnMCbWtt; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=TGTnCuNJWH2RLWTctkdsbr9C0d7oriFWpqEDsQEIez/oaoFPxOpSw0IAzFjV216Tij59D+dRwoDhrVEpuqUzq+gpWPNekmBokWkOk5Z8r7xCkJRseMqA/SVTVQkbaXdl3D1z7NrrUAnzbhNj3ETFhPul9ma1O9aqKAJnhgpyeA0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DQUQDIkO; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WnMCbWtt"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DQUQDIkO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728934958;
+	s=mimecast20190719; t=1728935240;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=30ySL8mOnC3+G7jE5IBbcnE7C3MkhR8Ag1bijqKHz78=;
-	b=WnMCbWttxIcAt2BEwvZtev0L8B4Fa6YV3scWc/B/onqHdgX+ckKtbO6CADBuzWIPEV/0wg
-	bDoJZQonXsYk7QR3IsxKN/N1Ry4WmOqkuEPs6bbaBcLZOCNL+qyD5SQpS3j9W0JmW105w0
-	8DSLoBtYc7RdozRKlWz7zQSbJvoKodc=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=9f+jPSSrcKbUmnkY+49+BdbeWERKSiibXu+1oFdZXw8=;
+	b=DQUQDIkOW+GDG/S2CujgOFL2od4K3Sx9BTxIRxBjRXI5LQZ9UfDppU8v8shcfa856qiIh+
+	I4Px+4A8CunynrxobuayPuz9yiOWUU4FwipuaOwwtR2ScuuPy3wEBR80PyZa9QHPMPGVW6
+	X/DWpAczgN0oNuBwv7UFyREuN+MV9ds=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-462-PmfIZoFPO5yvHAiu80JSIA-1; Mon, 14 Oct 2024 15:42:37 -0400
-X-MC-Unique: PmfIZoFPO5yvHAiu80JSIA-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-37d67f4bf98so1085384f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 12:42:37 -0700 (PDT)
+ us-mta-149-Bq5u6DLRNb6lva633k1Jfg-1; Mon, 14 Oct 2024 15:47:18 -0400
+X-MC-Unique: Bq5u6DLRNb6lva633k1Jfg-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d609ef9f7so956526f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 14 Oct 2024 12:47:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728934956; x=1729539756;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=30ySL8mOnC3+G7jE5IBbcnE7C3MkhR8Ag1bijqKHz78=;
-        b=bPN66OXrxWbWMkmD6/+AxWzMnSnxf1lkg9PDtM7NqtS5s4hqYVjGSpvRGbbVw8IJX5
-         HU5TePbLu3kv23a6ZWeGNvHFBjTmcP7ocPm+Hgpukc16U+vPUlX0+cw9Cdr/lHHf/g0I
-         dZXYo9r3zLjAhsb26cwnjEpFZkZIjTLlFseP0vLY7POmzxjbs7DJaCnnfEgIFnQiY4jA
-         NBnHCCao5sFCg374ttKtlIt2eis7pjc6XtReFn5WuFpfh28SQYXaWq/S+HL4xlBtgT3P
-         feMtxERFE82aSk6baz+zB1B/bW8Qesgy/sYFLXXLi863aolGtOAlOAs/CbUpSR3v5kzU
-         ViFg==
-X-Forwarded-Encrypted: i=1; AJvYcCU93WEpPtllRjZkMmonNev63DF/+D2R/U6dokcSpxTXs57A1tGO85ty/VKE/ifai5Vns0siNah2YXUPxs7Kzw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyj4pCm3Ju8zv3GqBUG99A9DkfNV15yL+sLjY4sY74s2hHyQ9Bm
-	Wi1vawN62F9e5VD3nik4Z88jsnnjpmzYE/EbbZtWeFwJXV3BOUpfOHr5aou5GThEfbGz0v4C0Uk
-	wMglHAN8wLPQcAvY8ciOMjkIPsEvvSK08Ys7Y1i6E9osRJUUeu1cPx4w5xx3oQAgn
-X-Received: by 2002:a5d:4dc6:0:b0:37d:4818:f8b1 with SMTP id ffacd0b85a97d-37d5529b195mr9208880f8f.39.1728934956342;
-        Mon, 14 Oct 2024 12:42:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHg9eyNRc80Vvm3HusKUJW8fJac5WJyw4VreDan/GeWLXPz1wjvXZOk8pOZkz4a6HZCd2pEoA==
-X-Received: by 2002:a5d:4dc6:0:b0:37d:4818:f8b1 with SMTP id ffacd0b85a97d-37d5529b195mr9208853f8f.39.1728934955884;
-        Mon, 14 Oct 2024 12:42:35 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1728935236; x=1729540036;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9f+jPSSrcKbUmnkY+49+BdbeWERKSiibXu+1oFdZXw8=;
+        b=YBjgGh4apxDaggkZz3hrL9rE/JgKDtJXknHnyvWG3hfjNpCJPoQkVainPrtx5G/yfX
+         BLHXMgEU+xWr9mAvjDw+fMsEveEKf43P2phAye9e2NuxoAuLLv7s6wgE1mSf5iBvt5M9
+         QwOnEI0GPvq0CVIDdmt9lfb7EhU2U5VNf6Zy977e1BHhD3zQ75skyO2uOVxJoyMwOtiH
+         VANMDKs+DCcLjZSj2L0gDaFY1py6gHr6rzeKSeqV+tJXR07KdHKPjzmZHZ+xNKANp2eW
+         5Mk1pzrX5iI/DAanFTldBlSspwIvHvv34kJVmarV0CXJSVvEGnptiEQrfpwy40aT6RSo
+         xhyg==
+X-Forwarded-Encrypted: i=1; AJvYcCXqPONSJotjArIad8SMKphTpU85wDRtrFIs1UUSAN0gglyYlt5UPdPW7ibGQoEgXIKpRlSKeykhs0JD9zvq9w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzgwid7wiTibaILeFrGEwvA2ynvZ+4CAdAGuVM33nBDRWp8MpUJ
+	fNaheBnSihdtvSOPBkQIp7IKDP14qVcjJ1x8SNPIP9Qs4cLGmfjv5Lw25WfiA8Q8gIYDdiw7q+N
+	wKXwRlEj3Py0wfjIC0MszX5BbqGsCRQRK7iMuytilPIiWoliOVuNyRUNDvGXWFPOs
+X-Received: by 2002:adf:e608:0:b0:37d:4fe9:b6ae with SMTP id ffacd0b85a97d-37d5519881bmr7870042f8f.7.1728935236489;
+        Mon, 14 Oct 2024 12:47:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGqcjEvb1jHHdnO97vII/IN5GoQk3c9Wr+EG2efmydey9JQVPNjY/EMzI1ifTzURmILDRW9Ww==
+X-Received: by 2002:adf:e608:0:b0:37d:4fe9:b6ae with SMTP id ffacd0b85a97d-37d5519881bmr7870025f8f.7.1728935236015;
+        Mon, 14 Oct 2024 12:47:16 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c71e:600:9fbb:f0bf:d958:5c70? (p200300cbc71e06009fbbf0bfd9585c70.dip0.t-ipconnect.de. [2003:cb:c71e:600:9fbb:f0bf:d958:5c70])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d4b6bfc8csm12271623f8f.45.2024.10.14.12.42.34
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d4b79f69dsm12226388f8f.81.2024.10.14.12.47.14
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Oct 2024 12:42:35 -0700 (PDT)
-Message-ID: <59199850-f9cd-4249-92b5-40904facc11b@redhat.com>
-Date: Mon, 14 Oct 2024 21:42:34 +0200
+        Mon, 14 Oct 2024 12:47:14 -0700 (PDT)
+Message-ID: <177ca9d5-9fc7-4f43-83fb-ea5105621cc8@redhat.com>
+Date: Mon, 14 Oct 2024 21:47:13 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,8 +68,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT) to
- support QEMU/KVM memory devices
+Subject: Re: [PATCH v2 7/7] s390/sparsemem: reduce section size to 128 MiB
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -84,8 +83,8 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
  Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
 References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-5-david@redhat.com>
- <20241014184339.10447-E-hca@linux.ibm.com>
+ <20241014144622.876731-8-david@redhat.com>
+ <20241014175335.10447-B-hca@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -132,70 +131,65 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20241014184339.10447-E-hca@linux.ibm.com>
+In-Reply-To: <20241014175335.10447-B-hca@linux.ibm.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 14.10.24 20:43, Heiko Carstens wrote:
-> On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
->> To support memory devices under QEMU/KVM, such as virtio-mem,
->> we have to prepare our kernel virtual address space accordingly and
->> have to know the highest possible physical memory address we might see
->> later: the storage limit. The good old SCLP interface is not suitable for
->> this use case.
+On 14.10.24 19:53, Heiko Carstens wrote:
+> On Mon, Oct 14, 2024 at 04:46:19PM +0200, David Hildenbrand wrote:
+>> Ever since commit 421c175c4d609 ("[S390] Add support for memory hot-add.")
+>> we've been using a section size of 256 MiB on s390 and 32 MiB on s390.
+>> Before that, we were using a section size of 32 MiB on both
+>> architectures.
 >>
->> In particular, memory owned by memory devices has no relationship to
->> storage increments, it is always detected using the device driver, and
->> unaware OSes (no driver) must never try making use of that memory.
->> Consequently this memory is located outside of the "maximum storage
->> increment"-indicated memory range.
->>
->> Let's use our new diag500 STORAGE_LIMIT subcode to query this storage
->> limit that can exceed the "maximum storage increment", and use the
->> existing interfaces (i.e., SCLP) to obtain information about the initial
->> memory that is not owned+managed by memory devices.
->>
->> If a hypervisor does not support such memory devices, the address exposed
->> through diag500 STORAGE_LIMIT will correspond to the maximum storage
->> increment exposed through SCLP.
->>
->> To teach kdump on s390 to include memory owned by memory devices, there
->> will be ways to query the relevant memory ranges from the device via a
->> driver running in special kdump mode (like virtio-mem already implements
->> to filter /proc/vmcore access so we don't end up reading from unplugged
->> device blocks).
->>
->> Tested-by: Mario Casquero <mcasquer@redhat.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   arch/s390/boot/physmem_info.c        | 46 ++++++++++++++++++++++++++--
->>   arch/s390/include/asm/physmem_info.h |  3 ++
->>   2 files changed, 46 insertions(+), 3 deletions(-)
+>> Likely the reason was that we'd expect a storage increment size of
+>> 256 MiB under z/VM back then. As we didn't support memory blocks spanning
+>> multiple memory sections, we would have had to handle having multiple
+>> memory blocks for a single storage increment, which complicates things.
+>> Although that issue reappeared with even bigger storage increment sizes
+>> later, nowadays we have memory blocks that can span multiple memory
+>> sections and we avoid any such issue completely.
 > 
-> ...
+> I doubt that z/VM had support for memory hotplug back then already; and the
+> sclp memory hotplug code was always written in a way that it could handle
+> increment sizes smaller, larger or equal to section sizes.
+ > > If I remember correctly the section size was also be used to 
+represent each
+> piece of memory in sysfs (aka memory block). So the different sizes were
+> chosen to avoid an excessive number of sysfs entries on 64 bit.
+ > > This problem went away later with the introduction of 
+memory_block_size.
 > 
->> +static int diag500_storage_limit(unsigned long *max_physmem_end)
->> +{
->> +	register unsigned long __nr asm("1") = 0x4;
->> +	register unsigned long __storage_limit asm("2") = 0;
->> +	unsigned long reg1, reg2;
->> +	psw_t old;
-> 
-> In general we do not allow register asm usage anymore in s390 code,
-> except for a very few defined places. This is due to all the problems
-> that we've seen with code instrumentation and register corruption.
+> Even further back in time I think there were static arrays which had
+> 2^(MAX_PHYSMEM_BITS - SECTION_SIZE_BITS) elements.
 
-Makes sense. Note that I was inspired by GENERATE_KVM_HYPERCALL_FUNC 
-that also still uses register asm usage.
+Interesting. I'll drop the "Likely ..." paragraph then!
 
 > 
-> The patch below changes your code accordingly, but it is
-> untested. Please verify that your code still works.
+> I just gave it a try and, as nowadays expected, bloat-o-meter doesn't
+> indicate anything like that anymore.
+> 
+>> 128 MiB has been used by x86-64 since the very beginning. arm64 with 4k
+>> base pages switched to 128 MiB as well: it's just big enough on these
+>> architectures to allows for using a huge page (2 MiB) in the vmemmap in
+>> sane setups with sizeof(struct page) == 64 bytes and a huge page mapping
+>> in the direct mapping, while still allowing for small hot(un)plug
+>> granularity.
+>>
+>> For s390, we could even switch to a 64 MiB section size, as our huge page
+>> size is 1 MiB: but the smaller the section size, the more sections we'll
+>> have to manage especially on bigger machines. Making it consistent with
+>> x86-64 and arm64 feels like te right thing for now.
+> 
+> That's fine with me.
+> 
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> 
 
-Below LGTM, I'll give it a churn, thanks!
+Thanks!
 
 -- 
 Cheers,
