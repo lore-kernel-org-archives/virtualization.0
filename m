@@ -1,149 +1,155 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5741E379B
-	for <virtualization@lists.linux.dev>; Tue, 15 Oct 2024 10:09:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 458C21D14FF
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 10:19:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728986949; cv=none; b=eGJ3THtSQuYEhj55rn15kq4MwjRJ4aPlNL5U+AgsSp9apzzJq+4sMNJRywDZPuTbCvGJeaRLQ4bzR3Z+FmIHciYY7qRlI9SezY7VEowJs5xQt3b1S2W4lm0fy/jQ4Gp/usVL03bGm+qaIbpFYlEnQows1grBGiAg+K/WP53qDSw=
+	t=1728987576; cv=none; b=qrqPAC+RfLhUPNQx4DcPoCdkRhLdW+QLFXXojgFUUfAvHJB94f3NhlfLrQJIEVpY/mVsZbyeoLckCXajCplZ7GSl/CRrgXMcZOvz9Mx7qoOECVoyRNg6QT4yUVvlputkdo+CaPxOyWWlzQaAxeOh2rCsDDWGwvI6igi/6xS+yA4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728986949; c=relaxed/simple;
-	bh=L/+YSZd9FgzSTjtlgoEb7AhHZrvE5ViY4redsR5s1EE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=GbAx4hUELYOLjFA6nt2wHeDm1yCnOg+Ge7zA9XApkBKs/M7X2+y2e/aekD6BeBfa95sDxY+c/MxbhHngcA7YKSvYw0JPv8so+hij4BPxi6Bg+NF8DEVGX+UgIF8DDCla5GVX3p4TpAIw3IbSCHmjoFeBRkegoQ2To4WJ+WbVirw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=orD2fuzx; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728987576; c=relaxed/simple;
+	bh=UtNejxWTGys9rDt1pROLsuGxzh/JYXHbYWC1bkRqFBg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=kNiMuTwD6MrK5HB1ix+Ex45zqSXFTA538Bt0hfCeKuRUOM8C8wAzWHhkJjSbJZwrXkmivOTpmjtzpxi5p48/9HenGTENQ76OuLBeU6vFOc/61m7z21CXqRYUGfYkXFd0a/Txwr4B+GwitIaS2/1fZiF42PUxP+4Sz06s4FEe7Pc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RL1iabjE; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="orD2fuzx"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49F8PIdt023808;
-	Tue, 15 Oct 2024 10:09:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=/c7LV/XQCFoM90nvgmsgvrUkllUDo6
-	cElhrXfABkZfQ=; b=orD2fuzxADOT2+HxgEydnL3W+PkhEdGjS5UKKVau1xhD5b
-	EgtbAK4cINCp6W7feBhvjPexGoQbNGSBMg4Niu20J3NYWfq4ti551CFDS9F7UUs4
-	uJI6QQgPmfNYxb8ejTqzwUby7nEIfRJaG12732FzvJ9RkqL6t+fWS0kMANy5ss/E
-	olzppJ2JbaqWLgxLdiG4guUDpoRWRYSpBmIjjHw6ahq69x6/xv08Q5rV4ekCr6fu
-	jFK/7dSCrKf6xaML6LtYFhz9dxxBnfUoS7zOBhVRnoE4TfZ7PVFEckqULqo6Z3ej
-	2iDVmL5pjdwfZBhIGkxCw/D4iKme8VVz3FkbS8iA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429mv4rh6x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 10:09:02 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49FA91wf019574;
-	Tue, 15 Oct 2024 10:09:01 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429mv4rh6q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 10:09:01 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49F8hDOg005377;
-	Tue, 15 Oct 2024 10:09:00 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4285nj2w6a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 10:09:00 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FA8uJs53608814
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 15 Oct 2024 10:08:56 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75FC52004B;
-	Tue, 15 Oct 2024 10:08:56 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3088B20049;
-	Tue, 15 Oct 2024 10:08:56 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 15 Oct 2024 10:08:56 +0000 (GMT)
-Date: Tue, 15 Oct 2024 12:08:54 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
-Message-ID: <20241015100854.7641-J-hca@linux.ibm.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-2-david@redhat.com>
- <20241014182054.10447-D-hca@linux.ibm.com>
- <f93b2c89-821a-4da1-8953-73ccd129a074@redhat.com>
- <20241015083040.7641-C-hca@linux.ibm.com>
- <0c7e876f-5648-4a82-b809-ca48f778b4a6@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0c7e876f-5648-4a82-b809-ca48f778b4a6@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: B4FoBzXg4xRB3GzcXvcGiFpFwcYSCEoJ
-X-Proofpoint-ORIG-GUID: ydJ8NcHofxE6nimFbJhOvYGvELg379sK
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RL1iabjE"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9E7D34042D
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 10:19:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 7C7yohaAWO5y for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Oct 2024 10:19:33 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 7D5B440147
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7D5B440147
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RL1iabjE
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7D5B440147
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 10:19:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728987571;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yL03YOPM9cVhg3T+Qftkg8/CQZZbBVIoxOh8LNZ0CNY=;
+	b=RL1iabjEWGsviJh/lgJeoOeS14UYFfl4t3zPM7yHqF7jRcVMbpnFldn0rc4y/zFL3wiuA9
+	S6+tkNjlUH3iVsdIy16E6McSa7dtCG60Ebz2PSaJ0FZEJYEs+oYf/E9vfVt13tXradEoQL
+	91o4ttZQ9lmTnskmC4h51THB36VSP9w=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-480-S4VJjMlvM02nInezqliE0g-1; Tue, 15 Oct 2024 06:19:29 -0400
+X-MC-Unique: S4VJjMlvM02nInezqliE0g-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a99cb787d2cso226336766b.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 03:19:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728987568; x=1729592368;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yL03YOPM9cVhg3T+Qftkg8/CQZZbBVIoxOh8LNZ0CNY=;
+        b=IE79z/JbN/pCPgv8eG/+dK+7oWzqYQqY+rIHGBMnDIPcUExIyXEpwG4tqYB/VonYqU
+         4hnF8kPXwyw4Fo+2urtCbvHUqANiaj4wcCJivl0CjT15shLI00Nj4UZu2gn+f+mtBYag
+         ZqPP5I2Twf0d3xf2oU3iPmhpqg6N3oyIgUxSiJ9lK5wCfp80Lm+jndL8aqZ6yNEKs+Lx
+         jAQ2tDiLVWBOHqqqFqwVzuQGtegj3ASPvp/eC3ma33lgZqF7W0vZBVCFPAUhM2ZM+IAl
+         wLBt6ZhKaTLpvpQNsOfDU+5n8o0AP4K+QqZFVMUxOefe3GhBR3S7VrJswDFCg4Fuxi90
+         uW5g==
+X-Forwarded-Encrypted: i=1; AJvYcCXRrusZ10cRCs4cXPspk5P33zc7bM9OOAT1oIVonIKnhe/AtxM6O78Bot7+cxYfFyMI8Y0MUKzi6R7q/JYrDQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyZufwwcWgRxx/DmEGDCG+h9EUHQ99KulJqpOsf3m3ECpA69jyM
+	vkvMyt62ybacGhbRakhm8HrlNUEOGzaYeEFCHTZWgtsXy/fiqOcpn1gevl6T8ncJd6Rtb84rAGD
+	SqgUrG+AOdxxKfzi30wsEeHXJpj9i9fEmDo1cheS4upTaA9CNppHybAT4hxxa1coDIDvSrPzeHf
+	TrsvQ=
+X-Received: by 2002:a17:907:3cb:b0:a9a:f82:7712 with SMTP id a640c23a62f3a-a9a0f8277a0mr373405966b.52.1728987568227;
+        Tue, 15 Oct 2024 03:19:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFCt73pi+kBQa8sFo8lywX0rXLgjhAffY6kTOniri1Q1voIZU61MMns3Q+EQxXd6h1IBekPBA==
+X-Received: by 2002:a17:907:3cb:b0:a9a:f82:7712 with SMTP id a640c23a62f3a-a9a0f8277a0mr373404366b.52.1728987567756;
+        Tue, 15 Oct 2024 03:19:27 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:171:1a30:7155:8c78:3ad8:e1c0])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a298169a8sm53853266b.134.2024.10.15.03.19.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Oct 2024 03:19:27 -0700 (PDT)
+Date: Tue, 15 Oct 2024 06:19:22 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Cc: Cindy Lu <lulu@redhat.com>, jasowang@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v2 7/7] vhost: Add new UAPI to support change to task mode
+Message-ID: <20241015061702-mutt-send-email-mst@kernel.org>
+References: <20241004015937.2286459-1-lulu@redhat.com>
+ <20241004015937.2286459-8-lulu@redhat.com>
+ <a6b0d25b-4b8c-4633-8900-978adf14795d@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- mlxscore=0 suspectscore=0 phishscore=0 adultscore=0 priorityscore=1501
- impostorscore=0 bulkscore=0 malwarescore=0 mlxlogscore=468
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410150068
+In-Reply-To: <a6b0d25b-4b8c-4633-8900-978adf14795d@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, Oct 15, 2024 at 10:41:21AM +0200, David Hildenbrand wrote:
-> On 15.10.24 10:30, Heiko Carstens wrote:
-> > On Mon, Oct 14, 2024 at 09:26:03PM +0200, David Hildenbrand wrote:
-> > > On 14.10.24 20:20, Heiko Carstens wrote:
-> > > > Looks like this could work. But the comment in smp.c above
-> > > > dump_available() needs to be updated.
-> > > 
-> > > A right, I remember that there was some outdated documentation.
+On Mon, Oct 14, 2024 at 03:56:33PM -0500, Mike Christie wrote:
+> On 10/3/24 8:58 PM, Cindy Lu wrote:
+> > Add a new UAPI to support setting the vhost device to
+> > use task mode. The user space application needs to use
+> > VHOST_SET_INHERIT_FROM_OWNER to set the mode.
+> > This setting must be set before VHOST_SET_OWNER is set.
+> > 
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > ---
+> >  drivers/vhost/vhost.c      | 18 +++++++++++++++++-
+> >  include/uapi/linux/vhost.h |  2 ++
+> >  2 files changed, 19 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index 08c9e77916ca..0e5c81026acd 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -2341,8 +2341,24 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+> >  {
+> >  	struct eventfd_ctx *ctx;
+> >  	u64 p;
+> > -	long r;
+> > +	long r = 0;
+> >  	int i, fd;
+> > +	bool inherit_owner;
+> > +
+> > +	if (ioctl == VHOST_SET_INHERIT_FROM_OWNER) {
+> 
+> Maybe instead of a modparam and this ioctl we just want a new ioctl:
+> 
+> /*
+>  * This will setup the owner based on the calling thread instead of
+>  * using kthread.
+>  */
+> #define VHOST_INHERIT_OWNER _IO(VHOST_VIRTIO, 0x83)
 
-...
+I feel this is not good because it is insecure -
+process should not normally have a say in whether
+namespaces work correctly.
+So we want the system admin to be able to block the
+old mode.
 
-> My concern is that we'll now have
+> It would initially be used by vhost-scsi when worker_per_virtqueue=true
+> since that is a new use case and there will be no regressions.
 > 
-> bool is_kdump_kernel(void)
-> {
->        return oldmem_data.start && !is_ipl_type_dump();
-> }
-> 
-> Which matches 3), but if 2) is also called "kdump", then should it actually
-> be
-> 
-> bool is_kdump_kernel(void)
-> {
->        return oldmem_data.start;
-> }
-> 
-> ?
-> 
-> When I wrote that code I was rather convinced that the variant in this patch
-> is the right thing to do.
+> For the other cases we default to VHOST_SET_OWNER. Other QEMU cases or
+> tool XYZ can use the new ioctl when they are ready.
 
-Oh well, we simply of too many dump options. I'll let Alexander and
-Mikhail better comment on this :)
+I do not like it that we switched default now we apparently will be
+switching it back. Will break some userspace whatever we do.
 
-Alexander, Mikhail, the discussion starts here, and we need a sane
-is_kdump_kernel() for s390:
-https://lore.kernel.org/all/20241014144622.876731-1-david@redhat.com/
+-- 
+MST
+
