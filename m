@@ -1,121 +1,138 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97B18189BB9
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 06:30:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C616B4D8DA
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 06:52:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728973850; cv=none; b=Ov/h+9AMVdY3EHCTMDzpYzOpPoCq3sAzxJrqtlM3uUNjSVRncyNDdn9S9oLb0MvMeSbKJo3r3bcFb2RvJHatO2i2Kqt+E+N0ILMMMCIJEKcHtlkZ+iNtOOYWeg9E2ZQqmGE3iHAaszDFq0EiKXc65oRLywgafEB6aoy0GBJhySs=
+	t=1728975161; cv=none; b=KLAddd8kfTMV/Dg5Dt2PDo1iGCCqO+WzrtdjOOvoEwdBWbB9Cc0iCB9OQdY8w7EDFrrNMTKmExId+J4WmueWgpnPPkC8m1oF2vedWJWCLHqeT3L+RjhMy9cOpayRkzT5vQbNLyQwKGauPlcKb+t4PWKYF6xnZgyP/TYbALnF2J8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728973850; c=relaxed/simple;
-	bh=iqlpTDPssRh6Y5WPFC5t5f0ps5krq1Lvxz7uGIT8PhY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MfrPajioBNMjMXB4vsdUfFIlXFxMO+4GCcgvW4nVmNsTop8OjFf2FN2G+J0MgKA4kAXyQmdWaCZTo6ef8AkHVrqQ6ZiXVgnfmqRnfchhlC2FQDcnO08s/v126UoNUf+EojIlFq7D3dDk+2MaJ87X5GiNkLAd+wS65axFZ428XgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OqLD8sD6; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1728975161; c=relaxed/simple;
+	bh=IxKtbfbDWpfY+XrFnqwdLbGcdWrAl8fFCrbgJ+zlr4Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=iUtI+grSkSOiR8bMun+Ag5g6PstFpAcEE3p5LGDPPOptF2xAMApkrtuNUBUwFgMk7ruMkNaye7MpMH19FzGl7XHNNKv2DuXVrTws6Z+DARtz3FzHLZCtKJfVJlLjtjISgqZUdsF/1j6EJCsTUDVD80EMVR6Zr8WlzFiL7ty7+Xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SzwtgVVO; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OqLD8sD6"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SzwtgVVO"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 222D740388
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 06:30:49 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 720A1405E8
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 06:52:39 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id DEjllzcDS5P6 for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Oct 2024 06:30:48 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 45031401E4
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 45031401E4
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OqLD8sD6
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 45031401E4
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 06:30:47 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 2swPld5X1Ens for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Oct 2024 06:52:38 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 8B3AE40015
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8B3AE40015
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SzwtgVVO
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8B3AE40015
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 06:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728973846;
+	s=mimecast20190719; t=1728975156;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8jk67ZnwvaT69MO8EEaBF6QRTqEmY3du7hpoOAZQd7w=;
-	b=OqLD8sD6youaW5feD4TXcce7cZqPvhjIWocpGYsuavdCVjLiVZcndy8jRS6XsHH12n7DV3
-	q9E8fTysZCvAZ/RQBSpVq/vMK5gYtNGPDhB2COJfQqkr5F7YwcF9LN2iLGwK94DJ+QBdBk
-	mq3ucGI8QLmMJiIE+kHV6uq9JhVFSTQ=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=+Us05G9Xv9FB2BCQGyCCUClyEftS92UVQm4omwqD/MU=;
+	b=SzwtgVVOKIBqbiMcmv9BucE7ZVgjq+a1j6LDT3t3FBCfyuKSIwbf5sli4HZ3OR9/p4EILB
+	ujTzN/wHlrHqSIlx0pcUg6FaZ0WxPI4u/Y/GPUHGQRFGjS3tY5Nq7ZQRxjlw1wRXd0mz8s
+	Se0FGLefOi6ofaqA911K/D89yVPuufU=
+Received: from mail-vk1-f197.google.com (mail-vk1-f197.google.com
+ [209.85.221.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-615-zwVqKG7qOcO3lBbYq-aWtQ-1; Tue, 15 Oct 2024 02:30:45 -0400
-X-MC-Unique: zwVqKG7qOcO3lBbYq-aWtQ-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a93d0b27d37so428227066b.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 14 Oct 2024 23:30:44 -0700 (PDT)
+ us-mta-226-lFFKKQ9yMpe_jOjHslyQhA-1; Tue, 15 Oct 2024 02:52:35 -0400
+X-MC-Unique: lFFKKQ9yMpe_jOjHslyQhA-1
+Received: by mail-vk1-f197.google.com with SMTP id 71dfb90a1353d-50d5352c757so317498e0c.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 14 Oct 2024 23:52:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728973843; x=1729578643;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8jk67ZnwvaT69MO8EEaBF6QRTqEmY3du7hpoOAZQd7w=;
-        b=Xik+my6AxhWf/P6rf8uEhGwNwSnAKm9HtPJUAg5FMXPzjIplptfm230+WP1Qd9ygeJ
-         +UuEbtDLS+aJDkFt2Pvv9pfOHHmtlqAA2lLr8f0YPX3DNFpXZd+6P4XM8Ev/h3XF7jY/
-         B/TZtC6qbJLxzk1R/KAc972/i0ImDG7MxbAJKwi1La3o8VAFjirLACfxNC95omcJ2Sms
-         +JKBR8INW+ob7ETlhmENyx5Uz1X7qNLXe0OH2Av/Q1aU8z9jhprZrvT03Q4KAUYGO8Lp
-         VEPHjIipdGByVFYD43sNomjCD99diEHqcqGpqKqjfpgGlzuSnM1GN+2ra/tJXUFfE3XN
-         ih8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUD3RtXY+arzv7mMQlS9njyct4xRpF9MFLLd08huRoqLEIk1eKmFxjDQ22VgIoRnche5Sb5I2teIlrCMKpogg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxKOng6AhBbESF8AwYhiHrwBrzdHZfTn1cs5J+dGCf23/u9bx4J
-	nGvclk5fNmI3RvQIcjzg5/nkw+Lj+BAnOMg6sGij/PSHYBMU7XFiGsOLP70CRU4lEu5k7JwwO8Z
-	ufiQdnLzV+sTKLkXWEvtkxelwYXtsQE3EaYKHQY0PUej5euxYrr9YeEoZHgwG9TjArHwv7Nogoj
-	s6n06A4jJbcE09C6V559WCmUJU1HDRD+Ocze2m1CDEh7T88fn8hOO3Rn37XDR1oSbo
-X-Received: by 2002:a17:907:9288:b0:a9a:1585:dd6a with SMTP id a640c23a62f3a-a9a1585f6fcmr421157266b.36.1728973842907;
-        Mon, 14 Oct 2024 23:30:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGFFo6nEJ0i0crMHfbmLP0cYzCRHBgpqF2T2KbCZnHB1yGriJU9Zde0i+L/LSzxF6W7K8keK7004Y2J29YQRKw=
-X-Received: by 2002:a17:907:9288:b0:a9a:1585:dd6a with SMTP id
- a640c23a62f3a-a9a1585f6fcmr421155366b.36.1728973842562; Mon, 14 Oct 2024
- 23:30:42 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1728975154; x=1729579954;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+Us05G9Xv9FB2BCQGyCCUClyEftS92UVQm4omwqD/MU=;
+        b=S8XB37kNad8n7p9xwdtW3Z3+SU7nX4czhHvIgWh09W7lh5HG6N6vz1G7PH23QBAzj/
+         mHTfpAHGOIT9wv8AIBkV44XubcZF2reWzS/sj6KEr+TRu3uZeOgxRThSXC6ZS9O3G5C2
+         KGWUF8rix8Ds5znsjYolbDl6MhKILGUDh+hu7nfWbsoOdOiF+mdTgzLZwo8ON3RR/BO7
+         cCQtGvYSWhpJSWTjmwA1C/o3/+5ltPEjjifVk67YHiJ5xytEWS4ldD60LMxXmlEb27iu
+         RCGtI9KSJn2qJvIj3029r26rvmR3/xPvw1E1GD5TpiFjgr+cwbZVbKZ4OQrUIx/JFQMZ
+         zORw==
+X-Forwarded-Encrypted: i=1; AJvYcCXKiYqWI79kMd/4U4XoI4fzVGiw1t+Qb0iNdrxH+RgfI0sJ5eo1arJI1Yamhwec3jm1K+GDS+YervEysGenqw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Ywg7ueJN2iJhUJCKIzBN5K8X8KJceyHrXRN6YPZQcSWxeWXgFz9
+	pPNdMFftVcXQB08rUdfzouNSdi0+prYVOEfAJqeSTG+Mb4iQLLWmK2z4ZCjSeteqWNMKD6VYNJB
+	kI/bFVsi6cRnSoF6bFzAhKQ2eyJpAUsLBa9Q+JGFA+crUVbI6lsHZ1jz/omCUV5vssA88TZeh7V
+	yPpIs=
+X-Received: by 2002:a05:6122:181a:b0:50d:35d9:ad55 with SMTP id 71dfb90a1353d-50d35d9afafmr7906039e0c.13.1728975154660;
+        Mon, 14 Oct 2024 23:52:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHKE3sM82gE1lH2AbmVMOwgCoWkTjZKZlxe3981Acz9icXIZwSdhkC3L7BLm0xRKplh8L48RQ==
+X-Received: by 2002:a05:6122:181a:b0:50d:35d9:ad55 with SMTP id 71dfb90a1353d-50d35d9afafmr7906028e0c.13.1728975154145;
+        Mon, 14 Oct 2024 23:52:34 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cc2290fa5bsm3300536d6.12.2024.10.14.23.52.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Oct 2024 23:52:33 -0700 (PDT)
+Date: Tue, 15 Oct 2024 08:52:28 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: Mike Christie <michael.christie@oracle.com>, jasowang@redhat.com, 
+	mst@redhat.com, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v2 3/7] vhost: Add kthread support in function
+ vhost_workers_free()
+Message-ID: <lpwqg4j2nnh3xgg64vrlk635vcmu2bxrq37sapwp3yl2pdp5rz@lg3wgfop6rkx>
+References: <20241004015937.2286459-1-lulu@redhat.com>
+ <20241004015937.2286459-4-lulu@redhat.com>
+ <acb5ea13-9695-4158-9152-aff761401be3@oracle.com>
+ <CACLfguVB0Xn2vsj6kJB9ONv1AhpcUteH9PEqDaPX-7JkxxqvKQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241004015937.2286459-1-lulu@redhat.com> <20241004015937.2286459-7-lulu@redhat.com>
- <a317b7f1-b593-4cf0-a58a-8f375ad64f72@oracle.com>
-In-Reply-To: <a317b7f1-b593-4cf0-a58a-8f375ad64f72@oracle.com>
-From: Cindy Lu <lulu@redhat.com>
-Date: Tue, 15 Oct 2024 14:30:05 +0800
-Message-ID: <CACLfguWkYC-60RsxtLjkMcML9WR0ix8ieZH0T8nEZKK_29kisw@mail.gmail.com>
-Subject: Re: [PATCH v2 6/7] vhost: Add kthread support in function vhost_worker_create
-To: Mike Christie <michael.christie@oracle.com>
-Cc: jasowang@redhat.com, mst@redhat.com, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org
+In-Reply-To: <CACLfguVB0Xn2vsj6kJB9ONv1AhpcUteH9PEqDaPX-7JkxxqvKQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Tue, 15 Oct 2024 at 05:02, Mike Christie <michael.christie@oracle.com> wrote:
+On Tue, Oct 15, 2024 at 02:05:47PM +0800, Cindy Lu wrote:
+>On Tue, 15 Oct 2024 at 05:06, Mike Christie <michael.christie@oracle.com> wrote:
+>>
+>> On 10/3/24 8:58 PM, Cindy Lu wrote:
+>> > +static void vhost_workers_free(struct vhost_dev *dev)
+>> > +{
+>> > +     if (enforce_inherit_owner)
+>> > +             vhost_workers_free_task(dev);
+>> > +     else
+>> > +             vhost_workers_free_kthread(dev);
+>> > +}
+>>
+>> With patch 7, userspace could change enforce_inherit_owner after
+>> we created thread and we would call the wrong function above.
+>>
+>enforce_inherit_owner will only change before the owner was set.
+
+As I pointed out in patch 7, enforce_inherit_owner seems to be shared 
+among all vhost devices, so what happens if for example a user sets it 
+to /dev/vhost-net, while /dev/vhost-vsock is already initialized and 
+therefore already has an owner?
+
+Thanks,
+Stefano
+
+>the process is like set enforce_inherit_owner---->set owner->
+>thread/task creating
+>in in patch 7's code I have add the check for vhost's owner, if the
+>owner was set, the ioctl
+>to set enforce_inherit_owner will fail
+>Thanks
+>Cindy
 >
-> On 10/3/24 8:58 PM, Cindy Lu wrote:
-> > +static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
-> > +{
-> > +     if (enforce_inherit_owner)
-> > +             return vhost_worker_create_task(dev);
-> > +     else
-> > +             return vhost_worker_create_kthread(dev);
-> > +}
 >
-> The reason we are in this whole mess is because for vhost-scsi
-> we wanted to create multiple worker threads as the single thread
-> became a bottleneck. We couldn't use kthreads because they were
-> not accounted for under thread that created it and we could
-> exceed the NPROC_LIMIT.
->
-> So with the above code, we could hit that problem again if userspace
-> did the VHOST_NEW_WORKER ioctl and enforce_inherit_owner=false.
->
-> You would want a check for enforce_inherit_owner in vhost_worker_ioctl.
->
-sure, will add this check
-Thanks
-cindy
 
