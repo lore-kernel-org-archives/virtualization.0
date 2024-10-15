@@ -1,138 +1,155 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1238618B46D
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 07:20:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12C8A1C9ED5
+	for <virtualization@lists.linux.dev>; Tue, 15 Oct 2024 07:57:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728976843; cv=none; b=oCqaG1YEpZOV8P8RxkRzFVwsUS3ba+I7t2il43i+PqkgN/ikAb0oQUM827RhQQiC8jUdoLulSdtkss8VxyE+P7hmWsxMjiuKieo4bej8RCtDve8qVs8b5ov7vP5k9LqQhs00aIaiDP/lD34TcMj4RDE1wR56uvUlc8y0CmmK09o=
+	t=1728979069; cv=none; b=DWOONNYzCKW+rMOulzFx4bz6GhWkbP/EHSfzEyq2YMqxhDflPEJRR4298mTYjvJU2CQGpnjvYiMLzClJSeMZYxBm1UCa3XQXrh/T+mST1gVjb/H1w4wED6BI0kNiKMf+dHzMRNMmbdb54ugkh44eVn2+BG7HPia41W5VAHy+eOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728976843; c=relaxed/simple;
-	bh=aZ0nI4wEoXTnix+K7vnHNRRZ5u2CxP/xJ7+eeSluSRk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P41j7EOXN8wx/oSl7pAd8OSdR6b5vgsVLQaZoTfqAyweeEZN8SdP/m1xCuGjK/bEpcDsY5hdaOCzO7yfKenJXD8K4ojFvSzl/xNEYQKAnzTiSQi2PLIcAW6rPa1oMz0QCLASYuoXBmk/jDv9MHo/BLK2lJdjn5/rFNDKVygSEb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YyS4ujRP; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1728979069; c=relaxed/simple;
+	bh=LysHzPd7dlLah+lHs5TKm6/+zie9DVyHTUp7iGUpusc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JSZF30RIT1JHJJQ+TMD06TqkkItx9quaLfqfL6Q/fj1qVjrEPQc+1OU+beBUg8v18alLHiOH7x9fwTEMLSI/as9EI7w+6N2wc369bCJVsotVlIp1O8EQAI/qRxGGc2WamygcxTN3A6Ywh8TJBxMgoshnENSTNGxvKRm1ZGn5yAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Un5fbx4j; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YyS4ujRP"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 98C6680F7C
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 07:20:41 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id XhP3wx6e2tV4 for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Oct 2024 07:20:41 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org D186080DD8
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D186080DD8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YyS4ujRP
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D186080DD8
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 07:20:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728976839;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Dm4roKBoCmtc4l/ytASp7XB8VjJl6kkguFPg7ZNJ3FY=;
-	b=YyS4ujRPMDVas9kPkT2bsaXXyBPUy1M+iXkYrMfiLSM17rOMpp3QnKJ5Je4yXE8yko0AXP
-	T/eXohZ0wY8n05quiVF74VSxkL95gWeqBvkqYxpQeEbZHggklqiFDy4qp3Mope34D1w9zE
-	fQUQ9JYwPSaqVKpK4iAfAaAnoVlQjoQ=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-365-mDGvCnCuOgOLOv2n3DBbzg-1; Tue, 15 Oct 2024 03:20:38 -0400
-X-MC-Unique: mDGvCnCuOgOLOv2n3DBbzg-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a93d0b27d37so432003066b.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 00:20:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728976837; x=1729581637;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Dm4roKBoCmtc4l/ytASp7XB8VjJl6kkguFPg7ZNJ3FY=;
-        b=HMr+bi89P40hZNnCtYa63OC/VOxJMdoukeAid6GMSvMI1X/YfYWfYM9ibmRsfZem1h
-         MqSqcFkiWVDB109yWgV6tkCVYEYOETaPcb94dtcI/Pxbo73xTtYByCL78ieMK/Oyj82K
-         wmBMjs2vUaxhQAFhMxExq0Y665G0nTsDYVgtY5+PfNCJAv3dzmgqYLOCfTdW0L4NNkKD
-         zAAz/r+xGJ3REGb28srMtNVPKGyrFOvOhH+EAfgUmkzjRRBrU42j2xAm3C3YfjfWhq8/
-         8TN8k+8Qn2A9aqplh4BXzStrtux1ML1Erq2mnraome1GrFoCi1dUMCFwpiMGJ54nKaO7
-         St/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCX8nOGaVhCrvzhHbeABjMCENkN8ELvo+kUZ90AWkyXQSLhe8LLyFwqwxCmfbAKw+3ZXnnfei3Z+AF+dECL0LQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyKW/56rS0I2D/RA/pysGCuVXWrUxBFHjrDDOfzIM6gMpdV71Y3
-	IJSZ5P3H9oV3eyvEkw3ELjoPe0tGuG4Os9RsL4N9DkRrMMQQ+A1mY1oAOHjsST/CtykAZkD23pj
-	gkOIN6XwjBaYxWQuOqfjh48eiixm6I1nWB9aQnypKsoeWcCn8xrrNIBJHNf9ktdlZObRwOi5sur
-	yI3AbUUWt0OHYE9MSd5guvzS5FgPq66e9IGSee2q3WOKPtrOLONSkusA==
-X-Received: by 2002:a17:907:9693:b0:a9a:1cbd:257e with SMTP id a640c23a62f3a-a9a1cbd2a10mr370384566b.29.1728976836713;
-        Tue, 15 Oct 2024 00:20:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH/SQ7uHHwUBTGa0Un4BlqLc26yoGrlspeQeIyQ7UgPrdorFar9eEEL6Uh2CsWThHDqSlkBzEqBAUNaiivaeT8=
-X-Received: by 2002:a17:907:9693:b0:a9a:1cbd:257e with SMTP id
- a640c23a62f3a-a9a1cbd2a10mr370382166b.29.1728976836340; Tue, 15 Oct 2024
- 00:20:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Un5fbx4j"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49F6Pkxu026413;
+	Tue, 15 Oct 2024 07:57:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QSrseP
+	fkB5K2VV335DeClzFbTBNk++ahYm8ulSAy/iQ=; b=Un5fbx4jaUVIRMkcttwIy/
+	aUUf01mo/c3G3RVrKcUEQZbc+uCc/zUSXz2WveTmZSAzBlUy+BtQVLgqONH4pttO
+	fFQQ3TlIRmKgr4L91BKyuFfRyXR0/wDZVfTG7BQy9rc7GWJDnEKfuXz02uk6IL0p
+	G+0J9l4AMeiBh71UBzEf2RvaUsT/cW28vx9eE4T1lkdmPBEu6FoYYZ0krjrPv4Wb
+	+IL17qNlZYQfgRHdjn7JBTKKrE2rQuEAOUwq8j8DmQuDth8AlpHB7OJT5CPSkgEj
+	NSe4EAQS/kQb8Lb4Sh8ntlNAmJi7dnx9mkhvtyCguImE4ann5vj0knOOMQnyRjFQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429k3xrdss-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 07:57:42 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49F7ugM0021951;
+	Tue, 15 Oct 2024 07:57:41 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429k3xrdsk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 07:57:41 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49F5eTLT005906;
+	Tue, 15 Oct 2024 07:57:40 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 428650t844-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 07:57:40 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49F7vbri32833968
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 15 Oct 2024 07:57:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 06C7620040;
+	Tue, 15 Oct 2024 07:57:37 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 73CE320049;
+	Tue, 15 Oct 2024 07:57:36 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 15 Oct 2024 07:57:36 +0000 (GMT)
+Date: Tue, 15 Oct 2024 09:57:35 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
+        kvm@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas
+ Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank
+ <frankja@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang
+ <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v2 0/7] virtio-mem: s390 support
+Message-ID: <20241015095735.189a93a9@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <20241014185659.10447-H-hca@linux.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+	<20241014185659.10447-H-hca@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241004015937.2286459-1-lulu@redhat.com> <20241004015937.2286459-4-lulu@redhat.com>
- <acb5ea13-9695-4158-9152-aff761401be3@oracle.com> <CACLfguVB0Xn2vsj6kJB9ONv1AhpcUteH9PEqDaPX-7JkxxqvKQ@mail.gmail.com>
- <lpwqg4j2nnh3xgg64vrlk635vcmu2bxrq37sapwp3yl2pdp5rz@lg3wgfop6rkx>
-In-Reply-To: <lpwqg4j2nnh3xgg64vrlk635vcmu2bxrq37sapwp3yl2pdp5rz@lg3wgfop6rkx>
-From: Cindy Lu <lulu@redhat.com>
-Date: Tue, 15 Oct 2024 15:19:58 +0800
-Message-ID: <CACLfguV1vzs84mKQCQZzT+x5rNo9u+pFwk7i54ng4=OSQdixBA@mail.gmail.com>
-Subject: Re: [PATCH v2 3/7] vhost: Add kthread support in function vhost_workers_free()
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Mike Christie <michael.christie@oracle.com>, jasowang@redhat.com, mst@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Du4l9sP7TVUAjH_iYt432adQvi2pGWuw
+X-Proofpoint-ORIG-GUID: uFXJhMFRxlEgNTc8MZnarzacqCG1ep_i
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ adultscore=0 clxscore=1011 priorityscore=1501 phishscore=0 mlxlogscore=999
+ impostorscore=0 lowpriorityscore=0 bulkscore=0 mlxscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410150052
 
-On Tue, 15 Oct 2024 at 14:52, Stefano Garzarella <sgarzare@redhat.com> wrote:
->
-> On Tue, Oct 15, 2024 at 02:05:47PM +0800, Cindy Lu wrote:
-> >On Tue, 15 Oct 2024 at 05:06, Mike Christie <michael.christie@oracle.com> wrote:
-> >>
-> >> On 10/3/24 8:58 PM, Cindy Lu wrote:
-> >> > +static void vhost_workers_free(struct vhost_dev *dev)
-> >> > +{
-> >> > +     if (enforce_inherit_owner)
-> >> > +             vhost_workers_free_task(dev);
-> >> > +     else
-> >> > +             vhost_workers_free_kthread(dev);
-> >> > +}
-> >>
-> >> With patch 7, userspace could change enforce_inherit_owner after
-> >> we created thread and we would call the wrong function above.
-> >>
-> >enforce_inherit_owner will only change before the owner was set.
->
-> As I pointed out in patch 7, enforce_inherit_owner seems to be shared
-> among all vhost devices, so what happens if for example a user sets it
-> to /dev/vhost-net, while /dev/vhost-vsock is already initialized and
-> therefore already has an owner?
->
-> Thanks,
-> Stefano
->
-You are correct, I will think about this and provide a new version
-Thanks
-cindy
+On Mon, 14 Oct 2024 20:56:59 +0200
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-> >the process is like set enforce_inherit_owner---->set owner->
-> >thread/task creating
-> >in in patch 7's code I have add the check for vhost's owner, if the
-> >owner was set, the ioctl
-> >to set enforce_inherit_owner will fail
-> >Thanks
-> >Cindy
-> >
-> >
->
+> On Mon, Oct 14, 2024 at 04:46:12PM +0200, David Hildenbrand wrote:
+> > Let's finally add s390 support for virtio-mem; my last RFC was sent
+> > 4 years ago, and a lot changed in the meantime.
+> > 
+> > The latest QEMU series is available at [1], which contains some more
+> > details and a usage example on s390 (last patch).
+> > 
+> > There is not too much in here: The biggest part is querying a new diag(500)
+> > STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
+> > 
+> > The last two patches are not strictly required but certainly nice-to-have.
+> > 
+> > Note that -- in contrast to standby memory -- virtio-mem memory must be
+> > configured to be automatically onlined as soon as hotplugged. The easiest
+> > approach is using the "memhp_default_state=" kernel parameter or by using
+> > proper udev rules. More details can be found at [2].
+> > 
+> > I have reviving+upstreaming a systemd service to handle configuring
+> > that on my todo list, but for some reason I keep getting distracted ...
+> > 
+> > I tested various things, including:
+> >  * Various memory hotplug/hotunplug combinations
+> >  * Device hotplug/hotunplug
+> >  * /proc/iomem output
+> >  * reboot
+> >  * kexec
+> >  * kdump: make sure we don't hotplug memory
+> > 
+> > One remaining work item is kdump support for virtio-mem memory. This will
+> > be sent out separately once initial support landed.  
+> 
+> Besides the open kdump question, which I think is quite important, how
+> is this supposed to go upstream?
+> 
+> This could go via s390, however in any case this needs reviews and/or
+> Acks from kvm folks.
 
+we're working on it :)
