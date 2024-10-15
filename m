@@ -1,155 +1,274 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 458C21D14FF
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 10:19:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E2EE1E3DF1
+	for <virtualization@lists.linux.dev>; Tue, 15 Oct 2024 10:41:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728987576; cv=none; b=qrqPAC+RfLhUPNQx4DcPoCdkRhLdW+QLFXXojgFUUfAvHJB94f3NhlfLrQJIEVpY/mVsZbyeoLckCXajCplZ7GSl/CRrgXMcZOvz9Mx7qoOECVoyRNg6QT4yUVvlputkdo+CaPxOyWWlzQaAxeOh2rCsDDWGwvI6igi/6xS+yA4=
+	t=1728988868; cv=none; b=Aku0BqHLmMha4Ry0cYI93K8ZOutxM87+N8ZTa5jm7R8D6uTSzM0y7TjH75OWLBfozKR5j9JYxqoedriDcYtygsz0vd6U2s52aZlL8GzdrfhkQOoq1ZxCGfFQKTTUM8M/x+LKrK+W6/r1d6+Im1oyM6LAYWimppsIB5UHGtqrs3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728987576; c=relaxed/simple;
-	bh=UtNejxWTGys9rDt1pROLsuGxzh/JYXHbYWC1bkRqFBg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kNiMuTwD6MrK5HB1ix+Ex45zqSXFTA538Bt0hfCeKuRUOM8C8wAzWHhkJjSbJZwrXkmivOTpmjtzpxi5p48/9HenGTENQ76OuLBeU6vFOc/61m7z21CXqRYUGfYkXFd0a/Txwr4B+GwitIaS2/1fZiF42PUxP+4Sz06s4FEe7Pc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RL1iabjE; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1728988868; c=relaxed/simple;
+	bh=9ShdzO/bmLu67IAiwcstveks6ejOJ8Y6MaKWflhjXWU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N7rhILlih0b6jJFbU4Wf6A1HGCiuY66yic0qC1+uT3pN/Yx+2gB0mbknXqhbEBJVThWuf03Xm9DSIytDcsQloNPDfkJQMY0+8xekmiMOL+28rmNDE5aSVnpDaYW5FAER0CVyWggHphc6NT+52rS8r/nKAKHJDobFjSLuTPMc3BU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ti0/cPd8; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RL1iabjE"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9E7D34042D
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 10:19:34 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 7C7yohaAWO5y for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Oct 2024 10:19:33 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 7D5B440147
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7D5B440147
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RL1iabjE
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7D5B440147
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 10:19:32 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ti0/cPd8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728987571;
+	s=mimecast20190719; t=1728988865;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yL03YOPM9cVhg3T+Qftkg8/CQZZbBVIoxOh8LNZ0CNY=;
-	b=RL1iabjEWGsviJh/lgJeoOeS14UYFfl4t3zPM7yHqF7jRcVMbpnFldn0rc4y/zFL3wiuA9
-	S6+tkNjlUH3iVsdIy16E6McSa7dtCG60Ebz2PSaJ0FZEJYEs+oYf/E9vfVt13tXradEoQL
-	91o4ttZQ9lmTnskmC4h51THB36VSP9w=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=o9Xc3pdTU7L6bKaIQgVX9nuyeL3ZIBH7Lpn32FEE8B0=;
+	b=Ti0/cPd86k7VBscaCxQfs10Fh2I/V6hO0Jcc3fGBa6ygC6sX9zy84ZNlGQ3cbljBnakJjT
+	UQoJbildgfseegc6mKmlcORMmJLCSpeqjz5NZ+umYbcFEdcVGmsYTT9PLH8tZfV7/pitor
+	ZoEOqmyADuf3bUEroyF9ArRVDMip5vc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-480-S4VJjMlvM02nInezqliE0g-1; Tue, 15 Oct 2024 06:19:29 -0400
-X-MC-Unique: S4VJjMlvM02nInezqliE0g-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a99cb787d2cso226336766b.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 03:19:29 -0700 (PDT)
+ us-mta-96-MZNw9kXyMzSooro4n2c1wA-1; Tue, 15 Oct 2024 06:41:03 -0400
+X-MC-Unique: MZNw9kXyMzSooro4n2c1wA-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-37d458087c0so3106746f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 15 Oct 2024 03:41:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728987568; x=1729592368;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yL03YOPM9cVhg3T+Qftkg8/CQZZbBVIoxOh8LNZ0CNY=;
-        b=IE79z/JbN/pCPgv8eG/+dK+7oWzqYQqY+rIHGBMnDIPcUExIyXEpwG4tqYB/VonYqU
-         4hnF8kPXwyw4Fo+2urtCbvHUqANiaj4wcCJivl0CjT15shLI00Nj4UZu2gn+f+mtBYag
-         ZqPP5I2Twf0d3xf2oU3iPmhpqg6N3oyIgUxSiJ9lK5wCfp80Lm+jndL8aqZ6yNEKs+Lx
-         jAQ2tDiLVWBOHqqqFqwVzuQGtegj3ASPvp/eC3ma33lgZqF7W0vZBVCFPAUhM2ZM+IAl
-         wLBt6ZhKaTLpvpQNsOfDU+5n8o0AP4K+QqZFVMUxOefe3GhBR3S7VrJswDFCg4Fuxi90
-         uW5g==
-X-Forwarded-Encrypted: i=1; AJvYcCXRrusZ10cRCs4cXPspk5P33zc7bM9OOAT1oIVonIKnhe/AtxM6O78Bot7+cxYfFyMI8Y0MUKzi6R7q/JYrDQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyZufwwcWgRxx/DmEGDCG+h9EUHQ99KulJqpOsf3m3ECpA69jyM
-	vkvMyt62ybacGhbRakhm8HrlNUEOGzaYeEFCHTZWgtsXy/fiqOcpn1gevl6T8ncJd6Rtb84rAGD
-	SqgUrG+AOdxxKfzi30wsEeHXJpj9i9fEmDo1cheS4upTaA9CNppHybAT4hxxa1coDIDvSrPzeHf
-	TrsvQ=
-X-Received: by 2002:a17:907:3cb:b0:a9a:f82:7712 with SMTP id a640c23a62f3a-a9a0f8277a0mr373405966b.52.1728987568227;
-        Tue, 15 Oct 2024 03:19:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFCt73pi+kBQa8sFo8lywX0rXLgjhAffY6kTOniri1Q1voIZU61MMns3Q+EQxXd6h1IBekPBA==
-X-Received: by 2002:a17:907:3cb:b0:a9a:f82:7712 with SMTP id a640c23a62f3a-a9a0f8277a0mr373404366b.52.1728987567756;
-        Tue, 15 Oct 2024 03:19:27 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:171:1a30:7155:8c78:3ad8:e1c0])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a298169a8sm53853266b.134.2024.10.15.03.19.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Oct 2024 03:19:27 -0700 (PDT)
-Date: Tue, 15 Oct 2024 06:19:22 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Cc: Cindy Lu <lulu@redhat.com>, jasowang@redhat.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 7/7] vhost: Add new UAPI to support change to task mode
-Message-ID: <20241015061702-mutt-send-email-mst@kernel.org>
-References: <20241004015937.2286459-1-lulu@redhat.com>
- <20241004015937.2286459-8-lulu@redhat.com>
- <a6b0d25b-4b8c-4633-8900-978adf14795d@oracle.com>
+        d=1e100.net; s=20230601; t=1728988862; x=1729593662;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=o9Xc3pdTU7L6bKaIQgVX9nuyeL3ZIBH7Lpn32FEE8B0=;
+        b=LzSCvA71gx96FOloqUJ5dBXQIdsfwRp+jVBauPpRh4d2jXeWciDVowSEa+xxNhHlek
+         07ydYyqqb84v1P5+5dSr5baKCQBTrVDbXBc3v4Mh345edtALWhPPefSxzG0O9pEBFjc8
+         i74A03KHuBuGQaZ53QpmCy03R85V5wEBcvbx2sCDVBNm7gRl2WyReKKsTfNiVpCLZ4NH
+         TJF42W/azQVGzua0BIFS+Jjy6C/WK8i11VZjE76XZtXGbJeR8HHJ7p350e5/uWtYiWhW
+         BNdw5NHG3yJahrB4wPFxpXuxMJaw4grnq6NslEzPdIlPYAYnSlNNs7d8cZ7JKf+QuMnR
+         8urg==
+X-Forwarded-Encrypted: i=1; AJvYcCVZ8q9BY6KY8gxTJbLuSNedmQ273FiwODejg3LDqWn7j+wZdDqz1XupkFa8eaUCr+irQRStKQQ6tmp70NZHGw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwHtyUyVqkViVS2KosASXmK3M5LeL0R+/CV39jcBtJ7z0yQo/XD
+	7gsm8st2GDJiMQedWRWBcG8SEF0JjoD1kaTV81eHiinEnKF21t++Y9dn+b+o490zKdCui5TI1Or
+	aPogZxD5azzzvZ3KuJDOYL83/aZW956Vg0IF/EWCxLKU2kS6QeiPjWotsbyXUtaP3
+X-Received: by 2002:adf:a111:0:b0:374:bcfe:e73 with SMTP id ffacd0b85a97d-37d552cdf30mr11133691f8f.28.1728988862546;
+        Tue, 15 Oct 2024 03:41:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG7DAcwtn/nc+ImvyMGU6FVrMUn2vES2YhfCeC9HkbCeAs9L2ilLS/PV2swbFEL1HNIJja0EA==
+X-Received: by 2002:adf:a111:0:b0:374:bcfe:e73 with SMTP id ffacd0b85a97d-37d552cdf30mr11133644f8f.28.1728988862041;
+        Tue, 15 Oct 2024 03:41:02 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c730:9700:d653:fb19:75e5:ab5c? (p200300cbc7309700d653fb1975e5ab5c.dip0.t-ipconnect.de. [2003:cb:c730:9700:d653:fb19:75e5:ab5c])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d7fa92741sm1240283f8f.60.2024.10.15.03.41.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Oct 2024 03:41:01 -0700 (PDT)
+Message-ID: <a3f310d0-b878-44c4-9454-f7faf8be04ad@redhat.com>
+Date: Tue, 15 Oct 2024 12:40:59 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <a6b0d25b-4b8c-4633-8900-978adf14795d@oracle.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>,
+ Alexander Egorenkov <egorenar@linux.ibm.com>,
+ Mikhail Zaslonko <zaslonko@linux.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-2-david@redhat.com>
+ <20241014182054.10447-D-hca@linux.ibm.com>
+ <f93b2c89-821a-4da1-8953-73ccd129a074@redhat.com>
+ <20241015083040.7641-C-hca@linux.ibm.com>
+ <0c7e876f-5648-4a82-b809-ca48f778b4a6@redhat.com>
+ <20241015100854.7641-J-hca@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
+ 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
+ rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
+ wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
+ 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
+ pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
+ KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
+ BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
+ 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
+ 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
+ M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
+ Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
+ T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
+ 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
+ CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
+ NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
+ 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
+ 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
+ lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
+ AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
+ N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
+ AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
+ boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
+ 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
+ XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
+ a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
+ Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
+ 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
+ kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
+ th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
+ jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20241015100854.7641-J-hca@linux.ibm.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Oct 14, 2024 at 03:56:33PM -0500, Mike Christie wrote:
-> On 10/3/24 8:58 PM, Cindy Lu wrote:
-> > Add a new UAPI to support setting the vhost device to
-> > use task mode. The user space application needs to use
-> > VHOST_SET_INHERIT_FROM_OWNER to set the mode.
-> > This setting must be set before VHOST_SET_OWNER is set.
-> > 
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > ---
-> >  drivers/vhost/vhost.c      | 18 +++++++++++++++++-
-> >  include/uapi/linux/vhost.h |  2 ++
-> >  2 files changed, 19 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index 08c9e77916ca..0e5c81026acd 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -2341,8 +2341,24 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
-> >  {
-> >  	struct eventfd_ctx *ctx;
-> >  	u64 p;
-> > -	long r;
-> > +	long r = 0;
-> >  	int i, fd;
-> > +	bool inherit_owner;
-> > +
-> > +	if (ioctl == VHOST_SET_INHERIT_FROM_OWNER) {
+On 15.10.24 12:08, Heiko Carstens wrote:
+> On Tue, Oct 15, 2024 at 10:41:21AM +0200, David Hildenbrand wrote:
+>> On 15.10.24 10:30, Heiko Carstens wrote:
+>>> On Mon, Oct 14, 2024 at 09:26:03PM +0200, David Hildenbrand wrote:
+>>>> On 14.10.24 20:20, Heiko Carstens wrote:
+>>>>> Looks like this could work. But the comment in smp.c above
+>>>>> dump_available() needs to be updated.
+>>>>
+>>>> A right, I remember that there was some outdated documentation.
 > 
-> Maybe instead of a modparam and this ioctl we just want a new ioctl:
+> ...
 > 
-> /*
->  * This will setup the owner based on the calling thread instead of
->  * using kthread.
->  */
-> #define VHOST_INHERIT_OWNER _IO(VHOST_VIRTIO, 0x83)
-
-I feel this is not good because it is insecure -
-process should not normally have a say in whether
-namespaces work correctly.
-So we want the system admin to be able to block the
-old mode.
-
-> It would initially be used by vhost-scsi when worker_per_virtqueue=true
-> since that is a new use case and there will be no regressions.
+>> My concern is that we'll now have
+>>
+>> bool is_kdump_kernel(void)
+>> {
+>>         return oldmem_data.start && !is_ipl_type_dump();
+>> }
+>>
+>> Which matches 3), but if 2) is also called "kdump", then should it actually
+>> be
+>>
+>> bool is_kdump_kernel(void)
+>> {
+>>         return oldmem_data.start;
+>> }
+>>
+>> ?
+>>
+>> When I wrote that code I was rather convinced that the variant in this patch
+>> is the right thing to do.
 > 
-> For the other cases we default to VHOST_SET_OWNER. Other QEMU cases or
-> tool XYZ can use the new ioctl when they are ready.
+> Oh well, we simply of too many dump options. I'll let Alexander and
+> Mikhail better comment on this :)
 
-I do not like it that we switched default now we apparently will be
-switching it back. Will break some userspace whatever we do.
+Thanks!
+
+> 
+> Alexander, Mikhail, the discussion starts here, and we need a sane
+> is_kdump_kernel() for s390:
+> https://lore.kernel.org/all/20241014144622.876731-1-david@redhat.com/
+> 
+
+With the following cleanup in mind:
+
+ From 9fbbff43f725a8482ce9e85857316ab8484ff3c8 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Tue, 15 Oct 2024 11:07:43 +0200
+Subject: [PATCH] s390: use !dump_available() instead of "!oldmem_data.start &&
+  !is_ipl_type_dump()"
+
+Let's make the code more readable:
+
+    !dump_available()
+-> !(oldmem_data.start || is_ipl_type_dump())
+-> !oldmem_data.start && !is_ipl_type_dump()
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+  arch/s390/kernel/crash_dump.c | 2 +-
+  arch/s390/kernel/os_info.c    | 2 +-
+  2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index cca1827d3d2e..fbc5de66d03b 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -609,7 +609,7 @@ int elfcorehdr_alloc(unsigned long long *addr, unsigned long long *size)
+  	u64 hdr_off;
+  
+  	/* If we are not in kdump or zfcp/nvme dump mode return */
+-	if (!oldmem_data.start && !is_ipl_type_dump())
++	if (!dump_available())
+  		return 0;
+  	/* If we cannot get HSA size for zfcp/nvme dump return error */
+  	if (is_ipl_type_dump() && !sclp.hsa_size)
+diff --git a/arch/s390/kernel/os_info.c b/arch/s390/kernel/os_info.c
+index b695f980bbde..09578f400ef7 100644
+--- a/arch/s390/kernel/os_info.c
++++ b/arch/s390/kernel/os_info.c
+@@ -148,7 +148,7 @@ static void os_info_old_init(void)
+  
+  	if (os_info_init)
+  		return;
+-	if (!oldmem_data.start && !is_ipl_type_dump())
++	if (!dump_available())
+  		goto fail;
+  	if (copy_oldmem_kernel(&addr, __LC_OS_INFO, sizeof(addr)))
+  		goto fail;
+-- 
+2.46.1
+
+
+It looks like we create /proc/vmcore, allocating the elfcorehdr essentially
+if dump_available() && (!is_ipl_type_dump() || !sclp.hsa_size).
+
+So in the condition, we would have previously made is_kdump_kernel() happt *after* the
+fs init calls.
+
+So I'm wondering if is_kdump_kernel() should simply translate to dump_available(). It
+doesn't sound completely right to create /proc/vmcore for "standard zfcp/nvme dump",
+but that is what we currently do.
+
+I would have thought we have that special zcore thingy for that.
+
+
+So I think we should either have
+
+bool is_kdump_kernel(void)
+{
+	return dump_available();
+}
+
+Or
+
+bool is_kdump_kernel(void)
+{
+	return dump_available() && (!is_ipl_type_dump() || !sclp.hsa_size);
+}
+
+
+I'd prefer the first version.
 
 -- 
-MST
+Cheers,
+
+David / dhildenb
 
