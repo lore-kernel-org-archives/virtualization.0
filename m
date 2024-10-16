@@ -1,100 +1,133 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADC982144D3
-	for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 19:40:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7096D2144CE;
+	Wed, 16 Oct 2024 19:42:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729107610; cv=none; b=ZZNTKZBlj9W0rLvW90Ayip4zvOtwoxkAohu9lZXkYjtsDIyF5wQXGy1NT32QA6odK2zkm0MHJITkqTaRLgPPjZsRE7FDxnXHMG31V3q6oa5YpLE1Z38dsq8IXfvMHFAzkI3OqCi7BVaaKp45Pz679NzwpP4i9v3MvmiaPrLrKv0=
+	t=1729107777; cv=none; b=ap+xgehOjxuXqKEsDr+0cOroUyhJYZkWSDzcyIsOEWgYFKhUJ0QUZ+qYteDJwkTbHbyA9V9sY4aPnHMiUdogJA38X3019XuhEh2CYsPt3ZcL49PBlMyNnWkbI2zBMYqVxoeR3KYqm2+gD0tqodDHUs7oZfg7KxcoEs6raju7g2A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729107610; c=relaxed/simple;
-	bh=brdpjYmJXn7ThpNb9Jl/rpudqX5V0z7rIkZzPSG5KKY=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=fv6N4dSJoJVe3VDTfkFGNFLd4pylloETCe7q9Fgg+5Qbmf5l0YB9Qy6Z+/KlZf7O04StfgLG510+2oBJXAH7zSYYr1SwCbDokzJInk8fIo6OW47qpq/A3VoPFxv+PJPlO6YjgIdGGQ58zKiMvSDPEYEjAtFGHYd72DaJgx2fWKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PdF8+aR6; arc=none smtp.client-ip=209.85.128.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com
+	s=arc-20240116; t=1729107777; c=relaxed/simple;
+	bh=LLzFnTpTL1+XFRq4+TKXAgrc///vCyQPUGO2IHwl6Ro=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=O+086pJyNtyuJEwqZXnzbYxLWQJEj32i/fRBoOp5YGmRj2nCVMdc4xfT8+vro+LB+9DsCfmTOe2Jg2vlrKAeBjUB3q3PBD+ewvmAytuz0RUc2/gO3RcDMf0QE1pBe1t1zvTbPiF4VOvKwCN/V4uESnY80TwiEIuW/wvri+0CgAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=0NMHJxKd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PdF8+aR6"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-6e389169f92so5683187b3.0
-        for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 12:40:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1729107607; x=1729712407; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bynrZn787vSIAU/ezJKfwwCMHmL7B1s8v41NnSYH3Dc=;
-        b=PdF8+aR6SmRlmiKPLDtRR4jed7oriRdwKacYLV9vhRyU1t02E91HzW53Nrszb3R14s
-         hvjadiB34YfOckpGMZ4heB5glDgj4Cvlw+0wWNljyXFi5P+xDTvfnE2FoswucP+G/dlY
-         GtypshUwbcyYQMKTiwackSL3ulvMcgSbr5TFCt4NRs/ToiN+EIu6NZdmueN6BQ01NgKL
-         A5FcjMr0PMYrjmgeyBx2G/CPMMRoTqLbddZdIk1wsYzmc1c8uDIpgrRBXxTwjbP7YJkO
-         JrGqbZvi8UGVQw+zLt0axR7HSYjbQrSKyJhmo5WtH/lRNqKkha2nbLxJ8rVEO8hjWvYf
-         edLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729107607; x=1729712407;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bynrZn787vSIAU/ezJKfwwCMHmL7B1s8v41NnSYH3Dc=;
-        b=OFSdxBpmcNyr40EzjGJ4EM5gHCeRROc9yaEfIYoS3jnHC3F1yDLizfv3SRbmYfXlYW
-         4CS9xmE2vdiLt2Egk2prweexlA/aKvzJS/ILI+TNmYvTM8XhdMs0E7dRYEUH66Z9MDpt
-         4jclwUTPXLN5i7aU/1bF3F+yOzdh84woG5yX3eSSPwpQlZE1Q8zzdhlfocGoXwEYLHIE
-         sbj1eP3hnd7jdPFD//VDfJ2sBoLVBoJ7ErHiPba0wbuQ0Lh3IneRl/u8YQR4KPWn6sru
-         drYRXeSBHVDfGhQfo6RxAoj8SnWGGZ8TADcnVOUkOzlnUzzTjfDtM/fKTLlAgH4Wh/JW
-         tOjw==
-X-Forwarded-Encrypted: i=1; AJvYcCVVFkiB39PDEhhJI5M5Gw0KCAHQGmp1rKK3+lYYk5DXU0xIdfZX9laJmqXvyDxyYvyzznE3ivGzf27VDfvdxQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw2l6WWfbq+umaU85l3+5qms/KhlwrOI4MqgZLcRT6EeA6Wwyvh
-	ADPb76hJQ5CVPFxonQ8/6xpcecAp0oiLsJYvIVWOWivkzr2s3Nmuv6SINGszoPPXV6O8R0qP62F
-	rXTsp/A==
-X-Google-Smtp-Source: AGHT+IEH6Dg9sYSxl39ijcngJbLw6yN9e0XfWHt8FeRQb2Rg19LkaJCzumI4mMLitFRShT3qz+ALDt4YegFs
-X-Received: from yuanchu.svl.corp.google.com ([2620:15c:2c5:11:2793:a280:1184:4a14])
- (user=yuanchu job=sendgmr) by 2002:a05:690c:2fc9:b0:66a:764f:e57f with SMTP
- id 00721157ae682-6e3d41fb686mr66667b3.7.1729107606955; Wed, 16 Oct 2024
- 12:40:06 -0700 (PDT)
-Date: Wed, 16 Oct 2024 12:39:47 -0700
-In-Reply-To: <20241016193947.48534-1-yuanchu@google.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="0NMHJxKd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E39CC4CECD;
+	Wed, 16 Oct 2024 19:42:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1729107777;
+	bh=LLzFnTpTL1+XFRq4+TKXAgrc///vCyQPUGO2IHwl6Ro=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=0NMHJxKdPXrNVTJJELxvcjP6EXndmZPKY/cVa8r0jrIipsik5JX8iDyHowdWGprVf
+	 9/NrWwBchzPp3veG3nCJTj5bZtgrghrA/UrbB3NhfiaDta1rG+G1i1KcQYazyRbnHr
+	 tYnYkPICnlWj/mOfQIIsaTXRNwNGrRy9DzO3sJQI=
+Date: Wed, 16 Oct 2024 21:42:53 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Yuanchu Xie <yuanchu@google.com>
+Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>,
+	Theodore Ts'o <tytso@mit.edu>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org
+Subject: Re: [PATCH v3 1/2] virt: pvmemcontrol: control guest physical memory
+ properties
+Message-ID: <2024101628-audibly-maverick-e1fe@gregkh>
+References: <20241016193947.48534-1-yuanchu@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20241016193947.48534-1-yuanchu@google.com>
-X-Mailer: git-send-email 2.46.0
-Message-ID: <20241016193947.48534-2-yuanchu@google.com>
-Subject: [PATCH v3 2/2] virt: pvmemcontrol: add Yuanchu and Pasha as maintainers
-From: Yuanchu Xie <yuanchu@google.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>, 
-	"Theodore Ts'o" <tytso@mit.edu>, Pasha Tatashin <pasha.tatashin@soleen.com>, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, virtualization@lists.linux.dev, 
-	dev@lists.cloudhypervisor.org, Yuanchu Xie <yuanchu@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241016193947.48534-1-yuanchu@google.com>
 
-The pvmemcontrol driver lives under drivers/virt/pvmemcontrol. We
-specify maintainers for the driver.
+On Wed, Oct 16, 2024 at 12:39:46PM -0700, Yuanchu Xie wrote:
+> Pvmemcontrol provides a way for the guest to control its physical memory
+> properties and enables optimizations and security features. For example,
+> the guest can provide information to the host where parts of a hugepage
+> may be unbacked, or sensitive data may not be swapped out, etc.
+> 
+> Pvmemcontrol allows guests to manipulate its gPTE entries in the SLAT,
+> and also some other properties of the memory mapping on the host.
+> This is achieved by using the KVM_CAP_SYNC_MMU capability. When this
+> capability is available, the changes in the backing of the memory region
+> on the host are automatically reflected into the guest. For example, an
+> mmap() or madvise() that affects the region will be made visible
+> immediately.
+> 
+> There are two components of the implementation: the guest Linux driver
+> and Virtual Machine Monitor (VMM) device. A guest-allocated shared
+> buffer is negotiated per-cpu through a few PCI MMIO registers; the VMM
+> device assigns a unique command for each per-cpu buffer. The guest
+> writes its pvmemcontrol request in the per-cpu buffer, then writes the
+> corresponding command into the command register, calling into the VMM
+> device to perform the pvmemcontrol request.
+> 
+> The synchronous per-cpu shared buffer approach avoids the kick and busy
+> waiting that the guest would have to do with virtio virtqueue transport.
+> 
+> User API
+> >From the userland, the pvmemcontrol guest driver is controlled via the
+> ioctl(2) call. It requires CAP_SYS_ADMIN.
+> 
+> ioctl(fd, PVMEMCONTROL_IOCTL, struct pvmemcontrol_buf *buf);
+> 
+> Guest userland applications can tag VMAs and guest hugepages, or advise
+> the host on how to handle sensitive guest pages.
+> 
+> Supported function codes and their use cases:
+> PVMEMCONTROL_FREE/REMOVE/DONTNEED/PAGEOUT. For the guest. One can reduce
+> the struct page and page table lookup overhead by using hugepages backed
+> by smaller pages on the host. These pvmemcontrol commands can allow for
+> partial freeing of private guest hugepages to save memory. They also
+> allow kernel memory, such as kernel stacks and task_structs to be
+> paravirtualized if we expose kernel APIs.
+> 
+> PVMEMCONTROL_MERGEABLE can inform the host KSM to deduplicate VM pages.
+> 
+> PVMEMCONTROL_UNMERGEABLE is useful for security, when the VM does not
+> want to share its backing pages.
+> The same with PVMEMCONTROL_DONTDUMP, so sensitive pages are not included
+> in a dump.
+> MLOCK/UNLOCK can advise the host that sensitive information is not
+> swapped out on the host.
+> 
+> PVMEMCONTROL_MPROTECT_NONE/R/W/RW. For guest stacks backed by hugepages,
+> stack guard pages can be handled in the host and memory can be saved in
+> the hugepage.
+> 
+> PVMEMCONTROL_SET_VMA_ANON_NAME is useful for observability and debugging
+> how guest memory is being mapped on the host.
+> 
+> Sample program making use of PVMEMCONTROL_DONTNEED:
+> https://github.com/Dummyc0m/pvmemcontrol-user
+> 
+> The VMM implementation is part of Cloud Hypervisor, the feature
+> pvmemcontrol can be enabled and the VMM can then provide the device to a
+> supporting guest.
+> https://github.com/cloud-hypervisor/cloud-hypervisor
+> 
+> -
+> Changelog
+> PATCH v2 -> v3
+> - added PVMEMCONTROL_MERGEABLE for memory dedupe.
+> - updated link to the upstream Cloud Hypervisor repo, and specify the
+>   feature required to enable the device.
+> PATCH v1 -> v2
+> - fixed byte order sparse warning. ioread/write already does
+>   little-endian.
+> - add include for linux/percpu.h
+> RFC v1 -> PATCH v1
+> - renamed memctl to pvmemcontrol
+> - defined device endianness as little endian
 
-Signed-off-by: Yuanchu Xie <yuanchu@google.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+As per the kernel documentation, this changelog is in the wrong place.
+Please put it in the correct location.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index aacccb376c28..5e661f39e07d 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18125,6 +18125,13 @@ L:	linux-wireless@vger.kernel.org
- S:	Supported
- F:	drivers/net/wireless/purelifi/plfxlc/
- 
-+PVMEMCONTROL GUEST DRIVER
-+M:	Yuanchu Xie <yuanchu@google.com>
-+M:	Pasha Tatashin <pasha.tatashin@soleen.com>
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+F:	drivers/virt/pvmemcontrol/
-+
- PVRUSB2 VIDEO4LINUX DRIVER
- M:	Mike Isely <isely@pobox.com>
- L:	pvrusb2@isely.net	(subscribers-only)
--- 
-2.46.0
+thanks,
 
+greg k-h
