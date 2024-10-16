@@ -1,147 +1,234 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65F7F20E029
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 15:25:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F6FB20823B
+	for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 15:47:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729092309; cv=none; b=LR9EQt5NjTxMihSjpNKIlppBwLksQ0zF7gifQ2jmhJrtTy8mQpJhxE8+llea0gpf6gYk/ndZ9SnNnxyRTsOVr6igUsMKa7xIo/CTMopMUrOjoYHZREGMjd6B1LPKup0ZaeWI7w6EjWTr1Af5ZEF9x92E3YK9eDFT2cNMGIAcoMw=
+	t=1729093667; cv=none; b=bPpx1LWoyZipl3F+FhtGulyWxpaHmNqFroJtUhop507BWxr+rKg9CBK0KP3bfBLuWcgSw26c+fsItmBKvfCaz+iHGt7G/SfVknZtLH3aBa95qjOK7CzN/Ebp1Vaizx20MVAWj/5AK9cpQ2aBhhqOYtfld03mjMkxNGBfjbdvVXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729092309; c=relaxed/simple;
-	bh=Gxz5OaGC+Qadp7iG3WP91/k0Dd/+X8K1vvRHRws4en0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j85acPRmi2m6zHtlb/pfo9eZbMhdDciehakYUQeNNIhRtO+D6e/ZQnZIeMMVUjmjYI7BeLbwiZl5+ACCPIXD3vwyu1LOCcnMgs5A6D+YPWiid82QYBKh7c4W9zfmFafOgvRainrR5znOEk92NzDbUwJYvvamHyr3I7y2F9bA7mQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=U8VedeoO; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1729093667; c=relaxed/simple;
+	bh=bWT0jZQi2gTGU5Bd8og0Hyl0LagtMrLPaQKxohyIPwA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qlMfaGWCFaQQLLt2Sst6tC4a4wl0iFG/3vWQo8CSNTXyRHq6J00R6OP/fqk7XTnrFpgraJthPVClMKcxNbMe0Piy4tu52EmFu8iDgfErOBUlQx6y9iowfOjiimES1T1GGDSZ4KHhma3IYoluYRmGKnaMzBbY6ufBbq+Au8S82z8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MHQ+wqha; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="U8VedeoO"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 051FA40461
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 15:25:08 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 8DRSpK6tEtiL for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Oct 2024 15:25:07 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:4860:4864:20::29; helo=mail-oa1-x29.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org B132C40158
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B132C40158
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=U8VedeoO
-Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B132C40158
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 15:25:06 +0000 (UTC)
-Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-288d4da7221so1118320fac.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 08:25:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1729092305; x=1729697105; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=CjWIdbx6fjNxmaESEdgFKPth3aWiGnOIhiVNj6cHD48=;
-        b=U8VedeoOs+jfPCjp1L4VmvuUd1AditMjWXyRPpDbWLNh7lzKokoWazUM7Ht7O8W0Lp
-         0mxOkqDSAsBsgbo4KJWGqlO5SG32uZpNejyLuDZJusDyJQcLPXbtnNJavcx+v76cq5X6
-         oFn91nxTJ+QfttgqLOTrK7iPglls1wnZd4/H/KfsGcC/04NzwZcAEklKCPOpBAtp1KoA
-         +jM9WX+BTlTJ16oR2vPnhEfZgLPVIrwDjeshxyFCD18n6k82liHObqgEC+E1Kqdq/Syd
-         GNrVD2IBQy1BedO2xYikIZktRYtaQCP4GDb584zsG7OfKxRFpMzm1JI2F72Te0u0s6uJ
-         TORw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MHQ+wqha"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729093664;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=VIzfBQnPXM1p+cHUAfPvEKZFWEw7tRlCE5XfNpemY2E=;
+	b=MHQ+wqharG9EKXvpNnBfdKH5Fn4ou5M1g+3t8bG/t77TsKlAGzYfsrBdWrFwLFQI8o+iA4
+	solD9CSiFyzNaq8htBIwIGTLIsfOIt2R9n3uOveWB87JAl3vMcGm/tBZVQLOTC3LQ0wP8S
+	tffFQJBCccqF15I+GEnLcUoZ2CS+VUY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-517-NKRoVpR-MUyu279SwPRm4A-1; Wed, 16 Oct 2024 11:47:43 -0400
+X-MC-Unique: NKRoVpR-MUyu279SwPRm4A-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43154a0886bso3736135e9.0
+        for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 08:47:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729092305; x=1729697105;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CjWIdbx6fjNxmaESEdgFKPth3aWiGnOIhiVNj6cHD48=;
-        b=fvziZSr5lYSXWodoOCCOoyKt3VIVaZk1HKpzXo1tH0D3HAJhqOJqnJ0K5i6kkcUNov
-         H4OFErd6xMfi3A/Kw9FHEVSqsJzptVrQZxAi7ml9tFSxqKuvPOy3dOi04IQ4DXl+gYWr
-         to9t3u7Y0HeEH8NLWQI4oYn2EHI3I1iUzOpW6AzgnbKVlM5dYMod0VS66XZ0/hH2iLHL
-         HS8/Q5cQfMa5p5Kpex7oGFfj6AykhIF4baZ0GnibNmGqRjf0Y/EQ5WPVNLzU0OHlefHW
-         5lQ2aVpPIjPh3dI9Wdpwty54Brn4QZgV7xJEui7A96hbDUu1k0ndYtA8m6OBHqwJd4e0
-         jSJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUV3i8eFlNjk9HU4i4fg7rWPZ7wSMZrDqB9oLVMAdQFpqvUb95S+1Is6JjqPb00AyxwJ1CZDn7eYlgbDYJvBg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyDmkgNewZa7J9E2iTcV7szB0c7LCjh8XsjiQifDnhD1NFUd8vS
-	xento4oNCPYMpt191GJICVwCg7pNbz3MjSXzq4CkoUHebantN/cl3Br7fmZm+Fc=
-X-Google-Smtp-Source: AGHT+IHTbCtN3v7MBgWhJfsSvvyCftMb1j2RJtvVwpHEyVewjlSFT6OguCcs+kE/GdHA1PbG7MjK2g==
-X-Received: by 2002:a05:6871:88a:b0:288:29ae:c981 with SMTP id 586e51a60fabf-288ee1146bcmr3961574fac.43.1729092305303;
-        Wed, 16 Oct 2024 08:25:05 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-128-5.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.128.5])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b136395171sm197633985a.84.2024.10.16.08.25.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Oct 2024 08:25:04 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1t15tX-0008zC-Tq;
-	Wed, 16 Oct 2024 12:25:03 -0300
-Date: Wed, 16 Oct 2024 12:25:03 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Zhangfei Gao <zhangfei.gao@linaro.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt
- attach/detach/replace
-Message-ID: <20241016152503.GB4020792@ziepe.ca>
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-8-baolu.lu@linux.intel.com>
- <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca>
- <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1729093662; x=1729698462;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=VIzfBQnPXM1p+cHUAfPvEKZFWEw7tRlCE5XfNpemY2E=;
+        b=jWqGGiAl2JvI6z2Gea74p/XkUQ5QyflYH5rIjGsyCOCamwd17dG5mLftGzWVhjNoRb
+         2COjGy+fn+nUThDb0t1jXUUachxHQE2XDuvP/inUeB0cMvvdns7hiM9Z70ESNDlxZdLl
+         7G4mB6cnboMTeKuSj1m6mk+tIjlf5BkKo6b1yIYwjEkvTKxF9ctVyhWX55uq1ZOpzqM/
+         G7BSPy20IVgPjK6rNUpscKuYmNqzEgBvwu4WmcWol2oP2WpsHFGOlWovjsAGV+hASC5c
+         FQLGs/99gCBT0DPjTWe7NVR1fkPW0nfo+ZZ/fgz8055o9IcFnN1HKlpBu+cLybZVagBu
+         l++w==
+X-Forwarded-Encrypted: i=1; AJvYcCVAS+PV0I/ZcakQ4iTs5MgJqUkb+SJfSyvZgNc6VpMSbVd//wSC113/NVrVFYrcS/G78R7wonsrlDg8Bhpx9Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzTuDLTtkBLsz/lmtbm9L23gw77GaSFo20Rm1vVuQqfcQ4Y56io
+	2G+aLzKQxoDqb7t5DcHpoLDWTzmnxLjXYFpuV5YNEBGFFHNDoduSCzbc06REOsHN/6I1bLtFqZW
+	ox1J5HctC1mpWeZThZdg/x2AZ7tWyzp0bs+iqN4qLAKvCzDbGTCD5zkvhOrdamhH7
+X-Received: by 2002:a05:600c:4711:b0:430:54a4:5b02 with SMTP id 5b1f17b1804b1-43125619e8fmr121331235e9.34.1729093662304;
+        Wed, 16 Oct 2024 08:47:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH/bW0hLobbLXjaDGKyq9Ar43ysgaBvBnKudmwOIGvXULooHv87b61qCzy2T1b+NaF7gXinDw==
+X-Received: by 2002:a05:600c:4711:b0:430:54a4:5b02 with SMTP id 5b1f17b1804b1-43125619e8fmr121330835e9.34.1729093661825;
+        Wed, 16 Oct 2024 08:47:41 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c74b:d000:3a9:de5c:9ae6:ccb3? (p200300cbc74bd00003a9de5c9ae6ccb3.dip0.t-ipconnect.de. [2003:cb:c74b:d000:3a9:de5c:9ae6:ccb3])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4315069032asm25144845e9.0.2024.10.16.08.47.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 16 Oct 2024 08:47:41 -0700 (PDT)
+Message-ID: <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+Date: Wed, 16 Oct 2024 17:47:39 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+To: Alexander Egorenkov <egorenar@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
+ borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
+ eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
+ hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
+ kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+ svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Oct 16, 2024 at 09:58:36AM +0800, Zhangfei Gao wrote:
-> On Tue, 15 Oct 2024 at 20:54, Jason Gunthorpe <jgg@ziepe.ca> wrote:
-> >
-> > On Tue, Oct 15, 2024 at 11:19:33AM +0800, Zhangfei Gao wrote:
-> > > > +static int iommufd_fault_iopf_enable(struct iommufd_device *idev)
-> > > > +{
-> > > > +       struct device *dev = idev->dev;
-> > > > +       int ret;
-> > > > +
-> > > > +       /*
-> > > > +        * Once we turn on PCI/PRI support for VF, the response failure code
-> > > > +        * should not be forwarded to the hardware due to PRI being a shared
-> > > > +        * resource between PF and VFs. There is no coordination for this
-> > > > +        * shared capability. This waits for a vPRI reset to recover.
-> > > > +        */
-> > > > +       if (dev_is_pci(dev) && to_pci_dev(dev)->is_virtfn)
-> > > > +               return -EINVAL;
-> > >
-> > > I am using the SMMUv3 stall feature, and need to forward this to hardware,
-> > > And now I am hacking to comment this check.
-> > > Any suggestions?
-> >
-> > Are you using PCI SRIOV and stall together?
+>>
+>> When I wrote that code I was rather convinced that the variant in this patch
+>> is the right thing to do.
 > 
-> Only use smmuv3 stall feature.
-
-Then isn't to_pci_dev(dev)->is_virtfn == false?
-
-That should only be true with SRIOV
-
-> > FEAT_SVA needs to be deleted, not added too.
-> >
-> > smmu-v3 needs some more fixing to move that
-> > arm_smmu_master_enable_sva() logic into domain attachment.
+> A short explanation about what a stand-alone kdump is.
 > 
-> Will think about this, Thanks Jason
+> * First, it's not really a _regular_ kdump activated with kexec-tools and
+>    executed by Linux itself but a regular stand-alone dump (SCSI) from the
+>    FW's perspective (one has to use HMC or dumpconf to execute it and not
+>    with kexec-tools like for the _regular_ kdump).
 
-Can you test it if a patch is made?
+Ah, that makes sense.
 
-Thanks,
-Jason
+> * One has to reserve crashkernel memory region in the old crashed kernel
+>    even if it remains unused until the dump starts.
+> * zipl uses regular kdump kernel and initramfs to create stand-alone
+>    dumper images and to write them to a dump disk which is used for
+>    IPLIng the stand-alone dumper.
+> * The zipl bootloader takes care of transferring the old kernel memory
+>    saved in HSA by the FW to the crashkernel memory region reserved by the old
+>    crashed kernel before it enters the dumper. The HSA memory is released
+>    by the zipl bootloader _before_ the dumper image is entered,
+>    therefore, we cannot use HSA to read old kernel memory, and instead
+>    use memory from crashkernel region, just like the regular kdump.
+> * is_ipl_type_dump() will be true for a stand-alone kdump because we IPL
+>    the dumper like a regular stand-alone dump (e.g. zfcpdump).
+> * Summarized, zipl bootloader prepares an environment which is expected by
+>    the regular kdump for a stand-alone kdump dumper before it is entered.
+
+Thanks for the details!
+
+> 
+> In my opinion, the correct version of is_kdump_kernel() would be
+> 
+> bool is_kdump_kernel(void)
+> {
+>          return oldmem_data.start;
+> }
+> 
+> because Linux kernel doesn't differentiate between both the regular
+> and the stand-alone kdump where it matters while performing dumper
+> operations (e.g. reading saved old kernel memory from crashkernel memory region).
+> 
+
+Right, but if we consider "/proc/vmcore is available", a better version 
+would IMHO be:
+
+bool is_kdump_kernel(void)
+{
+           return dump_available();
+}
+
+Because that is mostly (not completely) how is_kdump_kernel() would have 
+worked right now *after* we had the elfcorehdr_alloc() during the 
+fs_init call.
+
+
+> Furthermore, if i'm not mistaken then the purpose of is_kdump_kernel()
+> is to tell us whether Linux kernel runs in a kdump like environment and not
+> whether the current mode is identical to the proper and true kdump,
+> right ? And if stand-alone kdump swims like a duck, quacks like one, then it
+> is one, regardless how it was started, by kexecing or IPLing
+> from a disk.
+
+Same thinking here.
+
+> 
+> The stand-alone kdump has a very special use case which most users will
+> never encounter. And usually, one just takes zfcpdump instead which is
+> more robust and much smaller considering how big kdump initrd can get.
+> stand-alone kdump dumper images cannot exceed HSA memory limit on a Z machine.
+
+Makes sense, so it boils down to either
+
+bool is_kdump_kernel(void)
+{
+          return oldmem_data.start;
+}
+
+Which means is_kdump_kernel() can be "false" even though /proc/vmcore is 
+available or
+
+bool is_kdump_kernel(void)
+{
+          return dump_available();
+}
+
+Which means is_kdump_kernel() can never be "false" if /proc/vmcore is 
+available. There is the chance of is_kdump_kernel() being "true" if 
+"elfcorehdr_alloc()" fails with -ENODEV.
+
+
+You're call :) Thanks!
+
+-- 
+Cheers,
+
+David / dhildenb
+
